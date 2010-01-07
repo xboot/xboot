@@ -153,7 +153,7 @@
 #endif
 
 /*
- * clear command
+ * tetris command
  */
 #if !defined(CONFIG_COMMAND_TETRIS)
 #define	CONFIG_COMMAND_TETRIS					(1)
@@ -272,10 +272,10 @@
 #endif
 
 /*
- * info command
+ * dasm command
  */
-#if !defined(CONFIG_COMMAND_INFO)
-#define	CONFIG_COMMAND_INFO						(1)
+#if !defined(CONFIG_COMMAND_DASM)
+#define	CONFIG_COMMAND_DASM						(1)
 #endif
 
 /*

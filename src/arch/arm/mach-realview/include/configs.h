@@ -10,8 +10,8 @@ typedef unsigned char			x_u8;
 typedef signed short int		x_s16;
 typedef unsigned short int		x_u16;
 
-typedef signed long	int			x_s32;
-typedef unsigned long int		x_u32;
+typedef long signed int			x_s32;
+typedef long unsigned int		x_u32;
 
 typedef signed long long		x_s64;
 typedef unsigned long long		x_u64;

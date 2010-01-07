@@ -1,0 +1,25 @@
+#
+# NOTE! Don't add files that are generated in specific
+# subdirectories here. Add them in the ".gitignore" file
+# in that subdirectory instead.
+
+#
+# Normal rules
+#
+*.map
+*.elf
+*.bin
+*.rej
+*.orig
+*.d
+*.o
+*~
+
+#
+# Generated files
+#
+/documents/html/*
+/src/.obj/
+/output/*
+/output
+

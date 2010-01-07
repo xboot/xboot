@@ -1,0 +1,23 @@
+#ifndef __S3C2410_REG_MEM_H__
+#define __S3C2410_REG_MEM_H__
+
+#include <configs.h>
+#include <default.h>
+
+
+#define S3C2410_BWSCON	  		(0x48000000)
+#define S3C2410_BANKCON0	  	(0x48000004)
+#define S3C2410_BANKCON1	  	(0x48000008)
+#define S3C2410_BANKCON2	  	(0x4800000c)
+#define S3C2410_BANKCON3	  	(0x48000010)
+#define S3C2410_BANKCON4	  	(0x48000014)
+#define S3C2410_BANKCON5	  	(0x48000018)
+#define S3C2410_BANKCON6	  	(0x4800001c)
+#define S3C2410_BANKCON7	  	(0x48000020)
+#define S3C2410_REFRESH	  		(0x48000024)
+#define S3C2410_BANKSIZE	  	(0x48000028)
+#define S3C2410_MRSRB6	  		(0x4800002c)
+#define S3C2410_MRSRB7	  		(0x48000030)
+
+
+#endif /* __S3C2410_REG_MEM_H__ */

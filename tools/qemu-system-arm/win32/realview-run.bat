@@ -1,0 +1,1 @@
+qemu-system-arm.exe -M realview -name "realview" -localtime -serial vc -kernel ..\..\..\output\xboot.elf

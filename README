@@ -1,0 +1,55 @@
+                 xboot <http://xboot.org>
+
+   
+WHAT IS THE XBOOT
+    xboot is a bootloader for embedded system, based portable 
+ idea and powerful function.
+
+
+XBOOT'S LOGO
+    xboot have a very beautiful character logo, see below and
+ enjoy it.
+        _
+       | |                  _        __0
+  _  _ | |___ _____ _____ _| |_    _  /\_
+ \ \/ /|  _  |  _  |  _  |_   _|    \/\
+  )  ( | |_| | |_| | |_| | | |________/_____
+ /_/\_\|_____|_____|_____| |________________|
+
+	
+XBOOT'S VERSION
+	you can view the infomation of version using 'version'
+	command in the xboot's shell.
+
+
+XBOOT'S AUTHOR
+	jianjun jiang <jerryjianjun@gmail.com>
+	see the file of CREDITS for details.
+
+
+XBOOT'S COPYRIGHT
+	GPLv3, see COPYING for details.
+
+
+THE OFFICIAL WEBSITE
+    http://xboot.org, the newest message will be put here.
+    
+	
+TO COMPILE XBOOT
+	just run below command at xboot's root directory:
+	make clean
+	make TARGET=arm-realview DEBUG=0 CROSS=/path/to/arm-elf-
+	
+	"TARGET" for your machine which xboot will be run;
+	"DEBUG"	 for debug level (0 ~ 3), 0 for no debug;
+	"CROSS"  for your cross compiler;
+
+
+RUN XBOOT
+	if you have no hardware machine for running xboot, you
+	can using a simulator, such as qemu-system-arm.
+
+
+NEED HELP
+	google search engineer may be a useful tool.
+	

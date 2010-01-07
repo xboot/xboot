@@ -1,0 +1,101 @@
+/*
+ * devices/dev-serial.c
+ *
+ * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
+ * website: http://xboot.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+#include <configs.h>
+#include <default.h>
+#include <types.h>
+#include <debug.h>
+#include <fb/fb.h>
+#include <xboot/printk.h>
+#include <xboot/initcall.h>
+#include <serial/serial.h>
+#include <xboot/platform_device.h>
+
+/*
+ * serial device.
+ */
+static struct serial_parameter uart_param[] = {
+	[0] = {
+		.baud_rate		= B115200,
+		.data_bit		= DATA_BITS_8,
+		.parity			= PARITY_NONE,
+		.stop_bit		= STOP_BITS_1,
+	},
+	[1] = {
+		.baud_rate		= B115200,
+		.data_bit		= DATA_BITS_8,
+		.parity			= PARITY_NONE,
+		.stop_bit		= STOP_BITS_1,
+	},
+	[2] = {
+		.baud_rate		= B115200,
+		.data_bit		= DATA_BITS_8,
+		.parity			= PARITY_NONE,
+		.stop_bit		= STOP_BITS_1,
+	}
+};
+
+/*
+ * the array of platform devices.
+ */
+static struct platform_device s3c2410_devs[] = {
+	{
+		.name		= "uart0",
+		.data		= &uart_param[0],
+	}, {
+		.name		= "uart1",
+		.data		= &uart_param[1],
+	}, {
+		.name		= "uart2",
+		.data		= &uart_param[2],
+	}
+};
+
+static __init void s3c2410_devs_init(void)
+{
+	x_u32 i;
+
+	for(i = 0; i < ARRAY_SIZE(s3c2410_devs); i++)
+	{
+		if(!platform_device_register(&s3c2410_devs[i]))
+		{
+			DEBUG_E("failed to register platform device '%s'", s3c2410_devs[i].name);
+		}
+	}
+}
+
+static __exit void s3c2410_devs_exit(void)
+{
+	x_u32 i;
+
+	for(i = 0; i < ARRAY_SIZE(s3c2410_devs); i++)
+	{
+		if(!platform_device_unregister(&s3c2410_devs[i]))
+		{
+			DEBUG_E("failed to unregister platform device '%s'", s3c2410_devs[i].name);
+		}
+	}
+}
+
+module_init(s3c2410_devs_init, LEVEL_MACH_RES);
+module_exit(s3c2410_devs_exit, LEVEL_MACH_RES);

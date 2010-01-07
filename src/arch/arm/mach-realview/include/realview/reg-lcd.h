@@ -1,0 +1,46 @@
+#ifndef __REALVIEW_REG_LCD_H__
+#define __REALVIEW_REG_LCD_H__
+
+#include <configs.h>
+#include <default.h>
+
+
+/*
+ * clcd controller internal register addresses
+ */
+#define REALVIEW_CLCD_TIM0			(0x10020000 + 0x000)
+#define REALVIEW_CLCD_TIM1			(0x10020000 + 0x004)
+#define REALVIEW_CLCD_TIM2			(0x10020000 + 0x008)
+#define REALVIEW_CLCD_TIM3			(0x10020000 + 0x00c)
+#define REALVIEW_CLCD_UBAS			(0x10020000 + 0x010)
+#define REALVIEW_CLCD_LBAS			(0x10020000 + 0x014)
+#define REALVIEW_CLCD_CNTL			(0x10020000 + 0x018)
+#define REALVIEW_CLCD_IMSC			(0x10020000 + 0x01c)
+#define REALVIEW_CLCD_RIS			(0x10020000 + 0x020)
+#define REALVIEW_CLCD_MIS			(0x10020000 + 0x024)
+#define REALVIEW_CLCD_ICR			(0x10020000 + 0x028)
+#define REALVIEW_CLCD_UCUR			(0x10020000 + 0x02c)
+#define REALVIEW_CLCD_LCUR			(0x10020000 + 0x030)
+#define REALVIEW_CLCD_PALETTE		(0x10020000 + 0x200)
+
+#define REALVIEW_CNTL_LCDEN			(1 << 0)
+#define REALVIEW_CNTL_LCDBPP1		(0 << 1)
+#define REALVIEW_CNTL_LCDBPP2		(1 << 1)
+#define REALVIEW_CNTL_LCDBPP4		(2 << 1)
+#define REALVIEW_CNTL_LCDBPP8		(3 << 1)
+#define REALVIEW_CNTL_LCDBPP16		(4 << 1)
+#define REALVIEW_CNTL_LCDBPP24		(5 << 1)
+#define REALVIEW_CNTL_LCDBW			(1 << 4)
+#define REALVIEW_CNTL_LCDTFT		(1 << 5)
+#define REALVIEW_CNTL_LCDMONO8		(1 << 6)
+#define REALVIEW_CNTL_LCDDUAL		(1 << 7)
+#define REALVIEW_CNTL_BGR			(1 << 8)
+#define REALVIEW_CNTL_BEBO			(1 << 9)
+#define REALVIEW_CNTL_BEPO			(1 << 10)
+#define REALVIEW_CNTL_LCDPWR		(1 << 11)
+#define REALVIEW_CNTL_LCDVCOMP(x)	((x) << 12)
+#define REALVIEW_CNTL_LDMAFIFOTIME	(1 << 15)
+#define REALVIEW_CNTL_WATERMARK		(1 << 16)
+
+
+#endif /* __REALVIEW_REG_LCD_H__ */

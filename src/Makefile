@@ -1,0 +1,158 @@
+#
+# makefile for xboot.
+# create by: jianjun jiang <jerryjianjun@gmail.com>.
+#
+
+#
+# you must pass TARGET variable, for choosing platform.
+# default TARGET is arm-realview.
+#
+TARGET		?= arm-realview
+
+# DEBUG variable for debug level (0 ~ 3), default debug level is 0.
+# 0: no debug;
+# 1: debug error;
+# 2: debug error, warnning;
+# 3: debug error, warnning, information.
+DEBUG		?= 0
+
+#
+# get platform information about ARCH and MACH from TARGET variable.
+#
+ifeq ($(words $(subst -, , $(TARGET))), 2)
+ARCH		:= $(word 1, $(subst -, , $(TARGET)))
+MACH		:= mach-$(word 2, $(subst -, , $(TARGET)))
+else
+ARCH		:= arm
+MACH		:= mach-realview
+endif
+
+#
+# define default make variables.
+#
+ASFLAGS		:= --gstabs --warn
+CFLAGS		:= -g -ggdb -Wall
+CXXFLAGS	:= -g -ggdb -Wall
+LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles -nostdlib -nodefaultlibs -nostdinc
+ARFLAGS		:=
+OCFLAGS		:= -v -O binary
+ODFLAGS		:=
+MCFLAGS		:=
+
+LIBDIRS		:=
+LIBS 		:=
+
+INCDIRS		:=
+SRCDIRS		:=
+
+#
+# override default make variables.
+#
+sinclude arch/$(ARCH)/$(MACH)/xboot.mk
+
+#
+# add pre-define macros.
+#
+CFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\" -D __DEBUG__=$(DEBUG)
+CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\" -D __DEBUG__=$(DEBUG)
+
+#
+# add necessary directory for INCDIRS and SRCDIRS.
+#
+INCDIRS		+= 	-I include \
+				-I arch/$(ARCH)/include \
+				-I arch/$(ARCH)/$(MACH)/include
+
+SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
+				arch/$(ARCH)/$(MACH) \
+				arch/$(ARCH)/$(MACH)/drivers \
+				arch/$(ARCH)/$(MACH)/devices \
+				init \
+				lib \
+				lib/libc \
+				kernel \
+				kernel/core \
+				kernel/shell \
+				kernel/command \
+				kernel/time \
+				kernel/fs \
+				kernel/fs/vfs \
+				kernel/fs/ramfs \
+				kernel/fs/procfs \
+				kernel/fs/devfs \
+				drivers \
+				drivers/serial \
+				drivers/terminal \
+				drivers/fb \
+				drivers/led \
+				drivers/rtc \
+				drivers/input \
+				drivers/input/keyboard \
+				drivers/mmc \
+				drivers/mtd \
+				drivers/mtd/nand \
+				drivers/mtd/nor
+
+#
+# you shouldn't need to change anything below this point.
+#
+CROSS		?=
+AS			:= $(CROSS)as
+CC			:= $(CROSS)gcc
+CXX			:= $(CROSS)g++
+LD			:= $(CROSS)ld
+AR			:= $(CROSS)ar
+OC			:= $(CROSS)objcopy
+OD			:= $(CROSS)objdump
+RM			:= -rm -fr
+DOXYGEN		:= -doxygen
+
+XBOOT_NAME	:= xboot
+OBJDIRS		:= .obj $(patsubst %, .obj/%, $(SRCDIRS))
+OUTDIR		:= ../output
+
+SFILES		:= $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.s))
+CFILES		:= $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c))
+CPPFILES	:= $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.cpp))
+OBJS		:= $(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
+VPATH		:= $(OBJDIRS)
+
+.PHONY: all docs clean
+
+all:	$(OBJS) $(OUTDIR)/$(XBOOT_NAME).elf $(OUTDIR)/$(XBOOT_NAME).bin
+
+$(OUTDIR)/$(XBOOT_NAME).bin:	$(OUTDIR)/$(XBOOT_NAME).elf
+	@echo [OC] objcopy $@
+	@$(OC) $(OCFLAGS) $< $@
+	
+$(OUTDIR)/$(XBOOT_NAME).elf:	$(OBJS)
+	@echo [LD] linking $@
+	@$(LD) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Map $(OUTDIR)/$(XBOOT_NAME).map -o $@ $^
+
+.obj/%.o:	%.s
+	@echo [AS] $<
+	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) $< -o $@
+
+.obj/%.o:	%.c
+	@echo [CC] $<
+	@$(CC) $(MCFLAGS) $(CFLAGS) $(INCDIRS) -c $< -o $@
+	@$(CC) $(MCFLAGS) $(CFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
+	
+.obj/%.o:	%.cpp
+	@echo [CXX] $<
+	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
+	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
+
+docs:
+	@$(RM) ../documents/html
+#	@$(DOXYGEN) Doxyfile
+	@echo generate document complete
+ 	
+clean:
+	@$(RM) $(OUTDIR) $(OBJDIRS)
+	@echo clean complete.
+
+# 
+# include the dependency files, should be the last of the makefile
+#
+sinclude $(shell mkdir -p $(OBJDIRS) $(OUTDIR); rm -fr .obj/init/version.o) $(foreach dir,$(OBJDIRS),$(wildcard $(dir)/*.d))

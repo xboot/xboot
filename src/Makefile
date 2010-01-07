@@ -63,10 +63,10 @@ INCDIRS		+= 	-I include \
 				-I arch/$(ARCH)/include \
 				-I arch/$(ARCH)/$(MACH)/include
 
-SRCDIRS		+=	arch/$(ARCH)/lib \
-				arch/$(ARCH)/lib/gcc \
+SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				arch/$(ARCH)/lib/cpu \
 				arch/$(ARCH)/lib/cmd \
+				arch/$(ARCH)/lib \
 				arch/$(ARCH)/$(MACH) \
 				arch/$(ARCH)/$(MACH)/drivers \
 				arch/$(ARCH)/$(MACH)/devices \

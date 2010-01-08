@@ -27,13 +27,6 @@
 #endif
 
 /**
- * default CONFIG_LOG_BUF_SIZE is 4K
- */
-#if !defined(CONFIG_LOG_BUF_SIZE)
-#define CONFIG_LOG_BUF_SIZE						(SZ_4K)
-#endif
-
-/**
  * the size of irq hash table
  */
 #if !defined(CONFIG_IRQ_HASH_SIZE)

@@ -1,8 +1,7 @@
 /*
  * kernel/printk.c
  *
- *
- * Copyright (c) 2007-2008  jianjun jiang
+ * Copyright (c) 2007-2008  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,7 +30,6 @@
 #include <xboot/printk.h>
 #include <terminal/terminal.h>
 
-
 extern struct hlist_head stdout_list;
 extern struct hlist_head stdin_list;
 extern void comm_trigger_activity(void);
@@ -39,19 +37,21 @@ extern void comm_trigger_activity(void);
 /*
  * log buffer for system printk.
  */
-static x_s8 log_buf[CONFIG_LOG_BUF_SIZE];
+#define	PRINTK_LOG_BUFFER_SIZE		(CONFIG_PRINTK_BUF_SIZE * 2)
+
+static x_s8 log_buf[PRINTK_LOG_BUFFER_SIZE];
 static x_u32 log_tail = 0;
 static x_u32 log_head = 0;
 
 static void emit_log_char(x_s8 c)
 {
-	if( (log_tail + CONFIG_LOG_BUF_SIZE - log_head) % CONFIG_LOG_BUF_SIZE == 1)
+	if( (log_tail + PRINTK_LOG_BUFFER_SIZE - log_head) % PRINTK_LOG_BUFFER_SIZE == 1)
 	{
-		log_tail = (log_tail + 1) % CONFIG_LOG_BUF_SIZE;
+		log_tail = (log_tail + 1) % PRINTK_LOG_BUFFER_SIZE;
 	}
 
 	log_buf[log_head] = c;
-	log_head = (log_head + 1) % CONFIG_LOG_BUF_SIZE;
+	log_head = (log_head + 1) % PRINTK_LOG_BUFFER_SIZE;
 }
 
 static x_u32 pop_log_char(x_s8 *s)
@@ -61,7 +61,7 @@ static x_u32 pop_log_char(x_s8 *s)
 	while(!(log_tail==log_head))
 	{
 		*s = log_buf[log_tail];
-		log_tail = (log_tail + 1) % CONFIG_LOG_BUF_SIZE;
+		log_tail = (log_tail + 1) % PRINTK_LOG_BUFFER_SIZE;
 		s++;
 		i++;
 	}

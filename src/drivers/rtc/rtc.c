@@ -165,7 +165,7 @@ static x_s32 rtc_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 	{
 		if(drv->get_time(&time))
 		{
-			len = sprintf(tmp, (const x_s8 *)"%04Lu-%02Lu-%02Lu %s %02Lu:%02Lu:%02Lu\r\n", (x_u64)time.year, (x_u64)time.mon, (x_u64)time.day, week_days[time.week], (x_u64)time.hour, (x_u64)time.min, (x_u64)time.sec);
+			len = sprintf(tmp, (const x_s8 *)"%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu\r\n", (x_u32)time.year, (x_u32)time.mon, (x_u32)time.day, week_days[time.week], (x_u32)time.hour, (x_u32)time.min, (x_u32)time.sec);
 			len -= offset;
 
 			if(len < 0)

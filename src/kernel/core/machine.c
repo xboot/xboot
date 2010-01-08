@@ -1,8 +1,7 @@
 /*
  * kernel/core/machine.c
  *
- *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -219,10 +218,17 @@ static x_s32 machine_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" cpu desc     : %s\r\n", __machine->info.cpu_desc);
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" cpu id       : %s\r\n", __machine->info.cpu_id);
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" memory start : 0x%08Lx\r\n", (x_u64)__machine->res.mem_start);
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" memory end   : 0x%08Lx\r\n", (x_u64)__machine->res.mem_end);
+#if defined(__SYS_32BIT)
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" memory start : 0x%08lx\r\n", (x_u32)__machine->res.mem_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" memory end   : 0x%08lx\r\n", (x_u32)__machine->res.mem_end);
 	ssize(size, (x_u64)(__machine->res.mem_end - __machine->res.mem_start + 1));
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" memory size  : %s\r\n", size);
+#elif defined(__SYS_64BIT)
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" memory start : 0x%016Lx\r\n", (x_u64)__machine->res.mem_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" memory end   : 0x%016Lx\r\n", (x_u64)__machine->res.mem_end);
+	ssize(size, (x_u64)(__machine->res.mem_end - __machine->res.mem_start + 1));
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" memory size  : %s\r\n", size);
+#endif
 
 #if defined(__LITTLE_ENDIAN)
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" endian format: little endian\r\n");
@@ -269,35 +275,67 @@ static x_s32 link_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" text start   : 0x%08Lx\r\n", (x_u64)__machine->link.text_start);
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" text end     : 0x%08Lx\r\n", (x_u64)__machine->link.text_end);
+#if defined(__SYS_32BIT)
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" text start   : 0x%08lx\r\n", (x_u32)__machine->link.text_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" text end     : 0x%08lx\r\n", (x_u32)__machine->link.text_end);
 	ssize(size, (x_u64)(__machine->link.text_end - __machine->link.text_start + 1));
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" text size    : %s\r\n", size);
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data' start  : 0x%08Lx\r\n", (x_u64)__machine->link.data_shadow_start);
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data' end    : 0x%08Lx\r\n", (x_u64)__machine->link.data_shadow_end);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data' start  : 0x%08lx\r\n", (x_u32)__machine->link.data_shadow_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data' end    : 0x%08lx\r\n", (x_u32)__machine->link.data_shadow_end);
 	ssize(size, (x_u64)(__machine->link.data_shadow_end - __machine->link.data_shadow_start + 1));
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data' size   : %s\r\n", size);
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data start   : 0x%08Lx\r\n", (x_u64)__machine->link.data_start);
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data end     : 0x%08Lx\r\n", (x_u64)__machine->link.data_end);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data start   : 0x%08lx\r\n", (x_u32)__machine->link.data_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data end     : 0x%08lx\r\n", (x_u32)__machine->link.data_end);
 	ssize(size, (x_u64)(__machine->link.data_end - __machine->link.data_start + 1));
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data size    : %s\r\n", size);
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bss start    : 0x%08Lx\r\n", (x_u64)__machine->link.bss_start);
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bss end      : 0x%08Lx\r\n", (x_u64)__machine->link.bss_end);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bss start    : 0x%08lx\r\n", (x_u32)__machine->link.bss_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bss end      : 0x%08lx\r\n", (x_u32)__machine->link.bss_end);
 	ssize(size, (x_u64)(__machine->link.bss_end - __machine->link.bss_start + 1));
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bss size     : %s\r\n", size);
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" heap start   : 0x%08Lx\r\n", (x_u64)__machine->link.heap_start);
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" heap end     : 0x%08Lx\r\n", (x_u64)__machine->link.heap_end);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" heap start   : 0x%08lx\r\n", (x_u32)__machine->link.heap_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" heap end     : 0x%08lx\r\n", (x_u32)__machine->link.heap_end);
 	ssize(size, (x_u64)(__machine->link.heap_end - __machine->link.heap_start + 1));
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" heap size    : %s\r\n", size);
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" stack start  : 0x%08Lx\r\n", (x_u64)__machine->link.stack_start);
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" stack end    : 0x%08Lx\r\n", (x_u64)__machine->link.stack_end);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" stack start  : 0x%08lx\r\n", (x_u32)__machine->link.stack_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" stack end    : 0x%08lx\r\n", (x_u32)__machine->link.stack_end);
 	ssize(size, (x_u64)(__machine->link.stack_end - __machine->link.stack_start + 1));
 	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" stack size   : %s", size);
+#elif defined(__SYS_64BIT)
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" text start   : 0x%016Lx\r\n", (x_u64)__machine->link.text_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" text end     : 0x%016Lx\r\n", (x_u64)__machine->link.text_end);
+	ssize(size, (x_u64)(__machine->link.text_end - __machine->link.text_start + 1));
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" text size    : %s\r\n", size);
+
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data' start  : 0x%016Lx\r\n", (x_u64)__machine->link.data_shadow_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data' end    : 0x%016Lx\r\n", (x_u64)__machine->link.data_shadow_end);
+	ssize(size, (x_u64)(__machine->link.data_shadow_end - __machine->link.data_shadow_start + 1));
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data' size   : %s\r\n", size);
+
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data start   : 0x%016Lx\r\n", (x_u64)__machine->link.data_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data end     : 0x%016Lx\r\n", (x_u64)__machine->link.data_end);
+	ssize(size, (x_u64)(__machine->link.data_end - __machine->link.data_start + 1));
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" data size    : %s\r\n", size);
+
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bss start    : 0x%016Lx\r\n", (x_u64)__machine->link.bss_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bss end      : 0x%016Lx\r\n", (x_u64)__machine->link.bss_end);
+	ssize(size, (x_u64)(__machine->link.bss_end - __machine->link.bss_start + 1));
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bss size     : %s\r\n", size);
+
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" heap start   : 0x%016Lx\r\n", (x_u64)__machine->link.heap_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" heap end     : 0x%016Lx\r\n", (x_u64)__machine->link.heap_end);
+	ssize(size, (x_u64)(__machine->link.heap_end - __machine->link.heap_start + 1));
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" heap size    : %s\r\n", size);
+
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" stack start  : 0x%016Lx\r\n", (x_u64)__machine->link.stack_start);
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" stack end    : 0x%016Lx\r\n", (x_u64)__machine->link.stack_end);
+	ssize(size, (x_u64)(__machine->link.stack_end - __machine->link.stack_start + 1));
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)" stack size   : %s", size);
+#endif
 
 	len -= offset;
 

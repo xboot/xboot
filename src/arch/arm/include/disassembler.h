@@ -115,7 +115,7 @@ union arm_shifter_operand
 	} immediate;
 	struct {
 		x_u8 Rm;
-		x_u8 shift;	/* 0: LSL, 1: LSR, 2: ASR, 3: ROR, 4: RRX */
+		x_u8 shift;			/* 0: LSL, 1: LSR, 2: ASR, 3: ROR, 4: RRX */
 		x_u8 shift_imm;
 	} immediate_shift;
 	struct {
@@ -127,7 +127,7 @@ union arm_shifter_operand
 
 struct arm_data_proc_instr
 {
-	x_s32 variant;		/* 0: immediate, 1: immediate_shift, 2: register_shift */
+	x_s32 variant;			/* 0: immediate, 1: immediate_shift, 2: register_shift */
 	x_u8 S;
 	x_u8 Rn;
 	x_u8 Rd;
@@ -139,14 +139,14 @@ struct arm_load_store_instr
 	x_u8 Rd;
 	x_u8 Rn;
 	x_u8 U;
-	x_s32 index_mode;	/* 0: offset, 1: pre-indexed, 2: post-indexed */
-	x_s32 offset_mode;	/* 0: immediate, 1: (scaled) register */
+	x_s32 index_mode;		/* 0: offset, 1: pre-indexed, 2: post-indexed */
+	x_s32 offset_mode;		/* 0: immediate, 1: (scaled) register */
 	union
 	{
 		x_u32 offset;
 		struct {
 			x_u8 Rm;
-			x_u8 shift; /* 0: LSL, 1: LSR, 2: ASR, 3: ROR, 4: RRX */
+			x_u8 shift; 	/* 0: LSL, 1: LSR, 2: ASR, 3: ROR, 4: RRX */
 			x_u8 shift_imm;
 		} reg;
 	} offset;
@@ -156,7 +156,7 @@ struct arm_load_store_multiple_instr
 {
 	x_u8 Rn;
 	x_u32 register_list;
-	x_u8 addressing_mode; /* 0: IA, 1: IB, 2: DA, 3: DB */
+	x_u8 addressing_mode; 	/* 0: IA, 1: IB, 2: DA, 3: DB */
 	x_u8 S;
 	x_u8 W;
 };
@@ -166,8 +166,6 @@ struct arm_instruction
 	enum arm_instruction_type type;
 	x_s8 text[128];
 	x_u32 opcode;
-
-	/* return value ... Thumb-2 sizes vary */
 	x_u32 instruction_size;
 
 	union {

@@ -25,10 +25,10 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <configs.h>
 #include <version.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
@@ -59,13 +59,13 @@ static struct command halt_cmd = {
 static __init void halt_cmd_init(void)
 {
 	if(!command_register(&halt_cmd))
-		DEBUG_E("register 'halt' command fail");
+		LOG_E("register 'halt' command fail");
 }
 
 static __exit void halt_cmd_exit(void)
 {
 	if(!command_unregister(&halt_cmd))
-		DEBUG_E("unregister 'halt' command fail");
+		LOG_E("unregister 'halt' command fail");
 }
 
 module_init(halt_cmd_init, LEVEL_COMMAND);

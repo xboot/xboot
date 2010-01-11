@@ -4,7 +4,6 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 
 extern x_u32 jiffies;
 

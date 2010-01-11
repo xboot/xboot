@@ -22,7 +22,6 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 #include <error.h>
 #include <malloc.h>
 #include <xboot/list.h>

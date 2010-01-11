@@ -25,9 +25,9 @@
 #include <types.h>
 #include <macros.h>
 #include <mode.h>
-#include <debug.h>
 #include <shell/env.h>
 #include <shell/menu.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -243,7 +243,7 @@ static struct machine realview = {
 static __init void mach_realview_init(void)
 {
 	if(!machine_register(&realview))
-		DEBUG_E("failed to register machine 'realview'");
+		LOG_E("failed to register machine 'realview'");
 }
 
 module_init(mach_realview_init, LEVEL_MACH);

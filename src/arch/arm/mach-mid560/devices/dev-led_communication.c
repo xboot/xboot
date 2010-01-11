@@ -24,7 +24,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -68,13 +68,13 @@ static struct platform_device led_communication = {
 static __init void dev_communication_init(void)
 {
 	if(!platform_device_register(&led_communication))
-		DEBUG_E("failed to register platform  device '%s'", led_communication.name);
+		LOG_E("failed to register platform  device '%s'", led_communication.name);
 }
 
 static __exit void dev_communication_exit(void)
 {
 	if(!platform_device_unregister(&led_communication))
-		DEBUG_E("failed to unregister platform device '%s'", led_communication.name);
+		LOG_E("failed to unregister platform device '%s'", led_communication.name);
 }
 
 module_init(dev_communication_init, LEVEL_MACH_RES);

@@ -25,12 +25,12 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <version.h>
 #include <malloc.h>
 #include <vsprintf.h>
 #include <crc16-ccitt.h>
+#include <xboot/log.h>
 #include <xboot/scank.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -478,17 +478,17 @@ static struct command rx_cmd = {
 static __init void xmodem_cmd_init(void)
 {
 	if(!command_register(&sx_cmd))
-		DEBUG_E("register 'sx' command fail");
+		LOG_E("register 'sx' command fail");
 	if(!command_register(&rx_cmd))
-		DEBUG_E("register 'rx' command fail");
+		LOG_E("register 'rx' command fail");
 }
 
 static __exit void xmodem_cmd_exit(void)
 {
 	if(!command_unregister(&sx_cmd))
-		DEBUG_E("unregister 'sx' command fail");
+		LOG_E("unregister 'sx' command fail");
 	if(!command_unregister(&rx_cmd))
-		DEBUG_E("unregister 'rx' command fail");
+		LOG_E("unregister 'rx' command fail");
 }
 
 module_init(xmodem_cmd_init, LEVEL_COMMAND);

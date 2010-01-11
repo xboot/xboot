@@ -4,11 +4,11 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <stdarg.h>
 #include <macros.h>
 #include <malloc.h>
 #include <version.h>
+#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/major.h>

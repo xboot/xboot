@@ -24,7 +24,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <serial/serial.h>
@@ -88,7 +88,7 @@ static __init void dev_serial_init(void)
 	{
 		if(!platform_device_register(&serial_devs[i]))
 		{
-			DEBUG_E("failed to register platform  device '%s'", serial_devs[i].name);
+			LOG_E("failed to register platform  device '%s'", serial_devs[i].name);
 		}
 	}
 }
@@ -101,7 +101,7 @@ static __exit void dev_serial_exit(void)
 	{
 		if(!platform_device_unregister(&serial_devs[i]))
 		{
-			DEBUG_E("failed to unregister platform device '%s'", serial_devs[i].name);
+			LOG_E("failed to unregister platform device '%s'", serial_devs[i].name);
 		}
 	}
 }

@@ -23,13 +23,13 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 #include <xboot.h>
 #include <init.h>
 #include <mode.h>
 #include <shell/shell.h>
 #include <shell/menu.h>
 #include <time/xtime.h>
+#include <xboot/log.h>
 #include <xboot/machine.h>
 #include <xboot/panic.h>
 

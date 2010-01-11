@@ -24,9 +24,9 @@
 #include <configs.h>
 #include <default.h>
 #include <macros.h>
-#include <debug.h>
 #include <types.h>
 #include <div64.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>

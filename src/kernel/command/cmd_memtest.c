@@ -24,15 +24,15 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <version.h>
 #include <vsprintf.h>
 #include <time/delay.h>
-#include <shell/ctrlc.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
+#include <shell/ctrlc.h>
 #include <shell/command.h>
 
 
@@ -146,13 +146,13 @@ static struct command memtest_cmd = {
 static __init void memtest_cmd_init(void)
 {
 	if(!command_register(&memtest_cmd))
-		DEBUG_E("register 'memtest' command fail");
+		LOG_E("register 'memtest' command fail");
 }
 
 static __exit void memtest_cmd_exit(void)
 {
 	if(!command_unregister(&memtest_cmd))
-		DEBUG_E("unregister 'memtest' command fail");
+		LOG_E("unregister 'memtest' command fail");
 }
 
 module_init(memtest_cmd_init, LEVEL_COMMAND);

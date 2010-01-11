@@ -24,11 +24,11 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <vsprintf.h>
 #include <configs.h>
 #include <version.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/command.h>
@@ -70,13 +70,13 @@ static struct command go_cmd = {
 static __init void go_cmd_init(void)
 {
 	if(!command_register(&go_cmd))
-		DEBUG_E("register 'go' command fail");
+		LOG_E("register 'go' command fail");
 }
 
 static __exit void go_cmd_exit(void)
 {
 	if(!command_unregister(&go_cmd))
-		DEBUG_E("unregister 'go' command fail");
+		LOG_E("unregister 'go' command fail");
 }
 
 module_init(go_cmd_init, LEVEL_COMMAND);

@@ -25,8 +25,8 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <debug.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -70,13 +70,13 @@ static struct command cd_cmd = {
 static __init void cd_cmd_init(void)
 {
 	if(!command_register(&cd_cmd))
-		DEBUG_E("register 'cd' command fail");
+		LOG_E("register 'cd' command fail");
 }
 
 static __exit void cd_cmd_exit(void)
 {
 	if(!command_unregister(&cd_cmd))
-		DEBUG_E("unregister 'cd' command fail");
+		LOG_E("unregister 'cd' command fail");
 }
 
 module_init(cd_cmd_init, LEVEL_COMMAND);

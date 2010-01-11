@@ -24,8 +24,8 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <fb/fb.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <serial/serial.h>
@@ -79,7 +79,7 @@ static __init void s3c2410_devs_init(void)
 	{
 		if(!platform_device_register(&s3c2410_devs[i]))
 		{
-			DEBUG_E("failed to register platform device '%s'", s3c2410_devs[i].name);
+			LOG_E("failed to register platform device '%s'", s3c2410_devs[i].name);
 		}
 	}
 }
@@ -92,7 +92,7 @@ static __exit void s3c2410_devs_exit(void)
 	{
 		if(!platform_device_unregister(&s3c2410_devs[i]))
 		{
-			DEBUG_E("failed to unregister platform device '%s'", s3c2410_devs[i].name);
+			LOG_E("failed to unregister platform device '%s'", s3c2410_devs[i].name);
 		}
 	}
 }

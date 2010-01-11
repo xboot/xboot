@@ -24,14 +24,14 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <vsprintf.h>
 #include <configs.h>
 #include <version.h>
-#include <shell/ctrlc.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
+#include <shell/ctrlc.h>
 #include <shell/command.h>
 
 
@@ -151,13 +151,13 @@ static struct command md_cmd = {
 static __init void md_cmd_init(void)
 {
 	if(!command_register(&md_cmd))
-		DEBUG_E("register 'md' command fail");
+		LOG_E("register 'md' command fail");
 }
 
 static __exit void md_cmd_exit(void)
 {
 	if(!command_unregister(&md_cmd))
-		DEBUG_E("unregister 'md' command fail");
+		LOG_E("unregister 'md' command fail");
 }
 
 module_init(md_cmd_init, LEVEL_COMMAND);

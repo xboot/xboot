@@ -25,11 +25,11 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <malloc.h>
 #include <div64.h>
 #include <time/delay.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
@@ -234,18 +234,18 @@ static __init void s3c6410_fb_init(void)
 {
 	if(!clk_get_rate("hclk", 0))
 	{
-		DEBUG_E("can't get the clock of \'hclk\'");
+		LOG_E("can't get the clock of \'hclk\'");
 		return;
 	}
 
 	if(!register_framebuffer(&s3c6410_fb))
-		DEBUG_E("failed to register framebuffer driver '%s'", s3c6410_fb.info->name);
+		LOG_E("failed to register framebuffer driver '%s'", s3c6410_fb.info->name);
 }
 
 static __exit void s3c6410_fb_exit(void)
 {
 	if(!unregister_framebuffer(&s3c6410_fb))
-		DEBUG_E("failed to unregister framebuffer driver '%s'", s3c6410_fb.info->name);
+		LOG_E("failed to unregister framebuffer driver '%s'", s3c6410_fb.info->name);
 }
 
 module_init(s3c6410_fb_init, LEVEL_DRIVER);

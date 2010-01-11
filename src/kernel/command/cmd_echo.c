@@ -26,8 +26,8 @@
 #include <types.h>
 #include <ctype.h>
 #include <string.h>
-#include <debug.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -208,13 +208,13 @@ static struct command echo_cmd = {
 static __init void echo_cmd_init(void)
 {
 	if(!command_register(&echo_cmd))
-		DEBUG_E("register 'echo' command fail");
+		LOG_E("register 'echo' command fail");
 }
 
 static __exit void echo_cmd_exit(void)
 {
 	if(!command_unregister(&echo_cmd))
-		DEBUG_E("unregister 'echo' command fail");
+		LOG_E("unregister 'echo' command fail");
 }
 
 module_init(echo_cmd_init, LEVEL_COMMAND);

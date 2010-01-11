@@ -25,8 +25,8 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
+#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/io.h>
 #include <xboot/ioctl.h>
@@ -110,13 +110,13 @@ static struct keyboard_driver gpio_button = {
 static __init void gpio_button_init(void)
 {
 	if(!register_keyboard(&gpio_button))
-		DEBUG_E("failed to register keyboard driver '%s'", gpio_button.name);
+		LOG_E("failed to register keyboard driver '%s'", gpio_button.name);
 }
 
 static __exit void gpio_button_exit(void)
 {
 	if(!unregister_keyboard(&gpio_button))
-		DEBUG_E("failed to unregister keyboard driver '%s'", gpio_button.name);
+		LOG_E("failed to unregister keyboard driver '%s'", gpio_button.name);
 }
 
 module_init(gpio_button_init, LEVEL_DRIVER);

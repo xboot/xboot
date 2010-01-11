@@ -6,7 +6,6 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <debug.h>
 #include <malloc.h>
 #include <rand.h>
 #include <div64.h>
@@ -21,6 +20,7 @@
 #include <time/tick.h>
 #include <xboot/list.h>
 #include <xboot/io.h>
+#include <xboot/log.h>
 #include <xboot/irq.h>
 #include <xboot/printk.h>
 #include <xboot/scank.h>
@@ -61,13 +61,13 @@ static struct command test_cmd = {
 static __init void test_cmd_init(void)
 {
 	if(!command_register(&test_cmd))
-		DEBUG_E("register 'test' command fail");
+		LOG_E("register 'test' command fail");
 }
 
 static __exit void test_cmd_exit(void)
 {
 	if(!command_unregister(&test_cmd))
-		DEBUG_E("unregister 'test' command fail");
+		LOG_E("unregister 'test' command fail");
 }
 
 module_init(test_cmd_init, LEVEL_COMMAND);

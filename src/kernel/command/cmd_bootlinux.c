@@ -26,10 +26,10 @@
 #include <types.h>
 #include <string.h>
 #include <configs.h>
-#include <debug.h>
 #include <malloc.h>
 #include <vsprintf.h>
 #include <shell/env.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/linux.h>
 #include <xboot/printk.h>
@@ -126,13 +126,13 @@ static struct command bootlinux_cmd = {
 static __init void bootlinux_cmd_init(void)
 {
 	if(!command_register(&bootlinux_cmd))
-		DEBUG_E("register 'bootlinux' command fail");
+		LOG_E("register 'bootlinux' command fail");
 }
 
 static __exit void bootlinux_cmd_exit(void)
 {
 	if(!command_unregister(&bootlinux_cmd))
-		DEBUG_E("unregister 'bootlinux' command fail");
+		LOG_E("unregister 'bootlinux' command fail");
 }
 
 module_init(bootlinux_cmd_init, LEVEL_COMMAND);

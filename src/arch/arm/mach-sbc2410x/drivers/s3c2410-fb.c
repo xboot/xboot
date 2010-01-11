@@ -25,9 +25,9 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
@@ -156,13 +156,13 @@ static struct fb s3c2410_fb = {
 static __init void s3c2410_fb_init(void)
 {
 	if(!register_framebuffer(&s3c2410_fb))
-		DEBUG_E("failed to register framebuffer driver '%s'", s3c2410_fb.info->name);
+		LOG_E("failed to register framebuffer driver '%s'", s3c2410_fb.info->name);
 }
 
 static __exit void s3c2410_fb_exit(void)
 {
 	if(!unregister_framebuffer(&s3c2410_fb))
-		DEBUG_E("failed to unregister framebuffer driver '%s'", s3c2410_fb.info->name);
+		LOG_E("failed to unregister framebuffer driver '%s'", s3c2410_fb.info->name);
 }
 
 module_init(s3c2410_fb_init, LEVEL_DRIVER);

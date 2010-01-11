@@ -23,11 +23,11 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <macros.h>
 #include <mode.h>
 #include <shell/env.h>
 #include <shell/menu.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -287,7 +287,7 @@ static struct machine mid560 = {
 static __init void mach_mid560_init(void)
 {
 	if(!machine_register(&mid560))
-		DEBUG_E("failed to register machine 'mid560'");
+		LOG_E("failed to register machine 'mid560'");
 }
 
 module_init(mach_mid560_init, LEVEL_MACH);

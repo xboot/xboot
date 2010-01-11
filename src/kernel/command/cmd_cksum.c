@@ -25,13 +25,13 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <debug.h>
 #include <malloc.h>
 #include <vsprintf.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
-#include <shell/ctrlc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
+#include <shell/ctrlc.h>
 #include <shell/command.h>
 
 
@@ -159,13 +159,13 @@ static struct command cksum_cmd = {
 static __init void cksum_cmd_init(void)
 {
 	if(!command_register(&cksum_cmd))
-		DEBUG_E("register 'cksum' command fail");
+		LOG_E("register 'cksum' command fail");
 }
 
 static __exit void cksum_cmd_exit(void)
 {
 	if(!command_unregister(&cksum_cmd))
-		DEBUG_E("unregister 'cksum' command fail");
+		LOG_E("unregister 'cksum' command fail");
 }
 
 module_init(cksum_cmd_init, LEVEL_COMMAND);

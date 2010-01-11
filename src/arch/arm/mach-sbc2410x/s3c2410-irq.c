@@ -24,7 +24,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -444,7 +444,7 @@ static __init void s3c2410_irq_init(void)
 	{
 		if(!irq_register(&s3c2410_irqs[i]))
 		{
-			DEBUG_E("failed to register irq '%s'", s3c2410_irqs[i].name);
+			LOG_E("failed to register irq '%s'", s3c2410_irqs[i].name);
 		}
 	}
 
@@ -460,7 +460,7 @@ static __exit void s3c2410_irq_exit(void)
 	{
 		if(!irq_unregister(&s3c2410_irqs[i]))
 		{
-			DEBUG_E("failed to unregister irq '%s'", s3c2410_irqs[i].name);
+			LOG_E("failed to unregister irq '%s'", s3c2410_irqs[i].name);
 		}
 	}
 

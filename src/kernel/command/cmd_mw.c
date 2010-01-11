@@ -24,12 +24,12 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <vsprintf.h>
 #include <configs.h>
 #include <version.h>
 #include <shell/ctrlc.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/command.h>
@@ -146,13 +146,13 @@ static struct command mw_cmd = {
 static __init void mw_cmd_init(void)
 {
 	if(!command_register(&mw_cmd))
-		DEBUG_E("register 'mw' command fail");
+		LOG_E("register 'mw' command fail");
 }
 
 static __exit void mw_cmd_exit(void)
 {
 	if(!command_unregister(&mw_cmd))
-		DEBUG_E("unregister 'mw' command fail");
+		LOG_E("unregister 'mw' command fail");
 }
 
 module_init(mw_cmd_init, LEVEL_COMMAND);

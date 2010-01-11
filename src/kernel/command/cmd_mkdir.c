@@ -23,9 +23,9 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -119,13 +119,13 @@ static struct command mkdir_cmd = {
 static __init void mkdir_cmd_init(void)
 {
 	if(!command_register(&mkdir_cmd))
-		DEBUG_E("register 'mkdir' command fail");
+		LOG_E("register 'mkdir' command fail");
 }
 
 static __exit void mkdir_cmd_exit(void)
 {
 	if(!command_unregister(&mkdir_cmd))
-		DEBUG_E("unregister 'mkdir' command fail");
+		LOG_E("unregister 'mkdir' command fail");
 }
 
 module_init(mkdir_cmd_init, LEVEL_COMMAND);

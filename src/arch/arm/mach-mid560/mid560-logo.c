@@ -22,9 +22,9 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 #include <types.h>
 #include <xboot.h>
+#include <xboot/log.h>
 #include <fb/logo.h>
 
 /*
@@ -1124,7 +1124,7 @@ static const struct logo_image logo = {
 static __init void mach_logo_init(void)
 {
 	if(!register_logo(&logo))
-		DEBUG_E("failed to register logo");
+		LOG_E("failed to register logo");
 }
 
 module_init(mach_logo_init, LEVEL_MACH_RES);

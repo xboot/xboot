@@ -25,8 +25,8 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <debug.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -66,13 +66,13 @@ static struct command clear_cmd = {
 static __init void clear_cmd_init(void)
 {
 	if(!command_register(&clear_cmd))
-		DEBUG_E("register 'clear' command fail");
+		LOG_E("register 'clear' command fail");
 }
 
 static __exit void clear_cmd_exit(void)
 {
 	if(!command_unregister(&clear_cmd))
-		DEBUG_E("unregister 'clear' command fail");
+		LOG_E("unregister 'clear' command fail");
 }
 
 module_init(clear_cmd_init, LEVEL_COMMAND);

@@ -24,9 +24,9 @@
 #include <configs.h>
 #include <default.h>
 #include <macros.h>
-#include <debug.h>
 #include <types.h>
 #include <div64.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -245,7 +245,7 @@ static __init void s3c6410_clk_init(void)
 	{
 		if(!clk_register(&s3c6410_clocks[i]))
 		{
-			DEBUG_E("failed to register clock '%s'", s3c6410_clocks[i].name);
+			LOG_E("failed to register clock '%s'", s3c6410_clocks[i].name);
 		}
 	}
 }
@@ -258,7 +258,7 @@ static __exit void s3c6410_clk_exit(void)
 	{
 		if(!clk_unregister(&s3c6410_clocks[i]))
 		{
-			DEBUG_E("failed to unregister clock '%s'", s3c6410_clocks[i].name);
+			LOG_E("failed to unregister clock '%s'", s3c6410_clocks[i].name);
 		}
 	}
 }

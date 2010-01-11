@@ -24,9 +24,9 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -124,13 +124,13 @@ static struct command help_cmd = {
 static __init void help_cmd_init(void)
 {
 	if(!command_register(&help_cmd))
-		DEBUG_E("register 'help' command fail");
+		LOG_E("register 'help' command fail");
 }
 
 static __exit void help_cmd_exit(void)
 {
 	if(!command_unregister(&help_cmd))
-		DEBUG_E("unregister 'help' command fail");
+		LOG_E("unregister 'help' command fail");
 }
 
 module_init(help_cmd_init, LEVEL_COMMAND);

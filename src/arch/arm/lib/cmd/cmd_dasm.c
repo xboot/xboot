@@ -24,9 +24,9 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <debug.h>
 #include <malloc.h>
 #include <vsprintf.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
@@ -141,13 +141,13 @@ static struct command dasm_cmd = {
 static __init void dasm_cmd_init(void)
 {
 	if(!command_register(&dasm_cmd))
-		DEBUG_E("register 'dasm' command fail");
+		LOG_E("register 'dasm' command fail");
 }
 
 static __exit void dasm_cmd_exit(void)
 {
 	if(!command_unregister(&dasm_cmd))
-		DEBUG_E("unregister 'dasm' command fail");
+		LOG_E("unregister 'dasm' command fail");
 }
 
 module_init(dasm_cmd_init, LEVEL_COMMAND);

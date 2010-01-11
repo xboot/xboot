@@ -23,7 +23,6 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
@@ -33,6 +32,7 @@
 #include <time/timer.h>
 #include <time/delay.h>
 #include <time/xtime.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -48,31 +48,31 @@
 void do_system_rootfs(void)
 {
 	if(mount(NULL, "/" , "ramfs", 0, NULL) != 0)
-		DEBUG_E("mount root filesystem fail");
+		LOG_E("mount root filesystem fail");
 
 	if(chdir("/") != 0)
-		DEBUG_E("can't change directory to '/'");
+		LOG_E("can't change directory to '/'");
 
 	if(mkdir("/proc", S_IRUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		DEBUG_E("failed to create directory '/proc'");
+		LOG_E("failed to create directory '/proc'");
 
 	if(mount(NULL, "/proc" , "procfs", 0, NULL) != 0)
-		DEBUG_E("mount proc filesystem fail");
+		LOG_E("mount proc filesystem fail");
 
 	if(mkdir("/dev", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		DEBUG_E("failed to create directory '/dev'");
+		LOG_E("failed to create directory '/dev'");
 
 	if(mount(NULL, "/dev" , "devfs", 0, NULL) != 0)
-		DEBUG_E("mount dev filesystem fail");
+		LOG_E("mount dev filesystem fail");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		DEBUG_E("failed to create directory '/etc'");
+		LOG_E("failed to create directory '/etc'");
 
 	if(mkdir("/tmp", S_IRWXU|S_IRWXG|S_IRWXO) != 0)
-		DEBUG_E("failed to create directory '/tmp'");
+		LOG_E("failed to create directory '/tmp'");
 
 	if(mkdir("/mnt", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		DEBUG_E("failed to create directory '/mnt'");
+		LOG_E("failed to create directory '/mnt'");
 }
 
 /*

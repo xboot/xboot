@@ -23,9 +23,9 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 #include <xboot.h>
 #include <vsprintf.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <terminal/curses.h>
 #include <terminal/terminal.h>
@@ -41,11 +41,8 @@ void xboot_banner(struct terminal * term)
 	if(!term)
 		return;
 
-#if ( defined(__DEBUG__) && (__DEBUG__ > 0) )
-	sprintf(buf, (const x_s8 *)"xboot version: %d.%d%d ("__DATE__ " - " __TIME__ ") for " __MACH__ " (debug %d)\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DEBUG__);
-#else
 	sprintf(buf, (const x_s8 *)"xboot version: %d.%d%d ("__DATE__ " - " __TIME__ ") for " __MACH__"\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH);
-#endif
+
 	terminal_write(term, (x_u8 *)buf, strlen(buf));
 }
 

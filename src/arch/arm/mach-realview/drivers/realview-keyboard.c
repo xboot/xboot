@@ -26,9 +26,9 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <debug.h>
 #include <div64.h>
 #include <time/delay.h>
+#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/io.h>
 #include <xboot/ioctl.h>
@@ -404,7 +404,7 @@ static void keyboard_init(void)
 	/* get keyboard's clock */
 	if(! clk_get_rate("kclk", &kclk))
 	{
-		DEBUG_E("can't get the clock of \'kclk\'");
+		LOG_E("can't get the clock of \'kclk\'");
 		return;
 	}
 	/* set keyboard's clock divisor */
@@ -487,18 +487,18 @@ static __init void realview_keyboard_init(void)
 {
 	if(! clk_get_rate("kclk", 0))
 	{
-		DEBUG_E("can't get the clock of \'kclk\'");
+		LOG_E("can't get the clock of \'kclk\'");
 		return;
 	}
 
 	if(!register_keyboard(&realview_keyboard))
-		DEBUG_E("failed to register keyboard driver '%s'", realview_keyboard.name);
+		LOG_E("failed to register keyboard driver '%s'", realview_keyboard.name);
 }
 
 static __exit void realview_keyboard_exit(void)
 {
 	if(!unregister_keyboard(&realview_keyboard))
-		DEBUG_E("failed to unregister keyboard driver '%s'", realview_keyboard.name);
+		LOG_E("failed to unregister keyboard driver '%s'", realview_keyboard.name);
 }
 
 module_init(realview_keyboard_init, LEVEL_DRIVER);

@@ -23,13 +23,13 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <stdarg.h>
 #include <vsprintf.h>
 #include <malloc.h>
 #include <error.h>
 #include <time/xtime.h>
 #include <shell/readline.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/scank.h>
@@ -204,13 +204,13 @@ static struct filesystem devfs = {
 static __init void filesystem_devfs_init(void)
 {
 	if(!filesystem_register(&devfs))
-		DEBUG_E("register 'devfs' filesystem fail");
+		LOG_E("register 'devfs' filesystem fail");
 }
 
 static __exit void filesystem_devfs_exit(void)
 {
 	if(!filesystem_unregister(&devfs))
-		DEBUG_E("unregister 'devfs' filesystem fail");
+		LOG_E("unregister 'devfs' filesystem fail");
 }
 
 module_init(filesystem_devfs_init, LEVEL_POSTCORE);

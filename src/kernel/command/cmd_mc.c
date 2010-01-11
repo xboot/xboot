@@ -24,14 +24,14 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <vsprintf.h>
 #include <configs.h>
 #include <version.h>
-#include <shell/ctrlc.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
+#include <shell/ctrlc.h>
 #include <shell/command.h>
 
 #if	defined(CONFIG_COMMAND_MC) && (CONFIG_COMMAND_MC > 0)
@@ -75,13 +75,13 @@ static struct command mc_cmd = {
 static __init void mc_cmd_init(void)
 {
 	if(!command_register(&mc_cmd))
-		DEBUG_E("register 'mc' command fail");
+		LOG_E("register 'mc' command fail");
 }
 
 static __exit void mc_cmd_exit(void)
 {
 	if(!command_unregister(&mc_cmd))
-		DEBUG_E("unregister 'mc' command fail");
+		LOG_E("unregister 'mc' command fail");
 }
 
 module_init(mc_cmd_init, LEVEL_COMMAND);

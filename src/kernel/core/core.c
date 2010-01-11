@@ -23,9 +23,9 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 #include <xboot.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <time/tick.h>
 #include <time/delay.h>

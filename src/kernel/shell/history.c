@@ -75,7 +75,7 @@ x_bool history_add(const x_s8 * cmdline)
 		return FALSE;
 	}
 
-	if(history_numberof() >= CONFIG_NUMBER_OF_CMDLINE_HISTORY)
+	if(history_numberof() >= CONFIG_MAX_NUMBER_OF_CMDLINE_HISTORY)
 		history_remove();
 
 	strcpy(s, cmdline);

@@ -3,7 +3,6 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 
 
 void udelay(x_u32 us);

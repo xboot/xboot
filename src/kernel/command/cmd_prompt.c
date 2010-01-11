@@ -24,10 +24,10 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <malloc.h>
 #include <shell/env.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -78,13 +78,13 @@ static struct command prompt_cmd = {
 static __init void prompt_cmd_init(void)
 {
 	if(!command_register(&prompt_cmd))
-		DEBUG_E("register 'prompt' command fail");
+		LOG_E("register 'prompt' command fail");
 }
 
 static __exit void prompt_cmd_exit(void)
 {
 	if(!command_unregister(&prompt_cmd))
-		DEBUG_E("unregister 'prompt' command fail");
+		LOG_E("unregister 'prompt' command fail");
 }
 
 module_init(prompt_cmd_init, LEVEL_COMMAND);

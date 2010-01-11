@@ -25,9 +25,9 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <debug.h>
 #include <malloc.h>
 #include <vsprintf.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -143,13 +143,13 @@ static struct command fileram_cmd = {
 static __init void fileram_cmd_init(void)
 {
 	if(!command_register(&fileram_cmd))
-		DEBUG_E("register 'fileram' command fail");
+		LOG_E("register 'fileram' command fail");
 }
 
 static __exit void fileram_cmd_exit(void)
 {
 	if(!command_unregister(&fileram_cmd))
-		DEBUG_E("unregister 'fileram' command fail");
+		LOG_E("unregister 'fileram' command fail");
 }
 
 module_init(fileram_cmd_init, LEVEL_COMMAND);

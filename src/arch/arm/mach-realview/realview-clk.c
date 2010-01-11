@@ -25,8 +25,8 @@
 #include <default.h>
 #include <macros.h>
 #include <types.h>
-#include <debug.h>
 #include <div64.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -88,7 +88,7 @@ static __init void realview_clk_init(void)
 	{
 		if(!clk_register(&realview_clocks[i]))
 		{
-			DEBUG_E("failed to register clock '%s'", realview_clocks[i].name);
+			LOG_E("failed to register clock '%s'", realview_clocks[i].name);
 		}
 	}
 }
@@ -101,7 +101,7 @@ static __exit void realview_clk_exit(void)
 	{
 		if(!clk_unregister(&realview_clocks[i]))
 		{
-			DEBUG_E("failed to unregister clock '%s'", realview_clocks[i].name);
+			LOG_E("failed to unregister clock '%s'", realview_clocks[i].name);
 		}
 	}
 }

@@ -25,10 +25,10 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <configs.h>
 #include <version.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
@@ -59,13 +59,13 @@ static struct command reboot_cmd = {
 static __init void reboot_cmd_init(void)
 {
 	if(!command_register(&reboot_cmd))
-		DEBUG_E("register 'reboot' command fail");
+		LOG_E("register 'reboot' command fail");
 }
 
 static __exit void reboot_cmd_exit(void)
 {
 	if(!command_unregister(&reboot_cmd))
-		DEBUG_E("unregister 'reboot' command fail");
+		LOG_E("unregister 'reboot' command fail");
 }
 
 module_init(reboot_cmd_init, LEVEL_COMMAND);

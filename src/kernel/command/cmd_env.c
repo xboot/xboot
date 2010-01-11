@@ -26,11 +26,11 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <debug.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
-#include <shell/env.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
+#include <shell/env.h>
 #include <shell/command.h>
 
 
@@ -183,13 +183,13 @@ static struct command env_cmd = {
 static __init void env_cmd_init(void)
 {
 	if(!command_register(&env_cmd))
-		DEBUG_E("register 'env' command fail");
+		LOG_E("register 'env' command fail");
 }
 
 static __exit void env_cmd_exit(void)
 {
 	if(!command_unregister(&env_cmd))
-		DEBUG_E("unregister 'env' command fail");
+		LOG_E("unregister 'env' command fail");
 }
 
 module_init(env_cmd_init, LEVEL_COMMAND);

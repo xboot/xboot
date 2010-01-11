@@ -23,11 +23,11 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <macros.h>
 #include <mode.h>
 #include <shell/env.h>
 #include <shell/menu.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -246,7 +246,7 @@ static struct machine sbc2410x = {
 static __init void mach_sbc2410x_init(void)
 {
 	if(!machine_register(&sbc2410x))
-		DEBUG_E("failed to register machine 'sbc2410x'");
+		LOG_E("failed to register machine 'sbc2410x'");
 }
 
 module_init(mach_sbc2410x_init, LEVEL_MACH);

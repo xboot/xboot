@@ -22,7 +22,6 @@
 
 #include <configs.h>
 #include <default.h>
-#include <debug.h>
 #include <malloc.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>

@@ -23,7 +23,6 @@
 #include <configs.h>
 #include <default.h>
 #include <error.h>
-#include <debug.h>
 #include <malloc.h>
 #include <xboot/list.h>
 #include <xboot/initcall.h>

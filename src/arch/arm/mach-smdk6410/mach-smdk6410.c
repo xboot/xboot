@@ -24,10 +24,10 @@
 #include <default.h>
 #include <types.h>
 #include <macros.h>
-#include <debug.h>
 #include <mode.h>
 #include <shell/env.h>
 #include <shell/menu.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -254,7 +254,7 @@ static struct machine smdk6410 = {
 static __init void mach_smdk6410_init(void)
 {
 	if(!machine_register(&smdk6410))
-		DEBUG_E("failed to register machine 'smdk6410'");
+		LOG_E("failed to register machine 'smdk6410'");
 }
 
 module_init(mach_smdk6410_init, LEVEL_MACH);

@@ -23,7 +23,6 @@
 #include <configs.h>
 #include <default.h>
 #include <error.h>
-#include <debug.h>
 #include <xboot/panic.h>
 #include <xboot/initcall.h>
 #include <fs/fs.h>

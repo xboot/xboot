@@ -24,9 +24,9 @@
 #include <configs.h>
 #include <default.h>
 #include <macros.h>
-#include <debug.h>
 #include <types.h>
 #include <div64.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -36,7 +36,7 @@
 #include <mtd/nand/nfc.h>
 #include <s3c2410/reg-nand.h>
 
-
+#if 0
 void s3c2410_nfc_init(struct nand_chip * chip)
 {
 	writel(S3C2410_NFCONF, S3C2410_NFCONF_EN | S3C2410_NFCONF_TACLS(3) |S3C2410_NFCONF_TWRPH0(5) | S3C2410_NFCONF_TWRPH1(3));
@@ -114,14 +114,17 @@ static struct nfc s3c2410_nand_flash_controller = {
 static __init void s3c2410_nand_flash_controller_init(void)
 {
 	if(!register_nfc(&s3c2410_nand_flash_controller))
-		DEBUG_E("failed to register nand flash controller '%s'", s3c2410_nand_flash_controller.name);
+		LOG_E("failed to register nand flash controller '%s'", s3c2410_nand_flash_controller.name);
 }
 
 static __exit void s3c2410_nand_flash_controller_exit(void)
 {
 	if(!unregister_nfc(&s3c2410_nand_flash_controller))
-		DEBUG_E("failed to unregister nand flash controller '%s'", s3c2410_nand_flash_controller.name);
+		LOG_E("failed to unregister nand flash controller '%s'", s3c2410_nand_flash_controller.name);
 }
 
 module_init(s3c2410_nand_flash_controller_init, LEVEL_MACH_RES);
 module_exit(s3c2410_nand_flash_controller_exit, LEVEL_MACH_RES);
+
+#endif
+

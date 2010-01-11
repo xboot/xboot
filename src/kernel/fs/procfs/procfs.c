@@ -23,13 +23,13 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <stdarg.h>
 #include <vsprintf.h>
 #include <malloc.h>
 #include <error.h>
 #include <time/xtime.h>
 #include <shell/readline.h>
+#include <xboot/log.h>
 #include <xboot/proc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -283,13 +283,13 @@ static struct filesystem procfs = {
 static __init void filesystem_procfs_init(void)
 {
 	if(!filesystem_register(&procfs))
-		DEBUG_E("register 'procfs' filesystem fail");
+		LOG_E("register 'procfs' filesystem fail");
 }
 
 static __exit void filesystem_procfs_exit(void)
 {
 	if(!filesystem_unregister(&procfs))
-		DEBUG_E("unregister 'procfs' filesystem fail");
+		LOG_E("unregister 'procfs' filesystem fail");
 }
 
 module_init(filesystem_procfs_init, LEVEL_POSTCORE);

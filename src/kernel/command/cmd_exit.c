@@ -26,8 +26,8 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <debug.h>
 #include <mode.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -69,13 +69,13 @@ static struct command exit_cmd = {
 static __init void exit_cmd_init(void)
 {
 	if(!command_register(&exit_cmd))
-		DEBUG_E("register 'exit' command fail");
+		LOG_E("register 'exit' command fail");
 }
 
 static __exit void exit_cmd_exit(void)
 {
 	if(!command_unregister(&exit_cmd))
-		DEBUG_E("unregister 'exit' command fail");
+		LOG_E("unregister 'exit' command fail");
 }
 
 module_init(exit_cmd_init, LEVEL_COMMAND);

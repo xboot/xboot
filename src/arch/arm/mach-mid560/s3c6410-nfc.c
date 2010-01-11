@@ -24,9 +24,9 @@
 #include <configs.h>
 #include <default.h>
 #include <macros.h>
-#include <debug.h>
 #include <types.h>
 #include <div64.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -163,13 +163,13 @@ static struct nfc s3c6410_nand_flash_controller = {
 static __init void s3c6410_nand_flash_controller_init(void)
 {
 	if(!register_nfc(&s3c6410_nand_flash_controller))
-		DEBUG_E("failed to register nand flash controller '%s'", s3c6410_nand_flash_controller.name);
+		LOG_E("failed to register nand flash controller '%s'", s3c6410_nand_flash_controller.name);
 }
 
 static __exit void s3c6410_nand_flash_controller_exit(void)
 {
 	if(!unregister_nfc(&s3c6410_nand_flash_controller))
-		DEBUG_E("failed to unregister nand flash controller '%s'", s3c6410_nand_flash_controller.name);
+		LOG_E("failed to unregister nand flash controller '%s'", s3c6410_nand_flash_controller.name);
 }
 
 module_init(s3c6410_nand_flash_controller_init, LEVEL_MACH_RES);

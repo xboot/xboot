@@ -24,12 +24,12 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <version.h>
 #include <vsprintf.h>
 #include <time/delay.h>
 #include <shell/ctrlc.h>
+#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
@@ -78,13 +78,13 @@ static struct command sleep_cmd = {
 static __init void sleep_cmd_init(void)
 {
 	if(!command_register(&sleep_cmd))
-		DEBUG_E("register 'sleep' command fail");
+		LOG_E("register 'sleep' command fail");
 }
 
 static __exit void sleep_cmd_exit(void)
 {
 	if(!command_unregister(&sleep_cmd))
-		DEBUG_E("unregister 'sleep' command fail");
+		LOG_E("unregister 'sleep' command fail");
 }
 
 module_init(sleep_cmd_init, LEVEL_COMMAND);

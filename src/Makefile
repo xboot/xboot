@@ -9,13 +9,6 @@
 #
 TARGET		?= arm-realview
 
-# DEBUG variable for debug level (0 ~ 3), default debug level is 0.
-# 0: no debug;
-# 1: debug error;
-# 2: debug error, warnning;
-# 3: debug error, warnning, information.
-DEBUG		?= 0
-
 #
 # get platform information about ARCH and MACH from TARGET variable.
 #
@@ -53,8 +46,8 @@ sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 #
 # add pre-define macros.
 #
-CFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\" -D __DEBUG__=$(DEBUG)
-CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\" -D __DEBUG__=$(DEBUG)
+CFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
+CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 
 #
 # add necessary directory for INCDIRS and SRCDIRS.

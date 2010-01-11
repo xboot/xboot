@@ -24,7 +24,6 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <stdarg.h>
 #include <malloc.h>
 #include <vsprintf.h>

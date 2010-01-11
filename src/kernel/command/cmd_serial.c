@@ -24,10 +24,10 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <ctype.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/major.h>
 #include <xboot/ioctl.h>
 #include <xboot/list.h>
@@ -476,13 +476,13 @@ static struct command serial_cmd = {
 static __init void serial_cmd_init(void)
 {
 	if(!command_register(&serial_cmd))
-		DEBUG_E("register 'serial' command fail");
+		LOG_E("register 'serial' command fail");
 }
 
 static __exit void serial_cmd_exit(void)
 {
 	if(!command_unregister(&serial_cmd))
-		DEBUG_E("unregister 'serial' command fail");
+		LOG_E("unregister 'serial' command fail");
 }
 
 module_init(serial_cmd_init, LEVEL_COMMAND);

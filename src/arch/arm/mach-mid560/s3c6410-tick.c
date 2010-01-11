@@ -24,8 +24,8 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <div64.h>
+#include <xboot/log.h>
 #include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>
@@ -84,7 +84,7 @@ static struct tick s3c6410_tick = {
 static __init void s3c6410_tick_init(void)
 {
 	if(!register_tick(&s3c6410_tick))
-		DEBUG_E("failed to register tick");
+		LOG_E("failed to register tick");
 }
 
 module_init(s3c6410_tick_init, LEVEL_MACH_RES);

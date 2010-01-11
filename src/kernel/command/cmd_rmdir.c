@@ -24,9 +24,9 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <debug.h>
 #include <string.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -70,13 +70,13 @@ static struct command rmdir_cmd = {
 static __init void rmdir_cmd_init(void)
 {
 	if(!command_register(&rmdir_cmd))
-		DEBUG_E("register 'rmdir' command fail");
+		LOG_E("register 'rmdir' command fail");
 }
 
 static __exit void rmdir_cmd_exit(void)
 {
 	if(!command_unregister(&rmdir_cmd))
-		DEBUG_E("unregister 'rmdir' command fail");
+		LOG_E("unregister 'rmdir' command fail");
 }
 
 module_init(rmdir_cmd_init, LEVEL_COMMAND);

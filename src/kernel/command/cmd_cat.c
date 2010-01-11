@@ -26,8 +26,8 @@
 #include <types.h>
 #include <ctype.h>
 #include <string.h>
-#include <debug.h>
 #include <malloc.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -103,13 +103,13 @@ static struct command cat_cmd = {
 static __init void cat_cmd_init(void)
 {
 	if(!command_register(&cat_cmd))
-		DEBUG_E("register 'cat' command fail");
+		LOG_E("register 'cat' command fail");
 }
 
 static __exit void cat_cmd_exit(void)
 {
 	if(!command_unregister(&cat_cmd))
-		DEBUG_E("unregister 'cat' command fail");
+		LOG_E("unregister 'cat' command fail");
 }
 
 module_init(cat_cmd_init, LEVEL_COMMAND);

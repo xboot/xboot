@@ -31,6 +31,7 @@
 #include <mode.h>
 #include <time/tick.h>
 #include <time/timer.h>
+#include <xboot/log.h>
 #include <xboot/proc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -176,6 +177,8 @@ void do_anti_piracy(void)
 
 	if(__machine->misc.genuine())
 	{
+		LOG_I("start anti piracy");
+
 		/* setup timer for anti piracy */
 		setup_timer(&anti_piracy_timer, anti_piracy_timer_function, (x_u32)(__machine));
 

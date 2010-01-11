@@ -41,6 +41,10 @@ static __init void core_init(void)
 		/* calibrating delay */
 		calibrate_delay();
 	}
+	else
+	{
+		LOG_W("no system tick in this machine");
+	}
 }
 
 module_init(core_init, LEVEL_CORE);

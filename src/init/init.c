@@ -47,6 +47,8 @@
  */
 void do_system_rootfs(void)
 {
+	LOG_I("mount root filesystem");
+
 	if(mount(NULL, "/" , "ramfs", 0, NULL) != 0)
 		LOG_E("mount root filesystem fail");
 
@@ -76,13 +78,15 @@ void do_system_rootfs(void)
 }
 
 /*
- * do load system config
+ * do load system configure
  */
 void do_system_cfg(void)
 {
 	struct machine * mach = get_machine();
 	struct stdin * stdin;
 	struct stdout * stdout;
+
+	LOG_I("load system configure");
 
 	/* load environment variable file /etc/env.xml */
 	env_load("/etc/env.xml");
@@ -117,6 +121,8 @@ void do_system_cfg(void)
  */
 void do_system_wait(void)
 {
+	LOG_I("wait a moment, if necessary");
+
 	if(get_system_hz() > 0)
 	{
 		while(jiffies < get_system_hz() * 2);

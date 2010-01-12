@@ -373,7 +373,7 @@
  * framebuffer terminal scroll up.
  */
 #if !defined(CONFIG_FB_SCROLL_UP)
-#define	CONFIG_FB_SCROLL_UP							(0)
+#define	CONFIG_FB_SCROLL_UP							(1)
 #endif
 
 /*

@@ -1,5 +1,5 @@
 /*
- * kernel/core/blkdev.c
+ * kernel/core/chrdev.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -29,32 +29,32 @@
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
-#include <xboot/blkdev.h>
+#include <xboot/chrdev.h>
 
 
-/* the list of block device */
-static struct blkdev_list __blkdev_list = {
+/* the list of char device */
+static struct chrdev_list __chrdev_list = {
 	.entry = {
-		.next	= &(__blkdev_list.entry),
-		.prev	= &(__blkdev_list.entry),
+		.next	= &(__chrdev_list.entry),
+		.prev	= &(__chrdev_list.entry),
 	},
 };
-struct blkdev_list * blkdev_list = &__blkdev_list;
+struct chrdev_list * chrdev_list = &__chrdev_list;
 
 /*
- * search block device by name
+ * search char device by name
  */
-struct blkdev * search_blkdev(const char * name)
+struct chrdev * search_chrdev(const char * name)
 {
-	struct blkdev_list * list;
+	struct chrdev_list * list;
 	struct list_head * pos;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&blkdev_list->entry)->next; pos != (&blkdev_list->entry); pos = pos->next)
+	for(pos = (&chrdev_list->entry)->next; pos != (&chrdev_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct blkdev_list, entry);
+		list = list_entry(pos, struct chrdev_list, entry);
 		if(strcmp((x_s8*)list->dev->name, (const x_s8 *)name) == 0)
 			return list->dev;
 	}
@@ -63,19 +63,19 @@ struct blkdev * search_blkdev(const char * name)
 }
 
 /*
- * search block device by name and device type
+ * search char device by name and device type
  */
-struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type)
+struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type)
 {
-	struct blkdev_list * list;
+	struct chrdev_list * list;
 	struct list_head * pos;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&blkdev_list->entry)->next; pos != (&blkdev_list->entry); pos = pos->next)
+	for(pos = (&chrdev_list->entry)->next; pos != (&chrdev_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct blkdev_list, entry);
+		list = list_entry(pos, struct chrdev_list, entry);
 		if( (list->dev->type == type) && (strcmp((x_s8*)list->dev->name, (const x_s8 *)name) == 0) )
 		{
 			return list->dev;
@@ -86,45 +86,45 @@ struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type
 }
 
 /*
- * register a block device into blkdev_list
+ * register a char device into chrdev_list
  */
-x_bool register_blkdev(struct blkdev * dev)
+x_bool register_chrdev(struct chrdev * dev)
 {
-	struct blkdev_list * list;
+	struct chrdev_list * list;
 
-	list = malloc(sizeof(struct blkdev_list));
+	list = malloc(sizeof(struct chrdev_list));
 	if(!list || !dev)
 	{
 		free(list);
 		return FALSE;
 	}
 
-	if(!dev->name || search_blkdev(dev->name))
+	if(!dev->name || search_chrdev(dev->name))
 	{
 		free(list);
 		return FALSE;
 	}
 
 	list->dev = dev;
-	list_add(&list->entry, &blkdev_list->entry);
+	list_add(&list->entry, &chrdev_list->entry);
 
 	return TRUE;
 }
 
 /*
- * unregister block device from blkdev_list
+ * unregister char device from chrdev_list
  */
-x_bool unregister_blkdev(const char * name)
+x_bool unregister_chrdev(const char * name)
 {
-	struct blkdev_list * list;
+	struct chrdev_list * list;
 	struct list_head * pos;
 
 	if(!name)
 		return FALSE;
 
-	for(pos = (&blkdev_list->entry)->next; pos != (&blkdev_list->entry); pos = pos->next)
+	for(pos = (&chrdev_list->entry)->next; pos != (&chrdev_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct blkdev_list, entry);
+		list = list_entry(pos, struct chrdev_list, entry);
 		if(strcmp((x_s8*)list->dev->name, (const x_s8 *)name) == 0)
 		{
 			list_del(pos);
@@ -137,11 +137,11 @@ x_bool unregister_blkdev(const char * name)
 }
 
 /*
- * blkdev proc interface
+ * char device proc interface
  */
-static x_s32 blkdev_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static x_s32 chrdev_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
-	struct blkdev_list * list;
+	struct chrdev_list * list;
 	struct list_head * pos;
 	x_s8 * p;
 	x_s32 len = 0;
@@ -149,11 +149,11 @@ static x_s32 blkdev_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[block device]");
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[char device]");
 
-	for(pos = (&blkdev_list->entry)->next; pos != (&blkdev_list->entry); pos = pos->next)
+	for(pos = (&chrdev_list->entry)->next; pos != (&chrdev_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct blkdev_list, entry);
+		list = list_entry(pos, struct chrdev_list, entry);
 		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s", list->dev->name);
 	}
 
@@ -171,25 +171,25 @@ static x_s32 blkdev_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	return len;
 }
 
-static struct proc blkdev_proc = {
-	.name	= "blkdev",
-	.read	= blkdev_proc_read,
+static struct proc chrdev_proc = {
+	.name	= "chrdev",
+	.read	= chrdev_proc_read,
 };
 
 /*
- * blkdev pure sync init
+ * char device pure sync init
  */
-static __init void blkdev_pure_sync_init(void)
+static __init void chrdev_pure_sync_init(void)
 {
-	/* register block device proc interface */
-	proc_register(&blkdev_proc);
+	/* register char device proc interface */
+	proc_register(&chrdev_proc);
 }
 
-static __exit void blkdev_pure_sync_exit(void)
+static __exit void chrdev_pure_sync_exit(void)
 {
-	/* unregister block device proc interface */
-	proc_unregister(&blkdev_proc);
+	/* unregister char device proc interface */
+	proc_unregister(&chrdev_proc);
 }
 
-module_init(blkdev_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(blkdev_pure_sync_exit, LEVEL_PURE_SYNC);
+module_init(chrdev_pure_sync_init, LEVEL_PURE_SYNC);
+module_exit(chrdev_pure_sync_exit, LEVEL_PURE_SYNC);

@@ -26,7 +26,6 @@
 #include <types.h>
 #include <xboot.h>
 #include <malloc.h>
-#include <xboot/major.h>
 #include <xboot/chrdev.h>
 #include <fb/fb.h>
 #include <fb/fblinear.h>

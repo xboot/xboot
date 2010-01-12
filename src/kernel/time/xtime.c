@@ -27,7 +27,6 @@
 #include <vsprintf.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
-#include <xboot/major.h>
 #include <xboot/chrdev.h>
 #include <xboot/proc.h>
 #include <xboot/initcall.h>
@@ -113,10 +112,10 @@ void do_system_xtime(void)
 	struct chrdev * dev;
 
 	/* search hardware rtc for sync xtime */
-	dev = search_chrdev_by_major_name(MAJOR_RTC, CONFIG_HARDWARE_RTC_NAME);
+	dev = search_chrdev_with_type(CONFIG_HARDWARE_RTC_NAME, CHR_DEV_RTC);
 	if(dev)
 	{
-		rtc = (struct rtc_driver *)(dev->ops->driver);
+		rtc = (struct rtc_driver *)(dev->driver);
 
 		/* sync xtime, first */
 		if(rtc && rtc->get_time)

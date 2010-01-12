@@ -1,7 +1,6 @@
 /*
  * drivers/fb/fb.c
  *
- *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
@@ -26,7 +25,6 @@
 #include <types.h>
 #include <xboot.h>
 #include <malloc.h>
-#include <xboot/major.h>
 #include <xboot/chrdev.h>
 #include <fb/logo.h>
 #include <fb/graphic.h>
@@ -92,7 +90,7 @@ static x_s32 fb_open(struct chrdev * dev)
  */
 static x_s32 fb_seek(struct chrdev * dev, x_s32 offset)
 {
-	struct fb * fb = (struct fb *)(dev->ops->driver);
+	struct fb * fb = (struct fb *)(dev->driver);
 
 	fb->info->pos = offset;
 
@@ -104,7 +102,7 @@ static x_s32 fb_seek(struct chrdev * dev, x_s32 offset)
  */
 static x_s32 fb_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 {
-	struct fb * fb = (struct fb *)(dev->ops->driver);
+	struct fb * fb = (struct fb *)(dev->driver);
 	x_u8 * p = (x_u8 *)((x_u32)(fb->info->base) + fb->info->pos);
 	x_s32 i;
 
@@ -121,7 +119,7 @@ static x_s32 fb_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
  */
 static x_s32 fb_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
 {
-	struct fb * fb = (struct fb *)(dev->ops->driver);
+	struct fb * fb = (struct fb *)(dev->driver);
 	x_u8 * p = (x_u8 *)((x_u32)(fb->info->base) + fb->info->pos);
 	x_s32 i;
 
@@ -146,7 +144,7 @@ static x_s32 fb_flush(struct chrdev * dev)
  */
 static x_s32 fb_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
 {
-	struct fb * fb = (struct fb *)(dev->ops->driver);
+	struct fb * fb = (struct fb *)(dev->driver);
 
 	if(fb->ioctl)
 		return ((fb->ioctl)(cmd, arg));
@@ -626,11 +624,15 @@ struct fb * search_framebuffer(const char * name)
 	struct fb * fb;
 	struct chrdev * dev;
 
-	dev = search_chrdev_by_major_name(MAJOR_FRAMEBUFFER, name);
+	dev = search_chrdev(name);
 	if(!dev)
 		return NULL;
 
-	fb = (struct fb *)dev->ops->driver;
+	if(dev->type != CHR_DEV_FRAMEBUFFER)
+		return NULL;
+
+	fb = (struct fb *)dev->driver;
+
 	return fb;
 }
 
@@ -639,42 +641,40 @@ struct fb * search_framebuffer(const char * name)
  */
 x_bool register_framebuffer(struct fb * fb)
 {
-	struct char_operations * ops;
 	struct chrdev * dev;
 	struct terminal * term;
 	struct fb_terminal_info * info;
 
-	if(!fb || !fb->info || !(fb->set_pixel || fb->get_pixel))
+	if(!fb || !fb->info || !fb->info->name || !(fb->set_pixel || fb->get_pixel))
 		return FALSE;
 
-	ops = malloc(sizeof(struct char_operations));
-	if(!ops)
-		return FALSE;
-
-	ops->open 		= fb_open;
-	ops->seek 		= fb_seek;
-	ops->read 		= fb_read;
-	ops->write 		= fb_write;
-	ops->flush 		= fb_flush;
-	ops->ioctl 		= fb_ioctl;
-	ops->release 	= fb_release;
-	ops->driver 	= fb;
-
-	if(!register_chrdev(MAJOR_FRAMEBUFFER, fb->info->name, ops))
-	{
-		free(ops);
-		return FALSE;
-	}
-
-	dev = search_chrdev_by_major_name(MAJOR_FRAMEBUFFER, fb->info->name);
+	dev = malloc(sizeof(struct chrdev));
 	if(!dev)
+		return FALSE;
+
+	dev->name		= fb->info->name;
+	dev->type		= CHR_DEV_FRAMEBUFFER;
+	dev->open 		= fb_open;
+	dev->seek 		= fb_seek;
+	dev->read 		= fb_read;
+	dev->write 		= fb_write;
+	dev->flush 		= fb_flush;
+	dev->ioctl 		= fb_ioctl;
+	dev->release 	= fb_release;
+	dev->driver 	= fb;
+
+	if(!register_chrdev(dev))
 	{
-		unregister_chrdev(MAJOR_FRAMEBUFFER, fb->info->name);
-		free(ops);
+		free(dev);
 		return FALSE;
 	}
 
-	fb->device = dev;
+	if(search_chrdev_with_type(dev->name, CHR_DEV_FRAMEBUFFER) == NULL)
+	{
+		unregister_chrdev(dev->name);
+		free(dev);
+		return FALSE;
+	}
 
 	if(fb->init)
 		(fb->init)();
@@ -685,13 +685,15 @@ x_bool register_framebuffer(struct fb * fb)
 	if(fb->bl)
 		(fb->bl)(0xff);
 
-	/* register a terminal */
+	/*
+	 * register a terminal
+	 */
 	term = malloc(sizeof(struct terminal));
 	info = malloc(sizeof(struct fb_terminal_info));
 	if(!term || !info)
 	{
-		unregister_chrdev(MAJOR_FRAMEBUFFER, fb->info->name);
-		free(ops);
+		unregister_chrdev(dev->name);
+		free(dev);
 		free(term);
 		free(info);
 		return FALSE;
@@ -746,8 +748,8 @@ x_bool register_framebuffer(struct fb * fb)
 
 	if(!register_terminal(term))
 	{
-		unregister_chrdev(MAJOR_FRAMEBUFFER, fb->info->name);
-		free(ops);
+		unregister_chrdev(dev->name);
+		free(dev);
 		free(term);
 		free(info);
 		return FALSE;
@@ -762,16 +764,17 @@ x_bool register_framebuffer(struct fb * fb)
 x_bool unregister_framebuffer(struct fb * fb)
 {
 	struct chrdev * dev;
-	struct char_operations * ops;
+	struct fb * driver;
 	x_s8 term_name[32+1];
 	struct terminal * term;
 	struct fb_terminal_info * info;
 
-	if(!fb || !fb->device)
+	if(!fb || !fb->info || !fb->info->name)
 		return FALSE;
 
-	dev = fb->device;
-	ops = dev->ops;
+	dev = search_chrdev_with_type(fb->info->name, CHR_DEV_FRAMEBUFFER);
+	if(!dev)
+		return FALSE;
 
 	strcpy(term_name, (x_s8*)"tty-");
 	strlcat(term_name, (x_s8*)fb->info->name, 32+1);
@@ -782,21 +785,25 @@ x_bool unregister_framebuffer(struct fb * fb)
 	else
 		return FALSE;
 
-	if(fb->bl)
-		(fb->bl)(0x00);
+	driver = (struct fb *)(dev->driver);
+	if(driver)
+	{
+		if(driver->bl)
+			(driver->bl)(0x00);
 
-	if(fb->exit)
-		(fb->exit)();
+		if(driver->exit)
+			(driver->exit)();
+	}
 
 	if(!unregister_terminal(term))
 		return FALSE;
 
-	if(!unregister_chrdev(dev->major, dev->name))
+	if(!unregister_chrdev(dev->name))
 		return FALSE;
 
-	free(ops);
+	free(info);
 	free(term);
-	free(ops);
+	free(dev);
 
 	return TRUE;
 }

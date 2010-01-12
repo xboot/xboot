@@ -115,9 +115,6 @@ struct serial_driver
 
 	/* ioctl serial */
 	x_s32 (*ioctl)(x_u32 cmd, x_u32 arg);
-
-	/* driver device */
-	void * device;
 };
 
 x_bool register_serial(struct serial_driver * drv);

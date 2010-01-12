@@ -239,9 +239,6 @@ struct keyboard_driver
 
 	/* ioctl keyboard */
 	x_s32 (*ioctl)(x_u32 cmd, x_u32 arg);
-
-	/* driver device */
-	void * device;
 };
 
 

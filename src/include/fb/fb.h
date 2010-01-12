@@ -94,9 +94,6 @@ struct fb
 
 	/* ioctl framebuffer */
 	x_s32 (*ioctl)(x_u32 cmd, x_u32 arg);
-
-	/* driver device */
-	void * device;
 };
 
 struct fb * search_framebuffer(const char * name);

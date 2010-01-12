@@ -28,7 +28,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <vsprintf.h>
-#include <xboot/major.h>
 #include <xboot/printk.h>
 #include <xboot/chrdev.h>
 #include <terminal/terminal.h>
@@ -79,7 +78,7 @@ static x_s32 serial_seek(struct chrdev * dev, x_s32 offset)
  */
 static x_s32 serial_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 {
-	struct serial_driver * drv = (struct serial_driver *)(dev->ops->driver);
+	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
 	if(drv->read)
 		return ((drv->read)(buf, count));
@@ -92,7 +91,7 @@ static x_s32 serial_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
  */
 static x_s32 serial_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
 {
-	struct serial_driver * drv = (struct serial_driver *)(dev->ops->driver);
+	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
 	if(drv->write)
 		return ((drv->write)(buf, count));
@@ -105,7 +104,7 @@ static x_s32 serial_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
  */
 static x_s32 serial_flush(struct chrdev * dev)
 {
-	struct serial_driver * drv = (struct serial_driver *)(dev->ops->driver);
+	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
 	if(drv->flush)
 		(drv->flush)();
@@ -118,7 +117,7 @@ static x_s32 serial_flush(struct chrdev * dev)
  */
 static x_s32 serial_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
 {
-	struct serial_driver * drv = (struct serial_driver *)(dev->ops->driver);
+	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
 	if(drv->ioctl)
 		return ((drv->ioctl)(cmd, arg));
@@ -585,42 +584,40 @@ static x_s32 serial_term_write(struct terminal * term, const x_u8 * buf, x_s32 c
  */
 x_bool register_serial(struct serial_driver * drv)
 {
-	struct char_operations * ops;
 	struct chrdev * dev;
 	struct terminal * term;
 	struct serial_terminal_info * info;
 
-	if(!drv || !drv->info || !(drv->read || drv->write))
+	if(!drv || !drv->info || !drv->info->name || !(drv->read || drv->write))
 		return FALSE;
 
-	ops = malloc(sizeof(struct char_operations));
-	if(!ops)
-		return FALSE;
-
-	ops->open 		= serial_open;
-	ops->seek 		= serial_seek;
-	ops->read 		= serial_read;
-	ops->write 		= serial_write;
-	ops->flush 		= serial_flush;
-	ops->ioctl 		= serial_ioctl;
-	ops->release 	= serial_release;
-	ops->driver 	= drv;
-
-	if(!register_chrdev(MAJOR_SERIAL, drv->info->name, ops))
-	{
-		free(ops);
-		return FALSE;
-	}
-
-	dev = search_chrdev_by_major_name(MAJOR_SERIAL, drv->info->name);
+	dev = malloc(sizeof(struct chrdev));
 	if(!dev)
+		return FALSE;
+
+	dev->name		= drv->info->name;
+	dev->type		= CHR_DEV_SERIAL;
+	dev->open 		= serial_open;
+	dev->seek 		= serial_seek;
+	dev->read 		= serial_read;
+	dev->write 		= serial_write;
+	dev->flush 		= serial_flush;
+	dev->ioctl 		= serial_ioctl;
+	dev->release 	= serial_release;
+	dev->driver 	= drv;
+
+	if(!register_chrdev(dev))
 	{
-		unregister_chrdev(MAJOR_SERIAL, drv->info->name);
-		free(ops);
+		free(dev);
 		return FALSE;
 	}
 
-	drv->device = dev;
+	if(search_chrdev_with_type(dev->name, CHR_DEV_SERIAL) == NULL)
+	{
+		unregister_chrdev(dev->name);
+		free(dev);
+		return FALSE;
+	}
 
 	if(drv->init)
 		(drv->init)();
@@ -628,13 +625,15 @@ x_bool register_serial(struct serial_driver * drv)
 	if(drv->flush)
 		(drv->flush)();
 
-	/* register a terminal */
+	/*
+	 * register a terminal
+	 */
 	term = malloc(sizeof(struct terminal));
 	info = malloc(sizeof(struct serial_terminal_info));
 	if(!term || !info)
 	{
-		unregister_chrdev(MAJOR_SERIAL, drv->info->name);
-		free(ops);
+		unregister_chrdev(dev->name);
+		free(dev);
 		free(term);
 		free(info);
 		return FALSE;
@@ -681,8 +680,8 @@ x_bool register_serial(struct serial_driver * drv)
 
 	if(!register_terminal(term))
 	{
-		unregister_chrdev(MAJOR_SERIAL, drv->info->name);
-		free(ops);
+		unregister_chrdev(dev->name);
+		free(dev);
 		free(term);
 		free(info);
 		return FALSE;
@@ -697,16 +696,17 @@ x_bool register_serial(struct serial_driver * drv)
 x_bool unregister_serial(struct serial_driver * drv)
 {
 	struct chrdev * dev;
-	struct char_operations * ops;
+	struct serial_driver * driver;
 	x_s8 term_name[32+1];
 	struct terminal * term;
 	struct serial_terminal_info * info;
 
-	if(!drv || !drv->device)
+	if(!drv || !drv->info || !drv->info->name)
 		return FALSE;
 
-	dev = drv->device;
-	ops = dev->ops;
+	dev = search_chrdev_with_type(drv->info->name, CHR_DEV_SERIAL);
+	if(!dev)
+		return FALSE;
 
 	strcpy(term_name, (x_s8*)"tty-");
 	strlcat(term_name, (x_s8*)drv->info->name, 32+1);
@@ -717,18 +717,19 @@ x_bool unregister_serial(struct serial_driver * drv)
 	else
 		return FALSE;
 
-	if(drv->exit)
-		(drv->exit)();
+	driver = (struct serial_driver *)(dev->driver);
+	if(driver && driver->exit)
+		(driver->exit)();
 
 	if(!unregister_terminal(term))
 		return FALSE;
 
-	if(!unregister_chrdev(dev->major, dev->name))
+	if(!unregister_chrdev(dev->name))
 		return FALSE;
 
 	free(info);
 	free(term);
-	free(ops);
+	free(dev);
 
 	return TRUE;
 }

@@ -28,7 +28,6 @@
 #include <ctype.h>
 #include <malloc.h>
 #include <xboot/log.h>
-#include <xboot/major.h>
 #include <xboot/ioctl.h>
 #include <xboot/list.h>
 #include <xboot/chrdev.h>
@@ -38,7 +37,7 @@
 #include <serial/serial.h>
 #include <shell/command.h>
 
-
+#if 0
 #if	defined(CONFIG_COMMAND_SERIAL) && (CONFIG_COMMAND_SERIAL > 0)
 
 extern struct hlist_head chrdev_hash[];
@@ -488,4 +487,5 @@ static __exit void serial_cmd_exit(void)
 module_init(serial_cmd_init, LEVEL_COMMAND);
 module_exit(serial_cmd_exit, LEVEL_COMMAND);
 
+#endif
 #endif

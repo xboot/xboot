@@ -11,7 +11,6 @@
 #include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
-#include <xboot/major.h>
 #include <xboot/printk.h>
 #include <xboot/panic.h>
 

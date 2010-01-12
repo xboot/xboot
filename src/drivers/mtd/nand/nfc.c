@@ -26,7 +26,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <hash.h>
-#include <xboot/major.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>

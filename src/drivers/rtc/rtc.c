@@ -28,7 +28,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <vsprintf.h>
-#include <xboot/major.h>
 #include <xboot/printk.h>
 #include <xboot/chrdev.h>
 #include <xboot/ioctl.h>
@@ -155,7 +154,7 @@ static x_s32 rtc_seek(struct chrdev * dev, x_s32 offset)
 static x_s32 rtc_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 {
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-	struct rtc_driver * drv = (struct rtc_driver *)(dev->ops->driver);
+	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time time;
 	x_s8 tmp[64];
 	x_s32 offset = 0;
@@ -202,7 +201,7 @@ static x_s32 rtc_flush(struct chrdev * dev)
  */
 static x_s32 rtc_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
 {
-	struct rtc_driver * drv = (struct rtc_driver *)(dev->ops->driver);
+	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time * time;
 
 	switch(cmd)
@@ -261,40 +260,38 @@ static x_s32 rtc_release(struct chrdev * dev)
  */
 x_bool register_rtc(struct rtc_driver * drv)
 {
-	struct char_operations * ops;
 	struct chrdev * dev;
 
 	if(!drv || !drv->name || !drv->get_time)
 		return FALSE;
 
-	ops = malloc(sizeof(struct char_operations));
-	if(!ops)
-		return FALSE;
-
-	ops->open 		= rtc_open;
-	ops->seek 		= rtc_seek;
-	ops->read 		= rtc_read;
-	ops->write 		= rtc_write;
-	ops->flush 		= rtc_flush;
-	ops->ioctl 		= rtc_ioctl;
-	ops->release 	= rtc_release;
-	ops->driver 	= drv;
-
-	if(!register_chrdev(MAJOR_RTC, drv->name, ops))
-	{
-		free(ops);
-		return FALSE;
-	}
-
-	dev = search_chrdev_by_major_name(MAJOR_RTC, drv->name);
+	dev = malloc(sizeof(struct chrdev));
 	if(!dev)
+		return FALSE;
+
+	dev->name		= drv->name;
+	dev->type		= CHR_DEV_RTC;
+	dev->open 		= rtc_open;
+	dev->seek 		= rtc_seek;
+	dev->read 		= rtc_read;
+	dev->write 		= rtc_write;
+	dev->flush 		= rtc_flush;
+	dev->ioctl 		= rtc_ioctl;
+	dev->release 	= rtc_release;
+	dev->driver 	= drv;
+
+	if(!register_chrdev(dev))
 	{
-		unregister_chrdev(MAJOR_RTC, drv->name);
-		free(ops);
+		free(dev);
 		return FALSE;
 	}
 
-	drv->device = dev;
+	if(search_chrdev_with_type(dev->name, CHR_DEV_RTC) == NULL)
+	{
+		unregister_chrdev(dev->name);
+		free(dev);
+		return FALSE;
+	}
 
 	if(drv->init)
 		(drv->init)();
@@ -308,21 +305,22 @@ x_bool register_rtc(struct rtc_driver * drv)
 x_bool unregister_rtc(struct rtc_driver * drv)
 {
 	struct chrdev * dev;
-	struct char_operations * ops;
+	struct rtc_driver * driver;
 
-	if(!drv || !drv->device)
+	if(!drv || !drv->name)
 		return FALSE;
 
-	dev = drv->device;
-	ops = dev->ops;
-
-	if(drv->exit)
-		(drv->exit)();
-
-	if(!unregister_chrdev(dev->major, dev->name))
+	dev = search_chrdev_with_type(drv->name, CHR_DEV_RTC);
+	if(!dev)
 		return FALSE;
 
-	free(ops);
+	driver = (struct rtc_driver *)(dev->driver);
+	if(driver && driver->exit)
+		(driver->exit)();
 
+	if(!unregister_chrdev(dev->name));
+		return FALSE;
+
+	free(dev);
 	return TRUE;
 }

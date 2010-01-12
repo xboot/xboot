@@ -8,14 +8,31 @@
 #include <xboot/list.h>
 
 
-/* declare struct chrdev */
-struct chrdev;
+/*
+ * char device type
+ */
+enum chrdev_type {
+	CHR_DEV_SERIAL,
+	CHR_DEV_KEYBOARD,
+	CHR_DEV_MOUSE,
+	CHR_DEV_TOUCHSCREEN,
+	CHR_DEV_JOYSTICK,
+	CHR_DEV_FRAMEBUFFER,
+	CHR_DEV_RTC,
+	CHR_DEV_MISC,
+};
 
 /*
- * the operations of char device
+ * the char device struct.
  */
-struct char_operations
+struct chrdev
 {
+	/* the device name */
+	const char * name;
+
+	/* the type of char device */
+	enum chrdev_type type;
+
 	/* open device */
 	x_s32 (*open)(struct chrdev * dev);
 
@@ -42,38 +59,17 @@ struct char_operations
 };
 
 /*
- * the char device struct.
- */
-struct chrdev
-{
-	/* the device name */
-	char name[32+1];
-
-	/* major device number */
-	x_u32 major;
-
-	/* minor device number */
-	x_u32 minor;
-
-	/* the operations of char device */
-	struct char_operations * ops;
-};
-
-/*
- * the list of chrdev list
+ * the list of chrdev
  */
 struct chrdev_list
 {
 	struct chrdev * dev;
-	struct hlist_node node;
+	struct list_head entry;
 };
 
-
-inline x_u32 chrdev_major_to_index(x_u32 major);
-struct chrdev * search_chrdev_by_major_name(x_u32 major, const char *name);
-struct chrdev * search_chrdev_by_major_minor(x_u32 major, x_u32 minor);
-x_bool register_chrdev(x_u32 major, const char *name, const struct char_operations *ops);
-x_bool unregister_chrdev(x_u32 major, const char *name);
-
+struct chrdev * search_chrdev(const char * name);
+struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type);
+x_bool register_chrdev(struct chrdev * dev);
+x_bool unregister_chrdev(const char * name);
 
 #endif /* __CHRDEV_H__ */

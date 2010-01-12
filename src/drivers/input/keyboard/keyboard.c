@@ -1,7 +1,6 @@
 /*
  * drivers/input/keyboard/keyboard.c
  *
- *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
@@ -28,7 +27,6 @@
 #include <malloc.h>
 #include <hash.h>
 #include <fifo.h>
-#include <xboot/major.h>
 #include <xboot/chrdev.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
@@ -75,7 +73,7 @@ static x_s32 keyboard_seek(struct chrdev * dev, x_s32 offset)
  */
 static x_s32 keyboard_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 {
-	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->ops->driver);
+	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->driver);
 	enum keycode code;
 
 	if(drv->read)
@@ -103,7 +101,7 @@ static x_s32 keyboard_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
  */
 static x_s32 keyboard_flush(struct chrdev * dev)
 {
-	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->ops->driver);
+	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->driver);
 
 	if(drv->flush)
 		(drv->flush)();
@@ -116,7 +114,7 @@ static x_s32 keyboard_flush(struct chrdev * dev)
  */
 static x_s32 keyboard_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
 {
-	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->ops->driver);
+	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->driver);
 
 	if(drv->ioctl)
 		return ((drv->ioctl)(cmd, arg));
@@ -860,7 +858,6 @@ static x_s32 keyboard_release(struct chrdev * dev)
  */
 x_bool register_keyboard(struct keyboard_driver * drv)
 {
-	struct char_operations * ops;
 	struct chrdev * dev;
 	struct terminal * term;
 	struct keyboard_terminal_info * info;
@@ -868,34 +865,33 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 	if(!drv || !drv->name || !drv->read)
 		return FALSE;
 
-	ops = malloc(sizeof(struct char_operations));
-	if(!ops)
-		return FALSE;
-
-	ops->open 		= keyboard_open;
-	ops->seek 		= keyboard_seek;
-	ops->read 		= keyboard_read;
-	ops->write 		= keyboard_write;
-	ops->flush 		= keyboard_flush;
-	ops->ioctl 		= keyboard_ioctl;
-	ops->release 	= keyboard_release;
-	ops->driver 	= drv;
-
-	if(!register_chrdev(MAJOR_KEYBOARD, drv->name, ops))
-	{
-		free(ops);
-		return FALSE;
-	}
-
-	dev = search_chrdev_by_major_name(MAJOR_KEYBOARD, drv->name);
+	dev = malloc(sizeof(struct chrdev));
 	if(!dev)
+		return FALSE;
+
+	dev->name		= drv->name;
+	dev->type		= CHR_DEV_KEYBOARD;
+	dev->open 		= keyboard_open;
+	dev->seek 		= keyboard_seek;
+	dev->read 		= keyboard_read;
+	dev->write 		= keyboard_write;
+	dev->flush 		= keyboard_flush;
+	dev->ioctl 		= keyboard_ioctl;
+	dev->release 	= keyboard_release;
+	dev->driver 	= drv;
+
+	if(!register_chrdev(dev))
 	{
-		unregister_chrdev(MAJOR_KEYBOARD, drv->name);
-		free(ops);
+		free(dev);
 		return FALSE;
 	}
 
-	drv->device = dev;
+	if(search_chrdev_with_type(dev->name, CHR_DEV_KEYBOARD) == NULL)
+	{
+		unregister_chrdev(dev->name);
+		free(dev);
+		return FALSE;
+	}
 
 	if(drv->init)
 		(drv->init)();
@@ -903,13 +899,15 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 	if(drv->flush)
 		(drv->flush)();
 
-	/* register a terminal */
+	/*
+	 * register a terminal
+	 */
 	term = malloc(sizeof(struct terminal));
 	info = malloc(sizeof(struct keyboard_terminal_info));
 	if(!term || !info)
 	{
-		unregister_chrdev(MAJOR_KEYBOARD, drv->name);
-		free(ops);
+		unregister_chrdev(dev->name);
+		free(dev);
 		free(term);
 		free(info);
 		return FALSE;
@@ -949,8 +947,8 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 
 	if(!register_terminal(term))
 	{
-		unregister_chrdev(MAJOR_KEYBOARD, drv->name);
-		free(ops);
+		unregister_chrdev(dev->name);
+		free(dev);
 		free(term);
 		free(info);
 		return FALSE;
@@ -965,16 +963,17 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 x_bool unregister_keyboard(struct keyboard_driver * drv)
 {
 	struct chrdev * dev;
-	struct char_operations * ops;
+	struct keyboard_driver * driver;
 	x_s8 term_name[32+1];
 	struct terminal * term;
 	struct keyboard_terminal_info * info;
 
-	if(!drv || !drv->device)
+	if(!drv || !drv->name)
 		return FALSE;
 
-	dev = drv->device;
-	ops = dev->ops;
+	dev = search_chrdev_with_type(drv->name, CHR_DEV_KEYBOARD);
+	if(!dev)
+		return FALSE;
 
 	strcpy(term_name, (x_s8*)"tty-");
 	strlcat(term_name, (x_s8*)drv->name, 32+1);
@@ -985,19 +984,20 @@ x_bool unregister_keyboard(struct keyboard_driver * drv)
 	else
 		return FALSE;
 
-	if(drv->exit)
-		(drv->exit)();
+	driver = (struct keyboard_driver *)(dev->driver);
+	if(driver && driver->exit)
+		(driver->exit)();
 
 	if(!unregister_terminal(term))
 		return FALSE;
 
-	if(!unregister_chrdev(dev->major, dev->name))
+	if(!unregister_chrdev(dev->name))
 		return FALSE;
 
 	fifo_free(info->fifo);
 	free(info);
 	free(term);
-	free(ops);
+	free(dev);
 
 	return TRUE;
 }

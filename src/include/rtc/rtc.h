@@ -37,9 +37,6 @@ struct rtc_driver
 
 	/* enable alarm or not */
 	x_bool (*alarm_enable)(x_bool enable);
-
-	/* driver device */
-	void * device;
 };
 
 
@@ -51,6 +48,5 @@ x_u32 time_to_rtc(struct time * tm);
 
 x_bool register_rtc(struct rtc_driver * drv);
 x_bool unregister_rtc(struct rtc_driver * drv);
-
 
 #endif /* __RTC_H__ */

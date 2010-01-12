@@ -1,7 +1,6 @@
 /*
  * kernel/command/cmd_serial.c
  *
- *
  * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
  * website: http://xboot.org
  *
@@ -37,25 +36,25 @@
 #include <serial/serial.h>
 #include <shell/command.h>
 
-#if 0
 #if	defined(CONFIG_COMMAND_SERIAL) && (CONFIG_COMMAND_SERIAL > 0)
 
-extern struct hlist_head chrdev_hash[];
+extern struct chrdev_list * chrdev_list;
 
 static void serial_info(void)
 {
 	struct chrdev_list * list;
-	struct hlist_node * pos;
+	struct list_head * pos;
 	struct serial_info * serial_info;
-	x_u32 hash;
 
-	hash = chrdev_major_to_index(MAJOR_SERIAL);
-
-	hlist_for_each_entry(list,  pos, &(chrdev_hash[hash]), node)
+	for(pos = (&chrdev_list->entry)->next; pos != (&chrdev_list->entry); pos = pos->next)
 	{
+		list = list_entry(pos, struct chrdev_list, entry);
+		if(list->dev->type != CHR_DEV_SERIAL)
+			continue;
+
 		printk(" \"%s\" - <", list->dev->name);
 
-		serial_info = ((struct serial_driver *)(list->dev->ops->driver))->info;
+		serial_info = ((struct serial_driver *)(list->dev->driver))->info;
 		switch(serial_info->parameter->baud_rate)
 		{
 		case B50:
@@ -190,24 +189,22 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 		}
 		name = (x_s8 *)argv[2];
 		str = (x_s8 *)argv[3];
-		device = search_chrdev_by_major_name(MAJOR_SERIAL, (char*)name);
+		device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
 		if(!device)
 		{
 			printk(" not found serial device \"%s\"\r\n", name);
 			printk(" try 'serial info' for list all of serial devices\r\n");
 			return -1;
 		}
-		if(device->ops)
-		{
-			if(device->ops->open)
-				(device->ops->open)(device);
 
-			if(device->ops->write)
-				(device->ops->write)(device, (x_u8 *)str, strlen(str));
+		if(device->open)
+			(device->open)(device);
 
-			if(device->ops->release)
-				(device->ops->release)(device);
-		}
+		if(device->write)
+			(device->write)(device, (x_u8 *)str, strlen(str));
+
+		if(device->release)
+			(device->release)(device);
 	}
 	else if( !strcmp(argv[1],(x_s8*)"recv") )
 	{
@@ -220,7 +217,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 			return (-1);
 		}
 		name = (x_s8 *)argv[2];
-		device = search_chrdev_by_major_name(MAJOR_SERIAL, (char*)name);
+		device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
 		if(!device)
 		{
 			printk(" not found serial device \"%s\"\r\n", name);
@@ -228,32 +225,30 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 			return -1;
 		}
 
-		if(device->ops)
+		if(device->open)
+			(device->open)(device);
+
+		if(device->read)
 		{
-			if(device->ops->open)
-				(device->ops->open)(device);
-
-			if(device->ops->read)
+			read_func = device->read;
+			while(1)
 			{
-				read_func = device->ops->read;
-				while(1)
+				if(read_func(device, &c, 1) == 1)
 				{
-					if(read_func(device, &c, 1) == 1)
-					{
-						if(isprint(c) || isspace(c))
-							putch(c);
-						else
-							printk("<%02x>", c);
-					}
-					if(ctrlc())
-						break;
+					if(isprint(c) || isspace(c))
+						putch(c);
+					else
+						printk("<%02x>", c);
 				}
+				if(ctrlc())
+					break;
 			}
-
-			if(device->ops->release)
-				(device->ops->release)(device);
 		}
+
+		if(device->release)
+			(device->release)(device);
 	}
+
 	else if( !strcmp(argv[1],(x_s8*)"param") )
 	{
 		if(argc < 3)
@@ -290,14 +285,14 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 			else if(*argv[i] != '-' && strcmp(argv[i], (x_s8*)"-") != 0)
 			{
 				name = (x_s8 *)argv[i];
-				device = search_chrdev_by_major_name(MAJOR_SERIAL, (char*)name);
+				device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
 				if(!device)
 				{
 					printk(" not found serial device \"%s\"\r\n", name);
 					printk(" try 'serial info' for list all of serial devices\r\n");
 					return -1;
 				}
-				if(!(device->ops) || !(device->ops->ioctl))
+				if(!(device->ioctl))
 				{
 					printk(" don't support ioctl function at this device.\r\n");
 					return -1;
@@ -364,7 +359,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				return -1;
 			}
 
-			if(device->ops->ioctl(device, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(param.baud_rate))) < 0)
+			if(device->ioctl(device, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(param.baud_rate))) < 0)
 			{
 				printk("setting serial device's baud rate fail. (%s)\r\n", device->name);
 				return -1;
@@ -387,7 +382,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				return -1;
 			}
 
-			if(device->ops->ioctl(device, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(param.data_bit))) < 0)
+			if(device->ioctl(device, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(param.data_bit))) < 0)
 			{
 				printk("setting serial device's data bits fail. (%s)\r\n", device->name);
 				return -1;
@@ -408,7 +403,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				return -1;
 			}
 
-			if(device->ops->ioctl(device, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(param.parity))) < 0)
+			if(device->ioctl(device, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(param.parity))) < 0)
 			{
 				printk("setting serial device's parity fail. (%s)\r\n", device->name);
 				return -1;
@@ -429,7 +424,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				return -1;
 			}
 
-			if(device->ops->ioctl(device, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(param.stop_bit))) < 0)
+			if(device->ioctl(device, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(param.stop_bit))) < 0)
 			{
 				printk("setting serial device's stop bit fail. (%s)\r\n", device->name);
 				return -1;
@@ -487,5 +482,4 @@ static __exit void serial_cmd_exit(void)
 module_init(serial_cmd_init, LEVEL_COMMAND);
 module_exit(serial_cmd_exit, LEVEL_COMMAND);
 
-#endif
 #endif

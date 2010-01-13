@@ -39,7 +39,7 @@
 /*
  * filesystem operations
  */
-static x_s32 devfs_mount(struct mount * m, char * dev, x_s32 flag, void * data)
+static x_s32 devfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
 	return 0;
 }
@@ -61,7 +61,7 @@ static x_s32 devfs_vget(struct mount * m, struct vnode * node)
 
 static x_s32 devfs_statfs(struct mount * m, struct statfs * stat)
 {
-	return 0;
+	return -1;
 }
 
 /*

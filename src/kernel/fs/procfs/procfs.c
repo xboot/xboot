@@ -41,7 +41,7 @@ extern struct proc_list * proc_list;
 /*
  * filesystem operations
  */
-static x_s32 procfs_mount(struct mount * m, char * dev, x_s32 flag, void * data)
+static x_s32 procfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
 	m->m_flags |= MOUNT_RDONLY | MOUNT_NODEV;
 	m->m_data = (void *)proc_list;

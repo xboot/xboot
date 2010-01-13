@@ -8,7 +8,7 @@
 #include <fs/vfs/vfs.h>
 
 
-x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags, void * data);
+x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags);
 void sync(void);
 x_s32 umount(const char * dir);
 x_s32 open(const char * path, x_u32 flags, x_u32 mode);

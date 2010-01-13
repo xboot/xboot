@@ -186,7 +186,7 @@ struct mount {
  * operations supported on virtual file system.
  */
 struct vfsops {
-	x_s32(*vfs_mount)(struct mount *, char *, x_s32, void *);
+	x_s32(*vfs_mount)(struct mount *, char *, x_s32);
 	x_s32(*vfs_unmount)(struct mount *);
 	x_s32(*vfs_sync)(struct mount *);
 	x_s32(*vfs_vget)(struct mount *, struct vnode *);
@@ -245,7 +245,7 @@ x_s32 lookup(char * path, struct vnode ** vpp, char ** name);
 /*
  * declare for vfs syscall
  */
-x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data);
+x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags);
 x_s32 sys_umount(char * path);
 x_s32 sys_sync(void);
 x_s32 sys_open(char * path, x_u32 flags, x_u32 mode, struct file ** pfp);

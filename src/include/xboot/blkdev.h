@@ -26,7 +26,11 @@ struct blkdev
 	/* the type of block device */
 	const enum blkdev_type type;
 
-	/* ... */
+	/* open device */
+	x_s32 (*open)(struct blkdev * dev);
+
+	/* close device */
+	x_s32 (*close)(struct blkdev * dev);
 
 	/* block device's driver */
 	void * driver;

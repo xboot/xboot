@@ -49,7 +49,7 @@ void do_system_rootfs(void)
 {
 	LOG_I("mount root filesystem");
 
-	if(mount(NULL, "/" , "ramfs", 0, NULL) != 0)
+	if(mount(NULL, "/" , "ramfs", 0) != 0)
 		LOG_E("mount root filesystem fail");
 
 	if(chdir("/") != 0)
@@ -58,13 +58,13 @@ void do_system_rootfs(void)
 	if(mkdir("/proc", S_IRUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG_E("failed to create directory '/proc'");
 
-	if(mount(NULL, "/proc" , "procfs", 0, NULL) != 0)
+	if(mount(NULL, "/proc" , "procfs", 0) != 0)
 		LOG_E("mount proc filesystem fail");
 
 	if(mkdir("/dev", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG_E("failed to create directory '/dev'");
 
-	if(mount(NULL, "/dev" , "devfs", 0, NULL) != 0)
+	if(mount(NULL, "/dev" , "devfs", 0) != 0)
 		LOG_E("mount dev filesystem fail");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)

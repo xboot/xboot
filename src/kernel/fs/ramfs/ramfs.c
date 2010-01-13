@@ -153,7 +153,7 @@ static x_s32 ramfs_rename_node(struct ramfs_node * node, char * name)
 /*
  * filesystem operations
  */
-static x_s32 ramfs_mount(struct mount * m, char * dev, x_s32 flag, void * data)
+static x_s32 ramfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
 	struct ramfs_node * node;
 
@@ -167,7 +167,7 @@ static x_s32 ramfs_mount(struct mount * m, char * dev, x_s32 flag, void * data)
 
 static x_s32 ramfs_unmount(struct mount * m)
 {
-	return EBUSY;
+	return 0;
 }
 
 static x_s32 ramfs_sync(struct mount * m)
@@ -182,7 +182,7 @@ static x_s32 ramfs_vget(struct mount * m, struct vnode * node)
 
 static x_s32 ramfs_statfs(struct mount * m, struct statfs * stat)
 {
-	return 0;
+	return -1;
 }
 
 /*

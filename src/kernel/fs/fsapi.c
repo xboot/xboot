@@ -32,7 +32,7 @@
 /*
  * mount a file system
  */
-x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags, void * data)
+x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags)
 {
 	char dev_path[MAX_PATH];
 	char dir_path[MAX_PATH];
@@ -45,10 +45,10 @@ x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags, vo
 	{
 		if((err = vfs_path_conv(dev, dev_path)) != 0)
 			return err;
-		return sys_mount(dev_path, dir_path, (char *)fs, flags, data);
+		return sys_mount(dev_path, dir_path, (char *)fs, flags);
 	}
 	else
-		return sys_mount(NULL, dir_path, (char *)fs, flags, data);
+		return sys_mount(NULL, dir_path, (char *)fs, flags);
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * kernel/fs/vfs/vfs.c
  *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
+ * Copyright (c) 2007-2010 jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@
 #include <malloc.h>
 #include <xboot/list.h>
 #include <xboot/panic.h>
+#include <xboot/blkdev.h>
 #include <fs/fs.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
@@ -39,12 +40,14 @@ extern struct list_head mount_list;
 /*
  * system mount
  */
-x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
+x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 {
+	struct blkdev * device;
 	struct filesystem * fs;
 	struct list_head * pos;
 	struct mount * m;
 	struct vnode *vp, *vp_covered;
+	x_s8 * p;
 	x_s32 err;
 
 	if(!dir || *dir == '\0')
@@ -59,12 +62,18 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
 	 */
 	if(dev != NULL)
 	{
-		if(strncmp((const x_s8 *)dev, (const x_s8 *)"/dev/", 5))
+		/* search for the last directory separator in dev */
+		if( (p = strrchr((const x_s8 *)dev, '/')) != NULL )
+			p = p+1;
+		else
+			p = (x_s8 *)dev;
+
+		if( (device = search_blkdev((const char *)p)) == NULL)
 			return ENODEV;
-		/*
-		 * TODO
-		 * dev + 5 for device name.
-		 */
+	}
+	else
+	{
+		device = NULL;
 	}
 
 	/*
@@ -78,14 +87,19 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
 			return EBUSY;
 		}
 
-		if(dev != NULL)
+		if((device != NULL) && (m->m_dev == (void *)device))
 		{
-			/*
-			 * TODO
-			 *  m->m_dev == (dev_t)device
-			 */
 			return EBUSY;
 		}
+	}
+
+	/*
+	 * open block device
+	 */
+	if(device != NULL)
+	{
+		if( device->open(device) != 0 )
+			return EINTR;
 	}
 
 	/*
@@ -93,15 +107,16 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
 	 */
 	if( !(m = malloc(sizeof(struct mount))) )
 	{
+		if(device != NULL)
+			device->close(device);
 		return ENOMEM;
 	}
-	m->m_count = 0;
+
 	m->m_op = fs->vfsops;
 	m->m_flags = flags;
-	/* TODO */
-	m->m_dev = NULL;
-
+	m->m_count = 0;
 	strlcpy((x_s8 *)m->m_path, (const x_s8 *)dir, sizeof(m->m_path));
+	m->m_dev = (void *)device;
 
 	/*
 	 * get vnode to be covered in the upper file system.
@@ -117,6 +132,8 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
 	{
 		if(namei(dir, &vp_covered) != 0)
 		{
+			if(device != NULL)
+				device->close(device);
 			free(m);
 			return ENOENT;
 		}
@@ -124,6 +141,8 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
 		{
 			if(vp_covered)
 				vput(vp_covered);
+			if(device != NULL)
+				device->close(device);
 			free(m);
 			return ENOTDIR;
 		}
@@ -137,6 +156,8 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
 	{
 		if(vp_covered)
 			vput(vp_covered);
+		if(device != NULL)
+			device->close(device);
 		free(m);
 		return ENOMEM;
 	}
@@ -149,12 +170,14 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
 	/*
 	 * call a file system specific routine.
 	 */
-	err = m->m_op->vfs_mount(m, dev, flags, data);
+	err = m->m_op->vfs_mount(m, dev, flags);
 	if( err != 0 )
 	{
 		vput(vp);
 		if(vp_covered)
 			vput(vp_covered);
+		if(device != NULL)
+			device->close(device);
 		free(m);
 		return err;
 	}
@@ -174,7 +197,10 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
 	 */
 	list_add(&m->m_link, &mount_list);
 
-	return 0;	/* success */
+	/*
+	 * success
+	 */
+	return 0;
 }
 
 /*
@@ -182,6 +208,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags, void * data)
  */
 x_s32 sys_umount(char * path)
 {
+	struct blkdev * device;
 	struct list_head * pos;
 	struct mount * m;
 	x_s32 err;
@@ -214,12 +241,11 @@ x_s32 sys_umount(char * path)
 
 			if(m->m_dev)
 			{
-				//TODO
-				/* flush all buffers */
-				//binval(m->m_dev);
+				device = (struct blkdev *)(m->m_dev);
+				device->close(device);
 			}
-			free(m);
 
+			free(m);
 			return 0;
 		}
 	}
@@ -243,8 +269,6 @@ x_s32 sys_sync(void)
 			m->m_op->vfs_sync(m);
 	}
 
-	//TODO
-	//bio_sync();
 	return 0;
 }
 

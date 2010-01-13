@@ -43,7 +43,10 @@ extern struct proc_list * proc_list;
  */
 static x_s32 procfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
-	m->m_flags |= MOUNT_RDONLY | MOUNT_NODEV;
+	if(dev != NULL)
+		return EINVAL;
+
+	m->m_flags = (MOUNT_RDONLY | MOUNT_NODEV) & MOUNT_MASK;
 	m->m_data = (void *)proc_list;
 
 	return 0;
@@ -51,7 +54,8 @@ static x_s32 procfs_mount(struct mount * m, char * dev, x_s32 flag)
 
 static x_s32 procfs_unmount(struct mount * m)
 {
-	m->m_data = 0;
+	m->m_data = NULL;
+
 	return 0;
 }
 
@@ -139,6 +143,7 @@ static x_s32 procfs_fsync(struct vnode * node, struct file * fp)
 
 static x_s32 procfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
+	struct proc_list * plist = (struct proc_list *)node->v_mount->m_data;
 	struct proc_list * list;
 	struct list_head * pos;
 	x_s32 i;
@@ -155,11 +160,11 @@ static x_s32 procfs_readdir(struct vnode * node, struct file * fp, struct dirent
 	}
 	else
 	{
-		pos = (&proc_list->entry)->next;
+		pos = (&plist->entry)->next;
 		for(i = 0; i != (fp->f_offset - 2); i++)
 		{
 			pos = pos->next;
-			if(pos == (&proc_list->entry))
+			if(pos == (&plist->entry))
 				return EINVAL;
 		}
 

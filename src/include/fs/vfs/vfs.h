@@ -164,8 +164,8 @@ struct statfs {
  */
 #define	MOUNT_RDONLY			(0x00000001)	/* read only filesystem */
 #define	MOUNT_NODEV				(0x00000002)	/* don't interpret special files */
-#define	MOUNT_SYNC				(0x00000004)	/* file system written synchronously */
-#define	MOUNT_ASYNC				(0x00000008)	/* file system written asynchronously */
+#define	MOUNT_LOOP				(0x00000004)	/* mount loop device */
+#define	MOUNT_MASK				(0x00000007)	/* mount flag mask value */
 
 /*
  * mount data

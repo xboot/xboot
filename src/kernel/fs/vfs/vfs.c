@@ -113,7 +113,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 	}
 
 	m->m_op = fs->vfsops;
-	m->m_flags = flags;
+	m->m_flags = flags & MOUNT_MASK;
 	m->m_count = 0;
 	strlcpy((x_s8 *)m->m_path, (const x_s8 *)dir, sizeof(m->m_path));
 	m->m_dev = (void *)device;

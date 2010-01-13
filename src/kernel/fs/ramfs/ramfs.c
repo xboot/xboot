@@ -157,16 +157,26 @@ static x_s32 ramfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
 	struct ramfs_node * node;
 
+	if(dev != NULL)
+		return EINVAL;
+
 	/* create a root node */
 	node = ramfs_allocate_node("/", VDIR);
 	if(node == NULL)
 		return ENOMEM;
+
+	m->m_flags = (flag & MOUNT_RDONLY) | MOUNT_NODEV;
 	m->m_root->v_data = node;
+	m->m_data = NULL;
+
 	return 0;
 }
 
 static x_s32 ramfs_unmount(struct mount * m)
 {
+	ramfs_free_node(m->m_root->v_data);
+	m->m_data = NULL;
+
 	return 0;
 }
 

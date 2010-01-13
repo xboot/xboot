@@ -33,19 +33,31 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/scank.h>
+#include <xboot/chrdev.h>
+#include <xboot/blkdev.h>
 #include <fs/fs.h>
 
+extern struct chrdev_list * chrdev_list;
+extern struct blkdev_list * blkdev_list;
 
 /*
  * filesystem operations
  */
 static x_s32 devfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
+	if(dev != NULL)
+		return EINVAL;
+
+	m->m_flags = MOUNT_NODEV & MOUNT_MASK;
+	m->m_data = (void *)chrdev_list;
+
 	return 0;
 }
 
 static x_s32 devfs_unmount(struct mount * m)
 {
+	m->m_data = NULL;
+
 	return 0;
 }
 
@@ -69,12 +81,45 @@ static x_s32 devfs_statfs(struct mount * m, struct statfs * stat)
  */
 static x_s32 devfs_open(struct vnode * node, x_s32 flag)
 {
-	return -1;
+	struct chrdev * dev;
+	x_s8 * path;
+
+	path = (x_s8 *)node->v_path;
+	if(!strcmp(path, (const x_s8 *)"/"))
+		return 0;
+
+	if(*path == '/')
+		path++;
+
+	dev = search_chrdev((const char *)path);
+	if(dev == NULL)
+		return -1;
+
+	if(dev->open(dev) != 0)
+		return -1;
+
+	/*
+	 * store private data
+	 */
+	node->v_data = (void *)dev;
+
+	return 0;
 }
 
 static x_s32 devfs_close(struct vnode * node, struct file * fp)
 {
-	return -1;
+	struct chrdev * dev;
+	x_s8 * path;
+
+	path = (x_s8 *)node->v_path;
+	if(!strcmp(path, (const x_s8 *)"/"))
+		return 0;
+
+	dev = (struct chrdev *)node->v_data;
+	if(dev == NULL)
+		return -1;
+
+	return (dev->release(dev));
 }
 
 static x_s32 devfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
@@ -104,12 +149,57 @@ static x_s32 devfs_fsync(struct vnode * node, struct file * fp)
 
 static x_s32 devfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
-	return -1;
+	struct chrdev_list * plist = (struct chrdev_list *)node->v_mount->m_data;
+	struct chrdev_list * list;
+	struct list_head * pos;
+	x_s32 i;
+
+	if(fp->f_offset == 0)
+	{
+		dir->d_type = DT_DIR;
+		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)".", sizeof(dir->d_name));
+	}
+	else if(fp->f_offset == 1)
+	{
+		dir->d_type = DT_DIR;
+		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)"..", sizeof(dir->d_name));
+	}
+	else
+	{
+		pos = (&plist->entry)->next;
+		for(i = 0; i != (fp->f_offset - 2); i++)
+		{
+			pos = pos->next;
+			if(pos == (&plist->entry))
+				return EINVAL;
+		}
+
+		list = list_entry(pos, struct chrdev_list, entry);
+		dir->d_type = DT_CHR;
+		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)list->dev->name, sizeof(dir->d_name));
+	}
+
+	dir->d_fileno = (x_u32)fp->f_offset;
+	dir->d_namlen = (x_u16)strlen((const x_s8 *)dir->d_name);
+	fp->f_offset++;
+
+	return 0;
 }
 
 static x_s32 devfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	return -1;
+	struct chrdev * dev;
+
+	dev = search_chrdev(name);
+	if(dev == NULL)
+		return -1;
+
+	node->v_data = (void *)dev;
+	node->v_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+	node->v_type = DT_CHR;
+	node->v_size = 0;
+
+	return 0;
 }
 
 static x_s32 devfs_create(struct vnode * node, char * name, x_u32 mode)

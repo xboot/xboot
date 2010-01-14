@@ -149,10 +149,6 @@ static x_s32 devfs_close(struct vnode * node, struct file * fp)
 		blk = (struct blkdev *)(dev->priv);
 		return(blk->close(blk));
 	}
-	else
-	{
-		return -1;
-	}
 
 	return -1;
 }
@@ -179,7 +175,7 @@ static x_s32 devfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void 
 
 static x_s32 devfs_fsync(struct vnode * node, struct file * fp)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 devfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)

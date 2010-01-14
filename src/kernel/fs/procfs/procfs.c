@@ -138,7 +138,7 @@ static x_s32 procfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void
 
 static x_s32 procfs_fsync(struct vnode * node, struct file * fp)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 procfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)

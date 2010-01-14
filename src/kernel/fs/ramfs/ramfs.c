@@ -291,7 +291,7 @@ static x_s32 ramfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off
 
 static x_s32 ramfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)
 {
-	return EINVAL;
+	return -1;
 }
 
 static x_s32 ramfs_fsync(struct vnode * node, struct file * fp)
@@ -474,12 +474,12 @@ static x_s32 ramfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
 
 static x_s32 ramfs_getattr(struct vnode * node, struct vattr * attr)
 {
-	return 0;
+	return -1;
 }
 
 static x_s32 ramfs_setattr(struct vnode * node, struct vattr * attr)
 {
-	return 0;
+	return -1;
 }
 
 static x_s32 ramfs_inactive(struct vnode * node)

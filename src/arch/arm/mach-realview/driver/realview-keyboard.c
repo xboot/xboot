@@ -1,5 +1,5 @@
 /*
- * drivers/realview_keyboard.c
+ * driver/realview_keyboard.c
  *
  * realview keyboard drivers, the primecell pl050 ps2 controller.
  *
@@ -34,7 +34,7 @@
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <input/keyboard/keyboard.h>
 #include <realview/reg-keyboard.h>
 

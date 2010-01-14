@@ -68,7 +68,6 @@ struct filesystem * filesystem_search(const char * name)
 
 /*
  * register a filesystem into fs_list
- * return true is successed, otherwise is not.
  */
 x_bool filesystem_register(struct filesystem * fs)
 {
@@ -94,7 +93,7 @@ x_bool filesystem_register(struct filesystem * fs)
 }
 
 /*
- * unregister platform from platform_list
+ * unregister a filesystem from fs_list
  */
 x_bool filesystem_unregister(struct filesystem * fs)
 {

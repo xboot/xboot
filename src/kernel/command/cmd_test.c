@@ -25,7 +25,7 @@
 #include <xboot/printk.h>
 #include <xboot/scank.h>
 #include <xboot/initcall.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <xboot/chrdev.h>
 #include <shell/env.h>
 #include <shell/command.h>

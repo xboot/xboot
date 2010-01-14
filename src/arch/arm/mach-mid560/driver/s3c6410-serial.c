@@ -1,5 +1,5 @@
 /*
- * drivers/s3c6410-serial.c
+ * driver/s3c6410-serial.c
  *
  * s3c6410 on chip serial drivers.
  *
@@ -34,7 +34,7 @@
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <s3c6410/reg-serial.h>
 #include <s3c6410/reg-gpio.h>
 
@@ -589,11 +589,11 @@ static __init void s3c6410_serial_dev_init(void)
 	/* register serial driver */
 	for(i = 0; i < ARRAY_SIZE(s3c6410_uart_driver); i++)
 	{
-		param = (struct serial_parameter *)platform_device_get_data(s3c6410_uart_driver[i].info->name);
+		param = (struct serial_parameter *)resource_get_data(s3c6410_uart_driver[i].info->name);
 		if(param)
 			memcpy(s3c6410_uart_driver[i].info->parameter, param, sizeof(struct serial_parameter));
 		else
-			LOG_W("can't get the platform device data of \'%s\', use default parameter", s3c6410_uart_driver[i].info->name);
+			LOG_W("can't get the resource of \'%s\', use default parameter.\r\n", s3c6410_uart_driver[i].info->name);
 
 		if(!register_serial(&s3c6410_uart_driver[i]))
 			LOG_E("failed to register serial driver '%s'", s3c6410_uart_driver[i].info->name);

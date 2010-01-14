@@ -1,5 +1,5 @@
 /*
- * drivers/s3c2410-fb.c
+ * driver/s3c2410-fb.c
  *
  * s3c2410 on chip serial drivers.
  *
@@ -33,7 +33,7 @@
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <s3c2410/reg-gpio.h>
 #include <s3c2410/reg-lcd.h>
 #include <fb/fb.h>

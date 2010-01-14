@@ -28,7 +28,7 @@
 #include <malloc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <led/led-trigger.h>
@@ -119,7 +119,7 @@ static __init void heartbeat_trigger_init(void)
 {
 	struct led * led;
 
-	led = (struct led *)platform_device_get_data(heartbeat_trigger.name);
+	led = (struct led *)resource_get_data(heartbeat_trigger.name);
 	if(led && led->set)
 	{
 		if(led->init)

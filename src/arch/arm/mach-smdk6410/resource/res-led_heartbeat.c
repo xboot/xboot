@@ -1,5 +1,5 @@
 /*
- * devices/dev-led_heartbeat.c
+ * resource/res-led_heartbeat.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -30,7 +30,7 @@
 #include <xboot/initcall.h>
 #include <led/led.h>
 #include <led/led-trigger.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <s3c6410/reg-gpio.h>
 
 /*
@@ -58,23 +58,23 @@ static struct led led_gpn15 = {
 };
 
 /*
- * the led-heartbeat platform devices.
+ * the led-heartbeat resource.
  */
-static struct platform_device led_heartbeat = {
+static struct resource led_heartbeat = {
 	.name		= "led-heartbeat",
 	.data		= &led_gpn15,
 };
 
 static __init void dev_heartbeat_init(void)
 {
-	if(!platform_device_register(&led_heartbeat))
-		LOG_E("failed to register platform  device '%s'", led_heartbeat.name);
+	if(!register_resource(&led_heartbeat))
+		LOG_E("failed to register resource '%s'", led_heartbeat.name);
 }
 
 static __exit void dev_heartbeat_exit(void)
 {
-	if(!platform_device_unregister(&led_heartbeat))
-		LOG_E("failed to unregister platform device '%s'", led_heartbeat.name);
+	if(!unregister_resource(&led_heartbeat))
+		LOG_E("failed to unregister resource '%s'", led_heartbeat.name);
 }
 
 module_init(dev_heartbeat_init, LEVEL_MACH_RES);

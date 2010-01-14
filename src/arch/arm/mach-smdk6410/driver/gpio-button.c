@@ -1,5 +1,5 @@
 /*
- * drivers/gpio-button.c
+ * driver/gpio-button.c
  *
  * gpio key drivers.
  *
@@ -32,7 +32,7 @@
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <input/keyboard/keyboard.h>
 #include <s3c6410/reg-gpio.h>
 

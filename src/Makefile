@@ -61,8 +61,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				arch/$(ARCH)/lib/cmd \
 				arch/$(ARCH)/lib \
 				arch/$(ARCH)/$(MACH) \
-				arch/$(ARCH)/$(MACH)/drivers \
-				arch/$(ARCH)/$(MACH)/devices \
+				arch/$(ARCH)/$(MACH)/driver \
+				arch/$(ARCH)/$(MACH)/resource \
 				init \
 				lib \
 				lib/libc \

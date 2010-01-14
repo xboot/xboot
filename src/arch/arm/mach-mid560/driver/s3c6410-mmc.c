@@ -1,5 +1,5 @@
 /*
- * mach/mach-mid560/s3c6410-mmc.c
+ * driver/s3c6410-mmc.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org

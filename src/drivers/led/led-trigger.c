@@ -30,7 +30,7 @@
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <time/timer.h>
 #include <led/led.h>
 #include <led/led-trigger.h>

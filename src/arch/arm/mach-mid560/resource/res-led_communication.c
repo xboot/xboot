@@ -1,5 +1,5 @@
 /*
- * devices/dev-led_communication.c
+ * resource/res-led_communication.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -30,7 +30,7 @@
 #include <xboot/initcall.h>
 #include <led/led.h>
 #include <led/led-trigger.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <s3c6410/reg-gpio.h>
 
 /*
@@ -58,23 +58,23 @@ static struct led led_gpn14 = {
 };
 
 /*
- * the led-communication platform devices.
+ * the led-communication resource.
  */
-static struct platform_device led_communication = {
+static struct resource led_communication = {
 	.name		= "led-communication",
 	.data		= &led_gpn14,
 };
 
 static __init void dev_communication_init(void)
 {
-	if(!platform_device_register(&led_communication))
-		LOG_E("failed to register platform  device '%s'", led_communication.name);
+	if(!register_resource(&led_communication))
+		LOG_E("failed to register resource '%s'", led_communication.name);
 }
 
 static __exit void dev_communication_exit(void)
 {
-	if(!platform_device_unregister(&led_communication))
-		LOG_E("failed to unregister platform device '%s'", led_communication.name);
+	if(!unregister_resource(&led_communication))
+		LOG_E("failed to unregister resource '%s'", led_communication.name);
 }
 
 module_init(dev_communication_init, LEVEL_MACH_RES);

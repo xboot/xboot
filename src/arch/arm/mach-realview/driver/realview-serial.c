@@ -1,5 +1,5 @@
 /*
- * drivers/realview-serial.c
+ * driver/realview-serial.c
  *
  * realview serial drivers, the primecell pl011 uarts.
  *
@@ -33,7 +33,7 @@
 #include <xboot/clk.h>
 #include <xboot/ioctl.h>
 #include <xboot/printk.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <serial/serial.h>
 #include <realview/reg-serial.h>
 
@@ -571,11 +571,11 @@ static __init void realview_serial_dev_init(void)
 	/* register serial driver */
 	for(i = 0; i < ARRAY_SIZE(realview_serial_driver); i++)
 	{
-		param = (struct serial_parameter *)platform_device_get_data(realview_serial_driver[i].info->name);
+		param = (struct serial_parameter *)resource_get_data(realview_serial_driver[i].info->name);
 		if(param)
 			memcpy(realview_serial_driver[i].info->parameter, param, sizeof(struct serial_parameter));
 		else
-			LOG_W("can't get the platform device data of \'%s\', use default parameter", realview_serial_driver[i].info->name);
+			LOG_W("can't get the resource of \'%s\', use default parameter", realview_serial_driver[i].info->name);
 
 		if(!register_serial(&realview_serial_driver[i]))
 			LOG_E("failed to register serial driver '%s'", realview_serial_driver[i].info->name);

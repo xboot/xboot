@@ -1,5 +1,5 @@
 /*
- * drivers/s3c6410-fb.c
+ * driver/s3c6410-fb.c
  *
  * s3c2410 framebuffer drivers.
  *
@@ -35,7 +35,7 @@
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <s3c6410/reg-gpio.h>
 #include <s3c6410/reg-lcd.h>
 #include <fb/fb.h>

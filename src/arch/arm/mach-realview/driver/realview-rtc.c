@@ -1,5 +1,5 @@
 /*
- * drivers/realview_rtc.c
+ * driver/realview_rtc.c
  *
  * realview rtc drivers, the primecell pl031 real time clock.
  *
@@ -33,7 +33,7 @@
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <time/xtime.h>
 #include <rtc/rtc.h>
 #include <realview/reg-rtc.h>

@@ -1,5 +1,5 @@
 /*
- * drivers/gpio-keypad.c
+ * driver/gpio-keypad.c
  *
  * gpio key drivers.
  *
@@ -32,7 +32,7 @@
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <input/keyboard/keyboard.h>
 #include <s5pc100/reg-gpio.h>
 

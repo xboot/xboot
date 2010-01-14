@@ -41,13 +41,6 @@
 #endif
 
 /**
- * the size of platform device hash table
- */
-#if !defined(CONFIG_PLATFORM_DEVICE_HASH_SIZE)
-#define	CONFIG_PLATFORM_DEVICE_HASH_SIZE			(1)
-#endif
-
-/**
  * the size of clk hash table
  */
 #if !defined(CONFIG_CLK_HASH_SIZE)

@@ -32,7 +32,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <terminal/terminal.h>
 #include <time/timer.h>
 #include <input/keyboard/keyboard.h>

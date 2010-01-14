@@ -1,7 +1,7 @@
 /*
- * devices/dev-serial.c
+ * resource/res-serial.c
  *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
+ * Copyright (c) 2007-2008  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <serial/serial.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 
 
 /*
@@ -62,9 +62,9 @@ static struct serial_parameter uart_param[] = {
 };
 
 /*
- * the array of platform devices.
+ * the array of resource.
  */
-static struct platform_device serial_devs[] = {
+static struct resource serial_devs[] = {
 	{
 		.name		= "uart0",
 		.data		= &uart_param[0],
@@ -86,9 +86,9 @@ static __init void dev_serial_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(serial_devs); i++)
 	{
-		if(!platform_device_register(&serial_devs[i]))
+		if(!register_resource(&serial_devs[i]))
 		{
-			LOG_E("failed to register platform  device '%s'", serial_devs[i].name);
+			LOG_E("failed to register resource '%s'", serial_devs[i].name);
 		}
 	}
 }
@@ -99,9 +99,9 @@ static __exit void dev_serial_exit(void)
 
 	for(i = 0; i < ARRAY_SIZE(serial_devs); i++)
 	{
-		if(!platform_device_unregister(&serial_devs[i]))
+		if(!unregister_resource(&serial_devs[i]))
 		{
-			LOG_E("failed to unregister platform device '%s'", serial_devs[i].name);
+			LOG_E("failed to unregister resource '%s'", serial_devs[i].name);
 		}
 	}
 }

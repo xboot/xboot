@@ -1,5 +1,5 @@
 /*
- * drivers/realview-fb.c
+ * driver/realview-fb.c
  *
  * realview framebuffer drivers. prime cell lcd controller (pl110)
  *
@@ -35,7 +35,7 @@
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/platform_device.h>
+#include <xboot/resource.h>
 #include <realview/reg-lcd.h>
 #include <fb/fb.h>
 

@@ -22,7 +22,15 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
+#include <string.h>
+#include <macros.h>
+#include <malloc.h>
+#include <vsprintf.h>
+#include <xboot/blkdev.h>
 #include <xboot/list.h>
+#include <xboot/initcall.h>
+#include <xboot/proc.h>
 #include <fs/fs.h>
 #include <fs/vfs/vfs.h>
 
@@ -117,3 +125,79 @@ x_s32 vfs_findroot(char * path, struct mount ** mp, char ** root)
 
 	return 0;
 }
+
+/*
+ * mounts proc interface
+ */
+static x_s32 mounts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+{
+	struct blkdev * blk;
+	struct mount * m;
+	struct list_head * pos;
+	x_s8 * p;
+	x_s32 len = 0;
+
+	if((p = malloc(SZ_4K)) == NULL)
+		return 0;
+
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[mounts]");
+
+	list_for_each(pos, &mount_list)
+	{
+		m = list_entry(pos, struct mount, m_link);
+
+		if(m->m_dev == NULL)
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n none");
+		else
+		{
+			blk = (struct blkdev *)m->m_dev;
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s", blk->name);
+		}
+
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" %s %s ", m->m_path, m->m_fs->name);
+
+		if(m->m_flags & MOUNT_LOOP)
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"loop,");
+
+		if(m->m_flags & MOUNT_RDONLY)
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"ro");
+		else
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"rw");
+	}
+
+	len -= offset;
+
+	if(len < 0)
+		len = 0;
+
+	if(len > count)
+		len = count;
+
+	memcpy(buf, (x_u8 *)(p + offset), len);
+	free(p);
+
+	return len;
+}
+
+static struct proc mounts_proc = {
+	.name	= "mounts",
+	.read	= mounts_proc_read,
+};
+
+/*
+ * mounts pure sync init
+ */
+static __init void mounts_pure_sync_init(void)
+{
+	/* register mounts proc interface */
+	proc_register(&mounts_proc);
+}
+
+static __exit void mounts_pure_sync_exit(void)
+{
+	/* unregister mounts proc interface */
+	proc_unregister(&mounts_proc);
+}
+
+module_init(mounts_pure_sync_init, LEVEL_PURE_SYNC);
+module_exit(mounts_pure_sync_exit, LEVEL_PURE_SYNC);

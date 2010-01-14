@@ -165,7 +165,7 @@ static x_s32 ramfs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(node == NULL)
 		return ENOMEM;
 
-	m->m_flags = (flag & MOUNT_RDONLY) | MOUNT_NODEV;
+	m->m_flags = flag & MOUNT_MASK;
 	m->m_root->v_data = node;
 	m->m_data = NULL;
 

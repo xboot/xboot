@@ -46,7 +46,7 @@ static x_s32 procfs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(dev != NULL)
 		return EINVAL;
 
-	m->m_flags = (MOUNT_RDONLY | MOUNT_NODEV) & MOUNT_MASK;
+	m->m_flags = (flag & MOUNT_MASK) | MOUNT_RDONLY;
 	m->m_data = (void *)proc_list;
 
 	return 0;

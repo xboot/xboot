@@ -48,7 +48,7 @@ static x_s32 devfs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(dev != NULL)
 		return EINVAL;
 
-	m->m_flags = MOUNT_NODEV & MOUNT_MASK;
+	m->m_flags = flag & MOUNT_MASK;
 	m->m_data = (void *)device_list;
 
 	return 0;

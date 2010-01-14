@@ -163,16 +163,15 @@ struct statfs {
  * mount flags.
  */
 #define	MOUNT_RDONLY			(0x00000001)	/* read only filesystem */
-#define	MOUNT_NODEV				(0x00000002)	/* don't interpret special files */
-#define	MOUNT_LOOP				(0x00000004)	/* mount loop device */
-#define	MOUNT_MASK				(0x00000007)	/* mount flag mask value */
+#define	MOUNT_LOOP				(0x00000002)	/* mount loop device */
+#define	MOUNT_MASK				(0x00000003)	/* mount flag mask value */
 
 /*
  * mount data
  */
 struct mount {
 	struct list_head m_link;	/* link to next mount point */
-	struct vfsops * m_op;		/* pointer to vfs operation */
+	struct filesystem * m_fs;	/* pointer to fs */
 	x_u32 m_flags;				/* mount flag */
 	x_s32 m_count;				/* reference count */
 	char m_path[MAX_PATH];		/* mounted path */

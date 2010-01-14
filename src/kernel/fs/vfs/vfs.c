@@ -112,7 +112,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 		return ENOMEM;
 	}
 
-	m->m_op = fs->vfsops;
+	m->m_fs = fs;
 	m->m_flags = flags & MOUNT_MASK;
 	m->m_count = 0;
 	strlcpy((x_s8 *)m->m_path, (const x_s8 *)dir, sizeof(m->m_path));
@@ -170,7 +170,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 	/*
 	 * call a file system specific routine.
 	 */
-	err = m->m_op->vfs_mount(m, dev, flags);
+	err = m->m_fs->vfsops->vfs_mount(m, dev, flags);
 	if( err != 0 )
 	{
 		vput(vp);
@@ -227,7 +227,7 @@ x_s32 sys_umount(char * path)
 			if(m->m_covered == NULL)
 				return EINVAL;
 
-			err = m->m_op->vfs_unmount(m);
+			err = m->m_fs->vfsops->vfs_unmount(m);
 			if(err != 0)
 				return err;
 
@@ -265,8 +265,8 @@ x_s32 sys_sync(void)
 	list_for_each(pos, &mount_list)
 	{
 		m = list_entry(pos, struct mount, m_link);
-		if(m && m->m_op->vfs_sync)
-			m->m_op->vfs_sync(m);
+		if(m && m->m_fs->vfsops->vfs_sync)
+			m->m_fs->vfsops->vfs_sync(m);
 	}
 
 	return 0;

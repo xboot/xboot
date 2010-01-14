@@ -102,7 +102,7 @@ struct vnode * vget(struct mount * mp, char * path)
 	}
 
 	vp->v_mount = mp;
-	vp->v_op = mp->m_op->vfs_vnops;
+	vp->v_op = mp->m_fs->vfsops->vfs_vnops;
 	vp->v_refcnt = 1;
 	vp->v_nrlocks = 0;
 	strlcpy((x_s8 *)vp->v_path, (const x_s8 *)path, len);
@@ -110,7 +110,7 @@ struct vnode * vget(struct mount * mp, char * path)
 	/*
 	 * request to allocate fs specific data for vnode.
 	 */
-	if( mp->m_op->vfs_vget(mp, vp) != 0 )
+	if( mp->m_fs->vfsops->vfs_vget(mp, vp) != 0 )
 	{
 		free(vp->v_path);
 		free(vp);

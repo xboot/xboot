@@ -22,6 +22,7 @@
 
 #include <configs.h>
 #include <default.h>
+#include <error.h>
 #include <malloc.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
@@ -36,6 +37,7 @@ x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags)
 {
 	char dev_path[MAX_PATH];
 	char dir_path[MAX_PATH];
+	struct stat st;
 	x_s32 err;
 
 	if((err = vfs_path_conv(dir, dir_path)) != 0)
@@ -45,6 +47,13 @@ x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags)
 	{
 		if((err = vfs_path_conv(dev, dev_path)) != 0)
 			return err;
+
+		if(stat(dev_path, &st) != 0)
+			return EEXIST;
+
+		if(! S_ISBLK(st.st_mode))
+			return ENODEV;
+
 		return sys_mount(dev_path, dir_path, (char *)fs, flags);
 	}
 	else

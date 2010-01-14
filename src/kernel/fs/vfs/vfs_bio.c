@@ -1,7 +1,7 @@
 /*
  * kernel/fs/vfs/vfs_bio.c
  *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
+ * Copyright (c) 2007-2010  jianjun jiang <jjjstudio@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,10 +25,3 @@
 #include <fs/fs.h>
 #include <fs/vfs/vfs.h>
 
-#define	NBUFS	2
-#define	BSIZE	512		/* size of secondary block (bytes) */
-
-/*
- * set of buffers
- */
-//static char buffers[NBUFS][BSIZE];

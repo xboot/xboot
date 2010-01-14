@@ -51,21 +51,13 @@ struct chrdev
 	/* ioctl device */
 	x_s32 (*ioctl)(struct chrdev * dev, x_u32 cmd, x_u32 arg);
 
-	/* release device */
-	x_s32 (*release)(struct chrdev * dev);
+	/* close device */
+	x_s32 (*close)(struct chrdev * dev);
 
 	/* char device's driver */
 	void * driver;
 };
 
-/*
- * the list of chrdev
- */
-struct chrdev_list
-{
-	struct chrdev * dev;
-	struct list_head entry;
-};
 
 struct chrdev * search_chrdev(const char * name);
 struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type);

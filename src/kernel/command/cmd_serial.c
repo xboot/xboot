@@ -30,6 +30,7 @@
 #include <xboot/ioctl.h>
 #include <xboot/list.h>
 #include <xboot/chrdev.h>
+#include <xboot/device.h>
 #include <shell/ctrlc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -38,23 +39,28 @@
 
 #if	defined(CONFIG_COMMAND_SERIAL) && (CONFIG_COMMAND_SERIAL > 0)
 
-extern struct chrdev_list * chrdev_list;
+extern struct device_list * device_list;
 
 static void serial_info(void)
 {
-	struct chrdev_list * list;
+	struct chrdev * dev;
+	struct device_list * list;
 	struct list_head * pos;
 	struct serial_info * serial_info;
 
-	for(pos = (&chrdev_list->entry)->next; pos != (&chrdev_list->entry); pos = pos->next)
+	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct chrdev_list, entry);
-		if(list->dev->type != CHR_DEV_SERIAL)
+		list = list_entry(pos, struct device_list, entry);
+		if(list->device->type != CHAR_DEVICE)
 			continue;
 
-		printk(" \"%s\" - <", list->dev->name);
+		dev = (struct chrdev *)(list->device->priv);
+		if(dev->type != CHR_DEV_SERIAL)
+			continue;
 
-		serial_info = ((struct serial_driver *)(list->dev->driver))->info;
+		printk(" \"%s\" - <", dev->name);
+
+		serial_info = ((struct serial_driver *)(dev->driver))->info;
 		switch(serial_info->parameter->baud_rate)
 		{
 		case B50:
@@ -203,8 +209,8 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 		if(device->write)
 			(device->write)(device, (x_u8 *)str, strlen(str));
 
-		if(device->release)
-			(device->release)(device);
+		if(device->close)
+			(device->close)(device);
 	}
 	else if( !strcmp(argv[1],(x_s8*)"recv") )
 	{
@@ -245,8 +251,8 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 			}
 		}
 
-		if(device->release)
-			(device->release)(device);
+		if(device->close)
+			(device->close)(device);
 	}
 
 	else if( !strcmp(argv[1],(x_s8*)"param") )

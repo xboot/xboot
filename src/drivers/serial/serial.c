@@ -126,9 +126,9 @@ static x_s32 serial_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
 }
 
 /*
- * serial release
+ * serial close
  */
-static x_s32 serial_release(struct chrdev * dev)
+static x_s32 serial_close(struct chrdev * dev)
 {
 	return 0;
 }
@@ -603,7 +603,7 @@ x_bool register_serial(struct serial_driver * drv)
 	dev->write 		= serial_write;
 	dev->flush 		= serial_flush;
 	dev->ioctl 		= serial_ioctl;
-	dev->release 	= serial_release;
+	dev->close		= serial_close;
 	dev->driver 	= drv;
 
 	if(!register_chrdev(dev))

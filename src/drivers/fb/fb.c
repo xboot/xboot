@@ -153,9 +153,9 @@ static x_s32 fb_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
 }
 
 /*
- * fb release
+ * fb close
  */
-static x_s32 fb_release(struct chrdev * dev)
+static x_s32 fb_close(struct chrdev * dev)
 {
 	return 0;
 }
@@ -660,7 +660,7 @@ x_bool register_framebuffer(struct fb * fb)
 	dev->write 		= fb_write;
 	dev->flush 		= fb_flush;
 	dev->ioctl 		= fb_ioctl;
-	dev->release 	= fb_release;
+	dev->close		= fb_close;
 	dev->driver 	= fb;
 
 	if(!register_chrdev(dev))

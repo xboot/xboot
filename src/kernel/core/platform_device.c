@@ -150,7 +150,7 @@ static x_s32 device_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[device]");
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[platform device]");
 	for(i = 0; i < CONFIG_PLATFORM_DEVICE_HASH_SIZE; i++)
 	{
 		hlist_for_each_entry(list,  pos, &(platform_device_hash[i]), node)
@@ -174,7 +174,7 @@ static x_s32 device_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 }
 
 static struct proc device_proc = {
-	.name	= "device",
+	.name	= "platform_device",
 	.read	= device_proc_read,
 };
 

@@ -248,9 +248,9 @@ static x_s32 rtc_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
 }
 
 /*
- * rtc release
+ * rtc close
  */
-static x_s32 rtc_release(struct chrdev * dev)
+static x_s32 rtc_close(struct chrdev * dev)
 {
 	return 0;
 }
@@ -277,7 +277,7 @@ x_bool register_rtc(struct rtc_driver * drv)
 	dev->write 		= rtc_write;
 	dev->flush 		= rtc_flush;
 	dev->ioctl 		= rtc_ioctl;
-	dev->release 	= rtc_release;
+	dev->close		= rtc_close;
 	dev->driver 	= drv;
 
 	if(!register_chrdev(dev))

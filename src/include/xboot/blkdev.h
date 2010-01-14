@@ -36,14 +36,6 @@ struct blkdev
 	void * driver;
 };
 
-/*
- * the list of blkdev
- */
-struct blkdev_list
-{
-	struct blkdev * dev;
-	struct list_head entry;
-};
 
 struct blkdev * search_blkdev(const char * name);
 struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type);

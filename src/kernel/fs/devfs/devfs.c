@@ -35,10 +35,10 @@
 #include <xboot/scank.h>
 #include <xboot/chrdev.h>
 #include <xboot/blkdev.h>
+#include <xboot/device.h>
 #include <fs/fs.h>
 
-extern struct chrdev_list * chrdev_list;
-extern struct blkdev_list * blkdev_list;
+extern struct device_list * device_list;
 
 /*
  * filesystem operations
@@ -49,7 +49,7 @@ static x_s32 devfs_mount(struct mount * m, char * dev, x_s32 flag)
 		return EINVAL;
 
 	m->m_flags = MOUNT_NODEV & MOUNT_MASK;
-	m->m_data = (void *)chrdev_list;
+	m->m_data = (void *)device_list;
 
 	return 0;
 }
@@ -81,7 +81,9 @@ static x_s32 devfs_statfs(struct mount * m, struct statfs * stat)
  */
 static x_s32 devfs_open(struct vnode * node, x_s32 flag)
 {
-	struct chrdev * dev;
+	struct device * dev;
+	struct chrdev * chr;
+	struct blkdev * blk;
 	x_s8 * path;
 
 	path = (x_s8 *)node->v_path;
@@ -91,12 +93,28 @@ static x_s32 devfs_open(struct vnode * node, x_s32 flag)
 	if(*path == '/')
 		path++;
 
-	dev = search_chrdev((const char *)path);
+	dev = search_device((const char *)path);
 	if(dev == NULL)
 		return -1;
 
-	if(dev->open(dev) != 0)
+	if(dev->type == CHAR_DEVICE)
+	{
+		chr = (struct chrdev *)(dev->priv);
+
+		if(chr->open(chr) != 0)
+			return -1;
+	}
+	else if(dev->type == BLOCK_DEVICE)
+	{
+		blk = (struct blkdev *)(dev->priv);
+
+		if(blk->open(blk) != 0)
+			return -1;
+	}
+	else
+	{
 		return -1;
+	}
 
 	/*
 	 * store private data
@@ -108,18 +126,35 @@ static x_s32 devfs_open(struct vnode * node, x_s32 flag)
 
 static x_s32 devfs_close(struct vnode * node, struct file * fp)
 {
-	struct chrdev * dev;
+	struct device * dev;
+	struct chrdev * chr;
+	struct blkdev * blk;
 	x_s8 * path;
 
 	path = (x_s8 *)node->v_path;
 	if(!strcmp(path, (const x_s8 *)"/"))
 		return 0;
 
-	dev = (struct chrdev *)node->v_data;
+	dev = (struct device *)node->v_data;
 	if(dev == NULL)
 		return -1;
 
-	return (dev->release(dev));
+	if(dev->type == CHAR_DEVICE)
+	{
+		chr = (struct chrdev *)(dev->priv);
+		return(chr->close(chr));
+	}
+	else if(dev->type == BLOCK_DEVICE)
+	{
+		blk = (struct blkdev *)(dev->priv);
+		return(blk->close(blk));
+	}
+	else
+	{
+		return -1;
+	}
+
+	return -1;
 }
 
 static x_s32 devfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
@@ -149,8 +184,8 @@ static x_s32 devfs_fsync(struct vnode * node, struct file * fp)
 
 static x_s32 devfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
-	struct chrdev_list * plist = (struct chrdev_list *)node->v_mount->m_data;
-	struct chrdev_list * list;
+	struct device_list * plist = (struct device_list *)node->v_mount->m_data;
+	struct device_list * list;
 	struct list_head * pos;
 	x_s32 i;
 
@@ -174,9 +209,21 @@ static x_s32 devfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 				return EINVAL;
 		}
 
-		list = list_entry(pos, struct chrdev_list, entry);
-		dir->d_type = DT_CHR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)list->dev->name, sizeof(dir->d_name));
+		list = list_entry(pos, struct device_list, entry);
+		if(list->device->type == CHAR_DEVICE)
+		{
+			dir->d_type = DT_CHR;
+		}
+		else if(list->device->type == BLOCK_DEVICE)
+		{
+			dir->d_type = DT_BLK;
+		}
+		else
+		{
+			dir->d_type = DT_UNKNOWN;
+		}
+
+		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)list->device->name, sizeof(dir->d_name));
 	}
 
 	dir->d_fileno = (x_u32)fp->f_offset;
@@ -188,15 +235,27 @@ static x_s32 devfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 
 static x_s32 devfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	struct chrdev * dev;
+	struct device * dev;
 
-	dev = search_chrdev(name);
+	dev = search_device(name);
 	if(dev == NULL)
 		return -1;
 
+	if(dev->type == CHAR_DEVICE)
+	{
+		node->v_type = VCHR;
+	}
+	else if(dev->type == BLOCK_DEVICE)
+	{
+		node->v_type = VBLK;
+	}
+	else
+	{
+		node->v_type = VREG;
+	}
+
 	node->v_data = (void *)dev;
 	node->v_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	node->v_type = DT_CHR;
 	node->v_size = 0;
 
 	return 0;

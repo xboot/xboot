@@ -846,9 +846,9 @@ static x_s32 keyboard_term_read(struct terminal * term, x_u8 * buf, x_s32 count)
 }
 
 /*
- * keyboard release
+ * keyboard close
  */
-static x_s32 keyboard_release(struct chrdev * dev)
+static x_s32 keyboard_close(struct chrdev * dev)
 {
 	return 0;
 }
@@ -877,7 +877,7 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 	dev->write 		= keyboard_write;
 	dev->flush 		= keyboard_flush;
 	dev->ioctl 		= keyboard_ioctl;
-	dev->release 	= keyboard_release;
+	dev->close		= keyboard_close;
 	dev->driver 	= drv;
 
 	if(!register_chrdev(dev))

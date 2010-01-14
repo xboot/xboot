@@ -128,7 +128,7 @@ static x_s32 procfs_write(struct vnode * node , struct file * fp, void * buf, x_
 
 static x_s32 procfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 procfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)

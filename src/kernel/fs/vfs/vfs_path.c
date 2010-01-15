@@ -103,97 +103,94 @@ x_s32 set_fp(x_s32 fd, struct file *fp)
 }
 
 /*
- * convert to full path from the cwd and path.
+ * convert to full path from the cwd and path by removing all "." and ".."
  */
 x_s32 vfs_path_conv(const char * path, char * full)
 {
-	char *src, *tgt, *p, *end;
-	x_size len = 0;
+	x_s8 *p, *q, *s;
+	x_s32 left_len, full_len;
+	x_s8 left[MAX_PATH], next_token[MAX_PATH];
 
-	if(path == NULL)
-		return -1;
+    if(path[0] == '/')
+    {
+    	full[0] = '/';
+		full[1] = '\0';
+		if(path[1] == '\0')
+			return 0;
 
-	len = strlen((const x_s8 *)path);
-	if(len >= MAX_PATH)
-		return -1;
-
-	if(strlen((const x_s8 *)cwd) + len >= MAX_PATH)
-		return -1;
-
-	//FIXME
-	char *t = malloc(strlen((const x_s8 *)path)+1);
-	strcpy((x_s8 *)t, (const x_s8 *)path);
-	src = (char *)t;
-
-	tgt = full;
-	end = src + len;
-
-	if(path[0] == '/')
-	{
-		*tgt++ = *src++;
-		len++;
+		full_len = 1;
+		left_len = strlcpy(left, (const x_s8 *)(path + 1), sizeof(left));
 	}
-	else
-	{
+    else
+    {
 		strlcpy((x_s8 *)full, (const x_s8 *)cwd, MAX_PATH);
-		len = strlen((const x_s8 *)cwd);
-		tgt += len;
-		if(len > 1 && path[0] != '.')
-		{
-			*tgt = '/';
-			tgt++;
-			len++;
-		}
+		full_len = strlen((const x_s8 *)full);
+		left_len = strlcpy(left, (const x_s8 *)path, sizeof(left));
 	}
+	if((left_len >= sizeof(left)) || (full_len >= MAX_PATH))
+		return -1;
 
-	while(*src)
+	/*
+	 * iterate over path components in `left'.
+	 */
+	while(left_len != 0)
 	{
-		p = src;
-		while(*p != '/' && *p != '\0')
-			p++;
-		*p = '\0';
-		if(!strcmp((const x_s8 *)src, (const x_s8 *)".."))
-		{
-			if(len >= 2)
-			{
-				len -= 2;
-				tgt -= 2;	/* skip previous '/' */
-				while(*tgt != '/')
-				{
-					tgt--;
-					len--;
-				}
-				if(len == 0)
-				{
-					tgt++;
-					len++;
-				}
-			}
-		}
-		else if(!strcmp((const x_s8 *)src, (const x_s8 *)"."))
-		{
-			/* ignore "." */
-		}
-		else
-		{
-			while(*src != '\0')
-			{
-				*tgt++ = *src++;
-				len++;
-			}
-		}
-		if(p == end)
-			break;
-		if(len > 0 && *(tgt - 1) != '/')
-		{
-			*tgt++ = '/';
-			len++;
-		}
-		src = p + 1;
-	}
-	*tgt = '\0';
+		/*
+		 * extract the next path component and adjust left and its length.
+		 */
+		p = strchr(left, '/');
+		s = p ? p : left + left_len;
+		if((x_s32)(s - left) >= sizeof(next_token))
+			return -1;
 
-	free(t);
+		memcpy(next_token, left, s - left);
+		next_token[s - left] = '\0';
+		left_len -= s - left;
+		if(p != NULL)
+		{
+			memmove(left, s + 1, left_len + 1);
+		}
+
+		if(full[full_len - 1] != '/')
+		{
+			if (full_len + 1 >= MAX_PATH)
+				return -1;
+
+			full[full_len++] = '/';
+			full[full_len] = '\0';
+		}
+		if(next_token[0] == '\0' || strcmp(next_token, (const x_s8 *)".") == 0)
+		{
+			continue;
+		}
+		else if(strcmp(next_token, (const x_s8 *)"..") == 0)
+		{
+			/*
+			 * strip the last path component except when we have single '/'
+			 */
+			if(full_len > 1)
+			{
+				full[full_len - 1] = '\0';
+				q = strrchr((const x_s8 *)full, '/') + 1;
+				*q = '\0';
+				full_len = q - (x_s8 *)full;
+			}
+			continue;
+		}
+
+		full_len = strlcat((x_s8 *)full, next_token, MAX_PATH);
+		if(full_len >= MAX_PATH)
+			return -1;
+	}
+
+	/*
+	 * remove trailing slash except when the full pathname is a single '/'
+	 */
+	if(full_len > 1 && full[full_len - 1] == '/')
+	{
+		full[full_len - 1] = '\0';
+	}
+
 	return 0;
 }
 

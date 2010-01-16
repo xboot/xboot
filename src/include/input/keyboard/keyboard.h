@@ -234,11 +234,8 @@ struct keyboard_driver
 	/* read keyboard */
 	x_bool (*read)(enum keycode * code);
 
-	/* flush keyboard's buffer */
-	void (*flush)(void);
-
 	/* ioctl keyboard */
-	x_s32 (*ioctl)(x_u32 cmd, x_u32 arg);
+	x_s32 (*ioctl)(x_u32 cmd, void * arg);
 };
 
 

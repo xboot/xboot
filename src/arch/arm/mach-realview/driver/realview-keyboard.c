@@ -464,12 +464,7 @@ static x_bool keyboard_read(enum keycode * code)
 	return FALSE;
 }
 
-static void keyboard_flush(void)
-{
-	return;
-}
-
-static x_s32 keyboard_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 keyboard_ioctl(x_u32 cmd, void * arg)
 {
 	return -1;
 }
@@ -479,7 +474,6 @@ static struct keyboard_driver realview_keyboard = {
 	.init		= keyboard_init,
 	.exit		= keyboard_exit,
 	.read		= keyboard_read,
-	.flush		= keyboard_flush,
 	.ioctl		= keyboard_ioctl,
 };
 

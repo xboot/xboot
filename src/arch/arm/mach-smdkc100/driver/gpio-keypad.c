@@ -97,12 +97,7 @@ static x_bool keypad_read(enum keycode * code)
 	return FALSE;
 }
 
-static void keypad_flush(void)
-{
-	return;
-}
-
-static x_s32 keypad_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 keypad_ioctl(x_u32 cmd, void * arg)
 {
 	return -1;
 }
@@ -112,7 +107,6 @@ static struct keyboard_driver gpio_keypad = {
 	.init		= keypad_init,
 	.exit		= keypad_exit,
 	.read		= keypad_read,
-	.flush		= keypad_flush,
 	.ioctl		= keypad_ioctl,
 };
 

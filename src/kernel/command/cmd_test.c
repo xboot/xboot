@@ -52,7 +52,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 static struct command test_cmd = {
 	.name		= "test",
 	.func		= test,
-	.desc		= "test function\r\n",
+	.desc		= "test command for debug\r\n",
 	.usage		= "test [arg ...]\r\n",
 	.help		= "    test command for debug software by programmer.\r\n"
 };

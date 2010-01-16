@@ -97,22 +97,9 @@ static x_s32 keyboard_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
 }
 
 /*
- * keyboard flush
- */
-static x_s32 keyboard_flush(struct chrdev * dev)
-{
-	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->driver);
-
-	if(drv->flush)
-		(drv->flush)();
-
-	return 0;
-}
-
-/*
  * keyboard ioctl
  */
-static x_s32 keyboard_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
+static x_s32 keyboard_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
 {
 	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->driver);
 
@@ -875,7 +862,6 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 	dev->seek 		= keyboard_seek;
 	dev->read 		= keyboard_read;
 	dev->write 		= keyboard_write;
-	dev->flush 		= keyboard_flush;
 	dev->ioctl 		= keyboard_ioctl;
 	dev->close		= keyboard_close;
 	dev->driver 	= drv;
@@ -895,9 +881,6 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 
 	if(drv->init)
 		(drv->init)();
-
-	if(drv->flush)
-		(drv->flush)();
 
 	/*
 	 * register a terminal

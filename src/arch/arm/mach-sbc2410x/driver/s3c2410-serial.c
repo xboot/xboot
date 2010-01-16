@@ -87,7 +87,7 @@ static struct serial_info uart_info[3] = {
 /*
  * common function for ioctl.
  */
-static x_s32 s3c2410_ioctl(x_u32 ch, x_u32 cmd, x_u32 arg)
+static x_s32 s3c2410_ioctl(x_u32 ch, x_u32 cmd, void * arg)
 {
 	x_u32 baud, baud_div_reg;
 	x_u8 data_bit_reg, parity_reg, stop_bit_reg;
@@ -265,10 +265,10 @@ static void s3c2410_uart0_init(void)
 	writel(S3C2410_UMCON0, 0x00000000);
 
 	/* configure uart parameter */
-	s3c2410_ioctl( 0, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(uart_param[0].baud_rate)) );
-	s3c2410_ioctl( 0, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(uart_param[0].data_bit)) );
-	s3c2410_ioctl( 0, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(uart_param[0].parity)) );
-	s3c2410_ioctl( 0, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(uart_param[0].stop_bit)) );
+	s3c2410_ioctl( 0, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[0].baud_rate)) );
+	s3c2410_ioctl( 0, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[0].data_bit)) );
+	s3c2410_ioctl( 0, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[0].parity)) );
+	s3c2410_ioctl( 0, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[0].stop_bit)) );
 }
 
 static void s3c2410_uart0_exit(void)
@@ -305,12 +305,7 @@ static x_s32 s3c2410_uart0_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void s3c2410_uart0_flush(void)
-{
-	return;
-}
-
-static x_s32 s3c2410_uart0_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 s3c2410_uart0_ioctl(x_u32 cmd, void * arg)
 {
 	return (s3c2410_ioctl(0, cmd, arg));
 }
@@ -330,10 +325,10 @@ static void s3c2410_uart1_init(void)
 	writel(S3C2410_UMCON1, 0x00000000);
 
 	/* configure uart parameter */
-	s3c2410_ioctl( 1, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(uart_param[1].baud_rate)) );
-	s3c2410_ioctl( 1, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(uart_param[1].data_bit)) );
-	s3c2410_ioctl( 1, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(uart_param[1].parity)) );
-	s3c2410_ioctl( 1, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(uart_param[1].stop_bit)) );
+	s3c2410_ioctl( 1, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[1].baud_rate)) );
+	s3c2410_ioctl( 1, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[1].data_bit)) );
+	s3c2410_ioctl( 1, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[1].parity)) );
+	s3c2410_ioctl( 1, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[1].stop_bit)) );
 }
 
 static void s3c2410_uart1_exit(void)
@@ -370,12 +365,7 @@ static x_s32 s3c2410_uart1_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void s3c2410_uart1_flush(void)
-{
-	return;
-}
-
-static x_s32 s3c2410_uart1_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 s3c2410_uart1_ioctl(x_u32 cmd, void * arg)
 {
 	return (s3c2410_ioctl(1, cmd, arg));
 }
@@ -395,10 +385,10 @@ static void s3c2410_uart2_init(void)
 	writel(S3C2410_UMCON2, 0x00000000);
 
 	/* configure uart parameter */
-	s3c2410_ioctl( 2, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(uart_param[2].baud_rate)) );
-	s3c2410_ioctl( 2, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(uart_param[2].data_bit)) );
-	s3c2410_ioctl( 2, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(uart_param[2].parity)) );
-	s3c2410_ioctl( 2, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(uart_param[2].stop_bit)) );
+	s3c2410_ioctl( 2, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[2].baud_rate)) );
+	s3c2410_ioctl( 2, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[2].data_bit)) );
+	s3c2410_ioctl( 2, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[2].parity)) );
+	s3c2410_ioctl( 2, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[2].stop_bit)) );
 }
 
 static void s3c2410_uart2_exit(void)
@@ -435,12 +425,7 @@ static x_s32 s3c2410_uart2_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void s3c2410_uart2_flush(void)
-{
-	return;
-}
-
-static x_s32 s3c2410_uart2_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 s3c2410_uart2_ioctl(x_u32 cmd, void * arg)
 {
 	return (s3c2410_ioctl(2, cmd, arg));
 }
@@ -453,7 +438,6 @@ static struct serial_driver s3c2410_uart_driver[3] = {
 		.exit	= s3c2410_uart0_exit,
 		.read	= s3c2410_uart0_read,
 		.write	= s3c2410_uart0_write,
-		.flush	= s3c2410_uart0_flush,
 		.ioctl	= s3c2410_uart0_ioctl,
 	},
 	[1] = {
@@ -462,7 +446,6 @@ static struct serial_driver s3c2410_uart_driver[3] = {
 		.exit	= s3c2410_uart1_exit,
 		.read	= s3c2410_uart1_read,
 		.write	= s3c2410_uart1_write,
-		.flush	= s3c2410_uart1_flush,
 		.ioctl	= s3c2410_uart1_ioctl,
 	},
 	[2] = {
@@ -471,7 +454,6 @@ static struct serial_driver s3c2410_uart_driver[3] = {
 		.exit	= s3c2410_uart2_exit,
 		.read	= s3c2410_uart2_read,
 		.write	= s3c2410_uart2_write,
-		.flush	= s3c2410_uart2_flush,
 		.ioctl	= s3c2410_uart2_ioctl,
 	}
 };

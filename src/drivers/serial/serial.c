@@ -100,22 +100,9 @@ static x_s32 serial_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
 }
 
 /*
- * serial flush
- */
-static x_s32 serial_flush(struct chrdev * dev)
-{
-	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
-
-	if(drv->flush)
-		(drv->flush)();
-
-	return 0;
-}
-
-/*
  * serial ioctl
  */
-static x_s32 serial_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
+static x_s32 serial_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
 {
 	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
@@ -601,7 +588,6 @@ x_bool register_serial(struct serial_driver * drv)
 	dev->seek 		= serial_seek;
 	dev->read 		= serial_read;
 	dev->write 		= serial_write;
-	dev->flush 		= serial_flush;
 	dev->ioctl 		= serial_ioctl;
 	dev->close		= serial_close;
 	dev->driver 	= drv;
@@ -621,9 +607,6 @@ x_bool register_serial(struct serial_driver * drv)
 
 	if(drv->init)
 		(drv->init)();
-
-	if(drv->flush)
-		(drv->flush)();
 
 	/*
 	 * register a terminal

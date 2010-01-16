@@ -93,7 +93,7 @@ struct fb
 	void (*vline)(x_u32 x0, x_u32 y0, x_u32 y, x_u32 c);
 
 	/* ioctl framebuffer */
-	x_s32 (*ioctl)(x_u32 cmd, x_u32 arg);
+	x_s32 (*ioctl)(x_u32 cmd, void * arg);
 };
 
 struct fb * search_framebuffer(const char * name);

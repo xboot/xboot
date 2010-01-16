@@ -138,7 +138,7 @@ static void fb_vline(x_u32 x0, x_u32 y0, x_u32 y, x_u32 c)
 	}
 }
 
-static x_s32 fb_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 fb_ioctl(x_u32 cmd, void * arg)
 {
 	return -1;
 }

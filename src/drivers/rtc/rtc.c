@@ -189,17 +189,9 @@ static x_s32 rtc_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
 }
 
 /*
- * rtc flush
- */
-static x_s32 rtc_flush(struct chrdev * dev)
-{
-	return 0;
-}
-
-/*
  * rtc ioctl
  */
-static x_s32 rtc_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
+static x_s32 rtc_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
 {
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time * time;
@@ -275,7 +267,6 @@ x_bool register_rtc(struct rtc_driver * drv)
 	dev->seek 		= rtc_seek;
 	dev->read 		= rtc_read;
 	dev->write 		= rtc_write;
-	dev->flush 		= rtc_flush;
 	dev->ioctl 		= rtc_ioctl;
 	dev->close		= rtc_close;
 	dev->driver 	= drv;

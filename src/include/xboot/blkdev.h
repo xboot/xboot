@@ -24,10 +24,25 @@ struct blkdev
 	const char * name;
 
 	/* the type of block device */
-	const enum blkdev_type type;
+	enum blkdev_type type;
+
+	/* number of blocks */
+	x_size blk_num;
+
+	/* the size of block */
+	x_size blk_size;
 
 	/* open device */
 	x_s32 (*open)(struct blkdev * dev);
+
+	/* read block from device */
+	x_size (*read)(struct blkdev * dev, x_u8 * buf, x_size blkno, x_size blkcnt);
+
+	/* write block to device */
+	x_size (*write)(struct blkdev * dev, const x_u8 * buf, x_size blkno, x_size blkcnt);
+
+	/* ioctl device */
+	x_s32 (*ioctl)(struct blkdev * dev, x_u32 cmd, void * arg);
 
 	/* close device */
 	x_s32 (*close)(struct blkdev * dev);

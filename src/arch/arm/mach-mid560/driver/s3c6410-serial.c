@@ -99,7 +99,7 @@ static struct serial_info uart_info[4] = {
 /*
  * common function for ioctl.
  */
-static x_s32 s3c6410_ioctl(x_u32 ch, x_u32 cmd, x_u32 arg)
+static x_s32 s3c6410_ioctl(x_u32 ch, x_u32 cmd, void * arg)
 {
 	const x_u32 udivslot_code[16] = {0x0000, 0x0080, 0x0808, 0x0888,
 									 0x2222, 0x4924, 0x4a52, 0x54aa,
@@ -293,10 +293,10 @@ static void s3c6410_uart0_init(void)
 	writel(S3C6410_UMON0, 0x00000000);
 
 	/* configure uart parameter */
-	s3c6410_ioctl( 0, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(uart_param[0].baud_rate)) );
-	s3c6410_ioctl( 0, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(uart_param[0].data_bit)) );
-	s3c6410_ioctl( 0, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(uart_param[0].parity)) );
-	s3c6410_ioctl( 0, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(uart_param[0].stop_bit)) );
+	s3c6410_ioctl( 0, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[0].baud_rate)) );
+	s3c6410_ioctl( 0, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[0].data_bit)) );
+	s3c6410_ioctl( 0, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[0].parity)) );
+	s3c6410_ioctl( 0, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[0].stop_bit)) );
 }
 
 static void s3c6410_uart0_exit(void)
@@ -333,12 +333,7 @@ static x_s32 s3c6410_uart0_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void s3c6410_uart0_flush(void)
-{
-	return;
-}
-
-static x_s32 s3c6410_uart0_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 s3c6410_uart0_ioctl(x_u32 cmd, void * arg)
 {
 	return (s3c6410_ioctl(0, cmd, arg));
 }
@@ -358,10 +353,10 @@ static void s3c6410_uart1_init(void)
 	writel(S3C6410_UMON1, 0x00000000);
 
 	/* configure uart parameter */
-	s3c6410_ioctl( 1, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(uart_param[1].baud_rate)) );
-	s3c6410_ioctl( 1, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(uart_param[1].data_bit)) );
-	s3c6410_ioctl( 1, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(uart_param[1].parity)) );
-	s3c6410_ioctl( 1, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(uart_param[1].stop_bit)) );
+	s3c6410_ioctl( 1, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[1].baud_rate)) );
+	s3c6410_ioctl( 1, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[1].data_bit)) );
+	s3c6410_ioctl( 1, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[1].parity)) );
+	s3c6410_ioctl( 1, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[1].stop_bit)) );
 }
 
 static void s3c6410_uart1_exit(void)
@@ -398,12 +393,7 @@ static x_s32 s3c6410_uart1_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void s3c6410_uart1_flush(void)
-{
-	return;
-}
-
-static x_s32 s3c6410_uart1_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 s3c6410_uart1_ioctl(x_u32 cmd, void * arg)
 {
 	return (s3c6410_ioctl(1, cmd, arg));
 }
@@ -422,10 +412,10 @@ static void s3c6410_uart2_init(void)
 	writel(S3C6410_UFCON2, 0x00000000);
 
 	/* configure uart parameter */
-	s3c6410_ioctl( 2, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(uart_param[2].baud_rate)) );
-	s3c6410_ioctl( 2, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(uart_param[2].data_bit)) );
-	s3c6410_ioctl( 2, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(uart_param[2].parity)) );
-	s3c6410_ioctl( 2, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(uart_param[2].stop_bit)) );
+	s3c6410_ioctl( 2, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[2].baud_rate)) );
+	s3c6410_ioctl( 2, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[2].data_bit)) );
+	s3c6410_ioctl( 2, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[2].parity)) );
+	s3c6410_ioctl( 2, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[2].stop_bit)) );
 }
 
 static void s3c6410_uart2_exit(void)
@@ -462,12 +452,7 @@ static x_s32 s3c6410_uart2_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void s3c6410_uart2_flush(void)
-{
-	return;
-}
-
-static x_s32 s3c6410_uart2_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 s3c6410_uart2_ioctl(x_u32 cmd, void * arg)
 {
 	return (s3c6410_ioctl(2, cmd, arg));
 }
@@ -486,10 +471,10 @@ static void s3c6410_uart3_init(void)
 	writel(S3C6410_UFCON3, 0x00000000);
 
 	/* configure uart parameter */
-	s3c6410_ioctl( 3, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(uart_param[3].baud_rate)) );
-	s3c6410_ioctl( 3, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(uart_param[3].data_bit)) );
-	s3c6410_ioctl( 3, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(uart_param[3].parity)) );
-	s3c6410_ioctl( 3, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(uart_param[3].stop_bit)) );
+	s3c6410_ioctl( 3, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[3].baud_rate)) );
+	s3c6410_ioctl( 3, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[3].data_bit)) );
+	s3c6410_ioctl( 3, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[3].parity)) );
+	s3c6410_ioctl( 3, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[3].stop_bit)) );
 }
 
 static void s3c6410_uart3_exit(void)
@@ -526,12 +511,7 @@ static x_s32 s3c6410_uart3_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void s3c6410_uart3_flush(void)
-{
-	return;
-}
-
-static x_s32 s3c6410_uart3_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 s3c6410_uart3_ioctl(x_u32 cmd, void * arg)
 {
 	return (s3c6410_ioctl(3, cmd, arg));
 }
@@ -543,7 +523,6 @@ static struct serial_driver s3c6410_uart_driver[4] = {
 		.exit	= s3c6410_uart0_exit,
 		.read	= s3c6410_uart0_read,
 		.write	= s3c6410_uart0_write,
-		.flush	= s3c6410_uart0_flush,
 		.ioctl	= s3c6410_uart0_ioctl,
 	},
 	[1] = {
@@ -552,7 +531,6 @@ static struct serial_driver s3c6410_uart_driver[4] = {
 		.exit	= s3c6410_uart1_exit,
 		.read	= s3c6410_uart1_read,
 		.write	= s3c6410_uart1_write,
-		.flush	= s3c6410_uart1_flush,
 		.ioctl	= s3c6410_uart1_ioctl,
 	},
 	[2] = {
@@ -561,7 +539,6 @@ static struct serial_driver s3c6410_uart_driver[4] = {
 		.exit	= s3c6410_uart2_exit,
 		.read	= s3c6410_uart2_read,
 		.write	= s3c6410_uart2_write,
-		.flush	= s3c6410_uart2_flush,
 		.ioctl	= s3c6410_uart2_ioctl,
 	},
 	[3] = {
@@ -570,7 +547,6 @@ static struct serial_driver s3c6410_uart_driver[4] = {
 		.exit	= s3c6410_uart3_exit,
 		.read	= s3c6410_uart3_read,
 		.write	= s3c6410_uart3_write,
-		.flush	= s3c6410_uart3_flush,
 		.ioctl	= s3c6410_uart3_ioctl,
 	}
 };

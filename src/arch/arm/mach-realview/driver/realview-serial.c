@@ -97,7 +97,7 @@ static struct serial_info serial_info[4] = {
 /*
  * common function for ioctl.
  */
-static x_s32 realview_serial_ioctl(x_u32 ch, x_u32 cmd, x_u32 arg)
+static x_s32 realview_serial_ioctl(x_u32 ch, x_u32 cmd, void * arg)
 {
 	x_u32 baud, divider, fraction;
 	x_u32 temp, remainder;
@@ -285,10 +285,10 @@ static void realview_serial0_init(void)
 	writel(REALVIEW_SERIAL0_CR, 0x0);
 
 	/* configure uart parameter */
-	realview_serial_ioctl( 0, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(serial_param[0].baud_rate)) );
-	realview_serial_ioctl( 0, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(serial_param[0].data_bit)) );
-	realview_serial_ioctl( 0, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(serial_param[0].parity)) );
-	realview_serial_ioctl( 0, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(serial_param[0].stop_bit)) );
+	realview_serial_ioctl( 0, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(serial_param[0].baud_rate)) );
+	realview_serial_ioctl( 0, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(serial_param[0].data_bit)) );
+	realview_serial_ioctl( 0, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(serial_param[0].parity)) );
+	realview_serial_ioctl( 0, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(serial_param[0].stop_bit)) );
 
 	/* enable the serial */
 	writel(REALVIEW_SERIAL0_CR, REALVIEW_SERIAL_CR_UARTEN |	REALVIEW_SERIAL_CR_TXE | REALVIEW_SERIAL_CR_RXE);
@@ -328,12 +328,7 @@ static x_s32 realview_serial0_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void realview_serial0_flush(void)
-{
-	return;
-}
-
-static x_s32 realview_serial0_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 realview_serial0_ioctl(x_u32 cmd, void * arg)
 {
 	return (realview_serial_ioctl(0, cmd, arg));
 }
@@ -345,10 +340,10 @@ static void realview_serial1_init(void)
 	writel(REALVIEW_SERIAL1_CR, 0x0);
 
 	/* configure uart parameter */
-	realview_serial_ioctl( 1, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(serial_param[1].baud_rate)) );
-	realview_serial_ioctl( 1, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(serial_param[1].data_bit)) );
-	realview_serial_ioctl( 1, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(serial_param[1].parity)) );
-	realview_serial_ioctl( 1, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(serial_param[1].stop_bit)) );
+	realview_serial_ioctl( 1, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(serial_param[1].baud_rate)) );
+	realview_serial_ioctl( 1, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(serial_param[1].data_bit)) );
+	realview_serial_ioctl( 1, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(serial_param[1].parity)) );
+	realview_serial_ioctl( 1, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(serial_param[1].stop_bit)) );
 
 	/* enable the serial */
 	writel(REALVIEW_SERIAL1_CR, REALVIEW_SERIAL_CR_UARTEN |	REALVIEW_SERIAL_CR_TXE | REALVIEW_SERIAL_CR_RXE);
@@ -388,12 +383,7 @@ static x_s32 realview_serial1_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void realview_serial1_flush(void)
-{
-	return;
-}
-
-static x_s32 realview_serial1_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 realview_serial1_ioctl(x_u32 cmd, void * arg)
 {
 	return (realview_serial_ioctl(1, cmd, arg));
 }
@@ -405,10 +395,10 @@ static void realview_serial2_init(void)
 	writel(REALVIEW_SERIAL2_CR, 0x0);
 
 	/* configure uart parameter */
-	realview_serial_ioctl( 2, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(serial_param[2].baud_rate)) );
-	realview_serial_ioctl( 2, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(serial_param[2].data_bit)) );
-	realview_serial_ioctl( 2, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(serial_param[2].parity)) );
-	realview_serial_ioctl( 2, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(serial_param[2].stop_bit)) );
+	realview_serial_ioctl( 2, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(serial_param[2].baud_rate)) );
+	realview_serial_ioctl( 2, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(serial_param[2].data_bit)) );
+	realview_serial_ioctl( 2, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(serial_param[2].parity)) );
+	realview_serial_ioctl( 2, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(serial_param[2].stop_bit)) );
 
 	/* enable the serial */
 	writel(REALVIEW_SERIAL2_CR, REALVIEW_SERIAL_CR_UARTEN |	REALVIEW_SERIAL_CR_TXE | REALVIEW_SERIAL_CR_RXE);
@@ -448,12 +438,7 @@ static x_s32 realview_serial2_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void realview_serial2_flush(void)
-{
-	return;
-}
-
-static x_s32 realview_serial2_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 realview_serial2_ioctl(x_u32 cmd, void * arg)
 {
 	return (realview_serial_ioctl(2, cmd, arg));
 }
@@ -465,10 +450,10 @@ static void realview_serial3_init(void)
 	writel(REALVIEW_SERIAL3_CR, 0x0);
 
 	/* configure uart parameter */
-	realview_serial_ioctl( 3, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(serial_param[3].baud_rate)) );
-	realview_serial_ioctl( 3, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(serial_param[3].data_bit)) );
-	realview_serial_ioctl( 3, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(serial_param[3].parity)) );
-	realview_serial_ioctl( 3, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(serial_param[3].stop_bit)) );
+	realview_serial_ioctl( 3, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(serial_param[3].baud_rate)) );
+	realview_serial_ioctl( 3, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(serial_param[3].data_bit)) );
+	realview_serial_ioctl( 3, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(serial_param[3].parity)) );
+	realview_serial_ioctl( 3, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(serial_param[3].stop_bit)) );
 
 	/* enable the serial */
 	writel(REALVIEW_SERIAL3_CR, REALVIEW_SERIAL_CR_UARTEN |	REALVIEW_SERIAL_CR_TXE | REALVIEW_SERIAL_CR_RXE);
@@ -508,12 +493,7 @@ static x_s32 realview_serial3_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static void realview_serial3_flush(void)
-{
-	return;
-}
-
-static x_s32 realview_serial3_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 realview_serial3_ioctl(x_u32 cmd, void * arg)
 {
 	return (realview_serial_ioctl(3, cmd, arg));
 }
@@ -525,7 +505,6 @@ static struct serial_driver realview_serial_driver[4] = {
 		.exit	= realview_serial0_exit,
 		.read	= realview_serial0_read,
 		.write	= realview_serial0_write,
-		.flush	= realview_serial0_flush,
 		.ioctl	= realview_serial0_ioctl,
 	},
 	[1] = {
@@ -534,7 +513,6 @@ static struct serial_driver realview_serial_driver[4] = {
 		.exit	= realview_serial1_exit,
 		.read	= realview_serial1_read,
 		.write	= realview_serial1_write,
-		.flush	= realview_serial1_flush,
 		.ioctl	= realview_serial1_ioctl,
 	},
 	[2] = {
@@ -543,7 +521,6 @@ static struct serial_driver realview_serial_driver[4] = {
 		.exit	= realview_serial2_exit,
 		.read	= realview_serial2_read,
 		.write	= realview_serial2_write,
-		.flush	= realview_serial2_flush,
 		.ioctl	= realview_serial2_ioctl,
 	},
 	[3] = {
@@ -552,7 +529,6 @@ static struct serial_driver realview_serial_driver[4] = {
 		.exit	= realview_serial3_exit,
 		.read	= realview_serial3_read,
 		.write	= realview_serial3_write,
-		.flush	= realview_serial3_flush,
 		.ioctl	= realview_serial3_ioctl,
 	}
 };

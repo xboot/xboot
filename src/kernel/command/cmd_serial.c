@@ -365,7 +365,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				return -1;
 			}
 
-			if(device->ioctl(device, IOCTL_WR_SERIAL_BAUD_RATE, (x_u32)(&(param.baud_rate))) < 0)
+			if(device->ioctl(device, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(param.baud_rate))) < 0)
 			{
 				printk("setting serial device's baud rate fail. (%s)\r\n", device->name);
 				return -1;
@@ -388,7 +388,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				return -1;
 			}
 
-			if(device->ioctl(device, IOCTL_WR_SERIAL_DATA_BITS, (x_u32)(&(param.data_bit))) < 0)
+			if(device->ioctl(device, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(param.data_bit))) < 0)
 			{
 				printk("setting serial device's data bits fail. (%s)\r\n", device->name);
 				return -1;
@@ -409,7 +409,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				return -1;
 			}
 
-			if(device->ioctl(device, IOCTL_WR_SERIAL_PARITY_BIT, (x_u32)(&(param.parity))) < 0)
+			if(device->ioctl(device, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(param.parity))) < 0)
 			{
 				printk("setting serial device's parity fail. (%s)\r\n", device->name);
 				return -1;
@@ -430,7 +430,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				return -1;
 			}
 
-			if(device->ioctl(device, IOCTL_WR_SERIAL_STOP_BITS, (x_u32)(&(param.stop_bit))) < 0)
+			if(device->ioctl(device, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(param.stop_bit))) < 0)
 			{
 				printk("setting serial device's stop bit fail. (%s)\r\n", device->name);
 				return -1;

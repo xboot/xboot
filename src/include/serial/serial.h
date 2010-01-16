@@ -110,11 +110,8 @@ struct serial_driver
 	/* write buffer to serial */
 	x_s32 (*write)(const x_u8 * buf, x_s32 count);
 
-	/* flush serial buffer */
-	void (*flush)(void);
-
 	/* ioctl serial */
-	x_s32 (*ioctl)(x_u32 cmd, x_u32 arg);
+	x_s32 (*ioctl)(x_u32 cmd, void * arg);
 };
 
 x_bool register_serial(struct serial_driver * drv);

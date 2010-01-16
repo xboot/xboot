@@ -132,17 +132,9 @@ static x_s32 fb_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
 }
 
 /*
- * fb flush
- */
-static x_s32 fb_flush(struct chrdev * dev)
-{
-	return 0;
-}
-
-/*
  * fb ioctl
  */
-static x_s32 fb_ioctl(struct chrdev * dev, x_u32 cmd, x_u32 arg)
+static x_s32 fb_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
 
@@ -658,7 +650,6 @@ x_bool register_framebuffer(struct fb * fb)
 	dev->seek 		= fb_seek;
 	dev->read 		= fb_read;
 	dev->write 		= fb_write;
-	dev->flush 		= fb_flush;
 	dev->ioctl 		= fb_ioctl;
 	dev->close		= fb_close;
 	dev->driver 	= fb;

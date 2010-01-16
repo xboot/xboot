@@ -88,12 +88,7 @@ static x_bool button_read(enum keycode * code)
 	return FALSE;
 }
 
-static void button_flush(void)
-{
-	return;
-}
-
-static x_s32 button_ioctl(x_u32 cmd, x_u32 arg)
+static x_s32 button_ioctl(x_u32 cmd, void * arg)
 {
 	return -1;
 }
@@ -103,7 +98,6 @@ static struct keyboard_driver gpio_button = {
 	.init		= button_init,
 	.exit		= button_exit,
 	.read		= button_read,
-	.flush		= button_flush,
 	.ioctl		= button_ioctl,
 };
 

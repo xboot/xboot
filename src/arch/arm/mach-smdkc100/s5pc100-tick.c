@@ -89,8 +89,10 @@ static struct tick s5pc100_tick = {
 
 static __init void s5pc100_tick_init(void)
 {
+	/* FIXME:
 	if(!register_tick(&s5pc100_tick))
 		LOG_E("failed to register tick");
+	*/
 }
 
-//module_init(s5pc100_tick_init, LEVEL_MACH_RES);
+module_init(s5pc100_tick_init, LEVEL_MACH_RES);

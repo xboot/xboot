@@ -45,11 +45,8 @@ struct chrdev
 	/* write device */
 	x_s32 (*write)(struct chrdev * dev, const x_u8 * buf, x_s32 count);
 
-	/* flush device */
-	x_s32 (*flush)(struct chrdev * dev);
-
 	/* ioctl device */
-	x_s32 (*ioctl)(struct chrdev * dev, x_u32 cmd, x_u32 arg);
+	x_s32 (*ioctl)(struct chrdev * dev, x_u32 cmd, void * arg);
 
 	/* close device */
 	x_s32 (*close)(struct chrdev * dev);

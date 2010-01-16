@@ -155,21 +155,101 @@ static x_s32 devfs_close(struct vnode * node, struct file * fp)
 
 static x_s32 devfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
+	struct device * dev = (struct device *)(node->v_data);
+	struct chrdev * chr;
+	struct blkdev * blk;
+	x_size len;
+
+	*result = 0;
+	if(node->v_type == VDIR)
+		return EISDIR;
+
+	if(node->v_type == VCHR)
+	{
+		chr = (struct chrdev *)(dev->priv);
+
+		len = chr->read(chr, buf, size);
+		fp->f_offset = 0;
+		*result = len;
+
+		return 0;
+	}
+	else if(node->v_type == VBLK)
+	{
+		blk = (struct blkdev *)(dev->priv);
+
+		/* TODO */
+		return -1;
+	}
+
 	return -1;
 }
 
 static x_s32 devfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
 {
+	struct device * dev = (struct device *)(node->v_data);
+	struct chrdev * chr;
+	struct blkdev * blk;
+	x_size len;
+
+	*result = 0;
+	if(node->v_type == VDIR)
+		return EISDIR;
+
+	if(node->v_type == VCHR)
+	{
+		chr = (struct chrdev *)(dev->priv);
+
+		len = chr->write(chr, buf, size);
+		fp->f_offset = 0;
+		*result = len;
+
+		return 0;
+	}
+	else if(node->v_type == VBLK)
+	{
+		blk = (struct blkdev *)(dev->priv);
+
+		/* TODO */
+		return -1;
+	}
+
 	return -1;
 }
 
 static x_s32 devfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
+	if(node->v_type == VBLK)
+	{
+		if((off2 < 0) || (off2 > (x_off)node->v_size))
+			return -1;
+		else
+			return 0;
+	}
+
 	return -1;
 }
 
 static x_s32 devfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)
 {
+	struct device * dev = (struct device *)(node->v_data);
+	struct chrdev * chr;
+	struct blkdev * blk;
+
+	if(node->v_type == VDIR)
+		return EISDIR;
+
+	if(node->v_type == VCHR)
+	{
+		chr = (struct chrdev *)(dev->priv);
+		return(chr->ioctl(chr, cmd, arg));
+	}
+	else if(node->v_type == VBLK)
+	{
+		blk = (struct blkdev *)(dev->priv);
+		return(blk->ioctl(blk, cmd, arg));
+	}
+
 	return -1;
 }
 
@@ -232,6 +312,8 @@ static x_s32 devfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 static x_s32 devfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
 	struct device * dev;
+	struct chrdev * chr;
+	struct blkdev * blk;
 
 	dev = search_device(name);
 	if(dev == NULL)
@@ -239,20 +321,25 @@ static x_s32 devfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 
 	if(dev->type == CHAR_DEVICE)
 	{
+		chr = (struct chrdev *)(dev->priv);
+
 		node->v_type = VCHR;
+		node->v_size = 0;
 	}
 	else if(dev->type == BLOCK_DEVICE)
 	{
+		blk = (struct blkdev *)(dev->priv);
+
 		node->v_type = VBLK;
+		node->v_size = blk->blk_num * blk->blk_size;
 	}
 	else
 	{
-		node->v_type = VREG;
+		return -1;
 	}
 
 	node->v_data = (void *)dev;
 	node->v_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	node->v_size = 0;
 
 	return 0;
 }

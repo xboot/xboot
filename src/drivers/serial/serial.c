@@ -66,14 +66,6 @@ static x_s32 serial_open(struct chrdev * dev)
 }
 
 /*
- * serial seek
- */
-static x_s32 serial_seek(struct chrdev * dev, x_s32 offset)
-{
-	return (-1);
-}
-
-/*
  * serial read
  */
 static x_s32 serial_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
@@ -585,7 +577,6 @@ x_bool register_serial(struct serial_driver * drv)
 	dev->name		= drv->info->name;
 	dev->type		= CHR_DEV_SERIAL;
 	dev->open 		= serial_open;
-	dev->seek 		= serial_seek;
 	dev->read 		= serial_read;
 	dev->write 		= serial_write;
 	dev->ioctl 		= serial_ioctl;

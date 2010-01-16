@@ -61,14 +61,6 @@ static x_s32 keyboard_open(struct chrdev * dev)
 }
 
 /*
- * keyboard seek
- */
-static x_s32 keyboard_seek(struct chrdev * dev, x_s32 offset)
-{
-	return (-1);
-}
-
-/*
  * keyboard read
  */
 static x_s32 keyboard_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
@@ -859,7 +851,6 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 	dev->name		= drv->name;
 	dev->type		= CHR_DEV_KEYBOARD;
 	dev->open 		= keyboard_open;
-	dev->seek 		= keyboard_seek;
 	dev->read 		= keyboard_read;
 	dev->write 		= keyboard_write;
 	dev->ioctl 		= keyboard_ioctl;

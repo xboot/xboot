@@ -86,18 +86,6 @@ static x_s32 fb_open(struct chrdev * dev)
 }
 
 /*
- * fb seek
- */
-static x_s32 fb_seek(struct chrdev * dev, x_s32 offset)
-{
-	struct fb * fb = (struct fb *)(dev->driver);
-
-	fb->info->pos = offset;
-
-	return (0);
-}
-
-/*
  * fb read
  */
 static x_s32 fb_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
@@ -647,7 +635,6 @@ x_bool register_framebuffer(struct fb * fb)
 	dev->name		= fb->info->name;
 	dev->type		= CHR_DEV_FRAMEBUFFER;
 	dev->open 		= fb_open;
-	dev->seek 		= fb_seek;
 	dev->read 		= fb_read;
 	dev->write 		= fb_write;
 	dev->ioctl 		= fb_ioctl;

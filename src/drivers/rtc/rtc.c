@@ -141,14 +141,6 @@ static x_s32 rtc_open(struct chrdev * dev)
 }
 
 /*
- * rtc seek
- */
-static x_s32 rtc_seek(struct chrdev * dev, x_s32 offset)
-{
-	return (-1);
-}
-
-/*
  * rtc read
  */
 static x_s32 rtc_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
@@ -264,7 +256,6 @@ x_bool register_rtc(struct rtc_driver * drv)
 	dev->name		= drv->name;
 	dev->type		= CHR_DEV_RTC;
 	dev->open 		= rtc_open;
-	dev->seek 		= rtc_seek;
 	dev->read 		= rtc_read;
 	dev->write 		= rtc_write;
 	dev->ioctl 		= rtc_ioctl;

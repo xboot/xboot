@@ -36,9 +36,6 @@ struct chrdev
 	/* open device */
 	x_s32 (*open)(struct chrdev * dev);
 
-	/* seek device */
-	x_s32 (*seek)(struct chrdev * dev, x_s32 offset);
-
 	/* read device */
 	x_s32 (*read)(struct chrdev * dev, x_u8 * buf, x_s32 count);
 

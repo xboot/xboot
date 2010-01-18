@@ -81,6 +81,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				drivers/terminal \
 				drivers/fb \
 				drivers/led \
+				drivers/loop \
 				drivers/rtc \
 				drivers/input \
 				drivers/input/keyboard \

@@ -314,6 +314,8 @@ static x_s32 devfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	struct device * dev;
 	struct chrdev * chr;
 	struct blkdev * blk;
+	struct blkinfo * info;
+	x_size size = 0;
 
 	dev = search_device(name);
 	if(dev == NULL)
@@ -331,7 +333,16 @@ static x_s32 devfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 		blk = (struct blkdev *)(dev->priv);
 
 		node->v_type = VBLK;
-		node->v_size = blk->blk_num * blk->blk_size;
+
+		if( (info = blk->info) != NULL )
+		{
+			while( info && !(info->number == 0 && info->size == 0 && info->offset == 0) )
+			{
+				size += info->size * info->number;
+				info++;
+			}
+		}
+		node->v_size = size;
 	}
 	else
 	{

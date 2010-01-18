@@ -279,6 +279,13 @@
 #endif
 
 /*
+ * mount command
+ */
+#if !defined(CONFIG_COMMAND_MOUNT)
+#define	CONFIG_COMMAND_MOUNT						(1)
+#endif
+
+/*
  * ls command
  */
 #if !defined(CONFIG_COMMAND_LS)

@@ -47,38 +47,6 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-	x_s32 i = 0;
-
-	if(argc != 3)
-	{
-		printk("!= 3\r\n");
-		return -1;
-	}
-
-	i = simple_strtou32(argv[1], NULL, 0);
-
-	if(i == 0)
-	{
-		printk("register_loop\r\n");
-		if(register_loop((char *)argv[2]))
-			printk("ok\r\n");
-		else
-			printk("false\r\n");
-	}
-	else if(i == 1)
-	{
-		printk("uregister_loop\r\n");
-		if(unregister_loop((char *)argv[2]))
-			printk("u ok\r\n");
-		else
-			printk("u false\r\n");
-	}
-	else
-	{
-		printk("i=%d\r\n", i);
-		return -1;
-	}
-
 	return 0;
 }
 

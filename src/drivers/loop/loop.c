@@ -133,6 +133,32 @@ static x_s32 loop_close(struct blkdev * dev)
 
 	return -1;
 }
+/*
+ * search loop block device by file name
+ */
+struct blkdev * search_loop(const char * file)
+{
+	struct loop_list * list;
+	struct list_head * pos;
+	char buf[MAX_PATH];
+
+	if(!file)
+		return NULL;
+
+	if(vfs_path_conv(file, buf) !=0)
+		return NULL;
+
+	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct loop_list, entry);
+		if(strcmp((x_s8*)list->loop->path, (const x_s8 *)buf) == 0)
+		{
+			return search_blkdev_with_type(list->loop->name, BLK_DEV_LOOP);
+		}
+	}
+
+	return NULL;
+}
 
 /*
  * register a file as a loop block device, return true on success.

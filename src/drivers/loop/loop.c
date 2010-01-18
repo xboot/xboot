@@ -91,6 +91,12 @@ static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno, x_s32 blkcn
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
+	if(blkno < 0)
+		return 0;
+
+	if(blkcnt <= 0)
+		return 0;
+
 	if(lseek(loop->fd, blkno, SEEK_SET) < 0)
 		return 0;
 
@@ -100,6 +106,12 @@ static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno, x_s32 blkcn
 static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno, x_s32 blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
+
+	if(blkno < 0)
+		return 0;
+
+	if(blkcnt <= 0)
+		return 0;
 
 	if(lseek(loop->fd, blkno, SEEK_SET) < 0)
 		return 0;

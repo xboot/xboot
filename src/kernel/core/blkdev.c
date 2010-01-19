@@ -103,7 +103,7 @@ x_bool register_blkdev(struct blkdev * dev)
 		return FALSE;
 	}
 
-	if(!dev->name || search_device(dev->name))
+	if(!dev->name || !dev->info || search_device(dev->name))
 	{
 		free(device);
 		return FALSE;
@@ -138,3 +138,70 @@ x_bool unregister_blkdev(const char * name)
 
 	return FALSE;
 }
+
+/*
+ * get block device's total size
+ */
+x_size get_blkdev_total_size(struct blkdev * dev)
+{
+	struct blkinfo * list;
+	struct list_head * pos;
+	x_size size = 0;
+
+	if(!dev || !dev->info)
+		return 0;
+
+	for(pos = (&(dev->info->entry))->next; pos != &(dev->info->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct blkinfo, entry);
+		size += list->size * list->number;
+	}
+
+	return size;
+}
+
+/*
+ * get block device's total number of block
+ */
+x_size get_blkdev_total_number(struct blkdev * dev)
+{
+	struct blkinfo * list;
+	struct list_head * pos;
+	x_size number = 0;
+
+	if(!dev || !dev->info)
+		return 0;
+
+	for(pos = (&(dev->info->entry))->next; pos != &(dev->info->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct blkinfo, entry);
+		number += list->number;
+	}
+
+	return number;
+}
+
+/*
+ * get block device's block size with blkno
+ */
+x_s32 get_blkdev_size(struct blkdev * dev, x_s32 blkno)
+{
+	struct blkinfo * list;
+	struct list_head * pos;
+
+	if(!dev || !dev->info || blkno < 0)
+		return 0;
+
+	for(pos = (&(dev->info->entry))->next; pos != &(dev->info->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct blkinfo, entry);
+
+		if((blkno >= list->blkno) && (blkno < (list->blkno + list->number)))
+			return list->size;
+		else
+			continue;
+	}
+
+	return 0;
+}
+

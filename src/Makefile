@@ -76,6 +76,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				kernel/fs/ramfs \
 				kernel/fs/procfs \
 				kernel/fs/devfs \
+				kernel/fs/arfs \
 				drivers \
 				drivers/serial \
 				drivers/terminal \

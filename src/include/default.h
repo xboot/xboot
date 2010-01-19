@@ -286,6 +286,13 @@
 #endif
 
 /*
+ * umount command
+ */
+#if !defined(CONFIG_COMMAND_UMOUNT)
+#define	CONFIG_COMMAND_UMOUNT						(1)
+#endif
+
+/*
  * ls command
  */
 #if !defined(CONFIG_COMMAND_LS)

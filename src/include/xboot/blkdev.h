@@ -17,6 +17,9 @@ enum blkdev_type {
 };
 
 struct blkinfo {
+	/* the no of block */
+	x_s32 blkno;
+
 	/* the offset of block */
 	x_s32 offset;
 
@@ -25,6 +28,9 @@ struct blkinfo {
 
 	/* the number of block with same type */
 	x_s32 number;
+
+	/* link other blkinfo */
+	struct list_head entry;
 };
 
 /*
@@ -38,7 +44,7 @@ struct blkdev
 	/* the type of block device */
 	enum blkdev_type type;
 
-	/* the information of blocks, must place NULL at the end */
+	/* the information of blocks */
 	struct blkinfo * info;
 
 	/* open device */
@@ -65,5 +71,9 @@ struct blkdev * search_blkdev(const char * name);
 struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type);
 x_bool register_blkdev(struct blkdev * dev);
 x_bool unregister_blkdev(const char * name);
+
+x_size get_blkdev_total_size(struct blkdev * dev);
+x_size get_blkdev_total_number(struct blkdev * dev);
+x_s32 get_blkdev_size(struct blkdev * dev, x_s32 blkno);
 
 #endif /* __BLKDEV_H__ */

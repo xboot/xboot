@@ -49,7 +49,7 @@ struct loop
 	char path[MAX_PATH];
 
 	/* block information */
-	struct blkinfo info[2];
+	struct blkinfo info;
 
 	/* file descriptor */
 	x_s32 fd;
@@ -169,6 +169,7 @@ x_bool register_loop(const char * file)
 	struct blkdev * dev;
 	struct loop * loop;
 	struct loop_list * list;
+	struct blkinfo * info;
 	x_s32 i = 0;
 
 	if(!file)
@@ -214,16 +215,25 @@ x_bool register_loop(const char * file)
 		return FALSE;
 	}
 
-	loop->info[0].offset = 0;
-	loop->info[0].size = 1;
-	loop->info[0].number = st.st_size;
-	loop->info[1].offset = 0;
-	loop->info[1].size = 0;
-	loop->info[1].number = 0;
+	init_list_head(&(loop->info.entry));
+	info = malloc(sizeof(struct blkinfo));
+	if(!info)
+	{
+		free(loop);
+		free(dev);
+		free(list);
+		return FALSE;
+	}
+
+	info->blkno = 0;
+	info->offset = 0;
+	info->size = 1;
+	info->number = st.st_size;
+	list_add_tail(&info->entry, &(loop->info.entry));
 
 	dev->name	= loop->name;
 	dev->type	= BLK_DEV_LOOP;
-	dev->info	= &loop->info[0];
+	dev->info	= &(loop->info);
 	dev->open 	= loop_open;
 	dev->read 	= loop_read;
 	dev->write	= loop_write;
@@ -235,6 +245,7 @@ x_bool register_loop(const char * file)
 
 	if(!register_blkdev(dev))
 	{
+		free(info);
 		free(loop);
 		free(dev);
 		free(list);
@@ -244,6 +255,7 @@ x_bool register_loop(const char * file)
 	if(search_blkdev_with_type(dev->name, BLK_DEV_LOOP) == NULL)
 	{
 		unregister_blkdev(dev->name);
+		free(info);
 		free(loop);
 		free(dev);
 		free(list);
@@ -262,6 +274,8 @@ x_bool unregister_loop(const char * file)
 {
 	struct loop_list * list;
 	struct list_head * pos;
+	struct blkinfo * info_list;
+	struct list_head * info_pos;
 	struct blkdev * dev;
 	char buf[MAX_PATH];
 
@@ -281,6 +295,11 @@ x_bool unregister_loop(const char * file)
 			{
 				if(unregister_blkdev(list->loop->name))
 				{
+					for(info_pos = (&(list->loop->info.entry))->next; info_pos != &(list->loop->info.entry); info_pos = info_pos->next)
+					{
+						info_list = list_entry(info_pos, struct blkinfo, entry);
+						free(info_list);
+					}
 					free(list->loop);
 					free(dev);
 					list_del(pos);

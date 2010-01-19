@@ -104,7 +104,7 @@ static x_s32 do_mount(x_s32 argc, const x_s8 **argv)
 
 	if(!filesystem_search(fstype))
 	{
-		printk("no found %s filesystem\r\n", fstype);
+		printk("the filesystem %s not found\r\n", fstype);
 		return -1;
 	}
 
@@ -116,7 +116,7 @@ static x_s32 do_mount(x_s32 argc, const x_s8 **argv)
 
 	if(!S_ISDIR(st.st_mode))
 	{
-		printk("not a directory %s\r\n", dir);
+		printk("the '%s' does not a directory\r\n", dir);
 		return -1;
 	}
 
@@ -144,7 +144,7 @@ static x_s32 do_mount(x_s32 argc, const x_s8 **argv)
 		blk = search_loop(pdev);
 		if(!blk)
 		{
-			printk("not found loop block device\r\n");
+			printk("special loop block device not found\r\n");
 			return -1;
 		}
 
@@ -160,7 +160,7 @@ static x_s32 do_mount(x_s32 argc, const x_s8 **argv)
 
 	if(!S_ISBLK(st.st_mode))
 	{
-		printk("not a block device %s\r\n", dev);
+		printk("special device %s does not a block device\r\n", dev);
 		return -1;
 	}
 

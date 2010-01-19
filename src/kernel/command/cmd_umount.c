@@ -34,7 +34,7 @@
 #include <fs/fsapi.h>
 
 
-#if	defined(CONFIG_COMMAND_MOUNT) && (CONFIG_COMMAND_MOUNT > 0)
+#if	defined(CONFIG_COMMAND_UMOUNT) && (CONFIG_COMMAND_UMOUNT > 0)
 
 static x_s32 do_umount(x_s32 argc, const x_s8 **argv)
 {

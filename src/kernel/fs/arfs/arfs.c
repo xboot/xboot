@@ -36,7 +36,30 @@
 #include <xboot/chrdev.h>
 #include <xboot/blkdev.h>
 #include <xboot/device.h>
+#include <fs/vfs/vfs.h>
 #include <fs/fs.h>
+
+struct ar_hdr
+{
+	/* member file name, sometimes '/' terminated */
+	x_s8 ar_name[16];
+
+	/* file date, decimal seconds since epoch */
+	x_s8 ar_date[12];
+
+	 /* user and group id, in ascii decimal */
+	x_s8 ar_uid[6];
+	x_s8 ar_gid[6];
+
+	/* file mode, in ascii octal */
+	x_s8 ar_mode[8];
+
+	/* File size, in ascii decimal.  */
+	x_s8 ar_size[10];
+
+	/* always contains `\n */
+	x_s8 ar_fmag[2];
+};
 
 /*
  * filesystem operations
@@ -44,46 +67,34 @@
 static x_s32 arfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
 	struct blkdev * blk;
-	struct blkinfo * info;
-	x_s32 blkno = 0, blkcnt = 0, buflen = 0;
-	x_u8 * buf;
+	x_u8 buf[8];
 
 	if(dev == NULL)
 		return EINVAL;
 
 	blk = (struct blkdev *)m->m_dev;
-	if(blk == NULL)
+	if(!blk || !blk->info)
 		return ENODEV;
-
-	if( (info = blk->info) == NULL )
-		return EINTR;
 
 	if(get_blkdev_total_size(blk) <= 8)
 		return EINTR;
 
-	while(buflen < 8)
+	if(bio_read(blk, buf, 0, 8) != 8)
 	{
-		buflen += get_blkdev_size(blk, blkno + (blkcnt++));
-	}
-
-	buf = malloc(buflen);
-	if(buf == NULL)
-		return ENOMEM;
-
-	if( (!blk->read) || (blk->read(blk, buf, blkno, blkcnt) <= 0) )
+		bio_flush(blk);
 		return EIO;
+	}
 
 	/*
 	 * check if the device includes valid archive image
 	 */
-	if(strncmp((const x_s8 *)buf, (const x_s8 *)"!<arch>\n", 8) != 0)
+	if(strncmp((const x_s8 *)(&buf[0]), (const x_s8 *)"!<arch>\n", 8) != 0)
 	{
-		free(buf);
+		bio_flush(blk);
 		return EINVAL;
 	}
 
 	m->m_flags = (flag & MOUNT_MASK) | MOUNT_RDONLY;
-	free(buf);
 
 	return 0;
 }
@@ -148,12 +159,115 @@ static x_s32 arfs_fsync(struct vnode * node, struct file * fp)
 
 static x_s32 arfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
-	return -1;
+	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	struct ar_hdr header;
+	x_off off = 8;
+	x_size size;
+	x_s8 * p;
+	x_s32 i;
+
+	if(fp->f_offset == 0)
+	{
+		dir->d_type = DT_DIR;
+		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)".", sizeof(dir->d_name));
+	}
+	else if(fp->f_offset == 1)
+	{
+		dir->d_type = DT_DIR;
+		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)"..", sizeof(dir->d_name));
+	}
+	else
+	{
+		memset(&header, 0, sizeof(struct ar_hdr));
+		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct ar_hdr));
+
+		if(strncmp(header.ar_fmag, "`\n", 2) != 0)
+			return ENOENT;
+
+		size = simple_strtos64((const x_s8 *)(header.ar_size), NULL, 0);
+		if(size <= 0)
+			return ENOENT;
+
+		off += (sizeof(struct ar_hdr) + size);
+		printk("off = %ld\r\n", (x_s32)off);
+		//off += (off % 2);
+
+/*
+		for(i = 0; i != (fp->f_offset - 2); i++)
+		{
+			return EINVAL;
+		}
+*/
+		strcpy(header.ar_name, "abc.tt");
+
+		dir->d_type = DT_REG;
+
+		if((p = memchr((const void *)(header.ar_name), '/', 16)) != NULL)
+			*p = '\0';
+		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)(header.ar_name), sizeof(dir->d_name));
+	}
+
+	dir->d_fileno = (x_u32)fp->f_offset;
+	dir->d_namlen = (x_u16)strlen((const x_s8 *)dir->d_name);
+	fp->f_offset++;
+
+	return 0;
+
+#if 0
+	for(;;)
+	{
+		if(bio_read(dev, (x_u8 *)(&header), off, sizeof(struct ar_hdr)) != sizeof(struct ar_hdr))
+		{
+			//return EIO;
+		}
+
+		size = simple_strtos64((const x_s8 *)(header.ar_size), NULL, 0);
+		//if(size <= 0)
+			//return ENOENT;
+
+		if(i == fp->f_offset)
+			break;
+
+		/*
+		 * proceed to next archive header, pad to even boundary
+		 */
+		off += (sizeof(struct ar_hdr) + size);
+		off += (off % 2);
+
+		i++;
+
+		break;
+	}
+
+
+	/*
+	 * convert archive name
+	 */
+	if((p = memchr((const void *)(header.ar_name), '/', 16)) != NULL)
+		*p = '\0';
+
+	strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)(header.ar_name), sizeof(dir->d_name));
+
+	printk("name=%s\r\n", header.ar_name);
+
+	dir->d_type = DT_REG;
+
+	dir->d_fileno = (x_u32)fp->f_offset;
+	dir->d_namlen = (x_u16)strlen((const x_s8 *)dir->d_name);
+	fp->f_offset++;
+
+	return 0;
+#endif
 }
 
 static x_s32 arfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	return -1;
+	node->v_type = VREG;
+	node->v_size = 0;
+	node->v_data = 0;
+	node->v_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+
+	return 0;
 }
 
 static x_s32 arfs_create(struct vnode * node, char * name, x_u32 mode)

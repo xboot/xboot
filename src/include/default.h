@@ -76,6 +76,14 @@
 #endif
 
 /**
+ * the max number of vfs bio
+ */
+#if !defined(CONFIG_MAX_NUMBER_OF_VFS_BIO)
+#define	CONFIG_MAX_NUMBER_OF_VFS_BIO				(SZ_4K)
+#endif
+
+
+/**
  * the max number of log
  */
 #if !defined(CONFIG_MAX_NUMBER_OF_LOG)

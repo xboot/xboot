@@ -4,6 +4,7 @@
 #include <configs.h>
 #include <default.h>
 #include <xboot/list.h>
+#include <xboot/blkdev.h>
 #include <fs/vfs/stat.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/fs.h>
@@ -193,6 +194,13 @@ struct vfsops {
 	struct vnops * vfs_vnops;
 };
 
+/*
+ * declare for vfs_bio
+ */
+void bio_sync(void);
+void bio_flush(struct blkdev * dev);
+x_s32 bio_read(struct blkdev * dev, x_u8 * buf, x_s32 offset, x_s32 count);
+x_s32 bio_write(struct blkdev * dev, const x_u8 * buf, x_s32 offset, x_s32 count);
 
 /*
  * declare for vfs_mount

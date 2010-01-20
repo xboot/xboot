@@ -36,6 +36,7 @@
 
 
 #if	defined(CONFIG_COMMAND_MOUNT) && (CONFIG_COMMAND_MOUNT > 0)
+
 static void usage(void)
 {
 	printk("usage:\r\n    mount <-t fstype> [-o option] <dev> <dir>\r\n");

@@ -336,7 +336,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 		}
 		close(fd);
 		printk("write test.ar\r\n");
-/*
+
 		if(!register_loop("test.ar"))
 		{
 			printk("register a loop block device fail\r\n");
@@ -348,7 +348,6 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 			printk("special loop block device not found\r\n");
 			return -1;
 		}
-*/
 	}
 	else
 	{
@@ -372,6 +371,8 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 			printk(" 0x%02x", buf[i]);
 		}
 		printk("\r\n");
+
+		bio_flush(dev);
 
 		dev->close(dev);
 	}

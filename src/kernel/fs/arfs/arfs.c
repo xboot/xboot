@@ -80,19 +80,13 @@ static x_s32 arfs_mount(struct mount * m, char * dev, x_s32 flag)
 		return EINTR;
 
 	if(bio_read(blk, buf, 0, 8) != 8)
-	{
-		bio_flush(blk);
 		return EIO;
-	}
 
 	/*
 	 * check if the device includes valid archive image
 	 */
 	if(strncmp((const x_s8 *)(&buf[0]), (const x_s8 *)"!<arch>\n", 8) != 0)
-	{
-		bio_flush(blk);
 		return EINVAL;
-	}
 
 	m->m_flags = (flag & MOUNT_MASK) | MOUNT_RDONLY;
 

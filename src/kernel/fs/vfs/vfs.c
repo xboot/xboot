@@ -177,7 +177,10 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 		if(vp_covered)
 			vput(vp_covered);
 		if(device != NULL)
+		{
+			bio_flush(device);
 			device->close(device);
+		}
 		free(m);
 		return err;
 	}

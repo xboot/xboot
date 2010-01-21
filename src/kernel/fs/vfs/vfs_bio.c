@@ -222,6 +222,7 @@ void bio_flush(struct blkdev * dev)
 	for(pos = (&bio_list->entry)->next; pos != (&bio_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct bio_list, entry);
+
 		if(list->bio->dev == dev)
 		{
 			if(list->bio->flag == BIO_FLAG_WRITE)
@@ -230,6 +231,7 @@ void bio_flush(struct blkdev * dev)
 					dev->write(dev, list->bio->buf, list->bio->blkno);
 			}
 
+			// FIXME
 			list_del(pos);
 			free(list->bio->buf);
 			free(list->bio);

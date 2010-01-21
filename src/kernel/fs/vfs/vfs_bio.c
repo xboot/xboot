@@ -188,23 +188,28 @@ static struct bio * add_bio(struct blkdev * dev, x_s32 blkno)
 void bio_sync(void)
 {
 	struct bio_list * list;
-	struct list_head * pos;
+	struct list_head * head, * curr, * next;
 
-	for(pos = (&bio_list->entry)->next; pos != (&bio_list->entry); pos = pos->next)
+	head = &bio_list->entry;
+	curr = head->next;
+
+	while(curr != head)
 	{
-		list = list_entry(pos, struct bio_list, entry);
+		list = list_entry(curr, struct bio_list, entry);
 
+		next = curr->next;
 		if(list->bio->flag == BIO_FLAG_WRITE)
 		{
 			if(list->bio->dev->write)
 				list->bio->dev->write(list->bio->dev, list->bio->buf, list->bio->blkno);
 
-			list_del(pos);
+			list_del(curr);
 			free(list->bio->buf);
 			free(list->bio);
 			free(list);
 			bio_numberof--;
 		}
+		curr = next;
 	}
 }
 
@@ -214,30 +219,25 @@ void bio_sync(void)
 void bio_flush(struct blkdev * dev)
 {
 	struct bio_list * list;
-	struct list_head * pos;
+	struct list_head * head, * curr, * next;
 
 	if(!dev)
 		return;
 
-	for(pos = (&bio_list->entry)->next; pos != (&bio_list->entry); pos = pos->next)
+	head = &bio_list->entry;
+	curr = head->next;
+
+	while(curr != head)
 	{
-		list = list_entry(pos, struct bio_list, entry);
+		list = list_entry(curr, struct bio_list, entry);
 
-		if(list->bio->dev == dev)
-		{
-			if(list->bio->flag == BIO_FLAG_WRITE)
-			{
-				if(dev->write)
-					dev->write(dev, list->bio->buf, list->bio->blkno);
-			}
-
-			// FIXME
-			list_del(pos);
-			free(list->bio->buf);
-			free(list->bio);
-			free(list);
-			bio_numberof--;
-		}
+		next = curr->next;
+		list_del(curr);
+		curr = next;
+		free(list->bio->buf);
+		free(list->bio);
+		free(list);
+		bio_numberof--;
 	}
 }
 

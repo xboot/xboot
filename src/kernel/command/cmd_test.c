@@ -317,65 +317,20 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
 	x_s32 fd;
 	x_s32 n;
-	char buf[512];
-	int i;
-	struct blkdev * dev;
 
-	if(argc == 1)
+	fd = open("test.ar", O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(fd < 0)
+		return -1;
+
+	n = write(fd, (void *)test_ar, 2644);
+	if( n != 2644 )
 	{
-		fd = open("test.ar", O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-		if(fd < 0)
-			return -1;
-
-		n = write(fd, (void *)test_ar, 2644);
-		if( n != 2644 )
-		{
-			close(fd);
-			unlink("test.ar");
-			printk("failed to write test.ar\r\n");
-		}
 		close(fd);
-		printk("write test.ar\r\n");
-
-		if(!register_loop("test.ar"))
-		{
-			printk("register a loop block device fail\r\n");
-			return -1;
-		}
-
-		if(search_loop("test.ar") == NULL)
-		{
-			printk("special loop block device not found\r\n");
-			return -1;
-		}
+		unlink("test.ar");
+		printk("failed to write test.ar\r\n");
 	}
-	else
-	{
-		dev = search_blkdev_with_type("loop0", BLK_DEV_LOOP);
-		if(!dev)
-		{
-			printk("dev null");
-			return -1;
-		}
-
-		dev->open(dev);
-
-		printk("bio read\r\n");
-
-		memset(buf, 0, sizeof(buf));
-
-		bio_read(dev, (x_u8 *)buf, 0x7fd, 10);
-
-		for(i = 0; i < 10; i++)
-		{
-			printk(" 0x%02x", buf[i]);
-		}
-		printk("\r\n");
-
-		bio_flush(dev);
-
-		dev->close(dev);
-	}
+	close(fd);
+	printk("write test.ar\r\n");
 
 	return 0;
 }

@@ -87,36 +87,30 @@ static x_s32 loop_open(struct blkdev * dev)
 	return 0;
 }
 
-static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno, x_s32 blkcnt)
+static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
 	if(blkno < 0)
 		return 0;
 
-	if(blkcnt <= 0)
+	if(lseek(loop->fd, (blkno << 9), SEEK_SET) < 0)
 		return 0;
 
-	if(lseek(loop->fd, blkno * 512, SEEK_SET) < 0)
-		return 0;
-
-	return (read(loop->fd, (void *)buf, blkcnt * 512));
+	return (read(loop->fd, (void *)buf, 512));
 }
 
-static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno, x_s32 blkcnt)
+static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
 	if(blkno < 0)
 		return 0;
 
-	if(blkcnt <= 0)
+	if(lseek(loop->fd, (blkno << 9), SEEK_SET) < 0)
 		return 0;
 
-	if(lseek(loop->fd, blkno * 512, SEEK_SET) < 0)
-		return 0;
-
-	return (write(loop->fd, (void *)buf, blkcnt * 512));
+	return (write(loop->fd, (void *)buf, 512));
 }
 
 static x_s32 loop_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
@@ -228,7 +222,7 @@ x_bool register_loop(const char * file)
 	info->blkno = 0;
 	info->offset = 0;
 	info->size = 512;
-	info->number = (st.st_size + 512) / 512;
+	info->number = (st.st_size + 512) >> 9;
 	list_add_tail(&info->entry, &(loop->info.entry));
 
 	dev->name	= loop->name;

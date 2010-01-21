@@ -50,11 +50,11 @@ struct blkdev
 	/* open device */
 	x_s32 (*open)(struct blkdev * dev);
 
-	/* read block from device */
-	x_s32 (*read)(struct blkdev * dev, x_u8 * buf, x_s32 blkno, x_s32 blkcnt);
+	/* read a block from device */
+	x_s32 (*read)(struct blkdev * dev, x_u8 * buf, x_s32 blkno);
 
-	/* write block to device */
-	x_s32 (*write)(struct blkdev * dev, const x_u8 * buf, x_s32 blkno, x_s32 blkcnt);
+	/* write a block to device */
+	x_s32 (*write)(struct blkdev * dev, const x_u8 * buf, x_s32 blkno);
 
 	/* ioctl device */
 	x_s32 (*ioctl)(struct blkdev * dev, x_u32 cmd, void * arg);

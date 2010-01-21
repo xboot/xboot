@@ -146,7 +146,7 @@ static struct bio * add_bio(struct blkdev * dev, x_s32 blkno)
 	bio->flag = BIO_FLAG_READ;
 	memset(bio->buf, 0, size);
 
-	if( (!dev->read) || (dev->read(dev, bio->buf, blkno, 1) <= 0) )
+	if( (!dev->read) || (dev->read(dev, bio->buf, blkno) <= 0) )
 	{
 		free(bio->buf);
 		free(bio);
@@ -164,7 +164,7 @@ static struct bio * add_bio(struct blkdev * dev, x_s32 blkno)
 			if(remove_list->bio->flag == BIO_FLAG_WRITE)
 			{
 				if(dev->write)
-					dev->write(dev, list->bio->buf, blkno, 1);
+					dev->write(dev, list->bio->buf, blkno);
 			}
 
 			list_del(remove_pos);
@@ -234,7 +234,7 @@ void bio_sync(void)
 		if(list->bio->flag == BIO_FLAG_WRITE)
 		{
 			if(list->bio->dev->write)
-				list->bio->dev->write(list->bio->dev, list->bio->buf, list->bio->blkno, 1);
+				list->bio->dev->write(list->bio->dev, list->bio->buf, list->bio->blkno);
 
 			list_del(pos);
 			free(list->bio->buf);
@@ -264,7 +264,7 @@ void bio_flush(struct blkdev * dev)
 			if(list->bio->flag == BIO_FLAG_WRITE)
 			{
 				if(dev->write)
-					dev->write(dev, list->bio->buf, list->bio->blkno, 1);
+					dev->write(dev, list->bio->buf, list->bio->blkno);
 			}
 
 			list_del(pos);

@@ -38,6 +38,18 @@
 
 static x_s32 do_umount(x_s32 argc, const x_s8 **argv)
 {
+	if(argc != 2)
+	{
+		printk("usage:\r\n    umount <dir>\r\n");
+		return -1;
+	}
+
+	if(umount((const char *)argv[1]) != 0)
+	{
+		printk("umount '%s' fail\r\n", argv[1]);
+		return -1;
+	}
+
 	return 0;
 }
 

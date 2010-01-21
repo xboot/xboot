@@ -134,7 +134,29 @@ static x_s32 arfs_close(struct vnode * node, struct file * fp)
 
 static x_s32 arfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
-	return -1;
+	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	x_off off;
+	x_size len;
+
+	*result = 0;
+	if(node->v_type == VDIR)
+		return EISDIR;
+	if(node->v_type != VREG)
+		return EINVAL;
+
+	if(fp->f_offset >= node->v_size)
+		return 0;
+
+	if(node->v_size - fp->f_offset < size)
+		size = node->v_size - fp->f_offset;
+
+	off = (x_off)((x_s32)(node->v_data));
+
+	len = bio_read(dev, (x_u8 *)buf, off, size);
+	fp->f_offset += len;
+	*result = len;
+
+	return 0;
 }
 
 static x_s32 arfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
@@ -144,7 +166,10 @@ static x_s32 arfs_write(struct vnode * node , struct file * fp, void * buf, x_si
 
 static x_s32 arfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
-	return -1;
+	if(off2 > (x_off)(node->v_size))
+		return -1;
+
+	return 0;
 }
 
 static x_s32 arfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)
@@ -164,7 +189,7 @@ static x_s32 arfs_readdir(struct vnode * node, struct file * fp, struct dirent *
 	x_off off = 8;
 	x_size size;
 	x_s8 * p;
-	x_s32 i;
+	x_s32 i = 0;
 
 	if(fp->f_offset == 0)
 	{
@@ -178,30 +203,26 @@ static x_s32 arfs_readdir(struct vnode * node, struct file * fp, struct dirent *
 	}
 	else
 	{
-		memset(&header, 0, sizeof(struct ar_hdr));
-		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct ar_hdr));
-
-		if(strncmp(header.ar_fmag, "`\n", 2) != 0)
-			return ENOENT;
-
-		size = simple_strtos64((const x_s8 *)(header.ar_size), NULL, 0);
-		if(size <= 0)
-			return ENOENT;
-
-		off += (sizeof(struct ar_hdr) + size);
-		printk("off = %ld\r\n", (x_s32)off);
-		//off += (off % 2);
-
-/*
-		for(i = 0; i != (fp->f_offset - 2); i++)
+		while(1)
 		{
-			return EINVAL;
+			memset(&header, 0, sizeof(struct ar_hdr));
+			bio_read(dev, (x_u8 *)(&header), off, sizeof(struct ar_hdr));
+
+			if(strncmp((const x_s8 *)header.ar_fmag, (const x_s8 *)"`\n", 2) != 0)
+				return ENOENT;
+
+			size = simple_strtos64((const x_s8 *)(header.ar_size), NULL, 0);
+			if(size <= 0)
+				return ENOENT;
+
+			if(i++ == fp->f_offset - 2)
+				break;
+
+			off += (sizeof(struct ar_hdr) + size);
+			off += (off % 2);
 		}
-*/
-		strcpy(header.ar_name, "abc.tt");
 
 		dir->d_type = DT_REG;
-
 		if((p = memchr((const void *)(header.ar_name), '/', 16)) != NULL)
 			*p = '\0';
 		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)(header.ar_name), sizeof(dir->d_name));
@@ -212,60 +233,42 @@ static x_s32 arfs_readdir(struct vnode * node, struct file * fp, struct dirent *
 	fp->f_offset++;
 
 	return 0;
-
-#if 0
-	for(;;)
-	{
-		if(bio_read(dev, (x_u8 *)(&header), off, sizeof(struct ar_hdr)) != sizeof(struct ar_hdr))
-		{
-			//return EIO;
-		}
-
-		size = simple_strtos64((const x_s8 *)(header.ar_size), NULL, 0);
-		//if(size <= 0)
-			//return ENOENT;
-
-		if(i == fp->f_offset)
-			break;
-
-		/*
-		 * proceed to next archive header, pad to even boundary
-		 */
-		off += (sizeof(struct ar_hdr) + size);
-		off += (off % 2);
-
-		i++;
-
-		break;
-	}
-
-
-	/*
-	 * convert archive name
-	 */
-	if((p = memchr((const void *)(header.ar_name), '/', 16)) != NULL)
-		*p = '\0';
-
-	strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)(header.ar_name), sizeof(dir->d_name));
-
-	printk("name=%s\r\n", header.ar_name);
-
-	dir->d_type = DT_REG;
-
-	dir->d_fileno = (x_u32)fp->f_offset;
-	dir->d_namlen = (x_u16)strlen((const x_s8 *)dir->d_name);
-	fp->f_offset++;
-
-	return 0;
-#endif
 }
 
 static x_s32 arfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
+	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	struct ar_hdr header;
+	x_off off = 8;
+	x_size size;
+	x_s8 * p;
+
+	while(1)
+	{
+		memset(&header, 0, sizeof(struct ar_hdr));
+		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct ar_hdr));
+
+		if(strncmp((const x_s8 *)header.ar_fmag, (const x_s8 *)"`\n", 2) != 0)
+			return ENOENT;
+
+		size = simple_strtos64((const x_s8 *)(header.ar_size), NULL, 0);
+		if(size <= 0)
+			return ENOENT;
+
+		if((p = memchr((const void *)(header.ar_name), '/', 16)) != NULL)
+			*p = '\0';
+
+		if(strncmp((const x_s8 *)name, (const x_s8 *)(header.ar_name), 16) == 0)
+			break;
+
+		off += (sizeof(struct ar_hdr) + size);
+		off += (off % 2);
+	}
+
 	node->v_type = VREG;
-	node->v_size = 0;
-	node->v_data = 0;
-	node->v_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+	node->v_size = size;
+	node->v_data = (void *)((x_s32)(off + sizeof(struct ar_hdr)));
+	node->v_mode = S_IRUSR | S_IRGRP | S_IROTH;
 
 	return 0;
 }

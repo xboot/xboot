@@ -100,7 +100,6 @@ struct vnode {
 	enum vnode_flag v_flags;	/* vnode flag */
 	x_s32 v_refcnt;				/* reference count */
 	x_s32 v_nrlocks;			/* lock count (for debug) */
-	x_s32 v_blkno;				/* block number */
 	char * v_path;				/* pointer to path in fs */
 	void * v_data;				/* private data for fs */
 };

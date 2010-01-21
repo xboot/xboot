@@ -151,8 +151,8 @@ static x_s32 arfs_read(struct vnode * node, struct file * fp, void * buf, x_size
 		size = node->v_size - fp->f_offset;
 
 	off = (x_off)((x_s32)(node->v_data));
+	len = bio_read(dev, (x_u8 *)buf, (off + fp->f_offset), size);
 
-	len = bio_read(dev, (x_u8 *)buf, off, size);
 	fp->f_offset += len;
 	*result = len;
 

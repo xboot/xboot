@@ -131,7 +131,7 @@ static struct bio * add_bio(struct blkdev * dev, x_s32 blkno)
 		return NULL;
 	}
 
-	bio->buf = malloc(sizeof(size));
+	bio->buf = malloc(size);
 	if(!bio->buf)
 	{
 		free(bio);
@@ -181,43 +181,6 @@ static struct bio * add_bio(struct blkdev * dev, x_s32 blkno)
 	bio_numberof++;
 	return bio;
 }
-
-/*
-static x_bool remove_bio(struct blkdev * dev, x_s32 blkno)
-{
-	struct bio_list * list;
-	struct list_head * pos;
-
-	if(!dev || (blkno < 0))
-		return FALSE;
-
-	for(pos = (&bio_list->entry)->next; pos != (&bio_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct bio_list, entry);
-		if(list->bio->dev == dev && list->bio->blkno == blkno)
-		{
-			if(list->bio->flag == BIO_FLAG_WRITE)
-			{
-				if(dev->write)
-				{
-					if(dev->write(dev, list->bio->buf, blkno, 1) <= 0)
-						return FALSE;
-				}
-			}
-
-			list_del(pos);
-			free(list->bio->buf);
-			free(list->bio);
-			free(list);
-
-			bio_numberof--;
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-*/
 
 /*
  * sync bio
@@ -302,12 +265,11 @@ x_s32 bio_read(struct blkdev * dev, x_u8 * buf, x_s32 offset, x_s32 count)
 		if(len + l > count)
 			l = count - len;
 
-		memcpy((void *)p, (const void *)(bio->buf + o), l);
+		memcpy((void *)p, (const void *)(&bio->buf[o]), l);
 
 		offset += l;
-		p += o;
+		p += l;
 		len += l;
-		blkno++;
 	}
 
 	return len;

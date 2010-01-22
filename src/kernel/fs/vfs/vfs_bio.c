@@ -282,8 +282,34 @@ x_s32 bio_read(struct blkdev * dev, x_u8 * buf, x_s32 offset, x_s32 count)
  */
 x_s32 bio_write(struct blkdev * dev, const x_u8 * buf, x_s32 offset, x_s32 count)
 {
+	struct bio * bio;
+	x_s32 blkno;
+	x_s32 len = 0;
+	x_u8 * p = (x_u8 *)buf;
+	x_s32 o = 0, l = 0;
+
 	if(!dev || !dev->info || !buf || (offset < 0) || (count <= 0) )
 		return 0;
+
+	while(len < count)
+	{
+		blkno = get_blkdev_blkno(dev, offset);
+		bio = add_bio(dev, blkno);
+		if(bio == NULL)
+			return len;
+
+		o = offset - bio->offset;
+		l = bio->size - o;
+		if(len + l > count)
+			l = count - len;
+
+		memcpy((void *)(&bio->buf[o]), (const void *)p, l);
+		bio->flag = BIO_FLAG_WRITE;
+
+		offset += l;
+		p += l;
+		len += l;
+	}
 
 	return 0;
 }

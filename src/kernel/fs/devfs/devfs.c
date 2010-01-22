@@ -36,6 +36,7 @@
 #include <xboot/chrdev.h>
 #include <xboot/blkdev.h>
 #include <xboot/device.h>
+#include <fs/vfs/vfs.h>
 #include <fs/fs.h>
 
 extern struct device_list * device_list;
@@ -178,8 +179,11 @@ static x_s32 devfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	{
 		blk = (struct blkdev *)(dev->priv);
 
-		/* TODO */
-		return -1;
+		len = bio_read(blk, buf, fp->f_offset, size);
+		fp->f_offset += len;
+		*result = len;
+
+		return 0;
 	}
 
 	return -1;
@@ -210,8 +214,11 @@ static x_s32 devfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 	{
 		blk = (struct blkdev *)(dev->priv);
 
-		/* TODO */
-		return -1;
+		len = bio_write(blk, buf, fp->f_offset, size);
+		fp->f_offset += len;
+		*result = len;
+
+		return 0;
 	}
 
 	return -1;

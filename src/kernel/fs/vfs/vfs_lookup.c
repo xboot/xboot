@@ -67,7 +67,6 @@ x_s32 namei(char * path, struct vnode ** vpp)
 		panic("vfs: no root\r\n");
 
 	vref(dvp);
-	vn_lock(dvp);
 	node[0] = '\0';
 
 	while(*p != '\0')

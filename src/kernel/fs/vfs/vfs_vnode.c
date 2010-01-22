@@ -74,7 +74,6 @@ struct vnode * vn_lookup(struct mount * mp, char * path)
 		if( (vp->v_mount == mp) && (!strncmp((const x_s8 *)vp->v_path, (const x_s8 *)path, MAX_PATH)) )
 		{
 			vp->v_refcnt++;
-			vp->v_nrlocks++;
 			return vp;
 		}
 	}
@@ -104,7 +103,6 @@ struct vnode * vget(struct mount * mp, char * path)
 	vp->v_mount = mp;
 	vp->v_op = mp->m_fs->vfsops->vfs_vnops;
 	vp->v_refcnt = 1;
-	vp->v_nrlocks = 0;
 	strlcpy((x_s8 *)vp->v_path, (const x_s8 *)path, len);
 
 	/*
@@ -119,7 +117,6 @@ struct vnode * vget(struct mount * mp, char * path)
 	}
 
 	vfs_busy(vp->v_mount);
-	vp->v_nrlocks++;
 
 	list_add(&vp->v_link, &vnode_table[vn_hash(mp, path)]);
 
@@ -134,10 +131,7 @@ void vput(struct vnode * vp)
 	vp->v_refcnt--;
 
 	if(vp->v_refcnt > 0)
-	{
-		vn_unlock(vp);
 		return;
-	}
 
 	list_del(&vp->v_link);
 
@@ -146,26 +140,9 @@ void vput(struct vnode * vp)
 	 */
 	vp->v_op->vop_inactive(vp);
 	vfs_unbusy(vp->v_mount);
-	vp->v_nrlocks--;
 
 	free(vp->v_path);
 	free(vp);
-}
-
-/*
- * lock vnode
- */
-void vn_lock(struct vnode * vp)
-{
-	vp->v_nrlocks++;
-}
-
-/*
- * unlock vnode
- */
-void vn_unlock(struct vnode * vp)
-{
-	vp->v_nrlocks--;
 }
 
 /*
@@ -175,9 +152,7 @@ x_s32 vcount(struct vnode * vp)
 {
 	x_s32 count;
 
-	vn_lock(vp);
 	count = vp->v_refcnt;
-	vn_unlock(vp);
 
 	return count;
 }

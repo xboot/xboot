@@ -99,7 +99,6 @@ struct vnode {
 	enum vnode_type v_type;		/* vnode type */
 	enum vnode_flag v_flags;	/* vnode flag */
 	x_s32 v_refcnt;				/* reference count */
-	x_s32 v_nrlocks;			/* lock count (for debug) */
 	char * v_path;				/* pointer to path in fs */
 	void * v_data;				/* private data for fs */
 };
@@ -216,8 +215,6 @@ x_s32 lookup(char * path, struct vnode ** vpp, char ** name);
 struct vnode * vn_lookup(struct mount * mp, char * path);
 struct vnode * vget(struct mount * mp, char * path);
 void vput(struct vnode * vp);
-void vn_lock(struct vnode * vp);
-void vn_unlock(struct vnode * vp);
 x_s32 vcount(struct vnode * vp);
 void vref(struct vnode * vp);
 void vrele(struct vnode * vp);

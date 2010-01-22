@@ -189,13 +189,6 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 		vp->v_mode &= ~(S_IWUSR|S_IWGRP|S_IWOTH);
 
 	/*
-	 * keep reference count for root or covered vnode.
-	 */
-	vn_unlock(vp);
-	if(vp_covered)
-		vn_unlock(vp_covered);
-
-	/*
 	 * add to mount list
 	 */
 	list_add(&m->m_link, &mount_list);
@@ -388,7 +381,6 @@ x_s32 sys_open(char * path, x_u32 flags, x_u32 mode, struct file ** pfp)
 	fp->f_offset = 0;
 	fp->f_count = 1;
 	*pfp = fp;
-	vn_unlock(vp);
 
 	return 0;
 }
@@ -411,12 +403,9 @@ x_s32 sys_close(struct file * fp)
 		return 0;
 	}
 
-	vn_lock(vp);
 	if ((err = vp->v_op->vop_close(vp, fp)) != 0)
-	{
-		vn_unlock(vp);
 		return err;
-	}
+
 	vput(vp);
 	free(fp);
 
@@ -441,9 +430,7 @@ x_s32 sys_read(struct file * fp, void * buf, x_size size, x_size * count)
 	}
 
 	vp = fp->f_vnode;
-	vn_lock(vp);
 	err = vp->v_op->vop_read(vp, fp, buf, size, count);
-	vn_unlock(vp);
 
 	return err;
 }
@@ -466,9 +453,7 @@ x_s32 sys_write(struct file * fp, void * buf, x_size size, x_size * count)
 	}
 
 	vp = fp->f_vnode;
-	vn_lock(vp);
 	err = vp->v_op->vop_write(vp, fp, buf, size, count);
-	vn_unlock(vp);
 
 	return err;
 }
@@ -481,7 +466,6 @@ x_s32 sys_lseek(struct file * fp, x_off off, x_u32 type, x_off * origin)
 	struct vnode * vp;
 
 	vp = fp->f_vnode;
-	vn_lock(vp);
 
 	switch(type)
 	{
@@ -511,20 +495,15 @@ x_s32 sys_lseek(struct file * fp, x_off off, x_u32 type, x_off * origin)
 		break;
 
 	default:
-		vn_unlock(vp);
 		return EINVAL;
 	}
 
 	/* request to check the file offset */
 	if(vp->v_op->vop_seek(vp, fp, fp->f_offset, off) != 0)
-	{
-		vn_unlock(vp);
 		return EINVAL;
-	}
 
 	*origin = off;
 	fp->f_offset = off;
-	vn_unlock(vp);
 
 	return 0;
 }
@@ -541,9 +520,7 @@ x_s32 sys_ioctl(struct file * fp, x_u32 cmd, void * arg)
 		return EBADF;
 
 	vp = fp->f_vnode;
-	vn_lock(vp);
 	err = vp->v_op->vop_ioctl(vp, fp, cmd, arg);
-	vn_unlock(vp);
 
 	return err;
 }
@@ -561,9 +538,7 @@ x_s32 sys_fsync(struct file * fp)
 
 	vp = fp->f_vnode;
 
-	vn_lock(vp);
 	err = ((vp)->v_op->vop_fsync)(vp, fp);
-	vn_unlock(vp);
 
 	return err;
 }
@@ -578,9 +553,7 @@ x_s32 sys_fstat(struct file * fp, struct stat * st)
 
 	vp = fp->f_vnode;
 
-	vn_lock(vp);
 	err = vn_stat(vp, st);
-	vn_unlock(vp);
 
 	return err;
 }
@@ -598,14 +571,11 @@ x_s32 sys_opendir(char * path, struct file ** file)
 		return err;
 
 	dvp = fp->f_vnode;
-	vn_lock(dvp);
 	if(dvp->v_type != VDIR)
 	{
-		vn_unlock(dvp);
 		sys_close(fp);
 		return ENOTDIR;
 	}
-	vn_unlock(dvp);
 	*file = fp;
 
 	return 0;
@@ -621,13 +591,8 @@ x_s32 sys_closedir(struct file * fp)
 
 	dvp = fp->f_vnode;
 
-	vn_lock(dvp);
 	if(dvp->v_type != VDIR)
-	{
-		vn_unlock(dvp);
 		return EBADF;
-	}
-	vn_unlock(dvp);
 
 	err = sys_close(fp);
 	return err;
@@ -643,14 +608,10 @@ x_s32 sys_readdir(struct file * fp, struct dirent * dir)
 
 	dvp = fp->f_vnode;
 
-	vn_lock(dvp);
 	if(dvp->v_type != VDIR)
-	{
-		vn_unlock(dvp);
 		return EBADF;
-	}
+
 	err = dvp->v_op->vop_readdir(dvp, fp, dir);
-	vn_unlock(dvp);
 
 	return err;
 }
@@ -664,14 +625,10 @@ x_s32 sys_rewinddir(struct file * fp)
 
 	dvp = fp->f_vnode;
 
-	vn_lock(dvp);
 	if(dvp->v_type != VDIR)
-	{
-		vn_unlock(dvp);
 		return EBADF;
-	}
+
 	fp->f_offset = 0;
-	vn_unlock(dvp);
 
 	return 0;
 }
@@ -684,14 +641,10 @@ x_s32 sys_seekdir(struct file * fp, x_off loc)
 	struct vnode * dvp;
 
 	dvp = fp->f_vnode;
-	vn_lock(dvp);
 	if(dvp->v_type != VDIR)
-	{
-		vn_unlock(dvp);
 		return EBADF;
-	}
+
 	fp->f_offset = loc;
-	vn_unlock(dvp);
 
 	return 0;
 }
@@ -705,14 +658,10 @@ x_s32 sys_telldir(struct file * fp, x_off * loc)
 
 	dvp = fp->f_vnode;
 
-	vn_lock(dvp);
 	if(dvp->v_type != VDIR)
-	{
-		vn_unlock(dvp);
 		return EBADF;
-	}
+
 	*loc = fp->f_offset;
-	vn_unlock(dvp);
 
 	return 0;
 }
@@ -818,7 +767,6 @@ x_s32 sys_rmdir(char * path)
 	}
 
 	err = dvp->v_op->vop_rmdir(dvp, vp, name);
-	vn_unlock(vp);
 	vgone(vp);
 	vput(dvp);
 
@@ -1012,7 +960,6 @@ x_s32 sys_unlink(char * path)
 	}
 
 	err = dvp->v_op->vop_remove(dvp, vp, name);
-	vn_unlock(vp);
 	vgone(vp);
 	vput(dvp);
 
@@ -1078,14 +1025,10 @@ x_s32 sys_fchdir(struct file * fp, char * cwd)
 
 	dvp = fp->f_vnode;
 
-	vn_lock(dvp);
 	if(dvp->v_type != VDIR)
-	{
-		vn_unlock(dvp);
 		return EBADF;
-	}
+
 	strlcpy((x_s8 *)cwd, (const x_s8 *)dvp->v_path, MAX_PATH);
-	vn_unlock(dvp);
 
 	return 0;
 }

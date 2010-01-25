@@ -47,14 +47,14 @@ enum
 /* oob data formats */
 enum oob_formats
 {
-	NAND_OOB_NONE			= 0x0,		/* no oob data at all */
-	NAND_OOB_RAW			= 0x1,		/* raw oob data (16 bytes for 512b page sizes, 64 bytes for 2048b page sizes) */
-	NAND_OOB_ONLY			= 0x2,		/* only oob data */
-	NAND_OOB_SW_ECC			= 0x10,		/* when writing, use software ecc */
-	NAND_OOB_HW_ECC			= 0x20, 	/* when writing, use hardware ecc */
-	NAND_OOB_SW_ECC_KW		= 0x40, 	/* when writing, use marvell's kirkwood bootrom format */
+	NAND_OOB_NONE			= 0x000,	/* no oob data at all */
+	NAND_OOB_RAW			= 0x001,	/* raw oob data (16 bytes for 512b page sizes, 64 bytes for 2048b page sizes) */
+	NAND_OOB_ONLY			= 0x002,	/* only oob data */
+	NAND_OOB_SW_ECC			= 0x010,	/* when writing, use software ecc */
+	NAND_OOB_HW_ECC			= 0x020, 	/* when writing, use hardware ecc */
+	NAND_OOB_SW_ECC_KW		= 0x040, 	/* when writing, use marvell's kirkwood bootrom format */
 	NAND_OOB_JFFS2			= 0x100,	/* when writing, use jffs2 oob layout */
-	NAND_OOB_YAFFS2			= 0x100,	/* when writing, use yaffs2 oob layout */
+	NAND_OOB_YAFFS2			= 0x200,	/* when writing, use yaffs2 oob layout */
 };
 
 /*

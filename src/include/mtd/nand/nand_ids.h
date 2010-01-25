@@ -29,7 +29,7 @@ struct nand_manufacturer
 	/* manufacturer id */
 	x_u32 id;
 
-	/* nand flash' name */
+	/* nand flash's name */
 	char * name;
 };
 

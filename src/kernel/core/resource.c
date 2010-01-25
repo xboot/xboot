@@ -1,6 +1,5 @@
 /*
- * xboot/kernel/core/proc.c
- *
+ * xboot/kernel/core/resource.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jjjstudio@gmail.com>
  * website: http://xboot.org

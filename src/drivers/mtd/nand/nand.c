@@ -27,10 +27,13 @@
 #include <malloc.h>
 #include <hash.h>
 #include <xboot/initcall.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <mtd/nand/nfc.h>
 #include <mtd/nand/nand.h>
+
+extern struct nfc_list * nfc_list;
 
 /*
  * the list of nand device
@@ -115,3 +118,118 @@ x_bool unregister_nand_device(struct nand_device * nand)
 
 	return FALSE;
 }
+
+/*
+ * initial nand device
+ */
+static __init void nand_device_init(void)
+{
+	struct nfc_list * list;
+	struct list_head * pos;
+	struct nfc * nfc;
+	struct nand_info * nand_info;
+	struct nand_manufacturer * nand_manufacturer;
+	x_u8 m_id, d_id;
+	x_u32 data;
+	x_s32 i;
+
+	for(pos = (&nfc_list->entry)->next; pos != (&nfc_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct nfc_list, entry);
+		nfc = list->nfc;
+
+		if(!nfc)
+			continue;
+
+		/*
+		 * initialize nand controller
+		 */
+		if(nfc->init)
+			nfc->init();
+
+		/*
+		 * enable nand controller
+		 */
+		nfc->control(NULL, NAND_ENABLE_CONTROLLER);
+
+		/*
+		 * nand chip enable
+		 */
+		nfc->control(NULL, NAND_ENABLE_CE);
+
+		/*
+		 * write reset command
+		 */
+		nfc->command(NULL, NAND_CMD_RESET);
+
+		/*
+		 * write read id command
+		 */
+		nfc->command(NULL, NAND_CMD_READID);
+
+		/*
+		 * write address 0x0
+		 */
+		nfc->address(NULL, 0x0);
+
+		/*
+		 * read manufacturer id
+		 */
+		nfc->read_data(NULL, &data);
+		m_id = data & 0xff;
+
+		/*
+		 * read device id
+		 */
+		nfc->read_data(NULL, &data);
+		d_id = data & 0xff;
+
+		/*
+		 * nand chip disable
+		 */
+		nfc->control(NULL, NAND_DISABLE_CE);
+
+		/*
+		 * search nand flash information
+		 */
+		for(nand_info = NULL, i = 0; nand_flash_ids[i].name != NULL; i++)
+		{
+			if(nand_flash_ids[i].id == d_id)
+			{
+				nand_info = &nand_flash_ids[i];
+				break;
+			}
+		}
+
+		if(nand_info == NULL)
+		{
+			LOG_E("found unknown nand flash, manufacturer id: 0x%02x device id: 0x%02x", m_id, d_id);
+			continue;
+		}
+
+		/*
+		 * search nand flash's manufacturer
+		 */
+		for(nand_manufacturer = &nand_manuf_ids[0], i = 0; nand_manuf_ids[i].name != NULL; i++)
+		{
+			if(nand_manuf_ids[i].id == m_id)
+			{
+				nand_manufacturer = &nand_manuf_ids[i];
+				break;
+			}
+		}
+
+		LOG_I("found nand chip %s (%s)", nand_info->name, nand_manufacturer->name);
+	}
+}
+
+/*
+ * remove all nand device
+ */
+static __exit void nand_device_exit(void)
+{
+
+}
+
+module_init(nand_device_init, LEVEL_DRIVER);
+module_exit(nand_device_exit, LEVEL_DRIVER);

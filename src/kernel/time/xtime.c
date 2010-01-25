@@ -125,7 +125,7 @@ void do_system_xtime(void)
 	}
 	else
 	{
-		LOG_E("the hardware rtc \"%s\" not found\r\n", CONFIG_HARDWARE_RTC_NAME);
+		LOG_E("the hardware rtc \"%s\" not found", CONFIG_HARDWARE_RTC_NAME);
 	}
 
 	/* setup timer for update xtime */

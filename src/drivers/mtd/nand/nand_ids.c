@@ -119,6 +119,7 @@ struct nand_info nand_flash_ids[] = {
  * manufacturer id list
  */
 struct nand_manufacturer nand_manuf_ids[] = {
+	{NAND_MFR_UNKOWN,	"Unkown"},
 	{NAND_MFR_TOSHIBA,	"Toshiba"},
 	{NAND_MFR_SAMSUNG,	"Samsung"},
 	{NAND_MFR_FUJITSU,	"Fujitsu"},
@@ -128,5 +129,5 @@ struct nand_manufacturer nand_manuf_ids[] = {
 	{NAND_MFR_HYNIX,	"Hynix"},
 	{NAND_MFR_MICRON,	"Micron"},
 	{NAND_MFR_AMD,		"AMD"},
-	{0x0, 				"Unknown"}
+	{0x0,				NULL},
 };

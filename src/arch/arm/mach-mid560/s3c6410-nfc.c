@@ -38,14 +38,14 @@
 #include <s3c6410/reg-nand.h>
 
 
-static void s3c6410_nfc_init(struct nand_device * nand)
+static void s3c6410_nfc_init(void)
 {
 	writel(S3C6410_GPPCON, 0x2aaaaaaa);
 	writel(S3C6410_NFCONF, readl(S3C6410_NFCONF) | 0x00007770);
 	writel(S3C6410_NFCONT, readl(S3C6410_NFCONT) & ~(1 << 16));
 }
 
-static void s3c6410_nfc_exit(struct nand_device * nand)
+static void s3c6410_nfc_exit(void)
 {
 }
 
@@ -90,13 +90,6 @@ static x_bool s3c6410_nfc_address(struct nand_device * nand, x_u32 addr)
 	return TRUE;
 }
 
-static x_bool s3c6410_nfc_write_data(struct nand_device * nand, x_u32 data)
-{
-	writeb(S3C6410_NFDATA, data);
-
-	return TRUE;
-}
-
 static x_bool s3c6410_nfc_read_data(struct nand_device * nand, x_u32 * data)
 {
 	*data = readb(S3C6410_NFDATA);
@@ -104,28 +97,10 @@ static x_bool s3c6410_nfc_read_data(struct nand_device * nand, x_u32 * data)
 	return TRUE;
 }
 
-static x_bool s3c6410_nfc_write_page(struct nand_device * nand, x_u32 page, x_u8 * data, x_u32 data_size, x_u8 * oob, x_u32 oob_size)
+static x_bool s3c6410_nfc_write_data(struct nand_device * nand, x_u32 data)
 {
-	return FALSE;
-}
+	writeb(S3C6410_NFDATA, data);
 
-static x_bool s3c6410_nfc_read_page(struct nand_device * nand, x_u32 page, x_u8 * data, x_u32 data_size, x_u8 * oob, x_u32 oob_size)
-{
-	return FALSE;
-}
-
-static x_bool s3c6410_nfc_write_block_data(struct nand_device * nand, x_u8 * data, x_size size)
-{
-	return FALSE;
-}
-
-static x_bool s3c6410_nfc_read_block_data(struct nand_device * nand, x_u8 * data, x_size size)
-{
-	return FALSE;
-}
-
-static x_bool s3c6410_nfc_controller_ready(struct nand_device * nand, x_s32 timeout)
-{
 	return TRUE;
 }
 
@@ -150,13 +125,8 @@ static struct nfc s3c6410_nand_flash_controller = {
 	.control			= s3c6410_nfc_control,
 	.command			= s3c6410_nfc_command,
 	.address			= s3c6410_nfc_address,
-	.write_data			= s3c6410_nfc_write_data,
 	.read_data			= s3c6410_nfc_read_data,
-	.write_page			= s3c6410_nfc_write_page,
-	.read_page			= s3c6410_nfc_read_page,
-	.write_block_data	= s3c6410_nfc_write_block_data,
-	.read_block_data	= s3c6410_nfc_read_block_data,
-	.controller_ready	= s3c6410_nfc_controller_ready,
+	.write_data			= s3c6410_nfc_write_data,
 	.nand_ready			= s3c6410_nfc_nand_ready,
 };
 

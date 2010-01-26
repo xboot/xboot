@@ -96,28 +96,25 @@ struct nand_ecclayout
 struct nand_device
 {
 	/* the name of nand flash */
-	const char * name;
+	char name[32 + 1];
+
+	/* nand information */
+	struct nand_info * info;
 
 	/* nand manufacturer */
 	struct nand_manufacturer * manufacturer;
-
-	/* nand information */
-	struct nand_info * device;
 
 	/* bus width */
 	x_s32 bus_width;
 
 	/* address cycles */
-	x_s32 address_cycles;
+	x_s32 addr_cycles;
 
 	/* page size */
 	x_s32 page_size;
 
 	/* erase size */
 	x_s32 erase_size;
-
-	/* raw access */
-	x_bool use_raw;
 
 	/* the number of blocks */
 	x_s32 num_blocks;
@@ -142,8 +139,7 @@ struct nand_list
 };
 
 
+void nand_probe(void);
 struct nand_device * search_nand_device(const char * name);
-x_bool register_nand_device(struct nand_device * nand);
-x_bool unregister_nand_device(struct nand_device * nand);
 
 #endif /* __NAND_H__ */

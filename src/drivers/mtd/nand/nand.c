@@ -26,7 +26,9 @@
 #include <string.h>
 #include <malloc.h>
 #include <hash.h>
+#include <vsprintf.h>
 #include <xboot/initcall.h>
+#include <xboot/proc.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
@@ -71,7 +73,7 @@ struct nand_device * search_nand_device(const char * name)
  * register a nand device into nand_list
  * return true is successed, otherwise is not.
  */
-x_bool register_nand_device(struct nand_device * nand)
+static x_bool register_nand_device(struct nand_device * nand)
 {
 	struct nand_list * list;
 
@@ -97,7 +99,7 @@ x_bool register_nand_device(struct nand_device * nand)
 /*
  * unregister nand device from nand_list
  */
-x_bool unregister_nand_device(struct nand_device * nand)
+static x_bool unregister_nand_device(struct nand_device * nand)
 {
 	struct nand_list * list;
 	struct list_head * pos;
@@ -120,16 +122,17 @@ x_bool unregister_nand_device(struct nand_device * nand)
 }
 
 /*
- * initial nand device
+ * probe nand device
  */
-static __init void nand_device_init(void)
+void nand_probe(void)
 {
 	struct nfc_list * list;
 	struct list_head * pos;
 	struct nfc * nfc;
+	struct nand_device * nand;
 	struct nand_info * nand_info;
 	struct nand_manufacturer * nand_manufacturer;
-	x_u8 m_id, d_id;
+	x_u8 m_id, d_id, id_buf[3];
 	x_u32 data;
 	x_s32 i;
 
@@ -185,11 +188,6 @@ static __init void nand_device_init(void)
 		d_id = data & 0xff;
 
 		/*
-		 * nand chip disable
-		 */
-		nfc->control(NULL, NAND_DISABLE_CE);
-
-		/*
 		 * search nand flash information
 		 */
 		for(nand_info = NULL, i = 0; nand_flash_ids[i].name != NULL; i++)
@@ -204,6 +202,9 @@ static __init void nand_device_init(void)
 		if(nand_info == NULL)
 		{
 			LOG_E("found unknown nand flash, manufacturer id: 0x%02x device id: 0x%02x", m_id, d_id);
+
+			nfc->control(NULL, NAND_DISABLE_CE);
+			nfc->control(NULL, NAND_DISABLE_CONTROLLER);
 			continue;
 		}
 
@@ -219,17 +220,222 @@ static __init void nand_device_init(void)
 			}
 		}
 
-		LOG_I("found nand chip %s (%s)", nand_info->name, nand_manufacturer->name);
+		/*
+		 * malloc nand device buffer.
+		 */
+		nand = malloc(sizeof(struct nand_device));
+		if(!nand)
+		{
+			LOG_E("can not malloc buffer for nand device");
+			continue;
+		}
+
+		/*
+		 * alloc nand device's name
+		 */
+		i = 0;
+		while(1)
+		{
+			snprintf((x_s8 *)nand->name, 32, (const x_s8 *)"nand%ld", i++);
+			if(search_nand_device(nand->name) == NULL)
+				break;
+		}
+
+		/*
+		 * initialize device parameters
+		 */
+		nand->info = nand_info;
+		nand->manufacturer = nand_manufacturer;
+		nand->nfc = nfc;
+
+		/*
+		 * bus width
+		 */
+		if(nand->info->options & NAND_BUSWIDTH_16)
+			nand->bus_width = 16;
+		else
+			nand->bus_width = 8;
+
+		/*
+		 * extended information
+		 */
+		if((nand->info->page_size == 0) || (nand->info->erase_size == 0))
+		{
+			if(nand->bus_width == 8)
+			{
+				nfc->read_data(NULL, &data);
+				id_buf[0] = data & 0xff;
+
+				nfc->read_data(NULL, &data);
+				id_buf[1] = data & 0xff;
+
+				nfc->read_data(NULL, &data);
+				id_buf[2] = data & 0xff;
+			}
+			else
+			{
+				nfc->read_data(NULL, &data);
+				id_buf[0] = data & 0xff;
+
+				nfc->read_data(NULL, &data);
+				id_buf[1] = data & 0xff;
+
+				nfc->read_data(NULL, &data);
+				id_buf[2] = (data >> 8) && 0xff;
+			}
+
+			nand->page_size = 0x1 << (10 + (id_buf[1] & 0x3));
+
+			switch ((id_buf[1] >> 4) & 0x3)
+			{
+			case 0:
+				nand->erase_size = 64 << 10;
+				break;
+			case 1:
+				nand->erase_size = 128 << 10;
+				break;
+			case 2:
+				nand->erase_size = 256 << 10;
+				break;
+			case 3:
+				nand->erase_size = 512 << 10;
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			nand->page_size = nand->info->page_size;
+			nand->erase_size = nand->info->erase_size;
+		}
+
+		/*
+		 * nand chip disable
+		 */
+		nfc->control(NULL, NAND_DISABLE_CE);
+
+		/*
+		 * number of address cycles
+		 */
+		if(nand->page_size <= 512)
+		{
+			/*
+			 * small page devices
+			 */
+			if(nand->info->chip_size <= 32)
+				nand->addr_cycles = 3;
+			else if (nand->info->chip_size <= 8 * 1024)
+				nand->addr_cycles = 4;
+			else
+			{
+				LOG_E("small page nand with more than 8 GiB encountered");
+				nand->addr_cycles = 5;
+			}
+		}
+		else
+		{
+			/*
+			 * large page devices
+			 */
+			if(nand->info->chip_size <= 128)
+				nand->addr_cycles = 4;
+			else if(nand->info->chip_size <= 32 * 1024)
+				nand->addr_cycles = 5;
+			else
+			{
+				LOG_E("large page nand with more than 32 GiB encountered");
+				nand->addr_cycles = 6;
+			}
+		}
+
+		nand->num_blocks = (nand->info->chip_size * 1024) / (nand->erase_size / 1024);
+		nand->blocks = malloc(sizeof(struct nand_block) * nand->num_blocks);
+
+		for(i = 0; i < nand->num_blocks; i++)
+		{
+			nand->blocks[i].size = nand->erase_size;
+			nand->blocks[i].offset = i * nand->erase_size;
+			nand->blocks[i].is_erased = FALSE;
+			nand->blocks[i].is_bad = FALSE;
+		}
+
+		if(register_nand_device(nand) == TRUE)
+			LOG_I("found nand chip %s (%s)", nand->info->name, nand->manufacturer->name);
+		else
+		{
+			LOG_E("fail to register nand device");
+			free(nand->blocks);
+			free(nand);
+		}
 	}
 }
 
 /*
- * remove all nand device
+ * nand proc interface
  */
-static __exit void nand_device_exit(void)
+static x_s32 nand_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
+	struct nand_list * list;
+	struct list_head * pos;
+	x_s8 * p;
+	x_s32 len = 0;
+	x_s8 size[16];
 
+	if((p = malloc(SZ_4K)) == NULL)
+		return 0;
+
+	for(pos = (&nand_list->entry)->next; pos != (&nand_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct nand_list, entry);
+
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"%s:\r\n", list->nand->name);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" description     : %s\r\n", list->nand->info->name);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" manufacturer    : %s\r\n", list->nand->manufacturer->name);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" nand controller : %s\r\n", list->nand->nfc->name);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bus width       : %ld\r\n", list->nand->bus_width);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" address cycles  : %ld\r\n", list->nand->addr_cycles);
+		ssize(size, (x_u64)(list->nand->page_size));
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" page size       : %s\r\n", size);
+		ssize(size, (x_u64)(list->nand->erase_size));
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" erase size      : %s\r\n", size);
+		ssize(size, (x_u64)(list->nand->num_blocks));
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" block number    : %s\r\n", size);
+	}
+
+	len -= offset;
+
+	if(len < 0)
+		len = 0;
+
+	if(len > count)
+		len = count;
+
+	memcpy(buf, (x_u8 *)(p + offset), len);
+	free(p);
+
+	return len;
 }
 
-module_init(nand_device_init, LEVEL_DRIVER);
-module_exit(nand_device_exit, LEVEL_DRIVER);
+static struct proc nand_proc = {
+	.name	= "nand",
+	.read	= nand_proc_read,
+};
+
+/*
+ * nand pure sync init
+ */
+static __init void nand_pure_sync_init(void)
+{
+	/* register nand proc interface */
+	proc_register(&nand_proc);
+}
+
+static __exit void nand_pure_sync_exit(void)
+{
+	/* unregister nand proc interface */
+	proc_unregister(&nand_proc);
+}
+
+module_init(nand_pure_sync_init, LEVEL_PURE_SYNC);
+module_exit(nand_pure_sync_exit, LEVEL_PURE_SYNC);

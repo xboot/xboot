@@ -121,6 +121,329 @@ static x_bool unregister_nand_device(struct nand_device * nand)
 	return FALSE;
 }
 
+static x_s32 nand_read_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
+{
+	struct nfc * nfc;
+	x_u32 len, tmp;
+	x_s32 i;
+
+	if(!nand)
+		return -1;
+
+	if((nfc = nand->nfc) == NULL)
+		return -1;
+
+	if( (buf == NULL) || (size <= 0) )
+		return -1;
+
+	if(size > nand->page_size)
+		size = nand->page_size;
+
+	/*
+	 * nand chip enable
+	 */
+	nfc->control(NULL, NAND_ENABLE_CE);
+
+	/*
+	 * send command read0
+	 */
+	nfc->command(nand, NAND_CMD_READ0);
+
+	/*
+	 * small page device
+	 */
+	if(nand->page_size <= 512)
+	{
+		/*
+		 * column
+		 */
+		nfc->address(nand, 0x0);
+
+		/*
+		 * row
+		 */
+		nfc->address(nand, page & 0xff);
+		nfc->address(nand, (page >> 8) & 0xff);
+
+		/*
+		 * 4th cycle only on devices with more than 32 MiB
+		 */
+		if(nand->addr_cycles >= 4)
+			nfc->address(nand, (page >> 16) & 0xff);
+
+		/*
+		 * 5th cycle only on devices with more than 8 GiB
+		 */
+		if(nand->addr_cycles >= 5)
+			nfc->address(nand, (page >> 24) & 0xff);
+	}
+
+	/*
+	 * large page device
+	 */
+	else
+	{
+		/*
+		 * column
+		 */
+		nfc->address(nand, 0x0);
+		nfc->address(nand, 0x0);
+
+		/*
+		 * row
+		 */
+		nfc->address(nand, page & 0xff);
+		nfc->address(nand, (page >> 8) & 0xff);
+
+		/*
+		 * 5th cycle only on devices with more than 128 MiB
+		 */
+		if(nand->addr_cycles >= 5)
+			nfc->address(nand, (page >> 16) & 0xff);
+
+		/*
+		 * large page devices need a start command if reading
+		 */
+		nfc->command(nand, NAND_CMD_READSTART);
+	}
+
+	/*
+	 * wait nand ready
+	 */
+	nfc->nand_ready(nand, 100);
+
+	/*
+	 * read data from chip
+	 */
+	if(nand->bus_width == 8)
+	{
+		for(i = 0; i < size; i++)
+		{
+			nfc->read_data(nand, &tmp);
+			buf[i] = (x_u8)tmp;
+		}
+	}
+	else if(nand->bus_width == 16)
+	{
+		len = size & (~0x01);
+
+		for(i = 0; i < len; i+=2)
+		{
+			nfc->read_data(nand, &tmp);
+			buf[i] = (x_u8)(tmp & 0xff);
+			buf[i+1] = (x_u8)((tmp >> 8) & 0xff);
+		}
+
+		if(size & 0x1)
+		{
+			nfc->read_data(nand, &tmp);
+			buf[len] = (x_u8)(tmp & 0xff);
+		}
+	}
+	else
+	{
+		nfc->control(NULL, NAND_DISABLE_CE);
+		return -1;
+	}
+
+	/*
+	 * nand chip disable
+	 */
+	nfc->control(NULL, NAND_DISABLE_CE);
+
+	return 0;
+}
+
+static x_s32 nand_read_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
+{
+	struct nfc * nfc;
+	x_u32 len, tmp;
+	x_s32 i;
+
+	if(!nand)
+		return -1;
+
+	if((nfc = nand->nfc) == NULL)
+		return -1;
+
+	if( (buf == NULL) || (size <= 0) )
+		return -1;
+
+	/*
+	 * nand chip enable
+	 */
+	nfc->control(NULL, NAND_ENABLE_CE);
+
+	/*
+	 * small page device
+	 */
+	if(nand->page_size <= 512)
+	{
+		/*
+		 * send command readoob
+		 */
+		nfc->command(nand, NAND_CMD_READOOB);
+
+		/*
+		 * column
+		 */
+		nfc->address(nand, 0x0);
+
+		/*
+		 * row
+		 */
+		nfc->address(nand, page & 0xff);
+		nfc->address(nand, (page >> 8) & 0xff);
+
+		/*
+		 * 4th cycle only on devices with more than 32 MiB
+		 */
+		if(nand->addr_cycles >= 4)
+			nfc->address(nand, (page >> 16) & 0xff);
+
+		/*
+		 * 5th cycle only on devices with more than 8 GiB
+		 */
+		if(nand->addr_cycles >= 5)
+			nfc->address(nand, (page >> 24) & 0xff);
+	}
+
+	/*
+	 * large page device
+	 */
+	else
+	{
+		/*
+		 * send command read0
+		 */
+		nfc->command(nand, NAND_CMD_READ0);
+
+		/*
+		 * column
+		 */
+		nfc->address(nand, 0x0);
+		nfc->address(nand, (nand->page_size >> 8) & 0xff);
+
+		/*
+		 * row
+		 */
+		nfc->address(nand, page & 0xff);
+		nfc->address(nand, (page >> 8) & 0xff);
+
+		/*
+		 * 5th cycle only on devices with more than 128 MiB
+		 */
+		if(nand->addr_cycles >= 5)
+			nfc->address(nand, (page >> 16) & 0xff);
+
+		/*
+		 * large page devices need a start command if reading
+		 */
+		nfc->command(nand, NAND_CMD_READSTART);
+	}
+
+	/*
+	 * wait nand ready
+	 */
+	nfc->nand_ready(nand, 100);
+
+	/*
+	 * read data from chip
+	 */
+	if(nand->bus_width == 8)
+	{
+		for(i = 0; i < size; i++)
+		{
+			nfc->read_data(nand, &tmp);
+			buf[i] = (x_u8)tmp;
+		}
+	}
+	else if(nand->bus_width == 16)
+	{
+		len = size & (~0x01);
+
+		for(i = 0; i < len; i+=2)
+		{
+			nfc->read_data(nand, &tmp);
+			buf[i] = (x_u8)(tmp & 0xff);
+			buf[i+1] = (x_u8)((tmp >> 8) & 0xff);
+		}
+
+		if(size & 0x1)
+		{
+			nfc->read_data(nand, &tmp);
+			buf[len] = (x_u8)(tmp & 0xff);
+		}
+	}
+	else
+	{
+		nfc->control(NULL, NAND_DISABLE_CE);
+		return -1;
+	}
+
+	/*
+	 * nand chip disable
+	 */
+	nfc->control(NULL, NAND_DISABLE_CE);
+
+	return 0;
+}
+
+static x_s32 nand_write_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
+{
+	return -1;
+}
+
+static x_s32 nand_write_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
+{
+	return -1;
+}
+
+x_s32 nand_read(struct nand_device * nand, x_u8 * buf, x_u32 addr, x_u32 size)
+{
+	x_u8 * page_buf;
+	x_u32 page;
+	x_u32 len = 0;
+	x_u8 * p = buf;
+	x_u32 o = 0, l = 0;
+
+	if(!nand)
+		return -1;
+
+	if( (buf == NULL) || (size <= 0) )
+		return -1;
+
+	page_buf = malloc(nand->page_size);
+	if(!page_buf)
+		return -1;
+
+	while(len < size)
+	{
+		page = addr / nand->page_size;
+		o = addr % nand->page_size;
+		l = nand->page_size - o;
+
+		if(len + l > size)
+			l = size - len;
+
+		if(nand_read_page(nand, page, page_buf, nand->page_size) != 0)
+		{
+			free(page_buf);
+			return -1;
+		}
+
+		memcpy((void *)p, (const void *)(&page_buf[o]), l);
+
+		addr += l;
+		p += l;
+		len += l;
+	}
+
+	free(page_buf);
+
+	return 0;
+}
+
 /*
  * probe nand device
  */
@@ -373,279 +696,6 @@ void nand_probe(void)
 			free(nand);
 		}
 	}
-}
-
-x_s32 nand_read_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
-{
-	struct nfc * nfc;
-	x_u32 len, tmp;
-	x_s32 i;
-
-	if(!nand)
-		return -1;
-
-	if((nfc = nand->nfc) == NULL)
-		return -1;
-
-	if( (buf == NULL) || (size <= 0) )
-		return -1;
-
-	if(size > nand->page_size)
-		size = nand->page_size;
-
-	/*
-	 * nand chip enable
-	 */
-	nfc->control(NULL, NAND_ENABLE_CE);
-
-	/*
-	 * send command read0
-	 */
-	nfc->command(nand, NAND_CMD_READ0);
-
-	/*
-	 * small page device
-	 */
-	if(nand->page_size <= 512)
-	{
-		/*
-		 * column
-		 */
-		nfc->address(nand, 0x0);
-
-		/*
-		 * row
-		 */
-		nfc->address(nand, page & 0xff);
-		nfc->address(nand, (page >> 8) & 0xff);
-
-		/*
-		 * 4th cycle only on devices with more than 32 MiB
-		 */
-		if(nand->addr_cycles >= 4)
-			nfc->address(nand, (page >> 16) & 0xff);
-
-		/*
-		 * 5th cycle only on devices with more than 8 GiB
-		 */
-		if(nand->addr_cycles >= 5)
-			nfc->address(nand, (page >> 24) & 0xff);
-	}
-
-	/*
-	 * large page device
-	 */
-	else
-	{
-		/*
-		 * column
-		 */
-		nfc->address(nand, 0x0);
-		nfc->address(nand, 0x0);
-
-		/*
-		 * row
-		 */
-		nfc->address(nand, page & 0xff);
-		nfc->address(nand, (page >> 8) & 0xff);
-
-		/*
-		 * 5th cycle only on devices with more than 128 MiB
-		 */
-		if(nand->addr_cycles >= 5)
-			nfc->address(nand, (page >> 16) & 0xff);
-
-		/*
-		 * large page devices need a start command if reading
-		 */
-		nfc->command(nand, NAND_CMD_READSTART);
-	}
-
-	/*
-	 * wait nand ready
-	 */
-	nfc->nand_ready(nand, 100);
-
-	/*
-	 * read data from chip
-	 */
-	if(nand->bus_width == 8)
-	{
-		for(i = 0; i < size; i++)
-		{
-			nfc->read_data(nand, &tmp);
-			buf[i] = (x_u8)tmp;
-		}
-	}
-	else if(nand->bus_width == 16)
-	{
-		len = size & (~0x01);
-
-		for(i = 0; i < len; i+=2)
-		{
-			nfc->read_data(nand, &tmp);
-			buf[i] = (x_u8)(tmp & 0xff);
-			buf[i+1] = (x_u8)((tmp >> 8) & 0xff);
-		}
-
-		if(size & 0x1)
-		{
-			nfc->read_data(nand, &tmp);
-			buf[len] = (x_u8)(tmp & 0xff);
-		}
-	}
-	else
-	{
-		nfc->control(NULL, NAND_DISABLE_CE);
-		return -1;
-	}
-
-	/*
-	 * nand chip disable
-	 */
-	nfc->control(NULL, NAND_DISABLE_CE);
-
-	return 0;
-}
-
-x_s32 nand_read_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
-{
-	struct nfc * nfc;
-	x_u32 len, tmp;
-	x_s32 i;
-
-	if(!nand)
-		return -1;
-
-	if((nfc = nand->nfc) == NULL)
-		return -1;
-
-	if( (buf == NULL) || (size <= 0) )
-		return -1;
-
-	/*
-	 * nand chip enable
-	 */
-	nfc->control(NULL, NAND_ENABLE_CE);
-
-	/*
-	 * small page device
-	 */
-	if(nand->page_size <= 512)
-	{
-		/*
-		 * send command readoob
-		 */
-		nfc->command(nand, NAND_CMD_READOOB);
-
-		/*
-		 * column
-		 */
-		nfc->address(nand, 0x0);
-
-		/*
-		 * row
-		 */
-		nfc->address(nand, page & 0xff);
-		nfc->address(nand, (page >> 8) & 0xff);
-
-		/*
-		 * 4th cycle only on devices with more than 32 MiB
-		 */
-		if(nand->addr_cycles >= 4)
-			nfc->address(nand, (page >> 16) & 0xff);
-
-		/*
-		 * 5th cycle only on devices with more than 8 GiB
-		 */
-		if(nand->addr_cycles >= 5)
-			nfc->address(nand, (page >> 24) & 0xff);
-	}
-
-	/*
-	 * large page device
-	 */
-	else
-	{
-		/*
-		 * send command read0
-		 */
-		nfc->command(nand, NAND_CMD_READ0);
-
-		/*
-		 * column
-		 */
-		nfc->address(nand, 0x0);
-		nfc->address(nand, (nand->page_size >> 8) & 0xff);
-
-		/*
-		 * row
-		 */
-		nfc->address(nand, page & 0xff);
-		nfc->address(nand, (page >> 8) & 0xff);
-
-		/*
-		 * 5th cycle only on devices with more than 128 MiB
-		 */
-		if(nand->addr_cycles >= 5)
-			nfc->address(nand, (page >> 16) & 0xff);
-
-		/*
-		 * large page devices need a start command if reading
-		 */
-		nfc->command(nand, NAND_CMD_READSTART);
-	}
-
-	/*
-	 * wait nand ready
-	 */
-	nfc->nand_ready(nand, 100);
-
-	/*
-	 * read data from chip
-	 */
-	if(nand->bus_width == 8)
-	{
-		for(i = 0; i < size; i++)
-		{
-			nfc->read_data(nand, &tmp);
-			buf[i] = (x_u8)tmp;
-		}
-	}
-	else if(nand->bus_width == 16)
-	{
-		len = size & (~0x01);
-
-		for(i = 0; i < len; i+=2)
-		{
-			nfc->read_data(nand, &tmp);
-			buf[i] = (x_u8)(tmp & 0xff);
-			buf[i+1] = (x_u8)((tmp >> 8) & 0xff);
-		}
-
-		if(size & 0x1)
-		{
-			nfc->read_data(nand, &tmp);
-			buf[len] = (x_u8)(tmp & 0xff);
-		}
-	}
-	else
-	{
-		nfc->control(NULL, NAND_DISABLE_CE);
-		return -1;
-	}
-
-	/*
-	 * nand chip disable
-	 */
-	nfc->control(NULL, NAND_DISABLE_CE);
-
-	return 0;
-}
-
-x_s32 nand_write_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
-{
-	return 0;
 }
 
 /*

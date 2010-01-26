@@ -138,11 +138,9 @@ struct nand_list
 	struct list_head entry;
 };
 
-
 void nand_probe(void);
 
 struct nand_device * search_nand_device(const char * name);
-x_s32 nand_read_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size);
-x_s32 nand_read_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size);
+x_s32 nand_read(struct nand_device * nand, x_u8 * buf, x_u32 addr, x_u32 size);
 
 #endif /* __NAND_H__ */

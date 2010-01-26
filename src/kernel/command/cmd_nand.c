@@ -1,8 +1,7 @@
 /*
  * kernel/command/cmd_nand.c
  *
- *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,6 +49,11 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 	if(argc < 2)
 	{
 		return 0;
+	}
+
+	if( strcmp(argv[1], (x_s8*)"info") == 0 )
+	{
+
 	}
 
 	return 0;

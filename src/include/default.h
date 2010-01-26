@@ -182,6 +182,13 @@
 #endif
 
 /*
+ * nand command
+ */
+#if !defined(CONFIG_COMMAND_NAND)
+#define	CONFIG_COMMAND_NAND							(1)
+#endif
+
+/*
  * sleep command
  */
 #if !defined(CONFIG_COMMAND_SLEEP)

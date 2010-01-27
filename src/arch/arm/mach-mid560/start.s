@@ -158,6 +158,13 @@ reset:
 	/* initialize memory control */
 	bl	mem_ctrl_init
 
+	/* wakeup or not */
+	ldr	r0, =(0x7e00f000 + 0x904)
+	ldr	r1, [r0]
+	bic	r1, r1, #0xfffffff7
+	cmp	r1, #0x8
+	beq	wakeup_reset
+
 	/* copyself to ram using irom */
 	adr	r0, _start
 	ldr r1, =_start
@@ -449,6 +456,28 @@ cp:	add	r1, r1, #32
 	cmp	r0, r1
 	blt	2b
 	mov	pc, lr
+
+/*
+ * wakeup reset
+ */
+wakeup_reset:
+	/*
+	 * clear wakeup status register
+	 */
+	ldr	r0, =(0x7e00f000 + 0x908)
+	ldr	r1, [r0]
+	str	r1, [r0]
+
+	/*
+	 * load return address and jump to kernel
+	 */
+	ldr	r0, =(0x7e00f000 + 0xa00)
+	ldr	r1, [r0]
+	mov	pc, r1
+	nop
+	nop
+
+	b	.
 
 /*
  * exception handlers

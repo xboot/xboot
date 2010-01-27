@@ -45,8 +45,8 @@ static void usage(void)
 {
 	printk("usage:\r\n    nand [list]\r\n"
 		   "    nand probe\r\n"
-		   "    nand dump <device> <addr> <size> <file>\r\n"
-		   "    nand write <device> <addr> <size> <file>\r\n");
+		   "    nand dump <device> <offset> <size> <-r addr | -f file>\r\n"
+		   "    nand write <device> <offset> <size> <file>\r\n");
 }
 
 static void list_nand_device(void)
@@ -64,10 +64,10 @@ static void list_nand_device(void)
 static x_s32 nand(x_s32 argc, const x_s8 **argv)
 {
 	struct nand_device * nand;
-	x_u32 addr = 0;
+	x_u32 off = 0;
 	x_u32 size = 0;
-	x_u32 l, len = 0;
-	x_u32 offset = 0;
+	x_u32 addr = 0;
+	x_u32 o, l, len = 0;
 	char * filename;
 	x_u8 * buf;
 	x_s32 fd;
@@ -95,7 +95,7 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 	}
 	else if( !strcmp(argv[1], (x_s8*)"dump") )
 	{
-		if(argc != 6)
+		if(argc != 7)
 		{
 			usage();
 			return -1;
@@ -109,54 +109,72 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 			return -1;
 		}
 
-		addr = simple_strtou32(argv[3], NULL, 0);
+		off = simple_strtou32(argv[3], NULL, 0);
 		size = simple_strtou32(argv[4], NULL, 0);
-		filename = (char *)argv[5];
 
-		buf = malloc(SZ_64K);
-		if(!buf)
-			return -1;
-
-		fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-		if(fd < 0)
+		if( !strcmp(argv[5], (x_s8*)"-r") )
 		{
+			addr = simple_strtou32(argv[6], NULL, 0);
+
+			if(nand_read(nand, (x_u8 *)addr, off, size) != 0)
+				return -1;
+
+			printk("dump %s 0x%08lx ~ 0x%08lx to ram 0x%08lx.\r\n", nand->name, off, off + size, addr);
+		}
+		else if( !strcmp(argv[5], (x_s8*)"-f") )
+		{
+			filename = (char *)argv[6];
+
+			buf = malloc(SZ_64K);
+			if(!buf)
+				return -1;
+
+			fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+			if(fd < 0)
+			{
+				free(buf);
+				return -1;
+			}
+
+			o = off;
+			while(len < size)
+			{
+				if(len + SZ_64K > size)
+					l = size - len;
+				else
+					l = SZ_64K;
+
+				if(nand_read(nand, buf, o, l) != 0)
+				{
+					close(fd);
+					unlink(filename);
+					free(buf);
+					return -1;
+				}
+
+				n = write(fd, (void *)buf, l);
+				if( n != l )
+				{
+					close(fd);
+					unlink(filename);
+					free(buf);
+					return -1;
+				}
+
+				o += l;
+				len += l;
+			}
+
+			close(fd);
 			free(buf);
+
+			printk("dump %s 0x%08lx ~ 0x%08lx to file %s.\r\n", nand->name, off, off + size, filename);
+		}
+		else
+		{
+			usage();
 			return -1;
 		}
-
-		offset = addr;
-		while(len < size)
-		{
-			if(len + SZ_64K > size)
-				l = size - len;
-			else
-				l = SZ_64K;
-
-			if(nand_read(nand, buf, offset, l) != 0)
-			{
-				close(fd);
-				unlink(filename);
-				free(buf);
-				return -1;
-			}
-
-			n = write(fd, (void *)buf, l);
-			if( n != l )
-			{
-				close(fd);
-				unlink(filename);
-				free(buf);
-				return -1;
-			}
-
-			offset += l;
-			len += l;
-		}
-
-		close(fd);
-		free(buf);
-
-		printk("dump %s 0x%08lx ~ 0x%08lx to file %s.\r\n", nand->name, addr, addr+size, filename);
 	}
 	else if( !strcmp(argv[1], (x_s8*)"write") )
 	{

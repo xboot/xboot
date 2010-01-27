@@ -175,7 +175,7 @@ static struct env default_env[] = {
 		.value	= "xboot"
 	}, {
 		.key	= "linux-machtype",
-		.value	= "1328"
+		.value	= "1626"
 	}, {
 		.key	= "linux-cmdline",
 		.value	= "console=tty0, console=ttySAC0"

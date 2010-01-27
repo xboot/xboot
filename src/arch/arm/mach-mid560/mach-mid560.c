@@ -188,8 +188,8 @@ static struct stdout default_stdout[] = {
  */
 static struct menu_item default_menu[] = {
 	{
-		.name		= "Boot Linux",
-		.context	= "clear; version; exit -s;"
+		.name		= "Boot Android",
+		.context	= "version; nand dump nand0 0xd00000 0x300000 -r 0x50008000; bootlinux 0x50008000 0x50000100;"
 	}, {
 		.name		= "Shell Command Line",
 		.context	= "clear; version; exit -s;"
@@ -208,10 +208,10 @@ static struct env default_env[] = {
 		.value	= "xboot"
 	}, {
 		.key	= "linux-machtype",
-		.value	= "1328"
+		.value	= "1626"
 	}, {
 		.key	= "linux-cmdline",
-		.value	= "console=tty0, console=ttySAC0"
+		.value	= "init=/init console=ttySAC0,115200"
 	}, {
 		.key	= NULL,
 		.value	= NULL
@@ -240,7 +240,7 @@ static struct machine mid560 = {
 	},
 
 	.cfg = {
-		.mode				= MODE_NORMAL,
+		.mode				= MODE_MENU,
 		.stdin				= default_stdin,
 		.stdout				= default_stdout,
 		.menu				= default_menu,

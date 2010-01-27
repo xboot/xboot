@@ -12,8 +12,8 @@ STACK_SRV_SIZE 	= 0x2000;
 
 MEMORY
 {
-	rom (rx)	: org = 0x50000000, len = 0x00100000	/* 1 MB */
-	ram (rwx)	: org = 0x50100000, len = 0x00900000	/* 9 MB */
+	rom (rx)	: org = 0x57f00000, len = 0x00100000	/* 1  MB */
+	ram (rwx)	: org = 0x54000000, len = 0x03f00000	/* 63 MB */
 }
 
 SECTIONS

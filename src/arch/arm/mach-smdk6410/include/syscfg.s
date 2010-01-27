@@ -1,7 +1,7 @@
 /*
  * mach/mach-smdk6410/syscfg.s
  *
- * Copyright (c) 2007-2009  jianjun jiang <jiangjianjun20000@126.com>
+ * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  */
 
 .equ Startup_APLLdiv,		0

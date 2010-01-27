@@ -35,7 +35,12 @@ typedef void*					x_addr;
 #undef		__SYS_64BIT
 
 /*
- * framebuffer terminal scroll up.
+ * malloc heap size
+ */
+#define	CONFIG_HEAP_SIZE		(SZ_1M * 60)
+
+/*
+ * no framebuffer terminal scroll up
  */
 #define	CONFIG_FB_SCROLL_UP		(0)
 

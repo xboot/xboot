@@ -1,7 +1,7 @@
 /*
  * arch/arm/mach-mid560/start.s
  *
- * Copyright (c) 2007-2008  jianjun jiang
+ * Copyright (c) 2007-2008  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify

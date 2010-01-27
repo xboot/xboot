@@ -1,7 +1,7 @@
 /*
  * arch/arm/mach-mid560/mach-mid560.c
  *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -188,7 +188,7 @@ static struct stdout default_stdout[] = {
  */
 static struct menu_item default_menu[] = {
 	{
-		.name		= "Boot Android",
+		.name		= "Boot Linux",
 		.context	= "version; nand dump nand0 0xd00000 0x300000 -r 0x50008000; bootlinux 0x50008000 0x50000100;"
 	}, {
 		.name		= "Shell Command Line",

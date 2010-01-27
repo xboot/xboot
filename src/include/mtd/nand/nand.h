@@ -138,9 +138,12 @@ struct nand_list
 	struct list_head entry;
 };
 
+
 void nand_probe(void);
+void nand_remove(void);
 
 struct nand_device * search_nand_device(const char * name);
 x_s32 nand_read(struct nand_device * nand, x_u8 * buf, x_u32 addr, x_u32 size);
+
 
 #endif /* __NAND_H__ */

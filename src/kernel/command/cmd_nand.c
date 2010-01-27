@@ -44,6 +44,7 @@ extern struct nand_list * nand_list;
 static void usage(void)
 {
 	printk("usage:\r\n    nand [list]\r\n"
+		   "    nand probe\r\n"
 		   "    nand dump <device> <addr> <size> <file>\r\n"
 		   "    nand write <device> <addr> <size> <file>\r\n");
 }
@@ -75,12 +76,21 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 	if(argc < 2)
 	{
 		list_nand_device();
+
 		return 0;
 	}
 
 	if( !strcmp(argv[1], (x_s8*)"list"))
 	{
 		list_nand_device();
+
+		return 0;
+	}
+	else if( !strcmp(argv[1], (x_s8*)"probe"))
+	{
+		nand_probe();
+		list_nand_device();
+
 		return 0;
 	}
 	else if( !strcmp(argv[1], (x_s8*)"dump") )
@@ -153,6 +163,10 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 
 	}
 	else if( !strcmp(argv[1], (x_s8*)"erase") )
+	{
+
+	}
+	else if( !strcmp(argv[1], (x_s8*)"bad") )
 	{
 
 	}

@@ -7,7 +7,7 @@
 # you must pass TARGET variable, for choosing platform.
 # default TARGET is arm-realview.
 #
-TARGET		?= arm-mid560
+TARGET		?= arm-realview
 
 #
 # get platform information about ARCH and MACH from TARGET variable.

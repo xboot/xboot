@@ -456,14 +456,17 @@ void run_normal_mode(void)
 	struct machine * mach = get_machine();
 	struct menu_item * item;
 
+	set_stdout_status(FALSE);
+
 	if(mach && mach->cfg.menu)
 		item = mach->cfg.menu;
 	else
 		item = default_menu;
 
 	xboot_set_mode(MODE_SHELL);
+
 	if(item->name && item->context)
 		run_cmdline((const x_s8 *)item->context);
-	else
-		printk("can not exec menu's context.\r\n");
+
+	set_stdout_status(TRUE);
 }

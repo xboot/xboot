@@ -189,7 +189,7 @@ static struct stdout default_stdout[] = {
 static struct menu_item default_menu[] = {
 	{
 		.name		= "Boot Linux",
-		.context	= "version; nand dump nand0 0xd00000 0x300000 -r 0x50008000; bootlinux 0x50008000 0x50000100;"
+		.context	= "nand dump nand0 0xd00000 0x300000 -r 0x50008000; bootlinux 0x50008000 0x50000100;"
 	}, {
 		.name		= "Shell Command Line",
 		.context	= "clear; version; exit -s;"
@@ -240,7 +240,7 @@ static struct machine mid560 = {
 	},
 
 	.cfg = {
-		.mode				= MODE_MENU,
+		.mode				= MODE_NORMAL,
 		.stdin				= default_stdin,
 		.stdout				= default_stdout,
 		.menu				= default_menu,

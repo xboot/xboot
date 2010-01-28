@@ -94,7 +94,7 @@ x_s32 printk(const char * fmt, ...)
 		emit_log_char(*p);
 	}
 
-	if(have_stdout_terminal())
+	if(get_stdout_status())
 	{
 		comm_trigger_activity();
 
@@ -125,7 +125,7 @@ void putch(char c)
 	if(!buf)
 		return;
 
-	if(have_stdout_terminal())
+	if(get_stdout_status())
 	{
 		comm_trigger_activity();
 

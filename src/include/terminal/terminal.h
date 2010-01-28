@@ -183,7 +183,8 @@ struct terminal_stdin_list * search_terminal_stdin(const char * name);
 x_bool add_terminal_stdin(const char * name);
 x_bool del_terminal_stdin(const char * name);
 
-x_bool have_stdout_terminal(void);
+void set_stdout_status(x_bool enable);
+x_bool get_stdout_status(void);
 x_bool stdout_terminal_getwh(x_s32 * w, x_s32 * h);
 
 #endif /* __TERMINAL_H__ */

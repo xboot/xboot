@@ -99,7 +99,7 @@ int xboot_main(int argc, char *argv[])
 			/*
 			 * system panic.
 			 */
-			panic("do not support this mode(%d), system panic", xboot_get_mode());
+			panic("do not support this mode(%ld), system panic", xboot_get_mode());
 		}
 	}
 

@@ -1,7 +1,6 @@
 /*
  * drivers/terminal/terminal.c
  *
- *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
@@ -47,9 +46,36 @@ struct hlist_head stdin_list;
 static x_u32 terminal_stdout_num = 0;
 
 /*
+ * stdout quiet or not.
+ */
+static x_bool stdout_quiet = FALSE;
+
+/*
  * the hash list of terminal.
  */
 static struct hlist_head terminal_hash[CONFIG_TERMINAL_HASH_SIZE];
+
+/*
+ * set stdout's status
+ */
+void set_stdout_status(x_bool enable)
+{
+	if(enable)
+		stdout_quiet = FALSE;
+	else
+		stdout_quiet = TRUE;
+}
+
+/*
+ * get stdout's status
+ */
+x_bool get_stdout_status(void)
+{
+	if((terminal_stdout_num > 0) && (stdout_quiet == FALSE))
+		return TRUE;
+
+	return FALSE;
+}
 
 /*
  * search terminal by name
@@ -285,16 +311,6 @@ x_bool del_terminal_stdin(const char * name)
 }
 
 /*
- * have stdout terminal, return true if have stdout.
- */
-x_bool have_stdout_terminal(void)
-{
-	if(terminal_stdout_num > 0)
-		return TRUE;
-	return FALSE;
-}
-
-/*
  * get suitable width and height from stdout terminal list.
  */
 x_bool stdout_terminal_getwh(x_s32 * w, x_s32 * h)
@@ -306,7 +322,7 @@ x_bool stdout_terminal_getwh(x_s32 * w, x_s32 * h)
 	if(!w || !h)
 		return FALSE;
 
-	if(have_stdout_terminal())
+	if(terminal_stdout_num > 0)
 	{
 		list = hlist_entry((&stdout_list)->first, struct terminal_stdout_list, node);
 		list->term->getwh(list->term, w, h);

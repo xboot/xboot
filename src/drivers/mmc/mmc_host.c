@@ -1,8 +1,7 @@
 /*
  * driver/mmc/mmc_host.c
  *
- *
- * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,30 +29,34 @@
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
-#include <mmc/mmc.h>
 #include <mmc/mmc_host.h>
 
+
 /*
- * the hash list of mmc host controller.
+ * the list of mmc host controller
  */
-static struct hlist_head mmc_host_hash[CONFIG_MMC_HOST_HASH_SIZE] = {{0}};
+static struct mmc_host_list __mmc_host_list = {
+	.entry = {
+		.next	= &(__mmc_host_list.entry),
+		.prev	= &(__mmc_host_list.entry),
+	},
+};
+struct mmc_host_list * mmc_host_list = &__mmc_host_list;
 
 /*
  * search mmc host controller by name
  */
-struct mmc_host * search_mmc_host(const char *name)
+struct mmc_host * search_mmc_host(const char * name)
 {
 	struct mmc_host_list * list;
-	struct hlist_node * pos;
-	x_u32 hash;
+	struct list_head * pos;
 
 	if(!name)
 		return NULL;
 
-	hash = string_hash(name) % CONFIG_MMC_HOST_HASH_SIZE;
-
-	hlist_for_each_entry(list,  pos, &(mmc_host_hash[hash]), node)
+	for(pos = (&mmc_host_list->entry)->next; pos != (&mmc_host_list->entry); pos = pos->next)
 	{
+		list = list_entry(pos, struct mmc_host_list, entry);
 		if(strcmp((x_s8*)list->host->name, (const x_s8 *)name) == 0)
 			return list->host;
 	}
@@ -62,12 +65,11 @@ struct mmc_host * search_mmc_host(const char *name)
 }
 
 /*
- * register a mmc host controller.
+ * register a mmc host controller into mmc_host_list
  */
 x_bool register_mmc_host(struct mmc_host * host)
 {
 	struct mmc_host_list * list;
-	x_u32 hash;
 
 	list = malloc(sizeof(struct mmc_host_list));
 	if(!list || !host)
@@ -83,32 +85,28 @@ x_bool register_mmc_host(struct mmc_host * host)
 	}
 
 	list->host = host;
-
-	hash = string_hash(host->name) % CONFIG_MMC_HOST_HASH_SIZE;
-	hlist_add_head(&(list->node), &(mmc_host_hash[hash]));
+	list_add(&list->entry, &mmc_host_list->entry);
 
 	return TRUE;
 }
 
 /*
- * unregister mmc host controller.
+ * unregister mmc host controller from mmc_host_list
  */
 x_bool unregister_mmc_host(struct mmc_host * host)
 {
 	struct mmc_host_list * list;
-	struct hlist_node * pos;
-	x_u32 hash;
+	struct list_head * pos;
 
 	if(!host || !host->name)
 		return FALSE;
 
-	hash = string_hash(host->name) % CONFIG_MMC_HOST_HASH_SIZE;
-
-	hlist_for_each_entry(list,  pos, &(mmc_host_hash[hash]), node)
+	for(pos = (&mmc_host_list->entry)->next; pos != (&mmc_host_list->entry); pos = pos->next)
 	{
+		list = list_entry(pos, struct mmc_host_list, entry);
 		if(list->host == host)
 		{
-			hlist_del(&(list->node));
+			list_del(pos);
 			free(list);
 			return TRUE;
 		}
@@ -116,17 +114,3 @@ x_bool unregister_mmc_host(struct mmc_host * host)
 
 	return FALSE;
 }
-
-/*
- * mmc host pure init
- */
-static __init void mmc_host_pure_sync_init(void)
-{
-	x_s32 i;
-
-	/* initialize mmc host controller hash list */
-	for(i = 0; i < CONFIG_MMC_HOST_HASH_SIZE; i++)
-		init_hlist_head(&mmc_host_hash[i]);
-}
-
-module_init(mmc_host_pure_sync_init, LEVEL_PURE_SYNC);

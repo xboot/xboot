@@ -37,8 +37,6 @@
 #include <xboot/proc.h>
 #include <terminal/terminal.h>
 #include <terminal/curses.h>
-#include <mmc/mmc.h>
-#include <mmc/mmc_host.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fsapi.h>
 

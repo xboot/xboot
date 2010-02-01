@@ -55,13 +55,6 @@
 #endif
 
 /**
- * the size of mmc host hash table
- */
-#if !defined(CONFIG_MMC_HOST_HASH_SIZE)
-#define	CONFIG_MMC_HOST_HASH_SIZE					(1)
-#endif
-
-/**
  * the size of readline buffer
  */
 #if !defined(CONFIG_READLINE_BUF_SIZE)

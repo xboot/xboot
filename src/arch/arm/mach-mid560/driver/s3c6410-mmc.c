@@ -32,8 +32,6 @@
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
-#include <mmc/mmc.h>
-#include <mmc/sd.h>
 #include <mmc/mmc_host.h>
 #include <s3c6410/reg-clk.h>
 #include <s3c6410/reg-gpio.h>

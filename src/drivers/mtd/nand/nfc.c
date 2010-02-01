@@ -67,7 +67,6 @@ struct nfc * search_nfc(const char * name)
 
 /*
  * register a nfc into nfc_list
- * return true is successed, otherwise is not.
  */
 x_bool register_nfc(struct nfc * nfc)
 {

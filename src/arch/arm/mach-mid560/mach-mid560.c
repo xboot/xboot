@@ -189,7 +189,7 @@ static struct stdout default_stdout[] = {
 static struct menu_item default_menu[] = {
 	{
 		.name		= "Boot Linux",
-		.context	= "nand dump nand0 0xd00000 0x300000 -r 0x50008000; bootlinux 0x50008000 0x50000100;"
+		.context	= "nand read nand0 0xd00000 0x300000 -r 0x50008000; bootlinux 0x50008000 0x50000100;"
 	}, {
 		.name		= "Shell Command Line",
 		.context	= "clear; version; exit -s;"

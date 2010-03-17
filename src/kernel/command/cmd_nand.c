@@ -45,7 +45,7 @@ static void usage(void)
 {
 	printk("usage:\r\n    nand [list]\r\n"
 		   "    nand probe\r\n"
-		   "    nand dump <device> <offset> <size> <-r addr | -f file>\r\n"
+		   "    nand read <device> <offset> <size> <-r addr | -f file>\r\n"
 		   "    nand write <device> <offset> <size> <file>\r\n");
 }
 
@@ -93,7 +93,7 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 
 		return 0;
 	}
-	else if( !strcmp(argv[1], (x_s8*)"dump") )
+	else if( !strcmp(argv[1], (x_s8*)"read") )
 	{
 		if(argc != 7)
 		{
@@ -119,7 +119,7 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 			if(nand_read(nand, (x_u8 *)addr, off, size) != 0)
 				return -1;
 
-			printk("dump %s 0x%08lx ~ 0x%08lx to ram 0x%08lx.\r\n", nand->name, off, off + size, addr);
+			printk("read %s 0x%08lx ~ 0x%08lx to ram 0x%08lx.\r\n", nand->name, off, off + size, addr);
 		}
 		else if( !strcmp(argv[5], (x_s8*)"-f") )
 		{
@@ -168,7 +168,7 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 			close(fd);
 			free(buf);
 
-			printk("dump %s 0x%08lx ~ 0x%08lx to file %s.\r\n", nand->name, off, off + size, filename);
+			printk("read %s 0x%08lx ~ 0x%08lx to file %s.\r\n", nand->name, off, off + size, filename);
 		}
 		else
 		{

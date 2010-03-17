@@ -4,5 +4,10 @@
 # the qemu-system-arm's root directory.
 export QEMU_DIR=$(cd `dirname $0` ; pwd)
 
+if [ ! -e ~/.xboot/sdcard.img ]; then
+	mkdir -p ~/.xboot;
+	unzip ${QEMU_DIR}/sdcard.zip -d ~/.xboot > /dev/null;
+fi
+
 # run qemu-system-arm
-exec qemu-system-arm -M realview -name "realview" -localtime -serial vc -kernel ${QEMU_DIR}/../../../output/xboot.elf
+exec qemu-system-arm -M realview -name "realview" -localtime -serial vc -sd ~/.xboot/sdcard.img -kernel ${QEMU_DIR}/../../../output/xboot.elf

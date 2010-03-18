@@ -76,7 +76,100 @@ static x_bool register_mmc_card(struct mmc_card * card)
  */
 void mmc_card_probe(void)
 {
+	struct mmc_host_list * list;
+	struct list_head * pos;
+	struct mmc_host * host;
+	struct mmc_card_info * info;
+	struct mmc_card * card;
+	x_s32 i;
 
+	/*
+	 * remove all mmc card
+	 */
+	mmc_card_remove();
+
+	/*
+	 * probe all mmc card by mmc host controller
+	 */
+	for(pos = (&mmc_host_list->entry)->next; pos != (&mmc_host_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct mmc_host_list, entry);
+		host = list->host;
+
+		if(!host)
+			continue;
+
+		/*
+		 * malloc mmc card information buffer.
+		 */
+		info = malloc(sizeof(struct mmc_card_info));
+		if(!info)
+		{
+			LOG_E("can not malloc buffer for mmc card information");
+			continue;
+		}
+
+		/*
+		 * initialize mmc host controller
+		 */
+		if(host->init)
+			host->init();
+
+		if(!host->probe(info))
+		{
+			if(host->exit)
+				host->exit();
+
+			free(info);
+
+			continue;
+		}
+
+		/*
+		 * malloc mmc card buffer.
+		 */
+		card = malloc(sizeof(struct mmc_card));
+		if(!card)
+		{
+			LOG_E("can not malloc buffer for mmc card");
+
+			if(host->exit)
+				host->exit();
+
+			free(info);
+
+			continue;
+		}
+
+		/*
+		 * alloc mmc card's name
+		 */
+		i = 0;
+		while(1)
+		{
+			snprintf((x_s8 *)card->name, 32, (const x_s8 *)"mmc%ld", i++);
+			if(search_mmc_card(card->name) == NULL)
+				break;
+		}
+
+		/*
+		 * initialize mmc card's parameters
+		 */
+		card->info = info;
+		card->host = host;
+
+		/*
+		 * register mmc card
+		 */
+		if(register_mmc_card(card) == TRUE)
+			LOG_I("found mmc card '%s' (%s)", card->name, card->host->name);
+		else
+		{
+			LOG_E("fail to register mmc card");
+			free(card);
+			free(info);
+		}
+	}
 }
 
 /*
@@ -84,7 +177,24 @@ void mmc_card_probe(void)
  */
 void mmc_card_remove(void)
 {
+	struct mmc_card_list * list;
+	struct list_head * head, * curr, * next;
 
+	head = &mmc_card_list->entry;
+	curr = head->next;
+
+	while(curr != head)
+	{
+		list = list_entry(curr, struct mmc_card_list, entry);
+
+		next = curr->next;
+		list_del(curr);
+		curr = next;
+
+		free(list->card->info);
+		free(list->card);
+		free(list);
+	}
 }
 
 /*
@@ -113,7 +223,34 @@ struct mmc_card * search_mmc_card(const char * name)
  */
 static x_s32 mmc_card_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
-	return 0;
+	struct mmc_card_list * list;
+	struct list_head * pos;
+	x_s8 * p;
+	x_s32 len = 0;
+
+	if((p = malloc(SZ_4K)) == NULL)
+		return 0;
+
+	for(pos = (&mmc_card_list->entry)->next; pos != (&mmc_card_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct mmc_card_list, entry);
+
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"%s:\r\n", list->card->name);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" host controller : %s\r\n", list->card->host->name);
+	}
+
+	len -= offset;
+
+	if(len < 0)
+		len = 0;
+
+	if(len > count)
+		len = count;
+
+	memcpy(buf, (x_u8 *)(p + offset), len);
+	free(p);
+
+	return len;
 }
 
 static struct proc mmc_card_proc = {

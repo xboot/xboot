@@ -65,4 +65,15 @@
 #define MMC_GO_IRQ_STATE			40	/* bcr                     R5  */
 
 
+/*
+ * sd commands
+ */
+#define SD_SEND_RELATIVE_ADDR		3
+#define SD_SWITCH_FUNC				6
+#define SD_SEND_IF_COND				8
+
+#define SD_APP_SET_BUS_WIDTH		6
+#define SD_APP_SEND_OP_COND			41
+#define SD_APP_SEND_SCR				51
+
 #endif /* __MMC_H__ */

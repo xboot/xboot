@@ -37,41 +37,90 @@
 #include <mmc/mmc_host.h>
 #include <realview/reg-mmc.h>
 
-static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp)
+
+static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
 {
 	x_u32 status;
+	x_bool ret = TRUE;
 
-	if(readl(REALVIEW_MCI_COMMAND) & REALVIEW_MCI_CMD_ENABLE)
-	{
-		writel(REALVIEW_MCI_CMD_ENABLE, 0);
-		udelay(1);
-	}
+	if(flags & REALVIEW_MCI_RSP_PRESENT)
+		cmd |= REALVIEW_MCI_CMD_RESPONSE;
 
-	cmd |= REALVIEW_MCI_CMD_ENABLE | (0x1<<7);
+	if(flags & REALVIEW_MCI_RSP_136BIT)
+		cmd |= REALVIEW_MCI_CMD_LONGRSP;
 
 	writel(REALVIEW_MCI_ARGUMENT, arg);
-	writel(REALVIEW_MCI_COMMAND, cmd);
+	writel(REALVIEW_MCI_COMMAND, cmd | REALVIEW_MCI_CMD_ENABLE);
 
-	status = readl(REALVIEW_MCI_STATUS);
-	//status &= readl(REALVIEW_MCI_MASK0);
+	/*
+	 * wait for a while
+	 */
+	do {
+		status = readl(REALVIEW_MCI_STATUS);
+	} while(!(status & (REALVIEW_MCI_STAT_CMD_SENT | REALVIEW_MCI_STAT_CMD_RESP_END |
+			REALVIEW_MCI_STAT_CMD_TIME_OUT | REALVIEW_MCI_STAT_CMD_CRC_FAIL)));
 
-	LOG_I("status = 0x%x, repocmd = 0x%x", status,readl(REALVIEW_MCI_RESPCMD));
-
-	if(resp)
+	if(flags & REALVIEW_MCI_RSP_PRESENT)
 	{
 		resp[0] = readl(REALVIEW_MCI_RESP0);
-		resp[1] = readl(REALVIEW_MCI_RESP1);
-		resp[2] = readl(REALVIEW_MCI_RESP2);
-		resp[3] = readl(REALVIEW_MCI_RESP3);
+
+		if(flags & REALVIEW_MCI_RSP_136BIT)
+		{
+			resp[1] = readl(REALVIEW_MCI_RESP1);
+			resp[2] = readl(REALVIEW_MCI_RESP2);
+			resp[3] = readl(REALVIEW_MCI_RESP3);
+		}
 	}
 
-	return TRUE;
+	if(status & REALVIEW_MCI_STAT_CMD_TIME_OUT)
+		ret = FALSE;
+	else if ((status & REALVIEW_MCI_STAT_CMD_CRC_FAIL) && (flags & REALVIEW_MCI_RSP_CRC))
+		ret = FALSE;
+
+	writel(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_CMD_SENT | REALVIEW_MCI_CLR_CMD_RESP_END |
+			REALVIEW_MCI_CLR_CMD_TIMEOUT | REALVIEW_MCI_CLR_CMD_CRC_FAIL));
+
+	return ret;
+}
+
+static x_bool mmc_send_acmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
+{
+	x_u32 aresp[4];
+	x_bool ret = TRUE;
+
+	ret = mmc_send_cmd(MMC_APP_CMD, 0, &aresp[0], REALVIEW_MCI_RSP_PRESENT);
+	if(ret)
+		return ret;
+
+	if((aresp[0] & (REALVIEW_MCI_ILLEGAL_COMMAND | REALVIEW_MCI_APP_CMD)) != REALVIEW_MCI_APP_CMD)
+		return FALSE;
+
+	return mmc_send_cmd(cmd, arg, resp, flags);
+}
+
+static x_bool mmc_idle_cards(void)
+{
+	x_bool ret = TRUE;
+
+	/*
+	 * reset all cards
+	 */
+	ret = mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL, 0);
+	if(ret)
+		return ret;
+
+	/*
+	 * wait a moment
+	 */
+	udelay(500);
+
+	return mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL, 0);
 }
 
 static void realview_mmc_init(void)
 {
-	/* power on mode */
-	writel(REALVIEW_MCI_POWER, 0x3);
+	/* power on and rod control */
+	writel(REALVIEW_MCI_POWER, 0x83);
 }
 
 static void realview_mmc_exit(void)
@@ -82,12 +131,23 @@ static void realview_mmc_exit(void)
 x_bool realview_mmc_probe(struct mmc_card_info * info)
 {
 	x_u32 resp[4];
+	x_bool ret;
+	x_s32 i;
+
+	/*
+	 * check sd card
+	 */
+	mmc_idle_cards();
 /*
-	mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL);
+	ret = mmc_send_acmd(SD_APP_SEND_OP_COND, 0x00300000, resp, REALVIEW_MCI_CMD_RESPONSE);
+	//if(ret || (resp[0] & 0x80000000))
+	LOG_I("0x%x,0x%x,0x%x,0x%x", resp[0],resp[1],resp[2],resp[3]);
 
-	mmc_send_cmd(41, 0, NULL);
 
-	mmc_send_cmd(MMC_SEND_CID, 0, resp);
+	mmc_idle_cards();
+	mmc_send_cmd(MMC_SEND_OP_COND, 0x00300000, resp, REALVIEW_MCI_RSP_PRESENT);
+
+	ret = mmc_send_cmd(MMC_ALL_SEND_CID, 0, resp, REALVIEW_MCI_RSP_PRESENT|REALVIEW_MCI_RSP_136BIT|REALVIEW_MCI_RSP_CRC);
 
 	LOG_I("0x%x,0x%x,0x%x,0x%x", resp[0],resp[1],resp[2],resp[3]);
 */

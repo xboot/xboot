@@ -33,13 +33,45 @@
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
 #include <time/delay.h>
+#include <mmc/mmc.h>
 #include <mmc/mmc_host.h>
 #include <realview/reg-mmc.h>
 
+static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp)
+{
+	x_u32 status;
+
+	if(readl(REALVIEW_MCI_COMMAND) & REALVIEW_MCI_CMD_ENABLE)
+	{
+		writel(REALVIEW_MCI_CMD_ENABLE, 0);
+		udelay(1);
+	}
+
+	cmd |= REALVIEW_MCI_CMD_ENABLE | (0x1<<7);
+
+	writel(REALVIEW_MCI_ARGUMENT, arg);
+	writel(REALVIEW_MCI_COMMAND, cmd);
+
+	status = readl(REALVIEW_MCI_STATUS);
+	//status &= readl(REALVIEW_MCI_MASK0);
+
+	LOG_I("status = 0x%x, repocmd = 0x%x", status,readl(REALVIEW_MCI_RESPCMD));
+
+	if(resp)
+	{
+		resp[0] = readl(REALVIEW_MCI_RESP0);
+		resp[1] = readl(REALVIEW_MCI_RESP1);
+		resp[2] = readl(REALVIEW_MCI_RESP2);
+		resp[3] = readl(REALVIEW_MCI_RESP3);
+	}
+
+	return TRUE;
+}
 
 static void realview_mmc_init(void)
 {
-
+	/* power on mode */
+	writel(REALVIEW_MCI_POWER, 0x3);
 }
 
 static void realview_mmc_exit(void)
@@ -49,6 +81,16 @@ static void realview_mmc_exit(void)
 
 x_bool realview_mmc_probe(struct mmc_card_info * info)
 {
+	x_u32 resp[4];
+/*
+	mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL);
+
+	mmc_send_cmd(41, 0, NULL);
+
+	mmc_send_cmd(MMC_SEND_CID, 0, resp);
+
+	LOG_I("0x%x,0x%x,0x%x,0x%x", resp[0],resp[1],resp[2],resp[3]);
+*/
 	return TRUE;
 }
 

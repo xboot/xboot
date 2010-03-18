@@ -32,4 +32,11 @@
 #define REALVIEW_MCI_FIFO				(0x10005000 + 0x080)
 
 
+#define REALVIEW_MCI_CMD_RESPONSE		(1 << 6)
+#define REALVIEW_MCI_CMD_LONGRSP		(1 << 7)
+#define REALVIEW_MCI_CMD_INTERRUPT		(1 << 8)
+#define REALVIEW_MCI_CMD_PENDING		(1 << 9)
+#define REALVIEW_MCI_CMD_ENABLE			(1 << 10)
+
+
 #endif /* __REALVIEW_REG_MMC_H__ */

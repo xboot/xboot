@@ -135,9 +135,12 @@ x_bool realview_mmc_probe(struct mmc_card_info * info)
 	x_s32 i;
 
 	/*
-	 * check sd card
+	 * enter idle mode
 	 */
-	mmc_idle_cards();
+	if(!mmc_idle_cards())
+		return FALSE;
+
+	LOG_E("ok");
 /*
 	ret = mmc_send_acmd(SD_APP_SEND_OP_COND, 0x00300000, resp, REALVIEW_MCI_CMD_RESPONSE);
 	//if(ret || (resp[0] & 0x80000000))

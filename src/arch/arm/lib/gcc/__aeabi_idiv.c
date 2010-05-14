@@ -1,5 +1,5 @@
 /*
- * __divsi3.c for 32-bit signed integer divide.
+ * __aeabi_idiv for 32-bit signed integer divide.
  */
 
 extern unsigned int __udivmodsi4(unsigned int num, unsigned int den, unsigned int * rem_p);
@@ -7,7 +7,7 @@ extern unsigned int __udivmodsi4(unsigned int num, unsigned int den, unsigned in
 /*
  * 32-bit signed integer divide.
  */
-signed int __divsi3(signed int num, signed int den)
+signed int __aeabi_idiv(signed int num, signed int den)
 {
 	signed int minus = 0;
 	signed int v;

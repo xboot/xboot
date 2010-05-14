@@ -2,36 +2,22 @@
 #define __STDARG_H__
 
 
-#ifndef __HAVE_VA_LIST
-	#define __HAVE_VA_LIST
-	typedef char *va_list;
-#endif
-
-/*
- * round up the size of TYPE as numbers of sizeof(int), this is
- * because GCC will pad the size of TYPE aligning to size of int
- */
-#define __va_rounded_size(TYPE) \
-		(((sizeof(TYPE) + sizeof(int) - 1) / sizeof(int)) * sizeof(int))
+typedef __builtin_va_list		va_list;
 
 /*
  * prepare to access variable args
  */
-#define va_start(AP, LASTARG) \
-		(AP = ((char *)&(LASTARG) + __va_rounded_size(LASTARG)))
+#define va_start(v, l)				__builtin_va_start(v, l)
 
 /*
- * what the caller will get is "*((TYPE *)(AP - __va_rounded_size(TYPE)))".
- * the caller will get the value of current argemnt
+ * the caller will get the value of current argument
  */
-#define va_arg(AP, TYPE) \
-		(AP += __va_rounded_size(TYPE), \
-		*((TYPE *)(AP - __va_rounded_size(TYPE))))
+#define va_arg(v, l)					__builtin_va_arg(v, l)
 
 /*
- * just do nothing
+ * end for variable args
  */
-#define va_end(AP)
+#define va_end(v)							__builtin_va_end(v)
 
 
 #endif /* __STDARG_H__ */

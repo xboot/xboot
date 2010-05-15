@@ -37,20 +37,44 @@
 #include <mmc/mmc_host.h>
 #include <realview/reg-mmc.h>
 
+/*
+ * send command flags
+ */
+#define REALVIEW_MCI_RSP_NONE			(0 << 0)
+#define REALVIEW_MCI_RSP_PRESENT		(1 << 0)
+#define REALVIEW_MCI_RSP_136BIT			(1 << 1)
+#define REALVIEW_MCI_RSP_CRC			(1 << 2)
+
+/*
+ * card type
+ */
+enum realview_mci_card_type {
+	REALVIEW_MCI_SD_CARD,
+	REALVIEW_MCI_MMC_CARD,
+};
 
 static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
 {
 	x_u32 status;
 	x_bool ret = TRUE;
 
-	if(flags & REALVIEW_MCI_RSP_PRESENT)
-		cmd |= REALVIEW_MCI_CMD_RESPONSE;
+	if(readl(REALVIEW_MCI_COMMAND) & REALVIEW_MCI_CMD_ENABLE)
+	{
+		writel(REALVIEW_MCI_COMMAND, 0x0);
+		udelay(1);
+	}
 
-	if(flags & REALVIEW_MCI_RSP_136BIT)
-		cmd |= REALVIEW_MCI_CMD_LONGRSP;
+	cmd = (cmd & 0x3f) | REALVIEW_MCI_CMD_ENABLE;
+
+	if(flags & REALVIEW_MCI_RSP_PRESENT)
+	{
+		if(flags & REALVIEW_MCI_RSP_136BIT)
+			cmd |= REALVIEW_MCI_CMD_LONGRSP;
+		cmd |= REALVIEW_MCI_CMD_RESPONSE;
+	}
 
 	writel(REALVIEW_MCI_ARGUMENT, arg);
-	writel(REALVIEW_MCI_COMMAND, cmd | REALVIEW_MCI_CMD_ENABLE);
+	writel(REALVIEW_MCI_COMMAND, cmd);
 
 	/*
 	 * wait for a while
@@ -85,14 +109,14 @@ static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
 
 static x_bool mmc_send_acmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
 {
-	x_u32 aresp[4];
+	x_u32 aresp;
 	x_bool ret = TRUE;
 
-	ret = mmc_send_cmd(MMC_APP_CMD, 0, &aresp[0], REALVIEW_MCI_RSP_PRESENT);
-	if(ret)
+	ret = mmc_send_cmd(MMC_APP_CMD, 0, &aresp, REALVIEW_MCI_RSP_PRESENT);
+	if(!ret)
 		return ret;
 
-	if((aresp[0] & (REALVIEW_MCI_ILLEGAL_COMMAND | REALVIEW_MCI_APP_CMD)) != REALVIEW_MCI_APP_CMD)
+	if((aresp & ((1 << 22) | (1 << 5))) != (1 << 5))
 		return FALSE;
 
 	return mmc_send_cmd(cmd, arg, resp, flags);
@@ -105,34 +129,88 @@ static x_bool mmc_idle_cards(void)
 	/*
 	 * reset all cards
 	 */
-	ret = mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL, 0);
+	ret = mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL, REALVIEW_MCI_RSP_NONE);
 	if(ret)
 		return ret;
 
 	/*
 	 * wait a moment
 	 */
-	udelay(500);
+	udelay(2000);
 
 	return mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL, 0);
+}
+
+static x_bool sd_set_ocr(void)
+{
+	x_u32 resp[4];
+	x_u32 i;
+
+	if(!mmc_idle_cards())
+		return FALSE;
+
+	for(i=0; i<100; i++)
+	{
+		if(mmc_send_acmd(SD_APP_SEND_OP_COND, MMC_VDD_33_34, &resp[0], REALVIEW_MCI_RSP_PRESENT))
+		{
+			if(resp[0] & 0x80000000)
+				return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static x_bool mmc_set_ocr(void)
+{
+	x_u32 resp[4];
+	x_u32 i;
+
+	if(!mmc_idle_cards())
+		return FALSE;
+
+	for(i=0; i<100; i++)
+	{
+		if(mmc_send_cmd(MMC_SEND_OP_COND, MMC_VDD_33_34, &resp[0], REALVIEW_MCI_RSP_PRESENT))
+		{
+			if(resp[0] & 0x80000000)
+				return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 static void realview_mmc_init(void)
 {
 	/* power on and rod control */
 	writel(REALVIEW_MCI_POWER, 0x83);
+
+	writel(REALVIEW_MCI_MASK0, 0x0);
+	writel(REALVIEW_MCI_MASK1, 0x0);
+
+	writel(REALVIEW_MCI_COMMAND, 0x0);
+	writel(REALVIEW_MCI_DATA_CTRL, 0x0);
 }
 
 static void realview_mmc_exit(void)
 {
+	writel(REALVIEW_MCI_MASK0, 0x0);
+	writel(REALVIEW_MCI_MASK1, 0x0);
 
+	writel(REALVIEW_MCI_COMMAND, 0x0);
+	writel(REALVIEW_MCI_DATA_CTRL, 0x0);
+
+	/* power off */
+	writel(REALVIEW_MCI_POWER, 0x0);
 }
 
 x_bool realview_mmc_probe(struct mmc_card_info * info)
 {
 	x_u32 resp[4];
+	enum realview_mci_card_type type;
+	x_u32 rca;
 	x_bool ret;
-	x_s32 i;
 
 	/*
 	 * enter idle mode
@@ -140,20 +218,95 @@ x_bool realview_mmc_probe(struct mmc_card_info * info)
 	if(!mmc_idle_cards())
 		return FALSE;
 
-	LOG_E("ok");
-/*
-	ret = mmc_send_acmd(SD_APP_SEND_OP_COND, 0x00300000, resp, REALVIEW_MCI_CMD_RESPONSE);
-	//if(ret || (resp[0] & 0x80000000))
-	LOG_I("0x%x,0x%x,0x%x,0x%x", resp[0],resp[1],resp[2],resp[3]);
+	if(sd_set_ocr())
+		type = REALVIEW_MCI_SD_CARD;
+	else if(mmc_set_ocr())
+		type = REALVIEW_MCI_MMC_CARD;
+	else
+		return FALSE;
 
+	/*
+	 * get the attached card's cid
+	 */
+	ret = mmc_send_cmd(MMC_ALL_SEND_CID, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_136BIT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
 
-	mmc_idle_cards();
-	mmc_send_cmd(MMC_SEND_OP_COND, 0x00300000, resp, REALVIEW_MCI_RSP_PRESENT);
+	info->cid.mid = (resp[0] >> 24) & 0xff;
 
-	ret = mmc_send_cmd(MMC_ALL_SEND_CID, 0, resp, REALVIEW_MCI_RSP_PRESENT|REALVIEW_MCI_RSP_136BIT|REALVIEW_MCI_RSP_CRC);
+	info->cid.oid[0] = (resp[0] >> 16) & 0xff;
+	info->cid.oid[1] = (resp[0] >> 8) & 0xff;
 
-	LOG_I("0x%x,0x%x,0x%x,0x%x", resp[0],resp[1],resp[2],resp[3]);
-*/
+	info->cid.pnm[0] = (resp[0] >> 0) & 0xff;
+	info->cid.pnm[1] = (resp[1] >> 24) & 0xff;
+	info->cid.pnm[2] = (resp[1] >> 16) & 0xff;
+	info->cid.pnm[3] = (resp[1] >> 8) & 0xff;
+	info->cid.pnm[4] = (resp[1] >> 0) & 0xff;
+
+	info->cid.prev = (resp[2] >> 24) & 0xff;
+
+	info->cid.psn[0] = (resp[2] >> 16) & 0xff;
+	info->cid.psn[1] = (resp[2] >> 8) & 0xff;
+	info->cid.psn[2] = (resp[2] >> 0) & 0xff;
+	info->cid.psn[3] = (resp[3] >> 24) & 0xff;
+
+	info->cid.year = (((resp[3] >> 16) & 0xff) * 10) + 2000 + ((((resp[3] >> 8) & 0xff) >> 4) & 0x0f);
+	info->cid.month = ((resp[3] >> 8) & 0xff) & 0x0f;
+
+	/*
+	 * send relative card address
+	 */
+	if(type == REALVIEW_MCI_SD_CARD)
+	{
+		ret = mmc_send_cmd(MMC_SET_RELATIVE_ADDR, 0x0000 << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+		if(!ret)
+			return FALSE;
+		rca = (resp[0] >> 16) & 0xffff;
+	}
+	else if(type == REALVIEW_MCI_MMC_CARD)
+	{
+		rca = 0x0001;
+		ret = mmc_send_cmd(MMC_SET_RELATIVE_ADDR, rca << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+		if(!ret)
+			return FALSE;
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	/*
+	 * get the card specific data
+	 */
+	ret = mmc_send_cmd(MMC_SEND_CSD, rca << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_136BIT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
+
+	info->csd.sector_size = 1 << ((resp[1] >> 16) & 0xf);
+
+	int n = ((resp[1] >> 16) & 0xf) + ((resp[2] >> 8) & 0x7f) + (((resp[2] >> 16) & 0x3) << 1) + 2;
+	int csize = ((resp[2] >> 24) >> 6) + ((resp[2] & 0xff) << 2) + (((resp[2] >> 8) & 0x3) << 10) + 1;
+	int t = (unsigned long)csize << (n - 9);
+
+	LOG_I("n=%ld", n);
+	LOG_I("csize=%ld", csize);
+	LOG_I("t=%ld", t);
+
+	LOG_I("sector_size=%ld", info->csd.sector_size);
+
+	LOG_I("mid=0x%lx", info->cid.mid);
+	LOG_I("oid=%c,%c", info->cid.oid[0],info->cid.oid[1]);
+
+	LOG_I("pnm=%c,%c,%c,%c,%c", info->cid.pnm[0],info->cid.pnm[1],info->cid.pnm[2],info->cid.pnm[3],info->cid.pnm[4]);
+	LOG_I("prev=0x%lx", info->cid.prev);
+
+	LOG_I("psn=%x,%x,%x,%x", info->cid.psn[0],info->cid.psn[1],info->cid.psn[2],info->cid.psn[3]);
+	LOG_I("y,m=0x%ld, 0x%ld", info->cid.year, info->cid.month);
+
+	LOG_I("0x%lx,0x%lx,0x%lx,0x%lx", resp[0], resp[1], resp[2], resp[3]);
+
+	LOG_I("rca=0x%lx", rca);
+
 	return TRUE;
 }
 

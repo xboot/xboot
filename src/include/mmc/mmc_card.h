@@ -11,22 +11,22 @@
  * mmc's cid
  */
 struct mmc_cid {
-	x_u8	mid;
-	x_u8	oid[2];
-	x_u8	pnm[5];
-	x_u8	prev;
-	x_u8	psn;
-	x_u8	hwrev[2];
-	x_u8	fwrev[2];
-	x_u8	year;
-	x_u8	month;
+	x_u8	mid;			/* card manufacturer id */
+	x_u8	oid[2];			/* oem / application id */
+	x_u8	pnm[5];			/* product name */
+	x_u8	prev;			/* product revision */
+	x_u8	psn[4];			/* serial number */
+	x_u16	year;			/* year of manufacture date */
+	x_u16	month;			/* month of manufacture date */
 };
 
 /*
  * mmc's csd
  */
 struct mmc_csd {
-	x_u8	mmca_vsn;
+	x_u32	sector_size;
+	x_u32	sector_count;
+	x_size	capacity;
 };
 
 /*

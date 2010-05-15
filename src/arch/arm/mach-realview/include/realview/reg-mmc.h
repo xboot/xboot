@@ -32,13 +32,6 @@
 #define REALVIEW_MCI_FIFO				(0x10005000 + 0x080)
 
 /*
- * send command flags
- */
-#define REALVIEW_MCI_RSP_PRESENT		(1 << 0)
-#define REALVIEW_MCI_RSP_136BIT			(1 << 1)
-#define REALVIEW_MCI_RSP_CRC			(1 << 2)
-
-/*
  * bit masks for command
  */
 #define REALVIEW_MCI_CMD_RESPONSE		(1 << 6)
@@ -85,9 +78,5 @@
 #define REALVIEW_MCI_CLR_CMD_SENT		(1 << 7)
 #define REALVIEW_MCI_CLR_DAT_END		(1 << 8)
 #define REALVIEW_MCI_CLR_DAT_BLK_END	(1 << 10)
-
-
-#define REALVIEW_MCI_ILLEGAL_COMMAND	(1 << 22)
-#define REALVIEW_MCI_APP_CMD			(1 << 5)
 
 #endif /* __REALVIEW_REG_MMC_H__ */

@@ -283,6 +283,9 @@ x_bool realview_mmc_probe(struct mmc_card_info * info)
 		return FALSE;
 
 	info->csd.sector_size = 1 << ((resp[1] >> 16) & 0xf);
+	info->csd.sector_count = 100;
+	info->csd.capacity = info->csd.sector_size * info->csd.sector_count;
+
 
 	int n = ((resp[1] >> 16) & 0xf) + ((resp[2] >> 8) & 0x7f) + (((resp[2] >> 16) & 0x3) << 1) + 2;
 	int csize = ((resp[2] >> 24) >> 6) + ((resp[2] & 0xff) << 2) + (((resp[2] >> 8) & 0x3) << 10) + 1;

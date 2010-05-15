@@ -2,22 +2,22 @@
 #define __STDARG_H__
 
 
-typedef __builtin_va_list		va_list;
+typedef __builtin_va_list	va_list;
 
 /*
  * prepare to access variable args
  */
-#define va_start(v, l)				__builtin_va_start(v, l)
+#define va_start(v, l)		__builtin_va_start(v, l)
 
 /*
  * the caller will get the value of current argument
  */
-#define va_arg(v, l)					__builtin_va_arg(v, l)
+#define va_arg(v, l)		__builtin_va_arg(v, l)
 
 /*
  * end for variable args
  */
-#define va_end(v)							__builtin_va_end(v)
+#define va_end(v)			__builtin_va_end(v)
 
 
 #endif /* __STDARG_H__ */

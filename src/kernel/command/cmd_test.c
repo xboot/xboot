@@ -45,6 +45,20 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
+	struct blkdev * blk;
+
+	register_loop("a");
+	blk = search_loop("a");
+
+	if(!blk)
+	{
+		printk("special loop block device not found\r\n");
+		return -1;
+	}
+
+	printk("size=%Ld\r\n", get_blkdev_total_size(blk));
+	printk("num=%Ld\r\n", get_blkdev_total_number(blk));
+
 	return 0;
 }
 

@@ -27,6 +27,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <vsprintf.h>
+#include <div64.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
@@ -94,10 +95,10 @@ static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno)
 	if(blkno < 0)
 		return 0;
 
-	if(lseek(loop->fd, (blkno << 9), SEEK_SET) < 0)
+	if(lseek(loop->fd, get_blkdev_offset(dev, blkno), SEEK_SET) < 0)
 		return 0;
 
-	return (read(loop->fd, (void *)buf, 512));
+	return (read(loop->fd, (void *)buf, get_blkdev_size(dev, blkno)));
 }
 
 static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
@@ -107,10 +108,10 @@ static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
 	if(blkno < 0)
 		return 0;
 
-	if(lseek(loop->fd, (blkno << 9), SEEK_SET) < 0)
+	if(lseek(loop->fd, get_blkdev_offset(dev, blkno), SEEK_SET) < 0)
 		return 0;
 
-	return (write(loop->fd, (void *)buf, 512));
+	return (write(loop->fd, (void *)buf, get_blkdev_size(dev, blkno)));
 }
 
 static x_s32 loop_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
@@ -164,12 +165,16 @@ x_bool register_loop(const char * file)
 	struct loop * loop;
 	struct loop_list * list;
 	struct blkinfo * info;
+	x_u64 size, rem;
 	x_s32 i = 0;
 
 	if(!file)
 		return FALSE;
 
 	if(stat(file, &st) != 0)
+		return FALSE;
+
+	if(st.st_size <= 0)
 		return FALSE;
 
 	if(!S_ISREG(st.st_mode))
@@ -210,20 +215,47 @@ x_bool register_loop(const char * file)
 	}
 
 	init_list_head(&(loop->info.entry));
-	info = malloc(sizeof(struct blkinfo));
-	if(!info)
+
+	size = st.st_size;
+	rem = div64_64(&size, 512);
+
+	if(size > 0)
 	{
-		free(loop);
-		free(dev);
-		free(list);
-		return FALSE;
+		info = malloc(sizeof(struct blkinfo));
+		if(!info)
+		{
+			free(loop);
+			free(dev);
+			free(list);
+			return FALSE;
+		}
+
+		info->blkno = 0;
+		info->offset = 0;
+		info->size = 512;
+		info->number = size;
+		list_add_tail(&info->entry, &(loop->info.entry));
 	}
 
-	info->blkno = 0;
-	info->offset = 0;
-	info->size = 512;
-	info->number = (st.st_size + 512) >> 9;
-	list_add_tail(&info->entry, &(loop->info.entry));
+	if(rem > 0)
+	{
+		info = malloc(sizeof(struct blkinfo));
+		if(!info)
+		{
+			if( (&(loop->info.entry))->next != &(loop->info.entry) )
+				free(list_entry((&(loop->info.entry))->next, struct blkinfo, entry));
+			free(loop);
+			free(dev);
+			free(list);
+			return FALSE;
+		}
+
+		info->blkno = size;
+		info->offset = size * 512;
+		info->size = rem;
+		info->number = 1;
+		list_add_tail(&info->entry, &(loop->info.entry));
+	}
 
 	dev->name	= loop->name;
 	dev->type	= BLK_DEV_LOOP;

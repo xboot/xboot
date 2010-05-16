@@ -60,7 +60,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 		return -1;
 	}
 
-	if(!card->host->read_sector(card, 0, buf))
+	if(!card->host->read_sector(card, 32, buf))
 	{
 		printk("read fail\r\n");
 		return -1;

@@ -53,7 +53,6 @@ static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
 	if(readl(REALVIEW_MCI_COMMAND) & REALVIEW_MCI_CMD_ENABLE)
 	{
 		writel(REALVIEW_MCI_COMMAND, 0x0);
-		udelay(1);
 	}
 
 	cmd = (cmd & 0x3f) | REALVIEW_MCI_CMD_ENABLE;
@@ -128,7 +127,7 @@ static x_bool mmc_idle_cards(void)
 	/*
 	 * wait a moment
 	 */
-	udelay(2000);
+	udelay(1000);
 
 	return mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL, 0);
 }
@@ -307,9 +306,16 @@ x_bool realview_mmc_probe(struct mmc_card_info * info)
 	info->raw_csd[3] = resp[3];
 
 	/*
-	 * select the card, and put it into transfer Mode
+	 * select the card, and put it into transfer mode
 	 */
 	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
+
+	/*
+	 * deselect the card, and put it into standby mode
+	 */
+	ret = mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
 		return FALSE;
 
@@ -326,9 +332,12 @@ x_bool realview_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * dat
 	x_u32 status;
 	x_bool ret;
 
-	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
-	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
-	writel(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x1<<1) | (blk_bits<<4));
+	/*
+	 * select the card, and put it into transfer mode
+	 */
+	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(card->info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
 
 	/*
 	 * always do full block reads from the card
@@ -336,6 +345,10 @@ x_bool realview_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * dat
 	ret = mmc_send_cmd(MMC_SET_BLOCKLEN, blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
 		return FALSE;
+
+	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
+	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
+	writel(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x1<<1) | (blk_bits<<4));
 
 	if(card->info->type == MMC_CARD_TYPE_SDHC)
 	{
@@ -356,7 +369,7 @@ x_bool realview_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * dat
 		if(count <= 0)
 			break;
 
-		readsl((void*)REALVIEW_MCI_FIFO, p, count >> 2);
+		readsl((const void *)REALVIEW_MCI_FIFO, p, count >> 2);
 
 		p += count;
 		remain -= count;
@@ -365,9 +378,22 @@ x_bool realview_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * dat
 			break;
 
 		status = readl(REALVIEW_MCI_STATUS);
-	}while(status & REALVIEW_MCI_STAT_RX_FIFO_AVL);
+		if((status & REALVIEW_MCI_STAT_DAT_TIME_OUT) || (status & REALVIEW_MCI_STAT_DAT_CRC_FAIL))
+		{
+			writel(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_DAT_TIMEOUT | REALVIEW_MCI_CLR_DAT_CRC_FAIL));
 
-	writel(REALVIEW_MCI_DATA_CTRL, 0);
+			mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+			return FALSE;
+		}
+
+	} while(1);
+
+	/*
+	 * deselect the card, and put it into standby mode
+	 */
+	ret = mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
 
 	return TRUE;
 }

@@ -27,9 +27,9 @@
 #include <types.h>
 #include <string.h>
 #include <div64.h>
+#include <io.h>
 #include <xboot/log.h>
 #include <xboot/initcall.h>
-#include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/ioctl.h>
 #include <xboot/printk.h>

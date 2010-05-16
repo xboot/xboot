@@ -25,9 +25,9 @@
 #include <default.h>
 #include <types.h>
 #include <div64.h>
+#include <io.h>
 #include <time/tick.h>
 #include <xboot/log.h>
-#include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/printk.h>

@@ -28,9 +28,9 @@
 #include <string.h>
 #include <malloc.h>
 #include <div64.h>
+#include <io.h>
 #include <time/delay.h>
 #include <xboot/log.h>
-#include <xboot/io.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>

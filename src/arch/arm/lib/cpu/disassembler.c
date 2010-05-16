@@ -3,7 +3,7 @@
 #include <types.h>
 #include <string.h>
 #include <vsprintf.h>
-#include <xboot/io.h>
+#include <io.h>
 #include <disassembler.h>
 
 

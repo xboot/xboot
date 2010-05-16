@@ -26,8 +26,8 @@
 #include <macros.h>
 #include <types.h>
 #include <div64.h>
+#include <io.h>
 #include <xboot/log.h>
-#include <xboot/io.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -318,7 +318,58 @@ x_bool realview_mmc_probe(struct mmc_card_info * info)
 
 x_bool realview_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * data)
 {
-	return FALSE;
+	x_u32 resp[4];
+	x_u32 blk_bits = card->info->csd.read_blkbits;
+	x_u32 blk_len = 1 << blk_bits;
+	x_s32 count, remain = blk_len;
+	x_u8 * p = data;
+	x_u32 status;
+	x_bool ret;
+
+	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
+	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
+	writel(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x1<<1) | (blk_bits<<4));
+
+	/*
+	 * always do full block reads from the card
+	 */
+	ret = mmc_send_cmd(MMC_SET_BLOCKLEN, blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
+
+	if(card->info->type == MMC_CARD_TYPE_SDHC)
+	{
+		ret = mmc_send_cmd(MMC_READ_SINGLE_BLOCK, sector, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+		if(!ret)
+			return FALSE;
+	}
+	else
+	{
+		ret = mmc_send_cmd(MMC_READ_SINGLE_BLOCK, sector * blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+		if(!ret)
+			return FALSE;
+	}
+
+	do {
+		count = remain - (readl(REALVIEW_MCI_FIFO_CNT) << 2);
+
+		if(count <= 0)
+			break;
+
+		readsl((void*)REALVIEW_MCI_FIFO, p, count >> 2);
+
+		p += count;
+		remain -= count;
+
+		if(remain <= 0)
+			break;
+
+		status = readl(REALVIEW_MCI_STATUS);
+	}while(status & REALVIEW_MCI_STAT_RX_FIFO_AVL);
+
+	writel(REALVIEW_MCI_DATA_CTRL, 0);
+
+	return TRUE;
 }
 
 x_bool realview_mmc_write_sector(struct mmc_card * nand, x_u32 sector, x_u8 * data)

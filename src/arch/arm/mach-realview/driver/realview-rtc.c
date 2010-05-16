@@ -26,10 +26,10 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
+#include <io.h>
 #include <time/delay.h>
 #include <xboot/log.h>
 #include <xboot/initcall.h>
-#include <xboot/io.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>

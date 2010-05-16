@@ -14,12 +14,12 @@
 #include <byteorder.h>
 #include <sha.h>
 #include <xml.h>
+#include <io.h>
 #include <time/delay.h>
 #include <time/timer.h>
 #include <time/xtime.h>
 #include <time/tick.h>
 #include <xboot/list.h>
-#include <xboot/io.h>
 #include <xboot/log.h>
 #include <xboot/irq.h>
 #include <xboot/printk.h>
@@ -39,25 +39,39 @@
 #include <terminal/curses.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fsapi.h>
+#include <mmc/mmc_host.h>
+#include <mmc/mmc_card.h>
 
 
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-	struct blkdev * blk;
+	struct mmc_card * card;
+	x_u8 buf[512];
+	x_s32 i;
 
-	register_loop("a");
-	blk = search_loop("a");
+	memset(buf, 0, sizeof(buf));
 
-	if(!blk)
+	card = search_mmc_card("mmc0");
+	if(!card)
 	{
-		printk("special loop block device not found\r\n");
+		printk("not found mmc0\r\n");
 		return -1;
 	}
 
-	printk("size=%Ld\r\n", get_blkdev_total_size(blk));
-	printk("num=%Ld\r\n", get_blkdev_total_number(blk));
+	if(!card->host->read_sector(card, 0, buf))
+	{
+		printk("read fail\r\n");
+		return -1;
+	}
+
+	for(i=0; i<256; i++)
+	{
+		if((i % 16) == 0)
+			printk("\r\n");
+		printk("%02x ",buf[i]);
+	}
 
 	return 0;
 }

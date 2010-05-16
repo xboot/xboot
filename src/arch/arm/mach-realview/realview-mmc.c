@@ -45,14 +45,6 @@
 #define REALVIEW_MCI_RSP_136BIT			(1 << 1)
 #define REALVIEW_MCI_RSP_CRC			(1 << 2)
 
-/*
- * card type
- */
-enum realview_mci_card_type {
-	REALVIEW_MCI_SD_CARD,
-	REALVIEW_MCI_MMC_CARD,
-};
-
 static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
 {
 	x_u32 status;
@@ -141,27 +133,59 @@ static x_bool mmc_idle_cards(void)
 	return mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL, 0);
 }
 
-static x_bool sd_set_ocr(void)
+static x_bool mmc_send_if_cond(struct mmc_card_info * info)
 {
 	x_u32 resp[4];
-	x_u32 i;
 
 	if(!mmc_idle_cards())
 		return FALSE;
 
-	for(i=0; i<100; i++)
+	if(mmc_send_cmd(SD_SEND_IF_COND, MMC_VDD_33_34, &resp[0], REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC))
 	{
-		if(mmc_send_acmd(SD_APP_SEND_OP_COND, MMC_VDD_33_34, &resp[0], REALVIEW_MCI_RSP_PRESENT))
+		if((resp[0] & 0xff) == 0xaa)
 		{
-			if(resp[0] & 0x80000000)
-				return TRUE;
+			info->type = MMC_CARD_TYPE_SD20;
+			return TRUE;
 		}
 	}
 
+	info->type = MMC_CARD_TYPE_NONE;
 	return FALSE;
 }
 
-static x_bool mmc_set_ocr(void)
+static x_bool sd_send_op_cond(struct mmc_card_info * info)
+{
+	x_u32 resp[4];
+	x_u32 arg;
+	x_u32 i;
+
+	if(!mmc_idle_cards())
+		return FALSE;
+
+	for(i=0; i<100; i++)
+	{
+		arg = MMC_VDD_33_34;
+		if(info->type == MMC_CARD_TYPE_SD20)
+			arg |= 0x40000000;
+
+		if(mmc_send_acmd(SD_APP_SEND_OP_COND, arg, &resp[0], REALVIEW_MCI_RSP_PRESENT))
+		{
+			if(resp[0] & 0x80000000)
+			{
+				if((resp[0] & 0x40000000) == 0x40000000)
+					info->type = MMC_CARD_TYPE_SDHC;
+				else if(info->type != MMC_CARD_TYPE_SD20)
+					info->type = MMC_CARD_TYPE_SD;
+				return TRUE;
+			}
+		}
+	}
+
+	info->type = MMC_CARD_TYPE_NONE;
+	return FALSE;
+}
+
+static x_bool mmc_send_op_cond(struct mmc_card_info * info)
 {
 	x_u32 resp[4];
 	x_u32 i;
@@ -171,13 +195,17 @@ static x_bool mmc_set_ocr(void)
 
 	for(i=0; i<100; i++)
 	{
-		if(mmc_send_cmd(MMC_SEND_OP_COND, MMC_VDD_33_34, &resp[0], REALVIEW_MCI_RSP_PRESENT))
+		if(mmc_send_cmd(MMC_SEND_OP_COND, MMC_VDD_33_34 | 0x40000000, &resp[0], REALVIEW_MCI_RSP_PRESENT))
 		{
 			if(resp[0] & 0x80000000)
+			{
+				info->type = MMC_CARD_TYPE_MMC;
 				return TRUE;
+			}
 		}
 	}
 
+	info->type = MMC_CARD_TYPE_NONE;
 	return FALSE;
 }
 
@@ -208,22 +236,25 @@ static void realview_mmc_exit(void)
 x_bool realview_mmc_probe(struct mmc_card_info * info)
 {
 	x_u32 resp[4];
-	enum realview_mci_card_type type;
-	x_u32 rca;
 	x_bool ret;
 
 	/*
-	 * enter idle mode
+	 * go idle mode
 	 */
 	if(!mmc_idle_cards())
 		return FALSE;
 
-	if(sd_set_ocr())
-		type = REALVIEW_MCI_SD_CARD;
-	else if(mmc_set_ocr())
-		type = REALVIEW_MCI_MMC_CARD;
-	else
-		return FALSE;
+	/*
+	 * test for sd version 2
+	 */
+	mmc_send_if_cond(info);
+
+	/* try to get the sd card's operating condition */
+	if(!sd_send_op_cond(info))
+	{
+		if(!mmc_send_op_cond(info))
+			return FALSE;
+	}
 
 	/*
 	 * get the attached card's cid
@@ -232,83 +263,55 @@ x_bool realview_mmc_probe(struct mmc_card_info * info)
 	if(!ret)
 		return FALSE;
 
-	info->cid.mid = (resp[0] >> 24) & 0xff;
-
-	info->cid.oid[0] = (resp[0] >> 16) & 0xff;
-	info->cid.oid[1] = (resp[0] >> 8) & 0xff;
-
-	info->cid.pnm[0] = (resp[0] >> 0) & 0xff;
-	info->cid.pnm[1] = (resp[1] >> 24) & 0xff;
-	info->cid.pnm[2] = (resp[1] >> 16) & 0xff;
-	info->cid.pnm[3] = (resp[1] >> 8) & 0xff;
-	info->cid.pnm[4] = (resp[1] >> 0) & 0xff;
-
-	info->cid.prev = (resp[2] >> 24) & 0xff;
-
-	info->cid.psn[0] = (resp[2] >> 16) & 0xff;
-	info->cid.psn[1] = (resp[2] >> 8) & 0xff;
-	info->cid.psn[2] = (resp[2] >> 0) & 0xff;
-	info->cid.psn[3] = (resp[3] >> 24) & 0xff;
-
-	info->cid.year = (((resp[3] >> 16) & 0xff) * 10) + 2000 + ((((resp[3] >> 8) & 0xff) >> 4) & 0x0f);
-	info->cid.month = ((resp[3] >> 8) & 0xff) & 0x0f;
+	info->raw_cid[0] = resp[0];
+	info->raw_cid[1] = resp[1];
+	info->raw_cid[2] = resp[2];
+	info->raw_cid[3] = resp[3];
 
 	/*
 	 * send relative card address
 	 */
-	if(type == REALVIEW_MCI_SD_CARD)
+	switch(info->type)
 	{
-		ret = mmc_send_cmd(MMC_SET_RELATIVE_ADDR, 0x0000 << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	case MMC_CARD_TYPE_MMC:
+		info->rca = 0x0001;
+		ret = mmc_send_cmd(MMC_SET_RELATIVE_ADDR, info->rca << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 		if(!ret)
 			return FALSE;
-		rca = (resp[0] >> 16) & 0xffff;
-	}
-	else if(type == REALVIEW_MCI_MMC_CARD)
-	{
-		rca = 0x0001;
-		ret = mmc_send_cmd(MMC_SET_RELATIVE_ADDR, rca << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+		break;
+
+	case MMC_CARD_TYPE_SD:
+	case MMC_CARD_TYPE_SD20:
+	case MMC_CARD_TYPE_SDHC:
+		ret = mmc_send_cmd(SD_SEND_RELATIVE_ADDR, 0x0000 << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 		if(!ret)
 			return FALSE;
-	}
-	else
-	{
+		info->rca = (resp[0] >> 16) & 0xffff;
+		break;
+
+	default:
+		info->rca = 0;
 		return FALSE;
 	}
 
 	/*
 	 * get the card specific data
 	 */
-	ret = mmc_send_cmd(MMC_SEND_CSD, rca << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_136BIT | REALVIEW_MCI_RSP_CRC);
+	ret = mmc_send_cmd(MMC_SEND_CSD, (x_u32)(info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_136BIT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
 		return FALSE;
 
-	info->csd.sector_size = 1 << ((resp[1] >> 16) & 0xf);
-	info->csd.sector_count = 100;
-	info->csd.capacity = info->csd.sector_size * info->csd.sector_count;
+	info->raw_csd[0] = resp[0];
+	info->raw_csd[1] = resp[1];
+	info->raw_csd[2] = resp[2];
+	info->raw_csd[3] = resp[3];
 
-
-	int n = ((resp[1] >> 16) & 0xf) + ((resp[2] >> 8) & 0x7f) + (((resp[2] >> 16) & 0x3) << 1) + 2;
-	int csize = ((resp[2] >> 24) >> 6) + ((resp[2] & 0xff) << 2) + (((resp[2] >> 8) & 0x3) << 10) + 1;
-	int t = (unsigned long)csize << (n - 9);
-
-	LOG_I("n=%ld", n);
-	LOG_I("csize=%ld", csize);
-	LOG_I("t=%ld", t);
-
-	LOG_I("sector_size=%ld", info->csd.sector_size);
-
-	LOG_I("mid=0x%lx", info->cid.mid);
-	LOG_I("oid=%c,%c", info->cid.oid[0],info->cid.oid[1]);
-
-	LOG_I("pnm=%c,%c,%c,%c,%c", info->cid.pnm[0],info->cid.pnm[1],info->cid.pnm[2],info->cid.pnm[3],info->cid.pnm[4]);
-	LOG_I("prev=0x%lx", info->cid.prev);
-
-	LOG_I("psn=%x,%x,%x,%x", info->cid.psn[0],info->cid.psn[1],info->cid.psn[2],info->cid.psn[3]);
-	LOG_I("y,m=0x%ld, 0x%ld", info->cid.year, info->cid.month);
-
-	LOG_I("0x%lx,0x%lx,0x%lx,0x%lx", resp[0], resp[1], resp[2], resp[3]);
-
-	LOG_I("rca=0x%lx", rca);
+	/*
+	 * select the card, and put it into transfer Mode
+	 */
+	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
 
 	return TRUE;
 }

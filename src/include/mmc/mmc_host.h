@@ -28,7 +28,7 @@ struct mmc_host
 	x_bool (*read_sector)(struct mmc_card * card, x_u32 sector, x_u8 * data);
 
 	/* write a sector to mmc card */
-	x_bool (*write_sector)(struct mmc_card * nand, x_u32 sector, x_u8 * data);
+	x_bool (*write_sector)(struct mmc_card * card, x_u32 sector, x_u8 * data);
 };
 
 /*

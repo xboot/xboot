@@ -38,7 +38,7 @@
 
 /* class 4 */
 #define MMC_SET_BLOCK_COUNT			23	/* adtc [31:0] data addr   R1  */
-#define MMC_WRITE_BLOCK				24	/* adtc [31:0] data addr   R1  */
+#define MMC_WRITE_SINGLE_BLOCK		24	/* adtc [31:0] data addr   R1  */
 #define MMC_WRITE_MULTIPLE_BLOCK	25	/* adtc                    R1  */
 #define MMC_PROGRAM_CID				26	/* adtc                    R1  */
 #define MMC_PROGRAM_CSD				27	/* adtc                    R1  */

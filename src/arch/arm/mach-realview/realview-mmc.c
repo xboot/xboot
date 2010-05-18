@@ -398,9 +398,75 @@ x_bool realview_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * dat
 	return TRUE;
 }
 
-x_bool realview_mmc_write_sector(struct mmc_card * nand, x_u32 sector, x_u8 * data)
+x_bool realview_mmc_write_sector(struct mmc_card * card, x_u32 sector, x_u8 * data)
 {
-	return FALSE;
+	x_u32 resp[4];
+	x_u32 blk_bits = card->info->csd.write_blkbits;
+	x_u32 blk_len = 1 << blk_bits;
+	x_s32 count, remain = blk_len;
+	x_u8 * p = data;
+	x_u32 status;
+	x_bool ret;
+
+	/*
+	 * select the card, and put it into transfer mode
+	 */
+	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(card->info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
+
+	/*
+	 * always do full block writes to the card
+	 */
+	ret = mmc_send_cmd(MMC_SET_BLOCKLEN, blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
+
+	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
+	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
+	writel(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x0<<1) | (blk_bits<<4));
+/*
+	if(card->info->type == MMC_CARD_TYPE_SDHC)
+	{
+		ret = mmc_send_cmd(MMC_WRITE_SINGLE_BLOCK, sector, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+		if(!ret)
+			return FALSE;
+	}
+	else
+	{
+		ret = mmc_send_cmd(MMC_WRITE_SINGLE_BLOCK, sector * blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+		if(!ret)
+			return FALSE;
+	}
+
+	do {
+		count = 16* 4;
+		writesl((const void *)REALVIEW_MCI_FIFO, p, count >> 2);
+
+		p += count;
+		remain -= count;
+
+		if(remain <= 0)
+			break;
+
+		status = readl(REALVIEW_MCI_STATUS);
+		if((status & REALVIEW_MCI_STAT_DAT_TIME_OUT) || (status & REALVIEW_MCI_STAT_DAT_CRC_FAIL))
+		{
+			writel(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_DAT_TIMEOUT | REALVIEW_MCI_CLR_DAT_CRC_FAIL));
+
+			mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+			return FALSE;
+		}
+	} while(1);
+*/
+	/*
+	 * deselect the card, and put it into standby mode
+	 */
+	ret = mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	if(!ret)
+		return FALSE;
+
+	return TRUE;
 }
 
 static struct mmc_host realview_mmc_host_controller = {

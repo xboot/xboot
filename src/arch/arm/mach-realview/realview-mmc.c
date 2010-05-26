@@ -327,9 +327,10 @@ x_bool realview_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * dat
 	x_u32 resp[4];
 	x_u32 blk_bits = card->info->csd.read_blkbits;
 	x_u32 blk_len = 1 << blk_bits;
-	x_s32 count, remain = blk_len;
+	x_s32 i, count, remain = blk_len;
 	x_u8 * p = data;
 	x_u32 status;
+	x_u32 v;
 	x_bool ret;
 
 	/*
@@ -369,9 +370,15 @@ x_bool realview_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * dat
 		if(count <= 0)
 			break;
 
-		readsl((const void *)REALVIEW_MCI_FIFO, p, count >> 2);
+		for(i = 0; i < (count >> 2); i++)
+		{
+			v = readl(REALVIEW_MCI_FIFO);
+			*(p++) = (v >> 0) & 0xff;
+			*(p++) = (v >> 8) & 0xff;
+			*(p++) = (v >> 16) & 0xff;
+			*(p++) = (v >> 24) & 0xff;
+		}
 
-		p += count;
 		remain -= count;
 
 		if(remain <= 0)
@@ -403,7 +410,7 @@ x_bool realview_mmc_write_sector(struct mmc_card * card, x_u32 sector, x_u8 * da
 	x_u32 resp[4];
 	x_u32 blk_bits = card->info->csd.write_blkbits;
 	x_u32 blk_len = 1 << blk_bits;
-	x_s32 count, remain = blk_len;
+	x_s32 i, remain = blk_len;
 	x_u8 * p = data;
 	x_u32 status;
 	x_bool ret;
@@ -425,7 +432,7 @@ x_bool realview_mmc_write_sector(struct mmc_card * card, x_u32 sector, x_u8 * da
 	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
 	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
 	writel(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x0<<1) | (blk_bits<<4));
-/*
+
 	if(card->info->type == MMC_CARD_TYPE_SDHC)
 	{
 		ret = mmc_send_cmd(MMC_WRITE_SINGLE_BLOCK, sector, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
@@ -440,11 +447,12 @@ x_bool realview_mmc_write_sector(struct mmc_card * card, x_u32 sector, x_u8 * da
 	}
 
 	do {
-		count = 16* 4;
-		writesl((const void *)REALVIEW_MCI_FIFO, p, count >> 2);
+		for(i=0; i<64; i++)
+		{
+			writeb(REALVIEW_MCI_FIFO, *(p++));
+		}
 
-		p += count;
-		remain -= count;
+		remain -= 64;
 
 		if(remain <= 0)
 			break;
@@ -458,7 +466,7 @@ x_bool realview_mmc_write_sector(struct mmc_card * card, x_u32 sector, x_u8 * da
 			return FALSE;
 		}
 	} while(1);
-*/
+
 	/*
 	 * deselect the card, and put it into standby mode
 	 */

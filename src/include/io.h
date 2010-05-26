@@ -52,7 +52,6 @@ static inline void __writel(x_sys addr, x_u32 value)
 	*((volatile x_u32 *)(addr)) = value;
 }
 
-
 #define readb(a)		__readb(a)
 #define readw(a)		__readw(a)
 #define readl(a)		__readl(a)
@@ -61,12 +60,5 @@ static inline void __writel(x_sys addr, x_u32 value)
 #define writew(a, v)	__writew(a, v)
 #define writel(a, v)	__writel(a, v)
 
-void readsb(const void * io, void * dst, x_s32 count);
-void readsw(const void * io, void * dst, x_s32 count);
-void readsl(const void * io, void * dst, x_s32 count);
-
-void writesb(void * io, const void * src, x_s32 count);
-void writesw(void * io, const void * src, x_s32 count);
-void writesl(void * io, const void * src, x_s32 count);
 
 #endif /* __IO_H__ */

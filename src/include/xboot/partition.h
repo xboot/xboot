@@ -9,6 +9,11 @@
 #include <xboot/disk.h>
 
 /*
+ * forward declare
+ */
+struct disk;
+
+/*
  * the struct of partition
  */
 struct partition
@@ -41,5 +46,6 @@ struct partition_parser_list
 
 x_bool register_partition_parser(struct partition_parser * parser);
 x_bool unregister_partition_parser(struct partition_parser * parser);
+x_bool partition_parser_probe(struct disk * disk);
 
 #endif /* __PARTITION_H__ */

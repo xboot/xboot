@@ -81,6 +81,13 @@ x_bool register_disk(struct disk * disk)
 		return FALSE;
 	}
 
+	if(!partition_parser_probe(disk))
+	{
+		LOG_E("fail to probe partition of '%s'", disk->name);
+		free(list);
+		return FALSE;
+	}
+
 	list->disk = disk;
 	list_add(&list->entry, &disk_list->entry);
 

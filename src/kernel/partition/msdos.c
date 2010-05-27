@@ -34,7 +34,25 @@
 
 static x_bool parser_probe_msdos(struct disk * disk)
 {
-	return FALSE;
+	x_u8 * buf;
+
+	if(!disk || !disk->name)
+		return FALSE;
+
+	if((disk->sector_size <= 0) || (disk->sector_count <=0))
+		return FALSE;
+
+	if((!disk->read_sector) || (!disk->write_sector))
+		return FALSE;
+
+	buf = malloc(disk->sector_size);
+	if(!buf)
+		return FALSE;
+
+	//TODO
+
+	free(buf);
+	return TRUE;
 }
 
 /*

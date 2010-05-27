@@ -32,6 +32,8 @@
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
+#include <xboot/disk.h>
+#include <xboot/partition.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
 
@@ -280,9 +282,24 @@ static x_bool mmc_card_decode(struct mmc_card * card)
 	return TRUE;
 }
 
+static x_bool mmc_read_sector(struct disk * disk, x_u32 sector, x_u8 * data)
+{
+	struct mmc_card * card = (struct mmc_card *)(disk->priv);
+
+	return card->host->read_sector(card, sector, data);
+}
+
+static x_bool mmc_write_sector(struct disk * disk, x_u32 sector, x_u8 * data)
+{
+	struct mmc_card * card = (struct mmc_card *)(disk->priv);
+
+	return card->host->write_sector(card, sector, data);
+}
+
 static x_bool register_mmc_card(struct mmc_card * card)
 {
 	struct mmc_card_list * list;
+	struct disk * disk;
 
 	list = malloc(sizeof(struct mmc_card_list));
 	if(!list || !card)
@@ -294,6 +311,28 @@ static x_bool register_mmc_card(struct mmc_card * card)
 	if(!card->name || search_mmc_card(card->name))
 	{
 		free(list);
+		return FALSE;
+	}
+
+	disk = malloc(sizeof(struct disk));
+	if(!disk)
+	{
+		free(list);
+		return FALSE;
+	}
+
+	disk->name = card->name;
+	disk->sector_size = card->info->sector_size;
+	disk->sector_count = card->info->sector_count;
+	disk->read_sector = mmc_read_sector;
+	disk->write_sector = mmc_write_sector;
+	disk->priv = (void *)card;
+	card->priv = (void *)disk;
+
+	if(!register_disk(disk))
+	{
+		free(list);
+		free(disk);
 		return FALSE;
 	}
 
@@ -421,6 +460,7 @@ void mmc_card_remove(void)
 {
 	struct mmc_card_list * list;
 	struct list_head * head, * curr, * next;
+	struct disk * disk;
 
 	head = &mmc_card_list->entry;
 	curr = head->next;
@@ -432,6 +472,10 @@ void mmc_card_remove(void)
 		next = curr->next;
 		list_del(curr);
 		curr = next;
+
+		disk = (struct disk *)(list->card->priv);
+		unregister_disk(disk);
+		free(disk);
 
 		free(list->card->info);
 		free(list->card);

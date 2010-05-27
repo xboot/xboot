@@ -112,3 +112,33 @@ x_bool unregister_partition_parser(struct partition_parser * parser)
 
 	return FALSE;
 }
+
+/*
+ * probe partition with parser which can be used
+ */
+x_bool partition_parser_probe(struct disk * disk)
+{
+	struct partition_parser_list * list;
+	struct list_head * pos;
+
+	if(!disk || !disk->name)
+		return FALSE;
+
+	init_list_head(&(disk->info.entry));
+	disk->parser = NULL;
+
+	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct partition_parser_list, entry);
+		if(list->parser->probe)
+		{
+			if((list->parser->probe(disk)) == TRUE)
+			{
+				disk->parser = list->parser;
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}

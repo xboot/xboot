@@ -68,6 +68,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				lib/libc \
 				kernel \
 				kernel/core \
+				kernel/partition \
 				kernel/shell \
 				kernel/command \
 				kernel/time \

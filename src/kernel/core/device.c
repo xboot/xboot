@@ -81,7 +81,7 @@ x_bool register_device(struct device * dev)
 		return FALSE;
 	}
 
-	if((dev->type != CHAR_DEVICE) && (dev->type != BLOCK_DEVICE))
+	if((dev->type != CHAR_DEVICE) && (dev->type != BLOCK_DEVICE) && (dev->type != NET_DEVICE))
 	{
 		free(list);
 		return FALSE;

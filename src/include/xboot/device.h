@@ -13,6 +13,7 @@
 enum device_type {
 	CHAR_DEVICE,
 	BLOCK_DEVICE,
+	NET_DEVICE,
 };
 
 /*

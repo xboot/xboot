@@ -31,3 +31,139 @@
 #include <xboot/proc.h>
 #include <xboot/disk.h>
 
+/* the list of disk */
+static struct disk_list __disk_list = {
+	.entry = {
+		.next	= &(__disk_list.entry),
+		.prev	= &(__disk_list.entry),
+	},
+};
+struct disk_list * disk_list = &__disk_list;
+
+/*
+ * search disk by name
+ */
+struct disk * search_disk(const char * name)
+{
+	struct disk_list * list;
+	struct list_head * pos;
+
+	if(!name)
+		return NULL;
+
+	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct disk_list, entry);
+		if(strcmp((x_s8*)list->disk->name, (const x_s8 *)name) == 0)
+			return list->disk;
+	}
+
+	return NULL;
+}
+
+/*
+ * register a disk into disk_list
+ */
+x_bool register_disk(struct disk * disk)
+{
+	struct disk_list * list;
+
+	list = malloc(sizeof(struct disk_list));
+	if(!list || !disk)
+	{
+		free(list);
+		return FALSE;
+	}
+
+	if(!disk->name || search_disk(disk->name))
+	{
+		free(list);
+		return FALSE;
+	}
+
+	list->disk = disk;
+	list_add(&list->entry, &disk_list->entry);
+
+	return TRUE;
+}
+
+/*
+ * unregister disk from disk_list
+ */
+x_bool unregister_disk(struct disk * disk)
+{
+	struct disk_list * list;
+	struct list_head * pos;
+
+	if(!disk || !disk->name)
+		return FALSE;
+
+	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct disk_list, entry);
+		if(list->disk == disk)
+		{
+			list_del(pos);
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+/*
+ * disk proc interface
+ */
+static x_s32 disk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+{
+	struct disk_list * list;
+	struct list_head * pos;
+	x_s8 * p;
+	x_s32 len = 0;
+
+	if((p = malloc(SZ_4K)) == NULL)
+		return 0;
+
+	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct disk_list, entry);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"%s:\r\n", list->disk->name);
+	}
+
+	len -= offset;
+
+	if(len < 0)
+		len = 0;
+
+	if(len > count)
+		len = count;
+
+	memcpy(buf, (x_u8 *)(p + offset), len);
+	free(p);
+
+	return len;
+}
+
+static struct proc disk_proc = {
+	.name	= "disk",
+	.read	= disk_proc_read,
+};
+
+/*
+ * disk pure sync init
+ */
+static __init void disk_pure_sync_init(void)
+{
+	/* register disk proc interface */
+	proc_register(&disk_proc);
+}
+
+static __exit void disk_pure_sync_exit(void)
+{
+	/* unregister disk proc interface */
+	proc_unregister(&disk_proc);
+}
+
+module_init(disk_pure_sync_init, LEVEL_PURE_SYNC);
+module_exit(disk_pure_sync_exit, LEVEL_PURE_SYNC);

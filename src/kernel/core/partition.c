@@ -29,5 +29,86 @@
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
+#include <xboot/disk.h>
 #include <xboot/partition.h>
 
+/* the list of partition parser */
+static struct partition_parser_list __partition_parser_list = {
+	.entry = {
+		.next	= &(__partition_parser_list.entry),
+		.prev	= &(__partition_parser_list.entry),
+	},
+};
+static struct partition_parser_list * partition_parser_list = &__partition_parser_list;
+
+/*
+ * search partition parser by name
+ */
+static struct partition_parser * search_partition_parser(const char * name)
+{
+	struct partition_parser_list * list;
+	struct list_head * pos;
+
+	if(!name)
+		return NULL;
+
+	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct partition_parser_list, entry);
+		if(strcmp((x_s8*)list->parser->name, (const x_s8 *)name) == 0)
+			return list->parser;
+	}
+
+	return NULL;
+}
+
+/*
+ * register a partition parser into partition_parser_list
+ */
+x_bool register_partition_parser(struct partition_parser * parser)
+{
+	struct partition_parser_list * list;
+
+	list = malloc(sizeof(struct partition_parser_list));
+	if(!list || !parser)
+	{
+		free(list);
+		return FALSE;
+	}
+
+	if(!parser->name || search_partition_parser(parser->name))
+	{
+		free(list);
+		return FALSE;
+	}
+
+	list->parser = parser;
+	list_add(&list->entry, &partition_parser_list->entry);
+
+	return TRUE;
+}
+
+/*
+ * unregister partition parser from partition_parser_list
+ */
+x_bool unregister_partition_parser(struct partition_parser * parser)
+{
+	struct partition_parser_list * list;
+	struct list_head * pos;
+
+	if(!parser || !parser->name)
+		return FALSE;
+
+	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct partition_parser_list, entry);
+		if(list->parser == parser)
+		{
+			list_del(pos);
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}

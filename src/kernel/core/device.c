@@ -146,6 +146,8 @@ static x_s32 device_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n CHR    %s", list->device->name);
 		else if(list->device->type == BLOCK_DEVICE)
 			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n BLK    %s", list->device->name);
+		else if(list->device->type == NET_DEVICE)
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n NET    %s", list->device->name);
 	}
 
 	len -= offset;

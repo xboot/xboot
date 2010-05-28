@@ -1,5 +1,5 @@
 /*
- * kernel/partition/msdos.c
+ * kernel/partition/dos.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -32,7 +32,7 @@
 #include <xboot/partition.h>
 
 
-static x_bool parser_probe_msdos(struct disk * disk)
+static x_bool parser_probe_dos(struct disk * disk)
 {
 	x_u8 * buf;
 
@@ -56,24 +56,24 @@ static x_bool parser_probe_msdos(struct disk * disk)
 }
 
 /*
- * msdos partition parser
+ * dos partition parser
  */
-static struct partition_parser msdos_partition_parser = {
-	.name		= "msdos",
-	.probe		= parser_probe_msdos,
+static struct partition_parser dos_partition_parser = {
+	.name		= "dos",
+	.probe		= parser_probe_dos,
 };
 
-static __init void partition_parser_msdos_init(void)
+static __init void partition_parser_dos_init(void)
 {
-	if(!register_partition_parser(&msdos_partition_parser))
-		LOG_E("register 'msdos' partition parser fail");
+	if(!register_partition_parser(&dos_partition_parser))
+		LOG_E("register 'dos' partition parser fail");
 }
 
-static __exit void partition_parser_msdos_exit(void)
+static __exit void partition_parser_dos_exit(void)
 {
-	if(!unregister_partition_parser(&msdos_partition_parser))
-		LOG_E("unregister 'msdos' partition parser fail");
+	if(!unregister_partition_parser(&dos_partition_parser))
+		LOG_E("unregister 'dos' partition parser fail");
 }
 
-module_init(partition_parser_msdos_init, LEVEL_POSTCORE);
-module_exit(partition_parser_msdos_exit, LEVEL_POSTCORE);
+module_init(partition_parser_dos_init, LEVEL_POSTCORE);
+module_exit(partition_parser_dos_exit, LEVEL_POSTCORE);

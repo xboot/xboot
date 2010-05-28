@@ -53,7 +53,7 @@ struct disk_list
 };
 
 
-struct disk * search_disk(const char * name);
+x_bool disk_read(struct disk * disk, x_u8 * buf, x_u32 offset, x_u32 size);
 x_bool register_disk(struct disk * disk);
 x_bool unregister_disk(struct disk * disk);
 

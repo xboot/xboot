@@ -47,61 +47,6 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-	struct mmc_card * card;
-	x_u8 buf[512];
-	x_s32 i;
-
-	if(argc > 1)
-	{
-		printk("write mmc\r\n");
-
-		for(i=0; i<512; i++)
-		{
-			buf[i] = i;
-		}
-
-		card = search_mmc_card("mmc0");
-		if(!card)
-		{
-			printk("not found mmc0\r\n");
-			return -1;
-		}
-
-		if(!card->host->write_sector(card, 32, buf))
-		{
-			printk("write fail\r\n");
-			return -1;
-		}
-		printk("write successed\r\n");
-	}
-	else
-	{
-		printk("read mmc\r\n");
-
-		memset(buf, 0, sizeof(buf));
-
-		card = search_mmc_card("mmc0");
-		if(!card)
-		{
-			printk("not found mmc0\r\n");
-			return -1;
-		}
-
-		if(!card->host->read_sector(card, 32, buf))
-		{
-			printk("read fail\r\n");
-			return -1;
-		}
-
-		for(i=0; i<256; i++)
-		{
-			if((i % 16) == 0)
-				printk("\r\n");
-			printk("%02x ",buf[i]);
-		}
-		printk("\r\n");
-	}
-
 	return 0;
 }
 

@@ -38,12 +38,12 @@ static struct disk_list __disk_list = {
 		.prev	= &(__disk_list.entry),
 	},
 };
-struct disk_list * disk_list = &__disk_list;
+static struct disk_list * disk_list = &__disk_list;
 
 /*
  * search disk by name
  */
-struct disk * search_disk(const char * name)
+static struct disk * search_disk(const char * name)
 {
 	struct disk_list * list;
 	struct list_head * pos;
@@ -117,6 +117,57 @@ x_bool unregister_disk(struct disk * disk)
 	}
 
 	return FALSE;
+}
+
+/*
+ * disk read function, just used by partition parser.
+ */
+x_bool disk_read(struct disk * disk, x_u8 * buf, x_u32 offset, x_u32 size)
+{
+	x_u8 * sector_buf;
+	x_u8 * p = buf;
+	x_u32 sector_size;
+	x_u32 sector, len = 0;
+	x_u32 o = 0, l = 0;
+
+	if(!disk)
+		return FALSE;
+
+	if( (buf == NULL) || (size <= 0) )
+		return FALSE;
+
+	sector_size = disk->sector_size;
+	if(sector_size <= 0)
+		return FALSE;
+
+	sector_buf = malloc(disk->sector_size);
+	if(!sector_buf)
+		return FALSE;
+
+	while(len < size)
+	{
+		sector = offset / sector_size;
+		o = offset % sector_size;
+		l = sector_size - o;
+
+		if(len + l > size)
+			l = size - len;
+
+		if(disk->read_sector(disk, sector, sector_buf) == FALSE)
+		{
+			free(sector_buf);
+			return FALSE;
+		}
+
+		memcpy((void *)p, (const void *)(&sector_buf[o]), l);
+
+		offset += l;
+		p += l;
+		len += l;
+	}
+
+	free(sector_buf);
+	return TRUE;
 }
 
 /*

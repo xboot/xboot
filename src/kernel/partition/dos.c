@@ -31,10 +31,75 @@
 #include <xboot/disk.h>
 #include <xboot/partition.h>
 
+/*
+ * the partition entry
+ */
+struct dos_partition_entry
+{
+	/* if active is 0x80, otherwise is 0x00 */
+	x_u8 flag;
+
+	/* the head of the start */
+	x_u8  start_head;
+
+	/* the sector of the start */
+	x_u8 start_sector;
+
+	/* the cylinder of the end */
+	x_u8 start_cylinder;
+
+	/* the partition type */
+	x_u8 type;
+
+	/* the head of the end */
+	x_u8  end_head;
+
+	/* the sector of the end */
+	x_u8 end_sector;
+
+	/* the cylinder of the end */
+	x_u8 end_cylinder;
+
+	/* the start sector*/
+	x_u8 start[4];
+
+	/* the length in sector units */
+	x_u8 length[4];
+
+} __attribute__ ((packed));
+
+/*
+ * the structure of mbr
+ */
+struct dos_partition_mbr
+{
+	/*
+	 * the code area (actually, including BPB)
+	 */
+	x_u8 code[446];
+
+	/*
+	 * four partition entries
+	 */
+	struct dos_partition_entry entry[4];
+
+	/*
+	 * the signature 0x55, 0xaa
+	 */
+	x_u8 signature[2];
+
+} __attribute__ ((packed));
+
+
+static x_bool dos_partition(struct disk * disk, x_u32 sector)
+{
+	return FALSE;
+}
 
 static x_bool parser_probe_dos(struct disk * disk)
 {
-	x_u8 * buf;
+	struct dos_partition_mbr * mbr;
+//	x_u8 buffer[512];
 
 	if(!disk || !disk->name)
 		return FALSE;
@@ -45,13 +110,50 @@ static x_bool parser_probe_dos(struct disk * disk)
 	if((!disk->read_sector) || (!disk->write_sector))
 		return FALSE;
 
-	buf = malloc(disk->sector_size);
-	if(!buf)
+	mbr = malloc(sizeof(struct dos_partition_mbr));
+	if(!mbr)
 		return FALSE;
 
-	//TODO
+	if(!disk_read(disk, (x_u8 *)mbr, 0, sizeof(struct dos_partition_mbr)))
+	{
+		free(mbr);
+		return FALSE;
+	}
 
-	free(buf);
+	/*
+	 * check dos partition's signature
+	 */
+	if((mbr->signature[0] != 0x55) || mbr->signature[1] != 0xaa)
+	{
+		free(mbr);
+		return FALSE;
+	}
+
+	LOG_E("flag = 0x%lx", mbr->entry[0].flag);
+	LOG_E("start_head = 0x%lx", mbr->entry[0].start_head);
+	LOG_E("start_sector = 0x%lx", mbr->entry[0].start_sector);
+	LOG_E("start_cylinder = 0x%lx", mbr->entry[0].start_cylinder);
+	LOG_E("type = 0x%lx", mbr->entry[0].type);
+	LOG_E("end_head = 0x%lx", mbr->entry[0].end_head);
+	LOG_E("end_sector = 0x%lx", mbr->entry[0].end_sector);
+	LOG_E("end_cylinder = 0x%lx", mbr->entry[0].end_cylinder);
+	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[0].start[0],mbr->entry[0].start[1],mbr->entry[0].start[2],mbr->entry[0].start[3]);
+	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[0].length[0],mbr->entry[0].length[1],mbr->entry[0].length[2],mbr->entry[0].length[3]);
+
+	LOG_E("----------------");
+
+	LOG_E("flag = 0x%lx", mbr->entry[1].flag);
+	LOG_E("start_head = 0x%lx", mbr->entry[1].start_head);
+	LOG_E("start_sector = 0x%lx", mbr->entry[1].start_sector);
+	LOG_E("start_cylinder = 0x%lx", mbr->entry[1].start_cylinder);
+	LOG_E("type = 0x%lx", mbr->entry[1].type);
+	LOG_E("end_head = 0x%lx", mbr->entry[1].end_head);
+	LOG_E("end_sector = 0x%lx", mbr->entry[1].end_sector);
+	LOG_E("end_cylinder = 0x%lx", mbr->entry[1].end_cylinder);
+	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[1].start[0],mbr->entry[1].start[1],mbr->entry[1].start[2],mbr->entry[1].start[3]);
+	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[1].length[0],mbr->entry[1].length[1],mbr->entry[1].length[2],mbr->entry[1].length[3]);
+
+	free(mbr);
 	return TRUE;
 }
 

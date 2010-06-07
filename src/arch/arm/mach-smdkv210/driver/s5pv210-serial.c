@@ -238,7 +238,7 @@ static x_s32 s5pv210_ioctl(x_u32 ch, x_u32 cmd, void * arg)
 		return -1;
 	}
 
-	if(clk_get_rate("pclk", &pclk))
+	if(clk_get_rate("psys-pclk", &pclk))
 	{
 		baud_div_reg = (x_u32)(div64(pclk, (baud * 16)) ) - 1;
 		baud_divslot_reg = udivslot_code[( (x_u32)div64(mod64(pclk, (baud*16)), baud) ) & 0xf];
@@ -280,7 +280,6 @@ static x_s32 s5pv210_ioctl(x_u32 ch, x_u32 cmd, void * arg)
 /* uart 0 */
 static void s5pv210_uart0_init(void)
 {
-#if 0
 	/* configure GPA01, GPA00 for TXD0, RXD0 */
 	writel(S5PV210_GPA0CON, (readl(S5PV210_GPA0CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
 
@@ -288,7 +287,7 @@ static void s5pv210_uart0_init(void)
 	writel(S5PV210_GPA0PUD, (readl(S5PV210_GPA0PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
 
 	/* configure clk source (pclk), mode, etc */
-	writel(S5PV210_UCON0, 0x00000205);
+	writel(S5PV210_UCON0, 0x00000005);
 	writel(S5PV210_UFCON0, 0x00000000);
 	writel(S5PV210_UMON0, 0x00000000);
 
@@ -297,7 +296,6 @@ static void s5pv210_uart0_init(void)
 	s5pv210_ioctl( 0, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[0].data_bit)) );
 	s5pv210_ioctl( 0, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[0].parity)) );
 	s5pv210_ioctl( 0, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[0].stop_bit)) );
-#endif
 }
 
 static void s5pv210_uart0_exit(void)
@@ -342,7 +340,6 @@ static x_s32 s5pv210_uart0_ioctl(x_u32 cmd, void * arg)
 /* uart 1 */
 static void s5pv210_uart1_init(void)
 {
-#if 0
 	/* configure GPA05, GPA04 for TXD1, RXD1 */
 	writel(S5PV210_GPA0CON, (readl(S5PV210_GPA0CON) & ~(0xf<<16 | 0x0f<<20)) | (0x2<<16 | 0x2<<20));
 
@@ -350,7 +347,7 @@ static void s5pv210_uart1_init(void)
 	writel(S5PV210_GPA0PUD, (readl(S5PV210_GPA0PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
 
 	/* configure clk source (pclk), mode, etc */
-	writel(S5PV210_UCON1, 0x00000205);
+	writel(S5PV210_UCON1, 0x00000005);
 	writel(S5PV210_UFCON1, 0x00000000);
 	writel(S5PV210_UMON1, 0x00000000);
 
@@ -359,7 +356,6 @@ static void s5pv210_uart1_init(void)
 	s5pv210_ioctl( 1, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[1].data_bit)) );
 	s5pv210_ioctl( 1, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[1].parity)) );
 	s5pv210_ioctl( 1, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[1].stop_bit)) );
-#endif
 }
 
 static void s5pv210_uart1_exit(void)
@@ -404,7 +400,6 @@ static x_s32 s5pv210_uart1_ioctl(x_u32 cmd, void * arg)
 /* uart 2 */
 static void s5pv210_uart2_init(void)
 {
-#if 0
 	/* configure GPA11, GPA10 for TXD2, RXD2 */
 	writel(S5PV210_GPA1CON, (readl(S5PV210_GPA1CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
 
@@ -412,7 +407,7 @@ static void s5pv210_uart2_init(void)
 	writel(S5PV210_GPA1PUD, (readl(S5PV210_GPA1PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
 
 	/* configure clk source (pclk), etc */
-	writel(S5PV210_UCON2, 0x00000205);
+	writel(S5PV210_UCON2, 0x00000005);
 	writel(S5PV210_UFCON2, 0x00000000);
 
 	/* configure uart parameter */
@@ -420,7 +415,6 @@ static void s5pv210_uart2_init(void)
 	s5pv210_ioctl( 2, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[2].data_bit)) );
 	s5pv210_ioctl( 2, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[2].parity)) );
 	s5pv210_ioctl( 2, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[2].stop_bit)) );
-#endif
 }
 
 static void s5pv210_uart2_exit(void)
@@ -465,7 +459,6 @@ static x_s32 s5pv210_uart2_ioctl(x_u32 cmd, void * arg)
 /* uart 3 */
 static void s5pv210_uart3_init(void)
 {
-#if 0
 	/* configure GPA13, GPA12 for TXD3, RXD3 */
 	writel(S5PV210_GPA1CON, (readl(S5PV210_GPA1CON) & ~(0xf<<8 | 0x0f<<12)) | (0x2<<8 | 0x2<<12));
 
@@ -473,7 +466,7 @@ static void s5pv210_uart3_init(void)
 	writel(S5PV210_GPA1PUD, (readl(S5PV210_GPA1PUD) & ~(0x3<<4 | 0x03<<6)) | (0x2<<4 | 0x2<<6));
 
 	/* configure clk source (pclk), etc */
-	writel(S5PV210_UCON3, 0x00000205);
+	writel(S5PV210_UCON3, 0x00000005);
 	writel(S5PV210_UFCON3, 0x00000000);
 
 	/* configure uart parameter */
@@ -481,7 +474,6 @@ static void s5pv210_uart3_init(void)
 	s5pv210_ioctl( 3, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[3].data_bit)) );
 	s5pv210_ioctl( 3, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[3].parity)) );
 	s5pv210_ioctl( 3, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[3].stop_bit)) );
-#endif
 }
 
 static void s5pv210_uart3_exit(void)
@@ -562,13 +554,13 @@ static __init void s5pv210_serial_dev_init(void)
 {
 	struct serial_parameter * param;
 	x_u32 i;
-/*
-	if(!clk_get_rate("pclk", 0))
+
+	if(!clk_get_rate("psys-pclk", 0))
 	{
-		LOG_E("can't get the clock of \'pclk\'");
+		LOG_E("can't get the clock of \'psys-pclk\'");
 		return;
 	}
-*/
+
 	/* register serial driver */
 	for(i = 0; i < ARRAY_SIZE(s5pv210_uart_driver); i++)
 	{

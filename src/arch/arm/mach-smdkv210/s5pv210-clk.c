@@ -38,49 +38,52 @@ enum S5PV210_PLL {
 	S5PV210_APLL,
 	S5PV210_MPLL,
 	S5PV210_EPLL,
-	S5PV210_HPLL
+	S5PV210_VPLL
 };
 
 /*
  * the array of clocks, which will to be setup.
  */
-static struct clk s5pv210_clocks[5];
+static struct clk s5pv210_clocks[8];
 
-#if 0
 /*
  * get pll frequency.
  */
 static x_u64 s5pv210_get_pll(x_u64 baseclk, enum S5PV210_PLL pll)
 {
-	x_u32 r, m, p, s, mask;
+	x_u32 r, m, p, s;
 	x_u64 fvco;
 
 	switch(pll)
 	{
 	case S5PV210_APLL:
-		r = readl(S5PV210_APLL_CON);
+		r = readl(S5PV210_APLL_CON0);
+		m = (r >> 16) & 0x3ff;
+		p = (r >> 8) & 0x3f;
+		s = r & 0x7;
+		s = s - 1;
 		break;
 	case S5PV210_MPLL:
 		r = readl(S5PV210_MPLL_CON);
+		m = (r >> 16) & 0x3ff;
+		p = (r >> 8) & 0x3f;
+		s = r & 0x7;
 		break;
 	case S5PV210_EPLL:
-		r = readl(S5PV210_EPLL_CON);
+		r = readl(S5PV210_EPLL_CON0);
+		m = (r >> 16) & 0x1ff;
+		p = (r >> 8) & 0x3f;
+		s = r & 0x7;
 		break;
-	case S5PV210_HPLL:
-		r = readl(S5PV210_HPLL_CON);
+	case S5PV210_VPLL:
+		r = readl(S5PV210_VPLL_CON);
+		m = (r >> 16) & 0x1ff;
+		p = (r >> 8) & 0x3f;
+		s = r & 0x7;
 		break;
 	default:
 		return 0;
 	}
-
-	if(pll == S5PV210_APLL)
-		mask = 0x3ff;
-	else
-		mask = 0x1ff;
-
-	m = (r >> 16) & mask;
-	p = (r >> 8) & 0x3f;
-	s = r & 0x7;
 
 	fvco = m * div64(baseclk, p * (1 << s));
 	return (x_u64)fvco;
@@ -91,16 +94,21 @@ static x_u64 s5pv210_get_pll(x_u64 baseclk, enum S5PV210_PLL pll)
  */
 static void s5pv210_setup_clocks(x_u64 xtal)
 {
-	x_u64 fin, apll, mpll, epll, hpll;
-	x_u64 dout_d1bus, dout_mpll2, dout_mpll;
+	x_u64 fin, apll, mpll, epll, vpll, a2m;
+	x_u64 hpm, msys, dsys, psys;
+	x_u64 armclk, dsys_hclk, psys_hclk;
 	x_u64 tmp;
 	x_u32 clkdiv0, clkdiv1;
-	x_u32 clksrc0;
+	x_u32 clksrc0, clksrc1;
+	x_u32 muxstat0, muxstat1;
 
-	/* get value of clkdiv and clksrc register */
+	/* get value of special register */
 	clkdiv0 = readl(S5PV210_CLK_DIV0);
 	clkdiv1 = readl(S5PV210_CLK_DIV1);
 	clksrc0 = readl(S5PV210_CLK_SRC0);
+	clksrc1 = readl(S5PV210_CLK_SRC1);
+	muxstat0 = readl(S5PV210_MUX_STAT0);
+	muxstat1 = readl(S5PV210_MUX_STAT1);
 
 	/* use xtal as pll input clock, om[0]=0 */
 	fin = xtal;
@@ -110,69 +118,97 @@ static void s5pv210_setup_clocks(x_u64 xtal)
 	s5pv210_clocks[0].rate = xtal;
 
 	/* get apll clock */
-	if(clksrc0 & (1<<0))
+	if( ((muxstat0 >> 0) & 0x7) == 0x2 )
 		apll = s5pv210_get_pll(fin, S5PV210_APLL);
 	else
 		apll = fin;
 
 	/* get mpll clock */
-	if(clksrc0 & (1<<4))
+	if( ((muxstat0 >> 4) & 0x7) == 0x2 )
 		mpll = s5pv210_get_pll(fin, S5PV210_MPLL);
 	else
 		mpll = fin;
 
 	/* get epll clock */
-	if(clksrc0 & (1<<8))
+	if( ((muxstat0 >> 8) & 0x7) == 0x2 )
 		epll = s5pv210_get_pll(fin, S5PV210_EPLL);
 	else
 		epll = fin;
 
-	/* get hpll clock */
-	if(clksrc0 & (1<<20))
-	{
-		if(clksrc0 & (1<<12))
-			hpll = s5pv210_get_pll(fin, S5PV210_HPLL);
-		else
-			hpll = fin;
-	}
+	/* get vpll clock */
+	if(clksrc1 & (1<<28))
+		tmp = 27 * 1000 * 1000;
 	else
-	{
-		if(clksrc0 & (1<<12))
-			hpll = s5pv210_get_pll(27*1000*1000, S5PV210_HPLL);
-		else
-			hpll = 27*1000*1000;
-	}
+		tmp = fin;
+	if( ((muxstat0 >> 12) & 0x7) == 0x2 )
+		vpll = s5pv210_get_pll(tmp, S5PV210_VPLL);
+	else
+		vpll = tmp;
 
-	/* get armclk clock */
-	tmp = div64(apll, ((((clkdiv0) & S5PV210_CLKDIV0_APLL_MASK) >> S5PV210_CLKDIV0_APLL_SHIFT) + 1));
-	tmp = div64(tmp, ((((clkdiv0) & S5PV210_CLKDIV0_ARM_MASK) >> S5PV210_CLKDIV0_ARM_SHIFT) + 1));
+	/* get a2m clock */
+	a2m = div64(apll, ((((clkdiv0) & S5PV210_CLKDIV0_A2M_MASK) >> S5PV210_CLKDIV0_A2M_SHIFT) + 1));
+
+	/* get hpm clock */
+	if( ((muxstat1 >> 16) & 0x7) == 0x2 )
+		hpm = mpll;
+	else
+		hpm = apll;
+
+	/* get msys clock */
+	if( ((muxstat0 >> 16) & 0x7) == 0x2 )
+		msys = mpll;
+	else
+		msys = apll;
+
+	/* get dsys clock */
+	if( ((muxstat0 >> 20) & 0x7) == 0x2 )
+		dsys = a2m;
+	else
+		dsys = mpll;
+
+	/* get psys clock */
+	if( ((muxstat0 >> 24) & 0x7) == 0x2 )
+		psys = a2m;
+	else
+		psys = mpll;
+
+	/* get arm core clock */
+	armclk = div64(msys, ((((clkdiv0) & S5PV210_CLKDIV0_APLL_MASK) >> S5PV210_CLKDIV0_APLL_SHIFT) + 1));
+
+	/* get dsys hclk */
+	dsys_hclk = div64(dsys, ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_DSYS_MASK) >> S5PV210_CLKDIV0_HCLK_DSYS_SHIFT) + 1));
+
+	/* get psys hclk */
+	psys_hclk = div64(psys, ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_PSYS_MASK) >> S5PV210_CLKDIV0_HCLK_PSYS_SHIFT) + 1));
 
 	/* armclk */
 	s5pv210_clocks[1].name = "armclk";
-	s5pv210_clocks[1].rate = tmp;
+	s5pv210_clocks[1].rate = armclk;
 
-	/* get dout_d1bus, dout_mpll2 and dout_mpll's clock */
-	if(clksrc0 & (1<<16))
-		tmp = div64(apll, ((((clkdiv1) & S5PV210_CLKDIV1_APLL2_MASK) >> S5PV210_CLKDIV1_APLL2_SHIFT) + 1));
-	else
-		tmp = mpll;
-	dout_d1bus = div64(tmp, ((((clkdiv1) & S5PV210_CLKDIV1_D1BUS_MASK) >> S5PV210_CLKDIV1_D1BUS_SHIFT) + 1));
-	dout_mpll2 = div64(tmp, ((((clkdiv1) & S5PV210_CLKDIV1_MPLL2_MASK) >> S5PV210_CLKDIV1_MPLL2_SHIFT) + 1));
-	dout_mpll = div64(tmp, ((((clkdiv1) & S5PV210_CLKDIV1_MPLL_MASK) >> S5PV210_CLKDIV1_MPLL_SHIFT) + 1));
+	/* msys hclk */
+	s5pv210_clocks[2].name = "msys-hclk";
+	s5pv210_clocks[2].rate = div64(armclk, ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_MSYS_MASK) >> S5PV210_CLKDIV0_HCLK_MSYS_SHIFT) + 1));
 
-	/* fclk */
-	s5pv210_clocks[2].name = "fclk";
-	s5pv210_clocks[2].rate = apll;
+	/* msys pclk */
+	s5pv210_clocks[3].name = "msys-pclk";
+	s5pv210_clocks[3].rate = div64(s5pv210_clocks[2].rate, ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_MSYS_MASK) >> S5PV210_CLKDIV0_PCLK_MSYS_SHIFT) + 1));
 
-	/* hclk */
-	s5pv210_clocks[3].name = "hclk";
-	s5pv210_clocks[3].rate = dout_d1bus;
+	/* dsys hclk */
+	s5pv210_clocks[4].name = "dsys-hclk";
+	s5pv210_clocks[4].rate = dsys_hclk;
 
-	/* pclk */
-	s5pv210_clocks[4].name = "pclk";
-	s5pv210_clocks[4].rate = div64(dout_d1bus, ((((clkdiv1) & S5PV210_CLKDIV1_PCLKD1_MASK) >> S5PV210_CLKDIV1_PCLKD1_SHIFT) + 1));
+	/* dsys pclk */
+	s5pv210_clocks[5].name = "dsys-pclk";
+	s5pv210_clocks[5].rate = div64(dsys_hclk, ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_DSYS_MASK) >> S5PV210_CLKDIV0_PCLK_DSYS_SHIFT) + 1));
+
+	/* psys hclk */
+	s5pv210_clocks[6].name = "psys-hclk";
+	s5pv210_clocks[6].rate = psys_hclk;
+
+	/* psys pclk */
+	s5pv210_clocks[7].name = "psys-pclk";
+	s5pv210_clocks[7].rate = div64(psys_hclk, ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_PSYS_MASK) >> S5PV210_CLKDIV0_PCLK_PSYS_SHIFT) + 1));
 }
-#endif
 
 static __init void s5pv210_clk_init(void)
 {
@@ -183,10 +219,10 @@ static __init void s5pv210_clk_init(void)
 	if(get_machine() != 0)
 		xtal = (get_machine())->res.xtal;
 	if(xtal == 0)
-		xtal = 24*1000*1000;
+		xtal = 24 * 1000 * 1000;
 
 	/* setup clock arrays */
-//	s5pv210_setup_clocks(xtal);
+	s5pv210_setup_clocks(xtal);
 
 	/* register clocks to system */
 	for(i=0; i< ARRAY_SIZE(s5pv210_clocks); i++)

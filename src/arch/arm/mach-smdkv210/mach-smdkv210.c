@@ -110,7 +110,7 @@ x_bool mach_menumode(void)
  */
 static struct stdin default_stdin[] = {
 	{
-		.name		= "tty-uart2"
+		.name		= "tty-uart1"
 	}, {
 		.name		= "tty-keypad"
 	}, {
@@ -123,7 +123,7 @@ static struct stdin default_stdin[] = {
  */
 static struct stdout default_stdout[] = {
 	{
-		.name		= "tty-uart2"
+		.name		= "tty-uart1"
 	}, {
 		.name		= "tty-fb"
 	}, {

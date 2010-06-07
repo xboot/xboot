@@ -157,7 +157,7 @@ static x_s32 clk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	{
 		hlist_for_each_entry(list,  pos, &(clk_hash[i]), node)
 		{
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s: %ld.%06ldMHZ", list->clk->name, (x_u32)div64(list->clk->rate, 1000*1000), (x_u32)mod64(list->clk->rate, 1000*1000));
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s: %Ld.%06LdMHZ", list->clk->name, (x_u64)div64(list->clk->rate, 1000*1000), (x_u64)mod64(list->clk->rate, 1000*1000));
 		}
 	}
 

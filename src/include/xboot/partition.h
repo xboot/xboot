@@ -18,8 +18,22 @@ struct disk;
  */
 struct partition
 {
-	x_s32 from;
-	x_s32 size;
+	/* partition name */
+	char name[32+1];
+
+	/* the sector of the start */
+	x_s32 sector_from;
+
+	/* the sector of the end */
+	x_s32 sector_to;
+
+	/* the sector size */
+	x_s32 sector_size;
+
+	/* link to this partition's block device */
+	struct blkdev * dev;
+
+	/* link other partition */
 	struct list_head entry;
 };
 

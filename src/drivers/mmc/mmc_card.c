@@ -32,6 +32,7 @@
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
+#include <xboot/blkdev.h>
 #include <xboot/disk.h>
 #include <xboot/partition.h>
 #include <mmc/mmc_host.h>
@@ -329,7 +330,7 @@ static x_bool register_mmc_card(struct mmc_card * card)
 	disk->priv = (void *)card;
 	card->priv = (void *)disk;
 
-	if(!register_disk(disk))
+	if(!register_disk(disk, BLK_DEV_MMC))
 	{
 		free(list);
 		free(disk);

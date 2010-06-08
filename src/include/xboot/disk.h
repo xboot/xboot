@@ -6,6 +6,7 @@
 #include <types.h>
 #include <string.h>
 #include <xboot/list.h>
+#include <xboot/blkdev.h>
 #include <xboot/partition.h>
 
 /*
@@ -49,7 +50,7 @@ struct disk_list
 	struct list_head entry;
 };
 
-x_bool register_disk(struct disk * disk);
+x_bool register_disk(struct disk * disk, enum blkdev_type type);
 x_bool unregister_disk(struct disk * disk);
 
 #endif /* __DISK_H__ */

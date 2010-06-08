@@ -120,12 +120,36 @@ x_bool partition_parser_probe(struct disk * disk)
 {
 	struct partition_parser_list * list;
 	struct list_head * pos;
+	struct partition * part;
 
 	if(!disk || !disk->name)
 		return FALSE;
 
+	if((disk->sector_size <= 0) || (disk->sector_count <=0))
+		return FALSE;
+
+	if((!disk->read_sector) || (!disk->write_sector))
+		return FALSE;
+
+	/*
+	 * add partition information for all space of disk
+	 */
 	init_list_head(&(disk->info.entry));
 
+	part = malloc(sizeof(struct partition));
+	if(!part)
+		return FALSE;
+
+	strlcpy((x_s8 *)part->name, (const x_s8 *)"None", sizeof(part->name));
+	part->sector_from = 0;
+	part->sector_to = disk->sector_count - 1;
+	part->sector_size = disk->sector_size;
+	part->dev = NULL;
+	list_add_tail(&part->entry, &(disk->info.entry));
+
+	/*
+	 * parser partition information
+	 */
 	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct partition_parser_list, entry);
@@ -138,5 +162,5 @@ x_bool partition_parser_probe(struct disk * disk)
 		}
 	}
 
-	return FALSE;
+	return TRUE;
 }

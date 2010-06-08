@@ -26,6 +26,9 @@
 #include <malloc.h>
 #include <vsprintf.h>
 #include <xboot/printk.h>
+#include <xboot/device.h>
+#include <xboot/blkdev.h>
+#include <xboot/ioctl.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
@@ -39,6 +42,85 @@ static struct disk_list __disk_list = {
 	},
 };
 static struct disk_list * disk_list = &__disk_list;
+
+/*
+ * the struct of disk_block
+ */
+struct disk_block
+{
+	/* block device name */
+	char name[32+1];
+
+	/* block information */
+	struct blkinfo info;
+
+	/* partition information */
+	struct partition * part;
+
+	/* the offset of sector for this partition */
+	x_u32 offset;
+
+	/* busy or not */
+	x_bool busy;
+
+	/* point to the disk */
+	struct disk * disk;
+};
+
+static x_s32 disk_block_open(struct blkdev * dev)
+{
+	struct disk_block * dblk = (struct disk_block *)(dev->driver);
+
+	if(dblk->busy == TRUE)
+		return -1;
+
+	dblk->busy = TRUE;
+
+	return 0;
+}
+
+static x_s32 disk_block_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno)
+{
+	struct disk_block * dblk = (struct disk_block *)(dev->driver);
+	struct disk * disk = dblk->disk;
+	x_u32 offset = dblk->offset;
+
+	if(blkno < 0)
+		return 0;
+
+	if(disk->read_sector(dblk->disk, blkno + offset, buf) == FALSE)
+		return 0;
+
+	return disk->sector_size;
+}
+
+static x_s32 disk_block_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
+{
+	struct disk_block * dblk = (struct disk_block *)(dev->driver);
+	struct disk * disk = dblk->disk;
+	x_u32 offset = dblk->offset;
+
+	if(blkno < 0)
+		return 0;
+
+	if(disk->write_sector(dblk->disk, blkno + offset, (x_u8 *)buf) == FALSE)
+		return 0;
+
+	return disk->sector_size;
+}
+
+static x_s32 disk_block_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
+{
+	return -1;
+}
+
+static x_s32 disk_block_close(struct blkdev * dev)
+{
+	struct disk_block * dblk = (struct disk_block *)(dev->driver);
+
+	dblk->busy = FALSE;
+	return 0;
+}
 
 /*
  * search disk by name
@@ -64,42 +146,104 @@ static struct disk * search_disk(const char * name)
 /*
  * register a disk into disk_list
  */
-x_bool register_disk(struct disk * disk)
+x_bool register_disk(struct disk * disk, enum blkdev_type type)
 {
 	struct disk_list * list;
 	struct partition * part;
+	struct blkdev * dev;
+	struct disk_block * dblk;
+	struct blkinfo * info;
+	struct list_head * part_pos;
+	x_s32 i;
 
-	list = malloc(sizeof(struct disk_list));
-	if(!list || !disk)
-	{
-		free(list);
+	if(!disk || !disk->name || search_disk(disk->name))
 		return FALSE;
-	}
 
-	if(!disk->name || search_disk(disk->name))
-	{
-		free(list);
+	if((disk->sector_size <= 0) || (disk->sector_count <=0))
 		return FALSE;
-	}
+
+	if((!disk->read_sector) || (!disk->write_sector))
+		return FALSE;
 
 	if(!partition_parser_probe(disk))
-	{
-		init_list_head(&(disk->info.entry));
+		return FALSE;
 
-		part = malloc(sizeof(struct partition));
-		if(!part)
+	if(list_empty(&(disk->info.entry)))
+		return FALSE;
+
+	list = malloc(sizeof(struct disk_list));
+	if(!list)
+		return FALSE;
+
+	/*
+	 * add disk to disk_list
+	 */
+	list->disk = disk;
+	list_add(&list->entry, &disk_list->entry);
+
+	/*
+	 * register block device using partition information
+	 */
+	for(i = 0, part_pos = (&(disk->info.entry))->next; part_pos != &(disk->info.entry); i++, part_pos = part_pos->next)
+	{
+		part = list_entry(part_pos, struct partition, entry);
+
+		dev = malloc(sizeof(struct blkdev));
+		dblk = malloc(sizeof(struct disk_block));
+		info = malloc(sizeof(struct blkinfo));
+		if(!dev || !dblk || !info)
 		{
-			free(list);
+			/*
+			 * please do not free 'list'.
+			 */
+			free(dev);
+			free(dblk);
+			free(info);
+			unregister_disk(disk);
+
 			return FALSE;
 		}
 
-		part->from = 0;
-		part->size = disk->sector_count;
-		list_add_tail(&part->entry, &(disk->info.entry));
-	}
+		if(i == 0)
+			snprintf((x_s8 *)dblk->name, sizeof(dblk->name), (const x_s8 *)"%s", disk->name);
+		else
+			snprintf((x_s8 *)dblk->name, sizeof(dblk->name), (const x_s8 *)"%sp%ld", disk->name, i);
 
-	list->disk = disk;
-	list_add(&list->entry, &disk_list->entry);
+		init_list_head(&(dblk->info.entry));
+		info->blkno = 0;
+		info->offset = 0;
+		info->size = part->sector_size;
+		info->number = part->sector_to - part->sector_from + 1;
+		list_add_tail(&info->entry, &(dblk->info.entry));
+		part->dev = dev;
+		dblk->part = part;
+		dblk->offset = part->sector_from;
+		dblk->busy = FALSE;
+		dblk->disk = disk;
+
+		dev->name	= dblk->name;
+		dev->type	= type;
+		dev->info	= &(dblk->info);
+		dev->open 	= disk_block_open;
+		dev->read 	= disk_block_read;
+		dev->write	= disk_block_write;
+		dev->ioctl 	= disk_block_ioctl;
+		dev->close	= disk_block_close;
+		dev->driver = dblk;
+
+		if(!register_blkdev(dev))
+		{
+			/*
+			 * please do not free 'list'.
+			 */
+			free(dev);
+			free(dblk);
+			free(info);
+			unregister_disk(disk);
+
+			return FALSE;
+		}
+	}
 
 	return TRUE;
 }
@@ -120,6 +264,7 @@ x_bool unregister_disk(struct disk * disk)
 		list = list_entry(pos, struct disk_list, entry);
 		if(list->disk == disk)
 		{
+			//TODO
 			list_del(pos);
 			free(list);
 			return TRUE;

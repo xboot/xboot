@@ -31,6 +31,8 @@
 #include <xboot/disk.h>
 #include <xboot/partition.h>
 
+extern x_bool disk_read(struct disk * disk, x_u8 * buf, x_u32 offset, x_u32 size);
+
 /*
  * the partition entry
  */
@@ -128,6 +130,7 @@ static x_bool parser_probe_dos(struct disk * disk)
 		free(mbr);
 		return FALSE;
 	}
+	LOG_E("flag = 0x%lx", mbr->entry[0].flag);
 
 	LOG_E("flag = 0x%lx", mbr->entry[0].flag);
 	LOG_E("start_head = 0x%lx", mbr->entry[0].start_head);
@@ -154,7 +157,7 @@ static x_bool parser_probe_dos(struct disk * disk)
 	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[1].length[0],mbr->entry[1].length[1],mbr->entry[1].length[2],mbr->entry[1].length[3]);
 
 	free(mbr);
-	return TRUE;
+	return FALSE;
 }
 
 /*

@@ -67,6 +67,7 @@ static struct disk * search_disk(const char * name)
 x_bool register_disk(struct disk * disk)
 {
 	struct disk_list * list;
+	struct partition * part;
 
 	list = malloc(sizeof(struct disk_list));
 	if(!list || !disk)
@@ -83,9 +84,18 @@ x_bool register_disk(struct disk * disk)
 
 	if(!partition_parser_probe(disk))
 	{
-		LOG_E("fail to probe partition of '%s'", disk->name);
-		free(list);
-		return FALSE;
+		init_list_head(&(disk->info.entry));
+
+		part = malloc(sizeof(struct partition));
+		if(!part)
+		{
+			free(list);
+			return FALSE;
+		}
+
+		part->from = 0;
+		part->size = disk->sector_count;
+		list_add_tail(&part->entry, &(disk->info.entry));
 	}
 
 	list->disk = disk;

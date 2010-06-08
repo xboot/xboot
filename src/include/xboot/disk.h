@@ -24,9 +24,6 @@ struct disk
 	/* partition information */
 	struct partition info;
 
-	/* partition parser */
-	struct partition_parser * parser;
-
 	/* the size of sector */
 	x_u32 sector_size;
 
@@ -52,8 +49,6 @@ struct disk_list
 	struct list_head entry;
 };
 
-
-x_bool disk_read(struct disk * disk, x_u8 * buf, x_u32 offset, x_u32 size);
 x_bool register_disk(struct disk * disk);
 x_bool unregister_disk(struct disk * disk);
 

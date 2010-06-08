@@ -125,7 +125,6 @@ x_bool partition_parser_probe(struct disk * disk)
 		return FALSE;
 
 	init_list_head(&(disk->info.entry));
-	disk->parser = NULL;
 
 	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
 	{
@@ -134,7 +133,6 @@ x_bool partition_parser_probe(struct disk * disk)
 		{
 			if((list->parser->probe(disk)) == TRUE)
 			{
-				disk->parser = list->parser;
 				return TRUE;
 			}
 		}

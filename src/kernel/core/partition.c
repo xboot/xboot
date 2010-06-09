@@ -24,6 +24,7 @@
 #include <default.h>
 #include <xboot.h>
 #include <malloc.h>
+#include <string.h>
 #include <vsprintf.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -121,6 +122,8 @@ x_bool partition_parser_probe(struct disk * disk)
 	struct partition_parser_list * list;
 	struct list_head * pos;
 	struct partition * part;
+	struct list_head * part_pos;
+	x_s32 i;
 
 	if(!disk || !disk->name)
 		return FALSE;
@@ -140,7 +143,7 @@ x_bool partition_parser_probe(struct disk * disk)
 	if(!part)
 		return FALSE;
 
-	strlcpy((x_s8 *)part->name, (const x_s8 *)"None", sizeof(part->name));
+	strlcpy((x_s8 *)part->name, (const x_s8 *)"TOTAL", sizeof(part->name));
 	part->sector_from = 0;
 	part->sector_to = disk->sector_count - 1;
 	part->sector_size = disk->sector_size;
@@ -156,9 +159,17 @@ x_bool partition_parser_probe(struct disk * disk)
 		if(list->parser->probe)
 		{
 			if((list->parser->probe(disk)) == TRUE)
-			{
-				return TRUE;
-			}
+				break;
+		}
+	}
+
+	for(i = 0, part_pos = (&(disk->info.entry))->next; part_pos != &(disk->info.entry); i++, part_pos = part_pos->next)
+	{
+		part = list_entry(part_pos, struct partition, entry);
+		if(i != 0)
+		{
+			if(strnlen((const x_s8 *)part->name, sizeof(part->name)) <= 0)
+				snprintf((x_s8 *)part->name, sizeof(part->name), (const x_s8 *)"part%ld", i);
 		}
 	}
 

@@ -162,7 +162,7 @@ static x_bool parser_probe_dos(struct disk * disk)
 	/* for test */
 	struct partition * part;
 	part = malloc(sizeof(struct partition));
-	strlcpy((x_s8 *)part->name, (const x_s8 *)"part1", sizeof(part->name));
+	strlcpy((x_s8 *)part->name, (const x_s8 *)"", sizeof(part->name));
 	part->sector_from = 0;
 	//part->sector_to = 20480 - 1;
 	part->sector_to = 2 - 1;
@@ -170,7 +170,8 @@ static x_bool parser_probe_dos(struct disk * disk)
 	list_add_tail(&part->entry, &(disk->info.entry));
 
 	part = malloc(sizeof(struct partition));
-	strlcpy((x_s8 *)part->name, (const x_s8 *)"part2", sizeof(part->name));
+	strlcpy((x_s8 *)part->name, (const x_s8 *)"", sizeof(part->name));
+
 	//part->sector_from = 20480;
 	part->sector_from = 2;
 	part->sector_to = disk->sector_count - 1;

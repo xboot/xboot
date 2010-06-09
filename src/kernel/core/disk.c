@@ -255,6 +255,12 @@ x_bool unregister_disk(struct disk * disk)
 {
 	struct disk_list * list;
 	struct list_head * pos;
+	struct partition * part;
+	struct list_head * part_pos;
+	struct blkinfo * info;
+	struct list_head * info_pos;
+	struct blkdev * dev;
+	struct disk_block * dblk;
 
 	if(!disk || !disk->name)
 		return FALSE;
@@ -264,7 +270,24 @@ x_bool unregister_disk(struct disk * disk)
 		list = list_entry(pos, struct disk_list, entry);
 		if(list->disk == disk)
 		{
-			//TODO
+			for(part_pos = (&(disk->info.entry))->next; part_pos != &(disk->info.entry); part_pos = part_pos->next)
+			{
+				part = list_entry(part_pos, struct partition, entry);
+				dev = part->dev;
+				dblk = dev->driver;
+				if(unregister_blkdev(dblk->name))
+				{
+					for(info_pos = (&(dblk->info.entry))->next; info_pos != &(dblk->info.entry); info_pos = info_pos->next)
+					{
+						info = list_entry(info_pos, struct blkinfo, entry);
+						free(info);
+					}
+				}
+				free(dblk);
+				free(dev);
+				free(part);
+			}
+
 			list_del(pos);
 			free(list);
 			return TRUE;
@@ -332,6 +355,10 @@ static x_s32 disk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
 	struct disk_list * list;
 	struct list_head * pos;
+	struct partition * part;
+	struct list_head * part_pos;
+	x_s8 buff[32];
+	x_u64 from, to , size;
 	x_s8 * p;
 	x_s32 len = 0;
 
@@ -342,6 +369,18 @@ static x_s32 disk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	{
 		list = list_entry(pos, struct disk_list, entry);
 		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"%s:\r\n", list->disk->name);
+
+		for(part_pos = (&(list->disk->info.entry))->next; part_pos != &(list->disk->info.entry); part_pos = part_pos->next)
+		{
+			part = list_entry(part_pos, struct partition, entry);
+			from = part->sector_from * part->sector_size;
+			to = (part->sector_to + 1) * part->sector_size;
+			size = to - from;
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)" %8s %8s", part->name, part->dev->name);
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)" 0x%016Lx ~ 0x%016Lx", from, to);
+			ssize(buff, size);
+			len += sprintf((x_s8 *)(p + len), (const x_s8 *)" %s\r\n", buff);
+		}
 	}
 
 	len -= offset;

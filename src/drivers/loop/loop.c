@@ -54,6 +54,12 @@ struct loop
 
 	/* file descriptor */
 	x_s32 fd;
+
+	/* busy or not */
+	x_bool busy;
+
+	/* read only flag */
+	x_bool read_only;
 };
 
 /*
@@ -81,10 +87,28 @@ static x_s32 loop_open(struct blkdev * dev)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
-	loop->fd = open((const char *)loop->path, O_RDWR, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-	if(loop->fd < 0)
+	if(loop->busy == TRUE)
 		return -1;
 
+	if(access((const char *)loop->path, R_OK) != 0)
+		return -1;
+
+	if(access((const char *)loop->path, W_OK) == 0)
+	{
+		loop->read_only = FALSE;
+		loop->fd = open((const char *)loop->path, O_RDWR, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+		if(loop->fd < 0)
+			return -1;
+	}
+	else
+	{
+		loop->read_only = TRUE;
+		loop->fd = open((const char *)loop->path, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+		if(loop->fd < 0)
+			return -1;
+	}
+
+	loop->busy = TRUE;
 	return 0;
 }
 
@@ -105,6 +129,9 @@ static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
+	if(loop->read_only == TRUE)
+		return 0;
+
 	if(blkno < 0)
 		return 0;
 
@@ -124,10 +151,14 @@ static x_s32 loop_close(struct blkdev * dev)
 	struct loop * loop = (struct loop *)(dev->driver);
 
 	if(close(loop->fd) == 0)
+	{
+		loop->busy = FALSE;
 		return 0;
+	}
 
 	return -1;
 }
+
 /*
  * search loop block device by file name
  */
@@ -256,6 +287,9 @@ x_bool register_loop(const char * file)
 		info->number = 1;
 		list_add_tail(&info->entry, &(loop->info.entry));
 	}
+
+	loop->busy 		= FALSE;
+	loop->read_only = FALSE;
 
 	dev->name	= loop->name;
 	dev->type	= BLK_DEV_LOOP;

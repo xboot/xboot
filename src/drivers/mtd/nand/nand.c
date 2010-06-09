@@ -351,9 +351,9 @@ static x_bool register_nand_device(struct nand_device * nand)
 }
 
 /*
- * probe all nand device
+ * probe all nand flash device
  */
-void nand_probe(void)
+void nand_flash_probe(void)
 {
 	struct nfc_list * list;
 	struct list_head * pos;
@@ -366,9 +366,9 @@ void nand_probe(void)
 	x_s32 i;
 
 	/*
-	 * remove all nand device
+	 * remove all nand flash device
 	 */
-	nand_remove();
+	nand_flash_remove();
 
 	/*
 	 * probe nand device by nand flash controller
@@ -613,9 +613,9 @@ void nand_probe(void)
 }
 
 /*
- * remove all nand device
+ * remove all nand flash device
  */
-void nand_remove(void)
+void nand_flash_remove(void)
 {
 	struct nand_list * list;
 	struct list_head * head, * curr, * next;

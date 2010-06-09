@@ -12,7 +12,8 @@
  */
 enum blkdev_type {
 	BLK_DEV_LOOP,
-	BLK_DEV_MTD,
+	BLK_DEV_NOR,
+	BLK_DEV_NAND,
 	BLK_DEV_MMC,
 };
 

@@ -147,6 +147,13 @@
 #endif
 
 /*
+ * probe command
+ */
+#if !defined(CONFIG_COMMAND_PROBE)
+#define	CONFIG_COMMAND_PROBE						(1)
+#endif
+
+/*
  * log command
  */
 #if !defined(CONFIG_COMMAND_LOG)

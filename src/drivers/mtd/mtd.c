@@ -43,9 +43,9 @@
 static __init void mtd_device_init(void)
 {
 	/*
-	 * probe all nand device
+	 * probe all nand flash device
 	 */
-	nand_probe();
+	nand_flash_probe();
 }
 
 /*
@@ -54,9 +54,9 @@ static __init void mtd_device_init(void)
 static __exit void mtd_device_exit(void)
 {
 	/*
-	 * remove all nand device
+	 * remove all nand flash device
 	 */
-	nand_remove();
+	nand_flash_remove();
 }
 
 module_init(mtd_device_init, LEVEL_DRIVER);

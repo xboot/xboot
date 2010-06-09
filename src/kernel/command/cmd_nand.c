@@ -88,7 +88,7 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 	}
 	else if( !strcmp(argv[1], (x_s8*)"probe"))
 	{
-		nand_probe();
+		nand_flash_probe();
 		list_nand_device();
 
 		return 0;

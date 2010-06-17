@@ -6,7 +6,7 @@
 #include <types.h>
 #include <string.h>
 #include <xboot/list.h>
-#include <xboot/disk.h>
+#include <disk/disk.h>
 
 /*
  * forward declare

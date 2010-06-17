@@ -1,5 +1,5 @@
 /*
- * kernel/core/disk.c
+ * drivers/disk/disk.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -32,7 +32,7 @@
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
-#include <xboot/disk.h>
+#include <disk/disk.h>
 
 /* the list of disk */
 static struct disk_list __disk_list = {

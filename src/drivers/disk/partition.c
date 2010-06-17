@@ -1,5 +1,5 @@
 /*
- * kernel/core/partition.c
+ * drivers/disk/partition.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -30,8 +30,8 @@
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
-#include <xboot/disk.h>
-#include <xboot/partition.h>
+#include <disk/disk.h>
+#include <disk/partition.h>
 
 /* the list of partition parser */
 static struct partition_parser_list __partition_parser_list = {

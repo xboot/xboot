@@ -7,7 +7,7 @@
 #include <string.h>
 #include <xboot/list.h>
 #include <xboot/blkdev.h>
-#include <xboot/partition.h>
+#include <disk/partition.h>
 
 /*
  * forward declare

@@ -68,7 +68,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				lib/libc \
 				kernel \
 				kernel/core \
-				kernel/partition \
 				kernel/shell \
 				kernel/command \
 				kernel/time \
@@ -79,6 +78,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				kernel/fs/devfs \
 				kernel/fs/arfs \
 				drivers \
+				drivers/disk \
+				drivers/disk/partition \
 				drivers/serial \
 				drivers/terminal \
 				drivers/fb \

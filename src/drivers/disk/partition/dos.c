@@ -1,5 +1,5 @@
 /*
- * kernel/partition/dos.c
+ * drivers/disk/partition/dos.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -28,8 +28,8 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
-#include <xboot/disk.h>
-#include <xboot/partition.h>
+#include <disk/disk.h>
+#include <disk/partition.h>
 
 extern x_bool disk_read(struct disk * disk, x_u8 * buf, x_u32 offset, x_u32 size);
 

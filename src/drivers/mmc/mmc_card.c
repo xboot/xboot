@@ -185,7 +185,7 @@ static x_bool mmc_card_decode(struct mmc_card * card)
 	case MMC_CARD_TYPE_MMC:
 		if(csd_struct != 1 && csd_struct != 2)
 		{
-			LOG_E("unrecognised csd structure version (%ld) of the card '%s' (%s)", csd_struct, card->name, card->host->name);
+			LOG_E("unrecognized csd structure version (%ld) of the card '%s' (%s)", csd_struct, card->name, card->host->name);
 			return FALSE;
 		}
 
@@ -267,7 +267,7 @@ static x_bool mmc_card_decode(struct mmc_card * card)
 			break;
 
 		default:
-			LOG_E("unrecognised csd structure version (%ld) of the card '%s' (%s)", csd_struct, card->name, card->host->name);
+			LOG_E("unrecognized csd structure version (%ld) of the card '%s' (%s)", csd_struct, card->name, card->host->name);
 			return FALSE;
 		}
 		break;

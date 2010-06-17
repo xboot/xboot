@@ -93,15 +93,19 @@ struct dos_partition_mbr
 } __attribute__ ((packed));
 
 
-static x_bool dos_partition(struct disk * disk, x_u32 sector)
+static x_bool is_dos_extended(x_u8 type)
 {
+	if((type == 0x5) || (type == 0xf) || (type == 0x85))
+		return TRUE;
 	return FALSE;
 }
 
-static x_bool parser_probe_dos(struct disk * disk)
+static x_bool dos_partition(struct disk * disk, x_u32 sector, x_u32 relative)
 {
-	struct dos_partition_mbr * mbr;
-//	x_u8 buffer[512];
+	struct dos_partition_mbr mbr;
+	struct partition * part;
+	x_u32 start;
+	x_s32 i;
 
 	if(!disk || !disk->name)
 		return FALSE;
@@ -112,74 +116,46 @@ static x_bool parser_probe_dos(struct disk * disk)
 	if((!disk->read_sector) || (!disk->write_sector))
 		return FALSE;
 
-	mbr = malloc(sizeof(struct dos_partition_mbr));
-	if(!mbr)
+	if(!disk_read(disk, (x_u8 *)(&mbr), sector * disk->sector_size , sizeof(struct dos_partition_mbr)))
 		return FALSE;
-
-	if(!disk_read(disk, (x_u8 *)mbr, 0, sizeof(struct dos_partition_mbr)))
-	{
-		free(mbr);
-		return FALSE;
-	}
 
 	/*
 	 * check dos partition's signature
 	 */
-	if((mbr->signature[0] != 0x55) || mbr->signature[1] != 0xaa)
-	{
-		free(mbr);
+	if((mbr.signature[0] != 0x55) || mbr.signature[1] != 0xaa)
 		return FALSE;
+
+	for(i=0; i<4; i++)
+	{
+		if((mbr.entry[i].type != 0) && (is_dos_extended(mbr.entry[i].type)==FALSE))
+		{
+			part = malloc(sizeof(struct partition));
+			if(!part)
+				return FALSE;
+
+			strlcpy((x_s8 *)part->name, (const x_s8 *)"", sizeof(part->name));
+			part->sector_from = sector + ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
+			part->sector_to = part->sector_from + ((mbr.entry[i].length[3] << 24) | (mbr.entry[i].length[2] << 16) | (mbr.entry[i].length[1] << 8) | (mbr.entry[i].length[0] << 0)) - 1;
+			part->sector_size = disk->sector_size;
+			list_add_tail(&part->entry, &(disk->info.entry));
+		}
 	}
-	LOG_E("flag = 0x%lx", mbr->entry[0].flag);
 
-	LOG_E("flag = 0x%lx", mbr->entry[0].flag);
-	LOG_E("start_head = 0x%lx", mbr->entry[0].start_head);
-	LOG_E("start_sector = 0x%lx", mbr->entry[0].start_sector);
-	LOG_E("start_cylinder = 0x%lx", mbr->entry[0].start_cylinder);
-	LOG_E("type = 0x%lx", mbr->entry[0].type);
-	LOG_E("end_head = 0x%lx", mbr->entry[0].end_head);
-	LOG_E("end_sector = 0x%lx", mbr->entry[0].end_sector);
-	LOG_E("end_cylinder = 0x%lx", mbr->entry[0].end_cylinder);
-	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[0].start[0],mbr->entry[0].start[1],mbr->entry[0].start[2],mbr->entry[0].start[3]);
-	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[0].length[0],mbr->entry[0].length[1],mbr->entry[0].length[2],mbr->entry[0].length[3]);
+	for(i=0; i<4; i++)
+	{
+		if(is_dos_extended(mbr.entry[i].type)==TRUE)
+		{
+			start = ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0)) + relative;
+			return dos_partition(disk, start, (sector == 0) ? start : relative);
+		}
+	}
 
-	LOG_E("----------------");
-
-	LOG_E("flag = 0x%lx", mbr->entry[1].flag);
-	LOG_E("start_head = 0x%lx", mbr->entry[1].start_head);
-	LOG_E("start_sector = 0x%lx", mbr->entry[1].start_sector);
-	LOG_E("start_cylinder = 0x%lx", mbr->entry[1].start_cylinder);
-	LOG_E("type = 0x%lx", mbr->entry[1].type);
-	LOG_E("end_head = 0x%lx", mbr->entry[1].end_head);
-	LOG_E("end_sector = 0x%lx", mbr->entry[1].end_sector);
-	LOG_E("end_cylinder = 0x%lx", mbr->entry[1].end_cylinder);
-	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[1].start[0],mbr->entry[1].start[1],mbr->entry[1].start[2],mbr->entry[1].start[3]);
-	LOG_E("0x%lx,0x%lx,0x%lx,0x%lx", mbr->entry[1].length[0],mbr->entry[1].length[1],mbr->entry[1].length[2],mbr->entry[1].length[3]);
-
-	free(mbr);
-
-	//FIXME
-	/* for test */
-	struct partition * part;
-	part = malloc(sizeof(struct partition));
-	strlcpy((x_s8 *)part->name, (const x_s8 *)"", sizeof(part->name));
-	part->sector_from = 0;
-	//part->sector_to = 20480 - 1;
-	part->sector_to = 2 - 1;
-	part->sector_size = disk->sector_size;
-	list_add_tail(&part->entry, &(disk->info.entry));
-
-	part = malloc(sizeof(struct partition));
-	strlcpy((x_s8 *)part->name, (const x_s8 *)"", sizeof(part->name));
-
-	//part->sector_from = 20480;
-	part->sector_from = 2;
-	part->sector_to = disk->sector_count - 1;
-	part->sector_size = disk->sector_size;
-	list_add_tail(&part->entry, &(disk->info.entry));
 	return TRUE;
+}
 
-	return FALSE;
+static x_bool parser_probe_dos(struct disk * disk)
+{
+	return dos_partition(disk, 0, 0);
 }
 
 /*

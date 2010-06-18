@@ -61,16 +61,21 @@ struct fat_boot_sector {
 	x_u8	media_descriptor;
 	x_u8	sectors_per_fat[2];
 	x_u8	sectors_per_track[2];
-	x_u8	heads[2];
-	x_u8	hidden_sectors[2];
+	x_u8	num_of_heads[2];
+	x_u8	hidden_sectors[4];
+	x_u8	big_total_sectors[4];
 
 	/*
 	 *
 	 */
 	union {
-		x_u8 bootstrap[480];
+		x_u8 code[474];
 
-	} code;
+		struct {
+
+			x_u8 code[474];
+		}fat12;
+	} x;
 
 	/*
 	 * the signature 0x55, 0xaa
@@ -151,9 +156,38 @@ struct fatfs_mount_data {
 };
 
 
+/*
+
+Fat12 and Fat16 Structure Starting at Offset 36 (FAT12/16部分)
+
+Name	Offset(byte)	Size(bytes)	Description
+BS_DrvNum 	36	1	中斷13的驅動器號.
+BS_Reserved1	37	1	用于NT系統(保留),對于FAT卷,永遠為0.
+BS_BootSig	38	1	擴展的引導簽名
+BS_VolID	39	4	卷序列號.
+BS_VolLab	43	11	卷標,用11個字節記錄在根目錄下.
+BS_FilSysType	54 	8	字符串FAT12/FAT16/FAT,用8Byte表示.
 
 
 
+FAT32 Structure Starting at Offset 36  (FAT32部分)
+
+Name	Offset(byte)	Size(bytes)	Description
+BPB_FATSz32	36	4 	FAT1佔用扇區數量 [僅為FAT32介質定義,在FAT12/FAT16上不存在.]
+BPB_ExtFlags	40	2	b0~b3為0表示活動FAT,b4~b6保留,b7為0表示FAT是在運行時被鏡象到所有FATs,b7為1時表示僅有一個活動FAT. b8~b15保留.
+BPB_FSVer	42	2	高字節表示主版本號,低字節表示副版本號.
+BPB_RootClus	44 	4 	.設定根目錄第一個簇的簇數量. 通常為2但不是必需為2.
+BPB_FSInfo 	48	2	在FAT32卷保留區的FSINFO結構中的扇區數.通常為1
+BPB_BkBootSec	50	2	如果非零,則說明在卷保留區中引導記錄拷貝的扇區數
+BPB_Reserved	52	12	保留未來擴展用.(用0填充)
+BS_DrvNum 	64	1 The only difference for FAT32 media is that the field is at a different offset in the boot sector.驅動器號. FAT32介質的唯一不同處就是該字段位于引導扇區的不同偏移
+BS_Reserved1	65	1	保留.
+BS_BootSig	66	1	擴展的引導簽名
+BS_VolID 	67	4	卷標序列號
+BS_VolLab	71	11	卷標
+BS_FilSysType	82	8	永遠設定為”FAT32”字符串
+
+*/
 
 
 
@@ -189,17 +223,22 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 	if((fbs.signature[0] != 0x55) || fbs.signature[1] != 0xaa)
 		return EINVAL;
 
-	/* the number of fats (byte 16) is nonzero */
-	if(fbs.num_of_fats == 0x00)
+	/* the logical sector size (bytes 11-12) is a power of two, at least 512 */
+	sector_size = (fbs.bytes_per_sector[1] << 8) | fbs.bytes_per_sector[0];
+	if( (sector_size < 512) || (!is_power_of_2(sector_size)) )
 		return EINVAL;
 
 	/* the cluster size (byte 13) is a power of two */
 	if(! is_power_of_2(fbs.sectors_per_cluster))
 		return EINVAL;
 
-	/* the logical sector size (bytes 11-12) is a power of two, at least 512 */
-	sector_size = (fbs.bytes_per_sector[1] << 8) | fbs.bytes_per_sector[0];
-	if( (sector_size < 512) || (!is_power_of_2(sector_size)) )
+	/* the number of reserved sectors (bytes 14-15) is nonzero */
+	tmp = (fbs.reserved_sectors[1] << 8) | fbs.reserved_sectors[0];
+	if(tmp == 0)
+		return EINVAL;
+
+	/* the number of fats (byte 16) is nonzero */
+	if(fbs.num_of_fats == 0x00)
 		return EINVAL;
 
 	/* the number of root directory entries (bytes 17-18) must be sector aligned */
@@ -207,10 +246,19 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(tmp % (sector_size / sizeof(struct fat_dirent)) != 0)
 		return EINVAL;
 
-	/* the number of reserved sectors (bytes 14-15) is nonzero */
-	tmp = (fbs.reserved_sectors[1] << 8) | fbs.reserved_sectors[0];
+	/* the sector per track (byte 24-25) is nonzero */
+	tmp = (fbs.sectors_per_track[1] << 8) | fbs.sectors_per_track[0];
 	if(tmp == 0)
 		return EINVAL;
+
+	/* the number of heads (byte 26-27) is nonzero */
+	tmp = (fbs.num_of_heads[1] << 8) | fbs.num_of_heads[0];
+	if(tmp == 0)
+		return EINVAL;
+
+
+	printk("0x%lx,0x%lx\r\n", fbs.sectors_per_track[1], fbs.sectors_per_track[0]);
+	printk("0x%lx,0x%lx\r\n", fbs.num_of_heads[1], fbs.num_of_heads[0]);
 
 	return 0;
 }

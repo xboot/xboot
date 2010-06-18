@@ -27,8 +27,8 @@
 #include <vsprintf.h>
 #include <malloc.h>
 #include <error.h>
+#include <bitpos.h>
 #include <time/xtime.h>
-#include <shell/readline.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -39,17 +39,15 @@
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>
 
-#define SECTOR_SIZE				(512)
-
 /*
- * dos boot record
+ * boot sector
  */
-struct fat_dbr {
+struct fat_boot_sector {
 	/*
 	 * jump instruction and oem name
 	 */
 	x_u8	jmp_instruction[3];
-	x_u8	oem_id[8];
+	x_u8	oem_name[8];
 
 	/*
 	 * the common part of the fat12, fat16 and fat32 bios parameter block
@@ -78,6 +76,19 @@ struct fat_dbr {
 	 * the signature 0x55, 0xaa
 	 */
 	x_u8	signature[2];
+} __attribute__ ((packed));
+
+/*
+ * fat directory entry
+ */
+struct fat_dirent {
+	x_u8	name[11];
+	x_u8	attr;
+	x_u8	reserve[10];
+	x_u8	time[2];
+	x_u8	date[2];
+	x_u8	cluster[2];
+	x_u8	size[4];
 } __attribute__ ((packed));
 
 /*
@@ -155,45 +166,68 @@ struct fatfs_mount_data {
 static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
 	struct blkdev * blk;
-	struct fat_dbr dbr;
-	printk("fatfs1xxxxxxxxx\r\n");
+	struct fat_boot_sector fbs;
+	x_u32 sector_size;
+	x_u32 tmp;
+
 	if(dev == NULL)
 		return EINVAL;
 
 	blk = (struct blkdev *)m->m_dev;
 	if(!blk || !blk->info)
 		return ENODEV;
-	printk("fatfs1\r\n");
-	if(get_blkdev_total_size(blk) <= sizeof(struct fat_dbr))
+
+	if(get_blkdev_total_size(blk) <= sizeof(struct fat_boot_sector))
 		return EINTR;
-	printk("fatfs2\r\n");
-	if(bio_read(blk, (x_u8 *)(&dbr), 0, sizeof(struct fat_dbr)) != sizeof(struct fat_dbr))
+
+	if(bio_read(blk, (x_u8 *)(&fbs), 0, sizeof(struct fat_boot_sector)) != sizeof(struct fat_boot_sector))
 		return EIO;
-	printk("fatfs3\r\n");
+
 	/*
-	 * check signature
+	 * check both signature (0x55, 0xaa)
 	 */
-	if((dbr.signature[0] != 0x55) || dbr.signature[1] != 0xaa)
+	if((fbs.signature[0] != 0x55) || fbs.signature[1] != 0xaa)
 		return EINVAL;
 
-	printk("fatfs\r\n");
+	/* the number of fats (byte 16) is nonzero */
+	if(fbs.num_of_fats == 0x00)
+		return EINVAL;
+
+	/* the cluster size (byte 13) is a power of two */
+	if(! is_power_of_2(fbs.sectors_per_cluster))
+		return EINVAL;
+
+	/* the logical sector size (bytes 11-12) is a power of two, at least 512 */
+	sector_size = (fbs.bytes_per_sector[1] << 8) | fbs.bytes_per_sector[0];
+	if( (sector_size < 512) || (!is_power_of_2(sector_size)) )
+		return EINVAL;
+
+	/* the number of root directory entries (bytes 17-18) must be sector aligned */
+	tmp = (fbs.root_entries[1] << 8) | fbs.root_entries[0];
+	if(tmp % (sector_size / sizeof(struct fat_dirent)) != 0)
+		return EINVAL;
+
+	/* the number of reserved sectors (bytes 14-15) is nonzero */
+	tmp = (fbs.reserved_sectors[1] << 8) | fbs.reserved_sectors[0];
+	if(tmp == 0)
+		return EINVAL;
 
 	return 0;
 }
 
 static x_s32 fatfs_unmount(struct mount * m)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 fatfs_sync(struct mount * m)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 fatfs_vget(struct mount * m, struct vnode * node)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 fatfs_statfs(struct mount * m, struct statfs * stat)

@@ -232,12 +232,21 @@ void bio_flush(struct blkdev * dev)
 		list = list_entry(curr, struct bio_list, entry);
 
 		next = curr->next;
-		list_del(curr);
+		if(list->bio->dev == dev)
+		{
+			if(list->bio->flag == BIO_FLAG_WRITE)
+			{
+				if(list->bio->dev->write)
+					list->bio->dev->write(list->bio->dev, list->bio->buf, list->bio->blkno);
+			}
+
+			list_del(curr);
+			free(list->bio->buf);
+			free(list->bio);
+			free(list);
+			bio_numberof--;
+		}
 		curr = next;
-		free(list->bio->buf);
-		free(list->bio);
-		free(list);
-		bio_numberof--;
 	}
 }
 

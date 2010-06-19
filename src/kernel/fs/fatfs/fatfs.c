@@ -66,15 +66,51 @@ struct fat_boot_sector {
 	x_u8	big_total_sectors[4];
 
 	/*
-	 *
+	 * the last part of fat12, fat16 and fat32
 	 */
 	union {
 		x_u8 code[474];
 
 		struct {
+			x_u8	drive_number;
+			x_u8	reserved;
+			x_u8	boot_signature;
+			x_u8	volume_id[4];
+			x_u8	volume_lab[11];
+			x_u8	fs_type[8];
 
-			x_u8 code[474];
+			x_u8 	fill[474 - 26];
 		}fat12;
+
+		struct {
+			x_u8	drive_number;
+			x_u8	reserved;
+			x_u8	boot_signature;
+			x_u8	volume_id[4];
+			x_u8	volume_lab[11];
+			x_u8	fs_type[8];
+
+			x_u8 	fill[474 - 26];
+		}fat16;
+
+		struct {
+			x_u8	sectors_per_fat_32[4];
+			x_u8	ext_flags[2];
+			x_u8	fs_version[2];
+			x_u8	root_clus[4];
+			x_u8	fs_info[2];
+			x_u8	back_boot_sector[2];
+			x_u8	reserved_before[12];
+
+			x_u8	driver_number;
+			x_u8	reserved;
+			x_u8	boot_signature;
+			x_u8	volume_id[4];
+			x_u8	volume_lab[11];
+			x_u8	fs_type[8];
+
+			x_u8 	fill[474 - 54];
+		}fat32;
 	} x;
 
 	/*
@@ -97,6 +133,15 @@ struct fat_dirent {
 } __attribute__ ((packed));
 
 /*
+ * file / directory node
+ */
+struct fat_node {
+	struct fat_dirent	dirent;		/* copy of directory entry */
+	x_u32				sector;		/* sector for directory entry */
+	x_u32				offset;		/* offset of directory entry in sector */
+};
+
+/*
  * fat filesystem type
  */
 enum fat_type {
@@ -112,32 +157,37 @@ struct fatfs_mount_data {
 	/* fat type */
 	enum fat_type type;
 
-	/* start sector for root directory */
-	x_u32 root_start;
-
-	/* start sector for fat entries */
-	x_u32 fat_start;
-
-	/* start sector for data */
-	x_u32 data_start;
-
-	/* id of end cluster */
-	x_u32 fat_eof;
+	/* the size of sector */
+	x_u32 sector_size;
 
 	/* sectors per cluster */
-	x_u32 sec_per_cl;
+	x_u32 sectors_per_cluster;
 
 	/* cluster size */
 	x_u32 cluster_size;
 
+	/* start sector for fat entries */
+	x_u32 fat_start;
+
+	/* start sector for root directory */
+	x_u32 root_start;
+
+	/* start sector for data */
+	x_u32 data_start;
+
 	/* last cluser */
 	x_u32 last_cluster;
+
+	/* start cluster to free search */
+	x_u32 free_scan;
 
 	/* mask for cluster */
 	x_u32 fat_mask;
 
-	/* start cluster to free search */
-	x_u32 free_scan;
+	/* id of end cluster */
+	x_u32 fat_eof;
+
+
 
 	/* vnode for root */
 	struct vnode * root_vnode;
@@ -155,50 +205,12 @@ struct fatfs_mount_data {
 	struct blkdev * blk;
 };
 
-
-/*
-
-Fat12 and Fat16 Structure Starting at Offset 36 (FAT12/16部分)
-
-Name	Offset(byte)	Size(bytes)	Description
-BS_DrvNum 	36	1	中斷13的驅動器號.
-BS_Reserved1	37	1	用于NT系統(保留),對于FAT卷,永遠為0.
-BS_BootSig	38	1	擴展的引導簽名
-BS_VolID	39	4	卷序列號.
-BS_VolLab	43	11	卷標,用11個字節記錄在根目錄下.
-BS_FilSysType	54 	8	字符串FAT12/FAT16/FAT,用8Byte表示.
-
-
-
-FAT32 Structure Starting at Offset 36  (FAT32部分)
-
-Name	Offset(byte)	Size(bytes)	Description
-BPB_FATSz32	36	4 	FAT1佔用扇區數量 [僅為FAT32介質定義,在FAT12/FAT16上不存在.]
-BPB_ExtFlags	40	2	b0~b3為0表示活動FAT,b4~b6保留,b7為0表示FAT是在運行時被鏡象到所有FATs,b7為1時表示僅有一個活動FAT. b8~b15保留.
-BPB_FSVer	42	2	高字節表示主版本號,低字節表示副版本號.
-BPB_RootClus	44 	4 	.設定根目錄第一個簇的簇數量. 通常為2但不是必需為2.
-BPB_FSInfo 	48	2	在FAT32卷保留區的FSINFO結構中的扇區數.通常為1
-BPB_BkBootSec	50	2	如果非零,則說明在卷保留區中引導記錄拷貝的扇區數
-BPB_Reserved	52	12	保留未來擴展用.(用0填充)
-BS_DrvNum 	64	1 The only difference for FAT32 media is that the field is at a different offset in the boot sector.驅動器號. FAT32介質的唯一不同處就是該字段位于引導扇區的不同偏移
-BS_Reserved1	65	1	保留.
-BS_BootSig	66	1	擴展的引導簽名
-BS_VolID 	67	4	卷標序列號
-BS_VolLab	71	11	卷標
-BS_FilSysType	82	8	永遠設定為”FAT32”字符串
-
-*/
-
-
-
-
-
-
 /*
  * filesystem operations
  */
 static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 {
+	struct fatfs_mount_data * md;
 	struct blkdev * blk;
 	struct fat_boot_sector fbs;
 	x_u32 sector_size;
@@ -256,15 +268,85 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(tmp == 0)
 		return EINVAL;
 
+	md = malloc(sizeof(struct fatfs_mount_data));
+	if(!md)
+		return ENOMEM;
 
-	printk("0x%lx,0x%lx\r\n", fbs.sectors_per_track[1], fbs.sectors_per_track[0]);
-	printk("0x%lx,0x%lx\r\n", fbs.num_of_heads[1], fbs.num_of_heads[0]);
+	/* determine the type of fat */
+	if( strncmp((const x_s8 *)fbs.x.fat12.fs_type, (const x_s8 *)"FAT12   ", 8) == 0 )
+	{
+		md->type = FAT_TYPE_FAT12;
+	}
+	else if( strncmp((const x_s8 *)fbs.x.fat16.fs_type, (const x_s8 *)"FAT16   ", 8) == 0 )
+	{
+		md->type = FAT_TYPE_FAT16;
+	}
+	else if( strncmp((const x_s8 *)fbs.x.fat32.fs_type, (const x_s8 *)"FAT32   ", 8) == 0 )
+	{
+		md->type = FAT_TYPE_FAT32;
+	}
+	else
+	{
+		free(md);
+		return EINVAL;
+	}
+
+	/* build mount data */
+	switch(md->type)
+	{
+	case FAT_TYPE_FAT12:
+		//TODO
+		break;
+
+	case FAT_TYPE_FAT16:
+		md->sector_size = sector_size;
+		md->sectors_per_cluster = fbs.sectors_per_cluster;
+		md->cluster_size = md->sectors_per_cluster * md->sector_size;
+		tmp = ((fbs.hidden_sectors[3] << 24) | (fbs.hidden_sectors[2] << 16) | (fbs.hidden_sectors[1] << 8) | (fbs.hidden_sectors[0] << 0));
+		md->fat_start = tmp + ((fbs.reserved_sectors[1] << 8) | (fbs.reserved_sectors[0] << 0));
+		md->root_start = md->fat_start + (fbs.num_of_fats * ((fbs.sectors_per_fat[1] << 8) | (fbs.sectors_per_fat[0] << 0)));
+		md->data_start = md->root_start + ( ((fbs.root_entries[1] << 8) | (fbs.root_entries[0] << 0)) / (sector_size / sizeof(struct fat_dirent)) );
+
+		tmp = ((fbs.total_sectors[1] << 8) | (fbs.total_sectors[0] << 0));
+		if(tmp == 0)
+			tmp = ((fbs.big_total_sectors[3] << 24) | (fbs.big_total_sectors[2] << 16) | (fbs.big_total_sectors[1] << 8) | (fbs.big_total_sectors[0] << 0));
+
+		if(tmp == 0)
+		{
+			free(md);
+			return EINVAL;
+		}
+
+		md->last_cluster = (tmp - md->data_start) / md->sectors_per_cluster + 2;
+		md->free_scan = 2;
+		md->fat_mask = 0x0000ffff;
+		md->fat_eof = 0xffffffff & 0x0000ffff;
+		break;
+
+	case FAT_TYPE_FAT32:
+		//TODO
+		break;
+
+	default:
+		free(md);
+		return EINVAL;
+	}
+
+	m->m_flags = flag & MOUNT_MASK;
+	m->m_data = md;
 
 	return 0;
 }
 
 static x_s32 fatfs_unmount(struct mount * m)
 {
+	struct fatfs_mount_data * md;
+
+	free(m->m_root->v_data);
+
+	md = m->m_data;
+	free(md);
+
 	return 0;
 }
 
@@ -275,6 +357,13 @@ static x_s32 fatfs_sync(struct mount * m)
 
 static x_s32 fatfs_vget(struct mount * m, struct vnode * node)
 {
+	struct fat_node * n;
+
+	n = malloc(sizeof(struct fat_node));
+	if(!n)
+		return ENOMEM;
+	node->v_data = n;
+
 	return 0;
 }
 

@@ -31,7 +31,7 @@
 #include <disk/disk.h>
 #include <disk/partition.h>
 
-extern x_bool disk_read(struct disk * disk, x_u8 * buf, x_u32 offset, x_u32 size);
+extern x_bool disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size size);
 
 /*
  * the partition entry

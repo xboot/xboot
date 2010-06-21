@@ -77,6 +77,6 @@ x_size get_blkdev_total_size(struct blkdev * dev);
 x_size get_blkdev_total_number(struct blkdev * dev);
 x_s32 get_blkdev_size(struct blkdev * dev, x_s32 blkno);
 x_s32 get_blkdev_offset(struct blkdev * dev, x_s32 blkno);
-x_s32 get_blkdev_blkno(struct blkdev * dev, x_s32 offset);
+x_s32 get_blkdev_blkno(struct blkdev * dev, x_size offset);
 
 #endif /* __BLKDEV_H__ */

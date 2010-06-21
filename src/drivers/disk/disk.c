@@ -24,6 +24,7 @@
 #include <default.h>
 #include <xboot.h>
 #include <malloc.h>
+#include <div64.h>
 #include <vsprintf.h>
 #include <xboot/printk.h>
 #include <xboot/device.h>
@@ -300,13 +301,14 @@ x_bool unregister_disk(struct disk * disk)
 /*
  * disk read function, just used by partition parser.
  */
-x_bool disk_read(struct disk * disk, x_u8 * buf, x_u32 offset, x_u32 size)
+x_bool disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size size)
 {
 	x_u8 * sector_buf;
 	x_u8 * p = buf;
-	x_u32 sector_size;
-	x_u32 sector, len = 0;
+	x_u32 sector, sector_size;
 	x_u32 o = 0, l = 0;
+	x_size len = 0;
+	x_u64 div, mod;
 
 	if(!disk)
 		return FALSE;
@@ -324,8 +326,11 @@ x_bool disk_read(struct disk * disk, x_u8 * buf, x_u32 offset, x_u32 size)
 
 	while(len < size)
 	{
-		sector = offset / sector_size;
-		o = offset % sector_size;
+		div = offset;
+		mod = div64_64(&div, sector_size);
+		sector = div;
+		o = mod;
+
 		l = sector_size - o;
 
 		if(len + l > size)

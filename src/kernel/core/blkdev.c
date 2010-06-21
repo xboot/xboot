@@ -24,6 +24,7 @@
 #include <default.h>
 #include <xboot.h>
 #include <malloc.h>
+#include <div64.h>
 #include <vsprintf.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -232,7 +233,7 @@ x_s32 get_blkdev_offset(struct blkdev * dev, x_s32 blkno)
 /*
  * get block no by offset
  */
-x_s32 get_blkdev_blkno(struct blkdev * dev, x_s32 offset)
+x_s32 get_blkdev_blkno(struct blkdev * dev, x_size offset)
 {
 	struct blkinfo * list;
 	struct list_head * pos;
@@ -245,7 +246,7 @@ x_s32 get_blkdev_blkno(struct blkdev * dev, x_s32 offset)
 		list = list_entry(pos, struct blkinfo, entry);
 
 		if((offset >= list->offset) && (offset < (list->offset + list->size * list->number)))
-			return (list->blkno + (offset - list->offset) / list->size);
+			return (list->blkno + div64((offset - list->offset), list->size));
 		else
 			continue;
 	}

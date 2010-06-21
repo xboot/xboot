@@ -400,32 +400,33 @@ static x_s32 fatfs_statfs(struct mount * m, struct statfs * stat)
 	return -1;
 }
 
-#if 0
 /*
  * read directory entry to buffer, with cache.
  */
-static x_bool fat_read_dirent(struct fatfs_mount_data * md, x_u32 sec)
+static x_bool fat_read_dirent(struct fatfs_mount_data * md, x_u32 sector)
 {
-/*	x_u32 size = md->sector_size;
+	x_off off = sector * md->sector_size;
+	x_size size = md->sector_size;
 
-	if(bio_read(md->blk, (x_u8 *)(md->dir_buf), sec, size) != size)
+	if(bio_read(md->blk, (x_u8 *)(md->dir_buf), off, size) != size)
 		return FALSE;
-*/
+
 	return TRUE;
 }
 
 /*
  * write directory entry from buffer.
  */
-static x_s32 fat_write_dirent(struct fatfs_mount_data * md, x_u32 sec)
+static x_s32 fat_write_dirent(struct fatfs_mount_data * md, x_u32 sector)
 {
-/*	x_u32 size = md->sector_size;
+	x_off off = sector * md->sector_size;
+	x_size size = md->sector_size;
 
-	bio_write(md->blk, (const x_u8 *)(md->dir_buf), x_s32 offset, x_s32 count)
-*/
+	if(bio_write(md->blk, (const x_u8 *)(md->dir_buf), off, size) != size)
+		return FALSE;
+
 	return TRUE;
 }
-#endif
 
 /*
  * vnode operations

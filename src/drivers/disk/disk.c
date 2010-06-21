@@ -308,7 +308,7 @@ x_bool disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size size)
 	x_u32 sector, sector_size;
 	x_u32 o = 0, l = 0;
 	x_size len = 0;
-	x_u64 div, mod;
+	x_u64 tmp, rem;
 
 	if(!disk)
 		return FALSE;
@@ -326,10 +326,10 @@ x_bool disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size size)
 
 	while(len < size)
 	{
-		div = offset;
-		mod = div64_64(&div, sector_size);
-		sector = div;
-		o = mod;
+		tmp = offset;
+		rem = div64_64(&tmp, sector_size);
+		sector = tmp;
+		o = rem;
 
 		l = sector_size - o;
 

@@ -52,7 +52,7 @@ struct bio
 	x_s32 blkno;
 
 	/* block's offset */
-	x_s32 offset;
+	x_off offset;
 
 	/* block's size */
 	x_s32 size;
@@ -253,13 +253,13 @@ void bio_flush(struct blkdev * dev)
 /*
  * read bio
  */
-x_s32 bio_read(struct blkdev * dev, x_u8 * buf, x_s32 offset, x_s32 count)
+x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 {
 	struct bio * bio;
 	x_s32 blkno;
-	x_s32 len = 0;
 	x_u8 * p = buf;
 	x_s32 o = 0, l = 0;
+	x_size len = 0;
 
 	if(!dev || !dev->info || !buf || (offset < 0) || (count <= 0) )
 		return 0;
@@ -289,13 +289,13 @@ x_s32 bio_read(struct blkdev * dev, x_u8 * buf, x_s32 offset, x_s32 count)
 /*
  * write bio
  */
-x_s32 bio_write(struct blkdev * dev, const x_u8 * buf, x_s32 offset, x_s32 count)
+x_size bio_write(struct blkdev * dev, const x_u8 * buf, x_off offset, x_size count)
 {
 	struct bio * bio;
 	x_s32 blkno;
-	x_s32 len = 0;
 	x_u8 * p = (x_u8 *)buf;
 	x_s32 o = 0, l = 0;
+	x_size len = 0;
 
 	if(!dev || !dev->info || !buf || (offset < 0) || (count <= 0) )
 		return 0;

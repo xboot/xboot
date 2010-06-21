@@ -188,9 +188,9 @@ struct fatfs_mount_data {
 	x_u32 fat_eof;
 
 
-
 	/* vnode for root */
 	struct vnode * root_vnode;
+
 
 	/* local data buffer */
 	char * io_buf;
@@ -332,6 +332,31 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 		return EINVAL;
 	}
 
+	md->io_buf = malloc(md->cluster_size);
+	if(!md->io_buf)
+	{
+		free(md);
+		return ENOMEM;
+	}
+
+	md->fat_buf = malloc(md->sector_size * 2);
+	if(!md->fat_buf)
+	{
+		free(md->io_buf);
+		free(md);
+		return ENOMEM;
+	}
+
+	md->dir_buf = malloc(md->sector_size);
+	if(!md->dir_buf)
+	{
+		free(md->fat_buf);
+		free(md->io_buf);
+		free(md);
+		return ENOMEM;
+	}
+
+	md->blk = blk;
 	m->m_flags = flag & MOUNT_MASK;
 	m->m_data = md;
 
@@ -340,11 +365,14 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 
 static x_s32 fatfs_unmount(struct mount * m)
 {
-	struct fatfs_mount_data * md;
+	struct fatfs_mount_data * md = m->m_data;
 
 	free(m->m_root->v_data);
 
-	md = m->m_data;
+	free(md->dir_buf);
+	free(md->fat_buf);
+	free(md->io_buf);
+
 	free(md);
 
 	return 0;
@@ -371,6 +399,33 @@ static x_s32 fatfs_statfs(struct mount * m, struct statfs * stat)
 {
 	return -1;
 }
+
+#if 0
+/*
+ * read directory entry to buffer, with cache.
+ */
+static x_bool fat_read_dirent(struct fatfs_mount_data * md, x_u32 sec)
+{
+/*	x_u32 size = md->sector_size;
+
+	if(bio_read(md->blk, (x_u8 *)(md->dir_buf), sec, size) != size)
+		return FALSE;
+*/
+	return TRUE;
+}
+
+/*
+ * write directory entry from buffer.
+ */
+static x_s32 fat_write_dirent(struct fatfs_mount_data * md, x_u32 sec)
+{
+/*	x_u32 size = md->sector_size;
+
+	bio_write(md->blk, (const x_u8 *)(md->dir_buf), x_s32 offset, x_s32 count)
+*/
+	return TRUE;
+}
+#endif
 
 /*
  * vnode operations

@@ -197,8 +197,8 @@ struct vfsops {
  */
 void bio_sync(void);
 void bio_flush(struct blkdev * dev);
-x_s32 bio_read(struct blkdev * dev, x_u8 * buf, x_s32 offset, x_s32 count);
-x_s32 bio_write(struct blkdev * dev, const x_u8 * buf, x_s32 offset, x_s32 count);
+x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count);
+x_size bio_write(struct blkdev * dev, const x_u8 * buf, x_off offset, x_size count);
 
 /*
  * declare for vfs_mount

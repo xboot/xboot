@@ -116,7 +116,7 @@ static x_bool dos_partition(struct disk * disk, x_u32 sector, x_u32 relative)
 	if((!disk->read_sector) || (!disk->write_sector))
 		return FALSE;
 
-	if(!disk_read(disk, (x_u8 *)(&mbr), sector * disk->sector_size , sizeof(struct dos_partition_mbr)))
+	if(!disk_read(disk, (x_u8 *)(&mbr), (x_off)(sector * disk->sector_size) , sizeof(struct dos_partition_mbr)))
 		return FALSE;
 
 	/*

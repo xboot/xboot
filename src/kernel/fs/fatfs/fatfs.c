@@ -23,6 +23,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
+#include <ctype.h>
 #include <stdarg.h>
 #include <vsprintf.h>
 #include <malloc.h>
@@ -38,6 +39,27 @@
 #include <xboot/device.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>
+
+/*
+ * fat attribute for attr
+ */
+#define FA_RDONLY		0x01
+#define FA_HIDDEN		0x02
+#define FA_SYSTEM		0x04
+#define FA_VOLID		0x08
+#define FA_SUBDIR		0x10
+#define FA_ARCH			0x20
+#define FA_DEVICE		0x40
+
+#define IS_DIR(de)		(((de)->attr) & FA_SUBDIR)
+#define IS_VOL(de)		(((de)->attr) & FA_VOLID)
+#define IS_FILE(de)		(!IS_DIR(de) && !IS_VOL(de))
+
+#define IS_DELETED(de)  ((de)->name[0] == 0xe5)
+#define IS_EMPTY(de)    ((de)->name[0] == 0)
+
+#define IS_EOFCL(fat, cl) \
+	(((cl) & EOF_MASK) == ((fat)->fat_mask & EOF_MASK))
 
 /*
  * boot sector
@@ -401,6 +423,128 @@ static x_s32 fatfs_statfs(struct mount * m, struct statfs * stat)
 }
 
 /*
+ * convert file name to 8.3 format ("foo.bar" => "foo     bar")
+ */
+static void fat_convert_name(x_u8 * org, x_u8 * name)
+{
+	x_s32 i;
+
+	memset(name, ' ', 11);
+
+	for(i = 0; i <= 11; i++)
+	{
+		if(!*org)
+			break;
+		if(*org == '/')
+			break;
+		if(*org == '.')
+		{
+			i = 7;
+			org++;
+			continue;
+		}
+
+		*(name + i) = *org;
+		org++;
+	}
+}
+
+/*
+ * restore file name to normal format ("foo     bar" => "foo.bar")
+ */
+static void fat_restore_name(x_u8 * org, x_u8 * name)
+{
+	x_s32 i;
+
+	memset(name, 0, 13);
+
+	for(i = 0; i < 8; i++)
+	{
+		if(*org != ' ')
+			*name++ = *org;
+		org++;
+	}
+
+	if(*org != ' ')
+		*name++ = '.';
+	for(i = 0; i < 3; i++)
+	{
+		if(*org != ' ')
+			*name++ = *org;
+		org++;
+	}
+}
+
+/*
+ * compare tow file names
+ */
+static x_bool fat_compare_name(x_u8 * n1, x_u8 * n2)
+{
+	x_s32 i;
+
+	for(i = 0; i < 11; i++, n1++, n2++)
+	{
+		if(toupper(*n1) != toupper(*n2))
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+/*
+ * check specified name is valid as fat file name.
+ */
+static x_bool fat_valid_name(x_u8 * name)
+{
+	const x_u8 invalid_char[] = "*?<>|\"+=,;[] \345";
+	x_s32 len = 0;
+
+	/* . or .. */
+	if(*name == '.')
+	{
+		name++;
+		if(*name == '.')
+			name++;
+		return(*(name + 1) == '\0') ? TRUE : FALSE;
+	}
+
+	/* first char must be alphabet or numeric */
+	if(!isalnum(*name))
+		return FALSE;
+
+	while(*name != '\0')
+	{
+		if(strchr((const x_s8 *)invalid_char, *name))
+			return FALSE;
+		if(*name == '.')
+			break;
+		if(++len > 8)
+			return FALSE;
+		name++;
+	}
+
+	if(*name == '\0')
+		return TRUE;
+	name++;
+
+	if(*name == '\0')
+		return TRUE;
+	len = 0;
+	while(*name != '\0')
+	{
+		if(strchr((const x_s8 *)invalid_char, *name))
+			return FALSE;
+		if(*name == '.')
+			return FALSE;
+		if(++len > 3)
+			return FALSE;
+		name++;
+	}
+
+	return TRUE;
+}
+
+/*
  * read directory entry to buffer, with cache.
  */
 static x_bool fat_read_dirent(struct fatfs_mount_data * md, x_u32 sector)
@@ -429,16 +573,102 @@ static x_s32 fat_write_dirent(struct fatfs_mount_data * md, x_u32 sector)
 }
 
 /*
+ * find directory entry in specified sector.
+ */
+static x_s32 fat_lookup_dirent(struct fatfs_mount_data * md, x_u32 sec, x_u8 * name, struct fat_node * np)
+{
+	struct fat_dirent * de;
+	x_s32 i, num;
+
+	if(fat_read_dirent(md, sec) != TRUE)
+		return EIO;
+
+	de = (struct fat_dirent *)md->dir_buf;
+	num = md->sector_size / sizeof(struct fat_dirent);
+
+	for(i = 0; i < num; i++)
+	{
+		if(IS_EMPTY(de))
+			return ENOENT;
+
+		if(!IS_VOL(de) && !fat_compare_name(de->name, name))
+		{
+			*(&np->dirent) = *de;
+			np->sector = sec;
+			np->offset = sizeof(struct fat_dirent) * i;
+			return 0;
+		}
+
+		de++;
+	}
+
+	return EAGAIN;
+}
+
+/*
+ * find directory entry for specified name in directory.
+ */
+static x_s32 fat_lookup_node(struct vnode * dnode, x_u8 * name, struct fat_node * np)
+{
+	struct fatfs_mount_data * md;
+	x_u8 fat_name[12];
+	x_u32 cl, sec;
+	x_s32 i, err;
+
+	if(name == NULL)
+		return ENOENT;
+
+	fat_convert_name(name, fat_name);
+	*(fat_name + 11) = '\0';
+
+	md = (struct fatfs_mount_data *)dnode->v_mount->m_data;
+	cl = dnode->v_blkno;
+	if(cl == 0)
+	{
+		/* search entry in root directory */
+		for(sec = md->root_start; sec < md->data_start; sec++)
+		{
+			err = fat_lookup_dirent(md, sec, fat_name, np);
+			if(err != EAGAIN)
+				return err;
+		}
+	}
+	else
+	{
+#if 0
+		/* search entry in sub directory */
+		while(! (((cl) & 0xfffffff8) == ((md)->fat_mask & 0xfffffff8)) )
+		{
+            sec = (md->data_start + (cl - 2) * md->sectors_per_cluster);
+
+			for(i = 0; i < md->sectors_per_cluster; i++)
+			{
+				err = fat_lookup_dirent(md, sec, fat_name, np);
+				if(err != EAGAIN)
+					return err;
+				sec++;
+			}
+			err = fat_next_cluster(md, cl, &cl);
+			if(err)
+				return err;
+		}
+#endif
+	}
+
+	return ENOENT;
+}
+
+/*
  * vnode operations
  */
 static x_s32 fatfs_open(struct vnode * node, x_s32 flag)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 fatfs_close(struct vnode * node, struct file * fp)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 fatfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
@@ -453,7 +683,7 @@ static x_s32 fatfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 
 static x_s32 fatfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 fatfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)
@@ -463,17 +693,68 @@ static x_s32 fatfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void 
 
 static x_s32 fatfs_fsync(struct vnode * node, struct file * fp)
 {
-	return -1;
+	return 0;
 }
 
 static x_s32 fatfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
-	return -1;
+	struct fatfs_mount_data * md;
+	struct fat_node np;
+	struct fat_dirent * de;
+	x_s32 err;
+
+	printk("%s\r\n", __FUNCTION__);
+
+	md = node->v_mount->m_data;
+//TODO
+//	err = fatfs_get_node(node, fp->f_offset, &np);
+	if(err != 0)
+		return err;
+
+	de = &np.dirent;
+	fat_restore_name((x_u8 *)&de->name, (x_u8 *)dir->d_name);
+
+	if(IS_DIR(de))
+		dir->d_type = DT_DIR;
+	else if(IS_FILE(de))
+		dir->d_type = DT_REG;
+	else
+		dir->d_type = DT_UNKNOWN;
+
+	dir->d_fileno = fp->f_offset;
+	dir->d_namlen = strlen((const x_s8 *)dir->d_name);
+	fp->f_offset++;
+
+	return 0;
 }
 
 static x_s32 fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	return -1;
+	struct fatfs_mount_data * md;
+	struct fat_node * np;
+	struct fat_dirent * de;
+	x_s32 err;
+
+	printk("%s\r\n", __FUNCTION__);
+
+	if(*name == '\0')
+		return ENOENT;
+
+	md = node->v_mount->m_data;
+
+	np = node->v_data;
+	err = fat_lookup_node(dnode, (x_u8 *)name, np);
+	if(err != 0)
+		return err;
+
+	de = &np->dirent;
+	node->v_type = IS_DIR(de) ? VDIR : VREG;
+//	fat_attr_to_mode(de->attr, &vp->v_mode);
+	node->v_mode = S_IRWXU | S_IRWXG | S_IRWXO;
+	node->v_size = de->size;
+	node->v_blkno = de->cluster;
+
+	return 0;
 }
 
 static x_s32 fatfs_create(struct vnode * node, char * name, x_u32 mode)

@@ -19,5 +19,6 @@
 #define EIO				-14		/* i/o error */
 #define ENOMEM			-15		/* out of memory */
 #define EINTR			-16		/* operation interrupted */
+#define EAGAIN			-17		/* again */
 
 #endif /* __ERROR_H__ */

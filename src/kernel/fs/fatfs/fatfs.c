@@ -41,25 +41,22 @@
 #include <fs/fs.h>
 
 /*
- * fat attribute for attr
+ * fat attribute
  */
-#define FA_RDONLY		0x01
-#define FA_HIDDEN		0x02
-#define FA_SYSTEM		0x04
-#define FA_VOLID		0x08
-#define FA_SUBDIR		0x10
-#define FA_ARCH			0x20
-#define FA_DEVICE		0x40
+#define FAT_ATTR_RDONLY			0x01
+#define FAT_ATTR_HIDDEN			0x02
+#define FAT_ATTR_SYSTEM			0x04
+#define FAT_ATTR_VOLID			0x08
+#define FAT_ATTR_SUBDIR			0x10
+#define FAT_ATTR_ARCH			0x20
+#define FFAT_ATTR_DEVICE		0x40
 
-#define IS_DIR(de)		(((de)->attr) & FA_SUBDIR)
-#define IS_VOL(de)		(((de)->attr) & FA_VOLID)
-#define IS_FILE(de)		(!IS_DIR(de) && !IS_VOL(de))
+#define IS_DIR(de)				(((de)->attr) & FAT_ATTR_SUBDIR)
+#define IS_VOL(de)				(((de)->attr) & FAT_ATTR_VOLID)
+#define IS_FILE(de)				(!IS_DIR(de) && !IS_VOL(de))
 
-#define IS_DELETED(de)  ((de)->name[0] == 0xe5)
-#define IS_EMPTY(de)    ((de)->name[0] == 0)
-
-#define IS_EOFCL(fat, cl) \
-	(((cl) & EOF_MASK) == ((fat)->fat_mask & EOF_MASK))
+#define IS_DELETED(de)  		((de)->name[0] == 0xe5)
+#define IS_EMPTY(de)    		((de)->name[0] == 0)
 
 /*
  * boot sector
@@ -209,10 +206,8 @@ struct fatfs_mount_data {
 	/* id of end cluster */
 	x_u32 fat_eof;
 
-
 	/* vnode for root */
 	struct vnode * root_vnode;
-
 
 	/* local data buffer */
 	char * io_buf;
@@ -317,7 +312,28 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 	switch(md->type)
 	{
 	case FAT_TYPE_FAT12:
-		//TODO
+		md->sector_size = sector_size;
+		md->sectors_per_cluster = fbs.sectors_per_cluster;
+		md->cluster_size = md->sectors_per_cluster * md->sector_size;
+		tmp = ((fbs.hidden_sectors[3] << 24) | (fbs.hidden_sectors[2] << 16) | (fbs.hidden_sectors[1] << 8) | (fbs.hidden_sectors[0] << 0));
+		md->fat_start = tmp + ((fbs.reserved_sectors[1] << 8) | (fbs.reserved_sectors[0] << 0));
+		md->root_start = md->fat_start + (fbs.num_of_fats * ((fbs.sectors_per_fat[1] << 8) | (fbs.sectors_per_fat[0] << 0)));
+		md->data_start = md->root_start + ( ((fbs.root_entries[1] << 8) | (fbs.root_entries[0] << 0)) / (sector_size / sizeof(struct fat_dirent)) );
+
+		tmp = ((fbs.total_sectors[1] << 8) | (fbs.total_sectors[0] << 0));
+		if(tmp == 0)
+			tmp = ((fbs.big_total_sectors[3] << 24) | (fbs.big_total_sectors[2] << 16) | (fbs.big_total_sectors[1] << 8) | (fbs.big_total_sectors[0] << 0));
+
+		if(tmp == 0)
+		{
+			free(md);
+			return EINVAL;
+		}
+
+		md->last_cluster = (tmp - md->data_start) / md->sectors_per_cluster + 2;
+		md->free_scan = 2;
+		md->fat_mask = 0x00000fff;
+		md->fat_eof = 0xffffffff & 0x00000fff;
 		break;
 
 	case FAT_TYPE_FAT16:
@@ -381,6 +397,36 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 	md->blk = blk;
 	m->m_flags = flag & MOUNT_MASK;
 	m->m_data = md;
+
+	// for debug
+	switch(md->type)
+	{
+	case FAT_TYPE_FAT12:
+		printk("fat12\r\n");
+		break;
+	case FAT_TYPE_FAT16:
+		printk("fat16\r\n");
+		break;
+	case FAT_TYPE_FAT32:
+		printk("fat32\r\n");
+		break;
+	default:
+		break;
+	}
+
+	printk("sector size: %ld\r\n", md->sector_size);
+	printk("sectors per cluster: %ld\r\n", md->sectors_per_cluster);
+	printk("cluster size: %ld\r\n", md->cluster_size);
+
+	printk("fat start: %ld\r\n", md->fat_start);
+	printk("root start: %ld\r\n", md->root_start);
+	printk("data start: %ld\r\n", md->data_start);
+
+	printk("last cluster: %ld\r\n", md->last_cluster);
+	printk("free scan: %ld\r\n", md->free_scan);
+
+	printk("fat mask: 0x%08x\r\n", md->fat_mask);
+	printk("fat eof: 0x%08x\r\n", md->fat_eof);
 
 	return 0;
 }

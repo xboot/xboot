@@ -43,18 +43,17 @@
 /*
  * fat attribute
  */
-#define FAT_ATTR_RDONLY			0x01
-#define FAT_ATTR_HIDDEN			0x02
-#define FAT_ATTR_SYSTEM			0x04
-#define FAT_ATTR_VOLID			0x08
-#define FAT_ATTR_SUBDIR			0x10
-#define FAT_ATTR_ARCH			0x20
-#define FFAT_ATTR_DEVICE		0x40
+#define FAT_ATTR_RDONLY			(0x01)
+#define FAT_ATTR_HIDDEN			(0x02)
+#define FAT_ATTR_SYSTEM			(0x04)
+#define FAT_ATTR_VOLID			(0x08)
+#define FAT_ATTR_SUBDIR			(0x10)
+#define FAT_ATTR_ARCH			(0x20)
+#define FFAT_ATTR_DEVICE		(0x40)
 
 #define IS_DIR(de)				(((de)->attr) & FAT_ATTR_SUBDIR)
 #define IS_VOL(de)				(((de)->attr) & FAT_ATTR_VOLID)
 #define IS_FILE(de)				(!IS_DIR(de) && !IS_VOL(de))
-
 #define IS_DELETED(de)  		((de)->name[0] == 0xe5)
 #define IS_EMPTY(de)    		((de)->name[0] == 0)
 
@@ -362,7 +361,15 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 		break;
 
 	case FAT_TYPE_FAT32:
-		//TODO
+		md->sector_size = sector_size;
+		md->sectors_per_cluster = fbs.sectors_per_cluster;
+		md->cluster_size = md->sectors_per_cluster * md->sector_size;
+		tmp = ((fbs.hidden_sectors[3] << 24) | (fbs.hidden_sectors[2] << 16) | (fbs.hidden_sectors[1] << 8) | (fbs.hidden_sectors[0] << 0));
+		md->fat_start = tmp + ((fbs.reserved_sectors[1] << 8) | (fbs.reserved_sectors[0] << 0));
+		md->root_start = md->fat_start + (fbs.num_of_fats * ((fbs.x.fat32.sectors_per_fat_32[3] << 24) | (fbs.x.fat32.sectors_per_fat_32[2] << 16) | (fbs.x.fat32.sectors_per_fat_32[1] << 8) | (fbs.x.fat32.sectors_per_fat_32[0] << 0)));
+
+		md->data_start = md->root_start + 1;
+
 		break;
 
 	default:
@@ -607,7 +614,7 @@ static x_bool fat_read_dirent(struct fatfs_mount_data * md, x_u32 sector)
 /*
  * write directory entry from buffer.
  */
-static x_s32 fat_write_dirent(struct fatfs_mount_data * md, x_u32 sector)
+static x_bool fat_write_dirent(struct fatfs_mount_data * md, x_u32 sector)
 {
 	x_off off = sector * md->sector_size;
 	x_size size = md->sector_size;
@@ -616,6 +623,14 @@ static x_s32 fat_write_dirent(struct fatfs_mount_data * md, x_u32 sector)
 		return FALSE;
 
 	return TRUE;
+}
+
+/*
+ * read the fat entry for specified cluster.
+ */
+static x_bool read_fat_entry(struct fatfs_mount_data * md, x_u32 cl)
+{
+	return FALSE;
 }
 
 /*

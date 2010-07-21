@@ -598,6 +598,54 @@ static x_bool fat_valid_name(x_u8 * name)
 }
 
 /*
+ * read the fat entry for specified cluster.
+ */
+static x_bool read_fat_entry(struct fatfs_mount_data * md, x_u32 cl)
+{
+	return FALSE;
+}
+
+/*
+ * get next cluster number of fat chain.
+ */
+static x_s32 fat_next_cluster(struct fatfs_mount_data * md, x_u32 cl, x_u32 * next)
+{
+	x_u32 offset;
+	x_u32 val;
+
+	if(read_fat_entry(md, cl) != TRUE)
+		return EIO;
+
+	switch(md->type)
+	{
+	case FAT_TYPE_FAT12:
+		offset = (cl * 3 / 2) % md->sector_size;
+		val = (md->fat_buf[offset + 1] << 8) | (md->fat_buf[offset + 0] << 0);
+		if(cl & 0x1)
+			val >>= 4;
+		else
+			val &= 0xfff;
+		break;
+
+	case FAT_TYPE_FAT16:
+		offset = (cl * 2) % md->sector_size;
+		val = (md->fat_buf[offset + 1] << 8) | (md->fat_buf[offset + 0] << 0);
+		break;
+
+	case FAT_TYPE_FAT32:
+		offset = (cl * 4) % md->sector_size;
+		val = (md->fat_buf[offset + 3] << 24) | (md->fat_buf[offset + 2] << 16) | (md->fat_buf[offset + 1] << 8) | (md->fat_buf[offset + 0] << 0);
+		break;
+
+	default:
+		return EINVAL;
+	}
+
+	*next = val;
+	return 0;
+}
+
+/*
  * read directory entry to buffer, with cache.
  */
 static x_bool fat_read_dirent(struct fatfs_mount_data * md, x_u32 sector)
@@ -623,14 +671,6 @@ static x_bool fat_write_dirent(struct fatfs_mount_data * md, x_u32 sector)
 		return FALSE;
 
 	return TRUE;
-}
-
-/*
- * read the fat entry for specified cluster.
- */
-static x_bool read_fat_entry(struct fatfs_mount_data * md, x_u32 cl)
-{
-	return FALSE;
 }
 
 /*

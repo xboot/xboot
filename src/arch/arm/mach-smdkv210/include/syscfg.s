@@ -138,6 +138,7 @@
 	.equ CLK_DIV0_VAL,			((0<<0) | (4<<4) | (4<<8) | (1<<12) | (3<<16) | (1<<20) | (4<<24) | (1<<28))
 	.equ CLK_DIV1_VAL,			((1<<16) | (1<<12) | (1<<8) | (1<<4))
 	.equ CLK_DIV2_VAL,			(1<<0)
+
 .endif
 
 .equ APLL_VAL,					((1<<31) | (APLL_MDIV<<16) | (APLL_PDIV<<8) | (APLL_SDIV))

@@ -39,14 +39,20 @@
  */
 .text
 	.arm
+
 /*
- * jump vector table
+ * bl1 header infomation for irom
+ *
+ * 0x0 - bl1 size
+ * 0x4 - reserved (should be 0)
+ * 0x8 - check sum
+ * 0xc - reserved (should be 0)
  */
-/*	.word 0x2000
+	.word 0x2000
 	.word 0x0
 	.word 0x0
 	.word 0x0
-*/
+
 	.global	_start
 _start:
 
@@ -112,11 +118,10 @@ reset:
 	str	r1, [r0]
 
 	/* set the cpu to supervisor mode */
-@	mrs	r0, cpsr
-@	bic	r0, r0, #0x1f
-@	orr	r0, r0, #0xd3
-@	msr	cpsr, r0
-	msr	cpsr_c, #0xd3
+	mrs	r0, cpsr
+	bic	r0, r0, #0x1f
+	orr	r0, r0, #0xd3
+	msr	cpsr, r0
 
 	/* disable l2 cache */
 	mrc p15, 0, r0, c1, c0, 1
@@ -149,8 +154,22 @@ reset:
 	orr	r0, r0, #0x00000800			/* set bit 12 (z---) btb */
 	mcr	p15, 0, r0, c1, c0, 0
 
+	/* io retention release */
+	ldr	r0, =0xe010e000
+	ldr	r1, [r0]
+	ldr	r2, =((1 << 31) | (1 << 29) | (1 << 28))
+	orr	r1, r1, r2
+	str	r1, [r0]
+
+	/* ps_hold pin (gph0_0) set to high */
+	ldr	r0, =0xe010e81c
+	ldr	r1, [r0]
+	orr	r1, r1, #0x300
+	orr	r1, r1, #0x1
+	str	r1, [r0]
+
 	/* init system clock */
-@	bl system_clock_init
+	bl system_clock_init
 
 	/* initialize memory control */
 @	bl	mem_ctrl_init
@@ -207,29 +226,23 @@ system_clock_init:
 	ldr r1, =CLK_DIV0_VAL
 	str	r1, [r0, #0x300]
 
-	ldr	r1, =CLK_DIV1_VAL
+	ldr r1, =CLK_DIV1_VAL
 	str	r1, [r0, #0x304]
 
-	ldr	r1, =CLK_DIV2_VAL
+	ldr r1, =CLK_DIV2_VAL
 	str	r1, [r0, #0x308]
 
-	ldr	r1, =CLK_DIV3_VAL
-	str	r1, [r0, #0x30c]
-
-	ldr	r1, =CLK_DIV4_VAL
-	str	r1, [r0, #0x310]
-
 	ldr	r1, =APLL_VAL
-	str	r1, [r0, #0x100]
-	ldr	r1, =MPLL_VAL
-	str	r1, [r0, #0x104]
-	ldr	r1, =EPLL_VAL
-	str	r1, [r0, #0x108]
-	ldr	r1, =HPLL_VAL
-	str	r1, [r0, #0x10c]
+	str	r1, [r0, #0x0100]
 
-	ldr	r1, =CLK_SRC0_VAL
-	str	r1, [r0, #0x200]
+	ldr	r1, =MPLL_VAL
+	str	r1, [r0, #0x0108]
+
+	ldr	r1, =EPLL_VAL
+	str	r1, [r0, #0x0110]
+
+	ldr	r1, =VPLL_VAL
+	str	r1, [r0, #0x0120]
 
 	mov	r1, #0x10000
 1:	subs	r1, r1, #1

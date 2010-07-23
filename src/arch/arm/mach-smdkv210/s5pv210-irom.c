@@ -36,6 +36,8 @@
 
 #include <configs.h>
 #include <default.h>
+#include <s5pv210/reg-gpio.h>
+#include <s5pv210/reg-others.h>
 
 extern x_u8	__text_start[];
 extern x_u8 __text_end[];
@@ -51,9 +53,187 @@ extern x_u8 __stack_start[];
 extern x_u8 __stack_end[];
 
 /*
+ * global block size.
+ */
+#define irom_global_block_size								\
+		(*((volatile x_u32 *)(0xd0037480)))
+
+/*
+ * global sdhc information bit.
+ *
+ * [31:16] RCA address
+ * [2] sd card.
+ * [1] mmc card.
+ * [0] high capacity enable.
+ */
+#define irom_global_sdhc_info_bit							\
+		(*((volatile x_u32 *)(0xd0037484)))
+
+/*
+ * sdmmc base, current boot channel.
+ */
+#define irom_v210_sdmmc_base								\
+		(*((volatile x_u32 *)(0xd0037488)))
+
+
+/*
+ * this function copies a block of page to destination memory (8-bit ecc only)
+ * 2048, 4096 page 8bits-bus nand Only.
+ *
+ * @param x_u32 block : source block address number to copy.
+ * @param x_u32 page  : source page address number to copy.
+ * @param x_u8 * mem  : target memory pointer.
+ * @return x_s32 - success or failure.
+*/
+#define	irom_nf8_readpage_adv(block, page, mem)				\
+		(((x_s32(*)(x_u32, x_u32, x_u8 *))(*((x_u32 *)(0xd0037f90))))(block, page, mem))
+
+/*
+ * this function copies a block of page to destination memory (4-bit ecc only)
+ * 2048 page size, 5 cycle address, 16bits-bus nand Only
+ *
+ * @param x_u32 block : source block address number to copy.
+ * @param x_u32 page  : source page address number to copy.
+ * @param x_u8 * mem  : target memory pointer.
+ * @return x_s32 - success or failure.
+*/
+#define	irom_nf16_readpage_adv(block, page, mem)			\
+		(((x_s32(*)(x_u32, x_u32, x_u8 *))(*((x_u32 *)(0xd0037f94))))(block, page, mem))
+
+/*
+ * this function copies SD/MMC card data to memory.
+ * always use EPLL source clock. this function works at 20Mhz.
+ *
+ * @param ch 	 : HSMMC controller channel number (not support. depend on GPN15, GPN14 and GPN13).
+ * @param sector : source card(SD/MMC) address (it must block address).
+ * @param count  : number of blocks to copy.
+ * @param mem    : memory to copy to.
+ * @param init 	 : reinitialize or not.
+ * @return bool(x_u8) - success or failure.
+ */
+#define irom_sdmmc_to_mem(ch, sector, count, mem, init)		\
+		(((x_u8(*)(x_s32, x_u32, x_u16, x_u32 *, x_s32))(*((x_u32 *)(0xd0037f98))))(ch, sector, count, mem, init))
+
+/*
+ * write a 32-bits value to register.
+ */
+static void reg_write(x_u32 addr, x_u32 value)
+{
+	( *((volatile x_u32 *)(addr)) ) = value;
+}
+
+/*
+ * read a 32-bits value from register.
+ */
+static x_u32 reg_read(x_u32 addr)
+{
+	return( *((volatile x_u32 *)(addr)) );
+}
+
+
+static void test(void)
+{
+	reg_write(S5PV210_GPH2CON, (reg_read(S5PV210_GPH2CON) & ~(0xf<<16)) | (0x1<<16));
+	reg_write(S5PV210_GPH2PUD, (reg_read(S5PV210_GPH2PUD) & ~(0x3<<8)) | (0x2<<8));
+	reg_write(S5PV210_GPH2DAT, (reg_read(S5PV210_GPH2DAT) & ~(0x1<<4)) | (0x1<<4));
+}
+
+/*
  * only support irom booting.
  */
 void irom_copyself(void)
 {
+	x_u8 om;
+	x_u32 mem, size;
 
+	/*
+	 * read om register, om[4..1]
+	 */
+	om = (x_u8)((reg_read(S5PV210_OMR) >> 1) & 0x0f);
+
+	/*
+	 * the xboot's memory base address and size.
+	 */
+	mem = (x_u32)__text_start;
+	size = (x_u32)__data_shadow_end - (x_u32)__text_start;
+
+	/* essd */
+	if(om == 0x0)
+	{
+
+	}
+
+	/* nand 2KB, 5-cycle, 8-bit ecc */
+	else if(om == 0x1)
+	{
+
+	}
+
+	/* nand 4KB, 5-cycle, 8-bit ecc */
+	else if(om == 0x2)
+	{
+
+	}
+
+	/* nand 4KB, 5-cycle, 16-bit ecc */
+	else if(om == 0x3)
+	{
+
+	}
+
+	/* onenand mux */
+	else if(om == 0x4)
+	{
+
+	}
+
+	/* onenand demux */
+	else if(om == 0x5)
+	{
+
+	}
+
+	/* sd / mmc */
+	else if(om == 0x6)
+	{
+
+	}
+
+	/* emmc, 4-bit */
+	else if(om == 0x7)
+	{
+
+	}
+
+	/* reserved */
+	else if(om == 0x8)
+	{
+
+	}
+
+	/* nand 2KB, 4-cycle, 8-bit ecc */
+	else if(om == 0x9)
+	{
+
+	}
+
+	/* nor flash */
+	else if(om == 0xa)
+	{
+
+	}
+
+	/* emmc, 8-bit */
+	else if(om == 0xa)
+	{
+
+	}
+
+	/* not support */
+	else
+	{
+		return;
+	}
+
+	test();
 }

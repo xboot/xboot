@@ -21,4 +21,13 @@ LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
 
+#
+# add final rules
+#
+MKHEADER	:= arch/arm/mach-smdkv210/tools/linux/mkheader
+
+final:
+	@echo make header information for irom booting
+	@$(MKHEADER) $(OUTDIR)/$(XBOOT_NAME).bin
+
 endif

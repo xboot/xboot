@@ -106,7 +106,6 @@ AR			:= $(CROSS)ar
 OC			:= $(CROSS)objcopy
 OD			:= $(CROSS)objdump
 RM			:= -rm -fr
-DOXYGEN		:= -doxygen
 
 XBOOT_NAME	:= xboot
 OBJDIRS		:= .obj $(patsubst %, .obj/%, $(SRCDIRS))
@@ -118,9 +117,9 @@ CPPFILES	:= $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.cpp))
 OBJS		:= $(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 VPATH		:= $(OBJDIRS)
 
-.PHONY: all docs clean
+.PHONY: all final docs clean
 
-all:	$(OBJS) $(OUTDIR)/$(XBOOT_NAME).elf $(OUTDIR)/$(XBOOT_NAME).bin
+all:	$(OBJS) $(OUTDIR)/$(XBOOT_NAME).elf $(OUTDIR)/$(XBOOT_NAME).bin final
 
 $(OUTDIR)/$(XBOOT_NAME).bin:	$(OUTDIR)/$(XBOOT_NAME).elf
 	@echo [OC] objcopy $@
@@ -145,9 +144,7 @@ $(OUTDIR)/$(XBOOT_NAME).elf:	$(OBJS)
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
 docs:
-	@$(RM) ../documents/html
-#	@$(DOXYGEN) Doxyfile
-	@echo generate document complete
+	@echo no documents
  	
 clean:
 	@$(RM) $(OUTDIR) $(OBJDIRS)

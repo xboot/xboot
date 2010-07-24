@@ -7,7 +7,7 @@
 .PHONY: all docs clean
 
 all:
-	@$(MAKE) -C src
+	@$(MAKE) -C src all
 
 docs:
 	@$(MAKE) -C src docs

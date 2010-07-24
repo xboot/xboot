@@ -47,6 +47,10 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
+	extern void irom_copyself(void);
+
+	irom_copyself();
+
 	return 0;
 }
 

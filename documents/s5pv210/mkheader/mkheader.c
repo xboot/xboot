@@ -57,7 +57,7 @@ int main (int argc, char *argv[])
 	}
 
 	memset(buf, 0x00, size);
-	fseek(fp, 16L, SEEK_SET);
+	fseek(fp, 0L, SEEK_SET);
 	if(fread(buf, 1, size, fp) != size)
 	{
 		printf("Read body file error\n", argv[1]);
@@ -66,7 +66,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	for(i=0, checksum=0; i<size; i++)
+	for(i=16, checksum=0; i<size; i++)
 	{
 		checksum += buf[i] & 0xff;
 	}

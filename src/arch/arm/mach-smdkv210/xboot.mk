@@ -24,10 +24,10 @@ SRCDIRS		:=
 #
 # add final rules
 #
-ifeq ($(strip $(OSTYPE)), linux)
+ifeq ($(strip $(HOSTOS)), linux)
 MKHEADER	:= arch/arm/mach-smdkv210/tools/linux/mkheader
 endif
-ifeq ($(strip $(OSTYPE)), windows)
+ifeq ($(strip $(HOSTOS)), windows)
 MKHEADER	:=
 endif
 

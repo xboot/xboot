@@ -24,9 +24,9 @@ endif
 # system environment variable.
 #
 ifneq (,$(findstring Linux, $(shell uname -s)))
-	OSTYPE	:= linux
+	HOSTOS	:= linux
 else
-	OSTYPE	:= windows
+	HOSTOS	:= windows
 endif
 
 #

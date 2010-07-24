@@ -21,6 +21,15 @@ MACH		:= mach-realview
 endif
 
 #
+# system environment variable.
+#
+ifneq (,$(findstring Linux, $(shell uname -s)))
+	OSTYPE	:= linux
+else
+	OSTYPE	:= windows
+endif
+
+#
 # define default make variables.
 #
 ASFLAGS		:= --gstabs --warn

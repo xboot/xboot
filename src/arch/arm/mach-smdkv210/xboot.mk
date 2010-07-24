@@ -24,7 +24,12 @@ SRCDIRS		:=
 #
 # add final rules
 #
+ifeq ($(strip $(OSTYPE)), linux)
 MKHEADER	:= arch/arm/mach-smdkv210/tools/linux/mkheader
+endif
+ifeq ($(strip $(OSTYPE)), windows)
+MKHEADER	:=
+endif
 
 final:
 	@echo make header information for irom booting

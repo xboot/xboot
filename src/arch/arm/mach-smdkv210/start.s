@@ -146,7 +146,6 @@ reset:
 	mcr	p15, 0, r0, c8, c7, 0		/* invalidate tlbs */
 	mcr	p15, 0, r0, c7, c5, 0		/* invalidate icache */
 
-.if 0 /* TODO */
 	/* disable mmu stuff and caches */
 	mrc	p15, 0, r0, c1, c0, 0
 	bic	r0, r0, #0x00002000			/* clear bits 13 (--v-) */
@@ -154,7 +153,6 @@ reset:
 	orr	r0, r0, #0x00000002			/* set bit 1 (--a-) align */
 	orr	r0, r0, #0x00000800			/* set bit 12 (z---) btb */
 	mcr	p15, 0, r0, c1, c0, 0
-.endif
 
 	/* io retention release */
 	ldr	r0, =0xe010e000

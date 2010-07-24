@@ -130,14 +130,6 @@ static x_u32 reg_read(x_u32 addr)
 	return( *((volatile x_u32 *)(addr)) );
 }
 
-
-static void test(void)
-{
-	reg_write(S5PV210_GPH2CON, (reg_read(S5PV210_GPH2CON) & ~(0xf<<16)) | (0x1<<16));
-	reg_write(S5PV210_GPH2PUD, (reg_read(S5PV210_GPH2PUD) & ~(0x3<<8)) | (0x2<<8));
-	reg_write(S5PV210_GPH2DAT, (reg_read(S5PV210_GPH2DAT) & ~(0x1<<4)) | (0x1<<4));
-}
-
 /*
  * only support irom booting.
  */
@@ -146,8 +138,6 @@ void irom_copyself(void)
 	x_u8 om;
 	x_u32 * mem;
 	x_u32 size;
-
-	test();
 
 	/*
 	 * read om register, om[4..1]

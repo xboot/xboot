@@ -104,7 +104,7 @@ extern x_u8 __stack_end[];
  * this function copies SD/MMC card data to memory.
  * always use EPLL source clock. this function works at 20Mhz.
  *
- * @param ch 	 : HSMMC controller channel number (not support. depend on GPN15, GPN14 and GPN13).
+ * @param ch 	 : HSMMC controller channel number
  * @param sector : source card(SD/MMC) address (it must block address).
  * @param count  : number of blocks to copy.
  * @param mem    : memory to copy to.
@@ -144,18 +144,15 @@ static void test(void)
 void irom_copyself(void)
 {
 	x_u8 om;
-	x_u32 mem, size;
+	x_u32 * mem;
+	x_u32 size;
+
+	test();
 
 	/*
 	 * read om register, om[4..1]
 	 */
 	om = (x_u8)((reg_read(S5PV210_OMR) >> 1) & 0x0f);
-
-	/*
-	 * the xboot's memory base address and size.
-	 */
-	mem = (x_u32)__text_start;
-	size = (x_u32)__data_shadow_end - (x_u32)__text_start;
 
 	/* essd */
 	if(om == 0x0)
@@ -196,7 +193,38 @@ void irom_copyself(void)
 	/* sd / mmc */
 	else if(om == 0x6)
 	{
+		/*
+		 * the xboot's memory base address.
+		 */
+		mem = (x_u32 *)__text_start;
 
+		/*
+		 * the size which will be copyed, the 'size' is
+		 * 1 : 256KB, 2 : 512KB, 3 : 768KB, 4 : 1024KB ...
+		 */
+		size = (__data_shadow_end - __text_start + 0x00040000) >> 18;
+
+		/*
+		 * how many blocks the 'size' is , 512 bytes per block.
+		 * size * 256 *1024 / 512 = size * 2^9 = size << 9
+		 */
+		size = size << 9;
+
+		/*
+		 * copy xboot to memory from sd/mmc card.
+		 */
+		if(irom_v210_sdmmc_base == 0xeb000000)
+		{
+			irom_sdmmc_to_mem(0, 1, size, mem, 0);
+		}
+		else if(irom_v210_sdmmc_base == 0xeb200000)
+		{
+			irom_sdmmc_to_mem(2, 1, size, mem, 0);
+		}
+		else
+		{
+			return;
+		}
 	}
 
 	/* emmc, 4-bit */
@@ -234,6 +262,4 @@ void irom_copyself(void)
 	{
 		return;
 	}
-
-	test();
 }

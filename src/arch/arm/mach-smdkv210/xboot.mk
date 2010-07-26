@@ -25,10 +25,10 @@ SRCDIRS		:=
 # add final rules
 #
 ifeq ($(strip $(HOSTOS)), linux)
-MKHEADER	:= arch/arm/mach-smdkv210/tools/linux/mkheader
+MKHEADER	:= arch/$(ARCH)/$(MACH)/tools/linux/mkheader
 endif
 ifeq ($(strip $(HOSTOS)), windows)
-MKHEADER	:= arch/arm/mach-smdkv210/tools/windows/mkheader
+MKHEADER	:= arch/$(ARCH)/$(MACH)/tools/windows/mkheader
 endif
 
 final:

@@ -24,9 +24,13 @@ endif
 # system environment variable.
 #
 ifneq (,$(findstring Linux, $(shell uname -s)))
-	HOSTOS	:= linux
-else
-	HOSTOS	:= windows
+HOSTOS		:= linux
+endif
+ifneq (,$(findstring windows, $(shell uname -s)))
+HOSTOS		:= windows
+endif
+ifeq ($(strip $(HOSTOS)),)
+$(error unable to determine host operation system from uname)
 endif
 
 #

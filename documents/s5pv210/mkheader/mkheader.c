@@ -88,6 +88,6 @@ int main (int argc, char *argv[])
 	free(buf);
 	fclose(fp);
 
-	printf("The checksum is 0x%08x for '%d' bytes\n", checksum, size);
+	printf("the checksum is 0x%08x for %d bytes [0x%08x ~ 0x%08x]\n", checksum, (size - sizeof(header)), sizeof(header), size);
 	return 0;
 }

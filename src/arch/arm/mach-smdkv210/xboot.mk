@@ -28,7 +28,7 @@ ifeq ($(strip $(HOSTOS)), linux)
 MKHEADER	:= arch/arm/mach-smdkv210/tools/linux/mkheader
 endif
 ifeq ($(strip $(HOSTOS)), windows)
-MKHEADER	:=
+MKHEADER	:= arch/arm/mach-smdkv210/tools/windows/mkheader
 endif
 
 final:

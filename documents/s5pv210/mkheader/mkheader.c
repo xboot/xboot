@@ -16,7 +16,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	fp = fopen(argv[1], "a+b");
+	fp = fopen(argv[1], "r+b");
 	if(fp == NULL)
 	{
 		printf("Can not open file '%s'\n", argv[1]);

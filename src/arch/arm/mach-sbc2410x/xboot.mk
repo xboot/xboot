@@ -2,7 +2,7 @@
 # machine makefile.
 #
 
-ifeq ($(MACH), mach-sbc2410x)
+ifeq ($(TARGET), arm-sbc2410x)
 
 CROSS		?= arm-none-eabi-
 

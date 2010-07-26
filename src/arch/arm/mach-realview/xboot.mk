@@ -2,7 +2,7 @@
 # machine makefile.
 #
 
-ifeq ($(MACH), mach-realview)
+ifeq ($(TARGET), arm-realview)
 
 CROSS		?= arm-none-eabi-
 

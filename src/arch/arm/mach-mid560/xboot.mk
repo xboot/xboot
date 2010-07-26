@@ -2,7 +2,7 @@
 # machine makefile.
 #
 
-ifeq ($(MACH), mach-mid560)
+ifeq ($(TARGET), arm-mid560)
 
 CROSS		?= arm-none-eabi-
 

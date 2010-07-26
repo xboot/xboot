@@ -2,7 +2,7 @@
 # machine makefile.
 #
 
-ifeq ($(MACH), mach-smdkc100)
+ifeq ($(TARGET), arm-smdkc100)
 
 CROSS		?= arm-none-eabi-
 

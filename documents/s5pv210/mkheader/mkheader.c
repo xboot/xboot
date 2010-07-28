@@ -41,7 +41,7 @@ int main (int argc, char *argv[])
 	}
 
 	size = (header[3]<<24) | (header[2]<<16) | (header[1]<<8) | (header[0]<<0);
-	if(size <= 0 || size > 0x2000)
+	if(size <= 0 || size > 0x4000)
 	{
 		printf("Not a valid image, header error\n", argv[1]);
 		fclose(fp);

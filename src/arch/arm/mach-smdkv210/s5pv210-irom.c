@@ -2,7 +2,7 @@
  * arch/arm/mach-smdkv210/s5pv210-irom.c
  *
  * this file used by start.s assembler code, and the linker script
- * must make sure this file is linked within the first 8kB. DO NOT
+ * must make sure this file is linked within the first 16kB. DO NOT
  * use any .bss segment and .data segment, just use irom's small
  * stack. it's just a small c routline.
  *

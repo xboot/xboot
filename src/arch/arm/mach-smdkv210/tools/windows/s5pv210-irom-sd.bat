@@ -3,7 +3,8 @@ if {%1}=={} goto :USAGE
 if {%2}=={} goto :USAGE
 if not exist "%2" @Echo The file "%2" not exist & goto :USAGE
 
-dd if=%2 of=%1 bs=512 seek=1 --progress
+dd if=%2 of=%TEMP%/xboot.bin bs=512 conv=sync
+ddwin if=%TEMP%/xboot.bin of=%1 bs=512 seek=1 --progress
 @echo The image is fused successfully
 goto :EOF
 
@@ -15,5 +16,5 @@ goto :EOF
 @echo.
 @echo.
 @echo list all of available device:
-dd --list
+ddwin --list
 goto :EOF

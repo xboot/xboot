@@ -3,8 +3,8 @@
 
 <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 <storageModule moduleId="org.eclipse.cdt.core.settings">
-<cconfiguration id="0.1290298626">
-<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1290298626" moduleId="org.eclipse.cdt.core.settings" name="Default">
+<cconfiguration id="0.1707536332">
+<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1707536332" moduleId="org.eclipse.cdt.core.settings" name="Default">
 <externalSettings/>
 <extensions>
 <extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
@@ -15,20 +15,20 @@
 </extensions>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-<configuration artifactName="xboot-newfs" buildProperties="" description="" id="0.1290298626" name="Default" parent="org.eclipse.cdt.build.core.prefbase.cfg">
-<folderInfo id="0.1290298626." name="/" resourcePath="">
-<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.335221348" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
-<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.335221348.305103701" name=""/>
-<builder id="org.eclipse.cdt.build.core.settings.default.builder.1100333301" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
-<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1097400719" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
-<tool id="org.eclipse.cdt.build.core.settings.holder.146922223" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
-<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.323397385" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+<configuration artifactName="xboot" buildProperties="" description="" id="0.1707536332" name="Default" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+<folderInfo id="0.1707536332." name="/" resourcePath="">
+<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.459624143" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.459624143.994486856" name=""/>
+<builder id="org.eclipse.cdt.build.core.settings.default.builder.546495141" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1606979259" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+<tool id="org.eclipse.cdt.build.core.settings.holder.747673661" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1790065062" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 </tool>
-<tool id="org.eclipse.cdt.build.core.settings.holder.2091562544" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
-<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.2034923126" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+<tool id="org.eclipse.cdt.build.core.settings.holder.1404902567" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1578196967" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 </tool>
-<tool id="org.eclipse.cdt.build.core.settings.holder.1010490204" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
-<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1384832537" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+<tool id="org.eclipse.cdt.build.core.settings.holder.538595041" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.2113235593" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 </tool>
 </toolChain>
 </folderInfo>
@@ -116,7 +116,7 @@
 <parser enabled="true"/>
 </scannerInfoProvider>
 </profile>
-<scannerConfigBuildInfo instanceId="0.1290298626">
+<scannerConfigBuildInfo instanceId="0.1707536332">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -204,6 +204,6 @@
 </cconfiguration>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-<project id="xboot-newfs.null.517069745" name="xboot-newfs"/>
+<project id="xboot.null.356440099" name="xboot"/>
 </storageModule>
 </cproject>

@@ -40,32 +40,13 @@
  */
 static void timer_interrupt(void)
 {
-//	tick_interrupt();
-	printk("tick\r\n");
+	tick_interrupt();
+
 	/* clear interrupt status bit */
 	writel(S5PV210_TINT_CSTAT, (readl(S5PV210_TINT_CSTAT) & ~(0x1f<<5)) | (0x01<<9));
-
-	/* disable all interrupts */
-	writel(S5PV210_VIC0_INTENCLEAR, 0xffffffff);
-	writel(S5PV210_VIC1_INTENCLEAR, 0xffffffff);
-	writel(S5PV210_VIC2_INTENCLEAR, 0xffffffff);
-	writel(S5PV210_VIC3_INTENCLEAR, 0xffffffff);
-
-	/* clear all software interrupts */
-	writel(S5PV210_VIC0_SOFTINTCLEAR, 0xffffffff);
-	writel(S5PV210_VIC1_SOFTINTCLEAR, 0xffffffff);
-	writel(S5PV210_VIC2_SOFTINTCLEAR, 0xffffffff);
-	writel(S5PV210_VIC3_SOFTINTCLEAR, 0xffffffff);
-
-	/* set vic address to zero */
-	writel(S5PV210_VIC0_ADDRESS, 0x00000000);
-	writel(S5PV210_VIC1_ADDRESS, 0x00000000);
-	writel(S5PV210_VIC2_ADDRESS, 0x00000000);
-	writel(S5PV210_VIC3_ADDRESS, 0x00000000);
 }
 
-//static x_bool tick_timer_init(void)
-x_bool tick_timer_init(void)
+static x_bool tick_timer_init(void)
 {
 	x_u64 pclk;
 
@@ -88,8 +69,7 @@ x_bool tick_timer_init(void)
 	writel(S5PV210_TCFG1, (readl(S5PV210_TCFG1) & ~(0xf<<16)) | (0x01<<16));
 
 	/* load value for 10 ms timeout */
-//	writel(S5PV210_TCNTB4, (x_u32)div64(pclk, (2 * 16 * 100)));
-	writel(S5PV210_TCNTB4, (x_u32)div64(pclk, (2 * 16 * 1)));
+	writel(S5PV210_TCNTB4, (x_u32)div64(pclk, (2 * 16 * 100)));
 
 	/* auto load, manaual update of timer 4 and stop timer4 */
 	writel(S5PV210_TCON, (readl(S5PV210_TCON) & ~(0x7<<20)) | (0x06<<20));
@@ -110,10 +90,8 @@ static struct tick s5pv210_tick = {
 
 static __init void s5pv210_tick_init(void)
 {
-	/* FIXME:
 	if(!register_tick(&s5pv210_tick))
 		LOG_E("failed to register tick");
-	*/
 }
 
 module_init(s5pv210_tick_init, LEVEL_MACH_RES);

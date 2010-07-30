@@ -685,23 +685,41 @@ static __init void s5pv210_irq_init(void)
 {
 	x_u32 i;
 
+	/* select irq mode */
+	writel(S5PV210_VIC0_INTSELECT, 0x00000000);
+	writel(S5PV210_VIC1_INTSELECT, 0x00000000);
+	writel(S5PV210_VIC2_INTSELECT, 0x00000000);
+	writel(S5PV210_VIC3_INTSELECT, 0x00000000);
+
 	/* disable all interrupts */
+	writel(S5PV210_VIC0_INTENABLE, 0x00000000);
+	writel(S5PV210_VIC1_INTENABLE, 0x00000000);
+	writel(S5PV210_VIC2_INTENABLE, 0x00000000);
+	writel(S5PV210_VIC3_INTENABLE, 0x00000000);
+
+	/* clear all interrupts */
 	writel(S5PV210_VIC0_INTENCLEAR, 0xffffffff);
 	writel(S5PV210_VIC1_INTENCLEAR, 0xffffffff);
 	writel(S5PV210_VIC2_INTENCLEAR, 0xffffffff);
 	writel(S5PV210_VIC3_INTENCLEAR, 0xffffffff);
+
+	/* clear all irq status */
+	writel(S5PV210_VIC0_IRQSTATUS, 0x00000000);
+	writel(S5PV210_VIC1_IRQSTATUS, 0x00000000);
+	writel(S5PV210_VIC2_IRQSTATUS, 0x00000000);
+	writel(S5PV210_VIC3_IRQSTATUS, 0x00000000);
+
+	/* clear all fiq status */
+	writel(S5PV210_VIC0_FIQSTATUS, 0x00000000);
+	writel(S5PV210_VIC1_FIQSTATUS, 0x00000000);
+	writel(S5PV210_VIC2_FIQSTATUS, 0x00000000);
+	writel(S5PV210_VIC3_FIQSTATUS, 0x00000000);
 
 	/* clear all software interrupts */
 	writel(S5PV210_VIC0_SOFTINTCLEAR, 0xffffffff);
 	writel(S5PV210_VIC1_SOFTINTCLEAR, 0xffffffff);
 	writel(S5PV210_VIC2_SOFTINTCLEAR, 0xffffffff);
 	writel(S5PV210_VIC3_SOFTINTCLEAR, 0xffffffff);
-
-	/* select irq mode */
-	writel(S5PV210_VIC0_INTSELECT, 0x00000000);
-	writel(S5PV210_VIC1_INTSELECT, 0x00000000);
-	writel(S5PV210_VIC2_INTSELECT, 0x00000000);
-	writel(S5PV210_VIC3_INTSELECT, 0x00000000);
 
 	/* set vic address to zero */
 	writel(S5PV210_VIC0_ADDRESS, 0x00000000);
@@ -715,6 +733,14 @@ static __init void s5pv210_irq_init(void)
 		writel((S5PV210_VIC1_VECTADDR0 + 4 * i), (x_u32)irq);
 		writel((S5PV210_VIC2_VECTADDR0 + 4 * i), (x_u32)irq);
 		writel((S5PV210_VIC3_VECTADDR0 + 4 * i), (x_u32)irq);
+	}
+
+	for(i = 0; i< 32; i++)
+	{
+		writel((S5PV210_VIC0_VECPRIORITY0 + 4 * i), 0xf);
+		writel((S5PV210_VIC1_VECPRIORITY0 + 4 * i), 0xf);
+		writel((S5PV210_VIC2_VECPRIORITY0 + 4 * i), 0xf);
+		writel((S5PV210_VIC3_VECPRIORITY0 + 4 * i), 0xf);
 	}
 
 	for(i = 0; i < ARRAY_SIZE(s5pv210_irq_handler); i++)

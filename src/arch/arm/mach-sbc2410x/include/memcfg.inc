@@ -1,5 +1,5 @@
 /*
- * mach/mach-sbc2410x/memcfg.s
+ * mach/mach-sbc2410x/memcfg.inc
  *
  * memory configure for mach-sbc2410x.
  *

@@ -1,5 +1,5 @@
 /*
- * mach/mach-smdkv210/syscfg.s
+ * mach/mach-smdkv210/syscfg.inc
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  */

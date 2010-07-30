@@ -1,5 +1,5 @@
 /*
- * mach/mach-smdk6410/syscfg.s
+ * mach/mach-smdk6410/syscfg.inc
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  */

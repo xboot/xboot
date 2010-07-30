@@ -20,7 +20,7 @@
  *
  */
 
-.include "memcfg.s"
+.include "memcfg.inc"
 
 .equ	USR_MODE,		0x10	/* normal user mode */
 .equ 	FIQ_MODE,		0x11	/* fiq fast interrupts mode */

@@ -20,7 +20,7 @@
  *
  */
 
-.include "syscfg.s"
+.include "syscfg.inc"
 
 .equ	USR_MODE,		0x10	/* normal user mode */
 .equ 	FIQ_MODE,		0x11	/* fiq fast interrupts mode */
@@ -461,11 +461,6 @@ dmc0_lock:
 
 	ldr	r1, =0x00202400				/* memcontrol bl=4, 2 chip, ddr2 type, dynamic self refresh, force precharge, dynamic power down off */
 	str	r1, [r0, #0x04]
-
-
-
-
-
 
 	/*
 	 * dmc1 initialization at single type

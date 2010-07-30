@@ -1,5 +1,5 @@
 /*
- * mach/mach-mid560/syscfg.s
+ * mach/mach-mid560/syscfg.inc
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  */

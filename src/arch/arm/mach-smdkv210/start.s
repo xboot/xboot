@@ -712,7 +712,7 @@ irq:
 	mov	r0, sp
 
 	/* do irqs routlines */
-@	bl 	do_irqs
+	bl 	do_irqs
 
 	/* restore user regs */
 	ldmia sp, {r0 - lr}^			/* calling r0 - lr */

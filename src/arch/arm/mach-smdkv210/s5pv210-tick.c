@@ -33,7 +33,6 @@
 #include <xboot/initcall.h>
 #include <time/tick.h>
 #include <s5pv210/reg-timer.h>
-#include <s5pv210/reg-vic.h>
 
 /*
  * tick timer interrupt.

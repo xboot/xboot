@@ -462,6 +462,151 @@ dmc0_lock:
 	ldr	r1, =0x00202400				/* memcontrol bl=4, 2 chip, ddr2 type, dynamic self refresh, force precharge, dynamic power down off */
 	str	r1, [r0, #0x04]
 
+
+
+
+
+
+	/*
+	 * dmc1 initialization at single type
+	 */
+	ldr	r0, =0xf1400000
+
+	ldr	r1, =0x00101000				/* phycontrol0 dll parameter setting */
+	str	r1, [r0, #0x18]
+
+	ldr	r1, =0x00000086				/* phycontrol1 dll parameter setting */
+	str	r1, [r0, #0x1c]
+
+	ldr	r1, =0x00101002				/* phycontrol0 dll on */
+	str	r1, [r0, #0x18]
+
+	ldr	r1, =0x00101003				/* phycontrol0 dll start */
+	str	r1, [r0, #0x18]
+
+dmc1_lock:
+	ldr	r1, [r0, #0x40]				/* load phystatus register value */
+	and	r2, r1, #0x7
+	cmp	r2, #0x7					/* loop until dll is locked */
+	bne	dmc1_lock
+
+	and	r1, #0x3fc0
+	mov	r2, r1, LSL #18
+	orr	r2, r2, #0x100000
+	orr	r2 ,r2, #0x1000
+
+	orr	r1, r2, #0x3				/* force value locking */
+	str	r1, [r0, #0x18]
+
+	/* setting ddr2 */
+	ldr	r1, =0x0FFF2010				/* concontrol auto refresh off */
+	str	r1, [r0, #0x00]
+
+	ldr	r1, =0x00212400				/* memcontrol bl=4, 2 chip, ddr2 type, dynamic self refresh, force precharge, dynamic power down off */
+	str	r1, [r0, #0x04]
+
+	ldr	r1, =DMC1_MEMCONFIG_0		/* memconfig0 256MB config, 8 banks, mapping method[12:15] 0:linear, 1:linterleaved, 2:mixed */
+	str	r1, [r0, #0x08]
+
+	ldr	r1, =DMC1_MEMCONFIG_1		/* memconfig1 */
+	str	r1, [r0, #0x0c]
+
+	ldr	r1, =0xFF000000				/* prech config */
+	str	r1, [r0, #0x14]
+
+	ldr	r1, =DMC1_TIMINGA_REF		/* timing aref */
+	str	r1, [r0, #0x30]
+
+	ldr	r1, =DMC1_TIMING_ROW		/* timingRow */
+	str	r1, [r0, #0x34]
+
+	ldr	r1, =DMC1_TIMING_DATA		/* timing data CL=3 */
+	str	r1, [r0, #0x38]
+
+	ldr	r1, =DMC1_TIMING_PWR		/* timing power */
+	str	r1, [r0, #0x3c]
+
+	ldr	r1, =0x07000000				/* chip0 deselect */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x01000000				/* chip0 pall */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00020000				/* chip0 emrs2 */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00030000				/* chip0 emrs3 */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00010400				/* chip0 emrs1 (mem dll on, dqs disable) */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00000542				/* chip0 mrs (mem dll reset) cl=4, bl=4 */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x01000000				/* chip0 pall */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x05000000				/* chip0 refa */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x05000000				/* chip0 refa */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00000442				/* chip0 mrs (mem dll unreset) */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00010780				/* chip0 emrs1 (ocd default) */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00010400				/* chip0 emrs1 (ocd exit) */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x07100000				/* chip1 deselect */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x01100000				/* chip1 pall */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00120000				/* chip1 emrs2 */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00130000				/* chip1 emrs3 */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00110400				/* chip1 emrs1 (mem dll on, dqs disable) */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00100542				/* chip1 mrs (mem dll reset) cl=4, bl=4 */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x01100000				/* chip1 pall */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x05100000				/* chip1 refa */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x05100000				/* chip1 refa */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00100442				/* chip1 mrs (mem dll unreset) */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00110780				/* chip1 emrs1 (ocd default) */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00110400				/* chip1 emrs1 (ocd exit) */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x0FF02030				/* concontrol auto refresh on */
+	str	r1, [r0, #0x00]
+
+	ldr	r1, =0xFFFF00FF				/* pwrdn config */
+	str	r1, [r0, #0x28]
+
+	ldr	r1, =0x00202400				/* memcontrol bl=4, 2 chip, ddr2 type, dynamic self refresh, force precharge, dynamic power down off */
+	str	r1, [r0, #0x04]
+
 	mov	pc, lr
 
 /*

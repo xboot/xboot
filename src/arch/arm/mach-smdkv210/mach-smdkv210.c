@@ -86,7 +86,25 @@ static x_bool mach_reset(void)
  */
 x_bool mach_cleanup(void)
 {
-	return FALSE;
+	/* disable irq */
+	irq_disable();
+
+	/* disable fiq */
+	fiq_disable();
+
+	/* disable icache */
+	icache_disable();
+
+	/* disable dcache */
+	dcache_disable();
+
+	/* disable mmu */
+	mmu_disable();
+
+	/* disable vic */
+	vic_disable();
+
+	return TRUE;
 }
 
 /*

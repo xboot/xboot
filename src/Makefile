@@ -97,6 +97,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				drivers/serial \
 				drivers/terminal \
 				drivers/fb \
+				drivers/fb/reader \
 				drivers/led \
 				drivers/loop \
 				drivers/rtc \

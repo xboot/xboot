@@ -28,6 +28,7 @@
 #include <byteorder.h>
 #include <fb/bitmap.h>
 #include <fb/fb.h>
+#include <fb/fbfill.h>
 #include <fb/graphic.h>
 
 /*
@@ -208,5 +209,27 @@ void set_bitmap_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
  */
 void bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
-	bitmap_fill_rect_generic(bitmap, c, x, y, w, h);
+	switch(bitmap->info.bpp)
+	{
+	case 32:
+		bitmap_fill_rect_direct32(bitmap, c, x, y, w, h);
+		break;
+
+	case 24:
+		bitmap_fill_rect_direct24(bitmap, c, x, y, w, h);
+		break;
+
+	case 16:
+	case 15:
+		bitmap_fill_rect_direct16(bitmap, c, x, y, w, h);
+		break;
+
+	case 8:
+		bitmap_fill_rect_direct8(bitmap, c, x, y, w, h);
+		break;
+
+	default:
+		bitmap_fill_rect_generic(bitmap, c, x, y, w, h);
+		break;
+	}
 }

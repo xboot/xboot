@@ -63,7 +63,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 		set_bitmap_pixel(&fb->info->bitmap, i, i, c);
 	}
 
-	bitmap_fill_rect(&fb->info->bitmap, c, 20, 20, 50, 1);
+	bitmap_fill_rect(&fb->info->bitmap, c, 20, 20, 50, 30);
 
 	return 0;
 }

@@ -9,19 +9,15 @@
  */
 enum bitmap_format
 {
-	/* optimized rgba */
+	BITMAP_FORMAT_RGBA_GENERIC,
 	BITMAP_FORMAT_RGBA_8888,
 	BITMAP_FORMAT_BGRA_8888,
 
-	/* optimized rgb */
+	BITMAP_FORMAT_RGB_GENERIC,
 	BITMAP_FORMAT_RGB_888,
 	BITMAP_FORMAT_BGR_888,
 	BITMAP_FORMAT_RGB_565,
 	BITMAP_FORMAT_BGR_565,
-
-	/* generic, use fields & masks */
-	BITMAP_FORMAT_RGBA_GENERIC,
-	BITMAP_FORMAT_RGB_GENERIC,
 };
 
 struct bitmap_info
@@ -111,6 +107,7 @@ struct bitmap_reader_list
 x_bool register_bitmap_reader(struct bitmap_reader * reader);
 x_bool unregister_bitmap_reader(struct bitmap_reader * reader);
 
+enum bitmap_format get_bitmap_format(struct bitmap_info * info);
 x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bitmap_format fmt);
 x_bool bitmap_load(struct bitmap ** bitmap, const char * filename);
 x_bool bitmap_destroy(struct bitmap * bitmap);

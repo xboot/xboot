@@ -37,6 +37,7 @@
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <realview/reg-lcd.h>
+#include <fb/fbdef.h>
 #include <fb/fb.h>
 
 
@@ -78,7 +79,7 @@ static struct fb_info info = {
 			.blue_field_pos		= 11,
 			.alpha_mask_size	= 0,
 			.alpha_field_pos	= 0,
-			.fmt				= BITMAP_FORMAT_RGB_GENERIC,
+			.fmt				= BITMAP_FORMAT_RGB_565,
 		},
 
 		.viewport = {
@@ -134,8 +135,8 @@ static struct fb realview_fb = {
 	.init			= fb_init,
 	.exit			= fb_exit,
 	.bl				= fb_bl,
-	.map_color		= 0,
-	.unmap_color	= 0,
+	.map_color		= fb_default_map_color,
+	.unmap_color	= fb_default_unmap_color,
 	.fill_rect		= 0,
 	.blit_bitmap	= 0,
 	.ioctl			= fb_ioctl,

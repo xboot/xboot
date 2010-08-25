@@ -128,6 +128,86 @@ x_bool unregister_bitmap_reader(struct bitmap_reader * reader)
 }
 
 /*
+ * determine bitmap format
+ */
+enum bitmap_format get_bitmap_format(struct bitmap_info * info)
+{
+	/* check if we have any known 32 bit modes */
+	if(info->bpp == 32)
+	{
+		if((info->red_mask_size == 8)
+			&& (info->red_field_pos == 16)
+			&& (info->green_mask_size == 8)
+			&& (info->green_field_pos == 8)
+			&& (info->blue_mask_size == 8)
+			&& (info->blue_field_pos == 0))
+		{
+			return BITMAP_FORMAT_BGRA_8888;
+		}
+		else if((info->red_mask_size == 8)
+			&& (info->red_field_pos == 0)
+			&& (info->green_mask_size == 8)
+			&& (info->green_field_pos == 8)
+			&& (info->blue_mask_size == 8)
+			&& (info->blue_field_pos == 16))
+		{
+			return BITMAP_FORMAT_RGBA_8888;
+		}
+	}
+
+	/* check if we have any known 24 bit modes */
+	else if(info->bpp == 24)
+	{
+		if((info->red_mask_size == 8)
+			&& (info->red_field_pos == 16)
+			&& (info->green_mask_size == 8)
+			&& (info->green_field_pos == 8)
+			&& (info->blue_mask_size == 8)
+			&& (info->blue_field_pos == 0))
+		{
+			return BITMAP_FORMAT_BGR_888;
+		}
+		else if ((info->red_mask_size == 8)
+			&& (info->red_field_pos == 0)
+			&& (info->green_mask_size == 8)
+			&& (info->green_field_pos == 8)
+			&& (info->blue_mask_size == 8)
+			&& (info->blue_field_pos == 16))
+		{
+			return BITMAP_FORMAT_RGB_888;
+		}
+	}
+
+	/* check if we have any known 16 bit modes */
+	else if(info->bpp == 16)
+	{
+		if ((info->red_mask_size == 5)
+			&& (info->red_field_pos == 11)
+			&& (info->green_mask_size == 6)
+			&& (info->green_field_pos == 5)
+			&& (info->blue_mask_size == 5)
+			&& (info->blue_field_pos == 0))
+		{
+			return BITMAP_FORMAT_BGR_565;
+		}
+		else if ((info->red_mask_size == 5)
+			&& (info->red_field_pos == 0)
+			&& (info->green_mask_size == 6)
+			&& (info->green_field_pos == 5)
+			&& (info->blue_mask_size == 5)
+			&& (info->blue_field_pos == 11))
+		{
+			return BITMAP_FORMAT_RGB_565;
+		}
+	}
+
+	if(info->alpha_mask_size > 0)
+		return BITMAP_FORMAT_RGBA_GENERIC;
+	else
+		return BITMAP_FORMAT_RGB_GENERIC;
+}
+
+/*
  * create new bitmap, saves created bitmap on success to * bitmap
  */
 x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bitmap_format fmt)

@@ -202,3 +202,11 @@ void set_bitmap_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
 		break;
 	}
 }
+
+/*
+ * fill rect to bitmap
+ */
+void bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+{
+	bitmap_fill_rect_generic(bitmap, c, x, y, w, h);
+}

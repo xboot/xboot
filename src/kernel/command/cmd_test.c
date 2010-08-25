@@ -47,6 +47,22 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
+	struct fb * fb = search_framebuffer("fb");
+	x_s32 i;
+	x_u32 c;
+
+	if(!fb)
+	{
+		printk("no framebuffer\r\n");
+		return -1;
+	}
+
+	c = fb->map_color(fb, 0xff, 0x00, 0x00, 0x00);
+	for(i=0; i< 100; i++)
+	{
+		set_bitmap_pixel(&fb->info->bitmap, i, i, c);
+	}
+
 	return 0;
 }
 

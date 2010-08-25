@@ -1,5 +1,5 @@
 /*
- * drivers/fb/fbdefault.c
+ * drivers/fb/fbdef.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -25,73 +25,23 @@
 #include <types.h>
 #include <xboot.h>
 #include <malloc.h>
-#include <fb/bitmap.h>
 #include <fb/fb.h>
+#include <fb/bitmap.h>
+#include <fb/graphic.h>
 #include <fb/fbdef.h>
 
 /*
- * default map color function
+ * default map color for framebuffer driver
  */
 x_u32 fb_default_map_color(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a)
 {
-	struct bitmap_info * info = &(fb->info->bitmap.info);
-	x_u32 value;
-
-    r >>= 8 - info->red_mask_size;
-    g >>= 8 - info->green_mask_size;
-    b >>= 8 - info->blue_mask_size;
-    a >>= 8 - info->alpha_mask_size;
-
-    value = r << info->red_field_pos;
-    value |= g << info->green_field_pos;
-    value |= b << info->blue_field_pos;
-    value |= a << info->alpha_field_pos;
-
-    return value;
+	return map_bitmap_color(&(fb->info->bitmap), r, g, b, a);
 }
 
 /*
- * default unmap color function
+ * default unmap color for framebuffer driver
  */
-x_bool fb_default_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a)
+void fb_default_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a)
 {
-	struct bitmap_info * info = &(fb->info->bitmap.info);
-	x_u32 tmp;
-
-	/* get red component */
-	tmp = c >> info->red_field_pos;
-	tmp &= (1 << info->red_mask_size) - 1;
-	tmp <<= 8 - info->red_mask_size;
-	tmp |= (1 << (8 - info->red_mask_size)) - 1;
-	*r = tmp & 0xff;
-
-	/* get green component */
-	tmp = c >> info->green_field_pos;
-	tmp &= (1 << info->green_mask_size) - 1;
-	tmp <<= 8 - info->green_mask_size;
-	tmp |= (1 << (8 - info->green_mask_size)) - 1;
-	*g = tmp & 0xff;
-
-	/* get blue component */
-	tmp = c >> info->blue_field_pos;
-	tmp &= (1 << info->blue_mask_size) - 1;
-	tmp <<= 8 - info->blue_mask_size;
-	tmp |= (1 << (8 - info->blue_mask_size)) - 1;
-	*b = tmp & 0xff;
-
-	/* get alpha component */
-	if(info->alpha_mask_size > 0)
-	{
-		tmp = c >> info->alpha_field_pos;
-		tmp &= (1 << info->alpha_mask_size) - 1;
-		tmp <<= 8 - info->alpha_mask_size;
-		tmp |= (1 << (8 - info->alpha_mask_size)) - 1;
-	}
-	else
-	{
-		tmp = 255;
-	}
-	*a = tmp & 0xff;
-
-	return TRUE;
+	unmap_bitmap_color(&(fb->info->bitmap), c, r, g, b, a);
 }

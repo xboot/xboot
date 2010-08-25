@@ -139,8 +139,8 @@ x_bool register_framebuffer(struct fb * fb)
 	//TODO
 //	display_logo(fb);
 
-	if(fb->bl)
-		(fb->bl)(0xff);
+//	if(fb->bl)
+//		(fb->bl)(0xff);
 
 	return TRUE;
 }
@@ -163,8 +163,9 @@ x_bool unregister_framebuffer(struct fb * fb)
 	driver = (struct fb *)(dev->driver);
 	if(driver)
 	{
-		if(driver->bl)
-			(driver->bl)(0x00);
+		//TODO
+//		if(driver->bl)
+//			(driver->bl)(0x00);
 
 		if(driver->exit)
 			(driver->exit)();

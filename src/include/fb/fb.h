@@ -3,40 +3,42 @@
 
 #include <configs.h>
 #include <default.h>
+#include <xboot/list.h>
 #include <fb/bitmap.h>
 
-//TODO
-#if 0
 /*
- * the point struct
+ * define blit operator mode
  */
-struct point
+enum blit_mode
 {
-	x_s32 x, y;
+	BLIT_MODE_REPLACE,
+	BLIT_MODE_BLEND
 };
 
-/*
- * the rect struct
- */
-struct rect
+struct render_page
 {
-	x_s32 x0, y0;
-	x_s32 x1, y1;
+	/* bitmap information description */
+	struct bitmap_info info;
+
+	/* render page's view port */
+	struct {
+		x_u32 x;
+		x_u32 y;
+		x_u32 w;
+		x_u32 h;
+	} viewport;
+
+	/* indicates data's memory type */
+	x_bool flag;
+
+	/* pointer to data, video card memory or system memory */
+	void * data;
+
+	/* link other render page */
+	struct list_head entry;
 };
 
 /*
- * rgb format
- */
-enum format_rgb {
-	FORMAT_RGB_8888,
-	FORMAT_RGB_888,
-	FORMAT_RGB_565,
-	FORMAT_RGB_555,
-	FORMAT_RGB_332
-};
-#endif
-
-/**
  * defined the structure of framebuffer information.
  */
 struct fb_info
@@ -44,7 +46,14 @@ struct fb_info
 	/* the framebuffer name. */
 	const char * name;
 
-	struct bitmap bitmap;
+	/* bitmap information description for framebuffer */
+	struct bitmap_info info;
+
+	/* active render page */
+	struct render_page * active;
+
+	/* render page list */
+	struct render_page render;
 };
 
 /*
@@ -61,28 +70,49 @@ struct fb
 	/* clean up the framebuffer */
 	void (*exit)(void);
 
-	/* set back light's brightness */
-	void (*bl)(x_u8 brightness);
+	/* set view port */
+	x_u32 (*set_viewport)(struct render_page * render, x_u32 x, x_u32 y, x_u32 w, x_u32 h);
 
-	/* set pixel */
-	void (*set_pixel)(x_u32 x, x_u32 y, x_u32 c);
+	/* get view port */
+	x_u32 (*get_viewport)(struct render_page * render, x_u32 * x, x_u32 * y, x_u32 * w, x_u32 * h);
 
-	/* set pixel */
-	x_u32 (*get_pixel)(x_u32 x, x_u32 y);
+	/* map color */
+	x_u32 (*map_color)(struct render_page * render, x_u8 r, x_u8 g, x_u8 b, x_u8 a);
 
-	/* hline */
-	void (*hline)(x_u32 x0, x_u32 y0, x_u32 x, x_u32 c);
+	/* unmap color */
+	x_bool (*unmap_color)(struct render_page * render, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a);
 
-	/* vline */
-	void (*vline)(x_u32 x0, x_u32 y0, x_u32 y, x_u32 c);
+	/* fill rect */
+	x_bool (*fill_rect)(struct render_page * render, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h);
+
+	/* blit bitmap */
+	x_bool (*blit_bitmap)(struct bitmap * bitmap, struct render_page * render, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 ox, x_u32 oy, x_u32 w, x_u32 h);
+
+	/* blit render */
+	x_bool (*blit_render)(struct render_page * src, struct render_page * dst, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 ox, x_u32 oy, x_u32 w, x_u32 h);
+
+	/* scroll */
+	x_bool (*scroll)(struct render_page * render, x_u32 c, x_s32 dx, x_s32 dy);
+
+	/* create render */
+	x_bool (*create_render)(struct render_page * render, x_u32 w, x_u32 h);
+
+	/* delete render */
+	x_bool (*delete_render)(struct render_page * render);
+
+	/* set active render */
+	x_bool (*set_active)(struct render_page * render);
+
+	/* get active render */
+	x_bool (*get_active)(struct render_page * render);
 
 	/* ioctl framebuffer */
 	x_s32 (*ioctl)(x_u32 cmd, void * arg);
 };
 
+
 struct fb * search_framebuffer(const char * name);
 x_bool register_framebuffer(struct fb * fb);
 x_bool unregister_framebuffer(struct fb * fb);
-
 
 #endif /* __FB_H__ */

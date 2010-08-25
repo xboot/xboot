@@ -45,3 +45,11 @@ void fb_default_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * 
 {
 	unmap_bitmap_color(&(fb->info->bitmap), c, r, g, b, a);
 }
+
+/*
+ * default fill rect for framebuffer driver
+ */
+void fb_default_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+{
+	bitmap_fill_rect(&(fb->info->bitmap), c, x, y, w, h);
+}

@@ -137,7 +137,7 @@ static struct fb realview_fb = {
 	.bl				= fb_bl,
 	.map_color		= fb_default_map_color,
 	.unmap_color	= fb_default_unmap_color,
-	.fill_rect		= 0,
+	.fill_rect		= fb_default_fill_rect,
 	.blit_bitmap	= 0,
 	.ioctl			= fb_ioctl,
 };

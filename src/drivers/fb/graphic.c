@@ -209,6 +209,17 @@ void set_bitmap_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
  */
 void bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
+/*	if((x >= bitmap->viewport.w))
+		return;
+
+	if((y >= bitmap->viewport.h))
+		return;
+
+	if((x + w) > bitmap->viewport.w)
+		w = bitmap->viewport.w - x;
+	if((y + h) > bitmap->viewport.h)
+		h = bitmap->viewport.h - y;
+*/
 	switch(bitmap->info.bpp)
 	{
 	case 32:

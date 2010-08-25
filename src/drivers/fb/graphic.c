@@ -30,7 +30,8 @@
 #include <fb/fb.h>
 #include <fb/graphic.h>
 
-
+//TODO
+#if 0
 /*
  * draw line directly, one pixel.
  */
@@ -269,3 +270,5 @@ x_bool draw_rect(struct fb * fb, struct rect * rect, x_u32 c)
 
 	return TRUE;
 }
+#endif
+

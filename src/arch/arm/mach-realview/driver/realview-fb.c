@@ -39,7 +39,8 @@
 #include <realview/reg-lcd.h>
 #include <fb/fb.h>
 
-
+//TODO
+#if 0
 #define	LCD_WIDTH		(800)
 #define	LCD_HEIGHT		(480)
 #define	LCD_BPP			(16)
@@ -169,3 +170,5 @@ static __exit void realview_fb_exit(void)
 
 module_init(realview_fb_init, LEVEL_DRIVER);
 module_exit(realview_fb_exit, LEVEL_DRIVER);
+
+#endif

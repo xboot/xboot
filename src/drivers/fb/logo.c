@@ -1131,6 +1131,8 @@ static const struct logo_image default_xboot_logo = {
 	"\0\0\0\0"
 };
 
+//TODO
+#if 0
 /*
  * display logo.
  */
@@ -1368,6 +1370,7 @@ x_bool display_logo(struct fb * fb)
 
 	return TRUE;
 }
+#endif
 
 /*
  * register a logo.

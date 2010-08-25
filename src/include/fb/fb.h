@@ -3,8 +3,10 @@
 
 #include <configs.h>
 #include <default.h>
-#include <terminal/terminal.h>
+#include <fb/bitmap.h>
 
+//TODO
+#if 0
 /*
  * the point struct
  */
@@ -32,39 +34,21 @@ enum format_rgb {
 	FORMAT_RGB_555,
 	FORMAT_RGB_332
 };
+#endif
 
 /**
- * defined the struct of framebuffer information.
+ * defined the structure of framebuffer information.
  */
 struct fb_info
 {
 	/* the framebuffer name. */
 	const char * name;
 
-    /* the width of the framebuffer */
-    x_u16 width;
-
-    /* the height of the framebuffer */
-    x_u16 height;
-
-    /* detailed format of rgb */
-    enum format_rgb format;
-
-	/* 1, 2, 4, 8, 16, or 32 bits per pixel */
-    x_u16 bpp;
-
-    /* number of bytes per line (byte) */
-    x_u16 stride;
-
-    /* current seek position */
-    x_u32 pos;
-
-    /* base address of the framebuffer, or 0 if not directly accessible */
-    void * base;
+	struct bitmap bitmap;
 };
 
 /*
- * defined the struct of framebuffer.
+ * defined the structure of framebuffer.
  */
 struct fb
 {

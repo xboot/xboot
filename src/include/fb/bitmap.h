@@ -74,6 +74,14 @@ struct bitmap
 	/* bitmap information description */
 	struct bitmap_info info;
 
+	/* bitmap's view port */
+	struct {
+		x_u32 x;
+		x_u32 y;
+		x_u32 w;
+		x_u32 h;
+	} viewport;
+
 	/* pointer to bitmap data formatted according to info */
 	void * data;
 };

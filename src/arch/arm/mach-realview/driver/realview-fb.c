@@ -39,12 +39,10 @@
 #include <realview/reg-lcd.h>
 #include <fb/fb.h>
 
-//TODO
-#if 0
+
 #define	LCD_WIDTH		(800)
 #define	LCD_HEIGHT		(480)
 #define	LCD_BPP			(16)
-#define	LCD_FORMAT		(FORMAT_RGB_565)
 
 #define HBP				(2)
 #define HFP				(2)
@@ -60,26 +58,42 @@
 /*
  * video ram buffer for lcd.
  */
-static x_u8 vram[LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8 + MEM_ALIGNMENT];
-static x_u16 * pvram;
+static x_u8 vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
 static struct fb_info info = {
-	.name		= "fb",
-	.width		= LCD_WIDTH,
-	.height		= LCD_HEIGHT,
-	.format		= LCD_FORMAT,
-	.bpp		= LCD_BPP,
-	.stride		= LCD_WIDTH*LCD_BPP/8,
-	.pos		= 0,
-	.base		= 0,
+	.name						= "fb",
+
+	.bitmap	= {
+		.info =	{
+			.width				= LCD_WIDTH,
+			.height 			= LCD_HEIGHT,
+			.bpp				= LCD_BPP,
+			.bytes_per_pixel 	= LCD_BPP / 8,
+			.pitch				= LCD_WIDTH * LCD_BPP / 8,
+			.red_mask_size		= 5,
+			.red_field_pos		= 0,
+			.green_mask_size	= 6,
+			.green_field_pos	= 5,
+			.blue_mask_size		= 5,
+			.blue_field_pos		= 11,
+			.alpha_mask_size	= 0,
+			.alpha_field_pos	= 0,
+			.fmt				= BITMAP_FORMAT_RGB_GENERIC,
+		},
+
+		.viewport = {
+			.x					= 0,
+			.y					= 0,
+			.w					= LCD_WIDTH,
+			.h					= LCD_HEIGHT,
+		},
+
+		.data					= &vram,
+	},
 };
 
 static void fb_init(void)
 {
-	/* setting vram base address */
-	info.base = (void *)MEM_ALIGN(&vram);
-	pvram = (x_u16 *)((x_u32)info.base);
-
 	/* initial lcd controller */
 	writel(REALVIEW_CLCD_TIM0, REGS_TIM0);
 	writel(REALVIEW_CLCD_TIM1, REGS_TIM1);
@@ -87,8 +101,8 @@ static void fb_init(void)
 	writel(REALVIEW_CLCD_TIM3, REGS_TIM3);
 
 	/* framebuffer base address */
-	writel(REALVIEW_CLCD_UBAS, ((x_u32)info.base));
-	writel(REALVIEW_CLCD_LBAS, ((x_u32)info.base + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8));
+	writel(REALVIEW_CLCD_UBAS, ((x_u32)info.bitmap.data));
+	writel(REALVIEW_CLCD_LBAS, ((x_u32)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8));
 
 	/* disable all lcd interrupts */
 	writel(REALVIEW_CLCD_IMSC, 0x0);
@@ -110,50 +124,21 @@ static void fb_bl(x_u8 brightness)
 	return;
 }
 
-static void fb_set_pixel(x_u32 x, x_u32 y, x_u32 c)
-{
-	*(pvram + LCD_WIDTH*y + x) = c;
-}
-
-static x_u32 fb_get_pixel(x_u32 x, x_u32 y)
-{
-	return *(pvram + LCD_WIDTH*y + x);
-}
-
-static void fb_hline(x_u32 x0, x_u32 y0, x_u32 x, x_u32 c)
-{
-	x_u16 * p = (x_u16 *)(pvram + LCD_WIDTH*y0 + x0);
-
-	while(x--)
-		*(p++) = c;
-}
-
-static void fb_vline(x_u32 x0, x_u32 y0, x_u32 y, x_u32 c)
-{
-	x_u16 * p = (x_u16 *)(pvram + LCD_WIDTH*y0 + x0);
-
-	while(y--)
-	{
-		*p = c;
-		p += LCD_WIDTH;
-	}
-}
-
 static x_s32 fb_ioctl(x_u32 cmd, void * arg)
 {
 	return -1;
 }
 
 static struct fb realview_fb = {
-	.info		= &info,
-	.init		= fb_init,
-	.exit		= fb_exit,
-	.bl			= fb_bl,
-	.set_pixel	= fb_set_pixel,
-	.get_pixel	= fb_get_pixel,
-	.hline		= fb_hline,
-	.vline		= fb_vline,
-	.ioctl		= fb_ioctl,
+	.info			= &info,
+	.init			= fb_init,
+	.exit			= fb_exit,
+	.bl				= fb_bl,
+	.map_color		= 0,
+	.unmap_color	= 0,
+	.fill_rect		= 0,
+	.blit_bitmap	= 0,
+	.ioctl			= fb_ioctl,
 };
 
 static __init void realview_fb_init(void)
@@ -170,5 +155,3 @@ static __exit void realview_fb_exit(void)
 
 module_init(realview_fb_init, LEVEL_DRIVER);
 module_exit(realview_fb_exit, LEVEL_DRIVER);
-
-#endif

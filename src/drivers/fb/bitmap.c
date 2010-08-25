@@ -236,7 +236,6 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
 	switch(fmt)
 	{
 	case BITMAP_FORMAT_RGBA_8888:
-	case BITMAP_FORMAT_BGRA_8888:
 		info->bpp = 32;
         info->bytes_per_pixel = 4;
         info->pitch = width * 4;
@@ -251,7 +250,6 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
 		break;
 
 	case BITMAP_FORMAT_RGB_888:
-	case BITMAP_FORMAT_BGR_888:
 		info->bpp = 24;
         info->bytes_per_pixel = 3;
         info->pitch = width * 3;
@@ -264,11 +262,6 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
         info->alpha_mask_size = 0;
         info->alpha_field_pos = 0;
         break;
-
-	case BITMAP_FORMAT_RGB_565:
-	case BITMAP_FORMAT_BGR_565:
-	case BITMAP_FORMAT_RGBA_GENERIC:
-	case BITMAP_FORMAT_RGB_GENERIC:
 
 	default:
 		free(*bitmap);

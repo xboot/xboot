@@ -28,7 +28,6 @@
 #include <xboot/chrdev.h>
 #include <fb/logo.h>
 #include <fb/graphic.h>
-#include <fb/fblinear.h>
 #include <fb/fb.h>
 
 /*

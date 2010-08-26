@@ -32,6 +32,28 @@
 #include <fb/graphic.h>
 
 /*
+ * save bitmap's viewport
+ */
+void save_bitmap_viewport(struct bitmap * bitmap, struct rect * rect)
+{
+	rect->x = bitmap->viewport.x;
+	rect->y = bitmap->viewport.y;
+	rect->w = bitmap->viewport.w;
+	rect->h = bitmap->viewport.h;
+}
+
+/*
+ * restore bitmap's viewport
+ */
+void restore_bitmap_viewport(struct bitmap * bitmap, struct rect * rect)
+{
+	bitmap->viewport.x = rect->x;
+	bitmap->viewport.y = rect->y;
+	bitmap->viewport.w = rect->w;
+	bitmap->viewport.h = rect->h;
+}
+
+/*
  * map bitmap color
  */
 x_u32 map_bitmap_color(struct bitmap * bitmap, x_u8 r, x_u8 g, x_u8 b, x_u8 a)

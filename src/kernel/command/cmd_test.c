@@ -30,6 +30,7 @@
 #include <shell/env.h>
 #include <shell/command.h>
 #include <fb/fb.h>
+#include <fb/color.h>
 #include <loop/loop.h>
 #include <fb/graphic.h>
 #include <fb/logo.h>
@@ -50,6 +51,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	struct fb * fb = search_framebuffer("fb");
 	x_s32 i;
 	x_u32 c;
+	struct color * cc;
 
 	if(!fb)
 	{
@@ -57,7 +59,9 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 		return -1;
 	}
 
-	c = fb->map_color(fb, 0xff, 0x00, 0x00, 0x00);
+	cc = get_named_color("magentaTT");
+
+	c = fb->map_color(fb, cc->r, cc->g, cc->b, cc->a);
 	for(i=0; i< 100; i++)
 	{
 		set_bitmap_pixel(&fb->info->bitmap, i, i, c);

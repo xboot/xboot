@@ -25,6 +25,7 @@
 #include <types.h>
 #include <xboot.h>
 #include <malloc.h>
+#include <gui/rect.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
 #include <fb/fbcolor.h>
@@ -54,9 +55,28 @@ void fb_soft_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, 
  */
 void fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
-	//TODO
+	struct bitmap * p = &(fb->info->bitmap);
+	struct rect r, a, b;
 
-	common_bitmap_fill_rect(&(fb->info->bitmap), c, x, y, w, h);
+	a.left = x;
+	a.top = y;
+	a.right = x + w;
+	a.bottom = y + h;
+
+	b.left = p->viewport.left;
+	b.top = p->viewport.top;
+	b.right = p->viewport.right;
+	b.bottom = p->viewport.bottom;
+
+	if(rect_intersect(&r, &a, & b) == FALSE)
+		return;
+
+	x = r.left;
+	y = r.top;
+	w = r.right - r.left;
+	h = r.bottom - r.top;
+
+	common_bitmap_fill_rect(p, c, x, y, w, h);
 }
 
 /*
@@ -64,7 +84,26 @@ void fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32
  */
 void fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
 {
-	//TODO
+	struct bitmap * p = &(fb->info->bitmap);
+	struct rect r, a, b;
 
-	common_bitmap_blit(&(fb->info->bitmap), bitmap, mode, x, y, w, h, ox, oy);
+	a.left = x;
+	a.top = y;
+	a.right = x + w;
+	a.bottom = y + h;
+
+	b.left = p->viewport.left;
+	b.top = p->viewport.top;
+	b.right = p->viewport.right;
+	b.bottom = p->viewport.bottom;
+
+	if(rect_intersect(&r, &a, & b) == FALSE)
+		return;
+
+	x = r.left;
+	y = r.top;
+	w = r.right - r.left;
+	h = r.bottom - r.top;
+
+	common_bitmap_blit(p, bitmap, mode, x, y, w, h, ox, oy);
 }

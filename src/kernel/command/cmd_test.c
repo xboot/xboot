@@ -30,7 +30,6 @@
 #include <shell/env.h>
 #include <shell/command.h>
 #include <fb/fb.h>
-#include <fb/color.h>
 #include <loop/loop.h>
 #include <fb/graphic.h>
 #include <fb/logo.h>
@@ -40,6 +39,7 @@
 #include <terminal/curses.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fsapi.h>
+#include <gui/color.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
 
@@ -59,7 +59,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 		return -1;
 	}
 
-	cc = get_named_color("magentaTT");
+	cc = get_color_by_name("magenta");
 
 	c = fb->map_color(fb, cc->r, cc->g, cc->b, cc->a);
 	for(i=0; i< 100; i++)

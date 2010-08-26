@@ -14,6 +14,6 @@ struct color {
 	x_u8	a;
 };
 
-struct color * get_named_color(const char * name);
+struct color * get_color_by_name(const char * name);
 
 #endif /* __COLOR_H__ */

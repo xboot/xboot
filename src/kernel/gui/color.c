@@ -1,5 +1,5 @@
 /*
- * drivers/fb/color.c
+ * kernel/gui/color.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -24,7 +24,7 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <fb/color.h>
+#include <gui/color.h>
 
 #define RGB_COLOR(red, green, blue)	\
 	{.r = red, .g = green, .b = blue, .a = 255}
@@ -192,9 +192,9 @@ const static struct named_color named_colors[] =
 };
 
 /*
- * get the color from named color list
+ * get the color by name
  */
-struct color * get_named_color(const char * name)
+struct color * get_color_by_name(const char * name)
 {
 	x_s32 i;
 

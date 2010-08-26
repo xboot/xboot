@@ -72,10 +72,10 @@ struct bitmap
 
 	/* bitmap's view port */
 	struct {
-		x_u32 x;
-		x_u32 y;
-		x_u32 w;
-		x_u32 h;
+		x_s32	left;
+		x_s32	top;
+		x_s32 	right;
+		x_s32	bottom;
 	} viewport;
 
 	/* pointer to bitmap data formatted according to info */

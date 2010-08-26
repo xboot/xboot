@@ -28,7 +28,8 @@
 #include <byteorder.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
-#include <fb/graphic.h>
+#include <fb/fbcolor.h>
+#include <fb/fbpixel.h>
 #include <fb/fbblit.h>
 
 /*
@@ -44,10 +45,10 @@ static void bitmap_blit_replace_generic(struct bitmap * dst, struct bitmap * src
 	{
 		for(i = 0; i < w; i++)
 		{
-			sc = get_bitmap_pixel(src, i + ox, j + oy);
-			unmap_bitmap_color(src, sc, &r, &g, &b, &a);
-			dc = map_bitmap_color(dst, r, g, b, a);
-			set_bitmap_pixel(dst, x + i, y + j, dc);
+			sc = bitmap_get_pixel(src, i + ox, j + oy);
+			bitmap_unmap_color(src, sc, &r, &g, &b, &a);
+			dc = bitmap_map_color(dst, r, g, b, a);
+			bitmap_set_pixel(dst, x + i, y + j, dc);
 		}
 	}
 }
@@ -66,29 +67,29 @@ static void bitmap_blit_blend_generic(struct bitmap * dst, struct bitmap * src, 
 	{
 		for(i = 0; i < w; i++)
 		{
-			sc = get_bitmap_pixel(src, i + ox, j + oy);
-			unmap_bitmap_color(src, sc, &sr, &sg, &sb, &sa);
+			sc = bitmap_get_pixel(src, i + ox, j + oy);
+			bitmap_unmap_color(src, sc, &sr, &sg, &sb, &sa);
 
 			if(sa == 0)
 				continue;
 
 			if(sa == 255)
 			{
-				dc = map_bitmap_color(dst, sr, sg, sb, sa);
-				set_bitmap_pixel(dst, x + i, y + j, dc);
+				dc = bitmap_map_color(dst, sr, sg, sb, sa);
+				bitmap_set_pixel(dst, x + i, y + j, dc);
 				continue;
 			}
 
-			dc = get_bitmap_pixel(dst, x + i, y + j);
-			unmap_bitmap_color(dst, dc, &dr, &dg, &db, &da);
+			dc = bitmap_get_pixel(dst, x + i, y + j);
+			bitmap_unmap_color(dst, dc, &dr, &dg, &db, &da);
 
 			dr = (((sr * sa) + (dr * (255 - sa))) / 255);
 			dg = (((sg * sa) + (dg * (255 - sa))) / 255);
 			db = (((sb * sa) + (db * (255 - sa))) / 255);
 			da = sa;
 
-			dc = map_bitmap_color(dst, dr, dg, db, da);
-			set_bitmap_pixel(dst, x + i, y + j, dc);
+			dc = bitmap_map_color(dst, dr, dg, db, da);
+			bitmap_set_pixel(dst, x + i, y + j, dc);
 		}
 	}
 }

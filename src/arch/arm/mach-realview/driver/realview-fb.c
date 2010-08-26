@@ -37,7 +37,7 @@
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <realview/reg-lcd.h>
-#include <fb/fbdef.h>
+#include <fb/fbsoft.h>
 #include <fb/fb.h>
 
 
@@ -83,10 +83,10 @@ static struct fb_info info = {
 		},
 
 		.viewport = {
-			.x					= 0,
-			.y					= 0,
-			.w					= LCD_WIDTH,
-			.h					= LCD_HEIGHT,
+			.left				= 0,
+			.top				= 0,
+			.right				= LCD_WIDTH,
+			.bottom				= LCD_HEIGHT,
 		},
 
 		.data					= &vram,
@@ -135,10 +135,10 @@ static struct fb realview_fb = {
 	.init			= fb_init,
 	.exit			= fb_exit,
 	.bl				= fb_bl,
-	.map_color		= fb_default_map_color,
-	.unmap_color	= fb_default_unmap_color,
-	.fill_rect		= fb_default_fill_rect,
-	.blit_bitmap	= fb_default_blit_bitmap,
+	.map_color		= fb_soft_map_color,
+	.unmap_color	= fb_soft_unmap_color,
+	.fill_rect		= fb_soft_fill_rect,
+	.blit_bitmap	= fb_soft_blit_bitmap,
 	.ioctl			= fb_ioctl,
 };
 

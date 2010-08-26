@@ -32,6 +32,7 @@
 #include <fb/fb.h>
 #include <loop/loop.h>
 #include <fb/graphic.h>
+#include <fb/fbpixel.h>
 #include <fb/logo.h>
 #include <rtc/rtc.h>
 #include <xboot/proc.h>
@@ -64,7 +65,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	c = fb->map_color(fb, cc->r, cc->g, cc->b, cc->a);
 	for(i=0; i< 100; i++)
 	{
-		set_bitmap_pixel(&fb->info->bitmap, i, i, c);
+		bitmap_set_pixel(&fb->info->bitmap, i, i, c);
 	}
 
 	bitmap_fill_rect(&fb->info->bitmap, c, 20, 20, 50, 30);

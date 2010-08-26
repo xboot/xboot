@@ -1,5 +1,5 @@
 /*
- * drivers/fb/fbdef.c
+ * drivers/fb/fbsoft.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -27,31 +27,32 @@
 #include <malloc.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
+#include <fb/fbcolor.h>
 #include <fb/fbfill.h>
 #include <fb/fbblit.h>
 #include <fb/graphic.h>
-#include <fb/fbdef.h>
+#include <fb/fbsoft.h>
 
 /*
- * default map color for framebuffer driver
+ * default soft map color function
  */
-x_u32 fb_default_map_color(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a)
+x_u32 fb_soft_map_color(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a)
 {
-	return map_bitmap_color(&(fb->info->bitmap), r, g, b, a);
+	return bitmap_map_color(&(fb->info->bitmap), r, g, b, a);
 }
 
 /*
- * default unmap color for framebuffer driver
+ * default soft unmap color function
  */
-void fb_default_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a)
+void fb_soft_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a)
 {
-	unmap_bitmap_color(&(fb->info->bitmap), c, r, g, b, a);
+	bitmap_unmap_color(&(fb->info->bitmap), c, r, g, b, a);
 }
 
 /*
- * default fill rect for framebuffer driver
+ * default soft fill rect function
  */
-void fb_default_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+void fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	//TODO
 
@@ -59,9 +60,9 @@ void fb_default_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_
 }
 
 /*
- * default blit bitmap for framebuffer driver
+ * default soft blit bitmap function
  */
-void fb_default_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+void fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
 {
 	//TODO
 

@@ -32,6 +32,7 @@
 #include <fb/fbblit.h>
 #include <fb/graphic.h>
 
+#if 0
 /*
  * save bitmap's viewport
  */
@@ -53,6 +54,7 @@ void restore_bitmap_viewport(struct bitmap * bitmap, struct rect * rect)
 	bitmap->viewport.w = rect->w;
 	bitmap->viewport.h = rect->h;
 }
+#endif
 
 /*
  * map bitmap color

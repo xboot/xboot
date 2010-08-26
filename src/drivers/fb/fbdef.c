@@ -27,6 +27,8 @@
 #include <malloc.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
+#include <fb/fbfill.h>
+#include <fb/fbblit.h>
 #include <fb/graphic.h>
 #include <fb/fbdef.h>
 
@@ -51,5 +53,17 @@ void fb_default_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * 
  */
 void fb_default_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
-	bitmap_fill_rect(&(fb->info->bitmap), c, x, y, w, h);
+	//TODO
+
+	common_bitmap_fill_rect(&(fb->info->bitmap), c, x, y, w, h);
+}
+
+/*
+ * default blit bitmap for framebuffer driver
+ */
+void fb_default_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	//TODO
+
+	common_bitmap_blit(&(fb->info->bitmap), bitmap, mode, x, y, w, h, ox, oy);
 }

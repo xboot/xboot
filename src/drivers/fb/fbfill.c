@@ -34,7 +34,7 @@
 /*
  * generic filler that works for every supported mode
  */
-void bitmap_fill_rect_generic(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_generic(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	x_u32 i, j;
 
@@ -50,7 +50,7 @@ void bitmap_fill_rect_generic(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y,
 /*
  * optimized filler for direct color 32 bit modes
  */
-void bitmap_fill_rect_direct32(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_direct32(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	x_u32 * p;
 	x_u32 skip;
@@ -73,7 +73,7 @@ void bitmap_fill_rect_direct32(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y
 /*
  * optimized filler for direct color 24 bit modes
  */
-void bitmap_fill_rect_direct24(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_direct24(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	x_u8 * p;
 	x_u32 skip;
@@ -101,7 +101,7 @@ void bitmap_fill_rect_direct24(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y
 /*
  * optimized filler for direct color 16 bit modes
  */
-void bitmap_fill_rect_direct16(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_direct16(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	x_u8 * p;
 	x_u32 skip;
@@ -127,7 +127,7 @@ void bitmap_fill_rect_direct16(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y
 /*
  * optimized filler for direct color 8 bit modes
  */
-void bitmap_fill_rect_direct8(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_direct8(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	x_u8 * p;
 	x_u32 skip;
@@ -145,5 +145,35 @@ void bitmap_fill_rect_direct8(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y,
 		}
 
 		p += skip;
+	}
+}
+
+/*
+ * common file rect to bitmap
+ */
+void common_bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+{
+	switch(bitmap->info.bpp)
+	{
+	case 32:
+		bitmap_fill_rect_direct32(bitmap, c, x, y, w, h);
+		break;
+
+	case 24:
+		bitmap_fill_rect_direct24(bitmap, c, x, y, w, h);
+		break;
+
+	case 16:
+	case 15:
+		bitmap_fill_rect_direct16(bitmap, c, x, y, w, h);
+		break;
+
+	case 8:
+		bitmap_fill_rect_direct8(bitmap, c, x, y, w, h);
+		break;
+
+	default:
+		bitmap_fill_rect_generic(bitmap, c, x, y, w, h);
+		break;
 	}
 }

@@ -54,7 +54,7 @@ struct fb
 	void (*fill_rect)(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h);
 
 	/* blit bitmap */
-	x_bool (*blit_bitmap)(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 ox, x_u32 oy, x_u32 w, x_u32 h);
+	void (*blit_bitmap)(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy);
 
 	/* ioctl framebuffer */
 	x_s32 (*ioctl)(x_u32 cmd, void * arg);

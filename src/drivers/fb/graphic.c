@@ -29,6 +29,7 @@
 #include <fb/bitmap.h>
 #include <fb/fb.h>
 #include <fb/fbfill.h>
+#include <fb/fbblit.h>
 #include <fb/graphic.h>
 
 /*
@@ -242,27 +243,26 @@ void bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w
 	if((y + h) > bitmap->viewport.h)
 		h = bitmap->viewport.h - y;
 */
-	switch(bitmap->info.bpp)
-	{
-	case 32:
-		bitmap_fill_rect_direct32(bitmap, c, x, y, w, h);
-		break;
 
-	case 24:
-		bitmap_fill_rect_direct24(bitmap, c, x, y, w, h);
-		break;
+	common_bitmap_fill_rect(bitmap, c, x, y, w, h);
+}
 
-	case 16:
-	case 15:
-		bitmap_fill_rect_direct16(bitmap, c, x, y, w, h);
-		break;
+/*
+ * bitmap blitter
+ */
+void bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	/*	if((x >= bitmap->viewport.w))
+			return;
 
-	case 8:
-		bitmap_fill_rect_direct8(bitmap, c, x, y, w, h);
-		break;
+		if((y >= bitmap->viewport.h))
+			return;
 
-	default:
-		bitmap_fill_rect_generic(bitmap, c, x, y, w, h);
-		break;
-	}
+		if((x + w) > bitmap->viewport.w)
+			w = bitmap->viewport.w - x;
+		if((y + h) > bitmap->viewport.h)
+			h = bitmap->viewport.h - y;
+	*/
+
+	common_bitmap_blit(dst, src, mode, x, y, w, h, ox, oy);
 }

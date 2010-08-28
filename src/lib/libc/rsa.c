@@ -10,7 +10,7 @@
 /*
  * a[] -= mod
  */
-static void subM(struct rsa_public_key * key, x_u32 * a)
+static void subM(const struct rsa_public_key * key, x_u32 * a)
 {
 	x_s64 A = 0;
     x_s32 i;
@@ -26,7 +26,7 @@ static void subM(struct rsa_public_key * key, x_u32 * a)
 /*
  * return a[] >= mod
  */
-static x_s32 geM(struct rsa_public_key * key, const x_u32 * a)
+static x_s32 geM(const struct rsa_public_key * key, const x_u32 * a)
 {
 	x_s32 i;
 
@@ -46,7 +46,7 @@ static x_s32 geM(struct rsa_public_key * key, const x_u32 * a)
 /*
  * montgomery c[] += a * b[] / R % mod
  */
-static void montMulAdd(struct rsa_public_key * key, x_u32 * c, const x_u32 a, const x_u32 * b)
+static void montMulAdd(const struct rsa_public_key * key, x_u32 * c, const x_u32 a, const x_u32 * b)
 {
 	x_u64 A = (x_u64)a * b[0] + c[0];
     x_u32 d0 = (x_u32)A * key->n0inv;
@@ -73,7 +73,7 @@ static void montMulAdd(struct rsa_public_key * key, x_u32 * c, const x_u32 a, co
 /*
  * montgomery c[] = a[] * b[] / R % mod
  */
-static void montMul(struct rsa_public_key * key, x_u32 * c, const x_u32 * a, const x_u32 * b)
+static void montMul(const struct rsa_public_key * key, x_u32 * c, const x_u32 * a, const x_u32 * b)
 {
 	x_s32 i;
 
@@ -92,7 +92,7 @@ static void montMul(struct rsa_public_key * key, x_u32 * c, const x_u32 * a, con
  * in-place public exponentiation.
  * input and output big-endian byte array in inout.
  */
-static void modpow3(struct rsa_public_key * key, x_u8 * inout)
+static void modpow3(const struct rsa_public_key * key, x_u8 * inout)
 {
     x_u32 a[256/sizeof(x_u32)];
     x_u32 aR[256/sizeof(x_u32)];
@@ -168,7 +168,7 @@ static const x_u8 padding[256 - 20] = {
  * verify a 2048 bit RSA PKCS1.5 signature against an expected SHA-1 hash.
  * returns FALSE on failure, TRUE on success.
 */
-x_bool rsa_verify(struct rsa_public_key * key, const x_u8 * signature, const x_u8 * sha)
+x_bool rsa_verify(const struct rsa_public_key * key, const x_u8 * signature, const x_u8 * sha)
 {
     x_u8 buf[256];
     x_s32 i;

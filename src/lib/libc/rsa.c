@@ -168,7 +168,7 @@ static const x_u8 padding[256 - 20] = {
  * verify a 2048 bit RSA PKCS1.5 signature against an expected SHA-1 hash.
  * returns FALSE on failure, TRUE on success.
 */
-x_bool rsa_verify(struct rsa_public_key * key, const x_u8 * signature, const x_s32 len, const x_u8 * sha)
+x_bool rsa_verify(struct rsa_public_key * key, const x_u8 * signature, const x_u8 * sha)
 {
     x_u8 buf[256];
     x_s32 i;
@@ -179,13 +179,7 @@ x_bool rsa_verify(struct rsa_public_key * key, const x_u8 * signature, const x_s
         return FALSE;
     }
 
-    if(len != sizeof(buf))
-    {
-    	/* wrong input length */
-    	return FALSE;
-    }
-
-    for(i = 0; i < len; ++i)
+    for(i = 0; i < 256; ++i)
     {
         buf[i] = signature[i];
     }
@@ -202,7 +196,7 @@ x_bool rsa_verify(struct rsa_public_key * key, const x_u8 * signature, const x_s
     }
 
     /* check sha digest matches */
-    for(; i < len; ++i)
+    for(; i < 256; ++i)
     {
 		if (buf[i] != *sha++)
 		{

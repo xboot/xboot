@@ -28,11 +28,57 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
+#include <fs/fsapi.h>
 #include <fb/bitmap.h>
+
+struct tga_header
+{
+	x_u8 id_length;
+	x_u8 color_map_type;
+	x_u8 image_type;
+
+	/* color map specification */
+	x_u16 color_map_first_index;
+	x_u16 color_map_length;
+	x_u8 color_map_bpp;
+
+	/* image specification */
+	x_u16 image_x_origin;
+	x_u16 image_y_origin;
+	x_u16 image_width;
+	x_u16 image_height;
+	x_u8 image_bpp;
+	x_u8 image_descriptor;
+
+} __attribute__ ((packed));
 
 static x_bool tga_load(struct bitmap ** bitmap, const char * filename)
 {
-	return FALSE;
+	struct stat st;
+	x_s32 fd;
+
+	if(stat(filename, &st) != 0)
+		return FALSE;
+
+	if(S_ISDIR(st.st_mode))
+		return FALSE;
+
+	fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	if(fd < 0)
+		return FALSE;
+/*
+	if( read(fd, (void *)buf, 128)
+
+	  if (grub_file_read (file, &header, sizeof (header))
+	      != sizeof (header))
+	    {
+	      grub_file_close (file);
+	      return grub_errno;
+	    }
+
+	printk("XXX\r\n");
+*/
+	return TRUE;
 }
 
 /*

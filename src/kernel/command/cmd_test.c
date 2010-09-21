@@ -49,7 +49,9 @@
 
 static const x_u8 tga[] = {
 	0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0xc8, 0x00, 0x7d, 0x00, 0x18, 0x00, 0x03, 0x90,
+	0x00, 0x00, 0xc8, 0x00, 0x7d, 0x00, 0x18, 0x00,
+
+	0x03, 0x90,
 	0x3a, 0x06, 0x90, 0x3a, 0x07, 0x8f, 0x39, 0x08, 0x8f, 0x3a,
 	0x07, 0x89, 0x8f, 0x3b, 0x07, 0x81, 0x90, 0x3c, 0x08, 0x00,
 	0x8f, 0x3b, 0x07, 0x88, 0x90, 0x3c, 0x08, 0x82, 0x91, 0x3d,
@@ -5426,7 +5428,14 @@ static void write_tga(void)
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
+	struct fb * fb = search_framebuffer("fb");
 	struct bitmap * bitmap;
+	x_u32 c;
+	x_s32 i;
+	struct color * cc;
+
+	cc = get_color_by_name("magenta");
+	c = fb_map_color(fb, cc->r, cc->g, cc->b, cc->a);
 
 	if(argc > 1)
 	{
@@ -5440,36 +5449,29 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 			return -1;
 		}
 
-		printk("load successed\r\n");
-	}
+		for(i=0; i < 790; i++)
+		{
+			bitmap_set_pixel(&fb->info->bitmap, i, 100, c);
+			bitmap_set_pixel(&fb->info->bitmap, i, 200, c);
+		}
+
+		for(i=0; i < 470; i++)
+		{
+			bitmap_set_pixel(&fb->info->bitmap, 100, i, c);
+			bitmap_set_pixel(&fb->info->bitmap, 200, i, c);
+		}
+
+		fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, 100, 100, 50, 50, 0, 0);
 
 #if 0
-	struct fb * fb = search_framebuffer("fb");
-	x_s32 i;
-	x_u32 c;
-	struct color * cc;
-
-	if(!fb)
-	{
-		printk("no framebuffer\r\n");
-		return -1;
-	}
-
-	cc = get_color_by_name("magenta");
-	c = fb_map_color(fb, cc->r, cc->g, cc->b, cc->a);
-
-	for(i=0; i< 100; i++)
-	{
-		bitmap_set_pixel(&fb->info->bitmap, i, i, c);
-	}
-
-	struct rect r;
-	rect_set(&r, 10,10, 105, 105);
-	fb_set_viewport(fb, &r);
-	fb_fill_rect(fb, c, 100, 100, 110, 110);
-
-	//bitmap_fill_rect(&fb->info->bitmap, c, 20, 20, 50, 30);
+		for(i=0; i< 100; i++)
+		{
+			fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, 100+i*5, 100+i*5, 50, 50, i, i);
+			mdelay(200);
+		}
 #endif
+		printk("load successed\r\n");
+	}
 
 	return 0;
 }

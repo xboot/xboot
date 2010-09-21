@@ -23,6 +23,7 @@
 #include <configs.h>
 #include <default.h>
 #include <malloc.h>
+#include <byteorder.h>
 #include <vsprintf.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
@@ -30,6 +31,23 @@
 #include <xboot/list.h>
 #include <fs/fsapi.h>
 #include <fb/bitmap.h>
+
+enum
+{
+	TGA_IMAGE_TYPE_NONE = 0,
+	TGA_IMAGE_TYPE_UNCOMPRESSED_INDEXCOLOR = 1,
+	TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR = 2,
+	TGA_IMAGE_TYPE_UNCOMPRESSED_BLACK_AND_WHITE = 3,
+	TGA_IMAGE_TYPE_RLE_INDEXCOLOR = 9,
+	TGA_IMAGE_TYPE_RLE_TRUECOLOR = 10,
+	TGA_IMAGE_TYPE_RLE_BLACK_AND_WHITE = 11,
+};
+
+enum
+{
+	TGA_IMAGE_ORIGIN_RIGHT = 0x10,
+	TGA_IMAGE_ORIGIN_TOP = 0x20
+};
 
 struct tga_header
 {
@@ -52,10 +70,229 @@ struct tga_header
 
 } __attribute__ ((packed));
 
+static x_bool tga_load_truecolor_r8g8b8a8(struct bitmap * bitmap, struct tga_header * header, x_s32 fd)
+{
+	x_u32 x, y;
+	x_u8 * ptr;
+	x_u8 tmp[4];
+	x_u8 bytes_per_pixel;
+
+	bytes_per_pixel = header->image_bpp / 8;
+
+	for(y = 0; y < header->image_height; y++)
+	{
+		ptr = bitmap->data;
+		if((header->image_descriptor & TGA_IMAGE_ORIGIN_TOP) != 0)
+			ptr += y * bitmap->info.pitch;
+		else
+			ptr += (header->image_height - 1 - y) * bitmap->info.pitch;
+
+		for(x = 0; x < header->image_width; x++)
+		{
+			if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+				return FALSE;
+
+			ptr[0] = tmp[2];
+			ptr[1] = tmp[1];
+			ptr[2] = tmp[0];
+			ptr[3] = tmp[3];
+
+			ptr += 4;
+		}
+	}
+
+	return TRUE;
+}
+
+static x_bool tga_load_truecolor_r8g8b8(struct bitmap * bitmap, struct tga_header * header, x_s32 fd)
+{
+	x_u32 x, y;
+	x_u8 * ptr;
+	x_u8 tmp[4];
+	x_u8 bytes_per_pixel;
+
+	bytes_per_pixel = header->image_bpp / 8;
+
+	for(y = 0; y < header->image_height; y++)
+	{
+		ptr = bitmap->data;
+		if((header->image_descriptor & TGA_IMAGE_ORIGIN_TOP) != 0)
+			ptr += y * bitmap->info.pitch;
+		else
+			ptr += (header->image_height - 1 - y) * bitmap->info.pitch;
+
+		for(x = 0; x < header->image_width; x++)
+		{
+			if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+				return FALSE;
+
+			ptr[0] = tmp[2];
+			ptr[1] = tmp[1];
+			ptr[2] = tmp[0];
+
+			ptr += 3;
+		}
+	}
+
+	return TRUE;
+}
+
+static x_bool tga_load_truecolor_rle_r8g8b8a8(struct bitmap * bitmap, struct tga_header * header, x_s32 fd)
+{
+	x_u32 x, y;
+	x_u8 type;
+	x_u8 * ptr;
+	x_u8 tmp[4];
+	x_u8 bytes_per_pixel;
+
+	bytes_per_pixel = header->image_bpp / 8;
+
+	for(y = 0; y < header->image_height; y++)
+	{
+		ptr = bitmap->data;
+		if((header->image_descriptor & TGA_IMAGE_ORIGIN_TOP) != 0)
+			ptr += y * bitmap->info.pitch;
+		else
+			ptr += (header->image_height - 1 - y) * bitmap->info.pitch;
+
+		for(x = 0; x < header->image_width;)
+		{
+			if(read(fd, &type, sizeof(type)) != sizeof(type))
+				return FALSE;
+
+			if(type & 0x80)
+			{
+				/* rle-encoded packet */
+				type &= 0x7f;
+				type++;
+
+				if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+					return FALSE;
+
+				while(type)
+				{
+					if(x < header->image_width)
+					{
+						ptr[0] = tmp[2];
+						ptr[1] = tmp[1];
+						ptr[2] = tmp[0];
+						ptr[3] = tmp[3];
+						ptr += 4;
+					}
+
+					type--;
+					x++;
+				}
+			}
+			else
+			{
+				/* raw-encoded packet */
+				type++;
+
+				while(type)
+				{
+					if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+						return FALSE;
+
+					if (x < header->image_width)
+					{
+						ptr[0] = tmp[2];
+						ptr[1] = tmp[1];
+						ptr[2] = tmp[0];
+						ptr[3] = tmp[3];
+						ptr += 4;
+					}
+
+					type--;
+					x++;
+				}
+			}
+		}
+	}
+
+	return TRUE;
+}
+
+static x_bool tga_load_truecolor_rle_r8g8b8(struct bitmap * bitmap, struct tga_header * header, x_s32 fd)
+{
+	x_u32 x, y;
+	x_u8 type;
+	x_u8 * ptr;
+	x_u8 tmp[4];
+	x_u8 bytes_per_pixel;
+
+	bytes_per_pixel = header->image_bpp / 8;
+
+	for(y = 0; y < header->image_height; y++)
+	{
+		ptr = bitmap->data;
+		if((header->image_descriptor & TGA_IMAGE_ORIGIN_TOP) != 0)
+			ptr += y * bitmap->info.pitch;
+		else
+			ptr += (header->image_height - 1 - y) * bitmap->info.pitch;
+
+		for(x = 0; x < header->image_width;)
+		{
+			if(read(fd, &type, sizeof(type)) != sizeof(type))
+				return FALSE;
+
+			if(type & 0x80)
+			{
+				/* rle-encoded packet */
+				type &= 0x7f;
+				type++;
+
+				if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+					return FALSE;
+
+				while(type)
+				{
+					if(x < header->image_width)
+					{
+						ptr[0] = tmp[2];
+						ptr[1] = tmp[1];
+						ptr[2] = tmp[0];
+						ptr += 3;
+					}
+
+					type--;
+					x++;
+				}
+			}
+			else
+			{
+				/* raw-encoded packet */
+				type++;
+
+				while(type)
+				{
+					if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+						return FALSE;
+
+					if (x < header->image_width)
+					{
+						ptr[0] = tmp[2];
+						ptr[1] = tmp[1];
+						ptr[2] = tmp[0];
+						ptr += 3;
+					}
+
+					type--;
+					x++;
+				}
+			}
+		}
+	}
+
+	return TRUE;
+}
+
 static x_bool tga_load(struct bitmap ** bitmap, const char * filename)
 {
+	struct tga_header header;
 	struct stat st;
 	x_s32 fd;
+	x_bool has_alpha;
 
 	if(stat(filename, &st) != 0)
 		return FALSE;
@@ -66,18 +303,124 @@ static x_bool tga_load(struct bitmap ** bitmap, const char * filename)
 	fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 	if(fd < 0)
 		return FALSE;
-/*
-	if( read(fd, (void *)buf, 128)
 
-	  if (grub_file_read (file, &header, sizeof (header))
-	      != sizeof (header))
-	    {
-	      grub_file_close (file);
-	      return grub_errno;
-	    }
+	if(read(fd, (void*)(&header), sizeof(struct tga_header)) != sizeof(struct tga_header))
+	{
+		close(fd);
+		return FALSE;
+	}
 
-	printk("XXX\r\n");
-*/
+	header.color_map_first_index = cpu_to_le16( *((x_u16 *)(&header.color_map_first_index)) );
+	header.color_map_length = cpu_to_le16( *((x_u16 *)(&header.color_map_length)) );
+	header.image_x_origin = cpu_to_le16( *((x_u16 *)(&header.image_x_origin)) );
+	header.image_y_origin = cpu_to_le16( *((x_u16 *)(&header.image_y_origin)) );
+	header.image_width = cpu_to_le16( *((x_u16 *)(&header.image_width)) );
+	header.image_height = cpu_to_le16( *((x_u16 *)(&header.image_height)) );
+
+	if(lseek(fd, sizeof(struct tga_header) + header.id_length, SEEK_SET) < 0)
+	{
+		close(fd);
+		return FALSE;
+	}
+
+	/* check that bitmap encoding is supported */
+	switch(header.image_type)
+	{
+	case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
+	case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
+		break;
+
+	default:
+		close(fd);
+		return FALSE;
+	}
+
+	/* check that bitmap depth is supported */
+	switch(header.image_bpp)
+	{
+	case 24:
+		has_alpha = FALSE;
+		break;
+
+	case 32:
+		has_alpha = TRUE;
+		break;
+
+	default:
+		close(fd);
+		return FALSE;
+	}
+
+	if(has_alpha)
+	{
+		if(!bitmap_create(bitmap, header.image_width, header.image_height, BITMAP_FORMAT_RGBA_8888))
+		{
+			close(fd);
+			return FALSE;
+		}
+
+		switch(header.image_type)
+		{
+		case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
+			if(!tga_load_truecolor_r8g8b8a8(*bitmap, &header, fd))
+			{
+				bitmap_destroy(*bitmap);
+				close(fd);
+				return FALSE;
+			}
+			break;
+
+		case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
+			if(!tga_load_truecolor_rle_r8g8b8a8(*bitmap, &header, fd))
+			{
+				bitmap_destroy(*bitmap);
+				close(fd);
+				return FALSE;
+			}
+			break;
+
+		default:
+			bitmap_destroy(*bitmap);
+			close(fd);
+			return FALSE;
+		}
+	}
+	else
+	{
+		if(!bitmap_create(bitmap, header.image_width, header.image_height, BITMAP_FORMAT_RGB_888))
+		{
+			close(fd);
+			return FALSE;
+		}
+
+		switch(header.image_type)
+		{
+		case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
+			if(!tga_load_truecolor_r8g8b8(*bitmap, &header, fd))
+			{
+				bitmap_destroy(*bitmap);
+				close(fd);
+				return FALSE;
+			}
+			break;
+
+		case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
+			if(!tga_load_truecolor_rle_r8g8b8(*bitmap, &header, fd))
+			{
+				bitmap_destroy(*bitmap);
+				close(fd);
+				return FALSE;
+			}
+			break;
+
+		default:
+			bitmap_destroy(*bitmap);
+			close(fd);
+			return FALSE;
+		}
+	}
+
+	close(fd);
 	return TRUE;
 }
 

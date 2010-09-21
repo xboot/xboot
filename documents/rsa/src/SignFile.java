@@ -170,7 +170,7 @@ class SignFile
             throws IOException, GeneralSecurityException
 	{
 		DataInputStream input = new DataInputStream(new FileInputStream(file));
-		MessageDigest md = MessageDigest.getInstance("SHA1");
+		MessageDigest sha = MessageDigest.getInstance("SHA1");
         byte[] buffer = new byte[4096];
         int num;
 
@@ -178,10 +178,10 @@ class SignFile
 		{
 			while ((num = input.read(buffer)) > 0)
 			{
-				md.update(buffer, 0, num);
+				sha.update(buffer, 0, num);
 			}
 			
-			return md;
+			return sha;
         }
 		finally
 		{
@@ -189,13 +189,60 @@ class SignFile
         }
     }
 
+    private static Signature sha1WithRsa(File file, PrivateKey privateKey)
+            throws IOException, GeneralSecurityException
+	{
+		DataInputStream input = new DataInputStream(new FileInputStream(file));
+        byte[] buffer = new byte[4096];
+        int num;
+
+		Signature sig = Signature.getInstance("SHA1withRSA");
+		sig.initSign(privateKey);
+
+        try
+		{
+			while ((num = input.read(buffer)) > 0)
+			{
+				sig.update(buffer, 0, num);
+			}
+			
+			return sig;
+        }
+		finally
+		{
+            input.close();
+        }
+    }
+
+    private static void writeFile(File file, byte[] array)
+            throws IOException, GeneralSecurityException
+	{
+        FileOutputStream output = new FileOutputStream(file);
+
+        try
+		{
+			output.write(array);
+        }
+		finally
+		{
+            output.close();
+        }
+    }
+
+	static private void dump(byte[] bytes)
+    {
+        for (byte b : bytes)
+        {
+            System.out.printf("0x%02x,", b & 0xff);
+        }
+        System.out.println();
+    }
+
     public static void main(String[] args)
 	{
-		FileOutputStream outputFile = null;
-
         if(args.length != 4)
 		{
-			System.err.println("Usage: SignFile publickey.x509.pem privatekey.pk8 inputfile outputfile");
+			System.err.println("Usage: SignFile public.x509.pem private.pk8 input output");
 			System.exit(1);
         }
 
@@ -203,87 +250,17 @@ class SignFile
 		{
 			X509Certificate publicKey = readPublicKey(new File(args[0]));
 			PrivateKey privateKey = readPrivateKey(new File(args[1]));
-			outputFile = new FileOutputStream(args[3]);
 			
-			MessageDigest sha = sha1Sum(new File(args[2]));
-			
-            Signature signature = Signature.getInstance("SHA1withRSA");
-            signature.initSign(privateKey);
-
-
-			byte[] msgDigest = sha.digest();
-
-			for(int i=0; i<msgDigest.length; i++)
-			{
-				String str = Integer.toHexString((int)msgDigest[i]&0xff);
-        		System.out.print(str);
-    		}
-			System.out.print("\r\n");
+            Signature s = sha1WithRsa(new File(args[2]), privateKey);
+			writeFile(new File(args[3]), s.sign());
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 			System.exit(1);
         }
-		finally
-		{
-			try
-			{
-                if (outputFile != null)
-					outputFile.close();
-            }
-			catch (IOException e)
-			{
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
 
-		System.err.println("test");
 		System.exit(0);
 	}
 }
 
-
-static private void dump(String title, byte[] bytes)
-    {
-        System.out.printf("%s : ", title);
-        for (byte b : bytes)
-        {
-            System.out.printf("%02x ", b & 0xff);
-        }
-        System.out.println();
-    }
- 
-    public static void main(String[] args) throws Exception
-    {
- 
-        final int keyLength = 512;
-        final KeyPairGenerator rsaKeyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        rsaKeyPairGenerator.initialize(keyLength);
-        KeyPair keyPair = rsaKeyPairGenerator.generateKeyPair();
- 
-        byte[] document =
-        {
-            0, 1, 2, 3, 4, 5, 6, 7, 7, 6, 5, 4, 3, 2, 1
-        };
-        dump("Document .............", document);
- 
-        MessageDigest digestor = MessageDigest.getInstance("SHA1");
-        byte[] documentDigest = digestor.digest(document);
-        dump("Document digest ......", documentDigest);
- 
-        // Generate the signature of the document using the Signature class
-        Signature s = Signature.getInstance("SHA1withRSA");
-        s.initSign(keyPair.getPrivate());
-        s.update(document);
-        byte[] signature = s.sign();
-        dump("Signature ............", signature);
- 
-        // Decrypt the signature
-      final Cipher cipher = Cipher.getInstance("RSA/ECB/NoPadding");
-         cipher.init(Cipher.DECRYPT_MODE, keyPair.getPublic());
-        byte[] decryptedSignature = cipher.doFinal(signature);
-        dump("Decrypted signature ..", decryptedSignature);
- 
-    }

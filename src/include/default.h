@@ -147,6 +147,13 @@
 #endif
 
 /*
+ * display command
+ */
+#if !defined(CONFIG_COMMAND_DISPLAY)
+#define	CONFIG_COMMAND_DISPLAY						(1)
+#endif
+
+/*
  * probe command
  */
 #if !defined(CONFIG_COMMAND_PROBE)

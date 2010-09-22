@@ -33,6 +33,7 @@
 #include <loop/loop.h>
 #include <fb/graphic.h>
 #include <fb/fbpixel.h>
+#include <fb/fbscale.h>
 #include <fb/logo.h>
 #include <rtc/rtc.h>
 #include <xboot/proc.h>
@@ -5429,7 +5430,7 @@ static void write_tga(void)
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
 	struct fb * fb = search_framebuffer("fb");
-	struct bitmap * bitmap;
+	struct bitmap * bitmap, *d, *e;
 	x_u32 c;
 	x_s32 i;
 	struct color * cc;
@@ -5449,6 +5450,9 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 			return -1;
 		}
 
+		bitmap_create_scaled(&d, 800, 200, bitmap, BITMAP_SCALE_METHOD_FASTEST);
+		bitmap_create_scaled(&e, 800, 200, bitmap, BITMAP_SCALE_METHOD_BEST);
+
 		for(i=0; i < 790; i++)
 		{
 			bitmap_set_pixel(&fb->info->bitmap, i, 100, c);
@@ -5461,7 +5465,9 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 			bitmap_set_pixel(&fb->info->bitmap, 200, i, c);
 		}
 
-		fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, 100, 100, 50, 50, 0, 0);
+		//fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, 100, 100, 50, 50, 0, 0);
+		fb_blit_bitmap(fb, d, BLIT_MODE_REPLACE, 0, 0, 800, 200, 0, 0);
+		fb_blit_bitmap(fb, e, BLIT_MODE_REPLACE, 0, 210, 800, 200, 0, 0);
 
 #if 0
 		for(i=0; i< 100; i++)

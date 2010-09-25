@@ -43,6 +43,8 @@ extern x_u8 __data_shadow_start[];
 extern x_u8 __data_shadow_end[];
 extern x_u8 __data_start[];
 extern x_u8 __data_end[];
+extern x_u8 __ramdisk_start[];
+extern x_u8 __ramdisk_end[];
 extern x_u8 __bss_start[];
 extern x_u8 __bss_end[];
 extern x_u8 __heap_start[];
@@ -212,6 +214,9 @@ static struct machine realview = {
 
 		.data_start			= (const x_sys)__data_start,
 		.data_end			= (const x_sys)__data_end,
+
+		.ramdisk_start		= (const x_sys)__ramdisk_start,
+		.ramdisk_end		= (const x_sys)__ramdisk_end,
 
 		.bss_start			= (const x_sys)__bss_start,
 		.bss_end			= (const x_sys)__bss_end,

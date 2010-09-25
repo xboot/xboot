@@ -285,6 +285,10 @@ _data_shadow_start:
 	.long	 __data_shadow_start
 _data_shadow_end:
 	.long	 __data_shadow_end
+_ramdisk_start:
+	.long	__ramdisk_start
+_ramdisk_end:
+	.long	__ramdisk_end
 _bss_start:
 	.long	__bss_start
 _bss_end:

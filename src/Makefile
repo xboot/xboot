@@ -101,6 +101,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				drivers/fb/reader \
 				drivers/led \
 				drivers/loop \
+				drivers/ramdisk \
 				drivers/rtc \
 				drivers/input \
 				drivers/input/keyboard \
@@ -113,24 +114,29 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 # you shouldn't need to change anything below this point.
 #
 CROSS		?=
-AS			:= $(CROSS)as
-CC			:= $(CROSS)gcc
-CXX			:= $(CROSS)g++
-LD			:= $(CROSS)ld
-AR			:= $(CROSS)ar
-OC			:= $(CROSS)objcopy
-OD			:= $(CROSS)objdump
-RM			:= -rm -fr
+AS			:=	$(CROSS)as
+CC			:=	$(CROSS)gcc
+CXX			:=	$(CROSS)g++
+LD			:=	$(CROSS)ld
+AR			:=	$(CROSS)ar
+OC			:=	$(CROSS)objcopy
+OD			:=	$(CROSS)objdump
+RM			:=	-rm -fr
 
-XBOOT_NAME	:= xboot
-OBJDIRS		:= .obj $(patsubst %, .obj/%, $(SRCDIRS))
-OUTDIR		:= ../output
+XBOOT_NAME	:=	xboot
+OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
+OUTDIR		:=	../output
 
-SFILES		:= $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.s))
-CFILES		:= $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c))
-CPPFILES	:= $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.cpp))
-OBJS		:= $(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
-VPATH		:= $(OBJDIRS)
+SFILES		:=	$(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.s))
+CFILES		:=	$(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c))
+CPPFILES	:=	$(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.cpp))
+OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
+VPATH		:=	$(OBJDIRS)
+
+COMMAND		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);			\
+				rm -fr .obj/init/version.o;				\
+				rm -fr .obj/drivers/ramdisk/wrapper.o;	\
+				find ramdisk/ -name '*.*' | xargs ar -rc .obj/ramdisk.ar
 
 .PHONY: all final docs clean
 
@@ -143,6 +149,9 @@ $(OUTDIR)/$(XBOOT_NAME).bin:	$(OUTDIR)/$(XBOOT_NAME).elf
 $(OUTDIR)/$(XBOOT_NAME).elf:	$(OBJS)
 	@echo [LD] linking $@
 	@$(LD) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Map $(OUTDIR)/$(XBOOT_NAME).map -o $@ $^
+
+.obj/ramdisk:	
+	@echo [RAMDISK] generate ramdisk $@
 
 .obj/%.o:	%.s
 	@echo [AS] $<
@@ -168,4 +177,4 @@ clean:
 # 
 # include the dependency files, should be the last of the makefile
 #
-sinclude $(shell mkdir -p $(OBJDIRS) $(OUTDIR); rm -fr .obj/init/version.o) $(foreach dir,$(OBJDIRS),$(wildcard $(dir)/*.d))
+sinclude $(shell $(COMMAND)) $(foreach dir,$(OBJDIRS),$(wildcard $(dir)/*.d))

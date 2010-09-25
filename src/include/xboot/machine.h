@@ -60,6 +60,9 @@ struct machine {
 		const x_sys data_start;
 		const x_sys data_end;
 
+		const x_sys ramdisk_start;
+		const x_sys ramdisk_end;
+
 		const x_sys bss_start;
 		const x_sys bss_end;
 

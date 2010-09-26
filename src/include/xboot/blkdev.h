@@ -11,8 +11,8 @@
  * block device type
  */
 enum blkdev_type {
-	BLK_DEV_LOOP,
 	BLK_DEV_RAMDISK,
+	BLK_DEV_LOOP,
 	BLK_DEV_NOR,
 	BLK_DEV_NAND,
 	BLK_DEV_MMC,

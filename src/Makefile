@@ -136,6 +136,7 @@ VPATH		:=	$(OBJDIRS)
 COMMAND		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);			\
 				rm -f .obj/init/version.o;				\
 				rm -f .obj/drivers/ramdisk/wrapper.o;	\
+				rm -f .obj/ramdisk.ar;					\
 				find ramdisk/ -name '*.*' | xargs ar -rc .obj/ramdisk.ar
 
 .PHONY: all final docs clean

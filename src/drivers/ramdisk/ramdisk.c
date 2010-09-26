@@ -37,37 +37,202 @@
 #include <xboot/blkdev.h>
 #include <xboot/ioctl.h>
 
-static __init void ramdisk_block_init(void)
+extern x_u8 __ramdisk_start[];
+extern x_u8 __ramdisk_end[];
+
+/*
+ * the struct of ramdisk
+ */
+struct ramdisk
+{
+	/* the ramdisk name */
+	char name[32 + 1];
+
+	/* block information */
+	struct blkinfo info;
+
+	/* the start of ramdisk */
+	x_sys start;
+
+	/* the end of ramdisk */
+	x_sys end;
+
+	/* busy or not */
+	x_bool busy;
+};
+
+static x_s32 ramdisk_open(struct blkdev * dev)
+{
+	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
+
+	if(ramdisk->busy == TRUE)
+		return -1;
+
+	ramdisk->busy = TRUE;
+	return 0;
+}
+
+static x_s32 ramdisk_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno)
+{
+	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
+	x_u8 * p = (x_u8 *)(ramdisk->start);
+	x_size offset;
+	x_s32 size;
+
+	if(blkno < 0)
+		return 0;
+
+	offset = get_blkdev_offset(dev, blkno);
+	if(offset < 0)
+		return 0;
+
+	size = get_blkdev_size(dev, blkno);
+
+	memcpy((void *)buf, (const void *)(p + offset), size);
+	return size;
+}
+
+static x_s32 ramdisk_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
+{
+	return 0;
+}
+
+static x_s32 ramdisk_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
+{
+	return -1;
+}
+
+static x_s32 ramdisk_close(struct blkdev * dev)
+{
+	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
+
+	ramdisk->busy = FALSE;
+	return 0;
+}
+
+static __init void ramdisk_init(void)
 {
 	struct blkdev * dev;
+	struct ramdisk * ramdisk;
 	struct blkinfo * info;
+	struct list_head * info_pos;
 	x_u64 size, rem;
-	//TODO
-	//XXX
-	//FIXME
-	return;
-	dev = malloc(sizeof(struct blkdev));
-	info = malloc(sizeof(struct blkinfo));
 
-	if(!dev || !info)
+	dev = malloc(sizeof(struct blkdev));
+	if(!dev)
+		return;
+
+	ramdisk = malloc(sizeof(struct ramdisk));
+	if(!ramdisk)
 	{
 		free(dev);
-		free(info);
 		return;
 	}
-/*
-	if(!register_blkdev(&ramdisk))
-		LOG_E("failed to register block driver '%s'", ramdisk.name);
-		*/
+
+	snprintf((x_s8 *)ramdisk->name, 32, (const x_s8 *)"ramdisk");
+	ramdisk->start = (x_sys)__ramdisk_start;
+	ramdisk->end = (x_sys)__ramdisk_end;
+	ramdisk->busy = FALSE;
+
+	if((ramdisk->end - ramdisk->start) <= 0)
+	{
+		free(ramdisk);
+		free(dev);
+		return;
+	}
+
+	size = (x_u64)(ramdisk->end - ramdisk->start);
+	rem = div64_64(&size, 512);
+
+	init_list_head(&(ramdisk->info.entry));
+
+	if(size > 0)
+	{
+		info = malloc(sizeof(struct blkinfo));
+		if(!info)
+		{
+			free(ramdisk);
+			free(dev);
+			return;
+		}
+
+		info->blkno = 0;
+		info->offset = 0;
+		info->size = 512;
+		info->number = size;
+		list_add_tail(&info->entry, &(ramdisk->info.entry));
+	}
+
+	if(rem > 0)
+	{
+		info = malloc(sizeof(struct blkinfo));
+		if(!info)
+		{
+			for(info_pos = (&(ramdisk->info.entry))->next; info_pos != &(ramdisk->info.entry); info_pos = info_pos->next)
+			{
+				info = list_entry(info_pos, struct blkinfo, entry);
+				free(info);
+			}
+			free(ramdisk);
+			free(dev);
+			return;
+		}
+
+		info->blkno = size;
+		info->offset = size * 512;
+		info->size = rem;
+		info->number = 1;
+		list_add_tail(&info->entry, &(ramdisk->info.entry));
+	}
+
+	dev->name	= ramdisk->name;
+	dev->type	= BLK_DEV_RAMDISK;
+	dev->info	= &(ramdisk->info);
+	dev->open 	= ramdisk_open;
+	dev->read 	= ramdisk_read;
+	dev->write	= ramdisk_write;
+	dev->ioctl 	= ramdisk_ioctl;
+	dev->close	= ramdisk_close;
+	dev->driver = ramdisk;
+
+	if(!register_blkdev(dev))
+	{
+		for(info_pos = (&(ramdisk->info.entry))->next; info_pos != &(ramdisk->info.entry); info_pos = info_pos->next)
+		{
+			info = list_entry(info_pos, struct blkinfo, entry);
+			free(info);
+		}
+		free(ramdisk);
+		free(dev);
+		return;
+	}
 }
 
-static __exit void ramdisk_block_exit(void)
+static __exit void ramdisk_exit(void)
 {
-	/*
-	if(!unregister_blkdev(ramdisk.name))
-		LOG_E("failed to unregister rtc driver '%s'", ramdisk.name);
-		*/
+	struct blkdev * dev;
+	struct ramdisk * ramdisk;
+	struct blkinfo * info;
+	struct list_head * info_pos;
+
+	dev = search_blkdev_with_type("ramdisk", BLK_DEV_RAMDISK);
+	if(dev)
+	{
+		ramdisk = (struct ramdisk *)(dev->driver);
+
+		if(unregister_blkdev(dev->name))
+		{
+			for(info_pos = (&(ramdisk->info.entry))->next; info_pos != &(ramdisk->info.entry); info_pos = info_pos->next)
+			{
+				info = list_entry(info_pos, struct blkinfo, entry);
+				free(info);
+			}
+			free(ramdisk);
+			free(dev);
+			return;
+		}
+	}
 }
 
-module_init(ramdisk_block_init, LEVEL_DRIVER);
-module_exit(ramdisk_block_exit, LEVEL_DRIVER);
+module_init(ramdisk_init, LEVEL_DRIVER);
+module_exit(ramdisk_exit, LEVEL_DRIVER);

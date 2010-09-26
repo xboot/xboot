@@ -196,6 +196,7 @@ x_bool register_loop(const char * file)
 	struct loop * loop;
 	struct loop_list * list;
 	struct blkinfo * info;
+	struct list_head * info_pos;
 	x_u64 size, rem;
 	x_s32 i = 0;
 
@@ -273,8 +274,11 @@ x_bool register_loop(const char * file)
 		info = malloc(sizeof(struct blkinfo));
 		if(!info)
 		{
-			if( (&(loop->info.entry))->next != &(loop->info.entry) )
-				free(list_entry((&(loop->info.entry))->next, struct blkinfo, entry));
+			for(info_pos = (&(loop->info.entry))->next; info_pos != &(loop->info.entry); info_pos = info_pos->next)
+			{
+				info = list_entry(info_pos, struct blkinfo, entry);
+				free(info);
+			}
 			free(loop);
 			free(dev);
 			free(list);
@@ -305,17 +309,11 @@ x_bool register_loop(const char * file)
 
 	if(!register_blkdev(dev))
 	{
-		free(info);
-		free(loop);
-		free(dev);
-		free(list);
-		return FALSE;
-	}
-
-	if(search_blkdev_with_type(dev->name, BLK_DEV_LOOP) == NULL)
-	{
-		unregister_blkdev(dev->name);
-		free(info);
+		for(info_pos = (&(loop->info.entry))->next; info_pos != &(loop->info.entry); info_pos = info_pos->next)
+		{
+			info = list_entry(info_pos, struct blkinfo, entry);
+			free(info);
+		}
 		free(loop);
 		free(dev);
 		free(list);
@@ -334,7 +332,7 @@ x_bool unregister_loop(const char * file)
 {
 	struct loop_list * list;
 	struct list_head * pos;
-	struct blkinfo * info_list;
+	struct blkinfo * info;
 	struct list_head * info_pos;
 	struct blkdev * dev;
 	char buf[MAX_PATH];
@@ -357,8 +355,8 @@ x_bool unregister_loop(const char * file)
 				{
 					for(info_pos = (&(list->loop->info.entry))->next; info_pos != &(list->loop->info.entry); info_pos = info_pos->next)
 					{
-						info_list = list_entry(info_pos, struct blkinfo, entry);
-						free(info_list);
+						info = list_entry(info_pos, struct blkinfo, entry);
+						free(info);
 					}
 					free(list->loop);
 					free(dev);

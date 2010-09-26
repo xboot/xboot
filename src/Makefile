@@ -133,10 +133,10 @@ CPPFILES	:=	$(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.cpp))
 OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 VPATH		:=	$(OBJDIRS)
 
-COMMAND		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);			\
-				rm -f .obj/init/version.o;				\
-				rm -f .obj/drivers/ramdisk/wrapper.o;	\
-				rm -f .obj/ramdisk.ar;					\
+CMDS		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);								\
+				rm -f .obj/init/version.o;									\
+				rm -f .obj/drivers/ramdisk/wrapper.o;						\
+				rm -f .obj/ramdisk.ar;										\
 				find ramdisk/ -name '*.*' | xargs ar -rc .obj/ramdisk.ar
 
 .PHONY: all final docs clean
@@ -175,4 +175,4 @@ clean:
 # 
 # include the dependency files, should be the last of the makefile
 #
-sinclude $(shell $(COMMAND)) $(foreach dir,$(OBJDIRS),$(wildcard $(dir)/*.d))
+sinclude $(shell $(CMDS)) $(foreach dir,$(OBJDIRS),$(wildcard $(dir)/*.d))

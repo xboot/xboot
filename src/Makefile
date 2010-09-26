@@ -127,9 +127,9 @@ XBOOT_NAME	:=	xboot
 OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
 OUTDIR		:=	../output
 
-SFILES		:=	$(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.s))
-CFILES		:=	$(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c))
-CPPFILES	:=	$(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.cpp))
+SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.s))
+CFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
+CPPFILES	:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 VPATH		:=	$(OBJDIRS)
 
@@ -175,4 +175,4 @@ clean:
 # 
 # include the dependency files, should be the last of the makefile
 #
-sinclude $(shell $(CMDS)) $(foreach dir,$(OBJDIRS),$(wildcard $(dir)/*.d))
+sinclude $(shell $(CMDS)) $(foreach dir, $(OBJDIRS), $(wildcard $(dir)/*.d))

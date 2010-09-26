@@ -134,8 +134,8 @@ OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.
 VPATH		:=	$(OBJDIRS)
 
 COMMAND		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);			\
-				rm -fr .obj/init/version.o;				\
-				rm -fr .obj/drivers/ramdisk/wrapper.o;	\
+				rm -f .obj/init/version.o;				\
+				rm -f .obj/drivers/ramdisk/wrapper.o;	\
 				find ramdisk/ -name '*.*' | xargs ar -rc .obj/ramdisk.ar
 
 .PHONY: all final docs clean
@@ -149,9 +149,6 @@ $(OUTDIR)/$(XBOOT_NAME).bin:	$(OUTDIR)/$(XBOOT_NAME).elf
 $(OUTDIR)/$(XBOOT_NAME).elf:	$(OBJS)
 	@echo [LD] linking $@
 	@$(LD) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Map $(OUTDIR)/$(XBOOT_NAME).map -o $@ $^
-
-.obj/ramdisk:	
-	@echo [RAMDISK] generate ramdisk $@
 
 .obj/%.o:	%.s
 	@echo [AS] $<

@@ -49,7 +49,7 @@ void do_system_rootfs(void)
 	LOG_I("mount root filesystem");
 
 	if(mount(NULL, "/" , "ramfs", 0) != 0)
-		LOG_E("mount root filesystem fail");
+		LOG_E("failed to mount root filesystem");
 
 	if(chdir("/") != 0)
 		LOG_E("can't change directory to '/'");
@@ -58,22 +58,28 @@ void do_system_rootfs(void)
 		LOG_E("failed to create directory '/proc'");
 
 	if(mount(NULL, "/proc" , "procfs", 0) != 0)
-		LOG_E("mount proc filesystem fail");
+		LOG_E("failed to mount proc filesystem");
 
 	if(mkdir("/dev", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG_E("failed to create directory '/dev'");
 
 	if(mount(NULL, "/dev" , "devfs", 0) != 0)
-		LOG_E("mount dev filesystem fail");
+		LOG_E("failed to mount dev filesystem");
+
+	if(mkdir("/boot", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
+		LOG_E("failed to create directory '/boot'");
+
+	if(mount("/dev/ramdisk", "/boot" , "arfs", 0) != 0)
+		LOG_E("failed to mount ramdisk");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG_E("failed to create directory '/etc'");
 
-	if(mkdir("/tmp", S_IRWXU|S_IRWXG|S_IRWXO) != 0)
-		LOG_E("failed to create directory '/tmp'");
-
 	if(mkdir("/mnt", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG_E("failed to create directory '/mnt'");
+
+	if(mkdir("/tmp", S_IRWXU|S_IRWXG|S_IRWXO) != 0)
+		LOG_E("failed to create directory '/tmp'");
 }
 
 /*

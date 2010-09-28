@@ -99,6 +99,9 @@ struct tar_header
 
 	/* filename prefix */
 	x_s8 prefix[155];
+
+	/* reserver */
+	x_s8 reserver[12];
 } __attribute__ ((packed));
 
 /*
@@ -220,9 +223,11 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct tar_header header;
+	x_s8 path[MAX_PATH];
+	x_s8 *p, *q;
 	x_off off = 0;
 	x_size size;
-	x_s32 i = 0;
+	x_s32 pos, i = 0;
 
 	if(fp->f_offset == 0)
 	{
@@ -248,17 +253,41 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 			if(size < 0)
 				return ENOENT;
 
-			if(i++ == fp->f_offset - 2)
-				break;
+			if(size == 0)
+				off += sizeof(struct tar_header);
+			else
+				off += sizeof(struct tar_header) + (((size + 512) >> 9) << 9);
 
-			off += 512 + (((size + 512) >> 9) << 9);
+			if(header.name[0] != '/')
+				strcpy(path, (const x_s8 *)("/"));
+			strlcat(path, (const x_s8 *)(header.name), sizeof(path));
+			pos = strspn(path, (const x_s8 *)node->v_path);
+			if(pos <= 0)
+				continue;
+			p = &path[pos - 1];
+			if(*p == '/')
+				p++;
+			if(*p == 0)
+				continue;
+			q = strchr(p, '/');
+			if(q)
+				*q = 0;
+			if(*(q+1) != 0)
+				continue;
+
+			if(i++ == fp->f_offset - 2)
+			{
+				off = 0;
+				break;
+			}
 		}
 
 		if(header.filetype == FILE_TYPE_DIRECTORY)
 			dir->d_type = DT_DIR;
 		else
 			dir->d_type = DT_REG;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)(header.name), sizeof(header.name));
+
+		strlcpy((x_s8 *)&dir->d_name, p, sizeof(header.name));
 	}
 
 	dir->d_fileno = (x_u32)fp->f_offset;
@@ -270,12 +299,21 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 
 static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	printk("%s, name:%s\r\n", __FUNCTION__, name);
+//	printk("path:%s,%s\r\n", name, dnode->v_path);
 
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct tar_header header;
+	x_s8 *p, path[MAX_PATH];
 	x_off off = 0;
 	x_size size;
+
+	strcpy(path, (const x_s8 *)dnode->v_path);
+	if(strcmp(path, "/") != 0)
+		strlcat(path, (const x_s8 *)"/", sizeof(path));
+	strlcat(path, (const x_s8 *)name, sizeof(path));
+	p = path;
+	if(*p == '/')
+		p++;
 
 	while(1)
 	{
@@ -289,9 +327,13 @@ static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 		if(size < 0)
 			return ENOENT;
 
-		off += 512 + (((size + 512) >> 9) << 9);
-		printk("xx:%s\r\n", header.name);
-		if(strncmp((const x_s8 *)name, (const x_s8 *)(header.name), sizeof(header.name)) == 0)
+		if(size == 0)
+			off += sizeof(struct tar_header);
+		else
+			off += sizeof(struct tar_header) + (((size + 512) >> 9) << 9);
+
+		//printk("xx:%s\r\n", header.name);
+		if(strncmp((const x_s8 *)p, (const x_s8 *)(header.name), strlen((const x_s8 *)p) - 1) == 0)
 			break;
 	}
 

@@ -286,6 +286,9 @@ static x_s32 ramfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 
 static x_s32 ramfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
+	if(off2 > (x_off)(node->v_size))
+		return -1;
+
 	return 0;
 }
 

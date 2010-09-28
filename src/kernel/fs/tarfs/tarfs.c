@@ -104,6 +104,85 @@ struct tar_header
 	x_s8 reserver[12];
 } __attribute__ ((packed));
 
+static x_bool get_next_token(const x_s8 * path, const x_s8 * perfix, x_s8 * result)
+{
+	x_s8 full_path[MAX_PATH];
+	x_s8 *p, *q;
+	x_s32 l;
+
+	if(!path || !perfix || !result)
+		return FALSE;
+
+	full_path[0] = '\0';
+
+	if(path[0] != '/')
+		strcpy(full_path, (const x_s8 *)("/"));
+	strlcat(full_path, path, sizeof(full_path));
+
+	l = strlen(perfix);
+	if(memcmp(full_path, perfix, l) != 0)
+		return FALSE;
+
+	p = &full_path[l];
+	if(*p == '\0')
+		return FALSE;
+	if(*p == '/')
+		p++;
+	if(*p == '\0')
+		return FALSE;
+
+	q = strchr(p, '/');
+	if(q)
+	{
+		if(*(q+1) != '\0')
+			return FALSE;
+		*q = 0;
+	}
+
+	strcpy(result, p);
+
+	return TRUE;
+}
+
+static x_bool check_path(const x_s8 * path, const x_s8 * perfix, const x_s8 * name)
+{
+	x_s8 path1[MAX_PATH];
+	x_s8 path2[MAX_PATH];
+	x_s8 *p;
+	x_s32 l;
+
+	if(!path || !perfix || !name)
+		return FALSE;
+
+	path1[0] = path2[0] = '\0';
+
+	if(path[0] != '/')
+		strcpy(path1, (const x_s8 *)("/"));
+	strlcat(path1, path, sizeof(path1));
+
+	if(perfix[0] != '/')
+		strcpy(path2, (const x_s8 *)("/"));
+	strlcat(path2, perfix, sizeof(path2));
+
+	if(path2[strlen(path2) - 1] != '/')
+		strlcat(path2, (const x_s8 *)"/", sizeof(path2));
+	strlcat(path2, (const x_s8 *)name, sizeof(path2));
+
+	l = strlen(path2);
+	if(memcmp(path1, path2, l) != 0)
+		return FALSE;
+
+	p = &path1[l];
+	if(*p == '\0')
+		return TRUE;
+	if(*p == '/')
+		p++;
+	if(*p == '\0')
+		return TRUE;
+
+	return FALSE;
+}
+
 /*
  * filesystem operations
  */
@@ -187,7 +266,7 @@ static x_s32 tarfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	if(node->v_size - fp->f_offset < size)
 		size = node->v_size - fp->f_offset;
 
-	off = (x_off)((x_s32)(node->v_data));
+	off = (x_off)(sizeof(struct tar_header) + (x_s32)(node->v_data));
 	len = bio_read(dev, (x_u8 *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
@@ -223,11 +302,10 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct tar_header header;
-	x_s8 path[MAX_PATH];
-	x_s8 *p, *q;
+	x_s8 name[MAX_NAME];
 	x_off off = 0;
 	x_size size;
-	x_s32 pos, i = 0;
+	x_s32 i = 0;
 
 	if(fp->f_offset == 0)
 	{
@@ -258,21 +336,7 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 			else
 				off += sizeof(struct tar_header) + (((size + 512) >> 9) << 9);
 
-			if(header.name[0] != '/')
-				strcpy(path, (const x_s8 *)("/"));
-			strlcat(path, (const x_s8 *)(header.name), sizeof(path));
-			pos = strspn(path, (const x_s8 *)node->v_path);
-			if(pos <= 0)
-				continue;
-			p = &path[pos - 1];
-			if(*p == '/')
-				p++;
-			if(*p == 0)
-				continue;
-			q = strchr(p, '/');
-			if(q)
-				*q = 0;
-			if(*(q+1) != 0)
+			if(!get_next_token((const x_s8 *)header.name, (const x_s8 *)node->v_path, name))
 				continue;
 
 			if(i++ == fp->f_offset - 2)
@@ -286,8 +350,7 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 			dir->d_type = DT_DIR;
 		else
 			dir->d_type = DT_REG;
-
-		strlcpy((x_s8 *)&dir->d_name, p, sizeof(header.name));
+		strlcpy((x_s8 *)&dir->d_name, name, sizeof(name));
 	}
 
 	dir->d_fileno = (x_u32)fp->f_offset;
@@ -299,21 +362,10 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 
 static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-//	printk("path:%s,%s\r\n", name, dnode->v_path);
-
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct tar_header header;
-	x_s8 *p, path[MAX_PATH];
 	x_off off = 0;
 	x_size size;
-
-	strcpy(path, (const x_s8 *)dnode->v_path);
-	if(strcmp(path, "/") != 0)
-		strlcat(path, (const x_s8 *)"/", sizeof(path));
-	strlcat(path, (const x_s8 *)name, sizeof(path));
-	p = path;
-	if(*p == '/')
-		p++;
 
 	while(1)
 	{
@@ -327,20 +379,50 @@ static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 		if(size < 0)
 			return ENOENT;
 
+		if(check_path((const x_s8 *)(header.name), (const x_s8 *)(dnode->v_path), (const x_s8 *)name))
+			break;
+
 		if(size == 0)
 			off += sizeof(struct tar_header);
 		else
 			off += sizeof(struct tar_header) + (((size + 512) >> 9) << 9);
-
-		//printk("xx:%s\r\n", header.name);
-		if(strncmp((const x_s8 *)p, (const x_s8 *)(header.name), strlen((const x_s8 *)p) - 1) == 0)
-			break;
 	}
 
-	if(header.filetype == FILE_TYPE_DIRECTORY)
-		node->v_type = VDIR;
-	else
+	switch(header.filetype)
+	{
+	case FILE_TYPE_NORMAL:
 		node->v_type = VREG;
+		break;
+
+	case FILE_TYPE_HARD_LINK:
+	case FILE_TYPE_SYMBOLIC_LINK:
+		node->v_type = VLNK;
+		break;
+
+	case FILE_TYPE_CHAR_DEVICE:
+		node->v_type = VCHR;
+		break;
+
+	case FILE_TYPE_BLOCK_DEVICE:
+		node->v_type = VBLK;
+		break;
+
+	case FILE_TYPE_DIRECTORY:
+		node->v_type = VDIR;
+		break;
+
+	case FILE_TYPE_FIFO:
+		node->v_type = VFIFO;
+		break;
+
+	case FILE_TYPE_CONTIGOUS:
+		node->v_type = VSOCK;
+		break;
+
+	default:
+		node->v_type = VREG;
+		break;
+	}
 
 	node->v_size = size;
 	node->v_data = (void *)((x_s32)off);

@@ -40,18 +40,21 @@
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>
 
-struct cpio_header {
-	x_u16 magic;
-	x_u16 dev;
-	x_u16 ino;
-	x_u16 mode;
-	x_u16 uid;
-	x_u16 gid;
-	x_u16 nlink;
-	x_u16 rdev;
-	x_u16 mtime[2];
-	x_u16 namesize;
-	x_u16 filesize[2];
+struct cpio_newc_header {
+	x_u8 c_magic[6];
+	x_u8 c_ino[8];
+	x_u8 c_mode[8];
+	x_u8 c_uid[8];
+	x_u8 c_gid[8];
+	x_u8 c_nlink[8];
+	x_u8 c_mtime[8];
+	x_u8 c_filesize[8];
+	x_u8 c_devmajor[8];
+	x_u8 c_devminor[8];
+	x_u8 c_rdevmajor[8];
+	x_u8 c_rdevminor[8];
+	x_u8 c_namesize[8];
+	x_u8 c_check[8];
 } __attribute__ ((packed));
 
 static x_bool get_next_token(const x_s8 * path, const x_s8 * perfix, x_s8 * result)
@@ -139,7 +142,7 @@ static x_bool check_path(const x_s8 * path, const x_s8 * perfix, const x_s8 * na
 static x_s32 cpiofs_mount(struct mount * m, char * dev, x_s32 flag)
 {
 	struct blkdev * blk;
-	struct cpio_header header;
+	struct cpio_newc_header header;
 
 	if(dev == NULL)
 		return EINVAL;
@@ -148,14 +151,13 @@ static x_s32 cpiofs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(!blk || !blk->info)
 		return ENODEV;
 
-	if(get_blkdev_total_size(blk) <= sizeof(struct cpio_header))
+	if(get_blkdev_total_size(blk) <= sizeof(struct cpio_newc_header))
 		return EINTR;
 
-	if(bio_read(blk, (x_u8 *)(&header), 0, sizeof(struct cpio_header)) != sizeof(struct cpio_header))
+	if(bio_read(blk, (x_u8 *)(&header), 0, sizeof(struct cpio_newc_header)) != sizeof(struct cpio_newc_header))
 		return EIO;
 
-	header.magic = cpu_to_le16(header.magic & 0xffff);
-	if(header.magic != 070707)
+	if(strncmp((const x_s8 *)(header.c_magic), (const x_s8 *)"070701", 6) != 0)
 		return EINVAL;
 
 	m->m_flags = (flag & MOUNT_MASK) | MOUNT_RDONLY;
@@ -201,7 +203,6 @@ static x_s32 cpiofs_close(struct vnode * node, struct file * fp)
 
 static x_s32 cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
-/*
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	x_off off;
 	x_size len;
@@ -218,12 +219,11 @@ static x_s32 cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_si
 	if(node->v_size - fp->f_offset < size)
 		size = node->v_size - fp->f_offset;
 
-	off = (x_off)(sizeof(struct tar_header) + (x_s32)(node->v_data));
+	off = (x_off)((x_s32)(node->v_data));
 	len = bio_read(dev, (x_u8 *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
 	*result = len;
-*/
 
 	return 0;
 }
@@ -254,10 +254,12 @@ static x_s32 cpiofs_fsync(struct vnode * node, struct file * fp)
 static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
-	struct cpio_header header;
+	struct cpio_newc_header header;
+	x_s8 path[MAX_PATH];
 	x_s8 name[MAX_NAME];
-	x_off off = 0;
-	x_size size;
+	x_u32 size, name_size, mode;
+	x_size off = 0;
+	x_s8 buf[9];
 	x_s32 i = 0;
 
 	if(fp->f_offset == 0)
@@ -274,42 +276,32 @@ static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 	{
 		while(1)
 		{
-			bio_read(dev, (x_u8 *)(&header), off, sizeof(struct cpio_header));
+			bio_read(dev, (x_u8 *)(&header), off, sizeof(struct cpio_newc_header));
 
-			header.magic = cpu_to_le16(header.magic & 0xffff);
-			if(header.magic != 070707)
+			if(strncmp((const x_s8 *)(header.c_magic), (const x_s8 *)"070701", 6) != 0)
 				return ENOENT;
 
-			header.filesize[0] = cpu_to_le16(header.filesize[0] & 0xffff);
-			header.filesize[1] = cpu_to_le16(header.filesize[1] & 0xffff);
-			size = ((x_u32)(header.filesize[0]) << 16) | ((x_u32)header.filesize[1]);
+			buf[8] = '\0';
 
-			header.namesize = cpu_to_le16(header.namesize & 0xffff);
-			if(header.namesize & 0x1)
-				header.namesize++;
-			bio_read(dev, (x_u8 *)name, off + sizeof(struct cpio_header), (x_size)header.namesize);
+			memcpy(buf, (const x_s8 *)(header.c_filesize), 8);
+			size = simple_strtou32(buf, NULL, 16);
 
-			header.mode = cpu_to_le16(header.mode & 0xffff);
-			if( (size == 0) && (header.mode == 0) && (header.namesize == 11 + 1) && (memcmp(name, "TRAILER!!!", 11) == 0) )
+			memcpy(buf, (const x_s8 *)(header.c_namesize), 8);
+			name_size = simple_strtou32(buf, NULL, 16);
+
+			memcpy(buf, (const x_s8 *)(header.c_mode), 8);
+			mode = simple_strtou32(buf, NULL, 16);
+
+			bio_read(dev, (x_u8 *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
+
+			if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const x_s8 *)"TRAILER!!!", 10) == 0) )
 				return ENOENT;
 
-			printk("%Ld,%Ld\r\n",size, header.namesize);
-			printk("%s\r\n", name);
+			off = off + sizeof(struct cpio_newc_header) + (((name_size + 1) & ~3) + 2) + size;
+			off = (off + 3) & ~3;
 
-			if(size & 0x1)
-				off += sizeof(struct cpio_header) + header.namesize + size + 1;
-			else
-				off += sizeof(struct cpio_header) + header.namesize + size;
-
-			/*
-			if(size == 0)
-				off += sizeof(struct tar_header);
-			else
-				off += sizeof(struct tar_header) + (((size + 512) >> 9) << 9);
-http://www.mkssoftware.com/docs/man4/cpio.4.asp
-			if(!get_next_token((const x_s8 *)header.name, (const x_s8 *)node->v_path, name))
+			if(!get_next_token(path, (const x_s8 *)node->v_path, name))
 				continue;
-			*/
 
 			if(i++ == fp->f_offset - 2)
 			{
@@ -318,11 +310,10 @@ http://www.mkssoftware.com/docs/man4/cpio.4.asp
 			}
 		}
 
-/*		if(header.filetype == FILE_TYPE_DIRECTORY)
+		if(mode & 0040000)
 			dir->d_type = DT_DIR;
 		else
 			dir->d_type = DT_REG;
-*/
 		strlcpy((x_s8 *)&dir->d_name, name, sizeof(name));
 	}
 
@@ -335,72 +326,82 @@ http://www.mkssoftware.com/docs/man4/cpio.4.asp
 
 static x_s32 cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-/*
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
-	struct tar_header header;
-	x_off off = 0;
-	x_size size;
+	struct cpio_newc_header header;
+	x_s8 path[MAX_PATH];
+	x_u32 size, name_size, mode;
+	x_size off = 0;
+	x_s8 buf[9];
 
 	while(1)
 	{
-		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct tar_header));
+		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct cpio_newc_header));
 
-		if(strncmp((const x_s8 *)(header.magic), (const x_s8 *)"ustar", 5) != 0)
+		if(strncmp((const x_s8 *)(header.c_magic), (const x_s8 *)"070701", 6) != 0)
 			return ENOENT;
 
-		size = simple_strtos64((const x_s8 *)(header.size), NULL, 0);
-		if(size < 0)
+		buf[8] = '\0';
+
+		memcpy(buf, (const x_s8 *)(header.c_filesize), 8);
+		size = simple_strtou32(buf, NULL, 16);
+
+		memcpy(buf, (const x_s8 *)(header.c_namesize), 8);
+		name_size = simple_strtou32(buf, NULL, 16);
+
+		memcpy(buf, (const x_s8 *)(header.c_mode), 8);
+		mode = simple_strtou32(buf, NULL, 16);
+
+		bio_read(dev, (x_u8 *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
+
+		if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const x_s8 *)"TRAILER!!!", 10) == 0) )
 			return ENOENT;
 
-		if(check_path((const x_s8 *)(header.name), (const x_s8 *)(dnode->v_path), (const x_s8 *)name))
+		if(check_path(path, (const x_s8 *)(dnode->v_path), (const x_s8 *)name))
 			break;
 
-		if(size == 0)
-			off += sizeof(struct tar_header);
-		else
-			off += sizeof(struct tar_header) + (((size + 512) >> 9) << 9);
+		off = off + sizeof(struct cpio_newc_header) + (((name_size + 1) & ~3) + 2) + size;
+		off = (off + 3) & ~3;
 	}
 
-	switch(header.filetype)
-	{
-	case FILE_TYPE_NORMAL:
-		node->v_type = VREG;
-		break;
-
-	case FILE_TYPE_HARD_LINK:
-	case FILE_TYPE_SYMBOLIC_LINK:
-		node->v_type = VLNK;
-		break;
-
-	case FILE_TYPE_CHAR_DEVICE:
-		node->v_type = VCHR;
-		break;
-
-	case FILE_TYPE_BLOCK_DEVICE:
-		node->v_type = VBLK;
-		break;
-
-	case FILE_TYPE_DIRECTORY:
-		node->v_type = VDIR;
-		break;
-
-	case FILE_TYPE_FIFO:
-		node->v_type = VFIFO;
-		break;
-
-	case FILE_TYPE_CONTIGOUS:
+	if((mode & 00170000) == 0140000)
 		node->v_type = VSOCK;
-		break;
-
-	default:
+	else if((mode & 00170000) == 0120000)
+		node->v_type = VLNK;
+	else if((mode & 00170000) == 0100000)
 		node->v_type = VREG;
-		break;
-	}
+	else if((mode & 00170000) == 0060000)
+		node->v_type = VBLK;
+	else if((mode & 00170000) == 0040000)
+		node->v_type = VDIR;
+	else if((mode & 00170000) == 0020000)
+		node->v_type = VCHR;
+	else if((mode & 00170000) == 0010000)
+		node->v_type = VFIFO;
+	else
+		node->v_type = VREG;
+
+	node->v_mode = 0;
+	if(mode & 00400)
+		node->v_mode |= S_IRUSR;
+	if(mode & 00200)
+		node->v_mode |= S_IWUSR;
+	if(mode & 00100)
+		node->v_mode |= S_IXUSR;
+	if(mode & 00040)
+		node->v_mode |= S_IRGRP;
+	if(mode & 00020)
+		node->v_mode |= S_IWGRP;
+	if(mode & 00010)
+		node->v_mode |= S_IXGRP;
+	if(mode & 00004)
+		node->v_mode |= S_IROTH;
+	if(mode & 00002)
+		node->v_mode |= S_IWOTH;
+	if(mode & 00001)
+		node->v_mode |= S_IXOTH;
 
 	node->v_size = size;
-	node->v_data = (void *)((x_s32)off);
-	node->v_mode = S_IRUSR | S_IRGRP | S_IROTH;
-*/
+	node->v_data = (void *)((x_s32)(off + sizeof(struct cpio_newc_header) + (((name_size + 1) & ~3) + 2)));
 
 	return 0;
 }

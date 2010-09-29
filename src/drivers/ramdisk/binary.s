@@ -1,5 +1,5 @@
 /*
- * drivers/ramdisk/wrapper.s
+ * drivers/ramdisk/binary.s
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -21,4 +21,4 @@
  */
 
 .section .ramdisk
-.incbin ".obj/ramdisk.ar"
+.incbin ".obj/ramdisk.cpio"

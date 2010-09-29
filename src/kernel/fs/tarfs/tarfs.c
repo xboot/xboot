@@ -269,7 +269,7 @@ static x_s32 tarfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	if(node->v_size - fp->f_offset < size)
 		size = node->v_size - fp->f_offset;
 
-	off = (x_off)(sizeof(struct tar_header) + (x_s32)(node->v_data));
+	off = (x_off)((x_s32)(node->v_data));
 	len = bio_read(dev, (x_u8 *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
@@ -368,6 +368,8 @@ static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	struct tar_header header;
 	x_off off = 0;
 	x_size size;
+	x_u32 mode;
+	x_s8 buf[9];
 
 	while(1)
 	{
@@ -425,9 +427,32 @@ static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 		break;
 	}
 
+	buf[8] = '\0';
+	memcpy(buf, (const x_s8 *)(header.mode), 8);
+	mode = simple_strtou32(buf, NULL, 8);
+
+	node->v_mode = 0;
+	if(mode & 00400)
+		node->v_mode |= S_IRUSR;
+	if(mode & 00200)
+		node->v_mode |= S_IWUSR;
+	if(mode & 00100)
+		node->v_mode |= S_IXUSR;
+	if(mode & 00040)
+		node->v_mode |= S_IRGRP;
+	if(mode & 00020)
+		node->v_mode |= S_IWGRP;
+	if(mode & 00010)
+		node->v_mode |= S_IXGRP;
+	if(mode & 00004)
+		node->v_mode |= S_IROTH;
+	if(mode & 00002)
+		node->v_mode |= S_IWOTH;
+	if(mode & 00001)
+		node->v_mode |= S_IXOTH;
+
 	node->v_size = size;
-	node->v_data = (void *)((x_s32)off);
-	node->v_mode = S_IRUSR | S_IRGRP | S_IROTH;
+	node->v_data = (void *)((x_s32)(off+ sizeof(struct tar_header)));
 
 	return 0;
 }

@@ -287,14 +287,26 @@ static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 			header.namesize = cpu_to_le16(header.namesize & 0xffff);
 			if(header.namesize & 0x1)
 				header.namesize++;
+			bio_read(dev, (x_u8 *)name, off + sizeof(struct cpio_header), (x_size)header.namesize);
+
+			header.mode = cpu_to_le16(header.mode & 0xffff);
+			if( (size == 0) && (header.mode == 0) && (header.namesize == 11 + 1) && (memcmp(name, "TRAILER!!!", 11) == 0) )
+				return ENOENT;
 
 			printk("%Ld,%Ld\r\n",size, header.namesize);
+			printk("%s\r\n", name);
+
+			if(size & 0x1)
+				off += sizeof(struct cpio_header) + header.namesize + size + 1;
+			else
+				off += sizeof(struct cpio_header) + header.namesize + size;
+
 			/*
 			if(size == 0)
 				off += sizeof(struct tar_header);
 			else
 				off += sizeof(struct tar_header) + (((size + 512) >> 9) << 9);
-
+http://www.mkssoftware.com/docs/man4/cpio.4.asp
 			if(!get_next_token((const x_s8 *)header.name, (const x_s8 *)node->v_path, name))
 				continue;
 			*/

@@ -211,12 +211,15 @@ static x_s32 tarfs_mount(struct mount * m, char * dev, x_s32 flag)
 		return EINVAL;
 
 	m->m_flags = (flag & MOUNT_MASK) | MOUNT_RDONLY;
+	m->m_root->v_data = 0;
+	m->m_data = NULL;
 
 	return 0;
 }
 
 static x_s32 tarfs_unmount(struct mount * m)
 {
+	m->m_data = NULL;
 	return 0;
 }
 
@@ -321,7 +324,6 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	{
 		while(1)
 		{
-			memset(&header, 0, sizeof(struct tar_header));
 			bio_read(dev, (x_u8 *)(&header), off, sizeof(struct tar_header));
 
 			if(strncmp((const x_s8 *)(header.magic), (const x_s8 *)"ustar", 5) != 0)
@@ -369,7 +371,6 @@ static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 
 	while(1)
 	{
-		memset(&header, 0, sizeof(struct tar_header));
 		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct tar_header));
 
 		if(strncmp((const x_s8 *)(header.magic), (const x_s8 *)"ustar", 5) != 0)

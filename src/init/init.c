@@ -69,7 +69,7 @@ void do_system_rootfs(void)
 	if(mkdir("/boot", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG_E("failed to create directory '/boot'");
 
-	if(mount("/dev/ramdisk", "/boot" , "arfs", 0) != 0)
+	if(mount("/dev/ramdisk", "/boot" , "cpiofs", 0) != 0)
 		LOG_E("failed to mount ramdisk");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)

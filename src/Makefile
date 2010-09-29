@@ -138,8 +138,7 @@ VPATH		:=	$(OBJDIRS)
 CMDS		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);								\
 				rm -f .obj/init/version.o;									\
 				rm -f .obj/drivers/ramdisk/binary.o;						\
-				rm -f .obj/ramdisk.cpio;									\
-				find ramdisk/ -name '*.*' | xargs ar -rc .obj/ramdisk.cpio
+				find ramdisk | cpio -o -H newc --quiet > .obj/ramdisk.cpio
 
 .PHONY: all final docs clean
 

@@ -54,14 +54,14 @@ struct machine {
 		const x_sys text_start;
 		const x_sys text_end;
 
+		const x_sys ramdisk_start;
+		const x_sys ramdisk_end;
+
 		const x_sys data_shadow_start;
 		const x_sys data_shadow_end;
 
 		const x_sys data_start;
 		const x_sys data_end;
-
-		const x_sys ramdisk_start;
-		const x_sys ramdisk_end;
 
 		const x_sys bss_start;
 		const x_sys bss_end;

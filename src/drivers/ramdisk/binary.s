@@ -20,5 +20,5 @@
  *
  */
 
-.section .ramdisk
+.section .ramdisk, "a"
 .incbin ".obj/ramdisk.cpio"

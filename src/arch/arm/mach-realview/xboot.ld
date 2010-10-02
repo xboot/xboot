@@ -12,8 +12,8 @@ STACK_SRV_SIZE 	= 0x2000;
 
 MEMORY
 {
-	rom (rx)	: org = 0x00000000, len = 0x00200000	/* 2 MB */
-	ram (rwx)	: org = 0x00200000, len = 0x03e00000	/* 62 MB */
+	rom (rx)	: org = 0x00000000, len = 0x04000000	/* 64 MB */
+	ram (rwx)	: org = 0x04000000, len = 0x04000000	/* 64 MB */
 }
 
 SECTIONS
@@ -76,6 +76,11 @@ SECTIONS
 		PROVIDE (__exitcall_end = .);
 		
 		. = ALIGN(8);
+		PROVIDE (__ramdisk_start = .);
+		*(.ramdisk)
+		PROVIDE (__ramdisk_end = .);
+		
+		. = ALIGN(8);
 		*(.rodata);
 		
 		. = ALIGN(8);
@@ -96,10 +101,6 @@ SECTIONS
 	{
 		PROVIDE (__data_start = .);	
 		*(.data)
-		. = ALIGN(8);
-		PROVIDE (__ramdisk_start = .);
-		*(.ramdisk)
-		PROVIDE (__ramdisk_end = .);
 		. = ALIGN(8);
   		PROVIDE (__data_end = .);		
 	} > ram

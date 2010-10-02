@@ -549,14 +549,18 @@ _text_start:
 	.long	__text_start
 _text_end:
 	.long	__text_end
-_data_start:
-	.long	__data_start
-_data_end:
-	.long	__data_end
+_ramdisk_start:
+	.long	__ramdisk_start
+_ramdisk_end:
+	.long	__ramdisk_end
 _data_shadow_start:
 	.long	 __data_shadow_start
 _data_shadow_end:
 	.long	 __data_shadow_end
+_data_start:
+	.long	__data_start
+_data_end:
+	.long	__data_end
 _bss_start:
 	.long	__bss_start
 _bss_end:

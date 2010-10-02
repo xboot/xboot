@@ -40,6 +40,8 @@
 
 extern x_u8	__text_start[];
 extern x_u8 __text_end[];
+extern x_u8 __ramdisk_start[];
+extern x_u8 __ramdisk_end[];
 extern x_u8 __data_shadow_start[];
 extern x_u8 __data_shadow_end[];
 extern x_u8 __data_start[];
@@ -217,6 +219,9 @@ static struct machine smdk6410 = {
 	.link = {
 		.text_start			= (const x_sys)__text_start,
 		.text_end			= (const x_sys)__text_end,
+
+		.ramdisk_start		= (const x_sys)__ramdisk_start,
+		.ramdisk_end		= (const x_sys)__ramdisk_end,
 
 		.data_shadow_start	= (const x_sys)__data_shadow_start,
 		.data_shadow_end	= (const x_sys)__data_shadow_end,

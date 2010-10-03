@@ -28,7 +28,7 @@
 #include <fs/vfs/vfs.h>
 
 /* the size of fd size */
-#define	FD_SIZE						(32)
+#define	FD_SIZE						(256)
 
 /*
  * file descriptor
@@ -54,6 +54,9 @@ x_s32 fd_alloc(x_s32 low)
 
     if( (low < 0) || (low >= FD_SIZE) )
     	return -1;
+
+    if(low < 3)
+    	low = 3;
 
     for( fd = low; fd < FD_SIZE; fd++ )
     {

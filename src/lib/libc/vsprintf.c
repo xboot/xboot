@@ -838,7 +838,7 @@ x_s32 ssize(x_s8 * buf, x_u64 size)
 		count++;
 	}
 
-	return ( sprintf(buf, (const x_s8 *)"%lu%s", (x_u32)size, unit[count]) );
+	return( sprintf(buf, (const x_s8 *)"%lu%s", (x_u32)size, unit[count]) );
 }
 
 /*

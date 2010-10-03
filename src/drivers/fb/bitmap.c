@@ -209,6 +209,8 @@ enum bitmap_format get_bitmap_format(struct bitmap_info * info)
 
 /*
  * create new bitmap, saves created bitmap on success to * bitmap
+ *
+ * just support BITMAP_FORMAT_RGBA_8888 and BITMAP_FORMAT_RGB_888
  */
 x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bitmap_format fmt)
 {

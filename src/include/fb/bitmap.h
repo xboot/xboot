@@ -10,14 +10,18 @@
 enum bitmap_format
 {
 	BITMAP_FORMAT_RGBA_GENERIC,
+	BITMAP_FORMAT_RGB_GENERIC,
+
 	BITMAP_FORMAT_RGBA_8888,
 	BITMAP_FORMAT_BGRA_8888,
 
-	BITMAP_FORMAT_RGB_GENERIC,
 	BITMAP_FORMAT_RGB_888,
 	BITMAP_FORMAT_BGR_888,
+
 	BITMAP_FORMAT_RGB_565,
 	BITMAP_FORMAT_BGR_565,
+
+	BITMAP_FORMAT_MONOCHROME,
 };
 
 struct bitmap_info
@@ -63,6 +67,10 @@ struct bitmap_info
 
 	/* optimization hint how binary data is coded */
 	enum bitmap_format fmt;
+
+	/* for monochrome bitmaps, the foreground and background color */
+	x_u8 fg_r, fg_g, fg_b, fg_a;
+	x_u8 bg_r, bg_g, bg_b, bg_a;
 };
 
 struct bitmap

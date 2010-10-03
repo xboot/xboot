@@ -201,6 +201,12 @@ enum bitmap_format get_bitmap_format(struct bitmap_info * info)
 		}
 	}
 
+	/* check if we have any known 1 bit modes */
+	else if(info->bpp == 1)
+	{
+		return BITMAP_FORMAT_MONOCHROME;
+	}
+
 	if(info->alpha_mask_size > 0)
 		return BITMAP_FORMAT_RGBA_GENERIC;
 	else
@@ -249,6 +255,8 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
         info->blue_field_pos = 16;
         info->alpha_mask_size = 8;
         info->alpha_field_pos = 24;
+        info->fg_r = info->fg_g = info->fg_b = info->fg_a = 0xff;
+        info->bg_r = info->bg_g = info->bg_b = info->bg_a = 0x00;
 		break;
 
 	case BITMAP_FORMAT_RGB_888:
@@ -263,6 +271,8 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
         info->blue_field_pos = 16;
         info->alpha_mask_size = 0;
         info->alpha_field_pos = 0;
+        info->fg_r = info->fg_g = info->fg_b = info->fg_a = 0xff;
+        info->bg_r = info->bg_g = info->bg_b = info->bg_a = 0x00;
         break;
 
 	default:

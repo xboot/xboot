@@ -39,17 +39,27 @@ x_u32 bitmap_map_color(struct bitmap * bitmap, x_u8 r, x_u8 g, x_u8 b, x_u8 a)
 	struct bitmap_info * info = &(bitmap->info);
 	x_u32 value;
 
-    r >>= 8 - info->red_mask_size;
-    g >>= 8 - info->green_mask_size;
-    b >>= 8 - info->blue_mask_size;
-    a >>= 8 - info->alpha_mask_size;
+	if(info->fmt == BITMAP_FORMAT_MONOCHROME)
+	{
+		if( (r == info->fg_r) && (g == info->fg_g) && (b == info->fg_b) && (a == info->fg_a) )
+			return 1;
+		else
+			return 0;
+	}
+	else
+	{
+		r >>= 8 - info->red_mask_size;
+		g >>= 8 - info->green_mask_size;
+		b >>= 8 - info->blue_mask_size;
+		a >>= 8 - info->alpha_mask_size;
 
-    value = r << info->red_field_pos;
-    value |= g << info->green_field_pos;
-    value |= b << info->blue_field_pos;
-    value |= a << info->alpha_field_pos;
+		value = r << info->red_field_pos;
+		value |= g << info->green_field_pos;
+		value |= b << info->blue_field_pos;
+		value |= a << info->alpha_field_pos;
 
-    return value;
+		return value;
+	}
 }
 
 /*
@@ -60,38 +70,58 @@ void bitmap_unmap_color(struct bitmap * bitmap, x_u32 c, x_u8 * r, x_u8 * g, x_u
 	struct bitmap_info * info = &(bitmap->info);
 	x_u32 tmp;
 
-	/* get red component */
-	tmp = c >> info->red_field_pos;
-	tmp &= (1 << info->red_mask_size) - 1;
-	tmp <<= 8 - info->red_mask_size;
-	tmp |= (1 << (8 - info->red_mask_size)) - 1;
-	*r = tmp & 0xff;
-
-	/* get green component */
-	tmp = c >> info->green_field_pos;
-	tmp &= (1 << info->green_mask_size) - 1;
-	tmp <<= 8 - info->green_mask_size;
-	tmp |= (1 << (8 - info->green_mask_size)) - 1;
-	*g = tmp & 0xff;
-
-	/* get blue component */
-	tmp = c >> info->blue_field_pos;
-	tmp &= (1 << info->blue_mask_size) - 1;
-	tmp <<= 8 - info->blue_mask_size;
-	tmp |= (1 << (8 - info->blue_mask_size)) - 1;
-	*b = tmp & 0xff;
-
-	/* get alpha component */
-	if(info->alpha_mask_size > 0)
+	if(info->fmt == BITMAP_FORMAT_MONOCHROME)
 	{
-		tmp = c >> info->alpha_field_pos;
-		tmp &= (1 << info->alpha_mask_size) - 1;
-		tmp <<= 8 - info->alpha_mask_size;
-		tmp |= (1 << (8 - info->alpha_mask_size)) - 1;
+		if(c & 0x1)
+		{
+			*r = info->fg_r;
+			*g = info->fg_g;
+			*b = info->fg_b;
+			*a = info->fg_a;
+		}
+		else
+		{
+			*r = info->bg_r;
+			*g = info->bg_g;
+			*b = info->bg_b;
+			*a = info->bg_a;
+		}
 	}
 	else
 	{
-		tmp = 255;
+		/* get red component */
+		tmp = c >> info->red_field_pos;
+		tmp &= (1 << info->red_mask_size) - 1;
+		tmp <<= 8 - info->red_mask_size;
+		tmp |= (1 << (8 - info->red_mask_size)) - 1;
+		*r = tmp & 0xff;
+
+		/* get green component */
+		tmp = c >> info->green_field_pos;
+		tmp &= (1 << info->green_mask_size) - 1;
+		tmp <<= 8 - info->green_mask_size;
+		tmp |= (1 << (8 - info->green_mask_size)) - 1;
+		*g = tmp & 0xff;
+
+		/* get blue component */
+		tmp = c >> info->blue_field_pos;
+		tmp &= (1 << info->blue_mask_size) - 1;
+		tmp <<= 8 - info->blue_mask_size;
+		tmp |= (1 << (8 - info->blue_mask_size)) - 1;
+		*b = tmp & 0xff;
+
+		/* get alpha component */
+		if(info->alpha_mask_size > 0)
+		{
+			tmp = c >> info->alpha_field_pos;
+			tmp &= (1 << info->alpha_mask_size) - 1;
+			tmp <<= 8 - info->alpha_mask_size;
+			tmp |= (1 << (8 - info->alpha_mask_size)) - 1;
+		}
+		else
+		{
+			tmp = 255;
+		}
+		*a = tmp & 0xff;
 	}
-	*a = tmp & 0xff;
 }

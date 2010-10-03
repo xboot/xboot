@@ -80,6 +80,14 @@ static struct fb_info info = {
 			.alpha_mask_size	= 0,
 			.alpha_field_pos	= 0,
 			.fmt				= BITMAP_FORMAT_RGB_565,
+			.fg_r				= 0xff,
+			.fg_g				= 0xff,
+			.fg_b				= 0xff,
+			.fg_a				= 0xff,
+			.bg_r				= 0x00,
+			.bg_g				= 0x00,
+			.bg_b				= 0x00,
+			.bg_a				= 0x00,
 		},
 
 		.viewport = {

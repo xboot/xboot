@@ -825,7 +825,7 @@ x_s32 sscanf(const x_s8 * buf, const x_s8 * fmt, ...)
 }
 
 /*
- * ssize - format a size to string
+ * ssize - format size to string
  */
 x_s32 ssize(x_s8 * buf, x_u64 size)
 {
@@ -839,4 +839,94 @@ x_s32 ssize(x_s8 * buf, x_u64 size)
 	}
 
 	return ( sprintf(buf, (const x_s8 *)"%lu%s", (x_u32)size, unit[count]) );
+}
+
+/*
+ * utf8_to_ucs4 - convert a UTF-8 string to UCS-4 string
+ */
+x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_u8 * src, x_s32 src_size, const x_u8 ** src_end)
+{
+	x_u32 *p = dst;
+	x_s32 count = 0;
+	x_u32 code = 0;
+	x_u32 c;
+
+	if(src_end)
+		*src_end = src;
+
+	while(src_size && dst_size)
+	{
+		c = *src++;
+		if(src_size != (x_s32)-1)
+			src_size--;
+		if(count)
+		{
+			if((c & 0xc0) != 0x80)
+			{
+				/* invalid */
+				code = '?';
+				/* character c may be valid, don't eat it */
+				src--;
+				if(src_size != (x_s32)-1)
+					src_size++;
+				count = 0;
+			}
+			else
+			{
+				code <<= 6;
+				code |= (c & 0x3f);
+				count--;
+			}
+		}
+		else
+		{
+			if(c == 0)
+				break;
+
+			if((c & 0x80) == 0x00)
+				code = c;
+			else if((c & 0xe0) == 0xc0)
+			{
+				count = 1;
+				code = c & 0x1f;
+			}
+			else if((c & 0xf0) == 0xe0)
+			{
+				count = 2;
+				code = c & 0x0f;
+			}
+			else if((c & 0xf8) == 0xf0)
+			{
+				count = 3;
+				code = c & 0x07;
+			}
+			else if((c & 0xfc) == 0xf8)
+			{
+				count = 4;
+				code = c & 0x03;
+			}
+			else if((c & 0xfe) == 0xfc)
+			{
+				count = 5;
+				code = c & 0x01;
+			}
+			else
+			{
+				/* invalid */
+				code = '?';
+				count = 0;
+			}
+		}
+
+		if (count == 0)
+		{
+			*p++ = code;
+			dst_size--;
+		}
+	}
+
+	if(src_end)
+		*src_end = src;
+
+	return p - dst;
 }

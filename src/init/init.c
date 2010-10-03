@@ -122,7 +122,7 @@ void do_system_cfg(void)
 }
 
 /*
- * wait two seconds for showing logo
+ * wait a moment (two seconds)
  */
 void do_system_wait(void)
 {
@@ -131,9 +131,5 @@ void do_system_wait(void)
 	if(get_system_hz() > 0)
 	{
 		while(jiffies < get_system_hz() * 2);
-	}
-	else
-	{
-		mdelay(2000);
 	}
 }

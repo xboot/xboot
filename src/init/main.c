@@ -43,14 +43,14 @@ int xboot_main(int argc, char *argv[])
 	/* do system xtime */
 	do_system_xtime();
 
-	/* do anti piracy */
-	do_anti_piracy();
-
 	/* mount root filesystem */
 	do_system_rootfs();
 
 	/* load system configure */
 	do_system_cfg();
+
+	/* do anti piracy */
+	do_anti_piracy();
 
 	/* wait a moment */
 	do_system_wait();

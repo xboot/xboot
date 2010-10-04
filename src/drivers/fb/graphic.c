@@ -166,4 +166,3 @@ x_bool bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode
 
 	return TRUE;
 }
-

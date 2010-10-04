@@ -1,7 +1,6 @@
 /*
  * drivers/fb/logo.c
  *
- *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
@@ -28,19 +27,20 @@
 #include <malloc.h>
 #include <xboot/chrdev.h>
 #include <fb/fb.h>
+#include <fb/bitmap.h>
 #include <fb/graphic.h>
 #include <fb/logo.h>
 
 /*
- * system logo for xboot.
+ * system logo for xboot
  */
-static const struct logo_image default_xboot_logo;
-static struct logo_image * xboot_logo = (struct logo_image *)(&default_xboot_logo);
+static const struct picture default_xboot_logo;
+static struct picture * xboot_logo = (struct picture *)(&default_xboot_logo);
 
 /*
- * default xboot's logo, using gimp generate.
+ * default xboot's logo
  */
-static const struct logo_image default_xboot_logo = {
+static const struct picture default_xboot_logo = {
 	200, 58, 3, (x_u8 *)
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
@@ -1131,260 +1131,44 @@ static const struct logo_image default_xboot_logo = {
 	"\0\0\0\0"
 };
 
-//TODO
-#if 0
-/*
- * display logo.
- */
 x_bool display_logo(struct fb * fb)
 {
-	x_u32 draw_w, draw_h;
-	x_u32 logo_stride, fb_stride;
-	x_u8 *p, *q, *q_orig;
-	x_u8 r, g, b;
-	x_u32 i, j;
-	x_u32 x, y;
+	struct bitmap * bitmap;
+	struct rect old, new;
+	x_u32 x, y, w, h;
+	x_bool ret;
 
 	if(!fb || !xboot_logo)
 		return FALSE;
 
-	logo_stride = xboot_logo->width * xboot_logo->bytes_per_pixel;
-	fb_stride = fb->info->stride;
-
-	if(xboot_logo->width < fb->info->width)
-	{
-		if(xboot_logo->height < fb->info->height)
-		{
-			draw_w = xboot_logo->width;
-			draw_h = xboot_logo->height;
-			x = (fb->info->width - xboot_logo->width) >> 0x1;
-			y = (fb->info->height - xboot_logo->height) >> 0x1;
-			q_orig = q = (x_u8*)(xboot_logo->pixel_data);
-			p = (x_u8 *)((x_u32)(fb->info->base) + fb_stride * y + ((x * fb->info->bpp) >> 0x3));
-		}
-		else
-		{
-			draw_w = xboot_logo->width;
-			draw_h = fb->info->height;
-			x = (fb->info->width - xboot_logo->width) >> 0x1;
-			y = (xboot_logo->height - fb->info->height) >> 0x1;
-			q_orig = q = (x_u8*)(xboot_logo->pixel_data + logo_stride * y);
-			p = (x_u8 *)((x_u32)(fb->info->base) + ((x * fb->info->bpp) >> 0x3));
-		}
-	}
-	else
-	{
-		if(xboot_logo->height < fb->info->height)
-		{
-			draw_w = fb->info->width;
-			draw_h = xboot_logo->height;
-			x = (xboot_logo->width - fb->info->width) >> 0x1;
-			y = (fb->info->height - xboot_logo->height) >> 0x1;
-			q_orig = q = (x_u8*)(xboot_logo->pixel_data + xboot_logo->bytes_per_pixel * x);
-			p = (x_u8 *)((x_u32)(fb->info->base) + fb_stride * y);
-		}
-		else
-		{
-			draw_w = fb->info->width;
-			draw_h = fb->info->height;
-			x = (xboot_logo->width - fb->info->width) >> 0x1;
-			y = (xboot_logo->height - fb->info->height) >> 0x1;
-			q_orig = q = (x_u8*)(xboot_logo->pixel_data + logo_stride * y + xboot_logo->bytes_per_pixel * x);
-			p = (x_u8 *)((x_u32)(fb->info->base));
-		}
-	}
-
-	if(xboot_logo->bytes_per_pixel == 3)
-	{
-		switch(fb->info->format)
-		{
-		case FORMAT_RGB_8888:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					r = *q++;
-					g = *q++;
-					b = *q++;
-
-					((x_u32 *)p)[i] = ( (r << 16) | (g << 8) | b );
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-
-		case FORMAT_RGB_888:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					p[i+2] = *q++;
-					p[i+1] = *q++;
-					p[i+0] = *q++;
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-
-		case FORMAT_RGB_565:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					r = *q++;
-					g = *q++;
-					b = *q++;
-
-					((x_u16 *)p)[i] = ( ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3) );
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-
-		case FORMAT_RGB_555:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					r = *q++;
-					g = *q++;
-					b = *q++;
-
-					((x_u16 *)p)[i] = ( ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3) );
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-
-		case FORMAT_RGB_332:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					r = *q++;
-					g = *q++;
-					b = *q++;
-
-					((x_u8 *)p)[i] = ((r >> 5) << 5) | ((g >> 5) << 2) | (b >> 6);
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-		}
-	}
-	else if(xboot_logo->bytes_per_pixel == 4)
-	{
-		switch(fb->info->format)
-		{
-		case FORMAT_RGB_8888:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					q++;
-					r = *q++;
-					g = *q++;
-					b = *q++;
-
-					((x_u32 *)p)[i] = ( (r << 16) | (g << 8) | b );
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-
-		case FORMAT_RGB_888:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					q++;
-					p[i+2] = *q++;
-					p[i+1] = *q++;
-					p[i+0] = *q++;
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-
-		case FORMAT_RGB_565:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					q++;
-					r = *q++;
-					g = *q++;
-					b = *q++;
-
-					((x_u16 *)p)[i] = ( ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3) );
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-
-		case FORMAT_RGB_555:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					q++;
-					r = *q++;
-					g = *q++;
-					b = *q++;
-
-					((x_u16 *)p)[i] = ( ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3) );
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-
-		case FORMAT_RGB_332:
-			for(j=0; j<draw_h; j++)
-			{
-				for(i=0; i<draw_w; i++)
-				{
-					q++;
-					r = *q++;
-					g = *q++;
-					b = *q++;
-
-					((x_u8 *)p)[i] = ((r >> 5) << 5) | ((g >> 5) << 2) | (b >> 6);
-				}
-				q = (x_u8 *)(q_orig + j * logo_stride);
-				p += fb_stride;
-			}
-			break;
-		}
-	}
-	else
+	if(bitmap_load_from_picture(&bitmap, xboot_logo) != TRUE)
 		return FALSE;
 
-	return TRUE;
+	x = 0;
+	y = 0;
+	w = bitmap->info.width;
+	h = bitmap->info.height;
+
+	ret = fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, x, y, w, h, 0, 0);
+
+	bitmap_destroy(bitmap);
+
+	return ret;
 }
-#endif
 
 /*
- * register a logo.
+ * register a logo picture
  */
-x_bool register_logo(const struct logo_image * logo)
+x_bool register_logo(const struct picture * logo)
 {
 	if(logo)
 	{
-		xboot_logo = (struct logo_image *)logo;
+		xboot_logo = (struct picture *)logo;
 		return TRUE;
 	}
 	else
 	{
-		xboot_logo = (struct logo_image *)(&default_xboot_logo);
+		xboot_logo = (struct picture *)(&default_xboot_logo);
 		return FALSE;
 	}
 }

@@ -24,6 +24,24 @@ enum bitmap_format
 	BITMAP_FORMAT_MONOCHROME,
 };
 
+/*
+ * the gimp's c source format picture
+ */
+struct picture
+{
+	/* width of the picture*/
+	x_u32 width;
+
+	/* height of the picture*/
+	x_u32 height;
+
+	/* bytes per pixel */
+	x_u32 bytes_per_pixel;
+
+	/* the pixel data */
+	x_u8 * data;
+};
+
 struct bitmap_info
 {
 	/* width of the bitmap */
@@ -111,13 +129,13 @@ struct bitmap_reader_list
 	struct list_head entry;
 };
 
-
 x_bool register_bitmap_reader(struct bitmap_reader * reader);
 x_bool unregister_bitmap_reader(struct bitmap_reader * reader);
 
 enum bitmap_format get_bitmap_format(struct bitmap_info * info);
 x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bitmap_format fmt);
-x_bool bitmap_load(struct bitmap ** bitmap, const char * filename);
+x_bool bitmap_load_from_picture(struct bitmap ** bitmap, struct picture * picture);
+x_bool bitmap_load_from_file(struct bitmap ** bitmap, const char * filename);
 x_bool bitmap_destroy(struct bitmap * bitmap);
 
 #endif /* __BITMAP_H__ */

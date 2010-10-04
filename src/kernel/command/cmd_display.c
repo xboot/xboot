@@ -76,7 +76,7 @@ static x_s32 display(x_s32 argc, const x_s8 **argv)
 		return -1;
 	}
 
-	if(bitmap_load(&bitmap, (char *)argv[2]) != TRUE)
+	if(bitmap_load_from_file(&bitmap, (char *)argv[2]) != TRUE)
 	{
 		printk("display: cannot load file %s\r\n", (char *)argv[2]);
 		return -1;

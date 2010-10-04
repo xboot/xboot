@@ -25,12 +25,13 @@
 #include <types.h>
 #include <xboot.h>
 #include <xboot/log.h>
+#include <fb/bitmap.h>
 #include <fb/logo.h>
 
 /*
- * the logo image, using gimp generate.
+ * the logo image
  */
-static const struct logo_image logo = {
+static const struct picture logo = {
 	200, 58, 3, (x_u8 *)
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"

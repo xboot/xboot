@@ -134,9 +134,7 @@ x_bool register_framebuffer(struct fb * fb)
 	if(fb->init)
 		(fb->init)();
 
-	/* display logo */
-	//TODO
-//	display_logo(fb);
+	display_logo(fb);
 
 	if(fb->bl)
 		(fb->bl)(0xff);

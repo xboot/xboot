@@ -301,9 +301,92 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
 }
 
 /*
- * load bitmap using registered bitmap reader
+ * load bitmap from memory picture (the gimp's c source format)
  */
-x_bool bitmap_load(struct bitmap ** bitmap, const char * filename)
+x_bool bitmap_load_from_picture(struct bitmap ** bitmap, struct picture * picture)
+{
+	struct bitmap_info * info;
+
+	if(!bitmap)
+		return FALSE;
+	*bitmap = NULL;
+
+	if(!picture)
+		return FALSE;
+
+	if(picture->width <= 0 || picture->height <= 0)
+		return FALSE;
+
+	if( (picture->bytes_per_pixel != 3) && (picture->bytes_per_pixel != 4) )
+		return FALSE;
+
+	if(!picture->data)
+		return FALSE;
+
+	*bitmap = (struct bitmap *)malloc(sizeof(struct bitmap));
+	if( !(*bitmap) )
+		return FALSE;
+
+	info = &((*bitmap)->info);
+	info->width = picture->width;
+	info->height = picture->height;
+
+	if(picture->bytes_per_pixel == 3)
+	{
+		info->fmt = BITMAP_FORMAT_RGB_888;
+		info->bpp = 24;
+        info->bytes_per_pixel = 3;
+        info->pitch = picture->width * 3;
+        info->red_mask_size = 8;
+        info->red_field_pos = 0;
+        info->green_mask_size = 8;
+        info->green_field_pos = 8;
+        info->blue_mask_size = 8;
+        info->blue_field_pos = 16;
+        info->alpha_mask_size = 0;
+        info->alpha_field_pos = 0;
+        info->fg_r = info->fg_g = info->fg_b = info->fg_a = 0xff;
+        info->bg_r = info->bg_g = info->bg_b = info->bg_a = 0x00;
+	}
+	else if(picture->bytes_per_pixel == 4)
+	{
+		info->fmt = BITMAP_FORMAT_RGBA_8888;
+		info->bpp = 32;
+        info->bytes_per_pixel = 4;
+        info->pitch = picture->width * 4;
+        info->red_mask_size = 8;
+        info->red_field_pos = 0;
+        info->green_mask_size = 8;
+        info->green_field_pos = 8;
+        info->blue_mask_size = 8;
+        info->blue_field_pos = 16;
+        info->alpha_mask_size = 8;
+        info->alpha_field_pos = 24;
+        info->fg_r = info->fg_g = info->fg_b = info->fg_a = 0xff;
+        info->bg_r = info->bg_g = info->bg_b = info->bg_a = 0x00;
+	}
+	else
+	{
+		free(*bitmap);
+        *bitmap = NULL;
+
+        return FALSE;
+	}
+
+	(*bitmap)->viewport.left = 0;
+	(*bitmap)->viewport.top = 0;
+	(*bitmap)->viewport.right = picture->width;
+	(*bitmap)->viewport.bottom = picture->height;
+
+	(*bitmap)->data = picture->data;
+
+	return TRUE;
+}
+
+/*
+ * load bitmap from file using registered bitmap reader
+ */
+x_bool bitmap_load_from_file(struct bitmap ** bitmap, const char * filename)
 {
 	struct bitmap_reader_list * list;
 	struct list_head * pos;

@@ -208,3 +208,118 @@ x_bool rect_have_point(struct rect * rect, x_s32 x, x_s32 y)
 
 	return FALSE;
 }
+
+x_bool rect_align(struct rect * rect, struct rect * to, enum align flag)
+{
+	x_s32 ox1, oy1;
+	x_s32 ox2, oy2;
+	x_s32 dw, dh;
+
+	ox1 = rect->left - to->left;
+	oy1 = rect->top - to->top;
+	ox2 = rect->right - to->right;
+	oy2 = rect->bottom - to->bottom;
+	dw = (rect->right - rect->left) - (to->right - to->left);
+	dh = (rect->bottom - rect->top) - (to->bottom - to->top);
+
+	switch(flag)
+	{
+	case ALIGN_LEFT:
+		to->left += ox1;
+		to->right += ox1;
+		break;
+
+	case ALIGN_TOP:
+		to->top += oy1;
+		to->bottom += oy1;
+		break;
+
+	case ALIGN_RIGHT:
+		to->left += ox2;
+		to->right += ox2;
+		break;
+
+	case ALIGN_BOTTOM:
+		to->top += oy2;
+		to->bottom += oy2;
+		break;
+
+	case ALIGN_LEFT_TOP:
+		to->left += ox1;
+		to->right += ox1;
+		to->top += oy1;
+		to->bottom += oy1;
+		break;
+
+	case ALIGN_RIGHT_TOP:
+		to->left += ox2;
+		to->right += ox2;
+		to->top += oy1;
+		to->bottom += oy1;
+		break;
+
+	case ALIGN_LEFT_BOTTOM:
+		to->left += ox1;
+		to->right += ox1;
+		to->top += oy2;
+		to->bottom += oy2;
+		break;
+
+	case ALIGN_RIGHT_BOTTOM:
+		to->left += ox2;
+		to->right += ox2;
+		to->top += oy2;
+		to->bottom += oy2;
+		break;
+
+	case ALIGN_LEFT_CENTER:
+		to->left += ox1;
+		to->right += ox1;
+		to->top += oy1 + (dh >> 1);
+		to->bottom += oy1 + (dh >> 1);
+		break;
+
+	case ALIGN_TOP_CENTER:
+		to->left += ox1 + (dw >> 1);
+		to->right += ox1 + (dw >> 1);
+		to->top += oy1;
+		to->bottom += oy1;
+		break;
+
+	case ALIGN_RIGHT_CENTER:
+		to->left += ox2;
+		to->right += ox2;
+		to->top += oy1 + (dh >> 1);
+		to->bottom += oy1 + (dh >> 1);
+		break;
+
+	case ALIGN_BOTTOM_CENTER:
+		to->left += ox1 + (dw >> 1);
+		to->right += ox1 + (dw >> 1);
+		to->top += oy2;
+		to->bottom += oy2;
+		break;
+
+	case ALIGN_CENTER_HORIZONTAL:
+		to->left += ox1 + (dw >> 1);
+		to->right += ox1 + (dw >> 1);
+		break;
+
+	case ALIGN_CENTER_VERTICAL:
+		to->top += oy1 + (dh >> 1);
+		to->bottom += oy1 + (dh >> 1);
+		break;
+
+	case ALIGN_CENTER:
+		to->left += ox1 + (dw >> 1);
+		to->right += ox1 + (dw >> 1);
+		to->top += oy1 + (dh >> 1);
+		to->bottom += oy1 + (dh >> 1);
+		break;
+
+	default:
+		return FALSE;
+	}
+
+	return TRUE;
+}

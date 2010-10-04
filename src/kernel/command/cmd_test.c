@@ -57,6 +57,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	struct font_glyph * glyph;
 	struct color * c;
 	x_u32 color;
+	x_s32 i;
 
 	fb = search_framebuffer("fb");
 	if(!fb)
@@ -80,9 +81,33 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	color = fb_map_color(fb, c->r, c->g, c->b, c->a);
 	fb_draw_text(fb, "ddd阿哦俄", NULL, color, 100-4, 100-8);
 
-	x_u32 w, h;
-	font_get_metrics("ddd阿哦俄", NULL, &w, &h);
-	printk("%ld,%ld\r\n", w, h);
+
+	c = get_color_by_name("peru");
+	color = fb_map_color(fb, c->r, c->g, c->b, c->a);
+
+	for(i=0; i< 800; i++)
+	{
+		bitmap_set_pixel(&(fb->info->bitmap), i, 100, color);
+		bitmap_set_pixel(&(fb->info->bitmap), i, 300, color);
+	}
+	for(i=0; i< 480; i++)
+	{
+		bitmap_set_pixel(&(fb->info->bitmap), 100, i, color);
+		bitmap_set_pixel(&(fb->info->bitmap), 300, i, color);
+	}
+
+	struct rect rect, to;
+	rect_set(&rect, 100,100, 300, 300);
+
+	//rect_set(&to, 100+20,100+20, 100+50, 100+80);
+
+	rect_set(&to, 20,20, 50+300, 80);
+
+	rect_align(&rect, &to, ALIGN_LEFT_TOP);
+
+	c = get_color_by_name("yellow");
+	color = fb_map_color(fb, c->r, c->g, c->b, c->a);
+	fb_fill_rect(fb, color, to.left, to.top, to.right- to.left, to.bottom - to.top);
 
 	return 0;
 }

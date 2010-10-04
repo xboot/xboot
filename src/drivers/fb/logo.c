@@ -25,7 +25,8 @@
 #include <types.h>
 #include <xboot.h>
 #include <malloc.h>
-#include <xboot/chrdev.h>
+#include <gui/rect.h>
+#include <gui/color.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
 #include <fb/graphic.h>
@@ -1134,9 +1135,9 @@ static const struct picture default_xboot_logo = {
 x_bool display_logo(struct fb * fb)
 {
 	struct bitmap * bitmap;
-	struct rect old, new;
-	x_u32 x, y, w, h;
-	x_bool ret;
+	struct rect rect, to, tmp, old;
+	x_s32 ox, oy;
+	x_u32 color;
 
 	if(!fb || !xboot_logo)
 		return FALSE;
@@ -1144,20 +1145,40 @@ x_bool display_logo(struct fb * fb)
 	if(bitmap_load_from_picture(&bitmap, xboot_logo) != TRUE)
 		return FALSE;
 
-	x = 0;
-	y = 0;
-	w = bitmap->info.width;
-	h = bitmap->info.height;
+	rect_set(&rect, 0, 0, fb->info->bitmap.info.width, fb->info->bitmap.info.height);
+	rect_set(&to, 0, 0, bitmap->info.width, bitmap->info.height);
+	rect_align(&rect, &to, ALIGN_CENTER);
 
-	ret = fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, x, y, w, h, 0, 0);
+	if(rect_intersect(&tmp, &rect, &to) != TRUE)
+	{
+		bitmap_destroy(bitmap);
+		return FALSE;
+	}
+
+	ox = tmp.left - to.left;
+	oy = tmp.top - to.top;
+	if(ox < 0)
+		ox = 0;
+	if(oy < 0)
+		oy = 0;
+
+	fb_get_viewport(fb, &old);
+
+	fb_set_viewport(fb, &rect);
+	color = fb_map_color(fb, 0, 0, 0, 255);
+	fb_fill_rect(fb, color, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
+
+	fb_set_viewport(fb, &tmp);
+	fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, tmp.left, tmp.top, tmp.right-tmp.left, tmp.bottom-tmp.top, ox, oy);
+
+	fb_set_viewport(fb, &old);
 
 	bitmap_destroy(bitmap);
-
-	return ret;
+	return TRUE;
 }
 
 /*
- * register a logo picture
+ * register a logo
  */
 x_bool register_logo(const struct picture * logo)
 {

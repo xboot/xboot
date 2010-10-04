@@ -282,6 +282,11 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
         return FALSE;
 	}
 
+	(*bitmap)->viewport.left = 0;
+	(*bitmap)->viewport.top = 0;
+	(*bitmap)->viewport.right = width;
+	(*bitmap)->viewport.bottom = height;
+
 	size = (width * info->bytes_per_pixel) * height;
 	(*bitmap)->data = malloc(size);
 

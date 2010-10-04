@@ -24,28 +24,14 @@ struct font_glyph
 	/* reference to the font this glyph belongs to */
 	struct font * font;
 
-	/* glyph bitmap width in pixels */
-	x_u32 width;
+	/* width */
+	x_u32 w;
 
-	/* glyph bitmap height in pixels */
-	x_u32 height;
+	/* height*/
+	x_u32 h;
 
-	/* glyph bitmap x offset in pixels */
-	x_u32 offset_x;
-
-	/* glyph bitmap y offset in pixels */
-	x_u32 offset_y;
-
-	/* Number of pixels to advance to start the next character.  */
-/*	grub_uint16_t device_width;*/
-
-	/* Row-major order, packed bits (no padding; rows can break within a byte).
-	The length of the array is (width * height + 7) / 8.  Within a
-	byte, the most significant bit is the first (leftmost/uppermost) pixel.
-	Pixels are coded as bits, value 1 meaning of opaque pixel and 0 is
-	transparent.  If the length of the array does not fit byte boundary, it
-	will be padded with 0 bits to make it fit.  */
-	x_u8 bitmap[0];
+	/* the bitmap data */
+	x_u8 * data;
 };
 
 /*
@@ -56,6 +42,10 @@ struct font_list
 	struct font * font;
 	struct list_head entry;
 };
+
+x_bool fb_draw_text(struct fb * fb, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);
+x_bool bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);
+x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 * h);
 
 x_bool font_load(const char * path);
 struct font * font_get(const char * name);

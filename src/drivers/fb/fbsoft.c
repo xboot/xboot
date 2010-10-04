@@ -53,7 +53,7 @@ void fb_soft_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, 
 /*
  * default soft fill rect function
  */
-void fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+x_bool fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	struct bitmap * p = &(fb->info->bitmap);
 	struct rect r, a, b;
@@ -69,7 +69,7 @@ void fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32
 	b.bottom = p->viewport.bottom;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
-		return;
+		return FALSE;
 
 	x = r.left;
 	y = r.top;
@@ -77,12 +77,14 @@ void fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32
 	h = r.bottom - r.top;
 
 	common_bitmap_fill_rect(p, c, x, y, w, h);
+
+	return TRUE;
 }
 
 /*
  * default soft blit bitmap function
  */
-void fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+x_bool fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
 {
 	struct bitmap * p = &(fb->info->bitmap);
 	struct rect r, a, b;
@@ -98,7 +100,7 @@ void fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode 
 	b.bottom = p->viewport.bottom;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
-		return;
+		return FALSE;
 
 	x = r.left;
 	y = r.top;
@@ -106,4 +108,6 @@ void fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode 
 	h = r.bottom - r.top;
 
 	common_bitmap_blit(p, bitmap, mode, x, y, w, h, ox, oy);
+
+	return TRUE;
 }

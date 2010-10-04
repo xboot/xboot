@@ -28,6 +28,7 @@
 #include <byteorder.h>
 #include <gui/rect.h>
 #include <fb/bitmap.h>
+#include <fb/font.h>
 #include <fb/fb.h>
 #include <fb/fbfill.h>
 #include <fb/fbblit.h>
@@ -81,10 +82,10 @@ void fb_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 
 /*
  * framebuffer fill rect
  */
-void fb_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+x_bool fb_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	if(!fb || !fb->fill_rect)
-		return;
+		return FALSE;
 
 	return fb->fill_rect(fb, c, x, y, w, h);
 }
@@ -92,10 +93,10 @@ void fb_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 /*
  * framebuffer blit bitmap
  */
-void fb_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+x_bool fb_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
 {
 	if(!fb || !fb->blit_bitmap)
-		return;
+		return FALSE;
 
 	return fb->blit_bitmap(fb, bitmap, mode, x, y, w, h, ox, oy);
 }
@@ -103,12 +104,12 @@ void fb_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode,
 /*
  * fill rect to bitmap
  */
-void bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+x_bool bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
 	struct rect r, a, b;
 
 	if(!bitmap)
-		return;
+		return FALSE;
 
 	a.left = x;
 	a.top = y;
@@ -121,7 +122,7 @@ void bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w
 	b.bottom = bitmap->viewport.bottom;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
-		return;
+		return FALSE;
 
 	x = r.left;
 	y = r.top;
@@ -129,17 +130,19 @@ void bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w
 	h = r.bottom - r.top;
 
 	common_bitmap_fill_rect(bitmap, c, x, y, w, h);
+
+	return TRUE;
 }
 
 /*
  * bitmap blitter
  */
-void bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+x_bool bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
 {
 	struct rect r, a, b;
 
 	if(!dst || !src)
-		return;
+		return FALSE;
 
 	a.left = x;
 	a.top = y;
@@ -152,7 +155,7 @@ void bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, 
 	b.bottom = dst->viewport.bottom;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
-		return;
+		return FALSE;
 
 	x = r.left;
 	y = r.top;
@@ -160,4 +163,7 @@ void bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, 
 	h = r.bottom - r.top;
 
 	common_bitmap_blit(dst, src, mode, x, y, w, h, ox, oy);
+
+	return TRUE;
 }
+

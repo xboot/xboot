@@ -34,6 +34,7 @@
 #include <fb/graphic.h>
 #include <fb/fbpixel.h>
 #include <fb/fbscale.h>
+#include <fb/font.h>
 #include <fb/logo.h>
 #include <rtc/rtc.h>
 #include <xboot/proc.h>
@@ -48,8 +49,41 @@
 
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
+extern x_bool font_draw_glyph(struct bitmap * bitmap, struct font_glyph * glyph, x_u32 c, x_u32 x, x_u32 y);
+
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
+	struct fb * fb;
+	struct font_glyph * glyph;
+	struct color * c;
+	x_u32 color;
+
+	fb = search_framebuffer("fb");
+	if(!fb)
+	{
+		printk("no found framebuffer device\r\n");
+		return -1;
+	}
+
+	glyph = malloc(sizeof(struct font_glyph));
+	if(!glyph)
+	{
+		printk("malloc glyph fail\r\n");
+		return -1;
+	}
+
+	c = get_color_by_name("red");
+	color = fb_map_color(fb, c->r, c->g, c->b, c->a);
+	fb_fill_rect(fb, color, 0, 0, 100, 100);
+
+	c = get_color_by_name("mediumturquoise");
+	color = fb_map_color(fb, c->r, c->g, c->b, c->a);
+	fb_draw_text(fb, "ddd阿哦俄", NULL, color, 100-4, 100-8);
+
+	x_u32 w, h;
+	font_get_metrics("ddd阿哦俄", NULL, &w, &h);
+	printk("%ld,%ld\r\n", w, h);
+
 	return 0;
 }
 

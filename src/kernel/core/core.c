@@ -1,7 +1,6 @@
 /*
  * kernel/core/core.c
  *
- *
  * Copyright (c) 2007-2008  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *

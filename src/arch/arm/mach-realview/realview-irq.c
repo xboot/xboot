@@ -39,7 +39,7 @@
 /*
  * the struct of regs, which saved and restore in the interrupt.
  */
-struct regs {
+struct irq_regs {
 	x_u32	r0,		r1,		r2,		r3, 	r4,		r5;
 	x_u32	r6,		r7,		r8, 	r9, 	r10,	fp;
 	x_u32	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
@@ -58,7 +58,7 @@ static void null_irq_handler(void) { }
 /*
  * do irqs.
  */
-void do_irqs(struct regs * regs)
+void do_irqs(struct irq_regs * regs)
 {
 	x_u32 irq;
 

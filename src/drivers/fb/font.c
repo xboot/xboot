@@ -208,6 +208,7 @@ static x_bool font_draw_glyph_to_bitmap(struct bitmap * bitmap, struct font_glyp
 	glyph_bitmap.viewport.bottom = glyph->h;
 
 	glyph_bitmap.data = glyph->data;
+	glyph_bitmap.allocated = FALSE;
 
 	return bitmap_blit(bitmap, &glyph_bitmap, BLIT_MODE_BLEND, x, y, glyph->w, glyph->h, 0, 0);
 }

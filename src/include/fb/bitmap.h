@@ -104,6 +104,9 @@ struct bitmap
 		x_s32	bottom;
 	} viewport;
 
+	/* if the data in heap (malloc method), the it will be set */
+	x_bool allocated;
+
 	/* pointer to bitmap data formatted according to info */
 	void * data;
 };

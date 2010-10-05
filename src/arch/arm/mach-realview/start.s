@@ -217,16 +217,40 @@ cp:	add	r1, r1, #32
 /*
  * exception handlers
  */
+	.align	5
 undefined_instruction:
 	b	.
+
+	.align	5
 software_interrupt:
-	b	.
+	stmfd sp!, {r0 - r12, lr}		/* save context */
+	ldr r10, [lr, #-4]
+	bic r10, r10, #0xff000000		/* get swi number */
+	mov r0, r10						/* save swi number to r0 */
+	mov r1, sp						/* save sp to r1 */
+	mrs r2, spsr
+	stmfd sp!, {r2}
+
+	bl syscall_handler
+
+	ldmfd sp!, {r2}
+	msr spsr_cxsf, r2
+	ldmfd sp!, {r0 - r12, lr}		/* restore context */
+	movs pc, lr
+
+	.align	5
 prefetch_abort:
 	b	.
+
+	.align	5
 data_abort:
 	b	.
+
+	.align	5
 not_used:
 	b	.
+
+	.align	5
 irq:
 	/* get irq's sp */
 	ldr	sp, _stack_irq_end
@@ -251,8 +275,32 @@ irq:
 	ldr	lr, [sp, #60]				/* get pc */
 	add	sp, sp, #72
 	subs pc, lr, #4					/* return & move spsr_svc into cpsr */
+
+	.align	5
 fiq:
-	b	.
+	/* get fiq's sp */
+	ldr	sp, _stack_fiq_end
+
+	/* save user regs */
+	sub	sp, sp, #72
+	stmia sp, {r0 - r12}			/* calling r0-r12 */
+	add r8, sp, #60
+	stmdb r8, {sp, lr}^				/* calling sp, lr */
+	str lr, [r8, #0]				/* save calling pc */
+	mrs r6, spsr
+	str r6, [r8, #4]				/* save cpsr */
+	str r0, [r8, #8]				/* save old_r0 */
+	mov	r0, sp
+
+	/* do irqs routlines */
+	bl 	do_irqs
+
+	/* restore user regs */
+	ldmia sp, {r0 - lr}^			/* calling r0 - lr */
+	mov	r0, r0
+	ldr	lr, [sp, #60]				/* get pc */
+	add	sp, sp, #72
+	subs pc, lr, #4					/* return & move spsr_svc into cpsr */
 
 /*
  * the location of stacks

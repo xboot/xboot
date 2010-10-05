@@ -26,7 +26,7 @@
 #include <string.h>
 #include <gui/color.h>
 
-#define RGB_COLOR(red, green, blue)	\
+#define RGB_COLOR(red, green, blue)		\
 	{.r = red, .g = green, .b = blue, .a = 255}
 
 struct named_color

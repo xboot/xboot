@@ -1135,7 +1135,7 @@ static const struct picture default_xboot_logo = {
 x_bool display_logo(struct fb * fb)
 {
 	struct bitmap * bitmap;
-	struct rect rect, to, tmp, old;
+	struct rect rect, to, r, save;
 	x_s32 ox, oy;
 	x_u32 color;
 
@@ -1149,29 +1149,29 @@ x_bool display_logo(struct fb * fb)
 	rect_set(&to, 0, 0, bitmap->info.width, bitmap->info.height);
 	rect_align(&rect, &to, ALIGN_CENTER);
 
-	if(rect_intersect(&tmp, &rect, &to) != TRUE)
+	if(rect_intersect(&r, &rect, &to) != TRUE)
 	{
 		bitmap_destroy(bitmap);
 		return FALSE;
 	}
 
-	ox = tmp.left - to.left;
-	oy = tmp.top - to.top;
+	ox = r.left - to.left;
+	oy = r.top - to.top;
 	if(ox < 0)
 		ox = 0;
 	if(oy < 0)
 		oy = 0;
 
-	fb_get_viewport(fb, &old);
+	fb_get_viewport(fb, &save);
 
 	fb_set_viewport(fb, &rect);
 	color = fb_map_color(fb, 0, 0, 0, 255);
 	fb_fill_rect(fb, color, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
 
-	fb_set_viewport(fb, &tmp);
-	fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, tmp.left, tmp.top, tmp.right-tmp.left, tmp.bottom-tmp.top, ox, oy);
+	fb_set_viewport(fb, &r);
+	fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, r.left, r.top, r.right-r.left, r.bottom-r.top, ox, oy);
 
-	fb_set_viewport(fb, &old);
+	fb_set_viewport(fb, &save);
 
 	bitmap_destroy(bitmap);
 	return TRUE;

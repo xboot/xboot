@@ -26,6 +26,7 @@
 #include <xboot.h>
 #include <malloc.h>
 #include <xboot/chrdev.h>
+#include <xboot/ioctl.h>
 #include <fb/logo.h>
 #include <fb/graphic.h>
 #include <fb/fb.h>
@@ -101,6 +102,7 @@ struct fb * search_framebuffer(const char * name)
 x_bool register_framebuffer(struct fb * fb)
 {
 	struct chrdev * dev;
+	x_u8 brightness;
 
 	if(!fb || !fb->info || !fb->info->name)
 		return FALSE;
@@ -136,8 +138,11 @@ x_bool register_framebuffer(struct fb * fb)
 
 	display_logo(fb);
 
-	if(fb->bl)
-		(fb->bl)(0xff);
+	if(fb->ioctl)
+	{
+		brightness = 0xff;
+		(fb->ioctl)(IOCTL_SET_FB_BACKLIGHT, &brightness);
+	}
 
 	return TRUE;
 }
@@ -149,6 +154,7 @@ x_bool unregister_framebuffer(struct fb * fb)
 {
 	struct chrdev * dev;
 	struct fb * driver;
+	x_u8 brightness;
 
 	if(!fb || !fb->info || !fb->info->name)
 		return FALSE;
@@ -160,8 +166,11 @@ x_bool unregister_framebuffer(struct fb * fb)
 	driver = (struct fb *)(dev->driver);
 	if(driver)
 	{
-		if(driver->bl)
-			(driver->bl)(0x00);
+		if(driver->ioctl)
+		{
+			brightness = 0x00;
+			(fb->ioctl)(IOCTL_SET_FB_BACKLIGHT, &brightness);
+		}
 
 		if(driver->exit)
 			(driver->exit)();

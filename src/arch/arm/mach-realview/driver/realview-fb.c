@@ -129,13 +129,27 @@ static void fb_exit(void)
 	return;
 }
 
-static void fb_bl(x_u8 brightness)
-{
-	return;
-}
-
 static x_s32 fb_ioctl(x_u32 cmd, void * arg)
 {
+	static x_u8 brightness = 0;
+	x_u8 * p;
+
+	switch(cmd)
+	{
+	case IOCTL_SET_FB_BACKLIGHT:
+		p = (x_u8 *)arg;
+		brightness = (*p) & 0xff;
+		return 0;
+
+	case IOCTL_GET_FB_BACKLIGHT:
+		p = (x_u8 *)arg;
+		*p = brightness;
+		return 0;
+
+	default:
+		break;
+	}
+
 	return -1;
 }
 
@@ -143,7 +157,6 @@ static struct fb realview_fb = {
 	.info			= &info,
 	.init			= fb_init,
 	.exit			= fb_exit,
-	.bl				= fb_bl,
 	.map_color		= fb_soft_map_color,
 	.unmap_color	= fb_soft_unmap_color,
 	.fill_rect		= fb_soft_fill_rect,

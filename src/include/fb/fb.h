@@ -41,9 +41,6 @@ struct fb
 	/* clean up the framebuffer */
 	void (*exit)(void);
 
-	/* set back light's brightness */
-	void (*bl)(x_u8 brightness);
-
 	/* map color */
 	x_u32 (*map_color)(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a);
 

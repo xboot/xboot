@@ -38,7 +38,7 @@ struct swi_regs {
  */
 int syscall_handler(int swi, struct swi_regs * regs)
 {
-	if(swi != 1234)
+	if(swi != 0)
 		return 0;
 
 	switch(regs->reg[0])

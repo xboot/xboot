@@ -179,7 +179,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@echo [CPIO] packing ramdisk.cpio
 	@find ramdisk | cpio -o -H newc --quiet > $@;
 	
-sdk:
+sdk:		$(OBJS) $(SYSCALLOBJS)
 	@echo [CP] copying header file
 	@$(CP) arch/$(ARCH)/include/syscall.h $(OUTDIR)/sdk/include/syscall.h
 	@echo [AR] aring $(OUTDIR)/libsyscall.a

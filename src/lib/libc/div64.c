@@ -38,7 +38,6 @@ static x_u64 div_mod_64(x_u64 num, x_u64 den, x_u64 * rem_p)
 
 	if (den == 0)
 	{
-		__div0();
 		return 0;
 	}
 

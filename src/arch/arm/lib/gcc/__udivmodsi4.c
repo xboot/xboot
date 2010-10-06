@@ -14,7 +14,6 @@ unsigned int __udivmodsi4(unsigned int num, unsigned int den, unsigned int * rem
 
 	if (den == 0)
 	{
-		__div0();
 		return 0;
 	}
 

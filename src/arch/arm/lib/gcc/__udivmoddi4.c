@@ -13,7 +13,6 @@ unsigned long long __udivmoddi4(unsigned long long num, unsigned long long den, 
 
 	if (den == 0)
 	{
-		__div0();
 		return 0;
 	}
 

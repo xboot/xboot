@@ -7,8 +7,8 @@ ifeq ($(TARGET), arm-realview)
 CROSS		?= arm-none-eabi-
 
 ASFLAGS		:= --gstabs --warn
-CFLAGS		:= -g -ggdb -Wall
-CXXFLAGS	:= -g -ggdb -Wall
+CFLAGS		:= -g -ggdb -Wall -fPIC
+CXXFLAGS	:= -g -ggdb -Wall -fPIC
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles -nostdlib -nodefaultlibs -nostdinc
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary

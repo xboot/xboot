@@ -7,5 +7,4 @@ enum {
 
 void syscall_sync(void);
 
-
 #endif /* __ARM_SYSCALL_H__ */

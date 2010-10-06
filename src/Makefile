@@ -130,9 +130,9 @@ XBOOT		:=	xboot
 OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
 OUTDIR		:=	../output
 
-SFILES		:=	$(wildcard $(arch/$(ARCH)/lib/syscall)/*.s)
-CFILES		:=	$(wildcard $(arch/$(ARCH)/lib/syscall)/*.c)
-CPPFILES	:=	$(wildcard $(arch/$(ARCH)/lib/syscall)/*.cpp)
+SFILES		:=	$(wildcard arch/$(ARCH)/lib/syscall/*.s)
+CFILES		:=	$(wildcard arch/$(ARCH)/lib/syscall/*.c)
+CPPFILES	:=	$(wildcard arch/$(ARCH)/lib/syscall/*.cpp)
 SYSCALLOBJS	:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 
 SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.s))
@@ -141,15 +141,14 @@ CPPFILES	:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 VPATH		:=	$(OBJDIRS)
 
-CMDS		:= 	rm -fr $(OUTDIR);											\
-				mkdir -p $(OBJDIRS) $(OUTDIR);								\
+CMDS		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);								\
 				rm -f .obj/init/version.o;									\
 				rm -f .obj/drivers/ramdisk/binary.o;						\
 				find ramdisk | cpio -o -H newc --quiet > .obj/ramdisk.cpio;
 
 .PHONY: all final docs clean
 
-all:	$(OBJS) $(OUTDIR)/syscall.h $(OUTDIR)/libsyscall.a $(OUTDIR)/$(XBOOT).elf $(OUTDIR)/$(XBOOT).bin final
+all:	$(OBJS) $(OUTDIR)/libsyscall.a $(OUTDIR)/syscall.h $(OUTDIR)/$(XBOOT).elf $(OUTDIR)/$(XBOOT).bin final
 
 $(OUTDIR)/$(XBOOT).bin:		$(OUTDIR)/$(XBOOT).elf
 	@echo [OC] objcopying $@
@@ -159,14 +158,14 @@ $(OUTDIR)/$(XBOOT).elf:		$(OBJS)
 	@echo [LD] linking $@
 	@$(LD) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Map $(OUTDIR)/$(XBOOT).map -o $@ $^
 
-$(OUTDIR)/syscall.h:		arch/$(ARCH)/include/syscall.h
-	@echo [CP] copying $@
-	@$(CP) $< $@
-	
 $(OUTDIR)/libsyscall.a:		$(SYSCALLOBJS)
 	@echo [AR] aring $@
 	@$(AR) $(ARFLAGS) $@ $^
 
+$(OUTDIR)/syscall.h:		arch/$(ARCH)/include/syscall.h
+	@echo [CP] copying $@
+	@$(CP) $< $@
+	
 .obj/%.o:	%.s
 	@echo [AS] $<
 	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) $< -o $@

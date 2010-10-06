@@ -10,4 +10,4 @@ if [ ! -e ~/.xboot/sdcard.img ]; then
 fi
 
 # run qemu-system-arm
-exec qemu-system-arm -M realview-eb -name "ARM RealView Emulation Baseboard" -localtime -serial vc -sd ~/.xboot/sdcard.img -kernel ${QEMU_DIR}/../../../output/xboot.elf
+exec qemu-system-arm -M realview-eb -name "ARM RealView Emulation Baseboard" -localtime -serial stdio -sd ~/.xboot/sdcard.img -kernel ${QEMU_DIR}/../../../output/xboot.elf

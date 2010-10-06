@@ -39,7 +39,7 @@ endif
 ASFLAGS		:= --gstabs --warn
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
-LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles -nostdlib -nodefaultlibs -nostdinc
+LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=
@@ -157,7 +157,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@echo [AS] drivers/ramdisk/binary.s
 	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) drivers/ramdisk/binary.s -o .obj/drivers/ramdisk/binary.o
 	@echo [LD] linking $@
-	@$(LD) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Map $(OUTDIR)/$(XBOOT).map -o $@ $^
+	@$(CC) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Wl,--cref,-Map=$(OUTDIR)/$(XBOOT).map $^ -o $@
 
 .obj/%.o:	%.s
 	@echo [AS] $<

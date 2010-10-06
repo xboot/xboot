@@ -37,8 +37,8 @@ endif
 # define default make variables.
 #
 ASFLAGS		:= --gstabs --warn
-CFLAGS		:= -g -ggdb -Wall -fPIC
-CXXFLAGS	:= -g -ggdb -Wall -fPIC
+CFLAGS		:= -g -ggdb -Wall
+CXXFLAGS	:= -g -ggdb -Wall
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles -nostdlib -nodefaultlibs -nostdinc
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary

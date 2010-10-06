@@ -123,12 +123,13 @@ LD			:=	$(CROSS)ld
 AR			:=	$(CROSS)ar
 OC			:=	$(CROSS)objcopy
 OD			:=	$(CROSS)objdump
+MKDIR		:=	mkdir -p
 CP			:=	cp -a
 RM			:=	rm -fr
 
 XBOOT		:=	xboot
-OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
 OUTDIR		:=	../output
+OBJDIRS		:=	$(patsubst %, .obj/%, $(SRCDIRS)) $(OUTDIR)/sdk/include $(OUTDIR)/sdk/lib
 
 SFILES		:=	$(wildcard arch/$(ARCH)/lib/syscall/*.s)
 CFILES		:=	$(wildcard arch/$(ARCH)/lib/syscall/*.c)
@@ -141,31 +142,23 @@ CPPFILES	:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 VPATH		:=	$(OBJDIRS)
 
-CMDS		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);								\
-				rm -f .obj/init/version.o;									\
-				rm -f .obj/drivers/ramdisk/binary.o;						\
-				find ramdisk | cpio -o -H newc --quiet > .obj/ramdisk.cpio;
 
-.PHONY: all final docs clean
+.PHONY:		all sdk docs clean final
 
-all:	$(OBJS) $(OUTDIR)/libsyscall.a $(OUTDIR)/syscall.h $(OUTDIR)/$(XBOOT).elf $(OUTDIR)/$(XBOOT).bin final
+all:		sdk $(OUTDIR)/$(XBOOT).bin final
 
-$(OUTDIR)/$(XBOOT).bin:		$(OUTDIR)/$(XBOOT).elf
+$(OUTDIR)/$(XBOOT).bin:			$(OUTDIR)/$(XBOOT).elf
 	@echo [OC] objcopying $@
 	@$(OC) $(OCFLAGS) $< $@
 	
-$(OUTDIR)/$(XBOOT).elf:		$(OBJS)
+$(OUTDIR)/$(XBOOT).elf:			$(OBJS)
+	@echo [CPIO] packing ramdisk.cpio
+	@find ramdisk | cpio -o -H newc --quiet > .obj/ramdisk.cpio;
+	@echo [AS] drivers/ramdisk/binary.s
+	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) drivers/ramdisk/binary.s -o .obj/drivers/ramdisk/binary.o
 	@echo [LD] linking $@
 	@$(LD) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Map $(OUTDIR)/$(XBOOT).map -o $@ $^
 
-$(OUTDIR)/libsyscall.a:		$(SYSCALLOBJS)
-	@echo [AR] aring $@
-	@$(AR) $(ARFLAGS) $@ $^
-
-$(OUTDIR)/syscall.h:		arch/$(ARCH)/include/syscall.h
-	@echo [CP] copying $@
-	@$(CP) $< $@
-	
 .obj/%.o:	%.s
 	@echo [AS] $<
 	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) $< -o $@
@@ -180,6 +173,18 @@ $(OUTDIR)/syscall.h:		arch/$(ARCH)/include/syscall.h
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
+.obj/drivers/ramdisk/binary.o:	.obj/ramdisk.cpio
+
+.obj/ramdisk.cpio:
+	@echo [CPIO] packing ramdisk.cpio
+	@find ramdisk | cpio -o -H newc --quiet > $@;
+	
+sdk:
+	@echo [CP] copying header file
+	@$(CP) arch/$(ARCH)/include/syscall.h $(OUTDIR)/sdk/include/syscall.h
+	@echo [AR] aring $(OUTDIR)/libsyscall.a
+	@$(AR) $(ARFLAGS) $(OUTDIR)/sdk/lib/libsyscall.a $(SYSCALLOBJS)
+		
 docs:
 	@echo no documents
  	
@@ -190,4 +195,4 @@ clean:
 # 
 # include the dependency files, should be the last of the makefile
 #
-sinclude $(shell $(CMDS)) $(foreach dir, $(OBJDIRS), $(wildcard $(dir)/*.d))
+sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR); $(RM) .obj/init/version.o;) $(foreach dir, $(OBJDIRS), $(wildcard $(dir)/*.d))

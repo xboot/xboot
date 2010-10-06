@@ -71,7 +71,7 @@ INCDIRS		+= 	-I include \
 
 SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				arch/$(ARCH)/lib/cpu \
-				arch/$(ARCH)/lib/cmd \
+				arch/$(ARCH)/lib/syscall \
 				arch/$(ARCH)/lib \
 				arch/$(ARCH)/$(MACH) \
 				arch/$(ARCH)/$(MACH)/driver \

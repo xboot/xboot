@@ -23,8 +23,8 @@
 #include <configs.h>
 #include <default.h>
 #include <macros.h>
+#include <syscall.h>
 #include <fs/fsapi.h>
-#include <xboot/syscall.h>
 
 /*
  * the struct of software interrupt registers

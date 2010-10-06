@@ -40,7 +40,7 @@ ASFLAGS		:= --gstabs --warn
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles -nostdlib -nodefaultlibs -nostdinc
-ARFLAGS		:=
+ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=
 MCFLAGS		:=
@@ -123,11 +123,17 @@ LD			:=	$(CROSS)ld
 AR			:=	$(CROSS)ar
 OC			:=	$(CROSS)objcopy
 OD			:=	$(CROSS)objdump
-RM			:=	-rm -fr
+CP			:=	cp -a
+RM			:=	rm -fr
 
-XBOOT_NAME	:=	xboot
+XBOOT		:=	xboot
 OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
 OUTDIR		:=	../output
+
+SFILES		:=	$(wildcard $(arch/$(ARCH)/lib/syscall)/*.s)
+CFILES		:=	$(wildcard $(arch/$(ARCH)/lib/syscall)/*.c)
+CPPFILES	:=	$(wildcard $(arch/$(ARCH)/lib/syscall)/*.cpp)
+SYSCALLOBJS	:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 
 SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.s))
 CFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
@@ -135,22 +141,31 @@ CPPFILES	:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 VPATH		:=	$(OBJDIRS)
 
-CMDS		:= 	mkdir -p $(OBJDIRS) $(OUTDIR);								\
+CMDS		:= 	rm -fr $(OUTDIR);											\
+				mkdir -p $(OBJDIRS) $(OUTDIR);								\
 				rm -f .obj/init/version.o;									\
 				rm -f .obj/drivers/ramdisk/binary.o;						\
 				find ramdisk | cpio -o -H newc --quiet > .obj/ramdisk.cpio;
 
 .PHONY: all final docs clean
 
-all:	$(OBJS) $(OUTDIR)/$(XBOOT_NAME).elf $(OUTDIR)/$(XBOOT_NAME).bin final
+all:	$(OBJS) $(OUTDIR)/syscall.h $(OUTDIR)/libsyscall.a $(OUTDIR)/$(XBOOT).elf $(OUTDIR)/$(XBOOT).bin final
 
-$(OUTDIR)/$(XBOOT_NAME).bin:	$(OUTDIR)/$(XBOOT_NAME).elf
-	@echo [OC] objcopy $@
+$(OUTDIR)/$(XBOOT).bin:		$(OUTDIR)/$(XBOOT).elf
+	@echo [OC] objcopying $@
 	@$(OC) $(OCFLAGS) $< $@
 	
-$(OUTDIR)/$(XBOOT_NAME).elf:	$(OBJS)
+$(OUTDIR)/$(XBOOT).elf:		$(OBJS)
 	@echo [LD] linking $@
-	@$(LD) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Map $(OUTDIR)/$(XBOOT_NAME).map -o $@ $^
+	@$(LD) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Map $(OUTDIR)/$(XBOOT).map -o $@ $^
+
+$(OUTDIR)/syscall.h:		arch/$(ARCH)/include/syscall.h
+	@echo [CP] copying $@
+	@$(CP) $< $@
+	
+$(OUTDIR)/libsyscall.a:		$(SYSCALLOBJS)
+	@echo [AR] aring $@
+	@$(AR) $(ARFLAGS) $@ $^
 
 .obj/%.o:	%.s
 	@echo [AS] $<

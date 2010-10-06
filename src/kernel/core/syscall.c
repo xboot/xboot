@@ -45,6 +45,7 @@ int syscall_handler(int swi, struct swi_regs * regs)
 	{
 	case SYSCALL_FILESYSTEM_SYNC:
 		sync();
+		printk("sync function()\r\n");
 		break;
 
 	default:

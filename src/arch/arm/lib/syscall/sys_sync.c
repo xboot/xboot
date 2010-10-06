@@ -7,7 +7,7 @@
 extern int syscall(int * reg);
 
 /*
- * syscall_sync
+ * system call function
  */
 void syscall_sync(void)
 {

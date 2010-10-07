@@ -153,7 +153,7 @@ $(OUTDIR)/$(XBOOT).bin:			$(OUTDIR)/$(XBOOT).elf
 	
 $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@echo [CPIO] packing ramdisk.cpio
-	@find ramdisk | cpio -o -H newc --quiet > .obj/ramdisk.cpio;
+	@cd ramdisk && { find . -not -name . | cpio -o -H newc --quiet > ../.obj/ramdisk.cpio; cd ..; }
 	@echo [AS] drivers/ramdisk/binary.s
 	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) drivers/ramdisk/binary.s -o .obj/drivers/ramdisk/binary.o
 	@echo [LD] linking $@
@@ -177,7 +177,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 
 .obj/ramdisk.cpio:
 	@echo [CPIO] packing ramdisk.cpio
-	@find ramdisk | cpio -o -H newc --quiet > $@;
+	@cd ramdisk && { find . -not -name . | cpio -o -H newc --quiet > ../.obj/ramdisk.cpio; cd ..; }
 	
 sdk:		$(OBJS) $(SYSCALLOBJS)
 	@echo [CP] copying header file

@@ -57,6 +57,8 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	x_u32 color;
 	x_s32 i;
 
+	printk("nihao你好\r\n");
+
 	fb = search_framebuffer("fb");
 	if(!fb)
 	{

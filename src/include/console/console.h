@@ -67,7 +67,11 @@ struct console
 struct console_list
 {
 	struct console * console;
-	struct hlist_node node;
+	struct list_head entry;
 };
+
+struct console * search_console(const char *name);
+x_bool register_console(struct console * console);
+x_bool unregister_console(struct console * console);
 
 #endif /* __CONSOLE_H__ */

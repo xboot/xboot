@@ -930,3 +930,61 @@ x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_u8 * src, x_s32 src_size
 
 	return p - dst;
 }
+
+/*
+ * utf4_to_utf8 - convert a UCS-4 to UTF-8
+ */
+x_s32 ucs4_to_utf8(x_u32 c, x_u8 * buf)
+{
+	x_s32 len = 0;
+
+	if(buf == NULL)
+		return 0;
+
+	if(c < 0x80)
+	{
+		buf[len++] = c;
+	}
+	else if(c < 0x800)
+	{
+		buf[len++] = 0xc0 | ( c >> 6 );
+		buf[len++] = 0x80 | ( c & 0x3f );
+	}
+	else if(c < 0x10000)
+	{
+		buf[len++] = 0xe0 | ( c >> 12 );
+		buf[len++] = 0x80 | ( (c >> 6) & 0x3f );
+		buf[len++] = 0x80 | ( c & 0x3f );
+	}
+	else if(c < 0x200000)
+	{
+		buf[len++] = 0xf0 | ( c >> 18 );
+		buf[len++] = 0x80 | ( (c >> 12) & 0x3f );
+		buf[len++] = 0x80 | ( (c >> 6) & 0x3f );
+		buf[len++] = 0x80 | ( c & 0x3f );
+	}
+	else if(c < 0x400000)
+	{
+		buf[len++] = 0xf8 | ( c >> 24 );
+		buf[len++] = 0x80 | ( (c >> 18) & 0x3f );
+		buf[len++] = 0x80 | ( (c >> 12) & 0x3f );
+		buf[len++] = 0x80 | ( (c >> 6) & 0x3f );
+		buf[len++] = 0x80 | ( c & 0x3f );
+	}
+	else if(c < 0x80000000)
+	{
+		buf[len++] = 0xfc | ( c >> 30 );
+		buf[len++] = 0x80 | ( (c >> 24) & 0x3f );
+		buf[len++] = 0x80 | ( (c >> 18) & 0x3f );
+		buf[len++] = 0x80 | ( (c >> 12) & 0x3f );
+		buf[len++] = 0x80 | ( (c >> 6) & 0x3f );
+		buf[len++] = 0x80 | ( c & 0x3f );
+	}
+	else
+	{
+		/* not a valid unicode character */
+	}
+
+	buf[len] = '\0';
+	return len;
+}

@@ -27,9 +27,49 @@
 #include <malloc.h>
 #include <xboot/chrdev.h>
 #include <xboot/ioctl.h>
+#include <console/console.h>
 #include <fb/logo.h>
 #include <fb/graphic.h>
 #include <fb/fb.h>
+
+struct fbcon_cell
+{
+	x_u32 cp;
+	x_u32 fc, bc;
+	x_bool dirty;
+};
+
+/*
+ * defined the framebuffer console information
+ */
+struct fb_console_info
+{
+	/* the console name */
+	char name[32+1];
+
+	/* framebuffer driver */
+	struct fb * fb;
+
+	/* console width and height */
+	x_s32 w, h;
+
+	/* console current x, y */
+	x_s32 x, y;
+
+	/* console front color and background color */
+	enum console_color f, b;
+	x_u32 fc, bc;
+
+	/* cursor status, on or off */
+	x_bool cursor;
+
+	/* fb console's cell */
+	struct fbcon_cell * cell;
+
+	/*
+	 * below for priv data
+	 */
+};
 
 /*
  * fb open
@@ -44,7 +84,16 @@ static x_s32 fb_open(struct chrdev * dev)
  */
 static x_s32 fb_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 {
-	return 0;
+	struct fb * fb = (struct fb *)(dev->driver);
+	x_u8 * p = (x_u8 *)((x_u32)(fb->info->bitmap.data));
+	x_s32 i;
+
+	for(i = 0; i < count; i++)
+	{
+		buf[i] = p[i];
+	}
+
+	return i;
 }
 
 /*
@@ -52,7 +101,16 @@ static x_s32 fb_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
  */
 static x_s32 fb_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
 {
-	return 0;
+	struct fb * fb = (struct fb *)(dev->driver);
+	x_u8 * p = (x_u8 *)((x_u32)(fb->info->bitmap.data));
+	x_s32 i;
+
+	for(i = 0; i < count; i++)
+	{
+		p[i] = buf[i];
+	}
+
+	return i;
 }
 
 /*
@@ -74,6 +132,53 @@ static x_s32 fb_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
 static x_s32 fb_close(struct chrdev * dev)
 {
 	return 0;
+}
+
+/*
+ * get console's width and height
+ */
+static x_bool fbcon_getwh(struct console * console, x_s32 * w, x_s32 * h)
+{
+	struct fb_console_info * info = console->priv;
+
+	if(w)
+		*w = info->w;
+
+	if(h)
+		*h = info->h;
+
+	return TRUE;
+}
+
+/*
+ * get cursor position
+ */
+static x_bool fbcon_getxy(struct console * console, x_s32 * x, x_s32 * y)
+{
+	struct fb_console_info * info = console->priv;
+
+	if(x)
+		*x = info->x;
+
+	if(y)
+		*y = info->y;
+
+	return TRUE;
+}
+
+/*
+ * set cursor position
+ */
+static x_bool fbcon_gotoxy(struct console * console, x_s32 x, x_s32 y)
+{
+	struct fb_console_info * info = console->priv;
+/*
+	*x = info->x;
+
+	if(y)
+		*y = info->y;*/
+
+	return TRUE;
 }
 
 /*

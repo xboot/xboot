@@ -70,8 +70,10 @@ struct console_list
 	struct list_head entry;
 };
 
+
 struct console * search_console(const char *name);
 x_bool register_console(struct console * console);
 x_bool unregister_console(struct console * console);
+x_bool console_color_to_rgba(enum console_color c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a);
 
 #endif /* __CONSOLE_H__ */

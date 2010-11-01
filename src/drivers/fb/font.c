@@ -2654,9 +2654,65 @@ static x_bool font_draw_glyph_to_bitmap(struct bitmap * bitmap, struct font_glyp
 	glyph_bitmap.viewport.bottom = glyph->h;
 
 	glyph_bitmap.data = glyph->data;
-	glyph_bitmap.allocated = FALSE;
 
 	return bitmap_blit(bitmap, &glyph_bitmap, BLIT_MODE_BLEND, x, y, glyph->w, glyph->h, 0, 0);
+}
+
+/*
+ * put a ucs-4 character to framebuffer
+ * just for framebuffer console
+ */
+x_bool fb_putchar(struct fb * fb, x_u32 ch, x_u32 fc, x_u32 bc, x_u32 x, x_u32 y)
+{
+	struct font_glyph * glyph;
+	struct bitmap glyph_bitmap;
+	struct bitmap_info * info;
+
+	glyph = font_lookup_glyph(NULL, ch);
+	if((glyph->w == 0) || (glyph->h == 0))
+		return TRUE;
+
+	info = &(glyph_bitmap.info);
+
+	info->width = glyph->w;
+	info->height = glyph->h;
+	info->fmt =	BITMAP_FORMAT_MONOCHROME;
+	info->bpp = 1;
+	info->bytes_per_pixel = 0;
+	info->pitch = glyph->w;
+
+	fb_unmap_color(fb, fc, &info->fg_r, &info->fg_g, &info->fg_b, &info->fg_a);
+	fb_unmap_color(fb, bc, &info->bg_r, &info->bg_g, &info->bg_b, &info->bg_a);
+
+	glyph_bitmap.viewport.left = 0;
+	glyph_bitmap.viewport.top = 0;
+	glyph_bitmap.viewport.right = glyph->w;
+	glyph_bitmap.viewport.bottom = glyph->h;
+
+	glyph_bitmap.data = glyph->data;
+
+	return fb_blit_bitmap(fb, &glyph_bitmap, BLIT_MODE_REPLACE, x, y, glyph->w, glyph->h, 0, 0);
+}
+
+/*
+ * get a ucs-4 character's width and height
+ * just for framebuffer console
+ */
+x_bool fb_charwidth(x_u32 ch, x_u32 * w, x_u32 * h)
+{
+	struct font_glyph * glyph;
+
+	if(!w && !h)
+		return FALSE;
+
+	glyph = font_lookup_glyph(NULL, ch);
+
+	if(w)
+		*w = glyph->w;
+	if(h)
+		*h = glyph->h;
+
+	return TRUE;
 }
 
 /*

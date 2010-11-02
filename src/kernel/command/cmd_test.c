@@ -53,30 +53,16 @@
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
 	struct console * con;
+	static x_u8 i = 32;
 
 	con = search_console("fb");
 
-
-	con->putchar(con, 'a');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->putchar(con, 'b');
-	con->gotoxy(con,1,0);
 	con->setcolor(con, CONSOLE_RED, CONSOLE_YELLOW);
+	con->putchar(con, i++);
 	con->refresh(con);
+
+	if(i>97)
+		i=32;
 
 	return 0;
 }

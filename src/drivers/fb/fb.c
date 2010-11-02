@@ -80,6 +80,9 @@ struct fb_console_info
 	/* fb console's cell */
 	struct fbcon_cell * cell;
 
+	/* fb console cell's length */
+	x_u32 clen;
+
 	/*
 	 * below for priv data
 	 */
@@ -263,7 +266,6 @@ static x_bool fbcon_cls(struct console * console)
 {
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell = &(info->cell[0]);
-	x_s32 max = info->w * info->h;
 	x_u32 w, h;
 	x_s32 i;
 
@@ -278,7 +280,7 @@ static x_bool fbcon_cls(struct console * console)
 		h = 1;
 	}
 
-	for(i = 0; i < max; i++)
+	for(i = 0; i < info->clen; i++)
 	{
 		cell->cp = UNICODE_SPACE;
 		cell->fc = info->black;
@@ -297,13 +299,68 @@ static x_bool fbcon_cls(struct console * console)
 }
 
 /*
+ * scroll up
+ */
+static x_bool fbcon_scrollup(struct console * console)
+{
+	struct fb_console_info * info = console->priv;
+	struct fbcon_cell * p, * q;
+	x_u32 m, l;
+	x_u32 w, h;
+
+	l = info->w;
+	m = info->clen - l;
+	p = &(info->cell[0]);
+	q = &(info->cell[l]);
+
+	if(fb_charwidth(UNICODE_SPACE, &w, &h))
+	{
+		w = (w + info->fw - 1) / info->fw;
+		h = (h + info->fh - 1) / info->fh;
+	}
+	else
+	{
+		w = 1;
+		h = 1;
+	}
+
+	while(m--)
+	{
+		p->cp = q->cp;
+		p->fc = q->fc;
+		p->bc = q->bc;
+		p->cw = q->cw;
+		p->ch = q->ch;
+		p->dirty = TRUE;
+
+		p++;
+		q++;
+	}
+
+	while(l--)
+	{
+		p->cp = UNICODE_SPACE;
+		p->fc = info->black;
+		p->bc = info->black;
+		p->cw = w;
+		p->ch = h;
+		p->dirty = TRUE;
+
+		p++;
+	}
+
+	fbcon_gotoxy(console, info->x, info->y - 1);
+
+	return TRUE;
+}
+
+/*
  * update the screen
  */
 static x_bool fbcon_refresh(struct console * console)
 {
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell = &(info->cell[0]);
-	x_s32 max = info->w * info->h;
 	x_u32 x, y;
 	x_s32 i, pos;
 
@@ -328,13 +385,12 @@ static x_bool fbcon_refresh(struct console * console)
 			x = (pos % info->w) * 8;
 			y = (pos / info->w) * 16;
 			fb_putchar(info->fb, cell->cp, info->black, info->white, x, y);
-			printk("a");
 			cell->dirty = FALSE;
 		}
 		i++;
 		cell++;
 
-		for(; i < max; i++)
+		for(; i < info->clen; i++)
 		{
 			if(cell->dirty)
 			{
@@ -348,7 +404,7 @@ static x_bool fbcon_refresh(struct console * console)
 	}
 	else
 	{
-		for(i = 0; i < max; i++)
+		for(i = 0; i < info->clen; i++)
 		{
 			if(cell->dirty)
 			{
@@ -382,12 +438,9 @@ x_bool fbcon_putchar(struct console * console, x_u32 c)
 	case UNICODE_LF:
 		if(info->y + 1 >= info->h)
 		{
-			fbcon_cls(console);
+			fbcon_scrollup(console);
 		}
-		else
-		{
-			fbcon_gotoxy(console, info->x, info->y + 1);
-		}
+		fbcon_gotoxy(console, info->x, info->y + 1);
 		break;
 
 	default:
@@ -414,17 +467,15 @@ x_bool fbcon_putchar(struct console * console, x_u32 c)
 		{
 			if(info->y + 1 >= info->h)
 			{
-				fbcon_cls(console);
+				fbcon_scrollup(console);
 			}
-			else
-			{
-				fbcon_gotoxy(console, 0, info->y + 1);
-			}
+			fbcon_gotoxy(console, 0, info->y + 1);
 		}
 		else
 		{
 			fbcon_gotoxy(console, info->x + 1, info->y);
 		}
+
 		break;
 	}
 
@@ -459,6 +510,7 @@ x_bool register_framebuffer(struct fb * fb)
 	struct chrdev * dev;
 	struct console * console;
 	struct fb_console_info * info;
+	x_u32 fw, fh;
 	x_u8 brightness;
 
 	if(!fb || !fb->info || !fb->info->name)
@@ -515,10 +567,16 @@ x_bool register_framebuffer(struct fb * fb)
 		return FALSE;
 	}
 
+	if(!fb_charwidth(UNICODE_SPACE, &fw, &fh))
+	{
+		fw = 8;
+		fh = 16;
+	}
+
 	info->name = (char *)fb->info->name;
 	info->fb = fb;
-	info->fw = 8;
-	info->fh = 16;
+	info->fw = fw;
+	info->fh = fh;
 	info->w = fb->info->bitmap.info.width / info->fw;
 	info->h = fb->info->bitmap.info.height / info->fh;
 	info->x = 0;
@@ -530,8 +588,8 @@ x_bool register_framebuffer(struct fb * fb)
 	info->fc = info->white;
 	info->bc = info->black;
 	info->cursor = TRUE;
-
-	info->cell = malloc((info->w * info->h) * sizeof(struct fbcon_cell));
+	info->clen = info->w * info->h;
+	info->cell = malloc(info->clen * sizeof(struct fbcon_cell));
 	if(!info->cell)
 	{
 		unregister_chrdev(dev->name);

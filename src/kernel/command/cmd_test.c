@@ -74,6 +74,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	con->putchar(con, 'b');
 	con->putchar(con, 'b');
 	con->putchar(con, 'b');
+	con->gotoxy(con,1,0);
 	con->setcolor(con, CONSOLE_RED, CONSOLE_YELLOW);
 	con->refresh(con);
 

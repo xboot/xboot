@@ -79,6 +79,11 @@ struct fb_console_info
 
 	/* fb console's cell */
 	struct fbcon_cell * cell;
+
+	/*
+	 * below for priv data
+	 */
+	x_u32 white, black;
 };
 
 /*
@@ -259,12 +264,10 @@ static x_bool fbcon_cls(struct console * console)
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell = &(info->cell[0]);
 	x_s32 max = info->w * info->h;
-	x_u32 black = fb_map_color(info->fb, 0, 0, 0, 255);
-	x_u32 space = 0x20;
 	x_u32 w, h;
 	x_s32 i;
 
-	if(fb_charwidth(space, &w, &h))
+	if(fb_charwidth(UNICODE_SPACE, &w, &h))
 	{
 		w = (w + info->fw - 1) / info->fw;
 		h = (h + info->fh - 1) / info->fh;
@@ -277,9 +280,9 @@ static x_bool fbcon_cls(struct console * console)
 
 	for(i = 0; i < max; i++)
 	{
-		cell->cp = space;
-		cell->fc = black;
-		cell->bc = black;
+		cell->cp = UNICODE_SPACE;
+		cell->fc = info->black;
+		cell->bc = info->black;
 		cell->cw = w;
 		cell->ch = h;
 		cell->dirty = TRUE;
@@ -324,7 +327,8 @@ static x_bool fbcon_refresh(struct console * console)
 		{
 			x = (pos % info->w) * 8;
 			y = (pos / info->w) * 16;
-			fb_putchar(info->fb, cell->cp, cell->bc, cell->fc, x, y);
+			fb_putchar(info->fb, cell->cp, info->black, info->white, x, y);
+			printk("a");
 			cell->dirty = FALSE;
 		}
 		i++;
@@ -367,14 +371,15 @@ x_bool fbcon_putchar(struct console * console, x_u32 c)
 {
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell;
+	x_u32 w, h;
 
 	switch(c)
 	{
-	case '\r':
+	case UNICODE_CR:
 		fbcon_gotoxy(console, 0, info->y);
 		break;
 
-	case '\n':
+	case UNICODE_LF:
 		if(info->y + 1 >= info->h)
 		{
 			fbcon_cls(console);
@@ -386,10 +391,23 @@ x_bool fbcon_putchar(struct console * console, x_u32 c)
 		break;
 
 	default:
+		if(fb_charwidth(c, &w, &h))
+		{
+			w = (w + info->fw - 1) / info->fw;
+			h = (h + info->fh - 1) / info->fh;
+		}
+		else
+		{
+			w = 1;
+			h = 1;
+		}
+
 		cell = &(info->cell[info->w * info->y + info->x]);
 		cell->cp = c;
 		cell->fc = info->fc;
 		cell->bc = info->bc;
+		cell->cw = w;
+		cell->ch = h;
 		cell->dirty = TRUE;
 
 		if(info->x + 1 >= info->w)
@@ -507,9 +525,12 @@ x_bool register_framebuffer(struct fb * fb)
 	info->y = 0;
 	info->f = CONSOLE_WHITE;
 	info->b = CONSOLE_BLACK;
-	info->fc = fb_map_color(fb, 255, 255, 255, 255);
-	info->bc = fb_map_color(fb, 0, 0, 0, 255);
+	info->white = fb_map_color(fb, 255, 255, 255, 255);
+	info->black = fb_map_color(fb, 0, 0, 0, 255);
+	info->fc = info->white;
+	info->bc = info->black;
 	info->cursor = TRUE;
+
 	info->cell = malloc((info->w * info->h) * sizeof(struct fbcon_cell));
 	if(!info->cell)
 	{

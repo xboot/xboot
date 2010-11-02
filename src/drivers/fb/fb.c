@@ -372,8 +372,8 @@ static x_bool fbcon_refresh(struct console * console)
 		{
 			if(cell->dirty)
 			{
-				x = (i % info->w) * 8;
-				y = (i / info->w) * 16;
+				x = (i % info->w) * info->fw;
+				y = (i / info->w) * info->fh;
 				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
 				cell->dirty = FALSE;
 			}
@@ -382,8 +382,8 @@ static x_bool fbcon_refresh(struct console * console)
 
 		if(cell->dirty)
 		{
-			x = (pos % info->w) * 8;
-			y = (pos / info->w) * 16;
+			x = (pos % info->w) * info->fw;
+			y = (pos / info->w) * info->fh;
 			fb_putchar(info->fb, cell->cp, info->black, info->white, x, y);
 			cell->dirty = FALSE;
 		}
@@ -394,8 +394,8 @@ static x_bool fbcon_refresh(struct console * console)
 		{
 			if(cell->dirty)
 			{
-				x = (i % info->w) * 8;
-				y = (i / info->w) * 16;
+				x = (i % info->w) * info->fw;
+				y = (i / info->w) * info->fh;
 				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
 				cell->dirty = FALSE;
 			}
@@ -408,8 +408,8 @@ static x_bool fbcon_refresh(struct console * console)
 		{
 			if(cell->dirty)
 			{
-				x = (i % info->w) * 8;
-				y = (i / info->w) * 16;
+				x = (i % info->w) * info->fw;
+				y = (i / info->w) * info->fh;
 				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
 				cell->dirty = FALSE;
 			}
@@ -428,11 +428,77 @@ x_bool fbcon_putchar(struct console * console, x_u32 c)
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell;
 	x_u32 w, h;
+	x_s32 i;
 
 	switch(c)
 	{
-	case UNICODE_CR:
-		fbcon_gotoxy(console, 0, info->y);
+	case UNICODE_BS:
+		if(info->x > 0)
+		{
+			fbcon_gotoxy(console, info->x - 1, info->y);
+
+			if(fb_charwidth(UNICODE_SPACE, &w, &h))
+			{
+				w = (w + info->fw - 1) / info->fw;
+				h = (h + info->fh - 1) / info->fh;
+			}
+			else
+			{
+				w = 1;
+				h = 1;
+			}
+
+			cell = &(info->cell[info->w * info->y + info->x]);
+			cell->cp = UNICODE_SPACE;
+			cell->fc = info->black;
+			cell->bc = info->black;
+			cell->cw = w;
+			cell->ch = h;
+			cell->dirty = TRUE;
+		}
+		break;
+
+	case UNICODE_TAB:
+		i = info->w - info->x;
+		if(i < 0)
+			i = 0;
+		if(i > 4)
+			i = 4;
+
+		if(fb_charwidth(UNICODE_SPACE, &w, &h))
+		{
+			w = (w + info->fw - 1) / info->fw;
+			h = (h + info->fh - 1) / info->fh;
+		}
+		else
+		{
+			w = 1;
+			h = 1;
+		}
+
+		while(i--)
+		{
+			cell = &(info->cell[info->w * info->y + info->x]);
+			cell->cp = UNICODE_SPACE;
+			cell->fc = info->black;
+			cell->bc = info->black;
+			cell->cw = w;
+			cell->ch = h;
+			cell->dirty = TRUE;
+
+			if(info->x + 1 >= info->w)
+			{
+				if(info->y + 1 >= info->h)
+				{
+					fbcon_scrollup(console);
+				}
+				fbcon_gotoxy(console, 0, info->y + 1);
+			}
+			else
+			{
+				fbcon_gotoxy(console, info->x + 1, info->y);
+			}
+		}
 		break;
 
 	case UNICODE_LF:
@@ -441,6 +507,10 @@ x_bool fbcon_putchar(struct console * console, x_u32 c)
 			fbcon_scrollup(console);
 		}
 		fbcon_gotoxy(console, info->x, info->y + 1);
+		break;
+
+	case UNICODE_CR:
+		fbcon_gotoxy(console, 0, info->y);
 		break;
 
 	default:

@@ -57,13 +57,19 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 
 	con = search_console("fb");
 
-	con->setcolor(con, CONSOLE_RED, CONSOLE_YELLOW);
 	con->putchar(con, i++);
+	con->putchar(con, '\t');
 	con->refresh(con);
 
 	if(i>97)
 		i=32;
 
+	x_u8 a,b;
+	a = '\t';
+	b = '\a';
+
+	printk("0x%x,0x%x\r\n",a,b);
+	printk("absssssssssssssssssssssssssssssssssssssssssc\tdef\r\n");
 	return 0;
 }
 

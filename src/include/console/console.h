@@ -4,10 +4,11 @@
 #include <configs.h>
 #include <default.h>
 
-#define	UNICODE_SPACE				0x0020
-#define	UNICODE_CR					0x000d
-#define	UNICODE_LF					0x000a
+#define	UNICODE_BS					0x0008
 #define	UNICODE_TAB					0x0009
+#define	UNICODE_LF					0x000a
+#define	UNICODE_CR					0x000d
+#define	UNICODE_SPACE				0x0020
 
 /*
  * console color enum type.

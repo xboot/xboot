@@ -153,6 +153,80 @@ static x_s32 fb_close(struct chrdev * dev)
 }
 
 /*
+ * console color to rgba
+ */
+static x_bool console_color_to_rgba(enum console_color c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a)
+{
+	switch(c)
+	{
+	case CONSOLE_BLACK:
+		*r = 0;
+		*g = 0;
+		*b = 0;
+		*a = 255;
+		break;
+
+	case CONSOLE_RED:
+		*r = 255;
+		*g = 0;
+		*b = 0;
+		*a = 255;
+		break;
+
+	case CONSOLE_GREEN:
+		*r = 0;
+		*g = 255;
+		*b = 0;
+		*a = 255;
+		break;
+
+	case CONSOLE_YELLOW:
+		*r = 255;
+		*g = 255;
+		*b = 0;
+		*a = 255;
+		break;
+
+	case CONSOLE_BULE:
+		*r = 0;
+		*g = 0;
+		*b = 255;
+		*a = 255;
+		break;
+
+	case CONSOLE_MAGENTA:
+		*r = 255;
+		*g = 0;
+		*b = 255;
+		*a = 255;
+		break;
+
+	case CONSOLE_CYAN:
+		*r = 0;
+		*g = 255;
+		*b = 255;
+		*a = 255;
+		break;
+
+	case CONSOLE_WHITE:
+		*r = 255;
+		*g = 255;
+		*b = 255;
+		*a = 255;
+		break;
+
+	default:
+		*r = 0;
+		*g = 0;
+		*b = 0;
+		*a = 255;
+		break;
+	}
+
+	return TRUE;
+}
+
+/*
  * get console's width and height
  */
 static x_bool fbcon_getwh(struct console * console, x_s32 * w, x_s32 * h)

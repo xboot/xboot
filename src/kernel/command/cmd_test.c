@@ -39,6 +39,7 @@
 #include <rtc/rtc.h>
 #include <xboot/proc.h>
 #include <console/console.h>
+#include <console/curses.h>
 #include <terminal/terminal.h>
 #include <terminal/curses.h>
 #include <fs/vfs/vfs.h>
@@ -53,23 +54,15 @@
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
 	struct console * con;
-	static x_u8 i = 32;
 
 	con = search_console("fb");
 
-	con->putchar(con, i++);
-	con->putchar(con, '\t');
+
+	console_draw_vline(con, 2, 2, 10);
+	console_draw_rect(con, 5,5, 50, 20);
+
 	con->refresh(con);
 
-	if(i>97)
-		i=32;
-
-	x_u8 a,b;
-	a = '\t';
-	b = '\a';
-
-	printk("0x%x,0x%x\r\n",a,b);
-	printk("absssssssssssssssssssssssssssssssssssssssssc\tdef\r\n");
 	return 0;
 }
 

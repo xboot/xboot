@@ -3,6 +3,7 @@
 
 #include <configs.h>
 #include <default.h>
+#include <xboot/list.h>
 
 #define	UNICODE_BS					0x0008
 #define	UNICODE_TAB					0x0009
@@ -10,11 +11,23 @@
 #define	UNICODE_CR					0x000d
 #define	UNICODE_SPACE				0x0020
 
+#define	UNICODE_HLINE				'-'
+#define	UNICODE_VLINE				'|'
+#define	UNICODE_LEFT				'<'
+#define	UNICODE_RIGHT				'>'
+#define	UNICODE_UP					'^'
+#define	UNICODE_DOWN				'v'
+#define	UNICODE_LEFTUP				'+'
+#define	UNICODE_RIGHTUP				'+'
+#define	UNICODE_LEFTDOWN			'+'
+#define	UNICODE_RIGHTDOWN			'+'
+#define	UNICODE_CROSS				'+'
+#define	UNICODE_CUBE				'#'
+
 /*
  * console color enum type.
  */
 enum console_color {
-	CONSOLE_NONE,
 	CONSOLE_BLACK,
 	CONSOLE_RED,
 	CONSOLE_GREEN,
@@ -58,7 +71,7 @@ struct console
 	x_bool(*refresh)(struct console * console);
 
 	/* get a unicode character */
-	x_u32(*getchar)(struct console * console);
+	x_bool(*getchar)(struct console * console, x_u32 * c);
 
 	/* put a unicode character */
 	x_bool(*putchar)(struct console * console, x_u32 c);
@@ -80,6 +93,5 @@ struct console_list
 struct console * search_console(const char *name);
 x_bool register_console(struct console * console);
 x_bool unregister_console(struct console * console);
-x_bool console_color_to_rgba(enum console_color c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a);
 
 #endif /* __CONSOLE_H__ */

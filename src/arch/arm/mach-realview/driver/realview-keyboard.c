@@ -49,6 +49,7 @@ static void keyboard_interrupt(void)
 	while(status & REALVIEW_KEYBOARD_IIR_RXINTR)
 	{
 		data = readb(REALVIEW_KEYBOARD_DATA);
+		//TODO
 		printk("0x%x,", data);
 
 		status = readb(REALVIEW_KEYBOARD_IIR);
@@ -88,22 +89,6 @@ static void keyboard_remove(void)
 	writeb(REALVIEW_KEYBOARD_CR, 0);
 }
 
-/*
-
-
-static x_bool keyboard_read(enum keycode * code)
-{
-	x_u8 stat = readb(REALVIEW_KEYBOARD_STAT);
-	x_u8 data;
-
-	if(stat & REALVIEW_KEYBOARD_STAT_RXFULL)
-	{
-		data = readb(REALVIEW_KEYBOARD_DATA);
-		return key_translate(data, code);
-	}
-
-	return FALSE;
-}
 
 static x_s32 keyboard_ioctl(x_u32 cmd, void * arg)
 {
@@ -112,11 +97,10 @@ static x_s32 keyboard_ioctl(x_u32 cmd, void * arg)
 
 static struct keyboard_driver realview_keyboard = {
 	.name		= "kbd",
-	.init		= keyboard_init,
-	.exit		= keyboard_exit,
-	.read		= keyboard_read,
+	.probe		= keyboard_probe,
+	.remove		= keyboard_remove,
 	.ioctl		= keyboard_ioctl,
-};*/
+};
 
 static __init void realview_keyboard_init(void)
 {
@@ -126,18 +110,14 @@ static __init void realview_keyboard_init(void)
 		return;
 	}
 
-/*
 	if(!register_keyboard(&realview_keyboard))
 		LOG_E("failed to register keyboard driver '%s'", realview_keyboard.name);
-*/
 }
 
 static __exit void realview_keyboard_exit(void)
 {
-/*
 	if(!unregister_keyboard(&realview_keyboard))
 		LOG_E("failed to unregister keyboard driver '%s'", realview_keyboard.name);
-*/
 }
 
 module_init(realview_keyboard_init, LEVEL_DRIVER);

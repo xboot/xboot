@@ -216,31 +216,25 @@ enum keycode {
 	KEY_RESET,					/* pm - reset */
 };
 
-/**
- * defined the struct of keyboard driver, which contains
- * low level operating fuction.
+/*
+ * defined the struct of keyboard driver
  */
 struct keyboard_driver
 {
 	/* the keyboard name */
 	const char * name;
 
-	/*initialize the keyboard */
-	void (*init)(void);
+	/* probe keyboard */
+	void (*probe)(void);
 
-	/* clean up the keyboard */
-	void (*exit)(void);
-
-	/* read keyboard */
-	x_bool (*read)(enum keycode * code);
+	/* remove keyboard */
+	void (*remove)(void);
 
 	/* ioctl keyboard */
 	x_s32 (*ioctl)(x_u32 cmd, void * arg);
 };
 
-
 x_bool register_keyboard(struct keyboard_driver * drv);
 x_bool unregister_keyboard(struct keyboard_driver * drv);
-
 
 #endif /* __KEYBOARD_H__ */

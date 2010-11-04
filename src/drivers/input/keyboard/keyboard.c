@@ -70,9 +70,6 @@ static x_s32 keyboard_close(struct chrdev * dev)
 	return 0;
 }
 
-/*
- * register keyboard driver
- */
 x_bool register_keyboard(struct keyboard_driver * drv)
 {
 	struct chrdev * dev;
@@ -112,9 +109,6 @@ x_bool register_keyboard(struct keyboard_driver * drv)
 	return TRUE;
 }
 
-/*
- * unregister keyboard driver
- */
 x_bool unregister_keyboard(struct keyboard_driver * drv)
 {
 	struct chrdev * dev;

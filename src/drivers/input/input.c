@@ -38,6 +38,8 @@
 #include <time/timer.h>
 #include <input/input.h>
 
+extern void keyboard_input_handler(struct input_event * event);
+
 static struct fifo * input_keyboard_fifo;
 static struct fifo * input_mouse_fifo;
 static struct fifo * input_touchscreen_fifo;
@@ -82,7 +84,32 @@ void input_report(enum input_type type, x_u32 code, x_u32 value)
 
 void input_sync(enum input_type type)
 {
-	printk("%ld,\r\n", fifo_len(input_keyboard_fifo));
+	struct input_event event;
+
+	switch(type)
+	{
+	case INPUT_KEYBOARD:
+		if(fifo_get(input_keyboard_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		{
+			keyboard_input_handler(&event);
+		}
+		break;
+
+	case INPUT_MOUSE:
+		break;
+
+	case INPUT_TOUCHSCREEN:
+		break;
+
+	case INPUT_JOYSTICK:
+		break;
+
+	case INPUT_SENSOR:
+		break;
+
+	default:
+		break;
+	}
 }
 
 static __init void input_pure_sync_init(void)

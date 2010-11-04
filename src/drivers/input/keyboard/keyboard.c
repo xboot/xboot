@@ -34,6 +34,7 @@
 #include <xboot/machine.h>
 #include <xboot/resource.h>
 #include <time/timer.h>
+#include <input/input.h>
 #include <input/keyboard/keyboard.h>
 
 

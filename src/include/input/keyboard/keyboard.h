@@ -3,11 +3,10 @@
 
 #include <configs.h>
 #include <default.h>
+#include <input/input.h>
 
-enum keycode {
-	KEY_NULL = 0,
-
-	KEY_0,
+enum key_code {
+	KEY_0						= 1,
 	KEY_1,
 	KEY_2,
 	KEY_3,
@@ -214,6 +213,11 @@ enum keycode {
 	KEY_RESUME,					/* pm - resume */
 	KEY_HALT,					/* pm - halt */
 	KEY_RESET,					/* pm - reset */
+};
+
+enum key_value {
+	KEY_PRESS_UP				= 0,
+	KEY_PRESS_DOWN				= 1,
 };
 
 /*

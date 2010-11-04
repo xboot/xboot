@@ -5,11 +5,11 @@
 #include <default.h>
 
 enum input_type {
-	INPUT_KEYBOARD		= 0,
-	INPUT_MOUSE			= 1,
-	INPUT_TOUCHSCREEN	= 2,
-	INPUT_SENSOR		= 3,
+	INPUT_KEYBOARD		= 1,
+	INPUT_MOUSE			= 2,
+	INPUT_TOUCHSCREEN	= 3,
 	INPUT_JOYSTICK		= 4,
+	INPUT_SENSOR		= 5,
 };
 
 struct input_event {

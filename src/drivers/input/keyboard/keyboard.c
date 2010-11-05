@@ -27,7 +27,6 @@
 #include <malloc.h>
 #include <hash.h>
 #include <fifo.h>
-#include <xboot/chrdev.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -38,97 +37,222 @@
 #include <input/keyboard/keyboard.h>
 
 
-static x_s32 keyboard_open(struct chrdev * dev)
+struct handler_onkeyraw_list
 {
-	return 0;
-}
+	handler_onkeyraw handler;
+	struct list_head entry;
+};
 
-static x_s32 keyboard_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
+struct handler_onkeyup_list
 {
-	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->driver);
+	handler_onkeyup handler;
+	struct list_head entry;
+};
 
-	return 0;
-}
-
-static x_s32 keyboard_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
+struct handler_onkeydown_list
 {
-	return -1;
-}
+	handler_onkeydown handler;
+	struct list_head entry;
+};
 
-static x_s32 keyboard_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
+
+static struct handler_onkeyraw_list __handler_onkeyraw_list = {
+	.entry = {
+		.next	= &(__handler_onkeyraw_list.entry),
+		.prev	= &(__handler_onkeyraw_list.entry),
+	},
+};
+static struct handler_onkeyraw_list * handler_onkeyraw_list = &__handler_onkeyraw_list;
+
+static struct handler_onkeyup_list __handler_onkeyup_list = {
+	.entry = {
+		.next	= &(__handler_onkeyup_list.entry),
+		.prev	= &(__handler_onkeyup_list.entry),
+	},
+};
+static struct handler_onkeyup_list * handler_onkeyup_list = &__handler_onkeyup_list;
+
+static struct handler_onkeydown_list __handler_onkeydown_list = {
+	.entry = {
+		.next	= &(__handler_onkeydown_list.entry),
+		.prev	= &(__handler_onkeydown_list.entry),
+	},
+};
+static struct handler_onkeydown_list * handler_onkeydown_list = &__handler_onkeydown_list;
+
+x_bool install_listener_onkeyraw(handler_onkeyraw keyraw)
 {
-	struct keyboard_driver * drv = (struct keyboard_driver *)(dev->driver);
+	struct handler_onkeyraw_list * list;
+	struct list_head * pos;
 
-	if(drv->ioctl)
-		return ((drv->ioctl)(cmd, arg));
-
-	return -1;
-}
-
-static x_s32 keyboard_close(struct chrdev * dev)
-{
-	return 0;
-}
-
-x_bool register_keyboard(struct keyboard_driver * drv)
-{
-	struct chrdev * dev;
-
-	if(!drv || !drv->name || !drv->probe)
+	if(!keyraw)
 		return FALSE;
 
-	dev = malloc(sizeof(struct chrdev));
-	if(!dev)
-		return FALSE;
-
-	dev->name		= drv->name;
-	dev->type		= CHR_DEV_INPUT;
-	dev->open 		= keyboard_open;
-	dev->read 		= keyboard_read;
-	dev->write 		= keyboard_write;
-	dev->ioctl 		= keyboard_ioctl;
-	dev->close		= keyboard_close;
-	dev->driver 	= drv;
-
-	if(!register_chrdev(dev))
+	for(pos = (&handler_onkeyraw_list->entry)->next; pos != (&handler_onkeyraw_list->entry); pos = pos->next)
 	{
-		free(dev);
-		return FALSE;
+		list = list_entry(pos, struct handler_onkeyraw_list, entry);
+		if(list->handler == keyraw)
+			return FALSE;
 	}
 
-	if(search_chrdev_with_type(dev->name, CHR_DEV_INPUT) == NULL)
-	{
-		unregister_chrdev(dev->name);
-		free(dev);
+	list = malloc(sizeof(struct handler_onkeyraw_list));
+	if(!list)
 		return FALSE;
-	}
 
-	if(drv->probe)
-		(drv->probe)();
+	list->handler = keyraw;
+	list_add_tail(&list->entry, &handler_onkeyraw_list->entry);
 
 	return TRUE;
 }
 
-x_bool unregister_keyboard(struct keyboard_driver * drv)
+x_bool remove_listener_onkeyraw(handler_onkeyraw keyraw)
 {
-	struct chrdev * dev;
-	struct keyboard_driver * driver;
+	struct handler_onkeyraw_list * list;
+	struct list_head * pos;
 
-	if(!drv || !drv->name)
+	if(!keyraw)
 		return FALSE;
 
-	dev = search_chrdev_with_type(drv->name, CHR_DEV_INPUT);
-	if(!dev)
+	for(pos = (&handler_onkeyraw_list->entry)->next; pos != (&handler_onkeyraw_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct handler_onkeyraw_list, entry);
+		if(list->handler == keyraw)
+		{
+			list_del(pos);
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+x_bool install_listener_onkeyup(handler_onkeyup keyup)
+{
+	struct handler_onkeyup_list * list;
+	struct list_head * pos;
+
+	if(!keyup)
 		return FALSE;
 
-	driver = (struct keyboard_driver *)(dev->driver);
-	if(driver && driver->remove)
-		(driver->remove)();
+	for(pos = (&handler_onkeyup_list->entry)->next; pos != (&handler_onkeyup_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct handler_onkeyup_list, entry);
+		if(list->handler == keyup)
+			return FALSE;
+	}
 
-	if(!unregister_chrdev(dev->name))
+	list = malloc(sizeof(struct handler_onkeyup_list));
+	if(!list)
 		return FALSE;
 
-	free(dev);
+	list->handler = keyup;
+	list_add_tail(&list->entry, &handler_onkeyup_list->entry);
 
 	return TRUE;
+}
+
+x_bool remove_listener_onkeyup(handler_onkeyup keyup)
+{
+	struct handler_onkeyup_list * list;
+	struct list_head * pos;
+
+	if(!keyup)
+		return FALSE;
+
+	for(pos = (&handler_onkeyup_list->entry)->next; pos != (&handler_onkeyup_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct handler_onkeyup_list, entry);
+		if(list->handler == keyup)
+		{
+			list_del(pos);
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+x_bool install_listener_onkeydown(handler_onkeydown keydown)
+{
+	struct handler_onkeydown_list * list;
+	struct list_head * pos;
+
+	if(!keydown)
+		return FALSE;
+
+	for(pos = (&handler_onkeydown_list->entry)->next; pos != (&handler_onkeydown_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct handler_onkeydown_list, entry);
+		if(list->handler == keydown)
+			return FALSE;
+	}
+
+	list = malloc(sizeof(struct handler_onkeydown_list));
+	if(!list)
+		return FALSE;
+
+	list->handler = keydown;
+	list_add_tail(&list->entry, &handler_onkeydown_list->entry);
+
+	return TRUE;
+}
+
+x_bool remove_listener_onkeydown(handler_onkeydown keydown)
+{
+	struct handler_onkeydown_list * list;
+	struct list_head * pos;
+
+	if(!keydown)
+		return FALSE;
+
+	for(pos = (&handler_onkeydown_list->entry)->next; pos != (&handler_onkeydown_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct handler_onkeydown_list, entry);
+		if(list->handler == keydown)
+		{
+			list_del(pos);
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+void keyboard_input_handler(struct input_event * event)
+{
+	struct handler_onkeyraw_list * keyraw;
+	struct handler_onkeyup_list * keyup;
+	struct handler_onkeydown_list * keydown;
+	struct list_head * pos;
+
+	for(pos = (&handler_onkeyraw_list->entry)->next; pos != (&handler_onkeyraw_list->entry); pos = pos->next)
+	{
+		keyraw = list_entry(pos, struct handler_onkeyraw_list, entry);
+		keyraw->handler(event);
+	}
+
+	switch(event->value)
+	{
+	case KEY_PRESS_UP:
+		for(pos = (&handler_onkeyup_list->entry)->next; pos != (&handler_onkeyup_list->entry); pos = pos->next)
+		{
+			keyup = list_entry(pos, struct handler_onkeyup_list, entry);
+			keyup->handler(event->code);
+		}
+		break;
+
+	case KEY_PRESS_DOWN:
+		for(pos = (&handler_onkeydown_list->entry)->next; pos != (&handler_onkeydown_list->entry); pos = pos->next)
+		{
+			keydown = list_entry(pos, struct handler_onkeydown_list, entry);
+			keydown->handler(event->code);
+		}
+		break;
+
+	default:
+		break;
+	}
 }

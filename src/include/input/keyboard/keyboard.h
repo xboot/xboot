@@ -220,25 +220,16 @@ enum key_value {
 	KEY_PRESS_DOWN				= 1,
 };
 
-/*
- * defined the struct of keyboard driver
- */
-struct keyboard_driver
-{
-	/* the keyboard name */
-	const char * name;
+typedef void (*handler_onkeyraw)(struct input_event * event);
+typedef void (*handler_onkeyup)(enum key_code key);
+typedef void (*handler_onkeydown)(enum key_code key);
 
-	/* probe keyboard */
-	void (*probe)(void);
 
-	/* remove keyboard */
-	void (*remove)(void);
-
-	/* ioctl keyboard */
-	x_s32 (*ioctl)(x_u32 cmd, void * arg);
-};
-
-x_bool register_keyboard(struct keyboard_driver * drv);
-x_bool unregister_keyboard(struct keyboard_driver * drv);
+x_bool install_listener_onkeyraw(handler_onkeyraw keyraw);
+x_bool remove_listener_onkeyraw(handler_onkeyraw keyraw);
+x_bool install_listener_onkeyup(handler_onkeyup keyup);
+x_bool remove_listener_onkeyup(handler_onkeyup keyup);
+x_bool install_listener_onkeydown(handler_onkeydown keydown);
+x_bool remove_listener_onkeydown(handler_onkeydown keydown);
 
 #endif /* __KEYBOARD_H__ */

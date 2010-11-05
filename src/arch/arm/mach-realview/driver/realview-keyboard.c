@@ -330,17 +330,11 @@ static void keyboard_remove(void)
 	writeb(REALVIEW_KEYBOARD_CR, 0);
 }
 
-
-static x_s32 keyboard_ioctl(x_u32 cmd, void * arg)
-{
-	return -1;
-}
-
-static struct keyboard_driver realview_keyboard = {
+static struct input realview_keyboard = {
 	.name		= "kbd",
+	.type		= INPUT_KEYBOARD,
 	.probe		= keyboard_probe,
 	.remove		= keyboard_remove,
-	.ioctl		= keyboard_ioctl,
 };
 
 static __init void realview_keyboard_init(void)
@@ -351,14 +345,14 @@ static __init void realview_keyboard_init(void)
 		return;
 	}
 
-	if(!register_keyboard(&realview_keyboard))
-		LOG_E("failed to register keyboard driver '%s'", realview_keyboard.name);
+	if(!register_input(&realview_keyboard))
+		LOG_E("failed to register input '%s'", realview_keyboard.name);
 }
 
 static __exit void realview_keyboard_exit(void)
 {
-	if(!unregister_keyboard(&realview_keyboard))
-		LOG_E("failed to unregister keyboard driver '%s'", realview_keyboard.name);
+	if(!unregister_input(&realview_keyboard))
+		LOG_E("failed to unregister input '%s'", realview_keyboard.name);
 }
 
 module_init(realview_keyboard_init, LEVEL_DRIVER);

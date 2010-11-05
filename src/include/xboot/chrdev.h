@@ -13,7 +13,6 @@
  */
 enum chrdev_type {
 	CHR_DEV_SERIAL,
-	CHR_DEV_INPUT,
 	CHR_DEV_FRAMEBUFFER,
 	CHR_DEV_RTC,
 	CHR_DEV_MISC,

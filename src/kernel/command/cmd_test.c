@@ -40,7 +40,6 @@
 #include <xboot/proc.h>
 #include <input/input.h>
 #include <input/keyboard/keyboard.h>
-#include <input/keyboard/keyhandler.h>
 #include <console/console.h>
 #include <console/curses.h>
 #include <terminal/terminal.h>
@@ -99,12 +98,11 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	}
 
 	install_listener_onkeydown(onkeydown);
-	/*
+
 	install_listener_onkeyraw(onkeyraw1);
 	install_listener_onkeyraw(onkeyraw2);
 	install_listener_onkeyraw(onkeyraw2);
 	install_listener_onkeyraw(onkeyraw3);
-*/
 
 
 	return 0;

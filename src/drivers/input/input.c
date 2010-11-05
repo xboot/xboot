@@ -27,8 +27,10 @@
 #include <malloc.h>
 #include <hash.h>
 #include <fifo.h>
+#include <vsprintf.h>
 #include <xboot/chrdev.h>
 #include <xboot/list.h>
+#include <xboot/proc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
@@ -300,6 +302,99 @@ void input_sync(enum input_type type)
 	}
 }
 
+static x_s32 input_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+{
+	struct input_list * list;
+	struct list_head * pos;
+	x_s8 * p;
+	x_s32 len = 0;
+	x_s8 buff[32];
+
+	if((p = malloc(SZ_4K)) == NULL)
+		return 0;
+
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[input]");
+
+	for(pos = (&input_list->entry)->next; pos != (&input_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct input_list, entry);
+
+		switch(list->input->type)
+		{
+		case INPUT_KEYBOARD:
+			strcpy(buff, (const x_s8 *)"keyboard");
+			break;
+
+		case INPUT_MOUSE:
+			strcpy(buff, (const x_s8 *)"mouse");
+			break;
+
+		case INPUT_TOUCHSCREEN:
+			strcpy(buff, (const x_s8 *)"touchscreen");
+			break;
+
+		case INPUT_JOYSTICK:
+			strcpy(buff, (const x_s8 *)"joystick");
+			break;
+
+		case INPUT_ACCELEROMETER:
+			strcpy(buff, (const x_s8 *)"accelerometer");
+			break;
+
+		case INPUT_GYROSCOPE:
+			strcpy(buff, (const x_s8 *)"gyroscope");
+			break;
+
+		case INPUT_LIGHT:
+			strcpy(buff, (const x_s8 *)"light");
+			break;
+
+		case INPUT_MAGNETIC:
+			strcpy(buff, (const x_s8 *)"magnetic");
+			break;
+
+		case INPUT_ORIENTATION:
+			strcpy(buff, (const x_s8 *)"orientation");
+			break;
+
+		case INPUT_PRESSURE:
+			strcpy(buff, (const x_s8 *)"pressure");
+			break;
+
+		case INPUT_PROXIMITY:
+			strcpy(buff, (const x_s8 *)"proximity");
+			break;
+
+		case INPUT_TEMPERATURE:
+			strcpy(buff, (const x_s8 *)"temperature");
+			break;
+
+		default:
+			strcpy(buff, (const x_s8 *)"unknown");
+			break;
+		}
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s - %s", list->input->name, buff);
+	}
+
+	len -= offset;
+
+	if(len < 0)
+		len = 0;
+
+	if(len > count)
+		len = count;
+
+	memcpy(buf, (x_u8 *)(p + offset), len);
+	free(p);
+
+	return len;
+}
+
+static struct proc input_proc = {
+	.name	= "input",
+	.read	= input_proc_read,
+};
+
 static __init void input_pure_sync_init(void)
 {
 	input_keyboard_fifo = fifo_alloc(sizeof(struct input_event) * 256);
@@ -314,6 +409,8 @@ static __init void input_pure_sync_init(void)
 	input_pressure_fifo = fifo_alloc(sizeof(struct input_event) * 256);
 	input_proximity_fifo = fifo_alloc(sizeof(struct input_event) * 256);
 	input_temperature_fifo = fifo_alloc(sizeof(struct input_event) * 256);
+
+	proc_register(&input_proc);
 }
 
 static __init void input_pure_sync_exit(void)
@@ -330,6 +427,8 @@ static __init void input_pure_sync_exit(void)
 	fifo_free(input_pressure_fifo);
 	fifo_free(input_proximity_fifo);
 	fifo_free(input_temperature_fifo);
+
+	proc_unregister(&input_proc);
 }
 
 module_init(input_pure_sync_init, LEVEL_PURE_SYNC);

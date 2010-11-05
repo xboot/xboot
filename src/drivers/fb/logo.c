@@ -2,7 +2,7 @@
  * drivers/fb/logo.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
- * website: http://xboot.org
+ * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

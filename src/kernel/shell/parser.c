@@ -1,9 +1,8 @@
 /*
  * kernel/shell/parser.c
  *
- *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
- * website: http://xboot.org
+ * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
+ * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

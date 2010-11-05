@@ -53,58 +53,24 @@
 
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
-static void onkeyraw1(struct input_event * event)
-{
-	printk("onkeyraw1:%ld\r\n", event->code);
-}
-
-static void onkeyraw2(struct input_event * event)
-{
-	printk("onkeyraw2:%ld--\r\n", event->code);
-}
-
-static void onkeyraw3(struct input_event * event)
-{
-	printk("onkeyraw3:%ld((00\r\n", event->code);
-}
-
-void onkeyup(enum key_code key)
-{
-	printk("onkeyup:%ld\r\n", key);
-}
-
-void onkeydown(enum key_code key)
-{
-	printk("onkeydown:%ld\r\n", key);
-}
-
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-/*	struct console * con;
+	struct console * con;
+	x_u32 c;
 
-	con = search_console("fb");
+	con = search_console("input");
 
-
+	while(1)
+	{
+		if(console_getchar(con, &c))
+			printk("0x%lx\r\n", c);
+	}
+/*
 	console_draw_vline(con, 2, 2, 10);
 	console_draw_rect(con, 5,5, 50, 20);
 
-	con->refresh(con);*/
-
-	if(argc > 1)
-	{
-
-		remove_listener_onkeyraw(onkeyraw2);
-		return 0;
-	}
-
-	install_listener_onkeydown(onkeydown);
-
-	install_listener_onkeyraw(onkeyraw1);
-	install_listener_onkeyraw(onkeyraw2);
-	install_listener_onkeyraw(onkeyraw2);
-	install_listener_onkeyraw(onkeyraw3);
-
-
+	con->refresh(con);
+*/
 	return 0;
 }
 

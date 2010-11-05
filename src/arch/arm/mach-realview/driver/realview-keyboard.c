@@ -146,10 +146,6 @@ static const struct keymap map[] = {
 	{0x51,	KEY_PAGEDOWN,				KEY_PAGEDOWN,				0,							0,						0},
 	{0x52,	KEY_INSERT,					KEY_INSERT,					0,							0,						0},
 	{0x53,	KEY_DELETE,					KEY_DELETE,					0,							0,						0},
-
-	{0x37,	KEY_HALT,					KEY_HALT,					0,							0,						0},
-	{0x3f,	KEY_STANDBY,				KEY_STANDBY,				0,							0,						0},
-	{0x5e,	KEY_RESUME,					KEY_RESUME,					0,							0,						0},
 };
 
 static void keyboard_report_event(x_u32 flag, x_u8 data, enum key_value press)

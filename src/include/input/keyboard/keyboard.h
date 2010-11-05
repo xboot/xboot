@@ -208,11 +208,6 @@ enum key_code {
 	KEY_PAGEDOWN,
 	KEY_INSERT,
 	KEY_DELETE,
-
-	KEY_STANDBY,				/* pm - standby */
-	KEY_RESUME,					/* pm - resume */
-	KEY_HALT,					/* pm - halt */
-	KEY_RESET,					/* pm - reset */
 };
 
 enum key_value {

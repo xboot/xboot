@@ -22,8 +22,8 @@ enum input_type {
 struct input_event {
 	x_u32 time;
 	enum input_type type;
-	x_u32 code;
-	x_u32 value;
+	x_s32 code;
+	x_s32 value;
 };
 
 struct input
@@ -38,7 +38,7 @@ struct input * search_input(const char * name);
 x_bool register_input(struct input * input);
 x_bool unregister_input(struct input * input);
 
-void input_report(enum input_type type, x_u32 code, x_u32 value);
+void input_report(enum input_type type, x_s32 code, x_s32 value);
 void input_sync(enum input_type type);
 
 #endif /* __INPUT_H__ */

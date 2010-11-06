@@ -236,7 +236,7 @@ void keyboard_input_handler(struct input_event * event)
 
 	switch(event->value)
 	{
-	case KEY_PRESS_UP:
+	case KEY_BUTTON_UP:
 		for(pos = (&handler_onkeyup_list->entry)->next; pos != (&handler_onkeyup_list->entry); pos = pos->next)
 		{
 			keyup = list_entry(pos, struct handler_onkeyup_list, entry);
@@ -244,7 +244,7 @@ void keyboard_input_handler(struct input_event * event)
 		}
 		break;
 
-	case KEY_PRESS_DOWN:
+	case KEY_BUTTON_DOWN:
 		for(pos = (&handler_onkeydown_list->entry)->next; pos != (&handler_onkeydown_list->entry); pos = pos->next)
 		{
 			keydown = list_entry(pos, struct handler_onkeydown_list, entry);

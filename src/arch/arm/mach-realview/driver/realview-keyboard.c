@@ -39,6 +39,7 @@
 #include <input/keyboard/keyboard.h>
 #include <realview/reg-keyboard.h>
 
+#if 0
 #define	KBD_SHIFT					0x00000001
 #define	KBD_CTRL					0x00000002
 #define	KBD_ALT						0x00000004
@@ -353,3 +354,4 @@ static __exit void realview_keyboard_exit(void)
 
 module_init(realview_keyboard_init, LEVEL_DRIVER);
 module_exit(realview_keyboard_exit, LEVEL_DRIVER);
+#endif

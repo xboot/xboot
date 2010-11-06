@@ -143,7 +143,7 @@ x_bool unregister_input(struct input * input)
 	return FALSE;
 }
 
-void input_report(enum input_type type, x_u32 code, x_u32 value)
+void input_report(enum input_type type, x_s32 code, x_s32 value)
 {
 	struct input_event event;
 

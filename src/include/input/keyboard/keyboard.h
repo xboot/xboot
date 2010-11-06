@@ -6,213 +6,148 @@
 #include <input/input.h>
 
 enum key_code {
-	KEY_0						= 1,
-	KEY_1,
-	KEY_2,
-	KEY_3,
-	KEY_4,
-	KEY_5,
-	KEY_6,
-	KEY_7,
-	KEY_8,
-	KEY_9,
+	KEY_CTRL_A					= 0x0001,
+	KEY_CTRL_B					= 0x0002,
+	KEY_CTRL_C					= 0x0003,
+	KEY_CTRL_D					= 0x0004,
+	KEY_CTRL_E					= 0x0005,
+	KEY_CTRL_F					= 0x0006,
+	KEY_CTRL_G					= 0x0007,
+	KEY_CTRL_H					= 0x0008,
+	KEY_CTRL_I					= 0x0009,
+	KEY_CTRL_J					= 0x000a,
+	KEY_CTRL_K					= 0x000b,
+	KEY_CTRL_L					= 0x000c,
+	KEY_CTRL_M					= 0x000d,
+	KEY_CTRL_N					= 0x000e,
+	KEY_CTRL_O					= 0x000f,
+	KEY_CTRL_P					= 0x0010,
+	KEY_CTRL_Q					= 0x0011,
+	KEY_CTRL_R					= 0x0012,
+	KEY_CTRL_S					= 0x0013,
+	KEY_CTRL_T					= 0x0014,
+	KEY_CTRL_U					= 0x0015,
+	KEY_CTRL_V					= 0x0016,
+	KEY_CTRL_W					= 0x0017,
+	KEY_CTRL_X					= 0x0018,
+	KEY_CTRL_Y					= 0x0019,
+	KEY_CTRL_Z					= 0x001a,
 
-	KEY_a,
-	KEY_b,
-	KEY_c,
-	KEY_d,
-	KEY_e,
-	KEY_f,
-	KEY_g,
-	KEY_h,
-	KEY_i,
-	KEY_j,
-	KEY_k,
-	KEY_l,
-	KEY_m,
-	KEY_n,
-	KEY_o,
-	KEY_p,
-	KEY_q,
-	KEY_r,
-	KEY_s,
-	KEY_t,
-	KEY_u,
-	KEY_v,
-	KEY_w,
-	KEY_x,
-	KEY_y,
-	KEY_z,
+	KEY_SPACE					= 0x0020,	/*   */
+	KEY_EXCLAMATION_MARK		= 0x0021,	/* ! */
+	KEY_QUOTATION_MARK			= 0x0022,	/* " */
+	KEY_POUNDSIGN				= 0x0023,	/* # */
+	KEY_DOLLAR					= 0x0024,	/* $ */
+	KEY_PERCENT					= 0x0025,	/* % */
+	KEY_AMPERSAND				= 0x0026,	/* & */
+	KEY_APOSTROPHE				= 0x0027,	/* ' */
+	KEY_PARENTHESIS_LEFT		= 0x0028,	/* ( */
+	KEY_PARENTHESIS_RIGHT		= 0x0029,	/* ) */
+	KEY_ASTERISK				= 0x002a,	/* * */
+	KEY_PLUS					= 0x002b,	/* + */
+	KEY_COMMA					= 0x002c,	/* , */
+	KEY_MINUS					= 0x002d,	/* - */
+	KEY_FULL_STOP				= 0x002e,	/* . */
+	KEY_SOLIDUS					= 0x002f,	/* / */
 
-	KEY_A,
-	KEY_B,
-	KEY_C,
-	KEY_D,
-	KEY_E,
-	KEY_F,
-	KEY_G,
-	KEY_H,
-	KEY_I,
-	KEY_J,
-	KEY_K,
-	KEY_L,
-	KEY_M,
-	KEY_N,
-	KEY_O,
-	KEY_P,
-	KEY_Q,
-	KEY_R,
-	KEY_S,
-	KEY_T,
-	KEY_U,
-	KEY_V,
-	KEY_W,
-	KEY_X,
-	KEY_Y,
-	KEY_Z,
+	KEY_0						= 0x0030,
+	KEY_1						= 0x0031,
+	KEY_2						= 0x0032,
+	KEY_3						= 0x0033,
+	KEY_4						= 0x0034,
+	KEY_5						= 0x0035,
+	KEY_6						= 0x0036,
+	KEY_7						= 0x0037,
+	KEY_8						= 0x0038,
+	KEY_9						= 0x0039,
 
-	KEY_F1,
-	KEY_F2,
-	KEY_F3,
-	KEY_F4,
-	KEY_F5,
-	KEY_F6,
-	KEY_F7,
-	KEY_F8,
-	KEY_F9,
-	KEY_F10,
-	KEY_F11,
-	KEY_F12,
+	KEY_COLON					= 0x003a,	/* : */
+	KEY_SEMICOLON				= 0x003b,	/* ; */
+	KEY_LESS_THAN				= 0x003c,	/* < */
+	KEY_EQUAL					= 0x003d,	/* = */
+	KEY_GREATER_THAN			= 0x003e,	/* > */
+	KEY_QUESTION_MARK			= 0x003f,	/* ? */
+	KEY_AT						= 0x0040,	/* @ */
 
-	KEY_UNQUOTE,				/* ` */
-	KEY_WAVE,					/* ~ */
-	KEY_EXCLAMATION_MARK,		/* ! */
-	KEY_AT,						/* @ */
-	KEY_POUNDSIGN,				/* # */
-	KEY_DOLLAR,					/* $ */
-	KEY_PERCENT,				/* % */
-	KEY_POWER,					/* ^ */
-	KEY_AND,					/* & */
-	KEY_STAR,					/* * */
-	KEY_MINUS,					/* - */
-	KEY_PLUS,					/* + */
-	KEY_EQUAL,					/* = */
-	KEY_OR,						/* | */
-	KEY_SLASH,					/* / */
-	KEY_BACKLASH,				/* \ */
-	KEY_UNDERLINE,				/* _ */
-	KEY_COMMA,					/* , */
-	KEY_PERIOD,					/* . */
-	KEY_QUESTION_MARK,			/* ? */
-	KEY_COLON,					/* : */
-	KEY_SEMICOLON,				/* ; */
-	KEY_SINGLE_QUOTES,			/* ' */
-	KEY_DOUBLE_QUOTES,			/* " */
-	KEY_ANGLE_BRACKET_LEFT,		/* < */
-	KEY_ANGLE_BRACKET_RIGHT,	/* > */
-	KEY_ROUND_BRACKET_LEFT,		/* ( */
-	KEY_ROUND_BRACKET_RIGHT,	/* ) */
-	KEY_SQUARE_BRACKET_LEFT,	/* [ */
-	KEY_SQUARE_BRACKET_RIGHT,	/* ] */
-	KEY_BRACE_LEFT,				/* { */
-	KEY_BRACE_RIGHT,			/* } */
+	KEY_A						= 0x0041,
+	KEY_B						= 0x0042,
+	KEY_C						= 0x0043,
+	KEY_D						= 0x0044,
+	KEY_E						= 0x0045,
+	KEY_F						= 0x0046,
+	KEY_G						= 0x0047,
+	KEY_H						= 0x0048,
+	KEY_I						= 0x0049,
+	KEY_J						= 0x004a,
+	KEY_K						= 0x004b,
+	KEY_L						= 0x004c,
+	KEY_M						= 0x004d,
+	KEY_N						= 0x004e,
+	KEY_O						= 0x004f,
+	KEY_P						= 0x0050,
+	KEY_Q						= 0x0051,
+	KEY_R						= 0x0052,
+	KEY_S						= 0x0053,
+	KEY_T						= 0x0054,
+	KEY_U						= 0x0055,
+	KEY_V						= 0x0056,
+	KEY_W						= 0x0057,
+	KEY_X						= 0x0058,
+	KEY_Y						= 0x0059,
+	KEY_Z						= 0x005a,
 
-	KEY_CTRL_0,					/* ctrl-0 */
-	KEY_CTRL_1,					/* ctrl-1 */
-	KEY_CTRL_2,					/* ctrl-2 */
-	KEY_CTRL_3,					/* ctrl-3 */
-	KEY_CTRL_4,					/* ctrl-4 */
-	KEY_CTRL_5,					/* ctrl-5 */
-	KEY_CTRL_6,					/* ctrl-6 */
-	KEY_CTRL_7,					/* ctrl-7 */
-	KEY_CTRL_8,					/* ctrl-8 */
-	KEY_CTRL_9,					/* ctrl-9 */
+	KEY_SQUARE_BRACKET_LEFT		= 0x005b,	/* [ */
+	KEY_REVERSE_SOLIDUS			= 0x005c,	/* \ */
+	KEY_SQUARE_BRACKET_RIGHT	= 0x005d,	/* ] */
+	KEY_CIRCUMFLEX_ACCENT		= 0x005e,	/* ^ */
+	KEY_LOW_LINE				= 0x005f,	/* _ */
+	KEY_GRAVE_ACCENT			= 0x0060,	/* ` */
 
-	KEY_CTRL_A,					/* ctrl-a */
-	KEY_CTRL_B,					/* ctrl-b */
-	KEY_CTRL_C,					/* ctrl-c */
-	KEY_CTRL_D,					/* ctrl-d */
-	KEY_CTRL_E,					/* ctrl-e */
-	KEY_CTRL_F,					/* ctrl-f */
-	KEY_CTRL_G,					/* ctrl-g */
-	KEY_CTRL_H,					/* ctrl-h */
-	KEY_CTRL_I,					/* ctrl-i */
-	KEY_CTRL_J,					/* ctrl-j */
-	KEY_CTRL_K,					/* ctrl-k */
-	KEY_CTRL_L,					/* ctrl-l */
-	KEY_CTRL_M,					/* ctrl-m */
-	KEY_CTRL_N,					/* ctrl-n */
-	KEY_CTRL_O,					/* ctrl-o */
-	KEY_CTRL_P,					/* ctrl-p */
-	KEY_CTRL_Q,					/* ctrl-q */
-	KEY_CTRL_R,					/* ctrl-r */
-	KEY_CTRL_S,					/* ctrl-s */
-	KEY_CTRL_T,					/* ctrl-t */
-	KEY_CTRL_U,					/* ctrl-u */
-	KEY_CTRL_V,					/* ctrl-v */
-	KEY_CTRL_W,					/* ctrl-w */
-	KEY_CTRL_X,					/* ctrl-x */
-	KEY_CTRL_Y,					/* ctrl-y */
-	KEY_CTRL_Z,					/* ctrl-z */
+	KEY_a						= 0x0061,
+	KEY_b						= 0x0062,
+	KEY_c						= 0x0063,
+	KEY_d						= 0x0064,
+	KEY_e						= 0x0065,
+	KEY_f						= 0x0066,
+	KEY_g						= 0x0067,
+	KEY_h						= 0x0068,
+	KEY_i						= 0x0069,
+	KEY_j						= 0x006a,
+	KEY_k						= 0x006b,
+	KEY_l						= 0x006c,
+	KEY_m						= 0x006d,
+	KEY_n						= 0x006e,
+	KEY_o						= 0x006f,
+	KEY_p						= 0x0070,
+	KEY_q						= 0x0071,
+	KEY_r						= 0x0072,
+	KEY_s						= 0x0073,
+	KEY_t						= 0x0074,
+	KEY_u						= 0x0075,
+	KEY_v						= 0x0076,
+	KEY_w						= 0x0077,
+	KEY_x						= 0x0078,
+	KEY_y						= 0x0079,
+	KEY_z						= 0x007a,
 
-	KEY_ALT_0,					/* alt-0 */
-	KEY_ALT_1,					/* alt-1 */
-	KEY_ALT_2,					/* alt-2 */
-	KEY_ALT_3,					/* alt-3 */
-	KEY_ALT_4,					/* alt-4 */
-	KEY_ALT_5,					/* alt-5 */
-	KEY_ALT_6,					/* alt-6 */
-	KEY_ALT_7,					/* alt-7 */
-	KEY_ALT_8,					/* alt-8 */
-	KEY_ALT_9,					/* alt-9 */
+	KEY_CURLY_BRACKET_LEFT		= 0x007b,	/* { */
+	KEY_VERTICAL_LINE			= 0x007c,	/* | */
+	KEY_CURLY_BRACKET_RIGHT		= 0x007d,	/* } */
+	KEY_TILDE					= 0x007e,	/* ~ */
 
-	KEY_ALT_A,					/* alt-a */
-	KEY_ALT_B,					/* alt-b */
-	KEY_ALT_C,					/* alt-c */
-	KEY_ALT_D,					/* alt-d */
-	KEY_ALT_E,					/* alt-e */
-	KEY_ALT_F,					/* alt-f */
-	KEY_ALT_G,					/* alt-g */
-	KEY_ALT_H,					/* alt-h */
-	KEY_ALT_I,					/* alt-i */
-	KEY_ALT_J,					/* alt-j */
-	KEY_ALT_K,					/* alt-k */
-	KEY_ALT_L,					/* alt-l */
-	KEY_ALT_M,					/* alt-m */
-	KEY_ALT_N,					/* alt-n */
-	KEY_ALT_O,					/* alt-o */
-	KEY_ALT_P,					/* alt-p */
-	KEY_ALT_Q,					/* alt-q */
-	KEY_ALT_R,					/* alt-r */
-	KEY_ALT_S,					/* alt-s */
-	KEY_ALT_T,					/* alt-t */
-	KEY_ALT_U,					/* alt-u */
-	KEY_ALT_V,					/* alt-v */
-	KEY_ALT_W,					/* alt-w */
-	KEY_ALT_X,					/* alt-x */
-	KEY_ALT_Y,					/* alt-y */
-	KEY_ALT_Z,					/* alt-z */
-
-	KEY_ESC,
-	KEY_TAB,
-	KEY_SPACE,
-	KEY_ENTER,
-	KEY_BACKSPACE,
-	KEY_UP,
-	KEY_DOWN,
-	KEY_LEFT,
-	KEY_RIGHT,
-	KEY_HOME,
-	KEY_END,
-	KEY_PAGEUP,
-	KEY_PAGEDOWN,
-	KEY_INSERT,
-	KEY_DELETE,
+	KEY_UP						= 0x0080,
+	KEY_DOWN					= 0x0081,
+	KEY_LEFT					= 0x0082,
+	KEY_RIGHT					= 0x0083,
+	KEY_HOME					= 0x0084,
+	KEY_MENU					= 0x0085,
+	KEY_BACK					= 0x0086,
+	KEY_ENTER					= 0x0087,
 };
 
 enum key_value {
-	KEY_PRESS_UP				= 0,
-	KEY_PRESS_DOWN				= 1,
+	KEY_BUTTON_UP				= 0,
+	KEY_BUTTON_DOWN				= 1,
 };
 
 typedef void (*handler_onkeyraw)(struct input_event * event);

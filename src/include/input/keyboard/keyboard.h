@@ -139,10 +139,14 @@ enum key_code {
 	KEY_DOWN					= 0x0081,
 	KEY_LEFT					= 0x0082,
 	KEY_RIGHT					= 0x0083,
-	KEY_HOME					= 0x0084,
-	KEY_MENU					= 0x0085,
-	KEY_BACK					= 0x0086,
-	KEY_ENTER					= 0x0087,
+	KEY_TAB						= 0x0084,
+	KEY_BACKSPACE				= 0x0085,
+	KEY_ENTER					= 0x0086,
+	KEY_HOME					= 0x0087,
+	KEY_MENU					= 0x0088,
+	KEY_BACK					= 0x0089,
+	KEY_POWER					= 0x008a,
+	KEY_RESET					= 0x008b,
 };
 
 enum key_value {

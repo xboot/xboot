@@ -357,7 +357,7 @@ static void keyboard_probe(void)
 
 	if(! clk_get_rate("kclk", &kclk))
 	{
-		LOG_E("can't get the clock of \'kclk\'");
+		LOG_E("can't get the clock of 'kclk'");
 		return;
 	}
 
@@ -397,7 +397,7 @@ static void keyboard_probe(void)
 
 	if(!request_irq("KMI0", keyboard_interrupt))
 	{
-		LOG_E("can't request irq \'KMI0\'");
+		LOG_E("can't request irq 'KMI0'");
 		writeb(REALVIEW_KEYBOARD_CR, 0);
 		return;
 	}
@@ -409,7 +409,7 @@ static void keyboard_probe(void)
 static void keyboard_remove(void)
 {
 	if(!free_irq("KMI0"))
-		LOG_E("can't free irq \'KMI0\'");
+		LOG_E("can't free irq 'KMI0'");
 	writeb(REALVIEW_KEYBOARD_CR, 0);
 }
 
@@ -424,7 +424,7 @@ static __init void realview_keyboard_init(void)
 {
 	if(! clk_get_rate("kclk", 0))
 	{
-		LOG_E("can't get the clock of \'kclk\'");
+		LOG_E("can't get the clock of 'kclk'");
 		return;
 	}
 

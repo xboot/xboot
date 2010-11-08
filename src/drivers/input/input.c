@@ -373,7 +373,7 @@ static x_s32 input_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 			strcpy(buff, (const x_s8 *)"unknown");
 			break;
 		}
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s - %s", list->input->name, buff);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s %*s%s", list->input->name, (int)(16 - strlen((x_s8 *)list->input->name)), "", buff);
 	}
 
 	len -= offset;

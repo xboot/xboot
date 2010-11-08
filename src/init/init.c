@@ -35,6 +35,7 @@
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
+#include <console/console.h>
 #include <terminal/terminal.h>
 #include <shell/env.h>
 #include <fs/fsapi.h>
@@ -95,6 +96,15 @@ void do_system_cfg(void)
 
 	/* load environment variable file /etc/env.xml */
 	env_load("/etc/env.xml");
+
+	/* set stdin and stdout console */
+	if(mach)
+	{
+		if(mach->cfg.in && mach->cfg.out)
+		{
+			set_stdinout(mach->cfg.in, mach->cfg.out);
+		}
+	}
 
 	/* add stdin and stdout terminal */
 	if(mach)

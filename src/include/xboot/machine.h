@@ -42,6 +42,12 @@ struct machine {
 		/* stdout console */
 		struct stdout * stdout;
 
+		/* stdin console name */
+		const char * in;
+
+		/* stdout console name */
+		const char * out;
+
 		/* system menu item */
 		struct menu_item * menu;
 

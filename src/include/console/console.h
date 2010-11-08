@@ -80,9 +80,6 @@ struct console
 	void * priv;
 };
 
-/*
- * the list of console.
- */
 struct console_list
 {
 	struct console * console;
@@ -93,5 +90,9 @@ struct console_list
 struct console * search_console(const char *name);
 x_bool register_console(struct console * console);
 x_bool unregister_console(struct console * console);
+
+struct console * get_stdin(void);
+struct console * get_stdout(void);
+x_bool set_stdinout(const char * in, const char * out);
 
 #endif /* __CONSOLE_H__ */

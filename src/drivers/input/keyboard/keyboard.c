@@ -80,18 +80,18 @@ static struct handler_onkeydown_list __handler_onkeydown_list = {
 };
 static struct handler_onkeydown_list * handler_onkeydown_list = &__handler_onkeydown_list;
 
-x_bool install_listener_onkeyraw(handler_onkeyraw keyraw)
+x_bool install_listener_onkeyraw(handler_onkeyraw raw)
 {
 	struct handler_onkeyraw_list * list;
 	struct list_head * pos;
 
-	if(!keyraw)
+	if(!raw)
 		return FALSE;
 
 	for(pos = (&handler_onkeyraw_list->entry)->next; pos != (&handler_onkeyraw_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct handler_onkeyraw_list, entry);
-		if(list->handler == keyraw)
+		if(list->handler == raw)
 			return FALSE;
 	}
 
@@ -99,24 +99,24 @@ x_bool install_listener_onkeyraw(handler_onkeyraw keyraw)
 	if(!list)
 		return FALSE;
 
-	list->handler = keyraw;
+	list->handler = raw;
 	list_add_tail(&list->entry, &handler_onkeyraw_list->entry);
 
 	return TRUE;
 }
 
-x_bool remove_listener_onkeyraw(handler_onkeyraw keyraw)
+x_bool remove_listener_onkeyraw(handler_onkeyraw raw)
 {
 	struct handler_onkeyraw_list * list;
 	struct list_head * pos;
 
-	if(!keyraw)
+	if(!raw)
 		return FALSE;
 
 	for(pos = (&handler_onkeyraw_list->entry)->next; pos != (&handler_onkeyraw_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct handler_onkeyraw_list, entry);
-		if(list->handler == keyraw)
+		if(list->handler == raw)
 		{
 			list_del(pos);
 			free(list);
@@ -223,15 +223,15 @@ x_bool remove_listener_onkeydown(handler_onkeydown keydown)
 
 void keyboard_input_handler(struct input_event * event)
 {
-	struct handler_onkeyraw_list * keyraw;
+	struct handler_onkeyraw_list * raw;
 	struct handler_onkeyup_list * keyup;
 	struct handler_onkeydown_list * keydown;
 	struct list_head * pos;
 
 	for(pos = (&handler_onkeyraw_list->entry)->next; pos != (&handler_onkeyraw_list->entry); pos = pos->next)
 	{
-		keyraw = list_entry(pos, struct handler_onkeyraw_list, entry);
-		keyraw->handler(event);
+		raw = list_entry(pos, struct handler_onkeyraw_list, entry);
+		raw->handler(event);
 	}
 
 	switch(event->value)

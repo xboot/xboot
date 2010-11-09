@@ -19,4 +19,9 @@ enum mouse_value {
 	MOUSE_BUTTON_DOWN			= 1,
 };
 
+typedef void (*handler_onmouseraw)(struct input_event * event);
+
+x_bool install_listener_onmouseraw(handler_onmouseraw raw);
+x_bool remove_listener_onmouseraw(handler_onmouseraw raw);
+
 #endif /* __MOUSE_H__ */

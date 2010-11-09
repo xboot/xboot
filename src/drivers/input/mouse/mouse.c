@@ -36,8 +36,75 @@
 #include <input/input.h>
 #include <input/mouse/mouse.h>
 
+struct handler_onmouseraw_list
+{
+	handler_onmouseraw handler;
+	struct list_head entry;
+};
+
+static struct handler_onmouseraw_list __handler_onmouseraw_list = {
+	.entry = {
+		.next	= &(__handler_onmouseraw_list.entry),
+		.prev	= &(__handler_onmouseraw_list.entry),
+	},
+};
+static struct handler_onmouseraw_list * handler_onmouseraw_list = &__handler_onmouseraw_list;
+
+x_bool install_listener_onmouseraw(handler_onmouseraw raw)
+{
+	struct handler_onmouseraw_list * list;
+	struct list_head * pos;
+
+	if(!raw)
+		return FALSE;
+
+	for(pos = (&handler_onmouseraw_list->entry)->next; pos != (&handler_onmouseraw_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct handler_onmouseraw_list, entry);
+		if(list->handler == raw)
+			return FALSE;
+	}
+
+	list = malloc(sizeof(struct handler_onmouseraw_list));
+	if(!list)
+		return FALSE;
+
+	list->handler = raw;
+	list_add_tail(&list->entry, &handler_onmouseraw_list->entry);
+
+	return TRUE;
+}
+
+x_bool remove_listener_onmouseraw(handler_onmouseraw raw)
+{
+	struct handler_onmouseraw_list * list;
+	struct list_head * pos;
+
+	if(!raw)
+		return FALSE;
+
+	for(pos = (&handler_onmouseraw_list->entry)->next; pos != (&handler_onmouseraw_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct handler_onmouseraw_list, entry);
+		if(list->handler == raw)
+		{
+			list_del(pos);
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 void mouse_input_handler(struct input_event * event)
 {
-	printk("%08ld: %08ld, %08ld\r\n", event->time, event->code, event->value);
+	struct handler_onmouseraw_list * raw;
+	struct list_head * pos;
+
+	for(pos = (&handler_onmouseraw_list->entry)->next; pos != (&handler_onmouseraw_list->entry); pos = pos->next)
+	{
+		raw = list_entry(pos, struct handler_onmouseraw_list, entry);
+		raw->handler(event);
+	}
 }

@@ -414,7 +414,7 @@ static void keyboard_remove(void)
 }
 
 static struct input realview_keyboard = {
-	.name		= "kbd",
+	.name		= "keyboard",
 	.type		= INPUT_KEYBOARD,
 	.probe		= keyboard_probe,
 	.remove		= keyboard_remove,

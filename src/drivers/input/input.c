@@ -41,7 +41,7 @@
 #include <input/input.h>
 
 extern void keyboard_input_handler(struct input_event * event);
-
+extern void mouse_input_handler(struct input_event * event);
 
 struct input_list
 {
@@ -214,84 +214,84 @@ void input_sync(enum input_type type)
 	switch(type)
 	{
 	case INPUT_KEYBOARD:
-		if(fifo_get(input_keyboard_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_keyboard_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 			keyboard_input_handler(&event);
 		}
 		break;
 
 	case INPUT_MOUSE:
-		if(fifo_get(input_mouse_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_mouse_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
-
+			mouse_input_handler(&event);
 		}
 		break;
 
 	case INPUT_TOUCHSCREEN:
-		if(fifo_get(input_touchscreen_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_touchscreen_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_JOYSTICK:
-		if(fifo_get(input_joystick_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_joystick_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_ACCELEROMETER:
-		if(fifo_get(input_accelerometer_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_accelerometer_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_GYROSCOPE:
-		if(fifo_get(input_gyroscope_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_gyroscope_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_LIGHT:
-		if(fifo_get(input_light_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_light_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_MAGNETIC:
-		if(fifo_get(input_magnetic_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_magnetic_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_ORIENTATION:
-		if(fifo_get(input_orientation_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_orientation_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_PRESSURE:
-		if(fifo_get(input_pressure_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_pressure_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_PROXIMITY:
-		if(fifo_get(input_proximity_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_proximity_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}
 		break;
 
 	case INPUT_TEMPERATURE:
-		if(fifo_get(input_temperature_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_temperature_fifo, (x_u8 *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
 		{
 
 		}

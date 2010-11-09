@@ -36,6 +36,7 @@
 #include <xboot/printk.h>
 #include <xboot/resource.h>
 #include <input/input.h>
+#include <input/mouse/mouse.h>
 #include <realview/reg-mouse.h>
 
 static x_bool kmi_write(x_u8 data)
@@ -72,16 +73,69 @@ static x_bool kmi_read(x_u8 * data)
 
 static void mouse_interrupt(void)
 {
+	static x_u8 packet[4];
+	static x_u8 index = 0;
 	x_u8 status, data;
+	x_s32 value;
 
 	status = readb(REALVIEW_MOUSE_IIR);
-	printk("dd");
 
 	while(status & REALVIEW_MOUSE_IIR_RXINTR)
 	{
 		data = readb(REALVIEW_MOUSE_DATA);
 
-		printk("0x%02x\r\n", data);
+		packet[index] = data;
+		index = (index + 1) & 0x3;
+
+		if(index == 0)
+		{
+			if(packet[0] & 0x1)
+				input_report(INPUT_MOUSE, MOUSE_LEFT, MOUSE_BUTTON_DOWN);
+			else
+				input_report(INPUT_MOUSE, MOUSE_LEFT, MOUSE_BUTTON_UP);
+
+			if(packet[0] & 0x2)
+				input_report(INPUT_MOUSE, MOUSE_RIGHT, MOUSE_BUTTON_DOWN);
+			else
+				input_report(INPUT_MOUSE, MOUSE_RIGHT, MOUSE_BUTTON_UP);
+
+			if(packet[0] & 0x4)
+				input_report(INPUT_MOUSE, MOUSE_MIDDLE, MOUSE_BUTTON_DOWN);
+			else
+				input_report(INPUT_MOUSE, MOUSE_MIDDLE, MOUSE_BUTTON_UP);
+
+			if(packet[0] & 0x10)
+				value = 0xffffff00 | packet[1];
+			else
+				value = packet[1];
+			input_report(INPUT_MOUSE, MOUSE_REL_X, value);
+
+			if(packet[0] & 0x20)
+				value = 0xffffff00 | packet[2];
+			else
+				value = packet[2];
+			input_report(INPUT_MOUSE, MOUSE_REL_Y, value);
+
+			value = packet[3] & 0xf;
+			switch(value)
+			{
+			case 0x0:
+				break;
+
+			case 0x1:
+				input_report(INPUT_MOUSE, MOUSE_REL_Z, 1);
+				break;
+
+			case 0xf:
+				input_report(INPUT_MOUSE, MOUSE_REL_Z, -1);
+				break;
+
+			default:
+				break;
+			}
+
+			input_sync(INPUT_MOUSE);
+		}
 
 		status = readb(REALVIEW_MOUSE_IIR);
 	}
@@ -106,14 +160,6 @@ static void mouse_probe(void)
 	/* enable mouse controller */
 	writeb(REALVIEW_MOUSE_CR, REALVIEW_MOUSE_CR_EN);
 
-	kmi_write(0xf6);
-	kmi_write(0xf4);
-
-#if 0
-
-	/* clear a receive buffer */
-	kmi_read(&data);
-
 	/* reset mouse, and wait ack and pass/fail code */
 	if(! kmi_write(0xff) )
 		return;
@@ -122,22 +168,37 @@ static void mouse_probe(void)
 	if(data != 0xaa)
 		return;
 
-	/* set mouse's typematic rate/delay */
+	/* enable scroll wheel */
 	kmi_write(0xf3);
-	/* 10.9pcs, 500ms */
-	kmi_write(0x2b);
+	kmi_write(200);
 
-	/* scan code set 2 */
-	kmi_write(0xf0);
+	kmi_write(0xf3);
+	kmi_write(100);
+
+	kmi_write(0xf3);
+	kmi_write(80);
+
+	kmi_write(0xf2);
+	kmi_read(&data);
+	kmi_read(&data);
+
+	/* set sample rate, 100 samples/sec */
+	kmi_write(0xf3);
+	kmi_write(100);
+
+	/* set resolution, 4 counts per mm, 1:1 scaling */
+	kmi_write(0xe8);
 	kmi_write(0x02);
+	kmi_write(0xe6);
 
-	/* set all keys typematic/make/break */
-	kmi_write(0xfa);
+	/* enable data reporting */
+	kmi_write(0xf4);
 
-	/* set mouse's number lock, caps lock, and scroll lock */
-	kmi_write(0xed);
-	kmi_write(0x02);
-#endif
+	/* clear a receive buffer */
+	kmi_read(&data);
+	kmi_read(&data);
+	kmi_read(&data);
+	kmi_read(&data);
 
 	if(!request_irq("KMI1", mouse_interrupt))
 	{
@@ -158,7 +219,7 @@ static void mouse_remove(void)
 }
 
 static struct input realview_mouse = {
-	.name		= "kbd",
+	.name		= "mouse",
 	.type		= INPUT_MOUSE,
 	.probe		= mouse_probe,
 	.remove		= mouse_remove,

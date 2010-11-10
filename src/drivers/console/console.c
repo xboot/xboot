@@ -151,6 +151,76 @@ x_bool set_stdinout(const char * in, const char * out)
 	return TRUE;
 }
 
+x_bool console_getwh(struct console * console, x_s32 * w, x_s32 * h)
+{
+	if(console && console->getwh)
+		return console->getwh(console, w, h);
+	return FALSE;
+}
+
+x_bool console_getxy(struct console * console, x_s32 * x, x_s32 * y)
+{
+	if(console && console->getxy)
+		return console->getxy(console, x, y);
+	return FALSE;
+}
+
+x_bool console_gotoxy(struct console * console, x_s32 x, x_s32 y)
+{
+	if(console && console->gotoxy)
+		return console->gotoxy(console, x, y);
+	return FALSE;
+}
+
+x_bool console_setcursor(struct console * console, x_bool on)
+{
+	if(console && console->setcursor)
+		return console->setcursor(console, on);
+	return FALSE;
+}
+
+x_bool console_setcolor(struct console * console, enum console_color f, enum console_color b)
+{
+	if(console && console->setcolor)
+		return console->setcolor(console, f, b);
+	return FALSE;
+}
+
+x_bool console_getcolor(struct console * console, enum console_color * f, enum console_color * b)
+{
+	if(console && console->getcolor)
+		return console->getcolor(console, f, b);
+	return FALSE;
+}
+
+x_bool console_cls(struct console * console)
+{
+	if(console && console->cls)
+		return console->cls(console);
+	return FALSE;
+}
+
+x_bool console_refresh(struct console * console)
+{
+	if(console && console->refresh)
+		return console->refresh(console);
+	return FALSE;
+}
+
+x_bool console_getchar(struct console * console, x_u32 * c)
+{
+	if(console && console->getchar)
+		return console->getchar(console, c);
+	return FALSE;
+}
+
+x_bool console_putchar(struct console * console, x_u32 c)
+{
+	if(console && console->putchar)
+		return console->putchar(console, c);
+	return FALSE;
+}
+
 static x_s32 console_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
 	struct console_list * list;

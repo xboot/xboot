@@ -86,7 +86,6 @@ struct console_list
 	struct list_head entry;
 };
 
-
 struct console * search_console(const char *name);
 x_bool register_console(struct console * console);
 x_bool unregister_console(struct console * console);
@@ -94,5 +93,16 @@ x_bool unregister_console(struct console * console);
 struct console * get_stdin(void);
 struct console * get_stdout(void);
 x_bool set_stdinout(const char * in, const char * out);
+
+x_bool console_getwh(struct console * console, x_s32 * w, x_s32 * h);
+x_bool console_getxy(struct console * console, x_s32 * x, x_s32 * y);
+x_bool console_gotoxy(struct console * console, x_s32 x, x_s32 y);
+x_bool console_setcursor(struct console * console, x_bool on);
+x_bool console_setcolor(struct console * console, enum console_color f, enum console_color b);
+x_bool console_getcolor(struct console * console, enum console_color * f, enum console_color * b);
+x_bool console_cls(struct console * console);
+x_bool console_refresh(struct console * console);
+x_bool console_getchar(struct console * console, x_u32 * c);
+x_bool console_putchar(struct console * console, x_u32 c);
 
 #endif /* __CONSOLE_H__ */

@@ -25,6 +25,7 @@
 #include <types.h>
 #include <malloc.h>
 #include <string.h>
+#include <charset.h>
 #include <vsprintf.h>
 #include <xboot/list.h>
 #include <fb/bitmap.h>

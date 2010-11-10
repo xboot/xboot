@@ -40,6 +40,7 @@
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>
 
+#if 0
 /*
  * fat attribute
  */
@@ -409,31 +410,28 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 	switch(md->type)
 	{
 	case FAT_TYPE_FAT12:
-		printk("fat12\r\n");
 		break;
 	case FAT_TYPE_FAT16:
-		printk("fat16\r\n");
 		break;
 	case FAT_TYPE_FAT32:
-		printk("fat32\r\n");
 		break;
 	default:
 		break;
 	}
 
-	printk("sector size: %ld\r\n", md->sector_size);
-	printk("sectors per cluster: %ld\r\n", md->sectors_per_cluster);
-	printk("cluster size: %ld\r\n", md->cluster_size);
+	LOG_D("sector size: %ld\r\n", md->sector_size);
+	LOG_D("sectors per cluster: %ld\r\n", md->sectors_per_cluster);
+	LOG_D("cluster size: %ld\r\n", md->cluster_size);
 
-	printk("fat start: %ld\r\n", md->fat_start);
-	printk("root start: %ld\r\n", md->root_start);
-	printk("data start: %ld\r\n", md->data_start);
+	LOG_D("fat start: %ld\r\n", md->fat_start);
+	LOG_D("root start: %ld\r\n", md->root_start);
+	LOG_D("data start: %ld\r\n", md->data_start);
 
-	printk("last cluster: %ld\r\n", md->last_cluster);
-	printk("free scan: %ld\r\n", md->free_scan);
+	LOG_D("last cluster: %ld\r\n", md->last_cluster);
+	LOG_D("free scan: %ld\r\n", md->free_scan);
 
-	printk("fat mask: 0x%08x\r\n", md->fat_mask);
-	printk("fat eof: 0x%08x\r\n", md->fat_eof);
+	LOG_D("fat mask: 0x%08x\r\n", md->fat_mask);
+	LOG_D("fat eof: 0x%08x\r\n", md->fat_eof);
 
 	return 0;
 }
@@ -804,7 +802,7 @@ static x_s32 fatfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	struct fat_dirent * de;
 	x_s32 err;
 
-	printk("%s\r\n", __FUNCTION__);
+	LOG_D("%s\r\n", __FUNCTION__);
 
 	md = node->v_mount->m_data;
 //TODO
@@ -836,7 +834,7 @@ static x_s32 fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	struct fat_dirent * de;
 	x_s32 err;
 
-	printk("%s\r\n", __FUNCTION__);
+	LOG_D("%s\r\n", __FUNCTION__);
 
 	if(*name == '\0')
 		return ENOENT;
@@ -961,3 +959,5 @@ static __exit void filesystem_fatfs_exit(void)
 
 module_init(filesystem_fatfs_init, LEVEL_POSTCORE);
 module_exit(filesystem_fatfs_exit, LEVEL_POSTCORE);
+
+#endif

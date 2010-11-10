@@ -82,6 +82,12 @@ x_bool register_console(struct console * console)
 	list->console = console;
 	list_add(&list->entry, &console_list->entry);
 
+	if((console_stdin == NULL) && (console->getchar))
+		console_stdin = console;
+
+	if((console_stdout == NULL) && (console->putchar))
+		console_stdout = console;
+
 	return TRUE;
 }
 
@@ -100,6 +106,13 @@ x_bool unregister_console(struct console * console)
 		{
 			list_del(pos);
 			free(list);
+
+			if(console_stdin == console)
+				console_stdin = NULL;
+
+			if(console_stdout == console)
+				console_stdout = NULL;
+
 			return TRUE;
 		}
 	}

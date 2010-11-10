@@ -497,14 +497,14 @@ static x_bool fbcon_refresh(struct console * console)
 /*
  * put a unicode character
  */
-x_bool fbcon_putchar(struct console * console, x_u32 c)
+x_bool fbcon_putcode(struct console * console, x_u32 code)
 {
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell;
 	x_u32 w, h;
 	x_s32 i;
 
-	switch(c)
+	switch(code)
 	{
 	case UNICODE_BS:
 		if(info->x > 0)
@@ -588,7 +588,7 @@ x_bool fbcon_putchar(struct console * console, x_u32 c)
 		break;
 
 	default:
-		if(fb_charwidth(c, &w, &h))
+		if(fb_charwidth(code, &w, &h))
 		{
 			w = (w + info->fw - 1) / info->fw;
 			h = (h + info->fh - 1) / info->fh;
@@ -600,7 +600,7 @@ x_bool fbcon_putchar(struct console * console, x_u32 c)
 		}
 
 		cell = &(info->cell[info->w * info->y + info->x]);
-		cell->cp = c;
+		cell->cp = code;
 		cell->fc = info->fc;
 		cell->bc = info->bc;
 		cell->cw = w;
@@ -752,8 +752,8 @@ x_bool register_framebuffer(struct fb * fb)
 	console->getcolor = fbcon_getcolor;
 	console->cls = fbcon_cls;
 	console->refresh = fbcon_refresh;
-	console->getchar = NULL;
-	console->putchar = fbcon_putchar;
+	console->getcode = NULL;
+	console->putcode = fbcon_putcode;
 	console->priv = info;
 
 	fbcon_cls(console);

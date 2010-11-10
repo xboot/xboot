@@ -56,14 +56,14 @@
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
 	struct console * con;
-	x_u32 c;
+	x_u32 code;
 
 	con = search_console("input");
 
 	while(1)
 	{
-		if(console_getchar(con, &c))
-			printk("0x%lx: %c\r\n", c, c);
+		if(console_getcode(con, &code))
+			printk("0x%lx: %c\r\n", code, code);
 	}
 /*
 	console_draw_vline(con, 2, 2, 10);

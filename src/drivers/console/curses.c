@@ -30,12 +30,30 @@
 #include <console/console.h>
 #include <console/curses.h>
 
+x_bool getcode(x_u32 * code)
+{
+	struct console * stdin = get_stdin();
+
+	if(stdin && stdin->getcode)
+		return stdin->getcode(stdin, code);
+	return FALSE;
+}
+
+x_bool putcode(x_u32 code)
+{
+	struct console * stdout = get_stdout();
+
+	if(stdout && stdout->putcode)
+		return stdout->putcode(stdout, code);
+	return FALSE;
+}
+
 x_bool console_draw_hline(struct console * console, x_u32 x0, x_u32 y0, x_u32 x)
 {
 	x_s32 width, height;
 	x_s32 i, l;
 
-	if(console && console->putchar)
+	if(console && console->putcode)
 	{
 		if(!console_getwh(console, &width, &height))
 			return FALSE;
@@ -53,7 +71,7 @@ x_bool console_draw_hline(struct console * console, x_u32 x0, x_u32 y0, x_u32 x)
 
 		for(i = 0; i < l; i++)
 		{
-			console->putchar(console, UNICODE_HLINE);
+			console->putcode(console, UNICODE_HLINE);
 		}
 
 		return TRUE;
@@ -67,7 +85,7 @@ x_bool console_draw_vline(struct console * console, x_u32 x0, x_u32 y0, x_u32 y)
 	x_s32 width, height;
 	x_s32 i, l;
 
-	if(console && console->putchar)
+	if(console && console->putcode)
 	{
 		if(!console_getwh(console, &width, &height))
 			return FALSE;
@@ -83,7 +101,7 @@ x_bool console_draw_vline(struct console * console, x_u32 x0, x_u32 y0, x_u32 y)
 		for(i = 0; i < l; i++)
 		{
 			console->gotoxy(console, x0, y0 + i);
-			console->putchar(console, UNICODE_VLINE);
+			console->putcode(console, UNICODE_VLINE);
 		}
 		return TRUE;
 	}
@@ -107,28 +125,28 @@ x_bool console_draw_rect(struct console * console, x_u32 x0, x_u32 y0, x_u32 x1,
 	if(x_min < width && y_min < height)
 	{
 		console->gotoxy(console, x_min, y_min);
-		console->putchar(console, UNICODE_LEFTUP);
+		console->putcode(console, UNICODE_LEFTUP);
 		console_draw_hline(console, x_min+1, y_min, x_max - x_min - 1);
 		console_draw_vline(console, x_min, y_min+1, y_max - y_min - 1);
 
 		if(x_max < width)
 		{
 			console->gotoxy(console, x_max, y_min);
-			console->putchar(console, UNICODE_RIGHTUP);
+			console->putcode(console, UNICODE_RIGHTUP);
 			console_draw_vline(console, x_max, y_min+1, y_max - y_min - 1);
 		}
 
 		if(y_max < height)
 		{
 			console->gotoxy(console, x_min, y_max);
-			console->putchar(console, UNICODE_LEFTDOWN);
+			console->putcode(console, UNICODE_LEFTDOWN);
 			console_draw_hline(console, x_min+1, y_max, x_max - x_min - 1);
 		}
 
 		if(x_max < width && y_max < height)
 		{
 			console->gotoxy(console, x_max, y_max);
-			console->putchar(console, UNICODE_RIGHTDOWN);
+			console->putcode(console, UNICODE_RIGHTDOWN);
 		}
 
 		return TRUE;

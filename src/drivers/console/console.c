@@ -73,7 +73,7 @@ x_bool register_console(struct console * console)
 		return FALSE;
 	}
 
-	if(!console->name || (!console->getchar && !console->putchar) || search_console(console->name))
+	if(!console->name || (!console->getcode && !console->putcode) || search_console(console->name))
 	{
 		free(list);
 		return FALSE;
@@ -82,10 +82,10 @@ x_bool register_console(struct console * console)
 	list->console = console;
 	list_add(&list->entry, &console_list->entry);
 
-	if((console_stdin == NULL) && (console->getchar))
+	if((console_stdin == NULL) && (console->getcode))
 		console_stdin = console;
 
-	if((console_stdout == NULL) && (console->putchar))
+	if((console_stdout == NULL) && (console->putcode))
 		console_stdout = console;
 
 	return TRUE;
@@ -138,11 +138,11 @@ x_bool set_stdinout(const char * in, const char * out)
 		return FALSE;
 
 	stdin = search_console(in);
-	if(!stdin || !stdin->getchar)
+	if(!stdin || !stdin->getcode)
 		return FALSE;
 
 	stdout = search_console(out);
-	if(!stdout || !stdout->putchar)
+	if(!stdout || !stdout->putcode)
 		return FALSE;
 
 	console_stdin = stdin;
@@ -207,17 +207,17 @@ x_bool console_refresh(struct console * console)
 	return FALSE;
 }
 
-x_bool console_getchar(struct console * console, x_u32 * c)
+x_bool console_getcode(struct console * console, x_u32 * code)
 {
-	if(console && console->getchar)
-		return console->getchar(console, c);
+	if(console && console->getcode)
+		return console->getcode(console, code);
 	return FALSE;
 }
 
-x_bool console_putchar(struct console * console, x_u32 c)
+x_bool console_putcode(struct console * console, x_u32 code)
 {
-	if(console && console->putchar)
-		return console->putchar(console, c);
+	if(console && console->putcode)
+		return console->putcode(console, code);
 	return FALSE;
 }
 
@@ -246,11 +246,11 @@ static x_s32 console_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct console_list, entry);
-		if(list->console->getchar && list->console->putchar)
+		if(list->console->getcode && list->console->putcode)
 			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((x_s8 *)list->console->name)), "", "in,out");
-		else if(list->console->getchar)
+		else if(list->console->getcode)
 			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((x_s8 *)list->console->name)), "", "in");
-		else if(list->console->putchar)
+		else if(list->console->putcode)
 			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((x_s8 *)list->console->name)), "", "out");
 	}
 

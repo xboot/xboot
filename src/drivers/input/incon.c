@@ -42,9 +42,9 @@ static void incon_keyboard_handler(enum key_code key)
 	fifo_put(input_console_fifo, (x_u8 *)&c, sizeof(x_u32));
 }
 
-static x_bool incon_getchar(struct console * console, x_u32 * c)
+static x_bool incon_getcode(struct console * console, x_u32 * code)
 {
-	if(fifo_get(input_console_fifo, (x_u8 *)c, sizeof(x_u32)) == sizeof(x_u32))
+	if(fifo_get(input_console_fifo, (x_u8 *)code, sizeof(x_u32)) == sizeof(x_u32))
 		return TRUE;
 
 	return FALSE;
@@ -60,8 +60,8 @@ static struct console input_console = {
 	.getcolor		= NULL,
 	.cls			= NULL,
 	.refresh		= NULL,
-	.getchar		= incon_getchar,
-	.putchar		= NULL,
+	.getcode		= incon_getcode,
+	.putcode		= NULL,
 	.priv			= NULL,
 };
 

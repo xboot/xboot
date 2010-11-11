@@ -30,24 +30,6 @@
 #include <console/console.h>
 #include <console/curses.h>
 
-x_bool getcode(x_u32 * code)
-{
-	struct console * stdin = get_stdin();
-
-	if(stdin && stdin->getcode)
-		return stdin->getcode(stdin, code);
-	return FALSE;
-}
-
-x_bool putcode(x_u32 code)
-{
-	struct console * stdout = get_stdout();
-
-	if(stdout && stdout->putcode)
-		return stdout->putcode(stdout, code);
-	return FALSE;
-}
-
 x_bool console_draw_hline(struct console * console, x_u32 x0, x_u32 y0, x_u32 x)
 {
 	x_s32 width, height;

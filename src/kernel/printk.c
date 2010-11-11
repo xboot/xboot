@@ -26,9 +26,11 @@
 #include <stdarg.h>
 #include <vsprintf.h>
 #include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/printk.h>
+#include <charset.h>
+#include <console/console.h>
 #include <terminal/terminal.h>
+#include <xboot/printk.h>
+
 
 extern struct hlist_head stdout_list;
 extern struct hlist_head stdin_list;
@@ -140,3 +142,89 @@ void putch(char c)
 	return;
 }
 
+
+
+
+
+//TODO spare
+
+
+
+extern void led_console_trigger_activity(void);
+
+/*
+ * put a unicode character, ucs-4 format
+ */
+x_bool putcode(x_u32 code)
+{
+	struct console * stdout = get_stdout();
+
+	if(stdout && stdout->putcode)
+	{
+		led_console_trigger_activity();
+
+		return stdout->putcode(stdout, code);
+	}
+
+	return FALSE;
+}
+
+/*
+ * put a utf-8 character, c is one byte of a utf-8 stream
+ *
+ * this function gathers bytes until a valid Unicode character is found
+ */
+void putchar_(char c)
+{
+	struct console * stdout = get_stdout();
+	static x_s32 size = 0;
+	static x_u8 buf[6];
+	x_u8 * rest;
+	x_u32 code;
+
+	if(!stdout || !stdout->putcode)
+		return;
+
+	buf[size++] = c;
+	while(utf8_to_ucs4(&code, 1, buf, size, (const x_u8 **)&rest) > 0)
+	{
+		led_console_trigger_activity();
+
+		size -= rest - buf;
+		memmove(buf, rest, size);
+		stdout->putcode(stdout, code);
+	}
+}
+
+/*
+ * printk - Format a string, using utf-8 stream
+ */
+x_s32 printk_(const char * fmt, ...)
+{
+	struct console * stdout = get_stdout();
+	va_list args;
+	x_u32 code;
+	x_s32 i;
+	x_u8 *p, *buf;
+
+	if(!stdout || !stdout->putcode)
+		return 0;
+
+	buf = malloc(CONFIG_PRINTK_BUF_SIZE);
+	if(!buf)
+		return 0;
+
+	va_start(args, fmt);
+	i = vsnprintf((x_s8 *)buf, CONFIG_PRINTK_BUF_SIZE, (x_s8 *)fmt, args);
+	va_end(args);
+
+	led_console_trigger_activity();
+
+	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const x_u8 **)&p) > 0; )
+	{
+		stdout->putcode(stdout, code);
+	}
+
+	free(buf);
+	return i;
+}

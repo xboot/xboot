@@ -8,9 +8,6 @@
 #include <string.h>
 #include <console/console.h>
 
-x_bool getcode(x_u32 * code);
-x_bool putcode(x_u32 code);
-
 
 x_bool console_draw_hline(struct console * console, x_u32 x0, x_u32 y0, x_u32 x);
 x_bool console_draw_vline(struct console * console, x_u32 x0, x_u32 y0, x_u32 y);

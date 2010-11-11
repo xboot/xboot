@@ -30,6 +30,7 @@
 #include <time/timer.h>
 #include <shell/readline.h>
 #include <terminal/terminal.h>
+#include <console/console.h>
 #include <xboot/scank.h>
 
 
@@ -108,6 +109,61 @@ x_bool getch_with_timeout(char * c, x_u32 timeout)
 		}
 
 		*c = t;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+
+
+/*
+ * get a unicode character, ucs-4 format
+ */
+x_bool getcode(x_u32 * code)
+{
+	struct console * stdin = get_stdin();
+
+	if(stdin && stdin->getcode)
+		return stdin->getcode(stdin, code);
+	return FALSE;
+}
+
+/*
+ * get a unicode character with timeout (x1ms), ucs-4 format
+ */
+x_bool getcode_with_timeout(x_u32 * code, x_u32 timeout)
+{
+	struct console * stdin = get_stdin();
+	x_u32 end;
+
+	if(!stdin || !stdin->getcode)
+		return FALSE;
+
+	if(get_system_hz() > 0)
+	{
+		end = jiffies + timeout * get_system_hz() / 1000;
+
+		while(! stdin->getcode(stdin, code))
+		{
+			if(jiffies >= end)
+				return FALSE;
+		}
+
+		return TRUE;
+	}
+	else
+	{
+		end = timeout * 100;
+
+		while(! stdin->getcode(stdin, code))
+		{
+			if(end <= 0)
+				return FALSE;
+			end--;
+		}
+
 		return TRUE;
 	}
 

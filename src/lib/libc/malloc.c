@@ -6,6 +6,7 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
+#include <macros.h>
 #include <malloc.h>
 
 /*
@@ -85,7 +86,7 @@ struct arena_header {
  * this is the minimum chunk size we will ask the kernel for; this should
  * be a multiple of the page size on all architectures.
  */
-#define MALLOC_CHUNK_MASK 	(CONFIG_MALLOC_CHUNK_SIZE - 1)
+#define MALLOC_CHUNK_MASK 	(SZ_64K - 1)
 #define ARENA_SIZE_MASK 	(~(sizeof(struct arena_header)-1))
 
 /*
@@ -305,7 +306,7 @@ void free(void * ptr)
 	ah = __free_block(ah);
 
 	/* see if it makes sense to return memory to the system */
-	if (ah->a.size >= CONFIG_MALLOC_CHUNK_SIZE && (x_s8 *)ah + ah->a.size == __current_brk)
+	if (ah->a.size >= SZ_64K && (x_s8 *)ah + ah->a.size == __current_brk)
 	{
 		remove_from_chains(ah);
 		brk(ah);

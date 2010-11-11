@@ -125,5 +125,5 @@ void run_shell_mode(void)
 
 		p = readline((const x_s8*)prompt);
 		run_cmdline(p);
-	}while(xboot_get_mode() == MODE_SHELL);
+	} while(xboot_get_mode() == MODE_SHELL);
 }

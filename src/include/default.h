@@ -4,114 +4,84 @@
 #include <configs.h>
 #include <macros.h>
 
-
-/**
+/*
  * default CONFIG_HEAP_SIZE is 8MB
  */
 #if !defined(CONFIG_HEAP_SIZE)
 #define	CONFIG_HEAP_SIZE							(SZ_8M)
 #endif
 
-/**
- * default CONFIG_MALLOC_CHUNK_SIZE is the minimum chunk size
- */
-#if !defined(CONFIG_MALLOC_CHUNK_SIZE)
-#define	CONFIG_MALLOC_CHUNK_SIZE					(SZ_64K)
-#endif
-
-/**
- * default CONFIG_PRINTK_BUF_SIZE is 4K
- */
-#if !defined(CONFIG_PRINTK_BUF_SIZE)
-#define	CONFIG_PRINTK_BUF_SIZE						(SZ_4K)
-#endif
-
-/**
+/*
  * the size of irq hash table
  */
 #if !defined(CONFIG_IRQ_HASH_SIZE)
 #define	CONFIG_IRQ_HASH_SIZE						(31)
 #endif
 
-/**
+/*
  * the size of env hash table
  */
 #if !defined(CONFIG_ENV_HASH_SIZE)
 #define	CONFIG_ENV_HASH_SIZE						(13)
 #endif
 
-/**
+/*
  * the size of clk hash table
  */
 #if !defined(CONFIG_CLK_HASH_SIZE)
 #define	CONFIG_CLK_HASH_SIZE						(1)
 #endif
 
-/**
- * the size of terminal hash table
- */
-#if !defined(CONFIG_TERMINAL_HASH_SIZE)
-#define	CONFIG_TERMINAL_HASH_SIZE					(1)
-#endif
-
-/**
- * the size of readline buffer
- */
-#if !defined(CONFIG_READLINE_BUF_SIZE)
-#define	CONFIG_READLINE_BUF_SIZE					(SZ_4K)
-#endif
-
-/**
+/*
  * the max number of command line history
  */
 #if !defined(CONFIG_MAX_NUMBER_OF_CMDLINE_HISTORY)
 #define	CONFIG_MAX_NUMBER_OF_CMDLINE_HISTORY		(20)
 #endif
 
-/**
+/*
  * the max number of vfs bio
  */
 #if !defined(CONFIG_MAX_NUMBER_OF_VFS_BIO)
 #define	CONFIG_MAX_NUMBER_OF_VFS_BIO				(SZ_4K)
 #endif
 
-
-/**
+/*
  * the max number of log
  */
 #if !defined(CONFIG_MAX_NUMBER_OF_LOG)
 #define	CONFIG_MAX_NUMBER_OF_LOG					(1024)
 #endif
 
-/**
+/*
  * default CONFIG_CMDLINE_LENGTH is 4KB
  */
 #if !defined(CONFIG_CMDLINE_LENGTH)
 #define	CONFIG_CMDLINE_LENGTH						(SZ_4K)
 #endif
 
-/**
+/*
  * default CONFIG_VARNAME_LENGTH is 256
  */
 #if !defined(CONFIG_VARNAME_LENGTH)
 #define	CONFIG_VARNAME_LENGTH						(256)
 #endif
 
-/**
+/*
  * default CONFIG_HARDWARE_RTC_NAME is "rtc"
  */
 #if !defined(CONFIG_HARDWARE_RTC_NAME)
 #define	CONFIG_HARDWARE_RTC_NAME					("rtc")
 #endif
 
-/**
+/*
  * help command
  */
 #if !defined(CONFIG_COMMAND_HELP)
 #define	CONFIG_COMMAND_HELP							(1)
 #endif
 
-/**
+/*
  * echo command
  */
 #if !defined(CONFIG_COMMAND_ECHO)
@@ -396,13 +366,6 @@
  */
 #if !defined(CONFIG_MTD_NAND_ECC_SMC)
 #define	CONFIG_MTD_NAND_ECC_SMC						(0)
-#endif
-
-/*
- * framebuffer terminal scroll up.
- */
-#if !defined(CONFIG_FB_SCROLL_UP)
-#define	CONFIG_FB_SCROLL_UP							(1)
 #endif
 
 /*

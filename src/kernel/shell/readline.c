@@ -419,30 +419,76 @@ the_end:
 }
 #endif
 
+static x_bool readline_handle(x_u32 code)
+{
+	switch(code)
+	{
+	case 0x1:	/* ctrl-a */
+		break;
+
+	case 0x2:	/* ctrl-b */
+		break;
+
+	case 0x3:	/* ctrl-c */
+		return TRUE;
+
+	case 0x4:	/* ctrl-d */
+		break;
+
+	case 0x5:	/* ctrl-e */
+		break;
+
+	case 0x6:	/* ctrl-f */
+		break;
+
+	case 0x9: 	/* ctrl-i */
+		break;
+
+	case 0xb: 	/* ctrl-k */
+		break;
+
+	case 0xe:	/* ctrl-n */
+		break;
+
+	case 0x10:	/* ctrl-p */
+		break;
+
+	case 0x12:	/* ctrl-r */
+		break;
+
+	case 0x15:	/* ctrl-u */
+		break;
+
+	case 0x19:	/* ctrl-y */
+		break;
+
+	default:
+		break;
+	}
+
+	return FALSE;
+}
+
 /*
- * read one line from input console and return it, chomping
- * trailing newline (if there is any)
+ * read one line from standard input console
  */
-x_s8 * readline(const x_s8 *prompt)
+x_s8 * readline(const x_s8 * prompt)
 {
 	x_u32 code;
 
 	if(prompt)
-		printk((char*)prompt);
-
-//	clear_rl_buf();
+		printk((char *)prompt);
 
 	for(;;)
 	{
 		if(getcode(&code))
 		{
-			//if(readline_handle(code))
-			//	break;
+			if(readline_handle(code))
+				break;
 		}
 	}
 
 	printk("\r\n");
 
-//	return rl_buf;
 	return 0;
 }

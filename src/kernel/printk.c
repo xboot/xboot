@@ -25,6 +25,7 @@
 #include <types.h>
 #include <stdarg.h>
 #include <string.h>
+#include <macros.h>
 #include <vsprintf.h>
 #include <malloc.h>
 #include <charset.h>
@@ -91,12 +92,12 @@ x_s32 printk(const char * fmt, ...)
 	if(!stdout || !stdout->putcode)
 		return 0;
 
-	buf = malloc(CONFIG_PRINTK_BUF_SIZE);
+	buf = malloc(SZ_4K);
 	if(!buf)
 		return 0;
 
 	va_start(args, fmt);
-	i = vsnprintf((x_s8 *)buf, CONFIG_PRINTK_BUF_SIZE, (x_s8 *)fmt, args);
+	i = vsnprintf((x_s8 *)buf, SZ_4K, (x_s8 *)fmt, args);
 	va_end(args);
 
 	led_console_trigger_activity();

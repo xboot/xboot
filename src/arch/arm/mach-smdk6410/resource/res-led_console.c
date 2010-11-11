@@ -1,5 +1,5 @@
 /*
- * resource/res-led_communication.c
+ * resource/res-led_console.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -29,7 +29,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <led/led.h>
-#include <led/led-trigger.h>
+#include <led/trigger.h>
 #include <xboot/resource.h>
 #include <s3c6410/reg-gpio.h>
 
@@ -58,24 +58,24 @@ static struct led led_gpn14 = {
 };
 
 /*
- * the led-communication resource.
+ * the led-console resource.
  */
-static struct resource led_communication = {
-	.name		= "led-communication",
+static struct resource led_console = {
+	.name		= "led-console",
 	.data		= &led_gpn14,
 };
 
-static __init void dev_communication_init(void)
+static __init void dev_console_init(void)
 {
-	if(!register_resource(&led_communication))
-		LOG_E("failed to register resource '%s'", led_communication.name);
+	if(!register_resource(&led_console))
+		LOG_E("failed to register resource '%s'", led_console.name);
 }
 
-static __exit void dev_communication_exit(void)
+static __exit void dev_console_exit(void)
 {
-	if(!unregister_resource(&led_communication))
-		LOG_E("failed to unregister resource '%s'", led_communication.name);
+	if(!unregister_resource(&led_console))
+		LOG_E("failed to unregister resource '%s'", led_console.name);
 }
 
-module_init(dev_communication_init, LEVEL_MACH_RES);
-module_exit(dev_communication_exit, LEVEL_MACH_RES);
+module_init(dev_console_init, LEVEL_MACH_RES);
+module_exit(dev_console_exit, LEVEL_MACH_RES);

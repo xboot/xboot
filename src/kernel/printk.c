@@ -32,7 +32,7 @@
 
 extern struct hlist_head stdout_list;
 extern struct hlist_head stdin_list;
-extern void comm_trigger_activity(void);
+extern void led_console_trigger_activity(void);
 
 /*
  * log buffer for system printk.
@@ -96,7 +96,7 @@ x_s32 printk(const char * fmt, ...)
 
 	if(get_stdout_status())
 	{
-		comm_trigger_activity();
+		led_console_trigger_activity();
 
 		i = pop_log_char(buf);
 		hlist_for_each_entry(list,  pos, &stdout_list, node)
@@ -127,7 +127,7 @@ void putch(char c)
 
 	if(get_stdout_status())
 	{
-		comm_trigger_activity();
+		led_console_trigger_activity();
 
 		i = pop_log_char(buf);
 		hlist_for_each_entry(list,  pos, &stdout_list, node)

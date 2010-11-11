@@ -1,5 +1,5 @@
 /*
- * drivers/led/trigger-comm.c
+ * drivers/led/led-console.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -30,26 +30,24 @@
 #include <xboot/resource.h>
 #include <time/tick.h>
 #include <time/timer.h>
-#include <led/led-trigger.h>
-
+#include <led/trigger.h>
 
 static x_bool valid = FALSE;
 static x_u32 activity;
 static x_u32 last_activity;
-static struct timer_list comm_trigger_timer;
+static struct timer_list console_trigger_timer;
 
-
-void comm_trigger_activity(void)
+void led_console_trigger_activity(void)
 {
 	if(valid)
 	{
 		activity++;
-		if(!timer_pending(&comm_trigger_timer))
-			mod_timer(&comm_trigger_timer, jiffies + 1);
+		if(!timer_pending(&console_trigger_timer))
+			mod_timer(&console_trigger_timer, jiffies + 1);
 	}
 }
 
-static void comm_trigger_function(x_u32 data)
+static void console_trigger_function(x_u32 data)
 {
 	struct trigger * trigger = (struct trigger *)(data);
 	struct led * led = (struct led *)(trigger->led);
@@ -58,7 +56,7 @@ static void comm_trigger_function(x_u32 data)
 	{
 		last_activity = activity;
 		led->set(LED_BRIGHTNESS_FULL);
-		mod_timer(&comm_trigger_timer, jiffies + 1);
+		mod_timer(&console_trigger_timer, jiffies + 1);
 	}
 	else
 	{
@@ -66,28 +64,28 @@ static void comm_trigger_function(x_u32 data)
 	}
 }
 
-static struct trigger comm_trigger = {
-	.name     		= "led-communication",
+static struct trigger console_trigger = {
+	.name     		= "led-console",
 	.activate 		= NULL,
 	.deactivate		= NULL,
 	.led			= NULL,
 	.priv			= NULL,
 };
 
-static __init void comm_trigger_init(void)
+static __init void console_trigger_init(void)
 {
 	struct led * led;
 
-	led = (struct led *)resource_get_data(comm_trigger.name);
+	led = (struct led *)resource_get_data(console_trigger.name);
 	if(led && led->set)
 	{
 		if(led->init)
 			(led->init)();
 
-		comm_trigger.led = led;
-		if(trigger_register(&comm_trigger))
+		console_trigger.led = led;
+		if(trigger_register(&console_trigger))
 		{
-			setup_timer(&comm_trigger_timer, comm_trigger_function, (x_u32)(&comm_trigger));
+			setup_timer(&console_trigger_timer, console_trigger_function, (x_u32)(&console_trigger));
 			valid = TRUE;
 			return;
 		}
@@ -96,10 +94,10 @@ static __init void comm_trigger_init(void)
 	valid = FALSE;
 }
 
-static __exit void comm_trigger_exit(void)
+static __exit void console_trigger_exit(void)
 {
-	trigger_unregister(&comm_trigger);
+	trigger_unregister(&console_trigger);
 }
 
-module_init(comm_trigger_init, LEVEL_DRIVER);
-module_exit(comm_trigger_exit, LEVEL_DRIVER);
+module_init(console_trigger_init, LEVEL_DRIVER);
+module_exit(console_trigger_exit, LEVEL_DRIVER);

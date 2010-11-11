@@ -35,7 +35,7 @@
 
 extern struct hlist_head stdout_list;
 extern struct hlist_head stdin_list;
-extern void comm_trigger_activity(void);
+extern void led_console_trigger_activity(void);
 
 /*
  * scank -	unformat input stream into a list of arguments
@@ -67,7 +67,7 @@ x_bool getch(char * c)
 	{
 		if(list->read(list->term, (x_u8 *)c, 1))
 		{
-			comm_trigger_activity();
+			led_console_trigger_activity();
 			return TRUE;
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * drivers/led/trigger-heartbeat.c
+ * drivers/led/led-heartbeat.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -30,8 +30,7 @@
 #include <xboot/resource.h>
 #include <time/tick.h>
 #include <time/timer.h>
-#include <led/led-trigger.h>
-
+#include <led/trigger.h>
 
 struct heartbeat_data {
 	x_u32 phase;

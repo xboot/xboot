@@ -1,5 +1,5 @@
 /*
- * drivers/led/led-trigger.c
+ * drivers/led/trigger.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -32,7 +32,7 @@
 #include <xboot/resource.h>
 #include <time/timer.h>
 #include <led/led.h>
-#include <led/led-trigger.h>
+#include <led/trigger.h>
 
 /*
  * the list of led trigger

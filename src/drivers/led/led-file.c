@@ -1,5 +1,5 @@
 /*
- * drivers/led/trigger-file.c
+ * drivers/led/led-file.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -30,16 +30,14 @@
 #include <xboot/resource.h>
 #include <time/tick.h>
 #include <time/timer.h>
-#include <led/led-trigger.h>
-
+#include <led/trigger.h>
 
 static x_bool valid = FALSE;
 static x_u32 activity;
 static x_u32 last_activity;
 static struct timer_list file_trigger_timer;
 
-
-void file_trigger_activity(void)
+void led_file_trigger_activity(void)
 {
 	if(valid)
 	{

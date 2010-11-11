@@ -29,7 +29,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <led/led.h>
-#include <led/led-trigger.h>
+#include <led/trigger.h>
 #include <xboot/resource.h>
 #include <s3c6410/reg-gpio.h>
 

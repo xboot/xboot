@@ -124,6 +124,8 @@ void run_shell_mode(void)
 		sprintf(prompt, (x_s8*)"%s: %s$ ", (x_s8*)env_get("prompt"), cwd);
 
 		p = readline((const x_s8*)prompt);
+		printk("\r\n");
+
 		run_cmdline(p);
 	} while(xboot_get_mode() == MODE_SHELL);
 }

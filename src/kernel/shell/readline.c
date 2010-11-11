@@ -29,405 +29,19 @@
 #include <charset.h>
 #include <xboot/scank.h>
 #include <xboot/printk.h>
-#include <time/timer.h>
+#include <console/console.h>
 #include <shell/history.h>
 #include <shell/readline.h>
 
-//TODO
-#if 0
-static x_s8 rl_buf[CONFIG_READLINE_BUF_SIZE];
-static x_s32 rl_len = 0;
-static x_s32 rl_pos = 0;
-
-/*
- * readline cursor left
- */
-static void rl_cursor_left(void)
-{
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-
-	if(rl_pos)
-	{
-		rl_pos--;
-		hlist_for_each_entry(list,  pos, &stdout_list, node)
-		{
-			terminal_cursor_left(list->term, 1);
-		}
-	}
-}
-
-/*
- * readline cursor right
- */
-static void rl_cursor_right(void)
-{
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-
-	if(rl_pos < rl_len)
-	{
-		rl_pos++;
-		hlist_for_each_entry(list,  pos, &stdout_list, node)
-		{
-			terminal_cursor_right(list->term, 1);
-		}
-	}
-}
-
-/*
- * move readline cursor to home
- */
-static void rl_cursor_home(void)
-{
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-
-	if(rl_pos)
-	{
-		hlist_for_each_entry(list,  pos, &stdout_list, node)
-		{
-			terminal_cursor_left(list->term, rl_pos);
-		}
-		rl_pos = 0;
-	}
-}
-
-/*
- * move readline cursor to end
- */
-static void rl_cursor_end(void)
-{
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-
-	if(rl_pos != rl_len)
-	{
-		hlist_for_each_entry(list,  pos, &stdout_list, node)
-		{
-			terminal_cursor_right(list->term, rl_len - rl_pos);
-		}
-		rl_pos = rl_len;
-	}
-}
-
-/*
- * readline insert
- */
-static void rl_insert(x_s8 c)
-{
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-	x_s32 i;
-
-	if(rl_len + 1 < CONFIG_READLINE_BUF_SIZE)
-	{
-		memmove(rl_buf + rl_pos + 1, rl_buf + rl_pos, rl_len - rl_pos + 1);
-		rl_buf[rl_pos++] = c;
-		rl_buf[++rl_len] = '\0';
-
-		for(i = rl_pos-1; i< rl_len; i++)
-		{
-			hlist_for_each_entry(list,  pos, &stdout_list, node)
-			{
-				terminal_write(list->term, (x_u8 *)(&rl_buf[i]), 1);
-			}
-		}
-
-		if(rl_pos != rl_len)
-		{
-			hlist_for_each_entry(list,  pos, &stdout_list, node)
-			{
-				terminal_cursor_left(list->term, rl_len - rl_pos);
-			}
-		}
-	}
-}
-
-/*
- * readline erase to eol
- */
-static void rl_erase_eol(void)
-{
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-	x_s32 i;
-
-	hlist_for_each_entry(list,  pos, &stdout_list, node)
-	{
-		for(i=rl_pos; i<rl_len; i++)
-			terminal_write(list->term, (x_u8 *)(" "), 1);
-		terminal_cursor_left(list->term, rl_len - rl_pos);
-	}
-
-	rl_buf[rl_pos] = '\0';
-	rl_len = rl_pos;
-}
-
-/*
- * clear readline to empty
- */
-static void rl_clear(void)
-{
-	rl_cursor_home();
-	rl_erase_eol();
-}
-
-/*
- * readline delete
- */
-static void rl_delete(void)
-{
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-	x_s32 i;
-
-	if(rl_pos < rl_len)
-	{
-		memmove(rl_buf + rl_pos, rl_buf + rl_pos + 1, rl_len - rl_pos + 1);
-		rl_len--;
-
-		for(i = rl_pos; i < rl_len; i++)
-		{
-			hlist_for_each_entry(list,  pos, &stdout_list, node)
-			{
-				terminal_write(list->term, (x_u8 *)(&rl_buf[i]), 1);
-			}
-		}
-
-		hlist_for_each_entry(list,  pos, &stdout_list, node)
-		{
-			terminal_write(list->term, (x_u8 *)(" "), 1);
-			terminal_cursor_left(list->term, rl_len-rl_pos+1);
-		}
-	}
-}
-
-/*
- * readline backspace
- */
-static void rl_backspace(void)
-{
-	if(rl_pos)
-	{
-		rl_cursor_left();
-		rl_delete();
-	}
-}
-
-/*
- * clear readline buffer
- */
-static void clear_rl_buf(void)
-{
-	rl_buf[0] = '\0';
-	rl_len = 0;
-	rl_pos = 0;
-}
-
-/*
- * copy to readline buffer
- */
-static x_s8 * copy_to_rl_buf(x_s8 * s)
-{
-	if(!s)
-		clear_rl_buf();
-	else
-	{
-		strcpy(rl_buf, s);
-		rl_len = rl_pos = strlen(s);
-	}
-	return rl_buf;
-}
-
-/*
- * handle readline
- */
-static x_bool readline_handle(x_s8 c)
-{
-	static enum readline_mode rl_mode = RL_NORMAL;
-	static x_s32 rl_param = 0;
-	x_s8 *p;
-
-	switch (rl_mode)
-	{
-	case RL_NORMAL:
-		switch (c)
-		{
-		case 1:		/* ctrl-a */
-			rl_cursor_home();
-			break;
-
-		case 2:		/* ctrl-b */
-			rl_cursor_left();
-			break;
-
-		case 3:		/* ctrl-c */
-			rl_clear();
-			return TRUE;
-
-		case 4:		/* ctrl-d */
-			rl_delete();
-			break;
-
-		case 5:		/* ctrl-e */
-			rl_cursor_end();
-			break;
-
-		case 6:		/* ctrl-f */
-			rl_cursor_right();
-			break;
-
-		case 9: 	/* ctrl-i or tab */
-			break;
-
-		case 11: 	/* ctrl-k */
-			rl_erase_eol();
-			break;
-
-		case 18:	/* ctrl-r */
-			break;
-
-		case 24:	/* ctrl-x */
-			xboot_set_mode(MODE_MENU);
-			rl_clear();
-			return TRUE;
-
-		case 27:	/* esc */
-			rl_mode = RL_ESC;
-			break;
-
-		case 8:		/* ctrl-h */
-		case 127:	/* backspace */
-			rl_backspace();
-			break;
-
-		case (x_s8)155:
-			rl_mode = RL_CSI;
-	    	break;
-
-		case '\r':	/* enter */
-		case '\n':
-		case '\0':
-			history_add(rl_buf);
-			return TRUE;
-
-		default:
-			if(isprint(c))
-				rl_insert(c);
-			break;
-		}
-		break;
-
-	case RL_ESC:
-		if(c == '[')
-		{
-			rl_mode = RL_CSI;
-        	rl_param = 0;
-		}
-        else
-        {
-        	rl_mode = RL_NORMAL;
-        }
-		break;
-
-	case RL_CSI:
-		switch (c)
-		{
-		case 'A':	/* up arrow */
-		case 'F':
-			p = history_get_prev_cmd();
-			if(p)
-			{
-				rl_clear();
-				copy_to_rl_buf(p);
-				printk((char*)rl_buf);
-			}
-			break;
-
-		case 'B':	/* down arrow */
-		case 'E':
-			rl_clear();
-			p = history_get_next_cmd();
-			copy_to_rl_buf(p);
-			printk((char*)rl_buf);
-			break;
-
-		case 'D':	/* left arrow */
-			rl_cursor_left();
-			break;
-
-		case 'C':	/* right arrow */
-			rl_cursor_right();
-			break;
-
-        case '0' ... '9':
-        	rl_param = rl_param * 10 + (c - '0');
-        	goto the_end;
-
-        case '~':
-        	switch (rl_param)
-        	{
-        	case 1:
-        		rl_cursor_home();
-        		break;
-
-        	case 2:		/* insert */
-        		break;
-
-        	case 3:		/* delete */
-        		rl_delete();
-        		break;
-
-        	case 4:
-        		rl_cursor_end();
-        		break;
-
-        	case 5:		/* page up */
-    			p = history_get_prev_cmd();
-    			if(p)
-    			{
-    				rl_clear();
-    				copy_to_rl_buf(p);
-    				printk((char*)rl_buf);
-    			}
-        		break;
-
-        	case 6:		/* page down */
-    			rl_clear();
-    			p = history_get_next_cmd();
-    			copy_to_rl_buf(p);
-    			printk((char*)rl_buf);
-        		break;
-
-        	default:
-        		break;
-        	}
-
-        default:
-        	break;
-		}
-		rl_mode = RL_NORMAL;
-the_end:
-		break;
-
-	default:
-		break;
-	}
-
-	return FALSE;
-}
-#endif
-
-
-
-
-
 struct rl_buf {
 	x_u32 * buf;
+	x_u32 * cut;
 	x_s32 size;
 	x_s32 len;
 	x_s32 pos;
+
+	x_s32 x, y;
+	x_s32 w, h;
 };
 
 static x_s32 ucs4_strlen(const x_u32 * s)
@@ -438,11 +52,52 @@ static x_s32 ucs4_strlen(const x_u32 * s)
 	return sc - s;
 }
 
+static void rl_gotoxy(struct rl_buf * rl)
+{
+	x_s32 x, y;
+
+	x = ((rl->y * rl->w) + rl->x + rl->pos) % (rl->w);
+	y = ((rl->y * rl->w) + rl->x + rl->pos) / (rl->w);
+
+	console_gotoxy(get_stdout(), x, y);
+}
+
+static void rl_space(struct rl_buf * rl, x_u32 len)
+{
+	x_s32 i;
+
+	for(i = 0; i < len; i++)
+		putch(' ');
+}
+
+static void rl_print(struct rl_buf * rl, x_s32 pos)
+{
+	x_u8 * utf8;
+
+	if(pos < 0)
+		return;
+
+	if(pos > rl->len)
+		return;
+
+	utf8 = ucs4_to_utf8_alloc(rl->buf + pos, rl->len - pos);
+	printk((const char *)utf8);
+
+	free(utf8);
+}
+
 static struct rl_buf * rl_buf_alloc(x_s32 size)
 {
 	struct rl_buf * rl;
+	x_s32 x, y, w, h;
 
 	if(size <= 0)
+		return NULL;
+
+	if(!console_getxy(get_stdout(), &x, &y))
+		return NULL;
+
+	if(!console_getwh(get_stdout(), &w, &h))
 		return NULL;
 
 	rl = malloc(sizeof(struct rl_buf));
@@ -450,8 +105,15 @@ static struct rl_buf * rl_buf_alloc(x_s32 size)
 		return NULL;
 
 	rl->size = size;
-	rl->pos = 0;
 	rl->len = 0;
+	rl->pos = 0;
+	rl->cut = NULL;
+
+	rl->x = x;
+	rl->y = y;
+	rl->w = w;
+	rl->h = h;
+
 	rl->buf = malloc(sizeof(x_u32) * rl->size);
 	if(!rl->buf)
 	{
@@ -464,22 +126,47 @@ static struct rl_buf * rl_buf_alloc(x_s32 size)
 
 static void rl_buf_free(struct rl_buf * rl)
 {
+	if(rl->cut)
+		free(rl->cut);
+
 	free(rl->buf);
 	free(rl);
 }
 
-static void rl_set_pos(struct rl_buf * rl)
+static void rl_cursor_home(struct rl_buf * rl)
 {
-
+	if(rl->pos != 0)
+	{
+		rl->pos = 0;
+		rl_gotoxy(rl);
+	}
 }
 
-static void rl_print(struct rl_buf * rl, x_s32 pos)
+static void rl_cursor_end(struct rl_buf * rl)
 {
-	x_u8 * utf8;
+	if(rl->pos != rl->len)
+	{
+		rl->pos = rl->len;
+		rl_gotoxy(rl);
+	}
+}
 
-	utf8 = ucs4_to_utf8_alloc(rl->buf + pos, rl->len - rl->pos);
-	printk((const char *)utf8);
-	free(utf8);
+static void rl_cursor_left(struct rl_buf * rl)
+{
+	if(rl->pos > 0)
+	{
+		rl->pos = rl->pos - 1;
+		rl_gotoxy(rl);
+	}
+}
+
+static void rl_cursor_right(struct rl_buf * rl)
+{
+	if(rl->pos < rl->len)
+	{
+		rl->pos = rl->pos + 1;
+		rl_gotoxy(rl);
+	}
 }
 
 static void rl_insert(struct rl_buf * rl, x_u32 * str)
@@ -502,60 +189,147 @@ static void rl_insert(struct rl_buf * rl, x_u32 * str)
 		memmove (rl->buf + rl->pos, str, len * sizeof(x_u32));
 
 		rl->len = rl->len + len;
-		rl_set_pos(rl);
 		rl_print(rl, rl->pos);
 		rl->pos = rl->pos + len;
-		rl_set_pos(rl);
+		rl_gotoxy(rl);
+	}
+}
+
+static void rl_delete(struct rl_buf * rl, x_u32 len)
+{
+	if(len > rl->len - rl->pos)
+		len = rl->len - rl->pos;
+
+	if(rl->pos + len <= rl->len)
+	{
+		if(rl->cut)
+			free(rl->cut);
+
+		rl->cut = malloc((rl->len - rl->pos + 1) * sizeof(x_u32));
+		if(rl->cut)
+		{
+			memcpy(rl->cut, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(x_u32));
+			rl->cut[rl->len - rl->pos] = '\0';
+		}
+
+		memmove(rl->buf + rl->pos, rl->buf + rl->pos + len, sizeof(x_u32) * (rl->len - rl->pos + 1));
+		rl->len = rl->len - len;
+		rl_print(rl, rl->pos);
+		rl_space(rl, len);
+		rl_gotoxy(rl);
 	}
 }
 
 static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
 {
     x_u32 tmp[2];
+    x_u32 n;
 
 	switch(code)
 	{
-	case 0x1:	/* ctrl-a */
+	case 0x0:	/* null */
 		break;
 
-	case 0x2:	/* ctrl-b */
+	case 0x1:	/* ctrl-a: to the start of the line */
+		rl_cursor_home(rl);
 		break;
 
-	case 0x3:	/* ctrl-c */
+	case 0x2:	/* ctrl-b: to the left */
+		rl_cursor_left(rl);
+		break;
+
+	case 0x3:	/* ctrl-c: break the readline */
+		rl_cursor_home(rl);
+		rl_delete(rl, rl->len);
 		return TRUE;
 
-	case 0x4:	/* ctrl-d */
+	case 0x4:	/* ctrl-d: delete the character underneath the cursor */
+		if(rl->pos < rl->len)
+			rl_delete(rl, 1);
 		break;
 
-	case 0x5:	/* ctrl-e */
+	case 0x5:	/* ctrl-e: to the end of the line */
+		rl_cursor_end(rl);
 		break;
 
-	case 0x6:	/* ctrl-f */
+	case 0x6:	/* ctrl-f: to the right */
+		rl_cursor_right(rl);
 		break;
 
-	case 0x9: 	/* ctrl-i */
+	case 0x7:	/* ctrl-g */
 		break;
 
-	case 0xb: 	/* ctrl-k */
+	case 0x8:	/* ctrl-h: backspace */
+		if(rl->pos > 0)
+		{
+			rl_cursor_left(rl);
+			rl_delete(rl, 1);
+		}
 		break;
 
-	case 0xe:	/* ctrl-n */
+	case 0x9: 	/* ctrl-i: tab */
 		break;
 
-	case 0x10:	/* ctrl-p */
+	case 0xa:	/* ctrl-j */
+		return TRUE;
+
+	case 0xb: 	/* ctrl-k: delete everything from the cursor to the end of the line */
+		if(rl->pos < rl->len)
+			rl_delete(rl, rl->len - rl->pos);
+		break;
+
+	case 0xc: 	/* ctrl-l */
+		break;
+
+	case 0xd: 	/* ctrl-m */
+		return TRUE;
+
+	case 0xe:	/* ctrl-n: the next history */
+		break;
+
+	case 0xf: 	/* ctrl-o */
+		break;
+
+	case 0x10:	/* ctrl-p: the previous history */
+		break;
+
+	case 0x11: 	/* ctrl-q */
 		break;
 
 	case 0x12:	/* ctrl-r */
 		break;
 
-	case 0x15:	/* ctrl-u */
+	case 0x13: 	/* ctrl-s */
 		break;
 
-	case 0x19:	/* ctrl-y */
+	case 0x14: 	/* ctrl-t */
 		break;
 
-	case 0x0086:
-		return TRUE;
+	case 0x15: 	/* ctrl-u: delete everything from the cursor back to the line start */
+		if(rl->pos > 0)
+		{
+			n = rl->pos;
+			rl_cursor_home(rl);
+			rl_delete(rl, n);
+		}
+		break;
+
+	case 0x16:	/* ctrl-v */
+		break;
+
+	case 0x17: 	/* ctrl-w */
+		break;
+
+	case 0x18: 	/* ctrl-x */
+		break;
+
+	case 0x19:	/* ctrl-y: paste the killed text at the cursor position */
+		if(rl->cut)
+			rl_insert(rl, rl->cut);
+		break;
+
+	case 0x1a: 	/* ctrl-z */
+		break;
 
 	default:
 	      tmp[0] = code;
@@ -568,20 +342,20 @@ static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
 }
 
 /*
- * read one line from standard input console
+ * read line with utf-8 stream
  */
 x_s8 * readline(const x_s8 * prompt)
 {
 	struct rl_buf * rl;
-	x_s8 * utf8;
+	x_s8 * utf8 = NULL;
 	x_u32 code;
 
 	if(prompt)
 		printk((char *)prompt);
 
-	rl = rl_buf_alloc(512);
+	rl = rl_buf_alloc(256);
 	if(!rl)
-		return NULL;
+		return utf8;
 
 	for(;;)
 	{
@@ -592,10 +366,9 @@ x_s8 * readline(const x_s8 * prompt)
 		}
 	}
 
-	printk("\r\n");
+	if(rl->len > 0)
+		utf8 = (x_s8 *)(ucs4_to_utf8_alloc(rl->buf, rl->len));
 
-	utf8 = (x_s8 *)(ucs4_to_utf8_alloc(rl->buf, rl->len));
 	rl_buf_free(rl);
-
 	return utf8;
 }

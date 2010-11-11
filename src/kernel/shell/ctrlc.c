@@ -28,17 +28,16 @@
 #include <xboot/scank.h>
 #include <shell/ctrlc.h>
 
-
 /*
  * check ctrl-c
  */
 x_bool ctrlc(void)
 {
-	char c;
+	x_u32 code;
 
-	if(getch(&c))
+	if(getcode(&code))
 	{
-		if(c == 3)		/* ctrl-c */
+		if(code == 3)
 			return TRUE;
 	}
 

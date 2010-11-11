@@ -39,6 +39,8 @@
 #include <shell/readline.h>
 #include <shell/command.h>
 
+//TODO
+#if 0
 #if	defined(CONFIG_COMMAND_TETRIS) && (CONFIG_COMMAND_TETRIS > 0)
 
 extern struct hlist_head stdout_list;
@@ -526,4 +528,5 @@ static __exit void tetris_cmd_exit(void)
 module_init(tetris_cmd_init, LEVEL_COMMAND);
 module_exit(tetris_cmd_exit, LEVEL_COMMAND);
 
+#endif
 #endif

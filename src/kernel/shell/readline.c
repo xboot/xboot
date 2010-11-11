@@ -428,18 +428,21 @@ the_end:
  */
 x_s8 * readline(const x_s8 *prompt)
 {
-	char c;
+	x_u32 code;
 
 	if(prompt)
+	{
 		printk((char*)prompt);
+		refresh();
+	}
 
 	clear_rl_buf();
 
 	for(;;)
 	{
-		if(getch(&c))
+		if(getcode(&code))
 		{
-			if(readline_handle(c))
+			if(readline_handle(code))
 				break;
 		}
 	}

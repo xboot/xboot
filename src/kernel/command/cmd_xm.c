@@ -37,7 +37,8 @@
 #include <shell/command.h>
 #include <fs/fsapi.h>
 
-
+//TODO
+#if 0
 #if	defined(CONFIG_COMMAND_XMODEM) && (CONFIG_COMMAND_XMODEM > 0)
 
 #define SOH				0x01	/* start of header */
@@ -493,4 +494,5 @@ static __exit void xmodem_cmd_exit(void)
 module_init(xmodem_cmd_init, LEVEL_COMMAND);
 module_exit(xmodem_cmd_exit, LEVEL_COMMAND);
 
+#endif
 #endif

@@ -46,7 +46,8 @@
 #include <shell/shell.h>
 #include <shell/menu.h>
 
-
+//TODO
+#if 0
 extern struct hlist_head stdout_list;
 extern struct hlist_head stdin_list;
 
@@ -469,3 +470,5 @@ void run_normal_mode(void)
 
 	set_stdout_status(TRUE);
 }
+#endif
+

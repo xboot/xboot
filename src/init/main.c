@@ -64,7 +64,9 @@ int xboot_main(int argc, char *argv[])
 		 */
 		if(xboot_get_mode() == MODE_NORMAL)
 		{
-			run_normal_mode();
+			//run_normal_mode();
+			//TODO
+			run_shell_mode();
 		}
 
 		/*
@@ -75,7 +77,9 @@ int xboot_main(int argc, char *argv[])
 		 */
 		else if(xboot_get_mode() == MODE_MENU)
 		{
-			run_menu_mode();
+			//run_menu_mode();
+			//TODO
+			run_shell_mode();
 		}
 
 		/*

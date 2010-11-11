@@ -29,94 +29,8 @@
 #include <time/tick.h>
 #include <time/timer.h>
 #include <shell/readline.h>
-#include <terminal/terminal.h>
 #include <console/console.h>
 #include <xboot/scank.h>
-
-
-extern struct hlist_head stdout_list;
-extern struct hlist_head stdin_list;
-extern void led_console_trigger_activity(void);
-
-/*
- * scank -	unformat input stream into a list of arguments
- * @fmt:	formatting of buffer
- * @...:	resulting arguments
- */
-x_s32 scank(const char * fmt, ...)
-{
-	va_list args;
-	x_s32 i;
-
-	va_start(args,fmt);
-	i = vsscanf(readline(0), (x_s8 *)fmt, args);
-	va_end(args);
-
-	return i;
-}
-
-/*
- * getch - 	get a char from input stream
- * c:		the point of character
- */
-x_bool getch(char * c)
-{
-	struct terminal_stdin_list * list;
-	struct hlist_node * pos;
-
-	hlist_for_each_entry(list,  pos, &stdin_list, node)
-	{
-		if(list->read(list->term, (x_u8 *)c, 1))
-		{
-			led_console_trigger_activity();
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-/*
- * get a char from input stream and with timeout (x1ms).
- */
-x_bool getch_with_timeout(char * c, x_u32 timeout)
-{
-	char t;
-	x_u32 end;
-
-	if(get_system_hz() > 0)
-	{
-		end = jiffies + timeout * get_system_hz() / 1000;
-
-		while(!getch(&t))
-		{
-			if(jiffies >= end)
-				return FALSE;
-		}
-
-		*c = t;
-		return TRUE;
-	}
-	else
-	{
-		end = timeout * 100;
-
-		while(!getch(&t))
-		{
-			if(end == 0)
-				return FALSE;
-			end--;
-		}
-
-		*c = t;
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-
-
 
 /*
  * get a unicode character, ucs-4 format
@@ -168,4 +82,20 @@ x_bool getcode_with_timeout(x_u32 * code, x_u32 timeout)
 	}
 
 	return FALSE;
+}
+
+/*
+ * scank - unformat input utf-8 stream into a list of arguments
+ */
+x_s32 scank(const char * fmt, ...)
+{
+	va_list args;
+	x_s32 i;
+
+	va_start(args,fmt);
+//TODO
+//	i = vsscanf(readline(0), (x_s8 *)fmt, args);
+	va_end(args);
+
+	return i;
 }

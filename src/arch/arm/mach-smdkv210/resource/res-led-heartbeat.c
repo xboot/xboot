@@ -1,5 +1,5 @@
 /*
- * resource/res-led_heartbeat.c
+ * resource/res-led-heartbeat.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

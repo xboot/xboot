@@ -1,5 +1,5 @@
 /*
- * resource/res-led_console.c
+ * resource/res-led-console.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
@@ -34,7 +34,7 @@
 #include <s3c6410/reg-gpio.h>
 
 /*
- * led trigger for communication using gpn14.
+ * led trigger for console using gpn14.
  */
 static void led_gpn14_init(void)
 {

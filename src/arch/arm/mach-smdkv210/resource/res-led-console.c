@@ -1,5 +1,5 @@
 /*
- * resource/res-led_console.c
+ * resource/res-led-console.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

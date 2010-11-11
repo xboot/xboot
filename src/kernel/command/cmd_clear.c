@@ -29,26 +29,15 @@
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <terminal/terminal.h>
-#include <terminal/curses.h>
+#include <console/console.h>
 #include <shell/command.h>
 
 
 #if	defined(CONFIG_COMMAND_CLEAR) && (CONFIG_COMMAND_CLEAR > 0)
 
-extern struct hlist_head stdout_list;
-extern struct hlist_head stdin_list;
-
 static x_s32 clear(x_s32 argc, const x_s8 **argv)
 {
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-
-	hlist_for_each_entry(list,  pos, &stdout_list, node)
-	{
-		terminal_clear_screen(list->term);
-		terminal_cursor_home(list->term);
-	}
+	console_cls(get_stdout());
 
 	return 0;
 }

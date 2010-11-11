@@ -59,7 +59,6 @@ static struct console input_console = {
 	.setcolor		= NULL,
 	.getcolor		= NULL,
 	.cls			= NULL,
-	.refresh		= NULL,
 	.getcode		= incon_getcode,
 	.putcode		= NULL,
 	.priv			= NULL,

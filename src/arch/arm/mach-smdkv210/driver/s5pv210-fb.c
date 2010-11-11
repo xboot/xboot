@@ -1,7 +1,7 @@
 /*
  * driver/s5pv210-fb.c
  *
- * s3c2410 framebuffer drivers.
+ * s5pv210 framebuffer drivers.
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

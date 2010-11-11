@@ -36,17 +36,11 @@ struct machine {
 		/* default running mode */
 		const enum mode mode;
 
-		/* stdin console */
-		struct stdin * stdin;
-
-		/* stdout console */
-		struct stdout * stdout;
-
 		/* stdin console name */
-		const char * in;
+		const char * stdin;
 
 		/* stdout console name */
-		const char * out;
+		const char * stdout;
 
 		/* system menu item */
 		struct menu_item * menu;

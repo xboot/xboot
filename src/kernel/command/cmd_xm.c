@@ -37,8 +37,7 @@
 #include <shell/command.h>
 #include <fs/fsapi.h>
 
-//TODO
-#if 0
+
 #if	defined(CONFIG_COMMAND_XMODEM) && (CONFIG_COMMAND_XMODEM > 0)
 
 #define SOH				0x01	/* start of header */
@@ -90,8 +89,8 @@ static inline x_bool check_packet(x_s32 crc_flag, x_u8 * buf, x_s32 size)
 
 static void flush_input(void)
 {
-	char c;
-	while(getch_with_timeout(&c, XMODEM_TIMEOUT*3/2));
+	x_u32 c;
+	while(getcode_with_timeout(&c, XMODEM_TIMEOUT*3/2));
 }
 
 static x_bool xmodem_receive(const char * filename, x_s32 * size)
@@ -103,7 +102,7 @@ static x_bool xmodem_receive(const char * filename, x_s32 * size)
 	x_s32 i, retry, retrans = XMODEM_RETRY;
 	x_s32 crc_flag = 0;
 	x_u8 trychar = CRC;
-	char c;
+	x_u32 c;
 
 	if(!filename || !size)
 		return FALSE;
@@ -130,7 +129,7 @@ static x_bool xmodem_receive(const char * filename, x_s32 * size)
 			if(trychar)
 				putch(trychar);
 
-			if( getch_with_timeout(&c, XMODEM_TIMEOUT<<1) )
+			if( getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) )
 			{
 				switch(c)
 				{
@@ -150,7 +149,7 @@ static x_bool xmodem_receive(const char * filename, x_s32 * size)
 					return TRUE;
 
 				case CAN:
-					if(getch_with_timeout(&c, XMODEM_TIMEOUT) && (c==CAN))
+					if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c==CAN))
 					{
 						flush_input();
 						putch(ACK);
@@ -191,7 +190,7 @@ start_recv:
 		*p++ = c;
 		for(i = 0; i < (packet_size + (crc_flag ? 1 : 0) + 3); ++i)
 		{
-			if(!getch_with_timeout(&c, XMODEM_TIMEOUT))
+			if(!getcode_with_timeout(&c, XMODEM_TIMEOUT))
 				goto reject;
 			*p++ = c;
 		}
@@ -240,7 +239,7 @@ static x_bool xmodem_transmit(const char * filename, x_s32 * size)
 	x_s32 count;
 	x_s32 i, retry;
 	x_s32 crc_flag = -1;
-	char c;
+	x_u32 c;
 
 	if(!filename || !size)
 		return FALSE;
@@ -268,7 +267,7 @@ static x_bool xmodem_transmit(const char * filename, x_s32 * size)
 	{
 		for(retry = 0; retry < 16; retry++)
 		{
-			if(getch_with_timeout(&c, XMODEM_TIMEOUT<<1))
+			if(getcode_with_timeout(&c, XMODEM_TIMEOUT<<1))
 			{
 				switch(c)
 				{
@@ -281,7 +280,7 @@ static x_bool xmodem_transmit(const char * filename, x_s32 * size)
 					goto start_trans;
 
 				case CAN:
-					if(getch_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
+					if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
 					{
 						putch(ACK);
 						flush_input();
@@ -345,7 +344,7 @@ start_trans:
 						putch(packet_buf[i]);
 					}
 
-					if(getch_with_timeout(&c, XMODEM_TIMEOUT))
+					if(getcode_with_timeout(&c, XMODEM_TIMEOUT))
 					{
 						switch(c)
 						{
@@ -355,7 +354,7 @@ start_trans:
 							goto start_trans;
 
 						case CAN:
-							if(getch_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
+							if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
 							{
 								putch(ACK);
 								flush_input();
@@ -390,7 +389,7 @@ start_trans:
 				for(retry = 0; retry < 10; ++retry)
 				{
 					putch(EOT);
-					if(getch_with_timeout(&c, XMODEM_TIMEOUT<<1) && (c == ACK))
+					if(getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) && (c == ACK))
 						break;
 				}
 
@@ -494,5 +493,4 @@ static __exit void xmodem_cmd_exit(void)
 module_init(xmodem_cmd_init, LEVEL_COMMAND);
 module_exit(xmodem_cmd_exit, LEVEL_COMMAND);
 
-#endif
 #endif

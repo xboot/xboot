@@ -35,7 +35,6 @@
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
 #include <xboot/resource.h>
-#include <terminal/terminal.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <input/input.h>

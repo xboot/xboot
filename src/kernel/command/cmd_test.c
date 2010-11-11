@@ -42,8 +42,6 @@
 #include <input/keyboard/keyboard.h>
 #include <console/console.h>
 #include <console/curses.h>
-#include <terminal/terminal.h>
-#include <terminal/curses.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fsapi.h>
 #include <gui/color.h>

@@ -30,24 +30,13 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/command.h>
-#include <terminal/terminal.h>
 
 
 #if	defined(CONFIG_COMMAND_VERSION) && (CONFIG_COMMAND_VERSION > 0)
 
-extern struct hlist_head stdout_list;
-extern struct hlist_head stdin_list;
-
 static x_s32 version(x_s32 argc, const x_s8 **argv)
 {
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
-
-	/* print xboot's banner */
-	hlist_for_each_entry(list,  pos, &stdout_list, node)
-	{
-		xboot_banner(list->term);
-	}
+	xboot_banner();
 
 	return 0;
 }

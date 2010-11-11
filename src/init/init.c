@@ -36,7 +36,6 @@
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <console/console.h>
-#include <terminal/terminal.h>
 #include <shell/env.h>
 #include <fs/fsapi.h>
 #include <init.h>
@@ -89,8 +88,6 @@ void do_system_rootfs(void)
 void do_system_cfg(void)
 {
 	struct machine * mach = get_machine();
-	struct stdin * stdin;
-	struct stdout * stdout;
 
 	LOG_I("load system configure");
 
@@ -100,33 +97,9 @@ void do_system_cfg(void)
 	/* set stdin and stdout console */
 	if(mach)
 	{
-		if(mach->cfg.in && mach->cfg.out)
+		if(mach->cfg.stdin && mach->cfg.stdout)
 		{
-			set_stdinout(mach->cfg.in, mach->cfg.out);
-		}
-	}
-
-	/* add stdin and stdout terminal */
-	if(mach)
-	{
-		if(mach->cfg.stdin)
-		{
-			stdin = mach->cfg.stdin;
-			while(stdin->name)
-			{
-				add_terminal_stdin(stdin->name);
-				stdin++;
-			}
-		}
-
-		if(mach->cfg.stdout)
-		{
-			stdout = mach->cfg.stdout;
-			while(stdout->name)
-			{
-				add_terminal_stdout(stdout->name);
-				stdout++;
-			}
+			set_stdinout(mach->cfg.stdin, mach->cfg.stdout);
 		}
 	}
 }

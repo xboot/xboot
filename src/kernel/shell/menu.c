@@ -35,8 +35,6 @@
 #include <xboot/scank.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
-#include <terminal/curses.h>
-#include <terminal/terminal.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <shell/command.h>

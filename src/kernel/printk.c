@@ -41,7 +41,11 @@ x_bool putcode(x_u32 code)
 	struct console * stdout = get_stdout();
 
 	if(stdout && stdout->putcode)
+	{
+		led_console_trigger_activity();
+
 		return stdout->putcode(stdout, code);
+	}
 
 	return FALSE;
 }
@@ -65,6 +69,8 @@ void putch(char c)
 	buf[size++] = c;
 	while(utf8_to_ucs4(&code, 1, buf, size, (const x_u8 **)&rest) > 0)
 	{
+		led_console_trigger_activity();
+
 		size -= rest - buf;
 		memmove(buf, rest, size);
 		stdout->putcode(stdout, code);
@@ -93,6 +99,8 @@ x_s32 printk(const char * fmt, ...)
 	i = vsnprintf((x_s8 *)buf, CONFIG_PRINTK_BUF_SIZE, (x_s8 *)fmt, args);
 	va_end(args);
 
+	led_console_trigger_activity();
+
 	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const x_u8 **)&p) > 0; )
 	{
 		stdout->putcode(stdout, code);
@@ -100,18 +108,4 @@ x_s32 printk(const char * fmt, ...)
 
 	free(buf);
 	return i;
-}
-
-/*
- * refresh the stdout console
- */
-void refresh(void)
-{
-	struct console * stdout = get_stdout();
-
-	if(stdout && stdout->refresh)
-	{
-		led_console_trigger_activity();
-		stdout->refresh(stdout);
-	}
 }

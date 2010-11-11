@@ -30,8 +30,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/command.h>
-#include <terminal/curses.h>
-#include <terminal/terminal.h>
+#include <console/console.h>
 #include <fs/fsapi.h>
 
 
@@ -182,8 +181,7 @@ static x_s32 ls(x_s32 argc, const x_s8 **argv)
 	if( (v = malloc(sizeof(x_s8 *) * argc)) == NULL)
 		return -1;
 
-	/* get best width and height of stdout terminal */
-	if(!stdout_terminal_getwh(&width, &height))
+	if(!console_getwh(get_stdout(), &width, &height))
 		return -1;
 
 	for(i=1; i<argc; i++)

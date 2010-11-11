@@ -227,6 +227,72 @@ static x_bool console_color_to_rgba(enum console_color c, x_u8 * r, x_u8 * g, x_
 }
 
 /*
+ * update the screen
+ */
+static x_bool fbcon_refresh(struct console * console)
+{
+	struct fb_console_info * info = console->priv;
+	struct fbcon_cell * cell = &(info->cell[0]);
+	x_u32 x, y;
+	x_s32 i, pos;
+
+	if(info->cursor)
+	{
+		pos = info->w * info->y + info->x;
+
+		for(i = 0; i < pos; i++)
+		{
+			if(cell->dirty)
+			{
+				x = (i % info->w) * info->fw;
+				y = (i / info->w) * info->fh;
+				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
+				cell->dirty = FALSE;
+			}
+			cell++;
+		}
+
+		if(cell->dirty)
+		{
+			x = (pos % info->w) * info->fw;
+			y = (pos / info->w) * info->fh;
+			fb_putchar(info->fb, cell->cp, info->black, info->white, x, y);
+			cell->dirty = FALSE;
+		}
+		i++;
+		cell++;
+
+		for(; i < info->clen; i++)
+		{
+			if(cell->dirty)
+			{
+				x = (i % info->w) * info->fw;
+				y = (i / info->w) * info->fh;
+				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
+				cell->dirty = FALSE;
+			}
+			cell++;
+		}
+	}
+	else
+	{
+		for(i = 0; i < info->clen; i++)
+		{
+			if(cell->dirty)
+			{
+				x = (i % info->w) * info->fw;
+				y = (i / info->w) * info->fh;
+				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
+				cell->dirty = FALSE;
+			}
+			cell++;
+		}
+	}
+
+	return TRUE;
+}
+
+/*
  * get console's width and height
  */
 static x_bool fbcon_getwh(struct console * console, x_s32 * w, x_s32 * h)
@@ -284,6 +350,8 @@ static x_bool fbcon_gotoxy(struct console * console, x_s32 x, x_s32 y)
 	info->x = x;
 	info->y = y;
 
+	fbcon_refresh(console);
+
 	return TRUE;
 }
 
@@ -296,6 +364,8 @@ static x_bool fbcon_setcursor(struct console * console, x_bool on)
 
 	info->cursor = on;
 	info->cell[info->w * info->y + info->x].dirty = TRUE;
+
+	fbcon_refresh(console);
 
 	return TRUE;
 }
@@ -369,6 +439,8 @@ static x_bool fbcon_cls(struct console * console)
 	info->x = 0;
 	info->y = 0;
 
+	fbcon_refresh(console);
+
 	return TRUE;
 }
 
@@ -424,72 +496,7 @@ static x_bool fbcon_scrollup(struct console * console)
 	}
 
 	fbcon_gotoxy(console, info->x, info->y - 1);
-
-	return TRUE;
-}
-
-/*
- * update the screen
- */
-static x_bool fbcon_refresh(struct console * console)
-{
-	struct fb_console_info * info = console->priv;
-	struct fbcon_cell * cell = &(info->cell[0]);
-	x_u32 x, y;
-	x_s32 i, pos;
-
-	if(info->cursor)
-	{
-		pos = info->w * info->y + info->x;
-
-		for(i = 0; i < pos; i++)
-		{
-			if(cell->dirty)
-			{
-				x = (i % info->w) * info->fw;
-				y = (i / info->w) * info->fh;
-				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
-				cell->dirty = FALSE;
-			}
-			cell++;
-		}
-
-		if(cell->dirty)
-		{
-			x = (pos % info->w) * info->fw;
-			y = (pos / info->w) * info->fh;
-			fb_putchar(info->fb, cell->cp, info->black, info->white, x, y);
-			cell->dirty = FALSE;
-		}
-		i++;
-		cell++;
-
-		for(; i < info->clen; i++)
-		{
-			if(cell->dirty)
-			{
-				x = (i % info->w) * info->fw;
-				y = (i / info->w) * info->fh;
-				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
-				cell->dirty = FALSE;
-			}
-			cell++;
-		}
-	}
-	else
-	{
-		for(i = 0; i < info->clen; i++)
-		{
-			if(cell->dirty)
-			{
-				x = (i % info->w) * info->fw;
-				y = (i / info->w) * info->fh;
-				fb_putchar(info->fb, cell->cp, cell->fc, cell->bc, x, y);
-				cell->dirty = FALSE;
-			}
-			cell++;
-		}
-	}
+	fbcon_refresh(console);
 
 	return TRUE;
 }
@@ -623,6 +630,8 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 		break;
 	}
 
+	fbcon_refresh(console);
+
 	return TRUE;
 }
 
@@ -751,12 +760,9 @@ x_bool register_framebuffer(struct fb * fb)
 	console->setcolor = fbcon_setcolor;
 	console->getcolor = fbcon_getcolor;
 	console->cls = fbcon_cls;
-	console->refresh = fbcon_refresh;
 	console->getcode = NULL;
 	console->putcode = fbcon_putcode;
 	console->priv = info;
-
-	fbcon_cls(console);
 
 	if(!register_console(console))
 	{

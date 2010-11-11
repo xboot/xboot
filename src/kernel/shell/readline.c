@@ -31,14 +31,10 @@
 #include <xboot/printk.h>
 #include <time/timer.h>
 #include <shell/history.h>
-#include <terminal/curses.h>
-#include <terminal/terminal.h>
 #include <shell/readline.h>
 
-
-extern struct hlist_head stdout_list;
-extern struct hlist_head stdin_list;
-
+//TODO
+#if 0
 static x_s8 rl_buf[CONFIG_READLINE_BUF_SIZE];
 static x_s32 rl_len = 0;
 static x_s32 rl_pos = 0;
@@ -421,6 +417,7 @@ the_end:
 
 	return FALSE;
 }
+#endif
 
 /*
  * read one line from input console and return it, chomping
@@ -431,23 +428,21 @@ x_s8 * readline(const x_s8 *prompt)
 	x_u32 code;
 
 	if(prompt)
-	{
 		printk((char*)prompt);
-		refresh();
-	}
 
-	clear_rl_buf();
+//	clear_rl_buf();
 
 	for(;;)
 	{
 		if(getcode(&code))
 		{
-			if(readline_handle(code))
-				break;
+			//if(readline_handle(code))
+			//	break;
 		}
 	}
 
 	printk("\r\n");
 
-	return rl_buf;
+//	return rl_buf;
+	return 0;
 }

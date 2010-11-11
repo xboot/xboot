@@ -6,7 +6,6 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <terminal/terminal.h>
 
 /**
  * the baud rate.

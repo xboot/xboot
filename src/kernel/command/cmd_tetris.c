@@ -34,8 +34,6 @@
 #include <xboot/printk.h>
 #include <xboot/scank.h>
 #include <xboot/initcall.h>
-#include <terminal/terminal.h>
-#include <terminal/curses.h>
 #include <shell/readline.h>
 #include <shell/command.h>
 

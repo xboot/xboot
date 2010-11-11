@@ -32,7 +32,6 @@
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
-#include <terminal/terminal.h>
 #include <realview/reg-system.h>
 #include <realview-cp15.h>
 
@@ -116,32 +115,6 @@ static x_bool mach_menumode(void)
 }
 
 /*
- * default stdin console. must place NULL at the end.
- */
-static struct stdin default_stdin[] = {
-	{
-		.name		= "tty-kbd"
-	}, {
-		.name		= "tty-uart0"
-	}, {
-		.name		= NULL
-	}
-};
-
-/*
- * default stdout console. must place NULL at the end.
- */
-static struct stdout default_stdout[] = {
-	{
-		.name		= "tty-fb"
-	}, {
-		.name		= "tty-uart0"
-	}, {
-		.name		= NULL
-	}
-};
-
-/*
  * system menu, must place NULL at the end.
  */
 static struct menu_item default_menu[] = {
@@ -199,10 +172,8 @@ static struct machine realview = {
 
 	.cfg = {
 		.mode				= MODE_MENU,
-		.stdin				= default_stdin,
-		.stdout				= default_stdout,
-		.in					= "input",
-		.out				= "fb",
+		.stdin				= "input",
+		.stdout				= "fb",
 		.menu				= default_menu,
 		.env				= default_env,
 	},

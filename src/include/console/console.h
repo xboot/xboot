@@ -67,9 +67,6 @@ struct console
 	/* clear screen */
 	x_bool(*cls)(struct console * console);
 
-	/* update the screen */
-	x_bool(*refresh)(struct console * console);
-
 	/* get a unicode character */
 	x_bool(*getcode)(struct console * console, x_u32 * code);
 
@@ -101,7 +98,6 @@ x_bool console_setcursor(struct console * console, x_bool on);
 x_bool console_setcolor(struct console * console, enum console_color f, enum console_color b);
 x_bool console_getcolor(struct console * console, enum console_color * f, enum console_color * b);
 x_bool console_cls(struct console * console);
-x_bool console_refresh(struct console * console);
 x_bool console_getcode(struct console * console, x_u32 * code);
 x_bool console_putcode(struct console * console, x_u32 code);
 

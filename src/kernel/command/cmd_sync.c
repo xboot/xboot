@@ -29,8 +29,6 @@
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <terminal/terminal.h>
-#include <terminal/curses.h>
 #include <fs/fsapi.h>
 #include <shell/command.h>
 

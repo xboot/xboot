@@ -36,12 +36,8 @@
 #include <shell/readline.h>
 #include <shell/env.h>
 #include <shell/parser.h>
-#include <terminal/terminal.h>
 #include <fs/fsapi.h>
 #include <shell/shell.h>
-
-extern struct hlist_head stdout_list;
-extern struct hlist_head stdin_list;
 
 /*
  * running a command line

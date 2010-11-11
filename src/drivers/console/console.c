@@ -200,13 +200,6 @@ x_bool console_cls(struct console * console)
 	return FALSE;
 }
 
-x_bool console_refresh(struct console * console)
-{
-	if(console && console->refresh)
-		return console->refresh(console);
-	return FALSE;
-}
-
 x_bool console_getcode(struct console * console, x_u32 * code)
 {
 	if(console && console->getcode)

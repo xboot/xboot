@@ -27,23 +27,14 @@
 #include <vsprintf.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
-#include <terminal/curses.h>
-#include <terminal/terminal.h>
 #include <version.h>
 
 /*
  * print xboot banner
  */
-void xboot_banner(struct terminal * term)
+void xboot_banner(void)
 {
-	x_s8 buf[128];
-
-	if(!term)
-		return;
-
-	sprintf(buf, (const x_s8 *)"xboot version: %d.%d%d ("__DATE__ " - " __TIME__ ") for " __MACH__"\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH);
-
-	terminal_write(term, (x_u8 *)buf, strlen(buf));
+	printk("xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
 }
 
 /* xboot's character logo.
@@ -65,29 +56,7 @@ static const char xboot[6][64] = {	"        _\r\n",
 /*
  * display xboot's character logo.
  */
-void xboot_char_logo(struct terminal * term, x_u32 x0, x_u32 y0)
+void xboot_char_logo(x_u32 x0, x_u32 y0)
 {
-	x_u32 i, len;
-	x_s32 width, height;
-	x_s8 line_buf[64];
-
-	if(!term || !term->getwh(term, &width, &height))
-		return;
-
-	if(x0 + 1 > width || y0 + 1 > height)
-		return;
-
-	for(i = 0; i < 6; i++)
-	{
-		len = strlen((x_s8*)&xboot[i][0]);
-		if( len <= width-x0 )
-			sprintf(line_buf, (x_s8*)("%s"), &xboot[i][0]);
-		else
-		{
-			strncpy(line_buf, (x_s8*)&xboot[i][0], width-x0);
-			line_buf[width-x0] = 0;
-		}
-		terminal_setxy(term, x0, y0 + i);
-		terminal_write(term, (x_u8 *)line_buf, strlen(line_buf));
-	}
+	//TODO
 }

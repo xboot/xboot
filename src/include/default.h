@@ -33,13 +33,6 @@
 #endif
 
 /*
- * the max number of command line history
- */
-#if !defined(CONFIG_MAX_NUMBER_OF_CMDLINE_HISTORY)
-#define	CONFIG_MAX_NUMBER_OF_CMDLINE_HISTORY		(20)
-#endif
-
-/*
  * the max number of vfs bio
  */
 #if !defined(CONFIG_MAX_NUMBER_OF_VFS_BIO)

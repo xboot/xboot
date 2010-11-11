@@ -1,7 +1,7 @@
 /*
  * kernel/shell/readline.c
  *
- * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,10 +27,10 @@
 #include <ctype.h>
 #include <string.h>
 #include <charset.h>
+#include <xboot/list.h>
 #include <xboot/scank.h>
 #include <xboot/printk.h>
 #include <console/console.h>
-#include <shell/history.h>
 #include <shell/readline.h>
 
 struct rl_buf {
@@ -44,12 +44,152 @@ struct rl_buf {
 	x_s32 w, h;
 };
 
+struct history_list
+{
+	x_u32 * history;
+	struct list_head entry;
+};
+
+static struct history_list __history_list = {
+	.entry = {
+		.next	= &(__history_list.entry),
+		.prev	= &(__history_list.entry),
+	},
+};
+static struct history_list * history_list = &__history_list;
+static struct history_list * history_current = &__history_list;
+
 static x_s32 ucs4_strlen(const x_u32 * s)
 {
 	const x_u32 * sc;
 
 	for(sc = s; *sc != '\0'; ++sc);
 	return sc - s;
+}
+
+static x_s32 history_numberof(void)
+{
+	x_s32 i = 0;
+	struct list_head * pos = (&history_list->entry)->next;
+
+	while(!list_is_last(pos, (&history_list->entry)->next))
+	{
+		pos = pos->next;
+		i++;
+	}
+
+	return i;
+}
+
+static x_bool history_remove(void)
+{
+	struct history_list * list, * list_prev;
+	struct list_head * pos = (&history_list->entry)->prev;
+
+	if(!list_empty(&history_list->entry))
+	{
+		list = list_entry(pos, struct history_list, entry);
+		if(history_current == list)
+		{
+			list_prev = list_entry((&history_current->entry)->prev, struct history_list, entry);
+			if(list_prev != history_list)
+				history_current = list_prev;
+			else
+				history_current = NULL;
+		}
+		list_del(pos);
+		free(list->history);
+		free(list);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static x_bool history_add(x_u32 * history, x_u32 len)
+{
+	x_u32 * s;
+	struct history_list * list;
+	struct list_head * pos;
+
+	history_current = history_list;
+	if(!history)
+		return FALSE;
+
+	pos = (&history_list->entry)->next;
+	list = list_entry(pos, struct history_list, entry);
+	if(ucs4_strlen(list->history) == len)
+	{
+		if(memcmp(list->history, history, len * sizeof(x_u32)) == 0)
+			return TRUE;
+	}
+
+	list = malloc(sizeof(struct history_list));
+	if(!list)
+	{
+		free(list);
+		return FALSE;
+	}
+
+	s = malloc((len + 1) * sizeof(x_u32));
+	if(!s)
+	{
+		free(s);
+		free(list);
+		return FALSE;
+	}
+
+	if(history_numberof() >= 128)
+		history_remove();
+
+	memcpy(s, history, len * sizeof(x_u32));
+	s[len] = '\0';
+
+	list->history = s;
+	list_add(&list->entry, &history_list->entry);
+
+	return TRUE;
+}
+
+static x_u32 * history_next(void)
+{
+	struct history_list * list;
+
+	if(list_empty(&history_list->entry))
+	{
+		history_current = history_list;
+		return NULL;
+	}
+
+	if(history_current == history_list)
+		return NULL;
+
+	list = list_entry((&history_current->entry)->prev, struct history_list, entry);
+	history_current = list;
+	if(list != history_list)
+		return history_current->history;
+	else
+		return NULL;
+}
+
+static x_u32 * history_prev(void)
+{
+	struct history_list * list;
+
+	if(list_empty(&history_list->entry))
+	{
+		history_current = history_list;
+		return NULL;
+	}
+
+	list = list_entry((&history_current->entry)->next, struct history_list, entry);
+	if(list != history_list)
+	{
+		history_current = list;
+		return history_current->history;
+	}
+	else
+		return NULL;
 }
 
 static void rl_gotoxy(struct rl_buf * rl)
@@ -222,6 +362,7 @@ static void rl_delete(struct rl_buf * rl, x_u32 len)
 
 static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
 {
+	x_u32 * p;
     x_u32 tmp[2];
     x_u32 n;
 
@@ -270,9 +411,6 @@ static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
 	case 0x9: 	/* ctrl-i: tab */
 		break;
 
-	case 0xa:	/* ctrl-j */
-		return TRUE;
-
 	case 0xb: 	/* ctrl-k: delete everything from the cursor to the end of the line */
 		if(rl->pos < rl->len)
 			rl_delete(rl, rl->len - rl->pos);
@@ -281,16 +419,33 @@ static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
 	case 0xc: 	/* ctrl-l */
 		break;
 
-	case 0xd: 	/* ctrl-m */
+	case 0xa:	/* ctrl-j: lf */
+	case 0xd: 	/* ctrl-m: cr */
+		if(rl->len > 0)
+			history_add(rl->buf, rl->len);
 		return TRUE;
 
 	case 0xe:	/* ctrl-n: the next history */
+		p = history_next();
+		if(p)
+		{
+			rl_cursor_home(rl);
+			rl_delete(rl, rl->len);
+			rl_insert(rl, p);
+		}
 		break;
 
 	case 0xf: 	/* ctrl-o */
 		break;
 
 	case 0x10:	/* ctrl-p: the previous history */
+		p = history_prev();
+		if(p)
+		{
+			rl_cursor_home(rl);
+			rl_delete(rl, rl->len);
+			rl_insert(rl, p);
+		}
 		break;
 
 	case 0x11: 	/* ctrl-q */

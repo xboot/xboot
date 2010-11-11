@@ -26,7 +26,7 @@
 #include <mode.h>
 #include <ctype.h>
 #include <string.h>
-#include <configs.h>
+#include <charset.h>
 #include <xboot/scank.h>
 #include <xboot/printk.h>
 #include <time/timer.h>
@@ -419,8 +419,100 @@ the_end:
 }
 #endif
 
-static x_bool readline_handle(x_u32 code)
+
+
+
+
+struct rl_buf {
+	x_u32 * buf;
+	x_s32 size;
+	x_s32 len;
+	x_s32 pos;
+};
+
+static x_s32 ucs4_strlen(const x_u32 * s)
 {
+	const x_u32 * sc;
+
+	for(sc = s; *sc != '\0'; ++sc);
+	return sc - s;
+}
+
+static struct rl_buf * rl_buf_alloc(x_s32 size)
+{
+	struct rl_buf * rl;
+
+	if(size <= 0)
+		return NULL;
+
+	rl = malloc(sizeof(struct rl_buf));
+	if(!rl)
+		return NULL;
+
+	rl->size = size;
+	rl->pos = 0;
+	rl->len = 0;
+	rl->buf = malloc(sizeof(x_u32) * rl->size);
+	if(!rl->buf)
+	{
+		free(rl);
+		return NULL;
+	}
+
+	return rl;
+}
+
+static void rl_buf_free(struct rl_buf * rl)
+{
+	free(rl->buf);
+	free(rl);
+}
+
+static void rl_set_pos(struct rl_buf * rl)
+{
+
+}
+
+static void rl_print(struct rl_buf * rl, x_s32 pos)
+{
+	x_u8 * utf8;
+
+	utf8 = ucs4_to_utf8_alloc(rl->buf + pos, rl->len - rl->pos);
+	printk((const char *)utf8);
+	free(utf8);
+}
+
+static void rl_insert(struct rl_buf * rl, x_u32 * str)
+{
+	x_u32 * p;
+	x_s32 len = ucs4_strlen(str);
+
+	if(len + rl->len >= rl->size)
+	{
+		p = realloc(rl->buf, sizeof(x_u32) * rl->size * 2);
+		if(!p)
+			return;
+		rl->size = rl->size * 2;
+		rl->buf = p;
+	}
+
+	if(len + rl->len < rl->size)
+	{
+		memmove(rl->buf + rl->pos + len, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(x_u32));
+		memmove (rl->buf + rl->pos, str, len * sizeof(x_u32));
+
+		rl->len = rl->len + len;
+		rl_set_pos(rl);
+		rl_print(rl, rl->pos);
+		rl->pos = rl->pos + len;
+		rl_set_pos(rl);
+	}
+}
+
+static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
+{
+    x_u32 tmp[2];
+
 	switch(code)
 	{
 	case 0x1:	/* ctrl-a */
@@ -462,7 +554,13 @@ static x_bool readline_handle(x_u32 code)
 	case 0x19:	/* ctrl-y */
 		break;
 
+	case 0x0086:
+		return TRUE;
+
 	default:
+	      tmp[0] = code;
+	      tmp[1] = '\0';
+	      rl_insert(rl, tmp);
 		break;
 	}
 
@@ -474,21 +572,30 @@ static x_bool readline_handle(x_u32 code)
  */
 x_s8 * readline(const x_s8 * prompt)
 {
+	struct rl_buf * rl;
+	x_s8 * utf8;
 	x_u32 code;
 
 	if(prompt)
 		printk((char *)prompt);
 
+	rl = rl_buf_alloc(512);
+	if(!rl)
+		return NULL;
+
 	for(;;)
 	{
 		if(getcode(&code))
 		{
-			if(readline_handle(code))
+			if(readline_handle(rl, code))
 				break;
 		}
 	}
 
 	printk("\r\n");
 
-	return 0;
+	utf8 = (x_s8 *)(ucs4_to_utf8_alloc(rl->buf, rl->len));
+	rl_buf_free(rl);
+
+	return utf8;
 }

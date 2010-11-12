@@ -63,12 +63,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 		if(console_getcode(con, &code))
 			printk("0x%lx: %c\r\n", code, code);
 	}
-/*
-	console_draw_vline(con, 2, 2, 10);
-	console_draw_rect(con, 5,5, 50, 20);
 
-	con->refresh(con);
-*/
 	return 0;
 }
 

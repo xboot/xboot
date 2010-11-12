@@ -37,7 +37,7 @@ x_bool ctrlc(void)
 
 	if(getcode(&code))
 	{
-		if(code == 3)
+		if(code == 0x3)
 			return TRUE;
 	}
 

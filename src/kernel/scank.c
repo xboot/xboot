@@ -93,8 +93,7 @@ x_s32 scank(const char * fmt, ...)
 	x_s32 i;
 
 	va_start(args,fmt);
-//TODO
-//	i = vsscanf(readline(0), (x_s8 *)fmt, args);
+	i = vsscanf(readline(0), (x_s8 *)fmt, args);
 	va_end(args);
 
 	return i;

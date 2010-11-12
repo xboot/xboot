@@ -45,9 +45,6 @@ struct fbcon_cell
 
 	/* character width and height, the unit of font's width and height in pixel */
 	x_u32 cw, ch;
-
-	/* dirty means need to update */
-	x_bool dirty;
 };
 
 /*

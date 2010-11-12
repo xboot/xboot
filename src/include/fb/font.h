@@ -3,6 +3,7 @@
 
 #include <configs.h>
 #include <default.h>
+#include <fb/fb.h>
 
 /*
  * the structure of font

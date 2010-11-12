@@ -62,6 +62,9 @@ static x_s32 ucs4_strlen(const x_u32 * s)
 {
 	const x_u32 * sc;
 
+	if(!s)
+		return 0;
+
 	for(sc = s; *sc != '\0'; ++sc);
 	return sc - s;
 }
@@ -138,7 +141,7 @@ static x_bool history_add(x_u32 * history, x_u32 len)
 		return FALSE;
 	}
 
-	if(history_numberof() >= 128)
+	if(history_numberof() >= 32)
 		history_remove();
 
 	memcpy(s, history, len * sizeof(x_u32));
@@ -313,6 +316,9 @@ static void rl_insert(struct rl_buf * rl, x_u32 * str)
 	x_u32 * p;
 	x_s32 len = ucs4_strlen(str);
 
+	if(len <= 0)
+		return;
+
 	if(len + rl->len >= rl->size)
 	{
 		p = realloc(rl->buf, sizeof(x_u32) * rl->size * 2);
@@ -425,13 +431,9 @@ static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
 		return TRUE;
 
 	case 0xe:	/* ctrl-n: the next history */
-		p = history_next();
-		if(p)
-		{
-			rl_cursor_home(rl);
-			rl_delete(rl, rl->len);
-			rl_insert(rl, p);
-		}
+		rl_cursor_home(rl);
+		rl_delete(rl, rl->len);
+		rl_insert(rl, history_next());
 		break;
 
 	case 0xf: 	/* ctrl-o */

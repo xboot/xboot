@@ -39,7 +39,6 @@ struct rl_buf {
 	x_s32 size;
 	x_s32 len;
 	x_s32 pos;
-
 	x_s32 x, y;
 	x_s32 w, h;
 };

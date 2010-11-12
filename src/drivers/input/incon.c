@@ -30,6 +30,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
+#include <xboot/machine.h>
 #include <console/console.h>
 #include <input/keyboard/keyboard.h>
 
@@ -37,7 +38,60 @@ static struct fifo * input_console_fifo;
 
 static void incon_keyboard_handler(enum key_code key)
 {
-	x_u32 c = key;
+	x_u32 c;
+
+	switch(key)
+	{
+	case KEY_UP:
+		c = KEY_CTRL_P;
+		break;
+
+	case KEY_DOWN:
+		c = KEY_CTRL_N;
+		break;
+
+	case KEY_LEFT:
+		c = KEY_CTRL_B;
+		break;
+
+	case KEY_RIGHT:
+		c = KEY_CTRL_F;
+		break;
+
+	case KEY_TAB:
+		c = KEY_CTRL_I;
+		break;
+
+	case KEY_BACKSPACE:
+		c = KEY_CTRL_H;
+		break;
+
+	case KEY_ENTER:
+		c = KEY_CTRL_J;
+		break;
+
+	case KEY_HOME:
+		c = KEY_CTRL_A;
+		break;
+
+	case KEY_MENU:
+		c = KEY_CTRL_E;
+		break;
+
+	case KEY_BACK:
+		c = KEY_CTRL_C;
+		break;
+
+	case KEY_POWER:
+		break;
+
+	case KEY_RESET:
+		break;
+
+	default:
+		c = key;
+		break;
+	}
 
 	fifo_put(input_console_fifo, (x_u8 *)&c, sizeof(x_u32));
 }

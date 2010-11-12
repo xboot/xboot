@@ -34,25 +34,16 @@
 #include <xboot/printk.h>
 #include <xboot/scank.h>
 #include <xboot/initcall.h>
+#include <console/console.h>
 #include <shell/readline.h>
 #include <shell/command.h>
 
-//TODO
-#if 0
-#if	defined(CONFIG_COMMAND_TETRIS) && (CONFIG_COMMAND_TETRIS > 0)
 
-extern struct hlist_head stdout_list;
-extern struct hlist_head stdin_list;
+#if	defined(CONFIG_COMMAND_TETRIS) && (CONFIG_COMMAND_TETRIS > 0)
 
 /* dimensions of playing area */
 #define	GAME_AREA_WIDTH				(12)
 #define	GAME_AREA_HEIGHT			(22)
-
-#define	SCANKEY_NONE				(0)
-#define SCANKEY_UP					(1)
-#define SCANKEY_DOWN				(2)
-#define SCANKEY_LEFT				(3)
-#define SCANKEY_RIGHT				(4)
 
 /*
  * define tetris shape
@@ -63,7 +54,7 @@ struct shape
 	x_s32 plus90, minus90;
 
 	/* shape color */
-	enum terminal_color color;
+	enum console_color color;
 
 	/* drawing instructions for this shape */
 	struct vector {
@@ -74,31 +65,31 @@ struct shape
 
 static const struct shape shapes[] = {
 	/* o shape */
-    { 0,	0,	TERMINAL_BULE,		{{  0, -1 }, { +1,  0 }, {  0, +1 }, { -1,  0 }} },
+    { 0,	0,	CONSOLE_BULE,		{{  0, -1 }, { +1,  0 }, {  0, +1 }, { -1,  0 }} },
     /* i shape */
-    { 2,	2,	TERMINAL_GREEN,		{{ -1,  0 }, { +1,  0 }, { +1,  0 }, { +1,  0 }} },
-    { 1,	1,	TERMINAL_GREEN,		{{  0, -1 }, {  0, +1 }, {  0, +1 }, {  0, +1 }} },
+    { 2,	2,	CONSOLE_GREEN,		{{ -1,  0 }, { +1,  0 }, { +1,  0 }, { +1,  0 }} },
+    { 1,	1,	CONSOLE_GREEN,		{{  0, -1 }, {  0, +1 }, {  0, +1 }, {  0, +1 }} },
     /* z shape */
-    { 4,	4,	TERMINAL_CYAN,		{{ -1,  0 }, { +1,  0 }, {  0, +1 }, { +1,  0 }} },
-    { 3,	3,	TERMINAL_CYAN,		{{  0, -1 }, {  0, +1 }, { -1,  0 }, {  0, +1 }} },
+    { 4,	4,	CONSOLE_CYAN,		{{ -1,  0 }, { +1,  0 }, {  0, +1 }, { +1,  0 }} },
+    { 3,	3,	CONSOLE_CYAN,		{{  0, -1 }, {  0, +1 }, { -1,  0 }, {  0, +1 }} },
     /* s shape */
-    { 6,	6,	TERMINAL_RED,		{{ +1,  0 }, { -1,  0 }, {  0, +1 }, { -1,  0 }} },
-    { 5,	5,	TERMINAL_RED,		{{  0, -1 }, {  0, +1 }, { +1,  0 }, {  0, +1 }} },
+    { 6,	6,	CONSOLE_RED,		{{ +1,  0 }, { -1,  0 }, {  0, +1 }, { -1,  0 }} },
+    { 5,	5,	CONSOLE_RED,		{{  0, -1 }, {  0, +1 }, { +1,  0 }, {  0, +1 }} },
     /* j shape */
-    { 8,	10,	TERMINAL_MAGENTA,	{{ +1,  0 }, { -1,  0 }, { -1,  0 }, {  0, -1 }} },
-    { 9,	7,	TERMINAL_MAGENTA,	{{  0, -1 }, {  0, +1 }, {  0, +1 }, { -1,  0 }} },
-    { 10,	8,	TERMINAL_MAGENTA,	{{ -1,  0 }, { +1,  0 }, { +1,  0 }, {  0, +1 }} },
-    { 7,	9,	TERMINAL_MAGENTA,	{{  0, +1 }, {  0, -1 }, {  0, -1 }, { +1,  0 }} },
+    { 8,	10,	CONSOLE_MAGENTA,	{{ +1,  0 }, { -1,  0 }, { -1,  0 }, {  0, -1 }} },
+    { 9,	7,	CONSOLE_MAGENTA,	{{  0, -1 }, {  0, +1 }, {  0, +1 }, { -1,  0 }} },
+    { 10,	8,	CONSOLE_MAGENTA,	{{ -1,  0 }, { +1,  0 }, { +1,  0 }, {  0, +1 }} },
+    { 7,	9,	CONSOLE_MAGENTA,	{{  0, +1 }, {  0, -1 }, {  0, -1 }, { +1,  0 }} },
     /* l shape */
-    { 12,	14,	TERMINAL_YELLOW,	{{ +1,  0 }, { -1,  0 }, { -1,  0 }, {  0, +1 }} },
-    { 13,	11, TERMINAL_YELLOW,	{{  0, -1 }, {  0, +1 }, {  0, +1 }, { +1,  0 }} },
-    { 14,	12, TERMINAL_YELLOW,	{{ -1,  0 }, { +1,  0 }, { +1,  0 }, {  0, -1 }} },
-    { 11,	13, TERMINAL_YELLOW,	{{  0, +1 }, {  0, -1 }, {  0, -1 }, { -1,  0 }} },
+    { 12,	14,	CONSOLE_YELLOW,		{{ +1,  0 }, { -1,  0 }, { -1,  0 }, {  0, +1 }} },
+    { 13,	11, CONSOLE_YELLOW,		{{  0, -1 }, {  0, +1 }, {  0, +1 }, { +1,  0 }} },
+    { 14,	12, CONSOLE_YELLOW,		{{ -1,  0 }, { +1,  0 }, { +1,  0 }, {  0, -1 }} },
+    { 11,	13, CONSOLE_YELLOW,		{{  0, +1 }, {  0, -1 }, {  0, -1 }, { -1,  0 }} },
     /* t shape */
-    { 16,	18,	TERMINAL_WHITE,		{{  0, -1 }, {  0, +1 }, { -1,  0 }, { +2,  0 }} },
-    { 17,	15,	TERMINAL_WHITE,		{{ -1,  0 }, { +1,  0 }, {  0, -1 }, {  0, +2 }} },
-    { 18,	16,	TERMINAL_WHITE,		{{  0, +1 }, {  0, -1 }, { +1,  0 }, { -2,  0 }} },
-    { 15,	17,	TERMINAL_WHITE,		{{ +1,  0 }, { -1,  0 }, {  0, +1 }, {  0, -2 }} }
+    { 16,	18,	CONSOLE_WHITE,		{{  0, -1 }, {  0, +1 }, { -1,  0 }, { +2,  0 }} },
+    { 17,	15,	CONSOLE_WHITE,		{{ -1,  0 }, { +1,  0 }, {  0, -1 }, {  0, +2 }} },
+    { 18,	16,	CONSOLE_WHITE,		{{  0, +1 }, {  0, -1 }, { +1,  0 }, { -2,  0 }} },
+    { 15,	17,	CONSOLE_WHITE,		{{ +1,  0 }, { -1,  0 }, {  0, +1 }, {  0, -2 }} }
 };
 
 /*
@@ -106,7 +97,7 @@ static const struct shape shapes[] = {
  */
 struct map {
 	x_bool dirty[GAME_AREA_HEIGHT];
-	enum terminal_color screen[GAME_AREA_WIDTH][GAME_AREA_HEIGHT];
+	enum console_color screen[GAME_AREA_WIDTH][GAME_AREA_HEIGHT];
 };
 
 static struct map map;
@@ -116,10 +107,12 @@ static struct map map;
  */
 static void refresh(void)
 {
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
+	struct console * stdout = get_stdout();
 	x_s32 w, h;
 	x_s32 x, y, xp, yp;
+
+	if(!stdout)
+		return;
 
 	for(y=0; y < GAME_AREA_HEIGHT; y++)
 	{
@@ -128,29 +121,26 @@ static void refresh(void)
 
 		for(x=0; x < GAME_AREA_WIDTH; x++)
 		{
-			hlist_for_each_entry(list,  pos, &stdout_list, node)
-      		{
-				terminal_getwh(list->term, &w, &h);
-				xp = (w - GAME_AREA_WIDTH) / 2;
-				yp = (h - GAME_AREA_HEIGHT) / 2;
-				terminal_setxy(list->term, xp + x, yp + y);
-				if(map.screen[x][y] != TERMINAL_BLACK)
-				{
-					terminal_set_color(list->term, map.screen[x][y], TERMINAL_BLACK);
-					terminal_curses_putch(list->term, TERMINAL_CUBE);
-				}
-				else
-				{
-					terminal_set_color(list->term, TERMINAL_WHITE, TERMINAL_BLACK);
-					terminal_curses_putch(list->term, TERMINAL_SPACE);
-				}
+			console_getwh(stdout, &w, &h);
+			xp = (w - GAME_AREA_WIDTH) / 2;
+			yp = (h - GAME_AREA_HEIGHT) / 2;
+			console_gotoxy(stdout, xp + x, yp + y);
+			if(map.screen[x][y] != CONSOLE_BLACK)
+			{
+				console_setcolor(stdout, map.screen[x][y], CONSOLE_BLACK);
+				console_putcode(stdout, UNICODE_CUBE);
+			}
+			else
+			{
+				console_setcolor(stdout, CONSOLE_WHITE, CONSOLE_BLACK);
+				console_putcode(stdout, UNICODE_SPACE);
 			}
 		}
 		map.dirty[y] = FALSE;
     }
 }
 
-static void block_draw(x_s32 x, x_s32 y, enum terminal_color c)
+static void block_draw(x_s32 x, x_s32 y, enum console_color c)
 {
     if(x >= GAME_AREA_WIDTH)
         x = GAME_AREA_WIDTH - 1;
@@ -163,7 +153,7 @@ static void block_draw(x_s32 x, x_s32 y, enum terminal_color c)
 
 static x_bool block_hit(x_s32 x, x_s32 y)
 {
-	return (map.screen[x][y] != TERMINAL_BLACK);
+	return (map.screen[x][y] != CONSOLE_BLACK);
 }
 
 static void shape_draw(x_s32 x, x_s32 y, x_u32 index)
@@ -185,11 +175,11 @@ static void shape_erase(x_s32 x, x_s32 y, x_u32 index)
 
     for(i = 0; i < 4; i++)
     {
-    	block_draw(x, y, TERMINAL_BLACK);
+    	block_draw(x, y, CONSOLE_BLACK);
         x += shapes[index].direction[i].x;
         y += shapes[index].direction[i].y;
     }
-    block_draw(x, y, TERMINAL_BLACK);
+    block_draw(x, y, CONSOLE_BLACK);
 }
 
 static x_bool shape_hit(x_s32 x, x_s32 y, x_u32 index)
@@ -222,7 +212,7 @@ static void collapse(void)
 		temp = 0;
 		for(col = 1; col < GAME_AREA_WIDTH - 1; col++)
 		{
-			if(map.screen[col][row] != TERMINAL_BLACK)
+			if(map.screen[col][row] != CONSOLE_BLACK)
 				temp++;
 		}
 
@@ -247,7 +237,7 @@ static void collapse(void)
 		if(temp < 1)
 		{
 			for(col = 1; col < GAME_AREA_WIDTH - 1; col++)
-				map.screen[col][row] = TERMINAL_BLACK;
+				map.screen[col][row] = CONSOLE_BLACK;
 		}
 		else
 		{
@@ -268,149 +258,29 @@ static void screen_init(void)
 	{
 		map.dirty[y] = TRUE;
 		for(x = 1; x < (GAME_AREA_WIDTH - 1); x++)
-			map.screen[x][y] = TERMINAL_BLACK;
-		map.screen[0][y] = map.screen[GAME_AREA_WIDTH - 1][y] = TERMINAL_BULE;
+			map.screen[x][y] = CONSOLE_BLACK;
+		map.screen[0][y] = map.screen[GAME_AREA_WIDTH - 1][y] = CONSOLE_BULE;
 	}
 	for(x = 0; x < GAME_AREA_WIDTH; x++)
-		map.screen[x][0] = map.screen[x][GAME_AREA_HEIGHT - 1] = TERMINAL_BULE;
+		map.screen[x][0] = map.screen[x][GAME_AREA_HEIGHT - 1] = CONSOLE_BULE;
 
 	collapse();
 }
 
-static x_s32 scankey(void)
-{
-	static enum readline_mode rl_mode = RL_NORMAL;
-	static x_s32 rl_param = 0;
-	x_s32 key = SCANKEY_NONE;
-	x_s8 c;
-	x_s32 delay;
-
-	delay = 250;
-	if(get_system_hz() > 0)
-		delay = jiffies + get_system_hz() * delay / 1000;
-
-	do {
-		if(getch((char*)&c))
-		{
-			switch (rl_mode)
-			{
-			case RL_NORMAL:
-				switch (c)
-				{
-				case 3:		/* ctrl-c */
-				case 'c':
-				case 'C':
-					break;
-
-				case 27:	/* esc */
-					rl_mode = RL_ESC;
-					break;
-
-				case 32:	/* space */
-					break;
-
-				case (x_s8)155:
-					rl_mode = RL_CSI;
-					break;
-
-				case '\r':	/* enter */
-				case '\n':
-				case '\0':
-					break;
-
-				default:
-					break;
-				}
-				break;
-
-			case RL_ESC:
-				if (c == '[')
-				{
-					rl_mode = RL_CSI;
-					rl_param = 0;
-				}
-				else
-				{
-					rl_mode = RL_NORMAL;
-				}
-				break;
-
-			case RL_CSI:
-				switch (c)
-				{
-				case 'A':	/* up arrow */
-				case 'F':
-					key = SCANKEY_UP;
-					break;
-
-				case 'B':	/* down arrow */
-				case 'E':
-					key = SCANKEY_DOWN;
-					break;
-
-				case 'D':	/* left arrow */
-					key = SCANKEY_LEFT;
-					break;
-
-				case 'C':	/* right arrow */
-					key = SCANKEY_RIGHT;
-					break;
-
-				case '0' ... '9':
-					rl_param = rl_param * 10 + (c - '0');
-					goto the_end;
-
-				case '~':
-					switch (rl_param)
-					{
-					case 5:		/* page up */
-						break;
-
-					case 6:		/* page down */
-						break;
-
-					default:
-						break;
-					}
-
-				default:
-					break;
-				}
-				rl_mode = RL_NORMAL;
-		the_end:
-				break;
-
-			default:
-				break;
-			}
-		}
-
-		if(get_system_hz() <= 0)
-		{
-			delay--;
-		}
-	} while((jiffies < delay) && (key == SCANKEY_NONE));
-
-	return key;
-}
-
 static x_s32 tetris(x_s32 argc, const x_s8 **argv)
 {
-	struct terminal_stdout_list * list;
-	struct hlist_node * pos;
+	struct console * stdout = get_stdout();
 	x_u32 x, y, shape;
 	x_u32 newx, newy, newshape;
 	x_bool fell = FALSE;
 	x_bool try_again = FALSE;
+	x_u32 code;
 
-	hlist_for_each_entry(list,  pos, &stdout_list, node)
-	{
-		terminal_mode_closeall(list->term);
-		terminal_clear_screen(list->term);
-		terminal_cursor_home(list->term);
-		terminal_cursor_hide(list->term);
-		terminal_set_color(list->term, TERMINAL_WHITE, TERMINAL_BLACK);
-	}
+	if(!stdout)
+		return -1;
+
+	console_setcursor(stdout, FALSE);
+	console_cls(stdout);
 
 	srand(jiffies + rand());
 
@@ -429,36 +299,45 @@ static x_s32 tetris(x_s32 argc, const x_s8 **argv)
             newy = y;
             newshape = shape;
 
-			switch(scankey())
-			{
-			case SCANKEY_UP:
-				newshape = shapes[shape].plus90;
-				fell = FALSE;
-				break;
+            if(getcode_with_timeout(&code, 250))
+            {
+    			switch(code)
+    			{
+    			case 0x10:	/* up */
+    				newshape = shapes[shape].plus90;
+    				fell = FALSE;
+    				break;
 
-			case SCANKEY_DOWN:
-                if(y < GAME_AREA_HEIGHT - 1)
-                    newy = y + 1;
-                fell = TRUE;
-				break;
+    			case 0xe:	/* down */
+                    if(y < GAME_AREA_HEIGHT - 1)
+                        newy = y + 1;
+                    fell = TRUE;
+    				break;
 
-			case SCANKEY_LEFT:
-				if(x > 0)
-					newx = x - 1;
-				fell = FALSE;
-				break;
+    			case 0x2:	/* left */
+    				if(x > 0)
+    					newx = x - 1;
+    				fell = FALSE;
+    				break;
 
-			case SCANKEY_RIGHT:
-				if(x < GAME_AREA_WIDTH - 1)
-					newx = x + 1;
-				fell = FALSE;
-				break;
+    			case 0x6:	/* right */
+    				if(x < GAME_AREA_WIDTH - 1)
+    					newx = x + 1;
+    				fell = FALSE;
+    				break;
 
-			default:
+    			default:
+    				newy++;
+    				fell = TRUE;
+    				break;
+    			}
+
+            }
+            else
+            {
 				newy++;
 				fell = TRUE;
-				break;
-			}
+            }
 
 	        if((newx == x) && (newy == y) && (newshape == shape))
 	            continue;
@@ -491,14 +370,8 @@ static x_s32 tetris(x_s32 argc, const x_s8 **argv)
         }
 	}while(try_again);
 
-	hlist_for_each_entry(list,  pos, &stdout_list, node)
-	{
-		terminal_mode_closeall(list->term);
-		terminal_clear_screen(list->term);
-		terminal_cursor_home(list->term);
-		terminal_cursor_show(list->term);
-		terminal_set_color(list->term, TERMINAL_WHITE, TERMINAL_BLACK);
-	}
+	console_setcursor(stdout, TRUE);
+	console_cls(stdout);
 
 	return 0;
 }
@@ -526,5 +399,4 @@ static __exit void tetris_cmd_exit(void)
 module_init(tetris_cmd_init, LEVEL_COMMAND);
 module_exit(tetris_cmd_exit, LEVEL_COMMAND);
 
-#endif
 #endif

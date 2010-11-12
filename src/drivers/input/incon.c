@@ -83,10 +83,10 @@ static void incon_keyboard_handler(enum key_code key)
 		break;
 
 	case KEY_POWER:
-		break;
+		return;
 
 	case KEY_RESET:
-		break;
+		return;
 
 	default:
 		c = key;

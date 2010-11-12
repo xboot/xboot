@@ -320,6 +320,16 @@ static x_bool fbcon_setcursor(struct console * console, x_bool on)
 }
 
 /*
+ * get cursor's status
+ */
+static x_bool fbcon_getcursor(struct console * console)
+{
+	struct fb_console_info * info = console->priv;
+
+	return info->cursor;
+}
+
+/*
  * set console's front color and background color
  */
 static x_bool fbcon_setcolor(struct console * console, enum console_color f, enum console_color b)
@@ -738,6 +748,7 @@ x_bool register_framebuffer(struct fb * fb)
 	console->getxy = fbcon_getxy;
 	console->gotoxy = fbcon_gotoxy;
 	console->setcursor = fbcon_setcursor;
+	console->getcursor = fbcon_getcursor;
 	console->setcolor = fbcon_setcolor;
 	console->getcolor = fbcon_getcolor;
 	console->cls = fbcon_cls;

@@ -179,6 +179,13 @@ x_bool console_setcursor(struct console * console, x_bool on)
 	return FALSE;
 }
 
+x_bool console_getcursor(struct console * console)
+{
+	if(console && console->getcursor)
+		return console->getcursor(console);
+	return FALSE;
+}
+
 x_bool console_setcolor(struct console * console, enum console_color f, enum console_color b)
 {
 	if(console && console->setcolor)

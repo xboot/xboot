@@ -110,6 +110,7 @@ static struct console input_console = {
 	.getxy			= NULL,
 	.gotoxy			= NULL,
 	.setcursor		= NULL,
+	.getcursor		= NULL,
 	.setcolor		= NULL,
 	.getcolor		= NULL,
 	.cls			= NULL,

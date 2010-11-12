@@ -58,6 +58,9 @@ struct console
 	/* turn on/off the cursor */
 	x_bool(*setcursor)(struct console * console, x_bool on);
 
+	/* get cursor's status */
+	x_bool(*getcursor)(struct console * console);
+
 	/* set console's front color and background color */
 	x_bool(*setcolor)(struct console * console, enum console_color f, enum console_color b);
 
@@ -95,6 +98,7 @@ x_bool console_getwh(struct console * console, x_s32 * w, x_s32 * h);
 x_bool console_getxy(struct console * console, x_s32 * x, x_s32 * y);
 x_bool console_gotoxy(struct console * console, x_s32 x, x_s32 y);
 x_bool console_setcursor(struct console * console, x_bool on);
+x_bool console_getcursor(struct console * console);
 x_bool console_setcolor(struct console * console, enum console_color f, enum console_color b);
 x_bool console_getcolor(struct console * console, enum console_color * f, enum console_color * b);
 x_bool console_cls(struct console * console);

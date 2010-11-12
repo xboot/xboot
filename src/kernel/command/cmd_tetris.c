@@ -371,6 +371,7 @@ static x_s32 tetris(x_s32 argc, const x_s8 **argv)
 	}while(try_again);
 
 	console_setcursor(stdout, TRUE);
+	console_setcolor(stdout, CONSOLE_WHITE, CONSOLE_BLACK);
 	console_cls(stdout);
 
 	return 0;

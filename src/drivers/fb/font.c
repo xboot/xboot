@@ -2660,16 +2660,15 @@ static x_bool font_draw_glyph_to_bitmap(struct bitmap * bitmap, struct font_glyp
 }
 
 /*
- * put a ucs-4 character to framebuffer
- * just for framebuffer console
+ * put a ucs-4 code to framebuffer
  */
-x_bool fb_putchar(struct fb * fb, x_u32 ch, x_u32 fc, x_u32 bc, x_u32 x, x_u32 y)
+x_bool fb_putcode(struct fb * fb, x_u32 code, x_u32 fc, x_u32 bc, x_u32 x, x_u32 y)
 {
 	struct font_glyph * glyph;
 	struct bitmap glyph_bitmap;
 	struct bitmap_info * info;
 
-	glyph = font_lookup_glyph(NULL, ch);
+	glyph = font_lookup_glyph(NULL, code);
 	if((glyph->w == 0) || (glyph->h == 0))
 		return TRUE;
 
@@ -2696,17 +2695,16 @@ x_bool fb_putchar(struct fb * fb, x_u32 ch, x_u32 fc, x_u32 bc, x_u32 x, x_u32 y
 }
 
 /*
- * get a ucs-4 character's width and height
- * just for framebuffer console
+ * get a ucs-4 code's width and height
  */
-x_bool fb_charwidth(x_u32 ch, x_u32 * w, x_u32 * h)
+x_bool fb_codewidth(x_u32 code, x_u32 * w, x_u32 * h)
 {
 	struct font_glyph * glyph;
 
 	if(!w && !h)
 		return FALSE;
 
-	glyph = font_lookup_glyph(NULL, ch);
+	glyph = font_lookup_glyph(NULL, code);
 
 	if(w)
 		*w = glyph->w;

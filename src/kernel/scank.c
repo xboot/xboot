@@ -90,11 +90,15 @@ x_bool getcode_with_timeout(x_u32 * code, x_u32 timeout)
 x_s32 scank(const char * fmt, ...)
 {
 	va_list args;
+	x_s8 * p;
 	x_s32 i;
 
+	p = readline(0);
+
 	va_start(args,fmt);
-	i = vsscanf(readline(0), (x_s8 *)fmt, args);
+	i = vsscanf(p, (x_s8 *)fmt, args);
 	va_end(args);
 
+	free(p);
 	return i;
 }

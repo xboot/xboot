@@ -115,7 +115,7 @@ void run_cmdline(const x_s8 *cmdline)
  */
 void run_shell_mode(void)
 {
-	x_s8 *p;
+	x_s8 * p;
 	x_s8 cwd[256];
 	x_s8 prompt[256];
 
@@ -127,5 +127,6 @@ void run_shell_mode(void)
 		printk("\r\n");
 
 		run_cmdline(p);
+		free(p);
 	} while(xboot_get_mode() == MODE_SHELL);
 }

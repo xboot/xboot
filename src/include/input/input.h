@@ -30,8 +30,9 @@ struct input
 {
 	const char * name;
 	enum input_type type;
-	void (*probe)(void);
-	void (*remove)(void);
+	x_bool (*probe)(void);
+	x_bool (*remove)(void);
+	x_s32 (*ioctl)(x_u32 cmd, void * arg);
 };
 
 struct input * search_input(const char * name);

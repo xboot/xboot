@@ -141,7 +141,7 @@ static void mouse_interrupt(void)
 	}
 }
 
-static void mouse_probe(void)
+static x_bool mouse_probe(void)
 {
 	x_u32 divisor;
 	x_u64 kclk;
@@ -150,7 +150,7 @@ static void mouse_probe(void)
 	if(! clk_get_rate("kclk", &kclk))
 	{
 		LOG_E("can't get the clock of 'kclk'");
-		return;
+		return FALSE;
 	}
 
 	/* set mouse's clock divisor */
@@ -162,11 +162,11 @@ static void mouse_probe(void)
 
 	/* reset mouse, and wait ack and pass/fail code */
 	if(! kmi_write(0xff) )
-		return;
+		return FALSE;
 	if(! kmi_read(&data))
-		return;
+		return FALSE;
 	if(data != 0xaa)
-		return;
+		return FALSE;
 
 	/* enable scroll wheel */
 	kmi_write(0xf3);
@@ -204,18 +204,27 @@ static void mouse_probe(void)
 	{
 		LOG_E("can't request irq 'KMI1'");
 		writeb(REALVIEW_MOUSE_CR, 0);
-		return;
+		return FALSE;
 	}
 
 	/* re-enables mouse */
 	writeb(REALVIEW_MOUSE_CR, REALVIEW_MOUSE_CR_EN | REALVIEW_MOUSE_CR_RXINTREN);
+
+	return TRUE;
 }
 
-static void mouse_remove(void)
+static x_bool mouse_remove(void)
 {
 	if(!free_irq("KMI1"))
 		LOG_E("can't free irq 'KMI1'");
 	writeb(REALVIEW_MOUSE_CR, 0);
+
+	return TRUE;
+}
+
+static x_s32 mouse_ioctl(x_u32 cmd, void * arg)
+{
+	return -1;
 }
 
 static struct input realview_mouse = {
@@ -223,6 +232,7 @@ static struct input realview_mouse = {
 	.type		= INPUT_MOUSE,
 	.probe		= mouse_probe,
 	.remove		= mouse_remove,
+	.ioctl		= mouse_ioctl,
 };
 
 static __init void realview_mouse_init(void)

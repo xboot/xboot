@@ -108,8 +108,11 @@ x_bool register_input(struct input * input)
 	if(!list)
 		return FALSE;
 
-	if(input->probe)
-		(input->probe)();
+	if(! (input->probe)())
+	{
+		free(list);
+		return FALSE;
+	}
 
 	list->input = input;
 	list_add_tail(&list->entry, &input_list->entry);

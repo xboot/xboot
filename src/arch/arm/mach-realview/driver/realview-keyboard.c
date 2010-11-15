@@ -349,7 +349,7 @@ static void keyboard_interrupt(void)
 	}
 }
 
-static void keyboard_probe(void)
+static x_bool keyboard_probe(void)
 {
 	x_u32 divisor;
 	x_u64 kclk;
@@ -358,7 +358,7 @@ static void keyboard_probe(void)
 	if(! clk_get_rate("kclk", &kclk))
 	{
 		LOG_E("can't get the clock of 'kclk'");
-		return;
+		return FALSE;
 	}
 
 	/* set keyboard's clock divisor */
@@ -373,11 +373,11 @@ static void keyboard_probe(void)
 
 	/* reset keyboard, and wait ack and pass/fail code */
 	if(! kmi_write(0xff) )
-		return;
+		return FALSE;
 	if(! kmi_read(&data))
-		return;
+		return FALSE;
 	if(data != 0xaa)
-		return;
+		return FALSE;
 
 	/* set keyboard's typematic rate/delay */
 	kmi_write(0xf3);
@@ -399,18 +399,27 @@ static void keyboard_probe(void)
 	{
 		LOG_E("can't request irq 'KMI0'");
 		writeb(REALVIEW_KEYBOARD_CR, 0);
-		return;
+		return FALSE;
 	}
 
 	/* re-enables keyboard */
 	writeb(REALVIEW_KEYBOARD_CR, REALVIEW_KEYBOARD_CR_EN | REALVIEW_KEYBOARD_CR_RXINTREN);
+
+	return TRUE;
 }
 
-static void keyboard_remove(void)
+static x_bool keyboard_remove(void)
 {
 	if(!free_irq("KMI0"))
 		LOG_E("can't free irq 'KMI0'");
 	writeb(REALVIEW_KEYBOARD_CR, 0);
+
+	return TRUE;
+}
+
+static x_s32 keyboard_ioctl(x_u32 cmd, void * arg)
+{
+	return -1;
 }
 
 static struct input realview_keyboard = {
@@ -418,6 +427,7 @@ static struct input realview_keyboard = {
 	.type		= INPUT_KEYBOARD,
 	.probe		= keyboard_probe,
 	.remove		= keyboard_remove,
+	.ioctl		= keyboard_ioctl,
 };
 
 static __init void realview_keyboard_init(void)

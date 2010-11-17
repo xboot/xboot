@@ -61,10 +61,10 @@ struct console
 	/* get cursor's status */
 	x_bool(*getcursor)(struct console * console);
 
-	/* set console's front color and background color */
+	/* set console's foreground color and background color */
 	x_bool(*setcolor)(struct console * console, enum console_color f, enum console_color b);
 
-	/* get console front color and background color */
+	/* get console foreground color and background color */
 	x_bool(*getcolor)(struct console * console, enum console_color * f, enum console_color * b);
 
 	/* clear screen */

@@ -30,9 +30,6 @@ struct tui_widget_ops
 	/* remove a child widget */
 	x_bool (*removechild)(struct tui_widget * self, struct tui_widget * child);
 
-	/* iterate child widget */
-	x_bool (*iteratechild)(struct tui_widget * self, tui_widget_callback cb, void * data);
-
 	/* set bounds */
 	x_bool (*setbounds)(struct tui_widget * self, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
 
@@ -54,6 +51,9 @@ struct tui_widget_ops
 
 struct tui_widget
 {
+	/* bind console */
+	struct console * console;
+
 	/* widget's id */
 	x_s8 * id;
 
@@ -61,20 +61,20 @@ struct tui_widget
 	x_s32 x, y;
 	x_s32 w, h;
 
-	/* cursor position */
-	x_s32 curx, cury;
-
-	/* output console */
-	struct console * console;
+	/* container layout */
+	struct tui_layout * layout;
 
 	/* widget operations */
 	struct tui_widget_ops * ops;
 
-	/* parent widget */
+	/* the parent widget */
 	struct tui_widget * parent;
 
-	/* child widget entry */
+	/* the widget entry */
 	struct list_head entry;
+
+	/* child widget list head */
+	struct list_head child;
 
 	/* priv data */
 	void * priv;

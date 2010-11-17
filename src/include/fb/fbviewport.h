@@ -3,8 +3,8 @@
 
 #include <configs.h>
 #include <default.h>
+#include <rect.h>
 #include <fb/fb.h>
-#include <gui/rect.h>
 
 x_bool bitmap_set_viewport(struct bitmap * bitmap, struct rect * rect);
 x_bool bitmap_get_viewport(struct bitmap * bitmap, struct rect * rect);

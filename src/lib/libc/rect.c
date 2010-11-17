@@ -24,7 +24,7 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <gui/rect.h>
+#include <rect.h>
 
 x_bool rect_set(struct rect * rect, x_s32 left, x_s32 top, x_s32 right, x_s32 bottom)
 {

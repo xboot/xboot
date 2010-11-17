@@ -24,7 +24,7 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
-#include <gui/color.h>
+#include <color.h>
 
 #define RGB_COLOR(red, green, blue)		\
 	{.r = red, .g = green, .b = blue, .a = 255}

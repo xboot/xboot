@@ -10,6 +10,7 @@
 #include <rand.h>
 #include <div64.h>
 #include <fifo.h>
+#include <color.h>
 #include <vsprintf.h>
 #include <byteorder.h>
 #include <sha.h>
@@ -44,7 +45,6 @@
 #include <console/curses.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fsapi.h>
-#include <gui/color.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
 

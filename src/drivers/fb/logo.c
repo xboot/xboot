@@ -25,8 +25,8 @@
 #include <types.h>
 #include <xboot.h>
 #include <malloc.h>
-#include <gui/rect.h>
-#include <gui/color.h>
+#include <rect.h>
+#include <color.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
 #include <fb/graphic.h>

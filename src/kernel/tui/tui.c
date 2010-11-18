@@ -26,3 +26,113 @@
 #include <string.h>
 #include <tui/tui.h>
 
+
+struct tui_widget * find_tui_widget_by_id(struct tui_widget * widget, const x_s8 * id)
+{
+	struct tui_widget * result;
+	struct tui_widget * list;
+	struct list_head * pos;
+
+	if(!widget)
+		return NULL;
+
+	if(!id)
+		return NULL;
+
+	for(pos = (&widget->child)->next; pos != &widget->child; pos = pos->next)
+	{
+		list = list_entry(pos, struct tui_widget, child);
+		if(strcmp(list->id, id) == 0)
+			return list;
+
+		if(!list_empty(&list->child))
+		{
+			result = find_tui_widget_by_id(list, id);
+			if(result != NULL)
+				return result;
+		}
+	}
+
+	return NULL;
+}
+
+x_bool tui_widget_setparent(struct tui_widget * widget, struct tui_widget * parent)
+{
+	if(!widget)
+		return FALSE;
+
+	if(!parent)
+		return FALSE;
+
+	return widget->ops->setparent(widget, parent);
+}
+
+struct tui_widget * tui_widget_getparent(struct tui_widget * widget)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->getparent(widget);
+}
+
+x_bool tui_widget_addchild(struct tui_widget * widget, struct tui_widget * child)
+{
+	if(!widget)
+		return FALSE;
+
+	if(!child)
+		return FALSE;
+
+	return widget->ops->addchild(widget, child);
+}
+
+x_bool tui_widget_removechild(struct tui_widget * widget, struct tui_widget * child)
+{
+	if(!widget)
+		return FALSE;
+
+	if(!child)
+		return FALSE;
+
+	return widget->ops->removechild(widget, child);
+}
+
+x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->setbounds(widget, x, y, w, h);
+}
+
+x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->getbounds(widget, x, y, w, h);
+}
+
+x_bool tui_widget_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->setproperty(widget, name, value);
+}
+
+x_bool tui_widget_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->paint(widget, x, y, w, h);
+}
+
+x_bool tui_widget_destroy(struct tui_widget * widget)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->destroy(widget);
+}

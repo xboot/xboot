@@ -28,59 +28,55 @@
 #include <tui/tui.h>
 #include <tui/widget/button.h>
 
-static const x_s8 * tui_button_getid(struct tui_widget * self)
-{
-	return self->id;
-}
 
-static x_bool tui_button_setparent(struct tui_widget * self, struct tui_widget * parent)
+static x_bool tui_button_setparent(struct tui_widget * widget, struct tui_widget * parent)
 {
 	if(!parent)
 		return FALSE;
 
-	self->parent = parent;
+	widget->parent = parent;
 	//TODO
 	return TRUE;
 }
 
-static struct tui_widget * tui_button_getparent(struct tui_widget * self)
+static struct tui_widget * tui_button_getparent(struct tui_widget * widget)
 {
-	return self->parent;
+	return widget->parent;
 }
 
-static x_bool tui_button_addchild(struct tui_widget * self, struct tui_widget * child)
-{
-	return FALSE;
-}
-
-static x_bool tui_button_removechild(struct tui_widget * self, struct tui_widget * child)
+static x_bool tui_button_addchild(struct tui_widget * widget, struct tui_widget * child)
 {
 	return FALSE;
 }
 
-static x_bool tui_button_setbounds(struct tui_widget * self, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+static x_bool tui_button_removechild(struct tui_widget * widget, struct tui_widget * child)
+{
+	return FALSE;
+}
+
+static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
 	//TODO
 	return TRUE;
 }
 
-static x_bool tui_button_getbounds(struct tui_widget * self, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
+static x_bool tui_button_getbounds(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
 {
 	if(x)
-		*x = self->x;
+		*x = widget->x;
 	if(y)
-		*y = self->y;
+		*y = widget->y;
 	if(w)
-		*w = self->w;
+		*w = widget->w;
 	if(h)
-		*h = self->h;
+		*h = widget->h;
 
 	return TRUE;
 }
 
-static x_bool tui_button_minsize(struct tui_widget * self, x_s32 * w, x_s32 * h)
+static x_bool tui_button_minsize(struct tui_widget * widget, x_s32 * w, x_s32 * h)
 {
-	struct tui_button * button = self->priv;
+	struct tui_button * button = widget->priv;
 
 	if(button->visible)
 	{
@@ -110,9 +106,9 @@ static x_bool tui_button_minsize(struct tui_widget * self, x_s32 * w, x_s32 * h)
 	return TRUE;
 }
 
-static x_bool tui_button_setproperty(struct tui_widget * self, const x_s8 * name, const x_s8 * value)
+static x_bool tui_button_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)
 {
-	struct tui_button * button = self->priv;
+	struct tui_button * button = widget->priv;
 
 	if(strcmp(name, (const x_s8 *)"id") == 0)
 	{
@@ -138,7 +134,7 @@ static x_bool tui_button_setproperty(struct tui_widget * self, const x_s8 * name
 	return TRUE;
 }
 
-static x_bool tui_button_paint(struct tui_widget * self, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
 	struct tui_widget * list;
 	struct list_head * pos;
@@ -149,10 +145,10 @@ static x_bool tui_button_paint(struct tui_widget * self, x_s32 x, x_s32 y, x_s32
 	a.right = x + w;
 	a.bottom = y + h;
 
-	b.left = self->x;
-	b.top = self->y;
-	b.right = self->x + self->w;
-	b.bottom = self->y + self->h;
+	b.left = widget->x;
+	b.top = widget->y;
+	b.right = widget->x + widget->w;
+	b.bottom = widget->y + widget->h;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
 		return TRUE;
@@ -166,9 +162,9 @@ static x_bool tui_button_paint(struct tui_widget * self, x_s32 x, x_s32 y, x_s32
 	return TRUE;
 }
 
-static x_bool tui_button_destroy(struct tui_widget * self)
+static x_bool tui_button_destroy(struct tui_widget * widget)
 {
-	struct tui_button * button = self->priv;
+	struct tui_button * button = widget->priv;
 
 	list_del(&button->widget.entry);
 
@@ -180,7 +176,6 @@ static x_bool tui_button_destroy(struct tui_widget * self)
 }
 
 static struct tui_widget_ops button_ops = {
-	.getid				= tui_button_getid,
 	.setparent			= tui_button_setparent,
 	.getparent			= tui_button_getparent,
 	.addchild			= tui_button_addchild,

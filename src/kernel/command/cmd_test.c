@@ -47,22 +47,18 @@
 #include <fs/fsapi.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
+#include <tui/tui.h>
+#include <tui/widget/workspace.h>
 
 
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-	struct console * con;
-	x_u32 code;
+	struct tui_workspace * ws;
 
-	con = search_console("input");
-
-	while(1)
-	{
-		if(console_getcode(con, &code))
-			printk("0x%lx: %c\r\n", code, code);
-	}
+	ws = tui_workspace_new(get_stdout(), (x_s8 *)"ws");
+	tui_widget_paint(ws, 0, 0, 20, 10);
 
 	return 0;
 }

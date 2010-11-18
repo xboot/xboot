@@ -26,27 +26,28 @@
 #include <string.h>
 #include <malloc.h>
 #include <tui/tui.h>
+#include <tui/theme.h>
 #include <tui/widget/workspace.h>
 
-static const x_s8 * tui_workspace_getid(struct tui_widget * self)
-{
-	return self->id;
-}
 
-static x_bool tui_workspace_setparent(struct tui_widget * self, struct tui_widget * parent)
+static x_bool tui_workspace_setparent(struct tui_widget * widget, struct tui_widget * parent)
 {
-	self->parent = NULL;
+	struct tui_workspace * workspace = widget->priv;
 
+	workspace->widget.parent = NULL;
 	return FALSE;
 }
 
-static struct tui_widget * tui_workspace_getparent(struct tui_widget * self)
+static struct tui_widget * tui_workspace_getparent(struct tui_widget * widget)
 {
-	return self->parent;
+	struct tui_workspace * workspace = widget->priv;
+
+	return workspace->widget.parent;
 }
 
-static x_bool tui_workspace_addchild(struct tui_widget * self, struct tui_widget * child)
+static x_bool tui_workspace_addchild(struct tui_widget * widget, struct tui_widget * child)
 {
+	struct tui_workspace * workspace = widget->priv;
 	struct tui_widget * list;
 	struct list_head * pos;
 
@@ -66,21 +67,22 @@ static x_bool tui_workspace_addchild(struct tui_widget * self, struct tui_widget
 		}
 	}
 
-	list_add_tail(&(self->child), &(child->entry));
-	child->parent = self;
+	list_add_tail(&(workspace->widget.child), &(child->entry));
+	child->parent = widget;
 
 	return TRUE;
 }
 
-static x_bool tui_workspace_removechild(struct tui_widget * self, struct tui_widget * child)
+static x_bool tui_workspace_removechild(struct tui_widget * widget, struct tui_widget * child)
 {
+	struct tui_workspace * workspace = widget->priv;
 	struct tui_widget * list;
 	struct list_head * pos;
 
 	if(!child)
 		return FALSE;
 
-	for(pos = (&self->child)->next; pos != (&self->child); pos = pos->next)
+	for(pos = (&workspace->widget.child)->next; pos != (&workspace->widget.child); pos = pos->next)
 	{
 		list = list_entry(pos, struct tui_widget, child);
 		if(list == child)
@@ -93,68 +95,63 @@ static x_bool tui_workspace_removechild(struct tui_widget * self, struct tui_wid
 	return FALSE;
 }
 
-static x_bool tui_workspace_setbounds(struct tui_widget * self, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+static x_bool tui_workspace_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
 	return TRUE;
 }
 
-static x_bool tui_workspace_getbounds(struct tui_widget * self, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
+static x_bool tui_workspace_getbounds(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
 {
+	struct tui_workspace * workspace = widget->priv;
+
 	if(x)
-		*x = self->x;
+		*x = workspace->widget.x;
 	if(y)
-		*y = self->y;
+		*y = workspace->widget.y;
 	if(w)
-		*w = self->w;
+		*w = workspace->widget.w;
 	if(h)
-		*h = self->h;
+		*h = workspace->widget.h;
 
 	return TRUE;
 }
 
-static x_bool tui_workspace_minsize(struct tui_widget * self, x_s32 * w, x_s32 * h)
+static x_bool tui_workspace_minsize(struct tui_widget * widget, x_s32 * w, x_s32 * h)
 {
+	struct tui_workspace * workspace = widget->priv;
+
 	if(w)
-		*w = self->w;
+		*w = workspace->widget.w;
 	if(h)
-		*h = self->h;
+		*h = workspace->widget.h;
 
 	return TRUE;
 }
 
-static x_bool tui_workspace_setproperty(struct tui_widget * self, const x_s8 * name, const x_s8 * value)
+static x_bool tui_workspace_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)
 {
-	if(strcmp(name, (const x_s8 *)"id") == 0)
-	{
-		free(self->id);
-		if(value)
-			self->id = strdup(value);
-		else
-			self->id = strdup((const x_s8 *)"");
-	}
-	else
-	{
-		return FALSE;
-	}
-
-	return TRUE;
+	return FALSE;
 }
 
-static x_bool tui_workspace_paint(struct tui_widget * self, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
+	struct tui_workspace * workspace = widget->priv;
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
+	enum console_color fg, bg;
+	x_u32 code;
+	x_s32 i, j;
 
 	a.left = x;
 	a.top = y;
 	a.right = x + w;
 	a.bottom = y + h;
 
-	b.left = self->x;
-	b.top = self->y;
-	b.right = self->x + self->w;
-	b.bottom = self->y + self->h;
+	b.left = widget->x;
+	b.top = widget->y;
+	b.right = widget->x + widget->w;
+	b.bottom = widget->y + widget->h;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
 		return TRUE;
@@ -164,7 +161,22 @@ static x_bool tui_workspace_paint(struct tui_widget * self, x_s32 x, x_s32 y, x_
 	w = r.right - r.left;
 	h = r.bottom - r.top;
 
-	for(pos = (&self->child)->next; pos != (&self->child); pos = pos->next)
+	fg = get_tui_theme()->workspace.fg;
+	bg = get_tui_theme()->workspace.bg;
+	code = get_tui_theme()->workspace.c;
+
+	console_setcolor(workspace->widget.console, fg, bg);
+
+	for(j = y; j < h; j++)
+	{
+		console_gotoxy(workspace->widget.console, x, j);
+		for(i = x; i < w; i++)
+		{
+			console_putcode(workspace->widget.console, code);
+		}
+	}
+
+	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
 	{
 		list = list_entry(pos, struct tui_widget, child);
 
@@ -175,9 +187,9 @@ static x_bool tui_workspace_paint(struct tui_widget * self, x_s32 x, x_s32 y, x_
 	return TRUE;
 }
 
-static x_bool tui_workspace_destroy(struct tui_widget * self)
+static x_bool tui_workspace_destroy(struct tui_widget * widget)
 {
-	struct tui_workspace * workspace = self->priv;
+	struct tui_workspace * workspace = widget->priv;
 	struct tui_widget * list;
 	struct list_head * head, * curr, * next;
 
@@ -204,7 +216,6 @@ static x_bool tui_workspace_destroy(struct tui_widget * self)
 }
 
 static struct tui_widget_ops workspace_ops = {
-	.getid				= tui_workspace_getid,
 	.setparent			= tui_workspace_setparent,
 	.getparent			= tui_workspace_getparent,
 	.addchild			= tui_workspace_addchild,
@@ -217,11 +228,13 @@ static struct tui_widget_ops workspace_ops = {
 	.destroy			= tui_workspace_destroy,
 };
 
-struct tui_workspace * new_tui_workspace(struct console * console)
+struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * id)
 {
 	struct tui_workspace * workspace;
-	enum console_color fg, bg;
 	x_s32 w, h;
+
+	if(!id)
+		return NULL;
 
 	if(!console || !console->putcode)
 		return NULL;
@@ -229,15 +242,12 @@ struct tui_workspace * new_tui_workspace(struct console * console)
 	if(!console_getwh(console, &w, &h))
 		return NULL;
 
-	if(!console_getcolor(console, &fg, &bg))
-		return NULL;
-
 	workspace = malloc(sizeof(struct tui_workspace));
 	if(!workspace)
 		return NULL;
 
 	workspace->widget.console = console;
-	workspace->widget.id = strdup((const x_s8 *)"workspace");
+	workspace->widget.id = strdup(id);
 	workspace->widget.x = 0;
 	workspace->widget.y = 0;
 	workspace->widget.w = w;
@@ -246,9 +256,6 @@ struct tui_workspace * new_tui_workspace(struct console * console)
 	workspace->widget.ops = &workspace_ops;
 	workspace->widget.parent = NULL;
 	workspace->widget.priv = workspace;
-
-	workspace->fg = fg;
-	workspace->bg = bg;
 
 	init_list_head(&(workspace->widget.entry));
 	init_list_head(&(workspace->widget.child));

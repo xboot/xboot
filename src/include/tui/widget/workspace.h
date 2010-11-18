@@ -10,12 +10,8 @@ struct tui_workspace
 {
 	/* tui widget */
 	struct tui_widget widget;
-
-	/* workspace's foreground color and background color */
-	enum console_color fg, bg;
 };
 
-
-struct tui_workspace * new_tui_workspace(struct console * console);
+struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * id);
 
 #endif /* __TUI_WORKSPACE_H__ */

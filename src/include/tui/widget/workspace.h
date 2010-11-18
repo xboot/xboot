@@ -10,6 +10,11 @@ struct tui_workspace
 {
 	/* tui widget */
 	struct tui_widget widget;
+
+	/* saved console's information for restore */
+	x_bool cursor;
+	x_s32 x, y;
+	enum console_color f, b;
 };
 
 struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * id);

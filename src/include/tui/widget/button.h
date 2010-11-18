@@ -17,12 +17,6 @@ struct tui_button
 	/* caption's foreground color and background color */
 	enum console_color cf, cb;
 
-	/* widget body's foreground color and background color */
-	enum console_color bf, bb;
-
-	/* widget shadow's foreground color and background color */
-	enum console_color sf, sb;
-
 	/* align method */
 	enum align align;
 
@@ -37,6 +31,6 @@ struct tui_button
 };
 
 
-struct tui_button * new_tui_button(struct tui_widget * parent, x_s8 * caption);
+struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, const x_s8 * caption);
 
 #endif /* __TUI_BUTTON_H__ */

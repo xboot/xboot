@@ -86,10 +86,11 @@ static x_bool tui_workspace_setproperty(struct tui_widget * widget, const x_s8 *
 static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
 	struct tui_workspace * workspace = widget->priv;
+	struct tui_theme * theme = get_tui_theme();
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
-	enum console_color fg, bg;
+	x_bool cursor;
 	x_u32 code;
 	x_s32 i, j;
 
@@ -98,10 +99,10 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	a.right = x + w;
 	a.bottom = y + h;
 
-	b.left = widget->x;
-	b.top = widget->y;
-	b.right = widget->x + widget->w;
-	b.bottom = widget->y + widget->h;
+	b.left = workspace->widget.x;
+	b.top = workspace->widget.y;
+	b.right = workspace->widget.x + workspace->widget.w;
+	b.bottom = workspace->widget.y + workspace->widget.h;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
 		return TRUE;
@@ -111,12 +112,11 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	w = r.right - r.left;
 	h = r.bottom - r.top;
 
-	fg = get_tui_theme()->workspace.fg;
-	bg = get_tui_theme()->workspace.bg;
-	code = get_tui_theme()->workspace.c;
+	cursor = console_getcursor(workspace->widget.console);
+	console_setcursor(workspace->widget.console, FALSE);
 
-	console_setcolor(workspace->widget.console, fg, bg);
-
+	console_setcolor(workspace->widget.console, theme->workspace.fg, theme->workspace.bg);
+	code = theme->workspace.ch;
 	for(j = y; j < h; j++)
 	{
 		console_gotoxy(workspace->widget.console, x, j);
@@ -126,18 +126,20 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 		}
 	}
 
-	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
+	for(pos = (&workspace->widget.child)->next; pos != (&workspace->widget.child); pos = pos->next)
 	{
-		list = list_entry(pos, struct tui_widget, child);
+		list = list_entry(pos, struct tui_widget, entry);
 
 		if(list->ops->paint)
 			list->ops->paint(list, x, y, w, h);
 	}
 
+	console_setcursor(workspace->widget.console, cursor);
+
 	return TRUE;
 }
 
-static x_bool tui_workspace_destroy(struct tui_widget * widget)
+static x_bool tui_workspace_destory(struct tui_widget * widget)
 {
 	struct tui_workspace * workspace = widget->priv;
 	struct tui_widget * list;
@@ -148,17 +150,20 @@ static x_bool tui_workspace_destroy(struct tui_widget * widget)
 
 	while(curr != head)
 	{
-		list = list_entry(curr, struct tui_widget, child);
+		list = list_entry(curr, struct tui_widget, entry);
 
 		next = curr->next;
 		list_del(curr);
-		if(list->ops->destroy)
-			list->ops->destroy(list);
+		if(list->ops->destory)
+			list->ops->destory(list);
 		curr = next;
 	}
 
-	list_del(&workspace->widget.entry);
+	console_setcolor(workspace->widget.console, workspace->f, workspace->b);
+	console_gotoxy(workspace->widget.console, workspace->x, workspace->y);
+	console_setcursor(workspace->widget.console, workspace->cursor);
 
+	list_del(&workspace->widget.entry);
 	free(workspace->widget.id);
 	free(workspace);
 
@@ -172,12 +177,14 @@ static struct tui_widget_ops workspace_ops = {
 	.region				= tui_workspace_region,
 	.setproperty		= tui_workspace_setproperty,
 	.paint				= tui_workspace_paint,
-	.destroy			= tui_workspace_destroy,
+	.destory			= tui_workspace_destory,
 };
 
 struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * id)
 {
 	struct tui_workspace * workspace;
+	enum console_color f, b;
+	x_s32 x, y;
 	x_s32 w, h;
 
 	if(!id)
@@ -186,7 +193,13 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 	if(!console || !console->putcode)
 		return NULL;
 
+	if(!console_getxy(console, &x, &y))
+		return NULL;
+
 	if(!console_getwh(console, &w, &h))
+		return NULL;
+
+	if(!console_getcolor(console, &f, &b))
 		return NULL;
 
 	workspace = malloc(sizeof(struct tui_workspace));
@@ -201,8 +214,14 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 	workspace->widget.console = console;
 	workspace->widget.layout = NULL;
 	workspace->widget.ops = &workspace_ops;
-	workspace->widget.parent = NULL;
+	workspace->widget.parent = (struct tui_widget *)workspace;
 	workspace->widget.priv = workspace;
+
+	workspace->cursor = console_getcursor(console);
+	workspace->x = x;
+	workspace->y = y;
+	workspace->f = f;
+	workspace->b = b;
 
 	init_list_head(&(workspace->widget.entry));
 	init_list_head(&(workspace->widget.child));

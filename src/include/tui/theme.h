@@ -8,9 +8,14 @@
 struct tui_theme
 {
 	struct {
+		/* foreground color */
 		enum console_color fg;
+
+		/* background color */
 		enum console_color bg;
-		x_u32 c;
+
+		/* background character */
+		x_u32 ch;
 	} workspace;
 };
 

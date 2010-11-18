@@ -29,31 +29,6 @@
 #include <tui/widget/button.h>
 
 
-static x_bool tui_button_setparent(struct tui_widget * widget, struct tui_widget * parent)
-{
-	if(!parent)
-		return FALSE;
-
-	widget->parent = parent;
-	//TODO
-	return TRUE;
-}
-
-static struct tui_widget * tui_button_getparent(struct tui_widget * widget)
-{
-	return widget->parent;
-}
-
-static x_bool tui_button_addchild(struct tui_widget * widget, struct tui_widget * child)
-{
-	return FALSE;
-}
-
-static x_bool tui_button_removechild(struct tui_widget * widget, struct tui_widget * child)
-{
-	return FALSE;
-}
-
 static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
 	//TODO
@@ -176,10 +151,6 @@ static x_bool tui_button_destroy(struct tui_widget * widget)
 }
 
 static struct tui_widget_ops button_ops = {
-	.setparent			= tui_button_setparent,
-	.getparent			= tui_button_getparent,
-	.addchild			= tui_button_addchild,
-	.removechild		= tui_button_removechild,
 	.setbounds			= tui_button_setbounds,
 	.getbounds			= tui_button_getbounds,
 	.minsize			= tui_button_minsize,

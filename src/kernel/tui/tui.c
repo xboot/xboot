@@ -41,7 +41,7 @@ struct tui_widget * find_tui_widget_by_id(struct tui_widget * widget, const x_s8
 
 	for(pos = (&widget->child)->next; pos != &widget->child; pos = pos->next)
 	{
-		list = list_entry(pos, struct tui_widget, child);
+		list = list_entry(pos, struct tui_widget, entry);
 		if(strcmp(list->id, id) == 0)
 			return list;
 
@@ -58,43 +58,97 @@ struct tui_widget * find_tui_widget_by_id(struct tui_widget * widget, const x_s8
 
 x_bool tui_widget_setparent(struct tui_widget * widget, struct tui_widget * parent)
 {
+	struct tui_widget * list;
+	struct list_head * pos;
+
 	if(!widget)
 		return FALSE;
 
 	if(!parent)
 		return FALSE;
 
-	return widget->ops->setparent(widget, parent);
+	if((widget->parent != NULL) && (widget->parent != widget))
+	{
+		for(pos = (&widget->parent->child)->next; pos != (&widget->parent->child); pos = pos->next)
+		{
+			list = list_entry(pos, struct tui_widget, entry);
+			if(list == widget)
+			{
+				list_del(pos);
+				break;
+			}
+		}
+	}
+
+	list_add_tail(&(parent->child), &(widget->entry));
+	widget->parent = parent;
+
+	return TRUE;
 }
 
 struct tui_widget * tui_widget_getparent(struct tui_widget * widget)
 {
 	if(!widget)
-		return FALSE;
+		return NULL;
 
-	return widget->ops->getparent(widget);
+	if(widget->parent == widget)
+		return NULL;
+
+	return widget->parent;
 }
 
 x_bool tui_widget_addchild(struct tui_widget * widget, struct tui_widget * child)
 {
+	struct tui_widget * list;
+	struct list_head * pos;
+
 	if(!widget)
 		return FALSE;
 
 	if(!child)
 		return FALSE;
 
-	return widget->ops->addchild(widget, child);
+	if((child->parent != NULL) && (child->parent != child))
+	{
+		for(pos = (&child->parent->child)->next; pos != (&child->parent->child); pos = pos->next)
+		{
+			list = list_entry(pos, struct tui_widget, entry);
+			if(list == child)
+			{
+				list_del(pos);
+				break;
+			}
+		}
+	}
+
+	list_add_tail(&(widget->child), &(child->entry));
+	child->parent = widget;
+
+	return TRUE;
 }
 
 x_bool tui_widget_removechild(struct tui_widget * widget, struct tui_widget * child)
 {
+	struct tui_widget * list;
+	struct list_head * pos;
+
 	if(!widget)
 		return FALSE;
 
 	if(!child)
 		return FALSE;
 
-	return widget->ops->removechild(widget, child);
+	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
+	{
+		list = list_entry(pos, struct tui_widget, entry);
+		if(list == child)
+		{
+			list_del(pos);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
@@ -111,6 +165,22 @@ x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_
 		return FALSE;
 
 	return widget->ops->getbounds(widget, x, y, w, h);
+}
+
+x_bool tui_widget_minsize(struct tui_widget * widget, x_s32 * w, x_s32 * h)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->minsize(widget, w, h);
+}
+
+x_bool tui_widget_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->region(widget, x, y, w, h);
 }
 
 x_bool tui_widget_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)

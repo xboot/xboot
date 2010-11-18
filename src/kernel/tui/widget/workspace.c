@@ -29,72 +29,6 @@
 #include <tui/theme.h>
 #include <tui/widget/workspace.h>
 
-
-static x_bool tui_workspace_setparent(struct tui_widget * widget, struct tui_widget * parent)
-{
-	struct tui_workspace * workspace = widget->priv;
-
-	workspace->widget.parent = NULL;
-	return FALSE;
-}
-
-static struct tui_widget * tui_workspace_getparent(struct tui_widget * widget)
-{
-	struct tui_workspace * workspace = widget->priv;
-
-	return workspace->widget.parent;
-}
-
-static x_bool tui_workspace_addchild(struct tui_widget * widget, struct tui_widget * child)
-{
-	struct tui_workspace * workspace = widget->priv;
-	struct tui_widget * list;
-	struct list_head * pos;
-
-	if(!child)
-		return FALSE;
-
-	if(child->parent)
-	{
-		for(pos = (&child->parent->child)->next; pos != (&child->parent->child); pos = pos->next)
-		{
-			list = list_entry(pos, struct tui_widget, child);
-			if(list == child)
-			{
-				list_del(pos);
-				break;
-			}
-		}
-	}
-
-	list_add_tail(&(workspace->widget.child), &(child->entry));
-	child->parent = widget;
-
-	return TRUE;
-}
-
-static x_bool tui_workspace_removechild(struct tui_widget * widget, struct tui_widget * child)
-{
-	struct tui_workspace * workspace = widget->priv;
-	struct tui_widget * list;
-	struct list_head * pos;
-
-	if(!child)
-		return FALSE;
-
-	for(pos = (&workspace->widget.child)->next; pos != (&workspace->widget.child); pos = pos->next)
-	{
-		list = list_entry(pos, struct tui_widget, child);
-		if(list == child)
-		{
-			list_del(pos);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
 static x_bool tui_workspace_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
 	return TRUE;
@@ -120,6 +54,22 @@ static x_bool tui_workspace_minsize(struct tui_widget * widget, x_s32 * w, x_s32
 {
 	struct tui_workspace * workspace = widget->priv;
 
+	if(w)
+		*w = workspace->widget.w;
+	if(h)
+		*h = workspace->widget.h;
+
+	return TRUE;
+}
+
+static x_bool tui_workspace_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
+{
+	struct tui_workspace * workspace = widget->priv;
+
+	if(x)
+		*x = workspace->widget.x;
+	if(y)
+		*y = workspace->widget.y;
 	if(w)
 		*w = workspace->widget.w;
 	if(h)
@@ -216,13 +166,10 @@ static x_bool tui_workspace_destroy(struct tui_widget * widget)
 }
 
 static struct tui_widget_ops workspace_ops = {
-	.setparent			= tui_workspace_setparent,
-	.getparent			= tui_workspace_getparent,
-	.addchild			= tui_workspace_addchild,
-	.removechild		= tui_workspace_removechild,
 	.setbounds			= tui_workspace_setbounds,
 	.getbounds			= tui_workspace_getbounds,
 	.minsize			= tui_workspace_minsize,
+	.region				= tui_workspace_region,
 	.setproperty		= tui_workspace_setproperty,
 	.paint				= tui_workspace_paint,
 	.destroy			= tui_workspace_destroy,
@@ -246,12 +193,12 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 	if(!workspace)
 		return NULL;
 
-	workspace->widget.console = console;
 	workspace->widget.id = strdup(id);
 	workspace->widget.x = 0;
 	workspace->widget.y = 0;
 	workspace->widget.w = w;
 	workspace->widget.h = h;
+	workspace->widget.console = console;
 	workspace->widget.layout = NULL;
 	workspace->widget.ops = &workspace_ops;
 	workspace->widget.parent = NULL;

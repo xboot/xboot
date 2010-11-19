@@ -31,9 +31,15 @@
 static struct tui_theme current_tui_theme =
 {
 	.workspace 	= {
+		.cp		= 'a',
 		.fg		= CONSOLE_YELLOW,
 		.bg		= CONSOLE_RED,
-		.ch		= UNICODE_SPACE,
+	},
+
+	.button 	= {
+		.cp		= 'b',
+		.fg		= CONSOLE_BULE,
+		.bg		= CONSOLE_MAGENTA,
 	},
 };
 

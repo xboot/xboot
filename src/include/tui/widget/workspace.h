@@ -11,6 +11,9 @@ struct tui_workspace
 	/* tui widget */
 	struct tui_widget widget;
 
+	/* bind console */
+	struct console * console;
+
 	/* saved console's information for restore */
 	x_bool cursor;
 	x_s32 x, y;

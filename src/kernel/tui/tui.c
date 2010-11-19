@@ -151,28 +151,12 @@ x_bool tui_widget_removechild(struct tui_widget * widget, struct tui_widget * ch
 	return FALSE;
 }
 
-x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+x_bool tui_widget_minsize(struct tui_widget * widget, x_s32 * width, x_s32 * height)
 {
 	if(!widget)
 		return FALSE;
 
-	return widget->ops->setbounds(widget, x, y, w, h);
-}
-
-x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
-{
-	if(!widget)
-		return FALSE;
-
-	return widget->ops->getbounds(widget, x, y, w, h);
-}
-
-x_bool tui_widget_minsize(struct tui_widget * widget, x_s32 * w, x_s32 * h)
-{
-	if(!widget)
-		return FALSE;
-
-	return widget->ops->minsize(widget, w, h);
+	return widget->ops->minsize(widget, width, height);
 }
 
 x_bool tui_widget_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
@@ -181,6 +165,22 @@ x_bool tui_widget_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32
 		return FALSE;
 
 	return widget->ops->region(widget, x, y, w, h);
+}
+
+x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 oy, x_s32 width, x_s32 height)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->setbounds(widget, ox, oy, width, height);
+}
+
+x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height)
+{
+	if(!widget)
+		return FALSE;
+
+	return widget->ops->getbounds(widget, ox, oy, width, height);
 }
 
 x_bool tui_widget_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)

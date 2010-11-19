@@ -8,15 +8,26 @@
 struct tui_theme
 {
 	struct {
+		/* background code pointer */
+		x_u32 cp;
+
 		/* foreground color */
 		enum console_color fg;
 
 		/* background color */
 		enum console_color bg;
-
-		/* background character */
-		x_u32 ch;
 	} workspace;
+
+	struct {
+		/* background code pointer */
+		x_u32 cp;
+
+		/* foreground color */
+		enum console_color fg;
+
+		/* background color */
+		enum console_color bg;
+	} button;
 };
 
 struct tui_theme * get_tui_theme(void);

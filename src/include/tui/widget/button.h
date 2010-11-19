@@ -19,17 +19,7 @@ struct tui_button
 
 	/* align method */
 	enum align align;
-
-	/* shadow flag of button */
-	x_bool shadow;
-
-	/* enable flag of button */
-	x_bool enable;
-
-	/* visible flag of button */
-	x_bool visible;
 };
-
 
 struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, const x_s8 * caption);
 

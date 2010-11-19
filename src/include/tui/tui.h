@@ -10,19 +10,34 @@
  */
 struct tui_widget;
 
+struct tui_cell
+{
+	/* code pointer */
+	x_u32 cp;
+
+	/* foreground color */
+	enum console_color fg;
+
+	/* background color */
+	enum console_color bg;
+
+	/* dirty flag */
+	x_bool dirty;
+};
+
 struct tui_widget_ops
 {
-	/* set bounds */
-	x_bool (*setbounds)(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
-
-	/* get bounds */
-	x_bool (*getbounds)(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h);
-
 	/* get minimal width and height */
-	x_bool (*minsize)(struct tui_widget * widget, x_s32 * w, x_s32 * h);
+	x_bool (*minsize)(struct tui_widget * widget, x_s32 * width, x_s32 * height);
 
 	/* get a valid usable region */
 	x_bool (*region)(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h);
+
+	/* set bounds */
+	x_bool (*setbounds)(struct tui_widget * widget, x_s32 ox, x_s32 oy, x_s32 width, x_s32 height);
+
+	/* get bounds */
+	x_bool (*getbounds)(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height);
 
 	/* set widget property */
 	x_bool (*setproperty)(struct tui_widget * widget, const x_s8 * name, const x_s8 * value);
@@ -39,12 +54,17 @@ struct tui_widget
 	/* widget's id */
 	x_s8 * id;
 
-	/* widget's bounds */
-	x_s32 x, y;
-	x_s32 w, h;
+	/* widget's offset with relative to parent widget */
+	x_s32 ox, oy;
 
-	/* bind console */
-	struct console * console;
+	/* widget's width and height */
+	x_s32 width, height;
+
+	/* tui cell buffer length */
+	x_s32 clen;
+
+	/* tui cell buffer */
+	struct tui_cell * cell;
 
 	/* container layout */
 	struct tui_layout * layout;
@@ -71,10 +91,10 @@ x_bool tui_widget_setparent(struct tui_widget * widget, struct tui_widget * pare
 struct tui_widget * tui_widget_getparent(struct tui_widget * widget);
 x_bool tui_widget_addchild(struct tui_widget * widget, struct tui_widget * child);
 x_bool tui_widget_removechild(struct tui_widget * widget, struct tui_widget * child);
-x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
-x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h);
-x_bool tui_widget_minsize(struct tui_widget * widget, x_s32 * w, x_s32 * h);
+x_bool tui_widget_minsize(struct tui_widget * widget, x_s32 * width, x_s32 * height);
 x_bool tui_widget_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h);
+x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 oy, x_s32 width, x_s32 height);
+x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height);
 x_bool tui_widget_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value);
 x_bool tui_widget_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
 x_bool tui_widget_destory(struct tui_widget * widget);

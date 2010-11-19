@@ -26,78 +26,116 @@
 #include <string.h>
 #include <malloc.h>
 #include <tui/tui.h>
+#include <tui/theme.h>
 #include <tui/widget/button.h>
 
 
-static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+static x_bool tui_button_minsize(struct tui_widget * widget, x_s32 * width, x_s32 * height)
 {
-	//TODO
-	return TRUE;
-}
-
-static x_bool tui_button_getbounds(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
-{
-	struct tui_button * button = widget->priv;
-
-	if(x)
-		*x = button->widget.x;
-	if(y)
-		*y = button->widget.y;
-	if(w)
-		*w = button->widget.w;
-	if(h)
-		*h = button->widget.h;
-
-	return TRUE;
-}
-
-static x_bool tui_button_minsize(struct tui_widget * widget, x_s32 * w, x_s32 * h)
-{
-	struct tui_button * button = widget->priv;
-
-	//TODO
-	if(w)
-		*w = button->widget.w;
-	if(h)
-		*h = button->widget.h;
+	if(width)
+		*width = 4;
+	if(height)
+		*height = 4;
 
 	return TRUE;
 }
 
 static x_bool tui_button_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
 {
-	struct tui_button * button = widget->priv;
-
-	//TODO
 	if(x)
-		*x = button->widget.x;
+		*x = 1;
 	if(y)
-		*y = button->widget.y;
+		*y = 1;
 	if(w)
-		*w = button->widget.w;
+		*w = widget->width - 2;
 	if(h)
-		*h = button->widget.h;
+		*h = widget->height - 2;
+
+	return TRUE;
+}
+
+static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 oy, x_s32 width, x_s32 height)
+{
+	struct tui_theme * theme = get_tui_theme();
+	struct tui_cell * cell;
+	enum console_color fg, bg;
+	x_u32 cp;
+	x_s32 w, h;
+	x_s32 i, len;
+
+	if(!tui_button_minsize(widget, &w, &h))
+		return FALSE;
+
+	if(width < w)
+		width = w;
+
+	if(height < h)
+		height = h;
+
+	len = width * height;
+	if(len != widget->clen)
+	{
+		cell = malloc(len * sizeof(struct tui_cell));
+		if(!cell)
+			return FALSE;
+
+		free(widget->cell);
+
+		widget->cell = cell;
+		widget->clen = len;
+
+		fg = theme->button.fg;
+		bg = theme->button.bg;
+		cp = theme->button.cp;
+
+		for(i = 0; i < widget->clen; i++)
+		{
+			cell->cp = cp;
+			cell->fg = fg;
+			cell->bg = bg;
+			cell->dirty = TRUE;
+
+			cell++;
+		}
+	}
+
+	widget->ox = ox;
+	widget->oy = oy;
+	widget->width = width;
+	widget->height = height;
+
+	return TRUE;
+}
+
+static x_bool tui_button_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height)
+{
+	if(ox)
+		*ox = widget->ox;
+	if(oy)
+		*oy = widget->oy;
+	if(width)
+		*width = widget->width;
+	if(height)
+		*height = widget->height;
 
 	return TRUE;
 }
 
 static x_bool tui_button_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)
 {
-	//TODO
 	return FALSE;
 }
 
 static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
-	//TODO
-/*
 	struct tui_button * button = widget->priv;
 	struct tui_theme * theme = get_tui_theme();
+	struct tui_cell * cell, * p;
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
-	x_bool cursor;
-	x_u32 code;
+	enum console_color fg, bg;
+	x_u32 cp;
 	x_s32 i, j;
 
 	a.left = x;
@@ -105,10 +143,10 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	a.right = x + w;
 	a.bottom = y + h;
 
-	b.left = button->widget.x;
-	b.top = button->widget.y;
-	b.right = button->widget.x + button->widget.w;
-	b.bottom = button->widget.y + button->widget.h;
+	b.left = 0;
+	b.top = 0;
+	b.right =  widget->width;
+	b.bottom = widget->height;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
 		return TRUE;
@@ -118,21 +156,27 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	w = r.right - r.left;
 	h = r.bottom - r.top;
 
-	cursor = console_getcursor(button->widget.console);
-	console_setcursor(button->widget.console, FALSE);
+	cp = theme->button.cp;
+	fg = theme->button.fg;
+	bg = theme->button.bg;
 
-	console_setcolor(button->widget.console, theme->button.fg, theme->button.bg);
-	code = theme->button.ch;
 	for(j = y; j < h; j++)
 	{
-		console_gotoxy(button->widget.console, x, j);
+		cell = &(widget->cell[widget->width * j + x]);
 		for(i = x; i < w; i++)
 		{
-			console_putcode(button->widget.console, code);
+			if( (cell->cp != cp) || (cell->fg != fg) || (cell->bg != bg) )
+			{
+				cell->cp = cp;
+				cell->fg = fg;
+				cell->bg = bg;
+				cell->dirty = TRUE;
+			}
+			cell++;
 		}
 	}
 
-	for(pos = (&button->widget.child)->next; pos != (&button->widget.child); pos = pos->next)
+	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
 	{
 		list = list_entry(pos, struct tui_widget, entry);
 
@@ -140,8 +184,26 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 			list->ops->paint(list, x, y, w, h);
 	}
 
-	console_setcursor(button->widget.console, cursor);
-*/
+	if((widget->parent != NULL) && (widget->parent != widget))
+	{
+		for(j = y; j < h; j++)
+		{
+			p = &(widget->parent->cell[widget->parent->width * (widget->oy + j) + widget->ox + x]);
+			cell = &(widget->cell[widget->width * j + x]);
+			for(i = x; i < w; i++)
+			{
+				if( (p->cp != cell->cp) || (p->fg != cell->fg) || (p->bg != cell->bg) )
+				{
+					p->cp = cell->cp;
+					p->fg = cell->fg;
+					p->bg = cell->bg;
+					p->dirty = TRUE;
+				}
+				cell->dirty = FALSE;
+				cell++;
+			}
+		}
+	}
 
 	return TRUE;
 }
@@ -169,6 +231,7 @@ static x_bool tui_button_destory(struct tui_widget * widget)
 	list_del(&button->widget.entry);
 
 	free(button->widget.id);
+	free(button->widget.cell);
 	free(button->caption);
 	free(button);
 
@@ -176,10 +239,10 @@ static x_bool tui_button_destory(struct tui_widget * widget)
 }
 
 static struct tui_widget_ops button_ops = {
-	.setbounds			= tui_button_setbounds,
-	.getbounds			= tui_button_getbounds,
 	.minsize			= tui_button_minsize,
 	.region				= tui_button_region,
+	.setbounds			= tui_button_setbounds,
+	.getbounds			= tui_button_getbounds,
 	.setproperty		= tui_button_setproperty,
 	.paint				= tui_button_paint,
 	.destory			= tui_button_destory,
@@ -187,8 +250,10 @@ static struct tui_widget_ops button_ops = {
 
 struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, const x_s8 * caption)
 {
+	struct tui_theme * theme = get_tui_theme();
 	struct tui_button * button;
-	x_s32 x, y, w, h;
+	struct tui_cell * cell;
+	x_s32 i;
 
 	if(!parent)
 		return NULL;
@@ -196,19 +261,45 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 	if(!id || !caption)
 		return NULL;
 
-	if(!tui_widget_region(parent, &x, &y, &w, &h))
-		return NULL;
-
 	button = malloc(sizeof(struct tui_button));
 	if(!button)
 		return NULL;
 
 	button->widget.id = strdup(id);
-	button->widget.x = x + 0;
-	button->widget.y = y + 0;
-	button->widget.w = 8;
-	button->widget.h = 4;
-	button->widget.console = parent->console;
+	button->widget.ox = 0;
+	button->widget.oy = 0;
+	button->widget.width = 8;
+	button->widget.height = 4;
+	button->widget.layout = NULL;
+	button->widget.ops = &button_ops;
+	button->widget.parent = parent;
+	button->widget.priv = button;
+
+	button->widget.clen = button->widget.width * button->widget.height;
+	button->widget.cell = malloc(button->widget.clen * sizeof(struct tui_cell));
+	if(!button->widget.cell)
+	{
+		free(button->widget.id);
+		free(button);
+		return NULL;
+	}
+
+	cell = button->widget.cell;
+	for(i = 0; i < button->widget.clen; i++)
+	{
+		cell->cp = theme->button.cp;
+		cell->fg = theme->button.fg;
+		cell->bg = theme->button.bg;
+		cell->dirty = TRUE;
+
+		cell++;
+	}
+
+	button->widget.id = strdup(id);
+	button->widget.ox = 0;
+	button->widget.oy = 0;
+	button->widget.width = 8;
+	button->widget.height = 4;
 	button->widget.layout = NULL;
 	button->widget.ops = &button_ops;
 	button->widget.parent = parent;
@@ -218,9 +309,6 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 	button->cf = CONSOLE_WHITE;
 	button->cb = CONSOLE_BLACK;
 	button->align = ALIGN_CENTER;
-	button->shadow = TRUE;
-	button->enable = TRUE;
-	button->visible = TRUE;
 
 	init_list_head(&(button->widget.entry));
 	init_list_head(&(button->widget.child));

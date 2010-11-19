@@ -40,7 +40,7 @@ struct fbcon_cell
 	/* code pointer */
 	x_u32 cp;
 
-	/* front color and background color */
+	/* foreground color and background color */
 	x_u32 fc, bc;
 
 	/* character width and height, the unit of font's width and height in pixel */

@@ -29,51 +29,94 @@
 #include <tui/theme.h>
 #include <tui/widget/workspace.h>
 
-static x_bool tui_workspace_setbounds(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+
+static x_bool tui_workspace_minsize(struct tui_widget * widget, x_s32 * width, x_s32 * height)
 {
-	return TRUE;
-}
-
-static x_bool tui_workspace_getbounds(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
-{
-	struct tui_workspace * workspace = widget->priv;
-
-	if(x)
-		*x = workspace->widget.x;
-	if(y)
-		*y = workspace->widget.y;
-	if(w)
-		*w = workspace->widget.w;
-	if(h)
-		*h = workspace->widget.h;
-
-	return TRUE;
-}
-
-static x_bool tui_workspace_minsize(struct tui_widget * widget, x_s32 * w, x_s32 * h)
-{
-	struct tui_workspace * workspace = widget->priv;
-
-	if(w)
-		*w = workspace->widget.w;
-	if(h)
-		*h = workspace->widget.h;
+	if(width)
+		*width = 2;
+	if(height)
+		*height = 2;
 
 	return TRUE;
 }
 
 static x_bool tui_workspace_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
 {
-	struct tui_workspace * workspace = widget->priv;
-
 	if(x)
-		*x = workspace->widget.x;
+		*x = 0;
 	if(y)
-		*y = workspace->widget.y;
+		*y = 0;
 	if(w)
-		*w = workspace->widget.w;
+		*w = widget->width;
 	if(h)
-		*h = workspace->widget.h;
+		*h = widget->height;
+
+	return TRUE;
+}
+
+static x_bool tui_workspace_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 oy, x_s32 width, x_s32 height)
+{
+	struct tui_theme * theme = get_tui_theme();
+	struct tui_cell * cell;
+	enum console_color fg, bg;
+	x_u32 cp;
+	x_s32 w, h;
+	x_s32 i, len;
+
+	if(!tui_workspace_minsize(widget, &w, &h))
+		return FALSE;
+
+	if(width < w)
+		width = w;
+
+	if(height < h)
+		height = h;
+
+	len = width * height;
+	if(len != widget->clen)
+	{
+		cell = malloc(len * sizeof(struct tui_cell));
+		if(!cell)
+			return FALSE;
+
+		free(widget->cell);
+
+		widget->cell = cell;
+		widget->clen = len;
+
+		fg = theme->workspace.fg;
+		bg = theme->workspace.bg;
+		cp = theme->workspace.cp;
+
+		for(i = 0; i < widget->clen; i++)
+		{
+			cell->cp = cp;
+			cell->fg = fg;
+			cell->bg = bg;
+			cell->dirty = TRUE;
+
+			cell++;
+		}
+	}
+
+	widget->ox = ox;
+	widget->oy = oy;
+	widget->width = width;
+	widget->height = height;
+
+	return TRUE;
+}
+
+static x_bool tui_workspace_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height)
+{
+	if(ox)
+		*ox = widget->ox;
+	if(oy)
+		*oy = widget->oy;
+	if(width)
+		*width = widget->width;
+	if(height)
+		*height = widget->height;
 
 	return TRUE;
 }
@@ -87,11 +130,13 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 {
 	struct tui_workspace * workspace = widget->priv;
 	struct tui_theme * theme = get_tui_theme();
+	struct tui_cell * cell, * p;
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
+	enum console_color fg, bg;
+	x_u32 cp;
 	x_bool cursor;
-	x_u32 code;
 	x_s32 i, j;
 
 	a.left = x;
@@ -99,10 +144,10 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	a.right = x + w;
 	a.bottom = y + h;
 
-	b.left = workspace->widget.x;
-	b.top = workspace->widget.y;
-	b.right = workspace->widget.x + workspace->widget.w;
-	b.bottom = workspace->widget.y + workspace->widget.h;
+	b.left = 0;
+	b.top = 0;
+	b.right =  widget->width;
+	b.bottom = widget->height;
 
 	if(rect_intersect(&r, &a, & b) == FALSE)
 		return TRUE;
@@ -112,21 +157,27 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	w = r.right - r.left;
 	h = r.bottom - r.top;
 
-	cursor = console_getcursor(workspace->widget.console);
-	console_setcursor(workspace->widget.console, FALSE);
+	cp = theme->workspace.cp;
+	fg = theme->workspace.fg;
+	bg = theme->workspace.bg;
 
-	console_setcolor(workspace->widget.console, theme->workspace.fg, theme->workspace.bg);
-	code = theme->workspace.ch;
 	for(j = y; j < h; j++)
 	{
-		console_gotoxy(workspace->widget.console, x, j);
+		cell = &(widget->cell[widget->width * j + x]);
 		for(i = x; i < w; i++)
 		{
-			console_putcode(workspace->widget.console, code);
+			if( (cell->cp != cp) || (cell->fg != fg) || (cell->bg != bg) )
+			{
+				cell->cp = cp;
+				cell->fg = fg;
+				cell->bg = bg;
+				cell->dirty = TRUE;
+			}
+			cell++;
 		}
 	}
 
-	for(pos = (&workspace->widget.child)->next; pos != (&workspace->widget.child); pos = pos->next)
+	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
 	{
 		list = list_entry(pos, struct tui_widget, entry);
 
@@ -134,7 +185,51 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 			list->ops->paint(list, x, y, w, h);
 	}
 
-	console_setcursor(workspace->widget.console, cursor);
+	if((widget->parent != NULL) && (widget->parent != widget))
+	{
+		for(j = y; j < h; j++)
+		{
+			p = &(widget->parent->cell[widget->parent->width * (widget->oy + j) + widget->ox + x]);
+			cell = &(widget->cell[widget->width * j + x]);
+			for(i = x; i < w; i++)
+			{
+				if( (p->cp != cell->cp) || (p->fg != cell->fg) || (p->bg != cell->bg) )
+				{
+					p->cp = cell->cp;
+					p->fg = cell->fg;
+					p->bg = cell->bg;
+					p->dirty = TRUE;
+				}
+				cell->dirty = FALSE;
+				cell++;
+			}
+		}
+	}
+	else
+	{
+		cursor = console_getcursor(workspace->console);
+		console_setcursor(workspace->console, FALSE);
+
+		for(j = y; j < h; j++)
+		{
+			cell = &(widget->cell[widget->width * j + x]);
+			for(i = x; i < w; i++)
+			{
+				if(cell->dirty)
+				{
+					console_gotoxy(workspace->console, widget->ox + i, widget->oy + j);
+					console_setcolor(workspace->console, cell->fg, cell->bg);
+					console_putcode(workspace->console, cell->cp);
+
+					cell->dirty = FALSE;
+				}
+
+				cell++;
+			}
+		}
+
+		console_setcursor(workspace->console, cursor);
+	}
 
 	return TRUE;
 }
@@ -159,22 +254,24 @@ static x_bool tui_workspace_destory(struct tui_widget * widget)
 		curr = next;
 	}
 
-	console_setcolor(workspace->widget.console, workspace->f, workspace->b);
-	console_gotoxy(workspace->widget.console, workspace->x, workspace->y);
-	console_setcursor(workspace->widget.console, workspace->cursor);
-
 	list_del(&workspace->widget.entry);
+
+	console_setcolor(workspace->console, workspace->f, workspace->b);
+	console_gotoxy(workspace->console, workspace->x, workspace->y);
+	console_setcursor(workspace->console, workspace->cursor);
+
 	free(workspace->widget.id);
+	free(workspace->widget.cell);
 	free(workspace);
 
 	return TRUE;
 }
 
 static struct tui_widget_ops workspace_ops = {
-	.setbounds			= tui_workspace_setbounds,
-	.getbounds			= tui_workspace_getbounds,
 	.minsize			= tui_workspace_minsize,
 	.region				= tui_workspace_region,
+	.setbounds			= tui_workspace_setbounds,
+	.getbounds			= tui_workspace_getbounds,
 	.setproperty		= tui_workspace_setproperty,
 	.paint				= tui_workspace_paint,
 	.destory			= tui_workspace_destory,
@@ -182,10 +279,13 @@ static struct tui_widget_ops workspace_ops = {
 
 struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * id)
 {
+	struct tui_theme * theme = get_tui_theme();
 	struct tui_workspace * workspace;
+	struct tui_cell * cell;
 	enum console_color f, b;
 	x_s32 x, y;
 	x_s32 w, h;
+	x_s32 i;
 
 	if(!id)
 		return NULL;
@@ -207,16 +307,36 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 		return NULL;
 
 	workspace->widget.id = strdup(id);
-	workspace->widget.x = 0;
-	workspace->widget.y = 0;
-	workspace->widget.w = w;
-	workspace->widget.h = h;
-	workspace->widget.console = console;
+	workspace->widget.ox = 0;
+	workspace->widget.oy = 0;
+	workspace->widget.width = w;
+	workspace->widget.height = h;
 	workspace->widget.layout = NULL;
 	workspace->widget.ops = &workspace_ops;
 	workspace->widget.parent = (struct tui_widget *)workspace;
 	workspace->widget.priv = workspace;
 
+	workspace->widget.clen = workspace->widget.width * workspace->widget.height;
+	workspace->widget.cell = malloc(workspace->widget.clen * sizeof(struct tui_cell));
+	if(!workspace->widget.cell)
+	{
+		free(workspace->widget.id);
+		free(workspace);
+		return NULL;
+	}
+
+	cell = workspace->widget.cell;
+	for(i = 0; i < workspace->widget.clen; i++)
+	{
+		cell->cp = theme->workspace.cp;
+		cell->fg = theme->workspace.fg;
+		cell->bg = theme->workspace.bg;
+		cell->dirty = TRUE;
+
+		cell++;
+	}
+
+	workspace->console = console;
 	workspace->cursor = console_getcursor(console);
 	workspace->x = x;
 	workspace->y = y;

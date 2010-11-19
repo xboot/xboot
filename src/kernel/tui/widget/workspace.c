@@ -200,6 +200,7 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 					p->bg = cell->bg;
 					p->dirty = TRUE;
 				}
+				p++;
 				cell->dirty = FALSE;
 				cell++;
 			}

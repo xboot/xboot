@@ -199,6 +199,7 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 					p->bg = cell->bg;
 					p->dirty = TRUE;
 				}
+				p++;
 				cell->dirty = FALSE;
 				cell++;
 			}

@@ -74,7 +74,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 		tui_widget_setbounds(btn, 4+i,2+i,5,5);
 		tui_widget_paint((struct tui_widget *)ws, 0, 0, 40, 20);
 
-		mdelay(200);
+		mdelay(400);
 	}
 
 	tui_widget_destory((struct tui_widget *)ws);

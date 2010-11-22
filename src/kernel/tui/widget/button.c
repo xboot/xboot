@@ -123,7 +123,22 @@ static x_bool tui_button_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32
 
 static x_bool tui_button_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)
 {
-	return FALSE;
+	struct tui_button * button = widget->priv;
+
+	if(strcmp(name, (const x_s8 *)"caption") == 0)
+	{
+		free(button->caption);
+		if(value)
+			button->caption = strdup(value);
+		else
+			button->caption = strdup((const x_s8 *)"");
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)

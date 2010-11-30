@@ -193,15 +193,26 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 			cell = &(widget->cell[widget->width * j + x]);
 			for(i = x; i < w; i++)
 			{
-				if( (p->cp != cell->cp) || (p->fg != cell->fg) || (p->bg != cell->bg) )
+				if(cell->dirty)
 				{
 					p->cp = cell->cp;
 					p->fg = cell->fg;
 					p->bg = cell->bg;
 					p->dirty = TRUE;
 				}
-				p++;
+				else
+				{
+					if( (p->cp != cell->cp) || (p->fg != cell->fg) || (p->bg != cell->bg) )
+					{
+						p->cp = cell->cp;
+						p->fg = cell->fg;
+						p->bg = cell->bg;
+						p->dirty = TRUE;
+					}
+				}
+
 				cell->dirty = FALSE;
+				p++;
 				cell++;
 			}
 		}

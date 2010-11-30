@@ -31,59 +31,6 @@
 #include <console/console.h>
 #include <console/curses.h>
 
-
-struct curses_window * curses_alloc_topwin(struct console * console)
-{
-	struct curses_window * win;
-	enum console_color f, b;
-	x_s32 x, y;
-	x_s32 w, h;
-
-	if(! console)
-		return NULL;
-
-	if(! console_getxy(console, &x, &y))
-		return NULL;
-
-	if(! console_getwh(console, &w, &h))
-		return NULL;
-
-	if(! console_getcolor(console, &f, &b))
-		return NULL;
-
-	win = malloc(sizeof(struct curses_window));
-	if(! win)
-		return NULL;
-
-	win->console = console;
-	win->orix = 0;
-	win->oriy = 0;
-	win->curx = x;
-	win->cury = y;
-	win->width = w;
-	win->height = h;
-	win->f = f;
-	win->b = b;
-	win->parent = win;
-
-	return win;
-}
-
-x_bool curses_free_topwin(struct curses_window * win)
-{
-	if(!win)
-		return FALSE;
-
-	console_gotoxy(win->console, win->curx, win->cury);
-	console_setcolor(win->console, win->f, win->b);
-
-	free(win);
-	return TRUE;
-}
-
-
-
-
 x_bool console_draw_hline(struct console * console, x_u32 x0, x_u32 y0, x_u32 x)
 {
 	x_s32 width, height;

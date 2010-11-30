@@ -16,10 +16,10 @@ struct tui_cell
 	x_u32 cp;
 
 	/* foreground color */
-	enum console_color fg;
+	enum tcolor fg;
 
 	/* background color */
-	enum console_color bg;
+	enum tcolor bg;
 
 	/* dirty flag */
 	x_bool dirty;

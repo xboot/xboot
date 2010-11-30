@@ -186,14 +186,14 @@ x_bool console_getcursor(struct console * console)
 	return FALSE;
 }
 
-x_bool console_setcolor(struct console * console, enum console_color f, enum console_color b)
+x_bool console_setcolor(struct console * console, enum tcolor f, enum tcolor b)
 {
 	if(console && console->setcolor)
 		return console->setcolor(console, f, b);
 	return FALSE;
 }
 
-x_bool console_getcolor(struct console * console, enum console_color * f, enum console_color * b)
+x_bool console_getcolor(struct console * console, enum tcolor * f, enum tcolor * b)
 {
 	if(console && console->getcolor)
 		return console->getcolor(console, f, b);

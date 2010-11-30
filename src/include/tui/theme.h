@@ -12,10 +12,10 @@ struct tui_theme
 		x_u32 cp;
 
 		/* foreground color */
-		enum console_color fg;
+		enum tcolor fg;
 
 		/* background color */
-		enum console_color bg;
+		enum tcolor bg;
 	} workspace;
 
 	struct {
@@ -23,10 +23,10 @@ struct tui_theme
 		x_u32 cp;
 
 		/* foreground color */
-		enum console_color fg;
+		enum tcolor fg;
 
 		/* background color */
-		enum console_color bg;
+		enum tcolor bg;
 	} button;
 };
 

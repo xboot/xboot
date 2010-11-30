@@ -58,7 +58,7 @@ static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 o
 {
 	struct tui_theme * theme = get_tui_theme();
 	struct tui_cell * cell;
-	enum console_color fg, bg;
+	enum tcolor fg, bg;
 	x_u32 cp;
 	x_s32 w, h;
 	x_s32 i, len;
@@ -149,7 +149,7 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
-	enum console_color fg, bg;
+	enum tcolor fg, bg;
 	x_u32 cp;
 	x_s32 i, j;
 
@@ -322,8 +322,8 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 	button->widget.priv = button;
 
 	button->caption = strdup(caption);
-	button->cf = CONSOLE_WHITE;
-	button->cb = CONSOLE_BLACK;
+	button->cf = TCOLOR_WHITE;
+	button->cb = TCOLOR_BLACK;
 	button->align = ALIGN_CENTER;
 
 	init_list_head(&(button->widget.entry));

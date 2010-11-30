@@ -5,37 +5,49 @@
 #include <default.h>
 #include <xboot/list.h>
 
-#define	UNICODE_BS					0x0008
-#define	UNICODE_TAB					0x0009
-#define	UNICODE_LF					0x000a
-#define	UNICODE_CR					0x000d
-#define	UNICODE_SPACE				0x0020
 
-#define	UNICODE_HLINE				'-'
-#define	UNICODE_VLINE				'|'
-#define	UNICODE_LEFT				'<'
-#define	UNICODE_RIGHT				'>'
-#define	UNICODE_UP					'^'
-#define	UNICODE_DOWN				'v'
-#define	UNICODE_LEFTUP				'+'
-#define	UNICODE_RIGHTUP				'+'
-#define	UNICODE_LEFTDOWN			'+'
-#define	UNICODE_RIGHTDOWN			'+'
-#define	UNICODE_CROSS				'+'
-#define	UNICODE_CUBE				'#'
+enum {
+	UNICODE_BS				= 0x0008,
+	UNICODE_TAB				= 0x0009,
+	UNICODE_LF				= 0x000a,
+	UNICODE_CR				= 0x000d,
+	UNICODE_SPACE			= 0x0020,
+
+	UNICODE_HLINE			= '-',
+	UNICODE_VLINE			= '|',
+	UNICODE_LEFT			= '<',
+	UNICODE_RIGHT			= '>',
+	UNICODE_UP				= '^',
+	UNICODE_DOWN			= 'v',
+	UNICODE_LEFTUP			= '+',
+	UNICODE_RIGHTUP			= '+',
+	UNICODE_LEFTDOWN		= '+',
+	UNICODE_RIGHTDOWN		= '+',
+	UNICODE_CROSS			= '+',
+	UNICODE_CUBE			= '#',
+};
 
 /*
- * console color enum type.
+ * 256 colors for terminal
  */
-enum console_color {
-	CONSOLE_BLACK,
-	CONSOLE_RED,
-	CONSOLE_GREEN,
-	CONSOLE_YELLOW,
-	CONSOLE_BULE,
-	CONSOLE_MAGENTA,
-	CONSOLE_CYAN,
-	CONSOLE_WHITE
+enum tcolor {
+	TCOLOR_BLACK			= 0x00,
+	TCOLOR_RED				= 0x01,
+	TCOLOR_GREEN			= 0x02,
+	TCOLOR_YELLOW			= 0x03,
+	TCOLOR_BULE				= 0x04,
+	TCOLOR_MAGENTA			= 0x05,
+	TCOLOR_CYAN				= 0x06,
+	TCOLOR_WHITE			= 0x07,
+
+	TCOLOR_BRIGHT_BLACK		= 0x08,
+	TCOLOR_BRIGHT_RED		= 0x09,
+	TCOLOR_BRIGHT_GREEN		= 0x0a,
+	TCOLOR_BRIGHT_YELLOW	= 0x0b,
+	TCOLOR_BRIGHT_BULE		= 0x0c,
+	TCOLOR_BRIGHT_MAGENTA	= 0x0d,
+	TCOLOR_BRIGHT_CYAN		= 0x0e,
+	TCOLOR_BRIGHT_WHITE		= 0x0f,
 };
 
 /*
@@ -62,10 +74,10 @@ struct console
 	x_bool(*getcursor)(struct console * console);
 
 	/* set console's foreground color and background color */
-	x_bool(*setcolor)(struct console * console, enum console_color f, enum console_color b);
+	x_bool(*setcolor)(struct console * console, enum tcolor f, enum tcolor b);
 
 	/* get console foreground color and background color */
-	x_bool(*getcolor)(struct console * console, enum console_color * f, enum console_color * b);
+	x_bool(*getcolor)(struct console * console, enum tcolor * f, enum tcolor * b);
 
 	/* clear screen */
 	x_bool(*cls)(struct console * console);
@@ -99,8 +111,8 @@ x_bool console_getxy(struct console * console, x_s32 * x, x_s32 * y);
 x_bool console_gotoxy(struct console * console, x_s32 x, x_s32 y);
 x_bool console_setcursor(struct console * console, x_bool on);
 x_bool console_getcursor(struct console * console);
-x_bool console_setcolor(struct console * console, enum console_color f, enum console_color b);
-x_bool console_getcolor(struct console * console, enum console_color * f, enum console_color * b);
+x_bool console_setcolor(struct console * console, enum tcolor f, enum tcolor b);
+x_bool console_getcolor(struct console * console, enum tcolor * f, enum tcolor * b);
 x_bool console_cls(struct console * console);
 x_bool console_getcode(struct console * console, x_u32 * code);
 x_bool console_putcode(struct console * console, x_u32 code);

@@ -54,7 +54,7 @@ struct shape
 	x_s32 plus90, minus90;
 
 	/* shape color */
-	enum console_color color;
+	enum tcolor color;
 
 	/* drawing instructions for this shape */
 	struct vector {
@@ -65,31 +65,31 @@ struct shape
 
 static const struct shape shapes[] = {
 	/* o shape */
-    { 0,	0,	CONSOLE_BULE,		{{  0, -1 }, { +1,  0 }, {  0, +1 }, { -1,  0 }} },
+    { 0,	0,	TCOLOR_BULE,		{{  0, -1 }, { +1,  0 }, {  0, +1 }, { -1,  0 }} },
     /* i shape */
-    { 2,	2,	CONSOLE_GREEN,		{{ -1,  0 }, { +1,  0 }, { +1,  0 }, { +1,  0 }} },
-    { 1,	1,	CONSOLE_GREEN,		{{  0, -1 }, {  0, +1 }, {  0, +1 }, {  0, +1 }} },
+    { 2,	2,	TCOLOR_GREEN,		{{ -1,  0 }, { +1,  0 }, { +1,  0 }, { +1,  0 }} },
+    { 1,	1,	TCOLOR_GREEN,		{{  0, -1 }, {  0, +1 }, {  0, +1 }, {  0, +1 }} },
     /* z shape */
-    { 4,	4,	CONSOLE_CYAN,		{{ -1,  0 }, { +1,  0 }, {  0, +1 }, { +1,  0 }} },
-    { 3,	3,	CONSOLE_CYAN,		{{  0, -1 }, {  0, +1 }, { -1,  0 }, {  0, +1 }} },
+    { 4,	4,	TCOLOR_CYAN,		{{ -1,  0 }, { +1,  0 }, {  0, +1 }, { +1,  0 }} },
+    { 3,	3,	TCOLOR_CYAN,		{{  0, -1 }, {  0, +1 }, { -1,  0 }, {  0, +1 }} },
     /* s shape */
-    { 6,	6,	CONSOLE_RED,		{{ +1,  0 }, { -1,  0 }, {  0, +1 }, { -1,  0 }} },
-    { 5,	5,	CONSOLE_RED,		{{  0, -1 }, {  0, +1 }, { +1,  0 }, {  0, +1 }} },
+    { 6,	6,	TCOLOR_RED,		{{ +1,  0 }, { -1,  0 }, {  0, +1 }, { -1,  0 }} },
+    { 5,	5,	TCOLOR_RED,		{{  0, -1 }, {  0, +1 }, { +1,  0 }, {  0, +1 }} },
     /* j shape */
-    { 8,	10,	CONSOLE_MAGENTA,	{{ +1,  0 }, { -1,  0 }, { -1,  0 }, {  0, -1 }} },
-    { 9,	7,	CONSOLE_MAGENTA,	{{  0, -1 }, {  0, +1 }, {  0, +1 }, { -1,  0 }} },
-    { 10,	8,	CONSOLE_MAGENTA,	{{ -1,  0 }, { +1,  0 }, { +1,  0 }, {  0, +1 }} },
-    { 7,	9,	CONSOLE_MAGENTA,	{{  0, +1 }, {  0, -1 }, {  0, -1 }, { +1,  0 }} },
+    { 8,	10,	TCOLOR_MAGENTA,	{{ +1,  0 }, { -1,  0 }, { -1,  0 }, {  0, -1 }} },
+    { 9,	7,	TCOLOR_MAGENTA,	{{  0, -1 }, {  0, +1 }, {  0, +1 }, { -1,  0 }} },
+    { 10,	8,	TCOLOR_MAGENTA,	{{ -1,  0 }, { +1,  0 }, { +1,  0 }, {  0, +1 }} },
+    { 7,	9,	TCOLOR_MAGENTA,	{{  0, +1 }, {  0, -1 }, {  0, -1 }, { +1,  0 }} },
     /* l shape */
-    { 12,	14,	CONSOLE_YELLOW,		{{ +1,  0 }, { -1,  0 }, { -1,  0 }, {  0, +1 }} },
-    { 13,	11, CONSOLE_YELLOW,		{{  0, -1 }, {  0, +1 }, {  0, +1 }, { +1,  0 }} },
-    { 14,	12, CONSOLE_YELLOW,		{{ -1,  0 }, { +1,  0 }, { +1,  0 }, {  0, -1 }} },
-    { 11,	13, CONSOLE_YELLOW,		{{  0, +1 }, {  0, -1 }, {  0, -1 }, { -1,  0 }} },
+    { 12,	14,	TCOLOR_YELLOW,		{{ +1,  0 }, { -1,  0 }, { -1,  0 }, {  0, +1 }} },
+    { 13,	11, TCOLOR_YELLOW,		{{  0, -1 }, {  0, +1 }, {  0, +1 }, { +1,  0 }} },
+    { 14,	12, TCOLOR_YELLOW,		{{ -1,  0 }, { +1,  0 }, { +1,  0 }, {  0, -1 }} },
+    { 11,	13, TCOLOR_YELLOW,		{{  0, +1 }, {  0, -1 }, {  0, -1 }, { -1,  0 }} },
     /* t shape */
-    { 16,	18,	CONSOLE_WHITE,		{{  0, -1 }, {  0, +1 }, { -1,  0 }, { +2,  0 }} },
-    { 17,	15,	CONSOLE_WHITE,		{{ -1,  0 }, { +1,  0 }, {  0, -1 }, {  0, +2 }} },
-    { 18,	16,	CONSOLE_WHITE,		{{  0, +1 }, {  0, -1 }, { +1,  0 }, { -2,  0 }} },
-    { 15,	17,	CONSOLE_WHITE,		{{ +1,  0 }, { -1,  0 }, {  0, +1 }, {  0, -2 }} }
+    { 16,	18,	TCOLOR_WHITE,		{{  0, -1 }, {  0, +1 }, { -1,  0 }, { +2,  0 }} },
+    { 17,	15,	TCOLOR_WHITE,		{{ -1,  0 }, { +1,  0 }, {  0, -1 }, {  0, +2 }} },
+    { 18,	16,	TCOLOR_WHITE,		{{  0, +1 }, {  0, -1 }, { +1,  0 }, { -2,  0 }} },
+    { 15,	17,	TCOLOR_WHITE,		{{ +1,  0 }, { -1,  0 }, {  0, +1 }, {  0, -2 }} }
 };
 
 /*
@@ -97,7 +97,7 @@ static const struct shape shapes[] = {
  */
 struct map {
 	x_bool dirty[GAME_AREA_HEIGHT];
-	enum console_color screen[GAME_AREA_WIDTH][GAME_AREA_HEIGHT];
+	enum tcolor screen[GAME_AREA_WIDTH][GAME_AREA_HEIGHT];
 };
 
 static struct map map;
@@ -125,14 +125,14 @@ static void refresh(void)
 			xp = (w - GAME_AREA_WIDTH) / 2;
 			yp = (h - GAME_AREA_HEIGHT) / 2;
 			console_gotoxy(stdout, xp + x, yp + y);
-			if(map.screen[x][y] != CONSOLE_BLACK)
+			if(map.screen[x][y] != TCOLOR_BLACK)
 			{
-				console_setcolor(stdout, map.screen[x][y], CONSOLE_BLACK);
+				console_setcolor(stdout, map.screen[x][y], TCOLOR_BLACK);
 				console_putcode(stdout, UNICODE_CUBE);
 			}
 			else
 			{
-				console_setcolor(stdout, CONSOLE_WHITE, CONSOLE_BLACK);
+				console_setcolor(stdout, TCOLOR_WHITE, TCOLOR_BLACK);
 				console_putcode(stdout, UNICODE_SPACE);
 			}
 		}
@@ -140,7 +140,7 @@ static void refresh(void)
     }
 }
 
-static void block_draw(x_s32 x, x_s32 y, enum console_color c)
+static void block_draw(x_s32 x, x_s32 y, enum tcolor c)
 {
     if(x >= GAME_AREA_WIDTH)
         x = GAME_AREA_WIDTH - 1;
@@ -153,7 +153,7 @@ static void block_draw(x_s32 x, x_s32 y, enum console_color c)
 
 static x_bool block_hit(x_s32 x, x_s32 y)
 {
-	return (map.screen[x][y] != CONSOLE_BLACK);
+	return (map.screen[x][y] != TCOLOR_BLACK);
 }
 
 static void shape_draw(x_s32 x, x_s32 y, x_u32 index)
@@ -175,11 +175,11 @@ static void shape_erase(x_s32 x, x_s32 y, x_u32 index)
 
     for(i = 0; i < 4; i++)
     {
-    	block_draw(x, y, CONSOLE_BLACK);
+    	block_draw(x, y, TCOLOR_BLACK);
         x += shapes[index].direction[i].x;
         y += shapes[index].direction[i].y;
     }
-    block_draw(x, y, CONSOLE_BLACK);
+    block_draw(x, y, TCOLOR_BLACK);
 }
 
 static x_bool shape_hit(x_s32 x, x_s32 y, x_u32 index)
@@ -212,7 +212,7 @@ static void collapse(void)
 		temp = 0;
 		for(col = 1; col < GAME_AREA_WIDTH - 1; col++)
 		{
-			if(map.screen[col][row] != CONSOLE_BLACK)
+			if(map.screen[col][row] != TCOLOR_BLACK)
 				temp++;
 		}
 
@@ -237,7 +237,7 @@ static void collapse(void)
 		if(temp < 1)
 		{
 			for(col = 1; col < GAME_AREA_WIDTH - 1; col++)
-				map.screen[col][row] = CONSOLE_BLACK;
+				map.screen[col][row] = TCOLOR_BLACK;
 		}
 		else
 		{
@@ -258,11 +258,11 @@ static void screen_init(void)
 	{
 		map.dirty[y] = TRUE;
 		for(x = 1; x < (GAME_AREA_WIDTH - 1); x++)
-			map.screen[x][y] = CONSOLE_BLACK;
-		map.screen[0][y] = map.screen[GAME_AREA_WIDTH - 1][y] = CONSOLE_BULE;
+			map.screen[x][y] = TCOLOR_BLACK;
+		map.screen[0][y] = map.screen[GAME_AREA_WIDTH - 1][y] = TCOLOR_BULE;
 	}
 	for(x = 0; x < GAME_AREA_WIDTH; x++)
-		map.screen[x][0] = map.screen[x][GAME_AREA_HEIGHT - 1] = CONSOLE_BULE;
+		map.screen[x][0] = map.screen[x][GAME_AREA_HEIGHT - 1] = TCOLOR_BULE;
 
 	collapse();
 }
@@ -371,7 +371,7 @@ static x_s32 tetris(x_s32 argc, const x_s8 **argv)
 	}while(try_again);
 
 	console_setcursor(stdout, TRUE);
-	console_setcolor(stdout, CONSOLE_WHITE, CONSOLE_BLACK);
+	console_setcolor(stdout, TCOLOR_WHITE, TCOLOR_BLACK);
 	console_cls(stdout);
 
 	return 0;

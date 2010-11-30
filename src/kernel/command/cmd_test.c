@@ -64,14 +64,14 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	ws = tui_workspace_new(get_stdout(), (x_s8 *)"ws");
 	btn = tui_button_new((struct tui_widget *)ws, (const x_s8 *)"btn", (const x_s8 *)"ok");
 
-	tui_widget_setbounds(btn, 2,3,10,10);
+	tui_widget_setbounds((struct tui_widget *)btn, 2,3,10,10);
 	tui_widget_paint((struct tui_widget *)ws, 0, 0, 40, 20);
 
 	mdelay(1000);
 
 	for(i=0; i<10; i++)
 	{
-		tui_widget_setbounds(btn, 4+i,2+i,5,5);
+		tui_widget_setbounds((struct tui_widget *)btn, 4+i,2+i,5,5);
 		tui_widget_paint((struct tui_widget *)ws, 0, 0, 40, 20);
 
 		mdelay(400);

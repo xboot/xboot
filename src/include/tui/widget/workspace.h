@@ -17,7 +17,7 @@ struct tui_workspace
 	/* saved console's information for restore */
 	x_bool cursor;
 	x_s32 x, y;
-	enum console_color f, b;
+	enum tcolor f, b;
 };
 
 struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * id);

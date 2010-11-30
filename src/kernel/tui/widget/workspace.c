@@ -58,7 +58,7 @@ static x_bool tui_workspace_setbounds(struct tui_widget * widget, x_s32 ox, x_s3
 {
 	struct tui_theme * theme = get_tui_theme();
 	struct tui_cell * cell;
-	enum console_color fg, bg;
+	enum tcolor fg, bg;
 	x_u32 cp;
 	x_s32 w, h;
 	x_s32 i, len;
@@ -134,7 +134,7 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
-	enum console_color fg, bg;
+	enum tcolor fg, bg;
 	x_u32 cp;
 	x_bool cursor;
 	x_s32 i, j;
@@ -283,7 +283,7 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 	struct tui_theme * theme = get_tui_theme();
 	struct tui_workspace * workspace;
 	struct tui_cell * cell;
-	enum console_color f, b;
+	enum tcolor f, b;
 	x_s32 x, y;
 	x_s32 w, h;
 	x_s32 i;

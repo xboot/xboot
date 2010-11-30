@@ -15,7 +15,7 @@ struct tui_button
 	x_s8 * caption;
 
 	/* caption's foreground color and background color */
-	enum console_color cf, cb;
+	enum tcolor cf, cb;
 
 	/* align method */
 	enum align align;

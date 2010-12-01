@@ -27,6 +27,7 @@
 #include <malloc.h>
 #include <tui/tui.h>
 #include <tui/theme.h>
+#include <tui/widget/widget.h>
 #include <tui/widget/button.h>
 
 
@@ -58,10 +59,8 @@ static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 o
 {
 	struct tui_theme * theme = get_tui_theme();
 	struct tui_cell * cell;
-	enum tcolor fg, bg;
-	x_u32 cp;
 	x_s32 w, h;
-	x_s32 i, len;
+	x_s32 len;
 
 	if(!tui_button_minsize(widget, &w, &h))
 		return FALSE;
@@ -84,19 +83,7 @@ static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 o
 		widget->cell = cell;
 		widget->clen = len;
 
-		fg = theme->button.fg;
-		bg = theme->button.bg;
-		cp = theme->button.cp;
-
-		for(i = 0; i < widget->clen; i++)
-		{
-			cell->cp = cp;
-			cell->fg = fg;
-			cell->bg = bg;
-			cell->dirty = TRUE;
-
-			cell++;
-		}
+		tui_widget_cell_clear(widget, theme->button.cp, theme->button.fg, theme->button.bg, 0, 0, width, height);
 	}
 
 	widget->ox = ox;
@@ -175,21 +162,9 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	fg = theme->button.fg;
 	bg = theme->button.bg;
 
-	for(j = y; j < h; j++)
-	{
-		cell = &(widget->cell[widget->width * j + x]);
-		for(i = x; i < w; i++)
-		{
-			if( (cell->cp != cp) || (cell->fg != fg) || (cell->bg != bg) )
-			{
-				cell->cp = cp;
-				cell->fg = fg;
-				cell->bg = bg;
-				cell->dirty = TRUE;
-			}
-			cell++;
-		}
-	}
+	tui_widget_cell_clear(widget, cp, fg, bg, x, y, w, h);
+	tui_widget_cell_hline(widget, 'a', bg, fg, 1, 1, 3);
+	tui_widget_cell_vline(widget, 'b', bg, fg, 1, 1, 3);
 
 	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
 	{
@@ -226,6 +201,7 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 				}
 
 				cell->dirty = FALSE;
+
 				p++;
 				cell++;
 			}
@@ -279,8 +255,6 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 {
 	struct tui_theme * theme = get_tui_theme();
 	struct tui_button * button;
-	struct tui_cell * cell;
-	x_s32 i;
 
 	if(!parent)
 		return NULL;
@@ -311,16 +285,7 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 		return NULL;
 	}
 
-	cell = button->widget.cell;
-	for(i = 0; i < button->widget.clen; i++)
-	{
-		cell->cp = theme->button.cp;
-		cell->fg = theme->button.fg;
-		cell->bg = theme->button.bg;
-		cell->dirty = TRUE;
-
-		cell++;
-	}
+	tui_widget_cell_clear(TUI_WIDGET(button), theme->button.cp, theme->button.fg, theme->button.bg, 0, 0, button->widget.width, button->widget.height);
 
 	button->widget.id = strdup(id);
 	button->widget.ox = 0;

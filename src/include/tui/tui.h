@@ -5,6 +5,9 @@
 #include <default.h>
 #include <console/console.h>
 
+
+#define TUI_WIDGET(widget)			( (struct tui_widget *)(widget) )
+
 /*
  * forward declare
  */

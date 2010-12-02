@@ -83,7 +83,10 @@ static x_bool tui_workspace_setbounds(struct tui_widget * widget, x_s32 ox, x_s3
 		widget->cell = cell;
 		widget->clen = len;
 
-		tui_widget_cell_clear(widget, theme->workspace.cp, theme->workspace.fg, theme->workspace.bg, 0, 0, width, height);
+		tui_widget_cell_clear(widget,
+								theme->workspace.cp,
+								theme->workspace.fg, theme->workspace.bg,
+								0, 0, width, height);
 	}
 
 	widget->ox = ox;
@@ -121,8 +124,6 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
-	enum tcolor fg, bg;
-	x_u32 cp;
 	x_bool cursor;
 	x_s32 i, j;
 
@@ -144,11 +145,10 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	w = r.right - r.left;
 	h = r.bottom - r.top;
 
-	cp = theme->workspace.cp;
-	fg = theme->workspace.fg;
-	bg = theme->workspace.bg;
-
-	tui_widget_cell_clear(widget, cp, fg, bg, x, y, w, h);
+	tui_widget_cell_clear(widget,
+							theme->workspace.cp,
+							theme->workspace.fg, theme->workspace.bg,
+							x, y, w, h);
 
 	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
 	{
@@ -309,7 +309,10 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 		return NULL;
 	}
 
-	tui_widget_cell_clear(TUI_WIDGET(workspace), theme->workspace.cp, theme->workspace.fg, theme->workspace.bg, 0, 0, workspace->widget.width, workspace->widget.height);
+	tui_widget_cell_clear(TUI_WIDGET(workspace),
+							theme->workspace.cp,
+							theme->workspace.fg, theme->workspace.bg,
+							0, 0, workspace->widget.width, workspace->widget.height);
 
 	workspace->console = console;
 	workspace->cursor = console_getcursor(console);

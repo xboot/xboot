@@ -14,11 +14,8 @@ struct tui_button
 	/* button caption */
 	x_s8 * caption;
 
-	/* caption's foreground color and background color */
-	enum tcolor cf, cb;
-
-	/* align method */
-	enum align align;
+	/* shadow flag */
+	x_bool shadow;
 };
 
 struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, const x_s8 * caption);

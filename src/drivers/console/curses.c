@@ -108,28 +108,28 @@ x_bool console_draw_rect(struct console * console, x_u32 x0, x_u32 y0, x_u32 x1,
 	if(x_min < width && y_min < height)
 	{
 		console->gotoxy(console, x_min, y_min);
-		console->putcode(console, UNICODE_LEFTUP);
+		console->putcode(console, UNICODE_LEFTTOP);
 		console_draw_hline(console, x_min+1, y_min, x_max - x_min - 1);
 		console_draw_vline(console, x_min, y_min+1, y_max - y_min - 1);
 
 		if(x_max < width)
 		{
 			console->gotoxy(console, x_max, y_min);
-			console->putcode(console, UNICODE_RIGHTUP);
+			console->putcode(console, UNICODE_RIGHTTOP);
 			console_draw_vline(console, x_max, y_min+1, y_max - y_min - 1);
 		}
 
 		if(y_max < height)
 		{
 			console->gotoxy(console, x_min, y_max);
-			console->putcode(console, UNICODE_LEFTDOWN);
+			console->putcode(console, UNICODE_LEFTBOTTOM);
 			console_draw_hline(console, x_min+1, y_max, x_max - x_min - 1);
 		}
 
 		if(x_max < width && y_max < height)
 		{
 			console->gotoxy(console, x_max, y_max);
-			console->putcode(console, UNICODE_RIGHTDOWN);
+			console->putcode(console, UNICODE_RIGHTBOTTOM);
 		}
 
 		return TRUE;

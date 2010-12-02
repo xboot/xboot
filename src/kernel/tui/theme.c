@@ -32,14 +32,30 @@ static struct tui_theme current_tui_theme =
 {
 	.workspace 	= {
 		.cp		= UNICODE_SPACE,
-		.fg		= TCOLOR_WHITE,
-		.bg		= TCOLOR_GREEN,
+		.fg		= TCOLOR_BULE,
+		.bg		= TCOLOR_BULE,
 	},
 
 	.button 	= {
 		.cp		= UNICODE_SPACE,
-		.fg		= TCOLOR_BULE,
-		.bg		= TCOLOR_MAGENTA,
+		.fg		= TCOLOR_GREEN,
+		.bg		= TCOLOR_GREEN,
+
+		.c_fg	= TCOLOR_WHITE,
+		.c_bg	= TCOLOR_BULE,
+
+		.h		= UNICODE_HLINE,
+		.v		= UNICODE_VLINE,
+		.lt		= UNICODE_LEFTTOP,
+		.rt		= UNICODE_RIGHTTOP,
+		.lb		= UNICODE_LEFTBOTTOM,
+		.rb		= UNICODE_RIGHTBOTTOM,
+		.b_fg	= TCOLOR_WHITE,
+		.b_bg	= TCOLOR_GREEN,
+
+		.s		= UNICODE_SPACE,
+		.s_fg	= TCOLOR_BLACK,
+		.s_bg	= TCOLOR_BLACK,
 	},
 };
 

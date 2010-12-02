@@ -43,14 +43,30 @@ static x_bool tui_button_minsize(struct tui_widget * widget, x_s32 * width, x_s3
 
 static x_bool tui_button_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
 {
-	if(x)
-		*x = 1;
-	if(y)
-		*y = 1;
-	if(w)
-		*w = widget->width - 2;
-	if(h)
-		*h = widget->height - 2;
+	struct tui_button * button = widget->priv;
+
+	if(button->shadow)
+	{
+		if(x)
+			*x = 1;
+		if(y)
+			*y = 1;
+		if(w)
+			*w = widget->width - 3;
+		if(h)
+			*h = widget->height - 3;
+	}
+	else
+	{
+		if(x)
+			*x = 2;
+		if(y)
+			*y = 2;
+		if(w)
+			*w = widget->width - 3;
+		if(h)
+			*h = widget->height - 3;
+	}
 
 	return TRUE;
 }
@@ -83,7 +99,10 @@ static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 o
 		widget->cell = cell;
 		widget->clen = len;
 
-		tui_widget_cell_clear(widget, theme->button.cp, theme->button.fg, theme->button.bg, 0, 0, width, height);
+		tui_widget_cell_clear(widget,
+								theme->button.cp,
+								theme->button.fg, theme->button.bg,
+								0, 0, width, height);
 	}
 
 	widget->ox = ox;
@@ -136,8 +155,6 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
-	enum tcolor fg, bg;
-	x_u32 cp;
 	x_s32 i, j;
 
 	a.left = x;
@@ -158,13 +175,48 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	w = r.right - r.left;
 	h = r.bottom - r.top;
 
-	cp = theme->button.cp;
-	fg = theme->button.fg;
-	bg = theme->button.bg;
-
-	tui_widget_cell_clear(widget, cp, fg, bg, x, y, w, h);
-	tui_widget_cell_hline(widget, 'a', bg, fg, 1, 1, 3);
-	tui_widget_cell_vline(widget, 'b', bg, fg, 1, 1, 3);
+	if(button->shadow)
+	{
+		tui_widget_cell_clear(widget,
+								theme->button.cp,
+								theme->button.fg, theme->button.bg,
+								x, y, w, h);
+		tui_widget_cell_rect(widget,
+								theme->button.h, theme->button.v,
+								theme->button.lt, theme->button.rt,
+								theme->button.lb, theme->button.rb,
+								theme->button.b_fg, theme->button.b_bg,
+								x, y, w - 1, h - 1);
+		tui_widget_cell_hline(widget,
+								theme->button.s,
+								theme->button.s_fg, theme->button.s_bg,
+								x + 1, y + h - 1, w);
+		tui_widget_cell_vline(widget,
+								theme->button.s,
+								theme->button.s_fg, theme->button.s_bg,
+								x + w - 1, y + 1 , h);
+		tui_widget_cell_print(widget,
+								button->caption,
+								theme->button.c_fg, theme->button.c_bg,
+								1, 1);
+	}
+	else
+	{
+		tui_widget_cell_clear(widget,
+								theme->button.cp,
+								theme->button.fg, theme->button.bg,
+								x, y, w, h);
+		tui_widget_cell_rect(widget,
+								theme->button.h, theme->button.v,
+								theme->button.lt, theme->button.rt,
+								theme->button.lb, theme->button.rb,
+								theme->button.b_fg, theme->button.b_bg,
+								x + 1, y + 1, w - 1, h -1);
+		tui_widget_cell_print(widget,
+								button->caption,
+								theme->button.c_fg, theme->button.c_bg,
+								1, 1);
+	}
 
 	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
 	{
@@ -285,7 +337,10 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 		return NULL;
 	}
 
-	tui_widget_cell_clear(TUI_WIDGET(button), theme->button.cp, theme->button.fg, theme->button.bg, 0, 0, button->widget.width, button->widget.height);
+	tui_widget_cell_clear(TUI_WIDGET(button),
+							theme->button.cp,
+							theme->button.fg, theme->button.bg,
+							0, 0, button->widget.width, button->widget.height);
 
 	button->widget.id = strdup(id);
 	button->widget.ox = 0;
@@ -298,9 +353,7 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 	button->widget.priv = button;
 
 	button->caption = strdup(caption);
-	button->cf = TCOLOR_WHITE;
-	button->cb = TCOLOR_BLACK;
-	button->align = ALIGN_CENTER;
+	button->shadow = TRUE;
 
 	init_list_head(&(button->widget.entry));
 	init_list_head(&(button->widget.child));

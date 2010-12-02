@@ -8,25 +8,21 @@
 struct tui_theme
 {
 	struct {
-		/* background code pointer */
 		x_u32 cp;
-
-		/* foreground color */
-		enum tcolor fg;
-
-		/* background color */
-		enum tcolor bg;
+		enum tcolor fg, bg;
 	} workspace;
 
 	struct {
-		/* background code pointer */
 		x_u32 cp;
+		enum tcolor fg, bg;
 
-		/* foreground color */
-		enum tcolor fg;
+		enum tcolor c_fg, c_bg;
 
-		/* background color */
-		enum tcolor bg;
+		x_u32 h, v, lt, rt, lb, rb;
+		enum tcolor b_fg, b_bg;
+
+		x_u32 s;
+		enum tcolor s_fg, s_bg;
 	} button;
 };
 

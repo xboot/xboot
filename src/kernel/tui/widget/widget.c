@@ -25,10 +25,80 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
+#include <charset.h>
 #include <tui/tui.h>
 #include <tui/theme.h>
 #include <tui/widget/widget.h>
 
+
+x_bool tui_widget_cell_putcode(struct tui_widget * widget, x_u32 cp, enum tcolor fg, enum tcolor bg, x_s32 x, x_s32 y)
+{
+	struct tui_cell * cell;
+
+	if(!widget)
+		return FALSE;
+
+	cell = widget->cell;
+	if(!cell)
+		return FALSE;
+
+	if(x < 0 || y < 0)
+		return FALSE;
+
+	if(x >= widget->width || y >= widget->height)
+		return FALSE;
+
+	cell = &(widget->cell[widget->width * y + x]);
+
+	if( (cell->cp != cp) || (cell->fg != fg) || (cell->bg != bg) )
+	{
+		cell->cp = cp;
+		cell->fg = fg;
+		cell->bg = bg;
+		cell->dirty = TRUE;
+	}
+
+	return TRUE;
+}
+
+x_bool tui_widget_cell_print(struct tui_widget * widget, x_s8 * str, enum tcolor fg, enum tcolor bg, x_u32 x, x_u32 y)
+{
+	struct tui_cell * cell;
+	const x_u8 * p;
+	x_u32 code;
+
+	if(!widget)
+		return FALSE;
+
+	cell = widget->cell;
+	if(!cell)
+		return FALSE;
+
+	if(x < 0 || y < 0)
+		return FALSE;
+
+	if(x >= widget->width || y >= widget->height)
+		return FALSE;
+
+	cell = &(widget->cell[widget->width * y + x]);
+	for(p = (const x_u8 *)str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	{
+		if(x++ >= widget->width)
+			break;
+
+		if( (cell->cp != code) || (cell->fg != fg) || (cell->bg != bg) )
+		{
+			cell->cp = code;
+			cell->fg = fg;
+			cell->bg = bg;
+			cell->dirty = TRUE;
+		}
+
+		cell++;
+	}
+
+	return TRUE;
+}
 
 x_bool tui_widget_cell_hline(struct tui_widget * widget, x_u32 cp, enum tcolor fg, enum tcolor bg, x_s32 x0, x_s32 y0, x_s32 x)
 {
@@ -106,8 +176,10 @@ x_bool tui_widget_cell_vline(struct tui_widget * widget, x_u32 cp, enum tcolor f
 	return TRUE;
 }
 
-x_bool tui_widget_cell_rect(struct tui_widget * widget, x_u32 v, x_u32 h, x_u32 lt, x_u32 rt, x_u32 lb, x_u32 rb, enum tcolor fg, enum tcolor bg, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
+x_bool tui_widget_cell_rect(struct tui_widget * widget, x_u32 hline, x_u32 vline, x_u32 lt, x_u32 rt, x_u32 lb, x_u32 rb, enum tcolor fg, enum tcolor bg, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
+	struct tui_cell * cell;
+
 	if(!widget)
 		return FALSE;
 
@@ -115,13 +187,29 @@ x_bool tui_widget_cell_rect(struct tui_widget * widget, x_u32 v, x_u32 h, x_u32 
 	if(!cell)
 		return FALSE;
 
-	if(x < 0 || y < 0 || w < 0 || h < 0)
+	if(x < 0 || y < 0 || w < 2 || h < 2)
 		return FALSE;
 
 	if(x >= widget->width || y >= widget->height)
 		return FALSE;
 
-	//xxx
+	if(x + w - 1 >= widget->width)
+		return FALSE;
+
+	if(y + h - 1 >= widget->height)
+		return FALSE;
+
+	tui_widget_cell_putcode(widget, lt, fg, bg, x, y);
+	tui_widget_cell_putcode(widget, rt, fg, bg, x + w - 1, y);
+	tui_widget_cell_putcode(widget, lb, fg, bg, x, y + h - 1);
+	tui_widget_cell_putcode(widget, rb, fg, bg, x + w - 1, y + h - 1);
+
+	tui_widget_cell_hline(widget, hline, fg, bg, x + 1, y, w - 1 - 1);
+	tui_widget_cell_hline(widget, hline, fg, bg, x + 1, y + h - 1, w - 1 - 1);
+	tui_widget_cell_vline(widget, vline, fg, bg, x, y + 1, h - 1 - 1);
+	tui_widget_cell_vline(widget, vline, fg, bg, x + w - 1, y + 1, h - 1 - 1);
+
+	return TRUE;
 }
 
 x_bool tui_widget_cell_clear(struct tui_widget * widget, x_u32 cp, enum tcolor fg, enum tcolor bg, x_s32 x, x_s32 y, x_s32 w, x_s32 h)

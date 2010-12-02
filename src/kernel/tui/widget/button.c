@@ -234,7 +234,7 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	return TRUE;
 }
 
-static x_bool tui_button_destory(struct tui_widget * widget)
+static x_bool tui_button_destroy(struct tui_widget * widget)
 {
 	struct tui_button * button = widget->priv;
 	struct tui_widget * list;
@@ -249,8 +249,8 @@ static x_bool tui_button_destory(struct tui_widget * widget)
 
 		next = curr->next;
 		list_del(curr);
-		if(list->ops->destory)
-			list->ops->destory(list);
+		if(list->ops->destroy)
+			list->ops->destroy(list);
 		curr = next;
 	}
 
@@ -271,7 +271,7 @@ static struct tui_widget_ops button_ops = {
 	.getbounds			= tui_button_getbounds,
 	.setproperty		= tui_button_setproperty,
 	.paint				= tui_button_paint,
-	.destory			= tui_button_destory,
+	.destroy			= tui_button_destroy,
 };
 
 struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, const x_s8 * caption)

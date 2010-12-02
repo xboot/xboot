@@ -220,7 +220,7 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	return TRUE;
 }
 
-static x_bool tui_workspace_destory(struct tui_widget * widget)
+static x_bool tui_workspace_destroy(struct tui_widget * widget)
 {
 	struct tui_workspace * workspace = widget->priv;
 	struct tui_widget * list;
@@ -235,8 +235,8 @@ static x_bool tui_workspace_destory(struct tui_widget * widget)
 
 		next = curr->next;
 		list_del(curr);
-		if(list->ops->destory)
-			list->ops->destory(list);
+		if(list->ops->destroy)
+			list->ops->destroy(list);
 		curr = next;
 	}
 
@@ -260,7 +260,7 @@ static struct tui_widget_ops workspace_ops = {
 	.getbounds			= tui_workspace_getbounds,
 	.setproperty		= tui_workspace_setproperty,
 	.paint				= tui_workspace_paint,
-	.destory			= tui_workspace_destory,
+	.destroy			= tui_workspace_destroy,
 };
 
 struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * id)

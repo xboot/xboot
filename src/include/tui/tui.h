@@ -48,8 +48,8 @@ struct tui_widget_ops
 	/* paint widget with area */
 	x_bool (*paint)(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
 
-	/* destory widget */
-	x_bool (*destory)(struct tui_widget * widget);
+	/* destroy widget */
+	x_bool (*destroy)(struct tui_widget * widget);
 };
 
 struct tui_widget
@@ -103,6 +103,6 @@ x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 oy, x_s3
 x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height);
 x_bool tui_widget_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value);
 x_bool tui_widget_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
-x_bool tui_widget_destory(struct tui_widget * widget);
+x_bool tui_widget_destroy(struct tui_widget * widget);
 
 #endif /* __TUI_H__ */

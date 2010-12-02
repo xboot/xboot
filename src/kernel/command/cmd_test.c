@@ -84,7 +84,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 		mdelay(400);
 	}
 
-	tui_widget_destory((struct tui_widget *)ws);
+	tui_widget_destroy((struct tui_widget *)ws);
 
 	return 0;
 }

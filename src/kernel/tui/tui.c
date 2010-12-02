@@ -199,10 +199,10 @@ x_bool tui_widget_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x
 	return widget->ops->paint(widget, x, y, w, h);
 }
 
-x_bool tui_widget_destory(struct tui_widget * widget)
+x_bool tui_widget_destroy(struct tui_widget * widget)
 {
 	if(!widget)
 		return FALSE;
 
-	return widget->ops->destory(widget);
+	return widget->ops->destroy(widget);
 }

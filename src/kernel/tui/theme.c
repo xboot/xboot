@@ -52,10 +52,6 @@ static struct tui_theme current_tui_theme =
 		.rb		= UNICODE_RIGHTBOTTOM,
 		.b_fg	= TCOLOR_WHITE,
 		.b_bg	= TCOLOR_GREEN,
-
-		.s		= UNICODE_SPACE,
-		.s_fg	= TCOLOR_BLACK,
-		.s_bg	= TCOLOR_BLACK,
 	},
 };
 

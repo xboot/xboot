@@ -57,6 +57,9 @@ struct tui_widget
 	/* widget's id */
 	x_s8 * id;
 
+	/* widget active flag */
+	x_bool active;
+
 	/* widget's offset with relative to parent widget */
 	x_s32 ox, oy;
 

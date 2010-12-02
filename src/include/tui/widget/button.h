@@ -13,9 +13,6 @@ struct tui_button
 
 	/* button caption */
 	x_s8 * caption;
-
-	/* shadow flag */
-	x_bool shadow;
 };
 
 struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, const x_s8 * caption);

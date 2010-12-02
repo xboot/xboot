@@ -25,6 +25,7 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
+#include <charset.h>
 #include <tui/tui.h>
 #include <tui/theme.h>
 #include <tui/widget/widget.h>
@@ -34,39 +35,23 @@
 static x_bool tui_button_minsize(struct tui_widget * widget, x_s32 * width, x_s32 * height)
 {
 	if(width)
-		*width = 4;
+		*width = 3;
 	if(height)
-		*height = 4;
+		*height = 3;
 
 	return TRUE;
 }
 
 static x_bool tui_button_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h)
 {
-	struct tui_button * button = widget->priv;
-
-	if(button->shadow)
-	{
-		if(x)
-			*x = 1;
-		if(y)
-			*y = 1;
-		if(w)
-			*w = widget->width - 3;
-		if(h)
-			*h = widget->height - 3;
-	}
-	else
-	{
-		if(x)
-			*x = 2;
-		if(y)
-			*y = 2;
-		if(w)
-			*w = widget->width - 3;
-		if(h)
-			*h = widget->height - 3;
-	}
+	if(x)
+		*x = 1;
+	if(y)
+		*y = 1;
+	if(w)
+		*w = widget->width - 2;
+	if(h)
+		*h = widget->height - 2;
 
 	return TRUE;
 }
@@ -155,6 +140,7 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	struct tui_widget * list;
 	struct list_head * pos;
 	struct rect r, a, b;
+	x_s32 cx, cy, clen;
 	x_s32 i, j;
 
 	a.left = x;
@@ -175,48 +161,28 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	w = r.right - r.left;
 	h = r.bottom - r.top;
 
-	if(button->shadow)
-	{
-		tui_widget_cell_clear(widget,
-								theme->button.cp,
-								theme->button.fg, theme->button.bg,
-								x, y, w, h);
-		tui_widget_cell_rect(widget,
-								theme->button.h, theme->button.v,
-								theme->button.lt, theme->button.rt,
-								theme->button.lb, theme->button.rb,
-								theme->button.b_fg, theme->button.b_bg,
-								x, y, w - 1, h - 1);
-		tui_widget_cell_hline(widget,
-								theme->button.s,
-								theme->button.s_fg, theme->button.s_bg,
-								x + 1, y + h - 1, w);
-		tui_widget_cell_vline(widget,
-								theme->button.s,
-								theme->button.s_fg, theme->button.s_bg,
-								x + w - 1, y + 1 , h);
-		tui_widget_cell_print(widget,
-								button->caption,
-								theme->button.c_fg, theme->button.c_bg,
-								1, 1);
-	}
-	else
-	{
-		tui_widget_cell_clear(widget,
-								theme->button.cp,
-								theme->button.fg, theme->button.bg,
-								x, y, w, h);
-		tui_widget_cell_rect(widget,
-								theme->button.h, theme->button.v,
-								theme->button.lt, theme->button.rt,
-								theme->button.lb, theme->button.rb,
-								theme->button.b_fg, theme->button.b_bg,
-								x + 1, y + 1, w - 1, h -1);
-		tui_widget_cell_print(widget,
-								button->caption,
-								theme->button.c_fg, theme->button.c_bg,
-								1, 1);
-	}
+	tui_widget_cell_clear(widget,
+							theme->button.cp,
+							theme->button.fg, theme->button.bg,
+							x, y, w, h);
+	tui_widget_cell_rect(widget,
+							theme->button.h, theme->button.v,
+							theme->button.lt, theme->button.rt,
+							theme->button.lb, theme->button.rb,
+							theme->button.b_fg, theme->button.b_bg,
+							x, y, w, h);
+
+	clen = utf8_strlen((const x_u8 *)button->caption);
+	if(clen > widget->width)
+		clen = widget->width;
+
+	cx = (widget->width - 2 - clen) / 2 + 1;
+	cy = (widget->height - 2) / 2 + 1;
+
+	tui_widget_cell_print(widget,
+							button->caption,
+							theme->button.c_fg, theme->button.c_bg,
+							cx, cy, clen);
 
 	for(pos = (&widget->child)->next; pos != (&widget->child); pos = pos->next)
 	{
@@ -224,6 +190,11 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 
 		if(list->ops->paint)
 			list->ops->paint(list, x, y, w, h);
+	}
+
+	if(widget->active)
+	{
+
 	}
 
 	if((widget->parent != NULL) && (widget->parent != widget))
@@ -319,10 +290,11 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 		return NULL;
 
 	button->widget.id = strdup(id);
+	button->widget.active = FALSE;
 	button->widget.ox = 0;
 	button->widget.oy = 0;
 	button->widget.width = 8;
-	button->widget.height = 4;
+	button->widget.height = 3;
 	button->widget.layout = NULL;
 	button->widget.ops = &button_ops;
 	button->widget.parent = parent;
@@ -342,18 +314,7 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 							theme->button.fg, theme->button.bg,
 							0, 0, button->widget.width, button->widget.height);
 
-	button->widget.id = strdup(id);
-	button->widget.ox = 0;
-	button->widget.oy = 0;
-	button->widget.width = 8;
-	button->widget.height = 4;
-	button->widget.layout = NULL;
-	button->widget.ops = &button_ops;
-	button->widget.parent = parent;
-	button->widget.priv = button;
-
 	button->caption = strdup(caption);
-	button->shadow = TRUE;
 
 	init_list_head(&(button->widget.entry));
 	init_list_head(&(button->widget.child));

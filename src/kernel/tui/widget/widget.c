@@ -61,7 +61,7 @@ x_bool tui_widget_cell_putcode(struct tui_widget * widget, x_u32 cp, enum tcolor
 	return TRUE;
 }
 
-x_bool tui_widget_cell_print(struct tui_widget * widget, x_s8 * str, enum tcolor fg, enum tcolor bg, x_u32 x, x_u32 y)
+x_bool tui_widget_cell_print(struct tui_widget * widget, x_s8 * str, enum tcolor fg, enum tcolor bg, x_s32 x, x_s32 y, x_s32 len)
 {
 	struct tui_cell * cell;
 	const x_u8 * p;
@@ -77,13 +77,16 @@ x_bool tui_widget_cell_print(struct tui_widget * widget, x_s8 * str, enum tcolor
 	if(x < 0 || y < 0)
 		return FALSE;
 
+	if(len <= 0)
+		return FALSE;
+
 	if(x >= widget->width || y >= widget->height)
 		return FALSE;
 
 	cell = &(widget->cell[widget->width * y + x]);
 	for(p = (const x_u8 *)str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
 	{
-		if(x++ >= widget->width)
+		if(len-- <= 0)
 			break;
 
 		if( (cell->cp != code) || (cell->fg != fg) || (cell->bg != bg) )

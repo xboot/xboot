@@ -291,6 +291,7 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 		return NULL;
 
 	workspace->widget.id = strdup(id);
+	workspace->widget.active = FALSE;
 	workspace->widget.ox = 0;
 	workspace->widget.oy = 0;
 	workspace->widget.width = w;

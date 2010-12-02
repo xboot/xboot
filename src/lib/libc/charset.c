@@ -456,3 +456,20 @@ x_bool utf8_is_valid(const x_u8 * src, x_s32 size)
 
 	return TRUE;
 }
+
+/*
+ * find the length of a utf8 string
+ */
+x_s32 utf8_strlen(const x_u8 * s)
+{
+	x_s32 i = 0, j = 0;
+
+	while(s[i])
+	{
+		if((s[i] & 0xc0) != 0x80)
+			j++;
+		i++;
+	}
+
+	return j;
+}

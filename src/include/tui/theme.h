@@ -20,9 +20,6 @@ struct tui_theme
 
 		x_u32 h, v, lt, rt, lb, rb;
 		enum tcolor b_fg, b_bg;
-
-		x_u32 s;
-		enum tcolor s_fg, s_bg;
 	} button;
 };
 

@@ -215,6 +215,80 @@ x_bool tui_widget_cell_rect(struct tui_widget * widget, x_u32 hline, x_u32 vline
 	return TRUE;
 }
 
+x_bool tui_widget_cell_border(struct tui_widget * widget)
+{
+	struct tui_cell * cell;
+	enum tcolor fg, bg;
+	x_s32 w, h;
+	x_s32 i;
+
+	if(!widget)
+		return FALSE;
+
+	cell = widget->cell;
+	if(!cell)
+		return FALSE;
+
+	w = widget->width;
+	h = widget->height;
+	if(w < 2 || h < 2)
+		return FALSE;
+
+	cell = &(widget->cell[w * 0 + 0]);
+	for(i = 0; i < w - 1; i++)
+	{
+		fg = cell->fg;
+		bg = cell->bg;
+
+		cell->fg = bg;
+		cell->bg = fg;
+		cell->dirty = TRUE;
+
+		cell++;
+	}
+
+	cell = &(widget->cell[w * 1 + 0]);
+	for(i = 0; i < h - 1; i++)
+	{
+		fg = cell->fg;
+		bg = cell->bg;
+
+		cell->fg = bg;
+		cell->bg = fg;
+		cell->dirty = TRUE;
+
+		cell += w;
+	}
+
+	cell = &(widget->cell[w * (h - 1) + 1]);
+	for(i = 0; i < w - 1; i++)
+	{
+		fg = cell->fg;
+		bg = cell->bg;
+
+		cell->fg = bg;
+		cell->bg = fg;
+		cell->dirty = TRUE;
+
+		cell++;
+	}
+
+	cell = &(widget->cell[w * 0 + (w - 1)]);
+	for(i = 0; i < h - 1; i++)
+	{
+		fg = cell->fg;
+		bg = cell->bg;
+
+		cell->fg = bg;
+		cell->bg = fg;
+		cell->dirty = TRUE;
+
+		cell += w;
+	}
+
+	return TRUE;
+}
+
 x_bool tui_widget_cell_clear(struct tui_widget * widget, x_u32 cp, enum tcolor fg, enum tcolor bg, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
 {
 	struct tui_cell * cell;

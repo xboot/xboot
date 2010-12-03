@@ -72,28 +72,34 @@ static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 o
 	if(height < h)
 		height = h;
 
-	len = width * height;
-	if(len != widget->clen)
+	if((width == widget->width) && (height == widget->height))
 	{
-		cell = malloc(len * sizeof(struct tui_cell));
-		if(!cell)
-			return FALSE;
+		widget->ox = ox;
+		widget->oy = oy;
+		widget->width = width;
+		widget->height = height;
 
-		free(widget->cell);
-
-		widget->cell = cell;
-		widget->clen = len;
-
-		tui_widget_cell_clear(widget,
-								theme->button.cp,
-								theme->button.fg, theme->button.bg,
-								0, 0, width, height);
+		return TRUE;
 	}
+
+	len = width * height;
+	cell = malloc(len * sizeof(struct tui_cell));
+	if(!cell)
+		return FALSE;
+
+	free(widget->cell);
+	widget->cell = cell;
+	widget->clen = len;
 
 	widget->ox = ox;
 	widget->oy = oy;
 	widget->width = width;
 	widget->height = height;
+
+	tui_widget_cell_clear(widget,
+							theme->button.cp,
+							theme->button.fg, theme->button.bg,
+							0, 0, width, height);
 
 	return TRUE;
 }
@@ -173,8 +179,8 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 							x, y, w, h);
 
 	clen = utf8_strlen((const x_u8 *)button->caption);
-	if(clen > widget->width)
-		clen = widget->width;
+	if(clen > widget->width - 2)
+		clen = widget->width - 2;
 
 	cx = (widget->width - 2 - clen) / 2 + 1;
 	cy = (widget->height - 2) / 2 + 1;
@@ -193,9 +199,7 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 	}
 
 	if(widget->active)
-	{
-
-	}
+		tui_widget_cell_border(widget);
 
 	if((widget->parent != NULL) && (widget->parent != widget))
 	{

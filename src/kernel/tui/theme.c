@@ -32,7 +32,7 @@ static struct tui_theme current_tui_theme =
 {
 	.workspace 	= {
 		.cp		= UNICODE_SPACE,
-		.fg		= TCOLOR_BULE,
+		.fg		= TCOLOR_WHITE,
 		.bg		= TCOLOR_BULE,
 	},
 

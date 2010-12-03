@@ -66,23 +66,28 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	}
 	return 0;*/
 
-	//console_setcursor(get_stdout(), FALSE);
+	console_setcursor(get_stdout(), FALSE);
 
 	ws = tui_workspace_new(get_stdout(), (x_s8 *)"ws");
-	btn = tui_button_new((struct tui_widget *)ws, (const x_s8 *)"btn", (const x_s8 *)"Cancel");
+	btn = tui_button_new((struct tui_widget *)ws, (const x_s8 *)"btn", (const x_s8 *)"Cancel1234");
 
-	tui_widget_setbounds((struct tui_widget *)btn, 2,3,8,8);
-	tui_widget_paint((struct tui_widget *)ws, 0, 0, 40, 20);
+	tui_widget_setbounds((struct tui_widget *)btn, 4,15,3,3);
+	tui_widget_paint((struct tui_widget *)ws, 0, 0, 80, 25);
 
-	mdelay(1000);
+	tui_widget_setbounds((struct tui_widget *)btn, 5,3,9,4);
+	tui_widget_paint((struct tui_widget *)ws, 0, 0, 80, 25);
 
-	for(i=0; i<4; i++)
+
+
+	for(i=1; i<10; i++)
 	{
-		tui_widget_setbounds((struct tui_widget *)btn, 4+i,2+i,8,3);
-		tui_widget_paint((struct tui_widget *)ws, 0, 0, 40, 20);
+		tui_widget_setbounds((struct tui_widget *)btn, 4+i,2+i,8+i,3+i);
+		tui_widget_paint((struct tui_widget *)ws, 0, 0, 80, 25);
 
 		mdelay(400);
 	}
+
+	tui_widget_paint((struct tui_widget *)ws, 0, 0, 80, 25);
 
 	tui_widget_destroy((struct tui_widget *)ws);
 

@@ -71,28 +71,34 @@ static x_bool tui_workspace_setbounds(struct tui_widget * widget, x_s32 ox, x_s3
 	if(height < h)
 		height = h;
 
-	len = width * height;
-	if(len != widget->clen)
+	if((width == widget->width) && (height == widget->height))
 	{
-		cell = malloc(len * sizeof(struct tui_cell));
-		if(!cell)
-			return FALSE;
+		widget->ox = ox;
+		widget->oy = oy;
+		widget->width = width;
+		widget->height = height;
 
-		free(widget->cell);
-
-		widget->cell = cell;
-		widget->clen = len;
-
-		tui_widget_cell_clear(widget,
-								theme->workspace.cp,
-								theme->workspace.fg, theme->workspace.bg,
-								0, 0, width, height);
+		return TRUE;
 	}
+
+	len = width * height;
+	cell = malloc(len * sizeof(struct tui_cell));
+	if(!cell)
+		return FALSE;
+
+	free(widget->cell);
+	widget->cell = cell;
+	widget->clen = len;
 
 	widget->ox = ox;
 	widget->oy = oy;
 	widget->width = width;
 	widget->height = height;
+
+	tui_widget_cell_clear(widget,
+							theme->workspace.cp,
+							theme->workspace.fg, theme->workspace.bg,
+							0, 0, width, height);
 
 	return TRUE;
 }
@@ -157,6 +163,9 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 		if(list->ops->paint)
 			list->ops->paint(list, x, y, w, h);
 	}
+
+	if(widget->active)
+		tui_widget_cell_border(widget);
 
 	if((widget->parent != NULL) && (widget->parent != widget))
 	{

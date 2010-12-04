@@ -60,15 +60,15 @@ void putch(char c)
 {
 	struct console * stdout = get_stdout();
 	static x_s32 size = 0;
-	static x_u8 buf[6];
-	x_u8 * rest;
+	static x_s8 buf[6];
+	x_s8 * rest;
 	x_u32 code;
 
 	if(!stdout || !stdout->putcode)
 		return;
 
 	buf[size++] = c;
-	while(utf8_to_ucs4(&code, 1, buf, size, (const x_u8 **)&rest) > 0)
+	while(utf8_to_ucs4(&code, 1, buf, size, (const x_s8 **)&rest) > 0)
 	{
 		led_console_trigger_activity();
 
@@ -87,7 +87,7 @@ x_s32 printk(const char * fmt, ...)
 	va_list args;
 	x_u32 code;
 	x_s32 i;
-	x_u8 *p, *buf;
+	x_s8 *p, *buf;
 
 	if(!stdout || !stdout->putcode)
 		return 0;
@@ -102,7 +102,7 @@ x_s32 printk(const char * fmt, ...)
 
 	led_console_trigger_activity();
 
-	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const x_u8 **)&p) > 0; )
+	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const x_s8 **)&p) > 0; )
 	{
 		stdout->putcode(stdout, code);
 	}

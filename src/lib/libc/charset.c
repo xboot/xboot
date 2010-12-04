@@ -12,7 +12,7 @@
 /*
  * utf8_to_ucs4 - convert a UTF-8 string to UCS-4 string
  */
-x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_u8 * src, x_s32 src_size, const x_u8 ** src_end)
+x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size, const x_s8 ** src_end)
 {
 	x_u32 *p = dst;
 	x_s32 count = 0;
@@ -100,7 +100,7 @@ x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_u8 * src, x_s32 src_size
 /*
  * utf4_to_utf8 - convert a UCS-4 to UTF-8
  */
-x_s32 ucs4_to_utf8(x_u32 c, x_u8 * buf)
+x_s32 ucs4_to_utf8(x_u32 c, x_s8 * buf)
 {
 	x_s32 len = 0;
 
@@ -158,7 +158,7 @@ x_s32 ucs4_to_utf8(x_u32 c, x_u8 * buf)
 /*
  * utf8_to_utf16 - convert a UTF-8 string to UTF-16 string
  */
-x_s32 utf8_to_utf16(x_u16 * dst, x_s32 dst_size, const x_u8 * src, x_s32 src_size, const x_u8 ** src_end)
+x_s32 utf8_to_utf16(x_u16 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size, const x_s8 ** src_end)
 {
 	x_u16 *p = dst;
 	x_s32 count = 0;
@@ -249,7 +249,7 @@ x_s32 utf8_to_utf16(x_u16 * dst, x_s32 dst_size, const x_u8 * src, x_s32 src_siz
 /*
  * utf16_to_utf8 - convert a UTF-16 string to UTF-8 string
  */
-x_u8 * utf16_to_utf8(x_u8 * dst, x_u16 * src, x_s32 size)
+x_s8 * utf16_to_utf8(x_s8 * dst, x_u16 * src, x_s32 size)
 {
 	x_u32 code_high = 0;
 	x_u32 code;
@@ -309,13 +309,13 @@ x_u8 * utf16_to_utf8(x_u8 * dst, x_u16 * src, x_s32 size)
 /*
  * utf4_to_utf8_alloc - convert a UCS-4 to UTF-8
  */
-x_u8 * ucs4_to_utf8_alloc(x_u32 * src, x_s32 size)
+x_s8 * ucs4_to_utf8_alloc(x_u32 * src, x_s32 size)
 {
 	x_s32 remaining;
 	x_u32 * ptr;
 	x_u32 code;
 	x_s32 cnt = 0;
-	x_u8 * ret, * dest;
+	x_s8 * ret, * dest;
 
 	remaining = size;
 	ptr = src;
@@ -367,32 +367,29 @@ x_u8 * ucs4_to_utf8_alloc(x_u32 * src, x_s32 size)
 	}
 
 	*dest = 0;
-	return (x_u8 *) ret;
+	return ret;
 }
 
 /*
  * utf8_to_ucs4_alloc - convert a UTF-8 string to UCS-4 string
  */
-x_s32 utf8_to_ucs4_alloc(const x_u8 * src, x_u32 ** dst, x_u32 ** pos)
+x_s32 utf8_to_ucs4_alloc(const x_s8 * src, x_u32 ** dst, x_u32 ** pos)
 {
-	x_s32 len = strlen((const x_s8 *)src);
+	x_s32 len = strlen(src);
 
 	*dst = malloc(len * sizeof(x_u32));
 
 	if(!*dst)
 		return -1;
 
-	len = utf8_to_ucs4(*dst, len, (x_u8 *)src, -1, 0);
+	len = utf8_to_ucs4(*dst, len, (x_s8 *)src, -1, 0);
 
 	*pos = *dst + len;
 
 	return len;
 }
 
-/*
- * is valid utf8 strings
- */
-x_bool utf8_is_valid(const x_u8 * src, x_s32 size)
+x_bool utf8_is_valid(const x_s8 * src, x_s32 size)
 {
 	x_u32 code = 0;
 	x_s32 count = 0;
@@ -457,10 +454,7 @@ x_bool utf8_is_valid(const x_u8 * src, x_s32 size)
 	return TRUE;
 }
 
-/*
- * find the length of a utf8 string
- */
-x_s32 utf8_strlen(const x_u8 * s)
+x_s32 utf8_strlen(const x_s8 * s)
 {
 	x_s32 i = 0, j = 0;
 
@@ -472,4 +466,39 @@ x_s32 utf8_strlen(const x_u8 * s)
 	}
 
 	return j;
+}
+
+x_s8 * utf8_strcpy(x_s8 * dest, const x_s8 * src)
+{
+	x_s8 * tmp = dest;
+
+	while((*dest++ = *src++) != '\0');
+
+	return tmp;
+}
+
+x_s8 * utf8_strdup(const x_s8 * s)
+{
+	x_s8 * p;
+
+	if(!s)
+		return NULL;
+
+	p = malloc(utf8_strlen(s) + 1);
+	if(p)
+		return(utf8_strcpy(p, s));
+
+	return NULL;
+}
+
+x_s32 utf8_strcmp(const x_s8 * cs, const x_s8 * ct)
+{
+	x_s32 __res;
+
+	while (1)
+	{
+		if ((__res = *cs - *ct++) != 0 || !*cs++)
+			break;
+	}
+	return __res;
 }

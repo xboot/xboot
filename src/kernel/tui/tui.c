@@ -24,6 +24,7 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
+#include <charset.h>
 #include <tui/tui.h>
 
 
@@ -42,7 +43,7 @@ struct tui_widget * find_tui_widget_by_id(struct tui_widget * widget, const x_s8
 	for(pos = (&widget->child)->next; pos != &widget->child; pos = pos->next)
 	{
 		list = list_entry(pos, struct tui_widget, entry);
-		if(strcmp(list->id, id) == 0)
+		if(utf8_strcmp(list->id, id) == 0)
 			return list;
 
 		if(!list_empty(&list->child))
@@ -80,7 +81,7 @@ x_bool tui_widget_setparent(struct tui_widget * widget, struct tui_widget * pare
 		}
 	}
 
-	list_add_tail(&(parent->child), &(widget->entry));
+	list_add_tail(&(widget->entry), &(parent->child));
 	widget->parent = parent;
 
 	return TRUE;
@@ -121,7 +122,7 @@ x_bool tui_widget_addchild(struct tui_widget * widget, struct tui_widget * child
 		}
 	}
 
-	list_add_tail(&(widget->child), &(child->entry));
+	list_add_tail(&(child->entry), &(widget->child));
 	child->parent = widget;
 
 	return TRUE;
@@ -149,6 +150,15 @@ x_bool tui_widget_removechild(struct tui_widget * widget, struct tui_widget * ch
 	}
 
 	return FALSE;
+}
+
+x_bool tui_widget_alignment(struct tui_widget * widget, enum tui_widget_align align)
+{
+	if(!widget)
+		return FALSE;
+
+	widget->align = align;
+	return TRUE;
 }
 
 x_bool tui_widget_minsize(struct tui_widget * widget, x_s32 * width, x_s32 * height)
@@ -183,12 +193,12 @@ x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, 
 	return widget->ops->getbounds(widget, ox, oy, width, height);
 }
 
-x_bool tui_widget_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)
+x_bool tui_widget_setproperty(struct tui_widget * widget, x_u32 cmd, void * arg)
 {
 	if(!widget)
 		return FALSE;
 
-	return widget->ops->setproperty(widget, name, value);
+	return widget->ops->setproperty(widget, cmd, arg);
 }
 
 x_bool tui_widget_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)

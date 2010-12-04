@@ -72,6 +72,11 @@ static x_bool tui_button_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 o
 	if(height < h)
 		height = h;
 
+	if((widget->parent != NULL) && (widget->parent != widget))
+	{
+		//xxx
+	}
+
 	if((width == widget->width) && (height == widget->height))
 	{
 		widget->ox = ox;
@@ -118,24 +123,33 @@ static x_bool tui_button_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32
 	return TRUE;
 }
 
-static x_bool tui_button_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)
+static x_bool tui_button_setproperty(struct tui_widget * widget, x_u32 cmd, void * arg)
 {
 	struct tui_button * button = widget->priv;
 
-	if(strcmp(name, (const x_s8 *)"caption") == 0)
+	switch(cmd)
 	{
+	case TUI_BUTTON_SET_CAPTION:
 		free(button->caption);
-		if(value)
-			button->caption = strdup(value);
+		if(arg)
+			button->caption = utf8_strdup((const x_s8 *)arg);
 		else
-			button->caption = strdup((const x_s8 *)"");
-	}
-	else
-	{
+			button->caption = utf8_strdup((const x_s8 *)"");
+		return TRUE;
+
+	case TUI_BUTTON_GET_CAPTION:
+		if(arg)
+		{
+			arg = (void *)button->caption;
+			return TRUE;
+		}
 		return FALSE;
+
+	default:
+		break;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h)
@@ -178,7 +192,7 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 							theme->button.b_fg, theme->button.b_bg,
 							x, y, w, h);
 
-	clen = utf8_strlen((const x_u8 *)button->caption);
+	clen = utf8_strlen(button->caption);
 	if(clen > widget->width - 2)
 		clen = widget->width - 2;
 
@@ -198,7 +212,7 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 			list->ops->paint(list, x, y, w, h);
 	}
 
-	if(widget->active)
+	if(widget->focus)
 		tui_widget_cell_border(widget);
 
 	if((widget->parent != NULL) && (widget->parent != widget))
@@ -235,6 +249,11 @@ static x_bool tui_button_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s
 		}
 	}
 
+	return TRUE;
+}
+
+static x_bool tui_button_process(struct tui_widget * widget, struct tui_event * event)
+{
 	return TRUE;
 }
 
@@ -275,6 +294,7 @@ static struct tui_widget_ops button_ops = {
 	.getbounds			= tui_button_getbounds,
 	.setproperty		= tui_button_setproperty,
 	.paint				= tui_button_paint,
+	.process			= tui_button_process,
 	.destroy			= tui_button_destroy,
 };
 
@@ -293,13 +313,13 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 	if(!button)
 		return NULL;
 
-	button->widget.id = strdup(id);
-	button->widget.active = FALSE;
+	button->widget.id = utf8_strdup(id);
+	button->widget.align = TUI_WIDGET_ALIGN_NONE;
 	button->widget.ox = 0;
 	button->widget.oy = 0;
 	button->widget.width = 8;
 	button->widget.height = 3;
-	button->widget.layout = NULL;
+	button->widget.focus = FALSE;
 	button->widget.ops = &button_ops;
 	button->widget.parent = parent;
 	button->widget.priv = button;
@@ -318,11 +338,11 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 							theme->button.fg, theme->button.bg,
 							0, 0, button->widget.width, button->widget.height);
 
-	button->caption = strdup(caption);
+	button->caption = utf8_strdup(caption);
 
 	init_list_head(&(button->widget.entry));
 	init_list_head(&(button->widget.child));
-	list_add_tail(&(parent->child), &(button->widget.entry));
+	list_add_tail(&(button->widget.entry), &(parent->child));
 
 	return button;
 }

@@ -25,6 +25,7 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
+#include <charset.h>
 #include <tui/tui.h>
 #include <tui/theme.h>
 #include <tui/widget/widget.h>
@@ -117,7 +118,7 @@ static x_bool tui_workspace_getbounds(struct tui_widget * widget, x_s32 * ox, x_
 	return TRUE;
 }
 
-static x_bool tui_workspace_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value)
+static x_bool tui_workspace_setproperty(struct tui_widget * widget, x_u32 cmd, void * arg)
 {
 	return FALSE;
 }
@@ -164,7 +165,7 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 			list->ops->paint(list, x, y, w, h);
 	}
 
-	if(widget->active)
+	if(widget->focus)
 		tui_widget_cell_border(widget);
 
 	if((widget->parent != NULL) && (widget->parent != widget))
@@ -229,6 +230,11 @@ static x_bool tui_workspace_paint(struct tui_widget * widget, x_s32 x, x_s32 y, 
 	return TRUE;
 }
 
+static x_bool tui_workspace_process(struct tui_widget * widget, struct tui_event * event)
+{
+	return TRUE;
+}
+
 static x_bool tui_workspace_destroy(struct tui_widget * widget)
 {
 	struct tui_workspace * workspace = widget->priv;
@@ -269,6 +275,7 @@ static struct tui_widget_ops workspace_ops = {
 	.getbounds			= tui_workspace_getbounds,
 	.setproperty		= tui_workspace_setproperty,
 	.paint				= tui_workspace_paint,
+	.process			= tui_workspace_process,
 	.destroy			= tui_workspace_destroy,
 };
 
@@ -299,13 +306,13 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 	if(!workspace)
 		return NULL;
 
-	workspace->widget.id = strdup(id);
-	workspace->widget.active = FALSE;
+	workspace->widget.id = utf8_strdup(id);
+	workspace->widget.align = TUI_WIDGET_ALIGN_NONE;
 	workspace->widget.ox = 0;
 	workspace->widget.oy = 0;
 	workspace->widget.width = w;
 	workspace->widget.height = h;
-	workspace->widget.layout = NULL;
+	workspace->widget.focus = FALSE;
 	workspace->widget.ops = &workspace_ops;
 	workspace->widget.parent = (struct tui_widget *)workspace;
 	workspace->widget.priv = workspace;

@@ -13,6 +13,16 @@
  */
 struct tui_widget;
 
+enum tui_widget_align
+{
+	TUI_WIDGET_ALIGN_NONE			= 0,
+	TUI_WIDGET_ALIGN_LEFT			= 1,
+	TUI_WIDGET_ALIGN_TOP			= 2,
+	TUI_WIDGET_ALIGN_RIGHT			= 3,
+	TUI_WIDGET_ALIGN_BOTTOM			= 4,
+	TUI_WIDGET_ALIGN_ALL			= 4,
+};
+
 struct tui_cell
 {
 	/* code pointer */
@@ -26,6 +36,11 @@ struct tui_cell
 
 	/* dirty flag */
 	x_bool dirty;
+};
+
+struct tui_event
+{
+	x_bool valid;
 };
 
 struct tui_widget_ops
@@ -43,10 +58,13 @@ struct tui_widget_ops
 	x_bool (*getbounds)(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height);
 
 	/* set widget property */
-	x_bool (*setproperty)(struct tui_widget * widget, const x_s8 * name, const x_s8 * value);
+	x_bool (*setproperty)(struct tui_widget * widget, x_u32 cmd, void * arg);
 
 	/* paint widget with area */
 	x_bool (*paint)(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
+
+	/* process events */
+	x_bool (*process)(struct tui_widget * widget, struct tui_event * event);
 
 	/* destroy widget */
 	x_bool (*destroy)(struct tui_widget * widget);
@@ -57,8 +75,8 @@ struct tui_widget
 	/* widget's id */
 	x_s8 * id;
 
-	/* widget active flag */
-	x_bool active;
+	/* widget's alignment */
+	enum tui_widget_align align;
 
 	/* widget's offset with relative to parent widget */
 	x_s32 ox, oy;
@@ -66,14 +84,14 @@ struct tui_widget
 	/* widget's width and height */
 	x_s32 width, height;
 
+	/* widget focus flag */
+	x_bool focus;
+
 	/* tui cell buffer length */
 	x_s32 clen;
 
 	/* tui cell buffer */
 	struct tui_cell * cell;
-
-	/* container layout */
-	struct tui_layout * layout;
 
 	/* widget operations */
 	struct tui_widget_ops * ops;
@@ -97,11 +115,12 @@ x_bool tui_widget_setparent(struct tui_widget * widget, struct tui_widget * pare
 struct tui_widget * tui_widget_getparent(struct tui_widget * widget);
 x_bool tui_widget_addchild(struct tui_widget * widget, struct tui_widget * child);
 x_bool tui_widget_removechild(struct tui_widget * widget, struct tui_widget * child);
+x_bool tui_widget_alignment(struct tui_widget * widget, enum tui_widget_align align);
 x_bool tui_widget_minsize(struct tui_widget * widget, x_s32 * width, x_s32 * height);
 x_bool tui_widget_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h);
 x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 oy, x_s32 width, x_s32 height);
 x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height);
-x_bool tui_widget_setproperty(struct tui_widget * widget, const x_s8 * name, const x_s8 * value);
+x_bool tui_widget_setproperty(struct tui_widget * widget, x_u32 cmd, void * arg);
 x_bool tui_widget_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
 x_bool tui_widget_destroy(struct tui_widget * widget);
 

@@ -6,6 +6,11 @@
 #include <rect.h>
 #include <tui/tui.h>
 
+enum {
+	TUI_BUTTON_SET_CAPTION			= 0,
+	TUI_BUTTON_GET_CAPTION			= 1,
+};
+
 struct tui_button
 {
 	/* tui widget */

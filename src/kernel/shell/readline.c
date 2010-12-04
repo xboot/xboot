@@ -214,7 +214,7 @@ static void rl_space(struct rl_buf * rl, x_u32 len)
 
 static void rl_print(struct rl_buf * rl, x_s32 pos)
 {
-	x_u8 * utf8;
+	x_s8 * utf8;
 
 	if(pos < 0)
 		return;

@@ -193,6 +193,31 @@ x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, 
 	return widget->ops->getbounds(widget, ox, oy, width, height);
 }
 
+x_bool tui_widget_getpos(struct tui_widget * widget, x_s32 * x, x_s32 * y)
+{
+	x_s32 ox, oy, width, height;
+	x_s32 ax = 0, ay = 0;
+
+	if(!widget)
+		return FALSE;
+
+	do {
+		if(widget->ops->getbounds(widget, &ox, &oy, &width, &height))
+		{
+			ax += ox;
+			ay += oy;
+		}
+
+		widget = widget->parent;
+
+	} while((widget->parent != NULL) && (widget->parent != widget));
+
+	*x = ox;
+	*y = oy;
+
+	return TRUE;
+}
+
 x_bool tui_widget_setproperty(struct tui_widget * widget, x_u32 cmd, void * arg)
 {
 	if(!widget)

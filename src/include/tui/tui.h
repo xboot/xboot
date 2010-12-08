@@ -20,7 +20,7 @@ enum tui_widget_align
 	TUI_WIDGET_ALIGN_TOP			= 2,
 	TUI_WIDGET_ALIGN_RIGHT			= 3,
 	TUI_WIDGET_ALIGN_BOTTOM			= 4,
-	TUI_WIDGET_ALIGN_ALL			= 4,
+	TUI_WIDGET_ALIGN_ALL			= 5,
 };
 
 struct tui_cell
@@ -120,6 +120,7 @@ x_bool tui_widget_minsize(struct tui_widget * widget, x_s32 * width, x_s32 * hei
 x_bool tui_widget_region(struct tui_widget * widget, x_s32 * x, x_s32 * y, x_s32 * w, x_s32 * h);
 x_bool tui_widget_setbounds(struct tui_widget * widget, x_s32 ox, x_s32 oy, x_s32 width, x_s32 height);
 x_bool tui_widget_getbounds(struct tui_widget * widget, x_s32 * ox, x_s32 * oy, x_s32 * width, x_s32 * height);
+x_bool tui_widget_getpos(struct tui_widget * widget, x_s32 * x, x_s32 * y);
 x_bool tui_widget_setproperty(struct tui_widget * widget, x_u32 cmd, void * arg);
 x_bool tui_widget_paint(struct tui_widget * widget, x_s32 x, x_s32 y, x_s32 w, x_s32 h);
 x_bool tui_widget_destroy(struct tui_widget * widget);

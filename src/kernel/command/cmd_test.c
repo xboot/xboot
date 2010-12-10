@@ -42,7 +42,6 @@
 #include <input/input.h>
 #include <input/keyboard/keyboard.h>
 #include <console/console.h>
-#include <console/curses.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fsapi.h>
 #include <mmc/mmc_host.h>

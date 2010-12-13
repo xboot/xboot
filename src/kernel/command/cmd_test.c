@@ -50,6 +50,7 @@
 #include <tui/widget/workspace.h>
 #include <tui/widget/button.h>
 
+
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)

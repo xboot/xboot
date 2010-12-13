@@ -2498,16 +2498,193 @@ static const x_u8 default_ascii_glyph_data[128+1][16] = {
 };
 
 static struct font_glyph current_font_glyph = {
-	.font	= NULL,
+	.code	= 0,
 	.w		= 8,
 	.h		= 16,
 	.data	= (x_u8 *)(&default_ascii_glyph_data[128][0]),
 };
 
-/*
- * search font by name
- */
-static struct font * search_font(const char * name)
+static x_bool font_create(struct font ** font, const char * name, x_u32 size)
+{
+	struct hlist_head * hash;
+	x_s32 i;
+
+	if(!font)
+		return FALSE;
+
+	*font = NULL;
+
+	if(size <= 0)
+		return FALSE;
+
+	*font = (struct font *)malloc(sizeof(struct font));
+	if( !(*font) )
+		return FALSE;
+
+	hash = malloc(sizeof(struct hlist_head) * size);
+	if(!hash)
+	{
+		free(*font);
+		return FALSE;
+	}
+
+	for(i = 0; i < size; i++)
+		init_hlist_head(&hash[i]);
+
+	(*font)->name = (char *)strdup((const x_s8 *)name);
+	(*font)->hash = hash;
+	(*font)->size = size;
+
+	return TRUE;
+}
+
+static struct font_glyph_list * search_font_glyph(struct font * font, struct font_glyph * glyph)
+{
+	struct font_glyph_list * list;
+	struct hlist_node * pos;
+	x_u32 hash;
+
+	if(!font)
+		return NULL;
+
+	if(!glyph)
+		return NULL;
+
+	hash = glyph->code % font->size;
+
+	hlist_for_each_entry(list,  pos, &(font->hash[hash]), node)
+	{
+		if(list->glyph->code == glyph->code)
+			return list;
+	}
+
+	return NULL;
+}
+
+static x_bool add_font_glyph(struct font * font, struct font_glyph * glyph)
+{
+	struct font_glyph_list * list;
+	x_u32 hash;
+
+	if(!font)
+		return FALSE;
+
+	if(!glyph)
+		return FALSE;
+
+	list = malloc(sizeof(struct font_glyph_list));
+	if(!list || !glyph)
+	{
+		free(list);
+		return FALSE;
+	}
+
+	if(search_font_glyph(font, glyph))
+	{
+		free(list);
+		return FALSE;
+	}
+
+	list->glyph = glyph;
+
+	hash = glyph->code % font->size;
+	hlist_add_head(&(list->node), &(font->hash[hash]));
+
+	return TRUE;
+}
+
+static x_bool remove_font_glyph(struct font * font, struct font_glyph * glyph)
+{
+	struct font_glyph_list * list;
+	struct hlist_node * pos;
+	x_u32 hash;
+
+	if(!font)
+		return FALSE;
+
+	if(!glyph)
+		return FALSE;
+
+	hash = glyph->code % font->size;
+
+	hlist_for_each_entry(list,  pos, &(font->hash[hash]), node)
+	{
+		if(list->glyph->code == glyph->code)
+		{
+			hlist_del(&(list->node));
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static x_bool font_destory(struct font * font)
+{
+	if(!font)
+		return FALSE;
+
+	free(font->name);
+	free(font->hash);
+	free(font);
+
+	return TRUE;
+}
+
+x_bool font_load(const char * path)
+{
+	//todo
+#if 0
+	static struct font * search_font(const char * name)
+	{
+		struct font_list * list;
+		struct list_head * pos;
+
+		if(!name)
+			return NULL;
+
+		for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
+		{
+			list = list_entry(pos, struct font_list, entry);
+			if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
+				return list->font;
+		}
+
+		return NULL;
+	}
+
+	/*
+	 * register font into font_list
+	 */
+	static x_bool register_font(struct font * font)
+	{
+		struct font_list * list;
+
+		list = malloc(sizeof(struct font_list));
+		if(!list || !font)
+		{
+			free(list);
+			return FALSE;
+		}
+
+		if(!font->name || search_font(font->name))
+		{
+			free(list);
+			return FALSE;
+		}
+
+		list->font = font;
+		list_add(&list->entry, &font_list->entry);
+
+		return TRUE;
+	}
+#endif
+
+	return FALSE;
+}
+
+struct font * font_get(const char * name)
 {
 	struct font_list * list;
 	struct list_head * pos;
@@ -2525,50 +2702,24 @@ static struct font * search_font(const char * name)
 	return NULL;
 }
 
-/*
- * register font into font_list
- */
-static x_bool register_font(struct font * font)
-{
-	struct font_list * list;
-
-	list = malloc(sizeof(struct font_list));
-	if(!list || !font)
-	{
-		free(list);
-		return FALSE;
-	}
-
-	if(!font->name || search_font(font->name))
-	{
-		free(list);
-		return FALSE;
-	}
-
-	list->font = font;
-	list_add(&list->entry, &font_list->entry);
-
-	return TRUE;
-}
-
-/*
- * unregister font from font_list
- */
-static x_bool unregister_font(struct font * font)
+x_bool font_remove(const char * name)
 {
 	struct font_list * list;
 	struct list_head * pos;
 
-	if(!font || !font->name)
+	if(!name)
 		return FALSE;
 
 	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct font_list, entry);
-		if(list->font == font)
+		if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
 		{
+			font_destory(list->font);
+
 			list_del(pos);
 			free(list);
+
 			return TRUE;
 		}
 	}
@@ -2581,7 +2732,7 @@ static x_bool unregister_font(struct font * font)
  */
 static struct font_glyph * font_lookup_glyph(struct font * font, x_u32 code)
 {
-	current_font_glyph.font = NULL;
+//	todo
 	current_font_glyph.w = 8;
 	current_font_glyph.h = 16;
 
@@ -2791,28 +2942,4 @@ x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 *
 		*h = height;
 
 	return TRUE;
-}
-
-/*
- * load font from file path
- */
-x_bool font_load(const char * path)
-{
-	return FALSE;
-}
-
-/*
- * get font by font name
- */
-struct font * font_get(const char * name)
-{
-	return NULL;
-}
-
-/*
- * remove font by font name
- */
-x_bool font_remove(const char * name)
-{
-	return FALSE;
 }

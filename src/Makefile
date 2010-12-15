@@ -101,7 +101,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				drivers/disk/partition \
 				drivers/serial \
 				drivers/fb \
-				drivers/fb/reader \
+				drivers/fb/bitmap \
+				drivers/fb/font \
 				drivers/led \
 				drivers/loop \
 				drivers/ramdisk \

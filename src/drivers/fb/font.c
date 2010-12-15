@@ -41,11 +41,20 @@ static struct font_list __font_list = {
 	},
 };
 static struct font_list * font_list = &__font_list;
-static struct font * default_font = NULL;
+
+static struct font_reader_list __font_reader_list = {
+	.entry = {
+		.next	= &(__font_reader_list.entry),
+		.prev	= &(__font_reader_list.entry),
+	},
+};
+static struct font_reader_list * font_reader_list = &__font_reader_list;
 
 /*
- * default font, ascii glyph data 16x8
+ * default global font
  */
+static struct font * default_font = NULL;
+
 static const x_u8 default_font_ascii_glyph_data[128][16] = {
 	[0] = {
 		0x00,	/* 00000000 */
@@ -2506,7 +2515,85 @@ static const struct font_glyph unkown_font_glyph = {
 	.data	= (x_u8 *)(&unkown_glyph_data[0]),
 };
 
-static x_bool font_create(struct font ** font, const char * name, x_u32 size)
+static x_bool match_extension(const char * filename, const char * ext)
+{
+	x_s32 pos, ext_len;
+
+	pos = strlen((const x_s8 *)filename);
+	ext_len = strlen((const x_s8 *)ext);
+
+	if( (!pos) || (!ext_len) || (ext_len > pos) )
+		return FALSE;
+
+	pos -= ext_len;
+
+	return strcmp((const x_s8 *)(filename + pos), (const x_s8 *)ext) == 0;
+}
+
+static struct font_reader * search_font_reader(const char * extension)
+{
+	struct font_reader_list * list;
+	struct list_head * pos;
+
+	if(!extension)
+		return NULL;
+
+	for(pos = (&font_reader_list->entry)->next; pos != (&font_reader_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct font_reader_list, entry);
+		if(strcmp((x_s8*)list->reader->extension, (const x_s8 *)extension) == 0)
+			return list->reader;
+	}
+
+	return NULL;
+}
+
+x_bool register_font_reader(struct font_reader * reader)
+{
+	struct font_reader_list * list;
+
+	list = malloc(sizeof(struct font_reader_list));
+	if(!list || !reader)
+	{
+		free(list);
+		return FALSE;
+	}
+
+	if(!reader->extension || search_font_reader(reader->extension))
+	{
+		free(list);
+		return FALSE;
+	}
+
+	list->reader = reader;
+	list_add(&list->entry, &font_reader_list->entry);
+
+	return TRUE;
+}
+
+x_bool unregister_font_reader(struct font_reader * reader)
+{
+	struct font_reader_list * list;
+	struct list_head * pos;
+
+	if(!reader || !reader->extension)
+		return FALSE;
+
+	for(pos = (&font_reader_list->entry)->next; pos != (&font_reader_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct font_reader_list, entry);
+		if(list->reader == reader)
+		{
+			list_del(pos);
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+x_bool font_create(struct font ** font, const char * name, x_u32 size)
 {
 	struct hlist_head * table;
 	x_s32 i;
@@ -2563,7 +2650,7 @@ static struct font_glyph_list * search_font_glyph(struct font * font, struct fon
 	return NULL;
 }
 
-static x_bool add_font_glyph(struct font * font, struct font_glyph * glyph)
+x_bool add_font_glyph(struct font * font, struct font_glyph * glyph)
 {
 	struct font_glyph_list * list;
 	x_u32 hash;
@@ -2595,7 +2682,34 @@ static x_bool add_font_glyph(struct font * font, struct font_glyph * glyph)
 	return TRUE;
 }
 
-static x_bool font_destory(struct font * font)
+x_bool remove_font_glyph(struct font * font, struct font_glyph * glyph)
+{
+	struct font_glyph_list * list;
+	struct hlist_node * pos;
+	x_u32 hash;
+
+	if(!font)
+		return FALSE;
+
+	if(!glyph)
+		return FALSE;
+
+	hash = glyph->code % font->size;
+
+	hlist_for_each_entry(list,  pos, &(font->table[hash]), node)
+	{
+		if(list->glyph->code == glyph->code)
+		{
+			hlist_del(&(list->node));
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+x_bool font_destory(struct font * font)
 {
 	struct font_glyph_list * list;
 	struct hlist_node * head, * curr, * next;
@@ -2627,6 +2741,96 @@ static x_bool font_destory(struct font * font)
 	free(font);
 
 	return TRUE;
+}
+
+struct font * font_get(const char * name)
+{
+	struct font_list * list;
+	struct list_head * pos;
+
+	if(!name)
+		return NULL;
+
+	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct font_list, entry);
+		if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
+			return list->font;
+	}
+
+	return NULL;
+}
+
+static x_bool register_font(struct font * font)
+{
+	struct font_list * list;
+
+	list = malloc(sizeof(struct font_list));
+	if(!list || !font)
+	{
+		free(list);
+		return FALSE;
+	}
+
+	if(!font->name || font_get(font->name))
+	{
+		free(list);
+		return FALSE;
+	}
+
+	list->font = font;
+	list_add(&list->entry, &font_list->entry);
+
+	return TRUE;
+}
+
+x_bool font_load(const char * path)
+{
+	struct font_reader_list * list;
+	struct list_head * pos;
+	struct font * font;
+
+	for(pos = (&font_reader_list->entry)->next; pos != (&font_reader_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct font_reader_list, entry);
+		if(match_extension(path, list->reader->extension))
+		{
+			if(list->reader->load && list->reader->load(&font, path))
+			{
+				if(register_font(font))
+					return TRUE;
+				else
+					font_destory(font);
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+x_bool font_remove(const char * name)
+{
+	struct font_list * list;
+	struct list_head * pos;
+
+	if(!name)
+		return FALSE;
+
+	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct font_list, entry);
+		if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
+		{
+			font_destory(list->font);
+
+			list_del(pos);
+			free(list);
+
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 /*
@@ -2870,101 +3074,6 @@ x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 *
 		*h = height;
 
 	return TRUE;
-}
-
-x_bool font_load(const char * path)
-{
-	//todo
-#if 0
-	static struct font * search_font(const char * name)
-	{
-		struct font_list * list;
-		struct list_head * pos;
-
-		if(!name)
-			return NULL;
-
-		for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
-		{
-			list = list_entry(pos, struct font_list, entry);
-			if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
-				return list->font;
-		}
-
-		return NULL;
-	}
-
-	/*
-	 * register font into font_list
-	 */
-	static x_bool register_font(struct font * font)
-	{
-		struct font_list * list;
-
-		list = malloc(sizeof(struct font_list));
-		if(!list || !font)
-		{
-			free(list);
-			return FALSE;
-		}
-
-		if(!font->name || search_font(font->name))
-		{
-			free(list);
-			return FALSE;
-		}
-
-		list->font = font;
-		list_add(&list->entry, &font_list->entry);
-
-		return TRUE;
-	}
-#endif
-
-	return FALSE;
-}
-
-struct font * font_get(const char * name)
-{
-	struct font_list * list;
-	struct list_head * pos;
-
-	if(!name)
-		return NULL;
-
-	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct font_list, entry);
-		if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
-			return list->font;
-	}
-
-	return NULL;
-}
-
-x_bool font_remove(const char * name)
-{
-	struct font_list * list;
-	struct list_head * pos;
-
-	if(!name)
-		return FALSE;
-
-	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct font_list, entry);
-		if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
-		{
-			font_destory(list->font);
-
-			list_del(pos);
-			free(list);
-
-			return TRUE;
-		}
-	}
-
-	return FALSE;
 }
 
 static __init void font_init(void)

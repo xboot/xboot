@@ -1,5 +1,5 @@
 /*
- * drivers/fb/reader/jpeg.c
+ * drivers/fb/bitmap/jpeg.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

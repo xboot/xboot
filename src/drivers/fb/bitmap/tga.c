@@ -1,5 +1,5 @@
 /*
- * drivers/fb/reader/tga.c
+ * drivers/fb/bitmap/tga.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

@@ -296,7 +296,6 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
         *bitmap = NULL;
         return FALSE;
     }
-	(*bitmap)->allocated = TRUE;
 
 	return TRUE;
 }
@@ -380,7 +379,6 @@ x_bool bitmap_load_from_picture(struct bitmap ** bitmap, struct picture * pictur
 	(*bitmap)->viewport.bottom = picture->height;
 
 	(*bitmap)->data = picture->data;
-	(*bitmap)->allocated = FALSE;
 
 	return TRUE;
 }
@@ -419,8 +417,7 @@ x_bool bitmap_destroy(struct bitmap * bitmap)
 	if(!bitmap)
 		return FALSE;
 
-	if(bitmap->allocated)
-		free(bitmap->data);
+	free(bitmap->data);
 	free(bitmap);
 
 	return TRUE;

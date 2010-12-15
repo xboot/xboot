@@ -40,8 +40,8 @@ struct font
 	/* font name */
 	char * name;
 
-	/* font_glyph hash head */
-	struct hlist_head * hash;
+	/* font_glyph hash table */
+	struct hlist_head * table;
 
 	/* hash size */
 	x_u32 size;
@@ -56,12 +56,13 @@ struct font_list
 	struct list_head entry;
 };
 
-x_bool font_load(const char * path);
-struct font * font_get(const char * name);
-x_bool font_remove(const char * name);
 
 x_bool fb_draw_text(struct fb * fb, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);
 x_bool bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);
 x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 * h);
+
+x_bool font_load(const char * path);
+struct font * font_get(const char * name);
+x_bool font_remove(const char * name);
 
 #endif /* __FONT_H__ */

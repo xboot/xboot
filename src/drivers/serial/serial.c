@@ -55,6 +55,12 @@ struct serial_console_info
 
 	/* cursor status, on or off */
 	x_bool cursor;
+
+	/*
+	 * below for priv data
+	 */
+	x_s8 buf[6];
+	x_s32 size;
 };
 
 /*
@@ -262,6 +268,22 @@ static x_bool scon_cls(struct console * console)
 x_bool scon_getcode(struct console * console, x_u32 * code)
 {
 	struct serial_console_info * info = console->priv;
+	x_u32 cp;
+	x_s8 * rest;
+	x_s8 c;
+
+	if(info->drv->read((x_u8 *)&c, 1))
+	{
+		info->buf[info->size++] = c;
+		while(utf8_to_ucs4(&cp, 1, info->buf, info->size, (const x_s8 **)&rest) > 0)
+		{
+			info->size -= rest - info->buf;
+			memmove(info->buf, rest, info->size);
+
+			*code = cp;
+			return TRUE;
+		}
+	}
 
 	return FALSE;
 }
@@ -304,31 +326,25 @@ x_bool scon_putcode(struct console * console, x_u32 code)
 	case UNICODE_LF:
 		if(info->y + 1 < info->h)
 			info->y = info->y + 1;
-
 		ucs4_to_utf8(code, buf);
 		info->drv->write((const x_u8 *)buf, strlen(buf));
 		break;
 
 	case UNICODE_CR:
 		info->x = 0;
-
 		ucs4_to_utf8(code, buf);
 		info->drv->write((const x_u8 *)buf, strlen(buf));
 		break;
 
 	default:
-		if(info->x + 1 >= info->w)
-		{
-			if(info->y + 1 >= info->h)
-				info->x = 0;
-			else
-			{
-				info->x = 0;
-				info->y = info->y + 1;
-			}
-		}
-		else
+		if(info->x + 1 < info->w)
 			info->x = info->x + 1;
+		else
+		{
+			if(info->y + 1 < info->h)
+				info->y = info->y + 1;
+			info->x = 0;
+		}
 
 		ucs4_to_utf8(code, buf);
 		info->drv->write((const x_u8 *)buf, strlen(buf));
@@ -402,6 +418,7 @@ x_bool register_serial(struct serial_driver * drv)
 	info->f = TCOLOR_WHITE;
 	info->b = TCOLOR_BLACK;
 	info->cursor = TRUE;
+	info->size = 0;
 
 	console->name = info->name;
 	console->getwh = scon_getwh;

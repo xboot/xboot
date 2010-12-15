@@ -509,7 +509,7 @@ x_s8 * readline(const x_s8 * prompt)
 	if(prompt)
 		printk((char *)prompt);
 
-	rl = rl_buf_alloc(256);
+	rl = rl_buf_alloc(SZ_1K);
 	if(!rl)
 		return utf8;
 

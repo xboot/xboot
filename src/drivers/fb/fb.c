@@ -440,7 +440,7 @@ static x_bool fbcon_getwh(struct console * console, x_s32 * w, x_s32 * h)
 }
 
 /*
- * get cursor position
+ * get cursor's position
  */
 static x_bool fbcon_getxy(struct console * console, x_s32 * x, x_s32 * y)
 {
@@ -456,7 +456,7 @@ static x_bool fbcon_getxy(struct console * console, x_s32 * x, x_s32 * y)
 }
 
 /*
- * set cursor position
+ * set cursor's position
  */
 static x_bool fbcon_gotoxy(struct console * console, x_s32 x, x_s32 y)
 {
@@ -771,9 +771,7 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 
 	case UNICODE_LF:
 		if(info->y + 1 >= info->h)
-		{
 			fbcon_scrollup(console);
-		}
 		fbcon_gotoxy(console, info->x, info->y + 1);
 		break;
 

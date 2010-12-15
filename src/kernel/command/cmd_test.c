@@ -59,7 +59,6 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	struct tui_button * btn1, * btn2, * btn3;
 	x_s32 i;
 
-
 	console_setcursor(get_stdout(), FALSE);
 
 	ws = tui_workspace_new(get_stdout(), (x_s8 *)"ws");

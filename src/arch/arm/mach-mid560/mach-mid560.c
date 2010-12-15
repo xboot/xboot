@@ -32,7 +32,6 @@
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
-#include <terminal/terminal.h>
 #include <s3c6410-cp15.h>
 #include <s3c6410/reg-gpio.h>
 #include <s3c6410/reg-wdg.h>
@@ -160,32 +159,6 @@ x_bool mach_menumode(void)
 }
 
 /*
- * default stdin console. must place NULL at the end.
- */
-static struct stdin default_stdin[] = {
-	{
-		.name		= "tty-uart0"
-	}, {
-		.name		= "tty-keypad"
-	}, {
-		.name		= NULL
-	}
-};
-
-/*
- * default stdout console. must place NULL at the end.
- */
-static struct stdout default_stdout[] = {
-	{
-		.name		= "tty-uart0"
-	}, {
-		.name		= "tty-fb0"
-	}, {
-		.name		= NULL
-	}
-};
-
-/*
  * system menu, must place NULL at the end.
  */
 static struct menu_item default_menu[] = {
@@ -243,8 +216,8 @@ static struct machine mid560 = {
 
 	.cfg = {
 		.mode				= MODE_NORMAL,
-		.stdin				= default_stdin,
-		.stdout				= default_stdout,
+		.stdin				= "input",
+		.stdout				= "fb",
 		.menu				= default_menu,
 		.env				= default_env,
 	},

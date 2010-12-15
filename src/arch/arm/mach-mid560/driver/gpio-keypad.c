@@ -36,7 +36,7 @@
 #include <input/keyboard/keyboard.h>
 #include <s3c6410/reg-gpio.h>
 
-
+#if 0
 static void keypad_init(void)
 {
 	/* set gpm0 intput and pull up */
@@ -123,3 +123,4 @@ static __exit void gpio_keypad_exit(void)
 
 module_init(gpio_keypad_init, LEVEL_DRIVER);
 module_exit(gpio_keypad_exit, LEVEL_DRIVER);
+#endif

@@ -71,7 +71,6 @@ INCDIRS		+= 	-I include \
 
 SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
 				arch/$(ARCH)/lib/cpu \
-				arch/$(ARCH)/lib/syscall \
 				arch/$(ARCH)/lib \
 				arch/$(ARCH)/$(MACH) \
 				arch/$(ARCH)/$(MACH)/driver \
@@ -132,12 +131,7 @@ RM			:=	rm -fr
 
 XBOOT		:=	xboot
 OUTDIR		:=	../output
-OBJDIRS		:=	$(patsubst %, .obj/%, $(SRCDIRS)) $(OUTDIR)/sdk/include $(OUTDIR)/sdk/lib
-
-SFILES		:=	$(wildcard arch/$(ARCH)/lib/syscall/*.s)
-CFILES		:=	$(wildcard arch/$(ARCH)/lib/syscall/*.c)
-CPPFILES	:=	$(wildcard arch/$(ARCH)/lib/syscall/*.cpp)
-SYSCALLOBJS	:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
+OBJDIRS		:=	$(patsubst %, .obj/%, $(SRCDIRS))
 
 SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.s))
 CFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
@@ -146,9 +140,9 @@ OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.
 VPATH		:=	$(OBJDIRS)
 
 
-.PHONY:		all sdk docs clean final
+.PHONY:		all docs clean final
 
-all:		sdk $(OUTDIR)/$(XBOOT).bin final
+all:		$(OUTDIR)/$(XBOOT).bin final
 
 $(OUTDIR)/$(XBOOT).bin:			$(OUTDIR)/$(XBOOT).elf
 	@echo [OC] objcopying $@
@@ -181,13 +175,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 .obj/ramdisk.cpio:
 	@echo [CPIO] packing ramdisk.cpio
 	@cd ramdisk && { find . -not -name . | cpio -o -H newc --quiet > ../.obj/ramdisk.cpio; cd ..; }
-	
-sdk:		$(OBJS) $(SYSCALLOBJS)
-	@echo [CP] copying header file
-	@$(CP) arch/$(ARCH)/include/syscall.h $(OUTDIR)/sdk/include/syscall.h
-	@echo [AR] aring $(OUTDIR)/libsyscall.a
-	@$(AR) $(ARFLAGS) $(OUTDIR)/sdk/lib/libsyscall.a $(SYSCALLOBJS)
-		
+
 docs:
 	@echo no documents
  	

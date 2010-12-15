@@ -86,10 +86,10 @@ x_bool add_font_glyph(struct font * font, struct font_glyph * glyph);
 x_bool remove_font_glyph(struct font * font, struct font_glyph * glyph);
 x_bool font_destory(struct font * font);
 
+
 struct font * font_get(const char * name);
 x_bool font_load(const char * path);
 x_bool font_remove(const char * name);
-
 
 x_bool fb_draw_text(struct fb * fb, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);
 x_bool bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);

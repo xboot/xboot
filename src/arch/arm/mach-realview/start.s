@@ -223,20 +223,7 @@ undefined_instruction:
 
 	.align	5
 software_interrupt:
-	stmfd sp!, {r0 - r12, lr}		/* save context */
-	ldr r10, [lr, #-4]
-	bic r10, r10, #0xff000000		/* get swi number */
-	mov r0, r10						/* save swi number to r0 */
-	mov r1, sp						/* save sp to r1 */
-	mrs r2, spsr
-	stmfd sp!, {r2}
-
-	bl syscall_handler
-
-	ldmfd sp!, {r2}
-	msr spsr_cxsf, r2
-	ldmfd sp!, {r0 - r12, lr}		/* restore context */
-	movs pc, lr
+	b	.
 
 	.align	5
 prefetch_abort:

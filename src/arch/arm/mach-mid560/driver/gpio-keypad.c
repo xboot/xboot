@@ -1,10 +1,8 @@
 /*
  * driver/gpio-keypad.c
  *
- * gpio key drivers.
- *
- * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
- * website: http://xboot.org
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
+ * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,12 +30,57 @@
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
-#include <xboot/resource.h>
+#include <time/tick.h>
+#include <time/timer.h>
 #include <input/keyboard/keyboard.h>
 #include <s3c6410/reg-gpio.h>
 
-#if 0
-static void keypad_init(void)
+static struct timer_list keypad_timer;
+
+static void keypad_timer_function(x_u32 data)
+{
+	static x_u32 gpm_old = 0x0;
+	x_u32 gpm = readl(S3C6410_GPMDAT) & 0x1d;
+	x_u32 keyup, keydown;
+
+	if(gpm != gpm_old)
+	{
+		keyup = (gpm ^ gpm_old) & gpm_old;
+		keydown = (gpm ^ gpm_old) & gpm;
+		gpm_old = gpm;
+
+		if(keyup)
+		{
+			if(keyup & (0x1<<0))				/* gpm0 */
+				input_report(INPUT_KEYBOARD, KEY_UP, KEY_BUTTON_UP);
+			else if(keyup & (0x1<<3))			/* gpm3 */
+				input_report(INPUT_KEYBOARD, KEY_DOWN, KEY_BUTTON_UP);
+			else if(keyup & (0x1<<2))			/* gpm2 */
+				input_report(INPUT_KEYBOARD, KEY_ENTER, KEY_BUTTON_UP);
+			else if(keyup & (0x1<<4))			/* gpm4 */
+				input_report(INPUT_KEYBOARD, KEY_POWER, KEY_BUTTON_UP);
+		}
+
+		if(keydown)
+		{
+			if(keydown & (0x1<<0))				/* gpm0 */
+				input_report(INPUT_KEYBOARD, KEY_UP, KEY_BUTTON_DOWN);
+			else if(keydown & (0x1<<3))			/* gpm3 */
+				input_report(INPUT_KEYBOARD, KEY_DOWN, KEY_BUTTON_DOWN);
+			else if(keydown & (0x1<<2))			/* gpm2 */
+				input_report(INPUT_KEYBOARD, KEY_ENTER, KEY_BUTTON_DOWN);
+			else if(keydown & (0x1<<4))			/* gpm4 */
+				input_report(INPUT_KEYBOARD, KEY_POWER, KEY_BUTTON_DOWN);
+		}
+
+		input_sync(INPUT_KEYBOARD);
+	}
+
+	/* mod timer for next 10 ms */
+	mod_timer(&keypad_timer, jiffies + get_system_hz() / 100);
+}
+
+static x_bool keypad_probe(void)
 {
 	/* set gpm0 intput and pull up */
 	writel(S3C6410_GPMCON, (readl(S3C6410_GPMCON) & ~(0xf<<0)) | (0x0<<0));
@@ -54,46 +97,20 @@ static void keypad_init(void)
 	/* set gpm4 intput and pull up */
 	writel(S3C6410_GPMCON, (readl(S3C6410_GPMCON) & ~(0xf<<16)) | (0x0<<16));
 	writel(S3C6410_GPMPUD, (readl(S3C6410_GPMPUD) & ~(0x3<<8)) | (0x2<<8));
+
+
+	/* setup timer for keypad */
+	setup_timer(&keypad_timer, keypad_timer_function, 0);
+
+	/* mod timer for 10 ms */
+	mod_timer(&keypad_timer, jiffies + get_system_hz() / 100);
+
+	return TRUE;
 }
 
-static void keypad_exit(void)
+static x_bool keypad_remove(void)
 {
-	return;
-}
-
-static x_bool keypad_read(enum keycode * code)
-{
-	static x_u32 gpm_old = 0x0;
-	x_u32 gpm = readl(S3C6410_GPMDAT) & 0x1d;
-	x_u32 key;
-
-	if(gpm != gpm_old)
-	{
-		key = (gpm ^ gpm_old) & gpm;		/* 0 -> 1 */
-		gpm_old = gpm;
-
-		if(key)
-		{
-			if(key & (0x1<<0))				/* gpm0 */
-				*code = KEY_UP;
-			else if(key & (0x1<<3))			/* gpm3 */
-				*code = KEY_DOWN;
-			else if(key & (0x1<<2))			/* gpm2 */
-				*code = KEY_ENTER;
-			else if(key & (0x1<<4))			/* gpm4 */
-				*code = KEY_HALT;
-			else
-				return FALSE;
-
-			return TRUE;
-		}
-		else
-		{
-			return FALSE;
-		}
-	}
-
-	return FALSE;
+	return TRUE;
 }
 
 static x_s32 keypad_ioctl(x_u32 cmd, void * arg)
@@ -101,26 +118,25 @@ static x_s32 keypad_ioctl(x_u32 cmd, void * arg)
 	return -1;
 }
 
-static struct keyboard_driver gpio_keypad = {
+static struct input gpio_keypad = {
 	.name		= "keypad",
-	.init		= keypad_init,
-	.exit		= keypad_exit,
-	.read		= keypad_read,
+	.type		= INPUT_KEYBOARD,
+	.probe		= keypad_probe,
+	.remove		= keypad_remove,
 	.ioctl		= keypad_ioctl,
 };
 
 static __init void gpio_keypad_init(void)
 {
-	if(!register_keyboard(&gpio_keypad))
-		LOG_E("failed to register keyboard driver '%s'", gpio_keypad.name);
+	if(!register_input(&gpio_keypad))
+		LOG_E("failed to register input '%s'", gpio_keypad.name);
 }
 
 static __exit void gpio_keypad_exit(void)
 {
-	if(!unregister_keyboard(&gpio_keypad))
-		LOG_E("failed to unregister keyboard driver '%s'", gpio_keypad.name);
+	if(!unregister_input(&gpio_keypad))
+		LOG_E("failed to unregister input '%s'", gpio_keypad.name);
 }
 
 module_init(gpio_keypad_init, LEVEL_DRIVER);
 module_exit(gpio_keypad_exit, LEVEL_DRIVER);
-#endif

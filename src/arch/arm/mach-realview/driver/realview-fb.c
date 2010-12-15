@@ -97,6 +97,7 @@ static struct fb_info info = {
 			.bottom				= LCD_HEIGHT,
 		},
 
+		.allocated				= FALSE,
 		.data					= &vram,
 	},
 };

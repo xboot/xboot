@@ -3079,6 +3079,7 @@ x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 *
 static __init void font_init(void)
 {
 	struct font_glyph * glyph;
+	x_u8 * data;
 	x_s32 i;
 
 	if(!font_create(&default_font, "default", 256))
@@ -3087,15 +3088,24 @@ static __init void font_init(void)
 	for(i = 0; i < ARRAY_SIZE(default_font_ascii_glyph_data); i++)
 	{
 		glyph = malloc(sizeof(struct font_glyph));
-		if(glyph)
-		{
-			glyph->code = i;
-			glyph->w = 8;
-			glyph->h = 16;
-			glyph->data = (x_u8 *)(&default_font_ascii_glyph_data[i][0]);
+		if(!glyph)
+			continue;
 
-			add_font_glyph(default_font, glyph);
+		data = malloc(16);
+		if(!data)
+		{
+			free(glyph);
+			continue;
 		}
+
+		memcpy(data, &default_font_ascii_glyph_data[i][0], 16);
+
+		glyph->code = i;
+		glyph->w = 8;
+		glyph->h = 16;
+		glyph->data = data;
+
+		add_font_glyph(default_font, glyph);
 	}
 }
 

@@ -295,61 +295,49 @@ x_bool scon_putcode(struct console * console, x_u32 code)
 {
 	struct serial_console_info * info = console->priv;
 	x_s8 buf[32];
-	x_s32 i;
+	x_s32 w, i;
+
+	w = ucs4_width(code);
+	if(w < 0)
+		w = 0;
 
 	switch(code)
 	{
 	case UNICODE_BS:
 		if(info->x > 0)
 			info->x = info->x - 1;
-
-		ucs4_to_utf8(code, buf);
-		info->drv->write((const x_u8 *)buf, strlen(buf));
 		break;
 
 	case UNICODE_TAB:
-		i = info->w - info->x;
-		if(i < 0)
-			i = 0;
-		if(i > 4)
-			i = 4;
-
-		while(i--)
-		{
-			info->x = info->x + 1;
-
-			ucs4_to_utf8(UNICODE_SPACE, buf);
-			info->drv->write((const x_u8 *)buf, strlen(buf));
-		}
+		i = 8 - (info->x % 8);
+		if(i + info->x >= info->w)
+			i = info->w - info->x - 1;
+		info->x = info->x + i;
 		break;
 
 	case UNICODE_LF:
 		if(info->y + 1 < info->h)
 			info->y = info->y + 1;
-		ucs4_to_utf8(code, buf);
-		info->drv->write((const x_u8 *)buf, strlen(buf));
 		break;
 
 	case UNICODE_CR:
 		info->x = 0;
-		ucs4_to_utf8(code, buf);
-		info->drv->write((const x_u8 *)buf, strlen(buf));
 		break;
 
 	default:
-		if(info->x + 1 < info->w)
-			info->x = info->x + 1;
+		if(info->x + w < info->w)
+			info->x = info->x + w;
 		else
 		{
 			if(info->y + 1 < info->h)
 				info->y = info->y + 1;
 			info->x = 0;
 		}
-
-		ucs4_to_utf8(code, buf);
-		info->drv->write((const x_u8 *)buf, strlen(buf));
 		break;
 	}
+
+	ucs4_to_utf8(code, buf);
+	info->drv->write((const x_u8 *)buf, strlen(buf));
 
 	return TRUE;
 }

@@ -197,6 +197,9 @@ static x_u32 * history_prev(void)
 static void rl_gotoxy(struct rl_buf * rl)
 {
 	x_s32 x, y;
+	x_s32 pos, w;
+
+
 
 	x = ((rl->y * rl->w) + rl->x + rl->pos) % (rl->w);
 	y = ((rl->y * rl->w) + rl->x + rl->pos) / (rl->w);
@@ -509,7 +512,7 @@ x_s8 * readline(const x_s8 * prompt)
 	if(prompt)
 		printk((char *)prompt);
 
-	rl = rl_buf_alloc(SZ_1K);
+	rl = rl_buf_alloc(256);
 	if(!rl)
 		return utf8;
 

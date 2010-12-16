@@ -247,13 +247,13 @@ static x_bool scon_cls(struct console * console)
 	struct serial_console_info * info = console->priv;
 	x_s8 buf[32];
 
+	sprintf(buf, (const x_s8 *)"\033[%ld;%ldr", (x_s32)1, (x_s32)info->h);
+	info->drv->write((const x_u8 *)buf, strlen(buf));
+
 	sprintf(buf, (const x_s8 *)"\033[2J");
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
 	sprintf(buf, (const x_s8 *)"\033[%ld;%ldH", (x_s32)1, (x_s32)1);
-	info->drv->write((const x_u8 *)buf, strlen(buf));
-
-	sprintf(buf, (const x_s8 *)"\033[%ld;%ldr", (x_s32)1, (x_s32)info->h);
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
 	info->x = 0;

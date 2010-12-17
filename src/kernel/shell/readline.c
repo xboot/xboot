@@ -197,12 +197,18 @@ static x_u32 * history_prev(void)
 static void rl_gotoxy(struct rl_buf * rl)
 {
 	x_s32 x, y;
-	x_s32 pos, w;
+	x_s32 pos, i, w;
 
+	for(i = 0, pos = 0; i < rl->pos; i++)
+	{
+		w = ucs4_width(rl->buf[i]);
+		if(w < 0)
+			w = 0;
+		pos += w;
+	}
 
-
-	x = ((rl->y * rl->w) + rl->x + rl->pos) % (rl->w);
-	y = ((rl->y * rl->w) + rl->x + rl->pos) / (rl->w);
+	x = ((rl->y * rl->w) + rl->x + pos) % (rl->w);
+	y = ((rl->y * rl->w) + rl->x + pos) / (rl->w);
 
 	console_gotoxy(get_stdout(), x, y);
 }
@@ -345,11 +351,21 @@ static void rl_insert(struct rl_buf * rl, x_u32 * str)
 
 static void rl_delete(struct rl_buf * rl, x_u32 len)
 {
+	x_s32 n, i, w;
+
 	if(len > rl->len - rl->pos)
 		len = rl->len - rl->pos;
 
 	if(rl->pos + len <= rl->len)
 	{
+		for(i = 0, n = 0; i < len; i++)
+		{
+			w = ucs4_width(rl->buf[rl->pos + i]);
+			if(w < 0)
+				w = 0;
+			n += w;
+		}
+
 		if(rl->cut)
 			free(rl->cut);
 
@@ -363,7 +379,7 @@ static void rl_delete(struct rl_buf * rl, x_u32 len)
 		memmove(rl->buf + rl->pos, rl->buf + rl->pos + len, sizeof(x_u32) * (rl->len - rl->pos + 1));
 		rl->len = rl->len - len;
 		rl_print(rl, rl->pos);
-		rl_space(rl, len);
+		rl_space(rl, n);
 		rl_gotoxy(rl);
 	}
 }

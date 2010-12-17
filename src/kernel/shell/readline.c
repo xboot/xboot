@@ -237,13 +237,10 @@ static void rl_print(struct rl_buf * rl, x_s32 pos)
 	free(utf8);
 }
 
-static struct rl_buf * rl_buf_alloc(x_s32 size)
+static struct rl_buf * rl_buf_alloc(void)
 {
 	struct rl_buf * rl;
 	x_s32 x, y, w, h;
-
-	if(size <= 0)
-		return NULL;
 
 	if(!console_getxy(get_stdout(), &x, &y))
 		return NULL;
@@ -255,7 +252,7 @@ static struct rl_buf * rl_buf_alloc(x_s32 size)
 	if(!rl)
 		return NULL;
 
-	rl->size = size;
+	rl->size = 256;
 	rl->len = 0;
 	rl->pos = 0;
 	rl->cut = NULL;
@@ -528,7 +525,7 @@ x_s8 * readline(const x_s8 * prompt)
 	if(prompt)
 		printk((char *)prompt);
 
-	rl = rl_buf_alloc(256);
+	rl = rl_buf_alloc();
 	if(!rl)
 		return utf8;
 

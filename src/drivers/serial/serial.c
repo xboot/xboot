@@ -33,6 +33,12 @@
 #include <console/console.h>
 #include <serial/serial.h>
 
+enum tty_state {
+	TTY_STATE_NORMAL,
+	TTY_STATE_ESC,
+	TTY_STATE_CSI,
+};
+
 /*
  * defined the serial console information
  */
@@ -59,7 +65,11 @@ struct serial_console_info
 	/*
 	 * below for priv data
 	 */
-	x_s8 buf[6];
+	enum tty_state state;
+	x_s32 params[8];
+	x_s32 num_params;
+
+	x_s8 utf8[32];
 	x_s32 size;
 };
 
@@ -268,21 +278,131 @@ static x_bool scon_cls(struct console * console)
 x_bool scon_getcode(struct console * console, x_u32 * code)
 {
 	struct serial_console_info * info = console->priv;
+	x_s8 c;
+	x_s32 i;
 	x_u32 cp;
 	x_s8 * rest;
-	x_s8 c;
 
-	if(info->drv->read((x_u8 *)&c, 1))
+	if(info->drv->read((x_u8 *)&c, 1) != 1)
+		return FALSE;
+
+	switch(info->state)
 	{
-		info->buf[info->size++] = c;
-		while(utf8_to_ucs4(&cp, 1, info->buf, info->size, (const x_s8 **)&rest) > 0)
+	case TTY_STATE_NORMAL:
+		switch(c)
 		{
-			info->size -= rest - info->buf;
-			memmove(info->buf, rest, info->size);
+		case 27:
+			info->state = TTY_STATE_ESC;
+			break;
 
-			*code = cp;
+		case 127:				/* backspace */
+			*code = 0x8;		/* ctrl-h */
 			return TRUE;
+
+		default:
+			info->utf8[info->size++] = c;
+			if(utf8_to_ucs4(&cp, 1, info->utf8, info->size, (const x_s8 **)&rest) > 0)
+			{
+				info->size -= rest - info->utf8;
+				memmove(info->utf8, rest, info->size);
+
+				*code = cp;
+				return TRUE;
+			}
+			break;
 		}
+		break;
+
+	case TTY_STATE_ESC:
+		if(c == '[')
+		{
+			for(i = 0; i < ARRAY_SIZE(info->params); i++)
+				info->params[i] = 0;
+			info->num_params = 0;
+			info->state = TTY_STATE_CSI;
+		}
+		else
+		{
+			info->state = TTY_STATE_NORMAL;
+		}
+		break;
+
+	case TTY_STATE_CSI:
+		if(c >= '0' && c <= '9')
+		{
+			if(info->num_params < ARRAY_SIZE(info->params))
+			{
+				info->params[info->num_params] = info->params[info->num_params] * 10 + c - '0';
+			}
+		}
+		else
+		{
+			info->num_params++;
+			if(c == ';')
+				break;
+
+			info->state = TTY_STATE_NORMAL;
+			switch(c)
+			{
+			case 'A':				/* arrow up */
+				*code = 0x10;		/* ctrl-p */
+				return TRUE;
+
+			case 'B':				/* arrow down */
+				*code = 0xe			/* ctrl-n */;
+				return TRUE;
+
+			case 'C':				/* arrow right */
+				*code = 0x6;		/* ctrl-f */
+				return TRUE;
+
+			case 'D':				/* arrow left */
+				*code = 0x2;		/* ctrl-b */
+				return TRUE;
+
+			case '~':
+				if(info->num_params != 1)
+					break;
+
+				switch(info->params[0])
+				{
+				case 1:				/* home */
+					*code = 0x1;	/* ctrl-a */
+					return TRUE;
+
+				case 2:				/* insert */
+					break;
+
+				case 3:				/* delete */
+					*code = 0x8;	/* ctrl-h */
+					return TRUE;
+
+				case 4:				/* end */
+					*code = 0x5;	/* ctrl-e */
+					return TRUE;
+
+				case 5:				/* page up*/
+					*code = 0x10;	/* ctrl-p */
+					return TRUE;
+
+				case 6:				/* page down*/
+					*code = 0xe;	/* ctrl-n */
+					return TRUE;
+
+				default:
+					break;
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+
+	default:
+		info->state = TTY_STATE_NORMAL;
+		break;
 	}
 
 	return FALSE;
@@ -406,6 +526,8 @@ x_bool register_serial(struct serial_driver * drv)
 	info->f = TCOLOR_WHITE;
 	info->b = TCOLOR_BLACK;
 	info->cursor = TRUE;
+	info->state = TTY_STATE_NORMAL;
+	info->num_params = 0;
 	info->size = 0;
 
 	console->name = info->name;

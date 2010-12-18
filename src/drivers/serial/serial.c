@@ -63,7 +63,7 @@ struct serial_console_info
 	x_bool cursor;
 
 	/*
-	 * below for priv data
+	 * below for private data
 	 */
 	enum tty_state state;
 	x_s32 params[8];
@@ -424,9 +424,7 @@ x_bool scon_putcode(struct console * console, x_u32 code)
 	switch(code)
 	{
 	case UNICODE_BS:
-		if(info->x > 0)
-			info->x = info->x - 1;
-		break;
+		return TRUE;
 
 	case UNICODE_TAB:
 		i = 8 - (info->x % 8);

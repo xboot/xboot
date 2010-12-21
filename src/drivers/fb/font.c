@@ -2703,7 +2703,7 @@ static struct font_glyph * unkown_font_glyph(x_u32 code)
 	idx = (code >> 0) & 0xf;
 	for(i = 0; i < 8; i++)
 	{
-		if(i ==7)
+		if(i == 7)
 			data[17 + i*2] = 0xfe;
 		else
 			data[17 + i*2] = (unkown_font_data[idx][i] << 2) | 0x02;

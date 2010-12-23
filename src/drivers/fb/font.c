@@ -2805,6 +2805,9 @@ x_bool font_create(struct font ** font, const char * name, x_u32 size)
 
 	*font = NULL;
 
+	if(!name)
+		return FALSE;
+
 	if(size <= 0)
 		return FALSE;
 

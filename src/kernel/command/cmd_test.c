@@ -55,6 +55,14 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
+	if(!font_load("test.bdf"))
+	{
+		printk("load font fail\r\n");
+		return -1;
+	}
+
+	return 0;
+
 	struct tui_workspace * ws;
 	struct tui_button * btn1, * btn2, * btn3;
 	x_s32 i;

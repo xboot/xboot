@@ -32,12 +32,20 @@
 #include <fs/fsapi.h>
 #include <fb/font.h>
 
-enum bdf_state
+struct bdf_info
 {
-	BDF_STATE_NONE,
-	BDF_STATE_FONT,
-	BDF_STATE_PROPERTIES,
-	BDF_STATE_CHAR,
+	/* font name */
+	x_s8 name[256];
+
+	/* glyph's pixel and dots per inch */
+	x_s32 size;
+	x_s32 xres, yres;
+
+	/* font bounding box */
+	x_s32 fbbx, fbby, xoff, yoff;
+
+	/* the number of glyphs */
+	x_s32 chars;
 };
 
 static x_s8 * bdf_readline(x_s32 fd, x_s8 * buf, x_s32 len)
@@ -67,13 +75,124 @@ static x_s8 * bdf_readline(x_s32 fd, x_s8 * buf, x_s32 len)
 	return buf;
 }
 
+static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
+{
+	x_s8 line[256];
+//	x_s8 dummy[64];
+
+	if(fd < 0)
+		return FALSE;
+
+	if(!info)
+		return FALSE;
+
+	if(lseek(fd, 0, SEEK_SET) < 0)
+		return FALSE;
+
+	if(bdf_readline(fd, line, sizeof(line)) == NULL)
+		return FALSE;
+
+	if(strncmp(line, (const x_s8 *)"STARTFONT ", sizeof("STARTFONT ") - 1) != 0)
+		return FALSE;
+
+	memset(info, 0, sizeof(struct bdf_info));
+
+	while(bdf_readline(fd, line, sizeof(line)) != NULL)
+	{
+		if(strncmp(line, (const x_s8 *)"FONT ", sizeof("FONT ") - 1) == 0)
+		{
+			//if(sscanf(line, (const x_s8 *)"FONT -%s-%s-%s", dummy, info->name, dummy) != 3)
+			//	return FALSE;
+			if(sscanf(line, (const x_s8 *)"FONT %s", info->name) != 1)
+				return FALSE;
+		}
+		else if(strncmp(line, (const x_s8 *)"SIZE ", sizeof("SIZE ") - 1) == 0)
+		{
+			if(sscanf(line, (const x_s8 *)"SIZE %ld %ld %ld", &info->size, &info->xres, &info->yres) != 3)
+				return FALSE;
+		}
+		else if(strncmp(line, (const x_s8 *)"FONTBOUNDINGBOX ", sizeof("FONTBOUNDINGBOX ") - 1) == 0)
+		{
+			if(sscanf(line, (const x_s8 *)"FONTBOUNDINGBOX %ld %ld %ld %ld", &info->fbbx, &info->fbby, &info->xoff, &info->yoff) != 4)
+				return FALSE;
+		}
+		else if(strncmp(line, (const x_s8 *)"CHARS ", sizeof("CHARS ") - 1) == 0)
+		{
+			if( (sscanf(line, (const x_s8 *)"CHARS %ld", &info->chars) != 1) || (info->chars <= 0) )
+				return FALSE;
+			break;
+		}
+	}
+
+	if( (info->size > 0) && (info->chars > 0) && (strlen(info->name) > 0) )
+		return TRUE;
+
+	return FALSE;
+}
+
+static x_bool bdf_add_font_glyph(struct font * font, x_s32 fd, struct bdf_info * info)
+{
+	x_s8 line[256];
+	x_s32 encoding = -1;
+	x_s32 w = 0, h = 0;
+	x_s32 x = 0, y = 0;
+	x_u8 * data;
+	x_s32 len, i;
+
+	if(fd < 0)
+		return FALSE;
+
+	if(!font)
+		return FALSE;
+
+	if(!info)
+		return FALSE;
+
+	while(bdf_readline(fd, line, sizeof(line)) != NULL)
+	{
+		if(strncmp(line, (const x_s8 *)"ENCODING ", sizeof("ENCODING ") - 1) == 0)
+		{
+			if( sscanf(line, (const x_s8 *)"ENCODING %ld", &encoding) != 1 )
+				return FALSE;
+		}
+		else if(strncmp(line, (const x_s8 *)"BBX ", sizeof("BBX ") - 1) == 0)
+		{
+			if(sscanf(line, (const x_s8 *)"BBX %ld %ld %ld %ld", &w, &h, &x, &y) != 4)
+				return FALSE;
+		}
+		else if(strncmp(line, (const x_s8 *)"BITMAP", sizeof("BITMAP") - 1) == 0)
+		{
+			break;
+		}
+		else if(strncmp(line, (const x_s8 *)"ENDCHAR", sizeof("ENDCHAR") - 1) == 0)
+		{
+			return FALSE;
+		}
+		else if(strncmp(line, (const x_s8 *)"ENDFONT", sizeof("ENDFONT") - 1) == 0)
+		{
+			return FALSE;
+		}
+
+	}
+
+	if( (encoding == -1) || (w == 0) || (h == 0) )
+		return FALSE;
+
+	//xxx
+	len = ((info->fbbx + 7) / 8) * info->fbby;
+	data = malloc(len);
+	if(!data)
+		return FALSE;
+
+
+	return FALSE;
+}
+
 static x_bool bdf_load(struct font ** font, const char * filename)
 {
+	struct bdf_info info;
 	struct stat st;
-	enum bdf_state state = BDF_STATE_NONE;
-	x_s8 line[256];
 	x_s32 fd;
-	x_s32 chars = 0;
 
 	if(stat(filename, &st) != 0)
 		return FALSE;
@@ -85,86 +204,22 @@ static x_bool bdf_load(struct font ** font, const char * filename)
 	if(fd < 0)
 		return FALSE;
 
-	if(bdf_readline(fd, line, sizeof(line)) == NULL)
+	if(!get_bdf_info(fd, &info))
 	{
 		close(fd);
 		return FALSE;
 	}
 
-	if(strncmp(line, (const x_s8 *)"STARTFONT", sizeof("STARTFONT") - 1) != 0)
+	if(!font_create(font, (const char *)info.name, info.chars))
 	{
 		close(fd);
 		return FALSE;
 	}
 
-	if(lseek(fd, 0, SEEK_SET) < 0)
-	{
-		close(fd);
-		return FALSE;
-	}
-
-	while(bdf_readline(fd, line, sizeof(line)) != NULL)
-	{
-		switch(state)
-		{
-		case BDF_STATE_NONE:
-			if(strncmp(line, (const x_s8 *)"STARTFONT", sizeof("STARTFONT") - 1) == 0)
-			{
-				state = BDF_STATE_FONT;
-			}
-			break;
-
-		case BDF_STATE_FONT:
-			if(strncmp(line, (const x_s8 *)"STARTPROPERTIES", sizeof("STARTPROPERTIES") - 1) == 0)
-			{
-				state = BDF_STATE_PROPERTIES;
-			}
-			else if(strncmp(line, (const x_s8 *)"STARTCHAR", sizeof("STARTCHAR") - 1) == 0)
-			{
-				state = BDF_STATE_CHAR;
-			}
-			else if(strncmp(line, (const x_s8 *)"CHARS", sizeof("CHARS") - 1) == 0)
-			{
-				if( (sscanf(line, (const x_s8 *)"CHARS %ld", &chars) != 1) || (chars <= 0) )
-				{
-					close(fd);
-					return FALSE;
-				}
-
-				if(!font_create(font, "default", chars))
-				{
-					close(fd);
-					return FALSE;
-				}
-			}
-			else if(strncmp(line, (const x_s8 *)"ENDFONT", sizeof("ENDFONT") - 1) == 0)
-			{
-				state = BDF_STATE_NONE;
-				close(fd);
-				if(chars <= 0)
-					return FALSE;
-				return TRUE;
-			}
-			break;
-
-		case BDF_STATE_PROPERTIES:
-			if(strncmp(line, (const x_s8 *)"ENDPROPERTIES", sizeof("ENDPROPERTIES") - 1) == 0)
-			{
-				state = BDF_STATE_FONT;
-			}
-			break;
-
-		case BDF_STATE_CHAR:
-			if(strncmp(line, (const x_s8 *)"ENDCHAR", sizeof("ENDCHAR") - 1) == 0)
-			{
-				state = BDF_STATE_FONT;
-			}
-			break;
-		}
-	}
+	while(bdf_add_font_glyph(*font, fd, &info));
 
 	close(fd);
-	return FALSE;
+	return TRUE;
 }
 
 static struct font_reader font_reader_bdf = {

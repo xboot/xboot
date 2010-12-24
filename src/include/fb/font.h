@@ -83,13 +83,12 @@ x_bool unregister_font_reader(struct font_reader * reader);
 
 x_bool font_create(struct font ** font, const char * name, x_u32 size);
 x_bool add_font_glyph(struct font * font, struct font_glyph * glyph);
-x_bool remove_font_glyph(struct font * font, struct font_glyph * glyph);
 x_bool font_destory(struct font * font);
 
 
-struct font * font_get(const char * name);
-x_bool font_load(const char * path);
-x_bool font_remove(const char * name);
+struct font * get_font(const char * name);
+x_bool install_font(const char * path);
+x_bool uninstall_font(const char * name);
 
 x_bool fb_draw_text(struct fb * fb, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);
 x_bool bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);

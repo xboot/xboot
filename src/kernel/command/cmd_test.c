@@ -58,13 +58,13 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	struct font * font;
 	struct fb * fb;
 
-	if(!font_load("/boot/test.bdf"))
+	if(!install_font("/boot/test.bdf"))
 	{
 		printk("load font fail\r\n");
 		return -1;
 	}
 
-	font = font_get("-Misc-Fixed-Medium-R-Normal--7-70-75-75-C-50-ISO8859-1");
+	font = get_font("-Misc-Fixed-Medium-R-Normal--7-70-75-75-C-50-ISO8859-1");
 	if(!font)
 	{
 		printk("get font fail\r\n");

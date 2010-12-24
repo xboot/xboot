@@ -2918,7 +2918,7 @@ x_bool remove_font_glyph(struct font * font, struct font_glyph * glyph)
 x_bool font_destory(struct font * font)
 {
 	struct font_glyph_list * list;
-	struct hlist_node * head, * curr, * next;
+	struct hlist_node * pos, * n;
 	x_s32 i;
 
 	if(!font)
@@ -2926,19 +2926,13 @@ x_bool font_destory(struct font * font)
 
 	for(i = 0; i < font->size; i++)
 	{
-		head = (&font->table[i])->first;
-		curr = head->next;
-
-		while(curr != head)
+		hlist_for_each_entry_safe(list, pos, n, &font->table[i], node)
 		{
-			list = list_entry(curr, struct font_glyph_list, node);
+			hlist_del(&list->node);
 
-			next = curr->next;
-			hlist_del(curr);
 			free(list->glyph->data);
 			free(list->glyph);
 			free(list);
-			curr = next;
 		}
 	}
 

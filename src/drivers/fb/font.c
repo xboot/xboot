@@ -28,6 +28,7 @@
 #include <charset.h>
 #include <vsprintf.h>
 #include <xboot/list.h>
+#include <xboot/proc.h>
 #include <xboot/initcall.h>
 #include <fb/bitmap.h>
 #include <fb/fbcolor.h>
@@ -3281,7 +3282,43 @@ x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 *
 	return TRUE;
 }
 
-static __init void font_init(void)
+static x_s32 font_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+{
+	struct font_list * list;
+	struct list_head * pos;
+	x_s8 * p;
+	x_s32 len = 0;
+
+	if((p = malloc(SZ_4K)) == NULL)
+		return 0;
+
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[font]");
+	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct font_list, entry);
+		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s", list->font->name);
+	}
+
+	len -= offset;
+
+	if(len < 0)
+		len = 0;
+
+	if(len > count)
+		len = count;
+
+	memcpy(buf, (x_u8 *)(p + offset), len);
+	free(p);
+
+	return len;
+}
+
+static struct proc font_proc = {
+	.name	= "font",
+	.read	= font_proc_read,
+};
+
+static __init void font_pure_sync_init(void)
 {
 	struct font_glyph * glyph;
 	x_u8 * data;
@@ -3312,9 +3349,11 @@ static __init void font_init(void)
 
 		add_font_glyph(default_font, glyph);
 	}
+
+	proc_register(&font_proc);
 }
 
-static __exit void font_exit(void)
+static __exit void font_pure_sync_exit(void)
 {
 	struct font_list * list;
 	struct list_head * head, * curr, * next;
@@ -3332,9 +3371,10 @@ static __exit void font_exit(void)
 		free(list);
 		curr = next;
 	}
-
 	font_destory(default_font);
+
+	proc_unregister(&font_proc);
 }
 
-module_init(font_init, LEVEL_POSTCORE);
-module_exit(font_exit, LEVEL_POSTCORE);
+module_init(font_pure_sync_init, LEVEL_PURE_SYNC);
+module_exit(font_pure_sync_exit, LEVEL_PURE_SYNC);

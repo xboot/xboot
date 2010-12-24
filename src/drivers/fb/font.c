@@ -3099,7 +3099,7 @@ static x_bool font_draw_glyph_to_framebuffer(struct fb * fb, struct font_glyph *
 	info->fmt =	BITMAP_FORMAT_MONOCHROME;
 	info->bpp = 1;
 	info->bytes_per_pixel = 0;
-	info->pitch = glyph->w;
+	info->pitch = (glyph->w + 7) / 8;
 
 	fb_unmap_color(fb, c, &info->fg_r, &info->fg_g, &info->fg_b, &info->fg_a);
 	info->bg_r = info->bg_g = info->bg_b = info->bg_a = 0x00;
@@ -3132,7 +3132,7 @@ static x_bool font_draw_glyph_to_bitmap(struct bitmap * bitmap, struct font_glyp
 	info->fmt =	BITMAP_FORMAT_MONOCHROME;
 	info->bpp = 1;
 	info->bytes_per_pixel = 0;
-	info->pitch = glyph->w;
+	info->pitch = (glyph->w + 7) / 8;
 
 	bitmap_unmap_color(bitmap, c, &info->fg_r, &info->fg_g, &info->fg_b, &info->fg_a);
 	info->bg_r = info->bg_g = info->bg_b = info->bg_a = 0x00;
@@ -3167,7 +3167,7 @@ x_bool fb_putcode(struct fb * fb, x_u32 code, x_u32 fc, x_u32 bc, x_u32 x, x_u32
 	info->fmt =	BITMAP_FORMAT_MONOCHROME;
 	info->bpp = 1;
 	info->bytes_per_pixel = 0;
-	info->pitch = glyph->w;
+	info->pitch = (glyph->w + 7) / 8;
 
 	fb_unmap_color(fb, fc, &info->fg_r, &info->fg_g, &info->fg_b, &info->fg_a);
 	fb_unmap_color(fb, bc, &info->bg_r, &info->bg_g, &info->bg_b, &info->bg_a);

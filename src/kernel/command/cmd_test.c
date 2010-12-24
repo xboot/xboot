@@ -55,11 +55,56 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-	if(!font_load("test.bdf"))
+	struct font * font;
+	struct fb * fb;
+
+	if(!font_load("/boot/test.bdf"))
 	{
 		printk("load font fail\r\n");
 		return -1;
 	}
+
+	font = font_get("-Misc-Fixed-Medium-R-Normal--7-70-75-75-C-50-ISO8859-1");
+	if(!font)
+	{
+		printk("get font fail\r\n");
+		return -1;
+	}
+
+	fb = search_framebuffer("fb");
+	if(!fb)
+	{
+		printk("get fb fail\r\n");
+		return -1;
+	}
+
+	char tt[257];
+	int j;
+
+	for(j=0; j<4; j++)
+	{
+		tt[j] = j+97;
+	}
+	tt[j] = 0;
+
+/*
+	struct font_glyph * glyph;
+	glyph = font_lookup_glyph(font, 100);
+
+	printk("code = %ld\r\n", glyph->code);
+	printk("w = %ld\r\n", glyph->w);
+	printk("h = %ld\r\n", glyph->h);
+
+	int len = ((glyph->w + 7) / 8) * glyph->h;
+
+	for(j = 0; j< len; j++)
+	{
+		printk("0x%02X,\r\n", glyph->data[j]);
+	}
+*/
+	fb_draw_text(fb, tt,font,0x0ff0, 100, 100);
+
+	printk("success\r\n");
 
 	return 0;
 

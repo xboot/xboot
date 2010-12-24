@@ -22,6 +22,7 @@
 
 #include <configs.h>
 #include <default.h>
+#include <ctype.h>
 #include <malloc.h>
 #include <byteorder.h>
 #include <vsprintf.h>
@@ -78,7 +79,6 @@ static x_s8 * bdf_readline(x_s32 fd, x_s8 * buf, x_s32 len)
 static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
 {
 	x_s8 line[256];
-//	x_s8 dummy[64];
 
 	if(fd < 0)
 		return FALSE;
@@ -101,8 +101,6 @@ static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
 	{
 		if(strncmp(line, (const x_s8 *)"FONT ", sizeof("FONT ") - 1) == 0)
 		{
-			//if(sscanf(line, (const x_s8 *)"FONT -%s-%s-%s", dummy, info->name, dummy) != 3)
-			//	return FALSE;
 			if(sscanf(line, (const x_s8 *)"FONT %s", info->name) != 1)
 				return FALSE;
 		}
@@ -130,14 +128,19 @@ static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
 	return FALSE;
 }
 
-static x_bool bdf_add_font_glyph(struct font * font, x_s32 fd, struct bdf_info * info)
+static x_bool bdf_add_next_font_glyph(struct font * font, x_s32 fd, struct bdf_info * info)
 {
+	struct font_glyph * glyph;
 	x_s8 line[256];
+	x_s8 * pline;
 	x_s32 encoding = -1;
 	x_s32 w = 0, h = 0;
 	x_s32 x = 0, y = 0;
 	x_u8 * data;
-	x_s32 len, i;
+	x_u8 * pdata;
+	x_u8 c;
+	x_s32 pitch, len;
+	x_s32 i, j;
 
 	if(fd < 0)
 		return FALSE;
@@ -164,28 +167,70 @@ static x_bool bdf_add_font_glyph(struct font * font, x_s32 fd, struct bdf_info *
 		{
 			break;
 		}
-		else if(strncmp(line, (const x_s8 *)"ENDCHAR", sizeof("ENDCHAR") - 1) == 0)
-		{
-			return FALSE;
-		}
 		else if(strncmp(line, (const x_s8 *)"ENDFONT", sizeof("ENDFONT") - 1) == 0)
 		{
 			return FALSE;
 		}
-
 	}
 
 	if( (encoding == -1) || (w == 0) || (h == 0) )
 		return FALSE;
 
-	//xxx
-	len = ((info->fbbx + 7) / 8) * info->fbby;
-	data = malloc(len);
+	pitch = (w + 7) / 8;
+	len = pitch * h;
+
+	pdata = data = malloc(len);
 	if(!data)
 		return FALSE;
+	memset(data, 0, len);
 
+	for(i = 0, j = 0; i < h; i++)
+	{
+		if(bdf_readline(fd, line, sizeof(line)) == NULL)
+			break;
 
-	return FALSE;
+		for(pline = line; *pline; pline++)
+		{
+			if(!isxdigit(*pline))
+				break;
+
+			if(*pline <= '9')
+				c = (*pline - '0') & 0xf;
+			else
+				c = (tolower(*pline) - 'a' + 10) & 0xf;
+
+			if( (j++) & 0x1 )
+			{
+				*pdata  = (*pdata & 0xf0) | c;
+				pdata++;
+			}
+			else
+			{
+				*pdata = (*pdata & 0x0f) | (c << 4);
+			}
+		}
+	}
+
+	glyph = malloc(sizeof(struct font_glyph));
+	if(!glyph)
+	{
+		free(data);
+		return FALSE;
+	}
+
+	glyph->code = encoding;
+	glyph->w = w;
+	glyph->h = h;
+	glyph->data = data;
+
+	if(!add_font_glyph(font, glyph))
+	{
+		free(data);
+		free(glyph);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 static x_bool bdf_load(struct font ** font, const char * filename)
@@ -216,7 +261,7 @@ static x_bool bdf_load(struct font ** font, const char * filename)
 		return FALSE;
 	}
 
-	while(bdf_add_font_glyph(*font, fd, &info));
+	while(bdf_add_next_font_glyph(*font, fd, &info));
 
 	close(fd);
 	return TRUE;

@@ -139,7 +139,7 @@ static x_bool bdf_add_next_font_glyph(struct font * font, x_s32 fd, struct bdf_i
 	x_u8 * data;
 	x_u8 * pdata;
 	x_u8 c;
-	x_s32 pitch, len;
+	x_s32 len;
 	x_s32 i, j;
 
 	if(fd < 0)
@@ -176,9 +176,7 @@ static x_bool bdf_add_next_font_glyph(struct font * font, x_s32 fd, struct bdf_i
 	if( (encoding == -1) || (w == 0) || (h == 0) )
 		return FALSE;
 
-	pitch = (w + 7) / 8;
-	len = pitch * h;
-
+	len = ((w + 7) / 8) * h;
 	pdata = data = malloc(len);
 	if(!data)
 		return FALSE;

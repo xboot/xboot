@@ -23,7 +23,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <xboot.h>
+#include <charset.h>
 #include <malloc.h>
 #include <xboot/chrdev.h>
 #include <xboot/ioctl.h>
@@ -33,7 +33,6 @@
 #include <fb/fb.h>
 
 extern x_bool fb_putcode(struct fb * fb, x_u32 code, x_u32 fc, x_u32 bc, x_u32 x, x_u32 y);
-extern x_bool fb_codewidth(x_u32 code, x_u32 * w, x_u32 * h);
 
 struct fbcon_cell
 {
@@ -43,8 +42,8 @@ struct fbcon_cell
 	/* foreground color and background color */
 	x_u32 fc, bc;
 
-	/* character width and height, the unit of font's width and height in pixel */
-	x_u32 cw, ch;
+	/* the width of the cp */
+	x_u32 w;
 };
 
 /*
@@ -79,11 +78,6 @@ struct fb_console_info
 
 	/* fb console cell's length */
 	x_u32 clen;
-
-	/*
-	 * below for priv data
-	 */
-	x_u32 white, black;
 };
 
 static const x_u8 tcolor_to_rgba_table[256][4] = {
@@ -486,7 +480,7 @@ static x_bool fbcon_gotoxy(struct console * console, x_s32 x, x_s32 y)
 		cell = &(info->cell[pos]);
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
-		fb_putcode(info->fb, cell->cp, info->black, info->white, px, py);
+		fb_putcode(info->fb, cell->cp, info->bc, info->fc, px, py);
 	}
 
 	info->x = x;
@@ -496,25 +490,14 @@ static x_bool fbcon_gotoxy(struct console * console, x_s32 x, x_s32 y)
 }
 
 /*
- * turn on/off the cursor
+ * turn on / off the cursor
  */
 static x_bool fbcon_setcursor(struct console * console, x_bool on)
 {
 	struct fb_console_info * info = console->priv;
-	struct fbcon_cell * cell;
-	x_s32 pos, px, py;
 
 	info->cursor = on;
-
-	pos = info->w * info->y + info->x;
-	cell = &(info->cell[pos]);
-	px = (pos % info->w) * info->fw;
-	py = (pos / info->w) * info->fh;
-
-	if(info->cursor)
-		fb_putcode(info->fb, cell->cp, info->black, info->white, px, py);
-	else
-		fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
+	fbcon_gotoxy(console, info->x, info->y);
 
 	return TRUE;
 }
@@ -570,29 +553,16 @@ static x_bool fbcon_cls(struct console * console)
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell = &(info->cell[0]);
 	x_s32 px, py;
-	x_u32 w, h;
 	x_s32 i;
-
-	if(fb_codewidth(UNICODE_SPACE, &w, &h))
-	{
-		w = (w + info->fw - 1) / info->fw;
-		h = (h + info->fh - 1) / info->fh;
-	}
-	else
-	{
-		w = 1;
-		h = 1;
-	}
 
 	for(i = 0; i < info->clen; i++)
 	{
-		if( (cell->cp != UNICODE_SPACE) || (cell->fc != info->black) || (cell->bc != info->black) )
+		if( (cell->cp != UNICODE_SPACE) || (cell->fc != info->fc) || (cell->bc != info->bc) )
 		{
 			cell->cp = UNICODE_SPACE;
-			cell->fc = info->black;
-			cell->bc = info->black;
-			cell->cw = w;
-			cell->ch = h;
+			cell->fc = info->fc;
+			cell->bc = info->bc;
+			cell->w = 1;
 
 			px = (i % info->w) * info->fw;
 			py = (i / info->w) * info->fh;
@@ -612,25 +582,14 @@ static x_bool fbcon_scrollup(struct console * console)
 {
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * p, * q;
-	x_s32 i = 0, px, py;
+	x_s32 px, py;
 	x_u32 m, l;
-	x_u32 w, h;
+	x_s32 i = 0;
 
 	l = info->w;
 	m = info->clen - l;
 	p = &(info->cell[0]);
 	q = &(info->cell[l]);
-
-	if(fb_codewidth(UNICODE_SPACE, &w, &h))
-	{
-		w = (w + info->fw - 1) / info->fw;
-		h = (h + info->fh - 1) / info->fh;
-	}
-	else
-	{
-		w = 1;
-		h = 1;
-	}
 
 	while(m--)
 	{
@@ -639,8 +598,7 @@ static x_bool fbcon_scrollup(struct console * console)
 			p->cp = q->cp;
 			p->fc = q->fc;
 			p->bc = q->bc;
-			p->cw = q->cw;
-			p->ch = q->ch;
+			p->w = q->w;
 
 			px = (i % info->w) * info->fw;
 			py = (i / info->w) * info->fh;
@@ -654,13 +612,12 @@ static x_bool fbcon_scrollup(struct console * console)
 
 	while(l--)
 	{
-		if( (p->cp != UNICODE_SPACE) || (p->fc != info->black) || (p->bc != info->black) )
+		if( (p->cp != UNICODE_SPACE) || (p->fc != info->fc) || (p->bc != info->bc) )
 		{
 			p->cp = UNICODE_SPACE;
-			p->fc = info->black;
-			p->bc = info->black;
-			p->cw = w;
-			p->ch = h;
+			p->fc = info->fc;
+			p->bc = info->bc;
+			p->w = 1;
 
 			px = (i % info->w) * info->fw;
 			py = (i / info->w) * info->fh;
@@ -683,35 +640,22 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell;
 	x_s32 pos, px, py;
-	x_u32 w, h;
-	x_s32 i;
+	x_s32 w, i;
 
 	switch(code)
 	{
 	case UNICODE_BS:
 		if(info->x > 0)
 		{
-			if(fb_codewidth(UNICODE_SPACE, &w, &h))
-			{
-				w = (w + info->fw - 1) / info->fw;
-				h = (h + info->fh - 1) / info->fh;
-			}
-			else
-			{
-				w = 1;
-				h = 1;
-			}
-
 			fbcon_gotoxy(console, info->x - 1, info->y);
 
 			pos = info->w * info->y + info->x;
 			cell = &(info->cell[pos]);
 
 			cell->cp = UNICODE_SPACE;
-			cell->fc = info->black;
-			cell->bc = info->black;
-			cell->cw = w;
-			cell->ch = h;
+			cell->fc = info->fc;
+			cell->bc = info->bc;
+			cell->w = 1;
 
 			px = (pos % info->w) * info->fw;
 			py = (pos / info->w) * info->fh;
@@ -728,27 +672,15 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 		if(i > 4)
 			i = 4;
 
-		if(fb_codewidth(UNICODE_SPACE, &w, &h))
-		{
-			w = (w + info->fw - 1) / info->fw;
-			h = (h + info->fh - 1) / info->fh;
-		}
-		else
-		{
-			w = 1;
-			h = 1;
-		}
-
 		while(i--)
 		{
 			pos = info->w * info->y + info->x;
 			cell = &(info->cell[pos]);
 
 			cell->cp = UNICODE_SPACE;
-			cell->fc = info->black;
-			cell->bc = info->black;
-			cell->cw = w;
-			cell->ch = h;
+			cell->fc = info->fc;
+			cell->bc = info->bc;
+			cell->w = 1;
 
 			px = (pos % info->w) * info->fw;
 			py = (pos / info->w) * info->fh;
@@ -780,16 +712,9 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 		break;
 
 	default:
-		if(fb_codewidth(code, &w, &h))
-		{
-			w = (w + info->fw - 1) / info->fw;
-			h = (h + info->fh - 1) / info->fh;
-		}
-		else
-		{
-			w = 1;
-			h = 1;
-		}
+		w = ucs4_width(code);
+		if(w < 0)
+			w = 0;
 
 		pos = info->w * info->y + info->x;
 		cell = &(info->cell[pos]);
@@ -797,8 +722,7 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 		cell->cp = code;
 		cell->fc = info->fc;
 		cell->bc = info->bc;
-		cell->cw = w;
-		cell->ch = h;
+		cell->w = w;
 
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
@@ -851,7 +775,7 @@ x_bool register_framebuffer(struct fb * fb)
 	struct chrdev * dev;
 	struct console * console;
 	struct fb_console_info * info;
-	x_u32 fw, fh;
+	x_u8 r, g, b, a;
 	x_u8 brightness;
 
 	if(!fb || !fb->info || !fb->info->name)
@@ -908,26 +832,20 @@ x_bool register_framebuffer(struct fb * fb)
 		return FALSE;
 	}
 
-	if(!fb_codewidth(UNICODE_SPACE, &fw, &fh))
-	{
-		fw = 8;
-		fh = 16;
-	}
-
 	info->name = (char *)fb->info->name;
 	info->fb = fb;
-	info->fw = fw;
-	info->fh = fh;
+	info->fw = 8;
+	info->fh = 16;
 	info->w = fb->info->bitmap.info.width / info->fw;
 	info->h = fb->info->bitmap.info.height / info->fh;
 	info->x = 0;
 	info->y = 0;
 	info->f = TCOLOR_WHITE;
 	info->b = TCOLOR_BLACK;
-	info->white = fb_map_color(fb, 255, 255, 255, 255);
-	info->black = fb_map_color(fb, 0, 0, 0, 255);
-	info->fc = info->white;
-	info->bc = info->black;
+	tcolor_to_rgba(info->f, &r, &g, &b, &a);
+	info->fc = fb_map_color(fb, r, g, b, a);
+	tcolor_to_rgba(info->b, &r, &g, &b, &a);
+	info->bc = fb_map_color(fb, r, g, b, a);
 	info->cursor = TRUE;
 	info->clen = info->w * info->h;
 	info->cell = malloc(info->clen * sizeof(struct fbcon_cell));

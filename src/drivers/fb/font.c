@@ -3151,26 +3151,6 @@ x_bool fb_putcode(struct fb * fb, x_u32 code, x_u32 fc, x_u32 bc, x_u32 x, x_u32
 }
 
 /*
- * get a ucs-4 code's width and height
- */
-x_bool fb_codewidth(x_u32 code, x_u32 * w, x_u32 * h)
-{
-	struct font_glyph * glyph;
-
-	if(!w && !h)
-		return FALSE;
-
-	glyph = font_lookup_glyph(NULL, code);
-
-	if(w)
-		*w = glyph->w;
-	if(h)
-		*h = glyph->h;
-
-	return TRUE;
-}
-
-/*
  * draw a utf-8 string of text on the framebuffer
  */
 x_bool fb_draw_text(struct fb * fb, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y)

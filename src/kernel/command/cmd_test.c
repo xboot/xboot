@@ -55,7 +55,7 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-	struct font * font;
+/*	struct font * font;
 	struct fb * fb;
 
 	if(!install_font("/boot/test.bdf"))
@@ -85,7 +85,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	{
 		tt[j] = j+97;
 	}
-	tt[j] = 0;
+	tt[j] = 0;*/
 
 /*
 	struct font_glyph * glyph;
@@ -101,25 +101,25 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	{
 		printk("0x%02X,\r\n", glyph->data[j]);
 	}
-*/
 	fb_draw_text(fb, tt,font,0x0ff0, 100, 100);
 
 	printk("success\r\n");
 
 	return 0;
+*/
 
 	struct tui_workspace * ws;
 	struct tui_button * btn1, * btn2, * btn3;
 	x_s32 i;
 
-	for(i=0; i<256; i++)
+/*	for(i=0; i<256; i++)
 	{
 		console_setcolor(get_stdout(), TCOLOR_WHITE, i);
 		putcode('A');
-	}
-	return 0;
+	}*/
+//	return 0;
 
-	console_setcursor(get_stdout(), FALSE);
+//	console_setcursor(get_stdout(), FALSE);
 
 	ws = tui_workspace_new(get_stdout(), (x_s8 *)"ws");
 	btn1 = tui_button_new((struct tui_widget *)ws, (const x_s8 *)"btn1", (const x_s8 *)"btn1");

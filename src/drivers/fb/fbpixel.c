@@ -77,7 +77,7 @@ x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
 {
 	x_u32 c;
 	x_u8 * p;
-	x_s32 bit_index, bit_pos;
+	x_s32 pos;
 
 	switch(bitmap->info.bpp)
 	{
@@ -103,10 +103,9 @@ x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
 		break;
 
 	case 1:
-        bit_index = y * bitmap->info.width + x;
-        p = bitmap->data + bit_index / 8;
-        bit_pos = 7 - bit_index % 8;
-        c = (*p >> bit_pos) & 0x01;
+		p = bitmap->data + y * bitmap->info.pitch + (x / 8);
+		pos = 7 - x % 8;
+		c = (*p >> pos) & 0x01;
 		break;
 
 	default:
@@ -122,7 +121,7 @@ x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
 void bitmap_set_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
 {
 	x_u8 * p;
-	x_s32 bit_index, bit_pos;
+	x_s32 pos;
 
 	switch(bitmap->info.bpp)
 	{
@@ -150,10 +149,9 @@ void bitmap_set_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
 		break;
 
 	case 1:
-        bit_index = y * bitmap->info.width + x;
-        p = bitmap->data + bit_index / 8;
-        bit_pos = 7 - bit_index % 8;
-        *p = (*p & ~(1 << bit_pos)) | ((c & 0x01) << bit_pos);
+		p = bitmap->data + y * bitmap->info.pitch + (x / 8);
+		pos = 7 - x % 8;
+		*p = (*p & ~(1 << pos)) | ((c & 0x01) << pos);
 		break;
 
 	default:

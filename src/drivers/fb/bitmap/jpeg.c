@@ -143,7 +143,7 @@ static x_s32 jpeg_get_huff_code(struct jpeg_data * data, x_s32 id)
 	x_s32 code, i;
 
 	code = 0;
-	for(i = 0; i < 16; i++)
+	for(i = 0; i < sizeof(data->huff_maxval[id]); i++)
 	{
 		code <<= 1;
 		if(jpeg_get_bit (data))
@@ -164,40 +164,43 @@ static x_bool jpeg_decode_huff_table(struct jpeg_data * data)
 	next_marker = data->file_offset;
 	next_marker += jpeg_get_word(data);
 
-	id = jpeg_get_byte(data);
-	ac = (id >> 4);
-	id &= 0xF;
-	if(id > 1)
-		return FALSE;
-
-	if(read(data->file, &count, sizeof(count)) != sizeof(count))
-		return FALSE;
-	data->file_offset += sizeof(count);
-
-	n = 0;
-	for(i = 0; i < 16; i++)
-		n += count[i];
-
-	id += ac * 2;
-	data->huff_value[id] = malloc(n);
-	if(!data->huff_value[id])
-		return FALSE;
-
-	if(read(data->file, data->huff_value[id], n) != n)
-		return FALSE;
-	data->file_offset += n;
-
-	base = 0;
-	ofs = 0;
-	for(i = 0; i < 16; i++)
+	while(data->file_offset + sizeof(count) + 1 <= next_marker)
 	{
-		base += count[i];
-		ofs += count[i];
+		id = jpeg_get_byte(data);
+		ac = (id >> 4) & 0x1;
+		id &= 0xF;
+		if(id > 1)
+			return FALSE;
 
-		data->huff_maxval[id][i] = base;
-		data->huff_offset[id][i] = ofs - base;
+		if(read(data->file, &count, sizeof(count)) != sizeof(count))
+			return FALSE;
+		data->file_offset += sizeof(count);
 
-		base <<= 1;
+		n = 0;
+		for(i = 0; i < sizeof(count); i++)
+			n += count[i];
+
+		id += ac * 2;
+		data->huff_value[id] = malloc(n);
+		if(!data->huff_value[id])
+			return FALSE;
+
+		if(read(data->file, data->huff_value[id], n) != n)
+			return FALSE;
+		data->file_offset += n;
+
+		base = 0;
+		ofs = 0;
+		for(i = 0; i < sizeof(count); i++)
+		{
+			base += count[i];
+			ofs += count[i];
+
+			data->huff_maxval[id][i] = base;
+			data->huff_offset[id][i] = ofs - base;
+
+			base <<= 1;
+		}
 	}
 
 	if(data->file_offset != next_marker)
@@ -214,16 +217,19 @@ static x_bool jpeg_decode_quan_table(struct jpeg_data * data)
 	next_marker = data->file_offset;
 	next_marker += jpeg_get_word(data);
 
-	id = jpeg_get_byte(data);
-	if(id >= 0x10)
-		return FALSE;
+	while(data->file_offset + sizeof(data->quan_table[id]) + 1 <= next_marker)
+	{
+		id = jpeg_get_byte(data);
+		if(id >= 0x10)
+			return FALSE;
 
-	if(id > 1)
-		return FALSE;
+		if(id > 1)
+			return FALSE;
 
-	if(read(data->file, &data->quan_table[id], 64) != 64)
-		return FALSE;
-	data->file_offset += 64;
+		if(read(data->file, &data->quan_table[id], sizeof(data->quan_table[id])) != sizeof(data->quan_table[id]))
+			return FALSE;
+		data->file_offset += 64;
+	}
 
 	if(data->file_offset != next_marker)
 		return FALSE;
@@ -433,7 +439,7 @@ static void jpeg_decode_du(struct jpeg_data * data, x_s32 id, jpeg_data_unit du)
 
 	du[0] = data->dc_value[id] * (x_s32) data->quan_table[qt][0];
 	pos = 1;
-	while(pos < 64)
+	while(pos < sizeof(data->quan_table[qt]))
 	{
 		num = jpeg_get_huff_code (data, h2);
 		if(!num)

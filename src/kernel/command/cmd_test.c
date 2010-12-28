@@ -55,44 +55,7 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-	struct font * font;
-	struct fb * fb;
-
-	font = get_font("-FontForge-MingLiU-Book-R-Normal--7-70-75-75-M-40-FontSpecific-0");
-	if(!font)
-	{
-		printk("get font fail\r\n");
-		return -1;
-	}
-
-	fb = search_framebuffer("fb");
-	if(!fb)
-	{
-		printk("get fb fail\r\n");
-		return -1;
-	}
-
-	char tt[257];
-	int j;
-
-	for(j=0; j<9; j++)
-	{
-		tt[j] = j+'0';
-	}
-	tt[j] = 0;
-
-	fb_draw_text(fb, tt,font,0x0ff0, 100, 100);
-
-	for(j = 0; j < 10; j++)
-	{
-		putcode(0x3c21 + j);
-	}
-
-	printk("\r\nsuccess\r\n");
-
-	return 0;
-
-#if 0
+#if 1
 
 	struct tui_workspace * ws;
 	struct tui_button * btn1, * btn2, * btn3;

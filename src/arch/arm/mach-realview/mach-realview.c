@@ -172,7 +172,7 @@ static struct machine realview = {
 
 	.cfg = {
 		.mode				= MODE_MENU,
-		.stdin				= "uart0",
+		.stdin				= "input",
 		.stdout				= "fb",
 		.menu				= default_menu,
 		.env				= default_env,

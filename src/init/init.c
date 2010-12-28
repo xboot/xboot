@@ -38,6 +38,7 @@
 #include <console/console.h>
 #include <shell/env.h>
 #include <fs/fsapi.h>
+#include <fb/font.h>
 #include <init.h>
 
 
@@ -102,6 +103,62 @@ void do_system_cfg(void)
 			set_stdinout(mach->cfg.stdin, mach->cfg.stdout);
 		}
 	}
+}
+
+/*
+ * do load system fonts
+ */
+void do_system_fonts(void)
+{
+	char path[MAX_PATH];
+	char buf[MAX_PATH];
+	struct stat st;
+	struct dirent * entry;
+	void * dir;
+
+	LOG_I("load system fonts");
+
+	/* system fonts's directory path */
+	sprintf((x_s8 *)path, (const x_s8 *)"%s", "/boot/system/fonts");
+
+	if(stat(path, &st) != 0)
+		return;
+
+	if(! S_ISDIR(st.st_mode))
+		return;
+
+	if( (dir = opendir(path)) == NULL)
+    	return;
+
+    for(;;)
+    {
+		if( (entry = readdir(dir)) == NULL)
+		  break;
+
+		buf[0] = 0;
+		strlcpy((x_s8 *)buf, (const x_s8 *)path, sizeof(buf));
+		buf[sizeof(buf) - 1] = '\0';
+
+		if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)"."))
+		{
+		}
+		else if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)".."))
+		{
+		}
+		else
+		{
+			strlcat((x_s8 *)buf, (const x_s8 *)"/", sizeof(buf));
+			strlcat((x_s8 *)buf, (const x_s8 *)entry->d_name, sizeof(buf));
+		}
+
+		if(stat((const char *)buf, &st) != 0)
+			break;
+
+		if(! install_font(buf))
+			LOG_E("fail to install font: %s", buf);
+    }
+
+	closedir(dir);
 }
 
 /*

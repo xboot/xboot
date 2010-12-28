@@ -123,38 +123,38 @@ static void do_list(const char * path, x_u32 flags, x_u32 width)
 	{
 		if( (dir = opendir(path)) == NULL)
 	    	return;
-	    for(;;)
-	    {
-	         if( (entry = readdir(dir)) == NULL)
-	              break;
+		for(;;)
+		{
+			if( (entry = readdir(dir)) == NULL)
+				break;
 
-	         buf[0] = 0;
-	         strlcpy((x_s8 *)buf, (const x_s8 *)path, sizeof(buf));
-	         buf[sizeof(buf) - 1] = '\0';
+			buf[0] = 0;
+			strlcpy((x_s8 *)buf, (const x_s8 *)path, sizeof(buf));
+			buf[sizeof(buf) - 1] = '\0';
 
-	         if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)"."))
-	         {
-	         }
-	         else if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)".."))
-	         {
-	         }
-	         else
-	         {
+			if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)"."))
+			{
+			}
+			else if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)".."))
+			{
+			}
+			else
+			{
 				strlcat((x_s8 *)buf, (const x_s8 *)"/", sizeof(buf));
 				strlcat((x_s8 *)buf, (const x_s8 *)entry->d_name, sizeof(buf));
-	         }
+			}
 
-	         if(stat((const char *)buf, &st) != 0)
-	        	 break;
+			if(stat((const char *)buf, &st) != 0)
+				break;
 
-	         if( (entry->d_name[0] != '.') || (flags & LSFLAG_DOT) )
-	         {
-	        	 n_file++;
-	         }
+			if( (entry->d_name[0] != '.') || (flags & LSFLAG_DOT) )
+			{
+				n_file++;
+			}
 
-	         print_entry((const char *)entry->d_name, &st, flags, width);
-	    }
-	    closedir(dir);
+			print_entry((const char *)entry->d_name, &st, flags, width);
+		}
+		closedir(dir);
 	}
 	else
 	{

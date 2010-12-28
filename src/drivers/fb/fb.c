@@ -495,9 +495,20 @@ static x_bool fbcon_gotoxy(struct console * console, x_s32 x, x_s32 y)
 static x_bool fbcon_setcursor(struct console * console, x_bool on)
 {
 	struct fb_console_info * info = console->priv;
+	struct fbcon_cell * cell;
+	x_s32 pos, px, py;
 
 	info->cursor = on;
-	fbcon_gotoxy(console, info->x, info->y);
+
+	pos = info->w * info->y + info->x;
+	cell = &(info->cell[pos]);
+	px = (pos % info->w) * info->fw;
+	py = (pos / info->w) * info->fh;
+
+	if(info->cursor)
+		fb_putcode(info->fb, cell->cp, info->bc, info->fc, px, py);
+	else
+		fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
 
 	return TRUE;
 }
@@ -557,7 +568,7 @@ static x_bool fbcon_cls(struct console * console)
 
 	for(i = 0; i < info->clen; i++)
 	{
-		if( (cell->cp != UNICODE_SPACE) || (cell->fc != info->fc) || (cell->bc != info->bc) )
+		if( (cell->w == 0) || (cell->cp != UNICODE_SPACE) || (cell->fc != info->fc) || (cell->bc != info->bc) )
 		{
 			cell->cp = UNICODE_SPACE;
 			cell->fc = info->fc;
@@ -583,17 +594,17 @@ static x_bool fbcon_scrollup(struct console * console)
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * p, * q;
 	x_s32 px, py;
-	x_u32 m, l;
-	x_s32 i = 0;
+	x_s32 m, l;
+	x_s32 i, w;
 
 	l = info->w;
 	m = info->clen - l;
 	p = &(info->cell[0]);
 	q = &(info->cell[l]);
 
-	while(m--)
+	for(i = 0, w = 1; i < m; i += w)
 	{
-		if( (p->cp != q->cp) || (p->fc != q->fc) || (p->bc != q->bc) )
+		if( (p->cp != q->cp) || (p->fc != q->fc) || (p->bc != q->bc) || (p->w != q->w))
 		{
 			p->cp = q->cp;
 			p->fc = q->fc;
@@ -605,14 +616,15 @@ static x_bool fbcon_scrollup(struct console * console)
 			fb_putcode(info->fb, p->cp, p->fc, p->bc, px, py);
 		}
 
-		p++;
-		q++;
-		i++;
+		if( (w = q->w) < 1 )
+			w = 1;
+		p += w;
+		q += w;
 	}
 
-	while(l--)
+	while( (l--) > 0 )
 	{
-		if( (p->cp != UNICODE_SPACE) || (p->fc != info->fc) || (p->bc != info->bc) )
+		if( (p->w == 0) || (p->cp != UNICODE_SPACE) || (p->fc != info->fc) || (p->bc != info->bc) )
 		{
 			p->cp = UNICODE_SPACE;
 			p->fc = info->fc;
@@ -645,32 +657,12 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 	switch(code)
 	{
 	case UNICODE_BS:
-		if(info->x > 0)
-		{
-			fbcon_gotoxy(console, info->x - 1, info->y);
-
-			pos = info->w * info->y + info->x;
-			cell = &(info->cell[pos]);
-
-			cell->cp = UNICODE_SPACE;
-			cell->fc = info->fc;
-			cell->bc = info->bc;
-			cell->w = 1;
-
-			px = (pos % info->w) * info->fw;
-			py = (pos / info->w) * info->fh;
-			fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
-
-			fbcon_setcursor(console, info->cursor);
-		}
-		break;
+		return TRUE;
 
 	case UNICODE_TAB:
-		i = info->w - info->x;
-		if(i < 0)
-			i = 0;
-		if(i > 4)
-			i = 4;
+		i = 8 - (info->x % 8);
+		if(i + info->x >= info->w)
+			i = info->w - info->x - 1;
 
 		while(i--)
 		{
@@ -685,20 +677,9 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 			px = (pos % info->w) * info->fw;
 			py = (pos / info->w) * info->fh;
 			fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
-
-			if(info->x + 1 >= info->w)
-			{
-				if(info->y + 1 >= info->h)
-				{
-					fbcon_scrollup(console);
-				}
-				fbcon_gotoxy(console, 0, info->y + 1);
-			}
-			else
-			{
-				fbcon_gotoxy(console, info->x + 1, info->y);
-			}
+			info->x = info->x + 1;
 		}
+		fbcon_gotoxy(console, info->x, info->y);
 		break;
 
 	case UNICODE_LF:
@@ -713,8 +694,8 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 
 	default:
 		w = ucs4_width(code);
-		if(w < 0)
-			w = 0;
+		if(w <= 0)
+			return TRUE;
 
 		pos = info->w * info->y + info->x;
 		cell = &(info->cell[pos]);
@@ -724,23 +705,26 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 		cell->bc = info->bc;
 		cell->w = w;
 
+		for(i = 1; i < w; i++)
+		{
+			((struct fbcon_cell *)(cell + i))->cp = UNICODE_SPACE;
+			((struct fbcon_cell *)(cell + i))->fc = info->fc;
+			((struct fbcon_cell *)(cell + i))->bc = info->bc;
+			((struct fbcon_cell *)(cell + i))->w = 0;
+		}
+
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
 		fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
 
-		if(info->x + 1 >= info->w)
-		{
-			if(info->y + 1 >= info->h)
-			{
-				fbcon_scrollup(console);
-			}
-			fbcon_gotoxy(console, 0, info->y + 1);
-		}
+		if(info->x + w < info->w)
+			fbcon_gotoxy(console, info->x + w, info->y);
 		else
 		{
-			fbcon_gotoxy(console, info->x + 1, info->y);
+			if(info->y + 1 >= info->h)
+				fbcon_scrollup(console);
+			fbcon_gotoxy(console, 0, info->y + 1);
 		}
-
 		break;
 	}
 

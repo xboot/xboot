@@ -153,24 +153,20 @@ static void anti_piracy_timer_function(x_u32 data)
 
 	if(!__machine->misc.genuine())
 	{
-		/* system halt */
-		halt();
-
-		/* system reset */
-		reset();
-
-		/* dead loop */
-		while(1);
+		while(1)
+		{
+			halt();
+			reset();
+		}
 	}
 
-	/* mod timer for four second */
 	mod_timer(&anti_piracy_timer, jiffies + get_system_hz() * 4);
 }
 
 /*
  * do anti piracy.
  */
-void do_anti_piracy(void)
+void do_system_antipiracy(void)
 {
 	if(!__machine || !__machine->misc.genuine)
 		return;
@@ -179,22 +175,16 @@ void do_anti_piracy(void)
 	{
 		LOG_I("start anti piracy");
 
-		/* setup timer for anti piracy */
 		setup_timer(&anti_piracy_timer, anti_piracy_timer_function, (x_u32)(__machine));
-
-		/* mod timer for four second */
 		mod_timer(&anti_piracy_timer, jiffies + get_system_hz() * 4);
 	}
 	else
 	{
-		/* system halt */
-		halt();
-
-		/* system reset */
-		reset();
-
-		/* dead loop */
-		while(1);
+		while(1)
+		{
+			halt();
+			reset();
+		}
 	}
 }
 

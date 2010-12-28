@@ -125,6 +125,6 @@ x_bool halt(void);
 x_bool reset(void);
 x_bool cleanup(void);
 
-void do_anti_piracy(void);
+void do_system_antipiracy(void);
 
 #endif /* __MACHINE_H__ */

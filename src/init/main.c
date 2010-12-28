@@ -49,8 +49,8 @@ int xboot_main(int argc, char *argv[])
 	/* load system configure */
 	do_system_cfg();
 
-	/* do anti piracy */
-	do_anti_piracy();
+	/* do system anti-piracy */
+	do_system_antipiracy();
 
 	/* wait a moment */
 	do_system_wait();

@@ -31,13 +31,16 @@
 
 extern void calibrate_delay(void);
 
-
 static __init void core_init(void)
 {
-	/* initial system tick */
+	/*
+	 * initial system tick
+	 */
 	if(init_system_tick())
 	{
-		/* calibrating delay */
+		/*
+		 * calibrating delay
+		 */
 		calibrate_delay();
 	}
 	else

@@ -507,7 +507,15 @@ void common_bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode
 		}
 		else if(src->info.fmt == BITMAP_FORMAT_BGR_888)
 		{
+			switch(dst->info.fmt)
+			{
+			case BITMAP_FORMAT_BGR_888:
+				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
+				return;
 
+			default:
+				break;
+			}
 		}
 		else if(src->info.fmt == BITMAP_FORMAT_MONOCHROME)
 		{

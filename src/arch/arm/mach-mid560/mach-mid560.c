@@ -216,7 +216,7 @@ static struct machine mid560 = {
 
 	.cfg = {
 		.mode				= MODE_NORMAL,
-		.stdin				= "input",
+		.stdin				= "uart0",
 		.stdout				= "fb",
 		.menu				= default_menu,
 		.env				= default_env,

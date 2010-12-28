@@ -52,7 +52,6 @@ x_u8 * bitmap_get_pointer(struct bitmap * bitmap, x_u32 x, x_u32 y)
 		break;
 
 	case 16:
-	case 15:
 		p = bitmap->data + y * bitmap->info.pitch + x * 2;
 		break;
 
@@ -92,7 +91,6 @@ x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
 		break;
 
 	case 16:
-	case 15:
 		p = bitmap->data + y * bitmap->info.pitch + x * 2;
 		c = cpu_to_le16( *((x_u16 *)p) );
 		break;
@@ -138,7 +136,6 @@ void bitmap_set_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
 		break;
 
 	case 16:
-	case 15:
 		p = bitmap->data + y * bitmap->info.pitch + x * 2;
 		*((x_u16 *)p) = cpu_to_le16(c & 0xffff);
 		break;

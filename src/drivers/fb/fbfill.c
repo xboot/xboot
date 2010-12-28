@@ -164,7 +164,6 @@ void common_bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, 
 		break;
 
 	case 16:
-	case 15:
 		bitmap_fill_rect_direct16(bitmap, c, x, y, w, h);
 		break;
 

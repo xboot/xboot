@@ -54,6 +54,367 @@ static void bitmap_blit_replace_generic(struct bitmap * dst, struct bitmap * src
 }
 
 /*
+ * block copy replacing blitter that works with modes multiple of 8 bits
+ */
+static void bitmap_blit_replace_directN(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	x_u8 * ps, * pd;
+	x_u32 j;
+	x_u32 pitch = w * src->info.bytes_per_pixel;
+
+	for(j = 0; j < h; j++)
+	{
+		ps = bitmap_get_pointer(src, ox, j + oy);
+		pd = bitmap_get_pointer(dst, x, y + j);
+
+		memmove(pd, ps, pitch);
+	}
+}
+
+/*
+ * optimized replacing blitter for 1-bit to 32-bit
+ */
+static void bitmap_blit_replace_32bit_1bit(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	x_u8 * ps, * pd;
+	x_u32 fg, bg;
+	x_u32 i, j;
+	x_u32 dskip, sskipbyte, sskipbit;
+	x_s32 pos;
+	x_u8 mask;
+
+	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
+	sskipbyte = (src->info.width - w) >> 3;
+	sskipbit = (src->info.width - w) & 7;
+
+	pos = oy * src->info.width + ox;
+	ps = (x_u8 *)src->data + (pos >> 3);
+	mask = 1 << (~pos & 7);
+	pd = bitmap_get_pointer(dst, x, y);
+
+	fg = bitmap_map_color(dst, src->info.fg_r, src->info.fg_g, src->info.fg_b, src->info.fg_a);
+	bg = bitmap_map_color(dst, src->info.bg_r, src->info.bg_g, src->info.bg_b, src->info.bg_a);
+
+	for(j = 0; j < h; j++)
+	{
+		for(i = 0; i < w; i++)
+		{
+			if(*ps & mask)
+				*((x_u32 *)pd) = fg;
+			else
+				*((x_u32 *)pd) = bg;
+
+			mask >>= 1;
+			if(! mask)
+			{
+				ps++;
+				mask = 0x80;
+			}
+
+			pd += 4;
+		}
+
+		ps += sskipbyte;
+		if(mask >> sskipbit)
+			mask >>= sskipbit;
+		else
+		{
+			ps++;
+			mask <<= 8 - sskipbit;
+		}
+		pd += dskip;
+	}
+}
+
+/*
+ * optimized replacing blitter for 1-bit to 24-bit
+ */
+static void bitmap_blit_replace_24bit_1bit(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	x_u8 * ps, * pd;
+	x_u32 fg, bg;
+	x_u32 i, j;
+	x_u32 dskip, sskipbyte, sskipbit;
+	x_s32 pos;
+	x_u8 mask;
+
+	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
+	sskipbyte = (src->info.width - w) >> 3;
+	sskipbit = (src->info.width - w) & 7;
+
+	pos = oy * src->info.width + ox;
+	ps = (x_u8 *)src->data + (pos >> 3);
+	mask = 1 << (~pos & 7);
+	pd = bitmap_get_pointer(dst, x, y);
+
+	fg = bitmap_map_color(dst, src->info.fg_r, src->info.fg_g, src->info.fg_b, src->info.fg_a);
+	bg = bitmap_map_color(dst, src->info.bg_r, src->info.bg_g, src->info.bg_b, src->info.bg_a);
+
+	for(j = 0; j < h; j++)
+	{
+		for(i = 0; i < w; i++)
+		{
+			if(*ps & mask)
+				*((x_u32 *)pd) = fg;
+			else
+				*((x_u32 *)pd) = bg;
+
+			mask >>= 1;
+			if(! mask)
+			{
+				ps++;
+				mask = 0x80;
+			}
+
+			pd += 3;
+		}
+
+		if(*ps & mask)
+		{
+			*pd++ = fg & 0xff;
+			*pd++ = (fg & 0xff00) >> 8;
+			*pd++ = (fg & 0xff0000) >> 16;
+		}
+		else
+		{
+			*pd++ = bg & 0xff;
+			*pd++ = (bg & 0xff00) >> 8;
+			*pd++ = (bg & 0xff0000) >> 16;
+		}
+		mask >>= 1;
+		if(! mask)
+		{
+			ps++;
+			mask = 0x80;
+		}
+
+		ps += sskipbyte;
+		if(mask >> sskipbit)
+			mask >>= sskipbit;
+		else
+		{
+			ps++;
+			mask <<= 8 - sskipbit;
+		}
+		pd += dskip;
+	}
+}
+
+/*
+ * optimized replacing blitter for 1-bit to 16-bit
+ */
+static void bitmap_blit_replace_16bit_1bit(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	x_u8 * ps, * pd;
+	x_u32 fg, bg;
+	x_u32 i, j;
+	x_u32 dskip, sskipbyte, sskipbit;
+	x_s32 pos;
+	x_u8 mask;
+
+	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
+	sskipbyte = (src->info.width - w) >> 3;
+	sskipbit = (src->info.width - w) & 7;
+
+	pos = oy * src->info.width + ox;
+	ps = (x_u8 *)src->data + (pos >> 3);
+	mask = 1 << (~pos & 7);
+	pd = bitmap_get_pointer(dst, x, y);
+
+	fg = bitmap_map_color(dst, src->info.fg_r, src->info.fg_g, src->info.fg_b, src->info.fg_a);
+	bg = bitmap_map_color(dst, src->info.bg_r, src->info.bg_g, src->info.bg_b, src->info.bg_a);
+
+	for(j = 0; j < h; j++)
+	{
+		for(i = 0; i < w; i++)
+		{
+			if(*ps & mask)
+				*((x_u16 *)pd) = fg;
+			else
+				*((x_u16 *)pd) = bg;
+
+			mask >>= 1;
+			if(! mask)
+			{
+				ps++;
+				mask = 0x80;
+			}
+
+			pd += 2;
+		}
+
+		ps += sskipbyte;
+		if(mask >> sskipbit)
+			mask >>= sskipbit;
+		else
+		{
+			ps++;
+			mask <<= 8 - sskipbit;
+		}
+		pd += dskip;
+	}
+}
+
+/*
+ * optimized replacing blitter for 1-bit to 8-bit
+ */
+static void bitmap_blit_replace_8bit_1bit(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	x_u8 * ps, * pd;
+	x_u32 fg, bg;
+	x_u32 i, j;
+	x_u32 dskip, sskipbyte, sskipbit;
+	x_s32 pos;
+	x_u8 mask;
+
+	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
+	sskipbyte = (src->info.width - w) >> 3;
+	sskipbit = (src->info.width - w) & 7;
+
+	pos = oy * src->info.width + ox;
+	ps = (x_u8 *)src->data + (pos >> 3);
+	mask = 1 << (~pos & 7);
+	pd = bitmap_get_pointer(dst, x, y);
+
+	fg = bitmap_map_color(dst, src->info.fg_r, src->info.fg_g, src->info.fg_b, src->info.fg_a);
+	bg = bitmap_map_color(dst, src->info.bg_r, src->info.bg_g, src->info.bg_b, src->info.bg_a);
+
+	for(j = 0; j < h; j++)
+	{
+		for(i = 0; i < w; i++)
+		{
+			if(*ps & mask)
+				*((x_u8 *)pd) = fg;
+			else
+				*((x_u8 *)pd) = bg;
+
+			mask >>= 1;
+			if(! mask)
+			{
+				ps++;
+				mask = 0x80;
+			}
+
+			pd++;
+		}
+
+		ps += sskipbyte;
+		if(mask >> sskipbit)
+			mask >>= sskipbit;
+		else
+		{
+			ps++;
+			mask <<= 8 - sskipbit;
+		}
+		pd += dskip;
+	}
+}
+
+/*
+ * optimized replacing blitter for RGBA8888 to BGRA8888
+ */
+static void bitmap_blit_replace_BGRA8888_RGBA8888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	x_u8 * ps, * pd;
+	x_u32 i, j;
+	x_u32 sskip, dskip;
+	x_u8 r, g, b ,a;
+
+	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
+	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
+
+	ps = bitmap_get_pointer(src, ox, oy);
+	pd = bitmap_get_pointer(dst, x, y);
+
+	for (j = 0; j < h; j++)
+	{
+		for (i = 0; i < w; i++)
+		{
+			r = *ps++;
+			g = *ps++;
+			b = *ps++;
+			a = *ps++;
+
+			*pd++ = b;
+			*pd++ = g;
+			*pd++ = r;
+			*pd++ = a;
+		}
+
+		ps += sskip;
+		pd += dskip;
+	}
+}
+
+/*
+ * optimized replacing blitter for RGBA8888 to RGB888
+ */
+static void bitmap_blit_replace_RGB888_RGBA8888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	x_u8 * ps, * pd;
+	x_u32 sskip, dskip;
+	x_u32 i, j;
+	x_u8 r, g, b;
+
+	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
+	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
+
+	ps = (x_u8 *)bitmap_get_pointer(src, ox, oy);
+	pd = (x_u8 *)bitmap_get_pointer(dst, x, y);
+
+	for(j = 0; j < h; j++)
+	{
+		for(i = 0; i < w; i++)
+		{
+			r = *ps++;
+			g = *ps++;
+			b = *ps++;
+
+			*pd++ = r;
+			*pd++ = g;
+			*pd++ = b;
+		}
+
+		ps += sskip;
+		pd += dskip;
+	}
+}
+
+/*
+ * optimized replacing blitter for RGBA8888 to BGR888
+ */
+static void bitmap_blit_replace_BGR888_RGBA8888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+{
+	x_u8 * ps, * pd;
+	x_u32 sskip, dskip;
+	x_u32 i, j;
+	x_u8 r, g, b;
+
+	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
+	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
+
+	ps = (x_u8 *)bitmap_get_pointer(src, ox, oy);
+	pd = (x_u8 *)bitmap_get_pointer(dst, x, y);
+
+	for(j = 0; j < h; j++)
+	{
+		for(i = 0; i < w; i++)
+		{
+			r = *ps++;
+			g = *ps++;
+			b = *ps++;
+
+			*pd++ = b;
+			*pd++ = g;
+			*pd++ = r;
+		}
+
+		ps += sskip;
+		pd += dskip;
+	}
+}
+
+/*
  * generic blending blitter that works for every supported mode
  */
 static void bitmap_blit_blend_generic(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
@@ -99,13 +460,109 @@ static void bitmap_blit_blend_generic(struct bitmap * dst, struct bitmap * src, 
  */
 void common_bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
 {
+	/*
+	 * blit replace mode
+	 */
 	if(mode == BLIT_MODE_REPLACE)
 	{
+		if(src->info.fmt == BITMAP_FORMAT_RGBA_8888)
+		{
+			switch(dst->info.fmt)
+			{
+			case BITMAP_FORMAT_RGBA_8888:
+				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case BITMAP_FORMAT_BGRA_8888:
+				bitmap_blit_replace_BGRA8888_RGBA8888(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case BITMAP_FORMAT_RGB_888:
+				bitmap_blit_replace_RGB888_RGBA8888(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case BITMAP_FORMAT_BGR_888:
+				bitmap_blit_replace_BGR888_RGBA8888(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			default:
+				break;
+			}
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_BGRA_8888)
+		{
+			switch(dst->info.fmt)
+			{
+			case BITMAP_FORMAT_BGRA_8888:
+				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			default:
+				break;
+			}
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_RGB_888)
+		{
+
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_BGR_888)
+		{
+
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_MONOCHROME)
+		{
+			switch(dst->info.bpp)
+			{
+			case 32:
+				bitmap_blit_replace_32bit_1bit(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case 24:
+				bitmap_blit_replace_24bit_1bit(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case 16:
+				bitmap_blit_replace_16bit_1bit(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case 8:
+				bitmap_blit_replace_8bit_1bit(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			default:
+				break;
+			}
+		}
+
 		bitmap_blit_replace_generic(dst, src, x, y, w, h, ox, oy);
 	}
 
+	/*
+	 * blit blend mode
+	 */
 	else if(mode == BLIT_MODE_BLEND)
 	{
+		if(src->info.fmt == BITMAP_FORMAT_RGBA_8888)
+		{
+
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_BGRA_8888)
+		{
+
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_RGB_888)
+		{
+
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_BGR_888)
+		{
+
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_MONOCHROME)
+		{
+
+		}
+
 		bitmap_blit_blend_generic(dst, src, x, y, w, h, ox, oy);
 	}
 }

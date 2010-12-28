@@ -568,17 +568,15 @@ static x_bool fbcon_cls(struct console * console)
 
 	for(i = 0; i < info->clen; i++)
 	{
-		if( (cell->w == 0) || (cell->cp != UNICODE_SPACE) || (cell->fc != info->fc) || (cell->bc != info->bc) )
-		{
-			cell->cp = UNICODE_SPACE;
-			cell->fc = info->fc;
-			cell->bc = info->bc;
-			cell->w = 1;
+		cell->cp = UNICODE_SPACE;
+		cell->fc = info->fc;
+		cell->bc = info->bc;
+		cell->w = 1;
 
-			px = (i % info->w) * info->fw;
-			py = (i / info->w) * info->fh;
-			fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
-		}
+		px = (i % info->w) * info->fw;
+		py = (i / info->w) * info->fh;
+		fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
+
 		cell++;
 	}
 

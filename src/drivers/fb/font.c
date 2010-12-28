@@ -3229,7 +3229,7 @@ x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 *
 	return TRUE;
 }
 
-static x_s32 font_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static x_s32 fonts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
 	struct font_list * list;
 	struct list_head * pos;
@@ -3260,9 +3260,9 @@ static x_s32 font_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	return len;
 }
 
-static struct proc font_proc = {
-	.name	= "font",
-	.read	= font_proc_read,
+static struct proc fonts_proc = {
+	.name	= "fonts",
+	.read	= fonts_proc_read,
 };
 
 static __init void font_pure_sync_init(void)
@@ -3297,7 +3297,7 @@ static __init void font_pure_sync_init(void)
 		add_font_glyph(default_font, glyph);
 	}
 
-	proc_register(&font_proc);
+	proc_register(&fonts_proc);
 }
 
 static __exit void font_pure_sync_exit(void)
@@ -3320,7 +3320,7 @@ static __exit void font_pure_sync_exit(void)
 	}
 	font_destory(default_font);
 
-	proc_unregister(&font_proc);
+	proc_unregister(&fonts_proc);
 }
 
 module_init(font_pure_sync_init, LEVEL_PURE_SYNC);

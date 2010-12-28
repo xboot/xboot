@@ -58,7 +58,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	struct font * font;
 	struct fb * fb;
 
-	font = get_font("-Misc-Fixed-Medium-R-Normal--7-70-75-75-C-50-ISO8859-1");
+	font = get_font("-FontForge-MingLiU-Book-R-Normal--7-70-75-75-M-40-FontSpecific-0");
 	if(!font)
 	{
 		printk("get font fail\r\n");
@@ -75,15 +75,20 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	char tt[257];
 	int j;
 
-	for(j=0; j<4; j++)
+	for(j=0; j<9; j++)
 	{
-		tt[j] = j+97;
+		tt[j] = j+'0';
 	}
 	tt[j] = 0;
 
 	fb_draw_text(fb, tt,font,0x0ff0, 100, 100);
 
-	printk("success\r\n");
+	for(j = 0; j < 10; j++)
+	{
+		putcode(0x3c21 + j);
+	}
+
+	printk("\r\nsuccess\r\n");
 
 	return 0;
 

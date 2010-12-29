@@ -37,7 +37,7 @@
 /*
  * get bitmap's pointer at coordinate of x, y
  */
-x_u8 * bitmap_get_pointer(struct bitmap * bitmap, x_u32 x, x_u32 y)
+inline x_u8 * bitmap_get_pointer(struct bitmap * bitmap, x_u32 x, x_u32 y)
 {
 	x_u8 * p;
 
@@ -72,7 +72,7 @@ x_u8 * bitmap_get_pointer(struct bitmap * bitmap, x_u32 x, x_u32 y)
 /*
  * get bitmap's pixel at coordinate of x, y
  */
-x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
+inline x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
 {
 	x_u32 c;
 	x_u8 * p;
@@ -116,7 +116,7 @@ x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
 /*
  * set bitmap's pixel at coordinate of x, y
  */
-void bitmap_set_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
+inline void bitmap_set_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
 {
 	x_u8 * p;
 	x_s32 pos;

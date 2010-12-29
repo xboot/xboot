@@ -1,0 +1,18 @@
+<environment_variable>
+	<env>
+	<key>linux-machtype</key>
+	<value>827</value>
+	</env>
+
+	<env>
+	<key>linux-cmdline</key>
+	<value>console=tty0, console=ttySAC0</value>
+	</env>
+
+	<env>
+	<key>prompt</key>
+	<value>xboot</value>
+	</env>
+
+</environment_variable>
+

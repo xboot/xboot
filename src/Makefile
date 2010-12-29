@@ -181,6 +181,7 @@ clean:
 #
 sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR)							\
 			&& $(RM) .obj/ramdisk										\
+			&& $(RM) .obj/ramdisk.cpio									\
 			&& $(RM) .obj/init/version.o								\
 			&& $(RM) .obj/drivers/ramdisk/binary.o						\
 			&& $(CP) ramdisk .obj										\

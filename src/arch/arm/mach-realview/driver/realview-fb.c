@@ -43,7 +43,7 @@
 
 #define	LCD_WIDTH		(800)
 #define	LCD_HEIGHT		(480)
-#define	LCD_BPP			(16)
+#define	LCD_BPP			(32)
 
 #define HBP				(2)
 #define HFP				(2)
@@ -71,15 +71,15 @@ static struct fb_info info = {
 			.bpp				= LCD_BPP,
 			.bytes_per_pixel 	= LCD_BPP / 8,
 			.pitch				= LCD_WIDTH * LCD_BPP / 8,
-			.red_mask_size		= 5,
+			.red_mask_size		= 8,
 			.red_field_pos		= 0,
-			.green_mask_size	= 6,
-			.green_field_pos	= 5,
-			.blue_mask_size		= 5,
-			.blue_field_pos		= 11,
-			.alpha_mask_size	= 0,
-			.alpha_field_pos	= 0,
-			.fmt				= BITMAP_FORMAT_RGB_565,
+			.green_mask_size	= 8,
+			.green_field_pos	= 8,
+			.blue_mask_size		= 8,
+			.blue_field_pos		= 16,
+			.alpha_mask_size	= 8,
+			.alpha_field_pos	= 24,
+			.fmt				= BITMAP_FORMAT_RGBA_8888,
 			.fg_r				= 0xff,
 			.fg_g				= 0xff,
 			.fg_b				= 0xff,
@@ -118,7 +118,7 @@ static void fb_init(void)
 	writel(REALVIEW_CLCD_IMSC, 0x0);
 
 	/* set lcd controller register */
-	writel(REALVIEW_CLCD_CNTL, REALVIEW_CNTL_LCDTFT | REALVIEW_CNTL_LCDBPP16);
+	writel(REALVIEW_CLCD_CNTL, REALVIEW_CNTL_LCDTFT | REALVIEW_CNTL_LCDBPP24);
 
 	/* enable lcd output */
 	writel(REALVIEW_CLCD_CNTL, (readl(REALVIEW_CLCD_CNTL) | REALVIEW_CNTL_LCDEN | REALVIEW_CNTL_LCDPWR));

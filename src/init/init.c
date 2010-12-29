@@ -67,10 +67,10 @@ void do_system_rootfs(void)
 	if(mount(NULL, "/dev" , "devfs", 0) != 0)
 		LOG_E("failed to mount dev filesystem");
 
-	if(mkdir("/boot", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG_E("failed to create directory '/boot'");
+	if(mkdir("/ramdisk", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
+		LOG_E("failed to create directory '/ramdisk'");
 
-	if(mount("/dev/ramdisk", "/boot" , "cpiofs", 0) != 0)
+	if(mount("/dev/ramdisk", "/ramdisk" , "cpiofs", 0) != 0)
 		LOG_E("failed to mount ramdisk");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
@@ -119,7 +119,7 @@ void do_system_fonts(void)
 	LOG_I("load system fonts");
 
 	/* system fonts's directory path */
-	sprintf((x_s8 *)path, (const x_s8 *)"%s", "/boot/system/fonts");
+	sprintf((x_s8 *)path, (const x_s8 *)"%s", "/ramdisk/system/fonts");
 
 	if(stat(path, &st) != 0)
 		return;

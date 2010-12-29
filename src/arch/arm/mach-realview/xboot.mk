@@ -6,7 +6,7 @@ ifeq ($(TARGET), arm-realview)
 
 CROSS		?= arm-none-eabi-
 
-ASFLAGS		:= --gstabs --warn
+ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles

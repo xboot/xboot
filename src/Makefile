@@ -36,7 +36,7 @@ endif
 #
 # define default make variables.
 #
-ASFLAGS		:= --gstabs --warn
+ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles
@@ -59,6 +59,7 @@ sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 #
 # add pre-define macros.
 #
+ASFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 CFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 
@@ -118,7 +119,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 # you shouldn't need to change anything below this point.
 #
 CROSS		?=
-AS			:=	$(CROSS)as
+AS			:=	$(CROSS)gcc -x assembler-with-cpp
 CC			:=	$(CROSS)gcc
 CXX			:=	$(CROSS)g++
 LD			:=	$(CROSS)ld
@@ -157,7 +158,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 
 .obj/%.o:	%.s
 	@echo [AS] $<
-	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) $< -o $@
+	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) -c $< -o $@
 
 .obj/%.o:	%.c
 	@echo [CC] $<

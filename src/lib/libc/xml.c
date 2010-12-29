@@ -695,7 +695,7 @@ static x_s16 xml_internal_dtd(struct xml_root * root, char * s, x_size len)
 
 			for(i = 0; root->attr[i] && strcmp((const x_s8 *)n, (const x_s8 *)root->attr[i][0]); i++);
 
-			while(*(n = ++s + strspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE))) && *n != '>')
+			while(*(n = (s+1) + strspn((const x_s8 *)(s+1), (const x_s8 *)(XML_WHITESPACE))) && *n != '>')
 			{
 				if(*(s = n + strcspn((const x_s8 *)n, (const x_s8 *)(XML_WHITESPACE))))
 					*s = '\0'; 									/* attr name */

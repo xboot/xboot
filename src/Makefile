@@ -65,53 +65,53 @@ CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 #
 # add necessary directory for INCDIRS and SRCDIRS.
 #
-INCDIRS		+= 	-I include \
-				-I arch/$(ARCH)/include \
+INCDIRS		+= 	-I include						\
+				-I arch/$(ARCH)/include			\
 				-I arch/$(ARCH)/$(MACH)/include
 
-SRCDIRS		+=	arch/$(ARCH)/lib/gcc \
-				arch/$(ARCH)/lib/cpu \
-				arch/$(ARCH)/lib \
-				arch/$(ARCH)/$(MACH) \
-				arch/$(ARCH)/$(MACH)/driver \
-				arch/$(ARCH)/$(MACH)/resource \
-				init \
-				lib \
-				lib/libc \
-				kernel \
-				kernel/core \
-				kernel/shell \
-				kernel/command \
-				kernel/time \
-				kernel/tui \
-				kernel/tui/widget \
-				kernel/fs \
-				kernel/fs/vfs \
-				kernel/fs/ramfs \
-				kernel/fs/procfs \
-				kernel/fs/devfs \
-				kernel/fs/arfs \
-				kernel/fs/tarfs \
-				kernel/fs/cpiofs \
-				kernel/fs/fatfs \
-				drivers \
-				drivers/console \
-				drivers/disk \
-				drivers/disk/partition \
-				drivers/serial \
-				drivers/fb \
-				drivers/fb/bitmap \
-				drivers/fb/font \
-				drivers/led \
-				drivers/loop \
-				drivers/ramdisk \
-				drivers/rtc \
-				drivers/input \
-				drivers/input/keyboard \
-				drivers/input/mouse \
-				drivers/mmc \
-				drivers/mtd \
-				drivers/mtd/nand \
+SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
+				arch/$(ARCH)/lib/cpu			\
+				arch/$(ARCH)/lib				\
+				arch/$(ARCH)/$(MACH)			\
+				arch/$(ARCH)/$(MACH)/driver		\
+				arch/$(ARCH)/$(MACH)/resource	\
+				init							\
+				lib								\
+				lib/libc						\
+				kernel							\
+				kernel/core						\
+				kernel/shell					\
+				kernel/command					\
+				kernel/time						\
+				kernel/tui						\
+				kernel/tui/widget				\
+				kernel/fs						\
+				kernel/fs/vfs					\
+				kernel/fs/ramfs					\
+				kernel/fs/procfs				\
+				kernel/fs/devfs					\
+				kernel/fs/arfs					\
+				kernel/fs/tarfs					\
+				kernel/fs/cpiofs				\
+				kernel/fs/fatfs					\
+				drivers							\
+				drivers/console					\
+				drivers/disk					\
+				drivers/disk/partition			\
+				drivers/serial					\
+				drivers/fb						\
+				drivers/fb/bitmap				\
+				drivers/fb/font					\
+				drivers/led						\
+				drivers/loop					\
+				drivers/ramdisk					\
+				drivers/rtc						\
+				drivers/input					\
+				drivers/input/keyboard			\
+				drivers/input/mouse				\
+				drivers/mmc						\
+				drivers/mtd						\
+				drivers/mtd/nand				\
 				drivers/mtd/nor
 
 #
@@ -128,10 +128,13 @@ OD			:=	$(CROSS)objdump
 MKDIR		:=	mkdir -p
 CP			:=	cp -a
 RM			:=	rm -fr
+CD			:=	cd
+FIND		:=	find
+CPIO		:=	cpio -o -H newc --quiet
 
 XBOOT		:=	xboot
 OUTDIR		:=	../output
-OBJDIRS		:=	$(patsubst %, .obj/%, $(SRCDIRS))
+OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
 
 SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.s))
 CFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
@@ -149,10 +152,6 @@ $(OUTDIR)/$(XBOOT).bin:			$(OUTDIR)/$(XBOOT).elf
 	@$(OC) $(OCFLAGS) $< $@
 	
 $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
-	@echo [CPIO] packing ramdisk.cpio
-	@cd ramdisk && { find . -not -name . | cpio -o -H newc --quiet > ../.obj/ramdisk.cpio; cd ..; }
-	@echo [AS] drivers/ramdisk/binary.s
-	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) drivers/ramdisk/binary.s -o .obj/drivers/ramdisk/binary.o
 	@echo [LD] linking $@
 	@$(CC) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Wl,--cref,-Map=$(OUTDIR)/$(XBOOT).map $^ -o $@
 
@@ -170,20 +169,23 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
-.obj/drivers/ramdisk/binary.o:	.obj/ramdisk.cpio
-
-.obj/ramdisk.cpio:
-	@echo [CPIO] packing ramdisk.cpio
-	@cd ramdisk && { find . -not -name . | cpio -o -H newc --quiet > ../.obj/ramdisk.cpio; cd ..; }
-
 docs:
 	@echo no documents
  	
 clean:
 	@$(RM) $(OUTDIR) $(OBJDIRS)
 	@echo clean complete.
-
+		
 # 
 # include the dependency files, should be the last of the makefile
 #
-sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR); $(RM) .obj/init/version.o;) $(foreach dir, $(OBJDIRS), $(wildcard $(dir)/*.d))
+sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR)							\
+			&& $(RM) .obj/ramdisk										\
+			&& $(RM) .obj/init/version.o								\
+			&& $(RM) .obj/drivers/ramdisk/binary.o						\
+			&& $(CP) ramdisk .obj										\
+			&& $(CP) arch/$(ARCH)/$(MACH)/ramdisk .obj					\
+			&& $(CD) .obj/ramdisk										\
+			&& $(FIND) . -not -name . | $(CPIO) > ../ramdisk.cpio		\
+			&& $(CD) ../..)												\
+			$(foreach dir, $(OBJDIRS), $(wildcard $(dir)/*.d))

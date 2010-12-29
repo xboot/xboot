@@ -159,6 +159,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 .obj/%.o:	%.s
 	@echo [AS] $<
 	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) -c $< -o $@
+	@$(AS) $(MCFLAGS) $(ASFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
 .obj/%.o:	%.c
 	@echo [CC] $<

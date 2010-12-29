@@ -112,12 +112,6 @@ x_bool machine_register(struct machine * mach)
 	{
 		__machine = mach;
 
-		/*
-		 * set xboot's default running mode.
-		 */
-		if(__machine->cfg.mode)
-			xboot_set_mode(__machine->cfg.mode);
-
 		/* machine initialize */
 		if(__machine->pm.init)
 			__machine->pm.init();

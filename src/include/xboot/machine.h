@@ -32,23 +32,6 @@ struct machine {
 		const x_u64 xtal;
 	}res;
 
-	struct {
-		/* default running mode */
-		const enum mode mode;
-
-		/* stdin console name */
-		const char * stdin;
-
-		/* stdout console name */
-		const char * stdout;
-
-		/* system menu item */
-		struct menu_item * menu;
-
-		/* default environment variable */
-		struct env * env;
-	}cfg;
-
 	/* link information */
 	struct {
 		const x_sys text_start;

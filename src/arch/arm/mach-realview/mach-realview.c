@@ -115,41 +115,6 @@ static x_bool mach_menumode(void)
 }
 
 /*
- * system menu, must place NULL at the end.
- */
-static struct menu_item default_menu[] = {
-	{
-		.name		= "Shell Command Line",
-		.context	= "clear; version; exit -s;"
-	}, {
-		.name		= "Memory Test",
-		.context	= "memtest;"
-	}, {
-		.name		= NULL,
-		.context	= NULL
-	}
-};
-
-/*
- * default environment variable, must place NULL at the end.
- */
-static struct env default_env[] = {
-	{
-		.key	= "prompt",
-		.value	= "xboot"
-	}, {
-		.key	= "linux-machtype",
-		.value	= "827"
-	}, {
-		.key	= "linux-cmdline",
-		.value	= "console=tty0, console=ttySAC0"
-	}, {
-		.key	= NULL,
-		.value	= NULL
-	}
-};
-
-/*
  * a portable data interface for machine.
  */
 static struct machine realview = {
@@ -168,14 +133,6 @@ static struct machine realview = {
 		.mem_end			= 0x00000000 + SZ_128M - 1,
 
 		.xtal				= 12*1000*1000,
-	},
-
-	.cfg = {
-		.mode				= MODE_MENU,
-		.stdin				= "uart0",
-		.stdout				= "uart0",
-		.menu				= default_menu,
-		.env				= default_env,
 	},
 
 	.link = {

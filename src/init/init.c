@@ -119,7 +119,9 @@ void do_system_fonts(void)
 
 	LOG_I("load system fonts");
 
-	/* system fonts's directory path */
+	/*
+	 * system fonts's directory path
+	 */
 	sprintf((x_s8 *)path, (const x_s8 *)"%s", "/ramdisk/system/fonts");
 
 	if(stat(path, &st) != 0)
@@ -142,9 +144,11 @@ void do_system_fonts(void)
 
 		if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)"."))
 		{
+			continue;
 		}
 		else if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)".."))
 		{
+			continue;
 		}
 		else
 		{
@@ -153,7 +157,7 @@ void do_system_fonts(void)
 		}
 
 		if(stat((const char *)buf, &st) != 0)
-			break;
+			continue;
 
 		if(! install_font(buf))
 			LOG_E("fail to install font: %s", buf);
@@ -167,10 +171,18 @@ void do_system_fonts(void)
  */
 void do_system_wait(void)
 {
-	LOG_I("wait a moment, if necessary");
+	x_u32 div, rem;
 
 	if(get_system_hz() > 0)
 	{
+		div = jiffies / get_system_hz();
+		rem = jiffies % get_system_hz();
+
+		LOG_I("wait a moment, if necessary (%lu.%02lu)", div, rem);
+
+		/*
+		 * wait a moment for uptime until two seconds
+		 */
 		while(jiffies < get_system_hz() * 2);
 	}
 }

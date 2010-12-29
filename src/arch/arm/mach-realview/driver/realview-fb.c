@@ -112,7 +112,7 @@ static void fb_init(void)
 
 	/* framebuffer base address */
 	writel(REALVIEW_CLCD_UBAS, ((x_u32)info.bitmap.data));
-	writel(REALVIEW_CLCD_LBAS, ((x_u32)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8));
+	writel(REALVIEW_CLCD_LBAS, ((x_u32)info.bitmap.data + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
 
 	/* disable all lcd interrupts */
 	writel(REALVIEW_CLCD_IMSC, 0x0);

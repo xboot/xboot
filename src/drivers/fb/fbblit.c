@@ -465,59 +465,7 @@ void common_bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode
 	 */
 	if(mode == BLIT_MODE_REPLACE)
 	{
-		if(src->info.fmt == BITMAP_FORMAT_RGBA_8888)
-		{
-			switch(dst->info.fmt)
-			{
-			case BITMAP_FORMAT_RGBA_8888:
-				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
-				return;
-
-			case BITMAP_FORMAT_BGRA_8888:
-				bitmap_blit_replace_BGRA8888_RGBA8888(dst, src, x, y, w, h, ox, oy);
-				return;
-
-			case BITMAP_FORMAT_RGB_888:
-				bitmap_blit_replace_RGB888_RGBA8888(dst, src, x, y, w, h, ox, oy);
-				return;
-
-			case BITMAP_FORMAT_BGR_888:
-				bitmap_blit_replace_BGR888_RGBA8888(dst, src, x, y, w, h, ox, oy);
-				return;
-
-			default:
-				break;
-			}
-		}
-		else if(src->info.fmt == BITMAP_FORMAT_BGRA_8888)
-		{
-			switch(dst->info.fmt)
-			{
-			case BITMAP_FORMAT_BGRA_8888:
-				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
-				return;
-
-			default:
-				break;
-			}
-		}
-		else if(src->info.fmt == BITMAP_FORMAT_RGB_888)
-		{
-
-		}
-		else if(src->info.fmt == BITMAP_FORMAT_BGR_888)
-		{
-			switch(dst->info.fmt)
-			{
-			case BITMAP_FORMAT_BGR_888:
-				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
-				return;
-
-			default:
-				break;
-			}
-		}
-		else if(src->info.fmt == BITMAP_FORMAT_MONOCHROME)
+		if(src->info.fmt == BITMAP_FORMAT_MONOCHROME)
 		{
 			switch(dst->info.bpp)
 			{
@@ -541,6 +489,58 @@ void common_bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode
 				break;
 			}
 		}
+		else if(src->info.fmt == BITMAP_FORMAT_RGBA_8888)
+		{
+			switch(dst->info.fmt)
+			{
+			case BITMAP_FORMAT_RGBA_8888:
+				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case BITMAP_FORMAT_BGRA_8888:
+				bitmap_blit_replace_BGRA8888_RGBA8888(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case BITMAP_FORMAT_RGB_888:
+				bitmap_blit_replace_RGB888_RGBA8888(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			case BITMAP_FORMAT_BGR_888:
+				bitmap_blit_replace_BGR888_RGBA8888(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			default:
+				break;
+			}
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_RGB_888)
+		{
+
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_BGRA_8888)
+		{
+			switch(dst->info.fmt)
+			{
+			case BITMAP_FORMAT_BGRA_8888:
+				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			default:
+				break;
+			}
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_BGR_888)
+		{
+			switch(dst->info.fmt)
+			{
+			case BITMAP_FORMAT_BGR_888:
+				bitmap_blit_replace_directN(dst, src, x, y, w, h, ox, oy);
+				return;
+
+			default:
+				break;
+			}
+		}
 
 		bitmap_blit_replace_generic(dst, src, x, y, w, h, ox, oy);
 	}
@@ -550,7 +550,11 @@ void common_bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode
 	 */
 	else if(mode == BLIT_MODE_BLEND)
 	{
-		if(src->info.fmt == BITMAP_FORMAT_RGBA_8888)
+		if(src->info.fmt == BITMAP_FORMAT_MONOCHROME)
+		{
+
+		}
+		else if(src->info.fmt == BITMAP_FORMAT_RGBA_8888)
 		{
 
 		}
@@ -563,10 +567,6 @@ void common_bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode
 
 		}
 		else if(src->info.fmt == BITMAP_FORMAT_BGR_888)
-		{
-
-		}
-		else if(src->info.fmt == BITMAP_FORMAT_MONOCHROME)
 		{
 
 		}

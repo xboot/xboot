@@ -40,9 +40,9 @@
 #include <shell/shell.h>
 
 /*
- * running a command line
+ * run a command line
  */
-void run_cmdline(const x_s8 *cmdline)
+void run_cmdline(const x_s8 * cmdline)
 {
     struct command * cmd;
     x_s32 n;
@@ -121,7 +121,7 @@ void run_shell_mode(void)
 
 	do {
 		getcwd((char *)cwd, sizeof(cwd));
-		sprintf(prompt, (x_s8*)"%s: %s$ ", (x_s8*)env_get("prompt"), cwd);
+		sprintf(prompt, (x_s8*)"%s: %s$ ", (x_s8*)env_get("prompt", "xboot"), cwd);
 
 		p = readline((const x_s8*)prompt);
 		printk("\r\n");

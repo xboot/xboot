@@ -26,7 +26,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <vsprintf.h>
-#include <xml.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <time/delay.h>
@@ -34,13 +33,11 @@
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
-#include <xboot/machine.h>
 #include <console/console.h>
 #include <shell/env.h>
 #include <fs/fsapi.h>
 #include <fb/font.h>
 #include <init.h>
-
 
 /*
  * mount root filesystem and create some directory.
@@ -88,20 +85,24 @@ void do_system_rootfs(void)
  */
 void do_system_cfg(void)
 {
-	struct machine * mach = get_machine();
-
 	LOG_I("load system configure");
 
-	/* load environment variable file /etc/env.xml */
-	env_load("/etc/env.xml");
-
-	/* set stdin and stdout console */
-	if(mach)
+	/*
+	 * load the setting of stdin and stdout console
+	 */
+	if(! console_stdio_load("/etc/console.xml"))
 	{
-		if(mach->cfg.stdin && mach->cfg.stdout)
-		{
-			set_stdinout(mach->cfg.stdin, mach->cfg.stdout);
-		}
+		if(! console_stdio_load("/ramdisk/default/console.xml"))
+			LOG_E("can not setting the standard console");
+	}
+
+	/*
+	 * load environment variable
+	 */
+	if(! env_load("/etc/environment.xml"))
+	{
+		if(! env_load("/ramdisk/default/environment.xml"))
+			LOG_E("can not load environment variable");
 	}
 }
 

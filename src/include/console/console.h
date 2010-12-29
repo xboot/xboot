@@ -102,9 +102,11 @@ struct console * search_console(const char *name);
 x_bool register_console(struct console * console);
 x_bool unregister_console(struct console * console);
 
-struct console * get_stdin(void);
-struct console * get_stdout(void);
-x_bool set_stdinout(const char * in, const char * out);
+inline struct console * get_stdin(void);
+inline struct console * get_stdout(void);
+x_bool console_stdio_set(const char * in, const char * out);
+x_bool console_stdio_load(char * file);
+x_bool console_stdio_save(char * file);
 
 x_bool console_getwh(struct console * console, x_s32 * w, x_s32 * h);
 x_bool console_getxy(struct console * console, x_s32 * x, x_s32 * y);

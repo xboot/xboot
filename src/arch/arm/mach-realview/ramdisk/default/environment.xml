@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<environment>
+	<env>
+		<key>prompt</key>
+		<value>xboot</value>
+	</env>
+	<env>
+		<key>linux-machtype</key>
+		<value>827</value>
+	</env>
+	<env>
+		<key>linux-cmdline</key>
+		<value>console=tty0</value>
+	</env>
+</environment>

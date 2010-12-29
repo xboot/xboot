@@ -64,7 +64,7 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 		return -1;
 	}
 
-	linux_mach_type = simple_strtou32((x_s8*)env_get("linux-machtype"), NULL, 0);
+	linux_mach_type = simple_strtou32((x_s8*)env_get("linux-machtype", "0"), NULL, 0);
 	linux_kernel = simple_strtou32(argv[1], NULL, 0);
 	linux_tag_placement = simple_strtou32(argv[2], NULL, 0);
 
@@ -87,7 +87,7 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 	params = tag_next(params);
 
 	/* command line tags */
-	p = (x_s8*)env_get("linux-cmdline");
+	p = (x_s8*)env_get("linux-cmdline", NULL);
 	if(p && strlen(p))
 	{
 		params->hdr.tag = ATAG_CMDLINE;

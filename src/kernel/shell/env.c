@@ -27,7 +27,6 @@
 #include <malloc.h>
 #include <xml.h>
 #include <hash.h>
-#include <xboot/machine.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -38,25 +37,6 @@
  * the hash list of environment variable
  */
 struct hlist_head env_hash[CONFIG_ENV_HASH_SIZE];
-
-/*
- * default environment variable, must place NULL at the end.
- */
-static struct env default_envcfg[] = {
-	{
-		.key	= "prompt",
-		.value	= "xboot"
-	}, {
-		.key	= "linux-machtype",
-		.value	= "0"
-	}, {
-		.key	= "linux-cmdline",
-		.value	= "console=tty0"
-	}, {
-		.key	= NULL,
-		.value	= NULL
-	}
-};
 
 /*
  * find environment variable
@@ -82,7 +62,22 @@ static struct env_list * env_find(const char * key)
 }
 
 /*
- * add a environment variable. if it already existst, modify it.
+ * get a environment variable.
+ */
+char * env_get(const char * key, const char * value)
+{
+	struct env_list * list;
+
+	list = env_find(key);
+
+	if(list && list->env.value)
+		return list->env.value;
+
+	return (char *)value;
+}
+
+/*
+ * add a environment variable. if it already exist, modify it.
  */
 x_bool env_add(const char * key, const char * value)
 {
@@ -140,50 +135,6 @@ x_bool env_add(const char * key, const char * value)
 }
 
 /*
- * set a environment variable.
- */
-x_bool env_set(const char * key, const char * value)
-{
-	struct env_list * list;
-
-	list = env_find(key);
-	if(list)
-	{
-		if(strcmp((x_s8*)list->env.value, (x_s8*)value) == 0)
-			return TRUE;
-		else
-		{
-			free(list->env.value);
-			list->env.value = malloc(strlen((x_s8*)value) + 1);
-			if(!list->env.value)
-			{
-				list->env.value = NULL;
-				return FALSE;
-			}
-			strcpy((x_s8*)list->env.value, (x_s8*)value);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-/*
- * get a environment variable.
- */
-char * env_get(const char * key)
-{
-	struct env_list * list;
-
-	list = env_find(key);
-
-	if(list)
-		return list->env.value;
-
-	return NULL;
-}
-
-/*
  * remove a environment variable.
  */
 x_bool env_remove(const char * key)
@@ -208,59 +159,54 @@ x_bool env_remove(const char * key)
  */
 x_bool env_load(char * file)
 {
-	struct machine * mach = get_machine();
 	struct env_list * list;
-	struct env * env;
-	struct hlist_node * pos;
-	struct xml * root, * child;
+	struct hlist_node * pos, * n;
+	struct xml * root, * env;
+	struct xml * key, * value;
 	x_s32 i;
 
-	/* delete all env in hash list */
+	/*
+	 * check the xml file contained environment variable
+	 */
+	root = xml_parse_file(file);
+	if(!root || !root->name)
+		return FALSE;
+
+	if(strcmp((const x_s8 *)root->name, (const x_s8 *)"environment") != 0)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	/*
+	 * delete all of the environment variable
+	 */
 	for(i = 0; i < CONFIG_ENV_HASH_SIZE; i++)
 	{
-		hlist_for_each_entry(list,  pos, &(env_hash[i]), node)
+		hlist_for_each_entry_safe(list, pos, n, &(env_hash[i]), node)
 		{
+			hlist_del(&list->node);
+
 			free(list->env.key);
 			free(list->env.value);
-			hlist_del(&(list->node));
 			free(list);
 		}
 	}
 
-	/* parse xml config file and load env */
-	root = xml_parse_file(file);
-	if(root)
+	/*
+	 * add environment variable
+	 */
+	for(env = xml_child(root, "env"); env; env = env->next)
 	{
-	    for(child = xml_child(root, "env"); child; child = child->next)
-	    {
-	    	env_add(xml_child(child, "key")->txt, xml_child(child, "value")->txt);
-	    }
+		key = xml_child(env, "key");
+		value = xml_child(env, "value");
 
-	    xml_free(root);
+		if(key && value)
+			env_add(key->txt, value->txt);
 	}
 
-	/* load machine's configure */
-	if(mach && mach->cfg.env)
-	{
-		env = mach->cfg.env;
-		while(env->key)
-		{
-			if(!env_get(env->key))
-				env_add(env->key, env->value);
-			env++;
-		}
-	}
-
-	/* load system default configure */
-	env = default_envcfg;
-	while(env->key)
-	{
-		if(!env_get(env->key))
-			env_add(env->key, env->value);
-		env++;
-	}
-
-    return TRUE;
+	xml_free(root);
+	return TRUE;
 }
 
 /*
@@ -271,12 +217,14 @@ x_bool env_save(char * file)
 	struct env_list * list;
 	struct hlist_node * pos;
 	struct xml * root, * env;
-	struct xml * node;
+	struct xml * key, * value;
 	x_s32 fd;
 	char * str;
 	x_s32 i;
 
-	root = xml_new("environment variable");
+	root = xml_new("environment");
+	if(!root)
+		return FALSE;
 
 	for(i = 0; i < CONFIG_ENV_HASH_SIZE; i++)
 	{
@@ -284,18 +232,28 @@ x_bool env_save(char * file)
 		{
 			env = xml_add_child(root, "env", 0);
 
-			node = xml_add_child(env, "key", 0);
-			xml_set_txt(node, list->env.key);
-			node = xml_add_child(env, "value", 1);
-			xml_set_txt(node, list->env.value);
+			key = xml_add_child(env, "key", 0);
+			xml_set_txt(key, list->env.key);
+
+			value = xml_add_child(env, "value", 1);
+			xml_set_txt(value, list->env.value);
 		}
 	}
 
 	str = xml_toxml(root);
+	if(!str)
+	{
+		xml_free(root);
+		return FALSE;
+	}
 
 	fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
 	if(fd < 0)
+	{
+		free(str);
+		xml_free(root);
 		return FALSE;
+	}
 
 	write(fd, str, strlen((const x_s8 *)str));
 	close(fd);

@@ -25,10 +25,11 @@ struct env_list
 	struct hlist_node node;
 };
 
+
+char * env_get(const char * key, const char * value);
 x_bool env_add(const char * key, const char * value);
-x_bool env_set(const char * key, const char * value);
-char * env_get(const char * key);
 x_bool env_remove(const char * key);
+
 x_bool env_load(char * file);
 x_bool env_save(char * file);
 

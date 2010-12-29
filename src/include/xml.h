@@ -55,13 +55,13 @@ struct xml {
 	xml_set_flag(xml_add_child(xml, strdup(name), off), XML_NAME_MALLOC)
 
 /*
- * wrapper for ezxml_set_txt() that strdup()s txt
+ * wrapper for xml_set_txt() that strdup()s txt
  */
 #define xml_set_txt_d(xml, txt)				\
 	xml_set_flag(xml_set_txt(xml, strdup(txt)), XML_TXT_MALLOC)
 
 /*
- * wrapper for ezxml_set_attr() that strdup()s name/value. Value cannot be NULL
+ * wrapper for xml_set_attr() that strdup()s name/value. Value cannot be NULL
  */
 #define xml_set_attr_d(xml, name, value)	\
 	xml_set_attr(xml_set_flag(xml, XML_DUP), strdup(name), strdup(value))
@@ -136,7 +136,7 @@ struct xml * xml_set_attr(struct xml * xml, const char * name, const char * valu
 struct xml * xml_add_child(struct xml * xml, const char * name, x_size off);
 
 /*
- * inserts an existing tag into an ezxml structure
+ * inserts an existing tag into an xml structure
  */
 struct xml * xml_insert(struct xml * xml, struct xml * dest, x_size off);
 
@@ -175,7 +175,7 @@ struct xml * xml_parse_str(char *s, x_size len);
 char * xml_toxml(struct xml * xml);
 
 /*
- * a wrapper for ezxml_parse_fd that accepts a file name
+ * a wrapper for xml_parse_fd that accepts a file name
  */
 struct xml * xml_parse_file(const char * name);
 

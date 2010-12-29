@@ -25,12 +25,14 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
+#include <xml.h>
 #include <hash.h>
 #include <vsprintf.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/proc.h>
+#include <fs/fsapi.h>
 #include <console/console.h>
 
 static struct console * console_stdin = NULL;
@@ -120,17 +122,17 @@ x_bool unregister_console(struct console * console)
 	return FALSE;
 }
 
-struct console * get_stdin(void)
+inline struct console * get_stdin(void)
 {
 	return console_stdin;
 }
 
-struct console * get_stdout(void)
+inline struct console * get_stdout(void)
 {
 	return console_stdout;
 }
 
-x_bool set_stdinout(const char * in, const char * out)
+x_bool console_stdio_set(const char * in, const char * out)
 {
 	struct console * stdin, * stdout;
 
@@ -147,6 +149,99 @@ x_bool set_stdinout(const char * in, const char * out)
 
 	console_stdin = stdin;
 	console_stdout = stdout;
+
+	return TRUE;
+}
+
+x_bool console_stdio_load(char * file)
+{
+	struct xml * root, * stdin, * stdout;
+
+	root = xml_parse_file(file);
+	if(!root || !root->name)
+		return FALSE;
+
+	if(strcmp((const x_s8 *)root->name, (const x_s8 *)"console") != 0)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	stdin = xml_get(root, "stdin", 0, -1);
+	if(! stdin)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	stdout = xml_get(root, "stdout", 0, -1);
+	if(! stdout)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	if(! console_stdio_set(xml_attr(stdin, "name"), xml_attr(stdout, "name")))
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	xml_free(root);
+	return TRUE;
+}
+
+x_bool console_stdio_save(char * file)
+{
+	struct xml * root;
+	struct xml * stdin, * stdout;
+	char * str;
+	x_s32 fd;
+
+	root = xml_new("console");
+	if(!root)
+		return FALSE;
+
+	stdin = xml_add_child(root, "stdin", 0);
+	if(!stdin)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	if(get_stdin() && get_stdin()->name)
+		xml_set_attr(stdin, "name", get_stdin()->name);
+
+	stdout = xml_add_child(root, "stdout", 1);
+	if(!stdout)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	if(get_stdout() && get_stdout()->name)
+		xml_set_attr(stdout, "name", get_stdout()->name);
+
+	str = xml_toxml(root);
+	if(!str)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(fd < 0)
+	{
+		free(str);
+		xml_free(root);
+		return FALSE;
+	}
+
+	write(fd, str, strlen((const x_s8 *)str));
+	close(fd);
+
+	free(str);
+	xml_free(root);
 
 	return TRUE;
 }

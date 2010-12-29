@@ -160,7 +160,7 @@ x_bool parser(const x_s8 *cmdline, x_s32 *argc, x_s8 ***argv, x_s8 **pos)
 			if(is_varstate (state) && !is_varstate (newstate))
 			{
 			    *(vp++) = '\0';
-			    val = (x_s8*)env_get((const char *)varname);
+			    val = (x_s8*)env_get((const char *)varname, NULL);
 			    vp = varname;
 			    if(val)
 			    {
@@ -210,7 +210,7 @@ x_bool parser(const x_s8 *cmdline, x_s32 *argc, x_s8 ***argv, x_s8 **pos)
 	if(is_varstate(state) && !is_varstate (PARSER_STATE_TEXT))
 	{
 	    *(vp++) = '\0';
-	    val = (x_s8*)env_get((const char *)varname);
+	    val = (x_s8*)env_get((const char *)varname, NULL);
 	    vp = varname;
 	    if(val)
 	    {

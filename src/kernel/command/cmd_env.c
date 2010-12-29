@@ -56,6 +56,9 @@ static void print_env(void)
 		}
 	}
 
+	if(env_list_num <= 0)
+		return;
+
 	env_list_array = malloc(sizeof(struct env_list *) * env_list_num);
 	if(!env_list_array)
 	{
@@ -120,25 +123,18 @@ static x_s32 env(x_s32 argc, const x_s8 **argv)
 			else
 				usage();
 		}
-		else if(strcmp(argv[1], (x_s8*)"-d") == 0)
+		else if(strcmp(argv[1], (x_s8*)"-r") == 0)
 		{
 			for(i=2; i<argc; ++i)
 				env_remove((char *)argv[i]);
-		}
-		else if(strcmp(argv[1], (x_s8*)"-m") == 0)
-		{
-			if(argc==4)
-				env_set((char *)argv[2], (char *)argv[3]);
-			else
-				usage();
 		}
 		else if(strcmp(argv[1], (x_s8*)"-s") == 0)
 		{
 			if(argc==2)
 			{
-				if(env_save("/etc/env.xml"))
+				if(env_save("/etc/environment.xml"))
 				{
-					printk("save environment variable successed.\r\n");
+					printk("save environment variable successes.\r\n");
 					return 0;
 				}
 				else
@@ -154,7 +150,7 @@ static x_s32 env(x_s32 argc, const x_s8 **argv)
 		{
 			for(i=1; i<argc; ++i)
 			{
-				p = (x_s8*)env_get((char *)argv[i]);
+				p = (x_s8*)env_get((char *)argv[i], NULL);
 				if(p)
 					printk(" %s=%s\r\n",argv[i], p);
 				else
@@ -170,12 +166,11 @@ static struct command env_cmd = {
 	.name		= "env",
 	.func		= env,
 	.desc		= "display environment variable\r\n",
-	.usage		= "env [-s] [<-a|-d|-m> NAME VALUE]\r\n",
+	.usage		= "env [-s] [<-a|-r> NAME VALUE]\r\n",
 	.help		= "    no arguments for list of all variable. for specific variable "
 				  "you can type 'env' with one or more variable as arguments.\r\n"
 				  "    -a    append variable to the environment\r\n"
-				  "    -d    remove variable from the environment\r\n"
-				  "    -m    modify variable in the environment\r\n"
+				  "    -r    remove variable from the environment\r\n"
 				  "    -s    save environment variable\r\n"
 };
 

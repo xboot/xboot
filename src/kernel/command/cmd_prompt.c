@@ -43,7 +43,7 @@ static x_s32 prompt(x_s32 argc, const x_s8 **argv)
 	switch(argc)
 	{
 	case 1:
-		printk(" the current prompt is \"%s\"\r\n", env_get("prompt"));
+		printk(" the current prompt is \"%s\"\r\n", env_get("prompt", "xboot"));
 		break;
 
 	case 2:
@@ -53,8 +53,8 @@ static x_s32 prompt(x_s32 argc, const x_s8 **argv)
 			break;
 		}
 
-		env_set("prompt", (char*)argv[1]);
-		printk(" shell prompt changed to \"%s\".\r\n", env_get("prompt"));
+		env_add("prompt", (char*)argv[1]);
+		printk(" shell prompt changed to \"%s\".\r\n", env_get("prompt", "xboot"));
 		break;
 
 	default:

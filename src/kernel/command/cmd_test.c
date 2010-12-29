@@ -55,7 +55,9 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
-#if 1
+//	console_stdio_save("/etc/console.xml");
+
+#if 0
 
 	struct tui_workspace * ws;
 	struct tui_button * btn1, * btn2, * btn3;

@@ -419,24 +419,34 @@ static void bitmap_blit_replace_BGR888_RGBA8888(struct bitmap * dst, struct bitm
  */
 static void bitmap_blit_replace_RGBA8888_RGB888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
 {
-	x_u8 * ps;
-	x_u32 * pd;
+	x_u8 * ps, * pd;
+	x_u32 sskip, dskip;
 	x_u32 i, j;
 	x_u8 r, g, b;
 
+	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
+	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
+
+	ps = (x_u8 *)bitmap_get_pointer(src, ox, oy);
+	pd = (x_u8 *)bitmap_get_pointer(dst, x, y);
+
 	for(j = 0; j < h; j++)
 	{
-		ps = (x_u8 *)bitmap_get_pointer(src, ox, j + oy);
-		pd = (x_u32 *)bitmap_get_pointer(dst, x, y + j);
-
 		for(i = 0; i < w; i++)
 		{
 			r = *ps++;
 			g = *ps++;
 			b = *ps++;
 
-			*pd++ = 0xff000000 | (b << 16) | (g << 8) | r;
+			*pd++ = r;
+			*pd++ = g;
+			*pd++ = b;
+
+			*pd++ = 255;
 		}
+
+		ps += sskip;
+		pd += dskip;
 	}
 }
 

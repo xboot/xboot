@@ -59,7 +59,7 @@ x_bool xboot_set_mode(enum mode m)
 /*
  * get xboot's running mode.
  */
-enum mode xboot_get_mode(void)
+inline enum mode xboot_get_mode(void)
 {
 	return xboot_mode;
 }

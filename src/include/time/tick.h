@@ -20,7 +20,7 @@ struct tick {
 
 void tick_interrupt(void);
 x_bool register_tick(struct tick * tick);
-x_u32 get_system_hz(void);
+inline x_u32 get_system_hz(void);
 x_bool init_system_tick(void);
 
 #endif /* __TICK_H__ */

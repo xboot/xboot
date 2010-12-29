@@ -15,6 +15,6 @@ enum mode {
 };
 
 x_bool xboot_set_mode(enum mode m);
-enum mode xboot_get_mode(void);
+inline enum mode xboot_get_mode(void);
 
 #endif /* __MODE_H__ */

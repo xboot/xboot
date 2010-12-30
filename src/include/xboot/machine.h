@@ -3,7 +3,7 @@
 
 #include <configs.h>
 #include <default.h>
-#include <mode.h>
+#include <mode/mode.h>
 #include <shell/env.h>
 #include <shell/menu.h>
 

@@ -23,10 +23,10 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <mode.h>
 #include <ctype.h>
 #include <string.h>
 #include <charset.h>
+#include <mode/mode.h>
 #include <xboot/list.h>
 #include <xboot/scank.h>
 #include <xboot/printk.h>

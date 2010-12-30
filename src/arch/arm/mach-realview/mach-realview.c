@@ -24,10 +24,10 @@
 #include <default.h>
 #include <types.h>
 #include <macros.h>
-#include <mode.h>
 #include <io.h>
 #include <shell/env.h>
 #include <shell/menu.h>
+#include <mode/mode.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>

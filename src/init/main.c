@@ -24,7 +24,7 @@
 #include <default.h>
 #include <xboot.h>
 #include <init.h>
-#include <mode.h>
+#include <mode/mode.h>
 #include <shell/shell.h>
 #include <shell/menu.h>
 #include <time/xtime.h>

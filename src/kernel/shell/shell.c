@@ -24,11 +24,11 @@
 #include <default.h>
 #include <types.h>
 #include <ctype.h>
-#include <mode.h>
 #include <string.h>
 #include <malloc.h>
 #include <version.h>
 #include <vsprintf.h>
+#include <mode/mode.h>
 #include <xboot/printk.h>
 #include <xboot/list.h>
 #include <time/timer.h>

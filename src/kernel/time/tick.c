@@ -28,7 +28,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <vsprintf.h>
-#include <mode.h>
+#include <mode/mode.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/proc.h>

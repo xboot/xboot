@@ -76,9 +76,10 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				arch/$(ARCH)/$(MACH)			\
 				arch/$(ARCH)/$(MACH)/driver		\
 				arch/$(ARCH)/$(MACH)/resource	\
-				init							\
 				lib								\
 				lib/libc						\
+				init							\
+				init/mode						\
 				kernel							\
 				kernel/core						\
 				kernel/shell					\

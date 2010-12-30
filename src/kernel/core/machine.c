@@ -28,7 +28,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <vsprintf.h>
-#include <mode.h>
+#include <mode/mode.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <xboot/log.h>

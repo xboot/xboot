@@ -6,12 +6,13 @@
 #include <xboot.h>
 
 /*
- * the system running mode type.
+ * the type of system running mode.
  */
 enum mode {
-	MODE_NORMAL,
-	MODE_MENU,
-	MODE_SHELL,
+	MODE_NORMAL		= 0,
+	MODE_SHELL		= 1,
+	MODE_MENU		= 2,
+	MODE_GRAPHIC	= 3,
 };
 
 x_bool xboot_set_mode(enum mode m);

@@ -23,7 +23,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <mode.h>
+#include <mode/mode.h>
 
 /*
  * xboot running mode.
@@ -41,12 +41,16 @@ x_bool xboot_set_mode(enum mode m)
 		xboot_mode = MODE_NORMAL;
 		break;
 
+	case MODE_SHELL:
+		xboot_mode = MODE_SHELL;
+		break;
+
 	case MODE_MENU:
 		xboot_mode = MODE_MENU;
 		break;
 
-	case MODE_SHELL:
-		xboot_mode = MODE_SHELL;
+	case MODE_GRAPHIC:
+		xboot_mode = MODE_GRAPHIC;
 		break;
 
 	default:

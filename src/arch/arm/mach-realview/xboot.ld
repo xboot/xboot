@@ -142,7 +142,7 @@ SECTIONS
 		. += STACK_SRV_SIZE;
 		PROVIDE (__stack_srv_end = .);
 		. = ALIGN(8);
-		PROVIDE (__stack_end = .);		
+		PROVIDE (__stack_end = .);
 	} > ram
 
 	/*
@@ -159,5 +159,5 @@ SECTIONS
 	.debug_info 0 : { *(.debug_info) }
 	.debug_line 0 : { *(.debug_line) }
 	.debug_pubnames 0 : { *(.debug_pubnames) }
-	.debug_aranges 0 : { *(.debug_aranges) }	
+	.debug_aranges 0 : { *(.debug_aranges) }
 }

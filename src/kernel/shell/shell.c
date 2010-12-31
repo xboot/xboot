@@ -40,7 +40,7 @@
 #include <shell/shell.h>
 
 /*
- * run a command line
+ * running the command line
  */
 void run_cmdline(const x_s8 * cmdline)
 {
@@ -72,7 +72,9 @@ void run_cmdline(const x_s8 * cmdline)
     				ret = cmd->func(n, (const x_s8 **)args);
     				if(ret != 0)
     				{
-    					/* if having other command which waitting be exec, abort. */
+    					/*
+    					 * if having other command which waitting be exec, abort.
+    					 */
     			    	if(pos)
     			    	{
     			    		printk(" when exec \'%s\' command return an error code (%ld).\r\n", args[0], ret);
@@ -87,7 +89,9 @@ void run_cmdline(const x_s8 * cmdline)
     				printk(" could not found \'%s\' command \r\n", args[0]);
     				printk(" if you want to kown available commands, type 'help'.\r\n");
 
-					/* if having other command which waitting be exec, abort. */
+					/*
+					 * if having other command which waitting be exec, abort.
+					 */
 			    	if(pos)
 			    	{
 			    		free(args[0]);
@@ -108,25 +112,4 @@ void run_cmdline(const x_s8 * cmdline)
     }
 
     free(buf);
-}
-
-/*
- * running the shell mode
- */
-void run_shell_mode(void)
-{
-	x_s8 * p;
-	x_s8 cwd[256];
-	x_s8 prompt[256];
-
-	do {
-		getcwd((char *)cwd, sizeof(cwd));
-		sprintf(prompt, (x_s8*)"%s: %s$ ", (x_s8*)env_get("prompt", "xboot"), cwd);
-
-		p = readline((const x_s8*)prompt);
-		printk("\r\n");
-
-		run_cmdline(p);
-		free(p);
-	} while(xboot_get_mode() == MODE_SHELL);
 }

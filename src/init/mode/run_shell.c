@@ -1,5 +1,5 @@
 /*
- * init/mode/mode.c
+ * int/mode/run_shell.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,50 +20,38 @@
  *
  */
 
+
 #include <configs.h>
 #include <default.h>
-#include <types.h>
+#include <vsprintf.h>
+#include <malloc.h>
+#include <xboot/printk.h>
+#include <fs/fsapi.h>
+#include <console/console.h>
+#include <shell/shell.h>
+#include <shell/env.h>
+#include <shell/readline.h>
 #include <mode/mode.h>
 
 /*
- * xboot running mode.
+ * running the shell mode
  */
-static enum mode xboot_mode = MODE_NORMAL;
-
-/*
- * get xboot's running mode.
- */
-inline enum mode xboot_get_mode(void)
+void run_shell_mode(void)
 {
-	return xboot_mode;
-}
+	x_s8 * p;
+	x_s8 cwd[256];
+	x_s8 prompt[256];
 
-/*
- * set xboot's running mode.
- */
-x_bool xboot_set_mode(enum mode m)
-{
-	switch(m)
-	{
-	case MODE_NORMAL:
-		xboot_mode = MODE_NORMAL;
-		break;
+	console_cls(get_stdout());
 
-	case MODE_SHELL:
-		xboot_mode = MODE_SHELL;
-		break;
+	do {
+		getcwd((char *)cwd, sizeof(cwd));
+		sprintf(prompt, (x_s8 *)"%s: %s$ ", (x_s8 *)env_get("prompt", "xboot"), cwd);
 
-	case MODE_MENU:
-		xboot_mode = MODE_MENU;
-		break;
+		p = readline((const x_s8 *)prompt);
+		printk("\r\n");
 
-	case MODE_GRAPHIC:
-		xboot_mode = MODE_GRAPHIC;
-		break;
-
-	default:
-		return FALSE;
-	}
-
-	return TRUE;
+		run_cmdline(p);
+		free(p);
+	} while(xboot_get_mode() == MODE_SHELL);
 }

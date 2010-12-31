@@ -25,8 +25,6 @@
 #include <xboot.h>
 #include <init.h>
 #include <mode/mode.h>
-#include <shell/shell.h>
-#include <shell/menu.h>
 #include <time/xtime.h>
 #include <xboot/log.h>
 #include <xboot/machine.h>
@@ -62,35 +60,15 @@ int xboot_main(int argc, char *argv[])
 	while(1)
 	{
 		/*
-		 * normal mode for booting first menu item's context
-		 * and no wait, for the product of final user.
+		 * normal mode
 		 */
 		if(xboot_get_mode() == MODE_NORMAL)
 		{
-			//run_normal_mode();
-			//TODO
-			run_shell_mode();
+			run_normal_mode();
 		}
 
 		/*
-		 * menu mode display a menu for choosing, it can
-		 * be used to recovery system, testing, and others,
-		 * depend your menu's configure. usually, serviceman
-		 * using this mode for repairing or updating machine.
-		 */
-		else if(xboot_get_mode() == MODE_MENU)
-		{
-			//run_menu_mode();
-			//TODO
-			run_shell_mode();
-		}
-
-		/*
-		 * shell mode is very powerful. usually, it be used
-		 * to debugging machine by engineer, so, with this
-		 * mode, you must be careful and familiar with shell
-		 * commands. ofcourse, if your are an engineer, just
-		 * do what you want to do.
+		 * shell mode
 		 */
 		else if(xboot_get_mode() == MODE_SHELL)
 		{
@@ -98,14 +76,30 @@ int xboot_main(int argc, char *argv[])
 		}
 
 		/*
-		 * other mode is not supported and system panic.
+		 * memu mode
+		 */
+		else if(xboot_get_mode() == MODE_MENU)
+		{
+			run_menu_mode();
+		}
+
+		/*
+		 * graphic mode
+		 */
+		else if(xboot_get_mode() == MODE_GRAPHIC)
+		{
+			run_graphic_mode();
+		}
+
+		/*
+		 * not support other mode and system panic.
 		 */
 		else
 		{
 			/*
 			 * system panic.
 			 */
-			panic("do not support this mode(%ld), system panic", xboot_get_mode());
+			panic("do not support the mode(%ld), system panic", xboot_get_mode());
 		}
 	}
 

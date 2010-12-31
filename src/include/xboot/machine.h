@@ -4,8 +4,6 @@
 #include <configs.h>
 #include <default.h>
 #include <mode/mode.h>
-#include <shell/env.h>
-#include <shell/menu.h>
 
 /*
  * defined the struct of machine, which contains

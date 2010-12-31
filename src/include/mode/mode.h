@@ -9,13 +9,18 @@
  * the type of system running mode.
  */
 enum mode {
-	MODE_NORMAL		= 0,
-	MODE_SHELL		= 1,
-	MODE_MENU		= 2,
-	MODE_GRAPHIC	= 3,
+	MODE_NORMAL			= 0,
+	MODE_SHELL			= 1,
+	MODE_MENU			= 2,
+	MODE_GRAPHIC		= 3,
 };
 
-x_bool xboot_set_mode(enum mode m);
 inline enum mode xboot_get_mode(void);
+x_bool xboot_set_mode(enum mode m);
+
+void run_normal_mode(void);
+void run_shell_mode(void);
+void run_menu_mode(void);
+void run_graphic_mode(void);
 
 #endif /* __MODE_H__ */

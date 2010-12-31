@@ -28,7 +28,7 @@
 #include <xboot/printk.h>
 #include <fs/fsapi.h>
 #include <console/console.h>
-#include <shell/shell.h>
+#include <shell/exec.h>
 #include <shell/env.h>
 #include <shell/readline.h>
 #include <mode/mode.h>
@@ -51,7 +51,7 @@ void run_shell_mode(void)
 		p = readline((const x_s8 *)prompt);
 		printk("\r\n");
 
-		run_cmdline(p);
+		exec_cmdline(p);
 		free(p);
 	} while(xboot_get_mode() == MODE_SHELL);
 }

@@ -1,5 +1,5 @@
-#ifndef __SHELL_H__
-#define __SHELL_H__
+#ifndef __EXEC_H__
+#define __EXEC_H__
 
 #include <configs.h>
 #include <default.h>
@@ -8,6 +8,6 @@
 #include <malloc.h>
 
 
-void run_cmdline(const x_s8 * cmdline);
+void exec_cmdline(const x_s8 * cmdline);
 
-#endif /* __SHELL_H__ */
+#endif /* __EXEC_H__ */

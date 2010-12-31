@@ -1,5 +1,5 @@
 /*
- * kernel/shell/shell.c
+ * kernel/shell/exec.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -37,12 +37,12 @@
 #include <shell/env.h>
 #include <shell/parser.h>
 #include <fs/fsapi.h>
-#include <shell/shell.h>
+#include <shell/exec.h>
 
 /*
- * running the command line
+ * exec the command line
  */
-void run_cmdline(const x_s8 * cmdline)
+void exec_cmdline(const x_s8 * cmdline)
 {
     struct command * cmd;
     x_s32 n;

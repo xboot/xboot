@@ -32,7 +32,7 @@
 #include <xboot/initcall.h>
 #include <mtd/nand/nfc.h>
 #include <mtd/nand/nand.h>
-#include <shell/command.h>
+#include <command/command.h>
 #include <fs/fsapi.h>
 
 #if	defined(CONFIG_COMMAND_NAND) && (CONFIG_COMMAND_NAND > 0)

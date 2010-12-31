@@ -31,7 +31,7 @@
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_REBOOT) && (CONFIG_COMMAND_REBOOT > 0)

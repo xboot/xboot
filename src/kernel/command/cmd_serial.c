@@ -35,7 +35,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <serial/serial.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 #if	defined(CONFIG_COMMAND_SERIAL) && (CONFIG_COMMAND_SERIAL > 0)
 

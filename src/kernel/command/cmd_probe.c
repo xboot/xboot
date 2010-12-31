@@ -34,7 +34,7 @@
 #include <mtd/nand/nand.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_PROBE) && (CONFIG_COMMAND_PROBE > 0)

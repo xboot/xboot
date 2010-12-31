@@ -30,7 +30,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <fs/fsapi.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_SYNC) && (CONFIG_COMMAND_SYNC > 0)

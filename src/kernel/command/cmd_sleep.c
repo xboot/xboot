@@ -32,7 +32,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_SLEEP) && (CONFIG_COMMAND_SLEEP > 0)

@@ -28,16 +28,14 @@
 #include <malloc.h>
 #include <version.h>
 #include <vsprintf.h>
-#include <mode/mode.h>
 #include <xboot/printk.h>
 #include <xboot/list.h>
-#include <time/timer.h>
-#include <shell/command.h>
+#include <fs/fsapi.h>
 #include <shell/readline.h>
 #include <shell/env.h>
 #include <shell/parser.h>
-#include <fs/fsapi.h>
 #include <shell/exec.h>
+#include <command/command.h>
 
 /*
  * exec the command line

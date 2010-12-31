@@ -30,7 +30,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <console/console.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_CLEAR) && (CONFIG_COMMAND_CLEAR > 0)

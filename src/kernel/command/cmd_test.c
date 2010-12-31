@@ -29,7 +29,7 @@
 #include <xboot/resource.h>
 #include <xboot/chrdev.h>
 #include <shell/env.h>
-#include <shell/command.h>
+#include <command/command.h>
 #include <fb/fb.h>
 #include <loop/loop.h>
 #include <fb/graphic.h>

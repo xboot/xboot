@@ -32,7 +32,7 @@
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
 #include <shell/ctrlc.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_MEMTEST) && (CONFIG_COMMAND_MEMTEST > 0)

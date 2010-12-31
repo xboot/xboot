@@ -31,7 +31,7 @@
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_MW) && (CONFIG_COMMAND_MW > 0)

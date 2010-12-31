@@ -35,8 +35,7 @@
 #include <xboot/scank.h>
 #include <xboot/initcall.h>
 #include <console/console.h>
-#include <shell/readline.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_TETRIS) && (CONFIG_COMMAND_TETRIS > 0)

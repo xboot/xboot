@@ -31,7 +31,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/ctrlc.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 #if	defined(CONFIG_COMMAND_MC) && (CONFIG_COMMAND_MC > 0)
 

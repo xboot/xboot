@@ -27,12 +27,12 @@
 #include <malloc.h>
 #include <vsprintf.h>
 #include <io.h>
+#include <fs/fsapi.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <shell/command.h>
-#include <fs/fsapi.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_DASM) && (CONFIG_COMMAND_DASM > 0)

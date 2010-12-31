@@ -27,7 +27,7 @@
 #include <malloc.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 /* the list of command */
 static struct command_list __command_list = {

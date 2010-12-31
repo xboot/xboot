@@ -30,7 +30,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/env.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_ENV) && (CONFIG_COMMAND_ENV > 0)

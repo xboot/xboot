@@ -1,7 +1,6 @@
 #ifndef __COMMAND_H__
 #define __COMMAND_H__
 
-
 #include <configs.h>
 #include <default.h>
 #include <types.h>
@@ -17,7 +16,7 @@ struct command
 	const char * name;
 
 	/* the command function */
-	x_s32 (*func) (x_s32 argc, const x_s8 **argv);
+	x_s32 (*func)(x_s32 argc, const x_s8 ** argv);
 
 	/* the command description */
 	const char * desc;
@@ -41,8 +40,7 @@ struct command_list
 
 x_bool command_register(struct command * cmd);
 x_bool command_unregister(struct command * cmd);
-struct command * command_search(const char *name);
+struct command * command_search(const char * name);
 x_s32 command_number(void);
-
 
 #endif /* __COMMAND_H__ */

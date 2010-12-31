@@ -26,12 +26,12 @@
 #include <ctype.h>
 #include <string.h>
 #include <malloc.h>
+#include <fs/fsapi.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <shell/command.h>
-#include <fs/fsapi.h>
+#include <command/command.h>
 
 #if	defined(CONFIG_COMMAND_CAT) && (CONFIG_COMMAND_CAT > 0)
 

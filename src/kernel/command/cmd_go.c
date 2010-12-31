@@ -30,7 +30,7 @@
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <shell/command.h>
+#include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_GO) && (CONFIG_COMMAND_GO > 0)

@@ -32,6 +32,7 @@
 #include <time/xtime.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
+#include <xboot/menu.h>
 #include <xboot/printk.h>
 #include <console/console.h>
 #include <shell/env.h>
@@ -103,6 +104,15 @@ void do_system_cfg(void)
 	{
 		if(! env_load("/ramdisk/default/environment.xml"))
 			LOG_E("can not load environment variable");
+	}
+
+	/*
+	 * load menu context
+	 */
+	if(! menu_load("/etc/menu.xml"))
+	{
+		if(! menu_load("/ramdisk/default/menu.xml"))
+			LOG_E("can not load menu context");
 	}
 }
 

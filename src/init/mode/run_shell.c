@@ -42,6 +42,9 @@ void run_shell_mode(void)
 	x_s8 cwd[256];
 	x_s8 prompt[256];
 
+	/*
+	 * clear the screen
+	 */
 	console_cls(get_stdout());
 
 	do {

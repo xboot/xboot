@@ -23,6 +23,8 @@
 
 #include <configs.h>
 #include <default.h>
+#include <xboot/menu.h>
+#include <shell/exec.h>
 #include <mode/mode.h>
 
 /*
@@ -30,8 +32,25 @@
  */
 void run_normal_mode(void)
 {
+	struct menu_item * item;
+
 	do {
+		/*
+		 * set to shell mode
+		 */
 		xboot_set_mode(MODE_SHELL);
 
+		/*
+		 * get the first menu item
+		 */
+		item = get_menu_indexof_item(0);
+
+		/*
+		 * check the item and exec command
+		 */
+		if(item && item->title && item->command)
+		{
+			exec_cmdline((const x_s8 *)item->command);
+		}
 	} while(xboot_get_mode() == MODE_NORMAL);
 }

@@ -29,6 +29,7 @@
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
+#include <console/console.h>
 #include <command/command.h>
 
 
@@ -36,7 +37,7 @@
 
 static x_s32 version(x_s32 argc, const x_s8 **argv)
 {
-	xboot_banner();
+	xboot_banner(get_stdout());
 
 	return 0;
 }

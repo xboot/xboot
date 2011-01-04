@@ -24,6 +24,7 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
+#include <charset.h>
 #include <malloc.h>
 #include <xml.h>
 #include <hash.h>
@@ -314,6 +315,33 @@ x_bool console_putcode(struct console * console, x_u32 code)
 	if(console && console->putcode)
 		return console->putcode(console, code);
 	return FALSE;
+}
+
+x_s32 console_print(struct console * console, const char * fmt, ...)
+{
+	va_list args;
+	x_u32 code;
+	x_s32 i;
+	x_s8 *p, *buf;
+
+	if(!console || !console->putcode)
+		return 0;
+
+	buf = malloc(SZ_4K);
+	if(!buf)
+		return 0;
+
+	va_start(args, fmt);
+	i = vsnprintf((x_s8 *)buf, SZ_4K, (x_s8 *)fmt, args);
+	va_end(args);
+
+	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const x_s8 **)&p) > 0; )
+	{
+		console->putcode(console, code);
+	}
+
+	free(buf);
+	return i;
 }
 
 x_bool console_hline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 x)

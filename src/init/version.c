@@ -33,9 +33,9 @@
 /*
  * print xboot banner
  */
-void xboot_banner(void)
+void xboot_banner(struct console * console)
 {
-	printk("xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
+	console_print(console, "xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
 }
 
 /* xboot's character logo.
@@ -55,15 +55,18 @@ static const char xboot[6][64] = {	"        _\r\n",
 									" /_/\\_\\|_____|_____|_____| |________________|\r\n" };
 
 /*
- * display xboot's character logo.
+ * print xboot's character logo.
  */
-void xboot_char_logo(x_u32 x0, x_u32 y0)
+void xboot_char_logo(struct console * console, x_u32 x0, x_u32 y0)
 {
 	x_u32 i, len;
 	x_s32 w, h;
 	x_s8 buf[64];
 
-	if(!console_getwh(get_stdout(), &w, &h))
+	if(!console)
+		return;
+
+	if(!console_getwh(console, &w, &h))
 		return;
 
 	if(x0 + 1 > w || y0 + 1 > h)
@@ -79,7 +82,7 @@ void xboot_char_logo(x_u32 x0, x_u32 y0)
 			strncpy(buf, (x_s8*)&xboot[i][0], w-x0);
 			buf[w-x0] = 0;
 		}
-		console_gotoxy(get_stdout(), x0, y0 + i);
-		printk((const char *)buf);
+		console_gotoxy(console, x0, y0 + i);
+		console_print(console, (const char *)buf);
 	}
 }

@@ -118,6 +118,7 @@ x_bool console_cls(struct console * console);
 x_bool console_getcode(struct console * console, x_u32 * code);
 x_bool console_putcode(struct console * console, x_u32 code);
 
+x_s32 console_print(struct console * console, const char * fmt, ...);
 x_bool console_hline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 x);
 x_bool console_vline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 y);
 x_bool console_rect(struct console * console, x_u32 hline, x_u32 vline, x_u32 lt, x_u32 rt, x_u32 lb, x_u32 rb, x_u32 x, x_u32 y, x_u32 w, x_u32 h);

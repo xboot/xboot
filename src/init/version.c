@@ -33,12 +33,13 @@
 /*
  * print xboot banner
  */
-void xboot_banner(struct console * console)
+x_s32 xboot_banner(struct console * console)
 {
-	console_print(console, "xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
+	return console_print(console, "xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
 }
 
-/* xboot's character logo.
+/*
+ * xboot's character logo.
  *         _
  *        | |                  _        __0
  *   _  _ | |___ _____ _____ _| |_    _  /\_

@@ -316,6 +316,106 @@ x_bool console_putcode(struct console * console, x_u32 code)
 	return FALSE;
 }
 
+x_bool console_hline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 x)
+{
+	x_s32 w, h;
+	x_s32 i;
+
+	if(console && console->putcode)
+	{
+		if(!console_getwh(console, &w, &h))
+			return FALSE;
+
+		if(x0 >= w || y0 >= h)
+			return FALSE;
+
+		if(x0 + x >= w)
+			x = w - x0;
+
+		if(!console_gotoxy(console, x0, y0))
+			return FALSE;
+
+		for(i = 0; i < x; i++)
+			console->putcode(console, code);
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+x_bool console_vline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 y)
+{
+	x_s32 w, h;
+	x_s32 i;
+
+	if(console && console->putcode)
+	{
+		if(!console_getwh(console, &w, &h))
+			return FALSE;
+
+		if(x0 >= w || y0 >= h)
+			return FALSE;
+
+		if(y0 + y >= h)
+			y = h - y0;
+
+		for(i = 0; i < y; i++)
+		{
+			console->gotoxy(console, x0, y0 + i);
+			console->putcode(console, code);
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+x_bool console_rect(struct console * console, x_u32 hline, x_u32 vline, x_u32 lt, x_u32 rt, x_u32 lb, x_u32 rb, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+{
+	x_s32 width, height;
+
+	if(console && console->putcode)
+	{
+		if(!console_getwh(console, &width, &height))
+			return FALSE;
+
+		if(x < 0 || y < 0 || w < 2 || h < 2)
+			return FALSE;
+
+		if(x >= width || y >= height)
+			return FALSE;
+
+		if(x + w - 1 >= width)
+			return FALSE;
+
+		if(y + h - 1 >= height)
+			return FALSE;
+
+		console_gotoxy(console, x, y);
+		console_putcode(console, lt);
+
+		console_gotoxy(console, x + w - 1, y);
+		console_putcode(console, rt);
+
+		console_gotoxy(console, x, y + h - 1);
+		console_putcode(console, lb);
+
+		console_gotoxy(console, x + w - 1, y + h - 1);
+		console_putcode(console, rb);
+
+		console_hline(console, hline, x + 1, y, w - 1 - 1);
+		console_hline(console, hline, x + 1, y + h - 1, w - 1 - 1);
+		console_vline(console, vline, x, y + 1, h - 1 - 1);
+		console_vline(console, vline, x + w - 1, y + 1, h - 1 - 1);
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static x_s32 console_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
 	struct console_list * list;

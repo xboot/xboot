@@ -27,6 +27,7 @@
 #include <vsprintf.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
+#include <console/console.h>
 #include <version.h>
 
 /*
@@ -58,5 +59,27 @@ static const char xboot[6][64] = {	"        _\r\n",
  */
 void xboot_char_logo(x_u32 x0, x_u32 y0)
 {
-	//TODO
+	x_u32 i, len;
+	x_s32 w, h;
+	x_s8 buf[64];
+
+	if(!console_getwh(get_stdout(), &w, &h))
+		return;
+
+	if(x0 + 1 > w || y0 + 1 > h)
+		return;
+
+	for(i = 0; i < 6; i++)
+	{
+		len = strlen((x_s8*)&xboot[i][0]);
+		if( len <= w-x0 )
+			sprintf(buf, (x_s8*)("%s"), &xboot[i][0]);
+		else
+		{
+			strncpy(buf, (x_s8*)&xboot[i][0], w-x0);
+			buf[w-x0] = 0;
+		}
+		console_gotoxy(get_stdout(), x0, y0 + i);
+		printk((const char *)buf);
+	}
 }

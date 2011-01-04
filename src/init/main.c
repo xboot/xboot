@@ -33,7 +33,7 @@
 /*
  * the entry of main function.
  */
-int xboot_main(int argc, char *argv[])
+int xboot_main(int argc, char * argv[])
 {
 	/* do all init calls */
 	do_initcalls();

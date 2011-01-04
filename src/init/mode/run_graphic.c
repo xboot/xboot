@@ -1,5 +1,5 @@
 /*
-* int/mode/run_graphic.c
+ * init/mode/run_graphic.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

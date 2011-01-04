@@ -10,7 +10,9 @@
  * a portable operating interface.
  */
 struct machine {
-	/* basic information */
+	/*
+	 * basic information
+	 */
 	struct {
 		const char * board_name;
 		const char * board_desc;
@@ -21,7 +23,9 @@ struct machine {
 		const char * cpu_id;
 	}info;
 
-	/* machine resource */
+	/*
+	 * machine resource
+	 */
 	struct {
 		const x_sys mem_start;
 		const x_sys mem_end;
@@ -30,7 +34,9 @@ struct machine {
 		const x_u64 xtal;
 	}res;
 
-	/* link information */
+	/*
+	 * link information
+	 */
 	struct {
 		const x_sys text_start;
 		const x_sys text_end;
@@ -54,13 +60,15 @@ struct machine {
 		const x_sys stack_end;
 	}link;
 
-	/* power manager */
+	/*
+	 * power manager
+	 */
 	struct {
 		/* system initial, like power lock */
 		void(*init)(void);
 
-		/* system standby */
-		x_bool(*standby)(void);
+		/* system suspend */
+		x_bool(*suspend)(void);
 
 		/* system resume */
 		x_bool(*resume)(void);
@@ -72,35 +80,30 @@ struct machine {
 		x_bool(*reset)(void);
 	}pm;
 
-	/* misc function */
+	/*
+	 * misc function
+	 */
 	struct {
+		/* get system mode */
+		enum mode (*getmode)(void);
+
 		/* clean up system before running os */
 		x_bool(*cleanup)(void);
 
 		/* for anti-piracy */
 		x_bool(*genuine)(void);
-
-		/*
-		 * change system's default mode to MENU mode.
-		 * true for menu mode, otherwise, no changed.
-		 *
-		 * if want to using some special button to enter
-		 * menu mode before system bootup. such as pressed
-		 * [power key] and [camera key] at same time, which
-		 * will enter the menu mode, you can recovery system
-		 * or update system at the moment.
-		 */
-		x_bool(*menumode)(void);
 	}misc;
 
-	/* private data for external */
+	/*
+	 * private data
+	 */
 	void * priv;
 };
 
 x_bool machine_register(struct machine * mach);
-struct machine * get_machine(void);
+inline struct machine * get_machine(void);
 
-x_bool standby(void);
+x_bool suspend(void);
 x_bool resume(void);
 x_bool halt(void);
 x_bool reset(void);

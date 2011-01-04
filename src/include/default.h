@@ -361,11 +361,4 @@
 #define	CONFIG_MTD_NAND_ECC_SMC						(0)
 #endif
 
-/*
- * auto run delay in menu mode.
- */
-#if !defined(CONFIG_MENU_MODE_AUTORUN_DELAY)
-#define	CONFIG_MENU_MODE_AUTORUN_DELAY				(3)
-#endif
-
 #endif /* __DEFAULT_H__ */

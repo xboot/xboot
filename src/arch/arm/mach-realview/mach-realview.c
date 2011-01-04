@@ -74,7 +74,15 @@ static x_bool mach_reset(void)
 }
 
 /*
- * clean up system before running os.
+ * get system mode
+ */
+static enum mode mach_getmode(void)
+{
+	return MODE_NORMAL;
+}
+
+/*
+ * clean up system before running os
  */
 static x_bool mach_cleanup(void)
 {
@@ -102,14 +110,6 @@ static x_bool mach_cleanup(void)
 static x_bool mach_genuine(void)
 {
 	return TRUE;
-}
-
-/*
- * change default mode to menu mode.
- */
-static x_bool mach_menumode(void)
-{
-	return FALSE;
 }
 
 /*
@@ -158,16 +158,16 @@ static struct machine realview = {
 
 	.pm = {
 		.init 				= mach_init,
-		.standby 			= NULL,
+		.suspend			= NULL,
 		.resume				= NULL,
 		.halt				= mach_halt,
 		.reset				= mach_reset,
 	},
 
 	.misc = {
+		.getmode			= mach_getmode,
 		.cleanup			= mach_cleanup,
 		.genuine			= mach_genuine,
-		.menumode			= mach_menumode,
 	},
 
 	.priv					= NULL,

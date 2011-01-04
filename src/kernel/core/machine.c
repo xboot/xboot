@@ -40,23 +40,23 @@
 /*
  * must define the __machine struct for portable
  */
-static struct machine * __machine = 0;
+static struct machine * __machine = NULL;
 
 /*
  * get machine
  */
-struct machine * get_machine(void)
+inline struct machine * get_machine(void)
 {
 	return __machine;
 }
 
 /*
- * standby function
+ * suspend function
  */
-x_bool standby(void)
+x_bool suspend(void)
 {
-	if(__machine && __machine->pm.standby)
-		return __machine->pm.standby();
+	if(__machine && __machine->pm.suspend)
+		return __machine->pm.suspend();
 	return FALSE;
 }
 
@@ -112,22 +112,17 @@ x_bool machine_register(struct machine * mach)
 	{
 		__machine = mach;
 
-		/* machine initialize */
 		if(__machine->pm.init)
 			__machine->pm.init();
 
-		/* will be changed to menu mode */
-		if(__machine->misc.menumode)
-		{
-			if(__machine->misc.menumode())
-				xboot_set_mode(MODE_MENU);
-		}
+		if(__machine->misc.getmode)
+			xboot_set_mode(__machine->misc.getmode());
 
 		return TRUE;
 	}
 	else
 	{
-		__machine = 0;
+		__machine = NULL;
 		return FALSE;
 	}
 }
@@ -138,7 +133,7 @@ x_bool machine_register(struct machine * mach)
 static struct timer_list anti_piracy_timer;
 
 /*
- * xtime's timer function.
+ * anti piracy timer function.
  */
 static void anti_piracy_timer_function(x_u32 data)
 {
@@ -154,7 +149,7 @@ static void anti_piracy_timer_function(x_u32 data)
 		}
 	}
 
-	mod_timer(&anti_piracy_timer, jiffies + get_system_hz() * 4);
+	mod_timer(&anti_piracy_timer, jiffies + get_system_hz() * 15);
 }
 
 /*
@@ -170,7 +165,7 @@ void do_system_antipiracy(void)
 		LOG_I("start anti piracy");
 
 		setup_timer(&anti_piracy_timer, anti_piracy_timer_function, (x_u32)(__machine));
-		mod_timer(&anti_piracy_timer, jiffies + get_system_hz() * 4);
+		mod_timer(&anti_piracy_timer, jiffies + get_system_hz() * 15);
 	}
 	else
 	{

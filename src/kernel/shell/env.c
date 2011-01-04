@@ -24,6 +24,7 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
+#include <charset.h>
 #include <malloc.h>
 #include <xml.h>
 #include <hash.h>
@@ -54,7 +55,7 @@ static struct env_list * env_find(const char * key)
 
 	hlist_for_each_entry(list,  pos, &(env_hash[hash]), node)
 	{
-		if(strcmp((x_s8*)list->env.key, (x_s8*)key) == 0)
+		if(utf8_strcmp((const x_s8 *)list->env.key, (const x_s8 *)key) == 0)
 			return list;
 	}
 
@@ -82,7 +83,6 @@ char * env_get(const char * key, const char * value)
 x_bool env_add(const char * key, const char * value)
 {
 	struct env_list * list;
-	char * k, * v;
 	x_u32 hash;
 
 	if(!key)
@@ -91,18 +91,13 @@ x_bool env_add(const char * key, const char * value)
 	list = env_find(key);
 	if(list)
 	{
-		if(strcmp((x_s8*)list->env.value, (x_s8*)value) == 0)
+		if(utf8_strcmp((const x_s8 *)list->env.value, (const x_s8 *)value) == 0)
 			return TRUE;
 		else
 		{
-			free(list->env.value);
-			list->env.value = malloc(strlen((x_s8*)value) + 1);
-			if(!list->env.value)
-			{
-				list->env.value = NULL;
-				return FALSE;
-			}
-			strcpy((x_s8*)list->env.value, (x_s8*)value);
+			if(list->env.value)
+				free(list->env.value);
+			list->env.value = (char *)utf8_strdup((const x_s8 *)value);
 			return TRUE;
 		}
 	}
@@ -112,20 +107,8 @@ x_bool env_add(const char * key, const char * value)
 		if(!list)
 			return FALSE;
 
-		k = malloc(strlen((x_s8*)key) + 1);
-		v = malloc(strlen((x_s8*)value) + 1);
-		if(!k || !v)
-		{
-			free(list);
-			free(k);
-			free(v);
-			return FALSE;
-		}
-
-		strcpy((x_s8*)k, (x_s8*)key);
-		strcpy((x_s8*)v, (x_s8*)value);
-		list->env.key = (char *)k;
-		list->env.value = (char *)v;
+		list->env.key = (char *)utf8_strdup((const x_s8 *)key);
+		list->env.value = (char *)utf8_strdup((const x_s8 *)value);
 
 		hash = string_hash(key) % CONFIG_ENV_HASH_SIZE;
 		hlist_add_head(&(list->node), &(env_hash[hash]));
@@ -144,8 +127,10 @@ x_bool env_remove(const char * key)
 	list = env_find(key);
 	if(list)
 	{
-		free(list->env.key);
-		free(list->env.value);
+		if(list->env.key)
+			free(list->env.key);
+		if(list->env.value)
+			free(list->env.value);
 		hlist_del(&(list->node));
 		free(list);
 		return TRUE;

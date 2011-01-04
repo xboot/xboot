@@ -25,6 +25,7 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
+#include <charset.h>
 #include <malloc.h>
 #include <xml.h>
 #include <xboot/list.h>
@@ -57,8 +58,8 @@ static x_bool menu_add_item(const char * title, const char * command)
 		return FALSE;
 	}
 
-	item->title = (char *)strdup((const x_s8 *)title);
-	item->command = (char *)strdup((const x_s8 *)command);
+	item->title = (char *)utf8_strdup((const x_s8 *)title);
+	item->command = (char *)utf8_strdup((const x_s8 *)command);
 
 	list->item = item;
 	list_add_tail(&list->entry, &menu_list->entry);

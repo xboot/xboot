@@ -18,7 +18,7 @@ struct xml {
 	x_s16 flags;									/* additional information */
 };
 
-#define XML_BUFFER_SIZE 					(1024)	/* size of internal memory buffers */
+#define XML_BUFFER_SIZE 					(4096)	/* size of internal memory buffers */
 #define XML_NAME_MALLOC						(0x80)	/* name is malloced */
 #define XML_TXT_MALLOC 						(0x40)	/* txt is malloced */
 #define XML_DUP     						(0x20)	/* attribute name and value are strduped */

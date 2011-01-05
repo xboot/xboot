@@ -306,7 +306,7 @@ struct tui_workspace * tui_workspace_new(struct console * console, const x_s8 * 
 	if(!workspace)
 		return NULL;
 
-	workspace->widget.id = utf8_strdup(id);
+	workspace->widget.id = strdup(id);
 	workspace->widget.align = TUI_WIDGET_ALIGN_NONE;
 	workspace->widget.ox = 0;
 	workspace->widget.oy = 0;

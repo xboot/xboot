@@ -824,38 +824,3 @@ x_s32 utf8_strlen(const x_s8 * s)
 
 	return j;
 }
-
-x_s8 * utf8_strcpy(x_s8 * dest, const x_s8 * src)
-{
-	x_s8 * tmp = dest;
-
-	while((*dest++ = *src++) != '\0');
-
-	return tmp;
-}
-
-x_s8 * utf8_strdup(const x_s8 * s)
-{
-	x_s8 * p;
-
-	if(!s)
-		return NULL;
-
-	p = malloc(utf8_strlen(s) + 1);
-	if(p)
-		return(utf8_strcpy(p, s));
-
-	return NULL;
-}
-
-x_s32 utf8_strcmp(const x_s8 * cs, const x_s8 * ct)
-{
-	x_s32 __res;
-
-	while (1)
-	{
-		if ((__res = *cs - *ct++) != 0 || !*cs++)
-			break;
-	}
-	return __res;
-}

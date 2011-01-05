@@ -19,8 +19,5 @@ x_s32 utf8_width(const char * str);
 
 x_bool utf8_is_valid(const x_s8 * src, x_s32 size);
 x_s32 utf8_strlen(const x_s8 * s);
-x_s8 * utf8_strcpy(x_s8 * dest, const x_s8 * src);
-x_s8 * utf8_strdup(const x_s8 * s);
-x_s32 utf8_strcmp(const x_s8 * cs, const x_s8 * ct);
 
 #endif /* __CHARSET_H__ */

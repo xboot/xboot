@@ -43,7 +43,7 @@ struct tui_widget * find_tui_widget_by_id(struct tui_widget * widget, const x_s8
 	for(pos = (&widget->child)->next; pos != &widget->child; pos = pos->next)
 	{
 		list = list_entry(pos, struct tui_widget, entry);
-		if(utf8_strcmp(list->id, id) == 0)
+		if(strcmp(list->id, id) == 0)
 			return list;
 
 		if(!list_empty(&list->child))

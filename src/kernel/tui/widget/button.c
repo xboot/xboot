@@ -132,9 +132,9 @@ static x_bool tui_button_setproperty(struct tui_widget * widget, x_u32 cmd, void
 	case TUI_BUTTON_SET_CAPTION:
 		free(button->caption);
 		if(arg)
-			button->caption = utf8_strdup((const x_s8 *)arg);
+			button->caption = strdup((const x_s8 *)arg);
 		else
-			button->caption = utf8_strdup((const x_s8 *)"");
+			button->caption = strdup((const x_s8 *)"");
 		return TRUE;
 
 	case TUI_BUTTON_GET_CAPTION:
@@ -313,7 +313,7 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 	if(!button)
 		return NULL;
 
-	button->widget.id = utf8_strdup(id);
+	button->widget.id = strdup(id);
 	button->widget.align = TUI_WIDGET_ALIGN_NONE;
 	button->widget.ox = 0;
 	button->widget.oy = 0;
@@ -338,7 +338,7 @@ struct tui_button * tui_button_new(struct tui_widget * parent, const x_s8 * id, 
 							theme->button.fg, theme->button.bg,
 							0, 0, button->widget.width, button->widget.height);
 
-	button->caption = utf8_strdup(caption);
+	button->caption = strdup(caption);
 
 	init_list_head(&(button->widget.entry));
 	init_list_head(&(button->widget.child));

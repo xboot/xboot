@@ -23,6 +23,8 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
+#include <charset.h>
 #include <xboot/scank.h>
 #include <xboot/list.h>
 #include <xboot/menu.h>
@@ -34,7 +36,9 @@
 struct menu_ctx
 {
 	struct menu_list * list;
-	struct menu_item * item;
+	x_u32 index;
+	x_u32 total;
+	x_u32 win1, win2;
 
 	struct console * console;
 	x_s32 width, height;
@@ -42,19 +46,70 @@ struct menu_ctx
 
 	x_u32 x0, y0, x1, y1;
 
-	/*
-	 * saved information
-	 */
 	x_bool cursor;
 	enum tcolor f, b;
 };
+
+static void menu_ctx_paint(struct menu_ctx * ctx)
+{
+	struct menu_list * list;
+	struct list_head * pos;
+	x_s32 i;
+
+	if(ctx->win2 - ctx->win1 != ctx->y1 - ctx->y0 - 1)
+	{
+		ctx->win1 = 0;
+		ctx->win2 = ctx->y1 - ctx->y0 - 1;
+	}
+
+	if(ctx->index > ctx->win2)
+	{
+		ctx->win2 = ctx->index;
+		ctx->win1 = ctx->index + 1 - (ctx->y1 - ctx->y0);
+	}
+
+	if(ctx->index < ctx->win1)
+	{
+		ctx->win1 = ctx->index;
+		ctx->win2 = ctx->index + ctx->y1 - ctx->y0 - 1;
+	}
+
+	console_setcolor(ctx->console, ctx->fg, ctx->bg);
+	console_gotoxy(ctx->console, ctx->x1 - 1, ctx->y0 + 1);
+	if(ctx->win1 > 0)
+		console_putcode(ctx->console, UNICODE_UP);
+	else
+		console_putcode(ctx->console, UNICODE_SPACE);
+
+	console_gotoxy(ctx->console, ctx->x1 - 1, ctx->y1);
+	if(ctx->win2 + 1 < ctx->total)
+		console_putcode(ctx->console, UNICODE_DOWN);
+	else
+		console_putcode(ctx->console, UNICODE_SPACE);
+
+	for(i = 0, pos = (&ctx->list->entry)->next; pos != (&ctx->list->entry); pos = pos->next, i++)
+	{
+		if( (i >= ctx->win1) && (i <= ctx->win2) )
+		{
+			list = list_entry(pos, struct menu_list, entry);
+
+			if(i == ctx->index)
+				console_setcolor(ctx->console, ctx->bg, ctx->fg);
+			else
+				console_setcolor(ctx->console, ctx->fg, ctx->bg);
+
+			console_gotoxy(ctx->console, ctx->x0 + 2, ctx->y0 + i + 1 - ctx->win1);
+			console_print(ctx->console, (const char *)"%s%*s", list->item->title, (ctx->x1 - ctx->x0) - utf8_width(list->item->title) - 3, " ");
+		}
+	}
+}
 
 static struct menu_ctx * menu_ctx_alloc(struct console * console, enum tcolor fg, enum tcolor bg)
 {
 	struct menu_ctx * ctx;
 	x_s32 w, h;
 
-	if(!console || console->putcode)
+	if(!console || !console->putcode)
 		return NULL;
 
 	if(!console_getwh(console, &w, &h))
@@ -71,7 +126,13 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console, enum tcolor fg
 		return NULL;
 	}
 
-	ctx->item = get_menu_indexof_item(0);
+	ctx->index = 0;
+	ctx->total = get_menu_total_items();
+	if(ctx->total == 0)
+		ctx->total = 1;
+
+	ctx->win1 = 0;
+	ctx->win2 = 0;
 
 	ctx->cursor = console_getcursor(console);
 	if(!console_getcolor(console, &ctx->f, &ctx->b))
@@ -79,6 +140,10 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console, enum tcolor fg
 		free(ctx);
 		return NULL;
 	}
+
+	console_setcolor(console, fg, bg);
+	console_setcursor(console, FALSE);
+	console_cls(console);
 
 	ctx->console = console;
 	ctx->width = w;
@@ -90,7 +155,6 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console, enum tcolor fg
 	ctx->x0 = 1;
 	ctx->y0 = 2;
 	ctx->x1 = ctx->width - 2;
-
 	if(ctx->width >= 44 && ctx->height > 12)
 	{
 		xboot_char_logo(ctx->console, (ctx->width - 44) / 2, ctx->height - 7);
@@ -101,10 +165,6 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console, enum tcolor fg
 		ctx->y1 = ctx->height - 2;
 	}
 
-	console_setcolor(ctx->console, ctx->fg, ctx->bg);
-	console_setcursor(ctx->console, FALSE);
-	console_cls(ctx->console);
-
 	console_gotoxy(ctx->console, 1, 0);
 	xboot_banner(ctx->console);
 
@@ -113,6 +173,8 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console, enum tcolor fg
 					UNICODE_LEFTTOP, UNICODE_RIGHTTOP,
 					UNICODE_LEFTBOTTOM, UNICODE_RIGHTBOTTOM,
 					ctx->x0, ctx->y0, ctx->x1, ctx->y1);
+
+	menu_ctx_paint(ctx);
 
 	return ctx;
 }
@@ -123,24 +185,8 @@ static void menu_ctx_free(struct menu_ctx * ctx)
 	{
 		console_setcursor(ctx->console, ctx->cursor);
 		console_setcolor(ctx->console, ctx->f, ctx->b);
-
 		free(ctx);
 	}
-}
-
-static void menu_ctx_paint(struct menu_ctx * ctx)
-{
-
-}
-
-static void menu_ctx_move_up(struct menu_ctx * ctx)
-{
-	menu_ctx_paint(ctx);
-}
-
-static void menu_ctx_move_down(struct menu_ctx * ctx)
-{
-	menu_ctx_paint(ctx);
 }
 
 /*
@@ -148,8 +194,10 @@ static void menu_ctx_move_down(struct menu_ctx * ctx)
  */
 void run_menu_mode(void)
 {
+	struct menu_item * item;
 	struct menu_ctx * ctx;
 	x_u32 code;
+	x_s8 * command = NULL;
 
 	ctx = menu_ctx_alloc(get_stdout(), TCOLOR_WHITE, TCOLOR_BLACK);
 	if(!ctx)
@@ -160,21 +208,24 @@ void run_menu_mode(void)
 		 {
 			switch(code)
 			{
-				/* up arrow */
-				case 0x10:
-					menu_ctx_move_up(ctx);
+				case 0x10:	/* up */
+					ctx->index = (ctx->index + ctx->total - 1) % ctx->total;
+					menu_ctx_paint(ctx);
 					break;
 
-				/* down arrow */
-				case 0xe:
-					menu_ctx_move_down(ctx);
+				case 0xe:	/* down */
+					ctx->index = (ctx->index + ctx->total + 1) % ctx->total;
+					menu_ctx_paint(ctx);
 					break;
 
-				/* lf or cr */
-				case 0xa:
-				case 0xd:
-					if(ctx->item && ctx->item->command)
+				case 0xa:	/* lf */
+				case 0xd:	/* cr */
+					item = get_menu_indexof_item(ctx->index);
+					if(item && item->title && item->command)
+					{
+						command = (x_s8 *)item->command;
 						xboot_set_mode(MODE_SHELL);
+					}
 					break;
 
 				default:
@@ -183,8 +234,10 @@ void run_menu_mode(void)
 		 }
 	} while(xboot_get_mode() == MODE_MENU);
 
-	if(ctx->item && ctx->item->command)
-		exec_cmdline((const x_s8 *)ctx->item->command);
-
 	menu_ctx_free(ctx);
+
+	if(command != NULL)
+	{
+		exec_cmdline(command);
+	}
 }

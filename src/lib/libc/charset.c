@@ -726,6 +726,26 @@ x_s32 ucs4_width(x_u32 uc)
 	return 1;
 }
 
+/*
+ * determine number of column positions required for utf8 string
+  */
+x_s32 utf8_width(const char * str)
+{
+	const x_s8 * p;
+	x_u32 code;
+	x_u32 w, width;
+
+	for(width = 0, p = (const x_s8 *)str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	{
+		w = ucs4_width(code);
+		if(w < 0)
+			w = 0;
+		width += w;
+	}
+
+	return width;
+}
+
 x_bool utf8_is_valid(const x_s8 * src, x_s32 size)
 {
 	x_u32 code = 0;

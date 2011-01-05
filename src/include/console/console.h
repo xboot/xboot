@@ -15,14 +15,17 @@ enum {
 
 	UNICODE_HLINE			= '-',
 	UNICODE_VLINE			= '|',
+
 	UNICODE_LEFT			= '<',
 	UNICODE_RIGHT			= '>',
 	UNICODE_UP				= '^',
 	UNICODE_DOWN			= 'v',
+
 	UNICODE_LEFTTOP			= '+',
 	UNICODE_RIGHTTOP		= '+',
 	UNICODE_LEFTBOTTOM		= '+',
 	UNICODE_RIGHTBOTTOM		= '+',
+
 	UNICODE_CUBE			= '#',
 };
 

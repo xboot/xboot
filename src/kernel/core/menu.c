@@ -101,7 +101,7 @@ x_bool menu_load(char * file)
 	/*
 	 * add menu item
 	 */
-	for(menu = xml_child(root, "menu"); menu; menu = menu->next)
+	for(menu = xml_child(root, "item"); menu; menu = menu->next)
 	{
 		title = xml_child(menu, "title");
 		command = xml_child(menu, "command");
@@ -133,4 +133,18 @@ struct menu_item * get_menu_indexof_item(x_s32 index)
 	}
 
 	return NULL;
+}
+
+x_s32 get_menu_total_items(void)
+{
+	struct list_head * pos = (&menu_list->entry)->next;
+	x_s32 i = 0;
+
+	while(!list_is_last(pos, (&menu_list->entry)->next))
+	{
+		pos = pos->next;
+		i++;
+	}
+
+	return i;
 }

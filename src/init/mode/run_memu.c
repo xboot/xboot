@@ -140,6 +140,7 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console)
 		return NULL;
 	}
 
+	console_setcolor(console, ctx->fg, ctx->bg);
 	console_setcursor(console, FALSE);
 	console_cls(console);
 

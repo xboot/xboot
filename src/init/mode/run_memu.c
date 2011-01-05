@@ -47,7 +47,6 @@ struct menu_ctx
 	x_u32 x0, y0, x1, y1;
 
 	x_bool cursor;
-	enum tcolor f, b;
 };
 
 static void menu_ctx_paint(struct menu_ctx * ctx)
@@ -104,7 +103,7 @@ static void menu_ctx_paint(struct menu_ctx * ctx)
 	}
 }
 
-static struct menu_ctx * menu_ctx_alloc(struct console * console, enum tcolor fg, enum tcolor bg)
+static struct menu_ctx * menu_ctx_alloc(struct console * console)
 {
 	struct menu_ctx * ctx;
 	x_s32 w, h;
@@ -135,22 +134,18 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console, enum tcolor fg
 	ctx->win2 = 0;
 
 	ctx->cursor = console_getcursor(console);
-	if(!console_getcolor(console, &ctx->f, &ctx->b))
+	if(!console_getcolor(console, &ctx->fg, &ctx->bg))
 	{
 		free(ctx);
 		return NULL;
 	}
 
-	console_setcolor(console, fg, bg);
 	console_setcursor(console, FALSE);
 	console_cls(console);
 
 	ctx->console = console;
 	ctx->width = w;
 	ctx->height = h;
-
-	ctx->fg = fg;
-	ctx->bg = bg;
 
 	ctx->x0 = 1;
 	ctx->y0 = 2;
@@ -184,7 +179,7 @@ static void menu_ctx_free(struct menu_ctx * ctx)
 	if(ctx)
 	{
 		console_setcursor(ctx->console, ctx->cursor);
-		console_setcolor(ctx->console, ctx->f, ctx->b);
+		console_setcolor(ctx->console, ctx->fg, ctx->bg);
 		free(ctx);
 	}
 }
@@ -199,39 +194,45 @@ void run_menu_mode(void)
 	x_u32 code;
 	x_s8 * command = NULL;
 
-	ctx = menu_ctx_alloc(get_stdout(), TCOLOR_WHITE, TCOLOR_BLACK);
+	ctx = menu_ctx_alloc(get_stdout());
 	if(!ctx)
 		return;
 
 	do {
-		 if(getcode(&code))
-		 {
+		if(getcode(&code))
+		{
 			switch(code)
 			{
-				case 0x10:	/* up */
-					ctx->index = (ctx->index + ctx->total - 1) % ctx->total;
-					menu_ctx_paint(ctx);
-					break;
+			case 0x2:	/* left */
+				break;
 
-				case 0xe:	/* down */
-					ctx->index = (ctx->index + ctx->total + 1) % ctx->total;
-					menu_ctx_paint(ctx);
-					break;
+			case 0x10:	/* up */
+				ctx->index = (ctx->index + ctx->total - 1) % ctx->total;
+				menu_ctx_paint(ctx);
+				break;
 
-				case 0xa:	/* lf */
-				case 0xd:	/* cr */
-					item = get_menu_indexof_item(ctx->index);
-					if(item && item->title && item->command)
-					{
-						command = (x_s8 *)item->command;
-						xboot_set_mode(MODE_SHELL);
-					}
-					break;
+			case 0x6:	/* right */
+				break;
 
-				default:
-					break;
+			case 0xe:	/* down */
+				ctx->index = (ctx->index + ctx->total + 1) % ctx->total;
+				menu_ctx_paint(ctx);
+				break;
+
+			case 0xa:	/* lf */
+			case 0xd:	/* cr */
+				item = get_menu_indexof_item(ctx->index);
+				if(item && item->title && item->command)
+				{
+					command = (x_s8 *)item->command;
+					xboot_set_mode(MODE_SHELL);
+				}
+				break;
+
+			default:
+				break;
 			}
-		 }
+		}
 	} while(xboot_get_mode() == MODE_MENU);
 
 	menu_ctx_free(ctx);

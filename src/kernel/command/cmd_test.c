@@ -46,9 +46,6 @@
 #include <fs/fsapi.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
-#include <tui/tui.h>
-#include <tui/widget/workspace.h>
-#include <tui/widget/button.h>
 
 
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)

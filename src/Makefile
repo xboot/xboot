@@ -85,8 +85,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				kernel/shell					\
 				kernel/command					\
 				kernel/time						\
-				kernel/tui						\
-				kernel/tui/widget				\
 				kernel/fs						\
 				kernel/fs/vfs					\
 				kernel/fs/ramfs					\

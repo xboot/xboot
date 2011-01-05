@@ -78,7 +78,7 @@ static x_bool mach_reset(void)
  */
 static enum mode mach_getmode(void)
 {
-	return MODE_NORMAL;
+	return MODE_MENU;
 }
 
 /*

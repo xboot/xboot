@@ -127,8 +127,6 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console)
 
 	ctx->index = 0;
 	ctx->total = get_menu_total_items();
-	if(ctx->total == 0)
-		ctx->total = 1;
 
 	ctx->win1 = 0;
 	ctx->win2 = 0;
@@ -157,9 +155,7 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console)
 		ctx->y1 = ctx->height - 10;
 	}
 	else
-	{
 		ctx->y1 = ctx->height - 2;
-	}
 
 	console_gotoxy(ctx->console, 1, 0);
 	xboot_banner(ctx->console);

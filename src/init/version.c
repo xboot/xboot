@@ -48,12 +48,12 @@ x_s32 xboot_banner(struct console * console)
  *  /_/\_\|_____|_____|_____| |________________|
  *
  */
-static const char xboot[6][64] = {	"        _\r\n",
-									"       | |                  _        __0\r\n",
-									"  _  _ | |___ _____ _____ _| |_    _  /\\_\r\n",
-									" \\ \\/ /|  _  |  _  |  _  |_   _|    \\/\\\r\n",
-									"  )  ( | |_| | |_| | |_| | | |________/_____\r\n",
-									" /_/\\_\\|_____|_____|_____| |________________|\r\n" };
+static const char xboot[6][64] = {	"        _",
+									"       | |                  _        __0",
+									"  _  _ | |___ _____ _____ _| |_    _  /\\_",
+									" \\ \\/ /|  _  |  _  |  _  |_   _|    \\/\\",
+									"  )  ( | |_| | |_| | |_| | | |________/_____",
+									" /_/\\_\\|_____|_____|_____| |________________|" };
 
 /*
  * print xboot's character logo.
@@ -76,12 +76,12 @@ void xboot_char_logo(struct console * console, x_u32 x0, x_u32 y0)
 	for(i = 0; i < 6; i++)
 	{
 		len = strlen((x_s8*)&xboot[i][0]);
-		if( len <= w-x0 )
+		if( len <= w - x0 )
 			sprintf(buf, (x_s8*)("%s"), &xboot[i][0]);
 		else
 		{
-			strncpy(buf, (x_s8*)&xboot[i][0], w-x0);
-			buf[w-x0] = 0;
+			strncpy(buf, (x_s8*)&xboot[i][0], w - x0);
+			buf[w - x0] = 0;
 		}
 		console_gotoxy(console, x0, y0 + i);
 		console_print(console, (const char *)buf);

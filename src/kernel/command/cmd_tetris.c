@@ -125,15 +125,10 @@ static void refresh(void)
 			yp = (h - GAME_AREA_HEIGHT) / 2;
 			console_gotoxy(stdout, xp + x, yp + y);
 			if(map.screen[x][y] != TCOLOR_BLACK)
-			{
-				console_setcolor(stdout, map.screen[x][y], TCOLOR_BLACK);
-				console_putcode(stdout, UNICODE_CUBE);
-			}
+				console_setcolor(stdout, TCOLOR_BLACK, map.screen[x][y]);
 			else
-			{
 				console_setcolor(stdout, TCOLOR_WHITE, TCOLOR_BLACK);
-				console_putcode(stdout, UNICODE_SPACE);
-			}
+			console_putcode(stdout, UNICODE_SPACE);
 		}
 		map.dirty[y] = FALSE;
     }

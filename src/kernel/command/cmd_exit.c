@@ -34,23 +34,52 @@
 
 #if	defined(CONFIG_COMMAND_EXIT) && (CONFIG_COMMAND_EXIT > 0)
 
+static void usage(void)
+{
+	printk("usage:\r\n");
+	printk("    exit [-n|-s|-m|-g|-e]\r\n");
+	printk("    exit [--normal|--shell|--menu|--graphic|--extend]\r\n");
+}
+
 static x_s32 exit_to_mode(x_s32 argc, const x_s8 **argv)
 {
-	if(argc == 2)
+	if(argc == 1)
 	{
-		if(strcmp(argv[1], (x_s8*)"-n") == 0)
+		xboot_set_mode(MODE_MENU);
+	}
+	else if(argc == 2)
+	{
+		if( (strcmp(argv[1], (x_s8*)"-n") == 0) || (strcmp(argv[1], (x_s8*)"--normal") == 0) )
+		{
 			xboot_set_mode(MODE_NORMAL);
-		else if(strcmp(argv[1], (x_s8*)"-s") == 0)
+		}
+		else if( (strcmp(argv[1], (x_s8*)"-s") == 0) || (strcmp(argv[1], (x_s8*)"--shell") == 0) )
+		{
 			xboot_set_mode(MODE_SHELL);
-		else if(strcmp(argv[1], (x_s8*)"-m") == 0)
+		}
+		else if( (strcmp(argv[1], (x_s8*)"-m") == 0) || (strcmp(argv[1], (x_s8*)"--menu") == 0) )
+		{
 			xboot_set_mode(MODE_MENU);
-		else if(strcmp(argv[1], (x_s8*)"-g") == 0)
+		}
+		else if( (strcmp(argv[1], (x_s8*)"-g") == 0) || (strcmp(argv[1], (x_s8*)"--graphic") == 0) )
+		{
 			xboot_set_mode(MODE_GRAPHIC);
+		}
+		else if( (strcmp(argv[1], (x_s8*)"-e") == 0) || (strcmp(argv[1], (x_s8*)"--extend") == 0) )
+		{
+			xboot_set_mode(MODE_EXTEND);
+		}
 		else
-			xboot_set_mode(MODE_MENU);
+		{
+			usage();
+			return -1;
+		}
 	}
 	else
-		xboot_set_mode(MODE_MENU);
+	{
+		usage();
+		return -1;
+	}
 
 	return 0;
 }
@@ -59,13 +88,14 @@ static struct command exit_cmd = {
 	.name		= "exit",
 	.func		= exit_to_mode,
 	.desc		= "exit to another system mode\r\n",
-	.usage		= "exit [-n|-s|-m|-g]\r\n",
+	.usage		= "exit [-n|-s|-m|-g|-e]\r\n",
 	.help		= "    exit to another system mode.\r\n"
 				  "    no arguments for enter to menu mode.\r\n"
-				  "    -n    enter to normal mode\r\n"
-				  "    -s    enter to shell mode\r\n"
-				  "    -m    enter to menu mode\r\n"
-				  "    -g    enter to graphic mode\r\n"
+				  "    -n | --normal    enter to normal mode\r\n"
+				  "    -s | --shell     enter to shell mode\r\n"
+				  "    -m | --menu      enter to menu mode\r\n"
+				  "    -g | --graphic   enter to graphic mode\r\n"
+				  "    -e | --extend    enter to extend mode\r\n"
 };
 
 static __init void exit_cmd_init(void)

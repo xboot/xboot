@@ -13,6 +13,7 @@ enum mode {
 	MODE_SHELL			= 1,
 	MODE_MENU			= 2,
 	MODE_GRAPHIC		= 3,
+	MODE_EXTEND			= 4,
 };
 
 inline enum mode xboot_get_mode(void);
@@ -22,5 +23,6 @@ void run_normal_mode(void);
 void run_shell_mode(void);
 void run_menu_mode(void);
 void run_graphic_mode(void);
+void run_extend_mode(void);
 
 #endif /* __MODE_H__ */

@@ -2,6 +2,6 @@
 <menu>
 	<item>
 		<title>Shell Command Line</title>
-		<command>exit -s;</command>
+		<command>exit --shell</command>
 	</item>
 </menu>

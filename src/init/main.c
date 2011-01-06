@@ -92,6 +92,14 @@ int xboot_main(int argc, char * argv[])
 		}
 
 		/*
+		 * extend mode
+		 */
+		else if(xboot_get_mode() == MODE_EXTEND)
+		{
+			run_extend_mode();
+		}
+
+		/*
 		 * not support and system panic
 		 */
 		else

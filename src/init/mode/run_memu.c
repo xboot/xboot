@@ -127,6 +127,8 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console)
 
 	ctx->index = 0;
 	ctx->total = get_menu_total_items();
+	if(ctx->total == 0)
+		ctx->total = 1;
 
 	ctx->win1 = 0;
 	ctx->win2 = 0;
@@ -155,7 +157,9 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console)
 		ctx->y1 = ctx->height - 10;
 	}
 	else
+	{
 		ctx->y1 = ctx->height - 2;
+	}
 
 	console_gotoxy(ctx->console, 1, 0);
 	xboot_banner(ctx->console);
@@ -189,7 +193,7 @@ void run_menu_mode(void)
 	struct menu_item * item;
 	struct menu_ctx * ctx;
 	x_u32 code;
-	x_s8 * command = NULL;
+	x_bool running = TRUE;
 
 	ctx = menu_ctx_alloc(get_stdout());
 	if(!ctx)
@@ -220,22 +224,17 @@ void run_menu_mode(void)
 			case 0xd:	/* cr */
 				item = get_menu_indexof_item(ctx->index);
 				if(item && item->title && item->command)
-				{
-					command = (x_s8 *)item->command;
-					xboot_set_mode(MODE_SHELL);
-				}
+					running = FALSE;
 				break;
 
 			default:
 				break;
 			}
 		}
-	} while(xboot_get_mode() == MODE_MENU);
+	} while((xboot_get_mode() == MODE_MENU) && (running == TRUE));
 
 	menu_ctx_free(ctx);
 
-	if(command != NULL)
-	{
-		exec_cmdline(command);
-	}
+	if(item && item->title && item->command)
+		exec_cmdline((const x_s8 *)item->command);
 }

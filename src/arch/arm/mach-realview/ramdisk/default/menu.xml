@@ -2,10 +2,10 @@
 <menu>
 	<item>
 		<title>Shell Command Line</title>
-		<command>exit -s;</command>
+		<command>exit --shell</command>
 	</item>
 	<item>
-		<title>Memory Test</title>
-		<command>memtest</command>
+		<title>Extend Mode</title>
+		<command>tetris</command>
 	</item>
 </menu>

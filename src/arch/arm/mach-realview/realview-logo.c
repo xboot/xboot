@@ -1122,10 +1122,10 @@ static const struct picture logo = {
 	"\0\0\0\0"
 };
 
-static __init void mach_logo_init(void)
+static __init void realview_logo_init(void)
 {
 	if(!register_logo(&logo))
 		LOG_E("failed to register logo");
 }
 
-module_init(mach_logo_init, LEVEL_MACH_RES);
+module_init(realview_logo_init, LEVEL_MACH_RES);

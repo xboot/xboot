@@ -37,8 +37,8 @@
 static void usage(void)
 {
 	printk("usage:\r\n");
-	printk("    exit [-n|-s|-m|-g|-e]\r\n");
-	printk("    exit [--normal|--shell|--menu|--graphic|--extend]\r\n");
+	printk("    exit [-n|-s|-m|-g|-a]\r\n");
+	printk("    exit [--normal|--shell|--menu|--graphic|--application]\r\n");
 }
 
 static x_s32 exit_to_mode(x_s32 argc, const x_s8 **argv)
@@ -65,9 +65,9 @@ static x_s32 exit_to_mode(x_s32 argc, const x_s8 **argv)
 		{
 			xboot_set_mode(MODE_GRAPHIC);
 		}
-		else if( (strcmp(argv[1], (x_s8*)"-e") == 0) || (strcmp(argv[1], (x_s8*)"--extend") == 0) )
+		else if( (strcmp(argv[1], (x_s8*)"-a") == 0) || (strcmp(argv[1], (x_s8*)"--application") == 0) )
 		{
-			xboot_set_mode(MODE_EXTEND);
+			xboot_set_mode(MODE_APPLICATION);
 		}
 		else
 		{
@@ -88,14 +88,14 @@ static struct command exit_cmd = {
 	.name		= "exit",
 	.func		= exit_to_mode,
 	.desc		= "exit to another system mode\r\n",
-	.usage		= "exit [-n|-s|-m|-g|-e]\r\n",
+	.usage		= "exit [-n|-s|-m|-g|-a]\r\n",
 	.help		= "    exit to another system mode.\r\n"
 				  "    no arguments for enter to menu mode.\r\n"
-				  "    -n | --normal    enter to normal mode\r\n"
-				  "    -s | --shell     enter to shell mode\r\n"
-				  "    -m | --menu      enter to menu mode\r\n"
-				  "    -g | --graphic   enter to graphic mode\r\n"
-				  "    -e | --extend    enter to extend mode\r\n"
+				  "    -n | --normal      enter to normal mode\r\n"
+				  "    -s | --shell       enter to shell mode\r\n"
+				  "    -m | --menu        enter to menu mode\r\n"
+				  "    -g | --graphic     enter to graphic mode\r\n"
+				  "    -a | --application enter to extend mode\r\n"
 };
 
 static __init void exit_cmd_init(void)

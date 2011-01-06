@@ -92,11 +92,11 @@ int xboot_main(int argc, char * argv[])
 		}
 
 		/*
-		 * extend mode
+		 * application mode
 		 */
-		else if(xboot_get_mode() == MODE_EXTEND)
+		else if(xboot_get_mode() == MODE_APPLICATION)
 		{
-			run_extend_mode();
+			run_application_mode();
 		}
 
 		/*

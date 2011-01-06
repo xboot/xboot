@@ -1,5 +1,5 @@
 /*
- * init/mode/run_graphic.c
+ * arch/arm/mach-realview/realview-app.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,18 +20,30 @@
  *
  */
 
-
 #include <configs.h>
 #include <default.h>
+#include <types.h>
+#include <xboot.h>
+#include <xboot/log.h>
+#include <xboot/initcall.h>
 #include <mode/mode.h>
 
-/*
- * running the extend mode
- */
-void run_extend_mode(void)
+
+static void application(void)
 {
 	do {
+		/*
+		 * enter to shell mode
+		 */
 		xboot_set_mode(MODE_SHELL);
 
-	} while(xboot_get_mode() == MODE_EXTEND);
+	} while(xboot_get_mode() == MODE_APPLICATION);
 }
+
+static __init void realview_application_init(void)
+{
+	if(!register_application(application))
+		LOG_E("failed to register application");
+}
+
+module_init(realview_application_init, LEVEL_MACH_RES);

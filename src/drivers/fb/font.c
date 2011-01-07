@@ -51,12 +51,7 @@ static struct font_reader_list __font_reader_list = {
 };
 static struct font_reader_list * font_reader_list = &__font_reader_list;
 
-/*
- * default global font
- */
-static struct font * default_font = NULL;
-
-static const x_u8 default_font_ascii_glyph_data[128][16] = {
+static const x_u8 default_font_glyph_data_0000_007f[128][16] = {
 	[0x0] = {
 		0x00,	/* ________ */
 		0x00,	/* ________ */
@@ -2490,6 +2485,24 @@ static const x_u8 default_font_ascii_glyph_data[128][16] = {
 	}
 };
 
+static struct font_glyph * default_font_glyph(x_u32 code)
+{
+	static struct font_glyph glyph;
+	x_u8 * data;
+
+	if( (code >= 0) && (code <= 0x7f) )
+		data = (x_u8 *)(&default_font_glyph_data_0000_007f[code][0]);
+	else
+		return NULL;
+
+	glyph.code = code;
+	glyph.w = 8;
+	glyph.h = 16;
+	glyph.data = data;
+
+	return &glyph;
+}
+
 static const x_u8 unkown_font_data[16][8] = {
 	[0x0] = {
 		0x00,	/* ________ */
@@ -3011,6 +3024,8 @@ x_bool uninstall_font(const char * name)
  */
 static struct font_glyph * font_lookup_glyph(struct font * font, x_u32 code)
 {
+	struct font_glyph * glyph;
+
 	struct font_list * f_list;
 	struct list_head * f_pos;
 	struct font_glyph_list * list;
@@ -3027,12 +3042,8 @@ static struct font_glyph * font_lookup_glyph(struct font * font, x_u32 code)
 		}
 	}
 
-	hash = code % default_font->size;
-	hlist_for_each_entry(list,  pos, &(default_font->table[hash]), node)
-	{
-		if(list->glyph->code == code)
-			return list->glyph;
-	}
+	if((glyph = default_font_glyph(code)) != NULL)
+		return glyph;
 
 	for(f_pos = (&font_list->entry)->next; f_pos != (&font_list->entry); f_pos = f_pos->next)
 	{
@@ -3239,7 +3250,7 @@ static x_s32 fonts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[font]");
+	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[fonts]");
 	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct font_list, entry);
@@ -3267,59 +3278,11 @@ static struct proc fonts_proc = {
 
 static __init void font_pure_sync_init(void)
 {
-	struct font_glyph * glyph;
-	x_u8 * data;
-	x_s32 i;
-
-	if(!font_create(&default_font, "default", 256))
-		return;
-
-	for(i = 0; i < ARRAY_SIZE(default_font_ascii_glyph_data); i++)
-	{
-		glyph = malloc(sizeof(struct font_glyph));
-		if(!glyph)
-			continue;
-
-		data = malloc(16);
-		if(!data)
-		{
-			free(glyph);
-			continue;
-		}
-
-		memcpy(data, &default_font_ascii_glyph_data[i][0], 16);
-
-		glyph->code = i;
-		glyph->w = 8;
-		glyph->h = 16;
-		glyph->data = data;
-
-		add_font_glyph(default_font, glyph);
-	}
-
 	proc_register(&fonts_proc);
 }
 
 static __exit void font_pure_sync_exit(void)
 {
-	struct font_list * list;
-	struct list_head * head, * curr, * next;
-
-	head = &font_list->entry;
-	curr = head->next;
-
-	while(curr != head)
-	{
-		list = list_entry(curr, struct font_list, entry);
-
-		next = curr->next;
-		font_destory(list->font);
-		list_del(curr);
-		free(list);
-		curr = next;
-	}
-	font_destory(default_font);
-
 	proc_unregister(&fonts_proc);
 }
 

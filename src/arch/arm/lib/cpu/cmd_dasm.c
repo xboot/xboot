@@ -1,5 +1,5 @@
 /*
- * arch/arm/lib/cmd/cmd_dasm.c
+ * arch/arm/lib/cpu/cmd_dasm.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

@@ -1,5 +1,5 @@
 /*
- * kernel/command/cmd_bootlinux.c
+ * arch/arm/lib/cpu/cmd_bootlinux.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -26,7 +26,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <vsprintf.h>
-#include <shell/env.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/linux.h>
@@ -52,21 +51,21 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 	struct tag * params;
 	x_s8 *p;
 
-	if(argc != 3)
+	if(argc != 5)
 	{
-		printk("usage:\r\n    bootlinux <KERNEL ADDR> <PARAM ADDR>\r\n");
+		printk("usage:\r\n    bootlinux <KERNEL ADDR> <PARAM ADDR> <MACH TYPE> <COMMAND LINE>\r\n");
 		return -1;
 	}
 
 	if(!mach)
 	{
-		printk("do not get machine information.\r\n");
+		printk("can not get machine information.\r\n");
 		return -1;
 	}
 
-	linux_mach_type = simple_strtou32((x_s8*)env_get("linux-machtype", "0"), NULL, 0);
 	linux_kernel = simple_strtou32(argv[1], NULL, 0);
 	linux_tag_placement = simple_strtou32(argv[2], NULL, 0);
+	linux_mach_type = simple_strtou32(argv[3], NULL, 0);
 
 	/* setup linux kernel boot params */
 	params = (struct tag *)linux_tag_placement;
@@ -87,7 +86,7 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 	params = tag_next(params);
 
 	/* command line tags */
-	p = (x_s8*)env_get("linux-cmdline", NULL);
+	p = (x_s8 *)argv[4];
 	if(p && strlen(p))
 	{
 		params->hdr.tag = ATAG_CMDLINE;
@@ -117,8 +116,8 @@ static struct command bootlinux_cmd = {
 	.name		= "bootlinux",
 	.func		= bootlinux,
 	.desc		= "boot and execute linux kernel\r\n",
-	.usage		= "bootlinux <KERNEL ADDR> <PARAM ADDR>\r\n",
-	.help		= "    boot and execute kernel with kernel address and linux params address\r\n"
+	.usage		= "bootlinux <KERNEL ADDR> <PARAM ADDR> <MACH TYPE> <COMMAND LINE>\r\n",
+	.help		= "    boot and execute kernel for arm platform\r\n"
 };
 
 static __init void bootlinux_cmd_init(void)

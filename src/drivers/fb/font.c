@@ -2485,6 +2485,196 @@ static const x_u8 default_font_glyph_data_0000_007f[128][16] = {
 	}
 };
 
+static const x_u8 default_font_glyph_data_2500[16] = {
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0xff,		/* XXXXXXXX */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+};
+
+static const x_u8 default_font_glyph_data_2502[16] = {
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+};
+
+static const x_u8 default_font_glyph_data_250c[16] = {
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x1f,		/* ___XXXXX */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+};
+
+static const x_u8 default_font_glyph_data_2510[16] = {
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0xf8,		/* XXXXX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+};
+
+static const x_u8 default_font_glyph_data_2514[16] = {
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x1f,		/* ___XXXXX */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+};
+
+static const x_u8 default_font_glyph_data_2518[16] = {
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0x18,		/* ___XX___ */
+	0xf8,		/* XXXXX___ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+};
+
+static const x_u8 default_font_glyph_data_25b2[16] = {
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x10,		/* ___X____ */
+	0x38,		/* __XXX___ */
+	0x38,		/* __XXX___ */
+	0x7c,		/* _XXXXX__ */
+	0x7c,		/* _XXXXX__ */
+	0xfe,		/* XXXXXXX_ */
+	0xfe,		/* XXXXXXX_ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+};
+
+static const x_u8 default_font_glyph_data_25b6[16] = {
+	0x00,		/* ________ */
+	0x80,		/* X_______ */
+	0xc0,		/* XX______ */
+	0xe0,		/* XXX_____ */
+	0xf0,		/* XXXX____ */
+	0xf8,		/* XXXXX___ */
+	0xfe,		/* XXXXXXX_ */
+	0xf8,		/* XXXXX___ */
+	0xf0,		/* XXXX____ */
+	0xe0,		/* XXX_____ */
+	0xc0,		/* XX______ */
+	0x80,		/* X_______ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+};
+
+static const x_u8 default_font_glyph_data_25bc[16] = {
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0xfe,		/* XXXXXXX_ */
+	0xfe,		/* XXXXXXX_ */
+	0x7c,		/* _XXXXX__ */
+	0x7c,		/* _XXXXX__ */
+	0x38,		/* __XXX___ */
+	0x38,		/* __XXX___ */
+	0x10,		/* ___X____ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+};
+
+static const x_u8 default_font_glyph_data_25c0[16] = {
+	0x00,		/* ________ */
+	0x02,		/* ______X_ */
+	0x06,		/* _____XX_ */
+	0x0e,		/* ____XXX_ */
+	0x1e,		/* ___XXXX_ */
+	0x3e,		/* __XXXXX_ */
+	0xfe,		/* XXXXXXX_ */
+	0x3e,		/* __XXXXX_ */
+	0x1e,		/* ___XXXX_ */
+	0x0e,		/* ____XXX_ */
+	0x06,		/* _____XX_ */
+	0x02,		/* ______X_ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+	0x00,		/* ________ */
+};
+
 static struct font_glyph * default_font_glyph(x_u32 code)
 {
 	static struct font_glyph glyph;
@@ -2492,6 +2682,30 @@ static struct font_glyph * default_font_glyph(x_u32 code)
 
 	if( (code >= 0) && (code <= 0x7f) )
 		data = (x_u8 *)(&default_font_glyph_data_0000_007f[code][0]);
+
+	else if(code == 0x2500)
+		data = (x_u8 *)(&default_font_glyph_data_2500[0]);
+	else if(code == 0x2502)
+		data = (x_u8 *)(&default_font_glyph_data_2502[0]);
+
+	else if(code == 0x250c)
+		data = (x_u8 *)(&default_font_glyph_data_250c[0]);
+	else if(code == 0x2510)
+		data = (x_u8 *)(&default_font_glyph_data_2510[0]);
+	else if(code == 0x2514)
+		data = (x_u8 *)(&default_font_glyph_data_2514[0]);
+	else if(code == 0x2518)
+		data = (x_u8 *)(&default_font_glyph_data_2518[0]);
+
+	else if(code == 0x25b2)
+		data = (x_u8 *)(&default_font_glyph_data_25b2[0]);
+	else if(code == 0x25b6)
+		data = (x_u8 *)(&default_font_glyph_data_25b6[0]);
+	else if(code == 0x25bc)
+		data = (x_u8 *)(&default_font_glyph_data_25bc[0]);
+	else if(code == 0x25c0)
+		data = (x_u8 *)(&default_font_glyph_data_25c0[0]);
+
 	else
 		return NULL;
 

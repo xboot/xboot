@@ -5,7 +5,7 @@
 		<command>exit --shell</command>
 	</item>
 	<item>
-		<title>Extend Mode</title>
+		<title>Classic Video Game Tetris</title>
 		<command>tetris</command>
 	</item>
 </menu>

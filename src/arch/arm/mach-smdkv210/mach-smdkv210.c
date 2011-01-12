@@ -31,6 +31,7 @@
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
 #include <s5pv210/reg-wdg.h>
+#include <s5pv210-cp15.h>
 
 extern x_u8	__text_start[];
 extern x_u8 __text_end[];

@@ -12,8 +12,8 @@ STACK_SRV_SIZE 	= 0x2000;
 
 MEMORY
 {
-	rom (rx)	: org = 0x20000000, len = 0x00800000	/* 8 MB */
-	ram (rwx)	: org = 0x20800000, len = 0x03800000	/* 56 MB */
+	rom (rx)	: org = 0x20000000, len = 0x02000000	/* 32 MB */
+	ram (rwx)	: org = 0x22000000, len = 0x02000000	/* 32 MB */
 }
 
 SECTIONS
@@ -80,10 +80,10 @@ SECTIONS
 		PROVIDE (__ramdisk_start = .);
 		*(.ramdisk)
 		PROVIDE (__ramdisk_end = .);
-				
+
 		. = ALIGN(8);
 		*(.rodata);
-		
+
 		. = ALIGN(8);
 		*(.glue_7);
 		*(.glue_7t);
@@ -91,13 +91,13 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE (__text_end = .);
 	} > rom
-	
+
 	.data_shadow ALIGN(8) :
 	{
 		PROVIDE (__data_shadow_start = .);
 		PROVIDE (__data_shadow_end = (. + SIZEOF (.data)) );
 	} > rom
-	
+
 	.data : AT ( ADDR (.data_shadow) )
 	{
 		PROVIDE (__data_start = .);	
@@ -105,7 +105,7 @@ SECTIONS
 		. = ALIGN(8);
   		PROVIDE (__data_end = .);		
 	} > ram
-	
+
 	.bss ALIGN(8) (NOLOAD) :
 	{
 		PROVIDE (__bss_start = .);
@@ -143,7 +143,7 @@ SECTIONS
 		. += STACK_SRV_SIZE;
 		PROVIDE (__stack_srv_end = .);
 		. = ALIGN(8);
-		PROVIDE (__stack_end = .);		
+		PROVIDE (__stack_end = .);
 	} > ram
 
 	/*
@@ -160,5 +160,5 @@ SECTIONS
 	.debug_info 0 : { *(.debug_info) }
 	.debug_line 0 : { *(.debug_line) }
 	.debug_pubnames 0 : { *(.debug_pubnames) }
-	.debug_aranges 0 : { *(.debug_aranges) }	
+	.debug_aranges 0 : { *(.debug_aranges) }
 }

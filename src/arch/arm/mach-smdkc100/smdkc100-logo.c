@@ -1,8 +1,8 @@
 /*
  * arch/arm/mach-smdkc100/smdkc100-logo.c
  *
- * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
- * website: http://xboot.org
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
+ * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +25,13 @@
 #include <types.h>
 #include <xboot.h>
 #include <xboot/log.h>
+#include <fb/bitmap.h>
 #include <fb/logo.h>
 
 /*
- * the logo image, using gimp generate.
+ * the logo image
  */
-static const struct logo_image logo = {
+static const struct picture logo = {
 	200, 58, 3, (x_u8 *)
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
@@ -1121,10 +1122,10 @@ static const struct logo_image logo = {
 	"\0\0\0\0"
 };
 
-static __init void mach_logo_init(void)
+static __init void smdkc100_logo_init(void)
 {
 	if(!register_logo(&logo))
 		LOG_E("failed to register logo");
 }
 
-module_init(mach_logo_init, LEVEL_MACH_RES);
+module_init(smdkc100_logo_init, LEVEL_MACH_RES);

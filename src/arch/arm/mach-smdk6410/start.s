@@ -34,7 +34,6 @@
 .equ    CPSR_IRQ_MASK,	0x40	/* disable interrupt mode (irq) */
 .equ    CPSR_FIQ_MASK,	0x80	/* disable fast interrupt mode (fiq) */
 
-
 /*
  * exception vector table
  */

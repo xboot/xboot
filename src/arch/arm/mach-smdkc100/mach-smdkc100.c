@@ -2,7 +2,7 @@
  * arch/arm/mach-smdkc100/mach-smdkc100.c
  *
  * Copyright (c) 2007-2008  jianjun jiang <jerryjianjun@gmail.com>
- * website: http://xboot.org
+ * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,15 +24,12 @@
 #include <default.h>
 #include <types.h>
 #include <macros.h>
-#include <mode.h>
 #include <io.h>
-#include <shell/env.h>
-#include <shell/menu.h>
+#include <mode/mode.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
-#include <terminal/terminal.h>
 #include <s5pc100-cp15.h>
 #include <s5pc100/reg-gpio.h>
 #include <s5pc100/reg-wdg.h>
@@ -66,7 +63,7 @@ static void mach_init(void)
  */
 static x_bool mach_halt(void)
 {
-	return FALSE;
+	return TRUE;
 }
 
 /*
@@ -84,6 +81,14 @@ static x_bool mach_reset(void)
 	writel(S5PC100_WTCON, 0x0021);
 
 	return TRUE;
+}
+
+/*
+ * get system mode
+ */
+static enum mode mach_getmode(void)
+{
+	return MODE_MENU;
 }
 
 /*
@@ -115,79 +120,10 @@ x_bool mach_cleanup(void)
 /*
  * for anti-piracy
  */
-x_bool mach_genuine(void)
+static x_bool mach_genuine(void)
 {
 	return TRUE;
 }
-
-/*
- * change default mode to menu mode.
- */
-x_bool mach_menumode(void)
-{
-	return FALSE;
-}
-
-/*
- * default stdin console. must place NULL at the end.
- */
-static struct stdin default_stdin[] = {
-	{
-		.name		= "tty-uart0"
-	}, {
-		.name		= "tty-keypad"
-	}, {
-		.name		= NULL
-	}
-};
-
-/*
- * default stdout console. must place NULL at the end.
- */
-static struct stdout default_stdout[] = {
-	{
-		.name		= "tty-uart0"
-	}, {
-		.name		= "tty-fb"
-	}, {
-		.name		= NULL
-	}
-};
-
-/*
- * system menu, must place NULL at the end.
- */
-static struct menu_item default_menu[] = {
-	{
-		.name		= "Boot Linux",
-		.context	= "clear; version; exit -s;"
-	}, {
-		.name		= "Shell Command Line",
-		.context	= "clear; version; exit -s;"
-	}, {
-		.name		= NULL,
-		.context	= NULL
-	}
-};
-
-/*
- * default environment variable, must place NULL at the end.
- */
-static struct env default_env[] = {
-	{
-		.key	= "prompt",
-		.value	= "xboot"
-	}, {
-		.key	= "linux-machtype",
-		.value	= "1826"
-	}, {
-		.key	= "linux-cmdline",
-		.value	= "console=tty0, console=ttySAC0"
-	}, {
-		.key	= NULL,
-		.value	= NULL
-	}
-};
 
 /*
  * a portable data interface for machine.
@@ -204,18 +140,19 @@ static struct machine smdkc100 = {
 	},
 
 	.res = {
-		.mem_start			= 0x20000000,
-		.mem_end			= 0x20000000 + SZ_256M -1,
+		.mem_banks = {
+			[0] = {
+				.start		= 0x20000000,
+				.end		= 0x20000000 + SZ_256M - 1,
+			},
+
+			[1] = {
+				.start		= 0,
+				.end		= 0,
+			},
+		},
 
 		.xtal				= 12*1000*1000,
-	},
-
-	.cfg = {
-		.mode				= MODE_NORMAL,
-		.stdin				= default_stdin,
-		.stdout				= default_stdout,
-		.menu				= default_menu,
-		.env				= default_env,
 	},
 
 	.link = {
@@ -243,16 +180,16 @@ static struct machine smdkc100 = {
 
 	.pm = {
 		.init 				= mach_init,
-		.standby 			= NULL,
+		.suspend			= NULL,
 		.resume				= NULL,
 		.halt				= mach_halt,
 		.reset				= mach_reset,
 	},
 
 	.misc = {
+		.getmode			= mach_getmode,
 		.cleanup			= mach_cleanup,
 		.genuine			= mach_genuine,
-		.menumode			= mach_menumode,
 	},
 
 	.priv					= NULL,

@@ -65,6 +65,14 @@ static void mach_init(void)
 }
 
 /*
+ * system halt, shutdown machine.
+ */
+static x_bool mach_halt(void)
+{
+	return TRUE;
+}
+
+/*
  * reset the cpu by setting up the watchdog timer and let him time out
  */
 static x_bool mach_reset(void)
@@ -180,7 +188,7 @@ static struct machine smdk6410 = {
 		.init 				= mach_init,
 		.suspend			= NULL,
 		.resume				= NULL,
-		.halt				= NULL,
+		.halt				= mach_halt,
 		.reset				= mach_reset,
 	},
 

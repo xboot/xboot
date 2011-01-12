@@ -168,14 +168,14 @@ x_bool console_stdio_load(char * file)
 		return FALSE;
 	}
 
-	stdin = xml_get(root, "stdin", 0, -1);
+	stdin = xml_get(root, "stdin", -1);
 	if(! stdin)
 	{
 		xml_free(root);
 		return FALSE;
 	}
 
-	stdout = xml_get(root, "stdout", 0, -1);
+	stdout = xml_get(root, "stdout", -1);
 	if(! stdout)
 	{
 		xml_free(root);

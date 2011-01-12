@@ -1,7 +1,7 @@
 /*
  * arch/arm/mach-sbc2410x/start.s
  *
- * Copyright (c) 2007-2008  jianjun jiang
+ * Copyright (c) 2007-2008  jianjun jiang <jerryjianjun@gmail.com>
  * website: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -84,14 +84,12 @@ _irq:
 _fiq:
 	.long fiq
 
-
 /*
  * xboot magics
  */
-
 /* magic number so we can verify that we only put */
 	.long	0x11223344, 0x11223344, 0x11223344, 0x11223344
-/* where this xboot was linked */
+/* where the xboot was linked */
 	.long	_start
 /* platform, cpu and machine id */
 	.long   0xdeadbeef
@@ -277,14 +275,20 @@ cp:	add	r1, r1, #32
  */
 undefined_instruction:
 	b	.
+
 software_interrupt:
 	b	.
+
 prefetch_abort:
 	b	.
+
 data_abort:
 	b	.
+
 not_used:
 	b	.
+
+	.global	irq
 irq:
 	/* get irq's sp */
 	ldr	sp, _stack_irq_end
@@ -309,6 +313,7 @@ irq:
 	ldr	lr, [sp, #60]				/* get pc */
 	add	sp, sp, #72
 	subs pc, lr, #4					/* return & move spsr_svc into cpsr */
+
 fiq:
 	b	.
 

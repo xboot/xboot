@@ -6,11 +6,11 @@ ifeq ($(TARGET), arm-sbc2410x)
 
 CROSS		?= arm-none-eabi-
 
-ASFLAGS		:=
+ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles
-ARFLAGS		:=
+ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=
 MCFLAGS		:=

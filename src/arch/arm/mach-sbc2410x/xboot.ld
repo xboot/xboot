@@ -19,7 +19,7 @@ MEMORY
 SECTIONS
 {   
 	.text :
-	{	
+	{
 		. = ALIGN(8);
 		PROVIDE (__text_start = .);
 		*(.text)
@@ -78,10 +78,10 @@ SECTIONS
 		PROVIDE (__ramdisk_start = .);
 		*(.ramdisk)
 		PROVIDE (__ramdisk_end = .);
-				
+
 		. = ALIGN(8);
 		*(.rodata);
-		
+
 		. = ALIGN(8);
 		*(.glue_7);
 		*(.glue_7t);
@@ -89,13 +89,13 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE (__text_end = .);
 	} > rom
-	
+
 	.data_shadow ALIGN(8) :
 	{
 		PROVIDE (__data_shadow_start = .);
 		PROVIDE (__data_shadow_end = (. + SIZEOF (.data)) );
 	} > rom
-	
+
 	.data : AT ( ADDR (.data_shadow) )
 	{
 		PROVIDE (__data_start = .);	
@@ -103,7 +103,7 @@ SECTIONS
 		. = ALIGN(8);
   		PROVIDE (__data_end = .);		
 	} > ram
-	
+
 	.bss ALIGN(8) (NOLOAD) :
 	{
 		PROVIDE (__bss_start = .);
@@ -158,5 +158,5 @@ SECTIONS
 	.debug_info 0 : { *(.debug_info) }
 	.debug_line 0 : { *(.debug_line) }
 	.debug_pubnames 0 : { *(.debug_pubnames) }
-	.debug_aranges 0 : { *(.debug_aranges) }	
+	.debug_aranges 0 : { *(.debug_aranges) }
 }

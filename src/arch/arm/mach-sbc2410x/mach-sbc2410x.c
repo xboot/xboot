@@ -1,8 +1,8 @@
 /*
  * arch/arm/mach-sbc2410x/mach-sbc2410x.c
  *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
- * website: http://xboot.org
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
+ * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,17 +24,13 @@
 #include <default.h>
 #include <types.h>
 #include <macros.h>
-#include <mode.h>
 #include <io.h>
-#include <shell/env.h>
-#include <shell/menu.h>
+#include <mode/mode.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
-#include <terminal/terminal.h>
 #include <s3c2410/reg-wdg.h>
-
 
 extern x_u8	__text_start[];
 extern x_u8 __text_end[];
@@ -51,6 +47,21 @@ extern x_u8 __heap_end[];
 extern x_u8 __stack_start[];
 extern x_u8 __stack_end[];
 
+/*
+ * system initial, like power lock
+ */
+static void mach_init(void)
+{
+
+}
+
+/*
+ * system halt, shutdown machine.
+ */
+static x_bool mach_halt(void)
+{
+	return TRUE;
+}
 
 /*
  * reset the cpu by setting up the watchdog timer and let him time out
@@ -70,17 +81,17 @@ static x_bool mach_reset(void)
 }
 
 /*
- * system initial, like power lock
+ * get system mode
  */
-static void mach_init(void)
+static enum mode mach_getmode(void)
 {
-	return;
+	return MODE_MENU;
 }
 
 /*
- * clean up system before running os.
+ * clean up system before running os
  */
-x_bool mach_cleanup(void)
+static x_bool mach_cleanup(void)
 {
 	x_u32 old, tmp;
 
@@ -107,77 +118,10 @@ x_bool mach_cleanup(void)
 /*
  * for anti-piracy
  */
-x_bool mach_genuine(void)
+static x_bool mach_genuine(void)
 {
 	return TRUE;
 }
-
-/*
- * change default mode to menu mode.
- */
-x_bool mach_menumode(void)
-{
-	return FALSE;
-}
-
-/*
- * default stdin console. must place NULL at the end.
- */
-static struct stdin default_stdin[] = {
-	{
-		.name		= "tty-uart0"
-	}, {
-		.name		= NULL
-	}
-};
-
-/*
- * default stdout console. must place NULL at the end.
- */
-static struct stdout default_stdout[] = {
-	{
-		.name		= "tty-uart0"
-	}, {
-		.name		= "tty-fb0"
-	}, {
-		.name		= NULL
-	}
-};
-
-/*
- * system menu, must place NULL at the end.
- */
-static struct menu_item default_menu[] = {
-	{
-		.name		= "Boot Linux",
-		.context	= "clear; echo boot linux;"
-	}, {
-		.name		= "Shell Command Line",
-		.context	= "clear; version; exit -s;"
-	}, {
-		.name		= NULL,
-		.context	= NULL
-	}
-};
-
-/*
- * default environment variable, must place NULL at the end.
- */
-static struct env default_env[] = {
-	{
-		.key	= "prompt",
-		.value	= "xboot"
-	}, {
-		.key	= "linux-machtype",
-		.value	= "1328"
-	}, {
-		.key	= "linux-cmdline",
-		.value	= "console=tty0, console=ttySAC0"
-	}, {
-		.key	= NULL,
-		.value	= NULL
-	}
-};
 
 /*
  * a portable data interface for machine.
@@ -194,18 +138,19 @@ static struct machine sbc2410x = {
 	},
 
 	.res = {
-		.mem_start			= 0x30000000,
-		.mem_end			= 0x30000000 + SZ_64M - 1,
+		.mem_banks = {
+			[0] = {
+				.start		= 0x30000000,
+				.end		= 0x30000000 + SZ_64M - 1,
+			},
+
+			[1] = {
+				.start		= 0,
+				.end		= 0,
+			},
+		},
 
 		.xtal				= 12*1000*1000,
-	},
-
-	.cfg = {
-		.mode				= MODE_MENU,
-		.stdin				= default_stdin,
-		.stdout				= default_stdout,
-		.menu				= default_menu,
-		.env				= default_env,
 	},
 
 	.link = {
@@ -233,16 +178,16 @@ static struct machine sbc2410x = {
 
 	.pm = {
 		.init 				= mach_init,
-		.standby 			= NULL,
+		.suspend			= NULL,
 		.resume				= NULL,
-		.halt				= NULL,
+		.halt				= mach_halt,
 		.reset				= mach_reset,
 	},
 
 	.misc = {
+		.getmode			= mach_getmode,
 		.cleanup			= mach_cleanup,
 		.genuine			= mach_genuine,
-		.menumode			= mach_menumode,
 	},
 
 	.priv					= NULL,

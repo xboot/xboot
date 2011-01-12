@@ -36,10 +36,9 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
-#include <realview/reg-lcd.h>
 #include <fb/fbsoft.h>
 #include <fb/fb.h>
-
+#include <realview/reg-lcd.h>
 
 #define	LCD_WIDTH		(800)
 #define	LCD_HEIGHT		(480)

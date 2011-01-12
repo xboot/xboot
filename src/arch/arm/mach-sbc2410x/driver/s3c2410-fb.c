@@ -1,10 +1,10 @@
 /*
  * driver/s3c2410-fb.c
  *
- * s3c2410 on chip serial drivers.
+ * s3c2410 framebuffer drivers.
  *
- * Copyright (c) 2007-2008  jianjun jiang <jerryjianjun@gmail.com>
- * website: http://xboot.org
+ * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
+ * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,18 +26,21 @@
 #include <default.h>
 #include <types.h>
 #include <string.h>
+#include <macros.h>
 #include <malloc.h>
+#include <div64.h>
 #include <io.h>
+#include <time/delay.h>
 #include <xboot/log.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
+#include <fb/fbsoft.h>
+#include <fb/fb.h>
 #include <s3c2410/reg-gpio.h>
 #include <s3c2410/reg-lcd.h>
-#include <fb/fb.h>
-
 
 #define	LCD_WIDTH		(640)
 #define	LCD_HEIGHT		(480)
@@ -58,26 +61,51 @@
 /*
  * video ram buffer for lcd.
  */
-static x_u8 vram[LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8 + 4];
-static x_u16 * pvram;
+static x_u8 vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
 static struct fb_info info = {
-	.name		= "fb0",
-	.width		= LCD_WIDTH,
-	.height		= LCD_HEIGHT,
-	.format		= FORMAT_RGB_565,
-	.bpp		= LCD_BPP,
-	.stride		= LCD_WIDTH*LCD_BPP/8,
-	.pos		= 0,
-	.base		= 0,
+	.name						= "fb",
+
+	.bitmap	= {
+		.info =	{
+			.width				= LCD_WIDTH,
+			.height 			= LCD_HEIGHT,
+			.bpp				= LCD_BPP,
+			.bytes_per_pixel 	= LCD_BPP / 8,
+			.pitch				= LCD_WIDTH * LCD_BPP / 8,
+			.red_mask_size		= 5,
+			.red_field_pos		= 0,
+			.green_mask_size	= 6,
+			.green_field_pos	= 5,
+			.blue_mask_size		= 5,
+			.blue_field_pos		= 11,
+			.alpha_mask_size	= 0,
+			.alpha_field_pos	= 0,
+			.fmt				= BITMAP_FORMAT_RGB_565,
+			.fg_r				= 0xff,
+			.fg_g				= 0xff,
+			.fg_b				= 0xff,
+			.fg_a				= 0xff,
+			.bg_r				= 0x00,
+			.bg_g				= 0x00,
+			.bg_b				= 0x00,
+			.bg_a				= 0x00,
+		},
+
+		.viewport = {
+			.left				= 0,
+			.top				= 0,
+			.right				= LCD_WIDTH,
+			.bottom				= LCD_HEIGHT,
+		},
+
+		.allocated				= FALSE,
+		.data					= &vram,
+	},
 };
 
 static void fb_init(void)
 {
-	/* setting vram base address */
-	info.base = (void *)VRAM_ADDR;
-	pvram = (x_u16 *)VRAM_ADDR;
-
 	/* initial lcd controler */
 	writel(S3C2410_LCDCON1, REGS_LCDCON1);
 	writel(S3C2410_LCDCON2, REGS_LCDCON2);
@@ -99,58 +127,42 @@ static void fb_init(void)
 
 static void fb_exit(void)
 {
-	writel(S3C2410_LCDCON1, REGS_LCDCON1&(~S3C2410_LCDCON1_ENVID));
-}
-
-static void fb_bl(x_u8 brightness)
-{
 	return;
-}
-
-static void fb_set_pixel(x_u32 x, x_u32 y, x_u32 c)
-{
-	 *(pvram + LCD_WIDTH*y + x) = c;
-}
-
-static x_u32 fb_get_pixel(x_u32 x, x_u32 y)
-{
-	return *(pvram + LCD_WIDTH*y + x);
-}
-
-static void fb_hline(x_u32 x0, x_u32 y0, x_u32 x, x_u32 c)
-{
-	x_u16 * p = (x_u16 *)(pvram + LCD_WIDTH*y0 + x0);
-
-	while(x--)
-		*(p++) = c;
-}
-
-static void fb_vline(x_u32 x0, x_u32 y0, x_u32 y, x_u32 c)
-{
-	x_u16 * p = (x_u16 *)(pvram + LCD_WIDTH*y0 + x0);
-
-	while(y--)
-	{
-		*p = c;
-		p += LCD_WIDTH;
-	}
 }
 
 static x_s32 fb_ioctl(x_u32 cmd, void * arg)
 {
+	static x_u8 brightness = 0;
+	x_u8 * p;
+
+	switch(cmd)
+	{
+	case IOCTL_SET_FB_BACKLIGHT:
+		p = (x_u8 *)arg;
+		brightness = (*p) & 0xff;
+		return 0;
+
+	case IOCTL_GET_FB_BACKLIGHT:
+		p = (x_u8 *)arg;
+		*p = brightness;
+		return 0;
+
+	default:
+		break;
+	}
+
 	return -1;
 }
 
 static struct fb s3c2410_fb = {
-	.info		= &info,
-	.init		= fb_init,
-	.exit		= fb_exit,
-	.bl			= fb_bl,
-	.set_pixel	= fb_set_pixel,
-	.get_pixel	= fb_get_pixel,
-	.hline		= fb_hline,
-	.vline		= fb_vline,
-	.ioctl		= fb_ioctl,
+	.info			= &info,
+	.init			= fb_init,
+	.exit			= fb_exit,
+	.map_color		= fb_soft_map_color,
+	.unmap_color	= fb_soft_unmap_color,
+	.fill_rect		= fb_soft_fill_rect,
+	.blit_bitmap	= fb_soft_blit_bitmap,
+	.ioctl			= fb_ioctl,
 };
 
 static __init void s3c2410_fb_init(void)

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+	<item>
+		<title>Shell Command Line</title>
+		<command>exit --shell</command>
+	</item>
+	<item>
+		<title>Boot Linux</title>
+		<command>nand read nand0 0xd00000 0x300000 -r 0x50008000; bootlinux 0x50008000 0x50000100 1626 "init=/init console=ttySAC0,115200";</command>
+	</item>
+</menu>

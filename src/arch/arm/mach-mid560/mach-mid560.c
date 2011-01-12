@@ -2,7 +2,7 @@
  * arch/arm/mach-mid560/mach-mid560.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
- * website: http://xboot.org
+ * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,8 @@
 #include <default.h>
 #include <types.h>
 #include <macros.h>
-#include <mode.h>
 #include <io.h>
-#include <shell/env.h>
-#include <shell/menu.h>
+#include <mode/mode.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -102,9 +100,32 @@ static x_bool mach_reset(void)
 }
 
 /*
- * clean up system before running os.
+ * get system mode
  */
-x_bool mach_cleanup(void)
+static enum mode mach_getmode(void)
+{
+	x_u32 gpm;
+
+	/* set gpm0 intput and pull up */
+	writel(S3C6410_GPMCON, (readl(S3C6410_GPMCON) & ~(0xf<<0)) | (0x0<<0));
+	writel(S3C6410_GPMPUD, (readl(S3C6410_GPMPUD) & ~(0x3<<0)) | (0x2<<0));
+
+	/* set gpm3 intput and pull up */
+	writel(S3C6410_GPMCON, (readl(S3C6410_GPMCON) & ~(0xf<<12)) | (0x0<<12));
+	writel(S3C6410_GPMPUD, (readl(S3C6410_GPMPUD) & ~(0x3<<6)) | (0x2<<6));
+
+	/* gpm0 and gpm3 key down */
+	gpm = readl(S3C6410_GPMDAT) & 0x09;
+	if(gpm == 0x09)
+		return MODE_MENU;
+
+	return MODE_MENU;
+}
+
+/*
+ * clean up system before running os
+ */
+static x_bool mach_cleanup(void)
 {
 	/* disable irq */
 	irq_disable();
@@ -130,68 +151,10 @@ x_bool mach_cleanup(void)
 /*
  * for anti-piracy
  */
-x_bool mach_genuine(void)
+static x_bool mach_genuine(void)
 {
 	return TRUE;
 }
-
-/*
- * change default mode to menu mode.
- */
-x_bool mach_menumode(void)
-{
-	x_u32 gpm;
-
-	/* set gpm0 intput and pull up */
-	writel(S3C6410_GPMCON, (readl(S3C6410_GPMCON) & ~(0xf<<0)) | (0x0<<0));
-	writel(S3C6410_GPMPUD, (readl(S3C6410_GPMPUD) & ~(0x3<<0)) | (0x2<<0));
-
-	/* set gpm3 intput and pull up */
-	writel(S3C6410_GPMCON, (readl(S3C6410_GPMCON) & ~(0xf<<12)) | (0x0<<12));
-	writel(S3C6410_GPMPUD, (readl(S3C6410_GPMPUD) & ~(0x3<<6)) | (0x2<<6));
-
-	/* gpm0 and gpm3 key down */
-	gpm = readl(S3C6410_GPMDAT) & 0x09;
-	if(gpm == 0x09)
-		return TRUE;
-
-	return FALSE;
-}
-
-/*
- * system menu, must place NULL at the end.
- */
-static struct menu_item default_menu[] = {
-	{
-		.name		= "Boot Linux",
-		.context	= "nand read nand0 0xd00000 0x300000 -r 0x50008000; bootlinux 0x50008000 0x50000100;"
-	}, {
-		.name		= "Shell Command Line",
-		.context	= "clear; version; exit -s;"
-	}, {
-		.name		= NULL,
-		.context	= NULL
-	}
-};
-
-/*
- * default environment variable, must place NULL at the end.
- */
-static struct env default_env[] = {
-	{
-		.key	= "prompt",
-		.value	= "xboot"
-	}, {
-		.key	= "linux-machtype",
-		.value	= "1626"
-	}, {
-		.key	= "linux-cmdline",
-		.value	= "init=/init console=ttySAC0,115200"
-	}, {
-		.key	= NULL,
-		.value	= NULL
-	}
-};
 
 /*
  * a portable data interface for machine.
@@ -208,18 +171,19 @@ static struct machine mid560 = {
 	},
 
 	.res = {
-		.mem_start			= 0x50000000,
-		.mem_end			= 0x50000000 + SZ_128M -1,
+		.mem_banks = {
+			[0] = {
+				.start		= 0x50000000,
+				.end		= 0x50000000 + SZ_128M - 1,
+			},
+
+			[1] = {
+				.start		= 0,
+				.end		= 0,
+			},
+		},
 
 		.xtal				= 12*1000*1000,
-	},
-
-	.cfg = {
-		.mode				= MODE_NORMAL,
-		.stdin				= "uart0",
-		.stdout				= "fb",
-		.menu				= default_menu,
-		.env				= default_env,
 	},
 
 	.link = {
@@ -247,16 +211,16 @@ static struct machine mid560 = {
 
 	.pm = {
 		.init 				= mach_init,
-		.standby 			= NULL,
+		.suspend			= NULL,
 		.resume				= NULL,
 		.halt				= mach_halt,
 		.reset				= mach_reset,
 	},
 
 	.misc = {
+		.getmode			= mach_getmode,
 		.cleanup			= mach_cleanup,
 		.genuine			= mach_genuine,
-		.menumode			= mach_menumode,
 	},
 
 	.priv					= NULL,

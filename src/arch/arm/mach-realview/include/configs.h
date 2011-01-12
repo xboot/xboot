@@ -35,7 +35,7 @@ typedef void*					x_addr;
 #undef		__SYS_64BIT
 
 /*
- * define the CONFIG_HEAP_SIZE is 32MB
+ * malloc heap size
  */
 #define	CONFIG_HEAP_SIZE		(SZ_32M)
 

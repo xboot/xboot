@@ -127,8 +127,17 @@ static struct machine realview = {
 	},
 
 	.res = {
-		.mem_start			= 0x00000000,
-		.mem_end			= 0x00000000 + SZ_128M - 1,
+		.mem_banks = {
+			[0] = {
+				.start		= 0x00000000,
+				.end		= 0x00000000 + SZ_128M - 1,
+			},
+
+			[1] = {
+				.start		= 0,
+				.end		= 0,
+			},
+		},
 
 		.xtal				= 12*1000*1000,
 	},

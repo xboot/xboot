@@ -50,6 +50,7 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 	struct machine * mach = get_machine();
 	struct tag * params;
 	x_s8 *p;
+	x_s32 i;
 
 	if(argc != 5)
 	{
@@ -79,11 +80,17 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 	params = tag_next(params);
 
 	/* memory tags */
-	params->hdr.tag = ATAG_MEM;
-	params->hdr.size = tag_size(tag_mem32);
-	params->u.mem.start = mach->res.mem_start;
-	params->u.mem.size = mach->res.mem_end - mach->res.mem_start;
-	params = tag_next(params);
+	for(i = 0; i < ARRAY_SIZE(mach->res.mem_banks); i++)
+	{
+		if( (mach->res.mem_banks[i].start == 0) && (mach->res.mem_banks[i].end == 0) )
+			break;
+
+		params->hdr.tag = ATAG_MEM;
+		params->hdr.size = tag_size(tag_mem32);
+		params->u.mem.start = mach->res.mem_banks[i].start;
+		params->u.mem.size = mach->res.mem_banks[i].end - mach->res.mem_banks[i].start + 1;
+		params = tag_next(params);
+	}
 
 	/* command line tags */
 	p = (x_s8 *)argv[4];

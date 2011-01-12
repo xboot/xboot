@@ -27,8 +27,10 @@ struct machine {
 	 * machine resource
 	 */
 	struct {
-		const x_sys mem_start;
-		const x_sys mem_end;
+		struct {
+			const x_sys start;
+			const x_sys end;
+		} mem_banks[8];
 
 		/* extern crystal */
 		const x_u64 xtal;

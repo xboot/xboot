@@ -20,6 +20,7 @@
 #include <time/timer.h>
 #include <time/xtime.h>
 #include <time/tick.h>
+#include <xboot/machine.h>
 #include <xboot/list.h>
 #include <xboot/log.h>
 #include <xboot/irq.h>

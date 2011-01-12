@@ -1,8 +1,6 @@
 /*
  * driver/gpio-keypad.c
  *
- * gpio key drivers.
- *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
@@ -32,30 +30,17 @@
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
-#include <xboot/resource.h>
+#include <time/tick.h>
+#include <time/timer.h>
 #include <input/keyboard/keyboard.h>
 #include <s5pv210/reg-gpio.h>
 
+static struct timer_list keypad_timer;
 
-static void keypad_init(void)
-{
-	/* set GPH0_4 intput and pull up */
-	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<16)) | (0x0<<16));
-	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<8)) | (0x2<<8));
-
-	/* set GPH3_7 intput and pull up */
-	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<28)) | (0x0<<28));
-	writel(S5PV210_GPH3PUD, (readl(S5PV210_GPH3PUD) & ~(0x3<<14)) | (0x2<<14));
-}
-
-static void keypad_exit(void)
-{
-	return;
-}
-
-static x_bool keypad_read(enum keycode * code)
+static void keypad_timer_function(x_u32 data)
 {
 	static x_u32 key_old = 0x3;
+	x_u32 keyup, keydown;
 	x_u32 key = 0;
 
 	if(readl(S5PV210_GPH0DAT) & (0x1<<4))
@@ -78,23 +63,55 @@ static x_bool keypad_read(enum keycode * code)
 
 	if(key != key_old)
 	{
+		keyup = (key ^ key_old) & key_old;
+		keydown = (key ^ key_old) & key;
 		key_old = key;
 
-		if(!(key & (0x1<<0)))
+		if(keyup)
 		{
-			*code = KEY_DOWN;
-			return TRUE;
+			if(keyup & (0x1<<0))				/* GPH0_4 */
+				input_report(INPUT_KEYBOARD, KEY_DOWN, KEY_BUTTON_UP);
+			else if(keyup & (0x1<<1))			/* GPH3_7 */
+				input_report(INPUT_KEYBOARD, KEY_ENTER, KEY_BUTTON_UP);
 		}
-		else if(!(key & (0x1<<1)))
+
+		if(keydown)
 		{
-			*code = KEY_ENTER;
-			return TRUE;
+			if(keyup & (0x1<<0))				/* GPH0_4 */
+				input_report(INPUT_KEYBOARD, KEY_DOWN, KEY_BUTTON_DOWN);
+			else if(keyup & (0x1<<1))			/* GPH3_7 */
+				input_report(INPUT_KEYBOARD, KEY_ENTER, KEY_BUTTON_DOWN);
 		}
-		else
-			return FALSE;
+
+		input_sync(INPUT_KEYBOARD);
 	}
 
-	return FALSE;
+	/* mod timer for next 10 ms */
+	mod_timer(&keypad_timer, jiffies + get_system_hz() / 100);
+}
+
+static x_bool keypad_probe(void)
+{
+	/* set GPH0_4 intput and pull up */
+	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<16)) | (0x0<<16));
+	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<8)) | (0x2<<8));
+
+	/* set GPH3_7 intput and pull up */
+	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<28)) | (0x0<<28));
+	writel(S5PV210_GPH3PUD, (readl(S5PV210_GPH3PUD) & ~(0x3<<14)) | (0x2<<14));
+
+	/* setup timer for keypad */
+	setup_timer(&keypad_timer, keypad_timer_function, 0);
+
+	/* mod timer for 10 ms */
+	mod_timer(&keypad_timer, jiffies + get_system_hz() / 100);
+
+	return TRUE;
+}
+
+static x_bool keypad_remove(void)
+{
+	return TRUE;
 }
 
 static x_s32 keypad_ioctl(x_u32 cmd, void * arg)
@@ -102,24 +119,24 @@ static x_s32 keypad_ioctl(x_u32 cmd, void * arg)
 	return -1;
 }
 
-static struct keyboard_driver gpio_keypad = {
+static struct input gpio_keypad = {
 	.name		= "keypad",
-	.init		= keypad_init,
-	.exit		= keypad_exit,
-	.read		= keypad_read,
+	.type		= INPUT_KEYBOARD,
+	.probe		= keypad_probe,
+	.remove		= keypad_remove,
 	.ioctl		= keypad_ioctl,
 };
 
 static __init void gpio_keypad_init(void)
 {
-	if(!register_keyboard(&gpio_keypad))
-		LOG_E("failed to register keyboard driver '%s'", gpio_keypad.name);
+	if(!register_input(&gpio_keypad))
+		LOG_E("failed to register input '%s'", gpio_keypad.name);
 }
 
 static __exit void gpio_keypad_exit(void)
 {
-	if(!unregister_keyboard(&gpio_keypad))
-		LOG_E("failed to unregister keyboard driver '%s'", gpio_keypad.name);
+	if(!unregister_input(&gpio_keypad))
+		LOG_E("failed to unregister input '%s'", gpio_keypad.name);
 }
 
 module_init(gpio_keypad_init, LEVEL_DRIVER);

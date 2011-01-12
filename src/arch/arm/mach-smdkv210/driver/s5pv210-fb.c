@@ -36,16 +36,16 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
+#include <fb/fbsoft.h>
+#include <fb/fb.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-lcd.h>
-#include <fb/fb.h>
-
 
 /* lcd module - lte480wv */
 #define	LCD_WIDTH		(800)
 #define	LCD_HEIGHT		(480)
 #define	LCD_BPP			(16)
-#define	LCD_FORMAT		(FORMAT_RGB_565)
+
 #if 0
 #define VBPD			(7)
 #define VFPD			(5)
@@ -70,26 +70,51 @@
  * video ram buffer for lcd.
  */
 static x_u8 vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
-static x_u16 * pvram;
 
 static struct fb_info info = {
-	.name		= "fb",
-	.width		= LCD_WIDTH,
-	.height		= LCD_HEIGHT,
-	.format		= LCD_FORMAT,
-	.bpp		= LCD_BPP,
-	.stride		= LCD_WIDTH*LCD_BPP/8,
-	.pos		= 0,
-	.base		= 0,
+	.name						= "fb",
+
+	.bitmap	= {
+		.info =	{
+			.width				= LCD_WIDTH,
+			.height 			= LCD_HEIGHT,
+			.bpp				= LCD_BPP,
+			.bytes_per_pixel 	= LCD_BPP / 8,
+			.pitch				= LCD_WIDTH * LCD_BPP / 8,
+			.red_mask_size		= 5,
+			.red_field_pos		= 0,
+			.green_mask_size	= 6,
+			.green_field_pos	= 5,
+			.blue_mask_size		= 5,
+			.blue_field_pos		= 11,
+			.alpha_mask_size	= 0,
+			.alpha_field_pos	= 0,
+			.fmt				= BITMAP_FORMAT_RGB_565,
+			.fg_r				= 0xff,
+			.fg_g				= 0xff,
+			.fg_b				= 0xff,
+			.fg_a				= 0xff,
+			.bg_r				= 0x00,
+			.bg_g				= 0x00,
+			.bg_b				= 0x00,
+			.bg_a				= 0x00,
+		},
+
+		.viewport = {
+			.left				= 0,
+			.top				= 0,
+			.right				= LCD_WIDTH,
+			.bottom				= LCD_HEIGHT,
+		},
+
+		.allocated				= FALSE,
+		.data					= &vram,
+	},
 };
 
 static void fb_init(void)
 {
 	x_u64 hclk;
-
-	/* setting vram base address */
-	info.base = (void *)((x_u32)(&vram));
-	pvram = (x_u16 *)((x_u32)info.base);
 
 	/* set gpd0_3 (backlight pin) output and pull up and low level */
 	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0x3<<12)) | (0x1<<12));
@@ -156,12 +181,12 @@ static void fb_init(void)
 	writel(S5PV210_WINCON0, (readl(S5PV210_WINCON0) & ~(0x1<<22 | 0x1<<16 | 0x3<<9 | 0xf<<2 | 0x1<<0)) | (0x5<<2 | 0x1<<16));
 
 	/* window 0 frambuffer addresss */
-	writel(S5PV210_VIDW00ADD0B0, (x_u32)info.base);
-	writel(S5PV210_VIDW00ADD0B1, (x_u32)info.base);
-	writel(S5PV210_VIDW00ADD0B2, (x_u32)info.base);
-	writel(S5PV210_VIDW00ADD1B0, ((x_u32)info.base + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
-	writel(S5PV210_VIDW00ADD1B1, ((x_u32)info.base + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
-	writel(S5PV210_VIDW00ADD1B2, ((x_u32)info.base + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S5PV210_VIDW00ADD0B0, (x_u32)info.bitmap.data);
+	writel(S5PV210_VIDW00ADD0B1, (x_u32)info.bitmap.data);
+	writel(S5PV210_VIDW00ADD0B2, (x_u32)info.bitmap.data);
+	writel(S5PV210_VIDW00ADD1B0, ((x_u32)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S5PV210_VIDW00ADD1B1, ((x_u32)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S5PV210_VIDW00ADD1B2, ((x_u32)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
 	writel(S5PV210_VIDW00ADD2, (LCD_WIDTH*LCD_BPP/8) & 0x00001fff);
 
 	/*
@@ -262,58 +287,46 @@ static void fb_exit(void)
 //	writel(S3C6410_VIDCON0, (readl(S3C6410_VIDCON0) & (~0x3)));
 }
 
-static void fb_bl(x_u8 brightness)
+static x_s32 fb_ioctl(x_u32 cmd, void * arg)
 {
+	static x_u8 brightness = 0;
+	x_u8 * p;
+
+	switch(cmd)
+	{
+	case IOCTL_SET_FB_BACKLIGHT:
+		p = (x_u8 *)arg;
+		brightness = (*p) & 0xff;
+
 	if(brightness)
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x1<<3));
 	else
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x0<<3));
-}
 
-static void fb_set_pixel(x_u32 x, x_u32 y, x_u32 c)
-{
-	*(pvram + LCD_WIDTH*y + x) = c;
-}
+		return 0;
 
-static x_u32 fb_get_pixel(x_u32 x, x_u32 y)
-{
-	return *(pvram + LCD_WIDTH*y + x);
-}
+	case IOCTL_GET_FB_BACKLIGHT:
+		p = (x_u8 *)arg;
+		*p = brightness;
+		return 0;
 
-static void fb_hline(x_u32 x0, x_u32 y0, x_u32 x, x_u32 c)
-{
-	x_u16 * p = (x_u16 *)(pvram + LCD_WIDTH*y0 + x0);
-
-	while(x--)
-		*(p++) = c;
-}
-
-static void fb_vline(x_u32 x0, x_u32 y0, x_u32 y, x_u32 c)
-{
-	x_u16 * p = (x_u16 *)(pvram + LCD_WIDTH*y0 + x0);
-
-	while(y--)
-	{
-		*p = c;
-		p += LCD_WIDTH;
+	default:
+		break;
 	}
-}
 
-static x_s32 fb_ioctl(x_u32 cmd, void * arg)
-{
 	return -1;
 }
 
+
 static struct fb s5pv210_fb = {
-	.info		= &info,
-	.init		= fb_init,
-	.exit		= fb_exit,
-	.bl			= fb_bl,
-	.set_pixel	= fb_set_pixel,
-	.get_pixel	= fb_get_pixel,
-	.hline		= fb_hline,
-	.vline		= fb_vline,
-	.ioctl		= fb_ioctl,
+	.info			= &info,
+	.init			= fb_init,
+	.exit			= fb_exit,
+	.map_color		= fb_soft_map_color,
+	.unmap_color	= fb_soft_unmap_color,
+	.fill_rect		= fb_soft_fill_rect,
+	.blit_bitmap	= fb_soft_blit_bitmap,
+	.ioctl			= fb_ioctl,
 };
 
 static __init void s5pv210_fb_init(void)

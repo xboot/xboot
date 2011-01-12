@@ -36,11 +36,10 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
-#include <s3c6410/reg-gpio.h>
-#include <s3c6410/reg-lcd.h>
 #include <fb/fbsoft.h>
 #include <fb/fb.h>
-
+#include <s3c6410/reg-gpio.h>
+#include <s3c6410/reg-lcd.h>
 
 /* lcd module - lte480wv */
 #define	LCD_WIDTH		(800)

@@ -4,13 +4,13 @@
 #
 
 
-.PHONY: all docs clean
+.PHONY: all doc clean
 
 all:
 	@$(MAKE) -C src all
 
-docs:
-	@$(MAKE) -C src docs
+doc:
+	@$(MAKE) -C src doc
 
 clean:
 	@$(MAKE) -C src clean

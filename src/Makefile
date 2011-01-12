@@ -143,9 +143,9 @@ OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.
 VPATH		:=	$(OBJDIRS)
 
 
-.PHONY:		all docs clean final
+.PHONY:		all doc clean fixup
 
-all:		$(OUTDIR)/$(XBOOT).bin final
+all:		$(OUTDIR)/$(XBOOT).bin fixup
 
 $(OUTDIR)/$(XBOOT).bin:			$(OUTDIR)/$(XBOOT).elf
 	@echo [OC] objcopying $@
@@ -170,7 +170,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
-docs:
+doc:
 	@echo no documents
  	
 clean:

@@ -22,7 +22,7 @@ INCDIRS		:=
 SRCDIRS		:=
 
 #
-# add final rules
+# add fixup rule
 #
 ifeq ($(strip $(HOSTOS)), linux)
 MKHEADER	:= arch/$(ARCH)/$(MACH)/tools/linux/mkheader
@@ -31,7 +31,7 @@ ifeq ($(strip $(HOSTOS)), windows)
 MKHEADER	:= arch/$(ARCH)/$(MACH)/tools/windows/mkheader
 endif
 
-final:
+fixup:
 	@echo make header information for irom booting
 	@$(MKHEADER) $(OUTDIR)/$(XBOOT).bin
 

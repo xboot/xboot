@@ -150,7 +150,7 @@ all:		$(OUTDIR)/$(XBOOT).bin fixup
 $(OUTDIR)/$(XBOOT).bin:			$(OUTDIR)/$(XBOOT).elf
 	@echo [OC] objcopying $@
 	@$(OC) $(OCFLAGS) $< $@
-	
+
 $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@echo [LD] linking $@
 	@$(CC) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Wl,--cref,-Map=$(OUTDIR)/$(XBOOT).map $^ -o $@
@@ -164,7 +164,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@echo [CC] $<
 	@$(CC) $(MCFLAGS) $(CFLAGS) $(INCDIRS) -c $< -o $@
 	@$(CC) $(MCFLAGS) $(CFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
-	
+
 .obj/%.o:	%.cpp
 	@echo [CXX] $<
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
@@ -172,11 +172,11 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 
 doc:
 	@echo no documents
- 	
+
 clean:
 	@$(RM) $(OUTDIR) $(OBJDIRS)
 	@echo clean complete.
-		
+
 # 
 # include the dependency files, should be the last of the makefile
 #

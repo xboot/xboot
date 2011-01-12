@@ -34,7 +34,7 @@
 #include <s3c6410/reg-gpio.h>
 
 /*
- * led trigger for communication using gpn14.
+ * led trigger for console using gpn14.
  */
 static void led_gpn14_init(void)
 {

@@ -569,7 +569,7 @@ static __init void s3c6410_serial_dev_init(void)
 		if(param)
 			memcpy(s3c6410_uart_driver[i].info->parameter, param, sizeof(struct serial_parameter));
 		else
-			LOG_W("can't get the resource of \'%s\', use default parameter.\r\n", s3c6410_uart_driver[i].info->name);
+			LOG_W("can't get the resource of \'%s\', use default parameter", s3c6410_uart_driver[i].info->name);
 
 		if(!register_serial(&s3c6410_uart_driver[i]))
 			LOG_E("failed to register serial driver '%s'", s3c6410_uart_driver[i].info->name);

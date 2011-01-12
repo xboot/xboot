@@ -115,7 +115,7 @@ static void fb_init(void)
 {
 	x_u64 hclk;
 
-	/* set GPF15(backlight pin) output and pull up and low level */
+	/* set gpf15 (backlight pin) output and pull up and low level */
 	writel(S3C6410_GPFCON, (readl(S3C6410_GPFCON) & ~(0x3<<30)) | (0x1<<30));
 	writel(S3C6410_GPFPUD, (readl(S3C6410_GPFPUD) & ~(0x3<<30)) | (0x2<<30));
 	writel(S3C6410_GPFDAT, (readl(S3C6410_GPFDAT) & ~(0x1<<15)) | (0x0<<15));

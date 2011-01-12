@@ -37,12 +37,7 @@ typedef void*					x_addr;
 /*
  * malloc heap size
  */
-#define	CONFIG_HEAP_SIZE		(SZ_1M * 60)
-
-/*
- * no framebuffer terminal scroll up
- */
-#define	CONFIG_FB_SCROLL_UP		(0)
+#define	CONFIG_HEAP_SIZE		(SZ_1M * 16)
 
 
 #endif /* __CONFIGS_H__ */

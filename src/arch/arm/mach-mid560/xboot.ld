@@ -75,7 +75,7 @@ SECTIONS
 		*(.exitcall_0s.text)
 		*(.exitcall_0.text)
 		PROVIDE (__exitcall_end = .);
-		
+
 		. = ALIGN(8);
 		PROVIDE (__ramdisk_start = .);
 		*(.ramdisk)

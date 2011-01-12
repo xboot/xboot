@@ -46,7 +46,7 @@
 #define	LCD_WIDTH		(800)
 #define	LCD_HEIGHT		(480)
 #define	LCD_BPP			(16)
-#define	LCD_FORMAT		(FORMAT_RGB_565)
+
 #define VBPD			(33)
 #define VFPD			(10)
 #define VSPW			(2)

@@ -38,7 +38,7 @@
 static x_s32 cat(x_s32 argc, const x_s8 **argv)
 {
 	struct stat st;
-	x_s8 buf[128];
+	x_s8 * buf;
 	x_s32 fd;
 	x_s32 i, n;
 	x_s8 c;
@@ -61,16 +61,21 @@ static x_s32 cat(x_s32 argc, const x_s8 **argv)
 		return -1;
 	}
 
+	buf = malloc(SZ_64K);
+	if(!buf)
+		return -1;
+
 	fd = open((const char *)argv[1], O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 	if(fd < 0)
 	{
 		printk("can not to open the file '%s'\r\n", argv[1]);
+		free(buf);
 		return -1;
 	}
 
-	while((n = read(fd, (void *)buf, 128)) > 0)
+	while((n = read(fd, (void *)buf, SZ_64K)) > 0)
 	{
-		for(i=0; i<n; i++)
+		for(i = 0; i < n; i++)
 		{
 			c = buf[i];
 
@@ -84,8 +89,9 @@ static x_s32 cat(x_s32 argc, const x_s8 **argv)
 				printk("<%02x>", c);
 		}
 	}
+	printk("\r\n");
 
-	printk("\r\n", c);
+	free(buf);
 	close(fd);
 
 	return 0;

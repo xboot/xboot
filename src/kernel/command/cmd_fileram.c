@@ -26,6 +26,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <vsprintf.h>
+#include <time/tick.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
@@ -49,12 +50,12 @@ static x_s32 fileram(x_s32 argc, const x_s8 **argv)
 	x_s32 fd;
 	x_u32 addr, size = 0;
 	x_s32 n;
-	x_s8 buf[128];
+	x_s8 * buf;
 
 	if(argc != 4 && argc != 5)
 	{
 		usage();
-		return (-1);
+		return -1;
 	}
 
 	if( !strcmp(argv[1],(x_s8*)"-f") )
@@ -63,32 +64,36 @@ static x_s32 fileram(x_s32 argc, const x_s8 **argv)
 		{
 			printk("usage:\r\n");
 			printk("    fileram -f <file> <addr>\r\n");
-			return (-1);
+			return -1;
 		}
 
 		filename = (char *)argv[2];
 		addr = simple_strtou32(argv[3], NULL, 0);
 		size = 0;
 
+		buf = malloc(SZ_64K);
+		if(!buf)
+			return -1;
+
 		fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 		if(fd < 0)
 		{
 			printk("can not to open the file '%s'\r\n", filename);
+			free(buf);
 			return -1;
 		}
 
 	    for(;;)
 	    {
-	        n = read(fd, (void *)buf, 128);
+	        n = read(fd, (void *)(addr + size), SZ_64K);
 	        if(n <= 0)
 	        	break;
-
-			memcpy((void *)(addr+size), &buf[0], n);
 			size += n;
 	    }
 
+	    free(buf);
 		close(fd);
-		printk("copy file %s to ram 0x%08lx ~ 0x%08lx.\r\n", filename, addr, addr+size);
+		printk("copy file %s to ram 0x%08lx ~ 0x%08lx.\r\n", filename, addr, addr + size);
 	}
 	else if( !strcmp(argv[1],(x_s8*)"-r") )
 	{
@@ -113,9 +118,10 @@ static x_s32 fileram(x_s32 argc, const x_s8 **argv)
 			close(fd);
 			unlink(filename);
 			printk("failed to write file from ram\r\n");
+			return -1;
 		}
 		close(fd);
-		printk("copy ram 0x%08lx ~ 0x%08lx to file %s.\r\n", addr, addr+size, filename);
+		printk("copy ram 0x%08lx ~ 0x%08lx to file %s.\r\n", addr, addr + size, filename);
 	}
 	else
 	{

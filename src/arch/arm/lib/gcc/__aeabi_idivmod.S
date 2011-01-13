@@ -1,5 +1,5 @@
 /*
- * __aeabi_idivmod.s
+ * __aeabi_idivmod.S
  */
 
 	.globl	__aeabi_idivmod

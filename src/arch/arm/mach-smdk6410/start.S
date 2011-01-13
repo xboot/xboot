@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-mid560/start.s
+ * arch/arm/mach-smdk6410/start.S
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -33,7 +33,6 @@
 .equ    CPSR_IRQ_EN,	0x80
 .equ    CPSR_IRQ_MASK,	0x40	/* disable interrupt mode (irq) */
 .equ    CPSR_FIQ_MASK,	0x80	/* disable fast interrupt mode (fiq) */
-
 
 /*
  * exception vector table

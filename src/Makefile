@@ -136,10 +136,10 @@ XBOOT		:=	xboot
 OUTDIR		:=	../output
 OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
 
-SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.s))
+SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.S))
 CFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
 CPPFILES	:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
-OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
+OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.S=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 VPATH		:=	$(OBJDIRS)
 
 
@@ -155,7 +155,7 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@echo [LD] linking $@
 	@$(CC) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Wl,--cref,-Map=$(OUTDIR)/$(XBOOT).map $^ -o $@
 
-.obj/%.o:	%.s
+.obj/%.o:	%.S
 	@echo [AS] $<
 	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) -c $< -o $@
 	@$(AS) $(MCFLAGS) $(ASFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@

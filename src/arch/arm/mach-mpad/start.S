@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-mpad/start.s
+ * arch/arm/mach-mpad/start.S
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

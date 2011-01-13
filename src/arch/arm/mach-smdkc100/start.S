@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-sbc2410x/start.s
+ * arch/arm/mach-smdkc100/start.S
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-.include "memcfg.inc"
+.include "syscfg.inc"
 
 .equ	USR_MODE,		0x10	/* normal user mode */
 .equ 	FIQ_MODE,		0x11	/* fiq fast interrupts mode */
@@ -33,7 +33,6 @@
 .equ    CPSR_IRQ_EN,	0x80
 .equ    CPSR_IRQ_MASK,	0x40	/* disable interrupt mode (irq) */
 .equ    CPSR_FIQ_MASK,	0x80	/* disable fast interrupt mode (fiq) */
-
 
 /*
  * exception vector table
@@ -91,8 +90,8 @@ _fiq:
 	.long	0x11223344, 0x11223344, 0x11223344, 0x11223344
 /* where the xboot was linked */
 	.long	_start
-/* platform, cpu and machine id */
-	.long   0xdeadbeef
+/* platform, cpu or machine id */
+	.long   0x410fb760
 /* xboot check sum */
 	.byte   0, 0, 0, 0
 
@@ -100,55 +99,81 @@ _fiq:
  * the actual reset code
  */
 reset:
-	/* disable watch dog timer */
-	mov	r1, #0x53000000
-	mov	r2, #0x0
-	str	r2, [r1]
-
-	/* disable all interrupts */
-	mov	r1, #0x4A000000
-	mov	r2, #0xffffffff
-	str	r2, [r1, #0x08]
-	ldr	r2, =0x7ff
-	str	r2, [r1, #0x1C]
-
-	/* adjust the locktime register */
-	ldr	r0, =0x4c000000
-	ldr	r1, =0xffffff
-	str	r1, [r0]
-	/* 1:2:4 */
-	ldr	r1, =0x4c000014
-	mov	r2, #0x3
-	str	r2, [r1]
-	/* configure mpll, fin=12MHZ, fout=202.8MHZ */
-	ldr	r0, =0x4c000004
-	ldr	r1, =( (0xa1<<12) + (0x03<<4) + 0x01 )
+	/* disable watchdog */
+	ldr	r0, =0xea200000
+	mov	r1, #0
 	str	r1, [r0]
 
-	/* enable I/D cache */
-	mrc  p15, 0, r0, c1, c0, 0
-	orr  r0, r0, #0x1000
-	orr  r0, r0, #0x04
-	mcr  p15,0,r0,c1,c0,0
+	/* set the cpu to supervisor mode */
+	mrs	r0, cpsr
+	bic	r0, r0, #0x1f
+	orr	r0, r0, #0xd3
+	msr	cpsr, r0
 
-	/* memory setup */
-	bl	mem_setup
+	/* invalidate l1 i/d */
+	mov	r0, #0						/*  set up for mcr */
+	mcr	p15, 0, r0, c8, c7, 0		/* invalidate tlbs */
+	mcr	p15, 0, r0, c7, c5, 0		/* invalidate icache */
+
+	/* disable mmu stuff and caches */
+	mrc	p15, 0, r0, c1, c0, 0
+	bic	r0, r0, #0x00002000			/* clear bits 13 (--v-) */
+	bic	r0, r0, #0x00000007			/* clear bits 2:0 (-cam) */
+	orr	r0, r0, #0x00000002			/* set bit 1 (--a-) align */
+	orr	r0, r0, #0x00000800			/* set bit 12 (z---) btb */
+	mcr	p15, 0, r0, c1, c0, 0
+
+	/* io retention release */
+	ldr	r0, =0xe0108200
+	ldr	r1, [r0]
+	ldr	r2, =(1 << 31)
+	orr	r1, r1, r2
+	str	r1, [r0]
+
+	/* disable all interrupts (vic0, vic1 and vic2) */
+	ldr	r0, =0xe4000000
+	ldr	r1, =0xe4100000
+	ldr	r2, =0xe4200000
+	mvn	r3, #0x0
+	str	r3, [r0, #0x14]
+	str	r3, [r1, #0x14]
+	str	r3, [r2, #0x14]
+
+	/* set all interrupts as IRQ */
+	mov	r3, #0x0
+	str	r3, [r0, #0x0c]
+	str	r3, [r1, #0x0c]
+	str	r3, [r2, #0x0c]
+
+	/* pending interrupt clear */
+	mov	r3, #0x0
+	str	r3, [r0, #0xf00]
+	str	r3, [r1, #0xf00]
+	str	r3, [r2, #0xf00]
+
+	/* init system clock */
+	bl system_clock_init
+
+	/* initialize memory control */
+	bl	mem_ctrl_init
+
+	/* copyself to ram using irom */
+	adr	r0, _start
+	ldr r1, =_start
+	cmp	r0, r1
+	beq	have_copyed
+	bl	irom_copyself
+have_copyed:
+	nop
 
 	/* initialize stacks */
 	bl	init_stacks
 
 	/* copy shadow of data section */
 copy_shadow_data:
-	ldr	r0, _text_start
-	ldr r1, _text_end
-	sub r0, r1, r0
-	adr	r1, _start
-	add r0, r0 ,r1
+	ldr	r0, _data_shadow_start
 	ldr	r1, _data_start
-	ldr	r2, _data_shadow_start
-	ldr	r3, _data_shadow_end
-	sub	r2, r3, r2
-	add	r2, r0, r2
+	ldr	r2, _data_shadow_end
 	bl	mem_copy
 
 	/* clear bss section */
@@ -158,20 +183,9 @@ clear_bss:
 	mov r2, #0x00000000
 	bl	mem_clear
 
-	/* copy myself, text section */
-copy_myself:
-	adr	r0, _start
-	ldr	r1, _text_start
-	ldr	r2, _text_start
-	ldr	r3, _text_end
-	sub	r2, r3, r2
-	add	r2, r0, r2
-	bl	mem_copy
-
 	/* jump to ram */
 	ldr	r1, =on_the_ram
 	mov	pc, r1
-
 on_the_ram:
 	/* jump to xboot_main fuction */
 	mov r0, #1;
@@ -180,21 +194,144 @@ on_the_ram:
 	b	on_the_ram
 
 /*
- * memory control registers setup
+ * initialize core clock and bus clock.
  */
-mem_setup:
-    adr	r0, mem_config_data
-	ldr	r1, =0x48000000
-	add	r2, r0, #52
-B2:
-	ldr	r3, [r0], #4
-	str	r3, [r1], #4
-	cmp	r2, r0
-	bne	B2
-	mov r1, #256
-B3:
-	subs r1, r1, #1
-	bne B3
+system_clock_init:
+	ldr	r0, =0xe0100000
+
+	mov	r1, #0xe00
+	orr	r1, r1, #0x10
+	str	r1, [r0, #0x00]
+	str	r1, [r0, #0x04]
+	str	r1, [r0, #0x08]
+	str	r1, [r0, #0x0c]
+
+	ldr r1, =CLK_DIV0_VAL
+	str	r1, [r0, #0x300]
+
+	ldr	r1, =CLK_DIV1_VAL
+	str	r1, [r0, #0x304]
+
+	ldr	r1, =CLK_DIV2_VAL
+	str	r1, [r0, #0x308]
+
+	ldr	r1, =CLK_DIV3_VAL
+	str	r1, [r0, #0x30c]
+
+	ldr	r1, =CLK_DIV4_VAL
+	str	r1, [r0, #0x310]
+
+	ldr	r1, =APLL_VAL
+	str	r1, [r0, #0x100]
+	ldr	r1, =MPLL_VAL
+	str	r1, [r0, #0x104]
+	ldr	r1, =EPLL_VAL
+	str	r1, [r0, #0x108]
+	ldr	r1, =HPLL_VAL
+	str	r1, [r0, #0x10c]
+
+	ldr	r1, =CLK_SRC0_VAL
+	str	r1, [r0, #0x200]
+
+	mov	r1, #0x10000
+1:	subs	r1, r1, #1
+	bne	1b
+
+	mov	pc, lr
+
+/*
+ * memory controller initial.
+ */
+mem_ctrl_init:
+	ldr	r0, =0xe6000000				/* apb dmc base */
+
+	ldr	r1, =0x003b3b00				/* phycontrol0 dll parameter setting */
+	str	r1, [r0, #0x18]
+
+	ldr	r1,	=0x00000004				/* phycontrol1 dll parameter setting */
+	str	r1, [r0, #0x1c]
+
+	ldr	r1, =0x00000000				/* Phycontrol2 dll parameter setting */
+	str	r1, [r0, #0x20]
+
+	ldr	r1, =0x003b3b02				/* dll on */
+	str	r1, [r0, #0x18]
+
+	ldr	r1, =0x003b3b03				/* dll start */
+	str	r1, [r0, #0x18]
+
+	ldr	r1, =0x6a3b3b03				/* force value locking */
+	str	r1, [r0, #0x18]
+
+	ldr	r1, =0x6a3b3b01				/* dll off */
+	str	r1, [r0, #0x18]
+
+	ldr	r1, =0xff001010				/* auto refresh off */
+	str	r1, [r0, #0x00]
+
+	ldr	r1, =0xff212100				/* dll off */
+	str	r1, [r0, #0x04]
+
+	ldr	r1, =0x20f01322
+	str	r1, [r0, #0x08]
+
+	ldr	r1, =0x40f80312
+	str	r1, [r0, #0x0c]
+
+	ldr	r1,	=0x20000000
+	str	r1,	[r0, #0x14]
+
+	ldr	r1, =0x0000004e
+	str	r1, [r0, #0x30]
+
+	ldr	r1, =0x0c233287				/* timing row 133MHz */
+	str	r1, [r0, #0x34]
+
+	ldr	r1, =0x12130005
+	str	r1, [r0, #0x38]
+
+	ldr	r1, =0x0e120122				/* timing power*/
+	str	r1, [r0, #0x3c]
+
+	ldr	r1, =0x07000000				/* chip0 deselect */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x01000000				/* chip0 pall */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x05000000				/* chip0 refa */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x05000000				/* chip0 refa */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00000032				/* chip0 mrs */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x07100000				/* chip1 deselect */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x01100000				/* chip1 pall */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x05100000				/* chip1 refa */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x05100000				/* chip1 refa */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0x00100032				/* chip1 mrs */
+	str	r1, [r0, #0x10]
+
+	ldr	r1, =0xff001030				/* concontrol auto refresh on */
+	str	r1, [r0, #0x00]
+
+	ldr	r1, =0x00100002				/* powerdown config */
+	str	r1, [r0, #0x28]
+
+	ldr	r1, =0xff212100				/* memory control */
+	str	r1, [r0, #0x04]
+
 	mov	pc, lr
 
 /*
@@ -316,25 +453,6 @@ irq:
 
 fiq:
 	b	.
-
-/*
- * memory configure data
- */
-	.align 4
-mem_config_data:
-	.long ((B0_BWSCON<<0)+(B1_BWSCON<<4)+(B2_BWSCON<<8)+(B3_BWSCON<<12)+(B4_BWSCON<<16)+(B5_BWSCON<<20)+(B6_BWSCON<<24)+(B7_BWSCON<<28))
-	.long ((B0_Tacs<<13)+(B0_Tcos<<11)+(B0_Tacc<<8)+(B0_Tcoh<<6)+(B0_Tah<<4)+(B0_Tacp<<2)+(B0_PMC))		/* nGCS0 */
-	.long ((B1_Tacs<<13)+(B1_Tcos<<11)+(B1_Tacc<<8)+(B1_Tcoh<<6)+(B1_Tah<<4)+(B1_Tacp<<2)+(B1_PMC)) 	/* nGCS1 */
-	.long ((B2_Tacs<<13)+(B2_Tcos<<11)+(B2_Tacc<<8)+(B2_Tcoh<<6)+(B2_Tah<<4)+(B2_Tacp<<2)+(B2_PMC)) 	/* nGCS2 */
-	.long ((B3_Tacs<<13)+(B3_Tcos<<11)+(B3_Tacc<<8)+(B3_Tcoh<<6)+(B3_Tah<<4)+(B3_Tacp<<2)+(B3_PMC)) 	/* nGCS3 */
-	.long ((B4_Tacs<<13)+(B4_Tcos<<11)+(B4_Tacc<<8)+(B4_Tcoh<<6)+(B4_Tah<<4)+(B4_Tacp<<2)+(B4_PMC)) 	/* nGCS4 */
-	.long ((B5_Tacs<<13)+(B5_Tcos<<11)+(B5_Tacc<<8)+(B5_Tcoh<<6)+(B5_Tah<<4)+(B5_Tacp<<2)+(B5_PMC)) 	/* nGCS5 */
-	.long ((B6_MT<<15)+(B6_Trcd<<2)+(B6_SCAN))    														/* nGCS6 */
-	.long ((B7_MT<<15)+(B7_Trcd<<2)+(B7_SCAN))    														/* nGCS7 */
-	.long ((REFEN<<23)+(TREFMD<<22)+(Trp<<20)+(Trc<<18)+(Tchr<<16)+REFCNT)								/* refresh */
-	.long 0x32			/* SCLK power saving mode, BANKSIZE 128M/128M */
-   	.long 0x30          /* MRSR6 CL=3clk */
-   	.long 0x30          /* MRSR7 */
 
 /*
  * the location of stacks

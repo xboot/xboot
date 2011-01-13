@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-smdkv210/start.s
+ * arch/arm/mach-smdkv210/start.S
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

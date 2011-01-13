@@ -29,20 +29,21 @@
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <xboot/chrdev.h>
+#include <xboot/proc.h>
 #include <shell/env.h>
-#include <command/command.h>
+#include <shell/exec.h>
 #include <fb/fb.h>
-#include <loop/loop.h>
 #include <fb/graphic.h>
 #include <fb/fbpixel.h>
 #include <fb/fbscale.h>
 #include <fb/font.h>
 #include <fb/logo.h>
 #include <rtc/rtc.h>
-#include <xboot/proc.h>
 #include <input/input.h>
 #include <input/keyboard/keyboard.h>
 #include <console/console.h>
+#include <loop/loop.h>
+#include <command/command.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fsapi.h>
 #include <mmc/mmc_host.h>
@@ -53,6 +54,17 @@
 
 static x_s32 test(x_s32 argc, const x_s8 **argv)
 {
+	if(argc < 2)
+	{
+		int time = jiffies;
+		exec_cmdline((const x_s8 *)"fileram -f /ramdisk/a 0x07000000;");
+		printk("time = %ld\r\n", jiffies - time);
+	}
+	else
+	{
+
+	}
+
 	return 0;
 }
 

@@ -50,7 +50,6 @@ static x_s32 fileram(x_s32 argc, const x_s8 **argv)
 	x_s32 fd;
 	x_u32 addr, size = 0;
 	x_s32 n;
-	x_s8 * buf;
 
 	if(argc != 4 && argc != 5)
 	{
@@ -71,27 +70,21 @@ static x_s32 fileram(x_s32 argc, const x_s8 **argv)
 		addr = simple_strtou32(argv[3], NULL, 0);
 		size = 0;
 
-		buf = malloc(SZ_64K);
-		if(!buf)
-			return -1;
-
 		fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 		if(fd < 0)
 		{
 			printk("can not to open the file '%s'\r\n", filename);
-			free(buf);
 			return -1;
 		}
 
 	    for(;;)
 	    {
-	        n = read(fd, (void *)(addr + size), SZ_64K);
+	        n = read(fd, (void *)(addr + size), SZ_256K);
 	        if(n <= 0)
 	        	break;
 			size += n;
 	    }
 
-	    free(buf);
 		close(fd);
 		printk("copy file %s to ram 0x%08lx ~ 0x%08lx.\r\n", filename, addr, addr + size);
 	}

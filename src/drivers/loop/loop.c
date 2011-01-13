@@ -249,7 +249,7 @@ x_bool register_loop(const char * file)
 	init_list_head(&(loop->info.entry));
 
 	size = st.st_size;
-	rem = div64_64(&size, 512);
+	rem = div64_64(&size, SZ_64K);
 
 	if(size > 0)
 	{
@@ -264,7 +264,7 @@ x_bool register_loop(const char * file)
 
 		info->blkno = 0;
 		info->offset = 0;
-		info->size = 512;
+		info->size = SZ_64K;
 		info->number = size;
 		list_add_tail(&info->entry, &(loop->info.entry));
 	}
@@ -286,7 +286,7 @@ x_bool register_loop(const char * file)
 		}
 
 		info->blkno = size;
-		info->offset = size * 512;
+		info->offset = size * SZ_64K;
 		info->size = rem;
 		info->number = 1;
 		list_add_tail(&info->entry, &(loop->info.entry));

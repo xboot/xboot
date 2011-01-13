@@ -142,7 +142,7 @@ static __init void ramdisk_init(void)
 	}
 
 	size = (x_u64)(ramdisk->end - ramdisk->start);
-	rem = div64_64(&size, 512);
+	rem = div64_64(&size, SZ_64K);
 
 	init_list_head(&(ramdisk->info.entry));
 
@@ -158,7 +158,7 @@ static __init void ramdisk_init(void)
 
 		info->blkno = 0;
 		info->offset = 0;
-		info->size = 512;
+		info->size = SZ_64K;
 		info->number = size;
 		list_add_tail(&info->entry, &(ramdisk->info.entry));
 	}
@@ -179,7 +179,7 @@ static __init void ramdisk_init(void)
 		}
 
 		info->blkno = size;
-		info->offset = size * 512;
+		info->offset = size * SZ_64K;
 		info->size = rem;
 		info->number = 1;
 		list_add_tail(&info->entry, &(ramdisk->info.entry));

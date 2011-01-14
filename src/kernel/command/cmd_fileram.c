@@ -79,7 +79,7 @@ static x_s32 fileram(x_s32 argc, const x_s8 **argv)
 
 	    for(;;)
 	    {
-	        n = read(fd, (void *)(addr + size), SZ_256K);
+	        n = read(fd, (void *)(addr + size), SZ_512K);
 	        if(n <= 0)
 	        	break;
 			size += n;

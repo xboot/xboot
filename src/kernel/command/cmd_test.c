@@ -59,7 +59,7 @@ static x_s32 test(x_s32 argc, const x_s8 **argv)
 	if(argc < 2)
 	{
 		time = jiffies;
-		exec_cmdline((const x_s8 *)"fileram -f /ramdisk/a 0x07000000;");
+		exec_cmdline((const x_s8 *)"fileram -f /ramdisk/zImage 0x20008000;");
 		printk("time = %ld\r\n", jiffies - time);
 	}
 	else

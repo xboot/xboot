@@ -31,6 +31,7 @@
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
+#include <fs/fsapi.h>
 #include <command/command.h>
 
 
@@ -38,11 +39,15 @@
 
 static x_s32 do_halt(x_s32 argc, const x_s8 **argv)
 {
+	sync();
+
 	if(halt())
+	{
 		return 0;
+	}
 	else
 	{
-		printk(" this machine not support 'halt'\r\n");
+		printk(" the machine does not support 'halt'\r\n");
 		return -1;
 	}
 }

@@ -8,4 +8,12 @@
 		<title>Shell Command Line</title>
 		<command>exit --shell</command>
 	</item>
+	<item>
+		<title>Reboot System</title>
+		<command>reboot</command>
+	</item>
+	<item>
+		<title>Shutdown System</title>
+		<command>halt</command>
+	</item>
 </menu>

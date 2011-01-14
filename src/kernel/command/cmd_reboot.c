@@ -31,6 +31,7 @@
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
+#include <fs/fsapi.h>
 #include <command/command.h>
 
 
@@ -38,11 +39,15 @@
 
 static x_s32 reboot(x_s32 argc, const x_s8 **argv)
 {
+	sync();
+
 	if(reset())
+	{
 		return 0;
+	}
 	else
 	{
-		printk(" this machine not support 'reboot'\r\n");
+		printk(" the machine does not support 'reboot'\r\n");
 		return -1;
 	}
 }

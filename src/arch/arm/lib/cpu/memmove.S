@@ -1,14 +1,14 @@
 
 /*
- * memcpy.S
+ * memmove.S
  */
 	.text
 
-    .global memcpy
-    .type memcpy, %function
+    .global memmove
+    .type memmove, %function
     .align 4
 
-memcpy:
+memmove:
 	/* determine copy direction */
 	cmp		r1, r0
 	bcc		.Lmemcpy_backwards

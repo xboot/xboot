@@ -31,6 +31,8 @@
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
 #include <s5pv210/reg-wdg.h>
+#include <s5pv210/reg-gpio.h>
+#include <s5pv210/reg-keypad.h>
 #include <s5pv210-cp15.h>
 
 extern x_u8	__text_start[];
@@ -86,7 +88,34 @@ static x_bool mach_reset(void)
  */
 static enum mode mach_getmode(void)
 {
-	return MODE_MENU;
+	/* set GPJ1_5 for KP_COL0, and pull none */
+	writel(S5PV210_GPJ1CON, (readl(S5PV210_GPJ1CON) & ~(0xf<<20)) | (0x3<<20));
+	writel(S5PV210_GPJ1PUD, (readl(S5PV210_GPJ1PUD) & ~(0x3<<10)) | (0x0<<10));
+
+	/* set GPJ2 for KP_COL1 ~ KP_COL7 and KP_ROW0, and pull none*/
+	writel(S5PV210_GPJ2CON, 0x33333333);
+	writel(S5PV210_GPJ2PUD, 0x00000000);
+
+	/* set GPJ3 for KP_ROW1 ~ KP_ROW8, and pull none*/
+	writel(S5PV210_GPJ3CON, 0x33333333);
+	writel(S5PV210_GPJ3PUD, 0x00000000);
+
+	/* set GPJ4_0 to GPJ4_5 for KP_ROW9 ~ KP_ROW13, and pull none*/
+	writel(S5PV210_GPJ4CON, (readl(S5PV210_GPJ4CON) & ~(0x000fffff)) | (0x00033333));
+	writel(S5PV210_GPJ4PUD, (readl(S5PV210_GPJ4PUD) & ~(0x000003ff)) | (0x00000000));
+
+	/* initial the keypad controller */
+	writel(S5PV210_KEYPAD_CON, 0);
+	writel(S5PV210_KEYPAD_FC, 0);
+	writel(S5PV210_KEYPAD_STSCLR, 0x3fffffff);
+	writel(S5PV210_KEYPAD_COL, (readl(S5PV210_KEYPAD_COL) & ~0xffff));
+
+	/* menu key: col, row = [0, 1] */
+	writel(S5PV210_KEYPAD_COL, 0xffff & ~(0x101 << 0));
+	if( ((~(readl(S5PV210_KEYPAD_ROW) & 0x3)) & (0x1 << 1)) == (0x1 << 1) )
+		return MODE_MENU;
+
+	return MODE_NORMAL;
 }
 
 /*

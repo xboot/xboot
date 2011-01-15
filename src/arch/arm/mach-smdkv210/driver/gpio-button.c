@@ -35,9 +35,9 @@
 #include <input/keyboard/keyboard.h>
 #include <s5pv210/reg-gpio.h>
 
-static struct timer_list keypad_timer;
+static struct timer_list button_timer;
 
-static void keypad_timer_function(x_u32 data)
+static void button_timer_function(x_u32 data)
 {
 	static x_u32 key_old = 0x3;
 	x_u32 keyup, keydown;
@@ -86,11 +86,11 @@ static void keypad_timer_function(x_u32 data)
 		input_sync(INPUT_KEYBOARD);
 	}
 
-	/* mod timer for next 10 ms */
-	mod_timer(&keypad_timer, jiffies + get_system_hz() / 100);
+	/* mod timer for next 100 ms */
+	mod_timer(&button_timer, jiffies + get_system_hz() / 10);
 }
 
-static x_bool keypad_probe(void)
+static x_bool button_probe(void)
 {
 	/* set GPH0_4 intput and pull up */
 	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<16)) | (0x0<<16));
@@ -100,44 +100,44 @@ static x_bool keypad_probe(void)
 	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<28)) | (0x0<<28));
 	writel(S5PV210_GPH3PUD, (readl(S5PV210_GPH3PUD) & ~(0x3<<14)) | (0x2<<14));
 
-	/* setup timer for keypad */
-	setup_timer(&keypad_timer, keypad_timer_function, 0);
+	/* setup timer for button */
+	setup_timer(&button_timer, button_timer_function, 0);
 
-	/* mod timer for 10 ms */
-	mod_timer(&keypad_timer, jiffies + get_system_hz() / 100);
+	/* mod timer for 100 ms */
+	mod_timer(&button_timer, jiffies + get_system_hz() / 10);
 
 	return TRUE;
 }
 
-static x_bool keypad_remove(void)
+static x_bool button_remove(void)
 {
 	return TRUE;
 }
 
-static x_s32 keypad_ioctl(x_u32 cmd, void * arg)
+static x_s32 button_ioctl(x_u32 cmd, void * arg)
 {
 	return -1;
 }
 
-static struct input gpio_keypad = {
-	.name		= "keypad",
+static struct input gpio_button = {
+	.name		= "button",
 	.type		= INPUT_KEYBOARD,
-	.probe		= keypad_probe,
-	.remove		= keypad_remove,
-	.ioctl		= keypad_ioctl,
+	.probe		= button_probe,
+	.remove		= button_remove,
+	.ioctl		= button_ioctl,
 };
 
-static __init void gpio_keypad_init(void)
+static __init void gpio_button_init(void)
 {
-	if(!register_input(&gpio_keypad))
-		LOG_E("failed to register input '%s'", gpio_keypad.name);
+	if(!register_input(&gpio_button))
+		LOG_E("failed to register input '%s'", gpio_button.name);
 }
 
-static __exit void gpio_keypad_exit(void)
+static __exit void gpio_button_exit(void)
 {
-	if(!unregister_input(&gpio_keypad))
-		LOG_E("failed to unregister input '%s'", gpio_keypad.name);
+	if(!unregister_input(&gpio_button))
+		LOG_E("failed to unregister input '%s'", gpio_button.name);
 }
 
-module_init(gpio_keypad_init, LEVEL_DRIVER);
-module_exit(gpio_keypad_exit, LEVEL_DRIVER);
+module_init(gpio_button_init, LEVEL_DRIVER);
+module_exit(gpio_button_exit, LEVEL_DRIVER);

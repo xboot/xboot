@@ -181,6 +181,7 @@ static void menu_ctx_free(struct menu_ctx * ctx)
 	{
 		console_setcursor(ctx->console, ctx->cursor);
 		console_setcolor(ctx->console, ctx->fg, ctx->bg);
+		console_cls(ctx->console);
 		free(ctx);
 	}
 }

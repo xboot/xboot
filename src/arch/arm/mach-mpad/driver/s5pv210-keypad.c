@@ -31,88 +31,71 @@
 #include <xboot/irq.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
+#include <xboot/resource.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <input/keyboard/keyboard.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-keypad.h>
+#include <s5pv210-keypad.h>
 
-/*
-static void keypad_scan(void)
-{
-	x_u32 col;
 
-	u32 col,cval,rval;
-
-	DPRINTK("H3C %x H2C %x \n",readl(S5PC11X_GPH3CON),readl(S5PC11X_GPH2CON));
-	DPRINTK("keypad_scan() is called\n");
-
-	DPRINTK("row val = %x",readl(key_base + S3C_KEYIFROW));
-
-	for (col=0; col < KEYPAD_COLUMNS; col++) {
-		 clear that column number and make that normal output
-		cval = KEYCOL_DMASK & ~((1 << col) | (1 << col+ 8));
-		writel(cval, key_base+S3C_KEYIFCOL);
-
-		udelay(KEYPAD_DELAY);
-
-		rval = ~(readl(key_base+S3C_KEYIFROW)) & ((1<<KEYPAD_ROWS)-1) ;
-		keymask[col] = rval;
-	}
-
-	writel(KEYIFCOL_CLEAR, key_base+S3C_KEYIFCOL);
-}
-*/
-
+static struct timer_list timer;
+static struct s5pv210_keypad * keypad;
 static x_u32 keymask[8];
 static x_u32 prevmask[8];
 
-static void delay(x_u32 loop)
-{
-	x_u32 base;
-
-	while(loop--)
-	{
-		base += loop;
-	}
-}
-
-static x_u32 keypad_scan(void)
-{
-	x_u32 col;
-
-	printk("sts = 0x%08lx\r\n", readl(S5PV210_KEYPAD_STSCLR));
-
-
-	for(col = 0; col < 8; col++)
-	{
-		writel(S5PV210_KEYPAD_COL, 0xffff & ~(0x101 << col));
-
-		delay(100);
-
-		keymask[col] = readl(S5PV210_KEYPAD_ROW) & 0x3fff;
-			printk("0x%08lx\r\n", keymask[col]);
-	}
-	printk("\r\n");
-
-	//writel(S5PV210_KEYPAD_STSCLR, 0x3fffffff);
-
-//	writel(S5PV210_KEYPAD_COL, (readl(S5PV210_KEYPAD_COL) & ~0xffff));
-	return 0;
-}
-
-static struct timer_list keypad_timer;
-
 static void keypad_timer_function(x_u32 data)
 {
-	keypad_scan();
+	x_u32 press_mask;
+	x_u32 release_mask;
+	x_u32 col, i;
 
-	/* mod timer for next 10 ms */
-	mod_timer(&keypad_timer, jiffies + get_system_hz() / 1);
+	for(col = 0; col < keypad->cols; col++)
+	{
+		writel(S5PV210_KEYPAD_COL, 0xffff & ~(0x101 << col));
+		keymask[col] = ~(readl(S5PV210_KEYPAD_ROW) & ((0x1 << keypad->rows) - 1));
+	}
+
+	for(col = 0; col < keypad->cols; col++)
+	{
+		press_mask = ((keymask[col] ^ prevmask[col]) & keymask[col]);
+		release_mask = ((keymask[col] ^ prevmask[col]) & prevmask[col]);
+
+		i = col * 14;
+		while(press_mask)
+		{
+			if(press_mask & 0x1)
+			{
+				input_report(INPUT_KEYBOARD, keypad->keycode[i], KEY_BUTTON_DOWN);
+				input_sync(INPUT_KEYBOARD);
+			}
+			press_mask >>= 1;
+			i++;
+		}
+
+		i = col * 14;
+		while(release_mask)
+		{
+			if(release_mask & 0x1)
+			{
+				input_report(INPUT_KEYBOARD, keypad->keycode[i], KEY_BUTTON_UP);
+				input_sync(INPUT_KEYBOARD);
+			}
+			release_mask >>= 1;
+			i++;
+		}
+
+		prevmask[col] = keymask[col];
+	}
+
+	mod_timer(&timer, jiffies + get_system_hz() / 10);
 }
 
 static x_bool keypad_probe(void)
 {
+	x_u32 i;
+
 	/* set GPJ1_5 for KP_COL0, and pull none */
 	writel(S5PV210_GPJ1CON, (readl(S5PV210_GPJ1CON) & ~(0xf<<20)) | (0x3<<20));
 	writel(S5PV210_GPJ1PUD, (readl(S5PV210_GPJ1PUD) & ~(0x3<<10)) | (0x0<<10));
@@ -129,23 +112,26 @@ static x_bool keypad_probe(void)
 	writel(S5PV210_GPJ4CON, (readl(S5PV210_GPJ4CON) & ~(0x000fffff)) | (0x00033333));
 	writel(S5PV210_GPJ4PUD, (readl(S5PV210_GPJ4PUD) & ~(0x000003ff)) | (0x00000000));
 
-	writel(S5PV210_KEYPAD_CON, S5PV210_KEYPAD_CON_INT_F_EN | S5PV210_KEYPAD_CON_INT_R_EN);
-
-	//writel(S5PV210_KEYPAD_CON, 0);
+	writel(S5PV210_KEYPAD_CON, 0);
 	writel(S5PV210_KEYPAD_FC, 0);
+	writel(S5PV210_KEYPAD_STSCLR, 0x3fffffff);
 	writel(S5PV210_KEYPAD_COL, (readl(S5PV210_KEYPAD_COL) & ~0xffff));
 
-	/* setup timer for keypad */
-	setup_timer(&keypad_timer, keypad_timer_function, 0);
+	for(i = 0; i < 8; i++)
+	{
+		prevmask[i] = keymask[i] = ~((0x1 << keypad->rows) - 1);
+	}
 
-	/* mod timer for 10 ms */
-	mod_timer(&keypad_timer, jiffies + get_system_hz() / 1);
+	setup_timer(&timer, keypad_timer_function, 0);
+	mod_timer(&timer, jiffies + get_system_hz() / 10);
 
 	return TRUE;
 }
 
 static x_bool keypad_remove(void)
 {
+	del_timer(&timer);
+
 	return TRUE;
 }
 
@@ -164,6 +150,13 @@ static struct input matrix_keypad = {
 
 static __init void matrix_keypad_init(void)
 {
+	keypad = (struct s5pv210_keypad *)resource_get_data(matrix_keypad.name);
+	if(!keypad)
+	{
+		LOG_W("can't get the resource of \'%s\'", matrix_keypad.name);
+		return;
+	}
+
 	if(!register_input(&matrix_keypad))
 		LOG_E("failed to register input '%s'", matrix_keypad.name);
 }

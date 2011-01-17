@@ -190,42 +190,6 @@ x_s32 strlcat(x_s8 *dest, const x_s8 *src, x_s32 count)
 }
 
 /**
- * strcmp - Compare two strings
- * @cs: One string
- * @ct: Another string
- */
-x_s32 strcmp(const x_s8 *cs, const x_s8 *ct)
-{
-	x_s32 __res;
-
-	while (1)
-	{
-		if ((__res = *cs - *ct++) != 0 || !*cs++)
-			break;
-	}
-	return __res;
-}
-
-/**
- * strncmp - Compare two length-limited strings
- * @cs: One string
- * @ct: Another string
- * @count: The maximum number of bytes to compare
- */
-x_s32 strncmp(const x_s8 *cs, const x_s8 *ct, x_s32 count)
-{
-	x_s32 __res = 0;
-
-	while (count)
-	{
-		if ((__res = *cs - *ct++) != 0 || !*cs++)
-			break;
-		count--;
-	}
-	return __res;
-}
-
-/**
  * strchr - Find the first occurrence of a character in a string
  * @s: The string to be searched
  * @c: The character to search for
@@ -484,12 +448,46 @@ void * memchr(const void *s, x_s32 c, x_s32 n)
 }
 
 /**
+ * strcmp - Compare two strings
+ * @cs: One string
+ * @ct: Another string
+ */
+x_s32 __attribute__((weak)) strcmp(const x_s8 *cs, const x_s8 *ct)
+{
+	x_s32 __res;
+
+	while (1)
+	{
+		if ((__res = *cs - *ct++) != 0 || !*cs++)
+			break;
+	}
+	return __res;
+}
+
+/**
+ * strncmp - Compare two length-limited strings
+ * @cs: One string
+ * @ct: Another string
+ * @count: The maximum number of bytes to compare
+ */
+x_s32 __attribute__((weak)) strncmp(const x_s8 *cs, const x_s8 *ct, x_s32 count)
+{
+	x_s32 __res = 0;
+
+	while (count)
+	{
+		if ((__res = *cs - *ct++) != 0 || !*cs++)
+			break;
+		count--;
+	}
+	return __res;
+}
+
+/**
  * memset - Fill a region of memory with the given value
  * @s: Pointer to the start of the area.
  * @c: The byte to fill the area with
  * @count: The size of the area.
- *
- * This needs to be optimized.
  */
 void * __attribute__((weak)) memset(void *s, x_s32 c, x_s32 count)
 {
@@ -505,8 +503,6 @@ void * __attribute__((weak)) memset(void *s, x_s32 c, x_s32 count)
  * @dest: Where to copy to
  * @src: Where to copy from
  * @count: The size of the area.
- *
- * This needs to be optimized.
  */
 void * __attribute__((weak)) memcpy(void *dest, const void *src, x_s32 count)
 {
@@ -523,8 +519,6 @@ void * __attribute__((weak)) memcpy(void *dest, const void *src, x_s32 count)
  * @dest: Where to copy to
  * @src: Where to copy from
  * @count: The size of the area.
- *
- * This needs to be optimized.
  */
 void * __attribute__((weak)) memmove(void *dest, const void *src, x_s32 count)
 {
@@ -555,8 +549,6 @@ void * __attribute__((weak)) memmove(void *dest, const void *src, x_s32 count)
  * @cs: One area of memory
  * @ct: Another area of memory
  * @count: The size of the area.
- *
- * This needs to be optimized.
  */
 x_s32 __attribute__((weak)) memcmp(const void *cs, const void *ct, x_s32 count)
 {

@@ -452,7 +452,8 @@ void * memchr(const void *s, x_s32 c, x_s32 n)
  * @cs: One string
  * @ct: Another string
  */
-x_s32 __attribute__((weak)) strcmp(const x_s8 *cs, const x_s8 *ct)
+x_s32 strcmp(const x_s8 *cs, const x_s8 *ct) __attribute__ ((weak, alias ("__strcmp")));
+static x_s32 __strcmp(const x_s8 *cs, const x_s8 *ct)
 {
 	x_s32 __res;
 
@@ -470,7 +471,8 @@ x_s32 __attribute__((weak)) strcmp(const x_s8 *cs, const x_s8 *ct)
  * @ct: Another string
  * @count: The maximum number of bytes to compare
  */
-x_s32 __attribute__((weak)) strncmp(const x_s8 *cs, const x_s8 *ct, x_s32 count)
+x_s32 strncmp(const x_s8 *cs, const x_s8 *ct, x_s32 count) __attribute__ ((weak, alias ("__strncmp")));
+static x_s32 __strncmp(const x_s8 *cs, const x_s8 *ct, x_s32 count)
 {
 	x_s32 __res = 0;
 
@@ -489,7 +491,8 @@ x_s32 __attribute__((weak)) strncmp(const x_s8 *cs, const x_s8 *ct, x_s32 count)
  * @c: The byte to fill the area with
  * @count: The size of the area.
  */
-void * __attribute__((weak)) memset(void *s, x_s32 c, x_s32 count)
+void * memset(void *s, x_s32 c, x_s32 count) __attribute__ ((weak, alias ("__memset")));
+static void * __memset(void *s, x_s32 c, x_s32 count)
 {
 	x_s8 *xs = s;
 
@@ -504,7 +507,8 @@ void * __attribute__((weak)) memset(void *s, x_s32 c, x_s32 count)
  * @src: Where to copy from
  * @count: The size of the area.
  */
-void * __attribute__((weak)) memcpy(void *dest, const void *src, x_s32 count)
+void * memcpy(void *dest, const void *src, x_s32 count) __attribute__ ((weak, alias ("__memcpy")));
+static void * __memcpy(void *dest, const void *src, x_s32 count)
 {
 	x_s8 *tmp = dest;
 	const x_s8 *s = src;
@@ -520,7 +524,8 @@ void * __attribute__((weak)) memcpy(void *dest, const void *src, x_s32 count)
  * @src: Where to copy from
  * @count: The size of the area.
  */
-void * __attribute__((weak)) memmove(void *dest, const void *src, x_s32 count)
+void * memmove(void *dest, const void *src, x_s32 count) __attribute__ ((weak, alias ("__memmove")));
+static void * __memmove(void *dest, const void *src, x_s32 count)
 {
 	x_s8 *tmp;
 	const x_s8 *s;
@@ -550,7 +555,8 @@ void * __attribute__((weak)) memmove(void *dest, const void *src, x_s32 count)
  * @ct: Another area of memory
  * @count: The size of the area.
  */
-x_s32 __attribute__((weak)) memcmp(const void *cs, const void *ct, x_s32 count)
+x_s32 memcmp(const void *cs, const void *ct, x_s32 count) __attribute__ ((weak, alias ("__memcmp")));
+static x_s32 __memcmp(const void *cs, const void *ct, x_s32 count)
 {
 	const x_u8 *su1, *su2;
 	x_s32 res = 0;

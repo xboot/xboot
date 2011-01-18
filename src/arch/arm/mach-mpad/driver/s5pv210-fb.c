@@ -41,166 +41,8 @@
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-others.h>
 #include <s5pv210/reg-lcd.h>
+#include <s5pv210-fb.h>
 
-struct s5pv210fb_lcd
-{
-	/* horizontal resolution */
-	x_s32 width;
-
-	/* vertical resolution */
-	x_s32 height;
-
-	/* bits per pixel */
-	x_s32 bpp;
-
-	/* vframe frequency */
-	x_s32 freq;
-
-	struct {
-		/* horizontal front porch */
-		x_s32 h_fp;
-
-		/* horizontal back porch */
-		x_s32 h_bp;
-
-		/* horizontal sync width */
-		x_s32 h_sw;
-
-		/* vertical front porch */
-		x_s32 v_fp;
-
-		/* vertical front porch for even field */
-		x_s32 v_fpe;
-
-		/* vertical back porch */
-		x_s32 v_bp;
-
-		/* vertical back porch for even field */
-		x_s32 v_bpe;
-
-		/* vertical sync width */
-		x_s32 v_sw;
-	} timing;
-
-	struct {
-		/* if 1, video data is fetched at rising edge */
-		x_s32 rise_vclk;
-
-		/* if HSYNC polarity is inversed */
-		x_s32 inv_hsync;
-
-		/* if VSYNC polarity is inversed */
-		x_s32 inv_vsync;
-
-		/* if VDEN polarity is inversed */
-		x_s32 inv_vden;
-	} polarity;
-};
-
-/*
- * lcd module EK070TN93 config
- */
-static struct s5pv210fb_lcd s5pv210fb_lcd = {
-	.width			= 800,
-	.height			= 480,
-	.bpp			= 32,
-	.freq			= 60,
-
-	.timing = {
-		.h_fp		= 210,
-		.h_bp		= 46,
-		.h_sw		= 10,
-		.v_fp		= 22,
-		.v_fpe		= 1,
-		.v_bp		= 23,
-		.v_bpe		= 1,
-		.v_sw		= 7,
-	},
-
-	.polarity = {
-		.rise_vclk	= 0,
-		.inv_hsync	= 1,
-		.inv_vsync	= 1,
-		.inv_vden	= 0,
-	},
-};
-
-
-#define	LCD_WIDTH		(800)
-#define	LCD_HEIGHT		(480)
-#define	LCD_BPP			(16)
-
-#if 0
-#define VBPD			(7)
-#define VFPD			(5)
-#define VSPW			(1)
-#define HBPD			(13)
-#define HFPD			(8)
-#define HSPW			(3)
-#define FREQ			(75)
-#define PIXEL_CLOCK		(FREQ * (HFPD + HSPW + HBPD + LCD_WIDTH) * (VFPD + VSPW + VBPD + LCD_HEIGHT))
-
-#define	REGS_VIDCON0	( S3C6410_VIDCON0_PROGRESSIVE | S3C6410_VIDCON0_VIDOUT_RGBIF | S3C6410_VIDCON0_SUB_16_MODE | S3C6410_VIDCON0_MAIN_16_MODE | \
-						S3C6410_VIDCON0_PNRMODE_RGB_P | S3C6410_VIDCON0_CLKVALUP_ALWAYS | S3C6410_VIDCON0_VCLKFREE_NORMAL | \
-						S3C6410_VIDCON0_CLKDIR_DIVIDED | S3C6410_VIDCON0_CLKSEL_F_HCLK | S3C6410_VIDCON0_ENVID_DISABLE | S3C6410_VIDCON0_ENVID_F_DISABLE )
-#define	REGS_VIDCON1	( S3C6410_VIDCON1_IHSYNC_INVERT | S3C6410_VIDCON1_IVSYNC_INVERT  | S3C6410_VIDCON1_IVDEN_NORMAL | S3C6410_VIDCON1_IVCLK_RISE_EDGE )
-#define	REGS_VIDTCON0	( S3C6410_VIDTCON0_VBPDE(VBPD-1) | S3C6410_VIDTCON0_VBPD(VBPD-1) | S3C6410_VIDTCON0_VFPD(VFPD-1) | S3C6410_VIDTCON0_VSPW(VSPW-1) )
-#define	REGS_VIDTCON1	( S3C6410_VIDTCON1_VFPDE(VFPD-1) | S3C6410_VIDTCON1_HBPD(HBPD-1) | S3C6410_VIDTCON1_HFPD(HFPD-1) | S3C6410_VIDTCON1_HSPW(HSPW-1) )
-#define	REGS_VIDTCON2	( S3C6410_VIDTCON2_LINEVAL(LCD_HEIGHT-1) | S3C6410_VIDTCON2_HOZVAL(LCD_WIDTH-1) )
-#define	REGS_DITHMODE	( (S3C6410_DITHMODE_RDITHPOS_5BIT | S3C6410_DITHMODE_GDITHPOS_6BIT | S3C6410_DITHMODE_BDITHPOS_5BIT ) & (~S3C6410_DITHMODE_DITHERING_ENABLE) )
-#endif
-
-#define	REGS_VIDCON1	0x60
-#define	REGS_VIDTCON0	0xe0e0305
-#define	REGS_VIDTCON1	0x3103020
-#define	REGS_VIDTCON2	0x17fd55
-#define	REGS_DITHMODE	0
-
-/*
- * video ram buffer for lcd.
- */
-static x_u8 vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
-
-static struct fb_info info = {
-	.name						= "fb",
-
-	.bitmap	= {
-		.info =	{
-			.width				= LCD_WIDTH,
-			.height 			= LCD_HEIGHT,
-			.bpp				= LCD_BPP,
-			.bytes_per_pixel 	= LCD_BPP / 8,
-			.pitch				= LCD_WIDTH * LCD_BPP / 8,
-			.red_mask_size		= 5,
-			.red_field_pos		= 0,
-			.green_mask_size	= 6,
-			.green_field_pos	= 5,
-			.blue_mask_size		= 5,
-			.blue_field_pos		= 11,
-			.alpha_mask_size	= 0,
-			.alpha_field_pos	= 0,
-			.fmt				= BITMAP_FORMAT_RGB_565,
-			.fg_r				= 0xff,
-			.fg_g				= 0xff,
-			.fg_b				= 0xff,
-			.fg_a				= 0xff,
-			.bg_r				= 0x00,
-			.bg_g				= 0x00,
-			.bg_b				= 0x00,
-			.bg_a				= 0x00,
-		},
-
-		.viewport = {
-			.left				= 0,
-			.top				= 0,
-			.right				= LCD_WIDTH,
-			.bottom				= LCD_HEIGHT,
-		},
-
-		.allocated				= FALSE,
-		.data					= &vram,
-	},
-};
 
 static x_bool s5pv210fb_set_polarity(struct s5pv210fb_lcd * lcd)
 {
@@ -257,6 +99,38 @@ static x_bool s5pv210fb_set_lcd_size(struct s5pv210fb_lcd * lcd)
 
 static void fb_init(struct fb * fb)
 {
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+
+	if(lcd->init)
+		lcd->init();
+
+	/* display path selection */
+	writel(S5PV210_DISPLAY_CONTROL, (readl(S5PV210_DISPLAY_CONTROL) & ~(0x3<<0)) | (0x2<<0));
+
+	/* lcd port config */
+	writel(S5PV210_GPF0CON, 0x22222222);
+	writel(S5PV210_GPF0DRV, 0xffffffff);
+	writel(S5PV210_GPF0PUD, 0x0);
+	writel(S5PV210_GPF1CON, 0x22222222);
+	writel(S5PV210_GPF1DRV, 0xffffffff);
+	writel(S5PV210_GPF1PUD, 0x0);
+	writel(S5PV210_GPF2CON, 0x22222222);
+	writel(S5PV210_GPF2DRV, 0xffffffff);
+	writel(S5PV210_GPF2PUD, 0x0);
+	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xffff<<0)) | (0x2222<<0));
+	writel(S5PV210_GPF3DRV, (readl(S5PV210_GPF3DRV) & ~(0xff<<0)) | (0xff<<0));
+	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0xff<<0)) | (0x00<<0));
+
+#if 0
+	//xxx
+	/* gpf0_2 low level for enable display */
+	writel(S5PV210_GPF0CON, (readl(S5PV210_GPF0CON) & ~(0x3<<8)) | (0x1<<8));
+	writel(S5PV210_GPF0PUD, (readl(S5PV210_GPF0PUD) & ~(0x3<<4)) | (0x2<<4));
+	writel(S5PV210_GPF0DAT, (readl(S5PV210_GPF0DAT) & ~(0x1<<2)) | (0x0<<2));
+#endif
+
+
+#if 0
 	x_u64 hclk;
 
 	/* set gpd0_0 (backlight pin) output and pull up and high level */
@@ -362,8 +236,7 @@ static void fb_init(struct fb * fb)
 	/* delay for avoid flash screen */
 	mdelay(50);
 
-#if 1
-//TODO
+
 //test
 	/* initial lcd controler */
 /*	writel(0xf8000004, 0x60);
@@ -439,12 +312,15 @@ static void fb_init(struct fb * fb)
 
 static void fb_exit(struct fb * fb)
 {
-	/* disable video output */
-//	writel(S3C6410_VIDCON0, (readl(S3C6410_VIDCON0) & (~0x3)));
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+
+	if(lcd->exit)
+		lcd->exit();
 }
 
 static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
 {
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
 	static x_u8 brightness = 0;
 	x_u8 * p;
 
@@ -453,12 +329,8 @@ static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
 	case IOCTL_SET_FB_BACKLIGHT:
 		p = (x_u8 *)arg;
 		brightness = (*p) & 0xff;
-
-		if(brightness)
-			writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
-		else
-			writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
-
+		if(lcd->backlight)
+			lcd->backlight(brightness);
 		return 0;
 
 	case IOCTL_GET_FB_BACKLIGHT:
@@ -473,6 +345,9 @@ static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
 	return -1;
 }
 
+static struct fb_info info = {
+	.name			= "fb",
+};
 
 static struct fb s5pv210_fb = {
 	.info			= &info,
@@ -488,12 +363,55 @@ static struct fb s5pv210_fb = {
 
 static __init void s5pv210_fb_init(void)
 {
-/*	if(!clk_get_rate("hclk", 0))
+	struct s5pv210fb_lcd * lcd;
+
+	s5pv210_fb.priv = resource_get_data(s5pv210_fb.info->name);
+	lcd = (struct s5pv210fb_lcd *)(s5pv210_fb.priv);
+
+	if(! s5pv210_fb.priv)
 	{
-		LOG_E("can't get the clock of \'hclk\'");
+		LOG_W("can't get the resource of \'%s\'", s5pv210_fb.info->name);
 		return;
 	}
-*/
+
+	if( (lcd->bpp != 16) && (lcd->bpp != 24) && (lcd->bpp != 32) )
+		return;
+
+	info.bitmap.info.width = lcd->width;
+	info.bitmap.info.height = lcd->height;
+	info.bitmap.info.bpp = lcd->bpp;
+	info.bitmap.info.bytes_per_pixel = lcd->bpp / 8;
+	info.bitmap.info.pitch = lcd->width * lcd->bpp / 8;
+
+	info.bitmap.info.red_mask_size = lcd->rgba.r_mask;
+	info.bitmap.info.red_field_pos = lcd->rgba.r_field;
+	info.bitmap.info.green_mask_size = lcd->rgba.g_mask;
+	info.bitmap.info.green_field_pos = lcd->rgba.g_field;
+	info.bitmap.info.blue_mask_size = lcd->rgba.b_mask;
+	info.bitmap.info.blue_field_pos = lcd->rgba.b_field;
+	info.bitmap.info.alpha_mask_size = lcd->rgba.a_mask;
+	info.bitmap.info.alpha_field_pos = lcd->rgba.a_field;
+
+	info.bitmap.info.fmt = get_bitmap_format(&(info.bitmap.info));
+
+	info.bitmap.info.fg_r = 0xff;
+	info.bitmap.info.fg_g = 0xff;
+	info.bitmap.info.fg_b = 0xff;
+	info.bitmap.info.fg_a = 0xff;
+
+	info.bitmap.info.bg_r = 0x00;
+	info.bitmap.info.bg_g = 0x00;
+	info.bitmap.info.bg_b = 0x00;
+	info.bitmap.info.bg_a = 0x00;
+
+	info.bitmap.viewport.left = 0;
+	info.bitmap.viewport.top = 0;
+	info.bitmap.viewport.right = lcd->width;
+	info.bitmap.viewport.bottom = lcd->height;
+
+	info.bitmap.allocated = FALSE;
+	info.bitmap.data = lcd->vram;
+
 	if(!register_framebuffer(&s5pv210_fb))
 		LOG_E("failed to register framebuffer driver '%s'", s5pv210_fb.info->name);
 }

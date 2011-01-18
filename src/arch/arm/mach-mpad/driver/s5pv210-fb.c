@@ -116,15 +116,20 @@ static void fb_init(void)
 {
 	x_u64 hclk;
 
-	/* set gpd0_3 (backlight pin) output and pull up and low level */
-	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0x3<<12)) | (0x1<<12));
-	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<6)) | (0x2<<6));
-	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x0<<3));
+	/* set gpd0_0 (backlight pin) output and pull up and high level */
+	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0x3<<0)) | (0x1<<0));
+	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
+	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
 
-	/* gph0_6 high level for reset pin */
-	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0x3<<24)) | (0x1<<24));
-	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<12)) | (0x2<<12));
-	writel(S5PV210_GPH0DAT, (readl(S5PV210_GPH0DAT) & ~(0x1<<6)) | (0x1<<6));
+	/* gpf3_5 high level for enable lcd power */
+	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0x3<<20)) | (0x1<<20));
+	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
+	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
+
+	/* gpf3_4 high level for reset pin */
+	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0x3<<16)) | (0x1<<16));
+	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<8)) | (0x2<<8));
+	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<4)) | (0x1<<4));
 
 	/* lcd port config */
 	writel(S5PV210_GPF0CON, 0x22222222);
@@ -136,9 +141,10 @@ static void fb_init(void)
 	writel(S5PV210_GPF2CON, 0x22222222);
 	writel(S5PV210_GPF2DRV, 0xffffffff);
 	writel(S5PV210_GPF2PUD, 0x0);
-	writel(S5PV210_GPF3CON, 0x00002222);
-	writel(S5PV210_GPF3DRV, 0x0ff);
-	writel(S5PV210_GPF3PUD, 0x0);
+	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xffff<<0)) | (0x2222<<0));
+	writel(S5PV210_GPF3DRV, (readl(S5PV210_GPF3DRV) & ~(0xff<<0)) | (0xff<<0));
+	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0xff<<0)) | (0x00<<0));
+
 
 #define	REGS_VIDCON1	0x60
 #define	REGS_VIDTCON0	0xe0e0305
@@ -298,10 +304,10 @@ static x_s32 fb_ioctl(x_u32 cmd, void * arg)
 		p = (x_u8 *)arg;
 		brightness = (*p) & 0xff;
 
-	if(brightness)
-		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x1<<3));
-	else
-		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x0<<3));
+		if(brightness)
+			writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
+		else
+			writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
 
 		return 0;
 

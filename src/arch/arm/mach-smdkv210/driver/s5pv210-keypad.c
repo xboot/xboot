@@ -39,14 +39,13 @@
 #include <s5pv210/reg-keypad.h>
 #include <s5pv210-keypad.h>
 
-
 static struct timer_list timer;
-static struct s5pv210_keypad * keypad;
 static x_u32 keymask[8];
 static x_u32 prevmask[8];
 
 static void keypad_timer_function(x_u32 data)
 {
+	struct s5pv210_keypad * keypad = (struct s5pv210_keypad *)data;
 	x_u32 press_mask;
 	x_u32 release_mask;
 	x_u32 col, i;
@@ -92,8 +91,9 @@ static void keypad_timer_function(x_u32 data)
 	mod_timer(&timer, jiffies + get_system_hz() / 10);
 }
 
-static x_bool keypad_probe(void)
+static x_bool keypad_probe(struct input * input)
 {
+	struct s5pv210_keypad * keypad = (struct s5pv210_keypad *)(input->priv);
 	x_u32 i;
 
 	/* set GPJ1_5 for KP_COL0, and pull none */
@@ -122,20 +122,20 @@ static x_bool keypad_probe(void)
 		prevmask[i] = keymask[i] = ~((0x1 << keypad->rows) - 1);
 	}
 
-	setup_timer(&timer, keypad_timer_function, 0);
+	setup_timer(&timer, keypad_timer_function, (x_u32)keypad);
 	mod_timer(&timer, jiffies + get_system_hz() / 10);
 
 	return TRUE;
 }
 
-static x_bool keypad_remove(void)
+static x_bool keypad_remove(struct input * input)
 {
 	del_timer(&timer);
 
 	return TRUE;
 }
 
-static x_s32 keypad_ioctl(x_u32 cmd, void * arg)
+static x_s32 keypad_ioctl(struct input * input, x_u32 cmd, void * arg)
 {
 	return -1;
 }
@@ -146,12 +146,13 @@ static struct input matrix_keypad = {
 	.probe		= keypad_probe,
 	.remove		= keypad_remove,
 	.ioctl		= keypad_ioctl,
+	.priv		= NULL,
 };
 
 static __init void matrix_keypad_init(void)
 {
-	keypad = (struct s5pv210_keypad *)resource_get_data(matrix_keypad.name);
-	if(!keypad)
+	matrix_keypad.priv = resource_get_data(matrix_keypad.name);
+	if(! matrix_keypad.priv)
 	{
 		LOG_W("can't get the resource of \'%s\'", matrix_keypad.name);
 		return;

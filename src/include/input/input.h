@@ -20,19 +20,38 @@ enum input_type {
 };
 
 struct input_event {
+	/* time stamp */
 	x_u32 time;
+
+	/* input type */
 	enum input_type type;
+
+	/* event code */
 	x_s32 code;
+
+	/* event value */
 	x_s32 value;
 };
 
 struct input
 {
+	/* input name */
 	const char * name;
+
+	/* input type */
 	enum input_type type;
-	x_bool (*probe)(void);
-	x_bool (*remove)(void);
-	x_s32 (*ioctl)(x_u32 cmd, void * arg);
+
+	/* probe input device */
+	x_bool (*probe)(struct input * input);
+
+	/* remove input device */
+	x_bool (*remove)(struct input * input);
+
+	/* ioctl input device */
+	x_s32 (*ioctl)(struct input * input, x_u32 cmd, void * arg);
+
+	/* private data */
+	void * priv;
 };
 
 struct input * search_input(const char * name);

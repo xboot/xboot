@@ -90,7 +90,7 @@ static void button_timer_function(x_u32 data)
 	mod_timer(&button_timer, jiffies + get_system_hz() / 10);
 }
 
-static x_bool button_probe(void)
+static x_bool button_probe(struct input * input)
 {
 	/* set GPH0_4 intput and pull up */
 	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<16)) | (0x0<<16));
@@ -109,12 +109,12 @@ static x_bool button_probe(void)
 	return TRUE;
 }
 
-static x_bool button_remove(void)
+static x_bool button_remove(struct input * input)
 {
 	return TRUE;
 }
 
-static x_s32 button_ioctl(x_u32 cmd, void * arg)
+static x_s32 button_ioctl(struct input * input, x_u32 cmd, void * arg)
 {
 	return -1;
 }
@@ -125,6 +125,7 @@ static struct input gpio_button = {
 	.probe		= button_probe,
 	.remove		= button_remove,
 	.ioctl		= button_ioctl,
+	.priv		= NULL,
 };
 
 static __init void gpio_button_init(void)

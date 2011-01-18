@@ -108,7 +108,7 @@ x_bool register_input(struct input * input)
 	if(!list)
 		return FALSE;
 
-	if(! (input->probe)())
+	if(! (input->probe)(input))
 	{
 		free(list);
 		return FALSE;
@@ -134,7 +134,7 @@ x_bool unregister_input(struct input * input)
 		if(list->input == input)
 		{
 			if(input->remove)
-				(input->remove)();
+				(input->remove)(input);
 
 			list_del(pos);
 			free(list);

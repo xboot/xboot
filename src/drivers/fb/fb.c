@@ -404,7 +404,7 @@ static x_s32 fb_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
 	struct fb * fb = (struct fb *)(dev->driver);
 
 	if(fb->ioctl)
-		return ((fb->ioctl)(cmd, arg));
+		return ((fb->ioctl)(fb, cmd, arg));
 
 	return -1;
 }
@@ -790,14 +790,14 @@ x_bool register_framebuffer(struct fb * fb)
 	}
 
 	if(fb->init)
-		(fb->init)();
+		(fb->init)(fb);
 
 	display_logo(fb);
 
 	if(fb->ioctl)
 	{
 		brightness = 0xff;
-		(fb->ioctl)(IOCTL_SET_FB_BACKLIGHT, &brightness);
+		(fb->ioctl)(fb, IOCTL_SET_FB_BACKLIGHT, &brightness);
 	}
 
 	/*
@@ -897,11 +897,11 @@ x_bool unregister_framebuffer(struct fb * fb)
 		if(driver->ioctl)
 		{
 			brightness = 0x00;
-			(fb->ioctl)(IOCTL_SET_FB_BACKLIGHT, &brightness);
+			(driver->ioctl)(driver, IOCTL_SET_FB_BACKLIGHT, &brightness);
 		}
 
 		if(driver->exit)
-			(driver->exit)();
+			(driver->exit)(driver);
 	}
 
 	if(!unregister_console(console))

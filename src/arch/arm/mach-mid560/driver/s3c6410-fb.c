@@ -111,7 +111,7 @@ static struct fb_info info = {
 	},
 };
 
-static void fb_init(void)
+static void fb_init(struct fb * fb)
 {
 	x_u64 hclk;
 
@@ -196,13 +196,13 @@ static void fb_init(void)
 	mdelay(50);
 }
 
-static void fb_exit(void)
+static void fb_exit(struct fb * fb)
 {
 	/* disable video output */
 	writel(S3C6410_VIDCON0, (readl(S3C6410_VIDCON0) & (~0x3)));
 }
 
-static x_s32 fb_ioctl(x_u32 cmd, void * arg)
+static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
 {
 	static x_u8 brightness = 0;
 	x_u8 * p;
@@ -241,6 +241,7 @@ static struct fb s3c6410_fb = {
 	.fill_rect		= fb_soft_fill_rect,
 	.blit_bitmap	= fb_soft_blit_bitmap,
 	.ioctl			= fb_ioctl,
+	.priv			= NULL,
 };
 
 static __init void s3c6410_fb_init(void)

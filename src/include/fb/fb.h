@@ -36,10 +36,10 @@ struct fb
 	struct fb_info * info;
 
 	/* initialize the framebuffer */
-	void (*init)(void);
+	void (*init)(struct fb * fb);
 
 	/* clean up the framebuffer */
-	void (*exit)(void);
+	void (*exit)(struct fb * fb);
 
 	/* map color */
 	x_u32 (*map_color)(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a);
@@ -54,7 +54,10 @@ struct fb
 	x_bool (*blit_bitmap)(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy);
 
 	/* ioctl framebuffer */
-	x_s32 (*ioctl)(x_u32 cmd, void * arg);
+	x_s32 (*ioctl)(struct fb * fb, x_u32 cmd, void * arg);
+
+	/* private data */
+	void * priv;
 };
 
 

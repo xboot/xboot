@@ -101,7 +101,7 @@ static struct fb_info info = {
 	},
 };
 
-static void fb_init(void)
+static void fb_init(struct fb * fb)
 {
 	/* initial lcd controller */
 	writel(REALVIEW_CLCD_TIM0, REGS_TIM0);
@@ -123,12 +123,12 @@ static void fb_init(void)
 	writel(REALVIEW_CLCD_CNTL, (readl(REALVIEW_CLCD_CNTL) | REALVIEW_CNTL_LCDEN | REALVIEW_CNTL_LCDPWR));
 }
 
-static void fb_exit(void)
+static void fb_exit(struct fb * fb)
 {
 	return;
 }
 
-static x_s32 fb_ioctl(x_u32 cmd, void * arg)
+static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
 {
 	static x_u8 brightness = 0;
 	x_u8 * p;
@@ -161,6 +161,7 @@ static struct fb realview_fb = {
 	.fill_rect		= fb_soft_fill_rect,
 	.blit_bitmap	= fb_soft_blit_bitmap,
 	.ioctl			= fb_ioctl,
+	.priv			= NULL,
 };
 
 static __init void realview_fb_init(void)

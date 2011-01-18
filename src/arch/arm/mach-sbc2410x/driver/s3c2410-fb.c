@@ -104,7 +104,7 @@ static struct fb_info info = {
 	},
 };
 
-static void fb_init(void)
+static void fb_init(struct fb * fb)
 {
 	/* initial lcd controler */
 	writel(S3C2410_LCDCON1, REGS_LCDCON1);
@@ -125,12 +125,12 @@ static void fb_init(void)
 	writel(S3C2410_LCDCON1, REGS_LCDCON1|S3C2410_LCDCON1_ENVID);
 }
 
-static void fb_exit(void)
+static void fb_exit(struct fb * fb)
 {
 	return;
 }
 
-static x_s32 fb_ioctl(x_u32 cmd, void * arg)
+static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
 {
 	static x_u8 brightness = 0;
 	x_u8 * p;
@@ -163,6 +163,7 @@ static struct fb s3c2410_fb = {
 	.fill_rect		= fb_soft_fill_rect,
 	.blit_bitmap	= fb_soft_blit_bitmap,
 	.ioctl			= fb_ioctl,
+	.priv			= NULL,
 };
 
 static __init void s3c2410_fb_init(void)

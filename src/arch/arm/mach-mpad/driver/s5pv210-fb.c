@@ -39,9 +39,93 @@
 #include <fb/fbsoft.h>
 #include <fb/fb.h>
 #include <s5pv210/reg-gpio.h>
+#include <s5pv210/reg-others.h>
 #include <s5pv210/reg-lcd.h>
 
-/* lcd module - lte480wv */
+struct s5pv210fb_lcd
+{
+	/* horizontal resolution */
+	x_s32 width;
+
+	/* vertical resolution */
+	x_s32 height;
+
+	/* bits per pixel */
+	x_s32 bpp;
+
+	/* vframe frequency */
+	x_s32 freq;
+
+	struct {
+		/* horizontal front porch */
+		x_s32 h_fp;
+
+		/* horizontal back porch */
+		x_s32 h_bp;
+
+		/* horizontal sync width */
+		x_s32 h_sw;
+
+		/* vertical front porch */
+		x_s32 v_fp;
+
+		/* vertical front porch for even field */
+		x_s32 v_fpe;
+
+		/* vertical back porch */
+		x_s32 v_bp;
+
+		/* vertical back porch for even field */
+		x_s32 v_bpe;
+
+		/* vertical sync width */
+		x_s32 v_sw;
+	} timing;
+
+	struct {
+		/* if 1, video data is fetched at rising edge */
+		x_s32 rise_vclk;
+
+		/* if HSYNC polarity is inversed */
+		x_s32 inv_hsync;
+
+		/* if VSYNC polarity is inversed */
+		x_s32 inv_vsync;
+
+		/* if VDEN polarity is inversed */
+		x_s32 inv_vden;
+	} polarity;
+};
+
+/*
+ * lcd module EK070TN93 config
+ */
+static struct s5pv210fb_lcd s5pv210fb_lcd = {
+	.width			= 800,
+	.height			= 480,
+	.bpp			= 32,
+	.freq			= 60,
+
+	.timing = {
+		.h_fp		= 210,
+		.h_bp		= 46,
+		.h_sw		= 10,
+		.v_fp		= 22,
+		.v_fpe		= 1,
+		.v_bp		= 23,
+		.v_bpe		= 1,
+		.v_sw		= 7,
+	},
+
+	.polarity = {
+		.rise_vclk	= 0,
+		.inv_hsync	= 1,
+		.inv_vsync	= 1,
+		.inv_vden	= 0,
+	},
+};
+
+
 #define	LCD_WIDTH		(800)
 #define	LCD_HEIGHT		(480)
 #define	LCD_BPP			(16)
@@ -65,6 +149,12 @@
 #define	REGS_VIDTCON2	( S3C6410_VIDTCON2_LINEVAL(LCD_HEIGHT-1) | S3C6410_VIDTCON2_HOZVAL(LCD_WIDTH-1) )
 #define	REGS_DITHMODE	( (S3C6410_DITHMODE_RDITHPOS_5BIT | S3C6410_DITHMODE_GDITHPOS_6BIT | S3C6410_DITHMODE_BDITHPOS_5BIT ) & (~S3C6410_DITHMODE_DITHERING_ENABLE) )
 #endif
+
+#define	REGS_VIDCON1	0x60
+#define	REGS_VIDTCON0	0xe0e0305
+#define	REGS_VIDTCON1	0x3103020
+#define	REGS_VIDTCON2	0x17fd55
+#define	REGS_DITHMODE	0
 
 /*
  * video ram buffer for lcd.
@@ -112,6 +202,59 @@ static struct fb_info info = {
 	},
 };
 
+static x_bool s5pv210fb_set_polarity(struct s5pv210fb_lcd * lcd)
+{
+	x_u32 cfg = 0;
+
+	if(lcd->polarity.rise_vclk)
+		cfg |= S5PV210_VIDCON1_IVCLK_RISING_EDGE;
+
+	if(lcd->polarity.inv_hsync)
+		cfg |= S5PV210_VIDCON1_IHSYNC_INVERT;
+
+	if(lcd->polarity.inv_vsync)
+		cfg |= S5PV210_VIDCON1_IVSYNC_INVERT;
+
+	if(lcd->polarity.inv_vden)
+		cfg |= S5PV210_VIDCON1_IVDEN_INVERT;
+
+	writel(S5PV210_VIDCON1, cfg);
+
+	return TRUE;
+}
+
+static x_bool s5pv210fb_set_timing(struct s5pv210fb_lcd * lcd)
+{
+	x_u32 cfg;
+
+	cfg = 0;
+	cfg |= S5PV210_VIDTCON0_VBPDE(lcd->timing.v_bpe - 1);
+	cfg |= S5PV210_VIDTCON0_VBPD(lcd->timing.v_bp - 1);
+	cfg |= S5PV210_VIDTCON0_VFPD(lcd->timing.v_fp - 1);
+	cfg |= S5PV210_VIDTCON0_VSPW(lcd->timing.v_sw - 1);
+	writel(S5PV210_VIDTCON0, cfg);
+
+	cfg = 0;
+	cfg |= S5PV210_VIDTCON1_VFPDE(lcd->timing.v_fpe - 1);
+	cfg |= S5PV210_VIDTCON1_HBPD(lcd->timing.h_bp - 1);
+	cfg |= S5PV210_VIDTCON1_HFPD(lcd->timing.h_fp - 1);
+	cfg |= S5PV210_VIDTCON1_HSPW(lcd->timing.h_sw - 1);
+	writel(S5PV210_VIDTCON1, cfg);
+
+	return TRUE;
+}
+
+static x_bool s5pv210fb_set_lcd_size(struct s5pv210fb_lcd * lcd)
+{
+	x_u32 cfg = 0;
+
+	cfg |= S5PV210_VIDTCON2_HOZVAL(lcd->width - 1);
+	cfg |= S5PV210_VIDTCON2_LINEVAL(lcd->height - 1);
+	writel(S5PV210_VIDTCON2, cfg);
+
+	return TRUE;
+}
+
 static void fb_init(void)
 {
 	x_u64 hclk;
@@ -131,6 +274,9 @@ static void fb_init(void)
 	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<8)) | (0x2<<8));
 	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<4)) | (0x1<<4));
 
+	/* display path selection */
+	writel(S5PV210_DISPLAY_CONTROL, (readl(S5PV210_DISPLAY_CONTROL) & ~(0x3<<0)) | (0x2<<0));
+
 	/* lcd port config */
 	writel(S5PV210_GPF0CON, 0x22222222);
 	writel(S5PV210_GPF0DRV, 0xffffffff);
@@ -145,12 +291,10 @@ static void fb_init(void)
 	writel(S5PV210_GPF3DRV, (readl(S5PV210_GPF3DRV) & ~(0xff<<0)) | (0xff<<0));
 	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0xff<<0)) | (0x00<<0));
 
-
-#define	REGS_VIDCON1	0x60
-#define	REGS_VIDTCON0	0xe0e0305
-#define	REGS_VIDTCON1	0x3103020
-#define	REGS_VIDTCON2	0x17fd55
-#define	REGS_DITHMODE	0
+	/* gpf0_2 low level for enable display */
+	writel(S5PV210_GPF0CON, (readl(S5PV210_GPF0CON) & ~(0x3<<8)) | (0x1<<8));
+	writel(S5PV210_GPF0PUD, (readl(S5PV210_GPF0PUD) & ~(0x3<<4)) | (0x2<<4));
+	writel(S5PV210_GPF0DAT, (readl(S5PV210_GPF0DAT) & ~(0x1<<2)) | (0x0<<2));
 
 	/* initial lcd controler */
 	writel(S5PV210_VIDCON1, REGS_VIDCON1);
@@ -218,13 +362,18 @@ static void fb_init(void)
 	/* delay for avoid flash screen */
 	mdelay(50);
 
+#if 1
 //TODO
 //test
-	writel(0xf8000004, 0x60);
+	/* initial lcd controler */
+/*	writel(0xf8000004, 0x60);
 	writel(0xf8000010, 0xe0e0305);
 	writel(0xf8000014, 0x3103020);
-	writel(0xf8000170, 0x0);
 	writel(0xf8000018, 0x17fd55);
+	writel(0xf8000170, 0x0);*/
+
+
+
 	writel(0xf8000000, 0x0);
 	writel(0xf8000000, 0x254);
 	writel(0xf8000130, 0x20);
@@ -283,8 +432,9 @@ static void fb_init(void)
 	writel(0xf8000010, 0x60400);
 	writel(0xf80001a4, 0x3);
 
-	writel(0xe0107008,0x2); //syscon output path
+//	writel(0xe0107008,0x2); //syscon output path
 //	writel(0xe0100204,0x700000); //syscon fimdclk = mpll
+#endif
 }
 
 static void fb_exit(void)

@@ -169,8 +169,8 @@ static struct machine mpad = {
 	.res = {
 		.mem_banks = {
 			[0] = {
-				.start		= 0x20000000,
-				.end		= 0x20000000 + SZ_256M - 1,
+				.start		= 0x30000000,
+				.end		= 0x30000000 + SZ_256M - 1,
 			},
 
 			[1] = {

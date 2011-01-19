@@ -41,7 +41,7 @@ struct s5pv210fb_lcd
 	enum s5pv210fb_output output;
 
 	/* rgb mode */
-	enum s5pv210fb_rgb_mode mode;
+	enum s5pv210fb_rgb_mode rgb_mode;
 
 	struct {
 		/* red color */

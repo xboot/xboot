@@ -80,6 +80,9 @@ static struct s5pv210fb_lcd lcd = {
 	.bpp			= 32,
 	.freq			= 60,
 
+	.output			= OUTPUT_RGB,
+	.rgb_mode		= MODE_RGB_P,
+
 	.rgba = {
 		.r_mask		= 8,
 		.r_field	= 0,

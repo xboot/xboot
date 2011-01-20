@@ -78,26 +78,30 @@ static void bitmap_fill_rect_direct32(struct bitmap * bitmap, x_u32 c, x_u32 x, 
  */
 static void bitmap_fill_rect_direct24(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
-	x_u8 * p;
-	x_u32 skip;
-	x_u32 i, j;
+	x_u8 * p, * q;
+	x_u8 * t;
+	x_u32 len, skip;
+	x_u32 i;
 	x_u8 fill0 = (x_u8)((c >> 0) & 0xff);
 	x_u8 fill1 = (x_u8)((c >> 8) & 0xff);
 	x_u8 fill2 = (x_u8)((c >> 16) & 0xff);
 
-	p = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
-	skip = bitmap->info.pitch - bitmap->info.bytes_per_pixel * w;
+	len = bitmap->info.bytes_per_pixel * w;
+	skip = bitmap->info.pitch - len + bitmap->info.pitch;
+	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
+	p = q = (x_u8 *)t;
 
-	for(j = 0; j < h; j++)
+	for(i = 0; i < w; i++)
 	{
-		for(i = 0; i < w; i++)
-		{
-			*p++ = fill0;
-			*p++ = fill1;
-			*p++ = fill2;
-		}
+		*t++ = fill0;
+		*t++ = fill1;
+		*t++ = fill2;
+	}
 
-		p += skip;
+	for(i = 1; i < h; i++)
+	{
+		q += skip;
+		memcpy(q, p, len);
 	}
 }
 
@@ -106,24 +110,28 @@ static void bitmap_fill_rect_direct24(struct bitmap * bitmap, x_u32 c, x_u32 x, 
  */
 static void bitmap_fill_rect_direct16(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
-	x_u8 * p;
-	x_u32 skip;
-	x_u32 i, j;
+	x_u8 * p, * q;
+	x_u8 * t;
+	x_u32 len, skip;
+	x_u32 i;
 	x_u8 fill0 = (x_u8)((c >> 0) & 0xff);
 	x_u8 fill1 = (x_u8)((c >> 8) & 0xff);
 
-	p = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
-	skip = bitmap->info.pitch - bitmap->info.bytes_per_pixel * w;
+	len = bitmap->info.bytes_per_pixel * w;
+	skip = bitmap->info.pitch - len + bitmap->info.pitch;
+	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
+	p = q = (x_u8 *)t;
 
-	for(j = 0; j < h; j++)
+	for(i = 0; i < w; i++)
 	{
-		for(i = 0; i < w; i++)
-		{
-			*p++ = fill0;
-			*p++ = fill1;
-		}
+		*t++ = fill0;
+		*t++ = fill1;
+	}
 
-		p += skip;
+	for(i = 1; i < h; i++)
+	{
+		q += skip;
+		memcpy(q, p, len);
 	}
 }
 
@@ -132,22 +140,26 @@ static void bitmap_fill_rect_direct16(struct bitmap * bitmap, x_u32 c, x_u32 x, 
  */
 static void bitmap_fill_rect_direct8(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
-	x_u8 * p;
-	x_u32 skip;
-	x_u32 i, j;
+	x_u8 * p, * q;
+	x_u8 * t;
+	x_u32 len, skip;
+	x_u32 i;
 	x_u8 fill = (x_u8)(c & 0xff);
 
-	p = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
-	skip = bitmap->info.pitch - bitmap->info.bytes_per_pixel * w;
+	len = bitmap->info.bytes_per_pixel * w;
+	skip = bitmap->info.pitch - len + bitmap->info.pitch;
+	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
+	p = q = (x_u8 *)t;
 
-	for(j = 0; j < h; j++)
+	for(i = 0; i < w; i++)
 	{
-		for(i = 0; i < w; i++)
-		{
-			*p++ = fill;
-		}
+		*t++ = fill;
+	}
 
-		p += skip;
+	for(i = 1; i < h; i++)
+	{
+		q += skip;
+		memcpy(q, p, len);
 	}
 }
 

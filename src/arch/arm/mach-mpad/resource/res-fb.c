@@ -32,30 +32,45 @@
 
 static void lcd_init(void)
 {
-	/* set gpd0_0 (backlight pin) output and pull up and high level for disabled */
+	/*
+	 * set gpd0_0 (backlight pin) output and pull up and high level for disabled
+	 */
 	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0x3<<0)) | (0x1<<0));
 	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
 	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
 
-	/* gpf3_5 high level for enable lcd power */
+	/*
+	 * gpf3_5 high level for enable lcd power
+	 */
 	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0x3<<20)) | (0x1<<20));
 	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
 	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
 
-	/* gpf3_4 high level for reset pin */
+	/*
+	 * gpf3_4 high level for reset pin
+	 */
 	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0x3<<16)) | (0x1<<16));
 	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<8)) | (0x2<<8));
 	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<4)) | (0x1<<4));
+
+	/*
+	 * wait a moment
+	 */
+	mdelay(10);
 }
 
 static void lcd_exit(void)
 {
-	/* set gpd0_0 (backlight pin) output and pull up and high level for disabled */
+	/*
+	 * set gpd0_0 (backlight pin) output and pull up and high level for disabled
+	 */
 	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0x3<<0)) | (0x1<<0));
 	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
 	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
 
-	/* gpf3_5 low level for disable lcd power */
+	/*
+	 * gpf3_5 low level for disable lcd power
+	 */
 	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0x3<<20)) | (0x1<<20));
 	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
 	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
@@ -80,8 +95,10 @@ static struct s5pv210fb_lcd lcd = {
 	.bpp			= 32,
 	.freq			= 60,
 
-	.output			= OUTPUT_RGB,
-	.rgb_mode		= MODE_RGB_P,
+	.output			= S5PV210FB_OUTPUT_RGB,
+	.rgb_mode		= S5PV210FB_MODE_BGR_P,
+	.bpp_mode		= S5PV210FB_BPP_MODE_32BPP,
+	.swap			= S5PV210FB_SWAP_WORD,
 
 	.rgba = {
 		.r_mask		= 8,

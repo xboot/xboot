@@ -45,7 +45,6 @@ struct menu_ctx
 	enum tcolor fg, bg;
 
 	x_u32 x0, y0, x1, y1;
-
 	x_bool cursor;
 };
 
@@ -179,9 +178,9 @@ static void menu_ctx_free(struct menu_ctx * ctx)
 {
 	if(ctx)
 	{
-		console_setcursor(ctx->console, ctx->cursor);
 		console_setcolor(ctx->console, ctx->fg, ctx->bg);
 		console_cls(ctx->console);
+		console_setcursor(ctx->console, ctx->cursor);
 		free(ctx);
 	}
 }

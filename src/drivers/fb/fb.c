@@ -563,7 +563,6 @@ static x_bool fbcon_cls(struct console * console)
 {
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell = &(info->cell[0]);
-	x_s32 px, py;
 	x_s32 i;
 
 	for(i = 0; i < info->clen; i++)
@@ -573,14 +572,12 @@ static x_bool fbcon_cls(struct console * console)
 		cell->bc = info->bc;
 		cell->w = 1;
 
-		px = (i % info->w) * info->fw;
-		py = (i / info->w) * info->fh;
-		fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
-
 		cell++;
 	}
 
+	fb_fill_rect(info->fb, info->bc, 0, 0, info->fb->info->bitmap.info.width, info->fb->info->bitmap.info.height);
 	fbcon_gotoxy(console, 0, 0);
+
 	return TRUE;
 }
 

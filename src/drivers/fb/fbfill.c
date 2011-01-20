@@ -52,21 +52,24 @@ static void bitmap_fill_rect_generic(struct bitmap * bitmap, x_u32 c, x_u32 x, x
  */
 static void bitmap_fill_rect_direct32(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 {
-	x_u32 * p;
-	x_u32 skip;
-	x_u32 i, j;
+	x_u8 * p, * q;
+	x_u32 * t;
+	x_u32 len, skip;
+	x_u32 i;
 
-	p = (x_u32 *)bitmap_get_pointer(bitmap, x, y);
-	skip = bitmap->info.pitch - bitmap->info.bytes_per_pixel * w;
+	c = cpu_to_le32(c);
+	len = bitmap->info.bytes_per_pixel * w;
+	skip = bitmap->info.pitch - len + bitmap->info.pitch;
+	t = (x_u32 *)bitmap_get_pointer(bitmap, x, y);
+	p = q = (x_u8 *)t;
 
-	for(j = 0; j < h; j++)
+	for(i = 0; i < w; i++)
+		*t++ = c;
+
+	for(i = 1; i < h; i++)
 	{
-		for(i = 0; i < w; i++)
-		{
-			*p++ = cpu_to_le32(c);
-		}
-
-		p = (x_u32 *)(((x_u8 *)p) + skip);
+		q += skip;
+		memcpy(q, p, len);
 	}
 }
 

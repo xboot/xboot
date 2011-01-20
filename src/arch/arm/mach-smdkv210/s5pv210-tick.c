@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-smdkv210/s5pv210-tick.c
+ * s5pv210-tick.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

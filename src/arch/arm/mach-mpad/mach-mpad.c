@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-mpad/mach-mpad.c
+ * mach-mpad.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

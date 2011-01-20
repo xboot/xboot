@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-mpad/s5pv210-clk.c
+ * s5pv210-clk.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

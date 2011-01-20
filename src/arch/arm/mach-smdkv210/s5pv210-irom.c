@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-smdkv210/s5pv210-irom.c
+ * s5pv210-irom.c
  *
  * this file used by start.s assembler code, and the linker script
  * must make sure this file is linked within the first 16kB. DO NOT

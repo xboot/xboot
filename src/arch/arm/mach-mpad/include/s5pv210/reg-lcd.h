@@ -390,12 +390,4 @@
 #define S5PV210_VIDADDR_OFFSIZE(x)				(((x) & 0x1fff) << 13)
 #define S5PV210_VIDADDR_PAGEWIDTH(x)			(((x) & 0x1fff) << 0)
 
-/* WIN Color Map */
-#define S5PV210_WINMAP_COLOR(x)					((x) & 0xffffff)
-
-/* WINMAP */
-#define S5PV210_WINMAP_ENABLE					(1 << 24)
-
-
-
 #endif /* __S5PV210_REG_LCD_H__ */

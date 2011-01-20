@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <console>
-	<stdin	name="uart2"/>
-	<stdout	name="uart2"/>
+	<stdin	name="input"/>
+	<stdout	name="fb"/>
 </console>

@@ -59,7 +59,7 @@ static void bitmap_fill_rect_direct32(struct bitmap * bitmap, x_u32 c, x_u32 x, 
 
 	c = cpu_to_le32(c);
 	len = bitmap->info.bytes_per_pixel * w;
-	skip = bitmap->info.pitch - len + bitmap->info.pitch;
+	skip = bitmap->info.pitch;
 	t = (x_u32 *)bitmap_get_pointer(bitmap, x, y);
 	p = q = (x_u8 *)t;
 
@@ -87,7 +87,7 @@ static void bitmap_fill_rect_direct24(struct bitmap * bitmap, x_u32 c, x_u32 x, 
 	x_u8 fill2 = (x_u8)((c >> 16) & 0xff);
 
 	len = bitmap->info.bytes_per_pixel * w;
-	skip = bitmap->info.pitch - len + bitmap->info.pitch;
+	skip = bitmap->info.pitch;
 	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
 	p = q = (x_u8 *)t;
 
@@ -118,7 +118,7 @@ static void bitmap_fill_rect_direct16(struct bitmap * bitmap, x_u32 c, x_u32 x, 
 	x_u8 fill1 = (x_u8)((c >> 8) & 0xff);
 
 	len = bitmap->info.bytes_per_pixel * w;
-	skip = bitmap->info.pitch - len + bitmap->info.pitch;
+	skip = bitmap->info.pitch;
 	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
 	p = q = (x_u8 *)t;
 
@@ -147,7 +147,7 @@ static void bitmap_fill_rect_direct8(struct bitmap * bitmap, x_u32 c, x_u32 x, x
 	x_u8 fill = (x_u8)(c & 0xff);
 
 	len = bitmap->info.bytes_per_pixel * w;
-	skip = bitmap->info.pitch - len + bitmap->info.pitch;
+	skip = bitmap->info.pitch;
 	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
 	p = q = (x_u8 *)t;
 

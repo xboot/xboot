@@ -575,7 +575,7 @@ static x_bool fbcon_cls(struct console * console)
 		cell++;
 	}
 
-	fb_fill_rect(info->fb, info->bc, 0, 0, info->w * info->fw, info->h * info->fh);
+	fb_fill_rect(info->fb, info->bc, 0, 0, (info->w * info->fw), (info->h * info->fh));
 	fbcon_gotoxy(console, 0, 0);
 
 	return TRUE;
@@ -588,54 +588,39 @@ static x_bool fbcon_scrollup(struct console * console)
 {
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * p, * q;
-	x_s32 px, py;
 	x_s32 m, l;
-	x_s32 i, w;
+	x_s32 i;
 
 	l = info->w;
 	m = info->clen - l;
 	p = &(info->cell[0]);
 	q = &(info->cell[l]);
 
-	for(i = 0, w = 1; i < m; i += w)
+	for(i = 0; i < m; i++)
 	{
-		if( (p->cp != q->cp) || (p->fc != q->fc) || (p->bc != q->bc) || (p->w != q->w))
-		{
-			p->cp = q->cp;
-			p->fc = q->fc;
-			p->bc = q->bc;
-			p->w = q->w;
+		p->cp = q->cp;
+		p->fc = q->fc;
+		p->bc = q->bc;
+		p->w = q->w;
 
-			px = (i % info->w) * info->fw;
-			py = (i / info->w) * info->fh;
-			fb_putcode(info->fb, p->cp, p->fc, p->bc, px, py);
-		}
-
-		if( (w = q->w) < 1 )
-			w = 1;
-		p += w;
-		q += w;
+		p++;
+		q++;
 	}
 
 	while( (l--) > 0 )
 	{
-		if( (p->w == 0) || (p->cp != UNICODE_SPACE) || (p->fc != info->fc) || (p->bc != info->bc) )
-		{
-			p->cp = UNICODE_SPACE;
-			p->fc = info->fc;
-			p->bc = info->bc;
-			p->w = 1;
-
-			px = (i % info->w) * info->fw;
-			py = (i / info->w) * info->fh;
-			fb_putcode(info->fb, p->cp, p->fc, p->bc, px, py);
-		}
+		p->cp = UNICODE_SPACE;
+		p->fc = info->fc;
+		p->bc = info->bc;
+		p->w = 1;
 
 		p++;
-		i++;
 	}
 
+	fb_blit_bitmap(info->fb, &info->fb->info->bitmap, BLIT_MODE_REPLACE, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
+	fb_fill_rect(info->fb, info->bc, 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
 	fbcon_gotoxy(console, info->x, info->y - 1);
+
 	return TRUE;
 }
 

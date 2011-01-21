@@ -575,7 +575,7 @@ static x_bool fbcon_cls(struct console * console)
 		cell++;
 	}
 
-	fb_fill_rect(info->fb, info->bc, 0, 0, info->fb->info->bitmap.info.width, info->fb->info->bitmap.info.height);
+	fb_fill_rect(info->fb, info->bc, 0, 0, info->w * info->fw, info->h * info->fh);
 	fbcon_gotoxy(console, 0, 0);
 
 	return TRUE;

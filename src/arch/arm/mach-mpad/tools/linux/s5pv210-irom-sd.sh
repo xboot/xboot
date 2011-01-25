@@ -25,7 +25,7 @@ xboot="$2"
 [ -f ${xboot} ] || { echo "${xboot} is not a bootloader binary file."; exit 1; }
 
 # copy the full bootloader image to block device
-dd iflag=dsync oflag=dsync if="${xboot}" of="${dev}" seek=1
+dd if="${xboot}" of="${dev}" bs=512 seek=1 conv=sync
 
 sync;
 sync;

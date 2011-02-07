@@ -41,9 +41,6 @@ struct fbcon_cell
 
 	/* foreground color and background color */
 	x_u32 fc, bc;
-
-	/* the width of the cp */
-	x_u32 w;
 };
 
 /*
@@ -570,7 +567,6 @@ static x_bool fbcon_cls(struct console * console)
 		cell->cp = UNICODE_SPACE;
 		cell->fc = info->fc;
 		cell->bc = info->bc;
-		cell->w = 1;
 
 		cell++;
 	}
@@ -601,7 +597,6 @@ static x_bool fbcon_scrollup(struct console * console)
 		p->cp = q->cp;
 		p->fc = q->fc;
 		p->bc = q->bc;
-		p->w = q->w;
 
 		p++;
 		q++;
@@ -612,7 +607,6 @@ static x_bool fbcon_scrollup(struct console * console)
 		p->cp = UNICODE_SPACE;
 		p->fc = info->fc;
 		p->bc = info->bc;
-		p->w = 1;
 
 		p++;
 	}
@@ -652,7 +646,6 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 			cell->cp = UNICODE_SPACE;
 			cell->fc = info->fc;
 			cell->bc = info->bc;
-			cell->w = 1;
 
 			px = (pos % info->w) * info->fw;
 			py = (pos / info->w) * info->fh;
@@ -683,14 +676,12 @@ x_bool fbcon_putcode(struct console * console, x_u32 code)
 		cell->cp = code;
 		cell->fc = info->fc;
 		cell->bc = info->bc;
-		cell->w = w;
 
 		for(i = 1; i < w; i++)
 		{
 			((struct fbcon_cell *)(cell + i))->cp = UNICODE_SPACE;
 			((struct fbcon_cell *)(cell + i))->fc = info->fc;
 			((struct fbcon_cell *)(cell + i))->bc = info->bc;
-			((struct fbcon_cell *)(cell + i))->w = 0;
 		}
 
 		px = (pos % info->w) * info->fw;

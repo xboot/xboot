@@ -35,21 +35,21 @@ static void lcd_init(void)
 	/*
 	 * set gpd0_0 (backlight pin) output and pull up and high level for disabled
 	 */
-	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0x3<<0)) | (0x1<<0));
+	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
 	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
 	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
 
 	/*
 	 * gpf3_5 high level for enable lcd power
 	 */
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0x3<<20)) | (0x1<<20));
+	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xf<<20)) | (0x1<<20));
 	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
 	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
 
 	/*
 	 * gpf3_4 high level for reset pin
 	 */
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0x3<<16)) | (0x1<<16));
+	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xf<<16)) | (0x1<<16));
 	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<8)) | (0x2<<8));
 	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<4)) | (0x1<<4));
 
@@ -64,14 +64,14 @@ static void lcd_exit(void)
 	/*
 	 * set gpd0_0 (backlight pin) output and pull up and high level for disabled
 	 */
-	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0x3<<0)) | (0x1<<0));
+	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
 	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
 	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
 
 	/*
 	 * gpf3_5 low level for disable lcd power
 	 */
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0x3<<20)) | (0x1<<20));
+	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xf<<20)) | (0x1<<20));
 	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
 	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
 }

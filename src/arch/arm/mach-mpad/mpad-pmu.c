@@ -176,7 +176,7 @@ static x_u8 iic_recv_byte(void)
 	return data;
 }
 
-x_s32 iic_write_byte(x_u8 slave, x_u8 reg, x_u8 value)
+static x_s32 iic_write_byte(x_u8 slave, x_u8 reg, x_u8 value)
 {
 	iic_start();
 
@@ -191,6 +191,32 @@ x_s32 iic_write_byte(x_u8 slave, x_u8 reg, x_u8 value)
 	iic_send_byte(value);
 	if(! iic_wait_ack())
 		return 0;
+
+	iic_stop();
+
+	return 1;
+}
+
+static x_s32 iic_read_byte(x_u8 slave, x_u8 reg,  x_u8 * value)
+{
+	iic_start();
+
+	iic_send_byte(slave << 0x1);
+	if(! iic_wait_ack())
+		return 0;
+
+	iic_send_byte(reg);
+	if(! iic_wait_ack())
+		return 0;
+
+	iic_start();
+
+	iic_send_byte((slave << 0x1) | 0x01);
+	if(! iic_wait_ack())
+		return 0;
+
+	*value = iic_recv_byte();
+	iic_send_not_ack();
 
 	iic_stop();
 
@@ -221,32 +247,6 @@ x_s32 iic_write_nbyte(x_u8 slave, x_u8 reg, x_u8 * buf, x_s32 count)
 	iic_stop();
 
 	return i;
-}
-
-x_s32 iic_read_byte(x_u8 slave, x_u8 reg,  x_u8 * value)
-{
-	iic_start();
-
-	iic_send_byte(slave << 0x1);
-	if(! iic_wait_ack())
-		return 0;
-
-	iic_send_byte(reg);
-	if(! iic_wait_ack())
-		return 0;
-
-	iic_start();
-
-	iic_send_byte((slave << 0x1) | 0x01);
-	if(! iic_wait_ack())
-		return 0;
-
-	*value = iic_recv_byte();
-	iic_send_not_ack();
-
-	iic_stop();
-
-	return 1;
 }
 
 x_s32 iic_read_nbyte(x_u8 slave, x_u8 reg, x_u8 * buf, x_s32 count)

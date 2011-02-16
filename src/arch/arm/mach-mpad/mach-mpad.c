@@ -55,7 +55,10 @@ extern x_u8 __stack_end[];
  */
 static void mach_init(void)
 {
-
+	/* gph3_7 high level for power lock */
+	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<28)) | (0x1<<28));
+	writel(S5PV210_GPH3PUD, (readl(S5PV210_GPH3PUD) & ~(0x3<<14)) | (0x0<<14));
+	writel(S5PV210_GPH3DAT, (readl(S5PV210_GPH3DAT) & ~(0x1<<7)) | (0x1<<7));
 }
 
 /*
@@ -63,6 +66,11 @@ static void mach_init(void)
  */
 static x_bool mach_halt(void)
 {
+	/* gph3_7 low level for power unlock */
+	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<28)) | (0x1<<28));
+	writel(S5PV210_GPH3PUD, (readl(S5PV210_GPH3PUD) & ~(0x3<<14)) | (0x0<<14));
+	writel(S5PV210_GPH3DAT, (readl(S5PV210_GPH3DAT) & ~(0x1<<7)) | (0x0<<7));
+
 	return TRUE;
 }
 

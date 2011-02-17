@@ -184,7 +184,7 @@ sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR)							\
 			&& $(RM) .obj/ramdisk										\
 			&& $(RM) .obj/ramdisk.cpio									\
 			&& $(RM) .obj/init/version.o								\
-			&& $(RM) .obj/drivers/ramdisk/binary.o						\
+			&& $(RM) .obj/drivers/ramdisk/data.o						\
 			&& $(CP) ramdisk .obj										\
 			&& $(CP) arch/$(ARCH)/$(MACH)/ramdisk .obj					\
 			&& $(CD) .obj/ramdisk										\

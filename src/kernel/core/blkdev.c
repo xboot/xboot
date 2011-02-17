@@ -209,7 +209,7 @@ x_s32 get_blkdev_size(struct blkdev * dev, x_s32 blkno)
 /*
  * get block device's offset by blkno
  */
-x_size get_blkdev_offset(struct blkdev * dev, x_s32 blkno)
+x_off get_blkdev_offset(struct blkdev * dev, x_s32 blkno)
 {
 	struct blkinfo * list;
 	struct list_head * pos;
@@ -222,7 +222,7 @@ x_size get_blkdev_offset(struct blkdev * dev, x_s32 blkno)
 		list = list_entry(pos, struct blkinfo, entry);
 
 		if((blkno >= list->blkno) && (blkno < (list->blkno + list->number)))
-			return ((x_size)(list->offset + (blkno - list->blkno) * list->size));
+			return ((x_off)(list->offset + (blkno - list->blkno) * list->size));
 		else
 			continue;
 	}
@@ -233,7 +233,7 @@ x_size get_blkdev_offset(struct blkdev * dev, x_s32 blkno)
 /*
  * get block no by offset
  */
-x_s32 get_blkdev_blkno(struct blkdev * dev, x_size offset)
+x_s32 get_blkdev_blkno(struct blkdev * dev, x_off offset)
 {
 	struct blkinfo * list;
 	struct list_head * pos;

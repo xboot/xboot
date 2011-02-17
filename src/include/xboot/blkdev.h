@@ -28,7 +28,7 @@ struct blkinfo {
 	/* the size of block */
 	x_s32 size;
 
-	/* the number of block with same type */
+	/* the number of blocks with same size */
 	x_s32 number;
 
 	/* link other blkinfo */
@@ -77,7 +77,7 @@ x_bool unregister_blkdev(const char * name);
 x_size get_blkdev_total_size(struct blkdev * dev);
 x_size get_blkdev_total_number(struct blkdev * dev);
 x_s32 get_blkdev_size(struct blkdev * dev, x_s32 blkno);
-x_size get_blkdev_offset(struct blkdev * dev, x_s32 blkno);
-x_s32 get_blkdev_blkno(struct blkdev * dev, x_size offset);
+x_off get_blkdev_offset(struct blkdev * dev, x_s32 blkno);
+x_s32 get_blkdev_blkno(struct blkdev * dev, x_off offset);
 
 #endif /* __BLKDEV_H__ */

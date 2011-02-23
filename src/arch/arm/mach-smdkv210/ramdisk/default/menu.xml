@@ -4,4 +4,8 @@
 		<title>Shell Command Line</title>
 		<command>exit --shell</command>
 	</item>
+	<item>
+		<title>Reboot System</title>
+		<command>reboot</command>
+	</item>
 </menu>

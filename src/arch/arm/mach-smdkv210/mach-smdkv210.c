@@ -141,10 +141,15 @@ static struct machine smdkv210 = {
 		.mem_banks = {
 			[0] = {
 				.start		= 0x20000000,
-				.end		= 0x20000000 + SZ_1G - 1,
+				.end		= 0x20000000 + SZ_512M - 1,
 			},
 
 			[1] = {
+				.start		= 0x40000000,
+				.end		= 0x40000000 + SZ_512M - 1,
+			},
+
+			[2] = {
 				.start		= 0,
 				.end		= 0,
 			},

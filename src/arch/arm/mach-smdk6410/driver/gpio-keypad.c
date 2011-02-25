@@ -61,11 +61,11 @@ static void keypad_timer_function(x_u32 data)
 
 		if(keydown)
 		{
-			if(keyup & (0x1<<10))				/* gpn10 */
+			if(keydown & (0x1<<10))				/* gpn10 */
 				input_report(INPUT_KEYBOARD, KEY_UP, KEY_BUTTON_DOWN);
-			else if(keyup & (0x1<<11))			/* gpn11 */
+			else if(keydown & (0x1<<11))			/* gpn11 */
 				input_report(INPUT_KEYBOARD, KEY_DOWN, KEY_BUTTON_DOWN);
-			else if(keyup & (0x1<<9))			/* gpn9 */
+			else if(keydown & (0x1<<9))			/* gpn9 */
 				input_report(INPUT_KEYBOARD, KEY_ENTER, KEY_BUTTON_DOWN);
 		}
 

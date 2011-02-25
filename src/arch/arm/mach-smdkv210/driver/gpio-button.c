@@ -63,8 +63,8 @@ static void button_timer_function(x_u32 data)
 
 	if(key != key_old)
 	{
-		keyup = (key ^ key_old) & key_old;
-		keydown = (key ^ key_old) & key;
+		keyup = (key ^ key_old) & key;
+		keydown = (key ^ key_old) & key_old;
 		key_old = key;
 
 		if(keyup)
@@ -77,9 +77,9 @@ static void button_timer_function(x_u32 data)
 
 		if(keydown)
 		{
-			if(keyup & (0x1<<0))				/* GPH0_4 */
+			if(keydown & (0x1<<0))				/* GPH0_4 */
 				input_report(INPUT_KEYBOARD, KEY_DOWN, KEY_BUTTON_DOWN);
-			else if(keyup & (0x1<<1))			/* GPH3_7 */
+			else if(keydown & (0x1<<1))			/* GPH3_7 */
 				input_report(INPUT_KEYBOARD, KEY_ENTER, KEY_BUTTON_DOWN);
 		}
 

@@ -33,11 +33,11 @@
 static void lcd_init(void)
 {
 	/*
-	 * set gpd0_0 (backlight pin) output and pull up and high level for disabled
+	 * set gpd0_0 (backlight pin) output and pull up and low level for disabled
 	 */
 	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
 	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
-	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
+	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
 
 	/*
 	 * gpf3_5 high level for enable lcd power
@@ -62,11 +62,11 @@ static void lcd_init(void)
 static void lcd_exit(void)
 {
 	/*
-	 * set gpd0_0 (backlight pin) output and pull up and high level for disabled
+	 * set gpd0_0 (backlight pin) output and pull up and low level for disabled
 	 */
 	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
 	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
-	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
+	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
 
 	/*
 	 * gpf3_5 low level for disable lcd power
@@ -79,9 +79,9 @@ static void lcd_exit(void)
 static void lcd_backlight(x_u8 brightness)
 {
 	if(brightness)
-		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
-	else
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
+	else
+		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
 }
 
 /*

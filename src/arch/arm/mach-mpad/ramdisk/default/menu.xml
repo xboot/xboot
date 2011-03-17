@@ -2,15 +2,15 @@
 <menu>
 	<item>
 		<title>Boot Android</title>
-		<command>fileram -f /ramdisk/boot/zImage-android 0x30008000; bootlinux 0x30008000 0x30000100 2456 "console=ttySAC2,115200";</command>
+		<command>fileram -f /ramdisk/boot/zImage-android 0x20008000; bootlinux 0x20008000 0x20000100 2456 "console=ttySAC2,115200";</command>
 	</item>
 	<item>
 		<title>Update System</title>
-		<command>fileram -f /ramdisk/boot/zImage-initrd 0x30008000; bootlinux 0x30008000 0x30000100 2456 "console=tty0, command=burn";</command>
+		<command>fileram -f /ramdisk/boot/zImage-initrd 0x20008000; bootlinux 0x20008000 0x20000100 2456 "console=tty0, command=burn";</command>
 	</item>
 	<item>
 		<title>Linux Debug</title>
-		<command>fileram -f /ramdisk/boot/zImage-initrd 0x30008000; bootlinux 0x30008000 0x30000100 2456 "console=ttySAC2,115200";</command>
+		<command>fileram -f /ramdisk/boot/zImage-initrd 0x20008000; bootlinux 0x20008000 0x20000100 2456 "console=ttySAC2,115200";</command>
 	</item>
 	<item>
 		<title>Shell Command Line</title>

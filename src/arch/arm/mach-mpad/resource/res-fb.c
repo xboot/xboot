@@ -113,11 +113,11 @@ static struct s5pv210fb_lcd lcd = {
 
 	.timing = {
 		.h_fp		= 210,
-		.h_bp		= 46,
+		.h_bp		= 38,
 		.h_sw		= 10,
 		.v_fp		= 22,
 		.v_fpe		= 1,
-		.v_bp		= 23,
+		.v_bp		= 18,
 		.v_bpe		= 1,
 		.v_sw		= 7,
 	},

@@ -33,7 +33,7 @@ static struct s5pv210_keypad keypad_data = {
 	.rows	= 2,
 	.cols	= 2,
 	.keycode = {
-		KEY_UP,		KEY_DOWN,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 0,	0,
+		KEY_DOWN,	KEY_ENTER,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 0,	0,
 		KEY_ENTER,	0,			0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 0,	0,
 		0,			0,			0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 0,	0,
 		0,			0,			0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 0,	0,

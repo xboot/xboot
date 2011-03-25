@@ -26,16 +26,16 @@ struct disk
 	struct partition info;
 
 	/* the size of sector */
-	x_u32 sector_size;
+	x_s32 sector_size;
 
 	/* the count of sector */
-	x_u32 sector_count;
+	x_s32 sector_count;
 
-	/* read a sector from disk */
-	x_bool (*read_sector)(struct disk * disk, x_u32 sector, x_u8 * data);
+	/* read sectors from disk */
+	x_bool (*read_sector)(struct disk * disk, x_u8 * buf, x_s32 sector, x_s32 count);
 
-	/* write a sector to disk */
-	x_bool (*write_sector)(struct disk * disk, x_u32 sector, x_u8 * data);
+	/* write sectors to disk */
+	x_bool (*write_sector)(struct disk * disk, const x_u8 * buf, x_s32 sector, x_s32 count);
 
 	/* priv data pointer */
 	void * priv;

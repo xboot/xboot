@@ -329,14 +329,15 @@ static x_bool register_mmc_card(struct mmc_card * card)
 	disk->write_sector = mmc_write_sector;
 	disk->priv = (void *)card;
 	card->priv = (void *)disk;
-
+//xxx
+/*
 	if(!register_disk(disk, BLK_DEV_MMC))
 	{
 		free(list);
 		free(disk);
 		return FALSE;
 	}
-
+*/
 	list->card = card;
 	list_add(&list->entry, &mmc_card_list->entry);
 
@@ -475,7 +476,8 @@ void mmc_card_remove(void)
 		curr = next;
 
 		disk = (struct disk *)(list->card->priv);
-		unregister_disk(disk);
+		//xxx
+//		unregister_disk(disk);
 		free(disk);
 
 		free(list->card->info);

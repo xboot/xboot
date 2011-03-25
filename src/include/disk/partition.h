@@ -19,7 +19,7 @@ struct disk;
 struct partition
 {
 	/* partition name */
-	char name[32+1];
+	char name[32 + 1];
 
 	/* the sector of the start */
 	x_s32 sector_from;

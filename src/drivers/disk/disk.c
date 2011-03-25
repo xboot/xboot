@@ -34,7 +34,8 @@
 #include <xboot/list.h>
 #include <xboot/proc.h>
 #include <disk/disk.h>
-
+//xxx
+#if 0
 /* the list of disk */
 static struct disk_list __disk_list = {
 	.entry = {
@@ -50,10 +51,7 @@ static struct disk_list * disk_list = &__disk_list;
 struct disk_block
 {
 	/* block device name */
-	char name[32+1];
-
-	/* block information */
-	struct blkinfo info;
+	char name[32 + 1];
 
 	/* partition information */
 	struct partition * part;
@@ -424,3 +422,4 @@ static __exit void disk_pure_sync_exit(void)
 
 module_init(disk_pure_sync_init, LEVEL_PURE_SYNC);
 module_exit(disk_pure_sync_exit, LEVEL_PURE_SYNC);
+#endif

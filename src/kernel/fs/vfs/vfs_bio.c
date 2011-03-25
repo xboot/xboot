@@ -104,6 +104,8 @@ static struct bio * search_bio(struct blkdev * dev, x_s32 blkno)
 
 static struct bio * add_bio(struct blkdev * dev, x_s32 blkno)
 {
+	//xxx
+	/*
 	struct bio * bio;
 	struct bio_list * list;
 	struct bio_list * remove_list;
@@ -180,6 +182,8 @@ static struct bio * add_bio(struct blkdev * dev, x_s32 blkno)
 
 	bio_numberof++;
 	return bio;
+	*/
+	return 0;
 }
 
 /*
@@ -187,6 +191,8 @@ static struct bio * add_bio(struct blkdev * dev, x_s32 blkno)
  */
 void bio_sync(void)
 {
+	//xxx
+	/*
 	struct bio_list * list;
 	struct list_head * head, * curr, * next;
 
@@ -211,6 +217,7 @@ void bio_sync(void)
 		}
 		curr = next;
 	}
+	*/
 }
 
 /*
@@ -218,6 +225,8 @@ void bio_sync(void)
  */
 void bio_flush(struct blkdev * dev)
 {
+	//xxx
+	/*
 	struct bio_list * list;
 	struct list_head * head, * curr, * next;
 
@@ -248,6 +257,7 @@ void bio_flush(struct blkdev * dev)
 		}
 		curr = next;
 	}
+	*/
 }
 
 /*
@@ -255,6 +265,8 @@ void bio_flush(struct blkdev * dev)
  */
 x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 {
+	//xxx
+	/*
 	struct bio * bio;
 	x_s32 blkno;
 	x_u8 * p = buf;
@@ -284,6 +296,8 @@ x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 	}
 
 	return len;
+	*/
+	return 0;
 }
 
 /*
@@ -291,6 +305,8 @@ x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
  */
 x_size bio_write(struct blkdev * dev, const x_u8 * buf, x_off offset, x_size count)
 {
+	//xxx
+	/*
 	struct bio * bio;
 	x_s32 blkno;
 	x_u8 * p = (x_u8 *)buf;
@@ -319,7 +335,7 @@ x_size bio_write(struct blkdev * dev, const x_u8 * buf, x_off offset, x_size cou
 		p += l;
 		len += l;
 	}
-
+*/
 	return 0;
 }
 

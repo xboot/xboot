@@ -148,7 +148,7 @@ static x_s32 cpiofs_mount(struct mount * m, char * dev, x_s32 flag)
 		return EINVAL;
 
 	blk = (struct blkdev *)m->m_dev;
-	if(!blk || !blk->info)
+	if(!blk)
 		return ENODEV;
 
 	if(get_blkdev_total_size(blk) <= sizeof(struct cpio_newc_header))

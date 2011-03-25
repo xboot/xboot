@@ -44,13 +44,10 @@
 struct loop
 {
 	/* loop name */
-	char name[32+1];
+	char name[32 + 1];
 
 	/* file name's full path */
 	char path[MAX_PATH];
-
-	/* block information */
-	struct blkinfo info;
 
 	/* file descriptor */
 	x_s32 fd;
@@ -112,33 +109,37 @@ static x_s32 loop_open(struct blkdev * dev)
 	return 0;
 }
 
-static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno)
+static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
+	x_off offset = get_blkdev_offset(dev, blkno);
+	x_size size = get_blkdev_size(dev, blkno) * blkcnt;
 
-	if(blkno < 0)
+	if(offset < 0)
 		return 0;
 
-	if(lseek(loop->fd, get_blkdev_offset(dev, blkno), SEEK_SET) < 0)
+	if(size < 0)
 		return 0;
 
-	return (read(loop->fd, (void *)buf, get_blkdev_size(dev, blkno)));
+	if(lseek(loop->fd, offset, SEEK_SET) < 0)
+		return 0;
+
+	return (read(loop->fd, (void *)buf, size));
 }
 
-static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
+static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
+	x_off offset = get_blkdev_offset(dev, blkno);
+	x_size size = get_blkdev_size(dev, blkno) * blkcnt;
 
 	if(loop->read_only == TRUE)
 		return 0;
 
-	if(blkno < 0)
+	if(lseek(loop->fd, offset, SEEK_SET) < 0)
 		return 0;
 
-	if(lseek(loop->fd, get_blkdev_offset(dev, blkno), SEEK_SET) < 0)
-		return 0;
-
-	return (write(loop->fd, (void *)buf, get_blkdev_size(dev, blkno)));
+	return (write(loop->fd, (void *)buf, size));
 }
 
 static x_s32 loop_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
@@ -195,8 +196,6 @@ x_bool register_loop(const char * file)
 	struct blkdev * dev;
 	struct loop * loop;
 	struct loop_list * list;
-	struct blkinfo * info;
-	struct list_head * info_pos;
 	x_u64 size, rem;
 	x_s32 i = 0;
 
@@ -246,74 +245,29 @@ x_bool register_loop(const char * file)
 		return FALSE;
 	}
 
-	init_list_head(&(loop->info.entry));
-
 	size = st.st_size;
-	rem = div64_64(&size, SZ_512K);
-
-	if(size > 0)
-	{
-		info = malloc(sizeof(struct blkinfo));
-		if(!info)
-		{
-			free(loop);
-			free(dev);
-			free(list);
-			return FALSE;
-		}
-
-		info->blkno = 0;
-		info->offset = 0;
-		info->size = SZ_512K;
-		info->number = size;
-		list_add_tail(&info->entry, &(loop->info.entry));
-	}
-
+	rem = div64_64(&size, SZ_512);
 	if(rem > 0)
-	{
-		info = malloc(sizeof(struct blkinfo));
-		if(!info)
-		{
-			for(info_pos = (&(loop->info.entry))->next; info_pos != &(loop->info.entry); info_pos = info_pos->next)
-			{
-				info = list_entry(info_pos, struct blkinfo, entry);
-				free(info);
-			}
-			free(loop);
-			free(dev);
-			free(list);
-			return FALSE;
-		}
-
-		info->blkno = size;
-		info->offset = size * SZ_512K;
-		info->size = rem;
-		info->number = 1;
-		list_add_tail(&info->entry, &(loop->info.entry));
-	}
+		size++;
 
 	loop->busy 		= FALSE;
-	loop->read_only = FALSE;
+	loop->read_only	= FALSE;
 
-	dev->name	= loop->name;
-	dev->type	= BLK_DEV_LOOP;
-	dev->info	= &(loop->info);
-	dev->open 	= loop_open;
-	dev->read 	= loop_read;
-	dev->write	= loop_write;
-	dev->ioctl 	= loop_ioctl;
-	dev->close	= loop_close;
-	dev->driver = loop;
+	dev->name		= loop->name;
+	dev->type		= BLK_DEV_LOOP;
+	dev->blksz		= SZ_512;
+	dev->blkcnt		= size;
+	dev->open 		= loop_open;
+	dev->read		= loop_read;
+	dev->write		= loop_write;
+	dev->ioctl 		= loop_ioctl;
+	dev->close		= loop_close;
+	dev->driver 	= loop;
 
 	list->loop 	= loop;
 
 	if(!register_blkdev(dev))
 	{
-		for(info_pos = (&(loop->info.entry))->next; info_pos != &(loop->info.entry); info_pos = info_pos->next)
-		{
-			info = list_entry(info_pos, struct blkinfo, entry);
-			free(info);
-		}
 		free(loop);
 		free(dev);
 		free(list);
@@ -332,8 +286,6 @@ x_bool unregister_loop(const char * file)
 {
 	struct loop_list * list;
 	struct list_head * pos;
-	struct blkinfo * info;
-	struct list_head * info_pos;
 	struct blkdev * dev;
 	char buf[MAX_PATH];
 
@@ -353,11 +305,6 @@ x_bool unregister_loop(const char * file)
 			{
 				if(unregister_blkdev(list->loop->name))
 				{
-					for(info_pos = (&(list->loop->info.entry))->next; info_pos != &(list->loop->info.entry); info_pos = info_pos->next)
-					{
-						info = list_entry(info_pos, struct blkinfo, entry);
-						free(info);
-					}
 					free(list->loop);
 					free(dev);
 					list_del(pos);

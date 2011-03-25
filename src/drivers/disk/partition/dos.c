@@ -102,8 +102,6 @@ static x_bool is_dos_extended(x_u8 type)
 
 static x_bool dos_partition(struct disk * disk, x_u32 sector, x_u32 relative)
 {
-	//xxx
-#if 0
 	struct dos_partition_mbr mbr;
 	struct partition * part;
 	x_u32 start;
@@ -153,8 +151,6 @@ static x_bool dos_partition(struct disk * disk, x_u32 sector, x_u32 relative)
 	}
 
 	return TRUE;
-#endif
-	return FALSE;
 }
 
 static x_bool parser_probe_dos(struct disk * disk)

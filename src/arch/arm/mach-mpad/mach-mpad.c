@@ -32,6 +32,7 @@
 #include <xboot/initcall.h>
 #include <s5pv210/reg-wdg.h>
 #include <s5pv210/reg-gpio.h>
+#include <s5pv210/reg-timer.h>
 #include <s5pv210/reg-keypad.h>
 #include <s5pv210-cp15.h>
 
@@ -131,6 +132,12 @@ static enum mode mach_getmode(void)
  */
 static x_bool mach_cleanup(void)
 {
+	/* stop timer 0 ~ 4 */
+	writel(S5PV210_TCON, 0x0);
+
+	/* stop system timer */
+	writel(S5PV210_SYSTIMER_TCON, 0x0);
+
 	/* disable irq */
 	irq_disable();
 

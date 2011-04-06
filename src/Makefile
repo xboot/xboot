@@ -153,7 +153,7 @@ $(OUTDIR)/$(XBOOT).bin:			$(OUTDIR)/$(XBOOT).elf
 
 $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@echo [LD] linking $@
-	@$(CC) $(LDFLAGS) $(LIBDIRS) $(LIBS) -Wl,--cref,-Map=$(OUTDIR)/$(XBOOT).map $^ -o $@
+	@$(CC) $(LDFLAGS) $(LIBDIRS) -Wl,--cref,-Map=$(OUTDIR)/$(XBOOT).map $^ -o $@ $(LIBS)
 
 .obj/%.o:	%.S
 	@echo [AS] $<

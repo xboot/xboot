@@ -9,7 +9,7 @@
  * xboot's version
  */
 #define	XBOOT_MAJOY					(1)
-#define	XBOOT_MINIOR				(3)
+#define	XBOOT_MINIOR				(4)
 #define	XBOOT_PATCH					(0)
 
 

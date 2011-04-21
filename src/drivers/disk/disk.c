@@ -270,59 +270,86 @@ x_bool unregister_disk(struct disk * disk)
 /*
  * disk read function, just used by partition parser.
  */
-x_bool disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size size)
+x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count)
 {
-	//xxx
-	/*
 	x_u8 * sector_buf;
-	x_u8 * p = buf;
 	x_u32 sector, sector_size;
-	x_u32 o = 0, l = 0;
+	x_u64 div, rem;
+	x_u32 to_read;
 	x_size len = 0;
-	x_u64 tmp, rem;
 
 	if(!disk)
-		return FALSE;
+		return 0;
 
-	if( (buf == NULL) || (size <= 0) )
-		return FALSE;
+	if( (buf == NULL) || (count <= 0) )
+		return 0;
 
 	sector_size = disk->sector_size;
 	if(sector_size <= 0)
-		return FALSE;
+		return 0;
 
-	sector_buf = malloc(disk->sector_size);
+	sector_buf = malloc(sector_size);
 	if(!sector_buf)
-		return FALSE;
+		return 0;
 
-	while(len < size)
+	div = offset;
+	rem = div64_64(&div, sector_size);
+	sector = div;
+
+	if(rem > 0)
 	{
-		tmp = offset;
-		rem = div64_64(&tmp, sector_size);
-		sector = tmp;
-		o = rem;
+		to_read = sector_size - rem;
+		if(count < to_read)
+			to_read = count;
 
-		l = sector_size - o;
-
-		if(len + l > size)
-			l = size - len;
-
-		if(disk->read_sector(disk, sector, sector_buf) == FALSE)
+		if(disk->read_sector(disk, sector_buf, sector, 1) <= 0)
 		{
 			free(sector_buf);
-			return FALSE;
+			return 0;
 		}
 
-		memcpy((void *)p, (const void *)(&sector_buf[o]), l);
+		memcpy((void *)buf, (const void *)(&sector_buf[rem]), to_read);
+		buf += to_read;
+		count -= to_read;
+		len += to_read;
+		sector += 1;
+	}
 
-		offset += l;
-		p += l;
-		len += l;
+	div = count;
+	rem = div64_64(&div, sector_size);
+
+	if(div > 0)
+	{
+		to_read = div * sector_size;
+
+		if(disk->read_sector(disk, buf, sector, div) <= 0)
+		{
+			free(sector_buf);
+			return len;
+		}
+
+		buf += to_read;
+		count -= to_read;
+		len += to_read;
+		sector += div;
+	}
+
+	if(count > 0)
+	{
+		to_read = count;
+
+		if(disk->read_sector(disk, sector_buf, sector, 1) <= 0)
+		{
+			free(sector_buf);
+			return len;
+		}
+
+		memcpy((void *)buf, (const void *)(&sector_buf[0]), to_read);
+		len += to_read;
 	}
 
 	free(sector_buf);
-	*/
-	return FALSE;
+	return len;
 }
 
 /*

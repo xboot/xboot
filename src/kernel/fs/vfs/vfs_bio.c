@@ -339,6 +339,8 @@ x_size bio_write(struct blkdev * dev, const x_u8 * buf, x_off offset, x_size cou
 	return 0;
 }
 
+//xxx
+#if 0
 /*
  * bio proc interface
  */
@@ -383,3 +385,4 @@ static __exit void bio_pure_sync_exit(void)
 
 module_init(bio_pure_sync_init, LEVEL_PURE_SYNC);
 module_exit(bio_pure_sync_exit, LEVEL_PURE_SYNC);
+#endif

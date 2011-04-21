@@ -272,84 +272,97 @@ x_bool unregister_disk(struct disk * disk)
  */
 x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count)
 {
-	x_u8 * sector_buf;
-	x_u32 sector, sector_size;
+	x_u8 * secbuf;
+	x_u32 secno, secsz, seccnt;
 	x_u64 div, rem;
-	x_u32 to_read;
-	x_size len = 0;
+	x_u32 len;
+	x_size tmp;
+	x_size size = 0;
+
+	if(!buf)
+		return 0;
 
 	if(!disk)
 		return 0;
 
-	if( (buf == NULL) || (count <= 0) )
+	secsz = disk->sector_size;
+	if(secsz <= 0)
 		return 0;
 
-	sector_size = disk->sector_size;
-	if(sector_size <= 0)
+	seccnt = disk->sector_count;
+	if(seccnt <= 0)
 		return 0;
 
-	sector_buf = malloc(sector_size);
-	if(!sector_buf)
+	tmp = secsz * seccnt;
+	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
+		return 0;
+
+	tmp = tmp - offset;
+	if(count > tmp)
+		count = tmp;
+
+	secbuf = malloc(secsz);
+	if(!secbuf)
 		return 0;
 
 	div = offset;
-	rem = div64_64(&div, sector_size);
-	sector = div;
+	rem = div64_64(&div, secsz);
+	secno = div;
 
 	if(rem > 0)
 	{
-		to_read = sector_size - rem;
-		if(count < to_read)
-			to_read = count;
+		len = secsz - rem;
+		if(count < len)
+			len = count;
 
-		if(disk->read_sector(disk, sector_buf, sector, 1) <= 0)
+		if(disk->read_sector(disk, secbuf, secno, 1) <= 0)
 		{
-			free(sector_buf);
+			free(secbuf);
 			return 0;
 		}
 
-		memcpy((void *)buf, (const void *)(&sector_buf[rem]), to_read);
-		buf += to_read;
-		count -= to_read;
-		len += to_read;
-		sector += 1;
+		memcpy((void *)buf, (const void *)(&secbuf[rem]), len);
+		buf += len;
+		count -= len;
+		size += len;
+		secno += 1;
 	}
 
 	div = count;
-	rem = div64_64(&div, sector_size);
+	rem = div64_64(&div, secsz);
 
 	if(div > 0)
 	{
-		to_read = div * sector_size;
+		len = div * secsz;
 
-		if(disk->read_sector(disk, buf, sector, div) <= 0)
+		if(disk->read_sector(disk, buf, secno, div) <= 0)
 		{
-			free(sector_buf);
-			return len;
+			free(secbuf);
+			return size;
 		}
 
-		buf += to_read;
-		count -= to_read;
-		len += to_read;
-		sector += div;
+		buf += len;
+		count -= len;
+		size += len;
+		secno += div;
 	}
 
 	if(count > 0)
 	{
-		to_read = count;
+		len = count;
 
-		if(disk->read_sector(disk, sector_buf, sector, 1) <= 0)
+		if(disk->read_sector(disk, secbuf, secno, 1) <= 0)
 		{
-			free(sector_buf);
-			return len;
+			free(secbuf);
+			return size;
 		}
 
-		memcpy((void *)buf, (const void *)(&sector_buf[0]), to_read);
-		len += to_read;
+		memcpy((void *)buf, (const void *)(&secbuf[0]), len);
+		size += len;
 	}
 
-	free(sector_buf);
-	return len;
+	free(secbuf);
+	return size;
 }
 
 /*

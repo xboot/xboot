@@ -44,15 +44,11 @@ int xboot_main(int argc, char * argv[])
 	/* mount root filesystem */
 	do_system_rootfs();
 
-	//xxx
-	console_stdio_set("input", "fb");
-	xboot_set_mode(MODE_SHELL);
-
 	/* load system configure */
-//	do_system_cfg();
+	do_system_cfg();
 
 	/* load system fonts */
-//	do_system_fonts();
+	do_system_fonts();
 
 	/* do system anti-piracy */
 	do_system_antipiracy();

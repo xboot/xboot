@@ -163,14 +163,11 @@ x_u32 get_blkdev_total_count(struct blkdev * dev)
 }
 
 /*
- * get block device's block size by blkno
+ * get block device's block size
  */
-x_u32 get_blkdev_size(struct blkdev * dev, x_u32 blkno)
+x_u32 get_blkdev_size(struct blkdev * dev)
 {
 	if(!dev)
-		return 0;
-
-	if(blkno > dev->blkcnt)
 		return 0;
 
 	return (dev->blksz);

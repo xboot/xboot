@@ -113,7 +113,7 @@ static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcn
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 	x_off offset = get_blkdev_offset(dev, blkno);
-	x_size size = get_blkdev_size(dev, blkno) * blkcnt;
+	x_size size = get_blkdev_size(dev) * blkcnt;
 
 	if(offset < 0)
 		return 0;
@@ -131,7 +131,7 @@ static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u3
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 	x_off offset = get_blkdev_offset(dev, blkno);
-	x_size size = get_blkdev_size(dev, blkno) * blkcnt;
+	x_size size = get_blkdev_size(dev) * blkcnt;
 
 	if(loop->read_only == TRUE)
 		return 0;

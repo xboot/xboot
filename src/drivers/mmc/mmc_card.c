@@ -283,18 +283,18 @@ static x_bool mmc_card_decode(struct mmc_card * card)
 	return TRUE;
 }
 
-static x_bool mmc_read_sector(struct disk * disk, x_u32 sector, x_u8 * data)
+static x_s32 mmc_read_sector(struct disk * disk, x_u8 * buf, x_u32 sector, x_u32 count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
-	return card->host->read_sector(card, sector, data);
+	return card->host->read_sector(card, buf, sector, count);
 }
 
-static x_bool mmc_write_sector(struct disk * disk, x_u32 sector, x_u8 * data)
+static x_s32 mmc_write_sector(struct disk * disk, const x_u8 * buf, x_u32 sector, x_u32 count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
-	return card->host->write_sector(card, sector, data);
+	return card->host->write_sector(card, buf, sector, count);
 }
 
 static x_bool register_mmc_card(struct mmc_card * card)
@@ -329,15 +329,14 @@ static x_bool register_mmc_card(struct mmc_card * card)
 	disk->write_sector = mmc_write_sector;
 	disk->priv = (void *)card;
 	card->priv = (void *)disk;
-//xxx
-/*
+
 	if(!register_disk(disk, BLK_DEV_MMC))
 	{
 		free(list);
 		free(disk);
 		return FALSE;
 	}
-*/
+
 	list->card = card;
 	list_add(&list->entry, &mmc_card_list->entry);
 
@@ -476,8 +475,7 @@ void mmc_card_remove(void)
 		curr = next;
 
 		disk = (struct disk *)(list->card->priv);
-		//xxx
-//		unregister_disk(disk);
+		unregister_disk(disk);
 		free(disk);
 
 		free(list->card->info);

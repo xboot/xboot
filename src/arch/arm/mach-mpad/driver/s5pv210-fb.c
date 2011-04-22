@@ -525,6 +525,11 @@ static void fb_init(struct fb * fb)
 	 * display on
 	 */
 	s5pv210fb_display_on(lcd);
+
+	/*
+	 * wait a moment
+	 */
+	mdelay(100);
 }
 
 static void fb_exit(struct fb * fb)

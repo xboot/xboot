@@ -56,10 +56,10 @@ extern x_u8 __stack_end[];
  */
 static void mach_init(void)
 {
-	/* gph3_7 high level for power lock */
-	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<28)) | (0x1<<28));
-	writel(S5PV210_GPH3PUD, (readl(S5PV210_GPH3PUD) & ~(0x3<<14)) | (0x0<<14));
-	writel(S5PV210_GPH3DAT, (readl(S5PV210_GPH3DAT) & ~(0x1<<7)) | (0x1<<7));
+	/* gph0_5 high level for power lock */
+	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<20)) | (0x1<<20));
+	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<10)) | (0x0<<10));
+	writel(S5PV210_GPH0DAT, (readl(S5PV210_GPH0DAT) & ~(0x1<<5)) | (0x1<<5));
 }
 
 /*
@@ -67,10 +67,10 @@ static void mach_init(void)
  */
 static x_bool mach_halt(void)
 {
-	/* gph3_7 low level for power unlock */
-	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<28)) | (0x1<<28));
-	writel(S5PV210_GPH3PUD, (readl(S5PV210_GPH3PUD) & ~(0x3<<14)) | (0x0<<14));
-	writel(S5PV210_GPH3DAT, (readl(S5PV210_GPH3DAT) & ~(0x1<<7)) | (0x0<<7));
+	/* gph0_5 low level for power unlock */
+	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<20)) | (0x1<<20));
+	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<10)) | (0x0<<10));
+	writel(S5PV210_GPH0DAT, (readl(S5PV210_GPH0DAT) & ~(0x1<<5)) | (0x0<<5));
 
 	return TRUE;
 }
@@ -97,33 +97,12 @@ static x_bool mach_reset(void)
  */
 static enum mode mach_getmode(void)
 {
-	/* set GPJ1_5 for KP_COL0, and pull none */
-	writel(S5PV210_GPJ1CON, (readl(S5PV210_GPJ1CON) & ~(0xf<<20)) | (0x3<<20));
-	writel(S5PV210_GPJ1PUD, (readl(S5PV210_GPJ1PUD) & ~(0x3<<10)) | (0x0<<10));
+	/* set GPH3_4 intput and pull up */
+	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<16)) | (0x0<<16));
+	writel(S5PV210_GPH3PUD, (readl(S5PV210_GPH3PUD) & ~(0x3<<8)) | (0x2<<8));
 
-	/* set GPJ2 for KP_COL1 ~ KP_COL7 and KP_ROW0, and pull none*/
-	writel(S5PV210_GPJ2CON, 0x33333333);
-	writel(S5PV210_GPJ2PUD, 0x00000000);
-
-	/* set GPJ3 for KP_ROW1 ~ KP_ROW8, and pull none*/
-	writel(S5PV210_GPJ3CON, 0x33333333);
-	writel(S5PV210_GPJ3PUD, 0x00000000);
-
-	/* set GPJ4_0 to GPJ4_5 for KP_ROW9 ~ KP_ROW13, and pull none*/
-	writel(S5PV210_GPJ4CON, (readl(S5PV210_GPJ4CON) & ~(0x000fffff)) | (0x00033333));
-	writel(S5PV210_GPJ4PUD, (readl(S5PV210_GPJ4PUD) & ~(0x000003ff)) | (0x00000000));
-
-	/* initial the keypad controller */
-	writel(S5PV210_KEYPAD_CON, 0);
-	writel(S5PV210_KEYPAD_FC, 0);
-	writel(S5PV210_KEYPAD_STSCLR, 0x3fffffff);
-	writel(S5PV210_KEYPAD_COL, (readl(S5PV210_KEYPAD_COL) & ~0xffff));
-
-	/* menu key: col, row = [0, 1] */
-	writel(S5PV210_KEYPAD_COL, 0xffff & ~(0x101 << 0));
-	if( ((~(readl(S5PV210_KEYPAD_ROW) & 0x3)) & (0x1 << 1)) == (0x1 << 1) )
+	if((readl(S5PV210_GPH3DAT) & (0x1<<4)) == 0)
 		return MODE_MENU;
-
 	return MODE_NORMAL;
 }
 
@@ -184,11 +163,16 @@ static struct machine mpad = {
 	.res = {
 		.mem_banks = {
 			[0] = {
-				.start		= 0x20000000,
-				.end		= 0x20000000 + SZ_512M - 1,
+				.start		= 0x30000000,
+				.end		= 0x30000000 + SZ_256M - 1,
 			},
 
 			[1] = {
+				.start		= 0x40000000,
+				.end		= 0x40000000 + SZ_256M - 1,
+			},
+
+			[2] = {
 				.start		= 0,
 				.end		= 0,
 			},

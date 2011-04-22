@@ -174,6 +174,9 @@ reset:
 	/* initialize memory control */
 	bl	mem_ctrl_init
 
+	/* initialize nand flash control */
+	bl nand_init
+
 	/* wakeup or not */
 	ldr	r0, =(0xe0100000 + 0xa000)
 	ldr	r1, [r0]
@@ -610,6 +613,59 @@ dmc1_lock:
 
 	ldr	r1, =0x00202400				/* memcontrol bl=4, 2 chip, ddr2 type, dynamic self refresh, force precharge, dynamic power down off */
 	str	r1, [r0, #0x04]
+
+	mov	pc, lr
+
+/*
+ * initialize nand flash control
+ */
+nand_init:
+	ldr	r0, =0xE020000				/* GPIO base register */
+	
+	ldr	r1, [r0, #0x02E0]			/* MP0_1CON */
+	bic	r1, r1, #(0xf<<8)
+	orr	r1, r1, #(0x3<<8)
+	str	r1, [r0, #0x02E0]
+
+	ldr	r1, [r0, #0x02E8]			/* MP0_1PUD */
+	bic	r1, r1, #(0x3<<4)
+	str	r1, [r0, #0x02E8]
+
+	ldr	r1, [r0, #0x0320]			/* MP0_3CON */
+	bic	r1, r1, #0xFFFFFF
+	ldr	r2, =0x22222222
+	orr	r1, r1, r2
+	str	r1, [r0, #0x0320]
+
+	ldr	r1, [r0, #0x0328]			/* MP0_3PUD */
+	ldr	r2, =0x3fff
+	bic	r1, r1, r2
+	str	r1, [r0, #0x0328]
+
+	ldr	r0, =0xB0E00000				/* Nand flash controller register */
+
+	ldr	r1, [r0, #0x0000]			/* NFCONF */
+	ldr	r2, =0x777F
+	bic	r1, r1, r2
+	ldr	r2, =(7<<12)|(7<<8)|(7<<4)|(0<<3)|(1<<2)|(1<<1)|(0<<0)
+	orr	r1, r1, r2
+	str	r1, [r0, #0x0000]
+
+	ldr	r1, [r0, #0x0004]			/* NFCONT */
+	ldr	r2, =0x707C7
+	bic	r1, r1, r2
+	ldr	r2, =(0<<18)|(0<<17)|(0<<16)|(0<<10)|(0<<9)|(0<<8)|(0<<7)|(0<<6)|(0x3<<1)|(1<<0)
+	orr	r1, r1, r2
+	str	r1, [r0, #0x0004]
+
+	ldr	r1, [r0, #0x00000]			/* NFCONF */
+	orr	r1, r1, #0x70
+	orr	r1, r1, #0x7700
+	str	r1, [r0, #0x0000]
+
+	ldr	r1, [r0, #0x0004]			/* NFCONT */
+	orr	r1, r1, #0x03
+	str	r1, [r0, #0x0004]
 
 	mov	pc, lr
 

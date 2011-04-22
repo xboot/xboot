@@ -27,61 +27,82 @@
 #include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
+#include <time/delay.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210-fb.h>
 
 static void lcd_init(void)
 {
 	/*
-	 * set gpd0_0 (backlight pin) output and pull up and low level for disabled
+	 * set gpd0_0 (backlight pwm pin) output and pull up and high level for disabled
 	 */
 	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
 	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
-	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
+	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
 
 	/*
-	 * gpf3_5 high level for enable lcd power
+	 * set gph2_4 (backlight enable pin) output and pull up and low level for disabled
 	 */
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xf<<20)) | (0x1<<20));
-	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
-	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
+	writel(S5PV210_GPH2CON, (readl(S5PV210_GPH2CON) & ~(0xf<<16)) | (0x1<<16));
+	writel(S5PV210_GPH2PUD, (readl(S5PV210_GPH2PUD) & ~(0x3<<8)) | (0x2<<8));
+	writel(S5PV210_GPH2DAT, (readl(S5PV210_GPH2DAT) & ~(0x1<<4)) | (0x0<<4));
 
 	/*
-	 * gpf3_4 high level for reset pin
+	 * set gph1_6 (LCD_5V) output and pull up and high level for enabled
 	 */
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xf<<16)) | (0x1<<16));
-	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<8)) | (0x2<<8));
-	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<4)) | (0x1<<4));
+	writel(S5PV210_GPH1CON, (readl(S5PV210_GPH1CON) & ~(0xf<<24)) | (0x1<<24));
+	writel(S5PV210_GPH1PUD, (readl(S5PV210_GPH1PUD) & ~(0x3<<12)) | (0x2<<12));
+	writel(S5PV210_GPH1DAT, (readl(S5PV210_GPH1DAT) & ~(0x1<<6)) | (0x1<<6));
+
+	/*
+	 * set gph1_7 (LCD_33) output and pull up and high level for enabled
+	 */
+	writel(S5PV210_GPH1CON, (readl(S5PV210_GPH1CON) & ~(0xf<<28)) | (0x1<<28));
+	writel(S5PV210_GPH1PUD, (readl(S5PV210_GPH1PUD) & ~(0x3<<14)) | (0x2<<14));
+	writel(S5PV210_GPH1DAT, (readl(S5PV210_GPH1DAT) & ~(0x1<<7)) | (0x1<<7));
 
 	/*
 	 * wait a moment
 	 */
-	mdelay(10);
+	mdelay(100);
 }
 
 static void lcd_exit(void)
 {
 	/*
-	 * set gpd0_0 (backlight pin) output and pull up and low level for disabled
+	 * set gph2_4 (backlight enable pin) output and pull up and low level for disabled
 	 */
-	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
-	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
-	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
+	writel(S5PV210_GPH2CON, (readl(S5PV210_GPH2CON) & ~(0xf<<16)) | (0x1<<16));
+	writel(S5PV210_GPH2PUD, (readl(S5PV210_GPH2PUD) & ~(0x3<<2)) | (0x2<<8));
+	writel(S5PV210_GPH2DAT, (readl(S5PV210_GPH2DAT) & ~(0x1<<1)) | (0x0<<1));
 
 	/*
-	 * gpf3_5 low level for disable lcd power
+	 * set gph1_6 (LCD_5V) output and pull up and low level for disabled
 	 */
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xf<<20)) | (0x1<<20));
-	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
-	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
+	writel(S5PV210_GPH1CON, (readl(S5PV210_GPH1CON) & ~(0xf<<24)) | (0x1<<24));
+	writel(S5PV210_GPH1PUD, (readl(S5PV210_GPH1PUD) & ~(0x3<<12)) | (0x2<<12));
+	writel(S5PV210_GPH1DAT, (readl(S5PV210_GPH1DAT) & ~(0x1<<6)) | (0x0<<6));
+
+	/*
+	 * set gph1_7 (LCD_33) output and pull up and low level for disabled
+	 */
+	writel(S5PV210_GPH1CON, (readl(S5PV210_GPH1CON) & ~(0xf<<28)) | (0x1<<28));
+	writel(S5PV210_GPH1PUD, (readl(S5PV210_GPH1PUD) & ~(0x3<<14)) | (0x2<<14));
+	writel(S5PV210_GPH1DAT, (readl(S5PV210_GPH1DAT) & ~(0x1<<7)) | (0x0<<7));
 }
 
 static void lcd_backlight(x_u8 brightness)
 {
 	if(brightness)
-		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
-	else
+	{
+		writel(S5PV210_GPH2DAT, (readl(S5PV210_GPH2DAT) & ~(0x1<<4)) | (0x1<<4));
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
+	}
+	else
+	{
+		writel(S5PV210_GPH2DAT, (readl(S5PV210_GPH2DAT) & ~(0x1<<4)) | (0x0<<4));
+		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
+	}
 }
 
 /*

@@ -283,18 +283,24 @@ static x_bool mmc_card_decode(struct mmc_card * card)
 	return TRUE;
 }
 
-static x_bool mmc_read_sector(struct disk * disk, x_u32 sector, x_u8 * data)
+static x_s32 mmc_read_sectors(struct disk * disk, x_u8 * buf, x_u32 sector, x_u32 count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
-	return card->host->read_sector(card, sector, data);
+	if(card->host->read_sectors(card, buf, sector, count) != TRUE)
+		return 0;
+
+	return count;
 }
 
-static x_bool mmc_write_sector(struct disk * disk, x_u32 sector, x_u8 * data)
+static x_s32 mmc_write_sectors(struct disk * disk, const x_u8 * buf, x_u32 sector, x_u32 count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
-	return card->host->write_sector(card, sector, data);
+	if(card->host->write_sectors(card, buf, sector, count) != TRUE)
+		return 0;
+
+	return count;
 }
 
 static x_bool register_mmc_card(struct mmc_card * card)
@@ -325,8 +331,8 @@ static x_bool register_mmc_card(struct mmc_card * card)
 	disk->name = card->name;
 	disk->sector_size = card->info->sector_size;
 	disk->sector_count = card->info->sector_count;
-	disk->read_sector = mmc_read_sector;
-	disk->write_sector = mmc_write_sector;
+	disk->read_sectors = mmc_read_sectors;
+	disk->write_sectors = mmc_write_sectors;
 	disk->priv = (void *)card;
 	card->priv = (void *)disk;
 

@@ -177,10 +177,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 		if(vp_covered)
 			vput(vp_covered);
 		if(device != NULL)
-		{
-			bio_flush(device);
 			device->close(device);
-		}
 		free(m);
 		return err;
 	}
@@ -238,7 +235,6 @@ x_s32 sys_umount(char * path)
 			if(m->m_dev)
 			{
 				device = (struct blkdev *)(m->m_dev);
-				bio_flush(device);
 				device->close(device);
 			}
 
@@ -265,8 +261,6 @@ x_s32 sys_sync(void)
 		if(m && m->m_fs->vfsops->vfs_sync)
 			m->m_fs->vfsops->vfs_sync(m);
 	}
-
-	bio_sync();
 
 	return 0;
 }

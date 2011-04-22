@@ -35,6 +35,7 @@
 #include <xboot/proc.h>
 #include <disk/disk.h>
 
+
 /* the list of disk */
 static struct disk_list __disk_list = {
 	.entry = {
@@ -50,10 +51,7 @@ static struct disk_list * disk_list = &__disk_list;
 struct disk_block
 {
 	/* block device name */
-	char name[32+1];
-
-	/* block information */
-	struct blkinfo info;
+	char name[32 + 1];
 
 	/* partition information */
 	struct partition * part;
@@ -80,34 +78,22 @@ static x_s32 disk_block_open(struct blkdev * dev)
 	return 0;
 }
 
-static x_s32 disk_block_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno)
+static x_s32 disk_block_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 	struct disk * disk = dblk->disk;
 	x_u32 offset = dblk->offset;
 
-	if(blkno < 0)
-		return 0;
-
-	if(disk->read_sector(dblk->disk, blkno + offset, buf) == FALSE)
-		return 0;
-
-	return disk->sector_size;
+	return (disk->read_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static x_s32 disk_block_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
+static x_s32 disk_block_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 	struct disk * disk = dblk->disk;
 	x_u32 offset = dblk->offset;
 
-	if(blkno < 0)
-		return 0;
-
-	if(disk->write_sector(dblk->disk, blkno + offset, (x_u8 *)buf) == FALSE)
-		return 0;
-
-	return disk->sector_size;
+	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
 static x_s32 disk_block_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
@@ -153,7 +139,6 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 	struct partition * part;
 	struct blkdev * dev;
 	struct disk_block * dblk;
-	struct blkinfo * info;
 	struct list_head * part_pos;
 	x_s32 i;
 
@@ -163,7 +148,7 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 	if((disk->sector_size <= 0) || (disk->sector_count <=0))
 		return FALSE;
 
-	if((!disk->read_sector) || (!disk->write_sector))
+	if((!disk->read_sectors) || (!disk->write_sectors))
 		return FALSE;
 
 	if(!partition_parser_probe(disk))
@@ -191,15 +176,13 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 
 		dev = malloc(sizeof(struct blkdev));
 		dblk = malloc(sizeof(struct disk_block));
-		info = malloc(sizeof(struct blkinfo));
-		if(!dev || !dblk || !info)
+		if(!dev || !dblk)
 		{
 			/*
 			 * please do not free 'list'.
 			 */
 			free(dev);
 			free(dblk);
-			free(info);
 			unregister_disk(disk);
 
 			return FALSE;
@@ -210,12 +193,6 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 		else
 			snprintf((x_s8 *)dblk->name, sizeof(dblk->name), (const x_s8 *)"%sp%ld", disk->name, i);
 
-		init_list_head(&(dblk->info.entry));
-		info->blkno = 0;
-		info->offset = 0;
-		info->size = part->sector_size;
-		info->number = part->sector_to - part->sector_from + 1;
-		list_add_tail(&info->entry, &(dblk->info.entry));
 		part->dev = dev;
 		dblk->part = part;
 		dblk->offset = part->sector_from;
@@ -224,7 +201,8 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 
 		dev->name	= dblk->name;
 		dev->type	= type;
-		dev->info	= &(dblk->info);
+		dev->blksz	= part->sector_size;
+		dev->blkcnt	= part->sector_to - part->sector_from + 1;
 		dev->open 	= disk_block_open;
 		dev->read 	= disk_block_read;
 		dev->write	= disk_block_write;
@@ -239,7 +217,6 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 			 */
 			free(dev);
 			free(dblk);
-			free(info);
 			unregister_disk(disk);
 
 			return FALSE;
@@ -258,8 +235,6 @@ x_bool unregister_disk(struct disk * disk)
 	struct list_head * pos;
 	struct partition * part;
 	struct list_head * part_pos;
-	struct blkinfo * info;
-	struct list_head * info_pos;
 	struct blkdev * dev;
 	struct disk_block * dblk;
 
@@ -276,14 +251,8 @@ x_bool unregister_disk(struct disk * disk)
 				part = list_entry(part_pos, struct partition, entry);
 				dev = part->dev;
 				dblk = dev->driver;
-				if(unregister_blkdev(dblk->name))
-				{
-					for(info_pos = (&(dblk->info.entry))->next; info_pos != &(dblk->info.entry); info_pos = info_pos->next)
-					{
-						info = list_entry(info_pos, struct blkinfo, entry);
-						free(info);
-					}
-				}
+
+				unregister_blkdev(dblk->name);
 				free(dblk);
 				free(dev);
 				free(part);
@@ -301,56 +270,99 @@ x_bool unregister_disk(struct disk * disk)
 /*
  * disk read function, just used by partition parser.
  */
-x_bool disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size size)
+x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count)
 {
-	x_u8 * sector_buf;
-	x_u8 * p = buf;
-	x_u32 sector, sector_size;
-	x_u32 o = 0, l = 0;
-	x_size len = 0;
-	x_u64 tmp, rem;
+	x_u8 * secbuf;
+	x_u32 secno, secsz, seccnt;
+	x_u64 div, rem;
+	x_u32 len;
+	x_size tmp;
+	x_size size = 0;
+
+	if(!buf)
+		return 0;
 
 	if(!disk)
-		return FALSE;
+		return 0;
 
-	if( (buf == NULL) || (size <= 0) )
-		return FALSE;
+	secsz = disk->sector_size;
+	if(secsz <= 0)
+		return 0;
 
-	sector_size = disk->sector_size;
-	if(sector_size <= 0)
-		return FALSE;
+	seccnt = disk->sector_count;
+	if(seccnt <= 0)
+		return 0;
 
-	sector_buf = malloc(disk->sector_size);
-	if(!sector_buf)
-		return FALSE;
+	tmp = secsz * seccnt;
+	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
+		return 0;
 
-	while(len < size)
+	tmp = tmp - offset;
+	if(count > tmp)
+		count = tmp;
+
+	secbuf = malloc(secsz);
+	if(!secbuf)
+		return 0;
+
+	div = offset;
+	rem = div64_64(&div, secsz);
+	secno = div;
+
+	if(rem > 0)
 	{
-		tmp = offset;
-		rem = div64_64(&tmp, sector_size);
-		sector = tmp;
-		o = rem;
+		len = secsz - rem;
+		if(count < len)
+			len = count;
 
-		l = sector_size - o;
-
-		if(len + l > size)
-			l = size - len;
-
-		if(disk->read_sector(disk, sector, sector_buf) == FALSE)
+		if(disk->read_sectors(disk, secbuf, secno, 1) != 1)
 		{
-			free(sector_buf);
-			return FALSE;
+			free(secbuf);
+			return 0;
 		}
 
-		memcpy((void *)p, (const void *)(&sector_buf[o]), l);
-
-		offset += l;
-		p += l;
-		len += l;
+		memcpy((void *)buf, (const void *)(&secbuf[rem]), len);
+		buf += len;
+		count -= len;
+		size += len;
+		secno += 1;
 	}
 
-	free(sector_buf);
-	return TRUE;
+	div = count;
+	rem = div64_64(&div, secsz);
+
+	if(div > 0)
+	{
+		len = div * secsz;
+
+		if(disk->read_sectors(disk, buf, secno, div) != div)
+		{
+			free(secbuf);
+			return size;
+		}
+
+		buf += len;
+		count -= len;
+		size += len;
+		secno += div;
+	}
+
+	if(count > 0)
+	{
+		len = count;
+
+		if(disk->read_sectors(disk, secbuf, secno, 1) != 1)
+		{
+			free(secbuf);
+			return size;
+		}
+
+		memcpy((void *)buf, (const void *)(&secbuf[0]), len);
+		size += len;
+	}
+
+	free(secbuf);
+	return size;
 }
 
 /*

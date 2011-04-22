@@ -48,9 +48,6 @@ struct ramdisk
 	/* the ramdisk name */
 	char name[32 + 1];
 
-	/* block information */
-	struct blkinfo info;
-
 	/* the start of ramdisk */
 	x_sys start;
 
@@ -72,27 +69,24 @@ static x_s32 ramdisk_open(struct blkdev * dev)
 	return 0;
 }
 
-static x_s32 ramdisk_read(struct blkdev * dev, x_u8 * buf, x_s32 blkno)
+static x_s32 ramdisk_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
 {
 	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
 	x_u8 * p = (x_u8 *)(ramdisk->start);
-	x_size offset;
-	x_s32 size;
+	x_off offset = get_blkdev_offset(dev, blkno);
+	x_s32 size = get_blkdev_size(dev) * blkcnt;
 
-	if(blkno < 0)
-		return 0;
-
-	offset = get_blkdev_offset(dev, blkno);
 	if(offset < 0)
 		return 0;
 
-	size = get_blkdev_size(dev, blkno);
+	if(size < 0)
+		return 0;
 
 	memcpy((void *)buf, (const void *)(p + offset), size);
-	return size;
+	return blkcnt;
 }
 
-static x_s32 ramdisk_write(struct blkdev * dev, const x_u8 * buf, x_s32 blkno)
+static x_s32 ramdisk_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
 {
 	return 0;
 }
@@ -114,8 +108,6 @@ static __init void ramdisk_init(void)
 {
 	struct blkdev * dev;
 	struct ramdisk * ramdisk;
-	struct blkinfo * info;
-	struct list_head * info_pos;
 	x_u64 size, rem;
 
 	dev = malloc(sizeof(struct blkdev));
@@ -142,66 +134,25 @@ static __init void ramdisk_init(void)
 	}
 
 	size = (x_u64)(ramdisk->end - ramdisk->start);
-	rem = div64_64(&size, SZ_512K);
-
-	init_list_head(&(ramdisk->info.entry));
-
-	if(size > 0)
-	{
-		info = malloc(sizeof(struct blkinfo));
-		if(!info)
-		{
-			free(ramdisk);
-			free(dev);
-			return;
-		}
-
-		info->blkno = 0;
-		info->offset = 0;
-		info->size = SZ_512K;
-		info->number = size;
-		list_add_tail(&info->entry, &(ramdisk->info.entry));
-	}
-
+	rem = div64_64(&size, SZ_512);
 	if(rem > 0)
-	{
-		info = malloc(sizeof(struct blkinfo));
-		if(!info)
-		{
-			for(info_pos = (&(ramdisk->info.entry))->next; info_pos != &(ramdisk->info.entry); info_pos = info_pos->next)
-			{
-				info = list_entry(info_pos, struct blkinfo, entry);
-				free(info);
-			}
-			free(ramdisk);
-			free(dev);
-			return;
-		}
+		size++;
 
-		info->blkno = size;
-		info->offset = size * SZ_512K;
-		info->size = rem;
-		info->number = 1;
-		list_add_tail(&info->entry, &(ramdisk->info.entry));
-	}
+	ramdisk->busy	= FALSE;
 
-	dev->name	= ramdisk->name;
-	dev->type	= BLK_DEV_RAMDISK;
-	dev->info	= &(ramdisk->info);
-	dev->open 	= ramdisk_open;
-	dev->read 	= ramdisk_read;
-	dev->write	= ramdisk_write;
-	dev->ioctl 	= ramdisk_ioctl;
-	dev->close	= ramdisk_close;
-	dev->driver = ramdisk;
+	dev->name		= ramdisk->name;
+	dev->type		= BLK_DEV_RAMDISK;
+	dev->blksz		= SZ_512;
+	dev->blkcnt		= size;
+	dev->open 		= ramdisk_open;
+	dev->read 		= ramdisk_read;
+	dev->write		= ramdisk_write;
+	dev->ioctl 		= ramdisk_ioctl;
+	dev->close		= ramdisk_close;
+	dev->driver	 = ramdisk;
 
 	if(!register_blkdev(dev))
 	{
-		for(info_pos = (&(ramdisk->info.entry))->next; info_pos != &(ramdisk->info.entry); info_pos = info_pos->next)
-		{
-			info = list_entry(info_pos, struct blkinfo, entry);
-			free(info);
-		}
 		free(ramdisk);
 		free(dev);
 		return;
@@ -212,8 +163,6 @@ static __exit void ramdisk_exit(void)
 {
 	struct blkdev * dev;
 	struct ramdisk * ramdisk;
-	struct blkinfo * info;
-	struct list_head * info_pos;
 
 	dev = search_blkdev_with_type("ramdisk", BLK_DEV_RAMDISK);
 	if(dev)
@@ -222,11 +171,6 @@ static __exit void ramdisk_exit(void)
 
 		if(unregister_blkdev(dev->name))
 		{
-			for(info_pos = (&(ramdisk->info.entry))->next; info_pos != &(ramdisk->info.entry); info_pos = info_pos->next)
-			{
-				info = list_entry(info_pos, struct blkinfo, entry);
-				free(info);
-			}
 			free(ramdisk);
 			free(dev);
 			return;

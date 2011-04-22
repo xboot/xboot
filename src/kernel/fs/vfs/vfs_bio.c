@@ -77,7 +77,7 @@ x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 		if(count < len)
 			len = count;
 
-		if(dev->read(dev, blkbuf, blkno, 1) <= 0)
+		if(dev->read(dev, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return 0;
@@ -97,7 +97,7 @@ x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 	{
 		len = div * blksz;
 
-		if(dev->read(dev, buf, blkno, div) <= 0)
+		if(dev->read(dev, buf, blkno, div) != div)
 		{
 			free(blkbuf);
 			return size;
@@ -113,7 +113,7 @@ x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 	{
 		len = count;
 
-		if(dev->read(dev, blkbuf, blkno, 1) <= 0)
+		if(dev->read(dev, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return size;
@@ -172,7 +172,7 @@ x_size bio_write(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 		if(count < len)
 			len = count;
 
-		if(dev->read(dev, blkbuf, blkno, 1) <= 0)
+		if(dev->read(dev, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return 0;
@@ -180,7 +180,7 @@ x_size bio_write(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 
 		memcpy((void *)(&blkbuf[rem]), (const void *)buf, len);
 
-		if(dev->write(dev, blkbuf, blkno, 1) <= 0)
+		if(dev->write(dev, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return 0;
@@ -199,7 +199,7 @@ x_size bio_write(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 	{
 		len = div * blksz;
 
-		if(dev->write(dev, buf, blkno, div) <= 0)
+		if(dev->write(dev, buf, blkno, div) != div)
 		{
 			free(blkbuf);
 			return size;
@@ -215,7 +215,7 @@ x_size bio_write(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 	{
 		len = count;
 
-		if(dev->read(dev, blkbuf, blkno, 1) <= 0)
+		if(dev->read(dev, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return size;
@@ -223,7 +223,7 @@ x_size bio_write(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count)
 
 		memcpy((void *)(&blkbuf[0]), (const void *)buf, len);
 
-		if(dev->write(dev, blkbuf, blkno, 1) <= 0)
+		if(dev->write(dev, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return size;

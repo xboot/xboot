@@ -232,7 +232,7 @@ static void realview_mmc_exit(void)
 	writel(REALVIEW_MCI_POWER, 0x0);
 }
 
-x_bool realview_mmc_probe(struct mmc_card_info * info)
+static x_bool realview_mmc_probe(struct mmc_card_info * info)
 {
 	x_u32 resp[4];
 	x_bool ret;
@@ -322,8 +322,7 @@ x_bool realview_mmc_probe(struct mmc_card_info * info)
 	return TRUE;
 }
 
-//xxx
-x_s32 realview_mmc_read_sector(struct mmc_card * card, x_u8 * buf, x_u32 sector, x_u32 count)
+static x_bool realview_mmc_read_one_sector(struct mmc_card * card, x_u8 * buf, x_u32 sector)
 {
 	x_u32 resp[4];
 	x_u32 blk_bits = card->info->csd.read_blkbits;
@@ -333,21 +332,20 @@ x_s32 realview_mmc_read_sector(struct mmc_card * card, x_u8 * buf, x_u32 sector,
 	x_u32 status;
 	x_u32 v;
 	x_bool ret;
-	x_s32 size = blk_len * count;
 
 	/*
 	 * select the card, and put it into transfer mode
 	 */
 	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(card->info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
-		return 0;
+		return FALSE;
 
 	/*
 	 * always do full block reads from the card
 	 */
 	ret = mmc_send_cmd(MMC_SET_BLOCKLEN, blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
-		return 0;
+		return FALSE;
 
 	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
 	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
@@ -357,13 +355,13 @@ x_s32 realview_mmc_read_sector(struct mmc_card * card, x_u8 * buf, x_u32 sector,
 	{
 		ret = mmc_send_cmd(MMC_READ_SINGLE_BLOCK, sector, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 		if(!ret)
-			return 0;
+			return FALSE;
 	}
 	else
 	{
 		ret = mmc_send_cmd(MMC_READ_SINGLE_BLOCK, sector * blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 		if(!ret)
-			return 0;
+			return FALSE;
 	}
 
 	do {
@@ -392,7 +390,7 @@ x_s32 realview_mmc_read_sector(struct mmc_card * card, x_u8 * buf, x_u32 sector,
 			writel(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_DAT_TIMEOUT | REALVIEW_MCI_CLR_DAT_CRC_FAIL));
 
 			mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
-			return 0;
+			return FALSE;
 		}
 
 	} while(1);
@@ -402,13 +400,12 @@ x_s32 realview_mmc_read_sector(struct mmc_card * card, x_u8 * buf, x_u32 sector,
 	 */
 	ret = mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
-		return 0;
+		return FALSE;
 
-	return size;
+	return TRUE;
 }
 
-//xxx
-x_s32 realview_mmc_write_sector(struct mmc_card * card, const x_u8 * buf, x_u32 sector, x_u32 count)
+static x_bool realview_mmc_write_one_sector(struct mmc_card * card, const x_u8 * buf, x_u32 sector)
 {
 	x_u32 resp[4];
 	x_u32 blk_bits = card->info->csd.write_blkbits;
@@ -417,21 +414,20 @@ x_s32 realview_mmc_write_sector(struct mmc_card * card, const x_u8 * buf, x_u32 
 	x_u8 * p = (x_u8 *)buf;
 	x_u32 status;
 	x_bool ret;
-	x_s32 size = blk_len * count;
 
 	/*
 	 * select the card, and put it into transfer mode
 	 */
 	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(card->info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
-		return 0;
+		return FALSE;
 
 	/*
 	 * always do full block writes to the card
 	 */
 	ret = mmc_send_cmd(MMC_SET_BLOCKLEN, blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
-		return 0;
+		return FALSE;
 
 	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
 	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
@@ -441,13 +437,13 @@ x_s32 realview_mmc_write_sector(struct mmc_card * card, const x_u8 * buf, x_u32 
 	{
 		ret = mmc_send_cmd(MMC_WRITE_SINGLE_BLOCK, sector, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 		if(!ret)
-			return 0;
+			return FALSE;
 	}
 	else
 	{
 		ret = mmc_send_cmd(MMC_WRITE_SINGLE_BLOCK, sector * blk_len, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 		if(!ret)
-			return 0;
+			return FALSE;
 	}
 
 	do {
@@ -467,7 +463,7 @@ x_s32 realview_mmc_write_sector(struct mmc_card * card, const x_u8 * buf, x_u32 
 			writel(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_DAT_TIMEOUT | REALVIEW_MCI_CLR_DAT_CRC_FAIL));
 
 			mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
-			return 0;
+			return FALSE;
 		}
 	} while(1);
 
@@ -476,9 +472,49 @@ x_s32 realview_mmc_write_sector(struct mmc_card * card, const x_u8 * buf, x_u32 
 	 */
 	ret = mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
-		return 0;
+		return FALSE;
 
-	return size;
+	return TRUE;
+}
+
+static x_bool realview_mmc_read_sectors(struct mmc_card * card, x_u8 * buf, x_u32 sector, x_u32 count)
+{
+	x_u32 blk_bits = card->info->csd.write_blkbits;
+	x_u32 blk_len = 1 << blk_bits;
+	x_bool ret;
+
+	while(count)
+	{
+		ret = realview_mmc_read_one_sector(card, buf, sector);
+		if(ret != TRUE)
+			return FALSE;
+
+		count--;
+		sector++;
+		buf += blk_len;
+	}
+
+	return TRUE;
+}
+
+static x_bool realview_mmc_write_sectors(struct mmc_card * card, const x_u8 * buf, x_u32 sector, x_u32 count)
+{
+	x_u32 blk_bits = card->info->csd.write_blkbits;
+	x_u32 blk_len = 1 << blk_bits;
+	x_bool ret;
+
+	while(count)
+	{
+		ret = realview_mmc_write_one_sector(card, buf, sector);
+		if(ret != TRUE)
+			return FALSE;
+
+		count--;
+		sector++;
+		buf += blk_len;
+	}
+
+	return TRUE;
 }
 
 static struct mmc_host realview_mmc_host_controller = {
@@ -486,8 +522,8 @@ static struct mmc_host realview_mmc_host_controller = {
 	.init			= realview_mmc_init,
 	.exit			= realview_mmc_exit,
 	.probe			= realview_mmc_probe,
-	.read_sector	= realview_mmc_read_sector,
-	.write_sector	= realview_mmc_write_sector,
+	.read_sectors	= realview_mmc_read_sectors,
+	.write_sectors	= realview_mmc_write_sectors,
 };
 
 static __init void realview_mmc_host_controller_init(void)

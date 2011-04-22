@@ -84,7 +84,7 @@ static x_s32 disk_block_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32
 	struct disk * disk = dblk->disk;
 	x_u32 offset = dblk->offset;
 
-	return (disk->read_sector(dblk->disk, buf, blkno + offset, blkcnt));
+	return (disk->read_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
 static x_s32 disk_block_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
@@ -93,7 +93,7 @@ static x_s32 disk_block_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno
 	struct disk * disk = dblk->disk;
 	x_u32 offset = dblk->offset;
 
-	return (disk->write_sector(dblk->disk, buf, blkno + offset, blkcnt));
+	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
 static x_s32 disk_block_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
@@ -148,7 +148,7 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 	if((disk->sector_size <= 0) || (disk->sector_count <=0))
 		return FALSE;
 
-	if((!disk->read_sector) || (!disk->write_sector))
+	if((!disk->read_sectors) || (!disk->write_sectors))
 		return FALSE;
 
 	if(!partition_parser_probe(disk))
@@ -315,7 +315,7 @@ x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count)
 		if(count < len)
 			len = count;
 
-		if(disk->read_sector(disk, secbuf, secno, 1) <= 0)
+		if(disk->read_sectors(disk, secbuf, secno, 1) != 1)
 		{
 			free(secbuf);
 			return 0;
@@ -335,7 +335,7 @@ x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count)
 	{
 		len = div * secsz;
 
-		if(disk->read_sector(disk, buf, secno, div) <= 0)
+		if(disk->read_sectors(disk, buf, secno, div) != div)
 		{
 			free(secbuf);
 			return size;
@@ -351,7 +351,7 @@ x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count)
 	{
 		len = count;
 
-		if(disk->read_sector(disk, secbuf, secno, 1) <= 0)
+		if(disk->read_sectors(disk, secbuf, secno, 1) != 1)
 		{
 			free(secbuf);
 			return size;

@@ -124,7 +124,10 @@ static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcn
 	if(lseek(loop->fd, offset, SEEK_SET) < 0)
 		return 0;
 
-	return (read(loop->fd, (void *)buf, size));
+	if(read(loop->fd, (void *)buf, size) != size)
+		return 0;
+
+	return blkcnt;
 }
 
 static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
@@ -139,7 +142,10 @@ static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u3
 	if(lseek(loop->fd, offset, SEEK_SET) < 0)
 		return 0;
 
-	return (write(loop->fd, (void *)buf, size));
+	if(write(loop->fd, (void *)buf, size) != size)
+		return 0;
+
+	return blkcnt;
 }
 
 static x_s32 loop_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)

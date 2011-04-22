@@ -83,7 +83,7 @@ static x_s32 ramdisk_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 bl
 		return 0;
 
 	memcpy((void *)buf, (const void *)(p + offset), size);
-	return size;
+	return blkcnt;
 }
 
 static x_s32 ramdisk_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)

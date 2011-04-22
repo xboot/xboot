@@ -131,7 +131,7 @@ x_bool partition_parser_probe(struct disk * disk)
 	if((disk->sector_size <= 0) || (disk->sector_count <=0))
 		return FALSE;
 
-	if((!disk->read_sector) || (!disk->write_sector))
+	if((!disk->read_sectors) || (!disk->write_sectors))
 		return FALSE;
 
 	/*

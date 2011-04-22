@@ -25,10 +25,10 @@ struct mmc_host
 	x_bool (*probe)(struct mmc_card_info * info);
 
 	/* read sectors from mmc card */
-	x_s32 (*read_sector)(struct mmc_card * card, x_u8 * buf, x_u32 sector, x_u32 count);
+	x_bool (*read_sectors)(struct mmc_card * card, x_u8 * buf, x_u32 sector, x_u32 count);
 
 	/* write sectors to mmc card */
-	x_s32 (*write_sector)(struct mmc_card * card, const x_u8 * buf, x_u32 sector, x_u32 count);
+	x_bool (*write_sectors)(struct mmc_card * card, const x_u8 * buf, x_u32 sector, x_u32 count);
 };
 
 /*

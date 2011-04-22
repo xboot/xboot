@@ -31,11 +31,11 @@ struct disk
 	/* the count of sector */
 	x_u32 sector_count;
 
-	/* read sectors from disk */
-	x_s32 (*read_sector)(struct disk * disk, x_u8 * buf, x_u32 sector, x_u32 count);
+	/* read sectors from disk, return the sector counts of reading */
+	x_s32 (*read_sectors)(struct disk * disk, x_u8 * buf, x_u32 sector, x_u32 count);
 
-	/* write sectors to disk */
-	x_s32 (*write_sector)(struct disk * disk, const x_u8 * buf, x_u32 sector, x_u32 count);
+	/* write sectors to disk, return the sector counts of writing */
+	x_s32 (*write_sectors)(struct disk * disk, const x_u8 * buf, x_u32 sector, x_u32 count);
 
 	/* priv data pointer */
 	void * priv;

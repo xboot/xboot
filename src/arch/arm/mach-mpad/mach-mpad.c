@@ -34,6 +34,7 @@
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-timer.h>
 #include <s5pv210/reg-keypad.h>
+#include <s5pv210/reg-others.h>
 #include <s5pv210-cp15.h>
 
 extern x_u8	__text_start[];
@@ -56,10 +57,8 @@ extern x_u8 __stack_end[];
  */
 static void mach_init(void)
 {
-	/* gph0_5 high level for power lock */
-	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<20)) | (0x1<<20));
-	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<10)) | (0x0<<10));
-	writel(S5PV210_GPH0DAT, (readl(S5PV210_GPH0DAT) & ~(0x1<<5)) | (0x1<<5));
+	/* set ps_hold output and high level for power lock */
+	writel(S5PV210_PS_HOLD_CONTROL, (readl(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x1<<8) | (0x1<<9)));
 }
 
 /*
@@ -67,10 +66,8 @@ static void mach_init(void)
  */
 static x_bool mach_halt(void)
 {
-	/* gph0_5 low level for power unlock */
-	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<20)) | (0x1<<20));
-	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<10)) | (0x0<<10));
-	writel(S5PV210_GPH0DAT, (readl(S5PV210_GPH0DAT) & ~(0x1<<5)) | (0x0<<5));
+	/* set ps_hold input and low level for power unlock */
+	writel(S5PV210_PS_HOLD_CONTROL, (readl(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x0<<8) | (0x0<<9)));
 
 	return TRUE;
 }

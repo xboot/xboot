@@ -7,7 +7,7 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <rand.h>
+#include <stdlib.h>
 #include <div64.h>
 #include <fifo.h>
 #include <color.h>

@@ -1,22 +1,18 @@
 /*
- * lib/libc/rand.c
+ * libc/stdlib/rand.c
  */
 
-#include <configs.h>
-#include <default.h>
-#include <types.h>
-#include <rand.h>
-
+#include <stdlib.h>
 
 /*
  * the rand poll.
  */
-static x_s32 hold_rand = 1;
+static int hold_rand = 1;
 
 /*
  * seed rand
  */
-void srand(x_s32 seed)
+void srand(int seed)
 {
 	hold_rand = seed;
 }
@@ -24,7 +20,7 @@ void srand(x_s32 seed)
 /*
  * rand
  */
-x_s32 rand(void)
+int rand(void)
 {
 	return (((hold_rand = hold_rand * 214013L + 2531011L) >> 16) & 0x7fff);
 }

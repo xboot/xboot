@@ -10,5 +10,8 @@ void srand(int seed);
 int rand(void);
 
 long strtol(const char * nptr, char ** endptr, int base);
+long long strtoll(const char * nptr, char ** endptr, int base);
+unsigned long strtoul(const char * nptr, char ** endptr, int base);
+unsigned long long strtoull(const char * nptr, char ** endptr, int base);
 
 #endif /* __STDLIB_H__ */

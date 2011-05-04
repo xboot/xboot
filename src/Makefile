@@ -79,6 +79,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib								\
 				lib/libc						\
 				lib/libc/ctype					\
+				lib/libc/stdlib					\
 				init							\
 				init/mode						\
 				kernel							\

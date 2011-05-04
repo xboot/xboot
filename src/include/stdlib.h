@@ -9,5 +9,6 @@ long long llabs(long long n);
 void srand(int seed);
 int rand(void);
 
+long strtol(const char * nptr, char ** endptr, int base);
 
 #endif /* __STDLIB_H__ */

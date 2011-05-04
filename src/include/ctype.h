@@ -12,7 +12,6 @@ extern const char __const_ctype[];
 #define	_X	0x40
 #define	_B	0x80
 
-
 int isalnum(int c);
 int isalpha(int c);
 int isascii(int c);
@@ -26,7 +25,6 @@ int ispunct(int c);
 int isspace(int c);
 int isupper(int c);
 int isxdigit(int c);
-
 int toascii(int c);
 int tolower(int c);
 int toupper(int c);

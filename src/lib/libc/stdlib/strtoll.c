@@ -3,6 +3,7 @@
  */
 
 #include <ctype.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
 
@@ -161,6 +162,7 @@ long long strtoll(const char * nptr, char ** endptr, int base)
 			{
 				any = -1;
 				acc = LLONG_MIN;
+				errno = ERANGE;
 			}
 			else
 			{
@@ -175,6 +177,7 @@ long long strtoll(const char * nptr, char ** endptr, int base)
 			{
 				any = -1;
 				acc = LLONG_MAX;
+				errno = ERANGE;
 			}
 			else
 			{

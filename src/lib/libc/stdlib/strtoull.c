@@ -3,6 +3,7 @@
  */
 
 #include <ctype.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
 
@@ -92,6 +93,7 @@ unsigned long long strtoull(const char * nptr, char ** endptr, int base)
 		{
 			any = -1;
 			acc = ULLONG_MAX;
+			errno = ERANGE;
 		}
 		else
 		{

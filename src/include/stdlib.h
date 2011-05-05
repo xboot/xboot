@@ -9,6 +9,8 @@ long long llabs(long long n);
 void srand(int seed);
 int rand(void);
 
+double strtod(const char * nptr, char ** endptr);
+
 long strtol(const char * nptr, char ** endptr, int base);
 long long strtoll(const char * nptr, char ** endptr, int base);
 unsigned long strtoul(const char * nptr, char ** endptr, int base);

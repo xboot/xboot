@@ -1,9 +1,8 @@
 #ifndef __ERRNO_H__
 #define __ERRNO_H__
 
-extern int *__errno_location(void) __attribute__ ((__const__));
-
 enum {
+	ENOERR			= 0,
 	EDOM			= 1,
 	ERANGE			= 2,
 	ENOSYS			= 3,
@@ -38,6 +37,15 @@ enum {
 	EOVERFLOW		= 32,
 };
 
+/*
+ * internal function returning the address of the thread-specific errno
+ */
+extern volatile int *__errno_location(void);
+
+/*
+ * a macro expanding to the errno l-value
+ */
 #define errno 		(*__errno_location ())
+
 
 #endif /* __ERRNO_H__ */

@@ -25,6 +25,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
+#include <stddef.h>
 #include <io.h>
 #include <mpad-pmu.h>
 #include <s5pv210/reg-gpio.h>

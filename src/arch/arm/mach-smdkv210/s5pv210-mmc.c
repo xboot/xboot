@@ -97,12 +97,12 @@ x_bool s5pv210_mmc_probe(struct mmc_card_info * info)
 	return FALSE;
 }
 
-x_bool s5pv210_mmc_read_sector(struct mmc_card * card, x_u32 sector, x_u8 * data)
+x_bool s5pv210_mmc_read_sectors(struct mmc_card * card, x_u8 * buf, x_u32 sector, x_u32 count)
 {
 	return FALSE;
 }
 
-x_bool s5pv210_mmc_write_sector(struct mmc_card * card, x_u32 sector, x_u8 * data)
+x_bool s5pv210_mmc_write_sectors(struct mmc_card * card, const x_u8 * buf, x_u32 sector, x_u32 count)
 {
 	return FALSE;
 }
@@ -112,8 +112,8 @@ static struct mmc_host s5pv210_mmc_host_controller = {
 	.init			= s5pv210_mmc_init,
 	.exit			= s5pv210_mmc_exit,
 	.probe			= s5pv210_mmc_probe,
-	.read_sector	= s5pv210_mmc_read_sector,
-	.write_sector	= s5pv210_mmc_write_sector,
+	.read_sectors	= s5pv210_mmc_read_sectors,
+	.write_sectors	= s5pv210_mmc_write_sectors,
 };
 
 static __init void s5pv210_mmc_host_controller_init(void)

@@ -4,7 +4,7 @@
 
 #include <stdlib.h>
 
-long long atoll(const char * s)
+long long atoll(const char * nptr)
 {
-	return (long long)strtoll(s, 0, 10);
+	return (long long)strtoll(nptr, 0, 10);
 }

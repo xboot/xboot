@@ -23,8 +23,17 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
+#include <stddef.h>
 #include <string.h>
 #include <rect.h>
+
+#ifndef MIN
+#define MIN(a, b)	((a) < (b) ? (a) : (b))
+#endif
+
+#ifndef MAX
+#define MAX(a, b)	((a) > (b) ? (a) : (b))
+#endif
 
 x_bool rect_set(struct rect * rect, x_s32 left, x_s32 top, x_s32 right, x_s32 bottom)
 {

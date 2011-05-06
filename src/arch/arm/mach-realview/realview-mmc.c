@@ -25,6 +25,7 @@
 #include <default.h>
 #include <macros.h>
 #include <types.h>
+#include <stddef.h>
 #include <div64.h>
 #include <io.h>
 #include <xboot/log.h>

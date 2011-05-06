@@ -22,6 +22,7 @@
 
 #include <configs.h>
 #include <default.h>
+#include <stddef.h>
 #include <xboot.h>
 #include <malloc.h>
 #include <div64.h>

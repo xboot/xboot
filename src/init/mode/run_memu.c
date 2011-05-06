@@ -24,6 +24,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
+#include <stddef.h>
 #include <charset.h>
 #include <xboot/scank.h>
 #include <xboot/list.h>

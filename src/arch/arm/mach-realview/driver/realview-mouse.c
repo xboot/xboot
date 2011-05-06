@@ -25,6 +25,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
+#include <stddef.h>
 #include <string.h>
 #include <div64.h>
 #include <io.h>

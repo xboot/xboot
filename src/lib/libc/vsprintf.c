@@ -5,6 +5,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
+#include <stddef.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <string.h>

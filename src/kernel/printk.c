@@ -23,6 +23,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
+#include <stddef.h>
 #include <stdarg.h>
 #include <string.h>
 #include <macros.h>

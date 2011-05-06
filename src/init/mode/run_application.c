@@ -23,6 +23,7 @@
 
 #include <configs.h>
 #include <default.h>
+#include <stddef.h>
 #include <mode/mode.h>
 
 /*

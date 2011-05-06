@@ -6,6 +6,7 @@
 #include <default.h>
 #include <ctype.h>
 #include <types.h>
+#include <stddef.h>
 #include <malloc.h>
 #include <string.h>
 #include <stdarg.h>

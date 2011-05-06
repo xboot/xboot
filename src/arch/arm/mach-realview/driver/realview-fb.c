@@ -25,6 +25,7 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
+#include <stddef.h>
 #include <string.h>
 #include <macros.h>
 #include <malloc.h>

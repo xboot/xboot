@@ -1,8 +1,8 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
-#include <configs.h>
-#include <macros.h>
+#include <types.h>
+#include <stddef.h>
 
 /*
  * Simple doubly linked list implementation.

@@ -1,6 +1,8 @@
 #ifndef __STDLIB_H__
 #define __STDLIB_H__
 
+#include <types.h>
+#include <stddef.h>
 
 int abs(int n);
 long labs(long n);
@@ -19,5 +21,8 @@ long long strtoll(const char * nptr, char ** endptr, int base);
 unsigned long strtoul(const char * nptr, char ** endptr, int base);
 unsigned long long strtoull(const char * nptr, char ** endptr, int base);
 double strtod(const char * nptr, char ** endptr);
+
+void * bsearch(const void *key, const void *base, size_t nmemb, size_t size,
+		int(*compar)(const void *, const void *));
 
 #endif /* __STDLIB_H__ */

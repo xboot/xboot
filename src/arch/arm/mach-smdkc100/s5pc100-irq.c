@@ -24,7 +24,6 @@
 #include <configs.h>
 #include <default.h>
 #include <types.h>
-#include <bitpos.h>
 #include <io.h>
 #include <xboot/log.h>
 #include <xboot/clk.h>

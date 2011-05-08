@@ -28,7 +28,6 @@
 #include <vsprintf.h>
 #include <malloc.h>
 #include <error.h>
-#include <bitpos.h>
 #include <time/xtime.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>

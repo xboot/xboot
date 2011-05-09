@@ -169,13 +169,16 @@ reset:
 	str	r1, [r0]
 
 	/* init system clock */
-	bl system_clock_init
+	bl	system_clock_init
 
-	/* initialize memory control */
+	/* initialize memory controller */
 	bl	mem_ctrl_init
 
-	/* initialize nand flash control */
-	bl nand_init
+	/* initialize nand flash controller */
+	bl	nand_init
+
+	/* setting trustzone protection controller */
+	bl	tzpc_init
 
 	/* wakeup or not */
 	ldr	r0, =(0xe0100000 + 0xa000)
@@ -617,7 +620,7 @@ dmc1_lock:
 	mov	pc, lr
 
 /*
- * initialize nand flash control
+ * initialize nand flash controller
  */
 nand_init:
 	ldr	r0, =0xE020000				/* GPIO base register */
@@ -666,6 +669,36 @@ nand_init:
 	ldr	r1, [r0, #0x0004]			/* NFCONT */
 	orr	r1, r1, #0x03
 	str	r1, [r0, #0x0004]
+
+	mov	pc, lr
+
+/*
+ * setting trustzone protection controller
+ */
+tzpc_init:
+	ldr	r0, =0xF1500000
+	mov	r1, #0x0
+	str	r1, [r0]
+	mov	r1, #0xff
+	str	r1, [r0, #0x804]
+	str	r1, [r0, #0x810]
+	str	r1, [r0, #0x81C]
+
+	ldr 	r0, =0xFAD00000
+	str	r1, [r0, #0x804]
+	str	r1, [r0, #0x810]
+	str	r1, [r0, #0x81C]
+
+	ldr	r0, =0xE0600000
+	str	r1, [r0, #0x804]
+	str	r1, [r0, #0x810]
+	str	r1, [r0, #0x81C]
+	str	r1, [r0, #0x828]
+
+	ldr	r0, =0xE1C00000
+	str	r1, [r0, #0x804]
+	str	r1, [r0, #0x810]
+	str	r1, [r0, #0x81C]
 
 	mov	pc, lr
 

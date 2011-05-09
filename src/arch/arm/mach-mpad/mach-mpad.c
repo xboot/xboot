@@ -59,6 +59,17 @@ static void mach_init(void)
 {
 	/* set ps_hold output and high level for power lock */
 	writel(S5PV210_PS_HOLD_CONTROL, (readl(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x1<<8) | (0x1<<9)));
+
+	/*
+	 * set gph0_6 (Motor) enabled for a moment
+	 */
+	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<24)) | (0x1<<24));
+	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<12)) | (0x2<<12));
+	writel(S5PV210_GPH0DAT, (readl(S5PV210_GPH0DAT) & ~(0x1<<6)) | (0x1<<6));
+	mdelay(300);
+	writel(S5PV210_GPH0CON, (readl(S5PV210_GPH0CON) & ~(0xf<<24)) | (0x0<<24));
+	writel(S5PV210_GPH0PUD, (readl(S5PV210_GPH0PUD) & ~(0x3<<12)) | (0x1<<12));
+	writel(S5PV210_GPH0DAT, (readl(S5PV210_GPH0DAT) & ~(0x1<<6)) | (0x0<<6));
 }
 
 /*

@@ -140,29 +140,29 @@ static x_s32 mounts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[mounts]");
+	len += sprintf((char *)(p + len), (const char *)"[mounts]");
 
 	list_for_each(pos, &mount_list)
 	{
 		m = list_entry(pos, struct mount, m_link);
 
 		if(m->m_dev == NULL)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n none");
+			len += sprintf((char *)(p + len), (const char *)"\r\n none");
 		else
 		{
 			blk = (struct blkdev *)m->m_dev;
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s", blk->name);
+			len += sprintf((char *)(p + len), (const char *)"\r\n %s", blk->name);
 		}
 
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" %s %s ", m->m_path, m->m_fs->name);
+		len += sprintf((char *)(p + len), (const char *)" %s %s ", m->m_path, m->m_fs->name);
 
 		if(m->m_flags & MOUNT_LOOP)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"loop,");
+			len += sprintf((char *)(p + len), (const char *)"loop,");
 
 		if(m->m_flags & MOUNT_RDONLY)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"ro");
+			len += sprintf((char *)(p + len), (const char *)"ro");
 		else
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"rw");
+			len += sprintf((char *)(p + len), (const char *)"rw");
 	}
 
 	len -= offset;

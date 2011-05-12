@@ -62,14 +62,14 @@ static struct ramfs_node * ramfs_allocate_node(char * name, enum vnode_type type
 		return NULL;
 	memset(node, 0, sizeof(struct ramfs_node));
 
-	node->name_len = strlen((const x_s8 *)name);
+	node->name_len = strlen(name);
 	node->name = malloc(node->name_len + 1);
 	if(node->name == NULL)
 	{
 		free(node);
 		return NULL;
 	}
-	strlcpy(node->name, (const x_s8 *)name, node->name_len + 1);
+	strlcpy((char *)node->name, name, node->name_len + 1);
 	node->type = type;
 	return node;
 }
@@ -136,15 +136,15 @@ static x_s32 ramfs_remove_node(struct ramfs_node * dnode, struct ramfs_node * no
 static x_s32 ramfs_rename_node(struct ramfs_node * node, char * name)
 {
 	x_size len;
-	x_s8 * tmp;
+	char * tmp;
 
-	len = strlen((const x_s8 *)name);
+	len = strlen(name);
 	tmp = malloc(len + 1);
 	if(tmp == NULL)
 		return ENOMEM;
-	strlcpy(tmp, (const x_s8 *)name, len + 1);
+	strlcpy(tmp, name, len + 1);
 	free(node->name);
-	node->name = tmp;
+	node->name = (x_s8 *)tmp;
 	node->name_len = len;
 
 	return 0;
@@ -310,12 +310,12 @@ static x_s32 ramfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	if(fp->f_offset == 0)
 	{
 		dir->d_type = DT_DIR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)".", sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, ".", sizeof(dir->d_name));
 	}
 	else if(fp->f_offset == 1)
 	{
 		dir->d_type = DT_DIR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)"..", sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, "..", sizeof(dir->d_name));
 	}
 	else
 	{
@@ -335,11 +335,11 @@ static x_s32 ramfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 		else
 			dir->d_type = DT_REG;
 
-		strlcpy((x_s8 *)&dir->d_name, n->name, sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, (char *)n->name, sizeof(dir->d_name));
 	}
 
 	dir->d_fileno = (x_u32)fp->f_offset;
-	dir->d_namlen = (x_u16)strlen((const x_s8 *)dir->d_name);
+	dir->d_namlen = (x_u16)strlen(dir->d_name);
 
 	fp->f_offset++;
 
@@ -355,7 +355,7 @@ static x_s32 ramfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	if(*name == '\0')
 		return ENOENT;
 
-	len = strlen((const x_s8 *)name);
+	len = strlen(name);
 	dn = dnode->v_data;
 	found = FALSE;
 	for(n = dn->child; n != NULL; n = n->next)

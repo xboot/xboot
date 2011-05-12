@@ -80,10 +80,10 @@ static x_s32 procfs_statfs(struct mount * m, struct statfs * stat)
 static x_s32 procfs_open(struct vnode * node, x_s32 flag)
 {
 	struct proc * proc;
-	x_s8 * path;
+	char * path;
 
-	path = (x_s8 *)node->v_path;
-	if(!strcmp(path, (const x_s8 *)"/"))
+	path = node->v_path;
+	if(!strcmp(path, "/"))
 		return 0;
 
 	if(*path == '/')
@@ -151,12 +151,12 @@ static x_s32 procfs_readdir(struct vnode * node, struct file * fp, struct dirent
 	if(fp->f_offset == 0)
 	{
 		dir->d_type = DT_DIR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)".", sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, ".", sizeof(dir->d_name));
 	}
 	else if(fp->f_offset == 1)
 	{
 		dir->d_type = DT_DIR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)"..", sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, "..", sizeof(dir->d_name));
 	}
 	else
 	{
@@ -170,11 +170,11 @@ static x_s32 procfs_readdir(struct vnode * node, struct file * fp, struct dirent
 
 		list = list_entry(pos, struct proc_list, entry);
 		dir->d_type = DT_REG;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)list->proc->name, sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, list->proc->name, sizeof(dir->d_name));
 	}
 
 	dir->d_fileno = (x_u32)fp->f_offset;
-	dir->d_namlen = (x_u16)strlen((const x_s8 *)dir->d_name);
+	dir->d_namlen = (x_u16)strlen(dir->d_name);
 	fp->f_offset++;
 
 	return 0;

@@ -374,7 +374,7 @@ static x_s32 disk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	struct list_head * pos;
 	struct partition * part;
 	struct list_head * part_pos;
-	x_s8 buff[32];
+	char buff[32];
 	x_u64 from, to , size;
 	x_s8 * p;
 	x_s32 len = 0;

@@ -63,7 +63,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 	if(dev != NULL)
 	{
 		/* search for the last directory separator in dev */
-		if( (p = strrchr((const x_s8 *)dev, '/')) != NULL )
+		if( (p = strrchr(dev, '/')) != NULL )
 			p = p+1;
 		else
 			p = (x_s8 *)dev;
@@ -82,7 +82,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 	list_for_each(pos, &mount_list)
 	{
 		m = list_entry(pos, struct mount, m_link);
-		if( !strcmp((const x_s8 *)m->m_path, (const x_s8 *)dir) )
+		if( !strcmp(m->m_path, dir) )
 		{
 			return EBUSY;
 		}
@@ -115,7 +115,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 	m->m_fs = fs;
 	m->m_flags = flags & MOUNT_MASK;
 	m->m_count = 0;
-	strlcpy((x_s8 *)m->m_path, (const x_s8 *)dir, sizeof(m->m_path));
+	strlcpy(m->m_path, dir, sizeof(m->m_path));
 	m->m_dev = (void *)device;
 
 	/*
@@ -212,7 +212,7 @@ x_s32 sys_umount(char * path)
 	list_for_each(pos, &mount_list)
 	{
 		m = list_entry(pos, struct mount, m_link);
-		if( !strcmp((const x_s8 *)path, (const x_s8 *)m->m_path) )
+		if( !strcmp(path, m->m_path) )
 		{
 			/*
 			 * root fs can not be unmounted.
@@ -713,7 +713,7 @@ static x_s32 check_dir_empty(char * path)
 		err = sys_readdir(fp, &dir);
 		if(err != 0 && err != EACCES)
 			break;
-	} while(!strcmp((const x_s8 *)dir.d_name, (const x_s8 *)".") || !strcmp((const x_s8 *)dir.d_name, (const x_s8 *)".."));
+	} while(!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."));
 
 	sys_closedir(fp);
 
@@ -831,12 +831,12 @@ x_s32 sys_rename(char * src, char * dest)
 		goto err1;
 
 	/* if source and dest are the same, do nothing */
-	if (!strncmp((const x_s8 *)src, (const x_s8 *)dest, MAX_PATH))
+	if (!strncmp(src, dest, MAX_PATH))
 		goto err1;
 
 	/* check if target is directory of source */
-	len = strlen((const x_s8 *)dest);
-	if(!strncmp((const x_s8 *)src, (const x_s8 *)dest, len))
+	len = strlen(dest);
+	if(!strncmp(src, dest, len))
 	{
 		err = EINVAL;
 		goto err1;
@@ -877,7 +877,7 @@ x_s32 sys_rename(char * src, char * dest)
 		}
 	}
 
-	dname = (char *)strrchr((const x_s8 *)dest, '/');
+	dname = (char *)strrchr(dest, '/');
 	if(dname == NULL)
 	{
 		err = ENOTDIR;
@@ -1022,7 +1022,7 @@ x_s32 sys_fchdir(struct file * fp, char * cwd)
 	if(dvp->v_type != VDIR)
 		return EBADF;
 
-	strlcpy((x_s8 *)cwd, (const x_s8 *)dvp->v_path, MAX_PATH);
+	strlcpy(cwd, dvp->v_path, MAX_PATH);
 
 	return 0;
 }

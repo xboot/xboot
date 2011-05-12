@@ -48,8 +48,8 @@ x_s32 namei(char * path, struct vnode ** vpp)
 	if(vfs_findroot(path, &mp, &p))
 		return ENOTDIR;
 
-	strlcpy((x_s8 *)node, (const x_s8 *)"/", sizeof(node));
-	strlcat((x_s8 *)node, (const x_s8 *)p, sizeof(node));
+	strlcpy(node, "/", sizeof(node));
+	strlcat(node, p, sizeof(node));
 	vp = vn_lookup(mp, node);
 	if(vp)
 	{
@@ -88,8 +88,8 @@ x_s32 namei(char * path, struct vnode ** vpp)
 		/*
 		 * get a vnode for the target.
 		 */
-		strlcat((x_s8 *)node, (const x_s8 *)"/", sizeof(node));
-		strlcat((x_s8 *)node, (const x_s8 *)name, sizeof(node));
+		strlcat(node, "/", sizeof(node));
+		strlcat(node, name, sizeof(node));
 		vp = vn_lookup(mp, node);
 		if(vp == NULL)
 		{
@@ -143,8 +143,8 @@ x_s32 lookup(char * path, struct vnode ** vpp, char ** name)
 	/*
 	 * get the path for directory.
 	 */
-	strlcpy((x_s8 *)buf, (const x_s8 *)path, sizeof(buf));
-	file = (char *)strrchr((const x_s8 *)buf, '/');
+	strlcpy(buf, path, sizeof(buf));
+	file = strrchr(buf, '/');
 
 	if(!buf[0])
 		return ENOTDIR;
@@ -171,7 +171,7 @@ x_s32 lookup(char * path, struct vnode ** vpp, char ** name)
 	/*
 	 * get the file name
 	 */
-	*name = (char *)strrchr((const x_s8 *)path, '/') + 1;
+	*name = strrchr(path, '/') + 1;
 
 	return 0;
 }

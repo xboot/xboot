@@ -110,9 +110,9 @@ x_s32 set_fp(x_s32 fd, struct file *fp)
  */
 x_s32 vfs_path_conv(const char * path, char * full)
 {
-	x_s8 *p, *q, *s;
+	char *p, *q, *s;
 	x_s32 left_len, full_len;
-	x_s8 left[MAX_PATH], next_token[MAX_PATH];
+	char left[MAX_PATH], next_token[MAX_PATH];
 
     if(path[0] == '/')
     {
@@ -122,13 +122,13 @@ x_s32 vfs_path_conv(const char * path, char * full)
 			return 0;
 
 		full_len = 1;
-		left_len = strlcpy(left, (const x_s8 *)(path + 1), sizeof(left));
+		left_len = strlcpy(left, (const char *)(path + 1), sizeof(left));
 	}
     else
     {
-		strlcpy((x_s8 *)full, (const x_s8 *)cwd, MAX_PATH);
-		full_len = strlen((const x_s8 *)full);
-		left_len = strlcpy(left, (const x_s8 *)path, sizeof(left));
+		strlcpy(full, cwd, MAX_PATH);
+		full_len = strlen(full);
+		left_len = strlcpy(left, path, sizeof(left));
 	}
 	if((left_len >= sizeof(left)) || (full_len >= MAX_PATH))
 		return -1;
@@ -162,11 +162,11 @@ x_s32 vfs_path_conv(const char * path, char * full)
 			full[full_len++] = '/';
 			full[full_len] = '\0';
 		}
-		if(next_token[0] == '\0' || strcmp(next_token, (const x_s8 *)".") == 0)
+		if(next_token[0] == '\0' || strcmp(next_token, ".") == 0)
 		{
 			continue;
 		}
-		else if(strcmp(next_token, (const x_s8 *)"..") == 0)
+		else if(strcmp(next_token, "..") == 0)
 		{
 			/*
 			 * strip the last path component except when we have single '/'
@@ -174,14 +174,14 @@ x_s32 vfs_path_conv(const char * path, char * full)
 			if(full_len > 1)
 			{
 				full[full_len - 1] = '\0';
-				q = strrchr((const x_s8 *)full, '/') + 1;
+				q = strrchr(full, '/') + 1;
 				*q = '\0';
-				full_len = q - (x_s8 *)full;
+				full_len = q - full;
 			}
 			continue;
 		}
 
-		full_len = strlcat((x_s8 *)full, next_token, MAX_PATH);
+		full_len = strlcat(full, next_token, MAX_PATH);
 		if(full_len >= MAX_PATH)
 			return -1;
 	}
@@ -205,8 +205,8 @@ void vfs_setcwd(const char * path)
 	if(!path)
 		return;
 
-	if(strlen((const x_s8 *)path) < MAX_PATH)
-		strcpy((x_s8 *)cwd, (const x_s8 *)path);
+	if(strlen(path) < MAX_PATH)
+		strcpy(cwd, path);
 }
 
 /*
@@ -217,10 +217,10 @@ char * vfs_getcwd(char * buf, x_s32 size)
     if( size == 0 )
         return NULL;
 
-    if( size < strlen((const x_s8 *)cwd) + 1 )
+    if( size < strlen(cwd) + 1 )
         return NULL;
 
-    strlcpy((x_s8 *)buf, (const x_s8 *)cwd, size);
+    strlcpy(buf, cwd, size);
 
     return buf;
 }
@@ -251,7 +251,7 @@ static __init void fd_pure_sync_init(void)
     for( i = 0; i < FD_SIZE; i++ )
     	file_desc[i] = NULL;
 
-    strcpy((x_s8 *)cwd, (const x_s8 *)"/");
+    strcpy(cwd, "/");
     cwdfp = NULL;
 }
 

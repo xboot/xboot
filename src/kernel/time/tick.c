@@ -118,10 +118,10 @@ x_bool init_system_tick(void)
  */
 static x_s32 jiffies_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
-	x_s8 tmp[16];
+	char tmp[16];
 	x_s32 len;
 
-	len = sprintf(tmp, (const x_s8 *)"%ld", jiffies);
+	len = sprintf(tmp, (const char *)"%ld", jiffies);
 	len -= offset;
 
 	if(len < 0)
@@ -145,13 +145,13 @@ static struct proc jiffies_proc = {
  */
 static x_s32 uptime_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
-	x_s8 tmp[16];
+	char tmp[16];
 	x_s32 len;
 
 	if(tick_hz != 0)
-		len = sprintf(tmp, (const x_s8 *)"%lu.%02lu", jiffies / tick_hz, jiffies % tick_hz);
+		len = sprintf(tmp, (const char *)"%lu.%02lu", jiffies / tick_hz, jiffies % tick_hz);
 	else
-		len = sprintf(tmp, (const x_s8 *)"0.00");
+		len = sprintf(tmp, (const char *)"0.00");
 
 	len -= offset;
 
@@ -176,10 +176,10 @@ static struct proc uptime_proc = {
  */
 static x_s32 hz_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
-	x_s8 tmp[16];
+	char tmp[16];
 	x_s32 len;
 
-	len = sprintf(tmp, (const x_s8 *)"%lu", tick_hz);
+	len = sprintf(tmp, (const char *)"%lu", tick_hz);
 	len -= offset;
 
 	if(len < 0)

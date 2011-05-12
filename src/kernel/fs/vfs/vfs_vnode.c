@@ -71,7 +71,7 @@ struct vnode * vn_lookup(struct mount * mp, char * path)
 	list_for_each(pos, head)
 	{
 		vp = list_entry(pos, struct vnode, v_link);
-		if( (vp->v_mount == mp) && (!strncmp((const x_s8 *)vp->v_path, (const x_s8 *)path, MAX_PATH)) )
+		if( (vp->v_mount == mp) && (!strncmp(vp->v_path, path, MAX_PATH)) )
 		{
 			vp->v_refcnt++;
 			return vp;
@@ -93,7 +93,7 @@ struct vnode * vget(struct mount * mp, char * path)
 		return NULL;
 	memset(vp, 0, sizeof(struct vnode));
 
-	len = strlen((const x_s8 *)path) + 1;
+	len = strlen(path) + 1;
 	if( !(vp->v_path = malloc(len)) )
 	{
 		free(vp);
@@ -103,7 +103,7 @@ struct vnode * vget(struct mount * mp, char * path)
 	vp->v_mount = mp;
 	vp->v_op = mp->m_fs->vfsops->vfs_vnops;
 	vp->v_refcnt = 1;
-	strlcpy((x_s8 *)vp->v_path, (const x_s8 *)path, len);
+	strlcpy(vp->v_path, path, len);
 
 	/*
 	 * request to allocate fs specific data for vnode.

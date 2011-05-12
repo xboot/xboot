@@ -24,7 +24,7 @@ struct xml_root {
 	struct xml xml;							/* is a super-struct built on top of xml struct */
 	struct xml * cur;						/* current xml tree insertion point */
 	char * m;								/* original xml string */
-	x_size len;								/* length of allocated memory for mmap, -1 for malloc */
+	size_t len;								/* length of allocated memory for mmap, -1 for malloc */
 	char * u;								/* UTF-8 conversion of string if original was UTF-16 */
 	char * s;								/* start of work area */
 	char * e;								/* end of work area */
@@ -276,7 +276,7 @@ static char * xml_decode(char * s, char ** ent, char t)
 /*
  * inserts an existing tag into an ezxml structure
  */
-struct xml * xml_insert(struct xml * xml, struct xml * dest, x_size off)
+struct xml * xml_insert(struct xml * xml, struct xml * dest, size_t off)
 {
 	struct xml * cur, * prev, * head;
 
@@ -329,7 +329,7 @@ struct xml * xml_insert(struct xml * xml, struct xml * dest, x_size off)
  * adds a child tag. off is the offset of the child tag relative to the start
  * of the parent tag's character content. returns the child tag.
  */
-struct xml * xml_add_child(struct xml * xml, const char * name, x_size off)
+struct xml * xml_add_child(struct xml * xml, const char * name, size_t off)
 {
 	struct xml * child;
 
@@ -455,11 +455,11 @@ struct xml * xml_set_attr(struct xml * xml, const char * name, const char * valu
 /*
  * called when parser finds character content between open and closing tag
  */
-static void xml_char_content(struct xml_root * root, char * s, x_size len, char t)
+static void xml_char_content(struct xml_root * root, char * s, size_t len, char t)
 {
 	struct xml * xml = root->cur;
 	char *m = s;
-	x_size l;
+	size_t l;
 
 	if(! xml || ! xml->name || ! len)
 		return;													/* sanity check */
@@ -583,7 +583,7 @@ struct xml * xml_cut(struct xml * xml)
 /*
  * called when the parser finds a processing instruction
  */
-static void xml_proc_inst(struct xml_root * root, char * s, x_size len)
+static void xml_proc_inst(struct xml_root * root, char * s, size_t len)
 {
 	s32_t i = 0, j = 1;
 	char * target = s;
@@ -630,7 +630,7 @@ static void xml_proc_inst(struct xml_root * root, char * s, x_size len)
 /*
  * called when the parser finds an internal doctype subset
  */
-static s16_t xml_internal_dtd(struct xml_root * root, char * s, x_size len)
+static s16_t xml_internal_dtd(struct xml_root * root, char * s, size_t len)
 {
 	char q, *c, *t, *n = NULL, *v, **ent, **pe;
 	s32_t i, j;
@@ -773,10 +773,10 @@ static s16_t xml_internal_dtd(struct xml_root * root, char * s, x_size len)
  * converts a UTF-16 string to UTF-8. returns a new string that must be freed
  * or NULL if no conversion was needed.
  */
-static char * xml_str2utf8(char ** s, x_size * len)
+static char * xml_str2utf8(char ** s, size_t * len)
 {
 	char * u;
-	x_size l = 0, sl, max = *len;
+	size_t l = 0, sl, max = *len;
 	s32_t c, d;
 	s32_t b, be = (**s == '\xFE') ? 1 : (**s == '\xFF') ? 0 : -1;
 
@@ -922,7 +922,7 @@ void xml_free(struct xml * xml)
 /*
  * parse the given xml string and return an xml structure
  */
-struct xml * xml_parse_str(char * s, x_size len)
+struct xml * xml_parse_str(char * s, size_t len)
 {
 	struct xml_root * root = (struct xml_root *)xml_new(NULL);
 	char q, e, *d, **attr, **a = NULL;									/* initialize a to avoid compile warning */
@@ -1099,7 +1099,7 @@ struct xml * xml_parse_str(char * s, x_size len)
  * Encodes ampersand sequences appending the results to *dst, reallocating *dst
  * if length excedes max. a is non-zero for attribute encoding. Returns *dst
  */
-static char * xml_ampencode(const char *s, x_size len, char **dst, x_size *dlen, x_size *max, s16_t a)
+static char * xml_ampencode(const char *s, size_t len, char **dst, size_t *dlen, size_t *max, s16_t a)
 {
 	const char * e;
 
@@ -1144,11 +1144,11 @@ static char * xml_ampencode(const char *s, x_size len, char **dst, x_size *dlen,
  * its length excedes max. start is the location of the previous tag in the
  * parent tag's character content. Returns *s.
  */
-static char *xml_toxml_r(struct xml * xml, char **s, x_size *len, x_size *max, x_size start, char ***attr)
+static char *xml_toxml_r(struct xml * xml, char **s, size_t *len, size_t *max, size_t start, char ***attr)
 {
 	s32_t i, j;
 	char *txt = (xml->parent) ? xml->parent->txt : "";
-	x_size off = 0;
+	size_t off = 0;
 
 	/* parent character content up to this tag */
 	*s = xml_ampencode(txt + start, xml->off - start, s, len, max, 0);
@@ -1203,7 +1203,7 @@ char * xml_toxml(struct xml * xml)
 {
 	struct xml * p = (xml) ? xml->parent : NULL, * o = (xml) ? xml->ordered : NULL;
 	struct xml_root * root = (struct xml_root *)xml;
-	x_size len = 0, max = XML_BUFFER_SIZE;
+	size_t len = 0, max = XML_BUFFER_SIZE;
 	char *s = (char *)strcpy((char *)(malloc(max)), (const char *)""), *t, *n;
 	s32_t i, j, k;
 
@@ -1255,7 +1255,7 @@ struct xml * xml_parse_file(const char * name)
     struct xml_root * root;
     struct xml * xml;
     s32_t fd;
-    x_size l, len = 0;
+    size_t l, len = 0;
 	char * s;
 
 	fd = open(name, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));

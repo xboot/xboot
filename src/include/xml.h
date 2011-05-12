@@ -9,7 +9,7 @@ struct xml {
 	char * name;									/* tag name */
 	char ** attr;									/* tag attributes (name, value, name, value, ... null) */
 	char * txt;										/* tag character content, empty string if none */
-	x_size off;										/* tag offset from start of parent tag character content */
+	size_t off;										/* tag offset from start of parent tag character content */
 	struct xml * next;								/* next tag with same name in this section at this depth */
 	struct xml * sibling;							/* next tag with different name in same section and depth */
 	struct xml * ordered;							/* next tag, same section and depth, in original order */
@@ -133,12 +133,12 @@ struct xml * xml_set_attr(struct xml * xml, const char * name, const char * valu
  * adds a child tag. off is the offset of the child tag relative to the start
  * of the parent tag's character content. returns the child tag.
  */
-struct xml * xml_add_child(struct xml * xml, const char * name, x_size off);
+struct xml * xml_add_child(struct xml * xml, const char * name, size_t off);
 
 /*
  * inserts an existing tag into an xml structure
  */
-struct xml * xml_insert(struct xml * xml, struct xml * dest, x_size off);
+struct xml * xml_insert(struct xml * xml, struct xml * dest, size_t off);
 
 /*
  * removes a tag along with its subtags without freeing its memory
@@ -166,7 +166,7 @@ void xml_free(struct xml * xml);
  * and decoding ampersand sequences. If you don't want this, copy the data and
  * pass in the copy. Returns NULL on failure.
  */
-struct xml * xml_parse_str(char *s, x_size len);
+struct xml * xml_parse_str(char *s, size_t len);
 
 /*
  * converts an xml structure back to xml. returns a string of xml data that

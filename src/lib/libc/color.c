@@ -200,7 +200,7 @@ struct color * get_color_by_name(const char * name)
 
 	for(i = 0; named_colors[i].name; i++)
 	{
-		if(strcmp((const x_s8 *)named_colors[i].name, (const x_s8 *)name) == 0)
+		if(strcmp(named_colors[i].name, name) == 0)
 			break;
 	}
 

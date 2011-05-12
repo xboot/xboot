@@ -123,7 +123,7 @@ static struct disk * search_disk(const char * name)
 	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct disk_list, entry);
-		if(strcmp((x_s8*)list->disk->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->disk->name, name) == 0)
 			return list->disk;
 	}
 
@@ -189,9 +189,9 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 		}
 
 		if(i == 0)
-			snprintf((x_s8 *)dblk->name, sizeof(dblk->name), (const x_s8 *)"%s", disk->name);
+			snprintf((char *)dblk->name, sizeof(dblk->name), (const char *)"%s", disk->name);
 		else
-			snprintf((x_s8 *)dblk->name, sizeof(dblk->name), (const x_s8 *)"%sp%ld", disk->name, i);
+			snprintf((char *)dblk->name, sizeof(dblk->name), (const char *)"%sp%ld", disk->name, i);
 
 		part->dev = dev;
 		dblk->part = part;
@@ -385,7 +385,7 @@ static x_s32 disk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct disk_list, entry);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"%s:\r\n", list->disk->name);
+		len += sprintf((char *)(p + len), (const char *)"%s:\r\n", list->disk->name);
 
 		for(part_pos = (&(list->disk->info.entry))->next; part_pos != &(list->disk->info.entry); part_pos = part_pos->next)
 		{
@@ -393,10 +393,10 @@ static x_s32 disk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 			from = part->sector_from * part->sector_size;
 			to = (part->sector_to + 1) * part->sector_size;
 			size = to - from;
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)" %8s %8s", part->name, part->dev->name);
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)" 0x%016Lx ~ 0x%016Lx", from, to);
+			len += sprintf((char *)(p + len), (const char *)" %8s %8s", part->name, part->dev->name);
+			len += sprintf((char *)(p + len), (const char *)" 0x%016Lx ~ 0x%016Lx", from, to);
 			ssize(buff, size);
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)" %s\r\n", buff);
+			len += sprintf((char *)(p + len), (const char *)" %s\r\n", buff);
 		}
 	}
 

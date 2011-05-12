@@ -59,7 +59,7 @@ struct filesystem * filesystem_search(const char * name)
 	for(pos = (&fs_list->entry)->next; pos != (&fs_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct fs_list, entry);
-		if(strcmp((x_s8*)list->fs->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->fs->name, name) == 0)
 			return list->fs;
 	}
 
@@ -130,12 +130,12 @@ static x_s32 filesystem_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[filesystem]");
+	len += sprintf((char *)(p + len), (const char *)"[filesystem]");
 
 	for(pos = (&fs_list->entry)->next; pos != (&fs_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct fs_list, entry);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s", list->fs->name);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s", list->fs->name);
 	}
 
 	len -= offset;

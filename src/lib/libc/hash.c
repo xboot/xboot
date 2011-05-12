@@ -34,7 +34,7 @@
 x_u32 string_hash(const char * s)
 {
 	x_u32 nr=1, nr2=4;
-	x_s32 len = strlen((x_s8*)s);
+	x_s32 len = strlen((char*)s);
 
 	while(len--)
 	{

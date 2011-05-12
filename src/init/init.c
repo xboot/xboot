@@ -133,7 +133,7 @@ void do_system_fonts(void)
 	/*
 	 * system fonts's directory path
 	 */
-	sprintf((x_s8 *)path, (const x_s8 *)"%s", "/ramdisk/system/fonts");
+	sprintf((char *)path, (const char *)"%s", "/ramdisk/system/fonts");
 
 	if(stat(path, &st) != 0)
 		return;
@@ -150,21 +150,21 @@ void do_system_fonts(void)
 		  break;
 
 		buf[0] = 0;
-		strlcpy((x_s8 *)buf, (const x_s8 *)path, sizeof(buf));
+		strlcpy((char *)buf, (const char *)path, sizeof(buf));
 		buf[sizeof(buf) - 1] = '\0';
 
-		if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)"."))
+		if(!strcmp((const char *)entry->d_name, (const char *)"."))
 		{
 			continue;
 		}
-		else if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)".."))
+		else if(!strcmp((const char *)entry->d_name, (const char *)".."))
 		{
 			continue;
 		}
 		else
 		{
-			strlcat((x_s8 *)buf, (const x_s8 *)"/", sizeof(buf));
-			strlcat((x_s8 *)buf, (const x_s8 *)entry->d_name, sizeof(buf));
+			strlcat((char *)buf, (const char *)"/", sizeof(buf));
+			strlcat((char *)buf, (const char *)entry->d_name, sizeof(buf));
 		}
 
 		if(stat((const char *)buf, &st) != 0)

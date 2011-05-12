@@ -55,7 +55,7 @@ struct device * search_device(const char * name)
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct device_list, entry);
-		if(strcmp((x_s8*)list->device->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->device->name, name) == 0)
 			return list->device;
 	}
 
@@ -138,17 +138,17 @@ static x_s32 device_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[device]");
+	len += sprintf((char *)(p + len), (const char *)"[device]");
 
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct device_list, entry);
 		if(list->device->type == CHAR_DEVICE)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n CHR    %s", list->device->name);
+			len += sprintf((char *)(p + len), (const char *)"\r\n CHR    %s", list->device->name);
 		else if(list->device->type == BLOCK_DEVICE)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n BLK    %s", list->device->name);
+			len += sprintf((char *)(p + len), (const char *)"\r\n BLK    %s", list->device->name);
 		else if(list->device->type == NET_DEVICE)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n NET    %s", list->device->name);
+			len += sprintf((char *)(p + len), (const char *)"\r\n NET    %s", list->device->name);
 	}
 
 	len -= offset;
@@ -159,7 +159,7 @@ static x_s32 device_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (char *)(p + offset), len);
 	free(p);
 
 	return len;

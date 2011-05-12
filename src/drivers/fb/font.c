@@ -2949,15 +2949,15 @@ static x_bool match_extension(const char * filename, const char * ext)
 {
 	x_s32 pos, ext_len;
 
-	pos = strlen((const x_s8 *)filename);
-	ext_len = strlen((const x_s8 *)ext);
+	pos = strlen((const char *)filename);
+	ext_len = strlen((const char *)ext);
 
 	if( (!pos) || (!ext_len) || (ext_len > pos) )
 		return FALSE;
 
 	pos -= ext_len;
 
-	return strcmp((const x_s8 *)(filename + pos), (const x_s8 *)ext) == 0;
+	return strcmp((const char *)(filename + pos), (const char *)ext) == 0;
 }
 
 static struct font_reader * search_font_reader(const char * extension)
@@ -2971,7 +2971,7 @@ static struct font_reader * search_font_reader(const char * extension)
 	for(pos = (&font_reader_list->entry)->next; pos != (&font_reader_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct font_reader_list, entry);
-		if(strcmp((x_s8*)list->reader->extension, (const x_s8 *)extension) == 0)
+		if(strcmp(list->reader->extension, extension) == 0)
 			return list->reader;
 	}
 
@@ -3076,7 +3076,7 @@ x_bool font_create(struct font ** font, const char * name, x_u32 size)
 	for(i = 0; i < size; i++)
 		init_hlist_head(&table[i]);
 
-	(*font)->name = (char *)strdup((const x_s8 *)name);
+	(*font)->name = strdup(name);
 	(*font)->table = table;
 	(*font)->size = size;
 
@@ -3154,7 +3154,7 @@ struct font * get_font(const char * name)
 	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct font_list, entry);
-		if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->font->name, name) == 0)
 			return list->font;
 	}
 
@@ -3219,7 +3219,7 @@ x_bool uninstall_font(const char * name)
 	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct font_list, entry);
-		if(strcmp((x_s8*)list->font->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->font->name, name) == 0)
 		{
 			font_destory(list->font);
 
@@ -3464,11 +3464,11 @@ static x_s32 fonts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[fonts]");
+	len += sprintf((char *)(p + len), (const char *)"[fonts]");
 	for(pos = (&font_list->entry)->next; pos != (&font_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct font_list, entry);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s", list->font->name);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s", list->font->name);
 	}
 
 	len -= offset;

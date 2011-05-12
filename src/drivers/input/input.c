@@ -81,7 +81,7 @@ struct input * search_input(const char * name)
 	for(pos = (&input_list->entry)->next; pos != (&input_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct input_list, entry);
-		if(strcmp((x_s8*)list->input->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->input->name, name) == 0)
 			return list->input;
 	}
 
@@ -315,7 +315,7 @@ static x_s32 input_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[input]");
+	len += sprintf((char *)(p + len), (const char *)"[input]");
 
 	for(pos = (&input_list->entry)->next; pos != (&input_list->entry); pos = pos->next)
 	{
@@ -324,58 +324,58 @@ static x_s32 input_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 		switch(list->input->type)
 		{
 		case INPUT_KEYBOARD:
-			strcpy(buff, (const x_s8 *)"keyboard");
+			strcpy(buff, (const char *)"keyboard");
 			break;
 
 		case INPUT_MOUSE:
-			strcpy(buff, (const x_s8 *)"mouse");
+			strcpy(buff, (const char *)"mouse");
 			break;
 
 		case INPUT_TOUCHSCREEN:
-			strcpy(buff, (const x_s8 *)"touchscreen");
+			strcpy(buff, (const char *)"touchscreen");
 			break;
 
 		case INPUT_JOYSTICK:
-			strcpy(buff, (const x_s8 *)"joystick");
+			strcpy(buff, (const char *)"joystick");
 			break;
 
 		case INPUT_ACCELEROMETER:
-			strcpy(buff, (const x_s8 *)"accelerometer");
+			strcpy(buff, (const char *)"accelerometer");
 			break;
 
 		case INPUT_GYROSCOPE:
-			strcpy(buff, (const x_s8 *)"gyroscope");
+			strcpy(buff, (const char *)"gyroscope");
 			break;
 
 		case INPUT_LIGHT:
-			strcpy(buff, (const x_s8 *)"light");
+			strcpy(buff, (const char *)"light");
 			break;
 
 		case INPUT_MAGNETIC:
-			strcpy(buff, (const x_s8 *)"magnetic");
+			strcpy(buff, (const char *)"magnetic");
 			break;
 
 		case INPUT_ORIENTATION:
-			strcpy(buff, (const x_s8 *)"orientation");
+			strcpy(buff, (const char *)"orientation");
 			break;
 
 		case INPUT_PRESSURE:
-			strcpy(buff, (const x_s8 *)"pressure");
+			strcpy(buff, (const char *)"pressure");
 			break;
 
 		case INPUT_PROXIMITY:
-			strcpy(buff, (const x_s8 *)"proximity");
+			strcpy(buff, (const char *)"proximity");
 			break;
 
 		case INPUT_TEMPERATURE:
-			strcpy(buff, (const x_s8 *)"temperature");
+			strcpy(buff, (const char *)"temperature");
 			break;
 
 		default:
-			strcpy(buff, (const x_s8 *)"unknown");
+			strcpy(buff, (const char *)"unknown");
 			break;
 		}
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s %*s%s", list->input->name, (int)(16 - strlen((x_s8 *)list->input->name)), "", buff);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s %*s%s", list->input->name, (int)(16 - strlen((x_s8 *)list->input->name)), "", buff);
 	}
 
 	len -= offset;

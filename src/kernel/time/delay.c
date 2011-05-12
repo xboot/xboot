@@ -136,14 +136,14 @@ void calibrate_delay(void)
  */
 static x_s32 bogomips_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
-	x_s8 tmp[16];
+	char tmp[16];
 	x_s32 len;
 	x_u32 hz = get_system_hz();
 
 	if(hz != 0)
-		len = sprintf(tmp, (const x_s8 *)"%lu.%02lu", (x_u32)( loops_per_jiffy / (500000 / hz) ), (x_u32)( (loops_per_jiffy / (5000 / hz) ) % 100) );
+		len = sprintf(tmp, (const char *)"%lu.%02lu", (x_u32)( loops_per_jiffy / (500000 / hz) ), (x_u32)( (loops_per_jiffy / (5000 / hz) ) % 100) );
 	else
-		len = sprintf(tmp, (const x_s8 *)"0.00");
+		len = sprintf(tmp, (const char *)"0.00");
 
 	len -= offset;
 

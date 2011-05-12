@@ -133,7 +133,7 @@ static x_bool dos_partition(struct disk * disk, x_u32 sector, x_u32 relative)
 			if(!part)
 				return FALSE;
 
-			strlcpy((x_s8 *)part->name, (const x_s8 *)"", sizeof(part->name));
+			strlcpy((char *)part->name, (const char *)"", sizeof(part->name));
 			part->sector_from = sector + ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
 			part->sector_to = part->sector_from + ((mbr.entry[i].length[3] << 24) | (mbr.entry[i].length[2] << 16) | (mbr.entry[i].length[1] << 8) | (mbr.entry[i].length[0] << 0)) - 1;
 			part->sector_size = disk->sector_size;

@@ -28,38 +28,38 @@ struct machine {
 	 */
 	struct {
 		struct {
-			const x_sys start;
-			const x_sys end;
+			const void * start;
+			const void * end;
 		} mem_banks[8];
 
 		/* extern crystal */
-		const x_u64 xtal;
+		const u64_t xtal;
 	}res;
 
 	/*
 	 * link information
 	 */
 	struct {
-		const x_sys text_start;
-		const x_sys text_end;
+		const void * text_start;
+		const void * text_end;
 
-		const x_sys ramdisk_start;
-		const x_sys ramdisk_end;
+		const void * ramdisk_start;
+		const void * ramdisk_end;
 
-		const x_sys data_shadow_start;
-		const x_sys data_shadow_end;
+		const void * data_shadow_start;
+		const void * data_shadow_end;
 
-		const x_sys data_start;
-		const x_sys data_end;
+		const void * data_start;
+		const void * data_end;
 
-		const x_sys bss_start;
-		const x_sys bss_end;
+		const void * bss_start;
+		const void * bss_end;
 
-		const x_sys heap_start;
-		const x_sys heap_end;
+		const void * heap_start;
+		const void * heap_end;
 
-		const x_sys stack_start;
-		const x_sys stack_end;
+		const void * stack_start;
+		const void * stack_end;
 	}link;
 
 	/*
@@ -70,16 +70,16 @@ struct machine {
 		void(*init)(void);
 
 		/* system suspend */
-		x_bool(*suspend)(void);
+		bool_t(*suspend)(void);
 
 		/* system resume */
-		x_bool(*resume)(void);
+		bool_t(*resume)(void);
 
 		/* system halt */
-		x_bool(*halt)(void);
+		bool_t(*halt)(void);
 
 		/* system reset */
-		x_bool(*reset)(void);
+		bool_t(*reset)(void);
 	}pm;
 
 	/*
@@ -90,10 +90,10 @@ struct machine {
 		enum mode (*getmode)(void);
 
 		/* clean up system before running os */
-		x_bool(*cleanup)(void);
+		bool_t(*cleanup)(void);
 
 		/* for anti-piracy */
-		x_bool(*genuine)(void);
+		bool_t(*genuine)(void);
 	}misc;
 
 	/*
@@ -102,14 +102,14 @@ struct machine {
 	void * priv;
 };
 
-x_bool machine_register(struct machine * mach);
+bool_t machine_register(struct machine * mach);
 inline struct machine * get_machine(void);
 
-x_bool suspend(void);
-x_bool resume(void);
-x_bool halt(void);
-x_bool reset(void);
-x_bool cleanup(void);
+bool_t suspend(void);
+bool_t resume(void);
+bool_t halt(void);
+bool_t reset(void);
+bool_t cleanup(void);
 
 void do_system_antipiracy(void);
 

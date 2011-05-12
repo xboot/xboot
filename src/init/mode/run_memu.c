@@ -37,23 +37,23 @@
 struct menu_ctx
 {
 	struct menu_list * list;
-	x_u32 index;
-	x_u32 total;
-	x_u32 win1, win2;
+	u32_t index;
+	u32_t total;
+	u32_t win1, win2;
 
 	struct console * console;
-	x_s32 width, height;
+	s32_t width, height;
 	enum tcolor fg, bg;
 
-	x_u32 x0, y0, x1, y1;
-	x_bool cursor;
+	u32_t x0, y0, x1, y1;
+	bool_t cursor;
 };
 
 static void menu_ctx_paint(struct menu_ctx * ctx)
 {
 	struct menu_list * list;
 	struct list_head * pos;
-	x_s32 i;
+	s32_t i;
 
 	if(ctx->win2 - ctx->win1 != ctx->y1 - ctx->y0 - 1)
 	{
@@ -106,7 +106,7 @@ static void menu_ctx_paint(struct menu_ctx * ctx)
 static struct menu_ctx * menu_ctx_alloc(struct console * console)
 {
 	struct menu_ctx * ctx;
-	x_s32 w, h;
+	s32_t w, h;
 
 	if(!console || !console->putcode)
 		return NULL;
@@ -193,8 +193,8 @@ void run_menu_mode(void)
 {
 	struct menu_item * item;
 	struct menu_ctx * ctx;
-	x_u32 code;
-	x_bool running = TRUE;
+	u32_t code;
+	bool_t running = TRUE;
 
 	ctx = menu_ctx_alloc(get_stdout());
 	if(!ctx)
@@ -237,5 +237,5 @@ void run_menu_mode(void)
 	menu_ctx_free(ctx);
 
 	if(item && item->title && item->command)
-		exec_cmdline((const x_s8 *)item->command);
+		exec_cmdline((const s8_t *)item->command);
 }

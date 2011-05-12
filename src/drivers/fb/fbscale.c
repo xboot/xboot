@@ -34,7 +34,7 @@
 /*
  * nearest neighbor bitmap scaling algorithm.
  */
-static x_bool scale_nn(struct bitmap * dst, struct bitmap * src)
+static bool_t scale_nn(struct bitmap * dst, struct bitmap * src)
 {
 	if(!dst || !src)
 		return FALSE;
@@ -68,18 +68,18 @@ static x_bool scale_nn(struct bitmap * dst, struct bitmap * src)
 		|| src->info.width == 0 || src->info.height == 0)
 		return FALSE;
 
-	x_u8 * ddata = dst->data;
-	x_u8 * sdata = src->data;
-	x_s32 dw = dst->info.width;
-	x_s32 dh = dst->info.height;
-	x_s32 sw = src->info.width;
-	x_s32 sh = src->info.height;
-	x_s32 dstride = dst->info.pitch;
-	x_s32 sstride = src->info.pitch;
-	x_s32 bytes_per_pixel = dst->info.bytes_per_pixel;
+	u8_t * ddata = dst->data;
+	u8_t * sdata = src->data;
+	s32_t dw = dst->info.width;
+	s32_t dh = dst->info.height;
+	s32_t sw = src->info.width;
+	s32_t sh = src->info.height;
+	s32_t dstride = dst->info.pitch;
+	s32_t sstride = src->info.pitch;
+	s32_t bytes_per_pixel = dst->info.bytes_per_pixel;
 
-	x_s32 dx, dy, sx, sy, comp;
-	x_u8 *dptr, *sptr;
+	s32_t dx, dy, sx, sy, comp;
+	u8_t *dptr, *sptr;
 
 	for(dy = 0; dy < dh; dy++)
 	{
@@ -108,7 +108,7 @@ static x_bool scale_nn(struct bitmap * dst, struct bitmap * src)
 /*
  * bilinear interpolation image scaling algorithm.
  */
-static x_bool scale_bilinear(struct bitmap * dst, struct bitmap * src)
+static bool_t scale_bilinear(struct bitmap * dst, struct bitmap * src)
 {
 	if(!dst || !src)
 		return FALSE;
@@ -142,18 +142,18 @@ static x_bool scale_bilinear(struct bitmap * dst, struct bitmap * src)
 		|| src->info.width == 0 || src->info.height == 0)
 		return FALSE;
 
-	x_u8 * ddata = dst->data;
-	x_u8 * sdata = src->data;
-	x_s32 dw = dst->info.width;
-	x_s32 dh = dst->info.height;
-	x_s32 sw = src->info.width;
-	x_s32 sh = src->info.height;
-	x_s32 dstride = dst->info.pitch;
-	x_s32 sstride = src->info.pitch;
-	x_s32 bytes_per_pixel = dst->info.bytes_per_pixel;
+	u8_t * ddata = dst->data;
+	u8_t * sdata = src->data;
+	s32_t dw = dst->info.width;
+	s32_t dh = dst->info.height;
+	s32_t sw = src->info.width;
+	s32_t sh = src->info.height;
+	s32_t dstride = dst->info.pitch;
+	s32_t sstride = src->info.pitch;
+	s32_t bytes_per_pixel = dst->info.bytes_per_pixel;
 
-	x_s32 dx, dy, sx, sy, comp;
-	x_u8 *dptr, *sptr;
+	s32_t dx, dy, sx, sy, comp;
+	u8_t *dptr, *sptr;
 
 	for(dy = 0; dy < dh; dy++)
 	{
@@ -176,23 +176,23 @@ static x_bool scale_bilinear(struct bitmap * dst, struct bitmap * src)
 			 */
 			if(sx < sw - 1 && sy < sh - 1)
 			{
-				x_s32 u = (256 * sw * dx / dw) - (sx * 256);
-				x_s32 v = (256 * sh * dy / dh) - (sy * 256);
+				s32_t u = (256 * sw * dx / dw) - (sx * 256);
+				s32_t v = (256 * sh * dy / dh) - (sy * 256);
 
 				for(comp = 0; comp < bytes_per_pixel; comp++)
 				{
 					/* get the component's values for the four source corner pixels */
-					x_u8 f00 = sptr[comp];
-					x_u8 f10 = sptr[comp + bytes_per_pixel];
-					x_u8 f01 = sptr[comp + sstride];
-					x_u8 f11 = sptr[comp + sstride + bytes_per_pixel];
+					u8_t f00 = sptr[comp];
+					u8_t f10 = sptr[comp + bytes_per_pixel];
+					u8_t f01 = sptr[comp + sstride];
+					u8_t f11 = sptr[comp + sstride + bytes_per_pixel];
 
-					/* do linear x_s32erpolations along the top and bottom rows of the box */
-					x_u8 f0y = (256 - v) * f00 / 256 + v * f01 / 256;
-					x_u8 f1y = (256 - v) * f10 / 256 + v * f11 / 256;
+					/* do linear s32_terpolations along the top and bottom rows of the box */
+					u8_t f0y = (256 - v) * f00 / 256 + v * f01 / 256;
+					u8_t f1y = (256 - v) * f10 / 256 + v * f11 / 256;
 
 					/* interpolate vertically */
-					x_u8 fxy = (256 - u) * f0y / 256 + u * f1y / 256;
+					u8_t fxy = (256 - u) * f0y / 256 + u * f1y / 256;
 
 					dptr[comp] = fxy;
 				}
@@ -211,7 +211,7 @@ static x_bool scale_bilinear(struct bitmap * dst, struct bitmap * src)
 /*
  * create a new scaled version of the src bitmap
  */
-x_bool bitmap_create_scaled(struct bitmap ** dst, x_u32 w, x_u32 h, struct bitmap * src, enum bitmap_scale_method method)
+bool_t bitmap_create_scaled(struct bitmap ** dst, u32_t w, u32_t h, struct bitmap * src, enum bitmap_scale_method method)
 {
 	*dst = 0;
 

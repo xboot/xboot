@@ -41,7 +41,7 @@ struct device_list
 };
 
 struct device * search_device(const char * name);
-x_bool register_device(struct device * dev);
-x_bool unregister_device(struct device * dev);
+bool_t register_device(struct device * dev);
+bool_t unregister_device(struct device * dev);
 
 #endif /* __DEVICE_H__ */

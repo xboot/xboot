@@ -37,8 +37,8 @@
 #include <xboot/blkdev.h>
 #include <xboot/ioctl.h>
 
-extern x_u8 __ramdisk_start[];
-extern x_u8 __ramdisk_end[];
+extern u8_t __ramdisk_start[];
+extern u8_t __ramdisk_end[];
 
 /*
  * the struct of ramdisk
@@ -49,16 +49,16 @@ struct ramdisk
 	char name[32 + 1];
 
 	/* the start of ramdisk */
-	x_sys start;
+	void * start;
 
 	/* the end of ramdisk */
-	x_sys end;
+	void * end;
 
 	/* busy or not */
-	x_bool busy;
+	bool_t busy;
 };
 
-static x_s32 ramdisk_open(struct blkdev * dev)
+static s32_t ramdisk_open(struct blkdev * dev)
 {
 	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
 
@@ -69,12 +69,12 @@ static x_s32 ramdisk_open(struct blkdev * dev)
 	return 0;
 }
 
-static x_s32 ramdisk_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
+static s32_t ramdisk_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t blkcnt)
 {
 	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
-	x_u8 * p = (x_u8 *)(ramdisk->start);
+	u8_t * p = (u8_t *)(ramdisk->start);
 	x_off offset = get_blkdev_offset(dev, blkno);
-	x_s32 size = get_blkdev_size(dev) * blkcnt;
+	s32_t size = get_blkdev_size(dev) * blkcnt;
 
 	if(offset < 0)
 		return 0;
@@ -86,17 +86,17 @@ static x_s32 ramdisk_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 bl
 	return blkcnt;
 }
 
-static x_s32 ramdisk_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
+static s32_t ramdisk_write(struct blkdev * dev, const u8_t * buf, u32_t blkno, u32_t blkcnt)
 {
 	return 0;
 }
 
-static x_s32 ramdisk_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
+static s32_t ramdisk_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static x_s32 ramdisk_close(struct blkdev * dev)
+static s32_t ramdisk_close(struct blkdev * dev)
 {
 	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
 
@@ -108,7 +108,7 @@ static __init void ramdisk_init(void)
 {
 	struct blkdev * dev;
 	struct ramdisk * ramdisk;
-	x_u64 size, rem;
+	u64_t size, rem;
 
 	dev = malloc(sizeof(struct blkdev));
 	if(!dev)
@@ -122,8 +122,8 @@ static __init void ramdisk_init(void)
 	}
 
 	snprintf(ramdisk->name, 32, "ramdisk");
-	ramdisk->start = (x_sys)__ramdisk_start;
-	ramdisk->end = (x_sys)__ramdisk_end;
+	ramdisk->start = (void *)__ramdisk_start;
+	ramdisk->end = (void *)__ramdisk_end;
 	ramdisk->busy = FALSE;
 
 	if((ramdisk->end - ramdisk->start) <= 0)
@@ -133,7 +133,7 @@ static __init void ramdisk_init(void)
 		return;
 	}
 
-	size = (x_u64)(ramdisk->end - ramdisk->start);
+	size = (u64_t)(ramdisk->end - ramdisk->start);
 	rem = div64_64(&size, SZ_512);
 	if(rem > 0)
 		size++;

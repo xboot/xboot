@@ -32,9 +32,9 @@
 /*
  * check ctrl-c
  */
-x_bool ctrlc(void)
+bool_t ctrlc(void)
 {
-	x_u32 code;
+	u32_t code;
 
 	if(getcode(&code))
 	{

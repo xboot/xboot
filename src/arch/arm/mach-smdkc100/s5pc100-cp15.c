@@ -29,9 +29,9 @@
 /*
  * read co-processor 15, register #1 (control register)
  */
-static x_u32 read_p15_c1(void)
+static u32_t read_p15_c1(void)
 {
-	x_u32 value;
+	u32_t value;
 
 	__asm__ __volatile__(
 		"mrc p15, 0, %0, c1, c0, 0"
@@ -45,7 +45,7 @@ static x_u32 read_p15_c1(void)
 /*
  * write to co-processor 15, register #1 (control register)
  */
-static void write_p15_c1(x_u32 value)
+static void write_p15_c1(u32_t value)
 {
 	__asm__ __volatile__(
 		"mcr p15, 0, %0, c1, c0, 0"
@@ -61,7 +61,7 @@ static void write_p15_c1(x_u32 value)
  */
 void irq_enable(void)
 {
-	x_u32 tmp;
+	u32_t tmp;
 
 	__asm__ __volatile__(
 		"mrs %0, cpsr\n"
@@ -77,7 +77,7 @@ void irq_enable(void)
  */
 void irq_disable(void)
 {
-	x_u32 tmp;
+	u32_t tmp;
 
 	__asm__ __volatile__(
 		"mrs %0, cpsr\n"
@@ -93,7 +93,7 @@ void irq_disable(void)
  */
 void fiq_enable(void)
 {
-	x_u32 tmp;
+	u32_t tmp;
 
 	__asm__ __volatile__(
 		"mrs %0, cpsr\n"
@@ -109,7 +109,7 @@ void fiq_enable(void)
  */
 void fiq_disable(void)
 {
-	x_u32 tmp;
+	u32_t tmp;
 
 	__asm__ __volatile__(
 		"mrs %0, cpsr\n"
@@ -125,7 +125,7 @@ void fiq_disable(void)
  */
 void icache_enable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg | (1<<12));
@@ -136,7 +136,7 @@ void icache_enable(void)
  */
 void icache_disable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg & ~(1<<12));
@@ -147,7 +147,7 @@ void icache_disable(void)
  */
 void dcache_enable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg | (1<<2));
@@ -158,7 +158,7 @@ void dcache_enable(void)
  */
 void dcache_disable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg & ~(1<<2));
@@ -169,7 +169,7 @@ void dcache_disable(void)
  */
 void mmu_enable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg | (1<<0));
@@ -180,7 +180,7 @@ void mmu_enable(void)
  */
 void mmu_disable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg & ~(1<<0));
@@ -191,7 +191,7 @@ void mmu_disable(void)
  */
 void vic_enable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg | (1<<24));
@@ -202,7 +202,7 @@ void vic_enable(void)
  */
 void vic_disable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg & ~(1<<24));
@@ -213,7 +213,7 @@ void vic_disable(void)
  */
 void branch_enable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg | (1<<11));
@@ -224,7 +224,7 @@ void branch_enable(void)
  */
 void branch_disable(void)
 {
-	x_u32 reg;
+	u32_t reg;
 
 	reg = read_p15_c1();
 	write_p15_c1(reg & ~(1<<11));

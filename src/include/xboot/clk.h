@@ -16,7 +16,7 @@ struct clk
 	const char * name;
 
 	/* the clk's rate, HZ */
-	x_u64 rate;
+	u64_t rate;
 };
 
 /*
@@ -28,8 +28,8 @@ struct clk_list
 	struct hlist_node node;
 };
 
-x_bool clk_register(struct clk * clk);
-x_bool clk_unregister(struct clk * clk);
-x_bool clk_get_rate(const char *name, x_u64 * rate);
+bool_t clk_register(struct clk * clk);
+bool_t clk_unregister(struct clk * clk);
+bool_t clk_get_rate(const char *name, u64_t * rate);
 
 #endif /* __CLK_H__ */

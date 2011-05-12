@@ -40,9 +40,9 @@
 #include <input/mouse/mouse.h>
 #include <realview/reg-mouse.h>
 
-static x_bool kmi_write(x_u8 data)
+static bool_t kmi_write(u8_t data)
 {
-	x_s32 timeout = 1000;
+	s32_t timeout = 1000;
 
 	while((readb(REALVIEW_MOUSE_STAT) & REALVIEW_MOUSE_STAT_TXEMPTY) == 0 && timeout--);
 
@@ -61,7 +61,7 @@ static x_bool kmi_write(x_u8 data)
 	return FALSE;
 }
 
-static x_bool kmi_read(x_u8 * data)
+static bool_t kmi_read(u8_t * data)
 {
 	if( (readb(REALVIEW_MOUSE_STAT) & REALVIEW_MOUSE_STAT_RXFULL) )
 	{
@@ -74,10 +74,10 @@ static x_bool kmi_read(x_u8 * data)
 
 static void mouse_interrupt(void)
 {
-	static x_u8 packet[4];
-	static x_u8 index = 0;
-	x_u8 status, data;
-	x_s32 value;
+	static u8_t packet[4];
+	static u8_t index = 0;
+	u8_t status, data;
+	s32_t value;
 
 	status = readb(REALVIEW_MOUSE_IIR);
 
@@ -142,11 +142,11 @@ static void mouse_interrupt(void)
 	}
 }
 
-static x_bool mouse_probe(struct input * input)
+static bool_t mouse_probe(struct input * input)
 {
-	x_u32 divisor;
-	x_u64 kclk;
-	x_u8 data;
+	u32_t divisor;
+	u64_t kclk;
+	u8_t data;
 
 	if(! clk_get_rate("kclk", &kclk))
 	{
@@ -155,7 +155,7 @@ static x_bool mouse_probe(struct input * input)
 	}
 
 	/* set mouse's clock divisor */
-	divisor = (x_u32)(div64(kclk, 8000000) - 1);
+	divisor = (u32_t)(div64(kclk, 8000000) - 1);
 	writeb(REALVIEW_MOUSE_CLKDIV, divisor);
 
 	/* enable mouse controller */
@@ -214,7 +214,7 @@ static x_bool mouse_probe(struct input * input)
 	return TRUE;
 }
 
-static x_bool mouse_remove(struct input * input)
+static bool_t mouse_remove(struct input * input)
 {
 	if(!free_irq("KMI1"))
 		LOG_E("can't free irq 'KMI1'");
@@ -223,7 +223,7 @@ static x_bool mouse_remove(struct input * input)
 	return TRUE;
 }
 
-static x_s32 mouse_ioctl(struct input * input, x_u32 cmd, void * arg)
+static s32_t mouse_ioctl(struct input * input, u32_t cmd, void * arg)
 {
 	return -1;
 }

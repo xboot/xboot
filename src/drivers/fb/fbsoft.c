@@ -37,7 +37,7 @@
 /*
  * default soft map color function
  */
-x_u32 fb_soft_map_color(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a)
+u32_t fb_soft_map_color(struct fb * fb, u8_t r, u8_t g, u8_t b, u8_t a)
 {
 	return bitmap_map_color(&(fb->info->bitmap), r, g, b, a);
 }
@@ -45,7 +45,7 @@ x_u32 fb_soft_map_color(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a)
 /*
  * default soft unmap color function
  */
-void fb_soft_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a)
+void fb_soft_unmap_color(struct fb * fb, u32_t c, u8_t * r, u8_t * g, u8_t * b, u8_t * a)
 {
 	bitmap_unmap_color(&(fb->info->bitmap), c, r, g, b, a);
 }
@@ -53,7 +53,7 @@ void fb_soft_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, 
 /*
  * default soft fill rect function
  */
-x_bool fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+bool_t fb_soft_fill_rect(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
 	struct bitmap * p = &(fb->info->bitmap);
 	struct rect r, a, b;
@@ -84,7 +84,7 @@ x_bool fb_soft_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u
 /*
  * default soft blit bitmap function
  */
-x_bool fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+bool_t fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
 	struct bitmap * p = &(fb->info->bitmap);
 	struct rect r, a, b;

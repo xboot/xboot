@@ -3,11 +3,11 @@
 
 #include <configs.h>
 #include <default.h>
-
+#include <types.h>
 
 /*
  * compute SHA1 (160-bit) message digest
  */
-const x_u8 * sha1(const void *data, x_s32 len, x_u8 * digest);
+const u8_t * sha1(const void *data, s32_t len, u8_t * digest);
 
 #endif /* __SHA_H__ */

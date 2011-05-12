@@ -35,11 +35,11 @@
 /*
  * generic replacing blitter that works for every supported mode
  */
-static void bitmap_blit_replace_generic(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_generic(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 r, g, b, a;
-	x_u32 sc, dc;
-	x_u32 i, j;
+	u8_t r, g, b, a;
+	u32_t sc, dc;
+	u32_t i, j;
 
 	for(j = 0; j < h; j++)
 	{
@@ -56,11 +56,11 @@ static void bitmap_blit_replace_generic(struct bitmap * dst, struct bitmap * src
 /*
  * block copy replacing blitter that works with modes multiple of 8 bits
  */
-static void bitmap_blit_replace_directN(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_directN(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 j;
-	x_u32 pitch = w * src->info.bytes_per_pixel;
+	u8_t * ps, * pd;
+	u32_t j;
+	u32_t pitch = w * src->info.bytes_per_pixel;
 
 	for(j = 0; j < h; j++)
 	{
@@ -74,21 +74,21 @@ static void bitmap_blit_replace_directN(struct bitmap * dst, struct bitmap * src
 /*
  * optimized replacing blitter for 1-bit to 32-bit
  */
-static void bitmap_blit_replace_32bit_1bit(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_32bit_1bit(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 fg, bg;
-	x_u32 i, j;
-	x_u32 dskip, sskipbyte, sskipbit;
-	x_s32 pos;
-	x_u8 mask;
+	u8_t * ps, * pd;
+	u32_t fg, bg;
+	u32_t i, j;
+	u32_t dskip, sskipbyte, sskipbit;
+	s32_t pos;
+	u8_t mask;
 
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 	sskipbyte = (src->info.width - w) >> 3;
 	sskipbit = (src->info.width - w) & 7;
 
 	pos = oy * src->info.width + ox;
-	ps = (x_u8 *)src->data + (pos >> 3);
+	ps = (u8_t *)src->data + (pos >> 3);
 	mask = 1 << (~pos & 7);
 	pd = bitmap_get_pointer(dst, x, y);
 
@@ -100,9 +100,9 @@ static void bitmap_blit_replace_32bit_1bit(struct bitmap * dst, struct bitmap * 
 		for(i = 0; i < w; i++)
 		{
 			if(*ps & mask)
-				*((x_u32 *)pd) = fg;
+				*((u32_t *)pd) = fg;
 			else
-				*((x_u32 *)pd) = bg;
+				*((u32_t *)pd) = bg;
 
 			mask >>= 1;
 			if(! mask)
@@ -129,21 +129,21 @@ static void bitmap_blit_replace_32bit_1bit(struct bitmap * dst, struct bitmap * 
 /*
  * optimized replacing blitter for 1-bit to 24-bit
  */
-static void bitmap_blit_replace_24bit_1bit(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_24bit_1bit(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 fg, bg;
-	x_u32 i, j;
-	x_u32 dskip, sskipbyte, sskipbit;
-	x_s32 pos;
-	x_u8 mask;
+	u8_t * ps, * pd;
+	u32_t fg, bg;
+	u32_t i, j;
+	u32_t dskip, sskipbyte, sskipbit;
+	s32_t pos;
+	u8_t mask;
 
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 	sskipbyte = (src->info.width - w) >> 3;
 	sskipbit = (src->info.width - w) & 7;
 
 	pos = oy * src->info.width + ox;
-	ps = (x_u8 *)src->data + (pos >> 3);
+	ps = (u8_t *)src->data + (pos >> 3);
 	mask = 1 << (~pos & 7);
 	pd = bitmap_get_pointer(dst, x, y);
 
@@ -155,9 +155,9 @@ static void bitmap_blit_replace_24bit_1bit(struct bitmap * dst, struct bitmap * 
 		for(i = 0; i < w; i++)
 		{
 			if(*ps & mask)
-				*((x_u32 *)pd) = fg;
+				*((u32_t *)pd) = fg;
 			else
-				*((x_u32 *)pd) = bg;
+				*((u32_t *)pd) = bg;
 
 			mask >>= 1;
 			if(! mask)
@@ -203,21 +203,21 @@ static void bitmap_blit_replace_24bit_1bit(struct bitmap * dst, struct bitmap * 
 /*
  * optimized replacing blitter for 1-bit to 16-bit
  */
-static void bitmap_blit_replace_16bit_1bit(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_16bit_1bit(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 fg, bg;
-	x_u32 i, j;
-	x_u32 dskip, sskipbyte, sskipbit;
-	x_s32 pos;
-	x_u8 mask;
+	u8_t * ps, * pd;
+	u32_t fg, bg;
+	u32_t i, j;
+	u32_t dskip, sskipbyte, sskipbit;
+	s32_t pos;
+	u8_t mask;
 
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 	sskipbyte = (src->info.width - w) >> 3;
 	sskipbit = (src->info.width - w) & 7;
 
 	pos = oy * src->info.width + ox;
-	ps = (x_u8 *)src->data + (pos >> 3);
+	ps = (u8_t *)src->data + (pos >> 3);
 	mask = 1 << (~pos & 7);
 	pd = bitmap_get_pointer(dst, x, y);
 
@@ -229,9 +229,9 @@ static void bitmap_blit_replace_16bit_1bit(struct bitmap * dst, struct bitmap * 
 		for(i = 0; i < w; i++)
 		{
 			if(*ps & mask)
-				*((x_u16 *)pd) = fg;
+				*((u16_t *)pd) = fg;
 			else
-				*((x_u16 *)pd) = bg;
+				*((u16_t *)pd) = bg;
 
 			mask >>= 1;
 			if(! mask)
@@ -258,21 +258,21 @@ static void bitmap_blit_replace_16bit_1bit(struct bitmap * dst, struct bitmap * 
 /*
  * optimized replacing blitter for 1-bit to 8-bit
  */
-static void bitmap_blit_replace_8bit_1bit(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_8bit_1bit(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 fg, bg;
-	x_u32 i, j;
-	x_u32 dskip, sskipbyte, sskipbit;
-	x_s32 pos;
-	x_u8 mask;
+	u8_t * ps, * pd;
+	u32_t fg, bg;
+	u32_t i, j;
+	u32_t dskip, sskipbyte, sskipbit;
+	s32_t pos;
+	u8_t mask;
 
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 	sskipbyte = (src->info.width - w) >> 3;
 	sskipbit = (src->info.width - w) & 7;
 
 	pos = oy * src->info.width + ox;
-	ps = (x_u8 *)src->data + (pos >> 3);
+	ps = (u8_t *)src->data + (pos >> 3);
 	mask = 1 << (~pos & 7);
 	pd = bitmap_get_pointer(dst, x, y);
 
@@ -284,9 +284,9 @@ static void bitmap_blit_replace_8bit_1bit(struct bitmap * dst, struct bitmap * s
 		for(i = 0; i < w; i++)
 		{
 			if(*ps & mask)
-				*((x_u8 *)pd) = fg;
+				*((u8_t *)pd) = fg;
 			else
-				*((x_u8 *)pd) = bg;
+				*((u8_t *)pd) = bg;
 
 			mask >>= 1;
 			if(! mask)
@@ -313,12 +313,12 @@ static void bitmap_blit_replace_8bit_1bit(struct bitmap * dst, struct bitmap * s
 /*
  * optimized replacing blitter for RGBA8888 to BGRA8888
  */
-static void bitmap_blit_replace_BGRA8888_RGBA8888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_BGRA8888_RGBA8888(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 i, j;
-	x_u32 sskip, dskip;
-	x_u8 r, g, b ,a;
+	u8_t * ps, * pd;
+	u32_t i, j;
+	u32_t sskip, dskip;
+	u8_t r, g, b ,a;
 
 	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
@@ -349,18 +349,18 @@ static void bitmap_blit_replace_BGRA8888_RGBA8888(struct bitmap * dst, struct bi
 /*
  * optimized replacing blitter for RGBA8888 to RGB888
  */
-static void bitmap_blit_replace_RGB888_RGBA8888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_RGB888_RGBA8888(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 sskip, dskip;
-	x_u32 i, j;
-	x_u8 r, g, b;
+	u8_t * ps, * pd;
+	u32_t sskip, dskip;
+	u32_t i, j;
+	u8_t r, g, b;
 
 	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 
-	ps = (x_u8 *)bitmap_get_pointer(src, ox, oy);
-	pd = (x_u8 *)bitmap_get_pointer(dst, x, y);
+	ps = (u8_t *)bitmap_get_pointer(src, ox, oy);
+	pd = (u8_t *)bitmap_get_pointer(dst, x, y);
 
 	for(j = 0; j < h; j++)
 	{
@@ -383,18 +383,18 @@ static void bitmap_blit_replace_RGB888_RGBA8888(struct bitmap * dst, struct bitm
 /*
  * optimized replacing blitter for RGBA8888 to BGR888
  */
-static void bitmap_blit_replace_BGR888_RGBA8888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_BGR888_RGBA8888(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 sskip, dskip;
-	x_u32 i, j;
-	x_u8 r, g, b;
+	u8_t * ps, * pd;
+	u32_t sskip, dskip;
+	u32_t i, j;
+	u8_t r, g, b;
 
 	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 
-	ps = (x_u8 *)bitmap_get_pointer(src, ox, oy);
-	pd = (x_u8 *)bitmap_get_pointer(dst, x, y);
+	ps = (u8_t *)bitmap_get_pointer(src, ox, oy);
+	pd = (u8_t *)bitmap_get_pointer(dst, x, y);
 
 	for(j = 0; j < h; j++)
 	{
@@ -417,18 +417,18 @@ static void bitmap_blit_replace_BGR888_RGBA8888(struct bitmap * dst, struct bitm
 /*
  * optimized replacing blitter for RGB888 to RGBA8888
  */
-static void bitmap_blit_replace_RGBA8888_RGB888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_RGBA8888_RGB888(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 sskip, dskip;
-	x_u32 i, j;
-	x_u8 r, g, b;
+	u8_t * ps, * pd;
+	u32_t sskip, dskip;
+	u32_t i, j;
+	u8_t r, g, b;
 
 	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 
-	ps = (x_u8 *)bitmap_get_pointer(src, ox, oy);
-	pd = (x_u8 *)bitmap_get_pointer(dst, x, y);
+	ps = (u8_t *)bitmap_get_pointer(src, ox, oy);
+	pd = (u8_t *)bitmap_get_pointer(dst, x, y);
 
 	for(j = 0; j < h; j++)
 	{
@@ -453,18 +453,18 @@ static void bitmap_blit_replace_RGBA8888_RGB888(struct bitmap * dst, struct bitm
 /*
  * optimized replacing blitter for RGB888 to BGRA8888
  */
-static void bitmap_blit_replace_BGRA8888_RGB888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_BGRA8888_RGB888(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 sskip, dskip;
-	x_u32 i, j;
-	x_u8 r, g, b;
+	u8_t * ps, * pd;
+	u32_t sskip, dskip;
+	u32_t i, j;
+	u8_t r, g, b;
 
 	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 
-	ps = (x_u8 *)bitmap_get_pointer(src, ox, oy);
-	pd = (x_u8 *)bitmap_get_pointer(dst, x, y);
+	ps = (u8_t *)bitmap_get_pointer(src, ox, oy);
+	pd = (u8_t *)bitmap_get_pointer(dst, x, y);
 
 	for(j = 0; j < h; j++)
 	{
@@ -489,18 +489,18 @@ static void bitmap_blit_replace_BGRA8888_RGB888(struct bitmap * dst, struct bitm
 /*
  * optimized replacing blitter for RGB888 to BGR888
  */
-static void bitmap_blit_replace_BGR888_RGB888(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_replace_BGR888_RGB888(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 * ps, * pd;
-	x_u32 sskip, dskip;
-	x_u32 i, j;
-	x_u8 r, g, b;
+	u8_t * ps, * pd;
+	u32_t sskip, dskip;
+	u32_t i, j;
+	u8_t r, g, b;
 
 	sskip = src->info.pitch - src->info.bytes_per_pixel * w;
 	dskip = dst->info.pitch - dst->info.bytes_per_pixel * w;
 
-	ps = (x_u8 *)bitmap_get_pointer(src, ox, oy);
-	pd = (x_u8 *)bitmap_get_pointer(dst, x, y);
+	ps = (u8_t *)bitmap_get_pointer(src, ox, oy);
+	pd = (u8_t *)bitmap_get_pointer(dst, x, y);
 
 	for(j = 0; j < h; j++)
 	{
@@ -523,12 +523,12 @@ static void bitmap_blit_replace_BGR888_RGB888(struct bitmap * dst, struct bitmap
 /*
  * generic blending blitter that works for every supported mode
  */
-static void bitmap_blit_blend_generic(struct bitmap * dst, struct bitmap * src, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+static void bitmap_blit_blend_generic(struct bitmap * dst, struct bitmap * src, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	x_u8 sr, sg, sb, sa;
-	x_u8 dr, dg, db, da;
-	x_u32 sc, dc;
-	x_u32 i, j;
+	u8_t sr, sg, sb, sa;
+	u8_t dr, dg, db, da;
+	u32_t sc, dc;
+	u32_t i, j;
 
 	for(j = 0; j < h; j++)
 	{
@@ -564,7 +564,7 @@ static void bitmap_blit_blend_generic(struct bitmap * dst, struct bitmap * src, 
 /*
  * common bitmap blitter
  */
-void common_bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+void common_bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
 	/*
 	 * blit replace mode

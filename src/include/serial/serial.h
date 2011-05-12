@@ -104,17 +104,17 @@ struct serial_driver
 	void (*exit)(void);
 
 	/* read buffer from serial */
-	x_s32 (*read)(x_u8 * buf, x_s32 count);
+	s32_t (*read)(u8_t * buf, s32_t count);
 
 	/* write buffer to serial */
-	x_s32 (*write)(const x_u8 * buf, x_s32 count);
+	s32_t (*write)(const u8_t * buf, s32_t count);
 
 	/* ioctl serial */
-	x_s32 (*ioctl)(x_u32 cmd, void * arg);
+	s32_t (*ioctl)(u32_t cmd, void * arg);
 };
 
-x_bool register_serial(struct serial_driver * drv);
-x_bool unregister_serial(struct serial_driver * drv);
+bool_t register_serial(struct serial_driver * drv);
+bool_t unregister_serial(struct serial_driver * drv);
 
 
 #endif /* __SERIAL_H__ */

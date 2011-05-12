@@ -98,15 +98,15 @@ static struct serial_info uart_info[4] = {
 /*
  * common function for ioctl.
  */
-static x_s32 s5pv210_ioctl(x_u32 ch, x_u32 cmd, void * arg)
+static s32_t s5pv210_ioctl(u32_t ch, u32_t cmd, void * arg)
 {
-	const x_u32 udivslot_code[16] = {0x0000, 0x0080, 0x0808, 0x0888,
+	const u32_t udivslot_code[16] = {0x0000, 0x0080, 0x0808, 0x0888,
 									 0x2222, 0x4924, 0x4a52, 0x54aa,
 									 0x5555, 0xd555, 0xd5d5, 0xddd5,
 									 0xdddd, 0xdfdd, 0xdfdf, 0xffdf};
-	x_u32 baud, baud_div_reg, baud_divslot_reg;
-	x_u8 data_bit_reg, parity_reg, stop_bit_reg;
-	x_u64 pclk;
+	u32_t baud, baud_div_reg, baud_divslot_reg;
+	u8_t data_bit_reg, parity_reg, stop_bit_reg;
+	u64_t pclk;
 	struct serial_parameter param;
 
 	if((ch < 0) || (ch > 3))
@@ -240,8 +240,8 @@ static x_s32 s5pv210_ioctl(x_u32 ch, x_u32 cmd, void * arg)
 
 	if(clk_get_rate("psys-pclk", &pclk))
 	{
-		baud_div_reg = (x_u32)(div64(pclk, (baud * 16)) ) - 1;
-		baud_divslot_reg = udivslot_code[( (x_u32)div64(mod64(pclk, (baud*16)), baud) ) & 0xf];
+		baud_div_reg = (u32_t)(div64(pclk, (baud * 16)) ) - 1;
+		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(pclk, (baud*16)), baud) ) & 0xf];
 	}
 	else
 		return -1;
@@ -303,9 +303,9 @@ static void s5pv210_uart0_exit(void)
 	return;
 }
 
-static x_s32 s5pv210_uart0_read(x_u8 * buf, x_s32 count)
+static s32_t s5pv210_uart0_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -317,9 +317,9 @@ static x_s32 s5pv210_uart0_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s5pv210_uart0_write(const x_u8 * buf, x_s32 count)
+static s32_t s5pv210_uart0_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -332,7 +332,7 @@ static x_s32 s5pv210_uart0_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s5pv210_uart0_ioctl(x_u32 cmd, void * arg)
+static s32_t s5pv210_uart0_ioctl(u32_t cmd, void * arg)
 {
 	return (s5pv210_ioctl(0, cmd, arg));
 }
@@ -363,9 +363,9 @@ static void s5pv210_uart1_exit(void)
 	return;
 }
 
-static x_s32 s5pv210_uart1_read(x_u8 * buf, x_s32 count)
+static s32_t s5pv210_uart1_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -377,9 +377,9 @@ static x_s32 s5pv210_uart1_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s5pv210_uart1_write(const x_u8 * buf, x_s32 count)
+static s32_t s5pv210_uart1_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -392,7 +392,7 @@ static x_s32 s5pv210_uart1_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s5pv210_uart1_ioctl(x_u32 cmd, void * arg)
+static s32_t s5pv210_uart1_ioctl(u32_t cmd, void * arg)
 {
 	return (s5pv210_ioctl(1, cmd, arg));
 }
@@ -422,9 +422,9 @@ static void s5pv210_uart2_exit(void)
 	return;
 }
 
-static x_s32 s5pv210_uart2_read(x_u8 * buf, x_s32 count)
+static s32_t s5pv210_uart2_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -436,9 +436,9 @@ static x_s32 s5pv210_uart2_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s5pv210_uart2_write(const x_u8 * buf, x_s32 count)
+static s32_t s5pv210_uart2_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -451,7 +451,7 @@ static x_s32 s5pv210_uart2_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s5pv210_uart2_ioctl(x_u32 cmd, void * arg)
+static s32_t s5pv210_uart2_ioctl(u32_t cmd, void * arg)
 {
 	return (s5pv210_ioctl(2, cmd, arg));
 }
@@ -481,9 +481,9 @@ static void s5pv210_uart3_exit(void)
 	return;
 }
 
-static x_s32 s5pv210_uart3_read(x_u8 * buf, x_s32 count)
+static s32_t s5pv210_uart3_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -495,9 +495,9 @@ static x_s32 s5pv210_uart3_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s5pv210_uart3_write(const x_u8 * buf, x_s32 count)
+static s32_t s5pv210_uart3_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -510,7 +510,7 @@ static x_s32 s5pv210_uart3_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s5pv210_uart3_ioctl(x_u32 cmd, void * arg)
+static s32_t s5pv210_uart3_ioctl(u32_t cmd, void * arg)
 {
 	return (s5pv210_ioctl(3, cmd, arg));
 }
@@ -553,7 +553,7 @@ static struct serial_driver s5pv210_uart_driver[4] = {
 static __init void s5pv210_serial_dev_init(void)
 {
 	struct serial_parameter * param;
-	x_u32 i;
+	u32_t i;
 
 	if(!clk_get_rate("psys-pclk", 0))
 	{
@@ -577,7 +577,7 @@ static __init void s5pv210_serial_dev_init(void)
 
 static __exit void s5pv210_serial_dev_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(s5pv210_uart_driver); i++)
 	{

@@ -40,9 +40,9 @@
 /**
  * convenience functions for memory sizes.
  */
-#define KB(x)						((typeof (x)) ((x_u64) x * 1024))
-#define MB(x)						((typeof (x)) ((x_u64) x * 1024*1024))
-#define GB(x)						((typeof (x)) ((x_u64) x * 1024*1024*1024))
+#define KB(x)						((typeof (x)) ((u64_t) x * 1024))
+#define MB(x)						((typeof (x)) ((u64_t) x * 1024*1024))
+#define GB(x)						((typeof (x)) ((u64_t) x * 1024*1024*1024))
 
 /**
  * define system width, depend the type of x_sys.

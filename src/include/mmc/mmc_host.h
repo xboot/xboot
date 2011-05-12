@@ -22,13 +22,13 @@ struct mmc_host
 	void (*exit)(void);
 
 	/* probe mmc card's information */
-	x_bool (*probe)(struct mmc_card_info * info);
+	bool_t (*probe)(struct mmc_card_info * info);
 
 	/* read sectors from mmc card */
-	x_bool (*read_sectors)(struct mmc_card * card, x_u8 * buf, x_u32 sector, x_u32 count);
+	bool_t (*read_sectors)(struct mmc_card * card, u8_t * buf, u32_t sector, u32_t count);
 
 	/* write sectors to mmc card */
-	x_bool (*write_sectors)(struct mmc_card * card, const x_u8 * buf, x_u32 sector, x_u32 count);
+	bool_t (*write_sectors)(struct mmc_card * card, const u8_t * buf, u32_t sector, u32_t count);
 };
 
 /*
@@ -41,7 +41,7 @@ struct mmc_host_list
 };
 
 struct mmc_host * search_mmc_host(const char * name);
-x_bool register_mmc_host(struct mmc_host * host);
-x_bool unregister_mmc_host(struct mmc_host * host);
+bool_t register_mmc_host(struct mmc_host * host);
+bool_t unregister_mmc_host(struct mmc_host * host);
 
 #endif /* __MMC_HOST_H__ */

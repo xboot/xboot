@@ -38,7 +38,7 @@ static struct fifo * input_console_fifo;
 
 static void incon_keyboard_handler(enum key_code key)
 {
-	x_u32 c;
+	u32_t c;
 
 	switch(key)
 	{
@@ -93,12 +93,12 @@ static void incon_keyboard_handler(enum key_code key)
 		break;
 	}
 
-	fifo_put(input_console_fifo, (x_u8 *)&c, sizeof(x_u32));
+	fifo_put(input_console_fifo, (u8_t *)&c, sizeof(u32_t));
 }
 
-static x_bool incon_getcode(struct console * console, x_u32 * code)
+static bool_t incon_getcode(struct console * console, u32_t * code)
 {
-	if(fifo_get(input_console_fifo, (x_u8 *)code, sizeof(x_u32)) == sizeof(x_u32))
+	if(fifo_get(input_console_fifo, (u8_t *)code, sizeof(u32_t)) == sizeof(u32_t))
 		return TRUE;
 
 	return FALSE;
@@ -121,7 +121,7 @@ static struct console input_console = {
 
 static __init void input_console_init(void)
 {
-	input_console_fifo = fifo_alloc(sizeof(x_u32) * 32);
+	input_console_fifo = fifo_alloc(sizeof(u32_t) * 32);
 
 	install_listener_onkeydown(incon_keyboard_handler);
 

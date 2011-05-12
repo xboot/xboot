@@ -43,10 +43,10 @@ static struct clk s3c6410_clocks[13];
 /*
  * get pll.
  */
-static inline x_u64 s3c6410_get_pll(x_u64 baseclk, x_u32 pllcon)
+static inline u64_t s3c6410_get_pll(u64_t baseclk, u32_t pllcon)
 {
-	x_u32 mdiv, pdiv, sdiv;
-	x_u64 fvco = baseclk;
+	u32_t mdiv, pdiv, sdiv;
+	u64_t fvco = baseclk;
 
 	mdiv = (pllcon >> 16) & ((1 << (25-16+1)) - 1);
 	pdiv = (pllcon >> 8) & ((1 << (13-8+1)) - 1);
@@ -55,19 +55,19 @@ static inline x_u64 s3c6410_get_pll(x_u64 baseclk, x_u32 pllcon)
 	fvco *= mdiv;
 	div64_64(&fvco, (pdiv << sdiv));
 
-	return (x_u64)fvco;
+	return (u64_t)fvco;
 }
 
 /*
  * get epll
  */
-static inline x_u64 s3c6410_get_epll(x_u64 baseclk)
+static inline u64_t s3c6410_get_epll(u64_t baseclk)
 {
-	x_u64 result;
-	x_u32 epll0 = readl(S3C6410_EPLL_CON0);
-	x_u32 epll1 = readl(S3C6410_EPLL_CON1);
-	x_u32 mdiv, pdiv, sdiv, kdiv;
-	x_u64 tmp;
+	u64_t result;
+	u32_t epll0 = readl(S3C6410_EPLL_CON0);
+	u32_t epll1 = readl(S3C6410_EPLL_CON1);
+	u32_t mdiv, pdiv, sdiv, kdiv;
+	u64_t tmp;
 
 	mdiv = (epll0 >> 16) & ((1 << (25-16+1)) - 1);
 	pdiv = (epll0 >> 8) & ((1 << (13-8+1)) - 1);
@@ -92,12 +92,12 @@ static inline x_u64 s3c6410_get_epll(x_u64 baseclk)
 /*
  * setup the s3c6410's clock array.
  */
-static void s3c6410_setup_clocks(x_u64 xtal)
+static void s3c6410_setup_clocks(u64_t xtal)
 {
-	x_u64 apll, mpll, mpll_dout, epll;
-	x_u64 fclk, hclk, hclk2, pclk;
-	x_u32 clkdiv0, clkdiv1, clkdiv2;
-	x_u32 clksrc, tmp;
+	u64_t apll, mpll, mpll_dout, epll;
+	u64_t fclk, hclk, hclk2, pclk;
+	u32_t clkdiv0, clkdiv1, clkdiv2;
+	u32_t clksrc, tmp;
 
 	/* get value of clkdiv0 and clksrc register */
 	clkdiv0 = readl(S3C6410_CLK_DIV0);
@@ -228,8 +228,8 @@ static void s3c6410_setup_clocks(x_u64 xtal)
 
 static __init void s3c6410_clk_init(void)
 {
-	x_u32 i;
-	x_u64 xtal = 0;
+	u32_t i;
+	u64_t xtal = 0;
 
 	/* get system xtal. */
 	if(get_machine() != 0)
@@ -252,7 +252,7 @@ static __init void s3c6410_clk_init(void)
 
 static __exit void s3c6410_clk_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i=0; i< ARRAY_SIZE(s3c6410_clocks); i++)
 	{

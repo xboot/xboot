@@ -41,13 +41,13 @@
 #define LSFLAG_DOT				(0x01)		/* list files beginning with "." */
 #define LSFLAG_LONG				(0x02)		/* long format */
 
-static x_s32 position = 0;
+static s32_t position = 0;
 static const char rwx[8][4] = { "---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx" };
 
-static void print_entry(const char * name, struct stat * st, x_u32 flags, x_u32 width)
+static void print_entry(const char * name, struct stat * st, u32_t flags, u32_t width)
 {
-	x_u32 len, rlen;
-	x_u32 i;
+	u32_t len, rlen;
+	u32_t i;
 
 	if(name[0] == '.')
 	{
@@ -79,14 +79,14 @@ static void print_entry(const char * name, struct stat * st, x_u32 flags, x_u32 
 		else
 			printk(" %4d %4d", st->st_uid, st->st_gid);
 
-		printk(" %8ld", (x_s32)st->st_size);
+		printk(" %8ld", (s32_t)st->st_size);
 
 		printk(" %s\r\n", name);
 	}
 	else
 	{
 		len = strlen(name);
-		rlen = ((x_u32)(len + 12) / 12) * 12;
+		rlen = ((u32_t)(len + 12) / 12) * 12;
 
 		if(position + rlen >= width)
 		{
@@ -103,13 +103,13 @@ static void print_entry(const char * name, struct stat * st, x_u32 flags, x_u32 
 	}
 }
 
-static void do_list(const char * path, x_u32 flags, x_u32 width)
+static void do_list(const char * path, u32_t flags, u32_t width)
 {
 	char buf[MAX_PATH];
 	struct stat st;
 	struct dirent * entry;
 	void * dir;
-	x_s32 n_file = 0;
+	s32_t n_file = 0;
 
 	/* initial position for print_entry */
 	position = 0;
@@ -171,15 +171,15 @@ static void do_list(const char * path, x_u32 flags, x_u32 width)
 	}
 }
 
-static x_s32 ls(x_s32 argc, const x_s8 **argv)
+static s32_t ls(s32_t argc, const s8_t **argv)
 {
-	x_s32 width, height;
-	x_u32 flags = 0;
-	x_s32 c = 0;
-	x_s8 ** v;
-	x_s32 i;
+	s32_t width, height;
+	u32_t flags = 0;
+	s32_t c = 0;
+	s8_t ** v;
+	s32_t i;
 
-	if( (v = malloc(sizeof(x_s8 *) * argc)) == NULL)
+	if( (v = malloc(sizeof(s8_t *) * argc)) == NULL)
 		return -1;
 
 	if(!console_getwh(get_stdout(), &width, &height))
@@ -192,11 +192,11 @@ static x_s32 ls(x_s32 argc, const x_s8 **argv)
 		else if( !strcmp((const char *)argv[i],"-a") )
 			flags |= LSFLAG_DOT;
 		else
-			v[c++] = (x_s8 *)argv[i];
+			v[c++] = (s8_t *)argv[i];
 	}
 
 	if(c == 0)
-		v[c++] = (x_s8 *)".";
+		v[c++] = (s8_t *)".";
 
 	for(i=0; i<c; i++)
 		do_list((const char *)v[i], flags, width);

@@ -37,11 +37,11 @@
 
 #if	defined(CONFIG_COMMAND_MD) && (CONFIG_COMMAND_MD > 0)
 
-static x_s32 md(x_s32 argc, const x_s8 **argv)
+static s32_t md(s32_t argc, const s8_t **argv)
 {
-	x_s32 base_addr = 0, nbytes = 64;
-	x_s32 i, size = 1;
-	x_u8 linebuf[16], line_len;
+	s32_t base_addr = 0, nbytes = 64;
+	s32_t i, size = 1;
+	u8_t linebuf[16], line_len;
 
 	if(argc < 2)
 	{
@@ -94,29 +94,29 @@ static x_s32 md(x_s32 argc, const x_s8 **argv)
 		if(size == 1)
 		{
 			for(i=0; i<line_len; i+= size)
-				*((x_u8 *)(&linebuf[i])) = *((x_u8 *)(base_addr+i));
+				*((u8_t *)(&linebuf[i])) = *((u8_t *)(base_addr+i));
 
 			for(i=0; i<line_len; i+= size)
-				printk(" %02lx", *((x_u8 *)(&linebuf[i])));
+				printk(" %02lx", *((u8_t *)(&linebuf[i])));
 		}
 		else if(size == 2)
 		{
 			for(i=0; i<line_len; i+= size)
-				*((x_u16 *)(&linebuf[i])) = *((x_u16 *)(base_addr+i));
+				*((u16_t *)(&linebuf[i])) = *((u16_t *)(base_addr+i));
 
 			for(i=0; i<line_len; i+= size)
-				printk(" %04lx", *((x_u16 *)(&linebuf[i])));
+				printk(" %04lx", *((u16_t *)(&linebuf[i])));
 		}
 		else if(size == 4)
 		{
 			for(i=0; i<line_len; i+= size)
-				*((x_u32 *)(&linebuf[i])) = *((x_u32 *)(base_addr+i));
+				*((u32_t *)(&linebuf[i])) = *((u32_t *)(base_addr+i));
 
 			for(i=0; i<line_len; i+= size)
-				printk(" %08lx", *((x_u32 *)(&linebuf[i])));
+				printk(" %08lx", *((u32_t *)(&linebuf[i])));
 		}
 
-		printk("%*s", (16-line_len)*2+(16-line_len)/size+4, (x_s8*)"");
+		printk("%*s", (16-line_len)*2+(16-line_len)/size+4, (s8_t*)"");
 		for(i=0; i<line_len; i++)
 		{
 			if( (linebuf[i] < 0x20) || (linebuf[i] > 0x7e) )

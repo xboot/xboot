@@ -10,12 +10,13 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 #include <crc16.h>
 
 /*
  * CRC table for the CRC-16. The poly is 0x8005 (x^16 + x^15 + x^2 + 1)
  */
-static const x_u16 crc16_table[256] = {
+static const u16_t crc16_table[256] = {
 	0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
 	0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
 	0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
@@ -55,7 +56,7 @@ static const x_u16 crc16_table[256] = {
  * @crc:	previous CRC value
  * @data: 	byte value
  */
-static inline x_u16 crc16_byte(x_u16 crc, const x_u8 data)
+static inline u16_t crc16_byte(u16_t crc, const u8_t data)
 {
 	return (crc >> 8) ^ crc16_table[(crc ^ data) & 0xff];
 }
@@ -68,7 +69,7 @@ static inline x_u16 crc16_byte(x_u16 crc, const x_u8 data)
  *
  * Returns the updated CRC value.
  */
-x_u16 crc16(x_u16 crc, const x_u8 *buffer, x_u32 len)
+u16_t crc16(u16_t crc, const u8_t *buffer, u32_t len)
 {
 	while (len--)
 		crc = crc16_byte(crc, *buffer++);

@@ -78,15 +78,15 @@
 #define	NORMAL	0
 #define	HIGH	1
 
-static x_u32 ocr_check = 0;
-static x_u32 mmc_card = 0;
-static x_u32 rca = 0;
-static x_u32 mmc_spec, sd_spec;
-static x_u32 card_mid = 0;
+static u32_t ocr_check = 0;
+static u32_t mmc_card = 0;
+static u32_t rca = 0;
+static u32_t mmc_spec, sd_spec;
+static u32_t card_mid = 0;
 
-static void set_cmd_register (x_u16 cmd, x_u32 data, x_u32 flags)
+static void set_cmd_register (u16_t cmd, u32_t data, u32_t flags)
 {
-	x_u16 val = (cmd << 8);
+	u16_t val = (cmd << 8);
 
 	if (cmd == 12)
 		val |= (3 << 6);
@@ -113,8 +113,8 @@ static void set_cmd_register (x_u16 cmd, x_u32 data, x_u32 flags)
 
 static int wait_for_cmd_done (void)
 {
-	x_u32 i;
-	x_u16 n_int, e_int;
+	u32_t i;
+	u16_t n_int, e_int;
 
 	udelay(5000);
 
@@ -142,22 +142,22 @@ static void ClearErrInterruptStatus(void)
 	}
 }
 
-static void InterruptEnable(x_u16 NormalIntEn, x_u16 ErrorIntEn)
+static void InterruptEnable(u16_t NormalIntEn, u16_t ErrorIntEn)
 {
 	ClearErrInterruptStatus();
 	writew(S3C6410_HM_NORINTSTSEN1, NormalIntEn);
 	writew(S3C6410_HM_ERRINTSTSEN1, ErrorIntEn);
 }
 
-static void set_hostctl_speed (x_u8 mode)
+static void set_hostctl_speed (u8_t mode)
 {
-	x_u8 reg8;
+	u8_t reg8;
 
 	reg8 = readb(S3C6410_HM_HOSTCTL1) & ~(0x1<<2);
 	writeb(S3C6410_HM_HOSTCTL1, reg8 | (mode<<2));
 }
 
-static void hsmmc_clock_onoff(x_bool on)
+static void hsmmc_clock_onoff(bool_t on)
 {
 	if(on)
 	{
@@ -169,9 +169,9 @@ static void hsmmc_clock_onoff(x_bool on)
 	}
 }
 
-static void set_clock (x_u32 clksrc, x_u32 div)
+static void set_clock (u32_t clksrc, u32_t div)
 {
-	x_s32 i;
+	s32_t i;
 
 	writel(S3C6410_HM_CONTROL2_1, (0xC0004100 | (clksrc << 4)));	// rx feedback control
 	writel(S3C6410_HM_CONTROL3_1, 0x00008080); 			// Low clock: 00008080
@@ -206,7 +206,7 @@ static void ClearCommandCompleteStatus(void)
 	}
 }
 
-static int issue_command (x_u16 cmd, x_u32 arg, x_u32 data, x_u32 flags)
+static int issue_command (u16_t cmd, u32_t arg, u32_t data, u32_t flags)
 {
 	int i;
 
@@ -255,7 +255,7 @@ static int issue_command (x_u16 cmd, x_u32 arg, x_u32 data, x_u32 flags)
 
 static int set_mmc_ocr (void)
 {
-	x_u32 i, ocr;
+	u32_t i, ocr;
 
 	for (i = 0; i < 100; i++) {
 		issue_command(MMC_SEND_OP_COND, 0x40FF8000, 0, MMC_RSP_R3);
@@ -289,7 +289,7 @@ static int set_mmc_ocr (void)
 
 static int set_sd_ocr (void)
 {
-	x_u32 i, ocr;
+	u32_t i, ocr;
 
 	issue_command(MMC_APP_CMD, 0x0, 0, MMC_RSP_R1);
 	issue_command(SD_APP_OP_COND, 0x0, 0, MMC_RSP_R3);
@@ -331,13 +331,13 @@ static int set_sd_ocr (void)
 
 static void display_card_info (void)
 {
-	x_u32 card_size;
+	u32_t card_size;
 
 	if (0) {
 		//card_size = process_ext_csd();
 	} else {
-		x_u32 i, resp[4];
-		x_u32 c_size, c_size_multi, read_bl_len, read_bl_partial, blk_size;
+		u32_t i, resp[4];
+		u32_t c_size, c_size_multi, read_bl_len, read_bl_partial, blk_size;
 
 		for (i=0; i<4; i++) {
 			resp[i] = readl(S3C6410_HM_RSPREG0_1 + i*4);
@@ -379,7 +379,7 @@ static void display_card_info (void)
 
 static void mmc_init(void)
 {
-	x_u64 hclk;
+	u64_t hclk;
 
 	/* ch 1 */
 	writel(S3C6410_GPHCON0, (readl(S3C6410_GPHCON0) & ~(0x00ffffff<<0)) | (0x00222222<<0));

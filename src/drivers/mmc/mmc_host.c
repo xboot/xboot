@@ -67,7 +67,7 @@ struct mmc_host * search_mmc_host(const char * name)
 /*
  * register a mmc host controller into mmc_host_list
  */
-x_bool register_mmc_host(struct mmc_host * host)
+bool_t register_mmc_host(struct mmc_host * host)
 {
 	struct mmc_host_list * list;
 
@@ -93,7 +93,7 @@ x_bool register_mmc_host(struct mmc_host * host)
 /*
  * unregister mmc host controller from mmc_host_list
  */
-x_bool unregister_mmc_host(struct mmc_host * host)
+bool_t unregister_mmc_host(struct mmc_host * host)
 {
 	struct mmc_host_list * list;
 	struct list_head * pos;

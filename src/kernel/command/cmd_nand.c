@@ -60,17 +60,17 @@ static void list_nand_device(void)
 	}
 }
 
-static x_s32 nand(x_s32 argc, const x_s8 **argv)
+static s32_t nand(s32_t argc, const s8_t **argv)
 {
 	struct nand_device * nand;
-	x_u32 off = 0;
-	x_u32 size = 0;
-	x_u32 addr = 0;
-	x_u32 o, l, len = 0;
+	u32_t off = 0;
+	u32_t size = 0;
+	u32_t addr = 0;
+	u32_t o, l, len = 0;
 	char * filename;
-	x_u8 * buf;
-	x_s32 fd;
-	x_s32 n;
+	u8_t * buf;
+	s32_t fd;
+	s32_t n;
 
 	if(argc < 2)
 	{
@@ -115,7 +115,7 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 		{
 			addr = simple_strtou32(argv[6], NULL, 0);
 
-			if(nand_read(nand, (x_u8 *)addr, off, size) != 0)
+			if(nand_read(nand, (u8_t *)addr, off, size) != 0)
 				return -1;
 
 			printk("read %s 0x%08lx ~ 0x%08lx to ram 0x%08lx.\r\n", nand->name, off, off + size, addr);

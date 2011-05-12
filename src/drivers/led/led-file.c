@@ -32,9 +32,9 @@
 #include <time/timer.h>
 #include <led/trigger.h>
 
-static x_bool valid = FALSE;
-static x_u32 activity;
-static x_u32 last_activity;
+static bool_t valid = FALSE;
+static u32_t activity;
+static u32_t last_activity;
 static struct timer_list file_trigger_timer;
 
 void led_file_trigger_activity(void)
@@ -47,7 +47,7 @@ void led_file_trigger_activity(void)
 	}
 }
 
-static void file_trigger_function(x_u32 data)
+static void file_trigger_function(u32_t data)
 {
 	struct trigger * trigger = (struct trigger *)(data);
 	struct led * led = (struct led *)(trigger->led);
@@ -85,7 +85,7 @@ static __init void file_trigger_init(void)
 		file_trigger.led = led;
 		if(trigger_register(&file_trigger))
 		{
-			setup_timer(&file_trigger_timer, file_trigger_function, (x_u32)(&file_trigger));
+			setup_timer(&file_trigger_timer, file_trigger_function, (u32_t)(&file_trigger));
 			valid = TRUE;
 			return;
 		}

@@ -26,16 +26,16 @@ struct disk
 	struct partition info;
 
 	/* the size of sector */
-	x_u32 sector_size;
+	u32_t sector_size;
 
 	/* the count of sector */
-	x_u32 sector_count;
+	u32_t sector_count;
 
 	/* read sectors from disk, return the sector counts of reading */
-	x_s32 (*read_sectors)(struct disk * disk, x_u8 * buf, x_u32 sector, x_u32 count);
+	s32_t (*read_sectors)(struct disk * disk, u8_t * buf, u32_t sector, u32_t count);
 
 	/* write sectors to disk, return the sector counts of writing */
-	x_s32 (*write_sectors)(struct disk * disk, const x_u8 * buf, x_u32 sector, x_u32 count);
+	s32_t (*write_sectors)(struct disk * disk, const u8_t * buf, u32_t sector, u32_t count);
 
 	/* priv data pointer */
 	void * priv;
@@ -50,7 +50,7 @@ struct disk_list
 	struct list_head entry;
 };
 
-x_bool register_disk(struct disk * disk, enum blkdev_type type);
-x_bool unregister_disk(struct disk * disk);
+bool_t register_disk(struct disk * disk, enum blkdev_type type);
+bool_t unregister_disk(struct disk * disk);
 
 #endif /* __DISK_H__ */

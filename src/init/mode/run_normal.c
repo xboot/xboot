@@ -38,7 +38,7 @@ void run_normal_mode(void)
 		item = get_menu_indexof_item(0);
 
 		if(item && item->title && item->command)
-			exec_cmdline((const x_s8 *)item->command);
+			exec_cmdline((const s8_t *)item->command);
 		else
 			xboot_set_mode(MODE_SHELL);
 

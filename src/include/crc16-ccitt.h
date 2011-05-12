@@ -3,8 +3,9 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 
 
-x_u16 crc16_ccitt(const x_u8 *buf, x_u32 len);
+u16_t crc16_ccitt(const u8_t *buf, u32_t len);
 
 #endif /* __CRC16_CCITT_H__ */

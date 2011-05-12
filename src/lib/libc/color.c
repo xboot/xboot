@@ -196,7 +196,7 @@ const static struct named_color named_colors[] =
  */
 struct color * get_color_by_name(const char * name)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; named_colors[i].name; i++)
 	{

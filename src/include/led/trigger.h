@@ -37,8 +37,8 @@ struct led_trigger_list
 };
 
 
-x_bool trigger_register(struct trigger * trigger);
-x_bool trigger_unregister(struct trigger * trigger);
+bool_t trigger_register(struct trigger * trigger);
+bool_t trigger_unregister(struct trigger * trigger);
 
 
 #endif /* __LED_TRIGGER_H__ */

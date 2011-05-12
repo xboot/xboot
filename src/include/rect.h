@@ -9,18 +9,18 @@
  */
 struct point
 {
-	x_s32 x;
-	x_s32 y;
+	s32_t x;
+	s32_t y;
 };
 
 /*
  * the structure of 2d rect
  */
 struct rect {
-	x_s32	left;
-	x_s32	top;
-	x_s32 	right;
-	x_s32	bottom;
+	s32_t	left;
+	s32_t	top;
+	s32_t 	right;
+	s32_t	bottom;
 };
 
 /*
@@ -44,17 +44,17 @@ enum align {
 	ALIGN_CENTER,
 };
 
-x_bool rect_set(struct rect * rect, x_s32 left, x_s32 top, x_s32 right, x_s32 bottom);
-x_bool rect_set_empty(struct rect * rect);
-x_bool rect_copy(struct rect * dst, struct rect * src);
-x_bool rect_is_empty(struct rect * rect);
-x_bool rect_is_equal(struct rect * rect1, struct rect * rect2);
-x_bool rect_intersect(struct rect * rect, struct rect * src1, struct rect * src2);
-x_bool rect_union(struct rect * rect, struct rect * src1, struct rect * src2);
-x_bool rect_subtract(struct rect * rect, struct rect * src1, struct rect * src2);
-x_bool rect_offset(struct rect * rect, x_s32 dx, x_s32 dy);
-x_bool rect_inflate(struct rect * rect, x_s32 dx, x_s32 dy);
-x_bool rect_have_point(struct rect * rect, x_s32 x, x_s32 y);
-x_bool rect_align(struct rect * rect, struct rect * to, enum align flag);
+bool_t rect_set(struct rect * rect, s32_t left, s32_t top, s32_t right, s32_t bottom);
+bool_t rect_set_empty(struct rect * rect);
+bool_t rect_copy(struct rect * dst, struct rect * src);
+bool_t rect_is_empty(struct rect * rect);
+bool_t rect_is_equal(struct rect * rect1, struct rect * rect2);
+bool_t rect_intersect(struct rect * rect, struct rect * src1, struct rect * src2);
+bool_t rect_union(struct rect * rect, struct rect * src1, struct rect * src2);
+bool_t rect_subtract(struct rect * rect, struct rect * src1, struct rect * src2);
+bool_t rect_offset(struct rect * rect, s32_t dx, s32_t dy);
+bool_t rect_inflate(struct rect * rect, s32_t dx, s32_t dy);
+bool_t rect_have_point(struct rect * rect, s32_t x, s32_t y);
+bool_t rect_align(struct rect * rect, struct rect * to, enum align flag);
 
 #endif /* __RECT_H__ */

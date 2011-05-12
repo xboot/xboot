@@ -52,16 +52,16 @@ enum {
 struct s5pv210fb_lcd
 {
 	/* horizontal resolution */
-	x_s32 width;
+	s32_t width;
 
 	/* vertical resolution */
-	x_s32 height;
+	s32_t height;
 
 	/* bits per pixel */
-	x_s32 bpp;
+	s32_t bpp;
 
 	/* vframe frequency */
-	x_s32 freq;
+	s32_t freq;
 
 	/* output path */
 	enum s5pv210fb_output output;
@@ -73,64 +73,64 @@ struct s5pv210fb_lcd
 	enum s5pv210_bpp_mode bpp_mode;
 
 	/* swap flag */
-	x_u32 swap;
+	u32_t swap;
 
 	struct {
 		/* red color */
-		x_s32 r_mask;
-		x_s32 r_field;
+		s32_t r_mask;
+		s32_t r_field;
 
 		/* green color */
-		x_s32 g_mask;
-		x_s32 g_field;
+		s32_t g_mask;
+		s32_t g_field;
 
 		/* blue color */
-		x_s32 b_mask;
-		x_s32 b_field;
+		s32_t b_mask;
+		s32_t b_field;
 
 		/* alpha color */
-		x_s32 a_mask;
-		x_s32 a_field;
+		s32_t a_mask;
+		s32_t a_field;
 	} rgba;
 
 	struct {
 		/* horizontal front porch */
-		x_s32 h_fp;
+		s32_t h_fp;
 
 		/* horizontal back porch */
-		x_s32 h_bp;
+		s32_t h_bp;
 
 		/* horizontal sync width */
-		x_s32 h_sw;
+		s32_t h_sw;
 
 		/* vertical front porch */
-		x_s32 v_fp;
+		s32_t v_fp;
 
 		/* vertical front porch for even field */
-		x_s32 v_fpe;
+		s32_t v_fpe;
 
 		/* vertical back porch */
-		x_s32 v_bp;
+		s32_t v_bp;
 
 		/* vertical back porch for even field */
-		x_s32 v_bpe;
+		s32_t v_bpe;
 
 		/* vertical sync width */
-		x_s32 v_sw;
+		s32_t v_sw;
 	} timing;
 
 	struct {
 		/* if 1, video data is fetched at rising edge */
-		x_s32 rise_vclk;
+		s32_t rise_vclk;
 
 		/* if HSYNC polarity is inversed */
-		x_s32 inv_hsync;
+		s32_t inv_hsync;
 
 		/* if VSYNC polarity is inversed */
-		x_s32 inv_vsync;
+		s32_t inv_vsync;
 
 		/* if VDEN polarity is inversed */
-		x_s32 inv_vden;
+		s32_t inv_vden;
 	} polarity;
 
 	/* video ram buffer */
@@ -143,7 +143,7 @@ struct s5pv210fb_lcd
 	void (*exit)(void);
 
 	/* lcd backlight */
-	void (*backlight)(x_u8 brightness);
+	void (*backlight)(u8_t brightness);
 };
 
 #endif /* __S5PV210_FB_H__ */

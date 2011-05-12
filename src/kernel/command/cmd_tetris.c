@@ -50,15 +50,15 @@
 struct shape
 {
 	/* pointer to shape rotated +/- 90 degrees */
-	x_s32 plus90, minus90;
+	s32_t plus90, minus90;
 
 	/* shape color */
 	enum tcolor color;
 
 	/* drawing instructions for this shape */
 	struct vector {
-		x_s32 x;
-		x_s32 y;
+		s32_t x;
+		s32_t y;
 	} direction[4];
 };
 
@@ -95,7 +95,7 @@ static const struct shape shapes[] = {
  * define tetris map
  */
 struct map {
-	x_bool dirty[GAME_AREA_HEIGHT];
+	bool_t dirty[GAME_AREA_HEIGHT];
 	enum tcolor screen[GAME_AREA_WIDTH][GAME_AREA_HEIGHT];
 };
 
@@ -107,8 +107,8 @@ static struct map map;
 static void refresh(void)
 {
 	struct console * stdout = get_stdout();
-	x_s32 w, h;
-	x_s32 x, y, xp, yp;
+	s32_t w, h;
+	s32_t x, y, xp, yp;
 
 	if(!stdout)
 		return;
@@ -134,7 +134,7 @@ static void refresh(void)
     }
 }
 
-static void block_draw(x_s32 x, x_s32 y, enum tcolor c)
+static void block_draw(s32_t x, s32_t y, enum tcolor c)
 {
     if(x >= GAME_AREA_WIDTH)
         x = GAME_AREA_WIDTH - 1;
@@ -145,14 +145,14 @@ static void block_draw(x_s32 x, x_s32 y, enum tcolor c)
     map.dirty[y] = TRUE;
 }
 
-static x_bool block_hit(x_s32 x, x_s32 y)
+static bool_t block_hit(s32_t x, s32_t y)
 {
 	return (map.screen[x][y] != TCOLOR_BLACK);
 }
 
-static void shape_draw(x_s32 x, x_s32 y, x_u32 index)
+static void shape_draw(s32_t x, s32_t y, u32_t index)
 {
-    x_u32 i;
+    u32_t i;
 
     for(i = 0; i < 4; i++)
     {
@@ -163,9 +163,9 @@ static void shape_draw(x_s32 x, x_s32 y, x_u32 index)
     block_draw(x, y, shapes[index].color);
 }
 
-static void shape_erase(x_s32 x, x_s32 y, x_u32 index)
+static void shape_erase(s32_t x, s32_t y, u32_t index)
 {
-    x_u32 i;
+    u32_t i;
 
     for(i = 0; i < 4; i++)
     {
@@ -176,9 +176,9 @@ static void shape_erase(x_s32 x, x_s32 y, x_u32 index)
     block_draw(x, y, TCOLOR_BLACK);
 }
 
-static x_bool shape_hit(x_s32 x, x_s32 y, x_u32 index)
+static bool_t shape_hit(s32_t x, s32_t y, u32_t index)
 {
-	x_u32 i;
+	u32_t i;
 
     for(i = 0; i < 4; i++)
     {
@@ -196,8 +196,8 @@ static x_bool shape_hit(x_s32 x, x_s32 y, x_u32 index)
 
 static void collapse(void)
 {
-	x_s32 solidrow[GAME_AREA_HEIGHT], solidrows;
-	x_s32 row, col, temp;
+	s32_t solidrow[GAME_AREA_HEIGHT], solidrows;
+	s32_t row, col, temp;
 
 	/* determine which rows are solidly filled */
 	solidrows = 0;
@@ -246,7 +246,7 @@ static void collapse(void)
 
 static void screen_init(void)
 {
-	x_s32 x, y;
+	s32_t x, y;
 
 	for(y = 0; y < GAME_AREA_HEIGHT; y++)
 	{
@@ -261,14 +261,14 @@ static void screen_init(void)
 	collapse();
 }
 
-static x_s32 tetris(x_s32 argc, const x_s8 **argv)
+static s32_t tetris(s32_t argc, const s8_t **argv)
 {
 	struct console * stdout = get_stdout();
-	x_u32 x, y, shape;
-	x_u32 newx, newy, newshape;
-	x_bool fell = FALSE;
-	x_bool try_again = FALSE;
-	x_u32 code;
+	u32_t x, y, shape;
+	u32_t newx, newy, newshape;
+	bool_t fell = FALSE;
+	bool_t try_again = FALSE;
+	u32_t code;
 
 	if(!stdout)
 		return -1;

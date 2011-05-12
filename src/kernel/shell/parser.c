@@ -61,12 +61,12 @@ static struct parser_state_transition state_transitions[] = {
 /*
  * determines the state following STATE, determined by C.
  */
-static enum paser_state get_parser_state(enum paser_state state, x_s8 c, x_s8 *result)
+static enum paser_state get_parser_state(enum paser_state state, s8_t c, s8_t *result)
 {
 	struct parser_state_transition *transition;
 	struct parser_state_transition *next_match = 0;
 	struct parser_state_transition default_transition;
-	x_s32 found = 0;
+	s32_t found = 0;
 
 	default_transition.to_state = state;
 	default_transition.keep_value = 1;
@@ -106,7 +106,7 @@ static enum paser_state get_parser_state(enum paser_state state, x_s8 c, x_s8 *r
  * check the the parser state, return true for var,
  * otherwise return false
  */
-static x_bool is_varstate(enum paser_state s)
+static bool_t is_varstate(enum paser_state s)
 {
 	if(s == PARSER_STATE_VARNAME || s == PARSER_STATE_VARNAME2 ||
 		s == PARSER_STATE_QVARNAME || s == PARSER_STATE_QVARNAME2)
@@ -119,15 +119,15 @@ static x_bool is_varstate(enum paser_state s)
  * parser command line.
  * the cmdline's last character must be a space for running right
  */
-x_bool parser(const x_s8 *cmdline, x_s32 *argc, x_s8 ***argv, x_s8 **pos)
+bool_t parser(const s8_t *cmdline, s32_t *argc, s8_t ***argv, s8_t **pos)
 {
 	enum paser_state state = PARSER_STATE_TEXT;
 	enum paser_state newstate;
-	x_s8 *rd = (x_s8 *)cmdline;
-	x_s8 c, *args, *val;
-	x_s8 *buffer, *bp;
-	x_s8 *varname, *vp;
-	x_s32 i;
+	s8_t *rd = (s8_t *)cmdline;
+	s8_t c, *args, *val;
+	s8_t *buffer, *bp;
+	s8_t *varname, *vp;
+	s32_t i;
 
 	*argc = 1;
 	*pos = 0;
@@ -161,7 +161,7 @@ x_bool parser(const x_s8 *cmdline, x_s32 *argc, x_s8 ***argv, x_s8 **pos)
 			if(is_varstate (state) && !is_varstate (newstate))
 			{
 			    *(vp++) = '\0';
-			    val = (x_s8*)env_get((const char *)varname, NULL);
+			    val = (s8_t*)env_get((const char *)varname, NULL);
 			    vp = varname;
 			    if(val)
 			    {
@@ -211,7 +211,7 @@ x_bool parser(const x_s8 *cmdline, x_s32 *argc, x_s8 ***argv, x_s8 **pos)
 	if(is_varstate(state) && !is_varstate (PARSER_STATE_TEXT))
 	{
 	    *(vp++) = '\0';
-	    val = (x_s8*)env_get((const char *)varname, NULL);
+	    val = (s8_t*)env_get((const char *)varname, NULL);
 	    vp = varname;
 	    if(val)
 	    {
@@ -230,7 +230,7 @@ x_bool parser(const x_s8 *cmdline, x_s32 *argc, x_s8 ***argv, x_s8 **pos)
 
 	memcpy(args, buffer, bp - buffer);
 
-	*argv = malloc (sizeof (x_s8 *) * (*argc + 1));
+	*argv = malloc (sizeof (s8_t *) * (*argc + 1));
 	if (! *argv)
 	{
 		*argc = 0;

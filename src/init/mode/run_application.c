@@ -45,7 +45,7 @@ static application_t xboot_application = default_application;
 /*
  * register application
  */
-x_bool register_application(application_t app)
+bool_t register_application(application_t app)
 {
 	if(app)
 	{

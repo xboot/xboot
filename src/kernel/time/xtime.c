@@ -53,9 +53,9 @@ static struct rtc_driver * rtc = NULL;
 /*
  * xtime's timer function.
  */
-static void xtime_timer_function(x_u32 data)
+static void xtime_timer_function(u32_t data)
 {
-	static x_u32 times = 0;
+	static u32_t times = 0;
 
 	/* every 512s, sync xtime with hardware rtc */
 	if(++times > 512)
@@ -129,7 +129,7 @@ void do_system_xtime(void)
 	}
 
 	/* setup timer for update xtime */
-	setup_timer(&xtime_timer, xtime_timer_function, (x_u32)(&xtime));
+	setup_timer(&xtime_timer, xtime_timer_function, (u32_t)(&xtime));
 
 	/* mod timer for one second */
 	mod_timer(&xtime_timer, jiffies + get_system_hz());
@@ -141,21 +141,21 @@ void do_system_xtime(void)
  * => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
  *
  * WARNING: this function will overflow on 2106-02-07 06:28:16 on
- * machines where x_u32 is 32-bit!
+ * machines where u32_t is 32-bit!
  */
-x_u32 mktime(const x_u32 year0, const x_u32 mon0, const x_u32 day, const x_u32 hour, const x_u32 min, const x_u32 sec)
+u32_t mktime(const u32_t year0, const u32_t mon0, const u32_t day, const u32_t hour, const u32_t min, const u32_t sec)
 {
-	x_u32 mon = mon0, year = year0;
+	u32_t mon = mon0, year = year0;
 
 	/* 1..12 -> 11,12,1..10 */
-	if (0 >= (x_s32)(mon -= 2))
+	if (0 >= (s32_t)(mon -= 2))
 	{
 		/* Puts Feb last since it has leap day */
 		mon += 12;
 		year -= 1;
 	}
 
-	return ((((x_u32)(year/4 - year/100 + year/400 + 367*mon/12 + day) + year*365 - 719499)*24 + hour)*60 + min)*60 + sec;
+	return ((((u32_t)(year/4 - year/100 + year/400 + 367*mon/12 + day) + year*365 - 719499)*24 + hour)*60 + min)*60 + sec;
 }
 
 /*
@@ -163,7 +163,7 @@ x_u32 mktime(const x_u32 year0, const x_u32 mon0, const x_u32 day, const x_u32 h
  *
  * 0 ~ 6 : Sun, Mon, Tue, Wed, Thu, Fri, Sat
  */
-x_u8 mkweek(x_u32 year, x_u32 mon, x_u32 day)
+u8_t mkweek(u32_t year, u32_t mon, u32_t day)
 {
 	if( (mon == 1) || (mon == 2) )
 	{
@@ -177,9 +177,9 @@ x_u8 mkweek(x_u32 year, x_u32 mon, x_u32 day)
 /*
  * get time stamp
  */
-x_u32 get_time_stamp(void)
+u32_t get_time_stamp(void)
 {
-	x_u32 year, mon, day, hour, min, sec;
+	u32_t year, mon, day, hour, min, sec;
 
 	year = xtime.year;
 	mon = xtime.mon;
@@ -194,13 +194,13 @@ x_u32 get_time_stamp(void)
 /*
  * xtime proc interface
  */
-static x_s32 xtime_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t xtime_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[64];
-	x_s32 len;
+	s32_t len;
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
-	len = sprintf(tmp, "%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu", (x_u32)xtime.year, (x_u32)xtime.mon, (x_u32)xtime.day, week_days[xtime.week], (x_u32)xtime.hour, (x_u32)xtime.min, (x_u32)xtime.sec);
+	len = sprintf(tmp, "%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu", (u32_t)xtime.year, (u32_t)xtime.mon, (u32_t)xtime.day, week_days[xtime.week], (u32_t)xtime.hour, (u32_t)xtime.min, (u32_t)xtime.sec);
 	len -= offset;
 
 	if(len < 0)

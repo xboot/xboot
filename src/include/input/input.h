@@ -21,16 +21,16 @@ enum input_type {
 
 struct input_event {
 	/* time stamp */
-	x_u32 time;
+	u32_t time;
 
 	/* input type */
 	enum input_type type;
 
 	/* event code */
-	x_s32 code;
+	s32_t code;
 
 	/* event value */
-	x_s32 value;
+	s32_t value;
 };
 
 struct input
@@ -42,23 +42,23 @@ struct input
 	enum input_type type;
 
 	/* probe input device */
-	x_bool (*probe)(struct input * input);
+	bool_t (*probe)(struct input * input);
 
 	/* remove input device */
-	x_bool (*remove)(struct input * input);
+	bool_t (*remove)(struct input * input);
 
 	/* ioctl input device */
-	x_s32 (*ioctl)(struct input * input, x_u32 cmd, void * arg);
+	s32_t (*ioctl)(struct input * input, u32_t cmd, void * arg);
 
 	/* private data */
 	void * priv;
 };
 
 struct input * search_input(const char * name);
-x_bool register_input(struct input * input);
-x_bool unregister_input(struct input * input);
+bool_t register_input(struct input * input);
+bool_t unregister_input(struct input * input);
 
-void input_report(enum input_type type, x_s32 code, x_s32 value);
+void input_report(enum input_type type, s32_t code, s32_t value);
 void input_sync(enum input_type type);
 
 #endif /* __INPUT_H__ */

@@ -7,8 +7,8 @@
 
 struct s5pv210_keypad
 {
-	x_u32 rows;
-	x_u32 cols;
+	u32_t rows;
+	u32_t cols;
 	enum key_code keycode[8 * 14];
 };
 

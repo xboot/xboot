@@ -46,10 +46,10 @@
 #define REALVIEW_MCI_RSP_136BIT			(1 << 1)
 #define REALVIEW_MCI_RSP_CRC			(1 << 2)
 
-static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
+static bool_t mmc_send_cmd(u32_t cmd, u32_t arg, u32_t * resp, u32_t flags)
 {
-	x_u32 status;
-	x_bool ret = TRUE;
+	u32_t status;
+	bool_t ret = TRUE;
 
 	if(readl(REALVIEW_MCI_COMMAND) & REALVIEW_MCI_CMD_ENABLE)
 	{
@@ -99,10 +99,10 @@ static x_bool mmc_send_cmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
 	return ret;
 }
 
-static x_bool mmc_send_acmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
+static bool_t mmc_send_acmd(u32_t cmd, u32_t arg, u32_t * resp, u32_t flags)
 {
-	x_u32 aresp;
-	x_bool ret = TRUE;
+	u32_t aresp;
+	bool_t ret = TRUE;
 
 	ret = mmc_send_cmd(MMC_APP_CMD, 0, &aresp, REALVIEW_MCI_RSP_PRESENT);
 	if(!ret)
@@ -114,9 +114,9 @@ static x_bool mmc_send_acmd(x_u32 cmd, x_u32 arg, x_u32 * resp, x_u32 flags)
 	return mmc_send_cmd(cmd, arg, resp, flags);
 }
 
-static x_bool mmc_idle_cards(void)
+static bool_t mmc_idle_cards(void)
 {
-	x_bool ret = TRUE;
+	bool_t ret = TRUE;
 
 	/*
 	 * reset all cards
@@ -133,9 +133,9 @@ static x_bool mmc_idle_cards(void)
 	return mmc_send_cmd(MMC_GO_IDLE_STATE, 0, NULL, 0);
 }
 
-static x_bool mmc_send_if_cond(struct mmc_card_info * info)
+static bool_t mmc_send_if_cond(struct mmc_card_info * info)
 {
-	x_u32 resp[4];
+	u32_t resp[4];
 
 	if(!mmc_idle_cards())
 		return FALSE;
@@ -153,11 +153,11 @@ static x_bool mmc_send_if_cond(struct mmc_card_info * info)
 	return FALSE;
 }
 
-static x_bool sd_send_op_cond(struct mmc_card_info * info)
+static bool_t sd_send_op_cond(struct mmc_card_info * info)
 {
-	x_u32 resp[4];
-	x_u32 arg;
-	x_u32 i;
+	u32_t resp[4];
+	u32_t arg;
+	u32_t i;
 
 	if(!mmc_idle_cards())
 		return FALSE;
@@ -185,10 +185,10 @@ static x_bool sd_send_op_cond(struct mmc_card_info * info)
 	return FALSE;
 }
 
-static x_bool mmc_send_op_cond(struct mmc_card_info * info)
+static bool_t mmc_send_op_cond(struct mmc_card_info * info)
 {
-	x_u32 resp[4];
-	x_u32 i;
+	u32_t resp[4];
+	u32_t i;
 
 	if(!mmc_idle_cards())
 		return FALSE;
@@ -233,10 +233,10 @@ static void realview_mmc_exit(void)
 	writel(REALVIEW_MCI_POWER, 0x0);
 }
 
-static x_bool realview_mmc_probe(struct mmc_card_info * info)
+static bool_t realview_mmc_probe(struct mmc_card_info * info)
 {
-	x_u32 resp[4];
-	x_bool ret;
+	u32_t resp[4];
+	bool_t ret;
 
 	/*
 	 * go idle mode
@@ -297,7 +297,7 @@ static x_bool realview_mmc_probe(struct mmc_card_info * info)
 	/*
 	 * get the card specific data
 	 */
-	ret = mmc_send_cmd(MMC_SEND_CSD, (x_u32)(info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_136BIT | REALVIEW_MCI_RSP_CRC);
+	ret = mmc_send_cmd(MMC_SEND_CSD, (u32_t)(info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_136BIT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
 		return FALSE;
 
@@ -309,7 +309,7 @@ static x_bool realview_mmc_probe(struct mmc_card_info * info)
 	/*
 	 * select the card, and put it into transfer mode
 	 */
-	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	ret = mmc_send_cmd(MMC_SELECT_CARD, (u32_t)(info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
 		return FALSE;
 
@@ -323,21 +323,21 @@ static x_bool realview_mmc_probe(struct mmc_card_info * info)
 	return TRUE;
 }
 
-static x_bool realview_mmc_read_one_sector(struct mmc_card * card, x_u8 * buf, x_u32 sector)
+static bool_t realview_mmc_read_one_sector(struct mmc_card * card, u8_t * buf, u32_t sector)
 {
-	x_u32 resp[4];
-	x_u32 blk_bits = card->info->csd.read_blkbits;
-	x_u32 blk_len = 1 << blk_bits;
-	x_s32 i, len, remain = blk_len;
-	x_u8 * p = buf;
-	x_u32 status;
-	x_u32 v;
-	x_bool ret;
+	u32_t resp[4];
+	u32_t blk_bits = card->info->csd.read_blkbits;
+	u32_t blk_len = 1 << blk_bits;
+	s32_t i, len, remain = blk_len;
+	u8_t * p = buf;
+	u32_t status;
+	u32_t v;
+	bool_t ret;
 
 	/*
 	 * select the card, and put it into transfer mode
 	 */
-	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(card->info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	ret = mmc_send_cmd(MMC_SELECT_CARD, (u32_t)(card->info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
 		return FALSE;
 
@@ -406,20 +406,20 @@ static x_bool realview_mmc_read_one_sector(struct mmc_card * card, x_u8 * buf, x
 	return TRUE;
 }
 
-static x_bool realview_mmc_write_one_sector(struct mmc_card * card, const x_u8 * buf, x_u32 sector)
+static bool_t realview_mmc_write_one_sector(struct mmc_card * card, const u8_t * buf, u32_t sector)
 {
-	x_u32 resp[4];
-	x_u32 blk_bits = card->info->csd.write_blkbits;
-	x_u32 blk_len = 1 << blk_bits;
-	x_s32 i, remain = blk_len;
-	x_u8 * p = (x_u8 *)buf;
-	x_u32 status;
-	x_bool ret;
+	u32_t resp[4];
+	u32_t blk_bits = card->info->csd.write_blkbits;
+	u32_t blk_len = 1 << blk_bits;
+	s32_t i, remain = blk_len;
+	u8_t * p = (u8_t *)buf;
+	u32_t status;
+	bool_t ret;
 
 	/*
 	 * select the card, and put it into transfer mode
 	 */
-	ret = mmc_send_cmd(MMC_SELECT_CARD, (x_u32)(card->info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
+	ret = mmc_send_cmd(MMC_SELECT_CARD, (u32_t)(card->info->rca) << 16, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 	if(!ret)
 		return FALSE;
 
@@ -478,11 +478,11 @@ static x_bool realview_mmc_write_one_sector(struct mmc_card * card, const x_u8 *
 	return TRUE;
 }
 
-static x_bool realview_mmc_read_sectors(struct mmc_card * card, x_u8 * buf, x_u32 sector, x_u32 count)
+static bool_t realview_mmc_read_sectors(struct mmc_card * card, u8_t * buf, u32_t sector, u32_t count)
 {
-	x_u32 blk_bits = card->info->csd.write_blkbits;
-	x_u32 blk_len = 1 << blk_bits;
-	x_bool ret;
+	u32_t blk_bits = card->info->csd.write_blkbits;
+	u32_t blk_len = 1 << blk_bits;
+	bool_t ret;
 
 	while(count)
 	{
@@ -498,11 +498,11 @@ static x_bool realview_mmc_read_sectors(struct mmc_card * card, x_u8 * buf, x_u3
 	return TRUE;
 }
 
-static x_bool realview_mmc_write_sectors(struct mmc_card * card, const x_u8 * buf, x_u32 sector, x_u32 count)
+static bool_t realview_mmc_write_sectors(struct mmc_card * card, const u8_t * buf, u32_t sector, u32_t count)
 {
-	x_u32 blk_bits = card->info->csd.write_blkbits;
-	x_u32 blk_len = 1 << blk_bits;
-	x_bool ret;
+	u32_t blk_bits = card->info->csd.write_blkbits;
+	u32_t blk_len = 1 << blk_bits;
+	bool_t ret;
 
 	while(count)
 	{

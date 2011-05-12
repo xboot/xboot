@@ -37,11 +37,11 @@
 
 static struct timer_list keypad_timer;
 
-static void keypad_timer_function(x_u32 data)
+static void keypad_timer_function(u32_t data)
 {
-	static x_u32 key_old = 0x3;
-	x_u32 keyup, keydown;
-	x_u32 key = 0;
+	static u32_t key_old = 0x3;
+	u32_t keyup, keydown;
+	u32_t key = 0;
 
 	if(readl(S5PC100_GPH1DAT) & (0x1<<3))
 	{
@@ -90,7 +90,7 @@ static void keypad_timer_function(x_u32 data)
 	mod_timer(&keypad_timer, jiffies + get_system_hz() / 100);
 }
 
-static x_bool keypad_probe(struct input * input)
+static bool_t keypad_probe(struct input * input)
 {
 	/* set GPH1_3 intput and pull up */
 	writel(S5PC100_GPH1CON, (readl(S5PC100_GPH1CON) & ~(0xf<<12)) | (0x0<<12));
@@ -109,12 +109,12 @@ static x_bool keypad_probe(struct input * input)
 	return TRUE;
 }
 
-static x_bool keypad_remove(struct input * input)
+static bool_t keypad_remove(struct input * input)
 {
 	return TRUE;
 }
 
-static x_s32 keypad_ioctl(struct input * input, x_u32 cmd, void * arg)
+static s32_t keypad_ioctl(struct input * input, u32_t cmd, void * arg)
 {
 	return -1;
 }

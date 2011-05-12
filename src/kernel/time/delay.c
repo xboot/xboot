@@ -39,14 +39,14 @@
 /*
  * how many loops runnning __delay() function per jiffy.
  */
-static x_u32 loops_per_jiffy = 0;
+static u32_t loops_per_jiffy = 0;
 
 /*
  * the base delay function.
  */
-static void __delay(x_u32 loop)
+static void __delay(u32_t loop)
 {
-	x_u32 base;
+	u32_t base;
 
 	while(loop--)
 	{
@@ -57,9 +57,9 @@ static void __delay(x_u32 loop)
 /*
  * us delay function
  */
-void udelay(x_u32 us)
+void udelay(u32_t us)
 {
-	x_u32 hz = get_system_hz();
+	u32_t hz = get_system_hz();
 
 	if(hz)
 		__delay(us * loops_per_jiffy / (1000000 / hz));
@@ -70,9 +70,9 @@ void udelay(x_u32 us)
 /*
  * ms delay function
  */
-void mdelay(x_u32 ms)
+void mdelay(u32_t ms)
 {
-	x_u32 hz = get_system_hz();
+	u32_t hz = get_system_hz();
 
 	if(hz)
 		__delay(ms * loops_per_jiffy / (1000 / hz));
@@ -85,9 +85,9 @@ void mdelay(x_u32 ms)
  */
 void calibrate_delay(void)
 {
-	x_u32 ticks, loopbit;
-	x_s32 lps_precision = 8;
-	x_u32 hz = get_system_hz();
+	u32_t ticks, loopbit;
+	s32_t lps_precision = 8;
+	u32_t hz = get_system_hz();
 
 	if(hz > 0)
 	{
@@ -134,14 +134,14 @@ void calibrate_delay(void)
 /*
  * bogomips proc interface
  */
-static x_s32 bogomips_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t bogomips_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[16];
-	x_s32 len;
-	x_u32 hz = get_system_hz();
+	s32_t len;
+	u32_t hz = get_system_hz();
 
 	if(hz != 0)
-		len = sprintf(tmp, (const char *)"%lu.%02lu", (x_u32)( loops_per_jiffy / (500000 / hz) ), (x_u32)( (loops_per_jiffy / (5000 / hz) ) % 100) );
+		len = sprintf(tmp, (const char *)"%lu.%02lu", (u32_t)( loops_per_jiffy / (500000 / hz) ), (u32_t)( (loops_per_jiffy / (5000 / hz) ) % 100) );
 	else
 		len = sprintf(tmp, (const char *)"0.00");
 

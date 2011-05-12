@@ -40,7 +40,7 @@ extern struct list_head mount_list;
 /*
  * system mount
  */
-x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
+s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 {
 	struct blkdev * device;
 	struct filesystem * fs;
@@ -48,7 +48,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 	struct mount * m;
 	struct vnode *vp, *vp_covered;
 	char * p;
-	x_s32 err;
+	s32_t err;
 
 	if(!dir || *dir == '\0')
 		return ENOENT;
@@ -199,12 +199,12 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 /*
  * system umount
  */
-x_s32 sys_umount(char * path)
+s32_t sys_umount(char * path)
 {
 	struct blkdev * device;
 	struct list_head * pos;
 	struct mount * m;
-	x_s32 err;
+	s32_t err;
 
 	/*
 	 * check if device or directory has already been mounted.
@@ -249,7 +249,7 @@ x_s32 sys_umount(char * path)
 /*
  * system sync
  */
-x_s32 sys_sync(void)
+s32_t sys_sync(void)
 {
 	struct list_head * pos;
 	struct mount * m;
@@ -268,12 +268,12 @@ x_s32 sys_sync(void)
 /*
  * system open
  */
-x_s32 sys_open(char * path, x_u32 flags, x_u32 mode, struct file ** pfp)
+s32_t sys_open(char * path, u32_t flags, u32_t mode, struct file ** pfp)
 {
 	struct vnode *vp, *dvp;
 	struct file * fp;
 	char *filename;
-	x_s32 err;
+	s32_t err;
 
 	if((flags & O_ACCMODE) == 0)
 		return EINVAL;
@@ -382,10 +382,10 @@ x_s32 sys_open(char * path, x_u32 flags, x_u32 mode, struct file ** pfp)
 /*
  * system close
  */
-x_s32 sys_close(struct file * fp)
+s32_t sys_close(struct file * fp)
 {
 	struct vnode * vp;
-	x_s32 err;
+	s32_t err;
 
 	if(fp->f_count <= 0)
 		panic("sys_close");
@@ -409,10 +409,10 @@ x_s32 sys_close(struct file * fp)
 /*
  * system read
  */
-x_s32 sys_read(struct file * fp, void * buf, x_size size, x_size * count)
+s32_t sys_read(struct file * fp, void * buf, x_size size, x_size * count)
 {
 	struct vnode * vp;
-	x_s32 err;
+	s32_t err;
 
 	if((fp->f_flags & O_RDONLY) == 0)
 		return EBADF;
@@ -432,10 +432,10 @@ x_s32 sys_read(struct file * fp, void * buf, x_size size, x_size * count)
 /*
  * system write
  */
-x_s32 sys_write(struct file * fp, void * buf, x_size size, x_size * count)
+s32_t sys_write(struct file * fp, void * buf, x_size size, x_size * count)
 {
 	struct vnode * vp;
-	x_s32 err;
+	s32_t err;
 
 	if((fp->f_flags & O_WRONLY) == 0)
 		return EBADF;
@@ -455,7 +455,7 @@ x_s32 sys_write(struct file * fp, void * buf, x_size size, x_size * count)
 /*
  * system lseek
  */
-x_s32 sys_lseek(struct file * fp, x_off off, x_u32 type, x_off * origin)
+s32_t sys_lseek(struct file * fp, x_off off, u32_t type, x_off * origin)
 {
 	struct vnode * vp;
 
@@ -505,10 +505,10 @@ x_s32 sys_lseek(struct file * fp, x_off off, x_u32 type, x_off * origin)
 /*
  * system ioctl
  */
-x_s32 sys_ioctl(struct file * fp, x_u32 cmd, void * arg)
+s32_t sys_ioctl(struct file * fp, u32_t cmd, void * arg)
 {
 	struct vnode * vp;
-	x_s32 err;
+	s32_t err;
 
 	if((fp->f_flags & O_ACCMODE) == 0)
 		return EBADF;
@@ -522,10 +522,10 @@ x_s32 sys_ioctl(struct file * fp, x_u32 cmd, void * arg)
 /*
  * system fsync
  */
-x_s32 sys_fsync(struct file * fp)
+s32_t sys_fsync(struct file * fp)
 {
 	struct vnode * vp;
-	x_s32 err;
+	s32_t err;
 
 	if((fp->f_flags & O_WRONLY) == 0)
 		return EBADF;
@@ -540,10 +540,10 @@ x_s32 sys_fsync(struct file * fp)
 /*
  * system fstat
  */
-x_s32 sys_fstat(struct file * fp, struct stat * st)
+s32_t sys_fstat(struct file * fp, struct stat * st)
 {
 	struct vnode * vp;
-	x_s32 err;
+	s32_t err;
 
 	vp = fp->f_vnode;
 
@@ -555,11 +555,11 @@ x_s32 sys_fstat(struct file * fp, struct stat * st)
 /*
  * system opendir
  */
-x_s32 sys_opendir(char * path, struct file ** file)
+s32_t sys_opendir(char * path, struct file ** file)
 {
 	struct vnode * dvp;
 	struct file * fp;
-	x_s32 err;
+	s32_t err;
 
 	if((err = sys_open(path, O_RDONLY, 0, &fp)) != 0)
 		return err;
@@ -578,10 +578,10 @@ x_s32 sys_opendir(char * path, struct file ** file)
 /*
  * system closedir
  */
-x_s32 sys_closedir(struct file * fp)
+s32_t sys_closedir(struct file * fp)
 {
 	struct vnode * dvp;
-	x_s32 err;
+	s32_t err;
 
 	dvp = fp->f_vnode;
 
@@ -595,10 +595,10 @@ x_s32 sys_closedir(struct file * fp)
 /*
  * system readdir
  */
-x_s32 sys_readdir(struct file * fp, struct dirent * dir)
+s32_t sys_readdir(struct file * fp, struct dirent * dir)
 {
 	struct vnode * dvp;
-	x_s32 err;
+	s32_t err;
 
 	dvp = fp->f_vnode;
 
@@ -613,7 +613,7 @@ x_s32 sys_readdir(struct file * fp, struct dirent * dir)
 /*
  * system rewinddir
  */
-x_s32 sys_rewinddir(struct file * fp)
+s32_t sys_rewinddir(struct file * fp)
 {
 	struct vnode * dvp;
 
@@ -630,7 +630,7 @@ x_s32 sys_rewinddir(struct file * fp)
 /*
  * system seekdir
  */
-x_s32 sys_seekdir(struct file * fp, x_off loc)
+s32_t sys_seekdir(struct file * fp, x_off loc)
 {
 	struct vnode * dvp;
 
@@ -646,7 +646,7 @@ x_s32 sys_seekdir(struct file * fp, x_off loc)
 /*
  * system telldir
  */
-x_s32 sys_telldir(struct file * fp, x_off * loc)
+s32_t sys_telldir(struct file * fp, x_off * loc)
 {
 	struct vnode * dvp;
 
@@ -663,11 +663,11 @@ x_s32 sys_telldir(struct file * fp, x_off * loc)
 /*
  * system mkdir
  */
-x_s32 sys_mkdir(char * path, x_u32 mode)
+s32_t sys_mkdir(char * path, u32_t mode)
 {
 	char * name;
 	struct vnode *vp, *dvp;
-	x_s32 err;
+	s32_t err;
 
 	if((err = namei(path, &vp)) == 0)
 	{
@@ -700,11 +700,11 @@ x_s32 sys_mkdir(char * path, x_u32 mode)
 /*
  * return 0 if directory is empty
  */
-static x_s32 check_dir_empty(char * path)
+static s32_t check_dir_empty(char * path)
 {
 	struct file * fp;
 	struct dirent dir;
-	x_s32 err;
+	s32_t err;
 
 	if((err = sys_opendir(path, &fp)) != 0)
 		return err;
@@ -728,11 +728,11 @@ static x_s32 check_dir_empty(char * path)
 /*
  * system rmdir
  */
-x_s32 sys_rmdir(char * path)
+s32_t sys_rmdir(char * path)
 {
 	struct vnode *vp, *dvp;
 	char *name;
-	x_s32 err;
+	s32_t err;
 
 	if((err = check_dir_empty(path)) != 0)
 		return err;
@@ -770,11 +770,11 @@ x_s32 sys_rmdir(char * path)
 /*
  * system mknod
  */
-x_s32 sys_mknod(char * path, x_u32 mode)
+s32_t sys_mknod(char * path, u32_t mode)
 {
 	struct vnode *vp, *dvp;
 	char * name;
-	x_s32 err;
+	s32_t err;
 
 	switch(mode & S_IFMT)
 	{
@@ -817,13 +817,13 @@ x_s32 sys_mknod(char * path, x_u32 mode)
 /*
  * system rename
  */
-x_s32 sys_rename(char * src, char * dest)
+s32_t sys_rename(char * src, char * dest)
 {
 	struct vnode *vp1, *vp2 = 0, *dvp1, *dvp2;
 	char * sname, * dname;
 	char root[] = "/";
-	x_s32 len;
-	x_s32 err;
+	s32_t len;
+	s32_t err;
 
 	if((err = namei(src, &vp1)) != 0)
 		return err;
@@ -920,11 +920,11 @@ x_s32 sys_rename(char * src, char * dest)
 /*
  * system unlink
  */
-x_s32 sys_unlink(char * path)
+s32_t sys_unlink(char * path)
 {
 	char *name;
 	struct vnode *vp, *dvp;
-	x_s32 err;
+	s32_t err;
 
 	if((err = namei(path, &vp)) != 0)
 		return err;
@@ -963,10 +963,10 @@ x_s32 sys_unlink(char * path)
 /*
  * system access
  */
-x_s32 sys_access(char * path, x_u32 mode)
+s32_t sys_access(char * path, u32_t mode)
 {
 	struct vnode * vp;
-	x_s32 err;
+	s32_t err;
 
 	if((err = namei(path, &vp)) != 0)
 		return err;
@@ -980,10 +980,10 @@ x_s32 sys_access(char * path, x_u32 mode)
 /*
  * system stat
  */
-x_s32 sys_stat(char * path, struct stat * st)
+s32_t sys_stat(char * path, struct stat * st)
 {
 	struct vnode * vp;
-	x_s32 err;
+	s32_t err;
 
 	if((err = namei(path, &vp)) != 0)
 		return err;
@@ -997,7 +997,7 @@ x_s32 sys_stat(char * path, struct stat * st)
 /*
  * system truncate
  */
-x_s32 sys_truncate(char * path, x_off length)
+s32_t sys_truncate(char * path, x_off length)
 {
 	return 0;
 }
@@ -1005,7 +1005,7 @@ x_s32 sys_truncate(char * path, x_off length)
 /*
  * system ftruncate
  */
-x_s32 sys_ftruncate(struct file * fp, x_off length)
+s32_t sys_ftruncate(struct file * fp, x_off length)
 {
 	return 0;
 }
@@ -1013,7 +1013,7 @@ x_s32 sys_ftruncate(struct file * fp, x_off length)
 /*
  * system fchdir
  */
-x_s32 sys_fchdir(struct file * fp, char * cwd)
+s32_t sys_fchdir(struct file * fp, char * cwd)
 {
 	struct vnode * dvp;
 

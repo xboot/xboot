@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_SYNC) && (CONFIG_COMMAND_SYNC > 0)
 
-static x_s32 do_sync(x_s32 argc, const x_s8 **argv)
+static s32_t do_sync(s32_t argc, const s8_t **argv)
 {
 	sync();
 

@@ -42,13 +42,13 @@
 
 #if	defined(CONFIG_COMMAND_DISPLAY) && (CONFIG_COMMAND_DISPLAY > 0)
 
-static x_s32 display(x_s32 argc, const x_s8 **argv)
+static s32_t display(s32_t argc, const s8_t **argv)
 {
 	struct stat st;
 	struct fb * fb;
 	struct bitmap *bitmap, *scaled;
 	struct rect old, new;
-	x_u32 width, height;
+	u32_t width, height;
 
 	if(argc != 3)
 	{

@@ -43,11 +43,11 @@ static struct clk s3c2410_clocks[4];
 /*
  * setup the s3c2410's clock array.
  */
-static void s3c2410_setup_clocks(x_u64 xtal)
+static void s3c2410_setup_clocks(u64_t xtal)
 {
-	x_u32 pllval, mdiv, pdiv, sdiv;
-	x_u64 fclk, hclk, pclk;
-	x_u32 tmp;
+	u32_t pllval, mdiv, pdiv, sdiv;
+	u64_t fclk, hclk, pclk;
+	u32_t tmp;
 
 	/*
 	 * now we've got our machine bits initialised, work out what
@@ -63,7 +63,7 @@ static void s3c2410_setup_clocks(x_u64 xtal)
 	pdiv &= S3C2410_PLLCON_PDIVMASK;
 	sdiv &= S3C2410_PLLCON_SDIVMASK;
 
-	fclk = (x_u64)xtal * (x_u64)(mdiv + 8);
+	fclk = (u64_t)xtal * (u64_t)(mdiv + 8);
 	div64_64(&fclk, (pdiv + 2) << sdiv);
 
 	tmp = readl(S3C2410_CLKDIVN);
@@ -88,8 +88,8 @@ static void s3c2410_setup_clocks(x_u64 xtal)
 
 static __init void s3c2410_clk_init(void)
 {
-	x_u32 i;
-	x_u64 xtal = 0;
+	u32_t i;
+	u64_t xtal = 0;
 
 	/* get system xtal. */
 	if(get_machine() != 0)
@@ -112,7 +112,7 @@ static __init void s3c2410_clk_init(void)
 
 static __exit void s3c2410_clk_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i=0; i< ARRAY_SIZE(s3c2410_clocks); i++)
 	{

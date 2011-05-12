@@ -3,10 +3,11 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 
-void * malloc(x_u32 size);
+void * malloc(u32_t size);
 void free(void * ptr);
-void * realloc(void * ptr, x_u32 size);
-void * calloc(x_u32 num, x_u32 size);
+void * realloc(void * ptr, u32_t size);
+void * calloc(u32_t num, u32_t size);
 
 #endif /* __MALLOC_H__ */

@@ -73,7 +73,7 @@ static struct resource s3c2410_devs[] = {
 
 static __init void s3c2410_devs_init(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(s3c2410_devs); i++)
 	{
@@ -86,7 +86,7 @@ static __init void s3c2410_devs_init(void)
 
 static __exit void s3c2410_devs_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(s3c2410_devs); i++)
 	{

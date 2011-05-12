@@ -35,22 +35,22 @@ struct nfc
 	void (*exit)(void);
 
 	/* control nand flash controller */
-	x_bool (*control)(struct nand_device * nand, enum nand_control ctl);
+	bool_t (*control)(struct nand_device * nand, enum nand_control ctl);
 
 	/* issue a command to the nand device */
-	x_bool (*command)(struct nand_device * nand, x_u32 cmd);
+	bool_t (*command)(struct nand_device * nand, u32_t cmd);
 
 	/* write an address to the nand device */
-	x_bool (*address)(struct nand_device * nand, x_u32 addr);
+	bool_t (*address)(struct nand_device * nand, u32_t addr);
 
 	/* read a data from nand device */
-	x_bool (*read_data)(struct nand_device * nand, x_u32 * data);
+	bool_t (*read_data)(struct nand_device * nand, u32_t * data);
 
 	/* write a data to the nand device */
-	x_bool (*write_data)(struct nand_device * nand, x_u32 data);
+	bool_t (*write_data)(struct nand_device * nand, u32_t data);
 
 	/* check nand flash is ready */
-	x_bool (*nand_ready)(struct nand_device * nand, x_s32 timeout);
+	bool_t (*nand_ready)(struct nand_device * nand, s32_t timeout);
 };
 
 
@@ -65,7 +65,7 @@ struct nfc_list
 
 
 struct nfc * search_nfc(const char *name);
-x_bool register_nfc(struct nfc * nfc);
-x_bool unregister_nfc(struct nfc * nfc);
+bool_t register_nfc(struct nfc * nfc);
+bool_t unregister_nfc(struct nfc * nfc);
 
 #endif /* __NFC_H__ */

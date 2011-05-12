@@ -8,35 +8,35 @@
 #include <fs/vfs/vfs.h>
 
 
-x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags);
+s32_t mount(const char * dev, const char * dir, const char * fs, u32_t flags);
 void sync(void);
-x_s32 umount(const char * dir);
-x_s32 open(const char * path, x_u32 flags, x_u32 mode);
-x_s32 read(x_s32 fd, void * buf, x_size len);
-x_s32 write(x_s32 fd, void * buf, x_size len);
-x_off lseek(x_s32 fd, x_off offset, x_s32 whence);
-x_s32 fstat(x_s32 fd, struct stat * st);
-x_s32 ioctl(x_s32 fd, x_u32 cmd, void * arg);
-x_s32 fsync(x_s32 fd);
-x_s32 close(x_s32 fd);
+s32_t umount(const char * dir);
+s32_t open(const char * path, u32_t flags, u32_t mode);
+s32_t read(s32_t fd, void * buf, x_size len);
+s32_t write(s32_t fd, void * buf, x_size len);
+x_off lseek(s32_t fd, x_off offset, s32_t whence);
+s32_t fstat(s32_t fd, struct stat * st);
+s32_t ioctl(s32_t fd, u32_t cmd, void * arg);
+s32_t fsync(s32_t fd);
+s32_t close(s32_t fd);
 void * opendir(const char * name);
 struct dirent * readdir(void * dir);
-x_s32 rewinddir(void * dir);
-x_s32 closedir(void * dir);
-char * getcwd(char * buf, x_s32 size);
-x_s32 chdir(const char * path);
-x_s32 mkdir(const char * path, x_u32 mode);
-x_s32 rmdir(const char * path);
-x_s32 stat(const char * path, struct stat * st);
-x_s32 access(const char * path, x_u32 mode);
-x_s32 rename(char * oldpath, char * newpath);
-x_s32 unlink(const char * path);
-x_s32 mknod(const char * path, x_u32 mode);
-x_s32 chmod(const char * path, x_u32 mode);
-x_s32 chown(const char * path, x_u32 owner, x_u32 group);
-x_u32 umask(x_u32 mode);
-x_s32 ftruncate(x_s32 fd, x_off length);
-x_s32 truncate(const char * path, x_off length);
+s32_t rewinddir(void * dir);
+s32_t closedir(void * dir);
+char * getcwd(char * buf, s32_t size);
+s32_t chdir(const char * path);
+s32_t mkdir(const char * path, u32_t mode);
+s32_t rmdir(const char * path);
+s32_t stat(const char * path, struct stat * st);
+s32_t access(const char * path, u32_t mode);
+s32_t rename(char * oldpath, char * newpath);
+s32_t unlink(const char * path);
+s32_t mknod(const char * path, u32_t mode);
+s32_t chmod(const char * path, u32_t mode);
+s32_t chown(const char * path, u32_t owner, u32_t group);
+u32_t umask(u32_t mode);
+s32_t ftruncate(s32_t fd, x_off length);
+s32_t truncate(const char * path, x_off length);
 
 
 #endif /* __FSAPI_H__ */

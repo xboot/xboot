@@ -30,8 +30,8 @@ struct resource_list
 };
 
 
-x_bool register_resource(struct resource * res);
-x_bool unregister_resource(struct resource * res);
+bool_t register_resource(struct resource * res);
+bool_t unregister_resource(struct resource * res);
 void * resource_get_data(const char * name);
 
 #endif /* __RESOURCE_H__ */

@@ -33,19 +33,19 @@
 #include <led/trigger.h>
 
 struct heartbeat_data {
-	x_u32 phase;
-	x_u32 period;
+	u32_t phase;
+	u32_t period;
 	struct timer_list timer;
 };
 
-static void heartbeat_function(x_u32 data)
+static void heartbeat_function(u32_t data)
 {
 	struct trigger * trigger = (struct trigger *)(data);
 	struct heartbeat_data * hb = (struct heartbeat_data *)(trigger->priv);
 	struct led * led = (struct led *)(trigger->led);
 
-	x_u8 brightness = LED_BRIGHTNESS_OFF;
-	x_u32 delay = 0;
+	u8_t brightness = LED_BRIGHTNESS_OFF;
+	u32_t delay = 0;
 
 	/* acts like an actual heart beat -- thump-thump-pause ... */
 	switch(hb->phase)
@@ -89,7 +89,7 @@ static void heartbeat_activate(struct trigger * trigger)
 		return;
 
 	trigger->priv = hb;
-	setup_timer(&hb->timer, heartbeat_function, (x_u32)trigger);
+	setup_timer(&hb->timer, heartbeat_function, (u32_t)trigger);
 	hb->phase = 0;
 	heartbeat_function(hb->timer.data);
 }

@@ -40,15 +40,15 @@
 #include <s5pv210-keypad.h>
 
 static struct timer_list timer;
-static x_u32 keymask[8];
-static x_u32 prevmask[8];
+static u32_t keymask[8];
+static u32_t prevmask[8];
 
-static void keypad_timer_function(x_u32 data)
+static void keypad_timer_function(u32_t data)
 {
 	struct s5pv210_keypad * keypad = (struct s5pv210_keypad *)data;
-	x_u32 press_mask;
-	x_u32 release_mask;
-	x_u32 col, i;
+	u32_t press_mask;
+	u32_t release_mask;
+	u32_t col, i;
 
 	for(col = 0; col < keypad->cols; col++)
 	{
@@ -91,10 +91,10 @@ static void keypad_timer_function(x_u32 data)
 	mod_timer(&timer, jiffies + get_system_hz() / 10);
 }
 
-static x_bool keypad_probe(struct input * input)
+static bool_t keypad_probe(struct input * input)
 {
 	struct s5pv210_keypad * keypad = (struct s5pv210_keypad *)(input->priv);
-	x_u32 i;
+	u32_t i;
 
 	/* set GPJ1_5 for KP_COL0, and pull none */
 	writel(S5PV210_GPJ1CON, (readl(S5PV210_GPJ1CON) & ~(0xf<<20)) | (0x3<<20));
@@ -122,20 +122,20 @@ static x_bool keypad_probe(struct input * input)
 		prevmask[i] = keymask[i] = ~((0x1 << keypad->rows) - 1);
 	}
 
-	setup_timer(&timer, keypad_timer_function, (x_u32)keypad);
+	setup_timer(&timer, keypad_timer_function, (u32_t)keypad);
 	mod_timer(&timer, jiffies + get_system_hz() / 10);
 
 	return TRUE;
 }
 
-static x_bool keypad_remove(struct input * input)
+static bool_t keypad_remove(struct input * input)
 {
 	del_timer(&timer);
 
 	return TRUE;
 }
 
-static x_s32 keypad_ioctl(struct input * input, x_u32 cmd, void * arg)
+static s32_t keypad_ioctl(struct input * input, u32_t cmd, void * arg)
 {
 	return -1;
 }

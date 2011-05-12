@@ -59,34 +59,34 @@ struct console
 	char * name;
 
 	/* get console's width and height */
-	x_bool(*getwh)(struct console * console, x_s32 * w, x_s32 * h);
+	bool_t(*getwh)(struct console * console, s32_t * w, s32_t * h);
 
 	/* get cursor position */
-	x_bool(*getxy)(struct console * console, x_s32 * x, x_s32 * y);
+	bool_t(*getxy)(struct console * console, s32_t * x, s32_t * y);
 
 	/* set cursor position */
-	x_bool(*gotoxy)(struct console * console, x_s32 x, x_s32 y);
+	bool_t(*gotoxy)(struct console * console, s32_t x, s32_t y);
 
 	/* turn on/off the cursor */
-	x_bool(*setcursor)(struct console * console, x_bool on);
+	bool_t(*setcursor)(struct console * console, bool_t on);
 
 	/* get cursor's status */
-	x_bool(*getcursor)(struct console * console);
+	bool_t(*getcursor)(struct console * console);
 
 	/* set console's foreground color and background color */
-	x_bool(*setcolor)(struct console * console, enum tcolor f, enum tcolor b);
+	bool_t(*setcolor)(struct console * console, enum tcolor f, enum tcolor b);
 
 	/* get console foreground color and background color */
-	x_bool(*getcolor)(struct console * console, enum tcolor * f, enum tcolor * b);
+	bool_t(*getcolor)(struct console * console, enum tcolor * f, enum tcolor * b);
 
 	/* clear screen */
-	x_bool(*cls)(struct console * console);
+	bool_t(*cls)(struct console * console);
 
 	/* get a unicode character */
-	x_bool(*getcode)(struct console * console, x_u32 * code);
+	bool_t(*getcode)(struct console * console, u32_t * code);
 
 	/* put a unicode character */
-	x_bool(*putcode)(struct console * console, x_u32 code);
+	bool_t(*putcode)(struct console * console, u32_t code);
 
 	/* private data */
 	void * priv;
@@ -99,29 +99,29 @@ struct console_list
 };
 
 struct console * search_console(const char *name);
-x_bool register_console(struct console * console);
-x_bool unregister_console(struct console * console);
+bool_t register_console(struct console * console);
+bool_t unregister_console(struct console * console);
 
 inline struct console * get_stdin(void);
 inline struct console * get_stdout(void);
-x_bool console_stdio_set(const char * in, const char * out);
-x_bool console_stdio_load(char * file);
-x_bool console_stdio_save(char * file);
+bool_t console_stdio_set(const char * in, const char * out);
+bool_t console_stdio_load(char * file);
+bool_t console_stdio_save(char * file);
 
-x_bool console_getwh(struct console * console, x_s32 * w, x_s32 * h);
-x_bool console_getxy(struct console * console, x_s32 * x, x_s32 * y);
-x_bool console_gotoxy(struct console * console, x_s32 x, x_s32 y);
-x_bool console_setcursor(struct console * console, x_bool on);
-x_bool console_getcursor(struct console * console);
-x_bool console_setcolor(struct console * console, enum tcolor f, enum tcolor b);
-x_bool console_getcolor(struct console * console, enum tcolor * f, enum tcolor * b);
-x_bool console_cls(struct console * console);
-x_bool console_getcode(struct console * console, x_u32 * code);
-x_bool console_putcode(struct console * console, x_u32 code);
+bool_t console_getwh(struct console * console, s32_t * w, s32_t * h);
+bool_t console_getxy(struct console * console, s32_t * x, s32_t * y);
+bool_t console_gotoxy(struct console * console, s32_t x, s32_t y);
+bool_t console_setcursor(struct console * console, bool_t on);
+bool_t console_getcursor(struct console * console);
+bool_t console_setcolor(struct console * console, enum tcolor f, enum tcolor b);
+bool_t console_getcolor(struct console * console, enum tcolor * f, enum tcolor * b);
+bool_t console_cls(struct console * console);
+bool_t console_getcode(struct console * console, u32_t * code);
+bool_t console_putcode(struct console * console, u32_t code);
 
-x_s32 console_print(struct console * console, const char * fmt, ...);
-x_bool console_hline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 x);
-x_bool console_vline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 y);
-x_bool console_rect(struct console * console, x_u32 hline, x_u32 vline, x_u32 lt, x_u32 rt, x_u32 lb, x_u32 rb, x_u32 x, x_u32 y, x_u32 w, x_u32 h);
+s32_t console_print(struct console * console, const char * fmt, ...);
+bool_t console_hline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t x);
+bool_t console_vline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t y);
+bool_t console_rect(struct console * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h);
 
 #endif /* __CONSOLE_H__ */

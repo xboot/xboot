@@ -70,14 +70,14 @@ static void list_mmc_card(void)
 	{
 		list = list_entry(pos, struct mmc_card_list, entry);
 
-		ssize(buff, (x_u64)(list->card->info->capacity));
+		ssize(buff, (u64_t)(list->card->info->capacity));
 		printk(" \"%s\" - %s (%s)\r\n", list->card->name, list->card->info->cid.pnm, buff);
 	}
 }
 
-static x_s32 probe(x_s32 argc, const x_s8 **argv)
+static s32_t probe(s32_t argc, const s8_t **argv)
 {
-	x_s32 i;
+	s32_t i;
 
 	if(argc < 2)
 	{

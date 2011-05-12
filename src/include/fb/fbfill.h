@@ -6,6 +6,6 @@
 #include <fb/fb.h>
 
 
-void common_bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h);
+void common_bitmap_fill_rect(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h);
 
 #endif /* __FBFILL_H__ */

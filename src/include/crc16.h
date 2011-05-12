@@ -3,7 +3,8 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 
-x_u16 crc16(x_u16 crc, const x_u8 *buffer, x_u32 len);
+u16_t crc16(u16_t crc, const u8_t *buffer, u32_t len);
 
 #endif /* __CRC16_H__ */

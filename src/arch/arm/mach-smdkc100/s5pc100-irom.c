@@ -40,18 +40,18 @@
 #include <s5pc100/reg-nand.h>
 
 
-extern x_u8	__text_start[];
-extern x_u8 __text_end[];
-extern x_u8 __data_shadow_start[];
-extern x_u8 __data_shadow_end[];
-extern x_u8 __data_start[];
-extern x_u8 __data_end[];
-extern x_u8 __bss_start[];
-extern x_u8 __bss_end[];
-extern x_u8 __heap_start[];
-extern x_u8 __heap_end[];
-extern x_u8 __stack_start[];
-extern x_u8 __stack_end[];
+extern u8_t	__text_start[];
+extern u8_t __text_end[];
+extern u8_t __data_shadow_start[];
+extern u8_t __data_shadow_end[];
+extern u8_t __data_start[];
+extern u8_t __data_end[];
+extern u8_t __bss_start[];
+extern u8_t __bss_end[];
+extern u8_t __heap_start[];
+extern u8_t __heap_end[];
+extern u8_t __stack_start[];
+extern u8_t __stack_end[];
 
 /*
  * define for simple nand read function.
@@ -83,7 +83,7 @@ extern x_u8 __stack_end[];
 	reg_write(S5PC100_NFADDR, addr)
 
 #define NAND_READ_BYTE()													\
-	(*((volatile x_u8 *)(S5PC100_NFDATA)))
+	(*((volatile u8_t *)(S5PC100_NFDATA)))
 
 #define NAND_WAIT_READY()													\
 	do { while(!(reg_read(S5PC100_NFSTAT) & (1 << 0))); } while(0)
@@ -91,26 +91,26 @@ extern x_u8 __stack_end[];
 /*
  * write a 32-bits value to register.
  */
-static void reg_write(x_u32 addr, x_u32 value)
+static void reg_write(u32_t addr, u32_t value)
 {
-	( *((volatile x_u32 *)(addr)) ) = value;
+	( *((volatile u32_t *)(addr)) ) = value;
 }
 
 /*
  * read a 32-bits value from register.
  */
-static x_u32 reg_read(x_u32 addr)
+static u32_t reg_read(u32_t addr)
 {
-	return( *((volatile x_u32 *)(addr)) );
+	return( *((volatile u32_t *)(addr)) );
 }
 
 /*
  * simple nand read function
  */
-static x_s32 simple_nand_read(x_u8 * mem, x_u32 addr, x_u32 size)
+static s32_t simple_nand_read(u8_t * mem, u32_t addr, u32_t size)
 {
-	x_u8 id;
-	x_u32 i, page, page_size;
+	u8_t id;
+	u32_t i, page, page_size;
 
 	/* nand hardware initial */
 	NAND_HW_INIT();
@@ -193,20 +193,20 @@ static x_s32 simple_nand_read(x_u8 * mem, x_u32 addr, x_u32 size)
  */
 void irom_copyself(void)
 {
-	x_u8 om, nfmod;
-	x_u32 mem, size;
+	u8_t om, nfmod;
+	u32_t mem, size;
 
 	/*
 	 * read config register
 	 */
-	om = (x_u8)((reg_read(0xe0000004) >> 0) & 0x1f);
-	nfmod = (x_u8)((reg_read(0xe0000004) >> 8) & 0x3f);
+	om = (u8_t)((reg_read(0xe0000004) >> 0) & 0x1f);
+	nfmod = (u8_t)((reg_read(0xe0000004) >> 8) & 0x3f);
 
 	/*
 	 * the xboot's memory base address and size.
 	 */
-	mem = (x_u32)__text_start;
-	size = (x_u32)__data_shadow_end - (x_u32)__text_start;
+	mem = (u32_t)__text_start;
+	size = (u32_t)__data_shadow_end - (u32_t)__text_start;
 
 	/* booting from usb */
 	if(nfmod & 0x20)
@@ -230,7 +230,7 @@ void irom_copyself(void)
 			/* nfmod = 0x6, nand(2048 byte, 5-cycle) */
 			if( (nfmod == 0x0) || (nfmod == 0x4) || (nfmod == 0x2) || (nfmod == 0x6) )
 			{
-				simple_nand_read((x_u8 *)mem, 0x00000000, size);
+				simple_nand_read((u8_t *)mem, 0x00000000, size);
 			}
 
 			/* nfmod = 0x3, nand(4096 byte, 4-cycle) */

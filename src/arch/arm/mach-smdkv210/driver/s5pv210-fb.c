@@ -43,9 +43,9 @@
 #include <s5pv210/reg-lcd.h>
 #include <s5pv210-fb.h>
 
-static x_bool s5pv210fb_set_output(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_set_output(struct s5pv210fb_lcd * lcd)
 {
-	x_u32 cfg;
+	u32_t cfg;
 
 	cfg = readl(S5PV210_VIDCON0);
 	cfg &= ~S5PV210_VIDCON0_VIDOUT_MASK;
@@ -93,9 +93,9 @@ static x_bool s5pv210fb_set_output(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_display_mode(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_set_display_mode(struct s5pv210fb_lcd * lcd)
 {
-	x_u32 cfg;
+	u32_t cfg;
 
 	cfg = readl(S5PV210_VIDCON0);
 	cfg &= ~S5PV210_VIDCON0_PNRMODE_MASK;
@@ -105,9 +105,9 @@ static x_bool s5pv210fb_set_display_mode(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_display_on(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_display_on(struct s5pv210fb_lcd * lcd)
 {
-	x_u32 cfg;
+	u32_t cfg;
 
 	cfg = readl(S5PV210_VIDCON0);
 	cfg |= (S5PV210_VIDCON0_ENVID_ENABLE | S5PV210_VIDCON0_ENVID_F_ENABLE);
@@ -116,9 +116,9 @@ static x_bool s5pv210fb_display_on(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_display_off(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_display_off(struct s5pv210fb_lcd * lcd)
 {
-	x_u32 cfg;
+	u32_t cfg;
 
 	cfg = readl(S5PV210_VIDCON0);
 	cfg &= ~S5PV210_VIDCON0_ENVID_ENABLE;
@@ -130,11 +130,11 @@ static x_bool s5pv210fb_display_off(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_clock(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_set_clock(struct s5pv210fb_lcd * lcd)
 {
-	x_u64 hclk, pixel_clock;
-	x_u32 div;
-	x_u32 cfg;
+	u64_t hclk, pixel_clock;
+	u32_t div;
+	u32_t cfg;
 
 	/*
 	 * get hclk for lcd
@@ -145,7 +145,7 @@ static x_bool s5pv210fb_set_clock(struct s5pv210fb_lcd * lcd)
 	pixel_clock = ( lcd->freq * (lcd->timing.h_fp + lcd->timing.h_bp + lcd->timing.h_sw + lcd->width) *
 			(lcd->timing.v_fp + lcd->timing.v_bp + lcd->timing.v_sw + lcd->height) );
 
-	div = (x_u32)div64(hclk, pixel_clock);
+	div = (u32_t)div64(hclk, pixel_clock);
 	if(mod64(hclk, pixel_clock) > 0)
 		div++;
 
@@ -161,9 +161,9 @@ static x_bool s5pv210fb_set_clock(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_polarity(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_set_polarity(struct s5pv210fb_lcd * lcd)
 {
-	x_u32 cfg = 0;
+	u32_t cfg = 0;
 
 	if(lcd->polarity.rise_vclk)
 		cfg |= S5PV210_VIDCON1_IVCLK_RISING_EDGE;
@@ -182,9 +182,9 @@ static x_bool s5pv210fb_set_polarity(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_timing(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_set_timing(struct s5pv210fb_lcd * lcd)
 {
-	x_u32 cfg;
+	u32_t cfg;
 
 	cfg = 0;
 	cfg |= S5PV210_VIDTCON0_VBPDE(lcd->timing.v_bpe - 1);
@@ -203,9 +203,9 @@ static x_bool s5pv210fb_set_timing(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_lcd_size(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_set_lcd_size(struct s5pv210fb_lcd * lcd)
 {
-	x_u32 cfg = 0;
+	u32_t cfg = 0;
 
 	cfg |= S5PV210_VIDTCON2_HOZVAL(lcd->width - 1);
 	cfg |= S5PV210_VIDTCON2_LINEVAL(lcd->height - 1);
@@ -214,13 +214,13 @@ static x_bool s5pv210fb_set_lcd_size(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_buffer_address(struct s5pv210fb_lcd * lcd, x_s32 id)
+static bool_t s5pv210fb_set_buffer_address(struct s5pv210fb_lcd * lcd, s32_t id)
 {
-	x_u32 start, end;
-	x_u32 shw;
+	u32_t start, end;
+	u32_t shw;
 
-	start = (x_u32)(lcd->vram);
-	end = (x_u32)((start + lcd->width * (lcd->height * lcd->bpp / 8)) & 0x00ffffff);
+	start = (u32_t)(lcd->vram);
+	end = (u32_t)((start + lcd->width * (lcd->height * lcd->bpp / 8)) & 0x00ffffff);
 
 	shw = readl(S5PV210_SHADOWCON);
 	shw |= S5PV210_SHADOWCON_PROTECT(id);
@@ -264,9 +264,9 @@ static x_bool s5pv210fb_set_buffer_address(struct s5pv210fb_lcd * lcd, x_s32 id)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_buffer_size(struct s5pv210fb_lcd * lcd, x_s32 id)
+static bool_t s5pv210fb_set_buffer_size(struct s5pv210fb_lcd * lcd, s32_t id)
 {
-	x_u32 cfg = 0;
+	u32_t cfg = 0;
 
 	cfg = S5PV210_VIDADDR_PAGEWIDTH(lcd->width * lcd->bpp / 8);
 	cfg |= S5PV210_VIDADDR_OFFSIZE(0);
@@ -300,9 +300,9 @@ static x_bool s5pv210fb_set_buffer_size(struct s5pv210fb_lcd * lcd, x_s32 id)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_window_position(struct s5pv210fb_lcd * lcd, x_s32 id)
+static bool_t s5pv210fb_set_window_position(struct s5pv210fb_lcd * lcd, s32_t id)
 {
-	x_u32 cfg, shw;
+	u32_t cfg, shw;
 
 	shw = readl(S5PV210_SHADOWCON);
 	shw |= S5PV210_SHADOWCON_PROTECT(id);
@@ -356,9 +356,9 @@ static x_bool s5pv210fb_set_window_position(struct s5pv210fb_lcd * lcd, x_s32 id
 	return TRUE;
 }
 
-static x_bool s5pv210fb_set_window_size(struct s5pv210fb_lcd * lcd, x_s32 id)
+static bool_t s5pv210fb_set_window_size(struct s5pv210fb_lcd * lcd, s32_t id)
 {
-	x_u32 cfg;
+	u32_t cfg;
 
 	if(id > 2)
 		return FALSE;
@@ -386,9 +386,9 @@ static x_bool s5pv210fb_set_window_size(struct s5pv210fb_lcd * lcd, x_s32 id)
 	return TRUE;
 }
 
-static x_bool s5pv210fb_window0_enable(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_window0_enable(struct s5pv210fb_lcd * lcd)
 {
-	x_u32 cfg;
+	u32_t cfg;
 
 	/*
 	 * window control
@@ -537,23 +537,23 @@ static void fb_exit(struct fb * fb)
 	s5pv210fb_display_off(lcd);
 }
 
-static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
+static s32_t fb_ioctl(struct fb * fb, u32_t cmd, void * arg)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
-	static x_u8 brightness = 0;
-	x_u8 * p;
+	static u8_t brightness = 0;
+	u8_t * p;
 
 	switch(cmd)
 	{
 	case IOCTL_SET_FB_BACKLIGHT:
-		p = (x_u8 *)arg;
+		p = (u8_t *)arg;
 		brightness = (*p) & 0xff;
 		if(lcd->backlight)
 			lcd->backlight(brightness);
 		return 0;
 
 	case IOCTL_GET_FB_BACKLIGHT:
-		p = (x_u8 *)arg;
+		p = (u8_t *)arg;
 		*p = brightness;
 		return 0;
 

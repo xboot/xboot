@@ -69,7 +69,7 @@ struct filesystem * filesystem_search(const char * name)
 /*
  * register a filesystem into fs_list
  */
-x_bool filesystem_register(struct filesystem * fs)
+bool_t filesystem_register(struct filesystem * fs)
 {
 	struct fs_list * list;
 
@@ -95,7 +95,7 @@ x_bool filesystem_register(struct filesystem * fs)
 /*
  * unregister a filesystem from fs_list
  */
-x_bool filesystem_unregister(struct filesystem * fs)
+bool_t filesystem_unregister(struct filesystem * fs)
 {
 	struct fs_list * list;
 	struct list_head * pos;
@@ -120,12 +120,12 @@ x_bool filesystem_unregister(struct filesystem * fs)
 /*
  * filesystem proc interface
  */
-static x_s32 filesystem_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t filesystem_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct fs_list * list;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -146,7 +146,7 @@ static x_s32 filesystem_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

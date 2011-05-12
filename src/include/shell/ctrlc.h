@@ -7,6 +7,6 @@
 #include <string.h>
 
 
-x_bool ctrlc(void);
+bool_t ctrlc(void);
 
 #endif /* __CTRLC_H__ */

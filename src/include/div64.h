@@ -3,9 +3,10 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 
-x_u64 div64(x_u64 num, x_u64 den);
-x_u64 mod64(x_u64 num, x_u64 den);
-x_u64 div64_64(x_u64 * num, x_u64 den);
+u64_t div64(u64_t num, u64_t den);
+u64_t mod64(u64_t num, u64_t den);
+u64_t div64_64(u64_t * num, u64_t den);
 
 #endif /* __DIV64_H__ */

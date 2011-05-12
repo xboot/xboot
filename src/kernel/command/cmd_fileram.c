@@ -45,12 +45,12 @@ static void usage(void)
 	printk("    fileram -r <addr> <size> <file>\r\n");
 }
 
-static x_s32 fileram(x_s32 argc, const x_s8 **argv)
+static s32_t fileram(s32_t argc, const s8_t **argv)
 {
 	char * filename;
-	x_s32 fd;
-	x_u32 addr, size = 0;
-	x_s32 n;
+	s32_t fd;
+	u32_t addr, size = 0;
+	s32_t n;
 
 	if(argc != 4 && argc != 5)
 	{

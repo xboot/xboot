@@ -37,11 +37,11 @@
 
 static struct timer_list button_timer;
 
-static void button_timer_function(x_u32 data)
+static void button_timer_function(u32_t data)
 {
-	static x_u32 key_old = 0x7;
-	x_u32 keyup, keydown;
-	x_u32 key = 0;
+	static u32_t key_old = 0x7;
+	u32_t keyup, keydown;
+	u32_t key = 0;
 
 	if(readl(S5PV210_GPH3DAT) & (0x1<<4))
 	{
@@ -103,7 +103,7 @@ static void button_timer_function(x_u32 data)
 	mod_timer(&button_timer, jiffies + get_system_hz() / 10);
 }
 
-static x_bool button_probe(struct input * input)
+static bool_t button_probe(struct input * input)
 {
 	/* set GPH3_4 intput and pull up */
 	writel(S5PV210_GPH3CON, (readl(S5PV210_GPH3CON) & ~(0xf<<16)) | (0x0<<16));
@@ -126,12 +126,12 @@ static x_bool button_probe(struct input * input)
 	return TRUE;
 }
 
-static x_bool button_remove(struct input * input)
+static bool_t button_remove(struct input * input)
 {
 	return TRUE;
 }
 
-static x_s32 button_ioctl(struct input * input, x_u32 cmd, void * arg)
+static s32_t button_ioctl(struct input * input, u32_t cmd, void * arg)
 {
 	return -1;
 }

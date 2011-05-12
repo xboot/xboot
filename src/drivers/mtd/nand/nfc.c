@@ -68,7 +68,7 @@ struct nfc * search_nfc(const char * name)
 /*
  * register a nfc into nfc_list
  */
-x_bool register_nfc(struct nfc * nfc)
+bool_t register_nfc(struct nfc * nfc)
 {
 	struct nfc_list * list;
 
@@ -94,7 +94,7 @@ x_bool register_nfc(struct nfc * nfc)
 /*
  * unregister nfc from nfc_list
  */
-x_bool unregister_nfc(struct nfc * nfc)
+bool_t unregister_nfc(struct nfc * nfc)
 {
 	struct nfc_list * list;
 	struct list_head * pos;

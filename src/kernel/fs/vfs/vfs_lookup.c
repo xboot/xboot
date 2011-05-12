@@ -32,14 +32,14 @@
 /*
  * convert a full path name into a pointer to a locked vnode.
  */
-x_s32 namei(char * path, struct vnode ** vpp)
+s32_t namei(char * path, struct vnode ** vpp)
 {
 	char *p;
 	char node[MAX_PATH];
 	char name[MAX_PATH];
 	struct mount * mp;
 	struct vnode * dvp, * vp;
-	x_s32 error, i;
+	s32_t error, i;
 
 	/*
 	 * convert a full path name to its mount point and
@@ -132,13 +132,13 @@ x_s32 namei(char * path, struct vnode ** vpp)
  * @vpp:  pointer to locked vnode for directory.
  * @name: pointer to file name in path.
  */
-x_s32 lookup(char * path, struct vnode ** vpp, char ** name)
+s32_t lookup(char * path, struct vnode ** vpp, char ** name)
 {
 	char buf[MAX_PATH];
 	char root[] = "/";
 	char *file, *dir;
 	struct vnode * vp;
-	x_s32 error;
+	s32_t error;
 
 	/*
 	 * get the path for directory.

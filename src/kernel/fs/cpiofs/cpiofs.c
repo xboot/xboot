@@ -41,27 +41,27 @@
 #include <fs/fs.h>
 
 struct cpio_newc_header {
-	x_u8 c_magic[6];
-	x_u8 c_ino[8];
-	x_u8 c_mode[8];
-	x_u8 c_uid[8];
-	x_u8 c_gid[8];
-	x_u8 c_nlink[8];
-	x_u8 c_mtime[8];
-	x_u8 c_filesize[8];
-	x_u8 c_devmajor[8];
-	x_u8 c_devminor[8];
-	x_u8 c_rdevmajor[8];
-	x_u8 c_rdevminor[8];
-	x_u8 c_namesize[8];
-	x_u8 c_check[8];
+	u8_t c_magic[6];
+	u8_t c_ino[8];
+	u8_t c_mode[8];
+	u8_t c_uid[8];
+	u8_t c_gid[8];
+	u8_t c_nlink[8];
+	u8_t c_mtime[8];
+	u8_t c_filesize[8];
+	u8_t c_devmajor[8];
+	u8_t c_devminor[8];
+	u8_t c_rdevmajor[8];
+	u8_t c_rdevminor[8];
+	u8_t c_namesize[8];
+	u8_t c_check[8];
 } __attribute__ ((packed));
 
-static x_bool get_next_token(const char * path, const char * perfix, char * result)
+static bool_t get_next_token(const char * path, const char * perfix, char * result)
 {
 	char full_path[MAX_PATH];
 	char *p, *q;
-	x_s32 l;
+	s32_t l;
 
 	if(!path || !perfix || !result)
 		return FALSE;
@@ -97,12 +97,12 @@ static x_bool get_next_token(const char * path, const char * perfix, char * resu
 	return TRUE;
 }
 
-static x_bool check_path(const char * path, const char * perfix, const char * name)
+static bool_t check_path(const char * path, const char * perfix, const char * name)
 {
 	char path1[MAX_PATH];
 	char path2[MAX_PATH];
 	char *p;
-	x_s32 l;
+	s32_t l;
 
 	if(!path || !perfix || !name)
 		return FALSE;
@@ -139,7 +139,7 @@ static x_bool check_path(const char * path, const char * perfix, const char * na
 /*
  * filesystem operations
  */
-static x_s32 cpiofs_mount(struct mount * m, char * dev, x_s32 flag)
+static s32_t cpiofs_mount(struct mount * m, char * dev, s32_t flag)
 {
 	struct blkdev * blk;
 	struct cpio_newc_header header;
@@ -154,7 +154,7 @@ static x_s32 cpiofs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(get_blkdev_total_size(blk) <= sizeof(struct cpio_newc_header))
 		return EINTR;
 
-	if(bio_read(blk, (x_u8 *)(&header), 0, sizeof(struct cpio_newc_header)) != sizeof(struct cpio_newc_header))
+	if(bio_read(blk, (u8_t *)(&header), 0, sizeof(struct cpio_newc_header)) != sizeof(struct cpio_newc_header))
 		return EIO;
 
 	if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
@@ -167,23 +167,23 @@ static x_s32 cpiofs_mount(struct mount * m, char * dev, x_s32 flag)
 	return 0;
 }
 
-static x_s32 cpiofs_unmount(struct mount * m)
+static s32_t cpiofs_unmount(struct mount * m)
 {
 	m->m_data = NULL;
 	return 0;
 }
 
-static x_s32 cpiofs_sync(struct mount * m)
+static s32_t cpiofs_sync(struct mount * m)
 {
 	return 0;
 }
 
-static x_s32 cpiofs_vget(struct mount * m, struct vnode * node)
+static s32_t cpiofs_vget(struct mount * m, struct vnode * node)
 {
 	return 0;
 }
 
-static x_s32 cpiofs_statfs(struct mount * m, struct statfs * stat)
+static s32_t cpiofs_statfs(struct mount * m, struct statfs * stat)
 {
 	return -1;
 }
@@ -191,17 +191,17 @@ static x_s32 cpiofs_statfs(struct mount * m, struct statfs * stat)
 /*
  * vnode operations
  */
-static x_s32 cpiofs_open(struct vnode * node, x_s32 flag)
+static s32_t cpiofs_open(struct vnode * node, s32_t flag)
 {
 	return 0;
 }
 
-static x_s32 cpiofs_close(struct vnode * node, struct file * fp)
+static s32_t cpiofs_close(struct vnode * node, struct file * fp)
 {
 	return 0;
 }
 
-static x_s32 cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	x_off off;
@@ -219,8 +219,8 @@ static x_s32 cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_si
 	if(node->v_size - fp->f_offset < size)
 		size = node->v_size - fp->f_offset;
 
-	off = (x_off)((x_s32)(node->v_data));
-	len = bio_read(dev, (x_u8 *)buf, (off + fp->f_offset), size);
+	off = (x_off)((s32_t)(node->v_data));
+	len = bio_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
 	*result = len;
@@ -228,12 +228,12 @@ static x_s32 cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_si
 	return 0;
 }
 
-static x_s32 cpiofs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t cpiofs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t cpiofs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
 	if(off2 > (x_off)(node->v_size))
 		return -1;
@@ -241,26 +241,26 @@ static x_s32 cpiofs_seek(struct vnode * node, struct file * fp, x_off off1, x_of
 	return 0;
 }
 
-static x_s32 cpiofs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)
+static s32_t cpiofs_ioctl(struct vnode * node, struct file * fp, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_fsync(struct vnode * node, struct file * fp)
+static s32_t cpiofs_fsync(struct vnode * node, struct file * fp)
 {
 	return 0;
 }
 
-static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
+static s32_t cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
 	char path[MAX_PATH];
 	char name[MAX_NAME];
-	x_u32 size, name_size, mode;
+	u32_t size, name_size, mode;
 	x_size off = 0;
 	char buf[9];
-	x_s32 i = 0;
+	s32_t i = 0;
 
 	if(fp->f_offset == 0)
 	{
@@ -276,23 +276,23 @@ static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 	{
 		while(1)
 		{
-			bio_read(dev, (x_u8 *)(&header), off, sizeof(struct cpio_newc_header));
+			bio_read(dev, (u8_t *)(&header), off, sizeof(struct cpio_newc_header));
 
 			if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
 				return ENOENT;
 
 			buf[8] = '\0';
 
-			memcpy(buf, (const x_s8 *)(header.c_filesize), 8);
-			size = simple_strtou32((const x_s8 *)buf, NULL, 16);
+			memcpy(buf, (const s8_t *)(header.c_filesize), 8);
+			size = simple_strtou32((const s8_t *)buf, NULL, 16);
 
-			memcpy(buf, (const x_s8 *)(header.c_namesize), 8);
-			name_size = simple_strtou32((const x_s8 *)buf, NULL, 16);
+			memcpy(buf, (const s8_t *)(header.c_namesize), 8);
+			name_size = simple_strtou32((const s8_t *)buf, NULL, 16);
 
-			memcpy(buf, (const x_s8 *)(header.c_mode), 8);
-			mode = simple_strtou32((const x_s8 *)buf, NULL, 16);
+			memcpy(buf, (const s8_t *)(header.c_mode), 8);
+			mode = simple_strtou32((const s8_t *)buf, NULL, 16);
 
-			bio_read(dev, (x_u8 *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
+			bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
 
 			if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const char *)"TRAILER!!!", 10) == 0) )
 				return ENOENT;
@@ -317,41 +317,41 @@ static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 		strlcpy((char *)&dir->d_name, name, sizeof(name));
 	}
 
-	dir->d_fileno = (x_u32)fp->f_offset;
-	dir->d_namlen = (x_u16)strlen((const char *)dir->d_name);
+	dir->d_fileno = (u32_t)fp->f_offset;
+	dir->d_namlen = (u16_t)strlen((const char *)dir->d_name);
 	fp->f_offset++;
 
 	return 0;
 }
 
-static x_s32 cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * node)
+static s32_t cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
 	char path[MAX_PATH];
-	x_u32 size, name_size, mode;
+	u32_t size, name_size, mode;
 	x_size off = 0;
-	x_s8 buf[9];
+	s8_t buf[9];
 
 	while(1)
 	{
-		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct cpio_newc_header));
+		bio_read(dev, (u8_t *)(&header), off, sizeof(struct cpio_newc_header));
 
 		if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
 			return ENOENT;
 
 		buf[8] = '\0';
 
-		memcpy(buf, (const x_s8 *)(header.c_filesize), 8);
+		memcpy(buf, (const s8_t *)(header.c_filesize), 8);
 		size = simple_strtou32(buf, NULL, 16);
 
-		memcpy(buf, (const x_s8 *)(header.c_namesize), 8);
+		memcpy(buf, (const s8_t *)(header.c_namesize), 8);
 		name_size = simple_strtou32(buf, NULL, 16);
 
-		memcpy(buf, (const x_s8 *)(header.c_mode), 8);
+		memcpy(buf, (const s8_t *)(header.c_mode), 8);
 		mode = simple_strtou32(buf, NULL, 16);
 
-		bio_read(dev, (x_u8 *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
+		bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
 
 		if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const char *)"TRAILER!!!", 10) == 0) )
 			return ENOENT;
@@ -401,52 +401,52 @@ static x_s32 cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 		node->v_mode |= S_IXOTH;
 
 	node->v_size = size;
-	node->v_data = (void *)((x_s32)(off + sizeof(struct cpio_newc_header) + (((name_size + 1) & ~3) + 2)));
+	node->v_data = (void *)((s32_t)(off + sizeof(struct cpio_newc_header) + (((name_size + 1) & ~3) + 2)));
 
 	return 0;
 }
 
-static x_s32 cpiofs_create(struct vnode * node, char * name, x_u32 mode)
+static s32_t cpiofs_create(struct vnode * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_remove(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t cpiofs_remove(struct vnode * dnode, struct vnode * node, char * name)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
+static s32_t cpiofs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_mkdir(struct vnode * node, char * name, x_u32 mode)
+static s32_t cpiofs_mkdir(struct vnode * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t cpiofs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_getattr(struct vnode * node, struct vattr * attr)
+static s32_t cpiofs_getattr(struct vnode * node, struct vattr * attr)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_setattr(struct vnode * node, struct vattr * attr)
+static s32_t cpiofs_setattr(struct vnode * node, struct vattr * attr)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_inactive(struct vnode * node)
+static s32_t cpiofs_inactive(struct vnode * node)
 {
 	return -1;
 }
 
-static x_s32 cpiofs_truncate(struct vnode * node, x_off length)
+static s32_t cpiofs_truncate(struct vnode * node, x_off length)
 {
 	return -1;
 }

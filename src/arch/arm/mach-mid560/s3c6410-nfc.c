@@ -49,7 +49,7 @@ static void s3c6410_nfc_exit(void)
 {
 }
 
-static x_bool s3c6410_nfc_control(struct nand_device * nand, enum nand_control ctl)
+static bool_t s3c6410_nfc_control(struct nand_device * nand, enum nand_control ctl)
 {
 	switch(ctl)
 	{
@@ -76,37 +76,37 @@ static x_bool s3c6410_nfc_control(struct nand_device * nand, enum nand_control c
 	return FALSE;
 }
 
-static x_bool s3c6410_nfc_command(struct nand_device * nand, x_u32 cmd)
+static bool_t s3c6410_nfc_command(struct nand_device * nand, u32_t cmd)
 {
 	writel(S3C6410_NFCMD, cmd);
 
 	return TRUE;
 }
 
-static x_bool s3c6410_nfc_address(struct nand_device * nand, x_u32 addr)
+static bool_t s3c6410_nfc_address(struct nand_device * nand, u32_t addr)
 {
 	writel(S3C6410_NFADDR, addr);
 
 	return TRUE;
 }
 
-static x_bool s3c6410_nfc_read_data(struct nand_device * nand, x_u32 * data)
+static bool_t s3c6410_nfc_read_data(struct nand_device * nand, u32_t * data)
 {
 	*data = readb(S3C6410_NFDATA);
 
 	return TRUE;
 }
 
-static x_bool s3c6410_nfc_write_data(struct nand_device * nand, x_u32 data)
+static bool_t s3c6410_nfc_write_data(struct nand_device * nand, u32_t data)
 {
 	writeb(S3C6410_NFDATA, data);
 
 	return TRUE;
 }
 
-static x_bool s3c6410_nfc_nand_ready(struct nand_device * nand, x_s32 timeout)
+static bool_t s3c6410_nfc_nand_ready(struct nand_device * nand, s32_t timeout)
 {
-	x_u32 status;
+	u32_t status;
 
 	do {
 		status = readl(S3C6410_NFSTAT);

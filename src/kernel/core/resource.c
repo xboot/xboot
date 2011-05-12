@@ -69,7 +69,7 @@ static struct resource * search_resource(const char * name)
 /*
  * register a resource into resource_list
  */
-x_bool register_resource(struct resource * res)
+bool_t register_resource(struct resource * res)
 {
 	struct resource_list * list;
 
@@ -95,7 +95,7 @@ x_bool register_resource(struct resource * res)
 /*
  * unregister resource from resource_list
  */
-x_bool unregister_resource(struct resource * res)
+bool_t unregister_resource(struct resource * res)
 {
 	struct resource_list * list;
 	struct list_head * pos;
@@ -135,12 +135,12 @@ void * resource_get_data(const char * name)
 /*
  * resource proc interface
  */
-static x_s32 resource_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct resource_list * list;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -160,7 +160,7 @@ static x_s32 resource_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

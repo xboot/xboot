@@ -42,9 +42,9 @@ const struct rsa_public_key public_key = {
 	}
 };
 
-const x_u8 sample_data[4] = { 'a', 'b', 'c', '\n' };
+const u8_t sample_data[4] = { 'a', 'b', 'c', '\n' };
 
-const x_u8 signature[256] = {
+const u8_t signature[256] = {
 	0x80,0x6d,0xf0,0xbb,0xb7,0x2e,0xff,0xd7,
 	0x76,0xf6,0x9b,0xf5,0x58,0xb2,0xb8,0xa1,
 	0x89,0x4d,0x23,0xb2,0xd4,0x2f,0xd8,0xfb,
@@ -81,8 +81,8 @@ const x_u8 signature[256] = {
 
 void test_rsa(void)
 {
-	x_u8 digest[20];
-	x_u32 i;
+	u8_t digest[20];
+	u32_t i;
 
 	sha1(sample_data, 4, digest);
 

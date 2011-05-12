@@ -50,10 +50,10 @@ static struct clk s5pc100_clocks[5];
 /*
  * get pll frequency.
  */
-static x_u64 s5pc100_get_pll(x_u64 baseclk, enum S5PC100_PLL pll)
+static u64_t s5pc100_get_pll(u64_t baseclk, enum S5PC100_PLL pll)
 {
-	x_u32 r, m, p, s, mask;
-	x_u64 fvco;
+	u32_t r, m, p, s, mask;
+	u64_t fvco;
 
 	switch(pll)
 	{
@@ -83,19 +83,19 @@ static x_u64 s5pc100_get_pll(x_u64 baseclk, enum S5PC100_PLL pll)
 	s = r & 0x7;
 
 	fvco = m * div64(baseclk, p * (1 << s));
-	return (x_u64)fvco;
+	return (u64_t)fvco;
 }
 
 /*
  * setup the s5pc100's clock array.
  */
-static void s5pc100_setup_clocks(x_u64 xtal)
+static void s5pc100_setup_clocks(u64_t xtal)
 {
-	x_u64 fin, apll, mpll, epll, hpll;
-	x_u64 dout_d1bus, dout_mpll2, dout_mpll;
-	x_u64 tmp;
-	x_u32 clkdiv0, clkdiv1;
-	x_u32 clksrc0;
+	u64_t fin, apll, mpll, epll, hpll;
+	u64_t dout_d1bus, dout_mpll2, dout_mpll;
+	u64_t tmp;
+	u32_t clkdiv0, clkdiv1;
+	u32_t clksrc0;
 
 	/* get value of clkdiv and clksrc register */
 	clkdiv0 = readl(S5PC100_CLK_DIV0);
@@ -175,8 +175,8 @@ static void s5pc100_setup_clocks(x_u64 xtal)
 
 static __init void s5pc100_clk_init(void)
 {
-	x_u32 i;
-	x_u64 xtal = 0;
+	u32_t i;
+	u64_t xtal = 0;
 
 	/* get system xtal. */
 	if(get_machine() != 0)
@@ -199,7 +199,7 @@ static __init void s5pc100_clk_init(void)
 
 static __exit void s5pc100_clk_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i=0; i< ARRAY_SIZE(s5pc100_clocks); i++)
 	{

@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_VERSION) && (CONFIG_COMMAND_VERSION > 0)
 
-static x_s32 version(x_s32 argc, const x_s8 **argv)
+static s32_t version(s32_t argc, const s8_t **argv)
 {
 	xboot_banner(get_stdout());
 

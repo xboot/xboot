@@ -36,9 +36,9 @@
 
 #if	defined(CONFIG_COMMAND_PWD) && (CONFIG_COMMAND_PWD > 0)
 
-static x_s32 do_pwd(x_s32 argc, const x_s8 **argv)
+static s32_t do_pwd(s32_t argc, const s8_t **argv)
 {
-	x_s8 cwd[MAX_PATH];
+	s8_t cwd[MAX_PATH];
 
 	if(getcwd((char *)cwd, sizeof(cwd)))
 	{

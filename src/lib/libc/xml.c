@@ -31,7 +31,7 @@ struct xml_root {
 	char ** ent;							/* general entities (ampersand sequences) */
 	char *** attr;							/* default attributes */
 	char *** pi;							/* processing instructions */
-	x_s16 standalone;						/* non-zero if <?xml standalone="yes"?> */
+	s16_t standalone;						/* non-zero if <?xml standalone="yes"?> */
 	char err[XML_ERROR_LENGTH];				/* error string */
 };
 
@@ -56,7 +56,7 @@ struct xml * xml_child(struct xml * xml, const char * name)
 /*
  * returns the Nth tag with the same name in the same subsection or NULL if not found
  */
-struct xml * xml_idx(struct xml * xml, x_s32 idx)
+struct xml * xml_idx(struct xml * xml, s32_t idx)
 {
 	for(; xml && idx; idx--)
 		xml = xml->next;
@@ -69,7 +69,7 @@ struct xml * xml_idx(struct xml * xml, x_s32 idx)
  */
 const char * xml_attr(struct xml * xml, const char * attr)
 {
-	x_s32 i = 0, j = 1;
+	s32_t i = 0, j = 1;
 	struct xml_root * root = (struct xml_root *)xml;
 
 	if(! xml || ! xml->attr)
@@ -101,7 +101,7 @@ const char * xml_attr(struct xml * xml, const char * attr)
 static struct xml * xml_vget(struct xml * xml, va_list ap)
 {
 	char * name = va_arg(ap, char *);
-	x_s32 idx = -1;
+	s32_t idx = -1;
 
 	if(name && *name)
 	{
@@ -140,7 +140,7 @@ struct xml * xml_get(struct xml * xml, ...)
 const char ** xml_pi(struct xml * xml, const char * target)
 {
 	struct xml_root * root = (struct xml_root *)xml;
-	x_s32 i = 0;
+	s32_t i = 0;
 
 	if(!root)
 		return (const char **)xml_nil;
@@ -160,7 +160,7 @@ const char ** xml_pi(struct xml * xml, const char * target)
 static struct xml * xml_err(struct xml_root * root, char * s, const char * err, ...)
 {
 	va_list ap;
-	x_s32 line = 1;
+	s32_t line = 1;
 	char *t, fmt[XML_ERROR_LENGTH];
 
 	for(t = root->s; t < s; t++)
@@ -171,7 +171,7 @@ static struct xml * xml_err(struct xml_root * root, char * s, const char * err, 
 	snprintf((char *)fmt, XML_ERROR_LENGTH, (const char *)"[error near line %ld]: %s", line, err);
 
 	va_start(ap, err);
-	vsnprintf((x_s8 *)root->err, XML_ERROR_LENGTH, (const x_s8 *)fmt, ap);
+	vsnprintf((s8_t *)root->err, XML_ERROR_LENGTH, (const s8_t *)fmt, ap);
 	va_end(ap);
 
 	return &root->xml;
@@ -188,7 +188,7 @@ static struct xml * xml_err(struct xml_root * root, char * s, const char * err, 
 static char * xml_decode(char * s, char ** ent, char t)
 {
 	char *e, *r = s, *m = s;
-	x_s32 b, c, d, l;
+	s32_t b, c, d, l;
 
 	for(; *s; s++)												/* normalize line endings */
 	{
@@ -210,9 +210,9 @@ static char * xml_decode(char * s, char ** ent, char t)
 		else if(t != 'c' && ! strncmp((const char *)s, (const char *)"&#", 2))				/* character reference */
         {
 			if(s[2] == 'x')
-				c = simple_strtos64((const x_s8 *)(s + 3), (x_s8 **)(&e), 16);
+				c = simple_strtos64((const s8_t *)(s + 3), (s8_t **)(&e), 16);
 			else
-				c = simple_strtos64((const x_s8 *)(s + 2), (x_s8 **)(&e), 10);
+				c = simple_strtos64((const s8_t *)(s + 2), (s8_t **)(&e), 10);
 			if(! c || *e != ';')								/* not a character ref */
 			{
 				s++;
@@ -363,7 +363,7 @@ static void xml_open_tag(struct xml_root * root, char * name, char ** attr)
 /*
  * sets a flag for the given tag and returns the tag
  */
-struct xml * xml_set_flag(struct xml * xml, x_s16 flag)
+struct xml * xml_set_flag(struct xml * xml, s16_t flag)
 {
 	if(xml)
 		xml->flags |= flag;
@@ -394,7 +394,7 @@ struct xml * xml_set_txt(struct xml * xml, const char * txt)
  */
 struct xml * xml_set_attr(struct xml * xml, const char * name, const char * value)
 {
-	x_s32 l = 0, c;
+	s32_t l = 0, c;
 
 	if(!xml)
 		return NULL;
@@ -499,9 +499,9 @@ static struct xml * xml_close_tag(struct xml_root * root, char * name, char * s)
  * checks for circular entity references, returns non-zero if no circular
  * references are found, zero otherwise
  */
-static x_s32 xml_ent_ok(char * name, char * s, char ** ent)
+static s32_t xml_ent_ok(char * name, char * s, char ** ent)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(; ; s++)
 	{
@@ -585,7 +585,7 @@ struct xml * xml_cut(struct xml * xml)
  */
 static void xml_proc_inst(struct xml_root * root, char * s, x_size len)
 {
-	x_s32 i = 0, j = 1;
+	s32_t i = 0, j = 1;
 	char * target = s;
 
 	s[len] = '\0';												/* null terminate instruction */
@@ -630,10 +630,10 @@ static void xml_proc_inst(struct xml_root * root, char * s, x_size len)
 /*
  * called when the parser finds an internal doctype subset
  */
-static x_s16 xml_internal_dtd(struct xml_root * root, char * s, x_size len)
+static s16_t xml_internal_dtd(struct xml_root * root, char * s, x_size len)
 {
 	char q, *c, *t, *n = NULL, *v, **ent, **pe;
-	x_s32 i, j;
+	s32_t i, j;
 
 	pe = memcpy(malloc(sizeof(xml_nil)), xml_nil, sizeof(xml_nil));
 
@@ -777,8 +777,8 @@ static char * xml_str2utf8(char ** s, x_size * len)
 {
 	char * u;
 	x_size l = 0, sl, max = *len;
-	x_s32 c, d;
-	x_s32 b, be = (**s == '\xFE') ? 1 : (**s == '\xFF') ? 0 : -1;
+	s32_t c, d;
+	s32_t b, be = (**s == '\xFE') ? 1 : (**s == '\xFF') ? 0 : -1;
 
 	if(be == -1)
 		return NULL; 											/* not UTF-16 */
@@ -817,7 +817,7 @@ static char * xml_str2utf8(char ** s, x_size * len)
  */
 static void xml_free_attr(char ** attr)
 {
-	x_s32 i = 0;
+	s32_t i = 0;
 	char * m;
 
 	if(! attr || attr == xml_nil)
@@ -864,7 +864,7 @@ struct xml * xml_new(const char * name)
 void xml_free(struct xml * xml)
 {
 	struct xml_root * root = (struct xml_root *)xml;
-	x_s32 i, j;
+	s32_t i, j;
 	char **a, *s;
 
 	if(!xml)
@@ -926,7 +926,7 @@ struct xml * xml_parse_str(char * s, x_size len)
 {
 	struct xml_root * root = (struct xml_root *)xml_new(NULL);
 	char q, e, *d, **attr, **a = NULL;									/* initialize a to avoid compile warning */
-	x_s32 l, i, j;
+	s32_t l, i, j;
 
 	root->m = s;
 	if(!len)
@@ -1099,7 +1099,7 @@ struct xml * xml_parse_str(char * s, x_size len)
  * Encodes ampersand sequences appending the results to *dst, reallocating *dst
  * if length excedes max. a is non-zero for attribute encoding. Returns *dst
  */
-static char * xml_ampencode(const char *s, x_size len, char **dst, x_size *dlen, x_size *max, x_s16 a)
+static char * xml_ampencode(const char *s, x_size len, char **dst, x_size *dlen, x_size *max, s16_t a)
 {
 	const char * e;
 
@@ -1146,7 +1146,7 @@ static char * xml_ampencode(const char *s, x_size len, char **dst, x_size *dlen,
  */
 static char *xml_toxml_r(struct xml * xml, char **s, x_size *len, x_size *max, x_size start, char ***attr)
 {
-	x_s32 i, j;
+	s32_t i, j;
 	char *txt = (xml->parent) ? xml->parent->txt : "";
 	x_size off = 0;
 
@@ -1205,7 +1205,7 @@ char * xml_toxml(struct xml * xml)
 	struct xml_root * root = (struct xml_root *)xml;
 	x_size len = 0, max = XML_BUFFER_SIZE;
 	char *s = (char *)strcpy((char *)(malloc(max)), (const char *)""), *t, *n;
-	x_s32 i, j, k;
+	s32_t i, j, k;
 
 	if(! xml || ! xml->name)
 		return realloc(s, len + 1);
@@ -1254,7 +1254,7 @@ struct xml * xml_parse_file(const char * name)
 {
     struct xml_root * root;
     struct xml * xml;
-    x_s32 fd;
+    s32_t fd;
     x_size l, len = 0;
 	char * s;
 

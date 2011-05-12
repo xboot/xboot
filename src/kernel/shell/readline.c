@@ -35,18 +35,18 @@
 #include <shell/readline.h>
 
 struct rl_buf {
-	x_u32 * buf;
-	x_u32 * cut;
-	x_s32 size;
-	x_s32 len;
-	x_s32 pos;
-	x_s32 x, y;
-	x_s32 w, h;
+	u32_t * buf;
+	u32_t * cut;
+	s32_t size;
+	s32_t len;
+	s32_t pos;
+	s32_t x, y;
+	s32_t w, h;
 };
 
 struct history_list
 {
-	x_u32 * history;
+	u32_t * history;
 	struct list_head entry;
 };
 
@@ -59,9 +59,9 @@ static struct history_list __history_list = {
 static struct history_list * history_list = &__history_list;
 static struct history_list * history_current = &__history_list;
 
-static x_s32 ucs4_strlen(const x_u32 * s)
+static s32_t ucs4_strlen(const u32_t * s)
 {
-	const x_u32 * sc;
+	const u32_t * sc;
 
 	if(!s)
 		return 0;
@@ -70,9 +70,9 @@ static x_s32 ucs4_strlen(const x_u32 * s)
 	return sc - s;
 }
 
-static x_s32 history_numberof(void)
+static s32_t history_numberof(void)
 {
-	x_s32 i = 0;
+	s32_t i = 0;
 	struct list_head * pos = (&history_list->entry)->next;
 
 	while(!list_is_last(pos, (&history_list->entry)->next))
@@ -84,7 +84,7 @@ static x_s32 history_numberof(void)
 	return i;
 }
 
-static x_bool history_remove(void)
+static bool_t history_remove(void)
 {
 	struct history_list * list, * list_prev;
 	struct list_head * pos = (&history_list->entry)->prev;
@@ -109,9 +109,9 @@ static x_bool history_remove(void)
 	return FALSE;
 }
 
-static x_bool history_add(x_u32 * history, x_u32 len)
+static bool_t history_add(u32_t * history, u32_t len)
 {
-	x_u32 * s;
+	u32_t * s;
 	struct history_list * list;
 	struct list_head * pos;
 
@@ -123,7 +123,7 @@ static x_bool history_add(x_u32 * history, x_u32 len)
 	list = list_entry(pos, struct history_list, entry);
 	if(ucs4_strlen(list->history) == len)
 	{
-		if(memcmp(list->history, history, len * sizeof(x_u32)) == 0)
+		if(memcmp(list->history, history, len * sizeof(u32_t)) == 0)
 			return TRUE;
 	}
 
@@ -134,7 +134,7 @@ static x_bool history_add(x_u32 * history, x_u32 len)
 		return FALSE;
 	}
 
-	s = malloc((len + 1) * sizeof(x_u32));
+	s = malloc((len + 1) * sizeof(u32_t));
 	if(!s)
 	{
 		free(s);
@@ -145,7 +145,7 @@ static x_bool history_add(x_u32 * history, x_u32 len)
 	if(history_numberof() >= 32)
 		history_remove();
 
-	memcpy(s, history, len * sizeof(x_u32));
+	memcpy(s, history, len * sizeof(u32_t));
 	s[len] = '\0';
 
 	list->history = s;
@@ -154,7 +154,7 @@ static x_bool history_add(x_u32 * history, x_u32 len)
 	return TRUE;
 }
 
-static x_u32 * history_next(void)
+static u32_t * history_next(void)
 {
 	struct history_list * list;
 
@@ -175,7 +175,7 @@ static x_u32 * history_next(void)
 		return NULL;
 }
 
-static x_u32 * history_prev(void)
+static u32_t * history_prev(void)
 {
 	struct history_list * list;
 
@@ -197,8 +197,8 @@ static x_u32 * history_prev(void)
 
 static void rl_gotoxy(struct rl_buf * rl)
 {
-	x_s32 x, y;
-	x_s32 pos, i, w;
+	s32_t x, y;
+	s32_t pos, i, w;
 
 	for(i = 0, pos = 0; i < rl->pos; i++)
 	{
@@ -214,17 +214,17 @@ static void rl_gotoxy(struct rl_buf * rl)
 	console_gotoxy(get_stdout(), x, y);
 }
 
-static void rl_space(struct rl_buf * rl, x_u32 len)
+static void rl_space(struct rl_buf * rl, u32_t len)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < len; i++)
 		putch(' ');
 }
 
-static void rl_print(struct rl_buf * rl, x_s32 pos)
+static void rl_print(struct rl_buf * rl, s32_t pos)
 {
-	x_s8 * utf8;
+	s8_t * utf8;
 
 	if(pos < 0)
 		return;
@@ -241,7 +241,7 @@ static void rl_print(struct rl_buf * rl, x_s32 pos)
 static struct rl_buf * rl_buf_alloc(void)
 {
 	struct rl_buf * rl;
-	x_s32 x, y, w, h;
+	s32_t x, y, w, h;
 
 	if(!console_getxy(get_stdout(), &x, &y))
 		return NULL;
@@ -263,7 +263,7 @@ static struct rl_buf * rl_buf_alloc(void)
 	rl->w = w;
 	rl->h = h;
 
-	rl->buf = malloc(sizeof(x_u32) * rl->size);
+	rl->buf = malloc(sizeof(u32_t) * rl->size);
 	if(!rl->buf)
 	{
 		free(rl);
@@ -318,17 +318,17 @@ static void rl_cursor_right(struct rl_buf * rl)
 	}
 }
 
-static void rl_insert(struct rl_buf * rl, x_u32 * str)
+static void rl_insert(struct rl_buf * rl, u32_t * str)
 {
-	x_u32 * p;
-	x_s32 len = ucs4_strlen(str);
+	u32_t * p;
+	s32_t len = ucs4_strlen(str);
 
 	if(len <= 0)
 		return;
 
 	if(len + rl->len >= rl->size)
 	{
-		p = realloc(rl->buf, sizeof(x_u32) * rl->size * 2);
+		p = realloc(rl->buf, sizeof(u32_t) * rl->size * 2);
 		if(!p)
 			return;
 		rl->size = rl->size * 2;
@@ -337,8 +337,8 @@ static void rl_insert(struct rl_buf * rl, x_u32 * str)
 
 	if(len + rl->len < rl->size)
 	{
-		memmove(rl->buf + rl->pos + len, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(x_u32));
-		memmove (rl->buf + rl->pos, str, len * sizeof(x_u32));
+		memmove(rl->buf + rl->pos + len, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(u32_t));
+		memmove (rl->buf + rl->pos, str, len * sizeof(u32_t));
 
 		rl->len = rl->len + len;
 		rl_print(rl, rl->pos);
@@ -347,9 +347,9 @@ static void rl_insert(struct rl_buf * rl, x_u32 * str)
 	}
 }
 
-static void rl_delete(struct rl_buf * rl, x_u32 len)
+static void rl_delete(struct rl_buf * rl, u32_t len)
 {
-	x_s32 n, i, w;
+	s32_t n, i, w;
 
 	if(len > rl->len - rl->pos)
 		len = rl->len - rl->pos;
@@ -367,14 +367,14 @@ static void rl_delete(struct rl_buf * rl, x_u32 len)
 		if(rl->cut)
 			free(rl->cut);
 
-		rl->cut = malloc((rl->len - rl->pos + 1) * sizeof(x_u32));
+		rl->cut = malloc((rl->len - rl->pos + 1) * sizeof(u32_t));
 		if(rl->cut)
 		{
-			memcpy(rl->cut, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(x_u32));
+			memcpy(rl->cut, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(u32_t));
 			rl->cut[rl->len - rl->pos] = '\0';
 		}
 
-		memmove(rl->buf + rl->pos, rl->buf + rl->pos + len, sizeof(x_u32) * (rl->len - rl->pos + 1));
+		memmove(rl->buf + rl->pos, rl->buf + rl->pos + len, sizeof(u32_t) * (rl->len - rl->pos + 1));
 		rl->len = rl->len - len;
 		rl_print(rl, rl->pos);
 		rl_space(rl, n);
@@ -382,11 +382,11 @@ static void rl_delete(struct rl_buf * rl, x_u32 len)
 	}
 }
 
-static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
+static bool_t readline_handle(struct rl_buf * rl, u32_t code)
 {
-	x_u32 * p;
-    x_u32 tmp[2];
-    x_u32 n;
+	u32_t * p;
+    u32_t tmp[2];
+    u32_t n;
 
 	switch(code)
 	{
@@ -517,11 +517,11 @@ static x_bool readline_handle(struct rl_buf * rl, x_u32 code)
 /*
  * read line with utf-8 stream
  */
-x_s8 * readline(const x_s8 * prompt)
+s8_t * readline(const s8_t * prompt)
 {
 	struct rl_buf * rl;
-	x_s8 * utf8 = NULL;
-	x_u32 code;
+	s8_t * utf8 = NULL;
+	u32_t code;
 
 	if(prompt)
 		printk((char *)prompt);
@@ -540,7 +540,7 @@ x_s8 * readline(const x_s8 * prompt)
 	}
 
 	if(rl->len > 0)
-		utf8 = (x_s8 *)(ucs4_to_utf8_alloc(rl->buf, rl->len));
+		utf8 = (s8_t *)(ucs4_to_utf8_alloc(rl->buf, rl->len));
 
 	rl_buf_free(rl);
 	return utf8;

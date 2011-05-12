@@ -93,7 +93,7 @@ struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type
 /*
  * register a char device into device_list
  */
-x_bool register_chrdev(struct chrdev * dev)
+bool_t register_chrdev(struct chrdev * dev)
 {
 	struct device * device;
 
@@ -120,7 +120,7 @@ x_bool register_chrdev(struct chrdev * dev)
 /*
  * unregister char device from chrdev_list
  */
-x_bool unregister_chrdev(const char * name)
+bool_t unregister_chrdev(const char * name)
 {
 	struct device * device;
 

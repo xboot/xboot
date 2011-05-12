@@ -36,7 +36,7 @@
 /*
  * get a unicode character, ucs-4 format
  */
-x_bool getcode(x_u32 * code)
+bool_t getcode(u32_t * code)
 {
 	struct console * stdin = get_stdin();
 
@@ -48,10 +48,10 @@ x_bool getcode(x_u32 * code)
 /*
  * get a unicode character with timeout (x1ms), ucs-4 format
  */
-x_bool getcode_with_timeout(x_u32 * code, x_u32 timeout)
+bool_t getcode_with_timeout(u32_t * code, u32_t timeout)
 {
 	struct console * stdin = get_stdin();
-	x_u32 end;
+	u32_t end;
 
 	if(!stdin || !stdin->getcode)
 		return FALSE;
@@ -88,16 +88,16 @@ x_bool getcode_with_timeout(x_u32 * code, x_u32 timeout)
 /*
  * scank - unformat input utf-8 stream into a list of arguments
  */
-x_s32 scank(const char * fmt, ...)
+s32_t scank(const char * fmt, ...)
 {
 	va_list args;
-	x_s8 * p;
-	x_s32 i;
+	s8_t * p;
+	s32_t i;
 
 	p = readline(0);
 
 	va_start(args,fmt);
-	i = vsscanf(p, (x_s8 *)fmt, args);
+	i = vsscanf(p, (s8_t *)fmt, args);
 	va_end(args);
 
 	free(p);

@@ -38,7 +38,7 @@
 /*
  * framebuffer set viewport
  */
-x_bool fb_set_viewport(struct fb * fb, struct rect * rect)
+bool_t fb_set_viewport(struct fb * fb, struct rect * rect)
 {
 	if(!fb)
 		return FALSE;
@@ -49,7 +49,7 @@ x_bool fb_set_viewport(struct fb * fb, struct rect * rect)
 /*
  * framebuffer get viewport
  */
-x_bool fb_get_viewport(struct fb * fb, struct rect * rect)
+bool_t fb_get_viewport(struct fb * fb, struct rect * rect)
 {
 	if(!fb)
 		return FALSE;
@@ -60,7 +60,7 @@ x_bool fb_get_viewport(struct fb * fb, struct rect * rect)
 /*
  * framebuffer map color
  */
-x_u32 fb_map_color(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a)
+u32_t fb_map_color(struct fb * fb, u8_t r, u8_t g, u8_t b, u8_t a)
 {
 	if(!fb || !fb->map_color)
 		return 0;
@@ -71,7 +71,7 @@ x_u32 fb_map_color(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a)
 /*
  * framebuffer unmap color
  */
-void fb_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a)
+void fb_unmap_color(struct fb * fb, u32_t c, u8_t * r, u8_t * g, u8_t * b, u8_t * a)
 {
 	if(!fb || !fb->unmap_color)
 		return;
@@ -82,7 +82,7 @@ void fb_unmap_color(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 
 /*
  * framebuffer fill rect
  */
-x_bool fb_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+bool_t fb_fill_rect(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
 	if(!fb || !fb->fill_rect)
 		return FALSE;
@@ -93,7 +93,7 @@ x_bool fb_fill_rect(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
 /*
  * framebuffer blit bitmap
  */
-x_bool fb_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+bool_t fb_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
 	if(!fb || !fb->blit_bitmap)
 		return FALSE;
@@ -104,7 +104,7 @@ x_bool fb_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mod
 /*
  * fill rect to bitmap
  */
-x_bool bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+bool_t bitmap_fill_rect(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
 	struct rect r, a, b;
 
@@ -137,7 +137,7 @@ x_bool bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32
 /*
  * bitmap blitter
  */
-x_bool bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy)
+bool_t bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
 	struct rect r, a, b;
 

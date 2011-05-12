@@ -3,19 +3,19 @@
 
 #include <configs.h>
 #include <default.h>
-
+#include <types.h>
 
 struct stat
 {
-    x_u32	st_ino;				/* file serial number */
+    u32_t	st_ino;				/* file serial number */
     x_size	st_size;     		/* file size */
-    x_u32	st_mode;			/* file mode */
-    x_u32	st_dev;				/* id of device containing file */
-    x_u32	st_uid;				/* user ID of the file owner */
-    x_u32	st_gid;				/* group ID of the file's group */
-    x_u32	st_ctime;			/* file create time */
-    x_u32	st_atime;			/* last access time */
-    x_u32	st_mtime;			/* last data modification time */
+    u32_t	st_mode;			/* file mode */
+    u32_t	st_dev;				/* id of device containing file */
+    u32_t	st_uid;				/* user ID of the file owner */
+    u32_t	st_gid;				/* group ID of the file's group */
+    u32_t	st_ctime;			/* file create time */
+    u32_t	st_atime;			/* last access time */
+    u32_t	st_mtime;			/* last data modification time */
 };
 
 /*

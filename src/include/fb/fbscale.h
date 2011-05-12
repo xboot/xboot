@@ -11,6 +11,6 @@ enum bitmap_scale_method
 	BITMAP_SCALE_METHOD_BEST,
 };
 
-x_bool bitmap_create_scaled(struct bitmap ** dst, x_u32 w, x_u32 h, struct bitmap * src, enum bitmap_scale_method method);
+bool_t bitmap_create_scaled(struct bitmap ** dst, u32_t w, u32_t h, struct bitmap * src, enum bitmap_scale_method method);
 
 #endif /* __FBSCALE_H__ */

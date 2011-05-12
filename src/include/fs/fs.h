@@ -29,8 +29,8 @@ struct fs_list
 	struct list_head entry;
 };
 
-x_bool filesystem_register(struct filesystem * fs);
-x_bool filesystem_unregister(struct filesystem * fs);
+bool_t filesystem_register(struct filesystem * fs);
+bool_t filesystem_unregister(struct filesystem * fs);
 struct filesystem * filesystem_search(const char * name);
 
 #endif /* __FS_H__ */

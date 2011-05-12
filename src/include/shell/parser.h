@@ -30,12 +30,12 @@ struct parser_state_transition
 	enum paser_state to_state;
 
 	/* The input that will determine the next state from FROM_STATE. */
-	x_s8 input;
+	s8_t input;
 
 	/* If set to 1, the input is valid and should be used. */
-	x_s32 keep_value;
+	s32_t keep_value;
 };
 
-x_bool parser(const x_s8 *cmdline, x_s32 *argc, x_s8 ***argv, x_s8 **pos);
+bool_t parser(const s8_t *cmdline, s32_t *argc, s8_t ***argv, s8_t **pos);
 
 #endif /* __PARSER_H__ */

@@ -34,13 +34,13 @@
 
 #if	defined(CONFIG_COMMAND_CP) && (CONFIG_COMMAND_CP > 0)
 
-static x_s32 do_cp(x_s32 argc, const x_s8 **argv)
+static s32_t do_cp(s32_t argc, const s8_t **argv)
 {
 	//FIXME
 	/*
-	x_s8 buf[128];
-	x_s32 fd1, fd2;
-	x_s64 done, wrote;
+	s8_t buf[128];
+	s32_t fd1, fd2;
+	s64_t done, wrote;
 
 	if(argc != 3)
 	{

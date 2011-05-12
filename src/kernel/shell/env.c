@@ -47,7 +47,7 @@ static struct env_list * env_find(const char * key)
 {
 	struct env_list * list;
 	struct hlist_node * pos;
-	x_u32 hash;
+	u32_t hash;
 
 	if(!key)
 		return NULL;
@@ -81,10 +81,10 @@ char * env_get(const char * key, const char * value)
 /*
  * add a environment variable. if it already exist, modify it.
  */
-x_bool env_add(const char * key, const char * value)
+bool_t env_add(const char * key, const char * value)
 {
 	struct env_list * list;
-	x_u32 hash;
+	u32_t hash;
 
 	if(!key)
 		return FALSE;
@@ -121,7 +121,7 @@ x_bool env_add(const char * key, const char * value)
 /*
  * remove a environment variable.
  */
-x_bool env_remove(const char * key)
+bool_t env_remove(const char * key)
 {
 	struct env_list * list;
 
@@ -143,13 +143,13 @@ x_bool env_remove(const char * key)
 /*
  * load environment variable from file
  */
-x_bool env_load(char * file)
+bool_t env_load(char * file)
 {
 	struct env_list * list;
 	struct hlist_node * pos, * n;
 	struct xml * root, * env;
 	struct xml * key, * value;
-	x_s32 i;
+	s32_t i;
 
 	/*
 	 * check the xml file contained environment variable
@@ -198,15 +198,15 @@ x_bool env_load(char * file)
 /*
  * save environment variable to file
  */
-x_bool env_save(char * file)
+bool_t env_save(char * file)
 {
 	struct env_list * list;
 	struct hlist_node * pos;
 	struct xml * root, * env;
 	struct xml * key, * value;
-	x_s32 fd;
+	s32_t fd;
 	char * str;
-	x_s32 i;
+	s32_t i;
 
 	root = xml_new("environment");
 	if(!root)
@@ -255,7 +255,7 @@ x_bool env_save(char * file)
  */
 static __init void env_pure_sync_init(void)
 {
-	x_s32 i;
+	s32_t i;
 
 	/* initialize env hash list */
 	for(i = 0; i < CONFIG_ENV_HASH_SIZE; i++)

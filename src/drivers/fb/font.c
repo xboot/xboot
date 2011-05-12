@@ -51,7 +51,7 @@ static struct font_reader_list __font_reader_list = {
 };
 static struct font_reader_list * font_reader_list = &__font_reader_list;
 
-static const x_u8 default_font_glyph_data_0000_007f[128][16] = {
+static const u8_t default_font_glyph_data_0000_007f[128][16] = {
 	[0x0] = {
 		0x00,	/* ________ */
 		0x00,	/* ________ */
@@ -2485,7 +2485,7 @@ static const x_u8 default_font_glyph_data_0000_007f[128][16] = {
 	}
 };
 
-static const x_u8 default_font_glyph_data_2500[16] = {
+static const u8_t default_font_glyph_data_2500[16] = {
 	0x00,		/* ________ */
 	0x00,		/* ________ */
 	0x00,		/* ________ */
@@ -2504,7 +2504,7 @@ static const x_u8 default_font_glyph_data_2500[16] = {
 	0x00,		/* ________ */
 };
 
-static const x_u8 default_font_glyph_data_2502[16] = {
+static const u8_t default_font_glyph_data_2502[16] = {
 	0x18,		/* ___XX___ */
 	0x18,		/* ___XX___ */
 	0x18,		/* ___XX___ */
@@ -2523,7 +2523,7 @@ static const x_u8 default_font_glyph_data_2502[16] = {
 	0x18,		/* ___XX___ */
 };
 
-static const x_u8 default_font_glyph_data_250c[16] = {
+static const u8_t default_font_glyph_data_250c[16] = {
 	0x00,		/* ________ */
 	0x00,		/* ________ */
 	0x00,		/* ________ */
@@ -2542,7 +2542,7 @@ static const x_u8 default_font_glyph_data_250c[16] = {
 	0x18,		/* ___XX___ */
 };
 
-static const x_u8 default_font_glyph_data_2510[16] = {
+static const u8_t default_font_glyph_data_2510[16] = {
 	0x00,		/* ________ */
 	0x00,		/* ________ */
 	0x00,		/* ________ */
@@ -2561,7 +2561,7 @@ static const x_u8 default_font_glyph_data_2510[16] = {
 	0x18,		/* ___XX___ */
 };
 
-static const x_u8 default_font_glyph_data_2514[16] = {
+static const u8_t default_font_glyph_data_2514[16] = {
 	0x18,		/* ___XX___ */
 	0x18,		/* ___XX___ */
 	0x18,		/* ___XX___ */
@@ -2580,7 +2580,7 @@ static const x_u8 default_font_glyph_data_2514[16] = {
 	0x00,		/* ________ */
 };
 
-static const x_u8 default_font_glyph_data_2518[16] = {
+static const u8_t default_font_glyph_data_2518[16] = {
 	0x18,		/* ___XX___ */
 	0x18,		/* ___XX___ */
 	0x18,		/* ___XX___ */
@@ -2599,7 +2599,7 @@ static const x_u8 default_font_glyph_data_2518[16] = {
 	0x00,		/* ________ */
 };
 
-static const x_u8 default_font_glyph_data_25b2[16] = {
+static const u8_t default_font_glyph_data_25b2[16] = {
 	0x00,		/* ________ */
 	0x00,		/* ________ */
 	0x00,		/* ________ */
@@ -2618,7 +2618,7 @@ static const x_u8 default_font_glyph_data_25b2[16] = {
 	0x00,		/* ________ */
 };
 
-static const x_u8 default_font_glyph_data_25b6[16] = {
+static const u8_t default_font_glyph_data_25b6[16] = {
 	0x00,		/* ________ */
 	0x80,		/* X_______ */
 	0xc0,		/* XX______ */
@@ -2637,7 +2637,7 @@ static const x_u8 default_font_glyph_data_25b6[16] = {
 	0x00,		/* ________ */
 };
 
-static const x_u8 default_font_glyph_data_25bc[16] = {
+static const u8_t default_font_glyph_data_25bc[16] = {
 	0x00,		/* ________ */
 	0x00,		/* ________ */
 	0x00,		/* ________ */
@@ -2656,7 +2656,7 @@ static const x_u8 default_font_glyph_data_25bc[16] = {
 	0x00,		/* ________ */
 };
 
-static const x_u8 default_font_glyph_data_25c0[16] = {
+static const u8_t default_font_glyph_data_25c0[16] = {
 	0x00,		/* ________ */
 	0x02,		/* ______X_ */
 	0x06,		/* _____XX_ */
@@ -2675,36 +2675,36 @@ static const x_u8 default_font_glyph_data_25c0[16] = {
 	0x00,		/* ________ */
 };
 
-static struct font_glyph * default_font_glyph(x_u32 code)
+static struct font_glyph * default_font_glyph(u32_t code)
 {
 	static struct font_glyph glyph;
-	x_u8 * data;
+	u8_t * data;
 
 	if( (code >= 0) && (code <= 0x7f) )
-		data = (x_u8 *)(&default_font_glyph_data_0000_007f[code][0]);
+		data = (u8_t *)(&default_font_glyph_data_0000_007f[code][0]);
 
 	else if(code == 0x2500)
-		data = (x_u8 *)(&default_font_glyph_data_2500[0]);
+		data = (u8_t *)(&default_font_glyph_data_2500[0]);
 	else if(code == 0x2502)
-		data = (x_u8 *)(&default_font_glyph_data_2502[0]);
+		data = (u8_t *)(&default_font_glyph_data_2502[0]);
 
 	else if(code == 0x250c)
-		data = (x_u8 *)(&default_font_glyph_data_250c[0]);
+		data = (u8_t *)(&default_font_glyph_data_250c[0]);
 	else if(code == 0x2510)
-		data = (x_u8 *)(&default_font_glyph_data_2510[0]);
+		data = (u8_t *)(&default_font_glyph_data_2510[0]);
 	else if(code == 0x2514)
-		data = (x_u8 *)(&default_font_glyph_data_2514[0]);
+		data = (u8_t *)(&default_font_glyph_data_2514[0]);
 	else if(code == 0x2518)
-		data = (x_u8 *)(&default_font_glyph_data_2518[0]);
+		data = (u8_t *)(&default_font_glyph_data_2518[0]);
 
 	else if(code == 0x25b2)
-		data = (x_u8 *)(&default_font_glyph_data_25b2[0]);
+		data = (u8_t *)(&default_font_glyph_data_25b2[0]);
 	else if(code == 0x25b6)
-		data = (x_u8 *)(&default_font_glyph_data_25b6[0]);
+		data = (u8_t *)(&default_font_glyph_data_25b6[0]);
 	else if(code == 0x25bc)
-		data = (x_u8 *)(&default_font_glyph_data_25bc[0]);
+		data = (u8_t *)(&default_font_glyph_data_25bc[0]);
 	else if(code == 0x25c0)
-		data = (x_u8 *)(&default_font_glyph_data_25c0[0]);
+		data = (u8_t *)(&default_font_glyph_data_25c0[0]);
 
 	else
 		return NULL;
@@ -2717,7 +2717,7 @@ static struct font_glyph * default_font_glyph(x_u32 code)
 	return &glyph;
 }
 
-static const x_u8 unkown_font_data[16][8] = {
+static const u8_t unkown_font_data[16][8] = {
 	[0x0] = {
 		0x00,	/* ________ */
 		0x00,	/* ________ */
@@ -2895,11 +2895,11 @@ static const x_u8 unkown_font_data[16][8] = {
 	}
 };
 
-static struct font_glyph * unkown_font_glyph(x_u32 code)
+static struct font_glyph * unkown_font_glyph(u32_t code)
 {
 	static struct font_glyph glyph;
-	static x_u8 data[32];
-	x_s32 idx, i;
+	static u8_t data[32];
+	s32_t idx, i;
 
 	idx = (code >> 12) & 0xf;
 	for(i = 0; i < 8; i++)
@@ -2945,9 +2945,9 @@ static struct font_glyph * unkown_font_glyph(x_u32 code)
 	return &glyph;
 }
 
-static x_bool match_extension(const char * filename, const char * ext)
+static bool_t match_extension(const char * filename, const char * ext)
 {
-	x_s32 pos, ext_len;
+	s32_t pos, ext_len;
 
 	pos = strlen((const char *)filename);
 	ext_len = strlen((const char *)ext);
@@ -2978,7 +2978,7 @@ static struct font_reader * search_font_reader(const char * extension)
 	return NULL;
 }
 
-x_bool register_font_reader(struct font_reader * reader)
+bool_t register_font_reader(struct font_reader * reader)
 {
 	struct font_reader_list * list;
 
@@ -3001,7 +3001,7 @@ x_bool register_font_reader(struct font_reader * reader)
 	return TRUE;
 }
 
-x_bool unregister_font_reader(struct font_reader * reader)
+bool_t unregister_font_reader(struct font_reader * reader)
 {
 	struct font_reader_list * list;
 	struct list_head * pos;
@@ -3027,7 +3027,7 @@ static struct font_glyph_list * search_font_glyph(struct font * font, struct fon
 {
 	struct font_glyph_list * list;
 	struct hlist_node * pos;
-	x_u32 hash;
+	u32_t hash;
 
 	if(!font)
 		return NULL;
@@ -3046,10 +3046,10 @@ static struct font_glyph_list * search_font_glyph(struct font * font, struct fon
 	return NULL;
 }
 
-x_bool font_create(struct font ** font, const char * name, x_u32 size)
+bool_t font_create(struct font ** font, const char * name, u32_t size)
 {
 	struct hlist_head * table;
-	x_s32 i;
+	s32_t i;
 
 	if(!font)
 		return FALSE;
@@ -3083,10 +3083,10 @@ x_bool font_create(struct font ** font, const char * name, x_u32 size)
 	return TRUE;
 }
 
-x_bool add_font_glyph(struct font * font, struct font_glyph * glyph)
+bool_t add_font_glyph(struct font * font, struct font_glyph * glyph)
 {
 	struct font_glyph_list * list;
-	x_u32 hash;
+	u32_t hash;
 
 	if(!font)
 		return FALSE;
@@ -3115,11 +3115,11 @@ x_bool add_font_glyph(struct font * font, struct font_glyph * glyph)
 	return TRUE;
 }
 
-x_bool font_destory(struct font * font)
+bool_t font_destory(struct font * font)
 {
 	struct font_glyph_list * list;
 	struct hlist_node * pos, * n;
-	x_s32 i;
+	s32_t i;
 
 	if(!font)
 		return FALSE;
@@ -3161,7 +3161,7 @@ struct font * get_font(const char * name)
 	return NULL;
 }
 
-static x_bool register_font(struct font * font)
+static bool_t register_font(struct font * font)
 {
 	struct font_list * list;
 
@@ -3184,7 +3184,7 @@ static x_bool register_font(struct font * font)
 	return TRUE;
 }
 
-x_bool install_font(const char * path)
+bool_t install_font(const char * path)
 {
 	struct font_reader_list * list;
 	struct list_head * pos;
@@ -3208,7 +3208,7 @@ x_bool install_font(const char * path)
 	return FALSE;
 }
 
-x_bool uninstall_font(const char * name)
+bool_t uninstall_font(const char * name)
 {
 	struct font_list * list;
 	struct list_head * pos;
@@ -3236,7 +3236,7 @@ x_bool uninstall_font(const char * name)
 /*
  * get a glyph for the unicode character code in font
  */
-static struct font_glyph * font_lookup_glyph(struct font * font, x_u32 code)
+static struct font_glyph * font_lookup_glyph(struct font * font, u32_t code)
 {
 	struct font_glyph * glyph;
 
@@ -3244,7 +3244,7 @@ static struct font_glyph * font_lookup_glyph(struct font * font, x_u32 code)
 	struct list_head * f_pos;
 	struct font_glyph_list * list;
 	struct hlist_node * pos;
-	x_u32 hash;
+	u32_t hash;
 
 	if(font)
 	{
@@ -3277,7 +3277,7 @@ static struct font_glyph * font_lookup_glyph(struct font * font, x_u32 code)
 /*
  * draw the specified font glyph to framebuffer
  */
-static x_bool font_draw_glyph_to_framebuffer(struct fb * fb, struct font_glyph * glyph, x_u32 c, x_u32 x, x_u32 y)
+static bool_t font_draw_glyph_to_framebuffer(struct fb * fb, struct font_glyph * glyph, u32_t c, u32_t x, u32_t y)
 {
 	struct bitmap glyph_bitmap;
 	struct bitmap_info * info;
@@ -3310,7 +3310,7 @@ static x_bool font_draw_glyph_to_framebuffer(struct fb * fb, struct font_glyph *
 /*
  * draw the specified font glyph to bitmap
  */
-static x_bool font_draw_glyph_to_bitmap(struct bitmap * bitmap, struct font_glyph * glyph, x_u32 c, x_u32 x, x_u32 y)
+static bool_t font_draw_glyph_to_bitmap(struct bitmap * bitmap, struct font_glyph * glyph, u32_t c, u32_t x, u32_t y)
 {
 	struct bitmap glyph_bitmap;
 	struct bitmap_info * info;
@@ -3343,7 +3343,7 @@ static x_bool font_draw_glyph_to_bitmap(struct bitmap * bitmap, struct font_glyp
 /*
  * put a ucs-4 code to framebuffer
  */
-x_bool fb_putcode(struct fb * fb, x_u32 code, x_u32 fc, x_u32 bc, x_u32 x, x_u32 y)
+bool_t fb_putcode(struct fb * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y)
 {
 	struct font_glyph * glyph;
 	struct bitmap glyph_bitmap;
@@ -3378,17 +3378,17 @@ x_bool fb_putcode(struct fb * fb, x_u32 code, x_u32 fc, x_u32 bc, x_u32 x, x_u32
 /*
  * draw a utf-8 string of text on the framebuffer
  */
-x_bool fb_draw_text(struct fb * fb, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y)
+bool_t fb_draw_text(struct fb * fb, const char * str, struct font * font, u32_t c, u32_t x, u32_t y)
 {
 	struct font_glyph * glyph;
-	const x_s8 * p;
-	x_u32 code;
-	x_u32 left;
+	const s8_t * p;
+	u32_t code;
+	u32_t left;
 
 	if(!fb)
 		return FALSE;
 
-	for(p = (const x_s8 *)str, left = x; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	for(p = (const s8_t *)str, left = x; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
 	{
 		glyph = font_lookup_glyph(font, code);
 		if(!font_draw_glyph_to_framebuffer(fb, glyph, c, left, y))
@@ -3403,17 +3403,17 @@ x_bool fb_draw_text(struct fb * fb, const char * str, struct font * font, x_u32 
 /*
  * draw a utf-8 string of text on the bitmap
  */
-x_bool bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y)
+bool_t bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, u32_t c, u32_t x, u32_t y)
 {
 	struct font_glyph * glyph;
-	const x_s8 * p;
-	x_u32 code;
-	x_u32 left;
+	const s8_t * p;
+	u32_t code;
+	u32_t left;
 
 	if(!bitmap)
 		return FALSE;
 
-	for(p = (const x_s8 *)str, left = x; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	for(p = (const s8_t *)str, left = x; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
 	{
 		glyph = font_lookup_glyph(font, code);
 		if(!font_draw_glyph_to_bitmap(bitmap, glyph, c, left, y))
@@ -3428,17 +3428,17 @@ x_bool bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * 
 /*
  * get a utf-8 string's metrics
  */
-x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 * h)
+bool_t font_get_metrics(const char * str, struct font * font, u32_t * w, u32_t * h)
 {
 	struct font_glyph * glyph;
-	const x_s8 * p;
-	x_u32 code;
-	x_u32 width = 0, height = 0;
+	const s8_t * p;
+	u32_t code;
+	u32_t width = 0, height = 0;
 
 	if(!w && !h)
 		return FALSE;
 
-	for(p = (const x_s8 *)str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	for(p = (const s8_t *)str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
 	{
 		glyph = font_lookup_glyph(font, code);
 		width += glyph->w;
@@ -3454,12 +3454,12 @@ x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 *
 	return TRUE;
 }
 
-static x_s32 fonts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t fonts_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct font_list * list;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -3479,7 +3479,7 @@ static x_s32 fonts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

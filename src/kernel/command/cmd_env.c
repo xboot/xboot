@@ -45,9 +45,9 @@ static void print_env(void)
 {
 	struct env_list * list;
 	struct env_list ** env_list_array;
-	x_s32 env_list_num = 0;
+	s32_t env_list_num = 0;
 	struct hlist_node * pos;
-	x_s32 i, j, swaps;
+	s32_t i, j, swaps;
 
 	for(i = 0, env_list_num = 0; i < CONFIG_ENV_HASH_SIZE; i++)
 	{
@@ -106,10 +106,10 @@ static void usage(void)
 	printk("usage:\r\n    env [-s] [<-a|-d|-m> NAME VALUE]\r\n");
 }
 
-static x_s32 env(x_s32 argc, const x_s8 **argv)
+static s32_t env(s32_t argc, const s8_t **argv)
 {
-	x_s32 i;
-	x_s8 *p;
+	s32_t i;
+	s8_t *p;
 
 	if(argc == 1)
 	{
@@ -151,7 +151,7 @@ static x_s32 env(x_s32 argc, const x_s8 **argv)
 		{
 			for(i=1; i<argc; ++i)
 			{
-				p = (x_s8*)env_get((char *)argv[i], NULL);
+				p = (s8_t*)env_get((char *)argv[i], NULL);
 				if(p)
 					printk(" %s=%s\r\n",argv[i], p);
 				else

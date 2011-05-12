@@ -39,9 +39,9 @@
  * the struct of regs, which saved and restore in the interrupt.
  */
 struct regs {
-	x_u32	r0,		r1,		r2,		r3, 	r4,		r5;
-	x_u32	r6,		r7,		r8, 	r9, 	r10,	fp;
-	x_u32	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
+	u32_t	r0,		r1,		r2,		r3, 	r4,		r5;
+	u32_t	r6,		r7,		r8, 	r9, 	r10,	fp;
+	u32_t	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
 };
 
 /*
@@ -53,9 +53,9 @@ static irq_handler s3c2410_irq_eint4_23_handler[4 + 20];
 /*
  * enable interrupts.
  */
-static x_bool interrupts_enable(void)
+static bool_t interrupts_enable(void)
 {
-	x_u32 temp;
+	u32_t temp;
 	__asm__ __volatile__("mrs %0, cpsr\n"
 			     "bic %0, %0, #0x80\n"
 			     "msr cpsr_c, %0"
@@ -69,9 +69,9 @@ static x_bool interrupts_enable(void)
 /*
  * disable interrupts.
  */
-static x_bool interrupts_disable(void)
+static bool_t interrupts_disable(void)
 {
-	x_u32 old, temp;
+	u32_t old, temp;
 	__asm__ __volatile__("mrs %0, cpsr\n"
 			     "orr %1, %0, #0xc0\n"
 			     "msr cpsr_c, %1"
@@ -87,7 +87,7 @@ static x_bool interrupts_disable(void)
  */
 void do_irqs(struct regs * regs)
 {
-	x_u32 offset;
+	u32_t offset;
 
 	/* read interrupt offset */
 	offset = readl(S3C2410_INTOFFSET);
@@ -103,9 +103,9 @@ void do_irqs(struct regs * regs)
 /*
  * enable or disable irq.
  */
-static void enable_irqs(struct irq * irq, x_bool enable)
+static void enable_irqs(struct irq * irq, bool_t enable)
 {
-	x_u32 irq_no = irq->irq_no;
+	u32_t irq_no = irq->irq_no;
 
 	if(irq_no < 32)
 	{
@@ -130,7 +130,7 @@ static void enable_irqs(struct irq * irq, x_bool enable)
  */
 static void irq_eint4_23(void)
 {
-	x_u32 eint, i;
+	u32_t eint, i;
 
 	/* read interrupt offset */
 	eint = readl(S3C2410_EINTPEND);
@@ -405,7 +405,7 @@ static void null_irq_handler(void)	{ }
 
 static __init void s3c2410_irq_init(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	/* all irq mode. */
 	writel(S3C2410_INTMOD, 0x00000000);
@@ -454,7 +454,7 @@ static __init void s3c2410_irq_init(void)
 
 static __exit void s3c2410_irq_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(s3c2410_irqs); i++)
 	{

@@ -52,7 +52,7 @@
 #define REGS_LCDCON4	( S3C2410_LCDCON4_MVAL(13) | S3C2410_LCDCON4_HSPW(28) )
 #define REGS_LCDCON5	( S3C2410_LCDCON5_FRM565 | S3C2410_LCDCON5_INVVLINE | S3C2410_LCDCON5_INVVFRAME | S3C2410_LCDCON5_PWREN | S3C2410_LCDCON5_HWSWP )
 
-#define	VRAM_ADDR		( (x_u32)(((x_u32)(&vram) + 4 - 1) & ~(4 - 1)) )
+#define	VRAM_ADDR		( (u32_t)(((u32_t)(&vram) + 4 - 1) & ~(4 - 1)) )
 #define REGS_LCDSADDR1	( ((VRAM_ADDR>>22)<<21) | ((VRAM_ADDR>>1)&0x001FFFFF) )
 #define REGS_LCDSADDR2	( ((VRAM_ADDR + (LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8))>>1)&0x001FFFFF )
 #define REGS_LCDSADDR3	( (((LCD_WIDTH-LCD_WIDTH)/1)<<11)|(LCD_WIDTH/1) )
@@ -61,7 +61,7 @@
 /*
  * video ram buffer for lcd.
  */
-static x_u8 vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
+static u8_t vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
 static struct fb_info info = {
 	.name						= "fb",
@@ -130,20 +130,20 @@ static void fb_exit(struct fb * fb)
 	return;
 }
 
-static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
+static s32_t fb_ioctl(struct fb * fb, u32_t cmd, void * arg)
 {
-	static x_u8 brightness = 0;
-	x_u8 * p;
+	static u8_t brightness = 0;
+	u8_t * p;
 
 	switch(cmd)
 	{
 	case IOCTL_SET_FB_BACKLIGHT:
-		p = (x_u8 *)arg;
+		p = (u8_t *)arg;
 		brightness = (*p) & 0xff;
 		return 0;
 
 	case IOCTL_GET_FB_BACKLIGHT:
-		p = (x_u8 *)arg;
+		p = (u8_t *)arg;
 		*p = brightness;
 		return 0;
 

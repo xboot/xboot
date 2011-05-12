@@ -37,9 +37,9 @@
 
 #if	defined(CONFIG_COMMAND_SLEEP) && (CONFIG_COMMAND_SLEEP > 0)
 
-static x_s32 sleep(x_s32 argc, const x_s8 **argv)
+static s32_t sleep(s32_t argc, const s8_t **argv)
 {
-	x_s32 ms = 1000;
+	s32_t ms = 1000;
 
 	if(argc == 2)
 	{

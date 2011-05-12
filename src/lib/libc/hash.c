@@ -31,17 +31,17 @@
 /*
  * calc hash value for a string, copyed from mysql
  */
-x_u32 string_hash(const char * s)
+u32_t string_hash(const char * s)
 {
-	x_u32 nr=1, nr2=4;
-	x_s32 len = strlen((char*)s);
+	u32_t nr=1, nr2=4;
+	s32_t len = strlen((char*)s);
 
 	while(len--)
 	{
-		nr ^= ( ( (nr & 63) + nr2 ) * ( (x_u32)(x_u8)*s++) ) + (nr << 8);
+		nr ^= ( ( (nr & 63) + nr2 ) * ( (u32_t)(u8_t)*s++) ) + (nr << 8);
 		nr2 += 3;
 	}
-	return( (x_u32)nr);
+	return( (u32_t)nr);
 }
 
 /*
@@ -58,9 +58,9 @@ x_u32 string_hash(const char * s)
  *
  * 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1
  */
-inline x_u32 long_hash(x_u32 val, x_u32 bits)
+inline u32_t long_hash(u32_t val, u32_t bits)
 {
-	x_u32 hash = val;
+	u32_t hash = val;
 
 	/* On some cpus multiply is faster, on others gcc will do shifts */
 	hash *= 0x9e370001UL;
@@ -69,7 +69,7 @@ inline x_u32 long_hash(x_u32 val, x_u32 bits)
 	return hash >> (32 - bits);
 }
 
-inline x_u32 ptr_hash(void *ptr, x_u32 bits)
+inline u32_t ptr_hash(void *ptr, u32_t bits)
 {
-	return long_hash((x_u32)ptr, bits);
+	return long_hash((u32_t)ptr, bits);
 }

@@ -48,7 +48,7 @@ static struct clk * clk_search(const char *name)
 {
 	struct clk_list * list;
 	struct hlist_node * pos;
-	x_u32 hash;
+	u32_t hash;
 
 	if(!name)
 		return NULL;
@@ -68,10 +68,10 @@ static struct clk * clk_search(const char *name)
  * register a clk into clk_list
  * return true is successed, otherwise is not.
  */
-x_bool clk_register(struct clk * clk)
+bool_t clk_register(struct clk * clk)
 {
 	struct clk_list * list;
-	x_u32 hash;
+	u32_t hash;
 
 	list = malloc(sizeof(struct clk_list));
 	if(!list || !clk)
@@ -97,11 +97,11 @@ x_bool clk_register(struct clk * clk)
 /*
  * unregister clk from clk_list
  */
-x_bool clk_unregister(struct clk * clk)
+bool_t clk_unregister(struct clk * clk)
 {
 	struct clk_list * list;
 	struct hlist_node * pos;
-	x_u32 hash;
+	u32_t hash;
 
 	if(!clk || !clk->name)
 		return FALSE;
@@ -124,7 +124,7 @@ x_bool clk_unregister(struct clk * clk)
 /*
  * get clk's rate.
  */
-x_bool clk_get_rate(const char *name, x_u64 * rate)
+bool_t clk_get_rate(const char *name, u64_t * rate)
 {
 	struct clk * clk;
 
@@ -142,12 +142,12 @@ x_bool clk_get_rate(const char *name, x_u64 * rate)
 /*
  * clk proc interface
  */
-static x_s32 clk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct clk_list * list;
 	struct hlist_node * pos;
-	x_s8 * p;
-	x_s32 i, len = 0;
+	s8_t * p;
+	s32_t i, len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -157,7 +157,7 @@ static x_s32 clk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	{
 		hlist_for_each_entry(list,  pos, &(clk_hash[i]), node)
 		{
-			len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", list->clk->name, (x_u64)div64(list->clk->rate, 1000*1000), (x_u64)mod64(list->clk->rate, 1000*1000));
+			len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", list->clk->name, (u64_t)div64(list->clk->rate, 1000*1000), (u64_t)mod64(list->clk->rate, 1000*1000));
 		}
 	}
 
@@ -169,7 +169,7 @@ static x_s32 clk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;
@@ -185,7 +185,7 @@ static struct proc clk_proc = {
  */
 static __init void clk_pure_sync_init(void)
 {
-	x_s32 i;
+	s32_t i;
 
 	/* initialize clk hash list */
 	for(i = 0; i < CONFIG_CLK_HASH_SIZE; i++)

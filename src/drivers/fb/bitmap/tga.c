@@ -51,31 +51,31 @@ enum
 
 struct tga_header
 {
-	x_u8 id_length;
-	x_u8 color_map_type;
-	x_u8 image_type;
+	u8_t id_length;
+	u8_t color_map_type;
+	u8_t image_type;
 
 	/* color map specification */
-	x_u16 color_map_first_index;
-	x_u16 color_map_length;
-	x_u8 color_map_bpp;
+	u16_t color_map_first_index;
+	u16_t color_map_length;
+	u8_t color_map_bpp;
 
 	/* image specification */
-	x_u16 image_x_origin;
-	x_u16 image_y_origin;
-	x_u16 image_width;
-	x_u16 image_height;
-	x_u8 image_bpp;
-	x_u8 image_descriptor;
+	u16_t image_x_origin;
+	u16_t image_y_origin;
+	u16_t image_width;
+	u16_t image_height;
+	u8_t image_bpp;
+	u8_t image_descriptor;
 
 } __attribute__ ((packed));
 
-static x_bool tga_load_truecolor_r8g8b8a8(struct bitmap * bitmap, struct tga_header * header, x_s32 fd)
+static bool_t tga_load_truecolor_r8g8b8a8(struct bitmap * bitmap, struct tga_header * header, s32_t fd)
 {
-	x_u32 x, y;
-	x_u8 * ptr;
-	x_u8 tmp[4];
-	x_u8 bytes_per_pixel;
+	u32_t x, y;
+	u8_t * ptr;
+	u8_t tmp[4];
+	u8_t bytes_per_pixel;
 
 	bytes_per_pixel = header->image_bpp / 8;
 
@@ -104,12 +104,12 @@ static x_bool tga_load_truecolor_r8g8b8a8(struct bitmap * bitmap, struct tga_hea
 	return TRUE;
 }
 
-static x_bool tga_load_truecolor_r8g8b8(struct bitmap * bitmap, struct tga_header * header, x_s32 fd)
+static bool_t tga_load_truecolor_r8g8b8(struct bitmap * bitmap, struct tga_header * header, s32_t fd)
 {
-	x_u32 x, y;
-	x_u8 * ptr;
-	x_u8 tmp[4];
-	x_u8 bytes_per_pixel;
+	u32_t x, y;
+	u8_t * ptr;
+	u8_t tmp[4];
+	u8_t bytes_per_pixel;
 
 	bytes_per_pixel = header->image_bpp / 8;
 
@@ -137,13 +137,13 @@ static x_bool tga_load_truecolor_r8g8b8(struct bitmap * bitmap, struct tga_heade
 	return TRUE;
 }
 
-static x_bool tga_load_truecolor_rle_r8g8b8a8(struct bitmap * bitmap, struct tga_header * header, x_s32 fd)
+static bool_t tga_load_truecolor_rle_r8g8b8a8(struct bitmap * bitmap, struct tga_header * header, s32_t fd)
 {
-	x_u32 x, y;
-	x_u8 type;
-	x_u8 * ptr;
-	x_u8 tmp[4];
-	x_u8 bytes_per_pixel;
+	u32_t x, y;
+	u8_t type;
+	u8_t * ptr;
+	u8_t tmp[4];
+	u8_t bytes_per_pixel;
 
 	bytes_per_pixel = header->image_bpp / 8;
 
@@ -213,13 +213,13 @@ static x_bool tga_load_truecolor_rle_r8g8b8a8(struct bitmap * bitmap, struct tga
 	return TRUE;
 }
 
-static x_bool tga_load_truecolor_rle_r8g8b8(struct bitmap * bitmap, struct tga_header * header, x_s32 fd)
+static bool_t tga_load_truecolor_rle_r8g8b8(struct bitmap * bitmap, struct tga_header * header, s32_t fd)
 {
-	x_u32 x, y;
-	x_u8 type;
-	x_u8 * ptr;
-	x_u8 tmp[4];
-	x_u8 bytes_per_pixel;
+	u32_t x, y;
+	u8_t type;
+	u8_t * ptr;
+	u8_t tmp[4];
+	u8_t bytes_per_pixel;
 
 	bytes_per_pixel = header->image_bpp / 8;
 
@@ -287,12 +287,12 @@ static x_bool tga_load_truecolor_rle_r8g8b8(struct bitmap * bitmap, struct tga_h
 	return TRUE;
 }
 
-static x_bool tga_load(struct bitmap ** bitmap, const char * filename)
+static bool_t tga_load(struct bitmap ** bitmap, const char * filename)
 {
 	struct tga_header header;
 	struct stat st;
-	x_s32 fd;
-	x_bool has_alpha;
+	s32_t fd;
+	bool_t has_alpha;
 
 	if(stat(filename, &st) != 0)
 		return FALSE;
@@ -310,12 +310,12 @@ static x_bool tga_load(struct bitmap ** bitmap, const char * filename)
 		return FALSE;
 	}
 
-	header.color_map_first_index = cpu_to_le16( *((x_u16 *)(&header.color_map_first_index)) );
-	header.color_map_length = cpu_to_le16( *((x_u16 *)(&header.color_map_length)) );
-	header.image_x_origin = cpu_to_le16( *((x_u16 *)(&header.image_x_origin)) );
-	header.image_y_origin = cpu_to_le16( *((x_u16 *)(&header.image_y_origin)) );
-	header.image_width = cpu_to_le16( *((x_u16 *)(&header.image_width)) );
-	header.image_height = cpu_to_le16( *((x_u16 *)(&header.image_height)) );
+	header.color_map_first_index = cpu_to_le16( *((u16_t *)(&header.color_map_first_index)) );
+	header.color_map_length = cpu_to_le16( *((u16_t *)(&header.color_map_length)) );
+	header.image_x_origin = cpu_to_le16( *((u16_t *)(&header.image_x_origin)) );
+	header.image_y_origin = cpu_to_le16( *((u16_t *)(&header.image_y_origin)) );
+	header.image_width = cpu_to_le16( *((u16_t *)(&header.image_width)) );
+	header.image_height = cpu_to_le16( *((u16_t *)(&header.image_height)) );
 
 	if(lseek(fd, sizeof(struct tga_header) + header.id_length, SEEK_SET) < 0)
 	{

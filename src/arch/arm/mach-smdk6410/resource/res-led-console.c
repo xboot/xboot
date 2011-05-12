@@ -43,7 +43,7 @@ static void led_gpn14_init(void)
 	writel(S3C6410_GPNPUD, (readl(S3C6410_GPNPUD) & ~(0x3<<28)) | (0x2<<28));
 }
 
-static void led_gpn14_set(x_u8 brightness)
+static void led_gpn14_set(u8_t brightness)
 {
 	if(brightness)
 		writel(S3C6410_GPNDAT, (readl(S3C6410_GPNDAT) & ~(0x1<<14)) | (0x1<<14));

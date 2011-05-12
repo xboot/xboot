@@ -36,10 +36,10 @@
 
 #if	defined(CONFIG_COMMAND_MC) && (CONFIG_COMMAND_MC > 0)
 
-static x_s32 mc(x_s32 argc, const x_s8 **argv)
+static s32_t mc(s32_t argc, const s8_t **argv)
 {
-	x_u32 src, dst, size = 0;
-	x_u32 i;
+	u32_t src, dst, size = 0;
+	u32_t i;
 
 	if(argc != 4)
 	{
@@ -53,7 +53,7 @@ static x_s32 mc(x_s32 argc, const x_s8 **argv)
 
 	for(i = 0; i < size; i++)
 	{
-		*((x_u8 *)(dst+i)) = *((x_u8 *)(src+i));
+		*((u8_t *)(dst+i)) = *((u8_t *)(src+i));
 
 		if(ctrlc())
 			return -1;

@@ -20,13 +20,13 @@ struct irq {
 	const char * name;
 
 	/* interrupt number */
-	const x_u32 irq_no;
+	const u32_t irq_no;
 
 	/* irq handler */
 	irq_handler * handler;
 
 	/* enable irq or disable */
-	void (*enable)(struct irq * irq, x_bool enable);
+	void (*enable)(struct irq * irq, bool_t enable);
 };
 
 /*
@@ -35,15 +35,15 @@ struct irq {
 struct irq_list
 {
 	struct irq * irq;
-	x_bool busy;
+	bool_t busy;
 	struct hlist_node node;
 };
 
 
-x_bool irq_register(struct irq * irq);
-x_bool irq_unregister(struct irq * irq);
-x_bool request_irq(const char *name, irq_handler handler);
-x_bool free_irq(const char *name);
+bool_t irq_register(struct irq * irq);
+bool_t irq_unregister(struct irq * irq);
+bool_t request_irq(const char *name, irq_handler handler);
+bool_t free_irq(const char *name);
 
 
 #endif /* __IRQ_H__ */

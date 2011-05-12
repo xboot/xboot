@@ -68,7 +68,7 @@
 /*
  * video ram buffer for lcd.
  */
-static x_u8 vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
+static u8_t vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
 static struct fb_info info = {
 	.name						= "fb",
@@ -113,7 +113,7 @@ static struct fb_info info = {
 
 static void fb_init(struct fb * fb)
 {
-	x_u64 hclk;
+	u64_t hclk;
 
 	/* set gpf15 (backlight pin) output and pull up and low level */
 	writel(S3C6410_GPFCON, (readl(S3C6410_GPFCON) & ~(0x3<<30)) | (0x1<<30));
@@ -149,7 +149,7 @@ static void fb_init(struct fb * fb)
 
 	/* get hclk for lcd */
 	clk_get_rate("hclk", &hclk);
-	writel(S3C6410_VIDCON0, (REGS_VIDCON0 | S3C6410_VIDCON0_CLKVAL_F((x_u32)(div64(hclk, PIXEL_CLOCK) - 1)) ) );
+	writel(S3C6410_VIDCON0, (REGS_VIDCON0 | S3C6410_VIDCON0_CLKVAL_F((u32_t)(div64(hclk, PIXEL_CLOCK) - 1)) ) );
 
 	/* turn all windows off */
 	writel(S3C6410_WINCON0, (readl(S3C6410_WINCON0) & ~0x1));
@@ -175,10 +175,10 @@ static void fb_init(struct fb * fb)
 	writel(S3C6410_WINCON0, (readl(S3C6410_WINCON0) & ~(0x1<<22 | 0x1<<16 | 0x3<<9 | 0xf<<2 | 0x1<<0)) | (0x5<<2 | 0x1<<16));
 
 	/* window 0 frambuffer addresss */
-	writel(S3C6410_VIDW00ADD0B0, (x_u32)info.bitmap.data);
-	writel(S3C6410_VIDW00ADD0B1, (x_u32)info.bitmap.data);
-	writel(S3C6410_VIDW00ADD1B0, ((x_u32)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
-	writel(S3C6410_VIDW00ADD1B1, ((x_u32)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S3C6410_VIDW00ADD0B0, (u32_t)info.bitmap.data);
+	writel(S3C6410_VIDW00ADD0B1, (u32_t)info.bitmap.data);
+	writel(S3C6410_VIDW00ADD1B0, ((u32_t)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S3C6410_VIDW00ADD1B1, ((u32_t)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
 	writel(S3C6410_VIDW00ADD2, (LCD_WIDTH*LCD_BPP/8) & 0x00001fff);
 
 	/* config view port */
@@ -202,15 +202,15 @@ static void fb_exit(struct fb * fb)
 	writel(S3C6410_VIDCON0, (readl(S3C6410_VIDCON0) & (~0x3)));
 }
 
-static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
+static s32_t fb_ioctl(struct fb * fb, u32_t cmd, void * arg)
 {
-	static x_u8 brightness = 0;
-	x_u8 * p;
+	static u8_t brightness = 0;
+	u8_t * p;
 
 	switch(cmd)
 	{
 	case IOCTL_SET_FB_BACKLIGHT:
-		p = (x_u8 *)arg;
+		p = (u8_t *)arg;
 		brightness = (*p) & 0xff;
 
 		if(brightness)
@@ -221,7 +221,7 @@ static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
 		return 0;
 
 	case IOCTL_GET_FB_BACKLIGHT:
-		p = (x_u8 *)arg;
+		p = (u8_t *)arg;
 		*p = brightness;
 		return 0;
 

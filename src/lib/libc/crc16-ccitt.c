@@ -6,12 +6,13 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 #include <crc16-ccitt.h>
 
 /*
  * table of CRC constants - implements x^16 + x^12 + x^5 + 1
  */
-static const x_u16 crc16_ccitt_table[256] = {
+static const u16_t crc16_ccitt_table[256] = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
     0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
     0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
@@ -51,14 +52,14 @@ static const x_u16 crc16_ccitt_table[256] = {
  *	@buf: data pointer
  *	@len: number of bytes in the buffer
  */
-x_u16 crc16_ccitt(const x_u8 *buf, x_u32 len)
+u16_t crc16_ccitt(const u8_t *buf, u32_t len)
 {
-	x_u16 crc = 0;
-	x_u8 temp;
+	u16_t crc = 0;
+	u8_t temp;
 
 	while(len--)
 	{
-		temp = (x_u8)(crc>>8);
+		temp = (u8_t)(crc>>8);
 		crc <<= 8;
 		crc ^= crc16_ccitt_table[temp ^ (*buf)];
 		buf++;

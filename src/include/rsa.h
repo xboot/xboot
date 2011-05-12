@@ -9,12 +9,12 @@
  * 2048 bit key length
  */
 struct rsa_public_key {
-	x_u32 len;						/* Length of n[] in number of x_u32 */
-    x_u32 n0inv;					/* -1/n[0] mod 2^32 */
-    x_u32 n[256/sizeof(x_u32)];		/* modulus as little endian array */
-    x_u32 rr[256/sizeof(x_u32)];	/* R^2 as little endian array */
+	u32_t len;						/* Length of n[] in number of u32_t */
+    u32_t n0inv;					/* -1/n[0] mod 2^32 */
+    u32_t n[256/sizeof(u32_t)];		/* modulus as little endian array */
+    u32_t rr[256/sizeof(u32_t)];	/* R^2 as little endian array */
 };
 
-x_bool rsa_verify(const struct rsa_public_key * key, const x_u8 * signature, const x_u8 * sha);
+bool_t rsa_verify(const struct rsa_public_key * key, const u8_t * signature, const u8_t * sha);
 
 #endif /* __RSA_H__ */

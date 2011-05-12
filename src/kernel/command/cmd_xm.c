@@ -52,10 +52,10 @@
 #define XMODEM_RETRY	25
 #define	XMODEM_TIMEOUT	1000	/* wait one second */
 
-static inline x_u8 cksum(x_u8 * buf, x_s32 size)
+static inline u8_t cksum(u8_t * buf, s32_t size)
 {
-	x_s32 i;
-	x_u8 sum = 0;
+	s32_t i;
+	u8_t sum = 0;
 
 	for(i = 0; i < size; i++)
 	{
@@ -65,9 +65,9 @@ static inline x_u8 cksum(x_u8 * buf, x_s32 size)
 	return sum;
 }
 
-static inline x_bool check_packet(x_s32 crc_flag, x_u8 * buf, x_s32 size)
+static inline bool_t check_packet(s32_t crc_flag, u8_t * buf, s32_t size)
 {
-	x_u16 pkt_crc = 0;
+	u16_t pkt_crc = 0;
 
 	if(crc_flag == 0)
 	{
@@ -78,7 +78,7 @@ static inline x_bool check_packet(x_s32 crc_flag, x_u8 * buf, x_s32 size)
 	}
 	else if(crc_flag == 1)
 	{
-		pkt_crc = ( (x_u16)buf[size]<<8 ) | ( (x_u16)buf[size+1] );
+		pkt_crc = ( (u16_t)buf[size]<<8 ) | ( (u16_t)buf[size+1] );
 		if(crc16_ccitt(buf, size) == pkt_crc)
 			return TRUE;
 		else
@@ -89,20 +89,20 @@ static inline x_bool check_packet(x_s32 crc_flag, x_u8 * buf, x_s32 size)
 
 static void flush_input(void)
 {
-	x_u32 c;
+	u32_t c;
 	while(getcode_with_timeout(&c, XMODEM_TIMEOUT*3/2));
 }
 
-static x_bool xmodem_receive(const char * filename, x_s32 * size)
+static bool_t xmodem_receive(const char * filename, s32_t * size)
 {
-	x_s32 fd;
-	x_u8 *packet_buf, *p;
-	x_s32 packet_size = 128;
-	x_u8 packet_index = 1;
-	x_s32 i, retry, retrans = XMODEM_RETRY;
-	x_s32 crc_flag = 0;
-	x_u8 trychar = CRC;
-	x_u32 c;
+	s32_t fd;
+	u8_t *packet_buf, *p;
+	s32_t packet_size = 128;
+	u8_t packet_index = 1;
+	s32_t i, retry, retrans = XMODEM_RETRY;
+	s32_t crc_flag = 0;
+	u8_t trychar = CRC;
+	u32_t c;
 
 	if(!filename || !size)
 		return FALSE;
@@ -195,7 +195,7 @@ start_recv:
 			*p++ = c;
 		}
 
-		if(packet_buf[1] == (x_u8)(~packet_buf[2]) && (packet_buf[1] == packet_index || packet_buf[1] == (x_u8) packet_index - 1) && check_packet(crc_flag, &packet_buf[3], packet_size))
+		if(packet_buf[1] == (u8_t)(~packet_buf[2]) && (packet_buf[1] == packet_index || packet_buf[1] == (u8_t) packet_index - 1) && check_packet(crc_flag, &packet_buf[3], packet_size))
 		{
 			if(packet_buf[1] == packet_index)
 			{
@@ -229,17 +229,17 @@ reject:
 	return FALSE;
 }
 
-static x_bool xmodem_transmit(const char * filename, x_s32 * size)
+static bool_t xmodem_transmit(const char * filename, s32_t * size)
 {
-	x_s32 fd;
-	x_u8 * packet_buf;
-	x_u8 * file_buf;
-	x_s32 packet_size;
-	x_u8 packet_index = 1;
-	x_s32 count;
-	x_s32 i, retry;
-	x_s32 crc_flag = -1;
-	x_u32 c;
+	s32_t fd;
+	u8_t * packet_buf;
+	u8_t * file_buf;
+	s32_t packet_size;
+	u8_t packet_index = 1;
+	s32_t count;
+	s32_t i, retry;
+	s32_t crc_flag = -1;
+	u32_t c;
 
 	if(!filename || !size)
 		return FALSE;
@@ -323,13 +323,13 @@ start_trans:
 
 				if(crc_flag)
 				{
-					x_u16 ccrc = crc16_ccitt(&packet_buf[3], packet_size);
+					u16_t ccrc = crc16_ccitt(&packet_buf[3], packet_size);
 					packet_buf[packet_size+3] = (ccrc >> 8) & 0xff;
 					packet_buf[packet_size+4] = ccrc & 0xff;
 				}
 				else
 				{
-					x_u8 ccks = 0;
+					u8_t ccks = 0;
 					for(i = 3; i < packet_size + 3; i++)
 					{
 						ccks += packet_buf[i];
@@ -408,9 +408,9 @@ start_trans:
 	return FALSE;
 }
 
-static x_s32 sx(x_s32 argc, const x_s8 **argv)
+static s32_t sx(s32_t argc, const s8_t **argv)
 {
-	x_s32 size;
+	s32_t size;
 
 	if(argc != 2)
 	{
@@ -432,9 +432,9 @@ static x_s32 sx(x_s32 argc, const x_s8 **argv)
 	return 0;
 }
 
-static x_s32 rx(x_s32 argc, const x_s8 **argv)
+static s32_t rx(s32_t argc, const s8_t **argv)
 {
-	x_s32 size;
+	s32_t size;
 
 	if(argc != 2)
 	{

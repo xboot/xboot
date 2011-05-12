@@ -42,7 +42,7 @@ struct command_list * command_list = &__command_list;
  * register a command into command_list
  * return true is successed, otherwise is not.
  */
-x_bool command_register(struct command * cmd)
+bool_t command_register(struct command * cmd)
 {
 	struct command_list * list;
 
@@ -68,7 +68,7 @@ x_bool command_register(struct command * cmd)
 /*
  * unregister command from command_list
  */
-x_bool command_unregister(struct command * cmd)
+bool_t command_unregister(struct command * cmd)
 {
 	struct command_list * list;
 	struct list_head * pos;
@@ -111,9 +111,9 @@ struct command * command_search(const char *name)
 /*
  * the number of commands
  */
-x_s32 command_number(void)
+s32_t command_number(void)
 {
-	x_s32 i = 0;
+	s32_t i = 0;
 	struct list_head * pos = (&command_list->entry)->next;
 
 	while(!list_is_last(pos, (&command_list->entry)->next))

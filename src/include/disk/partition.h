@@ -22,13 +22,13 @@ struct partition
 	char name[32 + 1];
 
 	/* the sector of the start */
-	x_u32 sector_from;
+	u32_t sector_from;
 
 	/* the sector of the end */
-	x_u32 sector_to;
+	u32_t sector_to;
 
 	/* the sector size */
-	x_u32 sector_size;
+	u32_t sector_size;
 
 	/* link to this partition's block device */
 	struct blkdev * dev;
@@ -46,7 +46,7 @@ struct partition_parser
 	const char * name;
 
 	/* probe disk's partition */
-	x_bool (*probe)(struct disk * disk);
+	bool_t (*probe)(struct disk * disk);
 };
 
 /*
@@ -58,8 +58,8 @@ struct partition_parser_list
 	struct list_head entry;
 };
 
-x_bool register_partition_parser(struct partition_parser * parser);
-x_bool unregister_partition_parser(struct partition_parser * parser);
-x_bool partition_parser_probe(struct disk * disk);
+bool_t register_partition_parser(struct partition_parser * parser);
+bool_t unregister_partition_parser(struct partition_parser * parser);
+bool_t partition_parser_probe(struct disk * disk);
 
 #endif /* __PARTITION_H__ */

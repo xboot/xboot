@@ -160,18 +160,18 @@ static void serial_info(void)
 	}
 }
 
-static x_s32 serial(x_s32 argc, const x_s8 **argv)
+static s32_t serial(s32_t argc, const s8_t **argv)
 {
 	struct chrdev * device;
-	x_s32 (* read_func)(struct chrdev *, x_u8 *, x_s32);
+	s32_t (* read_func)(struct chrdev *, u8_t *, s32_t);
 	struct serial_parameter param;
 	char * name = NULL, * str = NULL;
 	char * baud = 0;
 	char * data_bit = 0;
 	char * parity = 0;
 	char * stop_bit = 0;
-	x_u8 c;
-	x_s32 i;
+	u8_t c;
+	s32_t i;
 
 	if(argc < 2)
 	{
@@ -207,7 +207,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 			(device->open)(device);
 
 		if(device->write)
-			(device->write)(device, (x_u8 *)str, strlen(str));
+			(device->write)(device, (u8_t *)str, strlen(str));
 
 		if(device->close)
 			(device->close)(device);

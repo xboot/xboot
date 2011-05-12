@@ -42,19 +42,19 @@ struct fb
 	void (*exit)(struct fb * fb);
 
 	/* map color */
-	x_u32 (*map_color)(struct fb * fb, x_u8 r, x_u8 g, x_u8 b, x_u8 a);
+	u32_t (*map_color)(struct fb * fb, u8_t r, u8_t g, u8_t b, u8_t a);
 
 	/* unmap color */
-	void (*unmap_color)(struct fb * fb, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a);
+	void (*unmap_color)(struct fb * fb, u32_t c, u8_t * r, u8_t * g, u8_t * b, u8_t * a);
 
 	/* fill rect */
-	x_bool (*fill_rect)(struct fb * fb, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h);
+	bool_t (*fill_rect)(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h);
 
 	/* blit bitmap */
-	x_bool (*blit_bitmap)(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, x_u32 x, x_u32 y, x_u32 w, x_u32 h, x_u32 ox, x_u32 oy);
+	bool_t (*blit_bitmap)(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy);
 
 	/* ioctl framebuffer */
-	x_s32 (*ioctl)(struct fb * fb, x_u32 cmd, void * arg);
+	s32_t (*ioctl)(struct fb * fb, u32_t cmd, void * arg);
 
 	/* private data */
 	void * priv;
@@ -62,7 +62,7 @@ struct fb
 
 
 struct fb * search_framebuffer(const char * name);
-x_bool register_framebuffer(struct fb * fb);
-x_bool unregister_framebuffer(struct fb * fb);
+bool_t register_framebuffer(struct fb * fb);
+bool_t unregister_framebuffer(struct fb * fb);
 
 #endif /* __FB_H__ */

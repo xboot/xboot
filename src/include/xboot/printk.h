@@ -6,8 +6,8 @@
 #include <stdarg.h>
 
 
-x_bool putcode(x_u32 code);
+bool_t putcode(u32_t code);
 void putch(char c);
-x_s32 printk(const char * fmt, ...);
+s32_t printk(const char * fmt, ...);
 
 #endif /* __PRINTK_H__ */

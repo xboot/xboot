@@ -38,12 +38,12 @@
 
 #if	defined(CONFIG_COMMAND_MEMTEST) && (CONFIG_COMMAND_MEMTEST > 0)
 
-static x_s32 memtest(x_s32 argc, const x_s8 **argv)
+static s32_t memtest(s32_t argc, const s8_t **argv)
 {
-	x_u32 base, size;
-	x_u32 * start, * end;
-	x_u32 walker, readback, *i;
-	x_s32 errcnt = 0;
+	u32_t base, size;
+	u32_t * start, * end;
+	u32_t walker, readback, *i;
+	s32_t errcnt = 0;
 
 	if(argc == 1)
 	{
@@ -66,7 +66,7 @@ static x_s32 memtest(x_s32 argc, const x_s8 **argv)
 	}
 
 	printk("testing 0x%08lx .. 0x%08lx\r\n", base, base + size);
-	start = (x_u32 *)base;
+	start = (u32_t *)base;
 
 	if(size == 0)
 	{
@@ -90,38 +90,38 @@ static x_s32 memtest(x_s32 argc, const x_s8 **argv)
 		if(readback != walker)
 		{
 			errcnt++;
-			printk("error at 0x%08lx: read 0x%lx expected x%lx\r\n", (x_u32)i, readback, walker);
+			printk("error at 0x%08lx: read 0x%lx expected x%lx\r\n", (u32_t)i, readback, walker);
 			break;
 		}
 		walker <<= 1;
 	}
 
 	/* address in address test */
-	end = (x_u32 *)((x_u32)start + size);
+	end = (u32_t *)((u32_t)start + size);
 	for(i = start; i < end; i++)
 	{
-		if(((x_u32)i & 0x3ffff) == 0)
+		if(((u32_t)i & 0x3ffff) == 0)
 		{
 			if(ctrlc())
 				return -1;
 		}
 
-		*i = (x_u32)i;
+		*i = (u32_t)i;
 	}
 
 	for(i = start; i < end; i++)
 	{
-		if(((x_u32)i & 0x3ffff) == 0)
+		if(((u32_t)i & 0x3ffff) == 0)
 		{
 			if(ctrlc())
 				return -1;
 		}
 
 		readback = *i;
-		if(readback != (x_u32)i)
+		if(readback != (u32_t)i)
 		{
 			errcnt++;
-			printk("error at 0x%08lx: read 0x%08lx expected 0x%08lx\r\n", (x_u32)i, readback, (x_u32)i);
+			printk("error at 0x%08lx: read 0x%08lx expected 0x%08lx\r\n", (u32_t)i, readback, (u32_t)i);
 			break;
 		}
 	}

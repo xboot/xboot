@@ -49,11 +49,11 @@ static struct nand_list __nand_list = {
 struct nand_list * nand_list = &__nand_list;
 
 
-static x_s32 nand_read_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
+static s32_t nand_read_page(struct nand_device * nand, u32_t page, u8_t * buf, u32_t size)
 {
 	struct nfc * nfc;
-	x_u32 len, tmp;
-	x_s32 i;
+	u32_t len, tmp;
+	s32_t i;
 
 	if(!nand)
 		return -1;
@@ -148,7 +148,7 @@ static x_s32 nand_read_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x
 		for(i = 0; i < size; i++)
 		{
 			nfc->read_data(nand, &tmp);
-			buf[i] = (x_u8)tmp;
+			buf[i] = (u8_t)tmp;
 		}
 	}
 	else if(nand->bus_width == 16)
@@ -158,14 +158,14 @@ static x_s32 nand_read_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x
 		for(i = 0; i < len; i+=2)
 		{
 			nfc->read_data(nand, &tmp);
-			buf[i] = (x_u8)(tmp & 0xff);
-			buf[i+1] = (x_u8)((tmp >> 8) & 0xff);
+			buf[i] = (u8_t)(tmp & 0xff);
+			buf[i+1] = (u8_t)((tmp >> 8) & 0xff);
 		}
 
 		if(size & 0x1)
 		{
 			nfc->read_data(nand, &tmp);
-			buf[len] = (x_u8)(tmp & 0xff);
+			buf[len] = (u8_t)(tmp & 0xff);
 		}
 	}
 	else
@@ -182,11 +182,11 @@ static x_s32 nand_read_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x
 	return 0;
 }
 
-static x_s32 nand_read_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
+static s32_t nand_read_oob(struct nand_device * nand, u32_t page, u8_t * buf, u32_t size)
 {
 	struct nfc * nfc;
-	x_u32 len, tmp;
-	x_s32 i;
+	u32_t len, tmp;
+	s32_t i;
 
 	if(!nand)
 		return -1;
@@ -283,7 +283,7 @@ static x_s32 nand_read_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_
 		for(i = 0; i < size; i++)
 		{
 			nfc->read_data(nand, &tmp);
-			buf[i] = (x_u8)tmp;
+			buf[i] = (u8_t)tmp;
 		}
 	}
 	else if(nand->bus_width == 16)
@@ -293,14 +293,14 @@ static x_s32 nand_read_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_
 		for(i = 0; i < len; i+=2)
 		{
 			nfc->read_data(nand, &tmp);
-			buf[i] = (x_u8)(tmp & 0xff);
-			buf[i+1] = (x_u8)((tmp >> 8) & 0xff);
+			buf[i] = (u8_t)(tmp & 0xff);
+			buf[i+1] = (u8_t)((tmp >> 8) & 0xff);
 		}
 
 		if(size & 0x1)
 		{
 			nfc->read_data(nand, &tmp);
-			buf[len] = (x_u8)(tmp & 0xff);
+			buf[len] = (u8_t)(tmp & 0xff);
 		}
 	}
 	else
@@ -317,17 +317,17 @@ static x_s32 nand_read_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_
 	return 0;
 }
 
-static x_s32 nand_write_page(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
+static s32_t nand_write_page(struct nand_device * nand, u32_t page, u8_t * buf, u32_t size)
 {
 	return -1;
 }
 
-static x_s32 nand_write_oob(struct nand_device * nand, x_u32 page, x_u8 * buf, x_u32 size)
+static s32_t nand_write_oob(struct nand_device * nand, u32_t page, u8_t * buf, u32_t size)
 {
 	return -1;
 }
 
-static x_bool register_nand_device(struct nand_device * nand)
+static bool_t register_nand_device(struct nand_device * nand)
 {
 	struct nand_list * list;
 
@@ -361,9 +361,9 @@ void nand_flash_probe(void)
 	struct nand_device * nand;
 	struct nand_info * nand_info;
 	struct nand_manufacturer * nand_manufacturer;
-	x_u8 m_id, d_id, id_buf[3];
-	x_u32 data;
-	x_s32 i;
+	u8_t m_id, d_id, id_buf[3];
+	u32_t data;
+	s32_t i;
 
 	/*
 	 * remove all nand flash device
@@ -661,13 +661,13 @@ struct nand_device * search_nand_device(const char * name)
 /*
  * read nand device
  */
-x_s32 nand_read(struct nand_device * nand, x_u8 * buf, x_u32 addr, x_u32 size)
+s32_t nand_read(struct nand_device * nand, u8_t * buf, u32_t addr, u32_t size)
 {
-	x_u8 * page_buf;
-	x_u32 page;
-	x_u32 len = 0;
-	x_u8 * p = buf;
-	x_u32 o = 0, l = 0;
+	u8_t * page_buf;
+	u32_t page;
+	u32_t len = 0;
+	u8_t * p = buf;
+	u32_t o = 0, l = 0;
 
 	if(!nand)
 		return -1;
@@ -709,12 +709,12 @@ x_s32 nand_read(struct nand_device * nand, x_u8 * buf, x_u32 addr, x_u32 size)
 /*
  * nand proc interface
  */
-static x_s32 nand_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t nand_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct nand_list * list;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 	char size[16];
 
 	if((p = malloc(SZ_4K)) == NULL)
@@ -730,9 +730,9 @@ static x_s32 nand_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 		len += sprintf((char *)(p + len), (const char *)" nand controller : %s\r\n", list->nand->nfc->name);
 		len += sprintf((char *)(p + len), (const char *)" bus width       : %ld\r\n", list->nand->bus_width);
 		len += sprintf((char *)(p + len), (const char *)" address cycles  : %ld\r\n", list->nand->addr_cycles);
-		ssize(size, (x_u64)(list->nand->page_size));
+		ssize(size, (u64_t)(list->nand->page_size));
 		len += sprintf((char *)(p + len), (const char *)" page size       : %s\r\n", size);
-		ssize(size, (x_u64)(list->nand->erase_size));
+		ssize(size, (u64_t)(list->nand->erase_size));
 		len += sprintf((char *)(p + len), (const char *)" block size      : %s\r\n", size);
 		len += sprintf((char *)(p + len), (const char *)" block number    : %ld\r\n", list->nand->num_blocks);
 	}
@@ -745,7 +745,7 @@ static x_s32 nand_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

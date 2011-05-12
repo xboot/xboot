@@ -41,16 +41,16 @@
 #define TVR_MASK 				(TVR_SIZE - 1)
 
 struct timer_vec {
-	x_u32 index;
+	u32_t index;
 	struct list_head vec[TVN_SIZE];
 };
 
 struct timer_vec_root {
-	x_u32 index;
+	u32_t index;
 	struct list_head vec[TVR_SIZE];
 };
 
-static x_u32 timer_jiffies = 0;
+static u32_t timer_jiffies = 0;
 
 static struct timer_vec tv5;
 static struct timer_vec tv4;
@@ -65,9 +65,9 @@ static struct timer_vec * const tvecs[] = {
 static inline void internal_add_timer(struct timer_list *timer)
 {
 	struct list_head * vec;
-	x_u32 expires = timer->expires;
-	x_u32 idx = expires - timer_jiffies;
-	x_u32 i;
+	u32_t expires = timer->expires;
+	u32_t idx = expires - timer_jiffies;
+	u32_t i;
 
 	if(idx < TVR_SIZE)
 	{
@@ -89,7 +89,7 @@ static inline void internal_add_timer(struct timer_list *timer)
 		i = (expires >> (TVR_BITS + 2 * TVN_BITS)) & TVN_MASK;
 		vec = tv4.vec + i;
 	}
-	else if((x_s32) idx < 0)
+	else if((s32_t) idx < 0)
 	{
 		/*
 		 * can happen if you add a timer with expires == jiffies,
@@ -114,7 +114,7 @@ static inline void internal_add_timer(struct timer_list *timer)
 	list_add(&timer->list, vec->prev);
 }
 
-static inline x_bool detach_timer(struct timer_list *timer)
+static inline bool_t detach_timer(struct timer_list *timer)
 {
 	if (!timer_pending(timer))
 		return FALSE;
@@ -155,11 +155,11 @@ void exec_timer_task(void)
 {
 	struct list_head *head, *curr;
 	struct timer_list * timer;
-	void (*fn)(x_u32);
-	x_u32 data;
-	x_s32 n = 1;
+	void (*fn)(u32_t);
+	u32_t data;
+	s32_t n = 1;
 
-	while((x_s32)(jiffies - timer_jiffies) >= 0)
+	while((s32_t)(jiffies - timer_jiffies) >= 0)
 	{
 		if(!tv1.index)
 		{
@@ -197,7 +197,7 @@ void init_timer(struct timer_list * timer)
 /*
  * timer pending.
  */
-x_bool timer_pending(const struct timer_list * timer)
+bool_t timer_pending(const struct timer_list * timer)
 {
 	return timer->list.next != NULL;
 }
@@ -216,9 +216,9 @@ void add_timer(struct timer_list *timer)
 /*
  * modfied timer
  */
-x_bool mod_timer(struct timer_list *timer, x_u32 expires)
+bool_t mod_timer(struct timer_list *timer, u32_t expires)
 {
-	x_bool ret;
+	bool_t ret;
 
 	timer->expires = expires;
 
@@ -231,9 +231,9 @@ x_bool mod_timer(struct timer_list *timer, x_u32 expires)
 /*
  * delete timer
  */
-x_bool del_timer(struct timer_list * timer)
+bool_t del_timer(struct timer_list * timer)
 {
-	x_bool ret;
+	bool_t ret;
 
 	ret = detach_timer(timer);
 	timer->list.next = timer->list.prev = NULL;
@@ -244,7 +244,7 @@ x_bool del_timer(struct timer_list * timer)
 /*
  * setup timer.
  */
-void setup_timer(struct timer_list * timer,	void (*function)(x_u32), x_u32 data)
+void setup_timer(struct timer_list * timer,	void (*function)(u32_t), u32_t data)
 {
 	timer->function = function;
 	timer->data = data;
@@ -253,7 +253,7 @@ void setup_timer(struct timer_list * timer,	void (*function)(x_u32), x_u32 data)
 
 static __init void timer_pure_sync_init(void)
 {
-	x_s32 i;
+	s32_t i;
 
 	timer_jiffies = 0;
 

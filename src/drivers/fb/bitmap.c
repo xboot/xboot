@@ -40,9 +40,9 @@ static struct bitmap_reader_list * bitmap_reader_list = &__bitmap_reader_list;
 /*
  * match extension to filename
  */
-static x_bool match_extension(const char * filename, const char * ext)
+static bool_t match_extension(const char * filename, const char * ext)
 {
-	x_s32 pos, ext_len;
+	s32_t pos, ext_len;
 
 	pos = strlen(filename);
 	ext_len = strlen(ext);
@@ -79,7 +79,7 @@ static struct bitmap_reader * search_bitmap_reader(const char * extension)
 /*
  * register a bitmap reader into bitmap_reader_list
  */
-x_bool register_bitmap_reader(struct bitmap_reader * reader)
+bool_t register_bitmap_reader(struct bitmap_reader * reader)
 {
 	struct bitmap_reader_list * list;
 
@@ -105,7 +105,7 @@ x_bool register_bitmap_reader(struct bitmap_reader * reader)
 /*
  * unregister bitmap reader from bitmap_reader_list
  */
-x_bool unregister_bitmap_reader(struct bitmap_reader * reader)
+bool_t unregister_bitmap_reader(struct bitmap_reader * reader)
 {
 	struct bitmap_reader_list * list;
 	struct list_head * pos;
@@ -218,10 +218,10 @@ enum bitmap_format get_bitmap_format(struct bitmap_info * info)
  *
  * just support BITMAP_FORMAT_RGBA_8888 and BITMAP_FORMAT_RGB_888
  */
-x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bitmap_format fmt)
+bool_t bitmap_create(struct bitmap ** bitmap, u32_t width, u32_t height, enum bitmap_format fmt)
 {
 	struct bitmap_info * info;
-	x_u32 size;
+	u32_t size;
 
 	if(!bitmap)
 		return FALSE;
@@ -304,7 +304,7 @@ x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bi
 /*
  * load bitmap from memory picture (the gimp's c source format)
  */
-x_bool bitmap_load_from_picture(struct bitmap ** bitmap, struct picture * picture)
+bool_t bitmap_load_from_picture(struct bitmap ** bitmap, struct picture * picture)
 {
 	struct bitmap_info * info;
 
@@ -388,7 +388,7 @@ x_bool bitmap_load_from_picture(struct bitmap ** bitmap, struct picture * pictur
 /*
  * load bitmap from file using registered bitmap reader
  */
-x_bool bitmap_load_from_file(struct bitmap ** bitmap, const char * filename)
+bool_t bitmap_load_from_file(struct bitmap ** bitmap, const char * filename)
 {
 	struct bitmap_reader_list * list;
 	struct list_head * pos;
@@ -414,7 +414,7 @@ x_bool bitmap_load_from_file(struct bitmap ** bitmap, const char * filename)
 /*
  * frees all resources allocated by bitmap
  */
-x_bool bitmap_destroy(struct bitmap * bitmap)
+bool_t bitmap_destroy(struct bitmap * bitmap)
 {
 	if(!bitmap)
 		return FALSE;

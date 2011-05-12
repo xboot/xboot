@@ -36,10 +36,10 @@
 
 #if	defined(CONFIG_COMMAND_MKDIR) && (CONFIG_COMMAND_MKDIR > 0)
 
-static x_s32 build(x_s8 * path)
+static s32_t build(s8_t * path)
 {
 	struct stat st;
-	x_s8 * p;
+	s8_t * p;
 
 	p = path;
 	if(p[0] == '/')
@@ -64,15 +64,15 @@ static x_s32 build(x_s8 * path)
 	return 0;
 }
 
-static x_s32 do_mkdir(x_s32 argc, const x_s8 **argv)
+static s32_t do_mkdir(s32_t argc, const s8_t **argv)
 {
-	x_s32 c = 0;
-	x_s8 ** v;
-	x_bool pflag = FALSE;
-	x_s32 ret = 0;
-	x_s32 i;
+	s32_t c = 0;
+	s8_t ** v;
+	bool_t pflag = FALSE;
+	s32_t ret = 0;
+	s32_t i;
 
-	if( (v = malloc(sizeof(x_s8 *) * argc)) == NULL)
+	if( (v = malloc(sizeof(s8_t *) * argc)) == NULL)
 		return -1;
 
 	for(i=1; i<argc; i++)
@@ -80,7 +80,7 @@ static x_s32 do_mkdir(x_s32 argc, const x_s8 **argv)
 		if( !strcmp((const char *)argv[i], "-p") )
 			pflag = TRUE;
 		else
-			v[c++] = (x_s8 *)argv[i];
+			v[c++] = (s8_t *)argv[i];
 	}
 
 	if(c == 0)

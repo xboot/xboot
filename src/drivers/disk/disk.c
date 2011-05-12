@@ -57,16 +57,16 @@ struct disk_block
 	struct partition * part;
 
 	/* the offset of sector for this partition */
-	x_u32 offset;
+	u32_t offset;
 
 	/* busy or not */
-	x_bool busy;
+	bool_t busy;
 
 	/* point to the disk */
 	struct disk * disk;
 };
 
-static x_s32 disk_block_open(struct blkdev * dev)
+static s32_t disk_block_open(struct blkdev * dev)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 
@@ -78,30 +78,30 @@ static x_s32 disk_block_open(struct blkdev * dev)
 	return 0;
 }
 
-static x_s32 disk_block_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
+static s32_t disk_block_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t blkcnt)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 	struct disk * disk = dblk->disk;
-	x_u32 offset = dblk->offset;
+	u32_t offset = dblk->offset;
 
 	return (disk->read_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static x_s32 disk_block_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
+static s32_t disk_block_write(struct blkdev * dev, const u8_t * buf, u32_t blkno, u32_t blkcnt)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 	struct disk * disk = dblk->disk;
-	x_u32 offset = dblk->offset;
+	u32_t offset = dblk->offset;
 
 	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static x_s32 disk_block_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
+static s32_t disk_block_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static x_s32 disk_block_close(struct blkdev * dev)
+static s32_t disk_block_close(struct blkdev * dev)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 
@@ -133,14 +133,14 @@ static struct disk * search_disk(const char * name)
 /*
  * register a disk into disk_list
  */
-x_bool register_disk(struct disk * disk, enum blkdev_type type)
+bool_t register_disk(struct disk * disk, enum blkdev_type type)
 {
 	struct disk_list * list;
 	struct partition * part;
 	struct blkdev * dev;
 	struct disk_block * dblk;
 	struct list_head * part_pos;
-	x_s32 i;
+	s32_t i;
 
 	if(!disk || !disk->name || search_disk(disk->name))
 		return FALSE;
@@ -229,7 +229,7 @@ x_bool register_disk(struct disk * disk, enum blkdev_type type)
 /*
  * unregister disk from disk_list
  */
-x_bool unregister_disk(struct disk * disk)
+bool_t unregister_disk(struct disk * disk)
 {
 	struct disk_list * list;
 	struct list_head * pos;
@@ -270,12 +270,12 @@ x_bool unregister_disk(struct disk * disk)
 /*
  * disk read function, just used by partition parser.
  */
-x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count)
+x_size disk_read(struct disk * disk, u8_t * buf, x_off offset, x_size count)
 {
-	x_u8 * secbuf;
-	x_u32 secno, secsz, seccnt;
-	x_u64 div, rem;
-	x_u32 len;
+	u8_t * secbuf;
+	u32_t secno, secsz, seccnt;
+	u64_t div, rem;
+	u32_t len;
 	x_size tmp;
 	x_size size = 0;
 
@@ -368,16 +368,16 @@ x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count)
 /*
  * disk proc interface
  */
-static x_s32 disk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t disk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct disk_list * list;
 	struct list_head * pos;
 	struct partition * part;
 	struct list_head * part_pos;
 	char buff[32];
-	x_u64 from, to , size;
-	x_s8 * p;
-	x_s32 len = 0;
+	u64_t from, to , size;
+	s8_t * p;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -408,7 +408,7 @@ static x_s32 disk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

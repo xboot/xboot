@@ -97,12 +97,12 @@ static struct serial_info serial_info[4] = {
 /*
  * common function for ioctl.
  */
-static x_s32 realview_serial_ioctl(x_u32 ch, x_u32 cmd, void * arg)
+static s32_t realview_serial_ioctl(u32_t ch, u32_t cmd, void * arg)
 {
-	x_u32 baud, divider, fraction;
-	x_u32 temp, remainder;
-	x_u8 data_bit_reg, parity_reg, stop_bit_reg;
-	x_u64 uclk;
+	u32_t baud, divider, fraction;
+	u32_t temp, remainder;
+	u8_t data_bit_reg, parity_reg, stop_bit_reg;
+	u64_t uclk;
 	struct serial_parameter param;
 
 	if((ch < 0) || (ch > 3))
@@ -242,8 +242,8 @@ static x_s32 realview_serial_ioctl(x_u32 ch, x_u32 cmd, void * arg)
 	 * FBRD = ROUND((64 * MOD(UART_CLK, (16 * BAUD_RATE))) / (16 * BAUD_RATE))
 	 */
 	temp = 16 * baud;
-	divider = (x_u32)div64(uclk, temp);
-	remainder = (x_u32)mod64(uclk, temp);
+	divider = (u32_t)div64(uclk, temp);
+	remainder = (u32_t)mod64(uclk, temp);
 	temp = (8 * remainder) / baud;
 	fraction = (temp >> 1) + (temp & 1);
 
@@ -299,9 +299,9 @@ static void realview_serial0_exit(void)
 	return;
 }
 
-static x_s32 realview_serial0_read(x_u8 * buf, x_s32 count)
+static s32_t realview_serial0_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -313,9 +313,9 @@ static x_s32 realview_serial0_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 realview_serial0_write(const x_u8 * buf, x_s32 count)
+static s32_t realview_serial0_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -328,7 +328,7 @@ static x_s32 realview_serial0_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 realview_serial0_ioctl(x_u32 cmd, void * arg)
+static s32_t realview_serial0_ioctl(u32_t cmd, void * arg)
 {
 	return (realview_serial_ioctl(0, cmd, arg));
 }
@@ -354,9 +354,9 @@ static void realview_serial1_exit(void)
 	return;
 }
 
-static x_s32 realview_serial1_read(x_u8 * buf, x_s32 count)
+static s32_t realview_serial1_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -368,9 +368,9 @@ static x_s32 realview_serial1_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 realview_serial1_write(const x_u8 * buf, x_s32 count)
+static s32_t realview_serial1_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -383,7 +383,7 @@ static x_s32 realview_serial1_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 realview_serial1_ioctl(x_u32 cmd, void * arg)
+static s32_t realview_serial1_ioctl(u32_t cmd, void * arg)
 {
 	return (realview_serial_ioctl(1, cmd, arg));
 }
@@ -409,9 +409,9 @@ static void realview_serial2_exit(void)
 	return;
 }
 
-static x_s32 realview_serial2_read(x_u8 * buf, x_s32 count)
+static s32_t realview_serial2_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -423,9 +423,9 @@ static x_s32 realview_serial2_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 realview_serial2_write(const x_u8 * buf, x_s32 count)
+static s32_t realview_serial2_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -438,7 +438,7 @@ static x_s32 realview_serial2_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 realview_serial2_ioctl(x_u32 cmd, void * arg)
+static s32_t realview_serial2_ioctl(u32_t cmd, void * arg)
 {
 	return (realview_serial_ioctl(2, cmd, arg));
 }
@@ -464,9 +464,9 @@ static void realview_serial3_exit(void)
 	return;
 }
 
-static x_s32 realview_serial3_read(x_u8 * buf, x_s32 count)
+static s32_t realview_serial3_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -478,9 +478,9 @@ static x_s32 realview_serial3_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 realview_serial3_write(const x_u8 * buf, x_s32 count)
+static s32_t realview_serial3_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -493,7 +493,7 @@ static x_s32 realview_serial3_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 realview_serial3_ioctl(x_u32 cmd, void * arg)
+static s32_t realview_serial3_ioctl(u32_t cmd, void * arg)
 {
 	return (realview_serial_ioctl(3, cmd, arg));
 }
@@ -536,7 +536,7 @@ static struct serial_driver realview_serial_driver[4] = {
 static __init void realview_serial_dev_init(void)
 {
 	struct serial_parameter * param;
-	x_u32 i;
+	u32_t i;
 
 	if(!clk_get_rate("uclk", 0))
 	{
@@ -560,7 +560,7 @@ static __init void realview_serial_dev_init(void)
 
 static __exit void realview_serial_dev_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(realview_serial_driver); i++)
 	{

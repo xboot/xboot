@@ -65,7 +65,7 @@ struct device * search_device(const char * name)
 /*
  * register a device into device_list
  */
-x_bool register_device(struct device * dev)
+bool_t register_device(struct device * dev)
 {
 	struct device_list * list;
 
@@ -103,7 +103,7 @@ x_bool register_device(struct device * dev)
 /*
  * unregister device from device_list
  */
-x_bool unregister_device(struct device * dev)
+bool_t unregister_device(struct device * dev)
 {
 	struct device_list * list;
 	struct list_head * pos;
@@ -128,12 +128,12 @@ x_bool unregister_device(struct device * dev)
 /*
  * device proc interface
  */
-static x_s32 device_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct device_list * list;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;

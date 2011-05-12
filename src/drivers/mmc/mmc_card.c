@@ -42,11 +42,11 @@ extern struct mmc_host_list * mmc_host_list;
 
 #define UNSTUFF_BITS(resp, start, size)								\
 	({																\
-		const x_s32 __size = size;									\
-		const x_u32 __mask = (__size < 32 ? 1 << __size : 0) - 1;	\
-		const x_s32 __off = 3 - ((start) / 32);						\
-		const x_s32 __shft = (start) & 31;							\
-		x_u32 __res;												\
+		const s32_t __size = size;									\
+		const u32_t __mask = (__size < 32 ? 1 << __size : 0) - 1;	\
+		const s32_t __off = 3 - ((start) / 32);						\
+		const s32_t __shft = (start) & 31;							\
+		u32_t __res;												\
 																	\
 		__res = resp[__off] >> __shft;								\
 		if (__size + __shft > 32)									\
@@ -65,29 +65,29 @@ static struct mmc_card_list __mmc_card_list = {
 };
 struct mmc_card_list * mmc_card_list = &__mmc_card_list;
 
-static const x_u32 tran_exp[] = {
+static const u32_t tran_exp[] = {
 	10000, 100000, 1000000, 10000000, 0, 0, 0, 0
 };
 
-static const x_u8 tran_mant[] = {
+static const u8_t tran_mant[] = {
 	0,	10,	12,	13,	15,	20,	25,	30,
 	35,	40,	45,	50,	55,	60,	70,	80,
 };
 
-static const x_u32 tacc_exp[] = {
+static const u32_t tacc_exp[] = {
 	1, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
 };
 
-static const x_u32 tacc_mant[] = {
+static const u32_t tacc_mant[] = {
 	0,	10,	12,	13,	15,	20,	25,	30,
 	35,	40,	45,	50,	55,	60,	70,	80,
 };
 
-static x_bool mmc_card_decode(struct mmc_card * card)
+static bool_t mmc_card_decode(struct mmc_card * card)
 {
 	struct mmc_card_info * info;
-	x_u32 e, m, csd_struct;
-	x_u32 mmca_vsn;
+	u32_t e, m, csd_struct;
+	u32_t mmca_vsn;
 
 	if(!card || !card->info)
 		return FALSE;
@@ -283,7 +283,7 @@ static x_bool mmc_card_decode(struct mmc_card * card)
 	return TRUE;
 }
 
-static x_s32 mmc_read_sectors(struct disk * disk, x_u8 * buf, x_u32 sector, x_u32 count)
+static s32_t mmc_read_sectors(struct disk * disk, u8_t * buf, u32_t sector, u32_t count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
@@ -293,7 +293,7 @@ static x_s32 mmc_read_sectors(struct disk * disk, x_u8 * buf, x_u32 sector, x_u3
 	return count;
 }
 
-static x_s32 mmc_write_sectors(struct disk * disk, const x_u8 * buf, x_u32 sector, x_u32 count)
+static s32_t mmc_write_sectors(struct disk * disk, const u8_t * buf, u32_t sector, u32_t count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
@@ -303,7 +303,7 @@ static x_s32 mmc_write_sectors(struct disk * disk, const x_u8 * buf, x_u32 secto
 	return count;
 }
 
-static x_bool register_mmc_card(struct mmc_card * card)
+static bool_t register_mmc_card(struct mmc_card * card)
 {
 	struct mmc_card_list * list;
 	struct disk * disk;
@@ -359,7 +359,7 @@ void mmc_card_probe(void)
 	struct mmc_host * host;
 	struct mmc_card_info * info;
 	struct mmc_card * card;
-	x_s32 i;
+	s32_t i;
 
 	/*
 	 * remove all mmc card
@@ -514,12 +514,12 @@ struct mmc_card * search_mmc_card(const char * name)
 /*
  * mmc card proc interface
  */
-static x_s32 mmc_card_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t mmc_card_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct mmc_card_list * list;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 	char buff[32];
 
 	if((p = malloc(SZ_4K)) == NULL)
@@ -554,18 +554,18 @@ static x_s32 mmc_card_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 			break;
 		}
 		len += sprintf((char *)(p + len), (const char *)" card type         : %s\r\n", buff);
-		len += sprintf((char *)(p + len), (const char *)" manufacturer id   : 0x%lx\r\n", (x_u32)list->card->info->cid.mid);
-		len += sprintf((char *)(p + len), (const char *)" oem id            : 0x%lx\r\n", (x_u32)list->card->info->cid.oid);
+		len += sprintf((char *)(p + len), (const char *)" manufacturer id   : 0x%lx\r\n", (u32_t)list->card->info->cid.mid);
+		len += sprintf((char *)(p + len), (const char *)" oem id            : 0x%lx\r\n", (u32_t)list->card->info->cid.oid);
 		len += sprintf((char *)(p + len), (const char *)" product name      : %s\r\n", list->card->info->cid.pnm);
-		len += sprintf((char *)(p + len), (const char *)" hardware revision : 0x%lx\r\n", (x_u32)list->card->info->cid.hwrev);
-		len += sprintf((char *)(p + len), (const char *)" firmware revision : 0x%lx\r\n", (x_u32)list->card->info->cid.fwrev);
-		len += sprintf((char *)(p + len), (const char *)" serial number     : 0x%lx\r\n", (x_u32)list->card->info->cid.serial);
-		len += sprintf((char *)(p + len), (const char *)" manufacture date  : %ld/%02ld\r\n", (x_u32)list->card->info->cid.year, (x_u32)list->card->info->cid.month);
+		len += sprintf((char *)(p + len), (const char *)" hardware revision : 0x%lx\r\n", (u32_t)list->card->info->cid.hwrev);
+		len += sprintf((char *)(p + len), (const char *)" firmware revision : 0x%lx\r\n", (u32_t)list->card->info->cid.fwrev);
+		len += sprintf((char *)(p + len), (const char *)" serial number     : 0x%lx\r\n", (u32_t)list->card->info->cid.serial);
+		len += sprintf((char *)(p + len), (const char *)" manufacture date  : %ld/%02ld\r\n", (u32_t)list->card->info->cid.year, (u32_t)list->card->info->cid.month);
 
-		ssize(buff, (x_u64)(list->card->info->sector_size));
+		ssize(buff, (u64_t)(list->card->info->sector_size));
 		len += sprintf((char *)(p + len), (const char *)" sector size       : %s\r\n", buff);
 		len += sprintf((char *)(p + len), (const char *)" sector count      : %ld\r\n", list->card->info->sector_count);
-		ssize(buff, (x_u64)(list->card->info->capacity));
+		ssize(buff, (u64_t)(list->card->info->capacity));
 		len += sprintf((char *)(p + len), (const char *)" total capacity    : %s\r\n", buff);
 	}
 
@@ -577,7 +577,7 @@ static x_s32 mmc_card_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

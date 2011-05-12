@@ -13,14 +13,14 @@
 #include <vsprintf.h>
 
 /*
- * simple_strtou32 - convert a string to x_u32
+ * simple_strtou32 - convert a string to u32_t
  * @cp: The start of the string
  * @endp: A pointer to the end of the parsed string will be placed here
  * @base: The number base to use
  */
-x_u32 simple_strtou32(const x_s8 *cp, x_s8 **endp, x_u32 base)
+u32_t simple_strtou32(const s8_t *cp, s8_t **endp, u32_t base)
 {
-	x_u32 result = 0,value;
+	u32_t result = 0,value;
 
 	if (!base)
 	{
@@ -47,17 +47,17 @@ x_u32 simple_strtou32(const x_s8 *cp, x_s8 **endp, x_u32 base)
 		cp++;
 	}
 	if (endp)
-		*endp = (x_s8 *)cp;
+		*endp = (s8_t *)cp;
 	return result;
 }
 
 /*
- * simple_strtos32 - convert a string to x_s32
+ * simple_strtos32 - convert a string to s32_t
  * @cp: The start of the string
  * @endp: A pointer to the end of the parsed string will be placed here
  * @base: The number base to use
  */
-x_s32 simple_strtos32(const x_s8 *cp, x_s8 **endp, x_u32 base)
+s32_t simple_strtos32(const s8_t *cp, s8_t **endp, u32_t base)
 {
 	if(*cp=='-')
 		return -simple_strtou32(cp+1,endp,base);
@@ -65,14 +65,14 @@ x_s32 simple_strtos32(const x_s8 *cp, x_s8 **endp, x_u32 base)
 }
 
 /*
- * simple_strtou64 - convert a string to x_u64
+ * simple_strtou64 - convert a string to u64_t
  * @cp: The start of the string
  * @endp: A pointer to the end of the parsed string will be placed here
  * @base: The number base to use
  */
-x_u64 simple_strtou64(const x_s8 *cp, x_s8 **endp, x_u32 base)
+u64_t simple_strtou64(const s8_t *cp, s8_t **endp, u32_t base)
 {
-	x_u64 result = 0,value;
+	u64_t result = 0,value;
 
 	if (!base)
 	{
@@ -99,17 +99,17 @@ x_u64 simple_strtou64(const x_s8 *cp, x_s8 **endp, x_u32 base)
 		cp++;
 	}
 	if (endp)
-		*endp = (x_s8 *)cp;
+		*endp = (s8_t *)cp;
 	return result;
 }
 
 /*
- * simple_strtos64 - convert a string to x_s64
+ * simple_strtos64 - convert a string to s64_t
  * @cp: The start of the string
  * @endp: A pointer to the end of the parsed string will be placed here
  * @base: The number base to use
  */
-x_s64 simple_strtos64(const x_s8 *cp, x_s8 **endp, x_u32 base)
+s64_t simple_strtos64(const s8_t *cp, s8_t **endp, u32_t base)
 {
 	if(*cp=='-')
 		return -simple_strtou64(cp+1,endp,base);
@@ -117,11 +117,11 @@ x_s64 simple_strtos64(const x_s8 *cp, x_s8 **endp, x_u32 base)
 }
 
 /*
- * skip_atos32 - convert a string to x_s32
+ * skip_atos32 - convert a string to s32_t
  */
-static x_s32 skip_atos32(const x_s8 **s)
+static s32_t skip_atos32(const s8_t **s)
 {
-	x_s32 i=0;
+	s32_t i=0;
 	while (isdigit(**s))
 		i = i*10 + *((*s)++) - '0';
 	return i;
@@ -135,13 +135,13 @@ static x_s32 skip_atos32(const x_s8 **s)
 #define SPECIAL	32		/* 0x */
 #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
 
-static x_s8 * number(x_s8 * buf, x_s8 * end, x_u64 num, x_u32 base, x_s32 size, x_s32 precision, x_s32 type)
+static s8_t * number(s8_t * buf, s8_t * end, u64_t num, u32_t base, s32_t size, s32_t precision, s32_t type)
 {
-	x_s8 c,sign,tmp[66];
-	const x_s8 *digits;
-	static const x_s8 small_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-	static const x_s8 large_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	x_s32 i;
+	s8_t c,sign,tmp[66];
+	const s8_t *digits;
+	static const s8_t small_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+	static const s8_t large_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	s32_t i;
 
 	digits = (type & LARGE) ? large_digits : small_digits;
 	if (type & LEFT)
@@ -152,10 +152,10 @@ static x_s8 * number(x_s8 * buf, x_s8 * end, x_u64 num, x_u32 base, x_s32 size, 
 	sign = 0;
 	if (type & SIGN)
 	{
-		if ((x_s64) num < 0)
+		if ((s64_t) num < 0)
 		{
 			sign = '-';
-			num = - (x_s64) num;
+			num = - (s64_t) num;
 			size--;
 		}
 		else if (type & PLUS)
@@ -271,20 +271,20 @@ static x_s8 * number(x_s8 * buf, x_s8 * end, x_u64 num, x_u32 base, x_s32 size, 
  * Call this function if you are already dealing with a va_list.
  * You probably want snprintf() instead.
  */
-x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
+s32_t vsnprintf(s8_t *buf, s32_t size, const s8_t *fmt, va_list args)
 {
-	x_s32 len;
-	x_u64 num;
-	x_s32 i, base;
-	x_s8 *str, *end, c;
-	const x_s8 *s;
+	s32_t len;
+	u64_t num;
+	s32_t i, base;
+	s8_t *str, *end, c;
+	const s8_t *s;
 
-	x_s32 flags;		/* flags to number() */
+	s32_t flags;		/* flags to number() */
 
-	x_s32 field_width;	/* width of output field */
-	x_s32 precision;		/* min. # of digits for integers; max
+	s32_t field_width;	/* width of output field */
+	s32_t precision;		/* min. # of digits for integers; max
 				   number of chars for from string */
-	x_s32 qualifier;		/* 'h', 'l', or 'L' for integer fields */
+	s32_t qualifier;		/* 'h', 'l', or 'L' for integer fields */
 				/* 'z' support added 23/7/1999 S.H.    */
 				/* 'z' changed to 'Z' --davidm 1/25/99 */
 				/* 't' added for ptrdiff_t */
@@ -333,7 +333,7 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
 		{
 			++fmt;
 			/* it's the next argument */
-			field_width = va_arg(args, x_s32);
+			field_width = va_arg(args, s32_t);
 			if (field_width < 0)
 			{
 				field_width = -field_width;
@@ -352,7 +352,7 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
 			{
 				++fmt;
 				/* it's the next argument */
-				precision = va_arg(args, x_s32);
+				precision = va_arg(args, s32_t);
 			}
 			if (precision < 0)
 				precision = 0;
@@ -386,7 +386,7 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
 						++str;
 					}
 				}
-				c = (x_u8) va_arg(args, x_s32);
+				c = (u8_t) va_arg(args, s32_t);
 				if (str < end)
 					*str = c;
 				++str;
@@ -399,7 +399,7 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
 				continue;
 
 			case 's':
-				s = va_arg(args, x_s8 *);
+				s = va_arg(args, s8_t *);
 
 				len = strnlen((char *)s, precision);
 
@@ -433,7 +433,7 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
 					flags |= ZEROPAD;
 				}
 				str = number(str, end,
-						(x_u32) va_arg(args, void *),
+						(u32_t) va_arg(args, void *),
 						16, field_width, precision, flags);
 				continue;
 
@@ -441,17 +441,17 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
 			case 'n':
 				if (qualifier == 'l')
 				{
-					x_s32 * ip = va_arg(args, x_s32 *);
+					s32_t * ip = va_arg(args, s32_t *);
 					*ip = (str - buf);
 				}
 				else if (qualifier == 'Z' || qualifier == 'z')
 				{
-					x_s32 * ip = va_arg(args, x_s32 *);
+					s32_t * ip = va_arg(args, s32_t *);
 					*ip = (str - buf);
 				}
 				else
 				{
-					x_s32 * ip = va_arg(args, x_s32 *);
+					s32_t * ip = va_arg(args, s32_t *);
 					*ip = (str - buf);
 				}
 				continue;
@@ -496,32 +496,32 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
 				continue;
 		}
 		if (qualifier == 'L')
-			num = va_arg(args, x_s64);
+			num = va_arg(args, s64_t);
 		else if (qualifier == 'l')
 		{
-			num = va_arg(args, x_u32);
+			num = va_arg(args, u32_t);
 			if (flags & SIGN)
-				num = (x_s32) num;
+				num = (s32_t) num;
 		}
 		else if (qualifier == 'Z' || qualifier == 'z')
 		{
-			num = va_arg(args, x_s32);
+			num = va_arg(args, s32_t);
 		}
 		else if (qualifier == 't')
 		{
-			num = va_arg(args, x_s32);
+			num = va_arg(args, s32_t);
 		}
 		else if (qualifier == 'h')
 		{
-			num = (x_u16) va_arg(args, x_s32);
+			num = (u16_t) va_arg(args, s32_t);
 			if (flags & SIGN)
-				num = (x_s16) num;
+				num = (s16_t) num;
 		}
 		else
 		{
-			num = va_arg(args, x_u32);
+			num = va_arg(args, u32_t);
 			if (flags & SIGN)
-				num = (x_s32) num;
+				num = (s32_t) num;
 		}
 		str = number(str, end, num, base, field_width, precision, flags);
 	}
@@ -542,16 +542,16 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
  * @fmt:	format of buffer
  * @args:	arguments
  */
-x_s32 vsscanf(const x_s8 * buf, const x_s8 * fmt, va_list args)
+s32_t vsscanf(const s8_t * buf, const s8_t * fmt, va_list args)
 {
-	const x_s8 *str = buf;
-	x_s8 *next;
-	x_s8 digit;
-	x_s32 num = 0;
-	x_s32 qualifier;
-	x_u8 base;
-	x_s32 field_width;
-	x_s32 is_sign = 0;
+	const s8_t *str = buf;
+	s8_t *next;
+	s8_t digit;
+	s32_t num = 0;
+	s32_t qualifier;
+	u8_t base;
+	s32_t field_width;
+	s32_t is_sign = 0;
 
 	while(*fmt && *str)
 	{
@@ -625,7 +625,7 @@ x_s32 vsscanf(const x_s8 * buf, const x_s8 * fmt, va_list args)
 		{
 		case 'c':
 		{
-			x_s8 *s = (x_s8 *) va_arg(args,x_s8*);
+			s8_t *s = (s8_t *) va_arg(args,s8_t*);
 			if (field_width == -1)
 				field_width = 1;
 			do {
@@ -636,9 +636,9 @@ x_s32 vsscanf(const x_s8 * buf, const x_s8 * fmt, va_list args)
 		continue;
 		case 's':
 		{
-			x_s8 *s = (x_s8 *) va_arg(args, x_s8 *);
+			s8_t *s = (s8_t *) va_arg(args, s8_t *);
 			if(field_width == -1)
-				field_width = ((x_s32)(~0U>>1));
+				field_width = ((s32_t)(~0U>>1));
 			/* first, skip leading white space in buffer */
 			while (isspace(*str))
 				str++;
@@ -655,7 +655,7 @@ x_s32 vsscanf(const x_s8 * buf, const x_s8 * fmt, va_list args)
 		case 'n':
 			/* return number of characters read so far */
 		{
-			x_s32 *i = (x_s32 *)va_arg(args,x_s32*);
+			s32_t *i = (s32_t *)va_arg(args,s32_t*);
 			*i = str - buf;
 		}
 		continue;
@@ -703,64 +703,64 @@ x_s32 vsscanf(const x_s8 * buf, const x_s8 * fmt, va_list args)
 		{
 		case 'H':	/* that's 'hh' in format */
 			if (is_sign) {
-				x_s8 *s = (x_s8 *) va_arg(args,x_s8 *);
-				*s = (x_s8) simple_strtos32(str,&next,base);
+				s8_t *s = (s8_t *) va_arg(args,s8_t *);
+				*s = (s8_t) simple_strtos32(str,&next,base);
 			} else {
-				x_u8 *s = (x_u8 *) va_arg(args, x_u8 *);
-				*s = (x_u8) simple_strtou32(str, &next, base);
+				u8_t *s = (u8_t *) va_arg(args, u8_t *);
+				*s = (u8_t) simple_strtou32(str, &next, base);
 			}
 			break;
 		case 'h':
 			if (is_sign)
 			{
-				x_s16 *s = (x_s16 *) va_arg(args,x_s16 *);
-				*s = (x_s16) simple_strtos32(str,&next,base);
+				s16_t *s = (s16_t *) va_arg(args,s16_t *);
+				*s = (s16_t) simple_strtos32(str,&next,base);
 			}
 			else
 			{
-				x_u16 *s = (x_u16 *) va_arg(args, x_u16 *);
-				*s = (x_u16) simple_strtou32(str, &next, base);
+				u16_t *s = (u16_t *) va_arg(args, u16_t *);
+				*s = (u16_t) simple_strtou32(str, &next, base);
 			}
 			break;
 		case 'l':
 			if (is_sign)
 			{
-				x_s32 *l = (x_s32 *) va_arg(args,x_s32 *);
+				s32_t *l = (s32_t *) va_arg(args,s32_t *);
 				*l = simple_strtos32(str,&next,base);
 			} else {
-				x_u32 *l = (x_u32*) va_arg(args,x_u32*);
+				u32_t *l = (u32_t*) va_arg(args,u32_t*);
 				*l = simple_strtou32(str,&next,base);
 			}
 			break;
 		case 'L':
 			if (is_sign)
 			{
-				x_s64 *l = (x_s64*) va_arg(args,x_s64 *);
+				s64_t *l = (s64_t*) va_arg(args,s64_t *);
 				*l = simple_strtos64(str,&next,base);
 			}
 			else
 			{
-				x_u64 *l = (x_u64*) va_arg(args,x_u64*);
+				u64_t *l = (u64_t*) va_arg(args,u64_t*);
 				*l = simple_strtou64(str,&next,base);
 			}
 			break;
 		case 'Z':
 		case 'z':
 		{
-			x_u32 *s = (x_u32*) va_arg(args,x_u32*);
-			*s = (x_u32) simple_strtou32(str,&next,base);
+			u32_t *s = (u32_t*) va_arg(args,u32_t*);
+			*s = (u32_t) simple_strtou32(str,&next,base);
 		}
 		break;
 		default:
 			if (is_sign)
 			{
-				x_s32 *i = (x_s32 *) va_arg(args, x_s32*);
-				*i = (x_s32) simple_strtos32(str,&next,base);
+				s32_t *i = (s32_t *) va_arg(args, s32_t*);
+				*i = (s32_t) simple_strtos32(str,&next,base);
 			}
 			else
 			{
-				x_u32 *i = (x_u32*) va_arg(args, x_u32*);
-				*i = (x_u32) simple_strtou32(str,&next,base);
+				u32_t *i = (u32_t*) va_arg(args, u32_t*);
+				*i = (u32_t) simple_strtou32(str,&next,base);
 			}
 			break;
 		}
@@ -785,7 +785,7 @@ int sprintf(char * buf, const char * fmt, ...)
 	int i;
 
 	va_start(args, fmt);
-	i = vsnprintf((x_s8 *)buf,(x_s32)(0xFFFF>>1),(x_s8 *)fmt,args);
+	i = vsnprintf((s8_t *)buf,(s32_t)(0xFFFF>>1),(s8_t *)fmt,args);
 	va_end(args);
 	return i;
 }
@@ -800,10 +800,10 @@ int sprintf(char * buf, const char * fmt, ...)
 int snprintf(char * buf, size_t size, const char * fmt, ...)
 {
 	va_list args;
-	x_s32 i;
+	s32_t i;
 
 	va_start(args, fmt);
-	i = (x_s32)vsnprintf((x_s8 *)buf, size, (x_s8 *)fmt, args);
+	i = (s32_t)vsnprintf((s8_t *)buf, size, (s8_t *)fmt, args);
 	va_end(args);
 	return i;
 }
@@ -814,13 +814,13 @@ int snprintf(char * buf, size_t size, const char * fmt, ...)
  * @fmt:	formatting of buffer
  * @...:	resulting arguments
  */
-x_s32 sscanf(const x_s8 * buf, const x_s8 * fmt, ...)
+s32_t sscanf(const s8_t * buf, const s8_t * fmt, ...)
 {
 	va_list args;
-	x_s32 i;
+	s32_t i;
 
 	va_start(args,fmt);
-	i = vsscanf((x_s8 *)buf,(x_s8 *)fmt,args);
+	i = vsscanf((s8_t *)buf,(s8_t *)fmt,args);
 	va_end(args);
 	return i;
 }
@@ -828,10 +828,10 @@ x_s32 sscanf(const x_s8 * buf, const x_s8 * fmt, ...)
 /*
  * ssize - format size to string
  */
-x_s32 ssize(char * buf, x_u64 size)
+s32_t ssize(char * buf, u64_t size)
 {
 	const char * unit[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
-	x_s32 count = 0;
+	s32_t count = 0;
 
 	while( ((size >> 10) > 0) && (count < 8) )
 	{
@@ -839,5 +839,5 @@ x_s32 ssize(char * buf, x_u64 size)
 		count++;
 	}
 
-	return( sprintf(buf, (const char *)"%lu%s", (x_u32)size, unit[count]) );
+	return( sprintf(buf, (const char *)"%lu%s", (u32_t)size, unit[count]) );
 }

@@ -30,19 +30,19 @@ struct chrdev
 	enum chrdev_type type;
 
 	/* open device */
-	x_s32 (*open)(struct chrdev * dev);
+	s32_t (*open)(struct chrdev * dev);
 
 	/* read device */
-	x_s32 (*read)(struct chrdev * dev, x_u8 * buf, x_s32 count);
+	s32_t (*read)(struct chrdev * dev, u8_t * buf, s32_t count);
 
 	/* write device */
-	x_s32 (*write)(struct chrdev * dev, const x_u8 * buf, x_s32 count);
+	s32_t (*write)(struct chrdev * dev, const u8_t * buf, s32_t count);
 
 	/* ioctl device */
-	x_s32 (*ioctl)(struct chrdev * dev, x_u32 cmd, void * arg);
+	s32_t (*ioctl)(struct chrdev * dev, u32_t cmd, void * arg);
 
 	/* close device */
-	x_s32 (*close)(struct chrdev * dev);
+	s32_t (*close)(struct chrdev * dev);
 
 	/* char device's driver */
 	void * driver;
@@ -51,7 +51,7 @@ struct chrdev
 
 struct chrdev * search_chrdev(const char * name);
 struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type);
-x_bool register_chrdev(struct chrdev * dev);
-x_bool unregister_chrdev(const char * name);
+bool_t register_chrdev(struct chrdev * dev);
+bool_t unregister_chrdev(const char * name);
 
 #endif /* __CHRDEV_H__ */

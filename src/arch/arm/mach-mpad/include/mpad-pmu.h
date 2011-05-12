@@ -4,7 +4,7 @@
 #include <configs.h>
 #include <default.h>
 
-x_bool pmu_write(x_u8 reg, x_u8 value);
-x_bool pmu_read(x_u8 reg, x_u8 * value);
+bool_t pmu_write(u8_t reg, u8_t value);
+bool_t pmu_read(u8_t reg, u8_t * value);
 
 #endif /* __MPAD_PMU_H__ */

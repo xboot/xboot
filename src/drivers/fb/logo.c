@@ -42,7 +42,7 @@ static struct picture * xboot_logo = (struct picture *)(&default_xboot_logo);
  * default xboot's logo
  */
 static const struct picture default_xboot_logo = {
-	200, 58, 3, (x_u8 *)
+	200, 58, 3, (u8_t *)
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
@@ -1132,12 +1132,12 @@ static const struct picture default_xboot_logo = {
 	"\0\0\0\0"
 };
 
-x_bool display_logo(struct fb * fb)
+bool_t display_logo(struct fb * fb)
 {
 	struct bitmap * bitmap;
 	struct rect rect, to, r, save;
-	x_s32 ox, oy;
-	x_u32 color;
+	s32_t ox, oy;
+	u32_t color;
 
 	if(!fb || !xboot_logo)
 		return FALSE;
@@ -1180,7 +1180,7 @@ x_bool display_logo(struct fb * fb)
 /*
  * register a logo
  */
-x_bool register_logo(const struct picture * logo)
+bool_t register_logo(const struct picture * logo)
 {
 	if(logo)
 	{

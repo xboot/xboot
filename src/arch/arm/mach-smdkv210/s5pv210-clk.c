@@ -49,10 +49,10 @@ static struct clk s5pv210_clocks[8];
 /*
  * get pll frequency.
  */
-static x_u64 s5pv210_get_pll(x_u64 baseclk, enum S5PV210_PLL pll)
+static u64_t s5pv210_get_pll(u64_t baseclk, enum S5PV210_PLL pll)
 {
-	x_u32 r, m, p, s;
-	x_u64 fvco;
+	u32_t r, m, p, s;
+	u64_t fvco;
 
 	switch(pll)
 	{
@@ -86,21 +86,21 @@ static x_u64 s5pv210_get_pll(x_u64 baseclk, enum S5PV210_PLL pll)
 	}
 
 	fvco = m * div64(baseclk, p * (1 << s));
-	return (x_u64)fvco;
+	return (u64_t)fvco;
 }
 
 /*
  * setup the s5pv210's clock array.
  */
-static void s5pv210_setup_clocks(x_u64 xtal)
+static void s5pv210_setup_clocks(u64_t xtal)
 {
-	x_u64 fin, apll, mpll, epll, vpll, a2m;
-	x_u64 hpm, msys, dsys, psys;
-	x_u64 armclk, dsys_hclk, psys_hclk;
-	x_u64 tmp;
-	x_u32 clkdiv0, clkdiv1;
-	x_u32 clksrc0, clksrc1;
-	x_u32 muxstat0, muxstat1;
+	u64_t fin, apll, mpll, epll, vpll, a2m;
+	u64_t hpm, msys, dsys, psys;
+	u64_t armclk, dsys_hclk, psys_hclk;
+	u64_t tmp;
+	u32_t clkdiv0, clkdiv1;
+	u32_t clksrc0, clksrc1;
+	u32_t muxstat0, muxstat1;
 
 	/* get value of special register */
 	clkdiv0 = readl(S5PV210_CLK_DIV0);
@@ -212,8 +212,8 @@ static void s5pv210_setup_clocks(x_u64 xtal)
 
 static __init void s5pv210_clk_init(void)
 {
-	x_u32 i;
-	x_u64 xtal = 0;
+	u32_t i;
+	u64_t xtal = 0;
 
 	/* get system xtal */
 	if(get_machine() != 0)
@@ -236,7 +236,7 @@ static __init void s5pv210_clk_init(void)
 
 static __exit void s5pv210_clk_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i=0; i< ARRAY_SIZE(s5pv210_clocks); i++)
 	{

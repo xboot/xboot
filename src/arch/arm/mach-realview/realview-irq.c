@@ -39,9 +39,9 @@
  * the struct of regs, which saved and restore in the interrupt.
  */
 struct irq_regs {
-	x_u32	r0,		r1,		r2,		r3, 	r4,		r5;
-	x_u32	r6,		r7,		r8, 	r9, 	r10,	fp;
-	x_u32	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
+	u32_t	r0,		r1,		r2,		r3, 	r4,		r5;
+	u32_t	r6,		r7,		r8, 	r9, 	r10,	fp;
+	u32_t	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
 };
 
 /*
@@ -59,7 +59,7 @@ static void null_irq_handler(void) { }
  */
 void do_irqs(struct irq_regs * regs)
 {
-	x_u32 irq;
+	u32_t irq;
 
 	/* get irq's offset */
 	irq = readl(REALVIEW_GIC1_CPU_INTACK) & 0x3ff;
@@ -74,9 +74,9 @@ void do_irqs(struct irq_regs * regs)
 /*
  * enable or disable irq.
  */
-static void enable_irqs(struct irq * irq, x_bool enable)
+static void enable_irqs(struct irq * irq, bool_t enable)
 {
-	x_u32 mask = 1 << (irq->irq_no % 32);
+	u32_t mask = 1 << (irq->irq_no % 32);
 
 	if(enable)
 		writel(REALVIEW_GIC1_DIST_ENABLE_SET + (irq->irq_no / 32) * 4, mask);
@@ -248,9 +248,9 @@ static struct irq realview_irqs[] = {
 
 static __init void realview_irq_init(void)
 {
-	x_u32 i;
-	x_u32 max_irq;
-	x_u32 cpumask;
+	u32_t i;
+	u32_t max_irq;
+	u32_t cpumask;
 
 	/* get cpumask */
 	cpumask = 1 << 0;
@@ -324,7 +324,7 @@ static __init void realview_irq_init(void)
 
 static __exit void realview_irq_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
 	{

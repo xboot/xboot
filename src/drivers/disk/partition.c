@@ -66,7 +66,7 @@ static struct partition_parser * search_partition_parser(const char * name)
 /*
  * register a partition parser into partition_parser_list
  */
-x_bool register_partition_parser(struct partition_parser * parser)
+bool_t register_partition_parser(struct partition_parser * parser)
 {
 	struct partition_parser_list * list;
 
@@ -92,7 +92,7 @@ x_bool register_partition_parser(struct partition_parser * parser)
 /*
  * unregister partition parser from partition_parser_list
  */
-x_bool unregister_partition_parser(struct partition_parser * parser)
+bool_t unregister_partition_parser(struct partition_parser * parser)
 {
 	struct partition_parser_list * list;
 	struct list_head * pos;
@@ -117,13 +117,13 @@ x_bool unregister_partition_parser(struct partition_parser * parser)
 /*
  * probe partition with parser which can be used
  */
-x_bool partition_parser_probe(struct disk * disk)
+bool_t partition_parser_probe(struct disk * disk)
 {
 	struct partition_parser_list * list;
 	struct list_head * pos;
 	struct partition * part;
 	struct list_head * part_pos;
-	x_s32 i;
+	s32_t i;
 
 	if(!disk || !disk->name)
 		return FALSE;

@@ -77,92 +77,92 @@ enum
 
 struct huff_table
 {
-	x_s32 * values, * maxval, * offset;
-	x_s32 num_values, max_length;
+	s32_t * values, * maxval, * offset;
+	s32_t num_values, max_length;
 };
 
 struct png_data
 {
-	x_s32 file;
-	x_u32 file_offset;
+	s32_t file;
+	u32_t file_offset;
 	struct bitmap ** bitmap;
 
-	x_s32 bit_count, bit_save;
+	s32_t bit_count, bit_save;
 
-	x_u32 next_offset;
+	u32_t next_offset;
 
-	x_s32 image_width, image_height, bpp, is_16bit, raw_bytes;
-	x_u8 * image_data;
+	s32_t image_width, image_height, bpp, is_16bit, raw_bytes;
+	u8_t * image_data;
 
-	x_s32 inside_idat, idat_remain;
+	s32_t inside_idat, idat_remain;
 
-	x_s32 code_values[DEFLATE_HLIT_MAX];
-	x_s32 code_maxval[DEFLATE_HUFF_LEN];
-	x_s32 code_offset[DEFLATE_HUFF_LEN];
+	s32_t code_values[DEFLATE_HLIT_MAX];
+	s32_t code_maxval[DEFLATE_HUFF_LEN];
+	s32_t code_offset[DEFLATE_HUFF_LEN];
 
-	x_s32 dist_values[DEFLATE_HDIST_MAX];
-	x_s32 dist_maxval[DEFLATE_HUFF_LEN];
-	x_s32 dist_offset[DEFLATE_HUFF_LEN];
+	s32_t dist_values[DEFLATE_HDIST_MAX];
+	s32_t dist_maxval[DEFLATE_HUFF_LEN];
+	s32_t dist_offset[DEFLATE_HUFF_LEN];
 
 	struct huff_table code_table;
 	struct huff_table dist_table;
 
-	x_u8 slide[WINDOW_SIZE];
-	x_s32 wp;
+	u8_t slide[WINDOW_SIZE];
+	s32_t wp;
 
-	x_u8 * cur_rgb;
+	u8_t * cur_rgb;
 
-	x_s32 cur_column, cur_filter, first_line;
+	s32_t cur_column, cur_filter, first_line;
 };
 
 /* png magic number */
-static const x_u8 png_magic[8] = {
+static const u8_t png_magic[8] = {
 	0x89, 0x50, 0x4e, 0x47, 0xd, 0xa, 0x1a, 0x0a
 };
 
 /* order of the bit length code lengths */
-static const x_u8 bitorder[] = {
+static const u8_t bitorder[] = {
 	16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15
 };
 
 /* copy lengths for literal codes 257..285 */
-static const x_s32 cplens[] = {
+static const s32_t cplens[] = {
 	3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31,
 	35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0
 };
 
 /* extra bits for literal codes 257..285 */
-static const x_u8 cplext[] = {
+static const u8_t cplext[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
 	3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99
 };
 
 /* copy offsets for distance codes 0..29 */
-static const x_s32 cpdist[] = {
+static const s32_t cpdist[] = {
 	1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
 	257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145,
 	8193, 12289, 16385, 24577
 };
 
 /* extra bits for distance codes */
-static const x_u8 cpdext[] = {
+static const u8_t cpdext[] = {
 	0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6,
 	7, 7, 8, 8, 9, 9, 10, 10, 11, 11,
 	12, 12, 13, 13
 };
 
-static x_u32 png_get_dword(struct png_data * data)
+static u32_t png_get_dword(struct png_data * data)
 {
-	x_u32 r = 0;
+	u32_t r = 0;
 
-	data->file_offset += read(data->file, &r, sizeof(x_u32));
+	data->file_offset += read(data->file, &r, sizeof(u32_t));
 	return be32_to_cpu(r);
 }
 
-static x_u8 png_get_byte(struct png_data * data)
+static u8_t png_get_byte(struct png_data * data)
 {
-	x_u8 r;
-	x_u32 len, type;
+	u8_t r;
+	u32_t len, type;
 
 	if((data->inside_idat) && (data->idat_remain == 0))
 	{
@@ -184,7 +184,7 @@ static x_u8 png_get_byte(struct png_data * data)
 	}
 
 	r = 0;
-	data->file_offset += read(data->file, &r, sizeof(x_u8));
+	data->file_offset += read(data->file, &r, sizeof(u8_t));
 
 	if(data->inside_idat)
 		data->idat_remain--;
@@ -192,10 +192,10 @@ static x_u8 png_get_byte(struct png_data * data)
 	return r;
 }
 
-static x_s32 png_get_bits(struct png_data * data, x_s32 num)
+static s32_t png_get_bits(struct png_data * data, s32_t num)
 {
-	x_s32 code, shift;
-	x_s32 n;
+	s32_t code, shift;
+	s32_t n;
 
 	if(data->bit_count == 0)
 	{
@@ -211,7 +211,7 @@ static x_s32 png_get_bits(struct png_data * data, x_s32 num)
 		if(n > num)
 			n = num;
 
-		code += (x_s32)(data->bit_save & ((1 << n) - 1)) << shift;
+		code += (s32_t)(data->bit_save & ((1 << n) - 1)) << shift;
 		num -= n;
 		if(!num)
 		{
@@ -228,19 +228,19 @@ static x_s32 png_get_bits(struct png_data * data, x_s32 num)
 	return code;
 }
 
-static void png_init_huff_table(struct huff_table * ht, x_s32 cur_maxlen, x_s32 * cur_values, x_s32 * cur_maxval, x_s32 * cur_offset)
+static void png_init_huff_table(struct huff_table * ht, s32_t cur_maxlen, s32_t * cur_values, s32_t * cur_maxval, s32_t * cur_offset)
 {
 	ht->values = cur_values;
 	ht->maxval = cur_maxval;
 	ht->offset = cur_offset;
 	ht->num_values = 0;
 	ht->max_length = cur_maxlen;
-	memset(cur_maxval, 0, sizeof(x_s32) * cur_maxlen);
+	memset(cur_maxval, 0, sizeof(s32_t) * cur_maxlen);
 }
 
-static void png_insert_huff_item(struct huff_table * ht, x_s32 code, x_s32 len)
+static void png_insert_huff_item(struct huff_table * ht, s32_t code, s32_t len)
 {
-	x_s32 i, n;
+	s32_t i, n;
 
 	if(len == 0)
 		return;
@@ -262,7 +262,7 @@ static void png_insert_huff_item(struct huff_table * ht, x_s32 code, x_s32 len)
 
 static void png_build_huff_table(struct huff_table * ht)
 {
-	x_s32 base, ofs, i;
+	s32_t base, ofs, i;
 
 	base = 0;
 	ofs = 0;
@@ -278,9 +278,9 @@ static void png_build_huff_table(struct huff_table * ht)
 	}
 }
 
-static x_s32 png_get_huff_code(struct png_data * data, struct huff_table * ht)
+static s32_t png_get_huff_code(struct png_data * data, struct huff_table * ht)
 {
-	x_s32 code, i;
+	s32_t code, i;
 
 	code = 0;
 	for(i = 0; i < ht->max_length; i++)
@@ -293,9 +293,9 @@ static x_s32 png_get_huff_code(struct png_data * data, struct huff_table * ht)
 	return 0;
 }
 
-static x_bool png_init_fixed_block(struct png_data * data)
+static bool_t png_init_fixed_block(struct png_data * data)
 {
-	x_s32 i;
+	s32_t i;
 
 	png_init_huff_table(&data->code_table, DEFLATE_HUFF_LEN, data->code_values, data->code_maxval, data->code_offset);
 
@@ -323,15 +323,15 @@ static x_bool png_init_fixed_block(struct png_data * data)
 	return TRUE;
 }
 
-static x_bool png_init_dynamic_block(struct png_data * data)
+static bool_t png_init_dynamic_block(struct png_data * data)
 {
-	x_s32 nl, nd, nb, i, prev;
+	s32_t nl, nd, nb, i, prev;
 	struct huff_table cl;
-	x_s32 cl_values[sizeof(bitorder)];
-	x_s32 cl_maxval[8];
-	x_s32 cl_offset[8];
-	x_u8 lens[DEFLATE_HCLEN_MAX];
-	x_s32 n, code, c;
+	s32_t cl_values[sizeof(bitorder)];
+	s32_t cl_maxval[8];
+	s32_t cl_offset[8];
+	u8_t lens[DEFLATE_HCLEN_MAX];
+	s32_t n, code, c;
 	struct huff_table *ht;
 
 	nl = DEFLATE_HLIT_BASE + png_get_bits(data, 5);
@@ -401,16 +401,16 @@ static x_bool png_init_dynamic_block(struct png_data * data)
 	return TRUE;
 }
 
-static x_bool png_output_byte(struct png_data * data, x_u8 n)
+static bool_t png_output_byte(struct png_data * data, u8_t n)
 {
-	x_s32 row_bytes;
-	x_s32 i;
-	x_s32 a, b, c, pa, pb, pc;
-	x_u8 * blank_line;
-	x_u8 * cur;
-	x_u8 * left;
-	x_u8 * up;
-	x_u8 * upper_left;
+	s32_t row_bytes;
+	s32_t i;
+	s32_t a, b, c, pa, pb, pc;
+	u8_t * blank_line;
+	u8_t * cur;
+	u8_t * left;
+	u8_t * up;
+	u8_t * upper_left;
 
 	if(--data->raw_bytes < 0)
 		return FALSE;
@@ -504,10 +504,10 @@ static x_bool png_output_byte(struct png_data * data, x_u8 n)
 	return TRUE;
 }
 
-static x_bool png_read_dynamic_block(struct png_data * data)
+static bool_t png_read_dynamic_block(struct png_data * data)
 {
-	x_s32 n;
-	x_s32 len, dist, pos;
+	s32_t n;
+	s32_t len, dist, pos;
 
 	while(1)
 	{
@@ -562,10 +562,10 @@ static x_bool png_read_dynamic_block(struct png_data * data)
 	return TRUE;
 }
 
-static x_bool png_decode_image_header(struct png_data * data)
+static bool_t png_decode_image_header(struct png_data * data)
 {
-	x_s32 color_type;
-	x_s32 color_bits;
+	s32_t color_type;
+	s32_t color_bits;
 
 	data->image_width = png_get_dword(data);
 	data->image_height = png_get_dword(data);
@@ -630,12 +630,12 @@ static x_bool png_decode_image_header(struct png_data * data)
 	return TRUE;
 }
 
-static x_bool png_decode_image_data(struct png_data * data)
+static bool_t png_decode_image_data(struct png_data * data)
 {
-	x_u8 cmf, flg;
-	x_s32 final;
-	x_s32 block_type;
-	x_u16 i, len;
+	u8_t cmf, flg;
+	s32_t final;
+	s32_t block_type;
+	u16_t i, len;
 
 	cmf = png_get_byte(data);
 	flg = png_get_byte(data);
@@ -656,7 +656,7 @@ static x_bool png_decode_image_data(struct png_data * data)
 		case PNG_BLOCK_TYPE_INFLATE_STORED:
 			data->bit_count = 0;
 			len = png_get_byte(data);
-			len += ((x_u16)png_get_byte(data)) << 8;
+			len += ((u16_t)png_get_byte(data)) << 8;
 
 			png_get_byte(data);
 			png_get_byte(data);
@@ -698,8 +698,8 @@ static x_bool png_decode_image_data(struct png_data * data)
 
 static void png_convert_image(struct png_data * data)
 {
-	x_s32 i;
-	x_u8 *d1, *d2;
+	s32_t i;
+	u8_t *d1, *d2;
 
 	d1 = (*data->bitmap)->data;
 	d2 = data->image_data + 1;
@@ -709,10 +709,10 @@ static void png_convert_image(struct png_data * data)
 		*d1 = *d2;
 }
 
-static x_bool png_decode(struct png_data * data)
+static bool_t png_decode(struct png_data * data)
 {
-	x_u8 magic[8];
-	x_u32 len, type;
+	u8_t magic[8];
+	u32_t len, type;
 
 	if(read(data->file, &magic[0], 8) != 8)
 		return FALSE;
@@ -761,11 +761,11 @@ static x_bool png_decode(struct png_data * data)
 	return FALSE;
 }
 
-static x_bool png_load(struct bitmap ** bitmap, const char * filename)
+static bool_t png_load(struct bitmap ** bitmap, const char * filename)
 {
 	struct png_data * data;
 	struct stat st;
-	x_s32 fd;
+	s32_t fd;
 
 	if(stat(filename, &st) != 0)
 		return FALSE;

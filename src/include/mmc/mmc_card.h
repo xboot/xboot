@@ -22,30 +22,30 @@ enum mmc_card_type {
  * mmc's cid
  */
 struct mmc_cid {
-	x_u8	mid;			/* card manufacturer id */
-	x_u16	oid;			/* oem / application id */
-	x_u8	pnm[8];			/* product name */
-	x_u8	hwrev;			/* product hardware revision */
-	x_u8	fwrev;			/* product firmware revision */
-	x_u32	serial;			/* serial number */
-	x_u16	year;			/* year of manufacture date */
-	x_u16	month;			/* month of manufacture date */
+	u8_t	mid;			/* card manufacturer id */
+	u16_t	oid;			/* oem / application id */
+	u8_t	pnm[8];			/* product name */
+	u8_t	hwrev;			/* product hardware revision */
+	u8_t	fwrev;			/* product firmware revision */
+	u32_t	serial;			/* serial number */
+	u16_t	year;			/* year of manufacture date */
+	u16_t	month;			/* month of manufacture date */
 };
 
 /*
  * mmc's csd
  */
 struct mmc_csd {
-	x_u8	mmca_vsn;
-	x_u16	cmdclass;
-	x_u16	tacc_clks;
-	x_u32	tacc_ns;
-	x_u32	r2w_factor;
-	x_u32	max_dtr;
-	x_u32	read_blkbits;
-	x_u32	write_blkbits;
-	x_u32	capacity;
-	x_u32	read_partial	:1,
+	u8_t	mmca_vsn;
+	u16_t	cmdclass;
+	u16_t	tacc_clks;
+	u32_t	tacc_ns;
+	u32_t	r2w_factor;
+	u32_t	max_dtr;
+	u32_t	read_blkbits;
+	u32_t	write_blkbits;
+	u32_t	capacity;
+	u32_t	read_partial	:1,
 			read_misalign	:1,
 			write_partial	:1,
 			write_misalign	:1;
@@ -60,9 +60,9 @@ struct mmc_card_info
 	 * raw data, filled by mmc host controller.
 	 */
 	enum mmc_card_type	type;
-	x_u16				rca;
-	x_u32				raw_cid[4];
-	x_u32				raw_csd[4];
+	u16_t				rca;
+	u32_t				raw_cid[4];
+	u32_t				raw_csd[4];
 
 	/*
 	 * auto decoded when probed
@@ -70,8 +70,8 @@ struct mmc_card_info
 	struct mmc_cid 		cid;
 	struct mmc_csd 		csd;
 
-	x_u32				sector_size;
-	x_u32				sector_count;
+	u32_t				sector_size;
+	u32_t				sector_count;
 	x_size				capacity;
 };
 

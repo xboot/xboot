@@ -4,19 +4,19 @@
 /*
  * define the basic data types.
  */
-typedef signed char				x_s8;
-typedef unsigned char			x_u8;
+typedef signed char				s8_t;
+typedef unsigned char			u8_t;
 
-typedef signed short int		x_s16;
-typedef unsigned short int		x_u16;
+typedef signed short int		s16_t;
+typedef unsigned short int		u16_t;
 
-typedef long signed int			x_s32;
-typedef long unsigned int		x_u32;
+typedef long signed int			s32_t;
+typedef long unsigned int		u32_t;
 
-typedef signed long long		x_s64;
-typedef unsigned long long		x_u64;
+typedef signed long long		s64_t;
+typedef unsigned long long		u64_t;
 
-typedef signed int				x_bool;
+typedef signed int				bool_t;
 typedef unsigned int			x_sys;
 typedef signed long long		x_size;
 typedef signed long long		x_off;

@@ -34,7 +34,7 @@
 /*
  * set bitmap viewport
  */
-x_bool bitmap_set_viewport(struct bitmap * bitmap, struct rect * rect)
+bool_t bitmap_set_viewport(struct bitmap * bitmap, struct rect * rect)
 {
 	struct rect r, x;
 
@@ -60,7 +60,7 @@ x_bool bitmap_set_viewport(struct bitmap * bitmap, struct rect * rect)
 /*
  * get bitmap viewport
  */
-x_bool bitmap_get_viewport(struct bitmap * bitmap, struct rect * rect)
+bool_t bitmap_get_viewport(struct bitmap * bitmap, struct rect * rect)
 {
 	if(!bitmap || !rect)
 		return FALSE;

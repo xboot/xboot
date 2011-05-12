@@ -40,7 +40,7 @@ static struct menu_list __menu_list = {
 };
 static struct menu_list * menu_list = &__menu_list;
 
-static x_bool menu_add_item(const char * title, const char * command)
+static bool_t menu_add_item(const char * title, const char * command)
 {
 	struct menu_list * list;
 	struct menu_item * item;
@@ -68,7 +68,7 @@ static x_bool menu_add_item(const char * title, const char * command)
 	return TRUE;
 }
 
-x_bool menu_load(char * file)
+bool_t menu_load(char * file)
 {
 	struct menu_list * pos, * n;
 	struct xml * root, * menu;
@@ -120,11 +120,11 @@ inline struct menu_list * get_menu_list(void)
 	return menu_list;
 }
 
-struct menu_item * get_menu_indexof_item(x_s32 index)
+struct menu_item * get_menu_indexof_item(s32_t index)
 {
 	struct menu_list * list;
 	struct list_head * pos;
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0, pos = (&menu_list->entry)->next; pos != (&menu_list->entry); pos = pos->next)
 	{
@@ -136,10 +136,10 @@ struct menu_item * get_menu_indexof_item(x_s32 index)
 	return NULL;
 }
 
-x_s32 get_menu_total_items(void)
+s32_t get_menu_total_items(void)
 {
 	struct list_head * pos = (&menu_list->entry)->next;
-	x_s32 i = 0;
+	s32_t i = 0;
 
 	while(!list_is_last(pos, (&menu_list->entry)->next))
 	{

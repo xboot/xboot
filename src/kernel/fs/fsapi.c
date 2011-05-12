@@ -33,12 +33,12 @@
 /*
  * mount a file system
  */
-x_s32 mount(const char * dev, const char * dir, const char * fs, x_u32 flags)
+s32_t mount(const char * dev, const char * dir, const char * fs, u32_t flags)
 {
 	char dev_path[MAX_PATH];
 	char dir_path[MAX_PATH];
 	struct stat st;
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(dir, dir_path)) != 0)
 		return err;
@@ -71,10 +71,10 @@ void sync(void)
 /*
  * unmount file systems
  */
-x_s32 umount(const char * dir)
+s32_t umount(const char * dir)
 {
 	char buf[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(dir, buf)) != 0)
 		return err;
@@ -85,12 +85,12 @@ x_s32 umount(const char * dir)
 /*
  * open a file with flags and mode and return file descriptor.
  */
-x_s32 open(const char * path, x_u32 flags, x_u32 mode)
+s32_t open(const char * path, u32_t flags, u32_t mode)
 {
 	char buf[MAX_PATH];
 	struct file * fp;
-	x_s32 fd;
-	x_s32 err;
+	s32_t fd;
+	s32_t err;
 
 	if((fd = fd_alloc(0)) < 0)
 		return -1;
@@ -114,11 +114,11 @@ x_s32 open(const char * path, x_u32 flags, x_u32 mode)
 /*
  * read from file
  */
-x_s32 read(x_s32 fd, void * buf, x_size len)
+s32_t read(s32_t fd, void * buf, x_size len)
 {
 	struct file * fp;
 	x_size bytes;
-	x_s32 err;
+	s32_t err;
 
 	if(fd < 0)
 		return -1;
@@ -135,11 +135,11 @@ x_s32 read(x_s32 fd, void * buf, x_size len)
 /*
  * write to file
  */
-x_s32 write(x_s32 fd, void * buf, x_size len)
+s32_t write(s32_t fd, void * buf, x_size len)
 {
 	struct file * fp;
 	x_size bytes;
-	x_s32 err;
+	s32_t err;
 
 	if(fd < 0)
 		return -1;
@@ -156,7 +156,7 @@ x_s32 write(x_s32 fd, void * buf, x_size len)
 /*
  * seek a offset
  */
-x_off lseek(x_s32 fd, x_off offset, x_s32 whence)
+x_off lseek(s32_t fd, x_off offset, s32_t whence)
 {
 	struct file * fp;
 	x_off org;
@@ -176,7 +176,7 @@ x_off lseek(x_s32 fd, x_off offset, x_s32 whence)
 /*
  * stat a file by file descriptor
  */
-x_s32 fstat(x_s32 fd, struct stat * st)
+s32_t fstat(s32_t fd, struct stat * st)
 {
 	struct file * fp;
 
@@ -192,7 +192,7 @@ x_s32 fstat(x_s32 fd, struct stat * st)
 /*
  * input and output control
  */
-x_s32 ioctl(x_s32 fd, x_u32 cmd, void * arg)
+s32_t ioctl(s32_t fd, u32_t cmd, void * arg)
 {
 	struct file * fp;
 
@@ -208,7 +208,7 @@ x_s32 ioctl(x_s32 fd, x_u32 cmd, void * arg)
 /*
  * flush file system buffers by file descriptor.
  */
-x_s32 fsync(x_s32 fd)
+s32_t fsync(s32_t fd)
 {
 	struct file * fp;
 
@@ -224,10 +224,10 @@ x_s32 fsync(x_s32 fd)
 /*
  * close a file by file descriptor
  */
-x_s32 close(x_s32 fd)
+s32_t close(s32_t fd)
 {
 	struct file * fp;
-	x_s32 err;
+	s32_t err;
 
 	if(fd < 0)
 		return -1;
@@ -250,8 +250,8 @@ void * opendir(const char * name)
 	char buf[MAX_PATH];
 	struct dir * dir;
 	struct file * fp;
-	x_s32 fd;
-	x_s32 err;
+	s32_t fd;
+	s32_t err;
 
 	if((dir = malloc(sizeof(struct dir))) == NULL)
 		return NULL;
@@ -306,7 +306,7 @@ struct dirent * readdir(void * dir)
 /*
  * rewind a directory
  */
-x_s32 rewinddir(void * dir)
+s32_t rewinddir(void * dir)
 {
 	struct dir * pdir;
 	struct file * fp;
@@ -324,11 +324,11 @@ x_s32 rewinddir(void * dir)
 /*
  * close a directory
  */
-x_s32 closedir(void * dir)
+s32_t closedir(void * dir)
 {
 	struct file * fp;
 	struct dir * pdir;
-	x_s32 err;
+	s32_t err;
 
 	if(!dir)
 		return -1;
@@ -349,7 +349,7 @@ x_s32 closedir(void * dir)
 /*
  * get the current working directory
  */
-char * getcwd(char * buf, x_s32 size)
+char * getcwd(char * buf, s32_t size)
 {
 	return vfs_getcwd(buf, size);
 }
@@ -357,11 +357,11 @@ char * getcwd(char * buf, x_s32 size)
 /*
  * change the current working directory to the specified path
  */
-x_s32 chdir(const char * path)
+s32_t chdir(const char * path)
 {
 	char buf[MAX_PATH];
 	struct file * fp;
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(path, buf)) !=0 )
 		return err;
@@ -384,10 +384,10 @@ x_s32 chdir(const char * path)
 /*
  * create a directory with mode
  */
-x_s32 mkdir(const char * path, x_u32 mode)
+s32_t mkdir(const char * path, u32_t mode)
 {
 	char buf[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(path, buf)) !=0 )
 		return err;
@@ -398,10 +398,10 @@ x_s32 mkdir(const char * path, x_u32 mode)
 /*
  * remove a empty directories
  */
-x_s32 rmdir(const char * path)
+s32_t rmdir(const char * path)
 {
 	char buf[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(path, buf)) !=0 )
 		return err;
@@ -412,10 +412,10 @@ x_s32 rmdir(const char * path)
 /*
  * get file's status
  */
-x_s32 stat(const char * path, struct stat * st)
+s32_t stat(const char * path, struct stat * st)
 {
 	char buf[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(path, buf)) !=0 )
 		return err;
@@ -426,10 +426,10 @@ x_s32 stat(const char * path, struct stat * st)
 /*
  * test for access to a file with permission.
  */
-x_s32 access(const char * path, x_u32 mode)
+s32_t access(const char * path, u32_t mode)
 {
 	char buf[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(path, buf)) != 0)
 		return err;
@@ -440,11 +440,11 @@ x_s32 access(const char * path, x_u32 mode)
 /*
  * rename a file or directory
  */
-x_s32 rename(char * oldpath, char * newpath)
+s32_t rename(char * oldpath, char * newpath)
 {
 	char src[MAX_PATH];
 	char dest[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(oldpath, src)) != 0)
 		return err;
@@ -458,10 +458,10 @@ x_s32 rename(char * oldpath, char * newpath)
 /*
  * remove a file
  */
-x_s32 unlink(const char * path)
+s32_t unlink(const char * path)
 {
 	char buf[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(path, buf)) != 0)
 		return err;
@@ -472,10 +472,10 @@ x_s32 unlink(const char * path)
 /*
  * create the special node.
  */
-x_s32 mknod(const char * path, x_u32 mode)
+s32_t mknod(const char * path, u32_t mode)
 {
 	char buf[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(path, buf)) !=0 )
 		return err;
@@ -486,7 +486,7 @@ x_s32 mknod(const char * path, x_u32 mode)
 /*
  * change the access permissions of a file
  */
-x_s32 chmod(const char * path, x_u32 mode)
+s32_t chmod(const char * path, u32_t mode)
 {
 	return -1;
 }
@@ -494,7 +494,7 @@ x_s32 chmod(const char * path, x_u32 mode)
 /*
  * change the owner and group id of path to the numeric uid and gid
  */
-x_s32 chown(const char * path, x_u32 owner, x_u32 group)
+s32_t chown(const char * path, u32_t owner, u32_t group)
 {
 	return -1;
 }
@@ -502,7 +502,7 @@ x_s32 chown(const char * path, x_u32 owner, x_u32 group)
 /*
  * set the current numeric umask and return the previous umask.
  */
-x_u32 umask(x_u32 mode)
+u32_t umask(u32_t mode)
 {
 	return -1;
 }
@@ -510,7 +510,7 @@ x_u32 umask(x_u32 mode)
 /*
  * truncate a file to a specified length by file descriptor
  */
-x_s32 ftruncate(x_s32 fd, x_off length)
+s32_t ftruncate(s32_t fd, x_off length)
 {
 	struct file * fp;
 
@@ -526,10 +526,10 @@ x_s32 ftruncate(x_s32 fd, x_off length)
 /*
  * truncate a file to a specified length by file path
  */
-x_s32 truncate(const char * path, x_off length)
+s32_t truncate(const char * path, x_off length)
 {
 	char buf[MAX_PATH];
-	x_s32 err;
+	s32_t err;
 
 	if((err = vfs_path_conv(path, buf)) !=0 )
 		return err;

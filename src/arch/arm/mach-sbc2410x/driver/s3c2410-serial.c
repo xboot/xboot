@@ -87,11 +87,11 @@ static struct serial_info uart_info[3] = {
 /*
  * common function for ioctl.
  */
-static x_s32 s3c2410_ioctl(x_u32 ch, x_u32 cmd, void * arg)
+static s32_t s3c2410_ioctl(u32_t ch, u32_t cmd, void * arg)
 {
-	x_u32 baud, baud_div_reg;
-	x_u8 data_bit_reg, parity_reg, stop_bit_reg;
-	x_u64 pclk;
+	u32_t baud, baud_div_reg;
+	u8_t data_bit_reg, parity_reg, stop_bit_reg;
+	u64_t pclk;
 	struct serial_parameter param;
 
 	if((ch < 0) || (ch > 2))
@@ -224,7 +224,7 @@ static x_s32 s3c2410_ioctl(x_u32 ch, x_u32 cmd, void * arg)
 	}
 
 	if(clk_get_rate("pclk", &pclk))
-		baud_div_reg = (x_u32)(div64(pclk, baud * 16)) -1;
+		baud_div_reg = (u32_t)(div64(pclk, baud * 16)) -1;
 	else
 		return -1;
 
@@ -276,9 +276,9 @@ static void s3c2410_uart0_exit(void)
 	return;
 }
 
-static x_s32 s3c2410_uart0_read(x_u8 * buf, x_s32 count)
+static s32_t s3c2410_uart0_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -290,9 +290,9 @@ static x_s32 s3c2410_uart0_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s3c2410_uart0_write(const x_u8 * buf, x_s32 count)
+static s32_t s3c2410_uart0_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -305,7 +305,7 @@ static x_s32 s3c2410_uart0_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s3c2410_uart0_ioctl(x_u32 cmd, void * arg)
+static s32_t s3c2410_uart0_ioctl(u32_t cmd, void * arg)
 {
 	return (s3c2410_ioctl(0, cmd, arg));
 }
@@ -336,9 +336,9 @@ static void s3c2410_uart1_exit(void)
 	return;
 }
 
-static x_s32 s3c2410_uart1_read(x_u8 * buf, x_s32 count)
+static s32_t s3c2410_uart1_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -350,9 +350,9 @@ static x_s32 s3c2410_uart1_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s3c2410_uart1_write(const x_u8 * buf, x_s32 count)
+static s32_t s3c2410_uart1_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -365,7 +365,7 @@ static x_s32 s3c2410_uart1_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s3c2410_uart1_ioctl(x_u32 cmd, void * arg)
+static s32_t s3c2410_uart1_ioctl(u32_t cmd, void * arg)
 {
 	return (s3c2410_ioctl(1, cmd, arg));
 }
@@ -396,9 +396,9 @@ static void s3c2410_uart2_exit(void)
 	return;
 }
 
-static x_s32 s3c2410_uart2_read(x_u8 * buf, x_s32 count)
+static s32_t s3c2410_uart2_read(u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -410,9 +410,9 @@ static x_s32 s3c2410_uart2_read(x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s3c2410_uart2_write(const x_u8 * buf, x_s32 count)
+static s32_t s3c2410_uart2_write(const u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -425,7 +425,7 @@ static x_s32 s3c2410_uart2_write(const x_u8 * buf, x_s32 count)
 	return i;
 }
 
-static x_s32 s3c2410_uart2_ioctl(x_u32 cmd, void * arg)
+static s32_t s3c2410_uart2_ioctl(u32_t cmd, void * arg)
 {
 	return (s3c2410_ioctl(2, cmd, arg));
 }
@@ -461,7 +461,7 @@ static struct serial_driver s3c2410_uart_driver[3] = {
 static __init void s3c2410_serial_dev_init(void)
 {
 	struct serial_parameter * param;
-	x_u32 i;
+	u32_t i;
 
 	if(!clk_get_rate("pclk", 0))
 	{
@@ -485,7 +485,7 @@ static __init void s3c2410_serial_dev_init(void)
 
 static __exit void s3c2410_serial_dev_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(s3c2410_uart_driver); i++)
 	{

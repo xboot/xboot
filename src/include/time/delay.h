@@ -5,7 +5,7 @@
 #include <default.h>
 
 
-void udelay(x_u32 us);
-void mdelay(x_u32 ms);
+void udelay(u32_t us);
+void mdelay(u32_t ms);
 
 #endif /* __DELAY_H__ */

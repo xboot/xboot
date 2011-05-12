@@ -34,9 +34,9 @@
 /*
  * generic filler that works for every supported mode
  */
-static void bitmap_fill_rect_generic(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_generic(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
-	x_u32 i, j;
+	u32_t i, j;
 
 	for(j = 0; j < h; j++)
 	{
@@ -50,18 +50,18 @@ static void bitmap_fill_rect_generic(struct bitmap * bitmap, x_u32 c, x_u32 x, x
 /*
  * optimized filler for direct color 32 bit modes
  */
-static void bitmap_fill_rect_direct32(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_direct32(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
-	x_u8 * p, * q;
-	x_u32 * t;
-	x_u32 len, skip;
-	x_u32 i;
+	u8_t * p, * q;
+	u32_t * t;
+	u32_t len, skip;
+	u32_t i;
 
 	c = cpu_to_le32(c);
 	len = bitmap->info.bytes_per_pixel * w;
 	skip = bitmap->info.pitch;
-	t = (x_u32 *)bitmap_get_pointer(bitmap, x, y);
-	p = q = (x_u8 *)t;
+	t = (u32_t *)bitmap_get_pointer(bitmap, x, y);
+	p = q = (u8_t *)t;
 
 	for(i = 0; i < w; i++)
 		*t++ = c;
@@ -76,20 +76,20 @@ static void bitmap_fill_rect_direct32(struct bitmap * bitmap, x_u32 c, x_u32 x, 
 /*
  * optimized filler for direct color 24 bit modes
  */
-static void bitmap_fill_rect_direct24(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_direct24(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
-	x_u8 * p, * q;
-	x_u8 * t;
-	x_u32 len, skip;
-	x_u32 i;
-	x_u8 fill0 = (x_u8)((c >> 0) & 0xff);
-	x_u8 fill1 = (x_u8)((c >> 8) & 0xff);
-	x_u8 fill2 = (x_u8)((c >> 16) & 0xff);
+	u8_t * p, * q;
+	u8_t * t;
+	u32_t len, skip;
+	u32_t i;
+	u8_t fill0 = (u8_t)((c >> 0) & 0xff);
+	u8_t fill1 = (u8_t)((c >> 8) & 0xff);
+	u8_t fill2 = (u8_t)((c >> 16) & 0xff);
 
 	len = bitmap->info.bytes_per_pixel * w;
 	skip = bitmap->info.pitch;
-	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
-	p = q = (x_u8 *)t;
+	t = (u8_t *)bitmap_get_pointer(bitmap, x, y);
+	p = q = (u8_t *)t;
 
 	for(i = 0; i < w; i++)
 	{
@@ -108,19 +108,19 @@ static void bitmap_fill_rect_direct24(struct bitmap * bitmap, x_u32 c, x_u32 x, 
 /*
  * optimized filler for direct color 16 bit modes
  */
-static void bitmap_fill_rect_direct16(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_direct16(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
-	x_u8 * p, * q;
-	x_u8 * t;
-	x_u32 len, skip;
-	x_u32 i;
-	x_u8 fill0 = (x_u8)((c >> 0) & 0xff);
-	x_u8 fill1 = (x_u8)((c >> 8) & 0xff);
+	u8_t * p, * q;
+	u8_t * t;
+	u32_t len, skip;
+	u32_t i;
+	u8_t fill0 = (u8_t)((c >> 0) & 0xff);
+	u8_t fill1 = (u8_t)((c >> 8) & 0xff);
 
 	len = bitmap->info.bytes_per_pixel * w;
 	skip = bitmap->info.pitch;
-	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
-	p = q = (x_u8 *)t;
+	t = (u8_t *)bitmap_get_pointer(bitmap, x, y);
+	p = q = (u8_t *)t;
 
 	for(i = 0; i < w; i++)
 	{
@@ -138,18 +138,18 @@ static void bitmap_fill_rect_direct16(struct bitmap * bitmap, x_u32 c, x_u32 x, 
 /*
  * optimized filler for direct color 8 bit modes
  */
-static void bitmap_fill_rect_direct8(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+static void bitmap_fill_rect_direct8(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
-	x_u8 * p, * q;
-	x_u8 * t;
-	x_u32 len, skip;
-	x_u32 i;
-	x_u8 fill = (x_u8)(c & 0xff);
+	u8_t * p, * q;
+	u8_t * t;
+	u32_t len, skip;
+	u32_t i;
+	u8_t fill = (u8_t)(c & 0xff);
 
 	len = bitmap->info.bytes_per_pixel * w;
 	skip = bitmap->info.pitch;
-	t = (x_u8 *)bitmap_get_pointer(bitmap, x, y);
-	p = q = (x_u8 *)t;
+	t = (u8_t *)bitmap_get_pointer(bitmap, x, y);
+	p = q = (u8_t *)t;
 
 	for(i = 0; i < w; i++)
 	{
@@ -166,7 +166,7 @@ static void bitmap_fill_rect_direct8(struct bitmap * bitmap, x_u32 c, x_u32 x, x
 /*
  * common file rect to bitmap
  */
-void common_bitmap_fill_rect(struct bitmap * bitmap, x_u32 c, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+void common_bitmap_fill_rect(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
 	switch(bitmap->info.bpp)
 	{

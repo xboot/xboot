@@ -35,20 +35,20 @@
 #include <s3c6410/reg-wdg.h>
 
 
-extern x_u8	__text_start[];
-extern x_u8 __text_end[];
-extern x_u8 __ramdisk_start[];
-extern x_u8 __ramdisk_end[];
-extern x_u8 __data_shadow_start[];
-extern x_u8 __data_shadow_end[];
-extern x_u8 __data_start[];
-extern x_u8 __data_end[];
-extern x_u8 __bss_start[];
-extern x_u8 __bss_end[];
-extern x_u8 __heap_start[];
-extern x_u8 __heap_end[];
-extern x_u8 __stack_start[];
-extern x_u8 __stack_end[];
+extern u8_t	__text_start[];
+extern u8_t __text_end[];
+extern u8_t __ramdisk_start[];
+extern u8_t __ramdisk_end[];
+extern u8_t __data_shadow_start[];
+extern u8_t __data_shadow_end[];
+extern u8_t __data_start[];
+extern u8_t __data_end[];
+extern u8_t __bss_start[];
+extern u8_t __bss_end[];
+extern u8_t __heap_start[];
+extern u8_t __heap_end[];
+extern u8_t __stack_start[];
+extern u8_t __stack_end[];
 
 /*
  * system initial, like power lock
@@ -67,7 +67,7 @@ static void mach_init(void)
 /*
  * system halt, shutdown machine.
  */
-static x_bool mach_halt(void)
+static bool_t mach_halt(void)
 {
 	return TRUE;
 }
@@ -75,7 +75,7 @@ static x_bool mach_halt(void)
 /*
  * reset the cpu by setting up the watchdog timer and let him time out
  */
-static x_bool mach_reset(void)
+static bool_t mach_reset(void)
 {
 	/* disable watchdog */
 	writel(S3C6410_WTCON, 0x0000);
@@ -100,7 +100,7 @@ static enum mode mach_getmode(void)
 /*
  * clean up system before running os.
  */
-x_bool mach_cleanup(void)
+bool_t mach_cleanup(void)
 {
 	/* disable irq */
 	irq_disable();
@@ -126,7 +126,7 @@ x_bool mach_cleanup(void)
 /*
  * for anti-piracy
  */
-static x_bool mach_genuine(void)
+static bool_t mach_genuine(void)
 {
 	return TRUE;
 }

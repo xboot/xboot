@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_CD) && (CONFIG_COMMAND_CD > 0)
 
-static x_s32 do_cd(x_s32 argc, const x_s8 **argv)
+static s32_t do_cd(s32_t argc, const s8_t **argv)
 {
 	if(argc == 1)
 	{

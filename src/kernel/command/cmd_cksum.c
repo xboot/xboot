@@ -37,7 +37,7 @@
 
 #if	defined(CONFIG_COMMAND_CKSUM) && (CONFIG_COMMAND_CKSUM > 0)
 
-static const x_u32 crc32_table[256] =
+static const u32_t crc32_table[256] =
 {
 	0x00000000,
 	0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
@@ -93,9 +93,9 @@ static const x_u32 crc32_table[256] =
 	0xA2F33668, 0xBCB4666D, 0xB8757BDA, 0xB5365D03, 0xB1F740B4
 };
 
-static x_u32 crc32(x_u8 *p, x_s32 len, x_u32 *crc)
+static u32_t crc32(u8_t *p, s32_t len, u32_t *crc)
 {
-	x_s32	cnt = len;
+	s32_t	cnt = len;
 
     *crc = 0;
     while (cnt-- > 0)
@@ -123,10 +123,10 @@ static x_u32 crc32(x_u8 *p, x_s32 len, x_u32 *crc)
     return 0;
 }
 
-static x_s32 cksum(x_s32 argc, const x_s8 **argv)
+static s32_t cksum(s32_t argc, const s8_t **argv)
 {
-	x_u32	addr = 0, len = 0;
-	x_u32 crc;
+	u32_t	addr = 0, len = 0;
+	u32_t crc;
 
 	if(argc != 3)
 	{

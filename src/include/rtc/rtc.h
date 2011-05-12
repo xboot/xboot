@@ -24,29 +24,29 @@ struct rtc_driver
 	void (*exit)(void);
 
 	/* set rtc time */
-	x_bool (*set_time)(struct time * time);
+	bool_t (*set_time)(struct time * time);
 
 	/* get rtc time */
-	x_bool (*get_time)(struct time * time);
+	bool_t (*get_time)(struct time * time);
 
 	/* set rtc alarm */
-	x_bool (*set_alarm)(struct time * time);
+	bool_t (*set_alarm)(struct time * time);
 
 	/* get rtc alarm */
-	x_bool (*get_alarm)(struct time * time);
+	bool_t (*get_alarm)(struct time * time);
 
 	/* enable alarm or not */
-	x_bool (*alarm_enable)(x_bool enable);
+	bool_t (*alarm_enable)(bool_t enable);
 };
 
 
-x_u32 rtc_month_days(x_u32 year, x_u32 month);
-x_u32 rtc_year_days(x_u32 year, x_u32 month, x_u32 day);
-x_bool rtc_valid_time(struct time * tm);
+u32_t rtc_month_days(u32_t year, u32_t month);
+u32_t rtc_year_days(u32_t year, u32_t month, u32_t day);
+bool_t rtc_valid_time(struct time * tm);
 void rtc_to_time(unsigned long time, struct time *tm);
-x_u32 time_to_rtc(struct time * tm);
+u32_t time_to_rtc(struct time * tm);
 
-x_bool register_rtc(struct rtc_driver * drv);
-x_bool unregister_rtc(struct rtc_driver * drv);
+bool_t register_rtc(struct rtc_driver * drv);
+bool_t unregister_rtc(struct rtc_driver * drv);
 
 #endif /* __RTC_H__ */

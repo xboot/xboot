@@ -3,7 +3,8 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 
-x_u32 crc32(x_u32 crc, const x_u8 *buf, x_u32 len);
+u32_t crc32(u32_t crc, const u8_t *buf, u32_t len);
 
 #endif /* __CRC32_H__ */

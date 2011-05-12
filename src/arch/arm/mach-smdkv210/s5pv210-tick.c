@@ -45,9 +45,9 @@ static void timer_interrupt(void)
 	writel(S5PV210_TINT_CSTAT, (readl(S5PV210_TINT_CSTAT) & ~(0x1f<<5)) | (0x01<<9));
 }
 
-static x_bool tick_timer_init(void)
+static bool_t tick_timer_init(void)
 {
-	x_u64 pclk;
+	u64_t pclk;
 
 	if(!clk_get_rate("psys-pclk", &pclk))
 	{
@@ -68,7 +68,7 @@ static x_bool tick_timer_init(void)
 	writel(S5PV210_TCFG1, (readl(S5PV210_TCFG1) & ~(0xf<<16)) | (0x01<<16));
 
 	/* load value for 10 ms timeout */
-	writel(S5PV210_TCNTB4, (x_u32)div64(pclk, (2 * 16 * 100)));
+	writel(S5PV210_TCNTB4, (u32_t)div64(pclk, (2 * 16 * 100)));
 
 	/* auto load, manaual update of timer 4 and stop timer4 */
 	writel(S5PV210_TCON, (readl(S5PV210_TCON) & ~(0x7<<20)) | (0x06<<20));

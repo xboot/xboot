@@ -53,62 +53,62 @@ enum {
 struct tar_header
 {
 	/* file name */
-	x_s8 name[100];
+	s8_t name[100];
 
 	/* file mode */
-	x_s8 mode[8];
+	s8_t mode[8];
 
 	/* user id */
-	x_s8 uid[8];
+	s8_t uid[8];
 
 	/* group id */
-	x_s8 gid[8];
+	s8_t gid[8];
 
 	/* file size in bytes */
-	x_s8 size[12];
+	s8_t size[12];
 
 	/* last modification time */
-	x_s8 mtime[12];
+	s8_t mtime[12];
 
 	/* checksum for header block */
-	x_s8 chksum[8];
+	s8_t chksum[8];
 
 	/* file type */
-	x_s8 filetype;
+	s8_t filetype;
 
 	/* name of linked file */
-	x_s8 linkname[100];
+	s8_t linkname[100];
 
 	/* ustar indicator "ustar" */
-	x_s8 magic[6];
+	s8_t magic[6];
 
 	/* ustar version */
-	x_s8 version[2];
+	s8_t version[2];
 
 	/* user name */
-	x_s8 uname[32];
+	s8_t uname[32];
 
 	/* group name */
-	x_s8 gname[32];
+	s8_t gname[32];
 
 	/* device major number */
-	x_s8 devmajor[8];
+	s8_t devmajor[8];
 
 	/* device minor number */
-	x_s8 devminor[8];
+	s8_t devminor[8];
 
 	/* filename prefix */
-	x_s8 prefix[155];
+	s8_t prefix[155];
 
 	/* reserver */
-	x_s8 reserver[12];
+	s8_t reserver[12];
 } __attribute__ ((packed));
 
-static x_bool get_next_token(const char * path, const char * perfix, char * result)
+static bool_t get_next_token(const char * path, const char * perfix, char * result)
 {
 	char full_path[MAX_PATH];
 	char *p, *q;
-	x_s32 l;
+	s32_t l;
 
 	if(!path || !perfix || !result)
 		return FALSE;
@@ -144,12 +144,12 @@ static x_bool get_next_token(const char * path, const char * perfix, char * resu
 	return TRUE;
 }
 
-static x_bool check_path(const char * path, const char * perfix, const char * name)
+static bool_t check_path(const char * path, const char * perfix, const char * name)
 {
 	char path1[MAX_PATH];
 	char path2[MAX_PATH];
 	char *p;
-	x_s32 l;
+	s32_t l;
 
 	if(!path || !perfix || !name)
 		return FALSE;
@@ -186,7 +186,7 @@ static x_bool check_path(const char * path, const char * perfix, const char * na
 /*
  * filesystem operations
  */
-static x_s32 tarfs_mount(struct mount * m, char * dev, x_s32 flag)
+static s32_t tarfs_mount(struct mount * m, char * dev, s32_t flag)
 {
 	struct blkdev * blk;
 	struct tar_header header;
@@ -201,7 +201,7 @@ static x_s32 tarfs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(get_blkdev_total_size(blk) <= sizeof(struct tar_header))
 		return EINTR;
 
-	if(bio_read(blk, (x_u8 *)(&header), 0, sizeof(struct tar_header)) != sizeof(struct tar_header))
+	if(bio_read(blk, (u8_t *)(&header), 0, sizeof(struct tar_header)) != sizeof(struct tar_header))
 		return EIO;
 
 	/*
@@ -217,23 +217,23 @@ static x_s32 tarfs_mount(struct mount * m, char * dev, x_s32 flag)
 	return 0;
 }
 
-static x_s32 tarfs_unmount(struct mount * m)
+static s32_t tarfs_unmount(struct mount * m)
 {
 	m->m_data = NULL;
 	return 0;
 }
 
-static x_s32 tarfs_sync(struct mount * m)
+static s32_t tarfs_sync(struct mount * m)
 {
 	return 0;
 }
 
-static x_s32 tarfs_vget(struct mount * m, struct vnode * node)
+static s32_t tarfs_vget(struct mount * m, struct vnode * node)
 {
 	return 0;
 }
 
-static x_s32 tarfs_statfs(struct mount * m, struct statfs * stat)
+static s32_t tarfs_statfs(struct mount * m, struct statfs * stat)
 {
 	return -1;
 }
@@ -241,17 +241,17 @@ static x_s32 tarfs_statfs(struct mount * m, struct statfs * stat)
 /*
  * vnode operations
  */
-static x_s32 tarfs_open(struct vnode * node, x_s32 flag)
+static s32_t tarfs_open(struct vnode * node, s32_t flag)
 {
 	return 0;
 }
 
-static x_s32 tarfs_close(struct vnode * node, struct file * fp)
+static s32_t tarfs_close(struct vnode * node, struct file * fp)
 {
 	return 0;
 }
 
-static x_s32 tarfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t tarfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	x_off off;
@@ -269,8 +269,8 @@ static x_s32 tarfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	if(node->v_size - fp->f_offset < size)
 		size = node->v_size - fp->f_offset;
 
-	off = (x_off)((x_s32)(node->v_data));
-	len = bio_read(dev, (x_u8 *)buf, (off + fp->f_offset), size);
+	off = (x_off)((s32_t)(node->v_data));
+	len = bio_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
 	*result = len;
@@ -278,12 +278,12 @@ static x_s32 tarfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	return 0;
 }
 
-static x_s32 tarfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t tarfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
 {
 	return -1;
 }
 
-static x_s32 tarfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t tarfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
 	if(off2 > (x_off)(node->v_size))
 		return -1;
@@ -291,24 +291,24 @@ static x_s32 tarfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off
 	return 0;
 }
 
-static x_s32 tarfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)
+static s32_t tarfs_ioctl(struct vnode * node, struct file * fp, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static x_s32 tarfs_fsync(struct vnode * node, struct file * fp)
+static s32_t tarfs_fsync(struct vnode * node, struct file * fp)
 {
 	return 0;
 }
 
-static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
+static s32_t tarfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct tar_header header;
 	char name[MAX_NAME];
 	x_off off = 0;
 	x_size size;
-	x_s32 i = 0;
+	s32_t i = 0;
 
 	if(fp->f_offset == 0)
 	{
@@ -324,12 +324,12 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	{
 		while(1)
 		{
-			bio_read(dev, (x_u8 *)(&header), off, sizeof(struct tar_header));
+			bio_read(dev, (u8_t *)(&header), off, sizeof(struct tar_header));
 
 			if(strncmp((const char *)(header.magic), (const char *)"ustar", 5) != 0)
 				return ENOENT;
 
-			size = simple_strtos64((const x_s8 *)(header.size), NULL, 0);
+			size = simple_strtos64((const s8_t *)(header.size), NULL, 0);
 			if(size < 0)
 				return ENOENT;
 
@@ -355,30 +355,30 @@ static x_s32 tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 		strlcpy((char *)&dir->d_name, name, sizeof(name));
 	}
 
-	dir->d_fileno = (x_u32)fp->f_offset;
-	dir->d_namlen = (x_u16)strlen((const char *)dir->d_name);
+	dir->d_fileno = (u32_t)fp->f_offset;
+	dir->d_namlen = (u16_t)strlen((const char *)dir->d_name);
 	fp->f_offset++;
 
 	return 0;
 }
 
-static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
+static s32_t tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct tar_header header;
 	x_off off = 0;
 	x_size size;
-	x_u32 mode;
-	x_s8 buf[9];
+	u32_t mode;
+	s8_t buf[9];
 
 	while(1)
 	{
-		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct tar_header));
+		bio_read(dev, (u8_t *)(&header), off, sizeof(struct tar_header));
 
 		if(strncmp((const char *)(header.magic), (const char *)"ustar", 5) != 0)
 			return ENOENT;
 
-		size = simple_strtos64((const x_s8 *)(header.size), NULL, 0);
+		size = simple_strtos64((const s8_t *)(header.size), NULL, 0);
 		if(size < 0)
 			return ENOENT;
 
@@ -428,7 +428,7 @@ static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	}
 
 	buf[8] = '\0';
-	memcpy(buf, (const x_s8 *)(header.mode), 8);
+	memcpy(buf, (const s8_t *)(header.mode), 8);
 	mode = simple_strtou32(buf, NULL, 8);
 
 	node->v_mode = 0;
@@ -452,52 +452,52 @@ static x_s32 tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 		node->v_mode |= S_IXOTH;
 
 	node->v_size = size;
-	node->v_data = (void *)((x_s32)(off+ sizeof(struct tar_header)));
+	node->v_data = (void *)((s32_t)(off+ sizeof(struct tar_header)));
 
 	return 0;
 }
 
-static x_s32 tarfs_create(struct vnode * node, char * name, x_u32 mode)
+static s32_t tarfs_create(struct vnode * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static x_s32 tarfs_remove(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t tarfs_remove(struct vnode * dnode, struct vnode * node, char * name)
 {
 	return -1;
 }
 
-static x_s32 tarfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
+static s32_t tarfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
 {
 	return -1;
 }
 
-static x_s32 tarfs_mkdir(struct vnode * node, char * name, x_u32 mode)
+static s32_t tarfs_mkdir(struct vnode * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static x_s32 tarfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t tarfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
 {
 	return -1;
 }
 
-static x_s32 tarfs_getattr(struct vnode * node, struct vattr * attr)
+static s32_t tarfs_getattr(struct vnode * node, struct vattr * attr)
 {
 	return -1;
 }
 
-static x_s32 tarfs_setattr(struct vnode * node, struct vattr * attr)
+static s32_t tarfs_setattr(struct vnode * node, struct vattr * attr)
 {
 	return -1;
 }
 
-static x_s32 tarfs_inactive(struct vnode * node)
+static s32_t tarfs_inactive(struct vnode * node)
 {
 	return -1;
 }
 
-static x_s32 tarfs_truncate(struct vnode * node, x_off length)
+static s32_t tarfs_truncate(struct vnode * node, x_off length)
 {
 	return -1;
 }

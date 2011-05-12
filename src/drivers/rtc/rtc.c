@@ -37,11 +37,11 @@
 #define LEAPS_THRU_END_OF(y)			((y)/4 - (y)/100 + (y)/400)
 #define LEAP_YEAR(year)					((!(year % 4) && (year % 100)) || !(year % 400))
 
-static const x_u8 rtc_days_in_month[13] = {
+static const u8_t rtc_days_in_month[13] = {
 	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 };
 
-static const x_u16 rtc_ydays[2][13] = {
+static const u16_t rtc_ydays[2][13] = {
 	/* normal years */
 	{ 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
 	/* leap years */
@@ -51,7 +51,7 @@ static const x_u16 rtc_ydays[2][13] = {
 /*
  * the number of days in the month.
  */
-x_u32 rtc_month_days(x_u32 year, x_u32 month)
+u32_t rtc_month_days(u32_t year, u32_t month)
 {
 	return rtc_days_in_month[month] + (LEAP_YEAR(year) && month == 2);
 }
@@ -59,7 +59,7 @@ x_u32 rtc_month_days(x_u32 year, x_u32 month)
 /*
  * the number of days since January 1. (0 to 365)
  */
-x_u32 rtc_year_days(x_u32 year, x_u32 month, x_u32 day)
+u32_t rtc_year_days(u32_t year, u32_t month, u32_t day)
 {
 	return rtc_ydays[LEAP_YEAR(year)][month] + day-1;
 }
@@ -67,7 +67,7 @@ x_u32 rtc_year_days(x_u32 year, x_u32 month, x_u32 day)
 /*
  * does the time represent a valid date/time?
  */
-x_bool rtc_valid_time(struct time * tm)
+bool_t rtc_valid_time(struct time * tm)
 {
 	if (tm->year < 1970
 		|| (tm->mon) > 12
@@ -86,12 +86,12 @@ x_bool rtc_valid_time(struct time * tm)
  */
 void rtc_to_time(unsigned long time, struct time *tm)
 {
-	x_u32 month, year;
-	x_s32 days;
-	x_s32 newdays;
+	u32_t month, year;
+	s32_t days;
+	s32_t newdays;
 
 	days = time / 86400;
-	time -= (x_u32) days * 86400;
+	time -= (u32_t) days * 86400;
 
 	/* day of the week, 1970-01-01 was a thursday */
 	tm->week = (days + 4) % 7;
@@ -126,7 +126,7 @@ void rtc_to_time(unsigned long time, struct time *tm)
 /*
  * convert gregorian date to seconds since 01-01-1970 00:00:00.
  */
-x_u32 time_to_rtc(struct time * tm)
+u32_t time_to_rtc(struct time * tm)
 {
 	return mktime(tm->year, tm->mon, tm->day, tm->hour, tm->min, tm->sec);
 }
@@ -134,7 +134,7 @@ x_u32 time_to_rtc(struct time * tm)
 /*
  * rtc open
  */
-static x_s32 rtc_open(struct chrdev * dev)
+static s32_t rtc_open(struct chrdev * dev)
 {
 	return 0;
 }
@@ -142,20 +142,20 @@ static x_s32 rtc_open(struct chrdev * dev)
 /*
  * rtc read
  */
-static x_s32 rtc_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
+static s32_t rtc_read(struct chrdev * dev, u8_t * buf, s32_t count)
 {
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time time;
 	char tmp[64];
-	x_s32 offset = 0;
-	x_s32 len;
+	s32_t offset = 0;
+	s32_t len;
 
 	if(drv->get_time)
 	{
 		if(drv->get_time(&time))
 		{
-			len = sprintf(tmp, (const char *)"%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu\r\n", (x_u32)time.year, (x_u32)time.mon, (x_u32)time.day, week_days[time.week], (x_u32)time.hour, (x_u32)time.min, (x_u32)time.sec);
+			len = sprintf(tmp, (const char *)"%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu\r\n", (u32_t)time.year, (u32_t)time.mon, (u32_t)time.day, week_days[time.week], (u32_t)time.hour, (u32_t)time.min, (u32_t)time.sec);
 			len -= offset;
 
 			if(len < 0)
@@ -174,7 +174,7 @@ static x_s32 rtc_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 /*
  * rtc write.
  */
-static x_s32 rtc_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
+static s32_t rtc_write(struct chrdev * dev, const u8_t * buf, s32_t count)
 {
 	return 0;
 }
@@ -182,7 +182,7 @@ static x_s32 rtc_write(struct chrdev * dev, const x_u8 * buf, x_s32 count)
 /*
  * rtc ioctl
  */
-static x_s32 rtc_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
+static s32_t rtc_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
 {
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time * time;
@@ -233,7 +233,7 @@ static x_s32 rtc_ioctl(struct chrdev * dev, x_u32 cmd, void * arg)
 /*
  * rtc close
  */
-static x_s32 rtc_close(struct chrdev * dev)
+static s32_t rtc_close(struct chrdev * dev)
 {
 	return 0;
 }
@@ -241,7 +241,7 @@ static x_s32 rtc_close(struct chrdev * dev)
 /*
  * register rtc driver, return true is successed.
  */
-x_bool register_rtc(struct rtc_driver * drv)
+bool_t register_rtc(struct rtc_driver * drv)
 {
 	struct chrdev * dev;
 
@@ -283,7 +283,7 @@ x_bool register_rtc(struct rtc_driver * drv)
 /*
  * unregister rtc driver
  */
-x_bool unregister_rtc(struct rtc_driver * drv)
+bool_t unregister_rtc(struct rtc_driver * drv)
 {
 	struct chrdev * dev;
 	struct rtc_driver * driver;

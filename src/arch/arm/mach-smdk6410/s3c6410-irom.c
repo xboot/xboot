@@ -42,18 +42,18 @@
 #include <s3c6410/reg-serial.h>
 
 
-extern x_u8	__text_start[];
-extern x_u8 __text_end[];
-extern x_u8 __data_shadow_start[];
-extern x_u8 __data_shadow_end[];
-extern x_u8 __data_start[];
-extern x_u8 __data_end[];
-extern x_u8 __bss_start[];
-extern x_u8 __bss_end[];
-extern x_u8 __heap_start[];
-extern x_u8 __heap_end[];
-extern x_u8 __stack_start[];
-extern x_u8 __stack_end[];
+extern u8_t	__text_start[];
+extern u8_t __text_end[];
+extern u8_t __data_shadow_start[];
+extern u8_t __data_shadow_end[];
+extern u8_t __data_start[];
+extern u8_t __data_end[];
+extern u8_t __bss_start[];
+extern u8_t __bss_end[];
+extern u8_t __heap_start[];
+extern u8_t __heap_end[];
+extern u8_t __stack_start[];
+extern u8_t __stack_end[];
 
 /*
  * sdhc information.
@@ -64,37 +64,37 @@ extern x_u8 __stack_end[];
  * [0] if the sd/mmc device is operating in sector mode, this value will be set.
  */
 #define irom_movi_high_capcaity									\
-		(*((volatile x_u32 *)(0x0c004000 - 0x8)))
+		(*((volatile u32_t *)(0x0c004000 - 0x8)))
 
 /*
  * total block count of the MMC device
  */
 #define irom_movi_total_blkcnt									\
-		(*((volatile x_u32 *)(0x0c004000 - 0x4)))
+		(*((volatile u32_t *)(0x0c004000 - 0x4)))
 
 /*
  * this function copies a block of page to destination memory
  * 8-bit ecc check, 512 bytes page size only.
  *
- * @param x_u32 block : source block address number to copy.
- * @param x_u32 page  : source page address number to copy.
- * @param x_u8 * mem  : target memory pointer.
- * @return x_s32 - success or failure.
+ * @param u32_t block : source block address number to copy.
+ * @param u32_t page  : source page address number to copy.
+ * @param u8_t * mem  : target memory pointer.
+ * @return s32_t - success or failure.
  */
 #define	irom_nand_readpage(block, page, mem)					\
-		(((x_s32(*)(x_u32, x_u32, x_u8 *))(*((x_u32 *)(0x0c004000+0x00))))(block, page, mem))
+		(((s32_t(*)(u32_t, u32_t, u8_t *))(*((u32_t *)(0x0c004000+0x00))))(block, page, mem))
 
 /*
  * this function copies a block of page to destination memory
  * 8-bit ecc check, 2KB and 4KB page size only.
  *
- * @param x_u32 blcok : source block address number to copy.
- * @param x_u32 page  : source page address number to copy.
- * @param x_u8 * mem  : target memory pointer.
- * @return x_s32 - success or failure.
+ * @param u32_t blcok : source block address number to copy.
+ * @param u32_t page  : source page address number to copy.
+ * @param u8_t * mem  : target memory pointer.
+ * @return s32_t - success or failure.
 */
 #define	irom_nand_readpage_advanced(block, page, mem)			\
-		(((x_s32(*)(x_u32, x_u32, x_u8 *))(*((x_u32 *)(0x0c004000+0x04))))(block, page, mem))
+		(((s32_t(*)(u32_t, u32_t, u8_t *))(*((u32_t *)(0x0c004000+0x04))))(block, page, mem))
 
 /*
  * this function copies SD/MMC card data to memory.
@@ -105,61 +105,61 @@ extern x_u8 __stack_end[];
  * @param count  : number of blocks to copy.
  * @param mem    : memory to copy to.
  * @param init 	 : reinitialize or not.
- * @return bool(x_u8) - success or failure.
+ * @return bool(u8_t) - success or failure.
  */
 #define irom_movi_to_mem(ch, sector, count, mem, init)			\
-		(((x_u8(*)(x_s32, x_u32, x_u16, x_u32 *, x_s32))(*((x_u32 *)(0x0c004000+0x08))))(ch, sector, count, mem, init))
+		(((u8_t(*)(s32_t, u32_t, u16_t, u32_t *, s32_t))(*((u32_t *)(0x0c004000+0x08))))(ch, sector, count, mem, init))
 
 /*
  * onenand single word transfer.
  *
- * @param x_u32 ctl - onenand controller number ('0' fixed).
- * @param x_u32 block - block number to read.
- * @param x_u8 page - page number to read.
- * @param x_u32 * mem - destination address.
- * @return bool(x_u8) - success or failure.
+ * @param u32_t ctl - onenand controller number ('0' fixed).
+ * @param u32_t block - block number to read.
+ * @param u8_t page - page number to read.
+ * @param u32_t * mem - destination address.
+ * @return bool(u8_t) - success or failure.
  */
 #define irom_onenand_readpage(ctl, block, page, mem)			\
-		(((x_u8(*)(x_u32, x_u32, x_u8, x_u32 *))(*((x_u32 *)(0x0c004000+0x0c))))(ctl, block, page, mem))
+		(((u8_t(*)(u32_t, u32_t, u8_t, u32_t *))(*((u32_t *)(0x0c004000+0x0c))))(ctl, block, page, mem))
 
 /*
  * onenand 4 burst word transfer (for enhanced read performance)
  *
- * @param x_u32 ctl - onenand controller number ('0' fixed).
- * @param x_u32 block - block number to read.
- * @param x_u8 page - page number to read.
- * @param x_u32 * mem - destination address.
- * @return bool(x_u8) - success or failure.
+ * @param u32_t ctl - onenand controller number ('0' fixed).
+ * @param u32_t block - block number to read.
+ * @param u8_t page - page number to read.
+ * @param u32_t * mem - destination address.
+ * @return bool(u8_t) - success or failure.
  */
 #define irom_onenand_readpage_4burst(ctl, block, page, mem)		\
-		(((x_u8(*)(x_u32, x_u32, x_u8, x_u32 *))(*((x_u32 *)(0x0c004000+0x10))))(ctl, block, page, mem))
+		(((u8_t(*)(u32_t, u32_t, u8_t, u32_t *))(*((u32_t *)(0x0c004000+0x10))))(ctl, block, page, mem))
 
 /*
  * onenand 8 burst word transfer (for enhanced read performance)
  *
- * @param x_u32 ctl - onenand controller number ('0' fixed).
- * @param x_u32 block - block number to read.
- * @param x_u8 page - page number to read.
- * @param x_u32 * mem - destination address.
- * @return bool(x_u8) - success or failure.
+ * @param u32_t ctl - onenand controller number ('0' fixed).
+ * @param u32_t block - block number to read.
+ * @param u8_t page - page number to read.
+ * @param u32_t * mem - destination address.
+ * @return bool(u8_t) - success or failure.
  */
 #define irom_onenand_readpage_8burst(ctl, block, page, mem)		\
-		(((x_u8(*)(x_u32, x_u32, x_u8, x_u32 *))(*((x_u32 *)(0x0c004000+0x14))))(ctl, block, page, mem))
+		(((u8_t(*)(u32_t, u32_t, u8_t, u32_t *))(*((u32_t *)(0x0c004000+0x14))))(ctl, block, page, mem))
 
 /*
  * write a 32-bits value to register.
  */
-static void reg_write(x_u32 addr, x_u32 value)
+static void reg_write(u32_t addr, u32_t value)
 {
-	( *((volatile x_u32 *)(addr)) ) = value;
+	( *((volatile u32_t *)(addr)) ) = value;
 }
 
 /*
  * read a 32-bits value from register.
  */
-static x_u32 reg_read(x_u32 addr)
+static u32_t reg_read(u32_t addr)
 {
-	return( *((volatile x_u32 *)(addr)) );
+	return( *((volatile u32_t *)(addr)) );
 }
 
 /*
@@ -167,14 +167,14 @@ static x_u32 reg_read(x_u32 addr)
  */
 void irom_copyself(void)
 {
-	x_u8 gpn;
-	x_u32 * mem;
-	x_u32 page, block, size;
+	u8_t gpn;
+	u32_t * mem;
+	u32_t page, block, size;
 
 	/* GPN15, GPN14, GPN13 */
 	reg_write(S3C6410_GPNCON, reg_read(S3C6410_GPNCON)&0x03ffffff);
 	reg_write(S3C6410_GPNPUD, reg_read(S3C6410_GPNPUD)&0x03ffffff);
-	gpn = (x_u8)((reg_read(S3C6410_GPNDAT)>>13)&0x7);
+	gpn = (u8_t)((reg_read(S3C6410_GPNDAT)>>13)&0x7);
 
 	/* sd-mmc(ch0) */
 	if(gpn == 0x0)
@@ -187,7 +187,7 @@ void irom_copyself(void)
 		/*
 		 * the xboot's memory base address.
 		 */
-		mem = (x_u32 *)__text_start;
+		mem = (u32_t *)__text_start;
 
 		/*
 		 * the size which will be copyed, the 'size' is
@@ -219,7 +219,7 @@ void irom_copyself(void)
 		/*
 		 * the xboot's memory base address.
 		 */
-		mem = (x_u32 *)__text_start;
+		mem = (u32_t *)__text_start;
 
 		/*
 		 * the xboot's size, the 'size' is number of block. 128KB per block.
@@ -233,7 +233,7 @@ void irom_copyself(void)
 		{
 			for(page = 0; page < 64; page++)
 			{
-				irom_onenand_readpage_4burst(0, block, page, (x_u32 *)mem);
+				irom_onenand_readpage_4burst(0, block, page, (u32_t *)mem);
 				mem += 512;
 			}
 		}
@@ -252,7 +252,7 @@ void irom_copyself(void)
 		/*
 		 * the xboot's memory base address.
 		 */
-		mem = (x_u32 *)__text_start;
+		mem = (u32_t *)__text_start;
 
 		/*
 		 * the xboot's size, the 'size' is number of block. 16KB per block.
@@ -266,7 +266,7 @@ void irom_copyself(void)
 		{
 			for(page = 0; page < 32; page++)
 			{
-				irom_nand_readpage(block, page, (x_u8 *)mem);
+				irom_nand_readpage(block, page, (u8_t *)mem);
 				mem += 128;
 			}
 		}
@@ -285,7 +285,7 @@ void irom_copyself(void)
 		/*
 		 * the xboot's memory base address.
 		 */
-		mem = (x_u32 *)__text_start;
+		mem = (u32_t *)__text_start;
 
 		/*
 		 * the xboot's size, the 'size' is number of block. 256KB per block.
@@ -299,7 +299,7 @@ void irom_copyself(void)
 		{
 			for(page = 0; page < 128; page++)
 			{
-				irom_nand_readpage_advanced(block, page, (x_u8 *)mem);
+				irom_nand_readpage_advanced(block, page, (u8_t *)mem);
 				mem += 512;
 			}
 		}
@@ -317,7 +317,7 @@ void irom_copyself(void)
 		/*
 		 * the xboot's memory base address.
 		 */
-		mem = (x_u32 *)__text_start;
+		mem = (u32_t *)__text_start;
 
 		/*
 		 * the xboot's size, the 'size' is number of block. 512KB per block.
@@ -331,7 +331,7 @@ void irom_copyself(void)
 		{
 			for(page = 0; page < 128; page++)
 			{
-				irom_nand_readpage_advanced(block, page, (x_u8 *)mem);
+				irom_nand_readpage_advanced(block, page, (u8_t *)mem);
 				mem += 1024;
 			}
 		}
@@ -348,7 +348,7 @@ void irom_copyself(void)
 		/*
 		 * the xboot's memory base address.
 		 */
-		mem = (x_u32 *)__text_start;
+		mem = (u32_t *)__text_start;
 
 		/*
 		 * the size which will be copyed, the 'size' is

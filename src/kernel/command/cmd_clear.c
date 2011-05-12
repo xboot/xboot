@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_CLEAR) && (CONFIG_COMMAND_CLEAR > 0)
 
-static x_s32 clear(x_s32 argc, const x_s8 **argv)
+static s32_t clear(s32_t argc, const s8_t **argv)
 {
 	console_cls(get_stdout());
 

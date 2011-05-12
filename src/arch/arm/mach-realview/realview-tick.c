@@ -48,10 +48,10 @@ static void timer_interrupt(void)
 	writel(REALVIEW_T3_ICLR, 0x0);
 }
 
-static x_bool tick_timer_init(void)
+static bool_t tick_timer_init(void)
 {
-	x_u64 timclk;
-	x_u32 count;
+	u64_t timclk;
+	u32_t count;
 
 	if(!clk_get_rate("timclk", &timclk))
 	{
@@ -60,7 +60,7 @@ static x_bool tick_timer_init(void)
 	}
 
 	/* for 10 ms reload count */
-	count = (x_u32)div64(timclk, 100);
+	count = (u32_t)div64(timclk, 100);
 
 	if(!request_irq("TMIER2_3", timer_interrupt))
 	{

@@ -21,7 +21,7 @@ struct led
 	void (*init)(void);
 
 	/* set led's brightness */
-	void (*set)(x_u8 brightness);
+	void (*set)(u8_t brightness);
 };
 
 #endif /* __LED_H__ */

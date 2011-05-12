@@ -6,7 +6,7 @@
 #include <fb/fb.h>
 #include <fb/bitmap.h>
 
-x_bool display_logo(struct fb * fb);
-x_bool register_logo(const struct picture * logo);
+bool_t display_logo(struct fb * fb);
+bool_t register_logo(const struct picture * logo);
 
 #endif /* __LOGO_H__ */

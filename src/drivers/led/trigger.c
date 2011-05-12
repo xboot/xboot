@@ -70,7 +70,7 @@ static struct trigger * trigger_search(const char *name)
  * register a trigger into led_trigger_list
  * return true is successed, otherwise is not.
  */
-x_bool trigger_register(struct trigger * trigger)
+bool_t trigger_register(struct trigger * trigger)
 {
 	struct led_trigger_list * list;
 
@@ -99,7 +99,7 @@ x_bool trigger_register(struct trigger * trigger)
 /*
  * unregister trigger from led_trigger_hash
  */
-x_bool trigger_unregister(struct trigger * trigger)
+bool_t trigger_unregister(struct trigger * trigger)
 {
 	struct led_trigger_list * list;
 	struct list_head * pos;

@@ -28,7 +28,7 @@ enum
 struct nand_manufacturer
 {
 	/* manufacturer id */
-	x_u32 id;
+	u32_t id;
 
 	/* nand flash's name */
 	char * name;
@@ -82,19 +82,19 @@ struct nand_info
 	char * name;
 
 	/* device id code */
-	x_u32 id;
+	u32_t id;
 
 	/* pagesize in bytes */
-	x_s32 page_size;
+	s32_t page_size;
 
 	/* total chip size in MB */
-	x_s32 chip_size;
+	s32_t chip_size;
 
 	/* size of an erase block */
-	x_s32 erase_size;
+	s32_t erase_size;
 
 	/* bitfield to store chip relevant options */
-	x_u32 options;
+	u32_t options;
 };
 
 

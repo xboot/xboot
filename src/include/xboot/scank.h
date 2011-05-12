@@ -6,8 +6,8 @@
 #include <stdarg.h>
 
 
-x_bool getcode(x_u32 * code);
-x_bool getcode_with_timeout(x_u32 * code, x_u32 timeout);
-x_s32 scank(const char * fmt, ...);
+bool_t getcode(u32_t * code);
+bool_t getcode_with_timeout(u32_t * code, u32_t timeout);
+s32_t scank(const char * fmt, ...);
 
 #endif /* __SCANK_H__ */

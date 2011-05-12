@@ -94,7 +94,7 @@ struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type
 /*
  * register a block device into device_list
  */
-x_bool register_blkdev(struct blkdev * dev)
+bool_t register_blkdev(struct blkdev * dev)
 {
 	struct device * device;
 
@@ -121,7 +121,7 @@ x_bool register_blkdev(struct blkdev * dev)
 /*
  * unregister block device from blkdev_list
  */
-x_bool unregister_blkdev(const char * name)
+bool_t unregister_blkdev(const char * name)
 {
 	struct device * device;
 
@@ -155,7 +155,7 @@ x_size get_blkdev_total_size(struct blkdev * dev)
 /*
  * get block device's total count of block
  */
-x_u32 get_blkdev_total_count(struct blkdev * dev)
+u32_t get_blkdev_total_count(struct blkdev * dev)
 {
 	if(!dev)
 		return 0;
@@ -166,7 +166,7 @@ x_u32 get_blkdev_total_count(struct blkdev * dev)
 /*
  * get block device's block size
  */
-x_u32 get_blkdev_size(struct blkdev * dev)
+u32_t get_blkdev_size(struct blkdev * dev)
 {
 	if(!dev)
 		return 0;
@@ -177,7 +177,7 @@ x_u32 get_blkdev_size(struct blkdev * dev)
 /*
  * get block device's offset by blkno
  */
-x_off get_blkdev_offset(struct blkdev * dev, x_u32 blkno)
+x_off get_blkdev_offset(struct blkdev * dev, u32_t blkno)
 {
 	if(!dev)
 		return -1;

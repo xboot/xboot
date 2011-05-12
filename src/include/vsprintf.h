@@ -8,17 +8,17 @@
 #include <stdarg.h>
 
 
-x_u32 simple_strtou32(const x_s8 *cp, x_s8 **endp, x_u32 base);
-x_s32 simple_strtos32(const x_s8 *cp, x_s8 **endp, x_u32 base);
-x_u64 simple_strtou64(const x_s8 *cp, x_s8 **endp, x_u32 base);
-x_s64 simple_strtos64(const x_s8 *cp, x_s8 **endp, x_u32 base);
+u32_t simple_strtou32(const s8_t *cp, s8_t **endp, u32_t base);
+s32_t simple_strtos32(const s8_t *cp, s8_t **endp, u32_t base);
+u64_t simple_strtou64(const s8_t *cp, s8_t **endp, u32_t base);
+s64_t simple_strtos64(const s8_t *cp, s8_t **endp, u32_t base);
 
-x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args);
-x_s32 vsscanf(const x_s8 * buf, const x_s8 * fmt, va_list args);
+s32_t vsnprintf(s8_t *buf, s32_t size, const s8_t *fmt, va_list args);
+s32_t vsscanf(const s8_t * buf, const s8_t * fmt, va_list args);
 
 int sprintf(char * buf, const char * fmt, ...);
 int snprintf(char * buf, size_t size, const char * fmt, ...);
-x_s32 sscanf(const x_s8 * buf, const x_s8 * fmt, ...);
-x_s32 ssize(char * buf, x_u64 size);
+s32_t sscanf(const s8_t * buf, const s8_t * fmt, ...);
+s32_t ssize(char * buf, u64_t size);
 
 #endif /* __VSPRINTF_H__ */

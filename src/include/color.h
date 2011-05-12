@@ -8,10 +8,10 @@
  * the structure of color
  */
 struct color {
-	x_u8	r;
-	x_u8	g;
-	x_u8 	b;
-	x_u8	a;
+	u8_t	r;
+	u8_t	g;
+	u8_t 	b;
+	u8_t	a;
 };
 
 struct color * get_color_by_name(const char * name);

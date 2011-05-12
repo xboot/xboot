@@ -37,7 +37,7 @@
 
 static struct command prompt_cmd;
 
-static x_s32 prompt(x_s32 argc, const x_s8 **argv)
+static s32_t prompt(s32_t argc, const s8_t **argv)
 {
 	switch(argc)
 	{

@@ -5,19 +5,19 @@
 #include <default.h>
 
 
-x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size, const x_s8 ** src_end);
-x_s32 ucs4_to_utf8(x_u32 c, x_s8 * buf);
+s32_t utf8_to_ucs4(u32_t * dst, s32_t dst_size, const s8_t * src, s32_t src_size, const s8_t ** src_end);
+s32_t ucs4_to_utf8(u32_t c, s8_t * buf);
 
-x_s32 utf8_to_utf16(x_u16 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size, const x_s8 ** src_end);
-x_s8 * utf16_to_utf8(x_s8 * dst, x_u16 * src, x_s32 size);
+s32_t utf8_to_utf16(u16_t * dst, s32_t dst_size, const s8_t * src, s32_t src_size, const s8_t ** src_end);
+s8_t * utf16_to_utf8(s8_t * dst, u16_t * src, s32_t size);
 
-x_s8 * ucs4_to_utf8_alloc(x_u32 * src, x_s32 size);
-x_s32 utf8_to_ucs4_alloc(const x_s8 * src, x_u32 ** dst, x_u32 ** pos);
+s8_t * ucs4_to_utf8_alloc(u32_t * src, s32_t size);
+s32_t utf8_to_ucs4_alloc(const s8_t * src, u32_t ** dst, u32_t ** pos);
 
-x_s32 ucs4_width(x_u32 uc);
-x_s32 utf8_width(const char * str);
+s32_t ucs4_width(u32_t uc);
+s32_t utf8_width(const char * str);
 
-x_bool utf8_is_valid(const x_s8 * src, x_s32 size);
-x_s32 utf8_strlen(const x_s8 * s);
+bool_t utf8_is_valid(const s8_t * src, s32_t size);
+s32_t utf8_strlen(const s8_t * s);
 
 #endif /* __CHARSET_H__ */

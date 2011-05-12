@@ -32,8 +32,8 @@
 
 static void iic_delay(void)
 {
-	x_u32 loop = 100;
-	x_u32 base;
+	u32_t loop = 100;
+	u32_t base;
 
 	while(loop--)
 	{
@@ -41,7 +41,7 @@ static void iic_delay(void)
 	}
 }
 
-static void iic_set_scl(x_u8 flag)
+static void iic_set_scl(u8_t flag)
 {
 	writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<4)) | (0x1<<4));
 	writel(S5PV210_GPD1PUD, (readl(S5PV210_GPD1PUD) & ~(0x3<<2)) | (0x2<<2));
@@ -52,7 +52,7 @@ static void iic_set_scl(x_u8 flag)
 		writel(S5PV210_GPD1DAT, (readl(S5PV210_GPD1DAT) & ~(0x1<<1)) | (0x0<<1));
 }
 
-static void iic_set_sda(x_u8 flag)
+static void iic_set_sda(u8_t flag)
 {
 	writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<0)) | (0x1<<0));
 	writel(S5PV210_GPD1PUD, (readl(S5PV210_GPD1PUD) & ~(0x3<<0)) | (0x2<<0));
@@ -63,7 +63,7 @@ static void iic_set_sda(x_u8 flag)
 		writel(S5PV210_GPD1DAT, (readl(S5PV210_GPD1DAT) & ~(0x1<<0)) | (0x0<<0));
 }
 
-static x_u8 iic_get_sda(void)
+static u8_t iic_get_sda(void)
 {
 	writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<0)) | (0x0<<0));
 	writel(S5PV210_GPD1PUD, (readl(S5PV210_GPD1PUD) & ~(0x3<<0)) | (0x2<<0));
@@ -94,9 +94,9 @@ static void iic_stop(void)
 	iic_set_sda(1);
 }
 
-static x_u8 iic_wait_ack(void)
+static u8_t iic_wait_ack(void)
 {
-	x_u8 time = 10;
+	u8_t time = 10;
 
 	iic_set_sda(1);
 	iic_delay();
@@ -136,9 +136,9 @@ static void iic_send_not_ack(void)
 	iic_set_scl(0);
 }
 
-static void iic_send_byte(x_u8 ch)
+static void iic_send_byte(u8_t ch)
 {
-	x_u8 i = 8;
+	u8_t i = 8;
 
 	while(i--)
 	{
@@ -157,10 +157,10 @@ static void iic_send_byte(x_u8 ch)
 	iic_set_scl(0);
 }
 
-static x_u8 iic_recv_byte(void)
+static u8_t iic_recv_byte(void)
 {
-	x_u8 i = 8;
-	x_u8 data = 0;
+	u8_t i = 8;
+	u8_t data = 0;
 
 	iic_set_sda(1);
 	while(i--)
@@ -177,7 +177,7 @@ static x_u8 iic_recv_byte(void)
 	return data;
 }
 
-static x_s32 iic_write_byte(x_u8 slave, x_u8 reg, x_u8 value)
+static s32_t iic_write_byte(u8_t slave, u8_t reg, u8_t value)
 {
 	iic_start();
 
@@ -198,7 +198,7 @@ static x_s32 iic_write_byte(x_u8 slave, x_u8 reg, x_u8 value)
 	return 1;
 }
 
-static x_s32 iic_read_byte(x_u8 slave, x_u8 reg,  x_u8 * value)
+static s32_t iic_read_byte(u8_t slave, u8_t reg,  u8_t * value)
 {
 	iic_start();
 
@@ -224,9 +224,9 @@ static x_s32 iic_read_byte(x_u8 slave, x_u8 reg,  x_u8 * value)
 	return 1;
 }
 
-x_s32 iic_write_nbyte(x_u8 slave, x_u8 reg, x_u8 * buf, x_s32 count)
+s32_t iic_write_nbyte(u8_t slave, u8_t reg, u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	iic_start();
 
@@ -250,9 +250,9 @@ x_s32 iic_write_nbyte(x_u8 slave, x_u8 reg, x_u8 * buf, x_s32 count)
 	return i;
 }
 
-x_s32 iic_read_nbyte(x_u8 slave, x_u8 reg, x_u8 * buf, x_s32 count)
+s32_t iic_read_nbyte(u8_t slave, u8_t reg, u8_t * buf, s32_t count)
 {
-	x_s32 i;
+	s32_t i;
 
 	iic_start();
 
@@ -285,14 +285,14 @@ x_s32 iic_read_nbyte(x_u8 slave, x_u8 reg, x_u8 * buf, x_s32 count)
 	return count;
 }
 
-x_bool pmu_write(x_u8 reg, x_u8 value)
+bool_t pmu_write(u8_t reg, u8_t value)
 {
 	if(iic_write_byte(0x5b, reg, value) == 0)
 		return FALSE;
 	return TRUE;
 }
 
-x_bool pmu_read(x_u8 reg, x_u8 * value)
+bool_t pmu_read(u8_t reg, u8_t * value)
 {
 	if(iic_read_byte(0x5b, reg, value) == 0)
 		return FALSE;

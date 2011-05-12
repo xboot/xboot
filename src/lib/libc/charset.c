@@ -13,7 +13,7 @@
 /*
  * non-spacing attribute table.
  */
-static const x_u8 nonspacing_table_data[26*64] = {
+static const u8_t nonspacing_table_data[26*64] = {
 	/* 0x0000-0x01ff */
 	0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, /* 0x0000-0x003f */
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, /* 0x0040-0x007f */
@@ -250,7 +250,7 @@ static const x_u8 nonspacing_table_data[26*64] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  /* 0x1d3c0-0x1d3ff */
 };
 
-static const x_s8 nonspacing_table_ind[240] = {
+static const s8_t nonspacing_table_ind[240] = {
 	0,   1,  2,  3,  4,  5,  6,  7,					/* 0x0000-0x0fff */
 	8,   9, -1, 10, 11, 12, 13, -1,					/* 0x1000-0x1fff */
 	14, -1, -1, -1, -1, -1, 15, -1,					/* 0x2000-0x2fff */
@@ -286,12 +286,12 @@ static const x_s8 nonspacing_table_ind[240] = {
 /*
  * utf8_to_ucs4 - convert a UTF-8 string to UCS-4 string
  */
-x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size, const x_s8 ** src_end)
+s32_t utf8_to_ucs4(u32_t * dst, s32_t dst_size, const s8_t * src, s32_t src_size, const s8_t ** src_end)
 {
-	x_u32 *p = dst;
-	x_s32 count = 0;
-	x_u32 code = 0;
-	x_u32 c;
+	u32_t *p = dst;
+	s32_t count = 0;
+	u32_t code = 0;
+	u32_t c;
 
 	if(src_end)
 		*src_end = src;
@@ -299,7 +299,7 @@ x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size
 	while(src_size && dst_size)
 	{
 		c = *src++;
-		if(src_size != (x_s32)-1)
+		if(src_size != (s32_t)-1)
 			src_size--;
 		if(count)
 		{
@@ -308,7 +308,7 @@ x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size
 				code = '?';
 				/* character c may be valid, don't eat it */
 				src--;
-				if(src_size != (x_s32)-1)
+				if(src_size != (s32_t)-1)
 					src_size++;
 				count = 0;
 			}
@@ -374,9 +374,9 @@ x_s32 utf8_to_ucs4(x_u32 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size
 /*
  * utf4_to_utf8 - convert a UCS-4 to UTF-8
  */
-x_s32 ucs4_to_utf8(x_u32 c, x_s8 * buf)
+s32_t ucs4_to_utf8(u32_t c, s8_t * buf)
 {
-	x_s32 len = 0;
+	s32_t len = 0;
 
 	if(buf == NULL)
 		return 0;
@@ -432,12 +432,12 @@ x_s32 ucs4_to_utf8(x_u32 c, x_s8 * buf)
 /*
  * utf8_to_utf16 - convert a UTF-8 string to UTF-16 string
  */
-x_s32 utf8_to_utf16(x_u16 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_size, const x_s8 ** src_end)
+s32_t utf8_to_utf16(u16_t * dst, s32_t dst_size, const s8_t * src, s32_t src_size, const s8_t ** src_end)
 {
-	x_u16 *p = dst;
-	x_s32 count = 0;
-	x_u32 code = 0;
-	x_u32 c;
+	u16_t *p = dst;
+	s32_t count = 0;
+	u32_t code = 0;
+	u32_t c;
 
 	if(src_end)
 		*src_end = src;
@@ -445,7 +445,7 @@ x_s32 utf8_to_utf16(x_u16 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_siz
 	while(src_size && dst_size)
 	{
 		c = *src++;
-		if(src_size != (x_s32)-1)
+		if(src_size != (s32_t)-1)
 			src_size--;
 		if(count)
 		{
@@ -523,10 +523,10 @@ x_s32 utf8_to_utf16(x_u16 * dst, x_s32 dst_size, const x_s8 * src, x_s32 src_siz
 /*
  * utf16_to_utf8 - convert a UTF-16 string to UTF-8 string
  */
-x_s8 * utf16_to_utf8(x_s8 * dst, x_u16 * src, x_s32 size)
+s8_t * utf16_to_utf8(s8_t * dst, u16_t * src, s32_t size)
 {
-	x_u32 code_high = 0;
-	x_u32 code;
+	u32_t code_high = 0;
+	u32_t code;
 
 	while(size--)
 	{
@@ -583,13 +583,13 @@ x_s8 * utf16_to_utf8(x_s8 * dst, x_u16 * src, x_s32 size)
 /*
  * utf4_to_utf8_alloc - convert a UCS-4 to UTF-8
  */
-x_s8 * ucs4_to_utf8_alloc(x_u32 * src, x_s32 size)
+s8_t * ucs4_to_utf8_alloc(u32_t * src, s32_t size)
 {
-	x_s32 remaining;
-	x_u32 * ptr;
-	x_u32 code;
-	x_s32 cnt = 0;
-	x_s8 * ret, * dest;
+	s32_t remaining;
+	u32_t * ptr;
+	u32_t code;
+	s32_t cnt = 0;
+	s8_t * ret, * dest;
 
 	remaining = size;
 	ptr = src;
@@ -647,16 +647,16 @@ x_s8 * ucs4_to_utf8_alloc(x_u32 * src, x_s32 size)
 /*
  * utf8_to_ucs4_alloc - convert a UTF-8 string to UCS-4 string
  */
-x_s32 utf8_to_ucs4_alloc(const x_s8 * src, x_u32 ** dst, x_u32 ** pos)
+s32_t utf8_to_ucs4_alloc(const s8_t * src, u32_t ** dst, u32_t ** pos)
 {
-	x_s32 len = strlen((char *)src);
+	s32_t len = strlen((char *)src);
 
-	*dst = malloc(len * sizeof(x_u32));
+	*dst = malloc(len * sizeof(u32_t));
 
 	if(!*dst)
 		return -1;
 
-	len = utf8_to_ucs4(*dst, len, (x_s8 *)src, -1, 0);
+	len = utf8_to_ucs4(*dst, len, (s8_t *)src, -1, 0);
 
 	*pos = *dst + len;
 
@@ -666,10 +666,10 @@ x_s32 utf8_to_ucs4_alloc(const x_s8 * src, x_u32 ** dst, x_u32 ** pos)
 /*
  * determine number of column positions required for unicode
   */
-x_s32 ucs4_width(x_u32 uc)
+s32_t ucs4_width(u32_t uc)
 {
-	x_bool cjk = FALSE;
-	x_s32 ind;
+	bool_t cjk = FALSE;
+	s32_t ind;
 
 	/*
 	 * test for non-spacing or control character
@@ -730,13 +730,13 @@ x_s32 ucs4_width(x_u32 uc)
 /*
  * determine number of column positions required for utf8 string
   */
-x_s32 utf8_width(const char * str)
+s32_t utf8_width(const char * str)
 {
-	const x_s8 * p;
-	x_u32 code;
-	x_u32 w, width;
+	const s8_t * p;
+	u32_t code;
+	u32_t w, width;
 
-	for(width = 0, p = (const x_s8 *)str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	for(width = 0, p = (const s8_t *)str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
 	{
 		w = ucs4_width(code);
 		if(w < 0)
@@ -747,16 +747,16 @@ x_s32 utf8_width(const char * str)
 	return width;
 }
 
-x_bool utf8_is_valid(const x_s8 * src, x_s32 size)
+bool_t utf8_is_valid(const s8_t * src, s32_t size)
 {
-	x_u32 code = 0;
-	x_s32 count = 0;
-	x_u32 c;
+	u32_t code = 0;
+	s32_t count = 0;
+	u32_t c;
 
 	while(size)
 	{
 		c = *src++;
-		if(size != (x_s32)-1)
+		if(size != (s32_t)-1)
 			size--;
 
 		if(count)
@@ -812,9 +812,9 @@ x_bool utf8_is_valid(const x_s8 * src, x_s32 size)
 	return TRUE;
 }
 
-x_s32 utf8_strlen(const x_s8 * s)
+s32_t utf8_strlen(const s8_t * s)
 {
-	x_s32 i = 0, j = 0;
+	s32_t i = 0, j = 0;
 
 	while(s[i])
 	{

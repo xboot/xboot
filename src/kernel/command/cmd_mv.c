@@ -35,12 +35,12 @@
 
 #if	defined(CONFIG_COMMAND_MV) && (CONFIG_COMMAND_MV > 0)
 
-static x_s32 do_mv(x_s32 argc, const x_s8 **argv)
+static s32_t do_mv(s32_t argc, const s8_t **argv)
 {
 	char path[MAX_PATH];
 	char * src, * dest, * p;
 	struct stat st1, st2;
-	x_s32 rc;
+	s32_t rc;
 
 	src = (char *)argv[1];
 	dest = (char *)argv[2];

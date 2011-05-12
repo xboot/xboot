@@ -32,9 +32,9 @@
 #include <time/timer.h>
 #include <led/trigger.h>
 
-static x_bool valid = FALSE;
-static x_u32 activity;
-static x_u32 last_activity;
+static bool_t valid = FALSE;
+static u32_t activity;
+static u32_t last_activity;
 static struct timer_list console_trigger_timer;
 
 void led_console_trigger_activity(void)
@@ -47,7 +47,7 @@ void led_console_trigger_activity(void)
 	}
 }
 
-static void console_trigger_function(x_u32 data)
+static void console_trigger_function(u32_t data)
 {
 	struct trigger * trigger = (struct trigger *)(data);
 	struct led * led = (struct led *)(trigger->led);
@@ -85,7 +85,7 @@ static __init void console_trigger_init(void)
 		console_trigger.led = led;
 		if(trigger_register(&console_trigger))
 		{
-			setup_timer(&console_trigger_timer, console_trigger_function, (x_u32)(&console_trigger));
+			setup_timer(&console_trigger_timer, console_trigger_function, (u32_t)(&console_trigger));
 			valid = TRUE;
 			return;
 		}

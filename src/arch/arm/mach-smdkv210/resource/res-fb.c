@@ -63,7 +63,7 @@ static void lcd_exit(void)
 	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x0<<3));
 }
 
-static void lcd_backlight(x_u8 brightness)
+static void lcd_backlight(u8_t brightness)
 {
 	if(brightness)
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x1<<3));
@@ -74,7 +74,7 @@ static void lcd_backlight(x_u8 brightness)
 /*
  * lcd module
  */
-static x_u8 vram[800 * 480 * 32 / 8] __attribute__((aligned(4)));
+static u8_t vram[800 * 480 * 32 / 8] __attribute__((aligned(4)));
 
 static struct s5pv210fb_lcd lcd = {
 	.width			= 800,

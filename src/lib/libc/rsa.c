@@ -11,15 +11,15 @@
 /*
  * a[] -= mod
  */
-static void subM(const struct rsa_public_key * key, x_u32 * a)
+static void subM(const struct rsa_public_key * key, u32_t * a)
 {
-	x_s64 A = 0;
-    x_s32 i;
+	s64_t A = 0;
+    s32_t i;
 
     for(i = 0; i < key->len; ++i)
     {
-        A += (x_u64)a[i] - key->n[i];
-        a[i] = (x_u32)A;
+        A += (u64_t)a[i] - key->n[i];
+        a[i] = (u32_t)A;
         A >>= 32;
     }
 }
@@ -27,9 +27,9 @@ static void subM(const struct rsa_public_key * key, x_u32 * a)
 /*
  * return a[] >= mod
  */
-static x_s32 geM(const struct rsa_public_key * key, const x_u32 * a)
+static s32_t geM(const struct rsa_public_key * key, const u32_t * a)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = key->len; i;)
 	{
@@ -47,23 +47,23 @@ static x_s32 geM(const struct rsa_public_key * key, const x_u32 * a)
 /*
  * montgomery c[] += a * b[] / R % mod
  */
-static void montMulAdd(const struct rsa_public_key * key, x_u32 * c, const x_u32 a, const x_u32 * b)
+static void montMulAdd(const struct rsa_public_key * key, u32_t * c, const u32_t a, const u32_t * b)
 {
-	x_u64 A = (x_u64)a * b[0] + c[0];
-    x_u32 d0 = (x_u32)A * key->n0inv;
-    x_u64 B = (x_u64)d0 * key->n[0] + (x_u32)A;
-    x_s32 i;
+	u64_t A = (u64_t)a * b[0] + c[0];
+    u32_t d0 = (u32_t)A * key->n0inv;
+    u64_t B = (u64_t)d0 * key->n[0] + (u32_t)A;
+    s32_t i;
 
     for(i = 1; i < key->len; ++i)
     {
-        A = (A >> 32) + (x_u64)a * b[i] + c[i];
-        B = (B >> 32) + (x_u64)d0 * key->n[i] + (x_u32)A;
-        c[i - 1] = (x_u32)B;
+        A = (A >> 32) + (u64_t)a * b[i] + c[i];
+        B = (B >> 32) + (u64_t)d0 * key->n[i] + (u32_t)A;
+        c[i - 1] = (u32_t)B;
     }
 
     A = (A >> 32) + (B >> 32);
 
-    c[i - 1] = (x_u32)A;
+    c[i - 1] = (u32_t)A;
 
     if(A >> 32)
     {
@@ -74,9 +74,9 @@ static void montMulAdd(const struct rsa_public_key * key, x_u32 * c, const x_u32
 /*
  * montgomery c[] = a[] * b[] / R % mod
  */
-static void montMul(const struct rsa_public_key * key, x_u32 * c, const x_u32 * a, const x_u32 * b)
+static void montMul(const struct rsa_public_key * key, u32_t * c, const u32_t * a, const u32_t * b)
 {
-	x_s32 i;
+	s32_t i;
 
     for(i = 0; i < key->len; ++i)
 	{
@@ -93,20 +93,20 @@ static void montMul(const struct rsa_public_key * key, x_u32 * c, const x_u32 * 
  * in-place public exponentiation.
  * input and output big-endian byte array in inout.
  */
-static void modpow3(const struct rsa_public_key * key, x_u8 * inout)
+static void modpow3(const struct rsa_public_key * key, u8_t * inout)
 {
-    x_u32 a[256/sizeof(x_u32)];
-    x_u32 aR[256/sizeof(x_u32)];
-    x_u32 aaR[256/sizeof(x_u32)];
-    x_u32 *aaa = aR;
-    x_s32 i;
+    u32_t a[256/sizeof(u32_t)];
+    u32_t aR[256/sizeof(u32_t)];
+    u32_t aaR[256/sizeof(u32_t)];
+    u32_t *aaa = aR;
+    s32_t i;
 
     /*
      * convert from big endian byte array to little endian word array.
      */
     for(i = 0; i < key->len; ++i)
     {
-		x_u32 tmp = (inout[((key->len - 1 - i) * 4) + 0] << 24) |	\
+		u32_t tmp = (inout[((key->len - 1 - i) * 4) + 0] << 24) |	\
             (inout[((key->len - 1 - i) * 4) + 1] << 16) | 			\
             (inout[((key->len - 1 - i) * 4) + 2] << 8) |			\
             (inout[((key->len - 1 - i) * 4) + 3] << 0);
@@ -129,7 +129,7 @@ static void modpow3(const struct rsa_public_key * key, x_u8 * inout)
     /* convert to bigendian byte array */
     for(i = key->len - 1; i >= 0; --i)
     {
-    	x_u32 tmp = aaa[i];
+    	u32_t tmp = aaa[i];
         *inout++ = tmp >> 24;
         *inout++ = tmp >> 16;
         *inout++ = tmp >> 8;
@@ -143,7 +143,7 @@ static void modpow3(const struct rsa_public_key * key, x_u8 * inout)
  * other flavor which omits the optional parameter entirely). This code does not
  * accept signatures without the optional parameter.
 */
-static const x_u8 padding[256 - 20] = {
+static const u8_t padding[256 - 20] = {
     0x00,0x01,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
     0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
     0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
@@ -169,12 +169,12 @@ static const x_u8 padding[256 - 20] = {
  * verify a 2048 bit RSA PKCS1.5 signature against an expected SHA-1 hash.
  * returns FALSE on failure, TRUE on success.
 */
-x_bool rsa_verify(const struct rsa_public_key * key, const x_u8 * signature, const x_u8 * sha)
+bool_t rsa_verify(const struct rsa_public_key * key, const u8_t * signature, const u8_t * sha)
 {
-    x_u8 buf[256];
-    x_s32 i;
+    u8_t buf[256];
+    s32_t i;
 
-    if(key->len != (256/sizeof(x_u32)))
+    if(key->len != (256/sizeof(u32_t)))
     {
     	/* wrong key passed in */
         return FALSE;
@@ -188,7 +188,7 @@ x_bool rsa_verify(const struct rsa_public_key * key, const x_u8 * signature, con
     modpow3(key, buf);
 
     /* check pkcs1.5 padding bytes */
-    for(i = 0; i < (x_s32)sizeof(padding); ++i)
+    for(i = 0; i < (s32_t)sizeof(padding); ++i)
     {
     	if(buf[i] != padding[i])
     	{

@@ -26,8 +26,8 @@ struct vfsops;
  * file structure
  */
 struct file {
-	x_u32 f_flags;				/* open flag */
-	x_s32 f_count;				/* reference count */
+	u32_t f_flags;				/* open flag */
+	s32_t f_count;				/* reference count */
 	x_off f_offset;				/* current position in file */
 	struct vnode * f_vnode;		/* vnode */
 };
@@ -51,9 +51,9 @@ enum dirent_type {
  * the dirent structure defines the format of directory entries.
  */
 struct dirent {
-	x_u32 d_fileno;				/* file number of entry */
-	x_u16 d_reclen;				/* length of this record */
-	x_u16 d_namlen;				/* length of string in d_name */
+	u32_t d_fileno;				/* file number of entry */
+	u16_t d_reclen;				/* length of this record */
+	u16_t d_namlen;				/* length of string in d_name */
 	enum dirent_type d_type; 	/* file type, see below */
 	char d_name[MAX_NAME];		/* name must be no longer than this */
 };
@@ -84,7 +84,7 @@ enum vnode_flag {
  */
 struct vattr {
 	enum vnode_type	va_type;	/* vnode type */
-	x_u32 va_mode;				/* file access mode */
+	u32_t va_mode;				/* file access mode */
 };
 
 /*
@@ -95,11 +95,11 @@ struct vnode {
 	struct mount * v_mount;		/* mounted vfs pointer */
 	struct vnops * v_op;		/* vnode operations */
 	x_size v_size;				/* file size */
-	x_u32 v_mode;				/* file mode permissions */
+	u32_t v_mode;				/* file mode permissions */
 	enum vnode_type v_type;		/* vnode type */
 	enum vnode_flag v_flags;	/* vnode flag */
-	x_s32 v_refcnt;				/* reference count */
-	x_u32 v_blkno;				/* block number */
+	s32_t v_refcnt;				/* reference count */
+	u32_t v_blkno;				/* block number */
 	char * v_path;				/* pointer to path in fs */
 	void * v_data;				/* private data for fs */
 };
@@ -108,38 +108,38 @@ struct vnode {
  * vnode operations
  */
 struct vnops {
-	x_s32 (*vop_open)(struct vnode *, x_s32);
-	x_s32 (*vop_close)(struct vnode *, struct file *);
-	x_s32 (*vop_read)(struct vnode *, struct file *, void *, x_size, x_size *);
-	x_s32 (*vop_write)(struct vnode *, struct file *, void *, x_size, x_size *);
-	x_s32 (*vop_seek)(struct vnode *, struct file *, x_off, x_off);
-	x_s32 (*vop_ioctl)(struct vnode *, struct file *, x_u32, void *);
-	x_s32 (*vop_fsync)(struct vnode *, struct file *);
-	x_s32 (*vop_readdir)(struct vnode *, struct file *, struct dirent *);
-	x_s32 (*vop_lookup)(struct vnode *, char *, struct vnode *);
-	x_s32 (*vop_create)(struct vnode *, char *, x_u32);
-	x_s32 (*vop_remove)(struct vnode *, struct vnode *, char *);
-	x_s32 (*vop_rename)(struct vnode *, struct vnode *, char *, struct vnode *, struct vnode *, char *);
-	x_s32 (*vop_mkdir)(struct vnode *, char *, x_u32);
-	x_s32 (*vop_rmdir)(struct vnode *, struct vnode *, char *);
-	x_s32 (*vop_getattr)(struct vnode *, struct vattr *);
-	x_s32 (*vop_setattr)(struct vnode *, struct vattr *);
-	x_s32 (*vop_inactive)(struct vnode *);
-	x_s32 (*vop_truncate)(struct vnode *, x_off);
+	s32_t (*vop_open)(struct vnode *, s32_t);
+	s32_t (*vop_close)(struct vnode *, struct file *);
+	s32_t (*vop_read)(struct vnode *, struct file *, void *, x_size, x_size *);
+	s32_t (*vop_write)(struct vnode *, struct file *, void *, x_size, x_size *);
+	s32_t (*vop_seek)(struct vnode *, struct file *, x_off, x_off);
+	s32_t (*vop_ioctl)(struct vnode *, struct file *, u32_t, void *);
+	s32_t (*vop_fsync)(struct vnode *, struct file *);
+	s32_t (*vop_readdir)(struct vnode *, struct file *, struct dirent *);
+	s32_t (*vop_lookup)(struct vnode *, char *, struct vnode *);
+	s32_t (*vop_create)(struct vnode *, char *, u32_t);
+	s32_t (*vop_remove)(struct vnode *, struct vnode *, char *);
+	s32_t (*vop_rename)(struct vnode *, struct vnode *, char *, struct vnode *, struct vnode *, char *);
+	s32_t (*vop_mkdir)(struct vnode *, char *, u32_t);
+	s32_t (*vop_rmdir)(struct vnode *, struct vnode *, char *);
+	s32_t (*vop_getattr)(struct vnode *, struct vattr *);
+	s32_t (*vop_setattr)(struct vnode *, struct vattr *);
+	s32_t (*vop_inactive)(struct vnode *);
+	s32_t (*vop_truncate)(struct vnode *, x_off);
 };
 
 /*
  * file system id type
  */
 struct fsid {
-	x_s32 val[2];
+	s32_t val[2];
 };
 
 /*
  * directory description
  */
 struct dir {
-	x_s32 fd;
+	s32_t fd;
 	struct dirent entry;
 };
 
@@ -147,16 +147,16 @@ struct dir {
  * file system statistics
  */
 struct statfs {
-	x_s16 f_type;				/* filesystem type number */
-	x_s16 f_flags;				/* copy of mount flags */
-	x_s32 f_bsize;				/* fundamental file system block size */
-	x_s32 f_blocks;				/* total data blocks in file system */
-	x_s32 f_bfree;				/* free blocks in fs */
-	x_s32 f_bavail;				/* free blocks avail to non-superuser */
-	x_s32 f_files;				/* total file nodes in file system */
-	x_s32 f_ffree;				/* free file nodes in fs */
+	s16_t f_type;				/* filesystem type number */
+	s16_t f_flags;				/* copy of mount flags */
+	s32_t f_bsize;				/* fundamental file system block size */
+	s32_t f_blocks;				/* total data blocks in file system */
+	s32_t f_bfree;				/* free blocks in fs */
+	s32_t f_bavail;				/* free blocks avail to non-superuser */
+	s32_t f_files;				/* total file nodes in file system */
+	s32_t f_ffree;				/* free file nodes in fs */
 	struct fsid f_fsid;			/* file system id */
-	x_s32 f_namelen;			/* maximum filename length */
+	s32_t f_namelen;			/* maximum filename length */
 };
 
 /*
@@ -172,8 +172,8 @@ struct statfs {
 struct mount {
 	struct list_head m_link;	/* link to next mount point */
 	struct filesystem * m_fs;	/* pointer to fs */
-	x_u32 m_flags;				/* mount flag */
-	x_s32 m_count;				/* reference count */
+	u32_t m_flags;				/* mount flag */
+	s32_t m_count;				/* reference count */
 	char m_path[MAX_PATH];		/* mounted path */
 	void * m_dev;				/* mounted device */
 	struct vnode * m_root;		/* root vnode */
@@ -185,27 +185,27 @@ struct mount {
  * operations supported on virtual file system.
  */
 struct vfsops {
-	x_s32(*vfs_mount)(struct mount *, char *, x_s32);
-	x_s32(*vfs_unmount)(struct mount *);
-	x_s32(*vfs_sync)(struct mount *);
-	x_s32(*vfs_vget)(struct mount *, struct vnode *);
-	x_s32(*vfs_statfs)(struct mount *, struct statfs *);
+	s32_t(*vfs_mount)(struct mount *, char *, s32_t);
+	s32_t(*vfs_unmount)(struct mount *);
+	s32_t(*vfs_sync)(struct mount *);
+	s32_t(*vfs_vget)(struct mount *, struct vnode *);
+	s32_t(*vfs_statfs)(struct mount *, struct statfs *);
 	struct vnops * vfs_vnops;
 };
 
 /*
  * declare for vfs_bio
  */
-x_size bio_read(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count);
-x_size bio_write(struct blkdev * dev, x_u8 * buf, x_off offset, x_size count);
+x_size bio_read(struct blkdev * dev, u8_t * buf, x_off offset, x_size count);
+x_size bio_write(struct blkdev * dev, u8_t * buf, x_off offset, x_size count);
 
 /*
  * declare for vfs_mount
  */
 void vfs_busy(struct mount * m);
 void vfs_unbusy(struct mount * m);
-x_s32 vfs_findroot(char * path, struct mount ** mp, char ** root);
-x_s32 lookup(char * path, struct vnode ** vpp, char ** name);
+s32_t vfs_findroot(char * path, struct mount ** mp, char ** root);
+s32_t lookup(char * path, struct vnode ** vpp, char ** name);
 
 
 /*
@@ -214,25 +214,25 @@ x_s32 lookup(char * path, struct vnode ** vpp, char ** name);
 struct vnode * vn_lookup(struct mount * mp, char * path);
 struct vnode * vget(struct mount * mp, char * path);
 void vput(struct vnode * vp);
-x_s32 vcount(struct vnode * vp);
+s32_t vcount(struct vnode * vp);
 void vref(struct vnode * vp);
 void vrele(struct vnode * vp);
 void vgone(struct vnode * vp);
 void vflush(struct mount * mp);
-x_s32 vn_stat(struct vnode * vp, struct stat * st);
-x_s32 vn_access(struct vnode * vp, x_u32 mode);
+s32_t vn_stat(struct vnode * vp, struct stat * st);
+s32_t vn_access(struct vnode * vp, u32_t mode);
 
 
 /*
  * declare for vfs_path
  */
-x_s32 fd_alloc(x_s32 low);
-x_s32 fd_free(x_s32 fd);
-struct file * get_fp(x_s32 fd);
-x_s32 set_fp(x_s32 fd, struct file *fp);
-x_s32 vfs_path_conv(const char * path, char * full);
+s32_t fd_alloc(s32_t low);
+s32_t fd_free(s32_t fd);
+struct file * get_fp(s32_t fd);
+s32_t set_fp(s32_t fd, struct file *fp);
+s32_t vfs_path_conv(const char * path, char * full);
 void vfs_setcwd(const char * path);
-char * vfs_getcwd(char * buf, x_s32 size);
+char * vfs_getcwd(char * buf, s32_t size);
 void vfs_setcwdfp(struct file * fp);
 struct file * vfs_getcwdfp(void);
 
@@ -240,39 +240,39 @@ struct file * vfs_getcwdfp(void);
 /*
  * declare for vfs_lookup
  */
-x_s32 namei(char * path, struct vnode ** vpp);
-x_s32 lookup(char * path, struct vnode ** vpp, char ** name);
+s32_t namei(char * path, struct vnode ** vpp);
+s32_t lookup(char * path, struct vnode ** vpp, char ** name);
 
 
 /*
  * declare for vfs syscall
  */
-x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags);
-x_s32 sys_umount(char * path);
-x_s32 sys_sync(void);
-x_s32 sys_open(char * path, x_u32 flags, x_u32 mode, struct file ** pfp);
-x_s32 sys_close(struct file * fp);
-x_s32 sys_read(struct file * fp, void * buf, x_size size, x_size * count);
-x_s32 sys_write(struct file * fp, void * buf, x_size size, x_size * count);
-x_s32 sys_lseek(struct file * fp, x_off off, x_u32 type, x_off * origin);
-x_s32 sys_ioctl(struct file * fp, x_u32 cmd, void * arg);
-x_s32 sys_fsync(struct file * fp);
-x_s32 sys_fstat(struct file * fp, struct stat * st);
-x_s32 sys_opendir(char * path, struct file ** file);
-x_s32 sys_closedir(struct file * fp);
-x_s32 sys_readdir(struct file * fp, struct dirent * dir);
-x_s32 sys_rewinddir(struct file * fp);
-x_s32 sys_seekdir(struct file * fp, x_off loc);
-x_s32 sys_telldir(struct file * fp, x_off * loc);
-x_s32 sys_mkdir(char * path, x_u32 mode);
-x_s32 sys_rmdir(char * path);
-x_s32 sys_mknod(char * path, x_u32 mode);
-x_s32 sys_rename(char * src, char * dest);
-x_s32 sys_unlink(char * path);
-x_s32 sys_access(char * path, x_u32 mode);
-x_s32 sys_stat(char * path, struct stat * st);
-x_s32 sys_truncate(char * path, x_off length);
-x_s32 sys_ftruncate(struct file * fp, x_off length);
-x_s32 sys_fchdir(struct file * fp, char * cwd);
+s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags);
+s32_t sys_umount(char * path);
+s32_t sys_sync(void);
+s32_t sys_open(char * path, u32_t flags, u32_t mode, struct file ** pfp);
+s32_t sys_close(struct file * fp);
+s32_t sys_read(struct file * fp, void * buf, x_size size, x_size * count);
+s32_t sys_write(struct file * fp, void * buf, x_size size, x_size * count);
+s32_t sys_lseek(struct file * fp, x_off off, u32_t type, x_off * origin);
+s32_t sys_ioctl(struct file * fp, u32_t cmd, void * arg);
+s32_t sys_fsync(struct file * fp);
+s32_t sys_fstat(struct file * fp, struct stat * st);
+s32_t sys_opendir(char * path, struct file ** file);
+s32_t sys_closedir(struct file * fp);
+s32_t sys_readdir(struct file * fp, struct dirent * dir);
+s32_t sys_rewinddir(struct file * fp);
+s32_t sys_seekdir(struct file * fp, x_off loc);
+s32_t sys_telldir(struct file * fp, x_off * loc);
+s32_t sys_mkdir(char * path, u32_t mode);
+s32_t sys_rmdir(char * path);
+s32_t sys_mknod(char * path, u32_t mode);
+s32_t sys_rename(char * src, char * dest);
+s32_t sys_unlink(char * path);
+s32_t sys_access(char * path, u32_t mode);
+s32_t sys_stat(char * path, struct stat * st);
+s32_t sys_truncate(char * path, x_off length);
+s32_t sys_ftruncate(struct file * fp, x_off length);
+s32_t sys_fchdir(struct file * fp, char * cwd);
 
 #endif /* __VFS_H__ */

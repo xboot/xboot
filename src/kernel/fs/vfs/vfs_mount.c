@@ -47,9 +47,9 @@ struct list_head mount_list = {
  * @path: target path.
  * @root: vfs root path as mount point.
  */
-static x_s32 count_match(char * path, char * mount_root)
+static s32_t count_match(char * path, char * mount_root)
 {
-	x_s32 len = 0;
+	s32_t len = 0;
 
 	while(*path && *mount_root)
 	{
@@ -92,11 +92,11 @@ void vfs_unbusy(struct mount * m)
  * @mp: mount point to return.
  * @root: pointer to root directory in path.
  */
-x_s32 vfs_findroot(char * path, struct mount ** mp, char ** root)
+s32_t vfs_findroot(char * path, struct mount ** mp, char ** root)
 {
 	struct list_head * pos;
 	struct mount *m, *tmp;
-	x_s32 len, max_len = 0;
+	s32_t len, max_len = 0;
 
 	if(!path)
 		return -1;
@@ -129,13 +129,13 @@ x_s32 vfs_findroot(char * path, struct mount ** mp, char ** root)
 /*
  * mounts proc interface
  */
-static x_s32 mounts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t mounts_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct blkdev * blk;
 	struct mount * m;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -173,7 +173,7 @@ static x_s32 mounts_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

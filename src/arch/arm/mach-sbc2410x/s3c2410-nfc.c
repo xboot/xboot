@@ -51,38 +51,38 @@ void s3c2410_nfc_reset(struct nand_chip * chip)
 	writel(S3C2410_NFCMD, 0xff);
 }
 
-x_bool s3c2410_nfc_command(struct nand_chip * chip, x_u32 command)
+bool_t s3c2410_nfc_command(struct nand_chip * chip, u32_t command)
 {
 	writew(S3C2410_NFCMD, command);
 	return TRUE;
 }
 
-x_bool s3c2410_nfc_address(struct nand_chip * chip, x_u32 address)
+bool_t s3c2410_nfc_address(struct nand_chip * chip, u32_t address)
 {
 	writew(S3C2410_NFADDR, address);
 	return TRUE;
 }
 
-x_bool s3c2410_nfc_write_data(struct nand_chip * chip, x_u32 data)
+bool_t s3c2410_nfc_write_data(struct nand_chip * chip, u32_t data)
 {
 	writeb(S3C2410_NFDATA, data);
 	return TRUE;
 }
 
-x_bool s3c2410_nfc_read_data(struct nand_chip * chip, x_u32 * data)
+bool_t s3c2410_nfc_read_data(struct nand_chip * chip, u32_t * data)
 {
 	*data = readb(S3C2410_NFDATA);
 	return TRUE;
 }
 
-x_bool s3c2410_nfc_controller_ready(struct nand_chip * chip, x_s32 timeout)
+bool_t s3c2410_nfc_controller_ready(struct nand_chip * chip, s32_t timeout)
 {
 	return TRUE;
 }
 
-x_bool s3c2410_nfc_nand_ready(struct nand_chip * chip, x_s32 timeout)
+bool_t s3c2410_nfc_nand_ready(struct nand_chip * chip, s32_t timeout)
 {
-	x_u8 status;
+	u8_t status;
 
 	do {
 		status = readb(S3C2410_NFSTAT);

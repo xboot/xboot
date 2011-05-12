@@ -80,7 +80,7 @@ static struct handler_onkeydown_list __handler_onkeydown_list = {
 };
 static struct handler_onkeydown_list * handler_onkeydown_list = &__handler_onkeydown_list;
 
-x_bool install_listener_onkeyraw(handler_onkeyraw raw)
+bool_t install_listener_onkeyraw(handler_onkeyraw raw)
 {
 	struct handler_onkeyraw_list * list;
 	struct list_head * pos;
@@ -105,7 +105,7 @@ x_bool install_listener_onkeyraw(handler_onkeyraw raw)
 	return TRUE;
 }
 
-x_bool remove_listener_onkeyraw(handler_onkeyraw raw)
+bool_t remove_listener_onkeyraw(handler_onkeyraw raw)
 {
 	struct handler_onkeyraw_list * list;
 	struct list_head * pos;
@@ -127,7 +127,7 @@ x_bool remove_listener_onkeyraw(handler_onkeyraw raw)
 	return FALSE;
 }
 
-x_bool install_listener_onkeyup(handler_onkeyup keyup)
+bool_t install_listener_onkeyup(handler_onkeyup keyup)
 {
 	struct handler_onkeyup_list * list;
 	struct list_head * pos;
@@ -152,7 +152,7 @@ x_bool install_listener_onkeyup(handler_onkeyup keyup)
 	return TRUE;
 }
 
-x_bool remove_listener_onkeyup(handler_onkeyup keyup)
+bool_t remove_listener_onkeyup(handler_onkeyup keyup)
 {
 	struct handler_onkeyup_list * list;
 	struct list_head * pos;
@@ -174,7 +174,7 @@ x_bool remove_listener_onkeyup(handler_onkeyup keyup)
 	return FALSE;
 }
 
-x_bool install_listener_onkeydown(handler_onkeydown keydown)
+bool_t install_listener_onkeydown(handler_onkeydown keydown)
 {
 	struct handler_onkeydown_list * list;
 	struct list_head * pos;
@@ -199,7 +199,7 @@ x_bool install_listener_onkeydown(handler_onkeydown keydown)
 	return TRUE;
 }
 
-x_bool remove_listener_onkeydown(handler_onkeydown keydown)
+bool_t remove_listener_onkeydown(handler_onkeydown keydown)
 {
 	struct handler_onkeydown_list * list;
 	struct list_head * pos;

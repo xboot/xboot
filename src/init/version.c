@@ -33,7 +33,7 @@
 /*
  * print xboot banner
  */
-x_s32 xboot_banner(struct console * console)
+s32_t xboot_banner(struct console * console)
 {
 	return console_print(console, "xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
 }
@@ -58,10 +58,10 @@ static const char xboot[6][64] = {	"        _",
 /*
  * print xboot's character logo.
  */
-void xboot_char_logo(struct console * console, x_u32 x0, x_u32 y0)
+void xboot_char_logo(struct console * console, u32_t x0, u32_t y0)
 {
-	x_u32 i, len;
-	x_s32 w, h;
+	u32_t i, len;
+	s32_t w, h;
 	char buf[64];
 
 	if(!console)

@@ -24,7 +24,7 @@
  * buffer: the preallocated buffer to be used.
  * size: the size of the internal buffer.
  */
-struct fifo * fifo_init(x_u8 * buffer, x_u32 size)
+struct fifo * fifo_init(u8_t * buffer, u32_t size)
 {
 	struct fifo * fifo;
 
@@ -44,9 +44,9 @@ struct fifo * fifo_init(x_u8 * buffer, x_u32 size)
  *
  * size: the size of the internal buffer to be allocated.
  */
-struct fifo * fifo_alloc(x_u32 size)
+struct fifo * fifo_alloc(u32_t size)
 {
-	x_u8 * buffer;
+	u8_t * buffer;
 	struct fifo * fifo;
 
 	buffer = malloc(size);
@@ -82,7 +82,7 @@ void fifo_reset(struct fifo * fifo)
  *
  * fifo: the fifo to be used.
  */
-x_u32 fifo_len(struct fifo * fifo)
+u32_t fifo_len(struct fifo * fifo)
 {
 	return fifo->in - fifo->out;
 }
@@ -98,9 +98,9 @@ x_u32 fifo_len(struct fifo * fifo)
  * the FIFO depending on the free space, and returns the number of
  * bytes copied.
  */
-x_u32 fifo_put(struct fifo * fifo, x_u8 * buffer, x_u32 len)
+u32_t fifo_put(struct fifo * fifo, u8_t * buffer, u32_t len)
 {
-	x_u32 l;
+	u32_t l;
 
 	len = MIN(len, fifo->size - fifo->in + fifo->out);
 
@@ -126,9 +126,9 @@ x_u32 fifo_put(struct fifo * fifo, x_u8 * buffer, x_u32 len)
  * This function copies at most len bytes from the fifo into the
  * buffer and returns the number of copied bytes.
  */
-x_u32 fifo_get(struct fifo *fifo, x_u8 * buffer, x_u32 len)
+u32_t fifo_get(struct fifo *fifo, u8_t * buffer, u32_t len)
 {
-	x_u32 l;
+	u32_t l;
 
 	len = MIN(len, fifo->in - fifo->out);
 	if(len == 0)

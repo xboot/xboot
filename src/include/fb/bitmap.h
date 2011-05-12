@@ -30,65 +30,65 @@ enum bitmap_format
 struct picture
 {
 	/* width of the picture*/
-	x_u32 width;
+	u32_t width;
 
 	/* height of the picture*/
-	x_u32 height;
+	u32_t height;
 
 	/* bytes per pixel */
-	x_u32 bytes_per_pixel;
+	u32_t bytes_per_pixel;
 
 	/* the pixel data */
-	x_u8 * data;
+	u8_t * data;
 };
 
 struct bitmap_info
 {
 	/* width of the bitmap */
-	x_u32 width;
+	u32_t width;
 
 	/* height of the bitmap */
-	x_u32 height;
+	u32_t height;
 
 	/* bits per pixel */
-	x_u32 bpp;
+	u32_t bpp;
 
 	/* bytes per pixel */
-	x_u32 bytes_per_pixel;
+	u32_t bytes_per_pixel;
 
 	/* pitch of one scan line, how many bytes there are for scan line */
-	x_u32 pitch;
+	u32_t pitch;
 
 	/* how many bits are reserved for red color */
-	x_u32 red_mask_size;
+	u32_t red_mask_size;
 
 	/* what is location of red color bits */
-	x_u32 red_field_pos;
+	u32_t red_field_pos;
 
 	/* how many bits are reserved for green color */
-	x_u32 green_mask_size;
+	u32_t green_mask_size;
 
 	/* what is location of green color bits */
-	x_u32 green_field_pos;
+	u32_t green_field_pos;
 
 	/* how many bits are reserved for blue color */
-	x_u32 blue_mask_size;
+	u32_t blue_mask_size;
 
 	/* what is location of blue color bits */
-	x_u32 blue_field_pos;
+	u32_t blue_field_pos;
 
 	/* how many bits are alpha in color */
-	x_u32 alpha_mask_size;
+	u32_t alpha_mask_size;
 
 	/* what is location of alpha color bits */
-	x_u32 alpha_field_pos;
+	u32_t alpha_field_pos;
 
 	/* optimization hint how binary data is coded */
 	enum bitmap_format fmt;
 
 	/* for monochrome bitmaps, the foreground and background color */
-	x_u8 fg_r, fg_g, fg_b, fg_a;
-	x_u8 bg_r, bg_g, bg_b, bg_a;
+	u8_t fg_r, fg_g, fg_b, fg_a;
+	u8_t bg_r, bg_g, bg_b, bg_a;
 };
 
 struct bitmap
@@ -98,14 +98,14 @@ struct bitmap
 
 	/* bitmap's view port */
 	struct {
-		x_s32	left;
-		x_s32	top;
-		x_s32 	right;
-		x_s32	bottom;
+		s32_t	left;
+		s32_t	top;
+		s32_t 	right;
+		s32_t	bottom;
 	} viewport;
 
 	/* if the data in heap (malloc method), the it will be set */
-	x_bool allocated;
+	bool_t allocated;
 
 	/* pointer to bitmap data formatted according to info */
 	void * data;
@@ -120,7 +120,7 @@ struct bitmap_reader
 	const char * extension;
 
 	/* load bitmap function */
-	x_bool (*load)(struct bitmap ** bitmap, const char * filename);
+	bool_t (*load)(struct bitmap ** bitmap, const char * filename);
 };
 
 /*
@@ -132,13 +132,13 @@ struct bitmap_reader_list
 	struct list_head entry;
 };
 
-x_bool register_bitmap_reader(struct bitmap_reader * reader);
-x_bool unregister_bitmap_reader(struct bitmap_reader * reader);
+bool_t register_bitmap_reader(struct bitmap_reader * reader);
+bool_t unregister_bitmap_reader(struct bitmap_reader * reader);
 
 enum bitmap_format get_bitmap_format(struct bitmap_info * info);
-x_bool bitmap_create(struct bitmap ** bitmap, x_u32 width, x_u32 height, enum bitmap_format fmt);
-x_bool bitmap_load_from_picture(struct bitmap ** bitmap, struct picture * picture);
-x_bool bitmap_load_from_file(struct bitmap ** bitmap, const char * filename);
-x_bool bitmap_destroy(struct bitmap * bitmap);
+bool_t bitmap_create(struct bitmap ** bitmap, u32_t width, u32_t height, enum bitmap_format fmt);
+bool_t bitmap_load_from_picture(struct bitmap ** bitmap, struct picture * picture);
+bool_t bitmap_load_from_file(struct bitmap ** bitmap, const char * filename);
+bool_t bitmap_destroy(struct bitmap * bitmap);
 
 #endif /* __BITMAP_H__ */

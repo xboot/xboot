@@ -8,6 +8,6 @@
 #include <malloc.h>
 
 
-void exec_cmdline(const x_s8 * cmdline);
+void exec_cmdline(const s8_t * cmdline);
 
 #endif /* __EXEC_H__ */

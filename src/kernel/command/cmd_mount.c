@@ -43,17 +43,17 @@ static void usage(void)
 	printk("usage:\r\n    mount <-t fstype> [-o option] <dev> <dir>\r\n");
 }
 
-static x_s32 do_mount(x_s32 argc, const x_s8 **argv)
+static s32_t do_mount(s32_t argc, const s8_t **argv)
 {
 	char * fstype = NULL;
 	char * dev = NULL, * dir = NULL;
-	x_bool loop_flag = FALSE;
-	x_bool ro_flag = FALSE;
-	x_s32 mount_flag = 0;
+	bool_t loop_flag = FALSE;
+	bool_t ro_flag = FALSE;
+	s32_t mount_flag = 0;
 	struct blkdev * blk;
 	struct stat st;
 	char * pdev, tmp[32];
-	x_s32 i, index = 0;
+	s32_t i, index = 0;
 
 	if(argc < 5)
 	{

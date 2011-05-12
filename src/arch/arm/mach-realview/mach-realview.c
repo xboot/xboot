@@ -35,20 +35,20 @@
 #include <realview-cp15.h>
 
 
-extern x_u8	__text_start[];
-extern x_u8 __text_end[];
-extern x_u8 __ramdisk_start[];
-extern x_u8 __ramdisk_end[];
-extern x_u8 __data_shadow_start[];
-extern x_u8 __data_shadow_end[];
-extern x_u8 __data_start[];
-extern x_u8 __data_end[];
-extern x_u8 __bss_start[];
-extern x_u8 __bss_end[];
-extern x_u8 __heap_start[];
-extern x_u8 __heap_end[];
-extern x_u8 __stack_start[];
-extern x_u8 __stack_end[];
+extern u8_t	__text_start[];
+extern u8_t __text_end[];
+extern u8_t __ramdisk_start[];
+extern u8_t __ramdisk_end[];
+extern u8_t __data_shadow_start[];
+extern u8_t __data_shadow_end[];
+extern u8_t __data_start[];
+extern u8_t __data_end[];
+extern u8_t __bss_start[];
+extern u8_t __bss_end[];
+extern u8_t __heap_start[];
+extern u8_t __heap_end[];
+extern u8_t __stack_start[];
+extern u8_t __stack_end[];
 
 /*
  * system initial, like power lock
@@ -61,7 +61,7 @@ static void mach_init(void)
 /*
  * system halt, shutdown machine.
  */
-static x_bool mach_halt(void)
+static bool_t mach_halt(void)
 {
 	return FALSE;
 }
@@ -69,7 +69,7 @@ static x_bool mach_halt(void)
 /*
  * reset the cpu by setting up the watchdog timer and let him time out
  */
-static x_bool mach_reset(void)
+static bool_t mach_reset(void)
 {
 	return FALSE;
 }
@@ -85,7 +85,7 @@ static enum mode mach_getmode(void)
 /*
  * clean up system before running os
  */
-static x_bool mach_cleanup(void)
+static bool_t mach_cleanup(void)
 {
 	/* disable irq */
 	irq_disable();
@@ -108,7 +108,7 @@ static x_bool mach_cleanup(void)
 /*
  * for anti-piracy
  */
-static x_bool mach_genuine(void)
+static bool_t mach_genuine(void)
 {
 	return TRUE;
 }
@@ -130,8 +130,8 @@ static struct machine realview = {
 	.res = {
 		.mem_banks = {
 			[0] = {
-				.start		= 0x00000000,
-				.end		= 0x00000000 + SZ_128M - 1,
+				.start		= (void *)(0x00000000),
+				.end		= (void *)(0x00000000 + SZ_128M - 1),
 			},
 
 			[1] = {
@@ -144,26 +144,26 @@ static struct machine realview = {
 	},
 
 	.link = {
-		.text_start			= (const x_sys)__text_start,
-		.text_end			= (const x_sys)__text_end,
+		.text_start			= (const void *)__text_start,
+		.text_end			= (const void *)__text_end,
 
-		.ramdisk_start		= (const x_sys)__ramdisk_start,
-		.ramdisk_end		= (const x_sys)__ramdisk_end,
+		.ramdisk_start		= (const void *)__ramdisk_start,
+		.ramdisk_end		= (const void *)__ramdisk_end,
 
-		.data_shadow_start	= (const x_sys)__data_shadow_start,
-		.data_shadow_end	= (const x_sys)__data_shadow_end,
+		.data_shadow_start	= (const void *)__data_shadow_start,
+		.data_shadow_end	= (const void *)__data_shadow_end,
 
-		.data_start			= (const x_sys)__data_start,
-		.data_end			= (const x_sys)__data_end,
+		.data_start			= (const void *)__data_start,
+		.data_end			= (const void *)__data_end,
 
-		.bss_start			= (const x_sys)__bss_start,
-		.bss_end			= (const x_sys)__bss_end,
+		.bss_start			= (const void *)__bss_start,
+		.bss_end			= (const void *)__bss_end,
 
-		.heap_start			= (const x_sys)__heap_start,
-		.heap_end			= (const x_sys)__heap_end,
+		.heap_start			= (const void *)__heap_start,
+		.heap_end			= (const void *)__heap_end,
 
-		.stack_start		= (const x_sys)__stack_start,
-		.stack_end			= (const x_sys)__stack_end,
+		.stack_start		= (const void *)__stack_start,
+		.stack_end			= (const void *)__stack_end,
 	},
 
 	.pm = {

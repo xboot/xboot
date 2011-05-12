@@ -34,7 +34,7 @@
 
 #define SHIFT_BITS					(8)
 #define JPEG_UNIT_SIZE				(8)
-#define CONST(x)					((x_s32)((x) * (1L << SHIFT_BITS) + 0.5))
+#define CONST(x)					((s32_t)((x) * (1L << SHIFT_BITS) + 0.5))
 
 enum
 {
@@ -46,36 +46,36 @@ enum
 	JPEG_MARKER_SOS					= 0xda,
 };
 
-typedef x_s32 jpeg_data_unit[64];
+typedef s32_t jpeg_data_unit[64];
 
 struct jpeg_data
 {
-	x_s32 file;
-	x_u32 file_offset;
+	s32_t file;
+	u32_t file_offset;
 	struct bitmap ** bitmap;
 
-	x_s32 image_width;
-	x_s32 image_height;
+	s32_t image_width;
+	s32_t image_height;
 
-	x_u8 *huff_value[4];
-	x_s32 huff_offset[4][16];
-	x_s32 huff_maxval[4][16];
+	u8_t *huff_value[4];
+	s32_t huff_offset[4][16];
+	s32_t huff_maxval[4][16];
 
-	x_u8 quan_table[2][64];
-	x_s32 comp_index[3][3];
+	u8_t quan_table[2][64];
+	s32_t comp_index[3][3];
 
 	jpeg_data_unit ydu[4];
 	jpeg_data_unit crdu;
 	jpeg_data_unit cbdu;
 
-	x_s32 vs, hs;
+	s32_t vs, hs;
 
-	x_s32 dc_value[3];
+	s32_t dc_value[3];
 
-	x_s32 bit_mask, bit_save;
+	s32_t bit_mask, bit_save;
 };
 
-static const x_u8 jpeg_zigzag_order[64] = {
+static const u8_t jpeg_zigzag_order[64] = {
 	0, 1, 8, 16, 9, 2, 3, 10,
 	17, 24, 32, 25, 18, 11, 4, 5,
 	12, 19, 26, 33, 40, 48, 41, 34,
@@ -86,25 +86,25 @@ static const x_u8 jpeg_zigzag_order[64] = {
 	53, 60, 61, 54, 47, 55, 62, 63
 };
 
-static x_u8 jpeg_get_byte(struct jpeg_data * data)
+static u8_t jpeg_get_byte(struct jpeg_data * data)
 {
-	x_u8 r = 0;
+	u8_t r = 0;
 
-	data->file_offset += read(data->file, &r, sizeof(x_u8));
+	data->file_offset += read(data->file, &r, sizeof(u8_t));
 	return r;
 }
 
-static x_u16 jpeg_get_word(struct jpeg_data * data)
+static u16_t jpeg_get_word(struct jpeg_data * data)
 {
-	x_u16 r = 0;
+	u16_t r = 0;
 
-	data->file_offset += read(data->file, &r, sizeof(x_u16));
+	data->file_offset += read(data->file, &r, sizeof(u16_t));
 	return be16_to_cpu(r);
 }
 
-static x_s32 jpeg_get_bit(struct jpeg_data * data)
+static s32_t jpeg_get_bit(struct jpeg_data * data)
 {
-	x_s32 ret;
+	s32_t ret;
 
 	if(data->bit_mask == 0)
 	{
@@ -122,9 +122,9 @@ static x_s32 jpeg_get_bit(struct jpeg_data * data)
 	return ret;
 }
 
-static x_s32 jpeg_get_number(struct jpeg_data * data, x_s32 num)
+static s32_t jpeg_get_number(struct jpeg_data * data, s32_t num)
 {
-	x_s32 value, i, msb;
+	s32_t value, i, msb;
 
 	if(num == 0)
 		return 0;
@@ -138,9 +138,9 @@ static x_s32 jpeg_get_number(struct jpeg_data * data, x_s32 num)
 	return value;
 }
 
-static x_s32 jpeg_get_huff_code(struct jpeg_data * data, x_s32 id)
+static s32_t jpeg_get_huff_code(struct jpeg_data * data, s32_t id)
 {
-	x_s32 code, i;
+	s32_t code, i;
 
 	code = 0;
 	for(i = 0; i < sizeof(data->huff_maxval[id]); i++)
@@ -155,11 +155,11 @@ static x_s32 jpeg_get_huff_code(struct jpeg_data * data, x_s32 id)
 	return 0;
 }
 
-static x_bool jpeg_decode_huff_table(struct jpeg_data * data)
+static bool_t jpeg_decode_huff_table(struct jpeg_data * data)
 {
-	x_s32 id, ac, i, n, base, ofs;
-	x_u32 next_marker;
-	x_u8 count[16];
+	s32_t id, ac, i, n, base, ofs;
+	u32_t next_marker;
+	u8_t count[16];
 
 	next_marker = data->file_offset;
 	next_marker += jpeg_get_word(data);
@@ -209,10 +209,10 @@ static x_bool jpeg_decode_huff_table(struct jpeg_data * data)
 	return TRUE;
 }
 
-static x_bool jpeg_decode_quan_table(struct jpeg_data * data)
+static bool_t jpeg_decode_quan_table(struct jpeg_data * data)
 {
-	x_s32 id;
-	x_u32 next_marker;
+	s32_t id;
+	u32_t next_marker;
 
 	next_marker = data->file_offset;
 	next_marker += jpeg_get_word(data);
@@ -237,11 +237,11 @@ static x_bool jpeg_decode_quan_table(struct jpeg_data * data)
 	return TRUE;
 }
 
-static x_bool jpeg_decode_sof(struct jpeg_data * data)
+static bool_t jpeg_decode_sof(struct jpeg_data * data)
 {
-	x_s32 i, cc;
-	x_u32 next_marker;
-	x_s32 id, ss;
+	s32_t i, cc;
+	u32_t next_marker;
+	s32_t id, ss;
 
 	next_marker = data->file_offset;
 	next_marker += jpeg_get_word(data);
@@ -287,10 +287,10 @@ static x_bool jpeg_decode_sof(struct jpeg_data * data)
 
 static void jpeg_idct_transform(jpeg_data_unit du)
 {
-	x_s32 *pd;
-	x_s32 i;
-	x_s32 t0, t1, t2, t3, t4, t5, t6, t7;
-	x_s32 v0, v1, v2, v3, v4;
+	s32_t *pd;
+	s32_t i;
+	s32_t t0, t1, t2, t3, t4, t5, t6, t7;
+	s32_t v0, v1, v2, v3, v4;
 
 	pd = du;
 	for(i = 0; i < JPEG_UNIT_SIZE; i++, pd++)
@@ -424,10 +424,10 @@ static void jpeg_idct_transform(jpeg_data_unit du)
 	}
 }
 
-static void jpeg_decode_du(struct jpeg_data * data, x_s32 id, jpeg_data_unit du)
+static void jpeg_decode_du(struct jpeg_data * data, s32_t id, jpeg_data_unit du)
 {
-	x_s32 pos, h1, h2, qt;
-	x_s32 num, val;
+	s32_t pos, h1, h2, qt;
+	s32_t num, val;
 
 	memset(du, 0, sizeof(jpeg_data_unit));
 
@@ -437,7 +437,7 @@ static void jpeg_decode_du(struct jpeg_data * data, x_s32 id, jpeg_data_unit du)
 
 	data->dc_value[id] += jpeg_get_number(data, jpeg_get_huff_code(data, h1));
 
-	du[0] = data->dc_value[id] * (x_s32) data->quan_table[qt][0];
+	du[0] = data->dc_value[id] * (s32_t) data->quan_table[qt][0];
 	pos = 1;
 	while(pos < sizeof(data->quan_table[qt]))
 	{
@@ -448,16 +448,16 @@ static void jpeg_decode_du(struct jpeg_data * data, x_s32 id, jpeg_data_unit du)
 		val = jpeg_get_number(data, num & 0xf);
 		num >>= 4;
 		pos += num;
-		du[jpeg_zigzag_order[pos]] = val * (x_s32) data->quan_table[qt][pos];
+		du[jpeg_zigzag_order[pos]] = val * (s32_t) data->quan_table[qt][pos];
 		pos++;
 	}
 
 	jpeg_idct_transform(du);
 }
 
-static void jpeg_ycrcb_to_rgb(x_s32 yy, x_s32 cr, x_s32 cb, x_u8 * rgb)
+static void jpeg_ycrcb_to_rgb(s32_t yy, s32_t cr, s32_t cb, u8_t * rgb)
 {
-	x_s32 dd;
+	s32_t dd;
 
 	cr -= 128;
 	cb -= 128;
@@ -487,15 +487,15 @@ static void jpeg_ycrcb_to_rgb(x_s32 yy, x_s32 cr, x_s32 cb, x_u8 * rgb)
 	*(rgb++) = dd;
 }
 
-static x_bool jpeg_decode_sos(struct jpeg_data * data)
+static bool_t jpeg_decode_sos(struct jpeg_data * data)
 {
-	x_s32 i, cc, r1, c1, nr1, nc1, vb, hb;
-	x_u8 *ptr1;
-	x_u32 data_offset;
-	x_s32 id, ht;
-	x_s32 r2, c2, nr2, nc2;
-	x_u8 *ptr2;
-	x_s32 i0, yy, cr, cb;
+	s32_t i, cc, r1, c1, nr1, nc1, vb, hb;
+	u8_t *ptr1;
+	u32_t data_offset;
+	s32_t id, ht;
+	s32_t r2, c2, nr2, nc2;
+	u8_t *ptr2;
+	s32_t i0, yy, cr, cb;
 
 	data_offset = data->file_offset;
 	data_offset += jpeg_get_word(data);
@@ -566,9 +566,9 @@ static x_bool jpeg_decode_sos(struct jpeg_data * data)
 	return TRUE;
 }
 
-static x_u8 jpeg_get_marker(struct jpeg_data * data)
+static u8_t jpeg_get_marker(struct jpeg_data * data)
 {
-	x_u8 r;
+	u8_t r;
 
 	r = jpeg_get_byte(data);
 
@@ -578,10 +578,10 @@ static x_u8 jpeg_get_marker(struct jpeg_data * data)
 	return jpeg_get_byte(data);
 }
 
-static x_bool jpeg_decode(struct jpeg_data * data)
+static bool_t jpeg_decode(struct jpeg_data * data)
 {
-	x_u8 marker;
-	x_u16 sz;
+	u8_t marker;
+	u16_t sz;
 
 	if(jpeg_get_marker(data) != JPEG_MARKER_SOI)
 		return FALSE;
@@ -624,12 +624,12 @@ static x_bool jpeg_decode(struct jpeg_data * data)
 	return FALSE;
 }
 
-static x_bool jpeg_load(struct bitmap ** bitmap, const char * filename)
+static bool_t jpeg_load(struct bitmap ** bitmap, const char * filename)
 {
 	struct jpeg_data * data;
 	struct stat st;
-	x_s32 fd;
-	x_s32 i;
+	s32_t fd;
+	s32_t i;
 
 	if(stat(filename, &st) != 0)
 		return FALSE;

@@ -159,11 +159,11 @@ typedef void (*handler_onkeyup)(enum key_code key);
 typedef void (*handler_onkeydown)(enum key_code key);
 
 
-x_bool install_listener_onkeyraw(handler_onkeyraw raw);
-x_bool remove_listener_onkeyraw(handler_onkeyraw raw);
-x_bool install_listener_onkeyup(handler_onkeyup keyup);
-x_bool remove_listener_onkeyup(handler_onkeyup keyup);
-x_bool install_listener_onkeydown(handler_onkeydown keydown);
-x_bool remove_listener_onkeydown(handler_onkeydown keydown);
+bool_t install_listener_onkeyraw(handler_onkeyraw raw);
+bool_t remove_listener_onkeyraw(handler_onkeyraw raw);
+bool_t install_listener_onkeyup(handler_onkeyup keyup);
+bool_t remove_listener_onkeyup(handler_onkeyup keyup);
+bool_t install_listener_onkeydown(handler_onkeydown keydown);
+bool_t remove_listener_onkeydown(handler_onkeydown keydown);
 
 #endif /* __KEYBOARD_H__ */

@@ -35,13 +35,13 @@
 
 #if	defined(CONFIG_COMMAND_CAT) && (CONFIG_COMMAND_CAT > 0)
 
-static x_s32 cat(x_s32 argc, const x_s8 **argv)
+static s32_t cat(s32_t argc, const s8_t **argv)
 {
 	struct stat st;
-	x_s8 * buf;
-	x_s32 fd;
-	x_s32 i, n;
-	x_s8 c;
+	s8_t * buf;
+	s32_t fd;
+	s32_t i, n;
+	s8_t c;
 
 	if(argc != 2)
 	{

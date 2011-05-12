@@ -37,10 +37,10 @@
 
 #if	defined(CONFIG_COMMAND_MW) && (CONFIG_COMMAND_MW > 0)
 
-static x_s32 mw(x_s32 argc, const x_s8 **argv)
+static s32_t mw(s32_t argc, const s8_t **argv)
 {
-	x_u32 base_addr = 0, value = 0, c = 1;
-	x_u32 index = 0, i, size = 1;
+	u32_t base_addr = 0, value = 0, c = 1;
+	u32_t index = 0, i, size = 1;
 
 	if(argc < 3)
 	{
@@ -112,15 +112,15 @@ static x_s32 mw(x_s32 argc, const x_s8 **argv)
 	{
 		if(size == 1)
 		{
-			*((x_u8 *)(base_addr+i)) = value;
+			*((u8_t *)(base_addr+i)) = value;
 		}
 		else if(size == 2)
 		{
-			*((x_u16 *)(base_addr+i)) = value;
+			*((u16_t *)(base_addr+i)) = value;
 		}
 		else if(size == 4)
 		{
-			*((x_u32 *)(base_addr+i)) = value;
+			*((u32_t *)(base_addr+i)) = value;
 		}
 
 		if(ctrlc())

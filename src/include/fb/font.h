@@ -11,16 +11,16 @@
 struct font_glyph
 {
 	/* ucs-4 code */
-	x_u32 code;
+	u32_t code;
 
 	/* width */
-	x_u32 w;
+	u32_t w;
 
 	/* height*/
-	x_u32 h;
+	u32_t h;
 
 	/* the bitmap data */
-	x_u8 * data;
+	u8_t * data;
 };
 
 /*
@@ -44,7 +44,7 @@ struct font
 	struct hlist_head * table;
 
 	/* hash size */
-	x_u32 size;
+	u32_t size;
 };
 
 /*
@@ -65,7 +65,7 @@ struct font_reader
 	const char * extension;
 
 	/* load font function */
-	x_bool (*load)(struct font ** font, const char * filename);
+	bool_t (*load)(struct font ** font, const char * filename);
 };
 
 /*
@@ -78,20 +78,20 @@ struct font_reader_list
 };
 
 
-x_bool register_font_reader(struct font_reader * reader);
-x_bool unregister_font_reader(struct font_reader * reader);
+bool_t register_font_reader(struct font_reader * reader);
+bool_t unregister_font_reader(struct font_reader * reader);
 
-x_bool font_create(struct font ** font, const char * name, x_u32 size);
-x_bool add_font_glyph(struct font * font, struct font_glyph * glyph);
-x_bool font_destory(struct font * font);
+bool_t font_create(struct font ** font, const char * name, u32_t size);
+bool_t add_font_glyph(struct font * font, struct font_glyph * glyph);
+bool_t font_destory(struct font * font);
 
 
 struct font * get_font(const char * name);
-x_bool install_font(const char * path);
-x_bool uninstall_font(const char * name);
+bool_t install_font(const char * path);
+bool_t uninstall_font(const char * name);
 
-x_bool fb_draw_text(struct fb * fb, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);
-x_bool bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, x_u32 c, x_u32 x, x_u32 y);
-x_bool font_get_metrics(const char * str, struct font * font, x_u32 * w, x_u32 * h);
+bool_t fb_draw_text(struct fb * fb, const char * str, struct font * font, u32_t c, u32_t x, u32_t y);
+bool_t bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, u32_t c, u32_t x, u32_t y);
+bool_t font_get_metrics(const char * str, struct font * font, u32_t * w, u32_t * h);
 
 #endif /* __FONT_H__ */

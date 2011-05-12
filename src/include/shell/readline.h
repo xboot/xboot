@@ -16,6 +16,6 @@ enum readline_mode {
 };
 
 
-x_s8 * readline(const x_s8 *prompt);
+s8_t * readline(const s8_t *prompt);
 
 #endif /* __READLINE_H__ */

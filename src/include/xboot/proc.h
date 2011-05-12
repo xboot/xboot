@@ -16,7 +16,7 @@ struct proc
 	const char * name;
 
 	/* proc read */
-	x_s32 (*read)(x_u8 * buf, x_s32 offset, x_s32 count);
+	s32_t (*read)(u8_t * buf, s32_t offset, s32_t count);
 };
 
 /*
@@ -29,8 +29,8 @@ struct proc_list
 };
 
 
-x_bool proc_register(struct proc * proc);
-x_bool proc_unregister(struct proc * proc);
+bool_t proc_register(struct proc * proc);
+bool_t proc_unregister(struct proc * proc);
 struct proc * proc_search(const char *name);
 
 #endif /* __PROC_H__ */

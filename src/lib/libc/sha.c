@@ -6,24 +6,25 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 #include <sha.h>
 
 
 struct sha_ctx {
-	x_u64 count;
-	x_u8 buf[64];
-	x_u32 state[5];
+	u64_t count;
+	u8_t buf[64];
+	u32_t state[5];
 };
 
 #define rol(bits, value)	(((value) << (bits)) | ((value) >> (32 - (bits))))
 
 static void sha1_transform(struct sha_ctx * ctx)
 {
-	x_u32 W[80];
-    x_u32 A, B, C, D, E;
-    x_u8 * p = ctx->buf;
-    x_u32 tmp;
-    x_s32 t;
+	u32_t W[80];
+    u32_t A, B, C, D, E;
+    u8_t * p = ctx->buf;
+    u32_t tmp;
+    s32_t t;
 
     for(t = 0; t < 16; ++t)
     {
@@ -82,10 +83,10 @@ static void sha_init(struct sha_ctx * ctx)
 	ctx->count = 0;
 }
 
-static void sha_update(struct sha_ctx * ctx, const void * data, x_s32 len)
+static void sha_update(struct sha_ctx * ctx, const void * data, s32_t len)
 {
-	x_s32 i = ctx->count % sizeof(ctx->buf);
-	const x_u8 * p = (const x_u8 *)data;
+	s32_t i = ctx->count % sizeof(ctx->buf);
+	const u8_t * p = (const u8_t *)data;
 
 	ctx->count += len;
 	while(len--)
@@ -99,17 +100,17 @@ static void sha_update(struct sha_ctx * ctx, const void * data, x_s32 len)
 	}
 }
 
-static const x_u8 * sha_final(struct sha_ctx * ctx)
+static const u8_t * sha_final(struct sha_ctx * ctx)
 {
-	x_u8 * p = ctx->buf;
-	x_u64 cnt = ctx->count * 8;
-	x_u32 i, j;
-	x_u8 c;
+	u8_t * p = ctx->buf;
+	u64_t cnt = ctx->count * 8;
+	u32_t i, j;
+	u8_t c;
 
-	sha_update(ctx, (x_u8 *)"\x80", 1);
+	sha_update(ctx, (u8_t *)"\x80", 1);
 	while((ctx->count % sizeof(ctx->buf)) != (sizeof(ctx->buf) - 8))
 	{
-		sha_update(ctx, (x_u8 *)"\0", 1);
+		sha_update(ctx, (u8_t *)"\0", 1);
 	}
 
 	for(i = 0; i < 8; ++i)
@@ -135,11 +136,11 @@ static const x_u8 * sha_final(struct sha_ctx * ctx)
  *
  * the sums are computed as described in FIPS-180-1
  */
-const x_u8 * sha1(const void * data, x_s32 len, x_u8 * digest)
+const u8_t * sha1(const void * data, s32_t len, u8_t * digest)
 {
-	const x_u8 * p;
+	const u8_t * p;
 	struct sha_ctx ctx;
-	x_s32 i;
+	s32_t i;
 
 	sha_init(&ctx);
 	sha_update(&ctx, data, len);

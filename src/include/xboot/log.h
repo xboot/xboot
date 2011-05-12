@@ -39,9 +39,9 @@ struct log_list
 };
 
 
-x_s32 log_numberof(void);
-x_bool log_add(enum log_level level, const int line, const char * file, const char * fmt, ...);
-x_bool log_remove(void);
+s32_t log_numberof(void);
+bool_t log_add(enum log_level level, const int line, const char * file, const char * fmt, ...);
+bool_t log_remove(void);
 struct log_list * get_log_list(void);
 
 /*

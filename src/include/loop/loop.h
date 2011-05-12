@@ -9,7 +9,7 @@
 #include <xboot/blkdev.h>
 
 struct blkdev * search_loop(const char * file);
-x_bool register_loop(const char * file);
-x_bool unregister_loop(const char * file);
+bool_t register_loop(const char * file);
+bool_t unregister_loop(const char * file);
 
 #endif /* __LOOP_H__ */

@@ -36,14 +36,14 @@
 
 #if	defined(CONFIG_COMMAND_LOG) && (CONFIG_COMMAND_LOG > 0)
 
-static x_s32 do_log(x_s32 argc, const x_s8 **argv)
+static s32_t do_log(s32_t argc, const s8_t **argv)
 {
 	struct log_list * list;
-	x_bool level_d = FALSE;
-	x_bool level_i = FALSE;
-	x_bool level_w = FALSE;
-	x_bool level_e = FALSE;
-	x_s32 i, num;
+	bool_t level_d = FALSE;
+	bool_t level_i = FALSE;
+	bool_t level_w = FALSE;
+	bool_t level_e = FALSE;
+	s32_t i, num;
 
 	list = get_log_list();
 	if(!list)

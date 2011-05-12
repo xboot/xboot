@@ -47,9 +47,9 @@ static char log_format_buffer[SZ_4K];
 /*
  * get the number of log.
  */
-x_s32 log_numberof(void)
+s32_t log_numberof(void)
 {
-	x_s32 i = 0;
+	s32_t i = 0;
 	struct list_head * pos = (&log_list->entry)->next;
 
 	while(!list_is_last(pos, (&log_list->entry)->next))
@@ -64,7 +64,7 @@ x_s32 log_numberof(void)
 /*
  * add a new log into log_list
  */
-x_bool log_add(enum log_level level, const int line, const char * file, const char * fmt, ...)
+bool_t log_add(enum log_level level, const int line, const char * file, const char * fmt, ...)
 {
 	struct log_list * list;
 	va_list args;
@@ -75,7 +75,7 @@ x_bool log_add(enum log_level level, const int line, const char * file, const ch
 		return FALSE;
 
 	va_start(args, fmt);
-	vsnprintf((x_s8 *)log_format_buffer, sizeof(log_format_buffer), (x_s8 *)fmt, args);
+	vsnprintf((s8_t *)log_format_buffer, sizeof(log_format_buffer), (s8_t *)fmt, args);
 	va_end(args);
 
 	msg = malloc(strlen(log_format_buffer));
@@ -102,7 +102,7 @@ x_bool log_add(enum log_level level, const int line, const char * file, const ch
 /*
  * remove the last of log from log_list
  */
-x_bool log_remove(void)
+bool_t log_remove(void)
 {
 	struct log_list * list;
 	struct list_head * pos = (&log_list->entry)->prev;

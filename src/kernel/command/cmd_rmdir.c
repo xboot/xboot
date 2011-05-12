@@ -35,10 +35,10 @@
 
 #if	defined(CONFIG_COMMAND_RMDIR) && (CONFIG_COMMAND_RMDIR > 0)
 
-static x_s32 do_rmdir(x_s32 argc, const x_s8 **argv)
+static s32_t do_rmdir(s32_t argc, const s8_t **argv)
 {
-	x_s32 ret = 0;
-	x_s32 i;
+	s32_t ret = 0;
+	s32_t i;
 
 	if(argc < 2)
 	{

@@ -45,10 +45,10 @@ struct ramfs_node {
 	struct ramfs_node * next;		/* next node in the same directory */
 	struct ramfs_node * child;		/* first child node */
 	enum vnode_type type;			/* file or directory */
-	x_u32 mode;						/* file mode permissions */
-	x_s8 * name;					/* name (null-terminated) */
-	x_s32 name_len;					/* length of name not including terminator */
-	x_s8 * buf;						/* buffer to the file data */
+	u32_t mode;						/* file mode permissions */
+	s8_t * name;					/* name (null-terminated) */
+	s32_t name_len;					/* length of name not including terminator */
+	s8_t * buf;						/* buffer to the file data */
 	x_size buf_len;					/* allocated buffer size */
 	x_size size;					/* file size */
 };
@@ -104,7 +104,7 @@ static struct ramfs_node * ramfs_add_node(struct ramfs_node * node, char * name,
 	return n;
 }
 
-static x_s32 ramfs_remove_node(struct ramfs_node * dnode, struct ramfs_node * node)
+static s32_t ramfs_remove_node(struct ramfs_node * dnode, struct ramfs_node * node)
 {
 	struct ramfs_node * prev;
 
@@ -133,7 +133,7 @@ static x_s32 ramfs_remove_node(struct ramfs_node * dnode, struct ramfs_node * no
 	return 0;
 }
 
-static x_s32 ramfs_rename_node(struct ramfs_node * node, char * name)
+static s32_t ramfs_rename_node(struct ramfs_node * node, char * name)
 {
 	x_size len;
 	char * tmp;
@@ -144,7 +144,7 @@ static x_s32 ramfs_rename_node(struct ramfs_node * node, char * name)
 		return ENOMEM;
 	strlcpy(tmp, name, len + 1);
 	free(node->name);
-	node->name = (x_s8 *)tmp;
+	node->name = (s8_t *)tmp;
 	node->name_len = len;
 
 	return 0;
@@ -153,7 +153,7 @@ static x_s32 ramfs_rename_node(struct ramfs_node * node, char * name)
 /*
  * filesystem operations
  */
-static x_s32 ramfs_mount(struct mount * m, char * dev, x_s32 flag)
+static s32_t ramfs_mount(struct mount * m, char * dev, s32_t flag)
 {
 	struct ramfs_node * node;
 
@@ -172,7 +172,7 @@ static x_s32 ramfs_mount(struct mount * m, char * dev, x_s32 flag)
 	return 0;
 }
 
-static x_s32 ramfs_unmount(struct mount * m)
+static s32_t ramfs_unmount(struct mount * m)
 {
 	ramfs_free_node(m->m_root->v_data);
 	m->m_data = NULL;
@@ -180,17 +180,17 @@ static x_s32 ramfs_unmount(struct mount * m)
 	return 0;
 }
 
-static x_s32 ramfs_sync(struct mount * m)
+static s32_t ramfs_sync(struct mount * m)
 {
 	return 0;
 }
 
-static x_s32 ramfs_vget(struct mount * m, struct vnode * node)
+static s32_t ramfs_vget(struct mount * m, struct vnode * node)
 {
 	return 0;
 }
 
-static x_s32 ramfs_statfs(struct mount * m, struct statfs * stat)
+static s32_t ramfs_statfs(struct mount * m, struct statfs * stat)
 {
 	return -1;
 }
@@ -198,17 +198,17 @@ static x_s32 ramfs_statfs(struct mount * m, struct statfs * stat)
 /*
  * vnode operations
  */
-static x_s32 ramfs_open(struct vnode * node, x_s32 flag)
+static s32_t ramfs_open(struct vnode * node, s32_t flag)
 {
 	return 0;
 }
 
-static x_s32 ramfs_close(struct vnode * node, struct file * fp)
+static s32_t ramfs_close(struct vnode * node, struct file * fp)
 {
 	return 0;
 }
 
-static x_s32 ramfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t ramfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
 	struct ramfs_node * n;
 	x_off off;
@@ -235,7 +235,7 @@ static x_s32 ramfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	return 0;
 }
 
-static x_s32 ramfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t ramfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
 {
 	struct ramfs_node * n;
 	x_off file_pos, end_pos;
@@ -284,7 +284,7 @@ static x_s32 ramfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 	return 0;
 }
 
-static x_s32 ramfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t ramfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
 	if(off2 > (x_off)(node->v_size))
 		return -1;
@@ -292,20 +292,20 @@ static x_s32 ramfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off
 	return 0;
 }
 
-static x_s32 ramfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)
+static s32_t ramfs_ioctl(struct vnode * node, struct file * fp, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static x_s32 ramfs_fsync(struct vnode * node, struct file * fp)
+static s32_t ramfs_fsync(struct vnode * node, struct file * fp)
 {
 	return 0;
 }
 
-static x_s32 ramfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
+static s32_t ramfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
 	struct ramfs_node *n, *dn;
-	x_s32 i;
+	s32_t i;
 
 	if(fp->f_offset == 0)
 	{
@@ -338,19 +338,19 @@ static x_s32 ramfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 		strlcpy((char *)&dir->d_name, (char *)n->name, sizeof(dir->d_name));
 	}
 
-	dir->d_fileno = (x_u32)fp->f_offset;
-	dir->d_namlen = (x_u16)strlen(dir->d_name);
+	dir->d_fileno = (u32_t)fp->f_offset;
+	dir->d_namlen = (u16_t)strlen(dir->d_name);
 
 	fp->f_offset++;
 
 	return 0;
 }
 
-static x_s32 ramfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
+static s32_t ramfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
 	struct ramfs_node *n, *dn;
 	x_size len;
-	x_bool found;
+	bool_t found;
 
 	if(*name == '\0')
 		return ENOENT;
@@ -378,7 +378,7 @@ static x_s32 ramfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	return 0;
 }
 
-static x_s32 ramfs_create(struct vnode * node, char * name, x_u32 mode)
+static s32_t ramfs_create(struct vnode * node, char * name, u32_t mode)
 {
 	struct ramfs_node * n;
 
@@ -394,10 +394,10 @@ static x_s32 ramfs_create(struct vnode * node, char * name, x_u32 mode)
 	return 0;
 }
 
-static x_s32 ramfs_remove(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t ramfs_remove(struct vnode * dnode, struct vnode * node, char * name)
 {
 	struct ramfs_node * n;
-	x_s32 error;
+	s32_t error;
 
 	error = ramfs_remove_node(dnode->v_data, node->v_data);
 	if(error != 0)
@@ -409,10 +409,10 @@ static x_s32 ramfs_remove(struct vnode * dnode, struct vnode * node, char * name
 	return 0;
 }
 
-static x_s32 ramfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
+static s32_t ramfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
 {
 	struct ramfs_node *n, *old_n;
-	x_s32 error;
+	s32_t error;
 
 	if(node2)
 	{
@@ -453,7 +453,7 @@ static x_s32 ramfs_rename(struct vnode * dnode1, struct vnode * node1, char * na
 	return 0;
 }
 
-static x_s32 ramfs_mkdir(struct vnode * node, char * name, x_u32 mode)
+static s32_t ramfs_mkdir(struct vnode * node, char * name, u32_t mode)
 {
 	struct ramfs_node *n;
 
@@ -470,27 +470,27 @@ static x_s32 ramfs_mkdir(struct vnode * node, char * name, x_u32 mode)
 	return 0;
 }
 
-static x_s32 ramfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t ramfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
 {
 	return ramfs_remove_node(dnode->v_data, node->v_data);
 }
 
-static x_s32 ramfs_getattr(struct vnode * node, struct vattr * attr)
+static s32_t ramfs_getattr(struct vnode * node, struct vattr * attr)
 {
 	return -1;
 }
 
-static x_s32 ramfs_setattr(struct vnode * node, struct vattr * attr)
+static s32_t ramfs_setattr(struct vnode * node, struct vattr * attr)
 {
 	return -1;
 }
 
-static x_s32 ramfs_inactive(struct vnode * node)
+static s32_t ramfs_inactive(struct vnode * node)
 {
 	return 0;
 }
 
-static x_s32 ramfs_truncate(struct vnode * node, x_off length)
+static s32_t ramfs_truncate(struct vnode * node, x_off length)
 {
 	struct ramfs_node *n;
 	void * new_buf;

@@ -45,9 +45,9 @@ static struct list_head vnode_table[VNODE_HASH_SIZE];
 /*
  * get the hash value from the mount point and path name.
  */
-static x_u32 vn_hash(struct mount * mp, char * path)
+static u32_t vn_hash(struct mount * mp, char * path)
 {
-	x_u32 val = 0;
+	u32_t val = 0;
 
 	if(path)
 	{
@@ -55,7 +55,7 @@ static x_u32 vn_hash(struct mount * mp, char * path)
 			val = ((val << 5) + val) + *path++;
 	}
 
-	return (val ^ (x_u32)mp) & (VNODE_HASH_SIZE - 1);
+	return (val ^ (u32_t)mp) & (VNODE_HASH_SIZE - 1);
 }
 
 /*
@@ -87,7 +87,7 @@ struct vnode * vn_lookup(struct mount * mp, char * path)
 struct vnode * vget(struct mount * mp, char * path)
 {
 	struct vnode * vp;
-	x_s32 len;
+	s32_t len;
 
 	if( !(vp = malloc(sizeof(struct vnode))) )
 		return NULL;
@@ -148,9 +148,9 @@ void vput(struct vnode * vp)
 /*
  * return reference count.
  */
-x_s32 vcount(struct vnode * vp)
+s32_t vcount(struct vnode * vp)
 {
-	x_s32 count;
+	s32_t count;
 
 	count = vp->v_refcnt;
 
@@ -206,7 +206,7 @@ void vflush(struct mount * mp)
 {
 	struct list_head * pos;
 	struct vnode * vp;
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < VNODE_HASH_SIZE; i++)
 	{
@@ -224,13 +224,13 @@ void vflush(struct mount * mp)
 /*
  * get stat on vnode pointer.
  */
-x_s32 vn_stat(struct vnode * vp, struct stat * st)
+s32_t vn_stat(struct vnode * vp, struct stat * st)
 {
-	x_u32 mode;
+	u32_t mode;
 
 	memset(st, 0, sizeof(struct stat));
 
-	st->st_ino = (x_u32)vp;
+	st->st_ino = (u32_t)vp;
 	st->st_size = vp->v_size;
 
 	mode = vp->v_mode & (S_IRWXU|S_IRWXG|S_IRWXO);
@@ -263,7 +263,7 @@ x_s32 vn_stat(struct vnode * vp, struct stat * st)
 	st->st_mode = mode;
 
 	if(vp->v_type == VCHR || vp->v_type == VBLK)
-		st->st_dev = (x_u32)vp->v_data;
+		st->st_dev = (u32_t)vp->v_data;
 
 	st->st_uid = 0;
 	st->st_gid = 0;
@@ -278,7 +278,7 @@ x_s32 vn_stat(struct vnode * vp, struct stat * st)
 /*
  * check permission on vnode pointer.
  */
-x_s32 vn_access(struct vnode * vp, x_u32 mode)
+s32_t vn_access(struct vnode * vp, u32_t mode)
 {
 	if((mode & R_OK) && (vp->v_mode & (S_IRUSR|S_IRGRP|S_IROTH)) == 0)
 	{
@@ -311,7 +311,7 @@ x_s32 vn_access(struct vnode * vp, x_u32 mode)
  */
 static __init void vnone_pure_sync_init(void)
 {
-	x_s32 i;
+	s32_t i;
 
     for( i = 0; i < VNODE_HASH_SIZE; i++ )
     	init_list_head(&vnode_table[i]);

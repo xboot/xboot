@@ -81,7 +81,7 @@ static struct resource serial_devs[] = {
 
 static __init void dev_serial_init(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(serial_devs); i++)
 	{
@@ -94,7 +94,7 @@ static __init void dev_serial_init(void)
 
 static __exit void dev_serial_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(serial_devs); i++)
 	{

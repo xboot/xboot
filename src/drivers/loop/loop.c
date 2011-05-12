@@ -50,13 +50,13 @@ struct loop
 	char path[MAX_PATH];
 
 	/* file descriptor */
-	x_s32 fd;
+	s32_t fd;
 
 	/* busy or not */
-	x_bool busy;
+	bool_t busy;
 
 	/* read only flag */
-	x_bool read_only;
+	bool_t read_only;
 };
 
 /*
@@ -80,7 +80,7 @@ static struct loop_list __loop_list = {
 static struct loop_list * loop_list = &__loop_list;
 
 
-static x_s32 loop_open(struct blkdev * dev)
+static s32_t loop_open(struct blkdev * dev)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
@@ -109,7 +109,7 @@ static x_s32 loop_open(struct blkdev * dev)
 	return 0;
 }
 
-static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
+static s32_t loop_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 	x_off offset = get_blkdev_offset(dev, blkno);
@@ -130,7 +130,7 @@ static x_s32 loop_read(struct blkdev * dev, x_u8 * buf, x_u32 blkno, x_u32 blkcn
 	return blkcnt;
 }
 
-static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u32 blkcnt)
+static s32_t loop_write(struct blkdev * dev, const u8_t * buf, u32_t blkno, u32_t blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 	x_off offset = get_blkdev_offset(dev, blkno);
@@ -148,12 +148,12 @@ static x_s32 loop_write(struct blkdev * dev, const x_u8 * buf, x_u32 blkno, x_u3
 	return blkcnt;
 }
 
-static x_s32 loop_ioctl(struct blkdev * dev, x_u32 cmd, void * arg)
+static s32_t loop_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static x_s32 loop_close(struct blkdev * dev)
+static s32_t loop_close(struct blkdev * dev)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
@@ -196,14 +196,14 @@ struct blkdev * search_loop(const char * file)
 /*
  * register a file as a loop block device, return true on success.
  */
-x_bool register_loop(const char * file)
+bool_t register_loop(const char * file)
 {
 	struct stat st;
 	struct blkdev * dev;
 	struct loop * loop;
 	struct loop_list * list;
-	x_u64 size, rem;
-	x_s32 i = 0;
+	u64_t size, rem;
+	s32_t i = 0;
 
 	if(!file)
 		return FALSE;
@@ -288,7 +288,7 @@ x_bool register_loop(const char * file)
 /*
  * unregister loop block device
  */
-x_bool unregister_loop(const char * file)
+bool_t unregister_loop(const char * file)
 {
 	struct loop_list * list;
 	struct list_head * pos;
@@ -327,12 +327,12 @@ x_bool unregister_loop(const char * file)
 /*
  * loop proc interface
  */
-static x_s32 loop_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t loop_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct loop_list * list;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -353,7 +353,7 @@ static x_s32 loop_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

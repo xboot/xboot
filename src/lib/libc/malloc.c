@@ -13,15 +13,15 @@
 /*
  * internal variable used by brk/sbrk
  */
-static x_s8 heap[CONFIG_HEAP_SIZE] __attribute__((used, __section__(".heap")));
-static x_s8 * __current_brk = &heap[0];
+static s8_t heap[CONFIG_HEAP_SIZE] __attribute__((used, __section__(".heap")));
+static s8_t * __current_brk = &heap[0];
 
 /*
  * p is an address,  a is alignment; must be a power of 2
  */
-static inline void *align_up(void *p, x_u32 a)
+static inline void *align_up(void *p, u32_t a)
 {
-	return (void *)(((x_u32) p + a - 1) & ~(a - 1));
+	return (void *)(((u32_t) p + a - 1) & ~(a - 1));
 }
 
 static void *__brk(void * end)
@@ -29,15 +29,15 @@ static void *__brk(void * end)
 	if (end == NULL)
 		return &heap[0];
 
-	if( ((x_u32)end < (x_u32)heap) || ((x_u32)end >= CONFIG_HEAP_SIZE + (x_u32)heap) )
+	if( ((u32_t)end < (u32_t)heap) || ((u32_t)end >= CONFIG_HEAP_SIZE + (u32_t)heap) )
 		return (void *)-1;
 
-	return &heap[((x_u32)end-(x_u32)heap)];
+	return &heap[((u32_t)end-(u32_t)heap)];
 }
 
-static void *sbrk(x_u32 increment)
+static void *sbrk(u32_t increment)
 {
-	x_s8 *start, *end, *new_brk;
+	s8_t *start, *end, *new_brk;
 
 	if (!__current_brk)
 		__current_brk = __brk(NULL);
@@ -57,9 +57,9 @@ static void *sbrk(x_u32 increment)
 	return start;
 }
 
-x_s32 brk(void *end_data_segment)
+s32_t brk(void *end_data_segment)
 {
-	x_s8 *new_brk;
+	s8_t *new_brk;
 
 	new_brk = __brk(end_data_segment);
 	if (new_brk != end_data_segment)
@@ -74,8 +74,8 @@ x_s32 brk(void *end_data_segment)
 struct free_arena_header;
 
 struct arena_header {
-	x_u32 type;
-	x_u32 size;
+	u32_t type;
+	u32_t size;
 	struct free_arena_header *next, *prev;
 };
 
@@ -141,9 +141,9 @@ static inline void remove_from_chains(struct free_arena_header *ah)
 	remove_from_main_chain(ah);
 }
 
-static void *__malloc_from_block(struct free_arena_header *fp, x_u32 size)
+static void *__malloc_from_block(struct free_arena_header *fp, u32_t size)
 {
-	x_u32 fsize;
+	u32_t fsize;
 	struct free_arena_header *nfp, *na, *fpn, *fpp;
 
 	fsize = fp->a.size;
@@ -155,7 +155,7 @@ static void *__malloc_from_block(struct free_arena_header *fp, x_u32 size)
 	if (fsize >= size + 2 * sizeof(struct arena_header))
 	{
 		/* bigger block than required -- split block */
-		nfp = (struct free_arena_header *)((x_s8 *)fp + size);
+		nfp = (struct free_arena_header *)((s8_t *)fp + size);
 		na = fp->a.next;
 
 		nfp->a.type = ARENA_TYPE_FREE;
@@ -190,7 +190,7 @@ static struct free_arena_header *__free_block(struct free_arena_header *ah)
 
 	pah = ah->a.prev;
 	nah = ah->a.next;
-	if (pah->a.type == ARENA_TYPE_FREE && (x_s8 *)pah + pah->a.size == (x_s8 *)ah)
+	if (pah->a.type == ARENA_TYPE_FREE && (s8_t *)pah + pah->a.size == (s8_t *)ah)
 	{
 		/* coalesce into the previous block */
 		pah->a.size += ah->a.size;
@@ -215,7 +215,7 @@ static struct free_arena_header *__free_block(struct free_arena_header *ah)
 	 * in either of the previous cases, we might be able to merge
 	 * with the subsequent block...
 	 */
-	if (nah->a.type == ARENA_TYPE_FREE && (x_s8 *)ah + ah->a.size == (x_s8 *)nah)
+	if (nah->a.type == ARENA_TYPE_FREE && (s8_t *)ah + ah->a.size == (s8_t *)nah)
 	{
 		ah->a.size += nah->a.size;
 
@@ -227,11 +227,11 @@ static struct free_arena_header *__free_block(struct free_arena_header *ah)
 	return ah;
 }
 
-void * malloc(x_u32 size)
+void * malloc(u32_t size)
 {
 	struct free_arena_header *fp;
 	struct free_arena_header *pah;
-	x_u32 fsize;
+	u32_t fsize;
 
 	if (size == 0)
 		return NULL;
@@ -307,18 +307,18 @@ void free(void * ptr)
 	ah = __free_block(ah);
 
 	/* see if it makes sense to return memory to the system */
-	if (ah->a.size >= SZ_64K && (x_s8 *)ah + ah->a.size == __current_brk)
+	if (ah->a.size >= SZ_64K && (s8_t *)ah + ah->a.size == __current_brk)
 	{
 		remove_from_chains(ah);
 		brk(ah);
 	}
 }
 
-void * realloc(void * ptr, x_u32 size)
+void * realloc(void * ptr, u32_t size)
 {
 	struct free_arena_header *ah;
 	void *newptr;
-	x_u32 oldsize;
+	u32_t oldsize;
 
 	if (!ptr)
 		return malloc(size);
@@ -357,7 +357,7 @@ void * realloc(void * ptr, x_u32 size)
 	}
 }
 
-void * calloc(x_u32 num, x_u32 size)
+void * calloc(u32_t num, u32_t size)
 {
 	void * ptr;
 

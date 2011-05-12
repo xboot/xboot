@@ -59,7 +59,7 @@
 /*
  * video ram buffer for lcd.
  */
-static x_u8 vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
+static u8_t vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
 static struct fb_info info = {
 	.name						= "fb",
@@ -111,8 +111,8 @@ static void fb_init(struct fb * fb)
 	writel(REALVIEW_CLCD_TIM3, REGS_TIM3);
 
 	/* framebuffer base address */
-	writel(REALVIEW_CLCD_UBAS, ((x_u32)info.bitmap.data));
-	writel(REALVIEW_CLCD_LBAS, ((x_u32)info.bitmap.data + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
+	writel(REALVIEW_CLCD_UBAS, ((u32_t)info.bitmap.data));
+	writel(REALVIEW_CLCD_LBAS, ((u32_t)info.bitmap.data + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
 
 	/* disable all lcd interrupts */
 	writel(REALVIEW_CLCD_IMSC, 0x0);
@@ -129,20 +129,20 @@ static void fb_exit(struct fb * fb)
 	return;
 }
 
-static x_s32 fb_ioctl(struct fb * fb, x_u32 cmd, void * arg)
+static s32_t fb_ioctl(struct fb * fb, u32_t cmd, void * arg)
 {
-	static x_u8 brightness = 0;
-	x_u8 * p;
+	static u8_t brightness = 0;
+	u8_t * p;
 
 	switch(cmd)
 	{
 	case IOCTL_SET_FB_BACKLIGHT:
-		p = (x_u8 *)arg;
+		p = (u8_t *)arg;
 		brightness = (*p) & 0xff;
 		return 0;
 
 	case IOCTL_GET_FB_BACKLIGHT:
-		p = (x_u8 *)arg;
+		p = (u8_t *)arg;
 		*p = brightness;
 		return 0;
 

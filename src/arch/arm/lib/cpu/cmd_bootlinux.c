@@ -44,14 +44,14 @@
  * r1 = architecture type
  * r2 = physical address of tagged list in system ram
  */
-static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
+static s32_t bootlinux(s32_t argc, const s8_t **argv)
 {
-	x_s32 ret;
-	x_s32 linux_mach_type, linux_kernel, linux_tag_placement;
+	s32_t ret;
+	s32_t linux_mach_type, linux_kernel, linux_tag_placement;
 	struct machine * mach = get_machine();
 	struct tag * params;
-	x_s8 *p;
-	x_s32 i;
+	s8_t *p;
+	s32_t i;
 
 	if(argc != 5)
 	{
@@ -88,13 +88,13 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 
 		params->hdr.tag = ATAG_MEM;
 		params->hdr.size = tag_size(tag_mem32);
-		params->u.mem.start = mach->res.mem_banks[i].start;
-		params->u.mem.size = mach->res.mem_banks[i].end - mach->res.mem_banks[i].start + 1;
+		params->u.mem.start = (u32_t)mach->res.mem_banks[i].start;
+		params->u.mem.size = (u32_t)(mach->res.mem_banks[i].end - mach->res.mem_banks[i].start + 1);
 		params = tag_next(params);
 	}
 
 	/* command line tags */
-	p = (x_s8 *)argv[4];
+	p = (s8_t *)argv[4];
 	if(p && strlen((const char *)p))
 	{
 		params->hdr.tag = ATAG_CMDLINE;
@@ -115,7 +115,7 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 	cleanup();
 
 	/* go linux ... */
-	ret = ((x_s32(*)(x_s32, x_s32, x_s32))(linux_kernel)) (0, linux_mach_type, linux_tag_placement);
+	ret = ((s32_t(*)(s32_t, s32_t, s32_t))(linux_kernel)) (0, linux_mach_type, linux_tag_placement);
 
 	return ret;
 }

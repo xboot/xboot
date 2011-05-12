@@ -15,7 +15,7 @@ struct xml {
 	struct xml * ordered;							/* next tag, same section and depth, in original order */
 	struct xml * child;								/* head of sub tag list, NULL if none */
 	struct xml * parent;							/* parent tag, NULL if current tag is root tag */
-	x_s16 flags;									/* additional information */
+	s16_t flags;									/* additional information */
 };
 
 #define XML_BUFFER_SIZE 					(4096)	/* size of internal memory buffers */
@@ -89,7 +89,7 @@ struct xml * xml_child(struct xml * xml, const char * name);
  * returns the Nth tag with the same name in the same section at the same depth
  * or NULL if not found. an index of 0 returns the tag given.
  */
-struct xml * xml_idx(struct xml * xml, x_s32 idx);
+struct xml * xml_idx(struct xml * xml, s32_t idx);
 
 /*
  * returns the value of the requested tag attribute, or NULL if not found
@@ -116,7 +116,7 @@ const char ** xml_pi(struct xml * xml, const char * target);
 /*
  * sets a flag for the given tag and returns the tag
  */
-struct xml * xml_set_flag(struct xml * xml, x_s16 flag);
+struct xml * xml_set_flag(struct xml * xml, s16_t flag);
 
 /*
  * sets the character content for the given tag and returns the tag

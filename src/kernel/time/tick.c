@@ -44,7 +44,7 @@ extern void exec_timer_task(void);
 /*
  * jiffies, userd by timer tick count.
  */
-x_u32 jiffies = 0;
+u32_t jiffies = 0;
 
 /*
  * system tick.
@@ -54,7 +54,7 @@ static struct tick * xboot_tick = NULL;
 /*
  * tick frequency.
  */
-static x_u32 tick_hz = 0;
+static u32_t tick_hz = 0;
 
 /*
  * tick interrupt.
@@ -71,7 +71,7 @@ inline void tick_interrupt(void)
 /*
  * get system tick's hz
  */
-inline x_u32 get_system_hz(void)
+inline u32_t get_system_hz(void)
 {
 	return tick_hz;
 }
@@ -79,7 +79,7 @@ inline x_u32 get_system_hz(void)
 /*
  * register system tick.
  */
-x_bool register_tick(struct tick * tick)
+bool_t register_tick(struct tick * tick)
 {
 	if( tick && (tick->hz > 0) && (xboot_tick->init != NULL))
 	{
@@ -96,7 +96,7 @@ x_bool register_tick(struct tick * tick)
 /*
  * initial system tick, enable tick timer.
  */
-x_bool init_system_tick(void)
+bool_t init_system_tick(void)
 {
 	tick_hz = 0;
 	jiffies = 0;
@@ -116,10 +116,10 @@ x_bool init_system_tick(void)
 /*
  * jiffies proc interface
  */
-static x_s32 jiffies_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t jiffies_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[16];
-	x_s32 len;
+	s32_t len;
 
 	len = sprintf(tmp, (const char *)"%ld", jiffies);
 	len -= offset;
@@ -143,10 +143,10 @@ static struct proc jiffies_proc = {
 /*
  * uptime proc interface
  */
-static x_s32 uptime_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t uptime_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[16];
-	x_s32 len;
+	s32_t len;
 
 	if(tick_hz != 0)
 		len = sprintf(tmp, (const char *)"%lu.%02lu", jiffies / tick_hz, jiffies % tick_hz);
@@ -174,10 +174,10 @@ static struct proc uptime_proc = {
 /*
  * hz proc interface
  */
-static x_s32 hz_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t hz_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[16];
-	x_s32 len;
+	s32_t len;
 
 	len = sprintf(tmp, (const char *)"%lu", tick_hz);
 	len -= offset;

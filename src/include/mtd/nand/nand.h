@@ -69,10 +69,10 @@ struct nand_block
 	x_size size;
 
 	/* true if the block has been erased */
-	x_bool is_erased;
+	bool_t is_erased;
 
 	/* true if the block is bad */
-	x_bool is_bad;
+	bool_t is_bad;
 };
 
 /*
@@ -80,13 +80,13 @@ struct nand_block
  */
 struct nand_ecclayout
 {
-	x_s32 eccbytes;
-	x_s32 eccpos[64];
-	x_s32 oobavail;
+	s32_t eccbytes;
+	s32_t eccpos[64];
+	s32_t oobavail;
 
 	struct nand_oobfree	{
-		x_s32 offset;
-		x_s32 length;
+		s32_t offset;
+		s32_t length;
 	} oobfree[2];
 };
 
@@ -105,19 +105,19 @@ struct nand_device
 	struct nand_manufacturer * manufacturer;
 
 	/* bus width */
-	x_s32 bus_width;
+	s32_t bus_width;
 
 	/* address cycles */
-	x_s32 addr_cycles;
+	s32_t addr_cycles;
 
 	/* page size */
-	x_s32 page_size;
+	s32_t page_size;
 
 	/* erase size */
-	x_s32 erase_size;
+	s32_t erase_size;
 
 	/* the number of blocks */
-	x_s32 num_blocks;
+	s32_t num_blocks;
 
 	/* nand blocks */
 	struct nand_block * blocks;
@@ -143,7 +143,7 @@ void nand_flash_probe(void);
 void nand_flash_remove(void);
 
 struct nand_device * search_nand_device(const char * name);
-x_s32 nand_read(struct nand_device * nand, x_u8 * buf, x_u32 addr, x_u32 size);
+s32_t nand_read(struct nand_device * nand, u8_t * buf, u32_t addr, u32_t size);
 
 
 #endif /* __NAND_H__ */

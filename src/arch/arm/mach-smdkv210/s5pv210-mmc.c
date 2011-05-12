@@ -38,12 +38,12 @@
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-mmc.h>
 
-static x_bool setup_hsmmc_clock(x_s32 ch)
+static bool_t setup_hsmmc_clock(s32_t ch)
 {
 	return FALSE;
 }
 
-static x_bool setup_hsmmc_cfg_gpio(x_s32 ch)
+static bool_t setup_hsmmc_cfg_gpio(s32_t ch)
 {
 	switch(ch)
 	{
@@ -92,17 +92,17 @@ static void s5pv210_mmc_exit(void)
 
 }
 
-x_bool s5pv210_mmc_probe(struct mmc_card_info * info)
+bool_t s5pv210_mmc_probe(struct mmc_card_info * info)
 {
 	return FALSE;
 }
 
-x_bool s5pv210_mmc_read_sectors(struct mmc_card * card, x_u8 * buf, x_u32 sector, x_u32 count)
+bool_t s5pv210_mmc_read_sectors(struct mmc_card * card, u8_t * buf, u32_t sector, u32_t count)
 {
 	return FALSE;
 }
 
-x_bool s5pv210_mmc_write_sectors(struct mmc_card * card, const x_u8 * buf, x_u32 sector, x_u32 count)
+bool_t s5pv210_mmc_write_sectors(struct mmc_card * card, const u8_t * buf, u32_t sector, u32_t count)
 {
 	return FALSE;
 }

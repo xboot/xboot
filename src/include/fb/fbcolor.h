@@ -6,7 +6,7 @@
 #include <fb/fb.h>
 
 
-x_u32 bitmap_map_color(struct bitmap * bitmap, x_u8 r, x_u8 g, x_u8 b, x_u8 a);
-void bitmap_unmap_color(struct bitmap * bitmap, x_u32 c, x_u8 * r, x_u8 * g, x_u8 * b, x_u8 * a);
+u32_t bitmap_map_color(struct bitmap * bitmap, u8_t r, u8_t g, u8_t b, u8_t a);
+void bitmap_unmap_color(struct bitmap * bitmap, u32_t c, u8_t * r, u8_t * g, u8_t * b, u8_t * a);
 
 #endif /* __FBCOLOR_H__ */

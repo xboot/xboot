@@ -22,6 +22,7 @@
 
 #include <configs.h>
 #include <default.h>
+#include <types.h>
 #include <div64.h>
 
 /*
@@ -32,16 +33,16 @@ extern void __div0(void);
 /*
  * the internal funtion for 64-bit div and mod.
  */
-static x_u64 div_mod_64(x_u64 num, x_u64 den, x_u64 * rem_p)
+static u64_t div_mod_64(u64_t num, u64_t den, u64_t * rem_p)
 {
-	x_u64 quot = 0, qbit = 1;
+	u64_t quot = 0, qbit = 1;
 
 	if (den == 0)
 	{
 		return 0;
 	}
 
-	while ((x_s64) den >= 0)
+	while ((s64_t) den >= 0)
 	{
 		den <<= 1;
 		qbit <<= 1;
@@ -67,7 +68,7 @@ static x_u64 div_mod_64(x_u64 num, x_u64 den, x_u64 * rem_p)
 /*
  * 64-bit unsigned integer divide.
  */
-x_u64 div64(x_u64 num, x_u64 den)
+u64_t div64(u64_t num, u64_t den)
 {
 	return div_mod_64(num, den, 0);
 }
@@ -75,9 +76,9 @@ x_u64 div64(x_u64 num, x_u64 den)
 /*
  * 64-bit unsigned integer modulo.
  */
-x_u64 mod64(x_u64 num, x_u64 den)
+u64_t mod64(u64_t num, u64_t den)
 {
-	x_u64 v;
+	u64_t v;
 
 	div_mod_64(num, den, &v);
 	return v;
@@ -86,9 +87,9 @@ x_u64 mod64(x_u64 num, x_u64 den)
 /*
  * div64_64
  */
-x_u64 div64_64(x_u64 * num, x_u64 den)
+u64_t div64_64(u64_t * num, u64_t den)
 {
-	x_u64 v;
+	u64_t v;
 
 	*num = div_mod_64(*num, den, &v);
 	return v;

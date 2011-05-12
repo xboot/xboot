@@ -31,7 +31,7 @@
 #include <disk/disk.h>
 #include <disk/partition.h>
 
-extern x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size count);
+extern x_size disk_read(struct disk * disk, u8_t * buf, x_off offset, x_size count);
 
 /*
  * the partition entry
@@ -39,34 +39,34 @@ extern x_size disk_read(struct disk * disk, x_u8 * buf, x_off offset, x_size cou
 struct dos_partition_entry
 {
 	/* if active is 0x80, otherwise is 0x00 */
-	x_u8 flag;
+	u8_t flag;
 
 	/* the head of the start */
-	x_u8  start_head;
+	u8_t  start_head;
 
 	/* the sector of the start */
-	x_u8 start_sector;
+	u8_t start_sector;
 
 	/* the cylinder of the end */
-	x_u8 start_cylinder;
+	u8_t start_cylinder;
 
 	/* the partition type */
-	x_u8 type;
+	u8_t type;
 
 	/* the head of the end */
-	x_u8  end_head;
+	u8_t  end_head;
 
 	/* the sector of the end */
-	x_u8 end_sector;
+	u8_t end_sector;
 
 	/* the cylinder of the end */
-	x_u8 end_cylinder;
+	u8_t end_cylinder;
 
 	/* the start sector*/
-	x_u8 start[4];
+	u8_t start[4];
 
 	/* the length in sector units */
-	x_u8 length[4];
+	u8_t length[4];
 
 } __attribute__ ((packed));
 
@@ -78,7 +78,7 @@ struct dos_partition_mbr
 	/*
 	 * the code area (actually, including BPB)
 	 */
-	x_u8 code[446];
+	u8_t code[446];
 
 	/*
 	 * four partition entries
@@ -88,24 +88,24 @@ struct dos_partition_mbr
 	/*
 	 * the signature 0x55, 0xaa
 	 */
-	x_u8 signature[2];
+	u8_t signature[2];
 
 } __attribute__ ((packed));
 
 
-static x_bool is_dos_extended(x_u8 type)
+static bool_t is_dos_extended(u8_t type)
 {
 	if((type == 0x5) || (type == 0xf) || (type == 0x85))
 		return TRUE;
 	return FALSE;
 }
 
-static x_bool dos_partition(struct disk * disk, x_u32 sector, x_u32 relative)
+static bool_t dos_partition(struct disk * disk, u32_t sector, u32_t relative)
 {
 	struct dos_partition_mbr mbr;
 	struct partition * part;
-	x_u32 start;
-	x_s32 i;
+	u32_t start;
+	s32_t i;
 
 	if(!disk || !disk->name)
 		return FALSE;
@@ -116,7 +116,7 @@ static x_bool dos_partition(struct disk * disk, x_u32 sector, x_u32 relative)
 	if((!disk->read_sectors) || (!disk->write_sectors))
 		return FALSE;
 
-	if(disk_read(disk, (x_u8 *)(&mbr), (x_off)(sector * disk->sector_size) , sizeof(struct dos_partition_mbr)) != sizeof(struct dos_partition_mbr))
+	if(disk_read(disk, (u8_t *)(&mbr), (x_off)(sector * disk->sector_size) , sizeof(struct dos_partition_mbr)) != sizeof(struct dos_partition_mbr))
 		return FALSE;
 
 	/*
@@ -153,7 +153,7 @@ static x_bool dos_partition(struct disk * disk, x_u32 sector, x_u32 relative)
 	return TRUE;
 }
 
-static x_bool parser_probe_dos(struct disk * disk)
+static bool_t parser_probe_dos(struct disk * disk)
 {
 	return dos_partition(disk, 0, 0);
 }

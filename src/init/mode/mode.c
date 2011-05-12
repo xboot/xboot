@@ -42,7 +42,7 @@ inline enum mode xboot_get_mode(void)
 /*
  * set xboot's running mode.
  */
-x_bool xboot_set_mode(enum mode m)
+bool_t xboot_set_mode(enum mode m)
 {
 	switch(m)
 	{

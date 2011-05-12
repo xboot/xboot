@@ -54,7 +54,7 @@ static struct irq_list * irq_search(const char *name)
 {
 	struct irq_list * list;
 	struct hlist_node * pos;
-	x_u32 hash;
+	u32_t hash;
 
 	if(!name)
 		return NULL;
@@ -74,10 +74,10 @@ static struct irq_list * irq_search(const char *name)
  * register a irq into irq_list
  * return true is successed, otherwise is not.
  */
-x_bool irq_register(struct irq * irq)
+bool_t irq_register(struct irq * irq)
 {
 	struct irq_list * list;
-	x_u32 hash;
+	u32_t hash;
 
 	list = malloc(sizeof(struct irq_list));
 	if(!list || !irq)
@@ -105,11 +105,11 @@ x_bool irq_register(struct irq * irq)
 /*
  * unregister irq from irq_list
  */
-x_bool irq_unregister(struct irq * irq)
+bool_t irq_unregister(struct irq * irq)
 {
 	struct irq_list * list;
 	struct hlist_node * pos;
-	x_u32 hash;
+	u32_t hash;
 
 	if(!irq || !irq->name)
 		return FALSE;
@@ -134,7 +134,7 @@ x_bool irq_unregister(struct irq * irq)
 /*
  * request irq
  */
-x_bool request_irq(const char *name, irq_handler handler)
+bool_t request_irq(const char *name, irq_handler handler)
 {
 	struct irq_list *list;
 
@@ -159,7 +159,7 @@ x_bool request_irq(const char *name, irq_handler handler)
 /*
  * free irq
  */
-x_bool free_irq(const char *name)
+bool_t free_irq(const char *name)
 {
 	struct irq_list *list;
 
@@ -181,12 +181,12 @@ x_bool free_irq(const char *name)
 /*
  * interrupt proc interface
  */
-static x_s32 interrupt_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t interrupt_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct irq_list * list;
 	struct hlist_node * pos;
-	x_s8 * p;
-	x_s32 i, len = 0;
+	s8_t * p;
+	s32_t i, len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -211,7 +211,7 @@ static x_s32 interrupt_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;
@@ -227,7 +227,7 @@ static struct proc interrupt_proc = {
  */
 static __init void interrupt_pure_sync_init(void)
 {
-	x_s32 i;
+	s32_t i;
 
 	/* initialize interrupt hash list */
 	for(i = 0; i < CONFIG_IRQ_HASH_SIZE; i++)

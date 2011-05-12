@@ -37,9 +37,9 @@
 /*
  * get bitmap's pointer at coordinate of x, y
  */
-inline x_u8 * bitmap_get_pointer(struct bitmap * bitmap, x_u32 x, x_u32 y)
+inline u8_t * bitmap_get_pointer(struct bitmap * bitmap, u32_t x, u32_t y)
 {
-	x_u8 * p;
+	u8_t * p;
 
 	switch(bitmap->info.bpp)
 	{
@@ -72,17 +72,17 @@ inline x_u8 * bitmap_get_pointer(struct bitmap * bitmap, x_u32 x, x_u32 y)
 /*
  * get bitmap's pixel at coordinate of x, y
  */
-inline x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
+inline u32_t bitmap_get_pixel(struct bitmap * bitmap, u32_t x, u32_t y)
 {
-	x_u32 c;
-	x_u8 * p;
-	x_s32 pos;
+	u32_t c;
+	u8_t * p;
+	s32_t pos;
 
 	switch(bitmap->info.bpp)
 	{
 	case 32:
 		p = bitmap->data + y * bitmap->info.pitch + x * 4;
-		c = cpu_to_le32( *((x_u32 *)p) );
+		c = cpu_to_le32( *((u32_t *)p) );
 		break;
 
 	case 24:
@@ -92,12 +92,12 @@ inline x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
 
 	case 16:
 		p = bitmap->data + y * bitmap->info.pitch + x * 2;
-		c = cpu_to_le16( *((x_u16 *)p) );
+		c = cpu_to_le16( *((u16_t *)p) );
 		break;
 
 	case 8:
 		p = bitmap->data + y * bitmap->info.pitch + x;
-		c = *((x_u8 *)p);
+		c = *((u8_t *)p);
 		break;
 
 	case 1:
@@ -116,16 +116,16 @@ inline x_u32 bitmap_get_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y)
 /*
  * set bitmap's pixel at coordinate of x, y
  */
-inline void bitmap_set_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
+inline void bitmap_set_pixel(struct bitmap * bitmap, u32_t x, u32_t y, u32_t c)
 {
-	x_u8 * p;
-	x_s32 pos;
+	u8_t * p;
+	s32_t pos;
 
 	switch(bitmap->info.bpp)
 	{
 	case 32:
 		p = bitmap->data + y * bitmap->info.pitch + x * 4;
-		*((x_u32 *)p) = cpu_to_le32(c);
+		*((u32_t *)p) = cpu_to_le32(c);
 		break;
 
 	case 24:
@@ -137,12 +137,12 @@ inline void bitmap_set_pixel(struct bitmap * bitmap, x_u32 x, x_u32 y, x_u32 c)
 
 	case 16:
 		p = bitmap->data + y * bitmap->info.pitch + x * 2;
-		*((x_u16 *)p) = cpu_to_le16(c & 0xffff);
+		*((u16_t *)p) = cpu_to_le16(c & 0xffff);
 		break;
 
 	case 8:
 		p = bitmap->data + y * bitmap->info.pitch + x;
-		*((x_u8 *)p) = c & 0xff;
+		*((u8_t *)p) = c & 0xff;
 		break;
 
 	case 1:

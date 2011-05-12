@@ -64,90 +64,90 @@ struct fat_boot_sector {
 	/*
 	 * jump instruction and oem name
 	 */
-	x_u8	jmp_instruction[3];
-	x_u8	oem_name[8];
+	u8_t	jmp_instruction[3];
+	u8_t	oem_name[8];
 
 	/*
 	 * the common part of the fat12, fat16 and fat32 bios parameter block
 	 */
-	x_u8	bytes_per_sector[2];
-	x_u8	sectors_per_cluster;
-	x_u8	reserved_sectors[2];
-	x_u8	num_of_fats;
-	x_u8	root_entries[2];
-	x_u8	total_sectors[2];
-	x_u8	media_descriptor;
-	x_u8	sectors_per_fat[2];
-	x_u8	sectors_per_track[2];
-	x_u8	num_of_heads[2];
-	x_u8	hidden_sectors[4];
-	x_u8	big_total_sectors[4];
+	u8_t	bytes_per_sector[2];
+	u8_t	sectors_per_cluster;
+	u8_t	reserved_sectors[2];
+	u8_t	num_of_fats;
+	u8_t	root_entries[2];
+	u8_t	total_sectors[2];
+	u8_t	media_descriptor;
+	u8_t	sectors_per_fat[2];
+	u8_t	sectors_per_track[2];
+	u8_t	num_of_heads[2];
+	u8_t	hidden_sectors[4];
+	u8_t	big_total_sectors[4];
 
 	/*
 	 * the last part of fat12, fat16 and fat32
 	 */
 	union {
-		x_u8 code[474];
+		u8_t code[474];
 
 		struct {
-			x_u8	drive_number;
-			x_u8	reserved;
-			x_u8	boot_signature;
-			x_u8	volume_id[4];
-			x_u8	volume_lab[11];
-			x_u8	fs_type[8];
+			u8_t	drive_number;
+			u8_t	reserved;
+			u8_t	boot_signature;
+			u8_t	volume_id[4];
+			u8_t	volume_lab[11];
+			u8_t	fs_type[8];
 
-			x_u8 	fill[474 - 26];
+			u8_t 	fill[474 - 26];
 		}fat12;
 
 		struct {
-			x_u8	drive_number;
-			x_u8	reserved;
-			x_u8	boot_signature;
-			x_u8	volume_id[4];
-			x_u8	volume_lab[11];
-			x_u8	fs_type[8];
+			u8_t	drive_number;
+			u8_t	reserved;
+			u8_t	boot_signature;
+			u8_t	volume_id[4];
+			u8_t	volume_lab[11];
+			u8_t	fs_type[8];
 
-			x_u8 	fill[474 - 26];
+			u8_t 	fill[474 - 26];
 		}fat16;
 
 		struct {
-			x_u8	sectors_per_fat_32[4];
-			x_u8	ext_flags[2];
-			x_u8	fs_version[2];
-			x_u8	root_clus[4];
-			x_u8	fs_info[2];
-			x_u8	back_boot_sector[2];
-			x_u8	reserved_before[12];
+			u8_t	sectors_per_fat_32[4];
+			u8_t	ext_flags[2];
+			u8_t	fs_version[2];
+			u8_t	root_clus[4];
+			u8_t	fs_info[2];
+			u8_t	back_boot_sector[2];
+			u8_t	reserved_before[12];
 
-			x_u8	driver_number;
-			x_u8	reserved;
-			x_u8	boot_signature;
-			x_u8	volume_id[4];
-			x_u8	volume_lab[11];
-			x_u8	fs_type[8];
+			u8_t	driver_number;
+			u8_t	reserved;
+			u8_t	boot_signature;
+			u8_t	volume_id[4];
+			u8_t	volume_lab[11];
+			u8_t	fs_type[8];
 
-			x_u8 	fill[474 - 54];
+			u8_t 	fill[474 - 54];
 		}fat32;
 	} x;
 
 	/*
 	 * the signature 0x55, 0xaa
 	 */
-	x_u8	signature[2];
+	u8_t	signature[2];
 } __attribute__ ((packed));
 
 /*
  * fat directory entry
  */
 struct fat_dirent {
-	x_u8	name[11];
-	x_u8	attr;
-	x_u8	reserve[10];
-	x_u8	time[2];
-	x_u8	date[2];
-	x_u8	cluster[2];
-	x_u8	size[4];
+	u8_t	name[11];
+	u8_t	attr;
+	u8_t	reserve[10];
+	u8_t	time[2];
+	u8_t	date[2];
+	u8_t	cluster[2];
+	u8_t	size[4];
 } __attribute__ ((packed));
 
 /*
@@ -155,8 +155,8 @@ struct fat_dirent {
  */
 struct fat_node {
 	struct fat_dirent	dirent;		/* copy of directory entry */
-	x_u32				sector;		/* sector for directory entry */
-	x_u32				offset;		/* offset of directory entry in sector */
+	u32_t				sector;		/* sector for directory entry */
+	u32_t				offset;		/* offset of directory entry in sector */
 };
 
 /*
@@ -176,34 +176,34 @@ struct fatfs_mount_data {
 	enum fat_type type;
 
 	/* the size of sector */
-	x_u32 sector_size;
+	u32_t sector_size;
 
 	/* sectors per cluster */
-	x_u32 sectors_per_cluster;
+	u32_t sectors_per_cluster;
 
 	/* cluster size */
-	x_u32 cluster_size;
+	u32_t cluster_size;
 
 	/* start sector for fat entries */
-	x_u32 fat_start;
+	u32_t fat_start;
 
 	/* start sector for root directory */
-	x_u32 root_start;
+	u32_t root_start;
 
 	/* start sector for data */
-	x_u32 data_start;
+	u32_t data_start;
 
 	/* last cluser */
-	x_u32 last_cluster;
+	u32_t last_cluster;
 
 	/* start cluster to free search */
-	x_u32 free_scan;
+	u32_t free_scan;
 
 	/* mask for cluster */
-	x_u32 fat_mask;
+	u32_t fat_mask;
 
 	/* id of end cluster */
-	x_u32 fat_eof;
+	u32_t fat_eof;
 
 	/* vnode for root */
 	struct vnode * root_vnode;
@@ -224,13 +224,13 @@ struct fatfs_mount_data {
 /*
  * filesystem operations
  */
-static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
+static s32_t fatfs_mount(struct mount * m, char * dev, s32_t flag)
 {
 	struct fatfs_mount_data * md;
 	struct blkdev * blk;
 	struct fat_boot_sector fbs;
-	x_u32 sector_size;
-	x_u32 tmp;
+	u32_t sector_size;
+	u32_t tmp;
 
 	if(dev == NULL)
 		return EINVAL;
@@ -242,7 +242,7 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(get_blkdev_total_size(blk) <= sizeof(struct fat_boot_sector))
 		return EINTR;
 
-	if(bio_read(blk, (x_u8 *)(&fbs), 0, sizeof(struct fat_boot_sector)) != sizeof(struct fat_boot_sector))
+	if(bio_read(blk, (u8_t *)(&fbs), 0, sizeof(struct fat_boot_sector)) != sizeof(struct fat_boot_sector))
 		return EIO;
 
 	/*
@@ -289,15 +289,15 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 		return ENOMEM;
 
 	/* determine the type of fat */
-	if( strncmp((const x_s8 *)fbs.x.fat12.fs_type, (const x_s8 *)"FAT12   ", 8) == 0 )
+	if( strncmp((const s8_t *)fbs.x.fat12.fs_type, (const s8_t *)"FAT12   ", 8) == 0 )
 	{
 		md->type = FAT_TYPE_FAT12;
 	}
-	else if( strncmp((const x_s8 *)fbs.x.fat16.fs_type, (const x_s8 *)"FAT16   ", 8) == 0 )
+	else if( strncmp((const s8_t *)fbs.x.fat16.fs_type, (const s8_t *)"FAT16   ", 8) == 0 )
 	{
 		md->type = FAT_TYPE_FAT16;
 	}
-	else if( strncmp((const x_s8 *)fbs.x.fat32.fs_type, (const x_s8 *)"FAT32   ", 8) == 0 )
+	else if( strncmp((const s8_t *)fbs.x.fat32.fs_type, (const s8_t *)"FAT32   ", 8) == 0 )
 	{
 		md->type = FAT_TYPE_FAT32;
 	}
@@ -435,7 +435,7 @@ static x_s32 fatfs_mount(struct mount * m, char * dev, x_s32 flag)
 	return 0;
 }
 
-static x_s32 fatfs_unmount(struct mount * m)
+static s32_t fatfs_unmount(struct mount * m)
 {
 	struct fatfs_mount_data * md = m->m_data;
 
@@ -450,12 +450,12 @@ static x_s32 fatfs_unmount(struct mount * m)
 	return 0;
 }
 
-static x_s32 fatfs_sync(struct mount * m)
+static s32_t fatfs_sync(struct mount * m)
 {
 	return 0;
 }
 
-static x_s32 fatfs_vget(struct mount * m, struct vnode * node)
+static s32_t fatfs_vget(struct mount * m, struct vnode * node)
 {
 	struct fat_node * n;
 
@@ -467,7 +467,7 @@ static x_s32 fatfs_vget(struct mount * m, struct vnode * node)
 	return 0;
 }
 
-static x_s32 fatfs_statfs(struct mount * m, struct statfs * stat)
+static s32_t fatfs_statfs(struct mount * m, struct statfs * stat)
 {
 	return -1;
 }
@@ -475,9 +475,9 @@ static x_s32 fatfs_statfs(struct mount * m, struct statfs * stat)
 /*
  * convert file name to 8.3 format ("foo.bar" => "foo     bar")
  */
-static void fat_convert_name(x_u8 * org, x_u8 * name)
+static void fat_convert_name(u8_t * org, u8_t * name)
 {
-	x_s32 i;
+	s32_t i;
 
 	memset(name, ' ', 11);
 
@@ -502,9 +502,9 @@ static void fat_convert_name(x_u8 * org, x_u8 * name)
 /*
  * restore file name to normal format ("foo     bar" => "foo.bar")
  */
-static void fat_restore_name(x_u8 * org, x_u8 * name)
+static void fat_restore_name(u8_t * org, u8_t * name)
 {
-	x_s32 i;
+	s32_t i;
 
 	memset(name, 0, 13);
 
@@ -528,9 +528,9 @@ static void fat_restore_name(x_u8 * org, x_u8 * name)
 /*
  * compare tow file names
  */
-static x_bool fat_compare_name(x_u8 * n1, x_u8 * n2)
+static bool_t fat_compare_name(u8_t * n1, u8_t * n2)
 {
-	x_s32 i;
+	s32_t i;
 
 	for(i = 0; i < 11; i++, n1++, n2++)
 	{
@@ -544,10 +544,10 @@ static x_bool fat_compare_name(x_u8 * n1, x_u8 * n2)
 /*
  * check specified name is valid as fat file name.
  */
-static x_bool fat_valid_name(x_u8 * name)
+static bool_t fat_valid_name(u8_t * name)
 {
-	const x_u8 invalid_char[] = "*?<>|\"+=,;[] \345";
-	x_s32 len = 0;
+	const u8_t invalid_char[] = "*?<>|\"+=,;[] \345";
+	s32_t len = 0;
 
 	/* . or .. */
 	if(*name == '.')
@@ -564,7 +564,7 @@ static x_bool fat_valid_name(x_u8 * name)
 
 	while(*name != '\0')
 	{
-		if(strchr((const x_s8 *)invalid_char, *name))
+		if(strchr((const s8_t *)invalid_char, *name))
 			return FALSE;
 		if(*name == '.')
 			break;
@@ -582,7 +582,7 @@ static x_bool fat_valid_name(x_u8 * name)
 	len = 0;
 	while(*name != '\0')
 	{
-		if(strchr((const x_s8 *)invalid_char, *name))
+		if(strchr((const s8_t *)invalid_char, *name))
 			return FALSE;
 		if(*name == '.')
 			return FALSE;
@@ -597,7 +597,7 @@ static x_bool fat_valid_name(x_u8 * name)
 /*
  * read the fat entry for specified cluster.
  */
-static x_bool read_fat_entry(struct fatfs_mount_data * md, x_u32 cl)
+static bool_t read_fat_entry(struct fatfs_mount_data * md, u32_t cl)
 {
 	return FALSE;
 }
@@ -605,10 +605,10 @@ static x_bool read_fat_entry(struct fatfs_mount_data * md, x_u32 cl)
 /*
  * get next cluster number of fat chain.
  */
-static x_s32 fat_next_cluster(struct fatfs_mount_data * md, x_u32 cl, x_u32 * next)
+static s32_t fat_next_cluster(struct fatfs_mount_data * md, u32_t cl, u32_t * next)
 {
-	x_u32 offset;
-	x_u32 val;
+	u32_t offset;
+	u32_t val;
 
 	if(read_fat_entry(md, cl) != TRUE)
 		return EIO;
@@ -645,12 +645,12 @@ static x_s32 fat_next_cluster(struct fatfs_mount_data * md, x_u32 cl, x_u32 * ne
 /*
  * read directory entry to buffer, with cache.
  */
-static x_bool fat_read_dirent(struct fatfs_mount_data * md, x_u32 sector)
+static bool_t fat_read_dirent(struct fatfs_mount_data * md, u32_t sector)
 {
 	x_off off = sector * md->sector_size;
 	x_size size = md->sector_size;
 
-	if(bio_read(md->blk, (x_u8 *)(md->dir_buf), off, size) != size)
+	if(bio_read(md->blk, (u8_t *)(md->dir_buf), off, size) != size)
 		return FALSE;
 
 	return TRUE;
@@ -659,12 +659,12 @@ static x_bool fat_read_dirent(struct fatfs_mount_data * md, x_u32 sector)
 /*
  * write directory entry from buffer.
  */
-static x_bool fat_write_dirent(struct fatfs_mount_data * md, x_u32 sector)
+static bool_t fat_write_dirent(struct fatfs_mount_data * md, u32_t sector)
 {
 	x_off off = sector * md->sector_size;
 	x_size size = md->sector_size;
 
-	if(bio_write(md->blk, (const x_u8 *)(md->dir_buf), off, size) != size)
+	if(bio_write(md->blk, (const u8_t *)(md->dir_buf), off, size) != size)
 		return FALSE;
 
 	return TRUE;
@@ -673,10 +673,10 @@ static x_bool fat_write_dirent(struct fatfs_mount_data * md, x_u32 sector)
 /*
  * find directory entry in specified sector.
  */
-static x_s32 fat_lookup_dirent(struct fatfs_mount_data * md, x_u32 sec, x_u8 * name, struct fat_node * np)
+static s32_t fat_lookup_dirent(struct fatfs_mount_data * md, u32_t sec, u8_t * name, struct fat_node * np)
 {
 	struct fat_dirent * de;
-	x_s32 i, num;
+	s32_t i, num;
 
 	if(fat_read_dirent(md, sec) != TRUE)
 		return EIO;
@@ -706,12 +706,12 @@ static x_s32 fat_lookup_dirent(struct fatfs_mount_data * md, x_u32 sec, x_u8 * n
 /*
  * find directory entry for specified name in directory.
  */
-static x_s32 fat_lookup_node(struct vnode * dnode, x_u8 * name, struct fat_node * np)
+static s32_t fat_lookup_node(struct vnode * dnode, u8_t * name, struct fat_node * np)
 {
 	struct fatfs_mount_data * md;
-	x_u8 fat_name[12];
-	x_u32 cl, sec;
-	x_s32 i, err;
+	u8_t fat_name[12];
+	u32_t cl, sec;
+	s32_t i, err;
 
 	if(name == NULL)
 		return ENOENT;
@@ -759,47 +759,47 @@ static x_s32 fat_lookup_node(struct vnode * dnode, x_u8 * name, struct fat_node 
 /*
  * vnode operations
  */
-static x_s32 fatfs_open(struct vnode * node, x_s32 flag)
+static s32_t fatfs_open(struct vnode * node, s32_t flag)
 {
 	return 0;
 }
 
-static x_s32 fatfs_close(struct vnode * node, struct file * fp)
+static s32_t fatfs_close(struct vnode * node, struct file * fp)
 {
 	return 0;
 }
 
-static x_s32 fatfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t fatfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
 	return -1;
 }
 
-static x_s32 fatfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t fatfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
 {
 	return -1;
 }
 
-static x_s32 fatfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t fatfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
 {
 	return 0;
 }
 
-static x_s32 fatfs_ioctl(struct vnode * node, struct file * fp, x_u32 cmd, void * arg)
+static s32_t fatfs_ioctl(struct vnode * node, struct file * fp, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static x_s32 fatfs_fsync(struct vnode * node, struct file * fp)
+static s32_t fatfs_fsync(struct vnode * node, struct file * fp)
 {
 	return 0;
 }
 
-static x_s32 fatfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
+static s32_t fatfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
 	struct fatfs_mount_data * md;
 	struct fat_node np;
 	struct fat_dirent * de;
-	x_s32 err;
+	s32_t err;
 
 	LOG_D("%s\r\n", __FUNCTION__);
 
@@ -810,7 +810,7 @@ static x_s32 fatfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 		return err;
 
 	de = &np.dirent;
-	fat_restore_name((x_u8 *)&de->name, (x_u8 *)dir->d_name);
+	fat_restore_name((u8_t *)&de->name, (u8_t *)dir->d_name);
 
 	if(IS_DIR(de))
 		dir->d_type = DT_DIR;
@@ -820,18 +820,18 @@ static x_s32 fatfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 		dir->d_type = DT_UNKNOWN;
 
 	dir->d_fileno = fp->f_offset;
-	dir->d_namlen = strlen((const x_s8 *)dir->d_name);
+	dir->d_namlen = strlen((const s8_t *)dir->d_name);
 	fp->f_offset++;
 
 	return 0;
 }
 
-static x_s32 fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
+static s32_t fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
 	struct fatfs_mount_data * md;
 	struct fat_node * np;
 	struct fat_dirent * de;
-	x_s32 err;
+	s32_t err;
 
 	LOG_D("%s\r\n", __FUNCTION__);
 
@@ -841,7 +841,7 @@ static x_s32 fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	md = node->v_mount->m_data;
 
 	np = node->v_data;
-	err = fat_lookup_node(dnode, (x_u8 *)name, np);
+	err = fat_lookup_node(dnode, (u8_t *)name, np);
 	if(err != 0)
 		return err;
 
@@ -855,47 +855,47 @@ static x_s32 fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	return 0;
 }
 
-static x_s32 fatfs_create(struct vnode * node, char * name, x_u32 mode)
+static s32_t fatfs_create(struct vnode * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static x_s32 fatfs_remove(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t fatfs_remove(struct vnode * dnode, struct vnode * node, char * name)
 {
 	return -1;
 }
 
-static x_s32 fatfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
+static s32_t fatfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
 {
 	return -1;
 }
 
-static x_s32 fatfs_mkdir(struct vnode * node, char * name, x_u32 mode)
+static s32_t fatfs_mkdir(struct vnode * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static x_s32 fatfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t fatfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
 {
 	return -1;
 }
 
-static x_s32 fatfs_getattr(struct vnode * node, struct vattr * attr)
+static s32_t fatfs_getattr(struct vnode * node, struct vattr * attr)
 {
 	return -1;
 }
 
-static x_s32 fatfs_setattr(struct vnode * node, struct vattr * attr)
+static s32_t fatfs_setattr(struct vnode * node, struct vattr * attr)
 {
 	return -1;
 }
 
-static x_s32 fatfs_inactive(struct vnode * node)
+static s32_t fatfs_inactive(struct vnode * node)
 {
 	return -1;
 }
 
-static x_s32 fatfs_truncate(struct vnode * node, x_off length)
+static s32_t fatfs_truncate(struct vnode * node, x_off length)
 {
 	return -1;
 }

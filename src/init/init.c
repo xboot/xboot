@@ -182,7 +182,7 @@ void do_system_fonts(void)
  */
 void do_system_wait(void)
 {
-	x_u32 div, rem;
+	u32_t div, rem;
 
 	if(get_system_hz() > 0)
 	{

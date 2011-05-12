@@ -50,7 +50,7 @@ static void rtc_exit(void)
 	return;
 }
 
-static x_bool rtc_set_time(struct time * time)
+static bool_t rtc_set_time(struct time * time)
 {
 	if(rtc_valid_time(time))
 	{
@@ -61,7 +61,7 @@ static x_bool rtc_set_time(struct time * time)
 	return FALSE;
 }
 
-static x_bool rtc_get_time(struct time * time)
+static bool_t rtc_get_time(struct time * time)
 {
 	rtc_to_time(readl(REALVIEW_RTC_DR), time);
 

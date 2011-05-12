@@ -44,9 +44,9 @@ extern void irq(void);
  * the struct of regs, which saved and restore in the interrupt.
  */
 struct regs {
-	x_u32	r0,		r1,		r2,		r3, 	r4,		r5;
-	x_u32	r6,		r7,		r8, 	r9, 	r10,	fp;
-	x_u32	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
+	u32_t	r0,		r1,		r2,		r3, 	r4,		r5;
+	u32_t	r6,		r7,		r8, 	r9, 	r10,	fp;
+	u32_t	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
 };
 
 /*
@@ -62,9 +62,9 @@ static void null_irq_handler(void) { }
 /*
  * get interrupt offset
  */
-static x_u32 irq_offset(x_u32 x)
+static u32_t irq_offset(u32_t x)
 {
-	x_u32 index = x;
+	u32_t index = x;
 
 	index = (index - 1) & (~index);
 	index = (index & 0x55555555) + ((index >> 1) & 0x55555555);
@@ -80,8 +80,8 @@ static x_u32 irq_offset(x_u32 x)
  */
 void do_irqs(struct regs * regs)
 {
-	x_u32 vic0, vic1;
-	x_u32 offset;
+	u32_t vic0, vic1;
+	u32_t offset;
 
 	/* read vector interrupt controller's irq status */
 	vic0 = readl(S3C6410_VIC0_IRQSTATUS);
@@ -130,9 +130,9 @@ void do_irqs(struct regs * regs)
 /*
  * enable or disable irq.
  */
-static void enable_irqs(struct irq * irq, x_bool enable)
+static void enable_irqs(struct irq * irq, bool_t enable)
 {
-	x_u32 irq_no = irq->irq_no;
+	u32_t irq_no = irq->irq_no;
 
 	if(irq_no < 32)
 	{
@@ -480,7 +480,7 @@ static struct irq s3c6410_irqs[] = {
 
 static __init void s3c6410_irq_init(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	/* disable all interrupts */
 	writel(S3C6410_VIC0_INTENCLEAR, 0xffffffff);
@@ -500,8 +500,8 @@ static __init void s3c6410_irq_init(void)
 
 	for(i = 0; i< 32; i++)
 	{
-		writel((S3C6410_VIC0_VECTADDR0 + 4 * i), (x_u32)irq);
-		writel((S3C6410_VIC1_VECTADDR0 + 4 * i), (x_u32)irq);
+		writel((S3C6410_VIC0_VECTADDR0 + 4 * i), (u32_t)irq);
+		writel((S3C6410_VIC1_VECTADDR0 + 4 * i), (u32_t)irq);
 	}
 
 	for(i = 0; i< 64; i++)
@@ -527,7 +527,7 @@ static __init void s3c6410_irq_init(void)
 
 static __exit void s3c6410_irq_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(s3c6410_irqs); i++)
 	{

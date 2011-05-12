@@ -36,24 +36,24 @@
 struct bdf_info
 {
 	/* font name */
-	x_s8 name[256];
+	s8_t name[256];
 
 	/* glyph's pixel and dots per inch */
-	x_s32 size;
-	x_s32 xres, yres;
+	s32_t size;
+	s32_t xres, yres;
 
 	/* font bounding box */
-	x_s32 fbbx, fbby, xoff, yoff;
+	s32_t fbbx, fbby, xoff, yoff;
 
 	/* the number of glyphs */
-	x_s32 chars;
+	s32_t chars;
 };
 
-static x_s8 * bdf_readline(x_s32 fd, x_s8 * buf, x_s32 len)
+static s8_t * bdf_readline(s32_t fd, s8_t * buf, s32_t len)
 {
-	x_s8 * p = buf;
-	x_s8 c;
-	x_s32 n;
+	s8_t * p = buf;
+	s8_t c;
+	s32_t n;
 
 	while( (--len > 0) && (read(fd, (void *)&c, 1) == 1) )
 	{
@@ -76,9 +76,9 @@ static x_s8 * bdf_readline(x_s32 fd, x_s8 * buf, x_s32 len)
 	return buf;
 }
 
-static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
+static bool_t get_bdf_info(s32_t fd, struct bdf_info * info)
 {
-	x_s8 line[256];
+	s8_t line[256];
 
 	if(fd < 0)
 		return FALSE;
@@ -101,22 +101,22 @@ static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
 	{
 		if(strncmp((const char *)line, "FONT ", sizeof("FONT ") - 1) == 0)
 		{
-			if(sscanf(line, (const x_s8 *)"FONT %s", info->name) != 1)
+			if(sscanf(line, (const s8_t *)"FONT %s", info->name) != 1)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "SIZE ", sizeof("SIZE ") - 1) == 0)
 		{
-			if(sscanf(line, (const x_s8 *)"SIZE %ld %ld %ld", &info->size, &info->xres, &info->yres) != 3)
+			if(sscanf(line, (const s8_t *)"SIZE %ld %ld %ld", &info->size, &info->xres, &info->yres) != 3)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "FONTBOUNDINGBOX ", sizeof("FONTBOUNDINGBOX ") - 1) == 0)
 		{
-			if(sscanf(line, (const x_s8 *)"FONTBOUNDINGBOX %ld %ld %ld %ld", &info->fbbx, &info->fbby, &info->xoff, &info->yoff) != 4)
+			if(sscanf(line, (const s8_t *)"FONTBOUNDINGBOX %ld %ld %ld %ld", &info->fbbx, &info->fbby, &info->xoff, &info->yoff) != 4)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "CHARS ", sizeof("CHARS ") - 1) == 0)
 		{
-			if( (sscanf(line, (const x_s8 *)"CHARS %ld", &info->chars) != 1) || (info->chars <= 0) )
+			if( (sscanf(line, (const s8_t *)"CHARS %ld", &info->chars) != 1) || (info->chars <= 0) )
 				return FALSE;
 			break;
 		}
@@ -128,19 +128,19 @@ static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
 	return FALSE;
 }
 
-static x_bool bdf_add_next_font_glyph(struct font * font, x_s32 fd, struct bdf_info * info)
+static bool_t bdf_add_next_font_glyph(struct font * font, s32_t fd, struct bdf_info * info)
 {
 	struct font_glyph * glyph;
-	x_s8 line[256];
-	x_s8 * pline;
-	x_s32 encoding = -1;
-	x_s32 w = 0, h = 0;
-	x_s32 x = 0, y = 0;
-	x_u8 * data;
-	x_u8 * pdata;
-	x_u8 c;
-	x_s32 len;
-	x_s32 i, j;
+	s8_t line[256];
+	s8_t * pline;
+	s32_t encoding = -1;
+	s32_t w = 0, h = 0;
+	s32_t x = 0, y = 0;
+	u8_t * data;
+	u8_t * pdata;
+	u8_t c;
+	s32_t len;
+	s32_t i, j;
 
 	if(fd < 0)
 		return FALSE;
@@ -155,12 +155,12 @@ static x_bool bdf_add_next_font_glyph(struct font * font, x_s32 fd, struct bdf_i
 	{
 		if(strncmp((const char *)line, "ENCODING ", sizeof("ENCODING ") - 1) == 0)
 		{
-			if( sscanf(line, (const x_s8 *)"ENCODING %ld", &encoding) != 1 )
+			if( sscanf(line, (const s8_t *)"ENCODING %ld", &encoding) != 1 )
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "BBX ", sizeof("BBX ") - 1) == 0)
 		{
-			if(sscanf(line, (const x_s8 *)"BBX %ld %ld %ld %ld", &w, &h, &x, &y) != 4)
+			if(sscanf(line, (const s8_t *)"BBX %ld %ld %ld %ld", &w, &h, &x, &y) != 4)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "BITMAP", sizeof("BITMAP") - 1) == 0)
@@ -231,11 +231,11 @@ static x_bool bdf_add_next_font_glyph(struct font * font, x_s32 fd, struct bdf_i
 	return TRUE;
 }
 
-static x_bool bdf_load(struct font ** font, const char * filename)
+static bool_t bdf_load(struct font ** font, const char * filename)
 {
 	struct bdf_info info;
 	struct stat st;
-	x_s32 fd;
+	s32_t fd;
 
 	if(stat(filename, &st) != 0)
 		return FALSE;

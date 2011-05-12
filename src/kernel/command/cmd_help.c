@@ -40,13 +40,13 @@ extern struct command_list * command_list;
 /**
  * the entry of help command.
  */
-static x_s32 help(x_s32 argc, const x_s8 **argv)
+static s32_t help(s32_t argc, const s8_t **argv)
 {
 	struct command_list * list;
 	struct list_head * pos;
 	struct command ** cmd_array;
 	struct command * cmd;
-	x_s32 i = 0, j, k = 0, cmd_num, swaps;
+	s32_t i = 0, j, k = 0, cmd_num, swaps;
 
 	if(argc == 1)
 	{

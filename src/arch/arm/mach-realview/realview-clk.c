@@ -42,7 +42,7 @@ static struct clk realview_clocks[6];
 /*
  * setup the realview's clock array.
  */
-static void realview_setup_clocks(x_u64 xtal)
+static void realview_setup_clocks(u64_t xtal)
 {
 	/* initialize system clocks */
 	realview_clocks[0].name = "xtal";
@@ -71,8 +71,8 @@ static void realview_setup_clocks(x_u64 xtal)
 
 static __init void realview_clk_init(void)
 {
-	x_u32 i;
-	x_u64 xtal = 0;
+	u32_t i;
+	u64_t xtal = 0;
 
 	/* get system xtal */
 	if(get_machine() != 0)
@@ -95,7 +95,7 @@ static __init void realview_clk_init(void)
 
 static __exit void realview_clk_exit(void)
 {
-	x_u32 i;
+	u32_t i;
 
 	for(i=0; i< ARRAY_SIZE(realview_clocks); i++)
 	{

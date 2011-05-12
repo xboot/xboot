@@ -65,7 +65,7 @@ struct console * search_console(const char *name)
 	return NULL;
 }
 
-x_bool register_console(struct console * console)
+bool_t register_console(struct console * console)
 {
 	struct console_list * list;
 
@@ -94,7 +94,7 @@ x_bool register_console(struct console * console)
 	return TRUE;
 }
 
-x_bool unregister_console(struct console * console)
+bool_t unregister_console(struct console * console)
 {
 	struct console_list * list;
 	struct list_head * pos;
@@ -133,7 +133,7 @@ inline struct console * get_stdout(void)
 	return console_stdout;
 }
 
-x_bool console_stdio_set(const char * in, const char * out)
+bool_t console_stdio_set(const char * in, const char * out)
 {
 	struct console * stdin, * stdout;
 
@@ -154,7 +154,7 @@ x_bool console_stdio_set(const char * in, const char * out)
 	return TRUE;
 }
 
-x_bool console_stdio_load(char * file)
+bool_t console_stdio_load(char * file)
 {
 	struct xml * root, * stdin, * stdout;
 
@@ -192,12 +192,12 @@ x_bool console_stdio_load(char * file)
 	return TRUE;
 }
 
-x_bool console_stdio_save(char * file)
+bool_t console_stdio_save(char * file)
 {
 	struct xml * root;
 	struct xml * stdin, * stdout;
 	char * str;
-	x_s32 fd;
+	s32_t fd;
 
 	root = xml_new("console");
 	if(!root)
@@ -247,82 +247,82 @@ x_bool console_stdio_save(char * file)
 	return TRUE;
 }
 
-x_bool console_getwh(struct console * console, x_s32 * w, x_s32 * h)
+bool_t console_getwh(struct console * console, s32_t * w, s32_t * h)
 {
 	if(console && console->getwh)
 		return console->getwh(console, w, h);
 	return FALSE;
 }
 
-x_bool console_getxy(struct console * console, x_s32 * x, x_s32 * y)
+bool_t console_getxy(struct console * console, s32_t * x, s32_t * y)
 {
 	if(console && console->getxy)
 		return console->getxy(console, x, y);
 	return FALSE;
 }
 
-x_bool console_gotoxy(struct console * console, x_s32 x, x_s32 y)
+bool_t console_gotoxy(struct console * console, s32_t x, s32_t y)
 {
 	if(console && console->gotoxy)
 		return console->gotoxy(console, x, y);
 	return FALSE;
 }
 
-x_bool console_setcursor(struct console * console, x_bool on)
+bool_t console_setcursor(struct console * console, bool_t on)
 {
 	if(console && console->setcursor)
 		return console->setcursor(console, on);
 	return FALSE;
 }
 
-x_bool console_getcursor(struct console * console)
+bool_t console_getcursor(struct console * console)
 {
 	if(console && console->getcursor)
 		return console->getcursor(console);
 	return FALSE;
 }
 
-x_bool console_setcolor(struct console * console, enum tcolor f, enum tcolor b)
+bool_t console_setcolor(struct console * console, enum tcolor f, enum tcolor b)
 {
 	if(console && console->setcolor)
 		return console->setcolor(console, f, b);
 	return FALSE;
 }
 
-x_bool console_getcolor(struct console * console, enum tcolor * f, enum tcolor * b)
+bool_t console_getcolor(struct console * console, enum tcolor * f, enum tcolor * b)
 {
 	if(console && console->getcolor)
 		return console->getcolor(console, f, b);
 	return FALSE;
 }
 
-x_bool console_cls(struct console * console)
+bool_t console_cls(struct console * console)
 {
 	if(console && console->cls)
 		return console->cls(console);
 	return FALSE;
 }
 
-x_bool console_getcode(struct console * console, x_u32 * code)
+bool_t console_getcode(struct console * console, u32_t * code)
 {
 	if(console && console->getcode)
 		return console->getcode(console, code);
 	return FALSE;
 }
 
-x_bool console_putcode(struct console * console, x_u32 code)
+bool_t console_putcode(struct console * console, u32_t code)
 {
 	if(console && console->putcode)
 		return console->putcode(console, code);
 	return FALSE;
 }
 
-x_s32 console_print(struct console * console, const char * fmt, ...)
+s32_t console_print(struct console * console, const char * fmt, ...)
 {
 	va_list args;
-	x_u32 code;
-	x_s32 i;
-	x_s8 *p, *buf;
+	u32_t code;
+	s32_t i;
+	s8_t *p, *buf;
 
 	if(!console || !console->putcode)
 		return 0;
@@ -332,10 +332,10 @@ x_s32 console_print(struct console * console, const char * fmt, ...)
 		return 0;
 
 	va_start(args, fmt);
-	i = vsnprintf((x_s8 *)buf, SZ_4K, (x_s8 *)fmt, args);
+	i = vsnprintf((s8_t *)buf, SZ_4K, (s8_t *)fmt, args);
 	va_end(args);
 
-	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const x_s8 **)&p) > 0; )
+	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const s8_t **)&p) > 0; )
 	{
 		console->putcode(console, code);
 	}
@@ -344,10 +344,10 @@ x_s32 console_print(struct console * console, const char * fmt, ...)
 	return i;
 }
 
-x_bool console_hline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 x)
+bool_t console_hline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t x)
 {
-	x_s32 w, h;
-	x_s32 i;
+	s32_t w, h;
+	s32_t i;
 
 	if(console && console->putcode)
 	{
@@ -372,10 +372,10 @@ x_bool console_hline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x
 	return FALSE;
 }
 
-x_bool console_vline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x_u32 y)
+bool_t console_vline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t y)
 {
-	x_s32 w, h;
-	x_s32 i;
+	s32_t w, h;
+	s32_t i;
 
 	if(console && console->putcode)
 	{
@@ -400,9 +400,9 @@ x_bool console_vline(struct console * console, x_u32 code, x_u32 x0, x_u32 y0, x
 	return FALSE;
 }
 
-x_bool console_rect(struct console * console, x_u32 hline, x_u32 vline, x_u32 lt, x_u32 rt, x_u32 lb, x_u32 rb, x_u32 x, x_u32 y, x_u32 w, x_u32 h)
+bool_t console_rect(struct console * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h)
 {
-	x_s32 width, height;
+	s32_t width, height;
 
 	if(console && console->putcode)
 	{
@@ -444,12 +444,12 @@ x_bool console_rect(struct console * console, x_u32 hline, x_u32 vline, x_u32 lt
 	return FALSE;
 }
 
-static x_s32 console_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
+static s32_t console_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct console_list * list;
 	struct list_head * pos;
-	x_s8 * p;
-	x_s32 len = 0;
+	s8_t * p;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -485,7 +485,7 @@ static x_s32 console_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if(len > count)
 		len = count;
 
-	memcpy(buf, (x_u8 *)(p + offset), len);
+	memcpy(buf, (u8_t *)(p + offset), len);
 	free(p);
 
 	return len;

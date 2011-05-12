@@ -50,7 +50,7 @@ static struct handler_onmouseraw_list __handler_onmouseraw_list = {
 };
 static struct handler_onmouseraw_list * handler_onmouseraw_list = &__handler_onmouseraw_list;
 
-x_bool install_listener_onmouseraw(handler_onmouseraw raw)
+bool_t install_listener_onmouseraw(handler_onmouseraw raw)
 {
 	struct handler_onmouseraw_list * list;
 	struct list_head * pos;
@@ -75,7 +75,7 @@ x_bool install_listener_onmouseraw(handler_onmouseraw raw)
 	return TRUE;
 }
 
-x_bool remove_listener_onmouseraw(handler_onmouseraw raw)
+bool_t remove_listener_onmouseraw(handler_onmouseraw raw)
 {
 	struct handler_onmouseraw_list * list;
 	struct list_head * pos;

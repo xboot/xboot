@@ -40,13 +40,13 @@
 /*
  * exec the command line
  */
-void exec_cmdline(const x_s8 * cmdline)
+void exec_cmdline(const s8_t * cmdline)
 {
     struct command * cmd;
-    x_s32 n;
+    s32_t n;
     char **args;
     char *p, *buf, *pos;
-    x_s32 ret;
+    s32_t ret;
 
     if(!cmdline)
     	return;
@@ -60,14 +60,14 @@ void exec_cmdline(const x_s8 * cmdline)
 
     while(*p)
     {
-    	if(parser((const x_s8 *)p, &n, (x_s8 ***)&args, (x_s8 **)&pos))
+    	if(parser((const s8_t *)p, &n, (s8_t ***)&args, (s8_t **)&pos))
     	{
     		if(n > 0)
     		{
     			cmd = command_search((char*)args[0]);
     			if(cmd)
     			{
-    				ret = cmd->func(n, (const x_s8 **)args);
+    				ret = cmd->func(n, (const s8_t **)args);
     				if(ret != 0)
     				{
     					/*

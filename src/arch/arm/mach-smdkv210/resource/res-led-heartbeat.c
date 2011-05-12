@@ -43,7 +43,7 @@ static void led_gph2_4_init(void)
 	writel(S5PV210_GPH2PUD, (readl(S5PV210_GPH2PUD) & ~(0x3<<8)) | (0x2<<8));
 }
 
-static void led_gph2_4_set(x_u8 brightness)
+static void led_gph2_4_set(u8_t brightness)
 {
 	if(brightness)
 		writel(S5PV210_GPH2DAT, (readl(S5PV210_GPH2DAT) & ~(0x1<<4)) | (0x1<<4));

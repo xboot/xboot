@@ -6,7 +6,7 @@
 #include <rect.h>
 #include <fb/fb.h>
 
-x_bool bitmap_set_viewport(struct bitmap * bitmap, struct rect * rect);
-x_bool bitmap_get_viewport(struct bitmap * bitmap, struct rect * rect);
+bool_t bitmap_set_viewport(struct bitmap * bitmap, struct rect * rect);
+bool_t bitmap_get_viewport(struct bitmap * bitmap, struct rect * rect);
 
 #endif /* __FBVIEWPORT_H__ */

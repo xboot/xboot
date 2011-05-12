@@ -35,7 +35,7 @@
 #define MAX(a, b)	((a) > (b) ? (a) : (b))
 #endif
 
-x_bool rect_set(struct rect * rect, x_s32 left, x_s32 top, x_s32 right, x_s32 bottom)
+bool_t rect_set(struct rect * rect, s32_t left, s32_t top, s32_t right, s32_t bottom)
 {
 	rect->left = left;
 	rect->top = top;
@@ -45,7 +45,7 @@ x_bool rect_set(struct rect * rect, x_s32 left, x_s32 top, x_s32 right, x_s32 bo
 	return TRUE;
 }
 
-x_bool rect_set_empty(struct rect * rect)
+bool_t rect_set_empty(struct rect * rect)
 {
 	rect->left = 0;
 	rect->top = 0;
@@ -55,7 +55,7 @@ x_bool rect_set_empty(struct rect * rect)
 	return TRUE;
 }
 
-x_bool rect_copy(struct rect * dst, struct rect * src)
+bool_t rect_copy(struct rect * dst, struct rect * src)
 {
 	dst->left = src->left;
 	dst->top = src->top;
@@ -65,7 +65,7 @@ x_bool rect_copy(struct rect * dst, struct rect * src)
 	return TRUE;
 }
 
-x_bool rect_is_empty(struct rect * rect)
+bool_t rect_is_empty(struct rect * rect)
 {
 	if( (rect->right <= rect->left) || (rect->bottom <= rect->top) )
 	{
@@ -75,7 +75,7 @@ x_bool rect_is_empty(struct rect * rect)
 	return FALSE;
 }
 
-x_bool rect_is_equal(struct rect * rect1, struct rect * rect2)
+bool_t rect_is_equal(struct rect * rect1, struct rect * rect2)
 {
 	if( (rect1->left == rect2->left)
 		&& (rect1->top == rect2->top)
@@ -88,7 +88,7 @@ x_bool rect_is_equal(struct rect * rect1, struct rect * rect2)
 	return FALSE;
 }
 
-x_bool rect_intersect(struct rect * rect, struct rect * src1, struct rect * src2)
+bool_t rect_intersect(struct rect * rect, struct rect * src1, struct rect * src2)
 {
 	rect->left = MAX(src1->left, src2->left);
 	rect->top = MAX(src1->top, src2->top);
@@ -108,7 +108,7 @@ x_bool rect_intersect(struct rect * rect, struct rect * src1, struct rect * src2
 	return TRUE;
 }
 
-x_bool rect_union(struct rect * rect, struct rect * src1, struct rect * src2)
+bool_t rect_union(struct rect * rect, struct rect * src1, struct rect * src2)
 {
 	rect->left = MIN(src1->left, src2->left);
 	rect->top = MIN(src1->top, src2->top);
@@ -128,7 +128,7 @@ x_bool rect_union(struct rect * rect, struct rect * src1, struct rect * src2)
 	return TRUE;
 }
 
-x_bool rect_subtract(struct rect * rect, struct rect * src1, struct rect * src2)
+bool_t rect_subtract(struct rect * rect, struct rect * src1, struct rect * src2)
 {
 	struct rect r;
 
@@ -188,7 +188,7 @@ x_bool rect_subtract(struct rect * rect, struct rect * src1, struct rect * src2)
 	return TRUE;
 }
 
-x_bool rect_offset(struct rect * rect, x_s32 dx, x_s32 dy)
+bool_t rect_offset(struct rect * rect, s32_t dx, s32_t dy)
 {
 	rect->left += dx;
 	rect->right += dx;
@@ -198,7 +198,7 @@ x_bool rect_offset(struct rect * rect, x_s32 dx, x_s32 dy)
 	return TRUE;
 }
 
-x_bool rect_inflate(struct rect * rect, x_s32 dx, x_s32 dy)
+bool_t rect_inflate(struct rect * rect, s32_t dx, s32_t dy)
 {
 	rect->left -= dx;
 	rect->right += dx;
@@ -208,7 +208,7 @@ x_bool rect_inflate(struct rect * rect, x_s32 dx, x_s32 dy)
 	return TRUE;
 }
 
-x_bool rect_have_point(struct rect * rect, x_s32 x, x_s32 y)
+bool_t rect_have_point(struct rect * rect, s32_t x, s32_t y)
 {
 	if( (x >= rect->left) && (x < rect->right) && (y >= rect->top) && (y < rect->bottom) )
 	{
@@ -218,11 +218,11 @@ x_bool rect_have_point(struct rect * rect, x_s32 x, x_s32 y)
 	return FALSE;
 }
 
-x_bool rect_align(struct rect * rect, struct rect * to, enum align flag)
+bool_t rect_align(struct rect * rect, struct rect * to, enum align flag)
 {
-	x_s32 ox1, oy1;
-	x_s32 ox2, oy2;
-	x_s32 dw, dh;
+	s32_t ox1, oy1;
+	s32_t ox2, oy2;
+	s32_t dw, dh;
 
 	ox1 = rect->left - to->left;
 	oy1 = rect->top - to->top;

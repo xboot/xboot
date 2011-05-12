@@ -39,7 +39,5 @@ typedef void*						x_addr;
  */
 #define		CONFIG_HEAP_SIZE		(SZ_32M)
 
-//TODO remove me
-#define	CONFIG_COMMAND_DASM			(0)
 
 #endif /* __CONFIGS_H__ */

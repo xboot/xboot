@@ -33,8 +33,6 @@
 #include <fs/fsapi.h>
 #include <fb/font.h>
 
-#if 0
-// TODO remove me
 struct bdf_info
 {
 	/* font name */
@@ -68,7 +66,7 @@ static x_s8 * bdf_readline(x_s32 fd, x_s8 * buf, x_s32 len)
 		return NULL;
 
 	*p = 0;
-	n = strlen(buf);
+	n = strlen((const char *)buf);
 
 	if( n && ((buf[n-1] == '\r') || (buf[n-1] == '\n')) )
 		buf[--n] = 0;
@@ -94,29 +92,29 @@ static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
 	if(bdf_readline(fd, line, sizeof(line)) == NULL)
 		return FALSE;
 
-	if(strncmp(line, (const x_s8 *)"STARTFONT ", sizeof("STARTFONT ") - 1) != 0)
+	if(strncmp((const char *)line, "STARTFONT ", sizeof("STARTFONT ") - 1) != 0)
 		return FALSE;
 
 	memset(info, 0, sizeof(struct bdf_info));
 
 	while(bdf_readline(fd, line, sizeof(line)) != NULL)
 	{
-		if(strncmp(line, (const x_s8 *)"FONT ", sizeof("FONT ") - 1) == 0)
+		if(strncmp((const char *)line, "FONT ", sizeof("FONT ") - 1) == 0)
 		{
 			if(sscanf(line, (const x_s8 *)"FONT %s", info->name) != 1)
 				return FALSE;
 		}
-		else if(strncmp(line, (const x_s8 *)"SIZE ", sizeof("SIZE ") - 1) == 0)
+		else if(strncmp((const char *)line, "SIZE ", sizeof("SIZE ") - 1) == 0)
 		{
 			if(sscanf(line, (const x_s8 *)"SIZE %ld %ld %ld", &info->size, &info->xres, &info->yres) != 3)
 				return FALSE;
 		}
-		else if(strncmp(line, (const x_s8 *)"FONTBOUNDINGBOX ", sizeof("FONTBOUNDINGBOX ") - 1) == 0)
+		else if(strncmp((const char *)line, "FONTBOUNDINGBOX ", sizeof("FONTBOUNDINGBOX ") - 1) == 0)
 		{
 			if(sscanf(line, (const x_s8 *)"FONTBOUNDINGBOX %ld %ld %ld %ld", &info->fbbx, &info->fbby, &info->xoff, &info->yoff) != 4)
 				return FALSE;
 		}
-		else if(strncmp(line, (const x_s8 *)"CHARS ", sizeof("CHARS ") - 1) == 0)
+		else if(strncmp((const char *)line, "CHARS ", sizeof("CHARS ") - 1) == 0)
 		{
 			if( (sscanf(line, (const x_s8 *)"CHARS %ld", &info->chars) != 1) || (info->chars <= 0) )
 				return FALSE;
@@ -124,7 +122,7 @@ static x_bool get_bdf_info(x_s32 fd, struct bdf_info * info)
 		}
 	}
 
-	if( (info->size > 0) && (info->chars > 0) && (strlen(info->name) > 0) )
+	if( (info->size > 0) && (info->chars > 0) && (strlen((const char *)info->name) > 0) )
 		return TRUE;
 
 	return FALSE;
@@ -155,21 +153,21 @@ static x_bool bdf_add_next_font_glyph(struct font * font, x_s32 fd, struct bdf_i
 
 	while(bdf_readline(fd, line, sizeof(line)) != NULL)
 	{
-		if(strncmp(line, (const x_s8 *)"ENCODING ", sizeof("ENCODING ") - 1) == 0)
+		if(strncmp((const char *)line, "ENCODING ", sizeof("ENCODING ") - 1) == 0)
 		{
 			if( sscanf(line, (const x_s8 *)"ENCODING %ld", &encoding) != 1 )
 				return FALSE;
 		}
-		else if(strncmp(line, (const x_s8 *)"BBX ", sizeof("BBX ") - 1) == 0)
+		else if(strncmp((const char *)line, "BBX ", sizeof("BBX ") - 1) == 0)
 		{
 			if(sscanf(line, (const x_s8 *)"BBX %ld %ld %ld %ld", &w, &h, &x, &y) != 4)
 				return FALSE;
 		}
-		else if(strncmp(line, (const x_s8 *)"BITMAP", sizeof("BITMAP") - 1) == 0)
+		else if(strncmp((const char *)line, "BITMAP", sizeof("BITMAP") - 1) == 0)
 		{
 			break;
 		}
-		else if(strncmp(line, (const x_s8 *)"ENDFONT", sizeof("ENDFONT") - 1) == 0)
+		else if(strncmp((const char *)line, "ENDFONT", sizeof("ENDFONT") - 1) == 0)
 		{
 			return FALSE;
 		}
@@ -287,4 +285,3 @@ static __exit void font_reader_bdf_exit(void)
 module_init(font_reader_bdf_init, LEVEL_POSTCORE);
 module_exit(font_reader_bdf_exit, LEVEL_POSTCORE);
 
-#endif

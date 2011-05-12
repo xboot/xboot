@@ -649,7 +649,7 @@ x_s8 * ucs4_to_utf8_alloc(x_u32 * src, x_s32 size)
  */
 x_s32 utf8_to_ucs4_alloc(const x_s8 * src, x_u32 ** dst, x_u32 ** pos)
 {
-	x_s32 len = strlen(src);
+	x_s32 len = strlen((char *)src);
 
 	*dst = malloc(len * sizeof(x_u32));
 

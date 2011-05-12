@@ -27,20 +27,20 @@ struct log_list
 	enum log_level level;
 
 	/* __LINE__ */
-	x_s32 line;
+	int line;
 
 	/* __FILE__ */
-	x_s8 * file;
+	char * file;
 
 	/* message */
-	x_s8 * message;
+	char * message;
 
 	struct list_head entry;
 };
 
 
 x_s32 log_numberof(void);
-x_bool log_add(enum log_level level, const x_s32 line, const char * file, const char * fmt, ...);
+x_bool log_add(enum log_level level, const int line, const char * file, const char * fmt, ...);
 x_bool log_remove(void);
 struct log_list * get_log_list(void);
 

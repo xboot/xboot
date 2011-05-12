@@ -42,7 +42,7 @@ static struct log_list __log_list = {
 static struct log_list * log_list = &__log_list;
 
 /* log format buffer */
-static x_s8 log_format_buffer[SZ_4K];
+static char log_format_buffer[SZ_4K];
 
 /*
  * get the number of log.
@@ -64,11 +64,11 @@ x_s32 log_numberof(void)
 /*
  * add a new log into log_list
  */
-x_bool log_add(enum log_level level, const x_s32 line, const char * file, const char * fmt, ...)
+x_bool log_add(enum log_level level, const int line, const char * file, const char * fmt, ...)
 {
 	struct log_list * list;
 	va_list args;
-	x_s8 * msg;
+	char * msg;
 
 	list = malloc(sizeof(struct log_list));
 	if(!list)
@@ -88,7 +88,7 @@ x_bool log_add(enum log_level level, const x_s32 line, const char * file, const 
 
 	list->level = level;
 	list->line = line;
-	list->file = (x_s8 *)file;
+	list->file = (char *)file;
 	list->message = msg;
 
 	if(log_numberof() >= CONFIG_MAX_NUMBER_OF_LOG)

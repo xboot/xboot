@@ -63,7 +63,7 @@ static struct irq_list * irq_search(const char *name)
 
 	hlist_for_each_entry(list,  pos, &(irq_hash[hash]), node)
 	{
-		if(strcmp((x_s8*)list->irq->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->irq->name, name) == 0)
 			return list;
 	}
 
@@ -191,15 +191,15 @@ static x_s32 interrupt_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[interrupt]");
+	len += sprintf((char *)(p + len), (const char *)"[interrupt]");
 	for(i = 0; i < CONFIG_IRQ_HASH_SIZE; i++)
 	{
 		hlist_for_each_entry(list,  pos, &(irq_hash[i]), node)
 		{
 			if(list->busy)
-				len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s%*s%3ld used", list->irq->name, (int)(16 - strlen((x_s8 *)list->irq->name)), "", list->irq->irq_no);
+				len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3ld used", list->irq->name, (int)(16 - strlen((char *)list->irq->name)), "", list->irq->irq_no);
 			else
-				len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s%*s%3ld", list->irq->name, (int)(16 - strlen((x_s8 *)list->irq->name)), "", list->irq->irq_no);
+				len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3ld", list->irq->name, (int)(16 - strlen((char *)list->irq->name)), "", list->irq->irq_no);
 		}
 	}
 

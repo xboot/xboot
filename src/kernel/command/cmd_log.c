@@ -60,13 +60,13 @@ static x_s32 do_log(x_s32 argc, const x_s8 **argv)
 	{
 		for(i=1; i<argc; i++)
 		{
-			if( !strcmp(argv[i],(x_s8*)"-d") )
+			if( !strcmp((const char *)argv[i], "-d") )
 				level_d = TRUE;
-			else if( !strcmp(argv[i],(x_s8*)"-i") )
+			else if( !strcmp((const char *)argv[i], "-i") )
 				level_i = TRUE;
-			else if( !strcmp(argv[i],(x_s8*)"-w") )
+			else if( !strcmp((const char *)argv[i], "-w") )
 				level_w = TRUE;
-			else if( !strcmp(argv[i],(x_s8*)"-e") )
+			else if( !strcmp((const char *)argv[i], "-e") )
 				level_e = TRUE;
 			else
 			{

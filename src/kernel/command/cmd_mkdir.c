@@ -77,7 +77,7 @@ static x_s32 do_mkdir(x_s32 argc, const x_s8 **argv)
 
 	for(i=1; i<argc; i++)
 	{
-		if( !strcmp(argv[i],(x_s8*)"-p") )
+		if( !strcmp((const char *)argv[i], "-p") )
 			pflag = TRUE;
 		else
 			v[c++] = (x_s8 *)argv[i];

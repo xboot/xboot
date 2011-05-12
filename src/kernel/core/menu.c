@@ -59,8 +59,8 @@ static x_bool menu_add_item(const char * title, const char * command)
 		return FALSE;
 	}
 
-	item->title = (char *)strdup((const x_s8 *)title);
-	item->command = (char *)strdup((const x_s8 *)command);
+	item->title = strdup(title);
+	item->command = strdup(command);
 
 	list->item = item;
 	list_add_tail(&list->entry, &menu_list->entry);
@@ -81,7 +81,7 @@ x_bool menu_load(char * file)
 	if(!root || !root->name)
 		return FALSE;
 
-	if(strcmp((const x_s8 *)root->name, (const x_s8 *)"menu") != 0)
+	if(strcmp(root->name, "menu") != 0)
 	{
 		xml_free(root);
 		return FALSE;

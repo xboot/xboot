@@ -47,7 +47,7 @@ struct xml * xml_child(struct xml * xml, const char * name)
 {
 	xml = (xml) ? xml->child : NULL;
 
-	while(xml && strcmp((const x_s8 *)name, (const x_s8 *)xml->name))
+	while(xml && strcmp((const char *)name, (const char *)xml->name))
     	xml = xml->sibling;
 
 	return xml;
@@ -75,7 +75,7 @@ const char * xml_attr(struct xml * xml, const char * attr)
 	if(! xml || ! xml->attr)
 		return NULL;
 
-	while(xml->attr[i] && strcmp((const x_s8 *)attr, (const x_s8 *)xml->attr[i]))
+	while(xml->attr[i] && strcmp((const char *)attr, (const char *)xml->attr[i]))
 		i += 2;
 
 	if(xml->attr[i])
@@ -84,12 +84,12 @@ const char * xml_attr(struct xml * xml, const char * attr)
 	while(root->xml.parent)
 		root = (struct xml_root *)root->xml.parent;				/* root tag */
 
-	for(i = 0; root->attr[i] && strcmp((const x_s8 *)xml->name, (const x_s8 *)root->attr[i][0]); i++);
+	for(i = 0; root->attr[i] && strcmp((const char *)xml->name, (const char *)root->attr[i][0]); i++);
 
 	if(!root->attr[i])
 		return NULL;											/* no matching default attributes */
 
-	while(root->attr[i][j] && strcmp((const x_s8 *)attr, (const x_s8 *)root->attr[i][j]))
+	while(root->attr[i][j] && strcmp((const char *)attr, (const char *)root->attr[i][j]))
 		j += 3;
 
 	return (root->attr[i][j]) ? root->attr[i][j + 1] : NULL;	/* found default */
@@ -148,7 +148,7 @@ const char ** xml_pi(struct xml * xml, const char * target)
 	while(root->xml.parent)
 		root = (struct xml_root *)root->xml.parent; 			/* root tag */
 
-	while(root->pi[i] && strcmp((const x_s8 *)target, (const x_s8 *)root->pi[i][0]))
+	while(root->pi[i] && strcmp((const char *)target, (const char *)root->pi[i][0]))
 		i++;													/* find target */
 
 	return (const char **)((root->pi[i]) ? root->pi[i] + 1 : xml_nil);
@@ -168,7 +168,7 @@ static struct xml * xml_err(struct xml_root * root, char * s, const char * err, 
 		if(*t == '\n')
 			line++;
 	}
-	snprintf((x_s8 *)fmt, XML_ERROR_LENGTH, (const x_s8 *)"[error near line %ld]: %s", line, err);
+	snprintf((char *)fmt, XML_ERROR_LENGTH, (const char *)"[error near line %ld]: %s", line, err);
 
 	va_start(ap, err);
 	vsnprintf((x_s8 *)root->err, XML_ERROR_LENGTH, (const x_s8 *)fmt, ap);
@@ -196,7 +196,7 @@ static char * xml_decode(char * s, char ** ent, char t)
 		{
 			*(s++) = '\n';
 			if(*s == '\n')
-				memmove(s, (s + 1), strlen((const x_s8 *)s));
+				memmove(s, (s + 1), strlen((const char *)s));
 		}
 	}
 
@@ -207,7 +207,7 @@ static char * xml_decode(char * s, char ** ent, char t)
 
 		if(! *s)
 			break;
-		else if(t != 'c' && ! strncmp((const x_s8 *)s, (const x_s8 *)"&#", 2))				/* character reference */
+		else if(t != 'c' && ! strncmp((const char *)s, (const char *)"&#", 2))				/* character reference */
         {
 			if(s[2] == 'x')
 				c = simple_strtos64((const x_s8 *)(s + 3), (x_s8 **)(&e), 16);
@@ -230,24 +230,24 @@ static char * xml_decode(char * s, char ** ent, char t)
 				while(b) *(s++) = 0x80 | ((c >> (6 * --b)) & 0x3F);
             }
 
-			memmove(s, strchr((const x_s8 *)s, ';') + 1, strlen(strchr((const x_s8 *)s, ';')));
+			memmove(s, strchr((const char *)s, ';') + 1, strlen(strchr((const char *)s, ';')));
         }
 		else if((*s == '&' && (t == '&' || t == ' ' || t == '*')) || (*s == '%' && t == '%'))	/*entity reference */
         {
-			for(b = 0; ent[b] && strncmp((x_s8 *)(s + 1), (const x_s8 *)ent[b], strlen((const x_s8 *)ent[b]));
+			for(b = 0; ent[b] && strncmp((char *)(s + 1), (const char *)ent[b], strlen((const char *)ent[b]));
 				b += 2);										/* find entity in entity list */
 
 			if(ent[b++])										/* found a match */
 			{
-				if(((c = strlen((const x_s8 *)ent[b])) - 1) > (e = (char *)strchr((const x_s8 *)s, ';')) - s)
+				if(((c = strlen((const char *)ent[b])) - 1) > (e = (char *)strchr((const char *)s, ';')) - s)
 				{
-					l = (d = (s - r)) + c + strlen((const x_s8 *)e);			/* new length */
-					r = (r == m) ? strcpy(malloc(l), (const x_s8 *)r) : realloc(r, l);
-					e = (char *)strchr((const x_s8 *)(s = r + d), ';');			/* fix up pointers */
+					l = (d = (s - r)) + c + strlen((const char *)e);			/* new length */
+					r = (r == m) ? strcpy(malloc(l), (const char *)r) : realloc(r, l);
+					e = (char *)strchr((const char *)(s = r + d), ';');			/* fix up pointers */
                 }
 
-				memmove(s + c, e + 1, strlen((const x_s8 *)e));					/* shift rest of string */
-				strncpy((x_s8 *)s, (const x_s8 *)ent[b], c);					/* copy in replacement text */
+				memmove(s + c, e + 1, strlen((const char *)e));					/* shift rest of string */
+				strncpy((char *)s, (const char *)ent[b], c);					/* copy in replacement text */
             }
             else												/* not a known entity */
             	s++;
@@ -262,8 +262,8 @@ static char * xml_decode(char * s, char ** ent, char t)
 	{
 		for (s = r; *s; s++)
 		{
-			if((l = strspn((const x_s8 *)s, (const x_s8 *)" ")))
-				memmove(s, s + l, strlen((const x_s8 *)(s + l)) + 1);
+			if((l = strspn((const char *)s, (const char *)" ")))
+				memmove(s, s + l, strlen((const char *)(s + l)) + 1);
             while(*s && *s != ' ')
             	s++;
         }
@@ -298,7 +298,7 @@ struct xml * xml_insert(struct xml * xml, struct xml * dest, x_size off)
 			dest->child = xml;
 		}
 
-		for(cur = head, prev = NULL; cur && strcmp((const x_s8 *)cur->name, (const x_s8 *)xml->name);
+		for(cur = head, prev = NULL; cur && strcmp((const char *)cur->name, (const char *)xml->name);
 			 prev = cur, cur = cur->sibling);					/* find tag type */
 		if (cur && cur->off <= off)
 		{														/* not first of type */
@@ -352,7 +352,7 @@ static void xml_open_tag(struct xml_root * root, char * name, char ** attr)
 	struct xml * xml = root->cur;
 
 	if(xml->name)
-		xml = xml_add_child(xml, name, strlen((const x_s8 *)xml->txt));
+		xml = xml_add_child(xml, name, strlen((const char *)xml->txt));
 	else														 /* first open tag */
 		xml->name = name;
 
@@ -399,7 +399,7 @@ struct xml * xml_set_attr(struct xml * xml, const char * name, const char * valu
 	if(!xml)
 		return NULL;
 
-	while(xml->attr[l] && strcmp((const x_s8 *)xml->attr[l], (const x_s8 *)name))
+	while(xml->attr[l] && strcmp((const char *)xml->attr[l], (const char *)name))
 		l += 2;
 
 	if(!xml->attr[l])													/* not found, add as new attribute */
@@ -410,15 +410,15 @@ struct xml * xml_set_attr(struct xml * xml, const char * name, const char * valu
 		if(xml->attr == xml_nil)										/* first attribute */
 		{
 			xml->attr = malloc(4 * sizeof(char *));
-			xml->attr[1] = (char *)strdup((const x_s8 *)"");			/* empty list of malloced names,vals */
+			xml->attr[1] = (char *)strdup((const char *)"");			/* empty list of malloced names,vals */
 		}
 		else
 			xml->attr = realloc(xml->attr, (l + 4) * sizeof(char *));
 
 		xml->attr[l] = (char *)name;									/* set attribute name */
 		xml->attr[l + 2] = NULL;										/* null terminate attribute list */
-		xml->attr[l + 3] = realloc(xml->attr[l + 1], (c = strlen((const x_s8 *)(xml->attr[l + 1]))) + 2);
-		strcpy((x_s8 *)(xml->attr[l + 3] + c), (const x_s8 *)" ");		/* set name/value as not malloced */
+		xml->attr[l + 3] = realloc(xml->attr[l + 1], (c = strlen((const char *)(xml->attr[l + 1]))) + 2);
+		strcpy((char *)(xml->attr[l + 3] + c), (const char *)" ");		/* set name/value as not malloced */
 
 		if(xml->flags & XML_DUP)
 			xml->attr[l + 3][c] = XML_NAME_MALLOC;
@@ -465,16 +465,16 @@ static void xml_char_content(struct xml_root * root, char * s, x_size len, char 
 		return;													/* sanity check */
 
 	s[len] = '\0';												/* null terminate text (calling functions anticipate this) */
-	len = strlen((const x_s8 *)(s = xml_decode(s, root->ent, t))) + 1;
+	len = strlen((const char *)(s = xml_decode(s, root->ent, t))) + 1;
 
 	if(! *(xml->txt))
 		xml->txt = s;											/* initial character content */
 	else														/* allocate our own memory and make a copy */
 	{
 		xml->txt = (xml->flags & XML_TXT_MALLOC)				/* allocate some space */
-				   ? realloc(xml->txt, (l = strlen((const x_s8 *)(xml->txt))) + len)
-				   : strcpy(malloc((l = strlen((const x_s8 *)(xml->txt))) + len), (const x_s8 *)xml->txt);
-		strcpy((x_s8 *)(xml->txt + l), (const x_s8 *)s);		/* add new char content */
+				   ? realloc(xml->txt, (l = strlen((const char *)(xml->txt))) + len)
+				   : strcpy(malloc((l = strlen((const char *)(xml->txt))) + len), (const char *)xml->txt);
+		strcpy((char *)(xml->txt + l), (const char *)s);		/* add new char content */
 		if(s != m)
 			free(s);											/* free s if it was malloced by xml_decode() */
 	}
@@ -488,7 +488,7 @@ static void xml_char_content(struct xml_root * root, char * s, x_size len, char 
  */
 static struct xml * xml_close_tag(struct xml_root * root, char * name, char * s)
 {
-	if(! root->cur || ! root->cur->name || strcmp((const x_s8 *)name, (const x_s8 *)root->cur->name))
+	if(! root->cur || ! root->cur->name || strcmp((const char *)name, (const char *)root->cur->name))
 		return xml_err(root, s, "unexpected closing tag </%s>", name);
 
 	root->cur = root->cur->parent;
@@ -511,10 +511,10 @@ static x_s32 xml_ent_ok(char * name, char * s, char ** ent)
 		if(! *s)
 			return 1;
 
-		if(! strncmp((x_s8 *)(s + 1), (const x_s8 *)name, strlen((const x_s8 *)name)))
+		if(! strncmp((char *)(s + 1), (const char *)name, strlen((const char *)name)))
 			return 0;
 
-		for(i = 0; ent[i] && strncmp((x_s8 *)ent[i], (const x_s8 *)(s + 1), strlen((const x_s8 *)ent[i])); i += 2);
+		for(i = 0; ent[i] && strncmp((char *)ent[i], (const char *)(s + 1), strlen((const char *)ent[i])); i += 2);
 
 		if(ent[i] && ! xml_ent_ok(name, ent[i + 1], ent))
 			return 0;
@@ -557,9 +557,9 @@ struct xml * xml_cut(struct xml * xml)
 			cur->ordered = cur->ordered->ordered;				/* patch ordered list */
 
 			cur = xml->parent->child;							/* go back to head of subtag list */
-			if(strcmp((const x_s8 *)cur->name, (const x_s8 *)xml->name))	/* not in first sibling list */
+			if(strcmp((const char *)cur->name, (const char *)xml->name))	/* not in first sibling list */
 			{
-				while (strcmp((const x_s8 *)cur->sibling->name, (const x_s8 *)xml->name))
+				while (strcmp((const char *)cur->sibling->name, (const char *)xml->name))
 					cur = cur->sibling;
 				if(cur->sibling == xml)							/* first of a sibling list */
 				{
@@ -589,15 +589,15 @@ static void xml_proc_inst(struct xml_root * root, char * s, x_size len)
 	char * target = s;
 
 	s[len] = '\0';												/* null terminate instruction */
-	if(*(s += strcspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE))))
+	if(*(s += strcspn((const char *)s, (const char *)(XML_WHITESPACE))))
 	{
 		*s = '\0';												/* null terminate target */
-		s += strspn((const x_s8 *)(s + 1), (const x_s8 *)(XML_WHITESPACE)) + 1;				/* skip whitespace after target */
+		s += strspn((const char *)(s + 1), (const char *)(XML_WHITESPACE)) + 1;				/* skip whitespace after target */
 	}
 
-	if(!strcmp((const x_s8 *)target, (const x_s8 *)"xml"))									/* <?xml ... ?> */
+	if(!strcmp((const char *)target, (const char *)"xml"))									/* <?xml ... ?> */
 	{
-		if((s = (char *)strstr((const x_s8 *)s, (const x_s8 *)"standalone")) && ! strncmp((x_s8 *)(s + strspn((const x_s8 *)(s + 10), (const x_s8 *)(XML_WHITESPACE "='\"")) + 10), (const x_s8 *)"yes", 3))
+		if((s = (char *)strstr((const char *)s, (const char *)"standalone")) && ! strncmp((char *)(s + strspn((const char *)(s + 10), (const char *)(XML_WHITESPACE "='\"")) + 10), (const char *)"yes", 3))
 			root->standalone = 1;
 		return;
 	}
@@ -605,7 +605,7 @@ static void xml_proc_inst(struct xml_root * root, char * s, x_size len)
 	if(!root->pi[0])
 		*(root->pi = malloc(sizeof(char **))) = NULL;			/* first pi */
 
-	while(root->pi[i] && strcmp((const x_s8 *)target, (const x_s8 *)root->pi[i][0]))
+	while(root->pi[i] && strcmp((const char *)target, (const char *)root->pi[i][0]))
 		i++;													/* find target */
 
 	if(!root->pi[i])											/* new target */
@@ -614,7 +614,7 @@ static void xml_proc_inst(struct xml_root * root, char * s, x_size len)
 		root->pi[i] = malloc(sizeof(char *) * 3);
 		root->pi[i][0] = target;
 		root->pi[i][1] = (char *)(root->pi[i + 1] = NULL);		/* terminate pi list */
-		root->pi[i][2] = (char *)strdup((const x_s8 *)"");		/* empty document position list */
+		root->pi[i][2] = (char *)strdup((const char *)"");		/* empty document position list */
 	}
 
 	while(root->pi[i][j])
@@ -622,7 +622,7 @@ static void xml_proc_inst(struct xml_root * root, char * s, x_size len)
 
 	root->pi[i] = realloc(root->pi[i], sizeof(char *) * (j + 3));
 	root->pi[i][j + 2] = realloc(root->pi[i][j + 1], j + 1);
-	strcpy((x_s8 *)(root->pi[i][j + 2] + j - 1), (const x_s8 *)((root->xml.name) ? ">" : "<"));
+	strcpy((char *)(root->pi[i][j + 2] + j - 1), (const char *)((root->xml.name) ? ">" : "<"));
 	root->pi[i][j + 1] = NULL;									/* null terminate pi list for this target */
 	root->pi[i][j] = s;											/* set instruction */
 }
@@ -644,16 +644,16 @@ static x_s16 xml_internal_dtd(struct xml_root * root, char * s, x_size len)
 
 		if(! *s)
 			break;
-		else if(! strncmp((x_s8 *)s, (const x_s8 *)"<!ENTITY", 8))							/* parse entity definitions */
+		else if(! strncmp((char *)s, (const char *)"<!ENTITY", 8))							/* parse entity definitions */
 		{
-			c = s += strspn((const x_s8 *)(s + 8), (const x_s8 *)(XML_WHITESPACE)) + 8; 	/* skip white space separator */
-			n = s + strspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE "%"));			/* find name */
-			*(s = n + strcspn((const x_s8 *)n, (const x_s8 *)(XML_WHITESPACE))) = ';'; 		/* append ; to name */
+			c = s += strspn((const char *)(s + 8), (const char *)(XML_WHITESPACE)) + 8; 	/* skip white space separator */
+			n = s + strspn((const char *)s, (const char *)(XML_WHITESPACE "%"));			/* find name */
+			*(s = n + strcspn((const char *)n, (const char *)(XML_WHITESPACE))) = ';'; 		/* append ; to name */
 
-			v = s + strspn((const x_s8 *)(s + 1), (const x_s8 *)(XML_WHITESPACE)) + 1; 		/* find value */
+			v = s + strspn((const char *)(s + 1), (const char *)(XML_WHITESPACE)) + 1; 		/* find value */
 			if((q = *(v++)) != '"' && q != '\'')				/* skip externals */
 			{
-				s = (char *)strchr((const x_s8 *)s, '>');
+				s = (char *)strchr((const char *)s, '>');
 				continue;
 			}
 
@@ -665,7 +665,7 @@ static x_s16 xml_internal_dtd(struct xml_root * root, char * s, x_size len)
 				root->ent = ent;
 
 			*(++s) = '\0';										/* null terminate name */
-			if((s = (char *)strchr((const x_s8 *)v, q)))
+			if((s = (char *)strchr((const char *)v, q)))
 				*(s++) = '\0';									/* null terminate value */
 
 			ent[i + 1] = xml_decode(v, pe, '%'); 				/* set value */
@@ -680,25 +680,25 @@ static x_s16 xml_internal_dtd(struct xml_root * root, char * s, x_size len)
 			else
 				ent[i] = n; 									/* set entity name */
 		}
-		else if(! strncmp((x_s8 *)s, (const x_s8 *)"<!ATTLIST", 9))							/* parse default attributes */
+		else if(! strncmp((char *)s, (const char *)"<!ATTLIST", 9))							/* parse default attributes */
 		{
-			t = s + strspn((const x_s8 *)(s + 9), (const x_s8 *)(XML_WHITESPACE)) + 9; 		/* skip whitespace separator */
+			t = s + strspn((const char *)(s + 9), (const char *)(XML_WHITESPACE)) + 9; 		/* skip whitespace separator */
 			if(! *t)
 			{
 				xml_err(root, t, "unclosed <!ATTLIST");
 				break;
 			}
 
-			if(*(s = t + strcspn((const x_s8 *)t, (const x_s8 *)(XML_WHITESPACE ">"))) == '>')
+			if(*(s = t + strcspn((const char *)t, (const char *)(XML_WHITESPACE ">"))) == '>')
 				continue;
 			else
 				*s = '\0'; 										/* null terminate tag name */
 
-			for(i = 0; root->attr[i] && strcmp((const x_s8 *)n, (const x_s8 *)root->attr[i][0]); i++);
+			for(i = 0; root->attr[i] && strcmp((const char *)n, (const char *)root->attr[i][0]); i++);
 
-			while(*(n = (s+1) + strspn((const x_s8 *)(s+1), (const x_s8 *)(XML_WHITESPACE))) && *n != '>')
+			while(*(n = (s+1) + strspn((const char *)(s+1), (const char *)(XML_WHITESPACE))) && *n != '>')
 			{
-				if(*(s = n + strcspn((const x_s8 *)n, (const x_s8 *)(XML_WHITESPACE))))
+				if(*(s = n + strcspn((const char *)n, (const char *)(XML_WHITESPACE))))
 					*s = '\0'; 									/* attr name */
 				else
 				{
@@ -706,28 +706,28 @@ static x_s16 xml_internal_dtd(struct xml_root * root, char * s, x_size len)
 					break;
 				}
 
-				s += strspn((const x_s8 *)(s + 1), (const x_s8 *)(XML_WHITESPACE)) + 1; 		/* find next token */
-				c = (strncmp((x_s8 *)s, (const x_s8 *)"CDATA", 5)) ? "*" : " "; 				/* is it cdata? */
-				if(! strncmp((x_s8 *)s, (const x_s8 *)"NOTATION", 8))
-					s += strspn((const x_s8 *)(s + 8), (const x_s8 *)(XML_WHITESPACE)) + 8;
-				s = (*s == '(') ? (char *)(strchr((const x_s8 *)s, ')')) : s + strcspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE));
+				s += strspn((const char *)(s + 1), (const char *)(XML_WHITESPACE)) + 1; 		/* find next token */
+				c = (strncmp((char *)s, (const char *)"CDATA", 5)) ? "*" : " "; 				/* is it cdata? */
+				if(! strncmp((char *)s, (const char *)"NOTATION", 8))
+					s += strspn((const char *)(s + 8), (const char *)(XML_WHITESPACE)) + 8;
+				s = (*s == '(') ? (char *)(strchr((const char *)s, ')')) : s + strcspn((const char *)s, (const char *)(XML_WHITESPACE));
 				if(! s)
 				{
 					xml_err(root, t, "malformed <!ATTLIST");
 					break;
 				}
 
-				s += strspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE ")")); 			/* skip white space separator */
-				if(! strncmp((x_s8 *)s, (const x_s8 *)"#FIXED", 6))
-					s += strspn((const x_s8 *)(s + 6), (const x_s8 *)(XML_WHITESPACE)) + 6;
+				s += strspn((const char *)s, (const char *)(XML_WHITESPACE ")")); 			/* skip white space separator */
+				if(! strncmp((char *)s, (const char *)"#FIXED", 6))
+					s += strspn((const char *)(s + 6), (const char *)(XML_WHITESPACE)) + 6;
 				if(*s == '#')									/* no default value */
 				{
-					s += strcspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE ">")) - 1;
+					s += strcspn((const char *)s, (const char *)(XML_WHITESPACE ">")) - 1;
 					if (*c == ' ')								/* cdata is default, nothing to do */
 						continue;
 					v = NULL;
 				}
-				else if((*s == '"' || *s == '\'')  && (s = (char *)strchr((const x_s8 *)(v = s + 1), *s)))
+				else if((*s == '"' || *s == '\'')  && (s = (char *)strchr((const char *)(v = s + 1), *s)))
 					*s = '\0';
 				else
 				{
@@ -752,15 +752,15 @@ static x_s16 xml_internal_dtd(struct xml_root * root, char * s, x_size len)
 				root->attr[i][j] = n;							/* attribute name */
 			}
 		}
-		else if(! strncmp((x_s8 *)s, (const x_s8 *)"<!--", 4))
-			s = (char *)strstr((const x_s8 *)(s + 4), (const x_s8 *)"-->");					/* comments */
-		else if(! strncmp((x_s8 *)s, (const x_s8 *)"<?", 2))								/* processing instructions */
+		else if(! strncmp((char *)s, (const char *)"<!--", 4))
+			s = (char *)strstr((const char *)(s + 4), (const char *)"-->");					/* comments */
+		else if(! strncmp((char *)s, (const char *)"<?", 2))								/* processing instructions */
 		{
-			if((s = (char *)strstr((const x_s8 *)(c = s + 2), (const x_s8 *)"?>")))
+			if((s = (char *)strstr((const char *)(c = s + 2), (const char *)"?>")))
 				xml_proc_inst(root, c, s++ - c);
 		}
 		else if(*s == '<')
-			s = (char *)strchr((const x_s8 *)s, '>');										/* skip other declarations */
+			s = (char *)strchr((const char *)s, '>');										/* skip other declarations */
 		else if(*(s++) == '%' && ! root->standalone)
 			break;
 	}
@@ -851,7 +851,7 @@ struct xml * xml_new(const char * name)
 
 	root->xml.name = (char *)name;
 	root->cur = &root->xml;
-	strcpy((x_s8 *)root->err, (const x_s8 *)(root->xml.txt = ""));
+	strcpy((char *)root->err, (const char *)(root->xml.txt = ""));
 	root->ent = memcpy(malloc(sizeof(ent)), ent, sizeof(ent));
 	root->attr = root->pi = (char ***) (root->xml.attr = xml_nil);
 
@@ -953,27 +953,27 @@ struct xml * xml_parse_str(char * s, x_size len)
 			if(!root->cur)
 				return xml_err(root, d, "markup outside of root element");
 
-			s += strcspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE "/>"));
+			s += strcspn((const char *)s, (const char *)(XML_WHITESPACE "/>"));
 			while(isspace(*s))
 				*(s++) = '\0';																			/* null terminate tag name */
 
 			if(*s && *s != '/' && *s != '>')															/* find tag in default attr list */
-				for(i = 0; (a = root->attr[i]) && strcmp((const x_s8 *)a[0], (const x_s8 *)d); i++);
+				for(i = 0; (a = root->attr[i]) && strcmp((const char *)a[0], (const char *)d); i++);
 
 			for(l = 0; *s && *s != '/' && *s != '>'; l += 2)			 								/* new attrib */
 			{
 				attr = (l) ? realloc(attr, (l + 4) * sizeof(char *)) : malloc(4 * sizeof(char *));		/* allocate space */
 				attr[l + 3] = (l) ? realloc(attr[l + 1], (l / 2) + 2) : malloc(2);						/* mem for list of maloced vals */
-				strcpy((x_s8 *)(attr[l + 3] + (l / 2)), (const x_s8 *)" ");								/* value is not malloced */
+				strcpy((char *)(attr[l + 3] + (l / 2)), (const char *)" ");								/* value is not malloced */
 				attr[l + 2] = NULL;																		/* null terminate list */
 				attr[l + 1] = "";																		/* temporary attribute value */
 				attr[l] = s;																			/* set attribute name */
 
-				s += strcspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE "=/>"));
+				s += strcspn((const char *)s, (const char *)(XML_WHITESPACE "=/>"));
 				if(*s == '=' || isspace(*s))
 				{
 					*(s++) = '\0';										/* null terminate tag attribute name */
-					q = *(s += strspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE "=")));
+					q = *(s += strspn((const char *)s, (const char *)(XML_WHITESPACE "=")));
 					if(q == '"' || q == '\'')							/* attribute value */
 					{
 						attr[l + 1] = ++s;
@@ -987,7 +987,7 @@ struct xml * xml_parse_str(char * s, x_size len)
 							return xml_err(root, d, "missing %c", q);
 						}
 
-						for(j = 1; a && a[j] && strcmp((const x_s8 *)a[j], (const x_s8 *)attr[l]); j +=3);
+						for(j = 1; a && a[j] && strcmp((const char *)a[j], (const char *)attr[l]); j +=3);
 						attr[l + 1] = xml_decode(attr[l + 1], root->ent, (a && a[j]) ? *a[j + 2] : ' ');
 
 						if(attr[l + 1] < d || attr[l + 1] > s)
@@ -1025,41 +1025,41 @@ struct xml * xml_parse_str(char * s, x_size len)
 		}
 		else if(*s == '/')												 /* close tag */
 		{
-			s += strcspn((const x_s8 *)(d = s + 1), (const x_s8 *)(XML_WHITESPACE ">")) + 1;
+			s += strcspn((const char *)(d = s + 1), (const char *)(XML_WHITESPACE ">")) + 1;
 			if(!(q = *s) && e != '>')
 				return xml_err(root, d, "missing >");
 			*s = '\0';													/* temporarily null terminate tag name */
 			if(xml_close_tag(root, d, s))
 				return &root->xml;
 			if(isspace(*s = q))
-				s += strspn((const x_s8 *)s, (const x_s8 *)(XML_WHITESPACE));
+				s += strspn((const char *)s, (const char *)(XML_WHITESPACE));
 		}
-		else if(! strncmp((x_s8 *)s, (const x_s8 *)"!--", 3))									 /* xml comment */
+		else if(! strncmp((char *)s, (const char *)"!--", 3))									 /* xml comment */
 		{
-			if(! (s = (char *)strstr((const x_s8 *)(s + 3), (const x_s8 *)"--")) || (*(s += 2) != '>' && *s) || (! *s && e != '>'))
+			if(! (s = (char *)strstr((const char *)(s + 3), (const char *)"--")) || (*(s += 2) != '>' && *s) || (! *s && e != '>'))
 				return xml_err(root, d, "unclosed <!--");
 		}
-		else if(! strncmp((const x_s8 *)s, (const x_s8 *)"![CDATA[", 8))
+		else if(! strncmp((const char *)s, (const char *)"![CDATA[", 8))
 		{
-			if((s = (char *)strstr((const x_s8 *)s, (const x_s8 *)"]]>")))
+			if((s = (char *)strstr((const char *)s, (const char *)"]]>")))
 				xml_char_content(root, d + 8, (s += 2) - d - 10, 'c');
 			else
 				return xml_err(root, d, "unclosed <![CDATA[");
 		}
-		else if(! strncmp((const x_s8 *)s, (const x_s8 *)"!DOCTYPE", 8))
+		else if(! strncmp((const char *)s, (const char *)"!DOCTYPE", 8))
 		{
-			for (l = 0; *s && ((! l && *s != '>') || (l && (*s != ']' || *(s + strspn((const x_s8 *)(s + 1), (const x_s8 *)(XML_WHITESPACE)) + 1) != '>')));
-			l = (*s == '[') ? 1 : l) s += strcspn((const x_s8 *)(s + 1), (const x_s8 *)"[]>") + 1;
+			for (l = 0; *s && ((! l && *s != '>') || (l && (*s != ']' || *(s + strspn((const char *)(s + 1), (const char *)(XML_WHITESPACE)) + 1) != '>')));
+			l = (*s == '[') ? 1 : l) s += strcspn((const char *)(s + 1), (const char *)"[]>") + 1;
 			if(! *s && e != '>')
 				return xml_err(root, d, "unclosed <!DOCTYPE");
-			d = (l) ? (char *)(strchr((const x_s8 *)d, '[') + 1) : d;
+			d = (l) ? (char *)(strchr((const char *)d, '[') + 1) : d;
 			if(l && ! xml_internal_dtd(root, d, s++ - d))
 				return &root->xml;
 		}
 		else if(*s == '?')												 /* <?...?> processing instructions */
 		{
 			do{
-				s = (char *)strchr((const x_s8 *)s, '?');
+				s = (char *)strchr((const char *)s, '?');
 			} while(s && *(++s) && *s != '>');
 
 			if(! s || (! *s && e != '>'))
@@ -1112,25 +1112,25 @@ static char * xml_ampencode(const char *s, x_size len, char **dst, x_size *dlen,
 		case '\0':
 			return *dst;
 		case '&':
-			*dlen += sprintf((x_s8 *)(*dst + *dlen), (const x_s8 *)"&amp;");
+			*dlen += sprintf((char *)(*dst + *dlen), (const char *)"&amp;");
 			break;
 		case '<':
-			*dlen += sprintf((x_s8 *)(*dst + *dlen), (const x_s8 *)"&lt;");
+			*dlen += sprintf((char *)(*dst + *dlen), (const char *)"&lt;");
 			break;
 		case '>':
-			*dlen += sprintf((x_s8 *)(*dst + *dlen), (const x_s8 *)"&gt;");
+			*dlen += sprintf((char *)(*dst + *dlen), (const char *)"&gt;");
 			break;
 		case '"':
-			*dlen += sprintf((x_s8 *)(*dst + *dlen), (const x_s8 *)((a) ? "&quot;" : "\""));
+			*dlen += sprintf((char *)(*dst + *dlen), (const char *)((a) ? "&quot;" : "\""));
 			break;
 		case '\n':
-			*dlen += sprintf((x_s8 *)(*dst + *dlen), (const x_s8 *)((a) ? "&#xA;" : "\n"));
+			*dlen += sprintf((char *)(*dst + *dlen), (const char *)((a) ? "&#xA;" : "\n"));
 			break;
 		case '\t':
-			*dlen += sprintf((x_s8 *)(*dst + *dlen), (const x_s8 *)((a) ? "&#x9;" : "\t"));
+			*dlen += sprintf((char *)(*dst + *dlen), (const char *)((a) ? "&#x9;" : "\t"));
 			break;
 		case '\r':
-			*dlen += sprintf((x_s8 *)(*dst + *dlen), (const x_s8 *)"&#xD;");
+			*dlen += sprintf((char *)(*dst + *dlen), (const char *)"&#xD;");
 			break;
 		default:
 			(*dst)[(*dlen)++] = *s;
@@ -1153,42 +1153,42 @@ static char *xml_toxml_r(struct xml * xml, char **s, x_size *len, x_size *max, x
 	/* parent character content up to this tag */
 	*s = xml_ampencode(txt + start, xml->off - start, s, len, max, 0);
 
-	while(*len + strlen((const x_s8 *)xml->name) + 4 > *max)						/* reallocate s */
+	while(*len + strlen((const char *)xml->name) + 4 > *max)						/* reallocate s */
 	*s = realloc(*s, *max += XML_BUFFER_SIZE);
 
-	*len += sprintf((x_s8 *)(*s + *len), (const x_s8 *)"<%s", xml->name);			/* open tag */
+	*len += sprintf((char *)(*s + *len), (const char *)"<%s", xml->name);			/* open tag */
 	for(i = 0; xml->attr[i]; i += 2)												/* tag attributes */
 	{
 		if(xml_attr(xml, xml->attr[i]) != xml->attr[i + 1])
 			continue;
-		while(*len + strlen((const x_s8 *)xml->attr[i]) + 7 > *max)					/* reallocate s */
+		while(*len + strlen((const char *)xml->attr[i]) + 7 > *max)					/* reallocate s */
 		*s = realloc(*s, *max += XML_BUFFER_SIZE);
 
-		*len += sprintf((x_s8 *)(*s + *len), (const x_s8 *)" %s=\"", xml->attr[i]);
+		*len += sprintf((char *)(*s + *len), (const char *)" %s=\"", xml->attr[i]);
 		xml_ampencode(xml->attr[i + 1], -1, s, len, max, 1);
-		*len += sprintf((x_s8 *)(*s + *len), (const x_s8 *)"\"");
+		*len += sprintf((char *)(*s + *len), (const char *)"\"");
 	}
 
-	for(i = 0; attr[i] && strcmp((const x_s8 *)attr[i][0], (const x_s8 *)xml->name); i++);
+	for(i = 0; attr[i] && strcmp((const char *)attr[i][0], (const char *)xml->name); i++);
 	for(j = 1; attr[i] && attr[i][j]; j += 3)							 /* default attributes */
 	{
 		if(! attr[i][j + 1] || xml_attr(xml, attr[i][j]) != attr[i][j + 1])
 			continue;													/* skip duplicates and non-values */
-		while(*len + strlen((const x_s8 *)attr[i][j]) + 7 > *max)						/* reallocate s */
+		while(*len + strlen((const char *)attr[i][j]) + 7 > *max)						/* reallocate s */
 		*s = realloc(*s, *max += XML_BUFFER_SIZE);
 
-		*len += sprintf((x_s8 *)(*s + *len), (const x_s8 *)" %s=\"", attr[i][j]);
+		*len += sprintf((char *)(*s + *len), (const char *)" %s=\"", attr[i][j]);
 		xml_ampencode(attr[i][j + 1], -1, s, len, max, 1);
-		*len += sprintf((x_s8 *)(*s + *len), (const x_s8 *)"\"");
+		*len += sprintf((char *)(*s + *len), (const char *)"\"");
 	}
-	*len += sprintf((x_s8 *)(*s + *len), (const x_s8 *)">");
+	*len += sprintf((char *)(*s + *len), (const char *)">");
 
 	*s = (xml->child) ? xml_toxml_r(xml->child, s, len, max, 0, attr) : xml_ampencode(xml->txt, -1, s, len, max, 0);
 
-	while(*len + strlen((const x_s8 *)xml->name) + 4 > *max)							/* reallocate s */
+	while(*len + strlen((const char *)xml->name) + 4 > *max)							/* reallocate s */
 	*s = realloc(*s, *max += XML_BUFFER_SIZE);
 
-	*len += sprintf((x_s8 *)(*s + *len), (const x_s8 *)"</%s>", xml->name);						/* close tag */
+	*len += sprintf((char *)(*s + *len), (const char *)"</%s>", xml->name);						/* close tag */
 
 	while(txt[off] && off < xml->off)
 		off++;															/* make sure off is within bounds */
@@ -1204,7 +1204,7 @@ char * xml_toxml(struct xml * xml)
 	struct xml * p = (xml) ? xml->parent : NULL, * o = (xml) ? xml->ordered : NULL;
 	struct xml_root * root = (struct xml_root *)xml;
 	x_size len = 0, max = XML_BUFFER_SIZE;
-	char *s = (char *)strcpy((x_s8 *)(malloc(max)), (const x_s8 *)""), *t, *n;
+	char *s = (char *)strcpy((char *)(malloc(max)), (const char *)""), *t, *n;
 	x_s32 i, j, k;
 
 	if(! xml || ! xml->name)
@@ -1219,9 +1219,9 @@ char * xml_toxml(struct xml * xml)
 		{
 			if(root->pi[i][k][j - 1] == '>')							/* not pre-root */
 				continue;
-			while(len + strlen((const x_s8 *)(t = root->pi[i][0])) + strlen((const x_s8 *)n) + 7 > max)
+			while(len + strlen((const char *)(t = root->pi[i][0])) + strlen((const char *)n) + 7 > max)
 				s = realloc(s, max += XML_BUFFER_SIZE);
-			len += sprintf((x_s8 *)(s + len), (const x_s8 *)"<?%s%s%s?>\n", t, *n ? " " : "", n);
+			len += sprintf((char *)(s + len), (const char *)"<?%s%s%s?>\n", t, *n ? " " : "", n);
 		}
 	}
 
@@ -1237,9 +1237,9 @@ char * xml_toxml(struct xml * xml)
 		{
 			if(root->pi[i][k][j - 1] == '<')							/* not post-root */
 				continue;
-			while(len + strlen((const x_s8 *)(t = root->pi[i][0])) + strlen((const x_s8 *)n) + 7 > max)
+			while(len + strlen((const char *)(t = root->pi[i][0])) + strlen((const char *)n) + 7 > max)
 				s = realloc(s, max += XML_BUFFER_SIZE);
-			len += sprintf((x_s8 *)(s + len), (const x_s8 *)"\n<?%s%s%s?>", t, *n ? " " : "", n);
+			len += sprintf((char *)(s + len), (const char *)"\n<?%s%s%s?>", t, *n ? " " : "", n);
 		}
 	}
 

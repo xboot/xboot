@@ -56,7 +56,7 @@ static struct env_list * env_find(const char * key)
 
 	hlist_for_each_entry(list,  pos, &(env_hash[hash]), node)
 	{
-		if(strcmp((const x_s8 *)list->env.key, (const x_s8 *)key) == 0)
+		if(strcmp(list->env.key, key) == 0)
 			return list;
 	}
 
@@ -92,13 +92,13 @@ x_bool env_add(const char * key, const char * value)
 	list = env_find(key);
 	if(list)
 	{
-		if(strcmp((const x_s8 *)list->env.value, (const x_s8 *)value) == 0)
+		if(strcmp(list->env.value, value) == 0)
 			return TRUE;
 		else
 		{
 			if(list->env.value)
 				free(list->env.value);
-			list->env.value = (char *)strdup((const x_s8 *)value);
+			list->env.value = strdup(value);
 			return TRUE;
 		}
 	}
@@ -108,8 +108,8 @@ x_bool env_add(const char * key, const char * value)
 		if(!list)
 			return FALSE;
 
-		list->env.key = (char *)strdup((const x_s8 *)key);
-		list->env.value = (char *)strdup((const x_s8 *)value);
+		list->env.key = strdup(key);
+		list->env.value = strdup(value);
 
 		hash = string_hash(key) % CONFIG_ENV_HASH_SIZE;
 		hlist_add_head(&(list->node), &(env_hash[hash]));
@@ -158,7 +158,7 @@ x_bool env_load(char * file)
 	if(!root || !root->name)
 		return FALSE;
 
-	if(strcmp((const x_s8 *)root->name, (const x_s8 *)"environment") != 0)
+	if(strcmp(root->name, "environment") != 0)
 	{
 		xml_free(root);
 		return FALSE;
@@ -241,7 +241,7 @@ x_bool env_save(char * file)
 		return FALSE;
 	}
 
-	write(fd, str, strlen((const x_s8 *)str));
+	write(fd, str, strlen(str));
 	close(fd);
 
 	free(str);

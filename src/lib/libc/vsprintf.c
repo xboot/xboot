@@ -401,7 +401,7 @@ x_s32 vsnprintf(x_s8 *buf, x_s32 size, const x_s8 *fmt, va_list args)
 			case 's':
 				s = va_arg(args, x_s8 *);
 
-				len = strnlen(s, precision);
+				len = strnlen((char *)s, precision);
 
 				if (!(flags & LEFT))
 				{

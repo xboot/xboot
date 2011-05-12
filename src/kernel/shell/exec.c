@@ -44,23 +44,23 @@ void exec_cmdline(const x_s8 * cmdline)
 {
     struct command * cmd;
     x_s32 n;
-    x_s8 **args;
-    x_s8 *p, *buf, *pos;
+    char **args;
+    char *p, *buf, *pos;
     x_s32 ret;
 
     if(!cmdline)
     	return;
 
-    p = buf = malloc(strlen(cmdline) + 2);
+    p = buf = malloc(strlen((const char *)cmdline) + 2);
     if(!p)
     	return;
 
-    strcpy(p, cmdline);
-    strcat(p, (x_s8*)" ");
+    strcpy(p, (const char *)cmdline);
+    strcat(p, " ");
 
     while(*p)
     {
-    	if(parser(p, &n, &args, &pos))
+    	if(parser((const x_s8 *)p, &n, (x_s8 ***)&args, (x_s8 **)&pos))
     	{
     		if(n > 0)
     		{

@@ -38,9 +38,9 @@
  */
 void run_shell_mode(void)
 {
-	x_s8 * p;
-	x_s8 cwd[256];
-	x_s8 prompt[256];
+	char * p;
+	char cwd[256];
+	char prompt[256];
 
 	/*
 	 * clear the screen
@@ -48,13 +48,13 @@ void run_shell_mode(void)
 	console_cls(get_stdout());
 
 	do {
-		getcwd((char *)cwd, sizeof(cwd));
-		sprintf(prompt, (x_s8 *)"%s: %s$ ", (x_s8 *)env_get("prompt", "xboot"), cwd);
+		getcwd(cwd, sizeof(cwd));
+		sprintf(prompt, "%s: %s$ ", env_get("prompt", "xboot"), cwd);
 
-		p = readline((const x_s8 *)prompt);
+		p = (char *)readline((const x_s8 *)prompt);
 		printk("\r\n");
 
-		exec_cmdline(p);
+		exec_cmdline((const x_s8 *)p);
 		free(p);
 	} while(xboot_get_mode() == MODE_SHELL);
 }

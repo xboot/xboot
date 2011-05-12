@@ -59,7 +59,7 @@ static struct resource * search_resource(const char * name)
 	for(pos = (&resource_list->entry)->next; pos != (&resource_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct resource_list, entry);
-		if(strcmp((x_s8*)list->res->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->res->name, name) == 0)
 			return list->res;
 	}
 
@@ -145,11 +145,11 @@ static x_s32 resource_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[resource]");
+	len += sprintf((char *)(p + len), (const char *)"[resource]");
 	for(pos = (&resource_list->entry)->next; pos != (&resource_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct resource_list, entry);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s", list->res->name);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s", list->res->name);
 	}
 
 	len -= offset;

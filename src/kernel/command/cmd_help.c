@@ -64,7 +64,7 @@ static x_s32 help(x_s32 argc, const x_s8 **argv)
 		{
 			list = list_entry(pos, struct command_list, entry);
 			cmd_array[i++] = list->cmd;
-			j = strlen((x_s8*)list->cmd->name);
+			j = strlen(list->cmd->name);
 			if(j > k)	k = j;
 		}
 
@@ -74,7 +74,7 @@ static x_s32 help(x_s32 argc, const x_s8 **argv)
 			swaps = 0;
 			for(j=0; j<i; ++j)
 			{
-				if (strcmp((x_s8*)cmd_array[j]->name, (x_s8*)cmd_array[j + 1]->name) > 0)
+				if (strcmp(cmd_array[j]->name, cmd_array[j + 1]->name) > 0)
 				{
 					cmd = cmd_array[j];
 					cmd_array[j] = cmd_array[j + 1];
@@ -89,7 +89,7 @@ static x_s32 help(x_s32 argc, const x_s8 **argv)
 		/* display online help (desc) */
 		for (i=0; i<cmd_num; i++)
 		{
-			printk(" %s%*s - %s",cmd_array[i]->name, k-strlen((x_s8*)cmd_array[i]->name), "", cmd_array[i]->desc);
+			printk(" %s%*s - %s",cmd_array[i]->name, k-strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
 		}
 		free(cmd_array);
 	}

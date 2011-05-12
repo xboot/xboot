@@ -81,7 +81,7 @@ static void print_env(void)
 		swaps = 0;
 		for(j=0; j<i; ++j)
 		{
-			if (strcmp((x_s8*)env_list_array[j]->env.key, (x_s8*)env_list_array[j + 1]->env.key) > 0)
+			if (strcmp(env_list_array[j]->env.key, env_list_array[j + 1]->env.key) > 0)
 			{
 				list = env_list_array[j];
 				env_list_array[j] = env_list_array[j + 1];
@@ -117,19 +117,19 @@ static x_s32 env(x_s32 argc, const x_s8 **argv)
 	}
 	else if(argc >= 2)
 	{
-		if(strcmp(argv[1], (x_s8*)"-a") == 0)
+		if(strcmp((const char *)argv[1], "-a") == 0)
 		{
 			if(argc==4)
 				env_add((char *)argv[2], (char *)argv[3]);
 			else
 				usage();
 		}
-		else if(strcmp(argv[1], (x_s8*)"-r") == 0)
+		else if(strcmp((const char *)argv[1], "-r") == 0)
 		{
 			for(i=2; i<argc; ++i)
 				env_remove((char *)argv[i]);
 		}
-		else if(strcmp(argv[1], (x_s8*)"-s") == 0)
+		else if(strcmp((const char *)argv[1], "-s") == 0)
 		{
 			if(argc==2)
 			{

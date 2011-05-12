@@ -85,7 +85,7 @@ static void print_entry(const char * name, struct stat * st, x_u32 flags, x_u32 
 	}
 	else
 	{
-		len = strlen((const x_s8 *)name);
+		len = strlen(name);
 		rlen = ((x_u32)(len + 12) / 12) * 12;
 
 		if(position + rlen >= width)
@@ -130,19 +130,19 @@ static void do_list(const char * path, x_u32 flags, x_u32 width)
 				break;
 
 			buf[0] = 0;
-			strlcpy((x_s8 *)buf, (const x_s8 *)path, sizeof(buf));
+			strlcpy(buf, path, sizeof(buf));
 			buf[sizeof(buf) - 1] = '\0';
 
-			if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)"."))
+			if(!strcmp(entry->d_name, "."))
 			{
 			}
-			else if(!strcmp((const x_s8 *)entry->d_name, (const x_s8 *)".."))
+			else if(!strcmp(entry->d_name, ".."))
 			{
 			}
 			else
 			{
-				strlcat((x_s8 *)buf, (const x_s8 *)"/", sizeof(buf));
-				strlcat((x_s8 *)buf, (const x_s8 *)entry->d_name, sizeof(buf));
+				strlcat(buf, "/", sizeof(buf));
+				strlcat(buf, entry->d_name, sizeof(buf));
 			}
 
 			if(stat((const char *)buf, &st) != 0)
@@ -187,9 +187,9 @@ static x_s32 ls(x_s32 argc, const x_s8 **argv)
 
 	for(i=1; i<argc; i++)
 	{
-		if( !strcmp(argv[i],(x_s8*)"-l") )
+		if( !strcmp((const char *)argv[i],"-l") )
 			flags |= LSFLAG_LONG;
-		else if( !strcmp(argv[i],(x_s8*)"-a") )
+		else if( !strcmp((const char *)argv[i],"-a") )
 			flags |= LSFLAG_DOT;
 		else
 			v[c++] = (x_s8 *)argv[i];

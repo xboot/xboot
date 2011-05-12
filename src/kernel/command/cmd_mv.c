@@ -37,13 +37,13 @@
 
 static x_s32 do_mv(x_s32 argc, const x_s8 **argv)
 {
-	x_s8 path[MAX_PATH];
-	x_s8 * src, * dest, * p;
+	char path[MAX_PATH];
+	char * src, * dest, * p;
 	struct stat st1, st2;
 	x_s32 rc;
 
-	src = (x_s8 *)argv[1];
-	dest = (x_s8 *)argv[2];
+	src = (char *)argv[1];
+	dest = (char *)argv[2];
 
 	if(argc != 3)
 	{
@@ -70,10 +70,10 @@ static x_s32 do_mv(x_s32 argc, const x_s8 **argv)
 	{
 		p = strrchr(src, '/');
 		p = p ? p + 1 : src;
-		strlcpy((x_s8 *)path, dest, sizeof(path));
-		if(strcmp(dest, (const x_s8 *)"/"))
-			strlcat((x_s8 *)path, (const x_s8 *)"/", sizeof(path));
-		strlcat((x_s8 *)path, (const x_s8 *)p, sizeof(path));
+		strlcpy(path, dest, sizeof(path));
+		if(strcmp(dest, "/"))
+			strlcat(path, "/", sizeof(path));
+		strlcat(path, p, sizeof(path));
 		dest = path;
 	}
 

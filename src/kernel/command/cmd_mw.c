@@ -50,13 +50,13 @@ static x_s32 mw(x_s32 argc, const x_s8 **argv)
 
 	for(i=1; i<argc; i++)
 	{
-		if( !strcmp(argv[i],(x_s8*)"-b") )
+		if( !strcmp((const char *)argv[i], "-b") )
 			size = 1;
-		else if( !strcmp(argv[i],(x_s8*)"-w") )
+		else if( !strcmp((const char *)argv[i], "-w") )
 			size = 2;
-		else if( !strcmp(argv[i],(x_s8*)"-l") )
+		else if( !strcmp((const char *)argv[i], "-l") )
 			size = 4;
-		else if( !strcmp(argv[i],(x_s8*)"-c") && (argc > i+1))
+		else if( !strcmp((const char *)argv[i], "-c") && (argc > i+1))
 		{
 			c = simple_strtou32(argv[i+1], NULL, 0);
 			if(c == 0)
@@ -73,7 +73,7 @@ static x_s32 mw(x_s32 argc, const x_s8 **argv)
 			printk("try 'help mw' for more information.\r\n");
 			return (-1);
 		}
-		else if(*argv[i] != '-' && strcmp(argv[i], (x_s8*)"-") != 0)
+		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
 		{
 			if(index == 0)
 				base_addr = simple_strtou32(argv[i], NULL, 0);

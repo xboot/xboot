@@ -49,23 +49,23 @@ static x_s32 exit_to_mode(x_s32 argc, const x_s8 **argv)
 	}
 	else if(argc == 2)
 	{
-		if( (strcmp(argv[1], (x_s8*)"-n") == 0) || (strcmp(argv[1], (x_s8*)"--normal") == 0) )
+		if( (strcmp((const char *)argv[1], "-n") == 0) || (strcmp((const char *)argv[1], "--normal") == 0) )
 		{
 			xboot_set_mode(MODE_NORMAL);
 		}
-		else if( (strcmp(argv[1], (x_s8*)"-s") == 0) || (strcmp(argv[1], (x_s8*)"--shell") == 0) )
+		else if( (strcmp((const char *)argv[1], "-s") == 0) || (strcmp((const char *)argv[1], "--shell") == 0) )
 		{
 			xboot_set_mode(MODE_SHELL);
 		}
-		else if( (strcmp(argv[1], (x_s8*)"-m") == 0) || (strcmp(argv[1], (x_s8*)"--menu") == 0) )
+		else if( (strcmp((const char *)argv[1], "-m") == 0) || (strcmp((const char *)argv[1], "--menu") == 0) )
 		{
 			xboot_set_mode(MODE_MENU);
 		}
-		else if( (strcmp(argv[1], (x_s8*)"-g") == 0) || (strcmp(argv[1], (x_s8*)"--graphic") == 0) )
+		else if( (strcmp((const char *)argv[1], "-g") == 0) || (strcmp((const char *)argv[1], "--graphic") == 0) )
 		{
 			xboot_set_mode(MODE_GRAPHIC);
 		}
-		else if( (strcmp(argv[1], (x_s8*)"-a") == 0) || (strcmp(argv[1], (x_s8*)"--application") == 0) )
+		else if( (strcmp((const char *)argv[1], "-a") == 0) || (strcmp((const char *)argv[1], "--application") == 0) )
 		{
 			xboot_set_mode(MODE_APPLICATION);
 		}

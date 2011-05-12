@@ -58,7 +58,7 @@ static x_s32 fileram(x_s32 argc, const x_s8 **argv)
 		return -1;
 	}
 
-	if( !strcmp(argv[1],(x_s8*)"-f") )
+	if( !strcmp((const char *)argv[1],"-f") )
 	{
 		if(argc != 4)
 		{
@@ -89,7 +89,7 @@ static x_s32 fileram(x_s32 argc, const x_s8 **argv)
 		close(fd);
 		printk("copy file %s to ram 0x%08lx ~ 0x%08lx.\r\n", filename, addr, addr + size);
 	}
-	else if( !strcmp(argv[1],(x_s8*)"-r") )
+	else if( !strcmp((const char *)argv[1], "-r") )
 	{
 		if(argc != 5)
 		{

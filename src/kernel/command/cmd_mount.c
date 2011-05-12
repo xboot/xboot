@@ -63,18 +63,18 @@ static x_s32 do_mount(x_s32 argc, const x_s8 **argv)
 
 	for(i=1; i<argc; i++)
 	{
-		if( !strcmp(argv[i],(x_s8*)"-t") && (argc > i+1) )
+		if( !strcmp((const char *)argv[i], "-t") && (argc > i+1) )
 		{
 			fstype = (char *)argv[i+1];
 			i++;
 		}
-		else if( !strcmp(argv[i],(x_s8*)"-o") && (argc > i+1) )
+		else if( !strcmp((const char *)argv[i], "-o") && (argc > i+1) )
 		{
-			if(!strcmp(argv[i+1], (x_s8*)"loop"))
+			if(!strcmp((const char *)argv[i+1], "loop"))
 				loop_flag = TRUE;
-			else if(!strcmp(argv[i+1], (x_s8*)"ro"))
+			else if(!strcmp((const char *)argv[i+1], "ro"))
 				ro_flag = TRUE;
-			else if(!strcmp(argv[i+1], (x_s8*)"rw"))
+			else if(!strcmp((const char *)argv[i+1], "rw"))
 				ro_flag = FALSE;
 			else
 			{
@@ -150,7 +150,7 @@ static x_s32 do_mount(x_s32 argc, const x_s8 **argv)
 			return -1;
 		}
 
-		snprintf((x_s8 *)tmp, 32, (const x_s8 *)"/dev/%s", blk->name);
+		snprintf(tmp, 32, "/dev/%s", blk->name);
 		dev = tmp;
 	}
 

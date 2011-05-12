@@ -45,15 +45,15 @@
 #define GB(x)						((typeof (x)) ((u64_t) x * 1024*1024*1024))
 
 /**
- * define system width, depend the type of x_sys.
+ * define system width, depend the type of void *.
  */
-#define BITS_OF_SYS					(sizeof(x_sys)*8)
+#define BITS_OF_SYS					(sizeof(void *)*8)
 
 /*
  * memory align
  */
-#define MEM_ALIGNMENT				(sizeof(x_sys))
+#define MEM_ALIGNMENT				(sizeof(void *))
 #define MEM_ALIGN_SIZE(size)		(((size) + MEM_ALIGNMENT - 1) & ~(MEM_ALIGNMENT-1))
-#define MEM_ALIGN(addr)				((void *)(((x_sys)(addr) + MEM_ALIGNMENT - 1) & ~(x_sys)(MEM_ALIGNMENT-1)))
+#define MEM_ALIGN(addr)				((void *)(((void *)(addr) + MEM_ALIGNMENT - 1) & ~(void *)(MEM_ALIGNMENT-1)))
 
 #endif /* __MACROS_H__ */

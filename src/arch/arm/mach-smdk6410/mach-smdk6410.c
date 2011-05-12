@@ -148,8 +148,8 @@ static struct machine smdk6410 = {
 	.res = {
 		.mem_banks = {
 			[0] = {
-				.start		= 0x50000000,
-				.end		= 0x50000000 + SZ_128M - 1,
+				.start		= (void *)(0x50000000),
+				.end		= (void *)(0x50000000 + SZ_128M - 1),
 			},
 
 			[1] = {
@@ -162,26 +162,26 @@ static struct machine smdk6410 = {
 	},
 
 	.link = {
-		.text_start			= (const x_sys)__text_start,
-		.text_end			= (const x_sys)__text_end,
+		.text_start			= (const void *)__text_start,
+		.text_end			= (const void *)__text_end,
 
-		.ramdisk_start		= (const x_sys)__ramdisk_start,
-		.ramdisk_end		= (const x_sys)__ramdisk_end,
+		.ramdisk_start		= (const void *)__ramdisk_start,
+		.ramdisk_end		= (const void *)__ramdisk_end,
 
-		.data_shadow_start	= (const x_sys)__data_shadow_start,
-		.data_shadow_end	= (const x_sys)__data_shadow_end,
+		.data_shadow_start	= (const void *)__data_shadow_start,
+		.data_shadow_end	= (const void *)__data_shadow_end,
 
-		.data_start			= (const x_sys)__data_start,
-		.data_end			= (const x_sys)__data_end,
+		.data_start			= (const void *)__data_start,
+		.data_end			= (const void *)__data_end,
 
-		.bss_start			= (const x_sys)__bss_start,
-		.bss_end			= (const x_sys)__bss_end,
+		.bss_start			= (const void *)__bss_start,
+		.bss_end			= (const void *)__bss_end,
 
-		.heap_start			= (const x_sys)__heap_start,
-		.heap_end			= (const x_sys)__heap_end,
+		.heap_start			= (const void *)__heap_start,
+		.heap_end			= (const void *)__heap_end,
 
-		.stack_start		= (const x_sys)__stack_start,
-		.stack_end			= (const x_sys)__stack_end,
+		.stack_start		= (const void *)__stack_start,
+		.stack_end			= (const void *)__stack_end,
 	},
 
 	.pm = {

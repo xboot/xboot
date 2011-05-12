@@ -31,7 +31,7 @@
 #include <disk/disk.h>
 #include <disk/partition.h>
 
-extern x_size disk_read(struct disk * disk, u8_t * buf, loff_t offset, x_size count);
+extern loff_t disk_read(struct disk * disk, u8_t * buf, loff_t offset, loff_t count);
 
 /*
  * the partition entry

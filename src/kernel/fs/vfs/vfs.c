@@ -409,7 +409,7 @@ s32_t sys_close(struct file * fp)
 /*
  * system read
  */
-s32_t sys_read(struct file * fp, void * buf, x_size size, x_size * count)
+s32_t sys_read(struct file * fp, void * buf, loff_t size, loff_t * count)
 {
 	struct vnode * vp;
 	s32_t err;
@@ -432,7 +432,7 @@ s32_t sys_read(struct file * fp, void * buf, x_size size, x_size * count)
 /*
  * system write
  */
-s32_t sys_write(struct file * fp, void * buf, x_size size, x_size * count)
+s32_t sys_write(struct file * fp, void * buf, loff_t size, loff_t * count)
 {
 	struct vnode * vp;
 	s32_t err;

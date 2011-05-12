@@ -201,11 +201,11 @@ static s32_t cpiofs_close(struct vnode * node, struct file * fp)
 	return 0;
 }
 
-static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	loff_t off;
-	x_size len;
+	loff_t len;
 
 	*result = 0;
 	if(node->v_type == VDIR)
@@ -228,7 +228,7 @@ static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_si
 	return 0;
 }
 
-static s32_t cpiofs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t cpiofs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	return -1;
 }
@@ -258,7 +258,7 @@ static s32_t cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 	char path[MAX_PATH];
 	char name[MAX_NAME];
 	u32_t size, name_size, mode;
-	x_size off = 0;
+	loff_t off = 0;
 	char buf[9];
 	s32_t i = 0;
 
@@ -292,7 +292,7 @@ static s32_t cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 			memcpy(buf, (const s8_t *)(header.c_mode), 8);
 			mode = simple_strtou32((const s8_t *)buf, NULL, 16);
 
-			bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
+			bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
 
 			if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const char *)"TRAILER!!!", 10) == 0) )
 				return ENOENT;
@@ -330,7 +330,7 @@ static s32_t cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 	struct cpio_newc_header header;
 	char path[MAX_PATH];
 	u32_t size, name_size, mode;
-	x_size off = 0;
+	loff_t off = 0;
 	s8_t buf[9];
 
 	while(1)
@@ -351,7 +351,7 @@ static s32_t cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 		memcpy(buf, (const s8_t *)(header.c_mode), 8);
 		mode = simple_strtou32(buf, NULL, 16);
 
-		bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
+		bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
 
 		if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const char *)"TRAILER!!!", 10) == 0) )
 			return ENOENT;

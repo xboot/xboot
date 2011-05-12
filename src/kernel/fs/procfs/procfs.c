@@ -103,10 +103,10 @@ static s32_t procfs_close(struct vnode * node, struct file * fp)
 	return 0;
 }
 
-static s32_t procfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t procfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct proc * proc = (struct proc *)(node->v_data);
-	x_size len;
+	loff_t len;
 
 	*result = 0;
 	if(node->v_type == VDIR)
@@ -121,7 +121,7 @@ static s32_t procfs_read(struct vnode * node, struct file * fp, void * buf, x_si
 	return 0;
 }
 
-static s32_t procfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t procfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	return -1;
 }

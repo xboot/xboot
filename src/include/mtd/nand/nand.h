@@ -66,7 +66,7 @@ struct nand_block
 	loff_t offset;
 
 	/* size of the block. */
-	x_size size;
+	loff_t size;
 
 	/* true if the block has been erased */
 	bool_t is_erased;

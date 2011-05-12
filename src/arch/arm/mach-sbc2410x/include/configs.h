@@ -18,7 +18,7 @@ typedef unsigned long long		u64_t;
 
 typedef signed int				bool_t;
 typedef unsigned int			x_sys;
-typedef signed long long		x_size;
+typedef signed long long		loff_t;
 typedef signed long long		loff_t;
 typedef void*					x_addr;
 

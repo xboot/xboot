@@ -1,8 +1,6 @@
 #ifndef __CONFIGS_H__
 #define __CONFIGS_H__
 
-typedef signed long long			x_size;
-
 /*
  * define the format of endian, little endian or big endian.
  */

@@ -114,10 +114,10 @@ s32_t open(const char * path, u32_t flags, u32_t mode)
 /*
  * read from file
  */
-s32_t read(s32_t fd, void * buf, x_size len)
+s32_t read(s32_t fd, void * buf, loff_t len)
 {
 	struct file * fp;
-	x_size bytes;
+	loff_t bytes;
 	s32_t err;
 
 	if(fd < 0)
@@ -135,10 +135,10 @@ s32_t read(s32_t fd, void * buf, x_size len)
 /*
  * write to file
  */
-s32_t write(s32_t fd, void * buf, x_size len)
+s32_t write(s32_t fd, void * buf, loff_t len)
 {
 	struct file * fp;
-	x_size bytes;
+	loff_t bytes;
 	s32_t err;
 
 	if(fd < 0)

@@ -32,14 +32,14 @@
 #include <fs/fs.h>
 #include <fs/vfs/vfs.h>
 
-x_size bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, x_size count)
+loff_t bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
 	u32_t blkno, blksz, blkcnt;
 	u64_t div, rem;
 	u32_t len;
-	x_size tmp;
-	x_size size = 0;
+	loff_t tmp;
+	loff_t size = 0;
 
 	if(!buf)
 		return 0;
@@ -127,14 +127,14 @@ x_size bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, x_size count)
 	return size;
 }
 
-x_size bio_write(struct blkdev * dev, u8_t * buf, loff_t offset, x_size count)
+loff_t bio_write(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
 	u32_t blkno, blksz, blkcnt;
 	u64_t div, rem;
 	u32_t len;
-	x_size tmp;
-	x_size size = 0;
+	loff_t tmp;
+	loff_t size = 0;
 
 	if(!buf)
 		return 0;

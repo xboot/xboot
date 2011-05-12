@@ -94,7 +94,7 @@ struct vnode {
 	struct list_head v_link;	/* link for hash list */
 	struct mount * v_mount;		/* mounted vfs pointer */
 	struct vnops * v_op;		/* vnode operations */
-	x_size v_size;				/* file size */
+	loff_t v_size;				/* file size */
 	u32_t v_mode;				/* file mode permissions */
 	enum vnode_type v_type;		/* vnode type */
 	enum vnode_flag v_flags;	/* vnode flag */
@@ -110,8 +110,8 @@ struct vnode {
 struct vnops {
 	s32_t (*vop_open)(struct vnode *, s32_t);
 	s32_t (*vop_close)(struct vnode *, struct file *);
-	s32_t (*vop_read)(struct vnode *, struct file *, void *, x_size, x_size *);
-	s32_t (*vop_write)(struct vnode *, struct file *, void *, x_size, x_size *);
+	s32_t (*vop_read)(struct vnode *, struct file *, void *, loff_t, loff_t *);
+	s32_t (*vop_write)(struct vnode *, struct file *, void *, loff_t, loff_t *);
 	s32_t (*vop_seek)(struct vnode *, struct file *, loff_t, loff_t);
 	s32_t (*vop_ioctl)(struct vnode *, struct file *, u32_t, void *);
 	s32_t (*vop_fsync)(struct vnode *, struct file *);
@@ -196,8 +196,8 @@ struct vfsops {
 /*
  * declare for vfs_bio
  */
-x_size bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, x_size count);
-x_size bio_write(struct blkdev * dev, u8_t * buf, loff_t offset, x_size count);
+loff_t bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count);
+loff_t bio_write(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count);
 
 /*
  * declare for vfs_mount
@@ -252,8 +252,8 @@ s32_t sys_umount(char * path);
 s32_t sys_sync(void);
 s32_t sys_open(char * path, u32_t flags, u32_t mode, struct file ** pfp);
 s32_t sys_close(struct file * fp);
-s32_t sys_read(struct file * fp, void * buf, x_size size, x_size * count);
-s32_t sys_write(struct file * fp, void * buf, x_size size, x_size * count);
+s32_t sys_read(struct file * fp, void * buf, loff_t size, loff_t * count);
+s32_t sys_write(struct file * fp, void * buf, loff_t size, loff_t * count);
 s32_t sys_lseek(struct file * fp, loff_t off, u32_t type, loff_t * origin);
 s32_t sys_ioctl(struct file * fp, u32_t cmd, void * arg);
 s32_t sys_fsync(struct file * fp);

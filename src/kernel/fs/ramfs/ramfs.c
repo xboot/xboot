@@ -49,8 +49,8 @@ struct ramfs_node {
 	s8_t * name;					/* name (null-terminated) */
 	s32_t name_len;					/* length of name not including terminator */
 	s8_t * buf;						/* buffer to the file data */
-	x_size buf_len;					/* allocated buffer size */
-	x_size size;					/* file size */
+	loff_t buf_len;					/* allocated buffer size */
+	loff_t size;					/* file size */
 };
 
 static struct ramfs_node * ramfs_allocate_node(char * name, enum vnode_type type)
@@ -135,7 +135,7 @@ static s32_t ramfs_remove_node(struct ramfs_node * dnode, struct ramfs_node * no
 
 static s32_t ramfs_rename_node(struct ramfs_node * node, char * name)
 {
-	x_size len;
+	loff_t len;
 	char * tmp;
 
 	len = strlen(name);
@@ -208,7 +208,7 @@ static s32_t ramfs_close(struct vnode * node, struct file * fp)
 	return 0;
 }
 
-static s32_t ramfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t ramfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct ramfs_node * n;
 	loff_t off;
@@ -235,12 +235,12 @@ static s32_t ramfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	return 0;
 }
 
-static s32_t ramfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t ramfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct ramfs_node * n;
 	loff_t file_pos, end_pos;
 	void * new_buf;
-	x_size new_size;
+	loff_t new_size;
 
 	*result = 0;
 	if(node->v_type == VDIR)
@@ -254,7 +254,7 @@ static s32_t ramfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 	end_pos = node->v_size;
 	file_pos = (fp->f_flags & O_APPEND) ? end_pos : fp->f_offset;
 
-	if(file_pos + size > (x_size)end_pos)
+	if(file_pos + size > (loff_t)end_pos)
 	{
 		/* expand the file size before writing to it */
 		end_pos = file_pos + size;
@@ -349,7 +349,7 @@ static s32_t ramfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 static s32_t ramfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
 	struct ramfs_node *n, *dn;
-	x_size len;
+	loff_t len;
 	bool_t found;
 
 	if(*name == '\0')
@@ -494,7 +494,7 @@ static s32_t ramfs_truncate(struct vnode * node, loff_t length)
 {
 	struct ramfs_node *n;
 	void * new_buf;
-	x_size new_size;
+	loff_t new_size;
 
 	n = node->v_data;
 

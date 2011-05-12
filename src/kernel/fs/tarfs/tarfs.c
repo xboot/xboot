@@ -251,11 +251,11 @@ static s32_t tarfs_close(struct vnode * node, struct file * fp)
 	return 0;
 }
 
-static s32_t tarfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t tarfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	loff_t off;
-	x_size len;
+	loff_t len;
 
 	*result = 0;
 	if(node->v_type == VDIR)
@@ -278,7 +278,7 @@ static s32_t tarfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	return 0;
 }
 
-static s32_t tarfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t tarfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	return -1;
 }
@@ -307,7 +307,7 @@ static s32_t tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	struct tar_header header;
 	char name[MAX_NAME];
 	loff_t off = 0;
-	x_size size;
+	loff_t size;
 	s32_t i = 0;
 
 	if(fp->f_offset == 0)
@@ -367,7 +367,7 @@ static s32_t tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct tar_header header;
 	loff_t off = 0;
-	x_size size;
+	loff_t size;
 	u32_t mode;
 	s8_t buf[9];
 

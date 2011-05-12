@@ -8,7 +8,7 @@
 struct stat
 {
     u32_t	st_ino;				/* file serial number */
-    x_size	st_size;     		/* file size */
+    loff_t	st_size;     		/* file size */
     u32_t	st_mode;			/* file mode */
     u32_t	st_dev;				/* id of device containing file */
     u32_t	st_uid;				/* user ID of the file owner */

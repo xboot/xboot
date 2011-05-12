@@ -154,12 +154,12 @@ static s32_t devfs_close(struct vnode * node, struct file * fp)
 	return -1;
 }
 
-static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct device * dev = (struct device *)(node->v_data);
 	struct chrdev * chr;
 	struct blkdev * blk;
-	x_size len;
+	loff_t len;
 
 	*result = 0;
 	if(node->v_type == VDIR)
@@ -189,12 +189,12 @@ static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 	return -1;
 }
 
-static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct device * dev = (struct device *)(node->v_data);
 	struct chrdev * chr;
 	struct blkdev * blk;
-	x_size len;
+	loff_t len;
 
 	*result = 0;
 	if(node->v_type == VDIR)

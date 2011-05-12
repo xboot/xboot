@@ -72,7 +72,7 @@ struct mmc_card_info
 
 	u32_t				sector_size;
 	u32_t				sector_count;
-	x_size				capacity;
+	loff_t				capacity;
 };
 
 /*

@@ -144,7 +144,7 @@ bool_t unregister_blkdev(const char * name)
 /*
  * get block device's total size
  */
-x_size get_blkdev_total_size(struct blkdev * dev)
+loff_t get_blkdev_total_size(struct blkdev * dev)
 {
 	if(!dev)
 		return 0;

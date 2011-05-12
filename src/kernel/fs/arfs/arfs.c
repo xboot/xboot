@@ -126,11 +126,11 @@ static s32_t arfs_close(struct vnode * node, struct file * fp)
 	return 0;
 }
 
-static s32_t arfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t arfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	loff_t off;
-	x_size len;
+	loff_t len;
 
 	*result = 0;
 	if(node->v_type == VDIR)
@@ -153,7 +153,7 @@ static s32_t arfs_read(struct vnode * node, struct file * fp, void * buf, x_size
 	return 0;
 }
 
-static s32_t arfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
+static s32_t arfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	return -1;
 }
@@ -181,7 +181,7 @@ static s32_t arfs_readdir(struct vnode * node, struct file * fp, struct dirent *
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct ar_hdr header;
 	loff_t off = 8;
-	x_size size;
+	loff_t size;
 	s8_t * p;
 	s32_t i = 0;
 
@@ -234,7 +234,7 @@ static s32_t arfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct ar_hdr header;
 	loff_t off = 8;
-	x_size size;
+	loff_t size;
 	s8_t * p;
 
 	while(1)

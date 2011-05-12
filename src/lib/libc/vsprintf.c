@@ -828,7 +828,7 @@ x_s32 sscanf(const x_s8 * buf, const x_s8 * fmt, ...)
 /*
  * ssize - format size to string
  */
-x_s32 ssize(x_s8 * buf, x_u64 size)
+x_s32 ssize(char * buf, x_u64 size)
 {
 	const char * unit[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 	x_s32 count = 0;
@@ -839,5 +839,5 @@ x_s32 ssize(x_s8 * buf, x_u64 size)
 		count++;
 	}
 
-	return( sprintf(buf, (const x_s8 *)"%lu%s", (x_u32)size, unit[count]) );
+	return( sprintf(buf, (const char *)"%lu%s", (x_u32)size, unit[count]) );
 }

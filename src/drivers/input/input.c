@@ -310,7 +310,7 @@ static x_s32 input_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	struct list_head * pos;
 	x_s8 * p;
 	x_s32 len = 0;
-	x_s8 buff[32];
+	char buff[32];
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -375,7 +375,7 @@ static x_s32 input_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 			strcpy(buff, (const char *)"unknown");
 			break;
 		}
-		len += sprintf((char *)(p + len), (const char *)"\r\n %s %*s%s", list->input->name, (int)(16 - strlen((x_s8 *)list->input->name)), "", buff);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s %*s%s", list->input->name, (int)(16 - strlen(list->input->name)), "", buff);
 	}
 
 	len -= offset;

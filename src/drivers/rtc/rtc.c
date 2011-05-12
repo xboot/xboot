@@ -147,7 +147,7 @@ static x_s32 rtc_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time time;
-	x_s8 tmp[64];
+	char tmp[64];
 	x_s32 offset = 0;
 	x_s32 len;
 
@@ -155,7 +155,7 @@ static x_s32 rtc_read(struct chrdev * dev, x_u8 * buf, x_s32 count)
 	{
 		if(drv->get_time(&time))
 		{
-			len = sprintf(tmp, (const x_s8 *)"%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu\r\n", (x_u32)time.year, (x_u32)time.mon, (x_u32)time.day, week_days[time.week], (x_u32)time.hour, (x_u32)time.min, (x_u32)time.sec);
+			len = sprintf(tmp, (const char *)"%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu\r\n", (x_u32)time.year, (x_u32)time.mon, (x_u32)time.day, week_days[time.week], (x_u32)time.hour, (x_u32)time.min, (x_u32)time.sec);
 			len -= offset;
 
 			if(len < 0)

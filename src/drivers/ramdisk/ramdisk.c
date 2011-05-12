@@ -121,7 +121,7 @@ static __init void ramdisk_init(void)
 		return;
 	}
 
-	snprintf((x_s8 *)ramdisk->name, 32, (const x_s8 *)"ramdisk");
+	snprintf(ramdisk->name, 32, "ramdisk");
 	ramdisk->start = (x_sys)__ramdisk_start;
 	ramdisk->end = (x_sys)__ramdisk_end;
 	ramdisk->busy = FALSE;

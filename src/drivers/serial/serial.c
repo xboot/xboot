@@ -166,7 +166,7 @@ static x_bool scon_getxy(struct console * console, x_s32 * x, x_s32 * y)
 static x_bool scon_gotoxy(struct console * console, x_s32 x, x_s32 y)
 {
 	struct serial_console_info * info = console->priv;
-	x_s8 buf[32];
+	char buf[32];
 
 	if(x < 0)
 		x = 0;
@@ -181,7 +181,7 @@ static x_bool scon_gotoxy(struct console * console, x_s32 x, x_s32 y)
 	info->x = x;
 	info->y = y;
 
-	sprintf(buf, (const x_s8 *)"\033[%ld;%ldH", y + 1, x + 1);
+	sprintf(buf, (const char *)"\033[%ld;%ldH", y + 1, x + 1);
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
 	return TRUE;
@@ -193,14 +193,14 @@ static x_bool scon_gotoxy(struct console * console, x_s32 x, x_s32 y)
 static x_bool scon_setcursor(struct console * console, x_bool on)
 {
 	struct serial_console_info * info = console->priv;
-	x_s8 buf[32];
+	char buf[32];
 
 	info->cursor = on;
 
 	if(on)
-		sprintf(buf, (const x_s8 *)"\033[?25h");
+		sprintf(buf, (const char *)"\033[?25h");
 	else
-		sprintf(buf, (const x_s8 *)"\033[?25l");
+		sprintf(buf, (const char *)"\033[?25l");
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
 	return TRUE;
@@ -222,15 +222,15 @@ static x_bool scon_getcursor(struct console * console)
 static x_bool scon_setcolor(struct console * console, enum tcolor f, enum tcolor b)
 {
 	struct serial_console_info * info = console->priv;
-	x_s8 buf[32];
+	char buf[32];
 
 	info->f = f;
 	info->b = b;
 
-	sprintf(buf, (const x_s8 *)"\033[38;5;%ldm", (x_u32)f);
+	sprintf(buf, (const char *)"\033[38;5;%ldm", (x_u32)f);
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
-	sprintf(buf, (const x_s8 *)"\033[48;5;%ldm", (x_u32)b);
+	sprintf(buf, (const char *)"\033[48;5;%ldm", (x_u32)b);
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
 	return TRUE;
@@ -255,15 +255,15 @@ static x_bool scon_getcolor(struct console * console, enum tcolor * f, enum tcol
 static x_bool scon_cls(struct console * console)
 {
 	struct serial_console_info * info = console->priv;
-	x_s8 buf[32];
+	char buf[32];
 
-	sprintf(buf, (const x_s8 *)"\033[%ld;%ldr", (x_s32)1, (x_s32)info->h);
+	sprintf(buf, (const char *)"\033[%ld;%ldr", (x_s32)1, (x_s32)info->h);
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
-	sprintf(buf, (const x_s8 *)"\033[2J");
+	sprintf(buf, (const char *)"\033[2J");
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
-	sprintf(buf, (const x_s8 *)"\033[%ld;%ldH", (x_s32)1, (x_s32)1);
+	sprintf(buf, (const char *)"\033[%ld;%ldH", (x_s32)1, (x_s32)1);
 	info->drv->write((const x_u8 *)buf, strlen(buf));
 
 	info->x = 0;
@@ -455,7 +455,7 @@ x_bool scon_putcode(struct console * console, x_u32 code)
 	}
 
 	ucs4_to_utf8(code, buf);
-	info->drv->write((const x_u8 *)buf, strlen(buf));
+	info->drv->write((const x_u8 *)buf, strlen((const char *)buf));
 
 	return TRUE;
 }

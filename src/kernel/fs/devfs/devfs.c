@@ -88,7 +88,7 @@ static x_s32 devfs_open(struct vnode * node, x_s32 flag)
 	x_s8 * path;
 
 	path = (x_s8 *)node->v_path;
-	if(!strcmp(path, (const x_s8 *)"/"))
+	if(!strcmp((const char *)path, (const char *)"/"))
 		return 0;
 
 	if(*path == '/')
@@ -133,7 +133,7 @@ static x_s32 devfs_close(struct vnode * node, struct file * fp)
 	x_s8 * path;
 
 	path = (x_s8 *)node->v_path;
-	if(!strcmp(path, (const x_s8 *)"/"))
+	if(!strcmp((const char *)path, (const char *)"/"))
 		return 0;
 
 	dev = (struct device *)node->v_data;
@@ -275,12 +275,12 @@ static x_s32 devfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	if(fp->f_offset == 0)
 	{
 		dir->d_type = DT_DIR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)".", sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, (const char *)".", sizeof(dir->d_name));
 	}
 	else if(fp->f_offset == 1)
 	{
 		dir->d_type = DT_DIR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)"..", sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, (const char *)"..", sizeof(dir->d_name));
 	}
 	else
 	{
@@ -306,11 +306,11 @@ static x_s32 devfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 			dir->d_type = DT_UNKNOWN;
 		}
 
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)list->device->name, sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, (const char *)list->device->name, sizeof(dir->d_name));
 	}
 
 	dir->d_fileno = (x_u32)fp->f_offset;
-	dir->d_namlen = (x_u16)strlen((const x_s8 *)dir->d_name);
+	dir->d_namlen = (x_u16)strlen((const char *)dir->d_name);
 	fp->f_offset++;
 
 	return 0;

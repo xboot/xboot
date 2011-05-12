@@ -56,7 +56,7 @@ static struct partition_parser * search_partition_parser(const char * name)
 	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct partition_parser_list, entry);
-		if(strcmp((x_s8*)list->parser->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->parser->name, name) == 0)
 			return list->parser;
 	}
 
@@ -143,7 +143,7 @@ x_bool partition_parser_probe(struct disk * disk)
 	if(!part)
 		return FALSE;
 
-	strlcpy((x_s8 *)part->name, (const x_s8 *)"TOTAL", sizeof(part->name));
+	strlcpy(part->name, "TOTAL", sizeof(part->name));
 	part->sector_from = 0;
 	part->sector_to = disk->sector_count - 1;
 	part->sector_size = disk->sector_size;
@@ -168,8 +168,8 @@ x_bool partition_parser_probe(struct disk * disk)
 		part = list_entry(part_pos, struct partition, entry);
 		if(i != 0)
 		{
-			if(strnlen((const x_s8 *)part->name, sizeof(part->name)) <= 0)
-				snprintf((x_s8 *)part->name, sizeof(part->name), (const x_s8 *)"part%ld", i);
+			if(strnlen(part->name, sizeof(part->name)) <= 0)
+				snprintf(part->name, sizeof(part->name), "part%ld", i);
 		}
 	}
 

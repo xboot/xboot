@@ -58,7 +58,7 @@ struct console * search_console(const char *name)
 	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct console_list, entry);
-		if(strcmp((x_s8*)list->console->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->console->name, name) == 0)
 			return list->console;
 	}
 
@@ -162,7 +162,7 @@ x_bool console_stdio_load(char * file)
 	if(!root || !root->name)
 		return FALSE;
 
-	if(strcmp((const x_s8 *)root->name, (const x_s8 *)"console") != 0)
+	if(strcmp(root->name, "console") != 0)
 	{
 		xml_free(root);
 		return FALSE;
@@ -238,7 +238,7 @@ x_bool console_stdio_save(char * file)
 		return FALSE;
 	}
 
-	write(fd, str, strlen((const x_s8 *)str));
+	write(fd, str, strlen((const char *)str));
 	close(fd);
 
 	free(str);
@@ -454,27 +454,27 @@ static x_s32 console_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[standard console]");
+	len += sprintf((char *)(p + len), (const char *)"[standard console]");
 	if(console_stdin)
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n stdin = %s", console_stdin->name);
+		len += sprintf((char *)(p + len), (const char *)"\r\n stdin = %s", console_stdin->name);
 	else
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n stdin = %s", "<NULL>");
+		len += sprintf((char *)(p + len), (const char *)"\r\n stdin = %s", "<NULL>");
 
 	if(console_stdout)
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n stdout = %s", console_stdout->name);
+		len += sprintf((char *)(p + len), (const char *)"\r\n stdout = %s", console_stdout->name);
 	else
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n stdout = %s", "<NULL>");
+		len += sprintf((char *)(p + len), (const char *)"\r\n stdout = %s", "<NULL>");
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n[available console]");
+	len += sprintf((char *)(p + len), (const char *)"\r\n[available console]");
 	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct console_list, entry);
 		if(list->console->getcode && list->console->putcode)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((x_s8 *)list->console->name)), "", "in,out");
+			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "in,out");
 		else if(list->console->getcode)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((x_s8 *)list->console->name)), "", "in");
+			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "in");
 		else if(list->console->putcode)
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((x_s8 *)list->console->name)), "", "out");
+			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "out");
 	}
 
 	len -= offset;

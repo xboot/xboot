@@ -57,10 +57,10 @@ struct cpio_newc_header {
 	x_u8 c_check[8];
 } __attribute__ ((packed));
 
-static x_bool get_next_token(const x_s8 * path, const x_s8 * perfix, x_s8 * result)
+static x_bool get_next_token(const char * path, const char * perfix, char * result)
 {
-	x_s8 full_path[MAX_PATH];
-	x_s8 *p, *q;
+	char full_path[MAX_PATH];
+	char *p, *q;
 	x_s32 l;
 
 	if(!path || !perfix || !result)
@@ -69,7 +69,7 @@ static x_bool get_next_token(const x_s8 * path, const x_s8 * perfix, x_s8 * resu
 	full_path[0] = '\0';
 
 	if(path[0] != '/')
-		strcpy(full_path, (const x_s8 *)("/"));
+		strcpy(full_path, (const char *)("/"));
 	strlcat(full_path, path, sizeof(full_path));
 
 	l = strlen(perfix);
@@ -97,11 +97,11 @@ static x_bool get_next_token(const x_s8 * path, const x_s8 * perfix, x_s8 * resu
 	return TRUE;
 }
 
-static x_bool check_path(const x_s8 * path, const x_s8 * perfix, const x_s8 * name)
+static x_bool check_path(const char * path, const char * perfix, const char * name)
 {
-	x_s8 path1[MAX_PATH];
-	x_s8 path2[MAX_PATH];
-	x_s8 *p;
+	char path1[MAX_PATH];
+	char path2[MAX_PATH];
+	char *p;
 	x_s32 l;
 
 	if(!path || !perfix || !name)
@@ -110,16 +110,16 @@ static x_bool check_path(const x_s8 * path, const x_s8 * perfix, const x_s8 * na
 	path1[0] = path2[0] = '\0';
 
 	if(path[0] != '/')
-		strcpy(path1, (const x_s8 *)("/"));
+		strcpy(path1, (const char *)("/"));
 	strlcat(path1, path, sizeof(path1));
 
 	if(perfix[0] != '/')
-		strcpy(path2, (const x_s8 *)("/"));
+		strcpy(path2, (const char *)("/"));
 	strlcat(path2, perfix, sizeof(path2));
 
 	if(path2[strlen(path2) - 1] != '/')
-		strlcat(path2, (const x_s8 *)"/", sizeof(path2));
-	strlcat(path2, (const x_s8 *)name, sizeof(path2));
+		strlcat(path2, (const char *)"/", sizeof(path2));
+	strlcat(path2, (const char *)name, sizeof(path2));
 
 	l = strlen(path2);
 	if(memcmp(path1, path2, l) != 0)
@@ -157,7 +157,7 @@ static x_s32 cpiofs_mount(struct mount * m, char * dev, x_s32 flag)
 	if(bio_read(blk, (x_u8 *)(&header), 0, sizeof(struct cpio_newc_header)) != sizeof(struct cpio_newc_header))
 		return EIO;
 
-	if(strncmp((const x_s8 *)(header.c_magic), (const x_s8 *)"070701", 6) != 0)
+	if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
 		return EINVAL;
 
 	m->m_flags = (flag & MOUNT_MASK) | MOUNT_RDONLY;
@@ -255,22 +255,22 @@ static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
-	x_s8 path[MAX_PATH];
-	x_s8 name[MAX_NAME];
+	char path[MAX_PATH];
+	char name[MAX_NAME];
 	x_u32 size, name_size, mode;
 	x_size off = 0;
-	x_s8 buf[9];
+	char buf[9];
 	x_s32 i = 0;
 
 	if(fp->f_offset == 0)
 	{
 		dir->d_type = DT_DIR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)".", sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, (const char *)".", sizeof(dir->d_name));
 	}
 	else if(fp->f_offset == 1)
 	{
 		dir->d_type = DT_DIR;
-		strlcpy((x_s8 *)&dir->d_name, (const x_s8 *)"..", sizeof(dir->d_name));
+		strlcpy((char *)&dir->d_name, (const char *)"..", sizeof(dir->d_name));
 	}
 	else
 	{
@@ -278,29 +278,29 @@ static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 		{
 			bio_read(dev, (x_u8 *)(&header), off, sizeof(struct cpio_newc_header));
 
-			if(strncmp((const x_s8 *)(header.c_magic), (const x_s8 *)"070701", 6) != 0)
+			if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
 				return ENOENT;
 
 			buf[8] = '\0';
 
 			memcpy(buf, (const x_s8 *)(header.c_filesize), 8);
-			size = simple_strtou32(buf, NULL, 16);
+			size = simple_strtou32((const x_s8 *)buf, NULL, 16);
 
 			memcpy(buf, (const x_s8 *)(header.c_namesize), 8);
-			name_size = simple_strtou32(buf, NULL, 16);
+			name_size = simple_strtou32((const x_s8 *)buf, NULL, 16);
 
 			memcpy(buf, (const x_s8 *)(header.c_mode), 8);
-			mode = simple_strtou32(buf, NULL, 16);
+			mode = simple_strtou32((const x_s8 *)buf, NULL, 16);
 
 			bio_read(dev, (x_u8 *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
 
-			if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const x_s8 *)"TRAILER!!!", 10) == 0) )
+			if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const char *)"TRAILER!!!", 10) == 0) )
 				return ENOENT;
 
 			off = off + sizeof(struct cpio_newc_header) + (((name_size + 1) & ~3) + 2) + size;
 			off = (off + 3) & ~3;
 
-			if(!get_next_token(path, (const x_s8 *)node->v_path, name))
+			if(!get_next_token(path, (const char *)node->v_path, name))
 				continue;
 
 			if(i++ == fp->f_offset - 2)
@@ -314,11 +314,11 @@ static x_s32 cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 			dir->d_type = DT_DIR;
 		else
 			dir->d_type = DT_REG;
-		strlcpy((x_s8 *)&dir->d_name, name, sizeof(name));
+		strlcpy((char *)&dir->d_name, name, sizeof(name));
 	}
 
 	dir->d_fileno = (x_u32)fp->f_offset;
-	dir->d_namlen = (x_u16)strlen((const x_s8 *)dir->d_name);
+	dir->d_namlen = (x_u16)strlen((const char *)dir->d_name);
 	fp->f_offset++;
 
 	return 0;
@@ -328,7 +328,7 @@ static x_s32 cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
-	x_s8 path[MAX_PATH];
+	char path[MAX_PATH];
 	x_u32 size, name_size, mode;
 	x_size off = 0;
 	x_s8 buf[9];
@@ -337,7 +337,7 @@ static x_s32 cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 	{
 		bio_read(dev, (x_u8 *)(&header), off, sizeof(struct cpio_newc_header));
 
-		if(strncmp((const x_s8 *)(header.c_magic), (const x_s8 *)"070701", 6) != 0)
+		if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
 			return ENOENT;
 
 		buf[8] = '\0';
@@ -353,10 +353,10 @@ static x_s32 cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 
 		bio_read(dev, (x_u8 *)path, off + sizeof(struct cpio_newc_header), (x_size)name_size);
 
-		if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const x_s8 *)"TRAILER!!!", 10) == 0) )
+		if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const char *)"TRAILER!!!", 10) == 0) )
 			return ENOENT;
 
-		if(check_path(path, (const x_s8 *)(dnode->v_path), (const x_s8 *)name))
+		if(check_path(path, (const char *)(dnode->v_path), (const char *)name))
 			break;
 
 		off = off + sizeof(struct cpio_newc_header) + (((name_size + 1) & ~3) + 2) + size;

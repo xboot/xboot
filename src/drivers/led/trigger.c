@@ -59,7 +59,7 @@ static struct trigger * trigger_search(const char *name)
 	for(pos = (&led_trigger_list->entry)->next; pos != (&led_trigger_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct led_trigger_list, entry);
-		if(strcmp((x_s8*)list->trigger->name, (const x_s8 *)name) == 0)
+		if(strcmp((char*)list->trigger->name, (const char *)name) == 0)
 			return list->trigger;
 	}
 

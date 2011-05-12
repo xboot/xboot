@@ -57,7 +57,7 @@ struct mmc_host * search_mmc_host(const char * name)
 	for(pos = (&mmc_host_list->entry)->next; pos != (&mmc_host_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct mmc_host_list, entry);
-		if(strcmp((x_s8*)list->host->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->host->name, name) == 0)
 			return list->host;
 	}
 

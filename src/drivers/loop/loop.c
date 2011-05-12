@@ -184,7 +184,7 @@ struct blkdev * search_loop(const char * file)
 	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct loop_list, entry);
-		if(strcmp((x_s8*)list->loop->path, (const x_s8 *)buf) == 0)
+		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
 		{
 			return search_blkdev_with_type(list->loop->name, BLK_DEV_LOOP);
 		}
@@ -238,7 +238,7 @@ x_bool register_loop(const char * file)
 
 	while(1)
 	{
-		snprintf((x_s8 *)loop->name, 32, (const x_s8 *)"loop%ld", i++);
+		snprintf((char *)loop->name, 32, (const char *)"loop%ld", i++);
 		if(search_device(loop->name) == NULL)
 			break;
 	}
@@ -304,7 +304,7 @@ x_bool unregister_loop(const char * file)
 	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct loop_list, entry);
-		if(strcmp((x_s8*)list->loop->path, (const x_s8 *)buf) == 0)
+		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
 		{
 			dev = search_blkdev_with_type(list->loop->name, BLK_DEV_LOOP);
 			if(dev)
@@ -337,12 +337,12 @@ static x_s32 loop_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[loop]");
+	len += sprintf((char *)(p + len), (const char *)"[loop]");
 
 	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct loop_list, entry);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s %s ", list->loop->name, list->loop->path);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s %s ", list->loop->name, list->loop->path);
 	}
 
 	len -= offset;

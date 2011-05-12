@@ -19,6 +19,6 @@ x_s32 vsscanf(const x_s8 * buf, const x_s8 * fmt, va_list args);
 int sprintf(char * buf, const char * fmt, ...);
 int snprintf(char * buf, size_t size, const char * fmt, ...);
 x_s32 sscanf(const x_s8 * buf, const x_s8 * fmt, ...);
-x_s32 ssize(x_s8 * buf, x_u64 size);
+x_s32 ssize(char * buf, x_u64 size);
 
 #endif /* __VSPRINTF_H__ */

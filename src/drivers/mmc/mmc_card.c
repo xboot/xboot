@@ -425,7 +425,7 @@ void mmc_card_probe(void)
 		i = 0;
 		while(1)
 		{
-			snprintf((x_s8 *)card->name, 32, (const x_s8 *)"mmc%ld", i++);
+			snprintf((char *)card->name, 32, (const char *)"mmc%ld", i++);
 			if(search_mmc_card(card->name) == NULL)
 				break;
 		}
@@ -504,7 +504,7 @@ struct mmc_card * search_mmc_card(const char * name)
 	for(pos = (&mmc_card_list->entry)->next; pos != (&mmc_card_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct mmc_card_list, entry);
-		if(strcmp((x_s8*)list->card->name, (const x_s8 *)name) == 0)
+		if(strcmp((char*)list->card->name, (const char *)name) == 0)
 			return list->card;
 	}
 
@@ -520,7 +520,7 @@ static x_s32 mmc_card_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	struct list_head * pos;
 	x_s8 * p;
 	x_s32 len = 0;
-	x_s8 buff[32];
+	char buff[32];
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -529,44 +529,44 @@ static x_s32 mmc_card_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	{
 		list = list_entry(pos, struct mmc_card_list, entry);
 
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"%s:\r\n", list->card->name);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" host controller   : %s\r\n", list->card->host->name);
+		len += sprintf((char *)(p + len), (const char *)"%s:\r\n", list->card->name);
+		len += sprintf((char *)(p + len), (const char *)" host controller   : %s\r\n", list->card->host->name);
 		switch(list->card->info->type)
 		{
 		case MMC_CARD_TYPE_MMC:
-			strcpy(buff, (const x_s8 *)"mmc card");
+			strcpy(buff, (const char *)"mmc card");
 			break;
 
 		case MMC_CARD_TYPE_SD:
-			strcpy(buff, (const x_s8 *)"sd card");
+			strcpy(buff, (const char *)"sd card");
 			break;
 
 		case MMC_CARD_TYPE_SD20:
-			strcpy(buff, (const x_s8 *)"sd card version 2.0");
+			strcpy(buff, (const char *)"sd card version 2.0");
 			break;
 
 		case MMC_CARD_TYPE_SDHC:
-			strcpy(buff, (const x_s8 *)"sdhc card");
+			strcpy(buff, (const char *)"sdhc card");
 			break;
 
 		default:
-			strcpy(buff, (const x_s8 *)"unknown");
+			strcpy(buff, (const char *)"unknown");
 			break;
 		}
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" card type         : %s\r\n", buff);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" manufacturer id   : 0x%lx\r\n", (x_u32)list->card->info->cid.mid);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" oem id            : 0x%lx\r\n", (x_u32)list->card->info->cid.oid);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" product name      : %s\r\n", list->card->info->cid.pnm);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" hardware revision : 0x%lx\r\n", (x_u32)list->card->info->cid.hwrev);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" firmware revision : 0x%lx\r\n", (x_u32)list->card->info->cid.fwrev);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" serial number     : 0x%lx\r\n", (x_u32)list->card->info->cid.serial);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" manufacture date  : %ld/%02ld\r\n", (x_u32)list->card->info->cid.year, (x_u32)list->card->info->cid.month);
+		len += sprintf((char *)(p + len), (const char *)" card type         : %s\r\n", buff);
+		len += sprintf((char *)(p + len), (const char *)" manufacturer id   : 0x%lx\r\n", (x_u32)list->card->info->cid.mid);
+		len += sprintf((char *)(p + len), (const char *)" oem id            : 0x%lx\r\n", (x_u32)list->card->info->cid.oid);
+		len += sprintf((char *)(p + len), (const char *)" product name      : %s\r\n", list->card->info->cid.pnm);
+		len += sprintf((char *)(p + len), (const char *)" hardware revision : 0x%lx\r\n", (x_u32)list->card->info->cid.hwrev);
+		len += sprintf((char *)(p + len), (const char *)" firmware revision : 0x%lx\r\n", (x_u32)list->card->info->cid.fwrev);
+		len += sprintf((char *)(p + len), (const char *)" serial number     : 0x%lx\r\n", (x_u32)list->card->info->cid.serial);
+		len += sprintf((char *)(p + len), (const char *)" manufacture date  : %ld/%02ld\r\n", (x_u32)list->card->info->cid.year, (x_u32)list->card->info->cid.month);
 
 		ssize(buff, (x_u64)(list->card->info->sector_size));
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" sector size       : %s\r\n", buff);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" sector count      : %ld\r\n", list->card->info->sector_count);
+		len += sprintf((char *)(p + len), (const char *)" sector size       : %s\r\n", buff);
+		len += sprintf((char *)(p + len), (const char *)" sector count      : %ld\r\n", list->card->info->sector_count);
 		ssize(buff, (x_u64)(list->card->info->capacity));
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" total capacity    : %s\r\n", buff);
+		len += sprintf((char *)(p + len), (const char *)" total capacity    : %s\r\n", buff);
 	}
 
 	len -= offset;

@@ -715,7 +715,7 @@ static x_s32 nand_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	struct list_head * pos;
 	x_s8 * p;
 	x_s32 len = 0;
-	x_s8 size[16];
+	char size[16];
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;

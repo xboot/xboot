@@ -61,6 +61,6 @@ bool_t unregister_blkdev(const char * name);
 x_size get_blkdev_total_size(struct blkdev * dev);
 u32_t get_blkdev_total_count(struct blkdev * dev);
 u32_t get_blkdev_size(struct blkdev * dev);
-x_off get_blkdev_offset(struct blkdev * dev, u32_t blkno);
+loff_t get_blkdev_offset(struct blkdev * dev, u32_t blkno);
 
 #endif /* __BLKDEV_H__ */

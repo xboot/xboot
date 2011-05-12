@@ -156,10 +156,10 @@ s32_t write(s32_t fd, void * buf, x_size len)
 /*
  * seek a offset
  */
-x_off lseek(s32_t fd, x_off offset, s32_t whence)
+loff_t lseek(s32_t fd, loff_t offset, s32_t whence)
 {
 	struct file * fp;
-	x_off org;
+	loff_t org;
 
 	if(fd < 0)
 		return -1;
@@ -510,7 +510,7 @@ u32_t umask(u32_t mode)
 /*
  * truncate a file to a specified length by file descriptor
  */
-s32_t ftruncate(s32_t fd, x_off length)
+s32_t ftruncate(s32_t fd, loff_t length)
 {
 	struct file * fp;
 
@@ -526,7 +526,7 @@ s32_t ftruncate(s32_t fd, x_off length)
 /*
  * truncate a file to a specified length by file path
  */
-s32_t truncate(const char * path, x_off length)
+s32_t truncate(const char * path, loff_t length)
 {
 	char buf[MAX_PATH];
 	s32_t err;

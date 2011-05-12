@@ -224,11 +224,11 @@ static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 	return -1;
 }
 
-static s32_t devfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t devfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
 {
 	if(node->v_type == VBLK)
 	{
-		if((off2 < 0) || (off2 > (x_off)node->v_size))
+		if((off2 < 0) || (off2 > (loff_t)node->v_size))
 			return -1;
 		else
 			return 0;
@@ -391,7 +391,7 @@ static s32_t devfs_inactive(struct vnode * node)
 	return -1;
 }
 
-static s32_t devfs_truncate(struct vnode * node, x_off length)
+static s32_t devfs_truncate(struct vnode * node, loff_t length)
 {
 	return -1;
 }

@@ -455,7 +455,7 @@ s32_t sys_write(struct file * fp, void * buf, x_size size, x_size * count)
 /*
  * system lseek
  */
-s32_t sys_lseek(struct file * fp, x_off off, u32_t type, x_off * origin)
+s32_t sys_lseek(struct file * fp, loff_t off, u32_t type, loff_t * origin)
 {
 	struct vnode * vp;
 
@@ -466,12 +466,12 @@ s32_t sys_lseek(struct file * fp, x_off off, u32_t type, x_off * origin)
 	case SEEK_SET:
 		if(off < 0)
 			off = 0;
-		if(off > (x_off)vp->v_size)
+		if(off > (loff_t)vp->v_size)
 			off = vp->v_size;
 		break;
 
 	case SEEK_CUR:
-		if(fp->f_offset + off > (x_off)vp->v_size)
+		if(fp->f_offset + off > (loff_t)vp->v_size)
 			off = vp->v_size;
 		else if(fp->f_offset + off < 0)
 			off = 0;
@@ -630,7 +630,7 @@ s32_t sys_rewinddir(struct file * fp)
 /*
  * system seekdir
  */
-s32_t sys_seekdir(struct file * fp, x_off loc)
+s32_t sys_seekdir(struct file * fp, loff_t loc)
 {
 	struct vnode * dvp;
 
@@ -646,7 +646,7 @@ s32_t sys_seekdir(struct file * fp, x_off loc)
 /*
  * system telldir
  */
-s32_t sys_telldir(struct file * fp, x_off * loc)
+s32_t sys_telldir(struct file * fp, loff_t * loc)
 {
 	struct vnode * dvp;
 
@@ -997,7 +997,7 @@ s32_t sys_stat(char * path, struct stat * st)
 /*
  * system truncate
  */
-s32_t sys_truncate(char * path, x_off length)
+s32_t sys_truncate(char * path, loff_t length)
 {
 	return 0;
 }
@@ -1005,7 +1005,7 @@ s32_t sys_truncate(char * path, x_off length)
 /*
  * system ftruncate
  */
-s32_t sys_ftruncate(struct file * fp, x_off length)
+s32_t sys_ftruncate(struct file * fp, loff_t length)
 {
 	return 0;
 }

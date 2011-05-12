@@ -204,7 +204,7 @@ static s32_t cpiofs_close(struct vnode * node, struct file * fp)
 static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
 	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
-	x_off off;
+	loff_t off;
 	x_size len;
 
 	*result = 0;
@@ -219,7 +219,7 @@ static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, x_si
 	if(node->v_size - fp->f_offset < size)
 		size = node->v_size - fp->f_offset;
 
-	off = (x_off)((s32_t)(node->v_data));
+	off = (loff_t)((s32_t)(node->v_data));
 	len = bio_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
@@ -233,9 +233,9 @@ static s32_t cpiofs_write(struct vnode * node , struct file * fp, void * buf, x_
 	return -1;
 }
 
-static s32_t cpiofs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t cpiofs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
 {
-	if(off2 > (x_off)(node->v_size))
+	if(off2 > (loff_t)(node->v_size))
 		return -1;
 
 	return 0;
@@ -446,7 +446,7 @@ static s32_t cpiofs_inactive(struct vnode * node)
 	return -1;
 }
 
-static s32_t cpiofs_truncate(struct vnode * node, x_off length)
+static s32_t cpiofs_truncate(struct vnode * node, loff_t length)
 {
 	return -1;
 }

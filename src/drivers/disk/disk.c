@@ -270,7 +270,7 @@ bool_t unregister_disk(struct disk * disk)
 /*
  * disk read function, just used by partition parser.
  */
-x_size disk_read(struct disk * disk, u8_t * buf, x_off offset, x_size count)
+x_size disk_read(struct disk * disk, u8_t * buf, loff_t offset, x_size count)
 {
 	u8_t * secbuf;
 	u32_t secno, secsz, seccnt;

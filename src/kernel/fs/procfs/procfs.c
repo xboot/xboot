@@ -126,7 +126,7 @@ static s32_t procfs_write(struct vnode * node , struct file * fp, void * buf, x_
 	return -1;
 }
 
-static s32_t procfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t procfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
 {
 	return -1;
 }
@@ -236,7 +236,7 @@ static s32_t procfs_inactive(struct vnode * node)
 	return -1;
 }
 
-static s32_t procfs_truncate(struct vnode * node, x_off length)
+static s32_t procfs_truncate(struct vnode * node, loff_t length)
 {
 	return -1;
 }

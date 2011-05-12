@@ -63,7 +63,7 @@ enum oob_formats
 struct nand_block
 {
 	/* offset to the block */
-	x_off offset;
+	loff_t offset;
 
 	/* size of the block. */
 	x_size size;

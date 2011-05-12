@@ -647,7 +647,7 @@ static s32_t fat_next_cluster(struct fatfs_mount_data * md, u32_t cl, u32_t * ne
  */
 static bool_t fat_read_dirent(struct fatfs_mount_data * md, u32_t sector)
 {
-	x_off off = sector * md->sector_size;
+	loff_t off = sector * md->sector_size;
 	x_size size = md->sector_size;
 
 	if(bio_read(md->blk, (u8_t *)(md->dir_buf), off, size) != size)
@@ -661,7 +661,7 @@ static bool_t fat_read_dirent(struct fatfs_mount_data * md, u32_t sector)
  */
 static bool_t fat_write_dirent(struct fatfs_mount_data * md, u32_t sector)
 {
-	x_off off = sector * md->sector_size;
+	loff_t off = sector * md->sector_size;
 	x_size size = md->sector_size;
 
 	if(bio_write(md->blk, (const u8_t *)(md->dir_buf), off, size) != size)
@@ -779,7 +779,7 @@ static s32_t fatfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 	return -1;
 }
 
-static s32_t fatfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t fatfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
 {
 	return 0;
 }
@@ -895,7 +895,7 @@ static s32_t fatfs_inactive(struct vnode * node)
 	return -1;
 }
 
-static s32_t fatfs_truncate(struct vnode * node, x_off length)
+static s32_t fatfs_truncate(struct vnode * node, loff_t length)
 {
 	return -1;
 }

@@ -177,7 +177,7 @@ u32_t get_blkdev_size(struct blkdev * dev)
 /*
  * get block device's offset by blkno
  */
-x_off get_blkdev_offset(struct blkdev * dev, u32_t blkno)
+loff_t get_blkdev_offset(struct blkdev * dev, u32_t blkno)
 {
 	if(!dev)
 		return -1;

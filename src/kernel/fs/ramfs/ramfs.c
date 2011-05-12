@@ -211,7 +211,7 @@ static s32_t ramfs_close(struct vnode * node, struct file * fp)
 static s32_t ramfs_read(struct vnode * node, struct file * fp, void * buf, x_size size, x_size * result)
 {
 	struct ramfs_node * n;
-	x_off off;
+	loff_t off;
 
 	*result = 0;
 	if(node->v_type == VDIR)
@@ -220,7 +220,7 @@ static s32_t ramfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 		return EINVAL;
 
 	off = fp->f_offset;
-	if(off >= (x_off)node->v_size)
+	if(off >= (loff_t)node->v_size)
 		return 0;
 
 	if(node->v_size - off < size)
@@ -238,7 +238,7 @@ static s32_t ramfs_read(struct vnode * node, struct file * fp, void * buf, x_siz
 static s32_t ramfs_write(struct vnode * node , struct file * fp, void * buf, x_size size, x_size * result)
 {
 	struct ramfs_node * n;
-	x_off file_pos, end_pos;
+	loff_t file_pos, end_pos;
 	void * new_buf;
 	x_size new_size;
 
@@ -258,7 +258,7 @@ static s32_t ramfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 	{
 		/* expand the file size before writing to it */
 		end_pos = file_pos + size;
-		if(end_pos > (x_off)n->buf_len)
+		if(end_pos > (loff_t)n->buf_len)
 		{
 			/* round page */
 			new_size = (((end_pos) + RAMFS_PAGE_SIZE_MASK) & ~RAMFS_PAGE_SIZE_MASK);
@@ -284,9 +284,9 @@ static s32_t ramfs_write(struct vnode * node , struct file * fp, void * buf, x_s
 	return 0;
 }
 
-static s32_t ramfs_seek(struct vnode * node, struct file * fp, x_off off1, x_off off2)
+static s32_t ramfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
 {
-	if(off2 > (x_off)(node->v_size))
+	if(off2 > (loff_t)(node->v_size))
 		return -1;
 
 	return 0;
@@ -490,7 +490,7 @@ static s32_t ramfs_inactive(struct vnode * node)
 	return 0;
 }
 
-static s32_t ramfs_truncate(struct vnode * node, x_off length)
+static s32_t ramfs_truncate(struct vnode * node, loff_t length)
 {
 	struct ramfs_node *n;
 	void * new_buf;

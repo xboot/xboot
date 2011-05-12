@@ -73,7 +73,7 @@ static s32_t ramdisk_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t bl
 {
 	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
 	u8_t * p = (u8_t *)(ramdisk->start);
-	x_off offset = get_blkdev_offset(dev, blkno);
+	loff_t offset = get_blkdev_offset(dev, blkno);
 	s32_t size = get_blkdev_size(dev) * blkcnt;
 
 	if(offset < 0)

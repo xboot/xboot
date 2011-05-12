@@ -31,7 +31,7 @@
 #include <disk/disk.h>
 #include <disk/partition.h>
 
-extern x_size disk_read(struct disk * disk, u8_t * buf, x_off offset, x_size count);
+extern x_size disk_read(struct disk * disk, u8_t * buf, loff_t offset, x_size count);
 
 /*
  * the partition entry
@@ -116,7 +116,7 @@ static bool_t dos_partition(struct disk * disk, u32_t sector, u32_t relative)
 	if((!disk->read_sectors) || (!disk->write_sectors))
 		return FALSE;
 
-	if(disk_read(disk, (u8_t *)(&mbr), (x_off)(sector * disk->sector_size) , sizeof(struct dos_partition_mbr)) != sizeof(struct dos_partition_mbr))
+	if(disk_read(disk, (u8_t *)(&mbr), (loff_t)(sector * disk->sector_size) , sizeof(struct dos_partition_mbr)) != sizeof(struct dos_partition_mbr))
 		return FALSE;
 
 	/*

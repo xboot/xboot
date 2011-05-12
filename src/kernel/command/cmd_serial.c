@@ -165,11 +165,11 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 	struct chrdev * device;
 	x_s32 (* read_func)(struct chrdev *, x_u8 *, x_s32);
 	struct serial_parameter param;
-	x_s8 * name = NULL, * str = NULL;
-	x_s8 * baud = 0;
-	x_s8 * data_bit = 0;
-	x_s8 * parity = 0;
-	x_s8 * stop_bit = 0;
+	char * name = NULL, * str = NULL;
+	char * baud = 0;
+	char * data_bit = 0;
+	char * parity = 0;
+	char * stop_bit = 0;
 	x_u8 c;
 	x_s32 i;
 
@@ -179,11 +179,11 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 		return 0;
 	}
 
-	if( !strcmp(argv[1],(x_s8*)"info") )
+	if( !strcmp((const char *)argv[1],"info") )
 	{
 		serial_info();
 	}
-	else if( !strcmp(argv[1],(x_s8*)"send") )
+	else if( !strcmp((const char *)argv[1],"send") )
 	{
 		if(argc != 4)
 		{
@@ -193,8 +193,8 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				   "    serial param <DEVICE NAME> [-b BAUD] [-d DATABITS] [-p PARITY] [-s STOPBITS]\r\n");
 			return (-1);
 		}
-		name = (x_s8 *)argv[2];
-		str = (x_s8 *)argv[3];
+		name = (char *)argv[2];
+		str = (char *)argv[3];
 		device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
 		if(!device)
 		{
@@ -212,7 +212,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 		if(device->close)
 			(device->close)(device);
 	}
-	else if( !strcmp(argv[1],(x_s8*)"recv") )
+	else if( !strcmp((const char *)argv[1],"recv") )
 	{
 		if(argc != 3)
 		{
@@ -222,7 +222,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 				   "    serial param <DEVICE NAME> [-b BAUD] [-d DATABITS] [-p PARITY] [-s STOPBITS]\r\n");
 			return (-1);
 		}
-		name = (x_s8 *)argv[2];
+		name = (char *)argv[2];
 		device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
 		if(!device)
 		{
@@ -255,7 +255,7 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 			(device->close)(device);
 	}
 
-	else if( !strcmp(argv[1],(x_s8*)"param") )
+	else if( !strcmp((const char *)argv[1],"param") )
 	{
 		if(argc < 3)
 		{
@@ -268,29 +268,29 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 
 		for(i=2; i<argc; i++)
 		{
-			if( !strcmp(argv[i],(x_s8*)"-b") && (argc > i+1))
+			if( !strcmp((const char *)argv[i],"-b") && (argc > i+1))
 			{
-				baud = (x_s8 *)argv[i+1];
+				baud = (char *)argv[i+1];
 				i++;
 			}
-			else if( !strcmp(argv[i],(x_s8*)"-d") && (argc > i+1))
+			else if( !strcmp((const char *)argv[i],"-d") && (argc > i+1))
 			{
-				data_bit = (x_s8 *)argv[i+1];
+				data_bit = (char *)argv[i+1];
 				i++;
 			}
-			else if( !strcmp(argv[i],(x_s8*)"-p") && (argc > i+1))
+			else if( !strcmp((const char *)argv[i],"-p") && (argc > i+1))
 			{
-				parity = (x_s8 *)argv[i+1];
+				parity = (char *)argv[i+1];
 				i++;
 			}
-			else if( !strcmp(argv[i],(x_s8*)"-s") && (argc > i+1))
+			else if( !strcmp((const char *)argv[i],"-s") && (argc > i+1))
 			{
-				stop_bit = (x_s8 *)argv[i+1];
+				stop_bit = (char *)argv[i+1];
 				i++;
 			}
-			else if(*argv[i] != '-' && strcmp(argv[i], (x_s8*)"-") != 0)
+			else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
 			{
-				name = (x_s8 *)argv[i];
+				name = (char *)argv[i];
 				device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
 				if(!device)
 				{
@@ -317,47 +317,47 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 
 		if(baud)
 		{
-			if(!strcmp(baud, (x_s8*)"50"))
+			if(!strcmp(baud, "50"))
 				param.baud_rate = B50;
-			else if(!strcmp(baud, (x_s8*)"75"))
+			else if(!strcmp(baud, "75"))
 				param.baud_rate = B75;
-			else if(!strcmp(baud, (x_s8*)"110"))
+			else if(!strcmp(baud, "110"))
 				param.baud_rate = B110;
-			else if(!strcmp(baud, (x_s8*)"134"))
+			else if(!strcmp(baud, "134"))
 				param.baud_rate = B134;
-			else if(!strcmp(baud, (x_s8*)"200"))
+			else if(!strcmp(baud, "200"))
 				param.baud_rate = B200;
-			else if(!strcmp(baud, (x_s8*)"300"))
+			else if(!strcmp(baud, "300"))
 				param.baud_rate = B300;
-			else if(!strcmp(baud, (x_s8*)"600"))
+			else if(!strcmp(baud, "600"))
 				param.baud_rate = B600;
-			else if(!strcmp(baud, (x_s8*)"1200"))
+			else if(!strcmp(baud, "1200"))
 				param.baud_rate = B1200;
-			else if(!strcmp(baud, (x_s8*)"1800"))
+			else if(!strcmp(baud, "1800"))
 				param.baud_rate = B1800;
-			else if(!strcmp(baud, (x_s8*)"2400"))
+			else if(!strcmp(baud, "2400"))
 				param.baud_rate = B2400;
-			else if(!strcmp(baud, (x_s8*)"4800"))
+			else if(!strcmp(baud, "4800"))
 				param.baud_rate = B4800;
-			else if(!strcmp(baud, (x_s8*)"9600"))
+			else if(!strcmp(baud, "9600"))
 				param.baud_rate = B9600;
-			else if(!strcmp(baud, (x_s8*)"19200"))
+			else if(!strcmp(baud, "19200"))
 				param.baud_rate = B19200;
-			else if(!strcmp(baud, (x_s8*)"38400"))
+			else if(!strcmp(baud, "38400"))
 				param.baud_rate = B38400;
-			else if(!strcmp(baud, (x_s8*)"57600"))
+			else if(!strcmp(baud, "57600"))
 				param.baud_rate = B57600;
-			else if(!strcmp(baud, (x_s8*)"76800"))
+			else if(!strcmp(baud, "76800"))
 				param.baud_rate = B76800;
-			else if(!strcmp(baud, (x_s8*)"115200"))
+			else if(!strcmp(baud, "115200"))
 				param.baud_rate = B115200;
-			else if(!strcmp(baud, (x_s8*)"230400"))
+			else if(!strcmp(baud, "230400"))
 				param.baud_rate = B230400;
-			else if(!strcmp(baud, (x_s8*)"380400"))
+			else if(!strcmp(baud, "380400"))
 				param.baud_rate = B380400;
-			else if(!strcmp(baud, (x_s8*)"460800"))
+			else if(!strcmp(baud, "460800"))
 				param.baud_rate = B460800;
-			else if(!strcmp(baud, (x_s8*)"921600"))
+			else if(!strcmp(baud, "921600"))
 				param.baud_rate = B921600;
 			else
 			{
@@ -374,13 +374,13 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 
 		if(data_bit)
 		{
-			if(!strcmp(data_bit, (x_s8*)"5"))
+			if(!strcmp(data_bit, "5"))
 				param.data_bit = DATA_BITS_5;
-			else if(!strcmp(data_bit, (x_s8*)"6"))
+			else if(!strcmp(data_bit, "6"))
 				param.data_bit = DATA_BITS_6;
-			else if(!strcmp(data_bit, (x_s8*)"7"))
+			else if(!strcmp(data_bit, "7"))
 				param.data_bit = DATA_BITS_7;
-			else if(!strcmp(data_bit, (x_s8*)"8"))
+			else if(!strcmp(data_bit, "8"))
 				param.data_bit = DATA_BITS_8;
 			else
 			{
@@ -397,11 +397,11 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 
 		if(parity)
 		{
-			if(!strcmp(parity, (x_s8*)"N"))
+			if(!strcmp(parity, "N"))
 				param.parity = PARITY_NONE;
-			else if(!strcmp(parity, (x_s8*)"E"))
+			else if(!strcmp(parity, "E"))
 				param.parity = PARITY_EVEN;
-			else if(!strcmp(parity, (x_s8*)"O"))
+			else if(!strcmp(parity, "O"))
 				param.parity = PARITY_ODD;
 			else
 			{
@@ -418,11 +418,11 @@ static x_s32 serial(x_s32 argc, const x_s8 **argv)
 
 		if(stop_bit)
 		{
-			if(!strcmp(stop_bit, (x_s8*)"1"))
+			if(!strcmp(stop_bit, "1"))
 				param.stop_bit = STOP_BITS_1;
-			else if(!strcmp(stop_bit, (x_s8*)"1.5"))
+			else if(!strcmp(stop_bit, "1.5"))
 				param.stop_bit = STOP_BITS_1_5;
-			else if(!strcmp(stop_bit, (x_s8*)"2"))
+			else if(!strcmp(stop_bit, "2"))
 				param.stop_bit = STOP_BITS_2;
 			else
 			{

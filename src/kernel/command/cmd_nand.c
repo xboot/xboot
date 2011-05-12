@@ -79,20 +79,20 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 		return 0;
 	}
 
-	if( !strcmp(argv[1], (x_s8*)"list"))
+	if( !strcmp((const char *)argv[1], "list"))
 	{
 		list_nand_device();
 
 		return 0;
 	}
-	else if( !strcmp(argv[1], (x_s8*)"probe"))
+	else if( !strcmp((const char *)argv[1], "probe"))
 	{
 		nand_flash_probe();
 		list_nand_device();
 
 		return 0;
 	}
-	else if( !strcmp(argv[1], (x_s8*)"read") )
+	else if( !strcmp((const char *)argv[1], "read") )
 	{
 		if(argc != 7)
 		{
@@ -111,7 +111,7 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 		off = simple_strtou32(argv[3], NULL, 0);
 		size = simple_strtou32(argv[4], NULL, 0);
 
-		if( !strcmp(argv[5], (x_s8*)"-r") )
+		if( !strcmp((const char *)argv[5], "-r") )
 		{
 			addr = simple_strtou32(argv[6], NULL, 0);
 
@@ -120,7 +120,7 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 
 			printk("read %s 0x%08lx ~ 0x%08lx to ram 0x%08lx.\r\n", nand->name, off, off + size, addr);
 		}
-		else if( !strcmp(argv[5], (x_s8*)"-f") )
+		else if( !strcmp((const char *)argv[5], "-f") )
 		{
 			filename = (char *)argv[6];
 
@@ -175,15 +175,15 @@ static x_s32 nand(x_s32 argc, const x_s8 **argv)
 			return -1;
 		}
 	}
-	else if( !strcmp(argv[1], (x_s8*)"write") )
+	else if( !strcmp((const char *)argv[1], "write") )
 	{
 
 	}
-	else if( !strcmp(argv[1], (x_s8*)"erase") )
+	else if( !strcmp((const char *)argv[1], "erase") )
 	{
 
 	}
-	else if( !strcmp(argv[1], (x_s8*)"bad") )
+	else if( !strcmp((const char *)argv[1], "bad") )
 	{
 
 	}

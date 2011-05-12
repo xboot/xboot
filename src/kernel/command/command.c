@@ -101,7 +101,7 @@ struct command * command_search(const char *name)
 	for(pos = (&command_list->entry)->next; pos != (&command_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct command_list, entry);
-		if(strcmp((x_s8*)list->cmd->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->cmd->name, name) == 0)
 			return list->cmd;
 	}
 

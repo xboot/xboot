@@ -47,7 +47,7 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 	struct list_head * pos;
 	struct mount * m;
 	struct vnode *vp, *vp_covered;
-	x_s8 * p;
+	char * p;
 	x_s32 err;
 
 	if(!dir || *dir == '\0')
@@ -66,9 +66,9 @@ x_s32 sys_mount(char * dev, char * dir, char * fsname, x_u32 flags)
 		if( (p = strrchr(dev, '/')) != NULL )
 			p = p+1;
 		else
-			p = (x_s8 *)dev;
+			p = dev;
 
-		if( (device = search_blkdev((const char *)p)) == NULL)
+		if( (device = search_blkdev(p)) == NULL)
 			return ENODEV;
 	}
 	else

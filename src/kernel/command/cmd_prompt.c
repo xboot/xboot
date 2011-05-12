@@ -46,7 +46,7 @@ static x_s32 prompt(x_s32 argc, const x_s8 **argv)
 		break;
 
 	case 2:
-		if(strlen(argv[1]) > 32)
+		if(strlen((char *)argv[1]) > 32)
 		{
 			printk(" your argument \"%s\" is too long!\r\n", argv[1]);
 			break;

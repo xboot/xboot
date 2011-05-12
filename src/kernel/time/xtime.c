@@ -196,11 +196,11 @@ x_u32 get_time_stamp(void)
  */
 static x_s32 xtime_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 {
-	x_s8 tmp[64];
+	char tmp[64];
 	x_s32 len;
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
-	len = sprintf(tmp, (const x_s8 *)"%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu", (x_u32)xtime.year, (x_u32)xtime.mon, (x_u32)xtime.day, week_days[xtime.week], (x_u32)xtime.hour, (x_u32)xtime.min, (x_u32)xtime.sec);
+	len = sprintf(tmp, "%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu", (x_u32)xtime.year, (x_u32)xtime.mon, (x_u32)xtime.day, week_days[xtime.week], (x_u32)xtime.hour, (x_u32)xtime.min, (x_u32)xtime.sec);
 	len -= offset;
 
 	if(len < 0)

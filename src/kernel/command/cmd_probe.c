@@ -64,7 +64,7 @@ static void list_mmc_card(void)
 {
 	struct mmc_card_list * list;
 	struct list_head * pos;
-	x_s8 buff[32];
+	char buff[32];
 
 	for(pos = (&mmc_card_list->entry)->next; pos != (&mmc_card_list->entry); pos = pos->next)
 	{
@@ -87,16 +87,16 @@ static x_s32 probe(x_s32 argc, const x_s8 **argv)
 
 	for(i=1; i<argc; i++)
 	{
-		if( !strcmp(argv[i], (x_s8*)"nor"))
+		if( !strcmp((const char *)argv[i], "nor"))
 		{
 
 		}
-		else if( !strcmp(argv[i], (x_s8*)"nand"))
+		else if( !strcmp((const char *)argv[i], "nand"))
 		{
 			nand_flash_probe();
 			list_nand_flash();
 		}
-		else if( !strcmp(argv[i], (x_s8*)"mmc"))
+		else if( !strcmp((const char *)argv[i], "mmc"))
 		{
 			mmc_card_probe();
 			list_mmc_card();

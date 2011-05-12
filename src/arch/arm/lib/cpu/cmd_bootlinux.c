@@ -95,11 +95,11 @@ static x_s32 bootlinux(x_s32 argc, const x_s8 **argv)
 
 	/* command line tags */
 	p = (x_s8 *)argv[4];
-	if(p && strlen(p))
+	if(p && strlen((const char *)p))
 	{
 		params->hdr.tag = ATAG_CMDLINE;
-		params->hdr.size = (sizeof (struct tag_header) + strlen(p) + 1 + 4) >> 2;
-		strcpy((x_s8*)(params->u.cmdline.cmdline), p);
+		params->hdr.size = (sizeof (struct tag_header) + strlen((char *)p) + 1 + 4) >> 2;
+		strcpy((char *)(params->u.cmdline.cmdline), (char *)p);
 		params = tag_next (params);
 	}
 

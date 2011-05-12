@@ -1,36 +1,43 @@
 #ifndef __STRING_H__
 #define __STRING_H__
 
-#include <configs.h>
-#include <default.h>
+#include <types.h>
 
-x_s32 strnicmp(const x_s8 *s1, const x_s8 *s2, x_s32 len);
-x_s8 * strcpy(x_s8 *dest, const x_s8 *src);
-x_s8 * strdup(const x_s8 * src);
-x_s8 * strncpy(x_s8 *dest, const x_s8 *src, x_s32 count);
-x_s32 strlcpy(x_s8 *dest, const x_s8 *src, x_s32 size);
-x_s8 * strcat(x_s8 *dest, const x_s8 *src);
-x_s8 * strncat(x_s8 *dest, const x_s8 *src, x_s32 count);
-x_s32 strlcat(x_s8 *dest, const x_s8 *src, x_s32 count);
-x_s8 * strchr(const x_s8 *s, x_s32 c);
-x_s8 * strrchr(const x_s8 *s, x_s32 c);
-x_s8 * strnchr(const x_s8 *s, x_s32 count, x_s32 c);
-x_s8 * strstrip(x_s8 *s);
-x_s32 strlen(const x_s8 *s);
-x_s32 strnlen(const x_s8 *s, x_s32 count);
-x_s32 strspn(const x_s8 *s, const x_s8 *accept);
-x_s32 strcspn(const x_s8 *s, const x_s8 *reject);
-x_s8 * strpbrk(const x_s8 *cs, const x_s8 *ct);
-x_s8 * strsep(x_s8 **s, const x_s8 *ct);
-void * memscan(void *addr, x_s32 c, x_s32 size);
-x_s8 * strstr(const x_s8 *s1, const x_s8 *s2);
-void * memchr(const void *s, x_s32 c, x_s32 n);
+size_t strlen(const char * s);
+size_t strnlen(const char * s, size_t n);
 
-x_s32 strcmp(const x_s8 *cs, const x_s8 *ct);
-x_s32 strncmp(const x_s8 *cs, const x_s8 *ct, x_s32 count);
-void * memset(void *s, x_s32 c, x_s32 count);
-void * memcpy(void *dest, const void *src, x_s32 count);
-void * memmove(void *dest, const void *src, x_s32 count);
-x_s32  memcmp(const void *cs, const void *ct, x_s32 count);
+char * strcat(char * dest, const char * src);
+char * strncat(char * dest, const char * src, size_t n);
+size_t strlcat(char * dest, const char * src, size_t n);
+
+char * strcpy(char * dest, const char * src);
+char * strncpy(char * dest, const char * src, size_t n);
+size_t strlcpy(char * dest, const char * src, size_t n);
+
+int strcmp(const char * s1, const char * s2);
+int strncmp(const char * s1, const char * s2, size_t n);
+int strnicmp(const char * s1, const char * s2, size_t n);
+int strcasecmp(const char * s1, const char * s2);
+int strncasecmp(const char * s1, const char * s2, size_t n);
+
+char * strchr(const char * s, int c);
+char * strrchr(const char * s, int c);
+char * strnchr(const char * s, size_t n, int c);
+
+size_t strspn(const char * s, const char * accept);
+size_t strcspn(const char * s, const char * reject);
+
+char * strdup(const char * s);
+char * strpbrk(const char * s1, const char * s2);
+char * strsep(char ** s, const char * ct);
+char * strstr(const char * s1, const char * s2);
+char * strnstr(const char * s1, const char * s2, size_t n);
+
+void * memscan(void * addr, int c, size_t size);
+void * memchr(const void * s, int c, size_t n);
+void * memcpy(void * dest, const void * src, size_t len);
+void * memset(void * s, int c, size_t n);
+void * memmove(void * dest, const void * src, size_t n);
+int memcmp(const void * s1, const void * s2, size_t n);
 
 #endif /* __STRING_H__ */

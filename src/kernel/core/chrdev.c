@@ -53,7 +53,7 @@ struct chrdev * search_chrdev(const char * name)
 		if(list->device->type == CHAR_DEVICE)
 		{
 			dev = (struct chrdev *)(list->device->priv);
-			if(strcmp((x_s8*)dev->name, (const x_s8 *)name) == 0)
+			if(strcmp((const char *)dev->name, (const char *)name) == 0)
 				return dev;
 		}
 	}
@@ -81,7 +81,7 @@ struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type
 			dev = (struct chrdev *)(list->device->priv);
 			if(dev->type == type)
 			{
-				if(strcmp((x_s8*)dev->name, (const x_s8 *)name) == 0)
+				if(strcmp((const char *)dev->name, (const char *)name) == 0)
 					return dev;
 			}
 		}

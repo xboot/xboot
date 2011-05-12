@@ -477,7 +477,7 @@ void nand_flash_probe(void)
 		i = 0;
 		while(1)
 		{
-			snprintf((x_s8 *)nand->name, 32, (const x_s8 *)"nand%ld", i++);
+			snprintf((char *)nand->name, 32, (const char *)"nand%ld", i++);
 			if(search_nand_device(nand->name) == NULL)
 				break;
 		}
@@ -651,7 +651,7 @@ struct nand_device * search_nand_device(const char * name)
 	for(pos = (&nand_list->entry)->next; pos != (&nand_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct nand_list, entry);
-		if(strcmp((x_s8*)list->nand->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->nand->name, name) == 0)
 			return list->nand;
 	}
 
@@ -724,17 +724,17 @@ static x_s32 nand_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	{
 		list = list_entry(pos, struct nand_list, entry);
 
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)"%s:\r\n", list->nand->name);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" description     : %s\r\n", list->nand->info->name);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" manufacturer    : %s\r\n", list->nand->manufacturer->name);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" nand controller : %s\r\n", list->nand->nfc->name);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" bus width       : %ld\r\n", list->nand->bus_width);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" address cycles  : %ld\r\n", list->nand->addr_cycles);
+		len += sprintf((char *)(p + len), (const char *)"%s:\r\n", list->nand->name);
+		len += sprintf((char *)(p + len), (const char *)" description     : %s\r\n", list->nand->info->name);
+		len += sprintf((char *)(p + len), (const char *)" manufacturer    : %s\r\n", list->nand->manufacturer->name);
+		len += sprintf((char *)(p + len), (const char *)" nand controller : %s\r\n", list->nand->nfc->name);
+		len += sprintf((char *)(p + len), (const char *)" bus width       : %ld\r\n", list->nand->bus_width);
+		len += sprintf((char *)(p + len), (const char *)" address cycles  : %ld\r\n", list->nand->addr_cycles);
 		ssize(size, (x_u64)(list->nand->page_size));
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" page size       : %s\r\n", size);
+		len += sprintf((char *)(p + len), (const char *)" page size       : %s\r\n", size);
 		ssize(size, (x_u64)(list->nand->erase_size));
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" block size      : %s\r\n", size);
-		len += sprintf((x_s8 *)(p + len), (const x_s8 *)" block number    : %ld\r\n", list->nand->num_blocks);
+		len += sprintf((char *)(p + len), (const char *)" block size      : %s\r\n", size);
+		len += sprintf((char *)(p + len), (const char *)" block number    : %ld\r\n", list->nand->num_blocks);
 	}
 
 	len -= offset;

@@ -779,13 +779,13 @@ x_s32 vsscanf(const x_s8 * buf, const x_s8 * fmt, va_list args)
  * @fmt:	The format string to use
  * @...:	Arguments for the format string
  */
-x_s32 sprintf(x_s8 * buf, const x_s8 * fmt, ...)
+int sprintf(char * buf, const char * fmt, ...)
 {
 	va_list args;
-	x_s32 i;
+	int i;
 
 	va_start(args, fmt);
-	i = (x_s32)vsnprintf((x_s8 *)buf,(x_s32)(0xFFFF>>1),(x_s8 *)fmt,args);
+	i = vsnprintf((x_s8 *)buf,(x_s32)(0xFFFF>>1),(x_s8 *)fmt,args);
 	va_end(args);
 	return i;
 }
@@ -797,7 +797,7 @@ x_s32 sprintf(x_s8 * buf, const x_s8 * fmt, ...)
  * @fmt:	The format string to use
  * @...:	Arguments for the format string
  */
-x_s32 snprintf(x_s8 * buf, x_s32 size, const x_s8 * fmt, ...)
+int snprintf(char * buf, size_t size, const char * fmt, ...)
 {
 	va_list args;
 	x_s32 i;

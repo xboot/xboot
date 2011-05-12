@@ -54,7 +54,7 @@ struct blkdev * search_blkdev(const char * name)
 		if(list->device->type == BLOCK_DEVICE)
 		{
 			dev = (struct blkdev *)(list->device->priv);
-			if(strcmp((x_s8*)dev->name, (const x_s8 *)name) == 0)
+			if(strcmp((const char *)dev->name, (const char *)name) == 0)
 				return dev;
 		}
 	}
@@ -82,7 +82,7 @@ struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type
 			dev = (struct blkdev *)(list->device->priv);
 			if(dev->type == type)
 			{
-				if(strcmp((x_s8*)dev->name, (const x_s8 *)name) == 0)
+				if(strcmp((const char *)dev->name, (const char *)name) == 0)
 					return dev;
 			}
 		}

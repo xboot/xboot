@@ -58,7 +58,7 @@ struct nfc * search_nfc(const char * name)
 	for(pos = (&nfc_list->entry)->next; pos != (&nfc_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct nfc_list, entry);
-		if(strcmp((x_s8*)list->nfc->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->nfc->name, name) == 0)
 			return list->nfc;
 	}
 

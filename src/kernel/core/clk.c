@@ -57,7 +57,7 @@ static struct clk * clk_search(const char *name)
 
 	hlist_for_each_entry(list,  pos, &(clk_hash[hash]), node)
 	{
-		if(strcmp((x_s8*)list->clk->name, (const x_s8 *)name) == 0)
+		if(strcmp(list->clk->name, name) == 0)
 			return list->clk;
 	}
 
@@ -152,12 +152,12 @@ static x_s32 clk_proc_read(x_u8 * buf, x_s32 offset, x_s32 count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((x_s8 *)(p + len), (const x_s8 *)"[clk]");
+	len += sprintf((char *)(p + len), "[clk]");
 	for(i = 0; i < CONFIG_CLK_HASH_SIZE; i++)
 	{
 		hlist_for_each_entry(list,  pos, &(clk_hash[i]), node)
 		{
-			len += sprintf((x_s8 *)(p + len), (const x_s8 *)"\r\n %s: %Ld.%06LdMHZ", list->clk->name, (x_u64)div64(list->clk->rate, 1000*1000), (x_u64)mod64(list->clk->rate, 1000*1000));
+			len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", list->clk->name, (x_u64)div64(list->clk->rate, 1000*1000), (x_u64)mod64(list->clk->rate, 1000*1000));
 		}
 	}
 

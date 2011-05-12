@@ -33,6 +33,8 @@
 #include <fs/fsapi.h>
 #include <fb/font.h>
 
+#if 0
+// TODO remove me
 struct bdf_info
 {
 	/* font name */
@@ -284,3 +286,5 @@ static __exit void font_reader_bdf_exit(void)
 
 module_init(font_reader_bdf_init, LEVEL_POSTCORE);
 module_exit(font_reader_bdf_exit, LEVEL_POSTCORE);
+
+#endif

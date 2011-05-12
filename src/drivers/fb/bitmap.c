@@ -44,15 +44,15 @@ static x_bool match_extension(const char * filename, const char * ext)
 {
 	x_s32 pos, ext_len;
 
-	pos = strlen((const x_s8 *)filename);
-	ext_len = strlen((const x_s8 *)ext);
+	pos = strlen(filename);
+	ext_len = strlen(ext);
 
 	if( (!pos) || (!ext_len) || (ext_len > pos) )
 		return FALSE;
 
 	pos -= ext_len;
 
-	return strcmp((const x_s8 *)(filename + pos), (const x_s8 *)ext) == 0;
+	return strcmp((const char *)(filename + pos), (const char *)ext) == 0;
 }
 
 /*
@@ -69,7 +69,7 @@ static struct bitmap_reader * search_bitmap_reader(const char * extension)
 	for(pos = (&bitmap_reader_list->entry)->next; pos != (&bitmap_reader_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct bitmap_reader_list, entry);
-		if(strcmp((x_s8*)list->reader->extension, (const x_s8 *)extension) == 0)
+		if(strcmp((const char *)list->reader->extension, (const char *)extension) == 0)
 			return list->reader;
 	}
 

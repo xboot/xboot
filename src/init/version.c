@@ -62,7 +62,7 @@ void xboot_char_logo(struct console * console, x_u32 x0, x_u32 y0)
 {
 	x_u32 i, len;
 	x_s32 w, h;
-	x_s8 buf[64];
+	char buf[64];
 
 	if(!console)
 		return;
@@ -75,12 +75,12 @@ void xboot_char_logo(struct console * console, x_u32 x0, x_u32 y0)
 
 	for(i = 0; i < 6; i++)
 	{
-		len = strlen((x_s8*)&xboot[i][0]);
+		len = strlen(&xboot[i][0]);
 		if( len <= w - x0 )
-			sprintf(buf, (x_s8*)("%s"), &xboot[i][0]);
+			sprintf(buf, "%s", &xboot[i][0]);
 		else
 		{
-			strncpy(buf, (x_s8*)&xboot[i][0], w - x0);
+			strncpy(buf, &xboot[i][0], w - x0);
 			buf[w - x0] = 0;
 		}
 		console_gotoxy(console, x0, y0 + i);

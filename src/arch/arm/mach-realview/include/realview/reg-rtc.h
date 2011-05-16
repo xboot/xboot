@@ -1,8 +1,7 @@
 #ifndef __REALVIEW_REG_RTC_H__
 #define __REALVIEW_REG_RTC_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /*
  * pl031 register definitions

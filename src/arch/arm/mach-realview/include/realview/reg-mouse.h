@@ -1,8 +1,7 @@
 #ifndef __REALVIEW_REG_MOUSE_H__
 #define __REALVIEW_REG_MOUSE_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /*
  * prime cell pl050 register .

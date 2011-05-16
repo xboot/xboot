@@ -4,8 +4,7 @@
  * secure hash algorithm
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <sha.h>
 

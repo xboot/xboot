@@ -1,8 +1,7 @@
 #ifndef __FBFILL_H__
 #define __FBFILL_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <fb/fb.h>
 
 

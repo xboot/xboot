@@ -1,8 +1,7 @@
 #ifndef __CRC16_CCITT_H__
 #define __CRC16_CCITT_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 
 

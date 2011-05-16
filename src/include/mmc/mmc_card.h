@@ -1,8 +1,7 @@
 #ifndef __MMC_CARD_H__
 #define __MMC_CARD_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <string.h>
 #include <xboot/list.h>
 #include <mmc/mmc_host.h>

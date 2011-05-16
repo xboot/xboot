@@ -2,8 +2,7 @@
 #define __LINUX_H__
 
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /* The list ends with an ATAG_NONE node. */
 #define ATAG_NONE		0x00000000

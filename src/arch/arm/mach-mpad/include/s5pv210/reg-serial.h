@@ -1,8 +1,7 @@
 #ifndef __S5PV210_REG_SERIAL_H__
 #define __S5PV210_REG_SERIAL_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /* uart 0 */
 #define S5PV210_ULCON0	 	 	(0xE2900000)

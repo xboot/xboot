@@ -20,12 +20,12 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <stddef.h>
 #include <ctype.h>
 #include <string.h>
+#include <malloc.h>
 #include <charset.h>
 #include <mode/mode.h>
 #include <xboot/list.h>

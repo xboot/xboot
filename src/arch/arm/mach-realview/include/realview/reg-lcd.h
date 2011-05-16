@@ -1,10 +1,6 @@
 #ifndef __REALVIEW_REG_LCD_H__
 #define __REALVIEW_REG_LCD_H__
 
-#include <configs.h>
-#include <default.h>
-
-
 /*
  * clcd controller internal register addresses
  */

@@ -1,8 +1,7 @@
 #ifndef __S5PC100_REG_SERIAL_H__
 #define __S5PC100_REG_SERIAL_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /* uart 0 */
 #define S5PC100_ULCON0	 	 	(0xEC000000)

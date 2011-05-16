@@ -20,8 +20,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <stddef.h>
 #include <macros.h>

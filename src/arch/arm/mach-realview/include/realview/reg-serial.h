@@ -1,9 +1,6 @@
 #ifndef __REALVIEW_REG_SERIAL_H__
 #define __REALVIEW_REG_SERIAL_H__
 
-#include <configs.h>
-#include <default.h>
-
 /*
  * realview serial 0
  */

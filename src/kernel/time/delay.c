@@ -23,8 +23,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <macros.h>
 #include <vsprintf.h>

@@ -1,8 +1,7 @@
 #ifndef __S3C6410_REG_TIMER_H__
 #define __S3C6410_REG_TIMER_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 
 #define S3C6410_TCFG0	  		(0x7f006000)

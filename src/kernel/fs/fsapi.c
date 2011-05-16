@@ -20,8 +20,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <error.h>
 #include <malloc.h>
 #include <fs/vfs/fcntl.h>

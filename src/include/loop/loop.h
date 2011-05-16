@@ -1,9 +1,7 @@
 #ifndef __LOOP_H__
 #define __LOOP_H__
 
-
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <string.h>
 #include <xboot/blkdev.h>

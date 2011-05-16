@@ -1,8 +1,7 @@
 #ifndef __S3C2410_REG_RTC_H__
 #define __S3C2410_REG_RTC_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 #if	defined(__LITTLE_ENDIAN)	/* little endian */
 

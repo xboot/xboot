@@ -1,8 +1,7 @@
 #ifndef __S5PC100_REG_GPIO_H__
 #define __S5PC100_REG_GPIO_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /* PORT A0 */
 #define S5PC100_GPA0CON	 	 	(0xE0300000 + 0x000)

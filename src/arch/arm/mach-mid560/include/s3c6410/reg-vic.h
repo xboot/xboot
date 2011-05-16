@@ -1,9 +1,7 @@
 #ifndef __S3C6410_REG_VIC_H__
 #define __S3C6410_REG_VIC_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 /*
  * vic0 register.

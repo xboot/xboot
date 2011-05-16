@@ -1,8 +1,7 @@
 #ifndef __S3C6410_REG_WDG_H__
 #define __S3C6410_REG_WDG_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 #define S3C6410_WTCON	  		(0x7e004000)
 #define S3C6410_WTDAT	  		(0x7e004004)

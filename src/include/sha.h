@@ -1,8 +1,7 @@
 #ifndef __SHA_H__
 #define __SHA_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 
 /*

@@ -1,8 +1,7 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <ctype.h>
 #include <string.h>

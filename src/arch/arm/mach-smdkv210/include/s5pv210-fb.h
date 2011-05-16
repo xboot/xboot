@@ -1,9 +1,7 @@
 #ifndef __S5PV210_FB_H__
 #define __S5PV210_FB_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 enum s5pv210fb_output
 {

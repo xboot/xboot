@@ -1,9 +1,7 @@
 #ifndef __NAND_IDS_H__
 #define __NAND_IDS_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 /*
  * nand flash manufacturer id codes

@@ -1,8 +1,8 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
+#include <xboot/list.h>
 
 /*
  * defined blit formats

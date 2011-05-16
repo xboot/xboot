@@ -2,8 +2,7 @@
 #define __TICK_H__
 
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 extern u32_t jiffies;
 

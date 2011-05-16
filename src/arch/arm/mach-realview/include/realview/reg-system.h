@@ -1,9 +1,6 @@
 #ifndef __REALVIEW_REG_SYSTEM_H__
 #define __REALVIEW_REG_SYSTEM_H__
 
-#include <configs.h>
-#include <default.h>
-
 /*
  * system registers
  */

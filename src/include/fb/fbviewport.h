@@ -1,8 +1,7 @@
 #ifndef __FBVIEWPORT_H__
 #define __FBVIEWPORT_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <rect.h>
 #include <fb/fb.h>
 

@@ -1,8 +1,7 @@
 #ifndef __MALLOC_H__
 #define __MALLOC_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 
 void * malloc(u32_t size);

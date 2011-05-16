@@ -1,8 +1,7 @@
 #ifndef __PANIC_H__
 #define __PANIC_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <stdarg.h>
 
 

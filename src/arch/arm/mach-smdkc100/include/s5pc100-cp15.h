@@ -1,10 +1,7 @@
 #ifndef __S5PC100_CP15_H__
 #define __S5PC100_CP15_H__
 
-
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 void irq_enable(void);
 void irq_disable(void);

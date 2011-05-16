@@ -20,13 +20,12 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
 #include <xboot.h>
 #include <init.h>
 #include <mode/mode.h>
 #include <time/xtime.h>
 #include <xboot/log.h>
+#include <xboot/initcall.h>
 #include <xboot/machine.h>
 #include <xboot/panic.h>
 

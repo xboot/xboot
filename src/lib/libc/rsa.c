@@ -2,8 +2,7 @@
  * lib/libc/rsa.c
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <stddef.h>
 #include <rsa.h>

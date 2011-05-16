@@ -1,8 +1,7 @@
 #ifndef __IO_H__
 #define __IO_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 
 /*

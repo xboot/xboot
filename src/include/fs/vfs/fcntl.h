@@ -1,8 +1,7 @@
 #ifndef __FCNTL_H__
 #define __FCNTL_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /*
  * open only flags

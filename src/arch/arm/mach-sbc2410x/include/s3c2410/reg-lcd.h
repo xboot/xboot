@@ -1,10 +1,6 @@
 #ifndef __S3C2410_REG_LCD_H__
 #define __S3C2410_REG_LCD_H__
 
-#include <configs.h>
-#include <default.h>
-
-
 #define S3C2410_LCDCON1	  			(0x4d000000)
 #define S3C2410_LCDCON2	  			(0x4d000004)
 #define S3C2410_LCDCON3	  			(0x4d000008)
@@ -26,7 +22,6 @@
 #define S3C2410_LCDINTMSK	  		(0x4d00005c)
 #define S3C2410_LPCSEL	  			(0x4d000060)
 #define S3C2410_PALETTE	  			(0x4d000400)
-
 
 
 #define S3C2410_LCDCON1_CLKVAL(x)	((x) << 8)

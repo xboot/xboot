@@ -1,9 +1,7 @@
 #ifndef __S5PV210_REG_KEYPAD_H__
 #define __S5PV210_REG_KEYPAD_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S5PV210_KEYPAD_CON	 	 			(0xe1600000)
 #define S5PV210_KEYPAD_STSCLR 	 			(0xe1600004)

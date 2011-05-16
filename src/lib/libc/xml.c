@@ -2,8 +2,7 @@
  * lib/libc/xml.c
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <ctype.h>
 #include <types.h>
 #include <stddef.h>

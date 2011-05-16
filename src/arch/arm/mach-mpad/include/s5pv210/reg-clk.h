@@ -1,9 +1,7 @@
 #ifndef __S5PV210_REG_CLK_H__
 #define __S5PV210_REG_CLK_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S5PV210_APLL_LOCK				(0xE0100000 + 0x0000)
 #define S5PV210_MPLL_LOCK				(0xE0100000 + 0x0008)

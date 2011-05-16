@@ -20,8 +20,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <malloc.h>
 #include <div64.h>
 #include <vsprintf.h>

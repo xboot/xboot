@@ -1,8 +1,7 @@
 #ifndef __NAND_H__
 #define __NAND_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <string.h>
 #include <xboot/list.h>
 #include <mtd/nand/nand_ids.h>

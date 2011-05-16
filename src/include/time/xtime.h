@@ -1,9 +1,7 @@
 #ifndef __XTIME_H__
 #define __XTIME_H__
 
-
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 struct time {
 	u8_t sec;

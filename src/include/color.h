@@ -1,8 +1,7 @@
 #ifndef __COLOR_H__
 #define __COLOR_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /*
  * the structure of color

@@ -1,8 +1,7 @@
 #ifndef __LOGO_H__
 #define __LOGO_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
 

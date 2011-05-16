@@ -1,10 +1,6 @@
 #ifndef __S3C2410_REG_TIMER_H__
 #define __S3C2410_REG_TIMER_H__
 
-#include <configs.h>
-#include <default.h>
-
-
 #define S3C2410_TCFG0	  		(0x51000000)
 #define S3C2410_TCFG1	  		(0x51000004)
 #define S3C2410_TCON	  		(0x51000008)
@@ -27,6 +23,5 @@
 
 #define S3C2410_TCNTB4	  		(0x5100003c)
 #define S3C2410_TCNTO4	  		(0x51000040)
-
 
 #endif /* __S3C2410_REG_TIMER_H__ */

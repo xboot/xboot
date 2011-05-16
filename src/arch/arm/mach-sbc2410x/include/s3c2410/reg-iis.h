@@ -1,9 +1,7 @@
 #ifndef __S3C2410_REG_IIS_H__
 #define __S3C2410_REG_IIS_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S3C2410_IISCON	 		(0x55000000)
 #define S3C2410_IISMOD	  		(0x58000004)

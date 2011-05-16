@@ -1,8 +1,7 @@
 #ifndef __RECT_H__
 #define __RECT_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /*
  * the structure of 2d point

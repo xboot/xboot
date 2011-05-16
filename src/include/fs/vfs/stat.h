@@ -1,8 +1,7 @@
 #ifndef __STAT_H__
 #define __STAT_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 
 struct stat

@@ -1,9 +1,6 @@
 #ifndef __S3C2410_REG_INT_H__
 #define __S3C2410_REG_INT_H__
 
-#include <configs.h>
-#include <default.h>
-
 
 #define S3C2410_SRCPND	  		(0x4a000000)
 #define S3C2410_INTMOD	  		(0x4a000004)

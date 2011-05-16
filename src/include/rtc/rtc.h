@@ -1,9 +1,7 @@
 #ifndef __RTC_H__
 #define __RTC_H__
 
-
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <string.h>
 #include <time/xtime.h>

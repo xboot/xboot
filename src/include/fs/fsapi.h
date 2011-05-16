@@ -1,8 +1,7 @@
 #ifndef __FSAPI_H__
 #define __FSAPI_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
 #include <fs/vfs/vfs.h>

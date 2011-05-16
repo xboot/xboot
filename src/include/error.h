@@ -1,8 +1,7 @@
 #ifndef __ERROR_H__
 #define __ERROR_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 
 #define ENOERR			 0		/* no error */

@@ -1,8 +1,7 @@
 #ifndef __MACROS_H__
 #define __MACROS_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /**
  * define the macro of size.

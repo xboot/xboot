@@ -1,8 +1,7 @@
 #ifndef __DIV64_H__
 #define __DIV64_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 
 u64_t div64(u64_t num, u64_t den);

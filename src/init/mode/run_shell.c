@@ -21,8 +21,7 @@
  */
 
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <vsprintf.h>
 #include <malloc.h>
 #include <xboot/printk.h>

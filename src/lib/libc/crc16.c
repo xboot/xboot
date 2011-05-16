@@ -8,8 +8,7 @@
  * Init  0
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <crc16.h>
 

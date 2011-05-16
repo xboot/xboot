@@ -1,8 +1,7 @@
 #ifndef __S3C6410_REG_LCD_H__
 #define __S3C6410_REG_LCD_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 
 #define S3C6410_VIDCON0	  					(0x77100000)

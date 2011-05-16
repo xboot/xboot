@@ -20,10 +20,8 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
-#include <stddef.h>
 #include <xboot.h>
+#include <stddef.h>
 #include <malloc.h>
 #include <vsprintf.h>
 #include <xboot/printk.h>

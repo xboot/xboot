@@ -1,9 +1,7 @@
 #ifndef __S3C2410_REG_SERIAL_H__
 #define __S3C2410_REG_SERIAL_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 /* uart 0 */
 #define S3C2410_ULCON0	 	 	(0x50000000)

@@ -1,10 +1,6 @@
 #ifndef __S3C2410_REG_GPIO_H__
 #define __S3C2410_REG_GPIO_H__
 
-#include <configs.h>
-#include <default.h>
-
-
 #define S3C2410_GPACON	 	 	(0x56000000)
 #define S3C2410_GPADAT	 	 	(0x56000004)
 

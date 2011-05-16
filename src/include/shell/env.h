@@ -2,8 +2,7 @@
 #define __ENV_H__
 
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <string.h>
 #include <xboot/list.h>

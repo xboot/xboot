@@ -1,9 +1,7 @@
 #ifndef __S5PC100_REG_OTHERS_H__
 #define __S5PC100_REG_OTHERS_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S5PC100_SWRESET				(0xE0200000)
 #define S5PC100_ONENAND_SWRESET		(0xE0200008)
@@ -16,6 +14,5 @@
 #define S5PC100_MIPI_PHY_CON0		(0xE0200400)
 #define S5PC100_MIPI_PHY_CON1		(0xE0200414)
 #define S5PC100_HDMI_PHY_CON0		(0xE0200420)
-
 
 #endif /* __S5PC100_REG_OTHERS_H__ */

@@ -1,9 +1,7 @@
 #ifndef __S5PC100_REG_TIMER_H__
 #define __S5PC100_REG_TIMER_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 /*
  * timer 0 ~ 4

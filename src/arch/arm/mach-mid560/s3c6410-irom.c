@@ -34,8 +34,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <s3c6410/reg-gpio.h>
 #include <s3c6410/reg-nand.h>

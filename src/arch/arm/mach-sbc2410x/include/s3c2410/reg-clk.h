@@ -1,9 +1,6 @@
 #ifndef __S3C2410_REG_CLK_H__
 #define __S3C2410_REG_CLK_H__
 
-#include <configs.h>
-#include <default.h>
-
 
 #define S3C2410_LOCKTIME			(0x4c000000)
 #define S3C2410_MPLLCON	  			(0x4c000004)

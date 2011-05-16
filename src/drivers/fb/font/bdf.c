@@ -20,8 +20,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <ctype.h>
 #include <malloc.h>
 #include <byteorder.h>

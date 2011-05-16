@@ -1,8 +1,7 @@
 #ifndef __READLINE_H__
 #define __READLINE_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <string.h>
 

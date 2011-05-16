@@ -1,8 +1,7 @@
 #ifndef __S5PV210_KEYPAD_H__
 #define __S5PV210_KEYPAD_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <input/keyboard/keyboard.h>
 
 struct s5pv210_keypad

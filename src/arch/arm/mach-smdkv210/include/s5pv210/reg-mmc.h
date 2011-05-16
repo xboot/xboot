@@ -1,8 +1,7 @@
 #ifndef __S5PV210_REG_MMC_H__
 #define __S5PV210_REG_MMC_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /*
  * high speed mmc interface 0

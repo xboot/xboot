@@ -1,10 +1,8 @@
 #ifndef __VSPRINTF_H__
 #define __VSPRINTF_H__
 
+#include <xboot.h>
 #include <types.h>
-
-#include <configs.h>
-#include <default.h>
 #include <stdarg.h>
 
 

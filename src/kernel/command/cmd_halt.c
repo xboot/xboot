@@ -21,11 +21,9 @@
  */
 
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <string.h>
-#include <configs.h>
 #include <version.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>

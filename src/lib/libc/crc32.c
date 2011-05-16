@@ -2,8 +2,7 @@
  * lib/libc/crc32.c
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <crc32.h>
 

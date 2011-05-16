@@ -1,9 +1,7 @@
 #ifndef __S3C2410_REG_MEM_H__
 #define __S3C2410_REG_MEM_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S3C2410_BWSCON	  		(0x48000000)
 #define S3C2410_BANKCON0	  	(0x48000004)
@@ -18,6 +16,5 @@
 #define S3C2410_BANKSIZE	  	(0x48000028)
 #define S3C2410_MRSRB6	  		(0x4800002c)
 #define S3C2410_MRSRB7	  		(0x48000030)
-
 
 #endif /* __S3C2410_REG_MEM_H__ */

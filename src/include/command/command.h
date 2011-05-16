@@ -1,8 +1,7 @@
 #ifndef __COMMAND_H__
 #define __COMMAND_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <string.h>
 #include <xboot/list.h>

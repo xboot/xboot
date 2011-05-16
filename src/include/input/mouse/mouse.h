@@ -1,8 +1,7 @@
 #ifndef __MOUSE_H__
 #define __MOUSE_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <input/input.h>
 
 enum mouse_code {

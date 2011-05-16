@@ -20,9 +20,7 @@
  *
  */
 
-
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>

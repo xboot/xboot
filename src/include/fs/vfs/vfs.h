@@ -1,8 +1,7 @@
 #ifndef __VFS_H__
 #define __VFS_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <xboot/list.h>
 #include <xboot/blkdev.h>
 #include <fs/vfs/stat.h>

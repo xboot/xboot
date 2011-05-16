@@ -2,8 +2,7 @@
  * lib/libc/malloc.c
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>

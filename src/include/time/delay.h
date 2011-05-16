@@ -1,8 +1,7 @@
 #ifndef __DELAY_H__
 #define __DELAY_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 
 void udelay(u32_t us);

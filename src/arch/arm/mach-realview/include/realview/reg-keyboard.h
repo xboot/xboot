@@ -1,9 +1,6 @@
 #ifndef __REALVIEW_REG_KEYBOARD_H__
 #define __REALVIEW_REG_KEYBOARD_H__
 
-#include <configs.h>
-#include <default.h>
-
 /*
  * prime cell pl050 register .
  */

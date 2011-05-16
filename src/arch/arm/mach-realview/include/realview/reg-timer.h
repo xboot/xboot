@@ -1,9 +1,6 @@
 #ifndef __REALVIEW_REG_TIMER_H__
 #define __REALVIEW_REG_TIMER_H__
 
-#include <configs.h>
-#include <default.h>
-
 /*
  * timer 0
  */
@@ -57,6 +54,5 @@
 #define REALVIEW_TC_IE				(1 << 5)
 #define REALVIEW_TC_PERIODIC		(1 << 6)
 #define REALVIEW_TC_ENABLE			(1 << 7)
-
 
 #endif /* __REALVIEW_REG_TIMER_H__ */

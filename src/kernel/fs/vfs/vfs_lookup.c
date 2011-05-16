@@ -20,8 +20,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <error.h>
 #include <xboot/panic.h>
 #include <xboot/initcall.h>

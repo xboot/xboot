@@ -20,13 +20,11 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
 #include <vsprintf.h>
-#include <configs.h>
 #include <version.h>
 #include <shell/ctrlc.h>
 #include <xboot/log.h>

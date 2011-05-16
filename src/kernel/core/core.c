@@ -20,8 +20,6 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
 #include <xboot.h>
 #include <malloc.h>
 #include <xboot/log.h>

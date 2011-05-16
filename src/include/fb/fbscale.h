@@ -1,8 +1,7 @@
 #ifndef __FBSCALE_H__
 #define __FBSCALE_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <fb/fb.h>
 
 enum bitmap_scale_method

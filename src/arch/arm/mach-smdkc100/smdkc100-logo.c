@@ -20,11 +20,11 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <xboot.h>
 #include <xboot/log.h>
+#include <xboot/initcall.h>
 #include <fb/bitmap.h>
 #include <fb/logo.h>
 

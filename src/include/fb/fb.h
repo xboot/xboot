@@ -1,8 +1,7 @@
 #ifndef __FB_H__
 #define __FB_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <xboot/list.h>
 #include <fb/bitmap.h>
 

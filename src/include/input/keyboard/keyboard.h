@@ -1,8 +1,7 @@
 #ifndef __KEYBOARD_H__
 #define __KEYBOARD_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <input/input.h>
 
 enum key_code {

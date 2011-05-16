@@ -1,8 +1,7 @@
 #ifndef __REALVIEW_CP15_H__
 #define __REALVIEW_CP15_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 
 void irq_enable(void);

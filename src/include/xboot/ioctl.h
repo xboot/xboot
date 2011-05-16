@@ -1,8 +1,7 @@
 #ifndef __IOCTL_H__
 #define __IOCTL_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /*
  * ioctl command

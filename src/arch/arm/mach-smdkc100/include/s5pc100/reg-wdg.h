@@ -1,8 +1,7 @@
 #ifndef __S5PC100_REG_WDG_H__
 #define __S5PC100_REG_WDG_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 #define S5PC100_WTCON	  		(0xEA200000 + 0x00)
 #define S5PC100_WTDAT	  		(0xEA200000 + 0x04)

@@ -1,8 +1,7 @@
 #ifndef __S5PV210_REG_WDG_H__
 #define __S5PV210_REG_WDG_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 #define S5PV210_WTCON	  		(0xE2700000 + 0x00)
 #define S5PV210_WTDAT	  		(0xE2700000 + 0x04)

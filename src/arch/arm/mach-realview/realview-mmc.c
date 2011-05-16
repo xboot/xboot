@@ -21,8 +21,7 @@
  */
 
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <macros.h>
 #include <types.h>
 #include <stddef.h>

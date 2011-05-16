@@ -1,9 +1,7 @@
 #ifndef __REALVIEW_REG_WDG_H__
 #define __REALVIEW_REG_WDG_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define REALVIEW_WDG_LOAD		(0x10010000 + 0x000)
 #define REALVIEW_WDG_VALUE		(0x10010000 + 0x004)

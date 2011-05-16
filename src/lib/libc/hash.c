@@ -22,8 +22,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <string.h>
 #include <hash.h>
 

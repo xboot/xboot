@@ -1,8 +1,7 @@
 #ifndef __S5PV210_REG_GPIO_H__
 #define __S5PV210_REG_GPIO_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /* PORT A0 */
 #define S5PV210_GPA0CON	 	 	(0xE0200000 + 0x000)

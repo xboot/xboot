@@ -1,8 +1,7 @@
 #ifndef __MACHINE_H__
 #define __MACHINE_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <mode/mode.h>
 
 /*

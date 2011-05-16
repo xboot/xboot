@@ -20,14 +20,13 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <io.h>
-#include <time/delay.h>
 #include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
+#include <time/delay.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210-fb.h>
 

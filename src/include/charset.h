@@ -1,8 +1,7 @@
 #ifndef __CHARSET_H__
 #define __CHARSET_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 
 s32_t utf8_to_ucs4(u32_t * dst, s32_t dst_size, const s8_t * src, s32_t src_size, const s8_t ** src_end);

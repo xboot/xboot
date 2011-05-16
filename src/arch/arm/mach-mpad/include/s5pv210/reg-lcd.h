@@ -1,8 +1,7 @@
 #ifndef __S5PV210_REG_LCD_H__
 #define __S5PV210_REG_LCD_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 #define S5PV210_VIDCON0	  						(0xf8000000)
 #define S5PV210_VIDCON1	  						(0xf8000004)

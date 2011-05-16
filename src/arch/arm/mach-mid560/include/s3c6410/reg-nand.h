@@ -1,9 +1,7 @@
 #ifndef __S3C6410_REG_NAND_H__
 #define __S3C6410_REG_NAND_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S3C6410_NFCONF				(0x70200000)
 #define S3C6410_NFCONT				(0x70200004)
@@ -31,6 +29,5 @@
 #define S3C6410_NFM8ECC3			(0x7020005c)
 #define S3C6410_NFMLC8BITPT0		(0x70200060)
 #define S3C6410_NFMLC8BITPT1		(0x70200064)
-
 
 #endif /* __S3C6410_REG_NAND_H__ */

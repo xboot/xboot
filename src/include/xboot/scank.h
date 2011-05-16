@@ -1,8 +1,7 @@
 #ifndef __SCANK_H__
 #define __SCANK_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <stdarg.h>
 
 

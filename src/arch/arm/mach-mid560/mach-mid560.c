@@ -20,8 +20,7 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <macros.h>
 #include <io.h>
@@ -173,8 +172,8 @@ static struct machine mid560 = {
 	.res = {
 		.mem_banks = {
 			[0] = {
-				.start		= 0x50000000,
-				.end		= 0x50000000 + SZ_128M - 1,
+				.start		= (const void *)(0x50000000),
+				.end		= (const void *)(0x50000000 + SZ_128M - 1),
 			},
 
 			[1] = {

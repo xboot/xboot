@@ -1,9 +1,7 @@
 #ifndef __S3C6410_REG_CLK_H__
 #define __S3C6410_REG_CLK_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S3C6410_APLL_LOCK				(0x7E00F000)
 #define S3C6410_MPLL_LOCK				(0x7E00F004)

@@ -1,8 +1,7 @@
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 enum input_type {
 	INPUT_KEYBOARD			= 1,

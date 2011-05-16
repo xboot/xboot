@@ -20,10 +20,9 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
-#include <types.h>
 #include <xboot.h>
+#include <types.h>
+#include <string.h>
 #include <malloc.h>
 #include <byteorder.h>
 #include <fb/fb.h>

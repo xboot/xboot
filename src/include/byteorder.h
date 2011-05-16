@@ -1,9 +1,7 @@
 #ifndef __BYTEORDER_H__
 #define __BYTEORDER_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 static inline u16_t __swab16(u16_t x)
 {

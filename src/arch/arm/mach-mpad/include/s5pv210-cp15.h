@@ -1,8 +1,7 @@
 #ifndef __S5PV210_CP15_H__
 #define __S5PV210_CP15_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 void irq_enable(void);
 void irq_disable(void);

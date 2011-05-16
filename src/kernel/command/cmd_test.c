@@ -2,8 +2,7 @@
  * xboot/kernel/command/cmd_test.c
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <string.h>
 #include <malloc.h>

@@ -1,9 +1,6 @@
 #ifndef __REALVIEW_REG_GIC_H__
 #define __REALVIEW_REG_GIC_H__
 
-#include <configs.h>
-#include <default.h>
-
 /*
  * generic interrupt controller 1
  */

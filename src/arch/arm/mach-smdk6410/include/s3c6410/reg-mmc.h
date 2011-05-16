@@ -1,8 +1,7 @@
 #ifndef __S3C6410_REG_MMC_H__
 #define __S3C6410_REG_MMC_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 /*
  * high speed mmc interface 0

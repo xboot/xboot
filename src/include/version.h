@@ -1,8 +1,7 @@
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <console/console.h>
 
 /*

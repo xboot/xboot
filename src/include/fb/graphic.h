@@ -1,8 +1,7 @@
 #ifndef __GRAPHIC_H__
 #define __GRAPHIC_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <rect.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>

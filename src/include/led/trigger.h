@@ -1,8 +1,7 @@
 #ifndef __LED_TRIGGER_H__
 #define __LED_TRIGGER_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <xboot/list.h>
 #include <led/led.h>
 

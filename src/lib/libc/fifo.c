@@ -2,8 +2,7 @@
  * lib/libc/fifo.c
  */
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <stddef.h>
 #include <malloc.h>

@@ -1,10 +1,8 @@
 #ifndef __MODE_H__
 #define __MODE_H__
 
-#include <configs.h>
-#include <default.h>
 #include <xboot.h>
-
+#include <types.h>
 
 typedef void (*application_t)(void);
 

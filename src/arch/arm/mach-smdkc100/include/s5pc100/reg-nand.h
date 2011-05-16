@@ -1,9 +1,7 @@
 #ifndef __S5PC100_REG_NAND_H__
 #define __S5PC100_REG_NAND_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S5PC100_NFCONF				(0xe7200000)
 #define S5PC100_NFCONT				(0xe7200004)

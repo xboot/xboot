@@ -1,8 +1,7 @@
 #ifndef __FBCOLOR_H__
 #define __FBCOLOR_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <fb/fb.h>
 
 

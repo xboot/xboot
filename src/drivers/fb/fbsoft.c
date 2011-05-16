@@ -20,10 +20,8 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
-#include <types.h>
 #include <xboot.h>
+#include <types.h>
 #include <malloc.h>
 #include <rect.h>
 #include <fb/fb.h>

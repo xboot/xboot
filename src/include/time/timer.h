@@ -1,8 +1,7 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <xboot/list.h>
 

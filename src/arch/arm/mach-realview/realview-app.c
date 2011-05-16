@@ -20,10 +20,8 @@
  *
  */
 
-#include <configs.h>
-#include <default.h>
-#include <types.h>
 #include <xboot.h>
+#include <types.h>
 #include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <mode/mode.h>

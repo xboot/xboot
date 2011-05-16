@@ -1,9 +1,7 @@
 #ifndef __S5PC100_REG_CLK_H__
 #define __S5PC100_REG_CLK_H__
 
-#include <configs.h>
-#include <default.h>
-
+#include <xboot.h>
 
 #define S5PC100_APLL_LOCK				(0xE0100000 + 0x000)
 #define S5PC100_MPLL_LOCK				(0xE0100000 + 0x004)

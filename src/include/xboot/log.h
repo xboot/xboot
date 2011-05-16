@@ -1,8 +1,7 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 #include <types.h>
 #include <string.h>
 #include <xboot/list.h>

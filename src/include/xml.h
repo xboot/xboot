@@ -1,8 +1,7 @@
 #ifndef __XML_H__
 #define __XML_H__
 
-#include <configs.h>
-#include <default.h>
+#include <xboot.h>
 
 
 struct xml {

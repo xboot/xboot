@@ -23,7 +23,7 @@
 #include <xboot.h>
 #include <malloc.h>
 #include <div64.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/printk.h>
 #include <xboot/device.h>
 #include <xboot/blkdev.h>

@@ -27,7 +27,7 @@
 #include <malloc.h>
 #include <xml.h>
 #include <hash.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
@@ -331,7 +331,7 @@ s32_t console_print(struct console * console, const char * fmt, ...)
 		return 0;
 
 	va_start(args, fmt);
-	i = vsnprintf((s8_t *)buf, SZ_4K, (s8_t *)fmt, args);
+	i = vsnprintf((char *)buf, SZ_4K, fmt, args);
 	va_end(args);
 
 	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const s8_t **)&p) > 0; )

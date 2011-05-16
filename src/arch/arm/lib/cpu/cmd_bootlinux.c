@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/linux.h>
@@ -64,9 +64,9 @@ static s32_t bootlinux(s32_t argc, const s8_t **argv)
 		return -1;
 	}
 
-	linux_kernel = simple_strtou32(argv[1], NULL, 0);
-	linux_tag_placement = simple_strtou32(argv[2], NULL, 0);
-	linux_mach_type = simple_strtou32(argv[3], NULL, 0);
+	linux_kernel = strtoul((const char *)argv[1], NULL, 0);
+	linux_tag_placement = strtoul((const char *)argv[2], NULL, 0);
+	linux_mach_type = strtoul((const char *)argv[3], NULL, 0);
 
 	/* setup linux kernel boot params */
 	params = (struct tag *)linux_tag_placement;

@@ -24,8 +24,8 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 #include <malloc.h>
-#include <vsprintf.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
@@ -107,12 +107,12 @@ static s32_t nand(s32_t argc, const s8_t **argv)
 			return -1;
 		}
 
-		off = simple_strtou32(argv[3], NULL, 0);
-		size = simple_strtou32(argv[4], NULL, 0);
+		off = strtoul((const char *)argv[3], NULL, 0);
+		size = strtoul((const char *)argv[4], NULL, 0);
 
 		if( !strcmp((const char *)argv[5], "-r") )
 		{
-			addr = simple_strtou32(argv[6], NULL, 0);
+			addr = strtoul((const char *)argv[6], NULL, 0);
 
 			if(nand_read(nand, (u8_t *)addr, off, size) != 0)
 				return -1;

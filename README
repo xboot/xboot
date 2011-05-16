@@ -39,7 +39,7 @@ THE OFFICIAL WEBSITE
 TO COMPILE XBOOT
 	just run below command at xboot's root directory:
 	make clean
-	make TARGET=arm-realview CROSS=/path/to/arm-elf-
+	make TARGET=arm-realview CROSS=/path/to/arm-none-eabi-
 	
 	"TARGET" for your machine which xboot will be run;
 	"CROSS"  for your cross compiler;

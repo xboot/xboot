@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <malloc.h>
 #include <byteorder.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -100,22 +100,22 @@ static bool_t get_bdf_info(s32_t fd, struct bdf_info * info)
 	{
 		if(strncmp((const char *)line, "FONT ", sizeof("FONT ") - 1) == 0)
 		{
-			if(sscanf(line, (const s8_t *)"FONT %s", info->name) != 1)
+			if(sscanf((const char *)line, "FONT %s", info->name) != 1)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "SIZE ", sizeof("SIZE ") - 1) == 0)
 		{
-			if(sscanf(line, (const s8_t *)"SIZE %ld %ld %ld", &info->size, &info->xres, &info->yres) != 3)
+			if(sscanf((const char *)line, "SIZE %ld %ld %ld", &info->size, &info->xres, &info->yres) != 3)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "FONTBOUNDINGBOX ", sizeof("FONTBOUNDINGBOX ") - 1) == 0)
 		{
-			if(sscanf(line, (const s8_t *)"FONTBOUNDINGBOX %ld %ld %ld %ld", &info->fbbx, &info->fbby, &info->xoff, &info->yoff) != 4)
+			if(sscanf((const char *)line, "FONTBOUNDINGBOX %ld %ld %ld %ld", &info->fbbx, &info->fbby, &info->xoff, &info->yoff) != 4)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "CHARS ", sizeof("CHARS ") - 1) == 0)
 		{
-			if( (sscanf(line, (const s8_t *)"CHARS %ld", &info->chars) != 1) || (info->chars <= 0) )
+			if( (sscanf((const char *)line, "CHARS %ld", &info->chars) != 1) || (info->chars <= 0) )
 				return FALSE;
 			break;
 		}
@@ -154,12 +154,12 @@ static bool_t bdf_add_next_font_glyph(struct font * font, s32_t fd, struct bdf_i
 	{
 		if(strncmp((const char *)line, "ENCODING ", sizeof("ENCODING ") - 1) == 0)
 		{
-			if( sscanf(line, (const s8_t *)"ENCODING %ld", &encoding) != 1 )
+			if( sscanf((const char *)line, "ENCODING %ld", &encoding) != 1 )
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "BBX ", sizeof("BBX ") - 1) == 0)
 		{
-			if(sscanf(line, (const s8_t *)"BBX %ld %ld %ld %ld", &w, &h, &x, &y) != 4)
+			if(sscanf((const char *)line, "BBX %ld %ld %ld %ld", &w, &h, &x, &y) != 4)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "BITMAP", sizeof("BITMAP") - 1) == 0)

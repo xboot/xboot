@@ -24,7 +24,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <version.h>
 #include <shell/ctrlc.h>
 #include <xboot/log.h>
@@ -56,7 +56,7 @@ static s32_t mw(s32_t argc, const s8_t **argv)
 			size = 4;
 		else if( !strcmp((const char *)argv[i], "-c") && (argc > i+1))
 		{
-			c = simple_strtou32(argv[i+1], NULL, 0);
+			c = strtoul((const char *)argv[i+1], NULL, 0);
 			if(c == 0)
 			{
 				printk("mw: the parmater of write count is zero by '-c %s'", argv[i+1]);
@@ -74,9 +74,9 @@ static s32_t mw(s32_t argc, const s8_t **argv)
 		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
 		{
 			if(index == 0)
-				base_addr = simple_strtou32(argv[i], NULL, 0);
+				base_addr = strtoul((const char *)argv[i], NULL, 0);
 			else if(index == 1)
-				value = simple_strtou32(argv[i], NULL, 0);
+				value = strtoul((const char *)argv[i], NULL, 0);
 			else if(index >= 2)
 			{
 				printk("mw: invalid paramter '%s'\r\n", argv[i]);

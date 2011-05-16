@@ -22,8 +22,8 @@
 
 
 #include <xboot.h>
-#include <vsprintf.h>
 #include <malloc.h>
+#include <stdio.h>
 #include <xboot/printk.h>
 #include <fs/fsapi.h>
 #include <console/console.h>

@@ -24,7 +24,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <version.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
@@ -57,7 +57,7 @@ static s32_t md(s32_t argc, const s8_t **argv)
 			size = 4;
 		else if( !strcmp((const char *)argv[i],"-c") && (argc > i+1))
 		{
-			nbytes = simple_strtou32(argv[i+1], NULL, 0);
+			nbytes = strtoul((const char *)argv[i+1], NULL, 0);
 			i++;
 		}
 		else if(*argv[i] == '-')
@@ -69,7 +69,7 @@ static s32_t md(s32_t argc, const s8_t **argv)
 		}
 		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
 		{
-			base_addr = simple_strtou32(argv[i], NULL, 0);
+			base_addr = strtoul((const char *)argv[i], NULL, 0);
 		}
 	}
 

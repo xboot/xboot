@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <time/delay.h>

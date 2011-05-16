@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <time/tick.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
@@ -67,7 +67,7 @@ static s32_t fileram(s32_t argc, const s8_t **argv)
 		}
 
 		filename = (char *)argv[2];
-		addr = simple_strtou32(argv[3], NULL, 0);
+		addr = strtoul((const char *)argv[3], NULL, 0);
 		size = 0;
 
 		fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
@@ -97,8 +97,8 @@ static s32_t fileram(s32_t argc, const s8_t **argv)
 			return (-1);
 		}
 
-		addr = simple_strtou32(argv[2], NULL, 0);
-		size = simple_strtou32(argv[3], NULL, 0);
+		addr = strtoul((const char *)argv[2], NULL, 0);
+		size = strtoul((const char *)argv[3], NULL, 0);
 		filename = (char *)argv[4];
 
 		fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));

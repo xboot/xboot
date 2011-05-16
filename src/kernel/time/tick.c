@@ -26,7 +26,7 @@
 #include <malloc.h>
 #include <stdarg.h>
 #include <string.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <mode/mode.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>

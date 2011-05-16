@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <loop/loop.h>
 #include <xboot/log.h>
 #include <xboot/list.h>

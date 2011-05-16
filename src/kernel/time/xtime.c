@@ -23,7 +23,7 @@
 #include <xboot.h>
 #include <types.h>
 #include <macros.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/chrdev.h>

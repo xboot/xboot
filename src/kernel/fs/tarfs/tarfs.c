@@ -23,7 +23,7 @@
 #include <xboot.h>
 #include <types.h>
 #include <stdarg.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include <error.h>
 #include <time/xtime.h>
@@ -328,7 +328,7 @@ static s32_t tarfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 			if(strncmp((const char *)(header.magic), (const char *)"ustar", 5) != 0)
 				return ENOENT;
 
-			size = simple_strtos64((const s8_t *)(header.size), NULL, 0);
+			size = strtoll((const char *)(header.size), NULL, 0);
 			if(size < 0)
 				return ENOENT;
 
@@ -377,7 +377,7 @@ static s32_t tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 		if(strncmp((const char *)(header.magic), (const char *)"ustar", 5) != 0)
 			return ENOENT;
 
-		size = simple_strtos64((const s8_t *)(header.size), NULL, 0);
+		size = strtoll((const char *)(header.size), NULL, 0);
 		if(size < 0)
 			return ENOENT;
 
@@ -428,7 +428,7 @@ static s32_t tarfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 
 	buf[8] = '\0';
 	memcpy(buf, (const s8_t *)(header.mode), 8);
-	mode = simple_strtou32(buf, NULL, 8);
+	mode = strtoul((const char *)buf, NULL, 8);
 
 	node->v_mode = 0;
 	if(mode & 00400)

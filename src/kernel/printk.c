@@ -26,7 +26,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <macros.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <malloc.h>
 #include <charset.h>
 #include <console/console.h>
@@ -97,7 +97,7 @@ s32_t printk(const char * fmt, ...)
 		return 0;
 
 	va_start(args, fmt);
-	i = vsnprintf((s8_t *)buf, SZ_4K, (s8_t *)fmt, args);
+	i = vsnprintf((char *)buf, SZ_4K, fmt, args);
 	va_end(args);
 
 	led_console_trigger_activity();

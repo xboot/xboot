@@ -24,7 +24,6 @@
 #include <types.h>
 #include <stdarg.h>
 #include <malloc.h>
-#include <vsprintf.h>
 #include <time/timer.h>
 #include <time/delay.h>
 #include <xboot/printk.h>

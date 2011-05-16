@@ -24,7 +24,7 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>

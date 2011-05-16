@@ -26,7 +26,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <charset.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/printk.h>
 #include <xboot/chrdev.h>
 #include <console/console.h>

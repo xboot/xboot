@@ -24,7 +24,6 @@
 #include <types.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <vsprintf.h>
 #include <malloc.h>
 #include <error.h>
 #include <time/xtime.h>

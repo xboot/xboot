@@ -25,7 +25,6 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <vsprintf.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>

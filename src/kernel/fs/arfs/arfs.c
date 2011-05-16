@@ -23,7 +23,7 @@
 #include <xboot.h>
 #include <types.h>
 #include <stdarg.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include <error.h>
 #include <time/xtime.h>
@@ -204,7 +204,7 @@ static s32_t arfs_readdir(struct vnode * node, struct file * fp, struct dirent *
 			if(strncmp((const char *)header.ar_fmag, "`\n", 2) != 0)
 				return ENOENT;
 
-			size = simple_strtos64((const s8_t *)(header.ar_size), NULL, 0);
+			size = strtoll((const char *)(header.ar_size), NULL, 0);
 			if(size <= 0)
 				return ENOENT;
 
@@ -244,7 +244,7 @@ static s32_t arfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 		if(strncmp((const char *)header.ar_fmag, "`\n", 2) != 0)
 			return ENOENT;
 
-		size = simple_strtos64((const s8_t *)(header.ar_size), NULL, 0);
+		size = strtoll((const char *)(header.ar_size), NULL, 0);
 		if(size <= 0)
 			return ENOENT;
 

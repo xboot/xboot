@@ -24,7 +24,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <version.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
@@ -45,9 +45,9 @@ static s32_t mc(s32_t argc, const s8_t **argv)
 		return (-1);
 	}
 
-	src = simple_strtou32(argv[1], NULL, 0);
-	dst = simple_strtou32(argv[2], NULL, 0);
-	size = simple_strtou32(argv[3], NULL, 0);
+	src = strtoul((const char *)argv[1], NULL, 0);
+	dst = strtoul((const char *)argv[2], NULL, 0);
+	size = strtoul((const char *)argv[3], NULL, 0);
 
 	for(i = 0; i < size; i++)
 	{

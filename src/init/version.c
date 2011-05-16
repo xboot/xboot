@@ -22,7 +22,7 @@
 
 
 #include <xboot.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <console/console.h>

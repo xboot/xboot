@@ -25,7 +25,7 @@
 #include <string.h>
 #include <macros.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/blkdev.h>
 #include <xboot/list.h>
 #include <xboot/initcall.h>

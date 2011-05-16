@@ -24,7 +24,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <version.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
@@ -45,7 +45,7 @@ static s32_t go(s32_t argc, const s8_t **argv)
 		return (-1);
 	}
 
-	addr = simple_strtou32(argv[1], NULL, 0);
+	addr = strtoul((const char *)argv[1], NULL, 0);
 
 	printk("starting application at 0x%08lx ...\r\n", addr);
 

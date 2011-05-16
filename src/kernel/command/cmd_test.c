@@ -10,7 +10,6 @@
 #include <div64.h>
 #include <fifo.h>
 #include <color.h>
-#include <vsprintf.h>
 #include <byteorder.h>
 #include <sha.h>
 #include <xml.h>

@@ -24,7 +24,7 @@
 #include <types.h>
 #include <string.h>
 #include <version.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <time/delay.h>
 #include <shell/ctrlc.h>
 #include <xboot/log.h>
@@ -42,7 +42,7 @@ static s32_t sleep(s32_t argc, const s8_t **argv)
 
 	if(argc == 2)
 	{
-		ms = simple_strtou32(argv[1], NULL, 0);
+		ms = strtoul((const char *)argv[1], NULL, 0);
 	}
 
 	do {

@@ -26,7 +26,7 @@
 #include <macros.h>
 #include <string.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/list.h>
 #include <xboot/log.h>
 
@@ -74,7 +74,7 @@ bool_t log_add(enum log_level level, const int line, const char * file, const ch
 		return FALSE;
 
 	va_start(args, fmt);
-	vsnprintf((s8_t *)log_format_buffer, sizeof(log_format_buffer), (s8_t *)fmt, args);
+	vsnprintf(log_format_buffer, sizeof(log_format_buffer), fmt, args);
 	va_end(args);
 
 	msg = malloc(strlen(log_format_buffer));

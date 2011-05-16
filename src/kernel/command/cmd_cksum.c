@@ -24,8 +24,8 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 #include <malloc.h>
-#include <vsprintf.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
@@ -133,8 +133,8 @@ static s32_t cksum(s32_t argc, const s8_t **argv)
 		return (-1);
 	}
 
-	addr = simple_strtou32(argv[1], NULL, 0);
-	len = simple_strtou32(argv[2], NULL, 0);
+	addr = strtoul((const char *)argv[1], NULL, 0);
+	len = strtoul((const char *)argv[2], NULL, 0);
 
 	if(!len)
 		return -1;

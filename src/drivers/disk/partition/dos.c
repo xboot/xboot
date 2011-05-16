@@ -22,7 +22,6 @@
 
 #include <xboot.h>
 #include <malloc.h>
-#include <vsprintf.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>

@@ -6,10 +6,11 @@
 #include <ctype.h>
 #include <types.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
 #include <stdarg.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <fs/fsapi.h>
 #include <xml.h>
 
@@ -170,7 +171,7 @@ static struct xml * xml_err(struct xml_root * root, char * s, const char * err, 
 	snprintf((char *)fmt, XML_ERROR_LENGTH, (const char *)"[error near line %ld]: %s", line, err);
 
 	va_start(ap, err);
-	vsnprintf((s8_t *)root->err, XML_ERROR_LENGTH, (const s8_t *)fmt, ap);
+	vsnprintf(root->err, XML_ERROR_LENGTH, fmt, ap);
 	va_end(ap);
 
 	return &root->xml;
@@ -209,9 +210,9 @@ static char * xml_decode(char * s, char ** ent, char t)
 		else if(t != 'c' && ! strncmp((const char *)s, (const char *)"&#", 2))				/* character reference */
         {
 			if(s[2] == 'x')
-				c = simple_strtos64((const s8_t *)(s + 3), (s8_t **)(&e), 16);
+				c = strtoll((const char *)(s + 3), (char **)(&e), 16);
 			else
-				c = simple_strtos64((const s8_t *)(s + 2), (s8_t **)(&e), 10);
+				c = strtoll((const char *)(s + 2), (char **)(&e), 10);
 			if(! c || *e != ';')								/* not a character ref */
 			{
 				s++;

@@ -25,7 +25,7 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/printk.h>
 #include <xboot/chrdev.h>
 #include <xboot/ioctl.h>

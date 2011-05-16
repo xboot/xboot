@@ -26,7 +26,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <version.h>
-#include <vsprintf.h>
 #include <xboot/printk.h>
 #include <xboot/list.h>
 #include <fs/fsapi.h>

@@ -80,6 +80,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib/libc						\
 				lib/libc/ctype					\
 				lib/libc/errno					\
+				lib/libc/stdio					\
 				lib/libc/stdlib					\
 				lib/libc/string					\
 				init							\

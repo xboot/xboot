@@ -24,8 +24,9 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <io.h>
 #include <fs/fsapi.h>
 #include <xboot/log.h>
@@ -2895,7 +2896,7 @@ static s32_t dasm(s32_t argc, const s8_t **argv)
 		return (-1);
 	}
 
-	address = simple_strtou32(argv[1], NULL, 0);
+	address = strtoul((const char *)argv[1], NULL, 0);
 
 	for(i=2; i<argc; i++)
 	{
@@ -2905,7 +2906,7 @@ static s32_t dasm(s32_t argc, const s8_t **argv)
 			thumb = TRUE;
 		else if( !strcmp((const char *)argv[i], "-c") && (argc > i+1))
 		{
-			count = simple_strtou32(argv[i+1], NULL, 0);
+			count = strtoul((const char *)argv[i+1], NULL, 0);
 			i++;
 		}
 		else if( !strcmp((const char *)argv[i], "-f") && (argc > i+1))

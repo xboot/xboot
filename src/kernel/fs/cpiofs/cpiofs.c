@@ -23,7 +23,7 @@
 #include <xboot.h>
 #include <types.h>
 #include <stdarg.h>
-#include <vsprintf.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include <error.h>
 #include <byteorder.h>
@@ -283,13 +283,13 @@ static s32_t cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 			buf[8] = '\0';
 
 			memcpy(buf, (const s8_t *)(header.c_filesize), 8);
-			size = simple_strtou32((const s8_t *)buf, NULL, 16);
+			size = strtoul((const char *)buf, NULL, 16);
 
 			memcpy(buf, (const s8_t *)(header.c_namesize), 8);
-			name_size = simple_strtou32((const s8_t *)buf, NULL, 16);
+			name_size = strtoul((const char *)buf, NULL, 16);
 
 			memcpy(buf, (const s8_t *)(header.c_mode), 8);
-			mode = simple_strtou32((const s8_t *)buf, NULL, 16);
+			mode = strtoul((const char *)buf, NULL, 16);
 
 			bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
 
@@ -342,13 +342,13 @@ static s32_t cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 		buf[8] = '\0';
 
 		memcpy(buf, (const s8_t *)(header.c_filesize), 8);
-		size = simple_strtou32(buf, NULL, 16);
+		size = strtoul((const char *)buf, NULL, 16);
 
 		memcpy(buf, (const s8_t *)(header.c_namesize), 8);
-		name_size = simple_strtou32(buf, NULL, 16);
+		name_size = strtoul((const char *)buf, NULL, 16);
 
 		memcpy(buf, (const s8_t *)(header.c_mode), 8);
-		mode = simple_strtou32(buf, NULL, 16);
+		mode = strtoul((const char *)buf, NULL, 16);
 
 		bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
 

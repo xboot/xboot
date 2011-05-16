@@ -27,7 +27,7 @@
 #include <macros.h>
 #include <malloc.h>
 #include <hash.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/list.h>
 #include <xboot/initcall.h>
 #include <xboot/printk.h>

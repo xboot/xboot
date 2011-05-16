@@ -24,7 +24,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <stdarg.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <malloc.h>
 #include <time/tick.h>
 #include <time/timer.h>
@@ -96,7 +96,7 @@ s32_t scank(const char * fmt, ...)
 	p = readline(0);
 
 	va_start(args,fmt);
-	i = vsscanf(p, (s8_t *)fmt, args);
+	i = vsscanf((const char *)p, fmt, args);
 	va_end(args);
 
 	free(p);

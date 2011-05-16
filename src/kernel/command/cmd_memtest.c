@@ -24,8 +24,8 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 #include <version.h>
-#include <vsprintf.h>
 #include <time/delay.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
@@ -53,9 +53,9 @@ static s32_t memtest(s32_t argc, const s8_t **argv)
 	}
 	else if(argc == 3)
 	{
-		base = simple_strtou32(argv[1], NULL, 0);
+		base = strtoul((const char *)argv[1], NULL, 0);
 		base = base & (~0x00000003);
-		size = simple_strtou32(argv[2], NULL, 0);
+		size = strtoul((const char *)argv[2], NULL, 0);
 		size = size & (~0x00000003);
 	}
 	else

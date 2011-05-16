@@ -26,7 +26,7 @@
 #include <malloc.h>
 #include <hash.h>
 #include <fifo.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <xboot/chrdev.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>

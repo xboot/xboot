@@ -22,6 +22,11 @@ unsigned long strtoul(const char * nptr, char ** endptr, int base);
 unsigned long long strtoull(const char * nptr, char ** endptr, int base);
 double strtod(const char * nptr, char ** endptr);
 
+intmax_t strtoimax(const char * nptr, char ** endptr, int base);
+uintmax_t strtoumax(const char * nptr, char ** endptr, int base);
+intmax_t strntoimax(const char * nptr, char ** endptr, int base, size_t n);
+uintmax_t strntoumax(const char * nptr, char ** endptr, int base, size_t n);
+
 void * bsearch(const void *key, const void *base, size_t nmemb, size_t size,
 		int(*compar)(const void *, const void *));
 

@@ -19,5 +19,10 @@ typedef __builtin_va_list	va_list;
  */
 #define va_end(v)			__builtin_va_end(v)
 
+/*
+ * copy variable args
+ */
+#define va_copy(d, s)		__builtin_va_copy(d, s)
+
 
 #endif /* __STDARG_H__ */

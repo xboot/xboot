@@ -39,11 +39,19 @@
 
 
 /* Minimum and maximum values a 'signed long long int' can hold */
-#define LLONG_MAX		9223372036854775807LL
 #define LLONG_MIN		(-LLONG_MAX - 1LL)
+#define LLONG_MAX		9223372036854775807LL
 
 /* Maximum value an 'unsigned long long int' can hold (Minimum is 0) */
 #define ULLONG_MAX		18446744073709551615ULL
+
+
+/* Minimum and maximum values a 'max int' can hold */
+#define INTMAX_MIN		LLONG_MIN
+#define INTMAX_MAX		LLONG_MAX
+
+/* Maximum value an 'max uint' can hold (Minimum is 0) */
+#define UINTMAX_MAX		ULLONG_MAX
 
 
 #endif /* __ARM_LIMITS_H__ */

@@ -4,9 +4,16 @@
 #include <types.h>
 #include <stdarg.h>
 
+
 typedef struct {
 	int fd;
 } FILE;
+
+
+extern FILE * stdin;
+extern FILE * stdout;
+extern FILE * stderr;
+
 
 int fileno(FILE * fp);
 FILE * fopen(const char * file, const char * mode);
@@ -23,5 +30,6 @@ int sscanf(const char * buf, const char * fmt, ...);
 
 // xxx for test
 int ssize(char * buf, u64_t size);
+
 
 #endif /* __STDIO_H__ */

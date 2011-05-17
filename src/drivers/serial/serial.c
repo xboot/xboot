@@ -300,7 +300,7 @@ bool_t scon_getcode(struct console * console, u32_t * code)
 
 		default:
 			info->utf8[info->size++] = c;
-			if(utf8_to_ucs4(&cp, 1, info->utf8, info->size, (const s8_t **)&rest) > 0)
+			if(utf8_to_ucs4(&cp, 1, (const char *)info->utf8, info->size, (const char **)&rest) > 0)
 			{
 				info->size -= rest - info->utf8;
 				memmove(info->utf8, rest, info->size);
@@ -413,7 +413,7 @@ bool_t scon_getcode(struct console * console, u32_t * code)
 bool_t scon_putcode(struct console * console, u32_t code)
 {
 	struct serial_console_info * info = console->priv;
-	s8_t buf[32];
+	char buf[32];
 	s32_t w, i;
 
 	w = ucs4_width(code);
@@ -453,8 +453,8 @@ bool_t scon_putcode(struct console * console, u32_t code)
 		break;
 	}
 
-	ucs4_to_utf8(code, buf);
-	info->drv->write((const u8_t *)buf, strlen((const char *)buf));
+	ucs4_to_utf8(&code, 1, buf, sizeof(buf));
+	info->drv->write((const u8_t *)buf, strlen(buf));
 
 	return TRUE;
 }

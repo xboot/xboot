@@ -59,16 +59,16 @@ bool_t putcode(u32_t code)
 void putch(char c)
 {
 	struct console * stdout = get_stdout();
-	static s32_t size = 0;
-	static s8_t buf[6];
-	s8_t * rest;
+	static size_t size = 0;
+	static char buf[6];
+	char * rest;
 	u32_t code;
 
 	if(!stdout || !stdout->putcode)
 		return;
 
 	buf[size++] = c;
-	while(utf8_to_ucs4(&code, 1, buf, size, (const s8_t **)&rest) > 0)
+	while(utf8_to_ucs4(&code, 1, buf, size, (const char **)&rest) > 0)
 	{
 		led_console_trigger_activity();
 
@@ -81,13 +81,13 @@ void putch(char c)
 /*
  * printk - Format a string, using utf-8 stream
  */
-s32_t printk(const char * fmt, ...)
+int printk(const char * fmt, ...)
 {
 	struct console * stdout = get_stdout();
 	va_list args;
 	u32_t code;
-	s32_t i;
-	s8_t *p, *buf;
+	int i;
+	char *p, *buf;
 
 	if(!stdout || !stdout->putcode)
 		return 0;
@@ -97,12 +97,12 @@ s32_t printk(const char * fmt, ...)
 		return 0;
 
 	va_start(args, fmt);
-	i = vsnprintf((char *)buf, SZ_4K, fmt, args);
+	i = vsnprintf(buf, SZ_4K, fmt, args);
 	va_end(args);
 
 	led_console_trigger_activity();
 
-	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const s8_t **)&p) > 0; )
+	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const char **)&p) > 0; )
 	{
 		stdout->putcode(stdout, code);
 	}

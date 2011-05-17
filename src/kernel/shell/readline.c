@@ -224,7 +224,7 @@ static void rl_space(struct rl_buf * rl, u32_t len)
 
 static void rl_print(struct rl_buf * rl, s32_t pos)
 {
-	s8_t * utf8;
+	char * utf8;
 
 	if(pos < 0)
 		return;
@@ -233,7 +233,7 @@ static void rl_print(struct rl_buf * rl, s32_t pos)
 		return;
 
 	utf8 = ucs4_to_utf8_alloc(rl->buf + pos, rl->len - pos);
-	printk((const char *)utf8);
+	printk(utf8);
 
 	free(utf8);
 }

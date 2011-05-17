@@ -3380,14 +3380,14 @@ bool_t fb_putcode(struct fb * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t
 bool_t fb_draw_text(struct fb * fb, const char * str, struct font * font, u32_t c, u32_t x, u32_t y)
 {
 	struct font_glyph * glyph;
-	const s8_t * p;
+	const char * p;
 	u32_t code;
 	u32_t left;
 
 	if(!fb)
 		return FALSE;
 
-	for(p = (const s8_t *)str, left = x; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	for(p = str, left = x; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
 	{
 		glyph = font_lookup_glyph(font, code);
 		if(!font_draw_glyph_to_framebuffer(fb, glyph, c, left, y))
@@ -3405,14 +3405,14 @@ bool_t fb_draw_text(struct fb * fb, const char * str, struct font * font, u32_t 
 bool_t bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * font, u32_t c, u32_t x, u32_t y)
 {
 	struct font_glyph * glyph;
-	const s8_t * p;
+	const char * p;
 	u32_t code;
 	u32_t left;
 
 	if(!bitmap)
 		return FALSE;
 
-	for(p = (const s8_t *)str, left = x; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	for(p = str, left = x; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
 	{
 		glyph = font_lookup_glyph(font, code);
 		if(!font_draw_glyph_to_bitmap(bitmap, glyph, c, left, y))
@@ -3430,14 +3430,14 @@ bool_t bitmap_draw_text(struct bitmap * bitmap, const char * str, struct font * 
 bool_t font_get_metrics(const char * str, struct font * font, u32_t * w, u32_t * h)
 {
 	struct font_glyph * glyph;
-	const s8_t * p;
+	const char * p;
 	u32_t code;
 	u32_t width = 0, height = 0;
 
 	if(!w && !h)
 		return FALSE;
 
-	for(p = (const s8_t *)str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
+	for(p = str; utf8_to_ucs4(&code, 1, p, -1, &p) > 0; )
 	{
 		glyph = font_lookup_glyph(font, code);
 		width += glyph->w;

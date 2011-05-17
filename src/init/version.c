@@ -31,9 +31,9 @@
 /*
  * print xboot banner
  */
-s32_t xboot_banner(struct console * console)
+void xboot_banner(struct console * console)
 {
-	return console_print(console, "xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
+	console_print(console, "xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
 }
 
 /*

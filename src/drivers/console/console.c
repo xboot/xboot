@@ -316,12 +316,12 @@ bool_t console_putcode(struct console * console, u32_t code)
 	return FALSE;
 }
 
-s32_t console_print(struct console * console, const char * fmt, ...)
+int console_print(struct console * console, const char * fmt, ...)
 {
 	va_list args;
 	u32_t code;
-	s32_t i;
-	s8_t *p, *buf;
+	char *p, *buf;
+	int i;
 
 	if(!console || !console->putcode)
 		return 0;
@@ -331,10 +331,10 @@ s32_t console_print(struct console * console, const char * fmt, ...)
 		return 0;
 
 	va_start(args, fmt);
-	i = vsnprintf((char *)buf, SZ_4K, fmt, args);
+	i = vsnprintf(buf, SZ_4K, fmt, args);
 	va_end(args);
 
-	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const s8_t **)&p) > 0; )
+	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const char **)&p) > 0; )
 	{
 		console->putcode(console, code);
 	}

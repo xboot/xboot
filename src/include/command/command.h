@@ -15,7 +15,7 @@ struct command
 	const char * name;
 
 	/* the command function */
-	s32_t (*func)(s32_t argc, const s8_t ** argv);
+	int (*func)(int argc, char ** argv);
 
 	/* the command description */
 	const char * desc;
@@ -40,6 +40,6 @@ struct command_list
 bool_t command_register(struct command * cmd);
 bool_t command_unregister(struct command * cmd);
 struct command * command_search(const char * name);
-s32_t command_number(void);
+int command_number(void);
 
 #endif /* __COMMAND_H__ */

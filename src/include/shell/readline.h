@@ -14,7 +14,6 @@ enum readline_mode {
 	RL_CSI
 };
 
-
-s8_t * readline(const s8_t *prompt);
+char * readline(const char * prompt);
 
 #endif /* __READLINE_H__ */

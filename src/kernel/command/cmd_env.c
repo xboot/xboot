@@ -105,7 +105,7 @@ static void usage(void)
 	printk("usage:\r\n    env [-s] [<-a|-d|-m> NAME VALUE]\r\n");
 }
 
-static s32_t env(s32_t argc, const s8_t **argv)
+static int env(int argc, char ** argv)
 {
 	s32_t i;
 	s8_t *p;

@@ -40,7 +40,7 @@ static void usage(void)
 	printk("    exit [--normal|--shell|--menu|--graphic|--application]\r\n");
 }
 
-static s32_t exit_to_mode(s32_t argc, const s8_t **argv)
+static int exit_to_mode(int argc, char ** argv)
 {
 	if(argc == 1)
 	{

@@ -260,7 +260,7 @@ static void screen_init(void)
 	collapse();
 }
 
-static s32_t tetris(s32_t argc, const s8_t **argv)
+static int tetris(int argc, char ** argv)
 {
 	struct console * stdout = get_stdout();
 	u32_t x, y, shape;

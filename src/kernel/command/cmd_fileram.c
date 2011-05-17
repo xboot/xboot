@@ -44,7 +44,7 @@ static void usage(void)
 	printk("    fileram -r <addr> <size> <file>\r\n");
 }
 
-static s32_t fileram(s32_t argc, const s8_t **argv)
+static int fileram(int argc, char ** argv)
 {
 	char * filename;
 	s32_t fd;

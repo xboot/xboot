@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_LOG) && (CONFIG_COMMAND_LOG > 0)
 
-static s32_t do_log(s32_t argc, const s8_t **argv)
+static int do_log(int argc, char ** argv)
 {
 	struct log_list * list;
 	bool_t level_d = FALSE;

@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_MD) && (CONFIG_COMMAND_MD > 0)
 
-static s32_t md(s32_t argc, const s8_t **argv)
+static int md(int argc, char ** argv)
 {
 	s32_t base_addr = 0, nbytes = 64;
 	s32_t i, size = 1;

@@ -159,7 +159,7 @@ static void serial_info(void)
 	}
 }
 
-static s32_t serial(s32_t argc, const s8_t **argv)
+static int serial(int argc, char ** argv)
 {
 	struct chrdev * device;
 	s32_t (* read_func)(struct chrdev *, u8_t *, s32_t);

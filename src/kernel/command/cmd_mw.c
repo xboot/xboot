@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_MW) && (CONFIG_COMMAND_MW > 0)
 
-static s32_t mw(s32_t argc, const s8_t **argv)
+static int mw(int argc, char ** argv)
 {
 	u32_t base_addr = 0, value = 0, c = 1;
 	u32_t index = 0, i, size = 1;

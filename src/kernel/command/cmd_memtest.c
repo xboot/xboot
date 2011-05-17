@@ -37,7 +37,7 @@
 
 #if	defined(CONFIG_COMMAND_MEMTEST) && (CONFIG_COMMAND_MEMTEST > 0)
 
-static s32_t memtest(s32_t argc, const s8_t **argv)
+static int memtest(int argc, char ** argv)
 {
 	u32_t base, size;
 	u32_t * start, * end;

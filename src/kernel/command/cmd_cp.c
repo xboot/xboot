@@ -33,7 +33,7 @@
 
 #if	defined(CONFIG_COMMAND_CP) && (CONFIG_COMMAND_CP > 0)
 
-static s32_t do_cp(s32_t argc, const s8_t **argv)
+static int do_cp(int argc, char ** argv)
 {
 	//FIXME
 	/*

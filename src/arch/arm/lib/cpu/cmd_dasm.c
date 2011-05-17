@@ -2879,7 +2879,7 @@ static s32_t thumb_evaluate_opcode(u16_t opcode, u32_t address, struct arm_instr
 	return -1;
 }
 
-static s32_t dasm(s32_t argc, const s8_t **argv)
+static int dasm(int argc, char ** argv)
 {
 	bool_t thumb = FALSE;
 	u32_t address = 0x00000000;

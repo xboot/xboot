@@ -87,16 +87,16 @@ bool_t getcode_with_timeout(u32_t * code, u32_t timeout)
 /*
  * scank - unformat input utf-8 stream into a list of arguments
  */
-s32_t scank(const char * fmt, ...)
+int scank(const char * fmt, ...)
 {
 	va_list args;
-	s8_t * p;
-	s32_t i;
+	char * p;
+	int i;
 
 	p = readline(0);
 
 	va_start(args,fmt);
-	i = vsscanf((const char *)p, fmt, args);
+	i = vsscanf(p, fmt, args);
 	va_end(args);
 
 	free(p);

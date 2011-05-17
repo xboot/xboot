@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_HALT) && (CONFIG_COMMAND_HALT > 0)
 
-static s32_t do_halt(s32_t argc, const s8_t **argv)
+static int do_halt(int argc, char ** argv)
 {
 	sync();
 

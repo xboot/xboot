@@ -36,7 +36,7 @@
 
 #if	defined(CONFIG_COMMAND_SLEEP) && (CONFIG_COMMAND_SLEEP > 0)
 
-static s32_t sleep(s32_t argc, const s8_t **argv)
+static int sleep(int argc, char ** argv)
 {
 	s32_t ms = 1000;
 

@@ -89,7 +89,7 @@ bool_t command_unregister(struct command * cmd)
 /*
  * search command.
  */
-struct command * command_search(const char *name)
+struct command * command_search(const char * name)
 {
 	struct command_list * list;
 	struct list_head * pos;
@@ -110,9 +110,9 @@ struct command * command_search(const char *name)
 /*
  * the number of commands
  */
-s32_t command_number(void)
+int command_number(void)
 {
-	s32_t i = 0;
+	int i = 0;
 	struct list_head * pos = (&command_list->entry)->next;
 
 	while(!list_is_last(pos, (&command_list->entry)->next))

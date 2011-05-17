@@ -50,10 +50,10 @@ void run_shell_mode(void)
 		getcwd(cwd, sizeof(cwd));
 		sprintf(prompt, "%s: %s$ ", env_get("prompt", "xboot"), cwd);
 
-		p = (char *)readline((const s8_t *)prompt);
+		p = readline(prompt);
 		printk("\r\n");
 
-		exec_cmdline((const s8_t *)p);
+		exec_cmdline(p);
 		free(p);
 	} while(xboot_get_mode() == MODE_SHELL);
 }

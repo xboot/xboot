@@ -38,34 +38,34 @@
 /*
  * exec the command line
  */
-void exec_cmdline(const s8_t * cmdline)
+void exec_cmdline(const char * cmdline)
 {
     struct command * cmd;
-    s32_t n;
+    int n;
     char **args;
     char *p, *buf, *pos;
-    s32_t ret;
+    int ret;
 
     if(!cmdline)
     	return;
 
-    p = buf = malloc(strlen((const char *)cmdline) + 2);
+    p = buf = malloc(strlen(cmdline) + 2);
     if(!p)
     	return;
 
-    strcpy(p, (const char *)cmdline);
+    strcpy(p, cmdline);
     strcat(p, " ");
 
     while(*p)
     {
-    	if(parser((const s8_t *)p, &n, (s8_t ***)&args, (s8_t **)&pos))
+    	if(parser(p, &n, &args, &pos))
     	{
     		if(n > 0)
     		{
-    			cmd = command_search((char*)args[0]);
+    			cmd = command_search(args[0]);
     			if(cmd)
     			{
-    				ret = cmd->func(n, (const s8_t **)args);
+    				ret = cmd->func(n, args);
     				if(ret != 0)
     				{
     					/*

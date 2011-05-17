@@ -60,12 +60,12 @@ static struct parser_state_transition state_transitions[] = {
 /*
  * determines the state following STATE, determined by C.
  */
-static enum paser_state get_parser_state(enum paser_state state, s8_t c, s8_t *result)
+static enum paser_state get_parser_state(enum paser_state state, char c, char * result)
 {
 	struct parser_state_transition *transition;
 	struct parser_state_transition *next_match = 0;
 	struct parser_state_transition default_transition;
-	s32_t found = 0;
+	int found = 0;
 
 	default_transition.to_state = state;
 	default_transition.keep_value = 1;
@@ -118,15 +118,15 @@ static bool_t is_varstate(enum paser_state s)
  * parser command line.
  * the cmdline's last character must be a space for running right
  */
-bool_t parser(const s8_t *cmdline, s32_t *argc, s8_t ***argv, s8_t **pos)
+bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 {
 	enum paser_state state = PARSER_STATE_TEXT;
 	enum paser_state newstate;
-	s8_t *rd = (s8_t *)cmdline;
-	s8_t c, *args, *val;
-	s8_t *buffer, *bp;
-	s8_t *varname, *vp;
-	s32_t i;
+	char *rd = (char *)cmdline;
+	char c, *args, *val;
+	char *buffer, *bp;
+	char *varname, *vp;
+	int i;
 
 	*argc = 1;
 	*pos = 0;
@@ -160,7 +160,7 @@ bool_t parser(const s8_t *cmdline, s32_t *argc, s8_t ***argv, s8_t **pos)
 			if(is_varstate (state) && !is_varstate (newstate))
 			{
 			    *(vp++) = '\0';
-			    val = (s8_t*)env_get((const char *)varname, NULL);
+			    val = env_get(varname, NULL);
 			    vp = varname;
 			    if(val)
 			    {
@@ -210,7 +210,7 @@ bool_t parser(const s8_t *cmdline, s32_t *argc, s8_t ***argv, s8_t **pos)
 	if(is_varstate(state) && !is_varstate (PARSER_STATE_TEXT))
 	{
 	    *(vp++) = '\0';
-	    val = (s8_t*)env_get((const char *)varname, NULL);
+	    val = env_get(varname, NULL);
 	    vp = varname;
 	    if(val)
 	    {
@@ -229,7 +229,7 @@ bool_t parser(const s8_t *cmdline, s32_t *argc, s8_t ***argv, s8_t **pos)
 
 	memcpy(args, buffer, bp - buffer);
 
-	*argv = malloc (sizeof (s8_t *) * (*argc + 1));
+	*argv = malloc (sizeof(char *) * (*argc + 1));
 	if (! *argv)
 	{
 		*argc = 0;

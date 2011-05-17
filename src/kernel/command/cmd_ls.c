@@ -170,7 +170,7 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 	}
 }
 
-static s32_t ls(s32_t argc, const s8_t **argv)
+static int ls(int argc, char ** argv)
 {
 	s32_t width, height;
 	u32_t flags = 0;

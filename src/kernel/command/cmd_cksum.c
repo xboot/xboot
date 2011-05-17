@@ -122,7 +122,7 @@ static u32_t crc32(u8_t *p, s32_t len, u32_t *crc)
     return 0;
 }
 
-static s32_t cksum(s32_t argc, const s8_t **argv)
+static int cksum(int argc, char ** argv)
 {
 	u32_t	addr = 0, len = 0;
 	u32_t crc;

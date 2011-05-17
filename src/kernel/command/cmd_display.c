@@ -41,7 +41,7 @@
 
 #if	defined(CONFIG_COMMAND_DISPLAY) && (CONFIG_COMMAND_DISPLAY > 0)
 
-static s32_t display(s32_t argc, const s8_t **argv)
+static int display(int argc, char ** argv)
 {
 	struct stat st;
 	struct fb * fb;

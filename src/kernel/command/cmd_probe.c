@@ -74,7 +74,7 @@ static void list_mmc_card(void)
 	}
 }
 
-static s32_t probe(s32_t argc, const s8_t **argv)
+static int probe(int argc, char ** argv)
 {
 	s32_t i;
 

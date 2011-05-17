@@ -63,7 +63,7 @@ static s32_t build(s8_t * path)
 	return 0;
 }
 
-static s32_t do_mkdir(s32_t argc, const s8_t **argv)
+static int do_mkdir(int argc, char ** argv)
 {
 	s32_t c = 0;
 	s8_t ** v;

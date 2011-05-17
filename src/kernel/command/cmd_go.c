@@ -34,7 +34,7 @@
 
 #if	defined(CONFIG_COMMAND_GO) && (CONFIG_COMMAND_GO > 0)
 
-static s32_t go(s32_t argc, const s8_t **argv)
+static int go(int argc, char ** argv)
 {
 	u32_t addr;
 	s32_t ret;
@@ -49,7 +49,7 @@ static s32_t go(s32_t argc, const s8_t **argv)
 
 	printk("starting application at 0x%08lx ...\r\n", addr);
 
-	ret = ((s32_t(*)(s32_t, const s8_t *[]))(addr)) (--argc, &argv[1]);
+	ret = ((int(*)(int, char **))(addr)) (--argc, &argv[1]);
 
 	printk("application terminated.(ret = 0x%08lx)\r\n", ret);
 

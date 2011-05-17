@@ -34,7 +34,7 @@
 
 #if	defined(CONFIG_COMMAND_MV) && (CONFIG_COMMAND_MV > 0)
 
-static s32_t do_mv(s32_t argc, const s8_t **argv)
+static int do_mv(int argc, char ** argv)
 {
 	char path[MAX_PATH];
 	char * src, * dest, * p;

@@ -50,7 +50,7 @@
 
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
-static s32_t test(s32_t argc, const s8_t **argv)
+static int test(int argc, char ** argv)
 {
 	return 0;
 }

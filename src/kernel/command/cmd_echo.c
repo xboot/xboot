@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_ECHO) && (CONFIG_COMMAND_ECHO > 0)
 
-static s32_t hextobin (s8_t c)
+static int hextobin (char c)
 {
 	switch (c)
     {
@@ -49,12 +49,12 @@ static s32_t hextobin (s8_t c)
     }
 }
 
-static s32_t echo(s32_t argc, const s8_t **argv)
+static int echo(int argc, char ** argv)
 {
-	const s8_t *temp;
-	const s8_t *s;
-	s8_t c, ch;
-	s32_t i;
+	const char *temp;
+	const char *s;
+	char c, ch;
+	int i;
 	bool_t do_v9 = FALSE;
 	bool_t display_return = TRUE;
 

@@ -34,7 +34,7 @@
 
 #if	defined(CONFIG_COMMAND_RM) && (CONFIG_COMMAND_RM > 0)
 
-static s32_t do_rm(s32_t argc, const s8_t **argv)
+static int do_rm(int argc, char ** argv)
 {
 	s32_t i;
 	s32_t ret;

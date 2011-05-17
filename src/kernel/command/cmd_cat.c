@@ -34,7 +34,7 @@
 
 #if	defined(CONFIG_COMMAND_CAT) && (CONFIG_COMMAND_CAT > 0)
 
-static s32_t cat(s32_t argc, const s8_t **argv)
+static int cat(int argc, char ** argv)
 {
 	struct stat st;
 	s8_t * buf;

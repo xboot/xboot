@@ -35,7 +35,7 @@
 
 #if	defined(CONFIG_COMMAND_UMOUNT) && (CONFIG_COMMAND_UMOUNT > 0)
 
-static s32_t do_umount(s32_t argc, const s8_t **argv)
+static int do_umount(int argc, char ** argv)
 {
 	if(argc != 2)
 	{

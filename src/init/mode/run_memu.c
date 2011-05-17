@@ -237,5 +237,5 @@ void run_menu_mode(void)
 	menu_ctx_free(ctx);
 
 	if(item && item->title && item->command)
-		exec_cmdline((const s8_t *)item->command);
+		exec_cmdline(item->command);
 }

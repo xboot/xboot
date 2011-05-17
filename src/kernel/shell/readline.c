@@ -37,9 +37,9 @@
 struct rl_buf {
 	u32_t * buf;
 	u32_t * cut;
-	s32_t size;
-	s32_t len;
-	s32_t pos;
+	size_t size;
+	size_t len;
+	size_t pos;
 	s32_t x, y;
 	s32_t w, h;
 };
@@ -517,14 +517,14 @@ static bool_t readline_handle(struct rl_buf * rl, u32_t code)
 /*
  * read line with utf-8 stream
  */
-s8_t * readline(const s8_t * prompt)
+char * readline(const char * prompt)
 {
 	struct rl_buf * rl;
-	s8_t * utf8 = NULL;
+	char * utf8 = NULL;
 	u32_t code;
 
 	if(prompt)
-		printk((char *)prompt);
+		printk(prompt);
 
 	rl = rl_buf_alloc();
 	if(!rl)
@@ -540,7 +540,7 @@ s8_t * readline(const s8_t * prompt)
 	}
 
 	if(rl->len > 0)
-		utf8 = (s8_t *)(ucs4_to_utf8_alloc(rl->buf, rl->len));
+		utf8 = ucs4_to_utf8_alloc(rl->buf, rl->len);
 
 	rl_buf_free(rl);
 	return utf8;

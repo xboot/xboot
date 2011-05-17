@@ -34,7 +34,7 @@
 
 #if	defined(CONFIG_COMMAND_REBOOT) && (CONFIG_COMMAND_REBOOT > 0)
 
-static s32_t reboot(s32_t argc, const s8_t **argv)
+static int reboot(int argc, char ** argv)
 {
 	sync();
 

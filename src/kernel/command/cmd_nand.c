@@ -59,7 +59,7 @@ static void list_nand_device(void)
 	}
 }
 
-static s32_t nand(s32_t argc, const s8_t **argv)
+static int nand(int argc, char ** argv)
 {
 	struct nand_device * nand;
 	u32_t off = 0;

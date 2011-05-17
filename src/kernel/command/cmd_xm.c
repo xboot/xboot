@@ -38,6 +38,10 @@
 
 #if	defined(CONFIG_COMMAND_XMODEM) && (CONFIG_COMMAND_XMODEM > 0)
 
+/*
+ * FIXME, utf8 console
+ */
+
 #define SOH				0x01	/* start of header */
 #define	STX 			0x02	/* start of header */
 #define EOT				0x04	/* end of text */
@@ -406,7 +410,7 @@ start_trans:
 	return FALSE;
 }
 
-static s32_t sx(s32_t argc, const s8_t **argv)
+static int sx(int argc, char ** argv)
 {
 	s32_t size;
 
@@ -430,7 +434,7 @@ static s32_t sx(s32_t argc, const s8_t **argv)
 	return 0;
 }
 
-static s32_t rx(s32_t argc, const s8_t **argv)
+static int rx(int argc, char ** argv)
 {
 	s32_t size;
 

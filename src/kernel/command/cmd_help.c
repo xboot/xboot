@@ -39,7 +39,7 @@ extern struct command_list * command_list;
 /**
  * the entry of help command.
  */
-static s32_t help(s32_t argc, const s8_t **argv)
+static int help(int argc, char ** argv)
 {
 	struct command_list * list;
 	struct list_head * pos;

@@ -34,7 +34,7 @@
 
 #if	defined(CONFIG_COMMAND_MC) && (CONFIG_COMMAND_MC > 0)
 
-static s32_t mc(s32_t argc, const s8_t **argv)
+static int mc(int argc, char ** argv)
 {
 	u32_t src, dst, size = 0;
 	u32_t i;

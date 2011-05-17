@@ -43,7 +43,7 @@
  * r1 = architecture type
  * r2 = physical address of tagged list in system ram
  */
-static s32_t bootlinux(s32_t argc, const s8_t **argv)
+static int bootlinux(int argc, char ** argv)
 {
 	s32_t ret;
 	s32_t linux_mach_type, linux_kernel, linux_tag_placement;

@@ -21,7 +21,7 @@
  */
 
 #include <xboot.h>
-#include <error.h>
+#include <errno.h>
 #include <malloc.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
@@ -51,7 +51,7 @@ s32_t mount(const char * dev, const char * dir, const char * fs, u32_t flags)
 			return EEXIST;
 
 		if(! S_ISBLK(st.st_mode))
-			return ENODEV;
+			return EACCES;
 
 		return sys_mount(dev_path, dir_path, (char *)fs, flags);
 	}

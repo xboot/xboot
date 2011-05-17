@@ -21,7 +21,7 @@
  */
 
 #include <xboot.h>
-#include <error.h>
+#include <errno.h>
 #include <xboot/panic.h>
 #include <xboot/initcall.h>
 #include <fs/fs.h>

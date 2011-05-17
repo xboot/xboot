@@ -25,7 +25,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <malloc.h>
-#include <error.h>
+#include <errno.h>
 #include <time/xtime.h>
 #include <shell/readline.h>
 #include <xboot/log.h>
@@ -73,7 +73,7 @@ static s32_t arfs_mount(struct mount * m, char * dev, s32_t flag)
 
 	blk = (struct blkdev *)m->m_dev;
 	if(!blk)
-		return ENODEV;
+		return EACCES;
 
 	if(get_blkdev_total_size(blk) <= 8)
 		return EINTR;

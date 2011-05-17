@@ -21,7 +21,7 @@
  */
 
 #include <xboot.h>
-#include <error.h>
+#include <errno.h>
 #include <malloc.h>
 #include <xboot/list.h>
 #include <xboot/panic.h>
@@ -54,7 +54,7 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 
 	/* find a file system. */
 	if( !(fs = filesystem_search(fsname)) )
-		return ENODEV;
+		return EACCES;
 
 	/*
 	 * null can be specified as a device.
@@ -68,7 +68,7 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 			p = dev;
 
 		if( (device = search_blkdev(p)) == NULL)
-			return ENODEV;
+			return EACCES;
 	}
 	else
 	{

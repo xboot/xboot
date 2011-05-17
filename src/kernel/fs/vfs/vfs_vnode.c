@@ -21,7 +21,7 @@
  */
 
 #include <xboot.h>
-#include <error.h>
+#include <errno.h>
 #include <malloc.h>
 #include <xboot/list.h>
 #include <xboot/initcall.h>

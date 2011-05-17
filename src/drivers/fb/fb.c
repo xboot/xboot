@@ -657,7 +657,7 @@ bool_t fbcon_putcode(struct console * console, u32_t code)
 	case UNICODE_LF:
 		if(info->y + 1 >= info->h)
 			fbcon_scrollup(console);
-		fbcon_gotoxy(console, info->x, info->y + 1);
+		fbcon_gotoxy(console, 0, info->y + 1);
 		break;
 
 	case UNICODE_CR:

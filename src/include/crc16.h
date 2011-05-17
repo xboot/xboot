@@ -4,6 +4,6 @@
 #include <xboot.h>
 #include <types.h>
 
-u16_t crc16(u16_t crc, const u8_t *buffer, u32_t len);
+u16_t crc16(u16_t crc, const u8_t * buf, size_t len);
 
 #endif /* __CRC16_H__ */

@@ -26,7 +26,7 @@
 #include <string.h>
 #include <version.h>
 #include <malloc.h>
-#include <crc16-ccitt.h>
+#include <crc-ccitt.h>
 #include <xboot/log.h>
 #include <xboot/scank.h>
 #include <xboot/printk.h>
@@ -81,7 +81,7 @@ static inline bool_t check_packet(s32_t crc_flag, u8_t * buf, s32_t size)
 	else if(crc_flag == 1)
 	{
 		pkt_crc = ( (u16_t)buf[size]<<8 ) | ( (u16_t)buf[size+1] );
-		if(crc16_ccitt(buf, size) == pkt_crc)
+		if(crc_ccitt(0, buf, size) == pkt_crc)
 			return TRUE;
 		else
 			return FALSE;
@@ -325,7 +325,7 @@ start_trans:
 
 				if(crc_flag)
 				{
-					u16_t ccrc = crc16_ccitt(&packet_buf[3], packet_size);
+					u16_t ccrc = crc_ccitt(0, &packet_buf[3], packet_size);
 					packet_buf[packet_size+3] = (ccrc >> 8) & 0xff;
 					packet_buf[packet_size+4] = ccrc & 0xff;
 				}

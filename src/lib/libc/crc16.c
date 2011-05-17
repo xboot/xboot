@@ -50,11 +50,6 @@ static const u16_t crc16_table[256] = {
 	0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
-/*
- * crc16_byte - compute the CRC-16 for a byte
- * @crc:	previous CRC value
- * @data: 	byte value
- */
 static inline u16_t crc16_byte(u16_t crc, const u8_t data)
 {
 	return (crc >> 8) ^ crc16_table[(crc ^ data) & 0xff];
@@ -68,9 +63,9 @@ static inline u16_t crc16_byte(u16_t crc, const u8_t data)
  *
  * Returns the updated CRC value.
  */
-u16_t crc16(u16_t crc, const u8_t *buffer, u32_t len)
+u16_t crc16(u16_t crc, const u8_t * buf, size_t len)
 {
 	while (len--)
-		crc = crc16_byte(crc, *buffer++);
+		crc = crc16_byte(crc, *buf++);
 	return crc;
 }

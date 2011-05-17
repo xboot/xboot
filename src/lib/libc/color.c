@@ -1,5 +1,5 @@
 /*
- * kernel/gui/color.c
+ * lib/libc/color.c
  *
  * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -195,7 +195,7 @@ const static struct named_color named_colors[] =
  */
 struct color * get_color_by_name(const char * name)
 {
-	s32_t i;
+	int i;
 
 	for(i = 0; named_colors[i].name; i++)
 	{

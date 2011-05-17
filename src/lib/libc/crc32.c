@@ -65,7 +65,6 @@ static const u32_t crc32_table[256] = {
 	0x2d02ef8dL
 };
 
-#if 0
 /*
  * crc32 - compute the CRC-32 for the data buffer
  * @crc:	previous CRC value
@@ -74,7 +73,7 @@ static const u32_t crc32_table[256] = {
  *
  * Returns the updated CRC value.
  */
-u32_t crc32(u32_t crc, const u8_t *buf, u32_t len)
+u32_t crc32(u32_t crc, const u8_t * buf, size_t len)
 {
 	crc = crc ^ 0xffffffffL;
 
@@ -100,4 +99,4 @@ u32_t crc32(u32_t crc, const u8_t *buf, u32_t len)
 
 	return crc ^ 0xffffffffL;
 }
-#endif
+

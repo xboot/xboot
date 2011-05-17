@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <malloc.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <stdio.h>
 
 int fclose(FILE * fp)

@@ -29,7 +29,7 @@
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <command/command.h>
 
 

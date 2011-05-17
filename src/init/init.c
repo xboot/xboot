@@ -36,7 +36,7 @@
 #include <xboot/printk.h>
 #include <console/console.h>
 #include <shell/env.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <fb/font.h>
 #include <init.h>
 

@@ -32,7 +32,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/env.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 
 /*
  * the hash list of environment variable

@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <xml.h>
 
 #define XML_ERROR_LENGTH		(256)		/* maximum error string length */

@@ -1,11 +1,10 @@
-#ifndef __FSAPI_H__
-#define __FSAPI_H__
+#ifndef __FILEIO_H__
+#define __FILEIO_H__
 
 #include <xboot.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
 #include <fs/vfs/vfs.h>
-
 
 s32_t mount(const char * dev, const char * dir, const char * fs, u32_t flags);
 void sync(void);
@@ -37,5 +36,4 @@ u32_t umask(u32_t mode);
 s32_t ftruncate(s32_t fd, loff_t length);
 s32_t truncate(const char * path, loff_t length);
 
-
-#endif /* __FSAPI_H__ */
+#endif /* __FILEIO_H__ */

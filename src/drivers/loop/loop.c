@@ -34,7 +34,7 @@
 #include <xboot/device.h>
 #include <xboot/blkdev.h>
 #include <xboot/ioctl.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <loop/loop.h>
 
 /*

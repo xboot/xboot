@@ -30,7 +30,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
 #include <fb/fbpixel.h>

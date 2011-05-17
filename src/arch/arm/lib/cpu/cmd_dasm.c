@@ -28,7 +28,7 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <io.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>

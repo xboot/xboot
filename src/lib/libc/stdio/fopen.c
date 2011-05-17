@@ -6,7 +6,7 @@
 #include <types.h>
 #include <stdarg.h>
 #include <malloc.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <stdio.h>
 
 FILE * fopen(const char * file, const char * mode)

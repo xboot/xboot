@@ -32,7 +32,7 @@
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/proc.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <console/console.h>
 
 static struct console * console_stdin = NULL;

@@ -1,7 +1,7 @@
 /*
- * kernel/fs/fsapi.c
+ * kernel/fs/fileio.c
  *
- * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,8 +26,7 @@
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
 #include <fs/vfs/vfs.h>
-#include <fs/fsapi.h>
-
+#include <fs/fileio.h>
 
 /*
  * mount a file system

@@ -32,7 +32,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 
 
 #if	defined(CONFIG_COMMAND_FILERAM) && (CONFIG_COMMAND_FILERAM > 0)

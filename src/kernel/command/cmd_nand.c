@@ -33,7 +33,7 @@
 #include <mtd/nand/nfc.h>
 #include <mtd/nand/nand.h>
 #include <command/command.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 
 #if	defined(CONFIG_COMMAND_NAND) && (CONFIG_COMMAND_NAND > 0)
 

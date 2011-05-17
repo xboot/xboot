@@ -28,7 +28,7 @@
 #include <version.h>
 #include <xboot/printk.h>
 #include <xboot/list.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <shell/readline.h>
 #include <shell/env.h>
 #include <shell/parser.h>

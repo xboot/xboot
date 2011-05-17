@@ -30,7 +30,7 @@
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/vfs/vfs.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 
 
 #if	defined(CONFIG_COMMAND_PWD) && (CONFIG_COMMAND_PWD > 0)

@@ -33,7 +33,7 @@
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 
 
 #if	defined(CONFIG_COMMAND_XMODEM) && (CONFIG_COMMAND_XMODEM > 0)

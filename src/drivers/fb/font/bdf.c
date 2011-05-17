@@ -29,7 +29,7 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <fb/font.h>
 
 struct bdf_info

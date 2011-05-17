@@ -31,7 +31,7 @@
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <console/console.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 
 
 #if	defined(CONFIG_COMMAND_LS) && (CONFIG_COMMAND_LS > 0)

@@ -43,7 +43,7 @@
 #include <loop/loop.h>
 #include <command/command.h>
 #include <fs/vfs/vfs.h>
-#include <fs/fsapi.h>
+#include <fs/fileio.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
 

@@ -13,12 +13,12 @@
 #define S3C2410_UFSTAT0	  		(0x50000018)
 #define S3C2410_UMSTAT0			(0x5000001C)
 
-#if	defined(__LITTLE_ENDIAN)
-#define S3C2410_UTXH0	  		(0x50000020)
-#define S3C2410_URXH0	  		(0x50000024)
-#elif defined(__BIG_ENDIAN)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
 #define S3C2410_UTXH0	  		(0x50000023)
 #define S3C2410_URXH0	  		(0x50000027)
+#else
+#define S3C2410_UTXH0	  		(0x50000020)
+#define S3C2410_URXH0	  		(0x50000024)
 #endif
 
 #define S3C2410_UBRDIV0			(0x50000028)
@@ -33,12 +33,12 @@
 #define S3C2410_UFSTAT1	  		(0x50004018)
 #define S3C2410_UMSTAT1			(0x5000401C)
 
-#if	defined(__LITTLE_ENDIAN)
-#define S3C2410_UTXH1	  		(0x50004020)
-#define S3C2410_URXH1	  		(0x50004024)
-#elif defined(__BIG_ENDIAN)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
 #define S3C2410_UTXH1	  		(0x50004023)
 #define S3C2410_URXH1	  		(0x50004027)
+#else
+#define S3C2410_UTXH1	  		(0x50004020)
+#define S3C2410_URXH1	  		(0x50004024)
 #endif
 
 #define S3C2410_UBRDIV1			(0x50004028)
@@ -53,12 +53,12 @@
 #define S3C2410_UFSTAT2	  		(0x50008018)
 #define S3C2410_UMSTAT2			(0x5000801C)
 
-#if	defined(__LITTLE_ENDIAN)
-#define S3C2410_UTXH2	  		(0x50008020)
-#define S3C2410_URXH2	  		(0x50008024)
-#elif defined(__BIG_ENDIAN)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
 #define S3C2410_UTXH2	  		(0x50008023)
 #define S3C2410_URXH2	  		(0x50008027)
+#else
+#define S3C2410_UTXH2	  		(0x50008020)
+#define S3C2410_URXH2	  		(0x50008024)
 #endif
 
 #define S3C2410_UBRDIV2			(0x50008028)

@@ -22,10 +22,10 @@
 #define S3C2410_SDIFSTA	  		(0x5a000038)
 #define S3C2410_SDIIMSK	  		(0x5a000040)
 
-#if	defined(__LITTLE_ENDIAN)
-#define S3C2410_SDIDAT	  		(0x5a00003c)
-#elif defined(__BIG_ENDIAN)
+#if (__BYTE_ORDER == __BIG_ENDIAN)
 #define S3C2410_SDIDAT	  		(0x5a00003f)
+#else
+#define S3C2410_SDIDAT	  		(0x5a00003c)
 #endif
 
 

@@ -201,40 +201,16 @@ static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	len += sprintf((char *)(p + len), (const char *)" cpu desc           : %s\r\n", __machine->info.cpu_desc);
 	len += sprintf((char *)(p + len), (const char *)" cpu id             : %s\r\n", __machine->info.cpu_id);
 
-#if defined(__SYS_32BIT)
 	for(i = 0; i < ARRAY_SIZE(get_machine()->res.mem_banks); i++)
 	{
 		if( (__machine->res.mem_banks[i].start == 0) && (__machine->res.mem_banks[i].end == 0) )
 			break;
 
-		len += sprintf((char *)(p + len), (const char *)" memory bank%ld start : 0x%08lx\r\n", i, (u32_t)__machine->res.mem_banks[i].start);
-		len += sprintf((char *)(p + len), (const char *)" memory bank%ld end   : 0x%08lx\r\n", i, (u32_t)__machine->res.mem_banks[i].end);
+		len += sprintf((char *)(p + len), (const char *)" memory bank%ld start : %p\r\n", i, (void *)__machine->res.mem_banks[i].start);
+		len += sprintf((char *)(p + len), (const char *)" memory bank%ld end   : %p\r\n", i, (void *)__machine->res.mem_banks[i].end);
 		ssize(size, (u64_t)(__machine->res.mem_banks[i].end - __machine->res.mem_banks[i].start + 1));
 		len += sprintf((char *)(p + len), (const char *)" memory bank%ld size  : %s\r\n", i, size);
 	}
-#elif defined(__SYS_64BIT)
-	for(i = 0; i < ARRAY_SIZE(get_machine()->res.mem_banks); i++)
-	{
-		if( (__machine->res.mem_banks[i].start == 0) && (__machine->res.mem_banks[i].end == 0) )
-			break;
-
-		len += sprintf((char *)(p + len), (const char *)" memory bank%ld start : 0x%016Lx\r\n", i, (u64_t)__machine->res.mem_banks[i].start);
-		len += sprintf((char *)(p + len), (const char *)" memory bank%ld end   : 0x%016Lx\r\n", i, (u64_t)__machine->res.mem_banks[i].end);
-		ssize(size, (u64_t)(__machine->res.mem_banks[i].end - __machine->res.mem_banks[i].start + 1));
-		len += sprintf((char *)(p + len), (const char *)" memory bank%ld size  : %s\r\n", i, size);
-	}
-#endif
-
-#if defined(__LITTLE_ENDIAN)
-	len += sprintf((char *)(p + len), (const char *)" endian format      : little endian\r\n");
-#elif defined(__BIG_ENDIAN)
-	len += sprintf((char *)(p + len), (const char *)" endian format      : big endian\r\n");
-#endif
-#if defined(__SYS_32BIT)
-	len += sprintf((char *)(p + len), (const char *)" system width       : 32bits");
-#elif defined(__SYS_64BIT)
-	len += sprintf((char *)(p + len), (const char *)" system width       : 64bits");
-#endif
 
 	len -= offset;
 
@@ -270,77 +246,40 @@ static s32_t link_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-#if defined(__SYS_32BIT)
-	len += sprintf((char *)(p + len), (const char *)" text start   : 0x%08lx\r\n", (u32_t)__machine->link.text_start);
-	len += sprintf((char *)(p + len), (const char *)" text end     : 0x%08lx\r\n", (u32_t)__machine->link.text_end);
+	len += sprintf((char *)(p + len), (const char *)" text start   : %p\r\n", (void *)__machine->link.text_start);
+	len += sprintf((char *)(p + len), (const char *)" text end     : %p\r\n", (void *)__machine->link.text_end);
 	ssize(size, (u64_t)(__machine->link.text_end - __machine->link.text_start + 1));
 	len += sprintf((char *)(p + len), (const char *)" text size    : %s\r\n", size);
 
-	len += sprintf((char *)(p + len), (const char *)" ramdisk start: 0x%08lx\r\n", (u32_t)__machine->link.ramdisk_start);
-	len += sprintf((char *)(p + len), (const char *)" ramdisk end  : 0x%08lx\r\n", (u32_t)__machine->link.ramdisk_end);
+	len += sprintf((char *)(p + len), (const char *)" ramdisk start: %p\r\n", (void *)__machine->link.ramdisk_start);
+	len += sprintf((char *)(p + len), (const char *)" ramdisk end  : %p\r\n", (void *)__machine->link.ramdisk_end);
 	ssize(size, (u64_t)(__machine->link.ramdisk_end - __machine->link.ramdisk_start + 1));
 	len += sprintf((char *)(p + len), (const char *)" ramdisk size : %s\r\n", size);
 
-	len += sprintf((char *)(p + len), (const char *)" data' start  : 0x%08lx\r\n", (u32_t)__machine->link.data_shadow_start);
-	len += sprintf((char *)(p + len), (const char *)" data' end    : 0x%08lx\r\n", (u32_t)__machine->link.data_shadow_end);
+	len += sprintf((char *)(p + len), (const char *)" data' start  : %p\r\n", (void *)__machine->link.data_shadow_start);
+	len += sprintf((char *)(p + len), (const char *)" data' end    : %p\r\n", (void *)__machine->link.data_shadow_end);
 	ssize(size, (u64_t)(__machine->link.data_shadow_end - __machine->link.data_shadow_start + 1));
 	len += sprintf((char *)(p + len), (const char *)" data' size   : %s\r\n", size);
 
-	len += sprintf((char *)(p + len), (const char *)" data start   : 0x%08lx\r\n", (u32_t)__machine->link.data_start);
-	len += sprintf((char *)(p + len), (const char *)" data end     : 0x%08lx\r\n", (u32_t)__machine->link.data_end);
+	len += sprintf((char *)(p + len), (const char *)" data start   : %p\r\n", (void *)__machine->link.data_start);
+	len += sprintf((char *)(p + len), (const char *)" data end     : %p\r\n", (void *)__machine->link.data_end);
 	ssize(size, (u64_t)(__machine->link.data_end - __machine->link.data_start + 1));
 	len += sprintf((char *)(p + len), (const char *)" data size    : %s\r\n", size);
 
-	len += sprintf((char *)(p + len), (const char *)" bss start    : 0x%08lx\r\n", (u32_t)__machine->link.bss_start);
-	len += sprintf((char *)(p + len), (const char *)" bss end      : 0x%08lx\r\n", (u32_t)__machine->link.bss_end);
+	len += sprintf((char *)(p + len), (const char *)" bss start    : %p\r\n", (void *)__machine->link.bss_start);
+	len += sprintf((char *)(p + len), (const char *)" bss end      : %p\r\n", (void *)__machine->link.bss_end);
 	ssize(size, (u64_t)(__machine->link.bss_end - __machine->link.bss_start + 1));
 	len += sprintf((char *)(p + len), (const char *)" bss size     : %s\r\n", size);
 
-	len += sprintf((char *)(p + len), (const char *)" heap start   : 0x%08lx\r\n", (u32_t)__machine->link.heap_start);
-	len += sprintf((char *)(p + len), (const char *)" heap end     : 0x%08lx\r\n", (u32_t)__machine->link.heap_end);
+	len += sprintf((char *)(p + len), (const char *)" heap start   : %p\r\n", (void *)__machine->link.heap_start);
+	len += sprintf((char *)(p + len), (const char *)" heap end     : %p\r\n", (void *)__machine->link.heap_end);
 	ssize(size, (u64_t)(__machine->link.heap_end - __machine->link.heap_start + 1));
 	len += sprintf((char *)(p + len), (const char *)" heap size    : %s\r\n", size);
 
-	len += sprintf((char *)(p + len), (const char *)" stack start  : 0x%08lx\r\n", (u32_t)__machine->link.stack_start);
-	len += sprintf((char *)(p + len), (const char *)" stack end    : 0x%08lx\r\n", (u32_t)__machine->link.stack_end);
+	len += sprintf((char *)(p + len), (const char *)" stack start  : %p\r\n", (void *)__machine->link.stack_start);
+	len += sprintf((char *)(p + len), (const char *)" stack end    : %p\r\n", (void *)__machine->link.stack_end);
 	ssize(size, (u64_t)(__machine->link.stack_end - __machine->link.stack_start + 1));
 	len += sprintf((char *)(p + len), (const char *)" stack size   : %s", size);
-#elif defined(__SYS_64BIT)
-	len += sprintf((char *)(p + len), (const char *)" text start   : 0x%016Lx\r\n", (u64_t)__machine->link.text_start);
-	len += sprintf((char *)(p + len), (const char *)" text end     : 0x%016Lx\r\n", (u64_t)__machine->link.text_end);
-	ssize(size, (u64_t)(__machine->link.text_end - __machine->link.text_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" text size    : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" ramdisk start: 0x%016Lx\r\n", (u64_t)__machine->link.ramdisk_start);
-	len += sprintf((char *)(p + len), (const char *)" ramdisk end  : 0x%016Lx\r\n", (u64_t)__machine->link.ramdisk_end);
-	ssize(size, (u64_t)(__machine->link.ramdisk_end - __machine->link.ramdisk_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" ramdisk size    : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" data' start  : 0x%016Lx\r\n", (u64_t)__machine->link.data_shadow_start);
-	len += sprintf((char *)(p + len), (const char *)" data' end    : 0x%016Lx\r\n", (u64_t)__machine->link.data_shadow_end);
-	ssize(size, (u64_t)(__machine->link.data_shadow_end - __machine->link.data_shadow_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" data' size   : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" data start   : 0x%016Lx\r\n", (u64_t)__machine->link.data_start);
-	len += sprintf((char *)(p + len), (const char *)" data end     : 0x%016Lx\r\n", (u64_t)__machine->link.data_end);
-	ssize(size, (u64_t)(__machine->link.data_end - __machine->link.data_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" data size    : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" bss start    : 0x%016Lx\r\n", (u64_t)__machine->link.bss_start);
-	len += sprintf((char *)(p + len), (const char *)" bss end      : 0x%016Lx\r\n", (u64_t)__machine->link.bss_end);
-	ssize(size, (u64_t)(__machine->link.bss_end - __machine->link.bss_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" bss size     : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" heap start   : 0x%016Lx\r\n", (u64_t)__machine->link.heap_start);
-	len += sprintf((char *)(p + len), (const char *)" heap end     : 0x%016Lx\r\n", (u64_t)__machine->link.heap_end);
-	ssize(size, (u64_t)(__machine->link.heap_end - __machine->link.heap_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" heap size    : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" stack start  : 0x%016Lx\r\n", (u64_t)__machine->link.stack_start);
-	len += sprintf((char *)(p + len), (const char *)" stack end    : 0x%016Lx\r\n", (u64_t)__machine->link.stack_end);
-	ssize(size, (u64_t)(__machine->link.stack_end - __machine->link.stack_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" stack size   : %s", size);
-#endif
 
 	len -= offset;
 

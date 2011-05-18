@@ -27,8 +27,8 @@ struct machine {
 	 */
 	struct {
 		struct {
-			const void * start;
-			const void * end;
+			const ptrdiff_t start;
+			const ptrdiff_t end;
 		} mem_banks[8];
 
 		/* extern crystal */
@@ -39,26 +39,26 @@ struct machine {
 	 * link information
 	 */
 	struct {
-		const void * text_start;
-		const void * text_end;
+		const ptrdiff_t text_start;
+		const ptrdiff_t text_end;
 
-		const void * ramdisk_start;
-		const void * ramdisk_end;
+		const ptrdiff_t ramdisk_start;
+		const ptrdiff_t ramdisk_end;
 
-		const void * data_shadow_start;
-		const void * data_shadow_end;
+		const ptrdiff_t data_shadow_start;
+		const ptrdiff_t data_shadow_end;
 
-		const void * data_start;
-		const void * data_end;
+		const ptrdiff_t data_start;
+		const ptrdiff_t data_end;
 
-		const void * bss_start;
-		const void * bss_end;
+		const ptrdiff_t bss_start;
+		const ptrdiff_t bss_end;
 
-		const void * heap_start;
-		const void * heap_end;
+		const ptrdiff_t heap_start;
+		const ptrdiff_t heap_end;
 
-		const void * stack_start;
-		const void * stack_end;
+		const ptrdiff_t stack_start;
+		const ptrdiff_t stack_end;
 	}link;
 
 	/*

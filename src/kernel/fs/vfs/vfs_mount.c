@@ -23,7 +23,7 @@
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
-#include <macros.h>
+#include <sizes.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <xboot/blkdev.h>

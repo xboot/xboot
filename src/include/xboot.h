@@ -2,7 +2,18 @@
 #define __XBOOT_H__
 
 #include <configs.h>
-#include <macros.h>
+#include <types.h>
+#include <sizes.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <ctype.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <malloc.h>
 
 /*
  * default CONFIG_HEAP_SIZE is 8MB

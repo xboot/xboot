@@ -22,7 +22,7 @@
 
 #include <xboot.h>
 #include <types.h>
-#include <macros.h>
+#include <sizes.h>
 #include <io.h>
 #include <mode/mode.h>
 #include <time/delay.h>

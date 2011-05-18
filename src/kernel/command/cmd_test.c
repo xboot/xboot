@@ -14,6 +14,7 @@
 #include <sha.h>
 #include <xml.h>
 #include <io.h>
+#include <math.h>
 #include <time/delay.h>
 #include <time/timer.h>
 #include <time/xtime.h>

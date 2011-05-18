@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <malloc.h>
+#include <version.h>
 
 /*
  * default CONFIG_HEAP_SIZE is 8MB

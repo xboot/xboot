@@ -353,7 +353,7 @@ static bool_t tcolor_to_rgba(enum tcolor c, u8_t * r, u8_t * g, u8_t * b, u8_t *
 /*
  * fb open
  */
-static s32_t fb_open(struct chrdev * dev)
+static int fb_open(struct chrdev * dev)
 {
 	return 0;
 }
@@ -361,11 +361,11 @@ static s32_t fb_open(struct chrdev * dev)
 /*
  * fb read
  */
-static s32_t fb_read(struct chrdev * dev, u8_t * buf, s32_t count)
+static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
 	u8_t * p = (u8_t *)((u32_t)(fb->info->bitmap.data));
-	s32_t i;
+	ssize_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -378,11 +378,11 @@ static s32_t fb_read(struct chrdev * dev, u8_t * buf, s32_t count)
 /*
  * fb write.
  */
-static s32_t fb_write(struct chrdev * dev, const u8_t * buf, s32_t count)
+static ssize_t fb_write(struct chrdev * dev, const u8_t * buf, size_t count)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
 	u8_t * p = (u8_t *)((u32_t)(fb->info->bitmap.data));
-	s32_t i;
+	ssize_t i;
 
 	for(i = 0; i < count; i++)
 	{
@@ -395,7 +395,7 @@ static s32_t fb_write(struct chrdev * dev, const u8_t * buf, s32_t count)
 /*
  * fb ioctl
  */
-static s32_t fb_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
+static int fb_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
 
@@ -408,7 +408,7 @@ static s32_t fb_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
 /*
  * fb close
  */
-static s32_t fb_close(struct chrdev * dev)
+static int fb_close(struct chrdev * dev)
 {
 	return 0;
 }

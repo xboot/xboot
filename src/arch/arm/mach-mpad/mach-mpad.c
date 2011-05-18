@@ -25,6 +25,7 @@
 #include <macros.h>
 #include <io.h>
 #include <mode/mode.h>
+#include <time/delay.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>

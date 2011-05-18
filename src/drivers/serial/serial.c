@@ -75,7 +75,7 @@ struct serial_console_info
 /*
  * serial open
  */
-static s32_t serial_open(struct chrdev * dev)
+static int serial_open(struct chrdev * dev)
 {
 	return 0;
 }
@@ -83,7 +83,7 @@ static s32_t serial_open(struct chrdev * dev)
 /*
  * serial read
  */
-static s32_t serial_read(struct chrdev * dev, u8_t * buf, s32_t count)
+static ssize_t serial_read(struct chrdev * dev, u8_t * buf, size_t count)
 {
 	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
@@ -96,7 +96,7 @@ static s32_t serial_read(struct chrdev * dev, u8_t * buf, s32_t count)
 /*
  * serial write.
  */
-static s32_t serial_write(struct chrdev * dev, const u8_t * buf, s32_t count)
+static ssize_t serial_write(struct chrdev * dev, const u8_t * buf, size_t count)
 {
 	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
@@ -109,7 +109,7 @@ static s32_t serial_write(struct chrdev * dev, const u8_t * buf, s32_t count)
 /*
  * serial ioctl
  */
-static s32_t serial_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
+static int serial_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
 {
 	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
@@ -122,7 +122,7 @@ static s32_t serial_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
 /*
  * serial close
  */
-static s32_t serial_close(struct chrdev * dev)
+static int serial_close(struct chrdev * dev)
 {
 	return 0;
 }

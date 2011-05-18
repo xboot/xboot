@@ -133,7 +133,7 @@ u32_t time_to_rtc(struct time * tm)
 /*
  * rtc open
  */
-static s32_t rtc_open(struct chrdev * dev)
+static int rtc_open(struct chrdev * dev)
 {
 	return 0;
 }
@@ -141,20 +141,20 @@ static s32_t rtc_open(struct chrdev * dev)
 /*
  * rtc read
  */
-static s32_t rtc_read(struct chrdev * dev, u8_t * buf, s32_t count)
+static ssize_t rtc_read(struct chrdev * dev, u8_t * buf, size_t count)
 {
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time time;
 	char tmp[64];
-	s32_t offset = 0;
-	s32_t len;
+	int offset = 0;
+	int len;
 
 	if(drv->get_time)
 	{
 		if(drv->get_time(&time))
 		{
-			len = sprintf(tmp, (const char *)"%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu\r\n", (u32_t)time.year, (u32_t)time.mon, (u32_t)time.day, week_days[time.week], (u32_t)time.hour, (u32_t)time.min, (u32_t)time.sec);
+			len = sprintf(tmp, "%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu\r\n", (u32_t)time.year, (u32_t)time.mon, (u32_t)time.day, week_days[time.week], (u32_t)time.hour, (u32_t)time.min, (u32_t)time.sec);
 			len -= offset;
 
 			if(len < 0)
@@ -173,7 +173,7 @@ static s32_t rtc_read(struct chrdev * dev, u8_t * buf, s32_t count)
 /*
  * rtc write.
  */
-static s32_t rtc_write(struct chrdev * dev, const u8_t * buf, s32_t count)
+static ssize_t rtc_write(struct chrdev * dev, const u8_t * buf, size_t count)
 {
 	return 0;
 }
@@ -181,7 +181,7 @@ static s32_t rtc_write(struct chrdev * dev, const u8_t * buf, s32_t count)
 /*
  * rtc ioctl
  */
-static s32_t rtc_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
+static int rtc_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
 {
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time * time;
@@ -232,7 +232,7 @@ static s32_t rtc_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
 /*
  * rtc close
  */
-static s32_t rtc_close(struct chrdev * dev)
+static int rtc_close(struct chrdev * dev)
 {
 	return 0;
 }

@@ -162,7 +162,7 @@ static void serial_info(void)
 static int serial(int argc, char ** argv)
 {
 	struct chrdev * device;
-	s32_t (* read_func)(struct chrdev *, u8_t *, s32_t);
+	ssize_t (* read_func)(struct chrdev *, u8_t *, size_t);
 	struct serial_parameter param;
 	char * name = NULL, * str = NULL;
 	char * baud = 0;

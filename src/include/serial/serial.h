@@ -92,7 +92,7 @@ struct serial_info
  */
 struct serial_driver
 {
-	/* the serial infomation */
+	/* the serial information */
 	struct serial_info *info;
 
 	/*initialize the serial */
@@ -102,13 +102,13 @@ struct serial_driver
 	void (*exit)(void);
 
 	/* read buffer from serial */
-	s32_t (*read)(u8_t * buf, s32_t count);
+	ssize_t (*read)(u8_t * buf, size_t count);
 
 	/* write buffer to serial */
-	s32_t (*write)(const u8_t * buf, s32_t count);
+	ssize_t (*write)(const u8_t * buf, size_t count);
 
 	/* ioctl serial */
-	s32_t (*ioctl)(u32_t cmd, void * arg);
+	int (*ioctl)(u32_t cmd, void * arg);
 };
 
 bool_t register_serial(struct serial_driver * drv);

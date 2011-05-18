@@ -19,9 +19,9 @@ static char * __current_brk = &heap[0];
 /*
  * p is an address, a is alignment; must be a power of 2
  */
-static inline void * align_up(void * p, uintptr_t a)
+static inline void * align_up(void * p, ptrdiff_t a)
 {
-	return (void *)(((uintptr_t) p + a - 1) & ~(a - 1));
+	return (void *)(((ptrdiff_t) p + a - 1) & ~(a - 1));
 }
 
 static void * __brk(void * end)

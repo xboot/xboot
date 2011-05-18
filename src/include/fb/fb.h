@@ -53,7 +53,7 @@ struct fb
 	bool_t (*blit_bitmap)(struct fb * fb, struct bitmap * bitmap, enum blit_mode mode, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy);
 
 	/* ioctl framebuffer */
-	s32_t (*ioctl)(struct fb * fb, u32_t cmd, void * arg);
+	int (*ioctl)(struct fb * fb, int cmd, void * arg);
 
 	/* private data */
 	void * priv;

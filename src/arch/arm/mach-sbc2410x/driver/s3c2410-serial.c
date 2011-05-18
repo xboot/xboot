@@ -86,7 +86,7 @@ static struct serial_info uart_info[3] = {
 /*
  * common function for ioctl.
  */
-static int s3c2410_ioctl(u32_t ch, u32_t cmd, void * arg)
+static int s3c2410_ioctl(u32_t ch, int cmd, void * arg)
 {
 	u32_t baud, baud_div_reg;
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
@@ -304,7 +304,7 @@ static ssize_t s3c2410_uart0_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int s3c2410_uart0_ioctl(u32_t cmd, void * arg)
+static int s3c2410_uart0_ioctl(int cmd, void * arg)
 {
 	return (s3c2410_ioctl(0, cmd, arg));
 }
@@ -364,7 +364,7 @@ static ssize_t s3c2410_uart1_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int s3c2410_uart1_ioctl(u32_t cmd, void * arg)
+static int s3c2410_uart1_ioctl(int cmd, void * arg)
 {
 	return (s3c2410_ioctl(1, cmd, arg));
 }
@@ -424,7 +424,7 @@ static ssize_t s3c2410_uart2_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int s3c2410_uart2_ioctl(u32_t cmd, void * arg)
+static int s3c2410_uart2_ioctl(int cmd, void * arg)
 {
 	return (s3c2410_ioctl(2, cmd, arg));
 }

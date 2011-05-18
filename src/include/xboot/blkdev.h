@@ -43,7 +43,7 @@ struct blkdev
 	ssize_t (*write)(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt);
 
 	/* ioctl device */
-	int (*ioctl)(struct blkdev * dev, u32_t cmd, void * arg);
+	int (*ioctl)(struct blkdev * dev, int cmd, void * arg);
 
 	/* close device */
 	int (*close)(struct blkdev * dev);

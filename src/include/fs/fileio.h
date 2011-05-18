@@ -14,7 +14,7 @@ s32_t read(s32_t fd, void * buf, loff_t len);
 s32_t write(s32_t fd, void * buf, loff_t len);
 loff_t lseek(s32_t fd, loff_t offset, s32_t whence);
 s32_t fstat(s32_t fd, struct stat * st);
-s32_t ioctl(s32_t fd, u32_t cmd, void * arg);
+s32_t ioctl(s32_t fd, int cmd, void * arg);
 s32_t fsync(s32_t fd);
 s32_t close(s32_t fd);
 void * opendir(const char * name);

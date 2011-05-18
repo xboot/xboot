@@ -47,7 +47,7 @@ struct input
 	bool_t (*remove)(struct input * input);
 
 	/* ioctl input device */
-	s32_t (*ioctl)(struct input * input, u32_t cmd, void * arg);
+	int (*ioctl)(struct input * input, int cmd, void * arg);
 
 	/* private data */
 	void * priv;

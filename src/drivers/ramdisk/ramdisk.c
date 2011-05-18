@@ -90,7 +90,7 @@ static ssize_t ramdisk_write(struct blkdev * dev, const u8_t * buf, size_t blkno
 	return 0;
 }
 
-static int ramdisk_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
+static int ramdisk_ioctl(struct blkdev * dev, int cmd, void * arg)
 {
 	return -1;
 }

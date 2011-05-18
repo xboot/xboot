@@ -103,7 +103,7 @@ static bool_t keypad_remove(struct input * input)
 	return TRUE;
 }
 
-static s32_t keypad_ioctl(struct input * input, u32_t cmd, void * arg)
+static s32_t keypad_ioctl(struct input * input, int cmd, void * arg)
 {
 	return -1;
 }

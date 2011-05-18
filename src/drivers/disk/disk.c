@@ -94,7 +94,7 @@ static ssize_t disk_block_write(struct blkdev * dev, const u8_t * buf, size_t bl
 	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static int disk_block_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
+static int disk_block_ioctl(struct blkdev * dev, int cmd, void * arg)
 {
 	return -1;
 }

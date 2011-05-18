@@ -108,7 +108,7 @@ struct serial_driver
 	ssize_t (*write)(const u8_t * buf, size_t count);
 
 	/* ioctl serial */
-	int (*ioctl)(u32_t cmd, void * arg);
+	int (*ioctl)(int cmd, void * arg);
 };
 
 bool_t register_serial(struct serial_driver * drv);

@@ -128,7 +128,7 @@ static void fb_exit(struct fb * fb)
 	return;
 }
 
-static s32_t fb_ioctl(struct fb * fb, u32_t cmd, void * arg)
+static int fb_ioctl(struct fb * fb, int cmd, void * arg)
 {
 	static u8_t brightness = 0;
 	u8_t * p;

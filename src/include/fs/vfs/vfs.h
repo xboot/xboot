@@ -112,7 +112,7 @@ struct vnops {
 	s32_t (*vop_read)(struct vnode *, struct file *, void *, loff_t, loff_t *);
 	s32_t (*vop_write)(struct vnode *, struct file *, void *, loff_t, loff_t *);
 	s32_t (*vop_seek)(struct vnode *, struct file *, loff_t, loff_t);
-	s32_t (*vop_ioctl)(struct vnode *, struct file *, u32_t, void *);
+	s32_t (*vop_ioctl)(struct vnode *, struct file *, int, void *);
 	s32_t (*vop_fsync)(struct vnode *, struct file *);
 	s32_t (*vop_readdir)(struct vnode *, struct file *, struct dirent *);
 	s32_t (*vop_lookup)(struct vnode *, char *, struct vnode *);
@@ -254,7 +254,7 @@ s32_t sys_close(struct file * fp);
 s32_t sys_read(struct file * fp, void * buf, loff_t size, loff_t * count);
 s32_t sys_write(struct file * fp, void * buf, loff_t size, loff_t * count);
 s32_t sys_lseek(struct file * fp, loff_t off, u32_t type, loff_t * origin);
-s32_t sys_ioctl(struct file * fp, u32_t cmd, void * arg);
+s32_t sys_ioctl(struct file * fp, int cmd, void * arg);
 s32_t sys_fsync(struct file * fp);
 s32_t sys_fstat(struct file * fp, struct stat * st);
 s32_t sys_opendir(char * path, struct file ** file);

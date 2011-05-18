@@ -781,7 +781,7 @@ static s32_t fatfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff
 	return 0;
 }
 
-static s32_t fatfs_ioctl(struct vnode * node, struct file * fp, u32_t cmd, void * arg)
+static s32_t fatfs_ioctl(struct vnode * node, struct file * fp, int cmd, void * arg)
 {
 	return -1;
 }

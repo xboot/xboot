@@ -109,7 +109,7 @@ static ssize_t serial_write(struct chrdev * dev, const u8_t * buf, size_t count)
 /*
  * serial ioctl
  */
-static int serial_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
+static int serial_ioctl(struct chrdev * dev, int cmd, void * arg)
 {
 	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 

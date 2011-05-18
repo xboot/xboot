@@ -97,7 +97,7 @@ static struct serial_info uart_info[4] = {
 /*
  * common function for ioctl.
  */
-static int s5pv210_ioctl(u32_t ch, u32_t cmd, void * arg)
+static int s5pv210_ioctl(u32_t ch, int cmd, void * arg)
 {
 	const u32_t udivslot_code[16] = {0x0000, 0x0080, 0x0808, 0x0888,
 									 0x2222, 0x4924, 0x4a52, 0x54aa,
@@ -331,7 +331,7 @@ static ssize_t s5pv210_uart0_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int s5pv210_uart0_ioctl(u32_t cmd, void * arg)
+static int s5pv210_uart0_ioctl(int cmd, void * arg)
 {
 	return (s5pv210_ioctl(0, cmd, arg));
 }
@@ -391,7 +391,7 @@ static ssize_t s5pv210_uart1_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int s5pv210_uart1_ioctl(u32_t cmd, void * arg)
+static int s5pv210_uart1_ioctl(int cmd, void * arg)
 {
 	return (s5pv210_ioctl(1, cmd, arg));
 }
@@ -450,7 +450,7 @@ static ssize_t s5pv210_uart2_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int s5pv210_uart2_ioctl(u32_t cmd, void * arg)
+static int s5pv210_uart2_ioctl(int cmd, void * arg)
 {
 	return (s5pv210_ioctl(2, cmd, arg));
 }
@@ -509,7 +509,7 @@ static ssize_t s5pv210_uart3_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int s5pv210_uart3_ioctl(u32_t cmd, void * arg)
+static int s5pv210_uart3_ioctl(int cmd, void * arg)
 {
 	return (s5pv210_ioctl(3, cmd, arg));
 }

@@ -395,7 +395,7 @@ static ssize_t fb_write(struct chrdev * dev, const u8_t * buf, size_t count)
 /*
  * fb ioctl
  */
-static int fb_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
+static int fb_ioctl(struct chrdev * dev, int cmd, void * arg)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
 

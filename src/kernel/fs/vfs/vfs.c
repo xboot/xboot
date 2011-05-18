@@ -504,7 +504,7 @@ s32_t sys_lseek(struct file * fp, loff_t off, u32_t type, loff_t * origin)
 /*
  * system ioctl
  */
-s32_t sys_ioctl(struct file * fp, u32_t cmd, void * arg)
+s32_t sys_ioctl(struct file * fp, int cmd, void * arg)
 {
 	struct vnode * vp;
 	s32_t err;

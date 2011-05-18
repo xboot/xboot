@@ -417,7 +417,7 @@ static bool_t keyboard_remove(struct input * input)
 	return TRUE;
 }
 
-static s32_t keyboard_ioctl(struct input * input, u32_t cmd, void * arg)
+static int keyboard_ioctl(struct input * input, int cmd, void * arg)
 {
 	return -1;
 }

@@ -113,7 +113,7 @@ static bool_t button_remove(struct input * input)
 	return TRUE;
 }
 
-static s32_t button_ioctl(struct input * input, u32_t cmd, void * arg)
+static int button_ioctl(struct input * input, int cmd, void * arg)
 {
 	return -1;
 }

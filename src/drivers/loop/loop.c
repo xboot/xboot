@@ -147,7 +147,7 @@ static ssize_t loop_write(struct blkdev * dev, const u8_t * buf, size_t blkno, s
 	return blkcnt;
 }
 
-static int loop_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
+static int loop_ioctl(struct blkdev * dev, int cmd, void * arg)
 {
 	return -1;
 }

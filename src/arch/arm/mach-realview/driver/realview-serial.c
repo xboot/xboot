@@ -96,7 +96,7 @@ static struct serial_info serial_info[4] = {
 /*
  * common function for ioctl.
  */
-static int realview_serial_ioctl(u32_t ch, u32_t cmd, void * arg)
+static int realview_serial_ioctl(u32_t ch, int cmd, void * arg)
 {
 	u32_t baud, divider, fraction;
 	u32_t temp, remainder;
@@ -327,7 +327,7 @@ static ssize_t realview_serial0_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int realview_serial0_ioctl(u32_t cmd, void * arg)
+static int realview_serial0_ioctl(int cmd, void * arg)
 {
 	return (realview_serial_ioctl(0, cmd, arg));
 }
@@ -382,7 +382,7 @@ static ssize_t realview_serial1_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int realview_serial1_ioctl(u32_t cmd, void * arg)
+static int realview_serial1_ioctl(int cmd, void * arg)
 {
 	return (realview_serial_ioctl(1, cmd, arg));
 }
@@ -437,7 +437,7 @@ static ssize_t realview_serial2_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int realview_serial2_ioctl(u32_t cmd, void * arg)
+static int realview_serial2_ioctl(int cmd, void * arg)
 {
 	return (realview_serial_ioctl(2, cmd, arg));
 }
@@ -492,7 +492,7 @@ static ssize_t realview_serial3_write(const u8_t * buf, size_t count)
 	return i;
 }
 
-static int realview_serial3_ioctl(u32_t cmd, void * arg)
+static int realview_serial3_ioctl(int cmd, void * arg)
 {
 	return (realview_serial_ioctl(3, cmd, arg));
 }

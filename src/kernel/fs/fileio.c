@@ -190,7 +190,7 @@ s32_t fstat(s32_t fd, struct stat * st)
 /*
  * input and output control
  */
-s32_t ioctl(s32_t fd, u32_t cmd, void * arg)
+s32_t ioctl(s32_t fd, int cmd, void * arg)
 {
 	struct file * fp;
 

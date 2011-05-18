@@ -181,7 +181,7 @@ static ssize_t rtc_write(struct chrdev * dev, const u8_t * buf, size_t count)
 /*
  * rtc ioctl
  */
-static int rtc_ioctl(struct chrdev * dev, u32_t cmd, void * arg)
+static int rtc_ioctl(struct chrdev * dev, int cmd, void * arg)
 {
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time * time;

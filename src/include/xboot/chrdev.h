@@ -38,7 +38,7 @@ struct chrdev
 	ssize_t (*write)(struct chrdev * dev, const u8_t * buf, size_t count);
 
 	/* ioctl device */
-	int (*ioctl)(struct chrdev * dev, u32_t cmd, void * arg);
+	int (*ioctl)(struct chrdev * dev, int cmd, void * arg);
 
 	/* close device */
 	int (*close)(struct chrdev * dev);

@@ -28,25 +28,25 @@ struct blkdev
 	enum blkdev_type type;
 
 	/* the size of block */
-	u32_t blksz;
+	size_t blksz;
 
 	/* the count of block */
-	u32_t blkcnt;
+	size_t blkcnt;
 
 	/* open device */
-	s32_t (*open)(struct blkdev * dev);
+	int (*open)(struct blkdev * dev);
 
 	/* read a block from device, return the block counts of reading */
-	s32_t (*read)(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t blkcnt);
+	ssize_t (*read)(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt);
 
 	/* write a block to device, return the block counts of writing */
-	s32_t (*write)(struct blkdev * dev, const u8_t * buf, u32_t blkno, u32_t blkcnt);
+	ssize_t (*write)(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt);
 
 	/* ioctl device */
-	s32_t (*ioctl)(struct blkdev * dev, u32_t cmd, void * arg);
+	int (*ioctl)(struct blkdev * dev, u32_t cmd, void * arg);
 
 	/* close device */
-	s32_t (*close)(struct blkdev * dev);
+	int (*close)(struct blkdev * dev);
 
 	/* block device's driver */
 	void * driver;
@@ -58,8 +58,8 @@ bool_t register_blkdev(struct blkdev * dev);
 bool_t unregister_blkdev(const char * name);
 
 loff_t get_blkdev_total_size(struct blkdev * dev);
-u32_t get_blkdev_total_count(struct blkdev * dev);
-u32_t get_blkdev_size(struct blkdev * dev);
-loff_t get_blkdev_offset(struct blkdev * dev, u32_t blkno);
+size_t get_blkdev_total_count(struct blkdev * dev);
+size_t get_blkdev_size(struct blkdev * dev);
+loff_t get_blkdev_offset(struct blkdev * dev, size_t blkno);
 
 #endif /* __BLKDEV_H__ */

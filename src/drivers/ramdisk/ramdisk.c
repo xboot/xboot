@@ -57,7 +57,7 @@ struct ramdisk
 	bool_t busy;
 };
 
-static s32_t ramdisk_open(struct blkdev * dev)
+static int ramdisk_open(struct blkdev * dev)
 {
 	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
 
@@ -68,12 +68,12 @@ static s32_t ramdisk_open(struct blkdev * dev)
 	return 0;
 }
 
-static s32_t ramdisk_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t blkcnt)
+static ssize_t ramdisk_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
 	u8_t * p = (u8_t *)(ramdisk->start);
 	loff_t offset = get_blkdev_offset(dev, blkno);
-	s32_t size = get_blkdev_size(dev) * blkcnt;
+	size_t size = get_blkdev_size(dev) * blkcnt;
 
 	if(offset < 0)
 		return 0;
@@ -85,17 +85,17 @@ static s32_t ramdisk_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t bl
 	return blkcnt;
 }
 
-static s32_t ramdisk_write(struct blkdev * dev, const u8_t * buf, u32_t blkno, u32_t blkcnt)
+static ssize_t ramdisk_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	return 0;
 }
 
-static s32_t ramdisk_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
+static int ramdisk_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static s32_t ramdisk_close(struct blkdev * dev)
+static int ramdisk_close(struct blkdev * dev)
 {
 	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
 

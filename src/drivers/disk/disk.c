@@ -55,7 +55,7 @@ struct disk_block
 	struct partition * part;
 
 	/* the offset of sector for this partition */
-	u32_t offset;
+	size_t offset;
 
 	/* busy or not */
 	bool_t busy;
@@ -64,7 +64,7 @@ struct disk_block
 	struct disk * disk;
 };
 
-static s32_t disk_block_open(struct blkdev * dev)
+static int disk_block_open(struct blkdev * dev)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 
@@ -76,30 +76,30 @@ static s32_t disk_block_open(struct blkdev * dev)
 	return 0;
 }
 
-static s32_t disk_block_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t blkcnt)
+static ssize_t disk_block_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 	struct disk * disk = dblk->disk;
-	u32_t offset = dblk->offset;
+	size_t offset = dblk->offset;
 
 	return (disk->read_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static s32_t disk_block_write(struct blkdev * dev, const u8_t * buf, u32_t blkno, u32_t blkcnt)
+static ssize_t disk_block_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 	struct disk * disk = dblk->disk;
-	u32_t offset = dblk->offset;
+	size_t offset = dblk->offset;
 
 	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static s32_t disk_block_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
+static int disk_block_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static s32_t disk_block_close(struct blkdev * dev)
+static int disk_block_close(struct blkdev * dev)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
 
@@ -271,9 +271,9 @@ bool_t unregister_disk(struct disk * disk)
 loff_t disk_read(struct disk * disk, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * secbuf;
-	u32_t secno, secsz, seccnt;
+	size_t secno, secsz, seccnt;
 	u64_t div, rem;
-	u32_t len;
+	size_t len;
 	loff_t tmp;
 	loff_t size = 0;
 

@@ -152,7 +152,7 @@ loff_t get_blkdev_total_size(struct blkdev * dev)
 /*
  * get block device's total count of block
  */
-u32_t get_blkdev_total_count(struct blkdev * dev)
+size_t get_blkdev_total_count(struct blkdev * dev)
 {
 	if(!dev)
 		return 0;
@@ -163,7 +163,7 @@ u32_t get_blkdev_total_count(struct blkdev * dev)
 /*
  * get block device's block size
  */
-u32_t get_blkdev_size(struct blkdev * dev)
+size_t get_blkdev_size(struct blkdev * dev)
 {
 	if(!dev)
 		return 0;
@@ -174,7 +174,7 @@ u32_t get_blkdev_size(struct blkdev * dev)
 /*
  * get block device's offset by blkno
  */
-loff_t get_blkdev_offset(struct blkdev * dev, u32_t blkno)
+loff_t get_blkdev_offset(struct blkdev * dev, size_t blkno)
 {
 	if(!dev)
 		return -1;

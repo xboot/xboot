@@ -98,12 +98,12 @@ static bool_t is_dos_extended(u8_t type)
 	return FALSE;
 }
 
-static bool_t dos_partition(struct disk * disk, u32_t sector, u32_t relative)
+static bool_t dos_partition(struct disk * disk, size_t sector, size_t relative)
 {
 	struct dos_partition_mbr mbr;
 	struct partition * part;
-	u32_t start;
-	s32_t i;
+	size_t start;
+	int i;
 
 	if(!disk || !disk->name)
 		return FALSE;

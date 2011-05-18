@@ -282,7 +282,7 @@ static bool_t mmc_card_decode(struct mmc_card * card)
 	return TRUE;
 }
 
-static s32_t mmc_read_sectors(struct disk * disk, u8_t * buf, u32_t sector, u32_t count)
+static ssize_t mmc_read_sectors(struct disk * disk, u8_t * buf, size_t sector, size_t count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
@@ -292,7 +292,7 @@ static s32_t mmc_read_sectors(struct disk * disk, u8_t * buf, u32_t sector, u32_
 	return count;
 }
 
-static s32_t mmc_write_sectors(struct disk * disk, const u8_t * buf, u32_t sector, u32_t count)
+static ssize_t mmc_write_sectors(struct disk * disk, const u8_t * buf, size_t sector, size_t count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
@@ -563,7 +563,7 @@ static s32_t mmc_card_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 		ssize(buff, (u64_t)(list->card->info->sector_size));
 		len += sprintf((char *)(p + len), (const char *)" sector size       : %s\r\n", buff);
-		len += sprintf((char *)(p + len), (const char *)" sector count      : %ld\r\n", list->card->info->sector_count);
+		len += sprintf((char *)(p + len), (const char *)" sector count      : %zd\r\n", list->card->info->sector_count);
 		ssize(buff, (u64_t)(list->card->info->capacity));
 		len += sprintf((char *)(p + len), (const char *)" total capacity    : %s\r\n", buff);
 	}

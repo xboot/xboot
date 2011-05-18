@@ -79,7 +79,7 @@ static struct loop_list __loop_list = {
 static struct loop_list * loop_list = &__loop_list;
 
 
-static s32_t loop_open(struct blkdev * dev)
+static int loop_open(struct blkdev * dev)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
@@ -108,7 +108,7 @@ static s32_t loop_open(struct blkdev * dev)
 	return 0;
 }
 
-static s32_t loop_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t blkcnt)
+static ssize_t loop_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 	loff_t offset = get_blkdev_offset(dev, blkno);
@@ -129,7 +129,7 @@ static s32_t loop_read(struct blkdev * dev, u8_t * buf, u32_t blkno, u32_t blkcn
 	return blkcnt;
 }
 
-static s32_t loop_write(struct blkdev * dev, const u8_t * buf, u32_t blkno, u32_t blkcnt)
+static ssize_t loop_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 	loff_t offset = get_blkdev_offset(dev, blkno);
@@ -147,12 +147,12 @@ static s32_t loop_write(struct blkdev * dev, const u8_t * buf, u32_t blkno, u32_
 	return blkcnt;
 }
 
-static s32_t loop_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
+static int loop_ioctl(struct blkdev * dev, u32_t cmd, void * arg)
 {
 	return -1;
 }
 
-static s32_t loop_close(struct blkdev * dev)
+static int loop_close(struct blkdev * dev)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 

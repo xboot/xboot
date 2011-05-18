@@ -69,8 +69,8 @@ struct mmc_card_info
 	struct mmc_cid 		cid;
 	struct mmc_csd 		csd;
 
-	u32_t				sector_size;
-	u32_t				sector_count;
+	size_t				sector_size;
+	size_t				sector_count;
 	loff_t				capacity;
 };
 

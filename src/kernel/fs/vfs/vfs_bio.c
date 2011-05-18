@@ -33,9 +33,9 @@
 loff_t bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
-	u32_t blkno, blksz, blkcnt;
+	size_t blkno, blksz, blkcnt;
 	u64_t div, rem;
-	u32_t len;
+	size_t len;
 	loff_t tmp;
 	loff_t size = 0;
 
@@ -128,9 +128,9 @@ loff_t bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count)
 loff_t bio_write(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
-	u32_t blkno, blksz, blkcnt;
+	size_t blkno, blksz, blkcnt;
 	u64_t div, rem;
-	u32_t len;
+	size_t len;
 	loff_t tmp;
 	loff_t size = 0;
 

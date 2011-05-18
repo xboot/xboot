@@ -21,13 +21,13 @@ struct partition
 	char name[32 + 1];
 
 	/* the sector of the start */
-	u32_t sector_from;
+	size_t sector_from;
 
 	/* the sector of the end */
-	u32_t sector_to;
+	size_t sector_to;
 
 	/* the sector size */
-	u32_t sector_size;
+	size_t sector_size;
 
 	/* link to this partition's block device */
 	struct blkdev * dev;

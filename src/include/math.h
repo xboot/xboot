@@ -123,6 +123,8 @@ double ceil(double x);
 float ceilf(float x);
 double floor(double x);
 float floorf(float x);
+double modf(double x, double *iptr);
+float modff(float x, float *iptr);
 
 double __ieee754_sqrt(double x);
 float __ieee754_sqrtf(float x);
@@ -130,6 +132,7 @@ double __ieee754_exp(double x);
 float __ieee754_expf(float x);
 double __ieee754_fmod(double x, double y);
 float __ieee754_fmodf(float x, float y);
+
 
 
 #endif /* __MATH_H__ */

@@ -6,7 +6,7 @@
 
 static const double one = 1.0, tiny = 1.0e-300;
 
-double __ieee754_sqrt(double x)
+double sqrt(double x)
 {
 	double z;
 	s32_t sign = (int) 0x80000000;

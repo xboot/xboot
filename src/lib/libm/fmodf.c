@@ -6,7 +6,7 @@
 
 static const float one = 1.0, Zero[] = {0.0, -0.0,};
 
-float __ieee754_fmodf(float x, float y)
+float fmodf(float x, float y)
 {
 	s32_t n, hx, hy, hz, ix, iy, sx, i;
 

@@ -6,7 +6,7 @@
 
 static const double one = 1.0, Zero[] = {0.0, -0.0,};
 
-double __ieee754_fmod(double x, double y)
+double fmod(double x, double y)
 {
 	s32_t n, hx, hy, hz, ix, iy, sx, i;
 	u32_t lx, ly, lz;

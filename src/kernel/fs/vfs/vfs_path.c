@@ -47,9 +47,9 @@ static struct file * cwdfp;
 /*
  * allocate a file descriptor.
  */
-s32_t fd_alloc(s32_t low)
+int fd_alloc(int low)
 {
-	s32_t fd;
+	int fd;
 
     if( (low < 0) || (low >= FD_SIZE) )
     	return -1;
@@ -71,7 +71,7 @@ s32_t fd_alloc(s32_t low)
 /*
  * free a file descriptor.
  */
-s32_t fd_free(s32_t fd)
+int fd_free(int fd)
 {
     if( (fd < 0) || (fd >= FD_SIZE) )
     	return -1;
@@ -84,7 +84,7 @@ s32_t fd_free(s32_t fd)
 /*
  * map a descriptor to a file object.
  */
-struct file * get_fp(s32_t fd)
+struct file * get_fp(int fd)
 {
     if( (fd < 0) || (fd >= FD_SIZE) )
     	return NULL;
@@ -95,7 +95,7 @@ struct file * get_fp(s32_t fd)
 /*
  * set a descriptor with a file object.
  */
-s32_t set_fp(s32_t fd, struct file *fp)
+int set_fp(int fd, struct file *fp)
 {
     if( (fd < 0) || (fd >= FD_SIZE) )
     	return -1;
@@ -107,10 +107,10 @@ s32_t set_fp(s32_t fd, struct file *fp)
 /*
  * convert to full path from the cwd and path by removing all "." and ".."
  */
-s32_t vfs_path_conv(const char * path, char * full)
+int vfs_path_conv(const char * path, char * full)
 {
 	char *p, *q, *s;
-	s32_t left_len, full_len;
+	int left_len, full_len;
 	char left[MAX_PATH], next_token[MAX_PATH];
 
     if(path[0] == '/')
@@ -142,7 +142,7 @@ s32_t vfs_path_conv(const char * path, char * full)
 		 */
 		p = strchr(left, '/');
 		s = p ? p : left + left_len;
-		if((s32_t)(s - left) >= sizeof(next_token))
+		if((int)(s - left) >= sizeof(next_token))
 			return -1;
 
 		memcpy(next_token, left, s - left);
@@ -211,7 +211,7 @@ void vfs_setcwd(const char * path)
 /*
  * get current work directory
  */
-char * vfs_getcwd(char * buf, s32_t size)
+char * vfs_getcwd(char * buf, size_t size)
 {
     if( size == 0 )
         return NULL;
@@ -245,7 +245,7 @@ struct file * vfs_getcwdfp(void)
  */
 static __init void fd_pure_sync_init(void)
 {
-	s32_t i;
+	int i;
 
     for( i = 0; i < FD_SIZE; i++ )
     	file_desc[i] = NULL;

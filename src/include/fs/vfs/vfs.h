@@ -225,13 +225,13 @@ s32_t vn_access(struct vnode * vp, u32_t mode);
 /*
  * declare for vfs_path
  */
-s32_t fd_alloc(s32_t low);
-s32_t fd_free(s32_t fd);
-struct file * get_fp(s32_t fd);
-s32_t set_fp(s32_t fd, struct file *fp);
-s32_t vfs_path_conv(const char * path, char * full);
+int fd_alloc(int low);
+int fd_free(int fd);
+struct file * get_fp(int fd);
+int set_fp(int fd, struct file *fp);
+int vfs_path_conv(const char * path, char * full);
 void vfs_setcwd(const char * path);
-char * vfs_getcwd(char * buf, s32_t size);
+char * vfs_getcwd(char * buf, size_t size);
 void vfs_setcwdfp(struct file * fp);
 struct file * vfs_getcwdfp(void);
 

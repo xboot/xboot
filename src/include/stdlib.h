@@ -4,6 +4,8 @@
 #include <types.h>
 #include <stddef.h>
 
+#define RAND_MAX	0x7fff
+
 int abs(int n);
 long labs(long n);
 long long llabs(long long n);

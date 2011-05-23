@@ -12,6 +12,11 @@
 
 int fseek(FILE * fp, loff_t offset, int whence)
 {
-	//XXX
+	if(!fp)
+		return -1;
+
+	if(lseek(fp->fd, offset, whence) < 0)
+		return -1;
+
 	return 0;
 }

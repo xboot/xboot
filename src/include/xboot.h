@@ -4,6 +4,7 @@
 #include <configs.h>
 #include <types.h>
 #include <sizes.h>
+#include <ssize.h>
 #include <endian.h>
 #include <limits.h>
 #include <stdarg.h>

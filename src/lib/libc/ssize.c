@@ -4,11 +4,8 @@
 
 #include <types.h>
 #include <stdarg.h>
-#include <stdio.h>
+#include <ssize.h>
 
-/*
- * ssize - format size to string
- */
 int ssize(char * buf, u64_t size)
 {
 	const char * unit[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};

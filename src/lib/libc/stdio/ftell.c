@@ -12,7 +12,6 @@
 
 loff_t ftell(FILE * fp)
 {
-	//XXX
-	return 0;
+	//TODO
+	return -1;
 }
-

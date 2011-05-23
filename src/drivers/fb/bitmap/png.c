@@ -746,7 +746,7 @@ static bool_t png_decode(struct png_data * data)
 			return TRUE;
 
 		default:
-			if(lseek(data->file, data->file_offset + len + 4, SEEK_SET) < 0)
+			if(lseek(data->file, data->file_offset + len + 4, VFS_SEEK_SET) < 0)
 				return FALSE;
 			data->file_offset = data->file_offset + len + 4;
 			break;

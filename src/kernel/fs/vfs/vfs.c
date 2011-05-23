@@ -462,14 +462,14 @@ s32_t sys_lseek(struct file * fp, loff_t off, u32_t type, loff_t * origin)
 
 	switch(type)
 	{
-	case SEEK_SET:
+	case VFS_SEEK_SET:
 		if(off < 0)
 			off = 0;
 		if(off > (loff_t)vp->v_size)
 			off = vp->v_size;
 		break;
 
-	case SEEK_CUR:
+	case VFS_SEEK_CUR:
 		if(fp->f_offset + off > (loff_t)vp->v_size)
 			off = vp->v_size;
 		else if(fp->f_offset + off < 0)
@@ -478,7 +478,7 @@ s32_t sys_lseek(struct file * fp, loff_t off, u32_t type, loff_t * origin)
 			off = fp->f_offset + off;
 		break;
 
-	case SEEK_END:
+	case VFS_SEEK_END:
 		if(off > 0)
 			off = vp->v_size;
 		else if(vp->v_size + off < 0)

@@ -120,7 +120,7 @@ static ssize_t loop_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t b
 	if(size < 0)
 		return 0;
 
-	if(lseek(loop->fd, offset, SEEK_SET) < 0)
+	if(lseek(loop->fd, offset, VFS_SEEK_SET) < 0)
 		return 0;
 
 	if(read(loop->fd, (void *)buf, size) != size)
@@ -138,7 +138,7 @@ static ssize_t loop_write(struct blkdev * dev, const u8_t * buf, size_t blkno, s
 	if(loop->read_only == TRUE)
 		return 0;
 
-	if(lseek(loop->fd, offset, SEEK_SET) < 0)
+	if(lseek(loop->fd, offset, VFS_SEEK_SET) < 0)
 		return 0;
 
 	if(write(loop->fd, (void *)buf, size) != size)

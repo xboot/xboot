@@ -612,7 +612,7 @@ static bool_t jpeg_decode(struct jpeg_data * data)
 		default:
 			sz = jpeg_get_word(data);
 
-			if(lseek(data->file, data->file_offset + sz - 2, SEEK_SET) < 0)
+			if(lseek(data->file, data->file_offset + sz - 2, VFS_SEEK_SET) < 0)
 				return FALSE;
 			data->file_offset = data->file_offset + sz - 2;
 			break;

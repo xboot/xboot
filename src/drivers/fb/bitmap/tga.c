@@ -315,7 +315,7 @@ static bool_t tga_load(struct bitmap ** bitmap, const char * filename)
 	header.image_width = cpu_to_le16( *((u16_t *)(&header.image_width)) );
 	header.image_height = cpu_to_le16( *((u16_t *)(&header.image_height)) );
 
-	if(lseek(fd, sizeof(struct tga_header) + header.id_length, SEEK_SET) < 0)
+	if(lseek(fd, sizeof(struct tga_header) + header.id_length, VFS_SEEK_SET) < 0)
 	{
 		close(fd);
 		return FALSE;

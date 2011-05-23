@@ -85,7 +85,7 @@ static bool_t get_bdf_info(s32_t fd, struct bdf_info * info)
 	if(!info)
 		return FALSE;
 
-	if(lseek(fd, 0, SEEK_SET) < 0)
+	if(lseek(fd, 0, VFS_SEEK_SET) < 0)
 		return FALSE;
 
 	if(bdf_readline(fd, line, sizeof(line)) == NULL)

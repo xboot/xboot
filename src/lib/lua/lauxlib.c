@@ -511,8 +511,7 @@ void luaL_unref(lua_State *L, int t, int ref)
  */
 typedef struct LoadF {
 	int extraline;
-	//xxx
-	int f;
+	FILE * f;
 	char buff[LUAL_BUFFERSIZE];
 } LoadF;
 
@@ -527,9 +526,8 @@ static const char * getF(lua_State * L, void * ud, size_t * size)
 		return "\n";
 	}
 
-	*size = read(lf->f, (void *)(lf->buff), sizeof(lf->buff));
-
-	return ((*size > 0) ? lf->buff : NULL);
+	*size = fread(lf->buff, 1, sizeof(lf->buff), lf->f);
+	return (*size > 0) ? lf->buff : NULL;
 }
 
 static int errfile(lua_State * L, const char * what, int fnameindex)
@@ -545,6 +543,7 @@ int luaL_loadfile(lua_State * L, const char * filename)
 {
 	LoadF lf;
 	int status, readstatus = 0;
+	int c;
 	int fnameindex = lua_gettop(L) + 1;	/* index of filename on the stack */
 
 	lf.extraline = 0;
@@ -552,41 +551,34 @@ int luaL_loadfile(lua_State * L, const char * filename)
 	if(filename == NULL)
 	{
 		lua_pushliteral(L, "=stdin");
-		lf.f = 0;
+		lf.f = stdin;
 	}
 	else
 	{
 		lua_pushfstring(L, "@%s", filename);
-		lf.f = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
-		if(lf.f < 0)
+	    lf.f = fopen(filename, "r");
+		if (lf.f == NULL)
 			return errfile(L, "open", fnameindex);
 	}
 
-#if 0
-	//XXX
-	c = getc(lf.f);
-	if (c == '#') { /* Unix exec. file? */
+	c = fgetc(lf.f);
+	if (c == '#')
+	{
 		lf.extraline = 1;
-		while ((c = getc(lf.f)) != EOF && c != '\n')
-			; /* skip first line */
+		while((c = fgetc(lf.f)) != -1 && c != '\n');
 		if (c == '\n')
-			c = getc(lf.f);
+			c = fgetc(lf.f);
 	}
-	if (c == LUA_SIGNATURE[0] && filename) { /* binary file? */
-		lf.f = freopen(filename, "rb", lf.f); /* reopen in binary mode */
-		if (lf.f == NULL)
-			return errfile(L, "reopen", fnameindex);
-		/* skip eventual `#!...' */
-		while ((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0])
-			;
+	if (c == LUA_SIGNATURE[0] && filename)
+	{
+		while ((c = fgetc(lf.f)) != -1 && c != LUA_SIGNATURE[0]);
 		lf.extraline = 0;
 	}
-	ungetc(c, lf.f);
-#endif
+	fseek(lf.f, -1, SEEK_CUR);
 
 	status = lua_load(L, getF, &lf, lua_tostring(L, -1));
 	if(filename)
-		close(lf.f);
+		fclose(lf.f);
 
 	if(readstatus)
 	{
@@ -643,7 +635,7 @@ static void * l_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
 
 static int panic(lua_State * L)
 {
-	printk("Panic, unprotected error in call to lua api : %s\n", lua_tostring(L, -1));
+	fprintf(stderr, "PANIC: unprotected error in call to Lua API (%s)\n", lua_tostring(L, -1));
 	return 0;
 }
 

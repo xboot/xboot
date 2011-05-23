@@ -23,6 +23,7 @@
 #include <xboot.h>
 #include <errno.h>
 #include <malloc.h>
+#include <xboot/printk.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
 #include <fs/vfs/vfs.h>
@@ -120,6 +121,15 @@ loff_t read(int fd, void * buf, loff_t len)
 	if(fd < 0)
 		return -1;
 
+	if(fd == 0)
+	{
+		return -1;
+	}
+	else if(fd == 1 || fd == 2)
+	{
+		return -1;
+	}
+
 	if((fp = get_fp(fd)) == NULL)
 		return -1;
 
@@ -139,6 +149,20 @@ loff_t write(int fd, void * buf, loff_t len)
 
 	if(fd < 0)
 		return -1;
+
+	if(fd == 0)
+	{
+		//XXX
+		return -1;
+	}
+	else if(fd == 1 || fd == 2)
+	{
+		loff_t i;
+		char * p = buf;
+		for(i=0; i<len; i++)
+			putch(p[i]);
+		return i;
+	}
 
 	if((fp = get_fp(fd)) == NULL)
 		return -1;

@@ -26,7 +26,7 @@ static void laction(int i)
 
 static void print_usage(void)
 {
-	printk(
+	fprintf(stderr,
 		"usage: lua [options] [script [args]].\n"
 		"Available options are:\n"
 		"  -e stat  execute string " LUA_QL("stat") "\n"
@@ -34,14 +34,14 @@ static void print_usage(void)
 		"  -i       enter interactive mode after executing " LUA_QL("script") "\n"
 		"  -v       show version information\n"
 		"  --       stop handling options\n"
-		"  -        execute stdin and stop handling options\n" );
+		"  -        execute stdin and stop handling options\n");
 }
 
 static void l_message(const char * pname, const char * msg)
 {
-	if(pname)
-		printk("%s: ", pname);
-	printk("%s\n", msg);
+	if (pname)
+		fprintf(stderr, "%s: ", pname);
+	fprintf(stderr, "%s\n", msg);
 }
 
 static int report(lua_State * L, int status)
@@ -261,7 +261,7 @@ static void dotty(lua_State * L)
 	}
 
 	lua_settop(L, 0);	/* clear stack */
-	printk("\n");
+	fputc('\n', stdout);
 	progname = oldprogname;
 }
 

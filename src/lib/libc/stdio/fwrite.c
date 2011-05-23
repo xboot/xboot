@@ -1,5 +1,5 @@
 /*
- * libc/stdio/fread.c
+ * libc/stdio/fwrite.c
  */
 
 #include <xboot.h>

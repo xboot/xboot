@@ -19,7 +19,9 @@ static int luaB_print(lua_State *L)
 {
 	int n = lua_gettop(L); 						/* number of arguments */
 	int i;
+
 	lua_getglobal(L, "tostring");
+
 	for (i = 1; i <= n; i++)
 	{
 		const char *s;
@@ -30,11 +32,12 @@ static int luaB_print(lua_State *L)
 		if (s == NULL)
 			return luaL_error(L, LUA_QL("tostring") " must return a string to "	LUA_QL("print"));
 		if (i > 1)
-			printk("\t");
-		printk(s);
+			fputc('\t', stdout);
+		fputs(s, stdout);
 		lua_pop(L, 1); 							/* pop result */
 	}
-	printk("\n");
+
+	fputc('\n', stdout);
 	return 0;
 }
 

@@ -83,6 +83,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib/libc/stdio					\
 				lib/libc/stdlib					\
 				lib/libc/string					\
+				lib/libc/time					\
 				lib/libm						\
 				lib/lua							\
 				init							\

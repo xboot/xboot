@@ -1,5 +1,5 @@
 /*
- * lua/lbaselib.c
+ * lua/lmathlib.c
  *
  * Standard mathematical library
  */

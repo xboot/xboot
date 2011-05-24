@@ -4,14 +4,14 @@
 #include <types.h>
 #include <stddef.h>
 
-#define RAND_MAX	0x7fff
+#define RAND_MAX	(0x7fff)
+
+void srand(int seed);
+int rand(void);
 
 int abs(int n);
 long labs(long n);
 long long llabs(long long n);
-
-void srand(int seed);
-int rand(void);
 
 int atoi(const char * nptr);
 long atol(const char * nptr);

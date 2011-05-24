@@ -5,6 +5,11 @@
 #include <lua/llimits.h>
 #include <lua/lua.h>
 
+/*
+ * Key to file-handle type
+ */
+#define LUA_FILEHANDLE	"FILE*"
+
 #define LUA_COLIBNAME	"coroutine"
 int luaopen_base(lua_State *L);
 

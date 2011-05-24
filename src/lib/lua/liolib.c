@@ -333,7 +333,8 @@ static int g_read(lua_State *L, FILE *f, int first)
 	int nargs = lua_gettop(L) - 1;
 	int success;
 	int n;
-//XXX	clearerr(f);
+
+	clearerr(f);
 	if (nargs == 0)
 	{
 		success = read_line(L, f);
@@ -372,8 +373,8 @@ static int g_read(lua_State *L, FILE *f, int first)
 			}
 		}
 	}
-//xxx	if (ferror(f))
-//xxx		return pushresult(L, 0, NULL);
+	if (ferror(f))
+		return pushresult(L, 0, NULL);
 	if (!success)
 	{
 		lua_pop(L, 1);						/* remove last result */
@@ -397,11 +398,11 @@ static int io_readline(lua_State *L)
 	FILE *f = *(FILE **) lua_touserdata(L, lua_upvalueindex(1));
 	int sucess;
 
-	if (f == NULL)							/* file is already closed? */
+	if (f == NULL)
 		luaL_error(L, "file is already closed");
 	sucess = read_line(L, f);
-//xxx	if (ferror(f))
-//xxx		return luaL_error(L, "%s", strerror(errno));
+	if (ferror(f))
+		return luaL_error(L, "%s", strerror(errno));
 	if (sucess)
 		return 1;
 	else
@@ -410,7 +411,7 @@ static int io_readline(lua_State *L)
 		{
 			lua_settop(L, 0);
 			lua_pushvalue(L, lua_upvalueindex(1));
-			aux_close(L);					/* close it */
+			aux_close(L);
 		}
 		return 0;
 	}
@@ -481,14 +482,12 @@ static int f_setvbuf(lua_State *L)
 
 static int io_flush(lua_State *L)
 {
-//xxx	return pushresult(L, fflush(getiofile(L, IO_OUTPUT)) == 0, NULL);
-	return 0; //xxx
+	return pushresult(L, fflush(getiofile(L, IO_OUTPUT)) == 0, NULL);
 }
 
 static int f_flush(lua_State *L)
 {
-//xxx	return pushresult(L, fflush(tofile(L)) == 0, NULL);
-	return 0; //xxx
+	return pushresult(L, fflush(tofile(L)) == 0, NULL);
 }
 
 static const luaL_Reg iolib[] = {

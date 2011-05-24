@@ -4,6 +4,10 @@
 #include <types.h>
 #include <stdarg.h>
 
+#ifndef EOF
+#define EOF		(-1)
+#endif
+
 typedef struct {
 	int fd;
 } FILE;
@@ -19,6 +23,9 @@ extern FILE * stdout;
 extern FILE * stderr;
 
 int fileno(FILE * fp);
+int fflush(FILE * fp);
+int ferror(FILE * fp);
+void clearerr(FILE * fp);
 FILE * fopen(const char * file, const char * mode);
 int fclose(FILE * fp);
 int fseek(FILE * fp, loff_t offset, int whence);

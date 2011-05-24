@@ -380,7 +380,7 @@ static int runargs(lua_State * L, char ** argv, int n)
 
 static int handle_luainit(lua_State * L)
 {
-	const char * init = 0;// xxx getenv(LUA_INIT);
+	const char * init = getenv(LUA_INIT);
 	if(init == NULL)
 		return 0;
 	else if(init[0] == '@')

@@ -5,6 +5,7 @@
 #include <types.h>
 #include <stdarg.h>
 #include <string.h>
+#include <math.h>
 #include <stdio.h>
 
 enum flags {
@@ -196,6 +197,329 @@ static size_t format_int(char * q, size_t n, uintmax_t val, enum flags flags,
 		EMIT(' ');
 		width--;
 	}
+
+	return o;
+}
+
+#define CVT_BUFSZ	(309 + 43)
+
+static char * cvt(double arg, int ndigits, int * decpt, int * sign, char * buf, int eflag)
+{
+	int r2;
+	double fi, fj;
+	char * p, * p1;
+
+	if (ndigits < 0)
+		ndigits = 0;
+	if (ndigits >= CVT_BUFSZ - 1)
+		ndigits = CVT_BUFSZ - 2;
+
+	r2 = 0;
+	*sign = 0;
+	p = &buf[0];
+
+	if (arg < 0)
+	{
+		*sign = 1;
+		arg = -arg;
+	}
+	arg = modf(arg, &fi);
+	p1 = &buf[CVT_BUFSZ];
+
+	if (fi != 0)
+	{
+		p1 = &buf[CVT_BUFSZ];
+		while (fi != 0)
+		{
+			fj = modf(fi / 10, &fi);
+			*--p1 = (int) ((fj + .03) * 10) + '0';
+			r2++;
+		}
+		while (p1 < &buf[CVT_BUFSZ])
+			*p++ = *p1++;
+	}
+	else if (arg > 0)
+	{
+		while ((fj = arg * 10) < 1)
+		{
+			arg = fj;
+			r2--;
+		}
+	}
+
+	p1 = &buf[ndigits];
+	if (eflag == 0)
+		p1 += r2;
+	*decpt = r2;
+	if (p1 < &buf[0])
+	{
+		buf[0] = '\0';
+		return buf;
+	}
+
+	while (p <= p1 && p < &buf[CVT_BUFSZ])
+	{
+		arg *= 10;
+		arg = modf(arg, &fj);
+		*p++ = (int) fj + '0';
+	}
+
+	if (p1 >= &buf[CVT_BUFSZ])
+	{
+		buf[CVT_BUFSZ - 1] = '\0';
+		return buf;
+	}
+	p = p1;
+	*p1 += 5;
+
+	while (*p1 > '9')
+	{
+		*p1 = '0';
+		if (p1 > buf)
+			++*--p1;
+		else
+		{
+			*p1 = '1';
+			(*decpt)++;
+			if (eflag == 0)
+			{
+				if (p > buf)
+					*p = '0';
+				p++;
+			}
+		}
+	}
+
+	*p = '\0';
+	return buf;
+}
+
+static void cfltcvt(double value, char * buffer, char fmt, int precision)
+{
+	int decpt, sign, exp, pos;
+	char * digits = 0;
+	char cvtbuf[CVT_BUFSZ];
+	int capexp = 0;
+	int magnitude;
+
+	if (fmt == 'G' || fmt == 'E')
+	{
+		capexp = 1;
+		fmt += 'a' - 'A';
+	}
+
+	if (fmt == 'g')
+	{
+		digits = cvt(value, precision, &decpt, &sign, cvtbuf, 1);
+
+		magnitude = decpt - 1;
+		if (magnitude < -4 || magnitude > precision - 1)
+		{
+			fmt = 'e';
+			precision -= 1;
+		}
+		else
+		{
+			fmt = 'f';
+			precision -= decpt;
+		}
+	}
+
+	if (fmt == 'e')
+	{
+		digits = cvt(value, precision + 1, &decpt, &sign, cvtbuf, 1);
+
+		if (sign)
+			*buffer++ = '-';
+		*buffer++ = *digits;
+		if (precision > 0)
+			*buffer++ = '.';
+		memcpy(buffer, digits + 1, precision);
+		buffer += precision;
+		*buffer++ = capexp ? 'E' : 'e';
+
+		if (decpt == 0)
+		{
+			if (value == 0.0)
+				exp = 0;
+			else
+				exp = -1;
+		}
+		else
+			exp = decpt - 1;
+
+		if (exp < 0)
+		{
+			*buffer++ = '-';
+			exp = -exp;
+		}
+		else
+			*buffer++ = '+';
+
+		buffer[2] = (exp % 10) + '0';
+		exp = exp / 10;
+		buffer[1] = (exp % 10) + '0';
+		exp = exp / 10;
+		buffer[0] = (exp % 10) + '0';
+		buffer += 3;
+	}
+	else if (fmt == 'f')
+	{
+		digits = cvt(value, precision, &decpt, &sign, cvtbuf, 0);
+
+		if (sign)
+			*buffer++ = '-';
+		if (*digits)
+		{
+			if (decpt <= 0)
+			{
+				*buffer++ = '0';
+				*buffer++ = '.';
+				for (pos = 0; pos < -decpt; pos++)
+					*buffer++ = '0';
+				while (*digits)
+					*buffer++ = *digits++;
+			}
+			else
+			{
+				pos = 0;
+				while (*digits)
+				{
+					if (pos++ == decpt)
+						*buffer++ = '.';
+					*buffer++ = *digits++;
+				}
+			}
+		}
+		else
+		{
+			*buffer++ = '0';
+			if (precision > 0)
+			{
+				*buffer++ = '.';
+				for (pos = 0; pos < precision; pos++)
+					*buffer++ = '0';
+			}
+		}
+	}
+
+	*buffer = '\0';
+}
+
+static void forcdecpt(char * buffer)
+{
+	while (*buffer)
+	{
+		if (*buffer == '.')
+			return;
+		if (*buffer == 'e' || *buffer == 'E')
+			break;
+		buffer++;
+	}
+
+	if (*buffer)
+	{
+		int n = strlen(buffer);
+		while (n > 0)
+		{
+			buffer[n + 1] = buffer[n];
+			n--;
+		}
+
+		*buffer = '.';
+	}
+	else
+	{
+		*buffer++ = '.';
+		*buffer = '\0';
+	}
+}
+
+static void cropzeros(char *buffer)
+{
+	char * stop;
+
+	while (*buffer && *buffer != '.')
+		buffer++;
+	if (*buffer++)
+	{
+		while (*buffer && *buffer != 'e' && *buffer != 'E')
+			buffer++;
+		stop = buffer--;
+		while (*buffer == '0')
+			buffer--;
+		if (*buffer == '.')
+			buffer--;
+		while ((*++buffer = *stop++));
+	}
+}
+
+static size_t format_float(char * q, size_t n, double val, enum flags flags, char fmt, int width, int prec)
+{
+	size_t o = 0;
+	char tmp[CVT_BUFSZ];
+	char c, sign;
+	int len, i;
+
+	if (flags & FL_MINUS)
+		flags &= ~FL_ZERO;
+
+	c = (flags & FL_ZERO) ? '0' : ' ';
+	sign = 0;
+	if (flags & FL_SIGNED)
+	{
+		if (val < 0.0)
+		{
+			sign = '-';
+			val = -val;
+			width--;
+		}
+		else if (flags & FL_PLUS)
+		{
+			sign = '+';
+			width--;
+		}
+		else if (flags & FL_SPACE)
+		{
+			sign = ' ';
+			width--;
+		}
+	}
+
+	if (prec < 0)
+		prec = 6;
+	else if (prec == 0 && fmt == 'g')
+		prec = 1;
+
+	cfltcvt(val, tmp, fmt, prec);
+
+	if ((flags & FL_HASH) && prec == 0)
+		forcdecpt(tmp);
+
+	if (fmt == 'g' && !(flags & FL_HASH))
+		cropzeros(tmp);
+
+	len = strlen(tmp);
+	width -= len;
+
+	if (!(flags & (FL_ZERO | FL_MINUS)))
+		while (width-- > 0)
+			EMIT(' ');
+
+	if (sign)
+		EMIT(sign);
+
+	if (!(flags & FL_MINUS))
+	{
+		while (width-- > 0)
+			EMIT(c);
+	}
+
+	for (i = 0; i < len; i++)
+		EMIT(tmp[i]);
+
+	while (width-- > 0)
+		EMIT(' ');
 
 	return o;
 }
@@ -508,6 +832,16 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap)
 						break;
 					}
 				}
+					break;
+
+				case 'E':
+				case 'G':
+				case 'e':
+				case 'f':
+				case 'g':
+					sz = format_float(q, (o < n) ? n - o : 0, (double)(va_arg(ap, double)), flags, ch, width, prec);
+					q += sz;
+					o += sz;
 					break;
 
 				default:		/* Anything else, including % */

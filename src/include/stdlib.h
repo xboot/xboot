@@ -32,4 +32,13 @@ uintmax_t strntoumax(const char * nptr, char ** endptr, int base, size_t n);
 void * bsearch(const void *key, const void *base, size_t nmemb, size_t size,
 		int(*compar)(const void *, const void *));
 
+
+extern char *** __environ_location(void);
+#define environ	(*__environ_location())
+
+char * getenv(const char * s);
+int putenv(const char * s);
+int setenv(const char * name, const char * value, int overwrite);
+int unsetenv(const char * name);
+
 #endif /* __STDLIB_H__ */

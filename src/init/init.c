@@ -35,7 +35,6 @@
 #include <xboot/menu.h>
 #include <xboot/printk.h>
 #include <console/console.h>
-#include <shell/env.h>
 #include <fs/fileio.h>
 #include <fb/font.h>
 #include <init.h>
@@ -100,9 +99,9 @@ void do_system_cfg(void)
 	/*
 	 * load environment variable
 	 */
-	if(! env_load("/etc/environment.xml"))
+	if(! loadenv("/etc/environment.xml"))
 	{
-		if(! env_load("/ramdisk/default/environment.xml"))
+		if(! loadenv("/ramdisk/default/environment.xml"))
 			LOG_E("can not load environment variable");
 	}
 

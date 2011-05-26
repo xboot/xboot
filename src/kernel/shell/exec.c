@@ -30,7 +30,6 @@
 #include <xboot/list.h>
 #include <fs/fileio.h>
 #include <shell/readline.h>
-#include <shell/env.h>
 #include <shell/parser.h>
 #include <shell/exec.h>
 #include <command/command.h>

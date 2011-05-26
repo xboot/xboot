@@ -1,7 +1,4 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <environment>
-	<env>
-		<key>prompt</key>
-		<value>xboot</value>
-	</env>
+	<env>prompt=xboot</env>
 </environment>

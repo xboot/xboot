@@ -28,7 +28,6 @@
 #include <fs/fileio.h>
 #include <console/console.h>
 #include <shell/exec.h>
-#include <shell/env.h>
 #include <shell/readline.h>
 #include <mode/mode.h>
 
@@ -48,7 +47,7 @@ void run_shell_mode(void)
 
 	do {
 		getcwd(cwd, sizeof(cwd));
-		sprintf(prompt, "%s: %s$ ", env_get("prompt", "xboot"), cwd);
+		sprintf(prompt, "%s: %s$ ", getenv("prompt"), cwd);
 
 		p = readline(prompt);
 		printk("\r\n");

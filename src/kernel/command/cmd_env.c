@@ -1,7 +1,7 @@
 /*
  * kernel/command/cmd_env.c
  *
- * Copyright (c) 2007-2008  jianjun jiang <jjjstudio@gmail.com>
+ * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,135 +29,36 @@
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <shell/env.h>
 #include <command/command.h>
 
 
 #if	defined(CONFIG_COMMAND_ENV) && (CONFIG_COMMAND_ENV > 0)
 
-extern struct hlist_head env_hash[CONFIG_ENV_HASH_SIZE];
-
-/*
- * print environment variable.
- */
-static void print_env(void)
-{
-	struct env_list * list;
-	struct env_list ** env_list_array;
-	s32_t env_list_num = 0;
-	struct hlist_node * pos;
-	s32_t i, j, swaps;
-
-	for(i = 0, env_list_num = 0; i < CONFIG_ENV_HASH_SIZE; i++)
-	{
-		hlist_for_each_entry(list,  pos, &(env_hash[i]), node)
-		{
-			env_list_num++;
-		}
-	}
-
-	if(env_list_num <= 0)
-		return;
-
-	env_list_array = malloc(sizeof(struct env_list *) * env_list_num);
-	if(!env_list_array)
-	{
-		printk("malloc env_list_array fail for sort env list\r\n");
-		return;
-	}
-
-	for(i = 0,j = 0; i < CONFIG_ENV_HASH_SIZE; i++)
-	{
-		hlist_for_each_entry(list,  pos, &(env_hash[i]), node)
-		{
-			env_list_array[j++] = list;
-		}
-	}
-
-	/* sort env list (trivial bubble sort) */
-	for (i = env_list_num - 1; i > 0; --i)
-	{
-		swaps = 0;
-		for(j=0; j<i; ++j)
-		{
-			if (strcmp(env_list_array[j]->env.key, env_list_array[j + 1]->env.key) > 0)
-			{
-				list = env_list_array[j];
-				env_list_array[j] = env_list_array[j + 1];
-				env_list_array[j + 1] = list;
-				++swaps;
-			}
-		}
-		if(!swaps)
-			break;
-	}
-
-	/* display env information */
-	for (i=0; i<env_list_num; i++)
-	{
-		printk(" %s=%s\r\n",env_list_array[i]->env.key, env_list_array[i]->env.value);
-	}
-	free(env_list_array);
-}
-
-static void usage(void)
-{
-	printk("usage:\r\n    env [-s] [<-a|-d|-m> NAME VALUE]\r\n");
-}
-
 static int env(int argc, char ** argv)
 {
-	s32_t i;
-	s8_t *p;
+	char ** ep;
+	bool_t save = FALSE;
+	int i;
 
-	if(argc == 1)
+	for(i=1; i<argc; ++i)
 	{
-		print_env();
-	}
-	else if(argc >= 2)
-	{
-		if(strcmp((const char *)argv[1], "-a") == 0)
+		if(strchr(argv[i], '='))
 		{
-			if(argc==4)
-				env_add((char *)argv[2], (char *)argv[3]);
-			else
-				usage();
+			putenv(argv[i]);
 		}
-		else if(strcmp((const char *)argv[1], "-r") == 0)
+		else if(strcmp(argv[i], "-s") == 0)
 		{
-			for(i=2; i<argc; ++i)
-				env_remove((char *)argv[i]);
-		}
-		else if(strcmp((const char *)argv[1], "-s") == 0)
-		{
-			if(argc==2)
-			{
-				if(env_save("/etc/environment.xml"))
-				{
-					printk("save environment variable successes.\r\n");
-					return 0;
-				}
-				else
-				{
-					printk("save environment variable fail.\r\n");
-					return -1;
-				}
-			}
-			else
-				usage();
-		}
-		else
-		{
-			for(i=1; i<argc; ++i)
-			{
-				p = (s8_t*)env_get((char *)argv[i], NULL);
-				if(p)
-					printk(" %s=%s\r\n",argv[i], p);
-				else
-					printk(" no environment variable '%s'\r\n", argv[i]);
-			}
+			save = TRUE;
 		}
 	}
+
+	for(ep = environ; *ep; ep++)
+	{
+		printk(" %s\n", *ep);
+	}
+
+	if(save)
+		saveenv("/etc/environment.xml");
 
 	return 0;
 }
@@ -166,11 +67,8 @@ static struct command env_cmd = {
 	.name		= "env",
 	.func		= env,
 	.desc		= "display environment variable\r\n",
-	.usage		= "env [-s] [<-a|-r> NAME VALUE]\r\n",
-	.help		= "    no arguments for list of all variable. for specific variable "
-				  "you can type 'env' with one or more variable as arguments.\r\n"
-				  "    -a    append variable to the environment\r\n"
-				  "    -r    remove variable from the environment\r\n"
+	.usage		= "env [-s] [NAME=VALUE] ...\r\n",
+	.help		= "    no arguments for list of all variable.\r\n"
 				  "    -s    save environment variable\r\n"
 };
 

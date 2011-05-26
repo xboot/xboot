@@ -26,7 +26,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <malloc.h>
-#include <shell/env.h>
 #include <xboot/printk.h>
 #include <shell/readline.h>
 #include <shell/parser.h>
@@ -160,7 +159,7 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 			if(is_varstate (state) && !is_varstate (newstate))
 			{
 			    *(vp++) = '\0';
-			    val = env_get(varname, NULL);
+			    val = getenv(varname);
 			    vp = varname;
 			    if(val)
 			    {
@@ -210,7 +209,7 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 	if(is_varstate(state) && !is_varstate (PARSER_STATE_TEXT))
 	{
 	    *(vp++) = '\0';
-	    val = env_get(varname, NULL);
+	    val = getenv(varname);
 	    vp = varname;
 	    if(val)
 	    {

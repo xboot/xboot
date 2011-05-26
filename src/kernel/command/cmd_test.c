@@ -29,7 +29,6 @@
 #include <xboot/resource.h>
 #include <xboot/chrdev.h>
 #include <xboot/proc.h>
-#include <shell/env.h>
 #include <shell/exec.h>
 #include <fb/fb.h>
 #include <fb/graphic.h>

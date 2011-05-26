@@ -33,13 +33,6 @@
 #endif
 
 /*
- * the size of env hash table
- */
-#if !defined(CONFIG_ENV_HASH_SIZE)
-#define	CONFIG_ENV_HASH_SIZE						(13)
-#endif
-
-/*
  * the size of clk hash table
  */
 #if !defined(CONFIG_CLK_HASH_SIZE)
@@ -156,13 +149,6 @@
  */
 #if !defined(CONFIG_COMMAND_EXIT)
 #define	CONFIG_COMMAND_EXIT							(1)
-#endif
-
-/*
- * prompt command
- */
-#if !defined(CONFIG_COMMAND_PROMPT)
-#define	CONFIG_COMMAND_PROMPT						(1)
 #endif
 
 /*

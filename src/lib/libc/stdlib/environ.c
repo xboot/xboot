@@ -5,6 +5,8 @@
 #include <types.h>
 #include <malloc.h>
 #include <string.h>
+#include <xml.h>
+#include <fs/fileio.h>
 #include <stdlib.h>
 
 static char ** __environ = 0;
@@ -14,69 +16,75 @@ char *** __environ_location(void)
 	return &__environ;
 }
 
-int __put_env(char * str, size_t len, int overwrite)
+/*
+ * load environment variable
+ */
+bool_t loadenv(char * file)
 {
-	static size_t __environ_size;
-	static char ** __environ_alloc;
-	static char * const null_environ = { NULL };
-	char **p, *q;
-	char **newenv;
-	size_t n;
+	struct xml * root, * env;
 
-	if (!environ)
-		environ = (char **) null_environ;
+	root = xml_parse_file(file);
+	if(!root || !root->name)
+		return FALSE;
 
-	n = 1;
-	for (p = environ; (q = *p); p++)
+	if(strcmp(root->name, "environment") != 0)
 	{
-		n++;
-		if (!strncmp(q, str, len))
-		{
-			if (!overwrite)
-				free(str);
-			else
-				*p = str;
-			return 0;
-		}
+		xml_free(root);
+		return FALSE;
 	}
 
-	if (__environ_alloc && environ != __environ_alloc)
+	clearenv();
+
+	for(env = xml_child(root, "env"); env; env = env->next)
 	{
-		free(__environ_alloc);
-		__environ_alloc = NULL;
+		if(env->txt)
+			putenv(env->txt);
 	}
 
-	if (n < __environ_size)
-	{
-		p[1] = NULL;
-		*p = str;
-		return 0;
-	}
-	else
-	{
-		if (__environ_alloc)
-		{
-			newenv = realloc(__environ_alloc,
-					(__environ_size << 1) * sizeof(char *));
-			if (!newenv)
-				return -1;
+	xml_free(root);
+	return TRUE;
+}
 
-			__environ_size <<= 1;
-		}
-		else
-		{
-			size_t newsize = n + 32;
-			newenv = malloc(newsize * sizeof(char *));
-			if (!newenv)
-				return -1;
+/*
+ * save environment variable
+ */
+bool_t saveenv(char * file)
+{
+	struct xml * root, * env;
+	char * str;
+	char ** ep;
+	int fd;
 
-			memcpy(newenv, environ, n * sizeof(char *));
-			__environ_size = newsize;
-		}
-		newenv[n - 1] = str;
-		newenv[n] = NULL;
-		environ = newenv;
+	root = xml_new("environment");
+	if(!root)
+		return FALSE;
+
+	for(ep = environ; *ep; ep++)
+	{
+		env = xml_add_child(root, "env", 0);
+		xml_set_txt(env, *ep);
 	}
 
-	return 0;
+	str = xml_toxml(root);
+	if(!str)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(fd < 0)
+	{
+		free(str);
+		xml_free(root);
+		return FALSE;
+	}
+
+	write(fd, str, strlen(str));
+	close(fd);
+
+	free(str);
+	xml_free(root);
+
+	return TRUE;
 }

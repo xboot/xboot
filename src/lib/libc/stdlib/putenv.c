@@ -6,58 +6,35 @@
 #include <malloc.h>
 #include <stdlib.h>
 
-int putenv(const char * s)
+extern int __put_env(char * str, size_t len, int overwrite);
+
+int putenv(const char * str)
 {
-	size_t len;
-	int envc;
-	int remove = 0;
-	char *tmp;
-	const char **ep;
-	char **newenv;
-	static char **origenv;
+	char *s;
+	const char *e, *z;
 
-	if (!origenv)
-		origenv = environ;
-
-	if (!(tmp = strchr(s, '=')))
+	if (!str)
 	{
-		len = strlen(s);
-		remove = 1;
-	}
-	else
-		len = tmp - s;
-
-	for (envc = 0, ep = (const char**) environ; (ep && *ep); ++ep)
-	{
-		if (*s == **ep && !memcmp(s, *ep, len) && (*ep)[len] == '=')
-		{
-			if (remove)
-			{
-				for (; ep[1]; ++ep)
-					ep[0] = ep[1];
-				ep[0] = 0;
-				return 0;
-			}
-			*ep = s;
-			return 0;
-		}
-		++envc;
+		errno = EINVAL;
+		return -1;
 	}
 
-	if (tmp)
+	e = NULL;
+	for (z = str; *z; z++)
 	{
-		newenv = (char**) realloc(environ == origenv ? 0 : environ,
-				(envc + 2) * sizeof(char*));
-		if (!newenv)
-			return -1;
-		if (envc && (environ == origenv))
-		{
-			memcpy(newenv, origenv, envc * sizeof(char*));
-		}
-		newenv[envc] = (char*) s;
-		newenv[envc + 1] = 0;
-		environ = newenv;
+		if (*z == '=')
+			e = z;
 	}
 
-	return 0;
+	if (!e)
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	s = strdup(str);
+	if (!s)
+		return -1;
+
+	return __put_env(s, e - str, 1);
 }

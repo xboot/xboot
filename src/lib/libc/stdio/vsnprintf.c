@@ -858,7 +858,7 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap)
 	if (o < n)
 		*q = '\0';				/* No overflow */
 	else if (n > 0)
-		buf[n - 1] = '\0';	/* Overflow - terminate at end of buffer */
+		buf[n - 1] = '\0';		/* Overflow - terminate at end of buffer */
 
 	return o;
 }

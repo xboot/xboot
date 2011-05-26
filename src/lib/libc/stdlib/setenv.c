@@ -6,19 +6,41 @@
 #include <malloc.h>
 #include <stdlib.h>
 
-int setenv(const char * name, const char * value, int overwrite)
+extern int __put_env(char * str, size_t len, int overwrite);
+
+int setenv(const char * name, const char * val, int overwrite)
 {
-	if (getenv(name))
+	const char *z;
+	char *s;
+	size_t l1, l2;
+
+	if (!name || !name[0])
 	{
-		if (!overwrite)
-			return 0;
-		unsetenv(name);
+		errno = EINVAL;
+		return -1;
 	}
+
+	l1 = 0;
+	for (z = name; *z; z++)
 	{
-		char * c = malloc(strlen(name) + strlen(value) + 2);
-		strcpy(c, name);
-		strcat(c, "=");
-		strcat(c, value);
-		return putenv(c);
+		l1++;
+		if (*z == '=')
+		{
+			errno = EINVAL;
+			return -1;
+		}
 	}
+
+	l2 = strlen(val);
+
+	s = malloc(l1 + l2 + 2);
+	if (!s)
+		return -1;
+
+	memcpy(s, name, l1);
+	s[l1] = '=';
+	memcpy(s + l1 + 1, val, l2 + 1);
+
+	return __put_env(s, l1 + 1, overwrite);
 }
+

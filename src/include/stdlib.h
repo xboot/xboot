@@ -36,9 +36,10 @@ void * bsearch(const void *key, const void *base, size_t nmemb, size_t size,
 extern char *** __environ_location(void);
 #define environ	(*__environ_location())
 
-char * getenv(const char * s);
-int putenv(const char * s);
-int setenv(const char * name, const char * value, int overwrite);
+char * getenv(const char * name);
+int putenv(const char * str);
+int setenv(const char * name, const char * val, int overwrite);
 int unsetenv(const char * name);
+int clearenv(void);
 
 #endif /* __STDLIB_H__ */

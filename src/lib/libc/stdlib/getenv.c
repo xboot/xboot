@@ -2,24 +2,25 @@
  * libc/stdlib/getenv.c
  */
 
+#include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
 
-char * getenv(const char * s)
+char * getenv(const char * name)
 {
-	int i;
-	unsigned int len;
+	char **p, *q;
+	int len = strlen(name);
 
-	if (!environ || !s)
-		return 0;
+	if (!environ)
+		return NULL;
 
-	len = strlen(s);
-
-	for (i = 0; environ[i]; ++i)
+	for (p = environ; (q = *p); p++)
 	{
-		if ((memcmp(environ[i], s, len) == 0) && (environ[i][len] == '='))
-			return environ[i] + len + 1;
+		if (!strncmp(name, q, len) && q[len] == '=')
+		{
+			return q + (len + 1);
+		}
 	}
 
-	return 0;
+	return NULL;
 }

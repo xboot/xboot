@@ -5,14 +5,46 @@
 #include <stdlib.h>
 
 
-static int hold_rand = 1;
+static unsigned short __rand48_seed[3];
 
-void srand(int seed)
+static long jrand48(unsigned short xsubi[3])
 {
-	hold_rand = seed;
+	u64_t x;
+
+	/*
+	 * The xsubi[] array is little endian by spec
+	 */
+	x = (u64_t) (u16_t) xsubi[0] +
+	    ((u64_t) (u16_t) xsubi[1] << 16) +
+	    ((u64_t) (u16_t) xsubi[2] << 32);
+
+	x = (0x5deece66dULL * x) + 0xb;
+
+	xsubi[0] = (unsigned short)(u16_t) x;
+	xsubi[1] = (unsigned short)(u16_t) (x >> 16);
+	xsubi[2] = (unsigned short)(u16_t) (x >> 32);
+
+	return (long)(s32_t) (x >> 16);
+}
+
+static long lrand48(void)
+{
+	return (u32_t) jrand48(__rand48_seed) >> 1;
+}
+
+static void srand48(long seedval)
+{
+	__rand48_seed[0] = 0x330e;
+	__rand48_seed[1] = (unsigned short)seedval;
+	__rand48_seed[2] = (unsigned short)((u32_t) seedval >> 16);
 }
 
 int rand(void)
 {
-	return (((hold_rand = hold_rand * 214013L + 2531011L) >> 16) & 0x7fff);
+	return (int)lrand48();
+}
+
+void srand(unsigned int seed)
+{
+	srand48(seed);
 }

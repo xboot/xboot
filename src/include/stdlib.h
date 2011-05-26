@@ -4,10 +4,9 @@
 #include <types.h>
 #include <stddef.h>
 
-#define RAND_MAX	(0x7fff)
-
-void srand(int seed);
+#define RAND_MAX (0x7fffffff)
 int rand(void);
+void srand(unsigned int seed);
 
 int abs(int n);
 long labs(long n);

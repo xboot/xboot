@@ -2,10 +2,6 @@
  * libc/stdio/vsnprintf.c
  */
 
-#include <types.h>
-#include <stdarg.h>
-#include <string.h>
-#include <math.h>
 #include <stdio.h>
 
 enum flags {

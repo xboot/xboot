@@ -2,16 +2,16 @@
  * libc/stdio/ftell.c
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stdarg.h>
-#include <errno.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
-loff_t ftell(FILE * fp)
+loff_t ftell(FILE * f)
 {
-	//TODO
-	return -1;
+	if (f == NULL)
+	{
+		errno = EBADF;
+		return -1;
+	}
+
+	return f->ofs;
 }
+

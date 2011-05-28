@@ -2,22 +2,38 @@
  * libc/stdio/fgetc.c
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
-int fgetc(FILE * fp)
+int fgetc(FILE * f)
 {
-	char c;
+	int c;
 
-	if(!fp)
-		return -1;
+	if (f == NULL)
+	{
+		errno = EBADF;
+		return EOF;
+	}
+	if (f->eof || f->error)
+		return EOF;
+	if (f->in.buf == NULL)
+	{
+		errno = EBADF;
+		return EOF;
+	}
 
-	if(read(fp->fd, (void *)&c, 1) != 1)
-		return -1;
+	if (f->in.pos == f->in.limit)
+	{
+		if (fflush(f) != 0)
+			return EOF;
+		if (fill_stream(f) != 0)
+			return EOF;
+		if (f->eof)
+			return EOF;
+	}
+
+	c = f->in.buf[f->in.pos++];
+	if (f->out.buf != NULL)
+		f->out.pos++;
 
 	return c;
 }

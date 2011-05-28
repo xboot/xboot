@@ -2,13 +2,6 @@
  * libc/stdio/vsscanf.c
  */
 
-#include <types.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
 #include <stdio.h>
 
 enum flags {

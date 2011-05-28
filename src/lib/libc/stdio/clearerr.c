@@ -2,11 +2,13 @@
  * libc/stdio/clearerr.c
  */
 
-#include <types.h>
-#include <stdarg.h>
 #include <stdio.h>
 
-void clearerr(FILE * fp)
+void clearerr(FILE * f)
 {
+	if (f != NULL)
+	{
+		f->eof = 0;
+		f->error = 0;
+	}
 }
-

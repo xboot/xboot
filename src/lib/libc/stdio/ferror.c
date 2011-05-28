@@ -2,11 +2,11 @@
  * libc/stdio/ferror.c
  */
 
-#include <types.h>
-#include <stdarg.h>
 #include <stdio.h>
 
-int ferror(FILE * fp)
+int ferror(FILE * f)
 {
+	if (f != NULL)
+		return f->error;
 	return 0;
 }

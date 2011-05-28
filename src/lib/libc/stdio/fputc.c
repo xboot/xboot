@@ -2,22 +2,51 @@
  * libc/stdio/fputc.c
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
-int fputc(int c, FILE * fp)
+int fputc(int c, FILE * f)
 {
-	char ch = c;
+	if (f == NULL)
+	{
+		errno = EBADF;
+		return EOF;
+	}
+	if (f->error)
+		return EOF;
+	if (f->out.buf == NULL)
+	{
+		errno = EBADF;
+		return EOF;
+	}
 
-	if(!fp)
-		return -1;
+	if (f->out.pos == f->out.limit)
+	{
+		if (f->out.limit == BUFSIZ)
+		{
+			if (fflush(f) == EOF)
+				return EOF;
+			if (fill_stream(f) == -1)
+				return EOF;
+		}
+		else
+		{
+			f->out.limit++;
+			if (f->in.buf != NULL)
+				f->in.limit++;
+		}
+	}
 
-	if(write(fp->fd, (void *)&ch, 1) != 1)
-		return -1;
+	f->out.buf[f->out.pos++] = (unsigned char) (c & 0xff);
+	f->out.dirty = 1;
+	if (f->in.buf != NULL)
+		f->in.buf[f->in.pos++] = (unsigned char) (c & 0xff);
+
+	if (c == '\n')
+	{
+		if (fflush(f) == EOF)
+			return EOF;
+	}
 
 	return c;
 }
+

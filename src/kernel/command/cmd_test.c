@@ -52,6 +52,27 @@
 
 static int test(int argc, char ** argv)
 {
+	char obuf[10], ibuf[sizeof(obuf)];
+
+	FILE * f = fopen("/a.txt", "a+");
+
+	if (fputs ("line\n", f) == EOF)
+	{
+		printk("fputs\r\n");
+		return -1;
+	}
+
+	memset (obuf, 'z', sizeof obuf);
+	memset (ibuf, 'y', sizeof ibuf);
+
+	if (fwrite(obuf, sizeof(obuf), 1, f) != 1)
+	{
+		printk("fwrite\r\n");
+		return -1;
+	}
+
+	fclose(f);
+
 	return 0;
 }
 

@@ -2,21 +2,25 @@
  * libc/stdio/fseek.c
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stdarg.h>
-#include <errno.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
-int fseek(FILE * fp, loff_t offset, int whence)
+int fseek(FILE * f, loff_t offset, int whence)
 {
-	if(!fp)
+	loff_t ofs;
+
+	if (f == NULL)
+	{
+		errno = EBADF;
+		return -1;
+	}
+
+	if (fflush(f) == EOF)
 		return -1;
 
-	if(lseek(fp->fd, offset, whence) < 0)
+	ofs = lseek(f->fd, offset, whence);
+	if (ofs < 0)
 		return -1;
+	f->ofs = ofs;
 
-	return 0;
+	return fill_stream(f);
 }

@@ -405,7 +405,7 @@ typedef unsigned long long size_t;
 #define LUAI_MAXUPVALUES	60
 
 //xxx
-#define BUFSIZ 1024
+//#define BUFSIZ 1024
 /*
 @@ LUAL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
 */

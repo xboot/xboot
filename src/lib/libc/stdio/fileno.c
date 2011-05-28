@@ -2,11 +2,15 @@
  * libc/stdio/fileno.c
  */
 
-#include <types.h>
-#include <stdarg.h>
 #include <stdio.h>
 
-int fileno(FILE * fp)
+int fileno(FILE * f)
 {
-	return fp->fd;
+	if (f == NULL)
+	{
+		errno = EBADF;
+		return -1;
+	}
+
+	return f->fd;
 }

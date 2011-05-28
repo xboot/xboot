@@ -2,19 +2,19 @@
  * libc/stdio/fopen.c
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
 FILE * fopen(const char * file, const char * mode)
 {
 	int flags = O_RDONLY;
 	int plus = 0;
-	FILE * fp;
-	int fd;
+	FILE * f;
+
+	if ((file == NULL) || (*file == '\0'))
+	{
+		errno = EINVAL;
+		return NULL;
+	}
 
 	while(*mode)
 	{
@@ -38,18 +38,38 @@ FILE * fopen(const char * file, const char * mode)
 	if(plus)
 		flags = (flags & ~(O_RDONLY | O_WRONLY)) | O_RDWR;
 
-	fp = malloc(sizeof(FILE));
-	if(!fp)
+	f = create_stream();
+	if (f == NULL)
 		return NULL;
 
-	fd = open(file, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-	if(fd < 0)
+	if ((flags & O_RDONLY) != 0)
 	{
-		free(fp);
+		f->in.buf = malloc(BUFSIZ);
+		if (f->in.buf == NULL)
+			return NULL;
+	}
+
+	if ((flags & O_WRONLY) != 0)
+	{
+		f->out.buf = malloc(BUFSIZ);
+		if (f->out.buf == NULL)
+			return NULL;
+	}
+
+	f->fd = open(file, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(f->fd < 0)
+	{
+		destroy_stream(f);
 		return NULL;
 	}
 
-	fp->fd = fd;
+	f->ofs = lseek(f->fd, 0, VFS_SEEK_CUR);
+	if (f->ofs < 0)
+	{
+		close(f->fd);
+		destroy_stream(f);
+		return NULL;
+	}
 
-	return fp;
+	return f;
 }

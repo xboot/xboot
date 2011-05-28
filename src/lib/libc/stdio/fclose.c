@@ -2,26 +2,22 @@
  * libc/stdio/fclose.c
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stdarg.h>
-#include <errno.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
-int fclose(FILE * fp)
+int fclose(FILE * f)
 {
-	int ret;
-
-	if(!fp)
+	if (f == NULL)
 	{
-		errno = EBADF;
-		return -1;
+		errno = EINVAL;
+		return EOF;
 	}
 
-	ret = close(fp->fd);
+	if (fflush(f) < 0)
+		return EOF;
 
-	free(fp);
-	return ret;
+	if (close(f->fd) < 0)
+		return EOF;
+
+	destroy_stream(f);
+	return 0;
 }

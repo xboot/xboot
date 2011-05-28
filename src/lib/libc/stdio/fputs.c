@@ -2,26 +2,26 @@
  * libc/stdio/fputs.c
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
-int fputs(const char * s, FILE * fp)
+int fputs(const char * s, FILE * f)
 {
-	size_t len;
+	int rc;
 
-	if(!fp)
-		return -1;
+	if (s == NULL)
+	{
+		errno = EINVAL;
+		return EOF;
+	}
 
-	len = strlen(s);
-	if(len == 0)
-		return 0;
+	rc = 0;
+	while (*s != '\0')
+	{
+		if (fputc(*s, f) == EOF)
+			return EOF;
+		s++;
+		rc++;
+	}
 
-	if(write(fp->fd, (void *)s, len) < 0)
-		return -1;
-
-	return len;
+	return rc;
 }

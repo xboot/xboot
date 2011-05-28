@@ -2,8 +2,6 @@
  * libc/stdio/sscanf.c
  */
 
-#include <types.h>
-#include <stdarg.h>
 #include <stdio.h>
 
 int sscanf(const char * buf, const char * fmt, ...)

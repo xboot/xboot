@@ -2,11 +2,6 @@
  * libc/stdio/fscanf.c
  */
 
-#include <types.h>
-#include <sizes.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
 int fscanf(FILE * fp, const char * fmt, ...)

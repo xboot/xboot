@@ -2,11 +2,6 @@
  * libc/stdio/fprintf.c
  */
 
-#include <types.h>
-#include <sizes.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <fs/fileio.h>
 #include <stdio.h>
 
 int fprintf(FILE * fp, const char * fmt, ...)

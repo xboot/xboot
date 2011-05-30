@@ -24,7 +24,7 @@ size_t fwrite(const void * buf, size_t size, size_t count, FILE * f)
 		{
 			fputc(*p++, f);
 			if (feof(f) || ferror(f))
-				break;
+				return i;
 		}
 	}
 

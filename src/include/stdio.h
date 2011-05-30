@@ -77,7 +77,7 @@ int fseek(FILE * f, loff_t offset, int whence);
 loff_t ftell(FILE * f);
 
 int fprintf(FILE * f, const char * fmt, ...);
-int fscanf(FILE * fp, const char * fmt, ...);
+int fscanf(FILE * f, const char * fmt, ...);
 
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
 int vsscanf(const char * buf, const char * fmt, va_list ap);

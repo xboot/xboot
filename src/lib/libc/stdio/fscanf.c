@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-int fscanf(FILE * fp, const char * fmt, ...)
+int fscanf(FILE * f, const char * fmt, ...)
 {
 	va_list ap;
 	char * buf;
@@ -15,7 +15,7 @@ int fscanf(FILE * fp, const char * fmt, ...)
 		return 0;
 
 	//TODO
-	read(fp->fd, (void *)buf, SZ_4K);
+	read(f->fd, (void *)buf, SZ_4K);
 
 	va_start(ap, fmt);
 	rv = vsscanf(buf, fmt, ap);

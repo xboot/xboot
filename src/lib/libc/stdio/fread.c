@@ -19,12 +19,14 @@ size_t fread(void * buf, size_t size, size_t count, FILE * f)
 
 	p = buf;
 	for (i = 0; i < count; i++)
+	{
 		for (j = 0; j < size; j++)
 		{
 			*p++ = (unsigned char) fgetc(f);
 			if (feof(f) || ferror(f))
-				break;
+				return i;
 		}
+	}
 
 	return i;
 }

@@ -574,7 +574,7 @@ int luaL_loadfile(lua_State * L, const char * filename)
 		while ((c = fgetc(lf.f)) != -1 && c != LUA_SIGNATURE[0]);
 		lf.extraline = 0;
 	}
-	fseek(lf.f, -1, SEEK_CUR);
+	ungetc(c, lf.f);
 
 	status = lua_load(L, getF, &lf, lua_tostring(L, -1));
 	if(filename)

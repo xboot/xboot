@@ -32,12 +32,12 @@ static int luaB_print(lua_State *L)
 		if (s == NULL)
 			return luaL_error(L, LUA_QL("tostring") " must return a string to "	LUA_QL("print"));
 		if (i > 1)
-			fputc('\t', stdout);
+			fputs("\t", stdout);
 		fputs(s, stdout);
-		lua_pop(L, 1); 							/* pop result */
+		lua_pop(L, 1);							/* pop result */
 	}
 
-	fputc('\n', stdout);
+	fputs("\n", stdout);
 	return 0;
 }
 

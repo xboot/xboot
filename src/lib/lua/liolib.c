@@ -426,7 +426,7 @@ static int g_write(lua_State *L, FILE *f, int arg)
 		if (lua_type(L, arg) == LUA_TNUMBER)
 		{
 			/* optimization: could be done exactly as for strings */
-			status = status && (fprintf(f, LUA_NUMBER_FMT, lua_tonumber(L, arg))	> 0);
+			status = status && (fprintf(f, LUA_NUMBER_FMT, lua_tonumber(L, arg)) > 0);
 		}
 		else
 		{

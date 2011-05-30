@@ -76,7 +76,7 @@ size_t fwrite(const void * buf, size_t size, size_t count, FILE * f);
 int fseek(FILE * f, loff_t offset, int whence);
 loff_t ftell(FILE * f);
 
-int fprintf(FILE * fp, const char * fmt, ...);
+int fprintf(FILE * f, const char * fmt, ...);
 int fscanf(FILE * fp, const char * fmt, ...);
 
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);

@@ -125,7 +125,11 @@ loff_t read(int fd, void * buf, loff_t len)
 	{
 		return -1;
 	}
-	else if(fd == 1 || fd == 2)
+	else if(fd == 1)
+	{
+		return -1;
+	}
+	else if(fd == 2)
 	{
 		return -1;
 	}
@@ -145,6 +149,7 @@ loff_t read(int fd, void * buf, loff_t len)
 loff_t write(int fd, void * buf, loff_t len)
 {
 	struct file * fp;
+	char * p;
 	loff_t bytes;
 
 	if(fd < 0)
@@ -152,16 +157,21 @@ loff_t write(int fd, void * buf, loff_t len)
 
 	if(fd == 0)
 	{
-		//XXX
 		return -1;
 	}
-	else if(fd == 1 || fd == 2)
+	else if(fd == 1)
 	{
-		loff_t i;
-		char * p = buf;
-		for(i=0; i<len; i++)
-			putch(p[i]);
-		return i;
+		p = buf;
+		for(bytes = 0; bytes < len; bytes++)
+			stdout_putc(*(p++));
+		return bytes;
+	}
+	else if(fd == 2)
+	{
+		p = buf;
+		for(bytes = 0; bytes < len; bytes++)
+			stderr_putc(*(p++));
+		return bytes;
 	}
 
 	if((fp = get_fp(fd)) == NULL)

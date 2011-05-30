@@ -110,3 +110,20 @@ int printk(const char * fmt, ...)
 	free(buf);
 	return i;
 }
+
+bool_t stdout_putc(char c)
+{
+	putch(c);
+	return TRUE;
+}
+
+bool_t stderr_putc(char c)
+{
+	putch(c);
+	return TRUE;
+}
+
+bool_t stdin_getc(char * c)
+{
+	return FALSE;
+}

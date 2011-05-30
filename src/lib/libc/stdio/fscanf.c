@@ -14,6 +14,7 @@ int fscanf(FILE * fp, const char * fmt, ...)
 	if(!buf)
 		return 0;
 
+	//TODO
 	read(fp->fd, (void *)buf, SZ_4K);
 
 	va_start(ap, fmt);

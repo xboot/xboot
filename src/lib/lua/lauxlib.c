@@ -571,6 +571,9 @@ int luaL_loadfile(lua_State * L, const char * filename)
 	}
 	if (c == LUA_SIGNATURE[0] && filename)
 	{
+	    lf.f = freopen(filename, "rb", lf.f);
+		if (lf.f == NULL)
+			return errfile(L, "reopen", fnameindex);
 		while ((c = fgetc(lf.f)) != -1 && c != LUA_SIGNATURE[0]);
 		lf.extraline = 0;
 	}

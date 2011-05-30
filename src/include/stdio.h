@@ -59,6 +59,7 @@ void clearerr(FILE * fp);
 
 FILE * fopen(const char * file, const char * mode);
 FILE * fdopen(int fd, const char * mode);
+FILE * freopen(const char * file, const char * mode, FILE * f);
 int fclose(FILE * f);
 int fileno(FILE * f);
 int fflush(FILE * f);

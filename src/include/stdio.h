@@ -48,17 +48,18 @@ typedef struct {
 	struct list_head node;
 } FILE;
 
+
 extern FILE * stdin;
 extern FILE * stdout;
 extern FILE * stderr;
-
-FILE * fopen(const char * file, const char * mode);
-int fclose(FILE * f);
 
 int feof(FILE * f);
 int ferror(FILE * f);
 void clearerr(FILE * fp);
 
+FILE * fopen(const char * file, const char * mode);
+FILE * fdopen(int fd, const char * mode);
+int fclose(FILE * f);
 int fileno(FILE * f);
 int fflush(FILE * f);
 
@@ -66,16 +67,14 @@ int fgetc(FILE * f);
 char * fgets(char * buf, int n, FILE * f);
 int fputc(int c, FILE * f);
 int fputs(const char * s, FILE * f);
-
 int ungetc(int c, FILE * f);
-
-int setvbuf(FILE * f, char * buf, int mode, size_t size);
-size_t fread(void * buf, size_t size, size_t count, FILE * f);
-size_t fwrite(const void * buf, size_t size, size_t count, FILE * f);
 
 int fseek(FILE * f, loff_t offset, int whence);
 loff_t ftell(FILE * f);
 
+int setvbuf(FILE * f, char * buf, int mode, size_t size);
+size_t fread(void * buf, size_t size, size_t count, FILE * f);
+size_t fwrite(const void * buf, size_t size, size_t count, FILE * f);
 int fprintf(FILE * f, const char * fmt, ...);
 int fscanf(FILE * f, const char * fmt, ...);
 

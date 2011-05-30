@@ -9,7 +9,7 @@ int fflush(FILE * f)
 	ssize_t wr;
 
 	if (f == NULL)
-		return flush_all_streams();
+		return __flush_stdio();
 
 	if (f->error)
 		return EOF;

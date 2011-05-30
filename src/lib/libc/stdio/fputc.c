@@ -25,7 +25,7 @@ int fputc(int c, FILE * f)
 		{
 			if (fflush(f) == EOF)
 				return EOF;
-			if (fill_stream(f) == -1)
+			if (__fill_stdio(f) == -1)
 				return EOF;
 		}
 		else

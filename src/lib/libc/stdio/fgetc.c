@@ -25,7 +25,7 @@ int fgetc(FILE * f)
 	{
 		if (fflush(f) != 0)
 			return EOF;
-		if (fill_stream(f) != 0)
+		if (__fill_stdio(f) != 0)
 			return EOF;
 		if (f->eof)
 			return EOF;

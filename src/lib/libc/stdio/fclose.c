@@ -18,6 +18,6 @@ int fclose(FILE * f)
 	if (close(f->fd) < 0)
 		return EOF;
 
-	destroy_stream(f);
+	__destroy_stdio(f);
 	return 0;
 }

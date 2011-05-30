@@ -22,5 +22,5 @@ int fseek(FILE * f, loff_t offset, int whence)
 		return -1;
 	f->ofs = ofs;
 
-	return fill_stream(f);
+	return __fill_stdio(f);
 }

@@ -79,7 +79,7 @@ static FILE __stderr = {
 FILE * stderr = &__stderr;
 
 
-FILE * create_stream(void)
+FILE * __create_stdio(void)
 {
 	FILE * f;
 
@@ -105,7 +105,7 @@ FILE * create_stream(void)
 	return f;
 }
 
-void destroy_stream(FILE * f)
+void __destroy_stdio(FILE * f)
 {
 	if (f == NULL)
 		return;
@@ -136,7 +136,7 @@ void destroy_stream(FILE * f)
 	free(f);
 }
 
-int fill_stream(FILE * f)
+int __fill_stdio(FILE * f)
 {
 	int err;
 
@@ -189,7 +189,7 @@ int fill_stream(FILE * f)
 	return (err == 0) ? 0 : -1;
 }
 
-int flush_all_streams(void)
+int __flush_stdio(void)
 {
 	struct list_head * pos;
 	FILE * f;

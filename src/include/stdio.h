@@ -85,4 +85,12 @@ int sprintf(char * buf, const char * fmt, ...);
 int snprintf(char * buf, size_t n, const char * fmt, ...);
 int sscanf(const char * buf, const char * fmt, ...);
 
+/*
+ * inner function
+ */
+FILE * __create_stdio(void);
+void __destroy_stdio(FILE * f);
+int __fill_stdio(FILE * f);
+int __flush_stdio(void);
+
 #endif /* __STDIO_H__ */

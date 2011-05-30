@@ -38,7 +38,7 @@ FILE * fopen(const char * file, const char * mode)
 	if(plus)
 		flags = (flags & ~(O_RDONLY | O_WRONLY)) | O_RDWR;
 
-	f = create_stream();
+	f = __create_stdio();
 	if (f == NULL)
 		return NULL;
 
@@ -59,7 +59,7 @@ FILE * fopen(const char * file, const char * mode)
 	f->fd = open(file, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
 	if(f->fd < 0)
 	{
-		destroy_stream(f);
+		__destroy_stdio(f);
 		return NULL;
 	}
 
@@ -67,7 +67,7 @@ FILE * fopen(const char * file, const char * mode)
 	if (f->ofs < 0)
 	{
 		close(f->fd);
-		destroy_stream(f);
+		__destroy_stdio(f);
 		return NULL;
 	}
 

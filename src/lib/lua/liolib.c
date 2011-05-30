@@ -177,7 +177,7 @@ static int io_popen(lua_State *L)
 static int io_tmpfile(lua_State *L)
 {
 	FILE **pf = newfile(L);
-//XXX	*pf = tmpfile();
+	*pf = tmpfile();
 	return (*pf == NULL) ? pushresult(L, 0, NULL) : 1;
 }
 
@@ -274,11 +274,11 @@ static int read_number(lua_State *L, FILE *f)
 
 static int test_eof(lua_State *L, FILE *f)
 {
-//XXX	int c = getc(f);
-	//XXX	ungetc(c, f);
-	//XXX	lua_pushlstring(L, NULL, 0);
-	//XXX	return (c != EOF);
-	return 0; //xxx
+	int c = fgetc(f);
+
+	ungetc(c, f);
+	lua_pushlstring(L, NULL, 0);
+	return (c != EOF);
 }
 
 static int read_line(lua_State *L, FILE *f)
@@ -468,16 +468,15 @@ static int f_seek(lua_State *L)
 
 static int f_setvbuf(lua_State *L)
 {
-//xxx	static const int mode[] =
-//xxx	{ _IONBF, _IOFBF, _IOLBF };
+	static const int mode[] =
+		{ _IONBF, _IOFBF, _IOLBF };
 	static const char * const modenames[] =
-	{ "no", "full", "line", NULL };
+		{ "no", "full", "line", NULL };
 	FILE *f = tofile(L);
 	int op = luaL_checkoption(L, 2, NULL, modenames);
 	lua_Integer sz = luaL_optinteger(L, 3, LUAL_BUFFERSIZE);
-//xxx	int res = setvbuf(f, NULL, mode[op], sz);
-//xxx	return pushresult(L, res == 0, NULL);
-	return 0; //xxx
+	int res = setvbuf(f, NULL, mode[op], sz);
+	return pushresult(L, res == 0, NULL);
 }
 
 static int io_flush(lua_State *L)

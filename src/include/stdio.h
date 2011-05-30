@@ -79,6 +79,8 @@ size_t fwrite(const void * buf, size_t size, size_t count, FILE * f);
 int fprintf(FILE * f, const char * fmt, ...);
 int fscanf(FILE * f, const char * fmt, ...);
 
+FILE * tmpfile(void);
+
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
 int vsscanf(const char * buf, const char * fmt, va_list ap);
 int sprintf(char * buf, const char * fmt, ...);

@@ -127,7 +127,7 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 	char *varname, *vp;
 	int i;
 
-	*argc = 1;
+	*argc = 0;
 	*pos = 0;
 
 	bp = buffer = malloc(CONFIG_CMDLINE_LENGTH);
@@ -245,7 +245,7 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 			bp++;
 		bp++;
 	}
-	(*argc)--;
+	(*argv)[i] = 0;
 
 	free(buffer);
 	free(varname);

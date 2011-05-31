@@ -50,7 +50,6 @@ void run_shell_mode(void)
 		sprintf(prompt, "%s: %s$ ", getenv("prompt"), cwd);
 
 		p = readline(prompt);
-		printk("\r\n");
 
 		exec_cmdline(p);
 		free(p);

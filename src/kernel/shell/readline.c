@@ -535,7 +535,10 @@ char * readline(const char * prompt)
 		if(getcode(&code))
 		{
 			if(readline_handle(rl, code))
+			{
+				printk("\r\n");
 				break;
+			}
 		}
 	}
 

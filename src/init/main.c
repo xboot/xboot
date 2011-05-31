@@ -27,7 +27,6 @@
 #include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
-#include <xboot/panic.h>
 
 /*
  * the entry of main function.
@@ -96,17 +95,6 @@ int xboot_main(int argc, char * argv[])
 		else if(xboot_get_mode() == MODE_APPLICATION)
 		{
 			run_application_mode();
-		}
-
-		/*
-		 * not support and system panic
-		 */
-		else
-		{
-			/*
-			 * system panic.
-			 */
-			panic("not support this mode(%ld), system panic", xboot_get_mode());
 		}
 	}
 

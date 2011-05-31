@@ -24,7 +24,6 @@
 #include <errno.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/panic.h>
 #include <xboot/blkdev.h>
 #include <fs/fs.h>
 #include <fs/vfs/fcntl.h>
@@ -387,7 +386,7 @@ s32_t sys_close(struct file * fp)
 	s32_t err;
 
 	if(fp->f_count <= 0)
-		panic("sys_close");
+		return -1;
 
 	vp = fp->f_vnode;
 	if(--fp->f_count > 0)

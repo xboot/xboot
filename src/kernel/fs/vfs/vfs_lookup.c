@@ -22,7 +22,6 @@
 
 #include <xboot.h>
 #include <errno.h>
-#include <xboot/panic.h>
 #include <xboot/initcall.h>
 #include <fs/fs.h>
 #include <fs/vfs/vfs.h>
@@ -63,7 +62,7 @@ s32_t namei(char * path, struct vnode ** vpp)
 	 * the target vnode.
 	 */
 	if((dvp = mp->m_root) == NULL)
-		panic("vfs: no root\r\n");
+		return ENOSYS;
 
 	vref(dvp);
 	node[0] = '\0';

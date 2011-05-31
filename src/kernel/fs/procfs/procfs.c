@@ -31,7 +31,6 @@
 #include <xboot/proc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/scank.h>
 #include <fs/fs.h>
 
 extern struct proc_list * proc_list;

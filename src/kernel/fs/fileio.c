@@ -116,6 +116,7 @@ int open(const char * path, u32_t flags, u32_t mode)
 loff_t read(int fd, void * buf, loff_t len)
 {
 	struct file * fp;
+	char * p, * q;
 	loff_t bytes;
 
 	if(fd < 0)
@@ -123,7 +124,16 @@ loff_t read(int fd, void * buf, loff_t len)
 
 	if(fd == 0)
 	{
-		return -1;
+		p = buf;
+		q = readline(0);
+		for(bytes = 0; bytes < len; bytes++)
+		{
+			if(*q == 0)
+				break;
+			*p++ = *q++;
+		}
+		free(q);
+		return bytes;
 	}
 	else if(fd == 1)
 	{

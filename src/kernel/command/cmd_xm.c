@@ -28,7 +28,6 @@
 #include <malloc.h>
 #include <crc-ccitt.h>
 #include <xboot/log.h>
-#include <xboot/scank.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>

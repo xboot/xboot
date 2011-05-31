@@ -24,7 +24,6 @@
 #include <xboot/log.h>
 #include <xboot/irq.h>
 #include <xboot/printk.h>
-#include <xboot/scank.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <xboot/chrdev.h>

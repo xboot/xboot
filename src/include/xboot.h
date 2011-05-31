@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <version.h>
+#include <xboot/printk.h>
 
 /*
  * default CONFIG_HEAP_SIZE is 8MB

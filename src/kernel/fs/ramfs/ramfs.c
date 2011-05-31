@@ -30,7 +30,6 @@
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/scank.h>
 #include <fs/fs.h>
 
 

@@ -26,7 +26,6 @@
 #include <stddef.h>
 #include <charset.h>
 #include <version.h>
-#include <xboot/scank.h>
 #include <xboot/list.h>
 #include <xboot/menu.h>
 #include <console/console.h>

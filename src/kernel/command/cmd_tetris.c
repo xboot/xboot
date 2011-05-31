@@ -31,7 +31,6 @@
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
-#include <xboot/scank.h>
 #include <xboot/initcall.h>
 #include <console/console.h>
 #include <command/command.h>

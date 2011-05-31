@@ -32,7 +32,6 @@
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/scank.h>
 #include <xboot/chrdev.h>
 #include <xboot/blkdev.h>
 #include <xboot/device.h>

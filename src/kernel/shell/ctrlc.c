@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <time/timer.h>
-#include <xboot/scank.h>
+#include <xboot/printk.h>
 #include <shell/ctrlc.h>
 
 /*

@@ -29,6 +29,8 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <charset.h>
+#include <time/tick.h>
+#include <time/timer.h>
 #include <console/console.h>
 #include <xboot/printk.h>
 
@@ -78,6 +80,59 @@ void putch(char c)
 	}
 }
 
+
+/*
+ * get a unicode character, ucs-4 format
+ */
+bool_t getcode(u32_t * code)
+{
+	struct console * stdin = get_stdin();
+
+	if(stdin && stdin->getcode)
+		return stdin->getcode(stdin, code);
+	return FALSE;
+}
+
+/*
+ * get a unicode character with timeout (x1ms), ucs-4 format
+ */
+bool_t getcode_with_timeout(u32_t * code, u32_t timeout)
+{
+	struct console * stdin = get_stdin();
+	u32_t end;
+
+	if(!stdin || !stdin->getcode)
+		return FALSE;
+
+	if(get_system_hz() > 0)
+	{
+		end = jiffies + timeout * get_system_hz() / 1000;
+
+		while(! stdin->getcode(stdin, code))
+		{
+			if(jiffies >= end)
+				return FALSE;
+		}
+
+		return TRUE;
+	}
+	else
+	{
+		end = timeout * 100;
+
+		while(! stdin->getcode(stdin, code))
+		{
+			if(end <= 0)
+				return FALSE;
+			end--;
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 /*
  * printk - Format a string, using utf-8 stream
  */
@@ -125,5 +180,14 @@ bool_t stderr_putc(char c)
 
 bool_t stdin_getc(char * c)
 {
-	return FALSE;
+	u32_t code;
+
+	if(!getcode(&code))
+	{
+		*c = 0;
+		return FALSE;
+	}
+
+	c = code & 0xff;
+	return TRUE;
 }

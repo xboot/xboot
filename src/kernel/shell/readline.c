@@ -29,7 +29,6 @@
 #include <charset.h>
 #include <mode/mode.h>
 #include <xboot/list.h>
-#include <xboot/scank.h>
 #include <xboot/printk.h>
 #include <console/console.h>
 #include <shell/readline.h>

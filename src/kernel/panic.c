@@ -21,12 +21,8 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stdarg.h>
-#include <malloc.h>
 #include <time/timer.h>
 #include <time/delay.h>
-#include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/panic.h>
 
@@ -38,15 +34,15 @@ void panic(const char * fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	printk(fmt);
+	fprintf(stdout, fmt);
 	va_end(args);
 
-	printk("system will reboot after 4 seconds\r\n");
+	fprintf(stderr, "system will reboot after 4 seconds\r\n");
 	mdelay(4000);
 
 	if(!reset())
 	{
-		printk("reboot system fail, not support!\r\n");
+		fprintf(stderr, "reboot system fail, not support!\r\n");
 		while(1);
 	}
 }

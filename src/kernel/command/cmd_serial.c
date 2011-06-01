@@ -241,7 +241,7 @@ static int serial(int argc, char ** argv)
 				if(read_func(device, &c, 1) == 1)
 				{
 					if(isprint(c) || isspace(c))
-						putch(c);
+						printk("%c", c);
 					else
 						printk("<%02x>", c);
 				}

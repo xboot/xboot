@@ -57,19 +57,19 @@ static void print_entry(const char * name, struct stat * st, u32_t flags, u32_t 
 	if(flags & LSFLAG_LONG)
 	{
 	    if(S_ISDIR(st->st_mode))
-	    	putch('d');
+	    	printk("d");
 	    if(S_ISCHR(st->st_mode))
-	    	putch('c');
+	    	printk("c");
 	    if(S_ISBLK(st->st_mode))
-	    	putch('b');
+	    	printk("b");
 	    if(S_ISREG(st->st_mode))
-	    	putch('-');
+	    	printk("-");
 	    if(S_ISLNK(st->st_mode))
-	    	putch('l');
+	    	printk("l");
 	    if(S_ISFIFO(st->st_mode))
-	    	putch('p');
+	    	printk("p");
 	    if(S_ISSOCK(st->st_mode))
-	    	putch('s');
+	    	printk("s");
 
 	    printk("%s%s%s", rwx[(st->st_mode & S_IRWXU) >> 16], rwx[(st->st_mode & S_IRWXG) >> 19], rwx[(st->st_mode & S_IRWXO) >> 22]);
 
@@ -96,7 +96,7 @@ static void print_entry(const char * name, struct stat * st, u32_t flags, u32_t 
 		printk("%s", name);
 		for(i=len; i < rlen; i++)
 		{
-			putch(' ');
+			printk(" ");
 		}
 		position += rlen;
 	}

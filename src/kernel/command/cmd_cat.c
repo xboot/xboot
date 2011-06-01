@@ -81,8 +81,8 @@ static int cat(int argc, char ** argv)
 			if(isprint(c) || isspace(c))
 			{
 				if(c == '\n')
-					putch('\r');
-				putch(c);
+					printk("\r");
+				printk("%c", c);
 			}
 			else
 				printk("<%02x>", c);

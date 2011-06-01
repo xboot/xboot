@@ -34,6 +34,7 @@
 #include <command/command.h>
 #include <fs/fileio.h>
 
+#if 0
 
 #if	defined(CONFIG_COMMAND_XMODEM) && (CONFIG_COMMAND_XMODEM > 0)
 
@@ -128,7 +129,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 		for(retry = 0; retry < 16; retry++)
 		{
 			if(trychar)
-				putch(trychar);
+				printk("%c", trychar);
 
 			if( getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) )
 			{
@@ -144,7 +145,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 
 				case EOT:
 					flush_input();
-					putch(ACK);
+					printk("%c", ACK);
 					free(packet_buf);
 					close(fd);
 					return TRUE;
@@ -153,7 +154,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 					if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c==CAN))
 					{
 						flush_input();
-						putch(ACK);
+						printk("%c", ACK);
 						free(packet_buf);
 						close(fd);
 						unlink(filename);
@@ -175,9 +176,9 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 
 		/* sync error */
 		flush_input();
-		putch(CAN);
-		putch(CAN);
-		putch(CAN);
+		printk("%c", CAN);
+		printk("%c", CAN);
+		printk("%c", CAN);
 		free(packet_buf);
 		close(fd);
 		unlink(filename);
@@ -210,21 +211,21 @@ start_recv:
 			if(--retrans <= 0)
 			{
 				flush_input();
-				putch(CAN);
-				putch(CAN);
-				putch(CAN);
+				printk("%c", CAN);
+				printk("%c", CAN);
+				printk("%c", CAN);
 				free(packet_buf);
 				close(fd);
 				unlink(filename);
 				return FALSE;
 			}
-			putch(ACK);
+			printk("%c", ACK);
 			continue;
 		}
 
 reject:
 		flush_input();
-		putch(NAK);
+		printk("%c", NAK);
 	}
 
 	return FALSE;
@@ -283,7 +284,7 @@ static bool_t xmodem_transmit(const char * filename, s32_t * size)
 				case CAN:
 					if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
 					{
-						putch(ACK);
+						printk("%c", ACK);
 						flush_input();
 						free(file_buf);
 						free(packet_buf);
@@ -299,9 +300,9 @@ static bool_t xmodem_transmit(const char * filename, s32_t * size)
 		}
 
 		/* no sync */
-		putch(CAN);
-		putch(CAN);
-		putch(CAN);
+		printk("%c", CAN);
+		printk("%c", CAN);
+		printk("%c", CAN);
 		flush_input();
 		free(file_buf);
 		free(packet_buf);
@@ -342,7 +343,7 @@ start_trans:
 				{
 					for(i = 0; i < packet_size + 4 + (crc_flag ? 1 : 0); i++)
 					{
-						putch(packet_buf[i]);
+						printk("%c", packet_buf[i]);
 					}
 
 					if(getcode_with_timeout(&c, XMODEM_TIMEOUT))
@@ -357,7 +358,7 @@ start_trans:
 						case CAN:
 							if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
 							{
-								putch(ACK);
+								printk("%c", ACK);
 								flush_input();
 								free(file_buf);
 								free(packet_buf);
@@ -376,9 +377,9 @@ start_trans:
 				}
 
 				/* xmit error */
-				putch(CAN);
-				putch(CAN);
-				putch(CAN);
+				printk("%c", CAN);
+				printk("%c", CAN);
+				printk("%c", CAN);
 				flush_input();
 				free(file_buf);
 				free(packet_buf);
@@ -389,7 +390,7 @@ start_trans:
 			{
 				for(retry = 0; retry < 10; ++retry)
 				{
-					putch(EOT);
+					printk("%c", EOT);
 					if(getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) && (c == ACK))
 						break;
 				}
@@ -493,5 +494,7 @@ static __exit void xmodem_cmd_exit(void)
 
 module_init(xmodem_cmd_init, LEVEL_COMMAND);
 module_exit(xmodem_cmd_exit, LEVEL_COMMAND);
+
+#endif
 
 #endif

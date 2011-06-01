@@ -4,8 +4,7 @@
 #include <xboot.h>
 #include <stdarg.h>
 
-bool_t putcode(u32_t code);
-void putch(char c);
+
 int printk(const char * fmt, ...);
 
 bool_t getcode(u32_t * code);

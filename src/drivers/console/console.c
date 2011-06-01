@@ -21,19 +21,10 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <charset.h>
-#include <malloc.h>
 #include <xml.h>
-#include <hash.h>
-#include <stdio.h>
-#include <xboot/initcall.h>
-#include <xboot/list.h>
-#include <xboot/printk.h>
-#include <xboot/proc.h>
-#include <fs/fileio.h>
 #include <console/console.h>
+
+extern void led_console_trigger_activity(void);
 
 static struct console * console_stdin = NULL;
 static struct console * console_stdout = NULL;
@@ -46,6 +37,65 @@ static struct console_list __console_list = {
 	},
 };
 static struct console_list * console_list = &__console_list;
+
+inline struct console * get_stdin(void)
+{
+	return console_stdin;
+}
+
+inline struct console * get_stdout(void)
+{
+	return console_stdout;
+}
+
+inline struct console * get_stderr(void)
+{
+	return console_stderr;
+}
+
+bool_t stdout_putc(char c)
+{
+	static size_t size = 0;
+	static char buf[6];
+	char * rest;
+	u32_t code;
+
+	if(!console_stdout || !console_stdout->putcode)
+		return FALSE;
+
+	buf[size++] = c;
+	while(utf8_to_ucs4(&code, 1, buf, size, (const char **)&rest) > 0)
+	{
+		led_console_trigger_activity();
+
+		size -= rest - buf;
+		memmove(buf, rest, size);
+		console_stdout->putcode(console_stdout, code);
+	}
+	return TRUE;
+}
+
+bool_t stderr_putc(char c)
+{
+	static size_t size = 0;
+	static char buf[6];
+	char * rest;
+	u32_t code;
+
+	if(!console_stderr || !console_stderr->putcode)
+		return FALSE;
+
+	buf[size++] = c;
+	while(utf8_to_ucs4(&code, 1, buf, size, (const char **)&rest) > 0)
+	{
+		led_console_trigger_activity();
+
+		size -= rest - buf;
+		memmove(buf, rest, size);
+		console_stderr->putcode(console_stderr, code);
+	}
+	return TRUE;
+}
 
 struct console * search_console(const char *name)
 {
@@ -127,21 +177,6 @@ bool_t unregister_console(struct console * console)
 	}
 
 	return FALSE;
-}
-
-inline struct console * get_stdin(void)
-{
-	return console_stdin;
-}
-
-inline struct console * get_stdout(void)
-{
-	return console_stdout;
-}
-
-inline struct console * get_stderr(void)
-{
-	return console_stderr;
 }
 
 bool_t console_stdio_set(const char * in, const char * out, const char * err)
@@ -234,8 +269,8 @@ bool_t console_stdio_save(char * file)
 		return FALSE;
 	}
 
-	if(get_stdin() && get_stdin()->name)
-		xml_set_attr(in, "name", get_stdin()->name);
+	if(console_stdin && console_stdin->name)
+		xml_set_attr(in, "name", console_stdin->name);
 
 	out = xml_add_child(root, "stdout", 1);
 	if(!out)
@@ -244,8 +279,8 @@ bool_t console_stdio_save(char * file)
 		return FALSE;
 	}
 
-	if(get_stdout() && get_stdout()->name)
-		xml_set_attr(out, "name", get_stdout()->name);
+	if(console_stdout && console_stdout->name)
+		xml_set_attr(out, "name", console_stdout->name);
 
 	err = xml_add_child(root, "stderr", 1);
 	if(!err)
@@ -254,8 +289,8 @@ bool_t console_stdio_save(char * file)
 		return FALSE;
 	}
 
-	if(get_stderr() && get_stderr()->name)
-		xml_set_attr(err, "name", get_stderr()->name);
+	if(console_stderr && console_stderr->name)
+		xml_set_attr(err, "name", console_stderr->name);
 
 	str = xml_toxml(root);
 	if(!str)
@@ -353,21 +388,23 @@ bool_t console_putcode(struct console * console, u32_t code)
 
 int console_print(struct console * console, const char * fmt, ...)
 {
-	va_list args;
+	va_list ap;
 	u32_t code;
 	char *p, *buf;
-	int i;
+	int len;
 
 	if(!console || !console->putcode)
 		return 0;
 
-	buf = malloc(SZ_4K);
+	va_start(ap, fmt);
+	len = vsnprintf(NULL, 0, fmt, ap);
+	if(len < 0)
+		return 0;
+	buf = malloc(len + 1);
 	if(!buf)
 		return 0;
-
-	va_start(args, fmt);
-	i = vsnprintf(buf, SZ_4K, fmt, args);
-	va_end(args);
+	len = vsnprintf(buf, len + 1, fmt, ap);
+	va_end(ap);
 
 	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const char **)&p) > 0; )
 	{
@@ -375,7 +412,7 @@ int console_print(struct console * console, const char * fmt, ...)
 	}
 
 	free(buf);
-	return i;
+	return len;
 }
 
 bool_t console_hline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t x)

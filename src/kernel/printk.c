@@ -34,51 +34,39 @@
 #include <console/console.h>
 #include <xboot/printk.h>
 
-extern void led_console_trigger_activity(void);
-
 /*
- * put a unicode character, ucs-4 format
+ * printk - Format a string, using utf-8 stream
  */
-bool_t putcode(u32_t code)
+int printk(const char * fmt, ...)
 {
-	struct console * stdout = get_stdout();
+	va_list ap;
+	char *p, *buf;
+	int len;
 
-	if(stdout && stdout->putcode)
+	va_start(ap, fmt);
+	len = vsnprintf(NULL, 0, fmt, ap);
+	if(len < 0)
+		return 0;
+	buf = malloc(len + 1);
+	if(!buf)
+		return 0;
+	len = vsnprintf(buf, len + 1, fmt, ap);
+	va_end(ap);
+
+	p = buf;
+	len = 0;
+	while(*p != '\0')
 	{
-		led_console_trigger_activity();
-
-		return stdout->putcode(stdout, code);
+		if(!stdout_putc(*p))
+			break;
+		p++;
+		len++;
 	}
 
-	return FALSE;
+	free(buf);
+	return len;
 }
 
-/*
- * put a utf-8 character, c is one byte of a utf-8 stream
- *
- * this function gathers bytes until a valid Unicode character is found
- */
-void putch(char c)
-{
-	struct console * stdout = get_stdout();
-	static size_t size = 0;
-	static char buf[6];
-	char * rest;
-	u32_t code;
-
-	if(!stdout || !stdout->putcode)
-		return;
-
-	buf[size++] = c;
-	while(utf8_to_ucs4(&code, 1, buf, size, (const char **)&rest) > 0)
-	{
-		led_console_trigger_activity();
-
-		size -= rest - buf;
-		memmove(buf, rest, size);
-		stdout->putcode(stdout, code);
-	}
-}
 
 
 /*
@@ -134,50 +122,6 @@ bool_t getcode_with_timeout(u32_t * code, u32_t timeout)
 }
 
 /*
- * printk - Format a string, using utf-8 stream
- */
-int printk(const char * fmt, ...)
-{
-	struct console * stdout = get_stdout();
-	va_list args;
-	u32_t code;
-	int i;
-	char *p, *buf;
-
-	if(!stdout || !stdout->putcode)
-		return 0;
-
-	buf = malloc(SZ_4K);
-	if(!buf)
-		return 0;
-
-	va_start(args, fmt);
-	i = vsnprintf(buf, SZ_4K, fmt, args);
-	va_end(args);
-
-	led_console_trigger_activity();
-
-	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const char **)&p) > 0; )
-	{
-		stdout->putcode(stdout, code);
-	}
-
-	free(buf);
-	return i;
-}
-
-bool_t stdout_putc(char c)
-{
-	putch(c);
-	return TRUE;
-}
-
-bool_t stderr_putc(char c)
-{
-	putch(c);
-	return TRUE;
-}
-
 bool_t stdin_getc(char * c)
 {
 	u32_t code;
@@ -191,3 +135,4 @@ bool_t stdin_getc(char * c)
 	c = code & 0xff;
 	return TRUE;
 }
+*/

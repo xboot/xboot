@@ -21,19 +21,13 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <ctype.h>
-#include <string.h>
-#include <malloc.h>
-#include <charset.h>
-#include <mode/mode.h>
-#include <xboot/list.h>
-#include <xboot/printk.h>
 #include <console/console.h>
 #include <shell/readline.h>
 
 struct rl_buf {
+	struct console * in;
+	struct console * out;
+	struct console * err;
 	u32_t * buf;
 	u32_t * cut;
 	size_t size;
@@ -210,7 +204,7 @@ static void rl_gotoxy(struct rl_buf * rl)
 	x = ((rl->y * rl->w) + rl->x + pos) % (rl->w);
 	y = ((rl->y * rl->w) + rl->x + pos) / (rl->w);
 
-	console_gotoxy(get_stdout(), x, y);
+	console_gotoxy(rl->out, x, y);
 }
 
 static void rl_space(struct rl_buf * rl, u32_t len)
@@ -218,7 +212,7 @@ static void rl_space(struct rl_buf * rl, u32_t len)
 	s32_t i;
 
 	for(i = 0; i < len; i++)
-		putch(' ');
+		console_print(rl->out, " ");
 }
 
 static void rl_print(struct rl_buf * rl, s32_t pos)
@@ -232,25 +226,38 @@ static void rl_print(struct rl_buf * rl, s32_t pos)
 		return;
 
 	utf8 = ucs4_to_utf8_alloc(rl->buf + pos, rl->len - pos);
-	printk(utf8);
+	console_print(rl->out, utf8);
 
 	free(utf8);
 }
 
-static struct rl_buf * rl_buf_alloc(void)
+static struct rl_buf * rl_buf_alloc(const char * prompt)
 {
+	struct console * cin = get_stdin();
+	struct console * cout = get_stdout();
+	struct console * cerr = get_stderr();
 	struct rl_buf * rl;
 	s32_t x, y, w, h;
 
-	if(!console_getxy(get_stdout(), &x, &y))
+	if(!cin || !cout || !cerr)
 		return NULL;
 
-	if(!console_getwh(get_stdout(), &w, &h))
+	if(prompt)
+		console_print(cout, prompt);
+
+	if(!console_getxy(cout, &x, &y))
+		return NULL;
+
+	if(!console_getwh(cout, &w, &h))
 		return NULL;
 
 	rl = malloc(sizeof(struct rl_buf));
 	if(!rl)
 		return NULL;
+
+	rl->in = cin;
+	rl->out = cout;
+	rl->err = cerr;
 
 	rl->size = 256;
 	rl->len = 0;
@@ -522,20 +529,17 @@ char * readline(const char * prompt)
 	char * utf8 = NULL;
 	u32_t code;
 
-	if(prompt)
-		printk(prompt);
-
-	rl = rl_buf_alloc();
+	rl = rl_buf_alloc(prompt);
 	if(!rl)
-		return utf8;
+		return NULL;
 
 	for(;;)
 	{
-		if(getcode(&code))
+		if(rl->in->getcode(rl->in, &code))
 		{
 			if(readline_handle(rl, code))
 			{
-				printk("\r\n");
+				console_print(rl->out, "\r\n");
 				break;
 			}
 		}

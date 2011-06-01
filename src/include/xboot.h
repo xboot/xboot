@@ -16,7 +16,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <malloc.h>
+#include <charset.h>
 #include <version.h>
+#include <xboot/list.h>
+#include <xboot/proc.h>
+#include <xboot/initcall.h>
 #include <xboot/printk.h>
 
 /*

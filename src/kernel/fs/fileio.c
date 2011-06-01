@@ -173,14 +173,14 @@ loff_t write(int fd, void * buf, loff_t len)
 	{
 		p = buf;
 		for(bytes = 0; bytes < len; bytes++)
-			stdout_putc(*(p++));
+			console_stdout_putc(*(p++));
 		return bytes;
 	}
 	else if(fd == 2)
 	{
 		p = buf;
 		for(bytes = 0; bytes < len; bytes++)
-			stderr_putc(*(p++));
+			console_stderr_putc(*(p++));
 		return bytes;
 	}
 

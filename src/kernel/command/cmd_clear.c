@@ -36,7 +36,7 @@
 
 static int clear(int argc, char ** argv)
 {
-	console_cls(get_stdout());
+	console_cls(get_console_stdout());
 
 	return 0;
 }

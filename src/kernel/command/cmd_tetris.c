@@ -104,7 +104,7 @@ static struct map map;
  */
 static void refresh(void)
 {
-	struct console * stdout = get_stdout();
+	struct console * stdout = get_console_stdout();
 	s32_t w, h;
 	s32_t x, y, xp, yp;
 
@@ -261,7 +261,7 @@ static void screen_init(void)
 
 static int tetris(int argc, char ** argv)
 {
-	struct console * stdout = get_stdout();
+	struct console * stdout = get_console_stdout();
 	u32_t x, y, shape;
 	u32_t newx, newy, newshape;
 	bool_t fell = FALSE;

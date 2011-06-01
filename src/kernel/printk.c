@@ -57,7 +57,7 @@ int printk(const char * fmt, ...)
 	len = 0;
 	while(*p != '\0')
 	{
-		if(!stdout_putc(*p))
+		if(!console_stdout_putc(*p))
 			break;
 		p++;
 		len++;
@@ -74,10 +74,10 @@ int printk(const char * fmt, ...)
  */
 bool_t getcode(u32_t * code)
 {
-	struct console * stdin = get_stdin();
+	struct console * in = get_console_stdin();
 
-	if(stdin && stdin->getcode)
-		return stdin->getcode(stdin, code);
+	if(in && in->getcode)
+		return in->getcode(in, code);
 	return FALSE;
 }
 
@@ -86,17 +86,17 @@ bool_t getcode(u32_t * code)
  */
 bool_t getcode_with_timeout(u32_t * code, u32_t timeout)
 {
-	struct console * stdin = get_stdin();
+	struct console * in = get_console_stdin();
 	u32_t end;
 
-	if(!stdin || !stdin->getcode)
+	if(!in || !in->getcode)
 		return FALSE;
 
 	if(get_system_hz() > 0)
 	{
 		end = jiffies + timeout * get_system_hz() / 1000;
 
-		while(! stdin->getcode(stdin, code))
+		while(! in->getcode(in, code))
 		{
 			if(jiffies >= end)
 				return FALSE;
@@ -108,7 +108,7 @@ bool_t getcode_with_timeout(u32_t * code, u32_t timeout)
 	{
 		end = timeout * 100;
 
-		while(! stdin->getcode(stdin, code))
+		while(! in->getcode(in, code))
 		{
 			if(end <= 0)
 				return FALSE;

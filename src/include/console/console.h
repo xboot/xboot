@@ -98,13 +98,12 @@ struct console_list
 };
 
 
-inline struct console * get_stdin(void);
-inline struct console * get_stdout(void);
-inline struct console * get_stderr(void);
+inline struct console * get_console_stdin(void);
+inline struct console * get_console_stdout(void);
+inline struct console * get_console_stderr(void);
 
-bool_t stdout_putc(char c);
-bool_t stderr_putc(char c);
-
+bool_t console_stdout_putc(char c);
+bool_t console_stderr_putc(char c);
 
 struct console * search_console(const char *name);
 bool_t register_console(struct console * console);

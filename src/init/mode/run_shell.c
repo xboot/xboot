@@ -43,7 +43,7 @@ void run_shell_mode(void)
 	/*
 	 * clear the screen
 	 */
-	console_cls(get_stdout());
+	console_cls(get_console_stdout());
 
 	do {
 		getcwd(cwd, sizeof(cwd));

@@ -38,22 +38,22 @@ static struct console_list __console_list = {
 };
 static struct console_list * console_list = &__console_list;
 
-inline struct console * get_stdin(void)
+inline struct console * get_console_stdin(void)
 {
 	return console_stdin;
 }
 
-inline struct console * get_stdout(void)
+inline struct console * get_console_stdout(void)
 {
 	return console_stdout;
 }
 
-inline struct console * get_stderr(void)
+inline struct console * get_console_stderr(void)
 {
 	return console_stderr;
 }
 
-bool_t stdout_putc(char c)
+bool_t console_stdout_putc(char c)
 {
 	static size_t size = 0;
 	static char buf[6];
@@ -75,7 +75,7 @@ bool_t stdout_putc(char c)
 	return TRUE;
 }
 
-bool_t stderr_putc(char c)
+bool_t console_stderr_putc(char c)
 {
 	static size_t size = 0;
 	static char buf[6];

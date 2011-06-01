@@ -195,7 +195,7 @@ void run_menu_mode(void)
 	u32_t code;
 	bool_t running = TRUE;
 
-	ctx = menu_ctx_alloc(get_stdout());
+	ctx = menu_ctx_alloc(get_console_stdout());
 	if(!ctx)
 		return;
 

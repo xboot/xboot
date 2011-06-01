@@ -36,7 +36,7 @@
 
 static int version(int argc, char ** argv)
 {
-	xboot_banner(get_stdout());
+	xboot_banner(get_console_stdout());
 
 	return 0;
 }

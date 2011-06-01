@@ -200,7 +200,7 @@ void run_menu_mode(void)
 		return;
 
 	do {
-		if(getcode(&code))
+		if(console_stdin_getcode(&code))
 		{
 			switch(code)
 			{

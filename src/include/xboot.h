@@ -23,6 +23,7 @@
 #include <xboot/proc.h>
 #include <xboot/initcall.h>
 #include <xboot/printk.h>
+#include <time/tick.h>
 
 /*
  * default CONFIG_HEAP_SIZE is 8MB

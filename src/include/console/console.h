@@ -102,6 +102,8 @@ inline struct console * get_console_stdin(void);
 inline struct console * get_console_stdout(void);
 inline struct console * get_console_stderr(void);
 
+bool_t console_stdin_getcode(u32_t * code);
+bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout);
 bool_t console_stdout_putc(char c);
 bool_t console_stderr_putc(char c);
 

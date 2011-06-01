@@ -35,7 +35,7 @@ bool_t ctrlc(void)
 {
 	u32_t code;
 
-	if(getcode(&code))
+	if(console_stdin_getcode(&code))
 	{
 		if(code == 0x3)
 			return TRUE;

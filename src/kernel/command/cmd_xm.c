@@ -92,7 +92,7 @@ static inline bool_t check_packet(s32_t crc_flag, u8_t * buf, s32_t size)
 static void flush_input(void)
 {
 	u32_t c;
-	while(getcode_with_timeout(&c, XMODEM_TIMEOUT*3/2));
+	while(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT*3/2));
 }
 
 static bool_t xmodem_receive(const char * filename, s32_t * size)
@@ -131,7 +131,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 			if(trychar)
 				printk("%c", trychar);
 
-			if( getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) )
+			if( console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) )
 			{
 				switch(c)
 				{
@@ -151,7 +151,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 					return TRUE;
 
 				case CAN:
-					if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c==CAN))
+					if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c==CAN))
 					{
 						flush_input();
 						printk("%c", ACK);
@@ -192,7 +192,7 @@ start_recv:
 		*p++ = c;
 		for(i = 0; i < (packet_size + (crc_flag ? 1 : 0) + 3); ++i)
 		{
-			if(!getcode_with_timeout(&c, XMODEM_TIMEOUT))
+			if(!console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT))
 				goto reject;
 			*p++ = c;
 		}
@@ -269,7 +269,7 @@ static bool_t xmodem_transmit(const char * filename, s32_t * size)
 	{
 		for(retry = 0; retry < 16; retry++)
 		{
-			if(getcode_with_timeout(&c, XMODEM_TIMEOUT<<1))
+			if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT<<1))
 			{
 				switch(c)
 				{
@@ -282,7 +282,7 @@ static bool_t xmodem_transmit(const char * filename, s32_t * size)
 					goto start_trans;
 
 				case CAN:
-					if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
+					if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
 					{
 						printk("%c", ACK);
 						flush_input();
@@ -346,7 +346,7 @@ start_trans:
 						printk("%c", packet_buf[i]);
 					}
 
-					if(getcode_with_timeout(&c, XMODEM_TIMEOUT))
+					if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT))
 					{
 						switch(c)
 						{
@@ -356,7 +356,7 @@ start_trans:
 							goto start_trans;
 
 						case CAN:
-							if(getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
+							if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
 							{
 								printk("%c", ACK);
 								flush_input();
@@ -391,7 +391,7 @@ start_trans:
 				for(retry = 0; retry < 10; ++retry)
 				{
 					printk("%c", EOT);
-					if(getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) && (c == ACK))
+					if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) && (c == ACK))
 						break;
 				}
 

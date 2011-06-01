@@ -53,6 +53,50 @@ inline struct console * get_console_stderr(void)
 	return console_stderr;
 }
 
+bool_t console_stdin_getcode(u32_t * code)
+{
+	if(!console_stdin || !console_stdin->getcode)
+		return FALSE;
+
+	return console_stdin->getcode(console_stdin, code);
+}
+
+bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout)
+{
+	u32_t end;
+
+	if(!console_stdin || !console_stdin->getcode)
+		return FALSE;
+
+	if(get_system_hz() > 0)
+	{
+		end = jiffies + timeout * get_system_hz() / 1000;
+
+		while(! console_stdin->getcode(console_stdin, code))
+		{
+			if(jiffies >= end)
+				return FALSE;
+		}
+
+		return TRUE;
+	}
+	else
+	{
+		end = timeout * 100;
+
+		while(! console_stdin->getcode(console_stdin, code))
+		{
+			if(end <= 0)
+				return FALSE;
+			end--;
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 bool_t console_stdout_putc(char c)
 {
 	static size_t size = 0;

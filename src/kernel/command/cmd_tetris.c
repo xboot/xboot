@@ -291,7 +291,7 @@ static int tetris(int argc, char ** argv)
             newy = y;
             newshape = shape;
 
-            if(getcode_with_timeout(&code, 250))
+            if(console_stdin_getcode_with_timeout(&code, 250))
             {
     			switch(code)
     			{

@@ -20,18 +20,6 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <stdarg.h>
-#include <string.h>
-#include <sizes.h>
-#include <stdio.h>
-#include <malloc.h>
-#include <charset.h>
-#include <time/tick.h>
-#include <time/timer.h>
-#include <console/console.h>
 #include <xboot/printk.h>
 
 /*
@@ -66,73 +54,3 @@ int printk(const char * fmt, ...)
 	free(buf);
 	return len;
 }
-
-
-
-/*
- * get a unicode character, ucs-4 format
- */
-bool_t getcode(u32_t * code)
-{
-	struct console * in = get_console_stdin();
-
-	if(in && in->getcode)
-		return in->getcode(in, code);
-	return FALSE;
-}
-
-/*
- * get a unicode character with timeout (x1ms), ucs-4 format
- */
-bool_t getcode_with_timeout(u32_t * code, u32_t timeout)
-{
-	struct console * in = get_console_stdin();
-	u32_t end;
-
-	if(!in || !in->getcode)
-		return FALSE;
-
-	if(get_system_hz() > 0)
-	{
-		end = jiffies + timeout * get_system_hz() / 1000;
-
-		while(! in->getcode(in, code))
-		{
-			if(jiffies >= end)
-				return FALSE;
-		}
-
-		return TRUE;
-	}
-	else
-	{
-		end = timeout * 100;
-
-		while(! in->getcode(in, code))
-		{
-			if(end <= 0)
-				return FALSE;
-			end--;
-		}
-
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-/*
-bool_t stdin_getc(char * c)
-{
-	u32_t code;
-
-	if(!getcode(&code))
-	{
-		*c = 0;
-		return FALSE;
-	}
-
-	c = code & 0xff;
-	return TRUE;
-}
-*/

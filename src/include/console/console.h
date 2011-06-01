@@ -103,7 +103,8 @@ bool_t unregister_console(struct console * console);
 
 inline struct console * get_stdin(void);
 inline struct console * get_stdout(void);
-bool_t console_stdio_set(const char * in, const char * out);
+inline struct console * get_stderr(void);
+bool_t console_stdio_set(const char * in, const char * out, const char * err);
 bool_t console_stdio_load(char * file);
 bool_t console_stdio_save(char * file);
 

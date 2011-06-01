@@ -37,6 +37,7 @@
 
 static struct console * console_stdin = NULL;
 static struct console * console_stdout = NULL;
+static struct console * console_stderr = NULL;
 
 static struct console_list __console_list = {
 	.entry = {
@@ -90,6 +91,9 @@ bool_t register_console(struct console * console)
 	if((console_stdout == NULL) && (console->putcode))
 		console_stdout = console;
 
+	if((console_stderr == NULL) && (console->putcode))
+		console_stderr = console;
+
 	return TRUE;
 }
 
@@ -115,6 +119,9 @@ bool_t unregister_console(struct console * console)
 			if(console_stdout == console)
 				console_stdout = NULL;
 
+			if(console_stderr == console)
+				console_stderr = NULL;
+
 			return TRUE;
 		}
 	}
@@ -132,30 +139,41 @@ inline struct console * get_stdout(void)
 	return console_stdout;
 }
 
-bool_t console_stdio_set(const char * in, const char * out)
+inline struct console * get_stderr(void)
 {
-	struct console * stdin, * stdout;
+	return console_stderr;
+}
 
-	if(!in || !out)
+bool_t console_stdio_set(const char * in, const char * out, const char * err)
+{
+	struct console * cin, * cout, * cerr;
+
+	if(!in || !out || !err)
 		return FALSE;
 
-	stdin = search_console(in);
-	if(!stdin || !stdin->getcode)
+	cin = search_console(in);
+	if(!cin || !cin->getcode)
 		return FALSE;
 
-	stdout = search_console(out);
-	if(!stdout || !stdout->putcode)
+	cout = search_console(out);
+	if(!cout || !cout->putcode)
 		return FALSE;
 
-	console_stdin = stdin;
-	console_stdout = stdout;
+	cerr = search_console(err);
+	if(!cerr || !cerr->putcode)
+		return FALSE;
+
+	console_stdin = cin;
+	console_stdout = cout;
+	console_stderr = cerr;
 
 	return TRUE;
 }
 
 bool_t console_stdio_load(char * file)
 {
-	struct xml * root, * stdin, * stdout;
+	struct xml * root;
+	struct xml * in, * out, * err;
 
 	root = xml_parse_file(file);
 	if(!root || !root->name)
@@ -167,21 +185,28 @@ bool_t console_stdio_load(char * file)
 		return FALSE;
 	}
 
-	stdin = xml_get(root, "stdin", -1);
-	if(! stdin)
+	in = xml_get(root, "stdin", -1);
+	if(! in)
 	{
 		xml_free(root);
 		return FALSE;
 	}
 
-	stdout = xml_get(root, "stdout", -1);
-	if(! stdout)
+	out = xml_get(root, "stdout", -1);
+	if(! out)
 	{
 		xml_free(root);
 		return FALSE;
 	}
 
-	if(! console_stdio_set(xml_attr(stdin, "name"), xml_attr(stdout, "name")))
+	err = xml_get(root, "stderr", -1);
+	if(! err)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	if(! console_stdio_set(xml_attr(in, "name"), xml_attr(out, "name"), xml_attr(err, "name")))
 	{
 		xml_free(root);
 		return FALSE;
@@ -194,7 +219,7 @@ bool_t console_stdio_load(char * file)
 bool_t console_stdio_save(char * file)
 {
 	struct xml * root;
-	struct xml * stdin, * stdout;
+	struct xml * in, * out, * err;
 	char * str;
 	s32_t fd;
 
@@ -202,25 +227,35 @@ bool_t console_stdio_save(char * file)
 	if(!root)
 		return FALSE;
 
-	stdin = xml_add_child(root, "stdin", 0);
-	if(!stdin)
+	in = xml_add_child(root, "stdin", 0);
+	if(!in)
 	{
 		xml_free(root);
 		return FALSE;
 	}
 
 	if(get_stdin() && get_stdin()->name)
-		xml_set_attr(stdin, "name", get_stdin()->name);
+		xml_set_attr(in, "name", get_stdin()->name);
 
-	stdout = xml_add_child(root, "stdout", 1);
-	if(!stdout)
+	out = xml_add_child(root, "stdout", 1);
+	if(!out)
 	{
 		xml_free(root);
 		return FALSE;
 	}
 
 	if(get_stdout() && get_stdout()->name)
-		xml_set_attr(stdout, "name", get_stdout()->name);
+		xml_set_attr(out, "name", get_stdout()->name);
+
+	err = xml_add_child(root, "stderr", 1);
+	if(!err)
+	{
+		xml_free(root);
+		return FALSE;
+	}
+
+	if(get_stderr() && get_stderr()->name)
+		xml_set_attr(err, "name", get_stderr()->name);
 
 	str = xml_toxml(root);
 	if(!str)
@@ -464,16 +499,21 @@ static s32_t console_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	else
 		len += sprintf((char *)(p + len), (const char *)"\r\n stdout = %s", "<NULL>");
 
+	if(console_stderr)
+		len += sprintf((char *)(p + len), (const char *)"\r\n stderr = %s", console_stderr->name);
+	else
+		len += sprintf((char *)(p + len), (const char *)"\r\n stderr = %s", "<NULL>");
+
 	len += sprintf((char *)(p + len), (const char *)"\r\n[available console]");
 	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct console_list, entry);
 		if(list->console->getcode && list->console->putcode)
-			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "in,out");
+			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "in,out,err");
 		else if(list->console->getcode)
 			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "in");
 		else if(list->console->putcode)
-			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "out");
+			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "out,err");
 	}
 
 	len -= offset;

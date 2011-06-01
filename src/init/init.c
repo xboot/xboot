@@ -88,7 +88,7 @@ void do_system_cfg(void)
 	LOG_I("load system configure");
 
 	/*
-	 * load the setting of stdin and stdout console
+	 * load the setting of stdin, stdout and stderr console
 	 */
 	if(! console_stdio_load("/etc/console.xml"))
 	{

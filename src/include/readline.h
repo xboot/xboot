@@ -2,8 +2,7 @@
 #define __READLINE_H__
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
+#include <console/console.h>
 
 /**
  * the enum type of readline mode

@@ -1,5 +1,5 @@
 /*
- * kernel/shell/readline.c
+ * libc/readline/readline.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,9 +20,7 @@
  *
  */
 
-#include <xboot.h>
-#include <console/console.h>
-#include <shell/readline.h>
+#include <readline.h>
 
 struct rl_buf {
 	struct console * in;

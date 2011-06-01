@@ -26,7 +26,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <time/xtime.h>
-#include <shell/readline.h>
 #include <xboot/log.h>
 #include <xboot/proc.h>
 #include <xboot/printk.h>

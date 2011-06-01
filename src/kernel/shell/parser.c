@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/printk.h>
-#include <shell/readline.h>
 #include <shell/parser.h>
 
 /*

@@ -20,15 +20,8 @@
  *
  */
 
-
 #include <xboot.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <xboot/printk.h>
-#include <fs/fileio.h>
-#include <console/console.h>
 #include <shell/exec.h>
-#include <shell/readline.h>
 #include <mode/mode.h>
 
 /*

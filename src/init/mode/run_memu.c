@@ -20,12 +20,7 @@
  *
  */
 
-
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <charset.h>
-#include <version.h>
 #include <xboot/list.h>
 #include <xboot/menu.h>
 #include <console/console.h>
@@ -40,7 +35,10 @@ struct menu_ctx
 	u32_t total;
 	u32_t win1, win2;
 
-	struct console * console;
+	struct console * in;
+	struct console * out;
+	struct console * err;
+
 	s32_t width, height;
 	enum tcolor fg, bg;
 
@@ -72,18 +70,18 @@ static void menu_ctx_paint(struct menu_ctx * ctx)
 		ctx->win2 = ctx->index + ctx->y1 - ctx->y0 - 1;
 	}
 
-	console_setcolor(ctx->console, ctx->fg, ctx->bg);
-	console_gotoxy(ctx->console, ctx->x1 - 1, ctx->y0 + 1);
+	console_setcolor(ctx->out, ctx->fg, ctx->bg);
+	console_gotoxy(ctx->out, ctx->x1 - 1, ctx->y0 + 1);
 	if(ctx->win1 > 0)
-		console_putcode(ctx->console, UNICODE_UP);
+		console_putcode(ctx->out, UNICODE_UP);
 	else
-		console_putcode(ctx->console, UNICODE_SPACE);
+		console_putcode(ctx->out, UNICODE_SPACE);
 
-	console_gotoxy(ctx->console, ctx->x1 - 1, ctx->y1);
+	console_gotoxy(ctx->out, ctx->x1 - 1, ctx->y1);
 	if(ctx->win2 + 1 < ctx->total)
-		console_putcode(ctx->console, UNICODE_DOWN);
+		console_putcode(ctx->out, UNICODE_DOWN);
 	else
-		console_putcode(ctx->console, UNICODE_SPACE);
+		console_putcode(ctx->out, UNICODE_SPACE);
 
 	for(i = 0, pos = (&ctx->list->entry)->next; pos != (&ctx->list->entry); pos = pos->next, i++)
 	{
@@ -92,25 +90,28 @@ static void menu_ctx_paint(struct menu_ctx * ctx)
 			list = list_entry(pos, struct menu_list, entry);
 
 			if(i == ctx->index)
-				console_setcolor(ctx->console, ctx->bg, ctx->fg);
+				console_setcolor(ctx->out, ctx->bg, ctx->fg);
 			else
-				console_setcolor(ctx->console, ctx->fg, ctx->bg);
+				console_setcolor(ctx->out, ctx->fg, ctx->bg);
 
-			console_gotoxy(ctx->console, ctx->x0 + 2, ctx->y0 + i + 1 - ctx->win1);
-			console_print(ctx->console, (const char *)"%s%*s", list->item->title, (ctx->x1 - ctx->x0) - utf8_width(list->item->title) - 3, " ");
+			console_gotoxy(ctx->out, ctx->x0 + 2, ctx->y0 + i + 1 - ctx->win1);
+			console_print(ctx->out, (const char *)"%s%*s", list->item->title, (ctx->x1 - ctx->x0) - utf8_width(list->item->title) - 3, " ");
 		}
 	}
 }
 
-static struct menu_ctx * menu_ctx_alloc(struct console * console)
+static struct menu_ctx * menu_ctx_alloc(void)
 {
+	struct console * cin = get_console_stdin();
+	struct console * cout = get_console_stdout();
+	struct console * cerr = get_console_stderr();
 	struct menu_ctx * ctx;
 	s32_t w, h;
 
-	if(!console || !console->putcode)
+	if(!cin || !cout || !cerr)
 		return NULL;
 
-	if(!console_getwh(console, &w, &h))
+	if(!console_getwh(cout, &w, &h))
 		return NULL;
 
 	ctx = malloc(sizeof(struct menu_ctx));
@@ -132,18 +133,21 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console)
 	ctx->win1 = 0;
 	ctx->win2 = 0;
 
-	ctx->cursor = console_getcursor(console);
-	if(!console_getcolor(console, &ctx->fg, &ctx->bg))
+	ctx->cursor = console_getcursor(cout);
+	if(!console_getcolor(cout, &ctx->fg, &ctx->bg))
 	{
 		free(ctx);
 		return NULL;
 	}
 
-	console_setcolor(console, ctx->fg, ctx->bg);
-	console_setcursor(console, FALSE);
-	console_cls(console);
+	console_setcolor(cout, ctx->fg, ctx->bg);
+	console_setcursor(cout, FALSE);
+	console_cls(cout);
 
-	ctx->console = console;
+	ctx->in = cin;
+	ctx->out = cout;
+	ctx->err = cerr;
+
 	ctx->width = w;
 	ctx->height = h;
 
@@ -152,7 +156,7 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console)
 	ctx->x1 = ctx->width - 2;
 	if(ctx->width >= 44 && ctx->height > 12)
 	{
-		xboot_char_logo(ctx->console, (ctx->width - 44) / 2, ctx->height - 7);
+		xboot_char_logo(ctx->out, (ctx->width - 44) / 2, ctx->height - 7);
 		ctx->y1 = ctx->height - 10;
 	}
 	else
@@ -160,10 +164,10 @@ static struct menu_ctx * menu_ctx_alloc(struct console * console)
 		ctx->y1 = ctx->height - 2;
 	}
 
-	console_gotoxy(ctx->console, 1, 0);
-	xboot_banner(ctx->console);
+	console_gotoxy(ctx->out, 1, 0);
+	xboot_banner(ctx->out);
 
-	console_rect(ctx->console,
+	console_rect(ctx->out,
 					UNICODE_HLINE, UNICODE_VLINE,
 					UNICODE_LEFTTOP, UNICODE_RIGHTTOP,
 					UNICODE_LEFTBOTTOM, UNICODE_RIGHTBOTTOM,
@@ -178,9 +182,9 @@ static void menu_ctx_free(struct menu_ctx * ctx)
 {
 	if(ctx)
 	{
-		console_setcolor(ctx->console, ctx->fg, ctx->bg);
-		console_cls(ctx->console);
-		console_setcursor(ctx->console, ctx->cursor);
+		console_setcolor(ctx->out, ctx->fg, ctx->bg);
+		console_cls(ctx->out);
+		console_setcursor(ctx->out, ctx->cursor);
 		free(ctx);
 	}
 }
@@ -195,12 +199,12 @@ void run_menu_mode(void)
 	u32_t code;
 	bool_t running = TRUE;
 
-	ctx = menu_ctx_alloc(get_console_stdout());
+	ctx = menu_ctx_alloc();
 	if(!ctx)
 		return;
 
 	do {
-		if(console_stdin_getcode(&code))
+		if(ctx->in->getcode(ctx->in, &code))
 		{
 			switch(code)
 			{

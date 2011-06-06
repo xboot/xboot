@@ -44,8 +44,8 @@ static void keypad_timer_function(u32_t data)
 
 	if(gpn != gpn_old)
 	{
-		keyup = (gpn ^ gpn_old) & gpn_old;
-		keydown = (gpn ^ gpn_old) & gpn;
+		keyup = (gpn ^ gpn_old) & gpn;
+		keydown = (gpn ^ gpn_old) & gpn_old;
 		gpn_old = gpn;
 
 		if(keyup)

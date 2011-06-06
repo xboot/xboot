@@ -40,7 +40,7 @@
 
 /* dimensions of playing area */
 #define	GAME_AREA_WIDTH				(12)
-#define	GAME_AREA_HEIGHT			(22)
+#define	GAME_AREA_HEIGHT			(17)
 
 /*
  * define tetris shape

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+	<item>
+		<title>Shell Command Line</title>
+		<command>exit --shell</command>
+	</item>
+	<item>
+		<title>Classic Video Game Tetris</title>
+		<command>tetris</command>
+	</item>
+	<item>
+		<title>Shutdown System</title>
+		<command>halt</command>
+	</item>
+</menu>

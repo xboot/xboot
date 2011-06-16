@@ -42,8 +42,8 @@ struct machine {
 		const ptrdiff_t text_start;
 		const ptrdiff_t text_end;
 
-		const ptrdiff_t ramdisk_start;
-		const ptrdiff_t ramdisk_end;
+		const ptrdiff_t romdisk_start;
+		const ptrdiff_t romdisk_end;
 
 		const ptrdiff_t data_shadow_start;
 		const ptrdiff_t data_shadow_end;

@@ -77,9 +77,9 @@ SECTIONS
 		PROVIDE (__exitcall_end = .);
 
 		. = ALIGN(8);
-		PROVIDE (__ramdisk_start = .);
-		*(.ramdisk)
-		PROVIDE (__ramdisk_end = .);
+		PROVIDE (__romdisk_start = .);
+		*(.romdisk)
+		PROVIDE (__romdisk_end = .);
 
 		. = ALIGN(8);
 		*(.rodata);

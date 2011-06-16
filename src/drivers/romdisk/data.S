@@ -1,5 +1,5 @@
 /*
- * drivers/ramdisk/data.S
+ * drivers/romdisk/data.S
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,5 +20,5 @@
  *
  */
 
-.section .ramdisk, "a"
-.incbin ".obj/ramdisk.cpio"
+.section .romdisk, "a"
+.incbin ".obj/romdisk.cpio"

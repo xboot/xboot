@@ -105,7 +105,7 @@ static bool_t get_bdf_info(s32_t fd, struct bdf_info * info)
 		}
 		else if(strncmp((const char *)line, "SIZE ", sizeof("SIZE ") - 1) == 0)
 		{
-			if(sscanf((const char *)line, "SIZE %ld %ld %ld", &info->size, &info->xres, &info->yres) != 3)
+			if(sscanf((const char *)line, "SIZE %d %d %d", &info->size, &info->xres, &info->yres) != 3)
 				return FALSE;
 		}
 		else if(strncmp((const char *)line, "FONTBOUNDINGBOX ", sizeof("FONTBOUNDINGBOX ") - 1) == 0)

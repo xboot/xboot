@@ -1,5 +1,5 @@
 /*
- * drivers/ramdisk/ramdisk.c
+ * drivers/romdisk/romdisk.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -36,42 +36,42 @@
 #include <xboot/blkdev.h>
 #include <xboot/ioctl.h>
 
-extern u8_t __ramdisk_start[];
-extern u8_t __ramdisk_end[];
+extern u8_t __romdisk_start[];
+extern u8_t __romdisk_end[];
 
 /*
- * the struct of ramdisk
+ * the struct of romdisk
  */
-struct ramdisk
+struct romdisk
 {
-	/* the ramdisk name */
+	/* the romdisk name */
 	char name[32 + 1];
 
-	/* the start of ramdisk */
+	/* the start of romdisk */
 	void * start;
 
-	/* the end of ramdisk */
+	/* the end of romdisk */
 	void * end;
 
 	/* busy or not */
 	bool_t busy;
 };
 
-static int ramdisk_open(struct blkdev * dev)
+static int romdisk_open(struct blkdev * dev)
 {
-	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
+	struct romdisk * romdisk = (struct romdisk *)(dev->driver);
 
-	if(ramdisk->busy == TRUE)
+	if(romdisk->busy == TRUE)
 		return -1;
 
-	ramdisk->busy = TRUE;
+	romdisk->busy = TRUE;
 	return 0;
 }
 
-static ssize_t ramdisk_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t romdisk_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
-	u8_t * p = (u8_t *)(ramdisk->start);
+	struct romdisk * romdisk = (struct romdisk *)(dev->driver);
+	u8_t * p = (u8_t *)(romdisk->start);
 	loff_t offset = get_blkdev_offset(dev, blkno);
 	size_t size = get_blkdev_size(dev) * blkcnt;
 
@@ -85,97 +85,97 @@ static ssize_t ramdisk_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_
 	return blkcnt;
 }
 
-static ssize_t ramdisk_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t romdisk_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	return 0;
 }
 
-static int ramdisk_ioctl(struct blkdev * dev, int cmd, void * arg)
+static int romdisk_ioctl(struct blkdev * dev, int cmd, void * arg)
 {
 	return -1;
 }
 
-static int ramdisk_close(struct blkdev * dev)
+static int romdisk_close(struct blkdev * dev)
 {
-	struct ramdisk * ramdisk = (struct ramdisk *)(dev->driver);
+	struct romdisk * romdisk = (struct romdisk *)(dev->driver);
 
-	ramdisk->busy = FALSE;
+	romdisk->busy = FALSE;
 	return 0;
 }
 
-static __init void ramdisk_init(void)
+static __init void romdisk_init(void)
 {
 	struct blkdev * dev;
-	struct ramdisk * ramdisk;
+	struct romdisk * romdisk;
 	u64_t size, rem;
 
 	dev = malloc(sizeof(struct blkdev));
 	if(!dev)
 		return;
 
-	ramdisk = malloc(sizeof(struct ramdisk));
-	if(!ramdisk)
+	romdisk = malloc(sizeof(struct romdisk));
+	if(!romdisk)
 	{
 		free(dev);
 		return;
 	}
 
-	snprintf(ramdisk->name, 32, "ramdisk");
-	ramdisk->start = (void *)__ramdisk_start;
-	ramdisk->end = (void *)__ramdisk_end;
-	ramdisk->busy = FALSE;
+	snprintf(romdisk->name, 32, "romdisk");
+	romdisk->start = (void *)__romdisk_start;
+	romdisk->end = (void *)__romdisk_end;
+	romdisk->busy = FALSE;
 
-	if((ramdisk->end - ramdisk->start) <= 0)
+	if((romdisk->end - romdisk->start) <= 0)
 	{
-		free(ramdisk);
+		free(romdisk);
 		free(dev);
 		return;
 	}
 
-	size = (u64_t)(ramdisk->end - ramdisk->start);
+	size = (u64_t)(romdisk->end - romdisk->start);
 	rem = div64_64(&size, SZ_512);
 	if(rem > 0)
 		size++;
 
-	ramdisk->busy	= FALSE;
+	romdisk->busy	= FALSE;
 
-	dev->name		= ramdisk->name;
-	dev->type		= BLK_DEV_RAMDISK;
+	dev->name		= romdisk->name;
+	dev->type		= BLK_DEV_ROMDISK;
 	dev->blksz		= SZ_512;
 	dev->blkcnt		= size;
-	dev->open 		= ramdisk_open;
-	dev->read 		= ramdisk_read;
-	dev->write		= ramdisk_write;
-	dev->ioctl 		= ramdisk_ioctl;
-	dev->close		= ramdisk_close;
-	dev->driver	 = ramdisk;
+	dev->open 		= romdisk_open;
+	dev->read 		= romdisk_read;
+	dev->write		= romdisk_write;
+	dev->ioctl 		= romdisk_ioctl;
+	dev->close		= romdisk_close;
+	dev->driver	 = romdisk;
 
 	if(!register_blkdev(dev))
 	{
-		free(ramdisk);
+		free(romdisk);
 		free(dev);
 		return;
 	}
 }
 
-static __exit void ramdisk_exit(void)
+static __exit void romdisk_exit(void)
 {
 	struct blkdev * dev;
-	struct ramdisk * ramdisk;
+	struct romdisk * romdisk;
 
-	dev = search_blkdev_with_type("ramdisk", BLK_DEV_RAMDISK);
+	dev = search_blkdev_with_type("romdisk", BLK_DEV_ROMDISK);
 	if(dev)
 	{
-		ramdisk = (struct ramdisk *)(dev->driver);
+		romdisk = (struct romdisk *)(dev->driver);
 
 		if(unregister_blkdev(dev->name))
 		{
-			free(ramdisk);
+			free(romdisk);
 			free(dev);
 			return;
 		}
 	}
 }
 
-module_init(ramdisk_init, LEVEL_DRIVER);
-module_exit(ramdisk_exit, LEVEL_DRIVER);
+module_init(romdisk_init, LEVEL_DRIVER);
+module_exit(romdisk_exit, LEVEL_DRIVER);

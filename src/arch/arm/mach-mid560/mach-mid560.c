@@ -36,8 +36,8 @@
 
 extern u8_t	__text_start[];
 extern u8_t __text_end[];
-extern u8_t __ramdisk_start[];
-extern u8_t __ramdisk_end[];
+extern u8_t __romdisk_start[];
+extern u8_t __romdisk_end[];
 extern u8_t __data_shadow_start[];
 extern u8_t __data_shadow_end[];
 extern u8_t __data_start[];
@@ -189,8 +189,8 @@ static struct machine mid560 = {
 		.text_start			= (const ptrdiff_t)__text_start,
 		.text_end			= (const ptrdiff_t)__text_end,
 
-		.ramdisk_start		= (const ptrdiff_t)__ramdisk_start,
-		.ramdisk_end		= (const ptrdiff_t)__ramdisk_end,
+		.romdisk_start		= (const ptrdiff_t)__romdisk_start,
+		.romdisk_end		= (const ptrdiff_t)__romdisk_end,
 
 		.data_shadow_start	= (const ptrdiff_t)__data_shadow_start,
 		.data_shadow_end	= (const ptrdiff_t)__data_shadow_end,

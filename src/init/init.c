@@ -64,11 +64,11 @@ void do_system_rootfs(void)
 	if(mount(NULL, "/dev" , "devfs", 0) != 0)
 		LOG_E("failed to mount dev filesystem");
 
-	if(mkdir("/ramdisk", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG_E("failed to create directory '/ramdisk'");
+	if(mkdir("/romdisk", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
+		LOG_E("failed to create directory '/romdisk'");
 
-	if(mount("/dev/ramdisk", "/ramdisk" , "cpiofs", 0) != 0)
-		LOG_E("failed to mount ramdisk");
+	if(mount("/dev/romdisk", "/romdisk" , "cpiofs", 0) != 0)
+		LOG_E("failed to mount romdisk");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG_E("failed to create directory '/etc'");
@@ -92,7 +92,7 @@ void do_system_cfg(void)
 	 */
 	if(! console_stdio_load("/etc/console.xml"))
 	{
-		if(! console_stdio_load("/ramdisk/default/console.xml"))
+		if(! console_stdio_load("/romdisk/etc/console.xml"))
 			LOG_E("can not setting the standard console");
 	}
 
@@ -101,7 +101,7 @@ void do_system_cfg(void)
 	 */
 	if(! loadenv("/etc/environment.xml"))
 	{
-		if(! loadenv("/ramdisk/default/environment.xml"))
+		if(! loadenv("/romdisk/etc/environment.xml"))
 			LOG_E("can not load environment variable");
 	}
 
@@ -110,7 +110,7 @@ void do_system_cfg(void)
 	 */
 	if(! menu_load("/etc/menu.xml"))
 	{
-		if(! menu_load("/ramdisk/default/menu.xml"))
+		if(! menu_load("/romdisk/etc/menu.xml"))
 			LOG_E("can not load menu context");
 	}
 }
@@ -131,7 +131,7 @@ void do_system_fonts(void)
 	/*
 	 * system fonts's directory path
 	 */
-	sprintf((char *)path, (const char *)"%s", "/ramdisk/system/fonts");
+	sprintf((char *)path, (const char *)"%s", "/romdisk/fonts");
 
 	if(stat(path, &st) != 0)
 		return;

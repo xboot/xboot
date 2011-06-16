@@ -548,10 +548,10 @@ _text_start:
 	.long	__text_start
 _text_end:
 	.long	__text_end
-_ramdisk_start:
-	.long	__ramdisk_start
-_ramdisk_end:
-	.long	__ramdisk_end
+_romdisk_start:
+	.long	__romdisk_start
+_romdisk_end:
+	.long	__romdisk_end
 _data_shadow_start:
 	.long	 __data_shadow_start
 _data_shadow_end:

@@ -113,7 +113,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				drivers/fb/font					\
 				drivers/led						\
 				drivers/loop					\
-				drivers/ramdisk					\
+				drivers/romdisk					\
 				drivers/rtc						\
 				drivers/input					\
 				drivers/input/keyboard			\
@@ -190,13 +190,13 @@ clean:
 # include the dependency files, should be the last of the makefile
 #
 sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR)							\
-			&& $(RM) .obj/ramdisk										\
-			&& $(RM) .obj/ramdisk.cpio									\
+			&& $(RM) .obj/romdisk										\
+			&& $(RM) .obj/romdisk.cpio									\
 			&& $(RM) .obj/init/version.o								\
-			&& $(RM) .obj/drivers/ramdisk/data.o						\
-			&& $(CP) ramdisk .obj										\
-			&& $(CP) arch/$(ARCH)/$(MACH)/ramdisk .obj					\
-			&& $(CD) .obj/ramdisk										\
-			&& $(FIND) . -not -name . | $(CPIO) > ../ramdisk.cpio		\
+			&& $(RM) .obj/drivers/romdisk/data.o						\
+			&& $(CP) romdisk .obj										\
+			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj					\
+			&& $(CD) .obj/romdisk										\
+			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio		\
 			&& $(CD) ../..)												\
 			$(foreach dir, $(OBJDIRS), $(wildcard $(dir)/*.d))

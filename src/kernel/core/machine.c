@@ -251,10 +251,10 @@ static s32_t link_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	ssize(size, (u64_t)(__machine->link.text_end - __machine->link.text_start + 1));
 	len += sprintf((char *)(p + len), (const char *)" text size    : %s\r\n", size);
 
-	len += sprintf((char *)(p + len), (const char *)" ramdisk start: %p\r\n", (void *)__machine->link.ramdisk_start);
-	len += sprintf((char *)(p + len), (const char *)" ramdisk end  : %p\r\n", (void *)__machine->link.ramdisk_end);
-	ssize(size, (u64_t)(__machine->link.ramdisk_end - __machine->link.ramdisk_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" ramdisk size : %s\r\n", size);
+	len += sprintf((char *)(p + len), (const char *)" romdisk start: %p\r\n", (void *)__machine->link.romdisk_start);
+	len += sprintf((char *)(p + len), (const char *)" romdisk end  : %p\r\n", (void *)__machine->link.romdisk_end);
+	ssize(size, (u64_t)(__machine->link.romdisk_end - __machine->link.romdisk_start + 1));
+	len += sprintf((char *)(p + len), (const char *)" romdisk size : %s\r\n", size);
 
 	len += sprintf((char *)(p + len), (const char *)" data' start  : %p\r\n", (void *)__machine->link.data_shadow_start);
 	len += sprintf((char *)(p + len), (const char *)" data' end    : %p\r\n", (void *)__machine->link.data_shadow_end);

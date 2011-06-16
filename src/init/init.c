@@ -73,11 +73,11 @@ void do_system_rootfs(void)
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG_E("failed to create directory '/etc'");
 
-	if(mkdir("/mnt", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG_E("failed to create directory '/mnt'");
-
 	if(mkdir("/tmp", S_IRWXU|S_IRWXG|S_IRWXO) != 0)
 		LOG_E("failed to create directory '/tmp'");
+
+	if(mkdir("/mnt", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
+		LOG_E("failed to create directory '/mnt'");
 }
 
 /*

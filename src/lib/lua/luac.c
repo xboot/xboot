@@ -4,7 +4,6 @@
  * Lua compiler
  */
 
-
 #include <lua/luacfg.h>
 #include <lua/lua.h>
 #include <lua/lauxlib.h>
@@ -16,31 +15,30 @@
 #include <lua/lstring.h>
 #include <lua/lundump.h>
 
-#define PROGNAME	"luac"		/* default program name */
-#define	OUTPUT		PROGNAME ".out"	/* default output file */
+#define PROGNAME	"luac"				/* default program name */
+#define	OUTPUT		PROGNAME ".out"		/* default output file */
 
-static int listing = 0; /* list bytecodes? */
-static int dumping = 1; /* dump bytecodes? */
-static int stripping = 0; /* strip debug information? */
-static char Output[] = { OUTPUT }; /* default output file name */
-static const char* output = Output; /* actual output file name */
-static const char* progname = PROGNAME; /* actual program name */
+static int listing = 0;					/* list bytecodes? */
+static int dumping = 1;					/* dump bytecodes? */
+static int stripping = 0;				/* strip debug information? */
+static char Output[] = { OUTPUT };		/* default output file name */
+static const char* output = Output;		/* actual output file name */
+static const char* progname = PROGNAME;	/* actual program name */
 
 static void fatal(const char* message) {
-	// xxx fprintf(stderr, "%s: %s\n", progname, message);
+	fprintf(stderr, "%s: %s\n", progname, message);
 }
 
 static void cannot(const char* what) {
-// xxx	fprintf(stderr, "%s: cannot %s %s: %s\n", progname, what, output, strerror(errno));
-	// exit(EXIT_FAILURE);
+	fprintf(stderr, "%s: cannot %s %s: %s\n", progname, what, output, strerror(errno));
 }
 
 static void usage(const char* message) {
 	if (*message == '-')
-		;// xxx fprintf(stderr, "%s: unrecognized option " LUA_QS "\n", progname, message);
+		fprintf(stderr, "%s: unrecognized option " LUA_QS "\n", progname, message);
 	else
-		;//fprintf(stderr, "%s: %s\n", progname, message);
-/*	fprintf(stderr, "usage: %s [options] [filenames].\n"
+		fprintf(stderr, "%s: %s\n", progname, message);
+	fprintf(stderr, "usage: %s [options] [filenames].\n"
 		"Available options are:\n"
 		"  -        process stdin\n"
 		"  -l       list\n"
@@ -48,8 +46,7 @@ static void usage(const char* message) {
 	"  -p       parse only\n"
 	"  -s       strip debug information\n"
 	"  -v       show version information\n"
-	"  --       stop handling options\n", progname, Output);*/
-//	exit(EXIT_FAILURE);
+	"  --       stop handling options\n", progname, Output);
 }
 
 #define	IS(s)	(strcmp(argv[i],s)==0)
@@ -94,9 +91,9 @@ static int doargs(int argc, char* argv[]) {
 		argv[--i] = Output;
 	}
 	if (version) {
-// xxx		printf("%s  %s\n", LUA_RELEASE, LUA_COPYRIGHT);
+		fprintf(stdout, "%s  %s\n", LUA_RELEASE, LUA_COPYRIGHT);
 		if (version == argc - 1)
-			;//exit(EXIT_SUCCESS);
+			return 0;
 	}
 	return i;
 }
@@ -129,8 +126,7 @@ static const Proto* combine(lua_State* L, int n) {
 }
 
 static int writer(lua_State* L, const void* p, size_t size, void* u) {
-	UNUSED(L);
-	// xxx return (fwrite(p, size, 1, (FILE*) u) != 1) && (size != 0);
+	return (fwrite(p, size, 1, (FILE*) u) != 1) && (size != 0);
 }
 
 struct Smain {
@@ -153,17 +149,17 @@ static int pmain(lua_State* L) {
 	}
 	f = combine(L, argc);
 	if (listing)
-		; // xxx luaU_print(f, listing > 1);
+		;//TODO luaU_print(f, listing > 1);
 	if (dumping) {
-// xxx		FILE* D = (output == NULL) ? stdout : fopen(output, "wb");
-// xxx		if (D == NULL)
-// xxx			cannot("open");
+		FILE* D = (output == NULL) ? stdout : fopen(output, "wb");
+		if (D == NULL)
+			cannot("open");
 		lua_lock(L);
-// xxx		luaU_dump(L, f, writer, D, stripping);
+		luaU_dump(L, f, writer, D, stripping);
 		lua_unlock(L);
-// xxx		if (ferror(D))
+		if (ferror(D))
 			cannot("write");
-// xxx		if (fclose(D))
+		if (fclose(D))
 			cannot("close");
 	}
 	return 0;

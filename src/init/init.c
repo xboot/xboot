@@ -131,7 +131,7 @@ void do_system_fonts(void)
 	/*
 	 * system fonts's directory path
 	 */
-	sprintf((char *)path, (const char *)"%s", "/romdisk/fonts");
+	sprintf(path, "%s", "/romdisk/fonts");
 
 	if(stat(path, &st) != 0)
 		return;
@@ -148,24 +148,24 @@ void do_system_fonts(void)
 		  break;
 
 		buf[0] = 0;
-		strlcpy((char *)buf, (const char *)path, sizeof(buf));
+		strlcpy(buf, path, sizeof(buf));
 		buf[sizeof(buf) - 1] = '\0';
 
-		if(!strcmp((const char *)entry->d_name, (const char *)"."))
+		if(!strcmp(entry->d_name, "."))
 		{
 			continue;
 		}
-		else if(!strcmp((const char *)entry->d_name, (const char *)".."))
+		else if(!strcmp(entry->d_name, ".."))
 		{
 			continue;
 		}
 		else
 		{
-			strlcat((char *)buf, (const char *)"/", sizeof(buf));
-			strlcat((char *)buf, (const char *)entry->d_name, sizeof(buf));
+			strlcat(buf, "/", sizeof(buf));
+			strlcat(buf, entry->d_name, sizeof(buf));
 		}
 
-		if(stat((const char *)buf, &st) != 0)
+		if(stat(buf, &st) != 0)
 			continue;
 
 		if(! install_font(buf))

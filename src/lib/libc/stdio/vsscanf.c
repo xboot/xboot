@@ -58,7 +58,7 @@ int vsscanf(const char * buf, const char * fmt, va_list ap)
 	const char *qq;
 	uintmax_t val = 0;
 	int rank = rank_int;
-	unsigned int width = UINT_MAX;
+	unsigned int width = INT_MAX;
 	int base;
 	enum flags flags = 0;
 	enum {
@@ -88,7 +88,7 @@ int vsscanf(const char * buf, const char * fmt, va_list ap)
 				state = st_flags;
 				flags = 0;
 				rank = rank_int;
-				width = UINT_MAX;
+				width = INT_MAX;
 			}
 			else if (isspace((unsigned char) ch))
 			{

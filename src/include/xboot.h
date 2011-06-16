@@ -15,14 +15,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <io.h>
+#include <div64.h>
 #include <malloc.h>
 #include <charset.h>
 #include <readline.h>
 #include <version.h>
+#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
+#include <xboot/ioctl.h>
 #include <xboot/initcall.h>
+#include <xboot/resource.h>
 #include <xboot/printk.h>
+#include <xboot/clk.h>
 #include <time/tick.h>
 
 /*

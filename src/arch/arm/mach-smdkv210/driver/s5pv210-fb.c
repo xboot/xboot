@@ -385,14 +385,14 @@ static bool_t s5pv210fb_set_window_size(struct s5pv210fb_lcd * lcd, s32_t id)
 	return TRUE;
 }
 
-static bool_t s5pv210fb_window0_enable(struct s5pv210fb_lcd * lcd)
+static bool_t s5pv210fb_window2_enable(struct s5pv210fb_lcd * lcd)
 {
 	u32_t cfg;
 
 	/*
 	 * window control
 	 */
-	cfg = readl(S5PV210_WINCON0);
+	cfg = readl(S5PV210_WINCON2);
 
 	cfg &= ~(S5PV210_WINCON_BITSWP_ENABLE | S5PV210_WINCON_BYTESWP_ENABLE |
 				S5PV210_WINCON_HAWSWP_ENABLE | S5PV210_WINCON_WSWP_ENABLE |
@@ -427,13 +427,13 @@ static bool_t s5pv210fb_window0_enable(struct s5pv210fb_lcd * lcd)
 
 	cfg |= (lcd->bpp_mode << S5PV210_WINCON_BPPMODE_SHIFT);
 
-	writel(S5PV210_WINCON0, cfg);
+	writel(S5PV210_WINCON2, cfg);
 
 	/*
 	 * hardware version = 0x62
 	 */
 	cfg = readl(S5PV210_SHADOWCON);
-	cfg |= 1 << 0;
+	cfg |= 1 << 2;
 	writel(S5PV210_SHADOWCON, cfg);
 
 	return TRUE;
@@ -510,20 +510,25 @@ static void fb_init(struct fb * fb)
 	/*
 	 * set lcd video buffer
 	 */
-	s5pv210fb_set_buffer_address(lcd, 0);
-	s5pv210fb_set_buffer_size(lcd, 0);
-	s5pv210fb_set_window_position(lcd, 0);
-	s5pv210fb_set_window_size(lcd, 0);
+	s5pv210fb_set_buffer_address(lcd, 2);
+	s5pv210fb_set_buffer_size(lcd, 2);
+	s5pv210fb_set_window_position(lcd, 2);
+	s5pv210fb_set_window_size(lcd, 2);
 
 	/*
-	 * enable window 0 for main display area
+	 * enable window 2 for main display area
 	 */
-	s5pv210fb_window0_enable(lcd);
+	s5pv210fb_window2_enable(lcd);
 
 	/*
 	 * display on
 	 */
 	s5pv210fb_display_on(lcd);
+
+	/*
+	 * wait a moment
+	 */
+	mdelay(100);
 }
 
 static void fb_exit(struct fb * fb)

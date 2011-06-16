@@ -54,11 +54,11 @@ static void lcd_init(void)
 	writel(S5PV210_GPH1DAT, (readl(S5PV210_GPH1DAT) & ~(0x1<<6)) | (0x1<<6));
 
 	/*
-	 * set gph1_7 (LCD_33) output and pull up and high level for enabled
+	 * set gph1_7 (LCD_33) output and pull up and low level for enabled
 	 */
 	writel(S5PV210_GPH1CON, (readl(S5PV210_GPH1CON) & ~(0xf<<28)) | (0x1<<28));
 	writel(S5PV210_GPH1PUD, (readl(S5PV210_GPH1PUD) & ~(0x3<<14)) | (0x2<<14));
-	writel(S5PV210_GPH1DAT, (readl(S5PV210_GPH1DAT) & ~(0x1<<7)) | (0x1<<7));
+	writel(S5PV210_GPH1DAT, (readl(S5PV210_GPH1DAT) & ~(0x1<<7)) | (0x0<<7));
 
 	/*
 	 * wait a moment

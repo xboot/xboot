@@ -23,7 +23,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	fseek(fp, 0L, VFS_SEEK_END);
+	fseek(fp, 0L, SEEK_END);
 	if(ftell(fp) <= 16)
 	{
 		printf("The file '%s' is too small\n", argv[1]);
@@ -31,7 +31,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	fseek(fp, 0L, VFS_SEEK_SET);
+	fseek(fp, 0L, SEEK_SET);
 	memset(header, 0, sizeof(header));
 	if(fread(header, 1, sizeof(header), fp) != sizeof(header))
 	{
@@ -57,7 +57,7 @@ int main (int argc, char *argv[])
 	}
 
 	memset(buf, 0x00, size);
-	fseek(fp, 0L, VFS_SEEK_SET);
+	fseek(fp, 0L, SEEK_SET);
 	if(fread(buf, 1, size, fp) != size)
 	{
 		printf("Read body file error\n", argv[1]);
@@ -76,7 +76,7 @@ int main (int argc, char *argv[])
 	header[9] = (checksum >> 8) & 0xff;
 	header[8] = (checksum >> 0) & 0xff;
 
-	fseek(fp, 0L, VFS_SEEK_SET);
+	fseek(fp, 0L, SEEK_SET);
 	if(fwrite(header, 1, sizeof(header), fp) != sizeof(header))
 	{
 		printf("Write file header error\n", argv[1]);

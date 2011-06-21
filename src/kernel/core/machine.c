@@ -53,7 +53,7 @@ inline struct machine * get_machine(void)
 /*
  * suspend function
  */
-bool_t suspend(void)
+bool_t machine_suspend(void)
 {
 	if(__machine && __machine->pm.suspend)
 		return __machine->pm.suspend();
@@ -63,7 +63,7 @@ bool_t suspend(void)
 /*
  * resume function
  */
-bool_t resume(void)
+bool_t machine_resume(void)
 {
 	if(__machine && __machine->pm.resume)
 		return __machine->pm.resume();
@@ -73,7 +73,7 @@ bool_t resume(void)
 /*
  * halt function
  */
-bool_t halt(void)
+bool_t machine_halt(void)
 {
 	if(__machine && __machine->pm.halt)
 		return __machine->pm.halt();
@@ -84,7 +84,7 @@ bool_t halt(void)
 /*
  * reset function
  */
-bool_t reset(void)
+bool_t machine_reset(void)
 {
 	if(__machine && __machine->pm.reset)
 		return __machine->pm.reset();
@@ -95,7 +95,7 @@ bool_t reset(void)
 /*
  * clean up system before running os
  */
-bool_t cleanup(void)
+bool_t machine_cleanup(void)
 {
 	if(__machine && __machine->misc.cleanup)
 		return __machine->misc.cleanup();
@@ -106,7 +106,7 @@ bool_t cleanup(void)
 /*
  * register machine.
  */
-bool_t machine_register(struct machine * mach)
+bool_t register_machine(struct machine * mach)
 {
 	if(mach)
 	{
@@ -144,8 +144,8 @@ static void anti_piracy_timer_function(u32_t data)
 	{
 		while(1)
 		{
-			halt();
-			reset();
+			machine_halt();
+			machine_reset();
 		}
 	}
 
@@ -171,8 +171,8 @@ void do_system_antipiracy(void)
 	{
 		while(1)
 		{
-			halt();
-			reset();
+			machine_halt();
+			machine_reset();
 		}
 	}
 }

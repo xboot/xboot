@@ -38,7 +38,7 @@ static int reboot(int argc, char ** argv)
 {
 	sync();
 
-	if(reset())
+	if(machine_reset())
 	{
 		return 0;
 	}

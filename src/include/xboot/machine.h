@@ -101,14 +101,14 @@ struct machine {
 	void * priv;
 };
 
-bool_t machine_register(struct machine * mach);
+bool_t register_machine(struct machine * mach);
 inline struct machine * get_machine(void);
 
-bool_t suspend(void);
-bool_t resume(void);
-bool_t halt(void);
-bool_t reset(void);
-bool_t cleanup(void);
+bool_t machine_suspend(void);
+bool_t machine_resume(void);
+bool_t machine_halt(void);
+bool_t machine_reset(void);
+bool_t machine_cleanup(void);
 
 void do_system_antipiracy(void);
 

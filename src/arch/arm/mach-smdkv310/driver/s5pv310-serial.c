@@ -24,13 +24,13 @@
 
 #include <xboot.h>
 #include <serial/serial.h>
-//#include <s5pv310/reg-gpio.h>
+#include <s5pv310/reg-gpio.h>
 #include <s5pv310/reg-serial.h>
 
 /*
  * default serial parameter.
  */
-static struct serial_parameter uart_param[4] = {
+static struct serial_parameter uart_param[5] = {
 	[0] = {
 		.baud_rate		= B115200,
 		.data_bit		= DATA_BITS_8,
@@ -54,13 +54,19 @@ static struct serial_parameter uart_param[4] = {
 		.data_bit		= DATA_BITS_8,
 		.parity			= PARITY_NONE,
 		.stop_bit		= STOP_BITS_1,
+	},
+	[4] = {
+		.baud_rate		= B115200,
+		.data_bit		= DATA_BITS_8,
+		.parity			= PARITY_NONE,
+		.stop_bit		= STOP_BITS_1,
 	}
 };
 
 /*
  * serial information.
  */
-static struct serial_info uart_info[4] = {
+static struct serial_info uart_info[5] = {
 	[0] = {
 		.name			= "uart0",
 		.desc			= "s5pv310 onchip serial 0",
@@ -80,8 +86,12 @@ static struct serial_info uart_info[4] = {
 		.name			= "uart3",
 		.desc			= "s5pv310 onchip serial 3",
 		.parameter		= &uart_param[3],
+	},
+	[4] = {
+		.name			= "uart4",
+		.desc			= "s5pv310 onchip serial 4",
+		.parameter		= &uart_param[4],
 	}
-
 };
 
 /*
@@ -98,7 +108,7 @@ static int s5pv310_ioctl(u32_t ch, int cmd, void * arg)
 	u64_t pclk;
 	struct serial_parameter param;
 
-	if((ch < 0) || (ch > 3))
+	if((ch < 0) || (ch > 4))
 		return -1;
 
 	memcpy(&param, &uart_param[ch], sizeof(struct serial_parameter));
@@ -257,6 +267,11 @@ static int s5pv310_ioctl(u32_t ch, int cmd, void * arg)
 		writel(S5PV310_UDIVSLOT3, baud_divslot_reg);
 		writel(S5PV310_ULCON3, (data_bit_reg<<0 | stop_bit_reg <<2 | parity_reg<<3));
 		break;
+	case 4:
+		writel(S5PV310_UBRDIV4, baud_div_reg);
+		writel(S5PV310_UDIVSLOT4, baud_divslot_reg);
+		writel(S5PV310_ULCON4, (data_bit_reg<<0 | stop_bit_reg <<2 | parity_reg<<3));
+		break;
 	default:
 		return -1;
 	}
@@ -270,10 +285,10 @@ static int s5pv310_ioctl(u32_t ch, int cmd, void * arg)
 static void s5pv310_uart0_init(void)
 {
 	/* configure GPA01, GPA00 for TXD0, RXD0 */
-//	writel(S5PV310_GPA0CON, (readl(S5PV310_GPA0CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
+	writel(S5PV310_GPA0CON, (readl(S5PV310_GPA0CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
 
 	/* pull up GPA01 and GPA00 */
-//	writel(S5PV310_GPA0PUD, (readl(S5PV310_GPA0PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
+	writel(S5PV310_GPA0PUD, (readl(S5PV310_GPA0PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
 
 	/* configure clk source (pclk), mode, etc */
 	writel(S5PV310_UCON0, 0x00000005);
@@ -330,10 +345,10 @@ static int s5pv310_uart0_ioctl(int cmd, void * arg)
 static void s5pv310_uart1_init(void)
 {
 	/* configure GPA05, GPA04 for TXD1, RXD1 */
-//	writel(S5PV310_GPA0CON, (readl(S5PV310_GPA0CON) & ~(0xf<<16 | 0x0f<<20)) | (0x2<<16 | 0x2<<20));
+	writel(S5PV310_GPA0CON, (readl(S5PV310_GPA0CON) & ~(0xf<<16 | 0x0f<<20)) | (0x2<<16 | 0x2<<20));
 
 	/* pull up GPA05 and GPA04 */
-//	writel(S5PV310_GPA0PUD, (readl(S5PV310_GPA0PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
+	writel(S5PV310_GPA0PUD, (readl(S5PV310_GPA0PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
 
 	/* configure clk source (pclk), mode, etc */
 	writel(S5PV310_UCON1, 0x00000005);
@@ -390,14 +405,15 @@ static int s5pv310_uart1_ioctl(int cmd, void * arg)
 static void s5pv310_uart2_init(void)
 {
 	/* configure GPA11, GPA10 for TXD2, RXD2 */
-//	writel(S5PV310_GPA1CON, (readl(S5PV310_GPA1CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
+	writel(S5PV310_GPA1CON, (readl(S5PV310_GPA1CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
 
 	/* pull up GPA11 and GPA10 */
-//	writel(S5PV310_GPA1PUD, (readl(S5PV310_GPA1PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
+	writel(S5PV310_GPA1PUD, (readl(S5PV310_GPA1PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
 
 	/* configure clk source (pclk), etc */
 	writel(S5PV310_UCON2, 0x00000005);
 	writel(S5PV310_UFCON2, 0x00000000);
+	writel(S5PV310_UMON2, 0x00000000);
 
 	/* configure uart parameter */
 	s5pv310_ioctl( 2, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[2].baud_rate)) );
@@ -448,15 +464,16 @@ static int s5pv310_uart2_ioctl(int cmd, void * arg)
 /* uart 3 */
 static void s5pv310_uart3_init(void)
 {
-	/* configure GPA13, GPA12 for TXD3, RXD3 */
-//	writel(S5PV310_GPA1CON, (readl(S5PV310_GPA1CON) & ~(0xf<<8 | 0x0f<<12)) | (0x2<<8 | 0x2<<12));
+	/* configure GPA15, GPA14 for TXD3, RXD3 */
+	writel(S5PV310_GPA1CON, (readl(S5PV310_GPA1CON) & ~(0xf<<16 | 0x0f<<20)) | (0x2<<16 | 0x2<<20));
 
-	/* pull up GPA13 and GPA12 */
-//	writel(S5PV310_GPA1PUD, (readl(S5PV310_GPA1PUD) & ~(0x3<<4 | 0x03<<6)) | (0x2<<4 | 0x2<<6));
+	/* pull up GPA15 and GPA14 */
+	writel(S5PV310_GPA1PUD, (readl(S5PV310_GPA1PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
 
 	/* configure clk source (pclk), etc */
 	writel(S5PV310_UCON3, 0x00000005);
 	writel(S5PV310_UFCON3, 0x00000000);
+	writel(S5PV310_UMON3, 0x00000000);
 
 	/* configure uart parameter */
 	s5pv310_ioctl( 3, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[3].baud_rate)) );
@@ -504,7 +521,61 @@ static int s5pv310_uart3_ioctl(int cmd, void * arg)
 	return (s5pv310_ioctl(3, cmd, arg));
 }
 
-static struct serial_driver s5pv310_uart_driver[4] = {
+/* uart 4 */
+static void s5pv310_uart4_init(void)
+{
+	/* configure clk source (pclk), etc */
+	writel(S5PV310_UCON4, 0x00000005);
+	writel(S5PV310_UFCON4, 0x00000000);
+	writel(S5PV310_UMON4, 0x00000000);
+
+	/* configure uart parameter */
+	s5pv310_ioctl( 4, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[4].baud_rate)) );
+	s5pv310_ioctl( 4, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[4].data_bit)) );
+	s5pv310_ioctl( 4, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[4].parity)) );
+	s5pv310_ioctl( 4, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[4].stop_bit)) );
+}
+
+static void s5pv310_uart4_exit(void)
+{
+	return;
+}
+
+static ssize_t s5pv310_uart4_read(u8_t * buf, size_t count)
+{
+	ssize_t i;
+
+	for(i = 0; i < count; i++)
+	{
+		if( (readl(S5PV310_UTRSTAT4) & S5PV310_UTRSTAT_RXDR) )
+			buf[i] = readb(S5PV310_URXH4);
+		else
+			break;
+	}
+	return i;
+}
+
+static ssize_t s5pv310_uart4_write(const u8_t * buf, size_t count)
+{
+	ssize_t i;
+
+	for(i = 0; i < count; i++)
+	{
+		/* wait for transmit buffer & shifter register empty */
+		while( !(readl(S5PV310_UTRSTAT4) & S5PV310_UTRSTAT_TXE) );
+
+		/* transmit a character */
+		writeb(S5PV310_UTXH4, buf[i]);
+	}
+	return i;
+}
+
+static int s5pv310_uart4_ioctl(int cmd, void * arg)
+{
+	return (s5pv310_ioctl(4, cmd, arg));
+}
+
+static struct serial_driver s5pv310_uart_driver[5] = {
 	[0] = {
 		.info	= &uart_info[0],
 		.init	= s5pv310_uart0_init,
@@ -536,6 +607,14 @@ static struct serial_driver s5pv310_uart_driver[4] = {
 		.read	= s5pv310_uart3_read,
 		.write	= s5pv310_uart3_write,
 		.ioctl	= s5pv310_uart3_ioctl,
+	},
+	[4] = {
+		.info	= &uart_info[4],
+		.init	= s5pv310_uart4_init,
+		.exit	= s5pv310_uart4_exit,
+		.read	= s5pv310_uart4_read,
+		.write	= s5pv310_uart4_write,
+		.ioctl	= s5pv310_uart4_ioctl,
 	}
 };
 

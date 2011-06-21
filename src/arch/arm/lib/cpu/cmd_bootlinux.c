@@ -111,7 +111,7 @@ static int bootlinux(int argc, char ** argv)
 	printk("now, booting linux......\r\n");
 
 	/* clean up before run linux */
-	cleanup();
+	machine_cleanup();
 
 	/* go linux ... */
 	ret = ((s32_t(*)(s32_t, s32_t, s32_t))(linux_kernel)) (0, linux_mach_type, linux_tag_placement);

@@ -29,6 +29,7 @@
 #include <xboot/resource.h>
 #include <xboot/printk.h>
 #include <xboot/clk.h>
+#include <xboot/machine.h>
 #include <time/tick.h>
 
 /*

@@ -184,7 +184,7 @@ static struct machine realview = {
 
 static __init void mach_realview_init(void)
 {
-	if(!machine_register(&realview))
+	if(!register_machine(&realview))
 		LOG_E("failed to register machine 'realview'");
 }
 

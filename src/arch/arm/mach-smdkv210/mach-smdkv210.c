@@ -208,7 +208,7 @@ static struct machine smdkv210 = {
 
 static __init void mach_smdkv210_init(void)
 {
-	if(!machine_register(&smdkv210))
+	if(!register_machine(&smdkv210))
 		LOG_E("failed to register machine 'smdkv210'");
 }
 

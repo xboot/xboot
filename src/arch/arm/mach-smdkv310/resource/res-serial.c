@@ -51,6 +51,12 @@ static struct serial_parameter uart_param[] = {
 		.data_bit		= DATA_BITS_8,
 		.parity			= PARITY_NONE,
 		.stop_bit		= STOP_BITS_1,
+	},
+	[4] = {
+		.baud_rate		= B115200,
+		.data_bit		= DATA_BITS_8,
+		.parity			= PARITY_NONE,
+		.stop_bit		= STOP_BITS_1,
 	}
 };
 
@@ -70,6 +76,9 @@ static struct resource serial_devs[] = {
 	}, {
 		.name		= "uart3",
 		.data		= &uart_param[3],
+	}, {
+		.name		= "uart4",
+		.data		= &uart_param[4],
 	}
 };
 

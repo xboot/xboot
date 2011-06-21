@@ -39,7 +39,7 @@ static int do_halt(int argc, char ** argv)
 {
 	sync();
 
-	if(halt())
+	if(machine_halt())
 	{
 		return 0;
 	}

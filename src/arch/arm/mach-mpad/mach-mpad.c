@@ -231,7 +231,7 @@ static struct machine mpad = {
 
 static __init void mach_mpad_init(void)
 {
-	if(!machine_register(&mpad))
+	if(!register_machine(&mpad))
 		LOG_E("failed to register machine 'mpad'");
 }
 

@@ -227,7 +227,7 @@ static struct machine mid560 = {
 
 static __init void mach_mid560_init(void)
 {
-	if(!machine_register(&mid560))
+	if(!register_machine(&mid560))
 		LOG_E("failed to register machine 'mid560'");
 }
 

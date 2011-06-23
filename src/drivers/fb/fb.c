@@ -69,6 +69,9 @@ struct fb_console_info
 	/* cursor status, on or off */
 	bool_t cursor;
 
+	/* on/off status */
+	bool_t onoff;
+
 	/* fb console's cell */
 	struct fbcon_cell * cell;
 
@@ -420,6 +423,9 @@ static bool_t fbcon_getwh(struct console * console, s32_t * w, s32_t * h)
 {
 	struct fb_console_info * info = console->priv;
 
+	if(!console->onoff)
+		return FALSE;
+
 	if(w)
 		*w = info->w;
 
@@ -435,6 +441,9 @@ static bool_t fbcon_getwh(struct console * console, s32_t * w, s32_t * h)
 static bool_t fbcon_getxy(struct console * console, s32_t * x, s32_t * y)
 {
 	struct fb_console_info * info = console->priv;
+
+	if(!console->onoff)
+		return FALSE;
 
 	if(x)
 		*x = info->x;
@@ -453,6 +462,9 @@ static bool_t fbcon_gotoxy(struct console * console, s32_t x, s32_t y)
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell;
 	s32_t pos, px, py;
+
+	if(!console->onoff)
+		return FALSE;
 
 	if(x < 0)
 		x = 0;
@@ -494,6 +506,9 @@ static bool_t fbcon_setcursor(struct console * console, bool_t on)
 	struct fbcon_cell * cell;
 	s32_t pos, px, py;
 
+	if(!console->onoff)
+		return FALSE;
+
 	info->cursor = on;
 
 	pos = info->w * info->y + info->x;
@@ -516,6 +531,9 @@ static bool_t fbcon_getcursor(struct console * console)
 {
 	struct fb_console_info * info = console->priv;
 
+	if(!console->onoff)
+		return FALSE;
+
 	return info->cursor;
 }
 
@@ -526,6 +544,9 @@ static bool_t fbcon_setcolor(struct console * console, enum tcolor f, enum tcolo
 {
 	struct fb_console_info * info = console->priv;
 	u8_t cr, cg, cb, ca;
+
+	if(!console->onoff)
+		return FALSE;
 
 	info->f = f;
 	info->b = b;
@@ -546,6 +567,9 @@ static bool_t fbcon_getcolor(struct console * console, enum tcolor * f, enum tco
 {
 	struct fb_console_info * info = console->priv;
 
+	if(!console->onoff)
+		return FALSE;
+
 	*f = info->f;
 	*b = info->b;
 
@@ -560,6 +584,9 @@ static bool_t fbcon_cls(struct console * console)
 	struct fb_console_info * info = console->priv;
 	struct fbcon_cell * cell = &(info->cell[0]);
 	s32_t i;
+
+	if(!console->onoff)
+		return FALSE;
 
 	for(i = 0; i < info->clen; i++)
 	{
@@ -626,6 +653,9 @@ bool_t fbcon_putcode(struct console * console, u32_t code)
 	struct fbcon_cell * cell;
 	s32_t pos, px, py;
 	s32_t w, i;
+
+	if(!console->onoff)
+		return FALSE;
 
 	switch(code)
 	{
@@ -698,6 +728,17 @@ bool_t fbcon_putcode(struct console * console, u32_t code)
 		break;
 	}
 
+	return TRUE;
+}
+
+/*
+ * turn no / off console
+ */
+bool_t fbcon_onoff(struct console * console, bool_t flag)
+{
+	struct fb_console_info * info = console->priv;
+
+	info->onoff = flag;
 	return TRUE;
 }
 
@@ -801,6 +842,7 @@ bool_t register_framebuffer(struct fb * fb)
 	tcolor_to_rgba(info->b, &r, &g, &b, &a);
 	info->bc = fb_map_color(fb, r, g, b, a);
 	info->cursor = TRUE;
+	info->onoff = TRUE;
 	info->clen = info->w * info->h;
 	info->cell = malloc(info->clen * sizeof(struct fbcon_cell));
 	if(!info->cell)
@@ -824,6 +866,7 @@ bool_t register_framebuffer(struct fb * fb)
 	console->cls = fbcon_cls;
 	console->getcode = NULL;
 	console->putcode = fbcon_putcode;
+	console->onoff = fbcon_onoff;
 	console->priv = info;
 
 	if(!register_console(console))

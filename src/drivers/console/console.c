@@ -430,6 +430,13 @@ bool_t console_putcode(struct console * console, u32_t code)
 	return FALSE;
 }
 
+bool_t console_onoff(struct console * console, bool_t flag)
+{
+	if(console && console->onoff)
+		return console->onoff(console, flag);
+	return FALSE;
+}
+
 int console_print(struct console * console, const char * fmt, ...)
 {
 	va_list ap;

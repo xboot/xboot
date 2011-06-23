@@ -87,6 +87,9 @@ struct console
 	/* put a unicode character */
 	bool_t(*putcode)(struct console * console, u32_t code);
 
+	/* turn no or turn off the console */
+	bool_t(*onoff)(struct console * console, bool_t flag);
+
 	/* private data */
 	void * priv;
 };
@@ -125,6 +128,7 @@ bool_t console_getcolor(struct console * console, enum tcolor * f, enum tcolor *
 bool_t console_cls(struct console * console);
 bool_t console_getcode(struct console * console, u32_t * code);
 bool_t console_putcode(struct console * console, u32_t code);
+bool_t console_onoff(struct console * console, bool_t flag);
 
 int console_print(struct console * console, const char * fmt, ...);
 bool_t console_hline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t x);

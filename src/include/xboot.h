@@ -362,6 +362,13 @@
 #endif
 
 /*
+ * console command
+ */
+#if !defined(CONFIG_COMMAND_CONSOLE)
+#define	CONFIG_COMMAND_CONSOLE						(1)
+#endif
+
+/*
  * lua command
  */
 #if !defined(CONFIG_COMMAND_LUA)

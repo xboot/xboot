@@ -61,6 +61,9 @@ struct serial_console_info
 	/* cursor status, on or off */
 	bool_t cursor;
 
+	/* on/off status */
+	bool_t onoff;
+
 	/*
 	 * below for private data
 	 */
@@ -134,6 +137,9 @@ static bool_t scon_getwh(struct console * console, s32_t * w, s32_t * h)
 {
 	struct serial_console_info * info = console->priv;
 
+	if(!console->onoff)
+		return FALSE;
+
 	if(w)
 		*w = info->w;
 
@@ -149,6 +155,9 @@ static bool_t scon_getwh(struct console * console, s32_t * w, s32_t * h)
 static bool_t scon_getxy(struct console * console, s32_t * x, s32_t * y)
 {
 	struct serial_console_info * info = console->priv;
+
+	if(!console->onoff)
+		return FALSE;
 
 	if(x)
 		*x = info->x;
@@ -166,6 +175,9 @@ static bool_t scon_gotoxy(struct console * console, s32_t x, s32_t y)
 {
 	struct serial_console_info * info = console->priv;
 	char buf[32];
+
+	if(!console->onoff)
+		return FALSE;
 
 	if(x < 0)
 		x = 0;
@@ -194,6 +206,9 @@ static bool_t scon_setcursor(struct console * console, bool_t on)
 	struct serial_console_info * info = console->priv;
 	char buf[32];
 
+	if(!console->onoff)
+		return FALSE;
+
 	info->cursor = on;
 
 	if(on)
@@ -212,6 +227,9 @@ static bool_t scon_getcursor(struct console * console)
 {
 	struct serial_console_info * info = console->priv;
 
+	if(!console->onoff)
+		return FALSE;
+
 	return info->cursor;
 }
 
@@ -222,6 +240,9 @@ static bool_t scon_setcolor(struct console * console, enum tcolor f, enum tcolor
 {
 	struct serial_console_info * info = console->priv;
 	char buf[32];
+
+	if(!console->onoff)
+		return FALSE;
 
 	info->f = f;
 	info->b = b;
@@ -242,6 +263,9 @@ static bool_t scon_getcolor(struct console * console, enum tcolor * f, enum tcol
 {
 	struct serial_console_info * info = console->priv;
 
+	if(!console->onoff)
+		return FALSE;
+
 	*f = info->f;
 	*b = info->b;
 
@@ -255,6 +279,9 @@ static bool_t scon_cls(struct console * console)
 {
 	struct serial_console_info * info = console->priv;
 	char buf[32];
+
+	if(!console->onoff)
+		return FALSE;
 
 	sprintf(buf, (const char *)"\033[%ld;%ldr", (s32_t)1, (s32_t)info->h);
 	info->drv->write((const u8_t *)buf, strlen(buf));
@@ -281,6 +308,9 @@ bool_t scon_getcode(struct console * console, u32_t * code)
 	s32_t i;
 	u32_t cp;
 	s8_t * rest;
+
+	if(!console->onoff)
+		return FALSE;
 
 	if(info->drv->read((u8_t *)&c, 1) != 1)
 		return FALSE;
@@ -416,6 +446,9 @@ bool_t scon_putcode(struct console * console, u32_t code)
 	char buf[32];
 	s32_t w, i;
 
+	if(!console->onoff)
+		return FALSE;
+
 	w = ucs4_width(code);
 	if(w < 0)
 		w = 0;
@@ -456,6 +489,17 @@ bool_t scon_putcode(struct console * console, u32_t code)
 	ucs4_to_utf8(&code, 1, buf, sizeof(buf));
 	info->drv->write((const u8_t *)buf, strlen(buf));
 
+	return TRUE;
+}
+
+/*
+ * turn no / off console
+ */
+bool_t scon_onoff(struct console * console, bool_t flag)
+{
+	struct serial_console_info * info = console->priv;
+
+	info->onoff = flag;
 	return TRUE;
 }
 
@@ -523,6 +567,7 @@ bool_t register_serial(struct serial_driver * drv)
 	info->f = TCOLOR_WHITE;
 	info->b = TCOLOR_BLACK;
 	info->cursor = TRUE;
+	info->onoff = TRUE;
 	info->state = TTY_STATE_NORMAL;
 	info->num_params = 0;
 	info->size = 0;
@@ -538,6 +583,7 @@ bool_t register_serial(struct serial_driver * drv)
 	console->cls = scon_cls;
 	console->getcode = scon_getcode;
 	console->putcode = scon_putcode;
+	console->onoff = scon_onoff;
 	console->priv = info;
 
 	if(!register_console(console))

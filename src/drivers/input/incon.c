@@ -34,6 +34,7 @@
 #include <input/keyboard/keyboard.h>
 
 static struct fifo * input_console_fifo;
+static bool_t input_console_onoff;
 
 static void incon_keyboard_handler(enum key_code key)
 {
@@ -97,10 +98,19 @@ static void incon_keyboard_handler(enum key_code key)
 
 static bool_t incon_getcode(struct console * console, u32_t * code)
 {
+	if(!input_console_onoff)
+		return FALSE;
+
 	if(fifo_get(input_console_fifo, (u8_t *)code, sizeof(u32_t)) == sizeof(u32_t))
 		return TRUE;
 
 	return FALSE;
+}
+
+bool_t incon_onoff(struct console * console, bool_t flag)
+{
+	input_console_onoff = flag;
+	return TRUE;
 }
 
 static struct console input_console = {
@@ -115,12 +125,14 @@ static struct console input_console = {
 	.cls			= NULL,
 	.getcode		= incon_getcode,
 	.putcode		= NULL,
+	.onoff			= incon_onoff,
 	.priv			= NULL,
 };
 
 static __init void input_console_init(void)
 {
 	input_console_fifo = fifo_alloc(sizeof(u32_t) * 32);
+	input_console_onoff = TRUE;
 
 	install_listener_onkeydown(incon_keyboard_handler);
 

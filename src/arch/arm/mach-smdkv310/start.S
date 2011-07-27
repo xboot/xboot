@@ -99,9 +99,22 @@ _fiq:
  * the actual reset code
  */
 reset:
+	/* disable watchdog */
+	ldr	r0, =0x10060000
+	mov	r1, #0
+	str	r1, [r0]
+
+	/* set the cpu to supervisor mode */
+	mrs	r0, cpsr
+	bic	r0, r0, #0x1f
+	orr	r0, r0, #0xd3
+	msr	cpsr, r0
 
 	bl debug_print
-	bl debug_print
+
+	/* init system clock */
+	bl	system_clock_init
+
 	bl debug_print
 
 	/* copyself to ram using irom */
@@ -139,6 +152,142 @@ on_the_ram:
 	mov r1, #0;
 	bl	xboot_main		/* call xboot's main function */
 	b	on_the_ram
+
+/*
+ * initialize core clock and bus clock.
+ */
+system_clock_init:
+	push	{lr}
+
+	ldr	r0, =0x10030000
+
+@	ldr	r1, =0x0
+@	ldr	r2, =0x14200
+@	str	r1, [r0, r2]
+
+	mov	r1, #0x10000
+1:	subs	r1, r1, #1
+	bne	1b
+
+	ldr	r1, =CLK_DIV_CPU0_VAL
+	ldr	r2, =0x14500
+	str	r1, [r0, r2]
+	ldr	r1, =CLK_DIV_CPU1_VAL
+	ldr	r2, =0x14504
+	str	r1, [r0, r2]
+
+	ldr	r1, =CLK_SRC_DMC_VAL
+	ldr	r2, =0x10200
+	str	r1, [r0, r2]
+
+	mov	r1, #0x10000
+2:	subs	r1, r1, #1
+	bne	2b
+
+	ldr	r1, =CLK_DIV_DMC0_VAL
+	ldr	r2, =0x10500
+	str	r1, [r0, r2]
+	ldr	r1, =CLK_DIV_DMC1_VAL
+	ldr	r2, =0x10504
+	str	r1, [r0, r2]
+
+	ldr	r1, =CLK_SRC_TOP0_VAL
+	ldr	r2, =0x0c210
+	str	r1, [r0, r2]
+	ldr	r1, =CLK_SRC_TOP1_VAL
+	ldr	r2, =0x0c214
+	str	r1, [r0, r2]
+
+	mov	r1, #0x10000
+3:	subs	r1, r1, #1
+	bne	3b
+
+	ldr	r1, =CLK_DIV_TOP_VAL
+	ldr	r2, =0x0c510
+	str	r1, [r0, r2]
+
+	ldr	r1, =CLK_SRC_LEFTBUS_VAL
+	ldr	r2, =0x04200
+	str	r1, [r0, r2]
+
+	mov	r1, #0x10000
+4:	subs	r1, r1, #1
+	bne	4b
+
+	ldr	r1, =CLK_DIV_LEFRBUS_VAL
+	ldr	r2, =0x04500
+	str	r1, [r0, r2]
+
+	ldr	r1, =CLK_SRC_RIGHTBUS_VAL
+	ldr	r2, =0x08200
+	str	r1, [r0, r2]
+
+	mov	r1, #0x10000
+5:	subs	r1, r1, #1
+	bne	5b
+
+	ldr	r1, =CLK_DIV_RIGHTBUS_VAL
+	ldr	r2, =0x08500
+	str	r1, [r0, r2]
+
+.ifdef REMOVE
+	ldr	r1, =APLL_LOCK_VAL
+	ldr	r2, =0x14000
+	str	r1, [r0, r2]
+	ldr	r1, =MPLL_LOCK_VAL
+	ldr	r2, =0x14008
+	str	r1, [r0, r2]
+	ldr	r1, =EPLL_LOCK_VAL
+	ldr	r2, =0x0c010
+	str	r1, [r0, r2]
+	ldr	r1, =VPLL_LOCK_VAL
+	ldr	r2, =0x0c020
+	str	r1, [r0, r2]
+
+	ldr	r1, =APLL_CON1_VAL
+	ldr	r2, =0x14104
+	str	r1, [r0, r2]
+
+	ldr	r1, =APLL_CON0_VAL
+	ldr	r2, =0x14100
+	str	r1, [r0, r2]
+
+	ldr	r1, =MPLL_CON1_VAL
+	ldr	r2, =0x1410c
+	str	r1, [r0, r2]
+	ldr	r1, =MPLL_CON0_VAL
+	ldr	r2, =0x14108
+	str	r1, [r0, r2]
+
+	ldr	r1, =EPLL_CON1_VAL
+	ldr	r2, =0x0c114
+	str	r1, [r0, r2]
+	ldr	r1, =EPLL_CON0_VAL
+	ldr	r2, =0x0c110
+	str	r1, [r0, r2]
+
+	ldr	r1, =VPLL_CON1_VAL
+	ldr	r2, =0x0c124
+	str	r1, [r0, r2]
+	ldr	r1, =VPLL_CON0_VAL
+	ldr	r2, =0x0c120
+	str	r1, [r0, r2]
+
+	mov	r1, #0x30000
+6:	subs	r1, r1, #1
+	bne	6b
+
+.endif
+
+	ldr	r1, =CLK_SRC_CPU_VAL_MOUTMPLLFOUT
+	ldr	r2, =0x14200
+	str	r1, [r0, r2]
+
+	mov	r1, #0x10000
+7:	subs	r1, r1, #1
+	bne	7b
+
+	pop	{pc}
 
 /*
  *

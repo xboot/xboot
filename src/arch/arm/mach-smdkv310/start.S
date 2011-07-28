@@ -110,8 +110,6 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr, r0
 
-	bl debug_print
-
 	/* init system clock */
 	bl	system_clock_init
 
@@ -158,12 +156,11 @@ on_the_ram:
  */
 system_clock_init:
 	push	{lr}
-
 	ldr	r0, =0x10030000
 
-@	ldr	r1, =0x0
-@	ldr	r2, =0x14200
-@	str	r1, [r0, r2]
+	ldr	r1, =CLK_SRC_CPU_VAL
+	ldr	r2, =0x14200
+	str	r1, [r0, r2]
 
 	mov	r1, #0x10000
 1:	subs	r1, r1, #1
@@ -230,7 +227,6 @@ system_clock_init:
 	ldr	r2, =0x08500
 	str	r1, [r0, r2]
 
-.ifdef REMOVE
 	ldr	r1, =APLL_LOCK_VAL
 	ldr	r2, =0x14000
 	str	r1, [r0, r2]
@@ -276,16 +272,6 @@ system_clock_init:
 	mov	r1, #0x30000
 6:	subs	r1, r1, #1
 	bne	6b
-
-.endif
-
-	ldr	r1, =CLK_SRC_CPU_VAL_MOUTMPLLFOUT
-	ldr	r2, =0x14200
-	str	r1, [r0, r2]
-
-	mov	r1, #0x10000
-7:	subs	r1, r1, #1
-	bne	7b
 
 	pop	{pc}
 

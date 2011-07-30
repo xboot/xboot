@@ -110,6 +110,14 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr, r0
 
+	/* disable mmu stuff and caches */
+	mrc	p15, 0, r0, c1, c0, 0
+	bic	r0, r0, #0x00002000			/* clear bits 13 (--v-) */
+	bic	r0, r0, #0x00000007			/* clear bits 2:0 (-cam) */
+	orr	r0, r0, #0x00000002			/* set bit 1 (--a-) align */
+	orr	r0, r0, #0x00000800			/* set bit 12 (z---) btb */
+	mcr	p15, 0, r0, c1, c0, 0
+
 	/* init system clock */
 	bl	system_clock_init
 
@@ -370,7 +378,7 @@ mem_ctrl_init:
 	str	r1, [r0, #MIU_MAPPING_UPDATE]
 .endif
 
-.if 0
+.ifdef REMOVE
 	/* DREX0 */
 	ldr	r0, =0x10400000	@0x10400000
 
@@ -496,8 +504,12 @@ mem_ctrl_init:
 8:	subs	r2, r2, #1
 	bne	8b
 
+	ldr	r0, =0x10400000		@APB_DMC_0_BASE
+	ldr	r1, =0x0FFF303a
+	str	r1, [r0, #0x00]		@DMC_CONCONTROL
 .endif
 
+.ifdef REMOVE
 	/* DREX1 */
 	ldr	r0, =0x10410000	@0x10410000
 
@@ -558,6 +570,7 @@ mem_ctrl_init:
 	str	r1, [r0, #0x38]		@DMC_TIMINGDATA
 	ldr	r1, =0x52000a3c
 	str	r1, [r0, #0x3C]		@DMC_TIMINGPOWER
+.endif
 
 	ldr	r1, =0x07000000
 	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
@@ -622,15 +635,11 @@ mem_ctrl_init:
 8:	subs	r2, r2, #1
 	bne	8b
 
-	/* turn on DREX0, DREX1 */
-	ldr	r0, =0x10400000		@APB_DMC_0_BASE
-	ldr	r1, =0x0FFF303a
-	str	r1, [r0, #0x00]		@DMC_CONCONTROL
-
 	ldr	r0, =0x10410000		@APB_DMC_1_BASE
 	ldr	r1, =0x0FFF303a
 	str	r1, [r0, #0x00]		@DMC_CONCONTROL
 .endif
+
 	mov	pc, lr
 
 /*

@@ -16,7 +16,9 @@
 .equ MIU_2BIT_31_INTERLEAVED,										0
 .equ MIU_2BIT_31_INTERLEAVED_DMC_1_2_DISABLE_BANK_INTERL,			0
 
+.equ DRAM_CLK_330, 0
 .equ DRAM_CLK_400, 1
+
 
 /*
  * VDD_ARM	1.2V
@@ -34,7 +36,7 @@
 
 	.equ EPLL_MDIV,			(0x30)
 	.equ EPLL_PDIV,			(0x3)
-	.equ EPLL_SDIV,			(0x1)
+	.equ EPLL_SDIV,			(0x2)
 
 	.equ VPLL_MDIV,			(0x35)
 	.equ VPLL_PDIV,			(0x3)
@@ -64,7 +66,40 @@
  * VDD_G3D	1.1V
  */
 .elseif (CLK_1000_400_200 == 1)
+	.equ APLL_MDIV,			(0xfa)
+	.equ APLL_PDIV,			(0x6)
+	.equ APLL_SDIV,			(0x1)
 
+	.equ MPLL_MDIV,			(0xc8)
+	.equ MPLL_PDIV,			(0x6)
+	.equ MPLL_SDIV,			(0x1)
+	
+	.equ EPLL_MDIV,			(0x30)
+	.equ EPLL_PDIV,			(0x3)
+	.equ EPLL_SDIV,			(0x2)
+
+	.equ VPLL_MDIV,			(0x35)
+	.equ VPLL_PDIV,			(0x3)
+	.equ VPLL_SDIV,			(0x2)
+
+	/* APLL_CON1 */
+	.equ APLL_AFC_ENB,		(0x1)
+	.equ APLL_AFC,			(0xc)
+
+	/* MPLL_CON1 */
+	.equ MPLL_AFC_ENB,		(0x0)
+	.equ MPLL_AFC,			(0x1c)
+	
+	/* EPLL_CON1 */
+	.equ EPLL_K,			(0x0)
+	
+	/* VPLL_CON1 */
+	.equ VPLL_SSCG_EN,		(0x0)
+	.equ VPLL_SEL_PF,		(0x0)
+	.equ VPLL_MRR,			(0x11)
+	.equ VPLL_MFR,			(0x0)
+	.equ VPLL_K,			(0x400)
+	
 .endif
 
 .equ APLL_CON0_VAL,			((1<<31) | (APLL_MDIV<<16) | (APLL_PDIV<<8) | (APLL_SDIV))

@@ -22,6 +22,7 @@
 
 #include <xboot.h>
 #include <xboot/machine.h>
+#include <s5pv310/reg-wdg.h>
 
 extern u8_t	__text_start[];
 extern u8_t __text_end[];
@@ -59,6 +60,15 @@ static bool_t mach_halt(void)
  */
 static bool_t mach_reset(void)
 {
+	/* disable watchdog */
+	writel(S5PV310_WTCON, 0x0000);
+
+	/* initialize watchdog timer count register */
+	writel(S5PV310_WTCNT, 0x0001);
+
+	/* enable watchdog timer; assert reset at timer timeout */
+	writel(S5PV310_WTCON, 0x0021);
+
 	return TRUE;
 }
 
@@ -109,7 +119,7 @@ static struct machine smdkv310 = {
 
 			[1] = {
 				.start		= 0x60000000,
-				.end		= 0x60000000 + SZ_512M - 1,
+				.end		= 0x60000000 + (SZ_512M - 1),
 			},
 
 			[2] = {

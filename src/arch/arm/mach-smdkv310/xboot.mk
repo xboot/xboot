@@ -25,14 +25,14 @@ SRCDIRS		:=
 # add fixup rule
 #
 ifeq ($(strip $(HOSTOS)), linux)
-MKHEADER	:= arch/$(ARCH)/$(MACH)/tools/linux/mkheader
+MKV310		:= arch/$(ARCH)/$(MACH)/tools/linux/mkv310
 endif
 ifeq ($(strip $(HOSTOS)), windows)
-MKHEADER	:= arch/$(ARCH)/$(MACH)/tools/windows/mkheader
+MKV310		:= arch/$(ARCH)/$(MACH)/tools/windows/mkv310
 endif
 
 fixup:
-	@echo make header information for irom booting
-#	@$(MKHEADER) $(OUTDIR)/$(XBOOT).bin
+	@echo make checksum information for irom booting
+	@$(MKV310) $(OUTDIR)/$(XBOOT).bin
 
 endif

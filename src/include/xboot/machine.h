@@ -29,7 +29,7 @@ struct machine {
 		struct {
 			const ptrdiff_t start;
 			const ptrdiff_t end;
-		} mem_banks[8];
+		} mem_banks[8 + 1];
 
 		/* extern crystal */
 		const u64_t xtal;

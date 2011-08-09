@@ -44,6 +44,8 @@ int main (int argc, char *argv[])
 		checksum += buffer[i] & 0xff;
 	}
 
+	memset(header, 0, sizeof(header));
+
 	header[3] = (0x1f >> 24) & 0xff;
 	header[2] = (0x1f >> 16) & 0xff;
 	header[1] = (0x1f >> 8) & 0xff;

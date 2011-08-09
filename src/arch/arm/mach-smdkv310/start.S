@@ -40,6 +40,14 @@
 .text
 	.arm
 
+/*
+ * bl1 header infomation for irom
+ */
+	.word 0x2000
+	.word 0x0
+	.word 0x0
+	.word 0x0
+
 	.global	_start
 _start:
 
@@ -119,7 +127,7 @@ reset:
 	mcr	p15, 0, r0, c1, c0, 0
 
 	/* init system clock */
-	bl	system_clock_init
+	bl system_clock_init
 
 	/* for test */
 	bl debug_print

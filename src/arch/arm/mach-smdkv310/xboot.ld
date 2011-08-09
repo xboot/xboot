@@ -23,16 +23,6 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE (__text_start = .);
 		.obj/arch/arm/mach-smdkv310/start.o (.text)
-		.obj/arch/arm/lib/gcc/*.o (.text)
-		
-		/*
-		 * IROM code reads first 14K bytes from boot device.
-		 * It then calculates the checksum of 14K-4 bytes and compare 
-		 * with data at 14K-4 offset.
-		 */
-		. = __text_start + (0x00003800 - 4);
-		LONG(0)
-		
 		*(.text)
 		*(.init.text)
     	*(.exit.text)

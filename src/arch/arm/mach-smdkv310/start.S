@@ -43,7 +43,7 @@
 /*
  * bl1 header infomation for irom
  */
-	.word 0x2000
+	.word 0x4000
 	.word 0x0
 	.word 0x0
 	.word 0x0

@@ -143,7 +143,7 @@ reset:
 	ldr r1, =_start
 	cmp	r0, r1
 	beq	have_copyed
-@	bl	irom_copyself
+	bl	irom_copyself
 have_copyed:
 	nop
 

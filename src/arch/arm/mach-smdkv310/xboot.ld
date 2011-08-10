@@ -23,6 +23,7 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE (__text_start = .);
 		.obj/arch/arm/mach-smdkv310/start.o (.text)
+		.obj/arch/arm/mach-smdkv310/s5pv310-irom.o (.text)
 		*(.text)
 		*(.init.text)
     	*(.exit.text)

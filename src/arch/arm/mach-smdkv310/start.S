@@ -555,7 +555,7 @@ mem_ctrl_init:
 	ldr	r1, =0xff000000
 	str	r1, [r0, #0x14]
 
-	ldr	r1, =0x000000BC
+	ldr	r1, =0x000000BB
 	str	r1, [r0, #0x30]
 
 .if (DRAM_CLK_330 == 1)

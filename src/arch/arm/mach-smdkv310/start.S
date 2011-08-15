@@ -129,9 +129,6 @@ reset:
 	/* init system clock */
 	bl system_clock_init
 
-	/* for test */
-	bl debug_print
-
 	/* initialize memory controller */
 	bl	mem_ctrl_init
 
@@ -314,31 +311,31 @@ mem_ctrl_init:
 	ldr	r0, =0x10600000
 .if (MIU_1BIT_12_INTERLEAVED == 1)
 	ldr	r1, =0x0000000c
-	str	r1, [r0, #MIU_INTLV_CONFIG]
+	str	r1, [r0, #0x400]
 	ldr	r1, =0x40000000
-	str	r1, [r0, #MIU_INTLV_START_ADDR]
+	str	r1, [r0, #0x808]
 	ldr	r1, =0xbfffffff
-	str	r1, [r0, #MIU_INTLV_END_ADDR]
+	str	r1, [r0, #0x810]
 	ldr	r1, =0x00000001
-	str	r1, [r0, #MIU_MAPPING_UPDATE]
+	str	r1, [r0, #0x800]
 .elseif (MIU_1BIT_7_INTERLEAVED == 1)
 	ldr	r1, =0x00000007
-	str	r1, [r0, #MIU_INTLV_CONFIG]
+	str	r1, [r0, #0x400]
 	ldr	r1, =0x40000000
-	str	r1, [r0, #MIU_INTLV_START_ADDR]
+	str	r1, [r0, #0x808]
 	ldr	r1, =0xbfffffff
-	str	r1, [r0, #MIU_INTLV_END_ADDR]
+	str	r1, [r0, #0x810]
 	ldr	r1, =0x00000001
-	str	r1, [r0, #MIU_MAPPING_UPDATE]
+	str	r1, [r0, #0x800]
 .elseif (MIU_2BIT_21_12_INTERLEAVED == 1)
 	ldr	r1, =0x2000150c
-	str	r1, [r0, #MIU_INTLV_CONFIG]
+	str	r1, [r0, #0x400]
 	ldr	r1, =0x40000000
-	str	r1, [r0, #MIU_INTLV_START_ADDR]
+	str	r1, [r0, #0x808]
 	ldr	r1, =0xbfffffff
-	str	r1, [r0, #MIU_INTLV_END_ADDR]
+	str	r1, [r0, #0x810]
 	ldr	r1, =0x00000001
-	str	r1, [r0, #MIU_MAPPING_UPDATE]
+	str	r1, [r0, #0x800]
 .elseif (MIU_2BIT_21_7_INTERLEAVED == 1)
 	ldr	r1, =0x20001507
 	str	r1, [r0, #0x400]
@@ -350,303 +347,299 @@ mem_ctrl_init:
 	str	r1, [r0, #0x800]
 .elseif (MIU_2BIT_21_7_INTERLEAVED_DMC_1_2_DISABLE_BANK_INTERL == 1)
 	ldr	r1, =0x20001507
-	str	r1, [r0, #MIU_INTLV_CONFIG]
+	str	r1, [r0, #0x400]
 	ldr	r1, =0x40000000
-	str	r1, [r0, #MIU_INTLV_START_ADDR]
+	str	r1, [r0, #0x808]
 	ldr	r1, =0xbfffffff
-	str	r1, [r0, #MIU_INTLV_END_ADDR]
+	str	r1, [r0, #0x810]
 	ldr	r1, =0x00000001
-	str	r1, [r0, #MIU_MAPPING_UPDATE]
+	str	r1, [r0, #0x800]
 .elseif (MIU_2BIT_21_7_INTERLEAVED_DMC_1_ENABLE_2_DISABLE_BANK_INTERL == 1)
 	ldr	r1, =0x20001507
-	str	r1, [r0, #MIU_INTLV_CONFIG]
+	str	r1, [r0, #0x400]
 	ldr	r1, =0x40000000
-	str	r1, [r0, #MIU_INTLV_START_ADDR]
+	str	r1, [r0, #0x808]
 	ldr	r1, =0xbfffffff
-	str	r1, [r0, #MIU_INTLV_END_ADDR]
+	str	r1, [r0, #0x810]
 	ldr	r1, =0x00000001
-	str	r1, [r0, #MIU_MAPPING_UPDATE]
+	str	r1, [r0, #0x800]
 .elseif (MIU_2BIT_31_INTERLEAVED == 1)
 	ldr	r1, =0x0000001d
-	str	r1, [r0, #MIU_INTLV_CONFIG]
+	str	r1, [r0, #0x400]
 	ldr	r1, =0x40000000
-	str	r1, [r0, #MIU_INTLV_START_ADDR]
+	str	r1, [r0, #0x808]
 	ldr	r1, =0xbfffffff
-	str	r1, [r0, #MIU_INTLV_END_ADDR]
+	str	r1, [r0, #0x810]
 	ldr	r1, =0x00000001
-	str	r1, [r0, #MIU_MAPPING_UPDATE]
+	str	r1, [r0, #0x800]
 .elseif (MIU_2BIT_31_INTERLEAVED_DMC_1_2_DISABLE_BANK_INTERL == 1)
 	ldr	r1, =0x0000001d
-	str	r1, [r0, #MIU_INTLV_CONFIG]
+	str	r1, [r0, #0x400]
 	ldr	r1, =0x40000000
-	str	r1, [r0, #MIU_INTLV_START_ADDR]
+	str	r1, [r0, #0x808]
 	ldr	r1, =0xbfffffff
-	str	r1, [r0, #MIU_INTLV_END_ADDR]
+	str	r1, [r0, #0x810]
 	ldr	r1, =0x00000001
-	str	r1, [r0, #MIU_MAPPING_UPDATE]
+	str	r1, [r0, #0x800]
 .endif
 
-.ifdef REMOVE
 	/* DREX0 */
-	ldr	r0, =0x10400000	@0x10400000
+	ldr	r0, =0x10400000
 
 	ldr	r1, =0xe0000086
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 
 	ldr	r1, =0xE3855703
-	str	r1, [r0, #0x44]		@DMC_PHYZQCONTROL
+	str	r1, [r0, #0x44]
 
 	mov	r2, #0x100000
 1:	subs	r2, r2, #1
 	bne	1b
 
 	ldr	r1, =0xe000008e
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 	ldr	r1, =0xe0000086
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 
 	ldr	r1, =0x71101008
-	str	r1, [r0, #0x18]		@DMC_PHYCONTROL0
+	str	r1, [r0, #0x18]
 	ldr	r1, =0x7110100A
-	str	r1, [r0, #0x18]		@DMC_PHYCONTROL0
+	str	r1, [r0, #0x18]
 	ldr	r1, =0xe0000086
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 	ldr	r1, =0x7110100B
-	str	r1, [r0, #0x18]		@DMC_PHYCONTROL0
+	str	r1, [r0, #0x18]
 
 	ldr	r1, =0x00000000
-	str	r1, [r0, #0x20]		@DMC_PHYCONTROL2
+	str	r1, [r0, #0x20]
 
-	ldr	r1, =0x0FFF301a
-	str	r1, [r0, #0x00]		@DMC_CONCONTROL
+	ldr	r1, =0x0fff301a
+	str	r1, [r0, #0x00]
 	ldr	r1, =0x00312640
-	str	r1, [r0, #0x04]		@DMC_MEMCONTROL]
+	str	r1, [r0, #0x04]
 
 	ldr	r1, =0x20e01323
-	str	r1, [r0, #0x08]		@DMC_MEMCONFIG0
+	str	r1, [r0, #0x08]
 	ldr	r1, =0x40e01323
-	str	r1, [r0, #0x0C]		@DMC_MEMCONFIG1
+	str	r1, [r0, #0x0C]
 
 	ldr	r1, =0xff000000
-	str	r1, [r0, #0x14]		@DMC_PRECHCONFIG
+	str	r1, [r0, #0x14]
 
 	ldr	r1, =0x000000BB
-	str	r1, [r0, #0x30]		@DMC_TIMINGAREF // BC ->> BB // by jjj.
+	str	r1, [r0, #0x30]
 
 .if (DRAM_CLK_330 == 1)
 	ldr	r1, =0x3545548d
-	str	r1, [r0, #0x34]		@DMC_TIMINGROW
+	str	r1, [r0, #0x34]
 	ldr	r1, =0x45430506
-	str	r1, [r0, #0x38]		@DMC_TIMINGDATA
+	str	r1, [r0, #0x38]
 	ldr	r1, =0x46000a3c
-	str	r1, [r0, #0x3C]		@DMC_TIMINGPOWER          33c --> 0x46000A3c // by jjj
+	str	r1, [r0, #0x3C]
 .elseif (DRAM_CLK_400 == 1)
 	ldr	r1, =0x4046654f
-	str	r1, [r0, #0x34]		@DMC_TIMINGROW
+	str	r1, [r0, #0x34]
 	ldr	r1, =0x46400506
-	str	r1, [r0, #0x38]		@DMC_TIMINGDATA        0x46400506 by jjj
+	str	r1, [r0, #0x38]
 	ldr	r1, =0x52000a3c
-	str	r1, [r0, #0x3C]		@DMC_TIMINGPOWER        0x52000a3c by jjj
+	str	r1, [r0, #0x3C]
 .endif
 
 	ldr	r1, =0x07000000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 2:	subs	r2, r2, #1
 	bne	2b
 
 	ldr	r1, =0x00020000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00030000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00010002
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00000328
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 3:	subs	r2, r2, #1
 	bne	3b
 
 	ldr	r1, =0x0a000000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 4:	subs	r2, r2, #1
 	bne	4b
 
 	ldr	r1, =0x07100000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 5:	subs	r2, r2, #1
 	bne	5b
 
 	ldr	r1, =0x00120000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00130000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00110002
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00100328
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 6:	subs	r2, r2, #1
 	bne	6b
 
 	ldr	r1, =0x0a100000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 7:	subs	r2, r2, #1
 	bne	7b
 
 	ldr	r1, =0xe000008e
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 	ldr	r1, =0xe0000086
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 
 	mov	r2, #0x100000
 8:	subs	r2, r2, #1
 	bne	8b
 
-	ldr	r0, =0x10400000		@APB_DMC_0_BASE
-	ldr	r1, =0x0FFF303a
-	str	r1, [r0, #0x00]		@DMC_CONCONTROL
-.endif
+	ldr	r0, =0x10400000
+	ldr	r1, =0x0FFF303A
+	str	r1, [r0, #0x00]
 
-.ifdef REMOVE
 	/* DREX1 */
-	ldr	r0, =0x10410000	@0x10410000
+	ldr	r0, =0x10410000
 
 	ldr	r1, =0xe0000086
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 
 	ldr	r1, =0xE3855703
-	str	r1, [r0, #0x44]		@DMC_PHYZQCONTROL
+	str	r1, [r0, #0x44]
 
 	mov	r2, #0x100000
 1:	subs	r2, r2, #1
 	bne	1b
 
 	ldr	r1, =0xe000008e
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 	ldr	r1, =0xe0000086
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 
 	ldr	r1, =0x71101008
-	str	r1, [r0, #0x18]		@DMC_PHYCONTROL0
+	str	r1, [r0, #0x18]
 	ldr	r1, =0x7110100A
-	str	r1, [r0, #0x18]		@DMC_PHYCONTROL0
+	str	r1, [r0, #0x18]
 	ldr	r1, =0xe0000086
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 	ldr	r1, =0x7110100B
-	str	r1, [r0, #0x18]		@DMC_PHYCONTROL0
+	str	r1, [r0, #0x18]
 
 	ldr	r1, =0x00000000
-	str	r1, [r0, #0x20]		@DMC_PHYCONTROL2
+	str	r1, [r0, #0x20]
 
-	ldr	r1, =0x0FFF301a
-	str	r1, [r0, #0x00]		@DMC_CONCONTROL
+	ldr	r1, =0x0fff301a
+	str	r1, [r0, #0x00]
 	ldr	r1, =0x00312640
-	str	r1, [r0, #0x04]		@DMC_MEMCONTROL]
+	str	r1, [r0, #0x04]
 
 	ldr	r1, =0x20e01323
-	str	r1, [r0, #0x08]		@DMC_MEMCONFIG0
+	str	r1, [r0, #0x08]
 	ldr	r1, =0x40e01323
-	str	r1, [r0, #0x0C]		@DMC_MEMCONFIG1
+	str	r1, [r0, #0x0C]
 
 	ldr	r1, =0xff000000
-	str	r1, [r0, #0x14]		@DMC_PRECHCONFIG
+	str	r1, [r0, #0x14]
 
 	ldr	r1, =0x000000BC
-	str	r1, [r0, #0x30]		@DMC_TIMINGAREF
+	str	r1, [r0, #0x30]
 
 .if (DRAM_CLK_330 == 1)
 	ldr	r1, =0x3545548d
-	str	r1, [r0, #0x34]		@DMC_TIMINGROW
+	str	r1, [r0, #0x34]
 	ldr	r1, =0x45430506
-	str	r1, [r0, #0x38]		@DMC_TIMINGDATA
+	str	r1, [r0, #0x38]
 	ldr	r1, =0x46000a3c
-	str	r1, [r0, #0x3C]		@DMC_TIMINGPOWER
+	str	r1, [r0, #0x3C]
 .elseif (DRAM_CLK_400 == 1)
 	ldr	r1, =0x4046654f
-	str	r1, [r0, #0x34]		@DMC_TIMINGROW
+	str	r1, [r0, #0x34]
 	ldr	r1, =0x46400506
-	str	r1, [r0, #0x38]		@DMC_TIMINGDATA
+	str	r1, [r0, #0x38]
 	ldr	r1, =0x52000a3c
-	str	r1, [r0, #0x3C]		@DMC_TIMINGPOWER
+	str	r1, [r0, #0x3C]
 .endif
 
 	ldr	r1, =0x07000000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 2:	subs	r2, r2, #1
 	bne	2b
 
 	ldr	r1, =0x00020000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00030000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00010002
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00000328
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 3:	subs	r2, r2, #1
 	bne	3b
 
 	ldr	r1, =0x0a000000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 4:	subs	r2, r2, #1
 	bne	4b
 
 	ldr	r1, =0x07100000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 5:	subs	r2, r2, #1
 	bne	5b
 
 	ldr	r1, =0x00120000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00130000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00110002
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 	ldr	r1, =0x00100328
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 6:	subs	r2, r2, #1
 	bne	6b
 
 	ldr	r1, =0x0a100000
-	str	r1, [r0, #0x10]		@DMC_DIRECTCMD
+	str	r1, [r0, #0x10]
 
 	mov	r2, #0x100000
 7:	subs	r2, r2, #1
 	bne	7b
 
 	ldr	r1, =0xe000008e
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 	ldr	r1, =0xe0000086
-	str	r1, [r0, #0x1C]		@DMC_PHYCONTROL1
+	str	r1, [r0, #0x1C]
 
 	mov	r2, #0x100000
 8:	subs	r2, r2, #1
 	bne	8b
 
-	ldr	r0, =0x10410000		@APB_DMC_1_BASE
-	ldr	r1, =0x0FFF303a
-	str	r1, [r0, #0x00]		@DMC_CONCONTROL
-.endif
+	ldr	r0, =0x10410000
+	ldr	r1, =0x0FFF303A
+	str	r1, [r0, #0x00]
 
 	mov	pc, lr
 
@@ -707,18 +700,6 @@ tzpc_init:
 	str	r1, [r0, #0x0810]
 	str	r1, [r0, #0x081C]
 	str	r1, [r0, #0x0828]
-
-	mov	pc, lr
-
-/*
- * for test
- */
-	.global	debug_print
-debug_print:
-	/* Print 'K' */
-	ldr	r0, =(0x13800000+0x10000)
-	ldr	r1, =0x4b4b4b4b
-	str	r1, [r0, #0x20]
 
 	mov	pc, lr
 

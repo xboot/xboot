@@ -106,7 +106,7 @@ static struct machine smdkv310 = {
 		.board_id			= "0x00000000",
 
 		.cpu_name			= "s5pv310",
-		.cpu_desc			= "a9 dual-core",
+		.cpu_desc			= "ARM CortexA9",
 		.cpu_id				= "0x00000000",
 	},
 

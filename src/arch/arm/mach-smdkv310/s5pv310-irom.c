@@ -57,19 +57,11 @@ extern u8_t __stack_end[];
 #define irom_emmc43_to_mem(size, mem)				\
 		(((u32_t(*)(u32_t, u32_t *))(*((u32_t *)(0x0202003c))))(size, mem))
 
-#define irom_emmc441_to_mem(mark, size, mem)			\
+#define irom_emmc441_to_mem(mark, size, mem)		\
 		(((u32_t(*)(u32_t, u32_t, u32_t *))(*((u32_t *)(0x02020044))))(mark, size, mem))
 
 #define irom_emmc441_to_mem_end()					\
 		(((u32_t(*)())(*((u32_t *)(0x02020048))))())
-
-/*
- * write a 32-bits value to register.
- */
-static void reg_write(u32_t addr, u32_t value)
-{
-	( *((volatile u32_t *)(addr)) ) = value;
-}
 
 /*
  * read a 32-bits value from register.

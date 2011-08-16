@@ -4,8 +4,15 @@
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  */
 
-.equ CLK_800_400_200,			1
-.equ CLK_1000_400_200,			0
+/*
+ * system config
+ */
+.equ CLK_800_400_200,												1
+.equ CLK_1000_400_200,												0
+
+.equ DRAM_CLK_200, 													0
+.equ DRAM_CLK_330, 													0
+.equ DRAM_CLK_400, 													1
 
 .equ MIU_1BIT_12_INTERLEAVED,										0
 .equ MIU_1BIT_7_INTERLEAVED,										0
@@ -15,10 +22,6 @@
 .equ MIU_2BIT_21_7_INTERLEAVED_DMC_1_ENABLE_2_DISABLE_BANK_INTERL,	0
 .equ MIU_2BIT_31_INTERLEAVED,										0
 .equ MIU_2BIT_31_INTERLEAVED_DMC_1_2_DISABLE_BANK_INTERL,			0
-
-.equ DRAM_CLK_330, 0
-.equ DRAM_CLK_400, 1
-
 
 /*
  * VDD_ARM	1.2V

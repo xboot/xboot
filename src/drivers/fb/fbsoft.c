@@ -66,7 +66,7 @@ bool_t fb_soft_fill_rect(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32
 	b.right = p->viewport.right;
 	b.bottom = p->viewport.bottom;
 
-	if(rect_intersect(&r, &a, & b) == FALSE)
+	if(rect_intersect_old(&r, &a, & b) == FALSE)
 		return FALSE;
 
 	x = r.left;
@@ -97,7 +97,7 @@ bool_t fb_soft_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mod
 	b.right = p->viewport.right;
 	b.bottom = p->viewport.bottom;
 
-	if(rect_intersect(&r, &a, & b) == FALSE)
+	if(rect_intersect_old(&r, &a, & b) == FALSE)
 		return FALSE;
 
 	x = r.left;

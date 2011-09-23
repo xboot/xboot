@@ -44,7 +44,7 @@ bool_t bitmap_set_viewport(struct bitmap * bitmap, struct rect * rect)
 	x.right = bitmap->info.width;
 	x.bottom = bitmap->info.height;
 
-	if(rect_intersect(&r, &x, rect) == FALSE)
+	if(rect_intersect_old(&r, &x, rect) == FALSE)
 		return FALSE;
 
 	bitmap->viewport.left = r.left;

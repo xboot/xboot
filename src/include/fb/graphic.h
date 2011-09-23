@@ -1,5 +1,5 @@
-#ifndef __GRAPHIC_H__
-#define __GRAPHIC_H__
+#ifndef __FB_GRAPHIC_H__
+#define __FB_GRAPHIC_H__
 
 #include <xboot.h>
 #include <rect.h>
@@ -18,4 +18,4 @@ bool_t fb_blit_bitmap(struct fb * fb, struct bitmap * bitmap, enum blit_mode mod
 bool_t bitmap_fill_rect(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h);
 bool_t bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy);
 
-#endif /* __GRAPHIC_H__ */
+#endif /* __FB_GRAPHIC_H__ */

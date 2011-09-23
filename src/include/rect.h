@@ -1,5 +1,5 @@
-#ifndef __RECT_H__
-#define __RECT_H__
+#ifndef __LIBC_RECT_H__
+#define __LIBC_RECT_H__
 
 #include <xboot.h>
 
@@ -46,14 +46,14 @@ enum align {
 bool_t rect_set(struct rect * rect, s32_t left, s32_t top, s32_t right, s32_t bottom);
 bool_t rect_set_empty(struct rect * rect);
 bool_t rect_copy(struct rect * dst, struct rect * src);
-bool_t rect_is_empty(struct rect * rect);
-bool_t rect_is_equal(struct rect * rect1, struct rect * rect2);
-bool_t rect_intersect(struct rect * rect, struct rect * src1, struct rect * src2);
-bool_t rect_union(struct rect * rect, struct rect * src1, struct rect * src2);
+bool_t rect_is_empty_old(struct rect * rect);
+bool_t rect_is_equal_old(struct rect * rect1, struct rect * rect2);
+bool_t rect_intersect_old(struct rect * rect, struct rect * src1, struct rect * src2);
+bool_t rect_union_old(struct rect * rect, struct rect * src1, struct rect * src2);
 bool_t rect_subtract(struct rect * rect, struct rect * src1, struct rect * src2);
 bool_t rect_offset(struct rect * rect, s32_t dx, s32_t dy);
 bool_t rect_inflate(struct rect * rect, s32_t dx, s32_t dy);
 bool_t rect_have_point(struct rect * rect, s32_t x, s32_t y);
 bool_t rect_align(struct rect * rect, struct rect * to, enum align flag);
 
-#endif /* __RECT_H__ */
+#endif /* __LIBC_RECT_H__ */

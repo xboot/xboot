@@ -6,6 +6,7 @@
 #include <sizes.h>
 #include <ssize.h>
 #include <endian.h>
+#include <byteorder.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stddef.h>

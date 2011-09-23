@@ -119,7 +119,7 @@ bool_t bitmap_fill_rect(struct bitmap * bitmap, u32_t c, u32_t x, u32_t y, u32_t
 	b.right = bitmap->viewport.right;
 	b.bottom = bitmap->viewport.bottom;
 
-	if(rect_intersect(&r, &a, & b) == FALSE)
+	if(rect_intersect_old(&r, &a, & b) == FALSE)
 		return FALSE;
 
 	x = r.left;
@@ -152,7 +152,7 @@ bool_t bitmap_blit(struct bitmap * dst, struct bitmap * src, enum blit_mode mode
 	b.right = dst->viewport.right;
 	b.bottom = dst->viewport.bottom;
 
-	if(rect_intersect(&r, &a, & b) == FALSE)
+	if(rect_intersect_old(&r, &a, & b) == FALSE)
 		return FALSE;
 
 	x = r.left;

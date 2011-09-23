@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <div64.h>
 #include <fifo.h>
-#include <color.h>
 #include <byteorder.h>
 #include <sha.h>
 #include <xml.h>
@@ -45,11 +44,32 @@
 #include <fs/fileio.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
+#include <graphic/surface.h>
 
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
 static int test(int argc, char ** argv)
 {
+	struct fb * fb;
+	struct surface_t * surface;
+	int i;
+	u32_t c;
+
+	fb = search_framebuffer("fb");
+
+	surface = surface_alloc_from(NULL, 200, 30, PIXEL_FORMAT_ABGR_8888);
+
+	surface_fill_rect(surface, NULL, 0xf23);
+	c = 0x564;
+	for(i = 0; i < 20; i++)
+	{
+		//image_set_pixel(img, i, i, c);
+	}
+
+	display_surface(fb, surface);
+
+	surface_free(surface);
+
 	return 0;
 }
 

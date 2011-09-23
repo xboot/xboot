@@ -24,7 +24,6 @@
 #include <types.h>
 #include <malloc.h>
 #include <rect.h>
-#include <color.h>
 #include <fb/fb.h>
 #include <fb/bitmap.h>
 #include <fb/graphic.h>
@@ -1147,7 +1146,7 @@ bool_t display_logo(struct fb * fb)
 	rect_set(&to, 0, 0, bitmap->info.width, bitmap->info.height);
 	rect_align(&rect, &to, ALIGN_CENTER);
 
-	if(rect_intersect(&r, &rect, &to) != TRUE)
+	if(rect_intersect_old(&r, &rect, &to) != TRUE)
 	{
 		bitmap_destroy(bitmap);
 		return FALSE;

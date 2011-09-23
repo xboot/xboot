@@ -1,7 +1,7 @@
 /*
- * lib/libc/color.c
+ * kernel/graphic/color.c
  *
- * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,10 +20,7 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <color.h>
+#include <graphic/color.h>
 
 #define RGB_COLOR(red, green, blue)		\
 	{.r = red, .g = green, .b = blue, .a = 255}
@@ -31,7 +28,7 @@
 struct named_color
 {
 	const char * name;
-	struct color color;
+	struct color_t color;
 };
 
 /*
@@ -190,10 +187,7 @@ const static struct named_color named_colors[] =
 	{ 0,						RGB_COLOR(0,0,0) }
 };
 
-/*
- * get the color by name
- */
-struct color * get_color_by_name(const char * name)
+struct color_t * get_color_by_name(const char * name)
 {
 	int i;
 
@@ -203,5 +197,5 @@ struct color * get_color_by_name(const char * name)
 			break;
 	}
 
-	return (struct color *)(&(named_colors[i].color));
+	return (struct color_t *)(&(named_colors[i].color));
 }

@@ -64,7 +64,7 @@ bool_t rect_copy(struct rect * dst, struct rect * src)
 	return TRUE;
 }
 
-bool_t rect_is_empty(struct rect * rect)
+bool_t rect_is_empty_old(struct rect * rect)
 {
 	if( (rect->right <= rect->left) || (rect->bottom <= rect->top) )
 	{
@@ -74,7 +74,7 @@ bool_t rect_is_empty(struct rect * rect)
 	return FALSE;
 }
 
-bool_t rect_is_equal(struct rect * rect1, struct rect * rect2)
+bool_t rect_is_equal_old(struct rect * rect1, struct rect * rect2)
 {
 	if( (rect1->left == rect2->left)
 		&& (rect1->top == rect2->top)
@@ -87,7 +87,7 @@ bool_t rect_is_equal(struct rect * rect1, struct rect * rect2)
 	return FALSE;
 }
 
-bool_t rect_intersect(struct rect * rect, struct rect * src1, struct rect * src2)
+bool_t rect_intersect_old(struct rect * rect, struct rect * src1, struct rect * src2)
 {
 	rect->left = MAX(src1->left, src2->left);
 	rect->top = MAX(src1->top, src2->top);
@@ -107,7 +107,7 @@ bool_t rect_intersect(struct rect * rect, struct rect * src1, struct rect * src2
 	return TRUE;
 }
 
-bool_t rect_union(struct rect * rect, struct rect * src1, struct rect * src2)
+bool_t rect_union_old(struct rect * rect, struct rect * src1, struct rect * src2)
 {
 	rect->left = MIN(src1->left, src2->left);
 	rect->top = MIN(src1->top, src2->top);

@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/fill.c
+ * kernel/graphic/fillrect.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,13 +22,14 @@
 
 #include <graphic/surface.h>
 
-static void surface_fill_rect_1byte(struct surface_t * surface, const struct rect_t * rect, u32_t c)
+static void surface_fill_rect_1byte(struct surface_t * surface,
+		const struct rect_t * rect, u32_t c)
 {
-	u8_t * p, * q;
+	u8_t * p, *q;
 	u8_t * t;
 	u32_t len, skip;
 	u32_t i;
-	u8_t fill = (u8_t)(c & 0xff);
+	u8_t fill = (u8_t) (c & 0xff);
 
 	u32_t x = rect->x;
 	u32_t y = rect->y;
@@ -37,29 +38,31 @@ static void surface_fill_rect_1byte(struct surface_t * surface, const struct rec
 
 	len = surface->info.bytes_per_pixel * w;
 	skip = surface->pitch;
-	t = (u8_t *)(surface->pixels + y * surface->pitch + x * surface->info.bytes_per_pixel);
-	p = q = (u8_t *)t;
+	t = (u8_t *) (surface->pixels + y * surface->pitch + x
+			* surface->info.bytes_per_pixel);
+	p = q = (u8_t *) t;
 
-	for(i = 0; i < w; i++)
+	for (i = 0; i < w; i++)
 	{
 		*t++ = fill;
 	}
 
-	for(i = 1; i < h; i++)
+	for (i = 1; i < h; i++)
 	{
 		q += skip;
 		memcpy(q, p, len);
 	}
 }
 
-static void surface_fill_rect_2byte(struct surface_t * surface, const struct rect_t * rect, u32_t c)
+static void surface_fill_rect_2byte(struct surface_t * surface,
+		const struct rect_t * rect, u32_t c)
 {
-	u8_t * p, * q;
+	u8_t * p, *q;
 	u8_t * t;
 	u32_t len, skip;
 	u32_t i;
-	u8_t fill0 = (u8_t)((c >> 0) & 0xff);
-	u8_t fill1 = (u8_t)((c >> 8) & 0xff);
+	u8_t fill0 = (u8_t) ((c >> 0) & 0xff);
+	u8_t fill1 = (u8_t) ((c >> 8) & 0xff);
 
 	u32_t x = rect->x;
 	u32_t y = rect->y;
@@ -68,31 +71,33 @@ static void surface_fill_rect_2byte(struct surface_t * surface, const struct rec
 
 	len = surface->info.bytes_per_pixel * w;
 	skip = surface->pitch;
-	t = (u8_t *)(surface->pixels + y * surface->pitch + x * surface->info.bytes_per_pixel);
-	p = q = (u8_t *)t;
+	t = (u8_t *) (surface->pixels + y * surface->pitch + x
+			* surface->info.bytes_per_pixel);
+	p = q = (u8_t *) t;
 
-	for(i = 0; i < w; i++)
+	for (i = 0; i < w; i++)
 	{
 		*t++ = fill0;
 		*t++ = fill1;
 	}
 
-	for(i = 1; i < h; i++)
+	for (i = 1; i < h; i++)
 	{
 		q += skip;
 		memcpy(q, p, len);
 	}
 }
 
-static void surface_fill_rect_3byte(struct surface_t * surface, const struct rect_t * rect, u32_t c)
+static void surface_fill_rect_3byte(struct surface_t * surface,
+		const struct rect_t * rect, u32_t c)
 {
-	u8_t * p, * q;
+	u8_t * p, *q;
 	u8_t * t;
 	u32_t len, skip;
 	u32_t i;
-	u8_t fill0 = (u8_t)((c >> 0) & 0xff);
-	u8_t fill1 = (u8_t)((c >> 8) & 0xff);
-	u8_t fill2 = (u8_t)((c >> 16) & 0xff);
+	u8_t fill0 = (u8_t) ((c >> 0) & 0xff);
+	u8_t fill1 = (u8_t) ((c >> 8) & 0xff);
+	u8_t fill2 = (u8_t) ((c >> 16) & 0xff);
 
 	u32_t x = rect->x;
 	u32_t y = rect->y;
@@ -101,26 +106,28 @@ static void surface_fill_rect_3byte(struct surface_t * surface, const struct rec
 
 	len = surface->info.bytes_per_pixel * w;
 	skip = surface->pitch;
-	t = (u8_t *)(surface->pixels + y * surface->pitch + x * surface->info.bytes_per_pixel);
-	p = q = (u8_t *)t;
+	t = (u8_t *) (surface->pixels + y * surface->pitch + x
+			* surface->info.bytes_per_pixel);
+	p = q = (u8_t *) t;
 
-	for(i = 0; i < w; i++)
+	for (i = 0; i < w; i++)
 	{
 		*t++ = fill0;
 		*t++ = fill1;
 		*t++ = fill2;
 	}
 
-	for(i = 1; i < h; i++)
+	for (i = 1; i < h; i++)
 	{
 		q += skip;
 		memcpy(q, p, len);
 	}
 }
 
-static void surface_fill_rect_4byte(struct surface_t * surface, const struct rect_t * rect, u32_t c)
+static void surface_fill_rect_4byte(struct surface_t * surface,
+		const struct rect_t * rect, u32_t c)
 {
-	u8_t * p, * q;
+	u8_t * p, *q;
 	u32_t * t;
 	u32_t len, skip;
 	u32_t i;
@@ -133,54 +140,41 @@ static void surface_fill_rect_4byte(struct surface_t * surface, const struct rec
 	c = cpu_to_le32(c);
 	len = surface->info.bytes_per_pixel * w;
 	skip = surface->pitch;
-	t = (u32_t *)(surface->pixels + y * surface->pitch + x * surface->info.bytes_per_pixel);
-	p = q = (u8_t *)t;
+	t = (u32_t *) (surface->pixels + y * surface->pitch + x
+			* surface->info.bytes_per_pixel);
+	p = q = (u8_t *) t;
 
-	for(i = 0; i < w; i++)
+	for (i = 0; i < w; i++)
 		*t++ = c;
 
-	for(i = 1; i < h; i++)
+	for (i = 1; i < h; i++)
 	{
 		q += skip;
 		memcpy(q, p, len);
 	}
 }
 
-static void surface_fill_rect_generic(struct surface_t * surface, const struct rect_t * rect, u32_t c)
-{
-	u32_t x = rect->x;
-	u32_t y = rect->y;
-	u32_t w = rect->w;
-	u32_t h = rect->h;
-
-	u32_t i, j;
-
-	for(j = 0; j < h; j++)
-	{
-		for(i = 0; i < w; i++)
-		{
-			//TODO surface_set_pixel(surface, x + i, y + j, c);
-		}
-	}
-}
-
-bool_t surface_fill_rect(struct surface_t * surface, const struct rect_t * rect, u32_t c)
+bool_t surface_fill_rect(struct surface_t * surface,
+		const struct rect_t * rect, u32_t c)
 {
 	struct rect_t clipped;
 
-	if(! surface)
+	if (!surface)
 		return FALSE;
 
-	if(! surface->pixels)
+	if (!surface->pixels)
 		return FALSE;
 
-	if(rect)
+	if (surface->info.bits_per_pixel < 8)
+		return FALSE;
+
+	if (rect)
 	{
-        if(! rect_intersect(rect, &surface->clip, &clipped))
-        {
-        	return TRUE;
-        }
-        rect = &clipped;
+		if (!rect_intersect(rect, &surface->clip, &clipped))
+		{
+			return TRUE;
+		}
+		rect = &clipped;
 	}
 	else
 	{
@@ -206,16 +200,16 @@ bool_t surface_fill_rect(struct surface_t * surface, const struct rect_t * rect,
 		break;
 
 	default:
-		surface_fill_rect_generic(surface, rect, c);
-		break;
+		return FALSE;
 	}
 
 	return TRUE;
 }
 
-bool_t surface_fill_rects(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c)
+bool_t surface_fill_rects(struct surface_t * surface,
+		const struct rect_t * rects, u32_t count, u32_t c)
 {
-    u32_t i;
+	u32_t i;
 
 	if (!rects)
 		return FALSE;

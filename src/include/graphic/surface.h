@@ -6,8 +6,8 @@
 #include <graphic/rect.h>
 
 enum surface_pixels {
-	SURFACE_PIXELS_PREALLOC,
-	SURFACE_PIXELS_DONTFREE,
+	SURFACE_PIXELS_NEEDFREE	= 0x0,
+	SURFACE_PIXELS_DONTFREE	= 0x1,
 };
 
 struct surface_t {
@@ -39,5 +39,11 @@ bool_t surface_get_clip_rect(struct surface_t * surface, struct rect_t * rect);
 
 struct surface_t * surface_alloc_from(void * pixels, u32_t w, u32_t h, enum pixel_format fmt);
 void surface_free(struct surface_t * surface);
+
+bool_t surface_draw_point(struct surface_t * surface, s32_t x, s32_t y, u32_t c);
+bool_t surface_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c);
+
+bool_t surface_fill_rect(struct surface_t * surface, const struct rect_t * rect, u32_t c);
+bool_t surface_fill_rects(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c);
 
 #endif /* __SURFACE_H__ */

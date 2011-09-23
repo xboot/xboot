@@ -63,7 +63,7 @@ static int test(int argc, char ** argv)
 	c = 0x564;
 	for(i = 0; i < 20; i++)
 	{
-		//image_set_pixel(img, i, i, c);
+		surface_draw_point(surface, i, i, c);
 	}
 
 	display_surface(fb, surface);

@@ -22,30 +22,6 @@
 
 #include <graphic/surface.h>
 
-static u32_t calculate_surface_pitch(struct surface_t * surface)
-{
-	u32_t pitch;
-
-	if(!surface)
-		return 0;
-
-	pitch = surface->w * surface->info.bytes_per_pixel;
-	switch (surface->info.bits_per_pixel)
-	{
-	case 1:
-		pitch = (pitch + 7) / 8;
-		break;
-	case 4:
-		pitch = (pitch + 1) / 2;
-		break;
-	default:
-		break;
-	}
-
-	pitch = (pitch + 3) & ~3;
-	return (pitch);
-}
-
 bool_t surface_set_clip_rect(struct surface_t * surface,
 		struct rect_t * rect)
 {
@@ -92,7 +68,7 @@ bool_t surface_get_clip_rect(struct surface_t * surface,
 struct surface_t * surface_alloc_from(void * pixels, u32_t w, u32_t h, enum pixel_format fmt)
 {
 	struct surface_t * surface;
-	u32_t size;
+	u32_t pitch, size;
 
 	if( (w <= 0) && (h <= 0) )
 		return NULL;
@@ -102,9 +78,24 @@ struct surface_t * surface_alloc_from(void * pixels, u32_t w, u32_t h, enum pixe
 		return NULL;
 
 	set_pixel_info(&surface->info, fmt);
+
+	pitch = w * surface->info.bytes_per_pixel;
+	switch(surface->info.bits_per_pixel)
+	{
+	case 1:
+		pitch = (pitch + 7) / 8;
+		break;
+	case 4:
+		pitch = (pitch + 1) / 2;
+		break;
+	default:
+		break;
+	}
+	pitch = (pitch + 0x3) & ~0x3;
+
 	surface->w = w;
 	surface->h = h;
-	surface->pitch = calculate_surface_pitch(surface);
+	surface->pitch = pitch;
 	surface_set_clip_rect(surface, NULL);
 
 	if(pixels)
@@ -122,8 +113,8 @@ struct surface_t * surface_alloc_from(void * pixels, u32_t w, u32_t h, enum pixe
 			return NULL;
 		}
 
-		surface->flag = SURFACE_PIXELS_PREALLOC;
-		memset(surface->pixels, 0, size);
+		surface->flag = SURFACE_PIXELS_NEEDFREE;
+		memset(surface->pixels, 0xff, size);
 	}
 
 	surface->pirv = NULL;
@@ -135,7 +126,7 @@ void surface_free(struct surface_t * surface)
 	if(!surface)
 		return;
 
-	if(surface->pixels && (surface->flag == SURFACE_PIXELS_PREALLOC))
+	if(surface->pixels && (surface->flag == SURFACE_PIXELS_NEEDFREE))
 		free(surface->pixels);
 
 	free(surface);

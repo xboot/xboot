@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/fillrect.c
+ * kernel/graphic/fill_rects.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -154,7 +154,7 @@ static void surface_fill_rect_4byte(struct surface_t * surface,
 	}
 }
 
-bool_t surface_fill_rect(struct surface_t * surface,
+static bool_t surface_fill_rect(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	struct rect_t clipped;

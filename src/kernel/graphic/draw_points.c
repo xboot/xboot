@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/drawpoint.c
+ * kernel/graphic/draw_points.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

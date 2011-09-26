@@ -59,11 +59,15 @@ static int test(int argc, char ** argv)
 
 	surface = surface_alloc_from(NULL, 200, 30, PIXEL_FORMAT_ABGR_8888);
 
-	surface_fill_rect(surface, NULL, 0xf23);
+	surface_fill_rects(surface, &surface->clip, 1, 0xf23);
+
 	c = 0x564;
 	for(i = 0; i < 20; i++)
 	{
-		surface_draw_point(surface, i, i, c);
+		struct point_t p;
+		p.x = i;
+		p.y = i;
+		surface_draw_points(surface, &p, 1, c);
 	}
 
 	display_surface(fb, surface);

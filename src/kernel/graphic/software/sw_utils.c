@@ -22,6 +22,35 @@
 
 #include <graphic/software.h>
 
+inline u8_t * surface_sw_get_pointer(struct surface_t * surface, s32_t x, s32_t y)
+{
+	u8_t * p;
+
+	switch (surface->info.bytes_per_pixel)
+	{
+	case 1:
+		p = surface->pixels + y * surface->pitch + x;
+		break;
+
+	case 2:
+		p = surface->pixels + y * surface->pitch + x * 2;
+		break;
+
+	case 3:
+		p = surface->pixels + y * surface->pitch + x * 3;
+		break;
+
+	case 4:
+		p = surface->pixels + y * surface->pitch + x * 4;
+		break;
+
+	default:
+		return 0;
+	}
+
+	return p;
+}
+
 inline void surface_sw_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_t c)
 {
 	u8_t * p;

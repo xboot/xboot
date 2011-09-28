@@ -5,6 +5,7 @@
 #include <graphic/surface.h>
 
 
+inline u8_t * surface_sw_get_pointer(struct surface_t * surface, s32_t x, s32_t y);
 inline void surface_sw_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_t c);
 inline u32_t surface_sw_get_pixel(struct surface_t * surface, s32_t x, s32_t y);
 

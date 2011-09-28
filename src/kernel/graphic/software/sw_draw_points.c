@@ -53,7 +53,7 @@ bool_t software_draw_points(struct surface_t * surface, const struct point_t * p
 			continue;
 		}
 
-		surface_set_pixel(surface, x, y, c);
+		surface_sw_set_pixel(surface, x, y, c);
 	}
 
 	return TRUE;

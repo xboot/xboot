@@ -42,10 +42,10 @@ static void blit_replace_generic(struct surface_t * dst, struct rect_t * dst_rec
 	{
 		for(i = 0; i < dw; i++)
 		{
-			sc = surface_get_pixel(src, sx + i, sy + j);
+			sc = surface_sw_get_pixel(src, sx + i, sy + j);
 			unmap_pixel_color(&src->info, sc, &col);
 			dc = map_pixel_color(&dst->info, &col);
-			surface_set_pixel(dst, dx + i, dy + j, dc);
+			surface_sw_set_pixel(dst, dx + i, dy + j, dc);
 		}
 	}
 }
@@ -72,7 +72,7 @@ static void blit_alpha_generic(struct surface_t * dst, struct rect_t * dst_rect,
 	{
 		for(i = 0; i < dw; i++)
 		{
-			sc = surface_get_pixel(src, sx + i, sy + j);
+			sc = surface_sw_get_pixel(src, sx + i, sy + j);
 			unmap_pixel_color(&src->info, sc, &scol);
 
 			alpha = scol.a;
@@ -83,11 +83,11 @@ static void blit_alpha_generic(struct surface_t * dst, struct rect_t * dst_rect,
 			if(alpha == 0xff)
 			{
 				dc = map_pixel_color(&dst->info, &scol);
-				surface_set_pixel(dst, dx + i, dy + j, dc);
+				surface_sw_set_pixel(dst, dx + i, dy + j, dc);
 				continue;
 			}
 
-			dc = surface_get_pixel(dst, dx + i, dy + j);
+			dc = surface_sw_get_pixel(dst, dx + i, dy + j);
 			unmap_pixel_color(&dst->info, dc, &dcol);
 
 			col.r = (((scol.r * alpha) + (dcol.r * (255 - alpha))) / 255);
@@ -96,7 +96,7 @@ static void blit_alpha_generic(struct surface_t * dst, struct rect_t * dst_rect,
 			col.a = alpha;
 
 			dc = map_pixel_color(&dst->info, &dcol);
-			surface_set_pixel(dst, dx + i, dy + j, dc);
+			surface_sw_set_pixel(dst, dx + i, dy + j, dc);
 		}
 	}
 }

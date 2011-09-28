@@ -22,7 +22,7 @@
 
 #include <graphic/software.h>
 
-inline void surface_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_t c)
+inline void surface_sw_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_t c)
 {
 	u8_t * p;
 
@@ -55,7 +55,7 @@ inline void surface_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_
 	}
 }
 
-inline u32_t surface_get_pixel(struct surface_t * surface, s32_t x, s32_t y)
+inline u32_t surface_sw_get_pixel(struct surface_t * surface, s32_t x, s32_t y)
 {
 	u32_t c;
 	u8_t * p;

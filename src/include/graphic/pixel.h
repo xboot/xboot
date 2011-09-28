@@ -15,6 +15,12 @@ enum pixel_format
 
 	PIXEL_FORMAT_BGR_888		= 5,
 	PIXEL_FORMAT_RGB_888		= 6,
+
+	PIXEL_FORMAT_BGR_565		= 7,
+	PIXEL_FORMAT_RGB_565		= 8,
+
+	PIXEL_FORMAT_BGR_332		= 9,
+	PIXEL_FORMAT_RGB_332		= 10,
 };
 
 struct pixel_info {

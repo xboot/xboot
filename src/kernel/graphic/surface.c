@@ -110,8 +110,7 @@ void surface_free(struct surface_t * surface)
 	free(surface);
 }
 
-bool_t surface_set_clip_rect(struct surface_t * surface,
-		struct rect_t * rect)
+bool_t surface_set_clip_rect(struct surface_t * surface, struct rect_t * rect)
 {
 	struct rect_t full;
 

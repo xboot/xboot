@@ -27,50 +27,46 @@ enum pixel_format get_pixel_format(struct pixel_info * info)
 	if(info->bits_per_pixel == 32)
 	{
 		if((info->red_mask_size == 8)
-			&& (info->red_field_pos == 0)
 			&& (info->green_mask_size == 8)
-			&& (info->green_field_pos == 8)
 			&& (info->blue_mask_size == 8)
-			&& (info->blue_field_pos == 16)
 			&& (info->alpha_mask_size == 8)
-			&& (info->alpha_field_pos == 24)
-		)
+			&& (info->red_field_pos == 0)
+			&& (info->green_field_pos == 8)
+			&& (info->blue_field_pos == 16)
+			&& (info->alpha_field_pos == 24))
 		{
 			return PIXEL_FORMAT_ABGR_8888;
 		}
 		else if((info->red_mask_size == 16)
-				&& (info->red_field_pos == 0)
-				&& (info->green_mask_size == 8)
-				&& (info->green_field_pos == 8)
-				&& (info->blue_mask_size == 8)
-				&& (info->blue_field_pos == 0)
-				&& (info->alpha_mask_size == 8)
-				&& (info->alpha_field_pos == 24)
-			)
+			&& (info->green_mask_size == 8)
+			&& (info->blue_mask_size == 8)
+			&& (info->alpha_mask_size == 8)
+			&& (info->red_field_pos == 0)
+			&& (info->green_field_pos == 8)
+			&& (info->blue_field_pos == 0)
+			&& (info->alpha_field_pos == 24))
 		{
 			return PIXEL_FORMAT_ARGB_8888;
 		}
 		else if((info->red_mask_size == 16)
-				&& (info->red_field_pos == 8)
-				&& (info->green_mask_size == 8)
-				&& (info->green_field_pos == 16)
-				&& (info->blue_mask_size == 8)
-				&& (info->blue_field_pos == 24)
-				&& (info->alpha_mask_size == 8)
-				&& (info->alpha_field_pos == 0)
-			)
+			&& (info->green_mask_size == 8)
+			&& (info->blue_mask_size == 8)
+			&& (info->alpha_mask_size == 8)
+			&& (info->red_field_pos == 8)
+			&& (info->green_field_pos == 16)
+			&& (info->blue_field_pos == 24)
+			&& (info->alpha_field_pos == 0))
 		{
 			return PIXEL_FORMAT_BGRA_8888;
 		}
 		else if((info->red_mask_size == 16)
-				&& (info->red_field_pos == 24)
-				&& (info->green_mask_size == 8)
-				&& (info->green_field_pos == 16)
-				&& (info->blue_mask_size == 8)
-				&& (info->blue_field_pos == 8)
-				&& (info->alpha_mask_size == 8)
-				&& (info->alpha_field_pos == 0)
-			)
+			&& (info->green_mask_size == 8)
+			&& (info->blue_mask_size == 8)
+			&& (info->alpha_mask_size == 8)
+			&& (info->red_field_pos == 24)
+			&& (info->green_field_pos == 16)
+			&& (info->blue_field_pos == 8)
+			&& (info->alpha_field_pos == 0))
 		{
 			return PIXEL_FORMAT_RGBA_8888;
 		}
@@ -78,28 +74,76 @@ enum pixel_format get_pixel_format(struct pixel_info * info)
 	else if(info->bits_per_pixel == 24)
 	{
 		if((info->red_mask_size == 8)
-			&& (info->red_field_pos == 0)
 			&& (info->green_mask_size == 8)
-			&& (info->green_field_pos == 8)
 			&& (info->blue_mask_size == 8)
-			&& (info->blue_field_pos == 16)
 			&& (info->alpha_mask_size == 0)
-			&& (info->alpha_field_pos == 0)
-		)
+			&& (info->red_field_pos == 0)
+			&& (info->green_field_pos == 8)
+			&& (info->blue_field_pos == 16)
+			&& (info->alpha_field_pos == 0))
 		{
 			return PIXEL_FORMAT_BGR_888;
 		}
 		else if((info->red_mask_size == 16)
-				&& (info->red_field_pos == 0)
-				&& (info->green_mask_size == 8)
-				&& (info->green_field_pos == 8)
-				&& (info->blue_mask_size == 8)
-				&& (info->blue_field_pos == 0)
-				&& (info->alpha_mask_size == 0)
-				&& (info->alpha_field_pos == 0)
-			)
+			&& (info->green_mask_size == 8)
+			&& (info->blue_mask_size == 8)
+			&& (info->alpha_mask_size == 0)
+			&& (info->red_field_pos == 0)
+			&& (info->green_field_pos == 8)
+			&& (info->blue_field_pos == 0)
+			&& (info->alpha_field_pos == 0))
 		{
 			return PIXEL_FORMAT_RGB_888;
+		}
+	}
+	else if(info->bits_per_pixel == 16)
+	{
+		if((info->red_mask_size == 5)
+			&& (info->green_mask_size == 6)
+			&& (info->blue_mask_size == 5)
+			&& (info->alpha_mask_size == 0)
+			&& (info->red_field_pos == 0)
+			&& (info->green_field_pos == 5)
+			&& (info->blue_field_pos == 11)
+			&& (info->alpha_field_pos == 0))
+		{
+			return PIXEL_FORMAT_BGR_565;
+		}
+		else if((info->red_mask_size == 5)
+			&& (info->green_mask_size == 6)
+			&& (info->blue_mask_size == 5)
+			&& (info->alpha_mask_size == 0)
+			&& (info->red_field_pos == 11)
+			&& (info->green_field_pos == 5)
+			&& (info->blue_field_pos == 0)
+			&& (info->alpha_field_pos == 0))
+		{
+			return PIXEL_FORMAT_RGB_565;
+		}
+	}
+	else if(info->bits_per_pixel == 8)
+	{
+		if((info->red_mask_size == 2)
+			&& (info->green_mask_size == 3)
+			&& (info->blue_mask_size == 3)
+			&& (info->alpha_mask_size == 0)
+			&& (info->red_field_pos == 0)
+			&& (info->green_field_pos == 2)
+			&& (info->blue_field_pos == 5)
+			&& (info->alpha_field_pos == 0))
+		{
+			return PIXEL_FORMAT_BGR_332;
+		}
+		else if((info->red_mask_size == 3)
+			&& (info->green_mask_size == 3)
+			&& (info->blue_mask_size == 2)
+			&& (info->alpha_mask_size == 0)
+			&& (info->red_field_pos == 5)
+			&& (info->green_field_pos == 2)
+			&& (info->blue_field_pos == 0)
+			&& (info->alpha_field_pos == 0))
+		{
+			return PIXEL_FORMAT_RGB_332;
 		}
 	}
 
@@ -187,6 +231,58 @@ void set_pixel_info(struct pixel_info * info, enum pixel_format fmt)
         info->alpha_mask_size	= 0;
         info->red_field_pos		= 16;
         info->green_field_pos	= 8;
+        info->blue_field_pos	= 0;
+        info->alpha_field_pos	= 0;
+		break;
+
+	case PIXEL_FORMAT_BGR_565:
+		info->bits_per_pixel	= 16;
+		info->bytes_per_pixel 	= 2;
+        info->red_mask_size		= 5;
+        info->green_mask_size	= 6;
+        info->blue_mask_size	= 5;
+        info->alpha_mask_size	= 0;
+        info->red_field_pos		= 0;
+        info->green_field_pos	= 5;
+        info->blue_field_pos	= 11;
+        info->alpha_field_pos	= 0;
+		break;
+
+	case PIXEL_FORMAT_RGB_565:
+		info->bits_per_pixel	= 16;
+		info->bytes_per_pixel 	= 2;
+        info->red_mask_size		= 5;
+        info->green_mask_size	= 6;
+        info->blue_mask_size	= 5;
+        info->alpha_mask_size	= 0;
+        info->red_field_pos		= 11;
+        info->green_field_pos	= 5;
+        info->blue_field_pos	= 0;
+        info->alpha_field_pos	= 0;
+		break;
+
+	case PIXEL_FORMAT_BGR_332:
+		info->bits_per_pixel	= 8;
+		info->bytes_per_pixel 	= 1;
+        info->red_mask_size		= 2;
+        info->green_mask_size	= 3;
+        info->blue_mask_size	= 3;
+        info->alpha_mask_size	= 0;
+        info->red_field_pos		= 0;
+        info->green_field_pos	= 2;
+        info->blue_field_pos	= 5;
+        info->alpha_field_pos	= 0;
+        break;
+
+	case PIXEL_FORMAT_RGB_332:
+		info->bits_per_pixel	= 8;
+		info->bytes_per_pixel 	= 1;
+        info->red_mask_size		= 3;
+        info->green_mask_size	= 3;
+        info->blue_mask_size	= 2;
+        info->alpha_mask_size	= 0;
+        info->red_field_pos		= 5;
+        info->green_field_pos	= 2;
         info->blue_field_pos	= 0;
         info->alpha_field_pos	= 0;
 		break;

@@ -15,8 +15,6 @@ enum pixel_format
 
 	PIXEL_FORMAT_BGR_888		= 5,
 	PIXEL_FORMAT_RGB_888		= 6,
-
-	PIXEL_FORMAT_INDEX_1BIT		= 7,
 };
 
 struct pixel_info {
@@ -49,9 +47,6 @@ struct pixel_info {
 
 	/* what is location of alpha color bits */
 	u8_t alpha_field_pos;
-
-	/* index 1-bit palette */
-	struct color_t palette[2];
 
 	/* pixel format */
 	enum pixel_format fmt;

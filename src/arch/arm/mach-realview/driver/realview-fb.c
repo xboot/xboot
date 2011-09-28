@@ -76,22 +76,6 @@ static struct fb_info info = {
 			.alpha_mask_size	= 8,
 			.alpha_field_pos	= 24,
 
-			.palette = {
-				[0] = {
-					.r			= 0xff,
-					.g			= 0xff,
-					.b			= 0xff,
-					.a			= 0xff,
-				},
-
-				[1] = {
-					.r			= 0x00,
-					.g			= 0x00,
-					.b			= 0x00,
-					.a			= 0xff,
-				},
-			},
-
 			.fmt				= PIXEL_FORMAT_ABGR_8888,
 		},
 

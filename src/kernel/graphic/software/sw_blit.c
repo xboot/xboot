@@ -114,7 +114,6 @@ static void blit_replace(struct surface_t * dst, struct rect_t * dst_rect, struc
 	case PIXEL_FORMAT_RGBA_8888:
 	case PIXEL_FORMAT_BGR_888:
 	case PIXEL_FORMAT_RGB_888:
-	case PIXEL_FORMAT_INDEX_1BIT:
 		break;
 
 	default:

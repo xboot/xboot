@@ -1139,7 +1139,7 @@ void test1(void)
 	r1.w = 50;
 	r1.h = 50;
 
-	for(i = 0; i< 100; i++)
+	for(i = 0; i < 100; i++)
 	{
 		r.x = 10 + i;
 		r.y = 10 + i;
@@ -1148,11 +1148,9 @@ void test1(void)
 
 		fb->swap(fb);
 		surface_fill_rects(surface, &surface->clip, 1, c);
-		surface_blit(surface, &r1, image, 0, BLIT_MODE_REPLACE);
-		surface_blit(surface, &r, image2, 0, BLIT_MODE_REPLACE);
+		surface_blit(surface, &r1, image, 0, BLIT_MODE_ALPHA);
+		surface_blit(surface, &r, image2, 0, BLIT_MODE_ALPHA);
 		fb->flush(fb);
-
-		//mdelay(100);
 	}
 
 	surface_free(image);

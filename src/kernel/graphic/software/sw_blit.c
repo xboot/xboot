@@ -1675,6 +1675,17 @@ static void blit_alpha_generic(struct surface_t * dst, struct rect_t * dst_rect,
 	}
 }
 
+static void blit_alpha(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	switch (dst->info.fmt)
+	{
+	default:
+		break;
+	}
+
+	blit_alpha_generic(dst, dst_rect, src, src_rect);
+}
+
 bool_t software_blit(struct surface_t * dst, struct rect_t * dst_rect,
 		struct surface_t * src, struct rect_t * src_rect, enum blit_mode mode)
 {
@@ -1764,7 +1775,19 @@ bool_t software_blit(struct surface_t * dst, struct rect_t * dst_rect,
 		sr.w = dst_rect->w = w;
 		sr.h = dst_rect->h = h;
 
-		blit_replace(dst, dst_rect, src, &sr);
+		switch (mode)
+		{
+		case BLIT_MODE_REPLACE:
+			blit_replace(dst, dst_rect, src, &sr);
+			break;
+
+		case BLIT_MODE_ALPHA:
+			blit_alpha(dst, dst_rect, src, &sr);
+			break;
+
+		default:
+			return FALSE;
+		}
 	}
 
 	dst_rect->w = dst_rect->h = 0;

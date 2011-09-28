@@ -21,6 +21,7 @@
  */
 
 #include <graphic/maps.h>
+#include <graphic/software.h>
 
 bool_t set_surface_maps(struct surface_maps * maps)
 {

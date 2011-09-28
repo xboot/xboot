@@ -20,10 +20,7 @@
  *
  */
 
-#include <graphic/surface.h>
-
-extern inline void surface_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_t c);
-extern inline u32_t surface_get_pixel(struct surface_t * surface, s32_t x, s32_t y);
+#include <graphic/software.h>
 
 bool_t software_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c)
 {

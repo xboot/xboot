@@ -20,10 +20,7 @@
  *
  */
 
-#include <graphic/surface.h>
-
-extern inline void surface_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_t c);
-extern inline u32_t surface_get_pixel(struct surface_t * surface, s32_t x, s32_t y);
+#include <graphic/software.h>
 
 static void blit_replace_generic(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
 {
@@ -120,7 +117,8 @@ static void blit_replace(struct surface_t * dst, struct rect_t * dst_rect, struc
 		break;
 	}
 
-	blit_replace_generic(dst, dst_rect, src, src_rect);
+	//blit_replace_generic(dst, dst_rect, src, src_rect);
+	blit_alpha_generic(dst, dst_rect, src, src_rect);
 }
 
 bool_t software_blit(struct surface_t * dst, struct rect_t * dst_rect,

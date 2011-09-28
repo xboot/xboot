@@ -20,7 +20,7 @@
  *
  */
 
-#include <graphic/surface.h>
+#include <graphic/software.h>
 
 inline void surface_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_t c)
 {
@@ -35,7 +35,7 @@ inline void surface_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_
 
 	case 2:
 		p = surface->pixels + y * surface->pitch + x * 2;
-		*((u16_t *) p) = (u16_t) c;
+		*((u16_t *) p) = cpu_to_le16(c);
 		break;
 
 	case 3:
@@ -47,7 +47,7 @@ inline void surface_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_
 
 	case 4:
 		p = surface->pixels + y * surface->pitch + x * 4;
-		*((u32_t *) p) = (u32_t) c;
+		*((u32_t *) p) =  cpu_to_le32(c);
 		break;
 
 	default:
@@ -69,7 +69,7 @@ inline u32_t surface_get_pixel(struct surface_t * surface, s32_t x, s32_t y)
 
 	case 2:
 		p = surface->pixels + y * surface->pitch + x * 2;
-		c = *((u16_t *) p);
+		c = cpu_to_le16(*((u16_t *) p));
 		break;
 
 	case 3:
@@ -79,7 +79,7 @@ inline u32_t surface_get_pixel(struct surface_t * surface, s32_t x, s32_t y)
 
 	case 4:
 		p = surface->pixels + y * surface->pitch + x * 4;
-		c = *((u32_t *) p);
+		c = cpu_to_le32(*((u32_t *) p));
 		break;
 
 	default:

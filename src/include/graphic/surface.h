@@ -6,6 +6,10 @@
 #include <graphic/pixel.h>
 #include <graphic/rect.h>
 #include <graphic/maps.h>
+#include <graphic/software.h>
+
+struct surface_t;
+struct surface_maps;
 
 enum surface_pixels {
 	SURFACE_PIXELS_NEEDFREE	= 0x0,

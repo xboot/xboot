@@ -135,8 +135,7 @@ bool_t surface_set_clip_rect(struct surface_t * surface, struct rect_t * rect)
 	return rect_intersect(rect, &full, &surface->clip);
 }
 
-bool_t surface_get_clip_rect(struct surface_t * surface,
-		struct rect_t * rect)
+bool_t surface_get_clip_rect(struct surface_t * surface, struct rect_t * rect)
 {
 	if (!surface)
 		return FALSE;

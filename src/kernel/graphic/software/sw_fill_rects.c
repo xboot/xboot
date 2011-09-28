@@ -20,7 +20,7 @@
  *
  */
 
-#include <graphic/surface.h>
+#include <graphic/software.h>
 
 static void surface_fill_rect_1byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
@@ -154,10 +154,11 @@ static void surface_fill_rect_4byte(struct surface_t * surface,
 	}
 }
 
-static bool_t surface_fill_rect(struct surface_t * surface,
-		const struct rect_t * rect, u32_t c)
+bool_t software_fill_rects(struct surface_t * surface,
+		const struct rect_t * rects, u32_t count, u32_t c)
 {
 	struct rect_t clipped;
+	u32_t i;
 
 	if (!surface)
 		return FALSE;
@@ -168,55 +169,35 @@ static bool_t surface_fill_rect(struct surface_t * surface,
 	if (surface->info.bits_per_pixel < 8)
 		return FALSE;
 
-	if (rect)
-	{
-		if (!rect_intersect(rect, &surface->clip, &clipped))
-		{
-			return TRUE;
-		}
-		rect = &clipped;
-	}
-	else
-	{
-		rect = &surface->clip;
-	}
-
-	switch (surface->info.bytes_per_pixel)
-	{
-	case 1:
-		surface_fill_rect_1byte(surface, rect, c);
-		break;
-
-	case 2:
-		surface_fill_rect_2byte(surface, rect, c);
-		break;
-
-	case 3:
-		surface_fill_rect_3byte(surface, rect, c);
-		break;
-
-	case 4:
-		surface_fill_rect_4byte(surface, rect, c);
-		break;
-
-	default:
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-bool_t software_fill_rects(struct surface_t * surface,
-		const struct rect_t * rects, u32_t count, u32_t c)
-{
-	u32_t i;
-
 	if (!rects)
 		return FALSE;
 
 	for (i = 0; i < count; i++)
 	{
-		surface_fill_rect(surface, &rects[i], c);
+		if (rect_intersect(&rects[i], &surface->clip, &clipped))
+		{
+			switch (surface->info.bytes_per_pixel)
+			{
+			case 1:
+				surface_fill_rect_1byte(surface, &clipped, c);
+				break;
+
+			case 2:
+				surface_fill_rect_2byte(surface, &clipped, c);
+				break;
+
+			case 3:
+				surface_fill_rect_3byte(surface, &clipped, c);
+				break;
+
+			case 4:
+				surface_fill_rect_4byte(surface, &clipped, c);
+				break;
+
+			default:
+				break;
+			}
+		}
 	}
 
 	return TRUE;

@@ -32,18 +32,13 @@
 #include <command/command.h>
 #include <fs/fileio.h>
 #include <fb/fb.h>
-#include <fb/bitmap.h>
-#include <fb/fbpixel.h>
-#include <fb/fbscale.h>
-#include <fb/fbviewport.h>
-#include <fb/graphic.h>
-
 
 #if	defined(CONFIG_COMMAND_DISPLAY) && (CONFIG_COMMAND_DISPLAY > 0)
 
 static int display(int argc, char ** argv)
 {
-	struct stat st;
+/*	//xxx
+ * struct stat st;
 	struct fb * fb;
 	struct bitmap *bitmap, *scaled;
 	struct rect old, new;
@@ -98,7 +93,7 @@ static int display(int argc, char ** argv)
 
 	bitmap_destroy(bitmap);
 	bitmap_destroy(scaled);
-
+*/
 	return 0;
 }
 

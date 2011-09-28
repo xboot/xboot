@@ -1,0 +1,32 @@
+#ifndef __MAPS_H__
+#define __MAPS_H__
+
+#include <xboot.h>
+#include <graphic/color.h>
+#include <graphic/pixel.h>
+#include <graphic/rect.h>
+
+struct surface_t;
+struct surface_maps;
+
+enum blit_mode {
+	BLIT_MODE_REPLACE	= 0x0,
+	BLIT_MODE_ALPHA		= 0x1,
+};
+
+struct surface_maps {
+	bool_t (*draw_points)(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c);
+	bool_t (*draw_lines)(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c);
+	bool_t (*fill_rects)(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c);
+	bool_t (*blit)(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blit_mode mode);
+};
+
+
+bool_t set_surface_maps(struct surface_maps * maps);
+
+extern bool_t software_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c);;
+extern bool_t software_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c);
+extern bool_t software_fill_rects(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c);
+extern bool_t software_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blit_mode mode);
+
+#endif /* __MAPS_H__ */

@@ -29,10 +29,6 @@
 #include <xboot/proc.h>
 #include <shell/exec.h>
 #include <fb/fb.h>
-#include <fb/graphic.h>
-#include <fb/fbpixel.h>
-#include <fb/fbscale.h>
-#include <fb/font.h>
 #include <fb/logo.h>
 #include <rtc/rtc.h>
 #include <input/input.h>
@@ -50,29 +46,8 @@
 
 static int test(int argc, char ** argv)
 {
-	struct fb * fb;
-	struct surface_t * surface;
-	int i;
-	u32_t c;
-
-	fb = search_framebuffer("fb");
-
-	surface = surface_alloc_from(NULL, 200, 30, PIXEL_FORMAT_ABGR_8888);
-
-	surface_fill_rects(surface, &surface->clip, 1, 0xf23);
-
-	c = 0x564;
-	for(i = 0; i < 20; i++)
-	{
-		struct point_t p;
-		p.x = i;
-		p.y = i;
-		surface_draw_points(surface, &p, 1, c);
-	}
-
-	display_surface(fb, surface);
-
-	surface_free(surface);
+	extern void test1(void);
+	test1();
 
 	return 0;
 }

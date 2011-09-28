@@ -28,10 +28,8 @@
 #include <xboot/ioctl.h>
 #include <console/console.h>
 #include <fb/logo.h>
-#include <fb/graphic.h>
+#include <fb/helper.h>
 #include <fb/fb.h>
-
-extern bool_t fb_putcode(struct fb * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y);
 
 struct fbcon_cell
 {
@@ -338,17 +336,17 @@ static const u8_t tcolor_to_rgba_table[256][4] = {
 	/* 0xff */	{ 0xee, 0xee, 0xee, 0xff }
 };
 
-static bool_t tcolor_to_rgba(enum tcolor c, u8_t * r, u8_t * g, u8_t * b, u8_t * a)
+static bool_t tcolor_to_color(enum tcolor c, struct color_t * col)
 {
 	u8_t index = c;
 
 	if (index > 0xff)
 		index = 0;
 
-	*r = tcolor_to_rgba_table[index][0];
-	*g = tcolor_to_rgba_table[index][1];
-	*b = tcolor_to_rgba_table[index][2];
-	*a = tcolor_to_rgba_table[index][3];
+	col->r = tcolor_to_rgba_table[index][0];
+	col->g = tcolor_to_rgba_table[index][1];
+	col->b = tcolor_to_rgba_table[index][2];
+	col->a = tcolor_to_rgba_table[index][3];
 
 	return TRUE;
 }
@@ -367,7 +365,7 @@ static int fb_open(struct chrdev * dev)
 static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
-	u8_t * p = (u8_t *)((u32_t)(fb->info->bitmap.data));
+	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
@@ -384,7 +382,7 @@ static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
 static ssize_t fb_write(struct chrdev * dev, const u8_t * buf, size_t count)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
-	u8_t * p = (u8_t *)((u32_t)(fb->info->bitmap.data));
+	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
@@ -543,7 +541,7 @@ static bool_t fbcon_getcursor(struct console * console)
 static bool_t fbcon_setcolor(struct console * console, enum tcolor f, enum tcolor b)
 {
 	struct fb_console_info * info = console->priv;
-	u8_t cr, cg, cb, ca;
+	struct color_t col;
 
 	if(!info->onoff)
 		return FALSE;
@@ -551,11 +549,11 @@ static bool_t fbcon_setcolor(struct console * console, enum tcolor f, enum tcolo
 	info->f = f;
 	info->b = b;
 
-	tcolor_to_rgba(f, &cr, &cg, &cb, &ca);
-	info->fc = fb_map_color(info->fb, cr, cg, cb, ca);
+	tcolor_to_color(f, &col);
+	info->fc = fb_map_color(info->fb, &col);
 
-	tcolor_to_rgba(b, &cr, &cg, &cb, &ca);
-	info->bc = fb_map_color(info->fb, cr, cg, cb, ca);
+	tcolor_to_color(b, &col);
+	info->bc = fb_map_color(info->fb, &col);
 
 	return TRUE;
 }
@@ -637,7 +635,7 @@ static bool_t fbcon_scrollup(struct console * console)
 		p++;
 	}
 
-	fb_blit_bitmap(info->fb, &info->fb->info->bitmap, BLIT_MODE_REPLACE, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
+	fb_blit(info->fb, &info->fb->info->surface, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
 	fb_fill_rect(info->fb, info->bc, 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
 	fbcon_gotoxy(console, info->x, info->y - 1);
 
@@ -770,7 +768,7 @@ bool_t register_framebuffer(struct fb * fb)
 	struct chrdev * dev;
 	struct console * console;
 	struct fb_console_info * info;
-	u8_t r, g, b, a;
+	struct color_t col;
 	u8_t brightness;
 
 	if(!fb || !fb->info || !fb->info->name)
@@ -831,16 +829,16 @@ bool_t register_framebuffer(struct fb * fb)
 	info->fb = fb;
 	info->fw = 8;
 	info->fh = 16;
-	info->w = fb->info->bitmap.info.width / info->fw;
-	info->h = fb->info->bitmap.info.height / info->fh;
+	info->w = fb->info->surface.w / info->fw;
+	info->h = fb->info->surface.h / info->fh;
 	info->x = 0;
 	info->y = 0;
 	info->f = TCOLOR_WHITE;
 	info->b = TCOLOR_BLACK;
-	tcolor_to_rgba(info->f, &r, &g, &b, &a);
-	info->fc = fb_map_color(fb, r, g, b, a);
-	tcolor_to_rgba(info->b, &r, &g, &b, &a);
-	info->bc = fb_map_color(fb, r, g, b, a);
+	tcolor_to_color(info->f, &col);
+	info->fc = fb_map_color(fb, &col);
+	tcolor_to_color(info->b, &col);
+	info->bc = fb_map_color(fb, &col);
 	info->cursor = TRUE;
 	info->onoff = TRUE;
 	info->clen = info->w * info->h;

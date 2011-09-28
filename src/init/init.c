@@ -36,7 +36,6 @@
 #include <xboot/printk.h>
 #include <console/console.h>
 #include <fs/fileio.h>
-#include <fb/font.h>
 #include <init.h>
 
 /*
@@ -168,8 +167,11 @@ void do_system_fonts(void)
 		if(stat(buf, &st) != 0)
 			continue;
 
-		if(! install_font(buf))
-			LOG_E("fail to install font: %s", buf);
+		/*
+		 * FIXME
+		 */
+		// if(! install_font(buf))
+		//	LOG_E("fail to install font: %s", buf);
     }
 
 	closedir(dir);

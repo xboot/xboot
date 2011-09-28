@@ -21,24 +21,19 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <malloc.h>
-#include <rect.h>
 #include <fb/fb.h>
-#include <fb/bitmap.h>
-#include <fb/graphic.h>
 #include <fb/logo.h>
 
 /*
- * system logo for xboot
+ * logo for xboot
  */
-static const struct picture default_xboot_logo;
-static struct picture * xboot_logo = (struct picture *)(&default_xboot_logo);
+static const struct gimage default_xboot_logo;
+static struct gimage * xboot_logo = (struct gimage *)(&default_xboot_logo);
 
 /*
  * default xboot's logo
  */
-static const struct picture default_xboot_logo = {
+static const struct gimage default_xboot_logo = {
 	200, 58, 3, (u8_t *)
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
@@ -1131,62 +1126,52 @@ static const struct picture default_xboot_logo = {
 
 bool_t display_logo(struct fb * fb)
 {
-	struct bitmap * bitmap;
-	struct rect rect, to, r, save;
-	s32_t ox, oy;
-	u32_t color;
+	struct surface_t * surface;
+	struct rect_t rect;
+	u32_t c;
 
 	if(!fb || !xboot_logo)
 		return FALSE;
 
-	if(bitmap_load_from_picture(&bitmap, xboot_logo) != TRUE)
+	if(fb->flush)
+		fb->flush(fb);
+
+	surface = surface_alloc_from_gimage(xboot_logo);
+	if(!surface)
 		return FALSE;
 
-	rect_set(&rect, 0, 0, fb->info->bitmap.info.width, fb->info->bitmap.info.height);
-	rect_set(&to, 0, 0, bitmap->info.width, bitmap->info.height);
-	rect_align(&rect, &to, ALIGN_CENTER);
+	surface_set_clip_rect(&(fb->info->surface), NULL);
+	surface_set_clip_rect(surface, NULL);
+	rect_align(&(fb->info->surface.clip), &(surface->clip), &rect, ALIGN_CENTER);
 
-	if(rect_intersect_old(&r, &rect, &to) != TRUE)
+	if (!rect_intersect(&(fb->info->surface.clip), &rect, &rect))
 	{
-		bitmap_destroy(bitmap);
+		surface_free(surface);
 		return FALSE;
 	}
 
-	ox = r.left - to.left;
-	oy = r.top - to.top;
-	if(ox < 0)
-		ox = 0;
-	if(oy < 0)
-		oy = 0;
+	c = surface_map_color(&(fb->info->surface), get_color_by_name("black"));
+	surface_fill_rects(&(fb->info->surface), &(fb->info->surface.clip), 1, c);
 
-	fb_get_viewport(fb, &save);
+	surface_blit(&(fb->info->surface), &rect, surface, &(surface->clip), BLIT_MODE_REPLACE);
+	surface_free(surface);
 
-	fb_set_viewport(fb, &rect);
-	color = fb_map_color(fb, 0, 0, 0, 255);
-	fb_fill_rect(fb, color, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
-
-	fb_set_viewport(fb, &r);
-	fb_blit_bitmap(fb, bitmap, BLIT_MODE_REPLACE, r.left, r.top, r.right-r.left, r.bottom-r.top, ox, oy);
-
-	fb_set_viewport(fb, &save);
-
-	bitmap_destroy(bitmap);
 	return TRUE;
 }
 
 /*
- * register a logo
+ * register logo
  */
-bool_t register_logo(const struct picture * logo)
+bool_t register_logo(const struct gimage * logo)
 {
 	if(logo)
 	{
-		xboot_logo = (struct picture *)logo;
+		xboot_logo = (struct gimage *)logo;
 		return TRUE;
 	}
 	else
 	{
-		xboot_logo = (struct picture *)(&default_xboot_logo);
+		xboot_logo = (struct gimage *)(&default_xboot_logo);
 		return FALSE;
 	}
 }

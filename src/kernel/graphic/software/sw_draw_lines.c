@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/draw_lines.c
+ * kernel/graphic/software/sw_draw_lines.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,7 +22,7 @@
 
 #include <graphic/surface.h>
 
-bool_t surface_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c)
+bool_t software_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c)
 {
 	return FALSE;
 }

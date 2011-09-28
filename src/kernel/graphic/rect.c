@@ -127,7 +127,7 @@ bool_t rect_intersect(const struct rect_t * a, const struct rect_t * b, struct r
  */
 void rect_union(const struct rect_t * a, const struct rect_t * b, struct rect_t * r)
 {
-	int a_min, a_max, b_min, b_max;
+	s32_t a_min, a_max, b_min, b_max;
 
 	/* Horizontal union */
 	a_min = a->x;
@@ -453,6 +453,136 @@ bool_t rect_intersect_with_line(const struct rect_t * r, s32_t * x1, s32_t * y1,
 	*y1 = _y1;
 	*x2 = _x2;
 	*y2 = _y2;
+
+	return TRUE;
+}
+
+bool_t rect_align(const struct rect_t * a, const struct rect_t * b, struct rect_t * r, enum align_t align)
+{
+	s32_t dx1, dy1;
+	s32_t dx2, dy2;
+	s32_t dw, dh;
+
+	if(!a || !b || !r)
+		return FALSE;
+
+	dx1 = a->x - b->x;
+	dy1 = a->y - b->y;
+	dx2 = (a->x + a->w) - (b->x + b->w);
+	dy2 = (a->y + a->h) - (b->y + b->h);
+	dw = a->w - b->w;
+	dh = a->h - b->h;
+
+	switch(align)
+	{
+	case ALIGN_LEFT:
+		r->x = b->x + dx1;
+		r->y = b->y;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_TOP:
+		r->x = b->x;
+		r->y = b->y + dy1;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_RIGHT:
+		r->x = b->x + dx2;
+		r->y = b->y;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_BOTTOM:
+		r->x = b->x;
+		r->y = b->y + dy2;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_LEFT_TOP:
+		r->x = b->x + dx1;
+		r->y = b->y + dy1;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_RIGHT_TOP:
+		r->x = b->x + dx2;
+		r->y = b->y + dy1;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_LEFT_BOTTOM:
+		r->x = b->x + dx1;
+		r->y = b->y + dy2;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_RIGHT_BOTTOM:
+		r->x = b->x + dx2;
+		r->y = b->y + dy2;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_LEFT_CENTER:
+		r->x = b->x + dx1;
+		r->y = b->y + dy1 + (dh >> 1);
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_TOP_CENTER:
+		r->x = b->x + dx1 + (dw >> 1);
+		r->y = b->y + dy1;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_RIGHT_CENTER:
+		r->x = b->x + dx2;
+		r->y = b->y + dy1 + (dh >> 1);
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_BOTTOM_CENTER:
+		r->x = b->x + dx1 + (dw >> 1);
+		r->y = b->y + dy2;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_CENTER_HORIZONTAL:
+		r->x = b->x + dx1 + (dw >> 1);
+		r->y = b->y;
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_CENTER_VERTICAL:
+		r->x = b->x;
+		r->y = b->y + dy1 + (dh >> 1);
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	case ALIGN_CENTER:
+		r->x = b->x + dx1 + (dw >> 1);
+		r->y = b->y + dy1 + (dh >> 1);
+		r->w = b->w;
+		r->h = b->h;
+		break;
+
+	default:
+		return FALSE;
+	}
 
 	return TRUE;
 }

@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/fill_rects.c
+ * kernel/graphic/software/sw_fill_rects.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -206,7 +206,7 @@ static bool_t surface_fill_rect(struct surface_t * surface,
 	return TRUE;
 }
 
-bool_t surface_fill_rects(struct surface_t * surface,
+bool_t software_fill_rects(struct surface_t * surface,
 		const struct rect_t * rects, u32_t count, u32_t c)
 {
 	u32_t i;

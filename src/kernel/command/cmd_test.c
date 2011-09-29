@@ -48,10 +48,10 @@ static int test(int argc, char ** argv)
 {
 	u32_t t1, t2;
 
-	extern void test1(void);
+	extern void game(void);
 
 	t1 = jiffies;
-	test1();
+	game();
 	t2 = jiffies;
 
 	printk("time = %ld\n", t2 - t1);

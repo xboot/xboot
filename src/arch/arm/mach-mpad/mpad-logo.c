@@ -25,13 +25,12 @@
 #include <xboot.h>
 #include <xboot/log.h>
 #include <xboot/initcall.h>
-#include <fb/bitmap.h>
 #include <fb/logo.h>
 
 /*
  * the logo image
  */
-static const struct picture logo = {
+static const struct gimage logo = {
 	200, 58, 3, (u8_t *)
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"

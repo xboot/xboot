@@ -1114,8 +1114,8 @@ static const struct gimage image_test2 = {
 	"\377\0\377\377\377\0\377\377\377\0",
 };
 
-#define NUM_HAPPY_FACES 100     /* number of faces to draw */
-#define MILLESECONDS_PER_FRAME 16       /* about 60 frames per second */
+#define NUM_HAPPY_FACES 50     /* number of faces to draw */
+#define MILLESECONDS_PER_FRAME 30       /* about 20 frames per second */
 #define HAPPY_FACE_SIZE 32      /* width and height of happyface (pixels) */
 
 #define SCREEN_WIDTH 800
@@ -1304,8 +1304,8 @@ void initializeHappyFaces()
     for (i = 0; i < NUM_HAPPY_FACES; i++) {
         faces[i].x = randomFloat(0.0f, SCREEN_WIDTH - HAPPY_FACE_SIZE);
         faces[i].y = randomFloat(0.0f, SCREEN_HEIGHT - HAPPY_FACE_SIZE);
-        faces[i].xvel = randomFloat(-0.3f, 0.3f);
-        faces[i].yvel = randomFloat(-0.3f, 0.3f);
+        faces[i].xvel = randomFloat(-0.4f, 0.4f);
+        faces[i].yvel = randomFloat(-0.4f, 0.4f);
     }
 }
 
@@ -1350,6 +1350,7 @@ void game(void)
 
 		fb->swap(fb);
 		surface_fill_rects(screen, &screen->clip, 1, c);
+		//memset(screen->pixels, 0, screen->h * screen->pitch);
 		for (i = 0; i < NUM_HAPPY_FACES; i++)
 		{
 			faces[i].x += faces[i].xvel * MILLESECONDS_PER_FRAME;

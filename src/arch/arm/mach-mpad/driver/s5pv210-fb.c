@@ -35,7 +35,6 @@
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
-#include <fb/fbsoft.h>
 #include <fb/fb.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-others.h>
@@ -218,8 +217,8 @@ static bool_t s5pv210fb_set_buffer_address(struct s5pv210fb_lcd * lcd, s32_t id)
 	u32_t start, end;
 	u32_t shw;
 
-	start = (u32_t)(lcd->vram);
-	end = (u32_t)((start + lcd->width * (lcd->height * lcd->bpp / 8)) & 0x00ffffff);
+	start = (u32_t)(lcd->vram_front);
+	end = (u32_t)((start + lcd->width * (lcd->height * lcd->bytes_per_pixel)) & 0x00ffffff);
 
 	shw = readl(S5PV210_SHADOWCON);
 	shw |= S5PV210_SHADOWCON_PROTECT(id);
@@ -267,7 +266,7 @@ static bool_t s5pv210fb_set_buffer_size(struct s5pv210fb_lcd * lcd, s32_t id)
 {
 	u32_t cfg = 0;
 
-	cfg = S5PV210_VIDADDR_PAGEWIDTH(lcd->width * lcd->bpp / 8);
+	cfg = S5PV210_VIDADDR_PAGEWIDTH(lcd->width * lcd->bytes_per_pixel);
 	cfg |= S5PV210_VIDADDR_OFFSIZE(0);
 
 	switch(id)
@@ -531,6 +530,25 @@ static void fb_init(struct fb * fb)
 	mdelay(100);
 }
 
+static void fb_swap(struct fb * fb)
+{
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+	void * vram;
+
+	vram = lcd->vram_front;
+	lcd->vram_front = lcd->vram_back;
+	lcd->vram_back = vram;
+
+	fb->info->surface.pixels = lcd->vram_front;
+}
+
+static void fb_flush(struct fb * fb)
+{
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+
+	s5pv210fb_set_buffer_address(lcd, 2);
+}
+
 static void fb_exit(struct fb * fb)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
@@ -576,10 +594,8 @@ static struct fb s5pv210_fb = {
 	.info			= &info,
 	.init			= fb_init,
 	.exit			= fb_exit,
-	.map_color		= fb_soft_map_color,
-	.unmap_color	= fb_soft_unmap_color,
-	.fill_rect		= fb_soft_fill_rect,
-	.blit_bitmap	= fb_soft_blit_bitmap,
+	.swap			= fb_swap,
+	.flush			= fb_flush,
 	.ioctl			= fb_ioctl,
 	.priv			= NULL,
 };
@@ -603,43 +619,36 @@ static __init void s5pv210_fb_init(void)
 		return;
 	}
 
-	if( (lcd->bpp != 16) && (lcd->bpp != 24) && (lcd->bpp != 32) )
+	if( (lcd->bits_per_pixel != 16) && (lcd->bits_per_pixel != 24) && (lcd->bits_per_pixel != 32) )
 		return;
 
-	info.bitmap.info.width = lcd->width;
-	info.bitmap.info.height = lcd->height;
-	info.bitmap.info.bpp = lcd->bpp;
-	info.bitmap.info.bytes_per_pixel = lcd->bpp / 8;
-	info.bitmap.info.pitch = lcd->width * lcd->bpp / 8;
+	info.surface.info.bits_per_pixel = lcd->bits_per_pixel;
+	info.surface.info.bytes_per_pixel = lcd->bytes_per_pixel;
+	info.surface.info.red_mask_size = lcd->rgba.r_mask;
+	info.surface.info.red_field_pos = lcd->rgba.r_field;
+	info.surface.info.green_mask_size = lcd->rgba.g_mask;
+	info.surface.info.green_field_pos = lcd->rgba.g_field;
+	info.surface.info.blue_mask_size = lcd->rgba.b_mask;
+	info.surface.info.blue_field_pos = lcd->rgba.b_field;
+	info.surface.info.alpha_mask_size = lcd->rgba.a_mask;
+	info.surface.info.alpha_field_pos = lcd->rgba.a_field;
+	info.surface.info.fmt = get_pixel_format(&(info.surface.info));
 
-	info.bitmap.info.red_mask_size = lcd->rgba.r_mask;
-	info.bitmap.info.red_field_pos = lcd->rgba.r_field;
-	info.bitmap.info.green_mask_size = lcd->rgba.g_mask;
-	info.bitmap.info.green_field_pos = lcd->rgba.g_field;
-	info.bitmap.info.blue_mask_size = lcd->rgba.b_mask;
-	info.bitmap.info.blue_field_pos = lcd->rgba.b_field;
-	info.bitmap.info.alpha_mask_size = lcd->rgba.a_mask;
-	info.bitmap.info.alpha_field_pos = lcd->rgba.a_field;
+	info.surface.w = lcd->width;
+	info.surface.h = lcd->height;
+	info.surface.pitch = lcd->width * lcd->bytes_per_pixel;
+	info.surface.flag = SURFACE_PIXELS_DONTFREE;
+	info.surface.pixels = lcd->vram_front;
 
-	info.bitmap.info.fmt = get_bitmap_format(&(info.bitmap.info));
+	info.surface.clip.x = 0;
+	info.surface.clip.y = 0;
+	info.surface.clip.w = lcd->width;
+	info.surface.clip.h = lcd->height;
 
-	info.bitmap.info.fg_r = 0xff;
-	info.bitmap.info.fg_g = 0xff;
-	info.bitmap.info.fg_b = 0xff;
-	info.bitmap.info.fg_a = 0xff;
-
-	info.bitmap.info.bg_r = 0x00;
-	info.bitmap.info.bg_g = 0x00;
-	info.bitmap.info.bg_b = 0x00;
-	info.bitmap.info.bg_a = 0x00;
-
-	info.bitmap.viewport.left = 0;
-	info.bitmap.viewport.top = 0;
-	info.bitmap.viewport.right = lcd->width;
-	info.bitmap.viewport.bottom = lcd->height;
-
-	info.bitmap.allocated = FALSE;
-	info.bitmap.data = lcd->vram;
+	info.surface.maps.draw_points = software_draw_points;
+	info.surface.maps.draw_lines = software_draw_lines;
+	info.surface.maps.fill_rects = software_fill_rects;
+	info.surface.maps.blit = software_blit;
 
 	if(! register_framebuffer(&s5pv210_fb))
 		LOG_E("failed to register framebuffer driver '%s'", s5pv210_fb.info->name);

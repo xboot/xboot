@@ -64,19 +64,25 @@ inline void surface_sw_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u
 
 	case 2:
 		p = surface->pixels + y * surface->pitch + x * 2;
-		*((u16_t *) p) = cpu_to_le16(c);
+		*((u16_t *) p) = (u16_t) c;
 		break;
 
 	case 3:
 		p = surface->pixels + y * surface->pitch + x * 3;
+#if (__BYTE_ORDER == __BIG_ENDIAN)
+		p[0] = (c >> 16) & 0xff;
+		p[1] = (c >> 8) & 0xff;
+		p[2] = c & 0xff;
+#else
 		p[0] = c & 0xff;
 		p[1] = (c >> 8) & 0xff;
 		p[2] = (c >> 16) & 0xff;
+#endif
 		break;
 
 	case 4:
 		p = surface->pixels + y * surface->pitch + x * 4;
-		*((u32_t *) p) =  cpu_to_le32(c);
+		*((u32_t *) p) = (u32_t) c;
 		break;
 
 	default:
@@ -98,17 +104,21 @@ inline u32_t surface_sw_get_pixel(struct surface_t * surface, s32_t x, s32_t y)
 
 	case 2:
 		p = surface->pixels + y * surface->pitch + x * 2;
-		c = cpu_to_le16(*((u16_t *) p));
+		c = *((u16_t *) p);
 		break;
 
 	case 3:
 		p = surface->pixels + y * surface->pitch + x * 3;
+#if (__BYTE_ORDER == __BIG_ENDIAN)
+		c = p[2] | (p[1] << 8) | (p[0] << 16);
+#else
 		c = p[0] | (p[1] << 8) | (p[2] << 16);
+#endif
 		break;
 
 	case 4:
 		p = surface->pixels + y * surface->pitch + x * 4;
-		c = cpu_to_le32(*((u32_t *) p));
+		c = *((u32_t *) p);
 		break;
 
 	default:

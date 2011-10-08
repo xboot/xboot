@@ -43,9 +43,7 @@ static void surface_fill_rect_1byte(struct surface_t * surface,
 	p = q = (u8_t *) t;
 
 	for (i = 0; i < w; i++)
-	{
 		*t++ = fill;
-	}
 
 	for (i = 1; i < h; i++)
 	{
@@ -58,11 +56,10 @@ static void surface_fill_rect_2byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
-	u8_t * t;
+	u16_t * t;
 	u32_t len, skip;
 	u32_t i;
-	u8_t fill0 = (u8_t) ((c >> 0) & 0xff);
-	u8_t fill1 = (u8_t) ((c >> 8) & 0xff);
+	u16_t fill = (u16_t)(c & 0xffff);
 
 	u32_t x = rect->x;
 	u32_t y = rect->y;
@@ -71,15 +68,12 @@ static void surface_fill_rect_2byte(struct surface_t * surface,
 
 	len = surface->info.bytes_per_pixel * w;
 	skip = surface->pitch;
-	t = (u8_t *) (surface->pixels + y * surface->pitch + x
+	t = (u16_t *) (surface->pixels + y * surface->pitch + x
 			* surface->info.bytes_per_pixel);
 	p = q = (u8_t *) t;
 
 	for (i = 0; i < w; i++)
-	{
-		*t++ = fill0;
-		*t++ = fill1;
-	}
+		*t++ = fill;
 
 	for (i = 1; i < h; i++)
 	{
@@ -112,9 +106,15 @@ static void surface_fill_rect_3byte(struct surface_t * surface,
 
 	for (i = 0; i < w; i++)
 	{
+#if (__BYTE_ORDER == __BIG_ENDIAN)
+		*t++ = fill2;
+		*t++ = fill1;
+		*t++ = fill0;
+#else
 		*t++ = fill0;
 		*t++ = fill1;
 		*t++ = fill2;
+#endif
 	}
 
 	for (i = 1; i < h; i++)
@@ -137,7 +137,6 @@ static void surface_fill_rect_4byte(struct surface_t * surface,
 	u32_t w = rect->w;
 	u32_t h = rect->h;
 
-	c = cpu_to_le32(c);
 	len = surface->info.bytes_per_pixel * w;
 	skip = surface->pitch;
 	t = (u32_t *) (surface->pixels + y * surface->pitch + x

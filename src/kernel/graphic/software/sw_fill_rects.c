@@ -153,6 +153,161 @@ static void surface_fill_rect_replace_4byte(struct surface_t * surface,
 	}
 }
 
+static inline void surface_fill_rect_replace(struct surface_t * surface,
+		const struct rect_t * rect, u32_t c)
+{
+	switch (surface->info.bytes_per_pixel)
+	{
+	case 1:
+		surface_fill_rect_replace_1byte(surface, rect, c);
+		break;
+
+	case 2:
+		surface_fill_rect_replace_2byte(surface, rect, c);
+		break;
+
+	case 3:
+		surface_fill_rect_replace_3byte(surface, rect, c);
+		break;
+
+	case 4:
+		surface_fill_rect_replace_4byte(surface, rect, c);
+		break;
+
+	default:
+		break;
+	}
+}
+
+static inline void surface_fill_rect_alpha(struct surface_t * surface,
+		const struct rect_t * rect, u32_t c)
+{
+	struct color_t dcol, scol;
+	struct color_t col;
+	u32_t dc;
+	u8_t alpha;
+	u32_t x, y, w, h;
+	s32_t i, j;
+
+	unmap_pixel_color(&surface->info, c, &scol);
+	alpha = scol.a;
+
+	if(alpha == 0xff)
+	{
+		surface_fill_rect_replace(surface, rect, c);
+		return;
+	}
+
+	if(alpha == 0)
+		return;
+
+	x = rect->x;
+	y = rect->y;
+	w = rect->w;
+	h = rect->h;
+
+	switch (surface->info.bytes_per_pixel)
+	{
+	case 1:
+	{
+		u8_t * p = (u8_t *)surface_sw_get_pointer(surface, x, y);
+		u32_t skip = surface->pitch - w;
+
+		for(j = 0; j < h; j++)
+		{
+			for(i = 0; i < w; i++)
+			{
+				unmap_pixel_color(&surface->info, *p, &dcol);
+
+				col.r = (((scol.r - dcol.r) * alpha) >> 8) + dcol.r;
+				col.g = (((scol.g - dcol.g) * alpha) >> 8) + dcol.g;
+				col.b = (((scol.b - dcol.b) * alpha) >> 8) + dcol.b;
+				col.a = (((scol.a - dcol.a) * alpha) >> 8) + dcol.a;
+
+				*p = map_pixel_color(&surface->info, &col);
+				p++;
+			}
+			p += skip;
+		}
+
+		break;
+	}
+
+	case 2:
+	{
+		u16_t * p = (u16_t *)surface_sw_get_pointer(surface, x, y);
+		u32_t skip = (surface->pitch - 2 * w) / 2;
+
+		for(j = 0; j < h; j++)
+		{
+			for(i = 0; i < w; i++)
+			{
+				unmap_pixel_color(&surface->info, *p, &dcol);
+
+				col.r = (((scol.r - dcol.r) * alpha) >> 8) + dcol.r;
+				col.g = (((scol.g - dcol.g) * alpha) >> 8) + dcol.g;
+				col.b = (((scol.b - dcol.b) * alpha) >> 8) + dcol.b;
+				col.a = (((scol.a - dcol.a) * alpha) >> 8) + dcol.a;
+
+				*p = map_pixel_color(&surface->info, &col);
+				p++;
+			}
+			p += skip;
+		}
+
+		break;
+	}
+
+	case 3:
+	{
+		for(j = 0; j < h; j++)
+		{
+			for(i = 0; i < w; i++)
+			{
+				dc = surface_sw_get_pixel(surface, x + i, y + j);
+				unmap_pixel_color(&surface->info, dc, &dcol);
+
+				col.r = (((scol.r - dcol.r) * alpha) >> 8) + dcol.r;
+				col.g = (((scol.g - dcol.g) * alpha) >> 8) + dcol.g;
+				col.b = (((scol.b - dcol.b) * alpha) >> 8) + dcol.b;
+				col.a = (((scol.a - dcol.a) * alpha) >> 8) + dcol.a;
+
+				dc = map_pixel_color(&surface->info, &col);
+				surface_sw_set_pixel(surface, x + i, y + j, dc);
+			}
+		}
+		break;
+	}
+
+	case 4:
+	{
+		u32_t * p = (u32_t *)surface_sw_get_pointer(surface, x, y);
+		u32_t skip = (surface->pitch - 4 * w) / 4;
+
+		for(j = 0; j < h; j++)
+		{
+			for(i = 0; i < w; i++)
+			{
+				unmap_pixel_color(&surface->info, *p, &dcol);
+
+				col.r = (((scol.r - dcol.r) * alpha) >> 8) + dcol.r;
+				col.g = (((scol.g - dcol.g) * alpha) >> 8) + dcol.g;
+				col.b = (((scol.b - dcol.b) * alpha) >> 8) + dcol.b;
+				col.a = (((scol.a - dcol.a) * alpha) >> 8) + dcol.a;
+
+				*p = map_pixel_color(&surface->info, &col);
+				p++;
+			}
+			p += skip;
+		}
+		break;
+	}
+
+	default:
+		break;
+	}
+}
+
 bool_t software_fill_rects(struct surface_t * surface,
 		const struct rect_t * rects, u32_t count, u32_t c, enum blend_mode mode)
 {
@@ -171,32 +326,29 @@ bool_t software_fill_rects(struct surface_t * surface,
 	if (!rects)
 		return FALSE;
 
-	for (i = 0; i < count; i++)
+	if(mode == BLEND_MODE_REPLACE)
 	{
-		if (rect_intersect(&rects[i], &surface->clip, &clipped))
+		for (i = 0; i < count; i++)
 		{
-			switch (surface->info.bytes_per_pixel)
+			if (rect_intersect(&rects[i], &surface->clip, &clipped))
 			{
-			case 1:
-				surface_fill_rect_replace_1byte(surface, &clipped, c);
-				break;
-
-			case 2:
-				surface_fill_rect_replace_2byte(surface, &clipped, c);
-				break;
-
-			case 3:
-				surface_fill_rect_replace_3byte(surface, &clipped, c);
-				break;
-
-			case 4:
-				surface_fill_rect_replace_4byte(surface, &clipped, c);
-				break;
-
-			default:
-				break;
+				surface_fill_rect_replace(surface, &clipped, c);
 			}
 		}
+	}
+	else if(mode == BLEND_MODE_ALPHA)
+	{
+		for (i = 0; i < count; i++)
+		{
+			if (rect_intersect(&rects[i], &surface->clip, &clipped))
+			{
+				surface_fill_rect_alpha(surface, &clipped, c);
+			}
+		}
+	}
+	else
+	{
+		return FALSE;
 	}
 
 	return TRUE;

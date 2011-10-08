@@ -50,10 +50,9 @@ static int test(int argc, char ** argv)
 
 	extern void game(void);
 
-	test1();
-
 	t1 = jiffies;
-	game();
+	test1();
+	//game();
 	t2 = jiffies;
 
 	printk("time = %ld\n", t2 - t1);

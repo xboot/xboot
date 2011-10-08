@@ -1419,17 +1419,20 @@ void test1(void)
 	r1.w = 50;
 	r1.h = 50;
 
-	for(i = 0; i < 100; i++)
+	for(i = 0; i < 10; i++)
 	{
-		r.x = 10 + i;
-		r.y = 10 + i;
-		r.w = 50;
-		r.h = 50;
+		r.x = 10 + i*10;
+		r.y = 10 + i*10;
+		r.w = 500;
+		r.h = 500;
 
 		fb->swap(fb);
-		surface_fill_rects(surface, &surface->clip, 1, (c &0xffff0000) | i, BLEND_MODE_REPLACE);
-		surface_blit(surface, &r1, image, 0, BLEND_MODE_ALPHA);
-		surface_blit(surface, &r, image2, 0, BLEND_MODE_ALPHA);
+		surface_fill_rects(surface, &surface->clip, 1, (c &0xffff0000) | i, BLEND_MODE_ALPHA);
+
+		surface_fill_rects(surface, &r, 1, (c &0x7fffff00) | i*10, BLEND_MODE_ALPHA);
+		//surface_blit(surface, &r1, image, 0, BLEND_MODE_ALPHA);
+		//surface_blit(surface, &r, image2, 0, BLEND_MODE_ALPHA);
+/*
 
 		int j, k;
 		struct point_t p;
@@ -1451,6 +1454,7 @@ void test1(void)
 				surface_draw_points(surface, &p, 1, cc, BLEND_MODE_ALPHA);
 			}
 		}
+*/
 
 
 		fb->flush(fb);

@@ -1116,7 +1116,7 @@ static const struct gimage image_test2 = {
 
 #define NUM_HAPPY_FACES 50     /* number of faces to draw */
 #define MILLESECONDS_PER_FRAME 30       /* about 20 frames per second */
-#define HAPPY_FACE_SIZE 32      /* width and height of happyface (pixels) */
+#define HAPPY_FACE_SIZE 45      /* width and height of happyface (pixels) */
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 480
@@ -1327,8 +1327,8 @@ void game(void)
 	fb = search_framebuffer("fb");
 	screen = &fb->info->surface;
 
-	c = surface_map_color(screen, get_color_by_name("black"));
-	obj = surface_alloc_from_gimage(&obj_image);
+	c = surface_map_color(screen, get_color_by_name("red"));
+	obj = surface_alloc_from_gimage(&image_test);
 
 	/* setup boundaries for happyface bouncing */
     u32_t maxx = SCREEN_WIDTH - HAPPY_FACE_SIZE;
@@ -1344,12 +1344,13 @@ void game(void)
     dstRect.w = HAPPY_FACE_SIZE;
     dstRect.h = HAPPY_FACE_SIZE;
 
-    while (1)
+    int loop = 10;
+    while (loop--)
 	{
     	startFrame = jiffies;
 
 		fb->swap(fb);
-		surface_fill_rects(screen, &screen->clip, 1, c);
+		surface_fill_rects(screen, &screen->clip, 1, c, BLEND_MODE_REPLACE);
 		//memset(screen->pixels, 0, screen->h * screen->pitch);
 		for (i = 0; i < NUM_HAPPY_FACES; i++)
 		{
@@ -1377,7 +1378,7 @@ void game(void)
 			}
 			dstRect.x = faces[i].x;
 			dstRect.y = faces[i].y;
-			surface_blit(screen, &dstRect, obj, &srcRect, BLIT_MODE_REPLACE);
+			surface_blit(screen, &dstRect, obj, &srcRect, BLEND_MODE_ALPHA);
 		}
 		fb->flush(fb);
 
@@ -1426,9 +1427,32 @@ void test1(void)
 		r.h = 50;
 
 		fb->swap(fb);
-		surface_fill_rects(surface, &surface->clip, 1, (c &0xffffff00) | i);
-		surface_blit(surface, &r1, image, 0, BLIT_MODE_ALPHA);
-		surface_blit(surface, &r, image2, 0, BLIT_MODE_ALPHA);
+		surface_fill_rects(surface, &surface->clip, 1, (c &0xffff0000) | i, BLEND_MODE_REPLACE);
+		surface_blit(surface, &r1, image, 0, BLEND_MODE_ALPHA);
+		surface_blit(surface, &r, image2, 0, BLEND_MODE_ALPHA);
+
+		int j, k;
+		struct point_t p;
+		struct color_t col;
+		u32_t cc;
+		col.r = 0xff;
+		col.g = 0;
+		col.b = 0xff;
+		col.a = 50;
+		cc = surface_map_color(surface, &col);
+
+
+		for(k = 0; k< 100; k++)
+		{
+			p.y = k;
+			for(j=0; j<100; j++)
+			{
+				p.x = j;
+				surface_draw_points(surface, &p, 1, cc, BLEND_MODE_ALPHA);
+			}
+		}
+
+
 		fb->flush(fb);
 	}
 

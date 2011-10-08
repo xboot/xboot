@@ -1151,9 +1151,9 @@ bool_t display_logo(struct fb * fb)
 	}
 
 	c = surface_map_color(&(fb->info->surface), get_color_by_name("black"));
-	surface_fill_rects(&(fb->info->surface), &(fb->info->surface.clip), 1, c);
+	surface_fill_rects(&(fb->info->surface), &(fb->info->surface.clip), 1, c, BLEND_MODE_REPLACE);
 
-	surface_blit(&(fb->info->surface), &rect, surface, &(surface->clip), BLIT_MODE_REPLACE);
+	surface_blit(&(fb->info->surface), &rect, surface, &(surface->clip), BLEND_MODE_REPLACE);
 	surface_free(surface);
 
 	return TRUE;

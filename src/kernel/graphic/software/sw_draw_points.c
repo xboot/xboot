@@ -22,7 +22,7 @@
 
 #include <graphic/software.h>
 
-bool_t software_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c)
+bool_t software_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode)
 {
 	s32_t minx, miny;
 	s32_t maxx, maxy;
@@ -43,17 +43,39 @@ bool_t software_draw_points(struct surface_t * surface, const struct point_t * p
 	miny = surface->clip.y;
 	maxy = surface->clip.y + surface->clip.h - 1;
 
-	for (i = 0; i < count; i++)
+	if(mode == BLEND_MODE_REPLACE)
 	{
-		x = points[i].x;
-		y = points[i].y;
-
-		if (x < minx || x > maxx || y < miny || y > maxy)
+		for (i = 0; i < count; i++)
 		{
-			continue;
-		}
+			x = points[i].x;
+			y = points[i].y;
 
-		surface_sw_set_pixel(surface, x, y, c);
+			if (x < minx || x > maxx || y < miny || y > maxy)
+			{
+				continue;
+			}
+
+			surface_sw_set_pixel(surface, x, y, c);
+		}
+	}
+	else if(mode == BLEND_MODE_ALPHA)
+	{
+		for (i = 0; i < count; i++)
+		{
+			x = points[i].x;
+			y = points[i].y;
+
+			if (x < minx || x > maxx || y < miny || y > maxy)
+			{
+				continue;
+			}
+
+			surface_sw_set_pixel_with_alpha(surface, x, y, c);
+		}
+	}
+	else
+	{
+		return FALSE;
 	}
 
 	return TRUE;

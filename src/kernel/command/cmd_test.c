@@ -50,7 +50,7 @@ static int test(int argc, char ** argv)
 
 	extern void game(void);
 
-	//test1();
+	test1();
 
 	t1 = jiffies;
 	game();

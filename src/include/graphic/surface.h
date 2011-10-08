@@ -73,9 +73,9 @@ bool_t surface_set_clip_rect(struct surface_t * surface, struct rect_t * rect);
 bool_t surface_get_clip_rect(struct surface_t * surface, struct rect_t * rect);
 u32_t surface_map_color(struct surface_t * surface, struct color_t * col);
 void surface_unmap_color(struct surface_t * surface, u32_t c, struct color_t * col);
-bool_t surface_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c);
-bool_t surface_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c);
-bool_t surface_fill_rects(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c);
-bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blit_mode mode);
+bool_t surface_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode);
+bool_t surface_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode);
+bool_t surface_fill_rects(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c, enum blend_mode mode);
+bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode);
 
 #endif /* __SURFACE_H__ */

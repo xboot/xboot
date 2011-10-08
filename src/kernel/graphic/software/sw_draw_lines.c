@@ -22,7 +22,7 @@
 
 #include <graphic/software.h>
 
-bool_t software_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c)
+bool_t software_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode)
 {
 	return FALSE;
 }

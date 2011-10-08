@@ -88,7 +88,7 @@ static int display(int argc, char ** argv)
 	rect_set(&new, 0, 0, width, height);
 	fb_get_viewport(fb, &old);
 	fb_set_viewport(fb, &new);
-	fb_blit_bitmap(fb, scaled, BLIT_MODE_REPLACE, 0, 0, width, height, 0, 0);
+	fb_blit_bitmap(fb, scaled, BLEND_MODE_REPLACE, 0, 0, width, height, 0, 0);
 	fb_set_viewport(fb, &old);
 
 	bitmap_destroy(bitmap);

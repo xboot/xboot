@@ -22,7 +22,7 @@
 
 #include <graphic/software.h>
 
-static void surface_fill_rect_1byte(struct surface_t * surface,
+static void surface_fill_rect_replace_1byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
@@ -52,7 +52,7 @@ static void surface_fill_rect_1byte(struct surface_t * surface,
 	}
 }
 
-static void surface_fill_rect_2byte(struct surface_t * surface,
+static void surface_fill_rect_replace_2byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
@@ -82,7 +82,7 @@ static void surface_fill_rect_2byte(struct surface_t * surface,
 	}
 }
 
-static void surface_fill_rect_3byte(struct surface_t * surface,
+static void surface_fill_rect_replace_3byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
@@ -124,7 +124,7 @@ static void surface_fill_rect_3byte(struct surface_t * surface,
 	}
 }
 
-static void surface_fill_rect_4byte(struct surface_t * surface,
+static void surface_fill_rect_replace_4byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
@@ -154,7 +154,7 @@ static void surface_fill_rect_4byte(struct surface_t * surface,
 }
 
 bool_t software_fill_rects(struct surface_t * surface,
-		const struct rect_t * rects, u32_t count, u32_t c)
+		const struct rect_t * rects, u32_t count, u32_t c, enum blend_mode mode)
 {
 	struct rect_t clipped;
 	u32_t i;
@@ -178,19 +178,19 @@ bool_t software_fill_rects(struct surface_t * surface,
 			switch (surface->info.bytes_per_pixel)
 			{
 			case 1:
-				surface_fill_rect_1byte(surface, &clipped, c);
+				surface_fill_rect_replace_1byte(surface, &clipped, c);
 				break;
 
 			case 2:
-				surface_fill_rect_2byte(surface, &clipped, c);
+				surface_fill_rect_replace_2byte(surface, &clipped, c);
 				break;
 
 			case 3:
-				surface_fill_rect_3byte(surface, &clipped, c);
+				surface_fill_rect_replace_3byte(surface, &clipped, c);
 				break;
 
 			case 4:
-				surface_fill_rect_4byte(surface, &clipped, c);
+				surface_fill_rect_replace_4byte(surface, &clipped, c);
 				break;
 
 			default:

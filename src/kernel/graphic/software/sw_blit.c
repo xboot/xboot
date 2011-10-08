@@ -26,7 +26,7 @@ extern void sw_blit_replace(struct surface_t * dst, struct rect_t * dst_rect, st
 extern void sw_blit_alpha(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect);
 
 bool_t software_blit(struct surface_t * dst, struct rect_t * dst_rect,
-		struct surface_t * src, struct rect_t * src_rect, enum blit_mode mode)
+		struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode)
 {
 	struct rect_t dr, sr;
 	struct rect_t * clip;
@@ -125,17 +125,16 @@ bool_t software_blit(struct surface_t * dst, struct rect_t * dst_rect,
 		sr.w = dr.w = w;
 		sr.h = dr.h = h;
 
-		switch (mode)
+		if(mode == BLEND_MODE_REPLACE)
 		{
-		case BLIT_MODE_REPLACE:
 			sw_blit_replace(dst, &dr, src, &sr);
-			break;
-
-		case BLIT_MODE_ALPHA:
+		}
+		else if(mode == BLEND_MODE_ALPHA)
+		{
 			sw_blit_alpha(dst, &dr, src, &sr);
-			break;
-
-		default:
+		}
+		else
+		{
 			return FALSE;
 		}
 	}

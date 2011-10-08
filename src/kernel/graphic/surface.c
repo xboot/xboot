@@ -167,31 +167,31 @@ void surface_unmap_color(struct surface_t * surface, u32_t c, struct color_t * c
 	unmap_pixel_color(&surface->info, c, col);
 }
 
-bool_t surface_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c)
+bool_t surface_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode)
 {
 	if(!surface || !surface->maps.draw_points)
 		return FALSE;
 
-	return (surface->maps.draw_points(surface, points, count, c));
+	return (surface->maps.draw_points(surface, points, count, c, mode));
 }
 
-bool_t surface_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c)
+bool_t surface_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode)
 {
 	if(!surface || !surface->maps.draw_lines)
 		return FALSE;
 
-	return (surface->maps.draw_lines(surface, points, count, c));
+	return (surface->maps.draw_lines(surface, points, count, c, mode));
 }
 
-bool_t surface_fill_rects(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c)
+bool_t surface_fill_rects(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c, enum blend_mode mode)
 {
 	if(!surface || !surface->maps.fill_rects)
 		return FALSE;
 
-	return (surface->maps.fill_rects(surface, rects, count, c));
+	return (surface->maps.fill_rects(surface, rects, count, c, mode));
 }
 
-bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blit_mode mode)
+bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode)
 {
 	if(!dst || !src)
 		return FALSE;

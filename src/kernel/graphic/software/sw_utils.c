@@ -51,6 +51,44 @@ inline u8_t * surface_sw_get_pointer(struct surface_t * surface, s32_t x, s32_t 
 	return p;
 }
 
+inline u32_t surface_sw_get_pixel(struct surface_t * surface, s32_t x, s32_t y)
+{
+	u32_t c;
+	u8_t * p;
+
+	switch (surface->info.bytes_per_pixel)
+	{
+	case 1:
+		p = surface->pixels + y * surface->pitch + x;
+		c = *((u8_t *) p);
+		break;
+
+	case 2:
+		p = surface->pixels + y * surface->pitch + x * 2;
+		c = *((u16_t *) p);
+		break;
+
+	case 3:
+		p = surface->pixels + y * surface->pitch + x * 3;
+#if (__BYTE_ORDER == __BIG_ENDIAN)
+		c = p[2] | (p[1] << 8) | (p[0] << 16);
+#else
+		c = p[0] | (p[1] << 8) | (p[2] << 16);
+#endif
+		break;
+
+	case 4:
+		p = surface->pixels + y * surface->pitch + x * 4;
+		c = *((u32_t *) p);
+		break;
+
+	default:
+		return 0;
+	}
+
+	return c;
+}
+
 inline void surface_sw_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u32_t c)
 {
 	u8_t * p;
@@ -90,40 +128,35 @@ inline void surface_sw_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u
 	}
 }
 
-inline u32_t surface_sw_get_pixel(struct surface_t * surface, s32_t x, s32_t y)
+inline void surface_sw_set_pixel_with_alpha(struct surface_t * surface, s32_t x, s32_t y, u32_t c)
 {
-	u32_t c;
-	u8_t * p;
+	struct color_t dcol, scol;
+	struct color_t col;
+	u32_t dc;
+	u8_t alpha;
 
-	switch (surface->info.bytes_per_pixel)
+	unmap_pixel_color(&surface->info, c, &scol);
+	alpha = scol.a;
+
+	if(alpha == 0xff)
 	{
-	case 1:
-		p = surface->pixels + y * surface->pitch + x;
-		c = *((u8_t *) p);
-		break;
-
-	case 2:
-		p = surface->pixels + y * surface->pitch + x * 2;
-		c = *((u16_t *) p);
-		break;
-
-	case 3:
-		p = surface->pixels + y * surface->pitch + x * 3;
-#if (__BYTE_ORDER == __BIG_ENDIAN)
-		c = p[2] | (p[1] << 8) | (p[0] << 16);
-#else
-		c = p[0] | (p[1] << 8) | (p[2] << 16);
-#endif
-		break;
-
-	case 4:
-		p = surface->pixels + y * surface->pitch + x * 4;
-		c = *((u32_t *) p);
-		break;
-
-	default:
-		return 0;
+		surface_sw_set_pixel(surface, x, y, c);
+		return;
 	}
 
-	return c;
+	if(alpha == 0)
+	{
+		return;
+	}
+
+	dc = surface_sw_get_pixel(surface, x, y);
+	unmap_pixel_color(&surface->info, dc, &dcol);
+
+	col.r = (((scol.r - dcol.r) * alpha) >> 8) + dcol.r;
+	col.g = (((scol.g - dcol.g) * alpha) >> 8) + dcol.g;
+	col.b = (((scol.b - dcol.b) * alpha) >> 8) + dcol.b;
+	col.a = (((scol.a - dcol.a) * alpha) >> 8) + dcol.a;
+
+	dc = map_pixel_color(&surface->info, &col);
+	surface_sw_set_pixel(surface, x, y, dc);
 }

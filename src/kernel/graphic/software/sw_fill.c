@@ -23,7 +23,7 @@
 #include <graphic/software.h>
 
 static void software_fill_replace_1byte(struct surface_t * surface,
-		const struct rect_t * rect, u32_t c)
+		struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
 	u8_t * t;
@@ -53,7 +53,7 @@ static void software_fill_replace_1byte(struct surface_t * surface,
 }
 
 static void software_fill_replace_2byte(struct surface_t * surface,
-		const struct rect_t * rect, u32_t c)
+		struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
 	u16_t * t;
@@ -83,7 +83,7 @@ static void software_fill_replace_2byte(struct surface_t * surface,
 }
 
 static void software_fill_replace_3byte(struct surface_t * surface,
-		const struct rect_t * rect, u32_t c)
+		struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
 	u8_t * t;
@@ -125,7 +125,7 @@ static void software_fill_replace_3byte(struct surface_t * surface,
 }
 
 static void software_fill_replace_4byte(struct surface_t * surface,
-		const struct rect_t * rect, u32_t c)
+		struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
 	u32_t * t;
@@ -154,7 +154,7 @@ static void software_fill_replace_4byte(struct surface_t * surface,
 }
 
 static inline void software_fill_replace(struct surface_t * surface,
-		const struct rect_t * rect, u32_t c)
+		struct rect_t * rect, u32_t c)
 {
 	switch (surface->info.bytes_per_pixel)
 	{
@@ -180,7 +180,7 @@ static inline void software_fill_replace(struct surface_t * surface,
 }
 
 static inline void software_fill_alpha(struct surface_t * surface,
-		const struct rect_t * rect, u32_t c)
+		struct rect_t * rect, u32_t c)
 {
 	struct color_t dcol, scol;
 	struct color_t col;
@@ -309,7 +309,7 @@ static inline void software_fill_alpha(struct surface_t * surface,
 }
 
 bool_t map_software_fill(struct surface_t * surface,
-		const struct rect_t * rect, u32_t c, enum blend_mode mode)
+		struct rect_t * rect, u32_t c, enum blend_mode mode)
 {
 	struct rect_t clipped;
 

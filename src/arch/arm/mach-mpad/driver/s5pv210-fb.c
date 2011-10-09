@@ -645,11 +645,7 @@ static __init void s5pv210_fb_init(void)
 	info.surface.clip.w = lcd->width;
 	info.surface.clip.h = lcd->height;
 
-	info.surface.maps.point = map_software_point;
-	info.surface.maps.hline = map_software_hline;
-	info.surface.maps.hline = map_software_vline;
-	info.surface.maps.fill = map_software_fill;
-	info.surface.maps.blit = map_software_blit;
+	surface_set_maps(&info.surface.maps);
 
 	if(! register_framebuffer(&s5pv210_fb))
 		LOG_E("failed to register framebuffer driver '%s'", s5pv210_fb.info->name);

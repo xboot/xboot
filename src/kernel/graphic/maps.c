@@ -43,5 +43,8 @@ bool_t surface_set_maps(struct surface_maps * maps)
 	if(!maps->blit)
 		maps->blit = map_software_blit;
 
+	if(!maps->zoom)
+		maps->zoom = map_software_zoom;
+
 	return TRUE;
 }

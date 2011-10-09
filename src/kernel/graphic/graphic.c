@@ -1404,6 +1404,7 @@ void test1(void)
 	int i;
 	struct surface_t * image;
 	struct surface_t * image2;
+	struct surface_t * obj;
 	u32_t c;
 
 
@@ -1412,14 +1413,20 @@ void test1(void)
 
 	image = surface_alloc_from_gimage(&image_test);
 	image2 = surface_alloc_from_gimage(&image_test2);
+	obj = surface_alloc_from_gimage(&obj_image);
 	c = surface_map_color(surface, get_color_by_name("peru"));
 
-	r1.x = 50;
-	r1.y = 50;
-	r1.w = 50;
-	r1.h = 50;
+	r1.x = 10;
+	r1.y = 10;
+	r1.w = 20;
+	r1.h = 20;
 
-	for(i = 0; i < 10; i++)
+	/*image->clip.x = 10;
+	image->clip.y = 10;
+	image->clip.w = 20;
+	image->clip.h = 20;*/
+
+	for(i = 0; i < 50; i++)
 	{
 		r.x = 10 + i*10;
 		r.y = 10 + i*10;
@@ -1427,39 +1434,16 @@ void test1(void)
 		r.h = 500;
 
 		fb->swap(fb);
-		surface_fill(surface, &surface->clip, (c &0xffff0000) | i, BLEND_MODE_ALPHA);
+		surface_fill(surface, &surface->clip, c, BLEND_MODE_ALPHA);
 
-		surface_fill(surface, &r, (c &0x7fffff00) | i*10, BLEND_MODE_ALPHA);
-		//surface_blit(surface, &r1, image, 0, BLEND_MODE_ALPHA);
-		//surface_blit(surface, &r, image2, 0, BLEND_MODE_ALPHA);
-/*
-
-		int j, k;
-		struct point_t p;
-		struct color_t col;
-		u32_t cc;
-		col.r = 0xff;
-		col.g = 0;
-		col.b = 0xff;
-		col.a = 50;
-		cc = surface_map_color(surface, &col);
-
-
-		for(k = 0; k< 100; k++)
-		{
-			p.y = k;
-			for(j=0; j<100; j++)
-			{
-				p.x = j;
-				surface_draw_points(surface, &p, 1, cc, BLEND_MODE_ALPHA);
-			}
-		}
-*/
-
+		struct surface_t * t = map_software_zoom(obj, 0, 10*(i+2), 10*(i+2));
+		surface_blit(surface, 0, t, 0, BLEND_MODE_REPLACE);
+		surface_free(t);
 
 		fb->flush(fb);
 	}
 
 	surface_free(image);
 	surface_free(image2);
+	surface_free(obj);
 }

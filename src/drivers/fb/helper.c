@@ -37,7 +37,7 @@ bool_t fb_fill_rect(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 	rect.h = h;
 
 	surface_set_clip_rect(&(fb->info->surface), NULL);
-	return surface_fill_rects(&(fb->info->surface), &rect, 1, c, BLEND_MODE_REPLACE);
+	return surface_fill(&(fb->info->surface), &rect, c, BLEND_MODE_REPLACE);
 }
 
 bool_t fb_blit(struct fb * fb, struct surface_t * surface, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)

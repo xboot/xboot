@@ -1350,7 +1350,7 @@ void game(void)
     	startFrame = jiffies;
 
 		fb->swap(fb);
-		surface_fill_rects(screen, &screen->clip, 1, c, BLEND_MODE_REPLACE);
+		surface_fill(screen, &screen->clip, c, BLEND_MODE_REPLACE);
 		//memset(screen->pixels, 0, screen->h * screen->pitch);
 		for (i = 0; i < NUM_HAPPY_FACES; i++)
 		{
@@ -1427,9 +1427,9 @@ void test1(void)
 		r.h = 500;
 
 		fb->swap(fb);
-		surface_fill_rects(surface, &surface->clip, 1, (c &0xffff0000) | i, BLEND_MODE_ALPHA);
+		surface_fill(surface, &surface->clip, (c &0xffff0000) | i, BLEND_MODE_ALPHA);
 
-		surface_fill_rects(surface, &r, 1, (c &0x7fffff00) | i*10, BLEND_MODE_ALPHA);
+		surface_fill(surface, &r, (c &0x7fffff00) | i*10, BLEND_MODE_ALPHA);
 		//surface_blit(surface, &r1, image, 0, BLEND_MODE_ALPHA);
 		//surface_blit(surface, &r, image2, 0, BLEND_MODE_ALPHA);
 /*

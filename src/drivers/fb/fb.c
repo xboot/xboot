@@ -774,6 +774,8 @@ bool_t register_framebuffer(struct fb * fb)
 	if(!fb || !fb->info || !fb->info->name)
 		return FALSE;
 
+	surface_set_maps(&fb->info->surface.maps);
+
 	dev = malloc(sizeof(struct chrdev));
 	if(!dev)
 		return FALSE;

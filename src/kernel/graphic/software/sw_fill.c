@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/software/sw_fill_rects.c
+ * kernel/graphic/software/sw_fill.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,7 +22,7 @@
 
 #include <graphic/software.h>
 
-static void surface_fill_rect_replace_1byte(struct surface_t * surface,
+static void software_fill_replace_1byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
@@ -52,7 +52,7 @@ static void surface_fill_rect_replace_1byte(struct surface_t * surface,
 	}
 }
 
-static void surface_fill_rect_replace_2byte(struct surface_t * surface,
+static void software_fill_replace_2byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
@@ -82,7 +82,7 @@ static void surface_fill_rect_replace_2byte(struct surface_t * surface,
 	}
 }
 
-static void surface_fill_rect_replace_3byte(struct surface_t * surface,
+static void software_fill_replace_3byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
@@ -124,7 +124,7 @@ static void surface_fill_rect_replace_3byte(struct surface_t * surface,
 	}
 }
 
-static void surface_fill_rect_replace_4byte(struct surface_t * surface,
+static void software_fill_replace_4byte(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	u8_t * p, *q;
@@ -153,25 +153,25 @@ static void surface_fill_rect_replace_4byte(struct surface_t * surface,
 	}
 }
 
-static inline void surface_fill_rect_replace(struct surface_t * surface,
+static inline void software_fill_replace(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	switch (surface->info.bytes_per_pixel)
 	{
 	case 1:
-		surface_fill_rect_replace_1byte(surface, rect, c);
+		software_fill_replace_1byte(surface, rect, c);
 		break;
 
 	case 2:
-		surface_fill_rect_replace_2byte(surface, rect, c);
+		software_fill_replace_2byte(surface, rect, c);
 		break;
 
 	case 3:
-		surface_fill_rect_replace_3byte(surface, rect, c);
+		software_fill_replace_3byte(surface, rect, c);
 		break;
 
 	case 4:
-		surface_fill_rect_replace_4byte(surface, rect, c);
+		software_fill_replace_4byte(surface, rect, c);
 		break;
 
 	default:
@@ -179,7 +179,7 @@ static inline void surface_fill_rect_replace(struct surface_t * surface,
 	}
 }
 
-static inline void surface_fill_rect_alpha(struct surface_t * surface,
+static inline void software_fill_alpha(struct surface_t * surface,
 		const struct rect_t * rect, u32_t c)
 {
 	struct color_t dcol, scol;
@@ -194,7 +194,7 @@ static inline void surface_fill_rect_alpha(struct surface_t * surface,
 
 	if(alpha == 0xff)
 	{
-		surface_fill_rect_replace(surface, rect, c);
+		software_fill_replace(surface, rect, c);
 		return;
 	}
 
@@ -308,11 +308,10 @@ static inline void surface_fill_rect_alpha(struct surface_t * surface,
 	}
 }
 
-bool_t software_fill_rects(struct surface_t * surface,
-		const struct rect_t * rects, u32_t count, u32_t c, enum blend_mode mode)
+bool_t map_software_fill(struct surface_t * surface,
+		const struct rect_t * rect, u32_t c, enum blend_mode mode)
 {
 	struct rect_t clipped;
-	u32_t i;
 
 	if (!surface)
 		return FALSE;
@@ -323,28 +322,26 @@ bool_t software_fill_rects(struct surface_t * surface,
 	if (surface->info.bits_per_pixel < 8)
 		return FALSE;
 
-	if (!rects)
-		return FALSE;
+	if (rect)
+	{
+		if (!rect_intersect(rect, &surface->clip, &clipped))
+		{
+			return TRUE;
+		}
+		rect = &clipped;
+	}
+	else
+	{
+		rect = &surface->clip;
+	}
 
 	if(mode == BLEND_MODE_REPLACE)
 	{
-		for (i = 0; i < count; i++)
-		{
-			if (rect_intersect(&rects[i], &surface->clip, &clipped))
-			{
-				surface_fill_rect_replace(surface, &clipped, c);
-			}
-		}
+		software_fill_replace(surface, rect, c);
 	}
 	else if(mode == BLEND_MODE_ALPHA)
 	{
-		for (i = 0; i < count; i++)
-		{
-			if (rect_intersect(&rects[i], &surface->clip, &clipped))
-			{
-				surface_fill_rect_alpha(surface, &clipped, c);
-			}
-		}
+		software_fill_alpha(surface, rect, c);
 	}
 	else
 	{

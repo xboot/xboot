@@ -54,7 +54,7 @@ struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_for
 	surface->h = h;
 	surface->pitch = pitch;
 	surface_set_clip_rect(surface, NULL);
-	set_surface_maps(&surface->maps);
+	surface_set_maps(&surface->maps);
 
 	if(pixels)
 	{
@@ -167,28 +167,12 @@ void surface_unmap_color(struct surface_t * surface, u32_t c, struct color_t * c
 	unmap_pixel_color(&surface->info, c, col);
 }
 
-bool_t surface_draw_points(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode)
+bool_t surface_fill(struct surface_t * surface, const struct rect_t * rect, u32_t c, enum blend_mode mode)
 {
-	if(!surface || !surface->maps.draw_points)
+	if(!surface || !surface->maps.fill)
 		return FALSE;
 
-	return (surface->maps.draw_points(surface, points, count, c, mode));
-}
-
-bool_t surface_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode)
-{
-	if(!surface || !surface->maps.draw_lines)
-		return FALSE;
-
-	return (surface->maps.draw_lines(surface, points, count, c, mode));
-}
-
-bool_t surface_fill_rects(struct surface_t * surface, const struct rect_t * rects, u32_t count, u32_t c, enum blend_mode mode)
-{
-	if(!surface || !surface->maps.fill_rects)
-		return FALSE;
-
-	return (surface->maps.fill_rects(surface, rects, count, c, mode));
+	return (surface->maps.fill(surface, rect, c, mode));
 }
 
 bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode)

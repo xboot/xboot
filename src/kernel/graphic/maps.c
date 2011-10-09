@@ -23,15 +23,25 @@
 #include <graphic/maps.h>
 #include <graphic/software.h>
 
-bool_t set_surface_maps(struct surface_maps * maps)
+bool_t surface_set_maps(struct surface_maps * maps)
 {
 	if(!maps)
 		return FALSE;
 
-	maps->draw_points = software_draw_points;
-	maps->draw_lines = software_draw_lines;
-	maps->fill_rects = software_fill_rects;
-	maps->blit = software_blit;
+	if(!maps->point)
+		maps->point = map_software_point;
+
+	if(!maps->hline)
+		maps->hline = map_software_hline;
+
+	if(!maps->vline)
+		maps->vline = map_software_vline;
+
+	if(!maps->fill)
+		maps->fill = map_software_fill;
+
+	if(!maps->blit)
+		maps->blit = map_software_blit;
 
 	return TRUE;
 }

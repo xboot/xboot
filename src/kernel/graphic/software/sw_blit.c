@@ -25,7 +25,7 @@
 extern void sw_blit_replace(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect);
 extern void sw_blit_alpha(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect);
 
-bool_t software_blit(struct surface_t * dst, struct rect_t * dst_rect,
+bool_t map_software_blit(struct surface_t * dst, struct rect_t * dst_rect,
 		struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode)
 {
 	struct rect_t dr, sr;

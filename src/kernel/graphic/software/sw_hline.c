@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/software/sw_draw_lines.c
+ * kernel/graphic/software/sw_hline.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,7 +22,7 @@
 
 #include <graphic/software.h>
 
-bool_t software_draw_lines(struct surface_t * surface, const struct point_t * points, u32_t count, u32_t c, enum blend_mode mode)
+bool_t map_software_hline(struct surface_t * surface, s32_t x0, s32_t y0, u32_t x1, u32_t c, enum blend_mode mode)
 {
 	return FALSE;
 }

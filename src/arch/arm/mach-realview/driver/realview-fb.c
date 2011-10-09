@@ -93,10 +93,11 @@ static struct fb_info info = {
 		},
 
 		.maps = {
-			.draw_points		= software_draw_points,
-			.draw_lines			= software_draw_lines,
-			.fill_rects			= software_fill_rects,
-			.blit				= software_blit,
+			.point				= map_software_point,
+			.hline				= map_software_hline,
+			.vline				= map_software_vline,
+			.fill				= map_software_fill,
+			.blit				= map_software_blit,
 		},
 	},
 };

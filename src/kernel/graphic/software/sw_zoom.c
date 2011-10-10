@@ -22,7 +22,10 @@
 
 #include <graphic/software.h>
 
-static void software_zoom_1byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
+/*
+ * nearest neighbor
+ */
+static void software_zoom_nn_1byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
 {
 	u8_t * dp, * sp;
 	u8_t * tp, * op;
@@ -58,7 +61,7 @@ static void software_zoom_1byte(struct surface_t * dst, struct surface_t * src, 
 	}
 }
 
-static void software_zoom_2byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
+static void software_zoom_nn_2byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
 {
 	u16_t * dp, * sp;
 	u8_t * tp, * op;
@@ -94,7 +97,7 @@ static void software_zoom_2byte(struct surface_t * dst, struct surface_t * src, 
 	}
 }
 
-static void software_zoom_3byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
+static void software_zoom_nn_3byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
 {
 	u8_t * dp, * sp;
 	u8_t * tp, * op;
@@ -132,7 +135,7 @@ static void software_zoom_3byte(struct surface_t * dst, struct surface_t * src, 
 	}
 }
 
-static void software_zoom_4byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
+static void software_zoom_nn_4byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
 {
 	u32_t * dp, * sp;
 	u8_t * tp, * op;
@@ -167,6 +170,77 @@ static void software_zoom_4byte(struct surface_t * dst, struct surface_t * src, 
 		y += ty;
 	}
 }
+
+#if 0
+/*
+ * bilinear interpolation
+ */
+static void software_zoom_bilinear_4byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect)
+{
+	u8_t * ddata = dst->pixels;
+	u8_t * sdata = src->pixels;
+	s32_t dw = dst->w;
+	s32_t dh = dst->h;
+	s32_t sw = src->w;
+	s32_t sh = src->h;
+	s32_t dstride = dst->pitch;
+	s32_t sstride = src->pitch;
+	s32_t bytes_per_pixel = dst->info.bytes_per_pixel;
+
+	s32_t dx, dy, sx, sy, comp;
+	u8_t *dptr, *sptr;
+
+	for(dy = 0; dy < dh; dy++)
+	{
+		for(dx = 0; dx < dw; dx++)
+		{
+			/*
+			 * compute the source coordinate that the destination coordinate maps to.
+			 * sx/sw = dx/dw  =>  sx = sw*dx/dw.
+			 */
+			sx = sw * dx / dw;
+			sy = sh * dy / dh;
+
+			/* get the address of the pixels in src and dst */
+			dptr = ddata + dy * dstride + dx * bytes_per_pixel;
+			sptr = sdata + sy * sstride + sx * bytes_per_pixel;
+
+			/*
+			 * if we have enough space to do so, use bilinear interpolation.
+			 * otherwise, fall back to nearest neighbor for this pixel.
+			 */
+			if(sx < sw - 1 && sy < sh - 1)
+			{
+				s32_t u = (256 * sw * dx / dw) - (sx * 256);
+				s32_t v = (256 * sh * dy / dh) - (sy * 256);
+
+				for(comp = 0; comp < bytes_per_pixel; comp++)
+				{
+					/* get the component's values for the four source corner pixels */
+					u8_t f00 = sptr[comp];
+					u8_t f10 = sptr[comp + bytes_per_pixel];
+					u8_t f01 = sptr[comp + sstride];
+					u8_t f11 = sptr[comp + sstride + bytes_per_pixel];
+
+					/* do linear s32_terpolations along the top and bottom rows of the box */
+					u8_t f0y = (256 - v) * f00 / 256 + v * f01 / 256;
+					u8_t f1y = (256 - v) * f10 / 256 + v * f11 / 256;
+
+					/* interpolate vertically */
+					u8_t fxy = (256 - u) * f0y / 256 + u * f1y / 256;
+
+					dptr[comp] = fxy;
+				}
+			}
+			else
+			{
+				for(comp = 0; comp < bytes_per_pixel; comp++)
+					dptr[comp] = sptr[comp];
+			}
+		}
+	}
+}
+#endif
 
 struct surface_t * map_software_zoom(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h)
 {
@@ -204,19 +278,19 @@ struct surface_t * map_software_zoom(struct surface_t * surface, struct rect_t *
 	switch (surface->info.bytes_per_pixel)
 	{
 	case 1:
-		software_zoom_1byte(zoom, surface, rect);
+		software_zoom_nn_1byte(zoom, surface, rect);
 		break;
 
 	case 2:
-		software_zoom_2byte(zoom, surface, rect);
+		software_zoom_nn_2byte(zoom, surface, rect);
 		break;
 
 	case 3:
-		software_zoom_3byte(zoom, surface, rect);
+		software_zoom_nn_3byte(zoom, surface, rect);
 		break;
 
 	case 4:
-		software_zoom_4byte(zoom, surface, rect);
+		software_zoom_nn_4byte(zoom, surface, rect);
 		break;
 
 	default:

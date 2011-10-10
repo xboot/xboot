@@ -645,6 +645,7 @@ static __init void s5pv210_fb_init(void)
 	info.surface.clip.w = lcd->width;
 	info.surface.clip.h = lcd->height;
 
+	memset(&info.surface.maps, 0, sizeof(struct surface_maps));
 	surface_set_maps(&info.surface.maps);
 
 	if(! register_framebuffer(&s5pv210_fb))

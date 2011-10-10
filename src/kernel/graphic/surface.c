@@ -54,6 +54,8 @@ struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_for
 	surface->h = h;
 	surface->pitch = pitch;
 	surface_set_clip_rect(surface, NULL);
+
+	memset(&surface->maps, 0, sizeof(struct surface_maps));
 	surface_set_maps(&surface->maps);
 
 	if(pixels)
@@ -167,7 +169,7 @@ void surface_unmap_color(struct surface_t * surface, u32_t c, struct color_t * c
 	unmap_pixel_color(&surface->info, c, col);
 }
 
-bool_t surface_fill(struct surface_t * surface, const struct rect_t * rect, u32_t c, enum blend_mode mode)
+bool_t surface_fill(struct surface_t * surface, struct rect_t * rect, u32_t c, enum blend_mode mode)
 {
 	if(!surface || !surface->maps.fill)
 		return FALSE;
@@ -184,4 +186,12 @@ bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct sur
 		return FALSE;
 
 	return (dst->maps.blit(dst, dst_rect, src, src_rect, mode));
+}
+
+struct surface_t * surface_zoom(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h)
+{
+	if(!surface || !surface->maps.zoom)
+		return NULL;
+
+	return (surface->maps.zoom(surface, rect, w, h));
 }

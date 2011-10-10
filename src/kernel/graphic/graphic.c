@@ -1416,15 +1416,14 @@ void test1(void)
 	obj = surface_alloc_from_gimage(&obj_image);
 	c = surface_map_color(surface, get_color_by_name("peru"));
 
+	struct surface_t * tt;
+	tt = surface_alloc(0, obj->w, obj->h, PIXEL_FORMAT_RGB_332);
+	surface_blit(tt, 0, obj, 0, BLEND_MODE_REPLACE);
+
 	r1.x = 10;
 	r1.y = 10;
 	r1.w = 20;
 	r1.h = 20;
-
-	/*image->clip.x = 10;
-	image->clip.y = 10;
-	image->clip.w = 20;
-	image->clip.h = 20;*/
 
 	for(i = 0; i < 50; i++)
 	{
@@ -1436,7 +1435,7 @@ void test1(void)
 		fb->swap(fb);
 		surface_fill(surface, &surface->clip, c, BLEND_MODE_ALPHA);
 
-		struct surface_t * t = map_software_zoom(obj, 0, 10*(i+2), 10*(i+2));
+		struct surface_t * t = map_software_zoom(tt, 0, 10*(i+2), 10*(i+2));
 		surface_blit(surface, 0, t, 0, BLEND_MODE_REPLACE);
 		surface_free(t);
 
@@ -1446,4 +1445,5 @@ void test1(void)
 	surface_free(image);
 	surface_free(image2);
 	surface_free(obj);
+	surface_free(tt);
 }

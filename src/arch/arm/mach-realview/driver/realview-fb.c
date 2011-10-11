@@ -99,6 +99,7 @@ static struct fb_info info = {
 			.fill				= map_software_fill,
 			.blit				= map_software_blit,
 			.zoom				= map_software_zoom,
+			.rotate				= map_software_rotate,
 		},
 	},
 };

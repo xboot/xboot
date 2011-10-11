@@ -46,5 +46,8 @@ bool_t surface_set_maps(struct surface_maps * maps)
 	if(!maps->zoom)
 		maps->zoom = map_software_zoom;
 
+	if(!maps->rotate)
+		maps->rotate = map_software_rotate;
+
 	return TRUE;
 }

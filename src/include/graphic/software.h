@@ -15,5 +15,6 @@ bool_t map_software_vline(struct surface_t * surface, s32_t x0, s32_t y0, u32_t 
 bool_t map_software_fill(struct surface_t * surface, struct rect_t * rect, u32_t c, enum blend_mode mode);
 bool_t map_software_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode);
 struct surface_t * map_software_zoom(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h);
+struct surface_t * map_software_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type);
 
 #endif /* __GRAPHIC_SOFTWARE_H__ */

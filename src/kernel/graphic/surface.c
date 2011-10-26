@@ -188,10 +188,18 @@ bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct sur
 	return (dst->maps.blit(dst, dst_rect, src, src_rect, mode));
 }
 
-struct surface_t * surface_zoom(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h)
+struct surface_t * surface_scale(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h)
 {
-	if(!surface || !surface->maps.zoom)
+	if(!surface || !surface->maps.scale)
 		return NULL;
 
-	return (surface->maps.zoom(surface, rect, w, h));
+	return (surface->maps.scale(surface, rect, w, h));
+}
+
+struct surface_t * surface_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type)
+{
+	if(!surface || !surface->maps.rotate)
+		return NULL;
+
+	return (surface->maps.rotate(surface, rect, type));
 }

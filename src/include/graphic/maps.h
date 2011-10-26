@@ -40,6 +40,7 @@ struct surface_maps {
 	bool_t (*blit)(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode);
 	struct surface_t * (*scale)(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h);
 	struct surface_t * (*rotate)(struct surface_t * surface, struct rect_t * rect, enum rotate_type type);
+	struct surface_t * (*transform)(struct surface_t * surface);
 };
 
 bool_t surface_set_maps(struct surface_maps * maps);

@@ -16,5 +16,6 @@ bool_t map_software_fill(struct surface_t * surface, struct rect_t * rect, u32_t
 bool_t map_software_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode);
 struct surface_t * map_software_scale(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h);
 struct surface_t * map_software_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type);
+struct surface_t * map_software_transform(struct surface_t * surface);
 
 #endif /* __GRAPHIC_SOFTWARE_H__ */

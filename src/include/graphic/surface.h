@@ -62,7 +62,7 @@ struct surface_t {
 	struct surface_maps maps;
 
 	/* private data */
-	void * pirv;
+	void * priv;
 };
 
 struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_format fmt);

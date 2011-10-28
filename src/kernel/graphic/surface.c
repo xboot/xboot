@@ -77,7 +77,7 @@ struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_for
 		memset(surface->pixels, 0xff, size);
 	}
 
-	surface->pirv = NULL;
+	surface->priv = NULL;
 	return surface;
 }
 

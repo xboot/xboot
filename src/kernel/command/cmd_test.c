@@ -51,8 +51,9 @@ static int test(int argc, char ** argv)
 	extern void game(void);
 
 	t1 = jiffies;
-	test1();
+	//test1();
 	//game();
+	exec_cmdline("display fb /romdisk/11.tga");
 	t2 = jiffies;
 
 	printk("time = %ld\n", t2 - t1);

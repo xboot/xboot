@@ -31,6 +31,7 @@
 #include <xboot/printk.h>
 #include <xboot/clk.h>
 #include <xboot/machine.h>
+#include <xboot/stream.h>
 #include <time/tick.h>
 
 /*

@@ -60,7 +60,7 @@ struct tga_header
 
 } __attribute__ ((packed));
 
-static bool_t tga_load_truecolor_r8g8b8a8(struct surface_t * surface, struct tga_header * header, s32_t fd)
+static bool_t tga_load_truecolor_r8g8b8a8(struct surface_t * surface, struct tga_header * header, struct stream_t * stream)
 {
 	u32_t x, y;
 	u8_t * ptr;
@@ -79,7 +79,7 @@ static bool_t tga_load_truecolor_r8g8b8a8(struct surface_t * surface, struct tga
 
 		for(x = 0; x < header->image_width; x++)
 		{
-			if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+			if(stream_read(stream, &tmp[0], bytes_per_pixel, 1) != 1)
 				return FALSE;
 
 			ptr[0] = tmp[2];
@@ -94,7 +94,7 @@ static bool_t tga_load_truecolor_r8g8b8a8(struct surface_t * surface, struct tga
 	return TRUE;
 }
 
-static bool_t tga_load_truecolor_r8g8b8(struct surface_t * surface, struct tga_header * header, s32_t fd)
+static bool_t tga_load_truecolor_r8g8b8(struct surface_t * surface, struct tga_header * header, struct stream_t * stream)
 {
 	u32_t x, y;
 	u8_t * ptr;
@@ -113,7 +113,7 @@ static bool_t tga_load_truecolor_r8g8b8(struct surface_t * surface, struct tga_h
 
 		for(x = 0; x < header->image_width; x++)
 		{
-			if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+			if(stream_read(stream, &tmp[0], bytes_per_pixel, 1) != 1)
 				return FALSE;
 
 			ptr[0] = tmp[2];
@@ -127,7 +127,7 @@ static bool_t tga_load_truecolor_r8g8b8(struct surface_t * surface, struct tga_h
 	return TRUE;
 }
 
-static bool_t tga_load_truecolor_rle_r8g8b8a8(struct surface_t * surface, struct tga_header * header, s32_t fd)
+static bool_t tga_load_truecolor_rle_r8g8b8a8(struct surface_t * surface, struct tga_header * header, struct stream_t * stream)
 {
 	u32_t x, y;
 	u8_t type;
@@ -147,7 +147,7 @@ static bool_t tga_load_truecolor_rle_r8g8b8a8(struct surface_t * surface, struct
 
 		for(x = 0; x < header->image_width;)
 		{
-			if(read(fd, &type, sizeof(type)) != sizeof(type))
+			if(stream_read(stream, &type, sizeof(type), 1) != 1)
 				return FALSE;
 
 			if(type & 0x80)
@@ -156,7 +156,7 @@ static bool_t tga_load_truecolor_rle_r8g8b8a8(struct surface_t * surface, struct
 				type &= 0x7f;
 				type++;
 
-				if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+				if(stream_read(stream, &tmp[0], bytes_per_pixel, 1) != 1)
 					return FALSE;
 
 				while(type)
@@ -181,7 +181,7 @@ static bool_t tga_load_truecolor_rle_r8g8b8a8(struct surface_t * surface, struct
 
 				while(type)
 				{
-					if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+					if(stream_read(stream, &tmp[0], bytes_per_pixel, 1) != 1)
 						return FALSE;
 
 					if (x < header->image_width)
@@ -203,7 +203,7 @@ static bool_t tga_load_truecolor_rle_r8g8b8a8(struct surface_t * surface, struct
 	return TRUE;
 }
 
-static bool_t tga_load_truecolor_rle_r8g8b8(struct surface_t * surface, struct tga_header * header, s32_t fd)
+static bool_t tga_load_truecolor_rle_r8g8b8(struct surface_t * surface, struct tga_header * header, struct stream_t * stream)
 {
 	u32_t x, y;
 	u8_t type;
@@ -223,7 +223,7 @@ static bool_t tga_load_truecolor_rle_r8g8b8(struct surface_t * surface, struct t
 
 		for(x = 0; x < header->image_width;)
 		{
-			if(read(fd, &type, sizeof(type)) != sizeof(type))
+			if(stream_read(stream, &type, sizeof(type), 1) != 1)
 				return FALSE;
 
 			if(type & 0x80)
@@ -232,7 +232,7 @@ static bool_t tga_load_truecolor_rle_r8g8b8(struct surface_t * surface, struct t
 				type &= 0x7f;
 				type++;
 
-				if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+				if(stream_read(stream, &tmp[0], bytes_per_pixel, 1) != 1)
 					return FALSE;
 
 				while(type)
@@ -256,7 +256,7 @@ static bool_t tga_load_truecolor_rle_r8g8b8(struct surface_t * surface, struct t
 
 				while(type)
 				{
-					if(read(fd, &tmp[0], bytes_per_pixel) != bytes_per_pixel)
+					if(stream_read(stream, &tmp[0], bytes_per_pixel, 1) != 1)
 						return FALSE;
 
 					if (x < header->image_width)
@@ -281,23 +281,16 @@ static struct surface_t * tga_load(const char * filename)
 {
 	struct surface_t * surface;
 	struct tga_header header;
-	struct stat st;
-	s32_t fd;
+	struct stream_t * stream;
 	bool_t has_alpha;
 
-	if(stat(filename, &st) != 0)
+	stream = stream_alloc(filename, "r");
+	if(!stream)
 		return NULL;
 
-	if(S_ISDIR(st.st_mode))
-		return NULL;
-
-	fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
-	if(fd < 0)
-		return NULL;
-
-	if(read(fd, (void*)(&header), sizeof(struct tga_header)) != sizeof(struct tga_header))
+	if(stream_read(stream, (void*)(&header), sizeof(struct tga_header), 1) != 1)
 	{
-		close(fd);
+		stream_free(stream);
 		return NULL;
 	}
 
@@ -308,9 +301,9 @@ static struct surface_t * tga_load(const char * filename)
 	header.image_width = cpu_to_le16( *((u16_t *)(&header.image_width)) );
 	header.image_height = cpu_to_le16( *((u16_t *)(&header.image_height)) );
 
-	if(lseek(fd, sizeof(struct tga_header) + header.id_length, VFS_SEEK_SET) < 0)
+	if(!stream_seek(stream, sizeof(struct tga_header) + header.id_length, STREAM_SEEK_SET))
 	{
-		close(fd);
+		stream_free(stream);
 		return NULL;
 	}
 
@@ -322,7 +315,7 @@ static struct surface_t * tga_load(const char * filename)
 		break;
 
 	default:
-		close(fd);
+		stream_free(stream);
 		return NULL;
 	}
 
@@ -338,7 +331,7 @@ static struct surface_t * tga_load(const char * filename)
 		break;
 
 	default:
-		close(fd);
+		stream_free(stream);
 		return NULL;
 	}
 
@@ -347,33 +340,33 @@ static struct surface_t * tga_load(const char * filename)
 		surface = surface_alloc(0, header.image_width, header.image_height, PIXEL_FORMAT_ABGR_8888);
 		if(!surface)
 		{
-			close(fd);
+			stream_free(stream);
 			return NULL;
 		}
 
 		switch(header.image_type)
 		{
 		case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
-			if(!tga_load_truecolor_r8g8b8a8(surface, &header, fd))
+			if(!tga_load_truecolor_r8g8b8a8(surface, &header, stream))
 			{
 				surface_free(surface);
-				close(fd);
+				stream_free(stream);
 				return NULL;
 			}
 			break;
 
 		case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
-			if(!tga_load_truecolor_rle_r8g8b8a8(surface, &header, fd))
+			if(!tga_load_truecolor_rle_r8g8b8a8(surface, &header, stream))
 			{
 				surface_free(surface);
-				close(fd);
+				stream_free(stream);
 				return NULL;
 			}
 			break;
 
 		default:
 			surface_free(surface);
-			close(fd);
+			stream_free(stream);
 			return NULL;
 		}
 	}
@@ -382,38 +375,38 @@ static struct surface_t * tga_load(const char * filename)
 		surface = surface_alloc(0, header.image_width, header.image_height, PIXEL_FORMAT_BGR_888);
 		if(!surface)
 		{
-			close(fd);
+			stream_free(stream);
 			return NULL;
 		}
 
 		switch(header.image_type)
 		{
 		case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
-			if(!tga_load_truecolor_r8g8b8(surface, &header, fd))
+			if(!tga_load_truecolor_r8g8b8(surface, &header, stream))
 			{
 				surface_free(surface);
-				close(fd);
+				stream_free(stream);
 				return NULL;
 			}
 			break;
 
 		case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
-			if(!tga_load_truecolor_rle_r8g8b8(surface, &header, fd))
+			if(!tga_load_truecolor_rle_r8g8b8(surface, &header, stream))
 			{
 				surface_free(surface);
-				close(fd);
+				stream_free(stream);
 				return NULL;
 			}
 			break;
 
 		default:
 			surface_free(surface);
-			close(fd);
+			stream_free(stream);
 			return NULL;
 		}
 	}
 
-	close(fd);
+	stream_free(stream);
 	return surface;
 }
 

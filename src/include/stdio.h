@@ -15,7 +15,7 @@
 #endif
 
 #ifndef BUFSIZ
-#define BUFSIZ	(1024)
+#define BUFSIZ	(4096)
 #endif
 
 enum {

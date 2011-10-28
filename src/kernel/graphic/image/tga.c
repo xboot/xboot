@@ -282,7 +282,7 @@ static struct surface_t * tga_load(const char * filename)
 	struct surface_t * surface;
 	struct tga_header header;
 	struct stream_t * stream;
-	bool_t has_alpha;
+	bool_t ret = FALSE;
 
 	stream = stream_alloc(filename, "r");
 	if(!stream)
@@ -307,70 +307,7 @@ static struct surface_t * tga_load(const char * filename)
 		return NULL;
 	}
 
-	/* check that bitmap encoding is supported */
-	switch(header.image_type)
-	{
-	case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
-	case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
-		break;
-
-	default:
-		stream_free(stream);
-		return NULL;
-	}
-
-	/* check that bitmap depth is supported */
-	switch(header.image_bpp)
-	{
-	case 24:
-		has_alpha = FALSE;
-		break;
-
-	case 32:
-		has_alpha = TRUE;
-		break;
-
-	default:
-		stream_free(stream);
-		return NULL;
-	}
-
-	if(has_alpha)
-	{
-		surface = surface_alloc(0, header.image_width, header.image_height, PIXEL_FORMAT_ABGR_8888);
-		if(!surface)
-		{
-			stream_free(stream);
-			return NULL;
-		}
-
-		switch(header.image_type)
-		{
-		case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
-			if(!tga_load_truecolor_r8g8b8a8(surface, &header, stream))
-			{
-				surface_free(surface);
-				stream_free(stream);
-				return NULL;
-			}
-			break;
-
-		case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
-			if(!tga_load_truecolor_rle_r8g8b8a8(surface, &header, stream))
-			{
-				surface_free(surface);
-				stream_free(stream);
-				return NULL;
-			}
-			break;
-
-		default:
-			surface_free(surface);
-			stream_free(stream);
-			return NULL;
-		}
-	}
-	else
+	if(header.image_bpp == 24)
 	{
 		surface = surface_alloc(0, header.image_width, header.image_height, PIXEL_FORMAT_BGR_888);
 		if(!surface)
@@ -382,31 +319,48 @@ static struct surface_t * tga_load(const char * filename)
 		switch(header.image_type)
 		{
 		case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
-			if(!tga_load_truecolor_r8g8b8(surface, &header, stream))
-			{
-				surface_free(surface);
-				stream_free(stream);
-				return NULL;
-			}
+			ret = tga_load_truecolor_r8g8b8(surface, &header, stream);
 			break;
 
 		case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
-			if(!tga_load_truecolor_rle_r8g8b8(surface, &header, stream))
-			{
-				surface_free(surface);
-				stream_free(stream);
-				return NULL;
-			}
+			ret = tga_load_truecolor_rle_r8g8b8(surface, &header, stream);
 			break;
 
 		default:
-			surface_free(surface);
+			break;
+		}
+	}
+	else if(header.image_bpp == 32)
+	{
+		surface = surface_alloc(0, header.image_width, header.image_height, PIXEL_FORMAT_ABGR_8888);
+		if(!surface)
+		{
 			stream_free(stream);
 			return NULL;
+		}
+
+		switch(header.image_type)
+		{
+		case TGA_IMAGE_TYPE_UNCOMPRESSED_TRUECOLOR:
+			ret = tga_load_truecolor_r8g8b8a8(surface, &header, stream);
+			break;
+
+		case TGA_IMAGE_TYPE_RLE_TRUECOLOR:
+			ret = tga_load_truecolor_rle_r8g8b8a8(surface, &header, stream);
+			break;
+
+		default:
+			break;
 		}
 	}
 
 	stream_free(stream);
+
+	if(!ret)
+	{
+		surface_free(surface);
+		return NULL;
+	}
 	return surface;
 }
 

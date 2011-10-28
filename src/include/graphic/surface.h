@@ -1,5 +1,5 @@
-#ifndef __SURFACE_H__
-#define __SURFACE_H__
+#ifndef __GRAPHIC_SURFACE_H__
+#define __GRAPHIC_SURFACE_H__
 
 #include <xboot.h>
 #include <graphic/color.h>
@@ -77,4 +77,4 @@ bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct sur
 struct surface_t * surface_scale(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h);
 struct surface_t * surface_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type);
 
-#endif /* __SURFACE_H__ */
+#endif /* __GRAPHIC_SURFACE_H__ */

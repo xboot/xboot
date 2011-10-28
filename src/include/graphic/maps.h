@@ -1,5 +1,5 @@
-#ifndef __MAPS_H__
-#define __MAPS_H__
+#ifndef __GRAPHIC_MAPS_H__
+#define __GRAPHIC_MAPS_H__
 
 #include <xboot.h>
 #include <graphic/rect.h>
@@ -45,4 +45,4 @@ struct surface_maps {
 
 bool_t surface_set_maps(struct surface_maps * maps);
 
-#endif /* __MAPS_H__ */
+#endif /* __GRAPHIC_MAPS_H__ */

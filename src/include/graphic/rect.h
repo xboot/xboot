@@ -1,5 +1,5 @@
-#ifndef __RECT_H__
-#define __RECT_H__
+#ifndef __GRAPHIC_RECT_H__
+#define __GRAPHIC_RECT_H__
 
 #include <xboot.h>
 
@@ -49,4 +49,4 @@ bool_t rect_enclose_points(const struct point_t * p, int cnt, const struct rect_
 bool_t rect_intersect_with_line(const struct rect_t * r, s32_t * x1, s32_t * y1, s32_t * x2, s32_t * y2);
 bool_t rect_align(const struct rect_t * a, const struct rect_t * b, struct rect_t * r, enum align_t align);
 
-#endif /* __RECT_H__ */
+#endif /* __GRAPHIC_RECT_H__ */

@@ -37,12 +37,11 @@
 
 static int display(int argc, char ** argv)
 {
-/*	//xxx
- * struct stat st;
 	struct fb * fb;
-	struct bitmap *bitmap, *scaled;
-	struct rect old, new;
-	u32_t width, height;
+	struct surface_t * surface;
+	struct rect_t rect;
+	struct stat st;
+	u32_t c;
 
 	if(argc != 3)
 	{
@@ -69,31 +68,29 @@ static int display(int argc, char ** argv)
 		return -1;
 	}
 
-	if(bitmap_load_from_file(&bitmap, (char *)argv[2]) != TRUE)
+	surface = surface_load_from_file((const char *)argv[2]);
+	if(!surface)
 	{
-		printk("display: cannot load file %s\r\n", (char *)argv[2]);
+		printk("display: cannot load file %s\r\n", argv[2]);
 		return -1;
 	}
 
-	width = fb->info->bitmap.info.width;
-	height = fb->info->bitmap.info.height;
+	surface_set_clip_rect(&(fb->info->surface), NULL);
+	surface_set_clip_rect(surface, NULL);
+	rect_align(&(fb->info->surface.clip), &(surface->clip), &rect, ALIGN_CENTER);
 
-	if(bitmap_create_scaled(&scaled, width, height, bitmap, BITMAP_SCALE_METHOD_BEST) != TRUE)
+	if (!rect_intersect(&(fb->info->surface.clip), &rect, &rect))
 	{
-		printk("display: cannot scale the bitmap\r\n");
-		bitmap_destroy(bitmap);
+		surface_free(surface);
 		return -1;
 	}
 
-	rect_set(&new, 0, 0, width, height);
-	fb_get_viewport(fb, &old);
-	fb_set_viewport(fb, &new);
-	fb_blit_bitmap(fb, scaled, BLEND_MODE_REPLACE, 0, 0, width, height, 0, 0);
-	fb_set_viewport(fb, &old);
+	c = surface_map_color(&(fb->info->surface), get_color_by_name("black"));
+	surface_fill(&(fb->info->surface), &(fb->info->surface.clip), c, BLEND_MODE_REPLACE);
 
-	bitmap_destroy(bitmap);
-	bitmap_destroy(scaled);
-*/
+	surface_blit(&(fb->info->surface), &rect, surface, &(surface->clip), BLEND_MODE_REPLACE);
+	surface_free(surface);
+
 	return 0;
 }
 

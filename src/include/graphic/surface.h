@@ -5,6 +5,7 @@
 #include <graphic/color.h>
 #include <graphic/pixel.h>
 #include <graphic/rect.h>
+#include <graphic/image.h>
 #include <graphic/maps.h>
 #include <graphic/maps/software.h>
 

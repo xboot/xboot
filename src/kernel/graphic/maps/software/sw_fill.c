@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/software/sw_fill.c
+ * kernel/graphic/maps/software/sw_fill.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <graphic/software.h>
+#include <graphic/maps/software.h>
 
 static void software_fill_replace_1byte(struct surface_t * surface,
 		struct rect_t * rect, u32_t c)

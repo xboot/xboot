@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/software/sw_blit.c
+ * kernel/graphic/maps/software/sw_blit.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <graphic/software.h>
+#include <graphic/maps/software.h>
 
 extern void sw_blit_replace(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect);
 extern void sw_blit_alpha(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect);

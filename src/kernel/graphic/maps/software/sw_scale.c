@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/software/sw_scale.c
+ * kernel/graphic/maps/software/sw_scale.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <graphic/software.h>
+#include <graphic/maps/software.h>
 
 /*
  * nearest neighbor

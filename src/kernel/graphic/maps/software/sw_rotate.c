@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/software/sw_rotate.c
+ * kernel/graphic/maps/software/sw_rotate.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <graphic/software.h>
+#include <graphic/maps/software.h>
 
 static void software_rotate_1byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type type)
 {

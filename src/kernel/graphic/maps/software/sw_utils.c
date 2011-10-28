@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/software/sw_utils.c
+ * kernel/graphic/maps/software/sw_utils.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <graphic/software.h>
+#include <graphic/maps/software.h>
 
 inline u8_t * surface_sw_get_pointer(struct surface_t * surface, s32_t x, s32_t y)
 {

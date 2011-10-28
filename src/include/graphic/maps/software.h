@@ -1,5 +1,5 @@
-#ifndef __GRAPHIC_SOFTWARE_H__
-#define __GRAPHIC_SOFTWARE_H__
+#ifndef __GRAPHIC_MAPS_SOFTWARE_H__
+#define __GRAPHIC_MAPS_SOFTWARE_H__
 
 #include <xboot.h>
 #include <graphic/surface.h>
@@ -18,4 +18,4 @@ struct surface_t * map_software_scale(struct surface_t * surface, struct rect_t 
 struct surface_t * map_software_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type);
 struct surface_t * map_software_transform(struct surface_t * surface);
 
-#endif /* __GRAPHIC_SOFTWARE_H__ */
+#endif /* __GRAPHIC_MAPS_SOFTWARE_H__ */

@@ -95,7 +95,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				kernel/command					\
 				kernel/time						\
 				kernel/graphic					\
-				kernel/graphic/software			\
+				kernel/graphic/maps				\
+				kernel/graphic/maps/software	\
 				kernel/fs						\
 				kernel/fs/vfs					\
 				kernel/fs/ramfs					\

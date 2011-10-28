@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/software/sw_transform.c
+ * kernel/graphic/maps/software/sw_vline.c
  *
  * Copyright (c) 2007-2011  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,10 +20,9 @@
  *
  */
 
-#include <graphic/software.h>
+#include <graphic/maps/software.h>
 
-struct surface_t * map_software_transform(struct surface_t * surface)
+bool_t map_software_vline(struct surface_t * surface, s32_t x0, s32_t y0, u32_t y1, u32_t c, enum blend_mode mode)
 {
-	// TODO
-	return NULL;
+	return FALSE;
 }

@@ -6,7 +6,7 @@
 #include <graphic/pixel.h>
 #include <graphic/rect.h>
 #include <graphic/maps.h>
-#include <graphic/software.h>
+#include <graphic/maps/software.h>
 
 struct surface_t;
 struct surface_maps;

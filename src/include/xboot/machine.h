@@ -91,8 +91,8 @@ struct machine {
 		/* clean up system before running os */
 		bool_t(*cleanup)(void);
 
-		/* for anti-piracy */
-		bool_t(*genuine)(void);
+		/* machine authentication */
+		bool_t(*authentication)(void);
 	}misc;
 
 	/*
@@ -109,7 +109,6 @@ bool_t machine_resume(void);
 bool_t machine_halt(void);
 bool_t machine_reset(void);
 bool_t machine_cleanup(void);
-
-void do_system_antipiracy(void);
+bool_t machine_authentication(void);
 
 #endif /* __MACHINE_H__ */

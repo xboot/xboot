@@ -104,6 +104,17 @@ bool_t machine_cleanup(void)
 }
 
 /*
+ * machine authentication for anti-piracy
+ */
+bool_t machine_authentication(void)
+{
+	if(__machine && __machine->misc.authentication)
+		return __machine->misc.authentication();
+
+	return FALSE;
+}
+
+/*
  * register machine.
  */
 bool_t register_machine(struct machine * mach)
@@ -124,56 +135,6 @@ bool_t register_machine(struct machine * mach)
 	{
 		__machine = NULL;
 		return FALSE;
-	}
-}
-
-/*
- * anti piracy timer.
- */
-static struct timer_list anti_piracy_timer;
-
-/*
- * anti piracy timer function.
- */
-static void anti_piracy_timer_function(u32_t data)
-{
-	if(!__machine || !__machine->misc.genuine)
-		return;
-
-	if(!__machine->misc.genuine())
-	{
-		while(1)
-		{
-			machine_halt();
-			machine_reset();
-		}
-	}
-
-	mod_timer(&anti_piracy_timer, jiffies + get_system_hz() * 15);
-}
-
-/*
- * do anti piracy.
- */
-void do_system_antipiracy(void)
-{
-	if(!__machine || !__machine->misc.genuine)
-		return;
-
-	if(__machine->misc.genuine())
-	{
-		LOG_I("start anti piracy");
-
-		setup_timer(&anti_piracy_timer, anti_piracy_timer_function, (u32_t)(__machine));
-		mod_timer(&anti_piracy_timer, jiffies + get_system_hz() * 15);
-	}
-	else
-	{
-		while(1)
-		{
-			machine_halt();
-			machine_reset();
-		}
 	}
 }
 

@@ -105,9 +105,9 @@ static bool_t mach_cleanup(void)
 }
 
 /*
- * for anti-piracy
+ * machine authentication
  */
-static bool_t mach_genuine(void)
+static bool_t mach_authentication(void)
 {
 	return TRUE;
 }
@@ -176,7 +176,7 @@ static struct machine realview = {
 	.misc = {
 		.getmode			= mach_getmode,
 		.cleanup			= mach_cleanup,
-		.genuine			= mach_genuine,
+		.authentication		= mach_authentication,
 	},
 
 	.priv					= NULL,

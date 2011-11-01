@@ -48,9 +48,6 @@ int xboot_main(int argc, char * argv[])
 	/* load system fonts */
 	do_system_fonts();
 
-	/* do system anti-piracy */
-	do_system_antipiracy();
-
 	/* wait a moment */
 	do_system_wait();
 

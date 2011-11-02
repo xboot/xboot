@@ -21,21 +21,12 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <time/tick.h>
-#include <time/timer.h>
 #include <time/delay.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
-#include <xboot/list.h>
 #include <xboot/menu.h>
-#include <xboot/printk.h>
 #include <console/console.h>
-#include <fs/fileio.h>
+#include <fb/fb.h>
+#include <graphic/surface.h>
 #include <init.h>
 
 /*
@@ -175,6 +166,101 @@ void do_system_fonts(void)
     }
 
 	closedir(dir);
+}
+
+/*
+ * check battery capacity
+ */
+void do_system_battery(void)
+{
+	struct battery_info info;
+	struct fb * fb;
+	struct surface_t * surface;
+	struct surface_t * obj[17];
+	struct rect_t rect;
+	char path[MAX_PATH];
+	u32_t c;
+	int index, oindex = -1;
+	int i, count = 0;
+
+	if(! machine_batinfo(&info))
+		return;
+
+	if(info.capacity >= 25)
+		return;
+
+
+	//xxx
+	fb = search_framebuffer("fb");
+	if(!fb)
+		return;
+	surface = &fb->info->surface;
+	//xxx
+
+
+	/*
+	 * load battery resources
+	 */
+	for(i = 0; i < ARRAY_SIZE(obj); i++)
+	{
+		sprintf(path, "/romdisk/system/core/battery/%d%s", i + 1, ".tga");
+
+		obj[i] = surface_load_from_file(path);
+		if(!obj[i])
+		{
+			while(--i) { surface_free(obj[i]); }
+			return;
+		}
+	}
+
+	surface_set_clip_rect(&(fb->info->surface), NULL);
+	rect_align(&(fb->info->surface.clip), &(obj[0]->clip), &rect, ALIGN_CENTER);
+	rect_intersect(&(fb->info->surface.clip), &rect, &rect);
+	c = surface_map_color(&(fb->info->surface), get_color_by_name("black"));
+
+	while(1)
+	{
+		machine_batinfo(&info);
+		if (info.capacity < 0)
+			info.capacity = 0;
+		if (info.capacity > 100)
+			info.capacity = 100;
+
+		index = info.capacity * (ARRAY_SIZE(obj) - 1) / 100;
+		if(index != oindex)
+		{
+			fb->swap(fb);
+			surface_fill(&(fb->info->surface), &(fb->info->surface.clip), c, BLEND_MODE_REPLACE);
+			surface_blit(&(fb->info->surface), &rect, obj[index], NULL, BLEND_MODE_ALPHA);
+			fb->flush(fb);
+		}
+		oindex = index;
+
+		if(info.capacity >= 25)
+		{
+			break;
+		}
+		else
+		{
+			if(info.charging)
+			{
+				count = 0;
+			}
+			else
+			{
+				if(++count > 5)
+				{
+					machine_halt();
+					break;
+				}
+			}
+		}
+
+		mdelay(1000);
+	}
+
+	for(i = 0; i < ARRAY_SIZE(obj); i++)
+		surface_free(obj[i]);
 }
 
 /*

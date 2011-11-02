@@ -28,12 +28,12 @@
 /*
  * xboot running mode.
  */
-static enum mode xboot_mode = MODE_NORMAL;
+static enum mode_t xboot_mode = MODE_NORMAL;
 
 /*
  * get xboot's running mode.
  */
-inline enum mode xboot_get_mode(void)
+inline enum mode_t xboot_get_mode(void)
 {
 	return xboot_mode;
 }
@@ -41,7 +41,7 @@ inline enum mode xboot_get_mode(void)
 /*
  * set xboot's running mode.
  */
-bool_t xboot_set_mode(enum mode m)
+bool_t xboot_set_mode(enum mode_t m)
 {
 	switch(m)
 	{

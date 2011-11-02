@@ -21,18 +21,8 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <sizes.h>
-#include <io.h>
-#include <mode/mode.h>
-#include <xboot/log.h>
-#include <xboot/printk.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
 #include <realview/reg-system.h>
 #include <realview-cp15.h>
-
 
 extern u8_t	__text_start[];
 extern u8_t __text_end[];
@@ -49,41 +39,45 @@ extern u8_t __heap_end[];
 extern u8_t __stack_start[];
 extern u8_t __stack_end[];
 
-/*
- * system initial, like power lock
- */
 static void mach_init(void)
 {
 
 }
 
-/*
- * system halt, shutdown machine.
- */
+static bool_t mach_sleep(void)
+{
+	return FALSE;
+}
+
 static bool_t mach_halt(void)
 {
 	return FALSE;
 }
 
-/*
- * reset the cpu by setting up the watchdog timer and let him time out
- */
 static bool_t mach_reset(void)
 {
 	return FALSE;
 }
 
-/*
- * get system mode
- */
-static enum mode mach_getmode(void)
+static enum mode_t mach_getmode(void)
 {
 	return MODE_MENU;
 }
 
-/*
- * clean up system before running os
- */
+static bool_t mach_batinfo(struct battery_info * info)
+{
+	if(!info)
+		return FALSE;
+
+	info->charging = TRUE;
+	info->voltage = 3700;
+	info->current = 300;
+	info->temperature = 200;
+	info->capacity = 100;
+
+	return TRUE;
+}
+
 static bool_t mach_cleanup(void)
 {
 	/* disable irq */
@@ -104,16 +98,13 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-/*
- * machine authentication
- */
 static bool_t mach_authentication(void)
 {
 	return FALSE;
 }
 
 /*
- * a portable data interface for machine.
+ * A portable machine interface.
  */
 static struct machine realview = {
 	.info = {
@@ -167,13 +158,14 @@ static struct machine realview = {
 
 	.pm = {
 		.init 				= mach_init,
-		.sleep				= NULL,
+		.sleep				= mach_sleep,
 		.halt				= mach_halt,
 		.reset				= mach_reset,
 	},
 
 	.misc = {
 		.getmode			= mach_getmode,
+		.batinfo			= mach_batinfo,
 		.cleanup			= mach_cleanup,
 		.authentication		= mach_authentication,
 	},

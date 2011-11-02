@@ -9,7 +9,7 @@ typedef void (*application_t)(void);
 /*
  * the type of system running mode.
  */
-enum mode {
+enum mode_t {
 	MODE_NORMAL			= 0,
 	MODE_SHELL			= 1,
 	MODE_MENU			= 2,
@@ -17,8 +17,8 @@ enum mode {
 	MODE_APPLICATION	= 4,
 };
 
-inline enum mode xboot_get_mode(void);
-bool_t xboot_set_mode(enum mode m);
+inline enum mode_t xboot_get_mode(void);
+bool_t xboot_set_mode(enum mode_t m);
 
 void run_normal_mode(void);
 void run_shell_mode(void);

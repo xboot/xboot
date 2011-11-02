@@ -4,6 +4,14 @@
 #include <xboot.h>
 #include <mode/mode.h>
 
+struct battery_info {
+	bool_t charging;
+	u32_t voltage;
+	u32_t current;
+	u32_t temperature;
+	u32_t capacity;
+};
+
 /*
  * defined the struct of machine, which contains
  * a portable operating interface.
@@ -66,16 +74,16 @@ struct machine {
 	 */
 	struct {
 		/* system initial, like power lock */
-		void(*init)(void);
+		void (*init)(void);
 
 		/* system sleep */
-		bool_t(*sleep)(void);
+		bool_t (*sleep)(void);
 
 		/* system halt */
-		bool_t(*halt)(void);
+		bool_t (*halt)(void);
 
 		/* system reset */
-		bool_t(*reset)(void);
+		bool_t (*reset)(void);
 	}pm;
 
 	/*
@@ -83,13 +91,16 @@ struct machine {
 	 */
 	struct {
 		/* get system mode */
-		enum mode (*getmode)(void);
+		enum mode_t (*getmode)(void);
+
+		/* get battery information */
+		bool_t (*batinfo)(struct battery_info * info);
 
 		/* clean up system before running os */
-		bool_t(*cleanup)(void);
+		bool_t (*cleanup)(void);
 
 		/* machine authentication */
-		bool_t(*authentication)(void);
+		bool_t (*authentication)(void);
 	}misc;
 
 	/*
@@ -104,6 +115,7 @@ inline struct machine * get_machine(void);
 bool_t machine_sleep(void);
 bool_t machine_halt(void);
 bool_t machine_reset(void);
+bool_t machine_batinfo(struct battery_info * info);
 bool_t machine_cleanup(void);
 bool_t machine_authentication(void);
 

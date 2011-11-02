@@ -53,6 +53,14 @@ bool_t machine_reset(void)
 	return FALSE;
 }
 
+bool_t machine_batinfo(struct battery_info * info)
+{
+	if(get_machine() && get_machine()->misc.batinfo)
+		return get_machine()->misc.batinfo(info);
+
+	return FALSE;
+}
+
 /*
  * clean up system before running os
  */
@@ -98,6 +106,7 @@ bool_t register_machine(struct machine * mach)
 
 static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
+	struct battery_info info;
 	char size[16];
 	char * p;
 	s32_t len = 0;
@@ -116,6 +125,15 @@ static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	len += sprintf((char *)(p + len), (const char *)" cpu name           : %s\r\n", get_machine()->info.cpu_name);
 	len += sprintf((char *)(p + len), (const char *)" cpu desc           : %s\r\n", get_machine()->info.cpu_desc);
 	len += sprintf((char *)(p + len), (const char *)" cpu id             : %s\r\n", get_machine()->info.cpu_id);
+
+	if(machine_batinfo(&info))
+	{
+		len += sprintf((char *)(p + len), (const char *)" battery voltage    : %ldmV\r\n", info.voltage);
+		len += sprintf((char *)(p + len), (const char *)" battery current    : %ldmA\r\n", info.current);
+		len += sprintf((char *)(p + len), (const char *)" battery temperature: %ld.%ldC\r\n", info.temperature/10, info.temperature%10);
+		len += sprintf((char *)(p + len), (const char *)" battery capacity   : %ld%%\r\n", info.capacity);
+		len += sprintf((char *)(p + len), (const char *)" battery charging   : %s\r\n", info.charging ? "yes" : "no");
+	}
 
 	for(i = 0; i < ARRAY_SIZE(get_machine()->res.mem_banks); i++)
 	{

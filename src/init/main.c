@@ -48,6 +48,9 @@ int xboot_main(int argc, char * argv[])
 	/* load system fonts */
 	do_system_fonts();
 
+	/* check battery capacity */
+	do_system_battery();
+
 	/* wait a moment */
 	do_system_wait();
 

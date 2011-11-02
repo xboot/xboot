@@ -68,11 +68,8 @@ struct machine {
 		/* system initial, like power lock */
 		void(*init)(void);
 
-		/* system suspend */
-		bool_t(*suspend)(void);
-
-		/* system resume */
-		bool_t(*resume)(void);
+		/* system sleep */
+		bool_t(*sleep)(void);
 
 		/* system halt */
 		bool_t(*halt)(void);
@@ -104,8 +101,7 @@ struct machine {
 bool_t register_machine(struct machine * mach);
 inline struct machine * get_machine(void);
 
-bool_t machine_suspend(void);
-bool_t machine_resume(void);
+bool_t machine_sleep(void);
 bool_t machine_halt(void);
 bool_t machine_reset(void);
 bool_t machine_cleanup(void);

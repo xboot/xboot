@@ -46,18 +46,6 @@
 
 static int test(int argc, char ** argv)
 {
-	u32_t t1, t2;
-
-	extern void game(void);
-
-	t1 = jiffies;
-	//test1();
-	//game();
-	exec_cmdline("display fb /romdisk/ii.tga");
-	t2 = jiffies;
-
-	printk("time = %ld\n", t2 - t1);
-
 	return 0;
 }
 

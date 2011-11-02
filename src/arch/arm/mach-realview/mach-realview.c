@@ -109,7 +109,7 @@ static bool_t mach_cleanup(void)
  */
 static bool_t mach_authentication(void)
 {
-	return TRUE;
+	return FALSE;
 }
 
 /*
@@ -167,8 +167,7 @@ static struct machine realview = {
 
 	.pm = {
 		.init 				= mach_init,
-		.suspend			= NULL,
-		.resume				= NULL,
+		.sleep				= NULL,
 		.halt				= mach_halt,
 		.reset				= mach_reset,
 	},

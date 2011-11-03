@@ -121,7 +121,7 @@ void do_system_fonts(void)
 	/*
 	 * system fonts's directory path
 	 */
-	sprintf(path, "%s", "/romdisk/fonts");
+	sprintf(path, "%s", "/romdisk/system/fonts");
 
 	if(stat(path, &st) != 0)
 		return;
@@ -175,7 +175,6 @@ void do_system_battery(void)
 {
 	struct battery_info info;
 	struct fb * fb;
-	struct surface_t * surface;
 	struct surface_t * obj[17];
 	struct rect_t rect;
 	char path[MAX_PATH];
@@ -189,21 +188,13 @@ void do_system_battery(void)
 	if(info.capacity >= 25)
 		return;
 
-
-	//xxx
-	fb = search_framebuffer("fb");
+	fb = get_default_framebuffer();
 	if(!fb)
 		return;
-	surface = &fb->info->surface;
-	//xxx
 
-
-	/*
-	 * load battery resources
-	 */
 	for(i = 0; i < ARRAY_SIZE(obj); i++)
 	{
-		sprintf(path, "/romdisk/system/core/battery/%d%s", i + 1, ".tga");
+		sprintf(path, "/romdisk/system/media/image/battery/battery_%d.tga", i);
 
 		obj[i] = surface_load_from_file(path);
 		if(!obj[i])
@@ -236,27 +227,23 @@ void do_system_battery(void)
 		}
 		oindex = index;
 
-		if(info.capacity >= 25)
+		if(info.charging)
 		{
-			break;
+			count = 0;
+
+			if(info.capacity >= 25)
+				break;
 		}
 		else
 		{
-			if(info.charging)
+			if(++count > 10)
 			{
-				count = 0;
-			}
-			else
-			{
-				if(++count > 5)
-				{
-					machine_halt();
-					break;
-				}
+				machine_halt();
+				break;
 			}
 		}
 
-		mdelay(1000);
+		mdelay(500);
 	}
 
 	for(i = 0; i < ARRAY_SIZE(obj); i++)

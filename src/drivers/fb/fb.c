@@ -31,6 +31,8 @@
 #include <fb/helper.h>
 #include <fb/fb.h>
 
+static struct fb * default_framebuffer = NULL;
+
 struct fbcon_cell
 {
 	/* code pointer */
@@ -741,6 +743,29 @@ bool_t fbcon_onoff(struct console * console, bool_t flag)
 }
 
 /*
+ * get default framebuffer
+ */
+inline struct fb * get_default_framebuffer(void)
+{
+	return default_framebuffer;
+}
+
+/*
+ * set default framebuffer
+ */
+inline bool_t set_default_framebuffer(const char * name)
+{
+	struct fb * fb;
+
+	fb = search_framebuffer(name);
+	if(!fb)
+		return FALSE;
+
+	default_framebuffer = fb;
+	return TRUE;
+}
+
+/*
  * search framebuffer by name.
  */
 struct fb * search_framebuffer(const char * name)
@@ -812,6 +837,9 @@ bool_t register_framebuffer(struct fb * fb)
 		brightness = 0xff;
 		(fb->ioctl)(fb, IOCTL_SET_FB_BACKLIGHT, &brightness);
 	}
+
+	if(default_framebuffer == NULL)
+		default_framebuffer = fb;
 
 	/*
 	 * register a console

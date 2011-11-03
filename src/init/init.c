@@ -235,7 +235,7 @@ void do_system_battery(void)
 		}
 		else
 		{
-			if(++count > 10)
+			if(++count > 25)
 			{
 				machine_halt();
 				break;

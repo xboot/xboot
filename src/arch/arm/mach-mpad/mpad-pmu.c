@@ -1,8 +1,6 @@
 /*
  * mpad-pmu.c
  *
- * advanced pmu (act8937) for samsung s5pc100, s5pc110 and s5pv210 processors
- *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
@@ -29,22 +27,20 @@
 #include <mpad-pmu.h>
 #include <s5pv210/reg-gpio.h>
 
-static void iic_delay(void)
+static void iic_delay(u32_t loop)
 {
-	u32_t loop = 100;
-	u32_t base;
+	u32_t i = 0;
 
 	while(loop--)
 	{
-		base += loop;
+		i++;
+		i++;
+		i++;
 	}
 }
 
 static void iic_set_scl(u8_t flag)
 {
-	writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<4)) | (0x1<<4));
-	writel(S5PV210_GPD1PUD, (readl(S5PV210_GPD1PUD) & ~(0x3<<2)) | (0x2<<2));
-
 	if(flag)
 		writel(S5PV210_GPD1DAT, (readl(S5PV210_GPD1DAT) & ~(0x1<<1)) | (0x1<<1));
 	else
@@ -53,19 +49,27 @@ static void iic_set_scl(u8_t flag)
 
 static void iic_set_sda(u8_t flag)
 {
-	writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<0)) | (0x1<<0));
-	writel(S5PV210_GPD1PUD, (readl(S5PV210_GPD1PUD) & ~(0x3<<0)) | (0x2<<0));
-
 	if(flag)
 		writel(S5PV210_GPD1DAT, (readl(S5PV210_GPD1DAT) & ~(0x1<<0)) | (0x1<<0));
 	else
 		writel(S5PV210_GPD1DAT, (readl(S5PV210_GPD1DAT) & ~(0x1<<0)) | (0x0<<0));
 }
 
+static void iic_sda_dir(u8_t flag)
+{
+	/*
+	 * 0: input
+	 * 1: output
+	 */
+	if(flag)
+		writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<0)) | (0x1<<0));
+	else
+		writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<0)) | (0x0<<0));
+}
+
 static u8_t iic_get_sda(void)
 {
 	writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<0)) | (0x0<<0));
-	writel(S5PV210_GPD1PUD, (readl(S5PV210_GPD1PUD) & ~(0x3<<0)) | (0x2<<0));
 
 	if(readl(S5PV210_GPD1DAT) & (0x1<<0))
 		return 1;
@@ -73,227 +77,200 @@ static u8_t iic_get_sda(void)
 		return 0;
 }
 
+static void iic_init(void)
+{
+	/*
+	 * iic clk - output high level and pull up
+	 */
+	writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<4)) | (0x1<<4));
+	writel(S5PV210_GPD1PUD, (readl(S5PV210_GPD1PUD) & ~(0x3<<2)) | (0x2<<2));
+	writel(S5PV210_GPD1DAT, (readl(S5PV210_GPD1DAT) & ~(0x1<<1)) | (0x1<<1));
+
+	/*
+	 * iic data - output high level and pull up
+	 */
+	writel(S5PV210_GPD1CON, (readl(S5PV210_GPD1CON) & ~(0xf<<0)) | (0x1<<0));
+	writel(S5PV210_GPD1PUD, (readl(S5PV210_GPD1PUD) & ~(0x3<<0)) | (0x2<<0));
+	writel(S5PV210_GPD1DAT, (readl(S5PV210_GPD1DAT) & ~(0x1<<0)) | (0x1<<0));
+
+	iic_set_sda(1);
+	iic_set_scl(1);
+	iic_delay(10);
+}
+
 static void iic_start(void)
 {
 	iic_set_sda(1);
 	iic_set_scl(1);
-	iic_delay();
+	iic_delay(5);
+
 	iic_set_sda(0);
-	iic_delay();
+	iic_delay(10);
 	iic_set_scl(0);
+	iic_delay(10);
 }
 
 static void iic_stop(void)
 {
 	iic_set_scl(0);
 	iic_set_sda(0);
-	iic_delay();
+	iic_delay(5);
+
 	iic_set_scl(1);
-	iic_delay();
+	iic_delay(10);
 	iic_set_sda(1);
-}
-
-static u8_t iic_wait_ack(void)
-{
-	u8_t time = 10;
-
-	iic_set_sda(1);
-	iic_delay();
-	iic_set_scl(1);
-	iic_delay();
-
-	while(iic_get_sda())
-	{
-		time--;
-		if (!time)
-		{
-			iic_stop();
-			return 0;
-		}
-		iic_delay();
-	}
-
-	iic_set_scl(0);
-	return 1;
+	iic_delay(10);
 }
 
 static void iic_send_ack(void)
 {
 	iic_set_sda(0);
-	iic_delay();
-	iic_set_scl(1);
-	iic_delay();
+	iic_delay(10);
 	iic_set_scl(0);
+	iic_delay(10);
+
+	iic_set_scl(1);
+	iic_delay(30);
+	iic_set_scl(0);
+	iic_delay(20);
 }
 
-static void iic_send_not_ack(void)
+static u8_t iic_recv_ack(void)
 {
+	u8_t ret = 0;
+	u8_t i;
+
+	iic_sda_dir(0);
+
+	iic_set_scl(0);
+	iic_delay(20);
+	iic_set_scl(1);
+	iic_delay(20);
+
+	for(i = 0; i < 5; i++)
+	{
+		if(! iic_get_sda())
+		{
+			ret = 1;
+			break;
+		}
+	}
+	iic_delay(10);
+
+	iic_set_scl(0);
+	iic_delay(10);
+
 	iic_set_sda(1);
-	iic_delay();
-	iic_set_scl(1);
-	iic_delay();
-	iic_set_scl(0);
+	iic_sda_dir(1);
+
+	return ret;
 }
 
-static void iic_send_byte(u8_t ch)
+static u8_t iic_send_byte(u8_t c)
 {
-	u8_t i = 8;
+	u8_t i;
 
-	while(i--)
+	for(i = 0; i < 8; i++)
 	{
 		iic_set_scl(0);
-		iic_delay();
-
-		if(ch & 0x80)
-			iic_set_sda(1);
-		else
-			iic_set_sda(0);
-		ch <<= 1;
-		iic_delay();
+		iic_delay(10);
+		iic_set_sda((c & (0x80 >> i)) ? 1 : 0);
+		iic_delay(10);
 		iic_set_scl(1);
-		iic_delay();
+		iic_delay(30);
+		iic_set_scl(0);
+		iic_delay(10);
 	}
-	iic_set_scl(0);
+
+	return iic_recv_ack();
 }
 
 static u8_t iic_recv_byte(void)
 {
-	u8_t i = 8;
-	u8_t data = 0;
+	u8_t i;
+	u8_t c = 0;
 
-	iic_set_sda(1);
-	while(i--)
+	iic_sda_dir(0);
+
+	for (i = 0; i < 8; i++)
 	{
-		data <<= 1;
 		iic_set_scl(0);
-		iic_delay();
+		iic_delay(10);
 		iic_set_scl(1);
-		iic_delay();
-		data |= iic_get_sda();
+		iic_delay(20);
+		c |= (iic_get_sda() << (7 - i));
+		iic_delay(10);
+		iic_set_scl(0);
+		iic_delay(20);
 	}
-	iic_set_scl(0);
 
-	return data;
+	iic_sda_dir(1);
+	return c;
 }
 
-static s32_t iic_write_byte(u8_t slave, u8_t reg, u8_t value)
+static u8_t iic_write_byte(u8_t slave, u8_t reg, u8_t val)
 {
 	iic_start();
 
-	iic_send_byte(slave << 0x1);
-	if(! iic_wait_ack())
+	if(!iic_send_byte(slave << 0x1))
 		return 0;
 
-	iic_send_byte(reg);
-	if(! iic_wait_ack())
+	if(!iic_send_byte(reg))
 		return 0;
 
-	iic_send_byte(value);
-	if(! iic_wait_ack())
+	if(!iic_send_byte(val))
 		return 0;
 
 	iic_stop();
-
 	return 1;
 }
 
-static s32_t iic_read_byte(u8_t slave, u8_t reg,  u8_t * value)
+static u8_t iic_read_byte(u8_t slave, u8_t reg,  u8_t * val)
 {
 	iic_start();
 
-	iic_send_byte(slave << 0x1);
-	if(! iic_wait_ack())
+	if (!iic_send_byte(slave << 0x1))
 		return 0;
 
-	iic_send_byte(reg);
-	if(! iic_wait_ack())
+	if (!iic_send_byte(reg))
 		return 0;
-
-	iic_start();
-
-	iic_send_byte((slave << 0x1) | 0x01);
-	if(! iic_wait_ack())
-		return 0;
-
-	*value = iic_recv_byte();
-	iic_send_not_ack();
 
 	iic_stop();
+	iic_start();
 
+	if (!iic_send_byte((slave << 0x1) | 0x1))
+		return 0;
+
+	*val = iic_recv_byte();
+
+	iic_send_ack();
+
+	iic_stop();
 	return 1;
 }
 
-s32_t iic_write_nbyte(u8_t slave, u8_t reg, u8_t * buf, s32_t count)
+bool_t pmu_init(void)
 {
-	s32_t i;
+	u8_t val;
 
-	iic_start();
+	iic_init();
 
-	iic_send_byte(slave << 0x1);
-	if(! iic_wait_ack())
-		return 0;
+	if(pmu_read(0x31, &val))
+		pmu_write(0x31, val & 0xf8);
 
-	iic_send_byte(reg);
-	if(! iic_wait_ack())
-		return 0;
-
-	for(i = 0; i < count; i++)
-	{
-		iic_send_byte(buf[i]);
-		if(! iic_wait_ack())
-			return i;
-	}
-
-	iic_stop();
-
-	return i;
+	return TRUE;
 }
 
-s32_t iic_read_nbyte(u8_t slave, u8_t reg, u8_t * buf, s32_t count)
+bool_t pmu_write(u8_t reg, u8_t val)
 {
-	s32_t i;
-
-	iic_start();
-
-	iic_send_byte(slave << 0x1);
-	if(! iic_wait_ack())
-		return 0;
-
-	iic_send_byte(reg);
-	if(! iic_wait_ack())
-		return 0;
-
-	iic_start();
-
-	iic_send_byte((slave << 0x1) | 0x01);
-	if(! iic_wait_ack())
-		return 0;
-
-	for(i = 0; i < count; i++)
-	{
-		buf[i] = iic_recv_byte();
-		if(i == count - 1)
-			break;
-		else
-			iic_send_ack();
-	}
-
-	iic_send_not_ack();
-	iic_stop();
-
-	return count;
-}
-
-bool_t pmu_write(u8_t reg, u8_t value)
-{
-	if(iic_write_byte(0x5b, reg, value) == 0)
+	if(iic_write_byte(0x34, reg, val) == 0)
 		return FALSE;
 	return TRUE;
 }
 
-bool_t pmu_read(u8_t reg, u8_t * value)
+bool_t pmu_read(u8_t reg, u8_t * val)
 {
-	if(iic_read_byte(0x5b, reg, value) == 0)
+	if(iic_read_byte(0x34, reg, val) == 0)
 		return FALSE;
 	return TRUE;
 }

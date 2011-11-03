@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-realview/realview-tick.c
+ * realview-tick.c
  *
  * realview tick timer, using arm sp804 timer module.
  *

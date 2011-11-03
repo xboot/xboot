@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-realview/mach-realview.c
+ * mach-realview.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -69,7 +69,7 @@ static bool_t mach_batinfo(struct battery_info * info)
 	if(!info)
 		return FALSE;
 
-	info->charging = TRUE;
+	info->charging = FALSE;
 	info->voltage = 3700;
 	info->current = 300;
 	info->temperature = 200;
@@ -100,7 +100,7 @@ static bool_t mach_cleanup(void)
 
 static bool_t mach_authentication(void)
 {
-	return FALSE;
+	return TRUE;
 }
 
 /*

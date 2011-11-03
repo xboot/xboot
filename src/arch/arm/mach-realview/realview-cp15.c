@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-realview/realview-cp15.c
+ * realview-cp15.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

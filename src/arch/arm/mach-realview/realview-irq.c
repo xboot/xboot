@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-realview/realview-irq.c
+ * realview-irq.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

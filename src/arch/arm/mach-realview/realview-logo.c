@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-realview/realview-logo.c
+ * realview-logo.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,9 +21,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <xboot/log.h>
-#include <xboot/initcall.h>
 #include <fb/logo.h>
 
 /*

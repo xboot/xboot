@@ -23,23 +23,15 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <div64.h>
-#include <io.h>
-#include <time/delay.h>
 #include <xboot/log.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
+#include <fb/fb.h>
 #include <s3c6410/reg-gpio.h>
 #include <s3c6410/reg-lcd.h>
-#include <fb/fbsoft.h>
-#include <fb/fb.h>
-
 
 /* the lcd module - lw500 */
 #define	LCD_WIDTH		(800)
@@ -65,20 +57,18 @@
 #define	REGS_DITHMODE	( (S3C6410_DITHMODE_RDITHPOS_5BIT | S3C6410_DITHMODE_GDITHPOS_6BIT | S3C6410_DITHMODE_BDITHPOS_5BIT ) & (~S3C6410_DITHMODE_DITHERING_ENABLE) )
 
 /*
- * video ram buffer for lcd.
+ * video ram double buffer for lcd.
  */
-static u8_t vram[LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
+static u8_t vram[2][LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
 static struct fb_info info = {
 	.name						= "fb",
 
-	.bitmap	= {
-		.info =	{
-			.width				= LCD_WIDTH,
-			.height 			= LCD_HEIGHT,
-			.bpp				= LCD_BPP,
-			.bytes_per_pixel 	= LCD_BPP / 8,
-			.pitch				= LCD_WIDTH * LCD_BPP / 8,
+	.surface = {
+		.info = {
+			.bits_per_pixel		= LCD_BPP,
+			.bytes_per_pixel	= LCD_BPP / 8,
+
 			.red_mask_size		= 5,
 			.red_field_pos		= 0,
 			.green_mask_size	= 6,
@@ -87,26 +77,33 @@ static struct fb_info info = {
 			.blue_field_pos		= 11,
 			.alpha_mask_size	= 0,
 			.alpha_field_pos	= 0,
-			.fmt				= BITMAP_FORMAT_RGB_565,
-			.fg_r				= 0xff,
-			.fg_g				= 0xff,
-			.fg_b				= 0xff,
-			.fg_a				= 0xff,
-			.bg_r				= 0x00,
-			.bg_g				= 0x00,
-			.bg_b				= 0x00,
-			.bg_a				= 0x00,
+
+			.fmt				= PIXEL_FORMAT_BGR_565,
 		},
 
-		.viewport = {
-			.left				= 0,
-			.top				= 0,
-			.right				= LCD_WIDTH,
-			.bottom				= LCD_HEIGHT,
+		.w						= LCD_WIDTH,
+		.h						= LCD_HEIGHT,
+		.pitch					= LCD_WIDTH * LCD_BPP / 8,
+		.flag					= SURFACE_PIXELS_DONTFREE,
+		.pixels					= &vram[0][0],
+
+		.clip = {
+			.x					= 0,
+			.y					= 0,
+			.w					= LCD_WIDTH,
+			.h					= LCD_HEIGHT,
 		},
 
-		.allocated				= FALSE,
-		.data					= &vram,
+		.maps = {
+			.point				= map_software_point,
+			.hline				= map_software_hline,
+			.vline				= map_software_vline,
+			.fill				= map_software_fill,
+			.blit				= map_software_blit,
+			.scale				= map_software_scale,
+			.rotate				= map_software_rotate,
+			.transform			= map_software_transform,
+		},
 	},
 };
 
@@ -174,10 +171,10 @@ static void fb_init(struct fb * fb)
 	writel(S3C6410_WINCON0, (readl(S3C6410_WINCON0) & ~(0x1<<22 | 0x1<<16 | 0x3<<9 | 0xf<<2 | 0x1<<0)) | (0x5<<2 | 0x1<<16));
 
 	/* window 0 frambuffer addresss */
-	writel(S3C6410_VIDW00ADD0B0, (u32_t)info.bitmap.data);
-	writel(S3C6410_VIDW00ADD0B1, (u32_t)info.bitmap.data);
-	writel(S3C6410_VIDW00ADD1B0, ((u32_t)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
-	writel(S3C6410_VIDW00ADD1B1, ((u32_t)info.bitmap.data + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S3C6410_VIDW00ADD0B0, ((u32_t)fb->info->surface.pixels));
+	writel(S3C6410_VIDW00ADD0B1, ((u32_t)fb->info->surface.pixels));
+	writel(S3C6410_VIDW00ADD1B0, (((u32_t)fb->info->surface.pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S3C6410_VIDW00ADD1B1, (((u32_t)fb->info->surface.pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
 	writel(S3C6410_VIDW00ADD2, (LCD_WIDTH*LCD_BPP/8) & 0x00001fff);
 
 	/* config view port */
@@ -199,6 +196,22 @@ static void fb_exit(struct fb * fb)
 {
 	/* disable video output */
 	writel(S3C6410_VIDCON0, (readl(S3C6410_VIDCON0) & (~0x3)));
+}
+
+static void fb_swap(struct fb * fb)
+{
+	static u8_t vram_index = 0;
+
+	vram_index = (vram_index + 1) & 0x1;
+	fb->info->surface.pixels = &vram[vram_index][0];
+}
+
+static void fb_flush(struct fb * fb)
+{
+	writel(S3C6410_VIDW00ADD0B0, ((u32_t)fb->info->surface.pixels));
+	writel(S3C6410_VIDW00ADD0B1, ((u32_t)fb->info->surface.pixels));
+	writel(S3C6410_VIDW00ADD1B0, (((u32_t)fb->info->surface.pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S3C6410_VIDW00ADD1B1, (((u32_t)fb->info->surface.pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
 }
 
 static int fb_ioctl(struct fb * fb, int cmd, void * arg)
@@ -235,10 +248,8 @@ static struct fb s3c6410_fb = {
 	.info			= &info,
 	.init			= fb_init,
 	.exit			= fb_exit,
-	.map_color		= fb_soft_map_color,
-	.unmap_color	= fb_soft_unmap_color,
-	.fill_rect		= fb_soft_fill_rect,
-	.blit_bitmap	= fb_soft_blit_bitmap,
+	.swap			= fb_swap,
+	.flush			= fb_flush,
 	.ioctl			= fb_ioctl,
 	.priv			= NULL,
 };

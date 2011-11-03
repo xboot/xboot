@@ -193,20 +193,9 @@ void do_system_battery(void)
 		return;
 
 	for(i = 0; i < ARRAY_SIZE(obj); i++)
-	{
-		sprintf(path, "/romdisk/system/media/image/battery/battery_%d.tga", i);
-
-		obj[i] = surface_load_from_file(path);
-		if(!obj[i])
-		{
-			while(--i) { surface_free(obj[i]); }
-			return;
-		}
-	}
+		obj[i] = NULL;
 
 	surface_set_clip_rect(&(fb->info->surface), NULL);
-	rect_align(&(fb->info->surface.clip), &(obj[0]->clip), &rect, ALIGN_CENTER);
-	rect_intersect(&(fb->info->surface.clip), &rect, &rect);
 	c = surface_map_color(&(fb->info->surface), get_color_by_name("black"));
 
 	while(1)
@@ -220,7 +209,17 @@ void do_system_battery(void)
 		index = info.capacity * (ARRAY_SIZE(obj) - 1) / 100;
 		if(index != oindex)
 		{
+			if(!obj[index])
+			{
+				sprintf(path, "/romdisk/system/media/image/battery/battery_%d.tga", index);
+				obj[index] = surface_load_from_file(path);
+				if(!obj[index])
+					break;
+			}
+
 			fb->swap(fb);
+			rect_align(&(fb->info->surface.clip), &(obj[index]->clip), &rect, ALIGN_CENTER);
+			rect_intersect(&(fb->info->surface.clip), &rect, &rect);
 			surface_fill(&(fb->info->surface), &(fb->info->surface.clip), c, BLEND_MODE_REPLACE);
 			surface_blit(&(fb->info->surface), &rect, obj[index], NULL, BLEND_MODE_ALPHA);
 			fb->flush(fb);
@@ -243,11 +242,14 @@ void do_system_battery(void)
 			}
 		}
 
-		mdelay(500);
+		mdelay(200);
 	}
 
 	for(i = 0; i < ARRAY_SIZE(obj); i++)
-		surface_free(obj[i]);
+	{
+		if(obj[i])
+			surface_free(obj[i]);
+	}
 }
 
 /*

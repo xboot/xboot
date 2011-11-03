@@ -1,5 +1,5 @@
 /*
- * arch/arm/mach-sbc2410x/mach-sbc2410x.c
+ * mach-sbc2410x.c
  *
  * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,14 +21,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <sizes.h>
-#include <io.h>
-#include <mode/mode.h>
-#include <xboot/log.h>
-#include <xboot/printk.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
 #include <s3c2410/reg-wdg.h>
 
 extern u8_t	__text_start[];
@@ -46,25 +38,21 @@ extern u8_t __heap_end[];
 extern u8_t __stack_start[];
 extern u8_t __stack_end[];
 
-/*
- * system initial, like power lock
- */
 static void mach_init(void)
 {
 
 }
 
-/*
- * system halt, shutdown machine.
- */
+static bool_t mach_sleep(void)
+{
+	return FALSE;
+}
+
 static bool_t mach_halt(void)
 {
 	return TRUE;
 }
 
-/*
- * reset the cpu by setting up the watchdog timer and let him time out
- */
 static bool_t mach_reset(void)
 {
 	/* disable watchdog */
@@ -79,17 +67,25 @@ static bool_t mach_reset(void)
 	return TRUE;
 }
 
-/*
- * get system mode
- */
-static enum mode mach_getmode(void)
+static enum mode_t mach_getmode(void)
 {
 	return MODE_MENU;
 }
 
-/*
- * clean up system before running os
- */
+static bool_t mach_batinfo(struct battery_info * info)
+{
+	if(!info)
+		return FALSE;
+
+	info->charging = FALSE;
+	info->voltage = 3700;
+	info->current = 300;
+	info->temperature = 200;
+	info->capacity = 100;
+
+	return TRUE;
+}
+
 static bool_t mach_cleanup(void)
 {
 	u32_t old, tmp;
@@ -114,16 +110,13 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-/*
- * for anti-piracy
- */
-static bool_t mach_genuine(void)
+static bool_t mach_authentication(void)
 {
 	return TRUE;
 }
 
 /*
- * a portable data interface for machine.
+ * A portable machine interface.
  */
 static struct machine sbc2410x = {
 	.info = {
@@ -177,16 +170,16 @@ static struct machine sbc2410x = {
 
 	.pm = {
 		.init 				= mach_init,
-		.suspend			= NULL,
-		.resume				= NULL,
+		.sleep				= mach_sleep,
 		.halt				= mach_halt,
 		.reset				= mach_reset,
 	},
 
 	.misc = {
 		.getmode			= mach_getmode,
+		.batinfo			= mach_batinfo,
 		.cleanup			= mach_cleanup,
-		.genuine			= mach_genuine,
+		.authentication		= mach_authentication,
 	},
 
 	.priv					= NULL,

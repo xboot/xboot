@@ -56,7 +56,10 @@ struct s5pv210fb_lcd
 	s32_t height;
 
 	/* bits per pixel */
-	s32_t bpp;
+	s32_t bits_per_pixel;
+
+	/* bytes per pixel */
+	s32_t bytes_per_pixel;
 
 	/* vframe frequency */
 	s32_t freq;
@@ -131,8 +134,11 @@ struct s5pv210fb_lcd
 		s32_t inv_vden;
 	} polarity;
 
-	/* video ram buffer */
-	void * vram;
+	/* video ram front buffer */
+	void * vram_front;
+
+	/* video ram back buffer */
+	void * vram_back;
 
 	/* lcd init */
 	void (*init)(void);

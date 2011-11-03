@@ -73,53 +73,55 @@ static void lcd_backlight(u8_t brightness)
 /*
  * lcd module
  */
-static u8_t vram[800 * 480 * 32 / 8] __attribute__((aligned(4)));
+static u8_t vram[2][800 * 480 * 32 / 8] __attribute__((aligned(4)));
 
 static struct s5pv210fb_lcd lcd = {
-	.width			= 800,
-	.height			= 480,
-	.bpp			= 32,
-	.freq			= 60,
+	.width				= 800,
+	.height				= 480,
+	.bits_per_pixel		= 32,
+	.bytes_per_pixel	= 4,
+	.freq				= 60,
 
-	.output			= S5PV210FB_OUTPUT_RGB,
-	.rgb_mode		= S5PV210FB_MODE_BGR_P,
-	.bpp_mode		= S5PV210FB_BPP_MODE_32BPP,
-	.swap			= S5PV210FB_SWAP_WORD,
+	.output				= S5PV210FB_OUTPUT_RGB,
+	.rgb_mode			= S5PV210FB_MODE_BGR_P,
+	.bpp_mode			= S5PV210FB_BPP_MODE_32BPP,
+	.swap				= S5PV210FB_SWAP_WORD,
 
 	.rgba = {
-		.r_mask		= 8,
-		.r_field	= 0,
-		.g_mask		= 8,
-		.g_field	= 8,
-		.b_mask		= 8,
-		.b_field	= 16,
-		.a_mask		= 8,
-		.a_field	= 24,
+		.r_mask			= 8,
+		.r_field		= 0,
+		.g_mask			= 8,
+		.g_field		= 8,
+		.b_mask			= 8,
+		.b_field		= 16,
+		.a_mask			= 8,
+		.a_field		= 24,
 	},
 
 	.timing = {
-		.h_fp		= 210,
-		.h_bp		= 46,
-		.h_sw		= 10,
-		.v_fp		= 22,
-		.v_fpe		= 1,
-		.v_bp		= 23,
-		.v_bpe		= 1,
-		.v_sw		= 7,
+		.h_fp			= 210,
+		.h_bp			= 46,
+		.h_sw			= 10,
+		.v_fp			= 22,
+		.v_fpe			= 1,
+		.v_bp			= 23,
+		.v_bpe			= 1,
+		.v_sw			= 7,
 	},
 
 	.polarity = {
-		.rise_vclk	= 0,
-		.inv_hsync	= 1,
-		.inv_vsync	= 1,
-		.inv_vden	= 0,
+		.rise_vclk		= 0,
+		.inv_hsync		= 1,
+		.inv_vsync		= 1,
+		.inv_vden		= 0,
 	},
 
-	.vram			= &vram[0],
+	.vram_front			= &vram[0][0],
+	.vram_back			= &vram[1][0],
 
-	.init			= lcd_init,
-	.exit			= lcd_exit,
-	.backlight		= lcd_backlight,
+	.init				= lcd_init,
+	.exit				= lcd_exit,
+	.backlight			= lcd_backlight,
 };
 
 static struct resource fb_res = {

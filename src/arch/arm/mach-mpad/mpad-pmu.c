@@ -135,6 +135,19 @@ static void iic_send_ack(void)
 	iic_delay(20);
 }
 
+static void iic_send_not_ack(void)
+{
+	iic_set_sda(1);
+	iic_delay(10);
+	iic_set_scl(0);
+	iic_delay(10);
+
+	iic_set_scl(1);
+	iic_delay(30);
+	iic_set_scl(0);
+	iic_delay(20);
+}
+
 static u8_t iic_recv_ack(void)
 {
 	u8_t ret = 0;
@@ -249,14 +262,59 @@ static u8_t iic_read_byte(u8_t slave, u8_t reg,  u8_t * val)
 	return 1;
 }
 
+static u8_t iic_read_nbyte(u8_t slave, u8_t reg, u8_t * buf, u32_t cnt)
+{
+	u32_t i;
+
+	iic_start();
+
+	if (!iic_send_byte(slave << 0x1))
+		return 0;
+
+	if (!iic_send_byte(reg))
+		return 0;
+
+	iic_stop();
+	iic_start();
+
+	if (!iic_send_byte((slave << 0x1) | 0x1))
+		return 0;
+
+	for(i = 0; i < cnt; i++)
+	{
+		buf[i] = iic_recv_byte();
+		if (i == cnt - 1)
+			break;
+		else
+			iic_send_ack();
+	}
+
+	iic_send_not_ack();
+	iic_stop();
+
+	return cnt;
+}
+
 bool_t pmu_init(void)
 {
 	u8_t val;
 
 	iic_init();
 
+	if(pmu_read(0xb8, &val))
+		pmu_write(0xb8, (val & 0x7f) | 0x80);
+
+	if(pmu_read(0x82, &val))
+		pmu_write(0x82, (val & 0xff) | 0xff);
+
+	if(pmu_read(0x84, &val))
+		pmu_write(0x84, (val & 0x3f) | 0xc0);
+
 	if(pmu_read(0x31, &val))
-		pmu_write(0x31, val & 0xf8);
+		pmu_write(0x31, (val & 0xf8) | 0x00);
+
+	if(pmu_read(0x33, &val))
+		pmu_write(0x33, (val & 0xf0) | 0x0f);
 
 	return TRUE;
 }
@@ -271,6 +329,13 @@ bool_t pmu_write(u8_t reg, u8_t val)
 bool_t pmu_read(u8_t reg, u8_t * val)
 {
 	if(iic_read_byte(0x34, reg, val) == 0)
+		return FALSE;
+	return TRUE;
+}
+
+bool_t pmu_nread(u8_t reg, u8_t * buf, u32_t cnt)
+{
+	if(iic_read_nbyte(0x34, reg, buf, cnt) == 0)
 		return FALSE;
 	return TRUE;
 }

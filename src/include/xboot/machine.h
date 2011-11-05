@@ -6,10 +6,13 @@
 
 struct battery_info {
 	bool_t charging;
-	u32_t voltage;
-	u32_t current;
-	u32_t temperature;
-	u32_t capacity;
+	s32_t voltage;				/* mV */
+	s32_t charge_current;		/* mA */
+	s32_t discharge_current;	/* mA */
+	s32_t temperature;			/* 0.1 Centigrade */
+	s32_t capacity;				/* mAh */
+	s32_t internal_resistance;	/* mohm */
+	s32_t level;				/* percentage */
 };
 
 /*

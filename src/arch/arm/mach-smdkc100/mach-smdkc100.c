@@ -82,9 +82,12 @@ static bool_t mach_batinfo(struct battery_info * info)
 
 	info->charging = FALSE;
 	info->voltage = 3700;
-	info->current = 300;
+	info->charge_current = 0;
+	info->discharge_current = 300;
 	info->temperature = 200;
-	info->capacity = 100;
+	info->capacity = 3600;
+	info->internal_resistance = 100;
+	info->level = 100;
 
 	return TRUE;
 }

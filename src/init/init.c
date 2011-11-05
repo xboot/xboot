@@ -185,7 +185,7 @@ void do_system_battery(void)
 	if(! machine_batinfo(&info))
 		return;
 
-	if(info.capacity >= 25)
+	if(info.level >= 25)
 		return;
 
 	fb = get_default_framebuffer();
@@ -201,12 +201,12 @@ void do_system_battery(void)
 	while(1)
 	{
 		machine_batinfo(&info);
-		if (info.capacity < 0)
-			info.capacity = 0;
-		if (info.capacity > 100)
-			info.capacity = 100;
+		if (info.level < 0)
+			info.level = 0;
+		if (info.level > 100)
+			info.level = 100;
 
-		index = info.capacity * (ARRAY_SIZE(obj) - 1) / 100;
+		index = info.level * (ARRAY_SIZE(obj) - 1) / 100;
 		if(index != oindex)
 		{
 			if(!obj[index])
@@ -230,7 +230,7 @@ void do_system_battery(void)
 		{
 			count = 0;
 
-			if(info.capacity >= 25)
+			if(info.level >= 25)
 				break;
 		}
 		else

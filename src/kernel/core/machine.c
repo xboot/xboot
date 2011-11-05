@@ -128,11 +128,14 @@ static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	if(machine_batinfo(&info))
 	{
-		len += sprintf((char *)(p + len), (const char *)" battery voltage    : %ldmV\r\n", info.voltage);
-		len += sprintf((char *)(p + len), (const char *)" battery current    : %ldmA\r\n", info.current);
-		len += sprintf((char *)(p + len), (const char *)" battery temperature: %ld.%ldC\r\n", info.temperature/10, info.temperature%10);
-		len += sprintf((char *)(p + len), (const char *)" battery capacity   : %ld%%\r\n", info.capacity);
 		len += sprintf((char *)(p + len), (const char *)" battery charging   : %s\r\n", info.charging ? "yes" : "no");
+		len += sprintf((char *)(p + len), (const char *)" battery voltage    : %ldmV\r\n", info.voltage);
+		len += sprintf((char *)(p + len), (const char *)" charge current     : %ldmA\r\n", info.charge_current);
+		len += sprintf((char *)(p + len), (const char *)" discharge current  : %ldmA\r\n", info.discharge_current);
+		len += sprintf((char *)(p + len), (const char *)" battery temperature: %ld.%ldC\r\n", info.temperature/10, info.temperature%10);
+		len += sprintf((char *)(p + len), (const char *)" battery capacity   : %ldmAh\r\n", info.capacity);
+		len += sprintf((char *)(p + len), (const char *)" internal resistance: %ldmohm\r\n", info.internal_resistance);
+		len += sprintf((char *)(p + len), (const char *)" battery level      : %ld%%\r\n", info.level);
 	}
 
 	for(i = 0; i < ARRAY_SIZE(get_machine()->res.mem_banks); i++)

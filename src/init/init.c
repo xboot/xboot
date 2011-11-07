@@ -211,7 +211,7 @@ void do_system_battery(void)
 		{
 			if(!obj[index])
 			{
-				sprintf(path, "/romdisk/system/media/image/battery/battery_%d.tga", index);
+				sprintf(path, "/romdisk/system/media/image/battery/battery_%d.png", index);
 				obj[index] = surface_load_from_file(path);
 				if(!obj[index])
 					break;

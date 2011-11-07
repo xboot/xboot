@@ -710,7 +710,7 @@ static bool_t png_decode(struct png_data * data)
 		return FALSE;
 	if(memcmp(magic, png_magic, sizeof(png_magic)))
 		return FALSE;
-	data->file_offset = 8;
+	data->file_offset += 8;
 
 	while(1)
 	{
@@ -769,7 +769,9 @@ static struct surface_t * png_load(const char * filename)
 		stream_free(stream);
 		return FALSE;
 	}
+
     data->stream = stream;
+    data->file_offset = 0;
 
     if(!png_decode(data))
     {
@@ -797,13 +799,13 @@ static struct image_loader image_loader_png = {
 static __init void image_loader_png_init(void)
 {
 	if(!register_image_loader(&image_loader_png))
-		LOG_E("register 'png' bitmap reader fail");
+		LOG_E("register 'png' image loader fail");
 }
 
 static __exit void image_loader_png_exit(void)
 {
 	if(!unregister_image_loader(&image_loader_png))
-		LOG_E("unregister 'png' bitmap reader fail");
+		LOG_E("unregister 'png' image loader fail");
 }
 
 module_init(image_loader_png_init, LEVEL_POSTCORE);

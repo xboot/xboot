@@ -372,13 +372,13 @@ static struct image_loader image_loader_tga = {
 static __init void image_loader_tga_init(void)
 {
 	if(!register_image_loader(&image_loader_tga))
-		LOG_E("register 'tga' bitmap reader fail");
+		LOG_E("register 'tga' image loader fail");
 }
 
 static __exit void image_loader_tga_exit(void)
 {
 	if(!unregister_image_loader(&image_loader_tga))
-		LOG_E("unregister 'tga' bitmap reader fail");
+		LOG_E("unregister 'tga' image loader fail");
 }
 
 module_init(image_loader_tga_init, LEVEL_POSTCORE);

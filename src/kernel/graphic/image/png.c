@@ -770,6 +770,7 @@ static struct surface_t * png_load(const char * filename)
 		return FALSE;
 	}
 
+	memset(data, 0, sizeof(struct png_data));
     data->stream = stream;
     data->file_offset = 0;
 

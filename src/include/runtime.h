@@ -9,6 +9,9 @@ struct runtime_t {
 
 	/* environ */
 	struct environ_t __environ;
+
+	/* pseudo random seed - 48bit */
+	unsigned short __seed[3];
 };
 
 

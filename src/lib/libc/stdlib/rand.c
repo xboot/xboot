@@ -2,10 +2,8 @@
  * libc/stdlib/rand.c
  */
 
+#include <runtime.h>
 #include <stdlib.h>
-
-
-static unsigned short __rand48_seed[3] = {1, 1, 1};
 
 static long jrand48(unsigned short xsubi[3])
 {
@@ -29,14 +27,16 @@ static long jrand48(unsigned short xsubi[3])
 
 static long lrand48(void)
 {
-	return (u32_t)jrand48(__rand48_seed) >> 1;
+	return (u32_t)jrand48(__get_runtime()->__seed) >> 1;
 }
 
 static void srand48(long seedval)
 {
-	__rand48_seed[0] = 0x330e;
-	__rand48_seed[1] = (unsigned short)seedval;
-	__rand48_seed[2] = (unsigned short)((u32_t)seedval >> 16);
+	unsigned short * seed = __get_runtime()->__seed;
+
+	seed[0] = 0x330e;
+	seed[1] = (unsigned short)seedval;
+	seed[2] = (unsigned short)((u32_t)seedval >> 16);
 }
 
 int rand(void)

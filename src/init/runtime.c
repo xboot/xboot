@@ -30,6 +30,12 @@ static struct runtime_t __runtime = {
 		.prev		= &(__runtime.__environ),
 		.next		= &(__runtime.__environ),
 	},
+
+	.__seed = {
+		[0] 		= 1,
+		[1] 		= 1,
+		[2] 		= 1,
+	},
 };
 
 struct runtime_t * __get_runtime(void)
@@ -44,12 +50,17 @@ struct runtime_t * runtime_alloc(void)
 	runtime = malloc(sizeof(struct runtime_t));
 	if(!runtime)
 		return NULL;
-
 	memset(runtime, 0, sizeof(struct runtime_t));
+
+	runtime->__errno = 0;
 
 	runtime->__environ.content = "";
 	runtime->__environ.next = &(runtime->__environ);
 	runtime->__environ.prev = &(runtime->__environ);
+
+	runtime->__seed[0] = 1;
+	runtime->__seed[1] = 1;
+	runtime->__seed[2] = 1;
 
 	return runtime;
 }

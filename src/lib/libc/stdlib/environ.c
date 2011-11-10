@@ -7,18 +7,9 @@
 #include <string.h>
 #include <xml.h>
 #include <fs/fileio.h>
+#include <runtime.h>
 #include <stdlib.h>
 
-static char ** __environ = 0;
-
-char *** __environ_location(void)
-{
-	return &__environ;
-}
-
-/*
- * load environment variable
- */
 bool_t loadenv(char * file)
 {
 	struct xml * root, * env;
@@ -45,24 +36,22 @@ bool_t loadenv(char * file)
 	return TRUE;
 }
 
-/*
- * save environment variable
- */
 bool_t saveenv(char * file)
 {
+	struct environ_t * environ = &(__get_runtime()->__environ);
+	struct environ_t * p;
 	struct xml * root, * env;
 	char * str;
-	char ** ep;
 	int fd;
 
 	root = xml_new("environment");
 	if(!root)
 		return FALSE;
 
-	for(ep = environ; *ep; ep++)
+	for(p = environ->next; p != environ; p = p->next)
 	{
 		env = xml_add_child(root, "env", 0);
-		xml_set_txt(env, *ep);
+		xml_set_txt(env, p->content);
 	}
 
 	str = xml_toxml(root);

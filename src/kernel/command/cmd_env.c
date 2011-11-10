@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
+#include <runtime.h>
 #include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
@@ -36,7 +37,8 @@
 
 static int env(int argc, char ** argv)
 {
-	char ** ep;
+	struct environ_t * environ = &(__get_runtime()->__environ);
+	struct environ_t * p;
 	bool_t save = FALSE;
 	int i;
 
@@ -50,11 +52,16 @@ static int env(int argc, char ** argv)
 		{
 			save = TRUE;
 		}
+		else
+		{
+			printk("usage:\r\n    env [-s] [NAME=VALUE] ...\r\n");
+			return -1;
+		}
 	}
 
-	for(ep = environ; *ep; ep++)
+	for(p = environ->next; p != environ; p = p->next)
 	{
-		printk(" %s\n", *ep);
+		printk(" %s\n", p->content);
 	}
 
 	if(save)

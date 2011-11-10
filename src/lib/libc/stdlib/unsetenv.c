@@ -4,13 +4,16 @@
 
 #include <errno.h>
 #include <string.h>
+#include <malloc.h>
+#include <runtime.h>
 #include <stdlib.h>
 
 int unsetenv(const char * name)
 {
+	struct environ_t * environ = &(__get_runtime()->__environ);
+	struct environ_t * p;
 	size_t len;
-	char **p, *q;
-	const char *z;
+	const char * z;
 
 	if (!name || !name[0])
 	{
@@ -32,15 +35,17 @@ int unsetenv(const char * name)
 	if (!environ)
 		return 0;
 
-	for (p = environ; (q = *p); p++)
+	for(p = environ->next; p != environ; p = p->next)
 	{
-		if (!strncmp(name, q, len) && q[len] == '=')
-			break;
-	}
+		if (!strncmp(name, p->content, len) && (p->content[len] == '='))
+		{
+			p->next->prev = p->prev;
+			p->prev->next = p->next;
 
-	for (; (q = *p); p++)
-	{
-		p[0] = p[1];
+			free(p->content);
+			free(p);
+			break;
+		}
 	}
 
 	return 0;

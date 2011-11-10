@@ -2,23 +2,24 @@
  * libc/stdlib/getenv.c
  */
 
-#include <stddef.h>
-#include <string.h>
+#include <runtime.h>
 #include <stdlib.h>
 
 char * getenv(const char * name)
 {
-	char **p, *q;
-	int len = strlen(name);
+	struct environ_t * environ = &(__get_runtime()->__environ);
+	struct environ_t * p;
+	int len;
 
 	if (!environ)
 		return NULL;
 
-	for (p = environ; (q = *p); p++)
+	len = strlen(name);
+	for(p = environ->next; p != environ; p = p->next)
 	{
-		if (!strncmp(name, q, len) && q[len] == '=')
+		if (!strncmp(name, p->content, len) && (p->content[len] == '='))
 		{
-			return q + (len + 1);
+			return p->content + (len + 1);
 		}
 	}
 

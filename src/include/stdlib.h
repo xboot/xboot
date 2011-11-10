@@ -34,8 +34,11 @@ void * bsearch(const void *key, const void *base, size_t nmemb, size_t size,
 /*
  * environment variable
  */
-extern char *** __environ_location(void);
-#define environ	(*__environ_location())
+struct environ_t {
+	char * content;
+	struct environ_t * prev;
+	struct environ_t * next;
+};
 
 char * getenv(const char * name);
 int putenv(const char * str);

@@ -40,12 +40,12 @@ enum {
 /*
  * internal function returning the address of the thread-specific errno
  */
-extern volatile int *__errno_location(void);
+extern volatile int * __errno_location(void);
 
 /*
  * a macro expanding to the errno l-value
  */
-#define errno 		(*__errno_location ())
+#define errno 		(*__errno_location())
 
 
 #endif /* __ERRNO_H__ */

@@ -2,14 +2,10 @@
  * libc/errno/errno.c
  */
 
+#include <runtime.h>
 #include <errno.h>
 
-/*
- * global error number
- */
-static int __errno = 0;
-
-volatile int *__errno_location(void)
+volatile int * __errno_location(void)
 {
-	return &__errno;
+	return &(__get_runtime()->__errno);
 }

@@ -43,4 +43,3 @@ int setenv(const char * name, const char * val, int overwrite)
 
 	return __put_env(s, l1 + 1, overwrite);
 }
-

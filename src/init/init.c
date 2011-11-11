@@ -228,18 +228,18 @@ void do_system_battery(void)
 		}
 		oindex = index;
 
+		if(console_stdin_getcode(&code))
+		{
+			if(code == KEY_POWER)
+				break;
+		}
+
 		if(info.charging)
 		{
 			count = 0;
 
 			if(info.level >= 100)
 				break;
-
-			if(console_stdin_getcode(&code))
-			{
-				if(code == KEY_POWER)
-					break;
-			}
 		}
 		else
 		{

@@ -82,12 +82,6 @@ static void incon_keyboard_handler(enum key_code key)
 		c = KEY_CTRL_C;
 		break;
 
-	case KEY_POWER:
-		return;
-
-	case KEY_RESET:
-		return;
-
 	default:
 		c = key;
 		break;

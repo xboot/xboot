@@ -25,6 +25,7 @@
 #include <time/xtime.h>
 #include <xboot/menu.h>
 #include <console/console.h>
+#include <input/keyboard/keyboard.h>
 #include <fb/fb.h>
 #include <graphic/surface.h>
 #include <init.h>
@@ -178,6 +179,7 @@ void do_system_battery(void)
 	struct surface_t * obj[17];
 	struct rect_t rect;
 	char path[MAX_PATH];
+	u32_t code;
 	u32_t c;
 	int index, oindex = -1;
 	int i, count = 0;
@@ -230,8 +232,14 @@ void do_system_battery(void)
 		{
 			count = 0;
 
-			if(info.level >= 25)
+			if(info.level >= 100)
 				break;
+
+			if(console_stdin_getcode(&code))
+			{
+				if(code == KEY_POWER)
+					break;
+			}
 		}
 		else
 		{

@@ -2,13 +2,13 @@
 
 
 WHAT IS THE XBOOT
-    xboot is the extensible bootloader for embedded system,
-based portable idea and powerful function.
+	xboot is the extensible bootloader for embedded system,
+	based portable idea and powerful function.
 
 
 XBOOT'S LOGO
-    xboot have a very beautiful character logo, see below and
- enjoy it.
+	xboot have a very beautiful character logo, see below and
+	enjoy it.
         _
        | |                  _        __0
   _  _ | |___ _____ _____ _| |_    _  /\_
@@ -32,7 +32,7 @@ XBOOT'S COPYRIGHT
 
 
 THE OFFICIAL WEBSITE
-    http://xboot.org, the forum to talk about it.
+	http://xboot.org, the forum to talk about it.
 
 
 XBOOT'S INTEGRATED DEVELOPMENT ENVIRONMENT

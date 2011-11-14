@@ -32,24 +32,18 @@ XBOOT'S COPYRIGHT
 
 
 THE OFFICIAL WEBSITE
-    http://xboot.org, the newest message will be put here.
-    http://bbs.xboot.org, the forum for talk about xboot.
-    
-	
+    http://xboot.org, the forum for talk about xboot.
+   
+
 TO COMPILE XBOOT
 	just run below command at xboot's root directory:
 	make clean
 	make TARGET=arm-realview CROSS=/path/to/arm-none-eabi-
-	
-	"TARGET" for your machine which xboot will be run;
+
+	"TARGET" for your machine which xboot will be running;
 	"CROSS"  for your cross compiler;
 
 
 RUN XBOOT
 	if you have no hardware machine for running xboot, you
 	can using a simulator, such as qemu-system-arm.
-
-
-NEED HELP
-	google search engineer may be a useful tool.
-	

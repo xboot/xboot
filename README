@@ -1,9 +1,9 @@
                  xboot <http://xboot.org>
 
-   
+
 WHAT IS THE XBOOT
-    xboot is a bootloader for embedded system, based portable 
- idea and powerful function.
+    xboot is the extensible bootloader for embedded system,
+based portable idea and powerful function.
 
 
 XBOOT'S LOGO
@@ -32,18 +32,26 @@ XBOOT'S COPYRIGHT
 
 
 THE OFFICIAL WEBSITE
-    http://xboot.org, the forum for talk about xboot.
-   
+    http://xboot.org, the forum to talk about it.
+
+
+XBOOT'S INTEGRATED DEVELOPMENT ENVIRONMENT
+	windows: http://xboot.googlecode.com/files/eclipse-for-arm-windows.7z
+	linux:   http://xboot.googlecode.com/files/eclipse-for-arm-linux.7z
+
 
 TO COMPILE XBOOT
-	just run below command at xboot's root directory:
+	just running below commands in xboot's root directory, or
+	using xboot's IDE directly.
+	
 	make clean
 	make TARGET=arm-realview CROSS=/path/to/arm-none-eabi-
 
-	"TARGET" for your machine which xboot will be running;
+	"TARGET" for your machine which will be compiled;
 	"CROSS"  for your cross compiler;
 
 
-RUN XBOOT
+RUNNING XBOOT
 	if you have no hardware machine for running xboot, you
-	can using a simulator, such as qemu-system-arm.
+	can using a simulator, such as qemu-system-arm in tools
+	directory.

@@ -25,8 +25,7 @@
 #include <s5pv210-cp15.h>
 #include <mpad-at88sa102s.h>
 
-#define START_PULSE_TIME_OUT	(50)	/* 86us */
-#define ZERO_PULSE_TIME_OUT		(9)		/* 15us */
+#define START_PULSE_TIME_OUT	(500)		/* 86us * 2 * 10 */
 
 static void sa_delay_us(u32_t loop)
 {
@@ -42,14 +41,24 @@ static void sa_delay_us(u32_t loop)
 
 static void sa_delay_4340_ns(void)
 {
-	u32_t i = 0;
+	u32_t i = 4;
 
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
+	while(--i)
+	{
+		__asm__ __volatile__("mov r0, r0");
+	}
 }
+
+static void sa_delay_9000_ns(void)
+{
+	u32_t i = 17;
+
+	while(--i)
+	{
+		__asm__ __volatile__("mov r0, r0");
+	}
+}
+
 
 static void sa_enable_interrupt(void)
 {
@@ -61,6 +70,11 @@ static void sa_disable_interrupt(void)
 {
 	irq_disable();
 	fiq_disable();
+}
+
+static void sa_pin_strength(void)
+{
+	writel(S5PV210_GPH1DRV, (readl(S5PV210_GPH1DRV) & ~(0xf<<2)) | (0x3<<2));
 }
 
 static void sa_pin_dir(u8_t flag)
@@ -158,7 +172,9 @@ static void sa_wakeup(void)
 	 * port init
 	 */
 	sa_pin_set(0);
-	sa_pin_dir(1);
+	sa_pin_dir(0);
+	sa_pin_strength();
+	sa_delay_us(5000);
 
 	/*
 	 * wake low
@@ -170,7 +186,7 @@ static void sa_wakeup(void)
 	 * wake high
 	 */
 	sa_pin_dir(0);
-	sa_delay_us(2500);
+	sa_delay_us(4000);
 }
 
 static void sa_write_one(void)
@@ -266,8 +282,7 @@ static void sa_write_byte(u8_t c)
 
 static bool_t sa_read_bit(u8_t * bit)
 {
-	s32_t time_out;
-	u8_t zero_flag = 0;
+	u32_t time_out;
 
 	/*
 	 * wait for start pluse
@@ -277,14 +292,19 @@ static bool_t sa_read_bit(u8_t * bit)
 	/*
 	 * falling edge
 	 */
-	while(--time_out > 0)
+	while(--time_out)
 	{
 		if(!sa_pin_get())
 			break;
 	}
 
-	if(time_out <= 0)
+	if(time_out == 0)
 		return FALSE;
+
+	/*
+	 * wait for start pluse
+	 */
+	time_out = START_PULSE_TIME_OUT;
 
 	/*
 	 * rising edge
@@ -292,36 +312,22 @@ static bool_t sa_read_bit(u8_t * bit)
 	do {
 		if(sa_pin_get())
 			break;
-	} while (--time_out > 0);
+	} while (--time_out);
 
-	if(time_out <= 0)
+	if(time_out == 0)
 		return FALSE;
 
 	/*
 	 * detect possible edge indicating zero bit.
 	 */
-	time_out = ZERO_PULSE_TIME_OUT;
+	sa_delay_9000_ns();
 
-	do {
-		if(!sa_pin_get())
-		{
-			zero_flag = 1;
-			break;
-		}
-	} while(--time_out > 0);
-
-	if(zero_flag == 1)
-	{
-		do {
-			if(sa_pin_get())
-				break;
-		} while(--time_out > 0);
-	}
-
-	if(zero_flag == 1)
+	if(!sa_pin_get())
 		*bit = 0x0;
 	else
 		*bit = 0x1;
+
+	sa_delay_9000_ns();
 
 	return TRUE;
 }
@@ -715,7 +721,7 @@ bool_t sa_do_mac(u8_t mode, u16_t keyid, const u8_t * challenge, const u8_t * ex
 	/*
 	 * Print mac result from chip
 	 */
-	printk("mac: ", mac[i]);
+	printk("mac: ");
 	for(i = 0; i < len; i++)
 	{
 		if((i % 8) == 0)
@@ -797,7 +803,7 @@ static const u8_t expected[4][32] = {
 bool_t sa_do_auth(void)
 {
 	u32_t index;
-	u32_t count = 5;
+	u32_t count = 10;
 
 	do {
 		srand(jiffies + rand());
@@ -806,7 +812,7 @@ bool_t sa_do_auth(void)
 
 		if(sa_do_mac(0x10, 0xffff, challenge[index], expected[index]))
 			return TRUE;
-	} while(count-- > 0);
+	} while(--count > 0);
 
 	return FALSE;
 }

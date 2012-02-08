@@ -4,11 +4,9 @@
 
 #include <stdio.h>
 
-void clearerr(FILE * f)
+void clearerr(FILE * fp)
 {
-	if (f != NULL)
-	{
-		f->eof = 0;
-		f->error = 0;
-	}
+	flockfile(fp);
+	__sclearerr(fp);
+	funlockfile(fp);
 }

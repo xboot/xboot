@@ -4,9 +4,13 @@
 
 #include <stdio.h>
 
-int ferror(FILE * f)
+int ferror(FILE * fp)
 {
-	if (f != NULL)
-		return f->error;
-	return 0;
+	int ret;
+
+	flockfile(fp);
+	ret = __sferror(fp);
+	funlockfile(fp);
+
+	return (ret);
 }

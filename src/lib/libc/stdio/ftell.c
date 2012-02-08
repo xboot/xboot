@@ -4,14 +4,8 @@
 
 #include <stdio.h>
 
-loff_t ftell(FILE * f)
+fpos_t ftell(FILE * fp)
 {
-	if (f == NULL)
-	{
-		errno = EBADF;
-		return -1;
-	}
-
-	return f->ofs;
+	return 0;
 }
 

@@ -4,13 +4,13 @@
 
 #include <stdio.h>
 
-int fileno(FILE * f)
+int fileno(FILE * fp)
 {
-	if (f == NULL)
-	{
-		errno = EBADF;
-		return -1;
-	}
+	int ret;
 
-	return f->fd;
+	flockfile(fp);
+	ret = __sfileno(fp);
+	funlockfile(fp);
+
+	return (ret);
 }

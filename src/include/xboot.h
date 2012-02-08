@@ -36,6 +36,7 @@
 #include <time/tick.h>
 #include <time/timer.h>
 #include <time/delay.h>
+#include <fs/fileio.h>
 
 /*
  * default CONFIG_HEAP_SIZE is 8MB

@@ -2,6 +2,7 @@
  * libc/stdio/vsnprintf.c
  */
 
+#include <math.h>
 #include <stdio.h>
 
 enum flags {
@@ -678,6 +679,7 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap)
 				{
 				case 'P':		/* Upper case pointer */
 					flags |= FL_UPPER;
+					break;
 				case 'p':		/* Pointer */
 					base = 16;
 					prec = (8 * sizeof(void *) + 3) / 4;
@@ -726,6 +728,7 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap)
 					goto is_unsigned;
 				case 'X':		/* Upper case hexadecimal */
 					flags |= FL_UPPER;
+					break;
 				case 'x':		/* Hexadecimal */
 					base = 16;
 					goto is_unsigned;
@@ -844,7 +847,9 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap)
 					EMIT(ch);
 					break;
 				}
+				break;
 			}
+			break;
 		}
 	}
 

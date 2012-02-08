@@ -36,6 +36,10 @@ static struct runtime_t __runtime = {
 		[1] 		= 1,
 		[2] 		= 1,
 	},
+
+	.__stdin		= NULL,
+	.__stdout		= NULL,
+	.__stderr		= NULL,
 };
 
 struct runtime_t * __get_runtime(void)
@@ -61,6 +65,10 @@ struct runtime_t * runtime_alloc(void)
 	runtime->__seed[0] = 1;
 	runtime->__seed[1] = 1;
 	runtime->__seed[2] = 1;
+
+	runtime->__stdin = NULL;
+	runtime->__stdout = NULL;
+	runtime->__stderr = NULL;
 
 	return runtime;
 }

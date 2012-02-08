@@ -20,6 +20,7 @@
  *
  */
 
+#include <xboot.h>
 #include <console/console.h>
 #include <readline.h>
 

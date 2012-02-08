@@ -2,10 +2,12 @@
 #define __STDIO_H__
 
 #include <types.h>
+#include <ctype.h>
 #include <stdarg.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <limits.h>
 #include <string.h>
-#include <errno.h>
-#include <malloc.h>
 
 #ifndef EOF
 #define EOF		(-1)
@@ -127,9 +129,10 @@ typedef struct {
 #define	__sclearerr(p)		((void)((p)->_flags &= ~(__SERR|__SEOF)))
 #define	__sfileno(p)		((p)->_file)
 
-extern FILE * stdin;
-extern FILE * stdout;
-extern FILE * stderr;
+#define stdin				(__get_runtime()->__stdin)
+#define stdout				(__get_runtime()->__stdout)
+#define stderr				(__get_runtime()->__stderr)
+
 
 int feof(FILE * fp);
 int ferror(FILE * fp);
@@ -171,5 +174,12 @@ int sscanf(const char * buf, const char * fmt, ...);
 void flockfile(FILE * fp);
 int ftrylockfile(FILE * fp);
 void funlockfile(FILE * fp);
+
+int __sflags(const char * mode, int * optr);
+
+int __sread(void * cookie, char * buf, int n);
+int __swrite(void * cookie, const char * buf, int n);
+fpos_t __sseek(void * cookie, fpos_t offset, int whence);
+int __sclose(void * cookie);
 
 #endif /* __STDIO_H__ */

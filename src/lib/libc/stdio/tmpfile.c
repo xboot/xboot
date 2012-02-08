@@ -2,6 +2,7 @@
  * libc/stdio/tmpfile.c
  */
 
+#include <fs/fileio.h>
 #include <stdio.h>
 
 FILE * tmpfile(void)

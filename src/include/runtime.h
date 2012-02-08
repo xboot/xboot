@@ -12,6 +12,9 @@ struct runtime_t {
 
 	/* pseudo random seed - 48bit */
 	unsigned short __seed[3];
+
+	/* standard input, output and error */
+	FILE *__stdin, *__stdout, *__stderr;
 };
 
 

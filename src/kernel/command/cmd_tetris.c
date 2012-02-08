@@ -104,11 +104,11 @@ static struct map map;
  */
 static void refresh(void)
 {
-	struct console * stdout = get_console_stdout();
+	struct console * con = get_console_stdout();
 	s32_t w, h;
 	s32_t x, y, xp, yp;
 
-	if(!stdout)
+	if(!con)
 		return;
 
 	for(y=0; y < GAME_AREA_HEIGHT; y++)
@@ -118,15 +118,15 @@ static void refresh(void)
 
 		for(x=0; x < GAME_AREA_WIDTH; x++)
 		{
-			console_getwh(stdout, &w, &h);
+			console_getwh(con, &w, &h);
 			xp = (w - GAME_AREA_WIDTH) / 2;
 			yp = (h - GAME_AREA_HEIGHT) / 2;
-			console_gotoxy(stdout, xp + x, yp + y);
+			console_gotoxy(con, xp + x, yp + y);
 			if(map.screen[x][y] != TCOLOR_BLACK)
-				console_setcolor(stdout, TCOLOR_BLACK, map.screen[x][y]);
+				console_setcolor(con, TCOLOR_BLACK, map.screen[x][y]);
 			else
-				console_setcolor(stdout, TCOLOR_WHITE, TCOLOR_BLACK);
-			console_putcode(stdout, UNICODE_SPACE);
+				console_setcolor(con, TCOLOR_WHITE, TCOLOR_BLACK);
+			console_putcode(con, UNICODE_SPACE);
 		}
 		map.dirty[y] = FALSE;
     }
@@ -261,18 +261,18 @@ static void screen_init(void)
 
 static int tetris(int argc, char ** argv)
 {
-	struct console * stdout = get_console_stdout();
+	struct console * con = get_console_stdout();
 	u32_t x, y, shape;
 	u32_t newx, newy, newshape;
 	bool_t fell = FALSE;
 	bool_t try_again = FALSE;
 	u32_t code;
 
-	if(!stdout)
+	if(!con)
 		return -1;
 
-	console_setcursor(stdout, FALSE);
-	console_cls(stdout);
+	console_setcursor(con, FALSE);
+	console_cls(con);
 
 	srand(jiffies + rand());
 
@@ -362,9 +362,9 @@ static int tetris(int argc, char ** argv)
         }
 	}while(try_again);
 
-	console_setcursor(stdout, TRUE);
-	console_setcolor(stdout, TCOLOR_WHITE, TCOLOR_BLACK);
-	console_cls(stdout);
+	console_setcursor(con, TRUE);
+	console_setcolor(con, TCOLOR_WHITE, TCOLOR_BLACK);
+	console_cls(con);
 
 	return 0;
 }

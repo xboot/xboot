@@ -1,8 +1,6 @@
 #ifndef __READLINE_H__
 #define __READLINE_H__
 
-#include <xboot.h>
-
 /*
  * The enum type of readline mode
  */

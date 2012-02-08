@@ -4,10 +4,10 @@
 
 #include <xboot.h>
 
-extern u32_t jiffies;
+extern volatile u32_t jiffies;
 
 /*
- * the struct of tick.
+ * The struct of tick.
  */
 struct tick {
 	/* system hz */

@@ -2,10 +2,9 @@
 #define __READLINE_H__
 
 #include <xboot.h>
-#include <console/console.h>
 
-/**
- * the enum type of readline mode
+/*
+ * The enum type of readline mode
  */
 enum readline_mode {
 	RL_NORMAL,

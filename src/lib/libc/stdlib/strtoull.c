@@ -72,6 +72,7 @@ unsigned long long strtoull(const char * nptr, char ** endptr, int base)
 	default:
 		cutoff = ULLONG_MAX / base;
 		cutlim = ULLONG_MAX % base;
+		break;
 	}
 
 	for (acc = 0, any = 0;; c = (unsigned char) *s++)

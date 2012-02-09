@@ -2,6 +2,7 @@
  * libc/stdio/fflush.c
  */
 
+#include <runtime.h>
 #include <stdio.h>
 
 static int __fflush_unlocked(FILE * f)
@@ -31,6 +32,31 @@ static int __fflush_unlocked(FILE * f)
 
 int fflush(FILE * f)
 {
-	//TODO fflush
-	return 0;
+	int r = 0;
+	FILE * next;
+
+	if (f)
+	{
+		FLOCK(f);
+		r = __fflush_unlocked(f);
+		FUNLOCK(f);
+		return r;
+	}
+
+	//xxx r = __stdout_used ? fflush(__stdout_used) : 0;
+
+	OFLLOCK();
+	for (f=__get_runtime()->ofl_head; f; f=next)
+	{
+		FLOCK(f);
+		//OFLUNLOCK();
+		if (f->wpos > f->wbase)
+			r |= __fflush_unlocked(f);
+		//OFLLOCK();
+		next = f->next;
+		FUNLOCK(f);
+	}
+	OFLUNLOCK();
+
+	return r;
 }

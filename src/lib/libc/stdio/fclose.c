@@ -13,9 +13,12 @@ int fclose(FILE * f)
 	if (!perm)
 	{
 		OFLLOCK();
-		if (f->prev) f->prev->next = f->next;
-		if (f->next) f->next->prev = f->prev;
-		//xxx if (libc.ofl_head == f) libc.ofl_head = f->next;
+		if (f->prev)
+			f->prev->next = f->next;
+		if (f->next)
+			f->next->prev = f->prev;
+		if (__get_runtime()->ofl_head == f)
+			__get_runtime()->ofl_head = f->next;
 		OFLUNLOCK();
 	}
 

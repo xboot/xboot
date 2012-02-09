@@ -163,17 +163,22 @@ int sscanf(const char * buf, const char * fmt, ...);
 int __lockfile(FILE * f);
 void __unlockfile(FILE * f);
 
-int __toread(FILE * f);
-int __towrite(FILE * f);
-off_t __ftello(FILE * f);
-int __fseeko(FILE * f, off_t off, int whence);
-int __fseeko_unlocked(FILE * f, off_t off, int whence);
-int __overflow(FILE * f, int _c);
-int __uflow(FILE * f);
-
 size_t __stdio_read(FILE * f, unsigned char * buf, size_t len);
 size_t __stdio_write(FILE * f, const unsigned char * buf, size_t len);
 off_t __stdio_seek(FILE * f, off_t off, int whence);
 int __stdio_close(FILE * f);
+
+int __toread(FILE * f);
+int __towrite(FILE * f);
+
+int __overflow(FILE * f, int _c);
+int __uflow(FILE * f);
+
+int __fseeko(FILE * f, off_t off, int whence);
+int __fseeko_unlocked(FILE * f, off_t off, int whence);
+off_t __ftello(FILE * f);
+off_t __ftello_unlocked(FILE * f);
+
+FILE * __fdopen(int fd, const char * mode);
 
 #endif /* __STDIO_H__ */

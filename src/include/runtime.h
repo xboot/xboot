@@ -16,8 +16,8 @@ struct runtime_t {
 	/* standard input, output and error */
 	FILE *__stdin, *__stdout, *__stderr;
 
-	/* 1 means stdio has been init'd */
-	int __sdidinit;
+	FILE * ofl_head;
+	int ofl_lock;
 };
 
 

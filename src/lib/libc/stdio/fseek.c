@@ -6,22 +6,36 @@
 
 int __fseeko_unlocked(FILE * f, off_t off, int whence)
 {
-	/* Adjust relative offset for unread data in buffer, if any. */
-	if (whence == SEEK_CUR) off -= f->rend - f->rpos;
+	/*
+	 * Adjust relative offset for unread data in buffer, if any.
+	 */
+	if (whence == SEEK_CUR)
+		off -= f->rend - f->rpos;
 
-	/* Flush write buffer, and report error on failure. */
-	if (f->wpos > f->wbase) {
+	/*
+	 * Flush write buffer, and report error on failure.
+	 */
+	if (f->wpos > f->wbase)
+	{
 		f->write(f, 0, 0);
-		if (!f->wpos) return -1;
+		if (!f->wpos)
+			return -1;
 	}
 
-	/* Leave writing mode */
+	/*
+	 * Leave writing mode
+	 */
 	f->wpos = f->wbase = f->wend = 0;
 
-	/* Perform the underlying seek. */
-	if (f->seek(f, off, whence) < 0) return -1;
+	/*
+	 * Perform the underlying seek.
+	 */
+	if (f->seek(f, off, whence) < 0)
+		return -1;
 
-	/* If seek succeeded, file is seekable and we discard read buffer. */
+	/*
+	 * If seek succeeded, file is seekable and we discard read buffer.
+	 */
 	f->rpos = f->rend = 0;
 	f->flags &= ~F_EOF;
 
@@ -31,9 +45,11 @@ int __fseeko_unlocked(FILE * f, off_t off, int whence)
 int __fseeko(FILE * f, off_t off, int whence)
 {
 	int result;
+
 	FLOCK(f);
 	result = __fseeko_unlocked(f, off, whence);
 	FUNLOCK(f);
+
 	return result;
 }
 

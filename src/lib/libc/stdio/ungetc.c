@@ -6,11 +6,13 @@
 
 int ungetc(int c, FILE * f)
 {
-	if (c == EOF) return c;
+	if (c == EOF)
+		return c;
 
 	FLOCK(f);
 
-	if ((!f->rend && __toread(f)) || f->rpos <= f->buf - UNGET) {
+	if ((!f->rend && __toread(f)) || f->rpos <= f->buf - UNGET)
+	{
 		FUNLOCK(f);
 		return EOF;
 	}

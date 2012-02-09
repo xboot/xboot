@@ -4,13 +4,7 @@
 
 #include <stdio.h>
 
-int ferror(FILE * fp)
+int ferror(FILE * f)
 {
-	int ret;
-
-	flockfile(fp);
-	ret = __sferror(fp);
-	funlockfile(fp);
-
-	return (ret);
+	return !!(f->flags & F_ERR);
 }

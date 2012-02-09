@@ -17,6 +17,8 @@
 #define BUFSIZ	(4096)
 #endif
 
+#define UNGET 8
+
 enum {
 	_IONBF		= 0,
 	_IOLBF		= 1,
@@ -30,22 +32,12 @@ enum {
 };
 
 enum {
-	__SLBF		= 0x0001, 	/* line buffered */
-	__SNBF		= 0x0002, 	/* unbuffered */
-	__SRD 		= 0x0004, 	/* OK to read */
-	__SWR 		= 0x0008, 	/* OK to write */
-	__SRW 		= 0x0010, 	/* open for reading & writing */
-	__SEOF		= 0x0020, 	/* found EOF */
-	__SERR 		= 0x0040, 	/* found error */
-	__SMBF 		= 0x0080, 	/* _buf is from malloc */
-	__SAPP 		= 0x0100, 	/* fdopen()ed in append mode */
-	__SSTR 		= 0x0200, 	/* this is an sprintf/snprintf string */
-	__SOPT 		= 0x0400, 	/* do fseek() optimisation */
-	__SNPT 		= 0x0800, 	/* do not do fseek() optimisation */
-	__SOFF 		= 0x1000, 	/* set iff _offset is in fact correct */
-	__SMOD 		= 0x2000, 	/* true => fgetln modified _p text */
-	__SALC 		= 0x4000, 	/* allocate string space dynamically */
-	__SIGN 		= 0x8000,	/* ignore this file in _fwalk */
+	F_PERM 		= 0x0001,
+	F_NORD 		= 0x0004,
+	F_NOWR 		= 0x0008,
+	F_EOF 		= 0x0010,
+	F_ERR 		= 0x0020,
+	F_SVB 		= 0x0040,
 };
 
 /*
@@ -53,110 +45,107 @@ enum {
  */
 typedef loff_t fpos_t;
 
-/*
- * Stdio buffers.
- */
-struct __sbuf {
-	unsigned char * _base;
-	int	_size;
+struct iovec {
+	void * iov_base;
+	size_t iov_len;
 };
 
 /*
  * stdio state variables.
- *
- * The following always hold:
- *
- *	if (_flags&(__SLBF|__SWR)) == (__SLBF|__SWR),
- *		_lbfsize is -_bf._size, else _lbfsize is 0
- *	if _flags&__SRD, _w is 0
- *	if _flags&__SWR, _r is 0
- *
- * This ensures that the getc and putc macros (or inline functions) never
- * try to write or read from a file that is in `read' or `write' mode.
- * (Moreover, they can, and do, automatically switch from read mode to
- * write mode, and back, on "r+" and "w+" files.)
- *
- * _lbfsize is used only to make the inline line-buffered output stream
- * code as compact as possible.
- *
- * _ub, _up, and _ur are used when ungetc() pushes back more characters
- * than fit in the current _bf, or when ungetc() pushes back a character
- * that does not match the previous one in _bf.  When this happens,
- * _ub._base becomes non-nil (i.e., a stream has ungetc() data iff
- * _ub._base!=NULL) and _up and _ur save the current values of _p and _r.
- *
- * NOTE: if you change this structure, you also need to update the
- * std() initializer in findfp.c.
  */
-typedef struct {
-	unsigned char * _p;		/* current position in (some) buffer */
-	int	_r;					/* read space left for getc() */
-	int	_w;					/* write space left for putc() */
-	short _flags;			/* flags, below; this FILE is free if 0 */
-	short _file;			/* fileno, if Unix descriptor, else -1 */
-	struct __sbuf _bf;		/* the buffer (at least 1 byte, if !NULL) */
-	int _lbfsize;			/* 0 or -_bf._size, for inline putc */
+typedef struct __FILE FILE;
+struct __FILE {
+	unsigned flags;
+	unsigned char * rpos, * rend;
+	int (*close)(FILE *);
+	unsigned char * wend, * wpos;
+	unsigned char * mustbezero_1;
+	unsigned char * wbase;
+	size_t (*read)(FILE *, unsigned char *, size_t);
+	size_t (*write)(FILE *, const unsigned char *, size_t);
+	off_t (*seek)(FILE *, off_t, int);
+	unsigned char * buf;
+	size_t buf_size;
+	FILE * prev, * next;
+	int fd;
+	int pipe_pid;
+	long lockcount;
+	short dummy3;
+	signed char mode;
+	signed char lbf;
+	int lock;
+	int waiters;
+	void * cookie;
+	off_t off;
+	int (*flush)(FILE *);
+	void * mustbezero_2;
+};
 
-	/* operations */
-	void * _cookie;			/* cookie passed to io functions */
-	int	(*_read)(void *, char *, int);
-	int	(*_write)(void *, const char *, int);
-	fpos_t (*_seek)(void *, fpos_t, int);
-	int	(*_close)(void *);
+#define FLOCK(f)	int __need_unlock = ((f)->lock >= 0 ? __lockfile((f)) : 0)
+#define FUNLOCK(f)	if (__need_unlock) __unlockfile((f)); else
 
-	/* extension data, to avoid further ABI breakage */
-	struct __sbuf _ext;
+#define OFLLOCK()	do{ } while(0)
+#define OFLUNLOCK() do{ } while(0)
 
-	/* data for long sequences of ungetc() */
-	unsigned char *_up;		/* saved _p when _p is doing ungetc data */
-	int	_ur;				/* saved _r when _r is counting ungetc data */
+#define getc_unlocked(f) \
+	( ((f)->rpos < (f)->rend) ? *(f)->rpos++ : __uflow((f)) )
 
-	/* tricks to meet minimum requirements even when malloc() fails */
-	unsigned char _ubuf[3];	/* guarantee an ungetc() buffer */
-	unsigned char _nbuf[1];	/* guarantee a getc() buffer */
+#define putc_unlocked(c, f)	\
+	( ((c)!=(f)->lbf && (f)->wpos<(f)->wend) ? *(f)->wpos++ = (c) : __overflow((f),(c)) )
 
-	/* separate buffer for fgetln() when line crosses buffer boundary */
-	struct	__sbuf _lb;		/* buffer for fgetln() */
-
-	/* Unix stdio files get aligned to block boundaries on fseek() */
-	int	_blksize;			/* stat.st_blksize (may be != _bf._size) */
-	fpos_t _offset;			/* current lseek offset */
-} FILE;
+#define stdin		(__get_runtime()->__stdin)
+#define stdout		(__get_runtime()->__stdout)
+#define stderr		(__get_runtime()->__stderr)
 
 
-#define	__sfeof(p)			(((p)->_flags & __SEOF) != 0)
-#define	__sferror(p)		(((p)->_flags & __SERR) != 0)
-#define	__sclearerr(p)		((void)((p)->_flags &= ~(__SERR|__SEOF)))
-#define	__sfileno(p)		((p)->_file)
+FILE * fopen(const char * filename, const char * mode);
+FILE * freopen(const char * filename, const char * mode, FILE * f);
+int fclose(FILE * f);
 
-#define stdin				(__get_runtime()->__stdin)
-#define stdout				(__get_runtime()->__stdout)
-#define stderr				(__get_runtime()->__stderr)
+int feof(FILE * f);
+int ferror(FILE * f);
+int fflush(FILE * f);
+void clearerr(FILE * f);
+
+int fseek(FILE * f, long off, int whence);
+long ftell(FILE * f);
+void rewind(FILE * f);
+
+int fgetpos(FILE * f, fpos_t * pos);
+int fsetpos(FILE * f, const fpos_t * pos);
+
+size_t fread(void * destv, size_t size, size_t nmemb, FILE * f);
+size_t fwrite(const void * src, size_t size, size_t nmemb, FILE * f);
+
+int fgetc(FILE * f);
+char * fgets(char * s, int n, FILE * f);
+int fputc(int c, FILE * f);
+int fputs(const char * s, FILE * f);
+int ungetc(int c, FILE * f);
+
+int setvbuf(FILE * f, char * buf, int type, size_t size);
+void setbuf(FILE * f, char * buf);
 
 
-int feof(FILE * fp);
-int ferror(FILE * fp);
-void clearerr(FILE * fp);
 
-FILE * fopen(const char * file, const char * mode);
+
 FILE * fdopen(int fd, const char * mode);
-FILE * freopen(const char * file, const char * mode, FILE * fp);
-int fclose(FILE * fp);
+
 int fileno(FILE * fp);
-int fflush(FILE * fp);
 
-int fgetc(FILE * fp);
-char * fgets(char * buf, int n, FILE * fp);
-int fputc(int c, FILE * fp);
-int fputs(const char * s, FILE * fp);
-int ungetc(int c, FILE * fp);
 
-int fseek(FILE * fp, fpos_t offset, int whence);
-fpos_t ftell(FILE * fp);
+//xxx int fgetc(FILE * fp);
+//xxx char * fgets(char * buf, int n, FILE * fp);
+//xxx int fputc(int c, FILE * fp);
+//xxx int fputs(const char * s, FILE * fp);
+//xxx int ungetc(int c, FILE * fp);
 
-int setvbuf(FILE * fp, char * buf, int mode, size_t size);
-size_t fread(void * buf, size_t size, size_t count, FILE * fp);
-size_t fwrite(const void * buf, size_t size, size_t count, FILE * fp);
+// xxx int fseek(FILE * fp, fpos_t offset, int whence);
+// xxx fpos_t ftell(FILE * fp);
+
+//xxx int setvbuf(FILE * fp, char * buf, int mode, size_t size);
+//xxx size_t fread(void * buf, size_t size, size_t count, FILE * fp);
+//xxx size_t fwrite(const void * buf, size_t size, size_t count, FILE * fp);
 int fprintf(FILE * fp, const char * fmt, ...);
 int fscanf(FILE * fp, const char * fmt, ...);
 
@@ -171,15 +160,20 @@ int sscanf(const char * buf, const char * fmt, ...);
 /*
  * Inner function
  */
-void flockfile(FILE * fp);
-int ftrylockfile(FILE * fp);
-void funlockfile(FILE * fp);
+int __lockfile(FILE * f);
+void __unlockfile(FILE * f);
 
-int __sflags(const char * mode, int * optr);
+int __toread(FILE * f);
+int __towrite(FILE * f);
+off_t __ftello(FILE * f);
+int __fseeko(FILE * f, off_t off, int whence);
+int __fseeko_unlocked(FILE * f, off_t off, int whence);
+int __overflow(FILE * f, int _c);
+int __uflow(FILE * f);
 
-int __sread(void * cookie, char * buf, int n);
-int __swrite(void * cookie, const char * buf, int n);
-fpos_t __sseek(void * cookie, fpos_t offset, int whence);
-int __sclose(void * cookie);
+size_t __stdio_read(FILE * f, unsigned char * buf, size_t len);
+size_t __stdio_write(FILE * f, const unsigned char * buf, size_t len);
+off_t __stdio_seek(FILE * f, off_t off, int whence);
+int __stdio_close(FILE * f);
 
 #endif /* __STDIO_H__ */

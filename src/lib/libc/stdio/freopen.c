@@ -4,8 +4,8 @@
 
 #include <stdio.h>
 
-FILE * freopen(const char * file, const char * mode, FILE * fp)
+FILE * freopen(const char * filename, const char * mode, FILE * f)
 {
-	//TODO freopen
+	//xxx freopen
 	return NULL;
 }

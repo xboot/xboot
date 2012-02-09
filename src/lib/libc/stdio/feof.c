@@ -4,13 +4,7 @@
 
 #include <stdio.h>
 
-int feof(FILE * fp)
+int feof(FILE * f)
 {
-	int ret;
-
-	flockfile(fp);
-	ret = __sfeof(fp);
-	funlockfile(fp);
-
-	return (ret);
+	return !!(f->flags & F_EOF);
 }

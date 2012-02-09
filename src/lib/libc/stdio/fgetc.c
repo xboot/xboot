@@ -4,8 +4,12 @@
 
 #include <stdio.h>
 
-int fgetc(FILE * fp)
+int fgetc(FILE * f)
 {
-	//TODO fgetc
-	return 0;
+	int c;
+	if (f->lock < 0 || !__lockfile(f))
+		return getc_unlocked(f);
+	c = getc_unlocked(f);
+	__unlockfile(f);
+	return c;
 }

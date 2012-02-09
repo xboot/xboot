@@ -4,9 +4,9 @@
 
 #include <stdio.h>
 
-void clearerr(FILE * fp)
+void clearerr(FILE * f)
 {
-	flockfile(fp);
-	__sclearerr(fp);
-	funlockfile(fp);
+	FLOCK(f);
+	f->flags &= ~(F_EOF|F_ERR);
+	FUNLOCK(f);
 }

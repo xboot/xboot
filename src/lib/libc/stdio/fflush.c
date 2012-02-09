@@ -4,7 +4,32 @@
 
 #include <stdio.h>
 
-int fflush(FILE * fp)
+static int __fflush_unlocked(FILE * f)
+{
+	/* If writing, flush output */
+	if (f->wpos > f->wbase)
+	{
+		f->write(f, 0, 0);
+		if (!f->wpos)
+			return EOF;
+	}
+
+	/* If reading, sync position, per POSIX */
+	if (f->rpos < f->rend)
+		f->seek(f, f->rpos - f->rend, SEEK_CUR);
+
+	/* Clear read and write modes */
+	f->wpos = f->wbase = f->wend = 0;
+	f->rpos = f->rend = 0;
+
+	/* Hook for special behavior on flush */
+	if (f->flush)
+		f->flush(f);
+
+	return 0;
+}
+
+int fflush(FILE * f)
 {
 	//TODO fflush
 	return 0;

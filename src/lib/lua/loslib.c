@@ -19,7 +19,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-#if 0
+#if 0 //xxx
 /*
 ** list of valid conversion specifiers for the 'strftime' function
 */

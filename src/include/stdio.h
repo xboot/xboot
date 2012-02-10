@@ -94,6 +94,9 @@ struct __FILE {
 #define stdout			(__get_runtime()->__stdout)
 #define stderr			(__get_runtime()->__stderr)
 
+#define putc(ch, fp)	fputc(ch, fp)
+#define getc(fp)		fgetc(fp)
+
 
 FILE * fopen(const char * filename, const char * mode);
 FILE * freopen(const char * filename, const char * mode, FILE * f);

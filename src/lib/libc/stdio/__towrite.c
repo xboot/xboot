@@ -23,11 +23,3 @@ int __towrite(FILE * f)
 
 	return 0;
 }
-
-/*
- * Link flush-on-exit code iff any stdio write functions are linked.
- */
-void __fflush_on_exit()
-{
-	fflush(0);
-}

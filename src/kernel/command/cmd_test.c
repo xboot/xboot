@@ -46,6 +46,68 @@
 
 static int test(int argc, char ** argv)
 {
+	FILE *f = tmpfile();
+	char obuf[128], ibuf[sizeof obuf];
+	char *line;
+	size_t linesz;
+
+	if (!f)
+	{
+		printk("tmpfile\r\n");
+		return 1;
+	}
+
+	if (fputs("line\n", f) == EOF)
+	{
+		printk("fputs");
+		return 1;
+	}
+
+	memset(obuf, 'z', sizeof obuf);
+	memset(ibuf, 'y', sizeof ibuf);
+
+	if (fwrite(obuf, sizeof obuf, 1, f) != 1)
+	{
+		printk("fwrite");
+		return 1;
+	}
+
+	rewind(f);
+
+	line = NULL;
+	linesz = 0;
+/*	if (getline(&line, &linesz, f) != 5)
+	{
+		printk("getline");
+		return 1;
+	}
+	if (strcmp(line, "line\n"))
+	{
+		puts("Lines differ.  Test FAILED!");
+		return 1;
+	}*/
+
+	if (fread(ibuf, sizeof ibuf, 1, f) != 1)
+	{
+		printk("fread");
+		return 1;
+	}
+
+	if (memcmp(ibuf, obuf, sizeof ibuf))
+	{
+		printk("Buffers differ.  Test FAILED!");
+		return 1;
+	}
+
+	printk ("Test succeeded.");
+
+	/*
+	FILE * t;
+
+	t = fopen("/romdisk/boot/readme", "r");
+	fclose(t);
+
+*/
 	return 0;
 }
 

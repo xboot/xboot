@@ -78,21 +78,21 @@ struct __FILE {
 	void * mustbezero_2;
 };
 
-#define FLOCK(f)	int __need_unlock = ((f)->lock >= 0 ? __lockfile((f)) : 0)
-#define FUNLOCK(f)	if (__need_unlock) __unlockfile((f)); else
+#define FLOCK(f)		int __need_unlock = ((f)->lock >= 0 ? __lockfile((f)) : 0)
+#define FUNLOCK(f)		if (__need_unlock) __unlockfile((f)); else
 
-#define OFLLOCK()	do{ } while(0)
-#define OFLUNLOCK() do{ } while(0)
+#define OFLLOCK()		do{ } while(0)
+#define OFLUNLOCK() 	do{ } while(0)
 
 #define getc_unlocked(f) \
-	( ((f)->rpos < (f)->rend) ? *(f)->rpos++ : __uflow((f)) )
+	( ((f)->rpos < (f)->rend) ? *(f)->rpos++ : __underflow((f)) )
 
 #define putc_unlocked(c, f)	\
 	( ((c)!=(f)->lbf && (f)->wpos<(f)->wend) ? *(f)->wpos++ = (c) : __overflow((f),(c)) )
 
-#define stdin		(__get_runtime()->__stdin)
-#define stdout		(__get_runtime()->__stdout)
-#define stderr		(__get_runtime()->__stderr)
+#define stdin			(__get_runtime()->__stdin)
+#define stdout			(__get_runtime()->__stdout)
+#define stderr			(__get_runtime()->__stderr)
 
 
 FILE * fopen(const char * filename, const char * mode);
@@ -123,30 +123,10 @@ int ungetc(int c, FILE * f);
 int setvbuf(FILE * f, char * buf, int type, size_t size);
 void setbuf(FILE * f, char * buf);
 
-
-
-
-FILE * fdopen(int fd, const char * mode);
-
-int fileno(FILE * fp);
-
-
-//xxx int fgetc(FILE * fp);
-//xxx char * fgets(char * buf, int n, FILE * fp);
-//xxx int fputc(int c, FILE * fp);
-//xxx int fputs(const char * s, FILE * fp);
-//xxx int ungetc(int c, FILE * fp);
-
-// xxx int fseek(FILE * fp, fpos_t offset, int whence);
-// xxx fpos_t ftell(FILE * fp);
-
-//xxx int setvbuf(FILE * fp, char * buf, int mode, size_t size);
-//xxx size_t fread(void * buf, size_t size, size_t count, FILE * fp);
-//xxx size_t fwrite(const void * buf, size_t size, size_t count, FILE * fp);
-int fprintf(FILE * fp, const char * fmt, ...);
-int fscanf(FILE * fp, const char * fmt, ...);
-
 FILE * tmpfile(void);
+
+int fprintf(FILE * f, const char * fmt, ...);
+int fscanf(FILE * f, const char * fmt, ...);
 
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
 int vsscanf(const char * buf, const char * fmt, va_list ap);
@@ -169,7 +149,7 @@ int __toread(FILE * f);
 int __towrite(FILE * f);
 
 int __overflow(FILE * f, int _c);
-int __uflow(FILE * f);
+int __underflow(FILE * f);
 
 int __fseeko(FILE * f, off_t off, int whence);
 int __fseeko_unlocked(FILE * f, off_t off, int whence);

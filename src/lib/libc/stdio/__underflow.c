@@ -1,5 +1,5 @@
 /*
- * libc/stdio/__uflow.c
+ * libc/stdio/__underflow.c
  */
 
 #include <stdio.h>
@@ -8,7 +8,7 @@
  * This function will never be called if there is already data
  * buffered for reading. Thus we can get by with very few branches.
  */
-int __uflow(FILE * f)
+int __underflow(FILE * f)
 {
 	unsigned char c;
 

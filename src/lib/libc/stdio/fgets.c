@@ -15,38 +15,44 @@ char * fgets(char * s, int n, FILE * f)
 	size_t k;
 	int c;
 
-	if (n--<=1)
+	if(n-- <= 1)
 	{
-		if (n)
+		if(n)
 			return 0;
 		*s = 0;
 		return s;
 	}
 
 	FLOCK(f);
-
-	while (n)
+	while(n)
 	{
 		z = memchr(f->rpos, '\n', f->rend - f->rpos);
+
 		k = z ? z - f->rpos + 1 : f->rend - f->rpos;
 		k = MIN(k, n);
 		memcpy(p, f->rpos, k);
+
 		f->rpos += k;
 		p += k;
 		n -= k;
-		if (z || !n)
+
+		if(z || !n)
 			break;
-		if ((c = getc_unlocked(f)) < 0)
+
+		if((c = getc_unlocked(f)) < 0)
 		{
-			if (p==s || !feof(f)) s = 0;
+			if(p==s || !feof(f))
+				s = 0;
 			break;
 		}
+
 		n--;
-		if ((*p++ = c) == '\n')
+		if((*p++ = c) == '\n')
 			break;
 	}
-	*p = 0;
 
+	*p = 0;
 	FUNLOCK(f);
+
 	return s;
 }

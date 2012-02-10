@@ -26,4 +26,3 @@ int fscanf(FILE * f, const char * fmt, ...)
 	free(buf);
 	return rv;
 }
-

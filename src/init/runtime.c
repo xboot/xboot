@@ -22,59 +22,44 @@
 
 #include <runtime.h>
 
-static struct runtime_t __runtime = {
-	.__errno		= 0,
-
-	.__environ = {
-		.content	= "",
-		.prev		= &(__runtime.__environ),
-		.next		= &(__runtime.__environ),
-	},
-
-	.__seed = {
-		[0] 		= 1,
-		[1] 		= 1,
-		[2] 		= 1,
-	},
-
-	.__stdin		= NULL,
-	.__stdout		= NULL,
-	.__stderr		= NULL,
-};
+static struct runtime_t * __runtime = NULL;
 
 struct runtime_t * __get_runtime(void)
 {
-	return &__runtime;
+	return __runtime;
+}
+
+void __set_runtime(struct runtime_t * r)
+{
+	__runtime = r;
 }
 
 struct runtime_t * runtime_alloc(void)
 {
-	struct runtime_t * runtime;
+	struct runtime_t * r;
 
-	runtime = malloc(sizeof(struct runtime_t));
-	if(!runtime)
+	r = malloc(sizeof(struct runtime_t));
+	if(!r)
 		return NULL;
-	memset(runtime, 0, sizeof(struct runtime_t));
+	memset(r, 0, sizeof(struct runtime_t));
 
-	runtime->__errno = 0;
+	r->__errno = 0;
 
-	runtime->__environ.content = "";
-	runtime->__environ.next = &(runtime->__environ);
-	runtime->__environ.prev = &(runtime->__environ);
+	r->__environ.content = "";
+	r->__environ.next = &(r->__environ);
+	r->__environ.prev = &(r->__environ);
 
-	runtime->__seed[0] = 1;
-	runtime->__seed[1] = 1;
-	runtime->__seed[2] = 1;
+	r->__seed[0] = 1;
+	r->__seed[1] = 1;
+	r->__seed[2] = 1;
 
-	runtime->__stdin = NULL;
-	runtime->__stdout = NULL;
-	runtime->__stderr = NULL;
+	__stdio_init(r);
 
-	return runtime;
+	return r;
 }
 
-void runtime_free(struct runtime_t * runtime)
+void runtime_free(struct runtime_t * r)
 {
-	if(runtime)
-		free(runtime);
+	if(r)
+		free(r);
 }

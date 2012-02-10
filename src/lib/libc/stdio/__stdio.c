@@ -3,6 +3,7 @@
  */
 
 #include <fs/fileio.h>
+#include <runtime.h>
 #include <stdio.h>
 
 size_t __stdio_read(FILE * f, unsigned char * buf, size_t len)
@@ -97,4 +98,89 @@ off_t __stdio_seek(FILE * f, off_t off, int whence)
 int __stdio_close(FILE * f)
 {
 	return close(f->fd);
+}
+
+int __stdio_init(struct runtime_t * r)
+{
+	FILE * f;
+
+	if(!r)
+		return -1;
+
+	/*
+	 * stdin
+	 */
+	f = malloc(sizeof(FILE) + UNGET + BUFSIZ);
+	if(!f)
+		return -1;
+	memset(f, 0, sizeof(FILE) + UNGET + BUFSIZ);
+
+	f->fd = 0;
+	f->buf = (unsigned char *)f + sizeof(FILE) + UNGET;
+	f->buf_size = BUFSIZ;
+	f->flags = F_PERM | F_NOWR;
+	f->lock = -1;
+	f->read = __stdio_read;
+	f->write = NULL;
+	f->seek = __stdio_seek;
+	f->close = __stdio_close;
+
+	r->__stdin = f;
+
+	/*
+	 * stdout
+	 */
+	f = malloc(sizeof(FILE) + UNGET + BUFSIZ);
+	if(!f)
+		return -1;
+	memset(f, 0, sizeof(FILE) + UNGET + BUFSIZ);
+
+	f->fd = 1;
+	f->buf = (unsigned char *)f + sizeof(FILE) + UNGET;
+	f->buf_size = BUFSIZ;
+	f->flags = F_PERM | F_NORD;
+	f->lbf = '\n';
+	f->lock = -1;
+	f->read = NULL;
+	f->write = __stdio_write;
+	f->seek = __stdio_seek;
+	f->close = __stdio_close;
+
+	r->__stdout = f;
+
+	/*
+	 * stderr
+	 */
+	f = malloc(sizeof(FILE) + UNGET);
+	if(!f)
+		return -1;
+	memset(f, 0, sizeof(FILE) + UNGET);
+
+	f->fd = 2;
+	f->buf = (unsigned char *)f + sizeof(FILE) + UNGET;
+	f->buf_size = 0;
+	f->flags = F_PERM | F_NORD;
+	f->lbf = -1;
+	f->lock = -1;
+	f->read = NULL;
+	f->write = __stdio_write;
+	f->seek = __stdio_seek;
+	f->close = __stdio_close;
+
+	r->__stderr = f;
+
+	/*
+	 * Open file list head
+	 */
+	r->ofl_head = NULL;
+
+	return 0;
+}
+
+int __stdio_exit(struct runtime_t * r)
+{
+	if(!r)
+		return -1;
+
+	return 0;
 }

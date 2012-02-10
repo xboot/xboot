@@ -22,8 +22,9 @@ struct runtime_t {
 
 
 struct runtime_t * __get_runtime(void);
+void __set_runtime(struct runtime_t * r);
 
 struct runtime_t * runtime_alloc(void);
-void runtime_free(struct runtime_t * runtime);
+void runtime_free(struct runtime_t * r);
 
 #endif /* __RUNTIME_H__ */

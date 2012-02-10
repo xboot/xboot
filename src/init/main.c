@@ -33,6 +33,9 @@
  */
 int xboot_main(int argc, char * argv[])
 {
+	/* set default runtime */
+	__set_runtime(runtime_alloc());
+
 	/* do all init calls */
 	do_initcalls();
 

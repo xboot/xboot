@@ -576,3 +576,45 @@ int truncate(const char * path, loff_t length)
 
 	return sys_truncate(buf, length);
 }
+
+ssize_t readv(int fd, const struct iovec * iov, int iovcnt)
+{
+	ssize_t count = 0;
+	ssize_t bytes;
+
+	while(iovcnt-- > 0)
+	{
+		bytes = read(fd, iov->iov_base, iov->iov_len);
+		if(bytes < 0)
+			return (-1);
+
+		count += bytes;
+		if (bytes != iov->iov_len)
+			break;
+
+		iov++;
+	}
+
+	return (count);
+}
+
+ssize_t writev(int fd, const struct iovec * iov, int iovcnt)
+{
+	ssize_t count = 0;
+	ssize_t bytes;
+
+	while(iovcnt-- > 0)
+	{
+		bytes = write(fd, iov->iov_base, iov->iov_len);
+		if (bytes < 0)
+			return (-1);
+
+		count += bytes;
+		if (bytes != iov->iov_len)
+			break;
+
+		iov++;
+	}
+
+	return (count);
+}

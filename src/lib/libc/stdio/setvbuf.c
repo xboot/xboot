@@ -14,6 +14,5 @@ int setvbuf(FILE * f, char * buf, int type, size_t size)
 		f->lbf = '\n';
 
 	f->flags |= F_SVB;
-
 	return 0;
 }

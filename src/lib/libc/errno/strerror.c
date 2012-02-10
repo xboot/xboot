@@ -1,5 +1,5 @@
 /*
- * libc/string/strerror.c
+ * libc/errno/strerror.c
  */
 
 #include <errno.h>

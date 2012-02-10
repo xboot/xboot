@@ -17,7 +17,9 @@
 #define BUFSIZ	(4096)
 #endif
 
-#define UNGET 8
+#ifndef UNGET
+#define UNGET	(8)
+#endif
 
 enum {
 	_IONBF		= 0,
@@ -44,11 +46,6 @@ enum {
  * Stdio file position type
  */
 typedef loff_t fpos_t;
-
-struct iovec {
-	void * iov_base;
-	size_t iov_len;
-};
 
 /*
  * stdio state variables.

@@ -6,6 +6,11 @@
 #include <fs/vfs/stat.h>
 #include <fs/vfs/vfs.h>
 
+struct iovec {
+	void * iov_base;
+	size_t iov_len;
+};
+
 int mount(const char * dev, const char * dir, const char * fs, u32_t flags);
 void sync(void);
 int umount(const char * dir);
@@ -35,5 +40,8 @@ int chown(const char * path, u32_t owner, u32_t group);
 u32_t umask(u32_t mode);
 int ftruncate(int fd, loff_t length);
 int truncate(const char * path, loff_t length);
+
+ssize_t readv(int fd, const struct iovec * iov, int iovcnt);
+ssize_t writev(int fd, const struct iovec * iov, int iovcnt);
 
 #endif /* __FILEIO_H__ */

@@ -68,7 +68,8 @@ CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 #
 INCDIRS		+= 	-I include						\
 				-I arch/$(ARCH)/include			\
-				-I arch/$(ARCH)/$(MACH)/include
+				-I arch/$(ARCH)/$(MACH)/include \
+				-I lib/lua
 
 SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				arch/$(ARCH)/lib/cpu			\

@@ -39,7 +39,8 @@ extern int luac_main(int argc, char ** argv);
 
 static int do_luac(int argc, char ** argv)
 {
-	return luac_main(argc, argv);
+	return 0;
+	// xxx return luac_main(argc, argv);
 }
 
 static struct command luac_cmd = {

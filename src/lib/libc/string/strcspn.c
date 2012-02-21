@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <string.h>
 
+/*
+ * Finds in a string the last occurrence of a byte not in a set
+ */
 size_t strcspn(const char * s, const char * reject)
 {
 	const char * p;

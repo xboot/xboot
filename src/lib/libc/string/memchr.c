@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <string.h>
 
+/*
+ * Finds the first occurrence of a byte in a buffer
+ */
 void * memchr(const void * s, int c, size_t n)
 {
 	const unsigned char *p = s;

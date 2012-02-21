@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <string.h>
 
+/*
+ * Finds the first occurrence of a substring in a string
+ */
 char * strstr(const char * s1, const char * s2)
 {
 	size_t l1, l2;

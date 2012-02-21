@@ -5,6 +5,9 @@
 #include <types.h>
 #include <string.h>
 
+/*
+ * Appends no more than n bytes from one string to another
+ */
 char * strncat(char * dest, const char * src, size_t n)
 {
 	char * tmp = dest;

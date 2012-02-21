@@ -6,6 +6,9 @@
 #include <ctype.h>
 #include <string.h>
 
+/*
+ * Compares the two strings s1 and s2, ignoring the case of the characters
+ */
 int strncasecmp(const char * s1, const char * s2, size_t n)
 {
 	int c1, c2;

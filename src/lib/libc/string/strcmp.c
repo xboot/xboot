@@ -17,4 +17,7 @@ static int __strcmp(const char * s1, const char * s2)
 	return res;
 }
 
-int strcmp(const char * s1, const char * s2) __attribute__ ((weak, alias ("__strcmp")));
+/*
+ * Compares two strings
+ */
+extern __typeof(__strcmp) strcmp __attribute__((weak, alias("__strcmp")));

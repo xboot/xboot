@@ -29,4 +29,7 @@ static void * __memmove(void * dest, const void * src, size_t n)
 	return dest;
 }
 
-void * memmove(void * dest, const void * src, size_t n) __attribute__ ((weak, alias ("__memmove")));
+/*
+ * Copies one buffer to another, possibly overlapping, buffer
+ */
+extern __typeof(__memmove) memmove __attribute__((weak, alias("__memmove")));

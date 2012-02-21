@@ -6,6 +6,9 @@
 #include <ctype.h>
 #include <string.h>
 
+/*
+ * Compare two strings ignoring case
+ */
 int strcasecmp(const char * s1, const char * s2)
 {
 	int c1, c2;

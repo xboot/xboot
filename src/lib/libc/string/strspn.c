@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <string.h>
 
+/*
+ * Finds in a string the first occurrence of a byte not in a set
+ */
 size_t strspn(const char * s, const char * accept)
 {
 	const char * p;

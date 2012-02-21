@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <string.h>
 
+/*
+ * Extract token from string
+ */
 char * strsep(char ** s, const char * ct)
 {
 	char * sbegin = *s;

@@ -18,4 +18,7 @@ static int __strncmp(const char * s1, const char * s2, size_t n)
 	return __res;
 }
 
-int strncmp(const char * s1, const char * s2, size_t n) __attribute__ ((weak, alias ("__strncmp")));
+/*
+ * Compares a specific number of bytes in two strings
+ */
+extern __typeof(__strncmp) strncmp __attribute__((weak, alias("__strncmp")));

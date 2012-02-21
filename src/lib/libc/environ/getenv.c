@@ -1,9 +1,9 @@
 /*
- * libc/stdlib/getenv.c
+ * libc/environ/getenv.c
  */
 
 #include <runtime.h>
-#include <stdlib.h>
+#include <environ.h>
 
 char * getenv(const char * name)
 {

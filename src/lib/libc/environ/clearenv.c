@@ -1,9 +1,9 @@
 /*
- * libc/stdlib/clearenv.c
+ * libc/environ/clearenv.c
  */
 
 #include <runtime.h>
-#include <stdlib.h>
+#include <environ.h>
 
 int clearenv(void)
 {

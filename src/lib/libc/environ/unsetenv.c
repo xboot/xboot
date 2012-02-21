@@ -1,12 +1,12 @@
 /*
- * libc/stdlib/unsetenv.c
+ * libc/environ/unsetenv.c
  */
 
 #include <errno.h>
 #include <string.h>
 #include <malloc.h>
 #include <runtime.h>
-#include <stdlib.h>
+#include <environ.h>
 
 int unsetenv(const char * name)
 {

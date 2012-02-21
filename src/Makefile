@@ -79,6 +79,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib								\
 				lib/libc						\
 				lib/libc/ctype					\
+				lib/libc/environ				\
 				lib/libc/errno					\
 				lib/libc/stdio					\
 				lib/libc/stdlib					\

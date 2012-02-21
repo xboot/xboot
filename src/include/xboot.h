@@ -13,6 +13,7 @@
 #include <setjmp.h>
 #include <ctype.h>
 #include <errno.h>
+#include <environ.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

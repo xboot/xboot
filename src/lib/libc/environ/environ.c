@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/environ.c
+ * libc/environ/environ.c
  */
 
 #include <types.h>
@@ -8,7 +8,7 @@
 #include <xml.h>
 #include <fs/fileio.h>
 #include <runtime.h>
-#include <stdlib.h>
+#include <environ.h>
 
 bool_t loadenv(char * file)
 {

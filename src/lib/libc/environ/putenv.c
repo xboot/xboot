@@ -1,11 +1,11 @@
 /*
- * libc/stdlib/putenv.c
+ * libc/environ/putenv.c
  */
 
 #include <string.h>
 #include <malloc.h>
 #include <runtime.h>
-#include <stdlib.h>
+#include <environ.h>
 
 int __put_env(char * str, size_t len, int overwrite)
 {

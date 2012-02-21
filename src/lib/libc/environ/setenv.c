@@ -1,10 +1,10 @@
 /*
- * libc/stdlib/setenv.c
+ * libc/environ/setenv.c
  */
 
 #include <string.h>
 #include <malloc.h>
-#include <stdlib.h>
+#include <environ.h>
 
 extern int __put_env(char * str, size_t len, int overwrite);
 

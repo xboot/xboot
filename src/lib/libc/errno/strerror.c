@@ -3,7 +3,6 @@
  */
 
 #include <errno.h>
-#include <string.h>
 
 char * strerror(int num)
 {

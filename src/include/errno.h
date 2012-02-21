@@ -47,4 +47,9 @@ extern volatile int * __errno_location(void);
  */
 #define errno 		(*__errno_location())
 
+/*
+ * Returns a string containing a message derived from an error code
+ */
+char * strerror(int num);
+
 #endif /* __ERRNO_H__ */

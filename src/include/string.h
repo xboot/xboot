@@ -34,8 +34,6 @@ char * strsep(char ** s, const char * ct);
 char * strstr(const char * s1, const char * s2);
 char * strnstr(const char * s1, const char * s2, size_t n);
 
-char * strerror(int num);
-
 void * memscan(void * addr, int c, size_t size);
 void * memchr(const void * s, int c, size_t n);
 void * memcpy(void * dest, const void * src, size_t len);

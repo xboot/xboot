@@ -4,6 +4,9 @@
 
 #include <errno.h>
 
+/*
+ * Returns a string containing a message derived from an error code
+ */
 char * strerror(int num)
 {
 	char * p;

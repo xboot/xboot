@@ -4,6 +4,9 @@
 
 #include <ctype.h>
 
+/*
+ * Converts a byte to upper case
+ */
 int toupper(int c)
 {
 	if(islower(c))

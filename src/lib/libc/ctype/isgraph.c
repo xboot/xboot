@@ -5,7 +5,7 @@
 #include <ctype.h>
 
 /*
- * checks if a byte is a graphical byte
+ * Checks if a byte is a graphical byte
  */
 int isgraph(int c)
 {

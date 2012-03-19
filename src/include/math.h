@@ -1,7 +1,8 @@
 #ifndef __MATH_H__
 #define __MATH_H__
 
-#include <xboot.h>
+#include <types.h>
+#include <endian.h>
 
 #if (__BYTE_ORDER == __BIG_ENDIAN)
 typedef union {

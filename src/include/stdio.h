@@ -113,103 +113,16 @@ ssize_t __file_write(FILE * f, const unsigned char * buf, size_t size);
 fpos_t __file_seek(FILE * f, fpos_t off, int whence);
 int __file_close(FILE * f);
 
+ssize_t __tty_read(FILE * f, unsigned char * buf, size_t size);
+ssize_t __tty_write(FILE * f, const unsigned char * buf, size_t size);
+fpos_t __tty_seek(FILE * f, fpos_t off, int whence);
+int __tty_close(FILE * f);
+
 int __stdio_no_flush(FILE * f);
 int	__stdio_read_flush(FILE * f);
 int __stdio_write_flush(FILE * f);
 
 ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size);
 ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size);
-
-#if 0
-#ifndef UNGET
-#define UNGET	(8)
-#endif
-
-enum {
-	F_PERM 		= 0x0001,
-	F_NORD 		= 0x0004,
-	F_NOWR 		= 0x0008,
-	F_EOF 		= 0x0010,
-	F_ERR 		= 0x0020,
-	F_SVB 		= 0x0040,
-};
-
-/*
- * stdio state variables.
- */
-typedef struct __FILE FILE;
-struct __FILE {
-	unsigned flags;
-	unsigned char * rpos, * rend;
-	int (*close)(FILE *);
-	unsigned char * wend, * wpos;
-	unsigned char * mustbezero_1;
-	unsigned char * wbase;
-	size_t (*read)(FILE *, unsigned char *, size_t);
-	size_t (*write)(FILE *, const unsigned char *, size_t);
-	off_t (*seek)(FILE *, off_t, int);
-	unsigned char * buf;
-	size_t buf_size;
-	FILE * prev, * next;
-	int fd;
-	int pipe_pid;
-	long lockcount;
-	short dummy3;
-	signed char mode;
-	signed char lbf;
-	int lock;
-	int waiters;
-	void * cookie;
-	off_t off;
-	int (*flush)(FILE *);
-	void * mustbezero_2;
-};
-
-#define FLOCK(f)		int __need_unlock = ((f)->lock >= 0 ? __lockfile((f)) : 0)
-#define FUNLOCK(f)		if (__need_unlock) __unlockfile((f)); else
-
-#define OFLLOCK()		do{ } while(0)
-#define OFLUNLOCK() 	do{ } while(0)
-
-#define getc_unlocked(f) \
-	( ((f)->rpos < (f)->rend) ? *(f)->rpos++ : __underflow((f)) )
-
-#define putc_unlocked(c, f)	\
-	( ((c)!=(f)->lbf && (f)->wpos<(f)->wend) ? *(f)->wpos++ = (c) : __overflow((f),(c)) )
-
-#define stdin			(__get_runtime()->__stdin)
-#define stdout			(__get_runtime()->__stdout)
-#define stderr			(__get_runtime()->__stderr)
-
-#define putc(ch, fp)	fputc(ch, fp)
-#define getc(fp)		fgetc(fp)
-
-
-
-
-/*
- * Inner function
- */
-int __lockfile(FILE * f);
-void __unlockfile(FILE * f);
-
-size_t __stdio_read(FILE * f, unsigned char * buf, size_t len);
-size_t __stdio_write(FILE * f, const unsigned char * buf, size_t len);
-off_t __stdio_seek(FILE * f, off_t off, int whence);
-int __stdio_close(FILE * f);
-
-int __toread(FILE * f);
-int __towrite(FILE * f);
-
-int __overflow(FILE * f, int _c);
-int __underflow(FILE * f);
-
-int __fseeko(FILE * f, off_t off, int whence);
-int __fseeko_unlocked(FILE * f, off_t off, int whence);
-off_t __ftello(FILE * f);
-off_t __ftello_unlocked(FILE * f);
-
-FILE * __fdopen(int fd, const char * mode);
-#endif
 
 #endif /* __STDIO_H__ */

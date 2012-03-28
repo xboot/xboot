@@ -3,6 +3,7 @@
 
 #include <types.h>
 #include <ctype.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -17,10 +18,6 @@
 #define BUFSIZ	(4096)
 #endif
 
-#ifndef UNGET
-#define UNGET	(8)
-#endif
-
 enum {
 	_IONBF		= 0,
 	_IOLBF		= 1,
@@ -33,6 +30,96 @@ enum {
 	SEEK_END	= 2,		/* set file offset to EOF plus offset */
 };
 
+/*
+ * Stdio file position type
+ */
+typedef loff_t fpos_t;
+
+/*
+ * stdio state variables.
+ */
+typedef struct __FILE FILE;
+struct __FILE {
+	void * handle;
+
+	int fd;
+
+	size_t (*read)(FILE *, unsigned char *, size_t);
+	size_t (*write)(FILE *, const unsigned char *, size_t);
+	fpos_t (*seek)(FILE *, fpos_t, int);
+	int (*close)(FILE *);
+
+	int (*rwflush)(FILE *);
+
+//	stream_fifo_root_t fifo_read;
+//	stream_fifo_root_t fifo_write;
+
+	fpos_t pos;
+	int mode;
+	int eof, error;
+};
+
+#define stdin			(__get_runtime()->__stdin)
+#define stdout			(__get_runtime()->__stdout)
+#define stderr			(__get_runtime()->__stderr)
+
+#define putc(ch, fp)	fputc(ch, fp)
+#define getc(fp)		fgetc(fp)
+
+FILE * fopen(const char * filename, const char * mode);
+FILE * freopen(const char * filename, const char * mode, FILE * f);
+int fclose(FILE * f);
+
+int feof(FILE * f);
+int ferror(FILE * f);
+int fflush(FILE * f);
+void clearerr(FILE * f);
+
+int fseek(FILE * f, fpos_t off, int whence);
+fpos_t ftell(FILE * f);
+void rewind(FILE * f);
+
+int fgetpos(FILE * f, fpos_t * pos);
+int fsetpos(FILE * f, const fpos_t * pos);
+
+size_t fread(void * buf, size_t size, size_t count, FILE * f);
+size_t fwrite(const void * buf, size_t size, size_t count, FILE * f);
+
+int fgetc(FILE * f);
+char * fgets(char * s, int n, FILE * f);
+int fputc(int c, FILE * f);
+int fputs(const char * s, FILE * f);
+int ungetc(int c, FILE * f);
+
+int setvbuf(FILE * f, char * buf, int mode, size_t size);
+void setbuf(FILE * f, char * buf);
+
+FILE * tmpfile(void);
+
+int fprintf(FILE * f, const char * fmt, ...);
+int fscanf(FILE * f, const char * fmt, ...);
+
+int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
+int vsscanf(const char * buf, const char * fmt, va_list ap);
+int sprintf(char * buf, const char * fmt, ...);
+int snprintf(char * buf, size_t n, const char * fmt, ...);
+int sscanf(const char * buf, const char * fmt, ...);
+
+/*
+ * Inner function
+ */
+int __stdio_no_flush(FILE * f);
+int	__stdio_read_flush(FILE * f);
+int __stdio_write_flush(FILE * f);
+
+int __stdio_read(FILE * f, unsigned char * buf, size_t len);
+int __stdio_write(FILE * f, const unsigned char * buf, size_t len);
+
+#if 0
+#ifndef UNGET
+#define UNGET	(8)
+#endif
+
 enum {
 	F_PERM 		= 0x0001,
 	F_NORD 		= 0x0004,
@@ -41,11 +128,6 @@ enum {
 	F_ERR 		= 0x0020,
 	F_SVB 		= 0x0040,
 };
-
-/*
- * Stdio file position type
- */
-typedef loff_t fpos_t;
 
 /*
  * stdio state variables.
@@ -98,44 +180,7 @@ struct __FILE {
 #define getc(fp)		fgetc(fp)
 
 
-FILE * fopen(const char * filename, const char * mode);
-FILE * freopen(const char * filename, const char * mode, FILE * f);
-int fclose(FILE * f);
 
-int feof(FILE * f);
-int ferror(FILE * f);
-int fflush(FILE * f);
-void clearerr(FILE * f);
-
-int fseek(FILE * f, long off, int whence);
-long ftell(FILE * f);
-void rewind(FILE * f);
-
-int fgetpos(FILE * f, fpos_t * pos);
-int fsetpos(FILE * f, const fpos_t * pos);
-
-size_t fread(void * destv, size_t size, size_t nmemb, FILE * f);
-size_t fwrite(const void * src, size_t size, size_t nmemb, FILE * f);
-
-int fgetc(FILE * f);
-char * fgets(char * s, int n, FILE * f);
-int fputc(int c, FILE * f);
-int fputs(const char * s, FILE * f);
-int ungetc(int c, FILE * f);
-
-int setvbuf(FILE * f, char * buf, int type, size_t size);
-void setbuf(FILE * f, char * buf);
-
-FILE * tmpfile(void);
-
-int fprintf(FILE * f, const char * fmt, ...);
-int fscanf(FILE * f, const char * fmt, ...);
-
-int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
-int vsscanf(const char * buf, const char * fmt, va_list ap);
-int sprintf(char * buf, const char * fmt, ...);
-int snprintf(char * buf, size_t n, const char * fmt, ...);
-int sscanf(const char * buf, const char * fmt, ...);
 
 /*
  * Inner function
@@ -160,5 +205,6 @@ off_t __ftello(FILE * f);
 off_t __ftello_unlocked(FILE * f);
 
 FILE * __fdopen(int fd, const char * mode);
+#endif
 
 #endif /* __STDIO_H__ */

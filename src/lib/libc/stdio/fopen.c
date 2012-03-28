@@ -7,6 +7,8 @@
 
 FILE * fopen(const char * filename, const char * mode)
 {
+	//TODO
+#if 0
 	FILE * f;
 	int fd;
 	int flags;
@@ -47,5 +49,6 @@ FILE * fopen(const char * filename, const char * mode)
 		return f;
 
 	close(fd);
+#endif
 	return 0;
 }

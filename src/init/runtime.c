@@ -53,7 +53,7 @@ struct runtime_t * runtime_alloc(void)
 	r->__seed[1] = 1;
 	r->__seed[2] = 1;
 
-	__stdio_init(r);
+//TODO	__stdio_init(r);
 
 	return r;
 }

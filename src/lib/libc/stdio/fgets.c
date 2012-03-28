@@ -4,55 +4,27 @@
 
 #include <stdio.h>
 
-#ifndef MIN
-#define MIN(a, b)	((a) < (b) ? (a) : (b))
-#endif
-
 char * fgets(char * s, int n, FILE * f)
 {
-	char *p = s;
-	unsigned char *z;
-	size_t k;
-	int c;
+	char * p = s;
+	char * ret = NULL;
+	ssize_t res = 0;
 
-	if(n-- <= 1)
+	while(n-- > 1)
 	{
-		if(n)
-			return 0;
-		*s = 0;
-		return s;
-	}
+		res = __stdio_read(f, (unsigned char *)p, 1);
 
-	FLOCK(f);
-	while(n)
-	{
-		z = memchr(f->rpos, '\n', f->rend - f->rpos);
-
-		k = z ? z - f->rpos + 1 : f->rend - f->rpos;
-		k = MIN(k, n);
-		memcpy(p, f->rpos, k);
-
-		f->rpos += k;
-		p += k;
-		n -= k;
-
-		if(z || !n)
+		if(res == 0)
 			break;
 
-		if((c = getc_unlocked(f)) < 0)
-		{
-			if(p==s || !feof(f))
-				s = 0;
-			break;
-		}
+		else if(res < 0)
+			return NULL;
 
-		n--;
-		if((*p++ = c) == '\n')
+		ret = s;
+		if(*p++ == '\n')
 			break;
 	}
 
 	*p = 0;
-	FUNLOCK(f);
-
-	return s;
+	return ret;
 }

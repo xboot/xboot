@@ -4,56 +4,16 @@
 
 #include <stdio.h>
 
-int __fseeko_unlocked(FILE * f, off_t off, int whence)
+int fseek(FILE * f, fpos_t off, int whence)
 {
-	/*
-	 * Adjust relative offset for unread data in buffer, if any.
-	 */
-	if (whence == SEEK_CUR)
-		off -= f->rend - f->rpos;
+	if(!f->seek)
+		return EOF;
 
-	/*
-	 * Flush write buffer, and report error on failure.
-	 */
-	if (f->wpos > f->wbase)
-	{
-		f->write(f, 0, 0);
-		if (!f->wpos)
-			return -1;
-	}
+	f->rwflush(f);
 
-	/*
-	 * Leave writing mode
-	 */
-	f->wpos = f->wbase = f->wend = 0;
-
-	/*
-	 * Perform the underlying seek.
-	 */
-	if (f->seek(f, off, whence) < 0)
-		return -1;
-
-	/*
-	 * If seek succeeded, file is seekable and we discard read buffer.
-	 */
-	f->rpos = f->rend = 0;
-	f->flags &= ~F_EOF;
-
-	return 0;
-}
-
-int __fseeko(FILE * f, off_t off, int whence)
-{
-	int result;
-
-	FLOCK(f);
-	result = __fseeko_unlocked(f, off, whence);
-	FUNLOCK(f);
-
-	return result;
-}
-
-int fseek(FILE * f, long off, int whence)
-{
-	return __fseeko(f, off, whence);
+	f->pos = f->seek(f->handle, off, whence);
+	if(f->pos >= 0)
+		return 0;
+	else
+		return EOF;
 }

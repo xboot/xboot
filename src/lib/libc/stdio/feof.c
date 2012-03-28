@@ -6,5 +6,5 @@
 
 int feof(FILE * f)
 {
-	return !!(f->flags & F_EOF);
+	return f->eof;
 }

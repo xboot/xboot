@@ -6,11 +6,10 @@
 
 int fputc(int c, FILE * f)
 {
-	if((f->lock < 0) || (!__lockfile(f)))
-		return putc_unlocked(c, f);
+	unsigned char ch = c & 0xff;
 
-	c = putc_unlocked(c, f);
-	__unlockfile(f);
+	if(__stdio_write(f, &ch, 1))
+		return EOF;
 
-	return c;
+	return (ch);
 }

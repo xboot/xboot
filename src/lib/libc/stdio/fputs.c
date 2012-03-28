@@ -6,11 +6,6 @@
 
 int fputs(const char * s, FILE * f)
 {
-	size_t l = strlen(s);
-
-	if(!l)
-		return 0;
-
-	return (int)fwrite(s, l, 1, f) - 1;
+	return (__stdio_write(f, (unsigned char *)s, strlen(s)) ? EOF : 0);
 }
 

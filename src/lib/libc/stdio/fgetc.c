@@ -6,13 +6,7 @@
 
 int fgetc(FILE * f)
 {
-	int c;
+	unsigned char res;
 
-	if((f->lock < 0) || (!__lockfile(f)))
-		return getc_unlocked(f);
-
-	c = getc_unlocked(f);
-	__unlockfile(f);
-
-	return c;
+	return ((__stdio_read(f, &res, 1) <= 0) ? EOF : res);
 }

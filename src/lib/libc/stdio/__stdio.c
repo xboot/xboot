@@ -6,6 +6,63 @@
 #include <runtime.h>
 #include <stdio.h>
 
+int __stdio_no_flush(FILE * f)
+{
+	return 0;
+}
+
+int	__stdio_read_flush(FILE * f)
+{
+  return 0;
+}
+
+int __stdio_write_flush(FILE * f)
+{
+	return 0;
+}
+
+static int unbuffered_read(size_t size, FILE * f, unsigned char * ptr)
+{
+    ssize_t res;
+
+    while (size)
+    {
+        res = f->read(f->handle, ptr, size);
+
+        if (res <= 0)
+        {
+            if (res == 0)
+                f->eof = 1;
+            else
+                f->error = 1;
+
+            return res;
+        }
+
+        f->pos += res;
+        size -= res;
+        ptr += res;
+    }
+
+    return 1;
+}
+
+static int unbuffered_write(size_t size, FILE * f, const unsigned char * ptr)
+{
+	return 0;
+}
+
+int __stdio_read(FILE * f, unsigned char * buf, size_t len)
+{
+    return 0;
+}
+
+int __stdio_write(FILE * f, const unsigned char * buf, size_t len)
+{
+	return 0;
+}
+
+#if 0
 size_t __stdio_read(FILE * f, unsigned char * buf, size_t len)
 {
 	struct iovec iov[2] = {
@@ -184,3 +241,4 @@ int __stdio_exit(struct runtime_t * r)
 
 	return 0;
 }
+#endif

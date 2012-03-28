@@ -6,7 +6,6 @@
 
 void clearerr(FILE * f)
 {
-	FLOCK(f);
-	f->flags &= ~(F_EOF | F_ERR);
-	FUNLOCK(f);
+	f->error = 0;
+	f->eof = 0;
 }

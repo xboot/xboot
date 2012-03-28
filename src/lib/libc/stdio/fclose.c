@@ -7,30 +7,20 @@
 
 int fclose(FILE * f)
 {
-	int r;
-	int perm = f->flags & F_PERM;
+	int err;
 
-	if(!perm)
-	{
-		OFLLOCK();
+	if(!f)
+		return EINVAL;
 
-		if(f->prev)
-			f->prev->next = f->next;
+	if(!f->close)
+		return EINVAL;
 
-		if(f->next)
-			f->next->prev = f->prev;
+	if((err = f->rwflush(f)))
+		return err;
 
-		if(__get_runtime()->ofl_head == f)
-			__get_runtime()->ofl_head = f->next;
+	if((err = f->close(f->handle)))
+		return err;
 
-		OFLUNLOCK();
-	}
-
-	r = fflush(f);
-	r |= f->close(f);
-
-	if(!perm)
-		free(f);
-
-	return r;
+	free(f);
+	return err;
 }

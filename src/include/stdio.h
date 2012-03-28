@@ -4,6 +4,7 @@
 #include <types.h>
 #include <ctype.h>
 #include <errno.h>
+#include <fifo.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -40,19 +41,18 @@ typedef loff_t fpos_t;
  */
 typedef struct __FILE FILE;
 struct __FILE {
-	void * handle;
-
+	//void * handle;
 	int fd;
 
-	size_t (*read)(FILE *, unsigned char *, size_t);
-	size_t (*write)(FILE *, const unsigned char *, size_t);
+	ssize_t (*read)(FILE *, unsigned char *, size_t);
+	ssize_t (*write)(FILE *, const unsigned char *, size_t);
 	fpos_t (*seek)(FILE *, fpos_t, int);
 	int (*close)(FILE *);
 
 	int (*rwflush)(FILE *);
 
-//	stream_fifo_root_t fifo_read;
-//	stream_fifo_root_t fifo_write;
+	struct fifo * fifo_read;
+	struct fifo * fifo_write;
 
 	fpos_t pos;
 	int mode;
@@ -108,12 +108,17 @@ int sscanf(const char * buf, const char * fmt, ...);
 /*
  * Inner function
  */
+ssize_t __file_read(FILE * f, unsigned char * buf, size_t size);
+ssize_t __file_write(FILE * f, const unsigned char * buf, size_t size);
+fpos_t __file_seek(FILE * f, fpos_t off, int whence);
+int __file_close(FILE * f);
+
 int __stdio_no_flush(FILE * f);
 int	__stdio_read_flush(FILE * f);
 int __stdio_write_flush(FILE * f);
 
-int __stdio_read(FILE * f, unsigned char * buf, size_t len);
-int __stdio_write(FILE * f, const unsigned char * buf, size_t len);
+ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size);
+ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size);
 
 #if 0
 #ifndef UNGET

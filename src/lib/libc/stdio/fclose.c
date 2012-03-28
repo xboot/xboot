@@ -18,9 +18,12 @@ int fclose(FILE * f)
 	if((err = f->rwflush(f)))
 		return err;
 
-	if((err = f->close(f->handle)))
+	if((err = f->close(f)))
 		return err;
 
+	fifo_free(f->fifo_read);
+	fifo_free(f->fifo_write);
 	free(f);
+
 	return err;
 }

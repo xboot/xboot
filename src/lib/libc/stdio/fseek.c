@@ -11,7 +11,7 @@ int fseek(FILE * f, fpos_t off, int whence)
 
 	f->rwflush(f);
 
-	f->pos = f->seek(f->handle, off, whence);
+	f->pos = f->seek(f, off, whence);
 	if(f->pos >= 0)
 		return 0;
 	else

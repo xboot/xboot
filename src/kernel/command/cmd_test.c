@@ -46,6 +46,16 @@
 
 static int test(int argc, char ** argv)
 {
+    FILE *file = fopen("/toto.txt", "w+a");
+
+    if ( file == NULL ) {
+        printk("File open failed for writing\n");
+        return 1;
+    }
+
+    fprintf(file, "Test of fprintf: %d\n", 42);
+    fclose(file);
+
 	return 0;
 }
 

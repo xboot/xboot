@@ -2,7 +2,6 @@
  * libc/stdio/__stdio.c
  */
 
-#include <fs/fileio.h>
 #include <runtime.h>
 #include <stdio.h>
 
@@ -13,232 +12,316 @@ int __stdio_no_flush(FILE * f)
 
 int	__stdio_read_flush(FILE * f)
 {
-  return 0;
+	/*
+	 * seek fd to real pos and flush prefetched data in read buffer
+	 */
+	f->seek(f, f->pos, SEEK_SET);
+	fifo_reset(f->fifo_read);
+
+	/*
+	 * read buffer is empty here
+	 */
+	f->rwflush = &__stdio_no_flush;
+
+	return 0;
 }
 
 int __stdio_write_flush(FILE * f)
 {
+	unsigned char *p, *q;
+	size_t size;
+	ssize_t ret;
+
+	p = q = malloc(f->fifo_write->size);
+	if(!q)
+		return ENOMEM;
+
+	size = fifo_get(f->fifo_write, q, f->fifo_write->size);
+
+	/*
+	 * write remaining data present in buffer
+	 */
+	while(size > 0)
+	{
+		ret = f->write(f, p, size);
+
+		if(ret <= 0)
+		{
+			f->error = 1;
+			fifo_put(f->fifo_write, p, size);
+
+			free(q);
+			return -1;
+		}
+
+		size -= ret;
+		p += ret;
+	};
+
+	/*
+	 * write buffer is empty here
+	 */
+	f->rwflush = &__stdio_no_flush;
+
+	free(q);
 	return 0;
 }
 
-static int unbuffered_read(size_t size, FILE * f, unsigned char * ptr)
+static ssize_t unbuffered_read(FILE * f, unsigned char * buf, size_t size)
 {
-    ssize_t res;
+	ssize_t cnt = 0;
+    ssize_t ret;
 
-    while (size)
+    while(size > 0)
     {
-        res = f->read(f->handle, ptr, size);
+        ret = f->read(f, buf, size);
 
-        if (res <= 0)
+        if(ret <= 0)
         {
-            if (res == 0)
+            if(ret == 0)
                 f->eof = 1;
             else
-                f->error = 1;
+            	f->error = 1;
 
-            return res;
+            return ret;
         }
 
-        f->pos += res;
-        size -= res;
-        ptr += res;
+        f->pos += ret;
+        size -= ret;
+        buf += ret;
+        cnt += ret;
     }
 
-    return 1;
+    return cnt;
 }
 
-static int unbuffered_write(size_t size, FILE * f, const unsigned char * ptr)
+static ssize_t unbuffered_write(FILE * f, const unsigned char * buf, size_t size)
 {
-	return 0;
+	ssize_t cnt = 0;
+	ssize_t ret;
+
+	while(size > 0)
+	{
+		ret = f->write(f, buf, size);
+
+		if(ret <= 0)
+		{
+			f->error = 1;
+			return ret;
+		}
+
+		f->pos += ret;
+		size -= ret;
+		buf += ret;
+		cnt += ret;
+	}
+
+	return cnt;
 }
 
-int __stdio_read(FILE * f, unsigned char * buf, size_t len)
+ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 {
-    return 0;
-}
+    if(!f->read)
+		return EINVAL;
 
-int __stdio_write(FILE * f, const unsigned char * buf, size_t len)
-{
-	return 0;
-}
+	switch(f->mode)
+	{
+	case _IONBF:
+	case _IOLBF:
+		/*
+		 * line buffered for LBF is non-sense so let's assume it's unbuffered
+		 */
+		return unbuffered_read(f, buf, size);
 
+	case _IOFBF:
+	{
 #if 0
-size_t __stdio_read(FILE * f, unsigned char * buf, size_t len)
-{
-	struct iovec iov[2] = {
+		unsigned char local[CONFIG_LIBC_STREAM_BUFFER_SIZE];
+		ssize_t ret, local_size;
+
+		/*
+		 * get data from buffer
+		 */
+		ret = fifo_get(f->fifo_read, buf, size);
+		size -= ret;
+		buf += ret;
+		f->pos += ret;
+
+		if(size)
 		{
-			.iov_base = buf,
-			.iov_len = len - !!f->buf_size
-		}, {
-			.iov_base = f->buf,
-			.iov_len = f->buf_size
-		}
-	};
-	ssize_t cnt;
+			/*
+			 * read buffer is empty here
+			 */
+			f->rwflush = &__stdio_no_flush;
 
-	cnt = readv(f->fd, iov, 2);
-	if(cnt <= 0)
-	{
-		f->flags |= F_EOF ^ ((F_ERR ^ F_EOF) & cnt);
-		f->rpos = f->rend = 0;
-		return cnt;
-	}
+			/*
+			 * read more data directly from fd
+			 */
+			while(size > CONFIG_LIBC_STREAM_BUFFER_SIZE)
+			{
+				size_t s = (size / CONFIG_LIBC_STREAM_BUFFER_SIZE)
+						* CONFIG_LIBC_STREAM_BUFFER_SIZE;
+				ret = f->read(f, buf, s);
 
-	if (cnt <= iov[0].iov_len)
-		return cnt;
+				if(ret <= 0)
+				{
+					if(ret == 0)
+						f->eof = 1;
+					else
+						f->error = 1;
 
-	cnt -= iov[0].iov_len;
-	f->rpos = f->buf;
-	f->rend = f->buf + cnt;
+					return ret;
+				}
 
-	if (f->buf_size)
-		buf[len - 1] = *f->rpos++;
-
-	return len;
-}
-
-size_t __stdio_write(FILE * f, const unsigned char * buf, size_t len)
-{
-	struct iovec iovs[2] = {
-		{
-			.iov_base = f->wbase,
-			.iov_len = f->wpos - f->wbase
-		}, {
-			.iov_base = (void *)buf,
-			.iov_len = len
-		}
-	};
-	struct iovec * iov = iovs;
-	int iovcnt = 2;
-	size_t rem = iov[0].iov_len + iov[1].iov_len;
-	ssize_t cnt;
-
-	f->wpos = f->wbase;
-	for(;;)
-	{
-		cnt = writev(f->fd, iov, iovcnt);
-
-		if(cnt == rem)
-			return len;
-
-		if(cnt < 0)
-		{
-			f->wpos = f->wbase = f->wend = 0;
-			f->flags |= F_ERR;
-
-			return iovcnt == 2 ? 0 : len - iov[0].iov_len;
+				f->eof = 0;
+				size -= ret;
+				buf += ret;
+				f->pos += ret;
+			}
 		}
 
-		rem -= cnt;
-		if(cnt > iov[0].iov_len)
+		/*
+		 * read remaining data in local buffer
+		 */
+		for(local_size = 0; local_size < size; local_size += ret)
 		{
-			cnt -= iov[0].iov_len;
-			iov++;
-			iovcnt--;
+			ret = f->read(f, local + local_size,
+					CONFIG_LIBC_STREAM_BUFFER_SIZE - local_size);
+
+			if(ret < 0)
+			{
+				f->error = 1;
+				return ret;
+			}
+			if(ret == 0)
+				break;
 		}
 
-		iov[0].iov_base = (char *)iov[0].iov_base + cnt;
-		iov[0].iov_len -= cnt;
-	}
+		memcpy(buf, local, size);
+		f->pos += size;
 
-	return 0;
-}
+		if(local_size >= size)
+		{
+			if(local_size > size)
+			{
+				/*
+				 * if more data than needed, put in read buffer
+				 */
+				fifo_put(f->fifo_read, local + size, local_size - size);
+				f->rwflush = &__stdio_read_flush;
+			}
 
-off_t __stdio_seek(FILE * f, off_t off, int whence)
-{
-	off_t ret;
-
-	ret = lseek(f->fd, off, whence);
-	return ret;
-}
-
-int __stdio_close(FILE * f)
-{
-	return close(f->fd);
-}
-
-int __stdio_init(struct runtime_t * r)
-{
-	FILE * f;
-
-	if(!r)
-		return -1;
-
-	/*
-	 * stdin
-	 */
-	f = malloc(sizeof(FILE) + UNGET + BUFSIZ);
-	if(!f)
-		return -1;
-	memset(f, 0, sizeof(FILE) + UNGET + BUFSIZ);
-
-	f->fd = 0;
-	f->buf = (unsigned char *)f + sizeof(FILE) + UNGET;
-	f->buf_size = BUFSIZ;
-	f->flags = F_PERM | F_NOWR;
-	f->lock = -1;
-	f->read = __stdio_read;
-	f->write = NULL;
-	f->seek = __stdio_seek;
-	f->close = __stdio_close;
-
-	r->__stdin = f;
-
-	/*
-	 * stdout
-	 */
-	f = malloc(sizeof(FILE) + UNGET + BUFSIZ);
-	if(!f)
-		return -1;
-	memset(f, 0, sizeof(FILE) + UNGET + BUFSIZ);
-
-	f->fd = 1;
-	f->buf = (unsigned char *)f + sizeof(FILE) + UNGET;
-	f->buf_size = BUFSIZ;
-	f->flags = F_PERM | F_NORD;
-	f->lbf = '\n';
-	f->lock = -1;
-	f->read = NULL;
-	f->write = __stdio_write;
-	f->seek = __stdio_seek;
-	f->close = __stdio_close;
-
-	r->__stdout = f;
-
-	/*
-	 * stderr
-	 */
-	f = malloc(sizeof(FILE) + UNGET);
-	if(!f)
-		return -1;
-	memset(f, 0, sizeof(FILE) + UNGET);
-
-	f->fd = 2;
-	f->buf = (unsigned char *)f + sizeof(FILE) + UNGET;
-	f->buf_size = 0;
-	f->flags = F_PERM | F_NORD;
-	f->lbf = -1;
-	f->lock = -1;
-	f->read = NULL;
-	f->write = __stdio_write;
-	f->seek = __stdio_seek;
-	f->close = __stdio_close;
-
-	r->__stderr = f;
-
-	/*
-	 * Open file list head
-	 */
-	r->ofl_head = NULL;
-
-	return 0;
-}
-
-int __stdio_exit(struct runtime_t * r)
-{
-	if(!r)
-		return -1;
-
-	return 0;
-}
+			return 1;
+		}
+		else
+		{
+			/*
+			 * not enough data have been read
+			 */
+			f->eof = 1;
+		}
 #endif
+	break;
+	}
+
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
+{
+	ssize_t i;
+	ssize_t ret;
+
+	if (!f->write)
+		return EINVAL;
+
+	switch (f->mode)
+	{
+	case _IONBF:
+		return unbuffered_write(f, buf, size);
+
+	case _IOLBF:
+	{
+		/*
+		 * write all ended lines if any
+		 */
+		for(i = size; i > 0; i--)
+		{
+			if(buf[i - 1] == '\n')
+			{
+				if(__stdio_write_flush(f) != 0)
+					return -1;
+
+				ret = unbuffered_write(f, buf, i);
+				if(ret <= 0)
+					return ret;
+
+				buf += i;
+				size -= i;
+				break;
+			}
+		}
+
+		break;
+	}
+
+	/*
+	 * remaining data without end of line will be treated as block
+	 */
+	case _IOFBF:
+#if 0
+		/* check if all data can be put in buffer */
+		if (stream_fifo_count(&f->fifo_write) + size
+				> CONFIG_LIBC_STREAM_BUFFER_SIZE) {
+			ssize_t ret;
+
+			/* write all data present in buffer */
+			if ((ret = __stdio_write_flush(f)))
+				return ret;
+
+			/* write data directly to device if greater than buffer */
+			while (size > CONFIG_LIBC_STREAM_BUFFER_SIZE) {
+				ret = f->ops->write(f->hndl, buf, size);
+
+				if (ret < 0) {
+					f->error = 1;
+					return ret;
+				}
+
+				size -= ret;
+				buf += ret;
+				f->pos += ret;
+			}
+		}
+
+		/* fill buffer with remaining data */
+		void *tmp = (void*) buf;
+		stream_fifo_pushback_array(&f->fifo_write,
+				(stream_fifo_item_t*) tmp, size);
+		f->pos += size;
+		f->rwflush = &__stdio_write_flush;
+#endif
+		break;
+	}
+
+	return 0;
+}
+
+int __stdio_init(FILE * f)
+{
+	f->rwflush = &__stdio_no_flush;
+
+	f->fifo_read = fifo_alloc(BUFSIZ);
+	f->fifo_write = fifo_alloc(BUFSIZ);
+
+	f->pos = 0;
+	f->mode = _IONBF;
+	f->error = 0;
+	f->eof = 0;
+
+	return 0;
+}

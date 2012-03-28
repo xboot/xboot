@@ -1,7 +1,6 @@
 #ifndef __FIFO_H__
 #define __FIFO_H__
 
-#include <xboot.h>
 #include <types.h>
 
 struct fifo {

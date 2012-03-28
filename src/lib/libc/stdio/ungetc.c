@@ -6,6 +6,10 @@
 
 int ungetc(int c, FILE * f)
 {
-	//TODO
-	return 0;
+	unsigned char ch = c & 0xff;
+
+	if(fifo_put(f->fifo_read, &ch, 1) != 1)
+		return EOF;
+
+	return ch;
 }

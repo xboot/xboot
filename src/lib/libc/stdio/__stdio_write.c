@@ -2,6 +2,7 @@
  * libc/stdio/__stdio_write.c
  */
 
+#include <malloc.h>
 #include <stdio.h>
 
 static ssize_t __unbuffered_write(FILE * f, const unsigned char * buf, size_t size)
@@ -30,8 +31,10 @@ static ssize_t __unbuffered_write(FILE * f, const unsigned char * buf, size_t si
 
 ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
 {
+	size_t buffer_size;
 	ssize_t i;
 	ssize_t ret;
+	ssize_t cnt = 0;
 
 	if (!f->write)
 		return EINVAL;
@@ -50,8 +53,8 @@ ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
 		{
 			if(buf[i - 1] == '\n')
 			{
-				if(__stdio_write_flush(f) != 0)
-					return -1;
+				if((ret = __stdio_write_flush(f)))
+					return ret;
 
 				ret = __unbuffered_write(f, buf, i);
 				if(ret <= 0)
@@ -59,6 +62,7 @@ ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
 
 				buf += i;
 				size -= i;
+				cnt = i;
 				break;
 			}
 		}
@@ -70,40 +74,49 @@ ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
 	 * remaining data without end of line will be treated as block
 	 */
 	case _IOFBF:
-#if 0
-		/* check if all data can be put in buffer */
-		if (stream_fifo_count(&f->fifo_write) + size
-				> CONFIG_LIBC_STREAM_BUFFER_SIZE) {
-			ssize_t ret;
+		buffer_size = f->fifo_write->size;
 
-			/* write all data present in buffer */
-			if ((ret = __stdio_write_flush(f)))
+		/*
+		 * check if all data can be put in buffer
+		 */
+		if (fifo_len(f->fifo_write) + size > buffer_size)
+		{
+			/*
+			 * write all data present in buffer
+			 */
+			if((ret = __stdio_write_flush(f)))
 				return ret;
 
-			/* write data directly to device if greater than buffer */
-			while (size > CONFIG_LIBC_STREAM_BUFFER_SIZE) {
-				ret = f->ops->write(f->hndl, buf, size);
+			/*
+			 * write data directly to device if greater than buffer
+			 */
+			while(size > buffer_size)
+			{
+				ret = f->write(f, buf, size);
 
-				if (ret < 0) {
+				if(ret < 0)
+				{
 					f->error = 1;
 					return ret;
 				}
 
 				size -= ret;
 				buf += ret;
+				cnt += ret;
 				f->pos += ret;
 			}
 		}
 
-		/* fill buffer with remaining data */
-		void *tmp = (void*) buf;
-		stream_fifo_pushback_array(&f->fifo_write,
-				(stream_fifo_item_t*) tmp, size);
+		/*
+		 * fill buffer with remaining data
+		 */
+		fifo_put(f->fifo_write, (u8_t *)buf, size);
 		f->pos += size;
+		cnt += size;
+
 		f->rwflush = &__stdio_write_flush;
-#endif
 		break;
 	}
 
-	return 0;
+	return cnt;
 }

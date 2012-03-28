@@ -52,7 +52,7 @@ FILE * fopen(const char * path, const char * mode)
 	}
 
 	f->pos = lseek(f->fd, 0, VFS_SEEK_CUR);
-	f->mode = _IONBF;
+	//f->mode = _IONBF;
 
 	return f;
 }

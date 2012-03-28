@@ -2,6 +2,7 @@
  * libc/stdio/__stdio_read.c
  */
 
+#include <malloc.h>
 #include <stdio.h>
 
 static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)
@@ -34,6 +35,12 @@ static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)
 
 ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 {
+	ssize_t ret, local_size;
+	size_t buffer_size;
+	size_t s;
+	unsigned char * local;
+	ssize_t cnt = 0;
+
     if(!f->read)
 		return EINVAL;
 
@@ -48,9 +55,11 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 
 	case _IOFBF:
 	{
-#if 0
-		unsigned char local[CONFIG_LIBC_STREAM_BUFFER_SIZE];
-		ssize_t ret, local_size;
+		buffer_size = f->fifo_read->size;
+
+		local = malloc(buffer_size);
+		if(!local)
+			return ENOMEM;
 
 		/*
 		 * get data from buffer
@@ -58,6 +67,7 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 		ret = fifo_get(f->fifo_read, buf, size);
 		size -= ret;
 		buf += ret;
+        cnt += ret;
 		f->pos += ret;
 
 		if(size)
@@ -70,10 +80,9 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 			/*
 			 * read more data directly from fd
 			 */
-			while(size > CONFIG_LIBC_STREAM_BUFFER_SIZE)
+			while(size > buffer_size)
 			{
-				size_t s = (size / CONFIG_LIBC_STREAM_BUFFER_SIZE)
-						* CONFIG_LIBC_STREAM_BUFFER_SIZE;
+				s = (size / buffer_size) * buffer_size;
 				ret = f->read(f, buf, s);
 
 				if(ret <= 0)
@@ -83,12 +92,14 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 					else
 						f->error = 1;
 
+					free(local);
 					return ret;
 				}
 
 				f->eof = 0;
 				size -= ret;
 				buf += ret;
+				cnt += ret;
 				f->pos += ret;
 			}
 		}
@@ -98,20 +109,23 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 		 */
 		for(local_size = 0; local_size < size; local_size += ret)
 		{
-			ret = f->read(f, local + local_size,
-					CONFIG_LIBC_STREAM_BUFFER_SIZE - local_size);
+			ret = f->read(f, local + local_size, buffer_size - local_size);
 
 			if(ret < 0)
 			{
 				f->error = 1;
+
+				free(local);
 				return ret;
 			}
+
 			if(ret == 0)
 				break;
 		}
 
 		memcpy(buf, local, size);
 		f->pos += size;
+		cnt += size;
 
 		if(local_size >= size)
 		{
@@ -123,8 +137,6 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 				fifo_put(f->fifo_read, local + size, local_size - size);
 				f->rwflush = &__stdio_read_flush;
 			}
-
-			return 1;
 		}
 		else
 		{
@@ -133,13 +145,14 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 			 */
 			f->eof = 1;
 		}
-#endif
-	break;
+
+		free(local);
+		break;
 	}
 
 	default:
 		break;
 	}
 
-	return 0;
+	return cnt;
 }

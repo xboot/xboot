@@ -4,8 +4,7 @@
 
 #include <stdio.h>
 
-FILE * freopen(const char * filename, const char * mode, FILE * f)
+FILE * freopen(const char * path, const char * mode, FILE * f)
 {
-	//xxx freopen
 	return NULL;
 }

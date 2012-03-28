@@ -5,64 +5,54 @@
 #include <fs/fileio.h>
 #include <stdio.h>
 
-FILE * fopen(const char * filename, const char * mode)
+FILE * fopen(const char * path, const char * mode)
 {
 	FILE * f;
-	int flags;
-	int plus = !!strchr(mode, '+');
+	int flags = O_RDONLY;
+	int plus = 0;
+	int fd;
 
-	/*
-	 * Check for valid initial mode character
-	 */
-	if(!strchr("rwa", *mode))
+	if((path == NULL) || (*path == '\0'))
 	{
 		errno = EINVAL;
-		return 0;
+		return NULL;
 	}
 
-	/*
-	 * Allocate memory for hold FILE
-	 */
-	f = malloc(sizeof(FILE));
+	while(*mode)
+	{
+		switch(*mode++)
+		{
+		case 'r':
+			flags = O_RDONLY;
+			break;
+		case 'w':
+			flags = O_WRONLY | O_CREAT | O_TRUNC;
+			break;
+		case 'a':
+			flags = O_WRONLY | O_CREAT | O_APPEND;
+			break;
+		case '+':
+			plus = 1;
+			break;
+		}
+	}
+
+	if(plus)
+		flags = (flags & ~(O_RDONLY | O_WRONLY)) | O_RDWR;
+
+	fd = open(path, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(fd < 0)
+		return NULL;
+
+	f = __file_alloc(fd);
 	if(!f)
 	{
-		errno = ENOMEM;
-		return 0;
+		close(fd);
+		return NULL;
 	}
-
-	/*
-	 * Compute the flags to pass to open()
-	 */
-	if(plus)
-		flags = O_RDWR;
-	else if (*mode == 'r')
-		flags = O_RDONLY;
-	else
-		flags = O_WRONLY;
-
-	if(*mode != 'r')
-		flags |= O_CREAT;
-	if(*mode == 'w')
-		flags |= O_TRUNC;
-	if(*mode == 'a')
-		flags |= O_APPEND;
-
-	f->fd = open(filename, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-	if(f->fd < 0)
-	{
-		free(f);
-		return 0;
-	}
-
-	f->read = __file_read;
-	f->write = __file_write;
-	f->seek = __file_seek;
-	f->close = __file_close;
-
-	__stdio_init(f);
 
 	f->pos = lseek(f->fd, 0, VFS_SEEK_CUR);
-	//file->mode = _IOFBF;
+	f->mode = _IONBF;
 
 	return f;
 }

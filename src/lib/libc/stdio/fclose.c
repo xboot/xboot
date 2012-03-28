@@ -21,9 +21,14 @@ int fclose(FILE * f)
 	if((err = f->close(f)))
 		return err;
 
-	fifo_free(f->fifo_read);
-	fifo_free(f->fifo_write);
-	free(f);
+	if(f->fifo_read)
+		fifo_free(f->fifo_read);
+
+	if(f->fifo_write)
+		fifo_free(f->fifo_write);
+
+	if(f)
+		free(f);
 
 	return err;
 }

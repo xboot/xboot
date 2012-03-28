@@ -49,10 +49,10 @@ struct __FILE {
 	fpos_t (*seek)(FILE *, fpos_t, int);
 	int (*close)(FILE *);
 
-	int (*rwflush)(FILE *);
-
 	struct fifo * fifo_read;
 	struct fifo * fifo_write;
+
+	int (*rwflush)(FILE *);
 
 	fpos_t pos;
 	int mode;
@@ -66,8 +66,8 @@ struct __FILE {
 #define putc(ch, fp)	fputc(ch, fp)
 #define getc(fp)		fgetc(fp)
 
-FILE * fopen(const char * filename, const char * mode);
-FILE * freopen(const char * filename, const char * mode, FILE * f);
+FILE * fopen(const char * path, const char * mode);
+FILE * freopen(const char * path, const char * mode, FILE * f);
 int fclose(FILE * f);
 
 int feof(FILE * f);
@@ -124,5 +124,7 @@ int __stdio_write_flush(FILE * f);
 
 ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size);
 ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size);
+
+FILE * __file_alloc(int fd);
 
 #endif /* __STDIO_H__ */

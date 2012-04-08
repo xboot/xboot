@@ -8,26 +8,24 @@
 static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)
 {
 	ssize_t cnt = 0;
-    ssize_t ret;
+    ssize_t bytes;
 
     while(size > 0)
     {
-        ret = f->read(f, buf, size);
-
-        if(ret <= 0)
+        bytes = f->read(f, buf, size);
+        if(bytes <= 0)
         {
-            if(ret == 0)
+            if(bytes == 0)
                 f->eof = 1;
             else
             	f->error = 1;
-
-            return ret;
+            break;
         }
 
-        f->pos += ret;
-        size -= ret;
-        buf += ret;
-        cnt += ret;
+        f->pos += bytes;
+        size -= bytes;
+        buf += bytes;
+        cnt += bytes;
     }
 
     return cnt;
@@ -35,11 +33,12 @@ static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)
 
 ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 {
-	ssize_t ret, local_size;
+	ssize_t local_size;
 	size_t buffer_size;
 	size_t s;
 	unsigned char * local;
 	ssize_t cnt = 0;
+	ssize_t bytes;
 
     if(!f->read)
 		return EINVAL;
@@ -64,13 +63,13 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 		/*
 		 * get data from buffer
 		 */
-		ret = fifo_get(f->fifo_read, buf, size);
-		size -= ret;
-		buf += ret;
-        cnt += ret;
-		f->pos += ret;
+		bytes = fifo_get(f->fifo_read, buf, size);
+		size -= bytes;
+		buf += bytes;
+        cnt += bytes;
+		f->pos += bytes;
 
-		if(size)
+		if(size > 0)
 		{
 			/*
 			 * read buffer is empty here
@@ -83,44 +82,42 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 			while(size > buffer_size)
 			{
 				s = (size / buffer_size) * buffer_size;
-				ret = f->read(f, buf, s);
+				bytes = f->read(f, buf, s);
 
-				if(ret <= 0)
+				if(bytes <= 0)
 				{
-					if(ret == 0)
+					if(bytes == 0)
 						f->eof = 1;
 					else
 						f->error = 1;
 
 					free(local);
-					return ret;
+					return cnt;
 				}
 
 				f->eof = 0;
-				size -= ret;
-				buf += ret;
-				cnt += ret;
-				f->pos += ret;
+				size -= bytes;
+				buf += bytes;
+				cnt += bytes;
+				f->pos += bytes;
 			}
 		}
 
 		/*
 		 * read remaining data in local buffer
 		 */
-		for(local_size = 0; local_size < size; local_size += ret)
+		for(local_size = 0; local_size < size; local_size += bytes)
 		{
-			ret = f->read(f, local + local_size, buffer_size - local_size);
+			bytes = f->read(f, local + local_size, buffer_size - local_size);
 
-			if(ret < 0)
+			if(bytes <= 0)
 			{
-				f->error = 1;
-
-				free(local);
-				return ret;
-			}
-
-			if(ret == 0)
+				if(bytes == 0)
+					f->eof = 1;
+				else
+					f->error = 1;
 				break;
+			}
 		}
 
 		memcpy(buf, local, size);

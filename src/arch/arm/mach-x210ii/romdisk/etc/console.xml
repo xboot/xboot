@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<console>
+	<stdin	name="input"/>
+	<stdout	name="fb"/>
+	<stderr	name="fb"/>
+</console>

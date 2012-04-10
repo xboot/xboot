@@ -48,7 +48,7 @@
  * 0x8 - check sum
  * 0xc - reserved (should be 0)
  */
-	.word 0x4000
+	.word 0x2000
 	.word 0x0
 	.word 0x0
 	.word 0x0

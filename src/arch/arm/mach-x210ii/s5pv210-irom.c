@@ -38,6 +38,7 @@
 #include <types.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-nand.h>
+#include <s5pv210/reg-serial.h>
 #include <s5pv210/reg-others.h>
 
 extern u8_t	__text_start[];
@@ -132,129 +133,13 @@ static u32_t reg_read(u32_t addr)
 }
 
 /*
- * define for simple nand read function.
- */
-#define NAND_HW_INIT()																		\
-	do {																					\
-		reg_write(S5PV210_MP0_3CON, 0x22222222);											\
-		reg_write(S5PV210_MP0_6CON, 0x22222222);											\
-		reg_write(S5PV210_NFCONF, (reg_read(S5PV210_NFCONF) & ~(0x0000fff0)) | 0x00007770);	\
-		reg_write(S5PV210_NFCONT, (reg_read(S5PV210_NFCONT) & ~(0x00000003)) | 0x00000003);	\
-	} while(0)
-
-#define NAND_CONTROL_ENABLE()												\
-	reg_write(S5PV210_NFCONT, reg_read(S5PV210_NFCONT) | (1 << 0))
-
-#define NAND_CONTROL_DISABLE()												\
-	reg_write(S5PV210_NFCONT, reg_read(S5PV210_NFCONT) & ~(1 << 0))
-
-#define NAND_ENABLE_CE()													\
-	reg_write(S5PV210_NFCONT, reg_read(S5PV210_NFCONT) & ~(1 << 1))
-
-#define NAND_DISABLE_CE()													\
-	reg_write(S5PV210_NFCONT, reg_read(S5PV210_NFCONT) | (1 << 1))
-
-#define NAND_WRITE_CMD(cmd)													\
-	reg_write(S5PV210_NFCMD, cmd)
-
-#define NAND_WRITE_ADDR(addr)												\
-	reg_write(S5PV210_NFADDR, addr)
-
-#define NAND_READ_BYTE()													\
-	(*((volatile u8_t *)(S5PV210_NFDATA)))
-
-#define NAND_WAIT_READY()													\
-	do { while(!(reg_read(S5PV210_NFSTAT) & (1 << 0))); } while(0)
-
-s32_t simple_nand_read(u8_t * mem, u32_t addr, u32_t size)
-{
-	u8_t id;
-	u32_t i, page, page_size;
-
-	/* nand hardware initial */
-	NAND_HW_INIT();
-
-	/* enable nand controller */
-	NAND_CONTROL_ENABLE();
-
-	/* nand chip enable */
-	NAND_ENABLE_CE();
-
-	/* write read id command */
-	NAND_WRITE_CMD(0x90);
-
-	/* write address 0x0 */
-	NAND_WRITE_ADDR(0x0);
-
-	/* read id */
-	id = NAND_READ_BYTE();
-	id = NAND_READ_BYTE();
-
-	/* nand chip disable */
-	NAND_DISABLE_CE();
-
-	/* page size and current page */
-	if(id > 0x80)
-	{
-		page_size = 2048;
-		page = addr >> 11;
-	}
-	else
-	{
-		page_size = 512;
-		page = addr >> 9;
-	}
-
-	while(size > 0)
-	{
-		/* nand chip enable */
-		NAND_ENABLE_CE();
-
-		/* write read0 command */
-		NAND_WRITE_CMD(0x00);
-
-		/* write address 0x0 */
-		NAND_WRITE_ADDR(0x0);
-
-		/* the large page */
-		if(id > 0x80)
-			NAND_WRITE_ADDR(0x0);
-
-		/* write address for page */
-		NAND_WRITE_ADDR((page >> 0) & 0xff);
-		NAND_WRITE_ADDR((page >> 8) & 0xff);
-		NAND_WRITE_ADDR((page >> 16) & 0xff);
-
-		/* the large page */
-		if(id > 0x80)
-			NAND_WRITE_CMD(0x30);
-
-		/* wait for ready */
-		NAND_WAIT_READY();
-
-		for(i = 0; (i < size) && (i < page_size); i++)
-		{
-			*mem++ = NAND_READ_BYTE();
-		}
-
-		page++;
-		size -= i;
-
-		/* nand chip disable */
-		NAND_DISABLE_CE();
-	}
-
-	return 0;
-}
-
-/*
  * only support irom booting.
  */
 void irom_copyself(void)
 {
 	u8_t om;
 	u32_t * mem;
-	u32_t size;
+	u32_t page, block, size;
 
 	/*
 	 * read om register, om[4..1]
@@ -276,11 +161,21 @@ void irom_copyself(void)
 		mem = (u32_t *)__text_start;
 
 		/*
-		 * the xboot's size, the 'size' is number of block. 256KB per block.
+		 * the xboot's size, the 'size' is number of block. 128KB per block.
 		 */
-		size = (__data_shadow_end - __text_start + 0x00040000) >> 18;
+		size = (__data_shadow_end - __text_start + 0x00020000) >> 17;
 
-		simple_nand_read((u8_t *)mem, 0x00000000, size);
+		/*
+		 * copy xboot to memory from nand flash.
+		 */
+		for(block = 0; block < size; block++)
+		{
+			for(page = 0; page < 64; page++)
+			{
+				irom_nf8_readpage_adv(block, page, (u8_t *)mem);
+				mem += 512;
+			}
+		}
 	}
 
 	/* nand 4KB, 5-cycle, 8-bit ecc */

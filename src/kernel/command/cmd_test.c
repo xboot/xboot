@@ -46,7 +46,10 @@
 
 static int test(int argc, char ** argv)
 {
-    FILE *file = fopen("/toto.txt", "w+a");
+	fprintf(stdout, "Test\n");
+	fprintf(stderr, "Test\n");
+
+/*    FILE *file = fopen("/toto.txt", "w+a");
 
     if ( file == NULL ) {
         printk("File open failed for writing\n");
@@ -61,7 +64,7 @@ static int test(int argc, char ** argv)
     file = fopen("/toto.txt", "r");
     size_t r = fread(buffer, 1, 128, file);
 	 printk("fread returned %u\n", r);
-    fclose(file);
+    fclose(file);*/
 
 	return 0;
 }

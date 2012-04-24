@@ -5,6 +5,95 @@
 #include <runtime.h>
 #include <stdio.h>
 
+/*
+ * tty operations
+ */
+static ssize_t __tty_stdin_read(FILE * f, unsigned char * buf, size_t size)
+{
+	ssize_t cnt = 0;
+	u32_t code;
+
+	while(size > 0)
+	{
+		if(console_stdin_getcode(&code))
+		{
+			*buf = code;
+
+			buf++;
+			cnt++;
+		}
+		size--;
+	}
+
+	return cnt;
+}
+
+static ssize_t __tty_stdout_write(FILE * f, const unsigned char * buf, size_t size)
+{
+	size_t i;
+
+	for(i = 0; i < size; i++)
+		console_stdout_putc(*(buf++));
+
+	return size;
+}
+
+static ssize_t __tty_stderr_write(FILE * f, const unsigned char * buf, size_t size)
+{
+	size_t i;
+
+	for(i = 0; i < size; i++)
+		console_stderr_putc(*(buf++));
+
+	return size;
+}
+
+static ssize_t __tty_null_read(FILE * f, unsigned char * buf, size_t size)
+{
+	return 0;
+}
+
+static ssize_t __tty_null_write(FILE * f, const unsigned char * buf, size_t size)
+{
+	return 0;
+}
+
+static fpos_t __tty_null_seek(FILE * f, fpos_t off, int whence)
+{
+	return 0;
+}
+
+static int __tty_null_close(FILE * f)
+{
+	return 0;
+}
+
+/*
+ * file operations
+ */
+static ssize_t __file_read(FILE * f, unsigned char * buf, size_t size)
+{
+	return read(f->fd, (void *)buf, size);
+}
+
+static ssize_t __file_write(FILE * f, const unsigned char * buf, size_t size)
+{
+	return write(f->fd, (void *)buf, size);
+}
+
+static fpos_t __file_seek(FILE * f, fpos_t off, int whence)
+{
+	return lseek(f->fd, off, whence);
+}
+
+static int __file_close(FILE * f)
+{
+	return close(f->fd);
+}
+
+/*
+ * file alloc
+ */
 FILE * __file_alloc(int fd)
 {
 	FILE * f;
@@ -17,10 +106,10 @@ FILE * __file_alloc(int fd)
 	{
 		f->fd = fd;
 
-		f->read = __tty_read;
-		f->write = __tty_write;
-		f->seek = __tty_seek;
-		f->close = __tty_close;
+		f->read = __tty_stdin_read;
+		f->write = __tty_null_write;
+		f->seek = __tty_null_seek;
+		f->close = __tty_null_close;
 
 		f->fifo_read = fifo_alloc(BUFSIZ);
 		f->fifo_write = fifo_alloc(BUFSIZ);
@@ -38,10 +127,10 @@ FILE * __file_alloc(int fd)
 	{
 		f->fd = fd;
 
-		f->read = __tty_read;
-		f->write = __tty_write;
-		f->seek = __tty_seek;
-		f->close = __tty_close;
+		f->read = __tty_null_read;
+		f->write = __tty_stdout_write;
+		f->seek = __tty_null_seek;
+		f->close = __tty_null_close;
 
 		f->fifo_read = fifo_alloc(BUFSIZ);
 		f->fifo_write = fifo_alloc(BUFSIZ);
@@ -59,10 +148,10 @@ FILE * __file_alloc(int fd)
 	{
 		f->fd = fd;
 
-		f->read = __tty_read;
-		f->write = __tty_write;
-		f->seek = __tty_seek;
-		f->close = __tty_close;
+		f->read = __tty_null_read;
+		f->write = __tty_stderr_write;
+		f->seek = __tty_null_seek;
+		f->close = __tty_null_close;
 
 		f->fifo_read = fifo_alloc(BUFSIZ);
 		f->fifo_write = fifo_alloc(BUFSIZ);

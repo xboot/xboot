@@ -116,33 +116,10 @@ int open(const char * path, u32_t flags, u32_t mode)
 loff_t read(int fd, void * buf, loff_t len)
 {
 	struct file * fp;
-	char * p, * q;
 	loff_t bytes;
 
 	if(fd < 0)
 		return -1;
-
-	if(fd == 0)
-	{
-		p = buf;
-		q = readline(0);
-		for(bytes = 0; bytes < len; bytes++)
-		{
-			if(*q == 0)
-				break;
-			*p++ = *q++;
-		}
-		free(q);
-		return bytes;
-	}
-	else if(fd == 1)
-	{
-		return -1;
-	}
-	else if(fd == 2)
-	{
-		return -1;
-	}
 
 	if((fp = get_fp(fd)) == NULL)
 		return -1;
@@ -159,30 +136,10 @@ loff_t read(int fd, void * buf, loff_t len)
 loff_t write(int fd, void * buf, loff_t len)
 {
 	struct file * fp;
-	char * p;
 	loff_t bytes;
 
 	if(fd < 0)
 		return -1;
-
-	if(fd == 0)
-	{
-		return -1;
-	}
-	else if(fd == 1)
-	{
-		p = buf;
-		for(bytes = 0; bytes < len; bytes++)
-			console_stdout_putc(*(p++));
-		return bytes;
-	}
-	else if(fd == 2)
-	{
-		p = buf;
-		for(bytes = 0; bytes < len; bytes++)
-			console_stderr_putc(*(p++));
-		return bytes;
-	}
 
 	if((fp = get_fp(fd)) == NULL)
 		return -1;

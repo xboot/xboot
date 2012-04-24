@@ -109,16 +109,6 @@ int sscanf(const char * buf, const char * fmt, ...);
 /*
  * Inner function
  */
-ssize_t __file_read(FILE * f, unsigned char * buf, size_t size);
-ssize_t __file_write(FILE * f, const unsigned char * buf, size_t size);
-fpos_t __file_seek(FILE * f, fpos_t off, int whence);
-int __file_close(FILE * f);
-
-ssize_t __tty_read(FILE * f, unsigned char * buf, size_t size);
-ssize_t __tty_write(FILE * f, const unsigned char * buf, size_t size);
-fpos_t __tty_seek(FILE * f, fpos_t off, int whence);
-int __tty_close(FILE * f);
-
 int __stdio_no_flush(FILE * f);
 int	__stdio_read_flush(FILE * f);
 int __stdio_write_flush(FILE * f);

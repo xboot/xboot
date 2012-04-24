@@ -62,6 +62,18 @@ struct runtime_t * runtime_alloc(void)
 
 void runtime_free(struct runtime_t * r)
 {
+	if(!r)
+		return;
+
+	if(r->__stdin)
+		fclose(r->__stdin);
+
+	if(r->__stdout)
+		fclose(r->__stdout);
+
+	if(r->__stderr)
+		fclose(r->__stderr);
+
 	if(r)
 		free(r);
 }

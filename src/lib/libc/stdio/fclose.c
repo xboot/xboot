@@ -27,6 +27,9 @@ int fclose(FILE * f)
 	if(f->fifo_write)
 		fifo_free(f->fifo_write);
 
+	if(f->buf)
+		free(f->buf);
+
 	if(f)
 		free(f);
 

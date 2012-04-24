@@ -3,16 +3,18 @@
  */
 
 #include <malloc.h>
+#include <div64.h>
 #include <stdio.h>
 
 static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)
 {
+	unsigned char * p = buf;
 	ssize_t cnt = 0;
     ssize_t bytes;
 
     while(size > 0)
     {
-        bytes = f->read(f, buf, size);
+        bytes = f->read(f, p, size);
         if(bytes <= 0)
         {
             if(bytes == 0)
@@ -22,10 +24,9 @@ static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)
             break;
         }
 
-        f->pos += bytes;
         size -= bytes;
-        buf += bytes;
         cnt += bytes;
+        p += bytes;
     }
 
     return cnt;
@@ -33,12 +34,10 @@ static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)
 
 ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 {
-	ssize_t local_size;
-	size_t buffer_size;
-	size_t s;
-	unsigned char * local;
+	unsigned char * p = buf;
 	ssize_t cnt = 0;
 	ssize_t bytes;
+	ssize_t div, rem, tmp;
 
     if(!f->read)
 		return EINVAL;
@@ -47,103 +46,66 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size)
 	{
 	case _IONBF:
 	case _IOLBF:
-		/*
-		 * line buffered for LBF is non-sense so let's assume it's unbuffered
-		 */
-		return __unbuffered_read(f, buf, size);
+		bytes = __unbuffered_read(f, p, size);
+		f->pos += bytes;
+		return bytes;
 
 	case _IOFBF:
 	{
-		buffer_size = f->fifo_read->size;
-
-		local = malloc(buffer_size);
-		if(!local)
-			return ENOMEM;
-
-		/*
-		 * get data from buffer
-		 */
-		bytes = fifo_get(f->fifo_read, buf, size);
+		bytes = fifo_get(f->fifo_read, p, size);
 		size -= bytes;
-		buf += bytes;
         cnt += bytes;
 		f->pos += bytes;
+		p += bytes;
 
 		if(size > 0)
 		{
-			/*
-			 * read buffer is empty here
-			 */
 			f->rwflush = &__stdio_no_flush;
 
-			/*
-			 * read more data directly from fd
-			 */
-			while(size > buffer_size)
+			div = (size / f->bufsz);
+			rem = (size % f->bufsz);
+
+			if(div > 0)
 			{
-				s = (size / buffer_size) * buffer_size;
-				bytes = f->read(f, buf, s);
-
-				if(bytes <= 0)
-				{
-					if(bytes == 0)
-						f->eof = 1;
-					else
-						f->error = 1;
-
-					free(local);
-					return cnt;
-				}
-
-				f->eof = 0;
+				bytes = __unbuffered_read(f, p, (div * f->bufsz));
 				size -= bytes;
-				buf += bytes;
 				cnt += bytes;
 				f->pos += bytes;
+				p += bytes;
+
+				if(bytes <= 0)
+					break;
 			}
-		}
 
-		/*
-		 * read remaining data in local buffer
-		 */
-		for(local_size = 0; local_size < size; local_size += bytes)
-		{
-			bytes = f->read(f, local + local_size, buffer_size - local_size);
-
-			if(bytes <= 0)
+			if(rem > 0)
 			{
-				if(bytes == 0)
-					f->eof = 1;
+				bytes = __unbuffered_read(f, f->buf, f->bufsz);
+
+				if(bytes < rem)
+					tmp = bytes;
 				else
-					f->error = 1;
-				break;
+					tmp = rem;
+				memcpy(p, f->buf, tmp);
+				size -= tmp;
+				cnt += tmp;
+				f->pos += tmp;
+				p += bytes;
+
+				if(bytes >= tmp)
+				{
+					if(bytes > tmp)
+					{
+						fifo_put(f->fifo_read, f->buf + tmp, bytes - tmp);
+						f->rwflush = &__stdio_read_flush;
+						f->eof = 0;
+					}
+				}
+				else
+				{
+					f->eof = 1;
+				}
 			}
 		}
-
-		memcpy(buf, local, size);
-		f->pos += size;
-		cnt += size;
-
-		if(local_size >= size)
-		{
-			if(local_size > size)
-			{
-				/*
-				 * if more data than needed, put in read buffer
-				 */
-				fifo_put(f->fifo_read, local + size, local_size - size);
-				f->rwflush = &__stdio_read_flush;
-			}
-		}
-		else
-		{
-			/*
-			 * not enough data have been read
-			 */
-			f->eof = 1;
-		}
-
-		free(local);
 		break;
 	}
 

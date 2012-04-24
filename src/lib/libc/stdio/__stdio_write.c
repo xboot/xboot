@@ -7,23 +7,23 @@
 
 static ssize_t __unbuffered_write(FILE * f, const unsigned char * buf, size_t size)
 {
+	unsigned char * p = (unsigned char *)buf;
 	ssize_t cnt = 0;
-	ssize_t ret;
+	ssize_t bytes;
 
 	while(size > 0)
 	{
-		ret = f->write(f, buf, size);
+		bytes = f->write(f, p, size);
 
-		if(ret <= 0)
+		if(bytes <= 0)
 		{
 			f->error = 1;
-			return ret;
+			break;
 		}
 
-		f->pos += ret;
-		size -= ret;
-		buf += ret;
-		cnt += ret;
+		size -= bytes;
+		cnt += bytes;
+		p += bytes;
 	}
 
 	return cnt;
@@ -31,10 +31,11 @@ static ssize_t __unbuffered_write(FILE * f, const unsigned char * buf, size_t si
 
 ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
 {
-	size_t buffer_size;
-	ssize_t i;
-	ssize_t ret;
+	unsigned char * p = (unsigned char *)buf;
 	ssize_t cnt = 0;
+	ssize_t bytes;
+	size_t bufsz;
+	int i, ret;
 
 	if (!f->write)
 		return EINVAL;
@@ -42,77 +43,63 @@ ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
 	switch (f->mode)
 	{
 	case _IONBF:
-		return __unbuffered_write(f, buf, size);
+		bytes = __unbuffered_write(f, p, size);
+		f->pos += bytes;
+		return bytes;
 
 	case _IOLBF:
-	{
-		/*
-		 * write all ended lines if any
-		 */
 		for(i = size; i > 0; i--)
 		{
-			if(buf[i - 1] == '\n')
+			if(p[i - 1] == '\n')
 			{
-				if((ret = __stdio_write_flush(f)))
-					return ret;
+				ret = __stdio_write_flush(f);
+				if(ret != 0)
+					return cnt;
 
-				ret = __unbuffered_write(f, buf, i);
-				if(ret <= 0)
-					return ret;
+				bytes = __unbuffered_write(f, p, i);
+				if(bytes <= 0)
+					return cnt;
 
-				buf += i;
-				size -= i;
-				cnt = i;
+				size -= bytes;
+				cnt = bytes;
+				f->pos += bytes;
+				p += bytes;
+
 				break;
 			}
 		}
 
-		break;
-	}
-
-	/*
-	 * remaining data without end of line will be treated as block
-	 */
+	/* fall through */
 	case _IOFBF:
-		buffer_size = f->fifo_write->size;
+		bufsz = f->fifo_write->size;
 
-		/*
-		 * check if all data can be put in buffer
-		 */
-		if (fifo_len(f->fifo_write) + size > buffer_size)
+		if(fifo_len(f->fifo_write) + size > bufsz)
 		{
-			/*
-			 * write all data present in buffer
-			 */
-			if((ret = __stdio_write_flush(f)))
-				return ret;
+			ret = __stdio_write_flush(f);
+			if(ret != 0)
+				return cnt;
 
-			/*
-			 * write data directly to device if greater than buffer
-			 */
-			while(size > buffer_size)
+			while(size > bufsz)
 			{
-				ret = f->write(f, buf, size);
-
-				if(ret < 0)
+				bytes = f->write(f, p, size);
+				if(bytes < 0)
 				{
 					f->error = 1;
-					return ret;
+					return cnt;
 				}
 
-				size -= ret;
-				buf += ret;
-				cnt += ret;
-				f->pos += ret;
+				size -= bytes;
+				cnt += bytes;
+				f->pos += bytes;
+				p += bytes;
 			}
 		}
 
-		/*
-		 * fill buffer with remaining data
-		 */
-		fifo_put(f->fifo_write, (u8_t *)buf, size);
-		f->pos += size;
-		cnt += size;
+		bytes = fifo_put(f->fifo_write, (u8_t *)p, size);
+		size -= bytes;
+		cnt += bytes;
+		f->pos += bytes;
+		p += bytes;
 
 		f->rwflush = &__stdio_write_flush;
 		break;

@@ -25,6 +25,8 @@ FILE * __file_alloc(int fd)
 		f->fifo_read = fifo_alloc(BUFSIZ);
 		f->fifo_write = fifo_alloc(BUFSIZ);
 
+		f->buf = malloc(BUFSIZ);
+		f->bufsz = BUFSIZ;
 		f->rwflush = &__stdio_no_flush;
 
 		f->pos = 0;
@@ -44,6 +46,8 @@ FILE * __file_alloc(int fd)
 		f->fifo_read = fifo_alloc(BUFSIZ);
 		f->fifo_write = fifo_alloc(BUFSIZ);
 
+		f->buf = malloc(BUFSIZ);
+		f->bufsz = BUFSIZ;
 		f->rwflush = &__stdio_no_flush;
 
 		f->pos = 0;
@@ -63,6 +67,8 @@ FILE * __file_alloc(int fd)
 		f->fifo_read = fifo_alloc(BUFSIZ);
 		f->fifo_write = fifo_alloc(BUFSIZ);
 
+		f->buf = malloc(BUFSIZ);
+		f->bufsz = BUFSIZ;
 		f->rwflush = &__stdio_no_flush;
 
 		f->pos = 0;
@@ -82,6 +88,8 @@ FILE * __file_alloc(int fd)
 		f->fifo_read = fifo_alloc(BUFSIZ);
 		f->fifo_write = fifo_alloc(BUFSIZ);
 
+		f->buf = malloc(BUFSIZ);
+		f->bufsz = BUFSIZ;
 		f->rwflush = &__stdio_no_flush;
 
 		f->pos = 0;

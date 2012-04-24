@@ -20,14 +20,7 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
 #include <div64.h>
-
-/*
- * the div zero handle.
- */
-extern void __div0(void);
 
 /*
  * the internal funtion for 64-bit div and mod.

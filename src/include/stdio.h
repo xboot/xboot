@@ -41,7 +41,6 @@ typedef loff_t fpos_t;
  */
 typedef struct __FILE FILE;
 struct __FILE {
-	//void * handle;
 	int fd;
 
 	ssize_t (*read)(FILE *, unsigned char *, size_t);
@@ -52,6 +51,8 @@ struct __FILE {
 	struct fifo * fifo_read;
 	struct fifo * fifo_write;
 
+	unsigned char * buf;
+	size_t bufsz;
 	int (*rwflush)(FILE *);
 
 	fpos_t pos;

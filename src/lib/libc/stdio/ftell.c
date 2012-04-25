@@ -2,16 +2,10 @@
  * libc/stdio/ftell.c
  */
 
+#include <errno.h>
 #include <stdio.h>
 
-loff_t ftell(FILE * f)
+fpos_t ftell(FILE * f)
 {
-	if (f == NULL)
-	{
-		errno = EBADF;
-		return -1;
-	}
-
-	return f->ofs;
+	return f->pos;
 }
-

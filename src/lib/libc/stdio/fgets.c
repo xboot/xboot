@@ -4,48 +4,27 @@
 
 #include <stdio.h>
 
-char * fgets(char * buf, int n, FILE * f)
+char * fgets(char * s, int n, FILE * f)
 {
-	char * p = buf;
+	char * p = s;
+	char * ret = NULL;
+	ssize_t res = 0;
 
-	if (f == NULL)
+	while(n-- > 1)
 	{
-		errno = EBADF;
-		return NULL;
-	}
-	if (f->fd < 0)
-	{
-		errno = EBADF;
-		return NULL;
-	}
-	if ((buf == NULL) || (n <= 0))
-	{
-		errno = EINVAL;
-		return NULL;
-	}
-	if (feof(f) || ferror(f))
-		return NULL;
+		res = __stdio_read(f, (unsigned char *)p, 1);
 
-	for (; n != 0; n--)
-	{
-		*p = fgetc(f);
-		if (ferror(f))
-		{
-			*p = '\0';
-			return NULL;
-		}
-		if (feof(f))
-		{
-			*p = '\0';
-			return NULL;
-		}
-		if (*p == '\n')
+		if(res == 0)
 			break;
 
-		p++;
+		else if(res < 0)
+			return NULL;
+
+		ret = s;
+		if(*p++ == '\n')
+			break;
 	}
 
-	p++;
-	*p = '\0';
-	return buf;
+	*p = 0;
+	return ret;
 }

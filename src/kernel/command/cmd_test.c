@@ -46,6 +46,26 @@
 
 static int test(int argc, char ** argv)
 {
+	fprintf(stdout, "Test\n");
+	fprintf(stderr, "Test\n");
+
+/*    FILE *file = fopen("/toto.txt", "w+a");
+
+    if ( file == NULL ) {
+        printk("File open failed for writing\n");
+        return 1;
+    }
+
+    fprintf(file, "Test\n");
+	fclose(file);
+
+
+    char buffer[128];
+    file = fopen("/toto.txt", "r");
+    size_t r = fread(buffer, 1, 128, file);
+	 printk("fread returned %u\n", r);
+    fclose(file);*/
+
 	return 0;
 }
 

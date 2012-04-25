@@ -329,6 +329,7 @@ int vsscanf(const char * buf, const char * fmt, va_list ap)
 					bail = bail_err;
 					break;
 				}
+				break;
 			}
 			break;
 

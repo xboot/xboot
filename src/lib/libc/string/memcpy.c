@@ -15,4 +15,7 @@ static void * __memcpy(void * dest, const void * src, size_t len)
 	return dest;
 }
 
-void * memcpy(void * dest, const void * src, size_t len) __attribute__ ((weak, alias ("__memcpy")));
+/*
+ * Copies one buffer to another
+ */
+extern __typeof(__memcpy) memcpy __attribute__((weak, alias("__memcpy")));

@@ -2,6 +2,7 @@
  * libc/stdio/fprintf.c
  */
 
+#include <malloc.h>
 #include <stdio.h>
 
 int fprintf(FILE * f, const char * fmt, ...)

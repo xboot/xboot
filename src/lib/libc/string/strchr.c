@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <string.h>
 
+/*
+ * Finds the first occurrence of a byte in a string
+ */
 char * strchr(const char * s, int c)
 {
 	for (; *s != (char)c; ++s)

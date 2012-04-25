@@ -6,8 +6,5 @@
 
 int feof(FILE * f)
 {
-	if (f != NULL)
-		return f->eof;
-
-	return 0;
+	return f->eof;
 }

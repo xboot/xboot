@@ -31,8 +31,10 @@ double strtod(const char * nptr, char ** endptr)
 	{
 	case '-':
 		negative = 1;
+		break;
 	case '+':
 		p++;
+		break;
 	}
 
 	number = 0.;
@@ -83,8 +85,10 @@ double strtod(const char * nptr, char ** endptr)
 		{
 		case '-':
 			negative = 1;
+			break;
 		case '+':
 			p++;
+			break;
 		}
 
 		/* Process string of digits */

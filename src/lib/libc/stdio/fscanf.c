@@ -2,6 +2,8 @@
  * libc/stdio/fscanf.c
  */
 
+#include <sizes.h>
+#include <malloc.h>
 #include <stdio.h>
 
 int fscanf(FILE * f, const char * fmt, ...)
@@ -14,8 +16,8 @@ int fscanf(FILE * f, const char * fmt, ...)
 	if(!buf)
 		return 0;
 
-	//TODO
-	read(f->fd, (void *)buf, SZ_4K);
+	memset(buf, 0, SZ_4K);
+	fread(buf, 1, SZ_4K, f);
 
 	va_start(ap, fmt);
 	rv = vsscanf(buf, fmt, ap);

@@ -1,16 +1,16 @@
 #
-# makefile for xboot.
-# create by: jianjun jiang <jerryjianjun@gmail.com>.
+# Makefile for xboot.
+# Create by: jianjun jiang <jerryjianjun@gmail.com>.
 #
 
 #
-# you must pass TARGET variable, for choosing platform.
+# You must pass TARGET variable, for choosing platform.
 # default TARGET is arm-realview.
 #
 TARGET		?= arm-realview
 
 #
-# get platform information about ARCH and MACH from TARGET variable.
+# Get platform information about ARCH and MACH from TARGET variable.
 #
 ifeq ($(words $(subst -, , $(TARGET))), 2)
 ARCH		:= $(word 1, $(subst -, , $(TARGET)))
@@ -21,7 +21,7 @@ MACH		:= mach-realview
 endif
 
 #
-# system environment variable.
+# System environment variable.
 #
 ifneq (,$(findstring Linux, $(shell uname -s)))
 HOSTOS		:= linux
@@ -34,7 +34,7 @@ $(error unable to determine host operation system from uname)
 endif
 
 #
-# define default make variables.
+# Define default make variables.
 #
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
@@ -52,19 +52,19 @@ INCDIRS		:=
 SRCDIRS		:=
 
 #
-# override default make variables.
+# Override default make variables.
 #
 sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 
 #
-# add pre-define macros.
+# Add pre-define macros.
 #
 ASFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 CFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 
 #
-# add necessary directory for INCDIRS and SRCDIRS.
+# Add necessary directory for INCDIRS and SRCDIRS.
 #
 INCDIRS		+= 	-I include						\
 				-I arch/$(ARCH)/include			\
@@ -79,14 +79,16 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib								\
 				lib/libc						\
 				lib/libc/ctype					\
+				lib/libc/environ				\
 				lib/libc/errno					\
 				lib/libc/stdio					\
 				lib/libc/stdlib					\
 				lib/libc/string					\
 				lib/libc/time					\
 				lib/libc/readline				\
+				lib/libc/locale					\
+				lib/libc/exit					\
 				lib/libm						\
-				lib/lua							\
 				init							\
 				init/mode						\
 				kernel							\
@@ -126,7 +128,13 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				drivers/mtd/nor
 
 #
-# you shouldn't need to change anything below this point.
+# Aadd external library
+#
+INCDIRS		+= 	-I external/lua
+SRCDIRS		+=	external/lua
+
+#
+# You shouldn't need to change anything below this point.
 #
 CROSS		?=
 AS			:=	$(CROSS)gcc -x assembler-with-cpp
@@ -189,7 +197,7 @@ clean:
 	@echo clean complete.
 
 # 
-# include the dependency files, should be the last of the makefile
+# Include the dependency files, should be the last of the makefile
 #
 sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR)							\
 			&& $(RM) .obj/romdisk										\

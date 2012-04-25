@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <string.h>
 
+/*
+ * Finds in a string the first occurrence of a byte/wchar_t in a set
+ */
 char * strpbrk(const char * s1, const char * s2)
 {
 	const char * sc1, * sc2;

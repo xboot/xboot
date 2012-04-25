@@ -43,7 +43,7 @@ extern void exec_timer_task(void);
 /*
  * jiffies, userd by timer tick count.
  */
-u32_t jiffies = 0;
+volatile u32_t jiffies = 0;
 
 /*
  * system tick.

@@ -6,7 +6,5 @@
 
 int ferror(FILE * f)
 {
-	if (f != NULL)
-		return f->error;
-	return 0;
+	return f->error;
 }

@@ -6,9 +6,6 @@
 
 void clearerr(FILE * f)
 {
-	if (f != NULL)
-	{
-		f->eof = 0;
-		f->error = 0;
-	}
+	f->error = 0;
+	f->eof = 0;
 }

@@ -4,6 +4,9 @@
 
 #include <string.h>
 
+/*
+ * Appends one string to another
+ */
 char * strcat(char * dest, const char * src)
 {
 	char * tmp = dest;

@@ -67,6 +67,7 @@ uintmax_t strtoumax(const char * nptr, char ** endptr, int base)
 	default:
 		cutoff = UINTMAX_MAX / base;
 		cutlim = UINTMAX_MAX % base;
+		break;
 	}
 
 	for (acc = 0, any = 0;; c = (unsigned char) *s++)

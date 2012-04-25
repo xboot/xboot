@@ -6,6 +6,9 @@
 #include <ctype.h>
 #include <string.h>
 
+/*
+ * Compare strings without case sensitivity
+ */
 int strnicmp(const char * s1, const char * s2, size_t n)
 {
 	unsigned char c1 = 0, c2 = 0;

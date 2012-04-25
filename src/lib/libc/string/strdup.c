@@ -7,6 +7,9 @@
 #include <malloc.h>
 #include <string.h>
 
+/*
+ * Allocates and duplicates a string
+ */
 char * strdup(const char * s)
 {
 	char * p;

@@ -2,15 +2,17 @@
  * libc/stdio/fopen.c
  */
 
+#include <fs/fileio.h>
 #include <stdio.h>
 
-FILE * fopen(const char * file, const char * mode)
+FILE * fopen(const char * path, const char * mode)
 {
+	FILE * f;
 	int flags = O_RDONLY;
 	int plus = 0;
-	FILE * f;
+	int fd;
 
-	if ((file == NULL) || (*file == '\0'))
+	if((path == NULL) || (*path == '\0'))
 	{
 		errno = EINVAL;
 		return NULL;
@@ -38,38 +40,18 @@ FILE * fopen(const char * file, const char * mode)
 	if(plus)
 		flags = (flags & ~(O_RDONLY | O_WRONLY)) | O_RDWR;
 
-	f = __create_stdio();
-	if (f == NULL)
+	fd = open(path, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(fd < 0)
 		return NULL;
 
-	if ((flags & O_RDONLY) != 0)
+	f = __file_alloc(fd);
+	if(!f)
 	{
-		f->in.buf = malloc(BUFSIZ);
-		if (f->in.buf == NULL)
-			return NULL;
-	}
-
-	if ((flags & O_WRONLY) != 0)
-	{
-		f->out.buf = malloc(BUFSIZ);
-		if (f->out.buf == NULL)
-			return NULL;
-	}
-
-	f->fd = open(file, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-	if(f->fd < 0)
-	{
-		__destroy_stdio(f);
+		close(fd);
 		return NULL;
 	}
 
-	f->ofs = lseek(f->fd, 0, VFS_SEEK_CUR);
-	if (f->ofs < 0)
-	{
-		close(f->fd);
-		__destroy_stdio(f);
-		return NULL;
-	}
+	f->pos = lseek(f->fd, 0, VFS_SEEK_CUR);
 
 	return f;
 }

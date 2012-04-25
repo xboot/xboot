@@ -15,4 +15,7 @@ static void * __memset(void * s, int c, size_t n)
 	return s;
 }
 
-void * memset(void * s, int c, size_t n) __attribute__ ((weak, alias ("__memset")));
+/*
+ * Fills a buffer with a repeated byte/wchar_t
+ */
+extern __typeof(__memset) memset __attribute__((weak, alias("__memset")));

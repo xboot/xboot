@@ -6,26 +6,15 @@
 
 size_t fwrite(const void * buf, size_t size, size_t count, FILE * f)
 {
-	size_t i, j;
-	const unsigned char * p;
+	const unsigned char * p = buf;
+	size_t i;
 
-	if ((buf == NULL) || (f == NULL))
+	for(i = 0; i < count; i++)
 	{
-		errno = EINVAL;
-		return 0;
-	}
-	if ((size == 0) || (count == 0))
-		return 0;
+		if(__stdio_write(f, p, size) != size)
+			break;
 
-	p = buf;
-	for (i = 0; i < count; i++)
-	{
-		for (j = 0; j < size; j++)
-		{
-			fputc(*p++, f);
-			if (feof(f) || ferror(f))
-				return i;
-		}
+		p += size;
 	}
 
 	return i;

@@ -2,22 +2,36 @@
  * libc/stdio/fclose.c
  */
 
+#include <malloc.h>
 #include <stdio.h>
 
 int fclose(FILE * f)
 {
-	if (f == NULL)
-	{
-		errno = EINVAL;
-		return EOF;
-	}
+	int err;
 
-	if (fflush(f) < 0)
-		return EOF;
+	if(!f)
+		return EINVAL;
 
-	if (close(f->fd) < 0)
-		return EOF;
+	if(!f->close)
+		return EINVAL;
 
-	__destroy_stdio(f);
-	return 0;
+	if((err = f->rwflush(f)))
+		return err;
+
+	if((err = f->close(f)))
+		return err;
+
+	if(f->fifo_read)
+		fifo_free(f->fifo_read);
+
+	if(f->fifo_write)
+		fifo_free(f->fifo_write);
+
+	if(f->buf)
+		free(f->buf);
+
+	if(f)
+		free(f);
+
+	return err;
 }

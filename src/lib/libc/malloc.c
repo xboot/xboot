@@ -341,6 +341,16 @@ void * realloc(void * ptr, size_t size)
 	}
 }
 
+void * calloc(size_t nmemb, size_t size)
+{
+	void * ptr;
+
+	if((ptr = malloc(nmemb * size)))
+		memset(ptr, 0, nmemb * size);
+
+	return ptr;
+}
+
 void free(void * ptr)
 {
 	struct free_arena_header * ah;

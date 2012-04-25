@@ -524,7 +524,8 @@
 ** without modifying the main part of the file.
 */
 
-
-
+#if !defined(getlocaledecpoint)
+#define getlocaledecpoint()		'.'
 #endif
 
+#endif

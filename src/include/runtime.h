@@ -15,9 +15,6 @@ struct runtime_t {
 
 	/* standard input, output and error */
 	FILE *__stdin, *__stdout, *__stderr;
-
-	FILE * ofl_head;
-	int ofl_lock;
 };
 
 

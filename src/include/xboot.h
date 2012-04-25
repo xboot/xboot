@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <locale.h>
+#include <exit.h>
 #include <io.h>
 #include <div64.h>
 #include <malloc.h>
@@ -380,13 +382,6 @@
  */
 #if !defined(CONFIG_COMMAND_LUA)
 #define	CONFIG_COMMAND_LUA							(1)
-#endif
-
-/*
- * luac command
- */
-#if !defined(CONFIG_COMMAND_LUAC)
-#define	CONFIG_COMMAND_LUAC							(1)
 #endif
 
 /*

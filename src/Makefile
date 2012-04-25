@@ -130,8 +130,11 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 #
 # Aadd external library
 #
-INCDIRS		+= 	-I external/lua
-SRCDIRS		+=	external/lua
+INCDIRS		+= 	-I external/lua-5.2.0
+SRCDIRS		+=	external/lua-5.2.0
+
+INCDIRS		+= 	-I external/zlib-1.2.6
+SRCDIRS		+=	external/zlib-1.2.6
 
 #
 # You shouldn't need to change anything below this point.

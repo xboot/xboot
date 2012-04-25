@@ -26,7 +26,6 @@
 #include <string.h>
 #include <version.h>
 #include <malloc.h>
-#include <crc-ccitt.h>
 #include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>

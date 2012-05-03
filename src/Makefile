@@ -88,6 +88,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib/libc/readline				\
 				lib/libc/locale					\
 				lib/libc/exit					\
+				lib/libc/malloc					\
 				lib/libm						\
 				init							\
 				init/mode						\

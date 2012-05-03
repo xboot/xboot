@@ -3,6 +3,7 @@
  */
 
 #include <string.h>
+#include <errno.h>
 #include <malloc.h>
 #include <environ.h>
 

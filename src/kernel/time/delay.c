@@ -38,19 +38,14 @@
 /*
  * how many loops runnning __delay() function per jiffy.
  */
-static u32_t loops_per_jiffy = 0;
+static volatile u32_t loops_per_jiffy = 0;
 
 /*
  * the base delay function.
  */
-static void __delay(u32_t loop)
+static void __delay(volatile u32_t loop)
 {
-	u32_t base;
-
-	while(loop--)
-	{
-		base += loop;
-	}
+	for(; loop > 0; loop--);
 }
 
 /*

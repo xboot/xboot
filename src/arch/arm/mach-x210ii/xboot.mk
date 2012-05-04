@@ -13,7 +13,7 @@ LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=
-MCFLAGS		:=
+MCFLAGS		:= -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a
 
 LIBDIRS		:=
 LIBS 		:=

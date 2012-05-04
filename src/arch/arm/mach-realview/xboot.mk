@@ -13,7 +13,7 @@ LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=
-MCFLAGS		:=
+MCFLAGS		:= -mcpu=arm926ej-s -mtune=arm926ej-s -march=armv5te
 
 LIBDIRS		:=
 LIBS 		:=

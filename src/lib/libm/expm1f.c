@@ -20,7 +20,7 @@ static const float
 
 float expm1f(float x)
 {
-	float y, hi, lo, c, t, e, hxs, hfx, r1;
+	float y, hi, lo, c=0, t, e, hxs, hfx, r1;
 	s32_t k, xsb;
 	u32_t hx;
 

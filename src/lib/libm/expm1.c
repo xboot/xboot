@@ -20,7 +20,7 @@ static const double
 
 double expm1(double x)
 {
-	double y, hi, lo, c, t, e, hxs, hfx, r1;
+	double y, hi, lo, c=0, t, e, hxs, hfx, r1;
 	s32_t k, xsb;
 	u32_t hx;
 

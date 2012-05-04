@@ -70,7 +70,7 @@ u64_t div64(u64_t num, u64_t den)
  */
 u64_t mod64(u64_t num, u64_t den)
 {
-	u64_t v;
+	u64_t v = 0;
 
 	div_mod_64(num, den, &v);
 	return v;
@@ -81,7 +81,7 @@ u64_t mod64(u64_t num, u64_t den)
  */
 u64_t div64_64(u64_t * num, u64_t den)
 {
-	u64_t v;
+	u64_t v = 0;
 
 	*num = div_mod_64(*num, den, &v);
 	return v;

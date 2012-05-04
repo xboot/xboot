@@ -279,7 +279,7 @@ static bool_t tga_load_truecolor_rle_r8g8b8(struct surface_t * surface, struct t
 
 static struct surface_t * tga_load(const char * filename)
 {
-	struct surface_t * surface;
+	struct surface_t * surface = NULL;
 	struct tga_header header;
 	struct stream_t * stream;
 	bool_t ret = FALSE;

@@ -51,7 +51,7 @@ static int do_mount(int argc, char ** argv)
 	s32_t mount_flag = 0;
 	struct blkdev * blk;
 	struct stat st;
-	char * pdev, tmp[32];
+	char * pdev = NULL, tmp[32];
 	s32_t i, index = 0;
 
 	if(argc < 5)

@@ -2886,7 +2886,7 @@ static int dasm(int argc, char ** argv)
 	u32_t count = 1;
 	char * filename = NULL;
 	struct arm_instruction instruction;
-	s32_t fd;
+	int fd = 0;
 	char buf[256];
 	s32_t len, i;
 

@@ -194,7 +194,7 @@ static void menu_ctx_free(struct menu_ctx * ctx)
  */
 void run_menu_mode(void)
 {
-	struct menu_item * item;
+	struct menu_item * item = NULL;
 	struct menu_ctx * ctx;
 	u32_t code;
 	bool_t running = TRUE;

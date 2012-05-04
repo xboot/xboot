@@ -81,6 +81,7 @@ SECTIONS
 
 		. = ALIGN(8);
 		*(.rodata);
+		*(.rodata.*);
 
 		. = ALIGN(8);
 		*(.glue_7);

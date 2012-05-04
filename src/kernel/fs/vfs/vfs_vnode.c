@@ -308,7 +308,7 @@ s32_t vn_access(struct vnode * vp, u32_t mode)
 /*
  * vnode pure init
  */
-static __init void vnone_pure_sync_init(void)
+static __init void vnode_pure_sync_init(void)
 {
 	s32_t i;
 
@@ -316,4 +316,4 @@ static __init void vnone_pure_sync_init(void)
     	init_list_head(&vnode_table[i]);
 }
 
-module_init(vnone_pure_sync_init, LEVEL_PURE_SYNC);
+module_init(vnode_pure_sync_init, LEVEL_PURE_SYNC);

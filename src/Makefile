@@ -129,7 +129,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				drivers/mtd/nor
 
 #
-# Aadd external library
+# Add external library
 #
 INCDIRS		+= 	-I external/lua-5.2.0
 SRCDIRS		+=	external/lua-5.2.0

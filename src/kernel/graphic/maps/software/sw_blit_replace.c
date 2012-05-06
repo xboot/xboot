@@ -295,6 +295,88 @@ static void sw_blit_replace_ABGR_8888_RGB_888(struct surface_t * dst, struct rec
 	}
 }
 
+static void sw_blit_replace_ABGR_8888_BGR565(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	u8_t * dp, * sp;
+	s32_t dx, dy, dw, dh;
+	s32_t sx, sy;
+	u32_t dskip, sskip;
+	u16_t v;
+	s32_t i, j;
+
+	dx = dst_rect->x;
+	dy = dst_rect->y;
+	dw = dst_rect->w;
+	dh = dst_rect->h;
+
+	sx = src_rect->x;
+	sy = src_rect->y;
+
+	dskip = dst->pitch - dst->info.bytes_per_pixel * dw;
+	sskip = src->pitch - src->info.bytes_per_pixel * dw;
+
+	sp = surface_sw_get_pointer(src, sx, sy);
+	dp = surface_sw_get_pointer(dst, dx, dy);
+
+	for (j = 0; j < dh; j++)
+	{
+		for (i = 0; i < dw; i++)
+		{
+			v = *((u16_t *)sp);
+			sp += 2;
+
+			*dp++ = (v & 0x001f) << 3;
+			*dp++ = (v & 0x07e0) >> 3;
+			*dp++ = (v & 0xf800) >> 8;
+			*dp++ = 0xff;
+		}
+
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
+static void sw_blit_replace_ABGR_8888_RGB565(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	u8_t * dp, * sp;
+	s32_t dx, dy, dw, dh;
+	s32_t sx, sy;
+	u32_t dskip, sskip;
+	u16_t v;
+	s32_t i, j;
+
+	dx = dst_rect->x;
+	dy = dst_rect->y;
+	dw = dst_rect->w;
+	dh = dst_rect->h;
+
+	sx = src_rect->x;
+	sy = src_rect->y;
+
+	dskip = dst->pitch - dst->info.bytes_per_pixel * dw;
+	sskip = src->pitch - src->info.bytes_per_pixel * dw;
+
+	sp = surface_sw_get_pointer(src, sx, sy);
+	dp = surface_sw_get_pointer(dst, dx, dy);
+
+	for (j = 0; j < dh; j++)
+	{
+		for (i = 0; i < dw; i++)
+		{
+			v = *((u16_t *)sp);
+			sp += 2;
+
+			*dp++ = (v & 0xf800) >> 8;
+			*dp++ = (v & 0x07e0) >> 3;
+			*dp++ = (v & 0x001f) << 3;
+			*dp++ = 0xff;
+		}
+
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
 static void sw_blit_replace_ARGB_8888_ABGR_8888(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
 {
 	u8_t * dp, * sp;
@@ -500,6 +582,88 @@ static void sw_blit_replace_ARGB_8888_RGB_888(struct surface_t * dst, struct rec
 			*dp++ = b;
 			*dp++ = g;
 			*dp++ = r;
+			*dp++ = 0xff;
+		}
+
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
+static void sw_blit_replace_ARGB_8888_BGR565(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	u8_t * dp, * sp;
+	s32_t dx, dy, dw, dh;
+	s32_t sx, sy;
+	u32_t dskip, sskip;
+	u16_t v;
+	s32_t i, j;
+
+	dx = dst_rect->x;
+	dy = dst_rect->y;
+	dw = dst_rect->w;
+	dh = dst_rect->h;
+
+	sx = src_rect->x;
+	sy = src_rect->y;
+
+	dskip = dst->pitch - dst->info.bytes_per_pixel * dw;
+	sskip = src->pitch - src->info.bytes_per_pixel * dw;
+
+	sp = surface_sw_get_pointer(src, sx, sy);
+	dp = surface_sw_get_pointer(dst, dx, dy);
+
+	for (j = 0; j < dh; j++)
+	{
+		for (i = 0; i < dw; i++)
+		{
+			v = *((u16_t *)sp);
+			sp += 2;
+
+			*dp++ = (v & 0xf800) >> 8;
+			*dp++ = (v & 0x07e0) >> 3;
+			*dp++ = (v & 0x001f) << 3;
+			*dp++ = 0xff;
+		}
+
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
+static void sw_blit_replace_ARGB_8888_RGB565(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	u8_t * dp, * sp;
+	s32_t dx, dy, dw, dh;
+	s32_t sx, sy;
+	u32_t dskip, sskip;
+	u16_t v;
+	s32_t i, j;
+
+	dx = dst_rect->x;
+	dy = dst_rect->y;
+	dw = dst_rect->w;
+	dh = dst_rect->h;
+
+	sx = src_rect->x;
+	sy = src_rect->y;
+
+	dskip = dst->pitch - dst->info.bytes_per_pixel * dw;
+	sskip = src->pitch - src->info.bytes_per_pixel * dw;
+
+	sp = surface_sw_get_pointer(src, sx, sy);
+	dp = surface_sw_get_pointer(dst, dx, dy);
+
+	for (j = 0; j < dh; j++)
+	{
+		for (i = 0; i < dw; i++)
+		{
+			v = *((u16_t *)sp);
+			sp += 2;
+
+			*dp++ = (v & 0x001f) << 3;
+			*dp++ = (v & 0x07e0) >> 3;
+			*dp++ = (v & 0xf800) >> 8;
 			*dp++ = 0xff;
 		}
 
@@ -721,6 +885,88 @@ static void sw_blit_replace_BGRA_8888_RGB_888(struct surface_t * dst, struct rec
 	}
 }
 
+static void sw_blit_replace_BGRA_8888_BGR565(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	u8_t * dp, * sp;
+	s32_t dx, dy, dw, dh;
+	s32_t sx, sy;
+	u32_t dskip, sskip;
+	u16_t v;
+	s32_t i, j;
+
+	dx = dst_rect->x;
+	dy = dst_rect->y;
+	dw = dst_rect->w;
+	dh = dst_rect->h;
+
+	sx = src_rect->x;
+	sy = src_rect->y;
+
+	dskip = dst->pitch - dst->info.bytes_per_pixel * dw;
+	sskip = src->pitch - src->info.bytes_per_pixel * dw;
+
+	sp = surface_sw_get_pointer(src, sx, sy);
+	dp = surface_sw_get_pointer(dst, dx, dy);
+
+	for (j = 0; j < dh; j++)
+	{
+		for (i = 0; i < dw; i++)
+		{
+			v = *((u16_t *)sp);
+			sp += 2;
+
+			*dp++ = 0xff;
+			*dp++ = (v & 0x001f) << 3;
+			*dp++ = (v & 0x07e0) >> 3;
+			*dp++ = (v & 0xf800) >> 8;
+		}
+
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
+static void sw_blit_replace_BGRA_8888_RGB565(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	u8_t * dp, * sp;
+	s32_t dx, dy, dw, dh;
+	s32_t sx, sy;
+	u32_t dskip, sskip;
+	u16_t v;
+	s32_t i, j;
+
+	dx = dst_rect->x;
+	dy = dst_rect->y;
+	dw = dst_rect->w;
+	dh = dst_rect->h;
+
+	sx = src_rect->x;
+	sy = src_rect->y;
+
+	dskip = dst->pitch - dst->info.bytes_per_pixel * dw;
+	sskip = src->pitch - src->info.bytes_per_pixel * dw;
+
+	sp = surface_sw_get_pointer(src, sx, sy);
+	dp = surface_sw_get_pointer(dst, dx, dy);
+
+	for (j = 0; j < dh; j++)
+	{
+		for (i = 0; i < dw; i++)
+		{
+			v = *((u16_t *)sp);
+			sp += 2;
+
+			*dp++ = 0xff;
+			*dp++ = (v & 0xf800) >> 8;
+			*dp++ = (v & 0x07e0) >> 3;
+			*dp++ = (v & 0x001f) << 3;
+		}
+
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
 static void sw_blit_replace_RGBA_8888_ABGR_8888(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
 {
 	u8_t * dp, * sp;
@@ -927,6 +1173,88 @@ static void sw_blit_replace_RGBA_8888_RGB_888(struct surface_t * dst, struct rec
 			*dp++ = b;
 			*dp++ = g;
 			*dp++ = r;
+		}
+
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
+static void sw_blit_replace_RGBA_8888_BGR565(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	u8_t * dp, * sp;
+	s32_t dx, dy, dw, dh;
+	s32_t sx, sy;
+	u32_t dskip, sskip;
+	u16_t v;
+	s32_t i, j;
+
+	dx = dst_rect->x;
+	dy = dst_rect->y;
+	dw = dst_rect->w;
+	dh = dst_rect->h;
+
+	sx = src_rect->x;
+	sy = src_rect->y;
+
+	dskip = dst->pitch - dst->info.bytes_per_pixel * dw;
+	sskip = src->pitch - src->info.bytes_per_pixel * dw;
+
+	sp = surface_sw_get_pointer(src, sx, sy);
+	dp = surface_sw_get_pointer(dst, dx, dy);
+
+	for (j = 0; j < dh; j++)
+	{
+		for (i = 0; i < dw; i++)
+		{
+			v = *((u16_t *)sp);
+			sp += 2;
+
+			*dp++ = 0xff;
+			*dp++ = (v & 0xf800) >> 8;
+			*dp++ = (v & 0x07e0) >> 3;
+			*dp++ = (v & 0x001f) << 3;
+		}
+
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
+static void sw_blit_replace_RGBA_8888_RGB565(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect)
+{
+	u8_t * dp, * sp;
+	s32_t dx, dy, dw, dh;
+	s32_t sx, sy;
+	u32_t dskip, sskip;
+	u16_t v;
+	s32_t i, j;
+
+	dx = dst_rect->x;
+	dy = dst_rect->y;
+	dw = dst_rect->w;
+	dh = dst_rect->h;
+
+	sx = src_rect->x;
+	sy = src_rect->y;
+
+	dskip = dst->pitch - dst->info.bytes_per_pixel * dw;
+	sskip = src->pitch - src->info.bytes_per_pixel * dw;
+
+	sp = surface_sw_get_pointer(src, sx, sy);
+	dp = surface_sw_get_pointer(dst, dx, dy);
+
+	for (j = 0; j < dh; j++)
+	{
+		for (i = 0; i < dw; i++)
+		{
+			v = *((u16_t *)sp);
+			sp += 2;
+
+			*dp++ = 0xff;
+			*dp++ = (v & 0x001f) << 3;
+			*dp++ = (v & 0x07e0) >> 3;
+			*dp++ = (v & 0xf800) >> 8;
 		}
 
 		dp += dskip;
@@ -1385,6 +1713,14 @@ void sw_blit_replace(struct surface_t * dst, struct rect_t * dst_rect, struct su
 			sw_blit_replace_ABGR_8888_RGB_888(dst, dst_rect, src, src_rect);
 			return;
 
+		case PIXEL_FORMAT_BGR_565:
+			sw_blit_replace_ABGR_8888_BGR565(dst, dst_rect, src, src_rect);
+			return;
+
+		case PIXEL_FORMAT_RGB_565:
+			sw_blit_replace_ABGR_8888_RGB565(dst, dst_rect, src, src_rect);
+			return;
+
 		default:
 			break;
 		}
@@ -1417,6 +1753,14 @@ void sw_blit_replace(struct surface_t * dst, struct rect_t * dst_rect, struct su
 
 		case PIXEL_FORMAT_RGB_888:
 			sw_blit_replace_ARGB_8888_RGB_888(dst, dst_rect, src, src_rect);
+			return;
+
+		case PIXEL_FORMAT_BGR_565:
+			sw_blit_replace_ARGB_8888_BGR565(dst, dst_rect, src, src_rect);
+			return;
+
+		case PIXEL_FORMAT_RGB_565:
+			sw_blit_replace_ARGB_8888_RGB565(dst, dst_rect, src, src_rect);
 			return;
 
 		default:
@@ -1453,6 +1797,14 @@ void sw_blit_replace(struct surface_t * dst, struct rect_t * dst_rect, struct su
 			sw_blit_replace_BGRA_8888_RGB_888(dst, dst_rect, src, src_rect);
 			return;
 
+		case PIXEL_FORMAT_BGR_565:
+			sw_blit_replace_BGRA_8888_BGR565(dst, dst_rect, src, src_rect);
+			return;
+
+		case PIXEL_FORMAT_RGB_565:
+			sw_blit_replace_BGRA_8888_RGB565(dst, dst_rect, src, src_rect);
+			return;
+
 		default:
 			break;
 		}
@@ -1485,6 +1837,14 @@ void sw_blit_replace(struct surface_t * dst, struct rect_t * dst_rect, struct su
 
 		case PIXEL_FORMAT_RGB_888:
 			sw_blit_replace_RGBA_8888_RGB_888(dst, dst_rect, src, src_rect);
+			return;
+
+		case PIXEL_FORMAT_BGR_565:
+			sw_blit_replace_RGBA_8888_BGR565(dst, dst_rect, src, src_rect);
+			return;
+
+		case PIXEL_FORMAT_RGB_565:
+			sw_blit_replace_RGBA_8888_RGB565(dst, dst_rect, src, src_rect);
 			return;
 
 		default:

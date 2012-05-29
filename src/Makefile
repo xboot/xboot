@@ -90,6 +90,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib/libc/exit					\
 				lib/libc/malloc					\
 				lib/libm						\
+				lib/xfs							\
 				init							\
 				init/mode						\
 				kernel							\

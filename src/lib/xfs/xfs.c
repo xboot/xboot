@@ -2,4 +2,4 @@
  * xfs/xfs.c
  */
 
-#include <xfs.h>
+#include <xfs/xfs.h>

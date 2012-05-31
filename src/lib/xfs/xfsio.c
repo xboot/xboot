@@ -2,129 +2,118 @@
  * xfs/xfsio.c
  */
 
-#include <xfs/xfs.h>
-
-struct xfs_dir_handle_t
-{
-    void * pirv;
-    char * dir_name;
-    char * mount_point;
-    const struct xfs_archiver_t * funcs;
-    struct xfs_dir_handle_t *next;
-};
-
-struct xfs_file_handle_t
-{
-	struct xfs_io_t * io;
-    u8_t forReading;
-    const struct xfs_dir_handle_t * dir_handle;
-    u8_t * buffer;
-    u32_t bufsize;
-    u32_t buffill;
-    u32_t bufpos;
-    struct xfs_file_handle_t * next;
-};
-
-struct xfs_err_state_t
-{
-    void * tid;
-    enum xfs_err code;
-    struct xfs_err_state_t * next;
-};
-
-//-----------------------
-struct xfs {
-	struct xfs_err_state_t * errorStates;
-	struct xfs_dir_handle_t * searchPath;
-	struct xfs_dir_handle_t * writeDir;
-	struct xfs_file_handle_t * openWriteList;
-	struct xfs_file_handle_t * openReadList;
-	char * baseDir;
-	char * userDir;
-	char * prefDir;
-	int allowSymLinks;
-	const struct xfs_archiver_t **archivers;
-	const struct xfs_archive_info_t ** archiveInfo;
-
-	void * errorLock;
-	void * stateLock;
-};
-
-//===================================
+#include <xfs/xfsio.h>
 
 struct nativeio_info_t
 {
 	void * handle;
 	const char * path;
-	int mode;
+	char mode;	/* 'r', 'w', 'a' */
 };
 
 static s64_t nativeio_read(struct xfs_io_t * io, void * buf, u64_t len)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-
-	//xxx return __PHYSFS_platformRead(info->handle, buf, len);
-	return 0;
+	return __xfs_platform_read(info->handle, buf, len);
 }
 
-static s64_t nativeio_write(struct xfs_io_t * io, const void *buffer, u64_t len)
+static s64_t nativeio_write(struct xfs_io_t * io, const void * buf, u64_t len)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-
-	//xxx return __PHYSFS_platformWrite(info->handle, buffer, len);
-	return 0;
+	return __xfs_platform_write(info->handle, buf, len);
 }
 
 static int nativeio_seek(struct xfs_io_t *io, u64_t offset)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-
-	//xxx return __PHYSFS_platformSeek(info->handle, offset);
-	return 0;
+	return __xfs_platform_seek(info->handle, offset);
 }
 
 static s64_t nativeio_tell(struct xfs_io_t * io)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-
-	//xxx return __PHYSFS_platformTell(info->handle);
-	return 0;
+	return __xfs_platform_tell(info->handle);
 }
 
 static s64_t nativeio_length(struct xfs_io_t * io)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-
-	//xxx return __PHYSFS_platformFileLength(info->handle);
-	return 0;
+	return __xfs_platform_length(info->handle);
 }
 
 static struct xfs_io_t * nativeio_duplicate(struct xfs_io_t * io)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-
-	//xxx return __PHYSFS_createNativeIo(info->path, info->mode);
-	return 0;
+	return __xfs_create_nativeio(info->path, info->mode);
 }
 
 static int nativeio_flush(struct xfs_io_t * io)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-
-	//xxx return __PHYSFS_platformFlush(io->opaque);
-	return 0;
+	return __xfs_platform_flush(info->handle);
 }
 
 static void nativeio_destroy(struct xfs_io_t * io)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
 
-/*
-	xxx
-	__PHYSFS_platformClose(info->handle);
-	allocator.Free((void *) info->path);
-	allocator.Free(info);
-	allocator.Free(io);
-*/
+	__xfs_platform_close(info->handle);
+	free((void *) info->path);
+	free(info);
+	free(io);
 }
 
+struct xfs_io_t * __xfs_create_nativeio(const char * path, const char mode)
+{
+	struct xfs_io_t * io;
+	struct nativeio_info_t * info;
+    void * handle;
+    char * pathdup;
+
+	if(mode == 'r')
+		handle = __xfs_platform_open_read(path);
+	else if(mode == 'w')
+		handle = __xfs_platform_open_write(path);
+	else if(mode == 'a')
+		handle = __xfs_platform_open_append(path);
+	else
+		handle = NULL;
+
+	if(!handle)
+		return NULL;
+
+    io = malloc(sizeof(struct xfs_io_t));
+    info = malloc(sizeof(struct nativeio_info_t));
+	pathdup = malloc(strlen(path) + 1);
+
+	if(!io || !info || !pathdup)
+	{
+		if(handle)
+			__xfs_platform_close(handle);
+		if(io)
+			free(io);
+		if(info)
+			free(info);
+		if(pathdup)
+			free(pathdup);
+
+		return NULL;
+	}
+
+    strcpy(pathdup, path);
+    info->handle = handle;
+    info->path = pathdup;
+    info->mode = mode;
+
+    io->read = nativeio_read;
+    io->write = nativeio_write;
+    io->seek = nativeio_seek;
+    io->tell = nativeio_tell;
+    io->length = nativeio_length;
+    io->duplicate = nativeio_duplicate;
+    io->flush = nativeio_flush;
+    io->destroy = nativeio_destroy;
+    io->priv = info;
+
+    return io;
+}

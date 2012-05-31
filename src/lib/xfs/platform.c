@@ -34,9 +34,9 @@ void __xfs_platform_unlock_mutex(void * mutex)
 }
 
 
-char * __xfs_platform_directory_separator(void)
+char __xfs_platform_directory_separator(void)
 {
-	return ("/");
+	return ('/');
 }
 
 void * __xfs_platform_open_read(const char * path)
@@ -132,7 +132,6 @@ void __xfs_platform_close(void * handle)
 /*    const int fd = *((int *) opaque);
     (void) close(fd);   we don't check this. You should have used flush!
     allocator.Free(opaque);*/
-	return 0;
 }
 
 int __xfs_platform_mkdir(const char * path)
@@ -186,4 +185,9 @@ int __xfs_platform_stat(const char * path, int * exists, struct xfs_stat_t * st)
     return 1;*/
 
 	return 0;
+}
+
+void __xfs_platform_enumerate_files(const char * dirname, int omitSymLinks, xfs_enum_files_callback callback, const char *origdir, void *callbackdata)
+{
+
 }

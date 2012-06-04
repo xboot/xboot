@@ -178,6 +178,11 @@ static void block_set_size(block_header_t * block, size_t size)
 	block->size = size | (oldsize & (block_header_free_bit | block_header_prev_free_bit));
 }
 
+static int block_is_last(const block_header_t * block)
+{
+	return (block_size(block) == 0);
+}
+
 static int block_is_free(const block_header_t * block)
 {
 	return tlsf_cast(int, block->size & block_header_free_bit);
@@ -716,6 +721,50 @@ void * memory_pool_create(void * pool, size_t size)
 void memory_pool_destroy(void * pool)
 {
 	tlsf_destroy(pool);
+}
+
+struct mpool_stat {
+	size_t used;
+	size_t free;
+};
+
+typedef void (*tlsf_walker)(void * ptr, size_t size, int used, void * user);
+
+static void tlfs_stat_walker(void * ptr, size_t size, int used, void * user)
+{
+	struct mpool_stat * stat = user;
+
+	if(used)
+		stat->used += size;
+	else
+		stat->free += size;
+}
+
+static void tlsf_walk_heap(void * pool, tlsf_walker walker, void * user)
+{
+	block_header_t * block = offset_to_block(pool, sizeof(pool_t) - block_header_overhead);
+
+	if(!pool || !walker)
+		return;
+
+	while(block && !block_is_last(block))
+	{
+		walker(block_to_ptr(block), block_size(block), !block_is_free(block), user);
+		block = block_next(block);
+	}
+}
+
+void memory_pool_stat(void * pool, size_t * used, size_t * free)
+{
+	struct mpool_stat stat;
+
+	stat.used = 0;
+	stat.free = 0;
+
+	tlsf_walk_heap(pool, tlfs_stat_walker, &stat);
+
+	*used = stat.used;
+	*free = stat.free;
 }
 
 void * malloc(size_t size)

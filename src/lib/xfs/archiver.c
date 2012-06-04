@@ -177,3 +177,7 @@ const struct xfs_archiver_t __xfs_archiver_direct = {
 	.enumerate_files	= direct_enumerate_files,
 	.close_archive		= direct_close_archive,
 };
+
+const struct xfs_archiver_t ** __xfs_archiver_supported = {
+	NULL,
+};

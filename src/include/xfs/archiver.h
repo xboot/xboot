@@ -29,6 +29,6 @@ struct xfs_archiver_t
 
 
 extern const struct xfs_archiver_t __xfs_archiver_direct;
-
+extern const struct xfs_archiver_t ** __xfs_archiver_supported;
 
 #endif /* __XFS_ARCHIVER_H__ */

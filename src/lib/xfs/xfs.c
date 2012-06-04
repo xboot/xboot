@@ -91,12 +91,12 @@ static struct xfs_dir_handle_t * tryOpenDir(struct xfs_io_t * io, const struct x
 			return NULL;
     }
 
-    opaque = funcs->openArchive(io, d, forWriting);
+    opaque = funcs->open_archive(io, d, forWriting);
     if (opaque != NULL)
     {
         retval = (struct xfs_dir_handle_t *)malloc(sizeof(struct xfs_dir_handle_t));
         if (retval == NULL)
-            funcs->closeArchive(opaque);
+            funcs->close_archive(opaque);
         else
         {
             memset(retval, 0, sizeof(struct xfs_dir_handle_t));

@@ -28,7 +28,7 @@ struct xfs_file_handle_t
 struct xfs_err_state_t
 {
     void * tid;
-    enum xfs_err code;
+//    enum xfs_err code;
     struct xfs_err_state_t * next;
 };
 

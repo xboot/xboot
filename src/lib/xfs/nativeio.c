@@ -1,8 +1,8 @@
 /*
- * xfs/xfsio.c
+ * xfs/nativeio.c
  */
 
-#include <xfs/xfsio.h>
+#include <xfs/xfs.h>
 
 struct nativeio_info_t
 {

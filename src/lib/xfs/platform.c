@@ -2,8 +2,7 @@
  * xfs/platform.c
  */
 
-#include <xboot.h>
-#include <xfs/platform.h>
+#include <xfs/xfs.h>
 
 bool_t __xfs_platform_init(void)
 {

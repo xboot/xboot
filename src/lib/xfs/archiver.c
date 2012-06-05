@@ -2,7 +2,7 @@
  * xfs/archiver.c
  */
 
-#include <xfs/archiver.h>
+#include <xfs/xfs.h>
 
 static char * cvt_to_dependent(void * opaque, const char * name)
 {
@@ -162,10 +162,8 @@ static void direct_close_archive(void * opaque)
 }
 
 const struct xfs_archiver_t __xfs_archiver_direct = {
-	.info = {
-		.extension		= "",
-		.description	= "Non-archive, direct filesystem I/O",
-	},
+	.extension			= "",
+	.description		= "Non-archive, direct filesystem I/O",
 
 	.open_archive		= direct_open_archive,
 	.open_read			= direct_open_read,

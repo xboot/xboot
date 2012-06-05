@@ -1,55 +1,123 @@
 #ifndef __XFS_H__
 #define __XFS_H__
 
-#include <xfs/xfsio.h>
+#include <xboot.h>
+
+/*
+ * Function signature for callbacks that enumerate files
+ */
+typedef void (*xfs_enum_files_callback)(void * data, const char * dir, const char * file);
+
+/*
+ * A xfs file type
+ */
+enum xfs_filetype_t
+{
+	XFS_FILETYPE_OTHER 		= 0,
+	XFS_FILETYPE_REGULAR 	= 1,
+	XFS_FILETYPE_DIRECTORY 	= 2,
+	XFS_FILETYPE_SYMLINK 	= 3,
+};
+
+/*
+ * Meta data for a file or directory
+ */
+struct xfs_stat_t
+{
+	s64_t filesize; 	/* size in bytes, -1 for non-files and unknown */
+	s64_t mtime; 		/* last modification time */
+	s64_t ctime; 		/* like mtime, but for file creation time */
+	s64_t atime; 		/* like mtime, but for file access time */
+	s64_t filetype; 	/* file or directory or symlink */
+	int readonly; 		/* non-zero if read only, zero if writable. */
+};
+
+/*
+ * An abstract i/o interface.
+ */
+typedef struct xfs_io_t
+{
+	s64_t (*read)(struct xfs_io_t * io, void * buf, u64_t len);
+	s64_t (*write)(struct xfs_io_t * io, const void * buf, u64_t len);
+	int (*seek)(struct xfs_io_t * io, u64_t offset);
+	s64_t (*tell)(struct xfs_io_t * io);
+	s64_t (*length)(struct xfs_io_t * io);
+	struct xfs_io_t * (*duplicate)(struct xfs_io_t * io);
+	int (*flush)(struct xfs_io_t * io);
+	void (*destroy)(struct xfs_io_t * io);
+
+	void * priv;
+} xfs_io_t;
+
+/*
+ * An abstract archiver interface.
+ */
+struct xfs_archiver_t
+{
+	const char * extension;
+	const char * description;
+
+    void *(*open_archive)(struct xfs_io_t * io, const char * name, int forWrite);
+	struct xfs_io_t *(*open_read)(void * opaque, const char * fnm, int * exists);
+	struct xfs_io_t *(*open_write)(void * opaque, const char * filename);
+	struct xfs_io_t *(*open_append)(void * opaque, const char * filename);
+	int (*remove)(void * opaque, const char * filename);
+	int (*mkdir)(void * opaque, const char * filename);
+	int (*stat)(void * opaque, const char * fn, int * exists, struct xfs_stat_t * stat);
+	void (*enumerate_files)(void * opaque, const char * dirname, int omitSymLinks, xfs_enum_files_callback cb, const char * origdir, void * callbackdata);
+	void (*close_archive)(void * opaque);
+};
+
+/*
+ * Platform functions
+ */
+bool_t __xfs_platform_init(void);
+bool_t __xfs_platform_exit(void);
+
+void * __xfs_platform_create_mutex(void);
+void __xfs_platform_destory_mutex(void * mutex);
+void __xfs_platform_lock_mutex(void * mutex);
+void __xfs_platform_unlock_mutex(void * mutex);
+
+char __xfs_platform_directory_separator(void);
+
+void * __xfs_platform_open_read(const char * path);
+void * __xfs_platform_open_write(const char * path);
+void * __xfs_platform_open_append(const char * path);
+s64_t __xfs_platform_read(void * handle, void * buf, u64_t len);
+s64_t __xfs_platform_write(void * handle, const void * buf, u64_t len);
+int __xfs_platform_seek(void * handle, u64_t pos);
+s64_t __xfs_platform_tell(void * handle);
+s64_t __xfs_platform_length(void * handle);
+int __xfs_platform_flush(void * handle);
+void __xfs_platform_close(void * handle);
+int __xfs_platform_mkdir(const char * path);
+int __xfs_platform_delete(const char * path);
+int __xfs_platform_stat(const char * path, int * exists, struct xfs_stat_t * st);
+void __xfs_platform_enumerate_files(const char * dirname, int omitSymLinks, xfs_enum_files_callback callback, const char *origdir, void *callbackdata);
+
+/*
+ * Nativeio functions
+ */
+struct xfs_io_t * __xfs_create_nativeio(const char * path, const char mode);
+
+/*
+ * Various archiver
+ */
+extern const struct xfs_archiver_t __xfs_archiver_direct;
+extern const struct xfs_archiver_t ** __xfs_archiver_supported;
+
+
+#if 0
 
 /*
  * A xfs file handle.
  */
-typedef struct xfs_file_t
+struct xfs_file_t
 {
 	void * handle;
-} xfs_file_t;
+};
 
-
-
-
-
-
-
-
-/*
- * Values that represent specific causes of failure.
- */
-typedef enum xfs_err
-{
-	XFS_ERR_OK,						/* Success; no error.                    */
-	XFS_ERR_OTHER_ERROR,			/* Error not otherwise covered here.     */
-	XFS_ERR_OUT_OF_MEMORY,			/* Memory allocation failed.             */
-	XFS_ERR_NOT_INITIALIZED,		/* not initialized.         			 */
-	XFS_ERR_IS_INITIALIZED,			/* already initialized.                  */
-	XFS_ERR_ARGV0_IS_NULL,			/* Needed argv[0], but it is NULL.       */
-	XFS_ERR_UNSUPPORTED,			/* Operation or feature unsupported.     */
-	XFS_ERR_PAST_EOF,				/* Attempted to access past end of file. */
-	XFS_ERR_FILES_STILL_OPEN,		/* Files still open.                     */
-	XFS_ERR_INVALID_ARGUMENT,		/* Bad parameter passed to an function.  */
-	XFS_ERR_NOT_MOUNTED,			/* Requested archive/dir not mounted.    */
-	XFS_ERR_NO_SUCH_PATH,			/* No such file, directory, or parent.   */
-	XFS_ERR_SYMLINK_FORBIDDEN,		/* Symlink seen when not permitted.      */
-	XFS_ERR_NO_WRITE_DIR,			/* No write dir has been specified.      */
-	XFS_ERR_OPEN_FOR_READING,		/* Wrote to a file opened for reading.   */
-	XFS_ERR_OPEN_FOR_WRITING,		/* Read from a file opened for writing.  */
-	XFS_ERR_NOT_A_FILE,				/* Needed a file, got a directory (etc). */
-	XFS_ERR_READ_ONLY,				/* Wrote to a read-only filesystem.      */
-	XFS_ERR_CORRUPT,				/* Corrupted data encountered.           */
-	XFS_ERR_SYMLINK_LOOP,			/* Infinite symbolic link loop.          */
-	XFS_ERR_IO,						/* i/o error (hardware failure, etc).    */
-	XFS_ERR_PERMISSION,				/* Permission denied.                    */
-	XFS_ERR_NO_SPACE,				/* No space (disk full, over quota, etc) */
-	XFS_ERR_BAD_FILENAME,			/* Filename is bogus/insecure.           */
-	XFS_ERR_BUSY,					/* Tried to modify a file the OS needs.  */
-	XFS_ERR_DIR_NOT_EMPTY,			/* Tried to delete dir with files in it. */
-	XFS_ERR_OS_ERROR,				/* Unspecified OS-level error.           */
-} xfs_err;
+#endif
 
 #endif /* __XFS_H__ */

@@ -4,7 +4,7 @@
 #include <xboot.h>
 
 /*
- * Function signature for callbacks that enumerate files
+ * Function signature for callback that enumerate files
  */
 typedef void (*xfs_enum_files_callback)(void * data, const char * dir, const char * file);
 
@@ -35,7 +35,7 @@ struct xfs_stat_t
 /*
  * An abstract i/o interface.
  */
-typedef struct xfs_io_t
+struct xfs_io_t
 {
 	s64_t (*read)(struct xfs_io_t * io, void * buf, u64_t len);
 	s64_t (*write)(struct xfs_io_t * io, const void * buf, u64_t len);
@@ -47,7 +47,7 @@ typedef struct xfs_io_t
 	void (*destroy)(struct xfs_io_t * io);
 
 	void * priv;
-} xfs_io_t;
+};
 
 /*
  * An abstract archiver interface.

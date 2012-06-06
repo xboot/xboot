@@ -177,52 +177,55 @@ bool_t __xfs_platform_mkdir(const char * path)
 
 bool_t __xfs_platform_delete(const char * path)
 {
-	//xxx
-/*    BAIL_IF_MACRO(remove(path) == -1, errcodeFromErrno(), 0);
-    return 1;*/
-	return 0;
+	struct stat _st;
+	int ret;
+
+	if(stat(path, &_st) != 0)
+		return FALSE;
+
+    if(S_ISDIR(_st.st_mode))
+        ret = rmdir(path);
+    else
+        ret = unlink(path);
+
+    if(ret == 0)
+    	return TRUE;
+    return FALSE;
 }
 
-bool_t __xfs_platform_stat(const char * path, int * exists, struct xfs_stat_t * st)
+bool_t __xfs_platform_stat(const char * path, struct xfs_stat_t * st)
 {
-	//xxx
- /*   struct stat statbuf;
+	struct stat _st;
 
-    if (lstat(filename, &statbuf) == -1)
-    {
-        *exists = (errno == ENOENT);
-        BAIL_MACRO(errcodeFromErrno(), 0);
-    }
+	if(stat(path, &_st) != 0)
+		return FALSE;
 
-    *exists = 1;
+	if(S_ISREG(_st.st_mode))
+	{
+		st->size = _st.st_size;
+		st->type = XFS_FILETYPE_REGULAR;
+	}
+	else if(S_ISDIR(_st.st_mode))
+	{
+		st->size = 0;
+		st->type = XFS_FILETYPE_DIRECTORY;
+	}
+	else if(S_ISLNK(_st.st_mode))
+	{
+		st->size = _st.st_size;
+		st->type = XFS_FILETYPE_SYMLINK;
+	}
+	else
+	{
+		st->size = _st.st_size;
+		st->type = XFS_FILETYPE_OTHER;
+	}
 
-    if (S_ISREG(statbuf.st_mode))
-    {
-        st->filetype = PHYSFS_FILETYPE_REGULAR;
-        st->filesize = statbuf.st_size;
-    }
+    st->ctime = _st.st_ctime;
+    st->atime = _st.st_atime;
+    st->mtime = _st.st_mtime;
 
-    else if(S_ISDIR(statbuf.st_mode))
-    {
-        st->filetype = PHYSFS_FILETYPE_DIRECTORY;
-        st->filesize = 0;
-    }
-
-    else
-    {
-        st->filetype = PHYSFS_FILETYPE_OTHER;
-        st->filesize = statbuf.st_size;
-    }
-
-    st->modtime = statbuf.st_mtime;
-    st->createtime = statbuf.st_ctime;
-    st->accesstime = statbuf.st_atime;
-
-     !!! FIXME: maybe we should just report full permissions?
-    st->readonly = access(filename, W_OK);
-    return 1;*/
-
-	return 0;
+    return TRUE;
 }
 
 void __xfs_platform_enumerate_files(const char * dirname, int omitSymLinks, xfs_enum_files_callback callback, const char *origdir, void *callbackdata)

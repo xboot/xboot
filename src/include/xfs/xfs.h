@@ -24,12 +24,11 @@ enum xfs_filetype_t
  */
 struct xfs_stat_t
 {
-	s64_t filesize; 	/* size in bytes, -1 for non-files and unknown */
-	s64_t mtime; 		/* last modification time */
-	s64_t ctime; 		/* like mtime, but for file creation time */
-	s64_t atime; 		/* like mtime, but for file access time */
-	s64_t filetype; 	/* file or directory or symlink */
-	int readonly; 		/* non-zero if read only, zero if writable. */
+	u64_t size;
+	u32_t ctime;
+	u32_t atime;
+	u32_t mtime;
+	enum xfs_filetype_t type;
 };
 
 /*
@@ -41,7 +40,7 @@ struct xfs_io_t
 	u64_t (*write)(struct xfs_io_t * io, const void * buf, u64_t len);
 	u64_t (*tell)(struct xfs_io_t * io);
 	u64_t (*length)(struct xfs_io_t * io);
-	bool_t (*seek)(struct xfs_io_t * io, u64_t offset);
+	bool_t (*seek)(struct xfs_io_t * io, u64_t off);
 	bool_t (*flush)(struct xfs_io_t * io);
 	struct xfs_io_t * (*duplicate)(struct xfs_io_t * io);
 	void (*destroy)(struct xfs_io_t * io);
@@ -58,12 +57,12 @@ struct xfs_archiver_t
 	const char * description;
 
     void *(*open_archive)(struct xfs_io_t * io, const char * name, int forWrite);
-	struct xfs_io_t *(*open_read)(void * opaque, const char * fnm, int * exists);
+	struct xfs_io_t *(*open_read)(void * opaque, const char * filename);
 	struct xfs_io_t *(*open_write)(void * opaque, const char * filename);
 	struct xfs_io_t *(*open_append)(void * opaque, const char * filename);
-	int (*remove)(void * opaque, const char * filename);
-	int (*mkdir)(void * opaque, const char * filename);
-	int (*stat)(void * opaque, const char * fn, int * exists, struct xfs_stat_t * stat);
+	bool_t (*remove)(void * opaque, const char * filename);
+	bool_t (*mkdir)(void * opaque, const char * filename);
+	bool_t (*stat)(void * opaque, const char * fn, struct xfs_stat_t * stat);
 	void (*enumerate_files)(void * opaque, const char * dirname, int omitSymLinks, xfs_enum_files_callback cb, const char * origdir, void * callbackdata);
 	void (*close_archive)(void * opaque);
 };
@@ -93,7 +92,7 @@ bool_t __xfs_platform_flush(void * handle);
 bool_t __xfs_platform_close(void * handle);
 bool_t __xfs_platform_mkdir(const char * path);
 bool_t __xfs_platform_delete(const char * path);
-bool_t __xfs_platform_stat(const char * path, int * exists, struct xfs_stat_t * st);
+bool_t __xfs_platform_stat(const char * path, struct xfs_stat_t * st);
 void __xfs_platform_enumerate_files(const char * dirname, int omitSymLinks, xfs_enum_files_callback callback, const char *origdir, void *callbackdata);
 
 /*

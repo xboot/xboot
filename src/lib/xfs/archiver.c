@@ -33,12 +33,11 @@ static void * direct_open_archive(struct xfs_io_t * io, const char * name, int f
 	char * retval = NULL;
 	const size_t namelen = strlen(name);
 	const size_t seplen = 1;
-	int exists = 0;
 
-	if(!__xfs_platform_stat(name, &exists, &st))
+	if(!__xfs_platform_stat(name, &st))
 		return NULL;
 
-	if(st.filetype != XFS_FILETYPE_DIRECTORY)
+	if(st.type != XFS_FILETYPE_DIRECTORY)
 		return NULL;
 
 	retval = malloc(namelen + seplen + 1);
@@ -56,50 +55,42 @@ static void * direct_open_archive(struct xfs_io_t * io, const char * name, int f
 	return retval;
 }
 
-static struct xfs_io_t * direct_open(void * opaque, const char * name, const char mode, int * fileExists)
+static struct xfs_io_t * direct_open(void * opaque, const char * name, const char mode)
 {
 	struct xfs_stat_t statbuf;
 	char * f;
 	struct xfs_io_t * io = NULL;
-	int existtmp = 0;
 
     f = cvt_to_dependent(opaque, name);
     if(!f)
     	return 0;
 
-	if (fileExists == NULL)
-		fileExists = &existtmp;
-
 	io = __xfs_create_nativeio(f, mode);
 	if (io == NULL)
 	{
-		__xfs_platform_stat(f, fileExists, &statbuf);
-	}
-	else
-	{
-		*fileExists = 1;
+		__xfs_platform_stat(f, &statbuf);
 	}
 
 	free(f);
 	return io;
 }
 
-static struct xfs_io_t * direct_open_read(void * opaque, const char * fnm, int * exist)
+static struct xfs_io_t * direct_open_read(void * opaque, const char * filename)
 {
-	return direct_open(opaque, fnm, 'r', exist);
+	return direct_open(opaque, filename, 'r');
 }
 
 static struct xfs_io_t * direct_open_write(void * opaque, const char * filename)
 {
-	return direct_open(opaque, filename, 'w', NULL);
+	return direct_open(opaque, filename, 'w');
 }
 
 static struct xfs_io_t * direct_open_append(void * opaque, const char * filename)
 {
-	return direct_open(opaque, filename, 'a', NULL);
+	return direct_open(opaque, filename, 'a');
 }
 
-static int direct_mkdir(void * opaque, const char * name)
+static bool_t direct_mkdir(void * opaque, const char * name)
 {
     char * f;
     int retval;
@@ -114,7 +105,7 @@ static int direct_mkdir(void * opaque, const char * name)
     return retval;
 }
 
-static int direct_remove(void * opaque, const char * name)
+static bool_t direct_remove(void * opaque, const char * name)
 {
 	char * f;
     int retval;
@@ -129,7 +120,7 @@ static int direct_remove(void * opaque, const char * name)
     return retval;
 }
 
-static int direct_stat(void *opaque, const char * name, int * exists, struct xfs_stat_t * stat)
+static bool_t direct_stat(void *opaque, const char * name, struct xfs_stat_t * stat)
 {
     char * d;
     int retval = 0;
@@ -138,7 +129,7 @@ static int direct_stat(void *opaque, const char * name, int * exists, struct xfs
     if(!d)
     	return 0;
 
-    retval = __xfs_platform_stat(d, exists, stat);
+    retval = __xfs_platform_stat(d, stat);
     free(d);
 
     return retval;

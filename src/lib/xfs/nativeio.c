@@ -35,10 +35,10 @@ static u64_t nativeio_length(struct xfs_io_t * io)
 	return __xfs_platform_length(info->handle);
 }
 
-static bool_t nativeio_seek(struct xfs_io_t *io, u64_t offset)
+static bool_t nativeio_seek(struct xfs_io_t *io, u64_t off)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-	return __xfs_platform_seek(info->handle, offset);
+	return __xfs_platform_seek(info->handle, off);
 }
 
 static bool_t nativeio_flush(struct xfs_io_t * io)

@@ -404,3 +404,11 @@ int PHYSFS_addToSearchPath(const char *newDir, int appendToPath)
     return doMount(NULL, newDir, NULL, appendToPath);
 } /* PHYSFS_addToSearchPath */
 
+
+//xxx
+void tt(void)
+{
+	PHYSFS_addToSearchPath("/", 1);
+	printk("init\r\n");
+
+}

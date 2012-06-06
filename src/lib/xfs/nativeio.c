@@ -11,46 +11,46 @@ struct nativeio_info_t
 	char mode;	/* 'r', 'w', 'a' */
 };
 
-static s64_t nativeio_read(struct xfs_io_t * io, void * buf, u64_t len)
+static u64_t nativeio_read(struct xfs_io_t * io, void * buf, u64_t len)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
 	return __xfs_platform_read(info->handle, buf, len);
 }
 
-static s64_t nativeio_write(struct xfs_io_t * io, const void * buf, u64_t len)
+static u64_t nativeio_write(struct xfs_io_t * io, const void * buf, u64_t len)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
 	return __xfs_platform_write(info->handle, buf, len);
 }
 
-static int nativeio_seek(struct xfs_io_t *io, u64_t offset)
-{
-	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-	return __xfs_platform_seek(info->handle, offset);
-}
-
-static s64_t nativeio_tell(struct xfs_io_t * io)
+static u64_t nativeio_tell(struct xfs_io_t * io)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
 	return __xfs_platform_tell(info->handle);
 }
 
-static s64_t nativeio_length(struct xfs_io_t * io)
+static u64_t nativeio_length(struct xfs_io_t * io)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
 	return __xfs_platform_length(info->handle);
+}
+
+static bool_t nativeio_seek(struct xfs_io_t *io, u64_t offset)
+{
+	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
+	return __xfs_platform_seek(info->handle, offset);
+}
+
+static bool_t nativeio_flush(struct xfs_io_t * io)
+{
+	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
+	return __xfs_platform_flush(info->handle);
 }
 
 static struct xfs_io_t * nativeio_duplicate(struct xfs_io_t * io)
 {
 	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
 	return __xfs_create_nativeio(info->path, info->mode);
-}
-
-static int nativeio_flush(struct xfs_io_t * io)
-{
-	struct nativeio_info_t * info = (struct nativeio_info_t *)io->priv;
-	return __xfs_platform_flush(info->handle);
 }
 
 static void nativeio_destroy(struct xfs_io_t * io)
@@ -107,11 +107,11 @@ struct xfs_io_t * __xfs_create_nativeio(const char * path, const char mode)
 
     io->read = nativeio_read;
     io->write = nativeio_write;
-    io->seek = nativeio_seek;
     io->tell = nativeio_tell;
     io->length = nativeio_length;
-    io->duplicate = nativeio_duplicate;
+    io->seek = nativeio_seek;
     io->flush = nativeio_flush;
+    io->duplicate = nativeio_duplicate;
     io->destroy = nativeio_destroy;
     io->priv = info;
 

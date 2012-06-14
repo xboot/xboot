@@ -4,57 +4,55 @@
 
 #include <xfs/xfs.h>
 
-bool_t __xfs_platform_init(void)
+struct xfs_context_t * __xfs_platform_init(void)
 {
-	return TRUE;
+	struct xfs_context_t * ctx;
+
+	ctx = malloc(sizeof(struct xfs_context_t));
+	if(!ctx)
+		return NULL;
+
+	memset(ctx, 0, sizeof(struct xfs_context_t));
+	return ctx;
 }
 
-bool_t __xfs_platform_exit(void)
+void __xfs_platform_exit(struct xfs_context_t * ctx)
 {
-	return TRUE;
+	if(ctx)
+		free(ctx);
 }
 
-
-void * __xfs_platform_create_mutex(void)
+inline struct xfs_context_t * __xfs_platform_get_context(void)
 {
-	return 0;
+	return (__get_runtime()->__xfs_ctx);
 }
 
-void __xfs_platform_destory_mutex(void * mutex)
-{
-}
-
-void __xfs_platform_lock_mutex(void * mutex)
-{
-}
-
-void __xfs_platform_unlock_mutex(void * mutex)
-{
-}
-
-
-char __xfs_platform_directory_separator(void)
+inline char __xfs_platform_directory_separator(void)
 {
 	return ('/');
 }
 
+inline void __xfs_platform_lock(void)
+{
+	void * lock = __get_runtime()->__xfs_ctx->lock;
+	lock = 0;
+}
+
+inline void __xfs_platform_unlock(void)
+{
+	void * lock = __get_runtime()->__xfs_ctx->lock;
+	lock = 0;
+}
+
 static void * __do_open(const char * path, const char * mode)
 {
-	FILE *f, *ret;
+	FILE * f;
 
 	f = fopen(path, mode);
 	if(!f)
 		return NULL;
 
-	ret = (FILE *)malloc(sizeof(FILE *));
-	if(!ret)
-	{
-		fclose(f);
-		return NULL;
-	}
-
-	ret = f;
-	return ((void *)ret);
+	return ((void *)f);
 }
 
 void * __xfs_platform_open_read(const char * path)
@@ -163,8 +161,6 @@ bool_t __xfs_platform_close(void * handle)
 	FILE * f = handle;
 
 	fclose(f);
-	free(f);
-
 	return TRUE;
 }
 

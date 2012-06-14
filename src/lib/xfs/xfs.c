@@ -4,236 +4,159 @@
 
 #include <xfs/xfs.h>
 
-struct xfs_dir_handle_t
+static char * get_file_extension(const char * name)
 {
-    void * pirv;
-    char * dir_name;
-    char * mount_point;
-    const struct xfs_archiver_t * funcs;
-    struct xfs_dir_handle_t * next;
-};
-
-struct xfs_file_handle_t
-{
-	struct xfs_io_t * io;
-    u8_t forReading;
-    const struct xfs_dir_handle_t * dir_handle;
-    u8_t * buffer;
-    u32_t bufsize;
-    u32_t buffill;
-    u32_t bufpos;
-    struct xfs_file_handle_t * next;
-};
-
-struct xfs_err_state_t
-{
-    void * tid;
-//    enum xfs_err code;
-    struct xfs_err_state_t * next;
-};
-
-//-----------------------
-struct xfs {
-	struct xfs_err_state_t * errorStates;
-	struct xfs_dir_handle_t * searchPath;
-	struct xfs_dir_handle_t * writeDir;
-	struct xfs_file_handle_t * openWriteList;
-	struct xfs_file_handle_t * openReadList;
-	char * baseDir;
-	char * userDir;
-	char * prefDir;
-	int allowSymLinks;
-	const struct xfs_archiver_t ** archivers;
-
-	void * errorLock;
-	void * stateLock;
-};
-
-//=========================================================================
-
-
-
-
-
-static const char * find_filename_extension(const char * name)
-{
-	const char * retval = NULL;
+	char * ret = NULL;
+	char * p;
 
 	if(name != NULL)
 	{
-		const char * p = strchr(name, '.');
-		retval = p;
+		p = strchr(name, '.');
+		ret = p;
 
 		while(p != NULL)
 		{
 			p = strchr(p + 1, '.');
 			if(p != NULL)
-				retval = p;
+				ret = p;
 		}
 
-		if(retval != NULL)
-			retval++;
+		if(ret != NULL)
+			ret++;
 	}
 
-	return retval;
+	return ret;
 }
 
-static struct xfs_dir_handle_t * tryOpenDir(struct xfs_io_t * io, const struct xfs_archiver_t * funcs, const char * d, int forWriting)
+static struct xfs_dir_handle_t * try_open_directory(struct xfs_io_t * io, struct xfs_archiver_t * archiver, const char * dir, int forWriting)
 {
-	struct xfs_dir_handle_t * retval = NULL;
-    void * opaque = NULL;
+	struct xfs_dir_handle_t * ret = NULL;
+	void * handle;
 
-    if(io != NULL)
-    {
-		if(!io->seek(io, 0))
-			return NULL;
-    }
-
-    opaque = funcs->open_archive(io, d, forWriting);
-    if (opaque != NULL)
-    {
-        retval = (struct xfs_dir_handle_t *)malloc(sizeof(struct xfs_dir_handle_t));
-        if (retval == NULL)
-            funcs->close_archive(opaque);
-        else
-        {
-            memset(retval, 0, sizeof(struct xfs_dir_handle_t));
-            retval->mount_point = NULL;
-            retval->funcs = funcs;
-            retval->pirv = opaque;
-        }
-    }
-
-    return retval;
-}
-
-static struct xfs_dir_handle_t * openDirectory(struct xfs_io_t * io, const char * d, int forWriting)
-{
-	struct xfs_dir_handle_t * retval = NULL;
-	const struct xfs_archiver_t ** i;
-	const char * ext;
-
-	if(io == NULL)
+	if (io != NULL)
 	{
-		retval = tryOpenDir(io, &__xfs_archiver_direct, d, forWriting);
-		if (retval != NULL)
-			return retval;
-
-		io = __xfs_create_nativeio(d, forWriting ? 'w' : 'r');
-		if(!io)
+		if (!io->seek(io, 0))
 			return NULL;
 	}
 
-	ext = find_filename_extension(d);
+	handle = archiver->open_archive(io, dir, forWriting);
+	if (handle != NULL)
+	{
+		ret = (struct xfs_dir_handle_t *) malloc(sizeof(struct xfs_dir_handle_t));
+		if (ret == NULL)
+			archiver->close_archive(handle);
+		else
+		{
+			memset(ret, 0, sizeof(struct xfs_dir_handle_t));
+			ret->mpoint = NULL;
+			ret->archiver = archiver;
+			ret->handle = handle;
+		}
+	}
+
+	return ret;
+}
+
+static struct xfs_dir_handle_t * open_directory(struct xfs_io_t * io, const char * dir, int forWriting)
+{
+	struct xfs_dir_handle_t * ret = NULL;
+	struct xfs_archiver_t ** i;
+	char * ext;
+
+	if (io == NULL)
+	{
+		ret = try_open_directory(io, &__xfs_archiver_direct, dir, forWriting);
+		if (ret != NULL)
+			return ret;
+
+		io = __xfs_create_nativeio(dir, forWriting ? 'w' : 'r');
+		if (!io)
+			return NULL;
+	}
+
+	ext = get_file_extension(dir);
 	if (ext != NULL)
 	{
-		/* Look for archivers with matching file extensions first... */
-		for (i = __xfs_archiver_supported; (*i != NULL) && (retval == NULL); i++)
+		for (i = __xfs_archiver_supported; (*i != NULL) && (ret == NULL); i++)
 		{
 			if (strcasecmp(ext, (*i)->extension) == 0)
-				retval = tryOpenDir(io, *i, d, forWriting);
-		} /* for */
+				ret = try_open_directory(io, *i, dir, forWriting);
+		}
 
-		/* failing an exact file extension match, try all the others... */
-		for (i = __xfs_archiver_supported; (*i != NULL) && (retval == NULL); i++)
+		for (i = __xfs_archiver_supported; (*i != NULL) && (ret == NULL); i++)
 		{
 			if (strcasecmp(ext, (*i)->extension) != 0)
-				retval = tryOpenDir(io, *i, d, forWriting);
-		} /* for */
-	} /* if */
-
-	else /* no extension? Try them all. */
+				ret = try_open_directory(io, *i, dir, forWriting);
+		}
+	}
+	else
 	{
-		for (i = __xfs_archiver_supported; (*i != NULL) && (retval == NULL); i++)
-			retval = tryOpenDir(io, *i, d, forWriting);
-	} /* else */
+		for (i = __xfs_archiver_supported; (*i != NULL) && (ret == NULL); i++)
+			ret = try_open_directory(io, *i, dir, forWriting);
+	}
 
-	if(!retval)
-		return NULL;
-	return retval;
+	return ret;
 }
-/*
- * Make a platform-independent path string sane. Doesn't actually check the
- *  file hierarchy, it just cleans up the string.
- *  (dst) must be a buffer at least as big as (src), as this is where the
- *  cleaned up string is deposited.
- * If there are illegal bits in the path (".." entries, etc) then we
- *  return zero and (dst) is undefined. Non-zero if the path was sanitized.
- */
-static int sanitizePlatformIndependentPath(const char *src, char *dst)
+
+static bool_t sanitize_platform_independent_Path(const char * src, char * dst)
 {
-    char *prev;
-    char ch;
+	char *prev;
+	char ch;
 
-    while (*src == '/')  /* skip initial '/' chars... */
-        src++;
+	while (*src == '/')
+		src++;
 
-    prev = dst;
-    do
-    {
-        ch = *(src++);
+	prev = dst;
+	do
+	{
+		ch = *(src++);
 
-        if ((ch == ':') || (ch == '\\'))  /* illegal chars in a physfs path. */
-            ;//xxxBAIL_MACRO(PHYSFS_ERR_BAD_FILENAME, 0);
+		if ((ch == ':') || (ch == '\\'))
+			return FALSE;
 
-        if (ch == '/')   /* path separator. */
-        {
-            *dst = '\0';  /* "." and ".." are illegal pathnames. */
-            if ((strcmp(prev, ".") == 0) || (strcmp(prev, "..") == 0))
-                ;//xxx BAIL_MACRO(PHYSFS_ERR_BAD_FILENAME, 0);
+		if (ch == '/')
+		{
+			*dst = '\0';
+			if ((strcmp(prev, ".") == 0) || (strcmp(prev, "..") == 0))
+				return FALSE;
 
-            while (*src == '/')   /* chop out doubles... */
-                src++;
+			while (*src == '/')
+				src++;
 
-            if (*src == '\0') /* ends with a pathsep? */
-                break;  /* we're done, don't add final pathsep to dst. */
+			if (*src == '\0')
+				break;
 
-            prev = dst + 1;
-        } /* if */
+			prev = dst + 1;
+		}
 
-        *(dst++) = ch;
-    } while (ch != '\0');
+		*(dst++) = ch;
+	} while (ch != '\0');
 
-    return 1;
-} /* sanitizePlatformIndependentPath */
+	return TRUE;
+}
 
-
-/*
- * Figure out if (fname) is part of (h)'s mountpoint. (fname) must be an
- *  output from sanitizePlatformIndependentPath(), so that it is in a known
- *  state.
- *
- * This only finds legitimate segments of a mountpoint. If the mountpoint is
- *  "/a/b/c" and (fname) is "/a/b/c", "/", or "/a/b/c/d", then the results are
- *  all zero. "/a/b" will succeed, though.
- */
-static int partOfMountPoint(struct xfs_dir_handle_t *h, char *fname)
+static bool_t part_of_mount_point(struct xfs_dir_handle_t * dh, char * name)
 {
-    /* !!! FIXME: This code feels gross. */
-    int rc;
-    size_t len, mntpntlen;
+	size_t len, mpoint_len;
 
-    if (h->mount_point == NULL)
-        return 0;
-    else if (*fname == '\0')
-        return 1;
+	if (dh->mpoint == NULL)
+		return FALSE;
+	else if (*name == '\0')
+		return TRUE;
 
-    len = strlen(fname);
-    mntpntlen = strlen(h->mount_point);
-    if (len > mntpntlen)  /* can't be a subset of mountpoint. */
-        return 0;
+	len = strlen(name);
+	mpoint_len = strlen(dh->mpoint);
+	if (len > mpoint_len)
+		return FALSE;
 
-    /* if true, must be not a match or a complete match, but not a subset. */
-    if ((len + 1) == mntpntlen)
-        return 0;
+	if ((len + 1) == mpoint_len)
+		return FALSE;
 
-    rc = strncmp(fname, h->mount_point, len); /* !!! FIXME: case insensitive? */
-    if (rc != 0)
-        return 0;  /* not a match. */
+	if(strncmp(name, dh->mpoint, len) != 0)
+		return FALSE;
 
-    /* make sure /a/b matches /a/b/ and not /a/bc ... */
-    return h->mount_point[len] == '/';
-} /* partOfMountPoint */
+	return (dh->mpoint[len] == '/');
+}
 
 static struct xfs_dir_handle_t *createDirHandle(struct xfs_io_t *io, const char *newDir,
                                   const char *mountPoint, int forWriting)
@@ -248,32 +171,32 @@ static struct xfs_dir_handle_t *createDirHandle(struct xfs_io_t *io, const char 
         if(!tmpmntpnt)
         	goto badDirHandle;
 
-        if (!sanitizePlatformIndependentPath(mountPoint, tmpmntpnt))
+        if (!sanitize_platform_independent_Path(mountPoint, tmpmntpnt))
             goto badDirHandle;
         mountPoint = tmpmntpnt;  /* sanitized version. */
     } /* if */
 
-    dirHandle = openDirectory(io, newDir, forWriting);
+    dirHandle = open_directory(io, newDir, forWriting);
     if(!dirHandle)
     	goto badDirHandle;
 
     if (newDir == NULL)
-        dirHandle->dir_name = NULL;
+        dirHandle->dname = NULL;
     else
     {
-        dirHandle->dir_name = (char *) malloc(strlen(newDir) + 1);
-        if (!dirHandle->dir_name)
+        dirHandle->dname = (char *) malloc(strlen(newDir) + 1);
+        if (!dirHandle->dname)
            	goto badDirHandle;
-        strcpy(dirHandle->dir_name, newDir);
+        strcpy(dirHandle->dname, newDir);
     } /* else */
 
     if ((mountPoint != NULL) && (*mountPoint != '\0'))
     {
-        dirHandle->mount_point = (char *)malloc(strlen(mountPoint)+2);
-        if (!dirHandle->mount_point)
+        dirHandle->mpoint = (char *)malloc(strlen(mountPoint)+2);
+        if (!dirHandle->mpoint)
         	goto badDirHandle;
-        strcpy(dirHandle->mount_point, mountPoint);
-        strcat(dirHandle->mount_point, "/");
+        strcpy(dirHandle->mpoint, mountPoint);
+        strcat(dirHandle->mpoint, "/");
     } /* if */
 
     free(tmpmntpnt);
@@ -282,9 +205,9 @@ static struct xfs_dir_handle_t *createDirHandle(struct xfs_io_t *io, const char 
 badDirHandle:
     if (dirHandle != NULL)
     {
-        dirHandle->funcs->close_archive(dirHandle->pirv);
-        free(dirHandle->dir_name);
-        free(dirHandle->mount_point);
+        dirHandle->archiver->close_archive(dirHandle->handle);
+        free(dirHandle->dname);
+        free(dirHandle->mpoint);
         free(dirHandle);
     } /* if */
 
@@ -303,13 +226,13 @@ static int freeDirHandle(struct xfs_dir_handle_t *dh, struct xfs_file_handle_t *
 
     for (i = openList; i != NULL; i = i->next)
     {
-    	if(i->dir_handle == dh)
+    	if(i->dhandle == dh)
     		return 0;
     }
 
-    dh->funcs->close_archive(dh->pirv);
-    free(dh->dir_name);
-    free(dh->mount_point);
+    dh->archiver->close_archive(dh->handle);
+    free(dh->dname);
+    free(dh->mpoint);
     free(dh);
     return 1;
 } /* freeDirHandle */
@@ -318,14 +241,14 @@ static int freeDirHandle(struct xfs_dir_handle_t *dh, struct xfs_file_handle_t *
 static char *calculateBaseDir(const char *argv0)
 {
     const char dirsep = __xfs_platform_directory_separator();
-    char *retval = NULL;
+    char *ret = NULL;
     char *ptr = NULL;
 
 #if 0
     /* Give the platform layer first shot at this. */
-    retval = __PHYSFS_platformCalcBaseDir(argv0);
-    if (retval != NULL)
-        return retval;
+    ret = __PHYSFS_platformCalcBaseDir(argv0);
+    if (ret != NULL)
+        return ret;
 
     /* We need argv0 to go on. */
     BAIL_IF_MACRO(argv0 == NULL, PHYSFS_ERR_ARGV0_IS_NULL, NULL);
@@ -334,11 +257,11 @@ static char *calculateBaseDir(const char *argv0)
     if (ptr != NULL)
     {
         const size_t size = ((size_t) (ptr - argv0)) + 1;
-        retval = (char *) allocator.Malloc(size + 1);
-        BAIL_IF_MACRO(!retval, PHYSFS_ERR_OUT_OF_MEMORY, NULL);
-        memcpy(retval, argv0, size);
-        retval[size] = '\0';
-        return retval;
+        ret = (char *) allocator.Malloc(size + 1);
+        BAIL_IF_MACRO(!ret, PHYSFS_ERR_OUT_OF_MEMORY, NULL);
+        memcpy(ret, argv0, size);
+        ret[size] = '\0';
+        return ret;
     } /* if */
 
     /* argv0 wasn't helpful. */
@@ -365,7 +288,7 @@ static int doMount(struct xfs_io_t *io, const char *fname,
         for (i = searchPath; i != NULL; i = i->next)
         {
             /* already in search path? */
-            if ((i->dir_name != NULL) && (strcmp(fname, i->dir_name) == 0))
+            if ((i->dname != NULL) && (strcmp(fname, i->dname) == 0))
                 ;//xxx BAIL_MACRO_MUTEX(ERRPASS, stateLock, 1);
             prev = i;
         } /* for */
@@ -408,7 +331,7 @@ int PHYSFS_addToSearchPath(const char *newDir, int appendToPath)
 static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissing)
 {
     char *fname = *_fname;
-    int retval = 1;
+    int ret = 1;
     char *start;
     char *end;
 
@@ -416,28 +339,28 @@ static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissin
         return 1;
 
     /* !!! FIXME: This codeblock sucks. */
-    if (h->mount_point != NULL)  /* NULL mountpoint means "/". */
+    if (h->mpoint != NULL)  /* NULL mountpoint means "/". */
     {
-        size_t mntpntlen = strlen(h->mount_point);
+        size_t mpoint_len = strlen(h->mpoint);
         size_t len = strlen(fname);
-        assert(mntpntlen > 1); /* root mount points should be NULL. */
+        assert(mpoint_len > 1); /* root mount points should be NULL. */
         /* not under the mountpoint, so skip this archive. */
-        if(len < mntpntlen-1)
+        if(len < mpoint_len-1)
         	return 0;
         /* !!! FIXME: Case insensitive? */
-        retval = strncmp(h->mount_point, fname, mntpntlen-1);
-        if(retval != 0)
+        ret = strncmp(h->mpoint, fname, mpoint_len-1);
+        if(ret != 0)
         	return 0;
-        if (len > mntpntlen-1)  /* corner case... */
+        if (len > mpoint_len-1)  /* corner case... */
         {
-        	if(fname[mntpntlen-1]!='/')
+        	if(fname[mpoint_len-1]!='/')
         		return 0;
         }
-        fname += mntpntlen-1;  /* move to start of actual archive path. */
+        fname += mpoint_len-1;  /* move to start of actual archive path. */
         if (*fname == '/')
             fname++;
         *_fname = fname;  /* skip mountpoint for later use. */
-        retval = 1;  /* may be reset, below. */
+        ret = 1;  /* may be reset, below. */
     } /* if */
 
     start = fname;
@@ -450,7 +373,7 @@ static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissin
             end = strchr(start, '/');
 
             if (end != NULL) *end = '\0';
-            rc = h->funcs->stat(h->opaque, fname, &retval, &statbuf);
+            rc = h->archiver->stat(h->opaque, fname, &ret, &statbuf);
             if (rc)
                 rc = (statbuf.filetype == PHYSFS_FILETYPE_SYMLINK);
             if (end != NULL) *end = '/';
@@ -459,7 +382,7 @@ static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissin
             BAIL_IF_MACRO(rc, PHYSFS_ERR_SYMLINK_FORBIDDEN, 0);
 
              break out early if path element is missing.
-            if (!retval)
+            if (!ret)
             {
 
                  * We need to clear it if it's the last element of the path,
@@ -467,7 +390,7 @@ static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissin
                  *  for writing...
 
                 if ((end == NULL) || (allowMissing))
-                    retval = 1;
+                    ret = 1;
                 break;
             }  if
 
@@ -478,7 +401,7 @@ static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissin
         }  while
     }  if */
 
-    return retval;
+    return ret;
 } /* verifyPath */
 
 /*
@@ -491,13 +414,13 @@ static void enumerateFromMountPoint(struct xfs_dir_handle_t *i, const char *arcf
     const size_t len = strlen(arcfname);
     char *ptr = NULL;
     char *end = NULL;
-    const size_t slen = strlen(i->mount_point) + 1;
+    const size_t slen = strlen(i->mpoint) + 1;
     char *mountPoint = (char *) malloc(slen);
 
     if (mountPoint == NULL)
         return;  /* oh well. */
 
-    strcpy(mountPoint, i->mount_point);
+    strcpy(mountPoint, i->mpoint);
     ptr = mountPoint + ((len) ? len + 1 : 0);
     end = strchr(ptr, '/');
     assert(end);  /* should always find a terminating '/'. */
@@ -523,7 +446,7 @@ void PHYSFS_enumerateFilesCallback(const char *_fname,
     if(!fname)
     	return;
 
-    if (sanitizePlatformIndependentPath(_fname, fname))
+    if (sanitize_platform_independent_Path(_fname, fname))
     {
     	struct xfs_dir_handle_t *i;
 
@@ -532,12 +455,12 @@ void PHYSFS_enumerateFilesCallback(const char *_fname,
         for (i = searchPath; i != NULL; i = i->next)
         {
             char *arcfname = fname;
-            if (partOfMountPoint(i, arcfname))
+            if (part_of_mount_point(i, arcfname))
                 enumerateFromMountPoint(i, arcfname, callback, _fname, data);
 
             else if (verifyPath(i, &arcfname, 0))
             {
-                i->funcs->enumerate(i->pirv, arcfname,
+                i->archiver->enumerate(i->handle, arcfname,
                                          callback, _fname, data);
             } /* else if */
         } /* for */

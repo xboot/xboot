@@ -18,6 +18,9 @@ struct runtime_t {
 
 	/* standard input, output and error */
 	FILE *__stdin, *__stdout, *__stderr;
+
+	/* xfs context */
+	struct xfs_context_t * __xfs_ctx;
 };
 
 

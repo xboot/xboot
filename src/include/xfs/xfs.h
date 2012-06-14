@@ -67,17 +67,52 @@ struct xfs_archiver_t
 };
 
 /*
+ * A xfs context
+ */
+struct xfs_dir_handle_t
+{
+    void * handle;
+    char * dname;
+    char * mpoint;
+    struct xfs_archiver_t * archiver;
+    struct xfs_dir_handle_t * next;
+};
+
+struct xfs_file_handle_t
+{
+    u8_t forReading;
+    u8_t * buffer;
+    u32_t bufsize;
+    u32_t buffill;
+    u32_t bufpos;
+    struct xfs_io_t * io;
+    struct xfs_dir_handle_t * dhandle;
+    struct xfs_file_handle_t * next;
+};
+
+struct xfs_context_t {
+	struct xfs_dir_handle_t * search_path;
+	struct xfs_dir_handle_t * write_dir;
+	struct xfs_file_handle_t * open_write_list;
+	struct xfs_file_handle_t * open_read_list;
+	struct xfs_archiver_t ** archivers;
+
+	char * baseDir;
+	char * userDir;
+	char * prefDir;
+
+	void * lock;
+};
+
+/*
  * Platform functions
  */
-bool_t __xfs_platform_init(void);
-bool_t __xfs_platform_exit(void);
-
-void * __xfs_platform_create_mutex(void);
-void __xfs_platform_destory_mutex(void * mutex);
-void __xfs_platform_lock_mutex(void * mutex);
-void __xfs_platform_unlock_mutex(void * mutex);
-
-char __xfs_platform_directory_separator(void);
+struct xfs_context_t * __xfs_platform_init(void);
+void __xfs_platform_exit(struct xfs_context_t * ctx);
+inline struct xfs_context_t * __xfs_platform_get_context(void);
+inline char __xfs_platform_directory_separator(void);
+inline void __xfs_platform_lock(void);
+inline void __xfs_platform_unlock(void);
 
 void * __xfs_platform_open_read(const char * path);
 void * __xfs_platform_open_write(const char * path);
@@ -102,8 +137,8 @@ struct xfs_io_t * __xfs_create_nativeio(const char * path, const char mode);
 /*
  * Various archiver
  */
-extern const struct xfs_archiver_t __xfs_archiver_direct;
-extern const struct xfs_archiver_t ** __xfs_archiver_supported;
+extern struct xfs_archiver_t __xfs_archiver_direct;
+extern struct xfs_archiver_t ** __xfs_archiver_supported;
 
 
 #if 0

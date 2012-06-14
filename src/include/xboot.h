@@ -41,6 +41,7 @@
 #include <time/timer.h>
 #include <time/delay.h>
 #include <fs/fileio.h>
+#include <xfs/xfs.h>
 
 /*
  * default CONFIG_HEAP_SIZE is 8MB

@@ -152,9 +152,9 @@ static void direct_close_archive(void * handle)
 	free(handle);
 }
 
-const struct xfs_archiver_t __xfs_archiver_direct = {
+struct xfs_archiver_t __xfs_archiver_direct = {
 	.extension			= "",
-	.description		= "Non-archive, direct filesystem I/O",
+	.description		= "Non-archive, direct I/O",
 
 	.open_archive		= direct_open_archive,
 	.open_read			= direct_open_read,
@@ -167,6 +167,6 @@ const struct xfs_archiver_t __xfs_archiver_direct = {
 	.close_archive		= direct_close_archive,
 };
 
-const struct xfs_archiver_t ** __xfs_archiver_supported = {
+struct xfs_archiver_t ** __xfs_archiver_supported = {
 	NULL,
 };

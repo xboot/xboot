@@ -78,6 +78,8 @@ struct runtime_t * runtime_alloc(void)
 	r->__stdout = __file_alloc(1);
 	r->__stderr = __file_alloc(2);
 
+	r->__xfs_ctx = __xfs_platform_init();
+
 	return r;
 }
 
@@ -94,6 +96,9 @@ void runtime_free(struct runtime_t * r)
 
 	if(r->__stderr)
 		fclose(r->__stderr);
+
+	if(r->__xfs_ctx)
+		__xfs_platform_exit(r->__xfs_ctx);
 
 	if(r)
 		free(r);

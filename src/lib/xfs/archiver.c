@@ -4,7 +4,7 @@
 
 #include <xfs/xfs.h>
 
-static char * cvt_to_dependent(void * opaque, const char * name)
+static char * cvt_to_dependent(void * handle, const char * name)
 {
 	const char sep = __xfs_platform_directory_separator();
 	char * buf, * p;
@@ -12,11 +12,11 @@ static char * cvt_to_dependent(void * opaque, const char * name)
 	if(!name)
 		return NULL;
 
-	buf = malloc(((opaque) ? strlen((char *)opaque) : 0) + strlen(name) + 1);
+	buf = malloc(((handle) ? strlen((char *)handle) : 0) + strlen(name) + 1);
 	if(!buf)
 		return NULL;
 
-	sprintf(buf, "%s%s", opaque ? (char *)opaque : "", name);
+	sprintf(buf, "%s%s", handle ? (char *)handle : "", name);
 	if(sep != '/')
 	{
 		for (p = strchr(buf, '/'); p != NULL; p = strchr(p + 1, '/'))
@@ -30,9 +30,9 @@ static void * direct_open_archive(struct xfs_io_t * io, const char * name, int f
 {
 	struct xfs_stat_t st;
 	const char sep = __xfs_platform_directory_separator();
-	char * retval = NULL;
-	const size_t namelen = strlen(name);
-	const size_t seplen = 1;
+	const size_t sep_len = 1;
+	const size_t name_len = strlen(name);
+	char * ret = NULL;
 
 	if(!__xfs_platform_stat(name, &st))
 		return NULL;
@@ -40,116 +40,116 @@ static void * direct_open_archive(struct xfs_io_t * io, const char * name, int f
 	if(st.type != XFS_FILETYPE_DIRECTORY)
 		return NULL;
 
-	retval = malloc(namelen + seplen + 1);
-	if(!retval)
+	ret = malloc(name_len + sep_len + 1);
+	if(!ret)
 		return NULL;
 
-	strcpy(retval, name);
+	strcpy(ret, name);
 
-	if (retval[namelen - 1] != sep)
+	if (ret[name_len - 1] != sep)
 	{
-		retval[namelen] = sep;
-		retval[namelen + 1] = '\0';
+		ret[name_len] = sep;
+		ret[name_len + 1] = '\0';
 	}
 
-	return retval;
+	return ret;
 }
 
-static struct xfs_io_t * direct_open(void * opaque, const char * name, const char mode)
+static struct xfs_io_t * direct_open(void * handle, const char * name, const char mode)
 {
-	struct xfs_stat_t statbuf;
+	struct xfs_stat_t st;
+	struct xfs_io_t * io;
 	char * f;
-	struct xfs_io_t * io = NULL;
 
-    f = cvt_to_dependent(opaque, name);
+    f = cvt_to_dependent(handle, name);
     if(!f)
     	return 0;
 
 	io = __xfs_create_nativeio(f, mode);
 	if (io == NULL)
 	{
-		__xfs_platform_stat(f, &statbuf);
+		__xfs_platform_stat(f, &st);
 	}
 
 	free(f);
 	return io;
 }
 
-static struct xfs_io_t * direct_open_read(void * opaque, const char * filename)
+static struct xfs_io_t * direct_open_read(void * handle, const char * name)
 {
-	return direct_open(opaque, filename, 'r');
+	return direct_open(handle, name, 'r');
 }
 
-static struct xfs_io_t * direct_open_write(void * opaque, const char * filename)
+static struct xfs_io_t * direct_open_write(void * handle, const char * name)
 {
-	return direct_open(opaque, filename, 'w');
+	return direct_open(handle, name, 'w');
 }
 
-static struct xfs_io_t * direct_open_append(void * opaque, const char * filename)
+static struct xfs_io_t * direct_open_append(void * handle, const char * name)
 {
-	return direct_open(opaque, filename, 'a');
+	return direct_open(handle, name, 'a');
 }
 
-static bool_t direct_mkdir(void * opaque, const char * name)
+static bool_t direct_mkdir(void * handle, const char * name)
 {
-    char * f;
-    int retval;
+	bool_t ret;
+	char * f;
 
-    f = cvt_to_dependent(opaque, name);
-    if(!f)
-    	return 0;
+	f = cvt_to_dependent(handle, name);
+	if(!f)
+		return FALSE;
 
-    retval = __xfs_platform_mkdir(f);
-    free(f);
+	ret = __xfs_platform_mkdir(f);
+	free(f);
 
-    return retval;
+	return ret;
 }
 
-static bool_t direct_remove(void * opaque, const char * name)
+static bool_t direct_remove(void * handle, const char * name)
+{
+	bool_t ret;
+	char * f;
+
+	f = cvt_to_dependent(handle, name);
+	if(!f)
+		return FALSE;
+
+	ret = __xfs_platform_delete(f);
+	free(f);
+
+	return ret;
+}
+
+static bool_t direct_stat(void * handle, const char * name, struct xfs_stat_t * stat)
+{
+	bool_t ret;
+	char * f;
+
+	f = cvt_to_dependent(handle, name);
+	if(!f)
+		return FALSE;
+
+	ret = __xfs_platform_stat(f, stat);
+	free(f);
+
+	return ret;
+}
+
+static void direct_enumerate(void * handle, const char * dname, xfs_enumerate_callback cb, const char * odir, void * cbdata)
 {
 	char * f;
-    int retval;
 
-    f = cvt_to_dependent(opaque, name);
-    if(!f)
-    	return 0;
-
-    retval = __xfs_platform_delete(f);
-    free(f);
-
-    return retval;
+	f = cvt_to_dependent(handle, dname);
+	if(f != NULL)
+	{
+		__xfs_platform_enumerate(f, cb, odir, cbdata);
+		free(f);
+	}
 }
 
-static bool_t direct_stat(void *opaque, const char * name, struct xfs_stat_t * stat)
+static void direct_close_archive(void * handle)
 {
-    char * d;
-    int retval = 0;
-
-    d = cvt_to_dependent(opaque, name);
-    if(!d)
-    	return 0;
-
-    retval = __xfs_platform_stat(d, stat);
-    free(d);
-
-    return retval;
-}
-
-static void direct_enumerate_files(void * opaque, const char * dname, int omitSymLinks, xfs_enum_files_callback cb, const char * origdir, void * callbackdata)
-{
-    char * d;
-
-    d = cvt_to_dependent(opaque, dname);
-    if (d != NULL)
-    {
-    	__xfs_platform_enumerate_files(d, omitSymLinks, cb, origdir, callbackdata);
-        free(d);
-    }
-}
-
-static void direct_close_archive(void * opaque)
-{
-	free(opaque);
+	free(handle);
 }
 
 const struct xfs_archiver_t __xfs_archiver_direct = {
@@ -163,7 +163,7 @@ const struct xfs_archiver_t __xfs_archiver_direct = {
 	.remove				= direct_remove,
 	.mkdir				= direct_mkdir,
 	.stat				= direct_stat,
-	.enumerate_files	= direct_enumerate_files,
+	.enumerate			= direct_enumerate,
 	.close_archive		= direct_close_archive,
 };
 

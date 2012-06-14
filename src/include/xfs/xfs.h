@@ -6,7 +6,7 @@
 /*
  * Function signature for callback that enumerate files
  */
-typedef void (*xfs_enum_files_callback)(void * data, const char * dir, const char * file);
+typedef void (*xfs_enumerate_callback)(void * data, const char * dir, const char * file);
 
 /*
  * A xfs file type
@@ -16,7 +16,6 @@ enum xfs_filetype_t
 	XFS_FILETYPE_OTHER 		= 0,
 	XFS_FILETYPE_REGULAR 	= 1,
 	XFS_FILETYPE_DIRECTORY 	= 2,
-	XFS_FILETYPE_SYMLINK 	= 3,
 };
 
 /*
@@ -57,14 +56,14 @@ struct xfs_archiver_t
 	const char * description;
 
     void *(*open_archive)(struct xfs_io_t * io, const char * name, int forWrite);
-	struct xfs_io_t *(*open_read)(void * opaque, const char * filename);
-	struct xfs_io_t *(*open_write)(void * opaque, const char * filename);
-	struct xfs_io_t *(*open_append)(void * opaque, const char * filename);
-	bool_t (*remove)(void * opaque, const char * filename);
-	bool_t (*mkdir)(void * opaque, const char * filename);
-	bool_t (*stat)(void * opaque, const char * fn, struct xfs_stat_t * stat);
-	void (*enumerate_files)(void * opaque, const char * dirname, int omitSymLinks, xfs_enum_files_callback cb, const char * origdir, void * callbackdata);
-	void (*close_archive)(void * opaque);
+	struct xfs_io_t *(*open_read)(void * handle, const char * name);
+	struct xfs_io_t *(*open_write)(void * handle, const char * name);
+	struct xfs_io_t *(*open_append)(void * handle, const char * name);
+	bool_t (*remove)(void * handle, const char * name);
+	bool_t (*mkdir)(void * handle, const char * name);
+	bool_t (*stat)(void * handle, const char * name, struct xfs_stat_t * stat);
+	void (*enumerate)(void * handle, const char * dname, xfs_enumerate_callback cb, const char * odir, void * cbdata);
+	void (*close_archive)(void * handle);
 };
 
 /*
@@ -93,7 +92,7 @@ bool_t __xfs_platform_close(void * handle);
 bool_t __xfs_platform_mkdir(const char * path);
 bool_t __xfs_platform_delete(const char * path);
 bool_t __xfs_platform_stat(const char * path, struct xfs_stat_t * st);
-void __xfs_platform_enumerate_files(const char * dirname, int omitSymLinks, xfs_enum_files_callback callback, const char *origdir, void *callbackdata);
+void __xfs_platform_enumerate(const char * path, xfs_enumerate_callback cb, const char * odir, void * cbdata);
 
 /*
  * Nativeio functions

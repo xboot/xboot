@@ -405,10 +405,158 @@ int PHYSFS_addToSearchPath(const char *newDir, int appendToPath)
 } /* PHYSFS_addToSearchPath */
 
 
-//xxx
+static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissing)
+{
+    char *fname = *_fname;
+    int retval = 1;
+    char *start;
+    char *end;
+
+    if (*fname == '\0')  /* quick rejection. */
+        return 1;
+
+    /* !!! FIXME: This codeblock sucks. */
+    if (h->mount_point != NULL)  /* NULL mountpoint means "/". */
+    {
+        size_t mntpntlen = strlen(h->mount_point);
+        size_t len = strlen(fname);
+        assert(mntpntlen > 1); /* root mount points should be NULL. */
+        /* not under the mountpoint, so skip this archive. */
+        if(len < mntpntlen-1)
+        	return 0;
+        /* !!! FIXME: Case insensitive? */
+        retval = strncmp(h->mount_point, fname, mntpntlen-1);
+        if(retval != 0)
+        	return 0;
+        if (len > mntpntlen-1)  /* corner case... */
+        {
+        	if(fname[mntpntlen-1]!='/')
+        		return 0;
+        }
+        fname += mntpntlen-1;  /* move to start of actual archive path. */
+        if (*fname == '/')
+            fname++;
+        *_fname = fname;  /* skip mountpoint for later use. */
+        retval = 1;  /* may be reset, below. */
+    } /* if */
+
+    start = fname;
+/*    if (!allowSymLinks)
+    {
+        while (1)
+        {
+            PHYSFS_Stat statbuf;
+            int rc = 0;
+            end = strchr(start, '/');
+
+            if (end != NULL) *end = '\0';
+            rc = h->funcs->stat(h->opaque, fname, &retval, &statbuf);
+            if (rc)
+                rc = (statbuf.filetype == PHYSFS_FILETYPE_SYMLINK);
+            if (end != NULL) *end = '/';
+
+             insecure path (has a disallowed symlink in it)?
+            BAIL_IF_MACRO(rc, PHYSFS_ERR_SYMLINK_FORBIDDEN, 0);
+
+             break out early if path element is missing.
+            if (!retval)
+            {
+
+                 * We need to clear it if it's the last element of the path,
+                 *  since this might be a non-existant file we're opening
+                 *  for writing...
+
+                if ((end == NULL) || (allowMissing))
+                    retval = 1;
+                break;
+            }  if
+
+            if (end == NULL)
+                break;
+
+            start = end + 1;
+        }  while
+    }  if */
+
+    return retval;
+} /* verifyPath */
+
+/*
+ * Broke out to seperate function so we can use stack allocation gratuitously.
+ */
+static void enumerateFromMountPoint(struct xfs_dir_handle_t *i, const char *arcfname,
+		xfs_enumerate_callback callback,
+                                    const char *_fname, void *data)
+{
+    const size_t len = strlen(arcfname);
+    char *ptr = NULL;
+    char *end = NULL;
+    const size_t slen = strlen(i->mount_point) + 1;
+    char *mountPoint = (char *) malloc(slen);
+
+    if (mountPoint == NULL)
+        return;  /* oh well. */
+
+    strcpy(mountPoint, i->mount_point);
+    ptr = mountPoint + ((len) ? len + 1 : 0);
+    end = strchr(ptr, '/');
+    assert(end);  /* should always find a terminating '/'. */
+    *end = '\0';
+    callback(data, _fname, ptr);
+    free(mountPoint);
+} /* enumerateFromMountPoint */
+
+
+/* !!! FIXME: this should report error conditions. */
+void PHYSFS_enumerateFilesCallback(const char *_fname,
+		xfs_enumerate_callback callback,
+                                   void *data)
+{
+    size_t len;
+    char *fname;
+
+    if(!callback || !_fname)
+    	return;
+
+    len = strlen(_fname) + 1;
+    fname = (char *) malloc(len);
+    if(!fname)
+    	return;
+
+    if (sanitizePlatformIndependentPath(_fname, fname))
+    {
+    	struct xfs_dir_handle_t *i;
+
+        //__PHYSFS_platformGrabMutex(stateLock);
+       // noSyms = !allowSymLinks;
+        for (i = searchPath; i != NULL; i = i->next)
+        {
+            char *arcfname = fname;
+            if (partOfMountPoint(i, arcfname))
+                enumerateFromMountPoint(i, arcfname, callback, _fname, data);
+
+            else if (verifyPath(i, &arcfname, 0))
+            {
+                i->funcs->enumerate(i->pirv, arcfname,
+                                         callback, _fname, data);
+            } /* else if */
+        } /* for */
+        //__PHYSFS_platformReleaseMutex(stateLock);
+    } /* if */
+
+    free(fname);
+} /* PHYSFS_enumerateFilesCallback */
+
+
+ static void printDir(void *data, const char *origdir, const char *fname)
+ {
+     printk(" * We've got [%s] in [%s].\n", fname, origdir);
+ }
+
 void tt(void)
 {
-	PHYSFS_addToSearchPath("/", 1);
+	PHYSFS_addToSearchPath("/romdisk", 1);
 	printk("init\r\n");
+	PHYSFS_enumerateFilesCallback("/", printDir, NULL);
 
 }

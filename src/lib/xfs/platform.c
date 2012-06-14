@@ -210,11 +210,6 @@ bool_t __xfs_platform_stat(const char * path, struct xfs_stat_t * st)
 		st->size = 0;
 		st->type = XFS_FILETYPE_DIRECTORY;
 	}
-	else if(S_ISLNK(_st.st_mode))
-	{
-		st->size = _st.st_size;
-		st->type = XFS_FILETYPE_SYMLINK;
-	}
 	else
 	{
 		st->size = _st.st_size;
@@ -228,8 +223,24 @@ bool_t __xfs_platform_stat(const char * path, struct xfs_stat_t * st)
     return TRUE;
 }
 
-void __xfs_platform_enumerate_files(const char * dirname, int omitSymLinks, xfs_enum_files_callback callback, const char *origdir, void *callbackdata)
+void __xfs_platform_enumerate(const char * path, xfs_enumerate_callback cb, const char * odir, void * cbdata)
 {
-	//xxx
+	void * dir;
+	struct dirent * entry;
 
+	if( (dir = opendir(path)) == NULL )
+    	return;
+
+	while ((entry = readdir(dir)) != NULL)
+	{
+		if (strcmp(entry->d_name, ".") == 0)
+			continue;
+
+		if (strcmp(entry->d_name, "..") == 0)
+			continue;
+
+		cb(cbdata, odir, entry->d_name);
+	}
+
+	closedir(dir);
 }

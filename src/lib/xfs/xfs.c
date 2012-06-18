@@ -158,85 +158,82 @@ static bool_t part_of_mount_point(struct xfs_dir_handle_t * dh, char * name)
 	return (dh->mpoint[len] == '/');
 }
 
-static struct xfs_dir_handle_t *createDirHandle(struct xfs_io_t *io, const char *newDir,
-                                  const char *mountPoint, int forWriting)
+static struct xfs_dir_handle_t * create_dir_handle(struct xfs_io_t * io, const char * dir, const char * mpoint, int forWriting)
 {
-	struct xfs_dir_handle_t *dirHandle = NULL;
-    char *tmpmntpnt = NULL;
+	struct xfs_dir_handle_t * dhandle = NULL;
+    char * tmp = NULL;
+    size_t len;
 
-    if (mountPoint != NULL)
+    if (mpoint != NULL)
     {
-        const size_t len = strlen(mountPoint) + 1;
-        tmpmntpnt = (char *) malloc(len);
-        if(!tmpmntpnt)
-        	goto badDirHandle;
+    	len = strlen(mpoint) + 1;
+        tmp = (char *) malloc(len);
+        if(!tmp)
+        	goto bad_dir_handle;
 
-        if (!sanitize_platform_independent_Path(mountPoint, tmpmntpnt))
-            goto badDirHandle;
-        mountPoint = tmpmntpnt;  /* sanitized version. */
-    } /* if */
+        if (!sanitize_platform_independent_Path(mpoint, tmp))
+            goto bad_dir_handle;
+        mpoint = tmp;
+    }
 
-    dirHandle = open_directory(io, newDir, forWriting);
-    if(!dirHandle)
-    	goto badDirHandle;
+    dhandle = open_directory(io, dir, forWriting);
+    if(!dhandle)
+    	goto bad_dir_handle;
 
-    if (newDir == NULL)
-        dirHandle->dname = NULL;
+    if (dir == NULL)
+        dhandle->dname = NULL;
     else
     {
-        dirHandle->dname = (char *) malloc(strlen(newDir) + 1);
-        if (!dirHandle->dname)
-           	goto badDirHandle;
-        strcpy(dirHandle->dname, newDir);
-    } /* else */
+        dhandle->dname = (char *) malloc(strlen(dir) + 1);
+        if (!dhandle->dname)
+           	goto bad_dir_handle;
+        strcpy(dhandle->dname, dir);
+    }
 
-    if ((mountPoint != NULL) && (*mountPoint != '\0'))
+    if ((mpoint != NULL) && (*mpoint != '\0'))
     {
-        dirHandle->mpoint = (char *)malloc(strlen(mountPoint)+2);
-        if (!dirHandle->mpoint)
-        	goto badDirHandle;
-        strcpy(dirHandle->mpoint, mountPoint);
-        strcat(dirHandle->mpoint, "/");
-    } /* if */
+        dhandle->mpoint = (char *)malloc(strlen(mpoint)+2);
+        if (!dhandle->mpoint)
+        	goto bad_dir_handle;
+        strcpy(dhandle->mpoint, mpoint);
+        strcat(dhandle->mpoint, "/");
+    }
 
-    free(tmpmntpnt);
-    return dirHandle;
+    free(tmp);
+    return dhandle;
 
-badDirHandle:
-    if (dirHandle != NULL)
+bad_dir_handle:
+    if (dhandle != NULL)
     {
-        dirHandle->archiver->close_archive(dirHandle->handle);
-        free(dirHandle->dname);
-        free(dirHandle->mpoint);
-        free(dirHandle);
-    } /* if */
+        dhandle->archiver->close_archive(dhandle->handle);
+        free(dhandle->dname);
+        free(dhandle->mpoint);
+        free(dhandle);
+    }
 
-    free(tmpmntpnt);
+    free(tmp);
     return NULL;
-} /* createDirHandle */
+}
 
-
-/* MAKE SURE you've got the stateLock held before calling this! */
-static int freeDirHandle(struct xfs_dir_handle_t *dh, struct xfs_file_handle_t *openList)
+static bool_t free_dir_handle(struct xfs_dir_handle_t * dh, struct xfs_file_handle_t * open_list)
 {
-	struct xfs_file_handle_t *i;
+	struct xfs_file_handle_t * i;
 
     if (dh == NULL)
-        return 1;
+        return TRUE;
 
-    for (i = openList; i != NULL; i = i->next)
+    for (i = open_list; i != NULL; i = i->next)
     {
     	if(i->dhandle == dh)
-    		return 0;
+    		return FALSE;
     }
 
     dh->archiver->close_archive(dh->handle);
     free(dh->dname);
     free(dh->mpoint);
     free(dh);
-    return 1;
-} /* freeDirHandle */
-
+    return TRUE;
+}
 
 static char *calculateBaseDir(const char *argv0)
 {
@@ -244,7 +241,7 @@ static char *calculateBaseDir(const char *argv0)
     char *ret = NULL;
     char *ptr = NULL;
 
-#if 0
+#if 0 //xxx to be review, by jjj
     /* Give the platform layer first shot at this. */
     ret = __PHYSFS_platformCalcBaseDir(argv0);
     if (ret != NULL)
@@ -267,66 +264,68 @@ static char *calculateBaseDir(const char *argv0)
     /* argv0 wasn't helpful. */
     BAIL_MACRO(PHYSFS_ERR_INVALID_ARGUMENT, NULL);
 #endif
-} /* calculateBaseDir */
+}
 
-//xxx
-static struct xfs_dir_handle_t *searchPath = NULL;
-static int doMount(struct xfs_io_t *io, const char *fname,
-                   const char *mountPoint, int appendToPath)
+static bool_t do_mount(struct xfs_io_t * io, const char * fname, const char * mpoint, bool_t appendToPath)
 {
-	struct xfs_dir_handle_t *dh;
-	struct xfs_dir_handle_t *prev = NULL;
-	struct xfs_dir_handle_t *i;
+	struct xfs_dir_handle_t * prev = NULL;
+	struct xfs_dir_handle_t * dh;
+	struct xfs_dir_handle_t * i;
 
-    if (mountPoint == NULL)
-        mountPoint = "/";
+    if (mpoint == NULL)
+        mpoint = "/";
 
-    //xxx __PHYSFS_platformGrabMutex(stateLock);
+    __xfs_platform_lock();
 
-    if (fname != NULL)
+    if(fname != NULL)
     {
-        for (i = searchPath; i != NULL; i = i->next)
-        {
-            /* already in search path? */
+    	for(i = __xfs_platform_get_context()->search_path; i != NULL; i = i->next)
+    	{
             if ((i->dname != NULL) && (strcmp(fname, i->dname) == 0))
-                ;//xxx BAIL_MACRO_MUTEX(ERRPASS, stateLock, 1);
+            {
+            	 __xfs_platform_unlock();
+            	 return TRUE;
+            }
             prev = i;
-        } /* for */
-    } /* if */
+        }
+    }
 
-    dh = createDirHandle(io, fname, mountPoint, 0);
-    //xxxBAIL_IF_MACRO_MUTEX(!dh, ERRPASS, stateLock, 0);
+    dh = create_dir_handle(io, fname, mpoint, 0);
+    if(!dh)
+    {
+		__xfs_platform_unlock();
+		return FALSE;
+    }
 
     if (appendToPath)
     {
         if (prev == NULL)
-            searchPath = dh;
+        	__xfs_platform_get_context()->search_path = dh;
         else
             prev->next = dh;
-    } /* if */
+    }
     else
     {
-        dh->next = searchPath;
-        searchPath = dh;
-    } /* else */
+        dh->next = __xfs_platform_get_context()->search_path;
+        __xfs_platform_get_context()->search_path = dh;
+    }
 
-    //xxx __PHYSFS_platformReleaseMutex(stateLock);
-    return 1;
-} /* doMount */
+    __xfs_platform_unlock();
+    return TRUE;
+}
 
-int PHYSFS_mount(const char *newDir, const char *mountPoint, int appendToPath)
+bool_t xfs_mount(const char * dir, const char * mpoint, bool_t appendToPath)
 {
-    if(!newDir)
-    	return 0;
+	if (!dir)
+		return FALSE;
 
-    return doMount(NULL, newDir, mountPoint, appendToPath);
-} /* PHYSFS_mount */
+	return do_mount(NULL, dir, mpoint, appendToPath);
+}
 
-int PHYSFS_addToSearchPath(const char *newDir, int appendToPath)
+bool_t xfs_add_to_search_path(const char * dir, bool_t appendToPath)
 {
-    return doMount(NULL, newDir, NULL, appendToPath);
-} /* PHYSFS_addToSearchPath */
-
+	return do_mount(NULL, dir, NULL, appendToPath);
+}
 
 static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissing)
 {
@@ -402,84 +401,74 @@ static int verifyPath(struct xfs_dir_handle_t *h, char **_fname, int allowMissin
     }  if */
 
     return ret;
-} /* verifyPath */
+}
 
-/*
- * Broke out to seperate function so we can use stack allocation gratuitously.
- */
-static void enumerateFromMountPoint(struct xfs_dir_handle_t *i, const char *arcfname,
-		xfs_enumerate_callback callback,
-                                    const char *_fname, void *data)
+static void enumerate_from_mount_point(struct xfs_dir_handle_t * i, const char * arcfname, xfs_enumerate_callback cb, const char * _fname, void * data)
 {
-    const size_t len = strlen(arcfname);
-    char *ptr = NULL;
-    char *end = NULL;
-    const size_t slen = strlen(i->mpoint) + 1;
-    char *mountPoint = (char *) malloc(slen);
+	const size_t len = strlen(arcfname);
+	char * ptr = NULL;
+	char * end = NULL;
+	const size_t slen = strlen(i->mpoint) + 1;
+	char * mpoint = (char *) malloc(slen);
 
-    if (mountPoint == NULL)
-        return;  /* oh well. */
+	if (mpoint == NULL)
+		return;
 
-    strcpy(mountPoint, i->mpoint);
-    ptr = mountPoint + ((len) ? len + 1 : 0);
-    end = strchr(ptr, '/');
-    assert(end);  /* should always find a terminating '/'. */
-    *end = '\0';
-    callback(data, _fname, ptr);
-    free(mountPoint);
-} /* enumerateFromMountPoint */
+	strcpy(mpoint, i->mpoint);
+	ptr = mpoint + ((len) ? len + 1 : 0);
+	end = strchr(ptr, '/');
+	assert(end);
+	*end = '\0';
+	cb(data, _fname, ptr);
+	free(mpoint);
+}
 
-
-/* !!! FIXME: this should report error conditions. */
-void PHYSFS_enumerateFilesCallback(const char *_fname,
-		xfs_enumerate_callback callback,
-                                   void *data)
+void xfs_enumerate_files_callback(const char * _fname, xfs_enumerate_callback cb, void * data)
 {
-    size_t len;
-    char *fname;
+	size_t len;
+	char * fname;
 
-    if(!callback || !_fname)
-    	return;
+	if (!cb || !_fname)
+		return;
 
-    len = strlen(_fname) + 1;
-    fname = (char *) malloc(len);
-    if(!fname)
-    	return;
+	len = strlen(_fname) + 1;
+	fname = (char *) malloc(len);
+	if (!fname)
+		return;
 
-    if (sanitize_platform_independent_Path(_fname, fname))
-    {
-    	struct xfs_dir_handle_t *i;
+	if (sanitize_platform_independent_Path(_fname, fname))
+	{
+		struct xfs_dir_handle_t * i;
 
-        //__PHYSFS_platformGrabMutex(stateLock);
-       // noSyms = !allowSymLinks;
-        for (i = searchPath; i != NULL; i = i->next)
-        {
-            char *arcfname = fname;
-            if (part_of_mount_point(i, arcfname))
-                enumerateFromMountPoint(i, arcfname, callback, _fname, data);
+		__xfs_platform_lock();
+		for (i = __xfs_platform_get_context()->search_path; i != NULL;
+				i = i->next)
+		{
+			char * arcfname = fname;
+			if (part_of_mount_point(i, arcfname))
+				enumerate_from_mount_point(i, arcfname, cb, _fname, data);
 
-            else if (verifyPath(i, &arcfname, 0))
-            {
-                i->archiver->enumerate(i->handle, arcfname,
-                                         callback, _fname, data);
-            } /* else if */
-        } /* for */
-        //__PHYSFS_platformReleaseMutex(stateLock);
-    } /* if */
+			else if (verifyPath(i, &arcfname, 0))
+			{
+				i->archiver->enumerate(i->handle, arcfname, cb, _fname, data);
+			}
+		}
+		__xfs_platform_unlock();
+	}
 
-    free(fname);
-} /* PHYSFS_enumerateFilesCallback */
+	free(fname);
+}
 
-
- static void printDir(void *data, const char *origdir, const char *fname)
- {
-     printk(" * We've got [%s] in [%s].\n", fname, origdir);
- }
+//xxx
+static void printDir(void *data, const char *origdir, const char *fname)
+{
+	printk(" * We've got [%s] in [%s].\n", fname, origdir);
+}
 
 void tt(void)
 {
-	PHYSFS_addToSearchPath("/romdisk", 1);
+	xfs_add_to_search_path("/", 1);
 	printk("init\r\n");
-	PHYSFS_enumerateFilesCallback("/", printDir, NULL);
+	xfs_enumerate_files_callback("/", printDir, NULL);
 
 }

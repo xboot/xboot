@@ -275,9 +275,9 @@ static bool_t do_mount(struct xfs_io_t * io, const char * fname, const char * mp
     if (mpoint == NULL)
         mpoint = "/";
 
-    __xfs_platform_lock();
+	__xfs_platform_lock();
 
-    if(fname != NULL)
+	if(fname != NULL)
     {
     	for(i = __xfs_platform_get_context()->search_path; i != NULL; i = i->next)
     	{
@@ -458,6 +458,207 @@ void xfs_enumerate_files_callback(const char * _fname, xfs_enumerate_callback cb
 
 	free(fname);
 }
+
+static bool_t close_file_handle_list(struct xfs_file_handle_t ** list)
+{
+	struct xfs_file_handle_t * i;
+	struct xfs_file_handle_t * next = NULL;
+	struct xfs_io_t * io;
+
+	for(i = *list; i != NULL; i = next)
+	{
+		io = i->io;
+		next = i->next;
+
+		if (!io->flush(io))
+		{
+			*list = i;
+			return FALSE;
+		}
+
+		io->destroy(io);
+		free(i);
+	}
+
+	*list = NULL;
+	return TRUE;
+}
+
+static void free_search_path(void)
+{
+	struct xfs_dir_handle_t * i;
+	struct xfs_dir_handle_t * next = NULL;
+
+	close_file_handle_list(&__xfs_platform_get_context()->open_read_list);
+
+	if (__xfs_platform_get_context()->search_path != NULL)
+	{
+		for (i = __xfs_platform_get_context()->search_path; i != NULL; i = next)
+		{
+			next = i->next;
+			free_dir_handle(i, __xfs_platform_get_context()->open_read_list);
+		}
+		__xfs_platform_get_context()->search_path = NULL;
+	}
+}
+
+void xfs_free_list(void * list)
+{
+	void ** i;
+
+	if (list != NULL)
+	{
+		for (i = (void **) list; *i != NULL; i++)
+			free(*i);
+
+		free(list);
+	}
+}
+
+bool_t xfs_unmount(const char * dir)
+{
+	struct xfs_dir_handle_t * i;
+	struct xfs_dir_handle_t * prev = NULL;
+	struct xfs_dir_handle_t * next = NULL;
+
+	if (!dir)
+		return FALSE;
+
+	__xfs_platform_lock();
+
+	for (i = __xfs_platform_get_context()->search_path; i != NULL; i = i->next)
+	{
+		if (strcmp(i->dname, dir) == 0)
+		{
+			next = i->next;
+			if(!free_dir_handle(i, __xfs_platform_get_context()->open_read_list))
+			{
+				__xfs_platform_unlock();
+				return FALSE;
+			}
+
+			if (prev == NULL)
+				__xfs_platform_get_context()->search_path = next;
+			else
+				prev->next = next;
+
+			__xfs_platform_unlock();
+			return TRUE;
+		}
+		prev = i;
+	}
+
+	__xfs_platform_unlock();
+	return FALSE;
+}
+
+bool_t xfs_remove_from_search_path(const char * dir)
+{
+    return xfs_unmount(dir);
+}
+
+const char * xfs_get_mount_point(const char * dir)
+{
+	struct xfs_dir_handle_t * i;
+
+	__xfs_platform_lock();
+
+	for (i = __xfs_platform_get_context()->search_path; i != NULL; i = i->next)
+	{
+		if (strcmp(i->dname, dir) == 0)
+		{
+			const char * retval = ((i->mpoint) ? i->mpoint : "/");
+			__xfs_platform_unlock();
+			return retval;
+		}
+	}
+
+	__xfs_platform_unlock();
+	return NULL;
+}
+
+static int doMkdir(const char *_dname, char *dname)
+{
+	struct xfs_dir_handle_t *h;
+	char *start;
+	char *end;
+	int retval = 0;
+	int exists = 1;
+
+	if(!sanitize_platform_independent_Path(_dname, dname))
+		return 0;
+
+	__xfs_platform_lock();
+	if(!__xfs_platform_get_context()->write_dir)
+	{
+		__xfs_platform_unlock();
+		return 0;
+	}
+
+	h = __xfs_platform_get_context()->write_dir;
+	if(!verifyPath(h, &dname, 1))
+	{
+		__xfs_platform_unlock();
+		return 0;
+	}
+
+	start = dname;
+	while (1)
+	{
+		end = strchr(start, '/');
+		if (end != NULL)
+			*end = '\0';
+
+		if (exists)
+		{
+			struct xfs_stat_t statbuf;
+			const bool_t rc = h->archiver->stat(h->handle, dname, &statbuf);
+			retval = ((rc) && (statbuf.type == XFS_FILETYPE_DIRECTORY));
+		}
+
+		if (!exists)
+			retval = h->archiver->mkdir(h->handle, dname);
+
+		if (!retval)
+			break;
+
+		if (end == NULL)
+			break;
+
+		*end = '/';
+		start = end + 1;
+	}
+
+	__xfs_platform_unlock();
+	return retval;
+}
+
+int xfs_mkdir(const char *_dname)
+{
+    int retval = 0;
+    char *dname;
+    size_t len;
+
+    if(!_dname)
+    	return 0;
+    len = strlen(_dname) + 1;
+    dname = (char *)malloc(len);
+    if(!dname)
+    	return 0;
+    retval = doMkdir(_dname, dname);
+    free(dname);
+    return retval;
+}
+
+
+
+
+
+
+
+
+
+
 
 //xxx
 static void printDir(void *data, const char *origdir, const char *fname)

@@ -33,10 +33,7 @@
  */
 int xboot_main(int argc, char * argv[])
 {
-	/* strap runtime init */
-	strap_runtime_init();
-
-	/* set default runtime */
+	/* alloc default runtime */
 	__set_runtime(runtime_alloc());
 
 	/* do all init calls */
@@ -106,9 +103,6 @@ int xboot_main(int argc, char * argv[])
 
 	/* do all exit calls */
 	do_exitcalls();
-
-	/* strap runtime exit */
-	strap_runtime_exit();
 
 	/* xboot return */
 	return 0;

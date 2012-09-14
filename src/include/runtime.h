@@ -24,13 +24,9 @@ struct runtime_t {
 };
 
 
-void strap_runtime_init(void);
-void strap_runtime_exit();
-
+inline void __set_runtime(struct runtime_t * r);
+inline struct runtime_t * __get_runtime(void);
 struct runtime_t * runtime_alloc(void);
 void runtime_free(struct runtime_t * r);
-
-void __set_runtime(struct runtime_t * r);
-struct runtime_t * __get_runtime(void);
 
 #endif /* __RUNTIME_H__ */

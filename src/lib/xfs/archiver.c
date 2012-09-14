@@ -30,8 +30,7 @@ static void * direct_open_archive(struct xfs_io_t * io, const char * name, int f
 {
 	struct xfs_stat_t st;
 	const char sep = __xfs_platform_directory_separator();
-	const size_t sep_len = 1;
-	const size_t name_len = strlen(name);
+	const size_t len = strlen(name);
 	char * ret = NULL;
 
 	if(!__xfs_platform_stat(name, &st))
@@ -40,16 +39,16 @@ static void * direct_open_archive(struct xfs_io_t * io, const char * name, int f
 	if(st.type != XFS_FILETYPE_DIRECTORY)
 		return NULL;
 
-	ret = malloc(name_len + sep_len + 1);
+	ret = malloc(len + sizeof(sep) + 1);
 	if(!ret)
 		return NULL;
 
 	strcpy(ret, name);
 
-	if (ret[name_len - 1] != sep)
+	if (ret[len - 1] != sep)
 	{
-		ret[name_len] = sep;
-		ret[name_len + 1] = '\0';
+		ret[len] = sep;
+		ret[len + 1] = '\0';
 	}
 
 	return ret;

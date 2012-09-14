@@ -946,7 +946,8 @@ void game(void)
 
 static int test(int argc, char ** argv)
 {
-	game();
+	//game();
+	tt();
 	return 0;
 }
 

@@ -55,10 +55,10 @@ struct xfs_archiver_t
 	const char * extension;
 	const char * description;
 
-    void *(*open_archive)(struct xfs_io_t * io, const char * name, int forWrite);
-	struct xfs_io_t *(*open_read)(void * handle, const char * name);
-	struct xfs_io_t *(*open_write)(void * handle, const char * name);
-	struct xfs_io_t *(*open_append)(void * handle, const char * name);
+    void * (*open_archive)(struct xfs_io_t * io, const char * name, int forWrite);
+	struct xfs_io_t * (*open_read)(void * handle, const char * name);
+	struct xfs_io_t * (*open_write)(void * handle, const char * name);
+	struct xfs_io_t * (*open_append)(void * handle, const char * name);
 	bool_t (*remove)(void * handle, const char * name);
 	bool_t (*mkdir)(void * handle, const char * name);
 	bool_t (*stat)(void * handle, const char * name, struct xfs_stat_t * stat);

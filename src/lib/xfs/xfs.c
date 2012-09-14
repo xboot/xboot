@@ -672,4 +672,6 @@ void tt(void)
 	printk("init\r\n");
 	xfs_enumerate_files_callback("/", printDir, NULL);
 
+	xfs_mkdir("bba");
+	xfs_enumerate_files_callback("/", printDir, NULL);
 }

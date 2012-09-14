@@ -23,40 +23,38 @@
 #include <runtime.h>
 
 static char heap[CONFIG_HEAP_SIZE] __attribute__((used, __section__(".heap")));
+static struct runtime_t * __runtime = NULL;
 
-static struct runtime_t strap_runtime;
-static struct runtime_t * __runtime = &strap_runtime;
-
-void strap_runtime_init(void)
+static struct runtime_t * strap_runtime_init(void)
 {
-	memset(&strap_runtime, 0, sizeof(struct runtime_t));
+	static struct runtime_t strap;
 
-	strap_runtime.__pool = memory_pool_create((void *)heap, sizeof(heap));
-	strap_runtime.__errno = 0;
+	memset(&strap, 0, sizeof(struct runtime_t));
+	strap.__pool = memory_pool_create((void *)heap, sizeof(heap));
 
-	strap_runtime.__environ.content = "";
-	strap_runtime.__environ.next = &(strap_runtime.__environ);
-	strap_runtime.__environ.prev = &(strap_runtime.__environ);
-
-	strap_runtime.__seed[0] = 1;
-	strap_runtime.__seed[1] = 1;
-	strap_runtime.__seed[2] = 1;
-
-	strap_runtime.__stdin = 0;
-	strap_runtime.__stdout = 0;
-	strap_runtime.__stderr = 0;
-
-	__runtime = &strap_runtime;
+	return &strap;
 }
 
-void strap_runtime_exit()
+inline void __set_runtime(struct runtime_t * r)
 {
-	memory_pool_destroy(strap_runtime.__pool);
+	if(r)
+		__runtime = r;
+}
+
+inline struct runtime_t * __get_runtime(void)
+{
+	return __runtime;
 }
 
 struct runtime_t * runtime_alloc(void)
 {
 	struct runtime_t * r;
+
+	/*
+	 * No current runtime, Set to strap runtime.
+	 */
+	if(__get_runtime() == NULL)
+		__set_runtime(strap_runtime_init());
 
 	r = malloc(sizeof(struct runtime_t));
 	if(!r)
@@ -102,15 +100,4 @@ void runtime_free(struct runtime_t * r)
 
 	if(r)
 		free(r);
-}
-
-void __set_runtime(struct runtime_t * r)
-{
-	if(r)
-		__runtime = r;
-}
-
-struct runtime_t * __get_runtime(void)
-{
-	return __runtime;
 }

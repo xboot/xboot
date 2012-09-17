@@ -266,6 +266,60 @@ static char *calculateBaseDir(const char *argv0)
 #endif
 }
 
+char xfs_get_directory_separator(void)
+{
+	return __xfs_platform_directory_separator();
+}
+
+char * xfs_get_base_dir(void)
+{
+	return __xfs_platform_get_context()->base_dir;
+}
+
+char * xfs_get_user_dir(void)
+{
+	return __xfs_platform_get_context()->user_dir;
+}
+
+bool_t xfs_set_write_dir(const char * dir)
+{
+    bool_t ret = TRUE;
+
+    __xfs_platform_lock();
+
+    if(__xfs_platform_get_context()->write_dir != NULL)
+    {
+    	if(!free_dir_handle(__xfs_platform_get_context()->write_dir, __xfs_platform_get_context()->open_write_list))
+    	{
+    	    __xfs_platform_unlock();
+    	    return FALSE;
+    	}
+    	__xfs_platform_get_context()->write_dir = NULL;
+    }
+
+    if(dir != NULL)
+    {
+    	__xfs_platform_get_context()->write_dir = create_dir_handle(NULL, dir, NULL, 1);
+    	ret = (__xfs_platform_get_context()->write_dir) ? TRUE : FALSE;
+    }
+
+    __xfs_platform_unlock();
+    return ret;
+}
+
+char * xfs_get_write_dir(void)
+{
+	char * ret = NULL;
+
+	__xfs_platform_lock();
+
+	if(__xfs_platform_get_context()->write_dir != NULL)
+		ret = (__xfs_platform_get_context()->write_dir)->dname;
+
+	__xfs_platform_unlock();
+	return ret;
+}
+
 static bool_t do_mount(struct xfs_io_t * io, const char * fname, const char * mpoint, bool_t appendToPath)
 {
 	struct xfs_dir_handle_t * prev = NULL;
@@ -613,6 +667,10 @@ static int doMkdir(const char *_dname, char *dname)
 		{
 			struct xfs_stat_t statbuf;
 			const bool_t rc = h->archiver->stat(h->handle, dname, &statbuf);
+			if(rc)
+				exists = 1;
+			else
+				exists = 0;
 			retval = ((rc) && (statbuf.type == XFS_FILETYPE_DIRECTORY));
 		}
 
@@ -650,8 +708,66 @@ int xfs_mkdir(const char *_dname)
     return retval;
 }
 
+static int doDelete(const char *_fname, char *fname)
+{
+    int retval;
+    struct xfs_dir_handle_t *h;
+
+    if(!sanitize_platform_independent_Path(_fname, fname))
+    	return 0;
+
+    __xfs_platform_lock();
+
+    if(!__xfs_platform_get_context()->write_dir)
+    {
+    	__xfs_platform_unlock();
+    	return 0;
+    }
+
+    h = __xfs_platform_get_context()->write_dir;
+
+    if(!verifyPath(h, &fname, 0))
+    {
+    	__xfs_platform_unlock();
+    	return 0;
+    }
 
 
+    retval = h->archiver->remove(h->handle, fname);
+
+    __xfs_platform_unlock();
+    return retval;
+}
+
+
+int xfs_delete(const char *_fname)
+{
+    int retval;
+    char *fname;
+    size_t len;
+
+    if(!_fname)
+    	return 0;
+
+
+    len = strlen(_fname) + 1;
+    fname = (char *) malloc(len);
+    if(!fname)
+    	return 0;
+    retval = doDelete(_fname, fname);
+    free(fname);
+    return retval;
+}
+
+bool_t xfs_init(struct xfs_context_t * ctx)
+{
+	return TRUE;
+}
+
+bool_t xfs_exit(struct xfs_context_t * ctx)
+{
+	return TRUE;
+}
 
 
 
@@ -661,6 +777,8 @@ int xfs_mkdir(const char *_dname)
 
 
 //xxx
+//-----------------------------------------------------------------------------
+//xxx for test
 static void printDir(void *data, const char *origdir, const char *fname)
 {
 	printk(" * We've got [%s] in [%s].\n", fname, origdir);
@@ -668,10 +786,16 @@ static void printDir(void *data, const char *origdir, const char *fname)
 
 void tt(void)
 {
-	xfs_add_to_search_path("/", 1);
+	xfs_add_to_search_path("/tmp", 1);
+	xfs_set_write_dir("/tmp");
+
 	printk("init\r\n");
+//	xfs_enumerate_files_callback("/", printDir, NULL);
+
+	xfs_mkdir("/bba/a/b/c/d");
+	xfs_mkdir("/123");
 	xfs_enumerate_files_callback("/", printDir, NULL);
 
-	xfs_mkdir("bba");
-	xfs_enumerate_files_callback("/", printDir, NULL);
+	//xfs_delete("/123");
+	//xfs_enumerate_files_callback("/", printDir, NULL);
 }

@@ -95,14 +95,20 @@ struct xfs_context_t {
 	struct xfs_dir_handle_t * write_dir;
 	struct xfs_file_handle_t * open_write_list;
 	struct xfs_file_handle_t * open_read_list;
-	struct xfs_archiver_t ** archivers;
+//	struct xfs_archiver_t ** archivers;
 
 	char * baseDir;
 	char * userDir;
-	char * prefDir;
+//	char * prefDir;
 
 	void * lock;
 };
+
+/*
+ * Various archiver
+ */
+extern struct xfs_archiver_t __xfs_archiver_direct;
+extern struct xfs_archiver_t ** __xfs_archiver_supported;
 
 /*
  * Platform functions
@@ -135,11 +141,10 @@ void __xfs_platform_enumerate(const char * path, xfs_enumerate_callback cb, cons
 struct xfs_io_t * __xfs_create_nativeio(const char * path, const char mode);
 
 /*
- * Various archiver
+ * Initial xfs functions
  */
-extern struct xfs_archiver_t __xfs_archiver_direct;
-extern struct xfs_archiver_t ** __xfs_archiver_supported;
-
+bool_t xfs_init(struct xfs_context_t * ctx);
+bool_t xfs_exit(struct xfs_context_t * ctx);
 
 #if 0
 

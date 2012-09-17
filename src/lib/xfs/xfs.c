@@ -613,6 +613,10 @@ static int doMkdir(const char *_dname, char *dname)
 		{
 			struct xfs_stat_t statbuf;
 			const bool_t rc = h->archiver->stat(h->handle, dname, &statbuf);
+			if(rc)
+				exists = 1;
+			else
+				exists = 0;
 			retval = ((rc) && (statbuf.type == XFS_FILETYPE_DIRECTORY));
 		}
 
@@ -650,8 +654,54 @@ int xfs_mkdir(const char *_dname)
     return retval;
 }
 
+bool_t xfs_set_write_dir(const char * dir)
+{
+    bool_t ret = TRUE;
 
+    __xfs_platform_lock();
 
+    if(__xfs_platform_get_context()->write_dir != NULL)
+    {
+    	if(!free_dir_handle(__xfs_platform_get_context()->write_dir, __xfs_platform_get_context()->open_write_list))
+    	{
+    	    __xfs_platform_unlock();
+    	    return FALSE;
+    	}
+    	__xfs_platform_get_context()->write_dir = NULL;
+    }
+
+    if(dir != NULL)
+    {
+    	__xfs_platform_get_context()->write_dir = create_dir_handle(NULL, dir, NULL, 1);
+    	ret = (__xfs_platform_get_context()->write_dir) ? TRUE : FALSE;
+    }
+
+    __xfs_platform_unlock();
+    return ret;
+}
+
+char * xfs_get_write_dir(void)
+{
+	char * ret = NULL;
+
+	__xfs_platform_lock();
+
+	if(__xfs_platform_get_context()->write_dir != NULL)
+		ret = (__xfs_platform_get_context()->write_dir)->dname;
+
+	__xfs_platform_unlock();
+	return ret;
+}
+
+bool_t xfs_init(struct xfs_context_t * ctx)
+{
+	return TRUE;
+}
+
+bool_t xfs_exit(struct xfs_context_t * ctx)
+{
+	return TRUE;
+}
 
 
 
@@ -661,6 +711,8 @@ int xfs_mkdir(const char *_dname)
 
 
 //xxx
+//-----------------------------------------------------------------------------
+//xxx for test
 static void printDir(void *data, const char *origdir, const char *fname)
 {
 	printk(" * We've got [%s] in [%s].\n", fname, origdir);
@@ -669,9 +721,11 @@ static void printDir(void *data, const char *origdir, const char *fname)
 void tt(void)
 {
 	xfs_add_to_search_path("/", 1);
+	xfs_set_write_dir("/");
+
 	printk("init\r\n");
 	xfs_enumerate_files_callback("/", printDir, NULL);
 
-	xfs_mkdir("bba");
+	xfs_mkdir("bba/a/b/c/d");
 	xfs_enumerate_files_callback("/", printDir, NULL);
 }

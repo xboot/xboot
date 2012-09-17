@@ -13,13 +13,18 @@ struct xfs_context_t * __xfs_platform_init(void)
 		return NULL;
 
 	memset(ctx, 0, sizeof(struct xfs_context_t));
+	xfs_init(ctx);
+
 	return ctx;
 }
 
 void __xfs_platform_exit(struct xfs_context_t * ctx)
 {
-	if(ctx)
-		free(ctx);
+	if(!ctx)
+		return;
+
+	xfs_exit(ctx);
+	free(ctx);
 }
 
 inline struct xfs_context_t * __xfs_platform_get_context(void)

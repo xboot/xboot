@@ -950,33 +950,13 @@ struct kernel_symbol
 	const char * name;
 };
 
-
 #define EXPORT_SYMBOL(sym)	\
 	extern typeof(sym) sym; \
 	static const char __kstrtab_##sym[] __attribute__((__section__("__ksymtab_strings"))) = #sym; \
 	static const struct kernel_symbol __ksymtab_##sym __attribute__((section("___ksymtab"))) = { (void *)&sym, __kstrtab_##sym }
 
-/*
-const char __rtmsym_##symbol##_name[] = #symbol;					 	\
-const struct rt_module_symtab __rtmsym_##symbol SECTION("RTMSymTab")= 	\
-{								\
-	(void *)&symbol,		\
-	__rtmsym_##symbol##_name	\
-};
-
-
-struct rt_module_symtab
-{
-	void *addr;
-	const char *name;
-};
-*/
-
-
 static int test(int argc, char ** argv)
 {
-
-
 	//game();
 	tt();
 	return 0;

@@ -25,6 +25,7 @@ SECTIONS
 		.obj/arch/arm/mach-x6410/start.o (.text)
 		.obj/arch/arm/mach-x6410/s3c6410-irom.o (.text)
 		*(.text)
+		*(.text.*)
 		*(.init.text)
     	*(.exit.text)
     	

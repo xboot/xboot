@@ -23,6 +23,7 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE (__text_start = .);
 		*(.text)
+		*(.text.*)
 		*(.init.text)
     	*(.exit.text)
     	

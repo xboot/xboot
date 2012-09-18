@@ -25,6 +25,7 @@ SECTIONS
 		.obj/arch/arm/mach-smdkc100/start.o (.text)
 		.obj/arch/arm/mach-smdkc100/s5pc100-irom.o (.text)
 		*(.text)
+		*(.text.*)
 		*(.init.text)
     	*(.exit.text)
     	

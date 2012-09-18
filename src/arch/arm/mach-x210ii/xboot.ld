@@ -25,6 +25,7 @@ SECTIONS
 		.obj/arch/arm/mach-x210ii/start.o (.text)
 		.obj/arch/arm/mach-x210ii/s5pv210-irom.o (.text)
 		*(.text)
+		*(.text.*)
 		*(.init.text)
     	*(.exit.text)
     	

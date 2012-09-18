@@ -24,6 +24,7 @@ SECTIONS
 		PROVIDE (__text_start = .);
 		.obj/arch/arm/mach-realview/start.o (.text)
 		*(.text)
+		*(.text.*)
 		*(.init.text)
     	*(.exit.text)
     	

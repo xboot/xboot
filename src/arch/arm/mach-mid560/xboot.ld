@@ -25,6 +25,7 @@ SECTIONS
 		.obj/arch/arm/mach-mid560/start.o (.text)
 		.obj/arch/arm/mach-mid560/s3c6410-irom.o (.text)
 		*(.text)
+		*(.text.*)
 		*(.init.text)
     	*(.exit.text)
     	

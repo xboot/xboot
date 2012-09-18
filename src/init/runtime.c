@@ -22,7 +22,7 @@
 
 #include <runtime.h>
 
-static char heap[CONFIG_HEAP_SIZE] __attribute__((used, __section__(".heap")));
+static char heap[CONFIG_HEAP_SIZE] __attribute__((__used__)) __attribute__((__section__(".heap")));
 static struct runtime_t * __runtime = NULL;
 
 static struct runtime_t * strap_runtime_init(void)

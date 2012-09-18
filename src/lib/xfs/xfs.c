@@ -739,7 +739,6 @@ static int doDelete(const char *_fname, char *fname)
     return retval;
 }
 
-
 int xfs_delete(const char *_fname)
 {
     int retval;
@@ -794,6 +793,7 @@ void tt(void)
 
 	xfs_mkdir("/bba/a/b/c/d");
 	xfs_mkdir("/123");
+
 	xfs_enumerate_files_callback("/", printDir, NULL);
 
 	//xfs_delete("/123");

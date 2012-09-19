@@ -169,7 +169,7 @@ VPATH		:=	$(OBJDIRS)
 #
 # Include module's Makefile
 #
-sinclude $(M)/Makefile-
+sinclude $(M)/Makefile
 
 #
 # Module variables

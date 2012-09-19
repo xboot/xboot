@@ -41,12 +41,12 @@ extern exitcall_t __exitcall_end[];
 
 #define module_init(fn,level) \
 	static initcall_t __initcall_##fn \
-	__attribute__((__used__)) __attribute__((__section__(".initcall_" level ".text"))) = fn
+	__attribute__((__unused__)) __attribute__((__section__(".initcall_" level ".text"))) = fn
 
 
 #define module_exit(fn,level) \
 	static exitcall_t __exitcall_##fn \
-	__attribute__((__used__)) __attribute__ ((__section__ (".exitcall_" level ".text"))) = fn
+	__attribute__((__unused__)) __attribute__ ((__section__ (".exitcall_" level ".text"))) = fn
 
 
 void do_initcalls(void);

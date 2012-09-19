@@ -167,6 +167,11 @@ OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.S=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.
 VPATH		:=	$(OBJDIRS)
 
 #
+# Include module's Makefile
+#
+sinclude $(M)/Makefile-
+
+#
 # Module variables
 #
 M_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
@@ -174,18 +179,19 @@ M_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
 M_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
 M_LDFLAGS	:=	-shared -nostdlib -fPIC
 
-M_INCDIRS	:=	$(INCDIRS) $(patsubst %, -I $(M)/%, $(IDIRS))
-M_SRCDIRS	:=	$(patsubst %, $(M)/%, $(SDIRS))
+M_NAME		:= 	$(patsubst %, $(M)/%, $(MODULE_NAME))
+M_INCDIRS	:=	$(INCDIRS) $(patsubst %, -I $(M)/%, $(MODULE_INCLUDE_DIRS))
+M_SRCDIRS	:=	$(patsubst %, $(M)/%, $(MODULE_SOURCE_DIRS))
 
 M_SFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.S))
 M_CFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.c))
 M_CPPFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.cpp))
 M_OBJS		:=	$(patsubst %, %, $(M_SFILES:.S=.o) $(M_CFILES:.c=.o) $(M_CPPFILES:.cpp=.o))
 
-M_NAME		:= 	$(patsubst %, $(M)/%, $(MODULE))
+M_CLEANS	:= 	$(M_OBJS) $(patsubst %, %.d, $(M_OBJS))
 
 
-.PHONY:		all module clean fixup
+.PHONY:		all module module-clean clean fixup
 
 all:		$(XBOOT) fixup
 module:		$(M_NAME)
@@ -230,10 +236,14 @@ $(M_NAME):	$(M_OBJS)
 	@$(CXX) $(M_CXXFLAGS) $(M_INCDIRS) -c $< -o $@	
 	@$(CXX) $(M_CXXFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
+module-clean:
+	@$(RM) $(M_CLEANS) $(M_NAME).map $(M_NAME).so
+	@echo Clean module complete.
+	
 clean:
 	@$(RM) $(OUTDIR) $(OBJDIRS)
-	@echo Clean complete.
-
+	@echo Clean xboot complete.
+	
 # 
 # Include the dependency files, should be place the last of makefile
 #

@@ -4,13 +4,13 @@
 #
 
 
-.PHONY: all doc clean
+.PHONY: all module clean
 
 all:
 	@$(MAKE) -C src all
 
-doc:
-	@$(MAKE) -C src doc
-
+module:
+	@$(MAKE) -C src module
+	
 clean:
 	@$(MAKE) -C src clean

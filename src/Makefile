@@ -167,7 +167,7 @@ OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.S=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.
 VPATH		:=	$(OBJDIRS)
 
 
-.PHONY:		all doc clean fixup
+.PHONY:		all module clean fixup
 
 all:		$(OUTDIR)/$(XBOOT).bin fixup
 
@@ -194,8 +194,10 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
-doc:
-	@echo no documents
+module:
+	@echo no module
+	@echo $(CROSS)
+	@echo $(MOBJS)
 
 clean:
 	@$(RM) $(OUTDIR) $(OBJDIRS)

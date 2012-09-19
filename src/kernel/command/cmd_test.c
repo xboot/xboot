@@ -944,25 +944,23 @@ void game(void)
     surface_free(obj);
 }
 
-struct kernel_symbol
-{
-	void * value;
-	const char * name;
-};
-
-#define EXPORT_SYMBOL(sym)	\
-	extern typeof(sym) sym; \
-	static const char __kstrtab_##sym[] __attribute__((__section__("__ksymtab_strings"))) = #sym; \
-	static const struct kernel_symbol __ksymtab_##sym __attribute__((section("___ksymtab"))) = { (void *)&sym, __kstrtab_##sym }
-
 static int test(int argc, char ** argv)
 {
+	//void *(*a)(u32_t) = NULL;
+	typeof(mdelay) * a;
+
+	a = symbol_get(mdelay);
+
+	printk("a\r\n");
+	a(1000);
+	printk("b\r\n");
+
+
+
 	//game();
-	tt();
+	// tt();
 	return 0;
 }
-
-EXPORT_SYMBOL(test);
 
 static struct command test_cmd = {
 	.name		= "test",

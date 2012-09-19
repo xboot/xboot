@@ -31,6 +31,7 @@
 #include <xboot/list.h>
 #include <xboot/proc.h>
 #include <xboot/ioctl.h>
+#include <xboot/module.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <xboot/printk.h>

@@ -60,6 +60,7 @@ void udelay(u32_t us)
 	else
 		__delay(us);
 }
+EXPORT_SYMBOL(udelay);
 
 /*
  * ms delay function
@@ -73,6 +74,7 @@ void mdelay(u32_t ms)
 	else
 		__delay(ms * 1000);
 }
+EXPORT_SYMBOL(mdelay);
 
 /*
  * calibrating delay loop...

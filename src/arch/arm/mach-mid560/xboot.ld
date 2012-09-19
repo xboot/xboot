@@ -28,7 +28,12 @@ SECTIONS
 		*(.text.*)
 		*(.init.text)
     	*(.exit.text)
-    	
+
+    	. = ALIGN(8);
+    	PROVIDE (__ksymtab_start = .);
+		*(.ksymtab.text)
+		PROVIDE (__ksymtab_end = .);
+		   	
     	. = ALIGN(8);	
 		PROVIDE (__initcall_start = .);
 		*(.initcall_0.text)

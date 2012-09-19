@@ -28,6 +28,11 @@ SECTIONS
 		*(.init.text)
     	*(.exit.text)
     	
+    	. = ALIGN(8);
+    	PROVIDE (__ksymtab_start = .);
+		*(.ksymtab.text)
+		PROVIDE (__ksymtab_end = .);
+    	
     	. = ALIGN(8);	
 		PROVIDE (__initcall_start = .);
 		*(.initcall_0.text)
@@ -75,7 +80,7 @@ SECTIONS
 		*(.exitcall_0s.text)
 		*(.exitcall_0.text)
 		PROVIDE (__exitcall_end = .);
-		
+			
 		. = ALIGN(8);
 		PROVIDE (__romdisk_start = .);
 		*(.romdisk)

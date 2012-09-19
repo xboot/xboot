@@ -8,15 +8,18 @@ CROSS	?= /home/jjj/Software/eclipse-juno-for-arm-linux/compiler/arm-none-eabi/bi
 CDIR	:= $(CURDIR)
 KDIR	:= $(CDIR)/../../
 
-IDIRS	:=	./
-SDIRS	:=	./
+IDIRS	:= ./
+SDIRS	:= ./
 
 MODULE	:= module-hello
 
-.PHONY: all clean
+.PHONY:	all module clean
 
-all:
+all:	module
+
+module:
 	@$(MAKE) -C $(KDIR) M=$(CDIR) IDIRS="$(IDIRS)" SDIRS="$(SDIRS)" MODULE=$(MODULE) TARGET=$(TARGET) CROSS=$(CROSS) module
 
 clean:
-	@$(RM) *~ *o.d *.o *.ko *.map
+	@$(RM) *~ *.d *.o *.map *.so
+	@echo Clean module complete.

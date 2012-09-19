@@ -191,14 +191,14 @@ all:		$(XBOOT) fixup
 module:		$(M_NAME)
 
 $(XBOOT):	$(OBJS)
-	@echo [LD] linking $@.elf
+	@echo [LD] Linking $@.elf
 	@$(CC) $(LDFLAGS) $(LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.elf $(LIBS)
-	@echo [OC] objcopying $@.bin
+	@echo [OC] Objcopying $@.bin
 	@$(OC) $(OCFLAGS) $@.elf $@.bin
 
 $(M_NAME):	$(M_OBJS)
-	@echo [LD] linking $@
-	@$(CC) $(M_LDFLAGS) -Wl,--cref,-Map=$@.map $^ -o $@.ko
+	@echo [M][LD] Linking $@.so
+	@$(CC) $(M_LDFLAGS) -Wl,--cref,-Map=$@.map $^ -o $@.so
 
 .obj/%.o:	%.S
 	@echo [AS] $<
@@ -216,23 +216,23 @@ $(M_NAME):	$(M_OBJS)
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
 %.o:		%.S
-	@echo [AS] $<
+	@echo [M][AS] $<
 	@$(AS) $(M_ASFLAGS) $(M_INCDIRS) -c $< -o $@
 	@$(AS) $(M_ASFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
 %.o:		%.c
-	@echo [CC] $<
+	@echo [M][CC] $<
 	@$(CC) $(M_CFLAGS) $(M_INCDIRS) -c $< -o $@
 	@$(CC) $(M_CFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
 %.o:		%.cpp
-	@echo [CXX] $<
+	@echo [M][CXX] $<
 	@$(CXX) $(M_CXXFLAGS) $(M_INCDIRS) -c $< -o $@	
 	@$(CXX) $(M_CXXFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
 clean:
 	@$(RM) $(OUTDIR) $(OBJDIRS)
-	@echo clean complete.
+	@echo Clean complete.
 
 # 
 # Include the dependency files, should be place the last of makefile

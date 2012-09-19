@@ -6,7 +6,7 @@
 #
 # Normal rules
 #
-*.ko
+*.so
 *.map
 *.d
 *.o

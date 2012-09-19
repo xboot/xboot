@@ -156,9 +156,9 @@ CD			:=	cd
 FIND		:=	find
 CPIO		:=	cpio -o -H newc --quiet
 
-XBOOT		:=	xboot
 OUTDIR		:=	../output
 OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
+XBOOT		:=	$(patsubst %, $(OUTDIR)/%, xboot)
 
 SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.S))
 CFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
@@ -166,18 +166,39 @@ CPPFILES	:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.S=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
 VPATH		:=	$(OBJDIRS)
 
+#
+# Module variables
+#
+M_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
+M_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
+M_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
+M_LDFLAGS	:=	-shared -nostdlib -fPIC
+
+M_INCDIRS	:=	$(INCDIRS) $(patsubst %, -I $(M)/%, $(IDIRS))
+M_SRCDIRS	:=	$(patsubst %, $(M)/%, $(SDIRS))
+
+M_SFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.S))
+M_CFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.c))
+M_CPPFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.cpp))
+M_OBJS		:=	$(patsubst %, %, $(M_SFILES:.S=.o) $(M_CFILES:.c=.o) $(M_CPPFILES:.cpp=.o))
+
+M_NAME		:= 	$(patsubst %, $(M)/%, $(MODULE))
+
 
 .PHONY:		all module clean fixup
 
-all:		$(OUTDIR)/$(XBOOT).bin fixup
+all:		$(XBOOT) fixup
+module:		$(M_NAME)
 
-$(OUTDIR)/$(XBOOT).bin:			$(OUTDIR)/$(XBOOT).elf
-	@echo [OC] objcopying $@
-	@$(OC) $(OCFLAGS) $< $@
+$(XBOOT):	$(OBJS)
+	@echo [LD] linking $@.elf
+	@$(CC) $(LDFLAGS) $(LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.elf $(LIBS)
+	@echo [OC] objcopying $@.bin
+	@$(OC) $(OCFLAGS) $@.elf $@.bin
 
-$(OUTDIR)/$(XBOOT).elf:			$(OBJS)
+$(M_NAME):	$(M_OBJS)
 	@echo [LD] linking $@
-	@$(CC) $(LDFLAGS) $(LIBDIRS) -Wl,--cref,-Map=$(OUTDIR)/$(XBOOT).map $^ -o $@ $(LIBS)
+	@$(CC) $(M_LDFLAGS) -Wl,--cref,-Map=$@.map $^ -o $@.ko
 
 .obj/%.o:	%.S
 	@echo [AS] $<
@@ -194,17 +215,27 @@ $(OUTDIR)/$(XBOOT).elf:			$(OBJS)
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
-module:
-	@echo no module
-	@echo $(CROSS)
-	@echo $(MOBJS)
+%.o:		%.S
+	@echo [AS] $<
+	@$(AS) $(M_ASFLAGS) $(M_INCDIRS) -c $< -o $@
+	@$(AS) $(M_ASFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
+
+%.o:		%.c
+	@echo [CC] $<
+	@$(CC) $(M_CFLAGS) $(M_INCDIRS) -c $< -o $@
+	@$(CC) $(M_CFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
+
+%.o:		%.cpp
+	@echo [CXX] $<
+	@$(CXX) $(M_CXXFLAGS) $(M_INCDIRS) -c $< -o $@	
+	@$(CXX) $(M_CXXFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
 clean:
 	@$(RM) $(OUTDIR) $(OBJDIRS)
 	@echo clean complete.
 
 # 
-# Include the dependency files, should be the last of the makefile
+# Include the dependency files, should be place the last of makefile
 #
 sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR)							\
 			&& $(RM) .obj/romdisk										\

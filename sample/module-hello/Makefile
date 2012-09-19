@@ -2,19 +2,21 @@
 # Makefile for external module.
 #
 
-_TARGET		?= arm-realview
-_CROSS		?= /home/jjj/software/eclipse-juno-for-arm-linux/compiler/arm-none-eabi/bin/arm-none-eabi-
+TARGET	?= arm-realview
+CROSS	?= /home/jjj/Software/eclipse-juno-for-arm-linux/compiler/arm-none-eabi/bin/arm-none-eabi-
 
-CDIR	:= $(shell pwd)
-KDIR	:= /home/jjj/xboot/xboot/
+CDIR	:= $(CURDIR)
+KDIR	:= $(CDIR)/../../
 
-MODULE	:= hello.mod
-MOBJS	:= module-hello.o
+IDIRS	:=	./
+SDIRS	:=	./
+
+MODULE	:= module-hello
 
 .PHONY: all clean
 
 all:
-	@$(MAKE) -C $(KDIR) M=$(CDIR) TARGET=$(_TARGET) CROSS=$(_CROSS) module
+	@$(MAKE) -C $(KDIR) M=$(CDIR) IDIRS="$(IDIRS)" SDIRS="$(SDIRS)" MODULE=$(MODULE) TARGET=$(TARGET) CROSS=$(CROSS) module
 
 clean:
-	echo $(ARCH)
+	@$(RM) *~ *o.d *.o *.ko *.map

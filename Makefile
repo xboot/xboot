@@ -4,7 +4,7 @@
 #
 
 
-.PHONY: all module module-clean clean
+.PHONY: all module mclean clean
 
 all:
 	@$(MAKE) -C src all
@@ -12,8 +12,8 @@ all:
 module:
 	@$(MAKE) -C src module
 
-module-clean:
-	@$(MAKE) -C src module-clean
-		
+mclean:
+	@$(MAKE) -C src mclean
+
 clean:
 	@$(MAKE) -C src clean

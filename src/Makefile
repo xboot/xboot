@@ -167,11 +167,6 @@ OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.S=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.
 VPATH		:=	$(OBJDIRS)
 
 #
-# Include module's Makefile
-#
-sinclude $(M)/Makefile
-
-#
 # Module variables
 #
 M_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
@@ -186,25 +181,31 @@ M_SRCDIRS	:=	$(patsubst %, $(M)/%, $(MODULE_SOURCE_DIRS))
 M_SFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.S))
 M_CFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.c))
 M_CPPFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.cpp))
-M_OBJS		:=	$(patsubst %, %, $(M_SFILES:.S=.o) $(M_CFILES:.c=.o) $(M_CPPFILES:.cpp=.o))
 
-M_CLEANS	:= 	$(M_OBJS) $(patsubst %, %.d, $(M_OBJS))
+M_SDEPS		:=	$(M_SFILES:.S=.o.d)
+M_CDEPS		:=	$(M_CFILES:.c=.o.d)
+M_CPPDEPS	:=	$(M_CPPFILES:.cpp=.o.d)
+M_DEPS		:=	$(M_SDEPS) $(M_CDEPS) $(M_CPPDEPS)
+
+M_SOBJS		:=	$(M_SFILES:.S=.o)
+M_COBJS		:=	$(M_CFILES:.c=.o)
+M_CPPOBJS	:=	$(M_CPPFILES:.cpp=.o)
+M_OBJS		:=	$(M_SOBJS) $(M_COBJS) $(M_CPPOBJS)
 
 
-.PHONY:		all module module-clean clean fixup
+.PHONY:		all fixup clean module mclean
 
 all:		$(XBOOT) fixup
 module:		$(M_NAME)
 
+#
+# Xboot rules
+#
 $(XBOOT):	$(OBJS)
 	@echo [LD] Linking $@.elf
 	@$(CC) $(LDFLAGS) $(LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.elf $(LIBS)
 	@echo [OC] Objcopying $@.bin
 	@$(OC) $(OCFLAGS) $@.elf $@.bin
-
-$(M_NAME):	$(M_OBJS)
-	@echo [M][LD] Linking $@.so
-	@$(CC) $(M_LDFLAGS) -Wl,--cref,-Map=$@.map $^ -o $@.so
 
 .obj/%.o:	%.S
 	@echo [AS] $<
@@ -221,29 +222,36 @@ $(M_NAME):	$(M_OBJS)
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
 	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
-%.o:		%.S
+clean:
+	@$(RM) $(OUTDIR) $(OBJDIRS)
+	@echo Clean xboot complete.
+
+#
+# Module rules
+#
+$(M_NAME):	$(M_OBJS)
+	@echo [M][LD] Linking $@.so
+	@$(CC) $(M_LDFLAGS) -Wl,--cref,-Map=$@.map $^ -o $@.so
+
+$(M_SOBJS) : %.o : %.S
 	@echo [M][AS] $<
 	@$(AS) $(M_ASFLAGS) $(M_INCDIRS) -c $< -o $@
 	@$(AS) $(M_ASFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
-%.o:		%.c
+$(M_COBJS) : %.o : %.c
 	@echo [M][CC] $<
 	@$(CC) $(M_CFLAGS) $(M_INCDIRS) -c $< -o $@
 	@$(CC) $(M_CFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
-%.o:		%.cpp
+$(M_CPPOBJS) : %.o : %.cpp
 	@echo [M][CXX] $<
 	@$(CXX) $(M_CXXFLAGS) $(M_INCDIRS) -c $< -o $@	
 	@$(CXX) $(M_CXXFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
-module-clean:
-	@$(RM) $(M_CLEANS) $(M_NAME).map $(M_NAME).so
+mclean:
+	@$(RM) $(M_DEPS) $(M_OBJS) $(M_NAME).map $(M_NAME).so
 	@echo Clean module complete.
-	
-clean:
-	@$(RM) $(OUTDIR) $(OBJDIRS)
-	@echo Clean xboot complete.
-	
+
 # 
 # Include the dependency files, should be place the last of makefile
 #

@@ -3,17 +3,16 @@
 # Create by: jianjun jiang <jerryjianjun@gmail.com>.
 #
 
-
-.PHONY: all module mclean clean
+.PHONY: all clean module mclean 
 
 all:
 	@$(MAKE) -C src all
 
+clean:
+	@$(MAKE) -C src clean
+	
 module:
 	@$(MAKE) -C src module
 
 mclean:
 	@$(MAKE) -C src mclean
-
-clean:
-	@$(MAKE) -C src clean

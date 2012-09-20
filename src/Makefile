@@ -66,9 +66,9 @@ CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
 #
 # Add necessary directory for INCDIRS and SRCDIRS.
 #
-INCDIRS		+= 	-I include						\
-				-I arch/$(ARCH)/include			\
-				-I arch/$(ARCH)/$(MACH)/include
+INCDIRS		+= 	include							\
+				arch/$(ARCH)/include			\
+				arch/$(ARCH)/$(MACH)/include
 
 SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				arch/$(ARCH)/lib/cpu			\
@@ -132,10 +132,10 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 #
 # Add external library
 #
-INCDIRS		+= 	-I external/lua-5.2.0
+INCDIRS		+= 	external/lua-5.2.0
 SRCDIRS		+=	external/lua-5.2.0
 
-INCDIRS		+= 	-I external/zlib-1.2.6
+INCDIRS		+= 	external/zlib-1.2.6
 SRCDIRS		+=	external/zlib-1.2.6
 
 #
@@ -156,15 +156,36 @@ CD			:=	cd
 FIND		:=	find
 CPIO		:=	cpio -o -H newc --quiet
 
-OUTDIR		:=	../output
-OBJDIRS		:=	.obj $(patsubst %, .obj/%, $(SRCDIRS))
-XBOOT		:=	$(patsubst %, $(OUTDIR)/%, xboot)
+#
+# Xboot variables
+#
+X_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
+X_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
+X_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
+X_LDFLAGS	:=	$(LDFLAGS)
+X_OCFLAGS	:=	$(OCFLAGS)
+X_LIBDIRS	:=	$(LIBDIRS)
+X_LIBS		:=	$(LIBS)
 
-SFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.S))
-CFILES		:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
-CPPFILES	:=	$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
-OBJS		:=	$(patsubst %, .obj/%, $(SFILES:.S=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o))
-VPATH		:=	$(OBJDIRS)
+X_OUT		:=	../output
+X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
+X_INCDIRS	:=	$(patsubst %, -I %, $(INCDIRS))
+X_SRCDIRS	:=	$(patsubst %, %, $(SRCDIRS))
+X_OBJDIRS	:=	$(patsubst %, .obj/%, $(X_SRCDIRS))
+
+X_SFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.S))
+X_CFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.c))
+X_CPPFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.cpp))
+
+X_SDEPS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o.d))
+X_CDEPS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o.d))
+X_CPPDEPS	:=	$(patsubst %, .obj/%, $(X_CPPFILES:.cpp=.o.d))
+X_DEPS		:=	$(X_SDEPS) $(X_CDEPS) $(X_CPPDEPS)
+
+X_SOBJS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o))
+X_COBJS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o))
+X_CPPOBJS	:=	$(patsubst %, .obj/%, $(X_CPPFILES:.cpp=.o)) 
+X_OBJS		:=	$(X_SOBJS) $(X_COBJS) $(X_CPPOBJS)
 
 #
 # Module variables
@@ -175,8 +196,9 @@ M_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
 M_LDFLAGS	:=	-shared -nostdlib -fPIC
 
 M_NAME		:= 	$(patsubst %, $(M)/%, $(MODULE_NAME))
-M_INCDIRS	:=	$(INCDIRS) $(patsubst %, -I $(M)/%, $(MODULE_INCLUDE_DIRS))
+M_INCDIRS	:=	$(X_INCDIRS) $(patsubst %, -I $(M)/%, $(MODULE_INCLUDE_DIRS))
 M_SRCDIRS	:=	$(patsubst %, $(M)/%, $(MODULE_SOURCE_DIRS))
+M_OBJDIRS	:=	$(patsubst %, %, $(M_SRCDIRS))
 
 M_SFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.S))
 M_CFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.c))
@@ -192,44 +214,46 @@ M_COBJS		:=	$(M_CFILES:.c=.o)
 M_CPPOBJS	:=	$(M_CPPFILES:.cpp=.o)
 M_OBJS		:=	$(M_SOBJS) $(M_COBJS) $(M_CPPOBJS)
 
-
-.PHONY:		all fixup clean module mclean
-
-all:		$(XBOOT) fixup
-module:		$(M_NAME)
+VPATH		:=	$(X_OBJDIRS) $(M_OBJDIRS)
+.PHONY:		all clean xclean fixup module mclean
 
 #
 # Xboot rules
 #
-$(XBOOT):	$(OBJS)
+all : $(X_NAME) fixup
+clean : xclean
+
+$(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@.elf
-	@$(CC) $(LDFLAGS) $(LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.elf $(LIBS)
+	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.elf $(X_LIBS)
 	@echo [OC] Objcopying $@.bin
-	@$(OC) $(OCFLAGS) $@.elf $@.bin
+	@$(OC) $(X_OCFLAGS) $@.elf $@.bin
 
-.obj/%.o:	%.S
+$(X_SOBJS) : .obj/%.o : %.S
 	@echo [AS] $<
-	@$(AS) $(MCFLAGS) $(ASFLAGS) $(INCDIRS) -c $< -o $@
-	@$(AS) $(MCFLAGS) $(ASFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
+	@$(AS) $(X_ASFLAGS) $(X_INCDIRS) -c $< -o $@
+	@$(AS) $(X_ASFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
-.obj/%.o:	%.c
+$(X_COBJS) : .obj/%.o : %.c
 	@echo [CC] $<
-	@$(CC) $(MCFLAGS) $(CFLAGS) $(INCDIRS) -c $< -o $@
-	@$(CC) $(MCFLAGS) $(CFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
+	@$(CC) $(X_CFLAGS) $(X_INCDIRS) -c $< -o $@
+	@$(CC) $(X_CFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
-.obj/%.o:	%.cpp
+$(X_CPPOBJS) : .obj/%.o : %.cpp
 	@echo [CXX] $<
-	@$(CXX) $(MCFLAGS) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
-	@$(CXX) $(MCFLAGS) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
+	@$(CXX) $(X_CXXFLAGS) $(X_INCDIRS) -c $< -o $@	
+	@$(CXX) $(X_CXXFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
-clean:
-	@$(RM) $(OUTDIR) $(OBJDIRS)
+xclean:
+	@$(RM) $(M_DEPS) $(X_OBJDIRS) $(X_OBJDIRS)$(X_OUT)
 	@echo Clean xboot complete.
 
 #
 # Module rules
 #
-$(M_NAME):	$(M_OBJS)
+module : $(M_NAME)
+
+$(M_NAME) : $(M_OBJS)
 	@echo [M][LD] Linking $@.so
 	@$(CC) $(M_LDFLAGS) -Wl,--cref,-Map=$@.map $^ -o $@.so
 
@@ -255,7 +279,7 @@ mclean:
 # 
 # Include the dependency files, should be place the last of makefile
 #
-sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR)							\
+sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)							\
 			&& $(RM) .obj/romdisk										\
 			&& $(RM) .obj/romdisk.cpio									\
 			&& $(RM) .obj/init/version.o								\
@@ -265,4 +289,4 @@ sinclude $(shell $(MKDIR) $(OBJDIRS) $(OUTDIR)							\
 			&& $(CD) .obj/romdisk										\
 			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio		\
 			&& $(CD) ../..)												\
-			$(foreach dir, $(OBJDIRS), $(wildcard $(dir)/*.d))
+			$(X_DEPS) $(M_DEPS)

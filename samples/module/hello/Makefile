@@ -2,9 +2,9 @@
 # Makefile for module.
 #
 
-XBOOT_SRC_DIR				:= $(CURDIR)/../../
+XBOOT_SRC_DIR				:= $(CURDIR)/../../../
 
-export MODULE_NAME			:= module-hello
+export MODULE_NAME			:= hello
 export MODULE_INCLUDE_DIRS	:= .
 export MODULE_SOURCE_DIRS	:= .
 

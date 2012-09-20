@@ -4,8 +4,6 @@
 
 ifeq ($(TARGET), arm-x210ii)
 
-CROSS		?= arm-none-eabi-
-
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
@@ -33,6 +31,6 @@ endif
 
 fixup:
 	@echo make header information for irom booting
-	@$(MKHEADER) $(OUTDIR)/$(XBOOT).bin
+	@$(MKHEADER) $(X_NAME).bin
 
 endif

@@ -4,10 +4,10 @@
 #
 
 #
-# You must pass TARGET variable, for choosing platform.
-# default TARGET is arm-realview.
+# You must pass TARGET and CROSS variable.
 #
 TARGET		?= arm-realview
+CROSS		?= arm-none-eabi-
 
 #
 # Get platform information about ARCH and MACH from TARGET variable.
@@ -141,7 +141,6 @@ SRCDIRS		+=	external/zlib-1.2.6
 #
 # You shouldn't need to change anything below this point.
 #
-CROSS		?=
 AS			:=	$(CROSS)gcc -x assembler-with-cpp
 CC			:=	$(CROSS)gcc
 CXX			:=	$(CROSS)g++

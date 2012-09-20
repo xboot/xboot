@@ -4,8 +4,6 @@
 
 ifeq ($(TARGET), arm-realview)
 
-CROSS		?= arm-none-eabi-
-
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 CXXFLAGS	:= -g -ggdb -Wall -O3

@@ -4,8 +4,6 @@
 
 ifeq ($(TARGET), arm-smdkv310)
 
-CROSS		?= arm-none-eabi-
-
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
@@ -33,6 +31,6 @@ endif
 
 fixup:
 	@echo make checksum information for irom booting
-	@$(MKV310) $(OUTDIR)/$(XBOOT).bin
+	@$(MKV310) $(X_NAME).bin
 
 endif

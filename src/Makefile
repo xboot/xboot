@@ -275,7 +275,7 @@ mclean:
 	@$(RM) $(M_DEPS) $(M_OBJS) $(M_NAME).map $(M_NAME).so
 	@echo Clean module complete.
 
-# 
+#
 # Include the dependency files, should be place the last of makefile
 #
 sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)							\

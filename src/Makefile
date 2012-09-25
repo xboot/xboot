@@ -138,6 +138,10 @@ SRCDIRS		+=	external/lua-5.2.0
 INCDIRS		+= 	external/zlib-1.2.6
 SRCDIRS		+=	external/zlib-1.2.6
 
+INCDIRS		+= 	external/tinygl \
+				external/tinygl/include
+SRCDIRS		+=	external/tinygl/
+
 #
 # You shouldn't need to change anything below this point.
 #

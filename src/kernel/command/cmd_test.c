@@ -946,19 +946,7 @@ void game(void)
 
 static int test(int argc, char ** argv)
 {
-	//void *(*a)(u32_t) = NULL;
-	typeof(mdelay) * a;
-
-	a = symbol_get(mdelay);
-
-	printk("a\r\n");
-	a(1000);
-	printk("b\r\n");
-
-
-
-	//game();
-	// tt();
+	ttt();
 	return 0;
 }
 

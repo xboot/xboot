@@ -77,6 +77,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				arch/$(ARCH)/$(MACH)/driver		\
 				arch/$(ARCH)/$(MACH)/resource	\
 				lib								\
+				lib/elf							\
 				lib/libc						\
 				lib/libc/ctype					\
 				lib/libc/environ				\

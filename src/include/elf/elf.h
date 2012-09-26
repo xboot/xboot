@@ -5,6 +5,29 @@
 #include <elf/elf32.h>
 #include <elf/elf64.h>
 
+
+#define	ELFMAG		"\177ELF"
+#define	SELFMAG		4
+
+#define EI_CLASS	4		/* File class byte index */
+enum {
+	ELFCLASSNONE	= 0,	/* Invalid class */
+	ELFCLASS32		= 1,	/* 32-bit objects */
+	ELFCLASS64		= 2,	/* 64-bit objects */
+	ELFCLASSNUM		= 3,
+};
+
+
+
+
+
+
+
+
+#define SHT_SYMTAB	  2		/* Symbol table */
+#define SHT_STRTAB	  3		/* String table */
+
+#if 0
 #define EI_NIDENT	16	/* Size of e_ident array. */
 
 /* Values for e_type. */
@@ -144,5 +167,6 @@
 #define EV_CURRENT	1	/* Current version */
 
 #define ELF32_PHDR_SIZE (8*4)	/* Size of an elf program header */
+#endif
 
 #endif /* __ELF_H__ */

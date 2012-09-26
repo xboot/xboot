@@ -83,10 +83,10 @@ void elf_image_free(struct elf_image_t * image)
 
 void test_elf(void)
 {
-	struct elf_image_t * i;
+	struct elf_image_t * img;
 
-	i = elf_image_alloc("/romdisk/hello.so");
-	if(!i)
+	img = elf_image_alloc("/romdisk/hello.so");
+	if(!img)
 	{
 		printk("load elf fail\r\n");
 		return;
@@ -94,70 +94,23 @@ void test_elf(void)
 
 	printk("load elf ok\r\n");
 
-	elf_check_header(i);
 
-
-	elf_image_free(i);
-}
-
-
-char *elf_section_name(void *image, int section)
-{
-	struct elf32_ehdr *header = image;
-	struct elf32_shdr *sections = image + header->e_shoff;
-	return image + sections[header->e_shstrndx].sh_offset + sections[section].sh_name;
-}
-
-elf_check_header (struct elf_image_t * image)
-{
-	struct elf32_ehdr * e = (struct elf32_ehdr *)(image->data);
+	struct elf32_ehdr * e = (struct elf32_ehdr *) (img->data);
+	struct elf32_sym * sym;
+	struct elf32_shdr * s;
 	int i;
-  if (e->e_ident[EI_MAG0] != ELFMAG0
-      || e->e_ident[EI_MAG1] != ELFMAG1
-      || e->e_ident[EI_MAG2] != ELFMAG2
-      || e->e_ident[EI_MAG3] != ELFMAG3
-      || e->e_ident[EI_VERSION] != EV_CURRENT
-      || e->e_version != EV_CURRENT)
-  {
+	char * p;
 
-	  for(i=0;i<16;i++)
-	  {
-		  printk("%02x ", e->e_ident[i]);
-	  }
-
-	  printk("error elf magic\r\n");
-	  return;
-  }
-  else
-	  printk("ok elf magic\r\n");
-
-  char * p;
-	for (i = 0; i < 10; i++) {
-		p = elf_section_name(image->data, i);
-		printk(p);
-		printk("\r\n");
+	for (i = 0; i < e->e_shnum; i++)
+	{
+		sym = elf_get_symbol_by_name(img->data, "aa");
 	}
 
 
 
 
-
-
-
-
-
-
-
-
-
+	elf_image_free(img);
 }
-
-
-
-
-
-
-
 
 
 
@@ -168,55 +121,6 @@ elf_check_header (struct elf_image_t * image)
 /////////////////////
 
 
-
-struct elf32_shdr *elf_get_section_by_id(void *image, int section)
-{
-	struct elf32_ehdr *header = image;
-	struct elf32_shdr *sections = image + header->e_shoff;
-
-	if(section >= header->e_shnum)
-		return 0;
-
-	return &sections[section];
-}
-
-struct elf32_shdr *elf_get_section_by_name(void *image, char *name)
-{
-	struct elf32_ehdr * header = image;
-	int i;
-	for(i=0;i<header->e_shnum;i++)
-		if(!strcmp(elf_section_name(image, i), name))
-			return elf_get_section_by_id(image, i);
-	return 0;
-}
-
-struct elf32_sym *elf_get_symbol_by_id(void *image, int id)
-{
-	struct elf32_shdr *sect = elf_get_section_by_name(image, ".symtab");
-	struct elf32_sym *symtab = image + sect->sh_offset;
-	if(id * sizeof(struct elf32_sym) > sect->sh_size)
-		return 0;
-	return &symtab[id];
-}
-
-struct elf32_sym *elf_get_symbol_by_name(void *image, char *name)
-{
-	struct elf32_shdr *sect = elf_get_section_by_name(image, ".symtab");
-	struct elf32_shdr *strtab = elf_get_section_by_name(image, ".strtab");
-	struct elf32_sym *symtab = image + sect->sh_offset;
-	int i;
-	int size = sect->sh_size / sizeof(struct elf32_sym);
-
-	for(i=0;i<size;i++)
-	{
-		if (symtab[i].st_name == 0)
-			continue;
-
-		if(strcmp((char *)((unsigned int)image + strtab->sh_offset + symtab[i].st_name), name) == 0)
-			return &symtab[i];
-	}
-	return 0;
-}
 
 int elf_get_sym(void *image, int index, unsigned int *val, unsigned int symtab_sect, void *(*import_func)(char *name))
 {

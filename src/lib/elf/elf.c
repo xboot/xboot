@@ -455,7 +455,7 @@ void test_elf(void)
 	struct elf_image_t * img;
 	struct module_t * module;
 
-	img = elf_image_alloc("/romdisk/hello.so");
+	img = elf_image_alloc("/romdisk/gears.so");
 	if(!img)
 	{
 		printk("load elf fail\r\n");

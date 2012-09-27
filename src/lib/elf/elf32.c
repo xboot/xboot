@@ -4,14 +4,11 @@
 
 #include <elf/elf32.h>
 
-bool_t elf32_is_valid(void * elf, size_t size)
+bool_t elf32_is_valid(void * elf)
 {
 	struct elf32_ehdr * e = (struct elf32_ehdr *)elf;
 
 	if(!e)
-		return FALSE;
-
-	if(size < sizeof(struct elf32_ehdr))
 		return FALSE;
 
 	if(memcmp(e->e_ident, ELFMAG, SELFMAG) != 0)

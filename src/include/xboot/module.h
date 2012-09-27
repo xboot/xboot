@@ -16,6 +16,8 @@ struct module_t {
 	/* module memory space */
 	void * space;
 
+	void * module_entry;
+
 	/* module exported symbols */
 	struct kernel_symbol * symtab;
 	u32_t nsym;
@@ -43,9 +45,11 @@ extern struct kernel_symbol __ksymtab_end[];
  * Get a kernel symbol (calls must be symmetric)
  */
 #define symbol_get(x) ((typeof(&x))(__symbol_get(#x)))
-
 void * __symbol_get(const char * name);
 struct kernel_symbol * find_symbol(struct module_t * module, const char * name);
 struct module_t * find_module(const char * name);
+
+struct module_list * __module_list_init(void);
+void __module_list_exit(struct module_list * m);
 
 #endif /* __MODULE_H__ */

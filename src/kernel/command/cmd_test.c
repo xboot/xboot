@@ -946,19 +946,28 @@ void game(void)
 
 static int test(int argc, char ** argv)
 {
-	//void *(*a)(u32_t) = NULL;
-	typeof(mdelay) * a;
+	if(argc > 1)
+	{
+		printk("load elf\r\n");
+		test_elf();
+	}
+	else
+	{
+		printk("run so...\r\n");
+		void (*p)(void);
 
-	a = symbol_get(mdelay);
+		p = __symbol_get("hello_main");
+		if(p)
+		{
+			printk("found\r\n");
+			p();
+		}
+		else
+		{
+			printk("not found\r\n");
+		}
+	}
 
-	printk("a\r\n");
-	a(1000);
-	printk("b\r\n");
-
-
-
-	//game();
-	// tt();
 	return 0;
 }
 

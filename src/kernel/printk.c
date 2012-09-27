@@ -54,3 +54,4 @@ int printk(const char * fmt, ...)
 	free(buf);
 	return len;
 }
+EXPORT_SYMBOL(printk);

@@ -23,16 +23,6 @@
 #include <xboot.h>
 #include <xboot/module.h>
 
-//xxx for remove
-static struct module_list __module_list = {
-	.entry = {
-		.next	= &(__module_list.entry),
-		.prev	= &(__module_list.entry),
-	},
-};
-//xxx for remove
-
-
 static struct kernel_symbol * __lookup_symbol_in_range(struct kernel_symbol * from, struct kernel_symbol * to, const char * name)
 {
 	struct kernel_symbol * next;
@@ -66,7 +56,7 @@ static struct kernel_symbol * __lookup_symbol_in_module(struct module_t * module
 
 static struct kernel_symbol * __lookup_symbol_all(const char * name)
 {
-	struct module_list * module = &__module_list;
+	struct module_list * m = __get_runtime()->__module_list;
 	struct module_list * list;
 	struct list_head * pos;
 	struct kernel_symbol * sym;
@@ -78,7 +68,7 @@ static struct kernel_symbol * __lookup_symbol_all(const char * name)
 	if(sym)
 		return sym;
 
-	for(pos = (&module->entry)->next; pos != (&module->entry); pos = pos->next)
+	for(pos = (&m->entry)->next; pos != (&m->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct module_list, entry);
 		sym = __lookup_symbol_in_module(list->module, name);
@@ -106,14 +96,14 @@ EXPORT_SYMBOL(find_symbol);
 
 struct module_t * find_module(const char * name)
 {
-	struct module_list * module = &__module_list;
+	struct module_list * m = __get_runtime()->__module_list;
 	struct module_list * list;
 	struct list_head * pos;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&module->entry)->next; pos != (&module->entry); pos = pos->next)
+	for(pos = (&m->entry)->next; pos != (&m->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct module_list, entry);
 		if(strcmp(list->module->name, name) == 0)
@@ -128,43 +118,43 @@ EXPORT_SYMBOL(find_module);
 
 
 
-static bool_t add_module(struct module_t * m)
+bool_t add_module(struct module_t * module)
 {
-	struct module_list * module = &__module_list;
+	struct module_list * m = __get_runtime()->__module_list;
 	struct module_list * list;
 
 	list = malloc(sizeof(struct module_list));
-	if(!list || !m)
+	if(!list || !module)
 	{
 		free(list);
 		return FALSE;
 	}
 
-	if(!m->name || find_module(m->name))
+	if(!module->name || find_module(module->name))
 	{
 		free(list);
 		return FALSE;
 	}
 
-	list->module = m;
-	list_add(&list->entry, &module->entry);
+	list->module = module;
+	list_add(&list->entry, &m->entry);
 
 	return TRUE;
 }
 
-static bool_t delete_module(struct module_t * m)
+static bool_t delete_module(struct module_t * module)
 {
-	struct module_list * module = &__module_list;
+	struct module_list * m = __get_runtime()->__module_list;
 	struct module_list * list;
 	struct list_head * pos;
 
-	if(!m || !m->name)
+	if(!module || !module->name)
 		return FALSE;
 
-	for(pos = (&module->entry)->next; pos != (&module->entry); pos = pos->next)
+	for(pos = (&m->entry)->next; pos != (&m->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct module_list, entry);
-		if(list->module == m)
+		if(list->module == module)
 		{
 			list_del(pos);
 			free(list);
@@ -178,5 +168,24 @@ static bool_t delete_module(struct module_t * m)
 
 
 
+struct module_list * __module_list_init(void)
+{
+	struct module_list * m;
 
+	m = malloc(sizeof(struct module_list));
+	if(!m)
+		return NULL;
 
+	m->module = NULL;
+	init_list_head(&(m->entry));
+
+	return m;
+}
+
+void __module_list_exit(struct module_list * m)
+{
+	if(!m)
+		return;
+
+	free(m);
+}

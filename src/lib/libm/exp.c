@@ -95,3 +95,4 @@ double exp(double x)
 		return y * twom1000;
 	}
 }
+EXPORT_SYMBOL(exp);

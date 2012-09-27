@@ -47,3 +47,4 @@ double sinh(double x)
 
 	return x * shuge;
 }
+EXPORT_SYMBOL(sinh);

@@ -159,3 +159,4 @@ double fmod(double x, double y)
 	}
 	return x;
 }
+EXPORT_SYMBOL(fmod);

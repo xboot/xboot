@@ -54,3 +54,4 @@ float floorf(float x)
 	SET_FLOAT_WORD(x,i0);
 	return x;
 }
+EXPORT_SYMBOL(floorf);

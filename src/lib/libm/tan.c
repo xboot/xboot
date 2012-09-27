@@ -27,3 +27,4 @@ double tan(double x)
 		return __kernel_tan(y[0], y[1], 1 - ((n & 1) << 1));
 	}
 }
+EXPORT_SYMBOL(tan);

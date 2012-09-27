@@ -39,3 +39,4 @@ double sin(double x)
 		}
 	}
 }
+EXPORT_SYMBOL(sin);

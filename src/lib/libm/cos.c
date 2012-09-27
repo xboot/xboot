@@ -37,3 +37,4 @@ double cos(double x)
 		}
 	}
 }
+EXPORT_SYMBOL(cos);

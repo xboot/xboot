@@ -43,3 +43,4 @@ double tanh(double x)
 	}
 	return (jx >= 0) ? z : -z;
 }
+EXPORT_SYMBOL(tanh);

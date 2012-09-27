@@ -64,3 +64,4 @@ double modf(double x, double *iptr)
 		}
 	}
 }
+EXPORT_SYMBOL(modf);

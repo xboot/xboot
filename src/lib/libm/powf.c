@@ -256,3 +256,4 @@ float powf(float x, float y)
 		SET_FLOAT_WORD(z,j);
 	return sn * z;
 }
+EXPORT_SYMBOL(powf);

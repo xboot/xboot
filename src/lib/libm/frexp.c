@@ -31,3 +31,4 @@ double frexp(double x, int *eptr)
 
 	return x;
 }
+EXPORT_SYMBOL(frexp);

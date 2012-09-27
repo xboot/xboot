@@ -47,3 +47,4 @@ double cosh(double x)
 
 	return huge * huge;
 }
+EXPORT_SYMBOL(cosh);

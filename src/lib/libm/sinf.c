@@ -69,3 +69,4 @@ float sinf(float x)
 		}
 	}
 }
+EXPORT_SYMBOL(sinf);

@@ -78,3 +78,4 @@ float asinf(float x)
 	else
 		return -t;
 }
+EXPORT_SYMBOL(asinf);

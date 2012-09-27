@@ -96,3 +96,4 @@ float fmodf(float x, float y)
 	}
 	return x;
 }
+EXPORT_SYMBOL(fmodf);

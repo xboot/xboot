@@ -90,3 +90,4 @@ float expf(float x)
 		return y * twom100;
 	}
 }
+EXPORT_SYMBOL(expf);

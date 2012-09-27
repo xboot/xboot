@@ -104,3 +104,4 @@ float atanf(float x)
 		return (hx < 0) ? -z : z;
 	}
 }
+EXPORT_SYMBOL(atanf);

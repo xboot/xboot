@@ -88,3 +88,4 @@ float logf(float x)
 			return dk * ln2_hi - ((s * (f - R) - dk * ln2_lo) - f);
 	}
 }
+EXPORT_SYMBOL(logf);

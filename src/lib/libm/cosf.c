@@ -67,3 +67,4 @@ float cosf(float x)
 		}
 	}
 }
+EXPORT_SYMBOL(cosf);

@@ -44,3 +44,4 @@ float sinhf(float x)
 
 	return x * shuge;
 }
+EXPORT_SYMBOL(sinhf);

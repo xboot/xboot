@@ -74,3 +74,4 @@ float acosf(float x)
 		return (float) 2.0 * (df + w);
 	}
 }
+EXPORT_SYMBOL(acosf);

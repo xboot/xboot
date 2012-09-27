@@ -76,3 +76,4 @@ double asin(double x)
 	else
 		return -t;
 }
+EXPORT_SYMBOL(asin);

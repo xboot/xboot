@@ -74,3 +74,4 @@ double acos(double x)
 		return 2.0 * (df + w);
 	}
 }
+EXPORT_SYMBOL(acos);

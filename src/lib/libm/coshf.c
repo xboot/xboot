@@ -44,3 +44,4 @@ float coshf(float x)
 
 	return huge * huge;
 }
+EXPORT_SYMBOL(coshf);

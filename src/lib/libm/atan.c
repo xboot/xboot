@@ -106,3 +106,4 @@ double atan(double x)
 		return (hx < 0) ? -z : z;
 	}
 }
+EXPORT_SYMBOL(atan);

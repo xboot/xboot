@@ -12,3 +12,4 @@ double fabs(double x)
 	SET_HIGH_WORD(x, high & 0x7fffffff);
 	return x;
 }
+EXPORT_SYMBOL(fabs);

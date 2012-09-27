@@ -31,3 +31,4 @@ float frexpf(float x, int *eptr)
 
 	return x;
 }
+EXPORT_SYMBOL(frexpf);

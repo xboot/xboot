@@ -47,3 +47,4 @@ float modff(float x, float *iptr)
 		return x;
 	}
 }
+EXPORT_SYMBOL(modff);

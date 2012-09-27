@@ -47,3 +47,4 @@ float tanf(float x)
 		return __kernel_tandf((double) y[0] + y[1], 1 - ((n & 1) << 1));
 	}
 }
+EXPORT_SYMBOL(tanf);

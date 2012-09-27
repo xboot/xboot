@@ -40,3 +40,4 @@ float log10f(float x)
 	z = y * log10_2lo + ivln10 * logf(x);
 	return z + y * log10_2hi;
 }
+EXPORT_SYMBOL(log10f);

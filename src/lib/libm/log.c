@@ -92,3 +92,4 @@ double log(double x)
 			return dk * ln2_hi - ((s * (f - R) - dk * ln2_lo) - f);
 	}
 }
+EXPORT_SYMBOL(log);

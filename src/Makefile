@@ -194,6 +194,8 @@ M_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
 M_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
 M_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
 M_LDFLAGS	:=	-shared -nostdlib -fPIC
+M_LIBDIRS	:=
+M_LIBS		:=	-lgcc
 
 M_NAME		:= 	$(patsubst %, $(M)/%, $(MODULE_NAME))
 M_INCDIRS	:=	$(X_INCDIRS) $(patsubst %, -I $(M)/%, $(MODULE_INCLUDE_DIRS))
@@ -255,7 +257,7 @@ module : $(M_NAME)
 
 $(M_NAME) : $(M_OBJS)
 	@echo [M][LD] Linking $@.so
-	@$(CC) $(M_LDFLAGS) -Wl,--cref,-Map=$@.map $^ -o $@.so
+	@$(CC) $(M_LDFLAGS) $(M_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.so $(M_LIBS)
 
 $(M_SOBJS) : %.o : %.S
 	@echo [M][AS] $<

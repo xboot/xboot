@@ -1,10 +1,30 @@
 #ifndef __MODULE_H__
 #define __MODULE_H__
 
+#include <xboot.h>
+
 struct kernel_symbol
 {
 	void * addr;
 	const char * name;
+};
+
+struct module_t {
+	/* module name */
+	char * name;
+
+	/* module memory space */
+	void * space;
+
+	/* module exported symbols */
+	struct kernel_symbol * symtab;
+	u32_t nsym;
+};
+
+struct module_list
+{
+	struct module_t * module;
+	struct list_head entry;
 };
 
 extern struct kernel_symbol __ksymtab_start[];
@@ -22,7 +42,10 @@ extern struct kernel_symbol __ksymtab_end[];
 /*
  * Get a kernel symbol (calls must be symmetric)
  */
+#define symbol_get(x) ((typeof(&x))(__symbol_get(#x)))
+
 void * __symbol_get(const char * name);
-#define symbol_get(x)	((typeof(&x))(__symbol_get(#x)))
+struct kernel_symbol * find_symbol(struct module_t * module, const char * name);
+struct module_t * find_module(const char * name);
 
 #endif /* __MODULE_H__ */

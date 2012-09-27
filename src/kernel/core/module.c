@@ -23,15 +23,25 @@
 #include <xboot.h>
 #include <xboot/module.h>
 
-static struct kernel_symbol * __find_symbol(const char * name)
+//xxx for remove
+static struct module_list __module_list = {
+	.entry = {
+		.next	= &(__module_list.entry),
+		.prev	= &(__module_list.entry),
+	},
+};
+//xxx for remove
+
+
+static struct kernel_symbol * __lookup_symbol_in_range(struct kernel_symbol * from, struct kernel_symbol * to, const char * name)
 {
 	struct kernel_symbol * next;
 
-	if(!name)
+	if(!from || !to || !name)
 		return NULL;
 
-	next = &(*__ksymtab_start);
-	while (next < &(*__ksymtab_end))
+	next = from;
+	while(next < to)
 	{
 		if(strcmp(next->name, name) == 0)
 			return next;
@@ -41,11 +51,132 @@ static struct kernel_symbol * __find_symbol(const char * name)
 	return NULL;
 }
 
+static struct kernel_symbol * __lookup_symbol_in_module(struct module_t * module, const char * name)
+{
+	struct kernel_symbol * from, * to;
+
+	if(!module || !name)
+		return NULL;
+
+	from = (struct kernel_symbol *)(module->symtab);
+	to = (struct kernel_symbol *)(module->symtab + module->nsym);
+
+	return __lookup_symbol_in_range(from, to, name);
+}
+
+static struct kernel_symbol * __lookup_symbol_all(const char * name)
+{
+	struct module_list * module = &__module_list;
+	struct module_list * list;
+	struct list_head * pos;
+	struct kernel_symbol * sym;
+
+	if(!name)
+		return NULL;
+
+	sym = __lookup_symbol_in_range(&(*__ksymtab_start), &(*__ksymtab_end), name);
+	if(sym)
+		return sym;
+
+	for(pos = (&module->entry)->next; pos != (&module->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct module_list, entry);
+		sym = __lookup_symbol_in_module(list->module, name);
+		if(sym)
+			return sym;
+	}
+
+	return NULL;
+}
+
 void * __symbol_get(const char * name)
 {
 	struct kernel_symbol * sym;
 
-	sym = __find_symbol(name);
+	sym = __lookup_symbol_all(name);
 	return sym ? (void *)sym->addr : NULL;
 }
 EXPORT_SYMBOL(__symbol_get);
+
+struct kernel_symbol * find_symbol(struct module_t * module, const char * name)
+{
+	return __lookup_symbol_in_module(module, name);
+}
+EXPORT_SYMBOL(find_symbol);
+
+struct module_t * find_module(const char * name)
+{
+	struct module_list * module = &__module_list;
+	struct module_list * list;
+	struct list_head * pos;
+
+	if(!name)
+		return NULL;
+
+	for(pos = (&module->entry)->next; pos != (&module->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct module_list, entry);
+		if(strcmp(list->module->name, name) == 0)
+			return list->module;
+	}
+
+	return NULL;
+}
+EXPORT_SYMBOL(find_module);
+
+
+
+
+
+static bool_t add_module(struct module_t * m)
+{
+	struct module_list * module = &__module_list;
+	struct module_list * list;
+
+	list = malloc(sizeof(struct module_list));
+	if(!list || !m)
+	{
+		free(list);
+		return FALSE;
+	}
+
+	if(!m->name || find_module(m->name))
+	{
+		free(list);
+		return FALSE;
+	}
+
+	list->module = m;
+	list_add(&list->entry, &module->entry);
+
+	return TRUE;
+}
+
+static bool_t delete_module(struct module_t * m)
+{
+	struct module_list * module = &__module_list;
+	struct module_list * list;
+	struct list_head * pos;
+
+	if(!m || !m->name)
+		return FALSE;
+
+	for(pos = (&module->entry)->next; pos != (&module->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct module_list, entry);
+		if(list->module == m)
+		{
+			list_del(pos);
+			free(list);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+
+
+
+
+

@@ -78,6 +78,8 @@ struct runtime_t * runtime_alloc(void)
 
 	r->__xfs_ctx = __xfs_platform_init();
 
+	r->module = NULL;
+
 	return r;
 }
 

@@ -21,6 +21,9 @@ struct runtime_t {
 
 	/* xfs context */
 	struct xfs_context_t * __xfs_ctx;
+
+	/* module */
+	struct module_t * module;
 };
 
 

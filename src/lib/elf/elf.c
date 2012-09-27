@@ -114,7 +114,7 @@ void test_elf(void)
 
 
 
-
+#if 0 //xxx
 
 ///////////////////
 #define DT_NEEDED 1
@@ -262,7 +262,7 @@ int elf_do_reloc(void *image, struct elf32_rela *reloc, struct elf32_shdr *sect,
 	if(err != 0)
 		return err;
 
-#if 0 //xxx
+
 	switch(ELF32_R_TYPE(reloc->r_info))
 	{
 		case R_386_NONE:
@@ -293,9 +293,11 @@ int elf_do_reloc(void *image, struct elf32_rela *reloc, struct elf32_shdr *sect,
 			return -1;
 		}
 	}
-#endif
+
 	return 0;
 }
+#endif
+
 
 #if 0
 int elf_load_reloc(void *image, void *(*import_func)(char *name))

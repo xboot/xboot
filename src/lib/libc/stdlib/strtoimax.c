@@ -129,6 +129,7 @@ intmax_t strtoimax(const char * nptr, char ** endptr, int base)
 		cutoff = neg ? INTMAX_MIN : INTMAX_MAX;
 		cutlim = cutoff % base;
 		cutoff /= base;
+		break;
 	}
 
 	if (neg)

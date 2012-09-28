@@ -130,6 +130,7 @@ long long strtoll(const char * nptr, char ** endptr, int base)
 		cutoff = neg ? LLONG_MIN : LLONG_MAX;
 		cutlim = cutoff % base;
 		cutoff /= base;
+		break;
 	}
 
 	if (neg)

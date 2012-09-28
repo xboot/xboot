@@ -3,6 +3,7 @@
  */
 
 #include <xboot.h>
+#include <xboot/module.h>
 #include <malloc.h>
 
 /*

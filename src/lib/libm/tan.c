@@ -2,6 +2,7 @@
  * libm/tan.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 double tan(double x)

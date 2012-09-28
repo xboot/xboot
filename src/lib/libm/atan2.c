@@ -2,6 +2,7 @@
  * libm/atan2.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const double

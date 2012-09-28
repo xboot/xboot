@@ -2,6 +2,7 @@
  * libm/tanh.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const double one = 1.0, two = 2.0, tiny = 1.0e-300;

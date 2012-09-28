@@ -2,6 +2,7 @@
  * libm/modf.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const double one = 1.0;

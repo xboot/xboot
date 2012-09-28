@@ -2,6 +2,7 @@
  * libm/atan2f.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const float

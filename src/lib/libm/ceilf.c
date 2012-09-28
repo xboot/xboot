@@ -2,6 +2,7 @@
  * libm/ceilf.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const float huge = 1.0e30;

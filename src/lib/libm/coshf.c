@@ -2,6 +2,7 @@
  * libm/coshf.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const float one = 1.0, half = 0.5, huge = 1.0e30;

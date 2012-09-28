@@ -2,6 +2,7 @@
  * libm/tanhf.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const float one = 1.0, two = 2.0, tiny = 1.0e-30, huge = 1.0e30;

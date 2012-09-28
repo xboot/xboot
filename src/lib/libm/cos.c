@@ -2,6 +2,7 @@
  * libm/cos.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 double cos(double x)

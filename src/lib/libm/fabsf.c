@@ -2,6 +2,7 @@
  * libm/fabsf.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 float fabsf(float x)

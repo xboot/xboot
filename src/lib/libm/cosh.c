@@ -2,6 +2,7 @@
  * libm/cosh.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const double one = 1.0, half = 0.5, huge = 1.0e300;

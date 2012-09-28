@@ -2,6 +2,7 @@
  * libm/atanf.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const float atanhi[] = {

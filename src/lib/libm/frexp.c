@@ -2,6 +2,7 @@
  * libm/frexp.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const double two54 = 1.80143985094819840000e+16;

@@ -2,6 +2,7 @@
  * libm/floor.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const double huge = 1.0e300;

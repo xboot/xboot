@@ -2,6 +2,7 @@
  * libm/fabs.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 double fabs(double x)

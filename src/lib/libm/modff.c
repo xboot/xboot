@@ -2,6 +2,7 @@
  * libm/modff.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const float one = 1.0;

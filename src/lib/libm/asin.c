@@ -2,6 +2,7 @@
  * libm/asin.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const double

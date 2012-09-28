@@ -2,6 +2,7 @@
  * libm/frexpf.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const float two25 = 3.3554432000e+07;

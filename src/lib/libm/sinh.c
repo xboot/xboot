@@ -2,6 +2,7 @@
  * libm/sinh.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 static const double one = 1.0, shuge = 1.0e307;

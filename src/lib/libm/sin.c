@@ -2,6 +2,7 @@
  * libm/sin.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 
 double sin(double x)

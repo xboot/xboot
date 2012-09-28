@@ -129,7 +129,7 @@ void init(void)
     Ystep = Zstep = 0.0;
 }
 
-void hello_main(void)
+void module_main(void)
 {
 	int count = 0;
 	struct vgafb_context *ctx = NULL;

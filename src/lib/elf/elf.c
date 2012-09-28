@@ -450,12 +450,12 @@ static struct module_t * _load_shared_object(const char *name, void *module_ptr)
 
 
 
-void test_elf(void)
+void test_elf(char * path)
 {
 	struct elf_image_t * img;
 	struct module_t * module;
 
-	img = elf_image_alloc("/romdisk/gears.so");
+	img = elf_image_alloc(path);
 	if(!img)
 	{
 		printk("load elf fail\r\n");

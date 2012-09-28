@@ -34,12 +34,17 @@ $(error unable to determine host operation system from uname)
 endif
 
 #
+# pre-define macros
+#
+PRE_DEFINE	:= -D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
+
+#
 # Define default make variables.
 #
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
-LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles
+LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=
@@ -59,9 +64,9 @@ sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 #
 # Add pre-define macros.
 #
-ASFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
-CFLAGS		+= 	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
-CXXFLAGS	+=	-D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
+ASFLAGS		+= 	$(PRE_DEFINE)
+CFLAGS		+= 	$(PRE_DEFINE)
+CXXFLAGS	+=	$(PRE_DEFINE)
 
 #
 # Add necessary directory for INCDIRS and SRCDIRS.
@@ -165,7 +170,7 @@ X_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
 X_LDFLAGS	:=	$(LDFLAGS)
 X_OCFLAGS	:=	$(OCFLAGS)
 X_LIBDIRS	:=	$(LIBDIRS)
-X_LIBS		:=	$(LIBS)
+X_LIBS		:=	$(LIBS) -lgcc
 
 X_OUT		:=	../output
 X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
@@ -190,12 +195,12 @@ X_OBJS		:=	$(X_SOBJS) $(X_COBJS) $(X_CPPOBJS)
 #
 # Module variables
 #
-M_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
-M_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
-M_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
-M_LDFLAGS	:=	-shared -nostdlib -fPIC
-M_LIBDIRS	:=
-M_LIBS		:=	-lgcc
+M_ASFLAGS	:=	$(MODULE_ASFLAGS) $(PRE_DEFINE)
+M_CFLAGS	:=	$(MODULE_CFLAGS) $(PRE_DEFINE)
+M_CXXFLAGS	:=	$(MODULE_CXXFLAGS) $(PRE_DEFINE)
+M_LDFLAGS	:=	$(MODULE_LDFLAGS) -shared -nostdlib -fPIC
+M_LIBDIRS	:=	$(MODULE_LIB_SEARCH_DIRS)
+M_LIBS		:=	$(MODULE_LIB_LINKS) -lgcc
 
 M_NAME		:= 	$(patsubst %, $(M)/%, $(MODULE_NAME))
 M_INCDIRS	:=	$(X_INCDIRS) $(patsubst %, -I $(M)/%, $(MODULE_INCLUDE_DIRS))

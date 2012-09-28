@@ -7,7 +7,7 @@ ifeq ($(TARGET), arm-realview)
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 CXXFLAGS	:= -g -ggdb -Wall -O3
-LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles
+LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=

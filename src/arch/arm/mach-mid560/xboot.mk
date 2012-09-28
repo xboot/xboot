@@ -7,7 +7,7 @@ ifeq ($(TARGET), arm-mid560)
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
-LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostartfiles
+LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=

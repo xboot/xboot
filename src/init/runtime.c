@@ -20,6 +20,7 @@
  *
  */
 
+#include <xboot/module.h>
 #include <runtime.h>
 
 static char heap[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap")));
@@ -35,16 +36,18 @@ static struct runtime_t * strap_runtime_init(void)
 	return &strap;
 }
 
-inline void __set_runtime(struct runtime_t * r)
+void __set_runtime(struct runtime_t * r)
 {
 	if(r)
 		__runtime = r;
 }
+EXPORT_SYMBOL(__set_runtime);
 
-inline struct runtime_t * __get_runtime(void)
+struct runtime_t * __get_runtime(void)
 {
 	return __runtime;
 }
+EXPORT_SYMBOL(__get_runtime);
 
 struct runtime_t * runtime_alloc(void)
 {
@@ -81,6 +84,7 @@ struct runtime_t * runtime_alloc(void)
 
 	return r;
 }
+EXPORT_SYMBOL(runtime_alloc);
 
 void runtime_free(struct runtime_t * r)
 {
@@ -105,3 +109,4 @@ void runtime_free(struct runtime_t * r)
 	if(r)
 		free(r);
 }
+EXPORT_SYMBOL(runtime_free);

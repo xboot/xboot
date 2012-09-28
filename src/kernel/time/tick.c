@@ -31,6 +31,7 @@
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/proc.h>
+#include <xboot/module.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <time/tick.h>
@@ -44,6 +45,7 @@ extern void exec_timer_task(void);
  * jiffies, userd by timer tick count.
  */
 volatile u32_t jiffies = 0;
+EXPORT_SYMBOL(jiffies);
 
 /*
  * system tick.
@@ -70,10 +72,11 @@ inline void tick_interrupt(void)
 /*
  * get system tick's hz
  */
-inline u32_t get_system_hz(void)
+u32_t get_system_hz(void)
 {
 	return tick_hz;
 }
+EXPORT_SYMBOL(get_system_hz);
 
 /*
  * register system tick.

@@ -26,6 +26,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <version.h>
+#include <xboot/module.h>
 #include <xboot/printk.h>
 #include <xboot/list.h>
 #include <fs/fileio.h>
@@ -107,3 +108,4 @@ void exec_cmdline(const char * cmdline)
 
     free(buf);
 }
+EXPORT_SYMBOL(exec_cmdline);

@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <time/timer.h>
+#include <xboot/module.h>
 #include <xboot/printk.h>
 #include <shell/ctrlc.h>
 
@@ -43,3 +44,4 @@ bool_t ctrlc(void)
 
 	return FALSE;
 }
+EXPORT_SYMBOL(ctrlc);

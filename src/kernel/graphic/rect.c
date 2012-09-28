@@ -20,6 +20,7 @@
  *
  */
 
+#include <xboot/module.h>
 #include <graphic/rect.h>
 
 /*
@@ -32,6 +33,7 @@ bool_t rect_is_empty(const struct rect_t * r)
 
 	return FALSE;
 }
+EXPORT_SYMBOL(rect_is_empty);
 
 /*
  * Returns true if the two rectangles are equal.
@@ -45,6 +47,7 @@ bool_t rect_is_equal(const struct rect_t * a, const struct rect_t * b)
 	}
 	return FALSE;
 }
+EXPORT_SYMBOL(rect_is_equal);
 
 /*
  * Determine whether two rectangles intersect.
@@ -82,6 +85,7 @@ bool_t rect_has_intersection(const struct rect_t * a, const struct rect_t * b)
 
 	return TRUE;
 }
+EXPORT_SYMBOL(rect_has_intersection);
 
 /*
  * Calculate the intersection of two rectangles.
@@ -121,6 +125,7 @@ bool_t rect_intersect(const struct rect_t * a, const struct rect_t * b, struct r
 
     return !(rect_is_empty(r));
 }
+EXPORT_SYMBOL(rect_intersect);
 
 /*
  * Calculate the union of two rectangles.
@@ -157,6 +162,7 @@ void rect_union(const struct rect_t * a, const struct rect_t * b, struct rect_t 
 		a_max = b_max;
 	r->h = a_max - a_min;
 }
+EXPORT_SYMBOL(rect_union);
 
 /*
  * Calculate a minimal rectangle enclosing a set of points
@@ -261,6 +267,7 @@ bool_t rect_enclose_points(const struct point_t * p, int cnt,
 
 	return TRUE;
 }
+EXPORT_SYMBOL(rect_enclose_points);
 
 /*
  * Use the Cohen-Sutherland algorithm for line clipping
@@ -456,6 +463,7 @@ bool_t rect_intersect_with_line(const struct rect_t * r, s32_t * x1, s32_t * y1,
 
 	return TRUE;
 }
+EXPORT_SYMBOL(rect_intersect_with_line);
 
 bool_t rect_align(const struct rect_t * a, const struct rect_t * b, struct rect_t * r, enum align_t align)
 {
@@ -586,3 +594,4 @@ bool_t rect_align(const struct rect_t * a, const struct rect_t * b, struct rect_
 
 	return TRUE;
 }
+EXPORT_SYMBOL(rect_align);

@@ -20,6 +20,7 @@
  *
  */
 
+#include <xboot/module.h>
 #include <graphic/image.h>
 
 static struct image_loader_list __image_loader_list = {
@@ -125,3 +126,4 @@ struct surface_t * surface_load_from_file(const char * filename)
 
 	return NULL;
 }
+EXPORT_SYMBOL(surface_load_from_file);

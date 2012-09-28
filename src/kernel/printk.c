@@ -20,6 +20,7 @@
  *
  */
 
+#include <xboot/module.h>
 #include <xboot/printk.h>
 
 /*

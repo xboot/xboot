@@ -26,9 +26,8 @@ struct runtime_t {
 	struct module_list * __module_list;
 };
 
-
-inline void __set_runtime(struct runtime_t * r);
-inline struct runtime_t * __get_runtime(void);
+void __set_runtime(struct runtime_t * r);
+struct runtime_t * __get_runtime(void);
 struct runtime_t * runtime_alloc(void);
 void runtime_free(struct runtime_t * r);
 

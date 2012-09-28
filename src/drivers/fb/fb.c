@@ -24,6 +24,7 @@
 #include <types.h>
 #include <charset.h>
 #include <malloc.h>
+#include <xboot/module.h>
 #include <xboot/chrdev.h>
 #include <xboot/ioctl.h>
 #include <console/console.h>
@@ -745,15 +746,16 @@ bool_t fbcon_onoff(struct console * console, bool_t flag)
 /*
  * get default framebuffer
  */
-inline struct fb * get_default_framebuffer(void)
+struct fb * get_default_framebuffer(void)
 {
 	return default_framebuffer;
 }
+EXPORT_SYMBOL(get_default_framebuffer);
 
 /*
  * set default framebuffer
  */
-inline bool_t set_default_framebuffer(const char * name)
+bool_t set_default_framebuffer(const char * name)
 {
 	struct fb * fb;
 
@@ -764,6 +766,7 @@ inline bool_t set_default_framebuffer(const char * name)
 	default_framebuffer = fb;
 	return TRUE;
 }
+EXPORT_SYMBOL(set_default_framebuffer);
 
 /*
  * search framebuffer by name.
@@ -784,6 +787,7 @@ struct fb * search_framebuffer(const char * name)
 
 	return fb;
 }
+EXPORT_SYMBOL(search_framebuffer);
 
 /*
  * register framebuffer driver.

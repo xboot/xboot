@@ -27,6 +27,7 @@
 #include <types.h>
 #include <sizes.h>
 #include <stdio.h>
+#include <xboot/module.h>
 #include <xboot/printk.h>
 #include <xboot/proc.h>
 #include <xboot/initcall.h>

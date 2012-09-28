@@ -20,6 +20,7 @@
  *
  */
 
+#include <xboot/module.h>
 #include <graphic/color.h>
 
 #define RGB_COLOR(red, green, blue)		\
@@ -199,3 +200,4 @@ struct color_t * get_color_by_name(const char * name)
 
 	return (struct color_t *)(&(named_colors[i].color));
 }
+EXPORT_SYMBOL(get_color_by_name);

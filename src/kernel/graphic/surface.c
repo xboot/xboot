@@ -20,6 +20,7 @@
  *
  */
 
+#include <xboot/module.h>
 #include <graphic/surface.h>
 
 struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_format fmt)
@@ -80,6 +81,7 @@ struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_for
 	surface->priv = NULL;
 	return surface;
 }
+EXPORT_SYMBOL(surface_alloc);
 
 struct surface_t * surface_alloc_from_gimage(const struct gimage * image)
 {
@@ -100,6 +102,7 @@ struct surface_t * surface_alloc_from_gimage(const struct gimage * image)
 
 	return NULL;
 }
+EXPORT_SYMBOL(surface_alloc_from_gimage);
 
 void surface_free(struct surface_t * surface)
 {
@@ -111,6 +114,7 @@ void surface_free(struct surface_t * surface)
 
 	free(surface);
 }
+EXPORT_SYMBOL(surface_free);
 
 bool_t surface_set_clip_rect(struct surface_t * surface, struct rect_t * rect)
 {
@@ -136,6 +140,7 @@ bool_t surface_set_clip_rect(struct surface_t * surface, struct rect_t * rect)
 
 	return rect_intersect(rect, &full, &surface->clip);
 }
+EXPORT_SYMBOL(surface_set_clip_rect);
 
 bool_t surface_get_clip_rect(struct surface_t * surface, struct rect_t * rect)
 {
@@ -152,6 +157,7 @@ bool_t surface_get_clip_rect(struct surface_t * surface, struct rect_t * rect)
 
 	return TRUE;
 }
+EXPORT_SYMBOL(surface_get_clip_rect);
 
 u32_t surface_map_color(struct surface_t * surface, struct color_t * col)
 {
@@ -160,6 +166,7 @@ u32_t surface_map_color(struct surface_t * surface, struct color_t * col)
 
 	return map_pixel_color(&surface->info, col);
 }
+EXPORT_SYMBOL(surface_map_color);
 
 void surface_unmap_color(struct surface_t * surface, u32_t c, struct color_t * col)
 {
@@ -168,6 +175,7 @@ void surface_unmap_color(struct surface_t * surface, u32_t c, struct color_t * c
 
 	unmap_pixel_color(&surface->info, c, col);
 }
+EXPORT_SYMBOL(surface_unmap_color);
 
 bool_t surface_fill(struct surface_t * surface, struct rect_t * rect, u32_t c, enum blend_mode mode)
 {
@@ -176,6 +184,7 @@ bool_t surface_fill(struct surface_t * surface, struct rect_t * rect, u32_t c, e
 
 	return (surface->maps.fill(surface, rect, c, mode));
 }
+EXPORT_SYMBOL(surface_fill);
 
 bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode)
 {
@@ -187,6 +196,7 @@ bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct sur
 
 	return (dst->maps.blit(dst, dst_rect, src, src_rect, mode));
 }
+EXPORT_SYMBOL(surface_blit);
 
 struct surface_t * surface_scale(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h)
 {
@@ -195,6 +205,7 @@ struct surface_t * surface_scale(struct surface_t * surface, struct rect_t * rec
 
 	return (surface->maps.scale(surface, rect, w, h));
 }
+EXPORT_SYMBOL(surface_scale);
 
 struct surface_t * surface_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type)
 {
@@ -203,3 +214,4 @@ struct surface_t * surface_rotate(struct surface_t * surface, struct rect_t * re
 
 	return (surface->maps.rotate(surface, rect, type));
 }
+EXPORT_SYMBOL(surface_rotate);

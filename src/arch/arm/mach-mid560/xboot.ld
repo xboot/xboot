@@ -31,7 +31,7 @@ SECTIONS
 
     	. = ALIGN(8);
     	PROVIDE (__ksymtab_start = .);
-		*(.ksymtab.text)
+		KEEP(*(.ksymtab.text))
 		PROVIDE (__ksymtab_end = .);
 		   	
     	. = ALIGN(8);	

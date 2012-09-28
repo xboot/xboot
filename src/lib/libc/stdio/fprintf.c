@@ -2,6 +2,7 @@
  * libc/stdio/fprintf.c
  */
 
+#include <xboot/module.h>
 #include <malloc.h>
 #include <stdio.h>
 
@@ -27,3 +28,4 @@ int fprintf(FILE * f, const char * fmt, ...)
 
 	return rv;
 }
+EXPORT_SYMBOL(fprintf);

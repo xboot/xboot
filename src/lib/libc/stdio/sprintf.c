@@ -2,6 +2,7 @@
  * libc/stdio/sprintf.c
  */
 
+#include <xboot/module.h>
 #include <stdio.h>
 
 int sprintf(char * buf, const char * fmt, ...)
@@ -15,3 +16,4 @@ int sprintf(char * buf, const char * fmt, ...)
 
 	return rv;
 }
+EXPORT_SYMBOL(sprintf);

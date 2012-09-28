@@ -2,6 +2,7 @@
  * libc/stdio/fscanf.c
  */
 
+#include <xboot/module.h>
 #include <sizes.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -26,3 +27,4 @@ int fscanf(FILE * f, const char * fmt, ...)
 	free(buf);
 	return rv;
 }
+EXPORT_SYMBOL(fscanf);

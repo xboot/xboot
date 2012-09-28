@@ -2,6 +2,7 @@
  * libc/stdio/fclose.c
  */
 
+#include <xboot/module.h>
 #include <malloc.h>
 #include <stdio.h>
 
@@ -35,3 +36,4 @@ int fclose(FILE * f)
 
 	return err;
 }
+EXPORT_SYMBOL(fclose);

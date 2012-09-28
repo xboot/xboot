@@ -2,6 +2,7 @@
  * libc/stdio/fgets.c
  */
 
+#include <xboot/module.h>
 #include <stdio.h>
 
 char * fgets(char * s, int n, FILE * f)
@@ -28,3 +29,4 @@ char * fgets(char * s, int n, FILE * f)
 	*p = 0;
 	return ret;
 }
+EXPORT_SYMBOL(fgets);

@@ -2,6 +2,7 @@
  * libc/stdio/setvbuf.c
  */
 
+#include <xboot/module.h>
 #include <stdio.h>
 
 int setvbuf(FILE * f, char * buf, int mode, size_t size)
@@ -11,3 +12,4 @@ int setvbuf(FILE * f, char * buf, int mode, size_t size)
 
 	return 0;
 }
+EXPORT_SYMBOL(setvbuf);

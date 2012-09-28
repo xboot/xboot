@@ -2,6 +2,7 @@
  * libc/stdio/fseek.c
  */
 
+#include <xboot/module.h>
 #include <stdio.h>
 
 int fseek(FILE * f, fpos_t off, int whence)
@@ -17,3 +18,4 @@ int fseek(FILE * f, fpos_t off, int whence)
 	else
 		return EOF;
 }
+EXPORT_SYMBOL(fseek);

@@ -2,6 +2,7 @@
  * libc/stdio/fflush.c
  */
 
+#include <xboot/module.h>
 #include <stdio.h>
 
 int fflush(FILE * f)
@@ -11,3 +12,4 @@ int fflush(FILE * f)
 
 	return __stdio_write_flush(f);
 }
+EXPORT_SYMBOL(fflush);

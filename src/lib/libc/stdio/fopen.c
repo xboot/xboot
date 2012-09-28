@@ -2,6 +2,7 @@
  * libc/stdio/fopen.c
  */
 
+#include <xboot/module.h>
 #include <fs/fileio.h>
 #include <stdio.h>
 
@@ -55,3 +56,4 @@ FILE * fopen(const char * path, const char * mode)
 
 	return f;
 }
+EXPORT_SYMBOL(fopen);

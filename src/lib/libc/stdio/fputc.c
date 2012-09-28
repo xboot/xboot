@@ -2,6 +2,7 @@
  * libc/stdio/fputc.c
  */
 
+#include <xboot/module.h>
 #include <stdio.h>
 
 int fputc(int c, FILE * f)
@@ -13,3 +14,4 @@ int fputc(int c, FILE * f)
 
 	return (ch);
 }
+EXPORT_SYMBOL(fputc);

@@ -2,6 +2,7 @@
  * libc/stdio/ungetc.c
  */
 
+#include <xboot/module.h>
 #include <stdio.h>
 
 int ungetc(int c, FILE * f)
@@ -13,3 +14,4 @@ int ungetc(int c, FILE * f)
 
 	return ch;
 }
+EXPORT_SYMBOL(ungetc);

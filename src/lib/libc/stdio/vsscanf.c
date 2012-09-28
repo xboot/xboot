@@ -2,6 +2,7 @@
  * libc/stdio/vsscanf.c
  */
 
+#include <xboot/module.h>
 #include <stdio.h>
 
 enum flags {
@@ -406,3 +407,4 @@ int vsscanf(const char * buf, const char * fmt, va_list ap)
 
 	return converted;
 }
+EXPORT_SYMBOL(vsscanf);

@@ -2,6 +2,7 @@
  * libc/stdio/vsnprintf.c
  */
 
+#include <xboot/module.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -863,3 +864,4 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap)
 
 	return o;
 }
+EXPORT_SYMBOL(vsnprintf);

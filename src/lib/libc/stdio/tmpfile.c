@@ -2,6 +2,7 @@
  * libc/stdio/tmpfile.c
  */
 
+#include <xboot/module.h>
 #include <fs/fileio.h>
 #include <stdio.h>
 
@@ -16,3 +17,4 @@ FILE * tmpfile(void)
 
 	return fopen(path, "wb+");
 }
+EXPORT_SYMBOL(tmpfile);

@@ -21,6 +21,7 @@
  */
 
 #include <xboot.h>
+#include <xboot/module.h>
 #include <console/console.h>
 #include <readline.h>
 
@@ -551,3 +552,4 @@ char * readline(const char * prompt)
 	rl_buf_free(rl);
 	return utf8;
 }
+EXPORT_SYMBOL(readline);

@@ -2,6 +2,7 @@
  * libc/errno/strerror.c
  */
 
+#include <xboot/module.h>
 #include <errno.h>
 
 /*
@@ -152,3 +153,4 @@ char * strerror(int num)
 
 	return p;
 }
+EXPORT_SYMBOL(strerror);

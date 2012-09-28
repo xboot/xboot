@@ -45,7 +45,6 @@
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
 EXPORT_SYMBOL(search_framebuffer);
-EXPORT_SYMBOL(fputc);
 EXPORT_SYMBOL(__get_runtime);
 
 static int test(int argc, char ** argv)

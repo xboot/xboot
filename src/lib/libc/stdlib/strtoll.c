@@ -2,6 +2,7 @@
  * libc/stdlib/strtoll.c
  */
 
+#include <xboot/module.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -193,3 +194,4 @@ long long strtoll(const char * nptr, char ** endptr, int base)
 
 	return (acc);
 }
+EXPORT_SYMBOL(strtoll);

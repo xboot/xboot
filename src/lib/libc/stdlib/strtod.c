@@ -2,6 +2,7 @@
  * libc/stdlib/strtod.c
  */
 
+#include <xboot/module.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -134,3 +135,4 @@ double strtod(const char * nptr, char ** endptr)
 
 	return number;
 }
+EXPORT_SYMBOL(strtod);

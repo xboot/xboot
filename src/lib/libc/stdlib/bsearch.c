@@ -2,6 +2,7 @@
  * libc/stdlib/bsearch.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -33,3 +34,4 @@ void * bsearch(const void *key, const void *base, size_t nmemb, size_t size,
 
 	return NULL;
 }
+EXPORT_SYMBOL(bsearch);

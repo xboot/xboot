@@ -2,6 +2,7 @@
  * libc/stdlib/strtoul.c
  */
 
+#include <xboot/module.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -90,3 +91,4 @@ unsigned long strtoul(const char * nptr, char ** endptr, int base)
 
 	return (acc);
 }
+EXPORT_SYMBOL(strtoul);

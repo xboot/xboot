@@ -2,6 +2,7 @@
  * libc/stdlib/rand.c
  */
 
+#include <xboot/module.h>
 #include <runtime.h>
 #include <stdlib.h>
 
@@ -43,8 +44,10 @@ int rand(void)
 {
 	return (int)lrand48();
 }
+EXPORT_SYMBOL(rand);
 
 void srand(unsigned int seed)
 {
 	srand48(seed);
 }
+EXPORT_SYMBOL(srand);

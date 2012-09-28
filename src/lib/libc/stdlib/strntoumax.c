@@ -2,6 +2,7 @@
  * libc/stdlib/strntoumax.c
  */
 
+#include <xboot/module.h>
 #include <stddef.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -81,3 +82,4 @@ uintmax_t strntoumax(const char * nptr, char ** endptr, int base, size_t n)
 
 	return minus ? -v : v;
 }
+EXPORT_SYMBOL(strntoumax);

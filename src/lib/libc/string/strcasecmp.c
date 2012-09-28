@@ -2,6 +2,7 @@
  * libc/string/strcasecmp.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <ctype.h>
 #include <string.h>
@@ -20,3 +21,4 @@ int strcasecmp(const char * s1, const char * s2)
 
 	return c1 - c2;
 }
+EXPORT_SYMBOL(strcasecmp);

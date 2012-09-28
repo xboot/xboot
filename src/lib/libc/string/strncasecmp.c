@@ -2,6 +2,7 @@
  * libc/string/strncasecmp.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <ctype.h>
 #include <string.h>
@@ -20,3 +21,4 @@ int strncasecmp(const char * s1, const char * s2, size_t n)
 
 	return c1 - c2;
 }
+EXPORT_SYMBOL(strncasecmp);

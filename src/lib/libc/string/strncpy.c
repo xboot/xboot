@@ -2,6 +2,7 @@
  * libc/string/strncpy.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -21,3 +22,4 @@ char * strncpy(char * dest, const char * src, size_t n)
 	}
 	return dest;
 }
+EXPORT_SYMBOL(strncpy);

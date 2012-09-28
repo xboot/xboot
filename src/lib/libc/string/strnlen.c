@@ -2,6 +2,7 @@
  * libc/string/strnlen.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -15,3 +16,4 @@ size_t strnlen(const char * s, size_t n)
 	for (sc = s; n-- && *sc != '\0'; ++sc);
 	return sc - s;
 }
+EXPORT_SYMBOL(strnlen);

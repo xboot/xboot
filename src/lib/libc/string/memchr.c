@@ -2,6 +2,7 @@
  * libc/string/memchr.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
@@ -23,3 +24,4 @@ void * memchr(const void * s, int c, size_t n)
 
 	return NULL;
 }
+EXPORT_SYMBOL(memchr);

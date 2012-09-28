@@ -2,6 +2,7 @@
  * libc/string/strnstr.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
@@ -27,3 +28,4 @@ char * strnstr(const char * s1, const char * s2, size_t n)
 
 	return NULL;
 }
+EXPORT_SYMBOL(strnstr);

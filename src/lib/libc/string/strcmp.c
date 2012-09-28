@@ -2,6 +2,7 @@
  * libc/string/strcmp.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -21,3 +22,4 @@ static int __strcmp(const char * s1, const char * s2)
  * Compares two strings
  */
 extern __typeof(__strcmp) strcmp __attribute__((weak, alias("__strcmp")));
+EXPORT_SYMBOL(strcmp);

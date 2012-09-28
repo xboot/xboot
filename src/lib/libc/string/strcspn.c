@@ -2,6 +2,7 @@
  * libc/string/strcspn.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
@@ -26,3 +27,4 @@ size_t strcspn(const char * s, const char * reject)
 	}
 	return count;
 }
+EXPORT_SYMBOL(strcspn);

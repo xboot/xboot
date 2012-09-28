@@ -2,6 +2,7 @@
  * libc/string/memcpy.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -19,3 +20,5 @@ static void * __memcpy(void * dest, const void * src, size_t len)
  * Copies one buffer to another
  */
 extern __typeof(__memcpy) memcpy __attribute__((weak, alias("__memcpy")));
+EXPORT_SYMBOL(memcpy);
+

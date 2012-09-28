@@ -2,6 +2,7 @@
  * libc/string/strlcat.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -25,3 +26,4 @@ size_t strlcat(char * dest, const char * src, size_t n)
 
 	return res;
 }
+EXPORT_SYMBOL(strlcat);

@@ -2,6 +2,7 @@
  * libc/string/strnchr.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
@@ -16,3 +17,4 @@ char * strnchr(const char * s, size_t n, int c)
 			return (char *)s;
 	return NULL;
 }
+EXPORT_SYMBOL(strnchr);

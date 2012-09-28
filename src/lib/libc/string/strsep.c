@@ -2,6 +2,7 @@
  * libc/string/strsep.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
@@ -24,3 +25,4 @@ char * strsep(char ** s, const char * ct)
 
 	return sbegin;
 }
+EXPORT_SYMBOL(strsep);

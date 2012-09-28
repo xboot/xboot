@@ -2,6 +2,7 @@
  * libc/string/strncmp.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -22,3 +23,4 @@ static int __strncmp(const char * s1, const char * s2, size_t n)
  * Compares a specific number of bytes in two strings
  */
 extern __typeof(__strncmp) strncmp __attribute__((weak, alias("__strncmp")));
+EXPORT_SYMBOL(strncmp);

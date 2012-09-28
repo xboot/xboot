@@ -2,6 +2,7 @@
  * libc/string/strnicmp.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <ctype.h>
 #include <string.h>
@@ -34,3 +35,4 @@ int strnicmp(const char * s1, const char * s2, size_t n)
 	}
 	return (int)c1 - (int)c2;
 }
+EXPORT_SYMBOL(strnicmp);

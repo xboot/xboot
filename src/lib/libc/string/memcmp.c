@@ -2,6 +2,7 @@
  * libc/string/memcmp.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -20,3 +21,4 @@ static int __memcmp(const void * s1, const void * s2, size_t n)
  * Compares two buffers
  */
 extern __typeof(__memcmp) memcmp __attribute__((weak, alias("__memcmp")));
+EXPORT_SYMBOL(memcmp);

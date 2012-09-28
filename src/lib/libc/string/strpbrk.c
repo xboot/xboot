@@ -2,6 +2,7 @@
  * libc/string/strpbrk.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
@@ -24,3 +25,4 @@ char * strpbrk(const char * s1, const char * s2)
 
 	return NULL;
 }
+EXPORT_SYMBOL(strpbrk);

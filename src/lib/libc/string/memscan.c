@@ -2,6 +2,7 @@
  * libc/string/memscan.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -21,3 +22,4 @@ void * memscan(void * addr, int c, size_t size)
 	}
   	return (void *)p;
 }
+EXPORT_SYMBOL(memscan);

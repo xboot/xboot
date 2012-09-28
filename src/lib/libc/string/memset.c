@@ -2,6 +2,7 @@
  * libc/string/memset.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -19,3 +20,4 @@ static void * __memset(void * s, int c, size_t n)
  * Fills a buffer with a repeated byte/wchar_t
  */
 extern __typeof(__memset) memset __attribute__((weak, alias("__memset")));
+EXPORT_SYMBOL(memset);

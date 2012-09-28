@@ -2,6 +2,7 @@
  * libc/string/strdup.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <malloc.h>
@@ -23,3 +24,4 @@ char * strdup(const char * s)
 
 	return NULL;
 }
+EXPORT_SYMBOL(strdup);

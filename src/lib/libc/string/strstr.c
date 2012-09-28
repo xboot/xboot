@@ -2,6 +2,7 @@
  * libc/string/strstr.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
@@ -28,3 +29,4 @@ char * strstr(const char * s1, const char * s2)
 
 	return NULL;
 }
+EXPORT_SYMBOL(strstr);

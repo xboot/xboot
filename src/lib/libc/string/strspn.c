@@ -2,6 +2,7 @@
  * libc/string/strspn.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
@@ -28,3 +29,4 @@ size_t strspn(const char * s, const char * accept)
 	}
 	return count;
 }
+EXPORT_SYMBOL(strspn);

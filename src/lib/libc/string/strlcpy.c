@@ -2,6 +2,7 @@
  * libc/string/strlcpy.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -21,3 +22,4 @@ size_t strlcpy(char * dest, const char * src, size_t n)
 	}
 	return ret;
 }
+EXPORT_SYMBOL(strlcpy);

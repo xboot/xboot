@@ -2,6 +2,7 @@
  * libc/string/strncat.c
  */
 
+#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 
@@ -28,3 +29,4 @@ char * strncat(char * dest, const char * src, size_t n)
 
 	return tmp;
 }
+EXPORT_SYMBOL(strncat);

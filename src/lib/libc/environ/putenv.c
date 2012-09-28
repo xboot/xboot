@@ -2,6 +2,7 @@
  * libc/environ/putenv.c
  */
 
+#include <xboot/module.h>
 #include <string.h>
 #include <malloc.h>
 #include <runtime.h>
@@ -77,3 +78,4 @@ int putenv(const char * str)
 
 	return __put_env(s, e - str, 1);
 }
+EXPORT_SYMBOL(putenv);

@@ -2,6 +2,7 @@
  * libc/environ/getenv.c
  */
 
+#include <xboot/module.h>
 #include <runtime.h>
 #include <environ.h>
 
@@ -25,3 +26,4 @@ char * getenv(const char * name)
 
 	return NULL;
 }
+EXPORT_SYMBOL(getenv);

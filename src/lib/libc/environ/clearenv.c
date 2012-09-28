@@ -2,6 +2,7 @@
  * libc/environ/clearenv.c
  */
 
+#include <xboot/module.h>
 #include <runtime.h>
 #include <environ.h>
 
@@ -26,3 +27,4 @@ int clearenv(void)
 
 	return 0;
 }
+EXPORT_SYMBOL(clearenv);

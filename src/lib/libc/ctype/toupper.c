@@ -2,6 +2,7 @@
  * libc/ctype/toupper.c
  */
 
+#include <xboot/module.h>
 #include <ctype.h>
 
 /*
@@ -13,3 +14,4 @@ int toupper(int c)
 		return ('A' - 'a' + c);
 	return c;
 }
+EXPORT_SYMBOL(toupper);

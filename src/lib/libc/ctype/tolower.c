@@ -2,6 +2,7 @@
  * libc/ctype/tolower.c
  */
 
+#include <xboot/module.h>
 #include <ctype.h>
 
 /*
@@ -13,3 +14,4 @@ int tolower(int c)
 		return ('a' - 'A' + c);
 	return c;
 }
+EXPORT_SYMBOL(tolower);

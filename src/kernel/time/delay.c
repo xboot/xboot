@@ -44,7 +44,7 @@ static volatile u32_t loops_per_jiffy = 0;
 /*
  * the base delay function.
  */
-static void __delay(volatile u32_t loop)
+void __attribute__ ((noinline)) __delay(volatile u32_t loop)
 {
 	for(; loop > 0; loop--);
 }

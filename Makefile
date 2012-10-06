@@ -3,7 +3,7 @@
 # Create by: jianjun jiang <jerryjianjun@gmail.com>.
 #
 
-.PHONY: all clean module mclean sandbox sclean
+.PHONY: all clean module mclean
 
 all:
 	@$(MAKE) -C src all
@@ -16,9 +16,3 @@ module:
 
 mclean:
 	@$(MAKE) -C src mclean
-
-sandbox:
-	@$(MAKE) -C src sandbox
-
-sclean:
-	@$(MAKE) -C src sclean

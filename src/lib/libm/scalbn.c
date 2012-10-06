@@ -48,4 +48,7 @@ double scalbn(double x, int n)
 	return x * twom54;
 }
 
-extern __typeof(scalbn) ldexp __attribute__((weak, alias("scalbn")));
+double ldexp(double x, int n)
+{
+	return scalbn(x, n);
+}

@@ -9,8 +9,8 @@
 /*
  * Internal function returning the address of the thread-specific errno
  */
-volatile int * __errno_location(void)
+volatile int * __runtime_errno_location(void)
 {
 	return &(__get_runtime()->__errno);
 }
-EXPORT_SYMBOL(__errno_location);
+EXPORT_SYMBOL(__runtime_errno_location);

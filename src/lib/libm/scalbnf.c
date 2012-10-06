@@ -48,4 +48,7 @@ float scalbnf(float x, int n)
 	return x * twom25;
 }
 
-extern __typeof(scalbnf) ldexpf __attribute__((weak, alias("scalbnf")));
+float ldexpf(float x, int n)
+{
+	return scalbnf(x, n);
+}

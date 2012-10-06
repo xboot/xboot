@@ -34,12 +34,7 @@ $(error unable to determine host operation system from uname)
 endif
 
 #
-# pre-define macros
-#
-PRE_DEFINE	:= -D __ARCH__=\"$(ARCH)\" -D __MACH__=\"$(MACH)\"
-
-#
-# Define default make variables.
+# Load default variables.
 #
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
@@ -57,23 +52,25 @@ INCDIRS		:=
 SRCDIRS		:=
 
 #
-# Override default make variables.
+# Override default variables.
 #
 sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 
 #
-# Add pre-define macros.
+# Modify default variables.
 #
-ASFLAGS		+= 	$(PRE_DEFINE)
-CFLAGS		+= 	$(PRE_DEFINE)
-CXXFLAGS	+=	$(PRE_DEFINE)
+XBOOT_NAMESPACES	+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
+ASFLAGS				+= 	$(XBOOT_NAMESPACES) $(XBOOT_ASFLAGS)  
+CFLAGS				+=	$(XBOOT_NAMESPACES) $(XBOOT_CFLAGS)
+CXXFLAGS			+=	$(XBOOT_NAMESPACES) $(XBOOT_CXXFLAGS)
 
 #
 # Add necessary directory for INCDIRS and SRCDIRS.
 #
 INCDIRS		+= 	include							\
 				arch/$(ARCH)/include			\
-				arch/$(ARCH)/$(MACH)/include
+				arch/$(ARCH)/$(MACH)/include	\
+				$(XBOOT_EXT_INCDIRS)
 
 SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				arch/$(ARCH)/lib/cpu			\
@@ -195,9 +192,9 @@ X_OBJS		:=	$(X_SOBJS) $(X_COBJS) $(X_CPPOBJS)
 #
 # Module variables
 #
-M_ASFLAGS	:=	$(MODULE_ASFLAGS) $(PRE_DEFINE)
-M_CFLAGS	:=	$(MODULE_CFLAGS) $(PRE_DEFINE)
-M_CXXFLAGS	:=	$(MODULE_CXXFLAGS) $(PRE_DEFINE)
+M_ASFLAGS	:=	$(XBOOT_NAMESPACES) $(MODULE_ASFLAGS)
+M_CFLAGS	:=	$(XBOOT_NAMESPACES) $(MODULE_CFLAGS)
+M_CXXFLAGS	:=	$(XBOOT_NAMESPACES) $(MODULE_CXXFLAGS)
 M_LDFLAGS	:=	$(MODULE_LDFLAGS) -shared -nostdlib -fPIC
 M_LIBDIRS	:=	$(MODULE_LIB_SEARCH_DIRS)
 M_LIBS		:=	$(MODULE_LIB_LINKS) -lgcc
@@ -221,8 +218,37 @@ M_COBJS		:=	$(M_CFILES:.c=.o)
 M_CPPOBJS	:=	$(M_CPPFILES:.cpp=.o)
 M_OBJS		:=	$(M_SOBJS) $(M_COBJS) $(M_CPPOBJS)
 
-VPATH		:=	$(X_OBJDIRS) $(M_OBJDIRS)
-.PHONY:		all clean xclean fixup module mclean
+#
+# Sandbox variables
+#
+S_ASFLAGS	:=	$(SANDBOX_ASFLAGS)
+S_CFLAGS	:=	$(SANDBOX_CFLAGS)
+S_CXXFLAGS	:=	$(SANDBOX_CXXFLAGS)
+S_LDFLAGS	:=	$(SANDBOX_LDFLAGS)
+S_LIBDIRS	:=	$(SANDBOX_LIB_SEARCH_DIRS)
+S_LIBS		:=	$(SANDBOX_LIB_LINKS)
+
+S_NAME		:= 	$(patsubst %, $(S)/%, $(SANDBOX_NAME))
+S_INCDIRS	:=	$(patsubst %, -I $(S)/%, $(SANDBOX_INCLUDE_DIRS))
+S_SRCDIRS	:=	$(patsubst %, $(S)/%, $(SANDBOX_SOURCE_DIRS))
+S_OBJDIRS	:=	$(patsubst %, %, $(S_SRCDIRS))
+
+S_SFILES	:=	$(foreach dir, $(S_SRCDIRS), $(wildcard $(dir)/*.S))
+S_CFILES	:=	$(foreach dir, $(S_SRCDIRS), $(wildcard $(dir)/*.c))
+S_CPPFILES	:=	$(foreach dir, $(S_SRCDIRS), $(wildcard $(dir)/*.cpp))
+
+S_SDEPS		:=	$(S_SFILES:.S=.o.d)
+S_CDEPS		:=	$(S_CFILES:.c=.o.d)
+S_CPPDEPS	:=	$(S_CPPFILES:.cpp=.o.d)
+S_DEPS		:=	$(S_SDEPS) $(S_CDEPS) $(S_CPPDEPS)
+
+S_SOBJS		:=	$(S_SFILES:.S=.o)
+S_COBJS		:=	$(S_CFILES:.c=.o)
+S_CPPOBJS	:=	$(S_CPPFILES:.cpp=.o)
+S_OBJS		:=	$(S_SOBJS) $(S_COBJS) $(S_CPPOBJS)
+
+VPATH		:=	$(X_OBJDIRS) $(M_OBJDIRS) $(S_OBJDIRS)
+.PHONY:		all clean xclean fixup module mclean sandbox sclean
 
 #
 # Xboot rules
@@ -252,7 +278,7 @@ $(X_CPPOBJS) : .obj/%.o : %.cpp
 	@$(CXX) $(X_CXXFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
 xclean:
-	@$(RM) $(M_DEPS) $(X_OBJDIRS) $(X_OBJDIRS) $(X_OUT)
+	@$(RM) $(X_DEPS) $(X_OBJS) $(X_OBJDIRS) $(X_OUT)
 	@echo Clean xboot complete.
 
 #
@@ -284,6 +310,34 @@ mclean:
 	@echo Clean module complete.
 
 #
+# Sandbox rules
+#
+sandbox : $(S_NAME)
+
+$(S_NAME) : $(S_OBJS) $(X_OBJS)
+	@echo [S][LD] Linking $@.elf
+	@$(CC) $(S_LDFLAGS) $(S_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.elf $(S_LIBS)
+
+$(S_SOBJS) : %.o : %.S
+	@echo [S][AS] $<
+	@$(AS) $(S_ASFLAGS) $(S_INCDIRS) -c $< -o $@
+	@$(AS) $(S_ASFLAGS) -MD -MP -MF $@.d $(S_INCDIRS) -c $< -o $@
+
+$(S_COBJS) : %.o : %.c
+	@echo [S][CC] $<
+	@$(CC) $(S_CFLAGS) $(S_INCDIRS) -c $< -o $@
+	@$(CC) $(S_CFLAGS) -MD -MP -MF $@.d $(S_INCDIRS) -c $< -o $@
+
+$(S_CPPOBJS) : %.o : %.cpp
+	@echo [S][CXX] $<
+	@$(CXX) $(S_CXXFLAGS) $(S_INCDIRS) -c $< -o $@	
+	@$(CXX) $(S_CXXFLAGS) -MD -MP -MF $@.d $(S_INCDIRS) -c $< -o $@
+
+sclean:
+	@$(RM) $(X_DEPS) $(X_OBJS) $(S_DEPS) $(S_OBJS) $(S_NAME).map $(S_NAME).elf
+	@echo Clean sandbox complete.
+
+#
 # Include the dependency files, should be place the last of makefile
 #
 sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)							\
@@ -296,4 +350,4 @@ sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)							\
 			&& $(CD) .obj/romdisk										\
 			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio		\
 			&& $(CD) ../..)												\
-			$(X_DEPS) $(M_DEPS)
+			$(X_DEPS) $(M_DEPS) $(S_DEPS)

@@ -60,9 +60,9 @@ struct __FILE {
 	int eof, error;
 };
 
-#define stdin			(__get_runtime()->__stdin)
-#define stdout			(__get_runtime()->__stdout)
-#define stderr			(__get_runtime()->__stderr)
+#define stdin		(__runtime_get_stdin())
+#define stdout		(__runtime_get_stdout())
+#define stderr		(__runtime_get_stderr())
 
 FILE * fopen(const char * path, const char * mode);
 FILE * freopen(const char * path, const char * mode, FILE * f);
@@ -116,5 +116,9 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size);
 ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size);
 
 FILE * __file_alloc(int fd);
+
+FILE * __runtime_get_stdin(void);
+FILE * __runtime_get_stdout(void);
+FILE * __runtime_get_stderr(void);
 
 #endif /* __STDIO_H__ */

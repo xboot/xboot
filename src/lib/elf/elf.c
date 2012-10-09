@@ -422,7 +422,7 @@ static struct module_t * _load_shared_object(const char *name, void *module_ptr)
 				count ++;
 		}
 
-		module->symtab = (struct kernel_symbol *)malloc(count * sizeof(struct kernel_symbol));
+		module->symtab = (struct symbol_t *)malloc(count * sizeof(struct symbol_t));
 		module->nsym = count;
 		for (i=0, count=0; i<shdr[index].sh_size/sizeof(struct elf32_sym); i++)
 		{

@@ -1,8 +1,8 @@
 /*
- * EXYNOS4X12-irom.c
+ * exynos4x12-irom.c
  *
  * this file used by start.s assembler code, and the linker script
- * must make sure this file is linked within the first 16kB. DO NOT
+ * must make sure this file is linked within the first 8kB. DO NOT
  * use any .bss segment and .data segment, just use irom's small
  * stack. it's just a small c routline.
  *
@@ -35,8 +35,8 @@
  */
 
 #include <xboot.h>
-//#include <s5pv310/reg-gpio.h>
-//#include <s5pv310/reg-pmu.h>
+#include <exynos4x12/reg-gpio.h>
+#include <exynos4x12/reg-pmu.h>
 
 #if 0
 extern u8_t	__text_start[];
@@ -194,7 +194,6 @@ void irom_copyself(void)
 }
 
 
-#include <exynos4x12/reg-gpio.h>
 
 inline static void reg_write(u32_t addr, u32_t value)
 {
@@ -217,7 +216,7 @@ inline void delay_test(void)
 void test_led(void)
 {
 	reg_write(EXYNOS4X12_GPD0CON, (reg_read(EXYNOS4X12_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
-	reg_write(EXYNOS4X12_GPD0PUD, (reg_read(EXYNOS4X12_GPD0PUD) & ~(0x3<<0)) | (0x1<<0));
+	reg_write(EXYNOS4X12_GPD0PUD, (reg_read(EXYNOS4X12_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
 	reg_write(EXYNOS4X12_GPD0DAT, (reg_read(EXYNOS4X12_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
 
 	while(1)

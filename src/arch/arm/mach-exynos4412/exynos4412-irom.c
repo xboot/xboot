@@ -217,7 +217,7 @@ inline void delay_test(void)
 void test_led(void)
 {
 	reg_write(EXYNOS4X12_GPD0CON, (reg_read(EXYNOS4X12_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
-	reg_write(EXYNOS4X12_GPD0PUD, (reg_read(EXYNOS4X12_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
+	reg_write(EXYNOS4X12_GPD0PUD, (reg_read(EXYNOS4X12_GPD0PUD) & ~(0x3<<0)) | (0x1<<0));
 	reg_write(EXYNOS4X12_GPD0DAT, (reg_read(EXYNOS4X12_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
 
 	while(1)

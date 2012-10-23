@@ -251,7 +251,7 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 		break;
 
 	case 1:
-		if(clk_get_rate("sclk_uart0", &sclk_uart) != TRUE)
+		if(clk_get_rate("sclk_uart1", &sclk_uart) != TRUE)
 			return -1;
 		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
 		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
@@ -262,7 +262,7 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 		break;
 
 	case 2:
-		if(clk_get_rate("sclk_uart0", &sclk_uart) != TRUE)
+		if(clk_get_rate("sclk_uart2", &sclk_uart) != TRUE)
 			return -1;
 		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
 		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
@@ -273,7 +273,7 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 		break;
 
 	case 3:
-		if(clk_get_rate("sclk_uart0", &sclk_uart) != TRUE)
+		if(clk_get_rate("sclk_uart3", &sclk_uart) != TRUE)
 			return -1;
 		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
 		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
@@ -284,7 +284,7 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 		break;
 
 	case 4:
-		if(clk_get_rate("sclk_uart0", &sclk_uart) != TRUE)
+		if(clk_get_rate("sclk_uart4", &sclk_uart) != TRUE)
 			return -1;
 		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
 		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
@@ -311,8 +311,7 @@ static void exynos4x12_uart0_init(void)
 	/* pull up GPA01 and GPA00 */
 	writel(EXYNOS4X12_GPA0PUD, (readl(EXYNOS4X12_GPA0PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
 
-#if 0
-	/* configure clk source (pclk), mode, etc */
+	/* configure uart controller */
 	writel(EXYNOS4X12_UCON0, 0x00000005);
 	writel(EXYNOS4X12_UFCON0, 0x00000000);
 	writel(EXYNOS4X12_UMON0, 0x00000000);
@@ -322,7 +321,6 @@ static void exynos4x12_uart0_init(void)
 	exynos4x12_ioctl( 0, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[0].data_bit)) );
 	exynos4x12_ioctl( 0, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[0].parity)) );
 	exynos4x12_ioctl( 0, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[0].stop_bit)) );
-#endif
 }
 
 static void exynos4x12_uart0_exit(void)
@@ -372,8 +370,8 @@ static void exynos4x12_uart1_init(void)
 
 	/* pull up GPA05 and GPA04 */
 	writel(EXYNOS4X12_GPA0PUD, (readl(EXYNOS4X12_GPA0PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
-#if 0
-	/* configure clk source (pclk), mode, etc */
+
+	/* configure uart controller */
 	writel(EXYNOS4X12_UCON1, 0x00000005);
 	writel(EXYNOS4X12_UFCON1, 0x00000000);
 	writel(EXYNOS4X12_UMON1, 0x00000000);
@@ -383,7 +381,6 @@ static void exynos4x12_uart1_init(void)
 	exynos4x12_ioctl( 1, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[1].data_bit)) );
 	exynos4x12_ioctl( 1, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[1].parity)) );
 	exynos4x12_ioctl( 1, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[1].stop_bit)) );
-#endif
 }
 
 static void exynos4x12_uart1_exit(void)
@@ -434,8 +431,7 @@ static void exynos4x12_uart2_init(void)
 	/* pull up GPA11 and GPA10 */
 	writel(EXYNOS4X12_GPA1PUD, (readl(EXYNOS4X12_GPA1PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
 
-#if 0
-	/* configure clk source (pclk), etc */
+	/* configure uart controller */
 	writel(EXYNOS4X12_UCON2, 0x00000005);
 	writel(EXYNOS4X12_UFCON2, 0x00000000);
 	writel(EXYNOS4X12_UMON2, 0x00000000);
@@ -445,7 +441,6 @@ static void exynos4x12_uart2_init(void)
 	exynos4x12_ioctl( 2, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[2].data_bit)) );
 	exynos4x12_ioctl( 2, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[2].parity)) );
 	exynos4x12_ioctl( 2, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[2].stop_bit)) );
-#endif
 }
 
 static void exynos4x12_uart2_exit(void)
@@ -496,8 +491,7 @@ static void exynos4x12_uart3_init(void)
 	/* pull up GPA15 and GPA14 */
 	writel(EXYNOS4X12_GPA1PUD, (readl(EXYNOS4X12_GPA1PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
 
-#if 0
-	/* configure clk source (pclk), etc */
+	/* configure uart controller */
 	writel(EXYNOS4X12_UCON3, 0x00000005);
 	writel(EXYNOS4X12_UFCON3, 0x00000000);
 	writel(EXYNOS4X12_UMON3, 0x00000000);
@@ -507,7 +501,6 @@ static void exynos4x12_uart3_init(void)
 	exynos4x12_ioctl( 3, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[3].data_bit)) );
 	exynos4x12_ioctl( 3, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[3].parity)) );
 	exynos4x12_ioctl( 3, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[3].stop_bit)) );
-#endif
 }
 
 static void exynos4x12_uart3_exit(void)
@@ -552,8 +545,7 @@ static int exynos4x12_uart3_ioctl(int cmd, void * arg)
 /* uart 4 */
 static void exynos4x12_uart4_init(void)
 {
-#if 0
-	/* configure clk source (pclk), etc */
+	/* configure uart controller */
 	writel(EXYNOS4X12_UCON4, 0x00000005);
 	writel(EXYNOS4X12_UFCON4, 0x00000000);
 	writel(EXYNOS4X12_UMON4, 0x00000000);
@@ -563,7 +555,6 @@ static void exynos4x12_uart4_init(void)
 	exynos4x12_ioctl( 4, IOCTL_WR_SERIAL_DATA_BITS, (void *)(&(uart_param[4].data_bit)) );
 	exynos4x12_ioctl( 4, IOCTL_WR_SERIAL_PARITY_BIT, (void *)(&(uart_param[4].parity)) );
 	exynos4x12_ioctl( 4, IOCTL_WR_SERIAL_STOP_BITS, (void *)(&(uart_param[4].stop_bit)) );
-#endif
 }
 
 static void exynos4x12_uart4_exit(void)

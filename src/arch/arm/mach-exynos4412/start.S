@@ -189,7 +189,6 @@ reset:
 
 	bl system_clock_init
 	bl mem_ctrl_asm_init_ddr3
-
 	bl uart_asm_init
 
 	/* init system clock */

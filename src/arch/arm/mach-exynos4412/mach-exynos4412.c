@@ -117,16 +117,6 @@ static struct machine exynos4412 = {
 			},
 
 			[2] = {
-				.start		= 0x80000000,
-				.end		= 0x80000000 + SZ_512M - 1,
-			},
-
-			[3] = {
-				.start		= 0xa0000000,
-				.end		= 0xa0000000 + SZ_512M - 1,
-			},
-
-			[4] = {
 				.start		= 0,
 				.end		= 0,
 			},

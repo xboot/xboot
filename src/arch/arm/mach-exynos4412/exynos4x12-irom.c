@@ -143,14 +143,7 @@ void irom_copyself(void)
 		/*
 		 * copy xboot to memory from sdmmc ch2.
 		 */
-		if(irom_sdmmc_to_mem(1, size, mem) == 0)
-		{
-			;//test_led(1000);
-		}
-		else
-		{
-			;//test_led(100);
-		}
+		irom_sdmmc_to_mem(1, size, mem);
 	}
 
 	/* eMMC43 CH0 */

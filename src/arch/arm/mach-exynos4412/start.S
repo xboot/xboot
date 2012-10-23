@@ -104,29 +104,93 @@ _fiq:
 	.byte   0, 0, 0, 0
 
 /*
- * the actual reset code
+ * The actual reset code
  */
 reset:
-	/* disable watchdog */
-@	ldr	r0, =0x10060000
-@	mov	r1, #0
-@	str	r1, [r0]
+	/* Disable watchdog */
+	ldr	r0, =0x10060000
+	mov	r1, #0
+	str	r1, [r0]
 
-	/* set the cpu to supervisor mode */
-@	mrs	r0, cpsr
-@	bic	r0, r0, #0x1f
-@	orr	r0, r0, #0xd3
-@	msr	cpsr, r0
+	/* Set the cpu to supervisor mode */
+	mrs	r0, cpsr
+	bic	r0, r0, #0x1f
+	orr	r0, r0, #0xd3
+	msr	cpsr, r0
 
-	bl test_led
+	/* Cache init */
+	mrc	p15, 0, r0, c0, c0, 0		/* read main ID register */
+	and	r1, r0, #0x00f00000			/* variant */
+	and	r2, r0, #0x0000000f			/* revision */
+	orr	r2, r2, r1, lsr #20-4		/* combine variant and revision */
+	cmp	r2, #0x30
+	mrceq	p15, 0, r0, c1, c0, 1	/* read ACTLR */
+	orreq	r0, r0, #0x6			/* Enable DP1(2), DP2(1) */
+	mcreq	p15, 0, r0, c1, c0, 1	/* write ACTLR */
 
-	/* disable mmu stuff and caches */
-@	mrc	p15, 0, r0, c1, c0, 0
-@	bic	r0, r0, #0x00002000			/* clear bits 13 (--v-) */
-@	bic	r0, r0, #0x00000007			/* clear bits 2:0 (-cam) */
-@	orr	r0, r0, #0x00000002			/* set bit 1 (--a-) align */
-@	orr	r0, r0, #0x00000800			/* set bit 12 (z---) btb */
-@	mcr	p15, 0, r0, c1, c0, 0
+	/* Invalidate L1 I/D */
+	mov	r0, #0						/* set up for MCR */
+	mcr	p15, 0, r0, c8, c7, 0		/* invalidate TLBs */
+	mcr	p15, 0, r0, c7, c5, 0		/* invalidate icache */
+
+	/* Disable mmu stuff and caches */
+	mrc	p15, 0, r0, c1, c0, 0
+	bic	r0, r0, #0x00002000			/* clear bits 13 (--v-) */
+	bic	r0, r0, #0x00000007			/* clear bits 2:0 (-cam) */
+	orr	r0, r0, #0x00000002			/* set bit 1 (--a-) align */
+	orr	r0, r0, #0x00000800			/* set bit 12 (z---) btb */
+	mcr	p15, 0, r0, c1, c0, 0
+
+	/* use iROM stack in bl2 */
+	ldr	sp, =0x02060000
+
+	bl set_ema_value
+
+	/* initialization for CMU_SYSCLK_ISP function */
+	mov	r1, #0
+	ldr	r0, =0x10021174		/* CMU_RESET_ISP_SYS_PWR_REG */
+	str	r1, [r0]
+	ldr	r0, =0x100213B8		/* CMU_SYSCLK_ISP_SYS_PWR_REG */
+	str	r1, [r0]
+
+	/* check reset status  */
+	ldr     r0, =(0x10020000 + 0x0804)
+	ldr     r1, [r0]
+
+	/* Sleep wakeup reset */
+	ldr	r2, =0x00000BAD
+	cmp	r1, r2
+@	beq	wakeup_reset
+
+	/* PS-Hold high */
+	ldr	r0, =0x1002330c
+	ldr	r1, [r0]
+	orr	r1, r1, #0x300
+	str	r1, [r0]
+
+	/* set CP reset to low */
+	ldr	r0, =0x11000C60
+	ldr	r1, [r0]
+	ldr	r2, =0xFFFFFF0F
+	and	r1, r1, r2
+	orr	r1, r1, #0x10
+	str	r1, [r0]
+	ldr	r0, =0x11000C68
+	ldr	r1, [r0]
+	ldr	r2, =0xFFFFFFF3
+	and	r1, r1, r2
+	orr	r1, r1, #0x4
+	str	r1, [r0]
+	ldr	r0, =0x11000C64
+	ldr	r1, [r0]
+	ldr	r2, =0xFFFFFFFD
+	and	r1, r1, r2
+	str	r1, [r0]
+
+	bl system_clock_init
+	bl mem_ctrl_asm_init_ddr3
+
+	bl uart_asm_init
 
 	/* init system clock */
 @	bl system_clock_init
@@ -173,19 +237,50 @@ on_the_ram:
 	bl	xboot_main		/* call xboot's main function */
 	b	on_the_ram
 
+	/* Set EMA value for Pegasus-Q Prime */
+set_ema_value:
+	ldr r0, =0x10000000
+	ldr r1, [r0]
+
+	lsr r2, r1, #12
+	ldr r3, =0xE4412
+	cmp r2, r3
+	movne pc, lr
+
+	and r1, r1, #0xff
+	subs r1, r1, #0x20
+	movmi pc, lr
+
+	/* before setting EMA value
+	   SCLK_APLL must be under 200Mhz
+	   iROM sets APLL 400Mhz
+	   so set SCLK_APLL to 200Mhz
+	   by changing APLL_RATIO from 0 to 1 */
+	ldr r0, =0x10044500
+	ldr r1, [r0]
+	orr r1, r1, #0x1000000
+	str r1, [r0]
+
+	ldr r0, =0x10045008
+	ldr r1, =0x00000101
+	str r1, [r0]
+	mov pc, lr
+
 /*
  * initialize core clock and bus clock.
  */
+/*
 system_clock_init:
 	push {lr}
 	pop	{pc}
-
+*/
 /*
  * memory controller initial.
  */
+/*
 mem_ctrl_init:
 	mov	pc, lr
-
+*/
 /*
  * setting trustzone protection controller
  */

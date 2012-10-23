@@ -23,6 +23,8 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE (__text_start = .);
 		.obj/arch/arm/mach-exynos4412/start.o (.text)
+		.obj/arch/arm/mach-exynos4412/clock_init_smdk4212.o (.text)
+		.obj/arch/arm/mach-exynos4412/mem_init_smdk4212.o (.text)
 		.obj/arch/arm/mach-exynos4412/exynos4x12-irom.o (.text)
 		*(.text)
 		*(.text.*)

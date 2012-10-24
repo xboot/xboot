@@ -314,7 +314,7 @@ static void exynos4x12_uart0_init(void)
 	/* configure uart controller */
 	writel(EXYNOS4X12_UCON0, 0x00000005);
 	writel(EXYNOS4X12_UFCON0, 0x00000000);
-	writel(EXYNOS4X12_UMON0, 0x00000000);
+	writel(EXYNOS4X12_UMCON0, 0x00000000);
 
 	/* configure uart parameter */
 	exynos4x12_ioctl( 0, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[0].baud_rate)) );
@@ -374,7 +374,7 @@ static void exynos4x12_uart1_init(void)
 	/* configure uart controller */
 	writel(EXYNOS4X12_UCON1, 0x00000005);
 	writel(EXYNOS4X12_UFCON1, 0x00000000);
-	writel(EXYNOS4X12_UMON1, 0x00000000);
+	writel(EXYNOS4X12_UMCON1, 0x00000000);
 
 	/* configure uart parameter */
 	exynos4x12_ioctl( 1, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[1].baud_rate)) );
@@ -434,7 +434,7 @@ static void exynos4x12_uart2_init(void)
 	/* configure uart controller */
 	writel(EXYNOS4X12_UCON2, 0x00000005);
 	writel(EXYNOS4X12_UFCON2, 0x00000000);
-	writel(EXYNOS4X12_UMON2, 0x00000000);
+	writel(EXYNOS4X12_UMCON2, 0x00000000);
 
 	/* configure uart parameter */
 	exynos4x12_ioctl( 2, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[2].baud_rate)) );
@@ -494,7 +494,7 @@ static void exynos4x12_uart3_init(void)
 	/* configure uart controller */
 	writel(EXYNOS4X12_UCON3, 0x00000005);
 	writel(EXYNOS4X12_UFCON3, 0x00000000);
-	writel(EXYNOS4X12_UMON3, 0x00000000);
+	writel(EXYNOS4X12_UMCON3, 0x00000000);
 
 	/* configure uart parameter */
 	exynos4x12_ioctl( 3, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[3].baud_rate)) );
@@ -548,7 +548,7 @@ static void exynos4x12_uart4_init(void)
 	/* configure uart controller */
 	writel(EXYNOS4X12_UCON4, 0x00000005);
 	writel(EXYNOS4X12_UFCON4, 0x00000000);
-	writel(EXYNOS4X12_UMON4, 0x00000000);
+	writel(EXYNOS4X12_UMCON4, 0x00000000);
 
 	/* configure uart parameter */
 	exynos4x12_ioctl( 4, IOCTL_WR_SERIAL_BAUD_RATE, (void *)(&(uart_param[4].baud_rate)) );

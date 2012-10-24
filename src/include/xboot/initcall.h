@@ -59,16 +59,6 @@ typedef void (*exitcall_t)(void);
 #define late_exitcall(fn)			__define_exitcall("8",  fn, 8)
 #define late_exitcall_sync(fn)		__define_exitcall("8s", fn, 8s)
 
-/*
- * This only exists for external module
- */
-#define module_init(fn) \
-	static inline initcall_t __inittest(void) { return fn; } \
-	void init_module(void) __attribute__((alias(#fn)));
-
-#define module_exit(fn) \
-	static inline exitcall_t __exittest(void) { return fn; } \
-	void cleanup_module(void) __attribute__((alias(#fn)));
 
 void do_initcalls(void);
 void do_exitcalls(void);

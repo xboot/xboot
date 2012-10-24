@@ -3,7 +3,7 @@
 
 #include <xboot.h>
 
-struct kernel_symbol
+struct symbol_t
 {
 	void * addr;
 	const char * name;
@@ -19,7 +19,7 @@ struct module_t {
 	void * module_entry;
 
 	/* module exported symbols */
-	struct kernel_symbol * symtab;
+	struct symbol_t * symtab;
 	u32_t nsym;
 };
 
@@ -29,24 +29,32 @@ struct module_list
 	struct list_head entry;
 };
 
-extern struct kernel_symbol __ksymtab_start[];
-extern struct kernel_symbol __ksymtab_end[];
-
 /*
- * For every exported symbol, place a kernel_symbol in the .ksymtab.text section.
+ * For every exported symbol, place a symbol_t in the .ksymtab.text section.
  */
 #define EXPORT_SYMBOL(symbol) \
 	extern typeof(symbol) symbol; \
 	static const char __ksym_name_##symbol[] = #symbol; \
-	const struct kernel_symbol __ksymtab_##symbol \
+	const struct symbol_t __ksymtab_##symbol \
 	__attribute__((__used__, section(".ksymtab.text"))) = { (void *)&symbol, __ksym_name_##symbol }
+
+/*
+ * This only exists for external module
+ */
+#define module_init(fn) \
+	static inline initcall_t __inittest(void) { return fn; } \
+	void init_module(void) __attribute__((alias(#fn)));
+
+#define module_exit(fn) \
+	static inline exitcall_t __exittest(void) { return fn; } \
+	void cleanup_module(void) __attribute__((alias(#fn)));
 
 /*
  * Get a kernel symbol (calls must be symmetric)
  */
 #define symbol_get(x) ((typeof(&x))(__symbol_get(#x)))
 void * __symbol_get(const char * name);
-struct kernel_symbol * find_symbol(struct module_t * module, const char * name);
+struct symbol_t * find_symbol(struct module_t * module, const char * name);
 struct module_t * find_module(const char * name);
 
 struct module_list * __module_list_init(void);

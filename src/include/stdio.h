@@ -60,12 +60,9 @@ struct __FILE {
 	int eof, error;
 };
 
-#define stdin			(__get_runtime()->__stdin)
-#define stdout			(__get_runtime()->__stdout)
-#define stderr			(__get_runtime()->__stderr)
-
-#define putc(ch, fp)	fputc(ch, fp)
-#define getc(fp)		fgetc(fp)
+#define stdin		(__runtime_get_stdin())
+#define stdout		(__runtime_get_stdout())
+#define stderr		(__runtime_get_stderr())
 
 FILE * fopen(const char * path, const char * mode);
 FILE * freopen(const char * path, const char * mode, FILE * f);
@@ -86,8 +83,10 @@ int fsetpos(FILE * f, const fpos_t * pos);
 size_t fread(void * buf, size_t size, size_t count, FILE * f);
 size_t fwrite(const void * buf, size_t size, size_t count, FILE * f);
 
+int getc(FILE * f);
 int fgetc(FILE * f);
 char * fgets(char * s, int n, FILE * f);
+int putc(int c, FILE * f);
 int fputc(int c, FILE * f);
 int fputs(const char * s, FILE * f);
 int ungetc(int c, FILE * f);
@@ -117,5 +116,9 @@ ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size);
 ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size);
 
 FILE * __file_alloc(int fd);
+
+FILE * __runtime_get_stdin(void);
+FILE * __runtime_get_stdout(void);
+FILE * __runtime_get_stderr(void);
 
 #endif /* __STDIO_H__ */

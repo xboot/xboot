@@ -105,7 +105,7 @@ static __exit void mv_cmd_exit(void)
 		LOG_E("unregister 'mv' command fail");
 }
 
-module_init(mv_cmd_init, LEVEL_COMMAND);
-module_exit(mv_cmd_exit, LEVEL_COMMAND);
+command_initcall(mv_cmd_init);
+command_exitcall(mv_cmd_exit);
 
 #endif

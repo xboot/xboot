@@ -132,7 +132,7 @@ static __exit void help_cmd_exit(void)
 		LOG_E("unregister 'help' command fail");
 }
 
-module_init(help_cmd_init, LEVEL_COMMAND);
-module_exit(help_cmd_exit, LEVEL_COMMAND);
+command_initcall(help_cmd_init);
+command_exitcall(help_cmd_exit);
 
 #endif

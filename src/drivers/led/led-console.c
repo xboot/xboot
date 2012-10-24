@@ -98,5 +98,5 @@ static __exit void console_trigger_exit(void)
 	trigger_unregister(&console_trigger);
 }
 
-module_init(console_trigger_init, LEVEL_DRIVER);
-module_exit(console_trigger_exit, LEVEL_DRIVER);
+device_initcall(console_trigger_init);
+device_exitcall(console_trigger_exit);

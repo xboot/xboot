@@ -150,7 +150,7 @@ static __exit void fileram_cmd_exit(void)
 		LOG_E("unregister 'fileram' command fail");
 }
 
-module_init(fileram_cmd_init, LEVEL_COMMAND);
-module_exit(fileram_cmd_exit, LEVEL_COMMAND);
+command_initcall(fileram_cmd_init);
+command_exitcall(fileram_cmd_exit);
 
 #endif

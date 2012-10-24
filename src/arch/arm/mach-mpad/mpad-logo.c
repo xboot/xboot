@@ -1756,5 +1756,4 @@ static __init void mpad_logo_init(void)
 	if(!register_logo(&logo))
 		LOG_E("failed to register logo");
 }
-
-module_init(mpad_logo_init, LEVEL_MACH_RES);
+core_initcall(mpad_logo_init);

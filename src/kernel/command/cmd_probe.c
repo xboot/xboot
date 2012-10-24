@@ -133,7 +133,7 @@ static __exit void probe_cmd_exit(void)
 		LOG_E("unregister 'probe' command fail");
 }
 
-module_init(probe_cmd_init, LEVEL_COMMAND);
-module_exit(probe_cmd_exit, LEVEL_COMMAND);
+command_initcall(probe_cmd_init);
+command_exitcall(probe_cmd_exit);
 
 #endif

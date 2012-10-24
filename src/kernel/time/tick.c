@@ -216,5 +216,5 @@ static __exit void tick_pure_sync_exit(void)
 	proc_unregister(&hz_proc);
 }
 
-module_init(tick_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(tick_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(tick_pure_sync_init);
+pure_exitcall_sync(tick_pure_sync_exit);

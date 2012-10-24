@@ -77,7 +77,7 @@ static __exit void go_cmd_exit(void)
 		LOG_E("unregister 'go' command fail");
 }
 
-module_init(go_cmd_init, LEVEL_COMMAND);
-module_exit(go_cmd_exit, LEVEL_COMMAND);
+command_initcall(go_cmd_init);
+command_exitcall(go_cmd_exit);
 
 #endif

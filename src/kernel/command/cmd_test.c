@@ -90,7 +90,7 @@ static __exit void test_cmd_exit(void)
 		LOG_E("unregister 'test' command fail");
 }
 
-module_init(test_cmd_init, LEVEL_COMMAND);
-module_exit(test_cmd_exit, LEVEL_COMMAND);
+command_initcall(test_cmd_init);
+command_exitcall(test_cmd_exit);
 
 #endif

@@ -809,5 +809,5 @@ static __exit void image_loader_png_exit(void)
 		LOG_E("unregister 'png' image loader fail");
 }
 
-module_init(image_loader_png_init, LEVEL_POSTCORE);
-module_exit(image_loader_png_exit, LEVEL_POSTCORE);
+core_initcall(image_loader_png_init);
+core_exitcall(image_loader_png_exit);

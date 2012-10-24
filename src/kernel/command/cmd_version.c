@@ -61,7 +61,7 @@ static __exit void version_cmd_exit(void)
 		LOG_E("unregister 'version' command fail");
 }
 
-module_init(version_cmd_init, LEVEL_COMMAND);
-module_exit(version_cmd_exit, LEVEL_COMMAND);
+command_initcall(version_cmd_init);
+command_exitcall(version_cmd_exit);
 
 #endif

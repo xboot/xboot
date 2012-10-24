@@ -230,5 +230,5 @@ static __exit void xtime_pure_sync_exit(void)
 	proc_unregister(&xtime_proc);
 }
 
-module_init(xtime_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(xtime_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(xtime_pure_sync_init);
+pure_exitcall_sync(xtime_pure_sync_exit);

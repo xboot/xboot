@@ -191,5 +191,5 @@ static __exit void realview_fb_exit(void)
 		LOG_E("failed to unregister framebuffer driver '%s'", realview_fb.info->name);
 }
 
-module_init(realview_fb_init, LEVEL_DRIVER);
-module_exit(realview_fb_exit, LEVEL_DRIVER);
+device_initcall(realview_fb_init);
+device_exitcall(realview_fb_exit);

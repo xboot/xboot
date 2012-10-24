@@ -2989,7 +2989,7 @@ static __exit void dasm_cmd_exit(void)
 		LOG_E("unregister 'dasm' command fail");
 }
 
-module_init(dasm_cmd_init, LEVEL_COMMAND);
-module_exit(dasm_cmd_exit, LEVEL_COMMAND);
+command_initcall(dasm_cmd_init);
+command_exitcall(dasm_cmd_exit);
 
 #endif

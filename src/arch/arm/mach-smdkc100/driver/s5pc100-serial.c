@@ -585,5 +585,5 @@ static __exit void s5pc100_serial_dev_exit(void)
 	}
 }
 
-module_init(s5pc100_serial_dev_init, LEVEL_DRIVER);
-module_exit(s5pc100_serial_dev_exit, LEVEL_DRIVER);
+device_initcall(s5pc100_serial_dev_init);
+device_exitcall(s5pc100_serial_dev_exit);

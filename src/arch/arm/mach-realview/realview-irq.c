@@ -338,5 +338,5 @@ static __exit void realview_irq_exit(void)
 	fiq_disable();
 }
 
-module_init(realview_irq_init, LEVEL_MACH_RES);
-module_exit(realview_irq_exit, LEVEL_MACH_RES);
+core_initcall(realview_irq_init);
+core_exitcall(realview_irq_exit);

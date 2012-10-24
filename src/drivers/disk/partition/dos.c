@@ -176,5 +176,5 @@ static __exit void partition_parser_dos_exit(void)
 		LOG_E("unregister 'dos' partition parser fail");
 }
 
-module_init(partition_parser_dos_init, LEVEL_POSTCORE);
-module_exit(partition_parser_dos_exit, LEVEL_POSTCORE);
+core_initcall(partition_parser_dos_init);
+core_exitcall(partition_parser_dos_exit);

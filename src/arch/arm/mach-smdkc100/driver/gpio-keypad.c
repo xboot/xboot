@@ -139,5 +139,5 @@ static __exit void gpio_keypad_exit(void)
 		LOG_E("failed to unregister input '%s'", gpio_keypad.name);
 }
 
-module_init(gpio_keypad_init, LEVEL_DRIVER);
-module_exit(gpio_keypad_exit, LEVEL_DRIVER);
+device_initcall(gpio_keypad_init);
+device_exitcall(gpio_keypad_exit);

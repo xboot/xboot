@@ -181,5 +181,4 @@ static __init void mach_realview_init(void)
 	if(!register_machine(&realview))
 		LOG_E("failed to register machine 'realview'");
 }
-
-module_init(mach_realview_init, LEVEL_MACH);
+arch_initcall(mach_realview_init);

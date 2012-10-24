@@ -568,5 +568,5 @@ static __exit void realview_serial_dev_exit(void)
 	}
 }
 
-module_init(realview_serial_dev_init, LEVEL_DRIVER);
-module_exit(realview_serial_dev_exit, LEVEL_DRIVER);
+device_initcall(realview_serial_dev_init);
+device_exitcall(realview_serial_dev_exit);

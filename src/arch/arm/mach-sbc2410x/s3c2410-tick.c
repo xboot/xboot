@@ -80,5 +80,4 @@ static __init void s3c2410_tick_init(void)
 	if(!register_tick(&s3c2410_tick))
 		LOG_E("failed to register tick");
 }
-
-module_init(s3c2410_tick_init, LEVEL_MACH_RES);
+core_initcall(s3c2410_tick_init);

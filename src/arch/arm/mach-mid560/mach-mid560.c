@@ -226,5 +226,4 @@ static __init void mach_mid560_init(void)
 	if(!register_machine(&mid560))
 		LOG_E("failed to register machine 'mid560'");
 }
-
-module_init(mach_mid560_init, LEVEL_MACH);
+arch_initcall(mach_mid560_init);

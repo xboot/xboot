@@ -105,5 +105,5 @@ static __exit void realview_clk_exit(void)
 	}
 }
 
-module_init(realview_clk_init, LEVEL_MACH_RES);
-module_exit(realview_clk_exit, LEVEL_MACH_RES);
+core_initcall(realview_clk_init);
+core_exitcall(realview_clk_exit);

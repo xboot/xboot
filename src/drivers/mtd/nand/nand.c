@@ -770,5 +770,5 @@ static __exit void nand_pure_sync_exit(void)
 	proc_unregister(&nand_proc);
 }
 
-module_init(nand_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(nand_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(nand_pure_sync_init);
+pure_exitcall_sync(nand_pure_sync_exit);

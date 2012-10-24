@@ -70,7 +70,7 @@ static __exit void halt_cmd_exit(void)
 		LOG_E("unregister 'halt' command fail");
 }
 
-module_init(halt_cmd_init, LEVEL_COMMAND);
-module_exit(halt_cmd_exit, LEVEL_COMMAND);
+command_initcall(halt_cmd_init);
+command_exitcall(halt_cmd_exit);
 
 #endif

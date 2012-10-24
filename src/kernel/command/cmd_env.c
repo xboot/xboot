@@ -91,7 +91,7 @@ static __exit void env_cmd_exit(void)
 		LOG_E("unregister 'env' command fail");
 }
 
-module_init(env_cmd_init, LEVEL_COMMAND);
-module_exit(env_cmd_exit, LEVEL_COMMAND);
+command_initcall(env_cmd_init);
+command_exitcall(env_cmd_exit);
 
 #endif

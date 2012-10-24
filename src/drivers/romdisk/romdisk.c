@@ -177,5 +177,5 @@ static __exit void romdisk_exit(void)
 	}
 }
 
-module_init(romdisk_init, LEVEL_DRIVER);
-module_exit(romdisk_exit, LEVEL_DRIVER);
+device_initcall(romdisk_init);
+device_exitcall(romdisk_exit);

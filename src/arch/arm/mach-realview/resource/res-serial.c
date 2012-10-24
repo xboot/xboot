@@ -103,5 +103,5 @@ static __exit void dev_serial_exit(void)
 	}
 }
 
-module_init(dev_serial_init, LEVEL_MACH_RES);
-module_exit(dev_serial_exit, LEVEL_MACH_RES);
+core_initcall(dev_serial_init);
+core_exitcall(dev_serial_exit);

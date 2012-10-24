@@ -389,7 +389,7 @@ static __exit void tetris_cmd_exit(void)
 		LOG_E("unregister 'tetris' command fail");
 }
 
-module_init(tetris_cmd_init, LEVEL_COMMAND);
-module_exit(tetris_cmd_exit, LEVEL_COMMAND);
+command_initcall(tetris_cmd_init);
+command_exitcall(tetris_cmd_exit);
 
 #endif

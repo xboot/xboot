@@ -172,5 +172,5 @@ static __exit void delay_pure_sync_exit(void)
 	proc_unregister(&bogomips_proc);
 }
 
-module_init(delay_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(delay_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(delay_pure_sync_init);
+pure_exitcall_sync(delay_pure_sync_exit);

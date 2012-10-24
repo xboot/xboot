@@ -167,5 +167,5 @@ static __exit void matrix_keypad_exit(void)
 		LOG_E("failed to unregister input '%s'", matrix_keypad.name);
 }
 
-module_init(matrix_keypad_init, LEVEL_DRIVER);
-module_exit(matrix_keypad_exit, LEVEL_DRIVER);
+device_initcall(matrix_keypad_init);
+device_exitcall(matrix_keypad_exit);

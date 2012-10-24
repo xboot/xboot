@@ -742,5 +742,5 @@ static __exit void s5pc100_irq_exit(void)
 	fiq_disable();
 }
 
-module_init(s5pc100_irq_init, LEVEL_MACH_RES);
-module_exit(s5pc100_irq_exit, LEVEL_MACH_RES);
+core_initcall(s5pc100_irq_init);
+core_exitcall(s5pc100_irq_exit);

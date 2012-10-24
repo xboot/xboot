@@ -61,7 +61,7 @@ static __exit void sync_cmd_exit(void)
 		LOG_E("unregister 'sync' command fail");
 }
 
-module_init(sync_cmd_init, LEVEL_COMMAND);
-module_exit(sync_cmd_exit, LEVEL_COMMAND);
+command_initcall(sync_cmd_init);
+command_exitcall(sync_cmd_exit);
 
 #endif

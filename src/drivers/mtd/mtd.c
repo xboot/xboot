@@ -57,5 +57,5 @@ static __exit void mtd_device_exit(void)
 	nand_flash_remove();
 }
 
-module_init(mtd_device_init, LEVEL_DRIVER);
-module_exit(mtd_device_exit, LEVEL_DRIVER);
+device_initcall(mtd_device_init);
+device_exitcall(mtd_device_exit);

@@ -491,9 +491,8 @@ static __exit void xmodem_cmd_exit(void)
 		LOG_E("unregister 'rx' command fail");
 }
 
-module_init(xmodem_cmd_init, LEVEL_COMMAND);
-module_exit(xmodem_cmd_exit, LEVEL_COMMAND);
+command_initcall(xmodem_cmd_init);
+command_exitcall(xmodem_cmd_exit);
 
 #endif
-
 #endif

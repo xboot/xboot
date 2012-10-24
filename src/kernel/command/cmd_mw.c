@@ -153,7 +153,7 @@ static __exit void mw_cmd_exit(void)
 		LOG_E("unregister 'mw' command fail");
 }
 
-module_init(mw_cmd_init, LEVEL_COMMAND);
-module_exit(mw_cmd_exit, LEVEL_COMMAND);
+command_initcall(mw_cmd_init);
+command_exitcall(mw_cmd_exit);
 
 #endif

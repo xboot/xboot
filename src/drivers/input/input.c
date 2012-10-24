@@ -432,5 +432,5 @@ static __init void input_pure_sync_exit(void)
 	proc_unregister(&input_proc);
 }
 
-module_init(input_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(input_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(input_pure_sync_init);
+pure_exitcall_sync(input_pure_sync_exit);

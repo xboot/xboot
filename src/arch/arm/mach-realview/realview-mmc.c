@@ -538,5 +538,5 @@ static __exit void realview_mmc_host_controller_exit(void)
 		LOG_E("failed to unregister mmc host controller '%s'", realview_mmc_host_controller.name);
 }
 
-module_init(realview_mmc_host_controller_init, LEVEL_MACH_RES);
-module_exit(realview_mmc_host_controller_exit, LEVEL_MACH_RES);
+core_initcall(realview_mmc_host_controller_init);
+core_exitcall(realview_mmc_host_controller_exit);

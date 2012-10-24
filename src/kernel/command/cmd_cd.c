@@ -77,7 +77,7 @@ static __exit void cd_cmd_exit(void)
 		LOG_E("unregister 'cd' command fail");
 }
 
-module_init(cd_cmd_init, LEVEL_COMMAND);
-module_exit(cd_cmd_exit, LEVEL_COMMAND);
+command_initcall(cd_cmd_init);
+command_exitcall(cd_cmd_exit);
 
 #endif

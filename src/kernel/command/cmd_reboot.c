@@ -69,7 +69,7 @@ static __exit void reboot_cmd_exit(void)
 		LOG_E("unregister 'reboot' command fail");
 }
 
-module_init(reboot_cmd_init, LEVEL_COMMAND);
-module_exit(reboot_cmd_exit, LEVEL_COMMAND);
+command_initcall(reboot_cmd_init);
+command_exitcall(reboot_cmd_exit);
 
 #endif

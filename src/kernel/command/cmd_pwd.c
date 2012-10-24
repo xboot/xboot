@@ -68,7 +68,7 @@ static __exit void pwd_cmd_exit(void)
 		LOG_E("unregister 'pwd' command fail");
 }
 
-module_init(pwd_cmd_init, LEVEL_COMMAND);
-module_exit(pwd_cmd_exit, LEVEL_COMMAND);
+command_initcall(pwd_cmd_init);
+command_exitcall(pwd_cmd_exit);
 
 #endif

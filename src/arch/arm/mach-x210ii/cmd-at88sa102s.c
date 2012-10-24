@@ -155,5 +155,5 @@ static __exit void at88sa102s_cmd_exit(void)
 		LOG_E("unregister 'at88sa102s' command fail");
 }
 
-module_init(at88sa102s_cmd_init, LEVEL_COMMAND);
-module_exit(at88sa102s_cmd_exit, LEVEL_COMMAND);
+command_initcall(at88sa102s_cmd_init);
+command_exitcall(at88sa102s_cmd_exit);

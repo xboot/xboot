@@ -470,5 +470,5 @@ static __exit void s3c6410_mmc_exit(void)
 
 }
 
-module_init(s3c6410_mmc_init, LEVEL_DRIVER);
-module_exit(s3c6410_mmc_exit, LEVEL_DRIVER);
+device_initcall(s3c6410_mmc_init);
+device_exitcall(s3c6410_mmc_exit);

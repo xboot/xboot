@@ -378,5 +378,5 @@ static __exit void loop_pure_sync_exit(void)
 	proc_unregister(&loop_proc);
 }
 
-module_init(loop_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(loop_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(loop_pure_sync_init);
+pure_exitcall_sync(loop_pure_sync_exit);

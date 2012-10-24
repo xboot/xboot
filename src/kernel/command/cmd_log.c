@@ -138,7 +138,7 @@ static __exit void log_cmd_exit(void)
 		LOG_E("unregister 'log' command fail");
 }
 
-module_init(log_cmd_init, LEVEL_COMMAND);
-module_exit(log_cmd_exit, LEVEL_COMMAND);
+command_initcall(log_cmd_init);
+command_exitcall(log_cmd_exit);
 
 #endif

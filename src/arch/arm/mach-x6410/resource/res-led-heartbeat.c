@@ -73,5 +73,5 @@ static __exit void dev_heartbeat_exit(void)
 		LOG_E("failed to unregister resource '%s'", led_heartbeat.name);
 }
 
-module_init(dev_heartbeat_init, LEVEL_MACH_RES);
-module_exit(dev_heartbeat_exit, LEVEL_MACH_RES);
+core_initcall(dev_heartbeat_init);
+core_exitcall(dev_heartbeat_exit);

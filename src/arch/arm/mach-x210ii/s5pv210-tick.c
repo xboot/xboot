@@ -91,5 +91,4 @@ static __init void s5pv210_tick_init(void)
 	if(!register_tick(&s5pv210_tick))
 		LOG_E("failed to register tick");
 }
-
-module_init(s5pv210_tick_init, LEVEL_MACH_RES);
+core_initcall(s5pv210_tick_init);

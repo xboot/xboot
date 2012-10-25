@@ -43,5 +43,4 @@ static __init void realview_application_init(void)
 	if(!register_application(application))
 		LOG_E("failed to register application");
 }
-
-module_init(realview_application_init, LEVEL_MACH_RES);
+core_initcall(realview_application_init);

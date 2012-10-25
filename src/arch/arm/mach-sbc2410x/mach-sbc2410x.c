@@ -193,5 +193,4 @@ static __init void mach_sbc2410x_init(void)
 	if(!register_machine(&sbc2410x))
 		LOG_E("failed to register machine 'sbc2410x'");
 }
-
-module_init(mach_sbc2410x_init, LEVEL_MACH);
+arch_initcall(mach_sbc2410x_init);

@@ -96,5 +96,5 @@ static __exit void s3c2410_devs_exit(void)
 	}
 }
 
-module_init(s3c2410_devs_init, LEVEL_MACH_RES);
-module_exit(s3c2410_devs_exit, LEVEL_MACH_RES);
+core_initcall(s3c2410_devs_init);
+core_exitcall(s3c2410_devs_exit);

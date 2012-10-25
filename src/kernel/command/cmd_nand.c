@@ -215,7 +215,7 @@ static __exit void nand_cmd_exit(void)
 		LOG_E("unregister 'nand' command fail");
 }
 
-module_init(nand_cmd_init, LEVEL_COMMAND);
-module_exit(nand_cmd_exit, LEVEL_COMMAND);
+command_initcall(nand_cmd_init);
+command_exitcall(nand_cmd_exit);
 
 #endif

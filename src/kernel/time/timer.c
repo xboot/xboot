@@ -250,7 +250,7 @@ void setup_timer(struct timer_list * timer,	void (*function)(u32_t), u32_t data)
 	init_timer(timer);
 }
 
-static __init void timer_pure_sync_init(void)
+static __init void timer_pure_init(void)
 {
 	s32_t i;
 
@@ -269,5 +269,4 @@ static __init void timer_pure_sync_init(void)
 		init_list_head(tv1.vec + i);
 	}
 }
-
-module_init(timer_pure_sync_init, LEVEL_PURE_SYNC);
+pure_initcall(timer_pure_init);

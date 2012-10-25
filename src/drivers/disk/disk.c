@@ -432,5 +432,5 @@ static __exit void disk_pure_sync_exit(void)
 	proc_unregister(&disk_proc);
 }
 
-module_init(disk_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(disk_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(disk_pure_sync_init);
+pure_exitcall_sync(disk_pure_sync_exit);

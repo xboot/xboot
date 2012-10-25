@@ -183,5 +183,5 @@ static __exit void device_pure_sync_exit(void)
 	proc_unregister(&device_proc);
 }
 
-module_init(device_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(device_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(device_pure_sync_init);
+pure_exitcall_sync(device_pure_sync_exit);

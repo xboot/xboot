@@ -493,5 +493,5 @@ static __exit void s3c2410_serial_dev_exit(void)
 	}
 }
 
-module_init(s3c2410_serial_dev_init, LEVEL_DRIVER);
-module_exit(s3c2410_serial_dev_exit, LEVEL_DRIVER);
+device_initcall(s3c2410_serial_dev_init);
+device_exitcall(s3c2410_serial_dev_exit);

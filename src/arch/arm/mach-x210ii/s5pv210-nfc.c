@@ -141,5 +141,5 @@ static __exit void s5pv210_nand_flash_controller_exit(void)
 		LOG_E("failed to unregister nand flash controller '%s'", s5pv210_nand_flash_controller.name);
 }
 
-module_init(s5pv210_nand_flash_controller_init, LEVEL_MACH_RES);
-module_exit(s5pv210_nand_flash_controller_exit, LEVEL_MACH_RES);
+core_initcall(s5pv210_nand_flash_controller_init);
+core_exitcall(s5pv210_nand_flash_controller_exit);

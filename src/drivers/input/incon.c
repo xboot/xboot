@@ -144,5 +144,5 @@ static __exit void input_console_exit(void)
 	free(input_console_fifo);
 }
 
-module_init(input_console_init, LEVEL_DRIVER);
-module_exit(input_console_exit, LEVEL_DRIVER);
+device_initcall(input_console_init);
+device_exitcall(input_console_exit);

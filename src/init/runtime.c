@@ -36,18 +36,18 @@ static struct runtime_t * strap_runtime_init(void)
 	return &strap;
 }
 
+struct runtime_t * __get_runtime(void)
+{
+	return __runtime;
+}
+EXPORT_SYMBOL(__get_runtime);
+
 void __set_runtime(struct runtime_t * r)
 {
 	if(r)
 		__runtime = r;
 }
 EXPORT_SYMBOL(__set_runtime);
-
-struct runtime_t * __get_runtime(void)
-{
-	return __runtime;
-}
-EXPORT_SYMBOL(__get_runtime);
 
 struct runtime_t * runtime_alloc(void)
 {

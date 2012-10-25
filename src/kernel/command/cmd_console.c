@@ -70,7 +70,7 @@ static __exit void console_cmd_exit(void)
 		LOG_E("unregister 'console' command fail");
 }
 
-module_init(console_cmd_init, LEVEL_COMMAND);
-module_exit(console_cmd_exit, LEVEL_COMMAND);
+command_initcall(console_cmd_init);
+command_exitcall(console_cmd_exit);
 
 #endif

@@ -98,5 +98,5 @@ static __exit void file_trigger_exit(void)
 	trigger_unregister(&file_trigger);
 }
 
-module_init(file_trigger_init, LEVEL_DRIVER);
-module_exit(file_trigger_exit, LEVEL_DRIVER);
+device_initcall(file_trigger_init);
+device_exitcall(file_trigger_exit);

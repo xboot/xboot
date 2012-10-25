@@ -76,5 +76,5 @@ static __exit void dev_console_exit(void)
 		LOG_E("failed to unregister resource '%s'", led_console.name);
 }
 
-module_init(dev_console_init, LEVEL_MACH_RES);
-module_exit(dev_console_exit, LEVEL_MACH_RES);
+core_initcall(dev_console_init);
+core_exitcall(dev_console_exit);

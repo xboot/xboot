@@ -114,7 +114,7 @@ static __exit void display_cmd_exit(void)
 		LOG_E("unregister 'display' command fail");
 }
 
-module_init(display_cmd_init, LEVEL_COMMAND);
-module_exit(display_cmd_exit, LEVEL_COMMAND);
+command_initcall(display_cmd_init);
+command_exitcall(display_cmd_exit);
 
 #endif

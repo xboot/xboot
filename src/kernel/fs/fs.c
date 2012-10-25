@@ -171,5 +171,5 @@ static __exit void filesystem_pure_sync_exit(void)
 	proc_unregister(&filesystem_proc);
 }
 
-module_init(filesystem_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(filesystem_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(filesystem_pure_sync_init);
+pure_exitcall_sync(filesystem_pure_sync_exit);

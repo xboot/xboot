@@ -201,5 +201,4 @@ static __init void mach_smdk6410_init(void)
 	if(!register_machine(&smdk6410))
 		LOG_E("failed to register machine 'smdk6410'");
 }
-
-module_init(mach_smdk6410_init, LEVEL_MACH);
+arch_initcall(mach_smdk6410_init);

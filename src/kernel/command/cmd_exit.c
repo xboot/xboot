@@ -109,7 +109,7 @@ static __exit void exit_cmd_exit(void)
 		LOG_E("unregister 'exit' command fail");
 }
 
-module_init(exit_cmd_init, LEVEL_COMMAND);
-module_exit(exit_cmd_exit, LEVEL_COMMAND);
+command_initcall(exit_cmd_init);
+command_exitcall(exit_cmd_exit);
 
 #endif

@@ -23,6 +23,11 @@
 #include <xboot.h>
 #include <xboot/initcall.h>
 
+extern initcall_t __initcall_start[];
+extern initcall_t __initcall_end[];
+extern exitcall_t __exitcall_start[];
+extern exitcall_t __exitcall_end[];
+
 /*
  * do all initial calls
  */

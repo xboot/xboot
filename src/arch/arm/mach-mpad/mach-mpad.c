@@ -229,5 +229,4 @@ static __init void mach_mpad_init(void)
 	if(!register_machine(&mpad))
 		LOG_E("failed to register machine 'mpad'");
 }
-
-module_init(mach_mpad_init, LEVEL_MACH);
+arch_initcall(mach_mpad_init);

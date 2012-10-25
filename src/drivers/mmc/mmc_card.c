@@ -602,5 +602,5 @@ static __exit void mmc_card_pure_sync_exit(void)
 	proc_unregister(&mmc_card_proc);
 }
 
-module_init(mmc_card_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(mmc_card_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(mmc_card_pure_sync_init);
+pure_exitcall_sync(mmc_card_pure_sync_exit);

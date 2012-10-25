@@ -209,5 +209,5 @@ static __exit void s5pc100_clk_exit(void)
 	}
 }
 
-module_init(s5pc100_clk_init, LEVEL_MACH_RES);
-module_exit(s5pc100_clk_exit, LEVEL_MACH_RES);
+core_initcall(s5pc100_clk_init);
+core_exitcall(s5pc100_clk_exit);

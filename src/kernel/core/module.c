@@ -23,9 +23,12 @@
 #include <xboot.h>
 #include <xboot/module.h>
 
-static struct kernel_symbol * __lookup_symbol_in_range(struct kernel_symbol * from, struct kernel_symbol * to, const char * name)
+extern struct symbol_t __ksymtab_start[];
+extern struct symbol_t __ksymtab_end[];
+
+static struct symbol_t * __lookup_symbol_in_range(struct symbol_t * from, struct symbol_t * to, const char * name)
 {
-	struct kernel_symbol * next;
+	struct symbol_t * next;
 
 	if(!from || !to || !name)
 		return NULL;
@@ -41,25 +44,25 @@ static struct kernel_symbol * __lookup_symbol_in_range(struct kernel_symbol * fr
 	return NULL;
 }
 
-static struct kernel_symbol * __lookup_symbol_in_module(struct module_t * module, const char * name)
+static struct symbol_t * __lookup_symbol_in_module(struct module_t * module, const char * name)
 {
-	struct kernel_symbol * from, * to;
+	struct symbol_t * from, * to;
 
 	if(!module || !name)
 		return NULL;
 
-	from = (struct kernel_symbol *)(module->symtab);
-	to = (struct kernel_symbol *)(module->symtab + module->nsym);
+	from = (struct symbol_t *)(module->symtab);
+	to = (struct symbol_t *)(module->symtab + module->nsym);
 
 	return __lookup_symbol_in_range(from, to, name);
 }
 
-static struct kernel_symbol * __lookup_symbol_all(const char * name)
+static struct symbol_t * __lookup_symbol_all(const char * name)
 {
 	struct module_list * m = __get_runtime()->__module_list;
 	struct module_list * list;
 	struct list_head * pos;
-	struct kernel_symbol * sym;
+	struct symbol_t * sym;
 
 	if(!name)
 		return NULL;
@@ -81,14 +84,14 @@ static struct kernel_symbol * __lookup_symbol_all(const char * name)
 
 void * __symbol_get(const char * name)
 {
-	struct kernel_symbol * sym;
+	struct symbol_t * sym;
 
 	sym = __lookup_symbol_all(name);
 	return sym ? (void *)sym->addr : NULL;
 }
 EXPORT_SYMBOL(__symbol_get);
 
-struct kernel_symbol * find_symbol(struct module_t * module, const char * name)
+struct symbol_t * find_symbol(struct module_t * module, const char * name)
 {
 	return __lookup_symbol_in_module(module, name);
 }

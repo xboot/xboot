@@ -82,7 +82,7 @@ static __exit void mc_cmd_exit(void)
 		LOG_E("unregister 'mc' command fail");
 }
 
-module_init(mc_cmd_init, LEVEL_COMMAND);
-module_exit(mc_cmd_exit, LEVEL_COMMAND);
+command_initcall(mc_cmd_init);
+command_exitcall(mc_cmd_exit);
 
 #endif

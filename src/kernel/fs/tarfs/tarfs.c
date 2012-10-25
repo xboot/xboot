@@ -555,5 +555,5 @@ static __exit void filesystem_tarfs_exit(void)
 		LOG_E("unregister 'tarfs' filesystem fail");
 }
 
-module_init(filesystem_tarfs_init, LEVEL_POSTCORE);
-module_exit(filesystem_tarfs_exit, LEVEL_POSTCORE);
+fs_initcall(filesystem_tarfs_init);
+fs_exitcall(filesystem_tarfs_exit);

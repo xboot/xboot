@@ -309,5 +309,5 @@ static __exit void s5pv310_clk_exit(void)
 	}
 }
 
-module_init(s5pv310_clk_init, LEVEL_MACH_RES);
-module_exit(s5pv310_clk_exit, LEVEL_MACH_RES);
+core_initcall(s5pv310_clk_init);
+core_exitcall(s5pv310_clk_exit);

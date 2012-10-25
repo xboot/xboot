@@ -243,7 +243,7 @@ struct file * vfs_getcwdfp(void)
 /*
  * fd pure init
  */
-static __init void fd_pure_sync_init(void)
+static __init void fd_pure_init(void)
 {
 	int i;
 
@@ -253,5 +253,4 @@ static __init void fd_pure_sync_init(void)
     strcpy(cwd, "/");
     cwdfp = NULL;
 }
-
-module_init(fd_pure_sync_init, LEVEL_PURE_SYNC);
+pure_initcall(fd_pure_init);

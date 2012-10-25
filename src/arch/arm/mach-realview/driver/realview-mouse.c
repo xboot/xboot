@@ -254,5 +254,5 @@ static __exit void realview_mouse_exit(void)
 		LOG_E("failed to unregister input '%s'", realview_mouse.name);
 }
 
-module_init(realview_mouse_init, LEVEL_DRIVER);
-module_exit(realview_mouse_exit, LEVEL_DRIVER);
+device_initcall(realview_mouse_init);
+device_exitcall(realview_mouse_exit);

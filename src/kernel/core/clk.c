@@ -200,5 +200,5 @@ static __exit void clk_pure_sync_exit(void)
 	proc_unregister(&clk_proc);
 }
 
-module_init(clk_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(clk_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(clk_pure_sync_init);
+pure_exitcall_sync(clk_pure_sync_exit);

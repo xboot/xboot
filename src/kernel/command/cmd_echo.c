@@ -216,7 +216,7 @@ static __exit void echo_cmd_exit(void)
 		LOG_E("unregister 'echo' command fail");
 }
 
-module_init(echo_cmd_init, LEVEL_COMMAND);
-module_exit(echo_cmd_exit, LEVEL_COMMAND);
+command_initcall(echo_cmd_init);
+command_exitcall(echo_cmd_exit);
 
 #endif

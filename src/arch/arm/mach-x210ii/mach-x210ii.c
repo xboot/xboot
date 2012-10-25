@@ -218,5 +218,4 @@ static __init void mach_x210ii_init(void)
 	if(!register_machine(&x210ii))
 		LOG_E("failed to register machine 'x210ii'");
 }
-
-module_init(mach_x210ii_init, LEVEL_MACH);
+arch_initcall(mach_x210ii_init);

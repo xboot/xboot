@@ -77,7 +77,7 @@ static __exit void rmdir_cmd_exit(void)
 		LOG_E("unregister 'rmdir' command fail");
 }
 
-module_init(rmdir_cmd_init, LEVEL_COMMAND);
-module_exit(rmdir_cmd_exit, LEVEL_COMMAND);
+command_initcall(rmdir_cmd_init);
+command_exitcall(rmdir_cmd_exit);
 
 #endif

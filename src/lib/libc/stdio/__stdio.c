@@ -3,6 +3,7 @@
  */
 
 #include <runtime.h>
+#include <xboot/module.h>
 #include <stdio.h>
 
 /*
@@ -189,3 +190,22 @@ FILE * __file_alloc(int fd)
 
 	return f;
 }
+
+FILE * __runtime_get_stdin(void)
+{
+	return (__get_runtime()->__stdin);
+}
+EXPORT_SYMBOL(__runtime_get_stdin);
+
+FILE * __runtime_get_stdout(void)
+{
+	return (__get_runtime()->__stdin);
+}
+EXPORT_SYMBOL(__runtime_get_stdout);
+
+FILE * __runtime_get_stderr(void)
+{
+	return (__get_runtime()->__stdin);
+}
+EXPORT_SYMBOL(__runtime_get_stderr);
+

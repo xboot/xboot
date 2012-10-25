@@ -484,7 +484,7 @@ static __exit void serial_cmd_exit(void)
 		LOG_E("unregister 'serial' command fail");
 }
 
-module_init(serial_cmd_init, LEVEL_COMMAND);
-module_exit(serial_cmd_exit, LEVEL_COMMAND);
+command_initcall(serial_cmd_init);
+command_exitcall(serial_cmd_exit);
 
 #endif

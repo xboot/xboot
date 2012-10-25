@@ -103,7 +103,7 @@ static __exit void cp_cmd_exit(void)
 		LOG_E("unregister 'cp' command fail");
 }
 
-module_init(cp_cmd_init, LEVEL_COMMAND);
-module_exit(cp_cmd_exit, LEVEL_COMMAND);
+command_initcall(cp_cmd_init);
+command_exitcall(cp_cmd_exit);
 
 #endif

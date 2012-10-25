@@ -132,5 +132,5 @@ static __exit void heartbeat_trigger_exit(void)
 	trigger_unregister(&heartbeat_trigger);
 }
 
-module_init(heartbeat_trigger_init, LEVEL_DRIVER);
-module_exit(heartbeat_trigger_exit, LEVEL_DRIVER);
+device_initcall(heartbeat_trigger_init);
+device_exitcall(heartbeat_trigger_exit);

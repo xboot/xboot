@@ -128,7 +128,7 @@ static __exit void mkdir_cmd_exit(void)
 		LOG_E("unregister 'mkdir' command fail");
 }
 
-module_init(mkdir_cmd_init, LEVEL_COMMAND);
-module_exit(mkdir_cmd_exit, LEVEL_COMMAND);
+command_initcall(mkdir_cmd_init);
+command_exitcall(mkdir_cmd_exit);
 
 #endif

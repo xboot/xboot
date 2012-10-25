@@ -90,5 +90,5 @@ static __exit void realview_rtc_exit(void)
 		LOG_E("failed to unregister rtc driver '%s'", realview_rtc.name);
 }
 
-module_init(realview_rtc_init, LEVEL_DRIVER);
-module_exit(realview_rtc_exit, LEVEL_DRIVER);
+device_initcall(realview_rtc_init);
+device_exitcall(realview_rtc_exit);

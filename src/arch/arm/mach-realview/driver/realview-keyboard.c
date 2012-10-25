@@ -449,5 +449,5 @@ static __exit void realview_keyboard_exit(void)
 		LOG_E("failed to unregister input '%s'", realview_keyboard.name);
 }
 
-module_init(realview_keyboard_init, LEVEL_DRIVER);
-module_exit(realview_keyboard_exit, LEVEL_DRIVER);
+device_initcall(realview_keyboard_init);
+device_exitcall(realview_keyboard_exit);

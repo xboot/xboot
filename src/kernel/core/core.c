@@ -46,5 +46,4 @@ static __init void core_init(void)
 		LOG_W("no system tick in this machine");
 	}
 }
-
-module_init(core_init, LEVEL_CORE);
+arch_initcall_sync(core_init);

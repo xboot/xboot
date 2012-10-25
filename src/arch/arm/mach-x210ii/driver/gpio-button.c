@@ -224,5 +224,5 @@ static __exit void gpio_button_exit(void)
 		LOG_E("failed to unregister input '%s'", gpio_button.name);
 }
 
-module_init(gpio_button_init, LEVEL_DRIVER);
-module_exit(gpio_button_exit, LEVEL_DRIVER);
+device_initcall(gpio_button_init);
+device_exitcall(gpio_button_exit);

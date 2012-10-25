@@ -543,5 +543,5 @@ static __exit void s3c6410_irq_exit(void)
 	fiq_disable();
 }
 
-module_init(s3c6410_irq_init, LEVEL_MACH_RES);
-module_exit(s3c6410_irq_exit, LEVEL_MACH_RES);
+core_initcall(s3c6410_irq_init);
+core_exitcall(s3c6410_irq_exit);

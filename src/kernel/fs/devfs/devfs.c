@@ -448,5 +448,5 @@ static __exit void filesystem_devfs_exit(void)
 		LOG_E("unregister 'devfs' filesystem fail");
 }
 
-module_init(filesystem_devfs_init, LEVEL_POSTCORE);
-module_exit(filesystem_devfs_exit, LEVEL_POSTCORE);
+fs_initcall(filesystem_devfs_init);
+fs_exitcall(filesystem_devfs_exit);

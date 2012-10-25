@@ -116,7 +116,7 @@ static __exit void cat_cmd_exit(void)
 		LOG_E("unregister 'cat' command fail");
 }
 
-module_init(cat_cmd_init, LEVEL_COMMAND);
-module_exit(cat_cmd_exit, LEVEL_COMMAND);
+command_initcall(cat_cmd_init);
+command_exitcall(cat_cmd_exit);
 
 #endif

@@ -190,5 +190,4 @@ static __init void mach_smdkv310_init(void)
 	if(!register_machine(&smdkv310))
 		LOG_E("failed to register machine 'smdkv310'");
 }
-
-module_init(mach_smdkv310_init, LEVEL_MACH);
+arch_initcall(mach_smdkv310_init);

@@ -242,5 +242,5 @@ static __exit void interrupt_pure_sync_exit(void)
 	proc_unregister(&interrupt_proc);
 }
 
-module_init(interrupt_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(interrupt_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(interrupt_pure_sync_init);
+pure_exitcall_sync(interrupt_pure_sync_exit);

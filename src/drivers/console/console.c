@@ -633,5 +633,5 @@ static __exit void console_pure_sync_exit(void)
 	proc_unregister(&console_proc);
 }
 
-module_init(console_pure_sync_init, LEVEL_PURE_SYNC);
-module_exit(console_pure_sync_exit, LEVEL_PURE_SYNC);
+pure_initcall_sync(console_pure_sync_init);
+pure_exitcall_sync(console_pure_sync_exit);

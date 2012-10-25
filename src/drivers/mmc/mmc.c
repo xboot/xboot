@@ -58,5 +58,5 @@ static __exit void mmc_card_exit(void)
 	mmc_card_remove();
 }
 
-module_init(mmc_card_init, LEVEL_DRIVER);
-module_exit(mmc_card_exit, LEVEL_DRIVER);
+device_initcall(mmc_card_init);
+device_exitcall(mmc_card_exit);

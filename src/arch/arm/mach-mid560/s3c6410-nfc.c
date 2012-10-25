@@ -140,5 +140,5 @@ static __exit void s3c6410_nand_flash_controller_exit(void)
 		LOG_E("failed to unregister nand flash controller '%s'", s3c6410_nand_flash_controller.name);
 }
 
-module_init(s3c6410_nand_flash_controller_init, LEVEL_MACH_RES);
-module_exit(s3c6410_nand_flash_controller_exit, LEVEL_MACH_RES);
+core_initcall(s3c6410_nand_flash_controller_init);
+core_exitcall(s3c6410_nand_flash_controller_exit);

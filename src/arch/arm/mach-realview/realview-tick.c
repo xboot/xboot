@@ -92,5 +92,4 @@ static __init void realview_tick_init(void)
 	if(!register_tick(&realview_tick))
 		LOG_E("failed to register tick");
 }
-
-module_init(realview_tick_init, LEVEL_MACH_RES);
+core_initcall(realview_tick_init);

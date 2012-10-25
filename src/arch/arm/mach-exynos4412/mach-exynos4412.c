@@ -170,5 +170,4 @@ static __init void mach_exynos4412_init(void)
 	if(!register_machine(&exynos4412))
 		LOG_E("failed to register machine 'exynos4412'");
 }
-
-module_init(mach_exynos4412_init, LEVEL_MACH);
+arch_initcall(mach_exynos4412_init);

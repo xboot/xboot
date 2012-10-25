@@ -669,5 +669,5 @@ static __exit void exynos4x12_serial_dev_exit(void)
 	}
 }
 
-module_init(exynos4x12_serial_dev_init, LEVEL_DRIVER);
-module_exit(exynos4x12_serial_dev_exit, LEVEL_DRIVER);
+device_initcall(exynos4x12_serial_dev_init);
+device_exitcall(exynos4x12_serial_dev_exit);

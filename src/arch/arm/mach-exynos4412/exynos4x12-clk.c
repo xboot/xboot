@@ -321,5 +321,5 @@ static __exit void exynos4x12_clk_exit(void)
 	}
 }
 
-module_init(exynos4x12_clk_init, LEVEL_MACH_RES);
-module_exit(exynos4x12_clk_exit, LEVEL_MACH_RES);
+core_initcall(exynos4x12_clk_init);
+core_exitcall(exynos4x12_clk_exit);

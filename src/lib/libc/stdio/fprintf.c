@@ -23,7 +23,7 @@ int fprintf(FILE * f, const char * fmt, ...)
 	rv = vsnprintf(buf, len + 1, fmt, ap);
 	va_end(ap);
 
-	rv = fputs(buf, f);
+	rv = (fputs(buf, f) < 0) ? 0 : rv;
 	free(buf);
 
 	return rv;

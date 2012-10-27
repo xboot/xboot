@@ -14,11 +14,11 @@ typedef void (*exitcall_t)(void);
  * This only exists for built-in code, not for modules.
  */
 #define __define_initcall(level, fn, id) \
-	initcall_t __initcall_##fn##id \
+	const initcall_t __initcall_##fn##id \
 	__attribute__((__used__, __section__(".initcall_" level ".text"))) = fn
 
 #define __define_exitcall(level, fn, id) \
-	exitcall_t __exitcall_##fn##id \
+	const exitcall_t __exitcall_##fn##id \
 	__attribute__((__used__, __section__(".exitcall_" level ".text"))) = fn
 
 #define pure_initcall(fn)			__define_initcall("0",  fn, 0)

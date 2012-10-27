@@ -7,6 +7,9 @@
 
 FILE * freopen(const char * path, const char * mode, FILE * f)
 {
-	return NULL;
+	/* Not support redirect yet */
+	if(f)
+		fclose(f);
+	return fopen(path, mode);
 }
 EXPORT_SYMBOL(freopen);

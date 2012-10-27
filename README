@@ -44,7 +44,7 @@ TO COMPILE XBOOT
 	using xboot's IDE directly.
 	
 	make clean
-	make TARGET=arm-realview CROSS=/path/to/arm-none-eabi-
+	make TARGET=arm32-realview CROSS=/path/to/arm-none-eabi-
 
 	"TARGET" for your machine which will be compiled;
 	"CROSS"  for your cross compiler;

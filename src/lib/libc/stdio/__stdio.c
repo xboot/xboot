@@ -199,13 +199,13 @@ EXPORT_SYMBOL(__runtime_get_stdin);
 
 FILE * __runtime_get_stdout(void)
 {
-	return (__get_runtime()->__stdin);
+	return (__get_runtime()->__stdout);
 }
 EXPORT_SYMBOL(__runtime_get_stdout);
 
 FILE * __runtime_get_stderr(void)
 {
-	return (__get_runtime()->__stdin);
+	return (__get_runtime()->__stderr);
 }
 EXPORT_SYMBOL(__runtime_get_stderr);
 

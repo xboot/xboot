@@ -15,9 +15,6 @@ CROSS		?= arm-none-eabi-
 ifeq ($(words $(subst -, , $(TARGET))), 2)
 ARCH		:= $(word 1, $(subst -, , $(TARGET)))
 MACH		:= mach-$(word 2, $(subst -, , $(TARGET)))
-else
-ARCH		:= arm32
-MACH		:= mach-realview
 endif
 
 #

@@ -388,6 +388,13 @@
 #endif
 
 /*
+ * luac command
+ */
+#if !defined(CONFIG_COMMAND_LUAC)
+#define	CONFIG_COMMAND_LUAC							(1)
+#endif
+
+/*
  * test command
  */
 #if !defined(CONFIG_COMMAND_TEST)

@@ -134,8 +134,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 INCDIRS		+= 	external/lua-5.2.1
 SRCDIRS		+=	external/lua-5.2.1
 
-INCDIRS		+= 	external/zlib-1.2.6
-SRCDIRS		+=	external/zlib-1.2.6
+INCDIRS		+= 	external/zlib-1.2.7
+SRCDIRS		+=	external/zlib-1.2.7
 
 #
 # You shouldn't need to change anything below this point.

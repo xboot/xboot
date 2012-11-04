@@ -8,9 +8,11 @@
  */
 typedef void (*xfs_enumerate_callback)(void * cbdata, const char * odir, const char * filename);
 
-/*
- * A xfs context
- */
+struct xfs_file_t
+{
+	void * handle;
+};
+
 struct xfs_dir_handle_t
 {
     void * handle;
@@ -33,14 +35,6 @@ struct xfs_file_handle_t
     struct xfs_file_handle_t * next;
 };
 
-/*
- * A xfs file handle.
- */
-struct xfs_file_t
-{
-	void * handle;
-};
-
 struct xfs_context_t {
 	struct xfs_dir_handle_t * search_path;
 	struct xfs_dir_handle_t * write_dir;
@@ -53,10 +47,7 @@ struct xfs_context_t {
 	void * lock;
 };
 
-/*
- * Initial xfs functions
- */
-bool_t xfs_init(struct xfs_context_t * ctx);
-bool_t xfs_exit(struct xfs_context_t * ctx);
+struct xfs_context_t * __xfs_init(const char * argv0);
+void __xfs_exit(struct xfs_context_t * ctx);
 
 #endif /* __XFS_H__ */

@@ -1382,16 +1382,29 @@ char **PHYSFS_enumerateFiles(const char *path)
     return(ecd.list);
 }
 
-bool_t xfs_init(struct xfs_context_t * ctx)
+struct xfs_context_t * __xfs_init(const char * argv0)
 {
-	return TRUE;
+	struct xfs_context_t * ctx;
+
+	ctx = malloc(sizeof(struct xfs_context_t));
+	if(!ctx)
+		return NULL;
+
+	memset(ctx, 0, sizeof(struct xfs_context_t));
+	return ctx;
 }
 
-bool_t xfs_exit(struct xfs_context_t * ctx)
+void __xfs_exit(struct xfs_context_t * ctx)
 {
-	return TRUE;
+	if(!ctx)
+		return;
+
+	free(ctx);
 }
 
+/*
+ * SORT
+ */
 #define PHYSFS_QUICKSORT_THRESHOLD 4
 
 static void __PHYSFS_bubble_sort(void *a, u32_t lo, u32_t hi,

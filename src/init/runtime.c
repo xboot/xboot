@@ -79,7 +79,7 @@ struct runtime_t * runtime_alloc(void)
 	r->__stdout = __file_alloc(1);
 	r->__stderr = __file_alloc(2);
 
-	r->__xfs_ctx = __xfs_platform_init();
+	r->__xfs_ctx = __xfs_init(NULL);
 	r->__module_list = __module_list_init();
 
 	return r;
@@ -101,7 +101,7 @@ void runtime_free(struct runtime_t * r)
 		fclose(r->__stderr);
 
 	if(r->__xfs_ctx)
-		__xfs_platform_exit(r->__xfs_ctx);
+		__xfs_exit(r->__xfs_ctx);
 
 	if(r->__module_list)
 		__module_list_exit(r->__module_list);

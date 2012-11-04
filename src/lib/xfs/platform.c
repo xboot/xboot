@@ -4,47 +4,24 @@
 
 #include <xfs/platform.h>
 
-struct xfs_context_t * __xfs_platform_init(void)
-{
-	struct xfs_context_t * ctx;
-
-	ctx = malloc(sizeof(struct xfs_context_t));
-	if(!ctx)
-		return NULL;
-
-	memset(ctx, 0, sizeof(struct xfs_context_t));
-	xfs_init(ctx);
-
-	return ctx;
-}
-
-void __xfs_platform_exit(struct xfs_context_t * ctx)
-{
-	if(!ctx)
-		return;
-
-	xfs_exit(ctx);
-	free(ctx);
-}
-
-void __xfs_platform_lock(void)
-{
-	void * lock = __get_runtime()->__xfs_ctx->lock;
-	lock = 0;
-}
-
-void __xfs_platform_unlock(void)
-{
-	void * lock = __get_runtime()->__xfs_ctx->lock;
-	lock = 0;
-}
-
-struct xfs_context_t * __xfs_platform_get_context(void)
+inline struct xfs_context_t * __xfs_platform_get_context(void)
 {
 	return (__get_runtime()->__xfs_ctx);
 }
 
-const char * __xfs_platform_directory_separator(void)
+inline void __xfs_platform_lock(void)
+{
+	void * lock = __xfs_platform_get_context()->lock;
+	lock = (void *)lock;
+}
+
+inline void __xfs_platform_unlock(void)
+{
+	void * lock = __xfs_platform_get_context()->lock;
+	lock = (void *)lock;
+}
+
+inline const char * __xfs_platform_directory_separator(void)
 {
 	return ("/");
 }

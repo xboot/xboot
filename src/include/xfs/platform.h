@@ -3,12 +3,10 @@
 
 #include <xfs/xfs.h>
 
-struct xfs_context_t * __xfs_platform_init(void);
-void __xfs_platform_exit(struct xfs_context_t * ctx);
-void __xfs_platform_lock(void);
-void __xfs_platform_unlock(void);
-struct xfs_context_t * __xfs_platform_get_context(void);
-const char * __xfs_platform_directory_separator(void);
+inline struct xfs_context_t * __xfs_platform_get_context(void);
+inline void __xfs_platform_lock(void);
+inline void __xfs_platform_unlock(void);
+inline const char * __xfs_platform_directory_separator(void);
 char * __xfs_platform_cvt_to_dependent(const char * prepend, const char * dirname, const char * append);
 
 void * __xfs_platform_open_read(const char * filename);

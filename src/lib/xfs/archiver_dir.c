@@ -1,5 +1,5 @@
 /*
- * xfs/archiver.c
+ * xfs/archiver_dir.c
  */
 
 #include <xfs/platform.h>

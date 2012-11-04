@@ -1399,6 +1399,15 @@ void __xfs_exit(struct xfs_context_t * ctx)
 	if(!ctx)
 		return;
 
+	close_file_handle_list(&ctx->open_write_list);
+	xfs_set_write_dir(NULL);
+	free_search_path();
+
+	if(ctx->base_dir)
+		free(ctx->base_dir);
+	if(ctx->user_dir)
+		free(ctx->user_dir);
+
 	free(ctx);
 }
 
@@ -1487,7 +1496,61 @@ static void printDir(void *data, const char *origdir, const char *fname)
 
 void tt(void)
 {
-	xfs_add_to_search_path("/romdisk/test.zip", 1);
+	 int rc;
+	struct xfs_file_t * f;
+	 char buf[128];
+
+    if (!xfs_add_to_search_path(".", 1))
+    {
+        fprintf(stderr, "PHYSFS_addToSearchPath(): %s\n", "error");
+        return ;
+    } /* if */
+
+    if (! xfs_set_write_dir("."))
+    {
+        fprintf(stderr, "PHYSFS_setWriteDir(): %s\n", "error");
+        return;
+    } /* if */
+
+    if (!xfs_mkdir("/a/b/c"))
+    {
+        fprintf(stderr, "PHYSFS_mkdir(): %s\n", "error");
+        return;
+    } /* if */
+
+    if (!xfs_mkdir("/a/b/C"))
+    {
+        fprintf(stderr, "PHYSFS_mkdir(): %s\n", "error");
+        return;
+    } /* if */
+
+    f = PHYSFS_openWrite("/a/b/c/x.txt");
+    PHYSFS_close(f);
+    if (f == NULL)
+    {
+        fprintf(stderr, "PHYSFS_openWrite(): %s\n", "error");
+        return ;
+    } /* if */
+
+    f = PHYSFS_openWrite("/a/b/C/X.txt");
+    PHYSFS_close(f);
+    if (f == NULL)
+    {
+        fprintf(stderr, "PHYSFS_openWrite(): %s\n", "error");
+        return ;
+    } /* if */
+
+    printk("Testing completed.\n");
+    printk("  If no errors were reported, you're good to go.\n");
+
+/*    xfs_delete("/a/b/c/x.txt");
+    xfs_delete("/a/b/C/X.txt");
+    xfs_delete("/a/b/c");
+    xfs_delete("/a/b/C");
+    xfs_delete("/a/b");
+    xfs_delete("/a");*/
+
+/*	xfs_add_to_search_path("/romdisk/test.zip", 1);
 	xfs_set_write_dir("/tmp");
 
 	printk("init\r\n");
@@ -1498,19 +1561,7 @@ void tt(void)
     {
         const char *dirorfile = xfs_is_directory(*i) ? "Directory" : "File";
         printk(" * %s '%s' is in root of attached data.\n", dirorfile, *i);
-    } /* for */
-    xfs_free_list(files);
+    }
+    xfs_free_list(files);*/
 
-/*
-
-//	xfs_enumerate_files_callback("/", printDir, NULL);
-
-	xfs_mkdir("/bba/a/b/c/d");
-	xfs_mkdir("/123");
-
-	xfs_enumerate_files_callback("/", printDir, NULL);
-
-	//xfs_delete("/123");
-	//xfs_enumerate_files_callback("/", printDir, NULL);
-*/
 }

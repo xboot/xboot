@@ -2,7 +2,7 @@
  * xfs/platform.c
  */
 
-#include <xfs/xfs.h>
+#include <xfs/platform.h>
 
 struct xfs_context_t * __xfs_platform_init(void)
 {
@@ -27,110 +27,114 @@ void __xfs_platform_exit(struct xfs_context_t * ctx)
 	free(ctx);
 }
 
-inline struct xfs_context_t * __xfs_platform_get_context(void)
+void __xfs_platform_lock(void)
+{
+	void * lock = __get_runtime()->__xfs_ctx->lock;
+	lock = 0;
+}
+
+void __xfs_platform_unlock(void)
+{
+	void * lock = __get_runtime()->__xfs_ctx->lock;
+	lock = 0;
+}
+
+struct xfs_context_t * __xfs_platform_get_context(void)
 {
 	return (__get_runtime()->__xfs_ctx);
 }
 
-inline char __xfs_platform_directory_separator(void)
+const char * __xfs_platform_directory_separator(void)
 {
-	return ('/');
+	return ("/");
 }
 
-inline void __xfs_platform_lock(void)
+char * __xfs_platform_cvt_to_dependent(const char * prepend, const char * dirname, const char * append)
 {
-	void * lock = __get_runtime()->__xfs_ctx->lock;
-	lock = 0;
+	int len = ((prepend) ? strlen(prepend) : 0)	+ ((append) ? strlen(append) : 0) + strlen(dirname) + 1;
+	char * buf = malloc(len);
+
+	if(!buf)
+		return NULL;
+
+	if(prepend)
+		strcpy(buf, prepend);
+	else
+		buf[0] = '\0';
+
+	strcat(buf, dirname);
+
+	if(append)
+		strcat(buf, append);
+
+	return (buf);
 }
 
-inline void __xfs_platform_unlock(void)
-{
-	void * lock = __get_runtime()->__xfs_ctx->lock;
-	lock = 0;
-}
-
-static void * __do_open(const char * path, const char * mode)
+static void * __do_open(const char * filename, const char * mode)
 {
 	FILE * f;
 
-	f = fopen(path, mode);
+	f = fopen(filename, mode);
 	if(!f)
 		return NULL;
 
 	return ((void *)f);
 }
 
-void * __xfs_platform_open_read(const char * path)
+void * __xfs_platform_open_read(const char * filename)
 {
-	return __do_open(path, "r");
+	return __do_open(filename, "r");
 }
 
-void * __xfs_platform_open_write(const char * path)
+void * __xfs_platform_open_write(const char * filename)
 {
-	return __do_open(path, "w");
+	return __do_open(filename, "w");
 }
 
-void * __xfs_platform_open_append(const char * path)
+void * __xfs_platform_open_append(const char * filename)
 {
-	return __do_open(path, "a");
+	return __do_open(filename, "a");
 }
 
-u64_t __xfs_platform_read(void * handle, void * buf, u64_t len)
+s64_t __xfs_platform_read(void * handle, void * buf, u32_t size, u32_t count)
 {
 	FILE * f = handle;
-	u8_t * p = buf;
-	size_t sz;
-	u64_t ret = 0;
+	s64_t ret = 0;
 
-	while(len > 0)
-	{
-		sz = (len > SZ_2G) ? SZ_2G : (size_t)len;
-
-		if(fread(p, sz, 1, f) != 1)
-			break;
-
-		len -= sz;
-		ret += sz;
-		p += sz;
-	}
-
+	ret = fread(buf, size, count, f);
 	return ret;
 }
 
-u64_t __xfs_platform_write(void * handle, const void * buf, u64_t len)
+s64_t __xfs_platform_write(void * handle, const void * buf, u32_t size, u32_t count)
 {
 	FILE * f = handle;
-	const u8_t * p = buf;
-	size_t sz;
-	u64_t ret = 0;
+	s64_t ret = 0;
 
-	while(len > 0)
-	{
-		sz = (len > SZ_2G) ? SZ_2G : (size_t)len;
-
-		if(fwrite(p, sz, 1, f) != 1)
-			break;
-
-		len -= sz;
-		ret += sz;
-		p += sz;
-	}
-
+	ret = fwrite(buf, size, count, f);
 	return ret;
 }
 
-u64_t __xfs_platform_tell(void * handle)
+s64_t __xfs_platform_get_last_modtime(const char * filename)
+{
+	struct stat _st;
+
+	if(stat(filename, &_st) != 0)
+		return -1;
+	return (s64_t)(_st.st_mtime);
+}
+
+s64_t __xfs_platform_tell(void * handle)
 {
 	FILE * f = handle;
 
-	return ((u64_t)ftell(f));
+	return ((s64_t)ftell(f));
 }
 
-u64_t __xfs_platform_length(void * handle)
+s64_t __xfs_platform_length(void * handle)
 {
 	FILE * f = handle;
 	fpos_t pos = ftell(f);
-	u64_t len = 0;
+	s64_t len = 0;
 
 	if(fseek(f, 0, SEEK_END) == 0)
 	{
@@ -151,13 +155,21 @@ bool_t __xfs_platform_seek(void * handle, u64_t pos)
 	return FALSE;
 }
 
+bool_t __xfs_platform_eof(void * handle)
+{
+	FILE * f = handle;
+
+	if(feof(f) != 0)
+		return TRUE;
+	return FALSE;
+}
+
 bool_t __xfs_platform_flush(void * handle)
 {
 	FILE * f = handle;
 
 	if(fflush(f) == 0)
 		return TRUE;
-
 	return FALSE;
 }
 
@@ -167,6 +179,39 @@ bool_t __xfs_platform_close(void * handle)
 
 	fclose(f);
 	return TRUE;
+}
+
+bool_t __xfs_platform_exists(const char * filename)
+{
+    struct stat _st;
+
+	if(stat(filename, &_st) != 0)
+		return FALSE;
+	return TRUE;
+}
+
+bool_t __xfs_platform_is_link(const char * filename)
+{
+	struct stat _st;
+
+	if(stat(filename, &_st) != 0)
+		return FALSE;
+
+    if(S_ISLNK(_st.st_mode))
+    	return TRUE;
+    return FALSE;
+}
+
+bool_t __xfs_platform_is_directory(const char * filename)
+{
+	struct stat _st;
+
+	if(stat(filename, &_st) != 0)
+		return FALSE;
+
+    if(S_ISDIR(_st.st_mode))
+    	return TRUE;
+    return FALSE;
 }
 
 bool_t __xfs_platform_mkdir(const char * path)
@@ -192,36 +237,6 @@ bool_t __xfs_platform_delete(const char * path)
     if(ret == 0)
     	return TRUE;
     return FALSE;
-}
-
-bool_t __xfs_platform_stat(const char * path, struct xfs_stat_t * st)
-{
-	struct stat _st;
-
-	if(stat(path, &_st) != 0)
-		return FALSE;
-
-	if(S_ISREG(_st.st_mode))
-	{
-		st->size = _st.st_size;
-		st->type = XFS_FILETYPE_REGULAR;
-	}
-	else if(S_ISDIR(_st.st_mode))
-	{
-		st->size = 0;
-		st->type = XFS_FILETYPE_DIRECTORY;
-	}
-	else
-	{
-		st->size = _st.st_size;
-		st->type = XFS_FILETYPE_OTHER;
-	}
-
-    st->ctime = _st.st_ctime;
-    st->atime = _st.st_atime;
-    st->mtime = _st.st_mtime;
-
-    return TRUE;
 }
 
 void __xfs_platform_enumerate(const char * path, xfs_enumerate_callback cb, const char * odir, void * cbdata)

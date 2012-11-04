@@ -2,114 +2,199 @@
  * xfs/archiver.c
  */
 
-#include <xfs/xfs.h>
+#include <xfs/platform.h>
+#include <xfs/archiver.h>
 
-static char * cvt_to_dependent(void * handle, const char * name)
+static s64_t direct_read(void * handle, void * buf, u32_t size, u32_t count)
 {
-	const char sep = __xfs_platform_directory_separator();
-	char * buf, * p;
+	s64_t ret;
 
-	if(!name)
-		return NULL;
-
-	buf = malloc(((handle) ? strlen((char *)handle) : 0) + strlen(name) + 1);
-	if(!buf)
-		return NULL;
-
-	sprintf(buf, "%s%s", handle ? (char *)handle : "", name);
-	if(sep != '/')
-	{
-		for (p = strchr(buf, '/'); p != NULL; p = strchr(p + 1, '/'))
-			*p = sep;
-	}
-
-    return buf;
+	ret = __xfs_platform_read(handle, buf, size, count);
+	return ret;
 }
 
-static void * direct_open_archive(struct xfs_io_t * io, const char * name, int forWrite)
+static s64_t direct_write(void *handle, const void * buf, u32_t size, u32_t count)
 {
-	struct xfs_stat_t st;
-	const char sep = __xfs_platform_directory_separator();
-	const size_t len = strlen(name);
+	s64_t ret;
+
+	ret = __xfs_platform_write(handle, buf, size, count);
+	return ret;
+}
+
+static bool_t direct_eof(void * handle)
+{
+	return (__xfs_platform_eof(handle));
+}
+
+static s64_t direct_tell(void * handle)
+{
+	return (__xfs_platform_tell(handle));
+}
+
+static bool_t direct_seek(void * handle, u64_t pos)
+{
+	return (__xfs_platform_seek(handle, pos));
+}
+
+static s64_t direct_length(void * handle)
+{
+	return (__xfs_platform_length(handle));
+}
+
+static bool_t direct_file_close(void * handle)
+{
+	if(!__xfs_platform_flush(handle))
+		return FALSE;
+
+	if(!__xfs_platform_close(handle))
+		return FALSE;
+
+	return TRUE;
+}
+
+static bool_t direct_is_archive(const char * name, int forWriting)
+{
+	return (__xfs_platform_is_directory(name));
+}
+
+static void * direct_open_archive(const char * name, int forWriting)
+{
+	const char * dirsep = __xfs_platform_directory_separator();
 	char * ret = NULL;
+	size_t namelen = strlen(name);
+	size_t seplen = strlen(dirsep);
 
-	if(!__xfs_platform_stat(name, &st))
+	if(!direct_is_archive(name, forWriting))
 		return NULL;
 
-	if(st.type != XFS_FILETYPE_DIRECTORY)
-		return NULL;
-
-	ret = malloc(len + sizeof(sep) + 1);
+	ret = malloc(namelen + seplen + 1);
 	if(!ret)
 		return NULL;
 
 	strcpy(ret, name);
+	if (strcmp((name + namelen) - seplen, dirsep) != 0)
+		strcat(ret, dirsep);
 
-	if (ret[len - 1] != sep)
+	return (ret);
+}
+
+static void direct_enumerate(void * handle, const char * dname, xfs_enumerate_callback cb, const char * odir, void * cbdata)
+{
+	char * d = __xfs_platform_cvt_to_dependent((char *)handle, dname, NULL);
+
+	if(d != NULL )
 	{
-		ret[len] = sep;
-		ret[len + 1] = '\0';
+		__xfs_platform_enumerate(d, cb, odir, cbdata);
+		free(d);
 	}
-
-	return ret;
 }
 
-static struct xfs_io_t * direct_open(void * handle, const char * name, const char mode)
+static bool_t direct_exists(void * handle, const char * name)
 {
-	struct xfs_stat_t st;
-	struct xfs_io_t * io;
-	char * f;
-
-    f = cvt_to_dependent(handle, name);
-    if(!f)
-    	return 0;
-
-	io = __xfs_create_nativeio(f, mode);
-	if (io == NULL)
-	{
-		__xfs_platform_stat(f, &st);
-	}
-
-	free(f);
-	return io;
-}
-
-static struct xfs_io_t * direct_open_read(void * handle, const char * name)
-{
-	return direct_open(handle, name, 'r');
-}
-
-static struct xfs_io_t * direct_open_write(void * handle, const char * name)
-{
-	return direct_open(handle, name, 'w');
-}
-
-static struct xfs_io_t * direct_open_append(void * handle, const char * name)
-{
-	return direct_open(handle, name, 'a');
-}
-
-static bool_t direct_mkdir(void * handle, const char * name)
-{
+	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
 	bool_t ret;
-	char * f;
 
-	f = cvt_to_dependent(handle, name);
 	if(!f)
 		return FALSE;
 
-	ret = __xfs_platform_mkdir(f);
+	ret = __xfs_platform_exists(f);
 	free(f);
 
 	return ret;
+}
+
+static bool_t direct_is_directory(void * handle, const char * name, int * fileExists)
+{
+	char * d = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
+	bool_t ret = FALSE;
+
+	if(!d)
+		return FALSE;
+
+	*fileExists = __xfs_platform_exists(d);
+	if (*fileExists)
+		ret = __xfs_platform_is_directory(d);
+	free(d);
+
+	return ret;
+}
+
+static bool_t direct_is_symlink(void * handle, const char * name, int * fileExists)
+{
+	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
+	bool_t ret = FALSE;
+
+	if(!f)
+		return FALSE;
+
+	*fileExists = __xfs_platform_exists(f);
+	if (*fileExists)
+		ret = __xfs_platform_is_link(f);
+	free(f);
+
+	return ret;
+}
+
+static s64_t direct_get_last_modtime(void * handle, const char * name, int * fileExists)
+{
+	char * d = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
+	s64_t ret = -1;
+
+	if(!d)
+		return ret;
+
+	*fileExists = __xfs_platform_exists(d);
+	if (*fileExists)
+		ret = __xfs_platform_get_last_modtime(d);
+	free(d);
+
+	return ret;
+}
+
+static void * direct_open(void * handle, const char * name, void *(*func)(const char * name), int * fileExists)
+{
+	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
+	void * rc = NULL;
+
+	if(!f)
+		return NULL;
+
+	if (fileExists != NULL )
+	{
+		*fileExists = __xfs_platform_exists(f);
+		if (!(*fileExists))
+		{
+			free(f);
+			return (NULL );
+		}
+	}
+
+	rc = func(f);
+	free(f);
+
+	return ((void *) rc);
+}
+
+static void * direct_open_read(void * handle, const char * name, int * fileExists)
+{
+	return (direct_open(handle, name, __xfs_platform_open_read, fileExists));
+}
+
+static void * direct_open_write(void * handle, const char * name)
+{
+	return (direct_open(handle, name, __xfs_platform_open_write, NULL));
+}
+
+static void * direct_open_append(void * handle, const char * name)
+{
+	return (direct_open(handle, name, __xfs_platform_open_append, NULL));
 }
 
 static bool_t direct_remove(void * handle, const char * name)
 {
+	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
 	bool_t ret;
-	char * f;
 
-	f = cvt_to_dependent(handle, name);
 	if(!f)
 		return FALSE;
 
@@ -119,34 +204,21 @@ static bool_t direct_remove(void * handle, const char * name)
 	return ret;
 }
 
-static bool_t direct_stat(void * handle, const char * name, struct xfs_stat_t * stat)
+static bool_t direct_mkdir(void * handle, const char * name)
 {
+	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
 	bool_t ret;
-	char * f;
 
-	f = cvt_to_dependent(handle, name);
 	if(!f)
 		return FALSE;
 
-	ret = __xfs_platform_stat(f, stat);
+	ret = __xfs_platform_mkdir(f);
 	free(f);
 
 	return ret;
 }
 
-static void direct_enumerate(void * handle, const char * dname, xfs_enumerate_callback cb, const char * odir, void * cbdata)
-{
-	char * f;
-
-	f = cvt_to_dependent(handle, dname);
-	if(f != NULL)
-	{
-		__xfs_platform_enumerate(f, cb, odir, cbdata);
-		free(f);
-	}
-}
-
-static void direct_close_archive(void * handle)
+static void direct_dir_close(void * handle)
 {
 	free(handle);
 }
@@ -155,17 +227,24 @@ struct xfs_archiver_t __xfs_archiver_direct = {
 	.extension			= "",
 	.description		= "Non-archive, direct I/O",
 
+	.is_archive			= direct_is_archive,
 	.open_archive		= direct_open_archive,
+	.enumerate			= direct_enumerate,
+	.exists				= direct_exists,
+	.is_directory		= direct_is_directory,
+	.is_symlink			= direct_is_symlink,
+	.get_last_modtime	= direct_get_last_modtime,
 	.open_read			= direct_open_read,
 	.open_write			= direct_open_write,
 	.open_append		= direct_open_append,
 	.remove				= direct_remove,
 	.mkdir				= direct_mkdir,
-	.stat				= direct_stat,
-	.enumerate			= direct_enumerate,
-	.close_archive		= direct_close_archive,
-};
-
-struct xfs_archiver_t ** __xfs_archiver_supported = {
-	NULL,
+	.dir_close			= direct_dir_close,
+	.read				= direct_read,
+	.write				= direct_write,
+	.eof				= direct_eof,
+	.tell				= direct_tell,
+	.seek				= direct_seek,
+	.length				= direct_length,
+	.file_close			= direct_file_close,
 };

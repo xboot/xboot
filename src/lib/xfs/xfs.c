@@ -4,6 +4,17 @@
 
 #include <xfs/xfs.h>
 
+bool_t xfs_init(struct xfs_context_t * ctx)
+{
+	return TRUE;
+}
+
+bool_t xfs_exit(struct xfs_context_t * ctx)
+{
+	return TRUE;
+}
+
+#if 0
 static char * get_file_extension(const char * name)
 {
 	char * ret = NULL;
@@ -758,23 +769,6 @@ int xfs_delete(const char *_fname)
     return retval;
 }
 
-bool_t xfs_init(struct xfs_context_t * ctx)
-{
-	return TRUE;
-}
-
-bool_t xfs_exit(struct xfs_context_t * ctx)
-{
-	return TRUE;
-}
-
-
-
-
-
-
-
-
 //xxx
 //-----------------------------------------------------------------------------
 //xxx for test
@@ -799,3 +793,5 @@ void tt(void)
 	//xfs_delete("/123");
 	//xfs_enumerate_files_callback("/", printDir, NULL);
 }
+#endif
+

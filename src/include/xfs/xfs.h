@@ -16,20 +16,29 @@ struct xfs_dir_handle_t
     void * handle;
     char * dname;
     char * mpoint;
-    struct xfs_archiver_t * archiver;
+	const struct xfs_archiver_t * archiver;
     struct xfs_dir_handle_t * next;
 };
 
 struct xfs_file_handle_t
 {
+	void * handle;
     u8_t forReading;
+    struct xfs_dir_handle_t * dhandle;
+    struct xfs_archiver_t * archiver;
     u8_t * buffer;
     u32_t bufsize;
     u32_t buffill;
     u32_t bufpos;
-    struct xfs_io_t * io;
-    struct xfs_dir_handle_t * dhandle;
     struct xfs_file_handle_t * next;
+};
+
+/*
+ * A xfs file handle.
+ */
+struct xfs_file_t
+{
+	void * handle;
 };
 
 struct xfs_context_t {
@@ -49,17 +58,5 @@ struct xfs_context_t {
  */
 bool_t xfs_init(struct xfs_context_t * ctx);
 bool_t xfs_exit(struct xfs_context_t * ctx);
-
-#if 0
-
-/*
- * A xfs file handle.
- */
-struct xfs_file_t
-{
-	void * handle;
-};
-
-#endif
 
 #endif /* __XFS_H__ */

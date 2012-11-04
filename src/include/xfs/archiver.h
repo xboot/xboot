@@ -33,6 +33,6 @@ struct xfs_archiver_t
     bool_t (*file_close)(void * handle);
 };
 
-extern struct xfs_archiver_t __xfs_archiver_direct;
+extern const struct xfs_archiver_t __xfs_archiver_direct;
 
 #endif /* __XFS_ARCHIVER_H__ */

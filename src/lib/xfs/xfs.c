@@ -8,6 +8,7 @@
 
 static const struct xfs_archiver_t * const __xfs_archivers[] = {
 	&__xfs_archiver_direct,
+	&__xfs_archiver_zip,
 	NULL,
 };
 
@@ -1391,6 +1392,78 @@ bool_t xfs_exit(struct xfs_context_t * ctx)
 	return TRUE;
 }
 
+#define PHYSFS_QUICKSORT_THRESHOLD 4
+
+static void __PHYSFS_bubble_sort(void *a, u32_t lo, u32_t hi,
+                         int (*cmpfn)(void *, u32_t, u32_t),
+                         void (*swapfn)(void *, u32_t, u32_t))
+{
+    u32_t i;
+    int sorted;
+
+    do
+    {
+        sorted = 1;
+        for (i = lo; i < hi; i++)
+        {
+            if (cmpfn(a, i, i + 1) > 0)
+            {
+                swapfn(a, i, i + 1);
+                sorted = 0;
+            } /* if */
+        } /* for */
+    } while (!sorted);
+} /* __PHYSFS_bubble_sort */
+
+static void __PHYSFS_quick_sort(void *a, u32_t lo, u32_t hi,
+                         int (*cmpfn)(void *, u32_t, u32_t),
+                         void (*swapfn)(void *, u32_t, u32_t))
+{
+    u32_t i;
+    u32_t j;
+    u32_t v;
+
+    if ((hi - lo) <= PHYSFS_QUICKSORT_THRESHOLD)
+        __PHYSFS_bubble_sort(a, lo, hi, cmpfn, swapfn);
+    else
+    {
+        i = (hi + lo) / 2;
+
+        if (cmpfn(a, lo, i) > 0) swapfn(a, lo, i);
+        if (cmpfn(a, lo, hi) > 0) swapfn(a, lo, hi);
+        if (cmpfn(a, i, hi) > 0) swapfn(a, i, hi);
+
+        j = hi - 1;
+        swapfn(a, i, j);
+        i = lo;
+        v = j;
+        while (1)
+        {
+            while(cmpfn(a, ++i, v) < 0) { /* do nothing */ }
+            while(cmpfn(a, --j, v) > 0) { /* do nothing */ }
+            if (j < i)
+                break;
+            swapfn(a, i, j);
+        } /* while */
+        if (i != (hi-1))
+            swapfn(a, i, hi-1);
+        __PHYSFS_quick_sort(a, lo, j, cmpfn, swapfn);
+        __PHYSFS_quick_sort(a, i+1, hi, cmpfn, swapfn);
+    } /* else */
+} /* __PHYSFS_quick_sort */
+
+void __PHYSFS_sort(void *entries, u32_t max,
+                   int (*cmpfn)(void *, u32_t, u32_t),
+                   void (*swapfn)(void *, u32_t, u32_t))
+{
+    /*
+     * Quicksort w/ Bubblesort fallback algorithm inspired by code from here:
+     *   http://www.cs.ubc.ca/spider/harrison/Java/sorting-demo.html
+     */
+    if (max > 0)
+        __PHYSFS_quick_sort(entries, 0, max - 1, cmpfn, swapfn);
+} /* __PHYSFS_sort */
+
 
 //-----------------------------------------------------------------------------
 //xxx for test
@@ -1401,7 +1474,7 @@ static void printDir(void *data, const char *origdir, const char *fname)
 
 void tt(void)
 {
-	xfs_add_to_search_path("/romdisk", 1);
+	xfs_add_to_search_path("/romdisk/test.zip", 1);
 	xfs_set_write_dir("/tmp");
 
 	printk("init\r\n");

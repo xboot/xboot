@@ -1,28 +1,28 @@
-#ifndef __ARM_ENDIAN_H__
-#define __ARM_ENDIAN_H__
+#ifndef __ARM32_ENDIAN_H__
+#define __ARM32_ENDIAN_H__
 
-#define __LITTLE_ENDIAN
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if ( !defined(__LITTLE_ENDIAN) && !defined(__BIG_ENDIAN) )
+# define __LITTLE_ENDIAN
+#endif
 
 #if defined(__LITTLE_ENDIAN)
-# undef  __LITTLE_ENDIAN
-# define __LITTLE_ENDIAN	1234
-# define __BIG_ENDIAN		4321
-# define __PDP_ENDIAN		3412
-# define __BYTE_ORDER		__LITTLE_ENDIAN
+# define LITTLE_ENDIAN	1234
+# define BIG_ENDIAN		4321
+# define BYTE_ORDER		LITTLE_ENDIAN
 #elif defined(__BIG_ENDIAN)
-# undef  __BIG_ENDIAN
-# define __LITTLE_ENDIAN	1234
-# define __BIG_ENDIAN		4321
-# define __PDP_ENDIAN		3412
-# define __BYTE_ORDER		__BIG_ENDIAN
-#elif defined(__PDP_ENDIAN)
-# undef  __PDP_ENDIAN
-# define __LITTLE_ENDIAN	1234
-# define __BIG_ENDIAN		4321
-# define __PDP_ENDIAN		3412
-# define __BYTE_ORDER		__PDP_ENDIAN
+# define LITTLE_ENDIAN	1234
+# define BIG_ENDIAN		4321
+# define BYTE_ORDER		BIG_ENDIAN
 #else
 # error "Unknown byte order!"
 #endif
 
-#endif /* __ARM_ENDIAN_H__ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __ARM32_ENDIAN_H__ */

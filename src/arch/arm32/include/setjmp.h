@@ -1,5 +1,9 @@
-#ifndef __ARM_SETJMP_H__
-#define __ARM_SETJMP_H__
+#ifndef __ARM32_SETJMP_H__
+#define __ARM32_SETJMP_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct __jmp_buf {
 	unsigned int regs[10];
@@ -7,8 +11,11 @@ struct __jmp_buf {
 
 typedef struct __jmp_buf jmp_buf[1];
 
-
 int setjmp(jmp_buf);
 void longjmp(jmp_buf, int);
 
-#endif /* __ARM_SETJMP_H__ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __ARM32_SETJMP_H__ */

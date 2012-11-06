@@ -3,7 +3,7 @@
 
 #include <xboot.h>
 
-#if (__BYTE_ORDER == __BIG_ENDIAN)
+#if (BYTE_ORDER == BIG_ENDIAN)
 #define S3C2410_RTCCON	  		(0x57000043)
 #define S3C2410_TICNT	  		(0x57000047)
 #define S3C2410_RTCALM	  		(0x57000053)

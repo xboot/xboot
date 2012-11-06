@@ -4,7 +4,7 @@
 #include <types.h>
 #include <endian.h>
 
-#if (__BYTE_ORDER == __BIG_ENDIAN)
+#if (BYTE_ORDER == BIG_ENDIAN)
 typedef union {
 	double value;
 	struct {

@@ -1,6 +1,9 @@
-#ifndef __ARM_LIMITS_H__
-#define __ARM_LIMITS_H__
+#ifndef __ARM32_LIMITS_H__
+#define __ARM32_LIMITS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Minimum and maximum values a 'signed char' can hold */
 #define SCHAR_MIN		(-128)
@@ -53,5 +56,8 @@
 /* Maximum value an 'max uint' can hold (Minimum is 0) */
 #define UINTMAX_MAX		ULLONG_MAX
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* __ARM_LIMITS_H__ */
+#endif /* __ARM32_LIMITS_H__ */

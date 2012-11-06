@@ -44,7 +44,7 @@ static inline u32_t __swahb32(u32_t x)
 	return ( ((x & (u32_t)0x00ff00ffUL)<<8) | ((x & (u32_t)0xff00ff00UL)>>8) );
 }
 
-#if (__BYTE_ORDER == __BIG_ENDIAN)
+#if (BYTE_ORDER == BIG_ENDIAN)
 #define cpu_to_le64(x)	(__swab64((u64_t)(x)))
 #define le64_to_cpu(x)	(__swab64((u64_t)(x)))
 #define cpu_to_le32(x)	(__swab32((u32_t)(x)))

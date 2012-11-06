@@ -70,7 +70,7 @@ inline u32_t surface_sw_get_pixel(struct surface_t * surface, s32_t x, s32_t y)
 
 	case 3:
 		p = surface->pixels + y * surface->pitch + x * 3;
-#if (__BYTE_ORDER == __BIG_ENDIAN)
+#if (BYTE_ORDER == BIG_ENDIAN)
 		c = p[2] | (p[1] << 8) | (p[0] << 16);
 #else
 		c = p[0] | (p[1] << 8) | (p[2] << 16);
@@ -107,7 +107,7 @@ inline void surface_sw_set_pixel(struct surface_t * surface, s32_t x, s32_t y, u
 
 	case 3:
 		p = surface->pixels + y * surface->pitch + x * 3;
-#if (__BYTE_ORDER == __BIG_ENDIAN)
+#if (BYTE_ORDER == BIG_ENDIAN)
 		p[0] = (c >> 16) & 0xff;
 		p[1] = (c >> 8) & 0xff;
 		p[2] = c & 0xff;

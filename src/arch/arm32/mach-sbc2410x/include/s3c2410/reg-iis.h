@@ -8,7 +8,7 @@
 #define S3C2410_IISPSR	  		(0x55000008)
 #define S3C2410_IISFCON	  		(0x5500000c)
 
-#if (__BYTE_ORDER == __BIG_ENDIAN)
+#if (BYTE_ORDER == BIG_ENDIAN)
 #define S3C2410_IISFIFO	  		(0x55000012)
 #else
 #define S3C2410_IISFIFO	  		(0x55000010)

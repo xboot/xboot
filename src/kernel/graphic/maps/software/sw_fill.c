@@ -106,7 +106,7 @@ static void software_fill_replace_3byte(struct surface_t * surface,
 
 	for (i = 0; i < w; i++)
 	{
-#if (__BYTE_ORDER == __BIG_ENDIAN)
+#if (BYTE_ORDER == BIG_ENDIAN)
 		*t++ = fill2;
 		*t++ = fill1;
 		*t++ = fill0;

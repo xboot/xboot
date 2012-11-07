@@ -156,11 +156,11 @@ static inline irq_flags_t arch_local_save_flags(void)
 }
 #endif
 
-#define raw_local_irq_enable()			arch_local_irq_enable()
-#define raw_local_irq_disable()			arch_local_irq_disable()
-#define raw_local_irq_save()			arch_local_irq_save()
-#define raw_local_irq_restore(flags)	arch_local_irq_restore(flags)
-#define raw_local_save_flags()			arch_local_save_flags()
+#define local_irq_enable()			do { arch_local_irq_enable(); } while(0)
+#define local_irq_disable()			do { arch_local_irq_disable(); } while(0)
+#define local_irq_save(flags)		do { flags = arch_local_irq_save(); } while(0)
+#define local_irq_restore(flags)	do { arch_local_irq_restore(flags); } while(0)
+#define local_save_flags(flags)		do { flags = arch_local_save_flags(); } while(0)
 
 #ifdef __cplusplus
 }

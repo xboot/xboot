@@ -2,6 +2,8 @@
 # machine makefile.
 #
 
+NAMESPACES	+= -D__ARM_ARCH__=5 -D__ARM926T__
+
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 CXXFLAGS	:= -g -ggdb -Wall -O3

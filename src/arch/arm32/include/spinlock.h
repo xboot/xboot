@@ -9,6 +9,7 @@ extern "C" {
 #include <barrier.h>
 #include <irqflags.h>
 
+#if __ARM_ARCH__ >= 6
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
 	unsigned long tmp;
@@ -59,8 +60,26 @@ static inline void arch_spin_unlock(spinlock_t * lock)
 	: "r" (&lock->lock), "r" (0)
 	: "cc");
 }
+#else
+static inline int arch_spin_trylock(spinlock_t * lock)
+{
+	return (lock->lock == 0) ? 1 : 0;
+}
 
-#define spin_trylock(lock)					do { arch_spin_trylock(lock); } while(0)
+static inline void arch_spin_lock(spinlock_t * lock)
+{
+	while(lock->lock != 0);
+	lock->lock = 1;
+}
+
+static inline void arch_spin_unlock(spinlock_t * lock)
+{
+	lock->lock = 0;
+}
+#endif
+
+#define spin_lock_init(plock)				do { (plock)->lock = 0; } while(0)
+#define spin_trylock(lock)					(arch_spin_trylock(lock))
 #define spin_lock(lock)						do { arch_spin_lock(lock); } while(0)
 #define spin_unlock(lock)					do { arch_spin_unlock(lock); } while(0)
 #define spin_lock_irq(lock)					do { local_irq_disable(); arch_spin_lock(lock); } while(0)

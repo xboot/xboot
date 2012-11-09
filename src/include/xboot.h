@@ -25,7 +25,6 @@
 #include <malloc.h>
 #include <charset.h>
 #include <readline.h>
-#include <runtime.h>
 #include <version.h>
 #include <xboot/log.h>
 #include <xboot/list.h>

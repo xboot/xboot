@@ -10,6 +10,7 @@
 #define	XBOOT_MAJOY					(1)
 #define	XBOOT_MINIOR				(5)
 #define	XBOOT_PATCH					(0)
+#define	XBOOT_VERSION				("1.5.0")
 
 void xboot_banner(struct console * console);
 void xboot_char_logo(struct console * console, u32_t x0, u32_t y0);

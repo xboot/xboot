@@ -35,4 +35,6 @@ void __set_runtime(struct runtime_t * r);
 struct runtime_t * runtime_alloc(void);
 void runtime_free(struct runtime_t * r);
 
+int run_application(const char * path, int argc, char * argv[]);
+
 #endif /* __RUNTIME_H__ */

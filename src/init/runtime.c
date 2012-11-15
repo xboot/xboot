@@ -82,6 +82,8 @@ struct runtime_t * runtime_alloc(void)
 	r->__xfs_ctx = __xfs_init(NULL);
 	r->__module_list = __module_list_init();
 
+	r->__vm = luaL_newstate();
+
 	return r;
 }
 EXPORT_SYMBOL(runtime_alloc);
@@ -106,7 +108,100 @@ void runtime_free(struct runtime_t * r)
 	if(r->__module_list)
 		__module_list_exit(r->__module_list);
 
+	if(r->__vm)
+		lua_close(r->__vm);
+
 	if(r)
 		free(r);
 }
 EXPORT_SYMBOL(runtime_free);
+
+int run_application(const char * path, int argc, char * argv[])
+{
+	struct runtime_t * sr, * r;
+	int ret = -1;
+	int i;
+
+	/* Save the current runtime */
+	sr = __get_runtime();
+
+	/* Alloc a new runtime */
+	r = runtime_alloc();
+	if(!r)
+		return ret;
+
+	/* Set the current runtime */
+	__set_runtime(r);
+
+	/* Open lua libs */
+	luaL_openlibs(r->__vm);
+
+	/* Pre load ... */
+	lua_getglobal(r->__vm, "xboot");
+
+	if(!lua_istable(r->__vm, -1))
+	{
+		lua_pop(r->__vm, 1);
+		lua_newtable(r->__vm);
+		lua_pushvalue(r->__vm, -1);
+		lua_setglobal(r->__vm, "xboot");
+	}
+
+	lua_pushstring(r->__vm, XBOOT_VERSION);
+	lua_setfield(r->__vm, -2, "version");
+
+	lua_pushnumber(r->__vm, XBOOT_MAJOY);
+	lua_setfield(r->__vm, -2, "majoy");
+
+	lua_pushnumber(r->__vm, XBOOT_MINIOR);
+	lua_setfield(r->__vm, -2, "minior");
+
+	lua_pushnumber(r->__vm, XBOOT_PATCH);
+	lua_setfield(r->__vm, -2, "patch");
+
+	lua_pushstring(r->__vm, __ARCH__);
+	lua_setfield(r->__vm, -2, "arch");
+
+	lua_pushstring(r->__vm, __MACH__);
+	lua_setfield(r->__vm, -2, "mach");
+
+	/* Add command line arguments to global args */
+	{
+		lua_newtable(r->__vm);
+
+		if(argc > 0)
+		{
+			lua_pushstring(r->__vm, argv[0]);
+			lua_rawseti(r->__vm, -2, -2);
+		}
+
+		lua_pushstring(r->__vm, "boot.lua");
+		lua_rawseti(r->__vm, -2, -1);
+
+		for(i = 1; i < argc; i++)
+		{
+			lua_pushstring(r->__vm, argv[i]);
+			lua_rawseti(r->__vm, -2, i);
+		}
+
+		lua_setfield(r->__vm, -2, "args");
+		//lua_setglobal(r->__vm, "args");
+	}
+	lua_pop(r->__vm, 1);
+
+	/* Run ...*/
+	if(luaL_dofile(r->__vm, "/romdisk/boot.lua") == LUA_OK)
+	{
+		lua_pcall(r->__vm, 0, 1, 0);
+		if(lua_isnumber(r->__vm, 1))
+			ret = (int)lua_tonumber(r->__vm, 1);
+	}
+
+	/* Free new runtime */
+	runtime_free(r);
+
+	/* Restore the saved runtime */
+	__set_runtime(sr);
+
+	return ret;
+}

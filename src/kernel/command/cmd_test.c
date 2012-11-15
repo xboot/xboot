@@ -47,27 +47,7 @@
 
 static int test(int argc, char ** argv)
 {
-	extern void test_elf(char * path);
-	if(argc >= 2)
-	{
-		test_elf(argv[1]);
-	}
-	else
-	{
-		void (*p)(void);
-
-		p = __symbol_get("module_main");
-		if(p)
-		{
-			p();
-		}
-		else
-		{
-			printk("not found module_main\r\n");
-		}
-	}
-
-	return 0;
+	return run_application("/romdisk/test.lua", argc, argv);
 }
 
 static struct command test_cmd = {

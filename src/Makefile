@@ -126,7 +126,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				drivers/mmc						\
 				drivers/mtd						\
 				drivers/mtd/nand				\
-				drivers/mtd/nor
+				drivers/mtd/nor					\
+				framework
 
 #
 # Add external library

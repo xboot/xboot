@@ -2,6 +2,7 @@
 #define __RUNTIME_H__
 
 #include <xboot.h>
+#include <framework/framework.h>
 
 struct runtime_t {
 	/* memory pool */
@@ -24,6 +25,9 @@ struct runtime_t {
 
 	/* module list */
 	struct module_list * __module_list;
+
+	/* lua virtual machine */
+	lua_State * __vm;
 };
 
 struct runtime_t * __get_runtime(void);

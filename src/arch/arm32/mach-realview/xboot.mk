@@ -1,5 +1,5 @@
 #
-# machine makefile.
+# Machine makefile
 #
 
 NAMESPACES	+= -D__ARM_ARCH__=5 -D__ARM926T__

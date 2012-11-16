@@ -1,9 +1,9 @@
 /*
- * xfs/archiver_dir.c
+ * framework/xfs/archiver_dir.c
  */
 
-#include <xfs/platform.h>
-#include <xfs/archiver.h>
+#include <framework/xfs/platform.h>
+#include <framework/xfs/archiver.h>
 
 static s64_t direct_read(void * handle, void * buf, u32_t size, u32_t count)
 {

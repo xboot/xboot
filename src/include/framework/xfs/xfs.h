@@ -1,5 +1,9 @@
-#ifndef __XFS_H__
-#define __XFS_H__
+#ifndef __FRAMEWORK_XFS_H__
+#define __FRAMEWORK_XFS_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <xboot.h>
 
@@ -50,4 +54,8 @@ struct xfs_context_t {
 struct xfs_context_t * __xfs_init(const char * argv0);
 void __xfs_exit(struct xfs_context_t * ctx);
 
-#endif /* __XFS_H__ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __FRAMEWORK_XFS_H__ */

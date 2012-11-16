@@ -45,7 +45,6 @@ extern "C" {
 #include <time/timer.h>
 #include <time/delay.h>
 #include <fs/fileio.h>
-#include <xfs/xfs.h>
 
 #if !defined(__ARCH__)
 #define __ARCH__									("")

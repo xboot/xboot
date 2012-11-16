@@ -1,7 +1,11 @@
-#ifndef __XFS_PLATFORM_H__
-#define __XFS_PLATFORM_H__
+#ifndef __FRAMEWORK_XFS_PLATFORM_H__
+#define __FRAMEWORK_XFS_PLATFORM_H__
 
-#include <xfs/xfs.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <framework/xfs/xfs.h>
 
 inline struct xfs_context_t * __xfs_platform_get_context(void);
 inline void __xfs_platform_lock(void);
@@ -28,4 +32,8 @@ bool_t __xfs_platform_mkdir(const char * path);
 bool_t __xfs_platform_delete(const char * path);
 void __xfs_platform_enumerate(const char * path, xfs_enumerate_callback cb, const char * odir, void * cbdata);
 
-#endif /* __XFS_PLATFORM_H__ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __FRAMEWORK_XFS_PLATFORM_H__ */

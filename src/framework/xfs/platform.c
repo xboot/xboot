@@ -1,9 +1,9 @@
 /*
- * xfs/platform.c
+ * framework/xfs/platform.c
  */
 
 #include <runtime.h>
-#include <xfs/platform.h>
+#include <framework/xfs/platform.h>
 
 inline struct xfs_context_t * __xfs_platform_get_context(void)
 {

@@ -89,7 +89,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib/libc/exit					\
 				lib/libc/malloc					\
 				lib/libm						\
-				lib/xfs							\
 				init							\
 				init/mode						\
 				kernel							\
@@ -127,7 +126,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				drivers/mtd						\
 				drivers/mtd/nand				\
 				drivers/mtd/nor					\
-				framework
+				framework						\
+				framework/xfs
 
 #
 # Add external library

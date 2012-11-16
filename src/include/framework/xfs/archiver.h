@@ -1,7 +1,11 @@
-#ifndef __XFS_ARCHIVER_H__
-#define __XFS_ARCHIVER_H__
+#ifndef __FRAMEWORK_XFS_ARCHIVER_H__
+#define __FRAMEWORK_XFS_ARCHIVER_H__
 
-#include <xfs/xfs.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <framework/xfs/xfs.h>
 
 /*
  * An abstract archiver interface.
@@ -36,4 +40,8 @@ struct xfs_archiver_t
 extern const struct xfs_archiver_t __xfs_archiver_direct;
 extern const struct xfs_archiver_t __xfs_archiver_zip;
 
-#endif /* __XFS_ARCHIVER_H__ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __FRAMEWORK_XFS_ARCHIVER_H__ */

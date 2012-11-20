@@ -6,10 +6,10 @@ if not xboot then xboot = {} end
 
 -- Used for setup:
 xboot.path = {}
-xboot.arg = {}
+--xboot.arg = {}
 
 -- Unparsed arguments:
-argv = {}
+--argv = {}
 
 -- Replace any \ with /.
 function xboot.path.normalslashes(p)
@@ -109,10 +109,39 @@ function dump(data, level, prefix)
     end   
 end
 
+
+print("==================================")
+local seen={}
+function globals_dump(t,i)
+	seen[t]=true
+	local s={}
+	local n=0
+	for k in pairs(t) do
+		n=n+1 s[n]=k
+	end
+	table.sort(s)
+	for k,v in ipairs(s) do
+		print(i,v)
+		v=t[v]
+		if type(v)=="table" and not seen[v] then
+			globals_dump(v,i.."\t")
+		end
+	end
+end
+--globals_dump(_G,"")
+print("==================================")
+
+
+local sample = require"xboot.sample"
+dump(xboot)
+
 return function()
 	local ret = "110"
+	print("--------")
 	dump(xboot)
-	dump(argv)
+	print(sample.add(1.2, 3.1))
+	print(sample.sub(1.2, 3.1))
+	print("--------")
 	return tonumber(ret) or 0
 end
 

@@ -2,7 +2,6 @@
 #define __RUNTIME_H__
 
 #include <xboot.h>
-#include <framework/framework.h>
 
 struct runtime_t {
 	/* memory pool */
@@ -11,30 +10,25 @@ struct runtime_t {
 	/* error number */
 	int __errno;
 
-	/* environ */
-	struct environ_t __environ;
-
 	/* pseudo random seed - 48bit */
 	unsigned short __seed[3];
+
+	/* environ */
+	struct environ_t __environ;
 
 	/* standard input, output and error */
 	FILE *__stdin, *__stdout, *__stderr;
 
-	/* xfs context */
-	struct xfs_context_t * __xfs_ctx;
-
 	/* module list */
 	struct module_list * __module_list;
 
-	/* lua virtual machine */
-	lua_State * __vm;
+	/* xfs context */
+	struct xfs_context_t * __xfs_ctx;
 };
 
 struct runtime_t * __get_runtime(void);
-void __set_runtime(struct runtime_t * r);
-struct runtime_t * runtime_alloc(void);
-void runtime_free(struct runtime_t * r);
-
-int run_application(const char * path, int argc, char * argv[]);
+struct runtime_t * runtime_get(void);
+bool_t runtime_alloc_save(struct runtime_t ** rt);
+bool_t runtime_free_restore(struct runtime_t * rt);
 
 #endif /* __RUNTIME_H__ */

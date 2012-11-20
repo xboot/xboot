@@ -1,7 +1,7 @@
 /*
  * init/main.c
  *
- * Copyright (c) 2007-2008  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 
 #include <xboot.h>
 #include <init.h>
+#include <runtime.h>
 #include <mode/mode.h>
 #include <time/xtime.h>
 #include <xboot/log.h>
@@ -29,12 +30,12 @@
 #include <xboot/machine.h>
 
 /*
- * the entry of main function.
+ * The entry of main function.
  */
 int xboot_main(int argc, char * argv[])
 {
-	/* alloc default runtime */
-	__set_runtime(runtime_alloc());
+	/* Alloc default runtime */
+	runtime_alloc_save(0);
 
 	/* do all init calls */
 	do_initcalls();

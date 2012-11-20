@@ -22,12 +22,8 @@
 
 #include <xboot.h>
 #include <init.h>
-#include <runtime.h>
 #include <mode/mode.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
-#include <xboot/initcall.h>
-#include <xboot/machine.h>
 
 /*
  * The entry of main function.

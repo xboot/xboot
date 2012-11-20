@@ -28,12 +28,12 @@ static long jrand48(unsigned short xsubi[3])
 
 static long lrand48(void)
 {
-	return (u32_t)jrand48(__get_runtime()->__seed) >> 1;
+	return (u32_t)jrand48(runtime_get()->__seed) >> 1;
 }
 
 static void srand48(long seedval)
 {
-	unsigned short * seed = __get_runtime()->__seed;
+	unsigned short * seed = runtime_get()->__seed;
 
 	seed[0] = 0x330e;
 	seed[1] = (unsigned short)seedval;

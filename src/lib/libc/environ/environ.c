@@ -38,7 +38,7 @@ bool_t loadenv(char * file)
 
 bool_t saveenv(char * file)
 {
-	struct environ_t * environ = &(__get_runtime()->__environ);
+	struct environ_t * environ = &(runtime_get()->__environ);
 	struct environ_t * p;
 	struct xml * root, * env;
 	char * str;

@@ -193,19 +193,19 @@ FILE * __file_alloc(int fd)
 
 FILE * __runtime_get_stdin(void)
 {
-	return (__get_runtime()->__stdin);
+	return (runtime_get()->__stdin);
 }
 EXPORT_SYMBOL(__runtime_get_stdin);
 
 FILE * __runtime_get_stdout(void)
 {
-	return (__get_runtime()->__stdout);
+	return (runtime_get()->__stdout);
 }
 EXPORT_SYMBOL(__runtime_get_stdout);
 
 FILE * __runtime_get_stderr(void)
 {
-	return (__get_runtime()->__stderr);
+	return (runtime_get()->__stderr);
 }
 EXPORT_SYMBOL(__runtime_get_stderr);
 

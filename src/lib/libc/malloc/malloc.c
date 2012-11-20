@@ -771,19 +771,19 @@ void memory_pool_stat(void * pool, size_t * used, size_t * free)
 
 void * malloc(size_t size)
 {
-	return tlsf_malloc(__get_runtime()->__pool, size);
+	return tlsf_malloc(runtime_get()->__pool, size);
 }
 EXPORT_SYMBOL(malloc);
 
 void * memalign(size_t align, size_t size)
 {
-	return tlsf_memalign(__get_runtime()->__pool, align, size);
+	return tlsf_memalign(runtime_get()->__pool, align, size);
 }
 EXPORT_SYMBOL(memalign);
 
 void * realloc(void * ptr, size_t size)
 {
-	return tlsf_realloc(__get_runtime()->__pool, ptr, size);
+	return tlsf_realloc(runtime_get()->__pool, ptr, size);
 }
 EXPORT_SYMBOL(realloc);
 
@@ -800,6 +800,6 @@ EXPORT_SYMBOL(calloc);
 
 void free(void * ptr)
 {
-	tlsf_free(__get_runtime()->__pool, ptr);
+	tlsf_free(runtime_get()->__pool, ptr);
 }
 EXPORT_SYMBOL(free);

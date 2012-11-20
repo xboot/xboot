@@ -37,7 +37,7 @@
 
 static int env(int argc, char ** argv)
 {
-	struct environ_t * environ = &(__get_runtime()->__environ);
+	struct environ_t * environ = &(runtime_get()->__environ);
 	struct environ_t * p;
 	bool_t save = FALSE;
 	int i;

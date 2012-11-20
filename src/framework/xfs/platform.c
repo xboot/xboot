@@ -7,7 +7,7 @@
 
 inline struct xfs_context_t * __xfs_platform_get_context(void)
 {
-	return (__get_runtime()->__xfs_ctx);
+	return (runtime_get()->__xfs_ctx);
 }
 
 inline void __xfs_platform_lock(void)

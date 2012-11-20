@@ -60,7 +60,7 @@ static struct symbol_t * __lookup_symbol_in_module(struct module_t * module, con
 
 static struct symbol_t * __lookup_symbol_all(const char * name)
 {
-	struct module_list * m = __get_runtime()->__module_list;
+	struct module_list * m = runtime_get()->__module_list;
 	struct module_list * list;
 	struct list_head * pos;
 	struct symbol_t * sym;
@@ -100,7 +100,7 @@ EXPORT_SYMBOL(find_symbol);
 
 struct module_t * find_module(const char * name)
 {
-	struct module_list * m = __get_runtime()->__module_list;
+	struct module_list * m = runtime_get()->__module_list;
 	struct module_list * list;
 	struct list_head * pos;
 
@@ -124,7 +124,7 @@ EXPORT_SYMBOL(find_module);
 
 bool_t add_module(struct module_t * module)
 {
-	struct module_list * m = __get_runtime()->__module_list;
+	struct module_list * m = runtime_get()->__module_list;
 	struct module_list * list;
 
 	list = malloc(sizeof(struct module_list));
@@ -148,7 +148,7 @@ bool_t add_module(struct module_t * module)
 
 static bool_t delete_module(struct module_t * module)
 {
-	struct module_list * m = __get_runtime()->__module_list;
+	struct module_list * m = runtime_get()->__module_list;
 	struct module_list * list;
 	struct list_head * pos;
 

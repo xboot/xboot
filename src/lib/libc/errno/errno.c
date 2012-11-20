@@ -11,6 +11,6 @@
  */
 volatile int * __runtime_errno_location(void)
 {
-	return &(__get_runtime()->__errno);
+	return &(runtime_get()->__errno);
 }
 EXPORT_SYMBOL(__runtime_errno_location);

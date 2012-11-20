@@ -1,6 +1,10 @@
 #ifndef __RUNTIME_H__
 #define __RUNTIME_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 
 struct runtime_t {
@@ -26,9 +30,12 @@ struct runtime_t {
 	struct xfs_context_t * __xfs_ctx;
 };
 
-struct runtime_t * __get_runtime(void);
 struct runtime_t * runtime_get(void);
 bool_t runtime_alloc_save(struct runtime_t ** rt);
 bool_t runtime_free_restore(struct runtime_t * rt);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __RUNTIME_H__ */

@@ -8,7 +8,7 @@
 
 char * getenv(const char * name)
 {
-	struct environ_t * environ = &(__get_runtime()->__environ);
+	struct environ_t * environ = &(runtime_get()->__environ);
 	struct environ_t * p;
 	int len;
 

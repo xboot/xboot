@@ -20,7 +20,6 @@
  *
  */
 
-#include <xboot/module.h>
 #include <runtime.h>
 
 static char heap[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap")));
@@ -52,13 +51,6 @@ struct runtime_t * runtime_get(void)
 {
 	return __current_runtime;
 }
-EXPORT_SYMBOL(runtime_get);
-
-struct runtime_t * __get_runtime(void)
-{
-	return __current_runtime;
-}
-EXPORT_SYMBOL(__get_runtime);
 
 bool_t runtime_alloc_save(struct runtime_t ** rt)
 {

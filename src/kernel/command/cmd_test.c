@@ -47,7 +47,8 @@
 
 static int test(int argc, char ** argv)
 {
-	return run_application("/romdisk/test.lua", argc, argv);
+	return vm_test("/vm_alloc", argc, argv);
+	//return run_application("/romdisk/test.lua", argc, argv);
 }
 
 static struct command test_cmd = {

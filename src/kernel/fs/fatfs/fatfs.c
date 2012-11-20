@@ -1,7 +1,7 @@
 /*
  * kernel/fs/fatfs/fatfs.c
  *
- * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify

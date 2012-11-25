@@ -127,7 +127,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				drivers/mtd/nand				\
 				drivers/mtd/nor					\
 				framework						\
-				framework/xfs
+				framework/xfs					\
+				framework/sample
 
 #
 # Add external library

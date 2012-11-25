@@ -88,7 +88,7 @@ int vm_run(struct vm_t * vm)
 	return ret;
 }
 
-int vm_test(const char * path, int argc, char * argv[])
+int vm_exec(const char * path, int argc, char * argv[])
 {
 	struct runtime_t * r;
 	struct vm_t * vm;

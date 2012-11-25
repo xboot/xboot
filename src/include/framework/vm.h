@@ -14,6 +14,7 @@ struct vm_t {
 struct vm_t * vm_alloc(const char * path, int argc, char * argv[]);
 void vm_free(struct vm_t * vm);
 int vm_run(struct vm_t * vm);
+int vm_exec(const char * path, int argc, char * argv[]);
 
 #ifdef __cplusplus
 }

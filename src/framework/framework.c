@@ -22,6 +22,9 @@
 
 #include <framework/framework.h>
 
+extern int luaopen_framerate(lua_State * L);
+extern int luaopen_sample(lua_State * L);
+
 static bool_t vm_preload(lua_State * L, const char * name, lua_CFunction f)
 {
 	lua_getglobal(L, "package");
@@ -34,6 +37,7 @@ static bool_t vm_preload(lua_State * L, const char * name, lua_CFunction f)
 }
 
 static const luaL_Reg xboot_libs[] = {
+	{ "xboot.framerate", luaopen_framerate },
 	{ "xboot.sample", luaopen_sample },
 	{ "xboot.boot", luaopen_boot },
 	{ NULL, NULL }

@@ -10,7 +10,6 @@ extern "C" {
 #include <lauxlib.h>
 #include <lualib.h>
 
-extern int luaopen_sample(lua_State * L);
 int luaopen_boot(lua_State * L);
 int luaopen_xboot(lua_State * L);
 

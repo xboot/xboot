@@ -54,7 +54,7 @@ function xboot.path.getfull(p)
 		return xboot.path.normalslashes(p)
 	end
 
-	local cwd = "/" --love.filesystem.getWorkingDirectory()
+	local cwd = "/" --xboot.filesystem.getWorkingDirectory()
 	cwd = xboot.path.normalslashes(cwd)
 	cwd = xboot.path.endslash(cwd)
 
@@ -108,41 +108,43 @@ function dump(data, level, prefix)
         end   
     end   
 end
-
-
-print("==================================")
-local seen={}
-function globals_dump(t,i)
-	seen[t]=true
-	local s={}
-	local n=0
-	for k in pairs(t) do
-		n=n+1 s[n]=k
-	end
-	table.sort(s)
-	for k,v in ipairs(s) do
-		print(i,v)
-		v=t[v]
-		if type(v)=="table" and not seen[v] then
-			globals_dump(v,i.."\t")
-		end
-	end
-end
---globals_dump(_G,"")
-print("==================================")
+--dump(xboot)
 
 
 local sample = require"xboot.sample"
-dump(xboot)
+local framerate = require"xboot.framerate"
 
-return function()
-	local ret = "110"
-	print("--------")
-	dump(xboot)
-	print(sample.add(1.2, 3.1))
-	print(sample.sub(1.2, 3.1))
-	print("--------")
-	return tonumber(ret) or 0
+function xboot.boot()
 end
 
+function xboot.init()
+end
+
+function xboot.run()
+	if xboot.load then xboot.load(arg) end
+	local fr = framerate.new()
+	while true do
+		fr:step()
+		if xboot.update then xboot.update(fr:getdelta()) end
+		if xboot.draw then xboot.draw() end
+		fr:sleep(0.1)
+		print(fr:getfps())
+	end
+end
+
+require("debug")
+local debug = debug
+local function error_printer(msg, layer)
+	print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
+end
+
+return function()
+	local result = xpcall(xboot.boot, error_printer)
+	if not result then return 1 end
+	local result = xpcall(xboot.init, error_printer)
+	if not result then return 1 end
+	local result, retval = xpcall(xboot.run, error_printer)
+	if not result then return 1 end
+	return tonumber(retval) or 0
+end
 

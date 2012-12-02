@@ -81,40 +81,16 @@ function xboot.path.leaf(p)
 	return last
 end
 
-function dump(data, level, prefix)   
-    if type(prefix) ~= "string" then   
-        prefix = ""  
-    end   
-    if type(data) ~= "table" then   
-        print(prefix .. tostring(data))   
-    else  
-        print(data)   
-        if level ~= 0 then   
-            local prefix_next = prefix .. "    "  
-            print(prefix .. "{")   
-            for k,v in pairs(data) do  
-                io.stdout:write(prefix_next .. k .. " = ")
-                if type(v) ~= "table" or (type(level) == "number" and level <= 1) then   
-                    print(v)   
-                else  
-                    if level == nil then   
-                        dump(v, nil, prefix_next)   
-                    else  
-                        dump(v, level - 1, prefix_next)   
-                    end   
-                end   
-            end   
-            print(prefix .. "}")   
-        end   
-    end   
-end
---dump(xboot)
+package.path = "/romdisk/system/lib/?.lua;/romdisk/system/lib/?/init.lua;" .. package.path
+package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;" .. package.path
 
-
-local sample = require"xboot.sample"
-local framerate = require"xboot.framerate"
+local sample = require "xboot.sample"
+local framerate = require "xboot.framerate"
+local logger = require "logger"
+local dump = require "dump"
 
 function xboot.boot()
+	dump(logger)
 end
 
 function xboot.init()
@@ -128,11 +104,12 @@ function xboot.run()
 		if xboot.update then xboot.update(fr:getdelta()) end
 		if xboot.draw then xboot.draw() end
 		fr:sleep(0.1)
-		print(fr:getfps())
+		fr.sleep(fr, 0.1)
+		--logger.error(fr:getfps())
+		--print(fr:getfps())
 	end
 end
 
-require("debug")
 local debug = debug
 local function error_printer(msg, layer)
 	print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
@@ -147,4 +124,3 @@ return function()
 	if not result then return 1 end
 	return tonumber(retval) or 0
 end
-

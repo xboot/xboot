@@ -867,7 +867,7 @@ struct xfs_file_t *PHYSFS_openAppend(const char *filename)
     return(doOpenWrite(filename, 1));
 }
 
-struct xfs_file_t *PHYSFS_openRead(const char *_fname)
+struct xfs_file_t *xfs_open_read(const char *_fname)
 {
     struct xfs_file_handle_t *fh = NULL;
     char *fname;
@@ -932,7 +932,7 @@ struct xfs_file_t *PHYSFS_openRead(const char *_fname)
 
     free(fname);
     return((struct xfs_file_t *) fh);
-} /* PHYSFS_openRead */
+} /* xfs_open_read */
 
 
 static int closeHandleInOpenList(struct xfs_file_handle_t **list, struct xfs_file_handle_t *handle)
@@ -970,7 +970,7 @@ static int closeHandleInOpenList(struct xfs_file_handle_t **list, struct xfs_fil
 } /* closeHandleInOpenList */
 
 
-int PHYSFS_close(struct xfs_file_t *_handle)
+int xfs_close(struct xfs_file_t *_handle)
 {
     struct xfs_file_handle_t *handle = (struct xfs_file_handle_t *) _handle;
     int rc;
@@ -999,7 +999,7 @@ int PHYSFS_close(struct xfs_file_t *_handle)
     if(!rc)
     	return 0;
     return(1);
-} /* PHYSFS_close */
+} /* xfs_close */
 
 
 static s64_t doBufferedRead(struct xfs_file_handle_t *fh, void *buffer,
@@ -1046,7 +1046,7 @@ static s64_t doBufferedRead(struct xfs_file_handle_t *fh, void *buffer,
 } /* doBufferedRead */
 
 
-s64_t PHYSFS_read(struct xfs_file_t *handle, void *buffer,
+s64_t xfs_read(struct xfs_file_t *handle, void *buffer,
                           u32_t objSize, u32_t objCount)
 {
     struct xfs_file_handle_t *fh = (struct xfs_file_handle_t *) handle;
@@ -1061,7 +1061,7 @@ s64_t PHYSFS_read(struct xfs_file_t *handle, void *buffer,
         return(doBufferedRead(fh, buffer, objSize, objCount));
 
     return(fh->archiver->read(fh->handle, buffer, objSize, objCount));
-} /* PHYSFS_read */
+} /* xfs_read */
 
 
 static s64_t doBufferedWrite(struct xfs_file_t *handle, const void *buffer,
@@ -1370,7 +1370,7 @@ static void enumFilesCallback(void *data, const char *origdir, const char *str)
     pecd->size++;
 } /* enumFilesCallback */
 
-char **PHYSFS_enumerateFiles(const char *path)
+char ** PHYSFS_enumerateFiles(const char * path)
 {
 	EnumStringListCallbackData ecd;
     memset(&ecd, '\0', sizeof (ecd));
@@ -1525,7 +1525,7 @@ void tt(void)
     } /* if */
 
     f = PHYSFS_openWrite("/a/b/c/x.txt");
-    PHYSFS_close(f);
+    xfs_close(f);
     if (f == NULL)
     {
         fprintf(stderr, "PHYSFS_openWrite(): %s\n", "error");
@@ -1533,7 +1533,7 @@ void tt(void)
     } /* if */
 
     f = PHYSFS_openWrite("/a/b/C/X.txt");
-    PHYSFS_close(f);
+    xfs_close(f);
     if (f == NULL)
     {
         fprintf(stderr, "PHYSFS_openWrite(): %s\n", "error");

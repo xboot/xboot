@@ -88,9 +88,12 @@ local sample = require "xboot.sample"
 local framerate = require "xboot.framerate"
 local logger = require "logger"
 local dump = require "dump"
+local test = nil
 
 function xboot.boot()
-	dump(logger)
+	dump(package.searchers, 3)
+	test = require "test"
+	test.error("ttt")
 end
 
 function xboot.init()
@@ -105,6 +108,7 @@ function xboot.run()
 		if xboot.draw then xboot.draw() end
 		fr:sleep(0.1)
 		fr.sleep(fr, 0.1)
+		test.error(fr:getfps())
 		--logger.error(fr:getfps())
 		--print(fr:getfps())
 	end

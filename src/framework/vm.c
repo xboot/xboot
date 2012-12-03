@@ -101,6 +101,8 @@ int vm_exec(const char * path, int argc, char * argv[])
 	if(!vm)
 		return ret;
 
+	xfs_add_to_search_path("/romdisk/test.zip", 1);
+
 	ret = vm_run(vm);
 
 	vm_free(vm);

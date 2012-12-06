@@ -559,21 +559,21 @@ static bool_t do_mkdir(const char * _dname, char * dname)
 	return ret;
 }
 
-bool_t xfs_mkdir(const char * _dname)
+bool_t xfs_mkdir(const char * dir)
 {
 	bool_t ret = FALSE;
 	char * dname;
 	size_t len;
 
-	if (_dname == NULL )
+	if (dir == NULL )
 		return FALSE;
 
-	len = strlen(_dname) + 1;
+	len = strlen(dir) + 1;
 	dname = (char *)malloc(len);
 	if (dname == NULL )
 		return FALSE;
 
-	ret = do_mkdir(_dname, dname);
+	ret = do_mkdir(dir, dname);
 
 	free(dname);
 	return ret;
@@ -607,41 +607,41 @@ static bool_t do_delete(const char * _fname, char * fname)
     return ret;
 }
 
-bool_t xfs_delete(const char * _fname)
+bool_t xfs_delete(const char * name)
 {
 	bool_t ret;
 	char * fname;
 	size_t len;
 
-	if(_fname == NULL)
+	if(name == NULL)
 		return FALSE;
 
-	len = strlen(_fname) + 1;
+	len = strlen(name) + 1;
 	fname = (char *) malloc(len);
 	if(fname == NULL )
 		return FALSE;
 
-	ret = do_delete(_fname, fname);
+	ret = do_delete(name, fname);
 
 	free(fname);
 	return ret;
 }
 
-const char * xfs_get_real_dir(const char * _fname)
+const char * xfs_get_real_dir(const char * name)
 {
 	struct xfs_dir_handle_t * i;
 	const char * ret = NULL;
 	char * fname = NULL;
 	size_t len;
 
-	if (_fname == NULL )
+	if (name == NULL )
 		return NULL ;
-	len = strlen(_fname) + 1;
+	len = strlen(name) + 1;
 	fname = malloc(len);
 	if (fname == NULL)
 		return NULL ;
 
-	if(sanitize_platform_independent_path(_fname, fname))
+	if(sanitize_platform_independent_path(name, fname))
 	{
 		__xfs_platform_lock();
 
@@ -665,24 +665,24 @@ const char * xfs_get_real_dir(const char * _fname)
 	return ret;
 }
 
-bool_t xfs_exists(const char * fname)
+bool_t xfs_exists(const char * name)
 {
-	return (xfs_get_real_dir(fname) != NULL);
+	return (xfs_get_real_dir(name) != NULL);
 }
 
-s64_t xfs_get_last_modtime(const char * _fname)
+s64_t xfs_get_last_modtime(const char * name)
 {
     s64_t ret = -1;
     char *fname;
     size_t len;
 
-    if(_fname == NULL)
+    if(name == NULL)
     	return -1;
-    len = strlen(_fname) + 1;
+    len = strlen(name) + 1;
     fname = (char *)malloc(len);
     if(fname == NULL)
     	return -1;
-    if (sanitize_platform_independent_path(_fname, fname))
+    if (sanitize_platform_independent_path(name, fname))
     {
         if (*fname == '\0')
             ret = 1;
@@ -710,24 +710,24 @@ s64_t xfs_get_last_modtime(const char * _fname)
     return(ret);
 }
 
-bool_t xfs_is_directory(const char *_fname)
+bool_t xfs_is_directory(const char * name)
 {
     bool_t retval = FALSE;
     size_t len;
     char *fname;
 
-    if(_fname == NULL)
+    if(name == NULL)
     	return FALSE;
-    len = strlen(_fname) + 1;
+    len = strlen(name) + 1;
     fname = (char *)malloc(len);
     if(fname == NULL)
     	return FALSE;
 
-    if (!sanitize_platform_independent_path(_fname, fname))
-        retval = 0;
+    if (!sanitize_platform_independent_path(name, fname))
+        retval = FALSE;
 
     else if (*fname == '\0')
-        retval = 1;  /* Root is always a dir.  :) */
+        retval = TRUE;  /* Root is always a dir.  :) */
 
     else
     {
@@ -750,29 +750,29 @@ bool_t xfs_is_directory(const char *_fname)
     return(retval);
 }
 
-int PHYSFS_isSymbolicLink(const char *_fname)
+bool_t xfs_is_symlink(const char * name)
 {
-    int retval = 0;
+	bool_t retval = FALSE;
     size_t len;
     char *fname;
 
     //xxx if(!allowSymLinks)
     if(0)
-    	return 0;
+    	return FALSE;
 
-    if(_fname == NULL)
-    	return 0;
+    if(name == NULL)
+    	return FALSE;
 
-    len = strlen(_fname) + 1;
+    len = strlen(name) + 1;
     fname = (char *) malloc(len);
     if(fname == NULL)
-    	return 0;
+    	return FALSE;
 
-    if (!sanitize_platform_independent_path(_fname, fname))
-        retval = 0;
+    if (!sanitize_platform_independent_path(name, fname))
+        retval = FALSE;
 
     else if (*fname == '\0')
-        retval = 1;  /* Root is never a symlink. */
+        retval = TRUE;  /* Root is never a symlink. */
 
     else
     {
@@ -784,7 +784,7 @@ int PHYSFS_isSymbolicLink(const char *_fname)
         {
             char *arcfname = fname;
             if ((fileExists = part_of_mount_point(i, arcfname)) != 0)
-                retval = 0;  /* virtual dir...not a symlink. */
+                retval = FALSE;  /* virtual dir...not a symlink. */
             else if (verify_path(i, &arcfname, 0))
                 retval = i->archiver->is_symlink(i->handle, arcfname, &fileExists);
         }
@@ -857,31 +857,31 @@ doOpenWriteEnd:
     return((struct xfs_file_t *) fh);
 }
 
-struct xfs_file_t *PHYSFS_openWrite(const char *filename)
+struct xfs_file_t * xfs_open_write(const char * name)
 {
-    return(doOpenWrite(filename, 0));
+    return(doOpenWrite(name, 0));
 }
 
-struct xfs_file_t *PHYSFS_openAppend(const char *filename)
+struct xfs_file_t * xfs_open_append(const char * name)
 {
-    return(doOpenWrite(filename, 1));
+    return(doOpenWrite(name, 1));
 }
 
-struct xfs_file_t *xfs_open_read(const char *_fname)
+struct xfs_file_t *xfs_open_read(const char * name)
 {
     struct xfs_file_handle_t *fh = NULL;
     char *fname;
     size_t len;
 
-    if(_fname == NULL)
+    if(name == NULL)
     	return NULL;
 
-    len = strlen(_fname) + 1;
+    len = strlen(name) + 1;
     fname = (char *) malloc(len);
     if(fname == NULL)
     	return NULL;
 
-    if (sanitize_platform_independent_path(_fname, fname))
+    if (sanitize_platform_independent_path(name, fname))
     {
         int fileExists = 0;
         struct xfs_dir_handle_t *i = NULL;
@@ -946,7 +946,7 @@ static int closeHandleInOpenList(struct xfs_file_handle_t **list, struct xfs_fil
         if (i == handle)  /* handle is in this list? */
         {
             u8_t *tmp = handle->buffer;
-            rc = PHYSFS_flush((struct xfs_file_t *) handle);
+            rc = xfs_flush((struct xfs_file_t *) handle);
             if (rc)
                 rc = handle->archiver->file_close(handle->handle);
             if (!rc)
@@ -970,9 +970,9 @@ static int closeHandleInOpenList(struct xfs_file_handle_t **list, struct xfs_fil
 } /* closeHandleInOpenList */
 
 
-int xfs_close(struct xfs_file_t *_handle)
+bool_t xfs_close(struct xfs_file_t * h)
 {
-    struct xfs_file_handle_t *handle = (struct xfs_file_handle_t *) _handle;
+    struct xfs_file_handle_t * handle = (struct xfs_file_handle_t *)h;
     int rc;
 
     __xfs_platform_lock();
@@ -982,7 +982,7 @@ int xfs_close(struct xfs_file_t *_handle)
     if(rc == -1)
     {
     	__xfs_platform_unlock();
-    	return 0;
+    	return FALSE;
     }
 
     if (!rc)
@@ -991,14 +991,14 @@ int xfs_close(struct xfs_file_t *_handle)
         if(rc == -1)
         {
         	__xfs_platform_unlock();
-        	return 0;
+        	return FALSE;
         }
     } /* if */
 
     __xfs_platform_unlock();
     if(!rc)
-    	return 0;
-    return(1);
+    	return FALSE;
+    return(TRUE);
 } /* xfs_close */
 
 
@@ -1079,13 +1079,13 @@ static s64_t doBufferedWrite(struct xfs_file_t *handle, const void *buffer,
     } /* if */
 
     /* would overflow buffer. Flush and then write the new objects, too. */
-    if(!PHYSFS_flush(handle))
+    if(!xfs_flush(handle))
     	return (-1);
     return(fh->archiver->write(fh->handle, buffer, objSize, objCount));
 } /* doBufferedWrite */
 
 
-s64_t PHYSFS_write(struct xfs_file_t *handle, const void *buffer,
+s64_t xfs_write(struct xfs_file_t *handle, const void *buffer,
                            u32_t objSize, u32_t objCount)
 {
     struct xfs_file_handle_t *fh = (struct xfs_file_handle_t *) handle;
@@ -1103,19 +1103,18 @@ s64_t PHYSFS_write(struct xfs_file_t *handle, const void *buffer,
 } /* PHYSFS_write */
 
 
-int PHYSFS_eof(struct xfs_file_t *handle)
+bool_t xfs_eof(struct xfs_file_t * handle)
 {
     struct xfs_file_handle_t *fh = (struct xfs_file_handle_t *) handle;
 
     if (!fh->forReading)  /* never EOF on files opened for write/append. */
-        return(0);
+        return FALSE;
 
     /* eof if buffer is empty and archiver says so. */
     return((fh->bufpos == fh->buffill) && (fh->archiver->eof(fh->handle)));
 } /* PHYSFS_eof */
 
-
-s64_t PHYSFS_tell(struct xfs_file_t *handle)
+s64_t xfs_tell(struct xfs_file_t * handle)
 {
     struct xfs_file_handle_t *fh = (struct xfs_file_handle_t *) handle;
     s64_t pos = fh->archiver->tell(fh->handle);
@@ -1123,26 +1122,26 @@ s64_t PHYSFS_tell(struct xfs_file_t *handle)
                             (pos - fh->buffill) + fh->bufpos :
                             (pos + fh->buffill);
     return(retval);
-} /* PHYSFS_tell */
+} /* xfs_tell */
 
 
-int PHYSFS_seek(struct xfs_file_t *handle, u64_t pos)
+bool_t xfs_seek(struct xfs_file_t * handle, u64_t pos)
 {
-    struct xfs_file_handle_t *fh = (struct xfs_file_handle_t *) handle;
+    struct xfs_file_handle_t * fh = (struct xfs_file_handle_t *) handle;
 
-    if(!PHYSFS_flush(handle))
-    	return 0;
+    if(!xfs_flush(handle))
+    	return FALSE;
 
     if (fh->buffer && fh->forReading)
     {
         /* avoid throwing away our precious buffer if seeking within it. */
-        s64_t offset = pos - PHYSFS_tell(handle);
+        s64_t offset = pos - xfs_tell(handle);
         if ( /* seeking within the already-buffered range? */
             ((offset >= 0) && (offset <= fh->buffill - fh->bufpos)) /* fwd */
             || ((offset < 0) && (-offset <= fh->bufpos)) /* backward */ )
         {
             fh->bufpos += (u32_t) offset;
-            return(1); /* successful seek */
+            return TRUE; /* successful seek */
         } /* if */
     } /* if */
 
@@ -1152,12 +1151,11 @@ int PHYSFS_seek(struct xfs_file_t *handle, u64_t pos)
 } /* PHYSFS_seek */
 
 
-s64_t PHYSFS_fileLength(struct xfs_file_t *handle)
+s64_t xfs_length(struct xfs_file_t * handle)
 {
     struct xfs_file_handle_t *fh = (struct xfs_file_handle_t *) handle;
     return(fh->archiver->length(fh->handle));
 }
-
 
 int PHYSFS_setBuffer(struct xfs_file_t *handle, u64_t _bufsize)
 {
@@ -1169,13 +1167,13 @@ int PHYSFS_setBuffer(struct xfs_file_t *handle, u64_t _bufsize)
     	return 0;
     bufsize = (u32_t) _bufsize;
 
-    if(!PHYSFS_flush(handle))
+    if(!xfs_flush(handle))
     	return 0;
 
     /*
      * For reads, we need to move the file pointer to where it would be
      *  if we weren't buffering, so that the next read will get the
-     *  right chunk of stuff from the file. PHYSFS_flush() handles writes.
+     *  right chunk of stuff from the file. xfs_flush() handles writes.
      */
     if ((fh->forReading) && (fh->buffill != fh->bufpos))
     {
@@ -1212,22 +1210,22 @@ int PHYSFS_setBuffer(struct xfs_file_t *handle, u64_t _bufsize)
 } /* PHYSFS_setBuffer */
 
 
-int PHYSFS_flush(struct xfs_file_t *handle)
+bool_t xfs_flush(struct xfs_file_t * handle)
 {
     struct xfs_file_handle_t *fh = (struct xfs_file_handle_t *) handle;
     s64_t rc;
 
     if ((fh->forReading) || (fh->bufpos == fh->buffill))
-        return(1);  /* open for read or buffer empty are successful no-ops. */
+        return TRUE;  /* open for read or buffer empty are successful no-ops. */
 
     /* dump buffer to disk. */
     rc = fh->archiver->write(fh->handle, fh->buffer + fh->bufpos,
                           fh->buffill - fh->bufpos, 1);
     if(rc <= 0)
-    	return 0;
+    	return FALSE;
     fh->bufpos = fh->buffill = 0;
-    return(1);
-} /* PHYSFS_flush */
+    return TRUE;
+} /* xfs_flush */
 
 /*
  * Broke out to seperate function so we can use stack allocation gratuitously.
@@ -1524,19 +1522,19 @@ void tt(void)
         return;
     } /* if */
 
-    f = PHYSFS_openWrite("/a/b/c/x.txt");
+    f = xfs_open_write("/a/b/c/x.txt");
     xfs_close(f);
     if (f == NULL)
     {
-        fprintf(stderr, "PHYSFS_openWrite(): %s\n", "error");
+        fprintf(stderr, "xfs_open_write(): %s\n", "error");
         return ;
     } /* if */
 
-    f = PHYSFS_openWrite("/a/b/C/X.txt");
+    f = xfs_open_write("/a/b/C/X.txt");
     xfs_close(f);
     if (f == NULL)
     {
-        fprintf(stderr, "PHYSFS_openWrite(): %s\n", "error");
+        fprintf(stderr, "xfs_open_write(): %s\n", "error");
         return ;
     } /* if */
 

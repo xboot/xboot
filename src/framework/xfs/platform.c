@@ -230,7 +230,7 @@ void __xfs_platform_enumerate(const char * path, xfs_enumerate_callback cb, cons
 		if (strcmp(entry->d_name, ".") == 0)
 			continue;
 
-		if (strcmp(entry->d_name, "..") == 0)
+		else if (strcmp(entry->d_name, "..") == 0)
 			continue;
 
 		cb(cbdata, odir, entry->d_name);

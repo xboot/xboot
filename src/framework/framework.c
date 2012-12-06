@@ -110,7 +110,7 @@ static int __loadfile(lua_State * L)
 	return 1;
 }
 
-static int searcher_loader(lua_State * L)
+static int searcher_package_lua(lua_State * L)
 {
 	const char * filename = lua_tostring(L, -1);
 	char * buf;
@@ -180,7 +180,7 @@ int luaopen_xboot(lua_State * L)
 	lua_pushstring(L, __MACH__);
 	lua_setfield(L, -2, "_MACH");
 
-	register_searcher(L, searcher_loader, 2);
+	register_searcher(L, searcher_package_lua, 2);
 	register_preload(L, "xboot", luaopen_xboot);
 
 	for(i = 0; xboot_libs[i].name != 0; i++)

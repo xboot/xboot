@@ -14,20 +14,25 @@ static const struct xfs_archiver_t * const __xfs_archivers[] = {
 
 static const char * find_filename_extension(const char * name)
 {
-    const char * ret = strchr(name, '.');
-    const char * p = ret;
+	const char * ret = NULL;
+	const char * p;
 
-    while(p != NULL)
-    {
-        p = strchr(p + 1, '.');
-        if(p != NULL)
-            ret = p;
-    }
+	if(name != NULL)
+	{
+		ret = p = strchr(name, '.');
 
-    if(ret != NULL)
-        ret++;
+		while(p != NULL)
+		{
+			p = strchr(p + 1, '.');
+			if(p != NULL)
+				ret = p;
+		}
 
-    return ret;
+		if(ret != NULL)
+			ret++;
+	}
+
+	return ret;
 }
 
 static struct xfs_dir_handle_t * try_open_directory(const struct xfs_archiver_t * archive, const char * name, int forWriting)
@@ -1414,11 +1419,11 @@ void __xfs_exit(struct xfs_context_t * ctx)
  */
 #define PHYSFS_QUICKSORT_THRESHOLD 4
 
-static void __PHYSFS_bubble_sort(void *a, u32_t lo, u32_t hi,
-                         int (*cmpfn)(void *, u32_t, u32_t),
-                         void (*swapfn)(void *, u32_t, u32_t))
+static void __PHYSFS_bubble_sort(void *a, size_t lo, size_t hi,
+                                 int (*cmpfn)(void *, size_t, size_t),
+                                 void (*swapfn)(void *, size_t, size_t))
 {
-    u32_t i;
+    size_t i;
     int sorted;
 
     do
@@ -1435,13 +1440,14 @@ static void __PHYSFS_bubble_sort(void *a, u32_t lo, u32_t hi,
     } while (!sorted);
 } /* __PHYSFS_bubble_sort */
 
-static void __PHYSFS_quick_sort(void *a, u32_t lo, u32_t hi,
-                         int (*cmpfn)(void *, u32_t, u32_t),
-                         void (*swapfn)(void *, u32_t, u32_t))
+
+static void __PHYSFS_quick_sort(void *a, size_t lo, size_t hi,
+                         int (*cmpfn)(void *, size_t, size_t),
+                         void (*swapfn)(void *, size_t, size_t))
 {
-    u32_t i;
-    u32_t j;
-    u32_t v;
+    size_t i;
+    size_t j;
+    size_t v;
 
     if ((hi - lo) <= PHYSFS_QUICKSORT_THRESHOLD)
         __PHYSFS_bubble_sort(a, lo, hi, cmpfn, swapfn);
@@ -1472,9 +1478,10 @@ static void __PHYSFS_quick_sort(void *a, u32_t lo, u32_t hi,
     } /* else */
 } /* __PHYSFS_quick_sort */
 
-void __PHYSFS_sort(void *entries, u32_t max,
-                   int (*cmpfn)(void *, u32_t, u32_t),
-                   void (*swapfn)(void *, u32_t, u32_t))
+
+void __PHYSFS_sort(void *entries, size_t max,
+                   int (*cmpfn)(void *, size_t, size_t),
+                   void (*swapfn)(void *, size_t, size_t))
 {
     /*
      * Quicksort w/ Bubblesort fallback algorithm inspired by code from here:
@@ -1483,7 +1490,6 @@ void __PHYSFS_sort(void *entries, u32_t max,
     if (max > 0)
         __PHYSFS_quick_sort(entries, 0, max - 1, cmpfn, swapfn);
 } /* __PHYSFS_sort */
-
 
 //-----------------------------------------------------------------------------
 //xxx for test

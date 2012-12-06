@@ -110,7 +110,7 @@ function xboot.run()
 		if xboot.update then xboot.update(fr:getdelta()) end
 		if xboot.draw then xboot.draw() end
 		fr:sleep(0.1)
-		fr.sleep(fr, 0.1)
+		--fr.sleep(fr, 0.1)
 		test.error(fr:getfps())
 		--logger.error(fr:getfps())
 		--print(fr:getfps())

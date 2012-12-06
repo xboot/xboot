@@ -94,6 +94,9 @@ function xboot.boot()
 	dump(package.searchers, 3)
 	test = require "test"
 	test.error("ttt")
+
+	local printr = require "printr"
+	printr(xboot)
 end
 
 function xboot.init()

@@ -1015,19 +1015,19 @@ zip_load_entry_puked:
 } /* zip_load_entry */
 
 
-static int zip_entry_cmp(void *_a, u32_t one, u32_t two)
+static int zip_entry_cmp(void *_a, size_t one, size_t two)
 {
     if (one != two)
     {
-        const ZIPentry *a = (const ZIPentry *) _a;
-        return(strcmp(a[one].name, a[two].name));
+        const ZIPentry *a = (const ZIPentry *)_a;
+        return strcmp(a[one].name, a[two].name);
     } /* if */
 
     return 0;
 } /* zip_entry_cmp */
 
 
-static void zip_entry_swap(void *_a, u32_t one, u32_t two)
+static void zip_entry_swap(void *_a, size_t one, size_t two)
 {
     if (one != two)
     {
@@ -1063,7 +1063,7 @@ static int zip_load_entries(void *in, ZIPinfo *info,
         } /* if */
     } /* for */
 
-    __PHYSFS_sort(info->entries, max, zip_entry_cmp, zip_entry_swap);
+    __xfs_platform_sort(info->entries, max, zip_entry_cmp, zip_entry_swap);
     return(1);
 } /* zip_load_entries */
 

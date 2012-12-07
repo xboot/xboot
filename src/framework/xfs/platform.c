@@ -5,6 +5,72 @@
 #include <runtime.h>
 #include <framework/xfs/platform.h>
 
+static void __bubble_sort(void * a, size_t lo, size_t hi, int (*cmp)(void *, size_t, size_t), void (*swap)(void *, size_t, size_t))
+{
+	size_t i;
+	int sorted;
+
+	do
+	{
+		sorted = 1;
+		for(i = lo; i < hi; i++)
+		{
+			if(cmp(a, i, i + 1) > 0)
+			{
+				swap(a, i, i + 1);
+				sorted = 0;
+			}
+		}
+	} while(!sorted);
+}
+
+static void __quick_sort(void * a, size_t lo, size_t hi, int (*cmp)(void *, size_t, size_t), void (*swap)(void *, size_t, size_t))
+{
+	size_t i;
+	size_t j;
+	size_t v;
+
+	if((hi - lo) <= 4)
+		__bubble_sort(a, lo, hi, cmp, swap);
+	else
+	{
+		i = (hi + lo) / 2;
+
+		if(cmp(a, lo, i) > 0)
+			swap(a, lo, i);
+		if(cmp(a, lo, hi) > 0)
+			swap(a, lo, hi);
+		if(cmp(a, i, hi) > 0)
+			swap(a, i, hi);
+
+		j = hi - 1;
+		swap(a, i, j);
+		i = lo;
+		v = j;
+
+		while(1)
+		{
+			while(cmp(a, ++i, v) < 0) { }
+			while(cmp(a, --j, v) > 0) { }
+			if(j < i)
+				break;
+			swap(a, i, j);
+		}
+
+		if(i != (hi - 1))
+			swap(a, i, hi - 1);
+
+		__quick_sort(a, lo, j, cmp, swap);
+		__quick_sort(a, i + 1, hi, cmp, swap);
+	}
+}
+
+void __xfs_platform_sort(void * a, size_t max, int (*cmp)(void *, size_t, size_t), void (*swap)(void *, size_t, size_t))
+{
+	if(max > 0)
+		__quick_sort(a, 0, max - 1, cmp, swap);
+}
+
 inline struct xfs_context_t * __xfs_platform_get_context(void)
 {
 	return (runtime_get()->__xfs_ctx);

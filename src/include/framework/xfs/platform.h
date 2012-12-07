@@ -7,6 +7,8 @@ extern "C" {
 
 #include <framework/xfs/xfs.h>
 
+void __xfs_platform_sort(void * a, size_t max, int (*cmp)(void *, size_t, size_t), void (*swap)(void *, size_t, size_t));
+
 inline struct xfs_context_t * __xfs_platform_get_context(void);
 inline void __xfs_platform_lock(void);
 inline void __xfs_platform_unlock(void);

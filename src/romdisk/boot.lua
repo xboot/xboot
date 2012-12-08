@@ -96,7 +96,7 @@ function xboot.boot()
 	test.error("ttt")
 
 	local printr = require "printr"
-	printr(xboot)
+	printr(arg)
 end
 
 function xboot.init()
@@ -111,9 +111,10 @@ function xboot.run()
 		if xboot.draw then xboot.draw() end
 		fr:sleep(0.1)
 		--fr.sleep(fr, 0.1)
-		test.error(fr:getfps())
+		--test.error(fr:getfps())
 		--logger.error(fr:getfps())
 		--print(fr:getfps())
+		break
 	end
 end
 

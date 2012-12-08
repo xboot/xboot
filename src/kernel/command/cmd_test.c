@@ -47,10 +47,7 @@
 
 static int test(int argc, char ** argv)
 {
-	if(argc < 2)
-		return 0;
-
-	return vm_exec(argv[1], argc - 1, &argv[1]);
+	return 0;
 }
 
 static struct command test_cmd = {

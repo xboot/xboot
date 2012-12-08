@@ -99,6 +99,10 @@ extern "C" {
 #define	CONFIG_COMMAND_ENV							(1)
 #endif
 
+#if !defined(CONFIG_COMMAND_EXEC)
+#define	CONFIG_COMMAND_EXEC							(1)
+#endif
+
 #if !defined(CONFIG_COMMAND_HISTORY)
 #define	CONFIG_COMMAND_HISTORY						(1)
 #endif

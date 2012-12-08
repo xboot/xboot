@@ -51,9 +51,10 @@ struct xfs_context_t {
 	void * lock;
 };
 
-struct xfs_context_t * __xfs_init(const char * argv0);
-void __xfs_exit(struct xfs_context_t * ctx);
+struct xfs_context_t * __xfs_alloc(void);
+void __xfs_free(struct xfs_context_t * ctx);
 
+bool_t xfs_init(const char * path);
 bool_t xfs_mount(const char * dir, const char * mpoint, int appendToPath);
 bool_t xfs_add_to_search_path(const char * dir, int appendToPath);
 bool_t xfs_remove_from_search_path(const char * dir);

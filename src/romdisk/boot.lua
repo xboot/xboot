@@ -91,7 +91,7 @@ local dump = require "dump"
 local test = nil
 
 function xboot.boot()
-	dump(package.searchers, 3)
+--	dump(package.searchers, 3)
 	test = require "test"
 	test.error("ttt")
 

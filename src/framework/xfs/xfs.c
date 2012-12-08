@@ -1385,7 +1385,18 @@ char ** PHYSFS_enumerateFiles(const char * path)
     return(ecd.list);
 }
 
-struct xfs_context_t * __xfs_init(const char * argv0)
+bool_t xfs_init(const char * path)
+{
+	char * p;
+
+	p = __xfs_platform_absolute_path(path);
+	xfs_add_to_search_path(p, 1);
+	free(p);
+
+	return TRUE;
+}
+
+struct xfs_context_t * __xfs_alloc(void)
 {
 	struct xfs_context_t * ctx;
 
@@ -1397,7 +1408,7 @@ struct xfs_context_t * __xfs_init(const char * argv0)
 	return ctx;
 }
 
-void __xfs_exit(struct xfs_context_t * ctx)
+void __xfs_free(struct xfs_context_t * ctx)
 {
 	if(!ctx)
 		return;

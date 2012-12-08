@@ -27,6 +27,9 @@ struct vm_t * vm_alloc(const char * path, int argc, char * argv[])
 	struct vm_t * vm;
 	int i;
 
+	if(!xfs_init(path))
+		return NULL;
+
 	vm = malloc(sizeof(struct vm_t));
 	if(!vm)
 		return NULL;
@@ -99,9 +102,10 @@ int vm_exec(const char * path, int argc, char * argv[])
 
 	vm = vm_alloc(path, argc, argv);
 	if(!vm)
+	{
+		runtime_free_restore(r);
 		return ret;
-
-	xfs_add_to_search_path("/romdisk/test.zip", 1);
+	}
 
 	ret = vm_run(vm);
 

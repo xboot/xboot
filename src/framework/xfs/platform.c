@@ -93,6 +93,19 @@ inline const char * __xfs_platform_directory_separator(void)
 	return ("/");
 }
 
+char * __xfs_platform_absolute_path(const char * path)
+{
+	char buf[MAX_PATH];
+	char * ret;
+
+	if(vfs_path_conv(path, buf) == 0)
+		ret = strdup(buf);
+	else
+		ret = strdup("/");
+
+	return ret;
+}
+
 char * __xfs_platform_cvt_to_dependent(const char * prepend, const char * dirname, const char * append)
 {
 	int len = ((prepend) ? strlen(prepend) : 0)	+ ((append) ? strlen(append) : 0) + strlen(dirname) + 1;

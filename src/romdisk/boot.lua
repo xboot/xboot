@@ -5,8 +5,8 @@ if not xboot then xboot = {} end
 package.path = "/romdisk/system/lib/?.lua;/romdisk/system/lib/?/init.lua;" .. package.path
 package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;" .. package.path
 
--- Main function
-function xboot.main()
+-- Loader function
+local function loader()
 	require("main")
 end
 
@@ -16,7 +16,7 @@ local function handler(msg, layer)
 end
 
 return function()
-	local res, ret = xpcall(xboot.main, handler)
+	local res, ret = xpcall(loader, handler)
 	if not res then return -1 end
 	return tonumber(ret) or -1
 end

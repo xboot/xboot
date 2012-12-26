@@ -101,6 +101,8 @@ size_t fifo_put(struct fifo * fifo, u8_t * buffer, size_t len)
 	size_t l;
 
 	len = MIN(len, fifo->size - fifo->in + fifo->out);
+	if(len == 0)
+		return 0;
 
 	/* first put the data starting from fifo->in to buffer end */
 	l = MIN(len, fifo->size - (fifo->in % fifo->size));

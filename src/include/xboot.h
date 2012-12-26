@@ -59,6 +59,10 @@ extern "C" {
 #define	CONFIG_HEAP_SIZE							(SZ_8M)
 #endif
 
+#if !defined(CONFIG_EVENT_FIFO_LENGTH)
+#define	CONFIG_EVENT_FIFO_LENGTH					(256)
+#endif
+
 #if !defined(CONFIG_IRQ_HASH_SIZE)
 #define	CONFIG_IRQ_HASH_SIZE						(31)
 #endif

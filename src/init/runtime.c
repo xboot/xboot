@@ -85,8 +85,8 @@ bool_t runtime_alloc_save(struct runtime_t ** rt)
 	r->__stderr = __file_alloc(2);
 
 	r->__module_list = __module_list_init();
-	r->__xfs_ctx = __xfs_alloc();
 	r->__event_base = __event_base_alloc();
+	r->__xfs_ctx = __xfs_alloc();
 
 	/* Set new runtime to current */
 	__current_runtime = r;
@@ -100,11 +100,11 @@ bool_t runtime_free_restore(struct runtime_t * rt)
 
 	if(r)
 	{
-		if(r->__event_base)
-			__event_base_free(r->__event_base);
-
 		if(r->__xfs_ctx)
 			__xfs_free(r->__xfs_ctx);
+
+		if(r->__event_base)
+			__event_base_free(r->__event_base);
 
 		if(r->__module_list)
 			__module_list_exit(r->__module_list);

@@ -127,7 +127,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				drivers/mtd/nand				\
 				drivers/mtd/nor					\
 				framework						\
-				framework/event					\
 				framework/framerate				\
 				framework/xfs					\
 				framework/sample

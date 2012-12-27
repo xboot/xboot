@@ -1,5 +1,5 @@
-#ifndef __FRAMEWORK_EVENT_H__
-#define __FRAMEWORK_EVENT_H__
+#ifndef __EVENT_H__
+#define __EVENT_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,7 +7,23 @@ extern "C" {
 
 #include <xboot.h>
 
+/*
+ * Forward declare
+ */
+enum event_type_t;
+struct event_t;
+struct event_watcher_t;
+struct event_base_t;
+
+/*
+ * Event callback function
+ */
+typedef void (*event_callback_t)(struct event_t * event);
+
 enum event_type_t {
+	/* Unknown */
+	EVENT_TYPE_UNKNOWN,
+
 	/* Keyboard event */
 	EVENT_TYPE_KEYBOARD_KEY_DOWN,
 	EVENT_TYPE_KEYBOARD_KEY_UP,
@@ -20,13 +36,9 @@ enum event_type_t {
 };
 
 struct event_t {
-	/* Event type */
 	enum event_type_t type;
-
-	/* Time stamp */
 	u32_t timestamp;
 
-	/* Event ... */
 	union {
 		struct keyboard_event_t {
 		} keyboard;
@@ -36,20 +48,29 @@ struct event_t {
 	} e;
 };
 
-struct event_base_t {
-	struct fifo * fifo;
+struct event_watcher_t {
+	enum event_type_t type;
+	event_callback_t callback;
 	struct list_head entry;
 };
 
+struct event_base_t {
+	struct fifo * fifo;
+	struct event_watcher_t * watcher;
+	struct list_head entry;
+};
 
 struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
+bool_t event_base_add_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback);
+bool_t event_base_del_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback);
+
 bool_t event_push(struct event_t * event);
 bool_t event_pop(struct event_t * event);
-bool_t event_flush(void);
+bool_t event_dispatch(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __FRAMEWORK_EVENT_H__ */
+#endif /* __EVENT_H__ */

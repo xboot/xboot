@@ -21,14 +21,10 @@
  */
 
 #include <spinlock.h>
-#include <framework/event/event.h>
+#include <fifo.h>
+#include <xboot/event.h>
 
-static struct event_base_t __event_base = {
-	.entry = {
-		.next	= &(__event_base.entry),
-		.prev	= &(__event_base.entry),
-	},
-};
+static struct event_base_t __event_base;
 static spinlock_t __event_base_lock;
 
 struct event_base_t * __event_base_alloc(void)
@@ -39,17 +35,21 @@ struct event_base_t * __event_base_alloc(void)
 	if(!eb)
 		return NULL;
 
-	spin_lock_irq(&__event_base_lock);
-
 	eb->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_LENGTH);
-	if(!eb->fifo)
+	eb->watcher = malloc(sizeof(struct event_watcher_t));
+	if(!eb->fifo || !eb->watcher)
 	{
+		if(eb->fifo)
+			fifo_free(eb->fifo);
+		if(eb->watcher)
+			free(eb->watcher);
 		free(eb);
-		spin_unlock_irq(&__event_base_lock);
 		return NULL;
 	}
-	list_add_tail(&eb->entry, &(__event_base.entry));
 
+	spin_lock_irq(&__event_base_lock);
+	init_list_head(&(eb->watcher->entry));
+	list_add_tail(&eb->entry, &(__event_base.entry));
 	spin_unlock_irq(&__event_base_lock);
 
 	return eb;
@@ -57,25 +57,77 @@ struct event_base_t * __event_base_alloc(void)
 
 void __event_base_free(struct event_base_t * eb)
 {
-	struct event_base_t * pos, * n;
+	struct event_base_t * ebpos, * ebn;
+	struct event_watcher_t * ewpos, * ewn;
 
 	if(!eb)
 		return;
 
 	spin_lock_irq(&__event_base_lock);
-
-	list_for_each_entry_safe(pos, n, &(__event_base.entry), entry)
+	list_for_each_entry_safe(ebpos, ebn, &(__event_base.entry), entry)
 	{
-		if(pos == eb)
+		if(ebpos == eb)
 		{
-			if(eb->fifo)
-				fifo_free(eb->fifo);
-			list_del(&(eb->entry));
-			free(eb);
+			if(ebpos->fifo)
+				fifo_free(ebpos->fifo);
+
+			if(ebpos->watcher)
+			{
+				list_for_each_entry_safe(ewpos, ewn, &(ebpos->watcher->entry), entry)
+				{
+					list_del(&(ewpos->entry));
+					free(ewpos);
+				}
+				free(eb->watcher);
+			}
+
+			list_del(&(ebpos->entry));
+			free(ebpos);
 		}
 	}
-
 	spin_unlock_irq(&__event_base_lock);
+}
+
+bool_t event_base_add_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback)
+{
+	struct event_watcher_t * ew;
+
+	if(!eb || !eb->watcher)
+		return FALSE;
+
+	ew = malloc(sizeof(struct event_watcher_t));
+	if(!ew)
+		return FALSE;
+
+	ew->type = type;
+	ew->callback = callback;
+
+	spin_lock_irq(&__event_base_lock);
+	list_add_tail(&ew->entry, &(eb->watcher->entry));
+	spin_unlock_irq(&__event_base_lock);
+
+	return TRUE;
+}
+
+bool_t event_base_del_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback)
+{
+	struct event_watcher_t * ewpos, * ewn;
+
+	if(!eb || !eb->watcher)
+		return FALSE;
+
+	spin_lock_irq(&__event_base_lock);
+	list_for_each_entry_safe(ewpos, ewn, &(eb->watcher->entry), entry)
+	{
+		if((ewpos->type == type) && (ewpos->callback == callback))
+		{
+			list_del(&(ewpos->entry));
+			free(ewpos);
+		}
+	}
+	spin_unlock_irq(&__event_base_lock);
+
+	return TRUE;
 }
 
 bool_t event_push(struct event_t * event)
@@ -86,12 +138,10 @@ bool_t event_push(struct event_t * event)
 		return FALSE;
 
 	spin_lock_irq(&__event_base_lock);
-
 	list_for_each_entry_safe(pos, n, &(__event_base.entry), entry)
 	{
 		fifo_put(pos->fifo, (u8_t *)event, sizeof(struct event_t));
 	}
-
 	spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
@@ -111,10 +161,25 @@ bool_t event_pop(struct event_t * event)
 	return ret;
 }
 
-bool_t event_flush(void)
+bool_t event_dispatch(void)
 {
+	struct event_watcher_t * ewpos, * ewn;
+	struct event_watcher_t * ew;
+	struct event_t event;
+
+	if(!event_pop(&event))
+		return FALSE;
+
 	spin_lock_irq(&__event_base_lock);
-	fifo_reset(runtime_get()->__event_base->fifo);
+	ew = runtime_get()->__event_base->watcher;
+	list_for_each_entry_safe(ewpos, ewn, &(ew->entry), entry)
+	{
+		if(ewpos->type == event.type)
+		{
+			if(ewpos->callback)
+				ewpos->callback(&event);
+		}
+	}
 	spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
@@ -122,8 +187,8 @@ bool_t event_flush(void)
 
 static __init void event_init(void)
 {
-	init_list_head(&(__event_base.entry));
 	spin_lock_init(&__event_base_lock);
+	init_list_head(&(__event_base.entry));
 }
 
 static __exit void event_exit(void)

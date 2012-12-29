@@ -1,6 +1,10 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -114,5 +118,8 @@ struct serial_driver
 bool_t register_serial(struct serial_driver * drv);
 bool_t unregister_serial(struct serial_driver * drv);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __SERIAL_H__ */

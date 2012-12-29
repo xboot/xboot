@@ -1,6 +1,10 @@
 #ifndef __LED_TRIGGER_H__
 #define __LED_TRIGGER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <xboot/list.h>
 #include <led/led.h>
@@ -35,9 +39,11 @@ struct led_trigger_list
 	struct list_head entry;
 };
 
-
 bool_t trigger_register(struct trigger * trigger);
 bool_t trigger_unregister(struct trigger * trigger);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LED_TRIGGER_H__ */

@@ -1,6 +1,10 @@
 #ifndef __TIME_H__
 #define __TIME_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct tm {
 	int tm_sec;				/* Seconds		[0-60] */
 	int tm_min;				/* Minutes		[0-59] */
@@ -17,5 +21,9 @@ struct tm {
 };
 
 size_t strftime(char * s, size_t max, const char * fmt, const struct tm * t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __TIME_H__ */

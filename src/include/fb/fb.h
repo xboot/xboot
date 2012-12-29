@@ -1,6 +1,10 @@
 #ifndef __FB_H__
 #define __FB_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <graphic/surface.h>
 
@@ -49,5 +53,9 @@ bool_t set_default_framebuffer(const char * name);
 struct fb * search_framebuffer(const char * name);
 bool_t register_framebuffer(struct fb * fb);
 bool_t unregister_framebuffer(struct fb * fb);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __FB_H__ */

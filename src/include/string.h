@@ -1,6 +1,10 @@
 #ifndef __STRING_H__
 #define __STRING_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <types.h>
 
 /*
@@ -44,5 +48,9 @@ void * memmove(void * dest, const void * src, size_t n);
 void * memchr(const void * s, int c, size_t n);
 void * memscan(void * addr, int c, size_t size);
 int memcmp(const void * s1, const void * s2, size_t n);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __STRING_H__ */

@@ -1,6 +1,10 @@
 #ifndef __ELF_H__
 #define __ELF_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <elf/elf32.h>
 #include <elf/elf64.h>
@@ -279,5 +283,8 @@ enum {
 #define ELF64_R_TYPE(i)					((i) & 0xffffffff)
 #define ELF64_R_INFO(sym,type)			((((elf64_xword) (sym)) << 32) + (type))
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __ELF_H__ */

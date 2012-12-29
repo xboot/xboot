@@ -1,6 +1,10 @@
 #ifndef __FILEIO_H__
 #define __FILEIO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
@@ -43,5 +47,9 @@ int truncate(const char * path, loff_t length);
 
 ssize_t readv(int fd, const struct iovec * iov, int iovcnt);
 ssize_t writev(int fd, const struct iovec * iov, int iovcnt);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __FILEIO_H__ */

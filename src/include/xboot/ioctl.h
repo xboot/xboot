@@ -1,6 +1,10 @@
 #ifndef __IOCTL_H__
 #define __IOCTL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 
 /*
@@ -36,5 +40,9 @@ enum
 	IOCTL_SET_FB_BACKLIGHT				= 121,
 	IOCTL_GET_FB_BACKLIGHT				= 122,
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __IOCTL_H__ */

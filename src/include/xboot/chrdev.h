@@ -1,6 +1,10 @@
 #ifndef __CHRDEV_H__
 #define __CHRDEV_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -52,5 +56,9 @@ struct chrdev * search_chrdev(const char * name);
 struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type);
 bool_t register_chrdev(struct chrdev * dev);
 bool_t unregister_chrdev(const char * name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __CHRDEV_H__ */

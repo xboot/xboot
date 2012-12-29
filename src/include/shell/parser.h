@@ -1,6 +1,10 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <ctype.h>
@@ -36,5 +40,9 @@ struct parser_state_transition
 };
 
 bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __PARSER_H__ */

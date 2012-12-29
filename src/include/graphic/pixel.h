@@ -1,6 +1,10 @@
 #ifndef __GRAPHIC_PIXEL_H__
 #define __GRAPHIC_PIXEL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <graphic/color.h>
 
@@ -64,5 +68,9 @@ void set_pixel_info(struct pixel_info * info, enum pixel_format fmt);
 
 u32_t map_pixel_color(struct pixel_info * info, struct color_t * col);
 void unmap_pixel_color(struct pixel_info * info, u32_t c, struct color_t * col);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GRAPHIC_PIXEL_H__ */

@@ -1,6 +1,10 @@
 #ifndef __RSA_H__
 #define __RSA_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 
@@ -15,5 +19,9 @@ struct rsa_public_key {
 };
 
 bool_t rsa_verify(const struct rsa_public_key * key, const u8_t * signature, const u8_t * sha);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __RSA_H__ */

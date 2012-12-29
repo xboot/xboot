@@ -1,6 +1,10 @@
 #ifndef __IO_H__
 #define __IO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 
@@ -59,5 +63,9 @@ static inline void __writel(ptrdiff_t addr, u32_t value)
 #define writeb(a, v)	__writeb(a, v)
 #define writew(a, v)	__writew(a, v)
 #define writel(a, v)	__writel(a, v)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __IO_H__ */

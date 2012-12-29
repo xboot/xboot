@@ -1,6 +1,10 @@
 #ifndef __XTIME_H__
 #define __XTIME_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 
 struct time {
@@ -13,10 +17,13 @@ struct time {
 	u16_t year;
 };
 
-
 void do_system_xtime(void);
 u32_t mktime(const u32_t year0, const u32_t mon0, const u32_t day, const u32_t hour, const u32_t min, const u32_t sec);
 u8_t mkweek(u32_t year, u32_t mon, u32_t day);
 u32_t get_time_stamp(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __XTIME_H__ */

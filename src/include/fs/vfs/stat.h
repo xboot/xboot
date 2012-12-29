@@ -1,6 +1,10 @@
 #ifndef __STAT_H__
 #define __STAT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 
@@ -61,5 +65,9 @@ struct stat
 #define	R_OK					(0x04)
 #define	W_OK					(0x02)
 #define	X_OK					(0x01)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __STAT_H__ */

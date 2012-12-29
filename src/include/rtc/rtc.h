@@ -1,6 +1,10 @@
 #ifndef __RTC_H__
 #define __RTC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -46,5 +50,9 @@ u32_t time_to_rtc(struct time * tm);
 
 bool_t register_rtc(struct rtc_driver * drv);
 bool_t unregister_rtc(struct rtc_driver * drv);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __RTC_H__ */

@@ -1,6 +1,10 @@
 #ifndef __ELF32_H__
 #define __ELF32_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <elf/elf.h>
 
 /* Type for a 16-bit quantity */
@@ -126,5 +130,9 @@ struct elf32_phdr
 	elf32_word		p_flags;		/* Segment flags */
 	elf32_word		p_align;		/* Segment alignment */
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __ELF32_H__ */

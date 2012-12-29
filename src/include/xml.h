@@ -1,8 +1,11 @@
 #ifndef __XML_H__
 #define __XML_H__
 
-#include <xboot.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+#include <xboot.h>
 
 struct xml {
 	char * name;									/* tag name */
@@ -178,5 +181,8 @@ char * xml_toxml(struct xml * xml);
  */
 struct xml * xml_parse_file(const char * name);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __XML_H__ */

@@ -1,6 +1,10 @@
 #ifndef __MOUSE_H__
 #define __MOUSE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <input/input.h>
 
@@ -22,5 +26,9 @@ typedef void (*handler_onmouseraw)(struct input_event * event);
 
 bool_t install_listener_onmouseraw(handler_onmouseraw raw);
 bool_t remove_listener_onmouseraw(handler_onmouseraw raw);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MOUSE_H__ */

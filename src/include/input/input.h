@@ -1,6 +1,10 @@
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 
 enum input_type {
@@ -59,5 +63,9 @@ bool_t unregister_input(struct input * input);
 
 void input_report(enum input_type type, s32_t code, s32_t value);
 void input_sync(enum input_type type);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __INPUT_H__ */

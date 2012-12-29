@@ -1,6 +1,10 @@
 #ifndef __FS_H__
 #define __FS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -31,5 +35,9 @@ struct fs_list
 bool_t filesystem_register(struct filesystem * fs);
 bool_t filesystem_unregister(struct filesystem * fs);
 struct filesystem * filesystem_search(const char * name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __FS_H__ */

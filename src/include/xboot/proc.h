@@ -1,6 +1,10 @@
 #ifndef __PROC_H__
 #define __PROC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -27,9 +31,12 @@ struct proc_list
 	struct list_head entry;
 };
 
-
 bool_t proc_register(struct proc * proc);
 bool_t proc_unregister(struct proc * proc);
 struct proc * proc_search(const char *name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __PROC_H__ */

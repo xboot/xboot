@@ -1,6 +1,9 @@
 #ifndef __TICK_H__
 #define __TICK_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <xboot.h>
 
@@ -29,5 +32,9 @@ void tick_interrupt(void);
 bool_t register_tick(struct tick * tick);
 u32_t get_system_hz(void);
 bool_t init_system_tick(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __TICK_H__ */

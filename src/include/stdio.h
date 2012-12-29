@@ -1,6 +1,10 @@
 #ifndef __STDIO_H__
 #define __STDIO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <types.h>
 #include <ctype.h>
 #include <errno.h>
@@ -120,5 +124,9 @@ FILE * __file_alloc(int fd);
 FILE * __runtime_get_stdin(void);
 FILE * __runtime_get_stdout(void);
 FILE * __runtime_get_stderr(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __STDIO_H__ */

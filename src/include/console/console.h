@@ -1,9 +1,12 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <xboot/list.h>
-
 
 enum {
 	UNICODE_BS				= 0x0008,
@@ -134,5 +137,9 @@ int console_print(struct console * console, const char * fmt, ...);
 bool_t console_hline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t x);
 bool_t console_vline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t y);
 bool_t console_rect(struct console * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __CONSOLE_H__ */

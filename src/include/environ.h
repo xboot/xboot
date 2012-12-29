@@ -1,6 +1,10 @@
 #ifndef __ENVIRON_H__
 #define __ENVIRON_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <types.h>
 
 /*
@@ -20,5 +24,9 @@ int clearenv(void);
 
 bool_t loadenv(char * file);
 bool_t saveenv(char * file);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __ENVIRON_H__ */

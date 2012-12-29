@@ -1,6 +1,10 @@
 #ifndef __ERRNO_H__
 #define __ERRNO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum {
 	ENOERR			=  0,
 	EDOM			= -1,
@@ -51,5 +55,9 @@ extern volatile int * __runtime_errno_location(void);
  * Returns a string containing a message derived from an error code
  */
 char * strerror(int num);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __ERRNO_H__ */

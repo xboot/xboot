@@ -1,6 +1,9 @@
 #ifndef __LINUX_H__
 #define __LINUX_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <xboot.h>
 
@@ -172,5 +175,9 @@ static struct tagtable __tagtable_##fn __tag = { tag, fn }
 
 #define for_each_tag(t,base)		\
 	for (t = base; t->hdr.size; t = tag_next(t))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LINUX_H__ */

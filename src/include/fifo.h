@@ -1,6 +1,10 @@
 #ifndef __FIFO_H__
 #define __FIFO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <types.h>
 
 struct fifo {
@@ -25,5 +29,9 @@ void fifo_reset(struct fifo * fifo);
 size_t fifo_len(struct fifo * fifo);
 size_t fifo_put(struct fifo * fifo, u8_t * buffer, size_t len);
 size_t fifo_get(struct fifo * fifo, u8_t * buffer, size_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __FIFO_H__ */

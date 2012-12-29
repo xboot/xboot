@@ -1,6 +1,10 @@
 #ifndef __MMC_HOST_H__
 #define __MMC_HOST_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <string.h>
 #include <xboot/list.h>
@@ -42,5 +46,9 @@ struct mmc_host_list
 struct mmc_host * search_mmc_host(const char * name);
 bool_t register_mmc_host(struct mmc_host * host);
 bool_t unregister_mmc_host(struct mmc_host * host);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MMC_HOST_H__ */

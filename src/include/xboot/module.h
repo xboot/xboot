@@ -1,6 +1,10 @@
 #ifndef __MODULE_H__
 #define __MODULE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 
 struct symbol_t
@@ -59,5 +63,9 @@ struct module_t * find_module(const char * name);
 
 struct module_list * __module_list_init(void);
 void __module_list_exit(struct module_list * m);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MODULE_H__ */

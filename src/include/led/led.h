@@ -1,8 +1,11 @@
 #ifndef __LED_H__
 #define __LED_H__
 
-#include <xboot.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+#include <xboot.h>
 
 #define	LED_BRIGHTNESS_OFF		(0)
 #define	LED_BRIGHTNESS_HALF		(128)
@@ -22,5 +25,9 @@ struct led
 	/* set led's brightness */
 	void (*set)(u8_t brightness);
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LED_H__ */

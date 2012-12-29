@@ -1,6 +1,10 @@
 #ifndef __SIZES_H__
 #define __SIZES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SZ_16				(0x00000010)
 #define SZ_256				(0x00000100)
 #define SZ_512				(0x00000200)
@@ -30,5 +34,9 @@
 #define SZ_2G				(0x80000000)
 
 #define ARRAY_SIZE(array)	( sizeof(array) / sizeof((array)[0]) )
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __SIZES_H__ */

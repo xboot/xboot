@@ -1,6 +1,10 @@
 #ifndef __PARTITION_H__
 #define __PARTITION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -60,5 +64,9 @@ struct partition_parser_list
 bool_t register_partition_parser(struct partition_parser * parser);
 bool_t unregister_partition_parser(struct partition_parser * parser);
 bool_t partition_parser_probe(struct disk * disk);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __PARTITION_H__ */

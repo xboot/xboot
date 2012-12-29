@@ -1,6 +1,10 @@
 #ifndef __CTYPE_H__
 #define __CTYPE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const char __const_ctype[];
 
 #define	_U	0x01
@@ -28,5 +32,9 @@ int isxdigit(int c);
 int toascii(int c);
 int tolower(int c);
 int toupper(int c);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __CTYPE_H__ */

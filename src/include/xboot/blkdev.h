@@ -1,6 +1,10 @@
 #ifndef __BLKDEV_H__
 #define __BLKDEV_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -61,5 +65,9 @@ loff_t get_blkdev_total_size(struct blkdev * dev);
 size_t get_blkdev_total_count(struct blkdev * dev);
 size_t get_blkdev_size(struct blkdev * dev);
 loff_t get_blkdev_offset(struct blkdev * dev, size_t blkno);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __BLKDEV_H__ */

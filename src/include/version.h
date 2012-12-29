@@ -1,6 +1,10 @@
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <console/console.h>
 
@@ -14,5 +18,9 @@
 
 void xboot_banner(struct console * console);
 void xboot_char_logo(struct console * console, u32_t x0, u32_t y0);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __VERSION_H__ */

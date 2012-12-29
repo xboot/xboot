@@ -1,6 +1,10 @@
 #ifndef __DISK_H__
 #define __DISK_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -51,5 +55,9 @@ struct disk_list
 
 bool_t register_disk(struct disk * disk, enum blkdev_type type);
 bool_t unregister_disk(struct disk * disk);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __DISK_H__ */

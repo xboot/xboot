@@ -1,6 +1,10 @@
 #ifndef __MMC_CARD_H__
 #define __MMC_CARD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <string.h>
 #include <xboot/list.h>
@@ -106,6 +110,10 @@ void mmc_card_probe(void);
 void mmc_card_remove(void);
 
 struct mmc_card * search_mmc_card(const char * name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MMC_CARD_H__ */
 

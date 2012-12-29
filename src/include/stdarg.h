@@ -1,6 +1,9 @@
 #ifndef __STDARG_H__
 #define __STDARG_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef __builtin_va_list	va_list;
 
@@ -24,5 +27,8 @@ typedef __builtin_va_list	va_list;
  */
 #define va_copy(d, s)		__builtin_va_copy(d, s)
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __STDARG_H__ */

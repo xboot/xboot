@@ -1,6 +1,10 @@
 #ifndef __GRAPHIC_MAPS_SOFTWARE_H__
 #define __GRAPHIC_MAPS_SOFTWARE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <graphic/surface.h>
 
@@ -17,5 +21,9 @@ bool_t map_software_blit(struct surface_t * dst, struct rect_t * dst_rect, struc
 struct surface_t * map_software_scale(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h);
 struct surface_t * map_software_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type);
 struct surface_t * map_software_transform(struct surface_t * surface);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GRAPHIC_MAPS_SOFTWARE_H__ */

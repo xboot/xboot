@@ -1,6 +1,10 @@
 #ifndef __KEYBOARD_H__
 #define __KEYBOARD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <input/input.h>
 
@@ -164,5 +168,9 @@ bool_t install_listener_onkeyup(handler_onkeyup keyup);
 bool_t remove_listener_onkeyup(handler_onkeyup keyup);
 bool_t install_listener_onkeydown(handler_onkeydown keydown);
 bool_t remove_listener_onkeydown(handler_onkeydown keydown);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __KEYBOARD_H__ */

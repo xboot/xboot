@@ -1,5 +1,5 @@
 /*
- * framework/event/event.c
+ * kernel/core/event.c
  *
  * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

@@ -1,6 +1,10 @@
 #ifndef __MACHINE_H__
 #define __MACHINE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <mode/mode.h>
 
@@ -121,5 +125,9 @@ bool_t machine_reset(void);
 bool_t machine_batinfo(struct battery_info * info);
 bool_t machine_cleanup(void);
 bool_t machine_authentication(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MACHINE_H__ */

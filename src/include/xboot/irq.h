@@ -1,6 +1,9 @@
 #ifndef __IRQ_H__
 #define __IRQ_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <xboot.h>
 #include <types.h>
@@ -44,5 +47,8 @@ bool_t irq_unregister(struct irq * irq);
 bool_t request_irq(const char *name, irq_handler handler);
 bool_t free_irq(const char *name);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __IRQ_H__ */

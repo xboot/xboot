@@ -1,6 +1,10 @@
 #ifndef __MATH_H__
 #define __MATH_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <types.h>
 #include <endian.h>
 
@@ -208,5 +212,9 @@ double atan(double x);
 float atanf(float x);
 double atan2(double y, double x);
 float atan2f(float y, float x);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MATH_H__ */

@@ -1,6 +1,10 @@
 #ifndef __STDDEF_H__
 #define __STDDEF_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(__cplusplus)
 #define NULL		(0)
 #else
@@ -17,5 +21,9 @@ enum {
 	FALSE	= 0,
 	TRUE	= 1,
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __STDDEF_H__ */

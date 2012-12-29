@@ -1,6 +1,10 @@
 #ifndef __FCNTL_H__
 #define __FCNTL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 
 /*
@@ -27,5 +31,8 @@
 #define VFS_SEEK_CUR			(1)
 #define VFS_SEEK_END			(2)
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __FCNTL_H__ */

@@ -1,11 +1,14 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
 #include <xboot/list.h>
-
 
 /*
  * log level
@@ -50,5 +53,9 @@ struct log_list * get_log_list(void);
 #define LOG_I(fmt, arg...)				log_add(LOG_INFO, __LINE__, __FILE__, fmt, ##arg)
 #define LOG_W(fmt, arg...)				log_add(LOG_WARNNING, __LINE__, __FILE__, fmt, ##arg)
 #define LOG_E(fmt, arg...)				log_add(LOG_ERROR, __LINE__, __FILE__, fmt, ##arg)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LOG_H__ */

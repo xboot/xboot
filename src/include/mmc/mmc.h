@@ -1,6 +1,10 @@
 #ifndef __MMC_H__
 #define __MMC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <string.h>
 #include <xboot/list.h>
@@ -95,5 +99,9 @@
 #define MMC_VDD_33_34				0x00200000	/* vdd voltage 3.3 ~ 3.4 */
 #define MMC_VDD_34_35				0x00400000	/* vdd voltage 3.4 ~ 3.5 */
 #define MMC_VDD_35_36				0x00800000	/* vdd voltage 3.5 ~ 3.6 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MMC_H__ */

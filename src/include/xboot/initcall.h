@@ -1,6 +1,10 @@
 #ifndef __INITCALL_H__
 #define __INITCALL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Used for initialization calls.
  */
@@ -62,5 +66,9 @@ typedef void (*exitcall_t)(void);
 
 void do_initcalls(void);
 void do_exitcalls(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __INITCALL_H__ */

@@ -1,6 +1,10 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <types.h>
 #include <stddef.h>
 
@@ -410,5 +414,9 @@ static inline void hlist_add_after(struct hlist_node *n,
 	     pos && ({ n = pos->next; 1; }) &&									\
 		({ tpos = hlist_entry(pos, typeof(*tpos), member); 1;});			\
 	     pos = n)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LIST_H__ */

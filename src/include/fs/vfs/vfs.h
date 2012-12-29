@@ -1,6 +1,10 @@
 #ifndef __VFS_H__
 #define __VFS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <xboot/list.h>
 #include <xboot/blkdev.h>
@@ -273,5 +277,9 @@ s32_t sys_stat(char * path, struct stat * st);
 s32_t sys_truncate(char * path, loff_t length);
 s32_t sys_ftruncate(struct file * fp, loff_t length);
 s32_t sys_fchdir(struct file * fp, char * cwd);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __VFS_H__ */

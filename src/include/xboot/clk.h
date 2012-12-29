@@ -1,6 +1,10 @@
 #ifndef __CLK_H__
 #define __CLK_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
@@ -30,5 +34,9 @@ struct clk_list
 bool_t clk_register(struct clk * clk);
 bool_t clk_unregister(struct clk * clk);
 bool_t clk_get_rate(const char *name, u64_t * rate);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __CLK_H__ */

@@ -1,6 +1,10 @@
 #ifndef __NFC_H__
 #define __NFC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <string.h>
 #include <xboot/list.h>
@@ -62,9 +66,12 @@ struct nfc_list
 	struct list_head entry;
 };
 
-
 struct nfc * search_nfc(const char *name);
 bool_t register_nfc(struct nfc * nfc);
 bool_t unregister_nfc(struct nfc * nfc);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __NFC_H__ */

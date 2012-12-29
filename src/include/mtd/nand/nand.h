@@ -1,6 +1,10 @@
 #ifndef __NAND_H__
 #define __NAND_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <string.h>
 #include <xboot/list.h>
@@ -144,5 +148,8 @@ void nand_flash_remove(void);
 struct nand_device * search_nand_device(const char * name);
 s32_t nand_read(struct nand_device * nand, u8_t * buf, u32_t addr, u32_t size);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __NAND_H__ */

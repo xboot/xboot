@@ -1,6 +1,10 @@
 #ifndef __NAND_IDS_H__
 #define __NAND_IDS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 
 /*
@@ -95,12 +99,14 @@ struct nand_info
 	u32_t options;
 };
 
-
 /*
  * extern nand_flash_ids and nand_manuf_ids.
  */
 extern struct nand_info nand_flash_ids[];
 extern struct nand_manufacturer nand_manuf_ids[];
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __NAND_IDS_H__ */

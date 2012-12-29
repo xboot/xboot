@@ -1,6 +1,10 @@
 #ifndef __ELF64_H__
 #define __ELF64_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <elf/elf.h>
 
 /* Type for a 16-bit quantity */
@@ -124,5 +128,9 @@ struct elf64_phdr {
 	elf64_xword		p_memsz;		/* Segment size in memory */
 	elf64_xword		p_align;		/* Segment alignment */
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __ELF64_H__ */

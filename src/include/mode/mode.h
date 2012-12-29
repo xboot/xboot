@@ -1,6 +1,10 @@
 #ifndef __MODE_H__
 #define __MODE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 #include <types.h>
 
@@ -27,5 +31,9 @@ void run_graphic_mode(void);
 void run_application_mode(void);
 
 bool_t register_application(application_t app);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MODE_H__ */

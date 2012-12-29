@@ -1,6 +1,10 @@
 #ifndef __BYTEORDER_H__
 #define __BYTEORDER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xboot.h>
 
 static inline u16_t __swab16(u16_t x)
@@ -70,6 +74,10 @@ static inline u32_t __swahb32(u32_t x)
 #define be32_to_cpu(x)	(__swab32((u32_t)(x)))
 #define cpu_to_be16(x)	(__swab16((u16_t)(x)))
 #define be16_to_cpu(x)	(__swab16((u16_t)(x)))
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* __BYTEORDER_H__ */

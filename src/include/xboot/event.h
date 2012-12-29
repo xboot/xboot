@@ -55,7 +55,7 @@ struct event_watcher_t {
 };
 
 struct event_base_t {
-	struct fifo * fifo;
+	struct fifo_t * fifo;
 	struct event_watcher_t * watcher;
 	struct list_head entry;
 };

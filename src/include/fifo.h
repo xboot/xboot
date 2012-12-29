@@ -7,7 +7,7 @@ extern "C" {
 
 #include <types.h>
 
-struct fifo {
+struct fifo_t {
 	/* the buffer holding the data */
 	u8_t * buffer;
 
@@ -22,13 +22,13 @@ struct fifo {
 };
 
 
-struct fifo * fifo_init(u8_t * buffer, size_t size);
-struct fifo * fifo_alloc(size_t size);
-void fifo_free(struct fifo * fifo);
-void fifo_reset(struct fifo * fifo);
-size_t fifo_len(struct fifo * fifo);
-size_t fifo_put(struct fifo * fifo, u8_t * buffer, size_t len);
-size_t fifo_get(struct fifo * fifo, u8_t * buffer, size_t len);
+struct fifo_t * fifo_init(u8_t * buffer, size_t size);
+struct fifo_t * fifo_alloc(size_t size);
+void fifo_free(struct fifo_t * fifo);
+void fifo_reset(struct fifo_t * fifo);
+size_t fifo_len(struct fifo_t * fifo);
+size_t fifo_put(struct fifo_t * fifo, u8_t * buffer, size_t len);
+size_t fifo_get(struct fifo_t * fifo, u8_t * buffer, size_t len);
 
 #ifdef __cplusplus
 }

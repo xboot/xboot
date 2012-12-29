@@ -55,18 +55,18 @@ static struct input_list __input_list = {
 };
 static struct input_list * input_list = &__input_list;
 
-static struct fifo * input_keyboard_fifo;
-static struct fifo * input_mouse_fifo;
-static struct fifo * input_touchscreen_fifo;
-static struct fifo * input_joystick_fifo;
-static struct fifo * input_accelerometer_fifo;
-static struct fifo * input_gyroscope_fifo;
-static struct fifo * input_light_fifo;
-static struct fifo * input_magnetic_fifo;
-static struct fifo * input_orientation_fifo;
-static struct fifo * input_pressure_fifo;
-static struct fifo * input_proximity_fifo;
-static struct fifo * input_temperature_fifo;
+static struct fifo_t * input_keyboard_fifo;
+static struct fifo_t * input_mouse_fifo;
+static struct fifo_t * input_touchscreen_fifo;
+static struct fifo_t * input_joystick_fifo;
+static struct fifo_t * input_accelerometer_fifo;
+static struct fifo_t * input_gyroscope_fifo;
+static struct fifo_t * input_light_fifo;
+static struct fifo_t * input_magnetic_fifo;
+static struct fifo_t * input_orientation_fifo;
+static struct fifo_t * input_pressure_fifo;
+static struct fifo_t * input_proximity_fifo;
+static struct fifo_t * input_temperature_fifo;
 
 
 struct input * search_input(const char * name)

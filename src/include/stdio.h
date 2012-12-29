@@ -52,8 +52,8 @@ struct __FILE {
 	fpos_t (*seek)(FILE *, fpos_t, int);
 	int (*close)(FILE *);
 
-	struct fifo * fifo_read;
-	struct fifo * fifo_write;
+	struct fifo_t * fifo_read;
+	struct fifo_t * fifo_write;
 
 	unsigned char * buf;
 	size_t bufsz;

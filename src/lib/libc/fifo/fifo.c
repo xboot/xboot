@@ -1,5 +1,5 @@
 /*
- * lib/libc/fifo.c
+ * libc/fifo/fifo.c
  */
 
 #include <types.h>
@@ -22,15 +22,18 @@
  * buffer: the preallocated buffer to be used.
  * size: the size of the internal buffer.
  */
-struct fifo_t * fifo_init(u8_t * buffer, size_t size)
+struct fifo_t * fifo_init(u8_t * buf, size_t size)
 {
 	struct fifo_t * fifo;
+
+	if(!buf)
+		return NULL;
 
 	fifo = malloc(sizeof(struct fifo_t));
 	if(!fifo)
 		return NULL;
 
-	fifo->buffer = buffer;
+	fifo->buffer = buf;
 	fifo->size = size;
 	fifo->in = fifo->out = 0;
 
@@ -63,6 +66,9 @@ struct fifo_t * fifo_alloc(size_t size)
  */
 void fifo_free(struct fifo_t * fifo)
 {
+	if(!fifo)
+		return;
+
 	free(fifo->buffer);
 	free(fifo);
 }
@@ -96,20 +102,20 @@ size_t fifo_len(struct fifo_t * fifo)
  * the FIFO depending on the free space, and returns the number of
  * bytes copied.
  */
-size_t fifo_put(struct fifo_t * fifo, u8_t * buffer, size_t len)
+size_t fifo_put(struct fifo_t * fifo, u8_t * buf, size_t len)
 {
 	size_t l;
 
 	len = MIN(len, fifo->size - fifo->in + fifo->out);
-	if(len == 0)
+	if(len <= 0)
 		return 0;
 
 	/* first put the data starting from fifo->in to buffer end */
 	l = MIN(len, fifo->size - (fifo->in % fifo->size));
-	memcpy(fifo->buffer + (fifo->in % fifo->size), buffer, l);
+	memcpy(fifo->buffer + (fifo->in % fifo->size), buf, l);
 
 	/* then put the rest (if any) at the beginning of the buffer */
-	memcpy(fifo->buffer, buffer + l, len - l);
+	memcpy(fifo->buffer, buf + l, len - l);
 
 	fifo->in += len;
 
@@ -126,20 +132,20 @@ size_t fifo_put(struct fifo_t * fifo, u8_t * buffer, size_t len)
  * This function copies at most len bytes from the fifo into the
  * buffer and returns the number of copied bytes.
  */
-size_t fifo_get(struct fifo_t * fifo, u8_t * buffer, size_t len)
+size_t fifo_get(struct fifo_t * fifo, u8_t * buf, size_t len)
 {
-	u32_t l;
+	size_t l;
 
 	len = MIN(len, fifo->in - fifo->out);
-	if(len == 0)
+	if(len <= 0)
 		return 0;
 
 	/* first get the data from fifo->out until the end of the buffer */
 	l = MIN(len, fifo->size - (fifo->out % fifo->size));
-	memcpy(buffer, fifo->buffer + (fifo->out % fifo->size), l);
+	memcpy(buf, fifo->buffer + (fifo->out % fifo->size), l);
 
 	/* then get the rest (if any) from the beginning of the buffer */
-	memcpy(buffer + l, fifo->buffer, len - l);
+	memcpy(buf + l, fifo->buffer, len - l);
 
 	fifo->out += len;
 

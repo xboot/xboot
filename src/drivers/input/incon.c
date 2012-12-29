@@ -33,7 +33,7 @@
 #include <console/console.h>
 #include <input/keyboard/keyboard.h>
 
-static struct fifo * input_console_fifo;
+static struct fifo_t * input_console_fifo;
 static bool_t input_console_onoff;
 
 static void incon_keyboard_handler(enum key_code key)

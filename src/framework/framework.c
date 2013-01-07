@@ -20,6 +20,7 @@
  *
  */
 
+#include <framework/xfs/xfs.h>
 #include <framework/framework.h>
 
 extern int luaopen_framerate(lua_State * L);
@@ -76,7 +77,10 @@ static const char * __reader(lua_State * L, void * data, size_t * size)
 
 	ret = xfs_read(rd->file, rd->buffer, 1, LUAL_BUFFERSIZE);
 	if(ret < 0)
-		return lua_error(L);
+	{
+		lua_error(L);
+		return NULL;
+	}
 
 	*size = (size_t)ret;
 	return rd->buffer;

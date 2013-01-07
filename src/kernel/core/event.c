@@ -20,8 +20,8 @@
  *
  */
 
-#include <spinlock.h>
 #include <fifo.h>
+#include <spinlock.h>
 #include <xboot/event.h>
 
 static struct event_base_t __event_base;

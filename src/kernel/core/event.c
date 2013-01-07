@@ -88,7 +88,7 @@ void __event_base_free(struct event_base_t * eb)
 	spin_unlock_irq(&__event_base_lock);
 }
 
-bool_t event_base_add_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback)
+bool_t event_base_add_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback, void * data)
 {
 	struct event_watcher_t * ew;
 
@@ -101,6 +101,7 @@ bool_t event_base_add_watcher(struct event_base_t * eb, enum event_type_t type, 
 
 	ew->type = type;
 	ew->callback = callback;
+	ew->data = data;
 
 	spin_lock_irq(&__event_base_lock);
 	list_add_tail(&ew->entry, &(eb->watcher->entry));
@@ -177,7 +178,7 @@ bool_t event_dispatch(void)
 		if(ewpos->type == event.type)
 		{
 			if(ewpos->callback)
-				ewpos->callback(&event);
+				ewpos->callback(&event, ewpos->data);
 		}
 	}
 	spin_unlock_irq(&__event_base_lock);

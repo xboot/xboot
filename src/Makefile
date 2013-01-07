@@ -130,7 +130,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				framework						\
 				framework/framerate				\
 				framework/xfs					\
-				framework/sample
+				framework/base64
 
 #
 # Add external library

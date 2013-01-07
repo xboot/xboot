@@ -24,11 +24,11 @@
 #include <framework/framework.h>
 
 extern int luaopen_framerate(lua_State * L);
-extern int luaopen_sample(lua_State * L);
+extern int luaopen_org_xboot_base64(lua_State * L);
 
 static const luaL_Reg xboot_libs[] = {
 	{ "xboot.framerate", luaopen_framerate },
-	{ "xboot.sample", luaopen_sample },
+	{ "org.xboot.base64", luaopen_org_xboot_base64 },
 	{ "xboot.boot", luaopen_boot },
 	{ NULL, NULL }
 };

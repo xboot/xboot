@@ -17,8 +17,16 @@ local function main()
 	end
 end
 
-printr(xboot)
-printr(arg)
-main()
-assert(false)
+local base64 = require "org.xboot.base64"
+printr(base64)
+
+a = base64.encode("abc")
+b = base64.decode(a)
+
+print(a)
+print(b)
+--printr(xboot)
+--printr(arg)
+--main()
+--assert(false)
 

@@ -81,7 +81,7 @@ static int do_log(int argc, char ** argv)
 	num = log_numberof();
 	for(i = 0; i < num; i++)
 	{
-		list = list_entry((&list->entry)->prev, struct log_list, entry);
+		list = list_entry((&list->entry)->next, struct log_list, entry);
 
 		switch(list->level)
 		{

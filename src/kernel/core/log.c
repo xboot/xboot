@@ -93,7 +93,7 @@ bool_t log_add(enum log_level level, const int line, const char * file, const ch
 	if(log_numberof() >= CONFIG_MAX_NUMBER_OF_LOG)
 		log_remove();
 
-	list_add(&list->entry, &log_list->entry);
+	list_add_tail(&list->entry, &log_list->entry);
 
 	return TRUE;
 }
@@ -104,7 +104,7 @@ bool_t log_add(enum log_level level, const int line, const char * file, const ch
 bool_t log_remove(void)
 {
 	struct log_list * list;
-	struct list_head * pos = (&log_list->entry)->prev;
+	struct list_head * pos = (&log_list->entry)->next;
 
 	if(!list_empty(&log_list->entry))
 	{

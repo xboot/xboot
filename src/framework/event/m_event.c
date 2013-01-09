@@ -42,8 +42,8 @@ static int l_event_new(lua_State * L)
 		break;
 
 	case EVENT_TYPE_MOUSE_MOTION:
-		event.e.mouse.x = luaL_optint(L, 2, 0);
-		event.e.mouse.y = luaL_optint(L, 3, 0);
+//		event.e.mouse.x = luaL_optint(L, 2, 0);
+//		event.e.mouse.y = luaL_optint(L, 3, 0);
 		break;
 	case EVENT_TYPE_MOUSE_BUTTON_DOWN:
 	case EVENT_TYPE_MOUSE_BUTTON_UP:
@@ -66,9 +66,9 @@ static const luaL_Reg l_event[] = {
 	{NULL, NULL}
 };
 
-static int m_event_push(lua_State * L)
+static int m_event_send(lua_State * L)
 {
-	event_push((struct event_t *)luaL_checkudata(L, 1, TYPE_EVENT));
+	event_send((struct event_t *)luaL_checkudata(L, 1, TYPE_EVENT));
 	return 0;
 }
 
@@ -143,7 +143,7 @@ static int m_event_tostring(lua_State * L)
 		break;
 
 	case EVENT_TYPE_MOUSE_MOTION:
-		lua_pushfstring(L, "[mousemotion](%d,%d)",e->e.mouse.x, e->e.mouse.y);
+//		lua_pushfstring(L, "[mousemotion](%d,%d)",e->e.mouse.x, e->e.mouse.y);
 		break;
 
 	case EVENT_TYPE_MOUSE_BUTTON_DOWN:
@@ -161,7 +161,7 @@ static int m_event_tostring(lua_State * L)
 }
 
 static const luaL_Reg m_event[] = {
-	{"push",		m_event_push},
+	{"send",		m_event_send},
 	{"__index",		m_event_index},
 	{"__newindex",	m_event_newindex},
 	{"__gc",		m_event_gc},

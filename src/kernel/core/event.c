@@ -136,7 +136,37 @@ bool_t event_base_del_watcher(struct event_base_t * eb, enum event_type_t type, 
 	return TRUE;
 }
 
-bool_t event_push(struct event_t * event)
+bool_t event_base_dispatch(struct event_base_t * eb)
+{
+	struct event_watcher_t * ewpos, * ewn, * ew;
+	struct event_t event;
+	bool_t ret;
+
+	if(!eb || !eb->watcher)
+		return FALSE;
+
+	spin_lock_irq(&__event_base_lock);
+	ret = (fifo_get(eb->fifo, (u8_t *)&event, sizeof(struct event_t)) == sizeof(struct event_t));
+	if(ret)
+	{
+		ew = eb->watcher;
+		list_for_each_entry_safe(ewpos, ewn, &(ew->entry), entry)
+		{
+			if(ewpos->type == event.type)
+			{
+				if(ewpos->callback)
+				{
+					ewpos->callback(&event, ewpos->data);
+				}
+			}
+		}
+	}
+	spin_unlock_irq(&__event_base_lock);
+
+	return ret;
+}
+
+bool_t event_send(struct event_t * event)
 {
 	struct event_base_t * pos, * n;
 
@@ -153,49 +183,10 @@ bool_t event_push(struct event_t * event)
 	return TRUE;
 }
 
-bool_t event_pop(struct event_t * event)
-{
-	bool_t ret;
-
-	if(!event)
-		return FALSE;
-
-	spin_lock_irq(&__event_base_lock);
-	ret = fifo_get(runtime_get()->__event_base->fifo, (u8_t *)event, sizeof(struct event_t)) == sizeof(struct event_t);
-	spin_unlock_irq(&__event_base_lock);
-
-	return ret;
-}
-
-bool_t event_dispatch(void)
-{
-	struct event_watcher_t * ewpos, * ewn;
-	struct event_watcher_t * ew;
-	struct event_t event;
-
-	if(!event_pop(&event))
-		return FALSE;
-
-	spin_lock_irq(&__event_base_lock);
-	ew = runtime_get()->__event_base->watcher;
-	list_for_each_entry_safe(ewpos, ewn, &(ew->entry), entry)
-	{
-		if(ewpos->type == event.type)
-		{
-			if(ewpos->callback)
-				ewpos->callback(&event, ewpos->data);
-		}
-	}
-	spin_unlock_irq(&__event_base_lock);
-
-	return TRUE;
-}
-
 static __init void event_init(void)
 {
 	spin_lock_init(&__event_base_lock);
 //xxx	init_list_head(&(__event_base.entry));
-	LOG_E("EVENT INIT");
 }
 
 static __exit void event_exit(void)

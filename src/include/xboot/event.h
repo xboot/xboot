@@ -24,18 +24,17 @@ enum event_type_t {
 	/* Unknown */
 	EVENT_TYPE_UNKNOWN				= 0,
 
-	/* Mouse event */
-	EVENT_TYPE_MOUSE_RAW			= 1000,
+	/* Keyboard */
+	EVENT_TYPE_KEYBOARD_KEY_DOWN	= 1000,
+	EVENT_TYPE_KEYBOARD_KEY_UP		= 1001,
 
-	/* Keyboard event */
-	EVENT_TYPE_KEYBOARD_KEY_DOWN	= 2000,
-	EVENT_TYPE_KEYBOARD_KEY_UP		= 2001,
+	/* Mouse */
+	EVENT_TYPE_MOUSE_RAW			= 2000,
 
-	/* Mouse event */
-	EVENT_TYPE_MOUSE_MOTION			= 3000,
-	EVENT_TYPE_MOUSE_BUTTON_DOWN	= 3001,
-	EVENT_TYPE_MOUSE_BUTTON_UP		= 3002,
-	EVENT_TYPE_MOUSE_WHEEL			= 3003,
+	EVENT_TYPE_MOUSE_MOTION			= 2001,
+	EVENT_TYPE_MOUSE_BUTTON_DOWN	= 2002,
+	EVENT_TYPE_MOUSE_BUTTON_UP		= 2003,
+	EVENT_TYPE_MOUSE_WHEEL			= 2004,
 };
 
 enum {
@@ -49,21 +48,14 @@ struct event_t {
 	u32_t timestamp;
 
 	union {
-		struct mouse_raw_event_t {
-			u8_t btndown, btnup;
-			s32_t xrel, yrel, zrel;
-		} mouse_raw;
-
 		struct keyboard_event_t {
 			u32_t code;
 		} keyboard;
 
-		struct mouse_event_t {
-			u32_t btndown;
-			u32_t btnup;
+		struct mouse_raw_event_t {
+			u8_t btndown, btnup;
 			s32_t xrel, yrel, zrel;
-			s32_t x, y, z;
-		} mouse;
+		} mouse_raw;
 	} e;
 };
 
@@ -84,10 +76,8 @@ struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
 bool_t event_base_add_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback, void * data);
 bool_t event_base_del_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback);
-
-bool_t event_push(struct event_t * event);
-bool_t event_pop(struct event_t * event);
-bool_t event_dispatch(void);
+bool_t event_base_dispatch(struct event_base_t * eb);
+bool_t event_send(struct event_t * event);
 
 #ifdef __cplusplus
 }

@@ -65,7 +65,7 @@ static int test(int argc, char ** argv)
 
 	while(1)
 	{
-		event_dispatch();
+		event_base_dispatch(runtime_get()->__event_base);
 	}
 	return 0;
 }

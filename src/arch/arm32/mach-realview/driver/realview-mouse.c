@@ -105,7 +105,7 @@ static void mouse_interrupt(void)
 			event.e.mouse_raw.yrel = y;
 			event.e.mouse_raw.zrel = z;
 
-			event_push(&event);
+			event_send(&event);
 		}
 
 		status = readb(REALVIEW_MOUSE_IIR);

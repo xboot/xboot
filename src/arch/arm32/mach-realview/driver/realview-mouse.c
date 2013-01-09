@@ -23,20 +23,9 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <div64.h>
-#include <io.h>
-#include <xboot/log.h>
-#include <xboot/initcall.h>
-#include <xboot/ioctl.h>
-#include <xboot/clk.h>
+#include <spinlock.h>
 #include <xboot/irq.h>
-#include <xboot/printk.h>
-#include <xboot/resource.h>
 #include <input/input.h>
-#include <input/mouse/mouse.h>
 #include <realview/reg-mouse.h>
 
 static bool_t kmi_write(u8_t data)
@@ -73,68 +62,50 @@ static bool_t kmi_read(u8_t * data)
 
 static void mouse_interrupt(void)
 {
-	static u8_t packet[4];
-	static u8_t index = 0;
-	u8_t status, data;
-	s32_t value;
+	static u8_t packet[4], index = 0;
+	static u8_t btn_old = 0;
+	struct event_t event;
+	s32_t x, y, z;
+	u8_t btndown, btnup, btn;
+	u8_t status;
 
 	status = readb(REALVIEW_MOUSE_IIR);
-
 	while(status & REALVIEW_MOUSE_IIR_RXINTR)
 	{
-		data = readb(REALVIEW_MOUSE_DATA);
-
-		packet[index] = data;
+		packet[index] = readb(REALVIEW_MOUSE_DATA);
 		index = (index + 1) & 0x3;
 
 		if(index == 0)
 		{
-			if(packet[0] & 0x1)
-				input_report(INPUT_MOUSE, MOUSE_LEFT, MOUSE_BUTTON_DOWN);
-			else
-				input_report(INPUT_MOUSE, MOUSE_LEFT, MOUSE_BUTTON_UP);
+			btn = packet[0] & 0x7;
 
-			if(packet[0] & 0x2)
-				input_report(INPUT_MOUSE, MOUSE_RIGHT, MOUSE_BUTTON_DOWN);
-			else
-				input_report(INPUT_MOUSE, MOUSE_RIGHT, MOUSE_BUTTON_UP);
-
-			if(packet[0] & 0x4)
-				input_report(INPUT_MOUSE, MOUSE_MIDDLE, MOUSE_BUTTON_DOWN);
-			else
-				input_report(INPUT_MOUSE, MOUSE_MIDDLE, MOUSE_BUTTON_UP);
+			btndown = (btn ^ btn_old) & btn;
+			btnup = (btn ^ btn_old) & btn_old;
+			btn_old = btn;
 
 			if(packet[0] & 0x10)
-				value = 0xffffff00 | packet[1];
+				x = 0xffffff00 | packet[1];
 			else
-				value = packet[1];
-			input_report(INPUT_MOUSE, MOUSE_REL_X, value);
+				x = packet[1];
 
 			if(packet[0] & 0x20)
-				value = 0xffffff00 | packet[2];
+				y = 0xffffff00 | packet[2];
 			else
-				value = packet[2];
-			input_report(INPUT_MOUSE, MOUSE_REL_Y, value);
+				y = packet[2];
 
-			value = packet[3] & 0xf;
-			switch(value)
-			{
-			case 0x0:
-				break;
+			z = packet[3] & 0xf;
+			if(z == 0xf)
+				z = -1;
 
-			case 0x1:
-				input_report(INPUT_MOUSE, MOUSE_REL_Z, 1);
-				break;
+			event.type = EVENT_TYPE_MOUSE_RAW;
+			event.timestamp = jiffies;
+			event.e.mouse_raw.btndown = btndown;
+			event.e.mouse_raw.btnup = btnup;
+			event.e.mouse_raw.xrel = x;
+			event.e.mouse_raw.yrel = y;
+			event.e.mouse_raw.zrel = z;
 
-			case 0xf:
-				input_report(INPUT_MOUSE, MOUSE_REL_Z, -1);
-				break;
-
-			default:
-				break;
-			}
-
-			input_sync(INPUT_MOUSE);
+			event_push(&event);
 		}
 
 		status = readb(REALVIEW_MOUSE_IIR);

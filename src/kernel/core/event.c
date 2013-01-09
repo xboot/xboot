@@ -24,7 +24,12 @@
 #include <spinlock.h>
 #include <xboot/event.h>
 
-static struct event_base_t __event_base;
+static struct event_base_t __event_base = {
+	.entry = {
+		.next	= &(__event_base.entry),
+		.prev	= &(__event_base.entry),
+	},
+};
 static spinlock_t __event_base_lock;
 
 struct event_base_t * __event_base_alloc(void)
@@ -138,12 +143,12 @@ bool_t event_push(struct event_t * event)
 	if(!event)
 		return FALSE;
 
-	spin_lock_irq(&__event_base_lock);
+//	spin_lock_irq(&__event_base_lock);
 	list_for_each_entry_safe(pos, n, &(__event_base.entry), entry)
 	{
 		fifo_put(pos->fifo, (u8_t *)event, sizeof(struct event_t));
 	}
-	spin_unlock_irq(&__event_base_lock);
+//	spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
 }
@@ -189,7 +194,8 @@ bool_t event_dispatch(void)
 static __init void event_init(void)
 {
 	spin_lock_init(&__event_base_lock);
-	init_list_head(&(__event_base.entry));
+//xxx	init_list_head(&(__event_base.entry));
+	LOG_E("EVENT INIT");
 }
 
 static __exit void event_exit(void)

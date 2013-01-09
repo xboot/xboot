@@ -19,12 +19,27 @@ end
 
 local base64 = require "org.xboot.base64"
 printr(base64)
-
 a = base64.encode("abc")
 b = base64.decode(a)
-
 print(a)
 print(b)
+
+
+local EVENT = require "org.xboot.event"
+
+function foo()
+	local obj = EVENT.new(0x0020, 44, 33)
+	EVENT.push(obj)
+    	print(obj)
+	print(obj["type"])
+
+	obj["type"] = 0x0010
+    	print(obj)
+	print(obj["type"])
+end
+
+foo()
+
 --printr(xboot)
 --printr(arg)
 --main()

@@ -128,9 +128,10 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				drivers/mtd/nand				\
 				drivers/mtd/nor					\
 				framework						\
-				framework/framerate				\
+				framework/base64				\
+				framework/event					\
 				framework/xfs					\
-				framework/base64
+				framework/framerate
 
 #
 # Add external library

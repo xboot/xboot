@@ -92,6 +92,27 @@ void __event_base_free(struct event_base_t * eb)
 	spin_unlock_irq(&__event_base_lock);
 }
 
+struct event_listener_t * event_listener_alloc(enum event_type_t type, 	event_listener_callback_t callback, void * data)
+{
+	struct event_listener_t * el;
+
+	el = malloc(sizeof(struct event_listener_t));
+	if(!el)
+		return NULL;
+
+	el->type = type;
+	el->callback = callback;
+	el->data = data;
+
+	return el;
+}
+
+void event_listener_free(struct event_listener_t * el)
+{
+	if(el)
+		free(el);
+}
+
 bool_t event_base_add_listener(struct event_base_t * eb, struct event_listener_t * el)
 {
 	struct event_listener_t * elpos, * eln;

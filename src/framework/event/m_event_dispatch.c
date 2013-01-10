@@ -28,15 +28,9 @@ static int l_event_dispatch_run(lua_State * L)
 	return 0;
 }
 
-static int l_event_dispatch_send(lua_State * L)
-{
-	event_send((struct event_t *)luaL_checkudata(L, 1, TYPE_EVENT));
-	return 0;
-}
-
 static int l_event_dispatch_add_listener(lua_State * L)
 {
-	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, TYPE_EVENT_LISTENER);
+	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
 
 	event_base_add_listener(runtime_get()->__event_base, el);
 	return 0;
@@ -44,7 +38,7 @@ static int l_event_dispatch_add_listener(lua_State * L)
 
 static int l_event_dispatch_del_listener(lua_State * L)
 {
-	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, TYPE_EVENT_LISTENER);
+	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
 
 	event_base_del_listener(runtime_get()->__event_base, el);
 	return 0;
@@ -52,7 +46,6 @@ static int l_event_dispatch_del_listener(lua_State * L)
 
 static const luaL_Reg l_event_dispatch[] = {
 	{"run",			l_event_dispatch_run},
-	{"send",		l_event_dispatch_send},
 	{"addlistener",	l_event_dispatch_add_listener},
 	{"dellistener",	l_event_dispatch_del_listener},
 	{NULL, NULL}

@@ -16,9 +16,9 @@ struct event_listener_t;
 struct event_base_t;
 
 /*
- * Event callback function
+ * Event listener callback
  */
-typedef void (*event_callback_t)(struct event_t * event, void * data);
+typedef void (*event_listener_callback_t)(struct event_t * event, void * data);
 
 enum event_type_t {
 	EVENT_TYPE_UNKNOWN				= 0,
@@ -59,7 +59,7 @@ struct event_t {
 
 struct event_listener_t {
 	enum event_type_t type;
-	event_callback_t callback;
+	event_listener_callback_t callback;
 	void * data;
 	struct list_head entry;
 };
@@ -72,6 +72,8 @@ struct event_base_t {
 
 struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
+struct event_listener_t * event_listener_alloc(enum event_type_t type, 	event_listener_callback_t callback, void * data);
+void event_listener_free(struct event_listener_t * el);
 bool_t event_base_add_listener(struct event_base_t * eb, struct event_listener_t * el);
 bool_t event_base_del_listener(struct event_base_t * eb, struct event_listener_t * el);
 bool_t event_base_dispatch(struct event_base_t * eb);

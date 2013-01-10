@@ -11,8 +11,8 @@ extern "C" {
 #include <lualib.h>
 
 /* Event */
-#define	TYPE_EVENT				"event"
-#define	TYPE_EVENT_LISTENER		"eventlistener"
+#define	LUA_TYPE_EVENT				"event"
+#define	LUA_TYPE_EVENT_LISTENER		"eventlistener"
 
 int luaopen_event(lua_State * L);
 int luaopen_event_listener(lua_State * L);

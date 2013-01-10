@@ -48,33 +48,29 @@ static int l_event_new(lua_State * L)
 
 	e = (struct event_t *)lua_newuserdata(L, sizeof(struct event_t));
 	memcpy(e, &event, sizeof(struct event_t));
-	luaL_setmetatable(L, TYPE_EVENT);
+	luaL_setmetatable(L, LUA_TYPE_EVENT);
 
 	return 1;
 }
 
 static int l_event_send(lua_State * L)
 {
-	event_send((struct event_t *)luaL_checkudata(L, 1, TYPE_EVENT));
-	return 0;
-}
+	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT);
 
-static int l_event_dispatch(lua_State * L)
-{
-	event_base_dispatch(runtime_get()->__event_base);
+	event_send(e);
 	return 0;
 }
 
 static const luaL_Reg l_event[] = {
 	{"new",			l_event_new},
 	{"send",		l_event_send},
-	{"dispatch",	l_event_dispatch},
 	{NULL, NULL}
 };
 
+#if 0
 static int m_event_index(lua_State * L)
 {
-	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, TYPE_EVENT);
+	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT);
 	const char * k = luaL_checkstring(L, 2);
 
 	if(strcmp(k, "type") == 0)
@@ -112,7 +108,7 @@ static int m_event_index(lua_State * L)
 
 static int m_event_newindex(lua_State * L)
 {
-	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, TYPE_EVENT);
+	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT);
 	const char * k = luaL_checkstring(L, 2);
 
 	if(strcmp(k, "type") == 0)
@@ -130,6 +126,7 @@ static int m_event_newindex(lua_State * L)
 
 	return 0;
 }
+#endif
 
 static int m_event_gc(lua_State * L)
 {
@@ -159,10 +156,10 @@ int luaopen_event(lua_State * L)
 {
 	luaL_newlib(L, l_event);
 
-	luaL_newmetatable(L, TYPE_EVENT);	/* create new metatable */
-	lua_pushvalue(L, -1);				/* push metatable */
-	lua_setfield(L, -2, "__index");		/* metatable.__index = metatable */
-	luaL_setfuncs(L, m_event, 0);		/* add methods to new metatable */
+	luaL_newmetatable(L, LUA_TYPE_EVENT);	/* create new metatable */
+	lua_pushvalue(L, -1);					/* push metatable */
+	lua_setfield(L, -2, "__index");			/* metatable.__index = metatable */
+	luaL_setfuncs(L, m_event, 0);			/* add methods to new metatable */
 	lua_pop(L, 1);
 
 	return 1;

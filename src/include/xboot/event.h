@@ -12,7 +12,7 @@ extern "C" {
  */
 enum event_type_t;
 struct event_t;
-struct event_watcher_t;
+struct event_listener_t;
 struct event_base_t;
 
 /*
@@ -21,20 +21,18 @@ struct event_base_t;
 typedef void (*event_callback_t)(struct event_t * event, void * data);
 
 enum event_type_t {
-	/* Unknown */
 	EVENT_TYPE_UNKNOWN				= 0,
 
-	/* Keyboard */
 	EVENT_TYPE_KEYBOARD_KEY_DOWN	= 1000,
 	EVENT_TYPE_KEYBOARD_KEY_UP		= 1001,
 
-	/* Mouse */
 	EVENT_TYPE_MOUSE_RAW			= 2000,
-
+/*
 	EVENT_TYPE_MOUSE_MOTION			= 2001,
 	EVENT_TYPE_MOUSE_BUTTON_DOWN	= 2002,
 	EVENT_TYPE_MOUSE_BUTTON_UP		= 2003,
 	EVENT_TYPE_MOUSE_WHEEL			= 2004,
+*/
 };
 
 enum {
@@ -59,7 +57,7 @@ struct event_t {
 	} e;
 };
 
-struct event_watcher_t {
+struct event_listener_t {
 	enum event_type_t type;
 	event_callback_t callback;
 	void * data;
@@ -68,14 +66,14 @@ struct event_watcher_t {
 
 struct event_base_t {
 	struct fifo_t * fifo;
-	struct event_watcher_t * watcher;
+	struct event_listener_t * listener;
 	struct list_head entry;
 };
 
 struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
-bool_t event_base_add_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback, void * data);
-bool_t event_base_del_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback);
+bool_t event_base_add_listener(struct event_base_t * eb, enum event_type_t type, event_callback_t callback, void * data);
+bool_t event_base_del_listener(struct event_base_t * eb, enum event_type_t type, event_callback_t callback);
 bool_t event_base_dispatch(struct event_base_t * eb);
 bool_t event_send(struct event_t * event);
 

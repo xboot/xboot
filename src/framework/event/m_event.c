@@ -41,15 +41,6 @@ static int l_event_new(lua_State * L)
 		event.e.keyboard.code = luaL_optint(L, 2, 0);
 		break;
 
-	case EVENT_TYPE_MOUSE_MOTION:
-//		event.e.mouse.x = luaL_optint(L, 2, 0);
-//		event.e.mouse.y = luaL_optint(L, 3, 0);
-		break;
-	case EVENT_TYPE_MOUSE_BUTTON_DOWN:
-	case EVENT_TYPE_MOUSE_BUTTON_UP:
-	case EVENT_TYPE_MOUSE_WHEEL:
-		break;
-
 	default:
 		break;
 	}
@@ -140,16 +131,6 @@ static int m_event_tostring(lua_State * L)
 
 	case EVENT_TYPE_KEYBOARD_KEY_UP:
 		lua_pushfstring(L, "[keyup](%d)", e->e.keyboard.code);
-		break;
-
-	case EVENT_TYPE_MOUSE_MOTION:
-//		lua_pushfstring(L, "[mousemotion](%d,%d)",e->e.mouse.x, e->e.mouse.y);
-		break;
-
-	case EVENT_TYPE_MOUSE_BUTTON_DOWN:
-	case EVENT_TYPE_MOUSE_BUTTON_UP:
-	case EVENT_TYPE_MOUSE_WHEEL:
-		lua_pushfstring(L, "[mouse..]");
 		break;
 
 	default:

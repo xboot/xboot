@@ -41,19 +41,19 @@ struct event_base_t * __event_base_alloc(void)
 		return NULL;
 
 	eb->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_LENGTH);
-	eb->watcher = malloc(sizeof(struct event_watcher_t));
-	if(!eb->fifo || !eb->watcher)
+	eb->listener = malloc(sizeof(struct event_listener_t));
+	if(!eb->fifo || !eb->listener)
 	{
 		if(eb->fifo)
 			fifo_free(eb->fifo);
-		if(eb->watcher)
-			free(eb->watcher);
+		if(eb->listener)
+			free(eb->listener);
 		free(eb);
 		return NULL;
 	}
 
 	spin_lock_irq(&__event_base_lock);
-	init_list_head(&(eb->watcher->entry));
+	init_list_head(&(eb->listener->entry));
 	list_add_tail(&eb->entry, &(__event_base.entry));
 	spin_unlock_irq(&__event_base_lock);
 
@@ -63,7 +63,7 @@ struct event_base_t * __event_base_alloc(void)
 void __event_base_free(struct event_base_t * eb)
 {
 	struct event_base_t * ebpos, * ebn;
-	struct event_watcher_t * ewpos, * ewn;
+	struct event_listener_t * elpos, * eln;
 
 	if(!eb)
 		return;
@@ -76,14 +76,14 @@ void __event_base_free(struct event_base_t * eb)
 			if(ebpos->fifo)
 				fifo_free(ebpos->fifo);
 
-			if(ebpos->watcher)
+			if(ebpos->listener)
 			{
-				list_for_each_entry_safe(ewpos, ewn, &(ebpos->watcher->entry), entry)
+				list_for_each_entry_safe(elpos, eln, &(ebpos->listener->entry), entry)
 				{
-					list_del(&(ewpos->entry));
-					free(ewpos);
+					list_del(&(elpos->entry));
+					free(elpos);
 				}
-				free(eb->watcher);
+				free(eb->listener);
 			}
 
 			list_del(&(ebpos->entry));
@@ -93,42 +93,42 @@ void __event_base_free(struct event_base_t * eb)
 	spin_unlock_irq(&__event_base_lock);
 }
 
-bool_t event_base_add_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback, void * data)
+bool_t event_base_add_listener(struct event_base_t * eb, enum event_type_t type, event_callback_t callback, void * data)
 {
-	struct event_watcher_t * ew;
+	struct event_listener_t * el;
 
-	if(!eb || !eb->watcher)
+	if(!eb || !eb->listener)
 		return FALSE;
 
-	ew = malloc(sizeof(struct event_watcher_t));
-	if(!ew)
+	el = malloc(sizeof(struct event_listener_t));
+	if(!el)
 		return FALSE;
 
-	ew->type = type;
-	ew->callback = callback;
-	ew->data = data;
+	el->type = type;
+	el->callback = callback;
+	el->data = data;
 
 	spin_lock_irq(&__event_base_lock);
-	list_add_tail(&ew->entry, &(eb->watcher->entry));
+	list_add_tail(&el->entry, &(eb->listener->entry));
 	spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
 }
 
-bool_t event_base_del_watcher(struct event_base_t * eb, enum event_type_t type, event_callback_t callback)
+bool_t event_base_del_listener(struct event_base_t * eb, enum event_type_t type, event_callback_t callback)
 {
-	struct event_watcher_t * ewpos, * ewn;
+	struct event_listener_t * elpos, * eln;
 
-	if(!eb || !eb->watcher)
+	if(!eb || !eb->listener)
 		return FALSE;
 
 	spin_lock_irq(&__event_base_lock);
-	list_for_each_entry_safe(ewpos, ewn, &(eb->watcher->entry), entry)
+	list_for_each_entry_safe(elpos, eln, &(eb->listener->entry), entry)
 	{
-		if((ewpos->type == type) && (ewpos->callback == callback))
+		if((elpos->type == type) && (elpos->callback == callback))
 		{
-			list_del(&(ewpos->entry));
-			free(ewpos);
+			list_del(&(elpos->entry));
+			free(elpos);
 		}
 	}
 	spin_unlock_irq(&__event_base_lock);
@@ -138,25 +138,25 @@ bool_t event_base_del_watcher(struct event_base_t * eb, enum event_type_t type, 
 
 bool_t event_base_dispatch(struct event_base_t * eb)
 {
-	struct event_watcher_t * ewpos, * ewn, * ew;
+	struct event_listener_t * elpos, * eln, * el;
 	struct event_t event;
 	bool_t ret;
 
-	if(!eb || !eb->watcher)
+	if(!eb || !eb->listener)
 		return FALSE;
 
 	spin_lock_irq(&__event_base_lock);
 	ret = (fifo_get(eb->fifo, (u8_t *)&event, sizeof(struct event_t)) == sizeof(struct event_t));
 	if(ret)
 	{
-		ew = eb->watcher;
-		list_for_each_entry_safe(ewpos, ewn, &(ew->entry), entry)
+		el = eb->listener;
+		list_for_each_entry_safe(elpos, eln, &(el->entry), entry)
 		{
-			if(ewpos->type == event.type)
+			if(elpos->type == event.type)
 			{
-				if(ewpos->callback)
+				if(elpos->callback)
 				{
-					ewpos->callback(&event, ewpos->data);
+					elpos->callback(&event, elpos->data);
 				}
 			}
 		}
@@ -172,6 +172,8 @@ bool_t event_send(struct event_t * event)
 
 	if(!event)
 		return FALSE;
+
+	event->timestamp = jiffies;
 
 //	spin_lock_irq(&__event_base_lock);
 	list_for_each_entry_safe(pos, n, &(__event_base.entry), entry)

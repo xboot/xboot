@@ -61,7 +61,7 @@ static void mouse_callback(struct event_t * event, void * data)
 
 static int test(int argc, char ** argv)
 {
-	event_base_add_watcher(runtime_get()->__event_base, EVENT_TYPE_MOUSE_RAW, mouse_callback, 0);
+	event_base_add_listener(runtime_get()->__event_base, EVENT_TYPE_MOUSE_RAW, mouse_callback, 0);
 
 	while(1)
 	{

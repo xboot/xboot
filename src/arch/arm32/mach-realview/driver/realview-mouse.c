@@ -98,7 +98,6 @@ static void mouse_interrupt(void)
 				z = -1;
 
 			event.type = EVENT_TYPE_MOUSE_RAW;
-			event.timestamp = jiffies;
 			event.e.mouse_raw.btndown = btndown;
 			event.e.mouse_raw.btnup = btnup;
 			event.e.mouse_raw.xrel = x;

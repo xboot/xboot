@@ -81,7 +81,6 @@ void __event_base_free(struct event_base_t * eb)
 				list_for_each_entry_safe(elpos, eln, &(ebpos->listener->entry), entry)
 				{
 					list_del(&(elpos->entry));
-					free(elpos);
 				}
 				free(eb->listener);
 			}
@@ -129,7 +128,6 @@ bool_t event_base_del_listener(struct event_base_t * eb, struct event_listener_t
 		if(elpos == el)
 		{
 			list_del(&(elpos->entry));
-			free(elpos);
 		}
 	}
 	spin_unlock_irq(&__event_base_lock);

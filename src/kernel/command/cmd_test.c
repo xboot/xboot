@@ -49,13 +49,13 @@ static void mouse_callback(struct event_t * event, void * data)
 {
 	if(event)
 	{
-		printk("event->type = %d\r\n", event->type);
-		printk("event->timestamp = %d\r\n", event->timestamp);
+//		printk("event->type = %d\r\n", event->type);
+//		printk("event->timestamp = %d\r\n", event->timestamp);
 		printk("event->btndown = %d\r\n", event->e.mouse_raw.btndown);
-		printk("event->btnup = %d\r\n", event->e.mouse_raw.btnup);
-		printk("event->xrel = %d\r\n", event->e.mouse_raw.xrel);
-		printk("event->yrel = %d\r\n", event->e.mouse_raw.yrel);
-		printk("event->zrel = %d\r\n", event->e.mouse_raw.zrel);
+//		printk("event->btnup = %d\r\n", event->e.mouse_raw.btnup);
+//		printk("event->xrel = %d\r\n", event->e.mouse_raw.xrel);
+//		printk("event->yrel = %d\r\n", event->e.mouse_raw.yrel);
+//		printk("event->zrel = %d\r\n", event->e.mouse_raw.zrel);*/
 	}
 }
 

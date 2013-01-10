@@ -279,8 +279,7 @@ fiq:
 	str r0, [r8, #8]				/* save old_r0 */
 	mov	r0, sp
 
-	/* do irqs routlines */
-	bl 	do_irqs
+	/* do firqs routlines */
 
 	/* restore user regs */
 	ldmia sp, {r0 - lr}^			/* calling r0 - lr */

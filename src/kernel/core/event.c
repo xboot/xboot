@@ -30,7 +30,7 @@ static struct event_base_t __event_base = {
 		.prev	= &(__event_base.entry),
 	},
 };
-static spinlock_t __event_base_lock;
+static spinlock_t __event_base_lock = SPIN_LOCK_INIT();
 
 struct event_base_t * __event_base_alloc(void)
 {
@@ -175,25 +175,12 @@ bool_t event_send(struct event_t * event)
 
 	event->timestamp = jiffies;
 
-//	spin_lock_irq(&__event_base_lock);
+	//spin_lock_irq(&__event_base_lock);
 	list_for_each_entry_safe(pos, n, &(__event_base.entry), entry)
 	{
 		fifo_put(pos->fifo, (u8_t *)event, sizeof(struct event_t));
 	}
-//	spin_unlock_irq(&__event_base_lock);
+	//spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
 }
-
-static __init void event_init(void)
-{
-	spin_lock_init(&__event_base_lock);
-//xxx	init_list_head(&(__event_base.entry));
-}
-
-static __exit void event_exit(void)
-{
-}
-
-pure_initcall(event_init);
-pure_exitcall(event_exit);

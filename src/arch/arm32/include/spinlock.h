@@ -78,6 +78,7 @@ static inline void arch_spin_unlock(spinlock_t * lock)
 }
 #endif
 
+#define SPIN_LOCK_INIT()					{ .lock = 0 }
 #define spin_lock_init(plock)				do { (plock)->lock = 0; } while(0)
 #define spin_trylock(lock)					(arch_spin_trylock(lock))
 #define spin_lock(lock)						do { arch_spin_lock(lock); } while(0)

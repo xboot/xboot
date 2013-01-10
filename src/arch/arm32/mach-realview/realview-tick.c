@@ -58,8 +58,8 @@ static bool_t tick_timer_init(void)
 		return FALSE;
 	}
 
-	/* for 10 ms reload count */
-	count = (u32_t)div64(timclk, 100);
+	/* for 1ms reload count */
+	count = (u32_t)div64(timclk, 1000);
 
 	if(!request_irq("TMIER2_3", timer_interrupt))
 	{
@@ -67,7 +67,7 @@ static bool_t tick_timer_init(void)
 		return FALSE;
 	}
 
-	/* using timer3 for tick, 10ms for reload value */
+	/* using timer3 for tick, 1ms for reload value */
 	writel(REALVIEW_T3_LOAD, count);
 
 	/* setting timer controller */
@@ -83,7 +83,7 @@ static bool_t tick_timer_init(void)
 }
 
 static struct tick realview_tick = {
-	.hz		= 100,
+	.hz		= 1000,
 	.init	= tick_timer_init,
 };
 

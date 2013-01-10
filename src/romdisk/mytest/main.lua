@@ -26,19 +26,20 @@ print(b)
 
 
 local EVENT = require "org.xboot.event"
+local EVENTLISTENER = require "org.xboot.eventlistener"
+local EVENTDISPATCH = require "org.xboot.eventdispatch"
 
-function foo()
-	local obj = EVENT.new(0x0020, 44, 33)
-	EVENT.push(obj)
-    	print(obj)
-	print(obj["type"])
-
-	obj["type"] = 0x0010
-    	print(obj)
-	print(obj["type"])
+function evcall(e)
+	print("NEW EVENT ...")
+	print(e)
 end
 
-foo()
+local el = EVENTLISTENER.new(1000, evcall)
+EVENTDISPATCH.addlistener(el);
+
+while true do
+	EVENTDISPATCH.run()
+end
 
 --printr(xboot)
 --printr(arg)

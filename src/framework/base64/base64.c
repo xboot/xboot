@@ -142,7 +142,7 @@ static const luaL_Reg m_base64[] = {
 	{ NULL, NULL }
 };
 
-int luaopen_org_xboot_base64(lua_State * L)
+int luaopen_base64(lua_State * L)
 {
 	luaL_newlib (L, m_base64);
 	return 1;

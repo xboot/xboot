@@ -45,28 +45,8 @@
 
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 
-static void mouse_callback(struct event_t * event, void * data)
-{
-	if(event)
-	{
-//		printk("event->type = %d\r\n", event->type);
-//		printk("event->timestamp = %d\r\n", event->timestamp);
-		printk("event->btndown = %d\r\n", event->e.mouse_raw.btndown);
-//		printk("event->btnup = %d\r\n", event->e.mouse_raw.btnup);
-//		printk("event->xrel = %d\r\n", event->e.mouse_raw.xrel);
-//		printk("event->yrel = %d\r\n", event->e.mouse_raw.yrel);
-//		printk("event->zrel = %d\r\n", event->e.mouse_raw.zrel);*/
-	}
-}
-
 static int test(int argc, char ** argv)
 {
-	event_base_add_listener(runtime_get()->__event_base, EVENT_TYPE_MOUSE_RAW, mouse_callback, 0);
-
-	while(1)
-	{
-		event_base_dispatch(runtime_get()->__event_base);
-	}
 	return 0;
 }
 

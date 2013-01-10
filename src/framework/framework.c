@@ -23,14 +23,12 @@
 #include <framework/xfs/xfs.h>
 #include <framework/framework.h>
 
-extern int luaopen_framerate(lua_State * L);
-extern int luaopen_org_xboot_base64(lua_State * L);
-extern int luaopen_org_xboot_event(lua_State * L);
-
 static const luaL_Reg xboot_libs[] = {
 	{ "xboot.framerate", luaopen_framerate },
-	{ "org.xboot.base64", luaopen_org_xboot_base64 },
-	{ "org.xboot.event", luaopen_org_xboot_event },
+	{ "org.xboot.base64", luaopen_base64 },
+	{ "org.xboot.event", luaopen_event },
+	{ "org.xboot.eventlistener", luaopen_event_listener },
+	{ "org.xboot.eventdispatch", luaopen_event_dispatch },
 	{ "xboot.boot", luaopen_boot },
 	{ NULL, NULL }
 };

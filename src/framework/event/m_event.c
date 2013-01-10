@@ -20,9 +20,7 @@
  *
  */
 
-#include <framework/framerate/framerate.h>
-
-#define	TYPE_EVENT	"event"
+#include <framework/framework.h>
 
 static int l_event_new(lua_State * L)
 {
@@ -36,9 +34,12 @@ static int l_event_new(lua_State * L)
 	case EVENT_TYPE_UNKNOWN:
 		break;
 
-	case EVENT_TYPE_KEYBOARD_KEY_DOWN:
-	case EVENT_TYPE_KEYBOARD_KEY_UP:
-		event.e.keyboard.code = luaL_optint(L, 2, 0);
+	case EVENT_TYPE_MOUSE_RAW:
+		event.e.mouse_raw.btndown = (u8_t)luaL_optint(L, 2, 0);
+		event.e.mouse_raw.btnup = (u8_t)luaL_optint(L, 3, 0);
+		event.e.mouse_raw.xrel = (s32_t)luaL_optint(L, 4, 0);
+		event.e.mouse_raw.yrel = (s32_t)luaL_optint(L, 5, 0);
+		event.e.mouse_raw.zrel = (s32_t)luaL_optint(L, 6, 0);
 		break;
 
 	default:
@@ -52,16 +53,24 @@ static int l_event_new(lua_State * L)
 	return 1;
 }
 
-static const luaL_Reg l_event[] = {
-	{"new",		l_event_new},
-	{NULL, NULL}
-};
-
-static int m_event_send(lua_State * L)
+static int l_event_send(lua_State * L)
 {
 	event_send((struct event_t *)luaL_checkudata(L, 1, TYPE_EVENT));
 	return 0;
 }
+
+static int l_event_dispatch(lua_State * L)
+{
+	event_base_dispatch(runtime_get()->__event_base);
+	return 0;
+}
+
+static const luaL_Reg l_event[] = {
+	{"new",			l_event_new},
+	{"send",		l_event_send},
+	{"dispatch",	l_event_dispatch},
+	{NULL, NULL}
+};
 
 static int m_event_index(lua_State * L)
 {
@@ -80,7 +89,22 @@ static int m_event_index(lua_State * L)
 	}
 	else if(strcmp(k, "event") == 0)
 	{
-		return 0;
+		switch(e->type)
+		{
+		case EVENT_TYPE_UNKNOWN:
+			return 0;
+
+		case EVENT_TYPE_MOUSE_RAW:
+			lua_pushnumber(L, e->e.mouse_raw.btndown);
+			lua_pushnumber(L, e->e.mouse_raw.btnup);
+			lua_pushnumber(L, e->e.mouse_raw.xrel);
+			lua_pushnumber(L, e->e.mouse_raw.yrel);
+			lua_pushnumber(L, e->e.mouse_raw.zrel);
+			return 5;
+
+		default:
+			return 0;
+		}
 	}
 
 	return 0;
@@ -119,38 +143,19 @@ static int m_event_tostring(lua_State * L)
 	if(!e)
 		return 0;
 
-	switch(e->type)
-	{
-	case EVENT_TYPE_UNKNOWN:
-		lua_pushfstring(L, "[unknown]");
-		break;
-
-	case EVENT_TYPE_KEYBOARD_KEY_DOWN:
-		lua_pushfstring(L, "[keydown](%d)", e->e.keyboard.code);
-		break;
-
-	case EVENT_TYPE_KEYBOARD_KEY_UP:
-		lua_pushfstring(L, "[keyup](%d)", e->e.keyboard.code);
-		break;
-
-	default:
-		lua_pushfstring(L, "[unknown]");
-		break;
-	}
-
+	lua_pushfstring(L, "event [%d, %d]", e->type, e->timestamp);
 	return 1;
 }
 
 static const luaL_Reg m_event[] = {
-	{"send",		m_event_send},
-	{"__index",		m_event_index},
-	{"__newindex",	m_event_newindex},
+/*	{"__index",		m_event_index},
+	{"__newindex",	m_event_newindex},*/
 	{"__gc",		m_event_gc},
 	{"__tostring",	m_event_tostring},
 	{NULL, NULL}
 };
 
-int luaopen_org_xboot_event(lua_State * L)
+int luaopen_event(lua_State * L)
 {
 	luaL_newlib(L, l_event);
 

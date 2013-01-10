@@ -93,39 +93,40 @@ void __event_base_free(struct event_base_t * eb)
 	spin_unlock_irq(&__event_base_lock);
 }
 
-bool_t event_base_add_listener(struct event_base_t * eb, enum event_type_t type, event_callback_t callback, void * data)
+bool_t event_base_add_listener(struct event_base_t * eb, struct event_listener_t * el)
 {
-	struct event_listener_t * el;
+	struct event_listener_t * elpos, * eln;
 
-	if(!eb || !eb->listener)
+	if(!el || !eb || !eb->listener)
 		return FALSE;
-
-	el = malloc(sizeof(struct event_listener_t));
-	if(!el)
-		return FALSE;
-
-	el->type = type;
-	el->callback = callback;
-	el->data = data;
 
 	spin_lock_irq(&__event_base_lock);
+	list_for_each_entry_safe(elpos, eln, &(eb->listener->entry), entry)
+	{
+		if(elpos == el)
+		{
+			spin_unlock_irq(&__event_base_lock);
+			return FALSE;
+		}
+	}
+
 	list_add_tail(&el->entry, &(eb->listener->entry));
 	spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
 }
 
-bool_t event_base_del_listener(struct event_base_t * eb, enum event_type_t type, event_callback_t callback)
+bool_t event_base_del_listener(struct event_base_t * eb, struct event_listener_t * el)
 {
 	struct event_listener_t * elpos, * eln;
 
-	if(!eb || !eb->listener)
+	if(!el || !eb || !eb->listener)
 		return FALSE;
 
 	spin_lock_irq(&__event_base_lock);
 	list_for_each_entry_safe(elpos, eln, &(eb->listener->entry), entry)
 	{
-		if((elpos->type == type) && (elpos->callback == callback))
+		if(elpos == el)
 		{
 			list_del(&(elpos->entry));
 			free(elpos);

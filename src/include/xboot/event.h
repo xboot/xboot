@@ -74,9 +74,9 @@ struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
 struct event_listener_t * event_listener_alloc(enum event_type_t type, 	event_listener_callback_t callback, void * data);
 void event_listener_free(struct event_listener_t * el);
-bool_t event_base_add_listener(struct event_base_t * eb, struct event_listener_t * el);
-bool_t event_base_del_listener(struct event_base_t * eb, struct event_listener_t * el);
-bool_t event_base_dispatch(struct event_base_t * eb);
+bool_t event_base_add_event_listener(struct event_base_t * eb, struct event_listener_t * el);
+bool_t event_base_del_event_listener(struct event_base_t * eb, struct event_listener_t * el);
+bool_t event_base_dispatcher(struct event_base_t * eb);
 bool_t event_send(struct event_t * event);
 
 #ifdef __cplusplus

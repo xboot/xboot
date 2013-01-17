@@ -113,7 +113,7 @@ void event_listener_free(struct event_listener_t * el)
 		free(el);
 }
 
-bool_t event_base_add_listener(struct event_base_t * eb, struct event_listener_t * el)
+bool_t event_base_add_event_listener(struct event_base_t * eb, struct event_listener_t * el)
 {
 	struct event_listener_t * elpos, * eln;
 
@@ -136,7 +136,7 @@ bool_t event_base_add_listener(struct event_base_t * eb, struct event_listener_t
 	return TRUE;
 }
 
-bool_t event_base_del_listener(struct event_base_t * eb, struct event_listener_t * el)
+bool_t event_base_del_event_listener(struct event_base_t * eb, struct event_listener_t * el)
 {
 	struct event_listener_t * elpos, * eln;
 
@@ -156,7 +156,7 @@ bool_t event_base_del_listener(struct event_base_t * eb, struct event_listener_t
 	return TRUE;
 }
 
-bool_t event_base_dispatch(struct event_base_t * eb)
+bool_t event_base_dispatcher(struct event_base_t * eb)
 {
 	struct event_listener_t * elpos, * eln, * el;
 	struct event_t event;

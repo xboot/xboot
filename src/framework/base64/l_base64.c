@@ -1,5 +1,5 @@
 /*
- * framework/base64/base64.c
+ * framework/base64/l_base64.c
  *
  * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -136,7 +136,7 @@ static int base64_decode(lua_State * L)
 	return 1;
 }
 
-static const luaL_Reg m_base64[] = {
+static const luaL_Reg l_base64[] = {
 	{ "encode", base64_encode },
 	{ "decode", base64_decode },
 	{ NULL, NULL }
@@ -144,6 +144,6 @@ static const luaL_Reg m_base64[] = {
 
 int luaopen_base64(lua_State * L)
 {
-	luaL_newlib (L, m_base64);
+	luaL_newlib (L, l_base64);
 	return 1;
 }

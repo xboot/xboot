@@ -26,9 +26,10 @@ print(a)
 print(b)
 ]]
 
+--[[
 local EVENT = require "org.xboot.event"
-local EVENTLISTENER = require "org.xboot.eventlistener"
-local EVENTDISPATCH = require "org.xboot.eventdispatch"
+local EVENTLISTENER = require "org.xboot.event.listener"
+local EVENTDISPATCHER = require "org.xboot.event.dispatcher"
 
 function evcall1(e)
 	print("NEW EVENT 1...")
@@ -43,20 +44,54 @@ end
 local el1 = EVENTLISTENER.new(1000, evcall1)
 local el2 = EVENTLISTENER.new(1000, evcall2)
 
-EVENTDISPATCH.addlistener(el1);
-EVENTDISPATCH.addlistener(el2);
+EVENTDISPATCHER.add_event_listener(el1);
+EVENTDISPATCHER.add_event_listener(el2);
 
-EVENT.send(EVENT.new(1000, 10, 20, 3, 4, -1))
+EVENT.new(1000, 10, 20, 3, 4, -1):send()
+
+
+e1 = EVENT.new(1000, 0, 0, 1, 1, 1)
+e2 = EVENT.new(1001, 0, 0, 1, 1, 2)
+e3 = EVENT.new(1002, 0, 0, 1, 1, 3)
+e4 = EVENT.new(1003, 0, 0, 1, 1, 4)
+e5 = EVENT.new(1004, 0, 0, 1, 1, 5)
+e = { e1, e2, e3, e4, e5 }
+
+printr(e)
+
+print("------")
+print(e1:get("type"))
+print(e1:get("timestamp"))
+printr(e1:get("event"))
+print("------")
+
+
+printr(EVENT)
+print(EVENT.EV_UNKNOWN)
+print(EVENT.EV_MOUSE_RAW)
+print(e1)
 
 while true do
-	EVENTDISPATCH.run()
+	EVENTDISPATCHER.run()
+end
+]]
+
+print("===============")
+
+local EVENT = require "org.xboot.event"
+local EVENTLISTENER = require "org.xboot.event.listener"
+local EVENTDISPATCHER = require "org.xboot.event.dispatcher"
+
+local function evcallback(e)
+	print("evcallback", e)
 end
 
---EVENTDISPATCH.dellistener(el1);
---EVENTDISPATCH.dellistener(el2);
+local el = EVENTLISTENER.new(EVENT.EV_MOUSE_RAW, evcallback)
 
---printr(xboot)
---printr(arg)
---main()
---assert(false)
+EVENTDISPATCHER.add_event_listener(el);
 
+while true do
+	EVENTDISPATCHER.run()
+end
+
+print("===============")

@@ -1,5 +1,5 @@
 /*
- * framework/event/m_event_dispatch.c
+ * framework/event/l_event_dispatcher.c
  *
  * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,37 +22,37 @@
 
 #include <framework/framework.h>
 
-static int l_event_dispatch_run(lua_State * L)
+static int l_event_dispatcher_run(lua_State * L)
 {
-	event_base_dispatch(runtime_get()->__event_base);
+	event_base_dispatcher(runtime_get()->__event_base);
 	return 0;
 }
 
-static int l_event_dispatch_add_listener(lua_State * L)
-{
-	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
-
-	event_base_add_listener(runtime_get()->__event_base, el);
-	return 0;
-}
-
-static int l_event_dispatch_del_listener(lua_State * L)
+static int l_event_dispatcher_add_event_listener(lua_State * L)
 {
 	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
 
-	event_base_del_listener(runtime_get()->__event_base, el);
+	event_base_add_event_listener(runtime_get()->__event_base, el);
 	return 0;
 }
 
-static const luaL_Reg l_event_dispatch[] = {
-	{"run",			l_event_dispatch_run},
-	{"addlistener",	l_event_dispatch_add_listener},
-	{"dellistener",	l_event_dispatch_del_listener},
+static int l_event_dispatcher_del_event_listener(lua_State * L)
+{
+	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
+
+	event_base_del_event_listener(runtime_get()->__event_base, el);
+	return 0;
+}
+
+static const luaL_Reg l_event_dispatcher[] = {
+	{"run",					l_event_dispatcher_run},
+	{"add_event_listener",	l_event_dispatcher_add_event_listener},
+	{"del_event_listener",	l_event_dispatcher_del_event_listener},
 	{NULL, NULL}
 };
 
-int luaopen_event_dispatch(lua_State * L)
+int luaopen_event_dispatcher(lua_State * L)
 {
-	luaL_newlib(L, l_event_dispatch);
+	luaL_newlib(L, l_event_dispatcher);
 	return 1;
 }

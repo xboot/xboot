@@ -1,5 +1,5 @@
 /*
- * framework/event/m_event_listener.c
+ * framework/event/l_event_listener.c
  *
  * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -98,10 +98,7 @@ static int m_event_listener_tostring(lua_State * L)
 {
 	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
 
-	if(!el)
-		return 0;
-
-	lua_pushfstring(L, "event listener [%d]", el->type);
+	lua_pushfstring(L, "%s %p", LUA_TYPE_EVENT_LISTENER, (void *)el);
 	return 1;
 }
 
@@ -116,9 +113,9 @@ int luaopen_event_listener(lua_State * L)
 	luaL_newlib(L, l_event_listener);
 
 	luaL_newmetatable(L, LUA_TYPE_EVENT_LISTENER);
+	luaL_setfuncs(L, m_event_listener, 0);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
-	luaL_setfuncs(L, m_event_listener, 0);
 	lua_pop(L, 1);
 
 	return 1;

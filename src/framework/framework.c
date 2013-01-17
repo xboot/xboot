@@ -24,12 +24,12 @@
 #include <framework/framework.h>
 
 static const luaL_Reg xboot_libs[] = {
-	{ "xboot.framerate", luaopen_framerate },
-	{ "org.xboot.base64", luaopen_base64 },
-	{ "org.xboot.event", luaopen_event },
-	{ "org.xboot.eventlistener", luaopen_event_listener },
-	{ "org.xboot.eventdispatch", luaopen_event_dispatch },
-	{ "xboot.boot", luaopen_boot },
+	{ "xboot.framerate",			luaopen_framerate },
+	{ "org.xboot.base64",			luaopen_base64 },
+	{ "org.xboot.event", 			luaopen_event },
+	{ "org.xboot.event.listener",	luaopen_event_listener },
+	{ "org.xboot.event.dispatcher",	luaopen_event_dispatcher },
+	{ "org.xboot.boot",				luaopen_boot },
 	{ NULL, NULL }
 };
 

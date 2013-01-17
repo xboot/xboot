@@ -12,11 +12,11 @@ extern "C" {
 
 /* Event */
 #define	LUA_TYPE_EVENT				"event"
-#define	LUA_TYPE_EVENT_LISTENER		"eventlistener"
+#define	LUA_TYPE_EVENT_LISTENER		"event_listener"
 
 int luaopen_event(lua_State * L);
 int luaopen_event_listener(lua_State * L);
-int luaopen_event_dispatch(lua_State * L);
+int luaopen_event_dispatcher(lua_State * L);
 
 /* Base64 */
 int luaopen_base64(lua_State * L);

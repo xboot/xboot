@@ -1,5 +1,5 @@
 /*
- * framework/framerate/framerate.c
+ * framework/framerate/l_framerate.c
  *
  * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

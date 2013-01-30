@@ -143,6 +143,9 @@ SRCDIRS		+=	external/lua-5.2.1
 INCDIRS		+= 	external/zlib-1.2.7
 SRCDIRS		+=	external/zlib-1.2.7
 
+INCDIRS		+= 	external/libpng-1.5.14
+SRCDIRS		+=	external/libpng-1.5.14
+
 #
 # You shouldn't need to change anything below this point.
 #

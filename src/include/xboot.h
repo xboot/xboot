@@ -25,6 +25,8 @@ extern "C" {
 #include <locale.h>
 #include <exit.h>
 #include <io.h>
+#include <rect.h>
+#include <color.h>
 #include <div64.h>
 #include <malloc.h>
 #include <charset.h>

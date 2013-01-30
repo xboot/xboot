@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <graphic/rect.h>
 
 struct surface_t;
 struct surface_maps;

@@ -1,11 +1,11 @@
-#ifndef __GRAPHIC_COLOR_H__
-#define __GRAPHIC_COLOR_H__
+#ifndef __COLOR_H__
+#define __COLOR_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
 
 struct color_t {
 	u8_t r;
@@ -20,4 +20,4 @@ struct color_t * get_color_by_name(const char * name);
 }
 #endif
 
-#endif /* __GRAPHIC_COLOR_H__ */
+#endif /* __COLOR_H__ */

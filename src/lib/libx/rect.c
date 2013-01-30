@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/rect.c
+ * libx/rect.c
  *
  * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,7 +21,7 @@
  */
 
 #include <xboot/module.h>
-#include <graphic/rect.h>
+#include <rect.h>
 
 /*
  * Returns true if the rectangle has no area.

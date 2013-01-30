@@ -1,11 +1,11 @@
-#ifndef __GRAPHIC_RECT_H__
-#define __GRAPHIC_RECT_H__
+#ifndef __RECT_H__
+#define __RECT_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
 
 /*
  *  The structure that defines a point
@@ -57,4 +57,4 @@ bool_t rect_align(const struct rect_t * a, const struct rect_t * b, struct rect_
 }
 #endif
 
-#endif /* __GRAPHIC_RECT_H__ */
+#endif /* __RECT_H__ */

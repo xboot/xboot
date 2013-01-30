@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <graphic/color.h>
 
 enum pixel_format
 {

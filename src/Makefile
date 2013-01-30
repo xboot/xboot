@@ -90,6 +90,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
 				lib/libc/locale					\
 				lib/libc/malloc					\
 				lib/libm						\
+				lib/libx						\
 				init							\
 				init/mode						\
 				kernel							\

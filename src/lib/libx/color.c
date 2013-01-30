@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/color.c
+ * libx/color.c
  *
  * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,7 +21,7 @@
  */
 
 #include <xboot/module.h>
-#include <graphic/color.h>
+#include <color.h>
 
 #define RGB_COLOR(red, green, blue)		\
 	{.r = red, .g = green, .b = blue, .a = 255}

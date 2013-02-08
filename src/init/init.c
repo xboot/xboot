@@ -198,7 +198,7 @@ void do_system_battery(void)
 		obj[i] = NULL;
 
 	surface_set_clip_rect(&(fb->info->surface), NULL);
-	c = surface_map_color(&(fb->info->surface), get_color_by_name("black"));
+	c = surface_map_color(&(fb->info->surface), get_named_color("black"));
 
 	while(1)
 	{

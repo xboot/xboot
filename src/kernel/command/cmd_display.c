@@ -85,7 +85,7 @@ static int display(int argc, char ** argv)
 		return -1;
 	}
 
-	c = surface_map_color(&(fb->info->surface), get_color_by_name("black"));
+	c = surface_map_color(&(fb->info->surface), get_named_color("black"));
 	surface_fill(&(fb->info->surface), &(fb->info->surface.clip), c, BLEND_MODE_REPLACE);
 
 	surface_blit(&(fb->info->surface), &rect, surface, &(surface->clip), BLEND_MODE_REPLACE);

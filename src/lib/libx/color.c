@@ -21,12 +21,13 @@
  */
 
 #include <xboot/module.h>
+#include <stdlib.h>
+#include <string.h>
 #include <color.h>
 
-#define RGB_COLOR(red, green, blue)		\
-	{.r = red, .g = green, .b = blue, .a = 255}
+#define RGB_COLOR(red, green, blue)		{.r = red, .g = green, .b = blue, .a = 255}
 
-struct named_color
+struct named_color_t
 {
 	const char * name;
 	struct color_t color;
@@ -36,7 +37,7 @@ struct named_color
  * named color list generated from the list of svg color keywords from
  * http://www.w3.org/TR/css3-color/#svg-color
  */
-const static struct named_color named_colors[] =
+const static struct named_color_t __color_table[] =
 {
 	{ "aliceblue", 				RGB_COLOR(240,248,255) },
 	{ "antiquewhite", 			RGB_COLOR(250,235,215) },
@@ -188,16 +189,148 @@ const static struct named_color named_colors[] =
 	{ 0,						RGB_COLOR(0,0,0) }
 };
 
-struct color_t * get_color_by_name(const char * name)
+static u8_t parse_hex_color(const char * s, int l, int r)
+{
+	char buf[3];
+	int len;
+
+	len = r - l;
+	if(len < 1 || len > 2)
+		return 0;
+
+	if(len == 1)
+	{
+		buf[0] = s[l];
+		buf[1] = buf[0];
+	}
+	else if(len == 2)
+	{
+		buf[0] = s[l];
+		buf[1] = s[l + 1];
+	}
+
+	buf[2] = '\0';
+	return (strtoul(buf, 0, 16));
+}
+
+struct color_t * get_named_color(const char * name)
 {
 	int i;
 
-	for(i = 0; named_colors[i].name; i++)
+	for(i = 0; __color_table[i].name; i++)
 	{
-		if(strcmp(named_colors[i].name, name) == 0)
+		if(strcmp(__color_table[i].name, name) == 0)
 			break;
 	}
 
-	return (struct color_t *)(&(named_colors[i].color));
+	return (struct color_t *)(&(__color_table[i].color));
 }
-EXPORT_SYMBOL(get_color_by_name);
+EXPORT_SYMBOL(get_named_color);
+
+void color_init_rgb(struct color_t * color, u8_t r, u8_t g, u8_t b)
+{
+	color->r = r;
+	color->g = g;
+	color->b = b;
+	color->a = 255;
+}
+EXPORT_SYMBOL(color_init_rgb);
+
+void color_init_rgba(struct color_t * color, u8_t r, u8_t g, u8_t b, u8_t a)
+{
+	color->r = r;
+	color->g = g;
+	color->b = b;
+	color->a = a;
+}
+EXPORT_SYMBOL(color_init_rgba);
+
+/*
+ * Color string : [#RGB], [#RGBA], [#RRGGBB], [#RRGGBBAA], [r, g, b], [NAME]
+ */
+void color_init_colstr(struct color_t * color, const char * colstr)
+{
+	const char * end;
+	int hexits;
+
+	if(!color)
+		return;
+
+	while(*colstr && isspace(*colstr))
+		colstr++;
+
+	if(*colstr == '#')
+	{
+		colstr++;
+		hexits = 0;
+		end = colstr;
+
+		while(isxdigit(*end))
+		{
+			end++;
+			hexits++;
+		}
+
+		if(hexits == 3 || hexits == 4)
+		{
+			color->r = parse_hex_color(colstr, 0, 1);
+			color->g = parse_hex_color(colstr, 1, 2);
+			color->b = parse_hex_color(colstr, 2, 3);
+			if(hexits == 4)
+				color->a = parse_hex_color(colstr, 3, 4);
+			else
+				color->a = 255;
+		}
+		else if(hexits == 6 || hexits == 8)
+		{
+			color->r = parse_hex_color(colstr, 0, 2);
+			color->g = parse_hex_color(colstr, 2, 4);
+			color->b = parse_hex_color(colstr, 4, 6);
+			if(hexits == 8)
+				color->a = parse_hex_color(colstr, 6, 8);
+			else
+				color->a = 255;
+		}
+		else
+		{
+			color_init_rgb(color, 0, 0, 0);
+		}
+	}
+	else if(isdigit(*colstr))
+	{
+		color->r = strtoul(colstr, 0, 0);
+		colstr = strchr(colstr, ',');
+		if(!colstr)
+		{
+			color_init_rgb(color, color->r, 0, 0);
+			return;
+		}
+		colstr++;
+
+		color->g = strtoul(colstr, 0, 0);
+		colstr = strchr(colstr, ',');
+		if(!colstr)
+		{
+			color_init_rgb(color, color->r, color->g, 0);
+			return;
+		}
+		colstr++;
+
+		color->b = strtoul(colstr, 0, 0);
+		colstr = strchr(colstr, ',');
+		if(!colstr)
+		{
+			color->a = 255;
+		}
+		else
+		{
+			colstr++;
+			color->a = strtoul(colstr, 0, 0);
+		}
+	}
+	else
+	{
+		memcpy(color, get_named_color(colstr), sizeof(struct color_t));
+	}
+}
+EXPORT_SYMBOL(color_init_colstr);

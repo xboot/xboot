@@ -9625,7 +9625,7 @@ bool_t display_logo(struct fb * fb)
 		return FALSE;
 	}
 
-	c = surface_map_color(&(fb->info->surface), get_color_by_name("black"));
+	c = surface_map_color(&(fb->info->surface), get_named_color("black"));
 	surface_fill(&(fb->info->surface), &(fb->info->surface.clip), c, BLEND_MODE_REPLACE);
 	surface_blit(&(fb->info->surface), &rect, logo, &(logo->clip), BLEND_MODE_ALPHA);
 	surface_free(logo);

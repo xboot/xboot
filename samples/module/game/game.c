@@ -841,7 +841,7 @@ void game(void)
 	fb = search_framebuffer("fb");
 	screen = &fb->info->surface;
 
-	c = surface_map_color(screen, get_color_by_name("black"));
+	c = surface_map_color(screen, get_named_color("black"));
 	obj = surface_alloc_from_gimage(&obj_image);
 
 	/* setup boundaries for happyface bouncing */

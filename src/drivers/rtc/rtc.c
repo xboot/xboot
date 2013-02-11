@@ -127,7 +127,7 @@ void rtc_to_time(unsigned long time, struct time *tm)
  */
 u32_t time_to_rtc(struct time * tm)
 {
-	return mktime(tm->year, tm->mon, tm->day, tm->hour, tm->min, tm->sec);
+	return xmktime(tm->year, tm->mon, tm->day, tm->hour, tm->min, tm->sec);
 }
 
 /*

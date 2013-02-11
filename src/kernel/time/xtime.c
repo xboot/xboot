@@ -142,7 +142,7 @@ void do_system_xtime(void)
  * WARNING: this function will overflow on 2106-02-07 06:28:16 on
  * machines where u32_t is 32-bit!
  */
-u32_t mktime(const u32_t year0, const u32_t mon0, const u32_t day, const u32_t hour, const u32_t min, const u32_t sec)
+u32_t xmktime(const u32_t year0, const u32_t mon0, const u32_t day, const u32_t hour, const u32_t min, const u32_t sec)
 {
 	u32_t mon = mon0, year = year0;
 
@@ -162,7 +162,7 @@ u32_t mktime(const u32_t year0, const u32_t mon0, const u32_t day, const u32_t h
  *
  * 0 ~ 6 : Sun, Mon, Tue, Wed, Thu, Fri, Sat
  */
-u8_t mkweek(u32_t year, u32_t mon, u32_t day)
+u8_t xmkweek(u32_t year, u32_t mon, u32_t day)
 {
 	if( (mon == 1) || (mon == 2) )
 	{
@@ -187,7 +187,7 @@ u32_t get_time_stamp(void)
 	min = xtime.min;
 	sec = xtime.sec;
 
-	return mktime(year, mon, day, hour, min, sec);
+	return xmktime(year, mon, day, hour, min, sec);
 }
 
 /*

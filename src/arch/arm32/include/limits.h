@@ -5,6 +5,9 @@
 extern "C" {
 #endif
 
+/* Number of bits in a 'char' */
+#define CHAR_BIT		(8)
+
 /* Minimum and maximum values a 'signed char' can hold */
 #define SCHAR_MIN		(-128)
 #define SCHAR_MAX		127

@@ -146,6 +146,9 @@ SRCDIRS		+=	external/zlib-1.2.7
 INCDIRS		+= 	external/libpng-1.5.14
 SRCDIRS		+=	external/libpng-1.5.14
 
+INCDIRS		+= 	external/pixman-0.29.2
+SRCDIRS		+=	external/pixman-0.29.2
+
 #
 # You shouldn't need to change anything below this point.
 #

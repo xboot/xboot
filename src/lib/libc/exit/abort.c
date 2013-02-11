@@ -7,5 +7,6 @@
 
 void abort(void)
 {
+	 while(1);
 }
 EXPORT_SYMBOL(abort);

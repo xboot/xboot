@@ -23,6 +23,7 @@ extern "C" {
 #include <stdio.h>
 #include <assert.h>
 #include <locale.h>
+#include <time.h>
 #include <exit.h>
 #include <io.h>
 #include <rect.h>

@@ -189,6 +189,8 @@ double log(double x);
 float logf(float x);
 double log10(double x);
 float log10f(float x);
+double hypot(double x, double y);
+float hypotf(float x, float y);
 
 double sin(double x);
 float sinf(float x);

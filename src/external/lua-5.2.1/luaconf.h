@@ -541,11 +541,7 @@
 ** without modifying the main part of the file.
 */
 
-#if !defined(getlocaledecpoint)
-#define getlocaledecpoint()		'.'
-#endif
 
-#define luai_makeseed()	jiffies
 
 #endif
 

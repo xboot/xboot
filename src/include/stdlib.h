@@ -9,12 +9,21 @@ extern "C" {
 #include <stddef.h>
 
 #define RAND_MAX (0x7fffffff)
+
+typedef struct { int quot, rem; } div_t;
+typedef struct { long quot, rem; } ldiv_t;
+typedef struct { long long quot, rem; } lldiv_t;
+
 int rand(void);
 void srand(unsigned int seed);
 
 int abs(int n);
 long labs(long n);
 long long llabs(long long n);
+
+div_t div(int num, int den);
+ldiv_t ldiv(long num, long den);
+lldiv_t lldiv(long long num, long long den);
 
 int atoi(const char * nptr);
 long atol(const char * nptr);

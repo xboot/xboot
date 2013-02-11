@@ -28,12 +28,12 @@
 	} else									\
 		swapfunc(a, b, es, swaptype)
 
-#define SWAPINIT(a, es)						\
-	swaptype = ((char *)a - (char *)0) % sizeof(long) || es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
-
 #define vecswap(a, b, n)					\
 	if ((n) > 0)							\
 		swapfunc(a, b, n, swaptype)
+
+#define SWAPINIT(a, es)						\
+	swaptype = ((char *)a - (char *)0) % sizeof(long) || es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
 
 static __inline char * med3(char *a, char *b, char *c, int (*cmp)(const void *, const void *))
 {

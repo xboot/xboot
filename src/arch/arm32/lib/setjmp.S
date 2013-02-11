@@ -23,8 +23,8 @@
 setjmp:
 	stmia	r0, {r4, r5, r6, r7, r8, r9, r10, fp, sp, lr}
 	mov		r0, #0
-	mov		pc, lr
-	.size 	setjmp,.-setjmp
+	bx		lr
+	.size	setjmp,.-setjmp
 
 	.text
 	.balign	4
@@ -32,6 +32,7 @@ setjmp:
 	.type	longjmp, #function
 longjmp:
 	ldmia	r0, {r4, r5, r6, r7, r8, r9, r10, fp, sp, lr}
-	mov		r0, r1
-	mov		pc, lr
-	.size	longjmp,.-longjmp
+	movs	r0, r1
+	moveq	r0, #1
+	bx		lr
+	.size longjmp,.-longjmp

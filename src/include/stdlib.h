@@ -32,8 +32,9 @@ uintmax_t strtoumax(const char * nptr, char ** endptr, int base);
 intmax_t strntoimax(const char * nptr, char ** endptr, int base, size_t n);
 uintmax_t strntoumax(const char * nptr, char ** endptr, int base, size_t n);
 
-void * bsearch(const void *key, const void *base, size_t nmemb, size_t size,
-		int(*compar)(const void *, const void *));
+void * bsearch(const void * key, const void * base, size_t nmemb, size_t size,
+		int (*compar)(const void *, const void *));
+void qsort(void * aa, size_t n, size_t es, int (*cmp)(const void *, const void *));
 
 #ifdef __cplusplus
 }

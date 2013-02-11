@@ -8,7 +8,6 @@ extern "C" {
 #include <configs.h>
 #include <types.h>
 #include <sizes.h>
-#include <ssize.h>
 #include <endian.h>
 #include <byteorder.h>
 #include <limits.h>
@@ -30,6 +29,7 @@ extern "C" {
 #include <color.h>
 #include <matrix.h>
 #include <div64.h>
+#include <ssize.h>
 #include <malloc.h>
 #include <charset.h>
 #include <readline.h>

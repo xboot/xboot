@@ -64,74 +64,74 @@ CXXFLAGS	+=	$(NAMESPACES)
 #
 # Add necessary directory for INCDIRS and SRCDIRS.
 #
-INCDIRS		+= 	include							\
-				arch/$(ARCH)/include			\
+INCDIRS		+= 	include									\
+				arch/$(ARCH)/include					\
 				arch/$(ARCH)/$(MACH)/include
 
-SRCDIRS		+=	arch/$(ARCH)/lib/gcc			\
-				arch/$(ARCH)/lib/cpu			\
-				arch/$(ARCH)/lib				\
-				arch/$(ARCH)/$(MACH)			\
-				arch/$(ARCH)/$(MACH)/driver		\
-				arch/$(ARCH)/$(MACH)/resource	\
-				lib								\
-				lib/elf							\
-				lib/libc						\
-				lib/libc/ctype					\
-				lib/libc/environ				\
-				lib/libc/errno					\
-				lib/libc/exit					\
-				lib/libc/fifo					\
-				lib/libc/readline				\
-				lib/libc/stdio					\
-				lib/libc/stdlib					\
-				lib/libc/string					\
-				lib/libc/time					\
-				lib/libc/locale					\
-				lib/libc/malloc					\
-				lib/libm						\
-				lib/libx						\
-				init							\
-				init/mode						\
-				kernel							\
-				kernel/core						\
-				kernel/shell					\
-				kernel/command					\
-				kernel/time						\
-				kernel/graphic					\
-				kernel/graphic/image			\
-				kernel/graphic/maps				\
-				kernel/graphic/maps/software	\
-				kernel/fs						\
-				kernel/fs/vfs					\
-				kernel/fs/ramfs					\
-				kernel/fs/procfs				\
-				kernel/fs/devfs					\
-				kernel/fs/arfs					\
-				kernel/fs/tarfs					\
-				kernel/fs/cpiofs				\
-				kernel/fs/fatfs					\
-				drivers							\
-				drivers/console					\
-				drivers/disk					\
-				drivers/disk/partition			\
-				drivers/serial					\
-				drivers/fb						\
-				drivers/led						\
-				drivers/loop					\
-				drivers/romdisk					\
-				drivers/rtc						\
-				drivers/input					\
-				drivers/input/keyboard			\
-				drivers/input/mouse				\
-				drivers/mmc						\
-				drivers/mtd						\
-				drivers/mtd/nand				\
-				drivers/mtd/nor					\
-				framework						\
-				framework/base64				\
-				framework/event					\
-				framework/xfs					\
+SRCDIRS		+=	arch/$(ARCH)/lib/gcc					\
+				arch/$(ARCH)/lib/cpu					\
+				arch/$(ARCH)/lib						\
+				arch/$(ARCH)/$(MACH)					\
+				arch/$(ARCH)/$(MACH)/driver				\
+				arch/$(ARCH)/$(MACH)/resource			\
+				lib										\
+				lib/elf									\
+				lib/libc								\
+				lib/libc/ctype							\
+				lib/libc/environ						\
+				lib/libc/errno							\
+				lib/libc/exit							\
+				lib/libc/fifo							\
+				lib/libc/readline						\
+				lib/libc/stdio							\
+				lib/libc/stdlib							\
+				lib/libc/string							\
+				lib/libc/time							\
+				lib/libc/locale							\
+				lib/libc/malloc							\
+				lib/libm								\
+				lib/libx								\
+				init									\
+				init/mode								\
+				kernel									\
+				kernel/core								\
+				kernel/shell							\
+				kernel/command							\
+				kernel/time								\
+				kernel/graphic							\
+				kernel/graphic/image					\
+				kernel/graphic/maps						\
+				kernel/graphic/maps/software			\
+				kernel/fs								\
+				kernel/fs/vfs							\
+				kernel/fs/ramfs							\
+				kernel/fs/procfs						\
+				kernel/fs/devfs							\
+				kernel/fs/arfs							\
+				kernel/fs/tarfs							\
+				kernel/fs/cpiofs						\
+				kernel/fs/fatfs							\
+				drivers									\
+				drivers/console							\
+				drivers/disk							\
+				drivers/disk/partition					\
+				drivers/serial							\
+				drivers/fb								\
+				drivers/led								\
+				drivers/loop							\
+				drivers/romdisk							\
+				drivers/rtc								\
+				drivers/input							\
+				drivers/input/keyboard					\
+				drivers/input/mouse						\
+				drivers/mmc								\
+				drivers/mtd								\
+				drivers/mtd/nand						\
+				drivers/mtd/nor							\
+				framework								\
+				framework/base64						\
+				framework/event							\
+				framework/xfs							\
 				framework/framerate
 
 #
@@ -151,6 +151,44 @@ SRCDIRS		+=	external/pixman-0.29.2
 
 INCDIRS		+= 	external/cairo-1.12.12
 SRCDIRS		+=	external/cairo-1.12.12
+
+INCDIRS		+= 	external/freetype-2.4.11/include		\
+				external/freetype-2.4.11/src/base		\
+				external/freetype-2.4.11/src/raster		\
+				external/freetype-2.4.11/src/smooth		\
+				external/freetype-2.4.11/src/cff		\
+				external/freetype-2.4.11/src/cid		\
+				external/freetype-2.4.11/src/pfr		\
+				external/freetype-2.4.11/src/sfnt		\
+				external/freetype-2.4.11/src/truetype	\
+				external/freetype-2.4.11/src/type1		\
+				external/freetype-2.4.11/src/type42		\
+				external/freetype-2.4.11/src/winfonts	\
+				external/freetype-2.4.11/src/autofit 	\
+				external/freetype-2.4.11/src/cache 		\
+				external/freetype-2.4.11/src/gxvalid 	\
+				external/freetype-2.4.11/src/otvalid 	\
+				external/freetype-2.4.11/src/psaux 		\
+				external/freetype-2.4.11/src/pshinter 	\
+				external/freetype-2.4.11/src/psnames
+SRCDIRS		+=	external/freetype-2.4.11/src/base 		\
+				external/freetype-2.4.11/src/raster		\
+				external/freetype-2.4.11/src/smooth		\
+				external/freetype-2.4.11/src/cff		\
+				external/freetype-2.4.11/src/cid		\
+				external/freetype-2.4.11/src/pfr		\
+				external/freetype-2.4.11/src/sfnt		\
+				external/freetype-2.4.11/src/truetype	\
+				external/freetype-2.4.11/src/type1		\
+				external/freetype-2.4.11/src/type42		\
+				external/freetype-2.4.11/src/winfonts	\
+				external/freetype-2.4.11/src/autofit 	\
+				external/freetype-2.4.11/src/cache 		\
+				external/freetype-2.4.11/src/gxvalid 	\
+				external/freetype-2.4.11/src/otvalid 	\
+				external/freetype-2.4.11/src/psaux 		\
+				external/freetype-2.4.11/src/pshinter 	\
+				external/freetype-2.4.11/src/psnames
 
 #
 # You shouldn't need to change anything below this point.

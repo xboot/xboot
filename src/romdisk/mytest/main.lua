@@ -16,7 +16,7 @@ local tm_min = 0
 local tm_hour = 0
 	
 function draw(width, height)
-	local cs = cairo.image_surface_create(0, width, height)
+	local cs = cairo.image_surface_create(cairo.FORMAT_ARGB32, width, height)
 	local cr = cairo.create(cs)
 	
 	tm_sec = tm_sec + 1;
@@ -40,7 +40,7 @@ function draw(width, height)
 	cr:set_source_rgb ( 1* tm_sec/60, 1*tm_min/60, 1*tm_hour/24);
 	cr:paint();
 
-	--	cr:set_line_cap( CAIRO_LINE_CAP_ROUND);
+	cr:set_line_cap(cairo.LINE_CAP_ROUND);
 	cr:set_line_width ( 0.1);
 
 	cr:set_source_rgb ( 0, 0, 0);
@@ -61,7 +61,7 @@ function draw(width, height)
 	cr:line_to ( sin (hours) * 0.2, -cos (hours) * 0.2);
 	cr:stroke  ();
 	
-	print(cs:show())
+	cs:show()
 end
 
 local function main()
@@ -78,7 +78,7 @@ local function main()
 			end
 		else
 			width = width -1
-			if(width < 100) then
+			if(width < 10) then
 				flag_w = true
 			end
 		end
@@ -90,7 +90,7 @@ local function main()
 			end
 		else
 			height = height -1
-			if(height < 100) then
+			if(height < 10) then
 				flag_h = true
 			end
 		end

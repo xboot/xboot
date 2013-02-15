@@ -20,40 +20,37 @@
  *
  */
 
+#include <cairo.h>
 #include <framework/cairo/l_cairo.h>
 
-#if 0
-static int l_cairo_new(lua_State * L)
+int l_cairo_image_surface_create(lua_State * L)
 {
-	return 0;
-}
-
-static const luaL_Reg l_cairo[] = {
-	{"new",			l_cairo_new},
-	{NULL, NULL}
-};
-
-static int m_cairo_tostring(lua_State * L)
-{
-	return 0;
-}
-
-static const luaL_Reg m_cairo[] = {
-	{"__tostring",	m_cairo_tostring},
-	{NULL, 			NULL}
-};
-
-int luaopen_cairo(lua_State * L)
-{
-	luaL_newlib(L, l_cairo);
-
-	luaL_newmetatable(L, LUA_MT_NAME_CAIRO);
-	luaL_setfuncs(L, m_cairo, 0);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	lua_pop(L, 1);
-
+	cairo_format_t format = (cairo_format_t)luaL_checkint(L, 1);
+	int width = luaL_checkint(L, 2);
+	int height = luaL_checkint(L, 3);
+	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));
+	*cs = cairo_image_surface_create(format, width, height);
+	luaL_setmetatable(L, MT_NAME_CAIRO_SURFACE);
 	return 1;
 }
-#endif
 
+static int m_cairo_surface_gc(lua_State * L)
+{
+	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
+	cairo_surface_destroy(*cs);
+	return 0;
+}
+
+extern void show_to_framebuffer(cairo_surface_t * surface);
+static int m_cairo_surface_show(lua_State * L)
+{
+	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
+	show_to_framebuffer(*cs);
+	return 0;
+}
+
+const luaL_Reg m_cairo_surface[] = {
+	{"__gc",				m_cairo_surface_gc},
+	{"show",				m_cairo_surface_show},
+	{NULL, 					NULL}
+};

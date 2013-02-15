@@ -20,6 +20,8 @@ void luahelper_set_numfield(lua_State * L, const char * key, lua_Number value);
 void luahelper_set_intfield(lua_State * L, const char * key, lua_Integer value);
 void luahelper_set_uintfield(lua_State * L, const char * key, lua_Unsigned value);
 
+void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg * funcs);
+
 #ifdef __cplusplus
 }
 #endif

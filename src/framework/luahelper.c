@@ -89,3 +89,12 @@ void luahelper_set_uintfield(lua_State * L, const char * key, lua_Unsigned value
 	lua_pushunsigned(L, value);
 	lua_setfield(L, -2, key);
 }
+
+void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg * funcs)
+{
+	luaL_newmetatable(L, name);
+	luaL_setfuncs(L, funcs, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	lua_pop(L, 1);
+}

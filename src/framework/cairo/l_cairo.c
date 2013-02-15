@@ -27,21 +27,8 @@ static int l_cairo_create(lua_State * L)
 {
 	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
 	cairo_t ** cr = lua_newuserdata(L, sizeof(cairo_t *));
-
 	*cr = cairo_create(*cs);
 	luaL_setmetatable(L, MT_NAME_CAIRO);
-	return 1;
-}
-
-static int l_cairo_image_surface_create(lua_State * L)
-{
-	cairo_format_t format = (cairo_format_t)luaL_checkint(L, 1);
-	int width = luaL_checkint(L, 2);
-	int height = luaL_checkint(L, 3);
-	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));
-
-	*cs = cairo_image_surface_create(format, width, height);
-	luaL_setmetatable(L, MT_NAME_CAIRO_SURFACE);
 	return 1;
 }
 
@@ -54,12 +41,7 @@ static const luaL_Reg l_cairo[] = {
 static int m_cairo_gc(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
-	cairo_destroy(*cr); *cr = 0;
-	return 0;
-}
-
-static int m_cairo_tostring(lua_State * L)
-{
+	cairo_destroy(*cr);
 	return 0;
 }
 
@@ -326,7 +308,6 @@ static int m_cairo_set_line_join(lua_State * L)
 
 static const luaL_Reg m_cairo[] = {
 	{"__gc",				m_cairo_gc},
-	{"__tostring",			m_cairo_tostring},
 	{"arc",					m_cairo_arc},
 	{"arc_negative",		m_cairo_arc_negative},
 	{"set_line_width",		m_cairo_set_line_width},
@@ -360,48 +341,35 @@ static const luaL_Reg m_cairo[] = {
 	{NULL, 					NULL}
 };
 
-/*
- * xxx cairo_surface
- */
-static int m_cairo_surface_gc(lua_State * L)
-{
-	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
-	cairo_surface_destroy(*cs);
-	return 0;
-}
-
-extern void show_to_framebuffer(cairo_surface_t * surface);
-static int m_cairo_surface_show(lua_State * L)
-{
-	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
-	show_to_framebuffer(*cs);
-	return 0;
-}
-
-static const luaL_Reg m_cairo_surface[] = {
-	{"__gc",				m_cairo_surface_gc},
-	{"show",				m_cairo_surface_show},
-	{NULL, 					NULL}
-};
-
-
-//CAIRO_FORMAT_ARGB32;
-
 int luaopen_cairo(lua_State * L)
 {
 	luaL_newlib(L, l_cairo);
 
-	luaL_newmetatable(L, MT_NAME_CAIRO);
-	luaL_setfuncs(L, m_cairo, 0);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	lua_pop(L, 1);
+	/* cairo_format_t */
+	luahelper_set_intfield(L,	"FORMAT_INVALID",		CAIRO_FORMAT_INVALID);
+	luahelper_set_intfield(L,	"FORMAT_ARGB32",		CAIRO_FORMAT_ARGB32);
+	luahelper_set_intfield(L,	"FORMAT_RGB24",			CAIRO_FORMAT_RGB24);
+	luahelper_set_intfield(L,	"FORMAT_A8",			CAIRO_FORMAT_A8);
+	luahelper_set_intfield(L,	"FORMAT_A1",			CAIRO_FORMAT_A1);
+	luahelper_set_intfield(L,	"FORMAT_RGB16_565",		CAIRO_FORMAT_RGB16_565);
+	luahelper_set_intfield(L,	"FORMAT_RGB30",			CAIRO_FORMAT_RGB30);
 
-	luaL_newmetatable(L, MT_NAME_CAIRO_SURFACE);
-	luaL_setfuncs(L, m_cairo_surface, 0);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	lua_pop(L, 1);
+	/* cairo_fill_rule_t */
+	luahelper_set_intfield(L, 	"FILL_RULE_WINDING",	CAIRO_FILL_RULE_WINDING);
+	luahelper_set_intfield(L, 	"FILL_RULE_EVEN_ODD",	CAIRO_FILL_RULE_EVEN_ODD);
+
+	/* cairo_line_cap_t */
+	luahelper_set_intfield(L,	"LINE_CAP_BUTT", 		CAIRO_LINE_CAP_BUTT);
+	luahelper_set_intfield(L,	"LINE_CAP_ROUND", 		CAIRO_LINE_CAP_ROUND);
+	luahelper_set_intfield(L,	"LINE_CAP_SQUARE", 		CAIRO_LINE_CAP_SQUARE);
+
+	/* cairo_line_join_t */
+	luahelper_set_intfield(L,	"LINE_JOIN_MITER",		CAIRO_LINE_JOIN_MITER);
+	luahelper_set_intfield(L,	"LINE_JOIN_ROUND",		CAIRO_LINE_JOIN_ROUND);
+	luahelper_set_intfield(L,	"LINE_JOIN_BEVEL",		CAIRO_LINE_JOIN_BEVEL);
+
+	luahelper_create_metatable(L, MT_NAME_CAIRO, m_cairo);
+	luahelper_create_metatable(L, MT_NAME_CAIRO_SURFACE, m_cairo_surface);
 
 	return 1;
 }

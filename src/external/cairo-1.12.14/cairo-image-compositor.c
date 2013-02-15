@@ -2933,11 +2933,19 @@ span_renderer_init (cairo_abstract_span_renderer_t	*_r,
 		op == CAIRO_OPERATOR_ADD)) {
 	op = PIXMAN_OP_SRC;
     } else if (op == CAIRO_OPERATOR_SOURCE) {
+	if (_cairo_pattern_is_opaque (&composite->source_pattern.base,
+				      &composite->source_sample_area))
+	{
+	    op = PIXMAN_OP_OVER;
+	}
+	else
+	{
 #if PIXMAN_HAS_OP_LERP
-	op = PIXMAN_OP_LERP_SRC;
+	    op = PIXMAN_OP_LERP_SRC;
 #else
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+	    return CAIRO_INT_STATUS_UNSUPPORTED;
 #endif
+	}
     } else {
 	op = _pixman_operator (op);
     }

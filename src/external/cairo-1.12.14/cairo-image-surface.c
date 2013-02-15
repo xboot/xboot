@@ -1088,6 +1088,61 @@ _cairo_image_surface_coerce_to_format (cairo_image_surface_t *surface,
     return clone;
 }
 
+cairo_image_surface_t *
+_cairo_image_surface_create_from_image (cairo_image_surface_t *other,
+					pixman_format_code_t format,
+					int x, int y,
+					int width, int height, int stride)
+{
+    cairo_image_surface_t *surface;
+    cairo_status_t status;
+    pixman_image_t *image;
+    void *mem = NULL;
+
+    status = other->base.status;
+    if (unlikely (status))
+	goto cleanup;
+
+    if (stride) {
+	mem = _cairo_malloc_ab (height, stride);
+	if (unlikely (mem == NULL)) {
+	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	    goto cleanup;
+	}
+    }
+
+    image = pixman_image_create_bits (format, width, height, mem, stride);
+    if (unlikely (image == NULL)) {
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	goto cleanup_mem;
+    }
+
+    surface = (cairo_image_surface_t *)
+	_cairo_image_surface_create_for_pixman_image (image, format);
+    if (unlikely (surface->base.status)) {
+	status = surface->base.status;
+	goto cleanup_image;
+    }
+
+    pixman_image_composite32 (PIXMAN_OP_SRC,
+                              other->pixman_image, NULL, image,
+                              x, y,
+                              0, 0,
+                              0, 0,
+                              width, height);
+    surface->base.is_clear = FALSE;
+    surface->owns_data = mem != NULL;
+
+    return surface;
+
+cleanup_image:
+    pixman_image_unref (image);
+cleanup_mem:
+    free (mem);
+cleanup:
+    return (cairo_image_surface_t *) _cairo_surface_create_in_error (status);
+}
+
 cairo_image_transparency_t
 _cairo_image_analyze_transparency (cairo_image_surface_t *image)
 {

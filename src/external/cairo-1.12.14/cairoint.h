@@ -205,7 +205,10 @@ _cairo_is_little_endian (void)
 #define CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(c) CAIRO_BITSWAP8(c)
 #endif
 
-/*
+#undef cpu_to_be16
+#undef be16_to_cpu
+#undef cpu_to_be32
+#undef be32_to_cpu
 #ifdef WORDS_BIGENDIAN
 
 #define cpu_to_be16(v) (v)
@@ -240,7 +243,7 @@ be32_to_cpu(uint32_t v)
 }
 
 #endif
-*/
+
 
 /* The glibc versions of ispace() and isdigit() are slow in UTF-8 locales.
  */

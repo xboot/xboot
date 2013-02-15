@@ -130,6 +130,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/gcc					\
 				drivers/mtd/nor							\
 				framework								\
 				framework/base64						\
+				framework/cairo							\
 				framework/event							\
 				framework/xfs							\
 				framework/framerate
@@ -149,8 +150,8 @@ SRCDIRS		+=	external/libpng-1.5.14
 INCDIRS		+= 	external/pixman-0.29.2
 SRCDIRS		+=	external/pixman-0.29.2
 
-INCDIRS		+= 	external/cairo-1.12.12
-SRCDIRS		+=	external/cairo-1.12.12
+INCDIRS		+= 	external/cairo-1.12.14
+SRCDIRS		+=	external/cairo-1.12.14
 
 INCDIRS		+= 	external/freetype-2.4.11/include		\
 				external/freetype-2.4.11/src/base		\

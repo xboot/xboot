@@ -533,13 +533,12 @@ cairo_type1_font_subset_write_header (cairo_type1_font_subset_t *font,
     if (font->scaled_font_subset->is_latin) {
 	for (i = 1; i < 256; i++) {
 	    int subset_glyph = font->scaled_font_subset->latin_to_subset_glyph_index[i];
-	    int glyph_num = font->subset_index_to_glyphs[subset_glyph];
 
 	    if (subset_glyph > 0) {
 		_cairo_output_stream_printf (font->output,
 					     "dup %d /%s put\n",
 					     i,
-					     font->glyph_names[glyph_num]);
+					     _cairo_winansi_to_glyphname (i));
 	    }
 	}
     } else {
@@ -1129,9 +1128,25 @@ write_used_glyphs (cairo_type1_font_subset_t *font,
     cairo_status_t status;
     char buffer[256];
     int length;
+    int subset_id;
+    int ch;
 
     if (font->glyphs[glyph_number].subset_index < 0)
 	return CAIRO_STATUS_SUCCESS;
+
+    if (font->scaled_font_subset->is_latin) {
+	/* When using the WinAnsi encoding in PDF, the /Encoding array
+	 * is ignored and instead glyphs are keyed by glyph names. To
+	 * ensure correct rendering we replace the glyph name in the
+	 * font with the standard name.
+         **/
+	subset_id = font->glyphs[glyph_number].subset_index;
+	if (subset_id > 0) {
+	    ch = font->scaled_font_subset->to_latin_char[subset_id];
+	    name = _cairo_winansi_to_glyphname (ch);
+	    name_length = strlen(name);
+	}
+    }
 
     length = snprintf (buffer, sizeof buffer,
 		       "/%.*s %d %s ",

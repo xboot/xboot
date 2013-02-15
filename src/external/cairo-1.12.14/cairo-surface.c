@@ -1096,6 +1096,10 @@ void *
 cairo_surface_get_user_data (cairo_surface_t		 *surface,
 			     const cairo_user_data_key_t *key)
 {
+    /* Prevent reads of the array during teardown */
+    if (! CAIRO_REFERENCE_COUNT_HAS_REFERENCE (&surface->ref_count))
+	return NULL;
+
     return _cairo_user_data_array_get_data (&surface->user_data, key);
 }
 
@@ -1126,6 +1130,9 @@ cairo_surface_set_user_data (cairo_surface_t		 *surface,
     if (CAIRO_REFERENCE_COUNT_IS_INVALID (&surface->ref_count))
 	return surface->status;
 
+    if (! CAIRO_REFERENCE_COUNT_HAS_REFERENCE (&surface->ref_count))
+	return _cairo_error (CAIRO_STATUS_SURFACE_FINISHED);
+
     return _cairo_user_data_array_set_data (&surface->user_data,
 					    key, user_data, destroy);
 }
@@ -1154,7 +1161,9 @@ cairo_surface_get_mime_data (cairo_surface_t		*surface,
 
     *data = NULL;
     *length = 0;
-    if (unlikely (surface->status))
+
+    /* Prevent reads of the array during teardown */
+    if (! CAIRO_REFERENCE_COUNT_HAS_REFERENCE (&surface->ref_count))
 	return;
 
     /* The number of mime-types attached to a surface is usually small,
@@ -1275,6 +1284,12 @@ cairo_surface_set_mime_data (cairo_surface_t		*surface,
 {
     cairo_status_t status;
     cairo_mime_data_t *mime_data;
+
+    if (CAIRO_REFERENCE_COUNT_IS_INVALID (&surface->ref_count))
+	return surface->status;
+
+    if (! CAIRO_REFERENCE_COUNT_HAS_REFERENCE (&surface->ref_count))
+	return _cairo_error (CAIRO_STATUS_SURFACE_FINISHED);
 
     if (unlikely (surface->status))
 	return surface->status;

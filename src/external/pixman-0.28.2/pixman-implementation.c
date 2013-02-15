@@ -65,13 +65,7 @@ typedef struct
 
 PIXMAN_DEFINE_THREAD_LOCAL (cache_t, fast_path_cache);
 
-static void
-dummy_composite_rect (pixman_implementation_t *imp,
-		      pixman_composite_info_t *info)
-{
-}
-
-void
+pixman_bool_t
 _pixman_implementation_lookup_composite (pixman_implementation_t  *toplevel,
 					 pixman_op_t               op,
 					 pixman_format_code_t      src_format,
@@ -148,11 +142,7 @@ _pixman_implementation_lookup_composite (pixman_implementation_t  *toplevel,
 	    ++info;
 	}
     }
-
-    /* We should never reach this point */
-    _pixman_log_error (FUNC, "No known composite function\n");
-    *out_imp = NULL;
-    *out_func = dummy_composite_rect;
+    return FALSE;
 
 update_cache:
     if (i)
@@ -170,16 +160,8 @@ update_cache:
 	cache->cache[0].fast_path.dest_flags = dest_flags;
 	cache->cache[0].fast_path.func = *out_func;
     }
-}
 
-static void
-dummy_combine (pixman_implementation_t *imp,
-	       pixman_op_t              op,
-	       uint32_t *               pd,
-	       const uint32_t *         ps,
-	       const uint32_t *         pm,
-	       int                      w)
-{
+    return TRUE;
 }
 
 pixman_combine_32_func_t
@@ -217,9 +199,7 @@ _pixman_implementation_lookup_combiner (pixman_implementation_t *imp,
 	imp = imp->fallback;
     }
 
-    /* We should never reach this point */
-    _pixman_log_error (FUNC, "No known combine function\n");
-    return dummy_combine;
+    return NULL;
 }
 
 pixman_bool_t
@@ -262,12 +242,12 @@ _pixman_implementation_fill (pixman_implementation_t *imp,
                              int                      y,
                              int                      width,
                              int                      height,
-                             uint32_t                 filler)
+                             uint32_t                 xor)
 {
     while (imp)
     {
 	if (imp->fill &&
-	    ((*imp->fill) (imp, bits, stride, bpp, x, y, width, height, filler)))
+	    ((*imp->fill) (imp, bits, stride, bpp, x, y, width, height, xor)))
 	{
 	    return TRUE;
 	}

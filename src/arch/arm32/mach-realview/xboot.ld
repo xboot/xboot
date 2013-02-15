@@ -3,17 +3,17 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 
 
-STACK_FIQ_SIZE 	= 0x0400;
-STACK_IRQ_SIZE 	= 0x0400;
-STACK_ABT_SIZE 	= 0x0400;
-STACK_UND_SIZE 	= 0x0400;
-STACK_SRV_SIZE 	= 0x8000;
+STACK_FIQ_SIZE 	= 0x10000;	/* 64KB */
+STACK_IRQ_SIZE 	= 0x10000;	/* 64KB */
+STACK_ABT_SIZE 	= 0x10000;	/* 64KB */
+STACK_UND_SIZE 	= 0x10000;	/* 64KB */
+STACK_SRV_SIZE 	= 0x100000;	/* 1 MB */
 
 
 MEMORY
 {
-	rom (rx)	: org = 0x00000000, len = 0x04000000	/* 64 MB */
-	ram (rwx)	: org = 0x04000000, len = 0x04000000	/* 64 MB */
+	rom (rx)	: org = 0x00000000, len = 0x02000000	/* 32 MB */
+	ram (rwx)	: org = 0x02000000, len = 0x06000000	/* 96 MB */
 }
 
 SECTIONS

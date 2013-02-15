@@ -74,6 +74,32 @@ static int m_cairo_set_source_rgba(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_append_path(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_path_t ** path = luaL_checkudata(L, 2, MT_NAME_CAIRO_PATH);
+	cairo_append_path(*cr, *path);
+	return 0;
+}
+
+static int m_cairo_copy_path(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_path_t ** path = lua_newuserdata(L, sizeof(cairo_path_t *));
+	*path = cairo_copy_path(*cr);
+	luaL_setmetatable(L, MT_NAME_CAIRO_PATH);
+	return 1;
+}
+
+static int m_cairo_copy_path_flat(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_path_t ** path = lua_newuserdata(L, sizeof(cairo_path_t *));
+	*path = cairo_copy_path_flat(*cr);
+	luaL_setmetatable(L, MT_NAME_CAIRO_PATH);
+	return 1;
+}
+
 static int m_cairo_arc(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
@@ -185,6 +211,21 @@ static int m_cairo_stroke_preserve(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_stroke_extents(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	double x1 = luaL_optnumber(L, 2, 0.0);
+	double y1 = luaL_optnumber(L, 3, 0.0);
+	double x2 = luaL_optnumber(L, 4, 0.0);
+	double y2 = luaL_optnumber(L, 5, 0.0);
+	cairo_stroke_extents(*cr, &x1, &y1, &x2, &y2);
+	lua_pushnumber(L, x1);
+	lua_pushnumber(L, y1);
+	lua_pushnumber(L, x2);
+	lua_pushnumber(L, y2);
+	return 4;
+}
+
 static int m_cairo_fill(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
@@ -197,6 +238,21 @@ static int m_cairo_fill_preserve(lua_State * L)
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
 	cairo_fill_preserve(*cr);
 	return 0;
+}
+
+static int m_cairo_fill_extents(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	double x1 = luaL_optnumber(L, 2, 0.0);
+	double y1 = luaL_optnumber(L, 3, 0.0);
+	double x2 = luaL_optnumber(L, 4, 0.0);
+	double y2 = luaL_optnumber(L, 5, 0.0);
+	cairo_fill_extents(*cr, &x1, &y1, &x2, &y2);
+	lua_pushnumber(L, x1);
+	lua_pushnumber(L, y1);
+	lua_pushnumber(L, x2);
+	lua_pushnumber(L, y2);
+	return 4;
 }
 
 static int m_cairo_paint(lua_State * L)
@@ -256,6 +312,28 @@ static int m_cairo_clip(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_clip_preserve(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_clip_preserve(*cr);
+	return 0;
+}
+
+static int m_cairo_clip_extents(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	double x1 = luaL_optnumber(L, 2, 0.0);
+	double y1 = luaL_optnumber(L, 3, 0.0);
+	double x2 = luaL_optnumber(L, 4, 0.0);
+	double y2 = luaL_optnumber(L, 5, 0.0);
+	cairo_clip_extents(*cr, &x1, &y1, &x2, &y2);
+	lua_pushnumber(L, x1);
+	lua_pushnumber(L, y1);
+	lua_pushnumber(L, x2);
+	lua_pushnumber(L, y2);
+	return 4;
+}
+
 static int m_cairo_translate(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
@@ -306,39 +384,94 @@ static int m_cairo_set_line_join(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_device_to_user(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	cairo_device_to_user(*cr, &x, &y);
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	return 2;
+}
+
+static int m_cairo_device_to_user_distance(lua_State *L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	cairo_device_to_user_distance(*cr, &x, &y);
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	return 2;
+}
+
+static int m_cairo_path_extents(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	double x1 = luaL_optnumber(L, 2, 0.0);
+	double y1 = luaL_optnumber(L, 3, 0.0);
+	double x2 = luaL_optnumber(L, 4, 0.0);
+	double y2 = luaL_optnumber(L, 5, 0.0);
+	cairo_path_extents(*cr, &x1, &y1, &x2, &y2);
+	lua_pushnumber(L, x1);
+	lua_pushnumber(L, y1);
+	lua_pushnumber(L, x2);
+	lua_pushnumber(L, y2);
+	return 4;
+}
+
+static int m_cairo_reset_clip(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_reset_clip(*cr);
+	return 0;
+}
+
 static const luaL_Reg m_cairo[] = {
-	{"__gc",				m_cairo_gc},
-	{"arc",					m_cairo_arc},
-	{"arc_negative",		m_cairo_arc_negative},
-	{"set_line_width",		m_cairo_set_line_width},
-	{"set_source_rgb",		m_cairo_set_source_rgb},
-	{"set_source_rgba",		m_cairo_set_source_rgba},
-	{"move_to",				m_cairo_move_to},
-	{"line_to",				m_cairo_line_to},
-	{"curve_to",			m_cairo_curve_to},
-	{"rectangle",			m_cairo_rectangle},
-	{"rel_move_to",			m_cairo_rel_move_to},
-	{"rel_line_to",			m_cairo_rel_line_to},
-	{"rel_curve_to",		m_cairo_rel_curve_to},
-	{"stroke",				m_cairo_stroke},
-	{"stroke_preserve",		m_cairo_stroke_preserve},
-	{"fill",				m_cairo_fill},
-	{"fill_preserve",		m_cairo_fill_preserve},
-	{"paint",				m_cairo_paint},
-	{"paint_with_alpha",	m_cairo_paint_with_alpha},
-	{"save",				m_cairo_save},
-	{"restore",				m_cairo_restore},
-	{"new_path",			m_cairo_new_path},
-	{"new_sub_path",		m_cairo_new_sub_path},
-	{"close_path",			m_cairo_close_path},
-	{"clip",				m_cairo_clip},
-	{"translate",			m_cairo_translate},
-	{"scale",				m_cairo_scale},
-	{"rotate",				m_cairo_rotate},
-	{"set_fill_rule",		m_cairo_set_fill_rule},
-	{"set_line_cap",		m_cairo_set_line_cap},
-	{"set_line_join",		m_cairo_set_line_join},
-	{NULL, 					NULL}
+	{"__gc",					m_cairo_gc},
+	{"append_path",				m_cairo_append_path},
+	{"copy_path",				m_cairo_copy_path},
+	{"copy_path_flat",			m_cairo_copy_path_flat},
+	{"arc",						m_cairo_arc},
+	{"arc_negative",			m_cairo_arc_negative},
+	{"set_line_width",			m_cairo_set_line_width},
+	{"set_source_rgb",			m_cairo_set_source_rgb},
+	{"set_source_rgba",			m_cairo_set_source_rgba},
+	{"move_to",					m_cairo_move_to},
+	{"line_to",					m_cairo_line_to},
+	{"curve_to",				m_cairo_curve_to},
+	{"rectangle",				m_cairo_rectangle},
+	{"rel_move_to",				m_cairo_rel_move_to},
+	{"rel_line_to",				m_cairo_rel_line_to},
+	{"rel_curve_to",			m_cairo_rel_curve_to},
+	{"stroke",					m_cairo_stroke},
+	{"stroke_preserve",			m_cairo_stroke_preserve},
+	{"stroke_extents",			m_cairo_stroke_extents},
+	{"fill",					m_cairo_fill},
+	{"fill_preserve",			m_cairo_fill_preserve},
+	{"fill_extents",			m_cairo_fill_extents},
+	{"paint",					m_cairo_paint},
+	{"paint_with_alpha",		m_cairo_paint_with_alpha},
+	{"save",					m_cairo_save},
+	{"restore",					m_cairo_restore},
+	{"new_path",				m_cairo_new_path},
+	{"new_sub_path",			m_cairo_new_sub_path},
+	{"close_path",				m_cairo_close_path},
+	{"clip",					m_cairo_clip},
+	{"clip_preserve",			m_cairo_clip_preserve},
+	{"clip_extents",			m_cairo_clip_extents},
+	{"translate",				m_cairo_translate},
+	{"scale",					m_cairo_scale},
+	{"rotate",					m_cairo_rotate},
+	{"set_fill_rule",			m_cairo_set_fill_rule},
+	{"set_line_cap",			m_cairo_set_line_cap},
+	{"set_line_join",			m_cairo_set_line_join},
+	{"device_to_user",			m_cairo_device_to_user},
+	{"device_to_user_distance",	m_cairo_device_to_user_distance},
+	{"path_extents",			m_cairo_path_extents},
+	{"reset_clip",				m_cairo_reset_clip},
+	{NULL, 						NULL}
 };
 
 int luaopen_cairo(lua_State * L)
@@ -370,6 +503,7 @@ int luaopen_cairo(lua_State * L)
 
 	luahelper_create_metatable(L, MT_NAME_CAIRO, m_cairo);
 	luahelper_create_metatable(L, MT_NAME_CAIRO_SURFACE, m_cairo_surface);
+	luahelper_create_metatable(L, MT_NAME_CAIRO_PATH, m_cairo_path);
 
 	return 1;
 }

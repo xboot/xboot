@@ -29,6 +29,7 @@ static const luaL_Reg xboot_libs[] = {
 	{ "org.xboot.event", 			luaopen_event },
 	{ "org.xboot.event.listener",	luaopen_event_listener },
 	{ "org.xboot.event.dispatcher",	luaopen_event_dispatcher },
+	{ "org.xboot.cairo",			luaopen_cairo },
 	{ "org.xboot.boot",				luaopen_boot },
 	{ NULL, NULL }
 };

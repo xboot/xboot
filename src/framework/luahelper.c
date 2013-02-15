@@ -1,5 +1,5 @@
 /*
- * framework/lua_helper.c
+ * framework/luahelper.c
  *
  * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,9 +20,9 @@
  *
  */
 
-#include <framework/framework.h>
+#include <framework/luahelper.h>
 
-const char * lua_helper_get_strfield(lua_State * L, const char * key, const char * def)
+const char * luahelper_get_strfield(lua_State * L, const char * key, const char * def)
 {
 	const char * value;
 
@@ -33,7 +33,7 @@ const char * lua_helper_get_strfield(lua_State * L, const char * key, const char
 	return value;
 }
 
-lua_Number lua_helper_get_numfield(lua_State * L, const char * key, lua_Number def)
+lua_Number luahelper_get_numfield(lua_State * L, const char * key, lua_Number def)
 {
 	lua_Number value;
 
@@ -44,7 +44,7 @@ lua_Number lua_helper_get_numfield(lua_State * L, const char * key, lua_Number d
 	return value;
 }
 
-lua_Integer lua_helper_get_intfield(lua_State * L, const char * key, lua_Integer def)
+lua_Integer luahelper_get_intfield(lua_State * L, const char * key, lua_Integer def)
 {
 	lua_Integer value;
 
@@ -55,7 +55,7 @@ lua_Integer lua_helper_get_intfield(lua_State * L, const char * key, lua_Integer
 	return value;
 }
 
-lua_Unsigned lua_helper_get_uintfield(lua_State * L, const char * key, lua_Unsigned def)
+lua_Unsigned luahelper_get_uintfield(lua_State * L, const char * key, lua_Unsigned def)
 {
 	lua_Unsigned value;
 
@@ -66,25 +66,25 @@ lua_Unsigned lua_helper_get_uintfield(lua_State * L, const char * key, lua_Unsig
 	return value;
 }
 
-void lua_helper_set_strfield(lua_State * L, const char * key, const char * value)
+void luahelper_set_strfield(lua_State * L, const char * key, const char * value)
 {
 	lua_pushstring(L, value);
 	lua_setfield(L, -2, key);
 }
 
-void lua_helper_set_numfield(lua_State * L, const char * key, lua_Number value)
+void luahelper_set_numfield(lua_State * L, const char * key, lua_Number value)
 {
 	lua_pushnumber(L, value);
 	lua_setfield(L, -2, key);
 }
 
-void lua_helper_set_intfield(lua_State * L, const char * key, lua_Integer value)
+void luahelper_set_intfield(lua_State * L, const char * key, lua_Integer value)
 {
 	lua_pushinteger(L, value);
 	lua_setfield(L, -2, key);
 }
 
-void lua_helper_set_uintfield(lua_State * L, const char * key, lua_Unsigned value)
+void luahelper_set_uintfield(lua_State * L, const char * key, lua_Unsigned value)
 {
 	lua_pushunsigned(L, value);
 	lua_setfield(L, -2, key);

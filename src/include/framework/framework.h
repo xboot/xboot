@@ -5,24 +5,8 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-
-/*
- * Lua helper functions
- */
-const char * lua_helper_get_strfield(lua_State * L, const char * key, const char * def);
-lua_Number lua_helper_get_numfield(lua_State * L, const char * key, lua_Number def);
-lua_Integer lua_helper_get_intfield(lua_State * L, const char * key, lua_Integer def);
-lua_Unsigned lua_helper_get_uintfield(lua_State * L, const char * key, lua_Unsigned def);
-
-void lua_helper_set_strfield(lua_State * L, const char * key, const char * value);
-void lua_helper_set_numfield(lua_State * L, const char * key, lua_Number value);
-void lua_helper_set_intfield(lua_State * L, const char * key, lua_Integer value);
-void lua_helper_set_uintfield(lua_State * L, const char * key, lua_Unsigned value);
-
+#include <framework/luahelper.h>
+#include <framework/cairo/l_cairo.h>
 
 /* Event */
 #define	LUA_TYPE_EVENT				"event"

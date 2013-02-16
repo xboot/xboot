@@ -39,6 +39,7 @@ static const luaL_Reg l_cairo[] = {
 	{"pattern_create_rgba",		l_cairo_pattern_create_rgba},
 	{"pattern_create_linear",	l_cairo_pattern_create_linear},
 	{"pattern_create_radial",	l_cairo_pattern_create_radial},
+	{"matrix_create",			l_cairo_matrix_create},
 	{NULL, NULL}
 };
 
@@ -508,6 +509,8 @@ int luaopen_cairo(lua_State * L)
 	luahelper_create_metatable(L, MT_NAME_CAIRO, m_cairo);
 	luahelper_create_metatable(L, MT_NAME_CAIRO_SURFACE, m_cairo_surface);
 	luahelper_create_metatable(L, MT_NAME_CAIRO_PATH, m_cairo_path);
+	luahelper_create_metatable(L, MT_NAME_CAIRO_PATTERN, m_cairo_pattern);
+	luahelper_create_metatable(L, MT_NAME_CAIRO_MATRIX, m_cairo_matrix);
 
 	return 1;
 }

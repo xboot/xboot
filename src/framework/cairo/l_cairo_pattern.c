@@ -119,10 +119,19 @@ static int m_cairo_pattern_add_color_stop_rgba(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_pattern_set_matrix(lua_State * L)
+{
+	cairo_pattern_t ** pattern = luaL_checkudata(L, 1, MT_NAME_CAIRO_PATTERN);
+	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_NAME_CAIRO_MATRIX);
+	cairo_pattern_set_matrix(*pattern, matrix);
+	return 0;
+}
+
 const luaL_Reg m_cairo_pattern[] = {
 	{"__eq",				m_cairo_pattern_eq},
 	{"__gc",				m_cairo_pattern_gc},
 	{"add_color_stop_rgb",	m_cairo_pattern_add_color_stop_rgb},
 	{"add_color_stop_rgba",	m_cairo_pattern_add_color_stop_rgba},
+	{"set_matrix",			m_cairo_pattern_set_matrix},
 	{NULL, 					NULL}
 };

@@ -33,13 +33,14 @@ static int l_cairo_create(lua_State * L)
 }
 
 static const luaL_Reg l_cairo[] = {
-	{"create",					l_cairo_create},
-	{"image_surface_create",	l_cairo_image_surface_create},
-	{"pattern_create_rgb",		l_cairo_pattern_create_rgb},
-	{"pattern_create_rgba",		l_cairo_pattern_create_rgba},
-	{"pattern_create_linear",	l_cairo_pattern_create_linear},
-	{"pattern_create_radial",	l_cairo_pattern_create_radial},
-	{"matrix_create",			l_cairo_matrix_create},
+	{"create",							l_cairo_create},
+	{"image_surface_create",			l_cairo_image_surface_create},
+	{"image_surface_create_from_png",	l_cairo_image_surface_create_from_png},
+	{"pattern_create_rgb",				l_cairo_pattern_create_rgb},
+	{"pattern_create_rgba",				l_cairo_pattern_create_rgba},
+	{"pattern_create_linear",			l_cairo_pattern_create_linear},
+	{"pattern_create_radial",			l_cairo_pattern_create_radial},
+	{"matrix_create",					l_cairo_matrix_create},
 	{NULL, NULL}
 };
 
@@ -433,6 +434,16 @@ static int m_cairo_reset_clip(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_set_source_surface(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_surface_t ** cs = luaL_checkudata(L, 2, MT_NAME_CAIRO_SURFACE);
+	double x = luaL_optnumber(L, 3, 0);
+	double y = luaL_optnumber(L, 4, 0);
+	cairo_set_source_surface(*cr, *cs, x, y);
+	return 0;
+}
+
 static const luaL_Reg m_cairo[] = {
 	{"__gc",					m_cairo_gc},
 	{"append_path",				m_cairo_append_path},
@@ -476,6 +487,7 @@ static const luaL_Reg m_cairo[] = {
 	{"device_to_user_distance",	m_cairo_device_to_user_distance},
 	{"path_extents",			m_cairo_path_extents},
 	{"reset_clip",				m_cairo_reset_clip},
+	{"set_source_surface",		m_cairo_set_source_surface},
 	{NULL, 						NULL}
 };
 

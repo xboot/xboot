@@ -34,11 +34,36 @@ int l_cairo_image_surface_create(lua_State * L)
 	return 1;
 }
 
+int l_cairo_image_surface_create_from_png(lua_State * L)
+{
+	const char * filename = luaL_checkstring(L, 1);
+	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));
+	*cs = cairo_image_surface_create_from_png(filename);
+	luaL_setmetatable(L, MT_NAME_CAIRO_SURFACE);
+	return 1;
+}
+
 static int m_cairo_surface_gc(lua_State * L)
 {
 	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
 	cairo_surface_destroy(*cs);
 	return 0;
+}
+
+static int m_cairo_surface_get_width(lua_State * L)
+{
+	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
+	int v = cairo_image_surface_get_width(*cs);
+	lua_pushinteger(L, v);
+	return 1;
+}
+
+static int m_cairo_surface_get_height(lua_State * L)
+{
+	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
+	int v = cairo_image_surface_get_height(*cs);
+	lua_pushinteger(L, v);
+	return 1;
 }
 
 extern void show_to_framebuffer(cairo_surface_t * surface);
@@ -51,6 +76,8 @@ static int m_cairo_surface_show(lua_State * L)
 
 const luaL_Reg m_cairo_surface[] = {
 	{"__gc",				m_cairo_surface_gc},
+	{"get_width",			m_cairo_surface_get_width},
+	{"get_height",			m_cairo_surface_get_height},
 	{"show",				m_cairo_surface_show},
 	{NULL, 					NULL}
 };

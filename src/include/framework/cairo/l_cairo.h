@@ -14,6 +14,7 @@ extern "C" {
 #define	MT_NAME_CAIRO_MATRIX		"mt_name_cairo_matrix"
 
 int l_cairo_image_surface_create(lua_State * L);
+int l_cairo_image_surface_create_from_png(lua_State * L);
 int l_cairo_pattern_create_rgb(lua_State * L);
 int l_cairo_pattern_create_rgba(lua_State * L);
 int l_cairo_pattern_create_for_surface(lua_State * L);

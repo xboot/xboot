@@ -1,15 +1,8 @@
-local framerate = require "xboot.framerate"
-local logger = require "logger"
-local dump = require "dump"
-local printr = require "printr"
-local log = require "lib.log"
 local cairo = require "org.xboot.cairo"
-local CAIRO = cairo
 
 local M_PI = math.pi
 local sin = math.sin
 local cos = math.cos
-
 
 local tm_sec = 0
 local tm_min = 0
@@ -37,29 +30,29 @@ function draw(width, height)
 	local hours = tm_hour * M_PI / 6;
 
 	cr:scale(width, height);
-	cr:set_source_rgb ( 1* tm_sec/60, 1*tm_min/60, 1*tm_hour/24);
+	cr:set_source_rgb(1* tm_sec/60, 1*tm_min/60, 1*tm_hour/24);
 	cr:paint();
 
 	cr:set_line_cap(cairo.LINE_CAP_ROUND);
-	cr:set_line_width ( 0.1);
+	cr:set_line_width(0.1);
 
-	cr:set_source_rgb ( 0, 0, 0);
-	cr:translate ( 0.5, 0.5);
-	cr:arc ( 0, 0, 0.4, 0, M_PI * 2);
-	cr:stroke  ();
+	cr:set_source_rgb(0, 0, 0);
+	cr:translate(0.5, 0.5);
+	cr:arc(0, 0, 0.4, 0, M_PI * 2);
+	cr:stroke();
 
-	cr:set_source_rgba ( 1, 1, 1, 0.6);
-	cr:arc (sin (seconds) * 0.4, -cos (seconds) * 0.4,	0.05, 0, M_PI * 2);
-	cr:fill  ();
+	cr:set_source_rgba(1, 1, 1, 0.6);
+	cr:arc(sin(seconds) * 0.4, -cos (seconds) * 0.4,	0.05, 0, M_PI * 2);
+	cr:fill();
 
-	cr:set_source_rgba ( 0.2, 0.2, 1, 0.6);
-	cr:move_to ( 0, 0);
-	cr:line_to ( sin (minutes) * 0.4, -cos (minutes) * 0.4);
-	cr:stroke  ();
+	cr:set_source_rgba(0.2, 0.2, 1, 0.6);
+	cr:move_to(0, 0);
+	cr:line_to(sin(minutes) * 0.4, -cos (minutes) * 0.4);
+	cr:stroke();
 
-	cr:move_to ( 0, 0);
-	cr:line_to ( sin (hours) * 0.2, -cos (hours) * 0.2);
-	cr:stroke  ();
+	cr:move_to(0, 0);
+	cr:line_to(sin(hours) * 0.2, -cos (hours) * 0.2);
+	cr:stroke();
 	
 	cs:show()
 end
@@ -95,15 +88,6 @@ local function main()
 			end
 		end
 			
---[[	
-		local cs = cairo.image_surface_create(0, width, height)
-		local cr = cairo.create(cs)
-		cr:save();
-		cr:set_source_rgb(0, 0, a);
-		cr:paint();
-		cr:restore();
---]]
-
 		draw(width, height);
 		collectgarbage("collect")
 		collectgarbage("step")

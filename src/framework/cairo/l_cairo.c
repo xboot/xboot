@@ -489,6 +489,34 @@ static int m_cairo_set_operator(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_push_group(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+    cairo_content_t content = (cairo_content_t)luaL_optinteger(L, 2, CAIRO_CONTENT_COLOR_ALPHA);
+    cairo_push_group_with_content(*cr, content);
+	return 0;
+}
+
+static int m_cairo_pop_group(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_pattern_t ** pattern = lua_newuserdata(L, sizeof(cairo_pattern_t *));
+	*pattern = cairo_pop_group(*cr);
+	luaL_setmetatable(L, MT_NAME_CAIRO_PATTERN);
+	return 1;
+
+	cairo_pattern_t *v = cairo_pop_group(*cr);
+	lua_pushlightuserdata(L, v);
+	return 1;
+}
+
+static int m_cairo_pop_group_to_source(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_pop_group_to_source(*cr);
+	return 0;
+}
+
 static const luaL_Reg m_cairo[] = {
 	{"__gc",					m_cairo_gc},
 	{"append_path",				m_cairo_append_path},
@@ -536,6 +564,9 @@ static const luaL_Reg m_cairo[] = {
 	{"set_source",				m_cairo_set_source},
 	{"set_dash",				m_cairo_set_dash},
 	{"set_operator",			m_cairo_set_operator},
+	{"push_group",				m_cairo_push_group},
+	{"pop_group",				m_cairo_pop_group},
+	{"pop_group_to_source",		m_cairo_pop_group_to_source},
 	{NULL, 						NULL}
 };
 

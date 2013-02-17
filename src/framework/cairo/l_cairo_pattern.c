@@ -127,11 +127,20 @@ static int m_cairo_pattern_set_matrix(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_pattern_set_extend(lua_State * L)
+{
+	cairo_pattern_t ** pattern = luaL_checkudata(L, 1, MT_NAME_CAIRO_PATTERN);
+	cairo_extend_t extend = (cairo_extend_t)luaL_checkinteger(L, 2);
+	cairo_pattern_set_extend(*pattern, extend);
+	return 0;
+}
+
 const luaL_Reg m_cairo_pattern[] = {
 	{"__eq",				m_cairo_pattern_eq},
 	{"__gc",				m_cairo_pattern_gc},
 	{"add_color_stop_rgb",	m_cairo_pattern_add_color_stop_rgb},
 	{"add_color_stop_rgba",	m_cairo_pattern_add_color_stop_rgba},
 	{"set_matrix",			m_cairo_pattern_set_matrix},
+	{"set_extend",			m_cairo_pattern_set_extend},
 	{NULL, 					NULL}
 };

@@ -38,6 +38,7 @@ static const luaL_Reg l_cairo[] = {
 	{"image_surface_create_from_png",	l_cairo_image_surface_create_from_png},
 	{"pattern_create_rgb",				l_cairo_pattern_create_rgb},
 	{"pattern_create_rgba",				l_cairo_pattern_create_rgba},
+	{"pattern_create_for_surface",		l_cairo_pattern_create_for_surface},
 	{"pattern_create_linear",			l_cairo_pattern_create_linear},
 	{"pattern_create_radial",			l_cairo_pattern_create_radial},
 	{"matrix_create",					l_cairo_matrix_create},
@@ -444,6 +445,14 @@ static int m_cairo_set_source_surface(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_set_source(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_pattern_t ** source = luaL_checkudata(L, 2, MT_NAME_CAIRO_PATTERN);
+	cairo_set_source(*cr, *source);
+	return 0;
+}
+
 static const luaL_Reg m_cairo[] = {
 	{"__gc",					m_cairo_gc},
 	{"append_path",				m_cairo_append_path},
@@ -488,6 +497,7 @@ static const luaL_Reg m_cairo[] = {
 	{"path_extents",			m_cairo_path_extents},
 	{"reset_clip",				m_cairo_reset_clip},
 	{"set_source_surface",		m_cairo_set_source_surface},
+	{"set_source",				m_cairo_set_source},
 	{NULL, 						NULL}
 };
 
@@ -517,6 +527,12 @@ int luaopen_cairo(lua_State * L)
 	luahelper_set_intfield(L,	"LINE_JOIN_MITER",		CAIRO_LINE_JOIN_MITER);
 	luahelper_set_intfield(L,	"LINE_JOIN_ROUND",		CAIRO_LINE_JOIN_ROUND);
 	luahelper_set_intfield(L,	"LINE_JOIN_BEVEL",		CAIRO_LINE_JOIN_BEVEL);
+
+	/* cairo_extend_t */
+	luahelper_set_intfield(L,	"EXTEND_NONE",			CAIRO_EXTEND_NONE);
+	luahelper_set_intfield(L,	"EXTEND_REPEAT",		CAIRO_EXTEND_REPEAT);
+	luahelper_set_intfield(L,	"EXTEND_REFLECT",		CAIRO_EXTEND_REFLECT);
+	luahelper_set_intfield(L,	"EXTEND_PAD",			CAIRO_EXTEND_PAD);
 
 	luahelper_create_metatable(L, MT_NAME_CAIRO, m_cairo);
 	luahelper_create_metatable(L, MT_NAME_CAIRO_SURFACE, m_cairo_surface);

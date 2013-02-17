@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/framework.h>
+#include <framework/event/l_event.h>
 
 static int l_event_new(lua_State * L)
 {
@@ -48,7 +48,7 @@ static int l_event_new(lua_State * L)
 
 	e = (struct event_t *)lua_newuserdata(L, sizeof(struct event_t));
 	memcpy(e, &event, sizeof(struct event_t));
-	luaL_setmetatable(L, LUA_TYPE_EVENT);
+	luaL_setmetatable(L, MT_NAME_EVENT);
 
 	return 1;
 }
@@ -60,7 +60,7 @@ static const luaL_Reg l_event[] = {
 
 static int m_event_get(lua_State * L)
 {
-	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT);
+	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, MT_NAME_EVENT);
 
 	if(lua_isstring(L, 2))
 	{
@@ -107,7 +107,7 @@ static int m_event_get(lua_State * L)
 
 static int m_event_set(lua_State * L)
 {
-	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT);
+	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, MT_NAME_EVENT);
 
 	if(lua_isstring(L, 2))
 	{
@@ -141,7 +141,7 @@ static int m_event_set(lua_State * L)
 
 static int m_event_send(lua_State * L)
 {
-	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT);
+	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, MT_NAME_EVENT);
 
 	event_send(e);
 	return 0;
@@ -149,9 +149,9 @@ static int m_event_send(lua_State * L)
 
 static int m_event_tostring(lua_State * L)
 {
-	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT);
+	struct event_t * e = (struct event_t *)luaL_checkudata(L, 1, MT_NAME_EVENT);
 
-	lua_pushfstring(L, "%s %p", LUA_TYPE_EVENT, (void *)e);
+	lua_pushfstring(L, "%s %p", MT_NAME_EVENT, (void *)e);
 	return 1;
 }
 
@@ -185,7 +185,7 @@ int luaopen_event(lua_State * L)
 		lua_setfield(L, -2, c_event_type[i].name);
 	}
 
-	luaL_newmetatable(L, LUA_TYPE_EVENT);
+	luaL_newmetatable(L, MT_NAME_EVENT);
 	luaL_setfuncs(L, m_event, 0);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");

@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/framework.h>
+#include <framework/event/l_event.h>
 
 static int l_event_dispatcher_run(lua_State * L)
 {
@@ -30,7 +30,7 @@ static int l_event_dispatcher_run(lua_State * L)
 
 static int l_event_dispatcher_add_event_listener(lua_State * L)
 {
-	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
+	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, MT_NAME_EVENT_LISTENER);
 
 	event_base_add_event_listener(runtime_get()->__event_base, el);
 	return 0;
@@ -38,7 +38,7 @@ static int l_event_dispatcher_add_event_listener(lua_State * L)
 
 static int l_event_dispatcher_del_event_listener(lua_State * L)
 {
-	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
+	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, MT_NAME_EVENT_LISTENER);
 
 	event_base_del_event_listener(runtime_get()->__event_base, el);
 	return 0;

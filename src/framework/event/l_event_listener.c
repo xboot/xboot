@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/framework.h>
+#include <framework/event/l_event.h>
 
 struct event_listener_callback_data_t {
 	lua_State * l;
@@ -41,7 +41,7 @@ static void __event_listener_callback(struct event_t * event, void * data)
 	/* push event */
 	e = (struct event_t *)lua_newuserdata(d->l, sizeof(struct event_t));
 	memcpy(e, event, sizeof(struct event_t));
-	luaL_setmetatable(d->l, LUA_TYPE_EVENT);
+	luaL_setmetatable(d->l, MT_NAME_EVENT);
 
 	/* call function */
 	lua_pcall(d->l, 1, 0, 0);
@@ -71,7 +71,7 @@ static int l_event_listener_new(lua_State * L)
 	el->type = type;
 	el->callback = __event_listener_callback;
 	el->data = d;
-	luaL_setmetatable(L, LUA_TYPE_EVENT_LISTENER);
+	luaL_setmetatable(L, MT_NAME_EVENT_LISTENER);
 
 	return 1;
 }
@@ -83,7 +83,7 @@ static const luaL_Reg l_event_listener[] = {
 
 static int m_event_listener_gc(lua_State * L)
 {
-	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
+	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, MT_NAME_EVENT_LISTENER);
 	struct event_listener_callback_data_t * d;
 
 	if(el && (d = el->data))
@@ -96,9 +96,9 @@ static int m_event_listener_gc(lua_State * L)
 
 static int m_event_listener_tostring(lua_State * L)
 {
-	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, LUA_TYPE_EVENT_LISTENER);
+	struct event_listener_t * el = (struct event_listener_t *)luaL_checkudata(L, 1, MT_NAME_EVENT_LISTENER);
 
-	lua_pushfstring(L, "%s %p", LUA_TYPE_EVENT_LISTENER, (void *)el);
+	lua_pushfstring(L, "%s %p", MT_NAME_EVENT_LISTENER, (void *)el);
 	return 1;
 }
 
@@ -112,7 +112,7 @@ int luaopen_event_listener(lua_State * L)
 {
 	luaL_newlib(L, l_event_listener);
 
-	luaL_newmetatable(L, LUA_TYPE_EVENT_LISTENER);
+	luaL_newmetatable(L, MT_NAME_EVENT_LISTENER);
 	luaL_setfuncs(L, m_event_listener, 0);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");

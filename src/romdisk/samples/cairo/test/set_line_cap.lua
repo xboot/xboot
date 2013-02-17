@@ -31,7 +31,6 @@ function M.test()
 	cr:move_to(192.0, 50.0); cr:line_to(192.0, 200.0);
 	cr:stroke();
 
-
 	cs:show()
 	collectgarbage("collect")
 	collectgarbage("step")

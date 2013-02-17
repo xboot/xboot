@@ -453,6 +453,33 @@ static int m_cairo_set_source(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_set_dash(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	double offset = luaL_checknumber(L, 3);
+	double * dashes;
+	int num_dashes, i;
+
+	luaL_checktype(L, 2, LUA_TTABLE);
+	num_dashes = (int)lua_rawlen(L, 2);
+	if(num_dashes > 0)
+	{
+		dashes = malloc(num_dashes * sizeof(double));
+
+		for(i = 0; i < num_dashes; i++)
+		{
+			lua_rawgeti(L, 2, i + 1);
+			dashes[i] = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+		}
+
+		cairo_set_dash(*cr, dashes, num_dashes, offset);
+		free(dashes);
+	}
+
+	return 0;
+}
+
 static const luaL_Reg m_cairo[] = {
 	{"__gc",					m_cairo_gc},
 	{"append_path",				m_cairo_append_path},
@@ -498,6 +525,7 @@ static const luaL_Reg m_cairo[] = {
 	{"reset_clip",				m_cairo_reset_clip},
 	{"set_source_surface",		m_cairo_set_source_surface},
 	{"set_source",				m_cairo_set_source},
+	{"set_dash",				m_cairo_set_dash},
 	{NULL, 						NULL}
 };
 

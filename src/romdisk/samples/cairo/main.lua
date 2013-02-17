@@ -11,6 +11,10 @@ local image = require "test.image"
 local image_pattern = require "test.image_pattern"
 local multi_segment_caps = require "test.multi_segment_caps"
 local set_line_cap = require "test.set_line_cap"
+local set_line_join = require "test.set_line_join"
+local lion = require "test.lion"
+local tiger = require "test.tiger"
+local dash = require "test.dash"
 
 --arc.test()
 --arc_negative.test()
@@ -24,4 +28,8 @@ local set_line_cap = require "test.set_line_cap"
 --image.test()
 --image_pattern.test()
 --multi_segment_caps.test()
-set_line_cap.test()
+--set_line_cap.test()
+--set_line_join.test()
+lion.test()
+--tiger.test()
+--dash.test()

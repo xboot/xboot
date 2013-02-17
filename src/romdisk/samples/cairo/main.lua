@@ -15,6 +15,7 @@ local set_line_join = require "test.set_line_join"
 local lion = require "test.lion"
 local tiger = require "test.tiger"
 local dash = require "test.dash"
+local test = require "test.test"
 
 --arc.test()
 --arc_negative.test()
@@ -30,6 +31,7 @@ local dash = require "test.dash"
 --multi_segment_caps.test()
 --set_line_cap.test()
 --set_line_join.test()
-lion.test()
+--lion.test()
 --tiger.test()
 --dash.test()
+test.test()

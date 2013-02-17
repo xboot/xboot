@@ -43,6 +43,18 @@ int l_cairo_image_surface_create_from_png(lua_State * L)
 	return 1;
 }
 
+int l_cairo_surface_create_similar(lua_State * L)
+{
+	cairo_surface_t ** other = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
+	cairo_content_t content = (cairo_content_t)luaL_checkinteger(L, 2);
+	int width = luaL_checkinteger(L, 3);
+	int height = luaL_checkinteger(L, 4);
+	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));
+	*cs = cairo_surface_create_similar(*other, content, width, height);
+	luaL_setmetatable(L, MT_NAME_CAIRO_SURFACE);
+	return 1;
+}
+
 static int m_cairo_surface_gc(lua_State * L)
 {
 	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);

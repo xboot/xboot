@@ -34,6 +34,7 @@ static int l_cairo_create(lua_State * L)
 
 static const luaL_Reg l_cairo[] = {
 	{"create",							l_cairo_create},
+	{"surface_create_similar",			l_cairo_surface_create_similar},
 	{"image_surface_create",			l_cairo_image_surface_create},
 	{"image_surface_create_from_png",	l_cairo_image_surface_create_from_png},
 	{"pattern_create_rgb",				l_cairo_pattern_create_rgb},
@@ -480,6 +481,14 @@ static int m_cairo_set_dash(lua_State * L)
 	return 0;
 }
 
+static int m_cairo_set_operator(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
+	cairo_operator_t op = (cairo_operator_t)luaL_checkinteger(L, 2);
+	cairo_set_operator(*cr, op);
+	return 0;
+}
+
 static const luaL_Reg m_cairo[] = {
 	{"__gc",					m_cairo_gc},
 	{"append_path",				m_cairo_append_path},
@@ -526,6 +535,7 @@ static const luaL_Reg m_cairo[] = {
 	{"set_source_surface",		m_cairo_set_source_surface},
 	{"set_source",				m_cairo_set_source},
 	{"set_dash",				m_cairo_set_dash},
+	{"set_operator",			m_cairo_set_operator},
 	{NULL, 						NULL}
 };
 
@@ -534,33 +544,69 @@ int luaopen_cairo(lua_State * L)
 	luaL_newlib(L, l_cairo);
 
 	/* cairo_format_t */
-	luahelper_set_intfield(L,	"FORMAT_INVALID",		CAIRO_FORMAT_INVALID);
-	luahelper_set_intfield(L,	"FORMAT_ARGB32",		CAIRO_FORMAT_ARGB32);
-	luahelper_set_intfield(L,	"FORMAT_RGB24",			CAIRO_FORMAT_RGB24);
-	luahelper_set_intfield(L,	"FORMAT_A8",			CAIRO_FORMAT_A8);
-	luahelper_set_intfield(L,	"FORMAT_A1",			CAIRO_FORMAT_A1);
-	luahelper_set_intfield(L,	"FORMAT_RGB16_565",		CAIRO_FORMAT_RGB16_565);
-	luahelper_set_intfield(L,	"FORMAT_RGB30",			CAIRO_FORMAT_RGB30);
+	luahelper_set_intfield(L,	"FORMAT_INVALID",			CAIRO_FORMAT_INVALID);
+	luahelper_set_intfield(L,	"FORMAT_ARGB32",			CAIRO_FORMAT_ARGB32);
+	luahelper_set_intfield(L,	"FORMAT_RGB24",				CAIRO_FORMAT_RGB24);
+	luahelper_set_intfield(L,	"FORMAT_A8",				CAIRO_FORMAT_A8);
+	luahelper_set_intfield(L,	"FORMAT_A1",				CAIRO_FORMAT_A1);
+	luahelper_set_intfield(L,	"FORMAT_RGB16_565",			CAIRO_FORMAT_RGB16_565);
+	luahelper_set_intfield(L,	"FORMAT_RGB30",				CAIRO_FORMAT_RGB30);
 
 	/* cairo_fill_rule_t */
-	luahelper_set_intfield(L, 	"FILL_RULE_WINDING",	CAIRO_FILL_RULE_WINDING);
-	luahelper_set_intfield(L, 	"FILL_RULE_EVEN_ODD",	CAIRO_FILL_RULE_EVEN_ODD);
+	luahelper_set_intfield(L, 	"FILL_RULE_WINDING",		CAIRO_FILL_RULE_WINDING);
+	luahelper_set_intfield(L, 	"FILL_RULE_EVEN_ODD",		CAIRO_FILL_RULE_EVEN_ODD);
 
 	/* cairo_line_cap_t */
-	luahelper_set_intfield(L,	"LINE_CAP_BUTT", 		CAIRO_LINE_CAP_BUTT);
-	luahelper_set_intfield(L,	"LINE_CAP_ROUND", 		CAIRO_LINE_CAP_ROUND);
-	luahelper_set_intfield(L,	"LINE_CAP_SQUARE", 		CAIRO_LINE_CAP_SQUARE);
+	luahelper_set_intfield(L,	"LINE_CAP_BUTT", 			CAIRO_LINE_CAP_BUTT);
+	luahelper_set_intfield(L,	"LINE_CAP_ROUND", 			CAIRO_LINE_CAP_ROUND);
+	luahelper_set_intfield(L,	"LINE_CAP_SQUARE", 			CAIRO_LINE_CAP_SQUARE);
 
 	/* cairo_line_join_t */
-	luahelper_set_intfield(L,	"LINE_JOIN_MITER",		CAIRO_LINE_JOIN_MITER);
-	luahelper_set_intfield(L,	"LINE_JOIN_ROUND",		CAIRO_LINE_JOIN_ROUND);
-	luahelper_set_intfield(L,	"LINE_JOIN_BEVEL",		CAIRO_LINE_JOIN_BEVEL);
+	luahelper_set_intfield(L,	"LINE_JOIN_MITER",			CAIRO_LINE_JOIN_MITER);
+	luahelper_set_intfield(L,	"LINE_JOIN_ROUND",			CAIRO_LINE_JOIN_ROUND);
+	luahelper_set_intfield(L,	"LINE_JOIN_BEVEL",			CAIRO_LINE_JOIN_BEVEL);
 
 	/* cairo_extend_t */
-	luahelper_set_intfield(L,	"EXTEND_NONE",			CAIRO_EXTEND_NONE);
-	luahelper_set_intfield(L,	"EXTEND_REPEAT",		CAIRO_EXTEND_REPEAT);
-	luahelper_set_intfield(L,	"EXTEND_REFLECT",		CAIRO_EXTEND_REFLECT);
-	luahelper_set_intfield(L,	"EXTEND_PAD",			CAIRO_EXTEND_PAD);
+	luahelper_set_intfield(L,	"EXTEND_NONE",				CAIRO_EXTEND_NONE);
+	luahelper_set_intfield(L,	"EXTEND_REPEAT",			CAIRO_EXTEND_REPEAT);
+	luahelper_set_intfield(L,	"EXTEND_REFLECT",			CAIRO_EXTEND_REFLECT);
+	luahelper_set_intfield(L,	"EXTEND_PAD",				CAIRO_EXTEND_PAD);
+
+	/* cairo_content_t */
+	luahelper_set_intfield(L,	"CONTENT_COLOR",			CAIRO_CONTENT_COLOR);
+	luahelper_set_intfield(L,	"CONTENT_ALPHA",			CAIRO_CONTENT_ALPHA);
+	luahelper_set_intfield(L,	"CONTENT_COLOR_ALPHA",		CAIRO_CONTENT_COLOR_ALPHA);
+
+	/* cairo_operator_t */
+	luahelper_set_intfield(L,	"OPERATOR_CLEAR",			CAIRO_OPERATOR_CLEAR);
+	luahelper_set_intfield(L,	"OPERATOR_SOURCE",			CAIRO_OPERATOR_SOURCE);
+	luahelper_set_intfield(L,	"OPERATOR_OVER",			CAIRO_OPERATOR_OVER);
+	luahelper_set_intfield(L,	"OPERATOR_IN",				CAIRO_OPERATOR_IN);
+	luahelper_set_intfield(L,	"OPERATOR_OUT",				CAIRO_OPERATOR_OUT);
+	luahelper_set_intfield(L,	"OPERATOR_ATOP",			CAIRO_OPERATOR_ATOP);
+	luahelper_set_intfield(L,	"OPERATOR_DEST",			CAIRO_OPERATOR_DEST);
+	luahelper_set_intfield(L,	"OPERATOR_DEST_OVER",		CAIRO_OPERATOR_DEST_OVER);
+	luahelper_set_intfield(L,	"OPERATOR_DEST_IN",			CAIRO_OPERATOR_DEST_IN);
+	luahelper_set_intfield(L,	"OPERATOR_DEST_OUT",		CAIRO_OPERATOR_DEST_OUT);
+	luahelper_set_intfield(L,	"OPERATOR_DEST_ATOP",		CAIRO_OPERATOR_DEST_ATOP);
+	luahelper_set_intfield(L,	"OPERATOR_XOR",				CAIRO_OPERATOR_XOR);
+	luahelper_set_intfield(L,	"OPERATOR_ADD",				CAIRO_OPERATOR_ADD);
+	luahelper_set_intfield(L,	"OPERATOR_SATURATE",		CAIRO_OPERATOR_SATURATE);
+	luahelper_set_intfield(L,	"OPERATOR_MULTIPLY",		CAIRO_OPERATOR_MULTIPLY);
+	luahelper_set_intfield(L,	"OPERATOR_SCREEN",			CAIRO_OPERATOR_SCREEN);
+	luahelper_set_intfield(L,	"OPERATOR_OVERLAY",			CAIRO_OPERATOR_OVERLAY);
+	luahelper_set_intfield(L,	"OPERATOR_DARKEN",			CAIRO_OPERATOR_DARKEN);
+	luahelper_set_intfield(L,	"OPERATOR_LIGHTEN",			CAIRO_OPERATOR_LIGHTEN);
+	luahelper_set_intfield(L,	"OPERATOR_COLOR_DODGE",		CAIRO_OPERATOR_COLOR_DODGE);
+	luahelper_set_intfield(L,	"OPERATOR_COLOR_BURN",		CAIRO_OPERATOR_COLOR_BURN);
+	luahelper_set_intfield(L,	"OPERATOR_HARD_LIGHT",		CAIRO_OPERATOR_HARD_LIGHT);
+	luahelper_set_intfield(L,	"OPERATOR_SOFT_LIGHT",		CAIRO_OPERATOR_SOFT_LIGHT);
+	luahelper_set_intfield(L,	"OPERATOR_DIFFERENCE",		CAIRO_OPERATOR_DIFFERENCE);
+	luahelper_set_intfield(L,	"OPERATOR_EXCLUSION",		CAIRO_OPERATOR_EXCLUSION);
+	luahelper_set_intfield(L,	"OPERATOR_HSL_HUE",			CAIRO_OPERATOR_HSL_HUE);
+	luahelper_set_intfield(L,	"OPERATOR_HSL_SATURATION",	CAIRO_OPERATOR_HSL_SATURATION);
+	luahelper_set_intfield(L,	"OPERATOR_HSL_COLOR",		CAIRO_OPERATOR_HSL_COLOR);
+	luahelper_set_intfield(L,	"OPERATOR_HSL_LUMINOSITY",	CAIRO_OPERATOR_HSL_LUMINOSITY);
 
 	luahelper_create_metatable(L, MT_NAME_CAIRO, m_cairo);
 	luahelper_create_metatable(L, MT_NAME_CAIRO_SURFACE, m_cairo_surface);

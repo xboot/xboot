@@ -15,6 +15,7 @@ extern "C" {
 
 int l_cairo_image_surface_create(lua_State * L);
 int l_cairo_image_surface_create_from_png(lua_State * L);
+int l_cairo_surface_create_similar(lua_State * L);
 int l_cairo_pattern_create_rgb(lua_State * L);
 int l_cairo_pattern_create_rgba(lua_State * L);
 int l_cairo_pattern_create_for_surface(lua_State * L);

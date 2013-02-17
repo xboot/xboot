@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/framerate/framerate.h>
+#include <framework/framerate/l_framerate.h>
 
 struct framerate_t {
 	u32_t frames;
@@ -38,25 +38,20 @@ static double get_time_stamp(void)
 
 static int l_new(lua_State * L)
 {
-	struct framerate_t * fr;
-
-	fr = lua_newuserdata(L, sizeof(struct framerate_t));
+	struct framerate_t * fr = lua_newuserdata(L, sizeof(struct framerate_t));
 	memset(fr, 0, sizeof(struct framerate_t));
-
-	luaL_getmetatable(L, "framerate");
-	lua_setmetatable(L, -2);
-
+	luaL_setmetatable(L, MT_NAME_FRAMERATE);
 	return 1;
 }
 
-static const luaL_Reg framerate_l[] = {
+static const luaL_Reg l_framerate[] = {
 	{"new", l_new},
 	{NULL, NULL}
 };
 
 static int m_step(lua_State * L)
 {
-	struct framerate_t * fr = luaL_checkudata(L, 1, "framerate");
+	struct framerate_t * fr = luaL_checkudata(L, 1, MT_NAME_FRAMERATE);
 	double t;
 
 	fr->frames++;
@@ -77,9 +72,7 @@ static int m_step(lua_State * L)
 
 static int m_sleep(lua_State * L)
 {
-	struct framerate_t * fr = luaL_checkudata(L, 1, "framerate");
 	double s = luaL_checknumber(L, 2);
-
 	if(s > 0)
 		mdelay((u32_t)(s * 1000));
 	return 0;
@@ -87,29 +80,25 @@ static int m_sleep(lua_State * L)
 
 static int m_gettime(lua_State * L)
 {
-	struct framerate_t * fr = luaL_checkudata(L, 1, "framerate");
-
 	lua_pushnumber(L, get_time_stamp());
 	return 1;
 }
 
 static int m_getdelta(lua_State * L)
 {
-	struct framerate_t * fr = luaL_checkudata(L, 1, "framerate");
-
+	struct framerate_t * fr = luaL_checkudata(L, 1, MT_NAME_FRAMERATE);
 	lua_pushnumber(L, fr->dt);
 	return 1;
 }
 
 static int m_getfps(lua_State * L)
 {
-	struct framerate_t * fr = luaL_checkudata(L, 1, "framerate");
-
+	struct framerate_t * fr = luaL_checkudata(L, 1, MT_NAME_FRAMERATE);
 	lua_pushnumber(L, fr->fps);
 	return 1;
 }
 
-static const luaL_Reg framerate_m[] = {
+static const luaL_Reg m_framerate[] = {
 	{"step", m_step},
 	{"sleep", m_sleep},
 	{"gettime", m_gettime},
@@ -120,13 +109,7 @@ static const luaL_Reg framerate_m[] = {
 
 int luaopen_framerate(lua_State * L)
 {
-	luaL_newlib(L, framerate_l);
-
-	luaL_newmetatable(L, "framerate");
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	luaL_setfuncs(L, framerate_m, 0);
-	lua_pop(L, 1);
-
+	luaL_newlib(L, l_framerate);
+	luahelper_create_metatable(L, MT_NAME_FRAMERATE, m_framerate);
 	return 1;
 }

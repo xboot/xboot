@@ -1,5 +1,5 @@
 #ifndef __FRAMEWORK_L_CAIRO_H__
-#define __FRAMEWORK_FRAMERATE_H__
+#define __FRAMEWORK_L_CAIRO_H__
 
 #ifdef __cplusplus
 extern "C" {

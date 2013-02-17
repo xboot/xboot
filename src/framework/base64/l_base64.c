@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/framework.h>
+#include <framework/base64/l_base64.h>
 
 static const char * mtrans = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

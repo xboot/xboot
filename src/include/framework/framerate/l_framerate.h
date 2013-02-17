@@ -5,8 +5,11 @@
 extern "C" {
 #endif
 
-#include <framework/framework.h>
+#include <framework/luahelper.h>
 
+#define	MT_NAME_FRAMERATE			"mt_name_framerate"
+
+int luaopen_framerate(lua_State * L);
 
 #ifdef __cplusplus
 }

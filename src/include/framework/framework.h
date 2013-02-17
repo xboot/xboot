@@ -6,7 +6,9 @@ extern "C" {
 #endif
 
 #include <framework/luahelper.h>
+#include <framework/base64/l_base64.h>
 #include <framework/cairo/l_cairo.h>
+#include <framework/framerate/l_framerate.h>
 
 /* Event */
 #define	LUA_TYPE_EVENT				"event"
@@ -15,12 +17,6 @@ extern "C" {
 int luaopen_event(lua_State * L);
 int luaopen_event_listener(lua_State * L);
 int luaopen_event_dispatcher(lua_State * L);
-
-/* Base64 */
-int luaopen_base64(lua_State * L);
-
-/* Framerate */
-int luaopen_framerate(lua_State * L);
 
 /* Xboot */
 int luaopen_boot(lua_State * L);

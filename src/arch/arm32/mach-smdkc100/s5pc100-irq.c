@@ -1,7 +1,7 @@
 /*
  * arch/arm/mach-smdkc100/s5pc100-irq.c
  *
- * Copyright (c) 2007-2012  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright(c) 2007-2013  jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify

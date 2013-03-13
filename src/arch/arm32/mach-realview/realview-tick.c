@@ -3,7 +3,7 @@
  *
  * realview tick timer, using arm sp804 timer module.
  *
- * Copyright(c) 2007-2013  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify

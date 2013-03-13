@@ -4,7 +4,7 @@
  * some function copyed from linux kernel.
  * the calibrate_delay function be write by Linus Torvalds
  *
- * Copyright(c) 2007-2013  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
  *
  * This program is free software; you can redistribute it and/or modify

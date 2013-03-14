@@ -2,20 +2,20 @@
 # machine makefile.
 #
 
-ASFLAGS		:= -g -ggdb -Wall
+ASFLAGS	:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
-LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-ARFLAGS		:= -rcs
-OCFLAGS		:= -v -O binary
-ODFLAGS		:=
-MCFLAGS		:= -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a
+LDFLAGS	:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
+ARFLAGS	:= -rcs
+OCFLAGS	:= -v -O binary
+ODFLAGS	:=
+MCFLAGS	:= -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a
 
-LIBDIRS		:=
+LIBDIRS	:=
 LIBS 		:=
 
-INCDIRS		:=
-SRCDIRS		:=
+INCDIRS	:=
+SRCDIRS	:=
 
 #
 # add fixup rule

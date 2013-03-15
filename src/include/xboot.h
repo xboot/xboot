@@ -205,10 +205,6 @@ extern "C" {
 #define	CONFIG_COMMAND_BOOTLINUX					(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_DASM)
-#define	CONFIG_COMMAND_DASM							(1)
-#endif
-
 #if !defined(CONFIG_COMMAND_MOUNT)
 #define	CONFIG_COMMAND_MOUNT						(1)
 #endif

@@ -34,6 +34,8 @@ static spinlock_t __event_base_lock = SPIN_LOCK_INIT();
 
 struct event_base_t * __event_base_alloc(void)
 {
+	return NULL;
+#if 0
 	struct event_base_t * eb;
 
 	eb = malloc(sizeof(struct event_base_t));
@@ -58,10 +60,12 @@ struct event_base_t * __event_base_alloc(void)
 	spin_unlock_irq(&__event_base_lock);
 
 	return eb;
+#endif
 }
 
 void __event_base_free(struct event_base_t * eb)
 {
+#if 0
 	struct event_base_t * ebpos, * ebn;
 	struct event_listener_t * elpos, * eln;
 
@@ -90,10 +94,13 @@ void __event_base_free(struct event_base_t * eb)
 		}
 	}
 	spin_unlock_irq(&__event_base_lock);
+#endif
 }
 
 struct event_listener_t * event_listener_alloc(enum event_type_t type, 	event_listener_callback_t callback, void * data)
 {
+	return NULL;
+#if 0
 	struct event_listener_t * el;
 
 	el = malloc(sizeof(struct event_listener_t));
@@ -105,16 +112,21 @@ struct event_listener_t * event_listener_alloc(enum event_type_t type, 	event_li
 	el->data = data;
 
 	return el;
+#endif
 }
 
 void event_listener_free(struct event_listener_t * el)
 {
+#if 0
 	if(el)
 		free(el);
+#endif
 }
 
 bool_t event_base_add_event_listener(struct event_base_t * eb, struct event_listener_t * el)
 {
+	return FALSE;
+#if 0
 	struct event_listener_t * elpos, * eln;
 
 	if(!el || !eb || !eb->listener)
@@ -134,10 +146,13 @@ bool_t event_base_add_event_listener(struct event_base_t * eb, struct event_list
 	spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
+#endif
 }
 
 bool_t event_base_del_event_listener(struct event_base_t * eb, struct event_listener_t * el)
 {
+	return FALSE;
+#if 0
 	struct event_listener_t * elpos, * eln;
 
 	if(!el || !eb || !eb->listener)
@@ -154,10 +169,13 @@ bool_t event_base_del_event_listener(struct event_base_t * eb, struct event_list
 	spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
+#endif
 }
 
 bool_t event_base_dispatcher(struct event_base_t * eb)
 {
+	return FALSE;
+#if 0
 	struct event_listener_t * elpos, * eln, * el;
 	struct event_t event;
 	bool_t ret;
@@ -184,10 +202,13 @@ bool_t event_base_dispatcher(struct event_base_t * eb)
 	spin_unlock_irq(&__event_base_lock);
 
 	return ret;
+#endif
 }
 
 bool_t event_send(struct event_t * event)
 {
+	return FALSE;
+#if 0
 	struct event_base_t * pos, * n;
 
 	if(!event)
@@ -203,4 +224,5 @@ bool_t event_send(struct event_t * event)
 	//spin_unlock_irq(&__event_base_lock);
 
 	return TRUE;
+#endif
 }

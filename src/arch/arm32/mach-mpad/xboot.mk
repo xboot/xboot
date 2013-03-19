@@ -4,14 +4,14 @@
 
 NAMESPACES	+= -D__ARM_ARCH__=7 -D__CORTEX_A8__
 
-ASFLAGS	:= -g -ggdb -Wall
-CFLAGS		:= -g -ggdb -Wall
-CXXFLAGS	:= -g -ggdb -Wall
+ASFLAGS	:= -g -ggdb -Wall -O2
+CFLAGS		:= -g -ggdb -Wall -O2
+CXXFLAGS	:= -g -ggdb -Wall -O2
 LDFLAGS	:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 ARFLAGS	:= -rcs
 OCFLAGS	:= -v -O binary
 ODFLAGS	:=
-MCFLAGS	:= -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a
+MCFLAGS	:=
 
 LIBDIRS	:=
 LIBS 		:=

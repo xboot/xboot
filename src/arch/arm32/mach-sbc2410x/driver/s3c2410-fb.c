@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <xboot/log.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -177,13 +176,13 @@ static struct fb s3c2410_fb = {
 static __init void s3c2410_fb_init(void)
 {
 	if(!register_framebuffer(&s3c2410_fb))
-		LOG_E("failed to register framebuffer driver '%s'", s3c2410_fb.info->name);
+		LOG("failed to register framebuffer driver '%s'", s3c2410_fb.info->name);
 }
 
 static __exit void s3c2410_fb_exit(void)
 {
 	if(!unregister_framebuffer(&s3c2410_fb))
-		LOG_E("failed to unregister framebuffer driver '%s'", s3c2410_fb.info->name);
+		LOG("failed to unregister framebuffer driver '%s'", s3c2410_fb.info->name);
 }
 
 device_initcall(s3c2410_fb_init);

@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -61,13 +60,13 @@ static struct command exec_cmd = {
 static __init void exec_cmd_init(void)
 {
 	if(!command_register(&exec_cmd))
-		LOG_E("register 'exec' command fail");
+		LOG("register 'exec' command fail");
 }
 
 static __exit void exec_cmd_exit(void)
 {
 	if(!command_unregister(&exec_cmd))
-		LOG_E("unregister 'exec' command fail");
+		LOG("unregister 'exec' command fail");
 }
 
 command_initcall(exec_cmd_init);

@@ -179,6 +179,6 @@ static struct machine realview = {
 static __init void mach_realview_init(void)
 {
 	if(!register_machine(&realview))
-		LOG_E("failed to register machine 'realview'");
+		LOG("failed to register machine 'realview'");
 }
 arch_initcall(mach_realview_init);

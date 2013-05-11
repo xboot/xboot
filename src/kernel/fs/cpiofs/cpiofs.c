@@ -28,7 +28,6 @@
 #include <errno.h>
 #include <byteorder.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/chrdev.h>
@@ -495,13 +494,13 @@ static struct filesystem cpiofs = {
 static __init void filesystem_cpiofs_init(void)
 {
 	if(!filesystem_register(&cpiofs))
-		LOG_E("register 'cpiofs' filesystem fail");
+		LOG("register 'cpiofs' filesystem fail");
 }
 
 static __exit void filesystem_cpiofs_exit(void)
 {
 	if(!filesystem_unregister(&cpiofs))
-		LOG_E("unregister 'cpiofs' filesystem fail");
+		LOG("unregister 'cpiofs' filesystem fail");
 }
 
 fs_initcall(filesystem_cpiofs_init);

@@ -24,7 +24,6 @@
 #include <xboot.h>
 #include <types.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <led/led.h>
@@ -67,13 +66,13 @@ static struct resource led_console = {
 static __init void dev_console_init(void)
 {
 	if(!register_resource(&led_console))
-		LOG_E("failed to register resource '%s'", led_console.name);
+		LOG("failed to register resource '%s'", led_console.name);
 }
 
 static __exit void dev_console_exit(void)
 {
 	if(!unregister_resource(&led_console))
-		LOG_E("failed to unregister resource '%s'", led_console.name);
+		LOG("failed to unregister resource '%s'", led_console.name);
 }
 
 core_initcall(dev_console_init);

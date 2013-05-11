@@ -651,10 +651,10 @@ static __init void exynos4x12_serial_dev_init(void)
 		if(param)
 			memcpy(exynos4x12_uart_driver[i].info->parameter, param, sizeof(struct serial_parameter));
 		else
-			LOG_W("can't get the resource of \'%s\', use default parameter", exynos4x12_uart_driver[i].info->name);
+			LOG("can't get the resource of \'%s\', use default parameter", exynos4x12_uart_driver[i].info->name);
 
 		if(!register_serial(&exynos4x12_uart_driver[i]))
-			LOG_E("failed to register serial driver '%s'", exynos4x12_uart_driver[i].info->name);
+			LOG("failed to register serial driver '%s'", exynos4x12_uart_driver[i].info->name);
 	}
 }
 
@@ -665,7 +665,7 @@ static __exit void exynos4x12_serial_dev_exit(void)
 	for(i = 0; i < ARRAY_SIZE(exynos4x12_uart_driver); i++)
 	{
 		if(!unregister_serial(&exynos4x12_uart_driver[i]))
-			LOG_E("failed to unregister serial driver '%s'", exynos4x12_uart_driver[i].info->name);
+			LOG("failed to unregister serial driver '%s'", exynos4x12_uart_driver[i].info->name);
 	}
 }
 

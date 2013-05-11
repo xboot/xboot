@@ -27,7 +27,6 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <time/tick.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -141,13 +140,13 @@ static struct command fileram_cmd = {
 static __init void fileram_cmd_init(void)
 {
 	if(!command_register(&fileram_cmd))
-		LOG_E("register 'fileram' command fail");
+		LOG("register 'fileram' command fail");
 }
 
 static __exit void fileram_cmd_exit(void)
 {
 	if(!command_unregister(&fileram_cmd))
-		LOG_E("unregister 'fileram' command fail");
+		LOG("unregister 'fileram' command fail");
 }
 
 command_initcall(fileram_cmd_init);

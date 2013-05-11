@@ -25,7 +25,6 @@
 #include <types.h>
 #include <div64.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/printk.h>
@@ -50,13 +49,13 @@ static bool_t tick_timer_init(void)
 
 	if(!clk_get_rate("pclk", &pclk))
 	{
-		LOG_E("can't get the clock of \'pclk\'");
+		LOG("can't get the clock of \'pclk\'");
 		return FALSE;
 	}
 
 	if(!request_irq("TIMER4", timer_interrupt))
 	{
-		LOG_E("can't request irq \'TIMER4\'");
+		LOG("can't request irq \'TIMER4\'");
 		return FALSE;
 	}
 
@@ -89,6 +88,6 @@ static struct tick s5pc100_tick = {
 static __init void s5pc100_tick_init(void)
 {
 	if(!register_tick(&s5pc100_tick))
-		LOG_E("failed to register tick");
+		LOG("failed to register tick");
 }
 core_initcall(s5pc100_tick_init);

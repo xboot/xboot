@@ -1754,6 +1754,6 @@ static const struct gimage logo = {
 static __init void smdkc100_logo_init(void)
 {
 	if(!register_logo(&logo))
-		LOG_E("failed to register logo");
+		LOG("failed to register logo");
 }
 core_initcall(smdkc100_logo_init);

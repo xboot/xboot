@@ -98,7 +98,7 @@ FT_BEGIN_HEADER
 
   typedef enum  PFR_LogFlags_
   {
-    PFR_LOG_EXTRA_ITEMS  = 0x40,
+    PFR_LOGXTRA_ITEMS  = 0x40,
     PFR_LOG_2BYTE_BOLD   = 0x20,
     PFR_LOG_BOLD         = 0x10,
     PFR_LOG_2BYTE_STROKE = 8,

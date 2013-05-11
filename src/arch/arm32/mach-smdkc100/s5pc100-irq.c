@@ -24,7 +24,6 @@
 #include <xboot.h>
 #include <types.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -710,7 +709,7 @@ static __init void s5pc100_irq_init(void)
 	{
 		if(!irq_register(&s5pc100_irqs[i]))
 		{
-			LOG_E("failed to register irq '%s'", s5pc100_irqs[i].name);
+			LOG("failed to register irq '%s'", s5pc100_irqs[i].name);
 		}
 	}
 
@@ -730,7 +729,7 @@ static __exit void s5pc100_irq_exit(void)
 	{
 		if(!irq_unregister(&s5pc100_irqs[i]))
 		{
-			LOG_E("failed to unregister irq '%s'", s5pc100_irqs[i].name);
+			LOG("failed to unregister irq '%s'", s5pc100_irqs[i].name);
 		}
 	}
 

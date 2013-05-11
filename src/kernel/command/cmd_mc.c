@@ -26,7 +26,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <version.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/ctrlc.h>
@@ -73,13 +72,13 @@ static struct command mc_cmd = {
 static __init void mc_cmd_init(void)
 {
 	if(!command_register(&mc_cmd))
-		LOG_E("register 'mc' command fail");
+		LOG("register 'mc' command fail");
 }
 
 static __exit void mc_cmd_exit(void)
 {
 	if(!command_unregister(&mc_cmd))
-		LOG_E("unregister 'mc' command fail");
+		LOG("unregister 'mc' command fail");
 }
 
 command_initcall(mc_cmd_init);

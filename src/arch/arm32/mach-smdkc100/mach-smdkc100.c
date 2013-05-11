@@ -193,6 +193,6 @@ static struct machine smdkc100 = {
 static __init void mach_smdkc100_init(void)
 {
 	if(!register_machine(&smdkc100))
-		LOG_E("failed to register machine 'smdkc100'");
+		LOG("failed to register machine 'smdkc100'");
 }
 arch_initcall(mach_smdkc100_init);

@@ -26,7 +26,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/chrdev.h>
@@ -439,13 +438,13 @@ static struct filesystem devfs = {
 static __init void filesystem_devfs_init(void)
 {
 	if(!filesystem_register(&devfs))
-		LOG_E("register 'devfs' filesystem fail");
+		LOG("register 'devfs' filesystem fail");
 }
 
 static __exit void filesystem_devfs_exit(void)
 {
 	if(!filesystem_unregister(&devfs))
-		LOG_E("unregister 'devfs' filesystem fail");
+		LOG("unregister 'devfs' filesystem fail");
 }
 
 fs_initcall(filesystem_devfs_init);

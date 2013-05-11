@@ -188,6 +188,6 @@ static struct machine smdkv310 = {
 static __init void mach_smdkv310_init(void)
 {
 	if(!register_machine(&smdkv310))
-		LOG_E("failed to register machine 'smdkv310'");
+		LOG("failed to register machine 'smdkv310'");
 }
 arch_initcall(mach_smdkv310_init);

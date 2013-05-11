@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
@@ -144,13 +143,13 @@ static struct input gpio_keypad = {
 static __init void gpio_keypad_init(void)
 {
 	if(!register_input(&gpio_keypad))
-		LOG_E("failed to register input '%s'", gpio_keypad.name);
+		LOG("failed to register input '%s'", gpio_keypad.name);
 }
 
 static __exit void gpio_keypad_exit(void)
 {
 	if(!unregister_input(&gpio_keypad))
-		LOG_E("failed to unregister input '%s'", gpio_keypad.name);
+		LOG("failed to unregister input '%s'", gpio_keypad.name);
 }
 
 device_initcall(gpio_keypad_init);

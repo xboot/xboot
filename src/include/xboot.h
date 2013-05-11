@@ -36,8 +36,8 @@ extern "C" {
 #include <readline.h>
 #include <version.h>
 #include <runtime.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
+#include <xboot/logger.h>
 #include <xboot/proc.h>
 #include <xboot/ioctl.h>
 #include <xboot/initcall.h>
@@ -63,6 +63,10 @@ extern "C" {
 
 #if !defined(CONFIG_HEAP_SIZE)
 #define	CONFIG_HEAP_SIZE							(SZ_8M)
+#endif
+
+#if !defined(CONFIG_NO_LOG)
+#define	CONFIG_NO_LOG								(0)
 #endif
 
 #if !defined(CONFIG_EVENT_FIFO_LENGTH)
@@ -131,10 +135,6 @@ extern "C" {
 
 #if !defined(CONFIG_COMMAND_PROBE)
 #define	CONFIG_COMMAND_PROBE						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_LOG)
-#define	CONFIG_COMMAND_LOG							(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_TETRIS)

@@ -29,7 +29,6 @@
 #include <div64.h>
 #include <io.h>
 #include <time/delay.h>
-#include <xboot/log.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -609,13 +608,13 @@ static __init void s5pv210_fb_init(void)
 
 	if(! s5pv210_fb.priv)
 	{
-		LOG_W("can't get the resource of \'%s\'", s5pv210_fb.info->name);
+		LOG("can't get the resource of \'%s\'", s5pv210_fb.info->name);
 		return;
 	}
 
 	if(! clk_get_rate("dsys-hclk", 0))
 	{
-		LOG_E("can't get the clock of \'dsys-hclk\'");
+		LOG("can't get the clock of \'dsys-hclk\'");
 		return;
 	}
 
@@ -649,13 +648,13 @@ static __init void s5pv210_fb_init(void)
 	surface_set_maps(&info.surface.maps);
 
 	if(! register_framebuffer(&s5pv210_fb))
-		LOG_E("failed to register framebuffer driver '%s'", s5pv210_fb.info->name);
+		LOG("failed to register framebuffer driver '%s'", s5pv210_fb.info->name);
 }
 
 static __exit void s5pv210_fb_exit(void)
 {
 	if(!unregister_framebuffer(&s5pv210_fb))
-		LOG_E("failed to unregister framebuffer driver '%s'", s5pv210_fb.info->name);
+		LOG("failed to unregister framebuffer driver '%s'", s5pv210_fb.info->name);
 }
 
 device_initcall(s5pv210_fb_init);

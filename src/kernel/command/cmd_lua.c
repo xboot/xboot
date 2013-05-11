@@ -26,7 +26,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -59,13 +58,13 @@ static struct command lua_cmd = {
 static __init void lua_cmd_init(void)
 {
 	if(!command_register(&lua_cmd))
-		LOG_E("register 'lua' command fail");
+		LOG("register 'lua' command fail");
 }
 
 static __exit void lua_cmd_exit(void)
 {
 	if(!command_unregister(&lua_cmd))
-		LOG_E("unregister 'lua' command fail");
+		LOG("unregister 'lua' command fail");
 }
 
 command_initcall(lua_cmd_init);

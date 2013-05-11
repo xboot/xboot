@@ -25,7 +25,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <fifo.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
@@ -131,13 +130,13 @@ static __init void input_console_init(void)
 	install_listener_onkeydown(incon_keyboard_handler);
 
 	if(!register_console(&input_console))
-		LOG_E("failed to register input console '%s'", input_console.name);
+		LOG("failed to register input console '%s'", input_console.name);
 }
 
 static __exit void input_console_exit(void)
 {
 	if(!unregister_console(&input_console))
-		LOG_E("failed to unregister input console '%s'", input_console.name);
+		LOG("failed to unregister input console '%s'", input_console.name);
 
 	remove_listener_onkeydown(incon_keyboard_handler);
 

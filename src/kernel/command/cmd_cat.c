@@ -26,7 +26,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <fs/fileio.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -107,13 +106,13 @@ static struct command cat_cmd = {
 static __init void cat_cmd_init(void)
 {
 	if(!command_register(&cat_cmd))
-		LOG_E("register 'cat' command fail");
+		LOG("register 'cat' command fail");
 }
 
 static __exit void cat_cmd_exit(void)
 {
 	if(!command_unregister(&cat_cmd))
-		LOG_E("unregister 'cat' command fail");
+		LOG("unregister 'cat' command fail");
 }
 
 command_initcall(cat_cmd_init);

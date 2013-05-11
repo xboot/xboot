@@ -22,7 +22,6 @@
 
 #include <xboot.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
@@ -167,13 +166,13 @@ static struct partition_parser dos_partition_parser = {
 static __init void partition_parser_dos_init(void)
 {
 	if(!register_partition_parser(&dos_partition_parser))
-		LOG_E("register 'dos' partition parser fail");
+		LOG("register 'dos' partition parser fail");
 }
 
 static __exit void partition_parser_dos_exit(void)
 {
 	if(!unregister_partition_parser(&dos_partition_parser))
-		LOG_E("unregister 'dos' partition parser fail");
+		LOG("unregister 'dos' partition parser fail");
 }
 
 core_initcall(partition_parser_dos_init);

@@ -26,7 +26,6 @@
 #include <string.h>
 #include <version.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
@@ -478,17 +477,17 @@ static struct command rx_cmd = {
 static __init void xmodem_cmd_init(void)
 {
 	if(!command_register(&sx_cmd))
-		LOG_E("register 'sx' command fail");
+		LOG("register 'sx' command fail");
 	if(!command_register(&rx_cmd))
-		LOG_E("register 'rx' command fail");
+		LOG("register 'rx' command fail");
 }
 
 static __exit void xmodem_cmd_exit(void)
 {
 	if(!command_unregister(&sx_cmd))
-		LOG_E("unregister 'sx' command fail");
+		LOG("unregister 'sx' command fail");
 	if(!command_unregister(&rx_cmd))
-		LOG_E("unregister 'rx' command fail");
+		LOG("unregister 'rx' command fail");
 }
 
 command_initcall(xmodem_cmd_init);

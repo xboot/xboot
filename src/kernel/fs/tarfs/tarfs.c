@@ -27,7 +27,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/chrdev.h>
@@ -546,13 +545,13 @@ static struct filesystem tarfs = {
 static __init void filesystem_tarfs_init(void)
 {
 	if(!filesystem_register(&tarfs))
-		LOG_E("register 'tarfs' filesystem fail");
+		LOG("register 'tarfs' filesystem fail");
 }
 
 static __exit void filesystem_tarfs_exit(void)
 {
 	if(!filesystem_unregister(&tarfs))
-		LOG_E("unregister 'tarfs' filesystem fail");
+		LOG("unregister 'tarfs' filesystem fail");
 }
 
 fs_initcall(filesystem_tarfs_init);

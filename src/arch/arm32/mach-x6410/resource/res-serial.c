@@ -23,7 +23,6 @@
 
 #include <xboot.h>
 #include <types.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <serial/serial.h>
@@ -86,7 +85,7 @@ static __init void dev_serial_init(void)
 	{
 		if(!register_resource(&serial_devs[i]))
 		{
-			LOG_E("failed to register resource '%s'", serial_devs[i].name);
+			LOG("failed to register resource '%s'", serial_devs[i].name);
 		}
 	}
 }
@@ -99,7 +98,7 @@ static __exit void dev_serial_exit(void)
 	{
 		if(!unregister_resource(&serial_devs[i]))
 		{
-			LOG_E("failed to unregister resource '%s'", serial_devs[i].name);
+			LOG("failed to unregister resource '%s'", serial_devs[i].name);
 		}
 	}
 }

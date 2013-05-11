@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <xboot/log.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -258,18 +257,18 @@ static __init void s3c6410_fb_init(void)
 {
 	if(!clk_get_rate("hclk", 0))
 	{
-		LOG_E("can't get the clock of \'hclk\'");
+		LOG("can't get the clock of \'hclk\'");
 		return;
 	}
 
 	if(!register_framebuffer(&s3c6410_fb))
-		LOG_E("failed to register framebuffer driver '%s'", s3c6410_fb.info->name);
+		LOG("failed to register framebuffer driver '%s'", s3c6410_fb.info->name);
 }
 
 static __exit void s3c6410_fb_exit(void)
 {
 	if(!unregister_framebuffer(&s3c6410_fb))
-		LOG_E("failed to unregister framebuffer driver '%s'", s3c6410_fb.info->name);
+		LOG("failed to unregister framebuffer driver '%s'", s3c6410_fb.info->name);
 }
 
 device_initcall(s3c6410_fb_init);

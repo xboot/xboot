@@ -25,7 +25,6 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -218,13 +217,13 @@ static struct command ls_cmd = {
 static __init void ls_cmd_init(void)
 {
 	if(!command_register(&ls_cmd))
-		LOG_E("register 'ls' command fail");
+		LOG("register 'ls' command fail");
 }
 
 static __exit void ls_cmd_exit(void)
 {
 	if(!command_unregister(&ls_cmd))
-		LOG_E("unregister 'ls' command fail");
+		LOG("unregister 'ls' command fail");
 }
 
 command_initcall(ls_cmd_init);

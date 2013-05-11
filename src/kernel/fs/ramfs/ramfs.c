@@ -26,7 +26,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <fs/fs.h>
@@ -571,13 +570,13 @@ static struct filesystem ramfs = {
 static __init void filesystem_ramfs_init(void)
 {
 	if(!filesystem_register(&ramfs))
-		LOG_E("register 'ramfs' filesystem fail");
+		LOG("register 'ramfs' filesystem fail");
 }
 
 static __exit void filesystem_ramfs_exit(void)
 {
 	if(!filesystem_unregister(&ramfs))
-		LOG_E("unregister 'ramfs' filesystem fail");
+		LOG("unregister 'ramfs' filesystem fail");
 }
 
 fs_initcall(filesystem_ramfs_init);

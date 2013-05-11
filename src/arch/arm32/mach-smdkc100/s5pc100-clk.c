@@ -26,7 +26,6 @@
 #include <types.h>
 #include <div64.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -191,7 +190,7 @@ static __init void s5pc100_clk_init(void)
 	{
 		if(!clk_register(&s5pc100_clocks[i]))
 		{
-			LOG_E("failed to register clock '%s'", s5pc100_clocks[i].name);
+			LOG("failed to register clock '%s'", s5pc100_clocks[i].name);
 		}
 	}
 }
@@ -204,7 +203,7 @@ static __exit void s5pc100_clk_exit(void)
 	{
 		if(!clk_unregister(&s5pc100_clocks[i]))
 		{
-			LOG_E("failed to unregister clock '%s'", s5pc100_clocks[i].name);
+			LOG("failed to unregister clock '%s'", s5pc100_clocks[i].name);
 		}
 	}
 }

@@ -227,6 +227,6 @@ static struct machine mpad = {
 static __init void mach_mpad_init(void)
 {
 	if(!register_machine(&mpad))
-		LOG_E("failed to register machine 'mpad'");
+		LOG("failed to register machine 'mpad'");
 }
 arch_initcall(mach_mpad_init);

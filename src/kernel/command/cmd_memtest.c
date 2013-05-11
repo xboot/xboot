@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <version.h>
 #include <time/delay.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
@@ -145,13 +144,13 @@ static struct command memtest_cmd = {
 static __init void memtest_cmd_init(void)
 {
 	if(!command_register(&memtest_cmd))
-		LOG_E("register 'memtest' command fail");
+		LOG("register 'memtest' command fail");
 }
 
 static __exit void memtest_cmd_exit(void)
 {
 	if(!command_unregister(&memtest_cmd))
-		LOG_E("unregister 'memtest' command fail");
+		LOG("unregister 'memtest' command fail");
 }
 
 command_initcall(memtest_cmd_init);

@@ -26,7 +26,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -207,13 +206,13 @@ static struct command echo_cmd = {
 static __init void echo_cmd_init(void)
 {
 	if(!command_register(&echo_cmd))
-		LOG_E("register 'echo' command fail");
+		LOG("register 'echo' command fail");
 }
 
 static __exit void echo_cmd_exit(void)
 {
 	if(!command_unregister(&echo_cmd))
-		LOG_E("unregister 'echo' command fail");
+		LOG("unregister 'echo' command fail");
 }
 
 command_initcall(echo_cmd_init);

@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <xboot/initcall.h>
 #include <xboot/proc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/blkdev.h>
@@ -144,7 +143,7 @@ static bool_t mmc_card_decode(struct mmc_card * card)
 			break;
 
 		default:
-			LOG_E("the card '%s' (%s) has unknown mmca version %ld", card->name, card->host->name, mmca_vsn);
+			LOG("the card '%s' (%s) has unknown mmca version %ld", card->name, card->host->name, mmca_vsn);
 			return FALSE;
 		}
 
@@ -184,7 +183,7 @@ static bool_t mmc_card_decode(struct mmc_card * card)
 	case MMC_CARD_TYPE_MMC:
 		if(csd_struct != 1 && csd_struct != 2)
 		{
-			LOG_E("unrecognized csd structure version (%ld) of the card '%s' (%s)", csd_struct, card->name, card->host->name);
+			LOG("unrecognized csd structure version (%ld) of the card '%s' (%s)", csd_struct, card->name, card->host->name);
 			return FALSE;
 		}
 
@@ -266,7 +265,7 @@ static bool_t mmc_card_decode(struct mmc_card * card)
 			break;
 
 		default:
-			LOG_E("unrecognized csd structure version (%ld) of the card '%s' (%s)", csd_struct, card->name, card->host->name);
+			LOG("unrecognized csd structure version (%ld) of the card '%s' (%s)", csd_struct, card->name, card->host->name);
 			return FALSE;
 		}
 		break;
@@ -382,7 +381,7 @@ void mmc_card_probe(void)
 		info = malloc(sizeof(struct mmc_card_info));
 		if(!info)
 		{
-			LOG_E("can not malloc buffer for mmc card information");
+			LOG("can not malloc buffer for mmc card information");
 			continue;
 		}
 
@@ -408,7 +407,7 @@ void mmc_card_probe(void)
 		card = malloc(sizeof(struct mmc_card));
 		if(!card)
 		{
-			LOG_E("can not malloc buffer for mmc card");
+			LOG("can not malloc buffer for mmc card");
 
 			if(host->exit)
 				host->exit();
@@ -440,7 +439,7 @@ void mmc_card_probe(void)
 		 */
 		if(!mmc_card_decode(card))
 		{
-			LOG_E("fail to decode mmc card '%s' (%s)", card->name, card->host->name);
+			LOG("fail to decode mmc card '%s' (%s)", card->name, card->host->name);
 			free(card);
 			free(info);
 		}
@@ -449,10 +448,10 @@ void mmc_card_probe(void)
 		 * register mmc card
 		 */
 		if(register_mmc_card(card) == TRUE)
-			LOG_I("found mmc card '%s' (%s)", card->name, card->host->name);
+			LOG("found mmc card '%s' (%s)", card->name, card->host->name);
 		else
 		{
-			LOG_E("fail to register mmc card '%s' (%s)", card->name, card->host->name);
+			LOG("fail to register mmc card '%s' (%s)", card->name, card->host->name);
 			free(card);
 			free(info);
 		}

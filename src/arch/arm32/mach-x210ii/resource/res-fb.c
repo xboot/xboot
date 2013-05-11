@@ -23,7 +23,6 @@
 #include <xboot.h>
 #include <types.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <time/delay.h>
@@ -145,13 +144,13 @@ static struct resource fb_res = {
 static __init void res_fb_init(void)
 {
 	if(!register_resource(&fb_res))
-		LOG_E("failed to register resource '%s'", fb_res.name);
+		LOG("failed to register resource '%s'", fb_res.name);
 }
 
 static __exit void res_fb_exit(void)
 {
 	if(!unregister_resource(&fb_res))
-		LOG_E("failed to unregister resource '%s'", fb_res.name);
+		LOG("failed to unregister resource '%s'", fb_res.name);
 }
 
 core_initcall(res_fb_init);

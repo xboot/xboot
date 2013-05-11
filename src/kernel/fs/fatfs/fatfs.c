@@ -26,7 +26,6 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/chrdev.h>
@@ -414,19 +413,19 @@ static s32_t fatfs_mount(struct mount * m, char * dev, s32_t flag)
 		break;
 	}
 
-	LOG_D("sector size: %ld\r\n", md->sector_size);
-	LOG_D("sectors per cluster: %ld\r\n", md->sectors_per_cluster);
-	LOG_D("cluster size: %ld\r\n", md->cluster_size);
+	LOG("sector size: %ld\r\n", md->sector_size);
+	LOG("sectors per cluster: %ld\r\n", md->sectors_per_cluster);
+	LOG("cluster size: %ld\r\n", md->cluster_size);
 
-	LOG_D("fat start: %ld\r\n", md->fat_start);
-	LOG_D("root start: %ld\r\n", md->root_start);
-	LOG_D("data start: %ld\r\n", md->data_start);
+	LOG("fat start: %ld\r\n", md->fat_start);
+	LOG("root start: %ld\r\n", md->root_start);
+	LOG("data start: %ld\r\n", md->data_start);
 
-	LOG_D("last cluster: %ld\r\n", md->last_cluster);
-	LOG_D("free scan: %ld\r\n", md->free_scan);
+	LOG("last cluster: %ld\r\n", md->last_cluster);
+	LOG("free scan: %ld\r\n", md->free_scan);
 
-	LOG_D("fat mask: 0x%08x\r\n", md->fat_mask);
-	LOG_D("fat eof: 0x%08x\r\n", md->fat_eof);
+	LOG("fat mask: 0x%08x\r\n", md->fat_mask);
+	LOG("fat eof: 0x%08x\r\n", md->fat_eof);
 
 	return 0;
 }
@@ -797,7 +796,7 @@ static s32_t fatfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	struct fat_dirent * de;
 	s32_t err;
 
-	LOG_D("%s\r\n", __FUNCTION__);
+	LOG("%s\r\n", __FUNCTION__);
 
 	md = node->v_mount->m_data;
 //TODO
@@ -829,7 +828,7 @@ static s32_t fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	struct fat_dirent * de;
 	s32_t err;
 
-	LOG_D("%s\r\n", __FUNCTION__);
+	LOG("%s\r\n", __FUNCTION__);
 
 	if(*name == '\0')
 		return ENOENT;
@@ -943,13 +942,13 @@ static struct filesystem fatfs = {
 static __init void filesystem_fatfs_init(void)
 {
 	if(!filesystem_register(&fatfs))
-		LOG_E("register 'fatfs' filesystem fail");
+		LOG("register 'fatfs' filesystem fail");
 }
 
 static __exit void filesystem_fatfs_exit(void)
 {
 	if(!filesystem_unregister(&fatfs))
-		LOG_E("unregister 'fatfs' filesystem fail");
+		LOG("unregister 'fatfs' filesystem fail");
 }
 
 fs_initcall(filesystem_fatfs_init);

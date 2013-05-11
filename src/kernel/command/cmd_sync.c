@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -52,13 +51,13 @@ static struct command sync_cmd = {
 static __init void sync_cmd_init(void)
 {
 	if(!command_register(&sync_cmd))
-		LOG_E("register 'sync' command fail");
+		LOG("register 'sync' command fail");
 }
 
 static __exit void sync_cmd_exit(void)
 {
 	if(!command_unregister(&sync_cmd))
-		LOG_E("unregister 'sync' command fail");
+		LOG("unregister 'sync' command fail");
 }
 
 command_initcall(sync_cmd_init);

@@ -25,9 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
@@ -37,6 +35,11 @@
 
 static int do_log(int argc, char ** argv)
 {
+	printk("%d [D] at line %ld in %s:", jiffies, __LINE__, __FILE__); \
+
+
+	return 0;
+
 	struct log_list * list;
 	bool_t level_d = FALSE;
 	bool_t level_i = FALSE;
@@ -85,22 +88,22 @@ static int do_log(int argc, char ** argv)
 
 		switch(list->level)
 		{
-		case LOG_DEBUG:
+		case LOGEBUG:
 			if(level_d == TRUE)
 				printk("[D] at line %ld in %s: %s\r\n", list->line, list->file, list->message);
 			break;
 
-		case LOG_INFO:
+		case LOGNFO:
 			if(level_i == TRUE)
 				printk("[I] at line %ld in %s: %s\r\n", list->line, list->file, list->message);
 			break;
 
-		case LOG_WARNNING:
+		case LOGARNNING:
 			if(level_w == TRUE)
 				printk("[W] at line %ld in %s: %s\r\n", list->line, list->file, list->message);
 			break;
 
-		case LOG_ERROR:
+		case LOGRROR:
 			if(level_e == TRUE)
 				printk("[E] at line %ld in %s: %s\r\n", list->line, list->file, list->message);
 			break;
@@ -129,13 +132,13 @@ static struct command log_cmd = {
 static __init void log_cmd_init(void)
 {
 	if(!command_register(&log_cmd))
-		LOG_E("register 'log' command fail");
+		LOG("register 'log' command fail");
 }
 
 static __exit void log_cmd_exit(void)
 {
 	if(!command_unregister(&log_cmd))
-		LOG_E("unregister 'log' command fail");
+		LOG("unregister 'log' command fail");
 }
 
 command_initcall(log_cmd_init);

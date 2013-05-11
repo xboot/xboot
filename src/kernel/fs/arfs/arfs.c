@@ -27,7 +27,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/chrdev.h>
@@ -356,13 +355,13 @@ static struct filesystem arfs = {
 static __init void filesystem_arfs_init(void)
 {
 	if(!filesystem_register(&arfs))
-		LOG_E("register 'arfs' filesystem fail");
+		LOG("register 'arfs' filesystem fail");
 }
 
 static __exit void filesystem_arfs_exit(void)
 {
 	if(!filesystem_unregister(&arfs))
-		LOG_E("unregister 'arfs' filesystem fail");
+		LOG("unregister 'arfs' filesystem fail");
 }
 
 fs_initcall(filesystem_arfs_init);

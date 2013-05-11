@@ -25,7 +25,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <loop/loop.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -63,13 +62,13 @@ static struct command umount_cmd = {
 static __init void umount_cmd_init(void)
 {
 	if(!command_register(&umount_cmd))
-		LOG_E("register 'umount' command fail");
+		LOG("register 'umount' command fail");
 }
 
 static __exit void umount_cmd_exit(void)
 {
 	if(!command_unregister(&umount_cmd))
-		LOG_E("unregister 'umount' command fail");
+		LOG("unregister 'umount' command fail");
 }
 
 command_initcall(umount_cmd_init);

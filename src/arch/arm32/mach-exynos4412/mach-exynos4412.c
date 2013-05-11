@@ -168,6 +168,6 @@ static struct machine exynos4412 = {
 static __init void mach_exynos4412_init(void)
 {
 	if(!register_machine(&exynos4412))
-		LOG_E("failed to register machine 'exynos4412'");
+		LOG("failed to register machine 'exynos4412'");
 }
 arch_initcall(mach_exynos4412_init);

@@ -20,7 +20,6 @@
 #include <time/tick.h>
 #include <xboot/machine.h>
 #include <xboot/list.h>
-#include <xboot/log.h>
 #include <xboot/irq.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -144,13 +143,13 @@ static struct command test_cmd = {
 static __init void test_cmd_init(void)
 {
 	if(!command_register(&test_cmd))
-		LOG_E("register 'test' command fail");
+		LOG("register 'test' command fail");
 }
 
 static __exit void test_cmd_exit(void)
 {
 	if(!command_unregister(&test_cmd))
-		LOG_E("unregister 'test' command fail");
+		LOG("unregister 'test' command fail");
 }
 
 command_initcall(test_cmd_init);

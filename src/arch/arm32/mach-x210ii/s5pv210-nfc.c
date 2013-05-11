@@ -25,7 +25,6 @@
 #include <types.h>
 #include <div64.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -132,13 +131,13 @@ static struct nfc s5pv210_nand_flash_controller = {
 static __init void s5pv210_nand_flash_controller_init(void)
 {
 	if(!register_nfc(&s5pv210_nand_flash_controller))
-		LOG_E("failed to register nand flash controller '%s'", s5pv210_nand_flash_controller.name);
+		LOG("failed to register nand flash controller '%s'", s5pv210_nand_flash_controller.name);
 }
 
 static __exit void s5pv210_nand_flash_controller_exit(void)
 {
 	if(!unregister_nfc(&s5pv210_nand_flash_controller))
-		LOG_E("failed to unregister nand flash controller '%s'", s5pv210_nand_flash_controller.name);
+		LOG("failed to unregister nand flash controller '%s'", s5pv210_nand_flash_controller.name);
 }
 
 core_initcall(s5pv210_nand_flash_controller_init);

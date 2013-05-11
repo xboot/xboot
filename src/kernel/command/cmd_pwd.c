@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -59,13 +58,13 @@ static struct command pwd_cmd = {
 static __init void pwd_cmd_init(void)
 {
 	if(!command_register(&pwd_cmd))
-		LOG_E("register 'pwd' command fail");
+		LOG("register 'pwd' command fail");
 }
 
 static __exit void pwd_cmd_exit(void)
 {
 	if(!command_unregister(&pwd_cmd))
-		LOG_E("unregister 'pwd' command fail");
+		LOG("unregister 'pwd' command fail");
 }
 
 command_initcall(pwd_cmd_init);

@@ -24,7 +24,6 @@
 #include <types.h>
 #include <sizes.h>
 #include <stdio.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/chrdev.h>
 #include <xboot/proc.h>
@@ -124,7 +123,7 @@ void do_system_xtime(void)
 	}
 	else
 	{
-		LOG_E("the hardware rtc \"%s\" not found", CONFIG_HARDWARE_RTC_NAME);
+		LOG("the hardware rtc \"%s\" not found", CONFIG_HARDWARE_RTC_NAME);
 	}
 
 	/* setup timer for update xtime */

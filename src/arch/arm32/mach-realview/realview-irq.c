@@ -24,7 +24,6 @@
 #include <xboot.h>
 #include <types.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -312,7 +311,7 @@ static __init void realview_irq_init(void)
 	{
 		if(!irq_register(&realview_irqs[i]))
 		{
-			LOG_E("failed to register irq '%s'", realview_irqs[i].name);
+			LOG("failed to register irq '%s'", realview_irqs[i].name);
 		}
 	}
 
@@ -329,7 +328,7 @@ static __exit void realview_irq_exit(void)
 	{
 		if(!irq_unregister(&realview_irqs[i]))
 		{
-			LOG_E("failed to unregister irq '%s'", realview_irqs[i].name);
+			LOG("failed to unregister irq '%s'", realview_irqs[i].name);
 		}
 	}
 

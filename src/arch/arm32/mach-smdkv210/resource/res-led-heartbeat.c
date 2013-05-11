@@ -24,7 +24,6 @@
 #include <xboot.h>
 #include <types.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <led/led.h>
@@ -67,13 +66,13 @@ static struct resource led_heartbeat = {
 static __init void dev_heartbeat_init(void)
 {
 	if(!register_resource(&led_heartbeat))
-		LOG_E("failed to register resource '%s'", led_heartbeat.name);
+		LOG("failed to register resource '%s'", led_heartbeat.name);
 }
 
 static __exit void dev_heartbeat_exit(void)
 {
 	if(!unregister_resource(&led_heartbeat))
-		LOG_E("failed to unregister resource '%s'", led_heartbeat.name);
+		LOG("failed to unregister resource '%s'", led_heartbeat.name);
 }
 
 core_initcall(dev_heartbeat_init);

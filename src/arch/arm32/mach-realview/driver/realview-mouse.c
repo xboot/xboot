@@ -119,7 +119,7 @@ static bool_t mouse_probe(struct input * input)
 
 	if(! clk_get_rate("kclk", &kclk))
 	{
-		LOG_E("can't get the clock of 'kclk'");
+		LOG("can't get the clock of 'kclk'");
 		return FALSE;
 	}
 
@@ -172,7 +172,7 @@ static bool_t mouse_probe(struct input * input)
 
 	if(!request_irq("KMI1", mouse_interrupt))
 	{
-		LOG_E("can't request irq 'KMI1'");
+		LOG("can't request irq 'KMI1'");
 		writeb(REALVIEW_MOUSE_CR, 0);
 		return FALSE;
 	}
@@ -186,7 +186,7 @@ static bool_t mouse_probe(struct input * input)
 static bool_t mouse_remove(struct input * input)
 {
 	if(!free_irq("KMI1"))
-		LOG_E("can't free irq 'KMI1'");
+		LOG("can't free irq 'KMI1'");
 	writeb(REALVIEW_MOUSE_CR, 0);
 
 	return TRUE;
@@ -210,18 +210,18 @@ static __init void realview_mouse_init(void)
 {
 	if(! clk_get_rate("kclk", 0))
 	{
-		LOG_E("can't get the clock of 'kclk'");
+		LOG("can't get the clock of 'kclk'");
 		return;
 	}
 
 	if(!register_input(&realview_mouse))
-		LOG_E("failed to register input '%s'", realview_mouse.name);
+		LOG("failed to register input '%s'", realview_mouse.name);
 }
 
 static __exit void realview_mouse_exit(void)
 {
 	if(!unregister_input(&realview_mouse))
-		LOG_E("failed to unregister input '%s'", realview_mouse.name);
+		LOG("failed to unregister input '%s'", realview_mouse.name);
 }
 
 device_initcall(realview_mouse_init);

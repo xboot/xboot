@@ -212,6 +212,6 @@ static struct machine x6410 = {
 static __init void mach_x6410_init(void)
 {
 	if(!register_machine(&x6410))
-		LOG_E("failed to register machine 'x6410'");
+		LOG("failed to register machine 'x6410'");
 }
 arch_initcall(mach_x6410_init);

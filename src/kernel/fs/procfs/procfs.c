@@ -26,7 +26,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <time/xtime.h>
-#include <xboot/log.h>
 #include <xboot/proc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -284,13 +283,13 @@ static struct filesystem procfs = {
 static __init void filesystem_procfs_init(void)
 {
 	if(!filesystem_register(&procfs))
-		LOG_E("register 'procfs' filesystem fail");
+		LOG("register 'procfs' filesystem fail");
 }
 
 static __exit void filesystem_procfs_exit(void)
 {
 	if(!filesystem_unregister(&procfs))
-		LOG_E("unregister 'procfs' filesystem fail");
+		LOG("unregister 'procfs' filesystem fail");
 }
 
 fs_initcall(filesystem_procfs_init);

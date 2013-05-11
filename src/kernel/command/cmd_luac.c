@@ -26,7 +26,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -60,13 +59,13 @@ static struct command luac_cmd = {
 static __init void luac_cmd_init(void)
 {
 	if(!command_register(&luac_cmd))
-		LOG_E("register 'luac' command fail");
+		LOG("register 'luac' command fail");
 }
 
 static __exit void luac_cmd_exit(void)
 {
 	if(!command_unregister(&luac_cmd))
-		LOG_E("unregister 'luac' command fail");
+		LOG("unregister 'luac' command fail");
 }
 
 command_initcall(luac_cmd_init);

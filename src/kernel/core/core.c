@@ -22,7 +22,6 @@
 
 #include <xboot.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <time/tick.h>
 #include <time/delay.h>
@@ -43,7 +42,7 @@ static __init void core_init(void)
 	}
 	else
 	{
-		LOG_W("no system tick in this machine");
+		LOG("no system tick in this machine");
 	}
 }
 arch_initcall_sync(core_init);

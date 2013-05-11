@@ -22,9 +22,6 @@
 
 
 #include <xboot.h>
-#include <stdio.h>
-#include <xboot/log.h>
-#include <xboot/printk.h>
 #include <console/console.h>
 #include <version.h>
 

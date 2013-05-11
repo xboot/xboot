@@ -30,7 +30,6 @@
 #include <malloc.h>
 #include <io.h>
 #include <time/delay.h>
-#include <xboot/log.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
@@ -182,13 +181,13 @@ static struct fb realview_fb = {
 static __init void realview_fb_init(void)
 {
 	if(!register_framebuffer(&realview_fb))
-		LOG_E("failed to register framebuffer driver '%s'", realview_fb.info->name);
+		LOG("failed to register framebuffer driver '%s'", realview_fb.info->name);
 }
 
 static __exit void realview_fb_exit(void)
 {
 	if(!unregister_framebuffer(&realview_fb))
-		LOG_E("failed to unregister framebuffer driver '%s'", realview_fb.info->name);
+		LOG("failed to unregister framebuffer driver '%s'", realview_fb.info->name);
 }
 
 device_initcall(realview_fb_init);

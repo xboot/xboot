@@ -120,7 +120,7 @@ static void init_glyphs (struct glyphs *g)
 }
 
 static cairo_status_t
-log_init (cairo_observation_t *log,
+LOGnit (cairo_observation_t *log,
 	  cairo_bool_t record)
 {
     memset (log, 0, sizeof(*log));
@@ -353,7 +353,7 @@ _cairo_device_create_observer_internal (cairo_device_t *target,
 	return _cairo_device_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
     _cairo_device_init (&device->base, &_cairo_device_observer_backend);
-    status = log_init (&device->log, record);
+    status = LOGnit (&device->log, record);
     if (unlikely (status)) {
 	free (device);
 	return _cairo_device_create_in_error (status);
@@ -387,7 +387,7 @@ _cairo_surface_create_observer_internal (cairo_device_t *device,
 			 &_cairo_surface_observer_backend, device,
 			 target->content);
 
-    status = log_init (&surface->log,
+    status = LOGnit (&surface->log,
 		       ((cairo_device_observer_t *)device)->log.record != NULL);
     if (unlikely (status)) {
 	free (surface);

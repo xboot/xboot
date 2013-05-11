@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <version.h>
 #include <shell/ctrlc.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
@@ -144,13 +143,13 @@ static struct command mw_cmd = {
 static __init void mw_cmd_init(void)
 {
 	if(!command_register(&mw_cmd))
-		LOG_E("register 'mw' command fail");
+		LOG("register 'mw' command fail");
 }
 
 static __exit void mw_cmd_exit(void)
 {
 	if(!command_unregister(&mw_cmd))
-		LOG_E("unregister 'mw' command fail");
+		LOG("unregister 'mw' command fail");
 }
 
 command_initcall(mw_cmd_init);

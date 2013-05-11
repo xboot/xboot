@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <command/command.h>
 

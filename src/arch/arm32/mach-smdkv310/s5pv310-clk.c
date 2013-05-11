@@ -291,7 +291,7 @@ static __init void s5pv310_clk_init(void)
 	{
 		if(!clk_register(&s5pv310_clocks[i]))
 		{
-			LOG_E("failed to register clock '%s'", s5pv310_clocks[i].name);
+			LOG("failed to register clock '%s'", s5pv310_clocks[i].name);
 		}
 	}
 }
@@ -304,7 +304,7 @@ static __exit void s5pv310_clk_exit(void)
 	{
 		if(!clk_unregister(&s5pv310_clocks[i]))
 		{
-			LOG_E("failed to unregister clock '%s'", s5pv310_clocks[i].name);
+			LOG("failed to unregister clock '%s'", s5pv310_clocks[i].name);
 		}
 	}
 }

@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <version.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -52,13 +51,13 @@ static struct command version_cmd = {
 static __init void version_cmd_init(void)
 {
 	if(!command_register(&version_cmd))
-		LOG_E("register 'version' command fail");
+		LOG("register 'version' command fail");
 }
 
 static __exit void version_cmd_exit(void)
 {
 	if(!command_unregister(&version_cmd))
-		LOG_E("unregister 'version' command fail");
+		LOG("unregister 'version' command fail");
 }
 
 command_initcall(version_cmd_init);

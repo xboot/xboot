@@ -27,7 +27,6 @@
 #include <string.h>
 #include <div64.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/clk.h>
 #include <xboot/ioctl.h>
@@ -539,7 +538,7 @@ static __init void realview_serial_dev_init(void)
 
 	if(!clk_get_rate("uclk", 0))
 	{
-		LOG_E("can't get the clock of \'uclk\'");
+		LOG("can't get the clock of \'uclk\'");
 		return;
 	}
 
@@ -550,10 +549,10 @@ static __init void realview_serial_dev_init(void)
 		if(param)
 			memcpy(realview_serial_driver[i].info->parameter, param, sizeof(struct serial_parameter));
 		else
-			LOG_W("can't get the resource of \'%s\', use default parameter", realview_serial_driver[i].info->name);
+			LOG("can't get the resource of \'%s\', use default parameter", realview_serial_driver[i].info->name);
 
 		if(!register_serial(&realview_serial_driver[i]))
-			LOG_E("failed to register serial driver '%s'", realview_serial_driver[i].info->name);
+			LOG("failed to register serial driver '%s'", realview_serial_driver[i].info->name);
 	}
 }
 
@@ -564,7 +563,7 @@ static __exit void realview_serial_dev_exit(void)
 	for(i = 0; i < ARRAY_SIZE(realview_serial_driver); i++)
 	{
 		if(!unregister_serial(&realview_serial_driver[i]))
-			LOG_E("failed to unregister serial driver '%s'", realview_serial_driver[i].info->name);
+			LOG("failed to unregister serial driver '%s'", realview_serial_driver[i].info->name);
 	}
 }
 

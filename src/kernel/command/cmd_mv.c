@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -96,13 +95,13 @@ static struct command mv_cmd = {
 static __init void mv_cmd_init(void)
 {
 	if(!command_register(&mv_cmd))
-		LOG_E("register 'mv' command fail");
+		LOG("register 'mv' command fail");
 }
 
 static __exit void mv_cmd_exit(void)
 {
 	if(!command_unregister(&mv_cmd))
-		LOG_E("unregister 'mv' command fail");
+		LOG("unregister 'mv' command fail");
 }
 
 command_initcall(mv_cmd_init);

@@ -35,40 +35,40 @@
  */
 void do_system_rootfs(void)
 {
-	LOG_I("mount root filesystem");
+	LOG("mount root filesystem");
 
 	if(mount(NULL, "/" , "ramfs", 0) != 0)
-		LOG_E("failed to mount root filesystem");
+		LOG("failed to mount root filesystem");
 
 	if(chdir("/") != 0)
-		LOG_E("can't change directory to '/'");
+		LOG("can't change directory to '/'");
 
 	if(mkdir("/proc", S_IRUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG_E("failed to create directory '/proc'");
+		LOG("failed to create directory '/proc'");
 
 	if(mount(NULL, "/proc" , "procfs", 0) != 0)
-		LOG_E("failed to mount proc filesystem");
+		LOG("failed to mount proc filesystem");
 
 	if(mkdir("/dev", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG_E("failed to create directory '/dev'");
+		LOG("failed to create directory '/dev'");
 
 	if(mount(NULL, "/dev" , "devfs", 0) != 0)
-		LOG_E("failed to mount dev filesystem");
+		LOG("failed to mount dev filesystem");
 
 	if(mkdir("/romdisk", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG_E("failed to create directory '/romdisk'");
+		LOG("failed to create directory '/romdisk'");
 
 	if(mount("/dev/romdisk", "/romdisk" , "cpiofs", 0) != 0)
-		LOG_E("failed to mount romdisk");
+		LOG("failed to mount romdisk");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG_E("failed to create directory '/etc'");
+		LOG("failed to create directory '/etc'");
 
 	if(mkdir("/tmp", S_IRWXU|S_IRWXG|S_IRWXO) != 0)
-		LOG_E("failed to create directory '/tmp'");
+		LOG("failed to create directory '/tmp'");
 
 	if(mkdir("/mnt", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG_E("failed to create directory '/mnt'");
+		LOG("failed to create directory '/mnt'");
 }
 
 /*
@@ -76,7 +76,7 @@ void do_system_rootfs(void)
  */
 void do_system_cfg(void)
 {
-	LOG_I("load system configure");
+	LOG("load system configure");
 
 	/*
 	 * load the setting of stdin, stdout and stderr console
@@ -84,7 +84,7 @@ void do_system_cfg(void)
 	if(! console_stdio_load("/etc/console.xml"))
 	{
 		if(! console_stdio_load("/romdisk/etc/console.xml"))
-			LOG_E("can not setting the standard console");
+			LOG("can not setting the standard console");
 	}
 
 	/*
@@ -93,7 +93,7 @@ void do_system_cfg(void)
 	if(! loadenv("/etc/environment.xml"))
 	{
 		if(! loadenv("/romdisk/etc/environment.xml"))
-			LOG_E("can not load environment variable");
+			LOG("can not load environment variable");
 	}
 
 	/*
@@ -102,7 +102,7 @@ void do_system_cfg(void)
 	if(! menu_load("/etc/menu.xml"))
 	{
 		if(! menu_load("/romdisk/etc/menu.xml"))
-			LOG_E("can not load menu context");
+			LOG("can not load menu context");
 	}
 }
 
@@ -117,7 +117,7 @@ void do_system_fonts(void)
 	struct dirent * entry;
 	void * dir;
 
-	LOG_I("load system fonts");
+	LOG("load system fonts");
 
 	/*
 	 * system fonts's directory path
@@ -163,7 +163,7 @@ void do_system_fonts(void)
 		 * FIXME
 		 */
 		// if(! install_font(buf))
-		//	LOG_E("fail to install font: %s", buf);
+		//	LOG("fail to install font: %s", buf);
     }
 
 	closedir(dir);
@@ -273,7 +273,7 @@ void do_system_wait(void)
 		div = jiffies / get_system_hz();
 		rem = jiffies % get_system_hz();
 
-		LOG_I("wait a moment, if necessary (%lu.%02lu)", div, rem);
+		LOG("wait a moment, if necessary (%lu.%02lu)", div, rem);
 
 		/*
 		 * wait a moment for uptime until one seconds

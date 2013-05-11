@@ -61,13 +61,13 @@ static struct command console_cmd = {
 static __init void console_cmd_init(void)
 {
 	if(!command_register(&console_cmd))
-		LOG_E("register 'console' command fail");
+		LOG("register 'console' command fail");
 }
 
 static __exit void console_cmd_exit(void)
 {
 	if(!command_unregister(&console_cmd))
-		LOG_E("unregister 'console' command fail");
+		LOG("unregister 'console' command fail");
 }
 
 command_initcall(console_cmd_init);

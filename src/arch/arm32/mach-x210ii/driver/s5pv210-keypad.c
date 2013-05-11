@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/ioctl.h>
 #include <xboot/irq.h>
@@ -153,18 +152,18 @@ static __init void matrix_keypad_init(void)
 	matrix_keypad.priv = resource_get_data(matrix_keypad.name);
 	if(! matrix_keypad.priv)
 	{
-		LOG_W("can't get the resource of \'%s\'", matrix_keypad.name);
+		LOG("can't get the resource of \'%s\'", matrix_keypad.name);
 		return;
 	}
 
 	if(!register_input(&matrix_keypad))
-		LOG_E("failed to register input '%s'", matrix_keypad.name);
+		LOG("failed to register input '%s'", matrix_keypad.name);
 }
 
 static __exit void matrix_keypad_exit(void)
 {
 	if(!unregister_input(&matrix_keypad))
-		LOG_E("failed to unregister input '%s'", matrix_keypad.name);
+		LOG("failed to unregister input '%s'", matrix_keypad.name);
 }
 
 device_initcall(matrix_keypad_init);

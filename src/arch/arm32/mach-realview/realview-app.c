@@ -21,9 +21,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <xboot/log.h>
-#include <xboot/initcall.h>
 #include <mode/mode.h>
 
 
@@ -41,6 +38,6 @@ static void application(void)
 static __init void realview_application_init(void)
 {
 	if(!register_application(application))
-		LOG_E("failed to register application");
+		LOG("failed to register application");
 }
 core_initcall(realview_application_init);

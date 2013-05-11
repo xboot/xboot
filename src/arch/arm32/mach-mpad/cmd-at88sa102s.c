@@ -146,13 +146,13 @@ static struct command at88sa102s_cmd = {
 static __init void at88sa102s_cmd_init(void)
 {
 	if(!command_register(&at88sa102s_cmd))
-		LOG_E("register 'at88sa102s' command fail");
+		LOG("register 'at88sa102s' command fail");
 }
 
 static __exit void at88sa102s_cmd_exit(void)
 {
 	if(!command_unregister(&at88sa102s_cmd))
-		LOG_E("unregister 'at88sa102s' command fail");
+		LOG("unregister 'at88sa102s' command fail");
 }
 
 command_initcall(at88sa102s_cmd_init);

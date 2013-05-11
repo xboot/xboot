@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <version.h>
-#include <xboot/log.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
@@ -60,13 +59,13 @@ static struct command reboot_cmd = {
 static __init void reboot_cmd_init(void)
 {
 	if(!command_register(&reboot_cmd))
-		LOG_E("register 'reboot' command fail");
+		LOG("register 'reboot' command fail");
 }
 
 static __exit void reboot_cmd_exit(void)
 {
 	if(!command_unregister(&reboot_cmd))
-		LOG_E("unregister 'reboot' command fail");
+		LOG("unregister 'reboot' command fail");
 }
 
 command_initcall(reboot_cmd_init);

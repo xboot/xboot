@@ -24,7 +24,6 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -94,13 +93,13 @@ static struct command cp_cmd = {
 static __init void cp_cmd_init(void)
 {
 	if(!command_register(&cp_cmd))
-		LOG_E("register 'cp' command fail");
+		LOG("register 'cp' command fail");
 }
 
 static __exit void cp_cmd_exit(void)
 {
 	if(!command_unregister(&cp_cmd))
-		LOG_E("unregister 'cp' command fail");
+		LOG("unregister 'cp' command fail");
 }
 
 command_initcall(cp_cmd_init);

@@ -27,7 +27,6 @@
 #include <stddef.h>
 #include <div64.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>
 #include <xboot/machine.h>
@@ -529,13 +528,13 @@ static struct mmc_host realview_mmc_host_controller = {
 static __init void realview_mmc_host_controller_init(void)
 {
 	if(!register_mmc_host(&realview_mmc_host_controller))
-		LOG_E("failed to register mmc host controller '%s'", realview_mmc_host_controller.name);
+		LOG("failed to register mmc host controller '%s'", realview_mmc_host_controller.name);
 }
 
 static __exit void realview_mmc_host_controller_exit(void)
 {
 	if(!unregister_mmc_host(&realview_mmc_host_controller))
-		LOG_E("failed to unregister mmc host controller '%s'", realview_mmc_host_controller.name);
+		LOG("failed to unregister mmc host controller '%s'", realview_mmc_host_controller.name);
 }
 
 core_initcall(realview_mmc_host_controller_init);

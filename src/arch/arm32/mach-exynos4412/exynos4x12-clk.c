@@ -303,7 +303,7 @@ static __init void exynos4x12_clk_init(void)
 	{
 		if(!clk_register(&exynos4x12_clocks[i]))
 		{
-			LOG_E("failed to register clock '%s'", exynos4x12_clocks[i].name);
+			LOG("failed to register clock '%s'", exynos4x12_clocks[i].name);
 		}
 	}
 }
@@ -316,7 +316,7 @@ static __exit void exynos4x12_clk_exit(void)
 	{
 		if(!clk_unregister(&exynos4x12_clocks[i]))
 		{
-			LOG_E("failed to unregister clock '%s'", exynos4x12_clocks[i].name);
+			LOG("failed to unregister clock '%s'", exynos4x12_clocks[i].name);
 		}
 	}
 }

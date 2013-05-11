@@ -28,7 +28,6 @@
 #include <time/tick.h>
 #include <time/timer.h>
 #include <time/delay.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -380,13 +379,13 @@ static struct command tetris_cmd = {
 static __init void tetris_cmd_init(void)
 {
 	if(!command_register(&tetris_cmd))
-		LOG_E("register 'tetris' command fail");
+		LOG("register 'tetris' command fail");
 }
 
 static __exit void tetris_cmd_exit(void)
 {
 	if(!command_unregister(&tetris_cmd))
-		LOG_E("unregister 'tetris' command fail");
+		LOG("unregister 'tetris' command fail");
 }
 
 command_initcall(tetris_cmd_init);

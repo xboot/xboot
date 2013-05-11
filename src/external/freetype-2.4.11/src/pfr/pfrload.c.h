@@ -305,7 +305,7 @@
                                    : PFR_NEXT_BYTE( p );
       }
 
-      if ( flags & PFR_LOG_EXTRA_ITEMS )
+      if ( flags & PFR_LOGXTRA_ITEMS )
       {
         error = pfr_extra_items_skip( &p, limit );
         if (error) goto Fail;

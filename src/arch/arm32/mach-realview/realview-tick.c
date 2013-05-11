@@ -28,7 +28,6 @@
 #include <stddef.h>
 #include <div64.h>
 #include <io.h>
-#include <xboot/log.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/printk.h>
@@ -54,7 +53,7 @@ static bool_t tick_timer_init(void)
 
 	if(!clk_get_rate("timclk", &timclk))
 	{
-		LOG_E("can't get the clock of \'timclk\'");
+		LOG("can't get the clock of \'timclk\'");
 		return FALSE;
 	}
 
@@ -63,7 +62,7 @@ static bool_t tick_timer_init(void)
 
 	if(!request_irq("TMIER2_3", timer_interrupt))
 	{
-		LOG_E("can't request irq \'TMIER2_3\'");
+		LOG("can't request irq \'TMIER2_3\'");
 		return FALSE;
 	}
 
@@ -90,6 +89,6 @@ static struct tick realview_tick = {
 static __init void realview_tick_init(void)
 {
 	if(!register_tick(&realview_tick))
-		LOG_E("failed to register tick");
+		LOG("failed to register tick");
 }
 core_initcall(realview_tick_init);

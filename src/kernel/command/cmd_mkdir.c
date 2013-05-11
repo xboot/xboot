@@ -25,7 +25,6 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -119,13 +118,13 @@ static struct command mkdir_cmd = {
 static __init void mkdir_cmd_init(void)
 {
 	if(!command_register(&mkdir_cmd))
-		LOG_E("register 'mkdir' command fail");
+		LOG("register 'mkdir' command fail");
 }
 
 static __exit void mkdir_cmd_exit(void)
 {
 	if(!command_unregister(&mkdir_cmd))
-		LOG_E("unregister 'mkdir' command fail");
+		LOG("unregister 'mkdir' command fail");
 }
 
 command_initcall(mkdir_cmd_init);

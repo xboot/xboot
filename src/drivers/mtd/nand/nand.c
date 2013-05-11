@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <xboot/initcall.h>
 #include <xboot/proc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <mtd/nand/nfc.h>
@@ -437,7 +436,7 @@ void nand_flash_probe(void)
 
 		if(nand_info == NULL)
 		{
-			LOG_E("found unknown nand flash, manufacturer id: 0x%02x device id: 0x%02x", m_id, d_id);
+			LOG("found unknown nand flash, manufacturer id: 0x%02x device id: 0x%02x", m_id, d_id);
 
 			nfc->control(NULL, NAND_DISABLE_CE);
 			nfc->control(NULL, NAND_DISABLE_CONTROLLER);
@@ -466,7 +465,7 @@ void nand_flash_probe(void)
 		nand = malloc(sizeof(struct nand_device));
 		if(!nand)
 		{
-			LOG_E("can not malloc buffer for nand device");
+			LOG("can not malloc buffer for nand device");
 			continue;
 		}
 
@@ -569,7 +568,7 @@ void nand_flash_probe(void)
 				nand->addr_cycles = 4;
 			else
 			{
-				LOG_E("small page nand with more than 8 GiB encountered");
+				LOG("small page nand with more than 8 GiB encountered");
 				nand->addr_cycles = 5;
 			}
 		}
@@ -584,7 +583,7 @@ void nand_flash_probe(void)
 				nand->addr_cycles = 5;
 			else
 			{
-				LOG_E("large page nand with more than 32 GiB encountered");
+				LOG("large page nand with more than 32 GiB encountered");
 				nand->addr_cycles = 6;
 			}
 		}
@@ -601,10 +600,10 @@ void nand_flash_probe(void)
 		}
 
 		if(register_nand_device(nand) == TRUE)
-			LOG_I("found nand chip %s (%s)", nand->info->name, nand->manufacturer->name);
+			LOG("found nand chip %s (%s)", nand->info->name, nand->manufacturer->name);
 		else
 		{
-			LOG_E("fail to register nand device");
+			LOG("fail to register nand device");
 			free(nand->blocks);
 			free(nand);
 		}

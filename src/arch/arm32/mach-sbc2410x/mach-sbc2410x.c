@@ -191,6 +191,6 @@ static struct machine sbc2410x = {
 static __init void mach_sbc2410x_init(void)
 {
 	if(!register_machine(&sbc2410x))
-		LOG_E("failed to register machine 'sbc2410x'");
+		LOG("failed to register machine 'sbc2410x'");
 }
 arch_initcall(mach_sbc2410x_init);

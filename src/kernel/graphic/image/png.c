@@ -800,13 +800,13 @@ static struct image_loader image_loader_png = {
 static __init void image_loader_png_init(void)
 {
 	if(!register_image_loader(&image_loader_png))
-		LOG_E("register 'png' image loader fail");
+		LOG("register 'png' image loader fail");
 }
 
 static __exit void image_loader_png_exit(void)
 {
 	if(!unregister_image_loader(&image_loader_png))
-		LOG_E("unregister 'png' image loader fail");
+		LOG("unregister 'png' image loader fail");
 }
 
 core_initcall(image_loader_png_init);

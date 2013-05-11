@@ -25,7 +25,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdio.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -124,13 +123,13 @@ static struct command probe_cmd = {
 static __init void probe_cmd_init(void)
 {
 	if(!command_register(&probe_cmd))
-		LOG_E("register 'probe' command fail");
+		LOG("register 'probe' command fail");
 }
 
 static __exit void probe_cmd_exit(void)
 {
 	if(!command_unregister(&probe_cmd))
-		LOG_E("unregister 'probe' command fail");
+		LOG("unregister 'probe' command fail");
 }
 
 command_initcall(probe_cmd_init);

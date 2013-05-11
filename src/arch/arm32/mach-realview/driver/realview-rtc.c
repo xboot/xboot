@@ -28,7 +28,6 @@
 #include <string.h>
 #include <io.h>
 #include <time/delay.h>
-#include <xboot/log.h>
 #include <xboot/initcall.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
@@ -81,13 +80,13 @@ static struct rtc_driver realview_rtc = {
 static __init void realview_rtc_init(void)
 {
 	if(!register_rtc(&realview_rtc))
-		LOG_E("failed to register rtc driver '%s'", realview_rtc.name);
+		LOG("failed to register rtc driver '%s'", realview_rtc.name);
 }
 
 static __exit void realview_rtc_exit(void)
 {
 	if(!unregister_rtc(&realview_rtc))
-		LOG_E("failed to unregister rtc driver '%s'", realview_rtc.name);
+		LOG("failed to unregister rtc driver '%s'", realview_rtc.name);
 }
 
 device_initcall(realview_rtc_init);

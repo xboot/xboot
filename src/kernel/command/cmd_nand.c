@@ -26,7 +26,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -206,13 +205,13 @@ static struct command nand_cmd = {
 static __init void nand_cmd_init(void)
 {
 	if(!command_register(&nand_cmd))
-		LOG_E("register 'nand' command fail");
+		LOG("register 'nand' command fail");
 }
 
 static __exit void nand_cmd_exit(void)
 {
 	if(!command_unregister(&nand_cmd))
-		LOG_E("unregister 'nand' command fail");
+		LOG("unregister 'nand' command fail");
 }
 
 command_initcall(nand_cmd_init);

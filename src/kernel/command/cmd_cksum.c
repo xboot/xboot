@@ -26,7 +26,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <malloc.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -158,13 +157,13 @@ static struct command cksum_cmd = {
 static __init void cksum_cmd_init(void)
 {
 	if(!command_register(&cksum_cmd))
-		LOG_E("register 'cksum' command fail");
+		LOG("register 'cksum' command fail");
 }
 
 static __exit void cksum_cmd_exit(void)
 {
 	if(!command_unregister(&cksum_cmd))
-		LOG_E("unregister 'cksum' command fail");
+		LOG("unregister 'cksum' command fail");
 }
 
 command_initcall(cksum_cmd_init);

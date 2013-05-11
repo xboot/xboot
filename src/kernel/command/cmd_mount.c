@@ -27,7 +27,6 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <loop/loop.h>
-#include <xboot/log.h>
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
@@ -198,13 +197,13 @@ static struct command mount_cmd = {
 static __init void mount_cmd_init(void)
 {
 	if(!command_register(&mount_cmd))
-		LOG_E("register 'mount' command fail");
+		LOG("register 'mount' command fail");
 }
 
 static __exit void mount_cmd_exit(void)
 {
 	if(!command_unregister(&mount_cmd))
-		LOG_E("unregister 'mount' command fail");
+		LOG("unregister 'mount' command fail");
 }
 
 command_initcall(mount_cmd_init);

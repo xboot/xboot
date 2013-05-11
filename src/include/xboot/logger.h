@@ -18,8 +18,8 @@ struct logger_t
 	/* Logger clean up function */
 	void (*exit)(void);
 
-	/* Logger write function */
-	ssize_t (*write)(const u8_t * buf, size_t count);
+	/* Logger output function */
+	ssize_t (*output)(const u8_t * buf, size_t count);
 };
 
 bool_t register_logger(struct logger_t * logger);

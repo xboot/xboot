@@ -133,8 +133,8 @@ int logger_output(const char * file, const int line, const char * fmt, ...)
 	for(pos = (&logger_list_t->entry)->next; pos != (&logger_list_t->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct logger_list_t, entry);
-		if(list->logger->write)
-			list->logger->write((const u8_t *)p, len);
+		if(list->logger->output)
+			list->logger->output((const u8_t *)p, len);
 	}
 
 	free(p);

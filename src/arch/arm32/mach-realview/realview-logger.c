@@ -36,7 +36,7 @@ static void logger_uart0_exit(void)
 {
 }
 
-static ssize_t logger_uart0_write(const u8_t * buf, size_t count)
+static ssize_t logger_uart0_output(const u8_t * buf, size_t count)
 {
 	ssize_t i;
 
@@ -55,7 +55,7 @@ static struct logger_t realview_logger = {
 	.name	= "logger-uart0",
 	.init	= logger_uart0_init,
 	.exit	= logger_uart0_exit,
-	.write	= logger_uart0_write,
+	.output	= logger_uart0_output,
 };
 
 static __init void realview_logger_init(void)
@@ -70,5 +70,5 @@ static __exit void realview_logger_exit(void)
 		LOG("failed to unregister logger");
 }
 
-core_initcall(realview_logger_init);
-core_exitcall(realview_logger_exit);
+core_initcall_sync(realview_logger_init);
+core_exitcall_sync(realview_logger_exit);

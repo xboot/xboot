@@ -36,7 +36,7 @@ static void usage(void)
 {
 	printk("usage:\r\n");
 	printk("    exit [-n|-s|-m|-g|-a]\r\n");
-	printk("    exit [--normal|--shell|--menu|--graphic|--application]\r\n");
+	printk("    exit [--normal|--shell|--menu|--graphic]\r\n");
 }
 
 static int exit_to_mode(int argc, char ** argv)
@@ -62,10 +62,6 @@ static int exit_to_mode(int argc, char ** argv)
 		else if( (strcmp((const char *)argv[1], "-g") == 0) || (strcmp((const char *)argv[1], "--graphic") == 0) )
 		{
 			xboot_set_mode(MODE_GRAPHIC);
-		}
-		else if( (strcmp((const char *)argv[1], "-a") == 0) || (strcmp((const char *)argv[1], "--application") == 0) )
-		{
-			xboot_set_mode(MODE_APPLICATION);
 		}
 		else
 		{
@@ -93,7 +89,6 @@ static struct command exit_cmd = {
 				  "    -s | --shell       enter to shell mode\r\n"
 				  "    -m | --menu        enter to menu mode\r\n"
 				  "    -g | --graphic     enter to graphic mode\r\n"
-				  "    -a | --application enter to extend mode\r\n"
 };
 
 static __init void exit_cmd_init(void)

@@ -18,7 +18,6 @@ enum mode_t {
 	MODE_SHELL			= 1,
 	MODE_MENU			= 2,
 	MODE_GRAPHIC		= 3,
-	MODE_APPLICATION	= 4,
 };
 
 inline enum mode_t xboot_get_mode(void);
@@ -28,9 +27,6 @@ void run_normal_mode(void);
 void run_shell_mode(void);
 void run_menu_mode(void);
 void run_graphic_mode(void);
-void run_application_mode(void);
-
-bool_t register_application(application_t app);
 
 #ifdef __cplusplus
 }

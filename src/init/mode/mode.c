@@ -61,10 +61,6 @@ bool_t xboot_set_mode(enum mode_t m)
 		xboot_mode = MODE_GRAPHIC;
 		break;
 
-	case MODE_APPLICATION:
-		xboot_mode = MODE_APPLICATION;
-		break;
-
 	default:
 		return FALSE;
 	}

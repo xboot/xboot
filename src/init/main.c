@@ -88,14 +88,6 @@ int xboot_main(int argc, char * argv[])
 		{
 			run_graphic_mode();
 		}
-
-		/*
-		 * application mode
-		 */
-		else if(xboot_get_mode() == MODE_APPLICATION)
-		{
-			run_application_mode();
-		}
 	}
 
 	/* do all exit calls */

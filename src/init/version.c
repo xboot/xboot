@@ -25,12 +25,9 @@
 #include <console/console.h>
 #include <version.h>
 
-/*
- * print xboot banner
- */
-void xboot_banner(struct console * console)
+const char * xboot_banner_string(void)
 {
-	console_print(console, "xboot version: %ld.%ld%ld (%s - %s) for %s\r\n", XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH, __DATE__, __TIME__, __MACH__);
+	return ("xboot version: " XBOOT_VERSION " (" __DATE__ " - " __TIME__ ") for " __MACH__ "\r\n");
 }
 
 /*

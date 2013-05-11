@@ -11,12 +11,12 @@ extern "C" {
 /*
  * xboot's version
  */
-#define	XBOOT_MAJOY					(1)
-#define	XBOOT_MINIOR				(5)
-#define	XBOOT_PATCH					(0)
-#define	XBOOT_VERSION				("1.5.0")
+#define	XBOOT_MAJOY					"1"
+#define	XBOOT_MINIOR				"5"
+#define	XBOOT_PATCH					"0"
+#define	XBOOT_VERSION				XBOOT_MAJOY "." XBOOT_MINIOR "." XBOOT_PATCH
 
-void xboot_banner(struct console * console);
+const char * xboot_banner_string(void);
 void xboot_char_logo(struct console * console, u32_t x0, u32_t y0);
 
 #ifdef __cplusplus

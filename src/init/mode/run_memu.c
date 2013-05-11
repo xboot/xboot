@@ -165,7 +165,7 @@ static struct menu_ctx * menu_ctx_alloc(void)
 	}
 
 	console_gotoxy(ctx->out, 1, 0);
-	xboot_banner(ctx->out);
+	console_print(ctx->out, xboot_banner_string());
 
 	console_rect(ctx->out,
 					UNICODE_HLINE, UNICODE_VLINE,

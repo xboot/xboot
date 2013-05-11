@@ -170,13 +170,13 @@ int luaopen_xboot(lua_State * L)
 	lua_pushstring(L, XBOOT_VERSION);
 	lua_setfield(L, -2, "_VERSION");
 
-	lua_pushnumber(L, XBOOT_MAJOY);
+	lua_pushnumber(L, atoi(XBOOT_MAJOY));
 	lua_setfield(L, -2, "_MAJOY");
 
-	lua_pushnumber(L, XBOOT_MINIOR);
+	lua_pushnumber(L, atoi(XBOOT_MINIOR));
 	lua_setfield(L, -2, "_MINIOR");
 
-	lua_pushnumber(L, XBOOT_PATCH);
+	lua_pushnumber(L, atoi(XBOOT_PATCH));
 	lua_setfield(L, -2, "_PATCH");
 
 	lua_pushstring(L, __ARCH__);

@@ -25,10 +25,7 @@
 
 static void logger_uart0_init(void)
 {
-	/* disable everything */
 	writel(REALVIEW_SERIAL0_CR, 0x0);
-
-	/* enable the serial */
 	writel(REALVIEW_SERIAL0_CR, REALVIEW_SERIAL_CR_UARTEN |	REALVIEW_SERIAL_CR_TXE | REALVIEW_SERIAL_CR_RXE);
 }
 

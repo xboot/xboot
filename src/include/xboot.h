@@ -54,11 +54,11 @@ extern "C" {
 #include <fs/fileio.h>
 
 #if !defined(__ARCH__)
-#define __ARCH__									("")
+#define __ARCH__									""
 #endif
 
 #if !defined(__MACH__)
-#define __MACH__									("")
+#define __MACH__									""
 #endif
 
 #if !defined(CONFIG_HEAP_SIZE)
@@ -98,7 +98,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_HARDWARE_RTC_NAME)
-#define	CONFIG_HARDWARE_RTC_NAME					("rtc")
+#define	CONFIG_HARDWARE_RTC_NAME					"rtc"
 #endif
 
 #if !defined(CONFIG_COMMAND_HELP)

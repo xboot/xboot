@@ -75,6 +75,9 @@ bool_t register_logger(struct logger_t * logger)
 	if(logger->init)
 		(logger->init)();
 
+	if(logger->output)
+		logger->output((const u8_t *)xboot_banner_string(), strlen(xboot_banner_string()));
+
 	list->logger = logger;
 	list_add(&list->entry, &logger_list_t->entry);
 

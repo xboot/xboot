@@ -124,8 +124,8 @@ int logger_output(const char * file, const int line, const char * fmt, ...)
 	va_start(ap, fmt);
 	if(get_system_hz() > 0)
 	{
-		div = jiffies / get_system_hz();
-		rem = jiffies % get_system_hz();
+		div = jiffies * 1000000 / get_system_hz() / 1000000;
+		rem = jiffies * 1000000 / get_system_hz() % 1000000;
 		len += sprintf((char *)(p + len), (const char *)"[%5u.%06u]", div, rem);
 	}
 	len += sprintf((char *)(p + len), (const char *)"[%s:%d] ", file, line);

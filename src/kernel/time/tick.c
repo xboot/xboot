@@ -123,7 +123,7 @@ static s32_t jiffies_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	char tmp[16];
 	s32_t len;
 
-	len = sprintf(tmp, (const char *)"%ld", jiffies);
+	len = sprintf(tmp, (const char *)"%d", jiffies);
 	len -= offset;
 
 	if(len < 0)
@@ -151,7 +151,7 @@ static s32_t uptime_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	s32_t len;
 
 	if(tick_hz != 0)
-		len = sprintf(tmp, (const char *)"%lu.%02lu", jiffies / tick_hz, jiffies % tick_hz);
+		len = sprintf(tmp, (const char *)"%u.%03u", jiffies * 1000 / tick_hz / 1000, jiffies * 1000 / tick_hz % 1000);
 	else
 		len = sprintf(tmp, (const char *)"0.00");
 
@@ -181,7 +181,7 @@ static s32_t hz_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	char tmp[16];
 	s32_t len;
 
-	len = sprintf(tmp, (const char *)"%lu", tick_hz);
+	len = sprintf(tmp, (const char *)"%u", tick_hz);
 	len -= offset;
 
 	if(len < 0)

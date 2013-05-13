@@ -265,15 +265,11 @@ void do_system_battery(void)
  */
 void do_system_wait(void)
 {
-	u32_t div, rem;
 	u32_t timeout;
 
 	if(get_system_hz() > 0)
 	{
-		div = jiffies / get_system_hz();
-		rem = jiffies % get_system_hz();
-
-		LOG("wait a moment, if necessary (%lu.%02lu)", div, rem);
+		LOG("wait a moment, if necessary");
 
 		/*
 		 * wait a moment for uptime until one seconds

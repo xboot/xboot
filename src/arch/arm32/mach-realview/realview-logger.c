@@ -39,10 +39,7 @@ static ssize_t logger_uart0_output(const u8_t * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		/* wait until there is space in the fifo */
 		while( (readb(REALVIEW_SERIAL0_FR) & REALVIEW_SERIAL_FR_TXFF) );
-
-		/* transmit a character */
 		writeb(REALVIEW_SERIAL0_DATA, buf[i]);
 	}
 	return i;
@@ -67,5 +64,5 @@ static __exit void realview_logger_exit(void)
 		LOG("failed to unregister logger");
 }
 
-core_initcall_sync(realview_logger_init);
-core_exitcall_sync(realview_logger_exit);
+pure_initcall_sync(realview_logger_init);
+pure_exitcall_sync(realview_logger_exit);

@@ -21,11 +21,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
 #include <serial/serial.h>
-#include <xboot/resource.h>
 
 /*
  * serial device.
@@ -82,10 +78,10 @@ static __init void dev_serial_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(serial_devs); i++)
 	{
-		if(!register_resource(&serial_devs[i]))
-		{
-			LOG("failed to register resource '%s'", serial_devs[i].name);
-		}
+		if(register_resource(&serial_devs[i]))
+			LOG("Register serial resource '%s'", serial_devs[i].name);
+		else
+			LOG("Failed to register serial resource '%s'", serial_devs[i].name);
 	}
 }
 
@@ -95,10 +91,10 @@ static __exit void dev_serial_exit(void)
 
 	for(i = 0; i < ARRAY_SIZE(serial_devs); i++)
 	{
-		if(!unregister_resource(&serial_devs[i]))
-		{
-			LOG("failed to unregister resource '%s'", serial_devs[i].name);
-		}
+		if(unregister_resource(&serial_devs[i]))
+			LOG("Unregister serial resource '%s'", serial_devs[i].name);
+		else
+			LOG("Failed to unregister serial resource '%s'", serial_devs[i].name);
 	}
 }
 

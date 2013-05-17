@@ -1753,7 +1753,9 @@ static const struct gimage logo = {
 
 static __init void realview_logo_init(void)
 {
-	if(!register_logo(&logo))
-		LOG("failed to register logo");
+	if(register_logo(&logo))
+		LOG("Register default logo");
+	else
+		LOG("Failed to register default logo");
 }
 core_initcall(realview_logo_init);

@@ -23,29 +23,15 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <io.h>
-#include <time/delay.h>
-#include <xboot/initcall.h>
-#include <xboot/ioctl.h>
-#include <xboot/clk.h>
-#include <xboot/printk.h>
-#include <xboot/resource.h>
-#include <time/xtime.h>
 #include <rtc/rtc.h>
 #include <realview/reg-rtc.h>
 
-
 static void rtc_init(void)
 {
-	return;
 }
 
 static void rtc_exit(void)
 {
-	return;
 }
 
 static bool_t rtc_set_time(struct time * time)
@@ -79,14 +65,18 @@ static struct rtc_driver realview_rtc = {
 
 static __init void realview_rtc_init(void)
 {
-	if(!register_rtc(&realview_rtc))
-		LOG("failed to register rtc driver '%s'", realview_rtc.name);
+	if(register_rtc(&realview_rtc))
+		LOG("Register rtc driver '%s'", realview_rtc.name);
+	else
+		LOG("Failed to register rtc driver '%s'", realview_rtc.name);
 }
 
 static __exit void realview_rtc_exit(void)
 {
-	if(!unregister_rtc(&realview_rtc))
-		LOG("failed to unregister rtc driver '%s'", realview_rtc.name);
+	if(unregister_rtc(&realview_rtc))
+		LOG("Unregister rtc driver '%s'", realview_rtc.name);
+	else
+		LOG("Failed to unregister rtc driver '%s'", realview_rtc.name);
 }
 
 device_initcall(realview_rtc_init);

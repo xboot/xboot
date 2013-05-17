@@ -21,9 +21,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
 #include <realview-cp15.h>
-
 
 /*
  * read co-processor 15, register #1 (control register)

@@ -20,18 +20,9 @@
  *
  */
 
-
 #include <xboot.h>
-#include <types.h>
-#include <io.h>
-#include <xboot/clk.h>
-#include <xboot/printk.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
-#include <xboot/irq.h>
 #include <realview-cp15.h>
 #include <realview/reg-gic.h>
-
 
 /*
  * the struct of regs, which saved and restore in the interrupt.
@@ -309,10 +300,10 @@ static __init void realview_irq_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
 	{
-		if(!irq_register(&realview_irqs[i]))
-		{
-			LOG("failed to register irq '%s'", realview_irqs[i].name);
-		}
+		if(irq_register(&realview_irqs[i]))
+			LOG("Register irq '%s'", realview_irqs[i].name);
+		else
+			LOG("Failed to register irq '%s'", realview_irqs[i].name);
 	}
 
 	/* enable irq and fiq */
@@ -326,10 +317,10 @@ static __exit void realview_irq_exit(void)
 
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
 	{
-		if(!irq_unregister(&realview_irqs[i]))
-		{
-			LOG("failed to unregister irq '%s'", realview_irqs[i].name);
-		}
+		if(irq_unregister(&realview_irqs[i]))
+			LOG("Unregister irq '%s'", realview_irqs[i].name);
+		else
+			LOG("Failed to unregister irq '%s'", realview_irqs[i].name);
 	}
 
 	/* disable irq and fiq */

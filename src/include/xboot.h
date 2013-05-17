@@ -44,6 +44,7 @@ extern "C" {
 #include <xboot/resource.h>
 #include <xboot/printk.h>
 #include <xboot/clk.h>
+#include <xboot/irq.h>
 #include <xboot/machine.h>
 #include <xboot/stream.h>
 #include <xboot/module.h>

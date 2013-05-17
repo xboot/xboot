@@ -22,17 +22,7 @@
  *
  */
 
-
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <div64.h>
-#include <io.h>
-#include <xboot/clk.h>
-#include <xboot/irq.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <time/tick.h>
 #include <realview/reg-timer.h>
 
 /*
@@ -88,7 +78,9 @@ static struct tick realview_tick = {
 
 static __init void realview_tick_init(void)
 {
-	if(!register_tick(&realview_tick))
-		LOG("failed to register tick");
+	if(register_tick(&realview_tick))
+		LOG("Register tick");
+	else
+		LOG("Failed to register tick");
 }
 core_initcall(realview_tick_init);

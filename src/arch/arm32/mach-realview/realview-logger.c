@@ -54,14 +54,18 @@ static struct logger_t realview_logger = {
 
 static __init void realview_logger_init(void)
 {
-	if(!register_logger(&realview_logger))
-		LOG("failed to register logger");
+	if(register_logger(&realview_logger))
+		LOG("Register logger '%s'", realview_logger.name);
+	else
+		LOG("Failed to register logger '%s'", realview_logger.name);
 }
 
 static __exit void realview_logger_exit(void)
 {
-	if(!unregister_logger(&realview_logger))
-		LOG("failed to unregister logger");
+	if(unregister_logger(&realview_logger))
+		LOG("Unregister logger '%s'", realview_logger.name);
+	else
+		LOG("Failed to unregister logger '%s'", realview_logger.name);
 }
 
 pure_initcall_sync(realview_logger_init);

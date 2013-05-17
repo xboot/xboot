@@ -23,17 +23,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <div64.h>
-#include <io.h>
-#include <xboot/initcall.h>
-#include <xboot/ioctl.h>
-#include <xboot/clk.h>
-#include <xboot/irq.h>
-#include <xboot/printk.h>
-#include <xboot/resource.h>
 #include <input/input.h>
 #include <input/keyboard/keyboard.h>
 #include <realview/reg-keyboard.h>
@@ -356,7 +345,7 @@ static bool_t keyboard_probe(struct input * input)
 
 	if(! clk_get_rate("kclk", &kclk))
 	{
-		LOG("can't get the clock of 'kclk'");
+		LOG("Can't get clock source 'kclk'");
 		return FALSE;
 	}
 
@@ -396,7 +385,7 @@ static bool_t keyboard_probe(struct input * input)
 
 	if(!request_irq("KMI0", keyboard_interrupt))
 	{
-		LOG("can't request irq 'KMI0'");
+		LOG("Can't request irq 'KMI0'");
 		writeb(REALVIEW_KEYBOARD_CR, 0);
 		return FALSE;
 	}
@@ -410,7 +399,7 @@ static bool_t keyboard_probe(struct input * input)
 static bool_t keyboard_remove(struct input * input)
 {
 	if(!free_irq("KMI0"))
-		LOG("can't free irq 'KMI0'");
+		LOG("Can't free irq 'KMI0'");
 	writeb(REALVIEW_KEYBOARD_CR, 0);
 
 	return TRUE;
@@ -434,18 +423,22 @@ static __init void realview_keyboard_init(void)
 {
 	if(! clk_get_rate("kclk", 0))
 	{
-		LOG("can't get the clock of 'kclk'");
+		LOG("Can't get clock source 'kclk'");
 		return;
 	}
 
-	if(!register_input(&realview_keyboard))
-		LOG("failed to register input '%s'", realview_keyboard.name);
+	if(register_input(&realview_keyboard))
+		LOG("Register input '%s'", realview_keyboard.name);
+	else
+		LOG("Failed to register input '%s'", realview_keyboard.name);
 }
 
 static __exit void realview_keyboard_exit(void)
 {
-	if(!unregister_input(&realview_keyboard))
-		LOG("failed to unregister input '%s'", realview_keyboard.name);
+	if(unregister_input(&realview_keyboard))
+		LOG("Unregister input '%s'", realview_keyboard.name);
+	else
+		LOG("Failed to unregister input '%s'", realview_keyboard.name);
 }
 
 device_initcall(realview_keyboard_init);

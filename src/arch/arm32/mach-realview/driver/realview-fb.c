@@ -23,18 +23,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <sizes.h>
-#include <malloc.h>
-#include <io.h>
-#include <time/delay.h>
-#include <xboot/ioctl.h>
-#include <xboot/clk.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <xboot/resource.h>
 #include <fb/fb.h>
 #include <realview/reg-lcd.h>
 
@@ -180,14 +168,18 @@ static struct fb realview_fb = {
 
 static __init void realview_fb_init(void)
 {
-	if(!register_framebuffer(&realview_fb))
-		LOG("failed to register framebuffer driver '%s'", realview_fb.info->name);
+	if(register_framebuffer(&realview_fb))
+		LOG("Register framebuffer driver '%s'", realview_fb.info->name);
+	else
+		LOG("Failed to register framebuffer driver '%s'", realview_fb.info->name);
 }
 
 static __exit void realview_fb_exit(void)
 {
-	if(!unregister_framebuffer(&realview_fb))
-		LOG("failed to unregister framebuffer driver '%s'", realview_fb.info->name);
+	if(unregister_framebuffer(&realview_fb))
+		LOG("Unregister framebuffer driver '%s'", realview_fb.info->name);
+	else
+		LOG("Failed to unregister framebuffer driver '%s'", realview_fb.info->name);
 }
 
 device_initcall(realview_fb_init);

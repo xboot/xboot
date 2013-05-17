@@ -23,8 +23,6 @@
  */
 
 #include <xboot.h>
-#include <spinlock.h>
-#include <xboot/irq.h>
 #include <input/input.h>
 #include <realview/reg-mouse.h>
 
@@ -119,7 +117,7 @@ static bool_t mouse_probe(struct input * input)
 
 	if(! clk_get_rate("kclk", &kclk))
 	{
-		LOG("can't get the clock of 'kclk'");
+		LOG("Can't get clock source 'kclk'");
 		return FALSE;
 	}
 
@@ -172,7 +170,7 @@ static bool_t mouse_probe(struct input * input)
 
 	if(!request_irq("KMI1", mouse_interrupt))
 	{
-		LOG("can't request irq 'KMI1'");
+		LOG("Can't request irq 'KMI1'");
 		writeb(REALVIEW_MOUSE_CR, 0);
 		return FALSE;
 	}
@@ -186,7 +184,7 @@ static bool_t mouse_probe(struct input * input)
 static bool_t mouse_remove(struct input * input)
 {
 	if(!free_irq("KMI1"))
-		LOG("can't free irq 'KMI1'");
+		LOG("Can't free irq 'KMI1'");
 	writeb(REALVIEW_MOUSE_CR, 0);
 
 	return TRUE;
@@ -210,18 +208,22 @@ static __init void realview_mouse_init(void)
 {
 	if(! clk_get_rate("kclk", 0))
 	{
-		LOG("can't get the clock of 'kclk'");
+		LOG("Can't get clock source 'kclk'");
 		return;
 	}
 
-	if(!register_input(&realview_mouse))
-		LOG("failed to register input '%s'", realview_mouse.name);
+	if(register_input(&realview_mouse))
+		LOG("Register input '%s'", realview_mouse.name);
+	else
+		LOG("Failed to register input '%s'", realview_mouse.name);
 }
 
 static __exit void realview_mouse_exit(void)
 {
-	if(!unregister_input(&realview_mouse))
-		LOG("failed to unregister input '%s'", realview_mouse.name);
+	if(unregister_input(&realview_mouse))
+		LOG("Unregister input '%s'", realview_mouse.name);
+	else
+		LOG("Failed to unregister input '%s'", realview_mouse.name);
 }
 
 device_initcall(realview_mouse_init);

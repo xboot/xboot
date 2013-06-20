@@ -5,7 +5,6 @@
 */
 
 
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -90,21 +89,6 @@ static lua_State *globalL = NULL;
 static const char *progname = LUA_PROGNAME;
 
 
-
-static void lstop (lua_State *L, lua_Debug *ar) {
-  (void)ar;  /* unused arg. */
-  lua_sethook(L, NULL, 0, 0);
-  luaL_error(L, "interrupted!");
-}
-
-
-static void laction (int i) {
-  signal(i, SIG_DFL); /* if another SIGINT happens before lstop,
-                              terminate process (default action) */
-  lua_sethook(globalL, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
-}
-
-
 static void print_usage (const char *badoption) {
   luai_writestringerror("%s: ", progname);
   if (badoption[1] == 'e' || badoption[1] == 'l')
@@ -175,9 +159,7 @@ static int docall (lua_State *L, int narg, int nres) {
   lua_pushcfunction(L, traceback);  /* push traceback function */
   lua_insert(L, base);  /* put it under chunk and args */
   globalL = L;  /* to be available to 'laction' */
-  signal(SIGINT, laction);
   status = lua_pcall(L, narg, nres, base);
-  signal(SIGINT, SIG_DFL);
   lua_remove(L, base);  /* remove traceback function */
   return status;
 }
@@ -477,7 +459,7 @@ static int pmain (lua_State *L) {
 }
 
 
-int main (int argc, char **argv) {
+int lua_main (int argc, char **argv) {
   int status, result;
   lua_State *L = luaL_newstate();  /* create state */
   if (L == NULL) {

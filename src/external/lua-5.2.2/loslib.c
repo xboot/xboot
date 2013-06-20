@@ -19,7 +19,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-
+#if 0 //xxx
 /*
 ** list of valid conversion specifiers for the 'strftime' function
 */
@@ -314,10 +314,10 @@ static const luaL_Reg syslib[] = {
 
 /* }====================================================== */
 
-
+#endif
 
 LUAMOD_API int luaopen_os (lua_State *L) {
-  luaL_newlib(L, syslib);
+//xxx  luaL_newlib(L, syslib);
   return 1;
 }
 

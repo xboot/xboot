@@ -4,10 +4,15 @@
 ** See Copyright Notice in lua.h
 */
 
+#include <xboot.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef printf
+#define printf(fmt, args ...)	fprintf(stdout, #fmt, ##args)
+#endif
 
 #define luac_c
 #define LUA_CORE
@@ -186,7 +191,7 @@ static int pmain(lua_State* L)
  return 0;
 }
 
-int main(int argc, char* argv[])
+int luac_main(int argc, char* argv[])
 {
  lua_State* L;
  int i=doargs(argc,argv);

@@ -8,6 +8,7 @@
 #ifndef lconfig_h
 #define lconfig_h
 
+#include <xboot.h>
 #include <limits.h>
 #include <stddef.h>
 

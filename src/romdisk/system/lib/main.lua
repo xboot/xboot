@@ -1,8 +1,24 @@
 local class = require("org.xboot.lang.class")
 local event = require("org.xboot.event.event")
 local event_dispatcher = require("org.xboot.event.event_dispatcher")
+local display_object = require("org.xboot.display.display_object")
+local _G = _G
 
---local _G = _G
+
+local obj1 = display_object:new("obj1")
+local obj2 = display_object:new("obj2")
+local obj3 = display_object:new("obj3")
+local obj4 = display_object:new("obj4")
+local obj5 = display_object:new("obj5")
+local obj6 = display_object:new("obj6")
+
+obj1:add_child(obj2)
+obj1:add_child(obj3)
+obj2:add_child(obj4)
+obj2:add_child(obj5)
+obj3:add_child(obj6)
+
+
 
 local e1 = event("abc")
 local e2 = event:new("on123")
@@ -16,7 +32,7 @@ local function onMessage(d, e)
   print(d)
   print(e)
   print("on message ======end")
-  --e:stop_propagation()
+  e:stop_propagation()
 end
 
 ed1:add_event_listener("111", onMessage, "data111")
@@ -24,16 +40,6 @@ ed1:add_event_listener("222", onMessage)
 ed1:add_event_listener("333", onMessage, "data333")
 ed1:add_event_listener("333", onMessage, "xxxxx")
 ed1:add_event_listener("333", onMessage, "ccccccc")
-
---ed1:remove_event_listener("333", onMessage, "data333")
-
-ed1:dispatch_event(event("333"))
-
-local tt = class(ed1)
-
-local a = tt()
-a.a = "dd"
-
 ed1:remove_event_listener("333", onMessage, "data333")
 
 print("=======main test start=================")

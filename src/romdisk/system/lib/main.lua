@@ -29,6 +29,13 @@ ed1:add_event_listener("333", onMessage, "ccccccc")
 
 ed1:dispatch_event(event("333"))
 
+local tt = class(ed1)
+
+local a = tt()
+a.a = "dd"
+
+ed1:remove_event_listener("333", onMessage, "data333")
+
 print("=======main test start=================")
 print(e1:get_type())
 print(e2:get_type())

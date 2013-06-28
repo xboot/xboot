@@ -1,4 +1,5 @@
 local class = require("org.xboot.lang.class")
+local event = require("org.xboot.event.event")
 
 ---
 -- All classes that dispatch events inherit from 'event_dispatcher'. The target of
@@ -112,7 +113,7 @@ end
 function M:dispatch_event(event)
 	assert(event.__type)
 
-	event.__target = self
+	event.__target = event.__target or self
 	event.__stoped = false
 
 	local els = self.__event_listeners_map[event.__type] or {}

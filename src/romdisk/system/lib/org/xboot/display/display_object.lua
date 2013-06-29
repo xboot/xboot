@@ -11,7 +11,7 @@ function M:init(name)
 
 	self.__parent = self
 	self.__children = {}
-	
+
 	self.__name = name
 end
 

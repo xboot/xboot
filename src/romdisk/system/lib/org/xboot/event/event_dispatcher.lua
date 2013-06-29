@@ -39,7 +39,7 @@ function M:has_event_listener(type, listener, data)
 		return true
     end
     
-	for k, v in ipairs(els) do
+	for i, v in ipairs(els) do
 		if v.__listener == listener and v.__data == data then
 			return true
 		end
@@ -94,9 +94,9 @@ function M:remove_event_listener(type, listener, data)
 
 	local els = self.__event_listeners_map[type] or {}
     
-	for k, v in ipairs(els) do
+	for i, v in ipairs(els) do
 		if v.__type == type and v.__listener == listener and v.__data == data then
-			table.remove(els, k)
+			table.remove(els, i)
 			return true
 		end
 	end
@@ -118,7 +118,7 @@ function M:dispatch_event(event)
 
 	local els = self.__event_listeners_map[event.__type] or {}
 
-	for k, v in ipairs(els) do
+	for i, v in ipairs(els) do
 		if v.__type == event.__type then
 			if v.__data then
 				v.__listener(v.__data, event)

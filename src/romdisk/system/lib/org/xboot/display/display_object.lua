@@ -1,4 +1,5 @@
 local class = require("org.xboot.lang.class")
+local table = require("org.xboot.lang.table")
 local event = require("org.xboot.event.event")
 local event_dispatcher = require("org.xboot.event.event_dispatcher")
 

@@ -1,11 +1,11 @@
-if os.getenv('DEBUG_MODE') then require "debugger"() end
+--if os.getenv('DEBUG_MODE') then require "debugger"() end
 
 local class = require("org.xboot.lang.class")
+local table = require("org.xboot.lang.table")
 local event = require("org.xboot.event.event")
 local event_dispatcher = require("org.xboot.event.event_dispatcher")
 local display_object = require("org.xboot.display.display_object")
 local _G = _G
-
 
 local obj1 = display_object:new("obj1")
 local obj2 = display_object:new("obj2")

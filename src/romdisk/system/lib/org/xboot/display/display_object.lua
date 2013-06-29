@@ -13,7 +13,13 @@ function M:init(dbg)
 	self.__parent = self
 	self.__children = {}
 
-	-- Just for debug information
+	self.__x = 0
+	self.__y = 0
+	self.__w = 0
+	self.__h = 0
+	self.__visible = false
+
+	-- Just for debugging information
 	self.__debug = dbg
 end
 
@@ -89,7 +95,7 @@ function M:remove_child(child)
 		return false
 	end
 
-	local children = self.__children
+	local children = self:get_children()
 	local index = 0
 
 	for i, v in ipairs(children) do
@@ -149,7 +155,16 @@ end
 -- @return `true` if the child object is contained in the subtree of this 'display_object'
 -- instance, otherwise `false`.
 function M:contains(child)
---TODO
+	local children = self:get_children()
+	
+	for i, v in ipairs(children) do
+		if v == child then
+			return true
+--		elseif v:contains(child) then
+--			return true
+		end
+	end
+
 	return false
 end
 
@@ -161,6 +176,16 @@ end
 -- @return The parent display object.
 function M:get_parent()
 	return self.__parent
+end
+
+---
+-- Returns the children object of this display object.
+-- 
+-- @param self
+-- @return The children of this display object.
+----------------------------------------------------------------
+function M:get_children()
+	return self.__children
 end
 
 ---
@@ -193,7 +218,7 @@ end
 -- @param child (display_object) The child display object to identify.
 -- @return The index of the specified child display object.
 function M:get_child_index(child)
-	local children = self.__children
+	local children = self:get_children()
 	local index = 0
 
 	for i, v in ipairs(children) do
@@ -204,6 +229,165 @@ function M:get_child_index(child)
 	end
 	
 	return index
+end
+
+--- 
+-- Returns the x coordinate of the display object.
+-- 
+-- @function [parent=#display_object] getx
+-- @param self
+-- @return The x coordinate of the display object.
+function M:getx()
+	return self.__x
+end
+
+--- 
+-- Sets the x coordinate of the display object.
+-- 
+-- @function [parent=#display_object] setx
+-- @param self
+-- @param x (number) The new x coordinate of the display object.
+function M:setx(x)
+	self.__x = x
+end
+
+--- 
+-- Returns the y coordinate of the display object.
+-- 
+-- @function [parent=#display_object] gety
+-- @param self
+-- @return The y coordinate of the display object.
+function M:gety()
+	return self.__y
+end
+
+--- 
+-- Sets the y coordinate of the display object.
+-- 
+-- @function [parent=#display_object] sety
+-- @param self
+-- @param y (number) The new y coordinate of the display object.
+function M:sety(y)
+	self.__y = y
+end
+
+--- 
+-- Returns the x and y coordinates of the display object.
+-- 
+-- @function [parent=#display_object] getxy
+-- @param self
+-- @return The x and y coordinates of the display object.
+function M:getxy()
+	return self.__x, self.__y
+end
+
+---
+-- Sets the x and y coordinates of the display object.
+-- 
+-- @function [parent=#display_object] setxy
+-- @param self
+-- @param x (number) The new x coordinate of the display object.
+-- @param y (number) The new y coordinate of the display object.
+function M:setxy(x, y)
+	self.__x = x
+	self.__y = y
+end
+
+---
+-- Returns the width of the display object, in pixels. The width is calculated based on the
+-- bounds of the content of the display object.
+-- 
+-- @function [parent=#display_object] getw
+-- @param self
+-- @return Width of the display object.
+function M:getw()
+    return self.__w
+end
+
+--- 
+-- Returns the height of the sprite, in pixels. The height is calculated based on the
+-- bounds of the content of the display object.
+-- 
+-- @function [parent=#display_object] geth
+-- @param self
+-- @return Height of the display object.
+function M:geth()
+    return self.__h
+end
+
+---
+-- Returns the width and height of the display object, in pixels. The width and height is
+-- calculated based on the bounds of the content of the display object.
+-- 
+-- @function [parent=#display_object] getwh
+-- @param self
+-- @return The width and height of the display object.
+function M:getwh()
+    return self.__w, self.__h
+end
+
+--- 
+-- Converts the x,y coordinates from the global to the display object's (local) coordinates.
+-- 
+-- @function [parent=#display_object] global_to_local
+-- @param self
+-- @param x (number) x coordinate of the global coordinate.
+-- @param y (number) y coordinate of the global coordinate.
+-- @return x coordinate relative to the display object.
+-- @return y coordinate relative to the display object.
+function M:global_to_local(x, y)
+	return x - self.__x, y - self.__y
+end
+
+--- 
+-- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
+-- 
+-- @function [parent=#display_object] local_to_global
+-- @param self
+-- @param x (number) x coordinate of the local coordinate.
+-- @param y (number) y coordinate of the local coordinate.
+-- @return x coordinate relative to the display area.
+-- @return y coordinate relative to the display area.
+function M:local_to_global(x, y)
+	return x + self.__x, y + self.__y
+end
+
+---
+-- Returns whether or not the display object is visible. Child display objects that are not visible are also taken
+-- into consideration while calculating bounds.
+-- 
+-- @function [parent=#display_object] get_visible
+-- @param self
+-- @return A value of 'true' if display object is visible; 'false' otherwise.
+function M:get_visible()
+    return self.__visible
+end
+
+---
+-- Sets whether or not the display object is visible. Display objects that are not visible are also taken
+-- into consideration while calculating bounds.
+-- 
+-- @function [parent=#display_object] set_visible
+-- @param self
+-- @param visible (bool) whether or not the display object is visible
+function M:set_visible(visible)
+	self.__visible = visible
+end
+
+---
+-- Returns a rectangle (as x, y, width and height) that encloses the display object as
+-- it appears in another display object’s coordinate system.
+-- 
+-- @function [parent=#display_object] get_bounds
+-- @param self
+-- @param target (display_object) The display object that defines the other coordinate system to transform
+-- @return 4 values as x, y, width and height of bounds
+function M:get_bounds(target)
+	if target ~= nil and target ~= self then
+
+	else
+		return self.__x, self.__y, self.__w, self.__h
+	end
 end
 
 return M

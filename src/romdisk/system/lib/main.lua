@@ -15,13 +15,30 @@ local obj5 = display_object:new("obj5")
 local obj6 = display_object:new("obj6")
 
 obj1:add_child(obj2)
-obj1:add_child(obj3)
-obj2:add_child(obj4)
-obj2:add_child(obj5)
-obj3:add_child(obj6)
+obj2:add_child(obj3)
+obj3:add_child(obj4)
+obj4:add_child(obj5)
+--obj5:add_child(obj6)
 
-obj2:remove_child(obj4)
+if(obj1:contains(nil)) then
+	print("ok1")
+end
 
+if(obj1:contains(obj3)) then
+	print("ok2")
+end
+
+if(obj1:contains(obj4)) then
+	print("ok3")
+end
+
+if(obj1:contains(obj5)) then
+	print("ok4")
+end
+
+if(obj1:contains(obj6)) then
+	print("ok5")
+end
 
 
 local e1 = event("abc")

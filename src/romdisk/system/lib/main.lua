@@ -20,6 +20,8 @@ obj2:add_child(obj4)
 obj2:add_child(obj5)
 obj3:add_child(obj6)
 
+obj2:remove_child(obj4)
+
 
 
 local e1 = event("abc")

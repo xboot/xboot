@@ -7,13 +7,14 @@ local event_dispatcher = require("org.xboot.event.event_dispatcher")
 -- @module display_object
 local M = class(event_dispatcher)
 
-function M:init(name)
+function M:init(dbg)
 	event_dispatcher.init(self)
 
 	self.__parent = self
 	self.__children = {}
 
-	self.__name = name
+	-- Just for debug information
+	self.__debug = dbg
 end
 
 ---
@@ -34,10 +35,14 @@ function M:add_child(child)
 		return false
 	end
 
+	if child:get_parent() == self then
+		return false
+	end
+
 	child:remove_from_parent()
 	table.insert(self.__children, child)
 	child.__parent = self
-	
+
 	return true
 end
 
@@ -57,6 +62,10 @@ end
 -- @return A value of 'true' or 'false'.
 function M:add_child_at(child, index)
 	if child == nil or self == child then
+		return false
+	end
+
+	if child:get_parent() == self then
 		return false
 	end
 
@@ -83,9 +92,9 @@ function M:remove_child(child)
 	local children = self.__children
 	local index = 0
 
-	for k, v in ipairs(children) do
+	for i, v in ipairs(children) do
 		if v == child then
-			index = k
+			index = i
 			break
 		end
 	end
@@ -96,7 +105,7 @@ function M:remove_child(child)
 
 	table.remove(children, index)
 	child.__parent = child
-	
+
 	return true
 end
 
@@ -110,7 +119,7 @@ end
 -- @param index (number) The child index of the display object to remove.
 -- @return A value of 'true' or 'false'.
 function M:remove_child_at(index)
-	local child = self.__children[index]
+	local child = self:get_child_at(index)
 	return self:remove_child(child)
 end
 
@@ -187,9 +196,9 @@ function M:get_child_index(child)
 	local children = self.__children
 	local index = 0
 
-	for k, v in ipairs(children) do
+	for i, v in ipairs(children) do
 		if v == child then
-			index = k
+			index = i
 			break
 		end
 	end

@@ -22,6 +22,7 @@
 
 #include <fifo.h>
 #include <spinlock.h>
+#include <fb/cursor.h>
 #include <xboot/event.h>
 
 static struct event_base_t __event_base = {
@@ -34,8 +35,6 @@ static spinlock_t __event_base_lock = SPIN_LOCK_INIT();
 
 struct event_base_t * __event_base_alloc(void)
 {
-	return NULL;
-#if 0
 	struct event_base_t * eb;
 
 	eb = malloc(sizeof(struct event_base_t));
@@ -43,138 +42,93 @@ struct event_base_t * __event_base_alloc(void)
 		return NULL;
 
 	eb->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_LENGTH);
-	eb->listener = malloc(sizeof(struct event_listener_t));
-	if(!eb->fifo || !eb->listener)
+	if(!eb->fifo)
 	{
-		if(eb->fifo)
-			fifo_free(eb->fifo);
-		if(eb->listener)
-			free(eb->listener);
 		free(eb);
 		return NULL;
 	}
 
 	spin_lock_irq(&__event_base_lock);
-	init_list_head(&(eb->listener->entry));
 	list_add_tail(&eb->entry, &(__event_base.entry));
 	spin_unlock_irq(&__event_base_lock);
 
 	return eb;
-#endif
 }
 
 void __event_base_free(struct event_base_t * eb)
 {
-#if 0
 	struct event_base_t * ebpos, * ebn;
-	struct event_listener_t * elpos, * eln;
 
 	if(!eb)
 		return;
 
-	spin_lock_irq(&__event_base_lock);
 	list_for_each_entry_safe(ebpos, ebn, &(__event_base.entry), entry)
 	{
 		if(ebpos == eb)
 		{
+			spin_lock_irq(&__event_base_lock);
+			list_del(&(ebpos->entry));
+			spin_unlock_irq(&__event_base_lock);
+
 			if(ebpos->fifo)
 				fifo_free(ebpos->fifo);
-
-			if(ebpos->listener)
-			{
-				list_for_each_entry_safe(elpos, eln, &(ebpos->listener->entry), entry)
-				{
-					list_del(&(elpos->entry));
-				}
-				free(eb->listener);
-			}
-
-			list_del(&(ebpos->entry));
 			free(ebpos);
 		}
 	}
-	spin_unlock_irq(&__event_base_lock);
-#endif
 }
 
-struct event_listener_t * event_listener_alloc(enum event_type_t type, 	event_listener_callback_t callback, void * data)
+void push_event(struct event_t * event)
+{
+	struct event_base_t * pos, * n;
+
+	if(!event)
+		return;
+
+	event->timestamp = jiffies;
+
+	list_for_each_entry_safe(pos, n, &(__event_base.entry), entry)
+	{
+		fifo_put(pos->fifo, (u8_t *)event, sizeof(struct event_t));
+	}
+}
+
+void push_event_mouse(u8_t btndown, u8_t btnup, s32_t relx, s32_t rely)
+{
+	struct event_t event;
+
+	if(btndown || btnup)
+	{
+		if(btndown)
+		{
+			event.type = EVENT_TYPE_MOUSE_DOWN;
+			event.e.mouse.x = cursor_xpos_with_offset(relx);
+			event.e.mouse.y = cursor_ypos_with_offset(rely);
+			event.e.mouse.button = btndown;
+			push_event(&event);
+		}
+
+		if(btnup)
+		{
+			event.type = EVENT_TYPE_MOUSE_UP;
+			event.e.mouse.x = cursor_xpos_with_offset(relx);
+			event.e.mouse.y = cursor_ypos_with_offset(rely);
+			event.e.mouse.button = btnup;
+			push_event(&event);
+		}
+	}
+	else if((relx != 0) || (rely != 0))
+	{
+		event.type = EVENT_TYPE_MOUSE_MOVE;
+		event.e.mouse.x = cursor_xpos_with_offset(relx);
+		event.e.mouse.y = cursor_ypos_with_offset(rely);
+		event.e.mouse.button = 0;
+		push_event(&event);
+	}
+}
+
+struct event_t * peek_event(void)
 {
 	return NULL;
-#if 0
-	struct event_listener_t * el;
-
-	el = malloc(sizeof(struct event_listener_t));
-	if(!el)
-		return NULL;
-
-	el->type = type;
-	el->callback = callback;
-	el->data = data;
-
-	return el;
-#endif
-}
-
-void event_listener_free(struct event_listener_t * el)
-{
-#if 0
-	if(el)
-		free(el);
-#endif
-}
-
-bool_t event_base_add_event_listener(struct event_base_t * eb, struct event_listener_t * el)
-{
-	return FALSE;
-#if 0
-	struct event_listener_t * elpos, * eln;
-
-	if(!el || !eb || !eb->listener)
-		return FALSE;
-
-	spin_lock_irq(&__event_base_lock);
-	list_for_each_entry_safe(elpos, eln, &(eb->listener->entry), entry)
-	{
-		if(elpos == el)
-		{
-			spin_unlock_irq(&__event_base_lock);
-			return FALSE;
-		}
-	}
-
-	list_add_tail(&el->entry, &(eb->listener->entry));
-	spin_unlock_irq(&__event_base_lock);
-
-	return TRUE;
-#endif
-}
-
-bool_t event_base_del_event_listener(struct event_base_t * eb, struct event_listener_t * el)
-{
-	return FALSE;
-#if 0
-	struct event_listener_t * elpos, * eln;
-
-	if(!el || !eb || !eb->listener)
-		return FALSE;
-
-	spin_lock_irq(&__event_base_lock);
-	list_for_each_entry_safe(elpos, eln, &(eb->listener->entry), entry)
-	{
-		if(elpos == el)
-		{
-			list_del(&(elpos->entry));
-		}
-	}
-	spin_unlock_irq(&__event_base_lock);
-
-	return TRUE;
-#endif
-}
-
-bool_t event_base_dispatcher(struct event_base_t * eb)
-{
-	return FALSE;
 #if 0
 	struct event_listener_t * elpos, * eln, * el;
 	struct event_t event;
@@ -202,27 +156,5 @@ bool_t event_base_dispatcher(struct event_base_t * eb)
 	spin_unlock_irq(&__event_base_lock);
 
 	return ret;
-#endif
-}
-
-bool_t event_send(struct event_t * event)
-{
-	return FALSE;
-#if 0
-	struct event_base_t * pos, * n;
-
-	if(!event)
-		return FALSE;
-
-	event->timestamp = jiffies;
-
-	//spin_lock_irq(&__event_base_lock);
-	list_for_each_entry_safe(pos, n, &(__event_base.entry), entry)
-	{
-		fifo_put(pos->fifo, (u8_t *)event, sizeof(struct event_t));
-	}
-	//spin_unlock_irq(&__event_base_lock);
-
-	return TRUE;
 #endif
 }

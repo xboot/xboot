@@ -135,35 +135,16 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 	}
 }
 
-struct event_t * peek_event(void)
+bool_t peek_event(struct event_base_t * eb, struct event_t * event)
 {
-	return NULL;
-#if 0
-	struct event_listener_t * elpos, * eln, * el;
-	struct event_t event;
 	bool_t ret;
 
-	if(!eb || !eb->listener)
+	if(!eb || !event)
 		return FALSE;
 
 	spin_lock_irq(&__event_base_lock);
-	ret = (fifo_get(eb->fifo, (u8_t *)&event, sizeof(struct event_t)) == sizeof(struct event_t));
-	if(ret)
-	{
-		el = eb->listener;
-		list_for_each_entry_safe(elpos, eln, &(el->entry), entry)
-		{
-			if(elpos->type == event.type)
-			{
-				if(elpos->callback)
-				{
-					elpos->callback(&event, elpos->data);
-				}
-			}
-		}
-	}
+	ret = (fifo_get(eb->fifo, (u8_t *)event, sizeof(struct event_t)) == sizeof(struct event_t));
 	spin_unlock_irq(&__event_base_lock);
 
 	return ret;
-#endif
 }

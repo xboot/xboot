@@ -35,10 +35,12 @@ struct event_t {
 	u32_t timestamp;
 
 	union {
+		/* key */
 		struct {
 			u32_t code;
 		} key;
 
+		/* mouse */
 		struct {
 			u32_t button;
 			s32_t x, y;
@@ -57,6 +59,8 @@ struct event_t {
 			s32_t relz;
 			s32_t x, y;
 		} mouse_scroll;
+
+		/* touches */
 	} e;
 };
 
@@ -69,7 +73,7 @@ struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
 void push_event(struct event_t * event);
 void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t relz);
-struct event_t * peek_event(void);
+bool_t peek_event(struct event_base_t * eb, struct event_t * event);
 
 #ifdef __cplusplus
 }

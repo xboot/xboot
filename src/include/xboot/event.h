@@ -54,7 +54,8 @@ struct event_t {
 		} mouse_up;
 
 		struct {
-			s32_t z;
+			s32_t relz;
+			s32_t x, y;
 		} mouse_scroll;
 	} e;
 };

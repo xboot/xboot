@@ -110,7 +110,9 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 	if(relz != 0)
 	{
 		event.type = EVENT_TYPE_MOUSE_SCROLL;
-		event.e.mouse_scroll.z = relz;
+		event.e.mouse_scroll.relz = relz;
+		event.e.mouse_scroll.x = get_cursor_xpos();
+		event.e.mouse_scroll.y = get_cursor_ypos();
 		push_event(&event);
 	}
 

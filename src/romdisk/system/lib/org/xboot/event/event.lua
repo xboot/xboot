@@ -8,40 +8,44 @@ local class = require("org.xboot.lang.class")
 local M = class()
 
 ---
--- @field [parent=#event] KEY_DOWN key_down
-M.KEY_DOWN = "key_down"
+-- @field [parent=#event] KEY_DOWN keydown
+M.KEY_DOWN = "keydown"
 
 ---
--- @field [parent=#event] KEY_UP key_up
-M.KEY_UP = "key_up"
+-- @field [parent=#event] KEY_UP keyup
+M.KEY_UP = "keyup"
 
 ---
--- @field [parent=#event] MOUSE_DOWN mouse_down
-M.MOUSE_DOWN = "mouse_down"
+-- @field [parent=#event] MOUSE_DOWN mousedown
+M.MOUSE_DOWN = "mousedown"
 
 ---
--- @field [parent=#event] MOUSE_MOVE mouse_move
-M.MOUSE_MOVE = "mouse_move"
+-- @field [parent=#event] MOUSE_MOVE mousemove
+M.MOUSE_MOVE = "mousemove"
 
 ---
--- @field [parent=#event] MOUSE_UP mouse_up
-M.MOUSE_UP = "mouse_up"
+-- @field [parent=#event] MOUSE_UP mouseup
+M.MOUSE_UP = "mouseup"
 
 ---
--- @field [parent=#event] TOUCHES_BEGAN touches_began
-M.TOUCHES_BEGAN = "touches_began"
+-- @field [parent=#event] MOUSE_WHEEL mousewheel
+M.MOUSE_WHEEL = "mousewheel"
 
 ---
--- @field [parent=#event] TOUCHES_MOVE touches_move
-M.TOUCHES_MOVE = "touches_move"
+-- @field [parent=#event] TOUCHES_BEGAN touchesbegan
+M.TOUCHES_BEGAN = "touchesbegan"
 
 ---
--- @field [parent=#event] TOUCHES_END touches_end
-M.TOUCHES_END = "touches_end"
+-- @field [parent=#event] TOUCHES_MOVE touchesmove
+M.TOUCHES_MOVE = "touchesmove"
 
 ---
--- @field [parent=#event] TOUCHES_CANCEL touches_cancel
-M.TOUCHES_CANCEL = "touches_cancel"
+-- @field [parent=#event] TOUCHES_END touchesend
+M.TOUCHES_END = "touchesend"
+
+---
+-- @field [parent=#event] TOUCHES_CANCEL touchescancel
+M.TOUCHES_CANCEL = "touchescancel"
 
 ---
 -- Creates a new 'event' object to be dispatched from an 'event_dispatcher'.

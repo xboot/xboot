@@ -16,7 +16,7 @@ enum event_type_t {
 	EVENT_TYPE_MOUSE_DOWN			= 2000,
 	EVENT_TYPE_MOUSE_MOVE			= 2001,
 	EVENT_TYPE_MOUSE_UP				= 2002,
-	EVENT_TYPE_MOUSE_SCROLL			= 2003,
+	EVENT_TYPE_MOUSE_WHEEL			= 2003,
 
 	EVENT_TYPE_TOUCHES_BEGAN			= 3000,
 	EVENT_TYPE_TOUCHES_MOVE			= 3001,
@@ -56,9 +56,9 @@ struct event_t {
 		} mouse_up;
 
 		struct {
-			s32_t relz;
+			s32_t delta;
 			s32_t x, y;
-		} mouse_scroll;
+		} mouse_wheel;
 
 		/* touches */
 	} e;
@@ -72,7 +72,7 @@ struct event_base_t {
 struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
 void push_event(struct event_t * event);
-void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t relz);
+void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t delta);
 bool_t peek_event(struct event_base_t * eb, struct event_t * event);
 
 #ifdef __cplusplus

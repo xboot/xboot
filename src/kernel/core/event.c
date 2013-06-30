@@ -92,7 +92,7 @@ void push_event(struct event_t * event)
 	}
 }
 
-void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t relz)
+void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t delta)
 {
 	struct event_t event;
 
@@ -107,12 +107,12 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 		push_event(&event);
 	}
 
-	if(relz != 0)
+	if(delta != 0)
 	{
-		event.type = EVENT_TYPE_MOUSE_SCROLL;
-		event.e.mouse_scroll.relz = relz;
-		event.e.mouse_scroll.x = get_cursor_xpos();
-		event.e.mouse_scroll.y = get_cursor_ypos();
+		event.type = EVENT_TYPE_MOUSE_WHEEL;
+		event.e.mouse_wheel.delta = delta;
+		event.e.mouse_wheel.x = get_cursor_xpos();
+		event.e.mouse_wheel.y = get_cursor_ypos();
 		push_event(&event);
 	}
 

@@ -5,6 +5,8 @@ local table = require("org.xboot.lang.table")
 local event = require("org.xboot.event.event")
 local event_dispatcher = require("org.xboot.event.event_dispatcher")
 local display_object = require("org.xboot.display.display_object")
+local event_peek = require("org.xboot.event.event_peek")
+local printr = require("org.xboot.util.printr")
 
 local top  = display_object:new("top")
 local obj1 = display_object:new("obj1")
@@ -34,6 +36,18 @@ obj4:add_event_listener("et-obj4", function(e) print(e:get_type() .. ' [OBJ4]') 
 obj5:add_event_listener("et-obj5", function(e) print(e:get_type() .. ' [OBJ5]') end)
 obj6:add_event_listener("et-obj6", function(e) print(e:get_type() .. ' [OBJ6]') end)  
 
+--obj1:dispatch_event(event:new("et-obj1"))
 print("=======main test start=================")
-obj1:dispatch_event(event:new("et-obj1"))
+
+while true do
+	local e = event_peek.peek()
+	if e ~= nil then
+		--if e.type == "mousedown" then
+			printr(e)
+			print("===========================")
+			--print("[" .. e.x .. "," .. e.y .. "]")
+		--end
+	end
+end
+
 print("=======main test end=================")

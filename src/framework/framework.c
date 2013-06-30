@@ -24,6 +24,7 @@
 #include <framework/framework.h>
 
 static const luaL_Reg xboot_libs[] = {
+	{ "org.xboot.event.event_peek",	luaopen_event },
 	{ "xboot.framerate",				luaopen_framerate },
 	{ "org.xboot.base64",			luaopen_base64 },
 	{ "org.xboot.cairo",				luaopen_cairo },

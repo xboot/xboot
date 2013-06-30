@@ -92,36 +92,43 @@ void push_event(struct event_t * event)
 	}
 }
 
-void push_event_mouse(u8_t btndown, u8_t btnup, s32_t relx, s32_t rely)
+void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t relz)
 {
 	struct event_t event;
 
-	if(btndown || btnup)
-	{
-		if(btndown)
-		{
-			event.type = EVENT_TYPE_MOUSE_DOWN;
-			event.e.mouse.x = cursor_xpos_with_offset(relx);
-			event.e.mouse.y = cursor_ypos_with_offset(rely);
-			event.e.mouse.button = btndown;
-			push_event(&event);
-		}
+	btndown &= (MOUSE_BUTTON_LEFT | MOUSE_BUTTON_RIGHT | MOUSE_BUTTON_MIDDLE);
+	btnup &= (MOUSE_BUTTON_LEFT | MOUSE_BUTTON_RIGHT | MOUSE_BUTTON_MIDDLE);
 
-		if(btnup)
-		{
-			event.type = EVENT_TYPE_MOUSE_UP;
-			event.e.mouse.x = cursor_xpos_with_offset(relx);
-			event.e.mouse.y = cursor_ypos_with_offset(rely);
-			event.e.mouse.button = btnup;
-			push_event(&event);
-		}
-	}
-	else if((relx != 0) || (rely != 0))
+	if((relx != 0) || (rely != 0))
 	{
 		event.type = EVENT_TYPE_MOUSE_MOVE;
-		event.e.mouse.x = cursor_xpos_with_offset(relx);
-		event.e.mouse.y = cursor_ypos_with_offset(rely);
-		event.e.mouse.button = 0;
+		event.e.mouse_move.x = cursor_xpos_with_offset(relx);
+		event.e.mouse_move.y = cursor_ypos_with_offset(rely);
+		push_event(&event);
+	}
+
+	if(relz != 0)
+	{
+		event.type = EVENT_TYPE_MOUSE_SCROLL;
+		event.e.mouse_scroll.z = relz;
+		push_event(&event);
+	}
+
+	if(btndown)
+	{
+		event.type = EVENT_TYPE_MOUSE_DOWN;
+		event.e.mouse_down.button = btndown;
+		event.e.mouse_down.x = get_cursor_xpos();
+		event.e.mouse_down.y = get_cursor_ypos();
+		push_event(&event);
+	}
+
+	if(btnup)
+	{
+		event.type = EVENT_TYPE_MOUSE_UP;
+		event.e.mouse_up.button = btnup;
+		event.e.mouse_up.x = get_cursor_xpos();
+		event.e.mouse_up.y = get_cursor_ypos();
 		push_event(&event);
 	}
 }

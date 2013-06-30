@@ -16,6 +16,7 @@ enum event_type_t {
 	EVENT_TYPE_MOUSE_DOWN			= 2000,
 	EVENT_TYPE_MOUSE_MOVE			= 2001,
 	EVENT_TYPE_MOUSE_UP				= 2002,
+	EVENT_TYPE_MOUSE_SCROLL			= 2003,
 
 	EVENT_TYPE_TOUCHES_BEGAN			= 3000,
 	EVENT_TYPE_TOUCHES_MOVE			= 3001,
@@ -26,6 +27,7 @@ enum event_type_t {
 enum {
 	MOUSE_BUTTON_LEFT					= (0x1 << 0),
 	MOUSE_BUTTON_RIGHT				= (0x1 << 1),
+	MOUSE_BUTTON_MIDDLE				= (0x1 << 2),
 };
 
 struct event_t {
@@ -33,14 +35,27 @@ struct event_t {
 	u32_t timestamp;
 
 	union {
-		struct key_event_t {
+		struct {
 			u32_t code;
 		} key;
 
-		struct mouse_event_t {
+		struct {
+			u32_t button;
 			s32_t x, y;
-			u8_t button;
-		} mouse;
+		} mouse_down;
+
+		struct {
+			s32_t x, y;
+		} mouse_move;
+
+		struct {
+			u32_t button;
+			s32_t x, y;
+		} mouse_up;
+
+		struct {
+			s32_t z;
+		} mouse_scroll;
 	} e;
 };
 
@@ -52,7 +67,7 @@ struct event_base_t {
 struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
 void push_event(struct event_t * event);
-void push_event_mounse(u8_t btndown, u8_t btnup, s32_t relx, s32_t rely);
+void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t relz);
 struct event_t * peek_event(void);
 
 #ifdef __cplusplus

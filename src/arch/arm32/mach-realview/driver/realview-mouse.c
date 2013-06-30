@@ -62,8 +62,8 @@ static void mouse_interrupt(void)
 {
 	static u8_t packet[4], index = 0;
 	static u8_t btn_old = 0;
-	s32_t relx, rely;
-	u8_t btndown, btnup, btn;
+	s32_t relx, rely, relz;
+	u32_t btndown, btnup, btn;
 	u8_t status;
 
 	status = readb(REALVIEW_MOUSE_IIR);
@@ -74,7 +74,7 @@ static void mouse_interrupt(void)
 
 		if(index == 0)
 		{
-			btn = packet[0] & 0x3;
+			btn = packet[0] & 0x7;
 
 			btndown = (btn ^ btn_old) & btn;
 			btnup = (btn ^ btn_old) & btn_old;
@@ -89,8 +89,13 @@ static void mouse_interrupt(void)
 				rely = 0xffffff00 | packet[2];
 			else
 				rely = packet[2];
+			rely = -rely;
 
-			push_event_mouse(btndown, btnup, relx, -rely);
+			relz = packet[3] & 0xf;
+			if(relz == 0xf)
+				relz = -1;
+
+			push_event_mouse(btndown, btnup, relx, rely, relz);
 		}
 
 		status = readb(REALVIEW_MOUSE_IIR);

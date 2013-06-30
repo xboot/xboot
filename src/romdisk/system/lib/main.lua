@@ -8,45 +8,41 @@ local display_object = require("org.xboot.display.display_object")
 local event_peek = require("org.xboot.event.event_peek")
 local printr = require("org.xboot.util.printr")
 
+
 local top  = display_object:new("top")
 local obj1 = display_object:new("obj1")
 local obj2 = display_object:new("obj2")
 local obj3 = display_object:new("obj3")
-local obj4 = display_object:new("obj4")
-local obj5 = display_object:new("obj5")
-local obj6 = display_object:new("obj6")
 
 top:add_child(obj1)
 top:add_child(obj2)
 top:add_child(obj3)
-top:add_child(obj4)
-top:add_child(obj5)
-top:add_child(obj6)
 
-obj1:add_event_listener("et-obj1", 
-  function(e)
-    print(e:get_type() .. ' [OBJ1]')
-    obj2:dispatch_event(event:new("et-obj2"))
-    obj3:dispatch_event(event:new("et-obj3"))
-  end)
+local function obj1_on_mouse_down(e)
+    print("DOWN " .. " [" .. e.ext.x .. "," .. e.ext.y .. "]")
+end
 
-obj2:add_event_listener("et-obj2", function(e) print(e:get_type() .. ' [OBJ2]') end)
-obj3:add_event_listener("et-obj3", function(e) print(e:get_type() .. ' [OBJ3]') end)  
-obj4:add_event_listener("et-obj4", function(e) print(e:get_type() .. ' [OBJ4]') end)
-obj5:add_event_listener("et-obj5", function(e) print(e:get_type() .. ' [OBJ5]') end)
-obj6:add_event_listener("et-obj6", function(e) print(e:get_type() .. ' [OBJ6]') end)  
+local function obj1_on_mouse_up(e)
+	print("UP   " .. " [" .. e.ext.x .. "," .. e.ext.y .. "]")
+end
 
---obj1:dispatch_event(event:new("et-obj1"))
+local function obj1_on_mouse_move(e)
+	print("MOVE " .. " [" .. e.ext.x .. "," .. e.ext.y .. "]")
+end
+
+obj1:add_event_listener(event.MOUSE_DOWN, obj1_on_mouse_down)
+obj1:add_event_listener(event.MOUSE_UP, obj1_on_mouse_up)
+obj1:add_event_listener(event.MOUSE_MOVE, obj1_on_mouse_move)
+
 print("=======main test start=================")
 
 while true do
-	local e = event_peek.peek()
-	if e ~= nil then
-		--if e.type == "mousedown" then
-			printr(e)
-			print("===========================")
-			--print("[" .. e.x .. "," .. e.y .. "]")
-		--end
+	local ep = event_peek.peek()
+	if ep ~= nil then
+		local e = event:new(ep.type)
+		e.ext = ep
+		
+		obj1:dispatch_event(e)
 	end
 end
 

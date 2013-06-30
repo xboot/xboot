@@ -61,6 +61,10 @@ struct event_t {
 		} mouse_wheel;
 
 		/* touches */
+		struct {
+			s32_t x, y;
+			u32_t id;
+		} touches;
 	} e;
 };
 

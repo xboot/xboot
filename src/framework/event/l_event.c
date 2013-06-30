@@ -49,10 +49,24 @@ static int l_event_peek(lua_State * L)
 
 	/* key */
 	case EVENT_TYPE_KEY_DOWN:
-		return 0;
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_KEY_DOWN);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.key.code);
+		lua_setfield(L, -2, "code");
+		return 1;
 
 	case EVENT_TYPE_KEY_UP:
-		return 0;
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_KEY_UP);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.key.code);
+		lua_setfield(L, -2, "code");
+		return 1;
 
 	/* mouse */
 	case EVENT_TYPE_MOUSE_DOWN:
@@ -125,16 +139,60 @@ static int l_event_peek(lua_State * L)
 
 	/* touches */
 	case EVENT_TYPE_TOUCHES_BEGAN:
-		return 0;
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_TOUCHES_BEGAN);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.touches.x);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, event.e.touches.y);
+		lua_setfield(L, -2, "y");
+		lua_pushnumber(L, event.e.touches.id);
+		lua_setfield(L, -2, "id");
+		return 1;
 
 	case EVENT_TYPE_TOUCHES_MOVE:
-		return 0;
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_TOUCHES_MOVE);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.touches.x);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, event.e.touches.y);
+		lua_setfield(L, -2, "y");
+		lua_pushnumber(L, event.e.touches.id);
+		lua_setfield(L, -2, "id");
+		return 1;
 
 	case EVENT_TYPE_TOUCHES_END:
-		return 0;
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_TOUCHES_END);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.touches.x);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, event.e.touches.y);
+		lua_setfield(L, -2, "y");
+		lua_pushnumber(L, event.e.touches.id);
+		lua_setfield(L, -2, "id");
+		return 1;
 
 	case EVENT_TYPE_TOUCHES_CANCEL:
-		return 0;
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_TOUCHES_CANCEL);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.touches.x);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, event.e.touches.y);
+		lua_setfield(L, -2, "y");
+		lua_pushnumber(L, event.e.touches.id);
+		lua_setfield(L, -2, "id");
+		return 1;
 
 	default:
 		return 0;

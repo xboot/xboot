@@ -42,8 +42,8 @@ struct event_t {
 
 		/* mouse */
 		struct {
-			u32_t button;
 			s32_t x, y;
+			u32_t button;
 		} mouse_down;
 
 		struct {
@@ -51,13 +51,13 @@ struct event_t {
 		} mouse_move;
 
 		struct {
-			u32_t button;
 			s32_t x, y;
+			u32_t button;
 		} mouse_up;
 
 		struct {
-			s32_t delta;
 			s32_t x, y;
+			s32_t delta;
 		} mouse_wheel;
 
 		/* touches */

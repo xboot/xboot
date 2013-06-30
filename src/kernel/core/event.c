@@ -110,27 +110,27 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 	if(delta != 0)
 	{
 		event.type = EVENT_TYPE_MOUSE_WHEEL;
-		event.e.mouse_wheel.delta = delta;
 		event.e.mouse_wheel.x = get_cursor_xpos();
 		event.e.mouse_wheel.y = get_cursor_ypos();
+		event.e.mouse_wheel.delta = delta;
 		push_event(&event);
 	}
 
 	if(btndown)
 	{
 		event.type = EVENT_TYPE_MOUSE_DOWN;
-		event.e.mouse_down.button = btndown;
 		event.e.mouse_down.x = get_cursor_xpos();
 		event.e.mouse_down.y = get_cursor_ypos();
+		event.e.mouse_down.button = btndown;
 		push_event(&event);
 	}
 
 	if(btnup)
 	{
 		event.type = EVENT_TYPE_MOUSE_UP;
-		event.e.mouse_up.button = btnup;
 		event.e.mouse_up.x = get_cursor_xpos();
 		event.e.mouse_up.y = get_cursor_ypos();
+		event.e.mouse_up.button = btnup;
 		push_event(&event);
 	}
 }

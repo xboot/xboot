@@ -20,4 +20,3 @@ return function()
 	if not res then return -1 end
 	return tonumber(ret) or -1
 end
-

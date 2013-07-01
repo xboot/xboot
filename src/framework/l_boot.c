@@ -24,6 +24,6 @@
 
 int luaopen_boot(lua_State * L)
 {
-	luaL_dofile(L, "/romdisk/boot.lua");
+	luaL_dofile(L, "/romdisk/system/lib/boot.lua");
 	return 1;
 }

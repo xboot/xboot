@@ -25,10 +25,10 @@
 
 static const luaL_Reg xboot_libs[] = {
 	{ "org.xboot.buildin.event",		luaopen_event },
-	{ "xboot.framerate",				luaopen_framerate },
-	{ "org.xboot.base64",				luaopen_base64 },
-	{ "org.xboot.cairo",				luaopen_cairo },
-	{ "org.xboot.boot",					luaopen_boot },
+	{ "org.xboot.buildin.base64",		luaopen_base64 },
+	{ "org.xboot.buildin.cairo",		luaopen_cairo },
+	{ "org.xboot.buildin.framerate",	luaopen_framerate },
+	{ "org.xboot.buildin.boot",			luaopen_boot },
 	{ NULL, NULL }
 };
 

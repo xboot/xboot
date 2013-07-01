@@ -135,7 +135,7 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 	}
 }
 
-bool_t peek_event(struct event_base_t * eb, struct event_t * event)
+bool_t pump_event(struct event_base_t * eb, struct event_t * event)
 {
 	bool_t ret;
 

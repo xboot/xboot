@@ -33,12 +33,12 @@
 #define __TYPE_TOUCHES_END			"touchesend"
 #define __TYPE_TOUCHES_CANCEL		"touchescancel"
 
-static int l_event_peek(lua_State * L)
+static int l_event_pump(lua_State * L)
 {
 	struct event_t event;
 	u32_t button;
 
-	if(!peek_event(runtime_get()->__event_base, &event))
+	if(!pump_event(runtime_get()->__event_base, &event))
 		return 0;
 
 	switch(event.type)
@@ -202,7 +202,7 @@ static int l_event_peek(lua_State * L)
 }
 
 static const luaL_Reg l_event[] = {
-	{"peek",		l_event_peek},
+	{"pump",		l_event_pump},
 	{NULL, NULL}
 };
 

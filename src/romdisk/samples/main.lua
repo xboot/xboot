@@ -38,18 +38,20 @@ obj1:add_event_listener(event.MOUSE_MOVE, obj1_on_mouse_move)
 print("=======main test start=================")
 
 local tc = buildin_timecounter.new()
-while true do
-	print("delta: " .. tc:delta())
-	print("uptime: " .. tc:uptime())
-end
-
+local nt = tc:uptime() + 1
 while true do
 	local msg = buildin_event.pump()
+	
 	if msg ~= nil then
 		local e = event:new(msg.type)
 		e.msg = msg
-		
 		obj1:dispatch_event(e)
+	end
+	
+	if tc:uptime() >= nt then
+		nt = tc:uptime() + 1
+		print("delta: " .. tc:delta())
+		print("uptime: " .. tc:uptime())
 	end
 end
 

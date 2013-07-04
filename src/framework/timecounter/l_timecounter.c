@@ -23,7 +23,6 @@
 #include <framework/timecounter/l_timecounter.h>
 
 struct timecounter_t {
-	double counts;
 	double __current_time;
 	double __last_time;
 	double __start_time;
@@ -37,7 +36,6 @@ static double __time_stamp(void)
 static int l_new(lua_State * L)
 {
 	struct timecounter_t * tc = lua_newuserdata(L, sizeof(struct timecounter_t));
-	tc->counts = 0;
 	tc->__current_time = __time_stamp();
 	tc->__last_time = tc->__current_time;
 	tc->__start_time = tc->__current_time;
@@ -53,7 +51,6 @@ static const luaL_Reg l_timecounter[] = {
 static int m_reset(lua_State * L)
 {
 	struct timecounter_t * tc = luaL_checkudata(L, 1, MT_NAME_TIMECOUNTER);
-	tc->counts = 0;
 	tc->__current_time = __time_stamp();
 	tc->__last_time = tc->__current_time;
 	tc->__start_time = tc->__current_time;
@@ -63,7 +60,6 @@ static int m_reset(lua_State * L)
 static int m_delta(lua_State * L)
 {
 	struct timecounter_t * tc = luaL_checkudata(L, 1, MT_NAME_TIMECOUNTER);
-	tc->counts++;
 	tc->__last_time = tc->__current_time;
 	tc->__current_time = __time_stamp();
 	lua_pushnumber(L, tc->__current_time - tc->__last_time);

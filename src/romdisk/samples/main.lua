@@ -1,6 +1,7 @@
 --if os.getenv('DEBUG_MODE') then require "debugger"() end
 
 local buildin_event = require("org.xboot.buildin.event")
+local buildin_timecounter = require("org.xboot.buildin.timecounter")
 
 local class = require("org.xboot.lang.class")
 local table = require("org.xboot.lang.table")
@@ -35,6 +36,12 @@ obj1:add_event_listener(event.MOUSE_UP, obj1_on_mouse_up)
 obj1:add_event_listener(event.MOUSE_MOVE, obj1_on_mouse_move)
 
 print("=======main test start=================")
+
+local tc = buildin_timecounter.new()
+while true do
+	print("delta: " .. tc:delta())
+	print("uptime: " .. tc:uptime())
+end
 
 while true do
 	local msg = buildin_event.pump()

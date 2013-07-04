@@ -8,4 +8,8 @@
 		<title>Classic Video Game Tetris</title>
 		<command>tetris</command>
 	</item>
+	<item>
+		<title>Lua test ...</title>
+		<command>exec /romdisk/samples/</command>
+	</item>
 </menu>

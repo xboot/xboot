@@ -132,8 +132,8 @@ SRCDIRS	+=	arch/$(ARCH)/lib/gcc						\
 				framework/base64							\
 				framework/cairo							\
 				framework/event							\
-				framework/xfs								\
-				framework/framerate
+				framework/timecounter					\
+				framework/xfs
 
 #
 # Add external library

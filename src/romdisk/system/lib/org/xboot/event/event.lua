@@ -66,7 +66,7 @@ end
 -- @param self
 -- @return Type of event.
 function M:get_type()
-  return self.__type
+	return self.__type
 end
 
 ---
@@ -76,7 +76,7 @@ end
 -- @param self
 -- @return Target of event.
 function M:get_target()
-  return self.__target
+	return self.__target
 end
 
 ---

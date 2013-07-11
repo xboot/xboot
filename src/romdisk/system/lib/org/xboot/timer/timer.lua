@@ -66,7 +66,7 @@ end
 function M:cancel()
 	for i, v in ipairs(__timer_list) do
 		if v.__delay == self.__delay and v.__iteration == self.__iteration and v.__listener == self.__listener and v.__data == self.__data then
-			v.__running = false
+			v:pause()
 			table.remove(__timer_list, i)
 			return v.__count
 		end
@@ -90,8 +90,7 @@ function M:schedule(delta)
 
 				v.__time = 0
 				if v.__iteration ~= 0 and v.__count >= v.__iteration then
-					v.__running = false
-					table.remove(__timer_list, i)
+					v:cancel()
 				end
 			end
 		end

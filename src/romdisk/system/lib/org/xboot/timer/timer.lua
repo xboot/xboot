@@ -58,39 +58,17 @@ function M:pause()
 end
 
 ---
--- Resets and pauses the timer.
---
--- @function [parent=#timer] reset
--- @param self
-function M:reset()
-	self.__time = 0
-	self.__count = 0
-	self.__running = false
-end
-
----
--- Modify the timer parameters.
--- 
--- @function [parent=#timer] modify
--- @param self
--- @param delay (number) The delay in seconds, nil for no changed.
--- @param iteration (number) The number of times listener is to be invoked, nil for no changed.
-function M:modify(delay, iteration)
-	self.__delay = delay or self.__delay
-	self.__iteration = iteration or self.__iteration
-end
-
----
 -- Cancels the timer operation initiated with timer:new().
 -- 
 -- @function [parent=#timer] cancel
 -- @param self
+-- @return the number of iterations.
 function M:cancel()
 	for i, v in ipairs(__timer_list) do
-		if v.__delay == self.__delay and v.__iteration == self.__iteration and
-			v.__listener == self.__listener and v.__data == self.__data then
+		if v.__delay == self.__delay and v.__iteration == self.__iteration and v.__listener == self.__listener and v.__data == self.__data then
+			v.__running = false
 			table.remove(__timer_list, i)
-			break
+			return v.__count
 		end
 	end
 end
@@ -110,10 +88,11 @@ function M:schedule(delta)
 				v.__count = v.__count + 1
 				v.__listener(v, {time = v.__time, count = v.__count, data = v.__data})
 
+				v.__time = 0
 				if v.__iteration ~= 0 and v.__count >= v.__iteration then
 					v.__running = false
+					table.remove(__timer_list, i)
 				end
-				v.__time = 0
 			end
 		end
 	end

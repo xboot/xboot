@@ -1,14 +1,21 @@
 --if os.getenv('DEBUG_MODE') then require "debugger"() end
 
-local buildin_event = require("org.xboot.buildin.event")
-local buildin_timecounter = require("org.xboot.buildin.timecounter")
-
 local class = require("org.xboot.lang.class")
 local table = require("org.xboot.lang.table")
 local event = require("org.xboot.event.event")
 local event_dispatcher = require("org.xboot.event.event_dispatcher")
 local display_object = require("org.xboot.display.display_object")
+local timer = require("org.xboot.timer.timer")
 local printr = require("org.xboot.util.printr")
+
+
+
+
+printr(timer);
+print("-------------------------------------------")
+
+local buildin_event = require("org.xboot.buildin.event")
+local buildin_timecounter = require("org.xboot.buildin.timecounter")
 
 local top  = display_object:new("top")
 local obj1 = display_object:new("obj1")

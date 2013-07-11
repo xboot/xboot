@@ -1,4 +1,5 @@
---if os.getenv('DEBUG_MODE') then require "debugger"() end
+local buildin_event = require("org.xboot.buildin.event")
+local buildin_timecounter = require("org.xboot.buildin.timecounter")
 
 local class = require("org.xboot.lang.class")
 local table = require("org.xboot.lang.table")
@@ -9,22 +10,10 @@ local timer = require("org.xboot.timer.timer")
 local printr = require("org.xboot.util.printr")
 
 
+print("=======main test start=================")
 
-
-printr(timer);
-print("-------------------------------------------")
-
-local buildin_event = require("org.xboot.buildin.event")
-local buildin_timecounter = require("org.xboot.buildin.timecounter")
-
-local top  = display_object:new("top")
+-- obj1
 local obj1 = display_object:new("obj1")
-local obj2 = display_object:new("obj2")
-local obj3 = display_object:new("obj3")
-
-top:add_child(obj1)
-top:add_child(obj2)
-top:add_child(obj3)
 
 local function obj1_on_mouse_down(e)
     print("DOWN " .. " [" .. e.msg.x .. "," .. e.msg.y .. "]")
@@ -42,10 +31,20 @@ obj1:add_event_listener(event.MOUSE_DOWN, obj1_on_mouse_down)
 obj1:add_event_listener(event.MOUSE_UP, obj1_on_mouse_up)
 obj1:add_event_listener(event.MOUSE_MOVE, obj1_on_mouse_move)
 
-print("=======main test start=================")
+-- t1
+local function t1_on_timer(t, e)
+    print("t1, " .. e.count)
+end
+local t1 = timer:new(1, 0, t1_on_timer)
 
+-- t2
+local function t2_on_timer(t, e)
+    print("t2, " .. e.count)
+end
+local t2 = timer:new(1, 3, t2_on_timer)
+
+-- main
 local tc = buildin_timecounter.new()
-local nt = tc:uptime() + 1
 while true do
 	local msg = buildin_event.pump()
 	
@@ -54,12 +53,8 @@ while true do
 		e.msg = msg
 		obj1:dispatch_event(e)
 	end
-	
-	if tc:uptime() >= nt then
-		nt = tc:uptime() + 1
-		print("delta: " .. tc:delta())
-		print("uptime: " .. tc:uptime())
-	end
+
+	timer:schedule(tc:delta())
 end
 
 print("=======main test end=================")

@@ -24,7 +24,7 @@ end
 -- @param self
 -- @param type (string) The type of event.
 -- @param listener (optional) The listener function that processes the event.
--- @param data (optional) An optional data parameter that is passed as a first argument to the listener function.
+-- @param data (optional) An optional data parameter that is passed to the listener function.
 -- @return A value of 'true' if a listener of the specified type is registered; 'false' otherwise.
 function M:has_event_listener(type, listener, data)
 	assert(type)
@@ -120,12 +120,7 @@ function M:dispatch_event(event)
 
 	for i, v in ipairs(els) do
 		if v.__type == event.__type then
-			if v.__data then
-				v.__listener(v.__data, event)
-			else
-				v.__listener(event)
-			end
-
+			v.__listener(event, v.__data)
 			if event.__stoped == true then
 				break
 			end

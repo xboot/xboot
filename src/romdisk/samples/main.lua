@@ -15,15 +15,15 @@ print("=======main test start=================")
 -- obj1
 local obj1 = display_object:new("obj1")
 
-local function obj1_on_mouse_down(e)
+local function obj1_on_mouse_down(e, d)
     print("DOWN " .. " [" .. e.msg.x .. "," .. e.msg.y .. "]")
 end
 
-local function obj1_on_mouse_up(e)
+local function obj1_on_mouse_up(e, d)
 	print("UP   " .. " [" .. e.msg.x .. "," .. e.msg.y .. "]")
 end
 
-local function obj1_on_mouse_move(e)
+local function obj1_on_mouse_move(e, d)
 	print("MOVE " .. " [" .. e.msg.x .. "," .. e.msg.y .. "]")
 end
 

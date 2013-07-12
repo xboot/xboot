@@ -15,8 +15,8 @@ function M:init(dbg)
 
 	self.__x = 0
 	self.__y = 0
-	self.__w = 0
-	self.__h = 0
+	self.__w = 30
+	self.__h = 30
 	self.__visible = false
 
 	-- Just for debugging information

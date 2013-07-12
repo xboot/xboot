@@ -1,5 +1,6 @@
 local buildin_event = require("org.xboot.buildin.event")
 local buildin_timecounter = require("org.xboot.buildin.timecounter")
+local cairo = require("org.xboot.buildin.cairo")
 
 local class = require("org.xboot.lang.class")
 local table = require("org.xboot.lang.table")
@@ -9,39 +10,39 @@ local display_object = require("org.xboot.display.display_object")
 local timer = require("org.xboot.timer.timer")
 local printr = require("org.xboot.util.printr")
 
-
 print("=======main test start=================")
+local runtime = display_object:new("runtime")
 
--- obj1
-local obj1 = display_object:new("obj1")
+local d1 = display_object:new("d1")
+d1:add_event_listener(event.MOUSE_MOVE, function(e, d) d:setxy(e.msg.x, e.msg.y) end, d1)
 
-local function obj1_on_mouse_down(e, d)
-    print("DOWN " .. " [" .. e.msg.x .. "," .. e.msg.y .. "]")
+-------------------------------------------------------------------------
+function draw(d)
+	local cs = cairo.image_surface_create(cairo.FORMAT_ARGB32, 400, 400)
+	local cr = cairo.create(cs)
+
+	cr:save()
+	cr:set_source_rgb(0.9, 0.9, 0.9)
+	cr:paint()
+	cr:restore()
+	
+	cr:set_line_width(6)
+	cr:rectangle(d:getx(), d:gety(), d:getw(), d:geth())
+	cr:set_source_rgb(0, 0.7, 0)
+	cr:fill_preserve()
+	cr:set_source_rgb(0, 0, 0)
+	cr:stroke()
+	
+	cs:show()
+	collectgarbage("collect")
+	collectgarbage("step")
 end
 
-local function obj1_on_mouse_up(e, d)
-	print("UP   " .. " [" .. e.msg.x .. "," .. e.msg.y .. "]")
-end
-
-local function obj1_on_mouse_move(e, d)
-	print("MOVE " .. " [" .. e.msg.x .. "," .. e.msg.y .. "]")
-end
-
-obj1:add_event_listener(event.MOUSE_DOWN, obj1_on_mouse_down)
-obj1:add_event_listener(event.MOUSE_UP, obj1_on_mouse_up)
-obj1:add_event_listener(event.MOUSE_MOVE, obj1_on_mouse_move)
-
+------------------------------------------------------------------------------
 -- t1
-local function t1_on_timer(t, e)
-    print("t1, " .. e.count)
-end
-local t1 = timer:new(1, 0, t1_on_timer)
-
--- t2
-local function t2_on_timer(t, e)
-    print("t2, " .. e.count)
-end
-local t2 = timer:new(1, 3, t2_on_timer)
+local t1 = timer:new(1 / 20, 0, function(t, e)
+	draw(d1)
+end, "t1")
 
 -- main
 local tc = buildin_timecounter.new()
@@ -51,7 +52,7 @@ while true do
 	if msg ~= nil then
 		local e = event:new(msg.type)
 		e.msg = msg
-		obj1:dispatch_event(e)
+		d1:dispatch_event(e)
 	end
 
 	timer:schedule(tc:delta())

@@ -17,10 +17,11 @@ local d1 = display_object:new("d1")
 d1:add_event_listener(event.MOUSE_MOVE, function(e, d) d:setxy(e.msg.x, e.msg.y) end, d1)
 
 -------------------------------------------------------------------------
+--local cs = cairo.image_surface_create(cairo.FORMAT_ARGB32, 400, 400)
+local cs = cairo.xboot_surface_create()
+local cr = cairo.create(cs)
+	
 function draw(d)
-	local cs = cairo.image_surface_create(cairo.FORMAT_ARGB32, 400, 400)
-	local cr = cairo.create(cs)
-
 	cr:save()
 	cr:set_source_rgb(0.9, 0.9, 0.9)
 	cr:paint()
@@ -33,14 +34,14 @@ function draw(d)
 	cr:set_source_rgb(0, 0, 0)
 	cr:stroke()
 	
-	cs:show()
-	collectgarbage("collect")
-	collectgarbage("step")
+--	cs:show()
+--	collectgarbage("collect")
+--	collectgarbage("step")
 end
 
 ------------------------------------------------------------------------------
 -- t1
-local t1 = timer:new(1 / 20, 0, function(t, e)
+local t1 = timer:new(1 / 60, 0, function(t, e)
 	draw(d1)
 end, "t1")
 

@@ -35,6 +35,7 @@ static int l_cairo_create(lua_State * L)
 static const luaL_Reg l_cairo[] = {
 	{"create",							l_cairo_create},
 	{"surface_create_similar",			l_cairo_surface_create_similar},
+	{"xboot_surface_create",			l_cairo_xboot_surface_create},
 	{"image_surface_create",			l_cairo_image_surface_create},
 	{"image_surface_create_from_png",	l_cairo_image_surface_create_from_png},
 	{"pattern_create_rgb",				l_cairo_pattern_create_rgb},

@@ -13,6 +13,7 @@ extern "C" {
 #define	MT_NAME_CAIRO_PATTERN		"mt_name_cairo_pattern"
 #define	MT_NAME_CAIRO_MATRIX		"mt_name_cairo_matrix"
 
+int l_cairo_xboot_surface_create(lua_State * L);
 int l_cairo_image_surface_create(lua_State * L);
 int l_cairo_image_surface_create_from_png(lua_State * L);
 int l_cairo_surface_create_similar(lua_State * L);

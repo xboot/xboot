@@ -23,6 +23,15 @@
 #include <cairo.h>
 #include <framework/cairo/l_cairo.h>
 
+extern cairo_surface_t * cairo_xboot_surface_create(void);
+int l_cairo_xboot_surface_create(lua_State * L)
+{
+	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));
+	*cs = cairo_xboot_surface_create();
+	luaL_setmetatable(L, MT_NAME_CAIRO_SURFACE);
+	return 1;
+}
+
 int l_cairo_image_surface_create(lua_State * L)
 {
 	cairo_format_t format = (cairo_format_t)luaL_checkint(L, 1);

@@ -51,6 +51,52 @@
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
 
+
+struct cairo_xboot_device_t {
+	char * name;
+	struct fb * fb;
+	struct surface_t * screen;
+	void * pixels;
+	u32_t width;
+	u32_t height;
+};
+
+static void cairo_xboot_surface_destroy(void * device)
+{
+	struct cairo_xboot_device_t * dev = (struct cairo_xboot_device_t *) device;
+
+	if (!dev)
+		return;
+	free(dev);
+}
+
+cairo_surface_t * cairo_xboot_surface_create(void)
+{
+	struct cairo_xboot_device_t * device;
+	struct fb * fb;
+	cairo_surface_t * surface;
+
+	device = malloc(sizeof(struct cairo_xboot_device_t));
+	if(!device)
+		return NULL;
+
+	device->name = "fb";
+	device->fb = search_framebuffer(device->name);
+	device->screen = &device->fb->info->surface;
+	device->pixels = device->screen->pixels;
+	device->width = device->screen->w;
+	device->height = device->screen->h;
+
+	surface = cairo_image_surface_create_for_data(device->pixels,
+			CAIRO_FORMAT_ARGB32, device->width, device->height,
+			cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, device->width));
+	cairo_surface_set_user_data(surface, NULL, device,
+			&cairo_xboot_surface_destroy);
+
+	return surface;
+}
+
+
 void show_to_framebuffer(cairo_surface_t * surface)
 {
 	static struct fb * fb;

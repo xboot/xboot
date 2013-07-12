@@ -20,29 +20,56 @@ d1:add_event_listener(event.MOUSE_MOVE, function(e, d) d:setxy(e.msg.x, e.msg.y)
 --local cs = cairo.image_surface_create(cairo.FORMAT_ARGB32, 400, 400)
 local cs = cairo.xboot_surface_create()
 local cr = cairo.create(cs)
-	
-function draw(d)
+
+local M_PI = math.pi
+local sin = math.sin
+local cos = math.cos
+
+local count = 0;
+
+function draw(e)
+    count = count + 1
+    if(count >= 360) then
+    	count = 0
+    end
+    
 	cr:save()
 	cr:set_source_rgb(0.9, 0.9, 0.9)
 	cr:paint()
 	cr:restore()
 	
-	cr:set_line_width(6)
-	cr:rectangle(d:getx(), d:gety(), d:getw(), d:geth())
-	cr:set_source_rgb(0, 0.7, 0)
-	cr:fill_preserve()
-	cr:set_source_rgb(0, 0, 0)
-	cr:stroke()
-	
---	cs:show()
+    local xc = 128.0;
+    local yc = 128.0;
+    local radius = 100.0;
+    local angle1 = count  * (M_PI / 180.0);
+    local angle2 = 180.0 * (M_PI / 180.0);
+
+    cr:set_line_width(10.0)
+    cr:arc(xc, yc, radius, angle1, angle2);
+    cr:stroke();
+
+    cr:set_source_rgba(1, 0.2, 0.2, 0.6);
+    cr:set_line_width(6.0);
+
+    cr:arc(xc, yc, 10.0, 0, 2*M_PI);
+    cr:fill();
+
+    cr:arc(xc, yc, radius, angle1, angle1);
+    cr:line_to(xc, yc);
+    cr:arc(xc, yc, radius, angle2, angle2);
+    cr:line_to(xc, yc);
+    cr:stroke();
+    if(e.count % 60 == 0) then
+    	print(1/e.time)
+    end
 --	collectgarbage("collect")
---	collectgarbage("step")
+--	collectgarbage("step")	
 end
 
 ------------------------------------------------------------------------------
 -- t1
-local t1 = timer:new(1 / 60, 0, function(t, e)
-	draw(d1)
+local t1 = timer:new(1 / 10, 0, function(t, e)
+	draw(e)
 end, "t1")
 
 -- main

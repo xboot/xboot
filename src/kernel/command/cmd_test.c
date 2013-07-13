@@ -45,6 +45,7 @@
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 #include "pixman.h"
 #include <cairo.h>
+#include <cairo-xboot.h>
 #include "cairo-types-private.h"
 #include "cairo-image-surface-private.h"
 #include <ft2build.h>

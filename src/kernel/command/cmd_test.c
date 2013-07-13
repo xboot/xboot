@@ -51,47 +51,12 @@
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
 
-void show_to_framebuffer(cairo_surface_t * surface)
-{
-	static struct fb * fb;
-	static struct surface_t * screen;
-	static u32_t c;
-	static bool_t init = FALSE;
-	pixman_image_t * image;
-	struct surface_t * obj;
-	int width, height;
-
-	if(! init)
-	{
-		fb = search_framebuffer("fb");
-		screen = &fb->info->surface;
-		c = surface_map_color(screen, get_named_color("darkkhaki"));
-		init = TRUE;
-	}
-
-	if (!surface)
-		return;
-
-	image = to_image_surface(surface)->pixman_image;
-	if (!image)
-		return;
-
-	width = pixman_image_get_width(image);
-	height = pixman_image_get_height(image);
-	obj = surface_alloc(pixman_image_get_data(image), width, height, PIXEL_FORMAT_ARGB_8888);
-	fb->swap(fb);
-	surface_fill(screen, &screen->clip, c, BLEND_MODE_REPLACE);
-	surface_blit(screen, NULL, obj, NULL, BLEND_MODE_REPLACE);
-	fb->flush(fb);
-	surface_free(obj);
-}
-
 static int test(int argc, char ** argv)
 {
 	cairo_surface_t * cs;
 	cairo_t * cr;
 
-	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 800, 480);
+	cs = cairo_xboot_surface_create(&(get_default_framebuffer()->info->surface));
 	cr = cairo_create(cs);
 
 	cairo_save(cr);
@@ -124,7 +89,6 @@ static int test(int argc, char ** argv)
 	cairo_stroke (cr);
 	/* END ===================================== */
 
-	show_to_framebuffer(cs);
 	cairo_surface_write_to_png(cs, "/image.png");
 
 	cairo_destroy(cr);

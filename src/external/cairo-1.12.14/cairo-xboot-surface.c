@@ -35,19 +35,7 @@
 
 
 #include "cairoint.h"
-
 #include "cairo-xboot.h"
-
-#include "cairo-clip-private.h"
-#include "cairo-device-private.h"
-#include "cairo-default-context-private.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-error-private.h"
-#include "cairo-output-stream-private.h"
-#include "cairo-recording-surface-inline.h"
-#include "cairo-surface-wrapper-private.h"
-#include "cairo-array-private.h"
-#include "cairo-image-surface-inline.h"
 
 struct cairo_xboot_surface_t {
 	void * pixels;

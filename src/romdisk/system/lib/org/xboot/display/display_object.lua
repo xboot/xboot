@@ -4,6 +4,9 @@ local event = require("org.xboot.event.event")
 local event_dispatcher = require("org.xboot.event.event_dispatcher")
 
 ---
+-- The 'display_object' class is the base class for all objects that can
+-- be placed on the screen.
+-- 
 -- @module display_object
 local M = class(event_dispatcher)
 
@@ -17,7 +20,7 @@ function M:init(dbg)
 	self.__y = 0
 	self.__w = 30
 	self.__h = 30
-	self.__visible = false
+	self.__visible = true
 
 	-- Just for debugging information
 	self.__debug = dbg
@@ -142,6 +145,7 @@ function M:remove_from_parent()
 	if parent == nil or parent == self then
 		return false
 	end
+
 	return parent:remove_child(self)
 end
 
@@ -156,7 +160,7 @@ end
 -- instance, otherwise `false`.
 function M:contains(child)
 	local children = self:get_children()
-	
+
 	for i, v in ipairs(children) do
 		if v == child then
 			return true
@@ -388,6 +392,13 @@ function M:get_bounds(target)
 	else
 		return self.__x, self.__y, self.__w, self.__h
 	end
+end
+
+function M:render(cr)
+	if not self.__visible then return end
+
+	local children = self:get_children()
+	for i, v in ipairs(children) do v:render(cr) end
 end
 
 return M

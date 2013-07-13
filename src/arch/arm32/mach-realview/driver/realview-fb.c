@@ -55,15 +55,15 @@ static struct fb_info info = {
 			.bytes_per_pixel	= LCD_BPP / 8,
 
 			.red_mask_size		= 8,
-			.red_field_pos		= 0,
+			.red_field_pos		= 16,
 			.green_mask_size	= 8,
 			.green_field_pos	= 8,
 			.blue_mask_size		= 8,
-			.blue_field_pos		= 16,
+			.blue_field_pos		= 0,
 			.alpha_mask_size	= 8,
 			.alpha_field_pos	= 24,
 
-			.fmt				= PIXEL_FORMAT_ABGR_8888,
+			.fmt				= PIXEL_FORMAT_ARGB_8888,
 		},
 
 		.w						= LCD_WIDTH,
@@ -107,7 +107,7 @@ static void fb_init(struct fb * fb)
 	writel(REALVIEW_CLCD_IMSC, 0x0);
 
 	/* set lcd controller register */
-	writel(REALVIEW_CLCD_CNTL, REALVIEW_CNTL_LCDTFT | REALVIEW_CNTL_LCDBPP24);
+	writel(REALVIEW_CLCD_CNTL, REALVIEW_CNTL_LCDBPP24 | REALVIEW_CNTL_LCDTFT | REALVIEW_CNTL_BGR);
 
 	/* enable lcd output */
 	writel(REALVIEW_CLCD_CNTL, (readl(REALVIEW_CLCD_CNTL) | REALVIEW_CNTL_LCDEN | REALVIEW_CNTL_LCDPWR));

@@ -20,8 +20,9 @@ function M:init(file, x, y)
 	self.visible = true
 end
 
-function M:render(cr)
-	if not self.visible then	return end
+function M:render(cr, e)
+	self:dispatch_event(e)
+	if not self.visible then return end
 
 	cr:save()
 	cr:translate(self.x, self.y)
@@ -31,8 +32,7 @@ function M:render(cr)
 	cr:paint_with_alpha(self.alpha)
 	cr:restore()
 
-	local children = self:get_children()
-	for i, v in ipairs(children) do v:render(cr) end
+	for i, v in ipairs(self.children) do v:render(cr, e) end
 end
 
 return M

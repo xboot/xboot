@@ -34,8 +34,8 @@ function M:init()
 	self.blend = "normal"
 
 	self.visible = true
-	self.enable = true
-	self.focus = false
+--	self.enable = true
+--	self.focus = false
 end
 
 ---
@@ -424,11 +424,10 @@ function M:get_bounds(target)
 	end
 end
 
-function M:render(cr)
+function M:render(cr, e)
+	self:dispatch_event(e)
 	if not self.visible then return end
-
-	local children = self:get_children()
-	for i, v in ipairs(children) do v:render(cr) end
+	for i, v in ipairs(self.children) do v:render(cr, e) end
 end
 
 return M

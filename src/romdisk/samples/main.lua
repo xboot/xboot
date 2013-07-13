@@ -29,6 +29,10 @@ image1:add_event_listener(event.MOUSE_DOWN, function(e, d)
 --	d.alpha = d.alpha * 0.9
 end, image1)
 
+image2:add_event_listener(event.ENTER_FRAME, function(e, d)
+	d:setxy(d.x + 1, d.y + 1)
+end, image2)
+
 runtime:add_child(image1)
 runtime:add_child(image2)
 runtime:add_child(image3)
@@ -47,7 +51,7 @@ function draw(d)
 	cr:paint()
 	cr:restore()
 	
-	d:render(cr)
+	d:render(cr, event:new(event.ENTER_FRAME))
 end
 
 ------------------------------------------------------------------------------

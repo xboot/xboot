@@ -19,7 +19,15 @@ local image1 = display_image:new("/romdisk/samples/images/a.png", 0, 0)
 local image2 = display_image:new("/romdisk/samples/images/base.png", 100, 100)
 local image3 = display_image:new("/romdisk/samples/images/knob.png", 200, 200)
 
-image1:add_event_listener(event.MOUSE_MOVE, function(e, d) d:setxy(e.msg.x, e.msg.y) end, image1)
+image1:add_event_listener(event.MOUSE_MOVE, function(e, d)
+	d:setxy(e.msg.x, e.msg.y)
+end, image1)
+
+image1:add_event_listener(event.MOUSE_DOWN, function(e, d)
+	d:rotate(15 *  math.pi / 180)
+-- d:scale(1.1, 1.1)
+--	d.alpha = d.alpha * 0.9
+end, image1)
 
 runtime:add_child(image1)
 runtime:add_child(image2)
@@ -30,9 +38,12 @@ local cs = buildin_cairo.xboot_surface_create()
 local cr = buildin_cairo.create(cs)
 local M_PI = math.pi
 
+local background = buildin_cairo.image_surface_create_from_png("/romdisk/samples/images/background.png");
+
 function draw(d)
 	cr:save()
-	cr:set_source_rgb(0.9, 0.9, 0.9)
+--	cr:set_source_rgb(0.9, 0.9, 0.9)
+	cr:set_source_surface(background, 0, 0)
 	cr:paint()
 	cr:restore()
 	

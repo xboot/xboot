@@ -505,10 +505,6 @@ static int m_cairo_pop_group(lua_State * L)
 	*pattern = cairo_pop_group(*cr);
 	luaL_setmetatable(L, MT_NAME_CAIRO_PATTERN);
 	return 1;
-
-	cairo_pattern_t *v = cairo_pop_group(*cr);
-	lua_pushlightuserdata(L, v);
-	return 1;
 }
 
 static int m_cairo_pop_group_to_source(lua_State * L)

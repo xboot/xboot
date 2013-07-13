@@ -24,8 +24,11 @@ function M:render(cr)
 	if not self.visible then	return end
 
 	cr:save()
-	cr:set_source_surface(self.image, self.x, self.y)
-	cr:paint()
+	cr:translate(self.x, self.y)
+	cr:scale(self.xscale, self.yscale)
+	cr:rotate(self.rotation)
+	cr:set_source_surface(self.image, 0, 0)
+	cr:paint_with_alpha(self.alpha)
 	cr:restore()
 
 	local children = self:get_children()

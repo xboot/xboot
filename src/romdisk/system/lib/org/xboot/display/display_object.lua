@@ -10,7 +10,7 @@ local event_dispatcher = require("org.xboot.event.event_dispatcher")
 -- @module display_object
 local M = class(event_dispatcher)
 
-function M:init(dbg)
+function M:init()
 	event_dispatcher.init(self)
 
 	self.parent = self
@@ -18,12 +18,24 @@ function M:init(dbg)
 
 	self.x = 0
 	self.y = 0
-	self.w = 30
-	self.h = 30
-	self.visible = true
+	self.w = 0
+	self.h = 0
+	
+	self.width = 0
+	self.height = 0
+	self.xorigin = 0
+	self.yorigin = 0
+	self.xreference = 0
+	self.yreference = 0
+	self.xscale = 1
+	self.yscale = 1
+	self.rotation = 0	
+	self.alpha = 1
+	self.blend = "normal"
 
-	-- Just for debugging information
-	self.debug = dbg
+	self.visible = true
+	self.enable = true
+	self.focus = false
 end
 
 ---
@@ -233,6 +245,24 @@ function M:get_child_index(child)
 	end
 	
 	return index
+end
+
+
+function M:translate(dx, dy)
+	self.x = self.x + dx
+	self.y = self.y + dy
+	for i, v in ipairs(self.children) do v:translate(dx, dy) end
+end
+
+function M:scale(sx, sy)
+	self.xscale = self.xscale * sx
+	self.yscale = self.yscale * sy
+	for i, v in ipairs(self.children) do v:scale(sx, sy) end
+end
+
+function M:rotate(angle)
+	self.rotation = self.rotation + angle
+	for i, v in ipairs(self.children) do v:rotation(angle) end
 end
 
 --- 

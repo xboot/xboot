@@ -48,6 +48,10 @@ M.TOUCHES_END = "touchesend"
 M.TOUCHES_CANCEL = "touchescancel"
 
 ---
+-- @field [parent=#event] ENTER_FRAME enterframe
+M.ENTER_FRAME = "enterframe"
+
+---
 -- Creates a new 'event' object to be dispatched from an 'event_dispatcher'.
 -- 
 -- @function [parent=#event] new

@@ -51,32 +51,14 @@ static cairo_format_t cairo_format_from_pixel_format (enum pixel_format fmt)
 {
 	switch(fmt)
 	{
-	case PIXEL_FORMAT_GENERIC:
-		return CAIRO_FORMAT_INVALID;
-
-	case PIXEL_FORMAT_ABGR_8888:
-		return CAIRO_FORMAT_INVALID;
 	case PIXEL_FORMAT_ARGB_8888:
 		return CAIRO_FORMAT_ARGB32;
-	case PIXEL_FORMAT_BGRA_8888:
-		return CAIRO_FORMAT_INVALID;
-	case PIXEL_FORMAT_RGBA_8888:
-		return CAIRO_FORMAT_INVALID;
 
-	case PIXEL_FORMAT_BGR_888:
-		return CAIRO_FORMAT_INVALID;
 	case PIXEL_FORMAT_RGB_888:
 		return CAIRO_FORMAT_RGB24;
 
-	case PIXEL_FORMAT_BGR_565:
-		return CAIRO_FORMAT_INVALID;
 	case PIXEL_FORMAT_RGB_565:
 		return CAIRO_FORMAT_RGB16_565;
-
-	case PIXEL_FORMAT_BGR_332:
-		return CAIRO_FORMAT_INVALID;
-	case PIXEL_FORMAT_RGB_332:
-		return CAIRO_FORMAT_INVALID;
 
 	default:
 		break;
@@ -87,35 +69,35 @@ static cairo_format_t cairo_format_from_pixel_format (enum pixel_format fmt)
 
 static void cairo_xboot_surface_destroy (void * data)
 {
-	struct cairo_xboot_surface_t * xs = (struct cairo_xboot_surface_t *) data;
+	struct cairo_xboot_surface_t * cxs = (struct cairo_xboot_surface_t *) data;
 
-	if (!xs)
+	if (!cxs)
 		return;
 
-	free(xs);
+	free(cxs);
 }
 
 cairo_surface_t *
 cairo_xboot_surface_create (struct surface_t * surface)
 {
-	struct cairo_xboot_surface_t * xs;
+	struct cairo_xboot_surface_t * cxs;
 
 	if (!surface)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NULL_POINTER));
 
-	xs = malloc(sizeof(struct cairo_xboot_surface_t));
-	if (!xs)
+	cxs = malloc(sizeof(struct cairo_xboot_surface_t));
+	if (!cxs)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
-	xs->pixels = surface->pixels;
-	xs->width = surface->w;
-	xs->height = surface->h;
-	xs->fmt = cairo_format_from_pixel_format(surface->info.fmt);
+	cxs->pixels = surface->pixels;
+	cxs->width = surface->w;
+	cxs->height = surface->h;
+	cxs->fmt = cairo_format_from_pixel_format(surface->info.fmt);
 
-	xs->surface = surface;
-	xs->cs = cairo_image_surface_create_for_data(xs->pixels, xs->fmt, xs->width,
-			xs->height, cairo_format_stride_for_width(xs->fmt, surface->w));
-	cairo_surface_set_user_data(xs->cs, NULL, xs, &cairo_xboot_surface_destroy);
+	cxs->surface = surface;
+	cxs->cs = cairo_image_surface_create_for_data(cxs->pixels, cxs->fmt, cxs->width,
+			cxs->height, cairo_format_stride_for_width(cxs->fmt, surface->w));
+	cairo_surface_set_user_data(cxs->cs, NULL, cxs, &cairo_xboot_surface_destroy);
 
-	return xs->cs;
+	return cxs->cs;
 }

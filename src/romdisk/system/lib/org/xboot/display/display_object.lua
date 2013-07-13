@@ -13,17 +13,17 @@ local M = class(event_dispatcher)
 function M:init(dbg)
 	event_dispatcher.init(self)
 
-	self.__parent = self
-	self.__children = {}
+	self.parent = self
+	self.children = {}
 
-	self.__x = 0
-	self.__y = 0
-	self.__w = 30
-	self.__h = 30
-	self.__visible = true
+	self.x = 0
+	self.y = 0
+	self.w = 30
+	self.h = 30
+	self.visible = true
 
 	-- Just for debugging information
-	self.__debug = dbg
+	self.debug = dbg
 end
 
 ---
@@ -49,8 +49,8 @@ function M:add_child(child)
 	end
 
 	child:remove_from_parent()
-	table.insert(self.__children, child)
-	child.__parent = self
+	table.insert(self.children, child)
+	child.parent = self
 
 	return true
 end
@@ -79,8 +79,8 @@ function M:add_child_at(child, index)
 	end
 
 	child:remove_from_parent()
-	table.insert(self.__children, index, child)
-	child.__parent = self
+	table.insert(self.children, index, child)
+	child.parent = self
 
 	return true
 end
@@ -113,7 +113,7 @@ function M:remove_child(child)
 	end
 
 	table.remove(children, index)
-	child.__parent = child
+	child.parent = child
 
 	return true
 end
@@ -179,7 +179,7 @@ end
 -- @param self
 -- @return The parent display object.
 function M:get_parent()
-	return self.__parent
+	return self.parent
 end
 
 ---
@@ -189,7 +189,7 @@ end
 -- @return The children of this display object.
 ----------------------------------------------------------------
 function M:get_children()
-	return self.__children
+	return self.children
 end
 
 ---
@@ -199,7 +199,7 @@ end
 -- @param self
 -- @return The number of children of this display object.
 function M:get_num_children()
-	return #self.__children
+	return #self.children
 end
 
 ---
@@ -211,7 +211,7 @@ end
 -- @param index (number) The index position of the child object.
 -- @return The child display object at the specified index position.
 function M:get_child_at(index)
-	return self.__children[index]
+	return self.children[index]
 end
 
 ---
@@ -242,7 +242,7 @@ end
 -- @param self
 -- @return The x coordinate of the display object.
 function M:getx()
-	return self.__x
+	return self.x
 end
 
 --- 
@@ -252,7 +252,7 @@ end
 -- @param self
 -- @param x (number) The new x coordinate of the display object.
 function M:setx(x)
-	self.__x = x
+	self.x = x
 end
 
 --- 
@@ -262,7 +262,7 @@ end
 -- @param self
 -- @return The y coordinate of the display object.
 function M:gety()
-	return self.__y
+	return self.y
 end
 
 --- 
@@ -272,7 +272,7 @@ end
 -- @param self
 -- @param y (number) The new y coordinate of the display object.
 function M:sety(y)
-	self.__y = y
+	self.y = y
 end
 
 --- 
@@ -282,7 +282,7 @@ end
 -- @param self
 -- @return The x and y coordinates of the display object.
 function M:getxy()
-	return self.__x, self.__y
+	return self.x, self.y
 end
 
 ---
@@ -293,8 +293,8 @@ end
 -- @param x (number) The new x coordinate of the display object.
 -- @param y (number) The new y coordinate of the display object.
 function M:setxy(x, y)
-	self.__x = x
-	self.__y = y
+	self.x = x
+	self.y = y
 end
 
 ---
@@ -305,7 +305,7 @@ end
 -- @param self
 -- @return Width of the display object.
 function M:getw()
-    return self.__w
+    return self.w
 end
 
 --- 
@@ -316,7 +316,7 @@ end
 -- @param self
 -- @return Height of the display object.
 function M:geth()
-    return self.__h
+    return self.h
 end
 
 ---
@@ -327,7 +327,7 @@ end
 -- @param self
 -- @return The width and height of the display object.
 function M:getwh()
-    return self.__w, self.__h
+    return self.w, self.h
 end
 
 --- 
@@ -340,7 +340,7 @@ end
 -- @return x coordinate relative to the display object.
 -- @return y coordinate relative to the display object.
 function M:global_to_local(x, y)
-	return x - self.__x, y - self.__y
+	return x - self.x, y - self.y
 end
 
 --- 
@@ -353,7 +353,7 @@ end
 -- @return x coordinate relative to the display area.
 -- @return y coordinate relative to the display area.
 function M:local_to_global(x, y)
-	return x + self.__x, y + self.__y
+	return x + self.x, y + self.y
 end
 
 ---
@@ -364,7 +364,7 @@ end
 -- @param self
 -- @return A value of 'true' if display object is visible; 'false' otherwise.
 function M:get_visible()
-    return self.__visible
+    return self.visible
 end
 
 ---
@@ -375,7 +375,7 @@ end
 -- @param self
 -- @param visible (bool) whether or not the display object is visible
 function M:set_visible(visible)
-	self.__visible = visible
+	self.visible = visible
 end
 
 ---
@@ -390,12 +390,12 @@ function M:get_bounds(target)
 	if target ~= nil and target ~= self then
 
 	else
-		return self.__x, self.__y, self.__w, self.__h
+		return self.x, self.y, self.w, self.h
 	end
 end
 
 function M:render(cr)
-	if not self.__visible then return end
+	if not self.visible then return end
 
 	local children = self:get_children()
 	for i, v in ipairs(children) do v:render(cr) end

@@ -14,7 +14,7 @@ local M = class()
 -- @function [parent=#event_dispatcher] new
 -- @return New 'event_dispatcher' object.
 function M:init()
-	self.__event_listeners_map = {}
+	self.event_listeners_map = {}
 end
 
 ---
@@ -29,7 +29,7 @@ end
 function M:has_event_listener(type, listener, data)
 	assert(type)
 
-	local els = self.__event_listeners_map[type]
+	local els = self.event_listeners_map[type]
 	
 	if not els or #els == 0 then
 		return false
@@ -40,7 +40,7 @@ function M:has_event_listener(type, listener, data)
     end
     
 	for i, v in ipairs(els) do
-		if v.__listener == listener and v.__data == data then
+		if v.listener == listener and v.data == data then
 			return true
 		end
 	end
@@ -66,12 +66,12 @@ function M:add_event_listener(type, listener, data)
 		return false
 	end
 
-	if not self.__event_listeners_map[type] then
-		self.__event_listeners_map[type] = {}
+	if not self.event_listeners_map[type] then
+		self.event_listeners_map[type] = {}
 	end
 
-	local els = self.__event_listeners_map[type]
-	local el = {__type = type, __listener = listener, __data = data}
+	local els = self.event_listeners_map[type]
+	local el = {type = type, listener = listener, data = data}
 	table.insert(els, el)
 
 	return true
@@ -92,10 +92,10 @@ function M:remove_event_listener(type, listener, data)
 	assert(type)
 	assert(listener)
 
-	local els = self.__event_listeners_map[type] or {}
+	local els = self.event_listeners_map[type] or {}
     
 	for i, v in ipairs(els) do
-		if v.__type == type and v.__listener == listener and v.__data == data then
+		if v.type == type and v.listener == listener and v.data == data then
 			table.remove(els, i)
 			return true
 		end
@@ -111,17 +111,17 @@ end
 -- @param self
 -- @param event (event) The 'event' object to be dispatched.
 function M:dispatch_event(event)
-	assert(event.__type)
+	assert(event.type)
 
-	event.__target = event.__target or self
-	event.__stoped = false
+	event.target = event.target or self
+	event.stoped = false
 
-	local els = self.__event_listeners_map[event.__type] or {}
+	local els = self.event_listeners_map[event.type] or {}
 
 	for i, v in ipairs(els) do
-		if v.__type == event.__type then
-			v.__listener(event, v.__data)
-			if event.__stoped == true then
+		if v.type == event.type then
+			v.listener(event, v.data)
+			if event.stoped == true then
 				break
 			end
 		end

@@ -12,19 +12,19 @@ local M = class(display_object)
 function M:init(file, x, y)
 	display_object.init(self)
 	
-	self.__image = buildin_cairo.image_surface_create_from_png(file);
-	self.__w = self.__image:get_width()
-	self.__h = self.__image:get_height()
-	self.__x = x or 0
-	self.__y = y or 0
-	self.__visible = true
+	self.image = buildin_cairo.image_surface_create_from_png(file);
+	self.w = self.image:get_width()
+	self.h = self.image:get_height()
+	self.x = x or 0
+	self.y = y or 0
+	self.visible = true
 end
 
 function M:render(cr)
-	if not self.__visible then	return end
+	if not self.visible then	return end
 
 	cr:save()
-	cr:set_source_surface(self.__image, self.__x, self.__y)
+	cr:set_source_surface(self.image, self.x, self.y)
 	cr:paint()
 	cr:restore()
 

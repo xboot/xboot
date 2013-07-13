@@ -54,9 +54,9 @@ M.TOUCHES_CANCEL = "touchescancel"
 -- @param type (string)
 -- @return New 'event' object.
 function M:init(type)
-	self.__type = type
-	self.__target = nil
-	self.__stoped = false
+	self.type = type
+	self.target = nil
+	self.stoped = false
 end
 
 ---
@@ -66,7 +66,7 @@ end
 -- @param self
 -- @return Type of event.
 function M:get_type()
-	return self.__type
+	return self.type
 end
 
 ---
@@ -76,7 +76,7 @@ end
 -- @param self
 -- @return Target of event.
 function M:get_target()
-	return self.__target
+	return self.target
 end
 
 ---
@@ -85,7 +85,7 @@ end
 -- @function [parent=#event] stop_propagation
 -- @param self
 function M:stop_propagation()
-	self.__stoped = true
+	self.stoped = true
 end
 
 return M

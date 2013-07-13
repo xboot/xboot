@@ -5,7 +5,7 @@ local class = require("org.xboot.lang.class")
 -- 
 -- @module timer
 local M = class()
-local __timer_list = {}
+local timer_list = {}
 
 ---
 -- Creates a new 'timer' object with the specified delay and iteration.
@@ -17,16 +17,16 @@ local __timer_list = {}
 -- @param data (optional) An optional data parameter that is passed to the listener function.
 -- @return New 'timer' object.
 function M:init(delay, iteration, listener, data)
-	self.__delay = delay or 1
-	self.__iteration = iteration or 1
-	self.__listener = listener
-	self.__data = data or nil
+	self.delay = delay or 1
+	self.iteration = iteration or 1
+	self.listener = listener
+	self.data = data or nil
 
-	self.__time = 0
-	self.__count = 0
-	self.__running = true
+	self.time = 0
+	self.count = 0
+	self.running = true
 	
-	table.insert(__timer_list, self)
+	table.insert(timer_list, self)
 end
 
 ---
@@ -36,7 +36,7 @@ end
 -- @param self
 -- @return 'true' if the timer is running, 'false' otherwise.
 function M:isrunning()
-	return self.__running
+	return self.running
 end
 
 ---
@@ -45,7 +45,7 @@ end
 -- @function [parent=#timer] resume
 -- @param self
 function M:resume()
-	self.__running = true
+	self.running = true
 end
 
 ---
@@ -54,7 +54,7 @@ end
 -- @function [parent=#timer] pause
 -- @param self
 function M:pause()
-	self.__running = false
+	self.running = false
 end
 
 ---
@@ -64,11 +64,11 @@ end
 -- @param self
 -- @return the number of iterations.
 function M:cancel()
-	for i, v in ipairs(__timer_list) do
-		if v.__delay == self.__delay and v.__iteration == self.__iteration and v.__listener == self.__listener and v.__data == self.__data then
+	for i, v in ipairs(timer_list) do
+		if v.delay == self.delay and v.iteration == self.iteration and v.listener == self.listener and v.data == self.data then
 			v:pause()
-			table.remove(__timer_list, i)
-			return v.__count
+			table.remove(timer_list, i)
+			return v.count
 		end
 	end
 end
@@ -80,16 +80,16 @@ end
 -- @param self
 -- @param delta (number) The time interval in seconds.
 function M:schedule(delta)
-	for i, v in ipairs(__timer_list) do
-		if v.__running then
-			v.__time = v.__time + delta
+	for i, v in ipairs(timer_list) do
+		if v.running then
+			v.time = v.time + delta
 			
-			if v.__time > v.__delay then
-				v.__count = v.__count + 1
-				v.__listener(v, {time = v.__time, count = v.__count, data = v.__data})
+			if v.time > v.delay then
+				v.count = v.count + 1
+				v.listener(v, {time = v.time, count = v.count, data = v.data})
 
-				v.__time = 0
-				if v.__iteration ~= 0 and v.__count >= v.__iteration then
+				v.time = 0
+				if v.iteration ~= 0 and v.count >= v.iteration then
 					v:cancel()
 				end
 			end

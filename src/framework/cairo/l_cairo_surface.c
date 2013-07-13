@@ -21,13 +21,13 @@
  */
 
 #include <cairo.h>
+#include <cairo-xboot.h>
 #include <framework/cairo/l_cairo.h>
 
-extern cairo_surface_t * cairo_xboot_surface_create(void);
 int l_cairo_xboot_surface_create(lua_State * L)
 {
 	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));
-	*cs = cairo_xboot_surface_create();
+	*cs = cairo_xboot_surface_create(&(get_default_framebuffer()->info->surface));
 	luaL_setmetatable(L, MT_NAME_CAIRO_SURFACE);
 	return 1;
 }
@@ -87,18 +87,9 @@ static int m_cairo_surface_get_height(lua_State * L)
 	return 1;
 }
 
-extern void show_to_framebuffer(cairo_surface_t * surface);
-static int m_cairo_surface_show(lua_State * L)
-{
-	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
-	show_to_framebuffer(*cs);
-	return 0;
-}
-
 const luaL_Reg m_cairo_surface[] = {
 	{"__gc",				m_cairo_surface_gc},
 	{"get_width",			m_cairo_surface_get_width},
 	{"get_height",			m_cairo_surface_get_height},
-	{"show",				m_cairo_surface_show},
 	{NULL, 					NULL}
 };

@@ -15,25 +15,18 @@ function M:init()
 
 	self.parent = self
 	self.children = {}
+	self.visible = true
 
 	self.x = 0
 	self.y = 0
-	self.w = 0
-	self.h = 0
-	
 	self.width = 0
 	self.height = 0
 	self.xorigin = 0
 	self.yorigin = 0
-	self.xreference = 0
-	self.yreference = 0
 	self.xscale = 1
 	self.yscale = 1
 	self.rotation = 0
 	self.alpha = 1
-	self.blend = "normal"
-
-	self.visible = true
 end
 
 ---
@@ -54,11 +47,11 @@ function M:add_child(child)
 		return false
 	end
 
-	if child:get_parent() == self then
+	if child.parent == self then
 		return false
 	end
 
-	child:remove_from_parent()
+	child:remove_self()
 	table.insert(self.children, child)
 	child.parent = self
 
@@ -84,11 +77,11 @@ function M:add_child_at(child, index)
 		return false
 	end
 
-	if child:get_parent() == self then
+	if child.parent == self then
 		return false
 	end
 
-	child:remove_from_parent()
+	child:remove_self()
 	table.insert(self.children, index, child)
 	child.parent = self
 
@@ -108,10 +101,9 @@ function M:remove_child(child)
 		return false
 	end
 
-	local children = self:get_children()
 	local index = 0
 
-	for i, v in ipairs(children) do
+	for i, v in ipairs(self.children) do
 		if v == child then
 			index = i
 			break
@@ -122,7 +114,7 @@ function M:remove_child(child)
 		return false
 	end
 
-	table.remove(children, index)
+	table.remove(self.children, index)
 	child.parent = child
 
 	return true
@@ -130,15 +122,13 @@ end
 
 ---
 -- Removes the child 'display_object' instance at the specifed index. 
--- Index of the first child is 1 and index of the last child can be
--- get from 'display_object:get_num_children' function.
 -- 
 -- @function [parent=#display_object] remove_child_at
 -- @param self
 -- @param index (number) The child index of the display object to remove.
 -- @return A value of 'true' or 'false'.
 function M:remove_child_at(index)
-	local child = self:get_child_at(index)
+	local child = self.children[index]
 	return self:remove_child(child)
 end
 
@@ -146,11 +136,11 @@ end
 -- If the display object has a parent, removes the display object from the
 -- child list of its parent display object.
 -- 
--- @function [parent=#display_object] remove_from_parent
+-- @function [parent=#display_object] remove_self
 -- @param self
 -- @return A value of 'true' or 'false'.
-function M:remove_from_parent()
-	local parent = self:get_parent()
+function M:remove_self()
+	local parent = self.parent
 
 	if parent == nil or parent == self then
 		return false
@@ -169,13 +159,11 @@ end
 -- @return `true` if the child object is contained in the subtree of this 'display_object'
 -- instance, otherwise `false`.
 function M:contains(child)
-	local children = self:get_children()
-
-	for i, v in ipairs(children) do
+	for i, v in ipairs(self.children) do
 		if v == child then
 			return true
---		elseif v:contains(child) then
---			return true
+		elseif v:contains(child) then
+			return true
 		end
 	end
 
@@ -183,124 +171,76 @@ function M:contains(child)
 end
 
 ---
--- Returns the 'display_object' that contains this 'display_object'.
+-- Returns whether or not the display object is visible. Child display objects that are not visible are also taken
+-- into consideration while calculating bounds.
 -- 
--- @function [parent=#display_object] get_parent
+-- @function [parent=#display_object] get_visible
 -- @param self
--- @return The parent display object.
-function M:get_parent()
-	return self.parent
+-- @return A value of 'true' if display object is visible; 'false' otherwise.
+function M:get_visible()
+    return self.visible
 end
 
 ---
--- Returns the children object of this display object.
+-- Sets whether or not the display object is visible. Display objects that are not visible are also taken
+-- into consideration while calculating bounds.
 -- 
+-- @function [parent=#display_object] set_visible
 -- @param self
--- @return The children of this display object.
-----------------------------------------------------------------
-function M:get_children()
-	return self.children
+-- @param visible (bool) whether or not the display object is visible
+function M:set_visible(visible)
+	self.visible = visible
 end
 
 ---
--- Returns the number of children of this display object.
+-- Effectively adds values to the x and y properties of an display object. (changing its on-screen position)
 -- 
--- @function [parent=#display_object] get_num_children
+-- @function [parent=#display_object] translate
 -- @param self
--- @return The number of children of this display object.
-function M:get_num_children()
-	return #self.children
-end
-
----
--- Returns the child 'display object' instance that exists at the
--- specified index. First child is at index 1.
--- 
--- @function [parent=#display_object] get_child_at
--- @param self
--- @param index (number) The index position of the child object.
--- @return The child display object at the specified index position.
-function M:get_child_at(index)
-	return self.children[index]
-end
-
----
--- Returns the index of the specified child display object.
--- 
--- @function [parent=#display_object] get_child_index
--- @param self
--- @param child (display_object) The child display object to identify.
--- @return The index of the specified child display object.
-function M:get_child_index(child)
-	local children = self:get_children()
-	local index = 0
-
-	for i, v in ipairs(children) do
-		if v == child then
-			index = i
-			break
-		end
-	end
-	
-	return index
-end
-
-
+-- @param x (number) Amount to add to the display object's x properties.
+-- @param y (number) Amount to add to the display object's y properties.
 function M:translate(dx, dy)
 	self.x = self.x + dx
 	self.y = self.y + dy
-	for i, v in ipairs(self.children) do v:translate(dx, dy) end
+	
+	for i, v in ipairs(self.children) do
+		v:translate(dx, dy)
+	end
 end
 
+---
+-- Effectively multiplies xscale and yscale properties by sx and sy respectively.
+-- The scaling occurs around the object's reference point.
+-- The default reference point for most display objects is center.
+-- 
+-- @function [parent=#display_object] scale
+-- @param self
+-- @param x (number) Factors by which to change the scale in the x directions.
+-- @param y (number) Factors by which to change the scale in the y directions.
 function M:scale(sx, sy)
 	self.xscale = self.xscale * sx
 	self.yscale = self.yscale * sy
-	for i, v in ipairs(self.children) do v:scale(sx, sy) end
+	
+	for i, v in ipairs(self.children) do
+		v:scale(sx, sy)
+	end
 end
 
+---
+-- Retrieve or change the rotation of an object.
+-- The rotation occurs around the object's reference point.
+-- The default reference point for most display objects is the center.
+-- 
+-- @function [parent=#display_object] rotate
+-- @param self
+-- @param x (number) Factors by which to change the scale in the x directions.
+-- @param y (number) Factors by which to change the scale in the y directions.
 function M:rotate(angle)
 	self.rotation = self.rotation + angle
-	for i, v in ipairs(self.children) do v:rotation(angle) end
-end
 
---- 
--- Returns the x coordinate of the display object.
--- 
--- @function [parent=#display_object] getx
--- @param self
--- @return The x coordinate of the display object.
-function M:getx()
-	return self.x
-end
-
---- 
--- Sets the x coordinate of the display object.
--- 
--- @function [parent=#display_object] setx
--- @param self
--- @param x (number) The new x coordinate of the display object.
-function M:setx(x)
-	self.x = x
-end
-
---- 
--- Returns the y coordinate of the display object.
--- 
--- @function [parent=#display_object] gety
--- @param self
--- @return The y coordinate of the display object.
-function M:gety()
-	return self.y
-end
-
---- 
--- Sets the y coordinate of the display object.
--- 
--- @function [parent=#display_object] sety
--- @param self
--- @param y (number) The new y coordinate of the display object.
-function M:sety(y)
-	self.y = y
+	for i, v in ipairs(self.children) do
+		v:rotation(angle)
+	end
 end
 
 --- 
@@ -323,39 +263,6 @@ end
 function M:setxy(x, y)
 	self.x = x
 	self.y = y
-end
-
----
--- Returns the width of the display object, in pixels. The width is calculated based on the
--- bounds of the content of the display object.
--- 
--- @function [parent=#display_object] getw
--- @param self
--- @return Width of the display object.
-function M:getw()
-    return self.w
-end
-
---- 
--- Returns the height of the sprite, in pixels. The height is calculated based on the
--- bounds of the content of the display object.
--- 
--- @function [parent=#display_object] geth
--- @param self
--- @return Height of the display object.
-function M:geth()
-    return self.h
-end
-
----
--- Returns the width and height of the display object, in pixels. The width and height is
--- calculated based on the bounds of the content of the display object.
--- 
--- @function [parent=#display_object] getwh
--- @param self
--- @return The width and height of the display object.
-function M:getwh()
-    return self.w, self.h
 end
 
 --- 
@@ -385,28 +292,6 @@ function M:local_to_global(x, y)
 end
 
 ---
--- Returns whether or not the display object is visible. Child display objects that are not visible are also taken
--- into consideration while calculating bounds.
--- 
--- @function [parent=#display_object] get_visible
--- @param self
--- @return A value of 'true' if display object is visible; 'false' otherwise.
-function M:get_visible()
-    return self.visible
-end
-
----
--- Sets whether or not the display object is visible. Display objects that are not visible are also taken
--- into consideration while calculating bounds.
--- 
--- @function [parent=#display_object] set_visible
--- @param self
--- @param visible (bool) whether or not the display object is visible
-function M:set_visible(visible)
-	self.visible = visible
-end
-
----
 -- Returns a rectangle (as x, y, width and height) that encloses the display object as
 -- it appears in another display object’s coordinate system.
 -- 
@@ -418,18 +303,32 @@ function M:get_bounds(target)
 	if target ~= nil and target ~= self then
 
 	else
-		return self.x, self.y, self.w, self.h
+		return self.x, self.y, self.width, self.height
 	end
 end
 
-function M:render(cr, e)
-	self:dispatch_event(e)
-	if not self.visible then return end
-	for i, v in ipairs(self.children) do v:render(cr, e) end
+function M:update(cairo)
+end
+
+function M:render(cairo, event)
+	self:dispatch_event(event)
+
+	if self.visible then
+		self:update(cairo)
+	end
+
+	for i, v in ipairs(self.children) do
+		v:render(cairo, event)
+	end
 end
 
 function M:dispatch(event)
-	for i, v in ipairs(self.children) do v:dispatch(event) end
+	local children = self.children
+
+	for i = #children, 1, -1 do
+		children[i]:dispatch(event)
+	end
+
 	self:dispatch_event(event)
 end
 

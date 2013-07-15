@@ -36,6 +36,14 @@ image1:add_event_listener(event.MOUSE_MOVE, function(e, d)
 	d:setxy(e.msg.x, e.msg.y)
 end, image1)
 
+image1:add_event_listener(event.MOUSE_DOWN, function(e, d)
+	d:rotate(10 * math.pi / 180)
+end, image1)
+
+image1:add_event_listener(event.MOUSE_UP, function(e, d)
+	d:scale(1.1, 1.1)
+end, image1)
+
 local t = 0.1
 image2:add_event_listener(event.ENTER_FRAME, function(e, d)
 

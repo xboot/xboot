@@ -12,27 +12,24 @@ local M = class(display_object)
 function M:init(file, x, y)
 	display_object.init(self)
 	
-	self.image = buildin_cairo.image_surface_create_from_png(file);
-	self.w = self.image:get_width()
-	self.h = self.image:get_height()
 	self.x = x or 0
 	self.y = y or 0
-	self.visible = true
+	self.surface = buildin_cairo.image_surface_create_from_png(file);
+	self.width = self.surface:get_width()
+	self.height = self.surface:get_height()
+	self.xorigin = self.width / 2
+	self.yorigin = self.height / 2
 end
 
-function M:render(cr, e)
-	self:dispatch_event(e)
-	if not self.visible then return end
-
-	cr:save()
-	cr:translate(self.x, self.y)
-	cr:scale(self.xscale, self.yscale)
-	cr:rotate(self.rotation)
-	cr:set_source_surface(self.image, 0, 0)
-	cr:paint_with_alpha(self.alpha)
-	cr:restore()
-
-	for i, v in ipairs(self.children) do v:render(cr, e) end
+function M:update(cairo)
+	cairo:save()
+	cairo:translate(self.xorigin + self.x, self.yorigin + self.y)
+	cairo:scale(self.xscale, self.yscale)
+	cairo:rotate(self.rotation)
+	cairo:translate(-self.xorigin, -self.yorigin)
+	cairo:set_source_surface(self.surface, 0, 0)
+	cairo:paint_with_alpha(self.alpha)
+	cairo:restore()
 end
 
 return M

@@ -111,19 +111,15 @@ end
 -- @param self
 -- @param event (event) The 'event' object to be dispatched.
 function M:dispatch_event(event)
-	assert(event.type)
-
-	event.target = event.target or self
-	event.stoped = false
+	if event.stoped == true then
+		return
+	end
 
 	local els = self.event_listeners_map[event.type] or {}
 
 	for i, v in ipairs(els) do
 		if v.type == event.type then
 			v.listener(event, v.data)
-			if event.stoped == true then
-				break
-			end
 		end
 	end
 end

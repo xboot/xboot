@@ -29,13 +29,11 @@ function M:init()
 	self.yreference = 0
 	self.xscale = 1
 	self.yscale = 1
-	self.rotation = 0	
+	self.rotation = 0
 	self.alpha = 1
 	self.blend = "normal"
 
 	self.visible = true
---	self.enable = true
---	self.focus = false
 end
 
 ---
@@ -428,6 +426,11 @@ function M:render(cr, e)
 	self:dispatch_event(e)
 	if not self.visible then return end
 	for i, v in ipairs(self.children) do v:render(cr, e) end
+end
+
+function M:dispatch(event)
+	for i, v in ipairs(self.children) do v:dispatch(event) end
+	self:dispatch_event(event)
 end
 
 return M

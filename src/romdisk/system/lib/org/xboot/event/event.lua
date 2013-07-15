@@ -59,28 +59,7 @@ M.ENTER_FRAME = "enterframe"
 -- @return New 'event' object.
 function M:init(type)
 	self.type = type
-	self.target = nil
 	self.stoped = false
-end
-
----
--- Returns a string that represents the type of the event.
--- 
--- @function [parent=#event] get_type
--- @param self
--- @return Type of event.
-function M:get_type()
-	return self.type
-end
-
----
--- Returns the element on which the event listener was registered.
--- 
--- @function [parent=#event] get_target
--- @param self
--- @return Target of event.
-function M:get_target()
-	return self.target
 end
 
 ---

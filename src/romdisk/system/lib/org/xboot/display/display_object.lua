@@ -190,8 +190,8 @@ end
 -- 
 -- @function [parent=#display_object] translate
 -- @param self
--- @param x (number) Amount to add to the display object's x properties.
--- @param y (number) Amount to add to the display object's y properties.
+-- @param dx (number) Amount to add to the display object's x properties.
+-- @param dy (number) Amount to add to the display object's y properties.
 function M:translate(dx, dy)
 	self.x = self.x + dx
 	self.y = self.y + dy
@@ -208,8 +208,8 @@ end
 -- 
 -- @function [parent=#display_object] scale
 -- @param self
--- @param x (number) Factors by which to change the scale in the x directions.
--- @param y (number) Factors by which to change the scale in the y directions.
+-- @param sx (number) Factors by which to change the scale in the x directions.
+-- @param sy (number) Factors by which to change the scale in the y directions.
 function M:scale(sx, sy)
 	self.xscale = self.xscale * sx
 	self.yscale = self.yscale * sy
@@ -226,8 +226,7 @@ end
 -- 
 -- @function [parent=#display_object] rotate
 -- @param self
--- @param x (number) Factors by which to change the scale in the x directions.
--- @param y (number) Factors by which to change the scale in the y directions.
+-- @param angle (number) The rotation angle in radian.
 function M:rotate(angle)
 	self.rotation = self.rotation + angle
 

@@ -15,7 +15,7 @@ function M:init()
 
 	self.parent = self
 	self.children = {}
-	self.visible = true
+	self.isvisible = true
 
 	self.x = 0
 	self.y = 0
@@ -59,36 +59,6 @@ function M:add_child(child)
 end
 
 ---
--- Adds a display object as a child to this display object. The child
--- is added at the index position specified. Indices start from 1.
--- 
--- Display object can have only one parent. Therefore if you add a child
--- object that already has a different display object as a parent, the
--- display object is removed from the child list of the other display 
--- object and then added to this display object.
--- 
--- @function [parent=#display_object] add_child_at
--- @param self
--- @param child (display_object) The child display object to add.
--- @param index (number) The index position to which the child is added.
--- @return A value of 'true' or 'false'.
-function M:add_child_at(child, index)
-	if child == nil or self == child then
-		return false
-	end
-
-	if child.parent == self then
-		return false
-	end
-
-	child:remove_self()
-	table.insert(self.children, index, child)
-	child.parent = self
-
-	return true
-end
-
----
 -- Removes the specified child 'display_object' instance from the child list
 -- of this 'display_object' instance.
 -- 
@@ -121,18 +91,6 @@ function M:remove_child(child)
 end
 
 ---
--- Removes the child 'display_object' instance at the specifed index. 
--- 
--- @function [parent=#display_object] remove_child_at
--- @param self
--- @param index (number) The child index of the display object to remove.
--- @return A value of 'true' or 'false'.
-function M:remove_child_at(index)
-	local child = self.children[index]
-	return self:remove_child(child)
-end
-
----
 -- If the display object has a parent, removes the display object from the
 -- child list of its parent display object.
 -- 
@@ -147,6 +105,52 @@ function M:remove_self()
 	end
 
 	return parent:remove_child(self)
+end
+
+---
+-- Moves the display object to the visual front of its parent.
+-- 
+-- @function [parent=#display_object] tofront
+-- @param self
+-- @return A value of 'true' or 'false'.
+function M:tofront()
+	local parent = self.parent
+
+	if parent == nil or parent == self then
+		return false
+	end
+
+	if not parent:remove_child(self) then
+		return false
+	end
+
+	table.insert(parent.children, self)
+	self.parent = parent
+
+	return true
+end
+
+---
+-- Moves the display object to the visual back of its parent.
+-- 
+-- @function [parent=#display_object] toback
+-- @param self
+-- @return A value of 'true' or 'false'.
+function M:toback()
+	local parent = self.parent
+
+	if parent == nil or parent == self then
+		return false
+	end
+
+	if not parent:remove_child(self) then
+		return false
+	end
+
+	table.insert(parent.children, 1, self)
+	self.parent = parent
+
+	return true
 end
 
 ---
@@ -171,25 +175,14 @@ function M:contains(child)
 end
 
 ---
--- Returns whether or not the display object is visible. Child display objects that are not visible are also taken
--- into consideration while calculating bounds.
--- 
--- @function [parent=#display_object] get_visible
--- @param self
--- @return A value of 'true' if display object is visible; 'false' otherwise.
-function M:get_visible()
-    return self.visible
-end
-
----
 -- Sets whether or not the display object is visible. Display objects that are not visible are also taken
 -- into consideration while calculating bounds.
 -- 
--- @function [parent=#display_object] set_visible
+-- @function [parent=#display_object] visible
 -- @param self
 -- @param visible (bool) whether or not the display object is visible
-function M:set_visible(visible)
-	self.visible = visible
+function M:visible(visible)
+	self.isvisible = visible
 end
 
 ---
@@ -243,16 +236,6 @@ function M:rotate(angle)
 	end
 end
 
---- 
--- Returns the x and y coordinates of the display object.
--- 
--- @function [parent=#display_object] getxy
--- @param self
--- @return The x and y coordinates of the display object.
-function M:getxy()
-	return self.x, self.y
-end
-
 ---
 -- Sets the x and y coordinates of the display object.
 -- 
@@ -261,8 +244,19 @@ end
 -- @param x (number) The new x coordinate of the display object.
 -- @param y (number) The new y coordinate of the display object.
 function M:setxy(x, y)
-	self.x = x
-	self.y = y
+	local dx = x - self.x
+	local dy = y - self.y
+
+	self:translate(dx, dy)
+end
+
+function M:origin(dx, dy)
+	self.xorigin = self.xorigin + dx
+	self.yorigin = self.yorigin + dy
+
+	for i, v in ipairs(self.children) do
+		v:origin(dx, dy)
+	end
 end
 
 --- 
@@ -313,7 +307,7 @@ end
 function M:render(cairo, event)
 	self:dispatch_event(event)
 
-	if self.visible then
+	if self.isvisible then
 		self:update(cairo)
 	end
 

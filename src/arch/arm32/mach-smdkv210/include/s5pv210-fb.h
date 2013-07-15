@@ -76,23 +76,8 @@ struct s5pv210fb_lcd
 	/* swap flag */
 	u32_t swap;
 
-	struct {
-		/* red color */
-		s32_t r_mask;
-		s32_t r_field;
-
-		/* green color */
-		s32_t g_mask;
-		s32_t g_field;
-
-		/* blue color */
-		s32_t b_mask;
-		s32_t b_field;
-
-		/* alpha color */
-		s32_t a_mask;
-		s32_t a_field;
-	} rgba;
+	/* pixel format */
+	enum pixel_format fmt;
 
 	struct {
 		/* horizontal front porch */
@@ -134,11 +119,11 @@ struct s5pv210fb_lcd
 		s32_t inv_vden;
 	} polarity;
 
-	/* video ram front buffer */
-	void * vram_front;
+	/* vram index */
+	int index;
 
-	/* video ram back buffer */
-	void * vram_back;
+	/* video ram buffer */
+	void * vram[3];
 
 	/* lcd init */
 	void (*init)(void);

@@ -258,6 +258,20 @@ function M:origin(dx, dy)
 	end
 end
 
+function M:hit_test_point(x, y)
+	local left = self.x
+	local top = self.y
+	local right = left + self.width
+	local bottom = top + self.height
+	
+	if x < left then return false end
+	if x > right then return false end
+	if y < top then return false end
+	if y > bottom then return false end
+	
+	return true
+end
+
 --- 
 -- Converts the x,y coordinates from the global to the display object's (local) coordinates.
 -- 

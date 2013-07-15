@@ -12,56 +12,49 @@ local display_image = require("org.xboot.display.display_image")
 local timer = require("org.xboot.timer.timer")
 local printr = require("org.xboot.util.printr")
 
-
 ----------------------------------------------------------------------------------
-
 local runtime = display_object:new("runtime")
-local image1 = display_image:new("/romdisk/samples/images/a.png", 0, 0)
-local image2 = display_image:new("/romdisk/samples/images/base.png", 100, 100)
-local image3 = display_image:new("/romdisk/samples/images/knob.png", 200, 200)
 
-local image4 = display_image:new("/romdisk/samples/images/knob.png", 300, 200)
-local image5 = display_image:new("/romdisk/samples/images/knob.png", 400, 200)
-local image6 = display_image:new("/romdisk/samples/images/knob.png", 500, 200)
-
-image1:add_event_listener(event.MOUSE_DOWN, function(e, d) print("image1 " .. e.msg.x .. "," .. e.msg.y) end)
-image2:add_event_listener(event.MOUSE_DOWN, function(e, d) print("image2 " .. e.msg.x .. "," .. e.msg.y) end)
-image3:add_event_listener(event.MOUSE_DOWN, function(e, d) print("image3 " .. e.msg.x .. "," .. e.msg.y) end)
-
-image4:add_event_listener(event.MOUSE_DOWN, function(e, d) print("image4 " .. e.msg.x .. "," .. e.msg.y) end)
-image5:add_event_listener(event.MOUSE_DOWN, function(e, d) print("image5 " .. e.msg.x .. "," .. e.msg.y) end)
-image6:add_event_listener(event.MOUSE_DOWN, function(e, d) print("image6 " .. e.msg.x .. "," .. e.msg.y) end)
-
-image1:add_event_listener(event.MOUSE_MOVE, function(e, d)
-	d:setxy(e.msg.x, e.msg.y)
-end, image1)
-
-image1:add_event_listener(event.MOUSE_DOWN, function(e, d)
-	d:rotate(10 * math.pi / 180)
-end, image1)
-
-image1:add_event_listener(event.MOUSE_UP, function(e, d)
-	d:scale(1.1, 1.1)
-end, image1)
-
-local t = 0.1
-image2:add_event_listener(event.ENTER_FRAME, function(e, d)
-
-	d.alpha = d.alpha + t
-	if(d.alpha >=0.9 ) then
-		t = -0.1
-	elseif(d.alpha <=0.1 ) then
-		t = 0.1
+local function on_mouse_down(e, d)
+	if d:hit_test_point(e.msg.x, e.msg.y) then
+		d.isfocus = true
+		d:tofront()
+		
+		d.x0 = e.msg.x
+		d.y0 = e.msg.y
+		e:stop_propagation()
 	end
-end, image2)
+end
 
-runtime:add_child(image1)
-runtime:add_child(image2)
-runtime:add_child(image3)
+local function on_mouse_move(e, d)
+	if d.isfocus then
+		local dx = e.msg.x - d.x0
+		local dy = e.msg.y - d.y0
+		
+		d:translate(dx, dy)
+		d.x0 = e.msg.x
+		d.y0 = e.msg.y
+		e:stop_propagation()
+	end
+end
 
-image3:add_child(image4)
-image3:add_child(image5)
-image5:add_child(image6)
+local function on_mouse_up(e, d)
+	if d.isfocus then
+		d.isfocus = false
+		e:stop_propagation()
+	end
+end
+
+for i=1,5 do
+	local img = display_image:new("/romdisk/samples/images/" .. i ..".png", math.random(0, 800 - 100), math.random(0, 480 - 100))
+	img.alpha = 0.98
+	
+	img:add_event_listener(event.MOUSE_DOWN, on_mouse_down, img)
+	img:add_event_listener(event.MOUSE_MOVE, on_mouse_move, img)
+	img:add_event_listener(event.MOUSE_UP, on_mouse_up, img)
+	
+	runtime:add_child(img)
+end
 
 ------------------- main --------------------------------
 local tc = buildin_timecounter.new()

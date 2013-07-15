@@ -10,7 +10,6 @@ extern "C" {
 void do_system_rootfs(void);
 void do_system_cfg(void);
 void do_system_fonts(void);
-void do_system_battery(void);
 void do_system_wait(void);
 
 #ifdef __cplusplus

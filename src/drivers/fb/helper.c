@@ -24,7 +24,7 @@
 
 u32_t fb_map_color(struct fb * fb, struct color_t * col)
 {
-	return surface_map_color(&(fb->info->surface), col);
+	return surface_map_color(fb->info->surface[0], col);
 }
 
 bool_t fb_fill_rect(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
@@ -36,8 +36,8 @@ bool_t fb_fill_rect(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 	rect.w = w;
 	rect.h = h;
 
-	surface_set_clip_rect(&(fb->info->surface), NULL);
-	return surface_fill(&(fb->info->surface), &rect, c, BLEND_MODE_REPLACE);
+	surface_set_clip_rect(fb->info->surface[0], NULL);
+	return surface_fill(fb->info->surface[0], &rect, c, BLEND_MODE_REPLACE);
 }
 
 bool_t fb_blit(struct fb * fb, struct surface_t * surface, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
@@ -54,8 +54,8 @@ bool_t fb_blit(struct fb * fb, struct surface_t * surface, u32_t x, u32_t y, u32
 	src_rect.w = w;
 	src_rect.h = h;
 
-	surface_set_clip_rect(&(fb->info->surface), NULL);
-	return surface_blit(&(fb->info->surface), &dst_rect, surface, &src_rect, BLEND_MODE_REPLACE);
+	surface_set_clip_rect(fb->info->surface[0], NULL);
+	return surface_blit(fb->info->surface[0], &dst_rect, surface, &src_rect, BLEND_MODE_REPLACE);
 }
 
 bool_t fb_putcode(struct fb * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y)

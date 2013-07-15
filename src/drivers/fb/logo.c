@@ -9608,26 +9608,26 @@ bool_t display_logo(struct fb * fb)
 	if(!fb || !xboot_logo)
 		return FALSE;
 
-	if(fb->flush)
-		fb->flush(fb);
+	if(fb->present)
+		fb->present(fb, 0);
 
 	logo = surface_alloc_from_gimage(xboot_logo);
 	if(!logo)
 		return FALSE;
 
-	surface_set_clip_rect(&(fb->info->surface), NULL);
+	surface_set_clip_rect(fb->info->surface[0], NULL);
 	surface_set_clip_rect(logo, NULL);
-	rect_align(&(fb->info->surface.clip), &(logo->clip), &rect, ALIGN_CENTER);
+	rect_align(&(fb->info->surface[0]->clip), &(logo->clip), &rect, ALIGN_CENTER);
 
-	if (!rect_intersect(&(fb->info->surface.clip), &rect, &rect))
+	if (!rect_intersect(&(fb->info->surface[0]->clip), &rect, &rect))
 	{
 		surface_free(logo);
 		return FALSE;
 	}
 
-	c = surface_map_color(&(fb->info->surface), get_named_color("black"));
-	surface_fill(&(fb->info->surface), &(fb->info->surface.clip), c, BLEND_MODE_REPLACE);
-	surface_blit(&(fb->info->surface), &rect, logo, &(logo->clip), BLEND_MODE_ALPHA);
+	c = surface_map_color(fb->info->surface[0], get_named_color("black"));
+	surface_fill(fb->info->surface[0], &(fb->info->surface[0]->clip), c, BLEND_MODE_REPLACE);
+	surface_blit(fb->info->surface[0], &rect, logo, &(logo->clip), BLEND_MODE_ALPHA);
 	surface_free(logo);
 
 	/*
@@ -9639,17 +9639,17 @@ bool_t display_logo(struct fb * fb)
 		if(!mark)
 			return FALSE;
 
-		surface_set_clip_rect(&(fb->info->surface), NULL);
+		surface_set_clip_rect(fb->info->surface[0], NULL);
 		surface_set_clip_rect(mark, NULL);
-		rect_align(&(fb->info->surface.clip), &(mark->clip), &rect, ALIGN_CENTER);
+		rect_align(&(fb->info->surface[0]->clip), &(mark->clip), &rect, ALIGN_CENTER);
 
-		if (!rect_intersect(&(fb->info->surface.clip), &rect, &rect))
+		if (!rect_intersect(&(fb->info->surface[0]->clip), &rect, &rect))
 		{
 			surface_free(mark);
 			return FALSE;
 		}
 
-		surface_blit(&(fb->info->surface), &rect, mark, &(mark->clip), BLEND_MODE_ALPHA);
+		surface_blit(fb->info->surface[0], &rect, mark, &(mark->clip), BLEND_MODE_ALPHA);
 		surface_free(mark);
 	}
 

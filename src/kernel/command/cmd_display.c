@@ -74,20 +74,20 @@ static int display(int argc, char ** argv)
 		return -1;
 	}
 
-	surface_set_clip_rect(&(fb->info->surface), NULL);
+	surface_set_clip_rect(fb->info->surface[0], NULL);
 	surface_set_clip_rect(surface, NULL);
-	rect_align(&(fb->info->surface.clip), &(surface->clip), &rect, ALIGN_CENTER);
+	rect_align(&(fb->info->surface[0]->clip), &(surface->clip), &rect, ALIGN_CENTER);
 
-	if (!rect_intersect(&(fb->info->surface.clip), &rect, &rect))
+	if (!rect_intersect(&(fb->info->surface[0]->clip), &rect, &rect))
 	{
 		surface_free(surface);
 		return -1;
 	}
 
-	c = surface_map_color(&(fb->info->surface), get_named_color("black"));
-	surface_fill(&(fb->info->surface), &(fb->info->surface.clip), c, BLEND_MODE_REPLACE);
+	c = surface_map_color(fb->info->surface[0], get_named_color("black"));
+	surface_fill(fb->info->surface[0], &(fb->info->surface[0]->clip), c, BLEND_MODE_REPLACE);
 
-	surface_blit(&(fb->info->surface), &rect, surface, &(surface->clip), BLEND_MODE_REPLACE);
+	surface_blit(fb->info->surface[0], &rect, surface, &(surface->clip), BLEND_MODE_REPLACE);
 	surface_free(surface);
 
 	return 0;

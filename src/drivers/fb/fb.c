@@ -368,7 +368,7 @@ static int fb_open(struct chrdev * dev)
 static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
-	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
+	u8_t * p = (u8_t *)((u32_t)(fb->info->surface[0]->pixels));
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
@@ -385,7 +385,7 @@ static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
 static ssize_t fb_write(struct chrdev * dev, const u8_t * buf, size_t count)
 {
 	struct fb * fb = (struct fb *)(dev->driver);
-	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
+	u8_t * p = (u8_t *)((u32_t)(fb->info->surface[0]->pixels));
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
@@ -638,7 +638,7 @@ static bool_t fbcon_scrollup(struct console * console)
 		p++;
 	}
 
-	fb_blit(info->fb, &info->fb->info->surface, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
+	fb_blit(info->fb, info->fb->info->surface[0], 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
 	fb_fill_rect(info->fb, info->bc, 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
 	fbcon_gotoxy(console, info->x, info->y - 1);
 
@@ -803,8 +803,6 @@ bool_t register_framebuffer(struct fb * fb)
 	if(!fb || !fb->info || !fb->info->name)
 		return FALSE;
 
-	surface_set_maps(&fb->info->surface.maps);
-
 	dev = malloc(sizeof(struct chrdev));
 	if(!dev)
 		return FALSE;
@@ -863,8 +861,8 @@ bool_t register_framebuffer(struct fb * fb)
 	info->fb = fb;
 	info->fw = 8;
 	info->fh = 16;
-	info->w = fb->info->surface.w / info->fw;
-	info->h = fb->info->surface.h / info->fh;
+	info->w = fb->info->surface[0]->w / info->fw;
+	info->h = fb->info->surface[0]->h / info->fh;
 	info->x = 0;
 	info->y = 0;
 	info->f = TCOLOR_WHITE;

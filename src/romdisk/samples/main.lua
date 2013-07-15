@@ -18,7 +18,7 @@ local runtime = display_object:new("runtime")
 local function on_mouse_down(e, d)
 	if d:hit_test_point(e.msg.x, e.msg.y) then
 		d.isfocus = true
-		d:tofront()
+		--d:tofront()
 		
 		d.x0 = e.msg.x
 		d.y0 = e.msg.y
@@ -47,7 +47,7 @@ end
 
 for i=1,5 do
 	local img = display_image:new("/romdisk/samples/images/" .. i ..".png", math.random(0, 800 - 100), math.random(0, 480 - 100))
-	img.alpha = 0.98
+	img.alpha = 1
 	
 	img:add_event_listener(event.MOUSE_DOWN, on_mouse_down, img)
 	img:add_event_listener(event.MOUSE_MOVE, on_mouse_move, img)
@@ -55,6 +55,12 @@ for i=1,5 do
 	
 	runtime:add_child(img)
 end
+
+local cursor = display_image:new("/romdisk/samples/images/cursor.png", 0, 0)
+cursor:add_event_listener(event.MOUSE_DOWN, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)
+cursor:add_event_listener(event.MOUSE_MOVE, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)
+cursor:add_event_listener(event.MOUSE_UP, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)
+runtime:add_child(cursor)
 
 ------------------- main --------------------------------
 local tc = buildin_timecounter.new()

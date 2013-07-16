@@ -56,7 +56,7 @@ for i=1,5 do
 	runtime:add_child(img)
 end
 
-local cursor = display_image:new("/romdisk/samples/images/cursor.png", 0, 0)
+local cursor = display_image:new("/romdisk/samples/images/cursor1.png", 0, 0)
 cursor:add_event_listener(event.MOUSE_DOWN, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)
 cursor:add_event_listener(event.MOUSE_MOVE, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)
 cursor:add_event_listener(event.MOUSE_UP, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)

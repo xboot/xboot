@@ -168,7 +168,7 @@ static struct xml * xml_err(struct xml_root * root, char * s, const char * err, 
 		if(*t == '\n')
 			line++;
 	}
-	snprintf((char *)fmt, XML_ERROR_LENGTH, (const char *)"[error near line %ld]: %s", line, err);
+	snprintf((char *)fmt, XML_ERROR_LENGTH, (const char *)"[error near line %d]: %s", line, err);
 
 	va_start(ap, err);
 	vsnprintf(root->err, XML_ERROR_LENGTH, fmt, ap);

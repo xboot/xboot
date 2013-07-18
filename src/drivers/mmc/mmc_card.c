@@ -423,7 +423,7 @@ void mmc_card_probe(void)
 		i = 0;
 		while(1)
 		{
-			snprintf((char *)card->name, 32, (const char *)"mmc%ld", i++);
+			snprintf((char *)card->name, 32, (const char *)"mmc%d", i++);
 			if(search_mmc_card(card->name) == NULL)
 				break;
 		}
@@ -552,13 +552,13 @@ static s32_t mmc_card_proc_read(u8_t * buf, s32_t offset, s32_t count)
 			break;
 		}
 		len += sprintf((char *)(p + len), (const char *)" card type         : %s\r\n", buff);
-		len += sprintf((char *)(p + len), (const char *)" manufacturer id   : 0x%lx\r\n", (u32_t)list->card->info->cid.mid);
-		len += sprintf((char *)(p + len), (const char *)" oem id            : 0x%lx\r\n", (u32_t)list->card->info->cid.oid);
+		len += sprintf((char *)(p + len), (const char *)" manufacturer id   : 0x%x\r\n", (u32_t)list->card->info->cid.mid);
+		len += sprintf((char *)(p + len), (const char *)" oem id            : 0x%x\r\n", (u32_t)list->card->info->cid.oid);
 		len += sprintf((char *)(p + len), (const char *)" product name      : %s\r\n", list->card->info->cid.pnm);
-		len += sprintf((char *)(p + len), (const char *)" hardware revision : 0x%lx\r\n", (u32_t)list->card->info->cid.hwrev);
-		len += sprintf((char *)(p + len), (const char *)" firmware revision : 0x%lx\r\n", (u32_t)list->card->info->cid.fwrev);
-		len += sprintf((char *)(p + len), (const char *)" serial number     : 0x%lx\r\n", (u32_t)list->card->info->cid.serial);
-		len += sprintf((char *)(p + len), (const char *)" manufacture date  : %ld/%02ld\r\n", (u32_t)list->card->info->cid.year, (u32_t)list->card->info->cid.month);
+		len += sprintf((char *)(p + len), (const char *)" hardware revision : 0x%x\r\n", (u32_t)list->card->info->cid.hwrev);
+		len += sprintf((char *)(p + len), (const char *)" firmware revision : 0x%x\r\n", (u32_t)list->card->info->cid.fwrev);
+		len += sprintf((char *)(p + len), (const char *)" serial number     : 0x%x\r\n", (u32_t)list->card->info->cid.serial);
+		len += sprintf((char *)(p + len), (const char *)" manufacture date  : %d/%02d\r\n", (u32_t)list->card->info->cid.year, (u32_t)list->card->info->cid.month);
 
 		ssize(buff, (u64_t)(list->card->info->sector_size));
 		len += sprintf((char *)(p + len), (const char *)" sector size       : %s\r\n", buff);

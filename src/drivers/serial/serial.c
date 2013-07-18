@@ -192,7 +192,7 @@ static bool_t scon_gotoxy(struct console * console, s32_t x, s32_t y)
 	info->x = x;
 	info->y = y;
 
-	sprintf(buf, (const char *)"\033[%ld;%ldH", y + 1, x + 1);
+	sprintf(buf, (const char *)"\033[%d;%dH", y + 1, x + 1);
 	info->drv->write((const u8_t *)buf, strlen(buf));
 
 	return TRUE;
@@ -247,10 +247,10 @@ static bool_t scon_setcolor(struct console * console, enum tcolor f, enum tcolor
 	info->f = f;
 	info->b = b;
 
-	sprintf(buf, (const char *)"\033[38;5;%ldm", (u32_t)f);
+	sprintf(buf, (const char *)"\033[38;5;%dm", (u32_t)f);
 	info->drv->write((const u8_t *)buf, strlen(buf));
 
-	sprintf(buf, (const char *)"\033[48;5;%ldm", (u32_t)b);
+	sprintf(buf, (const char *)"\033[48;5;%dm", (u32_t)b);
 	info->drv->write((const u8_t *)buf, strlen(buf));
 
 	return TRUE;
@@ -283,13 +283,13 @@ static bool_t scon_cls(struct console * console)
 	if(!info->onoff)
 		return FALSE;
 
-	sprintf(buf, (const char *)"\033[%ld;%ldr", (s32_t)1, (s32_t)info->h);
+	sprintf(buf, (const char *)"\033[%d;%dr", (s32_t)1, (s32_t)info->h);
 	info->drv->write((const u8_t *)buf, strlen(buf));
 
 	sprintf(buf, (const char *)"\033[2J");
 	info->drv->write((const u8_t *)buf, strlen(buf));
 
-	sprintf(buf, (const char *)"\033[%ld;%ldH", (s32_t)1, (s32_t)1);
+	sprintf(buf, (const char *)"\033[%d;%dH", (s32_t)1, (s32_t)1);
 	info->drv->write((const u8_t *)buf, strlen(buf));
 
 	info->x = 0;

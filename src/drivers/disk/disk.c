@@ -189,7 +189,7 @@ bool_t register_disk(struct disk * disk, enum blkdev_type type)
 		if(i == 0)
 			snprintf((char *)dblk->name, sizeof(dblk->name), (const char *)"%s", disk->name);
 		else
-			snprintf((char *)dblk->name, sizeof(dblk->name), (const char *)"%sp%ld", disk->name, i);
+			snprintf((char *)dblk->name, sizeof(dblk->name), (const char *)"%sp%d", disk->name, i);
 
 		part->dev = dev;
 		dblk->part = part;

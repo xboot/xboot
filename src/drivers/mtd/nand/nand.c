@@ -475,7 +475,7 @@ void nand_flash_probe(void)
 		i = 0;
 		while(1)
 		{
-			snprintf((char *)nand->name, 32, (const char *)"nand%ld", i++);
+			snprintf((char *)nand->name, 32, (const char *)"nand%d", i++);
 			if(search_nand_device(nand->name) == NULL)
 				break;
 		}
@@ -726,13 +726,13 @@ static s32_t nand_proc_read(u8_t * buf, s32_t offset, s32_t count)
 		len += sprintf((char *)(p + len), (const char *)" description     : %s\r\n", list->nand->info->name);
 		len += sprintf((char *)(p + len), (const char *)" manufacturer    : %s\r\n", list->nand->manufacturer->name);
 		len += sprintf((char *)(p + len), (const char *)" nand controller : %s\r\n", list->nand->nfc->name);
-		len += sprintf((char *)(p + len), (const char *)" bus width       : %ld\r\n", list->nand->bus_width);
-		len += sprintf((char *)(p + len), (const char *)" address cycles  : %ld\r\n", list->nand->addr_cycles);
+		len += sprintf((char *)(p + len), (const char *)" bus width       : %d\r\n", list->nand->bus_width);
+		len += sprintf((char *)(p + len), (const char *)" address cycles  : %d\r\n", list->nand->addr_cycles);
 		ssize(size, (u64_t)(list->nand->page_size));
 		len += sprintf((char *)(p + len), (const char *)" page size       : %s\r\n", size);
 		ssize(size, (u64_t)(list->nand->erase_size));
 		len += sprintf((char *)(p + len), (const char *)" block size      : %s\r\n", size);
-		len += sprintf((char *)(p + len), (const char *)" block number    : %ld\r\n", list->nand->num_blocks);
+		len += sprintf((char *)(p + len), (const char *)" block number    : %d\r\n", list->nand->num_blocks);
 	}
 
 	len -= offset;

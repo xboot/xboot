@@ -129,13 +129,13 @@ static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	if(machine_batinfo(&info))
 	{
 		len += sprintf((char *)(p + len), (const char *)" battery charging   : %s\r\n", info.charging ? "yes" : "no");
-		len += sprintf((char *)(p + len), (const char *)" battery voltage    : %ldmV\r\n", info.voltage);
-		len += sprintf((char *)(p + len), (const char *)" charge current     : %ldmA\r\n", info.charge_current);
-		len += sprintf((char *)(p + len), (const char *)" discharge current  : %ldmA\r\n", info.discharge_current);
-		len += sprintf((char *)(p + len), (const char *)" battery temperature: %ld.%ldC\r\n", info.temperature/10, info.temperature%10);
-		len += sprintf((char *)(p + len), (const char *)" battery capacity   : %ldmAh\r\n", info.capacity);
-		len += sprintf((char *)(p + len), (const char *)" internal resistance: %ldmohm\r\n", info.internal_resistance);
-		len += sprintf((char *)(p + len), (const char *)" battery level      : %ld%%\r\n", info.level);
+		len += sprintf((char *)(p + len), (const char *)" battery voltage    : %dmV\r\n", info.voltage);
+		len += sprintf((char *)(p + len), (const char *)" charge current     : %dmA\r\n", info.charge_current);
+		len += sprintf((char *)(p + len), (const char *)" discharge current  : %dmA\r\n", info.discharge_current);
+		len += sprintf((char *)(p + len), (const char *)" battery temperature: %d.%dC\r\n", info.temperature/10, info.temperature%10);
+		len += sprintf((char *)(p + len), (const char *)" battery capacity   : %dmAh\r\n", info.capacity);
+		len += sprintf((char *)(p + len), (const char *)" internal resistance: %dmohm\r\n", info.internal_resistance);
+		len += sprintf((char *)(p + len), (const char *)" battery level      : %d%%\r\n", info.level);
 	}
 
 	for(i = 0; i < ARRAY_SIZE(get_machine()->res.mem_banks); i++)
@@ -143,10 +143,10 @@ static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
 		if( (get_machine()->res.mem_banks[i].start == 0) && (get_machine()->res.mem_banks[i].end == 0) )
 			break;
 
-		len += sprintf((char *)(p + len), (const char *)" memory bank%ld start : %p\r\n", i, (void *)get_machine()->res.mem_banks[i].start);
-		len += sprintf((char *)(p + len), (const char *)" memory bank%ld end   : %p\r\n", i, (void *)get_machine()->res.mem_banks[i].end);
+		len += sprintf((char *)(p + len), (const char *)" memory bank%d start : %p\r\n", i, (void *)get_machine()->res.mem_banks[i].start);
+		len += sprintf((char *)(p + len), (const char *)" memory bank%d end   : %p\r\n", i, (void *)get_machine()->res.mem_banks[i].end);
 		ssize(size, (u64_t)(get_machine()->res.mem_banks[i].end - get_machine()->res.mem_banks[i].start + 1));
-		len += sprintf((char *)(p + len), (const char *)" memory bank%ld size  : %s\r\n", i, size);
+		len += sprintf((char *)(p + len), (const char *)" memory bank%d size  : %s\r\n", i, size);
 	}
 
 	len -= offset;

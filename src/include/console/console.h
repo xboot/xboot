@@ -103,10 +103,9 @@ struct console_list
 	struct list_head entry;
 };
 
-
-inline struct console * get_console_stdin(void);
-inline struct console * get_console_stdout(void);
-inline struct console * get_console_stderr(void);
+struct console * get_console_stdin(void);
+struct console * get_console_stdout(void);
+struct console * get_console_stderr(void);
 
 bool_t console_stdin_getcode(u32_t * code);
 bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout);

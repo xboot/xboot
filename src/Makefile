@@ -56,10 +56,10 @@ sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 #
 # Modify default variables.
 #
-NAMESPACES	+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
-ASFLAGS	+= 	$(NAMESPACES)
-CFLAGS		+=	$(NAMESPACES)
-CXXFLAGS	+=	$(NAMESPACES)
+DEFINES	+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
+ASFLAGS	+= 	-std=gnu99 $(DEFINES)
+CFLAGS		+=	-std=gnu99 $(DEFINES)
+CXXFLAGS	+=	-std=gnu99 $(DEFINES)
 
 #
 # Add necessary directory for INCDIRS and SRCDIRS.

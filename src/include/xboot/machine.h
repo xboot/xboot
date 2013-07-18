@@ -117,7 +117,7 @@ struct machine {
 };
 
 bool_t register_machine(struct machine * mach);
-inline struct machine * get_machine(void);
+struct machine * get_machine(void);
 
 bool_t machine_sleep(void);
 bool_t machine_halt(void);

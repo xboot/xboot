@@ -138,7 +138,7 @@ static s32_t bogomips_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	u32_t hz = get_system_hz();
 
 	if(hz != 0)
-		len = sprintf(tmp, (const char *)"%lu.%02lu", (u32_t)( loops_per_jiffy / (500000 / hz) ), (u32_t)( (loops_per_jiffy / (5000 / hz) ) % 100) );
+		len = sprintf(tmp, (const char *)"%u.%02u", (u32_t)( loops_per_jiffy / (500000 / hz) ), (u32_t)( (loops_per_jiffy / (5000 / hz) ) % 100) );
 	else
 		len = sprintf(tmp, (const char *)"0.00");
 

@@ -8,8 +8,8 @@ extern "C" {
 #include <xboot.h>
 
 u32_t string_hash(const char * s);
-inline u32_t long_hash(u32_t val, u32_t bits);
-inline u32_t ptr_hash(void *ptr, u32_t bits);
+u32_t long_hash(u32_t val, u32_t bits);
+u32_t ptr_hash(void *ptr, u32_t bits);
 
 #ifdef __cplusplus
 }

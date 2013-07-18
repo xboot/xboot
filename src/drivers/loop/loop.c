@@ -237,7 +237,7 @@ bool_t register_loop(const char * file)
 
 	while(1)
 	{
-		snprintf((char *)loop->name, 32, (const char *)"loop%ld", i++);
+		snprintf((char *)loop->name, 32, (const char *)"loop%d", i++);
 		if(search_device(loop->name) == NULL)
 			break;
 	}

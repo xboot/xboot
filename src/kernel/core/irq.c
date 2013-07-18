@@ -196,9 +196,9 @@ static s32_t interrupt_proc_read(u8_t * buf, s32_t offset, s32_t count)
 		hlist_for_each_entry(list,  pos, &(irq_hash[i]), node)
 		{
 			if(list->busy)
-				len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3ld used", list->irq->name, (int)(16 - strlen((char *)list->irq->name)), "", list->irq->irq_no);
+				len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3d used", list->irq->name, (int)(16 - strlen((char *)list->irq->name)), "", list->irq->irq_no);
 			else
-				len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3ld", list->irq->name, (int)(16 - strlen((char *)list->irq->name)), "", list->irq->irq_no);
+				len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3d", list->irq->name, (int)(16 - strlen((char *)list->irq->name)), "", list->irq->irq_no);
 		}
 	}
 

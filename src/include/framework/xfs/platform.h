@@ -9,10 +9,10 @@ extern "C" {
 
 void __xfs_platform_sort(void * a, size_t max, int (*cmp)(void *, size_t, size_t), void (*swap)(void *, size_t, size_t));
 
-inline struct xfs_context_t * __xfs_platform_get_context(void);
-inline void __xfs_platform_lock(void);
-inline void __xfs_platform_unlock(void);
-inline const char * __xfs_platform_directory_separator(void);
+struct xfs_context_t * __xfs_platform_get_context(void);
+void __xfs_platform_lock(void);
+void __xfs_platform_unlock(void);
+const char * __xfs_platform_directory_separator(void);
 char * __xfs_platform_absolute_path(const char * path);
 char * __xfs_platform_cvt_to_dependent(const char * prepend, const char * dirname, const char * append);
 

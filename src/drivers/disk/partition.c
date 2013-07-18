@@ -167,7 +167,7 @@ bool_t partition_parser_probe(struct disk * disk)
 		if(i != 0)
 		{
 			if(strnlen(part->name, sizeof(part->name)) <= 0)
-				snprintf(part->name, sizeof(part->name), "part%ld", i);
+				snprintf(part->name, sizeof(part->name), "part%d", i);
 		}
 	}
 

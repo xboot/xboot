@@ -154,7 +154,7 @@ static ssize_t rtc_read(struct chrdev * dev, u8_t * buf, size_t count)
 	{
 		if(drv->get_time(&time))
 		{
-			len = sprintf(tmp, "%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu\r\n", (u32_t)time.year, (u32_t)time.mon, (u32_t)time.day, week_days[time.week], (u32_t)time.hour, (u32_t)time.min, (u32_t)time.sec);
+			len = sprintf(tmp, "%04u-%02u-%02u %s %02u:%02u:%02u\r\n", (u32_t)time.year, (u32_t)time.mon, (u32_t)time.day, week_days[time.week], (u32_t)time.hour, (u32_t)time.min, (u32_t)time.sec);
 			len -= offset;
 
 			if(len < 0)

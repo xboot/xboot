@@ -198,7 +198,7 @@ static s32_t xtime_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	s32_t len;
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
-	len = sprintf(tmp, "%04lu-%02lu-%02lu %s %02lu:%02lu:%02lu", (u32_t)xtime.year, (u32_t)xtime.mon, (u32_t)xtime.day, week_days[xtime.week], (u32_t)xtime.hour, (u32_t)xtime.min, (u32_t)xtime.sec);
+	len = sprintf(tmp, "%04u-%02u-%02u %s %02u:%02u:%02u", (u32_t)xtime.year, (u32_t)xtime.mon, (u32_t)xtime.day, week_days[xtime.week], (u32_t)xtime.hour, (u32_t)xtime.min, (u32_t)xtime.sec);
 	len -= offset;
 
 	if(len < 0)

@@ -20,7 +20,7 @@ enum mode_t {
 	MODE_GRAPHIC		= 3,
 };
 
-inline enum mode_t xboot_get_mode(void);
+enum mode_t xboot_get_mode(void);
 bool_t xboot_set_mode(enum mode_t m);
 
 void run_normal_mode(void);

@@ -57,9 +57,9 @@ sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 # Modify default variables.
 #
 DEFINES	+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
-ASFLAGS	+= 	-std=gnu99 $(DEFINES)
-CFLAGS		+=	-std=gnu99 $(DEFINES)
-CXXFLAGS	+=	-std=gnu99 $(DEFINES)
+ASFLAGS	+= 	-std=c99 $(DEFINES)
+CFLAGS		+=	-std=c99 $(DEFINES)
+CXXFLAGS	+=	-std=c99 $(DEFINES)
 
 #
 # Add necessary directory for INCDIRS and SRCDIRS.
@@ -190,6 +190,11 @@ SRCDIRS	+=	external/freetype-2.4.11/src/base 		\
 				external/freetype-2.4.11/src/psaux 	\
 				external/freetype-2.4.11/src/pshinter 	\
 				external/freetype-2.4.11/src/psnames
+
+INCDIRS	+=	external/chipmunk-6.1.5/include/chipmunk \
+				external/chipmunk-6.1.5/include/chipmunk/constraints
+SRCDIRS	+=	external/chipmunk-6.1.5/src \
+			 	external/chipmunk-6.1.5/src/constraints
 
 #
 # You shouldn't need to change anything below this point.

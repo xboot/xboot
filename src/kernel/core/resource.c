@@ -56,7 +56,7 @@ static struct resource_t * search_resource(const char * name)
 
 	for(pos = (&resource_list->entry)->next; pos != (&resource_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct resource_list, entry);
+		list = list_entry(pos, struct resource_list_t, entry);
 		if(strcmp(list->res->name, name) == 0)
 			return list->res;
 	}
@@ -71,7 +71,7 @@ bool_t register_resource(struct resource_t * res)
 {
 	struct resource_list_t * list;
 
-	list = malloc(sizeof(struct resource_list));
+	list = malloc(sizeof(struct resource_list_t));
 	if(!list || !res)
 	{
 		free(list);
@@ -103,7 +103,7 @@ bool_t unregister_resource(struct resource_t * res)
 
 	for(pos = (&resource_list->entry)->next; pos != (&resource_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct resource_list, entry);
+		list = list_entry(pos, struct resource_list_t, entry);
 		if(list->res == res)
 		{
 			list_del(pos);
@@ -146,7 +146,7 @@ static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	len += sprintf((char *)(p + len), (const char *)"[resource]");
 	for(pos = (&resource_list->entry)->next; pos != (&resource_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct resource_list, entry);
+		list = list_entry(pos, struct resource_list_t, entry);
 		len += sprintf((char *)(p + len), (const char *)"\r\n %s", list->res->name);
 	}
 

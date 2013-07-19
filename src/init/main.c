@@ -45,9 +45,6 @@ int xboot_main(int argc, char * argv[])
 	/* load system configure */
 	do_system_cfg();
 
-	/* load system fonts */
-	do_system_fonts();
-
 	/* wait a moment */
 	do_system_wait();
 

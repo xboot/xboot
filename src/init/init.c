@@ -107,69 +107,6 @@ void do_system_cfg(void)
 }
 
 /*
- * do load system fonts
- */
-void do_system_fonts(void)
-{
-	char path[MAX_PATH];
-	char buf[MAX_PATH];
-	struct stat st;
-	struct dirent * entry;
-	void * dir;
-
-	LOG("load system fonts");
-
-	/*
-	 * system fonts's directory path
-	 */
-	sprintf(path, "%s", "/romdisk/system/fonts");
-
-	if(stat(path, &st) != 0)
-		return;
-
-	if(! S_ISDIR(st.st_mode))
-		return;
-
-	if( (dir = opendir(path)) == NULL)
-    	return;
-
-    for(;;)
-    {
-		if( (entry = readdir(dir)) == NULL)
-		  break;
-
-		buf[0] = 0;
-		strlcpy(buf, path, sizeof(buf));
-		buf[sizeof(buf) - 1] = '\0';
-
-		if(!strcmp(entry->d_name, "."))
-		{
-			continue;
-		}
-		else if(!strcmp(entry->d_name, ".."))
-		{
-			continue;
-		}
-		else
-		{
-			strlcat(buf, "/", sizeof(buf));
-			strlcat(buf, entry->d_name, sizeof(buf));
-		}
-
-		if(stat(buf, &st) != 0)
-			continue;
-
-		/*
-		 * FIXME
-		 */
-		// if(! install_font(buf))
-		//	LOG("fail to install font: %s", buf);
-    }
-
-	closedir(dir);
-}
-
-/*
  * wait a moment (two seconds)
  */
 void do_system_wait(void)

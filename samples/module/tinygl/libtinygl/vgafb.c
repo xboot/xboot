@@ -58,8 +58,8 @@ bool_t vgafb_make_current(struct vgafb_context *ctx, struct fb *fb_dev)
     	struct fb * fb;
     	struct surface_t * screen;
 
-    	fb = search_framebuffer("fb0");
-    	screen = fb->info->surface[0];
+    	fb = search_framebuffer("fb");
+    	screen = &fb->info->surface;
     	fb_dev = fb;
 
         if ((zb = ZB_open(800, 480, ZB_MODE_RGBA, ZB_NB_COLORS, color_indexes, palette, 0)) == NULL)
@@ -98,7 +98,7 @@ bool_t vgafb_swap_buffer()
 
     /* get framebuffer ram address */
     struct surface_t * screen;
-    screen = ctx->fb_dev->info->surface[0];
+    screen = &ctx->fb_dev->info->surface;
 
     /* Update framebuffer (the linesize is xsize*2 since tinygl works on 16 bits values */
     int linesize = gl_context->zb->xsize*4;

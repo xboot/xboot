@@ -57,7 +57,7 @@ static int test(int argc, char ** argv)
 	cairo_surface_t * cs;
 	cairo_t * cr;
 
-	cs = cairo_xboot_surface_create(get_default_framebuffer()->info->surface[0]);
+	cs = cairo_xboot_surface_create(&(get_default_framebuffer()->info->surface));
 	cr = cairo_create(cs);
 
 	cairo_save(cr);

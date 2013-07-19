@@ -44,7 +44,7 @@ static struct list_head vnode_table[VNODE_HASH_SIZE];
 /*
  * get the hash value from the mount point and path name.
  */
-static u32_t vn_hash(struct mount * mp, char * path)
+static u32_t vn_hash(struct mount_t * mp, char * path)
 {
 	u32_t val = 0;
 
@@ -60,16 +60,16 @@ static u32_t vn_hash(struct mount * mp, char * path)
 /*
  * returns locked vnode for specified mount point and path.
  */
-struct vnode * vn_lookup(struct mount * mp, char * path)
+struct vnode_t * vn_lookup(struct mount_t * mp, char * path)
 {
 	struct list_head * pos;
 	struct list_head * head;
-	struct vnode * vp;
+	struct vnode_t * vp;
 
 	head = &vnode_table[vn_hash(mp, path)];
 	list_for_each(pos, head)
 	{
-		vp = list_entry(pos, struct vnode, v_link);
+		vp = list_entry(pos, struct vnode_t, v_link);
 		if( (vp->v_mount == mp) && (!strncmp(vp->v_path, path, MAX_PATH)) )
 		{
 			vp->v_refcnt++;
@@ -83,14 +83,14 @@ struct vnode * vn_lookup(struct mount * mp, char * path)
 /*
  * allocate new vnode for specified path.
  */
-struct vnode * vget(struct mount * mp, char * path)
+struct vnode_t * vget(struct mount_t * mp, char * path)
 {
-	struct vnode * vp;
+	struct vnode_t * vp;
 	s32_t len;
 
-	if( !(vp = malloc(sizeof(struct vnode))) )
+	if( !(vp = malloc(sizeof(struct vnode_t))) )
 		return NULL;
-	memset(vp, 0, sizeof(struct vnode));
+	memset(vp, 0, sizeof(struct vnode_t));
 
 	len = strlen(path) + 1;
 	if( !(vp->v_path = malloc(len)) )
@@ -125,7 +125,7 @@ struct vnode * vget(struct mount * mp, char * path)
 /*
  * unlock vnode and decrement its reference count.
  */
-void vput(struct vnode * vp)
+void vput(struct vnode_t * vp)
 {
 	vp->v_refcnt--;
 
@@ -147,7 +147,7 @@ void vput(struct vnode * vp)
 /*
  * return reference count.
  */
-s32_t vcount(struct vnode * vp)
+s32_t vcount(struct vnode_t * vp)
 {
 	s32_t count;
 
@@ -159,7 +159,7 @@ s32_t vcount(struct vnode * vp)
 /*
  * increment the reference count on an active vnode.
  */
-void vref(struct vnode * vp)
+void vref(struct vnode_t * vp)
 {
 	vp->v_refcnt++;
 }
@@ -167,7 +167,7 @@ void vref(struct vnode * vp)
 /*
  * decrement the reference count of the vnode.
  */
-void vrele(struct vnode * vp)
+void vrele(struct vnode_t * vp)
 {
 	vp->v_refcnt--;
 
@@ -189,7 +189,7 @@ void vrele(struct vnode * vp)
 /*
  * vgone() is called when unlocked vnode is no longer valid.
  */
-void vgone(struct vnode * vp)
+void vgone(struct vnode_t * vp)
 {
 	list_del(&vp->v_link);
 	vfs_unbusy(vp->v_mount);
@@ -201,17 +201,17 @@ void vgone(struct vnode * vp)
 /*
  * remove all vnode in the vnode table for unmount.
  */
-void vflush(struct mount * mp)
+void vflush(struct mount_t * mp)
 {
 	struct list_head * pos;
-	struct vnode * vp;
+	struct vnode_t * vp;
 	s32_t i;
 
 	for(i = 0; i < VNODE_HASH_SIZE; i++)
 	{
 		list_for_each(pos, &vnode_table[i])
 		{
-			vp = list_entry(pos, struct vnode, v_link);
+			vp = list_entry(pos, struct vnode_t, v_link);
 			if(vp->v_mount == mp)
 			{
 				/* TODO */
@@ -223,7 +223,7 @@ void vflush(struct mount * mp)
 /*
  * get stat on vnode pointer.
  */
-s32_t vn_stat(struct vnode * vp, struct stat * st)
+s32_t vn_stat(struct vnode_t * vp, struct stat * st)
 {
 	u32_t mode;
 
@@ -277,7 +277,7 @@ s32_t vn_stat(struct vnode * vp, struct stat * st)
 /*
  * check permission on vnode pointer.
  */
-s32_t vn_access(struct vnode * vp, u32_t mode)
+s32_t vn_access(struct vnode_t * vp, u32_t mode)
 {
 	if((mode & R_OK) && (vp->v_mode & (S_IRUSR|S_IRGRP|S_IROTH)) == 0)
 	{

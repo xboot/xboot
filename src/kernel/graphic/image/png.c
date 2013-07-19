@@ -792,7 +792,7 @@ static struct surface_t * png_load(const char * filename)
 	return surface;
 }
 
-static struct image_loader image_loader_png = {
+static struct image_loader_t image_loader_png = {
 	.extension		= ".png",
 	.load			= png_load,
 };

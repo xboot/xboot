@@ -22,7 +22,7 @@
 
 #include <graphic/maps/software.h>
 
-bool_t map_software_vline(struct surface_t * surface, s32_t x0, s32_t y0, u32_t y1, u32_t c, enum blend_mode mode)
+bool_t map_software_vline(struct surface_t * surface, s32_t x0, s32_t y0, u32_t y1, u32_t c, enum blend_mode_t mode)
 {
 	return FALSE;
 }

@@ -7,7 +7,7 @@ extern "C" {
 
 #include <xboot.h>
 
-struct time {
+struct xtime_t {
 	u8_t sec;
 	u8_t min;
 	u8_t hour;

@@ -309,7 +309,7 @@ static inline void software_fill_alpha(struct surface_t * surface,
 }
 
 bool_t map_software_fill(struct surface_t * surface,
-		struct rect_t * rect, u32_t c, enum blend_mode mode)
+		struct rect_t * rect, u32_t c, enum blend_mode_t mode)
 {
 	struct rect_t clipped;
 

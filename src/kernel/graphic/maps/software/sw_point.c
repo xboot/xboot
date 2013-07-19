@@ -22,7 +22,7 @@
 
 #include <graphic/maps/software.h>
 
-bool_t map_software_point(struct surface_t * surface, s32_t x, s32_t y, u32_t c, enum blend_mode mode)
+bool_t map_software_point(struct surface_t * surface, s32_t x, s32_t y, u32_t c, enum blend_mode_t mode)
 {
 	s32_t minx, miny;
 	s32_t maxx, maxy;

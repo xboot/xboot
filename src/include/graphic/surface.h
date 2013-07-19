@@ -75,10 +75,10 @@ bool_t surface_set_clip_rect(struct surface_t * surface, struct rect_t * rect);
 bool_t surface_get_clip_rect(struct surface_t * surface, struct rect_t * rect);
 u32_t surface_map_color(struct surface_t * surface, struct color_t * col);
 void surface_unmap_color(struct surface_t * surface, u32_t c, struct color_t * col);
-bool_t surface_fill(struct surface_t * surface, struct rect_t * rect, u32_t c, enum blend_mode mode);
-bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode mode);
+bool_t surface_fill(struct surface_t * surface, struct rect_t * rect, u32_t c, enum blend_mode_t mode);
+bool_t surface_blit(struct surface_t * dst, struct rect_t * dst_rect, struct surface_t * src, struct rect_t * src_rect, enum blend_mode_t mode);
 struct surface_t * surface_scale(struct surface_t * surface, struct rect_t * rect, u32_t w, u32_t h);
-struct surface_t * surface_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type);
+struct surface_t * surface_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type_t type);
 
 #ifdef __cplusplus
 }

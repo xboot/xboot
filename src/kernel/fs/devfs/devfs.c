@@ -39,7 +39,7 @@ extern struct device_list * device_list;
 /*
  * filesystem operations
  */
-static s32_t devfs_mount(struct mount * m, char * dev, s32_t flag)
+static s32_t devfs_mount(struct mount_t * m, char * dev, s32_t flag)
 {
 	if(dev != NULL)
 		return EINVAL;
@@ -50,24 +50,24 @@ static s32_t devfs_mount(struct mount * m, char * dev, s32_t flag)
 	return 0;
 }
 
-static s32_t devfs_unmount(struct mount * m)
+static s32_t devfs_unmount(struct mount_t * m)
 {
 	m->m_data = NULL;
 
 	return 0;
 }
 
-static s32_t devfs_sync(struct mount * m)
+static s32_t devfs_sync(struct mount_t * m)
 {
 	return 0;
 }
 
-static s32_t devfs_vget(struct mount * m, struct vnode * node)
+static s32_t devfs_vget(struct mount_t * m, struct vnode_t * node)
 {
 	return 0;
 }
 
-static s32_t devfs_statfs(struct mount * m, struct statfs * stat)
+static s32_t devfs_statfs(struct mount_t * m, struct statfs * stat)
 {
 	return -1;
 }
@@ -75,7 +75,7 @@ static s32_t devfs_statfs(struct mount * m, struct statfs * stat)
 /*
  * vnode operations
  */
-static s32_t devfs_open(struct vnode * node, s32_t flag)
+static s32_t devfs_open(struct vnode_t * node, s32_t flag)
 {
 	struct device_t * dev;
 	struct chrdev_t * chr;
@@ -120,7 +120,7 @@ static s32_t devfs_open(struct vnode * node, s32_t flag)
 	return 0;
 }
 
-static s32_t devfs_close(struct vnode * node, struct file * fp)
+static s32_t devfs_close(struct vnode_t * node, struct file_t * fp)
 {
 	struct device_t * dev;
 	struct chrdev_t * chr;
@@ -149,7 +149,7 @@ static s32_t devfs_close(struct vnode * node, struct file * fp)
 	return -1;
 }
 
-static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
+static s32_t devfs_read(struct vnode_t * node, struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct device_t * dev = (struct device_t *)(node->v_data);
 	struct chrdev_t * chr;
@@ -184,7 +184,7 @@ static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_
 	return -1;
 }
 
-static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
+static s32_t devfs_write(struct vnode_t * node , struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct device_t * dev = (struct device_t *)(node->v_data);
 	struct chrdev_t * chr;
@@ -219,7 +219,7 @@ static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, lof
 	return -1;
 }
 
-static s32_t devfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
+static s32_t devfs_seek(struct vnode_t * node, struct file_t * fp, loff_t off1, loff_t off2)
 {
 	if(node->v_type == VBLK)
 	{
@@ -232,7 +232,7 @@ static s32_t devfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff
 	return -1;
 }
 
-static s32_t devfs_ioctl(struct vnode * node, struct file * fp, int cmd, void * arg)
+static s32_t devfs_ioctl(struct vnode_t * node, struct file_t * fp, int cmd, void * arg)
 {
 	struct device_t * dev = (struct device_t *)(node->v_data);
 	struct chrdev_t * chr;
@@ -255,12 +255,12 @@ static s32_t devfs_ioctl(struct vnode * node, struct file * fp, int cmd, void * 
 	return -1;
 }
 
-static s32_t devfs_fsync(struct vnode * node, struct file * fp)
+static s32_t devfs_fsync(struct vnode_t * node, struct file_t * fp)
 {
 	return 0;
 }
 
-static s32_t devfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
+static s32_t devfs_readdir(struct vnode_t * node, struct file_t * fp, struct dirent_t * dir)
 {
 	struct device_list * plist = (struct device_list *)node->v_mount->m_data;
 	struct device_list * list;
@@ -311,7 +311,7 @@ static s32_t devfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	return 0;
 }
 
-static s32_t devfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
+static s32_t devfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * node)
 {
 	struct device_t * dev;
 	struct chrdev_t * chr;
@@ -346,47 +346,47 @@ static s32_t devfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	return 0;
 }
 
-static s32_t devfs_create(struct vnode * node, char * name, u32_t mode)
+static s32_t devfs_create(struct vnode_t * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static s32_t devfs_remove(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t devfs_remove(struct vnode_t * dnode, struct vnode_t * node, char * name)
 {
 	return -1;
 }
 
-static s32_t devfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
+static s32_t devfs_rename(struct vnode_t * dnode1, struct vnode_t * node1, char * name1, struct vnode_t *dnode2, struct vnode_t * node2, char * name2)
 {
 	return -1;
 }
 
-static s32_t devfs_mkdir(struct vnode * node, char * name, u32_t mode)
+static s32_t devfs_mkdir(struct vnode_t * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static s32_t devfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t devfs_rmdir(struct vnode_t * dnode, struct vnode_t * node, char * name)
 {
 	return -1;
 }
 
-static s32_t devfs_getattr(struct vnode * node, struct vattr * attr)
+static s32_t devfs_getattr(struct vnode_t * node, struct vattr_t * attr)
 {
 	return -1;
 }
 
-static s32_t devfs_setattr(struct vnode * node, struct vattr * attr)
+static s32_t devfs_setattr(struct vnode_t * node, struct vattr_t * attr)
 {
 	return -1;
 }
 
-static s32_t devfs_inactive(struct vnode * node)
+static s32_t devfs_inactive(struct vnode_t * node)
 {
 	return -1;
 }
 
-static s32_t devfs_truncate(struct vnode * node, loff_t length)
+static s32_t devfs_truncate(struct vnode_t * node, loff_t length)
 {
 	return -1;
 }
@@ -394,7 +394,7 @@ static s32_t devfs_truncate(struct vnode * node, loff_t length)
 /*
  * devfs vnode operations
  */
-static struct vnops devfs_vnops = {
+static struct vnops_t devfs_vnops = {
 	.vop_open 		= devfs_open,
 	.vop_close		= devfs_close,
 	.vop_read		= devfs_read,
@@ -418,7 +418,7 @@ static struct vnops devfs_vnops = {
 /*
  * file system operations
  */
-static struct vfsops devfs_vfsops = {
+static struct vfsops_t devfs_vfsops = {
 	.vfs_mount		= devfs_mount,
 	.vfs_unmount	= devfs_unmount,
 	.vfs_sync		= devfs_sync,
@@ -430,7 +430,7 @@ static struct vfsops devfs_vfsops = {
 /*
  * devfs filesystem
  */
-static struct filesystem devfs = {
+static struct filesystem_t devfs = {
 	.name		= "devfs",
 	.vfsops		= &devfs_vfsops,
 };

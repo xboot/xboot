@@ -14,13 +14,13 @@ extern "C" {
 /*
  * filesystem structure
  */
-struct filesystem
+struct filesystem_t
 {
 	/* filesystem name */
 	const char * name;
 
 	/* pointer to vfs operation */
-	struct vfsops * vfsops;
+	struct vfsops_t * vfsops;
 };
 
 /*
@@ -28,13 +28,13 @@ struct filesystem
  */
 struct fs_list
 {
-	struct filesystem * fs;
+	struct filesystem_t * fs;
 	struct list_head entry;
 };
 
-bool_t filesystem_register(struct filesystem * fs);
-bool_t filesystem_unregister(struct filesystem * fs);
-struct filesystem * filesystem_search(const char * name);
+bool_t filesystem_register(struct filesystem_t * fs);
+bool_t filesystem_unregister(struct filesystem_t * fs);
+struct filesystem_t * filesystem_search(const char * name);
 
 #ifdef __cplusplus
 }

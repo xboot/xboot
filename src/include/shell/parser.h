@@ -10,7 +10,7 @@ extern "C" {
 #include <ctype.h>
 #include <string.h>
 
-enum paser_state {
+enum paser_state_t {
 	PARSER_STATE_TEXT = 1,
 	PARSER_STATE_ESC,
 	PARSER_STATE_QUOTE,
@@ -24,13 +24,13 @@ enum paser_state {
 };
 
 /* A single state transition. */
-struct parser_state_transition
+struct parser_state_transition_t
 {
 	/* The state that is looked up. */
-	enum paser_state from_state;
+	enum paser_state_t from_state;
 
 	/* The next state, determined by FROM_STATE and INPUT. */
-	enum paser_state to_state;
+	enum paser_state_t to_state;
 
 	/* The input that will determine the next state from FROM_STATE. */
 	char input;

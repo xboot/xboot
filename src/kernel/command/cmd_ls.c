@@ -105,7 +105,7 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 {
 	char buf[MAX_PATH];
 	struct stat st;
-	struct dirent * entry;
+	struct dirent_t * entry;
 	void * dir;
 	s32_t n_file = 0;
 

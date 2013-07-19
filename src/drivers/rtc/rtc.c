@@ -66,7 +66,7 @@ u32_t rtc_year_days(u32_t year, u32_t month, u32_t day)
 /*
  * does the time represent a valid date/time?
  */
-bool_t rtc_valid_time(struct time * tm)
+bool_t rtc_valid_time(struct xtime_t * tm)
 {
 	if (tm->year < 1970
 		|| (tm->mon) > 12
@@ -83,7 +83,7 @@ bool_t rtc_valid_time(struct time * tm)
 /*
  * convert seconds since 01-01-1970 00:00:00 to gregorian date.
  */
-void rtc_to_time(unsigned long time, struct time *tm)
+void rtc_to_time(unsigned long time, struct xtime_t *tm)
 {
 	u32_t month, year;
 	s32_t days;
@@ -125,7 +125,7 @@ void rtc_to_time(unsigned long time, struct time *tm)
 /*
  * convert gregorian date to seconds since 01-01-1970 00:00:00.
  */
-u32_t time_to_rtc(struct time * tm)
+u32_t time_to_rtc(struct xtime_t * tm)
 {
 	return xmktime(tm->year, tm->mon, tm->day, tm->hour, tm->min, tm->sec);
 }
@@ -145,7 +145,7 @@ static ssize_t rtc_read(struct chrdev_t * dev, u8_t * buf, size_t count)
 {
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 	struct rtc_driver_t * drv = (struct rtc_driver_t *)(dev->driver);
-	struct time time;
+	struct xtime_t time;
 	char tmp[64];
 	int offset = 0;
 	int len;
@@ -184,30 +184,30 @@ static ssize_t rtc_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
 static int rtc_ioctl(struct chrdev_t * dev, int cmd, void * arg)
 {
 	struct rtc_driver_t * drv = (struct rtc_driver_t *)(dev->driver);
-	struct time * time;
+	struct xtime_t * time;
 
 	switch(cmd)
 	{
 	case IOCTL_SET_RTC_TIME:
-		time = (struct time *)arg;
+		time = (struct xtime_t *)arg;
 		if(drv->set_time && drv->set_time(time))
 			return 0;
 		break;
 
 	case IOCTL_GET_RTC_TIME:
-		time = (struct time *)arg;
+		time = (struct xtime_t *)arg;
 		if(drv->get_time && drv->get_time(time))
 			return 0;
 		break;
 
 	case IOCTL_SET_RTC_ALARM:
-		time = (struct time *)arg;
+		time = (struct xtime_t *)arg;
 		if(drv->set_alarm && drv->set_alarm(time))
 			return 0;
 		break;
 
 	case IOCTL_GET_RTC_ALARM:
-		time = (struct time *)arg;
+		time = (struct xtime_t *)arg;
 		if(drv->get_alarm && drv->get_alarm(time))
 			return 0;
 		break;

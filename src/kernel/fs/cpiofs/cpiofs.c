@@ -135,7 +135,7 @@ static bool_t check_path(const char * path, const char * perfix, const char * na
 /*
  * filesystem operations
  */
-static s32_t cpiofs_mount(struct mount * m, char * dev, s32_t flag)
+static s32_t cpiofs_mount(struct mount_t * m, char * dev, s32_t flag)
 {
 	struct blkdev_t * blk;
 	struct cpio_newc_header header;
@@ -163,23 +163,23 @@ static s32_t cpiofs_mount(struct mount * m, char * dev, s32_t flag)
 	return 0;
 }
 
-static s32_t cpiofs_unmount(struct mount * m)
+static s32_t cpiofs_unmount(struct mount_t * m)
 {
 	m->m_data = NULL;
 	return 0;
 }
 
-static s32_t cpiofs_sync(struct mount * m)
+static s32_t cpiofs_sync(struct mount_t * m)
 {
 	return 0;
 }
 
-static s32_t cpiofs_vget(struct mount * m, struct vnode * node)
+static s32_t cpiofs_vget(struct mount_t * m, struct vnode_t * node)
 {
 	return 0;
 }
 
-static s32_t cpiofs_statfs(struct mount * m, struct statfs * stat)
+static s32_t cpiofs_statfs(struct mount_t * m, struct statfs * stat)
 {
 	return -1;
 }
@@ -187,17 +187,17 @@ static s32_t cpiofs_statfs(struct mount * m, struct statfs * stat)
 /*
  * vnode operations
  */
-static s32_t cpiofs_open(struct vnode * node, s32_t flag)
+static s32_t cpiofs_open(struct vnode_t * node, s32_t flag)
 {
 	return 0;
 }
 
-static s32_t cpiofs_close(struct vnode * node, struct file * fp)
+static s32_t cpiofs_close(struct vnode_t * node, struct file_t * fp)
 {
 	return 0;
 }
 
-static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
+static s32_t cpiofs_read(struct vnode_t * node, struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	loff_t off;
@@ -224,12 +224,12 @@ static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, loff
 	return 0;
 }
 
-static s32_t cpiofs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
+static s32_t cpiofs_write(struct vnode_t * node , struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
 	return -1;
 }
 
-static s32_t cpiofs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
+static s32_t cpiofs_seek(struct vnode_t * node, struct file_t * fp, loff_t off1, loff_t off2)
 {
 	if(off2 > (loff_t)(node->v_size))
 		return -1;
@@ -237,17 +237,17 @@ static s32_t cpiofs_seek(struct vnode * node, struct file * fp, loff_t off1, lof
 	return 0;
 }
 
-static s32_t cpiofs_ioctl(struct vnode * node, struct file * fp, int cmd, void * arg)
+static s32_t cpiofs_ioctl(struct vnode_t * node, struct file_t * fp, int cmd, void * arg)
 {
 	return -1;
 }
 
-static s32_t cpiofs_fsync(struct vnode * node, struct file * fp)
+static s32_t cpiofs_fsync(struct vnode_t * node, struct file_t * fp)
 {
 	return 0;
 }
 
-static s32_t cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
+static s32_t cpiofs_readdir(struct vnode_t * node, struct file_t * fp, struct dirent_t * dir)
 {
 	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
@@ -320,7 +320,7 @@ static s32_t cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 	return 0;
 }
 
-static s32_t cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * node)
+static s32_t cpiofs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * node)
 {
 	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
@@ -402,47 +402,47 @@ static s32_t cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 	return 0;
 }
 
-static s32_t cpiofs_create(struct vnode * node, char * name, u32_t mode)
+static s32_t cpiofs_create(struct vnode_t * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static s32_t cpiofs_remove(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t cpiofs_remove(struct vnode_t * dnode, struct vnode_t * node, char * name)
 {
 	return -1;
 }
 
-static s32_t cpiofs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
+static s32_t cpiofs_rename(struct vnode_t * dnode1, struct vnode_t * node1, char * name1, struct vnode_t *dnode2, struct vnode_t * node2, char * name2)
 {
 	return -1;
 }
 
-static s32_t cpiofs_mkdir(struct vnode * node, char * name, u32_t mode)
+static s32_t cpiofs_mkdir(struct vnode_t * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static s32_t cpiofs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t cpiofs_rmdir(struct vnode_t * dnode, struct vnode_t * node, char * name)
 {
 	return -1;
 }
 
-static s32_t cpiofs_getattr(struct vnode * node, struct vattr * attr)
+static s32_t cpiofs_getattr(struct vnode_t * node, struct vattr_t * attr)
 {
 	return -1;
 }
 
-static s32_t cpiofs_setattr(struct vnode * node, struct vattr * attr)
+static s32_t cpiofs_setattr(struct vnode_t * node, struct vattr_t * attr)
 {
 	return -1;
 }
 
-static s32_t cpiofs_inactive(struct vnode * node)
+static s32_t cpiofs_inactive(struct vnode_t * node)
 {
 	return -1;
 }
 
-static s32_t cpiofs_truncate(struct vnode * node, loff_t length)
+static s32_t cpiofs_truncate(struct vnode_t * node, loff_t length)
 {
 	return -1;
 }
@@ -450,7 +450,7 @@ static s32_t cpiofs_truncate(struct vnode * node, loff_t length)
 /*
  * cpiofs vnode operations
  */
-static struct vnops cpiofs_vnops = {
+static struct vnops_t cpiofs_vnops = {
 	.vop_open 		= cpiofs_open,
 	.vop_close		= cpiofs_close,
 	.vop_read		= cpiofs_read,
@@ -474,7 +474,7 @@ static struct vnops cpiofs_vnops = {
 /*
  * file system operations
  */
-static struct vfsops cpiofs_vfsops = {
+static struct vfsops_t cpiofs_vfsops = {
 	.vfs_mount		= cpiofs_mount,
 	.vfs_unmount	= cpiofs_unmount,
 	.vfs_sync		= cpiofs_sync,
@@ -486,7 +486,7 @@ static struct vfsops cpiofs_vfsops = {
 /*
  * cpiofs filesystem
  */
-static struct filesystem cpiofs = {
+static struct filesystem_t cpiofs = {
 	.name		= "cpiofs",
 	.vfsops		= &cpiofs_vfsops,
 };

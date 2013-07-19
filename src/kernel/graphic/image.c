@@ -46,7 +46,7 @@ static bool_t match_extension(const char * filename, const char * ext)
 	return (strcasecmp((const char *)(filename + pos), (const char *)ext) == 0);
 }
 
-static struct image_loader * search_image_loader(const char * extension)
+static struct image_loader_t * search_image_loader(const char * extension)
 {
 	struct image_loader_list * list;
 	struct list_head * pos;
@@ -64,7 +64,7 @@ static struct image_loader * search_image_loader(const char * extension)
 	return NULL;
 }
 
-bool_t register_image_loader(struct image_loader * loader)
+bool_t register_image_loader(struct image_loader_t * loader)
 {
 	struct image_loader_list * list;
 
@@ -87,7 +87,7 @@ bool_t register_image_loader(struct image_loader * loader)
 	return TRUE;
 }
 
-bool_t unregister_image_loader(struct image_loader * loader)
+bool_t unregister_image_loader(struct image_loader_t * loader)
 {
 	struct image_loader_list * list;
 	struct list_head * pos;

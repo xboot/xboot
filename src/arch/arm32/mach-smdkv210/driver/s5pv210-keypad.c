@@ -37,7 +37,7 @@
 #include <s5pv210/reg-keypad.h>
 #include <s5pv210-keypad.h>
 
-static struct timer_list timer;
+static struct timer_t timer;
 static u32_t keymask[8];
 static u32_t prevmask[8];
 

@@ -34,7 +34,7 @@
 struct heartbeat_data {
 	u32_t phase;
 	u32_t period;
-	struct timer_list timer;
+	struct timer_t timer;
 };
 
 static void heartbeat_function(u32_t data)

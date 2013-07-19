@@ -36,12 +36,12 @@
 /*
  * the soft time of kernel.
  */
-static struct time xtime = {0, 0, 0, 1, 4, 1, 1970};
+static struct xtime_t xtime = {0, 0, 0, 1, 4, 1, 1970};
 
 /*
  * xtime's update timer.
  */
-static struct timer_list xtime_timer;
+static struct timer_t xtime_timer;
 
 /*
  * the hardware rtc.

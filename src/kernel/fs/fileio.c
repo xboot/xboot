@@ -87,7 +87,7 @@ int umount(const char * dir)
 int open(const char * path, u32_t flags, u32_t mode)
 {
 	char buf[MAX_PATH];
-	struct file * fp;
+	struct file_t * fp;
 	int fd;
 	int err;
 
@@ -115,7 +115,7 @@ int open(const char * path, u32_t flags, u32_t mode)
  */
 loff_t read(int fd, void * buf, loff_t len)
 {
-	struct file * fp;
+	struct file_t * fp;
 	loff_t bytes;
 
 	if(fd < 0)
@@ -135,7 +135,7 @@ loff_t read(int fd, void * buf, loff_t len)
  */
 loff_t write(int fd, void * buf, loff_t len)
 {
-	struct file * fp;
+	struct file_t * fp;
 	loff_t bytes;
 
 	if(fd < 0)
@@ -155,7 +155,7 @@ loff_t write(int fd, void * buf, loff_t len)
  */
 loff_t lseek(int fd, loff_t offset, s32_t whence)
 {
-	struct file * fp;
+	struct file_t * fp;
 	loff_t org;
 
 	if(fd < 0)
@@ -175,7 +175,7 @@ loff_t lseek(int fd, loff_t offset, s32_t whence)
  */
 int fstat(int fd, struct stat * st)
 {
-	struct file * fp;
+	struct file_t * fp;
 
 	if(fd < 0)
 		return -1;
@@ -191,7 +191,7 @@ int fstat(int fd, struct stat * st)
  */
 int ioctl(int fd, int cmd, void * arg)
 {
-	struct file * fp;
+	struct file_t * fp;
 
 	if(fd < 0)
 		return -1;
@@ -207,7 +207,7 @@ int ioctl(int fd, int cmd, void * arg)
  */
 int fsync(int fd)
 {
-	struct file * fp;
+	struct file_t * fp;
 
 	if(fd < 0)
 		return -1;
@@ -223,7 +223,7 @@ int fsync(int fd)
  */
 int close(int fd)
 {
-	struct file * fp;
+	struct file_t * fp;
 	int err;
 
 	if(fd < 0)
@@ -246,7 +246,7 @@ void * opendir(const char * name)
 {
 	char buf[MAX_PATH];
 	struct dir * dir;
-	struct file * fp;
+	struct file_t * fp;
 	int fd;
 	int err;
 
@@ -283,10 +283,10 @@ void * opendir(const char * name)
 /*
  * read a directory
  */
-struct dirent * readdir(void * dir)
+struct dirent_t * readdir(void * dir)
 {
 	struct dir * pdir;
-	struct file * fp;
+	struct file_t * fp;
 
 	if(!dir)
 		return NULL;
@@ -306,7 +306,7 @@ struct dirent * readdir(void * dir)
 int rewinddir(void * dir)
 {
 	struct dir * pdir;
-	struct file * fp;
+	struct file_t * fp;
 
 	if(!dir)
 		return -1;
@@ -323,7 +323,7 @@ int rewinddir(void * dir)
  */
 int closedir(void * dir)
 {
-	struct file * fp;
+	struct file_t * fp;
 	struct dir * pdir;
 	int err;
 
@@ -357,7 +357,7 @@ char * getcwd(char * buf, size_t size)
 int chdir(const char * path)
 {
 	char buf[MAX_PATH];
-	struct file * fp;
+	struct file_t * fp;
 	int err;
 
 	if((err = vfs_path_conv(path, buf)) !=0 )
@@ -509,7 +509,7 @@ u32_t umask(u32_t mode)
  */
 int ftruncate(int fd, loff_t length)
 {
-	struct file * fp;
+	struct file_t * fp;
 
 	if(fd < 0)
 		return -1;

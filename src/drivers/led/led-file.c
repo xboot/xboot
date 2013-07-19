@@ -34,7 +34,7 @@
 static bool_t valid = FALSE;
 static u32_t activity;
 static u32_t last_activity;
-static struct timer_list file_trigger_timer;
+static struct timer_t file_trigger_timer;
 
 void led_file_trigger_activity(void)
 {

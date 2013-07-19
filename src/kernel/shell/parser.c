@@ -34,7 +34,7 @@
  * transition can not be found, it is assumed that there is no
  * transition and keep_value is assumed to be 1.
  */
-static struct parser_state_transition state_transitions[] = {
+static struct parser_state_transition_t state_transitions[] = {
 	{ PARSER_STATE_TEXT, PARSER_STATE_QUOTE, '\'', 0},
 	{ PARSER_STATE_TEXT, PARSER_STATE_DQUOTE, '\"', 0},
 	{ PARSER_STATE_TEXT, PARSER_STATE_VAR, '$', 0},
@@ -58,11 +58,11 @@ static struct parser_state_transition state_transitions[] = {
 /*
  * determines the state following STATE, determined by C.
  */
-static enum paser_state get_parser_state(enum paser_state state, char c, char * result)
+static enum paser_state_t get_parser_state(enum paser_state_t state, char c, char * result)
 {
-	struct parser_state_transition *transition;
-	struct parser_state_transition *next_match = 0;
-	struct parser_state_transition default_transition;
+	struct parser_state_transition_t *transition;
+	struct parser_state_transition_t *next_match = 0;
+	struct parser_state_transition_t default_transition;
 	int found = 0;
 
 	default_transition.to_state = state;
@@ -103,7 +103,7 @@ static enum paser_state get_parser_state(enum paser_state state, char c, char * 
  * check the the parser state, return true for var,
  * otherwise return false
  */
-static bool_t is_varstate(enum paser_state s)
+static bool_t is_varstate(enum paser_state_t s)
 {
 	if(s == PARSER_STATE_VARNAME || s == PARSER_STATE_VARNAME2 ||
 		s == PARSER_STATE_QVARNAME || s == PARSER_STATE_QVARNAME2)
@@ -118,8 +118,8 @@ static bool_t is_varstate(enum paser_state s)
  */
 bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 {
-	enum paser_state state = PARSER_STATE_TEXT;
-	enum paser_state newstate;
+	enum paser_state_t state = PARSER_STATE_TEXT;
+	enum paser_state_t newstate;
 	char *rd = (char *)cmdline;
 	char c, *args, *val;
 	char *buffer, *bp;

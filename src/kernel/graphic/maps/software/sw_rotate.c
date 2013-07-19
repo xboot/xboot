@@ -22,7 +22,7 @@
 
 #include <graphic/maps/software.h>
 
-static void software_rotate_1byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type type)
+static void software_rotate_1byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type_t type)
 {
 	u8_t * dp, * sp;
 	s32_t dx, dy, dw, dh;
@@ -157,7 +157,7 @@ static void software_rotate_1byte(struct surface_t * dst, struct surface_t * src
 	}
 }
 
-static void software_rotate_2byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type type)
+static void software_rotate_2byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type_t type)
 {
 	u8_t * dp, * sp;
 	s32_t dx, dy, dw, dh;
@@ -292,7 +292,7 @@ static void software_rotate_2byte(struct surface_t * dst, struct surface_t * src
 	}
 }
 
-static void software_rotate_3byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type type)
+static void software_rotate_3byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type_t type)
 {
 	u8_t * dp, * sp;
 	s32_t dx, dy, dw, dh;
@@ -437,7 +437,7 @@ static void software_rotate_3byte(struct surface_t * dst, struct surface_t * src
 	}
 }
 
-static void software_rotate_4byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type type)
+static void software_rotate_4byte(struct surface_t * dst, struct surface_t * src, struct rect_t * rect, enum rotate_type_t type)
 {
 	u8_t * dp, * sp;
 	s32_t dx, dy, dw, dh;
@@ -572,7 +572,7 @@ static void software_rotate_4byte(struct surface_t * dst, struct surface_t * src
 	}
 }
 
-struct surface_t * map_software_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type type)
+struct surface_t * map_software_rotate(struct surface_t * surface, struct rect_t * rect, enum rotate_type_t type)
 {
 	struct surface_t * rotate;
 	struct rect_t clipped;

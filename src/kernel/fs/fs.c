@@ -47,7 +47,7 @@ struct fs_list * fs_list = &__fs_list;
 /*
  * search filesystem by name
  */
-struct filesystem * filesystem_search(const char * name)
+struct filesystem_t * filesystem_search(const char * name)
 {
 	struct fs_list * list;
 	struct list_head * pos;
@@ -68,7 +68,7 @@ struct filesystem * filesystem_search(const char * name)
 /*
  * register a filesystem into fs_list
  */
-bool_t filesystem_register(struct filesystem * fs)
+bool_t filesystem_register(struct filesystem_t * fs)
 {
 	struct fs_list * list;
 
@@ -94,7 +94,7 @@ bool_t filesystem_register(struct filesystem * fs)
 /*
  * unregister a filesystem from fs_list
  */
-bool_t filesystem_unregister(struct filesystem * fs)
+bool_t filesystem_unregister(struct filesystem_t * fs)
 {
 	struct fs_list * list;
 	struct list_head * pos;

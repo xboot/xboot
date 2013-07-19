@@ -61,7 +61,7 @@ static struct timer_vec * const tvecs[] = {
 	(struct timer_vec *)&tv1, &tv2, &tv3, &tv4, &tv5
 };
 
-static inline void internal_add_timer(struct timer_list *timer)
+static inline void internal_add_timer(struct timer_t *timer)
 {
 	struct list_head * vec;
 	u32_t expires = timer->expires;
@@ -113,7 +113,7 @@ static inline void internal_add_timer(struct timer_list *timer)
 	list_add(&timer->list, vec->prev);
 }
 
-static inline bool_t detach_timer(struct timer_list *timer)
+static inline bool_t detach_timer(struct timer_t *timer)
 {
 	if (!timer_pending(timer))
 		return FALSE;
@@ -126,7 +126,7 @@ static inline void cascade_timers(struct timer_vec *tv)
 {
 	/* cascade all the timers from tv up one level */
 	struct list_head *head, *curr, *next;
-	struct timer_list *tmp;
+	struct timer_t *tmp;
 
 	head = tv->vec + tv->index;
 	curr = head->next;
@@ -137,7 +137,7 @@ static inline void cascade_timers(struct timer_vec *tv)
 	 */
 	while(curr != head)
 	{
-		tmp = list_entry(curr, struct timer_list, list);
+		tmp = list_entry(curr, struct timer_t, list);
 		next = curr->next;
 		list_del(curr);
 		internal_add_timer(tmp);
@@ -153,7 +153,7 @@ static inline void cascade_timers(struct timer_vec *tv)
 void exec_timer_task(void)
 {
 	struct list_head *head, *curr;
-	struct timer_list * timer;
+	struct timer_t * timer;
 	void (*fn)(u32_t);
 	u32_t data;
 	s32_t n = 1;
@@ -171,7 +171,7 @@ repeat:
 		curr = head->next;
 		if(curr != head)
 		{
-			timer = list_entry(curr, struct timer_list, list);
+			timer = list_entry(curr, struct timer_t, list);
 			fn = timer->function;
 			data= timer->data;
 
@@ -188,7 +188,7 @@ repeat:
 /*
  * intial timer
  */
-void init_timer(struct timer_list * timer)
+void init_timer(struct timer_t * timer)
 {
 	timer->list.next = timer->list.prev = NULL;
 }
@@ -196,7 +196,7 @@ void init_timer(struct timer_list * timer)
 /*
  * timer pending.
  */
-bool_t timer_pending(const struct timer_list * timer)
+bool_t timer_pending(const struct timer_t * timer)
 {
 	return timer->list.next != NULL;
 }
@@ -204,7 +204,7 @@ bool_t timer_pending(const struct timer_list * timer)
 /*
  * add timer
  */
-void add_timer(struct timer_list *timer)
+void add_timer(struct timer_t *timer)
 {
 	if(timer_pending(timer))
 		return;
@@ -215,7 +215,7 @@ void add_timer(struct timer_list *timer)
 /*
  * modfied timer
  */
-bool_t mod_timer(struct timer_list *timer, u32_t expires)
+bool_t mod_timer(struct timer_t *timer, u32_t expires)
 {
 	bool_t ret;
 
@@ -230,7 +230,7 @@ bool_t mod_timer(struct timer_list *timer, u32_t expires)
 /*
  * delete timer
  */
-bool_t del_timer(struct timer_list * timer)
+bool_t del_timer(struct timer_t * timer)
 {
 	bool_t ret;
 
@@ -243,7 +243,7 @@ bool_t del_timer(struct timer_list * timer)
 /*
  * setup timer.
  */
-void setup_timer(struct timer_list * timer,	void (*function)(u32_t), u32_t data)
+void setup_timer(struct timer_t * timer,	void (*function)(u32_t), u32_t data)
 {
 	timer->function = function;
 	timer->data = data;

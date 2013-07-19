@@ -364,7 +364,7 @@ static struct surface_t * tga_load(const char * filename)
 	return surface;
 }
 
-static struct image_loader image_loader_tga = {
+static struct image_loader_t image_loader_tga = {
 	.extension	= ".tga",
 	.load		= tga_load,
 };

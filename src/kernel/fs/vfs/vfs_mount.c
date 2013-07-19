@@ -72,7 +72,7 @@ static s32_t count_match(char * path, char * mount_root)
 /*
  * mark a mount point as busy.
  */
-void vfs_busy(struct mount * m)
+void vfs_busy(struct mount_t * m)
 {
 	m->m_count++;
 }
@@ -80,7 +80,7 @@ void vfs_busy(struct mount * m)
 /*
  * mark a mount point as unbusy.
  */
-void vfs_unbusy(struct mount * m)
+void vfs_unbusy(struct mount_t * m)
 {
 	m->m_count--;
 }
@@ -91,10 +91,10 @@ void vfs_unbusy(struct mount * m)
  * @mp: mount point to return.
  * @root: pointer to root directory in path.
  */
-s32_t vfs_findroot(char * path, struct mount ** mp, char ** root)
+s32_t vfs_findroot(char * path, struct mount_t ** mp, char ** root)
 {
 	struct list_head * pos;
-	struct mount *m, *tmp;
+	struct mount_t *m, *tmp;
 	s32_t len, max_len = 0;
 
 	if(!path)
@@ -105,7 +105,7 @@ s32_t vfs_findroot(char * path, struct mount ** mp, char ** root)
 
 	list_for_each(pos, &mount_list)
 	{
-		tmp = list_entry(pos, struct mount, m_link);
+		tmp = list_entry(pos, struct mount_t, m_link);
 		len = count_match(path, tmp->m_path);
 		if(len > max_len)
 		{
@@ -131,7 +131,7 @@ s32_t vfs_findroot(char * path, struct mount ** mp, char ** root)
 static s32_t mounts_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct blkdev_t * blk;
-	struct mount * m;
+	struct mount_t * m;
 	struct list_head * pos;
 	s8_t * p;
 	s32_t len = 0;
@@ -143,7 +143,7 @@ static s32_t mounts_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	list_for_each(pos, &mount_list)
 	{
-		m = list_entry(pos, struct mount, m_link);
+		m = list_entry(pos, struct mount_t, m_link);
 
 		if(m->m_dev == NULL)
 			len += sprintf((char *)(p + len), (const char *)"\r\n none");

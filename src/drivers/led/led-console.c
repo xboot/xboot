@@ -34,7 +34,7 @@
 static bool_t valid = FALSE;
 static u32_t activity;
 static u32_t last_activity;
-static struct timer_list console_trigger_timer;
+static struct timer_t console_trigger_timer;
 
 void led_console_trigger_activity(void)
 {

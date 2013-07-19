@@ -299,7 +299,7 @@ bool_t __xfs_platform_delete(const char * path)
 void __xfs_platform_enumerate(const char * path, xfs_enumerate_callback cb, const char * odir, void * cbdata)
 {
 	void * dir;
-	struct dirent * entry;
+	struct dirent_t * entry;
 
 	if( (dir = opendir(path)) == NULL )
     	return;

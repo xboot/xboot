@@ -33,7 +33,7 @@
 #include <input/keyboard/keyboard.h>
 #include <s5pc100/reg-gpio.h>
 
-static struct timer_list keypad_timer;
+static struct timer_t keypad_timer;
 
 static void keypad_timer_function(u32_t data)
 {

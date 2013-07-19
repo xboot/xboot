@@ -36,7 +36,7 @@ extern struct proc_list * proc_list;
 /*
  * filesystem operations
  */
-static s32_t procfs_mount(struct mount * m, char * dev, s32_t flag)
+static s32_t procfs_mount(struct mount_t * m, char * dev, s32_t flag)
 {
 	if(dev != NULL)
 		return EINVAL;
@@ -47,24 +47,24 @@ static s32_t procfs_mount(struct mount * m, char * dev, s32_t flag)
 	return 0;
 }
 
-static s32_t procfs_unmount(struct mount * m)
+static s32_t procfs_unmount(struct mount_t * m)
 {
 	m->m_data = NULL;
 
 	return 0;
 }
 
-static s32_t procfs_sync(struct mount * m)
+static s32_t procfs_sync(struct mount_t * m)
 {
 	return 0;
 }
 
-static s32_t procfs_vget(struct mount * m, struct vnode * node)
+static s32_t procfs_vget(struct mount_t * m, struct vnode_t * node)
 {
 	return 0;
 }
 
-static s32_t procfs_statfs(struct mount * m, struct statfs * stat)
+static s32_t procfs_statfs(struct mount_t * m, struct statfs * stat)
 {
 	return -1;
 }
@@ -72,7 +72,7 @@ static s32_t procfs_statfs(struct mount * m, struct statfs * stat)
 /*
  * vnode operations
  */
-static s32_t procfs_open(struct vnode * node, s32_t flag)
+static s32_t procfs_open(struct vnode_t * node, s32_t flag)
 {
 	struct proc_t * proc;
 	char * path;
@@ -93,12 +93,12 @@ static s32_t procfs_open(struct vnode * node, s32_t flag)
 	return 0;
 }
 
-static s32_t procfs_close(struct vnode * node, struct file * fp)
+static s32_t procfs_close(struct vnode_t * node, struct file_t * fp)
 {
 	return 0;
 }
 
-static s32_t procfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
+static s32_t procfs_read(struct vnode_t * node, struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct proc_t * proc = (struct proc_t *)(node->v_data);
 	loff_t len;
@@ -116,27 +116,27 @@ static s32_t procfs_read(struct vnode * node, struct file * fp, void * buf, loff
 	return 0;
 }
 
-static s32_t procfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
+static s32_t procfs_write(struct vnode_t * node , struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
 	return -1;
 }
 
-static s32_t procfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
+static s32_t procfs_seek(struct vnode_t * node, struct file_t * fp, loff_t off1, loff_t off2)
 {
 	return -1;
 }
 
-static s32_t procfs_ioctl(struct vnode * node, struct file * fp, int cmd, void * arg)
+static s32_t procfs_ioctl(struct vnode_t * node, struct file_t * fp, int cmd, void * arg)
 {
 	return -1;
 }
 
-static s32_t procfs_fsync(struct vnode * node, struct file * fp)
+static s32_t procfs_fsync(struct vnode_t * node, struct file_t * fp)
 {
 	return 0;
 }
 
-static s32_t procfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
+static s32_t procfs_readdir(struct vnode_t * node, struct file_t * fp, struct dirent_t * dir)
 {
 	struct proc_list * plist = (struct proc_list *)node->v_mount->m_data;
 	struct proc_list * list;
@@ -175,7 +175,7 @@ static s32_t procfs_readdir(struct vnode * node, struct file * fp, struct dirent
 	return 0;
 }
 
-static s32_t procfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
+static s32_t procfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * node)
 {
 	struct proc_t * proc;
 
@@ -191,47 +191,47 @@ static s32_t procfs_lookup(struct vnode * dnode, char * name, struct vnode * nod
 	return 0;
 }
 
-static s32_t procfs_create(struct vnode * node, char * name, u32_t mode)
+static s32_t procfs_create(struct vnode_t * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static s32_t procfs_remove(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t procfs_remove(struct vnode_t * dnode, struct vnode_t * node, char * name)
 {
 	return -1;
 }
 
-static s32_t procfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
+static s32_t procfs_rename(struct vnode_t * dnode1, struct vnode_t * node1, char * name1, struct vnode_t *dnode2, struct vnode_t * node2, char * name2)
 {
 	return -1;
 }
 
-static s32_t procfs_mkdir(struct vnode * node, char * name, u32_t mode)
+static s32_t procfs_mkdir(struct vnode_t * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static s32_t procfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t procfs_rmdir(struct vnode_t * dnode, struct vnode_t * node, char * name)
 {
 	return -1;
 }
 
-static s32_t procfs_getattr(struct vnode * node, struct vattr * attr)
+static s32_t procfs_getattr(struct vnode_t * node, struct vattr_t * attr)
 {
 	return -1;
 }
 
-static s32_t procfs_setattr(struct vnode * node, struct vattr * attr)
+static s32_t procfs_setattr(struct vnode_t * node, struct vattr_t * attr)
 {
 	return -1;
 }
 
-static s32_t procfs_inactive(struct vnode * node)
+static s32_t procfs_inactive(struct vnode_t * node)
 {
 	return -1;
 }
 
-static s32_t procfs_truncate(struct vnode * node, loff_t length)
+static s32_t procfs_truncate(struct vnode_t * node, loff_t length)
 {
 	return -1;
 }
@@ -239,7 +239,7 @@ static s32_t procfs_truncate(struct vnode * node, loff_t length)
 /*
  * procfs vnode operations
  */
-static struct vnops procfs_vnops = {
+static struct vnops_t procfs_vnops = {
 	.vop_open 		= procfs_open,
 	.vop_close		= procfs_close,
 	.vop_read		= procfs_read,
@@ -263,7 +263,7 @@ static struct vnops procfs_vnops = {
 /*
  * file system operations
  */
-static struct vfsops procfs_vfsops = {
+static struct vfsops_t procfs_vfsops = {
 	.vfs_mount		= procfs_mount,
 	.vfs_unmount	= procfs_unmount,
 	.vfs_sync		= procfs_sync,
@@ -275,7 +275,7 @@ static struct vfsops procfs_vfsops = {
 /*
  * procfs filesystem
  */
-static struct filesystem procfs = {
+static struct filesystem_t procfs = {
 	.name		= "procfs",
 	.vfsops		= &procfs_vfsops,
 };

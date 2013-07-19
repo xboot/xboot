@@ -201,7 +201,7 @@ struct fatfs_mount_data {
 	u32_t fat_eof;
 
 	/* vnode for root */
-	struct vnode * root_vnode;
+	struct vnode_t * root_vnode;
 
 	/* local data buffer */
 	char * io_buf;
@@ -219,7 +219,7 @@ struct fatfs_mount_data {
 /*
  * filesystem operations
  */
-static s32_t fatfs_mount(struct mount * m, char * dev, s32_t flag)
+static s32_t fatfs_mount(struct mount_t * m, char * dev, s32_t flag)
 {
 	struct fatfs_mount_data * md;
 	struct blkdev_t * blk;
@@ -430,7 +430,7 @@ static s32_t fatfs_mount(struct mount * m, char * dev, s32_t flag)
 	return 0;
 }
 
-static s32_t fatfs_unmount(struct mount * m)
+static s32_t fatfs_unmount(struct mount_t * m)
 {
 	struct fatfs_mount_data * md = m->m_data;
 
@@ -445,12 +445,12 @@ static s32_t fatfs_unmount(struct mount * m)
 	return 0;
 }
 
-static s32_t fatfs_sync(struct mount * m)
+static s32_t fatfs_sync(struct mount_t * m)
 {
 	return 0;
 }
 
-static s32_t fatfs_vget(struct mount * m, struct vnode * node)
+static s32_t fatfs_vget(struct mount_t * m, struct vnode_t * node)
 {
 	struct fat_node * n;
 
@@ -462,7 +462,7 @@ static s32_t fatfs_vget(struct mount * m, struct vnode * node)
 	return 0;
 }
 
-static s32_t fatfs_statfs(struct mount * m, struct statfs * stat)
+static s32_t fatfs_statfs(struct mount_t * m, struct statfs * stat)
 {
 	return -1;
 }
@@ -701,7 +701,7 @@ static s32_t fat_lookup_dirent(struct fatfs_mount_data * md, u32_t sec, u8_t * n
 /*
  * find directory entry for specified name in directory.
  */
-static s32_t fat_lookup_node(struct vnode * dnode, u8_t * name, struct fat_node * np)
+static s32_t fat_lookup_node(struct vnode_t * dnode, u8_t * name, struct fat_node * np)
 {
 	struct fatfs_mount_data * md;
 	u8_t fat_name[12];
@@ -754,42 +754,42 @@ static s32_t fat_lookup_node(struct vnode * dnode, u8_t * name, struct fat_node 
 /*
  * vnode operations
  */
-static s32_t fatfs_open(struct vnode * node, s32_t flag)
+static s32_t fatfs_open(struct vnode_t * node, s32_t flag)
 {
 	return 0;
 }
 
-static s32_t fatfs_close(struct vnode * node, struct file * fp)
+static s32_t fatfs_close(struct vnode_t * node, struct file_t * fp)
 {
 	return 0;
 }
 
-static s32_t fatfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
+static s32_t fatfs_read(struct vnode_t * node, struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
 	return -1;
 }
 
-static s32_t fatfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
+static s32_t fatfs_write(struct vnode_t * node , struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
 	return -1;
 }
 
-static s32_t fatfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff_t off2)
+static s32_t fatfs_seek(struct vnode_t * node, struct file_t * fp, loff_t off1, loff_t off2)
 {
 	return 0;
 }
 
-static s32_t fatfs_ioctl(struct vnode * node, struct file * fp, int cmd, void * arg)
+static s32_t fatfs_ioctl(struct vnode_t * node, struct file_t * fp, int cmd, void * arg)
 {
 	return -1;
 }
 
-static s32_t fatfs_fsync(struct vnode * node, struct file * fp)
+static s32_t fatfs_fsync(struct vnode_t * node, struct file_t * fp)
 {
 	return 0;
 }
 
-static s32_t fatfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
+static s32_t fatfs_readdir(struct vnode_t * node, struct file_t * fp, struct dirent_t * dir)
 {
 	struct fatfs_mount_data * md;
 	struct fat_node np;
@@ -821,7 +821,7 @@ static s32_t fatfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 	return 0;
 }
 
-static s32_t fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
+static s32_t fatfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * node)
 {
 	struct fatfs_mount_data * md;
 	struct fat_node * np;
@@ -850,47 +850,47 @@ static s32_t fatfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 	return 0;
 }
 
-static s32_t fatfs_create(struct vnode * node, char * name, u32_t mode)
+static s32_t fatfs_create(struct vnode_t * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static s32_t fatfs_remove(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t fatfs_remove(struct vnode_t * dnode, struct vnode_t * node, char * name)
 {
 	return -1;
 }
 
-static s32_t fatfs_rename(struct vnode * dnode1, struct vnode * node1, char * name1, struct vnode *dnode2, struct vnode * node2, char * name2)
+static s32_t fatfs_rename(struct vnode_t * dnode1, struct vnode_t * node1, char * name1, struct vnode_t *dnode2, struct vnode_t * node2, char * name2)
 {
 	return -1;
 }
 
-static s32_t fatfs_mkdir(struct vnode * node, char * name, u32_t mode)
+static s32_t fatfs_mkdir(struct vnode_t * node, char * name, u32_t mode)
 {
 	return -1;
 }
 
-static s32_t fatfs_rmdir(struct vnode * dnode, struct vnode * node, char * name)
+static s32_t fatfs_rmdir(struct vnode_t * dnode, struct vnode_t * node, char * name)
 {
 	return -1;
 }
 
-static s32_t fatfs_getattr(struct vnode * node, struct vattr * attr)
+static s32_t fatfs_getattr(struct vnode_t * node, struct vattr_t * attr)
 {
 	return -1;
 }
 
-static s32_t fatfs_setattr(struct vnode * node, struct vattr * attr)
+static s32_t fatfs_setattr(struct vnode_t * node, struct vattr_t * attr)
 {
 	return -1;
 }
 
-static s32_t fatfs_inactive(struct vnode * node)
+static s32_t fatfs_inactive(struct vnode_t * node)
 {
 	return -1;
 }
 
-static s32_t fatfs_truncate(struct vnode * node, loff_t length)
+static s32_t fatfs_truncate(struct vnode_t * node, loff_t length)
 {
 	return -1;
 }
@@ -898,7 +898,7 @@ static s32_t fatfs_truncate(struct vnode * node, loff_t length)
 /*
  * fatfs vnode operations
  */
-static struct vnops fatfs_vnops = {
+static struct vnops_t fatfs_vnops = {
 	.vop_open 		= fatfs_open,
 	.vop_close		= fatfs_close,
 	.vop_read		= fatfs_read,
@@ -922,7 +922,7 @@ static struct vnops fatfs_vnops = {
 /*
  * file system operations
  */
-static struct vfsops fatfs_vfsops = {
+static struct vfsops_t fatfs_vfsops = {
 	.vfs_mount		= fatfs_mount,
 	.vfs_unmount	= fatfs_unmount,
 	.vfs_sync		= fatfs_sync,
@@ -934,7 +934,7 @@ static struct vfsops fatfs_vfsops = {
 /*
  * fatfs filesystem
  */
-static struct filesystem fatfs = {
+static struct filesystem_t fatfs = {
 	.name		= "fatfs",
 	.vfsops		= &fatfs_vfsops,
 };

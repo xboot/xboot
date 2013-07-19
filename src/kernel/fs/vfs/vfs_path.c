@@ -32,7 +32,7 @@
 /*
  * file descriptor
  */
-static struct file * file_desc[FD_SIZE];
+static struct file_t * file_desc[FD_SIZE];
 
 /*
  * buffer for storing cwd path
@@ -42,7 +42,7 @@ static char cwd[MAX_PATH];
 /*
  * current work directory's fp
  */
-static struct file * cwdfp;
+static struct file_t * cwdfp;
 
 /*
  * allocate a file descriptor.
@@ -84,7 +84,7 @@ int fd_free(int fd)
 /*
  * map a descriptor to a file object.
  */
-struct file * get_fp(int fd)
+struct file_t * get_fp(int fd)
 {
     if( (fd < 0) || (fd >= FD_SIZE) )
     	return NULL;
@@ -95,7 +95,7 @@ struct file * get_fp(int fd)
 /*
  * set a descriptor with a file object.
  */
-int set_fp(int fd, struct file *fp)
+int set_fp(int fd, struct file_t *fp)
 {
     if( (fd < 0) || (fd >= FD_SIZE) )
     	return -1;
@@ -227,7 +227,7 @@ char * vfs_getcwd(char * buf, size_t size)
 /*
  * set current work directory's fp
  */
-void vfs_setcwdfp(struct file * fp)
+void vfs_setcwdfp(struct file_t * fp)
 {
 	cwdfp = fp;
 }
@@ -235,7 +235,7 @@ void vfs_setcwdfp(struct file * fp)
 /*
  * get current work directory's fp
  */
-struct file * vfs_getcwdfp(void)
+struct file_t * vfs_getcwdfp(void)
 {
 	return cwdfp;
 }

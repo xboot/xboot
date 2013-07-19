@@ -27,7 +27,7 @@ int ioctl(int fd, int cmd, void * arg);
 int fsync(int fd);
 int close(int fd);
 void * opendir(const char * name);
-struct dirent * readdir(void * dir);
+struct dirent_t * readdir(void * dir);
 int rewinddir(void * dir);
 int closedir(void * dir);
 char * getcwd(char * buf, size_t size);

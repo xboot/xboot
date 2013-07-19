@@ -52,7 +52,7 @@ struct disk_block
 	char name[32 + 1];
 
 	/* partition information */
-	struct partition * part;
+	struct partition_t * part;
 
 	/* the offset of sector for this partition */
 	size_t offset;
@@ -61,7 +61,7 @@ struct disk_block
 	bool_t busy;
 
 	/* point to the disk */
-	struct disk * disk;
+	struct disk_t * disk;
 };
 
 static int disk_block_open(struct blkdev * dev)
@@ -79,7 +79,7 @@ static int disk_block_open(struct blkdev * dev)
 static ssize_t disk_block_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
-	struct disk * disk = dblk->disk;
+	struct disk_t * disk = dblk->disk;
 	size_t offset = dblk->offset;
 
 	return (disk->read_sectors(dblk->disk, buf, blkno + offset, blkcnt));
@@ -88,7 +88,7 @@ static ssize_t disk_block_read(struct blkdev * dev, u8_t * buf, size_t blkno, si
 static ssize_t disk_block_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct disk_block * dblk = (struct disk_block *)(dev->driver);
-	struct disk * disk = dblk->disk;
+	struct disk_t * disk = dblk->disk;
 	size_t offset = dblk->offset;
 
 	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
@@ -110,7 +110,7 @@ static int disk_block_close(struct blkdev * dev)
 /*
  * search disk by name
  */
-static struct disk * search_disk(const char * name)
+static struct disk_t * search_disk(const char * name)
 {
 	struct disk_list * list;
 	struct list_head * pos;
@@ -131,10 +131,10 @@ static struct disk * search_disk(const char * name)
 /*
  * register a disk into disk_list
  */
-bool_t register_disk(struct disk * disk, enum blkdev_type type)
+bool_t register_disk(struct disk_t * disk, enum blkdev_type type)
 {
 	struct disk_list * list;
-	struct partition * part;
+	struct partition_t * part;
 	struct blkdev * dev;
 	struct disk_block * dblk;
 	struct list_head * part_pos;
@@ -170,7 +170,7 @@ bool_t register_disk(struct disk * disk, enum blkdev_type type)
 	 */
 	for(i = 0, part_pos = (&(disk->info.entry))->next; part_pos != &(disk->info.entry); i++, part_pos = part_pos->next)
 	{
-		part = list_entry(part_pos, struct partition, entry);
+		part = list_entry(part_pos, struct partition_t, entry);
 
 		dev = malloc(sizeof(struct blkdev));
 		dblk = malloc(sizeof(struct disk_block));
@@ -227,11 +227,11 @@ bool_t register_disk(struct disk * disk, enum blkdev_type type)
 /*
  * unregister disk from disk_list
  */
-bool_t unregister_disk(struct disk * disk)
+bool_t unregister_disk(struct disk_t * disk)
 {
 	struct disk_list * list;
 	struct list_head * pos;
-	struct partition * part;
+	struct partition_t * part;
 	struct list_head * part_pos;
 	struct blkdev * dev;
 	struct disk_block * dblk;
@@ -246,7 +246,7 @@ bool_t unregister_disk(struct disk * disk)
 		{
 			for(part_pos = (&(disk->info.entry))->next; part_pos != &(disk->info.entry); part_pos = part_pos->next)
 			{
-				part = list_entry(part_pos, struct partition, entry);
+				part = list_entry(part_pos, struct partition_t, entry);
 				dev = part->dev;
 				dblk = dev->driver;
 
@@ -268,7 +268,7 @@ bool_t unregister_disk(struct disk * disk)
 /*
  * disk read function, just used by partition parser.
  */
-loff_t disk_read(struct disk * disk, u8_t * buf, loff_t offset, loff_t count)
+loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * secbuf;
 	size_t secno, secsz, seccnt;
@@ -370,7 +370,7 @@ static s32_t disk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct disk_list * list;
 	struct list_head * pos;
-	struct partition * part;
+	struct partition_t * part;
 	struct list_head * part_pos;
 	char buff[32];
 	u64_t from, to , size;
@@ -387,7 +387,7 @@ static s32_t disk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 		for(part_pos = (&(list->disk->info.entry))->next; part_pos != &(list->disk->info.entry); part_pos = part_pos->next)
 		{
-			part = list_entry(part_pos, struct partition, entry);
+			part = list_entry(part_pos, struct partition_t, entry);
 			from = part->sector_from * part->sector_size;
 			to = (part->sector_to + 1) * part->sector_size;
 			size = to - from;

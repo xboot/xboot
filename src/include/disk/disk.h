@@ -15,18 +15,18 @@ extern "C" {
 /*
  * forward declare
  */
-struct partition;
+struct partition_t;
 
 /*
- * the struct of disk
+ * the struct of disk_t
  */
-struct disk
+struct disk_t
 {
 	/* the disk name */
 	const char * name;
 
 	/* partition information */
-	struct partition info;
+	struct partition_t info;
 
 	/* the size of sector */
 	size_t sector_size;
@@ -35,10 +35,10 @@ struct disk
 	size_t sector_count;
 
 	/* read sectors from disk, return the sector counts of reading */
-	ssize_t (*read_sectors)(struct disk * disk, u8_t * buf, size_t sector, size_t count);
+	ssize_t (*read_sectors)(struct disk_t * disk, u8_t * buf, size_t sector, size_t count);
 
 	/* write sectors to disk, return the sector counts of writing */
-	ssize_t (*write_sectors)(struct disk * disk, const u8_t * buf, size_t sector, size_t count);
+	ssize_t (*write_sectors)(struct disk_t * disk, const u8_t * buf, size_t sector, size_t count);
 
 	/* priv data pointer */
 	void * priv;
@@ -49,12 +49,12 @@ struct disk
  */
 struct disk_list
 {
-	struct disk * disk;
+	struct disk_t * disk;
 	struct list_head entry;
 };
 
-bool_t register_disk(struct disk * disk, enum blkdev_type type);
-bool_t unregister_disk(struct disk * disk);
+bool_t register_disk(struct disk_t * disk, enum blkdev_type type);
+bool_t unregister_disk(struct disk_t * disk);
 
 #ifdef __cplusplus
 }

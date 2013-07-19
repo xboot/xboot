@@ -14,12 +14,12 @@ extern "C" {
 /*
  * forward declare
  */
-struct disk;
+struct disk_t;
 
 /*
  * the struct of partition
  */
-struct partition
+struct partition_t
 {
 	/* partition name */
 	char name[32 + 1];
@@ -43,27 +43,27 @@ struct partition
 /*
  * the struct of partition parser
  */
-struct partition_parser
+struct partition_t_parser
 {
 	/* the partition parser name */
 	const char * name;
 
 	/* probe disk's partition */
-	bool_t (*probe)(struct disk * disk);
+	bool_t (*probe)(struct disk_t * disk);
 };
 
 /*
  * the list of partition parser
  */
-struct partition_parser_list
+struct partition_t_parser_list
 {
-	struct partition_parser * parser;
+	struct partition_t_parser * parser;
 	struct list_head entry;
 };
 
-bool_t register_partition_parser(struct partition_parser * parser);
-bool_t unregister_partition_parser(struct partition_parser * parser);
-bool_t partition_parser_probe(struct disk * disk);
+bool_t register_partition_parser(struct partition_t_parser * parser);
+bool_t unregister_partition_parser(struct partition_t_parser * parser);
+bool_t partition_parser_probe(struct disk_t * disk);
 
 #ifdef __cplusplus
 }

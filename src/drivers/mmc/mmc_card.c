@@ -281,7 +281,7 @@ static bool_t mmc_card_decode(struct mmc_card * card)
 	return TRUE;
 }
 
-static ssize_t mmc_read_sectors(struct disk * disk, u8_t * buf, size_t sector, size_t count)
+static ssize_t mmc_read_sectors(struct disk_t * disk, u8_t * buf, size_t sector, size_t count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
@@ -291,7 +291,7 @@ static ssize_t mmc_read_sectors(struct disk * disk, u8_t * buf, size_t sector, s
 	return count;
 }
 
-static ssize_t mmc_write_sectors(struct disk * disk, const u8_t * buf, size_t sector, size_t count)
+static ssize_t mmc_write_sectors(struct disk_t * disk, const u8_t * buf, size_t sector, size_t count)
 {
 	struct mmc_card * card = (struct mmc_card *)(disk->priv);
 
@@ -304,7 +304,7 @@ static ssize_t mmc_write_sectors(struct disk * disk, const u8_t * buf, size_t se
 static bool_t register_mmc_card(struct mmc_card * card)
 {
 	struct mmc_card_list * list;
-	struct disk * disk;
+	struct disk_t * disk;
 
 	list = malloc(sizeof(struct mmc_card_list));
 	if(!list || !card)
@@ -319,7 +319,7 @@ static bool_t register_mmc_card(struct mmc_card * card)
 		return FALSE;
 	}
 
-	disk = malloc(sizeof(struct disk));
+	disk = malloc(sizeof(struct disk_t));
 	if(!disk)
 	{
 		free(list);
@@ -465,7 +465,7 @@ void mmc_card_remove(void)
 {
 	struct mmc_card_list * list;
 	struct list_head * head, * curr, * next;
-	struct disk * disk;
+	struct disk_t * disk;
 
 	head = &mmc_card_list->entry;
 	curr = head->next;
@@ -478,7 +478,7 @@ void mmc_card_remove(void)
 		list_del(curr);
 		curr = next;
 
-		disk = (struct disk *)(list->card->priv);
+		disk = (struct disk_t *)(list->card->priv);
 		unregister_disk(disk);
 		free(disk);
 

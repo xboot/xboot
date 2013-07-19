@@ -28,12 +28,12 @@
 #include <disk/disk.h>
 #include <disk/partition.h>
 
-extern loff_t disk_read(struct disk * disk, u8_t * buf, loff_t offset, loff_t count);
+extern loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count);
 
 /*
  * the partition entry
  */
-struct dos_partition_entry
+struct dos_partition_entry_t
 {
 	/* if active is 0x80, otherwise is 0x00 */
 	u8_t flag;
@@ -80,7 +80,7 @@ struct dos_partition_mbr
 	/*
 	 * four partition entries
 	 */
-	struct dos_partition_entry entry[4];
+	struct dos_partition_entry_t entry[4];
 
 	/*
 	 * the signature 0x55, 0xaa
@@ -97,10 +97,10 @@ static bool_t is_dos_extended(u8_t type)
 	return FALSE;
 }
 
-static bool_t dos_partition(struct disk * disk, size_t sector, size_t relative)
+static bool_t dos_partition(struct disk_t * disk, size_t sector, size_t relative)
 {
 	struct dos_partition_mbr mbr;
-	struct partition * part;
+	struct partition_t * part;
 	size_t start;
 	int i;
 
@@ -126,7 +126,7 @@ static bool_t dos_partition(struct disk * disk, size_t sector, size_t relative)
 	{
 		if((mbr.entry[i].type != 0) && (is_dos_extended(mbr.entry[i].type)==FALSE))
 		{
-			part = malloc(sizeof(struct partition));
+			part = malloc(sizeof(struct partition_t));
 			if(!part)
 				return FALSE;
 
@@ -150,7 +150,7 @@ static bool_t dos_partition(struct disk * disk, size_t sector, size_t relative)
 	return TRUE;
 }
 
-static bool_t parser_probe_dos(struct disk * disk)
+static bool_t parser_probe_dos(struct disk_t * disk)
 {
 	return dos_partition(disk, 0, 0);
 }
@@ -158,7 +158,7 @@ static bool_t parser_probe_dos(struct disk * disk)
 /*
  * dos partition parser
  */
-static struct partition_parser dos_partition_parser = {
+static struct partition_t_parser dos_partition_parser = {
 	.name		= "dos",
 	.probe		= parser_probe_dos,
 };

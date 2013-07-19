@@ -43,7 +43,7 @@ struct partition_t
 /*
  * the struct of partition parser
  */
-struct partition_t_parser
+struct partition_parser_t
 {
 	/* the partition parser name */
 	const char * name;
@@ -55,14 +55,14 @@ struct partition_t_parser
 /*
  * the list of partition parser
  */
-struct partition_t_parser_list
+struct partition_parser_list
 {
-	struct partition_t_parser * parser;
+	struct partition_parser_t * parser;
 	struct list_head entry;
 };
 
-bool_t register_partition_parser(struct partition_t_parser * parser);
-bool_t unregister_partition_parser(struct partition_t_parser * parser);
+bool_t register_partition_parser(struct partition_parser_t * parser);
+bool_t unregister_partition_parser(struct partition_parser_t * parser);
 bool_t partition_parser_probe(struct disk_t * disk);
 
 #ifdef __cplusplus

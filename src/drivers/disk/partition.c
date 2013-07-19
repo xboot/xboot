@@ -32,20 +32,20 @@
 #include <disk/partition.h>
 
 /* the list of partition parser */
-static struct partition_t_parser_list __partition_parser_list = {
+static struct partition_parser_list __partition_parser_list = {
 	.entry = {
 		.next	= &(__partition_parser_list.entry),
 		.prev	= &(__partition_parser_list.entry),
 	},
 };
-static struct partition_t_parser_list * partition_parser_list = &__partition_parser_list;
+static struct partition_parser_list * partition_parser_list = &__partition_parser_list;
 
 /*
  * search partition parser by name
  */
-static struct partition_t_parser * search_partition_parser(const char * name)
+static struct partition_parser_t * search_partition_parser(const char * name)
 {
-	struct partition_t_parser_list * list;
+	struct partition_parser_list * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -53,7 +53,7 @@ static struct partition_t_parser * search_partition_parser(const char * name)
 
 	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct partition_t_parser_list, entry);
+		list = list_entry(pos, struct partition_parser_list, entry);
 		if(strcmp(list->parser->name, name) == 0)
 			return list->parser;
 	}
@@ -64,11 +64,11 @@ static struct partition_t_parser * search_partition_parser(const char * name)
 /*
  * register a partition parser into partition_parser_list
  */
-bool_t register_partition_parser(struct partition_t_parser * parser)
+bool_t register_partition_parser(struct partition_parser_t * parser)
 {
-	struct partition_t_parser_list * list;
+	struct partition_parser_list * list;
 
-	list = malloc(sizeof(struct partition_t_parser_list));
+	list = malloc(sizeof(struct partition_parser_list));
 	if(!list || !parser)
 	{
 		free(list);
@@ -90,9 +90,9 @@ bool_t register_partition_parser(struct partition_t_parser * parser)
 /*
  * unregister partition parser from partition_parser_list
  */
-bool_t unregister_partition_parser(struct partition_t_parser * parser)
+bool_t unregister_partition_parser(struct partition_parser_t * parser)
 {
-	struct partition_t_parser_list * list;
+	struct partition_parser_list * list;
 	struct list_head * pos;
 
 	if(!parser || !parser->name)
@@ -100,7 +100,7 @@ bool_t unregister_partition_parser(struct partition_t_parser * parser)
 
 	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct partition_t_parser_list, entry);
+		list = list_entry(pos, struct partition_parser_list, entry);
 		if(list->parser == parser)
 		{
 			list_del(pos);
@@ -117,7 +117,7 @@ bool_t unregister_partition_parser(struct partition_t_parser * parser)
  */
 bool_t partition_parser_probe(struct disk_t * disk)
 {
-	struct partition_t_parser_list * list;
+	struct partition_parser_list * list;
 	struct list_head * pos;
 	struct partition_t * part;
 	struct list_head * part_pos;
@@ -153,7 +153,7 @@ bool_t partition_parser_probe(struct disk_t * disk)
 	 */
 	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct partition_t_parser_list, entry);
+		list = list_entry(pos, struct partition_parser_list, entry);
 		if(list->parser->probe)
 		{
 			if((list->parser->probe(disk)) == TRUE)

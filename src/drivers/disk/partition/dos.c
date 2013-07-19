@@ -158,7 +158,7 @@ static bool_t parser_probe_dos(struct disk_t * disk)
 /*
  * dos partition parser
  */
-static struct partition_t_parser dos_partition_parser = {
+static struct partition_parser_t dos_partition_parser = {
 	.name		= "dos",
 	.probe		= parser_probe_dos,
 };

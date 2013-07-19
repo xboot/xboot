@@ -9598,7 +9598,7 @@ static const struct gimage watermark = {
 	"\0\0\0\0\0\0\0\0\0"
 };
 
-bool_t display_logo(struct fb * fb)
+bool_t display_logo(struct fb_t * fb)
 {
 	struct surface_t * logo;
 	struct surface_t * mark;

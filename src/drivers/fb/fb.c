@@ -32,7 +32,7 @@
 #include <fb/helper.h>
 #include <fb/fb.h>
 
-static struct fb * default_framebuffer = NULL;
+static struct fb_t * default_framebuffer = NULL;
 
 struct fbcon_cell
 {
@@ -52,7 +52,7 @@ struct fb_console_info
 	char * name;
 
 	/* framebuffer driver */
-	struct fb * fb;
+	struct fb_t * fb;
 
 	/* console font width and height in pixel */
 	s32_t fw, fh;
@@ -367,7 +367,7 @@ static int fb_open(struct chrdev * dev)
  */
 static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
 {
-	struct fb * fb = (struct fb *)(dev->driver);
+	struct fb_t * fb = (struct fb_t *)(dev->driver);
 	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
 	ssize_t i;
 
@@ -384,7 +384,7 @@ static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
  */
 static ssize_t fb_write(struct chrdev * dev, const u8_t * buf, size_t count)
 {
-	struct fb * fb = (struct fb *)(dev->driver);
+	struct fb_t * fb = (struct fb_t *)(dev->driver);
 	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
 	ssize_t i;
 
@@ -401,7 +401,7 @@ static ssize_t fb_write(struct chrdev * dev, const u8_t * buf, size_t count)
  */
 static int fb_ioctl(struct chrdev * dev, int cmd, void * arg)
 {
-	struct fb * fb = (struct fb *)(dev->driver);
+	struct fb_t * fb = (struct fb_t *)(dev->driver);
 
 	if(fb->ioctl)
 		return ((fb->ioctl)(fb, cmd, arg));
@@ -746,7 +746,7 @@ bool_t fbcon_onoff(struct console * console, bool_t flag)
 /*
  * get default framebuffer
  */
-struct fb * get_default_framebuffer(void)
+struct fb_t * get_default_framebuffer(void)
 {
 	return default_framebuffer;
 }
@@ -757,7 +757,7 @@ EXPORT_SYMBOL(get_default_framebuffer);
  */
 bool_t set_default_framebuffer(const char * name)
 {
-	struct fb * fb;
+	struct fb_t * fb;
 
 	fb = search_framebuffer(name);
 	if(!fb)
@@ -771,9 +771,9 @@ EXPORT_SYMBOL(set_default_framebuffer);
 /*
  * search framebuffer by name.
  */
-struct fb * search_framebuffer(const char * name)
+struct fb_t * search_framebuffer(const char * name)
 {
-	struct fb * fb;
+	struct fb_t * fb;
 	struct chrdev * dev;
 
 	dev = search_chrdev(name);
@@ -783,7 +783,7 @@ struct fb * search_framebuffer(const char * name)
 	if(dev->type != CHR_DEV_FRAMEBUFFER)
 		return NULL;
 
-	fb = (struct fb *)dev->driver;
+	fb = (struct fb_t *)dev->driver;
 
 	return fb;
 }
@@ -792,7 +792,7 @@ EXPORT_SYMBOL(search_framebuffer);
 /*
  * register framebuffer driver.
  */
-bool_t register_framebuffer(struct fb * fb)
+bool_t register_framebuffer(struct fb_t * fb)
 {
 	struct chrdev * dev;
 	struct console * console;
@@ -917,12 +917,12 @@ bool_t register_framebuffer(struct fb * fb)
 /*
  * unregister framebuffer driver
  */
-bool_t unregister_framebuffer(struct fb * fb)
+bool_t unregister_framebuffer(struct fb_t * fb)
 {
 	struct chrdev * dev;
 	struct console * console;
 	struct fb_console_info * info;
-	struct fb * driver;
+	struct fb_t * driver;
 	u8_t brightness;
 
 	if(!fb || !fb->info || !fb->info->name)
@@ -938,7 +938,7 @@ bool_t unregister_framebuffer(struct fb * fb)
 	else
 		return FALSE;
 
-	driver = (struct fb *)(dev->driver);
+	driver = (struct fb_t *)(dev->driver);
 	if(driver)
 	{
 		if(driver->ioctl)

@@ -175,7 +175,7 @@ void do_system_fonts(void)
 void do_system_battery(void)
 {
 	struct battery_info info;
-	struct fb * fb;
+	struct fb_t * fb;
 	struct surface_t * obj[17];
 	struct rect_t rect;
 	char path[MAX_PATH];

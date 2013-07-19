@@ -8,7 +8,7 @@
 
 struct vgafb_context {
     GLContext *gl_context;
-    struct fb *fb_dev;
+    struct fb_t *fb_dev;
 };
 
 static int vgafb_resize_viewport(GLContext *ctx, int *xsize, int *ysize);
@@ -37,7 +37,7 @@ bool_t vgafb_destroy_context(struct vgafb_context *ctx)
 }
 
 /* connect a framebuffer device to a context */
-bool_t vgafb_make_current(struct vgafb_context *ctx, struct fb *fb_dev)
+bool_t vgafb_make_current(struct vgafb_context *ctx, struct fb_t *fb_dev)
 {
 
     if (ctx->gl_context == NULL)
@@ -55,7 +55,7 @@ bool_t vgafb_make_current(struct vgafb_context *ctx, struct fb *fb_dev)
         for (i=0; i<ZB_NB_COLORS; i++)
             color_indexes[i]=i;
 
-    	struct fb * fb;
+    	struct fb_t * fb;
     	struct surface_t * screen;
 
     	fb = search_framebuffer("fb");

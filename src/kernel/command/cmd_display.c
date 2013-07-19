@@ -36,7 +36,7 @@
 
 static int display(int argc, char ** argv)
 {
-	struct fb * fb;
+	struct fb_t * fb;
 	struct surface_t * surface;
 	struct rect_t rect;
 	struct stat st;

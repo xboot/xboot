@@ -437,7 +437,7 @@ static bool_t s5pv210fb_window2_enable(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static void fb_init(struct fb * fb)
+static void fb_init(struct fb_t * fb)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
 
@@ -529,7 +529,7 @@ static void fb_init(struct fb * fb)
 	mdelay(100);
 }
 
-static void fb_swap(struct fb * fb)
+static void fb_swap(struct fb_t * fb)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
 	void * vram;
@@ -541,14 +541,14 @@ static void fb_swap(struct fb * fb)
 	fb->info->surface.pixels = lcd->vram_front;
 }
 
-static void fb_flush(struct fb * fb)
+static void fb_flush(struct fb_t * fb)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
 
 	s5pv210fb_set_buffer_address(lcd, 2);
 }
 
-static void fb_exit(struct fb * fb)
+static void fb_exit(struct fb_t * fb)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
 
@@ -558,7 +558,7 @@ static void fb_exit(struct fb * fb)
 	s5pv210fb_display_off(lcd);
 }
 
-static int fb_ioctl(struct fb * fb, int cmd, void * arg)
+static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
 	static u8_t brightness = 0;
@@ -585,11 +585,11 @@ static int fb_ioctl(struct fb * fb, int cmd, void * arg)
 	return -1;
 }
 
-static struct fb_info info = {
+static struct fb_info_t info = {
 	.name			= "fb",
 };
 
-static struct fb s5pv210_fb = {
+static struct fb_t s5pv210_fb = {
 	.info			= &info,
 	.init			= fb_init,
 	.exit			= fb_exit,

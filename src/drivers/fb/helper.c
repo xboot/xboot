@@ -22,12 +22,12 @@
 
 #include <fb/helper.h>
 
-u32_t fb_map_color(struct fb * fb, struct color_t * col)
+u32_t fb_map_color(struct fb_t * fb, struct color_t * col)
 {
 	return surface_map_color(&(fb->info->surface), col);
 }
 
-bool_t fb_fill_rect(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
+bool_t fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
 	struct rect_t rect;
 
@@ -40,7 +40,7 @@ bool_t fb_fill_rect(struct fb * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 	return surface_fill(&(fb->info->surface), &rect, c, BLEND_MODE_REPLACE);
 }
 
-bool_t fb_blit(struct fb * fb, struct surface_t * surface, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
+bool_t fb_blit(struct fb_t * fb, struct surface_t * surface, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
 	struct rect_t dst_rect, src_rect;
 
@@ -58,7 +58,7 @@ bool_t fb_blit(struct fb * fb, struct surface_t * surface, u32_t x, u32_t y, u32
 	return surface_blit(&(fb->info->surface), &dst_rect, surface, &src_rect, BLEND_MODE_REPLACE);
 }
 
-bool_t fb_putcode(struct fb * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y)
+bool_t fb_putcode(struct fb_t * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y)
 {
 	struct surface_t * face;
 	bool_t ret;

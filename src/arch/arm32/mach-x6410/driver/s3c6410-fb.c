@@ -60,7 +60,7 @@
  */
 static u8_t vram[2][LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
-static struct fb_info info = {
+static struct fb_info_t info = {
 	.name						= "fb",
 
 	.surface = {
@@ -106,7 +106,7 @@ static struct fb_info info = {
 	},
 };
 
-static void fb_init(struct fb * fb)
+static void fb_init(struct fb_t * fb)
 {
 	u64_t hclk;
 
@@ -181,13 +181,13 @@ static void fb_init(struct fb * fb)
 	mdelay(50);
 }
 
-static void fb_exit(struct fb * fb)
+static void fb_exit(struct fb_t * fb)
 {
 	/* disable video output */
 	writel(S3C6410_VIDCON0, (readl(S3C6410_VIDCON0) & (~0x3)));
 }
 
-static void fb_swap(struct fb * fb)
+static void fb_swap(struct fb_t * fb)
 {
 	static u8_t vram_index = 0;
 
@@ -195,7 +195,7 @@ static void fb_swap(struct fb * fb)
 	fb->info->surface.pixels = &vram[vram_index][0];
 }
 
-static void fb_flush(struct fb * fb)
+static void fb_flush(struct fb_t * fb)
 {
 	writel(S3C6410_VIDW00ADD0B0, ((u32_t)fb->info->surface.pixels));
 	writel(S3C6410_VIDW00ADD0B1, ((u32_t)fb->info->surface.pixels));
@@ -203,7 +203,7 @@ static void fb_flush(struct fb * fb)
 	writel(S3C6410_VIDW00ADD1B1, (((u32_t)fb->info->surface.pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
 }
 
-static int fb_ioctl(struct fb * fb, int cmd, void * arg)
+static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 {
 	static u8_t brightness = 0;
 	u8_t * p;
@@ -233,7 +233,7 @@ static int fb_ioctl(struct fb * fb, int cmd, void * arg)
 	return -1;
 }
 
-static struct fb s3c6410_fb = {
+static struct fb_t s3c6410_fb = {
 	.info			= &info,
 	.init			= fb_init,
 	.exit			= fb_exit,

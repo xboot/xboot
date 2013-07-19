@@ -46,7 +46,7 @@
  */
 static u8_t vram[2][LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
-static struct fb_info info = {
+static struct fb_info_t info = {
 	.name						= "fb",
 
 	.surface = {
@@ -92,7 +92,7 @@ static struct fb_info info = {
 	},
 };
 
-static void fb_init(struct fb * fb)
+static void fb_init(struct fb_t * fb)
 {
 	/* initial lcd controller */
 	writel(REALVIEW_CLCD_TIM0, REGS_TIM0);
@@ -113,12 +113,12 @@ static void fb_init(struct fb * fb)
 	writel(REALVIEW_CLCD_CNTL, (readl(REALVIEW_CLCD_CNTL) | REALVIEW_CNTL_LCDEN | REALVIEW_CNTL_LCDPWR));
 }
 
-static void fb_exit(struct fb * fb)
+static void fb_exit(struct fb_t * fb)
 {
 	return;
 }
 
-static void fb_swap(struct fb * fb)
+static void fb_swap(struct fb_t * fb)
 {
 	static u8_t vram_index = 0;
 
@@ -126,13 +126,13 @@ static void fb_swap(struct fb * fb)
 	fb->info->surface.pixels = &vram[vram_index][0];
 }
 
-static void fb_flush(struct fb * fb)
+static void fb_flush(struct fb_t * fb)
 {
 	writel(REALVIEW_CLCD_UBAS, ((u32_t)fb->info->surface.pixels));
 	writel(REALVIEW_CLCD_LBAS, ((u32_t)fb->info->surface.pixels + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
 }
 
-static int fb_ioctl(struct fb * fb, int cmd, void * arg)
+static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 {
 	static u8_t brightness = 0;
 	u8_t * p;
@@ -156,7 +156,7 @@ static int fb_ioctl(struct fb * fb, int cmd, void * arg)
 	return -1;
 }
 
-static struct fb realview_fb = {
+static struct fb_t realview_fb = {
 	.info			= &info,
 	.init			= fb_init,
 	.exit			= fb_exit,

@@ -44,9 +44,9 @@ static struct disk_list __disk_list = {
 static struct disk_list * disk_list = &__disk_list;
 
 /*
- * the struct of disk_block
+ * the struct of disk_block_t
  */
-struct disk_block
+struct disk_block_t
 {
 	/* block device name */
 	char name[32 + 1];
@@ -64,9 +64,9 @@ struct disk_block
 	struct disk_t * disk;
 };
 
-static int disk_block_open(struct blkdev * dev)
+static int disk_block_open(struct blkdev_t * dev)
 {
-	struct disk_block * dblk = (struct disk_block *)(dev->driver);
+	struct disk_block_t * dblk = (struct disk_block_t *)(dev->driver);
 
 	if(dblk->busy == TRUE)
 		return -1;
@@ -76,32 +76,32 @@ static int disk_block_open(struct blkdev * dev)
 	return 0;
 }
 
-static ssize_t disk_block_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t disk_block_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct disk_block * dblk = (struct disk_block *)(dev->driver);
+	struct disk_block_t * dblk = (struct disk_block_t *)(dev->driver);
 	struct disk_t * disk = dblk->disk;
 	size_t offset = dblk->offset;
 
 	return (disk->read_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static ssize_t disk_block_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t disk_block_write(struct blkdev_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct disk_block * dblk = (struct disk_block *)(dev->driver);
+	struct disk_block_t * dblk = (struct disk_block_t *)(dev->driver);
 	struct disk_t * disk = dblk->disk;
 	size_t offset = dblk->offset;
 
 	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static int disk_block_ioctl(struct blkdev * dev, int cmd, void * arg)
+static int disk_block_ioctl(struct blkdev_t * dev, int cmd, void * arg)
 {
 	return -1;
 }
 
-static int disk_block_close(struct blkdev * dev)
+static int disk_block_close(struct blkdev_t * dev)
 {
-	struct disk_block * dblk = (struct disk_block *)(dev->driver);
+	struct disk_block_t * dblk = (struct disk_block_t *)(dev->driver);
 
 	dblk->busy = FALSE;
 	return 0;
@@ -131,12 +131,12 @@ static struct disk_t * search_disk(const char * name)
 /*
  * register a disk into disk_list
  */
-bool_t register_disk(struct disk_t * disk, enum blkdev_type type)
+bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type)
 {
 	struct disk_list * list;
 	struct partition_t * part;
-	struct blkdev * dev;
-	struct disk_block * dblk;
+	struct blkdev_t * dev;
+	struct disk_block_t * dblk;
 	struct list_head * part_pos;
 	s32_t i;
 
@@ -172,8 +172,8 @@ bool_t register_disk(struct disk_t * disk, enum blkdev_type type)
 	{
 		part = list_entry(part_pos, struct partition_t, entry);
 
-		dev = malloc(sizeof(struct blkdev));
-		dblk = malloc(sizeof(struct disk_block));
+		dev = malloc(sizeof(struct blkdev_t));
+		dblk = malloc(sizeof(struct disk_block_t));
 		if(!dev || !dblk)
 		{
 			/*
@@ -233,8 +233,8 @@ bool_t unregister_disk(struct disk_t * disk)
 	struct list_head * pos;
 	struct partition_t * part;
 	struct list_head * part_pos;
-	struct blkdev * dev;
-	struct disk_block * dblk;
+	struct blkdev_t * dev;
+	struct disk_block_t * dblk;
 
 	if(!disk || !disk->name)
 		return FALSE;

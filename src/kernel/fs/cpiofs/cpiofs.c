@@ -137,13 +137,13 @@ static bool_t check_path(const char * path, const char * perfix, const char * na
  */
 static s32_t cpiofs_mount(struct mount * m, char * dev, s32_t flag)
 {
-	struct blkdev * blk;
+	struct blkdev_t * blk;
 	struct cpio_newc_header header;
 
 	if(dev == NULL)
 		return EINVAL;
 
-	blk = (struct blkdev *)m->m_dev;
+	blk = (struct blkdev_t *)m->m_dev;
 	if(!blk)
 		return EACCES;
 
@@ -199,7 +199,7 @@ static s32_t cpiofs_close(struct vnode * node, struct file * fp)
 
 static s32_t cpiofs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
-	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	loff_t off;
 	loff_t len;
 
@@ -249,7 +249,7 @@ static s32_t cpiofs_fsync(struct vnode * node, struct file * fp)
 
 static s32_t cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
-	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
 	char path[MAX_PATH];
 	char name[MAX_NAME];
@@ -322,7 +322,7 @@ static s32_t cpiofs_readdir(struct vnode * node, struct file * fp, struct dirent
 
 static s32_t cpiofs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
 	char path[MAX_PATH];
 	u32_t size, name_size, mode;

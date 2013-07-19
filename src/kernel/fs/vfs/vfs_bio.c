@@ -30,7 +30,7 @@
 #include <fs/fs.h>
 #include <fs/vfs/vfs.h>
 
-loff_t bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count)
+loff_t bio_read(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
 	size_t blkno, blksz, blkcnt;
@@ -125,7 +125,7 @@ loff_t bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count)
 	return size;
 }
 
-loff_t bio_write(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count)
+loff_t bio_write(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
 	size_t blkno, blksz, blkcnt;

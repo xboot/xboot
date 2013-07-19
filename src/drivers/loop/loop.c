@@ -79,7 +79,7 @@ static struct loop_list __loop_list = {
 static struct loop_list * loop_list = &__loop_list;
 
 
-static int loop_open(struct blkdev * dev)
+static int loop_open(struct blkdev_t * dev)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
@@ -108,7 +108,7 @@ static int loop_open(struct blkdev * dev)
 	return 0;
 }
 
-static ssize_t loop_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t loop_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 	loff_t offset = get_blkdev_offset(dev, blkno);
@@ -129,7 +129,7 @@ static ssize_t loop_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t b
 	return blkcnt;
 }
 
-static ssize_t loop_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t loop_write(struct blkdev_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 	loff_t offset = get_blkdev_offset(dev, blkno);
@@ -147,12 +147,12 @@ static ssize_t loop_write(struct blkdev * dev, const u8_t * buf, size_t blkno, s
 	return blkcnt;
 }
 
-static int loop_ioctl(struct blkdev * dev, int cmd, void * arg)
+static int loop_ioctl(struct blkdev_t * dev, int cmd, void * arg)
 {
 	return -1;
 }
 
-static int loop_close(struct blkdev * dev)
+static int loop_close(struct blkdev_t * dev)
 {
 	struct loop * loop = (struct loop *)(dev->driver);
 
@@ -168,7 +168,7 @@ static int loop_close(struct blkdev * dev)
 /*
  * search loop block device by file name
  */
-struct blkdev * search_loop(const char * file)
+struct blkdev_t * search_loop(const char * file)
 {
 	struct loop_list * list;
 	struct list_head * pos;
@@ -198,7 +198,7 @@ struct blkdev * search_loop(const char * file)
 bool_t register_loop(const char * file)
 {
 	struct stat st;
-	struct blkdev * dev;
+	struct blkdev_t * dev;
 	struct loop * loop;
 	struct loop_list * list;
 	u64_t size, rem;
@@ -220,7 +220,7 @@ bool_t register_loop(const char * file)
 	if(!list)
 		return FALSE;
 
-	dev = malloc(sizeof(struct blkdev));
+	dev = malloc(sizeof(struct blkdev_t));
 	if(!dev)
 	{
 		free(list);
@@ -291,7 +291,7 @@ bool_t unregister_loop(const char * file)
 {
 	struct loop_list * list;
 	struct list_head * pos;
-	struct blkdev * dev;
+	struct blkdev_t * dev;
 	char buf[MAX_PATH];
 
 	if(!file)

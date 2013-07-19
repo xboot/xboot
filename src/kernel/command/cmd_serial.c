@@ -41,7 +41,7 @@ extern struct device_list * device_list;
 
 static void serial_info(void)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 	struct device_list * list;
 	struct list_head * pos;
 	struct serial_info * serial_info;
@@ -52,7 +52,7 @@ static void serial_info(void)
 		if(list->device->type != CHAR_DEVICE)
 			continue;
 
-		dev = (struct chrdev *)(list->device->priv);
+		dev = (struct chrdev_t *)(list->device->priv);
 		if(dev->type != CHR_DEV_SERIAL)
 			continue;
 
@@ -160,8 +160,8 @@ static void serial_info(void)
 
 static int serial(int argc, char ** argv)
 {
-	struct chrdev * device = NULL;
-	ssize_t (* read_func)(struct chrdev *, u8_t *, size_t);
+	struct chrdev_t * device = NULL;
+	ssize_t (* read_func)(struct chrdev_t *, u8_t *, size_t);
 	struct serial_parameter param;
 	char * name = NULL, * str = NULL;
 	char * baud = 0;

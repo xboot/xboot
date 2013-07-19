@@ -53,7 +53,7 @@ struct disk_list
 	struct list_head entry;
 };
 
-bool_t register_disk(struct disk_t * disk, enum blkdev_type type);
+bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type);
 bool_t unregister_disk(struct disk_t * disk);
 
 #ifdef __cplusplus

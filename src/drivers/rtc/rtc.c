@@ -133,7 +133,7 @@ u32_t time_to_rtc(struct time * tm)
 /*
  * rtc open
  */
-static int rtc_open(struct chrdev * dev)
+static int rtc_open(struct chrdev_t * dev)
 {
 	return 0;
 }
@@ -141,7 +141,7 @@ static int rtc_open(struct chrdev * dev)
 /*
  * rtc read
  */
-static ssize_t rtc_read(struct chrdev * dev, u8_t * buf, size_t count)
+static ssize_t rtc_read(struct chrdev_t * dev, u8_t * buf, size_t count)
 {
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
@@ -173,7 +173,7 @@ static ssize_t rtc_read(struct chrdev * dev, u8_t * buf, size_t count)
 /*
  * rtc write.
  */
-static ssize_t rtc_write(struct chrdev * dev, const u8_t * buf, size_t count)
+static ssize_t rtc_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
 {
 	return 0;
 }
@@ -181,7 +181,7 @@ static ssize_t rtc_write(struct chrdev * dev, const u8_t * buf, size_t count)
 /*
  * rtc ioctl
  */
-static int rtc_ioctl(struct chrdev * dev, int cmd, void * arg)
+static int rtc_ioctl(struct chrdev_t * dev, int cmd, void * arg)
 {
 	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
 	struct time * time;
@@ -232,7 +232,7 @@ static int rtc_ioctl(struct chrdev * dev, int cmd, void * arg)
 /*
  * rtc close
  */
-static int rtc_close(struct chrdev * dev)
+static int rtc_close(struct chrdev_t * dev)
 {
 	return 0;
 }
@@ -242,12 +242,12 @@ static int rtc_close(struct chrdev * dev)
  */
 bool_t register_rtc(struct rtc_driver * drv)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 
 	if(!drv || !drv->name || !drv->get_time)
 		return FALSE;
 
-	dev = malloc(sizeof(struct chrdev));
+	dev = malloc(sizeof(struct chrdev_t));
 	if(!dev)
 		return FALSE;
 
@@ -284,7 +284,7 @@ bool_t register_rtc(struct rtc_driver * drv)
  */
 bool_t unregister_rtc(struct rtc_driver * drv)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 	struct rtc_driver * driver;
 
 	if(!drv || !drv->name)

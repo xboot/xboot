@@ -213,7 +213,7 @@ struct fatfs_mount_data {
 	char * dir_buf;
 
 	/* mounted block device */
-	struct blkdev * blk;
+	struct blkdev_t * blk;
 };
 
 /*
@@ -222,7 +222,7 @@ struct fatfs_mount_data {
 static s32_t fatfs_mount(struct mount * m, char * dev, s32_t flag)
 {
 	struct fatfs_mount_data * md;
-	struct blkdev * blk;
+	struct blkdev_t * blk;
 	struct fat_boot_sector fbs;
 	u32_t sector_size;
 	u32_t tmp;
@@ -230,7 +230,7 @@ static s32_t fatfs_mount(struct mount * m, char * dev, s32_t flag)
 	if(dev == NULL)
 		return EINVAL;
 
-	blk = (struct blkdev *)m->m_dev;
+	blk = (struct blkdev_t *)m->m_dev;
 	if(!blk || !blk->info)
 		return ENODEV;
 

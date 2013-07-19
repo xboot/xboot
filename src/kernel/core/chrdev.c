@@ -35,9 +35,9 @@ extern struct device_list * device_list;
 /*
  * search char device by name
  */
-struct chrdev * search_chrdev(const char * name)
+struct chrdev_t * search_chrdev(const char * name)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 	struct device_list * list;
 	struct list_head * pos;
 
@@ -49,7 +49,7 @@ struct chrdev * search_chrdev(const char * name)
 		list = list_entry(pos, struct device_list, entry);
 		if(list->device->type == CHAR_DEVICE)
 		{
-			dev = (struct chrdev *)(list->device->priv);
+			dev = (struct chrdev_t *)(list->device->priv);
 			if(strcmp((const char *)dev->name, (const char *)name) == 0)
 				return dev;
 		}
@@ -61,9 +61,9 @@ struct chrdev * search_chrdev(const char * name)
 /*
  * search char device by name and char device type
  */
-struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type)
+struct chrdev_t * search_chrdev_with_type(const char * name, enum chrdev_type_t type)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 	struct device_list * list;
 	struct list_head * pos;
 
@@ -75,7 +75,7 @@ struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type
 		list = list_entry(pos, struct device_list, entry);
 		if(list->device->type == CHAR_DEVICE)
 		{
-			dev = (struct chrdev *)(list->device->priv);
+			dev = (struct chrdev_t *)(list->device->priv);
 			if(dev->type == type)
 			{
 				if(strcmp((const char *)dev->name, (const char *)name) == 0)
@@ -90,7 +90,7 @@ struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type
 /*
  * register a char device into device_list
  */
-bool_t register_chrdev(struct chrdev * dev)
+bool_t register_chrdev(struct chrdev_t * dev)
 {
 	struct device * device;
 

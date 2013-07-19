@@ -78,8 +78,8 @@ static s32_t devfs_statfs(struct mount * m, struct statfs * stat)
 static s32_t devfs_open(struct vnode * node, s32_t flag)
 {
 	struct device * dev;
-	struct chrdev * chr;
-	struct blkdev * blk;
+	struct chrdev_t * chr;
+	struct blkdev_t * blk;
 	s8_t * path;
 
 	path = (s8_t *)node->v_path;
@@ -95,14 +95,14 @@ static s32_t devfs_open(struct vnode * node, s32_t flag)
 
 	if(dev->type == CHAR_DEVICE)
 	{
-		chr = (struct chrdev *)(dev->priv);
+		chr = (struct chrdev_t *)(dev->priv);
 
 		if(chr->open(chr) != 0)
 			return -1;
 	}
 	else if(dev->type == BLOCK_DEVICE)
 	{
-		blk = (struct blkdev *)(dev->priv);
+		blk = (struct blkdev_t *)(dev->priv);
 
 		if(blk->open(blk) != 0)
 			return -1;
@@ -123,8 +123,8 @@ static s32_t devfs_open(struct vnode * node, s32_t flag)
 static s32_t devfs_close(struct vnode * node, struct file * fp)
 {
 	struct device * dev;
-	struct chrdev * chr;
-	struct blkdev * blk;
+	struct chrdev_t * chr;
+	struct blkdev_t * blk;
 	s8_t * path;
 
 	path = (s8_t *)node->v_path;
@@ -137,12 +137,12 @@ static s32_t devfs_close(struct vnode * node, struct file * fp)
 
 	if(dev->type == CHAR_DEVICE)
 	{
-		chr = (struct chrdev *)(dev->priv);
+		chr = (struct chrdev_t *)(dev->priv);
 		return(chr->close(chr));
 	}
 	else if(dev->type == BLOCK_DEVICE)
 	{
-		blk = (struct blkdev *)(dev->priv);
+		blk = (struct blkdev_t *)(dev->priv);
 		return(blk->close(blk));
 	}
 
@@ -152,8 +152,8 @@ static s32_t devfs_close(struct vnode * node, struct file * fp)
 static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct device * dev = (struct device *)(node->v_data);
-	struct chrdev * chr;
-	struct blkdev * blk;
+	struct chrdev_t * chr;
+	struct blkdev_t * blk;
 	loff_t len;
 
 	*result = 0;
@@ -162,7 +162,7 @@ static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_
 
 	if(node->v_type == VCHR)
 	{
-		chr = (struct chrdev *)(dev->priv);
+		chr = (struct chrdev_t *)(dev->priv);
 
 		len = chr->read(chr, buf, size);
 		fp->f_offset = 0;
@@ -172,7 +172,7 @@ static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_
 	}
 	else if(node->v_type == VBLK)
 	{
-		blk = (struct blkdev *)(dev->priv);
+		blk = (struct blkdev_t *)(dev->priv);
 
 		len = bio_read(blk, buf, fp->f_offset, size);
 		fp->f_offset += len;
@@ -187,8 +187,8 @@ static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_
 static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
 {
 	struct device * dev = (struct device *)(node->v_data);
-	struct chrdev * chr;
-	struct blkdev * blk;
+	struct chrdev_t * chr;
+	struct blkdev_t * blk;
 	loff_t len;
 
 	*result = 0;
@@ -197,7 +197,7 @@ static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, lof
 
 	if(node->v_type == VCHR)
 	{
-		chr = (struct chrdev *)(dev->priv);
+		chr = (struct chrdev_t *)(dev->priv);
 
 		len = chr->write(chr, buf, size);
 		fp->f_offset = 0;
@@ -207,7 +207,7 @@ static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, lof
 	}
 	else if(node->v_type == VBLK)
 	{
-		blk = (struct blkdev *)(dev->priv);
+		blk = (struct blkdev_t *)(dev->priv);
 
 		len = bio_write(blk, buf, fp->f_offset, size);
 		fp->f_offset += len;
@@ -235,20 +235,20 @@ static s32_t devfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff
 static s32_t devfs_ioctl(struct vnode * node, struct file * fp, int cmd, void * arg)
 {
 	struct device * dev = (struct device *)(node->v_data);
-	struct chrdev * chr;
-	struct blkdev * blk;
+	struct chrdev_t * chr;
+	struct blkdev_t * blk;
 
 	if(node->v_type == VDIR)
 		return EISDIR;
 
 	if(node->v_type == VCHR)
 	{
-		chr = (struct chrdev *)(dev->priv);
+		chr = (struct chrdev_t *)(dev->priv);
 		return(chr->ioctl(chr, cmd, arg));
 	}
 	else if(node->v_type == VBLK)
 	{
-		blk = (struct blkdev *)(dev->priv);
+		blk = (struct blkdev_t *)(dev->priv);
 		return(blk->ioctl(blk, cmd, arg));
 	}
 
@@ -314,8 +314,8 @@ static s32_t devfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 static s32_t devfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
 	struct device * dev;
-	struct chrdev * chr;
-	struct blkdev * blk;
+	struct chrdev_t * chr;
+	struct blkdev_t * blk;
 
 	dev = search_device(name);
 	if(dev == NULL)
@@ -323,14 +323,14 @@ static s32_t devfs_lookup(struct vnode * dnode, char * name, struct vnode * node
 
 	if(dev->type == CHAR_DEVICE)
 	{
-		chr = (struct chrdev *)(dev->priv);
+		chr = (struct chrdev_t *)(dev->priv);
 
 		node->v_type = VCHR;
 		node->v_size = 0;
 	}
 	else if(dev->type == BLOCK_DEVICE)
 	{
-		blk = (struct blkdev *)(dev->priv);
+		blk = (struct blkdev_t *)(dev->priv);
 
 		node->v_type = VBLK;
 		node->v_size = get_blkdev_total_size(blk);

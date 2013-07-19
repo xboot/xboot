@@ -199,8 +199,8 @@ struct vfsops {
 /*
  * declare for vfs_bio
  */
-loff_t bio_read(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count);
-loff_t bio_write(struct blkdev * dev, u8_t * buf, loff_t offset, loff_t count);
+loff_t bio_read(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count);
+loff_t bio_write(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count);
 
 /*
  * declare for vfs_mount

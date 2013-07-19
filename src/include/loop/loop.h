@@ -10,7 +10,7 @@ extern "C" {
 #include <string.h>
 #include <xboot/blkdev.h>
 
-struct blkdev * search_loop(const char * file);
+struct blkdev_t * search_loop(const char * file);
 bool_t register_loop(const char * file);
 bool_t unregister_loop(const char * file);
 

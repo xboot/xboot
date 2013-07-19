@@ -357,7 +357,7 @@ static bool_t tcolor_to_color(enum tcolor c, struct color_t * col)
 /*
  * fb open
  */
-static int fb_open(struct chrdev * dev)
+static int fb_open(struct chrdev_t * dev)
 {
 	return 0;
 }
@@ -365,7 +365,7 @@ static int fb_open(struct chrdev * dev)
 /*
  * fb read
  */
-static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
+static ssize_t fb_read(struct chrdev_t * dev, u8_t * buf, size_t count)
 {
 	struct fb_t * fb = (struct fb_t *)(dev->driver);
 	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
@@ -382,7 +382,7 @@ static ssize_t fb_read(struct chrdev * dev, u8_t * buf, size_t count)
 /*
  * fb write.
  */
-static ssize_t fb_write(struct chrdev * dev, const u8_t * buf, size_t count)
+static ssize_t fb_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
 {
 	struct fb_t * fb = (struct fb_t *)(dev->driver);
 	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
@@ -399,7 +399,7 @@ static ssize_t fb_write(struct chrdev * dev, const u8_t * buf, size_t count)
 /*
  * fb ioctl
  */
-static int fb_ioctl(struct chrdev * dev, int cmd, void * arg)
+static int fb_ioctl(struct chrdev_t * dev, int cmd, void * arg)
 {
 	struct fb_t * fb = (struct fb_t *)(dev->driver);
 
@@ -412,7 +412,7 @@ static int fb_ioctl(struct chrdev * dev, int cmd, void * arg)
 /*
  * fb close
  */
-static int fb_close(struct chrdev * dev)
+static int fb_close(struct chrdev_t * dev)
 {
 	return 0;
 }
@@ -774,7 +774,7 @@ EXPORT_SYMBOL(set_default_framebuffer);
 struct fb_t * search_framebuffer(const char * name)
 {
 	struct fb_t * fb;
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 
 	dev = search_chrdev(name);
 	if(!dev)
@@ -794,7 +794,7 @@ EXPORT_SYMBOL(search_framebuffer);
  */
 bool_t register_framebuffer(struct fb_t * fb)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 	struct console * console;
 	struct fb_console_info * info;
 	struct color_t col;
@@ -805,7 +805,7 @@ bool_t register_framebuffer(struct fb_t * fb)
 
 	surface_set_maps(&fb->info->surface.maps);
 
-	dev = malloc(sizeof(struct chrdev));
+	dev = malloc(sizeof(struct chrdev_t));
 	if(!dev)
 		return FALSE;
 
@@ -919,7 +919,7 @@ bool_t register_framebuffer(struct fb_t * fb)
  */
 bool_t unregister_framebuffer(struct fb_t * fb)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 	struct console * console;
 	struct fb_console_info * info;
 	struct fb_t * driver;

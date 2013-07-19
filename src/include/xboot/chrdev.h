@@ -14,7 +14,7 @@ extern "C" {
 /*
  * char device type
  */
-enum chrdev_type {
+enum chrdev_type_t {
 	CHR_DEV_SERIAL,
 	CHR_DEV_FRAMEBUFFER,
 	CHR_DEV_RTC,
@@ -22,39 +22,39 @@ enum chrdev_type {
 };
 
 /*
- * the char device struct.
+ * the struct of chrdev_t.
  */
-struct chrdev
+struct chrdev_t
 {
 	/* the device name */
 	const char * name;
 
 	/* the type of char device */
-	enum chrdev_type type;
+	enum chrdev_type_t type;
 
 	/* open device */
-	int (*open)(struct chrdev * dev);
+	int (*open)(struct chrdev_t * dev);
 
 	/* read device */
-	ssize_t (*read)(struct chrdev * dev, u8_t * buf, size_t count);
+	ssize_t (*read)(struct chrdev_t * dev, u8_t * buf, size_t count);
 
 	/* write device */
-	ssize_t (*write)(struct chrdev * dev, const u8_t * buf, size_t count);
+	ssize_t (*write)(struct chrdev_t * dev, const u8_t * buf, size_t count);
 
 	/* ioctl device */
-	int (*ioctl)(struct chrdev * dev, int cmd, void * arg);
+	int (*ioctl)(struct chrdev_t * dev, int cmd, void * arg);
 
 	/* close device */
-	int (*close)(struct chrdev * dev);
+	int (*close)(struct chrdev_t * dev);
 
 	/* char device's driver */
 	void * driver;
 };
 
 
-struct chrdev * search_chrdev(const char * name);
-struct chrdev * search_chrdev_with_type(const char * name, enum chrdev_type type);
-bool_t register_chrdev(struct chrdev * dev);
+struct chrdev_t * search_chrdev(const char * name);
+struct chrdev_t * search_chrdev_with_type(const char * name, enum chrdev_type_t type);
+bool_t register_chrdev(struct chrdev_t * dev);
 bool_t unregister_chrdev(const char * name);
 
 #ifdef __cplusplus

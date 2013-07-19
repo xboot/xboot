@@ -36,9 +36,9 @@ extern struct device_list * device_list;
 /*
  * search block device by name
  */
-struct blkdev * search_blkdev(const char * name)
+struct blkdev_t * search_blkdev(const char * name)
 {
-	struct blkdev * dev;
+	struct blkdev_t * dev;
 	struct device_list * list;
 	struct list_head * pos;
 
@@ -50,7 +50,7 @@ struct blkdev * search_blkdev(const char * name)
 		list = list_entry(pos, struct device_list, entry);
 		if(list->device->type == BLOCK_DEVICE)
 		{
-			dev = (struct blkdev *)(list->device->priv);
+			dev = (struct blkdev_t *)(list->device->priv);
 			if(strcmp((const char *)dev->name, (const char *)name) == 0)
 				return dev;
 		}
@@ -62,9 +62,9 @@ struct blkdev * search_blkdev(const char * name)
 /*
  * search block device by name and block device type
  */
-struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type)
+struct blkdev_t * search_blkdev_with_type(const char * name, enum blkdev_type_t type)
 {
-	struct blkdev * dev;
+	struct blkdev_t * dev;
 	struct device_list * list;
 	struct list_head * pos;
 
@@ -76,7 +76,7 @@ struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type
 		list = list_entry(pos, struct device_list, entry);
 		if(list->device->type == BLOCK_DEVICE)
 		{
-			dev = (struct blkdev *)(list->device->priv);
+			dev = (struct blkdev_t *)(list->device->priv);
 			if(dev->type == type)
 			{
 				if(strcmp((const char *)dev->name, (const char *)name) == 0)
@@ -91,7 +91,7 @@ struct blkdev * search_blkdev_with_type(const char * name, enum blkdev_type type
 /*
  * register a block device into device_list
  */
-bool_t register_blkdev(struct blkdev * dev)
+bool_t register_blkdev(struct blkdev_t * dev)
 {
 	struct device * device;
 
@@ -141,7 +141,7 @@ bool_t unregister_blkdev(const char * name)
 /*
  * get block device's total size
  */
-loff_t get_blkdev_total_size(struct blkdev * dev)
+loff_t get_blkdev_total_size(struct blkdev_t * dev)
 {
 	if(!dev)
 		return 0;
@@ -152,7 +152,7 @@ loff_t get_blkdev_total_size(struct blkdev * dev)
 /*
  * get block device's total count of block
  */
-size_t get_blkdev_total_count(struct blkdev * dev)
+size_t get_blkdev_total_count(struct blkdev_t * dev)
 {
 	if(!dev)
 		return 0;
@@ -163,7 +163,7 @@ size_t get_blkdev_total_count(struct blkdev * dev)
 /*
  * get block device's block size
  */
-size_t get_blkdev_size(struct blkdev * dev)
+size_t get_blkdev_size(struct blkdev_t * dev)
 {
 	if(!dev)
 		return 0;
@@ -174,7 +174,7 @@ size_t get_blkdev_size(struct blkdev * dev)
 /*
  * get block device's offset by blkno
  */
-loff_t get_blkdev_offset(struct blkdev * dev, size_t blkno)
+loff_t get_blkdev_offset(struct blkdev_t * dev, size_t blkno)
 {
 	if(!dev)
 		return -1;

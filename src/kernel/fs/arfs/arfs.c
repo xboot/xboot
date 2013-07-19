@@ -62,13 +62,13 @@ struct ar_hdr
  */
 static s32_t arfs_mount(struct mount * m, char * dev, s32_t flag)
 {
-	struct blkdev * blk;
+	struct blkdev_t * blk;
 	u8_t buf[8];
 
 	if(dev == NULL)
 		return EINVAL;
 
-	blk = (struct blkdev *)m->m_dev;
+	blk = (struct blkdev_t *)m->m_dev;
 	if(!blk)
 		return EACCES;
 
@@ -124,7 +124,7 @@ static s32_t arfs_close(struct vnode * node, struct file * fp)
 
 static s32_t arfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
-	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	loff_t off;
 	loff_t len;
 
@@ -174,7 +174,7 @@ static s32_t arfs_fsync(struct vnode * node, struct file * fp)
 
 static s32_t arfs_readdir(struct vnode * node, struct file * fp, struct dirent * dir)
 {
-	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	struct ar_hdr header;
 	loff_t off = 8;
 	loff_t size;
@@ -227,7 +227,7 @@ static s32_t arfs_readdir(struct vnode * node, struct file * fp, struct dirent *
 
 static s32_t arfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	struct blkdev * dev = (struct blkdev *)node->v_mount->m_dev;
+	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
 	struct ar_hdr header;
 	loff_t off = 8;
 	loff_t size;

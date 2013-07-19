@@ -107,7 +107,7 @@ static void xtime_timer_function(u32_t data)
  */
 void do_system_xtime(void)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 
 	/* search hardware rtc for sync xtime */
 	dev = search_chrdev_with_type(CONFIG_HARDWARE_RTC_NAME, CHR_DEV_RTC);

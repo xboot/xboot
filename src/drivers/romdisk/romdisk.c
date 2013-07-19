@@ -56,7 +56,7 @@ struct romdisk
 	bool_t busy;
 };
 
-static int romdisk_open(struct blkdev * dev)
+static int romdisk_open(struct blkdev_t * dev)
 {
 	struct romdisk * romdisk = (struct romdisk *)(dev->driver);
 
@@ -67,7 +67,7 @@ static int romdisk_open(struct blkdev * dev)
 	return 0;
 }
 
-static ssize_t romdisk_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t romdisk_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct romdisk * romdisk = (struct romdisk *)(dev->driver);
 	u8_t * p = (u8_t *)(romdisk->start);
@@ -84,17 +84,17 @@ static ssize_t romdisk_read(struct blkdev * dev, u8_t * buf, size_t blkno, size_
 	return blkcnt;
 }
 
-static ssize_t romdisk_write(struct blkdev * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t romdisk_write(struct blkdev_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	return 0;
 }
 
-static int romdisk_ioctl(struct blkdev * dev, int cmd, void * arg)
+static int romdisk_ioctl(struct blkdev_t * dev, int cmd, void * arg)
 {
 	return -1;
 }
 
-static int romdisk_close(struct blkdev * dev)
+static int romdisk_close(struct blkdev_t * dev)
 {
 	struct romdisk * romdisk = (struct romdisk *)(dev->driver);
 
@@ -104,11 +104,11 @@ static int romdisk_close(struct blkdev * dev)
 
 static __init void romdisk_init(void)
 {
-	struct blkdev * dev;
+	struct blkdev_t * dev;
 	struct romdisk * romdisk;
 	u64_t size, rem;
 
-	dev = malloc(sizeof(struct blkdev));
+	dev = malloc(sizeof(struct blkdev_t));
 	if(!dev)
 		return;
 
@@ -159,7 +159,7 @@ static __init void romdisk_init(void)
 
 static __exit void romdisk_exit(void)
 {
-	struct blkdev * dev;
+	struct blkdev_t * dev;
 	struct romdisk * romdisk;
 
 	dev = search_blkdev_with_type("romdisk", BLK_DEV_ROMDISK);

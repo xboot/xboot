@@ -40,7 +40,7 @@ extern struct list_head mount_list;
  */
 s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 {
-	struct blkdev * device;
+	struct blkdev_t * device;
 	struct filesystem * fs;
 	struct list_head * pos;
 	struct mount * m;
@@ -199,7 +199,7 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
  */
 s32_t sys_umount(char * path)
 {
-	struct blkdev * device;
+	struct blkdev_t * device;
 	struct list_head * pos;
 	struct mount * m;
 	s32_t err;
@@ -232,7 +232,7 @@ s32_t sys_umount(char * path)
 
 			if(m->m_dev)
 			{
-				device = (struct blkdev *)(m->m_dev);
+				device = (struct blkdev_t *)(m->m_dev);
 				device->close(device);
 			}
 

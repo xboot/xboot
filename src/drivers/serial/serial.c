@@ -78,7 +78,7 @@ struct serial_console_info
 /*
  * serial open
  */
-static int serial_open(struct chrdev * dev)
+static int serial_open(struct chrdev_t * dev)
 {
 	return 0;
 }
@@ -86,7 +86,7 @@ static int serial_open(struct chrdev * dev)
 /*
  * serial read
  */
-static ssize_t serial_read(struct chrdev * dev, u8_t * buf, size_t count)
+static ssize_t serial_read(struct chrdev_t * dev, u8_t * buf, size_t count)
 {
 	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
@@ -99,7 +99,7 @@ static ssize_t serial_read(struct chrdev * dev, u8_t * buf, size_t count)
 /*
  * serial write.
  */
-static ssize_t serial_write(struct chrdev * dev, const u8_t * buf, size_t count)
+static ssize_t serial_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
 {
 	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
@@ -112,7 +112,7 @@ static ssize_t serial_write(struct chrdev * dev, const u8_t * buf, size_t count)
 /*
  * serial ioctl
  */
-static int serial_ioctl(struct chrdev * dev, int cmd, void * arg)
+static int serial_ioctl(struct chrdev_t * dev, int cmd, void * arg)
 {
 	struct serial_driver * drv = (struct serial_driver *)(dev->driver);
 
@@ -125,7 +125,7 @@ static int serial_ioctl(struct chrdev * dev, int cmd, void * arg)
 /*
  * serial close
  */
-static int serial_close(struct chrdev * dev)
+static int serial_close(struct chrdev_t * dev)
 {
 	return 0;
 }
@@ -508,14 +508,14 @@ bool_t scon_onoff(struct console * console, bool_t flag)
  */
 bool_t register_serial(struct serial_driver * drv)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 	struct console * console;
 	struct serial_console_info * info;
 
 	if(!drv || !drv->info || !drv->info->name || !(drv->read || drv->write))
 		return FALSE;
 
-	dev = malloc(sizeof(struct chrdev));
+	dev = malloc(sizeof(struct chrdev_t));
 	if(!dev)
 		return FALSE;
 
@@ -603,7 +603,7 @@ bool_t register_serial(struct serial_driver * drv)
  */
 bool_t unregister_serial(struct serial_driver * drv)
 {
-	struct chrdev * dev;
+	struct chrdev_t * dev;
 	struct console * console;
 	struct serial_console_info * info;
 	struct serial_driver * driver;

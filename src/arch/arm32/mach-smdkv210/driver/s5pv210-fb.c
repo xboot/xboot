@@ -216,7 +216,7 @@ static bool_t s5pv210fb_set_buffer_address(struct s5pv210fb_lcd * lcd, s32_t id)
 	u32_t start, end;
 	u32_t shw;
 
-	start = (u32_t)(lcd->vram[lcd->index]);
+	start = (u32_t)(lcd->vram_front);
 	end = (u32_t)((start + lcd->width * (lcd->height * lcd->bytes_per_pixel)) & 0x00ffffff);
 
 	shw = readl(S5PV210_SHADOWCON);
@@ -529,14 +529,22 @@ static void fb_init(struct fb * fb)
 	mdelay(100);
 }
 
-static void fb_present(struct fb * fb, int index)
+static void fb_swap(struct fb * fb)
+{
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+	void * vram;
+
+	vram = lcd->vram_front;
+	lcd->vram_front = lcd->vram_back;
+	lcd->vram_back = vram;
+
+	fb->info->surface.pixels = lcd->vram_front;
+}
+
+static void fb_flush(struct fb * fb)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
 
-	if(index < 0 || index > 2)
-		index = 0;
-
-	lcd->index = index;
 	s5pv210fb_set_buffer_address(lcd, 2);
 }
 
@@ -578,14 +586,15 @@ static int fb_ioctl(struct fb * fb, int cmd, void * arg)
 }
 
 static struct fb_info info = {
-	.name			= "fb0",
+	.name			= "fb",
 };
 
 static struct fb s5pv210_fb = {
 	.info			= &info,
 	.init			= fb_init,
 	.exit			= fb_exit,
-	.present		= fb_present,
+	.swap			= fb_swap,
+	.flush			= fb_flush,
 	.ioctl			= fb_ioctl,
 	.priv			= NULL,
 };
@@ -609,9 +618,34 @@ static __init void s5pv210_fb_init(void)
 		return;
 	}
 
-	info.surface[0] = surface_alloc(lcd->vram[0], lcd->width, lcd->height, lcd->fmt);
-	info.surface[1] = surface_alloc(lcd->vram[1], lcd->width, lcd->height, lcd->fmt);
-	info.surface[2] = surface_alloc(lcd->vram[2], lcd->width, lcd->height, lcd->fmt);
+	if( (lcd->bits_per_pixel != 16) && (lcd->bits_per_pixel != 24) && (lcd->bits_per_pixel != 32) )
+		return;
+
+	info.surface.info.bits_per_pixel = lcd->bits_per_pixel;
+	info.surface.info.bytes_per_pixel = lcd->bytes_per_pixel;
+	info.surface.info.red_mask_size = lcd->rgba.r_mask;
+	info.surface.info.red_field_pos = lcd->rgba.r_field;
+	info.surface.info.green_mask_size = lcd->rgba.g_mask;
+	info.surface.info.green_field_pos = lcd->rgba.g_field;
+	info.surface.info.blue_mask_size = lcd->rgba.b_mask;
+	info.surface.info.blue_field_pos = lcd->rgba.b_field;
+	info.surface.info.alpha_mask_size = lcd->rgba.a_mask;
+	info.surface.info.alpha_field_pos = lcd->rgba.a_field;
+	info.surface.info.fmt = get_pixel_format(&(info.surface.info));
+
+	info.surface.w = lcd->width;
+	info.surface.h = lcd->height;
+	info.surface.pitch = lcd->width * lcd->bytes_per_pixel;
+	info.surface.flag = SURFACE_PIXELS_DONTFREE;
+	info.surface.pixels = lcd->vram_front;
+
+	info.surface.clip.x = 0;
+	info.surface.clip.y = 0;
+	info.surface.clip.w = lcd->width;
+	info.surface.clip.h = lcd->height;
+
+	memset(&info.surface.maps, 0, sizeof(struct surface_maps));
+	surface_set_maps(&info.surface.maps);
 
 	if(! register_framebuffer(&s5pv210_fb))
 		LOG("failed to register framebuffer driver '%s'", s5pv210_fb.info->name);

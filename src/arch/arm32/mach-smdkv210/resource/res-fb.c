@@ -72,7 +72,7 @@ static void lcd_backlight(u8_t brightness)
 /*
  * lcd module
  */
-static u8_t vram[3][800 * 480 * 32 / 8] __attribute__((aligned(4)));
+static u8_t vram[2][800 * 480 * 32 / 8] __attribute__((aligned(4)));
 
 static struct s5pv210fb_lcd lcd = {
 	.width				= 800,
@@ -86,7 +86,16 @@ static struct s5pv210fb_lcd lcd = {
 	.bpp_mode			= S5PV210FB_BPP_MODE_32BPP,
 	.swap				= S5PV210FB_SWAP_WORD,
 
-	.fmt				= PIXEL_FORMAT_ARGB_8888,
+	.rgba = {
+		.r_mask			= 8,
+		.r_field		= 0,
+		.g_mask			= 8,
+		.g_field		= 8,
+		.b_mask			= 8,
+		.b_field		= 16,
+		.a_mask			= 8,
+		.a_field		= 24,
+	},
 
 	.timing = {
 		.h_fp			= 210,
@@ -106,12 +115,8 @@ static struct s5pv210fb_lcd lcd = {
 		.inv_vden		= 0,
 	},
 
-	.index				= 0,
-	.vram = {
-		[0] 			= &vram[0][0],
-		[1] 			= &vram[1][0],
-		[2] 			= &vram[2][0],
-	},
+	.vram_front			= &vram[0][0],
+	.vram_back			= &vram[1][0],
 
 	.init				= lcd_init,
 	.exit				= lcd_exit,

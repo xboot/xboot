@@ -58,7 +58,53 @@
 /*
  * video ram double buffer for lcd.
  */
-static u8_t vram[3][LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
+static u8_t vram[2][LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
+
+static struct fb_info info = {
+	.name						= "fb",
+
+	.surface = {
+		.info = {
+			.bits_per_pixel		= LCD_BPP,
+			.bytes_per_pixel	= LCD_BPP / 8,
+
+			.red_mask_size		= 5,
+			.red_field_pos		= 0,
+			.green_mask_size	= 6,
+			.green_field_pos	= 5,
+			.blue_mask_size		= 5,
+			.blue_field_pos		= 11,
+			.alpha_mask_size	= 0,
+			.alpha_field_pos	= 0,
+
+			.fmt				= PIXEL_FORMAT_BGR_565,
+		},
+
+		.w						= LCD_WIDTH,
+		.h						= LCD_HEIGHT,
+		.pitch					= LCD_WIDTH * LCD_BPP / 8,
+		.flag					= SURFACE_PIXELS_DONTFREE,
+		.pixels					= &vram[0][0],
+
+		.clip = {
+			.x					= 0,
+			.y					= 0,
+			.w					= LCD_WIDTH,
+			.h					= LCD_HEIGHT,
+		},
+
+		.maps = {
+			.point				= map_software_point,
+			.hline				= map_software_hline,
+			.vline				= map_software_vline,
+			.fill				= map_software_fill,
+			.blit				= map_software_blit,
+			.scale				= map_software_scale,
+			.rotate				= map_software_rotate,
+			.transform			= map_software_transform,
+		},
+	},
+};
 
 static void fb_init(struct fb * fb)
 {
@@ -141,15 +187,20 @@ static void fb_exit(struct fb * fb)
 	writel(S3C6410_VIDCON0, (readl(S3C6410_VIDCON0) & (~0x3)));
 }
 
-static void fb_present(struct fb * fb, int index)
+static void fb_swap(struct fb * fb)
 {
-	if(index < 0 || index > 2)
-		index = 0;
+	static u8_t vram_index = 0;
 
-	writel(S3C6410_VIDW00ADD0B0, ((u32_t)fb->info->surface[index]->pixels));
-	writel(S3C6410_VIDW00ADD0B1, ((u32_t)fb->info->surface[index]->pixels));
-	writel(S3C6410_VIDW00ADD1B0, (((u32_t)fb->info->surface[index]->pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
-	writel(S3C6410_VIDW00ADD1B1, (((u32_t)fb->info->surface[index]->pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	vram_index = (vram_index + 1) & 0x1;
+	fb->info->surface.pixels = &vram[vram_index][0];
+}
+
+static void fb_flush(struct fb * fb)
+{
+	writel(S3C6410_VIDW00ADD0B0, ((u32_t)fb->info->surface.pixels));
+	writel(S3C6410_VIDW00ADD0B1, ((u32_t)fb->info->surface.pixels));
+	writel(S3C6410_VIDW00ADD1B0, (((u32_t)fb->info->surface.pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
+	writel(S3C6410_VIDW00ADD1B1, (((u32_t)fb->info->surface.pixels) + LCD_WIDTH*LCD_HEIGHT*LCD_BPP/8)& 0x00ffffff);
 }
 
 static int fb_ioctl(struct fb * fb, int cmd, void * arg)
@@ -182,15 +233,12 @@ static int fb_ioctl(struct fb * fb, int cmd, void * arg)
 	return -1;
 }
 
-static struct fb_info info = {
-	.name			= "fb0",
-};
-
 static struct fb s3c6410_fb = {
 	.info			= &info,
 	.init			= fb_init,
 	.exit			= fb_exit,
-	.present		= fb_present,
+	.swap			= fb_swap,
+	.flush			= fb_flush,
 	.ioctl			= fb_ioctl,
 	.priv			= NULL,
 };
@@ -202,10 +250,6 @@ static __init void s3c6410_fb_init(void)
 		LOG("can't get the clock of \'hclk\'");
 		return;
 	}
-
-	info.surface[0] = surface_alloc(&vram[0][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_BGR_565);
-	info.surface[1] = surface_alloc(&vram[1][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_BGR_565);
-	info.surface[2] = surface_alloc(&vram[2][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_BGR_565);
 
 	if(!register_framebuffer(&s3c6410_fb))
 		LOG("failed to register framebuffer driver '%s'", s3c6410_fb.info->name);

@@ -41,7 +41,7 @@ static int do_lua(int argc, char ** argv)
 	return lua_main(argc, argv);
 }
 
-static struct command lua_cmd = {
+static struct command_t lua_cmd = {
 	.name		= "lua",
 	.func		= do_lua,
 	.desc		= "the stand-alone lua interpreter\r\n",

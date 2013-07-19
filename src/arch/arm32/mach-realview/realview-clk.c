@@ -25,7 +25,7 @@
 /*
  * the array of clocks, which will to be setup.
  */
-static struct clk realview_clocks[6];
+static struct clk_t realview_clocks[6];
 
 /*
  * setup the realview's clock array.

@@ -182,7 +182,7 @@ static int do_mount(int argc, char ** argv)
 	return 0;
 }
 
-static struct command mount_cmd = {
+static struct command_t mount_cmd = {
 	.name		= "mount",
 	.func		= do_mount,
 	.desc		= "mount a file system\r\n",

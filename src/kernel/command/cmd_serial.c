@@ -44,7 +44,7 @@ static void serial_info(void)
 	struct chrdev_t * dev;
 	struct device_list * list;
 	struct list_head * pos;
-	struct serial_info * serial_info;
+	struct serial_info_t * serial_info;
 
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
@@ -58,7 +58,7 @@ static void serial_info(void)
 
 		printk(" \"%s\" - <", dev->name);
 
-		serial_info = ((struct serial_driver *)(dev->driver))->info;
+		serial_info = ((struct serial_driver_t *)(dev->driver))->info;
 		switch(serial_info->parameter->baud_rate)
 		{
 		case B50:
@@ -162,7 +162,7 @@ static int serial(int argc, char ** argv)
 {
 	struct chrdev_t * device = NULL;
 	ssize_t (* read_func)(struct chrdev_t *, u8_t *, size_t);
-	struct serial_parameter param;
+	struct serial_parameter_t param;
 	char * name = NULL, * str = NULL;
 	char * baud = 0;
 	char * data_bit = 0;
@@ -452,7 +452,7 @@ static int serial(int argc, char ** argv)
 	return 0;
 }
 
-static struct command serial_cmd = {
+static struct command_t serial_cmd = {
 	.name		= "serial",
 	.func		= serial,
 	.desc		= "serial device manager\r\n",

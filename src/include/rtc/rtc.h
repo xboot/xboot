@@ -14,7 +14,7 @@ extern "C" {
  * defined the struct of rtc driver, which contains
  * low level operating fuction.
  */
-struct rtc_driver
+struct rtc_driver_t
 {
 	/* the rtc name */
 	char * name;
@@ -48,8 +48,8 @@ bool_t rtc_valid_time(struct time * tm);
 void rtc_to_time(unsigned long time, struct time *tm);
 u32_t time_to_rtc(struct time * tm);
 
-bool_t register_rtc(struct rtc_driver * drv);
-bool_t unregister_rtc(struct rtc_driver * drv);
+bool_t register_rtc(struct rtc_driver_t * drv);
+bool_t unregister_rtc(struct rtc_driver_t * drv);
 
 #ifdef __cplusplus
 }

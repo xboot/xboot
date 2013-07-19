@@ -36,7 +36,7 @@ struct irq_regs {
 /*
  * the irq handler.
  */
-static irq_handler realview_irq_handler[32];
+static irq_handler_t realview_irq_handler[32];
 
 /*
  * null function for irq handler
@@ -63,7 +63,7 @@ void do_irqs(struct irq_regs * regs)
 /*
  * enable or disable irq.
  */
-static void enable_irqs(struct irq * irq, bool_t enable)
+static void enable_irqs(struct irq_t * irq, bool_t enable)
 {
 	u32_t mask = 1 << (irq->irq_no % 32);
 
@@ -76,7 +76,7 @@ static void enable_irqs(struct irq * irq, bool_t enable)
 /*
  * the array of irq.
  */
-static struct irq realview_irqs[] = {
+static struct irq_t realview_irqs[] = {
 	{
 		.name		= "WDOG",
 		.irq_no		= 32 + 0,
@@ -295,7 +295,7 @@ static __init void realview_irq_init(void)
 	/* initial irq's handler to null_irq_handler */
 	for(i = 0; i < ARRAY_SIZE(realview_irq_handler); i++)
 	{
-		realview_irq_handler[i] = (irq_handler)null_irq_handler;
+		realview_irq_handler[i] = (irq_handler_t)null_irq_handler;
 	}
 
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)

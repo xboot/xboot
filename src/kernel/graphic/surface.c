@@ -23,7 +23,7 @@
 #include <xboot/module.h>
 #include <graphic/surface.h>
 
-struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_format fmt)
+struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_format_t fmt)
 {
 	struct surface_t * surface;
 	u32_t pitch, size;
@@ -56,7 +56,7 @@ struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_for
 	surface->pitch = pitch;
 	surface_set_clip_rect(surface, NULL);
 
-	memset(&surface->maps, 0, sizeof(struct surface_maps));
+	memset(&surface->maps, 0, sizeof(struct surface_maps_t));
 	surface_set_maps(&surface->maps);
 
 	if(pixels)
@@ -83,7 +83,7 @@ struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_for
 }
 EXPORT_SYMBOL(surface_alloc);
 
-struct surface_t * surface_alloc_from_gimage(const struct gimage * image)
+struct surface_t * surface_alloc_from_gimage(const struct gimage_t * image)
 {
 	if(!image)
 		return NULL;

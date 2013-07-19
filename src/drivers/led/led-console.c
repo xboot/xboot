@@ -48,8 +48,8 @@ void led_console_trigger_activity(void)
 
 static void console_trigger_function(u32_t data)
 {
-	struct trigger * trigger = (struct trigger *)(data);
-	struct led * led = (struct led *)(trigger->led);
+	struct trigger_t * trigger = (struct trigger_t *)(data);
+	struct led_t * led = (struct led_t *)(trigger->led);
 
 	if(last_activity != activity)
 	{
@@ -63,7 +63,7 @@ static void console_trigger_function(u32_t data)
 	}
 }
 
-static struct trigger console_trigger = {
+static struct trigger_t console_trigger = {
 	.name     		= "led-console",
 	.activate 		= NULL,
 	.deactivate		= NULL,
@@ -73,9 +73,9 @@ static struct trigger console_trigger = {
 
 static __init void console_trigger_init(void)
 {
-	struct led * led;
+	struct led_t * led;
 
-	led = (struct led *)resource_get_data(console_trigger.name);
+	led = (struct led_t *)resource_get_data(console_trigger.name);
 	if(led && led->set)
 	{
 		if(led->init)

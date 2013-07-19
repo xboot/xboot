@@ -36,7 +36,7 @@
 /*
  * the array of clocks, which will to be setup.
  */
-static struct clk s3c2410_clocks[4];
+static struct clk_t s3c2410_clocks[4];
 
 /*
  * setup the s3c2410's clock array.

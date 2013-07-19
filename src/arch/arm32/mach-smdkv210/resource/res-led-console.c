@@ -49,7 +49,7 @@ static void led_gph2_5_set(u8_t brightness)
 		writel(S5PV210_GPH2DAT, (readl(S5PV210_GPH2DAT) & ~(0x1<<5)) | (0x0<<5));
 }
 
-static struct led led_gph2_5 = {
+static struct led_t led_gph2_5 = {
 	.name		= "led-gph2_5",
 	.init		= led_gph2_5_init,
 	.set		= led_gph2_5_set,

@@ -23,9 +23,9 @@
 #include <xboot.h>
 #include <xboot/machine.h>
 
-static struct machine * __machine = NULL;
+static struct machine_t * __machine = NULL;
 
-inline struct machine * get_machine(void)
+inline struct machine_t * get_machine(void)
 {
 	return __machine;
 }
@@ -53,7 +53,7 @@ bool_t machine_reset(void)
 	return FALSE;
 }
 
-bool_t machine_batinfo(struct battery_info * info)
+bool_t machine_batinfo(struct battery_info_t * info)
 {
 	if(get_machine() && get_machine()->misc.batinfo)
 		return get_machine()->misc.batinfo(info);
@@ -83,7 +83,7 @@ bool_t machine_authentication(void)
 	return FALSE;
 }
 
-bool_t register_machine(struct machine * mach)
+bool_t register_machine(struct machine_t * mach)
 {
 	if(mach)
 	{
@@ -106,7 +106,7 @@ bool_t register_machine(struct machine * mach)
 
 static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct battery_info info;
+	struct battery_info_t info;
 	char size[16];
 	char * p;
 	s32_t len = 0;

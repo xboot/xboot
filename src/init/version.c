@@ -50,7 +50,7 @@ static const char xboot[6][64] = {	"        _",
 /*
  * print xboot's character logo.
  */
-void xboot_char_logo(struct console * console, u32_t x0, u32_t y0)
+void xboot_char_logo(struct console_t * console, u32_t x0, u32_t y0)
 {
 	u32_t i, len;
 	s32_t w, h;

@@ -63,7 +63,7 @@ static int sleep(int argc, char ** argv)
 	return 0;
 }
 
-static struct command sleep_cmd = {
+static struct command_t sleep_cmd = {
 	.name		= "sleep",
 	.func		= sleep,
 	.desc		= "pause cpu for a specified time\r\n",

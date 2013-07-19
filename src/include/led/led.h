@@ -12,9 +12,9 @@ extern "C" {
 #define	LED_BRIGHTNESS_FULL		(255)
 
 /*
- * the struct of led.
+ * the struct of led_t.
  */
-struct led
+struct led_t
 {
 	/* the led name */
 	const char * name;

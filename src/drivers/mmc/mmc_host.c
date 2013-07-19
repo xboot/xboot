@@ -30,7 +30,6 @@
 #include <xboot/printk.h>
 #include <mmc/mmc_host.h>
 
-
 /*
  * the list of mmc host controller
  */
@@ -45,7 +44,7 @@ struct mmc_host_list * mmc_host_list = &__mmc_host_list;
 /*
  * search mmc host controller by name
  */
-struct mmc_host * search_mmc_host(const char * name)
+struct mmc_host_t * search_mmc_host(const char * name)
 {
 	struct mmc_host_list * list;
 	struct list_head * pos;
@@ -66,7 +65,7 @@ struct mmc_host * search_mmc_host(const char * name)
 /*
  * register a mmc host controller into mmc_host_list
  */
-bool_t register_mmc_host(struct mmc_host * host)
+bool_t register_mmc_host(struct mmc_host_t * host)
 {
 	struct mmc_host_list * list;
 
@@ -92,7 +91,7 @@ bool_t register_mmc_host(struct mmc_host * host)
 /*
  * unregister mmc host controller from mmc_host_list
  */
-bool_t unregister_mmc_host(struct mmc_host * host)
+bool_t unregister_mmc_host(struct mmc_host_t * host)
 {
 	struct mmc_host_list * list;
 	struct list_head * pos;

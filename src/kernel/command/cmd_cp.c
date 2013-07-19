@@ -82,7 +82,7 @@ static int do_cp(int argc, char ** argv)
 	return 0;
 }
 
-static struct command cp_cmd = {
+static struct command_t cp_cmd = {
 	.name		= "cp",
 	.func		= do_cp,
 	.desc		= "copy file\r\n",

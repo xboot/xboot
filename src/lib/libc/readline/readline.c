@@ -26,9 +26,9 @@
 #include <readline.h>
 
 struct rl_buf {
-	struct console * in;
-	struct console * out;
-	struct console * err;
+	struct console_t * in;
+	struct console_t * out;
+	struct console_t * err;
 	u32_t * buf;
 	u32_t * cut;
 	size_t size;
@@ -234,9 +234,9 @@ static void rl_print(struct rl_buf * rl, s32_t pos)
 
 static struct rl_buf * rl_buf_alloc(const char * prompt)
 {
-	struct console * cin = get_console_stdin();
-	struct console * cout = get_console_stdout();
-	struct console * cerr = get_console_stderr();
+	struct console_t * cin = get_console_stdin();
+	struct console_t * cout = get_console_stdout();
+	struct console_t * cerr = get_console_stderr();
 	struct rl_buf * rl;
 	s32_t x, y, w, h;
 

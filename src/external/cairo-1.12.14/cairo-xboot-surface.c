@@ -47,7 +47,7 @@ struct cairo_xboot_surface_t {
 	cairo_surface_t * cs;
 };
 
-static cairo_format_t cairo_format_from_pixel_format (enum pixel_format fmt)
+static cairo_format_t cairo_format_from_pixel_format (enum pixel_format_t fmt)
 {
 	switch(fmt)
 	{

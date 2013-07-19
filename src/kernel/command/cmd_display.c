@@ -93,7 +93,7 @@ static int display(int argc, char ** argv)
 	return 0;
 }
 
-static struct command display_cmd = {
+static struct command_t display_cmd = {
 	.name		= "display",
 	.func		= display,
 	.desc		= "display a picture on the screen\r\n",

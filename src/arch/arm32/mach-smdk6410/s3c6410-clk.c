@@ -36,7 +36,7 @@
 /*
  * the array of clocks, which will to be setup.
  */
-static struct clk s3c6410_clocks[13];
+static struct clk_t s3c6410_clocks[13];
 
 /*
  * get pll.

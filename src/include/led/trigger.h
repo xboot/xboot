@@ -12,19 +12,19 @@ extern "C" {
 /*
  * the struct of trigger.
  */
-struct trigger
+struct trigger_t
 {
 	/* the trigger name */
 	const char * name;
 
 	/* activate led trigger */
-	void (*activate)(struct trigger * trigger);
+	void (*activate)(struct trigger_t * trigger);
 
 	/* activate led trigger */
-	void (*deactivate)(struct trigger * trigger);
+	void (*deactivate)(struct trigger_t * trigger);
 
 	/* led device */
-	struct led * led;
+	struct led_t * led;
 
 	/* private data */
 	void * priv;
@@ -35,12 +35,12 @@ struct trigger
  */
 struct led_trigger_list
 {
-	struct trigger * trigger;
+	struct trigger_t * trigger;
 	struct list_head entry;
 };
 
-bool_t trigger_register(struct trigger * trigger);
-bool_t trigger_unregister(struct trigger * trigger);
+bool_t trigger_register(struct trigger_t * trigger);
+bool_t trigger_unregister(struct trigger_t * trigger);
 
 #ifdef __cplusplus
 }

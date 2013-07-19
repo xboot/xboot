@@ -220,7 +220,7 @@ bool_t remove_listener_onkeydown(handler_onkeydown keydown)
 	return FALSE;
 }
 
-void keyboard_input_handler(struct input_event * event)
+void keyboard_input_handler(struct input_event_t * event)
 {
 	struct handler_onkeyraw_list * raw;
 	struct handler_onkeyup_list * keyup;

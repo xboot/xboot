@@ -124,7 +124,7 @@ static int fileram(int argc, char ** argv)
 	return 0;
 }
 
-static struct command fileram_cmd = {
+static struct command_t fileram_cmd = {
 	.name		= "fileram",
 	.func		= fileram,
 	.desc		= "copy file to ram or ram to file\r\n",

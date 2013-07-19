@@ -48,8 +48,8 @@ void led_file_trigger_activity(void)
 
 static void file_trigger_function(u32_t data)
 {
-	struct trigger * trigger = (struct trigger *)(data);
-	struct led * led = (struct led *)(trigger->led);
+	struct trigger_t * trigger = (struct trigger_t *)(data);
+	struct led_t * led = (struct led_t *)(trigger->led);
 
 	if(last_activity != activity)
 	{
@@ -63,7 +63,7 @@ static void file_trigger_function(u32_t data)
 	}
 }
 
-static struct trigger file_trigger = {
+static struct trigger_t file_trigger = {
 	.name     		= "led-file",
 	.activate 		= NULL,
 	.deactivate		= NULL,
@@ -73,9 +73,9 @@ static struct trigger file_trigger = {
 
 static __init void file_trigger_init(void)
 {
-	struct led * led;
+	struct led_t * led;
 
-	led = (struct led *)resource_get_data(file_trigger.name);
+	led = (struct led_t *)resource_get_data(file_trigger.name);
 	if(led && led->set)
 	{
 		if(led->init)

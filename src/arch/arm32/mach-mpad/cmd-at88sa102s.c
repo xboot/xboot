@@ -135,7 +135,7 @@ static int do_at88sa102s(int argc, char ** argv)
 	return 0;
 }
 
-static struct command at88sa102s_cmd = {
+static struct command_t at88sa102s_cmd = {
 	.name		= "at88sa102s",
 	.func		= do_at88sa102s,
 	.desc		= "AT88SA102S crypto chip\r\n",

@@ -146,7 +146,7 @@ static int cksum(int argc, char ** argv)
 	return 0;
 }
 
-static struct command cksum_cmd = {
+static struct command_t cksum_cmd = {
 	.name		= "cksum",
 	.func		= cksum,
 	.desc		= "checksum the specified memory area\r\n",

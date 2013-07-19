@@ -12,7 +12,7 @@ extern "C" {
 /**
  * the baud rate.
  */
-enum SERIAL_BAUD_RATE {
+enum serial_baud_rate_t {
 	B50,
 	B75,
 	B110,
@@ -39,7 +39,7 @@ enum SERIAL_BAUD_RATE {
 /**
  * the data bits
  */
-enum SERIAL_DATA_BITS {
+enum serial_data_bits_t {
 	DATA_BITS_5,
 	DATA_BITS_6,
 	DATA_BITS_7,
@@ -49,7 +49,7 @@ enum SERIAL_DATA_BITS {
 /**
  * the parity bits
  */
-enum SERIAL_PARITY_BIT {
+enum serial_parity_bits_t {
 	PARITY_NONE,
 	PARITY_EVEN,
 	PARITY_ODD,
@@ -58,7 +58,7 @@ enum SERIAL_PARITY_BIT {
 /**
  * the stop bits
  */
-enum SERIAL_STOP_BITS {
+enum serial_stop_bits_t {
 	STOP_BITS_1,
 	STOP_BITS_1_5,
 	STOP_BITS_2,
@@ -67,37 +67,37 @@ enum SERIAL_STOP_BITS {
 /**
  * serial parameter
  */
-struct serial_parameter
+struct serial_parameter_t
 {
-	enum SERIAL_BAUD_RATE 	baud_rate;
-	enum SERIAL_DATA_BITS 	data_bit;
-	enum SERIAL_PARITY_BIT	parity;
-	enum SERIAL_STOP_BITS  	stop_bit;
+	enum serial_baud_rate_t		baud_rate;
+	enum serial_data_bits_t		data_bit;
+	enum serial_parity_bits_t	parity;
+	enum serial_stop_bits_t		stop_bit;
 };
 
 /**
  * defined the struct of serial information.
  */
-struct serial_info
+struct serial_info_t
 {
 	/* the serial name. */
-	const char *name;
+	const char * name;
 
 	/* the serial description */
-	const char *desc;
+	const char * desc;
 
 	/* serial parameter */
-	struct serial_parameter *parameter;
+	struct serial_parameter_t * parameter;
 };
 
 /**
  * defined the struct of serial driver, which contains
  * low level operating fuction.
  */
-struct serial_driver
+struct serial_driver_t
 {
 	/* the serial information */
-	struct serial_info *info;
+	struct serial_info_t * info;
 
 	/*initialize the serial */
 	void (*init)(void);
@@ -115,8 +115,8 @@ struct serial_driver
 	int (*ioctl)(int cmd, void * arg);
 };
 
-bool_t register_serial(struct serial_driver * drv);
-bool_t unregister_serial(struct serial_driver * drv);
+bool_t register_serial(struct serial_driver_t * drv);
+bool_t unregister_serial(struct serial_driver_t * drv);
 
 #ifdef __cplusplus
 }

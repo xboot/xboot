@@ -123,7 +123,6 @@ SRCDIRS	+=	arch/$(ARCH)/lib/gcc						\
 				drivers/rtc								\
 				drivers/input								\
 				drivers/input/keyboard					\
-				drivers/input/mouse						\
 				drivers/mmc								\
 				drivers/mtd								\
 				drivers/mtd/nand							\

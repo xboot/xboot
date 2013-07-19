@@ -13,7 +13,7 @@ extern "C" {
 /*
  * define mmc host controller
  */
-struct mmc_host
+struct mmc_host_t
 {
 	/* the name of mmc host controller */
 	char * name;
@@ -25,13 +25,13 @@ struct mmc_host
 	void (*exit)(void);
 
 	/* probe mmc card's information */
-	bool_t (*probe)(struct mmc_card_info * info);
+	bool_t (*probe)(struct mmc_card_info_t * info);
 
 	/* read sectors from mmc card */
-	bool_t (*read_sectors)(struct mmc_card * card, u8_t * buf, u32_t sector, u32_t count);
+	bool_t (*read_sectors)(struct mmc_card_t * card, u8_t * buf, u32_t sector, u32_t count);
 
 	/* write sectors to mmc card */
-	bool_t (*write_sectors)(struct mmc_card * card, const u8_t * buf, u32_t sector, u32_t count);
+	bool_t (*write_sectors)(struct mmc_card_t * card, const u8_t * buf, u32_t sector, u32_t count);
 };
 
 /*
@@ -39,13 +39,13 @@ struct mmc_host
  */
 struct mmc_host_list
 {
-	struct mmc_host * host;
+	struct mmc_host_t * host;
 	struct list_head entry;
 };
 
-struct mmc_host * search_mmc_host(const char * name);
-bool_t register_mmc_host(struct mmc_host * host);
-bool_t unregister_mmc_host(struct mmc_host * host);
+struct mmc_host_t * search_mmc_host(const char * name);
+bool_t register_mmc_host(struct mmc_host_t * host);
+bool_t unregister_mmc_host(struct mmc_host_t * host);
 
 #ifdef __cplusplus
 }

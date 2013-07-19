@@ -46,7 +46,7 @@ static void led_gpm1_set(u8_t brightness)
 		writel(S3C6410_GPMDAT, (readl(S3C6410_GPMDAT) & ~(0x1<<1)) | (0x1<<1));
 }
 
-static struct led led_gpm1 = {
+static struct led_t led_gpm1 = {
 	.name		= "led-gpm1",
 	.init		= led_gpm1_init,
 	.set		= led_gpm1_set,

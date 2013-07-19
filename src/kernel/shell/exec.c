@@ -39,7 +39,7 @@
  */
 void exec_cmdline(const char * cmdline)
 {
-    struct command * cmd;
+    struct command_t * cmd;
     int n;
     char **args;
     char *p, *buf, *pos;

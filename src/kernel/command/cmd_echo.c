@@ -192,7 +192,7 @@ not_an_escape:
 	return 0;
 }
 
-static struct command echo_cmd = {
+static struct command_t echo_cmd = {
 	.name		= "echo",
 	.func		= echo,
 	.desc		= "display a line of text\r\n",

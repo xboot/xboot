@@ -8,7 +8,7 @@ extern "C" {
 #include <xboot.h>
 #include <input/input.h>
 
-enum key_code {
+enum key_code_t {
 	KEY_CTRL_A					= 0x0001,
 	KEY_CTRL_B					= 0x0002,
 	KEY_CTRL_C					= 0x0003,
@@ -152,14 +152,14 @@ enum key_code {
 	KEY_RESET					= 0x008b,
 };
 
-enum key_value {
+enum key_value_t {
 	KEY_BUTTON_UP				= 0,
 	KEY_BUTTON_DOWN				= 1,
 };
 
-typedef void (*handler_onkeyraw)(struct input_event * event);
-typedef void (*handler_onkeyup)(enum key_code key);
-typedef void (*handler_onkeydown)(enum key_code key);
+typedef void (*handler_onkeyraw)(struct input_event_t * event);
+typedef void (*handler_onkeyup)(enum key_code_t key);
+typedef void (*handler_onkeydown)(enum key_code_t key);
 
 
 bool_t install_listener_onkeyraw(handler_onkeyraw raw);

@@ -81,7 +81,7 @@ static enum mode_t mach_getmode(void)
 	return MODE_MENU;
 }
 
-static bool_t mach_batinfo(struct battery_info * info)
+static bool_t mach_batinfo(struct battery_info_t * info)
 {
 	if(!info)
 		return FALSE;
@@ -129,7 +129,7 @@ static bool_t mach_authentication(void)
 /*
  * A portable machine interface.
  */
-static struct machine smdk6410 = {
+static struct machine_t smdk6410 = {
 	.info = {
 		.board_name 		= "smdk6410",
 		.board_desc 		= "smdk6410 board by samsung",

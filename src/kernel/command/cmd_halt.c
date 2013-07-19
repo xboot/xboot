@@ -49,7 +49,7 @@ static int do_halt(int argc, char ** argv)
 	}
 }
 
-static struct command halt_cmd = {
+static struct command_t halt_cmd = {
 	.name		= "halt",
 	.func		= do_halt,
 	.desc		= "halt the target system\r\n",

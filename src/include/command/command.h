@@ -11,9 +11,9 @@ extern "C" {
 #include <xboot/list.h>
 
 /*
- * defined the struct of command
+ * defined the struct of command_t
  */
-struct command
+struct command_t
 {
 	/* the command name */
 	const char * name;
@@ -36,13 +36,13 @@ struct command
  */
 struct command_list
 {
-	struct command * cmd;
+	struct command_t * cmd;
 	struct list_head entry;
 };
 
-bool_t command_register(struct command * cmd);
-bool_t command_unregister(struct command * cmd);
-struct command * command_search(const char * name);
+bool_t command_register(struct command_t * cmd);
+bool_t command_unregister(struct command_t * cmd);
+struct command_t * command_search(const char * name);
 int command_number(void);
 
 #ifdef __cplusplus

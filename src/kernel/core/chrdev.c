@@ -92,9 +92,9 @@ struct chrdev_t * search_chrdev_with_type(const char * name, enum chrdev_type_t 
  */
 bool_t register_chrdev(struct chrdev_t * dev)
 {
-	struct device * device;
+	struct device_t * device;
 
-	device = malloc(sizeof(struct device));
+	device = malloc(sizeof(struct device_t));
 	if(!device || !dev)
 	{
 		free(device);
@@ -119,7 +119,7 @@ bool_t register_chrdev(struct chrdev_t * dev)
  */
 bool_t unregister_chrdev(const char * name)
 {
-	struct device * device;
+	struct device_t * device;
 
 	if(!name)
 		return FALSE;

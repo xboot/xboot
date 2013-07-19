@@ -29,7 +29,7 @@
 /*
  * default serial parameter.
  */
-static struct serial_parameter serial_param[4] = {
+static struct serial_parameter_t serial_param[4] = {
 	[0] = {
 		.baud_rate		= B115200,
 		.data_bit		= DATA_BITS_8,
@@ -59,7 +59,7 @@ static struct serial_parameter serial_param[4] = {
 /*
  * serial information.
  */
-static struct serial_info serial_info[4] = {
+static struct serial_info_t serial_info[4] = {
 	[0] = {
 		.name			= "uart0",
 		.desc			= "realview serial 0",
@@ -91,45 +91,45 @@ static int realview_serial_ioctl(u32_t ch, int cmd, void * arg)
 	u32_t temp, remainder;
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
 	u64_t uclk;
-	struct serial_parameter param;
+	struct serial_parameter_t param;
 
 	if((ch < 0) || (ch > 3))
 		return -1;
 
-	memcpy(&param, &serial_param[ch], sizeof(struct serial_parameter));
+	memcpy(&param, &serial_param[ch], sizeof(struct serial_parameter_t));
 
 	switch(cmd)
 	{
 	case IOCTL_WR_SERIAL_BAUD_RATE:
-		param.baud_rate = *((enum SERIAL_BAUD_RATE *)arg);
+		param.baud_rate = *((enum serial_baud_rate_t *)arg);
 		break;
 
 	case IOCTL_WR_SERIAL_DATA_BITS:
-		param.data_bit = *((enum SERIAL_DATA_BITS *)arg);
+		param.data_bit = *((enum serial_data_bits_t *)arg);
 		break;
 
 	case IOCTL_WR_SERIAL_PARITY_BIT:
-		param.parity = *((enum SERIAL_PARITY_BIT *)arg);
+		param.parity = *((enum serial_parity_bits_t *)arg);
 		break;
 
 	case IOCTL_WR_SERIAL_STOP_BITS:
-		param.stop_bit = *((enum SERIAL_STOP_BITS *)arg);
+		param.stop_bit = *((enum serial_stop_bits_t *)arg);
 		break;
 
 	case IOCTL_RD_SERIAL_BAUD_RATE:
-		*((enum SERIAL_BAUD_RATE *)arg) = param.baud_rate;
+		*((enum serial_baud_rate_t *)arg) = param.baud_rate;
 		return 0;
 
 	case IOCTL_RD_SERIAL_DATA_BITS:
-		*((enum SERIAL_DATA_BITS *)arg) = param.data_bit;
+		*((enum serial_data_bits_t *)arg) = param.data_bit;
 		return 0;
 
 	case IOCTL_RD_SERIAL_PARITY_BIT:
-		*((enum SERIAL_PARITY_BIT *)arg) = param.parity;
+		*((enum serial_parity_bits_t *)arg) = param.parity;
 		return 0;
 
 	case IOCTL_RD_SERIAL_STOP_BITS:
-		*((enum SERIAL_STOP_BITS *)arg) = param.stop_bit;
+		*((enum serial_stop_bits_t *)arg) = param.stop_bit;
 		return 0;
 
 	default:
@@ -261,7 +261,7 @@ static int realview_serial_ioctl(u32_t ch, int cmd, void * arg)
 		return -1;
 	}
 
-	memcpy(&serial_param[ch], &param, sizeof(struct serial_parameter));
+	memcpy(&serial_param[ch], &param, sizeof(struct serial_parameter_t));
 
 	return 0;
 }
@@ -486,7 +486,7 @@ static int realview_serial3_ioctl(int cmd, void * arg)
 	return (realview_serial_ioctl(3, cmd, arg));
 }
 
-static struct serial_driver realview_serial_driver[4] = {
+static struct serial_driver_t realview_serial_driver[4] = {
 	[0] = {
 		.info	= &serial_info[0],
 		.init	= realview_serial0_init,
@@ -523,7 +523,7 @@ static struct serial_driver realview_serial_driver[4] = {
 
 static __init void realview_serial_dev_init(void)
 {
-	struct serial_parameter * param;
+	struct serial_parameter_t * param;
 	u32_t i;
 
 	if(!clk_get_rate("uclk", 0))
@@ -535,9 +535,9 @@ static __init void realview_serial_dev_init(void)
 	/* register serial driver */
 	for(i = 0; i < ARRAY_SIZE(realview_serial_driver); i++)
 	{
-		param = (struct serial_parameter *)resource_get_data(realview_serial_driver[i].info->name);
+		param = (struct serial_parameter_t *)resource_get_data(realview_serial_driver[i].info->name);
 		if(param)
-			memcpy(realview_serial_driver[i].info->parameter, param, sizeof(struct serial_parameter));
+			memcpy(realview_serial_driver[i].info->parameter, param, sizeof(struct serial_parameter_t));
 		else
 			LOG("Can't get serial resource '%s', using default parameter", realview_serial_driver[i].info->name);
 

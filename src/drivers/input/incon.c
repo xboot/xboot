@@ -35,7 +35,7 @@
 static struct fifo_t * input_console_fifo;
 static bool_t input_console_onoff;
 
-static void incon_keyboard_handler(enum key_code key)
+static void incon_keyboard_handler(enum key_code_t key)
 {
 	u32_t c;
 
@@ -89,7 +89,7 @@ static void incon_keyboard_handler(enum key_code key)
 	fifo_put(input_console_fifo, (u8_t *)&c, sizeof(u32_t));
 }
 
-static bool_t incon_getcode(struct console * console, u32_t * code)
+static bool_t incon_getcode(struct console_t * console, u32_t * code)
 {
 	if(!input_console_onoff)
 		return FALSE;
@@ -100,13 +100,13 @@ static bool_t incon_getcode(struct console * console, u32_t * code)
 	return FALSE;
 }
 
-bool_t incon_onoff(struct console * console, bool_t flag)
+bool_t incon_onoff(struct console_t * console, bool_t flag)
 {
 	input_console_onoff = flag;
 	return TRUE;
 }
 
-static struct console input_console = {
+static struct console_t input_console = {
 	.name     		= "input",
 	.getwh			= NULL,
 	.getxy			= NULL,

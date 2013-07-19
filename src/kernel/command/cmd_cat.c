@@ -95,7 +95,7 @@ static int cat(int argc, char ** argv)
 	return 0;
 }
 
-static struct command cat_cmd = {
+static struct command_t cat_cmd = {
 	.name		= "cat",
 	.func		= cat,
 	.desc		= "show the contents of a file\r\n",

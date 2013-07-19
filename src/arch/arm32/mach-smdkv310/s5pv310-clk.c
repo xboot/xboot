@@ -234,7 +234,7 @@ static u64_t s5pv310_get_sclk_uart(u64_t fin, u32_t ch)
 /*
  * the array of clocks, which will to be setup.
  */
-static struct clk s5pv310_clocks[11];
+static struct clk_t s5pv310_clocks[11];
 
 /*
  * setup the s5pv310's clock array.

@@ -35,12 +35,12 @@ struct menu_ctx
 	u32_t total;
 	u32_t win1, win2;
 
-	struct console * in;
-	struct console * out;
-	struct console * err;
+	struct console_t * in;
+	struct console_t * out;
+	struct console_t * err;
 
 	s32_t width, height;
-	enum tcolor fg, bg;
+	enum tcolor_t fg, bg;
 
 	u32_t x0, y0, x1, y1;
 	bool_t cursor;
@@ -102,9 +102,9 @@ static void menu_ctx_paint(struct menu_ctx * ctx)
 
 static struct menu_ctx * menu_ctx_alloc(void)
 {
-	struct console * cin = get_console_stdin();
-	struct console * cout = get_console_stdout();
-	struct console * cerr = get_console_stderr();
+	struct console_t * cin = get_console_stdin();
+	struct console_t * cout = get_console_stdout();
+	struct console_t * cerr = get_console_stderr();
 	struct menu_ctx * ctx;
 	s32_t w, h;
 

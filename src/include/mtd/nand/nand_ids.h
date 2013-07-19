@@ -27,7 +27,7 @@ enum
 /*
  * nand flash manufacturer id structure
  */
-struct nand_manufacturer
+struct nand_manufacturer_t
 {
 	/* manufacturer id */
 	u32_t id;
@@ -78,7 +78,7 @@ enum {
 /*
  * nand flash information
  */
-struct nand_info
+struct nand_info_t
 {
 	/* nand flash's name */
 	char * name;
@@ -102,8 +102,8 @@ struct nand_info
 /*
  * extern nand_flash_ids and nand_manuf_ids.
  */
-extern struct nand_info nand_flash_ids[];
-extern struct nand_manufacturer nand_manuf_ids[];
+extern struct nand_info_t nand_flash_ids[];
+extern struct nand_manufacturer_t nand_manuf_ids[];
 
 #ifdef __cplusplus
 }

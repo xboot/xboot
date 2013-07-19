@@ -23,7 +23,7 @@
 #include <graphic/maps.h>
 #include <graphic/maps/software.h>
 
-bool_t surface_set_maps(struct surface_maps * maps)
+bool_t surface_set_maps(struct surface_maps_t * maps)
 {
 	if(!maps)
 		return FALSE;

@@ -128,7 +128,7 @@ static int mw(int argc, char ** argv)
 	return 0;
 }
 
-static struct command mw_cmd = {
+static struct command_t mw_cmd = {
 	.name		= "mw",
 	.func		= mw,
 	.desc		= "memory write\r\n",

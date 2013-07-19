@@ -27,13 +27,13 @@
 /*
  * logo for xboot
  */
-static const struct gimage default_xboot_logo;
-static struct gimage * xboot_logo = (struct gimage *)(&default_xboot_logo);
+static const struct gimage_t default_xboot_logo;
+static struct gimage_t * xboot_logo = (struct gimage_t *)(&default_xboot_logo);
 
 /*
  * default xboot's logo
  */
-static const struct gimage default_xboot_logo = {
+static const struct gimage_t default_xboot_logo = {
 	200, 58, 4, (u8_t *)
 	"\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0"
 	"\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0"
@@ -1758,7 +1758,7 @@ static const struct gimage default_xboot_logo = {
 	"\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377"
 };
 
-static const struct gimage watermark = {
+static const struct gimage_t watermark = {
 	200, 287, 4, (u8_t *)
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
@@ -9635,7 +9635,7 @@ bool_t display_logo(struct fb_t * fb)
 	 */
 	if(! machine_authentication())
 	{
-		mark = surface_alloc_from_gimage((const struct gimage *)(&watermark));
+		mark = surface_alloc_from_gimage((const struct gimage_t *)(&watermark));
 		if(!mark)
 			return FALSE;
 
@@ -9659,16 +9659,16 @@ bool_t display_logo(struct fb_t * fb)
 /*
  * register logo
  */
-bool_t register_logo(const struct gimage * logo)
+bool_t register_logo(const struct gimage_t * logo)
 {
 	if(logo)
 	{
-		xboot_logo = (struct gimage *)logo;
+		xboot_logo = (struct gimage_t *)logo;
 		return TRUE;
 	}
 	else
 	{
-		xboot_logo = (struct gimage *)(&default_xboot_logo);
+		xboot_logo = (struct gimage_t *)(&default_xboot_logo);
 		return FALSE;
 	}
 }

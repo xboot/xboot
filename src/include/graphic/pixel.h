@@ -7,7 +7,7 @@ extern "C" {
 
 #include <xboot.h>
 
-enum pixel_format
+enum pixel_format_t
 {
 	PIXEL_FORMAT_GENERIC		= 0,
 
@@ -26,7 +26,7 @@ enum pixel_format
 	PIXEL_FORMAT_RGB_332		= 10,
 };
 
-struct pixel_info {
+struct pixel_info_t {
 	/* bits per pixel */
 	u8_t bits_per_pixel;
 
@@ -58,15 +58,15 @@ struct pixel_info {
 	u8_t alpha_field_pos;
 
 	/* pixel format */
-	enum pixel_format fmt;
+	enum pixel_format_t fmt;
 };
 
 
-enum pixel_format get_pixel_format(struct pixel_info * info);
-void set_pixel_info(struct pixel_info * info, enum pixel_format fmt);
+enum pixel_format_t get_pixel_format(struct pixel_info_t * info);
+void set_pixel_info(struct pixel_info_t * info, enum pixel_format_t fmt);
 
-u32_t map_pixel_color(struct pixel_info * info, struct color_t * col);
-void unmap_pixel_color(struct pixel_info * info, u32_t c, struct color_t * col);
+u32_t map_pixel_color(struct pixel_info_t * info, struct color_t * col);
+void unmap_pixel_color(struct pixel_info_t * info, u32_t c, struct color_t * col);
 
 #ifdef __cplusplus
 }

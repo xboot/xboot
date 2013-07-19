@@ -47,7 +47,7 @@ static void s5pv210_nfc_exit(void)
 {
 }
 
-static bool_t s5pv210_nfc_control(struct nand_device * nand, enum nand_control ctl)
+static bool_t s5pv210_nfc_control(struct nand_device_t * nand, enum nand_control ctl)
 {
 	switch(ctl)
 	{
@@ -74,35 +74,35 @@ static bool_t s5pv210_nfc_control(struct nand_device * nand, enum nand_control c
 	return FALSE;
 }
 
-static bool_t s5pv210_nfc_command(struct nand_device * nand, u32_t cmd)
+static bool_t s5pv210_nfc_command(struct nand_device_t * nand, u32_t cmd)
 {
 	writel(S5PV210_NFCMD, cmd);
 
 	return TRUE;
 }
 
-static bool_t s5pv210_nfc_address(struct nand_device * nand, u32_t addr)
+static bool_t s5pv210_nfc_address(struct nand_device_t * nand, u32_t addr)
 {
 	writel(S5PV210_NFADDR, addr);
 
 	return TRUE;
 }
 
-static bool_t s5pv210_nfc_read_data(struct nand_device * nand, u32_t * data)
+static bool_t s5pv210_nfc_read_data(struct nand_device_t * nand, u32_t * data)
 {
 	*data = readb(S5PV210_NFDATA);
 
 	return TRUE;
 }
 
-static bool_t s5pv210_nfc_write_data(struct nand_device * nand, u32_t data)
+static bool_t s5pv210_nfc_write_data(struct nand_device_t * nand, u32_t data)
 {
 	writeb(S5PV210_NFDATA, data);
 
 	return TRUE;
 }
 
-static bool_t s5pv210_nfc_nand_ready(struct nand_device * nand, s32_t timeout)
+static bool_t s5pv210_nfc_nand_ready(struct nand_device_t * nand, s32_t timeout)
 {
 	u32_t status;
 

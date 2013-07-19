@@ -20,7 +20,7 @@ extern volatile u32_t jiffies;
 /*
  * The struct of tick.
  */
-struct tick {
+struct tick_t {
 	/* system hz */
 	const u32_t hz;
 
@@ -29,7 +29,7 @@ struct tick {
 };
 
 void tick_interrupt(void);
-bool_t register_tick(struct tick * tick);
+bool_t register_tick(struct tick_t * tick);
 u32_t get_system_hz(void);
 bool_t init_system_tick(void);
 

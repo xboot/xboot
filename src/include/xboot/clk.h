@@ -13,7 +13,7 @@ extern "C" {
 /*
  * the struct of clk.
  */
-struct clk
+struct clk_t
 {
 	/* the clk name */
 	const char * name;
@@ -27,12 +27,12 @@ struct clk
  */
 struct clk_list
 {
-	struct clk * clk;
+	struct clk_t * clk;
 	struct hlist_node node;
 };
 
-bool_t clk_register(struct clk * clk);
-bool_t clk_unregister(struct clk * clk);
+bool_t clk_register(struct clk_t * clk);
+bool_t clk_unregister(struct clk_t * clk);
 bool_t clk_get_rate(const char *name, u64_t * rate);
 
 #ifdef __cplusplus

@@ -47,7 +47,7 @@ static int console(int argc, char ** argv)
 	return 0;
 }
 
-static struct command console_cmd = {
+static struct command_t console_cmd = {
 	.name		= "console",
 	.func		= console,
 	.desc		= "turn on/off the standard console\r\n",

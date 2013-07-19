@@ -46,7 +46,7 @@ static int bootlinux(int argc, char ** argv)
 {
 	s32_t ret;
 	s32_t linux_mach_type, linux_kernel, linux_tag_placement;
-	struct machine * mach = get_machine();
+	struct machine_t * mach = get_machine();
 	struct tag * params;
 	s8_t *p;
 	s32_t i;
@@ -118,7 +118,7 @@ static int bootlinux(int argc, char ** argv)
 	return ret;
 }
 
-static struct command bootlinux_cmd = {
+static struct command_t bootlinux_cmd = {
 	.name		= "bootlinux",
 	.func		= bootlinux,
 	.desc		= "boot and execute linux kernel\r\n",

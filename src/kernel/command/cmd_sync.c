@@ -40,7 +40,7 @@ static int do_sync(int argc, char ** argv)
 	return 0;
 }
 
-static struct command sync_cmd = {
+static struct command_t sync_cmd = {
 	.name		= "sync",
 	.func		= do_sync,
 	.desc		= "flush file system buffers\r\n",

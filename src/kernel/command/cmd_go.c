@@ -55,7 +55,7 @@ static int go(int argc, char ** argv)
 	return ret;
 }
 
-static struct command go_cmd = {
+static struct command_t go_cmd = {
 	.name		= "go",
 	.func		= go,
 	.desc		= "start application at address\r\n",

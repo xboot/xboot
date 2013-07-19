@@ -69,7 +69,7 @@ static bool_t tick_timer_init(void)
 	return TRUE;
 }
 
-static struct tick s3c2410_tick = {
+static struct tick_t s3c2410_tick = {
 	.hz			= 100,
 	.init		= tick_timer_init,
 };

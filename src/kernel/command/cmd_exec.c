@@ -49,7 +49,7 @@ static int exec(int argc, char ** argv)
 	return vm_exec(argv[1], --argc, &argv[1]);
 }
 
-static struct command exec_cmd = {
+static struct command_t exec_cmd = {
 	.name		= "exec",
 	.func		= exec,
 	.desc		= "execute a file\r\n",

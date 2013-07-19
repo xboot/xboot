@@ -50,7 +50,7 @@ struct shape
 	s32_t plus90, minus90;
 
 	/* shape color */
-	enum tcolor color;
+	enum tcolor_t color;
 
 	/* drawing instructions for this shape */
 	struct vector {
@@ -93,7 +93,7 @@ static const struct shape shapes[] = {
  */
 struct map {
 	bool_t dirty[GAME_AREA_HEIGHT];
-	enum tcolor screen[GAME_AREA_WIDTH][GAME_AREA_HEIGHT];
+	enum tcolor_t screen[GAME_AREA_WIDTH][GAME_AREA_HEIGHT];
 };
 
 static struct map map;
@@ -103,7 +103,7 @@ static struct map map;
  */
 static void refresh(void)
 {
-	struct console * con = get_console_stdout();
+	struct console_t * con = get_console_stdout();
 	s32_t w, h;
 	s32_t x, y, xp, yp;
 
@@ -131,7 +131,7 @@ static void refresh(void)
     }
 }
 
-static void block_draw(s32_t x, s32_t y, enum tcolor c)
+static void block_draw(s32_t x, s32_t y, enum tcolor_t c)
 {
     if(x >= GAME_AREA_WIDTH)
         x = GAME_AREA_WIDTH - 1;
@@ -260,7 +260,7 @@ static void screen_init(void)
 
 static int tetris(int argc, char ** argv)
 {
-	struct console * con = get_console_stdout();
+	struct console_t * con = get_console_stdout();
 	u32_t x, y, shape;
 	u32_t newx, newy, newshape;
 	bool_t fell = FALSE;
@@ -368,7 +368,7 @@ static int tetris(int argc, char ** argv)
 	return 0;
 }
 
-static struct command tetris_cmd = {
+static struct command_t tetris_cmd = {
 	.name		= "tetris",
 	.func		= tetris,
 	.desc		= "classic video game tetris\r\n",

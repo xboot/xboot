@@ -42,7 +42,7 @@ enum S5PV210_PLL {
 /*
  * the array of clocks, which will to be setup.
  */
-static struct clk s5pv210_clocks[8];
+static struct clk_t s5pv210_clocks[8];
 
 /*
  * get pll frequency.

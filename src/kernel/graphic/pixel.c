@@ -22,7 +22,7 @@
 
 #include <graphic/pixel.h>
 
-enum pixel_format get_pixel_format(struct pixel_info * info)
+enum pixel_format_t get_pixel_format(struct pixel_info_t * info)
 {
 	if(info->bits_per_pixel == 32)
 	{
@@ -150,7 +150,7 @@ enum pixel_format get_pixel_format(struct pixel_info * info)
 	return PIXEL_FORMAT_GENERIC;
 }
 
-void set_pixel_info(struct pixel_info * info, enum pixel_format fmt)
+void set_pixel_info(struct pixel_info_t * info, enum pixel_format_t fmt)
 {
 	switch(fmt)
 	{
@@ -294,7 +294,7 @@ void set_pixel_info(struct pixel_info * info, enum pixel_format fmt)
 	info->fmt = fmt;
 }
 
-u32_t map_pixel_color(struct pixel_info * info, struct color_t * col)
+u32_t map_pixel_color(struct pixel_info_t * info, struct color_t * col)
 {
 	u8_t r = col->r;
 	u8_t g = col->g;
@@ -315,7 +315,7 @@ u32_t map_pixel_color(struct pixel_info * info, struct color_t * col)
 	return c;
 }
 
-void unmap_pixel_color(struct pixel_info * info, u32_t c, struct color_t * col)
+void unmap_pixel_color(struct pixel_info_t * info, u32_t c, struct color_t * col)
 {
 	u32_t t;
 

@@ -108,7 +108,7 @@ static int probe(int argc, char ** argv)
 	return 0;
 }
 
-static struct command probe_cmd = {
+static struct command_t probe_cmd = {
 	.name		= "probe",
 	.func		= probe,
 	.desc		= "probe the special device\r\n",

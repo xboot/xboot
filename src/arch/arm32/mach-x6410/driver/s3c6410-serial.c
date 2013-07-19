@@ -40,7 +40,7 @@
 /*
  * default serial parameter.
  */
-static struct serial_parameter uart_param[4] = {
+static struct serial_parameter_t uart_param[4] = {
 	[0] = {
 		.baud_rate		= B115200,
 		.data_bit		= DATA_BITS_8,
@@ -70,7 +70,7 @@ static struct serial_parameter uart_param[4] = {
 /*
  * serial information.
  */
-static struct serial_info uart_info[4] = {
+static struct serial_info_t uart_info[4] = {
 	[0] = {
 		.name			= "uart0",
 		.desc			= "s3c6410 onchip serial 0",
@@ -106,45 +106,45 @@ static int s3c6410_ioctl(u32_t ch, int cmd, void * arg)
 	u32_t baud, baud_div_reg, baud_divslot_reg;
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
 	u64_t uclk1;
-	struct serial_parameter param;
+	struct serial_parameter_t param;
 
 	if((ch < 0) || (ch > 3))
 		return -1;
 
-	memcpy(&param, &uart_param[ch], sizeof(struct serial_parameter));
+	memcpy(&param, &uart_param[ch], sizeof(struct serial_parameter_t));
 
 	switch(cmd)
 	{
 	case IOCTL_WR_SERIAL_BAUD_RATE:
-		param.baud_rate = *((enum SERIAL_BAUD_RATE *)arg);
+		param.baud_rate = *((enum serial_baud_rate_t *)arg);
 		break;
 
 	case IOCTL_WR_SERIAL_DATA_BITS:
-		param.data_bit = *((enum SERIAL_DATA_BITS *)arg);
+		param.data_bit = *((enum serial_data_bits_t *)arg);
 		break;
 
 	case IOCTL_WR_SERIAL_PARITY_BIT:
-		param.parity = *((enum SERIAL_PARITY_BIT *)arg);
+		param.parity = *((enum serial_parity_bits_t *)arg);
 		break;
 
 	case IOCTL_WR_SERIAL_STOP_BITS:
-		param.stop_bit = *((enum SERIAL_STOP_BITS *)arg);
+		param.stop_bit = *((enum serial_stop_bits_t *)arg);
 		break;
 
 	case IOCTL_RD_SERIAL_BAUD_RATE:
-		*((enum SERIAL_BAUD_RATE *)arg) = param.baud_rate;
+		*((enum serial_baud_rate_t *)arg) = param.baud_rate;
 		return 0;
 
 	case IOCTL_RD_SERIAL_DATA_BITS:
-		*((enum SERIAL_DATA_BITS *)arg) = param.data_bit;
+		*((enum serial_data_bits_t *)arg) = param.data_bit;
 		return 0;
 
 	case IOCTL_RD_SERIAL_PARITY_BIT:
-		*((enum SERIAL_PARITY_BIT *)arg) = param.parity;
+		*((enum serial_parity_bits_t *)arg) = param.parity;
 		return 0;
 
 	case IOCTL_RD_SERIAL_STOP_BITS:
-		*((enum SERIAL_STOP_BITS *)arg) = param.stop_bit;
+		*((enum serial_stop_bits_t *)arg) = param.stop_bit;
 		return 0;
 
 	default:
@@ -271,7 +271,7 @@ static int s3c6410_ioctl(u32_t ch, int cmd, void * arg)
 		return -1;
 	}
 
-	memcpy(&uart_param[ch], &param, sizeof(struct serial_parameter));
+	memcpy(&uart_param[ch], &param, sizeof(struct serial_parameter_t));
 
 	return 0;
 }
@@ -514,7 +514,7 @@ static int s3c6410_uart3_ioctl(int cmd, void * arg)
 	return (s3c6410_ioctl(3, cmd, arg));
 }
 
-static struct serial_driver s3c6410_uart_driver[4] = {
+static struct serial_driver_t s3c6410_uart_driver[4] = {
 	[0] = {
 		.info	= &uart_info[0],
 		.init	= s3c6410_uart0_init,
@@ -551,7 +551,7 @@ static struct serial_driver s3c6410_uart_driver[4] = {
 
 static __init void s3c6410_serial_dev_init(void)
 {
-	struct serial_parameter * param;
+	struct serial_parameter_t * param;
 	u32_t i;
 
 	if(!clk_get_rate("uclk1", 0))
@@ -563,9 +563,9 @@ static __init void s3c6410_serial_dev_init(void)
 	/* register serial driver */
 	for(i = 0; i < ARRAY_SIZE(s3c6410_uart_driver); i++)
 	{
-		param = (struct serial_parameter *)resource_get_data(s3c6410_uart_driver[i].info->name);
+		param = (struct serial_parameter_t *)resource_get_data(s3c6410_uart_driver[i].info->name);
 		if(param)
-			memcpy(s3c6410_uart_driver[i].info->parameter, param, sizeof(struct serial_parameter));
+			memcpy(s3c6410_uart_driver[i].info->parameter, param, sizeof(struct serial_parameter_t));
 		else
 			LOG("can't get the resource of \'%s\', use default parameter", s3c6410_uart_driver[i].info->name);
 

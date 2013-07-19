@@ -84,7 +84,7 @@ static int do_mv(int argc, char ** argv)
 	return 0;
 }
 
-static struct command mv_cmd = {
+static struct command_t mv_cmd = {
 	.name		= "mv",
 	.func		= do_mv,
 	.desc		= "move (rename) files\r\n",

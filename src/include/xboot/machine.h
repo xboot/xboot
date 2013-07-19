@@ -8,7 +8,7 @@ extern "C" {
 #include <xboot.h>
 #include <mode/mode.h>
 
-struct battery_info {
+struct battery_info_t {
 	bool_t charging;
 	s32_t voltage;				/* mV */
 	s32_t charge_current;		/* mA */
@@ -23,7 +23,7 @@ struct battery_info {
  * defined the struct of machine, which contains
  * a portable operating interface.
  */
-struct machine {
+struct machine_t {
 	/*
 	 * basic information
 	 */
@@ -101,7 +101,7 @@ struct machine {
 		enum mode_t (*getmode)(void);
 
 		/* get battery information */
-		bool_t (*batinfo)(struct battery_info * info);
+		bool_t (*batinfo)(struct battery_info_t * info);
 
 		/* clean up system before running os */
 		bool_t (*cleanup)(void);
@@ -116,13 +116,13 @@ struct machine {
 	void * priv;
 };
 
-bool_t register_machine(struct machine * mach);
-struct machine * get_machine(void);
+bool_t register_machine(struct machine_t * mach);
+struct machine_t * get_machine(void);
 
 bool_t machine_sleep(void);
 bool_t machine_halt(void);
 bool_t machine_reset(void);
-bool_t machine_batinfo(struct battery_info * info);
+bool_t machine_batinfo(struct battery_info_t * info);
 bool_t machine_cleanup(void);
 bool_t machine_authentication(void);
 

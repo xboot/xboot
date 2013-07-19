@@ -93,9 +93,9 @@ struct blkdev_t * search_blkdev_with_type(const char * name, enum blkdev_type_t 
  */
 bool_t register_blkdev(struct blkdev_t * dev)
 {
-	struct device * device;
+	struct device_t * device;
 
-	device = malloc(sizeof(struct device));
+	device = malloc(sizeof(struct device_t));
 	if(!device || !dev)
 	{
 		free(device);
@@ -120,7 +120,7 @@ bool_t register_blkdev(struct blkdev_t * dev)
  */
 bool_t unregister_blkdev(const char * name)
 {
-	struct device * device;
+	struct device_t * device;
 
 	if(!name)
 		return FALSE;

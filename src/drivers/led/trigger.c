@@ -47,7 +47,7 @@ struct led_trigger_list * led_trigger_list = &__led_trigger_list;
 /*
  * search led trigger by name. a static function.
  */
-static struct trigger * trigger_search(const char *name)
+static struct trigger_t * trigger_search(const char *name)
 {
 	struct led_trigger_list * list;
 	struct list_head * pos;
@@ -69,7 +69,7 @@ static struct trigger * trigger_search(const char *name)
  * register a trigger into led_trigger_list
  * return true is successed, otherwise is not.
  */
-bool_t trigger_register(struct trigger * trigger)
+bool_t trigger_register(struct trigger_t * trigger)
 {
 	struct led_trigger_list * list;
 
@@ -98,7 +98,7 @@ bool_t trigger_register(struct trigger * trigger)
 /*
  * unregister trigger from led_trigger_hash
  */
-bool_t trigger_unregister(struct trigger * trigger)
+bool_t trigger_unregister(struct trigger_t * trigger)
 {
 	struct led_trigger_list * list;
 	struct list_head * pos;

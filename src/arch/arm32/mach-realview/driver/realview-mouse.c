@@ -102,7 +102,7 @@ static void mouse_interrupt(void)
 	}
 }
 
-static bool_t mouse_probe(struct input * input)
+static bool_t mouse_probe(struct input_t * input)
 {
 	u32_t divisor;
 	u64_t kclk;
@@ -174,7 +174,7 @@ static bool_t mouse_probe(struct input * input)
 	return TRUE;
 }
 
-static bool_t mouse_remove(struct input * input)
+static bool_t mouse_remove(struct input_t * input)
 {
 	if(!free_irq("KMI1"))
 		LOG("Can't free irq 'KMI1'");
@@ -183,12 +183,12 @@ static bool_t mouse_remove(struct input * input)
 	return TRUE;
 }
 
-static int mouse_ioctl(struct input * input, int cmd, void * arg)
+static int mouse_ioctl(struct input_t * input, int cmd, void * arg)
 {
 	return -1;
 }
 
-static struct input realview_mouse = {
+static struct input_t realview_mouse = {
 	.name		= "mouse",
 	.type		= INPUT_MOUSE,
 	.probe		= mouse_probe,

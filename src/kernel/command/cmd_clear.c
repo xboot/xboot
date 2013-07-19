@@ -40,7 +40,7 @@ static int clear(int argc, char ** argv)
 	return 0;
 }
 
-static struct command clear_cmd = {
+static struct command_t clear_cmd = {
 	.name		= "clear",
 	.func		= clear,
 	.desc		= "clear the terminal screen\r\n",

@@ -203,7 +203,7 @@ static int ls(int argc, char ** argv)
 	return 0;
 }
 
-static struct command ls_cmd = {
+static struct command_t ls_cmd = {
 	.name		= "ls",
 	.func		= ls,
 	.desc		= "list directory contents\r\n",

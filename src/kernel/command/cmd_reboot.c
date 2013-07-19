@@ -48,7 +48,7 @@ static int reboot(int argc, char ** argv)
 	}
 }
 
-static struct command reboot_cmd = {
+static struct command_t reboot_cmd = {
 	.name		= "reboot",
 	.func		= reboot,
 	.desc		= "reboot the target system\r\n",

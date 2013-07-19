@@ -41,7 +41,7 @@ static int do_luac(int argc, char ** argv)
 	return luac_main(argc, argv);
 }
 
-static struct command luac_cmd = {
+static struct command_t luac_cmd = {
 	.name		= "luac",
 	.func		= do_luac,
 	.desc		= "lua compiler\r\n",

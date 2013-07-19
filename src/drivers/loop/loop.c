@@ -40,7 +40,7 @@
 /*
  * the struct of loop
  */
-struct loop
+struct loop_t
 {
 	/* loop name */
 	char name[32 + 1];
@@ -63,7 +63,7 @@ struct loop
  */
 struct loop_list
 {
-	struct loop * loop;
+	struct loop_t * loop;
 	struct list_head entry;
 };
 
@@ -81,7 +81,7 @@ static struct loop_list * loop_list = &__loop_list;
 
 static int loop_open(struct blkdev_t * dev)
 {
-	struct loop * loop = (struct loop *)(dev->driver);
+	struct loop_t * loop = (struct loop_t *)(dev->driver);
 
 	if(loop->busy == TRUE)
 		return -1;
@@ -110,7 +110,7 @@ static int loop_open(struct blkdev_t * dev)
 
 static ssize_t loop_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct loop * loop = (struct loop *)(dev->driver);
+	struct loop_t * loop = (struct loop_t *)(dev->driver);
 	loff_t offset = get_blkdev_offset(dev, blkno);
 	loff_t size = get_blkdev_size(dev) * blkcnt;
 
@@ -131,7 +131,7 @@ static ssize_t loop_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t
 
 static ssize_t loop_write(struct blkdev_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct loop * loop = (struct loop *)(dev->driver);
+	struct loop_t * loop = (struct loop_t *)(dev->driver);
 	loff_t offset = get_blkdev_offset(dev, blkno);
 	loff_t size = get_blkdev_size(dev) * blkcnt;
 
@@ -154,7 +154,7 @@ static int loop_ioctl(struct blkdev_t * dev, int cmd, void * arg)
 
 static int loop_close(struct blkdev_t * dev)
 {
-	struct loop * loop = (struct loop *)(dev->driver);
+	struct loop_t * loop = (struct loop_t *)(dev->driver);
 
 	if(close(loop->fd) == 0)
 	{
@@ -199,7 +199,7 @@ bool_t register_loop(const char * file)
 {
 	struct stat st;
 	struct blkdev_t * dev;
-	struct loop * loop;
+	struct loop_t * loop;
 	struct loop_list * list;
 	u64_t size, rem;
 	s32_t i = 0;
@@ -227,7 +227,7 @@ bool_t register_loop(const char * file)
 		return FALSE;
 	}
 
-	loop = malloc(sizeof(struct loop));
+	loop = malloc(sizeof(struct loop_t));
 	if(!loop)
 	{
 		free(dev);

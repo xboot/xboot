@@ -33,7 +33,7 @@
  * 256:	256 byte page size
  * 512:	512 byte page size
  */
-struct nand_info nand_flash_ids[] = {
+struct nand_info_t nand_flash_ids[] = {
 	{"NAND 16MiB 1.8V 8-bit",	0x33, 	512, 	16, 	0x4000, 0},
 	{"NAND 16MiB 3.3V 8-bit",	0x73, 	512, 	16,		0x4000, 0},
 	{"NAND 16MiB 1.8V 16-bit",	0x43, 	512, 	16, 	0x4000, NAND_BUSWIDTH_16},
@@ -102,7 +102,7 @@ struct nand_info nand_flash_ids[] = {
 /*
  * manufacturer id list
  */
-struct nand_manufacturer nand_manuf_ids[] = {
+struct nand_manufacturer_t nand_manuf_ids[] = {
 	{NAND_MFR_UNKOWN,	"Unkown"},
 	{NAND_MFR_TOSHIBA,	"Toshiba"},
 	{NAND_MFR_SAMSUNG,	"Samsung"},

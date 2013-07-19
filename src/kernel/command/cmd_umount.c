@@ -51,7 +51,7 @@ static int do_umount(int argc, char ** argv)
 	return 0;
 }
 
-static struct command umount_cmd = {
+static struct command_t umount_cmd = {
 	.name		= "umount",
 	.func		= do_umount,
 	.desc		= "unmount a file system\r\n",

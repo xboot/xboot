@@ -47,7 +47,7 @@ static struct nand_list __nand_list = {
 struct nand_list * nand_list = &__nand_list;
 
 
-static s32_t nand_read_page(struct nand_device * nand, u32_t page, u8_t * buf, u32_t size)
+static s32_t nand_read_page(struct nand_device_t * nand, u32_t page, u8_t * buf, u32_t size)
 {
 	struct nfc * nfc;
 	u32_t len, tmp;
@@ -180,7 +180,7 @@ static s32_t nand_read_page(struct nand_device * nand, u32_t page, u8_t * buf, u
 	return 0;
 }
 
-static s32_t nand_read_oob(struct nand_device * nand, u32_t page, u8_t * buf, u32_t size)
+static s32_t nand_read_oob(struct nand_device_t * nand, u32_t page, u8_t * buf, u32_t size)
 {
 	struct nfc * nfc;
 	u32_t len, tmp;
@@ -315,17 +315,17 @@ static s32_t nand_read_oob(struct nand_device * nand, u32_t page, u8_t * buf, u3
 	return 0;
 }
 
-static s32_t nand_write_page(struct nand_device * nand, u32_t page, u8_t * buf, u32_t size)
+static s32_t nand_write_page(struct nand_device_t * nand, u32_t page, u8_t * buf, u32_t size)
 {
 	return -1;
 }
 
-static s32_t nand_write_oob(struct nand_device * nand, u32_t page, u8_t * buf, u32_t size)
+static s32_t nand_write_oob(struct nand_device_t * nand, u32_t page, u8_t * buf, u32_t size)
 {
 	return -1;
 }
 
-static bool_t register_nand_device(struct nand_device * nand)
+static bool_t register_nand_device(struct nand_device_t * nand)
 {
 	struct nand_list * list;
 
@@ -356,9 +356,9 @@ void nand_flash_probe(void)
 	struct nfc_list * list;
 	struct list_head * pos;
 	struct nfc * nfc;
-	struct nand_device * nand;
-	struct nand_info * nand_info;
-	struct nand_manufacturer * nand_manufacturer;
+	struct nand_device_t * nand;
+	struct nand_info_t * nand_info;
+	struct nand_manufacturer_t * nand_manufacturer;
 	u8_t m_id, d_id, id_buf[3];
 	u32_t data;
 	s32_t i;
@@ -462,7 +462,7 @@ void nand_flash_probe(void)
 		/*
 		 * malloc nand device buffer.
 		 */
-		nand = malloc(sizeof(struct nand_device));
+		nand = malloc(sizeof(struct nand_device_t));
 		if(!nand)
 		{
 			LOG("can not malloc buffer for nand device");
@@ -589,7 +589,7 @@ void nand_flash_probe(void)
 		}
 
 		nand->num_blocks = (nand->info->chip_size * 1024) / (nand->erase_size / 1024);
-		nand->blocks = malloc(sizeof(struct nand_block) * nand->num_blocks);
+		nand->blocks = malloc(sizeof(struct nand_block_t) * nand->num_blocks);
 
 		for(i = 0; i < nand->num_blocks; i++)
 		{
@@ -638,7 +638,7 @@ void nand_flash_remove(void)
 /*
  * search nand device by name
  */
-struct nand_device * search_nand_device(const char * name)
+struct nand_device_t * search_nand_device(const char * name)
 {
 	struct nand_list * list;
 	struct list_head * pos;
@@ -659,7 +659,7 @@ struct nand_device * search_nand_device(const char * name)
 /*
  * read nand device
  */
-s32_t nand_read(struct nand_device * nand, u8_t * buf, u32_t addr, u32_t size)
+s32_t nand_read(struct nand_device_t * nand, u8_t * buf, u32_t addr, u32_t size)
 {
 	u8_t * page_buf;
 	u32_t page;

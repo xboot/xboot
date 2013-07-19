@@ -144,7 +144,7 @@ static int rtc_open(struct chrdev_t * dev)
 static ssize_t rtc_read(struct chrdev_t * dev, u8_t * buf, size_t count)
 {
 	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
+	struct rtc_driver_t * drv = (struct rtc_driver_t *)(dev->driver);
 	struct time time;
 	char tmp[64];
 	int offset = 0;
@@ -183,7 +183,7 @@ static ssize_t rtc_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
  */
 static int rtc_ioctl(struct chrdev_t * dev, int cmd, void * arg)
 {
-	struct rtc_driver * drv = (struct rtc_driver *)(dev->driver);
+	struct rtc_driver_t * drv = (struct rtc_driver_t *)(dev->driver);
 	struct time * time;
 
 	switch(cmd)
@@ -240,7 +240,7 @@ static int rtc_close(struct chrdev_t * dev)
 /*
  * register rtc driver, return true is successed.
  */
-bool_t register_rtc(struct rtc_driver * drv)
+bool_t register_rtc(struct rtc_driver_t * drv)
 {
 	struct chrdev_t * dev;
 
@@ -282,10 +282,10 @@ bool_t register_rtc(struct rtc_driver * drv)
 /*
  * unregister rtc driver
  */
-bool_t unregister_rtc(struct rtc_driver * drv)
+bool_t unregister_rtc(struct rtc_driver_t * drv)
 {
 	struct chrdev_t * dev;
-	struct rtc_driver * driver;
+	struct rtc_driver_t * driver;
 
 	if(!drv || !drv->name)
 		return FALSE;
@@ -294,7 +294,7 @@ bool_t unregister_rtc(struct rtc_driver * drv)
 	if(!dev)
 		return FALSE;
 
-	driver = (struct rtc_driver *)(dev->driver);
+	driver = (struct rtc_driver_t *)(dev->driver);
 	if(driver && driver->exit)
 		(driver->exit)();
 

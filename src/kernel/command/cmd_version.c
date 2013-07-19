@@ -39,7 +39,7 @@ static int version(int argc, char ** argv)
 	return 0;
 }
 
-static struct command version_cmd = {
+static struct command_t version_cmd = {
 	.name		= "version",
 	.func		= version,
 	.desc		= "show xboot's version\r\n",

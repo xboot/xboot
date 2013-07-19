@@ -49,7 +49,7 @@ static void led_gpn15_set(u8_t brightness)
 		writel(S3C6410_GPNDAT, (readl(S3C6410_GPNDAT) & ~(0x1<<15)) | (0x0<<15));
 }
 
-static struct led led_gpn15 = {
+static struct led_t led_gpn15 = {
 	.name		= "led-gpn15",
 	.init		= led_gpn15_init,
 	.set		= led_gpn15_set,

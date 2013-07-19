@@ -246,7 +246,7 @@ static u64_t exynos4x12_get_sclk_uart(u64_t fin, u32_t ch)
 /*
  * the array of clocks, which will to be setup.
  */
-static struct clk exynos4x12_clocks[11];
+static struct clk_t exynos4x12_clocks[11];
 
 /*
  * setup the exynos4x12's clock array.

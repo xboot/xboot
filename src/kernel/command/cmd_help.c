@@ -42,15 +42,15 @@ static int help(int argc, char ** argv)
 {
 	struct command_list * list;
 	struct list_head * pos;
-	struct command ** cmd_array;
-	struct command * cmd;
+	struct command_t ** cmd_array;
+	struct command_t * cmd;
 	s32_t i = 0, j, k = 0, cmd_num, swaps;
 
 	if(argc == 1)
 	{
 		i = 0;
 		cmd_num = command_number();
-		cmd_array = malloc(sizeof(struct command *) * cmd_num);
+		cmd_array = malloc(sizeof(struct command_t *) * cmd_num);
 
 		if(!cmd_array)
 		{
@@ -109,7 +109,7 @@ static int help(int argc, char ** argv)
 	return 0;
 }
 
-static struct command help_cmd = {
+static struct command_t help_cmd = {
 	.name		= "help",
 	.func		= help,
 	.desc		= "display online help\r\n",

@@ -12,7 +12,7 @@ extern "C" {
 #include <graphic/maps/software.h>
 
 struct surface_t;
-struct surface_maps;
+struct surface_maps_t;
 
 enum surface_pixels {
 	SURFACE_PIXELS_NEEDFREE	= 0x0,
@@ -22,7 +22,7 @@ enum surface_pixels {
 /*
  * The GIMP c-source image
  */
-struct gimage
+struct gimage_t
 {
 	/* the width of image */
 	u32_t width;
@@ -43,7 +43,7 @@ struct gimage
 
 struct surface_t {
 	/* surface pixel information */
-	struct pixel_info info;
+	struct pixel_info_t info;
 
 	/* surface's width and height */
 	u32_t w, h;
@@ -61,14 +61,14 @@ struct surface_t {
 	struct rect_t clip;
 
 	/* surface map functions */
-	struct surface_maps maps;
+	struct surface_maps_t maps;
 
 	/* private data */
 	void * priv;
 };
 
-struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_format fmt);
-struct surface_t * surface_alloc_from_gimage(const struct gimage * image);
+struct surface_t * surface_alloc(void * pixels, u32_t w, u32_t h, enum pixel_format_t fmt);
+struct surface_t * surface_alloc_from_gimage(const struct gimage_t * image);
 void surface_free(struct surface_t * surface);
 
 bool_t surface_set_clip_rect(struct surface_t * surface, struct rect_t * rect);

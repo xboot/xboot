@@ -60,7 +60,7 @@ static void list_nand_device(void)
 
 static int nand(int argc, char ** argv)
 {
-	struct nand_device * nand;
+	struct nand_device_t * nand;
 	u32_t off = 0;
 	u32_t size = 0;
 	u32_t addr = 0;
@@ -194,7 +194,7 @@ static int nand(int argc, char ** argv)
 	return 0;
 }
 
-static struct command nand_cmd = {
+static struct command_t nand_cmd = {
 	.name		= "nand",
 	.func		= nand,
 	.desc		= "nand flash tool\r\n",

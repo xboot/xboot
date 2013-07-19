@@ -35,7 +35,6 @@
 #include <xboot/proc.h>
 #include <xboot/irq.h>
 
-
 /*
  * the hash list of irq
  */
@@ -49,7 +48,7 @@ static void null_irq_handler(void)	{ }
 /*
  * search irq by name. a static function.
  */
-static struct irq_list * irq_search(const char *name)
+static struct irq_list * irq_search(const char * name)
 {
 	struct irq_list * list;
 	struct hlist_node * pos;
@@ -73,7 +72,7 @@ static struct irq_list * irq_search(const char *name)
  * register a irq into irq_list
  * return true is successed, otherwise is not.
  */
-bool_t irq_register(struct irq * irq)
+bool_t irq_register(struct irq_t * irq)
 {
 	struct irq_list * list;
 	u32_t hash;
@@ -93,7 +92,7 @@ bool_t irq_register(struct irq * irq)
 
 	list->irq = irq;
 	list->busy = FALSE;
-	*(list->irq->handler) = (irq_handler)null_irq_handler;
+	*(list->irq->handler) = (irq_handler_t)null_irq_handler;
 
 	hash = string_hash(irq->name) % CONFIG_IRQ_HASH_SIZE;
 	hlist_add_head(&(list->node), &(irq_hash[hash]));
@@ -104,7 +103,7 @@ bool_t irq_register(struct irq * irq)
 /*
  * unregister irq from irq_list
  */
-bool_t irq_unregister(struct irq * irq)
+bool_t irq_unregister(struct irq_t * irq)
 {
 	struct irq_list * list;
 	struct hlist_node * pos;
@@ -133,7 +132,7 @@ bool_t irq_unregister(struct irq * irq)
 /*
  * request irq
  */
-bool_t request_irq(const char *name, irq_handler handler)
+bool_t request_irq(const char * name, irq_handler_t handler)
 {
 	struct irq_list *list;
 
@@ -158,7 +157,7 @@ bool_t request_irq(const char *name, irq_handler handler)
 /*
  * free irq
  */
-bool_t free_irq(const char *name)
+bool_t free_irq(const char * name)
 {
 	struct irq_list *list;
 
@@ -170,7 +169,7 @@ bool_t free_irq(const char *name)
 		return FALSE;
 
 	list->busy = FALSE;
-	*(list->irq->handler) = (irq_handler)null_irq_handler;
+	*(list->irq->handler) = (irq_handler_t)null_irq_handler;
 	if(list->irq->enable)
 		list->irq->enable(list->irq, FALSE);
 

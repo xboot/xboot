@@ -56,7 +56,7 @@ static int do_rmdir(int argc, char ** argv)
 	return ret;
 }
 
-static struct command rmdir_cmd = {
+static struct command_t rmdir_cmd = {
 	.name		= "rmdir",
 	.func		= do_rmdir,
 	.desc		= "remove empty directories\r\n",

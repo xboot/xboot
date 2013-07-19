@@ -9,7 +9,7 @@ extern "C" {
 #include <fb/fb.h>
 #include <graphic/surface.h>
 
-struct gimage * lookup_console_font_face(u32_t code, u32_t fc, u32_t bc);
+struct gimage_t * lookup_console_font_face(u32_t code, u32_t fc, u32_t bc);
 
 #ifdef __cplusplus
 }

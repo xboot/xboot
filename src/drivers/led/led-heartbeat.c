@@ -39,9 +39,9 @@ struct heartbeat_data {
 
 static void heartbeat_function(u32_t data)
 {
-	struct trigger * trigger = (struct trigger *)(data);
+	struct trigger_t * trigger = (struct trigger_t *)(data);
 	struct heartbeat_data * hb = (struct heartbeat_data *)(trigger->priv);
-	struct led * led = (struct led *)(trigger->led);
+	struct led_t * led = (struct led_t *)(trigger->led);
 
 	u8_t brightness = LED_BRIGHTNESS_OFF;
 	u32_t delay = 0;
@@ -79,7 +79,7 @@ static void heartbeat_function(u32_t data)
 	mod_timer(&(hb->timer), jiffies + delay);
 }
 
-static void heartbeat_activate(struct trigger * trigger)
+static void heartbeat_activate(struct trigger_t * trigger)
 {
 	struct heartbeat_data * hb = (struct heartbeat_data *)(trigger->priv);
 
@@ -93,7 +93,7 @@ static void heartbeat_activate(struct trigger * trigger)
 	heartbeat_function(hb->timer.data);
 }
 
-static void heartbeat_deactivate(struct trigger * trigger)
+static void heartbeat_deactivate(struct trigger_t * trigger)
 {
 	struct heartbeat_data * hb = (struct heartbeat_data *)(trigger->priv);
 
@@ -104,7 +104,7 @@ static void heartbeat_deactivate(struct trigger * trigger)
 	}
 }
 
-static struct trigger heartbeat_trigger = {
+static struct trigger_t heartbeat_trigger = {
 	.name     		= "led-heartbeat",
 	.activate 		= heartbeat_activate,
 	.deactivate		= heartbeat_deactivate,
@@ -114,9 +114,9 @@ static struct trigger heartbeat_trigger = {
 
 static __init void heartbeat_trigger_init(void)
 {
-	struct led * led;
+	struct led_t * led;
 
-	led = (struct led *)resource_get_data(heartbeat_trigger.name);
+	led = (struct led_t *)resource_get_data(heartbeat_trigger.name);
 	if(led && led->set)
 	{
 		if(led->init)

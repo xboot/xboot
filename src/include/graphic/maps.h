@@ -35,7 +35,7 @@ enum rotate_type {
     ROTATE_MIRROR_V 	= 0x5,
 };
 
-struct surface_maps {
+struct surface_maps_t {
 	bool_t (*point)(struct surface_t * surface, s32_t x, s32_t y, u32_t c, enum blend_mode mode);
 	bool_t (*hline)(struct surface_t * surface, s32_t x0, s32_t y0, u32_t x1, u32_t c, enum blend_mode mode);
 	bool_t (*vline)(struct surface_t * surface, s32_t x0, s32_t y0, u32_t y1, u32_t c, enum blend_mode mode);
@@ -46,7 +46,7 @@ struct surface_maps {
 	struct surface_t * (*transform)(struct surface_t * surface);
 };
 
-bool_t surface_set_maps(struct surface_maps * maps);
+bool_t surface_set_maps(struct surface_maps_t * maps);
 
 #ifdef __cplusplus
 }

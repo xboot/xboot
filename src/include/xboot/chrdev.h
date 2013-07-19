@@ -10,7 +10,6 @@ extern "C" {
 #include <string.h>
 #include <xboot/list.h>
 
-
 /*
  * char device type
  */

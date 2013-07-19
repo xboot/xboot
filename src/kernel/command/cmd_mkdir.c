@@ -107,7 +107,7 @@ static int do_mkdir(int argc, char ** argv)
 	return ret;
 }
 
-static struct command mkdir_cmd = {
+static struct command_t mkdir_cmd = {
 	.name		= "mkdir",
 	.func		= do_mkdir,
 	.desc		= "make directories\r\n",

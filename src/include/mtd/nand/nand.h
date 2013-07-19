@@ -63,7 +63,7 @@ enum oob_formats
 /*
  * representation of a single nand block in a nand device.
  */
-struct nand_block
+struct nand_block_t
 {
 	/* offset to the block */
 	loff_t offset;
@@ -81,13 +81,13 @@ struct nand_block
 /*
  * ecc layout structure
  */
-struct nand_ecclayout
+struct nand_ecclayout_t
 {
 	s32_t eccbytes;
 	s32_t eccpos[64];
 	s32_t oobavail;
 
-	struct nand_oobfree	{
+	struct nand_oobfree_t {
 		s32_t offset;
 		s32_t length;
 	} oobfree[2];
@@ -96,16 +96,16 @@ struct nand_ecclayout
 /*
  * nand device of structure
  */
-struct nand_device
+struct nand_device_t
 {
 	/* the name of nand flash */
 	char name[32 + 1];
 
 	/* nand information */
-	struct nand_info * info;
+	struct nand_info_t * info;
 
 	/* nand manufacturer */
-	struct nand_manufacturer * manufacturer;
+	struct nand_manufacturer_t * manufacturer;
 
 	/* bus width */
 	s32_t bus_width;
@@ -123,7 +123,7 @@ struct nand_device
 	s32_t num_blocks;
 
 	/* nand blocks */
-	struct nand_block * blocks;
+	struct nand_block_t * blocks;
 
 	/* the driver of nand flash controller */
 	struct nfc * nfc;
@@ -137,7 +137,7 @@ struct nand_device
  */
 struct nand_list
 {
-	struct nand_device * nand;
+	struct nand_device_t * nand;
 	struct list_head entry;
 };
 
@@ -145,8 +145,8 @@ struct nand_list
 void nand_flash_probe(void);
 void nand_flash_remove(void);
 
-struct nand_device * search_nand_device(const char * name);
-s32_t nand_read(struct nand_device * nand, u8_t * buf, u32_t addr, u32_t size);
+struct nand_device_t * search_nand_device(const char * name);
+s32_t nand_read(struct nand_device_t * nand, u8_t * buf, u32_t addr, u32_t size);
 
 #ifdef __cplusplus
 }

@@ -44,10 +44,10 @@ enum decode_state {
 
 struct keymap {
 	u8_t data;
-	enum key_code key;
-	enum key_code caps_key;
-	enum key_code shift_key;
-	enum key_code ctrl_key;
+	enum key_code_t key;
+	enum key_code_t caps_key;
+	enum key_code_t shift_key;
+	enum key_code_t ctrl_key;
 };
 
 static const struct keymap map[] = {
@@ -117,10 +117,10 @@ static const struct keymap map[] = {
 	{0x3f,	KEY_RESET,					KEY_RESET,					KEY_RESET,					KEY_RESET},
 };
 
-static void keyboard_report_event(u32_t flag, u8_t data, enum key_value press)
+static void keyboard_report_event(u32_t flag, u8_t data, enum key_value_t press)
 {
 	u32_t i;
-	enum key_code key;
+	enum key_code_t key;
 
 	for(i = 0; i < ARRAY_SIZE(map); i++)
 	{
@@ -337,7 +337,7 @@ static void keyboard_interrupt(void)
 	}
 }
 
-static bool_t keyboard_probe(struct input * input)
+static bool_t keyboard_probe(struct input_t * input)
 {
 	u32_t divisor;
 	u64_t kclk;
@@ -396,7 +396,7 @@ static bool_t keyboard_probe(struct input * input)
 	return TRUE;
 }
 
-static bool_t keyboard_remove(struct input * input)
+static bool_t keyboard_remove(struct input_t * input)
 {
 	if(!free_irq("KMI0"))
 		LOG("Can't free irq 'KMI0'");
@@ -405,12 +405,12 @@ static bool_t keyboard_remove(struct input * input)
 	return TRUE;
 }
 
-static int keyboard_ioctl(struct input * input, int cmd, void * arg)
+static int keyboard_ioctl(struct input_t * input, int cmd, void * arg)
 {
 	return -1;
 }
 
-static struct input realview_keyboard = {
+static struct input_t realview_keyboard = {
 	.name		= "keyboard",
 	.type		= INPUT_KEYBOARD,
 	.probe		= keyboard_probe,

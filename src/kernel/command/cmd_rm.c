@@ -63,7 +63,7 @@ static int do_rm(int argc, char ** argv)
 	return 0;
 }
 
-static struct command rm_cmd = {
+static struct command_t rm_cmd = {
 	.name		= "rm",
 	.func		= do_rm,
 	.desc		= "remove files or directories\r\n",

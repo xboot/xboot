@@ -31,7 +31,7 @@
 /*
  * serial device.
  */
-static struct serial_parameter uart_param[] = {
+static struct serial_parameter_t uart_param[] = {
 	[0] = {
 		.baud_rate		= B115200,
 		.data_bit		= DATA_BITS_8,

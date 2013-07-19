@@ -52,7 +52,7 @@ static bool_t rtc_get_time(struct time * time)
 	return TRUE;
 }
 
-static struct rtc_driver realview_rtc = {
+static struct rtc_driver_t realview_rtc = {
 	.name			= "rtc",
 	.init			= rtc_init,
 	.exit			= rtc_exit,

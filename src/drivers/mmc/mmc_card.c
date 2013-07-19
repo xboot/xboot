@@ -81,9 +81,9 @@ static const u32_t tacc_mant[] = {
 	35,	40,	45,	50,	55,	60,	70,	80,
 };
 
-static bool_t mmc_card_decode(struct mmc_card * card)
+static bool_t mmc_card_decode(struct mmc_card_t * card)
 {
-	struct mmc_card_info * info;
+	struct mmc_card_info_t * info;
 	u32_t e, m, csd_struct;
 	u32_t mmca_vsn;
 
@@ -283,7 +283,7 @@ static bool_t mmc_card_decode(struct mmc_card * card)
 
 static ssize_t mmc_read_sectors(struct disk_t * disk, u8_t * buf, size_t sector, size_t count)
 {
-	struct mmc_card * card = (struct mmc_card *)(disk->priv);
+	struct mmc_card_t * card = (struct mmc_card_t *)(disk->priv);
 
 	if(card->host->read_sectors(card, buf, sector, count) != TRUE)
 		return 0;
@@ -293,7 +293,7 @@ static ssize_t mmc_read_sectors(struct disk_t * disk, u8_t * buf, size_t sector,
 
 static ssize_t mmc_write_sectors(struct disk_t * disk, const u8_t * buf, size_t sector, size_t count)
 {
-	struct mmc_card * card = (struct mmc_card *)(disk->priv);
+	struct mmc_card_t * card = (struct mmc_card_t *)(disk->priv);
 
 	if(card->host->write_sectors(card, buf, sector, count) != TRUE)
 		return 0;
@@ -301,7 +301,7 @@ static ssize_t mmc_write_sectors(struct disk_t * disk, const u8_t * buf, size_t 
 	return count;
 }
 
-static bool_t register_mmc_card(struct mmc_card * card)
+static bool_t register_mmc_card(struct mmc_card_t * card)
 {
 	struct mmc_card_list * list;
 	struct disk_t * disk;
@@ -354,9 +354,9 @@ void mmc_card_probe(void)
 {
 	struct mmc_host_list * list;
 	struct list_head * pos;
-	struct mmc_host * host;
-	struct mmc_card_info * info;
-	struct mmc_card * card;
+	struct mmc_host_t * host;
+	struct mmc_card_info_t * info;
+	struct mmc_card_t * card;
 	s32_t i;
 
 	/*
@@ -378,7 +378,7 @@ void mmc_card_probe(void)
 		/*
 		 * malloc mmc card information buffer.
 		 */
-		info = malloc(sizeof(struct mmc_card_info));
+		info = malloc(sizeof(struct mmc_card_info_t));
 		if(!info)
 		{
 			LOG("can not malloc buffer for mmc card information");
@@ -404,7 +404,7 @@ void mmc_card_probe(void)
 		/*
 		 * malloc mmc card buffer.
 		 */
-		card = malloc(sizeof(struct mmc_card));
+		card = malloc(sizeof(struct mmc_card_t));
 		if(!card)
 		{
 			LOG("can not malloc buffer for mmc card");
@@ -491,7 +491,7 @@ void mmc_card_remove(void)
 /*
  * search mmc card by name
  */
-struct mmc_card * search_mmc_card(const char * name)
+struct mmc_card_t * search_mmc_card(const char * name)
 {
 	struct mmc_card_list * list;
 	struct list_head * pos;

@@ -97,7 +97,7 @@ static int test(int argc, char ** argv)
 	return 0;
 }
 
-static struct command test_cmd = {
+static struct command_t test_cmd = {
 	.name		= "test",
 	.func		= test,
 	.desc		= "test command for debug\r\n",

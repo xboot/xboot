@@ -45,8 +45,8 @@ struct regs {
 /*
  * the irq handler.
  */
-static irq_handler s3c2410_irq_handler[32];
-static irq_handler s3c2410_irq_eint4_23_handler[4 + 20];
+static irq_handler_t s3c2410_irq_handler[32];
+static irq_handler_t s3c2410_irq_eint4_23_handler[4 + 20];
 
 /*
  * enable interrupts.
@@ -101,7 +101,7 @@ void do_irqs(struct regs * regs)
 /*
  * enable or disable irq.
  */
-static void enable_irqs(struct irq * irq, bool_t enable)
+static void enable_irqs(struct irq_t * irq, bool_t enable)
 {
 	u32_t irq_no = irq->irq_no;
 
@@ -152,7 +152,7 @@ static void irq_eint4_23(void)
 /*
  * the array of irq.
  */
-static struct irq s3c2410_irqs[] = {
+static struct irq_t s3c2410_irqs[] = {
 	{
 		.name		= "EINT0",
 		.irq_no		= 0,
@@ -427,16 +427,16 @@ static __init void s3c2410_irq_init(void)
 
 	for(i = 0; i< 32; i++)
 	{
-		s3c2410_irq_handler[i] = (irq_handler)null_irq_handler;
+		s3c2410_irq_handler[i] = (irq_handler_t)null_irq_handler;
 	}
 
 	for(i = 4; i< 24; i++)
 	{
-		s3c2410_irq_eint4_23_handler[i] = (irq_handler)null_irq_handler;
+		s3c2410_irq_eint4_23_handler[i] = (irq_handler_t)null_irq_handler;
 	}
 
-	s3c2410_irq_handler[4] = (irq_handler)irq_eint4_23;
-	s3c2410_irq_handler[5] = (irq_handler)irq_eint4_23;
+	s3c2410_irq_handler[4] = (irq_handler_t)irq_eint4_23;
+	s3c2410_irq_handler[5] = (irq_handler_t)irq_eint4_23;
 
 	for(i = 0; i < ARRAY_SIZE(s3c2410_irqs); i++)
 	{

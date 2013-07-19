@@ -42,7 +42,7 @@ struct device_list * device_list = &__device_list;
 /*
  * search device by name
  */
-struct device * search_device(const char * name)
+struct device_t * search_device(const char * name)
 {
 	struct device_list * list;
 	struct list_head * pos;
@@ -63,7 +63,7 @@ struct device * search_device(const char * name)
 /*
  * register a device into device_list
  */
-bool_t register_device(struct device * dev)
+bool_t register_device(struct device_t * dev)
 {
 	struct device_list * list;
 
@@ -101,7 +101,7 @@ bool_t register_device(struct device * dev)
 /*
  * unregister device from device_list
  */
-bool_t unregister_device(struct device * dev)
+bool_t unregister_device(struct device_t * dev)
 {
 	struct device_list * list;
 	struct list_head * pos;

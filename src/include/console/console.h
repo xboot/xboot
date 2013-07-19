@@ -32,7 +32,7 @@ enum {
 /*
  * 256 colors for terminal
  */
-enum tcolor {
+enum tcolor_t {
 	TCOLOR_BLACK			= 0x00,
 	TCOLOR_RED				= 0x01,
 	TCOLOR_GREEN			= 0x02,
@@ -53,45 +53,45 @@ enum tcolor {
 };
 
 /*
- * define the struct of console
+ * define the struct of console_t
  */
-struct console
+struct console_t
 {
 	/* the name of console */
 	char * name;
 
 	/* get console's width and height */
-	bool_t(*getwh)(struct console * console, s32_t * w, s32_t * h);
+	bool_t(*getwh)(struct console_t * console, s32_t * w, s32_t * h);
 
 	/* get cursor position */
-	bool_t(*getxy)(struct console * console, s32_t * x, s32_t * y);
+	bool_t(*getxy)(struct console_t * console, s32_t * x, s32_t * y);
 
 	/* set cursor position */
-	bool_t(*gotoxy)(struct console * console, s32_t x, s32_t y);
+	bool_t(*gotoxy)(struct console_t * console, s32_t x, s32_t y);
 
 	/* turn on/off the cursor */
-	bool_t(*setcursor)(struct console * console, bool_t on);
+	bool_t(*setcursor)(struct console_t * console, bool_t on);
 
 	/* get cursor's status */
-	bool_t(*getcursor)(struct console * console);
+	bool_t(*getcursor)(struct console_t * console);
 
 	/* set console's foreground color and background color */
-	bool_t(*setcolor)(struct console * console, enum tcolor f, enum tcolor b);
+	bool_t(*setcolor)(struct console_t * console, enum tcolor_t f, enum tcolor_t b);
 
 	/* get console foreground color and background color */
-	bool_t(*getcolor)(struct console * console, enum tcolor * f, enum tcolor * b);
+	bool_t(*getcolor)(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b);
 
 	/* clear screen */
-	bool_t(*cls)(struct console * console);
+	bool_t(*cls)(struct console_t * console);
 
 	/* get a unicode character */
-	bool_t(*getcode)(struct console * console, u32_t * code);
+	bool_t(*getcode)(struct console_t * console, u32_t * code);
 
 	/* put a unicode character */
-	bool_t(*putcode)(struct console * console, u32_t code);
+	bool_t(*putcode)(struct console_t * console, u32_t code);
 
 	/* turn no or turn off the console */
-	bool_t(*onoff)(struct console * console, bool_t flag);
+	bool_t(*onoff)(struct console_t * console, bool_t flag);
 
 	/* private data */
 	void * priv;
@@ -99,43 +99,43 @@ struct console
 
 struct console_list
 {
-	struct console * console;
+	struct console_t * console;
 	struct list_head entry;
 };
 
-struct console * get_console_stdin(void);
-struct console * get_console_stdout(void);
-struct console * get_console_stderr(void);
+struct console_t * get_console_stdin(void);
+struct console_t * get_console_stdout(void);
+struct console_t * get_console_stderr(void);
 
 bool_t console_stdin_getcode(u32_t * code);
 bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout);
 bool_t console_stdout_putc(char c);
 bool_t console_stderr_putc(char c);
 
-struct console * search_console(const char *name);
-bool_t register_console(struct console * console);
-bool_t unregister_console(struct console * console);
+struct console_t * search_console(const char *name);
+bool_t register_console(struct console_t * console);
+bool_t unregister_console(struct console_t * console);
 
 bool_t console_stdio_set(const char * in, const char * out, const char * err);
 bool_t console_stdio_load(char * file);
 bool_t console_stdio_save(char * file);
 
-bool_t console_getwh(struct console * console, s32_t * w, s32_t * h);
-bool_t console_getxy(struct console * console, s32_t * x, s32_t * y);
-bool_t console_gotoxy(struct console * console, s32_t x, s32_t y);
-bool_t console_setcursor(struct console * console, bool_t on);
-bool_t console_getcursor(struct console * console);
-bool_t console_setcolor(struct console * console, enum tcolor f, enum tcolor b);
-bool_t console_getcolor(struct console * console, enum tcolor * f, enum tcolor * b);
-bool_t console_cls(struct console * console);
-bool_t console_getcode(struct console * console, u32_t * code);
-bool_t console_putcode(struct console * console, u32_t code);
-bool_t console_onoff(struct console * console, bool_t flag);
+bool_t console_getwh(struct console_t * console, s32_t * w, s32_t * h);
+bool_t console_getxy(struct console_t * console, s32_t * x, s32_t * y);
+bool_t console_gotoxy(struct console_t * console, s32_t x, s32_t y);
+bool_t console_setcursor(struct console_t * console, bool_t on);
+bool_t console_getcursor(struct console_t * console);
+bool_t console_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b);
+bool_t console_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b);
+bool_t console_cls(struct console_t * console);
+bool_t console_getcode(struct console_t * console, u32_t * code);
+bool_t console_putcode(struct console_t * console, u32_t code);
+bool_t console_onoff(struct console_t * console, bool_t flag);
 
-int console_print(struct console * console, const char * fmt, ...);
-bool_t console_hline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t x);
-bool_t console_vline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t y);
-bool_t console_rect(struct console * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h);
+int console_print(struct console_t * console, const char * fmt, ...);
+bool_t console_hline(struct console_t * console, u32_t code, u32_t x0, u32_t y0, u32_t x);
+bool_t console_vline(struct console_t * console, u32_t code, u32_t x0, u32_t y0, u32_t y);
+bool_t console_rect(struct console_t * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h);
 
 #ifdef __cplusplus
 }

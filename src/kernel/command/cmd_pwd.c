@@ -47,7 +47,7 @@ static int do_pwd(int argc, char ** argv)
 	return -1;
 }
 
-static struct command pwd_cmd = {
+static struct command_t pwd_cmd = {
 	.name		= "pwd",
 	.func		= do_pwd,
 	.desc		= "print the current working directory\r\n",

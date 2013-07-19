@@ -90,22 +90,22 @@ static void s5pv210_mmc_exit(void)
 
 }
 
-bool_t s5pv210_mmc_probe(struct mmc_card_info * info)
+bool_t s5pv210_mmc_probe(struct mmc_card_info_t * info)
 {
 	return FALSE;
 }
 
-bool_t s5pv210_mmc_read_sectors(struct mmc_card * card, u8_t * buf, u32_t sector, u32_t count)
+bool_t s5pv210_mmc_read_sectors(struct mmc_card_t * card, u8_t * buf, u32_t sector, u32_t count)
 {
 	return FALSE;
 }
 
-bool_t s5pv210_mmc_write_sectors(struct mmc_card * card, const u8_t * buf, u32_t sector, u32_t count)
+bool_t s5pv210_mmc_write_sectors(struct mmc_card_t * card, const u8_t * buf, u32_t sector, u32_t count)
 {
 	return FALSE;
 }
 
-static struct mmc_host s5pv210_mmc_host_controller = {
+static struct mmc_host_t s5pv210_mmc_host_controller = {
 	.name			= "s5pv210-mmc",
 	.init			= s5pv210_mmc_init,
 	.exit			= s5pv210_mmc_exit,

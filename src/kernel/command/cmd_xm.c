@@ -458,7 +458,7 @@ static int rx(int argc, char ** argv)
 	return 0;
 }
 
-static struct command sx_cmd = {
+static struct command_t sx_cmd = {
 	.name		= "sx",
 	.func		= sx,
 	.desc		= "send file using xmodem\r\n",
@@ -466,7 +466,7 @@ static struct command sx_cmd = {
 	.help		= "    send file using xmodem transport protocol.\r\n"
 };
 
-static struct command rx_cmd = {
+static struct command_t rx_cmd = {
 	.name		= "rx",
 	.func		= rx,
 	.desc		= "receive file using xmodem\r\n",

@@ -50,7 +50,7 @@ struct regs {
 /*
  * the irq handler.
  */
-static irq_handler s5pc100_irq_handler[96];
+static irq_handler_t s5pc100_irq_handler[96];
 
 /*
  * null function for irq handler
@@ -145,7 +145,7 @@ void do_irqs(struct regs * regs)
 /*
  * enable or disable irq.
  */
-static void enable_irqs(struct irq * irq, bool_t enable)
+static void enable_irqs(struct irq_t * irq, bool_t enable)
 {
 	u32_t irq_no = irq->irq_no;
 
@@ -183,7 +183,7 @@ static void enable_irqs(struct irq * irq, bool_t enable)
 /*
  * the array of irq.
  */
-static struct irq s5pc100_irqs[] = {
+static struct irq_t s5pc100_irqs[] = {
 	{
 		.name		= "EINT0",
 		.irq_no		= 0,
@@ -702,7 +702,7 @@ static __init void s5pc100_irq_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(s5pc100_irq_handler); i++)
 	{
-		s5pc100_irq_handler[i] = (irq_handler)null_irq_handler;
+		s5pc100_irq_handler[i] = (irq_handler_t)null_irq_handler;
 	}
 
 	for(i = 0; i < ARRAY_SIZE(s5pc100_irqs); i++)

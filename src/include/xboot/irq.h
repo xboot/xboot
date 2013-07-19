@@ -12,12 +12,12 @@ extern "C" {
 
 
 /* the irq handler type */
-typedef void (*irq_handler)(void);
+typedef void (*irq_handler_t)(void);
 
 /*
  * the struct of interrupt.
  */
-struct irq {
+struct irq_t {
 	/* the irq name */
 	const char * name;
 
@@ -25,10 +25,10 @@ struct irq {
 	const u32_t irq_no;
 
 	/* irq handler */
-	irq_handler * handler;
+	irq_handler_t * handler;
 
 	/* enable irq or disable */
-	void (*enable)(struct irq * irq, bool_t enable);
+	void (*enable)(struct irq_t * irq, bool_t enable);
 };
 
 /*
@@ -36,15 +36,15 @@ struct irq {
  */
 struct irq_list
 {
-	struct irq * irq;
+	struct irq_t * irq;
 	bool_t busy;
 	struct hlist_node node;
 };
 
 
-bool_t irq_register(struct irq * irq);
-bool_t irq_unregister(struct irq * irq);
-bool_t request_irq(const char *name, irq_handler handler);
+bool_t irq_register(struct irq_t * irq);
+bool_t irq_unregister(struct irq_t * irq);
+bool_t request_irq(const char *name, irq_handler_t handler);
 bool_t free_irq(const char *name);
 
 #ifdef __cplusplus

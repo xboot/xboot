@@ -13,7 +13,7 @@ extern "C" {
 /*
  * keep gcc happy.
  */
-struct nand_device;
+struct nand_device_t;
 
 enum nand_control
 {
@@ -38,22 +38,22 @@ struct nfc
 	void (*exit)(void);
 
 	/* control nand flash controller */
-	bool_t (*control)(struct nand_device * nand, enum nand_control ctl);
+	bool_t (*control)(struct nand_device_t * nand, enum nand_control ctl);
 
 	/* issue a command to the nand device */
-	bool_t (*command)(struct nand_device * nand, u32_t cmd);
+	bool_t (*command)(struct nand_device_t * nand, u32_t cmd);
 
 	/* write an address to the nand device */
-	bool_t (*address)(struct nand_device * nand, u32_t addr);
+	bool_t (*address)(struct nand_device_t * nand, u32_t addr);
 
 	/* read a data from nand device */
-	bool_t (*read_data)(struct nand_device * nand, u32_t * data);
+	bool_t (*read_data)(struct nand_device_t * nand, u32_t * data);
 
 	/* write a data to the nand device */
-	bool_t (*write_data)(struct nand_device * nand, u32_t data);
+	bool_t (*write_data)(struct nand_device_t * nand, u32_t data);
 
 	/* check nand flash is ready */
-	bool_t (*nand_ready)(struct nand_device * nand, s32_t timeout);
+	bool_t (*nand_ready)(struct nand_device_t * nand, s32_t timeout);
 };
 
 

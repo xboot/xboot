@@ -80,7 +80,7 @@ static bool_t tick_timer_init(void)
 	return TRUE;
 }
 
-static struct tick s5pc100_tick = {
+static struct tick_t s5pc100_tick = {
 	.hz			= 100,
 	.init		= tick_timer_init,
 };

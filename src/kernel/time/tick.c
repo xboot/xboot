@@ -50,7 +50,7 @@ EXPORT_SYMBOL(jiffies);
 /*
  * system tick.
  */
-static struct tick * xboot_tick = NULL;
+static struct tick_t * xboot_tick = NULL;
 
 /*
  * tick frequency.
@@ -81,7 +81,7 @@ EXPORT_SYMBOL(get_system_hz);
 /*
  * register system tick.
  */
-bool_t register_tick(struct tick * tick)
+bool_t register_tick(struct tick_t * tick)
 {
 	if( tick && (tick->hz > 0) && (xboot_tick->init != NULL))
 	{

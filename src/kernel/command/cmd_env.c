@@ -69,7 +69,7 @@ static int env(int argc, char ** argv)
 	return 0;
 }
 
-static struct command env_cmd = {
+static struct command_t env_cmd = {
 	.name		= "env",
 	.func		= env,
 	.desc		= "display environment variable\r\n",

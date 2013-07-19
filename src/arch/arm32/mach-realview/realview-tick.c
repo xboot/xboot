@@ -71,7 +71,7 @@ static bool_t tick_timer_init(void)
 	return TRUE;
 }
 
-static struct tick realview_tick = {
+static struct tick_t realview_tick = {
 	.hz		= 1000,
 	.init	= tick_timer_init,
 };

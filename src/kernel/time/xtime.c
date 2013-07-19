@@ -46,7 +46,7 @@ static struct timer_list xtime_timer;
 /*
  * the hardware rtc.
  */
-static struct rtc_driver * rtc = NULL;
+static struct rtc_driver_t * rtc = NULL;
 
 /*
  * xtime's timer function.
@@ -113,7 +113,7 @@ void do_system_xtime(void)
 	dev = search_chrdev_with_type(CONFIG_HARDWARE_RTC_NAME, CHR_DEV_RTC);
 	if(dev)
 	{
-		rtc = (struct rtc_driver *)(dev->driver);
+		rtc = (struct rtc_driver_t *)(dev->driver);
 
 		/* sync xtime, first */
 		if(rtc && rtc->get_time)

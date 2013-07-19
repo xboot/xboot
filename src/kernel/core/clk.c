@@ -43,7 +43,7 @@ static struct hlist_head clk_hash[CONFIG_CLK_HASH_SIZE] = {{0}};
 /*
  * search clk by name. a static function.
  */
-static struct clk * clk_search(const char *name)
+static struct clk_t * clk_search(const char *name)
 {
 	struct clk_list * list;
 	struct hlist_node * pos;
@@ -67,7 +67,7 @@ static struct clk * clk_search(const char *name)
  * register a clk into clk_list
  * return true is successed, otherwise is not.
  */
-bool_t clk_register(struct clk * clk)
+bool_t clk_register(struct clk_t * clk)
 {
 	struct clk_list * list;
 	u32_t hash;
@@ -96,7 +96,7 @@ bool_t clk_register(struct clk * clk)
 /*
  * unregister clk from clk_list
  */
-bool_t clk_unregister(struct clk * clk)
+bool_t clk_unregister(struct clk_t * clk)
 {
 	struct clk_list * list;
 	struct hlist_node * pos;
@@ -125,7 +125,7 @@ bool_t clk_unregister(struct clk * clk)
  */
 bool_t clk_get_rate(const char *name, u64_t * rate)
 {
-	struct clk * clk;
+	struct clk_t * clk;
 
 	clk = clk_search(name);
 

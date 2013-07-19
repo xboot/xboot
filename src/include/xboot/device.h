@@ -13,7 +13,7 @@ extern "C" {
 /*
  * device type
  */
-enum device_type {
+enum device_type_t {
 	CHAR_DEVICE,
 	BLOCK_DEVICE,
 	NET_DEVICE,
@@ -22,13 +22,13 @@ enum device_type {
 /*
  * the struct device.
  */
-struct device
+struct device_t
 {
 	/* the device name */
 	const char * name;
 
 	/* the type of device */
-	enum device_type type;
+	enum device_type_t type;
 
 	/* priv pointer */
 	void * priv;
@@ -39,13 +39,13 @@ struct device
  */
 struct device_list
 {
-	struct device * device;
+	struct device_t * device;
 	struct list_head entry;
 };
 
-struct device * search_device(const char * name);
-bool_t register_device(struct device * dev);
-bool_t unregister_device(struct device * dev);
+struct device_t * search_device(const char * name);
+bool_t register_device(struct device_t * dev);
+bool_t unregister_device(struct device_t * dev);
 
 #ifdef __cplusplus
 }

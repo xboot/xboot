@@ -133,7 +133,7 @@ static int md(int argc, char ** argv)
 	return 0;
 }
 
-static struct command md_cmd = {
+static struct command_t md_cmd = {
 	.name		= "md",
 	.func		= md,
 	.desc		= "memory display\r\n",

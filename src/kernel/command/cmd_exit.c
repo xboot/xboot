@@ -78,7 +78,7 @@ static int exit_to_mode(int argc, char ** argv)
 	return 0;
 }
 
-static struct command exit_cmd = {
+static struct command_t exit_cmd = {
 	.name		= "exit",
 	.func		= exit_to_mode,
 	.desc		= "exit to another system mode\r\n",

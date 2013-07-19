@@ -13,7 +13,7 @@ extern "C" {
 /*
  * card type
  */
-enum mmc_card_type {
+enum mmc_card_type_t {
 	MMC_CARD_TYPE_NONE,
 	MMC_CARD_TYPE_MMC,
 	MMC_CARD_TYPE_SD,
@@ -24,7 +24,7 @@ enum mmc_card_type {
 /*
  * mmc's cid
  */
-struct mmc_cid {
+struct mmc_cid_t {
 	u8_t	mid;			/* card manufacturer id */
 	u16_t	oid;			/* oem / application id */
 	u8_t	pnm[8];			/* product name */
@@ -38,7 +38,7 @@ struct mmc_cid {
 /*
  * mmc's csd
  */
-struct mmc_csd {
+struct mmc_csd_t {
 	u8_t	mmca_vsn;
 	u16_t	cmdclass;
 	u16_t	tacc_clks;
@@ -57,40 +57,40 @@ struct mmc_csd {
 /*
  * mmc card information
  */
-struct mmc_card_info
+struct mmc_card_info_t
 {
 	/*
 	 * raw data, filled by mmc host controller.
 	 */
-	enum mmc_card_type	type;
-	u16_t				rca;
-	u32_t				raw_cid[4];
-	u32_t				raw_csd[4];
+	enum mmc_card_type_t	type;
+	u16_t					rca;
+	u32_t					raw_cid[4];
+	u32_t					raw_csd[4];
 
 	/*
 	 * auto decoded when probed
 	 */
-	struct mmc_cid 		cid;
-	struct mmc_csd 		csd;
+	struct mmc_cid_t 		cid;
+	struct mmc_csd_t 		csd;
 
-	size_t				sector_size;
-	size_t				sector_count;
-	loff_t				capacity;
+	size_t					sector_size;
+	size_t					sector_count;
+	loff_t					capacity;
 };
 
 /*
- * mmc_card device of structure
+ * mmc_card_t device of structure
  */
-struct mmc_card
+struct mmc_card_t
 {
 	/* the name of mmc card */
 	char name[32 + 1];
 
 	/* mmc card information */
-	struct mmc_card_info * info;
+	struct mmc_card_info_t * info;
 
 	/* the driver of mmc host controller */
-	struct mmc_host * host;
+	struct mmc_host_t * host;
 
 	/* priv data */
 	void * priv;
@@ -101,7 +101,7 @@ struct mmc_card
  */
 struct mmc_card_list
 {
-	struct mmc_card * card;
+	struct mmc_card_t * card;
 	struct list_head entry;
 };
 
@@ -109,7 +109,7 @@ struct mmc_card_list
 void mmc_card_probe(void);
 void mmc_card_remove(void);
 
-struct mmc_card * search_mmc_card(const char * name);
+struct mmc_card_t * search_mmc_card(const char * name);
 
 #ifdef __cplusplus
 }

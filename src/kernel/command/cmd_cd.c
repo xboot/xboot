@@ -55,7 +55,7 @@ static int do_cd(int argc, char ** argv)
 	return 0;
 }
 
-static struct command cd_cmd = {
+static struct command_t cd_cmd = {
 	.name		= "cd",
 	.func		= do_cd,
 	.desc		= "change the current working directory\r\n",

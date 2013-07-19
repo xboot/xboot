@@ -38,12 +38,11 @@
 #include <time/timer.h>
 #include <input/input.h>
 
-extern void keyboard_input_handler(struct input_event * event);
-extern void mouse_input_handler(struct input_event * event);
+extern void keyboard_input_handler(struct input_event_t * event);
 
 struct input_list
 {
-	struct input * input;
+	struct input_t * input;
 	struct list_head entry;
 };
 
@@ -56,20 +55,8 @@ static struct input_list __input_list = {
 static struct input_list * input_list = &__input_list;
 
 static struct fifo_t * input_keyboard_fifo;
-static struct fifo_t * input_mouse_fifo;
-static struct fifo_t * input_touchscreen_fifo;
-static struct fifo_t * input_joystick_fifo;
-static struct fifo_t * input_accelerometer_fifo;
-static struct fifo_t * input_gyroscope_fifo;
-static struct fifo_t * input_light_fifo;
-static struct fifo_t * input_magnetic_fifo;
-static struct fifo_t * input_orientation_fifo;
-static struct fifo_t * input_pressure_fifo;
-static struct fifo_t * input_proximity_fifo;
-static struct fifo_t * input_temperature_fifo;
 
-
-struct input * search_input(const char * name)
+struct input_t * search_input(const char * name)
 {
 	struct input_list * list;
 	struct list_head * pos;
@@ -87,7 +74,7 @@ struct input * search_input(const char * name)
 	return NULL;
 }
 
-bool_t register_input(struct input * input)
+bool_t register_input(struct input_t * input)
 {
 	struct input_list * list;
 
@@ -119,7 +106,7 @@ bool_t register_input(struct input * input)
 	return TRUE;
 }
 
-bool_t unregister_input(struct input * input)
+bool_t unregister_input(struct input_t * input)
 {
 	struct input_list * list;
 	struct list_head * pos;
@@ -144,9 +131,9 @@ bool_t unregister_input(struct input * input)
 	return FALSE;
 }
 
-void input_report(enum input_type type, s32_t code, s32_t value)
+void input_report(enum input_type_t type, s32_t code, s32_t value)
 {
-	struct input_event event;
+	struct input_event_t event;
 
 	event.time = jiffies;
 	event.type = type;
@@ -156,51 +143,40 @@ void input_report(enum input_type type, s32_t code, s32_t value)
 	switch(type)
 	{
 	case INPUT_KEYBOARD:
-		fifo_put(input_keyboard_fifo, (u8_t *)&event, sizeof(struct input_event));
+		fifo_put(input_keyboard_fifo, (u8_t *)&event, sizeof(struct input_event_t));
 		break;
 
 	case INPUT_MOUSE:
-		fifo_put(input_mouse_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_TOUCHSCREEN:
-		fifo_put(input_touchscreen_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_JOYSTICK:
-		fifo_put(input_joystick_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_ACCELEROMETER:
-		fifo_put(input_accelerometer_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_GYROSCOPE:
-		fifo_put(input_gyroscope_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_LIGHT:
-		fifo_put(input_light_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_MAGNETIC:
-		fifo_put(input_magnetic_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_ORIENTATION:
-		fifo_put(input_orientation_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_PRESSURE:
-		fifo_put(input_pressure_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_PROXIMITY:
-		fifo_put(input_proximity_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	case INPUT_TEMPERATURE:
-		fifo_put(input_temperature_fifo, (u8_t *)&event, sizeof(struct input_event));
 		break;
 
 	default:
@@ -208,94 +184,50 @@ void input_report(enum input_type type, s32_t code, s32_t value)
 	}
 }
 
-void input_sync(enum input_type type)
+void input_sync(enum input_type_t type)
 {
-	struct input_event event;
+	struct input_event_t event;
 
 	switch(type)
 	{
 	case INPUT_KEYBOARD:
-		while(fifo_get(input_keyboard_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
+		while(fifo_get(input_keyboard_fifo, (u8_t *)&event, sizeof(struct input_event_t)) == sizeof(struct input_event_t))
 		{
 			keyboard_input_handler(&event);
 		}
 		break;
 
 	case INPUT_MOUSE:
-		while(fifo_get(input_mouse_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-			mouse_input_handler(&event);
-		}
 		break;
 
 	case INPUT_TOUCHSCREEN:
-		while(fifo_get(input_touchscreen_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_JOYSTICK:
-		while(fifo_get(input_joystick_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_ACCELEROMETER:
-		while(fifo_get(input_accelerometer_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_GYROSCOPE:
-		while(fifo_get(input_gyroscope_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_LIGHT:
-		while(fifo_get(input_light_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_MAGNETIC:
-		while(fifo_get(input_magnetic_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_ORIENTATION:
-		while(fifo_get(input_orientation_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_PRESSURE:
-		while(fifo_get(input_pressure_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_PROXIMITY:
-		while(fifo_get(input_proximity_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	case INPUT_TEMPERATURE:
-		while(fifo_get(input_temperature_fifo, (u8_t *)&event, sizeof(struct input_event)) == sizeof(struct input_event))
-		{
-
-		}
 		break;
 
 	default:
@@ -398,37 +330,13 @@ static struct proc input_proc = {
 
 static __init void input_pure_sync_init(void)
 {
-	input_keyboard_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_mouse_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_touchscreen_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_joystick_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_accelerometer_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_gyroscope_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_light_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_magnetic_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_orientation_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_pressure_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_proximity_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-	input_temperature_fifo = fifo_alloc(sizeof(struct input_event) * 256);
-
+	input_keyboard_fifo = fifo_alloc(sizeof(struct input_event_t) * 256);
 	proc_register(&input_proc);
 }
 
 static __init void input_pure_sync_exit(void)
 {
 	fifo_free(input_keyboard_fifo);
-	fifo_free(input_mouse_fifo);
-	fifo_free(input_touchscreen_fifo);
-	fifo_free(input_joystick_fifo);
-	fifo_free(input_accelerometer_fifo);
-	fifo_free(input_gyroscope_fifo);
-	fifo_free(input_light_fifo);
-	fifo_free(input_magnetic_fifo);
-	fifo_free(input_orientation_fifo);
-	fifo_free(input_pressure_fifo);
-	fifo_free(input_proximity_fifo);
-	fifo_free(input_temperature_fifo);
-
 	proc_unregister(&input_proc);
 }
 

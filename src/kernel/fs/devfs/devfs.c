@@ -77,7 +77,7 @@ static s32_t devfs_statfs(struct mount * m, struct statfs * stat)
  */
 static s32_t devfs_open(struct vnode * node, s32_t flag)
 {
-	struct device * dev;
+	struct device_t * dev;
 	struct chrdev_t * chr;
 	struct blkdev_t * blk;
 	s8_t * path;
@@ -122,7 +122,7 @@ static s32_t devfs_open(struct vnode * node, s32_t flag)
 
 static s32_t devfs_close(struct vnode * node, struct file * fp)
 {
-	struct device * dev;
+	struct device_t * dev;
 	struct chrdev_t * chr;
 	struct blkdev_t * blk;
 	s8_t * path;
@@ -131,7 +131,7 @@ static s32_t devfs_close(struct vnode * node, struct file * fp)
 	if(!strcmp((const char *)path, (const char *)"/"))
 		return 0;
 
-	dev = (struct device *)node->v_data;
+	dev = (struct device_t *)node->v_data;
 	if(dev == NULL)
 		return -1;
 
@@ -151,7 +151,7 @@ static s32_t devfs_close(struct vnode * node, struct file * fp)
 
 static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
-	struct device * dev = (struct device *)(node->v_data);
+	struct device_t * dev = (struct device_t *)(node->v_data);
 	struct chrdev_t * chr;
 	struct blkdev_t * blk;
 	loff_t len;
@@ -186,7 +186,7 @@ static s32_t devfs_read(struct vnode * node, struct file * fp, void * buf, loff_
 
 static s32_t devfs_write(struct vnode * node , struct file * fp, void * buf, loff_t size, loff_t * result)
 {
-	struct device * dev = (struct device *)(node->v_data);
+	struct device_t * dev = (struct device_t *)(node->v_data);
 	struct chrdev_t * chr;
 	struct blkdev_t * blk;
 	loff_t len;
@@ -234,7 +234,7 @@ static s32_t devfs_seek(struct vnode * node, struct file * fp, loff_t off1, loff
 
 static s32_t devfs_ioctl(struct vnode * node, struct file * fp, int cmd, void * arg)
 {
-	struct device * dev = (struct device *)(node->v_data);
+	struct device_t * dev = (struct device_t *)(node->v_data);
 	struct chrdev_t * chr;
 	struct blkdev_t * blk;
 
@@ -313,7 +313,7 @@ static s32_t devfs_readdir(struct vnode * node, struct file * fp, struct dirent 
 
 static s32_t devfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	struct device * dev;
+	struct device_t * dev;
 	struct chrdev_t * chr;
 	struct blkdev_t * blk;
 

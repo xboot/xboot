@@ -26,9 +26,9 @@
 
 extern void led_console_trigger_activity(void);
 
-static struct console * console_stdin = NULL;
-static struct console * console_stdout = NULL;
-static struct console * console_stderr = NULL;
+static struct console_t * console_stdin = NULL;
+static struct console_t * console_stdout = NULL;
+static struct console_t * console_stderr = NULL;
 
 static struct console_list __console_list = {
 	.entry = {
@@ -38,17 +38,17 @@ static struct console_list __console_list = {
 };
 static struct console_list * console_list = &__console_list;
 
-inline struct console * get_console_stdin(void)
+inline struct console_t * get_console_stdin(void)
 {
 	return console_stdin;
 }
 
-inline struct console * get_console_stdout(void)
+inline struct console_t * get_console_stdout(void)
 {
 	return console_stdout;
 }
 
-inline struct console * get_console_stderr(void)
+inline struct console_t * get_console_stderr(void)
 {
 	return console_stderr;
 }
@@ -141,7 +141,7 @@ bool_t console_stderr_putc(char c)
 	return TRUE;
 }
 
-struct console * search_console(const char *name)
+struct console_t * search_console(const char *name)
 {
 	struct console_list * list;
 	struct list_head * pos;
@@ -159,7 +159,7 @@ struct console * search_console(const char *name)
 	return NULL;
 }
 
-bool_t register_console(struct console * console)
+bool_t register_console(struct console_t * console)
 {
 	struct console_list * list;
 
@@ -191,7 +191,7 @@ bool_t register_console(struct console * console)
 	return TRUE;
 }
 
-bool_t unregister_console(struct console * console)
+bool_t unregister_console(struct console_t * console)
 {
 	struct console_list * list;
 	struct list_head * pos;
@@ -225,7 +225,7 @@ bool_t unregister_console(struct console * console)
 
 bool_t console_stdio_set(const char * in, const char * out, const char * err)
 {
-	struct console * cin, * cout, * cerr;
+	struct console_t * cin, * cout, * cerr;
 
 	if(!in || !out || !err)
 		return FALSE;
@@ -360,84 +360,84 @@ bool_t console_stdio_save(char * file)
 	return TRUE;
 }
 
-bool_t console_getwh(struct console * console, s32_t * w, s32_t * h)
+bool_t console_getwh(struct console_t * console, s32_t * w, s32_t * h)
 {
 	if(console && console->getwh)
 		return console->getwh(console, w, h);
 	return FALSE;
 }
 
-bool_t console_getxy(struct console * console, s32_t * x, s32_t * y)
+bool_t console_getxy(struct console_t * console, s32_t * x, s32_t * y)
 {
 	if(console && console->getxy)
 		return console->getxy(console, x, y);
 	return FALSE;
 }
 
-bool_t console_gotoxy(struct console * console, s32_t x, s32_t y)
+bool_t console_gotoxy(struct console_t * console, s32_t x, s32_t y)
 {
 	if(console && console->gotoxy)
 		return console->gotoxy(console, x, y);
 	return FALSE;
 }
 
-bool_t console_setcursor(struct console * console, bool_t on)
+bool_t console_setcursor(struct console_t * console, bool_t on)
 {
 	if(console && console->setcursor)
 		return console->setcursor(console, on);
 	return FALSE;
 }
 
-bool_t console_getcursor(struct console * console)
+bool_t console_getcursor(struct console_t * console)
 {
 	if(console && console->getcursor)
 		return console->getcursor(console);
 	return FALSE;
 }
 
-bool_t console_setcolor(struct console * console, enum tcolor f, enum tcolor b)
+bool_t console_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
 {
 	if(console && console->setcolor)
 		return console->setcolor(console, f, b);
 	return FALSE;
 }
 
-bool_t console_getcolor(struct console * console, enum tcolor * f, enum tcolor * b)
+bool_t console_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
 {
 	if(console && console->getcolor)
 		return console->getcolor(console, f, b);
 	return FALSE;
 }
 
-bool_t console_cls(struct console * console)
+bool_t console_cls(struct console_t * console)
 {
 	if(console && console->cls)
 		return console->cls(console);
 	return FALSE;
 }
 
-bool_t console_getcode(struct console * console, u32_t * code)
+bool_t console_getcode(struct console_t * console, u32_t * code)
 {
 	if(console && console->getcode)
 		return console->getcode(console, code);
 	return FALSE;
 }
 
-bool_t console_putcode(struct console * console, u32_t code)
+bool_t console_putcode(struct console_t * console, u32_t code)
 {
 	if(console && console->putcode)
 		return console->putcode(console, code);
 	return FALSE;
 }
 
-bool_t console_onoff(struct console * console, bool_t flag)
+bool_t console_onoff(struct console_t * console, bool_t flag)
 {
 	if(console && console->onoff)
 		return console->onoff(console, flag);
 	return FALSE;
 }
 
-int console_print(struct console * console, const char * fmt, ...)
+int console_print(struct console_t * console, const char * fmt, ...)
 {
 	va_list ap;
 	u32_t code;
@@ -466,7 +466,7 @@ int console_print(struct console * console, const char * fmt, ...)
 	return len;
 }
 
-bool_t console_hline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t x)
+bool_t console_hline(struct console_t * console, u32_t code, u32_t x0, u32_t y0, u32_t x)
 {
 	s32_t w, h;
 	s32_t i;
@@ -494,7 +494,7 @@ bool_t console_hline(struct console * console, u32_t code, u32_t x0, u32_t y0, u
 	return FALSE;
 }
 
-bool_t console_vline(struct console * console, u32_t code, u32_t x0, u32_t y0, u32_t y)
+bool_t console_vline(struct console_t * console, u32_t code, u32_t x0, u32_t y0, u32_t y)
 {
 	s32_t w, h;
 	s32_t i;
@@ -522,7 +522,7 @@ bool_t console_vline(struct console * console, u32_t code, u32_t x0, u32_t y0, u
 	return FALSE;
 }
 
-bool_t console_rect(struct console * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h)
+bool_t console_rect(struct console_t * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h)
 {
 	s32_t width, height;
 

@@ -178,7 +178,7 @@ static s32_t mounts_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc mounts_proc = {
+static struct proc_t mounts_proc = {
 	.name	= "mounts",
 	.read	= mounts_proc_read,
 };

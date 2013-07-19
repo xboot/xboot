@@ -412,7 +412,7 @@ static s32_t disk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc disk_proc = {
+static struct proc_t disk_proc = {
 	.name	= "disk",
 	.read	= disk_proc_read,
 };

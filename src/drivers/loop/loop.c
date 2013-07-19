@@ -358,7 +358,7 @@ static s32_t loop_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc loop_proc = {
+static struct proc_t loop_proc = {
 	.name	= "loop",
 	.read	= loop_proc_read,
 };

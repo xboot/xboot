@@ -58,7 +58,7 @@ static struct led_t led_gpn14 = {
 /*
  * the led-console resource.
  */
-static struct resource led_console = {
+static struct resource_t led_console = {
 	.name		= "led-console",
 	.data		= &led_gpn14,
 };

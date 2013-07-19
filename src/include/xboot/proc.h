@@ -11,9 +11,9 @@ extern "C" {
 #include <xboot/list.h>
 
 /*
- * the struct of proc.
+ * the struct of proc_t.
  */
-struct proc
+struct proc_t
 {
 	/* the proc name */
 	const char * name;
@@ -27,13 +27,13 @@ struct proc
  */
 struct proc_list
 {
-	struct proc * proc;
+	struct proc_t * proc;
 	struct list_head entry;
 };
 
-bool_t proc_register(struct proc * proc);
-bool_t proc_unregister(struct proc * proc);
-struct proc * proc_search(const char *name);
+bool_t proc_register(struct proc_t * proc);
+bool_t proc_unregister(struct proc_t * proc);
+struct proc_t * proc_search(const char *name);
 
 #ifdef __cplusplus
 }

@@ -55,7 +55,7 @@ static struct led_t led_gpm0 = {
 /*
  * the led-heartbeat resource.
  */
-static struct resource led_heartbeat = {
+static struct resource_t led_heartbeat = {
 	.name		= "led-heartbeat",
 	.data		= &led_gpm0,
 };

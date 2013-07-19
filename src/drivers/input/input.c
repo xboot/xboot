@@ -323,7 +323,7 @@ static s32_t input_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc input_proc = {
+static struct proc_t input_proc = {
 	.name	= "input",
 	.read	= input_proc_read,
 };

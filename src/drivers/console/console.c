@@ -618,7 +618,7 @@ static s32_t console_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc console_proc = {
+static struct proc_t console_proc = {
 	.name	= "console",
 	.read	= console_proc_read,
 };

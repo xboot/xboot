@@ -30,7 +30,7 @@
 
 struct menu_ctx
 {
-	struct menu_list * list;
+	struct menu_list_t * list;
 	u32_t index;
 	u32_t total;
 	u32_t win1, win2;
@@ -48,7 +48,7 @@ struct menu_ctx
 
 static void menu_ctx_paint(struct menu_ctx * ctx)
 {
-	struct menu_list * list;
+	struct menu_list_t * list;
 	struct list_head * pos;
 	s32_t i;
 
@@ -87,7 +87,7 @@ static void menu_ctx_paint(struct menu_ctx * ctx)
 	{
 		if( (i >= ctx->win1) && (i <= ctx->win2) )
 		{
-			list = list_entry(pos, struct menu_list, entry);
+			list = list_entry(pos, struct menu_list_t, entry);
 
 			if(i == ctx->index)
 				console_setcolor(ctx->out, ctx->bg, ctx->fg);
@@ -194,7 +194,7 @@ static void menu_ctx_free(struct menu_ctx * ctx)
  */
 void run_menu_mode(void)
 {
-	struct menu_item * item = NULL;
+	struct menu_item_t * item = NULL;
 	struct menu_ctx * ctx;
 	u32_t code;
 	bool_t running = TRUE;

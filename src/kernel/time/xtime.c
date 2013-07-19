@@ -212,7 +212,7 @@ static s32_t xtime_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc xtime_proc = {
+static struct proc_t xtime_proc = {
 	.name	= "xtime",
 	.read	= xtime_proc_read,
 };

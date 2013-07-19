@@ -163,7 +163,7 @@ static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc device_proc = {
+static struct proc_t device_proc = {
 	.name	= "device",
 	.read	= device_proc_read,
 };

@@ -11,9 +11,9 @@ extern "C" {
 #include <xboot/list.h>
 
 /*
- * the struct of resource.
+ * the struct of resource_t.
  */
-struct resource
+struct resource_t
 {
 	/* the resouce name */
 	const char * name;
@@ -25,14 +25,14 @@ struct resource
 /*
  * the list of resource
  */
-struct resource_list
+struct resource_list_t
 {
-	struct resource * res;
+	struct resource_t * res;
 	struct list_head entry;
 };
 
-bool_t register_resource(struct resource * res);
-bool_t unregister_resource(struct resource * res);
+bool_t register_resource(struct resource_t * res);
+bool_t unregister_resource(struct resource_t * res);
 void * resource_get_data(const char * name);
 
 #ifdef __cplusplus

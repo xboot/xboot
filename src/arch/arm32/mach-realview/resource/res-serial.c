@@ -56,7 +56,7 @@ static struct serial_parameter_t uart_param[] = {
 /*
  * the array of resource.
  */
-static struct resource serial_devs[] = {
+static struct resource_t serial_devs[] = {
 	{
 		.name		= "uart0",
 		.data		= &uart_param[0],

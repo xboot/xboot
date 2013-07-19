@@ -581,7 +581,7 @@ static s32_t mmc_card_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc mmc_card_proc = {
+static struct proc_t mmc_card_proc = {
 	.name	= "mmc",
 	.read	= mmc_card_proc_read,
 };

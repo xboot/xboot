@@ -123,7 +123,7 @@ static struct s5pv210fb_lcd lcd = {
 	.backlight			= lcd_backlight,
 };
 
-static struct resource fb_res = {
+static struct resource_t fb_res = {
 	.name		= "fb",
 	.data		= &lcd,
 };

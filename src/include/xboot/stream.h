@@ -7,7 +7,7 @@ extern "C" {
 
 #include <xboot.h>
 
-enum stream_seek {
+enum stream_seek_t {
 	STREAM_SEEK_SET	= 0,
 	STREAM_SEEK_CUR	= 1,
 	STREAM_SEEK_END	= 2,
@@ -18,7 +18,7 @@ struct stream_t {
 
 	size_t (*read)(struct stream_t * stream, void * buf, size_t size, size_t count);
 	size_t (*write)(struct stream_t * stream, const void * buf, size_t size, size_t count);
-	bool_t (*seek)(struct stream_t * stream, loff_t offset, enum stream_seek whence);
+	bool_t (*seek)(struct stream_t * stream, loff_t offset, enum stream_seek_t whence);
 	loff_t (*tell)(struct stream_t * stream);
 };
 
@@ -27,7 +27,7 @@ void stream_free(struct stream_t * stream);
 
 size_t stream_read(struct stream_t * stream, void * buf, size_t size, size_t count);
 size_t stream_write(struct stream_t * stream, const void * buf, size_t size, size_t count);
-bool_t stream_seek(struct stream_t * stream, loff_t offset, enum stream_seek whence);
+bool_t stream_seek(struct stream_t * stream, loff_t offset, enum stream_seek_t whence);
 loff_t stream_tell(struct stream_t * stream);
 
 #ifdef __cplusplus

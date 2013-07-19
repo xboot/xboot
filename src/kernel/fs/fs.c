@@ -151,7 +151,7 @@ static s32_t filesystem_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc filesystem_proc = {
+static struct proc_t filesystem_proc = {
 	.name	= "filesystem",
 	.read	= filesystem_proc_read,
 };

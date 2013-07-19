@@ -33,7 +33,6 @@
 #include <xboot/printk.h>
 #include <xboot/proc.h>
 
-
 /* the list of process */
 static struct proc_list __proc_list = {
 	.entry = {
@@ -46,7 +45,7 @@ struct proc_list * proc_list = &__proc_list;
 /*
  * search proc by name
  */
-struct proc * proc_search(const char *name)
+struct proc_t * proc_search(const char *name)
 {
 	struct proc_list * list;
 	struct list_head * pos;
@@ -68,7 +67,7 @@ struct proc * proc_search(const char *name)
  * register a proc into proc_list
  * return true is successed, otherwise is not.
  */
-bool_t proc_register(struct proc * proc)
+bool_t proc_register(struct proc_t * proc)
 {
 	struct proc_list * list;
 
@@ -94,7 +93,7 @@ bool_t proc_register(struct proc * proc)
 /*
  * unregister proc from proc_list
  */
-bool_t proc_unregister(struct proc * proc)
+bool_t proc_unregister(struct proc_t * proc)
 {
 	struct proc_list * list;
 	struct list_head * pos;
@@ -150,7 +149,7 @@ static s32_t self_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc self_proc = {
+static struct proc_t self_proc = {
 	.name	= "proc",
 	.read	= self_proc_read,
 };

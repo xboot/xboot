@@ -31,27 +31,27 @@
 #include <xboot/list.h>
 #include <xboot/menu.h>
 
-static struct menu_list __menu_list = {
+static struct menu_list_t __menu_list = {
 	.entry = {
 		.next	= &(__menu_list.entry),
 		.prev	= &(__menu_list.entry),
 	},
 };
-static struct menu_list * menu_list = &__menu_list;
+static struct menu_list_t * menu_list = &__menu_list;
 
 static bool_t menu_add_item(const char * title, const char * command)
 {
-	struct menu_list * list;
-	struct menu_item * item;
+	struct menu_list_t * list;
+	struct menu_item_t * item;
 
 	if(!title || !command)
 		return FALSE;
 
-	list = malloc(sizeof(struct menu_list));
+	list = malloc(sizeof(struct menu_list_t));
 	if(!list)
 		return FALSE;
 
-	item = malloc(sizeof(struct menu_item));
+	item = malloc(sizeof(struct menu_item_t));
 	if(!item)
 	{
 		free(list);
@@ -69,7 +69,7 @@ static bool_t menu_add_item(const char * title, const char * command)
 
 bool_t menu_load(char * file)
 {
-	struct menu_list * pos, * n;
+	struct menu_list_t * pos, * n;
 	struct xml * root, * menu;
 	struct xml * title, * command;
 
@@ -114,20 +114,20 @@ bool_t menu_load(char * file)
 	return TRUE;
 }
 
-inline struct menu_list * get_menu_list(void)
+inline struct menu_list_t * get_menu_list(void)
 {
 	return menu_list;
 }
 
-struct menu_item * get_menu_indexof_item(s32_t index)
+struct menu_item_t * get_menu_indexof_item(s32_t index)
 {
-	struct menu_list * list;
+	struct menu_list_t * list;
 	struct list_head * pos;
 	s32_t i;
 
 	for(i = 0, pos = (&menu_list->entry)->next; pos != (&menu_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct menu_list, entry);
+		list = list_entry(pos, struct menu_list_t, entry);
 		if(i++ == index)
 			return list->item;
 	}

@@ -74,7 +74,7 @@ static s32_t procfs_statfs(struct mount * m, struct statfs * stat)
  */
 static s32_t procfs_open(struct vnode * node, s32_t flag)
 {
-	struct proc * proc;
+	struct proc_t * proc;
 	char * path;
 
 	path = node->v_path;
@@ -100,7 +100,7 @@ static s32_t procfs_close(struct vnode * node, struct file * fp)
 
 static s32_t procfs_read(struct vnode * node, struct file * fp, void * buf, loff_t size, loff_t * result)
 {
-	struct proc * proc = (struct proc *)(node->v_data);
+	struct proc_t * proc = (struct proc_t *)(node->v_data);
 	loff_t len;
 
 	*result = 0;
@@ -177,7 +177,7 @@ static s32_t procfs_readdir(struct vnode * node, struct file * fp, struct dirent
 
 static s32_t procfs_lookup(struct vnode * dnode, char * name, struct vnode * node)
 {
-	struct proc * proc;
+	struct proc_t * proc;
 
 	proc = proc_search(name);
 	if(proc == NULL)

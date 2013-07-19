@@ -163,7 +163,7 @@ static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc machine_proc = {
+static struct proc_t machine_proc = {
 	.name	= "machine",
 	.read	= machine_proc_read,
 };
@@ -229,7 +229,7 @@ static s32_t link_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc link_proc = {
+static struct proc_t link_proc = {
 	.name	= "link",
 	.read	= link_proc_read,
 };

@@ -34,22 +34,21 @@
 #include <xboot/proc.h>
 #include <xboot/resource.h>
 
-
 /* the list of resource */
-static struct resource_list __resource_list = {
+static struct resource_list_t __resource_list = {
 	.entry = {
 		.next	= &(__resource_list.entry),
 		.prev	= &(__resource_list.entry),
 	},
 };
-struct resource_list * resource_list = &__resource_list;
+struct resource_list_t * resource_list = &__resource_list;
 
 /*
  * search resource by name
  */
-static struct resource * search_resource(const char * name)
+static struct resource_t * search_resource(const char * name)
 {
-	struct resource_list * list;
+	struct resource_list_t * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -68,9 +67,9 @@ static struct resource * search_resource(const char * name)
 /*
  * register a resource into resource_list
  */
-bool_t register_resource(struct resource * res)
+bool_t register_resource(struct resource_t * res)
 {
-	struct resource_list * list;
+	struct resource_list_t * list;
 
 	list = malloc(sizeof(struct resource_list));
 	if(!list || !res)
@@ -94,9 +93,9 @@ bool_t register_resource(struct resource * res)
 /*
  * unregister resource from resource_list
  */
-bool_t unregister_resource(struct resource * res)
+bool_t unregister_resource(struct resource_t * res)
 {
-	struct resource_list * list;
+	struct resource_list_t * list;
 	struct list_head * pos;
 
 	if(!res || !res->name)
@@ -121,7 +120,7 @@ bool_t unregister_resource(struct resource * res)
  */
 void * resource_get_data(const char * name)
 {
-	struct resource * res;
+	struct resource_t * res;
 
 	res = search_resource(name);
 
@@ -136,7 +135,7 @@ void * resource_get_data(const char * name)
  */
 static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct resource_list * list;
+	struct resource_list_t * list;
 	struct list_head * pos;
 	s8_t * p;
 	s32_t len = 0;
@@ -165,7 +164,7 @@ static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc resource_proc = {
+static struct proc_t resource_proc = {
 	.name	= "resource",
 	.read	= resource_proc_read,
 };

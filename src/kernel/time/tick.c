@@ -137,7 +137,7 @@ static s32_t jiffies_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc jiffies_proc = {
+static struct proc_t jiffies_proc = {
 	.name	= "jiffies",
 	.read	= jiffies_proc_read,
 };
@@ -168,7 +168,7 @@ static s32_t uptime_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc uptime_proc = {
+static struct proc_t uptime_proc = {
 	.name	= "uptime",
 	.read	= uptime_proc_read,
 };
@@ -195,7 +195,7 @@ static s32_t hz_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc hz_proc = {
+static struct proc_t hz_proc = {
 	.name	= "hz",
 	.read	= hz_proc_read,
 };

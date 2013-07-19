@@ -31,7 +31,7 @@
  */
 void run_normal_mode(void)
 {
-	struct menu_item * item;
+	struct menu_item_t * item;
 
 	do {
 		item = get_menu_indexof_item(0);

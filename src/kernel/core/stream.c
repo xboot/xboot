@@ -32,7 +32,7 @@ static size_t stream_file_write(struct stream_t * stream, const void * buf, size
 	return fwrite(buf, size, count, stream->priv);
 }
 
-static bool_t stream_file_seek(struct stream_t * stream, loff_t offset, enum stream_seek whence)
+static bool_t stream_file_seek(struct stream_t * stream, loff_t offset, enum stream_seek_t whence)
 {
 	int flag;
 
@@ -111,7 +111,7 @@ size_t stream_write(struct stream_t * stream, const void * buf, size_t size, siz
 	return 0;
 }
 
-bool_t stream_seek(struct stream_t * stream, loff_t offset, enum stream_seek whence)
+bool_t stream_seek(struct stream_t * stream, loff_t offset, enum stream_seek_t whence)
 {
 	if(stream)
 		return stream->seek(stream, offset, whence);

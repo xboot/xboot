@@ -174,7 +174,7 @@ static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc clk_proc = {
+static struct proc_t clk_proc = {
 	.name	= "clk",
 	.read	= clk_proc_read,
 };

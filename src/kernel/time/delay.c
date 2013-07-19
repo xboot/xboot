@@ -155,7 +155,7 @@ static s32_t bogomips_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc bogomips_proc = {
+static struct proc_t bogomips_proc = {
 	.name	= "bogomips",
 	.read	= bogomips_proc_read,
 };

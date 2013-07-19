@@ -215,7 +215,7 @@ static s32_t interrupt_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	return len;
 }
 
-static struct proc interrupt_proc = {
+static struct proc_t interrupt_proc = {
 	.name	= "interrupt",
 	.read	= interrupt_proc_read,
 };

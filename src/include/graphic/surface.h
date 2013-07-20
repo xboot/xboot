@@ -19,6 +19,12 @@ enum surface_pixels_t {
 	SURFACE_PIXELS_DONTFREE	= 0x1,
 };
 
+enum surface_state_t {
+	SURFACE_STATE_FREED		= 0x0,
+	SURFACE_STATE_READY		= 0x1,
+	SURFACE_STATE_ACTIVE	= 0x2,
+};
+
 /*
  * The GIMP c-source image
  */
@@ -62,6 +68,9 @@ struct surface_t {
 
 	/* surface map functions */
 	struct surface_maps_t maps;
+
+	/* surface state */
+	enum surface_state_t state;
 
 	/* private data */
 	void * priv;

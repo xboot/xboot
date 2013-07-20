@@ -44,7 +44,7 @@
 /*
  * video ram double buffer for lcd.
  */
-static u8_t vram[2][LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
+static u8_t vram[3][LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
 
 static struct fb_info_t info = {
 	.name						= "fb",
@@ -132,6 +132,36 @@ static void fb_flush(struct fb_t * fb)
 	writel(REALVIEW_CLCD_LBAS, ((u32_t)fb->info->surface.pixels + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
 }
 
+static void fb_present(struct fb_t * fb)
+{
+	struct surface_t * osurface;
+	int oindex;
+	struct surface_t * next;
+	int i;
+
+	oindex = fb->info->index;
+	osurface = fb->info->__surface[oindex];
+	osurface->state = SURFACE_STATE_FREED;
+
+	for(i = 0; i < 2; i++)
+	{
+		fb->info->index = (fb->info->index + 1) % 3;
+		next = fb->info->__surface[fb->info->index];
+		if(next->state == SURFACE_STATE_READY)
+			break;
+	}
+
+	if(i >= 2)
+	{
+		fb->info->index = oindex;
+		next = osurface;
+	}
+
+	next->state = SURFACE_STATE_ACTIVE;
+	writel(REALVIEW_CLCD_UBAS, ((u32_t)next->pixels));
+	writel(REALVIEW_CLCD_LBAS, ((u32_t)next->pixels + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
+}
+
 static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 {
 	static u8_t brightness = 0;
@@ -162,12 +192,17 @@ static struct fb_t realview_fb = {
 	.exit			= fb_exit,
 	.swap			= fb_swap,
 	.flush			= fb_flush,
+	.present		= fb_present,
 	.ioctl			= fb_ioctl,
 	.priv			= NULL,
 };
 
 static __init void realview_fb_init(void)
 {
+	info.__surface[0] = surface_alloc(&vram[0][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_ARGB_8888);
+	info.__surface[1] = surface_alloc(&vram[1][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_ARGB_8888);
+	info.__surface[2] = surface_alloc(&vram[2][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_ARGB_8888);
+
 	if(register_framebuffer(&realview_fb))
 		LOG("Register framebuffer driver '%s'", realview_fb.info->name);
 	else

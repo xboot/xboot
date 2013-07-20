@@ -16,6 +16,12 @@ struct fb_info_t
 	/* the framebuffer name. */
 	const char * name;
 
+	/* current surface index */
+	int index;
+
+	/* the framebuffer's surface - triple buffering */
+	struct surface_t * __surface[3];
+
 	/* the framebuffer's surface */
 	struct surface_t surface;
 };
@@ -39,6 +45,9 @@ struct fb_t
 
 	/* flush framebuffer */
 	void (*flush)(struct fb_t * fb);
+
+	/* present framebuffer */
+	void (*present)(struct fb_t * fb);
 
 	/* ioctl framebuffer */
 	int (*ioctl)(struct fb_t * fb, int cmd, void * arg);

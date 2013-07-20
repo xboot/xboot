@@ -14,7 +14,7 @@ extern "C" {
 struct surface_t;
 struct surface_maps_t;
 
-enum surface_pixels {
+enum surface_pixels_t {
 	SURFACE_PIXELS_NEEDFREE	= 0x0,
 	SURFACE_PIXELS_DONTFREE	= 0x1,
 };
@@ -52,7 +52,7 @@ struct surface_t {
 	u32_t pitch;
 
 	/* surface pixels flag */
-	enum surface_pixels flag;
+	enum surface_pixels_t flag;
 
 	/* pointer to pixel data */
 	void * pixels;

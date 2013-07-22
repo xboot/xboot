@@ -47,6 +47,7 @@ struct cairo_xboot_surface_t {
 	cairo_surface_t * cs;
 };
 
+#if 0
 static cairo_format_t cairo_format_from_pixel_format (enum pixel_format_t fmt)
 {
 	switch(fmt)
@@ -66,7 +67,7 @@ static cairo_format_t cairo_format_from_pixel_format (enum pixel_format_t fmt)
 
 	return CAIRO_FORMAT_INVALID;
 }
-
+#endif
 static void cairo_xboot_surface_destroy (void * data)
 {
 	struct cairo_xboot_surface_t * cxs = (struct cairo_xboot_surface_t *) data;
@@ -89,6 +90,7 @@ cairo_xboot_surface_create (struct surface_t * surface)
 	if (!cxs)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
+/*
 	cxs->pixels = surface->pixels;
 	cxs->width = surface->w;
 	cxs->height = surface->h;
@@ -98,6 +100,7 @@ cairo_xboot_surface_create (struct surface_t * surface)
 	cxs->cs = cairo_image_surface_create_for_data(cxs->pixels, cxs->fmt, cxs->width,
 			cxs->height, cairo_format_stride_for_width(cxs->fmt, surface->w));
 	cairo_surface_set_user_data(cxs->cs, NULL, cxs, &cairo_xboot_surface_destroy);
+*/
 
 	return cxs->cs;
 }

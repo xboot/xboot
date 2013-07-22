@@ -23,7 +23,7 @@
 #include <xboot/module.h>
 #include <stdlib.h>
 #include <string.h>
-#include <color.h>
+#include <fb/color.h>
 
 #define RGB_COLOR(red, green, blue)		{.r = red, .g = green, .b = blue, .a = 255}
 

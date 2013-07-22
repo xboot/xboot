@@ -27,7 +27,6 @@
 #include <console/console.h>
 #include <input/keyboard/keyboard.h>
 #include <fb/fb.h>
-#include <graphic/surface.h>
 #include <init.h>
 
 /*

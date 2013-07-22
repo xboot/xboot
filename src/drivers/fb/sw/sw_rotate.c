@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/maps/software/sw_point.c
+ * drivers/fb/sw/sw_rotate.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,44 +20,9 @@
  *
  */
 
-#include <graphic/maps/software.h>
+#include <fb/sw/sw.h>
 
-bool_t map_software_point(struct surface_t * surface, s32_t x, s32_t y, u32_t c, enum blend_mode_t mode)
+struct texture_t * render_sw_rotate(struct render_t * render, struct rect_t * rect, u32_t angle)
 {
-	s32_t minx, miny;
-	s32_t maxx, maxy;
-
-	if (!surface)
-		return FALSE;
-
-	if (!surface->pixels)
-		return FALSE;
-
-	if (surface->info.bits_per_pixel < 8)
-		return FALSE;
-
-	minx = surface->clip.x;
-	maxx = surface->clip.x + surface->clip.w - 1;
-	miny = surface->clip.y;
-	maxy = surface->clip.y + surface->clip.h - 1;
-
-	if (x < minx || x > maxx || y < miny || y > maxy)
-	{
-		return TRUE;
-	}
-
-	if(mode == BLEND_MODE_REPLACE)
-	{
-		surface_sw_set_pixel(surface, x, y, c);
-	}
-	else if(mode == BLEND_MODE_ALPHA)
-	{
-		surface_sw_set_pixel_with_alpha(surface, x, y, c);
-	}
-	else
-	{
-		return FALSE;
-	}
-
-	return TRUE;
+	return NULL;
 }

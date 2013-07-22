@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/maps/software/sw_vline.c
+ * drivers/fb/sw/sw_scale.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,9 +20,9 @@
  *
  */
 
-#include <graphic/maps/software.h>
+#include <fb/sw/sw.h>
 
-bool_t map_software_vline(struct surface_t * surface, s32_t x0, s32_t y0, u32_t y1, u32_t c, enum blend_mode_t mode)
+struct texture_t * render_sw_scale(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h)
 {
-	return FALSE;
+	return NULL;
 }

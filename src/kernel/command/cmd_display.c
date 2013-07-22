@@ -32,6 +32,7 @@
 #include <fs/fileio.h>
 #include <fb/fb.h>
 
+#undef CONFIG_COMMAND_DISPLAY
 #if	defined(CONFIG_COMMAND_DISPLAY) && (CONFIG_COMMAND_DISPLAY > 0)
 
 static int display(int argc, char ** argv)

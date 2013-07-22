@@ -41,57 +41,6 @@
 #define	REGS_TIM2		( (1<<26) | ((LCD_WIDTH/16-1)<<16) | (1<<5) | (1<<0) )
 #define	REGS_TIM3		( (0<<0) )
 
-/*
- * video ram double buffer for lcd.
- */
-static u8_t vram[3][LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8] __attribute__((aligned(4)));
-
-static struct fb_info_t info = {
-	.name						= "fb",
-
-	.surface = {
-		.info = {
-			.bits_per_pixel		= LCD_BPP,
-			.bytes_per_pixel	= LCD_BPP / 8,
-
-			.red_mask_size		= 8,
-			.red_field_pos		= 16,
-			.green_mask_size	= 8,
-			.green_field_pos	= 8,
-			.blue_mask_size		= 8,
-			.blue_field_pos		= 0,
-			.alpha_mask_size	= 8,
-			.alpha_field_pos	= 24,
-
-			.fmt				= PIXEL_FORMAT_ARGB_8888,
-		},
-
-		.w						= LCD_WIDTH,
-		.h						= LCD_HEIGHT,
-		.pitch					= LCD_WIDTH * LCD_BPP / 8,
-		.flag					= SURFACE_PIXELS_DONTFREE,
-		.pixels					= &vram[0][0],
-
-		.clip = {
-			.x					= 0,
-			.y					= 0,
-			.w					= LCD_WIDTH,
-			.h					= LCD_HEIGHT,
-		},
-
-		.maps = {
-			.point				= map_software_point,
-			.hline				= map_software_hline,
-			.vline				= map_software_vline,
-			.fill				= map_software_fill,
-			.blit				= map_software_blit,
-			.scale				= map_software_scale,
-			.rotate				= map_software_rotate,
-			.transform			= map_software_transform,
-		},
-	},
-};
-
 static void fb_init(struct fb_t * fb)
 {
 	/* initial lcd controller */
@@ -99,9 +48,6 @@ static void fb_init(struct fb_t * fb)
 	writel(REALVIEW_CLCD_TIM1, REGS_TIM1);
 	writel(REALVIEW_CLCD_TIM2, REGS_TIM2);
 	writel(REALVIEW_CLCD_TIM3, REGS_TIM3);
-
-	writel(REALVIEW_CLCD_UBAS, ((u32_t)fb->info->surface.pixels));
-	writel(REALVIEW_CLCD_LBAS, ((u32_t)fb->info->surface.pixels + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
 
 	/* disable all lcd interrupts */
 	writel(REALVIEW_CLCD_IMSC, 0x0);
@@ -118,48 +64,56 @@ static void fb_exit(struct fb_t * fb)
 	return;
 }
 
-static void fb_swap(struct fb_t * fb)
+struct render_t * fb_create(struct fb_t * fb)
 {
-	static u8_t vram_index = 0;
+	struct render_t * render;
+	void * pixels;
 
-	vram_index = (vram_index + 1) & 0x1;
-	fb->info->surface.pixels = &vram[vram_index][0];
-}
+	pixels = memalign(4, LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8);
+	if(!pixels)
+		return NULL;
 
-static void fb_flush(struct fb_t * fb)
-{
-	writel(REALVIEW_CLCD_UBAS, ((u32_t)fb->info->surface.pixels));
-	writel(REALVIEW_CLCD_LBAS, ((u32_t)fb->info->surface.pixels + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
-}
-
-static void fb_present(struct fb_t * fb)
-{
-	struct surface_t * osurface;
-	int oindex;
-	struct surface_t * next;
-	int i;
-
-	oindex = fb->info->index;
-	osurface = fb->info->__surface[oindex];
-	osurface->state = SURFACE_STATE_FREED;
-
-	for(i = 0; i < 2; i++)
+	render = malloc(sizeof(struct render_t));
+	if(!render)
 	{
-		fb->info->index = (fb->info->index + 1) % 3;
-		next = fb->info->__surface[fb->info->index];
-		if(next->state == SURFACE_STATE_READY)
-			break;
+		free(pixels);
+		return NULL;
 	}
 
-	if(i >= 2)
-	{
-		fb->info->index = oindex;
-		next = osurface;
-	}
+	render->width = LCD_WIDTH;
+	render->height = LCD_HEIGHT;
+	render->pitch = (LCD_WIDTH * 4 + 0x3) & ~0x3;
+	render->format = PIXEL_FORMAT_ARGB32;
+	render->pixels = pixels;
+	render->alloc = render_sw_alloc;
+	render->free = render_sw_free;
+	render->fill = render_sw_fill;
+	render->blit = render_sw_blit;
+	render->scale = render_sw_scale;
+	render->rotate = render_sw_rotate;
 
-	next->state = SURFACE_STATE_ACTIVE;
-	writel(REALVIEW_CLCD_UBAS, ((u32_t)next->pixels));
-	writel(REALVIEW_CLCD_LBAS, ((u32_t)next->pixels + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
+	return render;
+}
+
+void fb_destroy(struct fb_t * fb, struct render_t * render)
+{
+	if(render)
+	{
+		if(render->pixels)
+			free(render->pixels);
+		free(render);
+	}
+}
+
+void fb_present(struct fb_t * fb, struct render_t * render)
+{
+	void * pixels = render->pixels;
+
+	if(pixels)
+	{
+		writel(REALVIEW_CLCD_UBAS, ((u32_t)pixels));
+		writel(REALVIEW_CLCD_LBAS, ((u32_t)pixels + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
+	}
 }
 
 static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
@@ -187,34 +141,29 @@ static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 }
 
 static struct fb_t realview_fb = {
-	.info			= &info,
-	.init			= fb_init,
-	.exit			= fb_exit,
-	.swap			= fb_swap,
-	.flush			= fb_flush,
-	.present		= fb_present,
-	.ioctl			= fb_ioctl,
-	.priv			= NULL,
+	.name		= "fb0",
+	.init		= fb_init,
+	.exit		= fb_exit,
+	.create		= fb_create,
+	.destroy	= fb_destroy,
+	.present	= fb_present,
+	.ioctl		= fb_ioctl,
 };
 
 static __init void realview_fb_init(void)
 {
-	info.__surface[0] = surface_alloc(&vram[0][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_ARGB_8888);
-	info.__surface[1] = surface_alloc(&vram[1][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_ARGB_8888);
-	info.__surface[2] = surface_alloc(&vram[2][0], LCD_WIDTH, LCD_HEIGHT, PIXEL_FORMAT_ARGB_8888);
-
 	if(register_framebuffer(&realview_fb))
-		LOG("Register framebuffer driver '%s'", realview_fb.info->name);
+		LOG("Register framebuffer driver '%s'", realview_fb.name);
 	else
-		LOG("Failed to register framebuffer driver '%s'", realview_fb.info->name);
+		LOG("Failed to register framebuffer driver '%s'", realview_fb.name);
 }
 
 static __exit void realview_fb_exit(void)
 {
 	if(unregister_framebuffer(&realview_fb))
-		LOG("Unregister framebuffer driver '%s'", realview_fb.info->name);
+		LOG("Unregister framebuffer driver '%s'", realview_fb.name);
 	else
-		LOG("Failed to unregister framebuffer driver '%s'", realview_fb.info->name);
+		LOG("Failed to unregister framebuffer driver '%s'", realview_fb.name);
 }
 
 device_initcall(realview_fb_init);

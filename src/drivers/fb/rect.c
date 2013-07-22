@@ -21,7 +21,7 @@
  */
 
 #include <xboot/module.h>
-#include <rect.h>
+#include <fb/rect.h>
 
 /*
  * Returns true if the rectangle has no area.

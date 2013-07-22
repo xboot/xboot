@@ -7,10 +7,11 @@ extern "C" {
 
 #include <xboot.h>
 #include <fb/fb.h>
-#include <graphic/surface.h>
 
+/*
 bool_t display_logo(struct fb_t * fb);
 bool_t register_logo(const struct gimage_t * logo);
+*/
 
 #ifdef __cplusplus
 }

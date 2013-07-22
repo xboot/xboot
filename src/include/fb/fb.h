@@ -6,33 +6,13 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <graphic/surface.h>
+#include <fb/render.h>
+#include <fb/sw/sw.h>
 
-/*
- * defined the structure of framebuffer information.
- */
-struct fb_info_t
-{
-	/* the framebuffer name. */
-	const char * name;
-
-	/* current surface index */
-	int index;
-
-	/* the framebuffer's surface - triple buffering */
-	struct surface_t * __surface[3];
-
-	/* the framebuffer's surface */
-	struct surface_t surface;
-};
-
-/*
- * defined the structure of framebuffer.
- */
 struct fb_t
 {
-	/* the framebuffer information */
-	struct fb_info_t * info;
+	/* device name */
+	const char * name;
 
 	/* initialize the framebuffer */
 	void (*init)(struct fb_t * fb);
@@ -40,20 +20,20 @@ struct fb_t
 	/* clean up the framebuffer */
 	void (*exit)(struct fb_t * fb);
 
-	/* swap framebuffer */
-	void (*swap)(struct fb_t * fb);
+	/* create a render */
+	struct render_t * (*create)(struct fb_t * fb);
 
-	/* flush framebuffer */
-	void (*flush)(struct fb_t * fb);
+	/* destroy a render */
+	void (*destroy)(struct fb_t * fb, struct render_t * render);
 
-	/* present framebuffer */
-	void (*present)(struct fb_t * fb);
+	/* present a render */
+	void (*present)(struct fb_t * fb, struct render_t * render);
 
 	/* ioctl framebuffer */
 	int (*ioctl)(struct fb_t * fb, int cmd, void * arg);
 
-	/* private data */
-	void * priv;
+	/* alone render - create by register */
+	struct render_t * alone;
 };
 
 struct fb_t * get_default_framebuffer(void);

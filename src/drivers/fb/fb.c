@@ -30,6 +30,7 @@
 #include <console/console.h>
 #include <fb/logo.h>
 #include <fb/helper.h>
+#include <fb/color.h>
 #include <fb/fb.h>
 
 static struct fb_t * default_framebuffer = NULL;
@@ -367,16 +368,7 @@ static int fb_open(struct chrdev_t * dev)
  */
 static ssize_t fb_read(struct chrdev_t * dev, u8_t * buf, size_t count)
 {
-	struct fb_t * fb = (struct fb_t *)(dev->driver);
-	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
-	ssize_t i;
-
-	for(i = 0; i < count; i++)
-	{
-		buf[i] = p[i];
-	}
-
-	return i;
+	return 0;
 }
 
 /*
@@ -384,16 +376,7 @@ static ssize_t fb_read(struct chrdev_t * dev, u8_t * buf, size_t count)
  */
 static ssize_t fb_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
 {
-	struct fb_t * fb = (struct fb_t *)(dev->driver);
-	u8_t * p = (u8_t *)((u32_t)(fb->info->surface.pixels));
-	ssize_t i;
-
-	for(i = 0; i < count; i++)
-	{
-		p[i] = buf[i];
-	}
-
-	return i;
+	return 0;
 }
 
 /*
@@ -638,8 +621,8 @@ static bool_t fbcon_scrollup(struct console_t * console)
 		p++;
 	}
 
-	fb_blit(info->fb, &info->fb->info->surface, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
-	fb_fill_rect(info->fb, info->bc, 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
+//xxx	fb_blit(info->fb, &info->fb->info->surface, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
+//xxx	fb_fill_rect(info->fb, info->bc, 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
 	fbcon_gotoxy(console, info->x, info->y - 1);
 
 	return TRUE;
@@ -800,16 +783,14 @@ bool_t register_framebuffer(struct fb_t * fb)
 	struct color_t col;
 	u8_t brightness;
 
-	if(!fb || !fb->info || !fb->info->name)
+	if(!fb || !fb->name)
 		return FALSE;
-
-	surface_set_maps(&fb->info->surface.maps);
 
 	dev = malloc(sizeof(struct chrdev_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name		= fb->info->name;
+	dev->name		= fb->name;
 	dev->type		= CHR_DEV_FRAMEBUFFER;
 	dev->open 		= fb_open;
 	dev->read 		= fb_read;
@@ -834,7 +815,13 @@ bool_t register_framebuffer(struct fb_t * fb)
 	if(fb->init)
 		(fb->init)(fb);
 
-	display_logo(fb);
+	if(fb->create)
+		fb->alone = (fb->create)(fb);
+
+	if(fb->present)
+		fb->present(fb, fb->alone);
+
+//	display_logo(fb);
 
 	if(fb->ioctl)
 	{
@@ -859,12 +846,12 @@ bool_t register_framebuffer(struct fb_t * fb)
 		return FALSE;
 	}
 
-	info->name = (char *)fb->info->name;
+	info->name = (char *)fb->name;
 	info->fb = fb;
 	info->fw = 8;
 	info->fh = 16;
-	info->w = fb->info->surface.w / info->fw;
-	info->h = fb->info->surface.h / info->fh;
+	info->w = fb->alone->width / info->fw;
+	info->h = fb->alone->height / info->fh;
 	info->x = 0;
 	info->y = 0;
 	info->f = TCOLOR_WHITE;
@@ -925,14 +912,14 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	struct fb_t * driver;
 	u8_t brightness;
 
-	if(!fb || !fb->info || !fb->info->name)
+	if(!fb || !fb->name)
 		return FALSE;
 
-	dev = search_chrdev_with_type(fb->info->name, CHR_DEV_FRAMEBUFFER);
+	dev = search_chrdev_with_type(fb->name, CHR_DEV_FRAMEBUFFER);
 	if(!dev)
 		return FALSE;
 
-	console = search_console((char *)fb->info->name);
+	console = search_console((char *)fb->name);
 	if(console)
 		info = (struct fb_console_info_t *)console->priv;
 	else

@@ -20,6 +20,7 @@
  *
  */
 
+#if 0
 #include <xboot.h>
 #include <fb/logo.h>
 
@@ -1759,3 +1760,4 @@ static __init void realview_logo_init(void)
 		LOG("Failed to register default logo");
 }
 core_initcall(realview_logo_init);
+#endif

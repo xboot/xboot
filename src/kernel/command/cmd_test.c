@@ -40,8 +40,8 @@
 #include <fs/fileio.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
-#include <graphic/surface.h>
 
+#undef CONFIG_COMMAND_TEST
 #if	defined(CONFIG_COMMAND_TEST) && (CONFIG_COMMAND_TEST > 0)
 #include "pixman.h"
 #include <cairo.h>

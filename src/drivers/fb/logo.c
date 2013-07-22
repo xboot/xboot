@@ -24,6 +24,7 @@
 #include <fb/fb.h>
 #include <fb/logo.h>
 
+#if 0
 /*
  * logo for xboot
  */
@@ -9600,6 +9601,7 @@ static const struct gimage_t watermark = {
 
 bool_t display_logo(struct fb_t * fb)
 {
+#if 0
 	struct surface_t * logo;
 	struct surface_t * mark;
 	struct rect_t rect;
@@ -9652,7 +9654,7 @@ bool_t display_logo(struct fb_t * fb)
 		surface_blit(&(fb->info->surface), &rect, mark, &(mark->clip), BLEND_MODE_ALPHA);
 		surface_free(mark);
 	}
-
+#endif
 	return TRUE;
 }
 
@@ -9672,3 +9674,5 @@ bool_t register_logo(const struct gimage_t * logo)
 		return FALSE;
 	}
 }
+
+#endif

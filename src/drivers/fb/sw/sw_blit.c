@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/maps/software/sw_hline.c
+ * drivers/fb/sw/sw_blit.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,9 +20,9 @@
  *
  */
 
-#include <graphic/maps/software.h>
+#include <fb/sw/sw.h>
 
-bool_t map_software_hline(struct surface_t * surface, s32_t x0, s32_t y0, u32_t x1, u32_t c, enum blend_mode_t mode)
+void render_sw_blit(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect)
 {
-	return FALSE;
+
 }

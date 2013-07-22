@@ -8,7 +8,7 @@ extern "C" {
 #include <xboot.h>
 #include <fb/fb.h>
 #include <fb/font.h>
-#include <graphic/surface.h>
+#include <fb/color.h>
 
 u32_t fb_map_color(struct fb_t * fb, struct color_t * col);
 bool_t fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h);

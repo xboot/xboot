@@ -20,11 +20,12 @@
  *
  */
 
+#include <fb/rect.h>
 #include <fb/helper.h>
 
 u32_t fb_map_color(struct fb_t * fb, struct color_t * col)
 {
-	return surface_map_color(&(fb->info->surface), col);
+//xxx	return surface_map_color(&(fb->info->surface), col);
 }
 
 bool_t fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
@@ -36,11 +37,11 @@ bool_t fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t 
 	rect.w = w;
 	rect.h = h;
 
-	surface_set_clip_rect(&(fb->info->surface), NULL);
-	return surface_fill(&(fb->info->surface), &rect, c, BLEND_MODE_REPLACE);
+//	surface_set_clip_rect(&(fb->info->surface), NULL);
+//	return surface_fill(&(fb->info->surface), &rect, c, BLEND_MODE_REPLACE);
 }
 
-bool_t fb_blit(struct fb_t * fb, struct surface_t * surface, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
+/*bool_t fb_blit(struct fb_t * fb, struct surface_t * surface, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
 	struct rect_t dst_rect, src_rect;
 
@@ -54,21 +55,21 @@ bool_t fb_blit(struct fb_t * fb, struct surface_t * surface, u32_t x, u32_t y, u
 	src_rect.w = w;
 	src_rect.h = h;
 
-	surface_set_clip_rect(&(fb->info->surface), NULL);
-	return surface_blit(&(fb->info->surface), &dst_rect, surface, &src_rect, BLEND_MODE_REPLACE);
-}
+//	surface_set_clip_rect(&(fb->info->surface), NULL);
+//	return surface_blit(&(fb->info->surface), &dst_rect, surface, &src_rect, BLEND_MODE_REPLACE);
+}*/
 
 bool_t fb_putcode(struct fb_t * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y)
 {
 	struct surface_t * face;
 	bool_t ret;
 
-	face = surface_alloc_from_gimage(lookup_console_font_face(code, fc, bc));
+//	face = surface_alloc_from_gimage(lookup_console_font_face(code, fc, bc));
 	if(!face)
 		return FALSE;
 
-	ret = fb_blit(fb, face, x, y, face->w, face->h, 0, 0);
-	surface_free(face);
+//	ret = fb_blit(fb, face, x, y, face->w, face->h, 0, 0);
+//	surface_free(face);
 
 	return ret;
 }

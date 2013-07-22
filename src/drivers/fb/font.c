@@ -2904,6 +2904,7 @@ static u8_t * unkown_font_glyph_data(u32_t code)
 	return &data[0];
 }
 
+#if 0
 struct gimage_t * lookup_console_font_face(u32_t code, u32_t fc, u32_t bc)
 {
 	static u8_t font_pixels[16 * 16 * 4] __attribute__((aligned(4)));
@@ -2948,3 +2949,5 @@ struct gimage_t * lookup_console_font_face(u32_t code, u32_t fc, u32_t bc)
 
 	return &font_face;
 }
+
+#endif

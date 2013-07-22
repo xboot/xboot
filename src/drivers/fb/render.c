@@ -78,10 +78,17 @@ void render_unmap_color(struct render_t * render, u32_t c, struct color_t * col)
 		return;
 }
 
-struct texture_t * render_texture_alloc(struct render_t * render, u32_t w, u32_t h)
+struct texture_t * render_texture_alloc(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format)
 {
 	if(render)
-		return render->alloc(render, w, h);
+		return render->alloc(render, pixels, w, h, format);
+	return NULL;
+}
+
+struct texture_t * render_texture_alloc_similar(struct render_t * render, u32_t w, u32_t h)
+{
+	if(render)
+		return render->alloc_similar(render, w, h);
 	return NULL;
 }
 

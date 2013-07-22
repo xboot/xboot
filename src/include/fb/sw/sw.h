@@ -13,7 +13,7 @@ pixman_format_code_t pixel_format_to_pixman_format_code(enum pixel_format_t form
 
 void render_sw_create_priv_data(struct render_t * render);
 void render_sw_destroy_priv_data(struct render_t * render);
-struct texture_t * render_sw_texture_alloc(struct render_t * render, u32_t w, u32_t h);
+struct texture_t * render_sw_texture_alloc(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
 struct texture_t * render_sw_texture_alloc_similar(struct render_t * render, u32_t w, u32_t h);
 void render_sw_texture_free(struct render_t * render, struct texture_t * texture);
 

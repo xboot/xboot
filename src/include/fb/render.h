@@ -55,9 +55,14 @@ struct render_t {
 	/* pixel data */
 	void * pixels;
 
+	/* private data */
+	void * priv;
+
 	/* functions ... */
 	struct texture_t * (*alloc)(struct render_t * render, u32_t w, u32_t h);
-	void (*free)(struct texture_t * texture);
+	struct texture_t * (*alloc_similar)(struct render_t * render, u32_t w, u32_t h);
+	void (*free)(struct render_t * render, struct texture_t * texture);
+
 	void (*fill)(struct render_t * render, struct rect_t * rect, u32_t c);
 	void (*blit)(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
 	struct texture_t * (*scale)(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h);
@@ -66,6 +71,8 @@ struct render_t {
 
 u32_t render_map_color(struct render_t * render , struct color_t * col);
 void render_unmap_color(struct render_t * render, u32_t c, struct color_t * col);
+struct texture_t * render_texture_alloc(struct render_t * render, u32_t w, u32_t h);
+void render_texture_free(struct render_t * render, struct texture_t * texture);
 void render_fill(struct render_t * render, struct rect_t * rect, u32_t c);
 void render_blit(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
 struct texture_t * render_scale(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h);

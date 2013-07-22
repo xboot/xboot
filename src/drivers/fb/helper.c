@@ -20,15 +20,14 @@
  *
  */
 
-#include <fb/rect.h>
 #include <fb/helper.h>
 
 u32_t fb_map_color(struct fb_t * fb, struct color_t * col)
 {
-//xxx	return surface_map_color(&(fb->info->surface), col);
+	return render_map_color(fb->alone, col);
 }
 
-bool_t fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
+void fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
 	struct rect_t rect;
 
@@ -37,39 +36,30 @@ bool_t fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t 
 	rect.w = w;
 	rect.h = h;
 
-//	surface_set_clip_rect(&(fb->info->surface), NULL);
-//	return surface_fill(&(fb->info->surface), &rect, c, BLEND_MODE_REPLACE);
+	render_fill(fb->alone, &rect, c);
 }
 
-/*bool_t fb_blit(struct fb_t * fb, struct surface_t * surface, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
+void fb_blit(struct fb_t * fb, struct texture_t * texture, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
 {
-	struct rect_t dst_rect, src_rect;
+	struct rect_t drect, srect;
 
-	dst_rect.x = x;
-	dst_rect.y = y;
-	dst_rect.w = w;
-	dst_rect.h = h;
+	drect.x = x;
+	drect.y = y;
+	drect.w = w;
+	drect.h = h;
 
-	src_rect.x = ox;
-	src_rect.y = oy;
-	src_rect.w = w;
-	src_rect.h = h;
+	srect.x = ox;
+	srect.y = oy;
+	srect.w = w;
+	srect.h = h;
 
-//	surface_set_clip_rect(&(fb->info->surface), NULL);
-//	return surface_blit(&(fb->info->surface), &dst_rect, surface, &src_rect, BLEND_MODE_REPLACE);
-}*/
+	render_blit(fb->alone, &drect, texture, &srect);
+}
 
-bool_t fb_putcode(struct fb_t * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y)
+void fb_putcode(struct fb_t * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y)
 {
-	struct surface_t * face;
-	bool_t ret;
+	struct texture_t * face = lookup_console_font_face(code, fc, bc);
 
-//	face = surface_alloc_from_gimage(lookup_console_font_face(code, fc, bc));
-	if(!face)
-		return FALSE;
-
-//	ret = fb_blit(fb, face, x, y, face->w, face->h, 0, 0);
-//	surface_free(face);
-
-	return ret;
+	if(face)
+		fb_blit(fb, face, x, y, face->width, face->height, 0, 0);
 }

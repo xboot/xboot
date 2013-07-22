@@ -622,7 +622,7 @@ static bool_t fbcon_scrollup(struct console_t * console)
 	}
 
 //xxx	fb_blit(info->fb, &info->fb->info->surface, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
-//xxx	fb_fill_rect(info->fb, info->bc, 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
+	fb_fill_rect(info->fb, info->bc, 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
 	fbcon_gotoxy(console, info->x, info->y - 1);
 
 	return TRUE;

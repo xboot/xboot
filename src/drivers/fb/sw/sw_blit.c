@@ -22,7 +22,106 @@
 
 #include <fb/sw/sw.h>
 
+void sw_blit_replace(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect)
+{
+//	switch (dst->info.fmt)
+}
+
 void render_sw_blit(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect)
 {
+	struct rect_t dr, sr, clip;
+	s32_t x, y, w, h;
+	s32_t maxw, maxh;
+	s32_t dx, dy;
 
+	if(!render || !texture)
+		return;
+
+	clip.x = 0;
+	clip.y = 0;
+	clip.w = render->width;
+	clip.h = render->height;
+
+	if(!drect)
+	{
+		dr.x = 0;
+		dr.y = 0;
+		dr.w = render->width;
+		dr.h = render->height;
+	}
+	else
+	{
+		dr.x = drect->x;
+		dr.y = drect->y;
+		dr.w = drect->w;
+		dr.h = drect->h;
+	}
+
+	if (srect)
+	{
+		x = srect->x;
+		w = srect->w;
+		if (x < 0)
+		{
+			w += x;
+			dr.x -= x;
+			x = 0;
+		}
+		maxw = texture->width - x;
+		if (maxw < w)
+			w = maxw;
+
+		y = srect->y;
+		h = srect->h;
+		if (y < 0)
+		{
+			h += y;
+			dr.y -= y;
+			y = 0;
+		}
+		maxh = texture->height - y;
+		if (maxh < h)
+			h = maxh;
+	}
+	else
+	{
+		x = 0;
+		y = 0;
+		w = texture->width;
+		h = texture->height;
+	}
+
+	{
+		dx = clip.x - dr.x;
+		if (dx > 0)
+		{
+			w -= dx;
+			dr.x += dx;
+			x += dx;
+		}
+		dx = dr.x + w - clip.x - clip.w;
+		if (dx > 0)
+			w -= dx;
+
+		dy = clip.y - dr.y;
+		if (dy > 0)
+		{
+			h -= dy;
+			dr.y += dy;
+			y += dy;
+		}
+		dy = dr.y + h - clip.y - clip.h;
+		if (dy > 0)
+			h -= dy;
+	}
+
+	if (w > 0 && h > 0)
+	{
+		sr.x = x;
+		sr.y = y;
+		sr.w = dr.w = w;
+		sr.h = dr.h = h;
+
+		sw_blit_replace(render, &dr, texture, &sr);
+	}
 }

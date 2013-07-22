@@ -24,12 +24,71 @@
 
 u32_t render_map_color(struct render_t * render , struct color_t * col)
 {
-	return 0;
+	u8_t r = col->r;
+	u8_t g = col->g;
+	u8_t b = col->b;
+	u8_t a = col->a;
+	u32_t c = 0;
+
+	if(!render)
+		return 0;
+
+	switch(render->format)
+	{
+	case PIXEL_FORMAT_ARGB32:
+		c = r << 16;
+		c |= g << 8;
+		c |= b << 0;
+		c |= a << 24;
+		break;
+
+	case PIXEL_FORMAT_RGB24:
+		c = r << 16;
+		c |= g << 8;
+		c |= b << 0;
+		break;
+
+	case PIXEL_FORMAT_A8:
+		c = a;
+		break;
+
+	case PIXEL_FORMAT_A1:
+		c = a ? 1 : 0;
+		break;
+
+	case PIXEL_FORMAT_RGB16_565:
+		r >>= 8 - 5;
+		g >>= 8 - 6;
+		b >>= 8 - 5;
+		c = r << 11;
+		c |= g << 5;
+		c |= b << 0;
+		break;
+
+	default:
+		break;
+	}
+
+	return c;
 }
 
 void render_unmap_color(struct render_t * render, u32_t c, struct color_t * col)
 {
+	if(!render)
+		return;
+}
 
+struct texture_t * render_texture_alloc(struct render_t * render, u32_t w, u32_t h)
+{
+	if(render)
+		return render->alloc(render, w, h);
+	return NULL;
+}
+
+void render_texture_free(struct render_t * render, struct texture_t * texture)
+{
+	if(render)
+		render->free(render, texture);
 }
 
 void render_fill(struct render_t * render, struct rect_t * rect, u32_t c)

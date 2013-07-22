@@ -22,10 +22,11 @@
 
 #include <fb/sw/sw.h>
 
-struct texture_t * render_sw_alloc(struct render_t * render, u32_t w, u32_t h)
+struct texture_t * render_sw_texture_alloc(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format)
 {
 	struct texture_t * texture;
-	u32_t pitch, size;
+	pixman_image_t * img;
+	u32_t pitch;
 
 	if(!render)
 		return NULL;
@@ -37,7 +38,7 @@ struct texture_t * render_sw_alloc(struct render_t * render, u32_t w, u32_t h)
 	if(! texture)
 		return NULL;
 
-	switch(render->format)
+	switch(format)
 	{
 	case PIXEL_FORMAT_ARGB32:
 		pitch = w * 4;
@@ -54,36 +55,42 @@ struct texture_t * render_sw_alloc(struct render_t * render, u32_t w, u32_t h)
 	case PIXEL_FORMAT_RGB16_565:
 		pitch = w * 2;
 		break;
+	case PIXEL_FORMAT_RGB30:
+		pitch = w * 4;
+		break;
 	default:
 		pitch = w * 4;
 		break;
 	}
 	pitch = (pitch + 0x3) & ~0x3;
 
-	texture->width = w;
-	texture->height = h;
-	texture->pitch = pitch;
-	texture->format = render->format;
-	texture->priv = render;
-
-	size = texture->height * pitch;
-	texture->pixels = malloc(size);
-	if (!texture->pixels)
+	img = pixman_image_create_bits_no_clear(pixel_format_to_pixman_format_code(format), w, h, pixels, pitch);
+	if(!img)
 	{
 		free(texture);
 		return NULL;
 	}
 
+	texture->width = w;
+	texture->height = h;
+	texture->pitch = pitch;
+	texture->format = format;
+	texture->pixels = pixman_image_get_data(img);
+	texture->priv = img;
+
 	return texture;
 }
 
-void render_sw_free(struct texture_t * texture)
+struct texture_t * render_sw_texture_alloc_similar(struct render_t * render, u32_t w, u32_t h)
 {
-	if(!texture)
+	return render_sw_texture_alloc(render, NULL, w, h, render->format);
+}
+
+void render_sw_texture_free(struct render_t * render, struct texture_t * texture)
+{
+	if(!render || !texture)
 		return;
 
-	if(texture->pixels)
-		free(texture->pixels);
-
+	pixman_image_unref((pixman_image_t *)texture->priv);
 	free(texture);
 }

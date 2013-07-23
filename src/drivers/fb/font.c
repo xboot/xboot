@@ -2904,48 +2904,47 @@ static u8_t * unkown_font_glyph_data(u32_t code)
 	return &data[0];
 }
 
-struct texture_t * lookup_console_font_face(u32_t code, u32_t fc, u32_t bc)
+struct texture_t * lookup_console_font_face(struct render_t * render, u32_t code, struct color_t * fc, struct color_t * bc)
 {
 	static u8_t font_pixels[16 * 16 * 4] __attribute__((aligned(4)));
-	static struct texture_t font_face = {
-		.width				= 8,
-		.height				= 16,
-		.pitch				= 8 * 4,
-		.format				= PIXEL_FORMAT_ARGB32,
-		.pixels				= font_pixels,
-	};
-
+	u32_t width, height;
 	u8_t * data;
 	u8_t * p;
 	u32_t * q;
-	s32_t len;
-	s32_t i, j;
+	s32_t i, j, len;
+	u32_t f, b;
+
+	f = ( (fc->a << 24) | (fc->r << 16) | (fc->g << 8) | (fc->b) );
+	b = ( (bc->a << 24) | (bc->r << 16) | (bc->g << 8) | (bc->b) );
 
 	data = default_font_glyph_data(code);
 	if(!data)
 	{
 		data = unkown_font_glyph_data(code);
-		font_face.width = 16;
+		width = 16;
 	}
 	else
-		font_face.width = 8;
+	{
+		width = 8;
+	}
+	height = 16;
 
 	p = data;
 	q = (u32_t *)font_pixels;
-	len = font_face.width * 16 / 8;
+	len = width * 16 / 8;
 
 	for(j = 0; j < len; j++)
 	{
 		for(i = 0; i < 8; i++)
 		{
 			if(*p & (0x80 >> i))
-				*q = fc;
+				*q = f;
 			else
-				*q = bc;
+				*q = b;
 			q++;
 		}
 		p++;
 	}
 
-	return &font_face;
+	return render_alloc_texture(render, font_pixels, width, height, PIXEL_FORMAT_ARGB32);
 }

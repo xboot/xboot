@@ -128,10 +128,6 @@ extern "C" {
 #define	CONFIG_COMMAND_CLEAR						(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_DISPLAY)
-#define	CONFIG_COMMAND_DISPLAY						(1)
-#endif
-
 #if !defined(CONFIG_COMMAND_PROBE)
 #define	CONFIG_COMMAND_PROBE						(1)
 #endif

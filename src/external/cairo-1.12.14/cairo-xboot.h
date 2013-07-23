@@ -41,15 +41,10 @@
 #if CAIRO_HAS_XBOOT_SURFACE
 
 #include <fb/fb.h>
-/*
-#include <graphic/surface.h>
-#include <graphic/pixel.h>
-*/
 
 CAIRO_BEGIN_DECLS
 
-//cairo_public cairo_surface_t *
-//cairo_xboot_surface_create (struct surface_t * surface);
+cairo_public cairo_surface_t * cairo_xboot_surface_create(struct render_t * render);
 
 CAIRO_END_DECLS
 

@@ -59,27 +59,22 @@ struct render_t {
 	void * priv;
 
 	/* functions ... */
-	struct texture_t * (*alloc)(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
-	struct texture_t * (*alloc_similar)(struct render_t * render, u32_t w, u32_t h);
-	void (*free)(struct render_t * render, struct texture_t * texture);
-
-	void (*fill)(struct render_t * render, struct rect_t * rect, u32_t c);
-	void (*blit)(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
-	struct texture_t * (*scale)(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h);
-	struct texture_t * (*rotate)(struct render_t * render, struct rect_t * rect, u32_t angle);
+	void (*clear)(struct render_t * render, struct rect_t * r, struct color_t * c);
+	struct texture_t * (*snapshot)(struct render_t * render);
+	struct texture_t * (*alloc_texture)(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
+	struct texture_t * (*alloc_texture_similar)(struct render_t * render, u32_t w, u32_t h);
+	void (*free_texture)(struct render_t * render, struct texture_t * texture);
+	void (*fill_texture)(struct render_t * render, struct texture_t * texture, struct rect_t * r, struct color_t * c);
+	void (*blit_texture)(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
 };
 
-u32_t render_map_color(struct render_t * render , struct color_t * col);
-void render_unmap_color(struct render_t * render, u32_t c, struct color_t * col);
-
-struct texture_t * render_texture_alloc(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
-struct texture_t * render_texture_alloc_similar(struct render_t * render, u32_t w, u32_t h);
-void render_texture_free(struct render_t * render, struct texture_t * texture);
-
-void render_fill(struct render_t * render, struct rect_t * rect, u32_t c);
-void render_blit(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
-struct texture_t * render_scale(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h);
-struct texture_t * render_rotate(struct render_t * render, struct rect_t * rect, u32_t angle);
+void render_clear(struct render_t * render, struct rect_t * r, struct color_t * c);
+struct texture_t * render_snapshot(struct render_t * render);
+struct texture_t * render_alloc_texture(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
+struct texture_t * render_alloc_texture_similar(struct render_t * render, u32_t w, u32_t h);
+void render_free_texture(struct render_t * render, struct texture_t * texture);
+void render_fill_texture(struct render_t * render, struct texture_t * texture, struct rect_t * r, struct color_t * c);
+void render_blit_texture(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
 
 #ifdef __cplusplus
 }

@@ -11,16 +11,16 @@ extern "C" {
 
 pixman_format_code_t pixel_format_to_pixman_format_code(enum pixel_format_t format);
 
-void render_sw_create_priv_data(struct render_t * render);
-void render_sw_destroy_priv_data(struct render_t * render);
-struct texture_t * render_sw_texture_alloc(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
-struct texture_t * render_sw_texture_alloc_similar(struct render_t * render, u32_t w, u32_t h);
-void render_sw_texture_free(struct render_t * render, struct texture_t * texture);
+void sw_render_create_priv_data(struct render_t * render);
+void sw_render_destroy_priv_data(struct render_t * render);
+void sw_render_clear(struct render_t * render, struct rect_t * r, struct color_t * c);
+struct texture_t * sw_render_snapshot(struct render_t * render);
 
-void render_sw_fill(struct render_t * render, struct rect_t * rect, u32_t c);
-void render_sw_blit(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
-struct texture_t * render_sw_scale(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h);
-struct texture_t * render_sw_rotate(struct render_t * render, struct rect_t * rect, u32_t angle);
+struct texture_t * sw_render_alloc_texture(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
+struct texture_t * sw_render_alloc_texture_similar(struct render_t * render, u32_t w, u32_t h);
+void sw_render_free_texture(struct render_t * render, struct texture_t * texture);
+void sw_render_fill_texture(struct render_t * render, struct texture_t * texture, struct rect_t * r, struct color_t * c);
+void sw_render_blit_texture(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
 
 #ifdef __cplusplus
 }

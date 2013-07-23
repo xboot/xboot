@@ -27,7 +27,9 @@
 int l_cairo_xboot_surface_create(lua_State * L)
 {
 	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));
-//	*cs = cairo_xboot_surface_create(&(get_default_framebuffer()->info->surface));
+	struct render_t * r = get_default_framebuffer()->create(get_default_framebuffer());
+	get_default_framebuffer()->present(get_default_framebuffer(), r);
+	*cs = cairo_xboot_surface_create(r);
 	luaL_setmetatable(L, MT_NAME_CAIRO_SURFACE);
 	return 1;
 }

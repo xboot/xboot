@@ -85,14 +85,15 @@ struct render_t * fb_create(struct fb_t * fb)
 	render->pitch = (LCD_WIDTH * 4 + 0x3) & ~0x3;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
-	render->alloc = render_sw_texture_alloc;
-	render->alloc_similar = render_sw_texture_alloc_similar;
-	render->free = render_sw_texture_free;
-	render->fill = render_sw_fill;
-	render->blit = render_sw_blit;
-	render->scale = render_sw_scale;
-	render->rotate = render_sw_rotate;
-	render_sw_create_priv_data(render);
+
+	render->clear = sw_render_clear;
+	render->snapshot = sw_render_snapshot;
+	render->alloc_texture = sw_render_alloc_texture;
+	render->alloc_texture_similar = sw_render_alloc_texture_similar;
+	render->free_texture = sw_render_free_texture;
+	render->fill_texture = sw_render_fill_texture;
+	render->blit_texture = sw_render_blit_texture;
+	sw_render_create_priv_data(render);
 
 	return render;
 }
@@ -101,7 +102,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 {
 	if(render)
 	{
-		render_sw_destroy_priv_data(render);
+		sw_render_destroy_priv_data(render);
 		free(render->pixels);
 		free(render);
 	}

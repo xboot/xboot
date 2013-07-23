@@ -22,7 +22,7 @@
 
 #include <fb/sw/sw.h>
 
-struct texture_t * render_sw_texture_alloc(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format)
+struct texture_t * sw_render_alloc_texture(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format)
 {
 	struct texture_t * texture;
 	pixman_image_t * img;
@@ -81,12 +81,12 @@ struct texture_t * render_sw_texture_alloc(struct render_t * render, void * pixe
 	return texture;
 }
 
-struct texture_t * render_sw_texture_alloc_similar(struct render_t * render, u32_t w, u32_t h)
+struct texture_t * sw_render_alloc_texture_similar(struct render_t * render, u32_t w, u32_t h)
 {
-	return render_sw_texture_alloc(render, NULL, w, h, render->format);
+	return sw_render_alloc_texture(render, NULL, w, h, render->format);
 }
 
-void render_sw_texture_free(struct render_t * render, struct texture_t * texture)
+void sw_render_free_texture(struct render_t * render, struct texture_t * texture)
 {
 	if(!render || !texture)
 		return;

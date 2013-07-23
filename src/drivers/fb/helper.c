@@ -22,12 +22,7 @@
 
 #include <fb/helper.h>
 
-u32_t fb_map_color(struct fb_t * fb, struct color_t * col)
-{
-	return render_map_color(fb->alone, col);
-}
-
-void fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
+void fb_fill_rect(struct fb_t * fb, struct color_t * c, u32_t x, u32_t y, u32_t w, u32_t h)
 {
 	struct rect_t rect;
 
@@ -36,7 +31,7 @@ void fb_fill_rect(struct fb_t * fb, u32_t c, u32_t x, u32_t y, u32_t w, u32_t h)
 	rect.w = w;
 	rect.h = h;
 
-	render_fill(fb->alone, &rect, c);
+	render_clear(fb->alone, &rect, c);
 }
 
 void fb_blit(struct fb_t * fb, struct texture_t * texture, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
@@ -53,13 +48,14 @@ void fb_blit(struct fb_t * fb, struct texture_t * texture, u32_t x, u32_t y, u32
 	srect.w = w;
 	srect.h = h;
 
-	render_blit(fb->alone, &drect, texture, &srect);
+	render_blit_texture(fb->alone, &drect, texture, &srect);
 }
 
-void fb_putcode(struct fb_t * fb, u32_t code, u32_t fc, u32_t bc, u32_t x, u32_t y)
+void fb_putcode(struct fb_t * fb, u32_t code, struct color_t * fc, struct color_t * bc, u32_t x, u32_t y)
 {
-	struct texture_t * face = lookup_console_font_face(code, fc, bc);
+	struct texture_t * face = lookup_console_font_face(fb->alone, code, fc, bc);
 
 	if(face)
 		fb_blit(fb, face, x, y, face->width, face->height, 0, 0);
+	render_free_texture(fb->alone, face);
 }

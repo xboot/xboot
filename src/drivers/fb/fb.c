@@ -41,12 +41,9 @@ struct fbcon_cell_t
 	u32_t cp;
 
 	/* foreground color and background color */
-	u32_t fc, bc;
+	struct color_t fc, bc;
 };
 
-/*
- * defined the framebuffer console information
- */
 struct fb_console_info_t
 {
 	/* the console name */
@@ -66,7 +63,7 @@ struct fb_console_info_t
 
 	/* console front color and background color */
 	enum tcolor_t f, b;
-	u32_t fc, bc;
+	struct color_t fc, bc;
 
 	/* cursor status, on or off */
 	bool_t cursor;
@@ -355,33 +352,21 @@ static bool_t tcolor_to_color(enum tcolor_t c, struct color_t * col)
 	return TRUE;
 }
 
-/*
- * fb open
- */
 static int fb_open(struct chrdev_t * dev)
 {
 	return 0;
 }
 
-/*
- * fb read
- */
 static ssize_t fb_read(struct chrdev_t * dev, u8_t * buf, size_t count)
 {
 	return 0;
 }
 
-/*
- * fb write.
- */
 static ssize_t fb_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
 {
 	return 0;
 }
 
-/*
- * fb ioctl
- */
 static int fb_ioctl(struct chrdev_t * dev, int cmd, void * arg)
 {
 	struct fb_t * fb = (struct fb_t *)(dev->driver);
@@ -392,17 +377,11 @@ static int fb_ioctl(struct chrdev_t * dev, int cmd, void * arg)
 	return -1;
 }
 
-/*
- * fb close
- */
 static int fb_close(struct chrdev_t * dev)
 {
 	return 0;
 }
 
-/*
- * get console's width and height
- */
 static bool_t fbcon_getwh(struct console_t * console, s32_t * w, s32_t * h)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -419,9 +398,6 @@ static bool_t fbcon_getwh(struct console_t * console, s32_t * w, s32_t * h)
 	return TRUE;
 }
 
-/*
- * get cursor's position
- */
 static bool_t fbcon_getxy(struct console_t * console, s32_t * x, s32_t * y)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -438,9 +414,6 @@ static bool_t fbcon_getxy(struct console_t * console, s32_t * x, s32_t * y)
 	return TRUE;
 }
 
-/*
- * set cursor's position
- */
 static bool_t fbcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -466,13 +439,13 @@ static bool_t fbcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 		cell = &(info->cell[pos]);
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
-		fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
+		fb_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 
 		pos = info->w * y + x;
 		cell = &(info->cell[pos]);
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
-		fb_putcode(info->fb, cell->cp, info->bc, info->fc, px, py);
+		fb_putcode(info->fb, cell->cp, &(info->bc), &(info->fc), px, py);
 	}
 
 	info->x = x;
@@ -481,9 +454,6 @@ static bool_t fbcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 	return TRUE;
 }
 
-/*
- * turn on / off the cursor
- */
 static bool_t fbcon_setcursor(struct console_t * console, bool_t on)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -501,16 +471,13 @@ static bool_t fbcon_setcursor(struct console_t * console, bool_t on)
 	py = (pos / info->w) * info->fh;
 
 	if(info->cursor)
-		fb_putcode(info->fb, cell->cp, info->bc, info->fc, px, py);
+		fb_putcode(info->fb, cell->cp, &(info->bc), &(info->fc), px, py);
 	else
-		fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
+		fb_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 
 	return TRUE;
 }
 
-/*
- * get cursor's status
- */
 static bool_t fbcon_getcursor(struct console_t * console)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -521,13 +488,9 @@ static bool_t fbcon_getcursor(struct console_t * console)
 	return info->cursor;
 }
 
-/*
- * set console's front color and background color
- */
 static bool_t fbcon_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
 {
 	struct fb_console_info_t * info = console->priv;
-	struct color_t col;
 
 	if(!info->onoff)
 		return FALSE;
@@ -535,18 +498,12 @@ static bool_t fbcon_setcolor(struct console_t * console, enum tcolor_t f, enum t
 	info->f = f;
 	info->b = b;
 
-	tcolor_to_color(f, &col);
-	info->fc = fb_map_color(info->fb, &col);
-
-	tcolor_to_color(b, &col);
-	info->bc = fb_map_color(info->fb, &col);
+	tcolor_to_color(f, &(info->fc));
+	tcolor_to_color(b, &(info->bc));
 
 	return TRUE;
 }
 
-/*
- * get console front color and background color
- */
 static bool_t fbcon_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -560,9 +517,6 @@ static bool_t fbcon_getcolor(struct console_t * console, enum tcolor_t * f, enum
 	return TRUE;
 }
 
-/*
- * clear screen
- */
 static bool_t fbcon_cls(struct console_t * console)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -575,21 +529,18 @@ static bool_t fbcon_cls(struct console_t * console)
 	for(i = 0; i < info->clen; i++)
 	{
 		cell->cp = UNICODE_SPACE;
-		cell->fc = info->fc;
-		cell->bc = info->bc;
+		memcpy(&(cell->fc), &(info->fc), sizeof(struct color_t));
+		memcpy(&(cell->bc), &(info->bc), sizeof(struct color_t));
 
 		cell++;
 	}
 
-	fb_fill_rect(info->fb, info->bc, 0, 0, (info->w * info->fw), (info->h * info->fh));
+	fb_fill_rect(info->fb, &(info->bc), 0, 0, (info->w * info->fw), (info->h * info->fh));
 	fbcon_gotoxy(console, 0, 0);
 
 	return TRUE;
 }
 
-/*
- * scroll up
- */
 static bool_t fbcon_scrollup(struct console_t * console)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -621,16 +572,15 @@ static bool_t fbcon_scrollup(struct console_t * console)
 		p++;
 	}
 
-//xxx	fb_blit(info->fb, &info->fb->info->surface, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
-	fb_fill_rect(info->fb, info->bc, 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
+	struct texture_t * t = render_snapshot(info->fb->alone);
+	fb_blit(info->fb, t, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
+	render_free_texture(info->fb->alone, t);
+	fb_fill_rect(info->fb, &(info->bc), 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
 	fbcon_gotoxy(console, info->x, info->y - 1);
 
 	return TRUE;
 }
 
-/*
- * put a unicode character
- */
 bool_t fbcon_putcode(struct console_t * console, u32_t code)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -657,12 +607,12 @@ bool_t fbcon_putcode(struct console_t * console, u32_t code)
 			cell = &(info->cell[pos]);
 
 			cell->cp = UNICODE_SPACE;
-			cell->fc = info->fc;
-			cell->bc = info->bc;
+			memcpy(&(cell->fc), &(info->fc), sizeof(struct color_t));
+			memcpy(&(cell->bc), &(info->bc), sizeof(struct color_t));
 
 			px = (pos % info->w) * info->fw;
 			py = (pos / info->w) * info->fh;
-			fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
+			fb_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 			info->x = info->x + 1;
 		}
 		fbcon_gotoxy(console, info->x, info->y);
@@ -687,8 +637,8 @@ bool_t fbcon_putcode(struct console_t * console, u32_t code)
 		cell = &(info->cell[pos]);
 
 		cell->cp = code;
-		cell->fc = info->fc;
-		cell->bc = info->bc;
+		memcpy(&(cell->fc), &(info->fc), sizeof(struct color_t));
+		memcpy(&(cell->bc), &(info->bc), sizeof(struct color_t));
 
 		for(i = 1; i < w; i++)
 		{
@@ -699,7 +649,7 @@ bool_t fbcon_putcode(struct console_t * console, u32_t code)
 
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
-		fb_putcode(info->fb, cell->cp, cell->fc, cell->bc, px, py);
+		fb_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 
 		if(info->x + w < info->w)
 			fbcon_gotoxy(console, info->x + w, info->y);
@@ -715,9 +665,6 @@ bool_t fbcon_putcode(struct console_t * console, u32_t code)
 	return TRUE;
 }
 
-/*
- * turn no / off console
- */
 bool_t fbcon_onoff(struct console_t * console, bool_t flag)
 {
 	struct fb_console_info_t * info = console->priv;
@@ -726,18 +673,12 @@ bool_t fbcon_onoff(struct console_t * console, bool_t flag)
 	return TRUE;
 }
 
-/*
- * get default framebuffer
- */
 struct fb_t * get_default_framebuffer(void)
 {
 	return default_framebuffer;
 }
 EXPORT_SYMBOL(get_default_framebuffer);
 
-/*
- * set default framebuffer
- */
 bool_t set_default_framebuffer(const char * name)
 {
 	struct fb_t * fb;
@@ -751,9 +692,6 @@ bool_t set_default_framebuffer(const char * name)
 }
 EXPORT_SYMBOL(set_default_framebuffer);
 
-/*
- * search framebuffer by name.
- */
 struct fb_t * search_framebuffer(const char * name)
 {
 	struct fb_t * fb;
@@ -772,15 +710,11 @@ struct fb_t * search_framebuffer(const char * name)
 }
 EXPORT_SYMBOL(search_framebuffer);
 
-/*
- * register framebuffer driver.
- */
 bool_t register_framebuffer(struct fb_t * fb)
 {
 	struct chrdev_t * dev;
 	struct console_t * console;
 	struct fb_console_info_t * info;
-	struct color_t col;
 	u8_t brightness;
 
 	if(!fb || !fb->name)
@@ -832,9 +766,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 	if(default_framebuffer == NULL)
 		default_framebuffer = fb;
 
-	/*
-	 * register a console
-	 */
 	console = malloc(sizeof(struct console_t));
 	info = malloc(sizeof(struct fb_console_info_t));
 	if(!console || !info)
@@ -856,10 +787,8 @@ bool_t register_framebuffer(struct fb_t * fb)
 	info->y = 0;
 	info->f = TCOLOR_WHITE;
 	info->b = TCOLOR_BLACK;
-	tcolor_to_color(info->f, &col);
-	info->fc = fb_map_color(fb, &col);
-	tcolor_to_color(info->b, &col);
-	info->bc = fb_map_color(fb, &col);
+	tcolor_to_color(info->f, &(info->fc));
+	tcolor_to_color(info->b, &(info->bc));
 	info->cursor = TRUE;
 	info->onoff = TRUE;
 	info->clen = info->w * info->h;
@@ -901,9 +830,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 	return TRUE;
 }
 
-/*
- * unregister framebuffer driver
- */
 bool_t unregister_framebuffer(struct fb_t * fb)
 {
 	struct chrdev_t * dev;

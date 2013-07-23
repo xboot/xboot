@@ -1,5 +1,5 @@
 /*
- * drivers/fb/sw/sw_blit.c
+ * drivers/fb/sw/sw_texture_blit.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,12 +22,7 @@
 
 #include <fb/sw/sw.h>
 
-void sw_blit_replace(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect)
-{
-//	switch (dst->info.fmt)
-}
-
-void render_sw_blit(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect)
+void sw_render_blit_texture(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect)
 {
 	struct rect_t dr, sr, clip;
 	s32_t x, y, w, h;
@@ -121,7 +116,6 @@ void render_sw_blit(struct render_t * render, struct rect_t * drect, struct text
 		sr.y = y;
 		sr.w = dr.w = w;
 		sr.h = dr.h = h;
-
-		sw_blit_replace(render, &dr, texture, &sr);
+		pixman_image_composite(PIXMAN_OP_SRC, texture->priv, NULL, render->priv, sr.x, sr.y, 0, 0, dr.x, dr.y, dr.w, dr.h);
 	}
 }

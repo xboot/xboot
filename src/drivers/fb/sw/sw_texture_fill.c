@@ -1,5 +1,5 @@
 /*
- * drivers/fb/sw/sw_scale.c
+ * drivers/fb/sw/sw_texture_fill.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,7 +22,43 @@
 
 #include <fb/sw/sw.h>
 
-struct texture_t * render_sw_scale(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h)
+void sw_render_fill_texture(struct render_t * render, struct texture_t * texture, struct rect_t * r, struct color_t * c)
 {
-	return NULL;
+	pixman_rectangle16_t rect;
+	pixman_color_t color;
+
+	if(!texture)
+		return;
+
+	if(r)
+	{
+		rect.x = r->x;
+		rect.y = r->y;
+		rect.width = r->w;
+		rect.height = r->h;
+	}
+	else
+	{
+		rect.x = 0;
+		rect.y = 0;
+		rect.width = texture->width;
+		rect.height = texture->height;
+	}
+
+	if(c)
+	{
+		color.red = c->r << 8;
+		color.green = c->g << 8;
+		color.blue = c->b << 8;
+		color.alpha = c->a << 8;
+	}
+	else
+	{
+		color.red = 0xffff;
+		color.green = 0xffff;
+		color.blue = 0xffff;
+		color.alpha = 0xffff;
+	}
+
+	pixman_image_fill_rectangles(PIXMAN_OP_SRC, texture->priv, &color, 1, &rect);
 }

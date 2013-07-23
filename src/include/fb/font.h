@@ -7,9 +7,9 @@ extern "C" {
 
 #include <xboot.h>
 #include <fb/fb.h>
-/*
-struct gimage_t * lookup_console_font_face(u32_t code, u32_t fc, u32_t bc);
-*/
+#include <fb/color.h>
+
+struct texture_t * lookup_console_font_face(struct render_t * render, u32_t code, struct color_t * fc, struct color_t * bc);
 
 #ifdef __cplusplus
 }

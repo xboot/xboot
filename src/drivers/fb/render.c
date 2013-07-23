@@ -22,94 +22,52 @@
 
 #include <fb/render.h>
 
-u32_t render_map_color(struct render_t * render , struct color_t * col)
-{
-	u8_t r = col->r;
-	u8_t g = col->g;
-	u8_t b = col->b;
-	u8_t a = col->a;
-	u32_t c = 0;
-
-	if(!render)
-		return 0;
-
-	switch(render->format)
-	{
-	case PIXEL_FORMAT_ARGB32:
-		c = r << 16;
-		c |= g << 8;
-		c |= b << 0;
-		c |= a << 24;
-		break;
-
-	case PIXEL_FORMAT_RGB24:
-		c = r << 16;
-		c |= g << 8;
-		c |= b << 0;
-		break;
-
-	case PIXEL_FORMAT_A8:
-		c = a;
-		break;
-
-	case PIXEL_FORMAT_A1:
-		c = a ? 1 : 0;
-		break;
-
-	case PIXEL_FORMAT_RGB16_565:
-		r >>= 8 - 5;
-		g >>= 8 - 6;
-		b >>= 8 - 5;
-		c = r << 11;
-		c |= g << 5;
-		c |= b << 0;
-		break;
-
-	default:
-		break;
-	}
-
-	return c;
-}
-
-void render_unmap_color(struct render_t * render, u32_t c, struct color_t * col)
-{
-	if(!render)
-		return;
-}
-
-struct texture_t * render_texture_alloc(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format)
+void render_clear(struct render_t * render, struct rect_t * r, struct color_t * c)
 {
 	if(render)
-		return render->alloc(render, pixels, w, h, format);
+		render->clear(render, r, c);
+}
+
+struct texture_t * render_snapshot(struct render_t * render)
+{
+	if(render)
+		return render->snapshot(render);
 	return NULL;
 }
 
-struct texture_t * render_texture_alloc_similar(struct render_t * render, u32_t w, u32_t h)
+struct texture_t * render_alloc_texture(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format)
 {
 	if(render)
-		return render->alloc_similar(render, w, h);
+		return render->alloc_texture(render, pixels, w, h, format);
 	return NULL;
 }
 
-void render_texture_free(struct render_t * render, struct texture_t * texture)
+struct texture_t * render_alloc_texture_similar(struct render_t * render, u32_t w, u32_t h)
 {
 	if(render)
-		render->free(render, texture);
+		return render->alloc_texture_similar(render, w, h);
+	return NULL;
 }
 
-void render_fill(struct render_t * render, struct rect_t * rect, u32_t c)
+void render_free_texture(struct render_t * render, struct texture_t * texture)
 {
 	if(render)
-		render->fill(render, rect, c);
+		render->free_texture(render, texture);
 }
 
-void render_blit(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect)
+void render_fill_texture(struct render_t * render, struct texture_t * texture, struct rect_t * r, struct color_t * c)
 {
 	if(render)
-		render->blit(render, drect, texture, srect);
+		render->fill_texture(render, texture, r, c);
 }
 
+void render_blit_texture(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect)
+{
+	if(render)
+		render->blit_texture(render, drect, texture, srect);
+}
+
+/*
 struct texture_t * render_scale(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h)
 {
 	if(!render)
@@ -125,3 +83,4 @@ struct texture_t * render_rotate(struct render_t * render, struct rect_t * rect,
 
 	return render->rotate(render, rect, angle);
 }
+*/

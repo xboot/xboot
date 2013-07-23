@@ -92,7 +92,7 @@ void push_event(struct event_t * event)
 	}
 }
 
-void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t delta)
+void push_event_mouse(char * device, u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t delta)
 {
 	struct event_t event;
 
@@ -101,6 +101,7 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 
 	if((relx != 0) || (rely != 0))
 	{
+		event.device = device;
 		event.type = EVENT_TYPE_MOUSE_MOVE;
 		event.e.mouse_move.x = cursor_xpos_with_offset(relx);
 		event.e.mouse_move.y = cursor_ypos_with_offset(rely);
@@ -109,6 +110,7 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 
 	if(delta != 0)
 	{
+		event.device = device;
 		event.type = EVENT_TYPE_MOUSE_WHEEL;
 		event.e.mouse_wheel.x = get_cursor_xpos();
 		event.e.mouse_wheel.y = get_cursor_ypos();
@@ -118,6 +120,7 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 
 	if(btndown)
 	{
+		event.device = device;
 		event.type = EVENT_TYPE_MOUSE_DOWN;
 		event.e.mouse_down.x = get_cursor_xpos();
 		event.e.mouse_down.y = get_cursor_ypos();
@@ -127,6 +130,7 @@ void push_event_mouse(u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t 
 
 	if(btnup)
 	{
+		event.device = device;
 		event.type = EVENT_TYPE_MOUSE_UP;
 		event.e.mouse_up.x = get_cursor_xpos();
 		event.e.mouse_up.y = get_cursor_ypos();

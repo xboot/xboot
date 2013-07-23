@@ -95,7 +95,7 @@ static void mouse_interrupt(void)
 			if(delta == 0xf)
 				delta = -1;
 
-			push_event_mouse(btndown, btnup, relx, rely, delta);
+			push_event_mouse("ps2-mouse", btndown, btnup, relx, rely, delta);
 		}
 
 		status = readb(REALVIEW_MOUSE_IIR);
@@ -189,7 +189,7 @@ static int mouse_ioctl(struct input_t * input, int cmd, void * arg)
 }
 
 static struct input_t realview_mouse = {
-	.name		= "mouse",
+	.name		= "ps2-mouse",
 	.type		= INPUT_MOUSE,
 	.probe		= mouse_probe,
 	.remove		= mouse_remove,

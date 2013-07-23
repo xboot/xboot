@@ -133,7 +133,8 @@ int logger_output(const char * file, const int line, const char * fmt, ...)
 		rem = 0;
 	}
 	len += sprintf((char *)(p + len), (const char *)"[%5u.%06u]", div, rem);
-	len += sprintf((char *)(p + len), (const char *)"[%s:%d] ", file, line);
+	if(file)
+		len += sprintf((char *)(p + len), (const char *)"[%s:%d] ", file, line);
 	len += vsnprintf((char *)(p + len), (SZ_4K - len), fmt, ap);
 	len += sprintf((char *)(p + len), "\r\n");
 	va_end(ap);

@@ -50,6 +50,8 @@ static int l_event_pump(lua_State * L)
 	/* key */
 	case EVENT_TYPE_KEY_DOWN:
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_KEY_DOWN);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -60,6 +62,8 @@ static int l_event_pump(lua_State * L)
 
 	case EVENT_TYPE_KEY_UP:
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_KEY_UP);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -72,6 +76,8 @@ static int l_event_pump(lua_State * L)
 	case EVENT_TYPE_MOUSE_DOWN:
 		button = event.e.mouse_down.button;
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_MOUSE_DOWN);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -92,6 +98,8 @@ static int l_event_pump(lua_State * L)
 
 	case EVENT_TYPE_MOUSE_MOVE:
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_MOUSE_MOVE);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -105,6 +113,8 @@ static int l_event_pump(lua_State * L)
 	case EVENT_TYPE_MOUSE_UP:
 		button = event.e.mouse_up.button;
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_MOUSE_UP);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -125,6 +135,8 @@ static int l_event_pump(lua_State * L)
 
 	case EVENT_TYPE_MOUSE_WHEEL:
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_MOUSE_WHEEL);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -140,6 +152,8 @@ static int l_event_pump(lua_State * L)
 	/* touches */
 	case EVENT_TYPE_TOUCHES_BEGAN:
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_TOUCHES_BEGAN);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -154,6 +168,8 @@ static int l_event_pump(lua_State * L)
 
 	case EVENT_TYPE_TOUCHES_MOVE:
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_TOUCHES_MOVE);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -168,6 +184,8 @@ static int l_event_pump(lua_State * L)
 
 	case EVENT_TYPE_TOUCHES_END:
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_TOUCHES_END);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
@@ -182,6 +200,8 @@ static int l_event_pump(lua_State * L)
 
 	case EVENT_TYPE_TOUCHES_CANCEL:
 		lua_newtable(L);
+		lua_pushstring(L, event.device);
+		lua_setfield(L, -2, "device");
 		lua_pushstring(L, __TYPE_TOUCHES_CANCEL);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);

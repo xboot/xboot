@@ -84,10 +84,6 @@ extern "C" {
 #define	CONFIG_MAX_NUMBER_OF_VFS_BIO				(SZ_4K)
 #endif
 
-#if !defined(CONFIG_MAX_NUMBER_OF_LOG)
-#define	CONFIG_MAX_NUMBER_OF_LOG					(1024)
-#endif
-
 #if !defined(CONFIG_CMDLINE_LENGTH)
 #define	CONFIG_CMDLINE_LENGTH						(SZ_4K)
 #endif
@@ -262,10 +258,6 @@ extern "C" {
 
 #if !defined(CONFIG_COMMAND_TEST)
 #define	CONFIG_COMMAND_TEST							(1)
-#endif
-
-#if !defined(CONFIG_MTD_NAND_ECC_SMC)
-#define	CONFIG_MTD_NAND_ECC_SMC						(0)
 #endif
 
 #ifdef __cplusplus

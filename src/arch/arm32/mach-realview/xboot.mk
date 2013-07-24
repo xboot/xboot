@@ -2,7 +2,7 @@
 # Machine makefile
 #
 
-NAMESPACES	+= -D__ARM_ARCH__=5 -D__ARM926EJS__
+DEFINES	+= -D__ARM_ARCH__=5 -D__ARM926EJS__
 
 ASFLAGS	:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3

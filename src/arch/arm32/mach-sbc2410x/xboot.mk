@@ -2,7 +2,7 @@
 # machine makefile.
 #
 
-NAMESPACES	+= -D__ARM_ARCH__=4 -D__ARM920T__
+DEFINES	+= -D__ARM_ARCH__=4 -D__ARM920T__
 
 ASFLAGS	:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall

@@ -2,7 +2,7 @@
 # machine makefile.
 #
 
-NAMESPACES	+= -D__ARM_ARCH__=7 -D__CORTEX_A8__
+DEFINES	+= -D__ARM_ARCH__=7 -D__CORTEX_A8__
 
 ASFLAGS	:= -g -ggdb -Wall -O2
 CFLAGS		:= -g -ggdb -Wall -O2

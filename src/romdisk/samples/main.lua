@@ -15,7 +15,7 @@ local printr = require("org.xboot.util.printr")
 ----------------------------------------------------------------------------------
 local runtime = display_object:new("runtime")
 
-local function on_mouse_down(e, d)
+local function on_mouse_down(d, e)
 	if d:hit_test_point(e.msg.x, e.msg.y) then
 		d.isfocus = true
 		--d:tofront()
@@ -26,7 +26,7 @@ local function on_mouse_down(e, d)
 	end
 end
 
-local function on_mouse_move(e, d)
+local function on_mouse_move(d, e)
 	if d.isfocus then
 		local dx = e.msg.x - d.x0
 		local dy = e.msg.y - d.y0
@@ -38,7 +38,7 @@ local function on_mouse_move(e, d)
 	end
 end
 
-local function on_mouse_up(e, d)
+local function on_mouse_up(d, e)
 	if d.isfocus then
 		d.isfocus = false
 		e:stop_propagation()
@@ -57,9 +57,9 @@ for i=1,5 do
 end
 
 local cursor = display_image:new("/romdisk/samples/images/cursor1.png", 0, 0)
-cursor:add_event_listener(event.MOUSE_DOWN, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)
-cursor:add_event_listener(event.MOUSE_MOVE, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)
-cursor:add_event_listener(event.MOUSE_UP, function(e, d) d:setxy(e.msg.x, e.msg.y) end, cursor)
+cursor:add_event_listener(event.MOUSE_DOWN, function(d, e) d:setxy(e.msg.x, e.msg.y) end, cursor)
+cursor:add_event_listener(event.MOUSE_MOVE, function(d, e) d:setxy(e.msg.x, e.msg.y) end, cursor)
+cursor:add_event_listener(event.MOUSE_UP, function(d, e) d:setxy(e.msg.x, e.msg.y) end, cursor)
 runtime:add_child(cursor)
 
 ------------------- main --------------------------------

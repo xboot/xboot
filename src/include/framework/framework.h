@@ -7,6 +7,7 @@ extern "C" {
 
 #include <framework/luahelper.h>
 #include <framework/event/l_event.h>
+#include <framework/logger/l_logger.h>
 #include <framework/timecounter/l_timecounter.h>
 #include <framework/base64/l_base64.h>
 #include <framework/cairo/l_cairo.h>

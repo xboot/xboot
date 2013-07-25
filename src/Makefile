@@ -128,6 +128,7 @@ SRCDIRS	+=	arch/$(ARCH)/lib/gcc						\
 				framework/base64							\
 				framework/cairo							\
 				framework/event							\
+				framework/logger							\
 				framework/timecounter					\
 				framework/xfs
 

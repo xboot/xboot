@@ -26,7 +26,7 @@ function M:init(upstate, downstate)
 	self:add_event_listener(event.TOUCHES_CANCEL, self.on_touches_cancel, self)
 end
 
-function M:on_mouse_down(e, d)
+function M:on_mouse_down(e)
 	if self:hit_test_point(e.msg.x, e.msg.y) then
 		self.focus = true
 		self:update_visual_state(true)
@@ -34,7 +34,7 @@ function M:on_mouse_down(e, d)
 	end
 end
 
-function M:on_mouse_move(e, d)
+function M:on_mouse_move(e)
 	if self.focus then
 		if not self:hit_test_point(e.msg.x, e.msg.y) then	
 			self.focus = false
@@ -44,7 +44,7 @@ function M:on_mouse_move(e, d)
 	end
 end
 
-function M:on_mouse_up(e, d)
+function M:on_mouse_up(e)
 	if self.focus then
 		self.focus = false
 		self:update_visual_state(false)
@@ -53,25 +53,25 @@ function M:on_mouse_up(e, d)
 	end
 end
 
-function M:on_touches_began(d, e)
+function M:on_touches_began(e)
 	if self.focus then
 		e:stop_propagation()
 	end
 end
 
-function M:on_touches_move(d, e)
+function M:on_touches_move(e)
 	if self.focus then
 		e:stop_propagation()
 	end
 end
 
-function M:on_touches_end(d, e)
+function M:on_touches_end(e)
 	if self.focus then
 		e:stop_propagation()
 	end
 end
 
-function M:on_touches_cancel(d, e)
+function M:on_touches_cancel(e)
 	if self.focus then
 		self.focus = false;
 		self:update_visual_state(false)

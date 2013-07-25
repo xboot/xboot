@@ -76,7 +76,7 @@ bool_t register_logger(struct logger_t * logger)
 		(logger->init)();
 
 	if(logger->output)
-		logger->output((const u8_t *)xboot_banner_string(), strlen(xboot_banner_string()));
+		logger->output(xboot_banner_string(), strlen(xboot_banner_string()));
 
 	list->logger = logger;
 	list_add(&list->entry, &logger_list_t->entry);
@@ -109,10 +109,22 @@ bool_t unregister_logger(struct logger_t * logger)
 	return FALSE;
 }
 
-int logger_output(const char * file, const int line, const char * fmt, ...)
+void logger_output(const char * buf, size_t count)
 {
 	struct logger_list_t * list;
 	struct list_head * pos;
+
+	for(pos = (&logger_list_t->entry)->next; pos != (&logger_list_t->entry); pos = pos->next)
+	{
+		list = list_entry(pos, struct logger_list_t, entry);
+		if(list->logger->output)
+			list->logger->output(buf, count);
+	}
+}
+EXPORT_SYMBOL(logger_output);
+
+int logger_print(const char * fmt, ...)
+{
 	va_list ap;
 	char * p;
 	int len = 0;
@@ -133,20 +145,13 @@ int logger_output(const char * file, const int line, const char * fmt, ...)
 		rem = 0;
 	}
 	len += sprintf((char *)(p + len), (const char *)"[%5u.%06u]", div, rem);
-	if(file)
-		len += sprintf((char *)(p + len), (const char *)"[%s:%d] ", file, line);
 	len += vsnprintf((char *)(p + len), (SZ_4K - len), fmt, ap);
 	len += sprintf((char *)(p + len), "\r\n");
 	va_end(ap);
 
-	for(pos = (&logger_list_t->entry)->next; pos != (&logger_list_t->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct logger_list_t, entry);
-		if(list->logger->output)
-			list->logger->output((const u8_t *)p, len);
-	}
-
+	logger_output((const char *)p, len);
 	free(p);
+
 	return len;
 }
-EXPORT_SYMBOL(logger_output);
+EXPORT_SYMBOL(logger_print);

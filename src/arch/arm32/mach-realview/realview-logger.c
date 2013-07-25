@@ -33,7 +33,7 @@ static void logger_uart0_exit(void)
 {
 }
 
-static ssize_t logger_uart0_output(const u8_t * buf, size_t count)
+static ssize_t logger_uart0_output(const char * buf, size_t count)
 {
 	ssize_t i;
 

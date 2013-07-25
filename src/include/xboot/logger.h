@@ -19,17 +19,18 @@ struct logger_t
 	void (*exit)(void);
 
 	/* Logger output function */
-	ssize_t (*output)(const u8_t * buf, size_t count);
+	ssize_t (*output)(const char * buf, size_t count);
 };
 
 bool_t register_logger(struct logger_t * logger);
 bool_t unregister_logger(struct logger_t * logger);
-int logger_output(const char * file, const int line, const char * fmt, ...);
+void logger_output(const char * buf, size_t count);
+int logger_print(const char * fmt, ...);
 
 #if	defined(CONFIG_NO_LOG) && (CONFIG_NO_LOG > 0)
 #define LOG(fmt, arg...)	do { } while(0)
 #else
-#define LOG(fmt, arg...)	do { logger_output(__FILE__, __LINE__, fmt, ##arg); } while(0)
+#define LOG(fmt, arg...)	do { logger_print("[%s:%d] "fmt, __FILE__, __LINE__, ##arg); } while(0)
 #endif
 
 #ifdef __cplusplus

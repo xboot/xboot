@@ -235,6 +235,26 @@ function M:rotate(angle)
 end
 
 ---
+-- Sets the x coordinates of the display object.
+-- 
+-- @function [parent=#display_object] setxy
+-- @param self
+-- @param x (number) The new x coordinate of the display object.
+function M:setx(x)
+	self:translate(x - self.x, 0)
+end
+
+---
+-- Sets the y coordinates of the display object.
+-- 
+-- @function [parent=#display_object] setxy
+-- @param self
+-- @param y (number) The new y coordinate of the display object.
+function M:sety(y)
+	self:translate(0, y - self.y)
+end
+
+---
 -- Sets the x and y coordinates of the display object.
 -- 
 -- @function [parent=#display_object] setxy
@@ -242,11 +262,9 @@ end
 -- @param x (number) The new x coordinate of the display object.
 -- @param y (number) The new y coordinate of the display object.
 function M:setxy(x, y)
-	local dx = x - self.x
-	local dy = y - self.y
-
-	self:translate(dx, dy)
+	self:translate(x - self.x, y - self.y)
 end
+
 
 function M:origin(dx, dy)
 	self.xorigin = self.xorigin + dx

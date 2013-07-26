@@ -50,24 +50,41 @@ local down = display_image:new("/romdisk/test/images/button_active.png")
 local btn = button:new(up, down)
 btn:add_event_listener("click", function(d, e)
 	print("click")
-	sm:changeScene(nextScene(), 1, scene_manager.overFromLeft, easing.outBounce) 
+	sm:changeScene(nextScene(), 5, scene_manager.overFromLeft, easing.outBounce) 
 end, btn)
 btn:setxy(40, 150)
 runtime:add_child(btn)
 
 ------------------- main --------------------------------
 local tc = buildin_timecounter.new()
-local cs = buildin_cairo.xboot_surface_create()
-local cr = buildin_cairo.create(cs)
+local cs1 = buildin_cairo.xboot_surface_create()
+local cs2 = buildin_cairo.xboot_surface_create()
+local cr1 = buildin_cairo.create(cs1)
+local cr2 = buildin_cairo.create(cs2)
+local index = false;
 local background = buildin_cairo.image_surface_create_from_png("/romdisk/test/images/background.png");
 
-timer:new(1 / 60, 0, function(t, e)
+timer:new(1 / 20, 0, function(t, e)
+	local cr
+	index = not index
+	if index then
+		cr = cr2
+	else
+		cr = cr1
+	end
+	
 	cr:save()
 --	cr:set_source_surface(background, 0, 0)
 --	cr:paint()
 	cr:restore()
 
 	runtime:render(cr, event:new(event.ENTER_FRAME))
+	
+	if index then
+		cs2:present()
+	else
+		cs1:present()
+	end
 end)
 
 while true do

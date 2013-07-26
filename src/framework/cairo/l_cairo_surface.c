@@ -26,10 +26,11 @@
 
 int l_cairo_xboot_surface_create(lua_State * L)
 {
+	const char * name = luaL_optstring(L, 1, NULL);
 	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));
-	struct render_t * r = get_default_framebuffer()->create(get_default_framebuffer());
-	get_default_framebuffer()->present(get_default_framebuffer(), r);
-	*cs = cairo_xboot_surface_create(r);
+	struct fb_t * fb = search_framebuffer(name);
+	if(!fb)	fb = get_default_framebuffer();
+	*cs = cairo_xboot_surface_create(fb);
 	luaL_setmetatable(L, MT_NAME_CAIRO_SURFACE);
 	return 1;
 }
@@ -89,9 +90,17 @@ static int m_cairo_surface_get_height(lua_State * L)
 	return 1;
 }
 
+static int m_cairo_xboot_surface_present(lua_State * L)
+{
+	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_CAIRO_SURFACE);
+	cairo_xboot_surface_present(*cs);
+	return 0;
+}
+
 const luaL_Reg m_cairo_surface[] = {
 	{"__gc",				m_cairo_surface_gc},
 	{"get_width",			m_cairo_surface_get_width},
 	{"get_height",			m_cairo_surface_get_height},
+	{"present",				m_cairo_xboot_surface_present},
 	{NULL, 					NULL}
 };

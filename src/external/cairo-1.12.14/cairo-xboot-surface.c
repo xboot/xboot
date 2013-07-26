@@ -38,11 +38,7 @@
 #include "cairo-xboot.h"
 
 struct cairo_xboot_surface_t {
-	void * pixels;
-	int width;
-	int height;
-	cairo_format_t fmt;
-
+	struct fb_t * fb;
 	struct render_t * render;
 	cairo_surface_t * cs;
 };
@@ -80,31 +76,55 @@ static void cairo_xboot_surface_destroy(void * data)
 {
 	struct cairo_xboot_surface_t * cxs = (struct cairo_xboot_surface_t *)data;
 
-	if (!cxs)
-		return;
-	free(cxs);
+	if(cxs)
+	{
+		if(cxs->fb)
+		{
+			cxs->fb->present(cxs->fb, cxs->fb->alone);
+			cxs->fb->destroy(cxs->fb, cxs->render);
+		}
+		free(cxs);
+	}
 }
 
-cairo_surface_t * cairo_xboot_surface_create(struct render_t * render)
+cairo_surface_t * cairo_xboot_surface_create(struct fb_t * fb)
 {
 	struct cairo_xboot_surface_t * cxs;
+	void * pixels;
+	int width, height;
+	cairo_format_t fmt;
 
-	if (!render)
+	if (!fb)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NULL_POINTER));
 
 	cxs = malloc(sizeof(struct cairo_xboot_surface_t));
 	if (!cxs)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
-	cxs->pixels = render->pixels;
-	cxs->width = render->width;
-	cxs->height = render->height;
-	cxs->fmt = cairo_format_from_pixel_format(render->format);
+	cxs->fb = fb;
+	cxs->render = fb->create(fb);
+	if(!cxs->render)
+	{
+		free(cxs);
+		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_DEVICE_ERROR));
+	}
 
-	cxs->render = render;
-	cxs->cs = cairo_image_surface_create_for_data(cxs->pixels, cxs->fmt, cxs->width,
-			cxs->height, cairo_format_stride_for_width(cxs->fmt, cxs->width));
+	pixels = cxs->render->pixels;
+	width = cxs->render->width;
+	height = cxs->render->height;
+	fmt = cairo_format_from_pixel_format(cxs->render->format);
+
+	cxs->cs = cairo_image_surface_create_for_data(pixels, fmt, width, height,
+			cairo_format_stride_for_width(fmt, width));
 	cairo_surface_set_user_data(cxs->cs, NULL, cxs, &cairo_xboot_surface_destroy);
 
 	return cxs->cs;
+}
+
+void cairo_xboot_surface_present(cairo_surface_t * surface)
+{
+	struct cairo_xboot_surface_t * cxs = (struct cairo_xboot_surface_t *)cairo_surface_get_user_data(surface, NULL);
+
+	if(cxs)
+		cxs->fb->present(cxs->fb, cxs->render);
 }

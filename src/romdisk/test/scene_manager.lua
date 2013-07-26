@@ -93,7 +93,7 @@ function Transition.rotate(scene, t, startAngle, stopAngle)
 end
 
 local M = class(display_object)
-local application_width = 320
+local application_width = 800
 local application_height = 480
 
 function M.moveFromRight(scene1, scene2, t)

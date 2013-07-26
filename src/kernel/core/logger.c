@@ -146,7 +146,6 @@ int logger_print(const char * fmt, ...)
 	}
 	len += sprintf((char *)(p + len), (const char *)"[%5u.%06u]", div, rem);
 	len += vsnprintf((char *)(p + len), (SZ_4K - len), fmt, ap);
-	len += sprintf((char *)(p + len), "\r\n");
 	va_end(ap);
 
 	logger_output((const char *)p, len);

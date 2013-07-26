@@ -30,7 +30,7 @@ int logger_print(const char * fmt, ...);
 #if	defined(CONFIG_NO_LOG) && (CONFIG_NO_LOG > 0)
 #define LOG(fmt, arg...)	do { } while(0)
 #else
-#define LOG(fmt, arg...)	do { logger_print("[%s:%d] "fmt, __FILE__, __LINE__, ##arg); } while(0)
+#define LOG(fmt, arg...)	do { logger_print("[%s:%d] " fmt "\r\n", __FILE__, __LINE__, ##arg); } while(0)
 #endif
 
 #ifdef __cplusplus

@@ -111,20 +111,20 @@ static bool_t mach_authentication(void)
  */
 static struct machine_t realview = {
 	.info = {
-		.board_name 		= "realview",
-		.board_desc 		= "arm realview emulation baseboard",
-		.board_id			= "0xc1400400",
+		.board_name 		= "realview-pb-a8",
+		.board_desc 		= "ARM RealView Platform Baseboard for Cortex-A8",
+		.board_id			= "0x01780500",
 
-		.cpu_name			= "arm926ejs",
-		.cpu_desc			= "arm926ejs",
-		.cpu_id				= "0x02000000",
+		.cpu_name			= "cortex-a8",
+		.cpu_desc			= "cortex-a8",
+		.cpu_id				= "0x00000000",
 	},
 
 	.res = {
 		.mem_banks = {
 			[0] = {
-				.start		= 0x00000000,
-				.end		= 0x00000000 + SZ_128M - 1,
+				.start		= 0x70000000,
+				.end		= 0x70000000 + SZ_128M - 1,
 			},
 
 			[1] = {

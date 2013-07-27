@@ -15,10 +15,10 @@ local M = class(display_object)
 function M:init()
 	display_object.init(self)
 
-	self:add_child(display_image:new("/romdisk/test/images/scene1.png"))
+	self:add_child(display_image:new("/romdisk/samples/images/scene1.png"))
 	
 	for i=1,5 do
-		local img = display_image:new("/romdisk/test/images/" .. i ..".png", math.random(0, 800 - 100), math.random(0, 480 - 100))
+		local img = display_image:new("/romdisk/samples/images/" .. i ..".png", math.random(0, 800 - 100), math.random(0, 480 - 100))
 		img.alpha = 1
 	
 		img:add_event_listener(event.MOUSE_DOWN, self.on_mouse_down, img)

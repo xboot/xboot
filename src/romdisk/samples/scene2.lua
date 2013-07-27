@@ -10,12 +10,23 @@ local event_dispatcher = require("org.xboot.event.event_dispatcher")
 local display_object = require("org.xboot.display.display_object")
 local display_image = require("org.xboot.display.display_image")
 
+local button = require("button")
+
 local M = class(display_object)
 
 function M:init()
 	display_object.init(self)
 
-	self:add_child(display_image:new("/romdisk/test/images/scene2.png"))
+	self:add_child(display_image:new("/romdisk/samples/images/background.png"))
+
+	local normal = display_image:new("/romdisk/samples/images/off.png")
+	local active = display_image:new("/romdisk/samples/images/on.png")
+	local btn = button:new(normal, active)
+	btn:add_event_listener("click", function(d, e)
+		print("power click...")
+	end, btn)
+	btn:setxy(200, 150)
+	self:add_child(btn)
 	
 	self:add_event_listener("enterBegin", self.on_transition_in_begin, self)
 	self:add_event_listener("enterEnd", self.on_transition_in_end, self)

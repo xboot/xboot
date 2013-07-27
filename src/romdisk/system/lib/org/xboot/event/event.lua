@@ -32,8 +32,8 @@ M.MOUSE_UP = "mouseup"
 M.MOUSE_WHEEL = "mousewheel"
 
 ---
--- @field [parent=#event] TOUCHES_BEGAN touchesbegan
-M.TOUCHES_BEGAN = "touchesbegan"
+-- @field [parent=#event] TOUCHES_BEGIN touchesbegan
+M.TOUCHES_BEGIN = "touchesbegin"
 
 ---
 -- @field [parent=#event] TOUCHES_MOVE touchesmove

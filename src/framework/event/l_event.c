@@ -28,7 +28,7 @@
 #define __TYPE_MOUSE_MOVE			"mousemove"
 #define __TYPE_MOUSE_UP				"mouseup"
 #define __TYPE_MOUSE_WHEEL			"mousewheel"
-#define __TYPE_TOUCHES_BEGAN		"touchesbegan"
+#define __TYPE_TOUCHES_BEGIN		"touchesbegin"
 #define __TYPE_TOUCHES_MOVE			"touchesmove"
 #define __TYPE_TOUCHES_END			"touchesend"
 #define __TYPE_TOUCHES_CANCEL		"touchescancel"
@@ -150,11 +150,11 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	/* touches */
-	case EVENT_TYPE_TOUCHES_BEGAN:
+	case EVENT_TYPE_TOUCHES_BEGIN:
 		lua_newtable(L);
 		lua_pushstring(L, event.device);
 		lua_setfield(L, -2, "device");
-		lua_pushstring(L, __TYPE_TOUCHES_BEGAN);
+		lua_pushstring(L, __TYPE_TOUCHES_BEGIN);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");

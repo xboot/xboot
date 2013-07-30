@@ -71,7 +71,7 @@ local cr1 = buildin_cairo.create(cs1)
 local cr2 = buildin_cairo.create(cs2)
 local index = false;
 
-timer:new(1 / 60, 0, function(t, e)
+timer:new(1 / 30, 0, function(t, e)
 	local cr
 	index = not index
 	if index then

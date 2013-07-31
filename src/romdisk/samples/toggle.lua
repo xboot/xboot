@@ -29,6 +29,9 @@ end
 function M:on_mouse_down(e)
 	if self:hit_test_point(e.msg.x, e.msg.y) then
 		self.focus = true
+		self.ison = not self.ison
+		self:update_visual_state(self.ison)
+		self:dispatch_event(event:new("toggled"))
 		e:stop_propagation()
 	end
 end
@@ -45,9 +48,6 @@ end
 function M:on_mouse_up(e)
 	if self.focus then
 		self.focus = false
-		self.ison = not self.ison
-		self:update_visual_state(self.ison)
-		self:dispatch_event(event:new("toggled"))
 		e:stop_propagation()
 	end
 end

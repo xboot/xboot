@@ -92,8 +92,7 @@ end)
 while true do
 	local info = buildin_event.pump()	
 	if info ~= nil then
-		local e = event:new(info.type)
-		e.info = info
+		local e = event:new(info.type, info)
 		runtime:dispatch(e)
 	end
 

@@ -56,11 +56,12 @@ M.ENTER_FRAME = "enterframe"
 -- 
 -- @function [parent=#event] new
 -- @param type (string)
+-- @param info (optional) An optional table of information attach to event object.
 -- @return New 'event' object.
-function M:init(type)
+function M:init(type, info)
 	self.type = type
+	self.info = info or {}
 	self.stoped = false
-	self.info = {}
 end
 
 ---

@@ -26,7 +26,7 @@ function M:init(normal, active)
 end
 
 function M:on_mouse_down(e)
-	if self:hit_test_point(e.msg.x, e.msg.y) then
+	if self:hit_test_point(e.info.x, e.info.y) then
 		self.focus = true
 		self:update_visual_state(self.focus)
 		e:stop_propagation()
@@ -35,7 +35,7 @@ end
 
 function M:on_mouse_move(e)
 	if self.focus then
-		if not self:hit_test_point(e.msg.x, e.msg.y) then	
+		if not self:hit_test_point(e.info.x, e.info.y) then	
 			self.focus = false
 			self:update_visual_state(self.focus)
 		end

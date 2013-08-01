@@ -60,6 +60,7 @@ M.ENTER_FRAME = "enterframe"
 function M:init(type)
 	self.type = type
 	self.stoped = false
+	self.info = {}
 end
 
 ---

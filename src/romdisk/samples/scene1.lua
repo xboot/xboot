@@ -35,24 +35,24 @@ function M:init()
 end
 
 function M:on_mouse_down(e)
-	if self:hit_test_point(e.msg.x, e.msg.y) then
+	if self:hit_test_point(e.info.x, e.info.y) then
 		self.isfocus = true
 		self:tofront()
 		
-		self.x0 = e.msg.x
-		self.y0 = e.msg.y
+		self.x0 = e.info.x
+		self.y0 = e.info.y
 		e:stop_propagation()
 	end
 end
 
 function M:on_mouse_move(e)
 	if self.isfocus then
-		local dx = e.msg.x - self.x0
-		local dy = e.msg.y - self.y0
+		local dx = e.info.x - self.x0
+		local dy = e.info.y - self.y0
 		
 		self:translate(dx, dy)
-		self.x0 = e.msg.x
-		self.y0 = e.msg.y
+		self.x0 = e.info.x
+		self.y0 = e.info.y
 		e:stop_propagation()
 	end
 end

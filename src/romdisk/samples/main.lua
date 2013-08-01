@@ -58,9 +58,9 @@ btn:setxy(40, 200)
 runtime:add_child(btn)
 
 local cursor = display_image:new("/romdisk/samples/images/cursor.png", 0, 0)
-cursor:add_event_listener(event.MOUSE_DOWN, function(d, e) d:setxy(e.msg.x, e.msg.y) end, cursor)
-cursor:add_event_listener(event.MOUSE_MOVE, function(d, e) d:setxy(e.msg.x, e.msg.y) end, cursor)
-cursor:add_event_listener(event.MOUSE_UP, function(d, e) d:setxy(e.msg.x, e.msg.y) end, cursor)
+cursor:add_event_listener(event.MOUSE_DOWN, function(d, e) d:setxy(e.info.x, e.info.y) end, cursor)
+cursor:add_event_listener(event.MOUSE_MOVE, function(d, e) d:setxy(e.info.x, e.info.y) end, cursor)
+cursor:add_event_listener(event.MOUSE_UP, function(d, e) d:setxy(e.info.x, e.info.y) end, cursor)
 runtime:add_child(cursor)
 
 ------------------- main --------------------------------
@@ -90,10 +90,10 @@ timer:new(1 / 60, 0, function(t, e)
 end)
 
 while true do
-	local msg = buildin_event.pump()	
-	if msg ~= nil then
-		local e = event:new(msg.type)
-		e.msg = msg
+	local info = buildin_event.pump()	
+	if info ~= nil then
+		local e = event:new(info.type)
+		e.info = info
 		runtime:dispatch(e)
 	end
 

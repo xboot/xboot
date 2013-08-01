@@ -31,8 +31,8 @@ function M:init()
 	self:add_child(btn)
 	
 -- toggle
-	local on = display_image:new("/romdisk/samples/images/toggle-on-select.png")
-	local off = display_image:new("/romdisk/samples/images/toggle-off-cancel.png")
+	local on = display_image:new("/romdisk/samples/images/on.png")
+	local off = display_image:new("/romdisk/samples/images/off.png")
 	local tog = toggle:new(on, off)
 	tog:add_event_listener("toggled", function(d, e)
 		print("toggle click...")

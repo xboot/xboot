@@ -20,7 +20,7 @@ struct xtime_t {
 void do_system_xtime(void);
 u32_t xmktime(const u32_t year0, const u32_t mon0, const u32_t day, const u32_t hour, const u32_t min, const u32_t sec);
 u8_t xmkweek(u32_t year, u32_t mon, u32_t day);
-u32_t get_time_stamp(void);
+u64_t clock_gettime(void);
 
 #ifdef __cplusplus
 }

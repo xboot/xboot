@@ -172,26 +172,14 @@ u8_t xmkweek(u32_t year, u32_t mon, u32_t day)
 	return (day + 2 * mon + 3 * (mon + 1) / 5 + year + year / 4 - year / 100 + year / 400 + 1) % 7;
 }
 
-/*
- * get time stamp
- */
-u32_t get_time_stamp(void)
+u64_t clock_gettime(void)
 {
-	u32_t year, mon, day, hour, min, sec;
+	if(get_system_hz() > 0)
+		return jiffies * 10000000 / get_system_hz();
 
-	year = xtime.year;
-	mon = xtime.mon;
-	day = xtime.day;
-	hour = xtime.hour;
-	min = xtime.min;
-	sec = xtime.sec;
-
-	return xmktime(year, mon, day, hour, min, sec);
+	return 0;
 }
 
-/*
- * xtime proc interface
- */
 static s32_t xtime_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[64];
@@ -219,13 +207,11 @@ static struct proc_t xtime_proc = {
 
 static __init void xtime_pure_sync_init(void)
 {
-	/* register xtime proc interface */
 	proc_register(&xtime_proc);
 }
 
 static __exit void xtime_pure_sync_exit(void)
 {
-	/* unregister xtime proc interface */
 	proc_unregister(&xtime_proc);
 }
 

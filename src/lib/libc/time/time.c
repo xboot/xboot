@@ -2,10 +2,19 @@
  * libc/time/time.c
  */
 
+#include <xboot/module.h>
 #include <time.h>
 
 time_t time(time_t * t)
 {
-	//TODO
-	return 0;
+	struct timeval tv;
+
+	if(gettimeofday(&tv, 0) != 0)
+		return -1;
+
+	if(t)
+		*t = tv.tv_sec;
+
+	return tv.tv_sec;
 }
+EXPORT_SYMBOL(time);

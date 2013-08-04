@@ -98,6 +98,9 @@ static bool_t mach_cleanup(void)
 	/* disable mmu */
 	mmu_disable();
 
+	/* disable vic */
+	vic_disable();
+
 	return TRUE;
 }
 
@@ -124,7 +127,7 @@ static struct machine_t realview = {
 		.mem_banks = {
 			[0] = {
 				.start		= 0x70000000,
-				.end		= 0x70000000 + SZ_256M - 1,
+				.end		= 0x70000000 + (SZ_256M - 1),
 			},
 
 			[1] = {
@@ -133,7 +136,7 @@ static struct machine_t realview = {
 			},
 		},
 
-		.xtal				= 12*1000*1000,
+		.xtal				= 12 * 1000 * 1000,
 	},
 
 	.link = {

@@ -182,3 +182,47 @@ void mmu_disable(void)
 	reg = read_p15_c1();
 	write_p15_c1(reg & ~(1<<0));
 }
+
+/*
+ * enable vector interrupt controller
+ */
+void vic_enable(void)
+{
+	u32_t reg;
+
+	reg = read_p15_c1();
+	write_p15_c1(reg | (1<<24));
+}
+
+/*
+ * disable vector interrupt controller
+ */
+void vic_disable(void)
+{
+	u32_t reg;
+
+	reg = read_p15_c1();
+	write_p15_c1(reg & ~(1<<24));
+}
+
+/*
+ * enable branch prediction
+ */
+void branch_enable(void)
+{
+	u32_t reg;
+
+	reg = read_p15_c1();
+	write_p15_c1(reg | (1<<11));
+}
+
+/*
+ * disable branch prediction
+ */
+void branch_disable(void)
+{
+	u32_t reg;
+
+	reg = read_p15_c1();
+	write_p15_c1(reg & ~(1<<11));
+}

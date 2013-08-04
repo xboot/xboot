@@ -1,9 +1,6 @@
 #ifndef __REALVIEW_CP15_H__
 #define __REALVIEW_CP15_H__
 
-#include <xboot.h>
-
-
 void irq_enable(void);
 void irq_disable(void);
 void fiq_enable(void);
@@ -14,5 +11,9 @@ void dcache_enable(void);
 void dcache_disable(void);
 void mmu_enable(void);
 void mmu_disable(void);
+void vic_enable(void);
+void vic_disable(void);
+void branch_enable(void);
+void branch_disable(void);
 
 #endif /* __REALVIEW_CP15_H__ */

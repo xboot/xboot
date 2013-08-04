@@ -306,6 +306,9 @@ static __init void realview_irq_init(void)
 			LOG("Failed to register irq '%s'", realview_irqs[i].name);
 	}
 
+	/* enable vector interrupt controller */
+	vic_enable();
+
 	/* enable irq and fiq */
 	irq_enable();
 	fiq_enable();

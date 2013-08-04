@@ -157,7 +157,7 @@ _cairo_time_get (void)
 }
 
 #else
-//xxx #include <sys/time.h>
+#include <time.h>
 
 static cairo_always_inline double
 _cairo_time_1s (void)
@@ -168,14 +168,14 @@ _cairo_time_1s (void)
 cairo_time_t
 _cairo_time_get (void)
 {
-//xxx    struct timeval t;
+	struct timeval t;
     cairo_time_t r;
 
-//    gettimeofday (&t, NULL);
+	gettimeofday (&t, NULL);
 
     r = _cairo_double_to_int64 (_cairo_time_1s ());
-//    r = _cairo_int64_mul (r, _cairo_int32_to_int64 (t.tv_sec));
-//    r = _cairo_int64_add (r, _cairo_int32_to_int64 (t.tv_usec));
+	r = _cairo_int64_mul (r, _cairo_int32_to_int64 (t.tv_sec));
+	r = _cairo_int64_add (r, _cairo_int32_to_int64 (t.tv_usec));
 
     return r;
 }

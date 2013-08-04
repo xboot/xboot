@@ -33,20 +33,20 @@ endif
 #
 # Load default variables.
 #
-ASFLAGS	:= -g -ggdb -Wall
+ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
 CXXFLAGS	:= -g -ggdb -Wall
-LDFLAGS	:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-ARFLAGS	:= -rcs
-OCFLAGS	:= -v -O binary
-ODFLAGS	:=
-MCFLAGS	:=
+LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
+ARFLAGS		:= -rcs
+OCFLAGS		:= -v -O binary
+ODFLAGS		:=
+MCFLAGS		:=
 
-LIBDIRS	:=
+LIBDIRS		:=
 LIBS 		:=
 
-INCDIRS	:=
-SRCDIRS	:=
+INCDIRS		:=
+SRCDIRS		:=
 
 #
 # Override default variables.
@@ -56,141 +56,141 @@ sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 #
 # Modify default variables.
 #
-DEFINES	+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
-ASFLAGS	+= 	-std=gnu99 $(DEFINES)
+DEFINES		+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
+ASFLAGS		+= 	-std=gnu99 $(DEFINES)
 CFLAGS		+=	-std=gnu99 $(DEFINES)
 CXXFLAGS	+=	-std=gnu99 $(DEFINES)
 
 #
 # Add necessary directory for INCDIRS and SRCDIRS.
 #
-INCDIRS	+=	include									\
+INCDIRS		+=	include										\
 				arch/$(ARCH)/include						\
 				arch/$(ARCH)/$(MACH)/include
 
-SRCDIRS	+=	arch/$(ARCH)/lib/gcc						\
+SRCDIRS		+=	arch/$(ARCH)/lib/gcc						\
 				arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/lib							\
 				arch/$(ARCH)/$(MACH)						\
-				arch/$(ARCH)/$(MACH)/driver				\
-				arch/$(ARCH)/$(MACH)/resource			\
+				arch/$(ARCH)/$(MACH)/driver					\
+				arch/$(ARCH)/$(MACH)/resource				\
 				lib											\
-				lib/elf									\
+				lib/elf										\
 				lib/libc									\
-				lib/libc/ctype							\
+				lib/libc/ctype								\
 				lib/libc/environ							\
-				lib/libc/errno							\
+				lib/libc/errno								\
 				lib/libc/exit								\
 				lib/libc/fifo								\
 				lib/libc/readline							\
-				lib/libc/stdio							\
-				lib/libc/stdlib							\
-				lib/libc/string							\
+				lib/libc/stdio								\
+				lib/libc/stdlib								\
+				lib/libc/string								\
 				lib/libc/time								\
-				lib/libc/locale							\
-				lib/libc/malloc							\
+				lib/libc/locale								\
+				lib/libc/malloc								\
 				lib/libm									\
 				lib/libx									\
 				init										\
 				init/mode									\
 				kernel										\
-				kernel/core								\
+				kernel/core									\
 				kernel/shell								\
-				kernel/command							\
-				kernel/time								\
+				kernel/command								\
+				kernel/time									\
 				kernel/fs									\
 				kernel/fs/vfs								\
-				kernel/fs/ramfs							\
+				kernel/fs/ramfs								\
 				kernel/fs/procfs							\
-				kernel/fs/devfs							\
-				kernel/fs/arfs							\
-				kernel/fs/tarfs							\
+				kernel/fs/devfs								\
+				kernel/fs/arfs								\
+				kernel/fs/tarfs								\
 				kernel/fs/cpiofs							\
-				kernel/fs/fatfs							\
-				drivers									\
-				drivers/console							\
+				kernel/fs/fatfs								\
+				drivers										\
+				drivers/console								\
 				drivers/disk								\
-				drivers/disk/partition					\
-				drivers/serial							\
+				drivers/disk/partition						\
+				drivers/serial								\
 				drivers/fb									\
 				drivers/fb/sw								\
-				drivers/led								\
+				drivers/led									\
 				drivers/loop								\
-				drivers/romdisk							\
-				drivers/rtc								\
+				drivers/romdisk								\
+				drivers/rtc									\
 				drivers/input								\
-				drivers/input/keyboard					\
-				drivers/mmc								\
-				drivers/mtd								\
+				drivers/input/keyboard						\
+				drivers/mmc									\
+				drivers/mtd									\
 				drivers/mtd/nand							\
-				drivers/mtd/nor							\
+				drivers/mtd/nor								\
 				framework									\
 				framework/base64							\
-				framework/cairo							\
-				framework/event							\
+				framework/cairo								\
+				framework/event								\
 				framework/logger							\
-				framework/timecounter					\
+				framework/timecounter						\
 				framework/xfs
 
 #
 # Add external library
 #
-INCDIRS	+= 	external/lua-5.2.2
-SRCDIRS	+=	external/lua-5.2.2
+INCDIRS		+= 	external/lua-5.2.2
+SRCDIRS		+=	external/lua-5.2.2
 
-INCDIRS	+= 	external/zlib-1.2.7
-SRCDIRS	+=	external/zlib-1.2.7
+INCDIRS		+= 	external/zlib-1.2.7
+SRCDIRS		+=	external/zlib-1.2.7
 
-INCDIRS	+= 	external/libpng-1.5.14
-SRCDIRS	+=	external/libpng-1.5.14
+INCDIRS		+= 	external/libpng-1.5.14
+SRCDIRS		+=	external/libpng-1.5.14
 
-INCDIRS	+= 	external/pixman-0.28.2
-SRCDIRS	+=	external/pixman-0.28.2
+INCDIRS		+= 	external/pixman-0.28.2
+SRCDIRS		+=	external/pixman-0.28.2
 
-INCDIRS	+= 	external/cairo-1.12.14
-SRCDIRS	+=	external/cairo-1.12.14
+INCDIRS		+= 	external/cairo-1.12.14
+SRCDIRS		+=	external/cairo-1.12.14
 
-INCDIRS	+= 	external/freetype-2.4.11/include		\
-				external/freetype-2.4.11/src/base		\
+INCDIRS		+= 	external/freetype-2.4.11/include \
+				external/freetype-2.4.11/src/base \
 				external/freetype-2.4.11/src/raster	\
 				external/freetype-2.4.11/src/smooth	\
-				external/freetype-2.4.11/src/cff		\
-				external/freetype-2.4.11/src/cid		\
-				external/freetype-2.4.11/src/pfr		\
-				external/freetype-2.4.11/src/sfnt		\
-				external/freetype-2.4.11/src/truetype	\
-				external/freetype-2.4.11/src/type1		\
-				external/freetype-2.4.11/src/type42	\
-				external/freetype-2.4.11/src/winfonts	\
-				external/freetype-2.4.11/src/autofit 	\
-				external/freetype-2.4.11/src/cache 	\
-				external/freetype-2.4.11/src/gxvalid 	\
-				external/freetype-2.4.11/src/otvalid 	\
-				external/freetype-2.4.11/src/psaux 	\
-				external/freetype-2.4.11/src/pshinter 	\
+				external/freetype-2.4.11/src/cff \
+				external/freetype-2.4.11/src/cid \
+				external/freetype-2.4.11/src/pfr \
+				external/freetype-2.4.11/src/sfnt \
+				external/freetype-2.4.11/src/truetype \
+				external/freetype-2.4.11/src/type1 \
+				external/freetype-2.4.11/src/type42 \
+				external/freetype-2.4.11/src/winfonts \
+				external/freetype-2.4.11/src/autofit \
+				external/freetype-2.4.11/src/cache \
+				external/freetype-2.4.11/src/gxvalid \
+				external/freetype-2.4.11/src/otvalid \
+				external/freetype-2.4.11/src/psaux \
+				external/freetype-2.4.11/src/pshinter \
 				external/freetype-2.4.11/src/psnames
-SRCDIRS	+=	external/freetype-2.4.11/src/base 		\
-				external/freetype-2.4.11/src/raster	\
-				external/freetype-2.4.11/src/smooth	\
-				external/freetype-2.4.11/src/cff		\
-				external/freetype-2.4.11/src/cid		\
-				external/freetype-2.4.11/src/pfr		\
-				external/freetype-2.4.11/src/sfnt		\
-				external/freetype-2.4.11/src/truetype	\
-				external/freetype-2.4.11/src/type1		\
-				external/freetype-2.4.11/src/type42	\
-				external/freetype-2.4.11/src/winfonts	\
-				external/freetype-2.4.11/src/autofit 	\
-				external/freetype-2.4.11/src/cache 	\
-				external/freetype-2.4.11/src/gxvalid 	\
-				external/freetype-2.4.11/src/otvalid 	\
-				external/freetype-2.4.11/src/psaux 	\
-				external/freetype-2.4.11/src/pshinter 	\
+SRCDIRS		+=	external/freetype-2.4.11/src/base \
+				external/freetype-2.4.11/src/raster \
+				external/freetype-2.4.11/src/smooth \
+				external/freetype-2.4.11/src/cff \
+				external/freetype-2.4.11/src/cid \
+				external/freetype-2.4.11/src/pfr \
+				external/freetype-2.4.11/src/sfnt \
+				external/freetype-2.4.11/src/truetype \
+				external/freetype-2.4.11/src/type1 \
+				external/freetype-2.4.11/src/type42 \
+				external/freetype-2.4.11/src/winfonts \
+				external/freetype-2.4.11/src/autofit \
+				external/freetype-2.4.11/src/cache \
+				external/freetype-2.4.11/src/gxvalid \
+				external/freetype-2.4.11/src/otvalid \
+				external/freetype-2.4.11/src/psaux \
+				external/freetype-2.4.11/src/pshinter \
 				external/freetype-2.4.11/src/psnames
 
-INCDIRS	+=	external/chipmunk-6.1.5/include/chipmunk \
+INCDIRS		+=	external/chipmunk-6.1.5/include/chipmunk \
 				external/chipmunk-6.1.5/include/chipmunk/constraints
-SRCDIRS	+=	external/chipmunk-6.1.5/src \
+SRCDIRS		+=	external/chipmunk-6.1.5/src \
 			 	external/chipmunk-6.1.5/src/constraints
 
 #
@@ -336,13 +336,13 @@ mclean:
 # Include the dependency files, should be place the last of makefile
 #
 sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
-			&& $(RM) .obj/romdisk										\
-			&& $(RM) .obj/romdisk.cpio									\
-			&& $(RM) .obj/init/version.o								\
-			&& $(RM) .obj/drivers/romdisk/data.o						\
-			&& $(CP) romdisk .obj										\
+			&& $(RM) .obj/romdisk									\
+			&& $(RM) .obj/romdisk.cpio								\
+			&& $(RM) .obj/init/version.o							\
+			&& $(RM) .obj/drivers/romdisk/data.o					\
+			&& $(CP) romdisk .obj									\
 			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj				\
-			&& $(CD) .obj/romdisk										\
+			&& $(CD) .obj/romdisk									\
 			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio	\
-			&& $(CD) ../..)												\
+			&& $(CD) ../..)											\
 			$(X_DEPS) $(M_DEPS)

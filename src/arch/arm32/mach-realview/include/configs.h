@@ -4,6 +4,6 @@
 /*
  * malloc heap size
  */
-#define CONFIG_HEAP_SIZE		(SZ_64M)
+#define CONFIG_HEAP_SIZE		(SZ_128M)
 
 #endif /* __CONFIGS_H__ */

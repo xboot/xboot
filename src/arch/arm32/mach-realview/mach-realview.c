@@ -124,7 +124,7 @@ static struct machine_t realview = {
 		.mem_banks = {
 			[0] = {
 				.start		= 0x70000000,
-				.end		= 0x70000000 + SZ_128M - 1,
+				.end		= 0x70000000 + SZ_256M - 1,
 			},
 
 			[1] = {

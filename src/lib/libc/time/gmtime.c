@@ -2,6 +2,7 @@
  * libc/time/gmtime.c
  */
 
+#include <xboot/module.h>
 #include <time.h>
 
 struct tm * gmtime(const time_t * t)
@@ -13,3 +14,4 @@ struct tm * gmtime(const time_t * t)
 
 	return &tm;
 }
+EXPORT_SYMBOL(gmtime);

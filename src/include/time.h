@@ -22,6 +22,11 @@ struct tm {
 	const char *__tm_zone;
 };
 
+struct timeval {
+	long tv_sec;
+	long tv_usec;
+};
+
 clock_t clock(void);
 time_t time(time_t * t);
 double difftime (time_t, time_t);
@@ -31,6 +36,7 @@ struct tm * gmtime(const time_t * t);
 struct tm * localtime(const time_t * t);
 char * asctime(const struct tm * tm);
 char * ctime(const time_t * t);
+int gettimeofday(struct timeval * tv, void * tz);
 
 struct tm * __time_to_tm(time_t t, struct tm * tm);
 time_t __tm_to_time(struct tm * tm);

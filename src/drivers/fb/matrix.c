@@ -1,5 +1,5 @@
 /*
- * libx/matrix.c
+ * driver/fb/matrix.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,8 +20,8 @@
  *
  */
 
-#include <xboot/module.h>
-#include <matrix.h>
+#include <string.h>
+#include <fb/matrix.h>
 
 void matrix_transform_init(struct matrix_transform_t * m,
 		float a, float b, float x,
@@ -30,14 +30,12 @@ void matrix_transform_init(struct matrix_transform_t * m,
 	m->a = a;	m->b = b;	m->x = x;
 	m->a = c;	m->b = d;	m->x = y;
 }
-EXPORT_SYMBOL(matrix_transform_init);
 
 void matrix_transform_init_identity(struct matrix_transform_t * m)
 {
 	m->a = 1;	m->b = 0;	m->x = 0;
 	m->a = 0;	m->b = 1;	m->x = 0;
 }
-EXPORT_SYMBOL(matrix_transform_init_identity);
 
 void matrix_transform_init_translate(struct matrix_transform_t * m,
 		float tx, float ty)
@@ -45,7 +43,6 @@ void matrix_transform_init_translate(struct matrix_transform_t * m,
 	m->a = 1;	m->b = 0;	m->x = tx;
 	m->a = 0;	m->b = 1;	m->x = ty;
 }
-EXPORT_SYMBOL(matrix_transform_init_translate);
 
 void matrix_transform_init_scale(struct matrix_transform_t * m,
 		float sx, float sy)
@@ -53,7 +50,6 @@ void matrix_transform_init_scale(struct matrix_transform_t * m,
 	m->a = sx;	m->b = 0;	m->x = 0;
 	m->a = 0;	m->b = sy;	m->x = 0;
 }
-EXPORT_SYMBOL(matrix_transform_init_scale);
 
 void matrix_transform_init_rotate(struct matrix_transform_t * m,
 		float c, float s)
@@ -61,7 +57,6 @@ void matrix_transform_init_rotate(struct matrix_transform_t * m,
 	m->a = c;	m->b = -s;	m->x = 0;
 	m->a = s;	m->b = c;	m->x = 0;
 }
-EXPORT_SYMBOL(matrix_transform_init_rotate);
 
 void matrix_transform_init_shear(struct matrix_transform_t * m,
 		float x, float y)
@@ -69,7 +64,6 @@ void matrix_transform_init_shear(struct matrix_transform_t * m,
 	m->a = 1;	m->b = x;	m->x = 0;
 	m->a = y;	m->b = 1;	m->x = 0;
 }
-EXPORT_SYMBOL(matrix_transform_init_shear);
 
 /*
  * | [m->a] [m->b] [m->x] |   | [m1->a] [m1->b] [m1->x] |   | [m2->a] [m2->b] [m2->x] |
@@ -92,7 +86,6 @@ void matrix_transform_multiply(struct matrix_transform_t * m,
 
 	memcpy(m, &t, sizeof(struct matrix_transform_t));
 }
-EXPORT_SYMBOL(matrix_transform_multiply);
 
 void matrix_transform_invert(struct matrix_transform_t * m, const struct matrix_transform_t * i)
 {
@@ -116,7 +109,6 @@ void matrix_transform_invert(struct matrix_transform_t * m, const struct matrix_
 
 	memcpy(m, &t, sizeof(struct matrix_transform_t));
 }
-EXPORT_SYMBOL(matrix_transform_invert);
 
 void matrix_transform_translate(struct matrix_transform_t * m, float tx, float ty)
 {
@@ -125,7 +117,6 @@ void matrix_transform_translate(struct matrix_transform_t * m, float tx, float t
 	matrix_transform_init_translate(&t, tx, ty);
 	matrix_transform_multiply(m, &t, m);
 }
-EXPORT_SYMBOL(matrix_transform_translate);
 
 void matrix_transform_scale(struct matrix_transform_t * m, float sx, float sy)
 {
@@ -134,7 +125,6 @@ void matrix_transform_scale(struct matrix_transform_t * m, float sx, float sy)
 	matrix_transform_init_scale(&t, sx, sy);
 	matrix_transform_multiply(m, &t, m);
 }
-EXPORT_SYMBOL(matrix_transform_scale);
 
 void matrix_transform_rotate(struct matrix_transform_t * m, float c, float s)
 {
@@ -143,7 +133,6 @@ void matrix_transform_rotate(struct matrix_transform_t * m, float c, float s)
 	matrix_transform_init_rotate(&t, c, s);
 	matrix_transform_multiply(m, &t, m);
 }
-EXPORT_SYMBOL(matrix_transform_rotate);
 
 void matrix_transform_shear(struct matrix_transform_t * m, float x, float y)
 {
@@ -152,7 +141,6 @@ void matrix_transform_shear(struct matrix_transform_t * m, float x, float y)
 	matrix_transform_init_shear(&t, x, y);
 	matrix_transform_multiply(m, &t, m);
 }
-EXPORT_SYMBOL(matrix_transform_shear);
 
 void matrix_transform_distance(const struct matrix_transform_t * m, float * dx, float * dy)
 {
@@ -164,7 +152,6 @@ void matrix_transform_distance(const struct matrix_transform_t * m, float * dx, 
 	*dx = nx;
 	*dy = ny;
 }
-EXPORT_SYMBOL(matrix_transform_distance);
 
 void matrix_transform_point(const struct matrix_transform_t * m, float * x, float * y)
 {
@@ -173,4 +160,3 @@ void matrix_transform_point(const struct matrix_transform_t * m, float * x, floa
 	*x += m->x;
 	*y += m->y;
 }
-EXPORT_SYMBOL(matrix_transform_point);

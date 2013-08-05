@@ -1,5 +1,5 @@
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
+#ifndef __FB_MATRIX_H__
+#define __FB_MATRIX_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,4 +37,4 @@ void matrix_transform_point(const struct matrix_transform_t * m, float * x, floa
 }
 #endif
 
-#endif /* __MATRIX_H__ */
+#endif /* __FB_MATRIX_H__ */

@@ -1,5 +1,5 @@
 /*
- * libx/color.c
+ * drivers/fb/color.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,9 +20,9 @@
  *
  */
 
-#include <xboot/module.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <fb/color.h>
 
 #define RGB_COLOR(red, green, blue)		{.r = red, .g = green, .b = blue, .a = 255}
@@ -225,7 +225,6 @@ struct color_t * get_named_color(const char * name)
 
 	return (struct color_t *)(&(__color_table[i].color));
 }
-EXPORT_SYMBOL(get_named_color);
 
 void color_init_rgb(struct color_t * color, u8_t r, u8_t g, u8_t b)
 {
@@ -234,7 +233,6 @@ void color_init_rgb(struct color_t * color, u8_t r, u8_t g, u8_t b)
 	color->b = b;
 	color->a = 255;
 }
-EXPORT_SYMBOL(color_init_rgb);
 
 void color_init_rgba(struct color_t * color, u8_t r, u8_t g, u8_t b, u8_t a)
 {
@@ -243,7 +241,6 @@ void color_init_rgba(struct color_t * color, u8_t r, u8_t g, u8_t b, u8_t a)
 	color->b = b;
 	color->a = a;
 }
-EXPORT_SYMBOL(color_init_rgba);
 
 /*
  * Color string : [#RGB], [#RGBA], [#RRGGBB], [#RRGGBBAA], [r, g, b], [NAME]
@@ -333,4 +330,3 @@ void color_init_colstr(struct color_t * color, const char * colstr)
 		memcpy(color, get_named_color(colstr), sizeof(struct color_t));
 	}
 }
-EXPORT_SYMBOL(color_init_colstr);

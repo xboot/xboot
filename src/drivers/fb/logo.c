@@ -21,7 +21,9 @@
  */
 
 #include <xboot.h>
-#include <fb/fb.h>
+#include <fb/color.h>
+#include <fb/rect.h>
+#include <fb/render.h>
 #include <fb/logo.h>
 
 static const struct gimage_t default_xboot_logo;

@@ -21,16 +21,10 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <charset.h>
-#include <malloc.h>
-#include <xboot/module.h>
 #include <xboot/chrdev.h>
 #include <xboot/ioctl.h>
 #include <console/console.h>
-#include <fb/logo.h>
-#include <fb/helper.h>
-#include <fb/color.h>
+#include <fb/font.h>
 #include <fb/fb.h>
 
 static struct fb_t * default_framebuffer = NULL;
@@ -107,6 +101,44 @@ static bool_t tcolor_to_color(enum tcolor_t c, struct color_t * col)
 	col->a = 0xff;
 
 	return TRUE;
+}
+
+static void fb_helper_fill_rect(struct fb_t * fb, struct color_t * c, u32_t x, u32_t y, u32_t w, u32_t h)
+{
+	struct rect_t rect;
+
+	rect.x = x;
+	rect.y = y;
+	rect.w = w;
+	rect.h = h;
+
+	render_clear(fb->alone, &rect, c);
+}
+
+static void fb_helper_blit(struct fb_t * fb, struct texture_t * texture, u32_t x, u32_t y, u32_t w, u32_t h, u32_t ox, u32_t oy)
+{
+	struct rect_t drect, srect;
+
+	drect.x = x;
+	drect.y = y;
+	drect.w = w;
+	drect.h = h;
+
+	srect.x = ox;
+	srect.y = oy;
+	srect.w = w;
+	srect.h = h;
+
+	render_blit_texture(fb->alone, &drect, texture, &srect);
+}
+
+static void fb_helper_putcode(struct fb_t * fb, u32_t code, struct color_t * fc, struct color_t * bc, u32_t x, u32_t y)
+{
+	struct texture_t * face = lookup_console_font_face(fb->alone, code, fc, bc);
+
+	if(face)
+		fb_helper_blit(fb, face, x, y, face->width, face->height, 0, 0);
+	render_free_texture(fb->alone, face);
 }
 
 static int fb_open(struct chrdev_t * dev)
@@ -196,13 +228,13 @@ static bool_t fbcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 		cell = &(info->cell[pos]);
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
-		fb_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
+		fb_helper_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 
 		pos = info->w * y + x;
 		cell = &(info->cell[pos]);
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
-		fb_putcode(info->fb, cell->cp, &(info->bc), &(info->fc), px, py);
+		fb_helper_putcode(info->fb, cell->cp, &(info->bc), &(info->fc), px, py);
 	}
 
 	info->x = x;
@@ -228,9 +260,9 @@ static bool_t fbcon_setcursor(struct console_t * console, bool_t on)
 	py = (pos / info->w) * info->fh;
 
 	if(info->cursor)
-		fb_putcode(info->fb, cell->cp, &(info->bc), &(info->fc), px, py);
+		fb_helper_putcode(info->fb, cell->cp, &(info->bc), &(info->fc), px, py);
 	else
-		fb_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
+		fb_helper_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 
 	return TRUE;
 }
@@ -292,7 +324,7 @@ static bool_t fbcon_cls(struct console_t * console)
 		cell++;
 	}
 
-	fb_fill_rect(info->fb, &(info->bc), 0, 0, (info->w * info->fw), (info->h * info->fh));
+	fb_helper_fill_rect(info->fb, &(info->bc), 0, 0, (info->w * info->fw), (info->h * info->fh));
 	fbcon_gotoxy(console, 0, 0);
 
 	return TRUE;
@@ -330,9 +362,9 @@ static bool_t fbcon_scrollup(struct console_t * console)
 	}
 
 	struct texture_t * t = render_snapshot(info->fb->alone);
-	fb_blit(info->fb, t, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
+	fb_helper_blit(info->fb, t, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
 	render_free_texture(info->fb->alone, t);
-	fb_fill_rect(info->fb, &(info->bc), 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
+	fb_helper_fill_rect(info->fb, &(info->bc), 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
 	fbcon_gotoxy(console, info->x, info->y - 1);
 
 	return TRUE;
@@ -369,7 +401,7 @@ bool_t fbcon_putcode(struct console_t * console, u32_t code)
 
 			px = (pos % info->w) * info->fw;
 			py = (pos / info->w) * info->fh;
-			fb_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
+			fb_helper_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 			info->x = info->x + 1;
 		}
 		fbcon_gotoxy(console, info->x, info->y);
@@ -406,7 +438,7 @@ bool_t fbcon_putcode(struct console_t * console, u32_t code)
 
 		px = (pos % info->w) * info->fw;
 		py = (pos / info->w) * info->fh;
-		fb_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
+		fb_helper_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 
 		if(info->x + w < info->w)
 			fbcon_gotoxy(console, info->x + w, info->y);

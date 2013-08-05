@@ -6,7 +6,10 @@ extern "C" {
 #endif
 
 #include <xboot.h>
+#include <fb/color.h>
+#include <fb/rect.h>
 #include <fb/render.h>
+#include <fb/logo.h>
 #include <fb/sw/sw.h>
 
 struct fb_t

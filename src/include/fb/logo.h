@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <fb/fb.h>
 #include <fb/render.h>
 
 bool_t register_logo(const struct gimage_t * logo);

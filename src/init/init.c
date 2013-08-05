@@ -21,6 +21,7 @@
  */
 
 #include <xboot.h>
+#include <cairo-xboot.h>
 #include <time/delay.h>
 #include <time/xtime.h>
 #include <xboot/menu.h>
@@ -29,9 +30,6 @@
 #include <fb/fb.h>
 #include <init.h>
 
-/*
- * mount root filesystem and create some directory.
- */
 void do_system_rootfs(void)
 {
 	LOG("mount root filesystem");
@@ -70,9 +68,56 @@ void do_system_rootfs(void)
 		LOG("failed to create directory '/mnt'");
 }
 
-/*
- * do load system configure
- */
+void do_system_logo(void)
+{
+	cairo_surface_t * logo, * watermark;
+	cairo_surface_t * cs;
+	cairo_t * cr;
+	struct fb_t * fb;
+	int x, y;
+
+	logo = cairo_image_surface_create_from_png("/romdisk/system/media/images/logo.png");
+	watermark = cairo_image_surface_create_from_png("/romdisk/system/media/images/watermark.png");
+
+	/* ...xxx */
+	fb = get_default_framebuffer();
+
+	cs = cairo_xboot_surface_create(fb, fb->alone);
+	cr = cairo_create(cs);
+
+	cairo_save(cr);
+	cairo_set_source_rgb(cr, 0, 0, 0);
+	cairo_paint(cr);
+	cairo_restore(cr);
+
+	x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(logo)) / 2;
+	y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(logo)) / 2;
+	cairo_set_source_surface(cr, logo, x, y);
+	cairo_paint(cr);
+
+	if(!machine_authentication())
+	{
+		x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(watermark)) / 2;
+		y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(watermark)) / 2;
+		cairo_set_source_surface(cr, watermark, x, y);
+		cairo_paint_with_alpha(cr, 0.9);
+	}
+
+	cairo_destroy(cr);
+	cairo_xboot_surface_present(cs);
+	cairo_surface_destroy(cs);
+
+	u8_t brightness;
+	if(fb->ioctl)
+	{
+		brightness = 0xff;
+		(fb->ioctl)(fb, IOCTL_SET_FB_BACKLIGHT, &brightness);
+	}
+
+	cairo_surface_destroy(logo);
+	cairo_surface_destroy(watermark);
+}
+
 void do_system_cfg(void)
 {
 	LOG("load system configure");
@@ -105,9 +150,6 @@ void do_system_cfg(void)
 	}
 }
 
-/*
- * wait a moment (two seconds)
- */
 void do_system_wait(void)
 {
 	u32_t timeout;

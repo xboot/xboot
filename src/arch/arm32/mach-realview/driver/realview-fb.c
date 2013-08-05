@@ -68,10 +68,13 @@ struct render_t * fb_create(struct fb_t * fb)
 {
 	struct render_t * render;
 	void * pixels;
+	size_t size;
 
-	pixels = memalign(4, LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8);
+	size = LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8;
+	pixels = memalign(4, size);
 	if(!pixels)
 		return NULL;
+	memset(pixels, 0, size);
 
 	render = malloc(sizeof(struct render_t));
 	if(!render)

@@ -40,6 +40,7 @@
 struct cairo_xboot_surface_t {
 	struct fb_t * fb;
 	struct render_t * render;
+	struct render_t * free_me;
 	cairo_surface_t * cs;
 };
 
@@ -78,16 +79,13 @@ static void cairo_xboot_surface_destroy(void * data)
 
 	if(cxs)
 	{
-		if(cxs->fb)
-		{
-			cxs->fb->present(cxs->fb, cxs->fb->alone);
-			cxs->fb->destroy(cxs->fb, cxs->render);
-		}
+		if(cxs->fb && cxs->free_me)
+			cxs->fb->destroy(cxs->fb, cxs->free_me);
 		free(cxs);
 	}
 }
 
-cairo_surface_t * cairo_xboot_surface_create(struct fb_t * fb)
+cairo_surface_t * cairo_xboot_surface_create(struct fb_t * fb, struct render_t * render)
 {
 	struct cairo_xboot_surface_t * cxs;
 	void * pixels;
@@ -102,7 +100,16 @@ cairo_surface_t * cairo_xboot_surface_create(struct fb_t * fb)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	cxs->fb = fb;
-	cxs->render = fb->create(fb);
+	if(render)
+	{
+		cxs->render = render;
+		cxs->free_me = NULL;
+	}
+	else
+	{
+		cxs->render = fb->create(fb);
+		cxs->free_me = cxs->render;
+	}
 	if(!cxs->render)
 	{
 		free(cxs);

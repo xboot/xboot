@@ -8,6 +8,7 @@ extern "C" {
 #include <xboot.h>
 
 void do_system_rootfs(void);
+void do_system_logo(void);
 void do_system_cfg(void);
 void do_system_wait(void);
 

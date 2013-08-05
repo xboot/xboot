@@ -42,6 +42,9 @@ int xboot_main(int argc, char * argv[])
 	/* mount root filesystem */
 	do_system_rootfs();
 
+	/* display system logo */
+	do_system_logo();
+
 	/* load system configure */
 	do_system_cfg();
 

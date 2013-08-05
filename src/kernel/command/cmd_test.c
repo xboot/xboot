@@ -29,7 +29,6 @@
 #include <xboot/proc.h>
 #include <shell/exec.h>
 #include <fb/fb.h>
-#include <fb/logo.h>
 #include <rtc/rtc.h>
 #include <input/input.h>
 #include <input/keyboard/keyboard.h>

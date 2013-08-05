@@ -544,11 +544,9 @@ bool_t register_framebuffer(struct fb_t * fb)
 	if(fb->present)
 		fb->present(fb, fb->alone);
 
-	render_show_logo(fb->alone);
-
 	if(fb->ioctl)
 	{
-		brightness = 0xff;
+		brightness = 0x00;
 		(fb->ioctl)(fb, IOCTL_SET_FB_BACKLIGHT, &brightness);
 	}
 

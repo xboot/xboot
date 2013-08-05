@@ -44,7 +44,7 @@
 
 CAIRO_BEGIN_DECLS
 
-cairo_surface_t * cairo_xboot_surface_create(struct fb_t * fb);
+cairo_surface_t * cairo_xboot_surface_create(struct fb_t * fb, struct render_t * render);
 void cairo_xboot_surface_present(cairo_surface_t * surface);
 
 CAIRO_END_DECLS

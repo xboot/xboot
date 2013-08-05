@@ -19,6 +19,29 @@ enum pixel_format_t
 	PIXEL_FORMAT_RGB30		= 5,
 };
 
+/*
+ * The GIMP c-source image
+ */
+struct gimage_t
+{
+	/* the width of image */
+	u32_t width;
+
+	/* the height of image */
+	u32_t height;
+
+	/*
+	 * bytes per pixel
+	 *
+	 * 3:RGB  - PIXEL_FORMAT_RGB24
+	 * 4:RGBA - PIXEL_FORMAT_ARGB32
+	 */
+	u32_t bytes_per_pixel;
+
+	/* pixel data */
+	u8_t * pixels;
+};
+
 struct texture_t {
 	/* the width of render */
 	u32_t width;
@@ -72,6 +95,7 @@ void render_clear(struct render_t * render, struct rect_t * r, struct color_t * 
 struct texture_t * render_snapshot(struct render_t * render);
 struct texture_t * render_alloc_texture(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
 struct texture_t * render_alloc_texture_similar(struct render_t * render, u32_t w, u32_t h);
+struct texture_t * render_alloc_texture_from_gimage(struct render_t * render, const struct gimage_t * image);
 void render_free_texture(struct render_t * render, struct texture_t * texture);
 void render_fill_texture(struct render_t * render, struct texture_t * texture, struct rect_t * r, struct color_t * c);
 void render_blit_texture(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);

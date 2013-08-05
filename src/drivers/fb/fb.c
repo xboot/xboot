@@ -512,7 +512,7 @@ bool_t register_framebuffer(struct fb_t * fb)
 	if(fb->present)
 		fb->present(fb, fb->alone);
 
-//	display_logo(fb);
+	render_show_logo(fb->alone);
 
 	if(fb->ioctl)
 	{

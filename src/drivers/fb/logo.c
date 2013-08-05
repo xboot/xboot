@@ -24,16 +24,9 @@
 #include <fb/fb.h>
 #include <fb/logo.h>
 
-#if 0
-/*
- * logo for xboot
- */
 static const struct gimage_t default_xboot_logo;
 static struct gimage_t * xboot_logo = (struct gimage_t *)(&default_xboot_logo);
 
-/*
- * default xboot's logo
- */
 static const struct gimage_t default_xboot_logo = {
 	200, 58, 4, (u8_t *)
 	"\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0"
@@ -9599,80 +9592,57 @@ static const struct gimage_t watermark = {
 	"\0\0\0\0\0\0\0\0\0"
 };
 
-bool_t display_logo(struct fb_t * fb)
+bool_t register_logo(const struct gimage_t * logo)
 {
-#if 0
-	struct surface_t * logo;
-	struct surface_t * mark;
-	struct rect_t rect;
-	u32_t c;
-
-	if(!fb || !xboot_logo)
-		return FALSE;
-
-	if(fb->flush)
-		fb->flush(fb);
-
-	logo = surface_alloc_from_gimage(xboot_logo);
 	if(!logo)
 		return FALSE;
 
-	surface_set_clip_rect(&(fb->info->surface), NULL);
-	surface_set_clip_rect(logo, NULL);
-	rect_align(&(fb->info->surface.clip), &(logo->clip), &rect, ALIGN_CENTER);
-
-	if (!rect_intersect(&(fb->info->surface.clip), &rect, &rect))
-	{
-		surface_free(logo);
-		return FALSE;
-	}
-
-	c = surface_map_color(&(fb->info->surface), get_named_color("black"));
-	surface_fill(&(fb->info->surface), &(fb->info->surface.clip), c, BLEND_MODE_REPLACE);
-	surface_blit(&(fb->info->surface), &rect, logo, &(logo->clip), BLEND_MODE_ALPHA);
-	surface_free(logo);
-
-	/*
-	 * authentication for anti-piracy
-	 */
-	if(! machine_authentication())
-	{
-		mark = surface_alloc_from_gimage((const struct gimage_t *)(&watermark));
-		if(!mark)
-			return FALSE;
-
-		surface_set_clip_rect(&(fb->info->surface), NULL);
-		surface_set_clip_rect(mark, NULL);
-		rect_align(&(fb->info->surface.clip), &(mark->clip), &rect, ALIGN_CENTER);
-
-		if (!rect_intersect(&(fb->info->surface.clip), &rect, &rect))
-		{
-			surface_free(mark);
-			return FALSE;
-		}
-
-		surface_blit(&(fb->info->surface), &rect, mark, &(mark->clip), BLEND_MODE_ALPHA);
-		surface_free(mark);
-	}
-#endif
+	xboot_logo = (struct gimage_t *)logo;
 	return TRUE;
 }
 
-/*
- * register logo
- */
-bool_t register_logo(const struct gimage_t * logo)
+void render_show_logo(struct render_t * render)
 {
-	if(logo)
+	struct texture_t * logo;
+	struct texture_t * mark;
+	struct rect_t a, b, c, r;
+	struct color_t * col = get_named_color("black");
+
+	if(!render || !xboot_logo)
+		return;
+
+	logo = render_alloc_texture_from_gimage(render, xboot_logo);
+	if(!logo)
+		return;
+
+	a.x = 0;
+	a.y = 0;
+	a.w = render->width;
+	a.h = render->height;
+
+	b.x = 0;
+	b.y = 0;
+	b.w = logo->width;
+	b.h = logo->height;
+	rect_align(&a, &b, &r, ALIGN_CENTER);
+
+	render_clear(render, &a, col);
+	render_blit_texture(render, &r, logo, NULL);
+	render_free_texture(render, logo);
+
+	if(! machine_authentication())
 	{
-		xboot_logo = (struct gimage_t *)logo;
-		return TRUE;
-	}
-	else
-	{
-		xboot_logo = (struct gimage_t *)(&default_xboot_logo);
-		return FALSE;
+		mark = render_alloc_texture_from_gimage(render, (const struct gimage_t *)(&watermark));
+		if(!mark)
+			return;
+
+		c.x = 0;
+		c.y = 0;
+		c.w = mark->width;
+		c.h = mark->height;
+		rect_align(&a, &c, &r, ALIGN_CENTER);
+
+		render_blit_texture(render, &r, mark, NULL);
+		render_free_texture(render, mark);
 	}
 }
-
-#endif

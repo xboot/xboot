@@ -49,6 +49,26 @@ struct texture_t * render_alloc_texture_similar(struct render_t * render, u32_t 
 	return NULL;
 }
 
+struct texture_t * render_alloc_texture_from_gimage(struct render_t * render, const struct gimage_t * image)
+{
+	if(!render || !image)
+		return NULL;
+
+	switch (image->bytes_per_pixel)
+	{
+	case 3:
+		return render->alloc_texture(render, image->pixels, image->width, image->height, PIXEL_FORMAT_RGB24);
+
+	case 4:
+		return render->alloc_texture(render, image->pixels, image->width, image->height, PIXEL_FORMAT_ARGB32);
+
+	default:
+		break;
+	}
+
+	return NULL;
+}
+
 void render_free_texture(struct render_t * render, struct texture_t * texture)
 {
 	if(render)
@@ -66,21 +86,3 @@ void render_blit_texture(struct render_t * render, struct rect_t * drect, struct
 	if(render)
 		render->blit_texture(render, drect, texture, srect);
 }
-
-/*
-struct texture_t * render_scale(struct render_t * render, struct texture_t * texture, u32_t w, u32_t h)
-{
-	if(!render)
-		return NULL;
-
-	return render->scale(render, texture, w, h);
-}
-
-struct texture_t * render_rotate(struct render_t * render, struct rect_t * rect, u32_t angle)
-{
-	if(!render)
-		return NULL;
-
-	return render->rotate(render, rect, angle);
-}
-*/

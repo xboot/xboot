@@ -49,6 +49,9 @@ struct fb_t
 
 	/* alone render - create by register */
 	struct render_t * alone;
+
+	/* private data */
+	void * priv;
 };
 
 struct fb_t * get_default_framebuffer(void);

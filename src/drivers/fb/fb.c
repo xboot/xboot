@@ -158,11 +158,6 @@ static ssize_t fb_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
 
 static int fb_ioctl(struct chrdev_t * dev, int cmd, void * arg)
 {
-	struct fb_t * fb = (struct fb_t *)(dev->driver);
-
-	if(fb->ioctl)
-		return ((fb->ioctl)(fb, cmd, arg));
-
 	return -1;
 }
 
@@ -504,7 +499,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 	struct chrdev_t * dev;
 	struct console_t * console;
 	struct fb_console_info_t * info;
-	u8_t brightness;
 
 	if(!fb || !fb->name)
 		return FALSE;
@@ -544,11 +538,8 @@ bool_t register_framebuffer(struct fb_t * fb)
 	if(fb->present)
 		fb->present(fb, fb->alone);
 
-	if(fb->ioctl)
-	{
-		brightness = 0x00;
-		(fb->ioctl)(fb, IOCTL_SET_FB_BACKLIGHT, &brightness);
-	}
+	if(fb->backlight)
+		fb->backlight(fb, 0);
 
 	if(default_framebuffer == NULL)
 		default_framebuffer = fb;
@@ -623,7 +614,6 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	struct console_t * console;
 	struct fb_console_info_t * info;
 	struct fb_t * driver;
-	u8_t brightness;
 
 	if(!fb || !fb->name)
 		return FALSE;
@@ -641,11 +631,8 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	driver = (struct fb_t *)(dev->driver);
 	if(driver)
 	{
-		if(driver->ioctl)
-		{
-			brightness = 0x00;
-			(driver->ioctl)(driver, IOCTL_SET_FB_BACKLIGHT, &brightness);
-		}
+		if(fb->backlight)
+			fb->backlight(fb, 0);
 
 		if(driver->exit)
 			(driver->exit)(driver);

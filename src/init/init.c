@@ -107,12 +107,8 @@ void do_system_logo(void)
 	cairo_xboot_surface_present(cs);
 	cairo_surface_destroy(cs);
 
-	u8_t brightness;
-	if(fb->ioctl)
-	{
-		brightness = 0xff;
-		(fb->ioctl)(fb, IOCTL_SET_FB_BACKLIGHT, &brightness);
-	}
+	if(fb->backlight)
+		fb->backlight(fb, 255);
 
 	cairo_surface_destroy(logo);
 	cairo_surface_destroy(watermark);

@@ -33,12 +33,6 @@ enum
 	IOCTL_GET_RTC_ALARM					= 114,
 	IOCTL_ENABLE_RTC_ALARM				= 115,
 	IOCTL_DISABLE_RTC_ALARM				= 116,
-
-	/*
-	 * fb ioctl
-	 */
-	IOCTL_SET_FB_BACKLIGHT				= 121,
-	IOCTL_GET_FB_BACKLIGHT				= 122,
 };
 
 #ifdef __cplusplus

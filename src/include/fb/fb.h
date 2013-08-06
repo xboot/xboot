@@ -14,7 +14,7 @@ extern "C" {
 
 struct fb_t
 {
-	/* device name */
+	/* framebuffer name */
 	const char * name;
 
 	/* initialize the framebuffer */
@@ -22,6 +22,21 @@ struct fb_t
 
 	/* clean up the framebuffer */
 	void (*exit)(struct fb_t * fb);
+
+	/* cursor position of x with offset */
+	int (*xcursor)(struct fb_t * fb, int ox);
+
+	/* cursor position of y with offset */
+	int (*ycursor)(struct fb_t * fb, int oy);
+
+	/* backlight brightness */
+	int (*backlight)(struct fb_t * fb, int brightness);
+
+	/* suspend framebuffer */
+	void (*suspend)(struct fb_t * fb);
+
+	/* resume framebuffer */
+	void (*resume)(struct fb_t * fb);
 
 	/* create a render */
 	struct render_t * (*create)(struct fb_t * fb);
@@ -31,9 +46,6 @@ struct fb_t
 
 	/* present a render */
 	void (*present)(struct fb_t * fb, struct render_t * render);
-
-	/* ioctl framebuffer */
-	int (*ioctl)(struct fb_t * fb, int cmd, void * arg);
 
 	/* alone render - create by register */
 	struct render_t * alone;

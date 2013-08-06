@@ -64,6 +64,57 @@ static void fb_exit(struct fb_t * fb)
 	return;
 }
 
+static int fb_xcursor(struct fb_t * fb, int ox)
+{
+	static int xpos = 0;
+
+	if(ox == 0)
+		return xpos;
+
+	xpos = xpos + ox;
+	if(xpos < 0)
+		xpos = 0;
+	if(xpos > LCD_WIDTH - 1)
+		xpos = LCD_WIDTH - 1;
+
+	return xpos;
+}
+
+static int fb_ycursor(struct fb_t * fb, int oy)
+{
+	static int ypos = 0;
+
+	if(oy == 0)
+		return ypos;
+
+	ypos = ypos + oy;
+	if(ypos < 0)
+		ypos = 0;
+	if(ypos > LCD_WIDTH - 1)
+		ypos = LCD_WIDTH - 1;
+
+	return ypos;
+}
+
+static int fb_backlight(struct fb_t * fb, int brightness)
+{
+	static int level = 0;
+
+	if( (brightness < 0) || (brightness > 255) )
+		return level;
+
+	level = brightness;
+	return level;
+}
+
+static void fb_suspend(struct fb_t * fb)
+{
+}
+
+static void fb_resume(struct fb_t * fb)
+{
+}
+
 struct render_t * fb_create(struct fb_t * fb)
 {
 	struct render_t * render;
@@ -122,38 +173,18 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
-{
-	static u8_t brightness = 0;
-	u8_t * p;
-
-	switch(cmd)
-	{
-	case IOCTL_SET_FB_BACKLIGHT:
-		p = (u8_t *)arg;
-		brightness = (*p) & 0xff;
-		return 0;
-
-	case IOCTL_GET_FB_BACKLIGHT:
-		p = (u8_t *)arg;
-		*p = brightness;
-		return 0;
-
-	default:
-		break;
-	}
-
-	return -1;
-}
-
 static struct fb_t realview_fb = {
 	.name		= "fb0",
 	.init		= fb_init,
 	.exit		= fb_exit,
+	.xcursor	= fb_xcursor,
+	.ycursor	= fb_ycursor,
+	.backlight	= fb_backlight,
+	.suspend	= fb_suspend,
+	.resume		= fb_resume,
 	.create		= fb_create,
 	.destroy	= fb_destroy,
 	.present	= fb_present,
-	.ioctl		= fb_ioctl,
 };
 
 static __init void realview_fb_init(void)

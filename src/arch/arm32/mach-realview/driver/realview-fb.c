@@ -90,8 +90,8 @@ static int fb_ycursor(struct fb_t * fb, int oy)
 	ypos = ypos + oy;
 	if(ypos < 0)
 		ypos = 0;
-	if(ypos > LCD_WIDTH - 1)
-		ypos = LCD_WIDTH - 1;
+	if(ypos > LCD_HEIGHT - 1)
+		ypos = LCD_HEIGHT - 1;
 
 	return ypos;
 }

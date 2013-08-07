@@ -21,18 +21,8 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <malloc.h>
-#include <stdlib.h>
-#include <xboot/list.h>
 #include <xboot/linux.h>
-#include <xboot/printk.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-
 
 #if	defined(CONFIG_COMMAND_BOOTLINUX) && (CONFIG_COMMAND_BOOTLINUX > 0)
 

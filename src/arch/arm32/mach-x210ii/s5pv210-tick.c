@@ -20,16 +20,7 @@
  *
  */
 
-
 #include <xboot.h>
-#include <types.h>
-#include <div64.h>
-#include <io.h>
-#include <xboot/clk.h>
-#include <xboot/irq.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <time/tick.h>
 #include <s5pv210/reg-timer.h>
 
 /*
@@ -87,7 +78,9 @@ static struct tick_t s5pv210_tick = {
 
 static __init void s5pv210_tick_init(void)
 {
-	if(!register_tick(&s5pv210_tick))
-		LOG("failed to register tick");
+	if(register_tick(&s5pv210_tick))
+		LOG("Register tick");
+	else
+		LOG("Failed to register tick");
 }
 core_initcall(s5pv210_tick_init);

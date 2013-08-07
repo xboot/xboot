@@ -20,15 +20,7 @@
  *
  */
 
-
 #include <xboot.h>
-#include <types.h>
-#include <io.h>
-#include <xboot/clk.h>
-#include <xboot/printk.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
-#include <xboot/irq.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-vic.h>
 #include <s5pv210-cp15.h>
@@ -747,10 +739,10 @@ static __init void s5pv210_irq_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(s5pv210_irqs); i++)
 	{
-		if(!irq_register(&s5pv210_irqs[i]))
-		{
-			LOG("failed to register irq '%s'", s5pv210_irqs[i].name);
-		}
+		if(irq_register(&s5pv210_irqs[i]))
+			LOG("Register irq '%s'", s5pv210_irqs[i].name);
+		else
+			LOG("Failed to register irq '%s'", s5pv210_irqs[i].name);
 	}
 
 	/* enable vector interrupt controller */
@@ -767,10 +759,10 @@ static __exit void s5pv210_irq_exit(void)
 
 	for(i = 0; i < ARRAY_SIZE(s5pv210_irqs); i++)
 	{
-		if(!irq_unregister(&s5pv210_irqs[i]))
-		{
-			LOG("failed to unregister irq '%s'", s5pv210_irqs[i].name);
-		}
+		if(irq_unregister(&s5pv210_irqs[i]))
+			LOG("Unregister irq '%s'", s5pv210_irqs[i].name);
+		else
+			LOG("Failed to unregister irq '%s'", s5pv210_irqs[i].name);
 	}
 
 	/* disable vector interrupt controller */

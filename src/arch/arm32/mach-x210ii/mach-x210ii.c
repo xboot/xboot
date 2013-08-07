@@ -215,7 +215,9 @@ static struct machine_t x210ii = {
 
 static __init void mach_x210ii_init(void)
 {
-	if(!register_machine(&x210ii))
-		LOG("failed to register machine 'x210ii'");
+	if(register_machine(&x210ii))
+		LOG("Register machine 'x210ii'");
+	else
+		LOG("Failed to register machine 'x210ii'");
 }
 arch_initcall(mach_x210ii_init);

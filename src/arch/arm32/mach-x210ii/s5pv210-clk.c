@@ -20,16 +20,7 @@
  *
  */
 
-
 #include <xboot.h>
-#include <sizes.h>
-#include <types.h>
-#include <div64.h>
-#include <io.h>
-#include <xboot/clk.h>
-#include <xboot/printk.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
 #include <s5pv210/reg-clk.h>
 
 enum S5PV210_PLL {
@@ -225,10 +216,10 @@ static __init void s5pv210_clk_init(void)
 	/* register clocks to system */
 	for(i=0; i< ARRAY_SIZE(s5pv210_clocks); i++)
 	{
-		if(!clk_register(&s5pv210_clocks[i]))
-		{
-			LOG("failed to register clock '%s'", s5pv210_clocks[i].name);
-		}
+		if(clk_register(&s5pv210_clocks[i]))
+			LOG("Register clock source '%s' [%LdHZ]", s5pv210_clocks[i].name, s5pv210_clocks[i].rate);
+		else
+			LOG("Failed to register clock source '%s' [%LdHZ]", s5pv210_clocks[i].name, s5pv210_clocks[i].rate);
 	}
 }
 
@@ -238,10 +229,10 @@ static __exit void s5pv210_clk_exit(void)
 
 	for(i=0; i< ARRAY_SIZE(s5pv210_clocks); i++)
 	{
-		if(!clk_unregister(&s5pv210_clocks[i]))
-		{
-			LOG("failed to unregister clock '%s'", s5pv210_clocks[i].name);
-		}
+		if(clk_unregister(&s5pv210_clocks[i]))
+			LOG("Unregister clock source '%s' [%LdHZ]", s5pv210_clocks[i].name, s5pv210_clocks[i].rate);
+		else
+			LOG("Failed to unregister clock '%s' [%LdHZ]", s5pv210_clocks[i].name, s5pv210_clocks[i].rate);
 	}
 }
 

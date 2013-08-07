@@ -21,15 +21,6 @@
  */
 
 #include <xboot.h>
-#include <sizes.h>
-#include <types.h>
-#include <div64.h>
-#include <io.h>
-#include <xboot/clk.h>
-#include <xboot/printk.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
-#include <time/delay.h>
 #include <mtd/nand/nfc.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-nand.h>
@@ -130,14 +121,18 @@ static struct nfc s5pv210_nand_flash_controller = {
 
 static __init void s5pv210_nand_flash_controller_init(void)
 {
-	if(!register_nfc(&s5pv210_nand_flash_controller))
-		LOG("failed to register nand flash controller '%s'", s5pv210_nand_flash_controller.name);
+	if(register_nfc(&s5pv210_nand_flash_controller))
+		LOG("Register nand flash controller '%s'", s5pv210_nand_flash_controller.name);
+	else
+		LOG("Failed to register nand flash controller '%s'", s5pv210_nand_flash_controller.name);
 }
 
 static __exit void s5pv210_nand_flash_controller_exit(void)
 {
-	if(!unregister_nfc(&s5pv210_nand_flash_controller))
-		LOG("failed to unregister nand flash controller '%s'", s5pv210_nand_flash_controller.name);
+	if(unregister_nfc(&s5pv210_nand_flash_controller))
+		LOG("Unregister nand flash controller '%s'", s5pv210_nand_flash_controller.name);
+	else
+		LOG("Failed to unregister nand flash controller '%s'", s5pv210_nand_flash_controller.name);
 }
 
 core_initcall(s5pv210_nand_flash_controller_init);

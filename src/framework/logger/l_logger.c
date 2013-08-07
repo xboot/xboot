@@ -43,7 +43,7 @@ static int l_logger_print(lua_State * L)
 		logger_output(s, l);
 		lua_pop(L, 1);
 	}
-	logger_output("\r\n", 1);
+	logger_output("\r\n", 2);
 
 	return 0;
 }

@@ -598,7 +598,7 @@ struct render_t * fb_create(struct fb_t * fb)
 
 	render->width = lcd->width;
 	render->height = lcd->height;
-	render->pitch = (lcd->height * lcd->bytes_per_pixel + 0x3) & ~0x3;
+	render->pitch = (lcd->width * lcd->bytes_per_pixel + 0x3) & ~0x3;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 

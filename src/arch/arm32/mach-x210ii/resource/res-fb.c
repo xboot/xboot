@@ -102,7 +102,7 @@ static struct s5pv210fb_lcd lcd = {
 	.freq				= 60,
 
 	.output				= S5PV210FB_OUTPUT_RGB,
-	.rgb_mode			= S5PV210FB_MODE_BGR_P,
+	.rgb_mode			= S5PV210FB_MODE_RGB_P,
 	.bpp_mode			= S5PV210FB_BPP_MODE_32BPP,
 	.swap				= S5PV210FB_SWAP_WORD,
 

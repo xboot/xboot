@@ -191,10 +191,6 @@ extern "C" {
 #define	CONFIG_COMMAND_LOAD							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_BOOTLINUX)
-#define	CONFIG_COMMAND_BOOTLINUX					(1)
-#endif
-
 #if !defined(CONFIG_COMMAND_MOUNT)
 #define	CONFIG_COMMAND_MOUNT						(1)
 #endif
@@ -257,6 +253,18 @@ extern "C" {
 
 #if !defined(CONFIG_COMMAND_TEST)
 #define	CONFIG_COMMAND_TEST							(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_BOOTLINUX)
+#define	CONFIG_COMMAND_BOOTLINUX					(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_CPUINFO)
+#define	CONFIG_COMMAND_CPUINFO						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_MMUINFO)
+#define	CONFIG_COMMAND_MMUINFO						(1)
 #endif
 
 #ifdef __cplusplus

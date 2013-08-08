@@ -139,14 +139,18 @@ static struct command_t fileram_cmd = {
 
 static __init void fileram_cmd_init(void)
 {
-	if(!command_register(&fileram_cmd))
-		LOG("register 'fileram' command fail");
+	if(command_register(&fileram_cmd))
+		LOG("Register command 'fileram'");
+	else
+		LOG("Fail to register command 'fileram'");
 }
 
 static __exit void fileram_cmd_exit(void)
 {
-	if(!command_unregister(&fileram_cmd))
-		LOG("unregister 'fileram' command fail");
+	if(command_unregister(&fileram_cmd))
+		LOG("Unegister command 'fileram'");
+	else
+		LOG("Fail to unregister command 'fileram'");
 }
 
 command_initcall(fileram_cmd_init);

@@ -142,16 +142,19 @@ static struct command_t mw_cmd = {
 
 static __init void mw_cmd_init(void)
 {
-	if(!command_register(&mw_cmd))
-		LOG("register 'mw' command fail");
+	if(command_register(&mw_cmd))
+		LOG("Register command 'mw'");
+	else
+		LOG("Fail to register command 'mw'");
 }
 
 static __exit void mw_cmd_exit(void)
 {
-	if(!command_unregister(&mw_cmd))
-		LOG("unregister 'mw' command fail");
+	if(command_unregister(&mw_cmd))
+		LOG("Unegister command 'mw'");
+	else
+		LOG("Fail to unregister command 'mw'");
 }
-
 command_initcall(mw_cmd_init);
 command_exitcall(mw_cmd_exit);
 

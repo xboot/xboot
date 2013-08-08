@@ -117,14 +117,18 @@ static struct command_t mkdir_cmd = {
 
 static __init void mkdir_cmd_init(void)
 {
-	if(!command_register(&mkdir_cmd))
-		LOG("register 'mkdir' command fail");
+	if(command_register(&mkdir_cmd))
+		LOG("Register command 'mkdir'");
+	else
+		LOG("Fail to register command 'mkdir'");
 }
 
 static __exit void mkdir_cmd_exit(void)
 {
-	if(!command_unregister(&mkdir_cmd))
-		LOG("unregister 'mkdir' command fail");
+	if(command_unregister(&mkdir_cmd))
+		LOG("Unegister command 'mkdir'");
+	else
+		LOG("Fail to unregister command 'mkdir'");
 }
 
 command_initcall(mkdir_cmd_init);

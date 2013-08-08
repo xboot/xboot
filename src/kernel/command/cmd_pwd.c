@@ -57,14 +57,18 @@ static struct command_t pwd_cmd = {
 
 static __init void pwd_cmd_init(void)
 {
-	if(!command_register(&pwd_cmd))
-		LOG("register 'pwd' command fail");
+	if(command_register(&pwd_cmd))
+		LOG("Register command 'pwd'");
+	else
+		LOG("Fail to register command 'pwd'");
 }
 
 static __exit void pwd_cmd_exit(void)
 {
-	if(!command_unregister(&pwd_cmd))
-		LOG("unregister 'pwd' command fail");
+	if(command_unregister(&pwd_cmd))
+		LOG("Unegister command 'pwd'");
+	else
+		LOG("Fail to unregister command 'pwd'");
 }
 
 command_initcall(pwd_cmd_init);

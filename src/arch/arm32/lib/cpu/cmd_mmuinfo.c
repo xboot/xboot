@@ -112,14 +112,18 @@ static struct command_t mmuinfo_cmd = {
 
 static __init void mmuinfo_cmd_init(void)
 {
-	if(!command_register(&mmuinfo_cmd))
-		LOG("register 'mmuinfo' command fail");
+	if(command_register(&mmuinfo_cmd))
+		LOG("Register command 'mmuinfo'");
+	else
+		LOG("Fail to register command 'mmuinfo'");
 }
 
 static __exit void mmuinfo_cmd_exit(void)
 {
-	if(!command_unregister(&mmuinfo_cmd))
-		LOG("unregister 'mmuinfo' command fail");
+	if(command_unregister(&mmuinfo_cmd))
+		LOG("Unegister command 'mmuinfo'");
+	else
+		LOG("Fail to unregister command 'mmuinfo'");
 }
 
 command_initcall(mmuinfo_cmd_init);

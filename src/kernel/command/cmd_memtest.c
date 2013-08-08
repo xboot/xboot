@@ -143,14 +143,18 @@ static struct command_t memtest_cmd = {
 
 static __init void memtest_cmd_init(void)
 {
-	if(!command_register(&memtest_cmd))
-		LOG("register 'memtest' command fail");
+	if(command_register(&memtest_cmd))
+		LOG("Register command 'memtest'");
+	else
+		LOG("Fail to register command 'memtest'");
 }
 
 static __exit void memtest_cmd_exit(void)
 {
-	if(!command_unregister(&memtest_cmd))
-		LOG("unregister 'memtest' command fail");
+	if(command_unregister(&memtest_cmd))
+		LOG("Unegister command 'memtest'");
+	else
+		LOG("Fail to unregister command 'memtest'");
 }
 
 command_initcall(memtest_cmd_init);

@@ -156,14 +156,18 @@ static struct command_t cksum_cmd = {
 
 static __init void cksum_cmd_init(void)
 {
-	if(!command_register(&cksum_cmd))
-		LOG("register 'cksum' command fail");
+	if(command_register(&cksum_cmd))
+		LOG("Register command 'cksum'");
+	else
+		LOG("Fail to register command 'cksum'");
 }
 
 static __exit void cksum_cmd_exit(void)
 {
-	if(!command_unregister(&cksum_cmd))
-		LOG("unregister 'cksum' command fail");
+	if(command_unregister(&cksum_cmd))
+		LOG("Unegister command 'cksum'");
+	else
+		LOG("Fail to unregister command 'cksum'");
 }
 
 command_initcall(cksum_cmd_init);

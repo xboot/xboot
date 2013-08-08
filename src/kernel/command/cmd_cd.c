@@ -66,14 +66,18 @@ static struct command_t cd_cmd = {
 
 static __init void cd_cmd_init(void)
 {
-	if(!command_register(&cd_cmd))
-		LOG("register 'cd' command fail");
+	if(command_register(&cd_cmd))
+		LOG("Register command 'cd'");
+	else
+		LOG("Fail to register command 'cd'");
 }
 
 static __exit void cd_cmd_exit(void)
 {
-	if(!command_unregister(&cd_cmd))
-		LOG("unregister 'cd' command fail");
+	if(command_unregister(&cd_cmd))
+		LOG("Unegister command 'cd'");
+	else
+		LOG("Fail to unregister command 'cd'");
 }
 
 command_initcall(cd_cmd_init);

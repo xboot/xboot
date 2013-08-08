@@ -93,14 +93,18 @@ static struct command_t exit_cmd = {
 
 static __init void exit_cmd_init(void)
 {
-	if(!command_register(&exit_cmd))
-		LOG("register 'exit' command fail");
+	if(command_register(&exit_cmd))
+		LOG("Register command 'exit'");
+	else
+		LOG("Fail to register command 'exit'");
 }
 
 static __exit void exit_cmd_exit(void)
 {
-	if(!command_unregister(&exit_cmd))
-		LOG("unregister 'exit' command fail");
+	if(command_unregister(&exit_cmd))
+		LOG("Unegister command 'exit'");
+	else
+		LOG("Fail to unregister command 'exit'");
 }
 
 command_initcall(exit_cmd_init);

@@ -51,14 +51,18 @@ static struct command_t clear_cmd = {
 
 static __init void clear_cmd_init(void)
 {
-	if(!command_register(&clear_cmd))
-		LOG("register 'clear' command fail");
+	if(command_register(&clear_cmd))
+		LOG("Register command 'clear'");
+	else
+		LOG("Fail to register command 'clear'");
 }
 
 static __exit void clear_cmd_exit(void)
 {
-	if(!command_unregister(&clear_cmd))
-		LOG("unregister 'clear' command fail");
+	if(command_unregister(&clear_cmd))
+		LOG("Unegister command 'clear'");
+	else
+		LOG("Fail to unregister command 'clear'");
 }
 
 command_initcall(clear_cmd_init);

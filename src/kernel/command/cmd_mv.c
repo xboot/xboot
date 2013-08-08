@@ -94,14 +94,18 @@ static struct command_t mv_cmd = {
 
 static __init void mv_cmd_init(void)
 {
-	if(!command_register(&mv_cmd))
-		LOG("register 'mv' command fail");
+	if(command_register(&mv_cmd))
+		LOG("Register command 'mv'");
+	else
+		LOG("Fail to register command 'mv'");
 }
 
 static __exit void mv_cmd_exit(void)
 {
-	if(!command_unregister(&mv_cmd))
-		LOG("unregister 'mv' command fail");
+	if(command_unregister(&mv_cmd))
+		LOG("Unegister command 'mv'");
+	else
+		LOG("Fail to unregister command 'mv'");
 }
 
 command_initcall(mv_cmd_init);

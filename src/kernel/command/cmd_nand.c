@@ -204,14 +204,18 @@ static struct command_t nand_cmd = {
 
 static __init void nand_cmd_init(void)
 {
-	if(!command_register(&nand_cmd))
-		LOG("register 'nand' command fail");
+	if(command_register(&nand_cmd))
+		LOG("Register command 'nand'");
+	else
+		LOG("Fail to register command 'nand'");
 }
 
 static __exit void nand_cmd_exit(void)
 {
-	if(!command_unregister(&nand_cmd))
-		LOG("unregister 'nand' command fail");
+	if(command_unregister(&nand_cmd))
+		LOG("Unegister command 'nand'");
+	else
+		LOG("Fail to unregister command 'nand'");
 }
 
 command_initcall(nand_cmd_init);

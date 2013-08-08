@@ -46,7 +46,7 @@ static int go(int argc, char ** argv)
 
 	addr = strtoul((const char *)argv[1], NULL, 0);
 
-	printk("starting application at 0x%08lx ...\r\n", addr);
+	printk("starting appligoion at 0x%08lx ...\r\n", addr);
 
 	ret = ((int(*)(int, char **))(addr)) (--argc, &argv[1]);
 
@@ -66,14 +66,18 @@ static struct command_t go_cmd = {
 
 static __init void go_cmd_init(void)
 {
-	if(!command_register(&go_cmd))
-		LOG("register 'go' command fail");
+	if(command_register(&go_cmd))
+		LOG("Register command 'go'");
+	else
+		LOG("Fail to register command 'go'");
 }
 
 static __exit void go_cmd_exit(void)
 {
-	if(!command_unregister(&go_cmd))
-		LOG("unregister 'go' command fail");
+	if(command_unregister(&go_cmd))
+		LOG("Unegister command 'go'");
+	else
+		LOG("Fail to unregister command 'cat'");
 }
 
 command_initcall(go_cmd_init);

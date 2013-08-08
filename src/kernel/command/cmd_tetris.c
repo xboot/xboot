@@ -378,14 +378,18 @@ static struct command_t tetris_cmd = {
 
 static __init void tetris_cmd_init(void)
 {
-	if(!command_register(&tetris_cmd))
-		LOG("register 'tetris' command fail");
+	if(command_register(&tetris_cmd))
+		LOG("Register command 'tetris'");
+	else
+		LOG("Fail to register command 'tetris'");
 }
 
 static __exit void tetris_cmd_exit(void)
 {
-	if(!command_unregister(&tetris_cmd))
-		LOG("unregister 'tetris' command fail");
+	if(command_unregister(&tetris_cmd))
+		LOG("Unegister command 'tetris'");
+	else
+		LOG("Fail to unregister command 'tetris'");
 }
 
 command_initcall(tetris_cmd_init);

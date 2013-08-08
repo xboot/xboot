@@ -57,14 +57,18 @@ static struct command_t lua_cmd = {
 
 static __init void lua_cmd_init(void)
 {
-	if(!command_register(&lua_cmd))
-		LOG("register 'lua' command fail");
+	if(command_register(&lua_cmd))
+		LOG("Register command 'lua'");
+	else
+		LOG("Fail to register command 'lua'");
 }
 
 static __exit void lua_cmd_exit(void)
 {
-	if(!command_unregister(&lua_cmd))
-		LOG("unregister 'lua' command fail");
+	if(command_unregister(&lua_cmd))
+		LOG("Unegister command 'lua'");
+	else
+		LOG("Fail to unregister command 'lua'");
 }
 
 command_initcall(lua_cmd_init);

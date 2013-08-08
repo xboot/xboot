@@ -121,14 +121,18 @@ static struct command_t help_cmd = {
 
 static __init void help_cmd_init(void)
 {
-	if(!command_register(&help_cmd))
-		LOG("register 'help' command fail");
+	if(command_register(&help_cmd))
+		LOG("Register command 'help'");
+	else
+		LOG("Fail to register command 'help'");
 }
 
 static __exit void help_cmd_exit(void)
 {
-	if(!command_unregister(&help_cmd))
-		LOG("unregister 'help' command fail");
+	if(command_unregister(&help_cmd))
+		LOG("Unegister command 'help'");
+	else
+		LOG("Fail to unregister command 'help'");
 }
 
 command_initcall(help_cmd_init);

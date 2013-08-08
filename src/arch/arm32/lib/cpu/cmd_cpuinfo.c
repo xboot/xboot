@@ -204,14 +204,18 @@ static struct command_t cpuinfo_cmd = {
 
 static __init void cpuinfo_cmd_init(void)
 {
-	if(!command_register(&cpuinfo_cmd))
-		LOG("register 'cpuinfo' command fail");
+	if(command_register(&cpuinfo_cmd))
+		LOG("Register command 'cpuinfo'");
+	else
+		LOG("Fail to register command 'cpuinfo'");
 }
 
 static __exit void cpuinfo_cmd_exit(void)
 {
-	if(!command_unregister(&cpuinfo_cmd))
-		LOG("unregister 'cpuinfo' command fail");
+	if(command_unregister(&cpuinfo_cmd))
+		LOG("Unegister command 'cpuinfo'");
+	else
+		LOG("Fail to unregister command 'cpuinfo'");
 }
 
 command_initcall(cpuinfo_cmd_init);

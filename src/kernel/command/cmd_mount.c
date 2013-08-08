@@ -196,14 +196,18 @@ static struct command_t mount_cmd = {
 
 static __init void mount_cmd_init(void)
 {
-	if(!command_register(&mount_cmd))
-		LOG("register 'mount' command fail");
+	if(command_register(&mount_cmd))
+		LOG("Register command 'mount'");
+	else
+		LOG("Fail to register command 'mount'");
 }
 
 static __exit void mount_cmd_exit(void)
 {
-	if(!command_unregister(&mount_cmd))
-		LOG("unregister 'mount' command fail");
+	if(command_unregister(&mount_cmd))
+		LOG("Unegister command 'mount'");
+	else
+		LOG("Fail to unregister command 'mount'");
 }
 
 command_initcall(mount_cmd_init);

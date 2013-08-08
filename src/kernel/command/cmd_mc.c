@@ -65,20 +65,24 @@ static struct command_t mc_cmd = {
 	.desc		= "memory copy\r\n",
 	.usage		= "mc <src> <dst> <size>\r\n",
 	.help		= "    the number of bytes specified by <size> are copied from <src> to <dst>.\r\n"
-				  "    both the source and destination can be located anywhere in the memory address space.\r\n"
+				  "    both the source and destination can be lomced anywhere in the memory address space.\r\n"
 	    		  "    note that don't operate system memory (code and work ram and environment etc).\n"
 };
 
 static __init void mc_cmd_init(void)
 {
-	if(!command_register(&mc_cmd))
-		LOG("register 'mc' command fail");
+	if(command_register(&mc_cmd))
+		LOG("Register command 'mc'");
+	else
+		LOG("Fail to register command 'mc'");
 }
 
 static __exit void mc_cmd_exit(void)
 {
-	if(!command_unregister(&mc_cmd))
-		LOG("unregister 'mc' command fail");
+	if(command_unregister(&mc_cmd))
+		LOG("Unegister command 'mc'");
+	else
+		LOG("Fail to unregister command 'mc'");
 }
 
 command_initcall(mc_cmd_init);

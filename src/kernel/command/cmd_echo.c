@@ -205,14 +205,18 @@ static struct command_t echo_cmd = {
 
 static __init void echo_cmd_init(void)
 {
-	if(!command_register(&echo_cmd))
-		LOG("register 'echo' command fail");
+	if(command_register(&echo_cmd))
+		LOG("Register command 'echo'");
+	else
+		LOG("Fail to register command 'echo'");
 }
 
 static __exit void echo_cmd_exit(void)
 {
-	if(!command_unregister(&echo_cmd))
-		LOG("unregister 'echo' command fail");
+	if(command_unregister(&echo_cmd))
+		LOG("Unegister command 'echo'");
+	else
+		LOG("Fail to unregister command 'echo'");
 }
 
 command_initcall(echo_cmd_init);

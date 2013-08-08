@@ -58,14 +58,18 @@ static struct command_t reboot_cmd = {
 
 static __init void reboot_cmd_init(void)
 {
-	if(!command_register(&reboot_cmd))
-		LOG("register 'reboot' command fail");
+	if(command_register(&reboot_cmd))
+		LOG("Register command 'reboot'");
+	else
+		LOG("Fail to register command 'reboot'");
 }
 
 static __exit void reboot_cmd_exit(void)
 {
-	if(!command_unregister(&reboot_cmd))
-		LOG("unregister 'reboot' command fail");
+	if(command_unregister(&reboot_cmd))
+		LOG("Unegister command 'reboot'");
+	else
+		LOG("Fail to unregister command 'reboot'");
 }
 
 command_initcall(reboot_cmd_init);

@@ -50,14 +50,18 @@ static struct command_t sync_cmd = {
 
 static __init void sync_cmd_init(void)
 {
-	if(!command_register(&sync_cmd))
-		LOG("register 'sync' command fail");
+	if(command_register(&sync_cmd))
+		LOG("Register command 'sync'");
+	else
+		LOG("Fail to register command 'sync'");
 }
 
 static __exit void sync_cmd_exit(void)
 {
-	if(!command_unregister(&sync_cmd))
-		LOG("unregister 'sync' command fail");
+	if(command_unregister(&sync_cmd))
+		LOG("Unegister command 'sync'");
+	else
+		LOG("Fail to unregister command 'sync'");
 }
 
 command_initcall(sync_cmd_init);

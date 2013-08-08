@@ -105,14 +105,18 @@ static struct command_t cat_cmd = {
 
 static __init void cat_cmd_init(void)
 {
-	if(!command_register(&cat_cmd))
-		LOG("register 'cat' command fail");
+	if(command_register(&cat_cmd))
+		LOG("Register command 'cat'");
+	else
+		LOG("Fail to register command 'cat'");
 }
 
 static __exit void cat_cmd_exit(void)
 {
-	if(!command_unregister(&cat_cmd))
-		LOG("unregister 'cat' command fail");
+	if(command_unregister(&cat_cmd))
+		LOG("Unegister command 'cat'");
+	else
+		LOG("Fail to unregister command 'cat'");
 }
 
 command_initcall(cat_cmd_init);

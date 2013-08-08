@@ -216,14 +216,18 @@ static struct command_t ls_cmd = {
 
 static __init void ls_cmd_init(void)
 {
-	if(!command_register(&ls_cmd))
-		LOG("register 'ls' command fail");
+	if(command_register(&ls_cmd))
+		LOG("Register command 'ls'");
+	else
+		LOG("Fail to register command 'ls'");
 }
 
 static __exit void ls_cmd_exit(void)
 {
-	if(!command_unregister(&ls_cmd))
-		LOG("unregister 'ls' command fail");
+	if(command_unregister(&ls_cmd))
+		LOG("Unegister command 'ls'");
+	else
+		LOG("Fail to unregister command 'ls'");
 }
 
 command_initcall(ls_cmd_init);

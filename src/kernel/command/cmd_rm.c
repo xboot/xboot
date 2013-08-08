@@ -74,14 +74,18 @@ static struct command_t rm_cmd = {
 
 static __init void rm_cmd_init(void)
 {
-	if(!command_register(&rm_cmd))
-		LOG("register 'rm' command fail");
+	if(command_register(&rm_cmd))
+		LOG("Register command 'rm'");
+	else
+		LOG("Fail to register command 'rm'");
 }
 
 static __exit void rm_cmd_exit(void)
 {
-	if(!command_unregister(&rm_cmd))
-		LOG("unregister 'rm' command fail");
+	if(command_unregister(&rm_cmd))
+		LOG("Unegister command 'rm'");
+	else
+		LOG("Fail to unregister command 'rm'");
 }
 
 command_initcall(rm_cmd_init);

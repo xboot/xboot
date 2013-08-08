@@ -473,14 +473,18 @@ static struct command_t serial_cmd = {
 
 static __init void serial_cmd_init(void)
 {
-	if(!command_register(&serial_cmd))
-		LOG("register 'serial' command fail");
+	if(command_register(&serial_cmd))
+		LOG("Register command 'serial'");
+	else
+		LOG("Fail to register command 'serial'");
 }
 
 static __exit void serial_cmd_exit(void)
 {
-	if(!command_unregister(&serial_cmd))
-		LOG("unregister 'serial' command fail");
+	if(command_unregister(&serial_cmd))
+		LOG("Unegister command 'serial'");
+	else
+		LOG("Fail to unregister command 'serial'");
 }
 
 command_initcall(serial_cmd_init);

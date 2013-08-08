@@ -106,6 +106,15 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr, r0
 
+	/* enable NEON/VFP unit */
+	mrc p15, #0, r1, c1, c0, #2
+	orr r1, r1, #(0xf << 20)
+	mcr p15, #0, r1, c1, c0, #2
+	mov r1, #0
+	mcr p15, #0, r1, c7, c5, #4
+	mov r0, #0x40000000
+	fmxr fpexc, r0
+
 	/* initialize stacks */
 	bl	init_stacks
 

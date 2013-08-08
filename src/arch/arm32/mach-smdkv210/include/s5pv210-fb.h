@@ -134,11 +134,8 @@ struct s5pv210fb_lcd
 		s32_t inv_vden;
 	} polarity;
 
-	/* video ram front buffer */
-	void * vram_front;
-
-	/* video ram back buffer */
-	void * vram_back;
+	/* cursor position */
+	int xpos, ypos;
 
 	/* lcd init */
 	void (*init)(void);
@@ -147,7 +144,7 @@ struct s5pv210fb_lcd
 	void (*exit)(void);
 
 	/* lcd backlight */
-	void (*backlight)(u8_t brightness);
+	int (*backlight)(int brightness);
 };
 
 #endif /* __S5PV210_FB_H__ */

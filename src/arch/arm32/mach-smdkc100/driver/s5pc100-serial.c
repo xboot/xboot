@@ -237,8 +237,8 @@ static int s5pc100_ioctl(u32_t ch, int cmd, void * arg)
 
 	if(clk_get_rate("pclk", &pclk))
 	{
-		baud_div_reg = (u32_t)(div64(pclk, (baud * 16)) ) - 1;
-		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(pclk, (baud*16)), baud) ) & 0xf];
+		baud_div_reg = (u32_t)((pclk / (baud * 16)) ) - 1;
+		baud_divslot_reg = udivslot_code[( (u32_t)((pclk % (baud*16)) / baud) ) & 0xf];
 	}
 	else
 		return -1;

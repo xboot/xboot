@@ -238,8 +238,8 @@ static int s3c6410_ioctl(u32_t ch, int cmd, void * arg)
 
 	if(clk_get_rate("uclk1", &uclk1))
 	{
-		baud_div_reg = (u32_t)(div64(uclk1, (baud * 16)) ) - 1;
-		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(uclk1, (baud*16)), baud) ) & 0xf];
+		baud_div_reg = (u32_t)((uclk1 / (baud * 16)) ) - 1;
+		baud_divslot_reg = udivslot_code[( (u32_t)((uclk1 % (baud*16)) / baud) ) & 0xf];
 	}
 	else
 		return -1;

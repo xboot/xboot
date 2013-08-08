@@ -50,7 +50,7 @@ static inline u64_t s3c6410_get_pll(u64_t baseclk, u32_t pllcon)
 	sdiv = (pllcon >> 0) & ((1 << (2-0+1)) - 1);
 
 	fvco *= mdiv;
-	div64_64(&fvco, (pdiv << sdiv));
+	fvco = fvco / (pdiv << sdiv);
 
 	return (u64_t)fvco;
 }
@@ -80,7 +80,7 @@ static inline u64_t s3c6410_get_epll(u64_t baseclk)
 	 */
 	tmp = baseclk;
 	tmp *= (mdiv << 16) + kdiv;
-	div64_64(&tmp, (pdiv << sdiv));
+	tmp = tmp / (pdiv << sdiv);
 	result = tmp >> 16;
 
 	return result;
@@ -121,22 +121,22 @@ static void s3c6410_setup_clocks(u64_t xtal)
 		epll = xtal;
 
 	/* get mpll dout clock */
-	mpll_dout = div64(mpll, ((((clkdiv0) & S3C6410_CLKDIV0_MPLL_MASK) >> S3C6410_CLKDIV0_MPLL_SHIFT) + 1));
+	mpll_dout = (mpll / ((((clkdiv0) & S3C6410_CLKDIV0_MPLL_MASK) >> S3C6410_CLKDIV0_MPLL_SHIFT) + 1));
 
 	/* get fclk clock */
-	fclk = div64(apll, ((((clkdiv0) & S3C6410_CLKDIV0_ARM_MASK) >> S3C6410_CLKDIV0_ARM_SHIFT) + 1));
+	fclk = (apll / ((((clkdiv0) & S3C6410_CLKDIV0_ARM_MASK) >> S3C6410_CLKDIV0_ARM_SHIFT) + 1));
 
 	/* get hclk2 clock */
 	if(readl(S3C6410_OTHERS) & 0x40)
-		hclk2 = div64(apll, ((((clkdiv0) & S3C6410_CLKDIV0_HCLK2_MASK) >> S3C6410_CLKDIV0_HCLK2_SHIFT) + 1));
+		hclk2 = (apll / ((((clkdiv0) & S3C6410_CLKDIV0_HCLK2_MASK) >> S3C6410_CLKDIV0_HCLK2_SHIFT) + 1));
 	else
-		hclk2 = div64(mpll, ((((clkdiv0) & S3C6410_CLKDIV0_HCLK2_MASK) >> S3C6410_CLKDIV0_HCLK2_SHIFT) + 1));
+		hclk2 = (mpll / ((((clkdiv0) & S3C6410_CLKDIV0_HCLK2_MASK) >> S3C6410_CLKDIV0_HCLK2_SHIFT) + 1));
 
 	/* get hclk clock */
-	hclk = div64(hclk2, ((((clkdiv0) & S3C6410_CLKDIV0_HCLK_MASK) >> S3C6410_CLKDIV0_HCLK_SHIFT) + 1));
+	hclk = (hclk2 / ((((clkdiv0) & S3C6410_CLKDIV0_HCLK_MASK) >> S3C6410_CLKDIV0_HCLK_SHIFT) + 1));
 
 	/* get pclk clock */
-	pclk = div64(hclk2, ((((clkdiv0) & S3C6410_CLKDIV0_PCLK_MASK) >> S3C6410_CLKDIV0_PCLK_SHIFT) + 1));
+	pclk = (hclk2 / ((((clkdiv0) & S3C6410_CLKDIV0_PCLK_MASK) >> S3C6410_CLKDIV0_PCLK_SHIFT) + 1));
 
 	/* extern clock */
 	s3c6410_clocks[0].name = "xtal";
@@ -156,29 +156,29 @@ static void s3c6410_setup_clocks(u64_t xtal)
 
 	/* get jpeg clock */
 	s3c6410_clocks[5].name = "jpeg";
-	s3c6410_clocks[5].rate = div64(hclk2, ((((clkdiv0) & S3C6410_CLKDIV0_JPEG_MASK) >> S3C6410_CLKDIV0_JPEG_SHIFT) + 1));
+	s3c6410_clocks[5].rate = (hclk2 / ((((clkdiv0) & S3C6410_CLKDIV0_JPEG_MASK) >> S3C6410_CLKDIV0_JPEG_SHIFT) + 1));
 
 	/* get security clock */
 	s3c6410_clocks[6].name = "secur";
-	s3c6410_clocks[6].rate = div64(hclk2, ((((clkdiv0) & S3C6410_CLKDIV0_SECURITY_MASK) >> S3C6410_CLKDIV0_SECURITY_SHIFT) + 1));
+	s3c6410_clocks[6].rate = (hclk2 / ((((clkdiv0) & S3C6410_CLKDIV0_SECURITY_MASK) >> S3C6410_CLKDIV0_SECURITY_SHIFT) + 1));
 
 	/* get camera clock */
 	s3c6410_clocks[7].name = "cam";
-	s3c6410_clocks[7].rate = div64(hclk2, ((((clkdiv0) & S3C6410_CLKDIV0_CAM_MASK) >> S3C6410_CLKDIV0_CAM_SHIFT) + 1));
+	s3c6410_clocks[7].rate = (hclk2 / ((((clkdiv0) & S3C6410_CLKDIV0_CAM_MASK) >> S3C6410_CLKDIV0_CAM_SHIFT) + 1));
 
 	/* get mfc clock */
 	s3c6410_clocks[8].name = "mfc";
 	if(clksrc & 0x0000008)
-		s3c6410_clocks[8].rate = div64(epll, ((((clkdiv0) & S3C6410_CLKDIV0_MFC_MASK) >> S3C6410_CLKDIV0_MFC_SHIFT) + 1));
+		s3c6410_clocks[8].rate = (epll / ((((clkdiv0) & S3C6410_CLKDIV0_MFC_MASK) >> S3C6410_CLKDIV0_MFC_SHIFT) + 1));
 	else
-		s3c6410_clocks[8].rate = div64(hclk2, ((((clkdiv0) & S3C6410_CLKDIV0_MFC_MASK) >> S3C6410_CLKDIV0_MFC_SHIFT) + 1));
+		s3c6410_clocks[8].rate = (hclk2 / ((((clkdiv0) & S3C6410_CLKDIV0_MFC_MASK) >> S3C6410_CLKDIV0_MFC_SHIFT) + 1));
 
 	/* get uclk1 clock */
 	s3c6410_clocks[9].name = "uclk1";
 	if(clksrc & (0x1<<13))
-		s3c6410_clocks[9].rate = div64(mpll_dout, ((((clkdiv2) & S3C6410_CLKDIV2_UART_MASK) >> S3C6410_CLKDIV2_UART_SHIFT) + 1));
+		s3c6410_clocks[9].rate = (mpll_dout / ((((clkdiv2) & S3C6410_CLKDIV2_UART_MASK) >> S3C6410_CLKDIV2_UART_SHIFT) + 1));
 	else
-		s3c6410_clocks[9].rate = div64(epll, ((((clkdiv2) & S3C6410_CLKDIV2_UART_MASK) >> S3C6410_CLKDIV2_UART_SHIFT) + 1));
+		s3c6410_clocks[9].rate = (epll / ((((clkdiv2) & S3C6410_CLKDIV2_UART_MASK) >> S3C6410_CLKDIV2_UART_SHIFT) + 1));
 
 	/* get lcd clock */
 	s3c6410_clocks[10].name = "lcd";
@@ -186,13 +186,13 @@ static void s3c6410_setup_clocks(u64_t xtal)
 	switch (tmp)
 	{
 	case 0:
-		s3c6410_clocks[10].rate = div64(epll, ((((clkdiv1) & S3C6410_CLKDIV1_LCD_MASK) >> S3C6410_CLKDIV1_LCD_SHIFT) + 1));
+		s3c6410_clocks[10].rate = (epll / ((((clkdiv1) & S3C6410_CLKDIV1_LCD_MASK) >> S3C6410_CLKDIV1_LCD_SHIFT) + 1));
 		break;
 	case 1:
-		s3c6410_clocks[10].rate = div64(mpll_dout, ((((clkdiv1) & S3C6410_CLKDIV1_LCD_MASK) >> S3C6410_CLKDIV1_LCD_SHIFT) + 1));
+		s3c6410_clocks[10].rate = (mpll_dout / ((((clkdiv1) & S3C6410_CLKDIV1_LCD_MASK) >> S3C6410_CLKDIV1_LCD_SHIFT) + 1));
 		break;
 	case 2:
-		s3c6410_clocks[10].rate = div64(xtal, ((((clkdiv1) & S3C6410_CLKDIV1_LCD_MASK) >> S3C6410_CLKDIV1_LCD_SHIFT) + 1));
+		s3c6410_clocks[10].rate = (xtal / ((((clkdiv1) & S3C6410_CLKDIV1_LCD_MASK) >> S3C6410_CLKDIV1_LCD_SHIFT) + 1));
 		break;
 	default:
 		s3c6410_clocks[10].rate = 0;
@@ -209,13 +209,13 @@ static void s3c6410_setup_clocks(u64_t xtal)
 	switch (tmp)
 	{
 	case 0:
-		s3c6410_clocks[12].rate = div64(epll, ((((clkdiv1) & S3C6410_CLKDIV1_SCALER_MASK) >> S3C6410_CLKDIV1_SCALER_SHIFT) + 1));
+		s3c6410_clocks[12].rate = (epll / ((((clkdiv1) & S3C6410_CLKDIV1_SCALER_MASK) >> S3C6410_CLKDIV1_SCALER_SHIFT) + 1));
 		break;
 	case 1:
-		s3c6410_clocks[12].rate = div64(mpll_dout, ((((clkdiv1) & S3C6410_CLKDIV1_SCALER_MASK) >> S3C6410_CLKDIV1_SCALER_SHIFT) + 1));
+		s3c6410_clocks[12].rate = (mpll_dout / ((((clkdiv1) & S3C6410_CLKDIV1_SCALER_MASK) >> S3C6410_CLKDIV1_SCALER_SHIFT) + 1));
 		break;
 	case 2:
-		s3c6410_clocks[12].rate = div64(xtal, ((((clkdiv1) & S3C6410_CLKDIV1_SCALER_MASK) >> S3C6410_CLKDIV1_SCALER_SHIFT) + 1));
+		s3c6410_clocks[12].rate = (xtal / ((((clkdiv1) & S3C6410_CLKDIV1_SCALER_MASK) >> S3C6410_CLKDIV1_SCALER_SHIFT) + 1));
 		break;
 	default:
 		s3c6410_clocks[12].rate = 0;

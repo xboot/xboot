@@ -37,6 +37,8 @@
 #include <xboot.h>
 #include <types.h>
 #include <s5pv210/reg-gpio.h>
+#include <s5pv210/reg-nand.h>
+#include <s5pv210/reg-serial.h>
 #include <s5pv210/reg-others.h>
 
 extern u8_t	__text_start[];
@@ -137,7 +139,7 @@ void irom_copyself(void)
 {
 	u8_t om;
 	u32_t * mem;
-	u32_t size;
+	u32_t page, block, size;
 
 	/*
 	 * read om register, om[4..1]
@@ -153,7 +155,27 @@ void irom_copyself(void)
 	/* nand 2KB, 5-cycle, 8-bit ecc */
 	else if(om == 0x1)
 	{
+		/*
+		 * the xboot's memory base address.
+		 */
+		mem = (u32_t *)__text_start;
 
+		/*
+		 * the xboot's size, the 'size' is number of block. 128KB per block.
+		 */
+		size = (__data_shadow_end - __text_start + 0x00020000) >> 17;
+
+		/*
+		 * copy xboot to memory from nand flash.
+		 */
+		for(block = 0; block < size; block++)
+		{
+			for(page = 0; page < 64; page++)
+			{
+				irom_nf8_readpage_adv(block, page, (u8_t *)mem);
+				mem += 512;
+			}
+		}
 	}
 
 	/* nand 4KB, 5-cycle, 8-bit ecc */

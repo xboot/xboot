@@ -20,15 +20,7 @@
  *
  */
 
-
 #include <xboot.h>
-#include <types.h>
-#include <io.h>
-#include <xboot/clk.h>
-#include <xboot/irq.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <time/tick.h>
 #include <s5pv210/reg-timer.h>
 
 /*
@@ -65,7 +57,7 @@ static bool_t tick_timer_init(void)
 	writel(S5PV210_TCFG1, (readl(S5PV210_TCFG1) & ~(0xf<<16)) | (0x01<<16));
 
 	/* load value for 10 ms timeout */
-	writel(S5PV210_TCNTB4, (u32_t)div64(pclk, (2 * 16 * 100)));
+	writel(S5PV210_TCNTB4, (u32_t)(pclk / (2 * 16 * 100)));
 
 	/* auto load, manaual update of timer 4 and stop timer4 */
 	writel(S5PV210_TCON, (readl(S5PV210_TCON) & ~(0x7<<20)) | (0x06<<20));
@@ -86,7 +78,9 @@ static struct tick_t s5pv210_tick = {
 
 static __init void s5pv210_tick_init(void)
 {
-	if(!register_tick(&s5pv210_tick))
-		LOG("failed to register tick");
+	if(register_tick(&s5pv210_tick))
+		LOG("Register tick");
+	else
+		LOG("Failed to register tick");
 }
 core_initcall(s5pv210_tick_init);

@@ -242,8 +242,8 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 	case 0:
 		if(clk_get_rate("sclk_uart0", &sclk_uart) != TRUE)
 			return -1;
-		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
-		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
+		baud_div_reg = (u32_t)((sclk_uart / (baud * 16)) ) - 1;
+		baud_divslot_reg = udivslot_code[( (u32_t)((sclk_uart % (baud*16)) / baud) ) & 0xf];
 
 		writel(EXYNOS4X12_UBRDIV0, baud_div_reg);
 		writel(EXYNOS4X12_UFRACVAL0, baud_divslot_reg);
@@ -253,8 +253,8 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 	case 1:
 		if(clk_get_rate("sclk_uart1", &sclk_uart) != TRUE)
 			return -1;
-		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
-		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
+		baud_div_reg = (u32_t)((sclk_uart / (baud * 16)) ) - 1;
+		baud_divslot_reg = udivslot_code[( (u32_t)((sclk_uart % (baud*16)) / baud) ) & 0xf];
 
 		writel(EXYNOS4X12_UBRDIV1, baud_div_reg);
 		writel(EXYNOS4X12_UFRACVAL1, baud_divslot_reg);
@@ -264,8 +264,8 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 	case 2:
 		if(clk_get_rate("sclk_uart2", &sclk_uart) != TRUE)
 			return -1;
-		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
-		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
+		baud_div_reg = (u32_t)((sclk_uart / (baud * 16)) ) - 1;
+		baud_divslot_reg = udivslot_code[( (u32_t)((sclk_uart % (baud*16)) / baud) ) & 0xf];
 
 		writel(EXYNOS4X12_UBRDIV2, baud_div_reg);
 		writel(EXYNOS4X12_UFRACVAL2, baud_divslot_reg);
@@ -275,8 +275,8 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 	case 3:
 		if(clk_get_rate("sclk_uart3", &sclk_uart) != TRUE)
 			return -1;
-		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
-		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
+		baud_div_reg = (u32_t)((sclk_uart / (baud * 16)) ) - 1;
+		baud_divslot_reg = udivslot_code[( (u32_t)((sclk_uart % (baud*16)) / baud) ) & 0xf];
 
 		writel(EXYNOS4X12_UBRDIV3, baud_div_reg);
 		writel(EXYNOS4X12_UFRACVAL3, baud_divslot_reg);
@@ -286,8 +286,8 @@ static int exynos4x12_ioctl(u32_t ch, int cmd, void * arg)
 	case 4:
 		if(clk_get_rate("sclk_uart4", &sclk_uart) != TRUE)
 			return -1;
-		baud_div_reg = (u32_t)(div64(sclk_uart, (baud * 16)) ) - 1;
-		baud_divslot_reg = udivslot_code[( (u32_t)div64(mod64(sclk_uart, (baud*16)), baud) ) & 0xf];
+		baud_div_reg = (u32_t)((sclk_uart / (baud * 16)) ) - 1;
+		baud_divslot_reg = udivslot_code[( (u32_t)((sclk_uart % (baud*16)) / baud) ) & 0xf];
 
 		writel(EXYNOS4X12_UBRDIV4, baud_div_reg);
 		writel(EXYNOS4X12_UFRACVAL4, baud_divslot_reg);

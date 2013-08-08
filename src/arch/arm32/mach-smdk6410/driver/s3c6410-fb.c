@@ -144,7 +144,7 @@ static void fb_init(struct fb_t * fb)
 
 	/* get hclk for lcd */
 	clk_get_rate("hclk", &hclk);
-	writel(S3C6410_VIDCON0, (REGS_VIDCON0 | S3C6410_VIDCON0_CLKVAL_F((u32_t)(div64(hclk, PIXEL_CLOCK) - 1)) ) );
+	writel(S3C6410_VIDCON0, (REGS_VIDCON0 | S3C6410_VIDCON0_CLKVAL_F((u32_t)((hclk / PIXEL_CLOCK) - 1)) ) );
 
 	/* turn all windows off */
 	writel(S3C6410_WINCON0, (readl(S3C6410_WINCON0) & ~0x1));

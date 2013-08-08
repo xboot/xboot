@@ -65,7 +65,7 @@ static bool_t tick_timer_init(void)
 	writel(S5PC100_TCFG1, (readl(S5PC100_TCFG1) & ~(0xf<<16)) | (0x01<<16));
 
 	/* load value for 10 ms timeout */
-	writel(S5PC100_TCNTB4, (u32_t)div64(pclk, (2 * 16 * 100)));
+	writel(S5PC100_TCNTB4, (u32_t)(pclk / (2 * 16 * 100)));
 
 	/* auto load, manaual update of timer 4 and stop timer4 */
 	writel(S5PC100_TCON, (readl(S5PC100_TCON) & ~(0x7<<20)) | (0x06<<20));

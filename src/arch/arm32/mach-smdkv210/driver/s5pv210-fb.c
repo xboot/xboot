@@ -23,16 +23,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <io.h>
-#include <time/delay.h>
-#include <xboot/ioctl.h>
-#include <xboot/clk.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <xboot/resource.h>
 #include <fb/fb.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-others.h>
@@ -141,8 +131,8 @@ static bool_t s5pv210fb_set_clock(struct s5pv210fb_lcd * lcd)
 	pixel_clock = ( lcd->freq * (lcd->timing.h_fp + lcd->timing.h_bp + lcd->timing.h_sw + lcd->width) *
 			(lcd->timing.v_fp + lcd->timing.v_bp + lcd->timing.v_sw + lcd->height) );
 
-	div = (u32_t)div64(hclk, pixel_clock);
-	if(mod64(hclk, pixel_clock) > 0)
+	div = (u32_t)(hclk / pixel_clock);
+	if((hclk % pixel_clock) > 0)
 		div++;
 
 	/*
@@ -210,12 +200,12 @@ static bool_t s5pv210fb_set_lcd_size(struct s5pv210fb_lcd * lcd)
 	return TRUE;
 }
 
-static bool_t s5pv210fb_set_buffer_address(struct s5pv210fb_lcd * lcd, s32_t id)
+static bool_t s5pv210fb_set_buffer_address(struct s5pv210fb_lcd * lcd, s32_t id, void * vram)
 {
 	u32_t start, end;
 	u32_t shw;
 
-	start = (u32_t)(lcd->vram_front);
+	start = (u32_t)(vram);
 	end = (u32_t)((start + lcd->width * (lcd->height * lcd->bytes_per_pixel)) & 0x00ffffff);
 
 	shw = readl(S5PV210_SHADOWCON);
@@ -507,7 +497,6 @@ static void fb_init(struct fb_t * fb)
 	/*
 	 * set lcd video buffer
 	 */
-	s5pv210fb_set_buffer_address(lcd, 2);
 	s5pv210fb_set_buffer_size(lcd, 2);
 	s5pv210fb_set_window_position(lcd, 2);
 	s5pv210fb_set_window_size(lcd, 2);
@@ -528,25 +517,6 @@ static void fb_init(struct fb_t * fb)
 	mdelay(100);
 }
 
-static void fb_swap(struct fb_t * fb)
-{
-	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
-	void * vram;
-
-	vram = lcd->vram_front;
-	lcd->vram_front = lcd->vram_back;
-	lcd->vram_back = vram;
-
-	fb->info->surface.pixels = lcd->vram_front;
-}
-
-static void fb_flush(struct fb_t * fb)
-{
-	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
-
-	s5pv210fb_set_buffer_address(lcd, 2);
-}
-
 static void fb_exit(struct fb_t * fb)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
@@ -557,57 +527,136 @@ static void fb_exit(struct fb_t * fb)
 	s5pv210fb_display_off(lcd);
 }
 
-static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
+static int fb_xcursor(struct fb_t * fb, int ox)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
-	static u8_t brightness = 0;
-	u8_t * p;
 
-	switch(cmd)
-	{
-	case IOCTL_SET_FB_BACKLIGHT:
-		p = (u8_t *)arg;
-		brightness = (*p) & 0xff;
-		if(lcd->backlight)
-			lcd->backlight(brightness);
-		return 0;
+	if(ox == 0)
+		return lcd->xpos;
 
-	case IOCTL_GET_FB_BACKLIGHT:
-		p = (u8_t *)arg;
-		*p = brightness;
-		return 0;
+	lcd->xpos = lcd->xpos + ox;
+	if(lcd->xpos < 0)
+		lcd->xpos = 0;
+	if(lcd->xpos > lcd->width - 1)
+		lcd->xpos = lcd->width - 1;
 
-	default:
-		break;
-	}
-
-	return -1;
+	return lcd->xpos;
 }
 
-static struct fb_info_t info = {
-	.name			= "fb",
-};
+static int fb_ycursor(struct fb_t * fb, int oy)
+{
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+
+	if(oy == 0)
+		return lcd->ypos;
+
+	lcd->ypos = lcd->ypos + oy;
+	if(lcd->ypos < 0)
+		lcd->ypos = 0;
+	if(lcd->ypos > lcd->height - 1)
+		lcd->ypos = lcd->height - 1;
+
+	return lcd->ypos;
+}
+
+static int fb_backlight(struct fb_t * fb, int brightness)
+{
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+
+	if(lcd->backlight)
+		return lcd->backlight(brightness);
+	return 0;
+}
+
+static void fb_suspend(struct fb_t * fb)
+{
+}
+
+static void fb_resume(struct fb_t * fb)
+{
+}
+
+struct render_t * fb_create(struct fb_t * fb)
+{
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+	struct render_t * render;
+	void * pixels;
+	size_t size;
+
+	size = lcd->width * lcd->height * lcd->bytes_per_pixel;
+	pixels = memalign(4, size);
+	if(!pixels)
+		return NULL;
+	memset(pixels, 0, size);
+
+	render = malloc(sizeof(struct render_t));
+	if(!render)
+	{
+		free(pixels);
+		return NULL;
+	}
+
+	render->width = lcd->width;
+	render->height = lcd->height;
+	render->pitch = (lcd->width * lcd->bytes_per_pixel + 0x3) & ~0x3;
+	render->format = PIXEL_FORMAT_ARGB32;
+	render->pixels = pixels;
+
+	render->clear = sw_render_clear;
+	render->snapshot = sw_render_snapshot;
+	render->alloc_texture = sw_render_alloc_texture;
+	render->alloc_texture_similar = sw_render_alloc_texture_similar;
+	render->free_texture = sw_render_free_texture;
+	render->fill_texture = sw_render_fill_texture;
+	render->blit_texture = sw_render_blit_texture;
+	sw_render_create_priv_data(render);
+
+	return render;
+}
+
+void fb_destroy(struct fb_t * fb, struct render_t * render)
+{
+	if(render)
+	{
+		sw_render_destroy_priv_data(render);
+		free(render->pixels);
+		free(render);
+	}
+}
+
+void fb_present(struct fb_t * fb, struct render_t * render)
+{
+	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
+	void * pixels = render->pixels;
+
+	if(pixels)
+		s5pv210fb_set_buffer_address(lcd, 2, pixels);
+}
 
 static struct fb_t s5pv210_fb = {
-	.info			= &info,
-	.init			= fb_init,
-	.exit			= fb_exit,
-	.swap			= fb_swap,
-	.flush			= fb_flush,
-	.ioctl			= fb_ioctl,
-	.priv			= NULL,
+	.name		= "fb0",
+	.init		= fb_init,
+	.exit		= fb_exit,
+	.xcursor	= fb_xcursor,
+	.ycursor	= fb_ycursor,
+	.backlight	= fb_backlight,
+	.suspend	= fb_suspend,
+	.resume		= fb_resume,
+	.create		= fb_create,
+	.destroy	= fb_destroy,
+	.present	= fb_present,
 };
 
 static __init void s5pv210_fb_init(void)
 {
 	struct s5pv210fb_lcd * lcd;
 
-	s5pv210_fb.priv = resource_get_data(s5pv210_fb.info->name);
+	s5pv210_fb.priv = resource_get_data(s5pv210_fb.name);
 	lcd = (struct s5pv210fb_lcd *)(s5pv210_fb.priv);
 
 	if(! s5pv210_fb.priv)
 	{
-		LOG("can't get the resource of \'%s\'", s5pv210_fb.info->name);
+		LOG("can't get the resource of \'%s\'", s5pv210_fb.name);
 		return;
 	}
 
@@ -620,40 +669,14 @@ static __init void s5pv210_fb_init(void)
 	if( (lcd->bits_per_pixel != 16) && (lcd->bits_per_pixel != 24) && (lcd->bits_per_pixel != 32) )
 		return;
 
-	info.surface.info.bits_per_pixel = lcd->bits_per_pixel;
-	info.surface.info.bytes_per_pixel = lcd->bytes_per_pixel;
-	info.surface.info.red_mask_size = lcd->rgba.r_mask;
-	info.surface.info.red_field_pos = lcd->rgba.r_field;
-	info.surface.info.green_mask_size = lcd->rgba.g_mask;
-	info.surface.info.green_field_pos = lcd->rgba.g_field;
-	info.surface.info.blue_mask_size = lcd->rgba.b_mask;
-	info.surface.info.blue_field_pos = lcd->rgba.b_field;
-	info.surface.info.alpha_mask_size = lcd->rgba.a_mask;
-	info.surface.info.alpha_field_pos = lcd->rgba.a_field;
-	info.surface.info.fmt = get_pixel_format(&(info.surface.info));
-
-	info.surface.w = lcd->width;
-	info.surface.h = lcd->height;
-	info.surface.pitch = lcd->width * lcd->bytes_per_pixel;
-	info.surface.flag = SURFACE_PIXELS_DONTFREE;
-	info.surface.pixels = lcd->vram_front;
-
-	info.surface.clip.x = 0;
-	info.surface.clip.y = 0;
-	info.surface.clip.w = lcd->width;
-	info.surface.clip.h = lcd->height;
-
-	memset(&info.surface.maps, 0, sizeof(struct surface_maps));
-	surface_set_maps(&info.surface.maps);
-
 	if(! register_framebuffer(&s5pv210_fb))
-		LOG("failed to register framebuffer driver '%s'", s5pv210_fb.info->name);
+		LOG("failed to register framebuffer driver '%s'", s5pv210_fb.name);
 }
 
 static __exit void s5pv210_fb_exit(void)
 {
 	if(!unregister_framebuffer(&s5pv210_fb))
-		LOG("failed to unregister framebuffer driver '%s'", s5pv210_fb.info->name);
+		LOG("failed to unregister framebuffer driver '%s'", s5pv210_fb.name);
 }
 
 device_initcall(s5pv210_fb_init);

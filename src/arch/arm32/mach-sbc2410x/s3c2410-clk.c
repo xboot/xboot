@@ -61,13 +61,13 @@ static void s3c2410_setup_clocks(u64_t xtal)
 	sdiv &= S3C2410_PLLCON_SDIVMASK;
 
 	fclk = (u64_t)xtal * (u64_t)(mdiv + 8);
-	div64_64(&fclk, (pdiv + 2) << sdiv);
+	fclk = fclk / ((pdiv + 2) << sdiv);
 
 	tmp = readl(S3C2410_CLKDIVN);
 
 	/* work out clock scalings */
-	hclk = div64(fclk, ((tmp & S3C2410_CLKDIVN_HDIVN) ? 2 : 1));
-	pclk = div64(hclk, ((tmp & S3C2410_CLKDIVN_PDIVN) ? 2 : 1));
+	hclk = (fclk / ((tmp & S3C2410_CLKDIVN_HDIVN) ? 2 : 1));
+	pclk = (hclk / ((tmp & S3C2410_CLKDIVN_PDIVN) ? 2 : 1));
 
 	/* intialize system clocks */
 	s3c2410_clocks[0].name = "xtal";

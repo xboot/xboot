@@ -79,7 +79,7 @@ static u64_t s5pc100_get_pll(u64_t baseclk, enum S5PC100_PLL pll)
 	p = (r >> 8) & 0x3f;
 	s = r & 0x7;
 
-	fvco = m * div64(baseclk, p * (1 << s));
+	fvco = m * (baseclk / (p * (1 << s)));
 	return (u64_t)fvco;
 }
 
@@ -141,8 +141,8 @@ static void s5pc100_setup_clocks(u64_t xtal)
 	}
 
 	/* get armclk clock */
-	tmp = div64(apll, ((((clkdiv0) & S5PC100_CLKDIV0_APLL_MASK) >> S5PC100_CLKDIV0_APLL_SHIFT) + 1));
-	tmp = div64(tmp, ((((clkdiv0) & S5PC100_CLKDIV0_ARM_MASK) >> S5PC100_CLKDIV0_ARM_SHIFT) + 1));
+	tmp = (apll / ((((clkdiv0) & S5PC100_CLKDIV0_APLL_MASK) >> S5PC100_CLKDIV0_APLL_SHIFT) + 1));
+	tmp = (tmp / ((((clkdiv0) & S5PC100_CLKDIV0_ARM_MASK) >> S5PC100_CLKDIV0_ARM_SHIFT) + 1));
 
 	/* armclk */
 	s5pc100_clocks[1].name = "armclk";
@@ -150,12 +150,12 @@ static void s5pc100_setup_clocks(u64_t xtal)
 
 	/* get dout_d1bus, dout_mpll2 and dout_mpll's clock */
 	if(clksrc0 & (1<<16))
-		tmp = div64(apll, ((((clkdiv1) & S5PC100_CLKDIV1_APLL2_MASK) >> S5PC100_CLKDIV1_APLL2_SHIFT) + 1));
+		tmp = (apll / ((((clkdiv1) & S5PC100_CLKDIV1_APLL2_MASK) >> S5PC100_CLKDIV1_APLL2_SHIFT) + 1));
 	else
 		tmp = mpll;
-	dout_d1bus = div64(tmp, ((((clkdiv1) & S5PC100_CLKDIV1_D1BUS_MASK) >> S5PC100_CLKDIV1_D1BUS_SHIFT) + 1));
-	dout_mpll2 = div64(tmp, ((((clkdiv1) & S5PC100_CLKDIV1_MPLL2_MASK) >> S5PC100_CLKDIV1_MPLL2_SHIFT) + 1));
-	dout_mpll = div64(tmp, ((((clkdiv1) & S5PC100_CLKDIV1_MPLL_MASK) >> S5PC100_CLKDIV1_MPLL_SHIFT) + 1));
+	dout_d1bus = (tmp / ((((clkdiv1) & S5PC100_CLKDIV1_D1BUS_MASK) >> S5PC100_CLKDIV1_D1BUS_SHIFT) + 1));
+	dout_mpll2 = (tmp / ((((clkdiv1) & S5PC100_CLKDIV1_MPLL2_MASK) >> S5PC100_CLKDIV1_MPLL2_SHIFT) + 1));
+	dout_mpll = (tmp / ((((clkdiv1) & S5PC100_CLKDIV1_MPLL_MASK) >> S5PC100_CLKDIV1_MPLL_SHIFT) + 1));
 
 	/* fclk */
 	s5pc100_clocks[2].name = "fclk";
@@ -167,7 +167,7 @@ static void s5pc100_setup_clocks(u64_t xtal)
 
 	/* pclk */
 	s5pc100_clocks[4].name = "pclk";
-	s5pc100_clocks[4].rate = div64(dout_d1bus, ((((clkdiv1) & S5PC100_CLKDIV1_PCLKD1_MASK) >> S5PC100_CLKDIV1_PCLKD1_SHIFT) + 1));
+	s5pc100_clocks[4].rate = (dout_d1bus / ((((clkdiv1) & S5PC100_CLKDIV1_PCLKD1_MASK) >> S5PC100_CLKDIV1_PCLKD1_SHIFT) + 1));
 }
 
 static __init void s5pc100_clk_init(void)

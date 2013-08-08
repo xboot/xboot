@@ -21,7 +21,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
 #include <s5pv210-cp15.h>
 
 /*

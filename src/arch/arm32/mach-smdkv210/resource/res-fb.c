@@ -63,17 +63,28 @@ static void lcd_exit(void)
 
 static void lcd_backlight(u8_t brightness)
 {
-	if(brightness)
+	static int level = 0;
+
+	if( (brightness < 0) || (brightness > 255) )
+		return level;
+
+	level = brightness;
+
+	if(level)
+	{
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x1<<3));
+	}
 	else
+	{
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<3)) | (0x0<<3));
+	}
+
+	return level;
 }
 
 /*
  * lcd module
  */
-static u8_t vram[2][800 * 480 * 32 / 8] __attribute__((aligned(4)));
-
 static struct s5pv210fb_lcd lcd = {
 	.width				= 800,
 	.height				= 480,
@@ -82,7 +93,7 @@ static struct s5pv210fb_lcd lcd = {
 	.freq				= 60,
 
 	.output				= S5PV210FB_OUTPUT_RGB,
-	.rgb_mode			= S5PV210FB_MODE_BGR_P,
+	.rgb_mode			= S5PV210FB_MODE_RGB_P,
 	.bpp_mode			= S5PV210FB_BPP_MODE_32BPP,
 	.swap				= S5PV210FB_SWAP_WORD,
 
@@ -115,8 +126,8 @@ static struct s5pv210fb_lcd lcd = {
 		.inv_vden		= 0,
 	},
 
-	.vram_front			= &vram[0][0],
-	.vram_back			= &vram[1][0],
+	.xpos				= 0,
+	.ypos				= 0,
 
 	.init				= lcd_init,
 	.exit				= lcd_exit,
@@ -124,7 +135,7 @@ static struct s5pv210fb_lcd lcd = {
 };
 
 static struct resource_t fb_res = {
-	.name		= "fb",
+	.name		= "fb0",
 	.data		= &lcd,
 };
 

@@ -59,7 +59,7 @@ static bool_t tick_timer_init(void)
 	writel(S3C6410_TCFG1, (readl(S3C6410_TCFG1) & ~(0xf<<16)) | (0x01<<16));
 
 	/* load value for 10 ms timeout */
-	writel(S3C6410_TCNTB4, (u32_t)div64(pclk, (2 * 16 * 100)));
+	writel(S3C6410_TCNTB4, (u32_t)(pclk / (2 * 16 * 100)));
 
 	/* auto load, manaual update of timer 4 and stop timer4 */
 	writel(S3C6410_TCON, (readl(S3C6410_TCON) & ~(0x7<<20)) | (0x06<<20));

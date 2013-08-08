@@ -221,7 +221,7 @@ static int s3c2410_ioctl(u32_t ch, int cmd, void * arg)
 	}
 
 	if(clk_get_rate("pclk", &pclk))
-		baud_div_reg = (u32_t)(div64(pclk, baud * 16)) -1;
+		baud_div_reg = (u32_t)((pclk / baud * 16)) -1;
 	else
 		return -1;
 

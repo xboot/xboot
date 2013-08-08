@@ -109,6 +109,21 @@ SECTIONS
   		PROVIDE (__data_end = .);		
 	} > ram
 
+	.ARM.exidx :
+	{
+		. = ALIGN(8);
+		PROVIDE (__exidx_start = .);
+		*(.ARM.exidx*)
+		PROVIDE (__exidx_end = .);
+	} > ram
+
+	.ARM.extab :
+	{
+		PROVIDE (__extab_start = .);
+		*(.ARM.extab*)
+		PROVIDE (__extab_end = .);
+	} > ram
+
 	.bss ALIGN(8) (NOLOAD) :
 	{
 		PROVIDE (__bss_start = .);

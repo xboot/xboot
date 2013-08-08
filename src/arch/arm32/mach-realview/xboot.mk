@@ -13,7 +13,6 @@ OCFLAGS		:= -v -O binary
 ODFLAGS		:=
 MCFLAGS		:= -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a -mfpu=neon -ftree-vectorize -ffast-math -mfloat-abi=softfp
 
-
 LIBDIRS		:=
 LIBS 		:=
 

@@ -59,7 +59,7 @@ static __init void test_cmd_init(void)
 	if(command_register(&test_cmd))
 		LOG("Register command 'test'");
 	else
-		LOG("Fail to register command 'test'");
+		LOG("Failed to register command 'test'");
 }
 
 static __exit void test_cmd_exit(void)
@@ -67,7 +67,7 @@ static __exit void test_cmd_exit(void)
 	if(command_unregister(&test_cmd))
 		LOG("Unegister command 'test'");
 	else
-		LOG("Fail to unregister command 'test'");
+		LOG("Failed to unregister command 'test'");
 }
 
 command_initcall(test_cmd_init);

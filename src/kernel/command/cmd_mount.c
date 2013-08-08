@@ -199,7 +199,7 @@ static __init void mount_cmd_init(void)
 	if(command_register(&mount_cmd))
 		LOG("Register command 'mount'");
 	else
-		LOG("Fail to register command 'mount'");
+		LOG("Failed to register command 'mount'");
 }
 
 static __exit void mount_cmd_exit(void)
@@ -207,7 +207,7 @@ static __exit void mount_cmd_exit(void)
 	if(command_unregister(&mount_cmd))
 		LOG("Unegister command 'mount'");
 	else
-		LOG("Fail to unregister command 'mount'");
+		LOG("Failed to unregister command 'mount'");
 }
 
 command_initcall(mount_cmd_init);

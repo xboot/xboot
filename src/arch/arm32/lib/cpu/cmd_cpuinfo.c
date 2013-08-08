@@ -207,7 +207,7 @@ static __init void cpuinfo_cmd_init(void)
 	if(command_register(&cpuinfo_cmd))
 		LOG("Register command 'cpuinfo'");
 	else
-		LOG("Fail to register command 'cpuinfo'");
+		LOG("Failed to register command 'cpuinfo'");
 }
 
 static __exit void cpuinfo_cmd_exit(void)
@@ -215,7 +215,7 @@ static __exit void cpuinfo_cmd_exit(void)
 	if(command_unregister(&cpuinfo_cmd))
 		LOG("Unegister command 'cpuinfo'");
 	else
-		LOG("Fail to unregister command 'cpuinfo'");
+		LOG("Failed to unregister command 'cpuinfo'");
 }
 
 command_initcall(cpuinfo_cmd_init);

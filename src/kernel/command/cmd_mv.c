@@ -97,7 +97,7 @@ static __init void mv_cmd_init(void)
 	if(command_register(&mv_cmd))
 		LOG("Register command 'mv'");
 	else
-		LOG("Fail to register command 'mv'");
+		LOG("Failed to register command 'mv'");
 }
 
 static __exit void mv_cmd_exit(void)
@@ -105,7 +105,7 @@ static __exit void mv_cmd_exit(void)
 	if(command_unregister(&mv_cmd))
 		LOG("Unegister command 'mv'");
 	else
-		LOG("Fail to unregister command 'mv'");
+		LOG("Failed to unregister command 'mv'");
 }
 
 command_initcall(mv_cmd_init);

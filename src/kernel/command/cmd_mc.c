@@ -74,7 +74,7 @@ static __init void mc_cmd_init(void)
 	if(command_register(&mc_cmd))
 		LOG("Register command 'mc'");
 	else
-		LOG("Fail to register command 'mc'");
+		LOG("Failed to register command 'mc'");
 }
 
 static __exit void mc_cmd_exit(void)
@@ -82,7 +82,7 @@ static __exit void mc_cmd_exit(void)
 	if(command_unregister(&mc_cmd))
 		LOG("Unegister command 'mc'");
 	else
-		LOG("Fail to unregister command 'mc'");
+		LOG("Failed to unregister command 'mc'");
 }
 
 command_initcall(mc_cmd_init);

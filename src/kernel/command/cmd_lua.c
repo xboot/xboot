@@ -60,7 +60,7 @@ static __init void lua_cmd_init(void)
 	if(command_register(&lua_cmd))
 		LOG("Register command 'lua'");
 	else
-		LOG("Fail to register command 'lua'");
+		LOG("Failed to register command 'lua'");
 }
 
 static __exit void lua_cmd_exit(void)
@@ -68,7 +68,7 @@ static __exit void lua_cmd_exit(void)
 	if(command_unregister(&lua_cmd))
 		LOG("Unegister command 'lua'");
 	else
-		LOG("Fail to unregister command 'lua'");
+		LOG("Failed to unregister command 'lua'");
 }
 
 command_initcall(lua_cmd_init);

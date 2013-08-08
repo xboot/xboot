@@ -108,7 +108,7 @@ static __init void cat_cmd_init(void)
 	if(command_register(&cat_cmd))
 		LOG("Register command 'cat'");
 	else
-		LOG("Fail to register command 'cat'");
+		LOG("Failed to register command 'cat'");
 }
 
 static __exit void cat_cmd_exit(void)
@@ -116,7 +116,7 @@ static __exit void cat_cmd_exit(void)
 	if(command_unregister(&cat_cmd))
 		LOG("Unegister command 'cat'");
 	else
-		LOG("Fail to unregister command 'cat'");
+		LOG("Failed to unregister command 'cat'");
 }
 
 command_initcall(cat_cmd_init);

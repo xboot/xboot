@@ -69,7 +69,7 @@ static __init void rmdir_cmd_init(void)
 	if(command_register(&rmdir_cmd))
 		LOG("Register command 'rmdir'");
 	else
-		LOG("Fail to register command 'rmdir'");
+		LOG("Failed to register command 'rmdir'");
 }
 
 static __exit void rmdir_cmd_exit(void)
@@ -77,7 +77,7 @@ static __exit void rmdir_cmd_exit(void)
 	if(command_unregister(&rmdir_cmd))
 		LOG("Unegister command 'rmdir'");
 	else
-		LOG("Fail to unregister command 'rmdir'");
+		LOG("Failed to unregister command 'rmdir'");
 }
 
 command_initcall(rmdir_cmd_init);

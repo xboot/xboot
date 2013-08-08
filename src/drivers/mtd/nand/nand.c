@@ -603,7 +603,7 @@ void nand_flash_probe(void)
 			LOG("found nand chip %s (%s)", nand->info->name, nand->manufacturer->name);
 		else
 		{
-			LOG("fail to register nand device");
+			LOG("Failed to register nand device");
 			free(nand->blocks);
 			free(nand);
 		}

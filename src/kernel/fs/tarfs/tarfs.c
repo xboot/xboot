@@ -547,7 +547,7 @@ static __init void filesystem_tarfs_init(void)
 	if(filesystem_register(&tarfs))
 		LOG("Register filesystem 'tarfs'");
 	else
-		LOG("Fail to register filesystem 'tarfs'");
+		LOG("Failed to register filesystem 'tarfs'");
 }
 
 static __exit void filesystem_tarfs_exit(void)
@@ -555,7 +555,7 @@ static __exit void filesystem_tarfs_exit(void)
 	if(filesystem_unregister(&tarfs))
 		LOG("Unregister filesystem 'tarfs'");
 	else
-		LOG("Fail to unregister filesystem 'tarfs'");
+		LOG("Failed to unregister filesystem 'tarfs'");
 }
 
 fs_initcall(filesystem_tarfs_init);

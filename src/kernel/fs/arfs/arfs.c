@@ -357,7 +357,7 @@ static __init void filesystem_arfs_init(void)
 	if(filesystem_register(&arfs))
 		LOG("Register filesystem 'arfs'");
 	else
-		LOG("Fail to register filesystem 'arfs'");
+		LOG("Failed to register filesystem 'arfs'");
 }
 
 static __exit void filesystem_arfs_exit(void)
@@ -365,7 +365,7 @@ static __exit void filesystem_arfs_exit(void)
 	if(filesystem_unregister(&arfs))
 		LOG("Unregister filesystem 'arfs'");
 	else
-		LOG("Fail to unregister filesystem 'arfs'");
+		LOG("Failed to unregister filesystem 'arfs'");
 }
 
 fs_initcall(filesystem_arfs_init);

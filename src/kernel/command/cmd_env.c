@@ -83,7 +83,7 @@ static __init void env_cmd_init(void)
 	if(command_register(&env_cmd))
 		LOG("Register command 'env'");
 	else
-		LOG("Fail to register command 'env'");
+		LOG("Failed to register command 'env'");
 }
 
 static __exit void env_cmd_exit(void)
@@ -91,7 +91,7 @@ static __exit void env_cmd_exit(void)
 	if(command_unregister(&env_cmd))
 		LOG("Unegister command 'env'");
 	else
-		LOG("Fail to unregister command 'env'");
+		LOG("Failed to unregister command 'env'");
 }
 
 command_initcall(env_cmd_init);

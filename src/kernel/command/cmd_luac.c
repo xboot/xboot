@@ -61,7 +61,7 @@ static __init void luac_cmd_init(void)
 	if(command_register(&luac_cmd))
 		LOG("Register command 'luac'");
 	else
-		LOG("Fail to register command 'luac'");
+		LOG("Failed to register command 'luac'");
 }
 
 static __exit void luac_cmd_exit(void)
@@ -69,7 +69,7 @@ static __exit void luac_cmd_exit(void)
 	if(command_unregister(&luac_cmd))
 		LOG("Unegister command 'luac'");
 	else
-		LOG("Fail to unregister command 'luac'");
+		LOG("Failed to unregister command 'luac'");
 }
 
 command_initcall(luac_cmd_init);

@@ -285,7 +285,7 @@ static __init void filesystem_procfs_init(void)
 	if(filesystem_register(&procfs))
 		LOG("Register filesystem 'procfs'");
 	else
-		LOG("Fail to register filesystem 'procfs'");
+		LOG("Failed to register filesystem 'procfs'");
 }
 
 static __exit void filesystem_procfs_exit(void)
@@ -293,7 +293,7 @@ static __exit void filesystem_procfs_exit(void)
 	if(filesystem_unregister(&procfs))
 		LOG("Unregister filesystem 'procfs'");
 	else
-		LOG("Fail to unregister filesystem 'procfs'");
+		LOG("Failed to unregister filesystem 'procfs'");
 }
 
 fs_initcall(filesystem_procfs_init);

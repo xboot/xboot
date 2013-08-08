@@ -60,7 +60,7 @@ static __init void pwd_cmd_init(void)
 	if(command_register(&pwd_cmd))
 		LOG("Register command 'pwd'");
 	else
-		LOG("Fail to register command 'pwd'");
+		LOG("Failed to register command 'pwd'");
 }
 
 static __exit void pwd_cmd_exit(void)
@@ -68,7 +68,7 @@ static __exit void pwd_cmd_exit(void)
 	if(command_unregister(&pwd_cmd))
 		LOG("Unegister command 'pwd'");
 	else
-		LOG("Fail to unregister command 'pwd'");
+		LOG("Failed to unregister command 'pwd'");
 }
 
 command_initcall(pwd_cmd_init);

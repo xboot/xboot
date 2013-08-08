@@ -572,7 +572,7 @@ static __init void filesystem_ramfs_init(void)
 	if(filesystem_register(&ramfs))
 		LOG("Register filesystem 'ramfs'");
 	else
-		LOG("Fail to register filesystem 'ramfs'");
+		LOG("Failed to register filesystem 'ramfs'");
 }
 
 static __exit void filesystem_ramfs_exit(void)
@@ -580,7 +580,7 @@ static __exit void filesystem_ramfs_exit(void)
 	if(filesystem_unregister(&ramfs))
 		LOG("Unregister filesystem 'ramfs'");
 	else
-		LOG("Fail to unregister filesystem 'ramfs'");
+		LOG("Failed to unregister filesystem 'ramfs'");
 }
 
 fs_initcall(filesystem_ramfs_init);

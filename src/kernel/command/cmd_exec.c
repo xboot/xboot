@@ -62,7 +62,7 @@ static __init void exec_cmd_init(void)
 	if(command_register(&exec_cmd))
 		LOG("Register command 'exec'");
 	else
-		LOG("Fail to register command 'exec'");
+		LOG("Failed to register command 'exec'");
 }
 
 static __exit void exec_cmd_exit(void)
@@ -70,7 +70,7 @@ static __exit void exec_cmd_exit(void)
 	if(command_unregister(&exec_cmd))
 		LOG("Unegister command 'exec'");
 	else
-		LOG("Fail to unregister command 'exec'");
+		LOG("Failed to unregister command 'exec'");
 }
 
 command_initcall(exec_cmd_init);

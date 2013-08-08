@@ -63,7 +63,7 @@ static __init void console_cmd_init(void)
 	if(command_register(&console_cmd))
 		LOG("Register command 'console'");
 	else
-		LOG("Fail to register command 'console'");
+		LOG("Failed to register command 'console'");
 }
 
 static __exit void console_cmd_exit(void)
@@ -71,7 +71,7 @@ static __exit void console_cmd_exit(void)
 	if(command_unregister(&console_cmd))
 		LOG("Unegister command 'console'");
 	else
-		LOG("Fail to unregister command 'console'");
+		LOG("Failed to unregister command 'console'");
 }
 
 command_initcall(console_cmd_init);

@@ -62,7 +62,7 @@ static __init void halt_cmd_init(void)
 	if(command_register(&halt_cmd))
 		LOG("Register command 'halt'");
 	else
-		LOG("Fail to register command 'halt'");
+		LOG("Failed to register command 'halt'");
 }
 
 static __exit void halt_cmd_exit(void)
@@ -70,7 +70,7 @@ static __exit void halt_cmd_exit(void)
 	if(command_unregister(&halt_cmd))
 		LOG("Unegister command 'halt'");
 	else
-		LOG("Fail to unregister command 'halt'");
+		LOG("Failed to unregister command 'halt'");
 }
 
 command_initcall(halt_cmd_init);

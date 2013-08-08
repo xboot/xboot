@@ -439,7 +439,7 @@ void mmc_card_probe(void)
 		 */
 		if(!mmc_card_decode(card))
 		{
-			LOG("fail to decode mmc card '%s' (%s)", card->name, card->host->name);
+			LOG("Failed to decode mmc card '%s' (%s)", card->name, card->host->name);
 			free(card);
 			free(info);
 		}
@@ -451,7 +451,7 @@ void mmc_card_probe(void)
 			LOG("found mmc card '%s' (%s)", card->name, card->host->name);
 		else
 		{
-			LOG("fail to register mmc card '%s' (%s)", card->name, card->host->name);
+			LOG("Failed to register mmc card '%s' (%s)", card->name, card->host->name);
 			free(card);
 			free(info);
 		}

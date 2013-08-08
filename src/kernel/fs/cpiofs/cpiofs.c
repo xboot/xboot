@@ -496,7 +496,7 @@ static __init void filesystem_cpiofs_init(void)
 	if(filesystem_register(&cpiofs))
 		LOG("Register filesystem 'cpiofs'");
 	else
-		LOG("Fail to register filesystem 'cpiofs'");
+		LOG("Failed to register filesystem 'cpiofs'");
 }
 
 static __exit void filesystem_cpiofs_exit(void)
@@ -504,7 +504,7 @@ static __exit void filesystem_cpiofs_exit(void)
 	if(filesystem_unregister(&cpiofs))
 		LOG("Unregister filesystem 'cpiofs'");
 	else
-		LOG("Fail to unregister filesystem 'cpiofs'");
+		LOG("Failed to unregister filesystem 'cpiofs'");
 }
 
 fs_initcall(filesystem_cpiofs_init);

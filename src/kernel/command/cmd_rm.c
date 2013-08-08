@@ -77,7 +77,7 @@ static __init void rm_cmd_init(void)
 	if(command_register(&rm_cmd))
 		LOG("Register command 'rm'");
 	else
-		LOG("Fail to register command 'rm'");
+		LOG("Failed to register command 'rm'");
 }
 
 static __exit void rm_cmd_exit(void)
@@ -85,7 +85,7 @@ static __exit void rm_cmd_exit(void)
 	if(command_unregister(&rm_cmd))
 		LOG("Unegister command 'rm'");
 	else
-		LOG("Fail to unregister command 'rm'");
+		LOG("Failed to unregister command 'rm'");
 }
 
 command_initcall(rm_cmd_init);

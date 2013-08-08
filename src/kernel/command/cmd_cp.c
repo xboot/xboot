@@ -95,7 +95,7 @@ static __init void cp_cmd_init(void)
 	if(command_register(&cp_cmd))
 		LOG("Register command 'cp'");
 	else
-		LOG("Fail to register command 'cp'");
+		LOG("Failed to register command 'cp'");
 }
 
 static __exit void cp_cmd_exit(void)
@@ -103,7 +103,7 @@ static __exit void cp_cmd_exit(void)
 	if(command_unregister(&cp_cmd))
 		LOG("Unegister command 'cp'");
 	else
-		LOG("Fail to unregister command 'cp'");
+		LOG("Failed to unregister command 'cp'");
 }
 
 command_initcall(cp_cmd_init);

@@ -77,7 +77,7 @@ static __init void sleep_cmd_init(void)
 	if(command_register(&sleep_cmd))
 		LOG("Register command 'sleep'");
 	else
-		LOG("Fail to register command 'sleep'");
+		LOG("Failed to register command 'sleep'");
 }
 
 static __exit void sleep_cmd_exit(void)
@@ -85,7 +85,7 @@ static __exit void sleep_cmd_exit(void)
 	if(command_unregister(&sleep_cmd))
 		LOG("Unegister command 'sleep'");
 	else
-		LOG("Fail to unregister command 'sleep'");
+		LOG("Failed to unregister command 'sleep'");
 }
 
 command_initcall(sleep_cmd_init);

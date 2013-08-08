@@ -96,7 +96,7 @@ static __init void exit_cmd_init(void)
 	if(command_register(&exit_cmd))
 		LOG("Register command 'exit'");
 	else
-		LOG("Fail to register command 'exit'");
+		LOG("Failed to register command 'exit'");
 }
 
 static __exit void exit_cmd_exit(void)
@@ -104,7 +104,7 @@ static __exit void exit_cmd_exit(void)
 	if(command_unregister(&exit_cmd))
 		LOG("Unegister command 'exit'");
 	else
-		LOG("Fail to unregister command 'exit'");
+		LOG("Failed to unregister command 'exit'");
 }
 
 command_initcall(exit_cmd_init);

@@ -121,7 +121,7 @@ static __init void bootlinux_cmd_init(void)
 	if(command_register(&bootlinux_cmd))
 		LOG("Register command 'bootlinux'");
 	else
-		LOG("Fail to register command 'bootlinux'");
+		LOG("Failed to register command 'bootlinux'");
 }
 
 static __exit void bootlinux_cmd_exit(void)
@@ -129,7 +129,7 @@ static __exit void bootlinux_cmd_exit(void)
 	if(command_unregister(&bootlinux_cmd))
 		LOG("Unegister command 'bootlinux'");
 	else
-		LOG("Fail to unregister command 'bootlinux'");
+		LOG("Failed to unregister command 'bootlinux'");
 }
 
 command_initcall(bootlinux_cmd_init);

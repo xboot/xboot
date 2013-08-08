@@ -53,7 +53,7 @@ static __init void sync_cmd_init(void)
 	if(command_register(&sync_cmd))
 		LOG("Register command 'sync'");
 	else
-		LOG("Fail to register command 'sync'");
+		LOG("Failed to register command 'sync'");
 }
 
 static __exit void sync_cmd_exit(void)
@@ -61,7 +61,7 @@ static __exit void sync_cmd_exit(void)
 	if(command_unregister(&sync_cmd))
 		LOG("Unegister command 'sync'");
 	else
-		LOG("Fail to unregister command 'sync'");
+		LOG("Failed to unregister command 'sync'");
 }
 
 command_initcall(sync_cmd_init);

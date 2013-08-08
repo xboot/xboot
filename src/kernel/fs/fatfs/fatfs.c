@@ -944,7 +944,7 @@ static __init void filesystem_fatfs_init(void)
 	if(filesystem_register(&fatfs))
 		LOG("Register filesystem 'fatfs'");
 	else
-		LOG("Fail to register filesystem 'fatfs'");
+		LOG("Failed to register filesystem 'fatfs'");
 }
 
 static __exit void filesystem_fatfs_exit(void)
@@ -952,7 +952,7 @@ static __exit void filesystem_fatfs_exit(void)
 	if(filesystem_unregister(&fatfs))
 		LOG("Unregister filesystem 'fatfs'");
 	else
-		LOG("Fail to unregister filesystem 'fatfs'");
+		LOG("Failed to unregister filesystem 'fatfs'");
 }
 
 fs_initcall(filesystem_fatfs_init);

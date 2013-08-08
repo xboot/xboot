@@ -479,12 +479,12 @@ static __init void sx_cmd_init(void)
 	if(command_register(&sx_cmd))
 		LOG("Register command 'sx'");
 	else
-		LOG("Fail to register command 'sx'");
+		LOG("Failed to register command 'sx'");
 
 	if(command_register(&rx_cmd))
 		LOG("Register command 'rx'");
 	else
-		LOG("Fail to register command 'rx'");
+		LOG("Failed to register command 'rx'");
 }
 
 static __exit void sx_cmd_exit(void)
@@ -492,12 +492,12 @@ static __exit void sx_cmd_exit(void)
 	if(command_unregister(&sx_cmd))
 		LOG("Unegister command 'sx'");
 	else
-		LOG("Fail to unregister command 'sx'");
+		LOG("Failed to unregister command 'sx'");
 
 	if(command_unregister(&rx_cmd))
 		LOG("Unegister command 'rx'");
 	else
-		LOG("Fail to unregister command 'rx'");
+		LOG("Failed to unregister command 'rx'");
 }
 
 command_initcall(xmodem_cmd_init);

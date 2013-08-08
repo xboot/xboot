@@ -32,91 +32,97 @@
 
 void do_system_rootfs(void)
 {
-	LOG("mount root filesystem");
+	LOG("Mount root filesystem");
 
 	if(mount(NULL, "/" , "ramfs", 0) != 0)
-		LOG("failed to mount root filesystem");
+		LOG("Failed to mount root filesystem");
 
 	if(chdir("/") != 0)
-		LOG("can't change directory to '/'");
+		LOG("Can't change directory to '/'");
 
 	if(mkdir("/proc", S_IRUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("failed to create directory '/proc'");
+		LOG("Failed to create directory '/proc'");
 
 	if(mount(NULL, "/proc" , "procfs", 0) != 0)
-		LOG("failed to mount proc filesystem");
+		LOG("Failed to mount proc filesystem");
 
 	if(mkdir("/dev", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("failed to create directory '/dev'");
+		LOG("Failed to create directory '/dev'");
 
 	if(mount(NULL, "/dev" , "devfs", 0) != 0)
-		LOG("failed to mount dev filesystem");
+		LOG("Failed to mount dev filesystem");
 
 	if(mkdir("/romdisk", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("failed to create directory '/romdisk'");
+		LOG("Failed to create directory '/romdisk'");
 
 	if(mount("/dev/romdisk", "/romdisk" , "cpiofs", 0) != 0)
-		LOG("failed to mount romdisk");
+		LOG("Failed to mount romdisk");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("failed to create directory '/etc'");
+		LOG("Failed to create directory '/etc'");
 
 	if(mkdir("/tmp", S_IRWXU|S_IRWXG|S_IRWXO) != 0)
-		LOG("failed to create directory '/tmp'");
+		LOG("Failed to create directory '/tmp'");
 
 	if(mkdir("/mnt", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("failed to create directory '/mnt'");
+		LOG("Failed to create directory '/mnt'");
 }
 
 void do_system_logo(void)
 {
-	cairo_surface_t * logo, * watermark;
+	cairo_surface_t * watermark = NULL;
+	cairo_surface_t * logo;
 	cairo_surface_t * cs;
 	cairo_t * cr;
 	struct fb_t * fb;
 	int x, y;
 
+	LOG("Display system logo");
+
+	if(! machine_authentication())
+		watermark = cairo_image_surface_create_from_png("/romdisk/system/media/images/watermark.png");
 	logo = cairo_image_surface_create_from_png("/romdisk/system/media/images/logo.png");
-	watermark = cairo_image_surface_create_from_png("/romdisk/system/media/images/watermark.png");
 
-	/* ...xxx */
 	fb = get_default_framebuffer();
-
-	cs = cairo_xboot_surface_create(fb, fb->alone);
-	cr = cairo_create(cs);
-
-	cairo_save(cr);
-	cairo_set_source_rgb(cr, 0, 0, 0);
-	cairo_paint(cr);
-	cairo_restore(cr);
-
-	x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(logo)) / 2;
-	y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(logo)) / 2;
-	cairo_set_source_surface(cr, logo, x, y);
-	cairo_paint(cr);
-
-	if(!machine_authentication())
+	if(fb)
 	{
-		x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(watermark)) / 2;
-		y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(watermark)) / 2;
-		cairo_set_source_surface(cr, watermark, x, y);
-		cairo_paint_with_alpha(cr, 0.9);
+		cs = cairo_xboot_surface_create(fb, fb->alone);
+		cr = cairo_create(cs);
+
+		cairo_save(cr);
+		cairo_set_source_rgb(cr, 0, 0, 0);
+		cairo_paint(cr);
+		cairo_restore(cr);
+
+		x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(logo)) / 2;
+		y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(logo)) / 2;
+		cairo_set_source_surface(cr, logo, x, y);
+		cairo_paint(cr);
+
+		if(watermark)
+		{
+			x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(watermark)) / 2;
+			y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(watermark)) / 2;
+			cairo_set_source_surface(cr, watermark, x, y);
+			cairo_paint_with_alpha(cr, 0.9);
+		}
+
+		cairo_destroy(cr);
+		cairo_xboot_surface_present(cs);
+		cairo_surface_destroy(cs);
+
+		if(fb->backlight)
+			fb->backlight(fb, 255);
 	}
 
-	cairo_destroy(cr);
-	cairo_xboot_surface_present(cs);
-	cairo_surface_destroy(cs);
-
-	if(fb->backlight)
-		fb->backlight(fb, 255);
-
+	if(watermark)
+		cairo_surface_destroy(watermark);
 	cairo_surface_destroy(logo);
-	cairo_surface_destroy(watermark);
 }
 
 void do_system_cfg(void)
 {
-	LOG("load system configure");
+	LOG("Load system configure");
 
 	/*
 	 * load the setting of stdin, stdout and stderr console
@@ -124,7 +130,7 @@ void do_system_cfg(void)
 	if(! console_stdio_load("/etc/console.xml"))
 	{
 		if(! console_stdio_load("/romdisk/etc/console.xml"))
-			LOG("can not setting the standard console");
+			LOG("Can not setting the standard console");
 	}
 
 	/*
@@ -133,7 +139,7 @@ void do_system_cfg(void)
 	if(! loadenv("/etc/environment.xml"))
 	{
 		if(! loadenv("/romdisk/etc/environment.xml"))
-			LOG("can not load environment variable");
+			LOG("Can not load environment variable");
 	}
 
 	/*
@@ -142,7 +148,7 @@ void do_system_cfg(void)
 	if(! menu_load("/etc/menu.xml"))
 	{
 		if(! menu_load("/romdisk/etc/menu.xml"))
-			LOG("can not load menu context");
+			LOG("Can not load menu context");
 	}
 }
 
@@ -152,7 +158,7 @@ void do_system_wait(void)
 
 	if(get_system_hz() > 0)
 	{
-		LOG("wait a moment, if necessary");
+		LOG("Wait a moment, if necessary");
 
 		/*
 		 * wait a moment for uptime until one seconds

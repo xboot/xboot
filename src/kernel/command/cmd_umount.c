@@ -64,7 +64,7 @@ static __init void umount_cmd_init(void)
 	if(command_register(&umount_cmd))
 		LOG("Register command 'umount'");
 	else
-		LOG("Fail to register command 'umount'");
+		LOG("Failed to register command 'umount'");
 }
 
 static __exit void umount_cmd_exit(void)
@@ -72,7 +72,7 @@ static __exit void umount_cmd_exit(void)
 	if(command_unregister(&umount_cmd))
 		LOG("Unegister command 'umount'");
 	else
-		LOG("Fail to unregister command 'umount'");
+		LOG("Failed to unregister command 'umount'");
 }
 command_initcall(umount_cmd_init);
 command_exitcall(umount_cmd_exit);

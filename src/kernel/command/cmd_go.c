@@ -69,7 +69,7 @@ static __init void go_cmd_init(void)
 	if(command_register(&go_cmd))
 		LOG("Register command 'go'");
 	else
-		LOG("Fail to register command 'go'");
+		LOG("Failed to register command 'go'");
 }
 
 static __exit void go_cmd_exit(void)
@@ -77,7 +77,7 @@ static __exit void go_cmd_exit(void)
 	if(command_unregister(&go_cmd))
 		LOG("Unegister command 'go'");
 	else
-		LOG("Fail to unregister command 'cat'");
+		LOG("Failed to unregister command 'cat'");
 }
 
 command_initcall(go_cmd_init);

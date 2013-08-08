@@ -52,7 +52,7 @@ static __init void version_cmd_init(void)
 	if(command_register(&version_cmd))
 		LOG("Register command 'version'");
 	else
-		LOG("Fail to register command 'version'");
+		LOG("Failed to register command 'version'");
 }
 
 static __exit void version_cmd_exit(void)
@@ -60,7 +60,7 @@ static __exit void version_cmd_exit(void)
 	if(command_unregister(&version_cmd))
 		LOG("Unegister command 'version'");
 	else
-		LOG("Fail to unregister command 'version'");
+		LOG("Failed to unregister command 'version'");
 }
 
 command_initcall(version_cmd_init);

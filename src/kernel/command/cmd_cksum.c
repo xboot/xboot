@@ -159,7 +159,7 @@ static __init void cksum_cmd_init(void)
 	if(command_register(&cksum_cmd))
 		LOG("Register command 'cksum'");
 	else
-		LOG("Fail to register command 'cksum'");
+		LOG("Failed to register command 'cksum'");
 }
 
 static __exit void cksum_cmd_exit(void)
@@ -167,7 +167,7 @@ static __exit void cksum_cmd_exit(void)
 	if(command_unregister(&cksum_cmd))
 		LOG("Unegister command 'cksum'");
 	else
-		LOG("Fail to unregister command 'cksum'");
+		LOG("Failed to unregister command 'cksum'");
 }
 
 command_initcall(cksum_cmd_init);

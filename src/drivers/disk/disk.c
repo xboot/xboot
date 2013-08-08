@@ -22,7 +22,6 @@
 
 #include <xboot.h>
 #include <malloc.h>
-#include <div64.h>
 #include <stdio.h>
 #include <xboot/printk.h>
 #include <xboot/device.h>
@@ -304,7 +303,8 @@ loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count)
 		return 0;
 
 	div = offset;
-	rem = div64_64(&div, secsz);
+	rem = div % secsz;
+	div = div / secsz;
 	secno = div;
 
 	if(rem > 0)
@@ -327,7 +327,8 @@ loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count)
 	}
 
 	div = count;
-	rem = div64_64(&div, secsz);
+	rem = div % secsz;
+	div = div / secsz;
 
 	if(div > 0)
 	{

@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <hash.h>
-#include <div64.h>
 #include <stdio.h>
 #include <xboot/list.h>
 #include <xboot/initcall.h>

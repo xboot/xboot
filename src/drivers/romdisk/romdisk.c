@@ -26,7 +26,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdio.h>
-#include <div64.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
@@ -132,7 +131,8 @@ static __init void romdisk_init(void)
 	}
 
 	size = (u64_t)(romdisk->end - romdisk->start);
-	rem = div64_64(&size, SZ_512);
+	rem = size % SZ_512;
+	size = size / SZ_512;
 	if(rem > 0)
 		size++;
 

@@ -23,7 +23,6 @@
 #include <xboot.h>
 #include <sizes.h>
 #include <types.h>
-#include <div64.h>
 #include <io.h>
 #include <xboot/clk.h>
 #include <xboot/printk.h>

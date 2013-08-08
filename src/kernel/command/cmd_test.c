@@ -7,7 +7,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdlib.h>
-#include <div64.h>
 #include <fifo.h>
 #include <byteorder.h>
 #include <sha.h>

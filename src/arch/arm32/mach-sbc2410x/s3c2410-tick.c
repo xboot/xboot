@@ -23,7 +23,6 @@
 
 #include <xboot.h>
 #include <types.h>
-#include <div64.h>
 #include <io.h>
 #include <time/tick.h>
 #include <xboot/clk.h>

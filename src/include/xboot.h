@@ -26,7 +26,6 @@ extern "C" {
 #include <time.h>
 #include <exit.h>
 #include <io.h>
-#include <div64.h>
 #include <ssize.h>
 #include <malloc.h>
 #include <charset.h>

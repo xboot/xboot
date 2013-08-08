@@ -22,7 +22,6 @@
 
 #include <xboot.h>
 #include <malloc.h>
-#include <div64.h>
 #include <xboot/list.h>
 #include <xboot/blkdev.h>
 #include <xboot/device.h>
@@ -66,7 +65,8 @@ loff_t bio_read(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 		return 0;
 
 	div = offset;
-	rem = div64_64(&div, blksz);
+	rem = div % blksz;
+	div = div / blksz;
 	blkno = div;
 
 	if(rem > 0)
@@ -89,7 +89,8 @@ loff_t bio_read(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	}
 
 	div = count;
-	rem = div64_64(&div, blksz);
+	rem = div % blksz;
+	div = div / blksz;
 
 	if(div > 0)
 	{
@@ -161,7 +162,8 @@ loff_t bio_write(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 		return 0;
 
 	div = offset;
-	rem = div64_64(&div, blksz);
+	rem = div % blksz;
+	div = div / blksz;
 	blkno = div;
 
 	if(rem > 0)
@@ -191,7 +193,8 @@ loff_t bio_write(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	}
 
 	div = count;
-	rem = div64_64(&div, blksz);
+	rem = div % blksz;
+	div = div / blksz;
 
 	if(div > 0)
 	{

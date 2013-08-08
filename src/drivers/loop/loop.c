@@ -26,7 +26,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdio.h>
-#include <div64.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
@@ -251,7 +250,8 @@ bool_t register_loop(const char * file)
 	}
 
 	size = st.st_size;
-	rem = div64_64(&size, SZ_512);
+	rem = size % SZ_512;
+	size = size / SZ_512;
 	if(rem > 0)
 		size++;
 

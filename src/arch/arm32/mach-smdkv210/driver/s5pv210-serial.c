@@ -25,7 +25,6 @@
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
-#include <div64.h>
 #include <io.h>
 #include <serial/serial.h>
 #include <xboot/initcall.h>

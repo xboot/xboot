@@ -3,7 +3,6 @@
  */
 
 #include <malloc.h>
-#include <div64.h>
 #include <stdio.h>
 
 static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)

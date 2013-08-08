@@ -131,8 +131,8 @@ static bool_t s5pv210fb_set_clock(struct s5pv210fb_lcd * lcd)
 	pixel_clock = ( lcd->freq * (lcd->timing.h_fp + lcd->timing.h_bp + lcd->timing.h_sw + lcd->width) *
 			(lcd->timing.v_fp + lcd->timing.v_bp + lcd->timing.v_sw + lcd->height) );
 
-	div = (u32_t)div64(hclk, pixel_clock);
-	if(mod64(hclk, pixel_clock) > 0)
+	div = (u32_t)(hclk / pixel_clock);
+	if((hclk % pixel_clock) > 0)
 		div++;
 
 	/*

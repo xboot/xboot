@@ -74,7 +74,7 @@ static u64_t s5pv210_get_pll(u64_t baseclk, enum S5PV210_PLL pll)
 		return 0;
 	}
 
-	fvco = m * div64(baseclk, p * (1 << s));
+	fvco = m * (baseclk / (p * (1 << s)));
 	return (u64_t)fvco;
 }
 
@@ -135,7 +135,7 @@ static void s5pv210_setup_clocks(u64_t xtal)
 		vpll = tmp;
 
 	/* get a2m clock */
-	a2m = div64(apll, ((((clkdiv0) & S5PV210_CLKDIV0_A2M_MASK) >> S5PV210_CLKDIV0_A2M_SHIFT) + 1));
+	a2m = apll / ((((clkdiv0) & S5PV210_CLKDIV0_A2M_MASK) >> S5PV210_CLKDIV0_A2M_SHIFT) + 1);
 
 	/* get hpm clock */
 	if( ((muxstat1 >> 16) & 0x7) == 0x2 )
@@ -162,13 +162,13 @@ static void s5pv210_setup_clocks(u64_t xtal)
 		psys = mpll;
 
 	/* get arm core clock */
-	armclk = div64(msys, ((((clkdiv0) & S5PV210_CLKDIV0_APLL_MASK) >> S5PV210_CLKDIV0_APLL_SHIFT) + 1));
+	armclk = msys / ((((clkdiv0) & S5PV210_CLKDIV0_APLL_MASK) >> S5PV210_CLKDIV0_APLL_SHIFT) + 1);
 
 	/* get dsys hclk */
-	dsys_hclk = div64(dsys, ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_DSYS_MASK) >> S5PV210_CLKDIV0_HCLK_DSYS_SHIFT) + 1));
+	dsys_hclk = dsys / ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_DSYS_MASK) >> S5PV210_CLKDIV0_HCLK_DSYS_SHIFT) + 1);
 
 	/* get psys hclk */
-	psys_hclk = div64(psys, ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_PSYS_MASK) >> S5PV210_CLKDIV0_HCLK_PSYS_SHIFT) + 1));
+	psys_hclk = psys / ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_PSYS_MASK) >> S5PV210_CLKDIV0_HCLK_PSYS_SHIFT) + 1);
 
 	/* armclk */
 	s5pv210_clocks[1].name = "armclk";
@@ -176,11 +176,11 @@ static void s5pv210_setup_clocks(u64_t xtal)
 
 	/* msys hclk */
 	s5pv210_clocks[2].name = "msys-hclk";
-	s5pv210_clocks[2].rate = div64(armclk, ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_MSYS_MASK) >> S5PV210_CLKDIV0_HCLK_MSYS_SHIFT) + 1));
+	s5pv210_clocks[2].rate = armclk / ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_MSYS_MASK) >> S5PV210_CLKDIV0_HCLK_MSYS_SHIFT) + 1);
 
 	/* msys pclk */
 	s5pv210_clocks[3].name = "msys-pclk";
-	s5pv210_clocks[3].rate = div64(s5pv210_clocks[2].rate, ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_MSYS_MASK) >> S5PV210_CLKDIV0_PCLK_MSYS_SHIFT) + 1));
+	s5pv210_clocks[3].rate = s5pv210_clocks[2].rate / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_MSYS_MASK) >> S5PV210_CLKDIV0_PCLK_MSYS_SHIFT) + 1);
 
 	/* dsys hclk */
 	s5pv210_clocks[4].name = "dsys-hclk";
@@ -188,7 +188,7 @@ static void s5pv210_setup_clocks(u64_t xtal)
 
 	/* dsys pclk */
 	s5pv210_clocks[5].name = "dsys-pclk";
-	s5pv210_clocks[5].rate = div64(dsys_hclk, ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_DSYS_MASK) >> S5PV210_CLKDIV0_PCLK_DSYS_SHIFT) + 1));
+	s5pv210_clocks[5].rate = dsys_hclk / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_DSYS_MASK) >> S5PV210_CLKDIV0_PCLK_DSYS_SHIFT) + 1);
 
 	/* psys hclk */
 	s5pv210_clocks[6].name = "psys-hclk";
@@ -196,7 +196,7 @@ static void s5pv210_setup_clocks(u64_t xtal)
 
 	/* psys pclk */
 	s5pv210_clocks[7].name = "psys-pclk";
-	s5pv210_clocks[7].rate = div64(psys_hclk, ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_PSYS_MASK) >> S5PV210_CLKDIV0_PCLK_PSYS_SHIFT) + 1));
+	s5pv210_clocks[7].rate = psys_hclk / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_PSYS_MASK) >> S5PV210_CLKDIV0_PCLK_PSYS_SHIFT) + 1);
 }
 
 static __init void s5pv210_clk_init(void)

@@ -68,8 +68,7 @@ INCDIRS		+=	include										\
 				arch/$(ARCH)/include						\
 				arch/$(ARCH)/$(MACH)/include
 
-SRCDIRS		+=	arch/$(ARCH)/lib/gcc						\
-				arch/$(ARCH)/lib/cpu						\
+SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/lib							\
 				arch/$(ARCH)/$(MACH)						\
 				arch/$(ARCH)/$(MACH)/driver					\

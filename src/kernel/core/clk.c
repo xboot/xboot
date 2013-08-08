@@ -156,7 +156,7 @@ static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	{
 		hlist_for_each_entry(list,  pos, &(clk_hash[i]), node)
 		{
-			len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", list->clk->name, (u64_t)div64(list->clk->rate, 1000*1000), (u64_t)mod64(list->clk->rate, 1000*1000));
+			len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", list->clk->name, (u64_t)(list->clk->rate / 1000*1000), (u64_t)(list->clk->rate % 1000*1000));
 		}
 	}
 

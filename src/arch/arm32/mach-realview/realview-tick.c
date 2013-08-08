@@ -48,7 +48,7 @@ static bool_t tick_timer_init(void)
 	}
 
 	/* for 1ms reload count */
-	count = (u32_t)div64(timclk, 1000);
+	count = (u32_t)(timclk / 1000);
 
 	if(!request_irq("TMIER2_3", timer_interrupt))
 	{

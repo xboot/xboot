@@ -115,7 +115,7 @@ static bool_t mouse_probe(struct input_t * input)
 	}
 
 	/* set mouse's clock divisor */
-	divisor = (u32_t)(div64(kclk, 8000000) - 1);
+	divisor = (u32_t)(kclk /8000000) - 1;
 	writeb(REALVIEW_MOUSE_CLKDIV, divisor);
 
 	/* enable mouse controller */

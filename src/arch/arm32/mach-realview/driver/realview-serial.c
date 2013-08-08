@@ -230,8 +230,8 @@ static int realview_serial_ioctl(u32_t ch, int cmd, void * arg)
 	 * FBRD = ROUND((64 * MOD(UART_CLK, (16 * BAUD_RATE))) / (16 * BAUD_RATE))
 	 */
 	temp = 16 * baud;
-	divider = (u32_t)div64(uclk, temp);
-	remainder = (u32_t)mod64(uclk, temp);
+	divider = (u32_t)(uclk / temp);
+	remainder = (u32_t)(uclk % temp);
 	temp = (8 * remainder) / baud;
 	fraction = (temp >> 1) + (temp & 1);
 

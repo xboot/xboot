@@ -350,7 +350,7 @@ static bool_t keyboard_probe(struct input_t * input)
 	}
 
 	/* set keyboard's clock divisor */
-	divisor = (u32_t)(div64(kclk, 8000000) - 1);
+	divisor = (u32_t)(kclk / 8000000) - 1;
 	writeb(REALVIEW_KEYBOARD_CLKDIV, divisor);
 
 	/* enable keyboard controller */

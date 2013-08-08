@@ -282,14 +282,18 @@ static struct filesystem_t procfs = {
 
 static __init void filesystem_procfs_init(void)
 {
-	if(!filesystem_register(&procfs))
-		LOG("register 'procfs' filesystem fail");
+	if(filesystem_register(&procfs))
+		LOG("Register filesystem 'procfs'");
+	else
+		LOG("Fail to register filesystem 'procfs'");
 }
 
 static __exit void filesystem_procfs_exit(void)
 {
-	if(!filesystem_unregister(&procfs))
-		LOG("unregister 'procfs' filesystem fail");
+	if(filesystem_unregister(&procfs))
+		LOG("Unregister filesystem 'procfs'");
+	else
+		LOG("Fail to unregister filesystem 'procfs'");
 }
 
 fs_initcall(filesystem_procfs_init);

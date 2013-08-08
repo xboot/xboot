@@ -437,14 +437,18 @@ static struct filesystem_t devfs = {
 
 static __init void filesystem_devfs_init(void)
 {
-	if(!filesystem_register(&devfs))
-		LOG("register 'devfs' filesystem fail");
+	if(filesystem_register(&devfs))
+		LOG("Register filesystem 'devfs'");
+	else
+		LOG("Fail to register filesystem 'devfs'");
 }
 
 static __exit void filesystem_devfs_exit(void)
 {
-	if(!filesystem_unregister(&devfs))
-		LOG("unregister 'devfs' filesystem fail");
+	if(filesystem_unregister(&devfs))
+		LOG("Unregister filesystem 'devfs'");
+	else
+		LOG("Fail to unregister filesystem 'devfs'");
 }
 
 fs_initcall(filesystem_devfs_init);

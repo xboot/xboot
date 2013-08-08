@@ -30,19 +30,14 @@ extern void calibrate_delay(void);
 
 static __init void core_init(void)
 {
-	/*
-	 * initial system tick
-	 */
 	if(init_system_tick())
 	{
-		/*
-		 * calibrating delay
-		 */
+		LOG("Initial system tick and calibrate delay");
 		calibrate_delay();
 	}
 	else
 	{
-		LOG("no system tick in this machine");
+		LOG("No system tick");
 	}
 }
 arch_initcall_sync(core_init);

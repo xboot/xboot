@@ -354,14 +354,18 @@ static struct filesystem_t arfs = {
 
 static __init void filesystem_arfs_init(void)
 {
-	if(!filesystem_register(&arfs))
-		LOG("register 'arfs' filesystem fail");
+	if(filesystem_register(&arfs))
+		LOG("Register filesystem 'arfs'");
+	else
+		LOG("Fail to register filesystem 'arfs'");
 }
 
 static __exit void filesystem_arfs_exit(void)
 {
-	if(!filesystem_unregister(&arfs))
-		LOG("unregister 'arfs' filesystem fail");
+	if(filesystem_unregister(&arfs))
+		LOG("Unregister filesystem 'arfs'");
+	else
+		LOG("Fail to unregister filesystem 'arfs'");
 }
 
 fs_initcall(filesystem_arfs_init);

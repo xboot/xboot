@@ -42,7 +42,6 @@ extern "C" {
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/machine.h>
-#include <xboot/stream.h>
 #include <xboot/module.h>
 #include <xboot/event.h>
 #include <time/tick.h>

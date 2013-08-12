@@ -31,20 +31,20 @@
 #include <xboot/device.h>
 
 /* the list of device */
-static struct device_list __device_list = {
+static struct device_list_t __device_list = {
 	.entry = {
 		.next	= &(__device_list.entry),
 		.prev	= &(__device_list.entry),
 	},
 };
-struct device_list * device_list = &__device_list;
+struct device_list_t * device_list = &__device_list;
 
 /*
  * search device by name
  */
 struct device_t * search_device(const char * name)
 {
-	struct device_list * list;
+	struct device_list_t * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -52,7 +52,7 @@ struct device_t * search_device(const char * name)
 
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct device_list, entry);
+		list = list_entry(pos, struct device_list_t, entry);
 		if(strcmp(list->device->name, name) == 0)
 			return list->device;
 	}
@@ -65,9 +65,9 @@ struct device_t * search_device(const char * name)
  */
 bool_t register_device(struct device_t * dev)
 {
-	struct device_list * list;
+	struct device_list_t * list;
 
-	list = malloc(sizeof(struct device_list));
+	list = malloc(sizeof(struct device_list_t));
 	if(!list || !dev)
 	{
 		free(list);
@@ -103,7 +103,7 @@ bool_t register_device(struct device_t * dev)
  */
 bool_t unregister_device(struct device_t * dev)
 {
-	struct device_list * list;
+	struct device_list_t * list;
 	struct list_head * pos;
 
 	if(!dev || !dev->name)
@@ -111,7 +111,7 @@ bool_t unregister_device(struct device_t * dev)
 
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct device_list, entry);
+		list = list_entry(pos, struct device_list_t, entry);
 		if(list->device == dev)
 		{
 			list_del(pos);
@@ -128,7 +128,7 @@ bool_t unregister_device(struct device_t * dev)
  */
 static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct device_list * list;
+	struct device_list_t * list;
 	struct list_head * pos;
 	s8_t * p;
 	s32_t len = 0;
@@ -140,7 +140,7 @@ static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct device_list, entry);
+		list = list_entry(pos, struct device_list_t, entry);
 		if(list->device->type == CHAR_DEVICE)
 			len += sprintf((char *)(p + len), (const char *)"\r\n CHR    %s", list->device->name);
 		else if(list->device->type == BLOCK_DEVICE)

@@ -34,7 +34,7 @@
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>
 
-extern struct device_list * device_list;
+extern struct device_list_t * device_list;
 
 /*
  * filesystem operations
@@ -262,8 +262,8 @@ static s32_t devfs_fsync(struct vnode_t * node, struct file_t * fp)
 
 static s32_t devfs_readdir(struct vnode_t * node, struct file_t * fp, struct dirent_t * dir)
 {
-	struct device_list * plist = (struct device_list *)node->v_mount->m_data;
-	struct device_list * list;
+	struct device_list_t * plist = (struct device_list_t *)node->v_mount->m_data;
+	struct device_list_t * list;
 	struct list_head * pos;
 	s32_t i;
 
@@ -287,7 +287,7 @@ static s32_t devfs_readdir(struct vnode_t * node, struct file_t * fp, struct dir
 				return EINVAL;
 		}
 
-		list = list_entry(pos, struct device_list, entry);
+		list = list_entry(pos, struct device_list_t, entry);
 		if(list->device->type == CHAR_DEVICE)
 		{
 			dir->d_type = DT_CHR;

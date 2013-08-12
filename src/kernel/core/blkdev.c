@@ -30,7 +30,7 @@
 #include <xboot/device.h>
 #include <xboot/blkdev.h>
 
-extern struct device_list * device_list;
+extern struct device_list_t * device_list;
 
 /*
  * search block device by name
@@ -38,7 +38,7 @@ extern struct device_list * device_list;
 struct blkdev_t * search_blkdev(const char * name)
 {
 	struct blkdev_t * dev;
-	struct device_list * list;
+	struct device_list_t * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -46,7 +46,7 @@ struct blkdev_t * search_blkdev(const char * name)
 
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct device_list, entry);
+		list = list_entry(pos, struct device_list_t, entry);
 		if(list->device->type == BLOCK_DEVICE)
 		{
 			dev = (struct blkdev_t *)(list->device->priv);
@@ -64,7 +64,7 @@ struct blkdev_t * search_blkdev(const char * name)
 struct blkdev_t * search_blkdev_with_type(const char * name, enum blkdev_type_t type)
 {
 	struct blkdev_t * dev;
-	struct device_list * list;
+	struct device_list_t * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -72,7 +72,7 @@ struct blkdev_t * search_blkdev_with_type(const char * name, enum blkdev_type_t 
 
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct device_list, entry);
+		list = list_entry(pos, struct device_list_t, entry);
 		if(list->device->type == BLOCK_DEVICE)
 		{
 			dev = (struct blkdev_t *)(list->device->priv);

@@ -37,7 +37,7 @@ struct device_t
 /*
  * the list of device
  */
-struct device_list
+struct device_list_t
 {
 	struct device_t * device;
 	struct list_head entry;

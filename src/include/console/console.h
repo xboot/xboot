@@ -29,9 +29,6 @@ enum {
 	UNICODE_LEFT			= 0x25c0,
 };
 
-/*
- * 256 colors for terminal
- */
 enum tcolor_t {
 	TCOLOR_BLACK			= 0x00,
 	TCOLOR_RED				= 0x01,
@@ -52,9 +49,6 @@ enum tcolor_t {
 	TCOLOR_BRIGHT_WHITE		= 0x0f,
 };
 
-/*
- * define the struct of console_t
- */
 struct console_t
 {
 	/* the name of console */
@@ -97,7 +91,7 @@ struct console_t
 	void * priv;
 };
 
-struct console_list
+struct console_list_t
 {
 	struct console_t * console;
 	struct list_head entry;

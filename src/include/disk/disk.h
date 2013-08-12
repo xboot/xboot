@@ -47,7 +47,7 @@ struct disk_t
 /*
  * the list of disk
  */
-struct disk_list
+struct disk_list_t
 {
 	struct disk_t * disk;
 	struct list_head entry;

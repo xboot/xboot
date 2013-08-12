@@ -36,9 +36,6 @@
 #include <fs/fileio.h>
 #include <loop/loop.h>
 
-/*
- * the struct of loop
- */
 struct loop_t
 {
 	/* loop name */
@@ -57,26 +54,19 @@ struct loop_t
 	bool_t read_only;
 };
 
-/*
- * the list of loop
- */
-struct loop_list
+struct loop_list_t
 {
 	struct loop_t * loop;
 	struct list_head entry;
 };
 
-/*
- * the list of loop
- */
-static struct loop_list __loop_list = {
+static struct loop_list_t __loop_list = {
 	.entry = {
 		.next	= &(__loop_list.entry),
 		.prev	= &(__loop_list.entry),
 	},
 };
-static struct loop_list * loop_list = &__loop_list;
-
+static struct loop_list_t * loop_list = &__loop_list;
 
 static int loop_open(struct blkdev_t * dev)
 {
@@ -169,7 +159,7 @@ static int loop_close(struct blkdev_t * dev)
  */
 struct blkdev_t * search_loop(const char * file)
 {
-	struct loop_list * list;
+	struct loop_list_t * list;
 	struct list_head * pos;
 	char buf[MAX_PATH];
 
@@ -181,7 +171,7 @@ struct blkdev_t * search_loop(const char * file)
 
 	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct loop_list, entry);
+		list = list_entry(pos, struct loop_list_t, entry);
 		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
 		{
 			return search_blkdev_with_type(list->loop->name, BLKDEV_TYPE_LOOP);
@@ -199,7 +189,7 @@ bool_t register_loop(const char * file)
 	struct stat st;
 	struct blkdev_t * dev;
 	struct loop_t * loop;
-	struct loop_list * list;
+	struct loop_list_t * list;
 	u64_t size, rem;
 	s32_t i = 0;
 
@@ -215,7 +205,7 @@ bool_t register_loop(const char * file)
 	if(!S_ISREG(st.st_mode))
 		return FALSE;
 
-	list = malloc(sizeof(struct loop_list));
+	list = malloc(sizeof(struct loop_list_t));
 	if(!list)
 		return FALSE;
 
@@ -289,7 +279,7 @@ bool_t register_loop(const char * file)
  */
 bool_t unregister_loop(const char * file)
 {
-	struct loop_list * list;
+	struct loop_list_t * list;
 	struct list_head * pos;
 	struct blkdev_t * dev;
 	char buf[MAX_PATH];
@@ -302,7 +292,7 @@ bool_t unregister_loop(const char * file)
 
 	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct loop_list, entry);
+		list = list_entry(pos, struct loop_list_t, entry);
 		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
 		{
 			dev = search_blkdev_with_type(list->loop->name, BLKDEV_TYPE_LOOP);
@@ -328,7 +318,7 @@ bool_t unregister_loop(const char * file)
  */
 static s32_t loop_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct loop_list * list;
+	struct loop_list_t * list;
 	struct list_head * pos;
 	s8_t * p;
 	s32_t len = 0;
@@ -340,7 +330,7 @@ static s32_t loop_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct loop_list, entry);
+		list = list_entry(pos, struct loop_list_t, entry);
 		len += sprintf((char *)(p + len), (const char *)"\r\n %s %s ", list->loop->name, list->loop->path);
 	}
 

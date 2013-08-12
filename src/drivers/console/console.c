@@ -30,13 +30,13 @@ static struct console_t * console_stdin = NULL;
 static struct console_t * console_stdout = NULL;
 static struct console_t * console_stderr = NULL;
 
-static struct console_list __console_list = {
+static struct console_list_t __console_list = {
 	.entry = {
 		.next	= &(__console_list.entry),
 		.prev	= &(__console_list.entry),
 	},
 };
-static struct console_list * console_list = &__console_list;
+static struct console_list_t * console_list = &__console_list;
 
 inline struct console_t * get_console_stdin(void)
 {
@@ -143,7 +143,7 @@ bool_t console_stderr_putc(char c)
 
 struct console_t * search_console(const char *name)
 {
-	struct console_list * list;
+	struct console_list_t * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -151,7 +151,7 @@ struct console_t * search_console(const char *name)
 
 	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct console_list, entry);
+		list = list_entry(pos, struct console_list_t, entry);
 		if(strcmp(list->console->name, name) == 0)
 			return list->console;
 	}
@@ -161,9 +161,9 @@ struct console_t * search_console(const char *name)
 
 bool_t register_console(struct console_t * console)
 {
-	struct console_list * list;
+	struct console_list_t * list;
 
-	list = malloc(sizeof(struct console_list));
+	list = malloc(sizeof(struct console_list_t));
 	if(!list || !console)
 	{
 		free(list);
@@ -193,7 +193,7 @@ bool_t register_console(struct console_t * console)
 
 bool_t unregister_console(struct console_t * console)
 {
-	struct console_list * list;
+	struct console_list_t * list;
 	struct list_head * pos;
 
 	if(!console || !console->name)
@@ -201,7 +201,7 @@ bool_t unregister_console(struct console_t * console)
 
 	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct console_list, entry);
+		list = list_entry(pos, struct console_list_t, entry);
 		if(list->console == console)
 		{
 			list_del(pos);
@@ -568,7 +568,7 @@ bool_t console_rect(struct console_t * console, u32_t hline, u32_t vline, u32_t 
 
 static s32_t console_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct console_list * list;
+	struct console_list_t * list;
 	struct list_head * pos;
 	s8_t * p;
 	s32_t len = 0;
@@ -595,7 +595,7 @@ static s32_t console_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	len += sprintf((char *)(p + len), (const char *)"\r\n[available console]");
 	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct console_list, entry);
+		list = list_entry(pos, struct console_list_t, entry);
 		if(list->console->getcode && list->console->putcode)
 			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%s", list->console->name, (int)(16 - strlen((char *)list->console->name)), "", "in,out,err");
 		else if(list->console->getcode)

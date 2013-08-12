@@ -32,19 +32,14 @@
 #include <xboot/proc.h>
 #include <disk/disk.h>
 
-
-/* the list of disk */
-static struct disk_list __disk_list = {
+static struct disk_list_t __disk_list = {
 	.entry = {
 		.next	= &(__disk_list.entry),
 		.prev	= &(__disk_list.entry),
 	},
 };
-static struct disk_list * disk_list = &__disk_list;
+static struct disk_list_t * disk_list = &__disk_list;
 
-/*
- * the struct of disk_block_t
- */
 struct disk_block_t
 {
 	/* block device name */
@@ -106,12 +101,9 @@ static int disk_block_close(struct blkdev_t * dev)
 	return 0;
 }
 
-/*
- * search disk by name
- */
 static struct disk_t * search_disk(const char * name)
 {
-	struct disk_list * list;
+	struct disk_list_t * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -119,7 +111,7 @@ static struct disk_t * search_disk(const char * name)
 
 	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct disk_list, entry);
+		list = list_entry(pos, struct disk_list_t, entry);
 		if(strcmp(list->disk->name, name) == 0)
 			return list->disk;
 	}
@@ -127,12 +119,9 @@ static struct disk_t * search_disk(const char * name)
 	return NULL;
 }
 
-/*
- * register a disk into disk_list
- */
 bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type)
 {
-	struct disk_list * list;
+	struct disk_list_t * list;
 	struct partition_t * part;
 	struct blkdev_t * dev;
 	struct disk_block_t * dblk;
@@ -154,7 +143,7 @@ bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type)
 	if(list_empty(&(disk->info.entry)))
 		return FALSE;
 
-	list = malloc(sizeof(struct disk_list));
+	list = malloc(sizeof(struct disk_list_t));
 	if(!list)
 		return FALSE;
 
@@ -223,12 +212,9 @@ bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type)
 	return TRUE;
 }
 
-/*
- * unregister disk from disk_list
- */
 bool_t unregister_disk(struct disk_t * disk)
 {
-	struct disk_list * list;
+	struct disk_list_t * list;
 	struct list_head * pos;
 	struct partition_t * part;
 	struct list_head * part_pos;
@@ -240,7 +226,7 @@ bool_t unregister_disk(struct disk_t * disk)
 
 	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct disk_list, entry);
+		list = list_entry(pos, struct disk_list_t, entry);
 		if(list->disk == disk)
 		{
 			for(part_pos = (&(disk->info.entry))->next; part_pos != &(disk->info.entry); part_pos = part_pos->next)
@@ -364,12 +350,9 @@ loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count)
 	return size;
 }
 
-/*
- * disk proc interface
- */
 static s32_t disk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct disk_list * list;
+	struct disk_list_t * list;
 	struct list_head * pos;
 	struct partition_t * part;
 	struct list_head * part_pos;
@@ -383,7 +366,7 @@ static s32_t disk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct disk_list, entry);
+		list = list_entry(pos, struct disk_list_t, entry);
 		len += sprintf((char *)(p + len), (const char *)"%s:\r\n", list->disk->name);
 
 		for(part_pos = (&(list->disk->info.entry))->next; part_pos != &(list->disk->info.entry); part_pos = part_pos->next)
@@ -418,18 +401,13 @@ static struct proc_t disk_proc = {
 	.read	= disk_proc_read,
 };
 
-/*
- * disk pure sync init
- */
 static __init void disk_pure_sync_init(void)
 {
-	/* register disk proc interface */
 	proc_register(&disk_proc);
 }
 
 static __exit void disk_pure_sync_exit(void)
 {
-	/* unregister disk proc interface */
 	proc_unregister(&disk_proc);
 }
 

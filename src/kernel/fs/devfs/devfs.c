@@ -93,14 +93,14 @@ static s32_t devfs_open(struct vnode_t * node, s32_t flag)
 	if(dev == NULL)
 		return -1;
 
-	if(dev->type == CHAR_DEVICE)
+	if(dev->type == DEVICE_TYPE_CHAR)
 	{
 		chr = (struct chrdev_t *)(dev->priv);
 
 		if(chr->open(chr) != 0)
 			return -1;
 	}
-	else if(dev->type == BLOCK_DEVICE)
+	else if(dev->type == DEVICE_TYPE_BLOCK)
 	{
 		blk = (struct blkdev_t *)(dev->priv);
 
@@ -135,12 +135,12 @@ static s32_t devfs_close(struct vnode_t * node, struct file_t * fp)
 	if(dev == NULL)
 		return -1;
 
-	if(dev->type == CHAR_DEVICE)
+	if(dev->type == DEVICE_TYPE_CHAR)
 	{
 		chr = (struct chrdev_t *)(dev->priv);
 		return(chr->close(chr));
 	}
-	else if(dev->type == BLOCK_DEVICE)
+	else if(dev->type == DEVICE_TYPE_BLOCK)
 	{
 		blk = (struct blkdev_t *)(dev->priv);
 		return(blk->close(blk));
@@ -288,11 +288,11 @@ static s32_t devfs_readdir(struct vnode_t * node, struct file_t * fp, struct dir
 		}
 
 		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type == CHAR_DEVICE)
+		if(list->device->type == DEVICE_TYPE_CHAR)
 		{
 			dir->d_type = DT_CHR;
 		}
-		else if(list->device->type == BLOCK_DEVICE)
+		else if(list->device->type == DEVICE_TYPE_BLOCK)
 		{
 			dir->d_type = DT_BLK;
 		}
@@ -321,14 +321,14 @@ static s32_t devfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * 
 	if(dev == NULL)
 		return -1;
 
-	if(dev->type == CHAR_DEVICE)
+	if(dev->type == DEVICE_TYPE_CHAR)
 	{
 		chr = (struct chrdev_t *)(dev->priv);
 
 		node->v_type = VCHR;
 		node->v_size = 0;
 	}
-	else if(dev->type == BLOCK_DEVICE)
+	else if(dev->type == DEVICE_TYPE_BLOCK)
 	{
 		blk = (struct blkdev_t *)(dev->priv);
 

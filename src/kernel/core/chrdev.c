@@ -32,9 +32,6 @@
 
 extern struct device_list_t * device_list;
 
-/*
- * search char device by name
- */
 struct chrdev_t * search_chrdev(const char * name)
 {
 	struct chrdev_t * dev;
@@ -47,7 +44,7 @@ struct chrdev_t * search_chrdev(const char * name)
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type == CHAR_DEVICE)
+		if(list->device->type == DEVICE_TYPE_CHAR)
 		{
 			dev = (struct chrdev_t *)(list->device->priv);
 			if(strcmp((const char *)dev->name, (const char *)name) == 0)
@@ -58,9 +55,6 @@ struct chrdev_t * search_chrdev(const char * name)
 	return NULL;
 }
 
-/*
- * search char device by name and char device type
- */
 struct chrdev_t * search_chrdev_with_type(const char * name, enum chrdev_type_t type)
 {
 	struct chrdev_t * dev;
@@ -73,7 +67,7 @@ struct chrdev_t * search_chrdev_with_type(const char * name, enum chrdev_type_t 
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type == CHAR_DEVICE)
+		if(list->device->type == DEVICE_TYPE_CHAR)
 		{
 			dev = (struct chrdev_t *)(list->device->priv);
 			if(dev->type == type)
@@ -87,9 +81,6 @@ struct chrdev_t * search_chrdev_with_type(const char * name, enum chrdev_type_t 
 	return NULL;
 }
 
-/*
- * register a char device into device_list
- */
 bool_t register_chrdev(struct chrdev_t * dev)
 {
 	struct device_t * device;
@@ -108,15 +99,12 @@ bool_t register_chrdev(struct chrdev_t * dev)
 	}
 
 	device->name = dev->name;
-	device->type = CHAR_DEVICE;
+	device->type = DEVICE_TYPE_CHAR;
 	device->priv = (void *)dev;
 
 	return register_device(device);
 }
 
-/*
- * unregister char device from chrdev_list
- */
 bool_t unregister_chrdev(const char * name)
 {
 	struct device_t * device;
@@ -125,7 +113,7 @@ bool_t unregister_chrdev(const char * name)
 		return FALSE;
 
 	device = search_device(name);
-	if(!device && device->type == CHAR_DEVICE)
+	if(!device && device->type == DEVICE_TYPE_CHAR)
 		return FALSE;
 
 	if(unregister_device(device))

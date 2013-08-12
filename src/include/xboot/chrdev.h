@@ -10,19 +10,13 @@ extern "C" {
 #include <string.h>
 #include <xboot/list.h>
 
-/*
- * char device type
- */
 enum chrdev_type_t {
-	CHR_DEV_SERIAL,
-	CHR_DEV_FRAMEBUFFER,
-	CHR_DEV_RTC,
-	CHR_DEV_MISC,
+	CHRDEV_TYPE_SERIAL,
+	CHRDEV_TYPE_FRAMEBUFFER,
+	CHRDEV_TYPE_RTC,
+	CHRDEV_TYPE_MISC,
 };
 
-/*
- * the struct of chrdev_t.
- */
 struct chrdev_t
 {
 	/* the device name */
@@ -49,7 +43,6 @@ struct chrdev_t
 	/* char device's driver */
 	void * driver;
 };
-
 
 struct chrdev_t * search_chrdev(const char * name);
 struct chrdev_t * search_chrdev_with_type(const char * name, enum chrdev_type_t type);

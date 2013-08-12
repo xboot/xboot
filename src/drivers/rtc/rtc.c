@@ -252,7 +252,7 @@ bool_t register_rtc(struct rtc_driver_t * drv)
 		return FALSE;
 
 	dev->name		= drv->name;
-	dev->type		= CHR_DEV_RTC;
+	dev->type		= CHRDEV_TYPE_RTC;
 	dev->open 		= rtc_open;
 	dev->read 		= rtc_read;
 	dev->write 		= rtc_write;
@@ -266,7 +266,7 @@ bool_t register_rtc(struct rtc_driver_t * drv)
 		return FALSE;
 	}
 
-	if(search_chrdev_with_type(dev->name, CHR_DEV_RTC) == NULL)
+	if(search_chrdev_with_type(dev->name, CHRDEV_TYPE_RTC) == NULL)
 	{
 		unregister_chrdev(dev->name);
 		free(dev);
@@ -290,7 +290,7 @@ bool_t unregister_rtc(struct rtc_driver_t * drv)
 	if(!drv || !drv->name)
 		return FALSE;
 
-	dev = search_chrdev_with_type(drv->name, CHR_DEV_RTC);
+	dev = search_chrdev_with_type(drv->name, CHRDEV_TYPE_RTC);
 	if(!dev)
 		return FALSE;
 

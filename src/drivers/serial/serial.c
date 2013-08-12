@@ -520,7 +520,7 @@ bool_t register_serial(struct serial_driver_t * drv)
 		return FALSE;
 
 	dev->name		= drv->info->name;
-	dev->type		= CHR_DEV_SERIAL;
+	dev->type		= CHRDEV_TYPE_SERIAL;
 	dev->open 		= serial_open;
 	dev->read 		= serial_read;
 	dev->write 		= serial_write;
@@ -534,7 +534,7 @@ bool_t register_serial(struct serial_driver_t * drv)
 		return FALSE;
 	}
 
-	if(search_chrdev_with_type(dev->name, CHR_DEV_SERIAL) == NULL)
+	if(search_chrdev_with_type(dev->name, CHRDEV_TYPE_SERIAL) == NULL)
 	{
 		unregister_chrdev(dev->name);
 		free(dev);
@@ -611,7 +611,7 @@ bool_t unregister_serial(struct serial_driver_t * drv)
 	if(!drv || !drv->info || !drv->info->name)
 		return FALSE;
 
-	dev = search_chrdev_with_type(drv->info->name, CHR_DEV_SERIAL);
+	dev = search_chrdev_with_type(drv->info->name, CHRDEV_TYPE_SERIAL);
 	if(!dev)
 		return FALSE;
 

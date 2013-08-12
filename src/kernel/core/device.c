@@ -30,7 +30,6 @@
 #include <xboot/proc.h>
 #include <xboot/device.h>
 
-/* the list of device */
 static struct device_list_t __device_list = {
 	.entry = {
 		.next	= &(__device_list.entry),
@@ -39,9 +38,6 @@ static struct device_list_t __device_list = {
 };
 struct device_list_t * device_list = &__device_list;
 
-/*
- * search device by name
- */
 struct device_t * search_device(const char * name)
 {
 	struct device_list_t * list;
@@ -60,9 +56,6 @@ struct device_t * search_device(const char * name)
 	return NULL;
 }
 
-/*
- * register a device into device_list
- */
 bool_t register_device(struct device_t * dev)
 {
 	struct device_list_t * list;
@@ -80,7 +73,7 @@ bool_t register_device(struct device_t * dev)
 		return FALSE;
 	}
 
-	if((dev->type != CHAR_DEVICE) && (dev->type != BLOCK_DEVICE) && (dev->type != NET_DEVICE))
+	if((dev->type != DEVICE_TYPE_CHAR) && (dev->type != DEVICE_TYPE_BLOCK) && (dev->type != DEVICE_TYPE_NET))
 	{
 		free(list);
 		return FALSE;
@@ -93,14 +86,11 @@ bool_t register_device(struct device_t * dev)
 	}
 
 	list->device = dev;
-	list_add(&list->entry, &device_list->entry);
+	list_add_tail(&list->entry, &device_list->entry);
 
 	return TRUE;
 }
 
-/*
- * unregister device from device_list
- */
 bool_t unregister_device(struct device_t * dev)
 {
 	struct device_list_t * list;
@@ -123,9 +113,6 @@ bool_t unregister_device(struct device_t * dev)
 	return FALSE;
 }
 
-/*
- * device proc interface
- */
 static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct device_list_t * list;
@@ -141,11 +128,11 @@ static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type == CHAR_DEVICE)
+		if(list->device->type == DEVICE_TYPE_CHAR)
 			len += sprintf((char *)(p + len), (const char *)"\r\n CHR    %s", list->device->name);
-		else if(list->device->type == BLOCK_DEVICE)
+		else if(list->device->type == DEVICE_TYPE_BLOCK)
 			len += sprintf((char *)(p + len), (const char *)"\r\n BLK    %s", list->device->name);
-		else if(list->device->type == NET_DEVICE)
+		else if(list->device->type == DEVICE_TYPE_NET)
 			len += sprintf((char *)(p + len), (const char *)"\r\n NET    %s", list->device->name);
 	}
 
@@ -168,18 +155,13 @@ static struct proc_t device_proc = {
 	.read	= device_proc_read,
 };
 
-/*
- * device pure sync init
- */
 static __init void device_pure_sync_init(void)
 {
-	/* register device proc interface */
 	proc_register(&device_proc);
 }
 
 static __exit void device_pure_sync_exit(void)
 {
-	/* unregister device proc interface */
 	proc_unregister(&device_proc);
 }
 

@@ -49,11 +49,11 @@ static void serial_info(void)
 	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type != CHAR_DEVICE)
+		if(list->device->type != DEVICE_TYPE_CHAR)
 			continue;
 
 		dev = (struct chrdev_t *)(list->device->priv);
-		if(dev->type != CHR_DEV_SERIAL)
+		if(dev->type != CHRDEV_TYPE_SERIAL)
 			continue;
 
 		printk(" \"%s\" - <", dev->name);
@@ -193,7 +193,7 @@ static int serial(int argc, char ** argv)
 		}
 		name = (char *)argv[2];
 		str = (char *)argv[3];
-		device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
+		device = search_chrdev_with_type((const char *)name, CHRDEV_TYPE_SERIAL);
 		if(!device)
 		{
 			printk(" not found serial device \"%s\"\r\n", name);
@@ -221,7 +221,7 @@ static int serial(int argc, char ** argv)
 			return (-1);
 		}
 		name = (char *)argv[2];
-		device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
+		device = search_chrdev_with_type((const char *)name, CHRDEV_TYPE_SERIAL);
 		if(!device)
 		{
 			printk(" not found serial device \"%s\"\r\n", name);
@@ -289,7 +289,7 @@ static int serial(int argc, char ** argv)
 			else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
 			{
 				name = (char *)argv[i];
-				device = search_chrdev_with_type((const char *)name, CHR_DEV_SERIAL);
+				device = search_chrdev_with_type((const char *)name, CHRDEV_TYPE_SERIAL);
 				if(!device)
 				{
 					printk(" not found serial device \"%s\"\r\n", name);

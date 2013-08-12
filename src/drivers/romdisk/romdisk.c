@@ -139,7 +139,7 @@ static __init void romdisk_init(void)
 	romdisk->busy	= FALSE;
 
 	dev->name		= romdisk->name;
-	dev->type		= BLK_DEV_ROMDISK;
+	dev->type		= BLKDEV_TYPE_ROMDISK;
 	dev->blksz		= SZ_512;
 	dev->blkcnt		= size;
 	dev->open 		= romdisk_open;
@@ -162,7 +162,7 @@ static __exit void romdisk_exit(void)
 	struct blkdev_t * dev;
 	struct romdisk_t * romdisk;
 
-	dev = search_blkdev_with_type("romdisk", BLK_DEV_ROMDISK);
+	dev = search_blkdev_with_type("romdisk", BLKDEV_TYPE_ROMDISK);
 	if(dev)
 	{
 		romdisk = (struct romdisk_t *)(dev->driver);

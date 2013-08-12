@@ -10,19 +10,13 @@ extern "C" {
 #include <string.h>
 #include <xboot/list.h>
 
-/*
- * block device type
- */
 enum blkdev_type_t {
-	BLK_DEV_ROMDISK,
-	BLK_DEV_LOOP,
-	BLK_DEV_MMC,
-	BLK_DEV_MTD,
+	BLKDEV_TYPE_ROMDISK,
+	BLKDEV_TYPE_LOOP,
+	BLKDEV_TYPE_MMC,
+	BLKDEV_TYPE_MTD,
 };
 
-/*
- * the struct of blkdev_t.
- */
 struct blkdev_t
 {
 	/* the device name */

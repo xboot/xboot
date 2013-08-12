@@ -10,18 +10,12 @@ extern "C" {
 #include <string.h>
 #include <xboot/list.h>
 
-/*
- * device type
- */
 enum device_type_t {
-	CHAR_DEVICE,
-	BLOCK_DEVICE,
-	NET_DEVICE,
+	DEVICE_TYPE_CHAR,
+	DEVICE_TYPE_BLOCK,
+	DEVICE_TYPE_NET,
 };
 
-/*
- * the struct device.
- */
 struct device_t
 {
 	/* the device name */
@@ -34,9 +28,6 @@ struct device_t
 	void * priv;
 };
 
-/*
- * the list of device
- */
 struct device_list_t
 {
 	struct device_t * device;

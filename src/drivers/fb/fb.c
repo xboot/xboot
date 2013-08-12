@@ -485,7 +485,7 @@ struct fb_t * search_framebuffer(const char * name)
 	if(!dev)
 		return NULL;
 
-	if(dev->type != CHR_DEV_FRAMEBUFFER)
+	if(dev->type != CHRDEV_TYPE_FRAMEBUFFER)
 		return NULL;
 
 	fb = (struct fb_t *)dev->driver;
@@ -508,7 +508,7 @@ bool_t register_framebuffer(struct fb_t * fb)
 		return FALSE;
 
 	dev->name		= fb->name;
-	dev->type		= CHR_DEV_FRAMEBUFFER;
+	dev->type		= CHRDEV_TYPE_FRAMEBUFFER;
 	dev->open 		= fb_open;
 	dev->read 		= fb_read;
 	dev->write 		= fb_write;
@@ -522,7 +522,7 @@ bool_t register_framebuffer(struct fb_t * fb)
 		return FALSE;
 	}
 
-	if(search_chrdev_with_type(dev->name, CHR_DEV_FRAMEBUFFER) == NULL)
+	if(search_chrdev_with_type(dev->name, CHRDEV_TYPE_FRAMEBUFFER) == NULL)
 	{
 		unregister_chrdev(dev->name);
 		free(dev);
@@ -618,7 +618,7 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	if(!fb || !fb->name)
 		return FALSE;
 
-	dev = search_chrdev_with_type(fb->name, CHR_DEV_FRAMEBUFFER);
+	dev = search_chrdev_with_type(fb->name, CHRDEV_TYPE_FRAMEBUFFER);
 	if(!dev)
 		return FALSE;
 

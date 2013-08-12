@@ -110,7 +110,7 @@ void do_system_xtime(void)
 	struct chrdev_t * dev;
 
 	/* search hardware rtc for sync xtime */
-	dev = search_chrdev_with_type(CONFIG_HARDWARE_RTC_NAME, CHR_DEV_RTC);
+	dev = search_chrdev_with_type(CONFIG_HARDWARE_RTC_NAME, CHRDEV_TYPE_RTC);
 	if(dev)
 	{
 		rtc = (struct rtc_driver_t *)(dev->driver);

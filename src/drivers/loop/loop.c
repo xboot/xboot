@@ -184,7 +184,7 @@ struct blkdev_t * search_loop(const char * file)
 		list = list_entry(pos, struct loop_list, entry);
 		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
 		{
-			return search_blkdev_with_type(list->loop->name, BLK_DEV_LOOP);
+			return search_blkdev_with_type(list->loop->name, BLKDEV_TYPE_LOOP);
 		}
 	}
 
@@ -259,7 +259,7 @@ bool_t register_loop(const char * file)
 	loop->read_only	= FALSE;
 
 	dev->name		= loop->name;
-	dev->type		= BLK_DEV_LOOP;
+	dev->type		= BLKDEV_TYPE_LOOP;
 	dev->blksz		= SZ_512;
 	dev->blkcnt		= size;
 	dev->open 		= loop_open;
@@ -305,7 +305,7 @@ bool_t unregister_loop(const char * file)
 		list = list_entry(pos, struct loop_list, entry);
 		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
 		{
-			dev = search_blkdev_with_type(list->loop->name, BLK_DEV_LOOP);
+			dev = search_blkdev_with_type(list->loop->name, BLKDEV_TYPE_LOOP);
 			if(dev)
 			{
 				if(unregister_blkdev(list->loop->name))

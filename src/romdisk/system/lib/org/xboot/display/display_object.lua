@@ -2,6 +2,8 @@ local class = require("org.xboot.lang.class")
 local event = require("org.xboot.event.event")
 local event_dispatcher = require("org.xboot.event.event_dispatcher")
 
+local M_PI2 = math.pi * 2
+
 ---
 -- The 'display_object' class is the base class for all objects that can
 -- be placed on the screen.
@@ -22,9 +24,9 @@ function M:init()
 	self.height = 0
 	self.xorigin = 0
 	self.yorigin = 0
+	self.rotation = 0	
 	self.xscale = 1
 	self.yscale = 1
-	self.rotation = 0
 	self.alpha = 1
 end
 
@@ -201,6 +203,30 @@ function M:translate(dx, dy)
 end
 
 ---
+-- Retrieve or change the rotation of an object.
+-- The rotation occurs around the object's reference point.
+-- The default reference point for most display objects is the center.
+-- 
+-- @function [parent=#display_object] rotate
+-- @param self
+-- @param angle (number) The rotation angle in radian.
+function M:rotate(angle)
+	self.rotation = self.rotation + angle
+
+	while(self.rotation < 0) do
+		self.rotation = self.rotation + M_PI2
+	end
+
+	while(self.rotation > M_PI2) do
+		self.rotation = self.rotation - M_PI2
+	end
+
+	for i, v in ipairs(self.children) do
+		v:rotation(angle)
+	end
+end
+
+---
 -- Effectively multiplies xscale and yscale properties by sx and sy respectively.
 -- The scaling occurs around the object's reference point.
 -- The default reference point for most display objects is center.
@@ -218,20 +244,30 @@ function M:scale(sx, sy)
 	end
 end
 
----
--- Retrieve or change the rotation of an object.
--- The rotation occurs around the object's reference point.
--- The default reference point for most display objects is the center.
+--- 
+-- Converts the x,y coordinates from the global to the display object's (local) coordinates.
 -- 
--- @function [parent=#display_object] rotate
+-- @function [parent=#display_object] global_to_local
 -- @param self
--- @param angle (number) The rotation angle in radian.
-function M:rotate(angle)
-	self.rotation = self.rotation + angle
+-- @param x (number) x coordinate of the global coordinate.
+-- @param y (number) y coordinate of the global coordinate.
+-- @return x coordinate relative to the display object.
+-- @return y coordinate relative to the display object.
+function M:global_to_local(x, y)
+	return x - self.x, y - self.y
+end
 
-	for i, v in ipairs(self.children) do
-		v:rotation(angle)
-	end
+--- 
+-- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
+-- 
+-- @function [parent=#display_object] local_to_global
+-- @param self
+-- @param x (number) x coordinate of the local coordinate.
+-- @param y (number) y coordinate of the local coordinate.
+-- @return x coordinate relative to the display area.
+-- @return y coordinate relative to the display area.
+function M:local_to_global(x, y)
+	return x + self.x, y + self.y
 end
 
 ---
@@ -287,32 +323,6 @@ function M:hit_test_point(x, y)
 	if y > bottom then return false end
 	
 	return true
-end
-
---- 
--- Converts the x,y coordinates from the global to the display object's (local) coordinates.
--- 
--- @function [parent=#display_object] global_to_local
--- @param self
--- @param x (number) x coordinate of the global coordinate.
--- @param y (number) y coordinate of the global coordinate.
--- @return x coordinate relative to the display object.
--- @return y coordinate relative to the display object.
-function M:global_to_local(x, y)
-	return x - self.x, y - self.y
-end
-
---- 
--- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
--- 
--- @function [parent=#display_object] local_to_global
--- @param self
--- @param x (number) x coordinate of the local coordinate.
--- @param y (number) y coordinate of the local coordinate.
--- @return x coordinate relative to the display area.
--- @return y coordinate relative to the display area.
-function M:local_to_global(x, y)
-	return x + self.x, y + self.y
 end
 
 ---

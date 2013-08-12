@@ -1,5 +1,5 @@
 #
-# makefile for mkheader.
+# makefile for mkv210.
 # create by: jianjun jiang <jerryjianjun@gmail.com>.
 #
 
@@ -17,8 +17,8 @@ RM			:= -rm -fr
 .PHONY: all docs clean
 
 all:
-	$(CC) mkheader.c -o mkheader -static
-	$(ST) mkheader
+	$(CC) mkv210.c -o mkv210 -static
+	$(ST) mkv210
 
 clean:
-	$(RM) mkheader *.o *~
+	$(RM) mkv210 *.o *~

@@ -12,7 +12,7 @@ int main (int argc, char *argv[])
 
 	if(argc != 2)
 	{
-		printf("Usage: mkheader <file>\n");
+		printf("Usage: mkv210 <file>\n");
 		return -1;
 	}
 

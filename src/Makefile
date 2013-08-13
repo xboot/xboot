@@ -39,7 +39,7 @@ CXXFLAGS	:= -g -ggdb -Wall
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
-ODFLAGS		:=
+ODFLAGS		:= -d
 MCFLAGS		:=
 
 LIBDIRS		:=
@@ -216,6 +216,7 @@ X_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
 X_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
 X_LDFLAGS	:=	$(LDFLAGS)
 X_OCFLAGS	:=	$(OCFLAGS)
+X_ODFLAGS	:=	$(ODFLAGS)
 X_LIBDIRS	:=	$(LIBDIRS)
 X_LIBS		:=	$(LIBS) -lgcc
 

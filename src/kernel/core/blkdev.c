@@ -23,6 +23,48 @@
 #include <xboot.h>
 #include <xboot/blkdev.h>
 
+static void blkdev_suspend(struct device_t * dev)
+{
+	struct blkdev_t * blk;
+
+	if(!dev)
+		return;
+
+	if(dev->type != DEVICE_TYPE_BLOCK)
+		return;
+
+	blk = (struct blkdev_t *)(dev->priv);
+	if(!blk)
+		return;
+
+	switch(blk->type)
+	{
+	default:
+		break;
+	}
+}
+
+static void blkdev_resume(struct device_t * dev)
+{
+	struct blkdev_t * blk;
+
+	if(!dev)
+		return;
+
+	if(dev->type != DEVICE_TYPE_BLOCK)
+		return;
+
+	blk = (struct blkdev_t *)(dev->priv);
+	if(!blk)
+		return;
+
+	switch(blk->type)
+	{
+	default:
+		break;
+	}
+}
+
 struct blkdev_t * search_blkdev(const char * name)
 {
 	struct device_list_t * pos, * n;
@@ -82,8 +124,10 @@ bool_t register_blkdev(struct blkdev_t * dev)
 	if(!device)
 		return FALSE;
 
-	device->name = dev->name;
+	device->name = strdup(dev->name);
 	device->type = DEVICE_TYPE_BLOCK;
+	device->suspend = blkdev_suspend;
+	device->resume = blkdev_resume;
 	device->priv = (void *)dev;
 
 	return register_device(device);
@@ -102,6 +146,7 @@ bool_t unregister_blkdev(const char * name)
 
 	if(unregister_device(device))
 	{
+		free(device->name);
 		free(device);
 		return TRUE;
 	}

@@ -58,6 +58,9 @@ bool_t register_device(struct device_t * dev)
 	if((dev->type != DEVICE_TYPE_CHAR) && (dev->type != DEVICE_TYPE_BLOCK) && (dev->type != DEVICE_TYPE_NET))
 		return FALSE;
 
+	if(!dev->suspend || !dev->resume)
+		return FALSE;
+
 	if(!dev->priv)
 		return FALSE;
 
@@ -98,6 +101,42 @@ bool_t unregister_device(struct device_t * dev)
 	}
 
 	return FALSE;
+}
+
+void suspend_device(const char * name)
+{
+	struct device_t * dev =	search_device(name);
+
+	if(dev)
+		dev->suspend(dev);
+}
+
+void resume_device(const char * name)
+{
+	struct device_t * dev =	search_device(name);
+
+	if(dev)
+		dev->resume(dev);
+}
+
+void suspend_all_device(void)
+{
+	struct device_list_t * pos, * n;
+
+	list_for_each_entry_safe_reverse(pos, n, &(__device_list.entry), entry)
+	{
+		pos->device->suspend(pos->device);
+	}
+}
+
+void resume_all_device(void)
+{
+	struct device_list_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	{
+		pos->device->resume(pos->device);
+	}
 }
 
 static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)

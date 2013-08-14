@@ -23,6 +23,48 @@
 #include <xboot.h>
 #include <xboot/chrdev.h>
 
+static void chrdev_suspend(struct device_t * dev)
+{
+	struct chrdev_t * chr;
+
+	if(!dev)
+		return;
+
+	if(dev->type != DEVICE_TYPE_CHAR)
+		return;
+
+	chr = (struct chrdev_t *)(dev->priv);
+	if(!chr)
+		return;
+
+	switch(chr->type)
+	{
+	default:
+		break;
+	}
+}
+
+static void chrdev_resume(struct device_t * dev)
+{
+	struct chrdev_t * chr;
+
+	if(!dev)
+		return;
+
+	if(dev->type != DEVICE_TYPE_CHAR)
+		return;
+
+	chr = (struct chrdev_t *)(dev->priv);
+	if(!chr)
+		return;
+
+	switch(chr->type)
+	{
+	default:
+		break;
+	}
+}
+
 struct chrdev_t * search_chrdev(const char * name)
 {
 	struct device_list_t * pos, * n;
@@ -82,8 +124,10 @@ bool_t register_chrdev(struct chrdev_t * dev)
 	if(!device)
 		return FALSE;
 
-	device->name = dev->name;
+	device->name = strdup(dev->name);
 	device->type = DEVICE_TYPE_CHAR;
+	device->suspend = chrdev_suspend;
+	device->resume = chrdev_resume;
 	device->priv = (void *)dev;
 
 	return register_device(device);
@@ -102,6 +146,7 @@ bool_t unregister_chrdev(const char * name)
 
 	if(unregister_device(device))
 	{
+		free(device->name);
 		free(device);
 		return TRUE;
 	}

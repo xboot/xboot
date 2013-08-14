@@ -18,13 +18,19 @@ enum device_type_t {
 
 struct device_t
 {
-	/* the device name */
-	const char * name;
+	/* Device name */
+	char * name;
 
-	/* the type of device */
+	/* Device type */
 	enum device_type_t type;
 
-	/* priv pointer */
+	/* Suspend device */
+	void (*suspend)(struct device_t * dev);
+
+	/* Resume device */
+	void (*resume)(struct device_t * dev);
+
+	/* Private data */
 	void * priv;
 };
 
@@ -35,9 +41,14 @@ struct device_list_t
 };
 
 extern struct device_list_t __device_list;
+
 struct device_t * search_device(const char * name);
 bool_t register_device(struct device_t * dev);
 bool_t unregister_device(struct device_t * dev);
+void suspend_device(const char * name);
+void resume_device(const char * name);
+void suspend_all_device(void);
+void resume_all_device(void);
 
 #ifdef __cplusplus
 }

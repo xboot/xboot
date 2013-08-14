@@ -4,9 +4,9 @@
 
 DEFINES		+= -D__ARM_ARCH__=7 -D__CORTEX_A8__
 
-ASFLAGS		:= -g -ggdb -Wall -O2
-CFLAGS		:= -g -ggdb -Wall -O2
-CXXFLAGS	:= -g -ggdb -Wall -O2
+ASFLAGS		:= -g -ggdb -Wall -O3
+CFLAGS		:= -g -ggdb -Wall -O3
+CXXFLAGS	:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary

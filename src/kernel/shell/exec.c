@@ -39,31 +39,32 @@
  */
 void exec_cmdline(const char * cmdline)
 {
-    struct command_t * cmd;
-    int n;
-    char **args;
-    char *p, *buf, *pos;
-    int ret;
+	struct command_t * cmd;
+	char **args;
+	char *p, *buf, *pos;
+	size_t len;
+	int n, ret;
 
-    if(!cmdline)
-    	return;
+	if(!cmdline)
+		return;
 
-    p = buf = malloc(strlen(cmdline) + 2);
-    if(!p)
-    	return;
+	len = strlen(cmdline);
+	buf = malloc(len + 2);
+	if(!buf)
+		return;
+	memcpy(buf, cmdline, len);
+	memcpy(buf + len, " ", 2);
 
-    strcpy(p, cmdline);
-    strcat(p, " ");
-
-    while(*p)
-    {
-    	if(parser(p, &n, &args, &pos))
-    	{
-    		if(n > 0)
-    		{
-    			cmd = command_search(args[0]);
-    			if(cmd)
-    			{
+	p = buf;
+	while(*p)
+	{
+		if(parser(p, &n, &args, &pos))
+		{
+			if(n > 0)
+			{
+				cmd = command_search(args[0]);
+				if(cmd)
+				{
     				ret = cmd->func(n, args);
     				if(ret != 0)
     				{
@@ -96,16 +97,16 @@ void exec_cmdline(const char * cmdline)
     			}
     		}
 
-    		free(args[0]);
-    		free(args);
+			free(args[0]);
+			free(args);
     	}
 
-    	if(!pos)
-    		*p = 0;
-    	else
-    		p = pos;
+		if(!pos)
+			*p = 0;
+		else
+			p = pos;
     }
 
-    free(buf);
+	free(buf);
 }
 EXPORT_SYMBOL(exec_cmdline);

@@ -28,7 +28,6 @@
 #include <charset.h>
 #include <stdio.h>
 #include <xboot/printk.h>
-#include <xboot/chrdev.h>
 #include <console/console.h>
 #include <serial/serial.h>
 
@@ -38,9 +37,6 @@ enum tty_state_t {
 	TTY_STATE_CSI,
 };
 
-/*
- * defined the serial console information
- */
 struct serial_console_info_t
 {
 	/* the console name */
@@ -75,64 +71,6 @@ struct serial_console_info_t
 	s32_t size;
 };
 
-/*
- * serial open
- */
-static int serial_open(struct chrdev_t * dev)
-{
-	return 0;
-}
-
-/*
- * serial read
- */
-static ssize_t serial_read(struct chrdev_t * dev, u8_t * buf, size_t count)
-{
-	struct serial_driver_t * drv = (struct serial_driver_t *)(dev->driver);
-
-	if(drv->read)
-		return ((drv->read)(buf, count));
-
-	return 0;
-}
-
-/*
- * serial write.
- */
-static ssize_t serial_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
-{
-	struct serial_driver_t * drv = (struct serial_driver_t *)(dev->driver);
-
-	if(drv->write)
-		return ((drv->write)(buf, count));
-
-	return 0;
-}
-
-/*
- * serial ioctl
- */
-static int serial_ioctl(struct chrdev_t * dev, int cmd, void * arg)
-{
-	struct serial_driver_t * drv = (struct serial_driver_t *)(dev->driver);
-
-	if(drv->ioctl)
-		return ((drv->ioctl)(cmd, arg));
-
-	return -1;
-}
-
-/*
- * serial close
- */
-static int serial_close(struct chrdev_t * dev)
-{
-	return 0;
-}
-
-/*
- * get console's width and height
- */
 static bool_t scon_getwh(struct console_t * console, s32_t * w, s32_t * h)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -149,9 +87,6 @@ static bool_t scon_getwh(struct console_t * console, s32_t * w, s32_t * h)
 	return TRUE;
 }
 
-/*
- * get cursor's position
- */
 static bool_t scon_getxy(struct console_t * console, s32_t * x, s32_t * y)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -168,9 +103,6 @@ static bool_t scon_getxy(struct console_t * console, s32_t * x, s32_t * y)
 	return TRUE;
 }
 
-/*
- * set cursor's position
- */
 static bool_t scon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -198,9 +130,6 @@ static bool_t scon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 	return TRUE;
 }
 
-/*
- * turn on/off the cursor
- */
 static bool_t scon_setcursor(struct console_t * console, bool_t on)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -220,9 +149,6 @@ static bool_t scon_setcursor(struct console_t * console, bool_t on)
 	return TRUE;
 }
 
-/*
- * get cursor's status
- */
 static bool_t scon_getcursor(struct console_t * console)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -233,9 +159,6 @@ static bool_t scon_getcursor(struct console_t * console)
 	return info->cursor;
 }
 
-/*
- * set console's front color and background color
- */
 static bool_t scon_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -256,9 +179,6 @@ static bool_t scon_setcolor(struct console_t * console, enum tcolor_t f, enum tc
 	return TRUE;
 }
 
-/*
- * get console front color and background color
- */
 static bool_t scon_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -272,9 +192,6 @@ static bool_t scon_getcolor(struct console_t * console, enum tcolor_t * f, enum 
 	return TRUE;
 }
 
-/*
- * clear screen
- */
 static bool_t scon_cls(struct console_t * console)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -298,9 +215,6 @@ static bool_t scon_cls(struct console_t * console)
 	return TRUE;
 }
 
-/*
- * get a unicode character
- */
 bool_t scon_getcode(struct console_t * console, u32_t * code)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -437,9 +351,6 @@ bool_t scon_getcode(struct console_t * console, u32_t * code)
 	return FALSE;
 }
 
-/*
- * put a unicode character
- */
 bool_t scon_putcode(struct console_t * console, u32_t code)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -492,9 +403,6 @@ bool_t scon_putcode(struct console_t * console, u32_t code)
 	return TRUE;
 }
 
-/*
- * turn no / off console
- */
 bool_t scon_onoff(struct console_t * console, bool_t flag)
 {
 	struct serial_console_info_t * info = console->priv;
@@ -503,40 +411,26 @@ bool_t scon_onoff(struct console_t * console, bool_t flag)
 	return TRUE;
 }
 
-/*
- * register serial driver
- */
 bool_t register_serial(struct serial_driver_t * drv)
 {
-	struct chrdev_t * dev;
+	struct device_t * dev;
 	struct console_t * console;
 	struct serial_console_info_t * info;
 
 	if(!drv || !drv->info || !drv->info->name || !(drv->read || drv->write))
 		return FALSE;
 
-	dev = malloc(sizeof(struct chrdev_t));
+	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name		= drv->info->name;
-	dev->type		= CHRDEV_TYPE_SERIAL;
-	dev->open 		= serial_open;
-	dev->read 		= serial_read;
-	dev->write 		= serial_write;
-	dev->ioctl 		= serial_ioctl;
-	dev->close		= serial_close;
-	dev->driver 	= drv;
+	dev->name = strdup(drv->info->name);
+	dev->type = DEVICE_TYPE_SERIAL;
+	dev->driver = drv;
 
-	if(!register_chrdev(dev))
+	if(!register_device(dev))
 	{
-		free(dev);
-		return FALSE;
-	}
-
-	if(search_chrdev_with_type(dev->name, CHRDEV_TYPE_SERIAL) == NULL)
-	{
-		unregister_chrdev(dev->name);
+		free(dev->name);
 		free(dev);
 		return FALSE;
 	}
@@ -551,8 +445,6 @@ bool_t register_serial(struct serial_driver_t * drv)
 	info = malloc(sizeof(struct serial_console_info_t));
 	if(!console || !info)
 	{
-		unregister_chrdev(dev->name);
-		free(dev);
 		free(console);
 		free(info);
 		return FALSE;
@@ -588,8 +480,6 @@ bool_t register_serial(struct serial_driver_t * drv)
 
 	if(!register_console(console))
 	{
-		unregister_chrdev(dev->name);
-		free(dev);
 		free(console);
 		free(info);
 		return FALSE;
@@ -598,12 +488,9 @@ bool_t register_serial(struct serial_driver_t * drv)
 	return TRUE;
 }
 
-/*
- * unregister serial driver
- */
 bool_t unregister_serial(struct serial_driver_t * drv)
 {
-	struct chrdev_t * dev;
+	struct device_t * dev;
 	struct console_t * console;
 	struct serial_console_info_t * info;
 	struct serial_driver_t * driver;
@@ -611,29 +498,31 @@ bool_t unregister_serial(struct serial_driver_t * drv)
 	if(!drv || !drv->info || !drv->info->name)
 		return FALSE;
 
-	dev = search_chrdev_with_type(drv->info->name, CHRDEV_TYPE_SERIAL);
+	dev = search_device_with_type(drv->info->name, DEVICE_TYPE_SERIAL);
 	if(!dev)
-		return FALSE;
-
-	console = search_console((char *)drv->info->name);
-	if(console)
-		info = (struct serial_console_info_t *)console->priv;
-	else
 		return FALSE;
 
 	driver = (struct serial_driver_t *)(dev->driver);
 	if(driver && driver->exit)
 		(driver->exit)();
 
-	if(!unregister_console(console))
+	if(!unregister_device(dev))
 		return FALSE;
 
-	if(!unregister_chrdev(dev->name))
+	free(dev->name);
+	free(dev);
+
+	console = search_console(drv->info->name);
+	if(console)
+		info = (struct serial_console_info_t *)console->priv;
+	else
+		return FALSE;
+
+	if(!unregister_console(console))
 		return FALSE;
 
 	free(info);
 	free(console);
-	free(dev);
 
 	return TRUE;
 }

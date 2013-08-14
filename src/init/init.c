@@ -65,7 +65,6 @@ void do_system_rootfs(void)
 void do_system_logo(void)
 {
 	struct device_list_t * pos, * n;
-	struct chrdev_t * dev;
 	cairo_surface_t * watermark;
 	cairo_surface_t * logo;
 	cairo_surface_t * cs;
@@ -83,14 +82,10 @@ void do_system_logo(void)
 
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		if(pos->device->type != DEVICE_TYPE_CHAR)
+		if(pos->device->type != DEVICE_TYPE_FRAMEBUFFER)
 			continue;
 
-		dev = (struct chrdev_t *)(pos->device->driver);
-		if(dev->type != CHRDEV_TYPE_FRAMEBUFFER)
-			continue;
-
-		fb = (struct fb_t *)(dev->driver);
+		fb = (struct fb_t *)(pos->device->driver);
 		if(fb)
 		{
 			cs = cairo_xboot_surface_create(fb, fb->alone);

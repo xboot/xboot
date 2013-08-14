@@ -21,7 +21,6 @@
  */
 
 #include <xboot.h>
-#include <xboot/chrdev.h>
 #include <xboot/ioctl.h>
 #include <console/console.h>
 #include <fb/font.h>
@@ -139,31 +138,6 @@ static void fb_helper_putcode(struct fb_t * fb, u32_t code, struct color_t * fc,
 	if(face)
 		fb_helper_blit(fb, face, x, y, face->width, face->height, 0, 0);
 	render_free_texture(fb->alone, face);
-}
-
-static int fb_open(struct chrdev_t * dev)
-{
-	return 0;
-}
-
-static ssize_t fb_read(struct chrdev_t * dev, u8_t * buf, size_t count)
-{
-	return 0;
-}
-
-static ssize_t fb_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
-{
-	return 0;
-}
-
-static int fb_ioctl(struct chrdev_t * dev, int cmd, void * arg)
-{
-	return -1;
-}
-
-static int fb_close(struct chrdev_t * dev)
-{
-	return 0;
 }
 
 static bool_t fbcon_getwh(struct console_t * console, s32_t * w, s32_t * h)
@@ -478,53 +452,36 @@ EXPORT_SYMBOL(set_default_framebuffer);
 
 struct fb_t * search_framebuffer(const char * name)
 {
-	struct fb_t * fb;
-	struct chrdev_t * dev;
+	struct device_t * dev;
 
-	dev = search_chrdev(name);
+	dev = search_device_with_type(name, DEVICE_TYPE_FRAMEBUFFER);
 	if(!dev)
 		return NULL;
 
-	if(dev->type != CHRDEV_TYPE_FRAMEBUFFER)
-		return NULL;
-
-	fb = (struct fb_t *)dev->driver;
-
-	return fb;
+	return (struct fb_t *)dev->driver;
 }
 EXPORT_SYMBOL(search_framebuffer);
 
 bool_t register_framebuffer(struct fb_t * fb)
 {
-	struct chrdev_t * dev;
+	struct device_t * dev;
 	struct console_t * console;
 	struct fb_console_info_t * info;
 
 	if(!fb || !fb->name)
 		return FALSE;
 
-	dev = malloc(sizeof(struct chrdev_t));
+	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name		= fb->name;
-	dev->type		= CHRDEV_TYPE_FRAMEBUFFER;
-	dev->open 		= fb_open;
-	dev->read 		= fb_read;
-	dev->write 		= fb_write;
-	dev->ioctl 		= fb_ioctl;
-	dev->close		= fb_close;
-	dev->driver 	= fb;
+	dev->name = strdup(fb->name);
+	dev->type = DEVICE_TYPE_FRAMEBUFFER;
+	dev->driver = fb;
 
-	if(!register_chrdev(dev))
+	if(!register_device(dev))
 	{
-		free(dev);
-		return FALSE;
-	}
-
-	if(search_chrdev_with_type(dev->name, CHRDEV_TYPE_FRAMEBUFFER) == NULL)
-	{
-		unregister_chrdev(dev->name);
+		free(dev->name);
 		free(dev);
 		return FALSE;
 	}
@@ -548,8 +505,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 	info = malloc(sizeof(struct fb_console_info_t));
 	if(!console || !info)
 	{
-		unregister_chrdev(dev->name);
-		free(dev);
 		free(console);
 		free(info);
 		return FALSE;
@@ -573,8 +528,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 	info->cell = malloc(info->clen * sizeof(struct fbcon_cell_t));
 	if(!info->cell)
 	{
-		unregister_chrdev(dev->name);
-		free(dev);
 		free(console);
 		free(info);
 		return FALSE;
@@ -597,8 +550,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 
 	if(!register_console(console))
 	{
-		unregister_chrdev(dev->name);
-		free(dev);
 		free(console);
 		free(info->cell);
 		free(info);
@@ -610,7 +561,7 @@ bool_t register_framebuffer(struct fb_t * fb)
 
 bool_t unregister_framebuffer(struct fb_t * fb)
 {
-	struct chrdev_t * dev;
+	struct device_t * dev;
 	struct console_t * console;
 	struct fb_console_info_t * info;
 	struct fb_t * driver;
@@ -618,14 +569,8 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	if(!fb || !fb->name)
 		return FALSE;
 
-	dev = search_chrdev_with_type(fb->name, CHRDEV_TYPE_FRAMEBUFFER);
+	dev = search_device_with_type(fb->name, DEVICE_TYPE_FRAMEBUFFER);
 	if(!dev)
-		return FALSE;
-
-	console = search_console((char *)fb->name);
-	if(console)
-		info = (struct fb_console_info_t *)console->priv;
-	else
 		return FALSE;
 
 	driver = (struct fb_t *)(dev->driver);
@@ -638,16 +583,24 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 			(driver->exit)(driver);
 	}
 
-	if(!unregister_console(console))
+	if(!unregister_device(dev))
 		return FALSE;
 
-	if(!unregister_chrdev(dev->name))
+	free(dev->name);
+	free(dev);
+
+	console = search_console((char *)fb->name);
+	if(console)
+		info = (struct fb_console_info_t *)console->priv;
+	else
+		return FALSE;
+
+	if(!unregister_console(console))
 		return FALSE;
 
 	free(info->cell);
 	free(info);
 	free(console);
-	free(dev);
 
 	return TRUE;
 }

@@ -42,9 +42,9 @@ extern "C" {
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/machine.h>
-#include <xboot/device.h>
-#include <xboot/chrdev.h>
-#include <xboot/blkdev.h>
+//#include <xboot/device.h>
+//#include <xboot/chrdev.h>
+//#include <xboot/blkdev.h>
 #include <xboot/module.h>
 #include <xboot/event.h>
 #include <time/tick.h>
@@ -90,10 +90,6 @@ extern "C" {
 
 #if !defined(CONFIG_VARNAME_LENGTH)
 #define	CONFIG_VARNAME_LENGTH						(256)
-#endif
-
-#if !defined(CONFIG_HARDWARE_RTC_NAME)
-#define	CONFIG_HARDWARE_RTC_NAME					"rtc"
 #endif
 
 #if !defined(CONFIG_COMMAND_HELP)
@@ -166,10 +162,6 @@ extern "C" {
 
 #if !defined(CONFIG_COMMAND_HALT)
 #define	CONFIG_COMMAND_HALT							(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_SERIAL)
-#define	CONFIG_COMMAND_SERIAL						(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_MC)

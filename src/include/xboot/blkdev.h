@@ -6,9 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <xboot/list.h>
+#include <xboot/device.h>
 
 enum blkdev_type_t {
 	BLKDEV_TYPE_ROMDISK,

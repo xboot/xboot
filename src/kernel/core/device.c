@@ -74,9 +74,6 @@ bool_t register_device(struct device_t * dev)
 	if(!dev || !dev->name)
 		return FALSE;
 
-	if((dev->type != DEVICE_TYPE_CHAR) && (dev->type != DEVICE_TYPE_BLOCK) && (dev->type != DEVICE_TYPE_NET))
-		return FALSE;
-
 	if(!dev->suspend || !dev->resume)
 		return FALSE;
 

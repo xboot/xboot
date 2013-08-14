@@ -27,11 +27,9 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <xboot/printk.h>
-#include <xboot/chrdev.h>
 #include <xboot/ioctl.h>
 #include <time/xtime.h>
 #include <rtc/rtc.h>
-
 
 #define LEAPS_THRU_END_OF(y)			((y)/4 - (y)/100 + (y)/400)
 #define LEAP_YEAR(year)					((!(year % 4) && (year % 100)) || !(year % 400))
@@ -130,145 +128,24 @@ u32_t time_to_rtc(struct xtime_t * tm)
 	return xmktime(tm->year, tm->mon, tm->day, tm->hour, tm->min, tm->sec);
 }
 
-/*
- * rtc open
- */
-static int rtc_open(struct chrdev_t * dev)
-{
-	return 0;
-}
-
-/*
- * rtc read
- */
-static ssize_t rtc_read(struct chrdev_t * dev, u8_t * buf, size_t count)
-{
-	const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-	struct rtc_driver_t * drv = (struct rtc_driver_t *)(dev->driver);
-	struct xtime_t time;
-	char tmp[64];
-	int offset = 0;
-	int len;
-
-	if(drv->get_time)
-	{
-		if(drv->get_time(&time))
-		{
-			len = sprintf(tmp, "%04u-%02u-%02u %s %02u:%02u:%02u\r\n", (u32_t)time.year, (u32_t)time.mon, (u32_t)time.day, week_days[time.week], (u32_t)time.hour, (u32_t)time.min, (u32_t)time.sec);
-			len -= offset;
-
-			if(len < 0)
-				len = 0;
-			if(len > count)
-				len = count;
-
-			memcpy(buf, &tmp[offset], len);
-			return len;
-		}
-	}
-
-	return 0;
-}
-
-/*
- * rtc write.
- */
-static ssize_t rtc_write(struct chrdev_t * dev, const u8_t * buf, size_t count)
-{
-	return 0;
-}
-
-/*
- * rtc ioctl
- */
-static int rtc_ioctl(struct chrdev_t * dev, int cmd, void * arg)
-{
-	struct rtc_driver_t * drv = (struct rtc_driver_t *)(dev->driver);
-	struct xtime_t * time;
-
-	switch(cmd)
-	{
-	case IOCTL_SET_RTC_TIME:
-		time = (struct xtime_t *)arg;
-		if(drv->set_time && drv->set_time(time))
-			return 0;
-		break;
-
-	case IOCTL_GET_RTC_TIME:
-		time = (struct xtime_t *)arg;
-		if(drv->get_time && drv->get_time(time))
-			return 0;
-		break;
-
-	case IOCTL_SET_RTC_ALARM:
-		time = (struct xtime_t *)arg;
-		if(drv->set_alarm && drv->set_alarm(time))
-			return 0;
-		break;
-
-	case IOCTL_GET_RTC_ALARM:
-		time = (struct xtime_t *)arg;
-		if(drv->get_alarm && drv->get_alarm(time))
-			return 0;
-		break;
-
-	case IOCTL_ENABLE_RTC_ALARM:
-		if(drv->alarm_enable && drv->alarm_enable(TRUE))
-			return 0;
-		break;
-
-	case IOCTL_DISABLE_RTC_ALARM:
-		if(drv->alarm_enable && drv->alarm_enable(FALSE))
-			return 0;
-		break;
-
-	default:
-		break;
-	}
-
-	return -1;
-}
-
-/*
- * rtc close
- */
-static int rtc_close(struct chrdev_t * dev)
-{
-	return 0;
-}
-
-/*
- * register rtc driver, return true is successed.
- */
 bool_t register_rtc(struct rtc_driver_t * drv)
 {
-	struct chrdev_t * dev;
+	struct device_t * dev;
 
-	if(!drv || !drv->name || !drv->get_time)
+	if(!drv || !drv->name)
 		return FALSE;
 
-	dev = malloc(sizeof(struct chrdev_t));
+	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name		= drv->name;
-	dev->type		= CHRDEV_TYPE_RTC;
-	dev->open 		= rtc_open;
-	dev->read 		= rtc_read;
-	dev->write 		= rtc_write;
-	dev->ioctl 		= rtc_ioctl;
-	dev->close		= rtc_close;
-	dev->driver 	= drv;
+	dev->name = strdup(drv->name);
+	dev->type = DEVICE_TYPE_RTC;
+	dev->driver = drv;
 
-	if(!register_chrdev(dev))
+	if(!register_device(dev))
 	{
-		free(dev);
-		return FALSE;
-	}
-
-	if(search_chrdev_with_type(dev->name, CHRDEV_TYPE_RTC) == NULL)
-	{
-		unregister_chrdev(dev->name);
+		free(dev->name);
 		free(dev);
 		return FALSE;
 	}
@@ -284,13 +161,13 @@ bool_t register_rtc(struct rtc_driver_t * drv)
  */
 bool_t unregister_rtc(struct rtc_driver_t * drv)
 {
-	struct chrdev_t * dev;
+	struct device_t * dev;
 	struct rtc_driver_t * driver;
 
 	if(!drv || !drv->name)
 		return FALSE;
 
-	dev = search_chrdev_with_type(drv->name, CHRDEV_TYPE_RTC);
+	dev = search_device_with_type(drv->name, DEVICE_TYPE_RTC);
 	if(!dev)
 		return FALSE;
 
@@ -298,9 +175,10 @@ bool_t unregister_rtc(struct rtc_driver_t * drv)
 	if(driver && driver->exit)
 		(driver->exit)();
 
-	if(!unregister_chrdev(dev->name));
+	if(!unregister_device(dev));
 		return FALSE;
 
+	free(dev->name);
 	free(dev);
 	return TRUE;
 }

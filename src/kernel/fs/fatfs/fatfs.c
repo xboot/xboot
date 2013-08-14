@@ -28,7 +28,6 @@
 #include <time/xtime.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/chrdev.h>
 #include <xboot/blkdev.h>
 #include <xboot/device.h>
 #include <fs/vfs/vfs.h>

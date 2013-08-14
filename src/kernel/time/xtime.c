@@ -25,7 +25,6 @@
 #include <sizes.h>
 #include <stdio.h>
 #include <xboot/printk.h>
-#include <xboot/chrdev.h>
 #include <xboot/proc.h>
 #include <xboot/initcall.h>
 #include <rtc/rtc.h>
@@ -102,35 +101,26 @@ static void xtime_timer_function(u32_t data)
 	mod_timer(&xtime_timer, jiffies + get_system_hz());
 }
 
-/*
- * do system xtime.
- */
 void do_system_xtime(void)
 {
-	struct chrdev_t * dev;
+	struct device_list_t * pos, * n;
 
-	/* search hardware rtc for sync xtime */
-	dev = search_chrdev_with_type(CONFIG_HARDWARE_RTC_NAME, CHRDEV_TYPE_RTC);
-	if(dev)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		rtc = (struct rtc_driver_t *)(dev->driver);
+		if(pos->device->type != DEVICE_TYPE_RTC)
+			continue;
 
-		/* sync xtime, first */
+		rtc = (struct rtc_driver_t *)(pos->device->driver);
 		if(rtc && rtc->get_time)
 		{
 			rtc->get_time(&xtime);
 		}
-	}
-	else
-	{
-		LOG("the hardware rtc \"%s\" not found", CONFIG_HARDWARE_RTC_NAME);
-	}
 
-	/* setup timer for update xtime */
-	setup_timer(&xtime_timer, xtime_timer_function, (u32_t)(&xtime));
+		setup_timer(&xtime_timer, xtime_timer_function, (u32_t)(&xtime));
+		mod_timer(&xtime_timer, jiffies + get_system_hz());
 
-	/* mod timer for one second */
-	mod_timer(&xtime_timer, jiffies + get_system_hz());
+		break;
+	}
 }
 
 /*

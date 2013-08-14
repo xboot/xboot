@@ -27,7 +27,6 @@
 #include <hash.h>
 #include <fifo.h>
 #include <stdio.h>
-#include <xboot/chrdev.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>
 #include <xboot/printk.h>

@@ -43,6 +43,7 @@ struct device_list_t
 extern struct device_list_t __device_list;
 
 struct device_t * search_device(const char * name);
+struct device_t * search_device_with_type(const char * name, enum device_type_t type);
 bool_t register_device(struct device_t * dev);
 bool_t unregister_device(struct device_t * dev);
 void suspend_device(const char * name);

@@ -170,12 +170,7 @@ static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		if(pos->device->type == DEVICE_TYPE_CHAR)
-			len += sprintf((char *)(p + len), "\r\n CHR    %s", pos->device->name);
-		else if(pos->device->type == DEVICE_TYPE_BLOCK)
-			len += sprintf((char *)(p + len), "\r\n BLK    %s", pos->device->name);
-		else if(pos->device->type == DEVICE_TYPE_NET)
-			len += sprintf((char *)(p + len), "\r\n NET    %s", pos->device->name);
+		len += sprintf((char *)(p + len), "\r\n    %s", pos->device->name);
 	}
 
 	len -= offset;

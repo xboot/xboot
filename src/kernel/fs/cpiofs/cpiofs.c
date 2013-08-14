@@ -256,6 +256,7 @@ static s32_t cpiofs_readdir(struct vnode_t * node, struct file_t * fp, struct di
 	u32_t size, name_size, mode;
 	loff_t off = 0;
 	char buf[9];
+	volatile size_t len;
 	s32_t i = 0;
 
 	if(fp->f_offset == 0)
@@ -279,13 +280,16 @@ static s32_t cpiofs_readdir(struct vnode_t * node, struct file_t * fp, struct di
 
 			buf[8] = '\0';
 
-			memcpy(buf, (const s8_t *)(header.c_filesize), 8);
+			len = 8;
+			memcpy(buf, (const s8_t *)(header.c_filesize), len);
 			size = strtoul((const char *)buf, NULL, 16);
 
-			memcpy(buf, (const s8_t *)(header.c_namesize), 8);
+			len = 8;
+			memcpy(buf, (const s8_t *)(header.c_namesize), len);
 			name_size = strtoul((const char *)buf, NULL, 16);
 
-			memcpy(buf, (const s8_t *)(header.c_mode), 8);
+			len = 8;
+			memcpy(buf, (const s8_t *)(header.c_mode), len);
 			mode = strtoul((const char *)buf, NULL, 16);
 
 			bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
@@ -327,6 +331,7 @@ static s32_t cpiofs_lookup(struct vnode_t * dnode, char * name, struct vnode_t *
 	char path[MAX_PATH];
 	u32_t size, name_size, mode;
 	loff_t off = 0;
+	volatile size_t len;
 	s8_t buf[9];
 
 	while(1)
@@ -338,13 +343,16 @@ static s32_t cpiofs_lookup(struct vnode_t * dnode, char * name, struct vnode_t *
 
 		buf[8] = '\0';
 
-		memcpy(buf, (const s8_t *)(header.c_filesize), 8);
+		len = 8;
+		memcpy(buf, (const s8_t *)(header.c_filesize), len);
 		size = strtoul((const char *)buf, NULL, 16);
 
-		memcpy(buf, (const s8_t *)(header.c_namesize), 8);
+		len = 8;
+		memcpy(buf, (const s8_t *)(header.c_namesize), len);
 		name_size = strtoul((const char *)buf, NULL, 16);
 
-		memcpy(buf, (const s8_t *)(header.c_mode), 8);
+		len = 8;
+		memcpy(buf, (const s8_t *)(header.c_mode), len);
 		mode = strtoul((const char *)buf, NULL, 16);
 
 		bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);

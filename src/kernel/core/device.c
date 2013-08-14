@@ -30,7 +30,7 @@ struct device_list_t __device_list = {
 		.prev	= &(__device_list.entry),
 	},
 };
-static spinlock_t __device_lock_lock = SPIN_LOCK_INIT();
+static spinlock_t __device_list_lock = SPIN_LOCK_INIT();
 
 struct device_t * search_device(const char * name)
 {
@@ -89,9 +89,9 @@ bool_t register_device(struct device_t * dev)
 
 	dl->device = dev;
 
-	spin_lock_irq(&__device_lock_lock);
+	spin_lock_irq(&__device_list_lock);
 	list_add_tail(&dl->entry, &(__device_list.entry));
-	spin_unlock_irq(&__device_lock_lock);
+	spin_unlock_irq(&__device_list_lock);
 
 	return TRUE;
 }
@@ -107,9 +107,9 @@ bool_t unregister_device(struct device_t * dev)
 	{
 		if(pos->device == dev)
 		{
-			spin_lock_irq(&__device_lock_lock);
+			spin_lock_irq(&__device_list_lock);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__device_lock_lock);
+			spin_unlock_irq(&__device_list_lock);
 
 			free(pos);
 			return TRUE;

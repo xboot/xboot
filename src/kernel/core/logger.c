@@ -21,6 +21,7 @@
  */
 
 #include <xboot.h>
+#include <spinlock.h>
 #include <xboot/logger.h>
 
 struct logger_list_t
@@ -29,27 +30,25 @@ struct logger_list_t
 	struct list_head entry;
 };
 
-static struct logger_list_t __logger_list_t = {
+static struct logger_list_t __logger_list = {
 	.entry = {
-		.next	= &(__logger_list_t.entry),
-		.prev	= &(__logger_list_t.entry),
+		.next	= &(__logger_list.entry),
+		.prev	= &(__logger_list.entry),
 	},
 };
-struct logger_list_t * logger_list_t = &__logger_list_t;
+static spinlock_t __logger_list_lock = SPIN_LOCK_INIT();
 
 static struct logger_t * search_logger(const char * name)
 {
-	struct logger_list_t * list;
-	struct list_head * pos;
+	struct logger_list_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&logger_list_t->entry)->next; pos != (&logger_list_t->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__logger_list.entry), entry)
 	{
-		list = list_entry(pos, struct logger_list_t, entry);
-		if(strcmp(list->logger->name, name) == 0)
-			return list->logger;
+		if(strcmp(pos->logger->name, name) == 0)
+			return pos->logger;
 	}
 
 	return NULL;
@@ -57,20 +56,17 @@ static struct logger_t * search_logger(const char * name)
 
 bool_t register_logger(struct logger_t * logger)
 {
-	struct logger_list_t * list;
+	struct logger_list_t * ll;
 
-	list = malloc(sizeof(struct logger_list_t));
-	if(!list || !logger)
-	{
-		free(list);
+	if(!logger || !logger->name)
 		return FALSE;
-	}
 
-	if(!logger->name || search_logger(logger->name))
-	{
-		free(list);
+	if(search_logger(logger->name))
 		return FALSE;
-	}
+
+	ll = malloc(sizeof(struct logger_list_t));
+	if(!ll)
+		return FALSE;
 
 	if(logger->init)
 		(logger->init)();
@@ -78,30 +74,34 @@ bool_t register_logger(struct logger_t * logger)
 	if(logger->output)
 		logger->output(xboot_banner_string(), strlen(xboot_banner_string()));
 
-	list->logger = logger;
-	list_add(&list->entry, &logger_list_t->entry);
+	ll->logger = logger;
+
+	spin_lock_irq(&__logger_list_lock);
+	list_add_tail(&ll->entry, &(__logger_list.entry));
+	spin_unlock_irq(&__logger_list_lock);
 
 	return TRUE;
 }
 
 bool_t unregister_logger(struct logger_t * logger)
 {
-	struct logger_list_t * list;
-	struct list_head * pos;
+	struct logger_list_t * pos, * n;
 
 	if(!logger || !logger->name)
 		return FALSE;
 
-	for(pos = (&logger_list_t->entry)->next; pos != (&logger_list_t->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__logger_list.entry), entry)
 	{
-		list = list_entry(pos, struct logger_list_t, entry);
-		if(list->logger == logger)
+		if(pos->logger == logger)
 		{
 			if(logger->exit)
 				(logger->exit)();
 
-			list_del(pos);
-			free(list);
+			spin_lock_irq(&__logger_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__logger_list_lock);
+
+			free(pos);
 			return TRUE;
 		}
 	}
@@ -111,14 +111,12 @@ bool_t unregister_logger(struct logger_t * logger)
 
 void logger_output(const char * buf, size_t count)
 {
-	struct logger_list_t * list;
-	struct list_head * pos;
+	struct logger_list_t * pos, * n;
 
-	for(pos = (&logger_list_t->entry)->next; pos != (&logger_list_t->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__logger_list.entry), entry)
 	{
-		list = list_entry(pos, struct logger_list_t, entry);
-		if(list->logger->output)
-			list->logger->output(buf, count);
+		if(pos->logger->output)
+			pos->logger->output(buf, count);
 	}
 }
 EXPORT_SYMBOL(logger_output);

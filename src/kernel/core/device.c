@@ -125,6 +125,7 @@ void suspend_all_device(void)
 
 	list_for_each_entry_safe_reverse(pos, n, &(__device_list.entry), entry)
 	{
+		LOG("Suspend device '%s'", pos->device->name);
 		pos->device->suspend(pos->device);
 	}
 }
@@ -135,6 +136,7 @@ void resume_all_device(void)
 
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
+		LOG("Resume device '%s'", pos->device->name);
 		pos->device->resume(pos->device);
 	}
 }

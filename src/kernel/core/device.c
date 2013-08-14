@@ -61,7 +61,7 @@ bool_t register_device(struct device_t * dev)
 	if(!dev->suspend || !dev->resume)
 		return FALSE;
 
-	if(!dev->priv)
+	if(!dev->driver)
 		return FALSE;
 
 	if(search_device(dev->name))

@@ -33,7 +33,7 @@ static void blkdev_suspend(struct device_t * dev)
 	if(dev->type != DEVICE_TYPE_BLOCK)
 		return;
 
-	blk = (struct blkdev_t *)(dev->priv);
+	blk = (struct blkdev_t *)(dev->driver);
 	if(!blk)
 		return;
 
@@ -54,7 +54,7 @@ static void blkdev_resume(struct device_t * dev)
 	if(dev->type != DEVICE_TYPE_BLOCK)
 		return;
 
-	blk = (struct blkdev_t *)(dev->priv);
+	blk = (struct blkdev_t *)(dev->driver);
 	if(!blk)
 		return;
 
@@ -77,7 +77,7 @@ struct blkdev_t * search_blkdev(const char * name)
 	{
 		if(pos->device->type == DEVICE_TYPE_BLOCK)
 		{
-			dev = (struct blkdev_t *)(pos->device->priv);
+			dev = (struct blkdev_t *)(pos->device->driver);
 			if(strcmp(dev->name, name) == 0)
 				return dev;
 		}
@@ -98,7 +98,7 @@ struct blkdev_t * search_blkdev_with_type(const char * name, enum blkdev_type_t 
 	{
 		if(pos->device->type == DEVICE_TYPE_BLOCK)
 		{
-			dev = (struct blkdev_t *)(pos->device->priv);
+			dev = (struct blkdev_t *)(pos->device->driver);
 			if(dev->type == type)
 			{
 				if(strcmp(dev->name, name) == 0)
@@ -128,7 +128,7 @@ bool_t register_blkdev(struct blkdev_t * dev)
 	device->type = DEVICE_TYPE_BLOCK;
 	device->suspend = blkdev_suspend;
 	device->resume = blkdev_resume;
-	device->priv = (void *)dev;
+	device->driver = (void *)dev;
 
 	return register_device(device);
 }

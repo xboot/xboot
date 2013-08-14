@@ -30,8 +30,8 @@ struct device_t
 	/* Resume device */
 	void (*resume)(struct device_t * dev);
 
-	/* Private data */
-	void * priv;
+	/* Device driver */
+	void * driver;
 };
 
 struct device_list_t

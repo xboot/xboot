@@ -33,7 +33,7 @@ static void chrdev_suspend(struct device_t * dev)
 	if(dev->type != DEVICE_TYPE_CHAR)
 		return;
 
-	chr = (struct chrdev_t *)(dev->priv);
+	chr = (struct chrdev_t *)(dev->driver);
 	if(!chr)
 		return;
 
@@ -54,7 +54,7 @@ static void chrdev_resume(struct device_t * dev)
 	if(dev->type != DEVICE_TYPE_CHAR)
 		return;
 
-	chr = (struct chrdev_t *)(dev->priv);
+	chr = (struct chrdev_t *)(dev->driver);
 	if(!chr)
 		return;
 
@@ -77,7 +77,7 @@ struct chrdev_t * search_chrdev(const char * name)
 	{
 		if(pos->device->type == DEVICE_TYPE_CHAR)
 		{
-			dev = (struct chrdev_t *)(pos->device->priv);
+			dev = (struct chrdev_t *)(pos->device->driver);
 			if(strcmp(dev->name, name) == 0)
 				return dev;
 		}
@@ -98,7 +98,7 @@ struct chrdev_t * search_chrdev_with_type(const char * name, enum chrdev_type_t 
 	{
 		if(pos->device->type == DEVICE_TYPE_CHAR)
 		{
-			dev = (struct chrdev_t *)(pos->device->priv);
+			dev = (struct chrdev_t *)(pos->device->driver);
 			if(dev->type == type)
 			{
 				if(strcmp(dev->name, name) == 0)
@@ -128,7 +128,7 @@ bool_t register_chrdev(struct chrdev_t * dev)
 	device->type = DEVICE_TYPE_CHAR;
 	device->suspend = chrdev_suspend;
 	device->resume = chrdev_resume;
-	device->priv = (void *)dev;
+	device->driver = (void *)dev;
 
 	return register_device(device);
 }

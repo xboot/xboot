@@ -48,7 +48,7 @@ static void serial_info(void)
 		if(pos->device->type != DEVICE_TYPE_CHAR)
 			continue;
 
-		dev = (struct chrdev_t *)(pos->device->priv);
+		dev = (struct chrdev_t *)(pos->device->driver);
 		if(dev->type != CHRDEV_TYPE_SERIAL)
 			continue;
 

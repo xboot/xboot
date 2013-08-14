@@ -70,7 +70,9 @@ void do_system_rootfs(void)
 
 void do_system_logo(void)
 {
-	cairo_surface_t * watermark = NULL;
+	struct device_list_t * pos, * n;
+	struct chrdev_t * dev;
+	cairo_surface_t * watermark;
 	cairo_surface_t * logo;
 	cairo_surface_t * cs;
 	cairo_t * cr;
@@ -81,38 +83,50 @@ void do_system_logo(void)
 
 	if(! machine_authentication())
 		watermark = cairo_image_surface_create_from_png("/romdisk/system/media/images/watermark.png");
+	else
+		watermark = NULL;
 	logo = cairo_image_surface_create_from_png("/romdisk/system/media/images/logo.png");
 
-	fb = get_default_framebuffer();
-	if(fb)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		cs = cairo_xboot_surface_create(fb, fb->alone);
-		cr = cairo_create(cs);
+		if(pos->device->type != DEVICE_TYPE_CHAR)
+			continue;
 
-		cairo_save(cr);
-		cairo_set_source_rgb(cr, 0, 0, 0);
-		cairo_paint(cr);
-		cairo_restore(cr);
+		dev = (struct chrdev_t *)(pos->device->priv);
+		if(dev->type != CHRDEV_TYPE_FRAMEBUFFER)
+			continue;
 
-		x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(logo)) / 2;
-		y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(logo)) / 2;
-		cairo_set_source_surface(cr, logo, x, y);
-		cairo_paint(cr);
-
-		if(watermark)
+		fb = (struct fb_t *)(dev->driver);
+		if(fb)
 		{
-			x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(watermark)) / 2;
-			y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(watermark)) / 2;
-			cairo_set_source_surface(cr, watermark, x, y);
-			cairo_paint_with_alpha(cr, 0.9);
+			cs = cairo_xboot_surface_create(fb, fb->alone);
+			cr = cairo_create(cs);
+
+			cairo_save(cr);
+			cairo_set_source_rgb(cr, 0, 0, 0);
+			cairo_paint(cr);
+			cairo_restore(cr);
+
+			x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(logo)) / 2;
+			y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(logo)) / 2;
+			cairo_set_source_surface(cr, logo, x, y);
+			cairo_paint(cr);
+
+			if(watermark)
+			{
+				x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(watermark)) / 2;
+				y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(watermark)) / 2;
+				cairo_set_source_surface(cr, watermark, x, y);
+				cairo_paint_with_alpha(cr, 0.9);
+			}
+
+			cairo_destroy(cr);
+			cairo_xboot_surface_present(cs);
+			cairo_surface_destroy(cs);
+
+			if(fb->backlight)
+				fb->backlight(fb, 255);
 		}
-
-		cairo_destroy(cr);
-		cairo_xboot_surface_present(cs);
-		cairo_surface_destroy(cs);
-
-		if(fb->backlight)
-			fb->backlight(fb, 255);
 	}
 
 	if(watermark)

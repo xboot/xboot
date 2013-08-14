@@ -21,33 +21,22 @@
  */
 
 #include <xboot.h>
-#include <stddef.h>
-#include <malloc.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <xboot/list.h>
-#include <xboot/proc.h>
-#include <xboot/device.h>
 #include <xboot/blkdev.h>
-
-extern struct device_list_t * device_list;
 
 struct blkdev_t * search_blkdev(const char * name)
 {
+	struct device_list_t * pos, * n;
 	struct blkdev_t * dev;
-	struct device_list_t * list;
-	struct list_head * pos;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type == DEVICE_TYPE_BLOCK)
+		if(pos->device->type == DEVICE_TYPE_BLOCK)
 		{
-			dev = (struct blkdev_t *)(list->device->priv);
-			if(strcmp((const char *)dev->name, (const char *)name) == 0)
+			dev = (struct blkdev_t *)(pos->device->priv);
+			if(strcmp(dev->name, name) == 0)
 				return dev;
 		}
 	}
@@ -57,22 +46,20 @@ struct blkdev_t * search_blkdev(const char * name)
 
 struct blkdev_t * search_blkdev_with_type(const char * name, enum blkdev_type_t type)
 {
+	struct device_list_t * pos, * n;
 	struct blkdev_t * dev;
-	struct device_list_t * list;
-	struct list_head * pos;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type == DEVICE_TYPE_BLOCK)
+		if(pos->device->type == DEVICE_TYPE_BLOCK)
 		{
-			dev = (struct blkdev_t *)(list->device->priv);
+			dev = (struct blkdev_t *)(pos->device->priv);
 			if(dev->type == type)
 			{
-				if(strcmp((const char *)dev->name, (const char *)name) == 0)
+				if(strcmp(dev->name, name) == 0)
 					return dev;
 			}
 		}
@@ -85,18 +72,15 @@ bool_t register_blkdev(struct blkdev_t * dev)
 {
 	struct device_t * device;
 
-	device = malloc(sizeof(struct device_t));
-	if(!device || !dev)
-	{
-		free(device);
+	if(!dev)
 		return FALSE;
-	}
 
 	if(!dev->name || search_device(dev->name))
-	{
-		free(device);
 		return FALSE;
-	}
+
+	device = malloc(sizeof(struct device_t));
+	if(!device)
+		return FALSE;
 
 	device->name = dev->name;
 	device->type = DEVICE_TYPE_BLOCK;

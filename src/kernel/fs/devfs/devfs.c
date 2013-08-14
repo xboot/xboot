@@ -45,7 +45,7 @@ static s32_t devfs_mount(struct mount_t * m, char * dev, s32_t flag)
 		return EINVAL;
 
 	m->m_flags = flag & MOUNT_MASK;
-	m->m_data = (void *)device_list;
+	m->m_data = (void *)(&__device_list);
 
 	return 0;
 }
@@ -314,7 +314,6 @@ static s32_t devfs_readdir(struct vnode_t * node, struct file_t * fp, struct dir
 static s32_t devfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * node)
 {
 	struct device_t * dev;
-	struct chrdev_t * chr;
 	struct blkdev_t * blk;
 
 	dev = search_device(name);
@@ -323,8 +322,6 @@ static s32_t devfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * 
 
 	if(dev->type == DEVICE_TYPE_CHAR)
 	{
-		chr = (struct chrdev_t *)(dev->priv);
-
 		node->v_type = VCHR;
 		node->v_size = 0;
 	}

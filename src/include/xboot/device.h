@@ -34,6 +34,7 @@ struct device_list_t
 	struct list_head entry;
 };
 
+extern struct device_list_t __device_list;
 struct device_t * search_device(const char * name);
 bool_t register_device(struct device_t * dev);
 bool_t unregister_device(struct device_t * dev);

@@ -21,36 +21,28 @@
  */
 
 #include <xboot.h>
-#include <stddef.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <xboot/list.h>
-#include <xboot/proc.h>
+#include <spinlock.h>
 #include <xboot/device.h>
 
-static struct device_list_t __device_list = {
+struct device_list_t __device_list = {
 	.entry = {
 		.next	= &(__device_list.entry),
 		.prev	= &(__device_list.entry),
 	},
 };
-struct device_list_t * device_list = &__device_list;
+static spinlock_t __device_lock_lock = SPIN_LOCK_INIT();
 
 struct device_t * search_device(const char * name)
 {
-	struct device_list_t * list;
-	struct list_head * pos;
+	struct device_list_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		list = list_entry(pos, struct device_list_t, entry);
-		if(strcmp(list->device->name, name) == 0)
-			return list->device;
+		if(strcmp(pos->device->name, name) == 0)
+			return pos->device;
 	}
 
 	return NULL;
@@ -58,54 +50,49 @@ struct device_t * search_device(const char * name)
 
 bool_t register_device(struct device_t * dev)
 {
-	struct device_list_t * list;
+	struct device_list_t * dl;
 
-	list = malloc(sizeof(struct device_list_t));
-	if(!list || !dev)
-	{
-		free(list);
+	if(!dev || !dev->name)
 		return FALSE;
-	}
-
-	if(!dev->name || search_device(dev->name))
-	{
-		free(list);
-		return FALSE;
-	}
 
 	if((dev->type != DEVICE_TYPE_CHAR) && (dev->type != DEVICE_TYPE_BLOCK) && (dev->type != DEVICE_TYPE_NET))
-	{
-		free(list);
 		return FALSE;
-	}
 
 	if(!dev->priv)
-	{
-		free(list);
 		return FALSE;
-	}
 
-	list->device = dev;
-	list_add_tail(&list->entry, &device_list->entry);
+	if(search_device(dev->name))
+		return FALSE;
+
+	dl = malloc(sizeof(struct device_list_t));
+	if(!dl)
+		return FALSE;
+
+	dl->device = dev;
+
+	spin_lock_irq(&__device_lock_lock);
+	list_add_tail(&dl->entry, &(__device_list.entry));
+	spin_unlock_irq(&__device_lock_lock);
 
 	return TRUE;
 }
 
 bool_t unregister_device(struct device_t * dev)
 {
-	struct device_list_t * list;
-	struct list_head * pos;
+	struct device_list_t * pos, * n;
 
 	if(!dev || !dev->name)
 		return FALSE;
 
-	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device == dev)
+		if(pos->device == dev)
 		{
-			list_del(pos);
-			free(list);
+			spin_lock_irq(&__device_lock_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__device_lock_lock);
+
+			free(pos);
 			return TRUE;
 		}
 	}
@@ -115,25 +102,23 @@ bool_t unregister_device(struct device_t * dev)
 
 static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct device_list_t * list;
-	struct list_head * pos;
-	s8_t * p;
-	s32_t len = 0;
+	struct device_list_t * pos, * n;
+	char * p;
+	int len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	len += sprintf((char *)(p + len), (const char *)"[device]");
+	len += sprintf((char *)(p + len), "[device]");
 
-	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type == DEVICE_TYPE_CHAR)
-			len += sprintf((char *)(p + len), (const char *)"\r\n CHR    %s", list->device->name);
-		else if(list->device->type == DEVICE_TYPE_BLOCK)
-			len += sprintf((char *)(p + len), (const char *)"\r\n BLK    %s", list->device->name);
-		else if(list->device->type == DEVICE_TYPE_NET)
-			len += sprintf((char *)(p + len), (const char *)"\r\n NET    %s", list->device->name);
+		if(pos->device->type == DEVICE_TYPE_CHAR)
+			len += sprintf((char *)(p + len), "\r\n CHR    %s", pos->device->name);
+		else if(pos->device->type == DEVICE_TYPE_BLOCK)
+			len += sprintf((char *)(p + len), "\r\n BLK    %s", pos->device->name);
+		else if(pos->device->type == DEVICE_TYPE_NET)
+			len += sprintf((char *)(p + len), "\r\n NET    %s", pos->device->name);
 	}
 
 	len -= offset;

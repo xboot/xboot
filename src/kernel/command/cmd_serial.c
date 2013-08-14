@@ -37,22 +37,18 @@
 
 #if	defined(CONFIG_COMMAND_SERIAL) && (CONFIG_COMMAND_SERIAL > 0)
 
-extern struct device_list_t * device_list;
-
 static void serial_info(void)
 {
+	struct device_list_t * pos, * n;
 	struct chrdev_t * dev;
-	struct device_list_t * list;
-	struct list_head * pos;
 	struct serial_info_t * serial_info;
 
-	for(pos = (&device_list->entry)->next; pos != (&device_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		list = list_entry(pos, struct device_list_t, entry);
-		if(list->device->type != DEVICE_TYPE_CHAR)
+		if(pos->device->type != DEVICE_TYPE_CHAR)
 			continue;
 
-		dev = (struct chrdev_t *)(list->device->priv);
+		dev = (struct chrdev_t *)(pos->device->priv);
 		if(dev->type != CHRDEV_TYPE_SERIAL)
 			continue;
 

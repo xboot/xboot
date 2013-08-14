@@ -45,7 +45,6 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 	struct list_head * pos;
 	struct mount_t * m;
 	struct vnode_t *vp, *vp_covered;
-	char * p;
 	s32_t err;
 
 	if(!dir || *dir == '\0')
@@ -60,13 +59,7 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 	 */
 	if(dev != NULL)
 	{
-		/* search for the last directory separator in dev */
-		if( (p = strrchr(dev, '/')) != NULL )
-			p = p+1;
-		else
-			p = dev;
-
-		if( (device = search_blkdev(p)) == NULL)
+		if( (device = search_blkdev(dev)) == NULL)
 			return EACCES;
 	}
 	else

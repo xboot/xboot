@@ -34,29 +34,13 @@
  */
 int mount(const char * dev, const char * dir, const char * fs, u32_t flags)
 {
-	char dev_path[MAX_PATH];
 	char dir_path[MAX_PATH];
-	struct stat st;
 	int err;
 
 	if((err = vfs_path_conv(dir, dir_path)) != 0)
 		return err;
 
-	if(dev != NULL)
-	{
-		if((err = vfs_path_conv(dev, dev_path)) != 0)
-			return err;
-
-		if(stat(dev_path, &st) != 0)
-			return EEXIST;
-
-		if(! S_ISBLK(st.st_mode))
-			return EACCES;
-
-		return sys_mount(dev_path, dir_path, (char *)fs, flags);
-	}
-	else
-		return sys_mount(NULL, dir_path, (char *)fs, flags);
+	return sys_mount((char *)dev, dir_path, (char *)fs, flags);
 }
 
 /*

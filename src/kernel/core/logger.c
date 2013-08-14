@@ -126,25 +126,16 @@ EXPORT_SYMBOL(logger_output);
 int logger_print(const char * fmt, ...)
 {
 	va_list ap;
+	struct timeval tv;
 	char * p;
 	int len = 0;
-	int div, rem;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
 	va_start(ap, fmt);
-	if(get_system_hz() > 0)
-	{
-		div = jiffies * 1000000 / get_system_hz() / 1000000;
-		rem = jiffies * 1000000 / get_system_hz() % 1000000;
-	}
-	else
-	{
-		div = 0;
-		rem = 0;
-	}
-	len += sprintf((char *)(p + len), (const char *)"[%5u.%06u]", div, rem);
+	gettimeofday(&tv, 0);
+	len += sprintf((char *)(p + len), "[%5u.%06u]", tv.tv_sec, tv.tv_usec % 1000000);
 	len += vsnprintf((char *)(p + len), (SZ_4K - len), fmt, ap);
 	va_end(ap);
 

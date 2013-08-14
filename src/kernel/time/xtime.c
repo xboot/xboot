@@ -175,7 +175,7 @@ u8_t xmkweek(u32_t year, u32_t mon, u32_t day)
 u64_t clock_gettime(void)
 {
 	if(get_system_hz() > 0)
-		return jiffies * 10000000 / get_system_hz();
+		return (u64_t)jiffies * 1000000 / get_system_hz();
 
 	return 0;
 }

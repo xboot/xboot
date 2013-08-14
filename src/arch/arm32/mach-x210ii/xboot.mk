@@ -2,7 +2,7 @@
 # machine makefile.
 #
 
-DEFINES		+= -D__ARM_ARCH__=4 -D__CORTEX_A8__
+DEFINES		+= -D__ARM_ARCH__=7 -D__CORTEX_A8__
 
 ASFLAGS		:= -g -ggdb -Wall -O2
 CFLAGS		:= -g -ggdb -Wall -O2
@@ -11,7 +11,7 @@ LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:= -d
-MCFLAGS		:=
+MCFLAGS		:= -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a -mfpu=neon -ftree-vectorize -ffast-math -mfloat-abi=softfp
 
 LIBDIRS		:=
 LIBS 		:=

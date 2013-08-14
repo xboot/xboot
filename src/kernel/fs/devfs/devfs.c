@@ -34,8 +34,6 @@
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>
 
-extern struct device_list_t * device_list;
-
 /*
  * filesystem operations
  */

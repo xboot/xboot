@@ -411,6 +411,14 @@ bool_t scon_onoff(struct console_t * console, bool_t flag)
 	return TRUE;
 }
 
+static void serial_suspend(struct device_t * dev)
+{
+}
+
+static void serial_resume(struct device_t * dev)
+{
+}
+
 bool_t register_serial(struct serial_driver_t * drv)
 {
 	struct device_t * dev;
@@ -426,6 +434,8 @@ bool_t register_serial(struct serial_driver_t * drv)
 
 	dev->name = strdup(drv->info->name);
 	dev->type = DEVICE_TYPE_SERIAL;
+	dev->suspend = serial_suspend;
+	dev->resume = serial_resume;
 	dev->driver = drv;
 
 	if(!register_device(dev))

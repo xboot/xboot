@@ -435,7 +435,6 @@ struct fb_t * get_default_framebuffer(void)
 {
 	return default_framebuffer;
 }
-EXPORT_SYMBOL(get_default_framebuffer);
 
 bool_t set_default_framebuffer(const char * name)
 {
@@ -448,7 +447,6 @@ bool_t set_default_framebuffer(const char * name)
 	default_framebuffer = fb;
 	return TRUE;
 }
-EXPORT_SYMBOL(set_default_framebuffer);
 
 struct fb_t * search_framebuffer(const char * name)
 {
@@ -460,7 +458,36 @@ struct fb_t * search_framebuffer(const char * name)
 
 	return (struct fb_t *)dev->driver;
 }
-EXPORT_SYMBOL(search_framebuffer);
+
+static void fb_suspend(struct device_t * dev)
+{
+	struct fb_t * fb;
+
+	if(!dev || dev->type != DEVICE_TYPE_FRAMEBUFFER)
+		return;
+
+	fb = (struct fb_t *)(dev->driver);
+	if(!fb)
+		return;
+
+	if(fb->suspend)
+		fb->suspend(fb);
+}
+
+static void fb_resume(struct device_t * dev)
+{
+	struct fb_t * fb;
+
+	if(!dev || dev->type != DEVICE_TYPE_FRAMEBUFFER)
+		return;
+
+	fb = (struct fb_t *)(dev->driver);
+	if(!fb)
+		return;
+
+	if(fb->resume)
+		fb->resume(fb);
+}
 
 bool_t register_framebuffer(struct fb_t * fb)
 {
@@ -477,6 +504,8 @@ bool_t register_framebuffer(struct fb_t * fb)
 
 	dev->name = strdup(fb->name);
 	dev->type = DEVICE_TYPE_FRAMEBUFFER;
+	dev->suspend = fb_suspend;
+	dev->resume = fb_resume;
 	dev->driver = fb;
 
 	if(!register_device(dev))

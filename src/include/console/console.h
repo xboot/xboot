@@ -91,12 +91,6 @@ struct console_t
 	void * priv;
 };
 
-struct console_list_t
-{
-	struct console_t * console;
-	struct list_head entry;
-};
-
 struct console_t * get_console_stdin(void);
 struct console_t * get_console_stdout(void);
 struct console_t * get_console_stderr(void);

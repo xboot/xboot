@@ -54,9 +54,6 @@ struct fb_t
 	void * priv;
 };
 
-struct fb_t * get_default_framebuffer(void);
-bool_t set_default_framebuffer(const char * name);
-
 struct fb_t * search_framebuffer(const char * name);
 bool_t register_framebuffer(struct fb_t * fb);
 bool_t unregister_framebuffer(struct fb_t * fb);

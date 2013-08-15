@@ -1,5 +1,5 @@
 /*
- * drivers/fb/font.c
+ * drivers/console/fbfont.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <fb/font.h>
+#include <console/fbfont.h>
 
 static const u8_t default_font_glyph_data_0000_007f[128][16] = {
 	[0x0] = {

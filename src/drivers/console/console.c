@@ -26,9 +26,10 @@
 
 extern void led_console_trigger_activity(void);
 
-static struct console_t * console_stdin = NULL;
-static struct console_t * console_stdout = NULL;
-static struct console_t * console_stderr = NULL;
+struct console_list_t {
+	struct console_t * console;
+	struct list_head entry;
+};
 
 static struct console_list_t __console_list = {
 	.entry = {
@@ -37,6 +38,10 @@ static struct console_list_t __console_list = {
 	},
 };
 static struct console_list_t * console_list = &__console_list;
+
+static struct console_t * console_stdin = NULL;
+static struct console_t * console_stdout = NULL;
+static struct console_t * console_stderr = NULL;
 
 inline struct console_t * get_console_stdin(void)
 {

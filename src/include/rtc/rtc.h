@@ -47,6 +47,7 @@ struct rtc_t
 	void (*resume)(struct rtc_t * rtc);
 };
 
+struct rtc_t * search_rtc(const char * name);
 bool_t register_rtc(struct rtc_t * rtc);
 bool_t unregister_rtc(struct rtc_t * rtc);
 

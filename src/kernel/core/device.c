@@ -67,6 +67,21 @@ struct device_t * search_device_with_type(const char * name, enum device_type_t 
 	return NULL;
 }
 
+struct device_t * search_first_device_with_type(enum device_type_t type)
+{
+	struct device_list_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	{
+		if(pos->device->type == type)
+		{
+			return pos->device;
+		}
+	}
+
+	return NULL;
+}
+
 bool_t register_device(struct device_t * dev)
 {
 	struct device_list_t * dl;

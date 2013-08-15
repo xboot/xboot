@@ -53,6 +53,21 @@ static void rtc_resume(struct device_t * dev)
 		rtc->resume(rtc);
 }
 
+struct rtc_t * search_rtc(const char * name)
+{
+	struct device_t * dev;
+
+	dev = search_device_with_type(name, DEVICE_TYPE_RTC);
+	if(dev)
+		return (struct rtc_t *)dev->driver;
+
+	dev = search_first_device_with_type(DEVICE_TYPE_RTC);
+	if(dev)
+		return (struct rtc_t *)dev->driver;
+
+	return NULL;
+}
+
 bool_t register_rtc(struct rtc_t * rtc)
 {
 	struct device_t * dev;

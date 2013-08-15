@@ -195,7 +195,7 @@ static s32_t tarfs_mount(struct mount_t * m, char * dev, s32_t flag)
 	if(get_block_total_size(blk) <= sizeof(struct tar_header))
 		return EINTR;
 
-	if(bio_read(blk, (u8_t *)(&header), 0, sizeof(struct tar_header)) != sizeof(struct tar_header))
+	if(block_read(blk, (u8_t *)(&header), 0, sizeof(struct tar_header)) != sizeof(struct tar_header))
 		return EIO;
 
 	/*
@@ -264,7 +264,7 @@ static s32_t tarfs_read(struct vnode_t * node, struct file_t * fp, void * buf, l
 		size = node->v_size - fp->f_offset;
 
 	off = (loff_t)((s32_t)(node->v_data));
-	len = bio_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
+	len = block_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
 	*result = len;
@@ -318,7 +318,7 @@ static s32_t tarfs_readdir(struct vnode_t * node, struct file_t * fp, struct dir
 	{
 		while(1)
 		{
-			bio_read(dev, (u8_t *)(&header), off, sizeof(struct tar_header));
+			block_read(dev, (u8_t *)(&header), off, sizeof(struct tar_header));
 
 			if(strncmp((const char *)(header.magic), (const char *)"ustar", 5) != 0)
 				return ENOENT;
@@ -367,7 +367,7 @@ static s32_t tarfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * 
 
 	while(1)
 	{
-		bio_read(dev, (u8_t *)(&header), off, sizeof(struct tar_header));
+		block_read(dev, (u8_t *)(&header), off, sizeof(struct tar_header));
 
 		if(strncmp((const char *)(header.magic), (const char *)"ustar", 5) != 0)
 			return ENOENT;

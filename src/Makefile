@@ -107,6 +107,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/fatfs								\
 				drivers										\
 				drivers/block								\
+				drivers/block/romdisk						\
 				drivers/console								\
 				drivers/disk								\
 				drivers/disk/partition						\
@@ -115,7 +116,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/fb/sw								\
 				drivers/led									\
 				drivers/loop								\
-				drivers/romdisk								\
 				drivers/rtc									\
 				drivers/input								\
 				drivers/input/keyboard						\
@@ -339,7 +339,7 @@ sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
 			&& $(RM) .obj/romdisk									\
 			&& $(RM) .obj/romdisk.cpio								\
 			&& $(RM) .obj/init/version.o							\
-			&& $(RM) .obj/drivers/romdisk/data.o					\
+			&& $(RM) .obj/drivers/block/romdisk/data.o				\
 			&& $(CP) romdisk .obj									\
 			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj				\
 			&& $(CD) .obj/romdisk									\

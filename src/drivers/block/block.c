@@ -59,7 +59,7 @@ struct block_t * search_block(const char * name)
 
 bool_t register_block(struct block_t * blk)
 {
-	struct device_t * device;
+	struct device_t * dev;
 
 	if(!blk)
 		return FALSE;
@@ -67,38 +67,36 @@ bool_t register_block(struct block_t * blk)
 	if(!blk->name || search_device(blk->name))
 		return FALSE;
 
-	device = malloc(sizeof(struct device_t));
-	if(!device)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
-	device->name = strdup(blk->name);
-	device->type = DEVICE_TYPE_BLOCK;
-	device->suspend = block_suspend;
-	device->resume = block_resume;
-	device->driver = (void *)blk;
+	dev->name = strdup(blk->name);
+	dev->type = DEVICE_TYPE_BLOCK;
+	dev->suspend = block_suspend;
+	dev->resume = block_resume;
+	dev->driver = (void *)blk;
 
-	return register_device(device);
+	return register_device(dev);
 }
 
-bool_t unregister_block(const char * name)
+bool_t unregister_block(struct block_t * blk)
 {
-	struct device_t * device;
+	struct device_t * dev;
 
-	if(!name)
+	if(!blk || !blk->name)
 		return FALSE;
 
-	device = search_device(name);
-	if(!device && device->type == DEVICE_TYPE_BLOCK)
+	dev = search_device_with_type(blk->name, DEVICE_TYPE_BLOCK);
+	if(!dev)
 		return FALSE;
 
-	if(unregister_device(device))
-	{
-		free(device->name);
-		free(device);
-		return TRUE;
-	}
+	if(!unregister_device(dev))
+		return FALSE;
 
-	return FALSE;
+	free(dev->name);
+	free(dev);
+	return TRUE;
 }
 
 loff_t get_block_total_size(struct block_t * blk)
@@ -136,7 +134,7 @@ loff_t get_block_offset(struct block_t * blk, size_t blkno)
 	return (blk->blksz * blkno);
 }
 
-loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
+loff_t block_read(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
 	size_t blkno, blksz, blkcnt;
@@ -148,18 +146,18 @@ loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	if(!buf)
 		return 0;
 
-	if(!dev)
+	if(!blk)
 		return 0;
 
-	blksz = get_block_size(dev);
+	blksz = get_block_size(blk);
 	if(blksz <= 0)
 		return 0;
 
-	blkcnt = get_block_total_count(dev);
+	blkcnt = get_block_total_count(blk);
 	if(blkcnt <= 0)
 		return 0;
 
-	tmp = get_block_total_size(dev);
+	tmp = get_block_total_size(blk);
 	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
 		return 0;
 
@@ -182,7 +180,7 @@ loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 		if(count < len)
 			len = count;
 
-		if(dev->read(dev, blkbuf, blkno, 1) != 1)
+		if(blk->read(blk, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return 0;
@@ -203,7 +201,7 @@ loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	{
 		len = div * blksz;
 
-		if(dev->read(dev, buf, blkno, div) != div)
+		if(blk->read(blk, buf, blkno, div) != div)
 		{
 			free(blkbuf);
 			return size;
@@ -219,7 +217,7 @@ loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	{
 		len = count;
 
-		if(dev->read(dev, blkbuf, blkno, 1) != 1)
+		if(blk->read(blk, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return size;
@@ -233,7 +231,7 @@ loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	return size;
 }
 
-loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
+loff_t block_write(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
 	size_t blkno, blksz, blkcnt;
@@ -245,18 +243,18 @@ loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	if(!buf)
 		return 0;
 
-	if(!dev)
+	if(!blk)
 		return 0;
 
-	blksz = get_block_size(dev);
+	blksz = get_block_size(blk);
 	if(blksz <= 0)
 		return 0;
 
-	blkcnt = get_block_total_count(dev);
+	blkcnt = get_block_total_count(blk);
 	if(blkcnt <= 0)
 		return 0;
 
-	tmp = get_block_total_size(dev);
+	tmp = get_block_total_size(blk);
 	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
 		return 0;
 
@@ -279,7 +277,7 @@ loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 		if(count < len)
 			len = count;
 
-		if(dev->read(dev, blkbuf, blkno, 1) != 1)
+		if(blk->read(blk, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return 0;
@@ -287,7 +285,7 @@ loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 
 		memcpy((void *)(&blkbuf[rem]), (const void *)buf, len);
 
-		if(dev->write(dev, blkbuf, blkno, 1) != 1)
+		if(blk->write(blk, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return 0;
@@ -307,7 +305,7 @@ loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	{
 		len = div * blksz;
 
-		if(dev->write(dev, buf, blkno, div) != div)
+		if(blk->write(blk, buf, blkno, div) != div)
 		{
 			free(blkbuf);
 			return size;
@@ -323,7 +321,7 @@ loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	{
 		len = count;
 
-		if(dev->read(dev, blkbuf, blkno, 1) != 1)
+		if(blk->read(blk, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return size;
@@ -331,7 +329,7 @@ loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 
 		memcpy((void *)(&blkbuf[0]), (const void *)buf, len);
 
-		if(dev->write(dev, blkbuf, blkno, 1) != 1)
+		if(blk->write(blk, blkbuf, blkno, 1) != 1)
 		{
 			free(blkbuf);
 			return size;

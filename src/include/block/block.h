@@ -36,14 +36,14 @@ struct block_t
 
 struct block_t * search_block(const char * name);
 bool_t register_block(struct block_t * blk);
-bool_t unregister_block(const char * name);
+bool_t unregister_block(struct block_t * blk);
 
 loff_t get_block_total_size(struct block_t * blk);
 size_t get_block_total_count(struct block_t * blk);
 size_t get_block_size(struct block_t * blk);
 loff_t get_block_offset(struct block_t * blk, size_t blkno);
-loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count);
-loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count);
+loff_t block_read(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count);
+loff_t block_write(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count);
 
 #ifdef __cplusplus
 }

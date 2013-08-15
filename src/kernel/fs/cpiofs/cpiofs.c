@@ -148,7 +148,7 @@ static s32_t cpiofs_mount(struct mount_t * m, char * dev, s32_t flag)
 	if(get_block_total_size(blk) <= sizeof(struct cpio_newc_header))
 		return EINTR;
 
-	if(bio_read(blk, (u8_t *)(&header), 0, sizeof(struct cpio_newc_header)) != sizeof(struct cpio_newc_header))
+	if(block_read(blk, (u8_t *)(&header), 0, sizeof(struct cpio_newc_header)) != sizeof(struct cpio_newc_header))
 		return EIO;
 
 	if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
@@ -214,7 +214,7 @@ static s32_t cpiofs_read(struct vnode_t * node, struct file_t * fp, void * buf, 
 		size = node->v_size - fp->f_offset;
 
 	off = (loff_t)((s32_t)(node->v_data));
-	len = bio_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
+	len = block_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
 	*result = len;
@@ -270,7 +270,7 @@ static s32_t cpiofs_readdir(struct vnode_t * node, struct file_t * fp, struct di
 	{
 		while(1)
 		{
-			bio_read(dev, (u8_t *)(&header), off, sizeof(struct cpio_newc_header));
+			block_read(dev, (u8_t *)(&header), off, sizeof(struct cpio_newc_header));
 
 			if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
 				return ENOENT;
@@ -286,7 +286,7 @@ static s32_t cpiofs_readdir(struct vnode_t * node, struct file_t * fp, struct di
 			memcpy(buf, (const s8_t *)(header.c_mode), 8);
 			mode = strtoul((const char *)buf, NULL, 16);
 
-			bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
+			block_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
 
 			if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const char *)"TRAILER!!!", 10) == 0) )
 				return ENOENT;
@@ -329,7 +329,7 @@ static s32_t cpiofs_lookup(struct vnode_t * dnode, char * name, struct vnode_t *
 
 	while(1)
 	{
-		bio_read(dev, (u8_t *)(&header), off, sizeof(struct cpio_newc_header));
+		block_read(dev, (u8_t *)(&header), off, sizeof(struct cpio_newc_header));
 
 		if(strncmp((const char *)(header.c_magic), (const char *)"070701", 6) != 0)
 			return ENOENT;
@@ -345,7 +345,7 @@ static s32_t cpiofs_lookup(struct vnode_t * dnode, char * name, struct vnode_t *
 		memcpy(buf, (const s8_t *)(header.c_mode), 8);
 		mode = strtoul((const char *)buf, NULL, 16);
 
-		bio_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
+		block_read(dev, (u8_t *)path, off + sizeof(struct cpio_newc_header), (loff_t)name_size);
 
 		if( (size == 0) && (mode == 0) && (name_size == 11) && (strncmp(path, (const char *)"TRAILER!!!", 10) == 0) )
 			return ENOENT;

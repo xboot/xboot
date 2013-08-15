@@ -235,7 +235,7 @@ static s32_t fatfs_mount(struct mount_t * m, char * dev, s32_t flag)
 	if(get_blkdev_total_size(blk) <= sizeof(struct fat_boot_sector))
 		return EINTR;
 
-	if(bio_read(blk, (u8_t *)(&fbs), 0, sizeof(struct fat_boot_sector)) != sizeof(struct fat_boot_sector))
+	if(block_read(blk, (u8_t *)(&fbs), 0, sizeof(struct fat_boot_sector)) != sizeof(struct fat_boot_sector))
 		return EIO;
 
 	/*
@@ -643,7 +643,7 @@ static bool_t fat_read_dirent(struct fatfs_mount_data * md, u32_t sector)
 	loff_t off = sector * md->sector_size;
 	loff_t size = md->sector_size;
 
-	if(bio_read(md->blk, (u8_t *)(md->dir_buf), off, size) != size)
+	if(block_read(md->blk, (u8_t *)(md->dir_buf), off, size) != size)
 		return FALSE;
 
 	return TRUE;
@@ -657,7 +657,7 @@ static bool_t fat_write_dirent(struct fatfs_mount_data * md, u32_t sector)
 	loff_t off = sector * md->sector_size;
 	loff_t size = md->sector_size;
 
-	if(bio_write(md->blk, (const u8_t *)(md->dir_buf), off, size) != size)
+	if(block_write(md->blk, (const u8_t *)(md->dir_buf), off, size) != size)
 		return FALSE;
 
 	return TRUE;

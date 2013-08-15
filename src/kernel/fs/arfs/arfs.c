@@ -73,7 +73,7 @@ static s32_t arfs_mount(struct mount_t * m, char * dev, s32_t flag)
 	if(get_block_total_size(blk) <= 8)
 		return EINTR;
 
-	if(bio_read(blk, buf, 0, 8) != 8)
+	if(block_read(blk, buf, 0, 8) != 8)
 		return EIO;
 
 	/*
@@ -139,7 +139,7 @@ static s32_t arfs_read(struct vnode_t * node, struct file_t * fp, void * buf, lo
 		size = node->v_size - fp->f_offset;
 
 	off = (loff_t)((s32_t)(node->v_data));
-	len = bio_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
+	len = block_read(dev, (u8_t *)buf, (off + fp->f_offset), size);
 
 	fp->f_offset += len;
 	*result = len;
@@ -194,7 +194,7 @@ static s32_t arfs_readdir(struct vnode_t * node, struct file_t * fp, struct dire
 		while(1)
 		{
 			memset(&header, 0, sizeof(struct ar_hdr));
-			bio_read(dev, (u8_t *)(&header), off, sizeof(struct ar_hdr));
+			block_read(dev, (u8_t *)(&header), off, sizeof(struct ar_hdr));
 
 			if(strncmp((const char *)header.ar_fmag, "`\n", 2) != 0)
 				return ENOENT;
@@ -234,7 +234,7 @@ static s32_t arfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * n
 	while(1)
 	{
 		memset(&header, 0, sizeof(struct ar_hdr));
-		bio_read(dev, (u8_t *)(&header), off, sizeof(struct ar_hdr));
+		block_read(dev, (u8_t *)(&header), off, sizeof(struct ar_hdr));
 
 		if(strncmp((const char *)header.ar_fmag, "`\n", 2) != 0)
 			return ENOENT;

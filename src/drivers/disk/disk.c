@@ -228,7 +228,7 @@ bool_t unregister_disk(struct disk_t * disk)
 				dev = part->dev;
 				dblk = dev->priv;
 
-				unregister_block(dblk->name);
+				unregister_block(dblk);
 				free(dblk);
 				free(dev);
 				free(part);

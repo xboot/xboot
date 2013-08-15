@@ -6,12 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
 
-/**
- * the baud rate.
- */
 enum serial_baud_rate_t {
 	B50,
 	B75,
@@ -36,9 +31,6 @@ enum serial_baud_rate_t {
 	B921600
 };
 
-/**
- * the data bits
- */
 enum serial_data_bits_t {
 	DATA_BITS_5,
 	DATA_BITS_6,
@@ -46,27 +38,18 @@ enum serial_data_bits_t {
 	DATA_BITS_8,
 };
 
-/**
- * the parity bits
- */
 enum serial_parity_bits_t {
 	PARITY_NONE,
 	PARITY_EVEN,
 	PARITY_ODD,
 };
 
-/**
- * the stop bits
- */
 enum serial_stop_bits_t {
 	STOP_BITS_1,
 	STOP_BITS_1_5,
 	STOP_BITS_2,
 };
 
-/**
- * serial parameter
- */
 struct serial_parameter_t
 {
 	enum serial_baud_rate_t		baud_rate;
@@ -75,9 +58,6 @@ struct serial_parameter_t
 	enum serial_stop_bits_t		stop_bit;
 };
 
-/**
- * defined the struct of serial information.
- */
 struct serial_info_t
 {
 	/* the serial name. */
@@ -90,10 +70,6 @@ struct serial_info_t
 	struct serial_parameter_t * parameter;
 };
 
-/**
- * defined the struct of serial driver, which contains
- * low level operating fuction.
- */
 struct serial_driver_t
 {
 	/* the serial information */

@@ -24,7 +24,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <fs/fs.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
@@ -40,7 +40,7 @@ extern struct list_head mount_list;
  */
 s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 {
-	struct blkdev_t * device;
+	struct block_t * device;
 	struct filesystem_t * fs;
 	struct list_head * pos;
 	struct mount_t * m;
@@ -59,7 +59,7 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 	 */
 	if(dev != NULL)
 	{
-		if( (device = search_blkdev(dev)) == NULL)
+		if( (device = search_block(dev)) == NULL)
 			return EACCES;
 	}
 	else
@@ -192,7 +192,7 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
  */
 s32_t sys_umount(char * path)
 {
-	struct blkdev_t * device;
+	struct block_t * device;
 	struct list_head * pos;
 	struct mount_t * m;
 	s32_t err;
@@ -225,7 +225,7 @@ s32_t sys_umount(char * path)
 
 			if(m->m_dev)
 			{
-				device = (struct blkdev_t *)(m->m_dev);
+				device = (struct block_t *)(m->m_dev);
 				device->close(device);
 			}
 

@@ -48,7 +48,7 @@ static int do_mount(int argc, char ** argv)
 	bool_t loop_flag = FALSE;
 	bool_t ro_flag = FALSE;
 	s32_t mount_flag = 0;
-	struct blkdev_t * blk;
+	struct block_t * blk;
 	struct stat st;
 	char * pdev = NULL, tmp[32];
 	s32_t i, index = 0;
@@ -141,12 +141,12 @@ static int do_mount(int argc, char ** argv)
 			return -1;
 		}
 
-		blk = search_loop(pdev);
+/*		blk = search_loop(pdev);
 		if(!blk)
 		{
 			printk("special loop block device not found\r\n");
 			return -1;
-		}
+		}*/
 
 		snprintf(tmp, 32, "/dev/%s", blk->name);
 		dev = tmp;

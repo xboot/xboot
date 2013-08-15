@@ -31,7 +31,7 @@
 #include <xboot/proc.h>
 #include <xboot/printk.h>
 #include <xboot/device.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/ioctl.h>
 #include <fs/fileio.h>
 #include <loop/loop.h>
@@ -68,9 +68,9 @@ static struct loop_list_t __loop_list = {
 };
 static struct loop_list_t * loop_list = &__loop_list;
 
-static int loop_open(struct blkdev_t * dev)
+static int loop_open(struct block_t * dev)
 {
-	struct loop_t * loop = (struct loop_t *)(dev->driver);
+	struct loop_t * loop = (struct loop_t *)(dev->priv);
 
 	if(loop->busy == TRUE)
 		return -1;
@@ -97,11 +97,11 @@ static int loop_open(struct blkdev_t * dev)
 	return 0;
 }
 
-static ssize_t loop_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t loop_read(struct block_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct loop_t * loop = (struct loop_t *)(dev->driver);
-	loff_t offset = get_blkdev_offset(dev, blkno);
-	loff_t size = get_blkdev_size(dev) * blkcnt;
+	struct loop_t * loop = (struct loop_t *)(dev->priv);
+	loff_t offset = get_block_offset(dev, blkno);
+	loff_t size = get_block_size(dev) * blkcnt;
 
 	if(offset < 0)
 		return 0;
@@ -118,11 +118,11 @@ static ssize_t loop_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t
 	return blkcnt;
 }
 
-static ssize_t loop_write(struct blkdev_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t loop_write(struct block_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct loop_t * loop = (struct loop_t *)(dev->driver);
-	loff_t offset = get_blkdev_offset(dev, blkno);
-	loff_t size = get_blkdev_size(dev) * blkcnt;
+	struct loop_t * loop = (struct loop_t *)(dev->priv);
+	loff_t offset = get_block_offset(dev, blkno);
+	loff_t size = get_block_size(dev) * blkcnt;
 
 	if(loop->read_only == TRUE)
 		return 0;
@@ -136,14 +136,9 @@ static ssize_t loop_write(struct blkdev_t * dev, const u8_t * buf, size_t blkno,
 	return blkcnt;
 }
 
-static int loop_ioctl(struct blkdev_t * dev, int cmd, void * arg)
+static int loop_close(struct block_t * dev)
 {
-	return -1;
-}
-
-static int loop_close(struct blkdev_t * dev)
-{
-	struct loop_t * loop = (struct loop_t *)(dev->driver);
+	struct loop_t * loop = (struct loop_t *)(dev->priv);
 
 	if(close(loop->fd) == 0)
 	{
@@ -154,40 +149,10 @@ static int loop_close(struct blkdev_t * dev)
 	return -1;
 }
 
-/*
- * search loop block device by file name
- */
-struct blkdev_t * search_loop(const char * file)
-{
-	struct loop_list_t * list;
-	struct list_head * pos;
-	char buf[MAX_PATH];
-
-	if(!file)
-		return NULL;
-
-	if(vfs_path_conv(file, buf) !=0)
-		return NULL;
-
-	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct loop_list_t, entry);
-		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
-		{
-			return search_blkdev_with_type(list->loop->name, BLKDEV_TYPE_LOOP);
-		}
-	}
-
-	return NULL;
-}
-
-/*
- * register a file as a loop block device, return true on success.
- */
 bool_t register_loop(const char * file)
 {
 	struct stat st;
-	struct blkdev_t * dev;
+	struct block_t * dev;
 	struct loop_t * loop;
 	struct loop_list_t * list;
 	u64_t size, rem;
@@ -209,7 +174,7 @@ bool_t register_loop(const char * file)
 	if(!list)
 		return FALSE;
 
-	dev = malloc(sizeof(struct blkdev_t));
+	dev = malloc(sizeof(struct block_t));
 	if(!dev)
 	{
 		free(list);
@@ -249,19 +214,17 @@ bool_t register_loop(const char * file)
 	loop->read_only	= FALSE;
 
 	dev->name		= loop->name;
-	dev->type		= BLKDEV_TYPE_LOOP;
 	dev->blksz		= SZ_512;
 	dev->blkcnt		= size;
 	dev->open 		= loop_open;
 	dev->read		= loop_read;
 	dev->write		= loop_write;
-	dev->ioctl 		= loop_ioctl;
 	dev->close		= loop_close;
-	dev->driver 	= loop;
+	dev->priv		= loop;
 
 	list->loop 	= loop;
 
-	if(!register_blkdev(dev))
+	if(!register_block(dev))
 	{
 		free(loop);
 		free(dev);
@@ -274,14 +237,11 @@ bool_t register_loop(const char * file)
 	return TRUE;
 }
 
-/*
- * unregister loop block device
- */
 bool_t unregister_loop(const char * file)
 {
 	struct loop_list_t * list;
 	struct list_head * pos;
-	struct blkdev_t * dev;
+	struct block_t * dev;
 	char buf[MAX_PATH];
 
 	if(!file)
@@ -295,10 +255,10 @@ bool_t unregister_loop(const char * file)
 		list = list_entry(pos, struct loop_list_t, entry);
 		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
 		{
-			dev = search_blkdev_with_type(list->loop->name, BLKDEV_TYPE_LOOP);
+			dev = search_block(list->loop->name);
 			if(dev)
 			{
-				if(unregister_blkdev(list->loop->name))
+				if(unregister_block(list->loop->name))
 				{
 					free(list->loop);
 					free(dev);
@@ -313,9 +273,6 @@ bool_t unregister_loop(const char * file)
 	return FALSE;
 }
 
-/*
- * loop proc interface
- */
 static s32_t loop_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct loop_list_t * list;
@@ -353,18 +310,13 @@ static struct proc_t loop_proc = {
 	.read	= loop_proc_read,
 };
 
-/*
- * loop pure sync init
- */
 static __init void loop_pure_sync_init(void)
 {
-	/* register loop proc interface */
 	proc_register(&loop_proc);
 }
 
 static __exit void loop_pure_sync_exit(void)
 {
-	/* unregister loop proc interface */
 	proc_unregister(&loop_proc);
 }
 

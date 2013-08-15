@@ -9,7 +9,7 @@ extern "C" {
 #include <types.h>
 #include <string.h>
 #include <xboot/list.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <disk/partition.h>
 
 /*
@@ -53,7 +53,7 @@ struct disk_list_t
 	struct list_head entry;
 };
 
-bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type);
+bool_t register_disk(struct disk_t * disk);
 bool_t unregister_disk(struct disk_t * disk);
 
 #ifdef __cplusplus

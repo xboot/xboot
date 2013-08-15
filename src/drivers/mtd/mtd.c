@@ -30,7 +30,7 @@
 #include <xboot/proc.h>
 #include <xboot/printk.h>
 #include <xboot/device.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/ioctl.h>
 #include <mtd/nand/nand.h>
 #include <mtd/mtd.h>

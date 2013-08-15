@@ -23,13 +23,13 @@
 #include <xboot.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/device.h>
 #include <xboot/initcall.h>
 #include <fs/fs.h>
 #include <fs/vfs/vfs.h>
 
-loff_t bio_read(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
+loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
 	size_t blkno, blksz, blkcnt;
@@ -44,15 +44,15 @@ loff_t bio_read(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	if(!dev)
 		return 0;
 
-	blksz = get_blkdev_size(dev);
+	blksz = get_block_size(dev);
 	if(blksz <= 0)
 		return 0;
 
-	blkcnt = get_blkdev_total_count(dev);
+	blkcnt = get_block_total_count(dev);
 	if(blkcnt <= 0)
 		return 0;
 
-	tmp = get_blkdev_total_size(dev);
+	tmp = get_block_total_size(dev);
 	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
 		return 0;
 
@@ -126,7 +126,7 @@ loff_t bio_read(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	return size;
 }
 
-loff_t bio_write(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
+loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * blkbuf;
 	size_t blkno, blksz, blkcnt;
@@ -141,15 +141,15 @@ loff_t bio_write(struct blkdev_t * dev, u8_t * buf, loff_t offset, loff_t count)
 	if(!dev)
 		return 0;
 
-	blksz = get_blkdev_size(dev);
+	blksz = get_block_size(dev);
 	if(blksz <= 0)
 		return 0;
 
-	blkcnt = get_blkdev_total_count(dev);
+	blkcnt = get_block_total_count(dev);
 	if(blkcnt <= 0)
 		return 0;
 
-	tmp = get_blkdev_total_size(dev);
+	tmp = get_block_total_size(dev);
 	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
 		return 0;
 

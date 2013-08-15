@@ -34,7 +34,7 @@ struct partition_t
 	size_t sector_size;
 
 	/* link to this partition's block device */
-	struct blkdev_t * dev;
+	struct block_t * dev;
 
 	/* link other partition */
 	struct list_head entry;

@@ -27,7 +27,7 @@
 #include <malloc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/device.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>

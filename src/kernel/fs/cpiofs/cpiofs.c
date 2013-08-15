@@ -29,7 +29,7 @@
 #include <byteorder.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/device.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>
@@ -135,17 +135,17 @@ static bool_t check_path(const char * path, const char * perfix, const char * na
  */
 static s32_t cpiofs_mount(struct mount_t * m, char * dev, s32_t flag)
 {
-	struct blkdev_t * blk;
+	struct block_t * blk;
 	struct cpio_newc_header header;
 
 	if(dev == NULL)
 		return EINVAL;
 
-	blk = (struct blkdev_t *)m->m_dev;
+	blk = (struct block_t *)m->m_dev;
 	if(!blk)
 		return EACCES;
 
-	if(get_blkdev_total_size(blk) <= sizeof(struct cpio_newc_header))
+	if(get_block_total_size(blk) <= sizeof(struct cpio_newc_header))
 		return EINTR;
 
 	if(bio_read(blk, (u8_t *)(&header), 0, sizeof(struct cpio_newc_header)) != sizeof(struct cpio_newc_header))
@@ -197,7 +197,7 @@ static s32_t cpiofs_close(struct vnode_t * node, struct file_t * fp)
 
 static s32_t cpiofs_read(struct vnode_t * node, struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
-	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
+	struct block_t * dev = (struct block_t *)node->v_mount->m_dev;
 	loff_t off;
 	loff_t len;
 
@@ -247,7 +247,7 @@ static s32_t cpiofs_fsync(struct vnode_t * node, struct file_t * fp)
 
 static s32_t cpiofs_readdir(struct vnode_t * node, struct file_t * fp, struct dirent_t * dir)
 {
-	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
+	struct block_t * dev = (struct block_t *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
 	char path[MAX_PATH];
 	char name[MAX_NAME];
@@ -320,7 +320,7 @@ static s32_t cpiofs_readdir(struct vnode_t * node, struct file_t * fp, struct di
 
 static s32_t cpiofs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * node)
 {
-	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
+	struct block_t * dev = (struct block_t *)node->v_mount->m_dev;
 	struct cpio_newc_header header;
 	char path[MAX_PATH];
 	u32_t size, name_size, mode;

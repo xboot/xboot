@@ -106,6 +106,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/cpiofs							\
 				kernel/fs/fatfs								\
 				drivers										\
+				drivers/block								\
 				drivers/console								\
 				drivers/disk								\
 				drivers/disk/partition						\

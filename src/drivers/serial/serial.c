@@ -86,6 +86,6 @@ bool_t unregister_serial(struct serial_driver_t * drv)
 	free(dev->name);
 	free(dev);
 
-	unregister_serial_console(dev);
+	unregister_serial_console(drv);
 	return TRUE;
 }

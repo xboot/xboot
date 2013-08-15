@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <xboot/printk.h>
 #include <xboot/device.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/ioctl.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
@@ -58,9 +58,9 @@ struct disk_block_t
 	struct disk_t * disk;
 };
 
-static int disk_block_open(struct blkdev_t * dev)
+static int disk_block_open(struct block_t * dev)
 {
-	struct disk_block_t * dblk = (struct disk_block_t *)(dev->driver);
+	struct disk_block_t * dblk = (struct disk_block_t *)(dev->priv);
 
 	if(dblk->busy == TRUE)
 		return -1;
@@ -70,32 +70,27 @@ static int disk_block_open(struct blkdev_t * dev)
 	return 0;
 }
 
-static ssize_t disk_block_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t disk_block_read(struct block_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct disk_block_t * dblk = (struct disk_block_t *)(dev->driver);
+	struct disk_block_t * dblk = (struct disk_block_t *)(dev->priv);
 	struct disk_t * disk = dblk->disk;
 	size_t offset = dblk->offset;
 
 	return (disk->read_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static ssize_t disk_block_write(struct blkdev_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t disk_block_write(struct block_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct disk_block_t * dblk = (struct disk_block_t *)(dev->driver);
+	struct disk_block_t * dblk = (struct disk_block_t *)(dev->priv);
 	struct disk_t * disk = dblk->disk;
 	size_t offset = dblk->offset;
 
 	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
 }
 
-static int disk_block_ioctl(struct blkdev_t * dev, int cmd, void * arg)
+static int disk_block_close(struct block_t * dev)
 {
-	return -1;
-}
-
-static int disk_block_close(struct blkdev_t * dev)
-{
-	struct disk_block_t * dblk = (struct disk_block_t *)(dev->driver);
+	struct disk_block_t * dblk = (struct disk_block_t *)(dev->priv);
 
 	dblk->busy = FALSE;
 	return 0;
@@ -119,11 +114,11 @@ static struct disk_t * search_disk(const char * name)
 	return NULL;
 }
 
-bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type)
+bool_t register_disk(struct disk_t * disk)
 {
 	struct disk_list_t * list;
 	struct partition_t * part;
-	struct blkdev_t * dev;
+	struct block_t * dev;
 	struct disk_block_t * dblk;
 	struct list_head * part_pos;
 	s32_t i;
@@ -160,7 +155,7 @@ bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type)
 	{
 		part = list_entry(part_pos, struct partition_t, entry);
 
-		dev = malloc(sizeof(struct blkdev_t));
+		dev = malloc(sizeof(struct block_t));
 		dblk = malloc(sizeof(struct disk_block_t));
 		if(!dev || !dblk)
 		{
@@ -186,17 +181,15 @@ bool_t register_disk(struct disk_t * disk, enum blkdev_type_t type)
 		dblk->disk = disk;
 
 		dev->name	= dblk->name;
-		dev->type	= type;
 		dev->blksz	= part->sector_size;
 		dev->blkcnt	= part->sector_to - part->sector_from + 1;
 		dev->open 	= disk_block_open;
 		dev->read 	= disk_block_read;
 		dev->write	= disk_block_write;
-		dev->ioctl 	= disk_block_ioctl;
 		dev->close	= disk_block_close;
-		dev->driver = dblk;
+		dev->priv	= dblk;
 
-		if(!register_blkdev(dev))
+		if(!register_block(dev))
 		{
 			/*
 			 * please do not free 'list'.
@@ -218,7 +211,7 @@ bool_t unregister_disk(struct disk_t * disk)
 	struct list_head * pos;
 	struct partition_t * part;
 	struct list_head * part_pos;
-	struct blkdev_t * dev;
+	struct block_t * dev;
 	struct disk_block_t * dblk;
 
 	if(!disk || !disk->name)
@@ -233,9 +226,9 @@ bool_t unregister_disk(struct disk_t * disk)
 			{
 				part = list_entry(part_pos, struct partition_t, entry);
 				dev = part->dev;
-				dblk = dev->driver;
+				dblk = dev->priv;
 
-				unregister_blkdev(dblk->name);
+				unregister_block(dblk->name);
 				free(dblk);
 				free(dev);
 				free(part);

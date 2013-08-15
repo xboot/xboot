@@ -26,7 +26,7 @@
 #include <sizes.h>
 #include <malloc.h>
 #include <stdio.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/list.h>
 #include <xboot/initcall.h>
 #include <xboot/proc.h>
@@ -130,7 +130,7 @@ s32_t vfs_findroot(char * path, struct mount_t ** mp, char ** root)
  */
 static s32_t mounts_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct blkdev_t * blk;
+	struct block_t * blk;
 	struct mount_t * m;
 	struct list_head * pos;
 	s8_t * p;
@@ -149,7 +149,7 @@ static s32_t mounts_proc_read(u8_t * buf, s32_t offset, s32_t count)
 			len += sprintf((char *)(p + len), (const char *)"\r\n none");
 		else
 		{
-			blk = (struct blkdev_t *)m->m_dev;
+			blk = (struct block_t *)m->m_dev;
 			len += sprintf((char *)(p + len), (const char *)"\r\n %s", blk->name);
 		}
 

@@ -8,9 +8,8 @@ extern "C" {
 #include <xboot.h>
 #include <types.h>
 #include <string.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 
-struct blkdev_t * search_loop(const char * file);
 bool_t register_loop(const char * file);
 bool_t unregister_loop(const char * file);
 

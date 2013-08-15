@@ -31,7 +31,7 @@
 #include <xboot/proc.h>
 #include <xboot/printk.h>
 #include <xboot/device.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/ioctl.h>
 
 extern u8_t __romdisk_start[];
@@ -55,9 +55,9 @@ struct romdisk_t
 	bool_t busy;
 };
 
-static int romdisk_open(struct blkdev_t * dev)
+static int romdisk_open(struct block_t * dev)
 {
-	struct romdisk_t * romdisk = (struct romdisk_t *)(dev->driver);
+	struct romdisk_t * romdisk = (struct romdisk_t *)(dev->priv);
 
 	if(romdisk->busy == TRUE)
 		return -1;
@@ -66,12 +66,12 @@ static int romdisk_open(struct blkdev_t * dev)
 	return 0;
 }
 
-static ssize_t romdisk_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t romdisk_read(struct block_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct romdisk_t * romdisk = (struct romdisk_t *)(dev->driver);
+	struct romdisk_t * romdisk = (struct romdisk_t *)(dev->priv);
 	u8_t * p = (u8_t *)(romdisk->start);
-	loff_t offset = get_blkdev_offset(dev, blkno);
-	size_t size = get_blkdev_size(dev) * blkcnt;
+	loff_t offset = get_block_offset(dev, blkno);
+	size_t size = get_block_size(dev) * blkcnt;
 
 	if(offset < 0)
 		return 0;
@@ -83,19 +83,14 @@ static ssize_t romdisk_read(struct blkdev_t * dev, u8_t * buf, size_t blkno, siz
 	return blkcnt;
 }
 
-static ssize_t romdisk_write(struct blkdev_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t romdisk_write(struct block_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	return 0;
 }
 
-static int romdisk_ioctl(struct blkdev_t * dev, int cmd, void * arg)
+static int romdisk_close(struct block_t * dev)
 {
-	return -1;
-}
-
-static int romdisk_close(struct blkdev_t * dev)
-{
-	struct romdisk_t * romdisk = (struct romdisk_t *)(dev->driver);
+	struct romdisk_t * romdisk = (struct romdisk_t *)(dev->priv);
 
 	romdisk->busy = FALSE;
 	return 0;
@@ -103,11 +98,11 @@ static int romdisk_close(struct blkdev_t * dev)
 
 static __init void romdisk_init(void)
 {
-	struct blkdev_t * dev;
+	struct block_t * dev;
 	struct romdisk_t * romdisk;
 	u64_t size, rem;
 
-	dev = malloc(sizeof(struct blkdev_t));
+	dev = malloc(sizeof(struct block_t));
 	if(!dev)
 		return;
 
@@ -139,17 +134,15 @@ static __init void romdisk_init(void)
 	romdisk->busy	= FALSE;
 
 	dev->name		= romdisk->name;
-	dev->type		= BLKDEV_TYPE_ROMDISK;
 	dev->blksz		= SZ_512;
 	dev->blkcnt		= size;
 	dev->open 		= romdisk_open;
 	dev->read 		= romdisk_read;
 	dev->write		= romdisk_write;
-	dev->ioctl 		= romdisk_ioctl;
 	dev->close		= romdisk_close;
-	dev->driver	 = romdisk;
+	dev->priv		= romdisk;
 
-	if(!register_blkdev(dev))
+	if(!register_block(dev))
 	{
 		free(romdisk);
 		free(dev);
@@ -159,15 +152,15 @@ static __init void romdisk_init(void)
 
 static __exit void romdisk_exit(void)
 {
-	struct blkdev_t * dev;
+	struct block_t * dev;
 	struct romdisk_t * romdisk;
 
-	dev = search_blkdev_with_type("romdisk", BLKDEV_TYPE_ROMDISK);
+	dev = search_block("romdisk");
 	if(dev)
 	{
-		romdisk = (struct romdisk_t *)(dev->driver);
+		romdisk = (struct romdisk_t *)(dev->priv);
 
-		if(unregister_blkdev(dev->name))
+		if(unregister_block(dev->name))
 		{
 			free(romdisk);
 			free(dev);

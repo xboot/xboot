@@ -28,7 +28,7 @@
 #include <errno.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
-#include <xboot/blkdev.h>
+#include <block/block.h>
 #include <xboot/device.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fs.h>
@@ -60,17 +60,17 @@ struct ar_hdr
  */
 static s32_t arfs_mount(struct mount_t * m, char * dev, s32_t flag)
 {
-	struct blkdev_t * blk;
+	struct block_t * blk;
 	u8_t buf[8];
 
 	if(dev == NULL)
 		return EINVAL;
 
-	blk = (struct blkdev_t *)m->m_dev;
+	blk = (struct block_t *)m->m_dev;
 	if(!blk)
 		return EACCES;
 
-	if(get_blkdev_total_size(blk) <= 8)
+	if(get_block_total_size(blk) <= 8)
 		return EINTR;
 
 	if(bio_read(blk, buf, 0, 8) != 8)
@@ -122,7 +122,7 @@ static s32_t arfs_close(struct vnode_t * node, struct file_t * fp)
 
 static s32_t arfs_read(struct vnode_t * node, struct file_t * fp, void * buf, loff_t size, loff_t * result)
 {
-	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
+	struct block_t * dev = (struct block_t *)node->v_mount->m_dev;
 	loff_t off;
 	loff_t len;
 
@@ -172,7 +172,7 @@ static s32_t arfs_fsync(struct vnode_t * node, struct file_t * fp)
 
 static s32_t arfs_readdir(struct vnode_t * node, struct file_t * fp, struct dirent_t * dir)
 {
-	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
+	struct block_t * dev = (struct block_t *)node->v_mount->m_dev;
 	struct ar_hdr header;
 	loff_t off = 8;
 	loff_t size;
@@ -225,7 +225,7 @@ static s32_t arfs_readdir(struct vnode_t * node, struct file_t * fp, struct dire
 
 static s32_t arfs_lookup(struct vnode_t * dnode, char * name, struct vnode_t * node)
 {
-	struct blkdev_t * dev = (struct blkdev_t *)node->v_mount->m_dev;
+	struct block_t * dev = (struct block_t *)node->v_mount->m_dev;
 	struct ar_hdr header;
 	loff_t off = 8;
 	loff_t size;

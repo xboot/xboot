@@ -14,43 +14,43 @@ extern "C" {
 
 struct fb_t
 {
-	/* framebuffer name */
+	/* Framebuffer name */
 	const char * name;
 
-	/* initialize the framebuffer */
+	/* Initialize the framebuffer */
 	void (*init)(struct fb_t * fb);
 
-	/* clean up the framebuffer */
+	/* Clean up the framebuffer */
 	void (*exit)(struct fb_t * fb);
 
-	/* cursor position of x with offset */
+	/* Cursor position of x with offset */
 	int (*xcursor)(struct fb_t * fb, int ox);
 
-	/* cursor position of y with offset */
+	/* Cursor position of y with offset */
 	int (*ycursor)(struct fb_t * fb, int oy);
 
-	/* backlight brightness */
+	/* Backlight brightness */
 	int (*backlight)(struct fb_t * fb, int brightness);
 
-	/* suspend framebuffer */
-	void (*suspend)(struct fb_t * fb);
-
-	/* resume framebuffer */
-	void (*resume)(struct fb_t * fb);
-
-	/* create a render */
+	/* Create a render */
 	struct render_t * (*create)(struct fb_t * fb);
 
-	/* destroy a render */
+	/* Destroy a render */
 	void (*destroy)(struct fb_t * fb, struct render_t * render);
 
-	/* present a render */
+	/* Present a render */
 	void (*present)(struct fb_t * fb, struct render_t * render);
 
-	/* alone render - create by register */
+	/* Suspend framebuffer */
+	void (*suspend)(struct fb_t * fb);
+
+	/* Resume framebuffer */
+	void (*resume)(struct fb_t * fb);
+
+	/* Alone render - create by register */
 	struct render_t * alone;
 
-	/* private data */
+	/* Private data */
 	void * priv;
 };
 

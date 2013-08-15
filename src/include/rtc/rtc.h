@@ -45,6 +45,9 @@ struct rtc_t
 
 	/* Resume rtc */
 	void (*resume)(struct rtc_t * rtc);
+
+	/* Private data */
+	void * priv;
 };
 
 struct rtc_t * search_rtc(const char * name);

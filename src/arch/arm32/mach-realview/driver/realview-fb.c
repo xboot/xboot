@@ -107,14 +107,6 @@ static int fb_backlight(struct fb_t * fb, int brightness)
 	return level;
 }
 
-static void fb_suspend(struct fb_t * fb)
-{
-}
-
-static void fb_resume(struct fb_t * fb)
-{
-}
-
 struct render_t * fb_create(struct fb_t * fb)
 {
 	struct render_t * render;
@@ -173,6 +165,14 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 	}
 }
 
+static void fb_suspend(struct fb_t * fb)
+{
+}
+
+static void fb_resume(struct fb_t * fb)
+{
+}
+
 static struct fb_t realview_fb = {
 	.name		= "fb0",
 	.init		= fb_init,
@@ -180,11 +180,11 @@ static struct fb_t realview_fb = {
 	.xcursor	= fb_xcursor,
 	.ycursor	= fb_ycursor,
 	.backlight	= fb_backlight,
-	.suspend	= fb_suspend,
-	.resume		= fb_resume,
 	.create		= fb_create,
 	.destroy	= fb_destroy,
 	.present	= fb_present,
+	.suspend	= fb_suspend,
+	.resume		= fb_resume,
 };
 
 static __init void realview_fb_init(void)

@@ -58,15 +58,15 @@ struct fb_t * search_framebuffer(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_FRAMEBUFFER);
-	if(dev)
-		return (struct fb_t *)dev->driver;
+	if(name)
+		dev = search_device_with_type(name, DEVICE_TYPE_FRAMEBUFFER);
+	else
+		dev = search_first_device_with_type(DEVICE_TYPE_FRAMEBUFFER);
 
-	dev = search_first_device_with_type(DEVICE_TYPE_FRAMEBUFFER);
-	if(dev)
-		return (struct fb_t *)dev->driver;
+	if(!dev)
+		return NULL;
 
-	return NULL;
+	return (struct fb_t *)dev->driver;
 }
 
 bool_t register_framebuffer(struct fb_t * fb)

@@ -197,12 +197,6 @@ struct vfsops_t {
 };
 
 /*
- * declare for vfs_bio
- */
-loff_t bio_read(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count);
-loff_t bio_write(struct block_t * dev, u8_t * buf, loff_t offset, loff_t count);
-
-/*
  * declare for vfs_mount
  */
 void vfs_busy(struct mount_t * m);

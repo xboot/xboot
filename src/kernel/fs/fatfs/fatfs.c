@@ -25,7 +25,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <malloc.h>
-#include <time/xtime.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/blkdev.h>

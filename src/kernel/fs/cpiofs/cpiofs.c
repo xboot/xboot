@@ -27,7 +27,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <byteorder.h>
-#include <time/xtime.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/blkdev.h>

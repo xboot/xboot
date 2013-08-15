@@ -35,7 +35,6 @@
 #include <time/timer.h>
 #include <time/delay.h>
 
-
 /*
  * how many loops runnning __delay() function per jiffy.
  */

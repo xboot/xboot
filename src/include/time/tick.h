@@ -32,6 +32,7 @@ void tick_interrupt(void);
 bool_t register_tick(struct tick_t * tick);
 u32_t get_system_hz(void);
 bool_t init_system_tick(void);
+u64_t clock_gettime(void);
 
 #ifdef __cplusplus
 }

@@ -15,7 +15,6 @@
 #include <math.h>
 #include <time/delay.h>
 #include <time/timer.h>
-#include <time/xtime.h>
 #include <time/tick.h>
 #include <xboot/machine.h>
 #include <xboot/list.h>

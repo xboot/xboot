@@ -23,7 +23,6 @@
 #include <xboot.h>
 #include <init.h>
 #include <mode/mode.h>
-#include <time/xtime.h>
 
 /*
  * The entry of main function.
@@ -33,29 +32,26 @@ int xboot_main(int argc, char * argv[])
 	/* Alloc default runtime */
 	runtime_alloc_save(0);
 
-	/* do all init calls */
+	/* Do all init calls */
 	do_initcalls();
 
-	/* do system xtime */
-	do_system_xtime();
-
-	/* mount root filesystem */
+	/* Mount root filesystem */
 	do_system_rootfs();
 
-	/* display system logo */
+	/* Display system logo */
 	do_system_logo();
 
-	/* load system configure */
+	/* Load system configure */
 	do_system_cfg();
 
-	/* wait a moment */
+	/* Wait a moment */
 	do_system_wait();
 
-	/* run loop */
+	/* Run loop */
 	while(1)
 	{
 		/*
-		 * normal mode
+		 * Normal mode
 		 */
 		if(xboot_get_mode() == MODE_NORMAL)
 		{
@@ -63,7 +59,7 @@ int xboot_main(int argc, char * argv[])
 		}
 
 		/*
-		 * shell mode
+		 * Shell mode
 		 */
 		else if(xboot_get_mode() == MODE_SHELL)
 		{
@@ -71,7 +67,7 @@ int xboot_main(int argc, char * argv[])
 		}
 
 		/*
-		 * memu mode
+		 * Memu mode
 		 */
 		else if(xboot_get_mode() == MODE_MENU)
 		{
@@ -79,7 +75,7 @@ int xboot_main(int argc, char * argv[])
 		}
 
 		/*
-		 * graphic mode
+		 * Graphic mode
 		 */
 		else if(xboot_get_mode() == MODE_GRAPHIC)
 		{
@@ -87,9 +83,9 @@ int xboot_main(int argc, char * argv[])
 		}
 	}
 
-	/* do all exit calls */
+	/* Do all exit calls */
 	do_exitcalls();
 
-	/* xboot return */
+	/* Xboot return */
 	return 0;
 }

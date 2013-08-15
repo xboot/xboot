@@ -23,7 +23,6 @@
 #include <xboot.h>
 #include <cairo-xboot.h>
 #include <time/delay.h>
-#include <time/xtime.h>
 #include <xboot/menu.h>
 #include <console/console.h>
 #include <input/keyboard/keyboard.h>

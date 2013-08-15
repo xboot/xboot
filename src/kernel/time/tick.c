@@ -115,6 +115,14 @@ bool_t init_system_tick(void)
 	return TRUE;
 }
 
+u64_t clock_gettime(void)
+{
+	if(get_system_hz() > 0)
+		return (u64_t)jiffies * 1000000 / get_system_hz();
+
+	return 0;
+}
+
 /*
  * jiffies proc interface
  */

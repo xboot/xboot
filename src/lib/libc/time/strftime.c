@@ -41,15 +41,13 @@ static void strfmt(char * str, const char * fmt, ...)
 		{
 			ilen = *fmt++ - '0';
 			if (ilen == 0)
-			{ /* zero means string arg */
+			{
 				sval = va_arg(vp, char *);
-
 				while (*sval)
 					*str++ = *sval++;
 			}
 			else
-			{ /* always leading zeros */
-
+			{
 				ival = va_arg(vp, int);
 
 				while (ilen)

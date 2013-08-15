@@ -6,50 +6,49 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <time/xtime.h>
 
-/*
- * defined the struct of rtc driver, which contains
- * low level operating fuction.
- */
-struct rtc_driver_t
-{
-	/* the rtc name */
-	char * name;
-
-	/*initialize the rtc */
-	void (*init)(void);
-
-	/* clean up the rtc */
-	void (*exit)(void);
-
-	/* set rtc time */
-	bool_t (*set_time)(struct xtime_t * time);
-
-	/* get rtc time */
-	bool_t (*get_time)(struct xtime_t * time);
-
-	/* set rtc alarm */
-	bool_t (*set_alarm)(struct xtime_t * time);
-
-	/* get rtc alarm */
-	bool_t (*get_alarm)(struct xtime_t * time);
-
-	/* enable alarm or not */
-	bool_t (*alarm_enable)(bool_t enable);
+struct rtc_time_t {
+	u8_t sec;
+	u8_t min;
+	u8_t hour;
+	u8_t day;
+	u8_t week;
+	u8_t mon;
+	u16_t year;
 };
 
+struct rtc_t
+{
+	/* The rtc name */
+	char * name;
 
-u32_t rtc_month_days(u32_t year, u32_t month);
-u32_t rtc_year_days(u32_t year, u32_t month, u32_t day);
-bool_t rtc_valid_time(struct xtime_t * tm);
-void rtc_to_time(unsigned long time, struct xtime_t *tm);
-u32_t time_to_rtc(struct xtime_t * tm);
+	/* Initialize the rtc */
+	void (*init)(struct rtc_t * rtc);
 
-bool_t register_rtc(struct rtc_driver_t * drv);
-bool_t unregister_rtc(struct rtc_driver_t * drv);
+	/* Clean up the rtc */
+	void (*exit)(struct rtc_t * rtc);
+
+	/* Set rtc time */
+	bool_t (*settime)(struct rtc_t * rtc, struct rtc_time_t * time);
+
+	/* Get rtc time */
+	bool_t (*gettime)(struct rtc_t * rtc, struct rtc_time_t * time);
+
+	/* Set rtc alarm */
+	bool_t (*setalarm)(struct rtc_t * rtc, struct rtc_time_t * time);
+
+	/* Clear rtc alarm */
+	bool_t (*clralarm)(struct rtc_t * rtc);
+
+	/* Suspend rtc */
+	void (*suspend)(struct rtc_t * rtc);
+
+	/* Resume rtc */
+	void (*resume)(struct rtc_t * rtc);
+};
+
+bool_t register_rtc(struct rtc_t * rtc);
+bool_t unregister_rtc(struct rtc_t * rtc);
 
 #ifdef __cplusplus
 }

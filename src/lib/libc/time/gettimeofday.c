@@ -3,7 +3,6 @@
  */
 
 #include <xboot/module.h>
-#include <time/xtime.h>
 #include <time.h>
 
 int gettimeofday(struct timeval * tv, void * tz)

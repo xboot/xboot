@@ -25,7 +25,6 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include <errno.h>
-#include <time/xtime.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <fs/fs.h>

@@ -202,7 +202,7 @@ bool_t register_loop(const char * file)
 
 	while(1)
 	{
-		snprintf(loop->name, 32, "loop%d", i++);
+		snprintf(loop->name, 32, "blk.loop%d", i++);
 		if(search_block(loop->name) == NULL)
 			break;
 	}

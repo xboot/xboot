@@ -1,5 +1,5 @@
 /*
- * drivers/loop/loop.c
+ * drivers/block/loop.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,37 +20,26 @@
  *
  */
 
-
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <xboot/initcall.h>
-#include <xboot/list.h>
-#include <xboot/proc.h>
-#include <xboot/printk.h>
-#include <xboot/device.h>
+#include <spinlock.h>
 #include <block/block.h>
-#include <xboot/ioctl.h>
-#include <fs/fileio.h>
-#include <loop/loop.h>
+#include <block/loop.h>
 
 struct loop_t
 {
-	/* loop name */
+	/* Loop name */
 	char name[32 + 1];
 
-	/* file name's full path */
+	/* File name's full path */
 	char path[MAX_PATH];
 
-	/* file descriptor */
+	/* File descriptor */
 	s32_t fd;
 
-	/* busy or not */
+	/* Busy or not */
 	bool_t busy;
 
-	/* read only flag */
+	/* Read only flag */
 	bool_t read_only;
 };
 
@@ -66,11 +55,11 @@ static struct loop_list_t __loop_list = {
 		.prev	= &(__loop_list.entry),
 	},
 };
-static struct loop_list_t * loop_list = &__loop_list;
+static spinlock_t __loop_list_lock = SPIN_LOCK_INIT();
 
-static int loop_open(struct block_t * dev)
+static int loop_open(struct block_t * blk)
 {
-	struct loop_t * loop = (struct loop_t *)(dev->priv);
+	struct loop_t * loop = (struct loop_t *)(blk->priv);
 
 	if(loop->busy == TRUE)
 		return -1;
@@ -97,11 +86,11 @@ static int loop_open(struct block_t * dev)
 	return 0;
 }
 
-static ssize_t loop_read(struct block_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t loop_read(struct block_t * blk, u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct loop_t * loop = (struct loop_t *)(dev->priv);
-	loff_t offset = get_block_offset(dev, blkno);
-	loff_t size = get_block_size(dev) * blkcnt;
+	struct loop_t * loop = (struct loop_t *)(blk->priv);
+	loff_t offset = get_block_offset(blk, blkno);
+	loff_t size = get_block_size(blk) * blkcnt;
 
 	if(offset < 0)
 		return 0;
@@ -118,11 +107,11 @@ static ssize_t loop_read(struct block_t * dev, u8_t * buf, size_t blkno, size_t 
 	return blkcnt;
 }
 
-static ssize_t loop_write(struct block_t * dev, const u8_t * buf, size_t blkno, size_t blkcnt)
+static ssize_t loop_write(struct block_t * blk, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
-	struct loop_t * loop = (struct loop_t *)(dev->priv);
-	loff_t offset = get_block_offset(dev, blkno);
-	loff_t size = get_block_size(dev) * blkcnt;
+	struct loop_t * loop = (struct loop_t *)(blk->priv);
+	loff_t offset = get_block_offset(blk, blkno);
+	loff_t size = get_block_size(blk) * blkcnt;
 
 	if(loop->read_only == TRUE)
 		return 0;
@@ -136,9 +125,9 @@ static ssize_t loop_write(struct block_t * dev, const u8_t * buf, size_t blkno, 
 	return blkcnt;
 }
 
-static int loop_close(struct block_t * dev)
+static int loop_close(struct block_t * blk)
 {
-	struct loop_t * loop = (struct loop_t *)(dev->priv);
+	struct loop_t * loop = (struct loop_t *)(blk->priv);
 
 	if(close(loop->fd) == 0)
 	{
@@ -149,10 +138,32 @@ static int loop_close(struct block_t * dev)
 	return -1;
 }
 
+struct block_t * search_loop(const char * file)
+{
+	struct loop_list_t * pos, * n;
+	char buf[MAX_PATH];
+
+	if(!file)
+		return NULL;
+
+	if(vfs_path_conv(file, buf) !=0)
+		return NULL;
+
+	list_for_each_entry_safe(pos, n, &(__loop_list.entry), entry)
+	{
+		if(strcmp(pos->loop->path, buf) == 0)
+		{
+			return search_block(pos->loop->name);
+		}
+	}
+
+	return NULL;
+}
+
 bool_t register_loop(const char * file)
 {
 	struct stat st;
-	struct block_t * dev;
+	struct block_t * blk;
 	struct loop_t * loop;
 	struct loop_list_t * list;
 	u64_t size, rem;
@@ -174,8 +185,8 @@ bool_t register_loop(const char * file)
 	if(!list)
 		return FALSE;
 
-	dev = malloc(sizeof(struct block_t));
-	if(!dev)
+	blk = malloc(sizeof(struct block_t));
+	if(!blk)
 	{
 		free(list);
 		return FALSE;
@@ -184,22 +195,22 @@ bool_t register_loop(const char * file)
 	loop = malloc(sizeof(struct loop_t));
 	if(!loop)
 	{
-		free(dev);
+		free(blk);
 		free(list);
 		return FALSE;
 	}
 
 	while(1)
 	{
-		snprintf((char *)loop->name, 32, (const char *)"loop%d", i++);
-		if(search_device(loop->name) == NULL)
+		snprintf(loop->name, 32, "loop%d", i++);
+		if(search_block(loop->name) == NULL)
 			break;
 	}
 
 	if(vfs_path_conv(file, loop->path) !=0)
 	{
 		free(loop);
-		free(dev);
+		free(blk);
 		free(list);
 		return FALSE;
 	}
@@ -213,35 +224,36 @@ bool_t register_loop(const char * file)
 	loop->busy 		= FALSE;
 	loop->read_only	= FALSE;
 
-	dev->name		= loop->name;
-	dev->blksz		= SZ_512;
-	dev->blkcnt		= size;
-	dev->open 		= loop_open;
-	dev->read		= loop_read;
-	dev->write		= loop_write;
-	dev->close		= loop_close;
-	dev->priv		= loop;
+	blk->name		= loop->name;
+	blk->blksz		= SZ_512;
+	blk->blkcnt		= size;
+	blk->open 		= loop_open;
+	blk->read		= loop_read;
+	blk->write		= loop_write;
+	blk->close		= loop_close;
+	blk->priv		= loop;
 
-	list->loop 	= loop;
+	list->loop 		= loop;
 
-	if(!register_block(dev))
+	if(!register_block(blk))
 	{
 		free(loop);
-		free(dev);
+		free(blk);
 		free(list);
 		return FALSE;
 	}
 
-	list_add(&list->entry, &loop_list->entry);
+	spin_lock_irq(&__loop_list_lock);
+	list_add_tail(&list->entry, &(__loop_list.entry));
+	spin_unlock_irq(&__loop_list_lock);
 
 	return TRUE;
 }
 
 bool_t unregister_loop(const char * file)
 {
-	struct loop_list_t * list;
-	struct list_head * pos;
-	struct block_t * dev;
+	struct loop_list_t * pos, * n;
+	struct block_t * blk;
 	char buf[MAX_PATH];
 
 	if(!file)
@@ -250,20 +262,23 @@ bool_t unregister_loop(const char * file)
 	if(vfs_path_conv(file, buf) !=0)
 		return FALSE;
 
-	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__loop_list.entry), entry)
 	{
-		list = list_entry(pos, struct loop_list_t, entry);
-		if(strcmp((char*)list->loop->path, (const char *)buf) == 0)
+		if(strcmp(pos->loop->path, buf) == 0)
 		{
-			dev = search_block(list->loop->name);
-			if(dev)
+			blk = search_block(pos->loop->name);
+			if(blk)
 			{
-				if(unregister_block(list->loop->name))
+				if(unregister_block(blk))
 				{
-					free(list->loop);
-					free(dev);
-					list_del(pos);
-					free(list);
+					free(pos->loop);
+					free(blk);
+
+					spin_lock_irq(&__loop_list_lock);
+					list_del(&(pos->entry));
+					spin_unlock_irq(&__loop_list_lock);
+					free(pos);
+
 					return TRUE;
 				}
 			}
@@ -275,8 +290,7 @@ bool_t unregister_loop(const char * file)
 
 static s32_t loop_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct loop_list_t * list;
-	struct list_head * pos;
+	struct loop_list_t * pos, * n;
 	s8_t * p;
 	s32_t len = 0;
 
@@ -285,10 +299,9 @@ static s32_t loop_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	len += sprintf((char *)(p + len), (const char *)"[loop]");
 
-	for(pos = (&loop_list->entry)->next; pos != (&loop_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__loop_list.entry), entry)
 	{
-		list = list_entry(pos, struct loop_list_t, entry);
-		len += sprintf((char *)(p + len), (const char *)"\r\n %s %s ", list->loop->name, list->loop->path);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s %s ", pos->loop->name, pos->loop->path);
 	}
 
 	len -= offset;

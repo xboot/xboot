@@ -21,15 +21,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <loop/loop.h>
-#include <xboot/list.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
+#include <block/loop.h>
 #include <command/command.h>
 #include <fs/fileio.h>
 
@@ -50,7 +42,7 @@ static int do_mount(int argc, char ** argv)
 	s32_t mount_flag = 0;
 	struct block_t * blk;
 	struct stat st;
-	char * pdev = NULL, tmp[32];
+	char * pdev = NULL;
 	s32_t i, index = 0;
 
 	if(argc < 5)
@@ -141,27 +133,14 @@ static int do_mount(int argc, char ** argv)
 			return -1;
 		}
 
-/*		blk = search_loop(pdev);
+		blk = search_loop(pdev);
 		if(!blk)
 		{
 			printk("special loop block device not found\r\n");
 			return -1;
-		}*/
+		}
 
-		snprintf(tmp, 32, "/dev/%s", blk->name);
-		dev = tmp;
-	}
-
-	if(stat(dev, &st) != 0)
-	{
-		printk("special device %s does not exist\r\n", dev);
-		return -1;
-	}
-
-	if(!S_ISBLK(st.st_mode))
-	{
-		printk("special device %s does not a block device\r\n", dev);
-		return -1;
+		dev = (char *)blk->name;
 	}
 
 	if(loop_flag)

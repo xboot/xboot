@@ -30,7 +30,7 @@
 #include <input/input.h>
 #include <input/keyboard/keyboard.h>
 #include <console/console.h>
-#include <loop/loop.h>
+#include <block/loop.h>
 #include <command/command.h>
 #include <fs/vfs/vfs.h>
 #include <fs/fileio.h>

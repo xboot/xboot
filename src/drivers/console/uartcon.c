@@ -1,5 +1,5 @@
 /*
- * drivers/console/scon.c
+ * drivers/console/uartcon.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,7 +22,7 @@
 
 #include <xboot.h>
 #include <console/console.h>
-#include <console/scon.h>
+#include <console/uartcon.h>
 
 enum tty_state_t {
 	TTY_STATE_NORMAL,
@@ -30,13 +30,13 @@ enum tty_state_t {
 	TTY_STATE_CSI,
 };
 
-struct serial_console_info_t
+struct uart_console_info_t
 {
 	/* the console name */
 	char * name;
 
-	/* serial driver */
-	struct serial_driver_t * serial;
+	/* uart device */
+	struct uart_t * uart;
 
 	/* console width and height */
 	s32_t w, h;
@@ -64,9 +64,9 @@ struct serial_console_info_t
 	s32_t size;
 };
 
-static bool_t scon_getwh(struct console_t * console, s32_t * w, s32_t * h)
+static bool_t uartcon_getwh(struct console_t * console, s32_t * w, s32_t * h)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 
 	if(!info->onoff)
 		return FALSE;
@@ -80,9 +80,9 @@ static bool_t scon_getwh(struct console_t * console, s32_t * w, s32_t * h)
 	return TRUE;
 }
 
-static bool_t scon_getxy(struct console_t * console, s32_t * x, s32_t * y)
+static bool_t uartcon_getxy(struct console_t * console, s32_t * x, s32_t * y)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 
 	if(!info->onoff)
 		return FALSE;
@@ -96,9 +96,9 @@ static bool_t scon_getxy(struct console_t * console, s32_t * x, s32_t * y)
 	return TRUE;
 }
 
-static bool_t scon_gotoxy(struct console_t * console, s32_t x, s32_t y)
+static bool_t uartcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 	char buf[32];
 
 	if(!info->onoff)
@@ -118,14 +118,14 @@ static bool_t scon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 	info->y = y;
 
 	sprintf(buf, (const char *)"\033[%d;%dH", y + 1, x + 1);
-	info->serial->write((const u8_t *)buf, strlen(buf));
+	info->uart->write(info->uart, (const u8_t *)buf, strlen(buf));
 
 	return TRUE;
 }
 
-static bool_t scon_setcursor(struct console_t * console, bool_t on)
+static bool_t uartcon_setcursor(struct console_t * console, bool_t on)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 	char buf[32];
 
 	if(!info->onoff)
@@ -137,14 +137,14 @@ static bool_t scon_setcursor(struct console_t * console, bool_t on)
 		sprintf(buf, "\033[?25h");
 	else
 		sprintf(buf, "\033[?25l");
-	info->serial->write((const u8_t *)buf, strlen(buf));
+	info->uart->write(info->uart, (const u8_t *)buf, strlen(buf));
 
 	return TRUE;
 }
 
-static bool_t scon_getcursor(struct console_t * console)
+static bool_t uartcon_getcursor(struct console_t * console)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 
 	if(!info->onoff)
 		return FALSE;
@@ -152,9 +152,9 @@ static bool_t scon_getcursor(struct console_t * console)
 	return info->cursor;
 }
 
-static bool_t scon_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
+static bool_t uartcon_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 	char buf[32];
 
 	if(!info->onoff)
@@ -164,17 +164,17 @@ static bool_t scon_setcolor(struct console_t * console, enum tcolor_t f, enum tc
 	info->b = b;
 
 	sprintf(buf, "\033[38;5;%dm", (u32_t)f);
-	info->serial->write((const u8_t *)buf, strlen(buf));
+	info->uart->write(info->uart, (const u8_t *)buf, strlen(buf));
 
 	sprintf(buf, "\033[48;5;%dm", (u32_t)b);
-	info->serial->write((const u8_t *)buf, strlen(buf));
+	info->uart->write(info->uart, (const u8_t *)buf, strlen(buf));
 
 	return TRUE;
 }
 
-static bool_t scon_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
+static bool_t uartcon_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 
 	if(!info->onoff)
 		return FALSE;
@@ -185,22 +185,22 @@ static bool_t scon_getcolor(struct console_t * console, enum tcolor_t * f, enum 
 	return TRUE;
 }
 
-static bool_t scon_cls(struct console_t * console)
+static bool_t uartcon_cls(struct console_t * console)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 	char buf[32];
 
 	if(!info->onoff)
 		return FALSE;
 
 	sprintf(buf, "\033[%d;%dr", (s32_t)1, (s32_t)info->h);
-	info->serial->write((const u8_t *)buf, strlen(buf));
+	info->uart->write(info->uart, (const u8_t *)buf, strlen(buf));
 
 	sprintf(buf, "\033[2J");
-	info->serial->write((const u8_t *)buf, strlen(buf));
+	info->uart->write(info->uart, (const u8_t *)buf, strlen(buf));
 
 	sprintf(buf, "\033[%d;%dH", (s32_t)1, (s32_t)1);
-	info->serial->write((const u8_t *)buf, strlen(buf));
+	info->uart->write(info->uart, (const u8_t *)buf, strlen(buf));
 
 	info->x = 0;
 	info->y = 0;
@@ -208,9 +208,9 @@ static bool_t scon_cls(struct console_t * console)
 	return TRUE;
 }
 
-static bool_t scon_getcode(struct console_t * console, u32_t * code)
+static bool_t uartcon_getcode(struct console_t * console, u32_t * code)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 	s8_t c;
 	s32_t i;
 	u32_t cp;
@@ -219,7 +219,7 @@ static bool_t scon_getcode(struct console_t * console, u32_t * code)
 	if(!info->onoff)
 		return FALSE;
 
-	if(info->serial->read((u8_t *)&c, 1) != 1)
+	if(info->uart->read(info->uart, (u8_t *)&c, 1) != 1)
 		return FALSE;
 
 	switch(info->state)
@@ -344,9 +344,9 @@ static bool_t scon_getcode(struct console_t * console, u32_t * code)
 	return FALSE;
 }
 
-static bool_t scon_putcode(struct console_t * console, u32_t code)
+static bool_t uartcon_putcode(struct console_t * console, u32_t code)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 	char buf[32];
 	s32_t w, i;
 
@@ -391,29 +391,29 @@ static bool_t scon_putcode(struct console_t * console, u32_t code)
 	}
 
 	ucs4_to_utf8(&code, 1, buf, sizeof(buf));
-	info->serial->write((const u8_t *)buf, strlen(buf));
+	info->uart->write(info->uart, (const u8_t *)buf, strlen(buf));
 
 	return TRUE;
 }
 
-static bool_t scon_onoff(struct console_t * console, bool_t flag)
+static bool_t uartcon_onoff(struct console_t * console, bool_t flag)
 {
-	struct serial_console_info_t * info = console->priv;
+	struct uart_console_info_t * info = console->priv;
 
 	info->onoff = flag;
 	return TRUE;
 }
 
-bool_t register_serial_console(struct serial_driver_t * serial)
+bool_t register_uart_console(struct uart_t * uart)
 {
 	struct console_t * console;
-	struct serial_console_info_t * info;
+	struct uart_console_info_t * info;
 
-	if(!serial || !serial->info || !serial->info->name)
+	if(!uart || !uart->name)
 		return FALSE;
 
 	console = malloc(sizeof(struct console_t));
-	info = malloc(sizeof(struct serial_console_info_t));
+	info = malloc(sizeof(struct uart_console_info_t));
 	if(!console || !info)
 	{
 		free(console);
@@ -421,8 +421,8 @@ bool_t register_serial_console(struct serial_driver_t * serial)
 		return FALSE;
 	}
 
-	info->name = (char *)serial->info->name;
-	info->serial = serial;
+	info->name = (char *)uart->name;
+	info->uart = uart;
 	info->w = 80;
 	info->h = 24;
 	info->x = 0;
@@ -436,17 +436,17 @@ bool_t register_serial_console(struct serial_driver_t * serial)
 	info->size = 0;
 
 	console->name = strdup(info->name);
-	console->getwh = scon_getwh;
-	console->getxy = scon_getxy;
-	console->gotoxy = scon_gotoxy;
-	console->setcursor = scon_setcursor;
-	console->getcursor = scon_getcursor;
-	console->setcolor = scon_setcolor;
-	console->getcolor = scon_getcolor;
-	console->cls = scon_cls;
-	console->getcode = scon_getcode;
-	console->putcode = scon_putcode;
-	console->onoff = scon_onoff;
+	console->getwh = uartcon_getwh;
+	console->getxy = uartcon_getxy;
+	console->gotoxy = uartcon_gotoxy;
+	console->setcursor = uartcon_setcursor;
+	console->getcursor = uartcon_getcursor;
+	console->setcolor = uartcon_setcolor;
+	console->getcolor = uartcon_getcolor;
+	console->cls = uartcon_cls;
+	console->getcode = uartcon_getcode;
+	console->putcode = uartcon_putcode;
+	console->onoff = uartcon_onoff;
 	console->priv = info;
 
 	if(!register_console(console))
@@ -460,17 +460,17 @@ bool_t register_serial_console(struct serial_driver_t * serial)
 	return TRUE;
 }
 
-bool_t unregister_serial_console(struct serial_driver_t * serial)
+bool_t unregister_uart_console(struct uart_t * uart)
 {
 	struct console_t * console;
-	struct serial_console_info_t * info;
+	struct uart_console_info_t * info;
 
-	if(!serial || !serial->info || !serial->info->name)
+	if(!uart || !uart->name)
 		return FALSE;
 
-	console = search_console(serial->info->name);
+	console = search_console(uart->name);
 	if(console)
-		info = (struct serial_console_info_t *)console->priv;
+		info = (struct uart_console_info_t *)console->priv;
 	else
 		return FALSE;
 

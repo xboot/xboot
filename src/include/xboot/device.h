@@ -11,7 +11,6 @@ enum device_type_t {
 	DEVICE_TYPE_RTC,
 	DEVICE_TYPE_FRAMEBUFFER,
 	DEVICE_TYPE_BLOCK,
-	DEVICE_TYPE_SERIAL,
 };
 
 struct device_t

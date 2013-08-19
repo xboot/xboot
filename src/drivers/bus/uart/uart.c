@@ -23,7 +23,18 @@
 #include <xboot.h>
 #include <bus/uart.h>
 
-bool_t register_uart(struct uart_t * uart)
+struct uart_t * search_bus_uart(const char * name)
+{
+	struct bus_t * bus;
+
+	bus = search_bus_with_type(name, BUS_TYPE_UART);
+	if(!bus)
+		return NULL;
+
+	return (struct uart_t *)bus->driver;
+}
+
+bool_t register_bus_uart(struct uart_t * uart)
 {
 	struct bus_t * bus;
 
@@ -51,7 +62,7 @@ bool_t register_uart(struct uart_t * uart)
 	return TRUE;
 }
 
-bool_t unregister_uart(struct uart_t * uart)
+bool_t unregister_bus_uart(struct uart_t * uart)
 {
 	struct bus_t * bus;
 	struct uart_t * driver;

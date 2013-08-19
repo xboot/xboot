@@ -112,6 +112,7 @@ static struct trigger_t heartbeat_trigger = {
 	.priv			= NULL,
 };
 
+#if 0
 static __init void heartbeat_trigger_init(void)
 {
 	struct led_t * led;
@@ -134,3 +135,4 @@ static __exit void heartbeat_trigger_exit(void)
 
 device_initcall(heartbeat_trigger_init);
 device_exitcall(heartbeat_trigger_exit);
+#endif

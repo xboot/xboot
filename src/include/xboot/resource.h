@@ -10,21 +10,20 @@ extern "C" {
 struct resource_t
 {
 	/* The resource name */
-	const char * name;
+	char * name;
+
+	/* The resource id */
+	int id;
 
 	/* The resource data */
 	void * data;
 };
 
-struct resource_list_t
-{
-	struct resource_t * res;
-	struct list_head entry;
-};
+typedef bool_t (*resource_callback_t)(struct resource_t * res);
 
 bool_t register_resource(struct resource_t * res);
 bool_t unregister_resource(struct resource_t * res);
-void * resource_get_data(const char * name);
+void resource_iter_with_callback(const char * name, resource_callback_t cb);
 
 #ifdef __cplusplus
 }

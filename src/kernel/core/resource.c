@@ -24,6 +24,11 @@
 #include <spinlock.h>
 #include <xboot/resource.h>
 
+struct resource_list_t {
+	struct resource_t * res;
+	struct list_head entry;
+};
+
 static struct resource_list_t __resource_list = {
 	.entry = {
 		.next	= &(__resource_list.entry),
@@ -32,12 +37,58 @@ static struct resource_list_t __resource_list = {
 };
 static spinlock_t __resource_list_lock = SPIN_LOCK_INIT();
 
+static int resource_alloc_free_id(const char * name)
+{
+	struct resource_list_t * pos, * n;
+	int id = 0;
+
+	if(!name)
+		return 0;
+
+	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
+	{
+		if(strcmp(pos->res->name, name) == 0)
+			id++;
+	}
+
+	return id;
+}
+
+static struct resource_t * search_resource_with_id(const char * name, int id)
+{
+	struct resource_list_t * pos, * n;
+
+	if(!name)
+		return NULL;
+
+	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
+	{
+		if(pos->res->id == id)
+		{
+			if(strcmp(pos->res->name, name) == 0)
+				return pos->res;
+		}
+	}
+
+	return NULL;
+}
+
 bool_t register_resource(struct resource_t * res)
 {
 	struct resource_list_t * rl;
 
 	if(!res || !res->name)
 		return FALSE;
+
+	if(res->id < 0)
+	{
+		res->id = resource_alloc_free_id(res->name);
+	}
+	else
+	{
+		if(search_resource_with_id(res->name, res->id))
+			return FALSE;
+	}
 
 	rl = malloc(sizeof(struct resource_list_t));
 	if(!rl)
@@ -75,31 +126,18 @@ bool_t unregister_resource(struct resource_t * res)
 	return FALSE;
 }
 
-static struct resource_t * search_resource(const char * name)
+void resource_iter_with_callback(const char * name, resource_callback_t cb)
 {
 	struct resource_list_t * pos, * n;
 
-	if(!name)
-		return NULL;
+	if(!name || !cb)
+		return;
 
 	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
 	{
 		if(strcmp(pos->res->name, name) == 0)
-			return pos->res;
+			cb(pos->res);
 	}
-
-	return NULL;
-}
-
-void * resource_get_data(const char * name)
-{
-	struct resource_t * res;
-
-	res = search_resource(name);
-	if(!res)
-		return NULL;
-
-	return res->data;
 }
 
 static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
@@ -114,7 +152,7 @@ static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	len += sprintf((char *)(p + len), (const char *)"[resource]");
 	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
 	{
-		len += sprintf((char *)(p + len), (const char *)"\r\n %s", pos->res->name);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s.%d", pos->res->name, pos->res->id);
 	}
 
 	len -= offset;

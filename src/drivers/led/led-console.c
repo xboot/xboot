@@ -70,7 +70,7 @@ static struct trigger_t console_trigger = {
 	.led			= NULL,
 	.priv			= NULL,
 };
-
+#if 0
 static __init void console_trigger_init(void)
 {
 	struct led_t * led;
@@ -100,3 +100,4 @@ static __exit void console_trigger_exit(void)
 
 device_initcall(console_trigger_init);
 device_exitcall(console_trigger_exit);
+#endif

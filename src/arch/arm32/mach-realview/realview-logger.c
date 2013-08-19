@@ -21,12 +21,12 @@
  */
 
 #include <xboot.h>
-#include <realview/reg-serial.h>
+#include <realview/reg-uart.h>
 
 static void logger_uart0_init(void)
 {
-	writel(REALVIEW_SERIAL0_CR, 0x0);
-	writel(REALVIEW_SERIAL0_CR, REALVIEW_SERIAL_CR_UARTEN |	REALVIEW_SERIAL_CR_TXE | REALVIEW_SERIAL_CR_RXE);
+	writel(REALVIEW_UART0_BASE + REALVIEW_UART_OFFSET_CR, 0x0);
+	writel(REALVIEW_UART0_BASE + REALVIEW_UART_OFFSET_CR, REALVIEW_UART_CR_UARTEN |	REALVIEW_UART_CR_TXE | REALVIEW_UART_CR_RXE);
 }
 
 static void logger_uart0_exit(void)
@@ -39,8 +39,8 @@ static ssize_t logger_uart0_output(const char * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		while( (readb(REALVIEW_SERIAL0_FR) & REALVIEW_SERIAL_FR_TXFF) );
-		writeb(REALVIEW_SERIAL0_DATA, buf[i]);
+		while( (readb(REALVIEW_UART0_BASE + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_TXFF) );
+		writeb(REALVIEW_UART0_BASE + REALVIEW_UART_OFFSET_DATA, buf[i]);
 	}
 	return i;
 }

@@ -71,6 +71,7 @@ INCDIRS		+=	include										\
 SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/lib							\
 				arch/$(ARCH)/$(MACH)						\
+				arch/$(ARCH)/$(MACH)/bus					\
 				arch/$(ARCH)/$(MACH)/driver					\
 				arch/$(ARCH)/$(MACH)/resource				\
 				lib/elf										\
@@ -109,7 +110,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/block/partition						\
 				drivers/block/romdisk						\
 				drivers/console								\
-				drivers/serial								\
 				drivers/fb									\
 				drivers/fb/sw								\
 				drivers/led									\

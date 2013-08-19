@@ -6,19 +6,10 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <xboot/list.h>
 #include <disk/disk.h>
 
-/*
- * forward declare
- */
 struct disk_t;
 
-/*
- * the struct of partition
- */
 struct partition_t
 {
 	/* partition name */
@@ -40,9 +31,6 @@ struct partition_t
 	struct list_head entry;
 };
 
-/*
- * the struct of partition parser
- */
 struct partition_parser_t
 {
 	/* the partition parser name */
@@ -50,15 +38,6 @@ struct partition_parser_t
 
 	/* probe disk's partition */
 	bool_t (*probe)(struct disk_t * disk);
-};
-
-/*
- * the list of partition parser
- */
-struct partition_parser_list
-{
-	struct partition_parser_t * parser;
-	struct list_head entry;
 };
 
 bool_t register_partition_parser(struct partition_parser_t * parser);

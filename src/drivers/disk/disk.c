@@ -21,15 +21,6 @@
  */
 
 #include <xboot.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <xboot/printk.h>
-#include <xboot/device.h>
-#include <block/block.h>
-#include <xboot/ioctl.h>
-#include <xboot/initcall.h>
-#include <xboot/list.h>
-#include <xboot/proc.h>
 #include <disk/disk.h>
 
 static struct disk_list_t __disk_list = {

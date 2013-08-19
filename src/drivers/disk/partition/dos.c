@@ -21,18 +21,11 @@
  */
 
 #include <xboot.h>
-#include <malloc.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <xboot/list.h>
 #include <disk/disk.h>
 #include <disk/partition.h>
 
 extern loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count);
 
-/*
- * the partition entry
- */
 struct dos_partition_entry_t
 {
 	/* if active is 0x80, otherwise is 0x00 */
@@ -67,10 +60,7 @@ struct dos_partition_entry_t
 
 } __attribute__ ((packed));
 
-/*
- * the structure of mbr
- */
-struct dos_partition_mbr
+struct dos_partition_mbr_t
 {
 	/*
 	 * the code area (actually, including BPB)
@@ -89,7 +79,6 @@ struct dos_partition_mbr
 
 } __attribute__ ((packed));
 
-
 static bool_t is_dos_extended(u8_t type)
 {
 	if((type == 0x5) || (type == 0xf) || (type == 0x85))
@@ -99,7 +88,7 @@ static bool_t is_dos_extended(u8_t type)
 
 static bool_t dos_partition(struct disk_t * disk, size_t sector, size_t relative)
 {
-	struct dos_partition_mbr mbr;
+	struct dos_partition_mbr_t mbr;
 	struct partition_t * part;
 	size_t start;
 	int i;
@@ -113,12 +102,9 @@ static bool_t dos_partition(struct disk_t * disk, size_t sector, size_t relative
 	if((!disk->read_sectors) || (!disk->write_sectors))
 		return FALSE;
 
-	if(disk_read(disk, (u8_t *)(&mbr), (loff_t)(sector * disk->sector_size) , sizeof(struct dos_partition_mbr)) != sizeof(struct dos_partition_mbr))
+	if(disk_read(disk, (u8_t *)(&mbr), (loff_t)(sector * disk->sector_size) , sizeof(struct dos_partition_mbr_t)) != sizeof(struct dos_partition_mbr_t))
 		return FALSE;
 
-	/*
-	 * check dos partition's signature
-	 */
 	if((mbr.signature[0] != 0x55) || mbr.signature[1] != 0xaa)
 		return FALSE;
 
@@ -155,18 +141,17 @@ static bool_t parser_probe_dos(struct disk_t * disk)
 	return dos_partition(disk, 0, 0);
 }
 
-/*
- * dos partition parser
- */
 static struct partition_parser_t dos_partition_parser = {
-	.name		= "dos",
-	.probe		= parser_probe_dos,
+	.name	= "dos",
+	.probe	= parser_probe_dos,
 };
 
 static __init void partition_parser_dos_init(void)
 {
-	if(!register_partition_parser(&dos_partition_parser))
-		LOG("register 'dos' partition parser fail");
+	if(register_partition_parser(&dos_partition_parser))
+		LOG("Register partition parser 'dos'");
+	else
+		LOG("Fail to register partition parser 'dos'");
 }
 
 static __exit void partition_parser_dos_exit(void)

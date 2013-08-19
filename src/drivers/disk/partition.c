@@ -21,90 +21,82 @@
  */
 
 #include <xboot.h>
-#include <malloc.h>
-#include <string.h>
-#include <stdio.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <xboot/list.h>
-#include <xboot/proc.h>
+#include <spinlock.h>
 #include <disk/disk.h>
 #include <disk/partition.h>
 
-/* the list of partition parser */
-static struct partition_parser_list __partition_parser_list = {
+struct partition_parser_list_t
+{
+	struct partition_parser_t * parser;
+	struct list_head entry;
+};
+
+static struct partition_parser_list_t __partition_parser_list = {
 	.entry = {
 		.next	= &(__partition_parser_list.entry),
 		.prev	= &(__partition_parser_list.entry),
 	},
 };
-static struct partition_parser_list * partition_parser_list = &__partition_parser_list;
+static spinlock_t __partition_parser_list_lock = SPIN_LOCK_INIT();
 
-/*
- * search partition parser by name
- */
 static struct partition_parser_t * search_partition_parser(const char * name)
 {
-	struct partition_parser_list * list;
-	struct list_head * pos;
+	struct partition_parser_list_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__partition_parser_list.entry), entry)
 	{
-		list = list_entry(pos, struct partition_parser_list, entry);
-		if(strcmp(list->parser->name, name) == 0)
-			return list->parser;
+		if(strcmp(pos->parser->name, name) == 0)
+			return pos->parser;
 	}
 
 	return NULL;
 }
 
-/*
- * register a partition parser into partition_parser_list
- */
 bool_t register_partition_parser(struct partition_parser_t * parser)
 {
-	struct partition_parser_list * list;
-
-	list = malloc(sizeof(struct partition_parser_list));
-	if(!list || !parser)
-	{
-		free(list);
-		return FALSE;
-	}
-
-	if(!parser->name || search_partition_parser(parser->name))
-	{
-		free(list);
-		return FALSE;
-	}
-
-	list->parser = parser;
-	list_add(&list->entry, &partition_parser_list->entry);
-
-	return TRUE;
-}
-
-/*
- * unregister partition parser from partition_parser_list
- */
-bool_t unregister_partition_parser(struct partition_parser_t * parser)
-{
-	struct partition_parser_list * list;
-	struct list_head * pos;
+	struct partition_parser_list_t * ppl;
 
 	if(!parser || !parser->name)
 		return FALSE;
 
-	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
+	if(!parser->probe)
+		return FALSE;
+
+	if(search_partition_parser(parser->name))
+		return FALSE;
+
+	ppl = malloc(sizeof(struct partition_parser_list_t));
+	if(!ppl)
+		return FALSE;
+
+	ppl->parser = parser;
+
+	spin_lock_irq(&__partition_parser_list_lock);
+	list_add_tail(&ppl->entry, &(__partition_parser_list.entry));
+	spin_unlock_irq(&__partition_parser_list_lock);
+
+	return TRUE;
+}
+
+bool_t unregister_partition_parser(struct partition_parser_t * parser)
+{
+	struct partition_parser_list_t * pos, * n;
+
+	if(!parser || !parser->name)
+		return FALSE;
+
+	list_for_each_entry_safe(pos, n, &(__partition_parser_list.entry), entry)
 	{
-		list = list_entry(pos, struct partition_parser_list, entry);
-		if(list->parser == parser)
+		if(pos->parser == parser)
 		{
-			list_del(pos);
-			free(list);
+			spin_lock_irq(&__partition_parser_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__partition_parser_list_lock);
+
+			free(pos);
 			return TRUE;
 		}
 	}
@@ -112,13 +104,9 @@ bool_t unregister_partition_parser(struct partition_parser_t * parser)
 	return FALSE;
 }
 
-/*
- * probe partition with parser which can be used
- */
 bool_t partition_parser_probe(struct disk_t * disk)
 {
-	struct partition_parser_list * list;
-	struct list_head * pos;
+	struct partition_parser_list_t * pos, * n;
 	struct partition_t * part;
 	struct list_head * part_pos;
 	s32_t i;
@@ -133,7 +121,7 @@ bool_t partition_parser_probe(struct disk_t * disk)
 		return FALSE;
 
 	/*
-	 * add partition information for all space of disk
+	 * Add partition information for all space of disk
 	 */
 	init_list_head(&(disk->info.entry));
 
@@ -141,7 +129,7 @@ bool_t partition_parser_probe(struct disk_t * disk)
 	if(!part)
 		return FALSE;
 
-	strlcpy(part->name, "TOTAL", sizeof(part->name));
+	strlcpy(part->name, "total", sizeof(part->name));
 	part->sector_from = 0;
 	part->sector_to = disk->sector_count - 1;
 	part->sector_size = disk->sector_size;
@@ -149,14 +137,13 @@ bool_t partition_parser_probe(struct disk_t * disk)
 	list_add_tail(&part->entry, &(disk->info.entry));
 
 	/*
-	 * parser partition information
+	 * Parser partition information
 	 */
-	for(pos = (&partition_parser_list->entry)->next; pos != (&partition_parser_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__partition_parser_list.entry), entry)
 	{
-		list = list_entry(pos, struct partition_parser_list, entry);
-		if(list->parser->probe)
+		if(pos->parser->probe)
 		{
-			if((list->parser->probe(disk)) == TRUE)
+			if((pos->parser->probe(disk)) == TRUE)
 				break;
 		}
 	}

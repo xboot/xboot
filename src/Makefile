@@ -73,7 +73,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/$(MACH)						\
 				arch/$(ARCH)/$(MACH)/driver					\
 				arch/$(ARCH)/$(MACH)/resource				\
-				lib											\
 				lib/elf										\
 				lib/libc									\
 				lib/libc/ctype								\
@@ -105,7 +104,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/tarfs								\
 				kernel/fs/cpiofs							\
 				kernel/fs/fatfs								\
-				drivers										\
+				drivers/bus/uart							\
 				drivers/block								\
 				drivers/block/partition						\
 				drivers/block/romdisk						\

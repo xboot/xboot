@@ -42,6 +42,7 @@ extern "C" {
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/machine.h>
+#include <xboot/bus.h>
 #include <xboot/device.h>
 #include <xboot/module.h>
 #include <xboot/event.h>

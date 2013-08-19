@@ -21,6 +21,7 @@
  */
 
 #include <xboot.h>
+#include <spinlock.h>
 #include <disk/disk.h>
 
 static struct disk_list_t __disk_list = {
@@ -29,7 +30,7 @@ static struct disk_list_t __disk_list = {
 		.prev	= &(__disk_list.entry),
 	},
 };
-static struct disk_list_t * disk_list = &__disk_list;
+static spinlock_t __disk_list_lock = SPIN_LOCK_INIT();
 
 struct disk_block_t
 {
@@ -89,17 +90,15 @@ static int disk_block_close(struct block_t * dev)
 
 static struct disk_t * search_disk(const char * name)
 {
-	struct disk_list_t * list;
-	struct list_head * pos;
+	struct disk_list_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__disk_list.entry), entry)
 	{
-		list = list_entry(pos, struct disk_list_t, entry);
-		if(strcmp(list->disk->name, name) == 0)
-			return list->disk;
+		if(strcmp(pos->disk->name, name) == 0)
+			return pos->disk;
 	}
 
 	return NULL;
@@ -133,15 +132,12 @@ bool_t register_disk(struct disk_t * disk)
 	if(!list)
 		return FALSE;
 
-	/*
-	 * add disk to disk_list
-	 */
 	list->disk = disk;
-	list_add(&list->entry, &disk_list->entry);
 
-	/*
-	 * register block device using partition information
-	 */
+	spin_lock_irq(&__disk_list_lock);
+	list_add_tail(&list->entry, &(__disk_list.entry));
+	spin_unlock_irq(&__disk_list_lock);
+
 	for(i = 0, part_pos = (&(disk->info.entry))->next; part_pos != &(disk->info.entry); i++, part_pos = part_pos->next)
 	{
 		part = list_entry(part_pos, struct partition_t, entry);
@@ -150,9 +146,6 @@ bool_t register_disk(struct disk_t * disk)
 		dblk = malloc(sizeof(struct disk_block_t));
 		if(!dev || !dblk)
 		{
-			/*
-			 * please do not free 'list'.
-			 */
 			free(dev);
 			free(dblk);
 			unregister_disk(disk);
@@ -182,9 +175,6 @@ bool_t register_disk(struct disk_t * disk)
 
 		if(!register_block(dev))
 		{
-			/*
-			 * please do not free 'list'.
-			 */
 			free(dev);
 			free(dblk);
 			unregister_disk(disk);
@@ -198,8 +188,7 @@ bool_t register_disk(struct disk_t * disk)
 
 bool_t unregister_disk(struct disk_t * disk)
 {
-	struct disk_list_t * list;
-	struct list_head * pos;
+	struct disk_list_t * pos, * n;
 	struct partition_t * part;
 	struct list_head * part_pos;
 	struct block_t * dev;
@@ -208,10 +197,9 @@ bool_t unregister_disk(struct disk_t * disk)
 	if(!disk || !disk->name)
 		return FALSE;
 
-	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__disk_list.entry), entry)
 	{
-		list = list_entry(pos, struct disk_list_t, entry);
-		if(list->disk == disk)
+		if(pos->disk == disk)
 		{
 			for(part_pos = (&(disk->info.entry))->next; part_pos != &(disk->info.entry); part_pos = part_pos->next)
 			{
@@ -219,14 +207,17 @@ bool_t unregister_disk(struct disk_t * disk)
 				dev = part->dev;
 				dblk = dev->priv;
 
-				unregister_block(dblk);
+				unregister_block(dev);
 				free(dblk);
 				free(dev);
 				free(part);
 			}
 
-			list_del(pos);
-			free(list);
+			spin_lock_irq(&__disk_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__disk_list_lock);
+			free(pos);
+
 			return TRUE;
 		}
 	}
@@ -234,9 +225,6 @@ bool_t unregister_disk(struct disk_t * disk)
 	return FALSE;
 }
 
-/*
- * disk read function, just used by partition parser.
- */
 loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count)
 {
 	u8_t * secbuf;
@@ -336,8 +324,7 @@ loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count)
 
 static s32_t disk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct disk_list_t * list;
-	struct list_head * pos;
+	struct disk_list_t * pos, * n;
 	struct partition_t * part;
 	struct list_head * part_pos;
 	char buff[32];
@@ -348,12 +335,11 @@ static s32_t disk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
-	for(pos = (&disk_list->entry)->next; pos != (&disk_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__disk_list.entry), entry)
 	{
-		list = list_entry(pos, struct disk_list_t, entry);
-		len += sprintf((char *)(p + len), (const char *)"%s:\r\n", list->disk->name);
+		len += sprintf((char *)(p + len), (const char *)"%s:\r\n", pos->disk->name);
 
-		for(part_pos = (&(list->disk->info.entry))->next; part_pos != &(list->disk->info.entry); part_pos = part_pos->next)
+		for(part_pos = (&(pos->disk->info.entry))->next; part_pos != &(pos->disk->info.entry); part_pos = part_pos->next)
 		{
 			part = list_entry(part_pos, struct partition_t, entry);
 			from = part->sector_from * part->sector_size;

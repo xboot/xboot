@@ -1,5 +1,5 @@
 /*
- * drivers/disk/partition.c
+ * drivers/block/partition/partition.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,8 +22,8 @@
 
 #include <xboot.h>
 #include <spinlock.h>
-#include <disk/disk.h>
-#include <disk/partition.h>
+#include <block/disk.h>
+#include <block/partition.h>
 
 struct partition_parser_list_t
 {

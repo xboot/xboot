@@ -10,7 +10,7 @@ extern "C" {
 #include <string.h>
 #include <xboot/list.h>
 #include <block/block.h>
-#include <disk/partition.h>
+#include <block/partition.h>
 
 /*
  * forward declare

@@ -1,5 +1,5 @@
 /*
- * drivers/disk/disk.c
+ * drivers/block/disk.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,7 +22,7 @@
 
 #include <xboot.h>
 #include <spinlock.h>
-#include <disk/disk.h>
+#include <block/disk.h>
 
 static struct disk_list_t __disk_list = {
 	.entry = {

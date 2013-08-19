@@ -1,5 +1,5 @@
 /*
- * drivers/disk/partition/dos.c
+ * drivers/block/partition/dos.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,8 +21,8 @@
  */
 
 #include <xboot.h>
-#include <disk/disk.h>
-#include <disk/partition.h>
+#include <block/disk.h>
+#include <block/partition.h>
 
 extern loff_t disk_read(struct disk_t * disk, u8_t * buf, loff_t offset, loff_t count);
 

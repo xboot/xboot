@@ -31,8 +31,8 @@
 #include <xboot/list.h>
 #include <xboot/printk.h>
 #include <block/block.h>
-#include <disk/disk.h>
-#include <disk/partition.h>
+#include <block/disk.h>
+#include <block/partition.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
 

@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <disk/disk.h>
+#include <block/disk.h>
 
 struct disk_t;
 

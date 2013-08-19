@@ -21,93 +21,53 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <sizes.h>
-#include <malloc.h>
-#include <hash.h>
-#include <stdio.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
-#include <xboot/printk.h>
-#include <xboot/proc.h>
+#include <spinlock.h>
 #include <xboot/resource.h>
 
-/* the list of resource */
 static struct resource_list_t __resource_list = {
 	.entry = {
 		.next	= &(__resource_list.entry),
 		.prev	= &(__resource_list.entry),
 	},
 };
-struct resource_list_t * resource_list = &__resource_list;
+static spinlock_t __resource_list_lock = SPIN_LOCK_INIT();
 
-/*
- * search resource by name
- */
-static struct resource_t * search_resource(const char * name)
-{
-	struct resource_list_t * list;
-	struct list_head * pos;
-
-	if(!name)
-		return NULL;
-
-	for(pos = (&resource_list->entry)->next; pos != (&resource_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct resource_list_t, entry);
-		if(strcmp(list->res->name, name) == 0)
-			return list->res;
-	}
-
-	return NULL;
-}
-
-/*
- * register a resource into resource_list
- */
 bool_t register_resource(struct resource_t * res)
 {
-	struct resource_list_t * list;
-
-	list = malloc(sizeof(struct resource_list_t));
-	if(!list || !res)
-	{
-		free(list);
-		return FALSE;
-	}
-
-	if(!res->name || search_resource(res->name))
-	{
-		free(list);
-		return FALSE;
-	}
-
-	list->res = res;
-	list_add(&list->entry, &resource_list->entry);
-
-	return TRUE;
-}
-
-/*
- * unregister resource from resource_list
- */
-bool_t unregister_resource(struct resource_t * res)
-{
-	struct resource_list_t * list;
-	struct list_head * pos;
+	struct resource_list_t * rl;
 
 	if(!res || !res->name)
 		return FALSE;
 
-	for(pos = (&resource_list->entry)->next; pos != (&resource_list->entry); pos = pos->next)
+	rl = malloc(sizeof(struct resource_list_t));
+	if(!rl)
+		return FALSE;
+
+	rl->res = res;
+
+	spin_lock_irq(&__resource_list_lock);
+	list_add_tail(&rl->entry, &(__resource_list.entry));
+	spin_unlock_irq(&__resource_list_lock);
+
+	return TRUE;
+}
+
+bool_t unregister_resource(struct resource_t * res)
+{
+	struct resource_list_t * pos, * n;
+
+	if(!res || !res->name)
+		return FALSE;
+
+	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
 	{
-		list = list_entry(pos, struct resource_list_t, entry);
-		if(list->res == res)
+		if(pos->res == res)
 		{
-			list_del(pos);
-			free(list);
+			spin_lock_irq(&__resource_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__resource_list_lock);
+
+			free(pos);
 			return TRUE;
 		}
 	}
@@ -115,28 +75,36 @@ bool_t unregister_resource(struct resource_t * res)
 	return FALSE;
 }
 
-/*
- * get resource data
- */
+static struct resource_t * search_resource(const char * name)
+{
+	struct resource_list_t * pos, * n;
+
+	if(!name)
+		return NULL;
+
+	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
+	{
+		if(strcmp(pos->res->name, name) == 0)
+			return pos->res;
+	}
+
+	return NULL;
+}
+
 void * resource_get_data(const char * name)
 {
 	struct resource_t * res;
 
 	res = search_resource(name);
-
 	if(!res)
 		return NULL;
 
 	return res->data;
 }
 
-/*
- * resource proc interface
- */
 static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct resource_list_t * list;
-	struct list_head * pos;
+	struct resource_list_t * pos, * n;
 	s8_t * p;
 	s32_t len = 0;
 
@@ -144,10 +112,9 @@ static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
 		return 0;
 
 	len += sprintf((char *)(p + len), (const char *)"[resource]");
-	for(pos = (&resource_list->entry)->next; pos != (&resource_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
 	{
-		list = list_entry(pos, struct resource_list_t, entry);
-		len += sprintf((char *)(p + len), (const char *)"\r\n %s", list->res->name);
+		len += sprintf((char *)(p + len), (const char *)"\r\n %s", pos->res->name);
 	}
 
 	len -= offset;
@@ -169,18 +136,13 @@ static struct proc_t resource_proc = {
 	.read	= resource_proc_read,
 };
 
-/*
- * resource pure sync init
- */
 static __init void resource_pure_sync_init(void)
 {
-	/* register resource proc interface */
 	proc_register(&resource_proc);
 }
 
 static __exit void resource_pure_sync_exit(void)
 {
-	/* unregister resource proc interface */
 	proc_unregister(&resource_proc);
 }
 

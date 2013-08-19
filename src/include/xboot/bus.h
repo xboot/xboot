@@ -6,9 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <xboot/list.h>
 
 enum bus_type_t {
 	BUS_TYPE_1WIRE,

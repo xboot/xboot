@@ -6,25 +6,16 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <xboot/list.h>
 
-/*
- * the struct of resource_t.
- */
 struct resource_t
 {
-	/* the resouce name */
+	/* The resource name */
 	const char * name;
 
-	/* the resouce data */
+	/* The resource data */
 	void * data;
 };
 
-/*
- * the list of resource
- */
 struct resource_list_t
 {
 	struct resource_t * res;

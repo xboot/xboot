@@ -27,7 +27,8 @@
 
 static bool_t realview_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
 {
-	struct realview_uart_t * ru = (struct realview_uart_t *)uart->priv;
+	struct resource_t * res = (struct resource_t *)uart->priv;
+	struct realview_uart_t * ru = (struct realview_uart_t *)res->data;
 	u32_t ibaud, divider, fraction;
 	u32_t temp, remainder;
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
@@ -169,7 +170,8 @@ static bool_t realview_uart_setup(struct uart_t * uart, enum baud_rate_t baud, e
 
 static void realview_uart_init(struct uart_t * uart)
 {
-	struct realview_uart_t * ru = (struct realview_uart_t *)uart->priv;
+	struct resource_t * res = (struct resource_t *)uart->priv;
+	struct realview_uart_t * ru = (struct realview_uart_t *)res->data;
 
 	/* Disable everything */
 	writel(ru->base + REALVIEW_UART_OFFSET_CR, 0x0);
@@ -187,7 +189,8 @@ static void realview_uart_exit(struct uart_t * uart)
 
 static ssize_t realview_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
 {
-	struct realview_uart_t * ru = (struct realview_uart_t *)uart->priv;
+	struct resource_t * res = (struct resource_t *)uart->priv;
+	struct realview_uart_t * ru = (struct realview_uart_t *)res->data;
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
@@ -203,7 +206,8 @@ static ssize_t realview_uart_read(struct uart_t * uart, u8_t * buf, size_t count
 
 static ssize_t realview_uart_write(struct uart_t * uart, const u8_t * buf, size_t count)
 {
-	struct realview_uart_t * ru = (struct realview_uart_t *)uart->priv;
+	struct resource_t * res = (struct resource_t *)uart->priv;
+	struct realview_uart_t * ru = (struct realview_uart_t *)res->data;
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
@@ -237,7 +241,7 @@ static bool_t realview_register_bus_uart(struct resource_t * res)
 	uart->read = realview_uart_read;
 	uart->write = realview_uart_write;
 	uart->setup = realview_uart_setup;
-	uart->priv = res->data;
+	uart->priv = res;
 
 	if(!register_bus_uart(uart))
 		return FALSE;

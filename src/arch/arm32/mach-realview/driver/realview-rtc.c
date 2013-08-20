@@ -23,8 +23,7 @@
  */
 
 #include <xboot.h>
-#include <rtc/rtc.h>
-#include <realview/reg-rtc.h>
+#include <realview-rtc.h>
 
 #define LEAPS_THRU_END_OF(y)	((y)/4 - (y)/100 + (y)/400)
 #define LEAP_YEAR(year)			((!(year % 4) && (year % 100)) || !(year % 400))
@@ -52,9 +51,6 @@ static bool_t rtc_valid_time(struct rtc_time_t * rt)
 	return TRUE;
 }
 
-/*
- * convert seconds since 01-01-1970 00:00:00 to gregorian date.
- */
 static void rtc_to_time(unsigned long time, struct rtc_time_t * rt)
 {
 	u32_t month, year;
@@ -116,9 +112,12 @@ static void rtc_exit(struct rtc_t * rtc)
 
 static bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
+	struct resource_t * res = (struct resource_t *)rtc->priv;
+	struct realview_rtc_data_t * dat = (struct realview_rtc_data_t *)res->data;
+
 	if(rtc_valid_time(time))
 	{
-		writel(REALVIEW_RTC_LR, time_to_rtc(time));
+		writel(dat->regbase + REALVIEW_RTC_OFFSET_LR, time_to_rtc(time));
 		return TRUE;
 	}
 	return FALSE;
@@ -126,7 +125,10 @@ static bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 
 static bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	rtc_to_time(readl(REALVIEW_RTC_DR), time);
+	struct resource_t * res = (struct resource_t *)rtc->priv;
+	struct realview_rtc_data_t * dat = (struct realview_rtc_data_t *)res->data;
+
+	rtc_to_time(readl(dat->regbase + REALVIEW_RTC_OFFSET_DR), time);
 	return TRUE;
 }
 
@@ -148,32 +150,54 @@ static void rtc_resume(struct rtc_t * rtc)
 {
 }
 
-static struct rtc_t realview_rtc = {
-	.name		= "rtc.pl031",
-	.init		= rtc_init,
-	.exit		= rtc_exit,
-	.settime	= rtc_settime,
-	.gettime	= rtc_gettime,
-	.setalarm	= rtc_setalarm,
-	.clralarm	= rtc_clralarm,
-	.suspend	= rtc_suspend,
-	.resume		= rtc_resume,
-};
+static bool_t realview_register_rtc(struct resource_t * res)
+{
+	struct rtc_t * rtc;
+	char name[32 + 1];
+
+	rtc = malloc(sizeof(struct rtc_t));
+	if(!rtc)
+		return FALSE;
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	rtc->name = name;
+	rtc->init = rtc_init;
+	rtc->exit = rtc_exit;
+	rtc->settime = rtc_settime,
+	rtc->gettime = rtc_gettime,
+	rtc->setalarm = rtc_setalarm,
+	rtc->clralarm = rtc_clralarm,
+	rtc->suspend = rtc_suspend,
+	rtc->resume	= rtc_resume,
+	rtc->priv = res;
+
+	if(!register_rtc(rtc))
+		return FALSE;
+	return TRUE;
+}
+
+static bool_t realview_unregister_rtc(struct resource_t * res)
+{
+	struct rtc_t * rtc;
+	char name[32 + 1];
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	rtc = search_rtc(name);
+	if(!rtc)
+		return FALSE;
+
+	return unregister_rtc(rtc);
+}
 
 static __init void realview_rtc_init(void)
 {
-	if(register_rtc(&realview_rtc))
-		LOG("Register rtc driver '%s'", realview_rtc.name);
-	else
-		LOG("Failed to register rtc driver '%s'", realview_rtc.name);
+	resource_callback_with_name("rtc.pl031", realview_register_rtc);
 }
 
 static __exit void realview_rtc_exit(void)
 {
-	if(unregister_rtc(&realview_rtc))
-		LOG("Unregister rtc driver '%s'", realview_rtc.name);
-	else
-		LOG("Failed to unregister rtc driver '%s'", realview_rtc.name);
+	resource_callback_with_name("rtc.pl031", realview_unregister_rtc);
 }
 
 device_initcall(realview_rtc_init);

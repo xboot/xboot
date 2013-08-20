@@ -57,11 +57,7 @@ struct rtc_t * search_rtc(const char * name)
 {
 	struct device_t * dev;
 
-	if(name)
-		dev = search_device_with_type(name, DEVICE_TYPE_RTC);
-	else
-		dev = search_first_device_with_type(DEVICE_TYPE_RTC);
-
+	dev = search_device_with_type(name, DEVICE_TYPE_RTC);
 	if(!dev)
 		return NULL;
 

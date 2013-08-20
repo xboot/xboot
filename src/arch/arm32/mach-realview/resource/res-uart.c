@@ -56,19 +56,19 @@ static struct realview_uart_data_t realview_uart_data[] = {
 
 static struct resource_t res_uarts[] = {
 	{
-		.name		= "uart",
+		.name		= "uart.pl011",
 		.id			= 0,
 		.data		= &realview_uart_data[0],
 	}, {
-		.name		= "uart",
+		.name		= "uart.pl011",
 		.id			= 1,
 		.data		= &realview_uart_data[1],
 	}, {
-		.name		= "uart",
+		.name		= "uart.pl011",
 		.id			= 2,
 		.data		= &realview_uart_data[2],
 	}, {
-		.name		= "uart",
+		.name		= "uart.pl011",
 		.id			= 3,
 		.data		= &realview_uart_data[3],
 	}

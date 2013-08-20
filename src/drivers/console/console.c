@@ -638,5 +638,5 @@ static __exit void console_pure_sync_exit(void)
 	proc_unregister(&console_proc);
 }
 
-pure_initcall_sync(console_pure_sync_init);
-pure_exitcall_sync(console_pure_sync_exit);
+core_initcall(console_pure_sync_init);
+core_exitcall(console_pure_sync_exit);

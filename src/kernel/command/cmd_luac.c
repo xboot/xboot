@@ -72,7 +72,7 @@ static __exit void luac_cmd_exit(void)
 		LOG("Failed to unregister command 'luac'");
 }
 
-command_initcall(luac_cmd_init);
-command_exitcall(luac_cmd_exit);
+core_initcall(luac_cmd_init);
+core_exitcall(luac_cmd_exit);
 
 #endif

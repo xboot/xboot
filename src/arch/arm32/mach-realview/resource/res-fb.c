@@ -130,5 +130,5 @@ static __exit void resource_fb_exit(void)
 		LOG("Failed to unregister resource '%s.%d'", res_fb.name, res_fb.id);
 }
 
-core_initcall(resource_fb_init);
-core_exitcall(resource_fb_exit);
+resource_initcall(resource_fb_init);
+resource_exitcall(resource_fb_exit);

@@ -126,7 +126,7 @@ static __exit void mmuinfo_cmd_exit(void)
 		LOG("Failed to unregister command 'mmuinfo'");
 }
 
-command_initcall(mmuinfo_cmd_init);
-command_exitcall(mmuinfo_cmd_exit);
+core_initcall(mmuinfo_cmd_init);
+core_exitcall(mmuinfo_cmd_exit);
 
 #endif

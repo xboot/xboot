@@ -64,7 +64,7 @@ static __exit void sync_cmd_exit(void)
 		LOG("Failed to unregister command 'sync'");
 }
 
-command_initcall(sync_cmd_init);
-command_exitcall(sync_cmd_exit);
+core_initcall(sync_cmd_init);
+core_exitcall(sync_cmd_exit);
 
 #endif

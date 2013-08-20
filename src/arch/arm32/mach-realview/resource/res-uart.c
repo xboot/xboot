@@ -100,5 +100,5 @@ static __exit void resource_uart_exit(void)
 	}
 }
 
-core_initcall(resource_uart_init);
-core_exitcall(resource_uart_exit);
+resource_initcall(resource_uart_init);
+resource_exitcall(resource_uart_exit);

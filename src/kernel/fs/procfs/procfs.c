@@ -295,5 +295,5 @@ static __exit void filesystem_procfs_exit(void)
 		LOG("Failed to unregister filesystem 'procfs'");
 }
 
-fs_initcall(filesystem_procfs_init);
-fs_exitcall(filesystem_procfs_exit);
+core_initcall(filesystem_procfs_init);
+core_exitcall(filesystem_procfs_exit);

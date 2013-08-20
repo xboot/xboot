@@ -85,7 +85,7 @@ static __exit void mc_cmd_exit(void)
 		LOG("Failed to unregister command 'mc'");
 }
 
-command_initcall(mc_cmd_init);
-command_exitcall(mc_cmd_exit);
+core_initcall(mc_cmd_init);
+core_exitcall(mc_cmd_exit);
 
 #endif

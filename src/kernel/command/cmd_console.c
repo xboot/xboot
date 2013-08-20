@@ -74,7 +74,7 @@ static __exit void console_cmd_exit(void)
 		LOG("Failed to unregister command 'console'");
 }
 
-command_initcall(console_cmd_init);
-command_exitcall(console_cmd_exit);
+core_initcall(console_cmd_init);
+core_exitcall(console_cmd_exit);
 
 #endif

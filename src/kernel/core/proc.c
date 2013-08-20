@@ -169,5 +169,5 @@ static __exit void proc_pure_sync_exit(void)
 	proc_unregister(&self_proc);
 }
 
-pure_initcall_sync(proc_pure_sync_init);
-pure_exitcall_sync(proc_pure_sync_exit);
+core_initcall(proc_pure_sync_init);
+core_exitcall(proc_pure_sync_exit);

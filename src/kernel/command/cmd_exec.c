@@ -73,7 +73,7 @@ static __exit void exec_cmd_exit(void)
 		LOG("Failed to unregister command 'exec'");
 }
 
-command_initcall(exec_cmd_init);
-command_exitcall(exec_cmd_exit);
+core_initcall(exec_cmd_init);
+core_exitcall(exec_cmd_exit);
 
 #endif

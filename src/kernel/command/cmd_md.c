@@ -161,7 +161,7 @@ static __exit void md_cmd_exit(void)
 		LOG("Failed to unregister command 'md'");
 }
 
-command_initcall(md_cmd_init);
-command_exitcall(md_cmd_exit);
+core_initcall(md_cmd_init);
+core_exitcall(md_cmd_exit);
 
 #endif

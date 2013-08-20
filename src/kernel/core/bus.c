@@ -161,5 +161,5 @@ static __exit void bus_pure_sync_exit(void)
 	proc_unregister(&bus_proc);
 }
 
-pure_initcall_sync(bus_pure_sync_init);
-pure_exitcall_sync(bus_pure_sync_exit);
+core_initcall(bus_pure_sync_init);
+core_exitcall(bus_pure_sync_exit);

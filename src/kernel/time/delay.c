@@ -171,5 +171,5 @@ static __exit void delay_pure_sync_exit(void)
 	proc_unregister(&bogomips_proc);
 }
 
-pure_initcall_sync(delay_pure_sync_init);
-pure_exitcall_sync(delay_pure_sync_exit);
+core_initcall(delay_pure_sync_init);
+core_exitcall(delay_pure_sync_exit);

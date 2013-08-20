@@ -582,5 +582,5 @@ static __exit void filesystem_ramfs_exit(void)
 		LOG("Failed to unregister filesystem 'ramfs'");
 }
 
-fs_initcall(filesystem_ramfs_init);
-fs_exitcall(filesystem_ramfs_exit);
+core_initcall(filesystem_ramfs_init);
+core_exitcall(filesystem_ramfs_exit);

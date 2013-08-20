@@ -135,7 +135,7 @@ static __exit void help_cmd_exit(void)
 		LOG("Failed to unregister command 'help'");
 }
 
-command_initcall(help_cmd_init);
-command_exitcall(help_cmd_exit);
+core_initcall(help_cmd_init);
+core_exitcall(help_cmd_exit);
 
 #endif

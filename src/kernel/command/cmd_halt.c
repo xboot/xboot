@@ -73,7 +73,7 @@ static __exit void halt_cmd_exit(void)
 		LOG("Failed to unregister command 'halt'");
 }
 
-command_initcall(halt_cmd_init);
-command_exitcall(halt_cmd_exit);
+core_initcall(halt_cmd_init);
+core_exitcall(halt_cmd_exit);
 
 #endif

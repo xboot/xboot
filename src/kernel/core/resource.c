@@ -189,5 +189,5 @@ static __exit void resource_pure_sync_exit(void)
 	proc_unregister(&resource_proc);
 }
 
-pure_initcall_sync(resource_pure_sync_init);
-pure_exitcall_sync(resource_pure_sync_exit);
+core_initcall(resource_pure_sync_init);
+core_exitcall(resource_pure_sync_exit);

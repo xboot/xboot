@@ -153,7 +153,7 @@ static __exit void fileram_cmd_exit(void)
 		LOG("Failed to unregister command 'fileram'");
 }
 
-command_initcall(fileram_cmd_init);
-command_exitcall(fileram_cmd_exit);
+core_initcall(fileram_cmd_init);
+core_exitcall(fileram_cmd_exit);
 
 #endif

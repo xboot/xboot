@@ -333,5 +333,5 @@ static __exit void loop_pure_sync_exit(void)
 	proc_unregister(&loop_proc);
 }
 
-pure_initcall_sync(loop_pure_sync_init);
-pure_exitcall_sync(loop_pure_sync_exit);
+core_initcall(loop_pure_sync_init);
+core_exitcall(loop_pure_sync_exit);

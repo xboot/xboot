@@ -392,7 +392,7 @@ static __exit void tetris_cmd_exit(void)
 		LOG("Failed to unregister command 'tetris'");
 }
 
-command_initcall(tetris_cmd_init);
-command_exitcall(tetris_cmd_exit);
+core_initcall(tetris_cmd_init);
+core_exitcall(tetris_cmd_exit);
 
 #endif

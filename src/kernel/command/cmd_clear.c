@@ -65,7 +65,7 @@ static __exit void clear_cmd_exit(void)
 		LOG("Failed to unregister command 'clear'");
 }
 
-command_initcall(clear_cmd_init);
-command_exitcall(clear_cmd_exit);
+core_initcall(clear_cmd_init);
+core_exitcall(clear_cmd_exit);
 
 #endif

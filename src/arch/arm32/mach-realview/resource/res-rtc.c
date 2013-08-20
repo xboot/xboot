@@ -49,5 +49,5 @@ static __exit void resource_rtc_exit(void)
 		LOG("Failed to unregister resource '%s.%d'", res_rtc.name, res_rtc.id);
 }
 
-core_initcall(resource_rtc_init);
-core_exitcall(resource_rtc_exit);
+resource_initcall(resource_rtc_init);
+resource_exitcall(resource_rtc_exit);

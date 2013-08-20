@@ -119,7 +119,7 @@ static __exit void cat_cmd_exit(void)
 		LOG("Failed to unregister command 'cat'");
 }
 
-command_initcall(cat_cmd_init);
-command_exitcall(cat_cmd_exit);
+core_initcall(cat_cmd_init);
+core_exitcall(cat_cmd_exit);
 
 #endif

@@ -218,7 +218,7 @@ static __exit void cpuinfo_cmd_exit(void)
 		LOG("Failed to unregister command 'cpuinfo'");
 }
 
-command_initcall(cpuinfo_cmd_init);
-command_exitcall(cpuinfo_cmd_exit);
+core_initcall(cpuinfo_cmd_init);
+core_exitcall(cpuinfo_cmd_exit);
 
 #endif

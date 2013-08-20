@@ -198,5 +198,5 @@ static __exit void mounts_pure_sync_exit(void)
 	proc_unregister(&mounts_proc);
 }
 
-pure_initcall_sync(mounts_pure_sync_init);
-pure_exitcall_sync(mounts_pure_sync_exit);
+core_initcall(mounts_pure_sync_init);
+core_exitcall(mounts_pure_sync_exit);

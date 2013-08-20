@@ -132,7 +132,7 @@ static __exit void bootlinux_cmd_exit(void)
 		LOG("Failed to unregister command 'bootlinux'");
 }
 
-command_initcall(bootlinux_cmd_init);
-command_exitcall(bootlinux_cmd_exit);
+core_initcall(bootlinux_cmd_init);
+core_exitcall(bootlinux_cmd_exit);
 
 #endif

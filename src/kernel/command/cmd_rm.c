@@ -88,7 +88,7 @@ static __exit void rm_cmd_exit(void)
 		LOG("Failed to unregister command 'rm'");
 }
 
-command_initcall(rm_cmd_init);
-command_exitcall(rm_cmd_exit);
+core_initcall(rm_cmd_init);
+core_exitcall(rm_cmd_exit);
 
 #endif

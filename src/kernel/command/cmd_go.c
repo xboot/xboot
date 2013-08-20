@@ -80,7 +80,7 @@ static __exit void go_cmd_exit(void)
 		LOG("Failed to unregister command 'cat'");
 }
 
-command_initcall(go_cmd_init);
-command_exitcall(go_cmd_exit);
+core_initcall(go_cmd_init);
+core_exitcall(go_cmd_exit);
 
 #endif

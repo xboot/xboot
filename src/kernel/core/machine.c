@@ -246,5 +246,5 @@ static __exit void machine_pure_sync_exit(void)
 	proc_unregister(&link_proc);
 }
 
-pure_initcall_sync(machine_pure_sync_init);
-pure_exitcall_sync(machine_pure_sync_exit);
+core_initcall(machine_pure_sync_init);
+core_exitcall(machine_pure_sync_exit);

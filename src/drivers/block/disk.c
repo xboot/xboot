@@ -381,5 +381,5 @@ static __exit void disk_pure_sync_exit(void)
 	proc_unregister(&disk_proc);
 }
 
-pure_initcall_sync(disk_pure_sync_init);
-pure_exitcall_sync(disk_pure_sync_exit);
+core_initcall(disk_pure_sync_init);
+core_exitcall(disk_pure_sync_exit);

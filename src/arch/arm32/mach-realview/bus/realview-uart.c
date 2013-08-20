@@ -272,5 +272,5 @@ static __exit void realview_bus_uart_exit(void)
 	resource_callback_with_name("uart.pl011", realview_unregister_bus_uart);
 }
 
-device_initcall(realview_bus_uart_init);
-device_exitcall(realview_bus_uart_exit);
+bus_initcall(realview_bus_uart_init);
+bus_exitcall(realview_bus_uart_exit);

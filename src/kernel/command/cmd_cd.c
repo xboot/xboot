@@ -80,7 +80,7 @@ static __exit void cd_cmd_exit(void)
 		LOG("Failed to unregister command 'cd'");
 }
 
-command_initcall(cd_cmd_init);
-command_exitcall(cd_cmd_exit);
+core_initcall(cd_cmd_init);
+core_exitcall(cd_cmd_exit);
 
 #endif

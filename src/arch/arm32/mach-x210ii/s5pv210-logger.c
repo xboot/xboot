@@ -67,5 +67,5 @@ static __exit void s5pv210_logger_exit(void)
 		LOG("Failed to unregister logger '%s'", s5pv210_logger.name);
 }
 
-pure_initcall_sync(s5pv210_logger_init);
-pure_exitcall_sync(s5pv210_logger_exit);
+pure_initcall(s5pv210_logger_init);
+pure_exitcall(s5pv210_logger_exit);

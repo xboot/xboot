@@ -241,5 +241,5 @@ static __exit void interrupt_pure_sync_exit(void)
 	proc_unregister(&interrupt_proc);
 }
 
-pure_initcall_sync(interrupt_pure_sync_init);
-pure_exitcall_sync(interrupt_pure_sync_exit);
+core_initcall(interrupt_pure_sync_init);
+core_exitcall(interrupt_pure_sync_exit);

@@ -68,7 +68,7 @@ static __exit void test_cmd_exit(void)
 		LOG("Failed to unregister command 'test'");
 }
 
-command_initcall(test_cmd_init);
-command_exitcall(test_cmd_exit);
+core_initcall(test_cmd_init);
+core_exitcall(test_cmd_exit);
 
 #endif

@@ -155,7 +155,7 @@ static __exit void mw_cmd_exit(void)
 	else
 		LOG("Failed to unregister command 'mw'");
 }
-command_initcall(mw_cmd_init);
-command_exitcall(mw_cmd_exit);
+core_initcall(mw_cmd_init);
+core_exitcall(mw_cmd_exit);
 
 #endif

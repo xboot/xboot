@@ -40,4 +40,4 @@ static __init void core_init(void)
 		LOG("No system tick");
 	}
 }
-arch_initcall_sync(core_init);
+subsys_initcall(core_init);

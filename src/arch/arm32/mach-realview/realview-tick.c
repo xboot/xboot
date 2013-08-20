@@ -83,4 +83,4 @@ static __init void realview_tick_init(void)
 	else
 		LOG("Failed to register tick");
 }
-core_initcall(realview_tick_init);
+postcore_initcall(realview_tick_init);

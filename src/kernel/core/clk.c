@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/core/clk.c
+ * kernel/core/clk.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,97 +21,78 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <sizes.h>
-#include <string.h>
-#include <malloc.h>
-#include <hash.h>
-#include <stdio.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
-#include <xboot/printk.h>
-#include <xboot/proc.h>
+#include <spinlock.h>
 #include <xboot/clk.h>
 
-/*
- * the hash list of clk
- */
-static struct hlist_head clk_hash[CONFIG_CLK_HASH_SIZE] = {{0}};
-
-/*
- * search clk by name. a static function.
- */
-static struct clk_t * clk_search(const char *name)
+struct clk_list_t
 {
-	struct clk_list * list;
-	struct hlist_node * pos;
-	u32_t hash;
+	struct clk_t * clk;
+	struct list_head entry;
+};
+
+struct clk_list_t __clk_list = {
+	.entry = {
+		.next	= &(__clk_list.entry),
+		.prev	= &(__clk_list.entry),
+	},
+};
+static spinlock_t __clk_list_lock = SPIN_LOCK_INIT();
+
+static struct clk_t * clk_search(const char * name)
+{
+	struct clk_list_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	hash = string_hash(name) % CONFIG_CLK_HASH_SIZE;
-
-	hlist_for_each_entry(list,  pos, &(clk_hash[hash]), node)
+	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
 	{
-		if(strcmp(list->clk->name, name) == 0)
-			return list->clk;
+		if(strcmp(pos->clk->name, name) == 0)
+			return pos->clk;
 	}
 
 	return NULL;
 }
 
-/*
- * register a clk into clk_list
- * return true is successed, otherwise is not.
- */
 bool_t clk_register(struct clk_t * clk)
 {
-	struct clk_list * list;
-	u32_t hash;
-
-	list = malloc(sizeof(struct clk_list));
-	if(!list || !clk)
-	{
-		free(list);
-		return FALSE;
-	}
-
-	if(!clk->name || clk_search(clk->name))
-	{
-		free(list);
-		return FALSE;
-	}
-
-	list->clk = clk;
-
-	hash = string_hash(clk->name) % CONFIG_CLK_HASH_SIZE;
-	hlist_add_head(&(list->node), &(clk_hash[hash]));
-
-	return TRUE;
-}
-
-/*
- * unregister clk from clk_list
- */
-bool_t clk_unregister(struct clk_t * clk)
-{
-	struct clk_list * list;
-	struct hlist_node * pos;
-	u32_t hash;
+	struct clk_list_t * cl;
 
 	if(!clk || !clk->name)
 		return FALSE;
 
-	hash = string_hash(clk->name) % CONFIG_CLK_HASH_SIZE;
+	if(clk_search(clk->name))
+		return FALSE;
 
-	hlist_for_each_entry(list,  pos, &(clk_hash[hash]), node)
+	cl = malloc(sizeof(struct clk_list_t));
+	if(!cl)
+		return FALSE;
+
+	cl->clk = clk;
+
+	spin_lock_irq(&__clk_list_lock);
+	list_add_tail(&cl->entry, &(__clk_list.entry));
+	spin_unlock_irq(&__clk_list_lock);
+
+	return TRUE;
+}
+
+bool_t clk_unregister(struct clk_t * clk)
+{
+	struct clk_list_t * pos, * n;
+
+	if(!clk || !clk->name)
+		return FALSE;
+
+	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
 	{
-		if(list->clk == clk)
+		if(pos->clk == clk)
 		{
-			hlist_del(&(list->node));
-			free(list);
+			spin_lock_irq(&__clk_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__clk_list_lock);
+
+			free(pos);
 			return TRUE;
 		}
 	}
@@ -119,44 +100,33 @@ bool_t clk_unregister(struct clk_t * clk)
 	return FALSE;
 }
 
-/*
- * get clk's rate.
- */
-bool_t clk_get_rate(const char *name, u64_t * rate)
+bool_t clk_get_rate(const char * name, u64_t * rate)
 {
 	struct clk_t * clk;
 
 	clk = clk_search(name);
-
 	if(!clk)
 		return FALSE;
 
 	if(rate)
 		*rate = clk->rate;
-
 	return TRUE;
 }
 
-/*
- * clk proc interface
- */
 static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct clk_list * list;
-	struct hlist_node * pos;
+	struct clk_list_t * pos, * n;
 	s8_t * p;
-	s32_t i, len = 0;
+	s32_t len = 0;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
 
 	len += sprintf((char *)(p + len), "[clk]");
-	for(i = 0; i < CONFIG_CLK_HASH_SIZE; i++)
+
+	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
 	{
-		hlist_for_each_entry(list,  pos, &(clk_hash[i]), node)
-		{
-			len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", list->clk->name, (u64_t)(list->clk->rate / 1000*1000), (u64_t)(list->clk->rate % 1000*1000));
-		}
+		len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", pos->clk->name, (u64_t)(pos->clk->rate / 1000*1000), (u64_t)(pos->clk->rate % 1000*1000));
 	}
 
 	len -= offset;
@@ -178,26 +148,15 @@ static struct proc_t clk_proc = {
 	.read	= clk_proc_read,
 };
 
-/*
- * clk pure sync init
- */
-static __init void clk_pure_sync_init(void)
+static __init void clk_proc_init(void)
 {
-	s32_t i;
-
-	/* initialize clk hash list */
-	for(i = 0; i < CONFIG_CLK_HASH_SIZE; i++)
-		init_hlist_head(&clk_hash[i]);
-
-	/* register clk proc interface */
 	proc_register(&clk_proc);
 }
 
-static __exit void clk_pure_sync_exit(void)
+static __exit void clk_proc_exit(void)
 {
-	/* unregister clk proc interface */
 	proc_unregister(&clk_proc);
 }
 
-core_initcall(clk_pure_sync_init);
-core_exitcall(clk_pure_sync_exit);
+core_initcall(clk_proc_init);
+core_exitcall(clk_proc_exit);

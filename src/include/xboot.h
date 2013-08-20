@@ -71,14 +71,6 @@ extern "C" {
 #define	CONFIG_EVENT_FIFO_LENGTH					(256)
 #endif
 
-#if !defined(CONFIG_IRQ_HASH_SIZE)
-#define	CONFIG_IRQ_HASH_SIZE						(31)
-#endif
-
-#if !defined(CONFIG_CLK_HASH_SIZE)
-#define	CONFIG_CLK_HASH_SIZE						(1)
-#endif
-
 #if !defined(CONFIG_MAX_NUMBER_OF_VFS_BIO)
 #define	CONFIG_MAX_NUMBER_OF_VFS_BIO				(SZ_4K)
 #endif

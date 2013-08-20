@@ -339,5 +339,5 @@ static __init void input_pure_sync_exit(void)
 	proc_unregister(&input_proc);
 }
 
-pure_initcall_sync(input_pure_sync_init);
-pure_exitcall_sync(input_pure_sync_exit);
+core_initcall(input_pure_sync_init);
+core_exitcall(input_pure_sync_exit);

@@ -6,34 +6,19 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <xboot/list.h>
 
-/*
- * the struct of clk.
- */
 struct clk_t
 {
-	/* the clk name */
+	/* The clk name */
 	const char * name;
 
-	/* the clk's rate, HZ */
+	/* The clk's rate, HZ */
 	u64_t rate;
-};
-
-/*
- * the list of clk
- */
-struct clk_list
-{
-	struct clk_t * clk;
-	struct hlist_node node;
 };
 
 bool_t clk_register(struct clk_t * clk);
 bool_t clk_unregister(struct clk_t * clk);
-bool_t clk_get_rate(const char *name, u64_t * rate);
+bool_t clk_get_rate(const char * name, u64_t * rate);
 
 #ifdef __cplusplus
 }

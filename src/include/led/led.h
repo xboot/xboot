@@ -7,24 +7,33 @@ extern "C" {
 
 #include <xboot.h>
 
-#define	LED_BRIGHTNESS_OFF		(0)
-#define	LED_BRIGHTNESS_HALF		(128)
-#define	LED_BRIGHTNESS_FULL		(255)
-
-/*
- * the struct of led_t.
- */
 struct led_t
 {
-	/* the led name */
-	const char * name;
+	/* The LED name */
+	char * name;
 
-	/* initialize the led */
-	void (*init)(void);
+	/* Initialize the LED */
+	void (*init)(struct led_t * led);
 
-	/* set led's brightness */
-	void (*set)(u8_t brightness);
+	/* Clean up the LED */
+	void (*exit)(struct led_t * led);
+
+	/* Set LED's brightness */
+	void (*set)(struct led_t * led, int brightness);
+
+	/* Suspend LED */
+	void (*suspend)(struct led_t * led);
+
+	/* Resume LED */
+	void (*resume)(struct led_t * led);
+
+	/* Private data */
+	void * priv;
 };
+
+struct led_t * search_led(const char * name);
+bool_t register_led(struct led_t * led);
+bool_t unregister_led(struct led_t * led);
 
 #ifdef __cplusplus
 }

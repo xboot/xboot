@@ -24,8 +24,6 @@
 #include <xml.h>
 #include <console/console.h>
 
-extern void led_console_trigger_activity(void);
-
 struct console_list_t {
 	struct console_t * console;
 	struct list_head entry;
@@ -115,8 +113,6 @@ bool_t console_stdout_putc(char c)
 	buf[size++] = c;
 	while(utf8_to_ucs4(&code, 1, buf, size, (const char **)&rest) > 0)
 	{
-		led_console_trigger_activity();
-
 		size -= rest - buf;
 		memmove(buf, rest, size);
 		console_stdout->putcode(console_stdout, code);
@@ -137,8 +133,6 @@ bool_t console_stderr_putc(char c)
 	buf[size++] = c;
 	while(utf8_to_ucs4(&code, 1, buf, size, (const char **)&rest) > 0)
 	{
-		led_console_trigger_activity();
-
 		size -= rest - buf;
 		memmove(buf, rest, size);
 		console_stderr->putcode(console_stderr, code);

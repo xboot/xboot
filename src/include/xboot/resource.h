@@ -23,7 +23,7 @@ typedef bool_t (*resource_callback_t)(struct resource_t * res);
 
 bool_t register_resource(struct resource_t * res);
 bool_t unregister_resource(struct resource_t * res);
-void resource_iter_with_callback(const char * name, resource_callback_t cb);
+void resource_callback_with_name(const char * name, resource_callback_t cb);
 
 #ifdef __cplusplus
 }

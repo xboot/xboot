@@ -264,12 +264,12 @@ static bool_t realview_unregister_bus_uart(struct resource_t * res)
 
 static __init void realview_bus_uart_init(void)
 {
-	resource_iter_with_callback("uart", realview_register_bus_uart);
+	resource_callback_with_name("uart", realview_register_bus_uart);
 }
 
 static __exit void realview_bus_uart_exit(void)
 {
-	resource_iter_with_callback("uart", realview_unregister_bus_uart);
+	resource_callback_with_name("uart", realview_unregister_bus_uart);
 }
 
 device_initcall(realview_bus_uart_init);

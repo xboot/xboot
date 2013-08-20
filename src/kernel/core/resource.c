@@ -126,7 +126,7 @@ bool_t unregister_resource(struct resource_t * res)
 	return FALSE;
 }
 
-void resource_iter_with_callback(const char * name, resource_callback_t cb)
+void resource_callback_with_name(const char * name, resource_callback_t cb)
 {
 	struct resource_list_t * pos, * n;
 
@@ -136,7 +136,12 @@ void resource_iter_with_callback(const char * name, resource_callback_t cb)
 	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
 	{
 		if(strcmp(pos->res->name, name) == 0)
-			cb(pos->res);
+		{
+			if(cb(pos->res))
+				LOG("Resource callback with '%s.%d'", pos->res->name, pos->res->id);
+			else
+				LOG("Fail to resource callback with '%s.%d'", pos->res->name, pos->res->id);
+		}
 	}
 }
 

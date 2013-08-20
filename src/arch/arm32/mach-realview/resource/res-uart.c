@@ -23,34 +23,34 @@
 #include <xboot.h>
 #include <realview-uart.h>
 
-static struct realview_uart_t rus[] = {
+static struct realview_uart_data_t realview_uart_data[] = {
 	[0] = {
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
 		.stop		= STOP_BITS_1,
-		.base		= REALVIEW_UART0_BASE,
+		.regbase	= REALVIEW_UART0_BASE,
 	},
 	[1] = {
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
 		.stop		= STOP_BITS_1,
-		.base		= REALVIEW_UART1_BASE,
+		.regbase	= REALVIEW_UART1_BASE,
 	},
 	[2] = {
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
 		.stop		= STOP_BITS_1,
-		.base		= REALVIEW_UART2_BASE,
+		.regbase	= REALVIEW_UART2_BASE,
 	},
 	[3] = {
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
 		.stop		= STOP_BITS_1,
-		.base		= REALVIEW_UART3_BASE,
+		.regbase	= REALVIEW_UART3_BASE,
 	}
 };
 
@@ -58,47 +58,47 @@ static struct resource_t res_uarts[] = {
 	{
 		.name		= "uart",
 		.id			= 0,
-		.data		= &rus[0],
+		.data		= &realview_uart_data[0],
 	}, {
 		.name		= "uart",
 		.id			= 1,
-		.data		= &rus[1],
+		.data		= &realview_uart_data[1],
 	}, {
 		.name		= "uart",
 		.id			= 2,
-		.data		= &rus[2],
+		.data		= &realview_uart_data[2],
 	}, {
 		.name		= "uart",
 		.id			= 3,
-		.data		= &rus[3],
+		.data		= &realview_uart_data[3],
 	}
 };
 
-static __init void res_uart_init(void)
+static __init void resource_uart_init(void)
 {
 	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
 	{
 		if(register_resource(&res_uarts[i]))
-			LOG("Register serial resource '%s.%d'", res_uarts[i].name, res_uarts[i].id);
+			LOG("Register resource '%s.%d'", res_uarts[i].name, res_uarts[i].id);
 		else
-			LOG("Failed to register serial resource '%s.%d'", res_uarts[i].name, res_uarts[i].id);
+			LOG("Failed to register resource '%s.%d'", res_uarts[i].name, res_uarts[i].id);
 	}
 }
 
-static __exit void res_uart_exit(void)
+static __exit void resource_uart_exit(void)
 {
 	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
 	{
 		if(unregister_resource(&res_uarts[i]))
-			LOG("Unregister serial resource '%s.%d'", res_uarts[i].name, res_uarts[i].id);
+			LOG("Unregister resource '%s.%d'", res_uarts[i].name, res_uarts[i].id);
 		else
-			LOG("Failed to unregister serial resource '%s.%d'", res_uarts[i].name, res_uarts[i].id);
+			LOG("Failed to unregister resource '%s.%d'", res_uarts[i].name, res_uarts[i].id);
 	}
 }
 
-core_initcall(res_uart_init);
-core_exitcall(res_uart_exit);
+core_initcall(resource_uart_init);
+core_exitcall(resource_uart_exit);

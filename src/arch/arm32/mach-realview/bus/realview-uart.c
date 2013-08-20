@@ -28,7 +28,7 @@
 static bool_t realview_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
 {
 	struct resource_t * res = (struct resource_t *)uart->priv;
-	struct realview_uart_t * ru = (struct realview_uart_t *)res->data;
+	struct realview_uart_data_t * dat = (struct realview_uart_data_t *)res->data;
 	u32_t ibaud, divider, fraction;
 	u32_t temp, remainder;
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
@@ -161,9 +161,9 @@ static bool_t realview_uart_setup(struct uart_t * uart, enum baud_rate_t baud, e
 	temp = (8 * remainder) / ibaud;
 	fraction = (temp >> 1) + (temp & 1);
 
-	writel(ru->base + REALVIEW_UART_OFFSET_IBRD, divider);
-	writel(ru->base + REALVIEW_UART_OFFSET_FBRD, fraction);
-	writel(ru->base + REALVIEW_UART_OFFSET_LCRH, REALVIEW_UART_LCRH_FEN | (data_bit_reg<<5 | stop_bit_reg<<3 | parity_reg<<1));
+	writel(dat->regbase + REALVIEW_UART_OFFSET_IBRD, divider);
+	writel(dat->regbase + REALVIEW_UART_OFFSET_FBRD, fraction);
+	writel(dat->regbase + REALVIEW_UART_OFFSET_LCRH, REALVIEW_UART_LCRH_FEN | (data_bit_reg<<5 | stop_bit_reg<<3 | parity_reg<<1));
 
 	return TRUE;
 }
@@ -171,16 +171,16 @@ static bool_t realview_uart_setup(struct uart_t * uart, enum baud_rate_t baud, e
 static void realview_uart_init(struct uart_t * uart)
 {
 	struct resource_t * res = (struct resource_t *)uart->priv;
-	struct realview_uart_t * ru = (struct realview_uart_t *)res->data;
+	struct realview_uart_data_t * dat = (struct realview_uart_data_t *)res->data;
 
 	/* Disable everything */
-	writel(ru->base + REALVIEW_UART_OFFSET_CR, 0x0);
+	writel(dat->regbase + REALVIEW_UART_OFFSET_CR, 0x0);
 
 	/* Configure uart */
-	realview_uart_setup(uart, ru->baud, ru->data, ru->parity, ru->stop);
+	realview_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
 
 	/* Enable uart */
-	writel(ru->base + REALVIEW_UART_OFFSET_CR, REALVIEW_UART_CR_UARTEN | REALVIEW_UART_CR_TXE | REALVIEW_UART_CR_RXE);
+	writel(dat->regbase + REALVIEW_UART_OFFSET_CR, REALVIEW_UART_CR_UARTEN | REALVIEW_UART_CR_TXE | REALVIEW_UART_CR_RXE);
 }
 
 static void realview_uart_exit(struct uart_t * uart)
@@ -190,13 +190,13 @@ static void realview_uart_exit(struct uart_t * uart)
 static ssize_t realview_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
 {
 	struct resource_t * res = (struct resource_t *)uart->priv;
-	struct realview_uart_t * ru = (struct realview_uart_t *)res->data;
+	struct realview_uart_data_t * dat = (struct realview_uart_data_t *)res->data;
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
 	{
-		if( !(readb(ru->base + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_RXFE) )
-			buf[i] = readb(ru->base + REALVIEW_UART_OFFSET_DATA);
+		if( !(readb(dat->regbase + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_RXFE) )
+			buf[i] = readb(dat->regbase + REALVIEW_UART_OFFSET_DATA);
 		else
 			break;
 	}
@@ -207,13 +207,13 @@ static ssize_t realview_uart_read(struct uart_t * uart, u8_t * buf, size_t count
 static ssize_t realview_uart_write(struct uart_t * uart, const u8_t * buf, size_t count)
 {
 	struct resource_t * res = (struct resource_t *)uart->priv;
-	struct realview_uart_t * ru = (struct realview_uart_t *)res->data;
+	struct realview_uart_data_t * dat = (struct realview_uart_data_t *)res->data;
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
 	{
-		while( (readb(ru->base + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_TXFF) );
-		writeb(ru->base + REALVIEW_UART_OFFSET_DATA, buf[i]);
+		while( (readb(dat->regbase + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_TXFF) );
+		writeb(dat->regbase + REALVIEW_UART_OFFSET_DATA, buf[i]);
 	}
 
 	return i;

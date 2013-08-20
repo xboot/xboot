@@ -9,14 +9,14 @@ extern "C" {
 #include <bus/uart.h>
 #include <realview/reg-uart.h>
 
-struct realview_uart_t
+struct realview_uart_data_t
 {
 	enum baud_rate_t baud;
 	enum data_bits_t data;
 	enum parity_bits_t parity;
 	enum stop_bits_t stop;
 
-	physical_addr_t base;
+	physical_addr_t regbase;
 };
 
 #ifdef __cplusplus

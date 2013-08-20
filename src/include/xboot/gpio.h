@@ -24,6 +24,9 @@ struct gpio_t
 	void (*output)(struct gpio_t * gpio, int offset, int value);
 	void (*set)(struct gpio_t * gpio, int offset, int value);
 	int (*get)(struct gpio_t * gpio, int offset);
+
+	/* Private data */
+	physical_addr_t regbase;
 };
 
 bool_t register_gpio(struct gpio_t * gpio);

@@ -41,6 +41,7 @@ extern "C" {
 #include <xboot/printk.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>
+#include <xboot/gpio.h>
 #include <xboot/machine.h>
 #include <xboot/bus.h>
 #include <xboot/device.h>

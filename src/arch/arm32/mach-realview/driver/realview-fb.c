@@ -23,97 +23,70 @@
  */
 
 #include <xboot.h>
-#include <fb/fb.h>
-#include <realview/reg-lcd.h>
-
-#define	LCD_WIDTH		(800)
-#define	LCD_HEIGHT		(480)
-#define	LCD_BPP			(32)
-
-#define HBP				(2)
-#define HFP				(2)
-#define HSW				(2)
-#define VBP				(2)
-#define VFP				(2)
-#define VSW				(2)
-#define	REGS_TIM0		( (HBP<<24) | (HFP<<16) | (HSW<<8) | ((LCD_WIDTH/16-1)<<2) )
-#define	REGS_TIM1		( (VBP<<24) | (VFP<<16) | (VSW<<10) | ((LCD_HEIGHT-1)<<0) )
-#define	REGS_TIM2		( (1<<26) | ((LCD_WIDTH/16-1)<<16) | (1<<5) | (1<<0) )
-#define	REGS_TIM3		( (0<<0) )
+#include <realview-fb.h>
 
 static void fb_init(struct fb_t * fb)
 {
-	/* initial lcd controller */
-	writel(REALVIEW_CLCD_TIM0, REGS_TIM0);
-	writel(REALVIEW_CLCD_TIM1, REGS_TIM1);
-	writel(REALVIEW_CLCD_TIM2, REGS_TIM2);
-	writel(REALVIEW_CLCD_TIM3, REGS_TIM3);
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
 
-	/* disable all lcd interrupts */
-	writel(REALVIEW_CLCD_IMSC, 0x0);
+	if(dat->init)
+		dat->init(dat);
 
-	/* set lcd controller register */
-	writel(REALVIEW_CLCD_CNTL, REALVIEW_CNTL_LCDBPP24 | REALVIEW_CNTL_LCDTFT | REALVIEW_CNTL_BGR);
+	writel(dat->regbase + REALVIEW_CLCD_OFFSET_TIM0, (dat->timing.h_bp<<24) | (dat->timing.h_fp<<16) | (dat->timing.h_sw<<8) | ((dat->width/16-1)<<2));
+	writel(dat->regbase + REALVIEW_CLCD_OFFSET_TIM1, (dat->timing.v_bp<<24) | (dat->timing.v_fp<<16) | (dat->timing.v_sw<<10) | ((dat->height-1)<<0));
+	writel(dat->regbase + REALVIEW_CLCD_OFFSET_TIM2, (1<<26) | ((dat->width/16-1)<<16) | (1<<5) | (1<<0));
+	writel(dat->regbase + REALVIEW_CLCD_OFFSET_TIM3, (0<<0));
 
-	/* enable lcd output */
-	writel(REALVIEW_CLCD_CNTL, (readl(REALVIEW_CLCD_CNTL) | REALVIEW_CNTL_LCDEN | REALVIEW_CNTL_LCDPWR));
+	writel(dat->regbase + REALVIEW_CLCD_OFFSET_IMSC, 0x0);
+	writel(dat->regbase + REALVIEW_CLCD_OFFSET_CNTL, REALVIEW_CNTL_LCDBPP24 | REALVIEW_CNTL_LCDTFT | REALVIEW_CNTL_BGR);
+	writel(dat->regbase + REALVIEW_CLCD_OFFSET_CNTL, (readl(dat->regbase + REALVIEW_CLCD_OFFSET_CNTL) | REALVIEW_CNTL_LCDEN | REALVIEW_CNTL_LCDPWR));
 }
 
 static void fb_exit(struct fb_t * fb)
 {
-	return;
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
+
+	if(dat->exit)
+		dat->exit(dat);
 }
 
 static int fb_xcursor(struct fb_t * fb, int ox)
 {
-	static int xpos = 0;
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
 
-	if(ox == 0)
-		return xpos;
-
-	xpos = xpos + ox;
-	if(xpos < 0)
-		xpos = 0;
-	if(xpos > LCD_WIDTH - 1)
-		xpos = LCD_WIDTH - 1;
-
-	return xpos;
+	return dat->xcursor(dat, ox);
 }
 
 static int fb_ycursor(struct fb_t * fb, int oy)
 {
-	static int ypos = 0;
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
 
-	if(oy == 0)
-		return ypos;
-
-	ypos = ypos + oy;
-	if(ypos < 0)
-		ypos = 0;
-	if(ypos > LCD_HEIGHT - 1)
-		ypos = LCD_HEIGHT - 1;
-
-	return ypos;
+	return dat->ycursor(dat, oy);
 }
 
 static int fb_backlight(struct fb_t * fb, int brightness)
 {
-	static int level = 0;
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
 
-	if( (brightness < 0) || (brightness > 255) )
-		return level;
-
-	level = brightness;
-	return level;
+	if(dat->backlight)
+		return dat->backlight(dat, brightness);
+	return 0;
 }
 
 struct render_t * fb_create(struct fb_t * fb)
 {
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
 	struct render_t * render;
 	void * pixels;
 	size_t size;
 
-	size = LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8;
+	size = dat->width * dat->height * dat->bytes_per_pixel;
 	pixels = memalign(4, size);
 	if(!pixels)
 		return NULL;
@@ -126,9 +99,9 @@ struct render_t * fb_create(struct fb_t * fb)
 		return NULL;
 	}
 
-	render->width = LCD_WIDTH;
-	render->height = LCD_HEIGHT;
-	render->pitch = (LCD_WIDTH * 4 + 0x3) & ~0x3;
+	render->width = dat->width;
+	render->height = dat->height;
+	render->pitch = (dat->width * dat->bytes_per_pixel + 0x3) & ~0x3;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 
@@ -156,12 +129,14 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
 	void * pixels = render->pixels;
 
 	if(pixels)
 	{
-		writel(REALVIEW_CLCD_UBAS, ((u32_t)pixels));
-		writel(REALVIEW_CLCD_LBAS, ((u32_t)pixels + LCD_WIDTH * LCD_HEIGHT * LCD_BPP / 8));
+		writel(dat->regbase + REALVIEW_CLCD_OFFSET_UBAS, ((u32_t)pixels));
+		writel(dat->regbase + REALVIEW_CLCD_OFFSET_LBAS, ((u32_t)pixels + dat->width * dat->height * dat->bytes_per_pixel));
 	}
 }
 
@@ -173,34 +148,56 @@ static void fb_resume(struct fb_t * fb)
 {
 }
 
-static struct fb_t realview_fb = {
-	.name		= "fb0",
-	.init		= fb_init,
-	.exit		= fb_exit,
-	.xcursor	= fb_xcursor,
-	.ycursor	= fb_ycursor,
-	.backlight	= fb_backlight,
-	.create		= fb_create,
-	.destroy	= fb_destroy,
-	.present	= fb_present,
-	.suspend	= fb_suspend,
-	.resume		= fb_resume,
-};
+static bool_t realview_register_framebuffer(struct resource_t * res)
+{
+	struct fb_t * fb;
+	char name[32 + 1];
+
+	fb = malloc(sizeof(struct fb_t));
+	if(!fb)
+		return FALSE;
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	fb->name = name;
+	fb->init = fb_init,
+	fb->exit = fb_exit,
+	fb->xcursor = fb_xcursor,
+	fb->ycursor = fb_ycursor,
+	fb->backlight = fb_backlight,
+	fb->create = fb_create,
+	fb->destroy = fb_destroy,
+	fb->present = fb_present,
+	fb->suspend = fb_suspend,
+	fb->resume = fb_resume,
+	fb->priv = res;
+
+	if(!register_framebuffer(fb))
+		return FALSE;
+	return TRUE;
+}
+
+static bool_t realview_unregister_framebuffer(struct resource_t * res)
+{
+	struct fb_t * fb;
+	char name[32 + 1];
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	fb = search_framebuffer(name);
+	if(!fb)
+		return FALSE;
+
+	return unregister_framebuffer(fb);
+}
 
 static __init void realview_fb_init(void)
 {
-	if(register_framebuffer(&realview_fb))
-		LOG("Register framebuffer driver '%s'", realview_fb.name);
-	else
-		LOG("Failed to register framebuffer driver '%s'", realview_fb.name);
+	resource_callback_with_name("fb.pl110", realview_register_framebuffer);
 }
 
 static __exit void realview_fb_exit(void)
 {
-	if(unregister_framebuffer(&realview_fb))
-		LOG("Unregister framebuffer driver '%s'", realview_fb.name);
-	else
-		LOG("Failed to unregister framebuffer driver '%s'", realview_fb.name);
+	resource_callback_with_name("fb.pl110", realview_unregister_framebuffer);
 }
 
 device_initcall(realview_fb_init);

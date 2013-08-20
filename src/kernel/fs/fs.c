@@ -156,20 +156,15 @@ static struct proc_t filesystem_proc = {
 	.read	= filesystem_proc_read,
 };
 
-/*
- * filesystem pure sync init
- */
-static __init void filesystem_pure_sync_init(void)
+static __init void filesystem_proc_init(void)
 {
-	/* register filesystem proc interface */
 	proc_register(&filesystem_proc);
 }
 
-static __exit void filesystem_pure_sync_exit(void)
+static __exit void filesystem_proc_exit(void)
 {
-	/* unregister filesystem proc interface */
 	proc_unregister(&filesystem_proc);
 }
 
-core_initcall(filesystem_pure_sync_init);
-core_exitcall(filesystem_pure_sync_exit);
+core_initcall(filesystem_proc_init);
+core_exitcall(filesystem_proc_exit);

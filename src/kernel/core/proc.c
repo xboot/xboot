@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/core/proc.c
+ * kernel/core/proc.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,33 +21,19 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <sizes.h>
-#include <malloc.h>
-#include <hash.h>
-#include <stdio.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
-#include <xboot/printk.h>
 #include <xboot/proc.h>
 
-/* the list of process */
-static struct proc_list __proc_list = {
+static struct proc_list_t __proc_list = {
 	.entry = {
 		.next	= &(__proc_list.entry),
 		.prev	= &(__proc_list.entry),
 	},
 };
-struct proc_list * proc_list = &__proc_list;
+struct proc_list_t * proc_list = &__proc_list;
 
-/*
- * search proc by name
- */
 struct proc_t * proc_search(const char *name)
 {
-	struct proc_list * list;
+	struct proc_list_t * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -55,7 +41,7 @@ struct proc_t * proc_search(const char *name)
 
 	for(pos = (&proc_list->entry)->next; pos != (&proc_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct proc_list, entry);
+		list = list_entry(pos, struct proc_list_t, entry);
 		if(strcmp(list->proc->name, name) == 0)
 			return list->proc;
 	}
@@ -63,15 +49,11 @@ struct proc_t * proc_search(const char *name)
 	return NULL;
 }
 
-/*
- * register a proc into proc_list
- * return true is successed, otherwise is not.
- */
 bool_t proc_register(struct proc_t * proc)
 {
-	struct proc_list * list;
+	struct proc_list_t * list;
 
-	list = malloc(sizeof(struct proc_list));
+	list = malloc(sizeof(struct proc_list_t));
 	if(!list || !proc)
 	{
 		free(list);
@@ -90,12 +72,9 @@ bool_t proc_register(struct proc_t * proc)
 	return TRUE;
 }
 
-/*
- * unregister proc from proc_list
- */
 bool_t proc_unregister(struct proc_t * proc)
 {
-	struct proc_list * list;
+	struct proc_list_t * list;
 	struct list_head * pos;
 
 	if(!proc || !proc->name)
@@ -103,7 +82,7 @@ bool_t proc_unregister(struct proc_t * proc)
 
 	for(pos = (&proc_list->entry)->next; pos != (&proc_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct proc_list, entry);
+		list = list_entry(pos, struct proc_list_t, entry);
 		if(list->proc == proc)
 		{
 			list_del(pos);
@@ -115,12 +94,9 @@ bool_t proc_unregister(struct proc_t * proc)
 	return FALSE;
 }
 
-/*
- * proc interface for self
- */
 static s32_t self_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
-	struct proc_list * list;
+	struct proc_list_t * list;
 	struct list_head * pos;
 	s8_t * p;
 	s32_t len = 0;
@@ -131,7 +107,7 @@ static s32_t self_proc_read(u8_t * buf, s32_t offset, s32_t count)
 	len += sprintf((char *)(p + len), (const char *)"[proc]");
 	for(pos = (&proc_list->entry)->next; pos != (&proc_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct proc_list, entry);
+		list = list_entry(pos, struct proc_list_t, entry);
 		len += sprintf((char *)(p + len), (const char *)"\r\n %s", list->proc->name);
 	}
 
@@ -154,20 +130,15 @@ static struct proc_t self_proc = {
 	.read	= self_proc_read,
 };
 
-/*
- * proc pure sync init
- */
-static __init void proc_pure_sync_init(void)
+static __init void self_proc_init(void)
 {
-	/* register proc interface for self */
 	proc_register(&self_proc);
 }
 
-static __exit void proc_pure_sync_exit(void)
+static __exit void self_proc_exit(void)
 {
-	/* unregister self proc interface */
 	proc_unregister(&self_proc);
 }
 
-core_initcall(proc_pure_sync_init);
-core_exitcall(proc_pure_sync_exit);
+core_initcall(self_proc_init);
+core_exitcall(self_proc_exit);

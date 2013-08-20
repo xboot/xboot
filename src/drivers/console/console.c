@@ -628,15 +628,15 @@ static struct proc_t console_proc = {
 	.read	= console_proc_read,
 };
 
-static __init void console_pure_sync_init(void)
+static __init void console_proc_init(void)
 {
 	proc_register(&console_proc);
 }
 
-static __exit void console_pure_sync_exit(void)
+static __exit void console_proc_exit(void)
 {
 	proc_unregister(&console_proc);
 }
 
-core_initcall(console_pure_sync_init);
-core_exitcall(console_pure_sync_exit);
+core_initcall(console_proc_init);
+core_exitcall(console_proc_exit);

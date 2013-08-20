@@ -323,15 +323,15 @@ static struct proc_t loop_proc = {
 	.read	= loop_proc_read,
 };
 
-static __init void loop_pure_sync_init(void)
+static __init void loop_proc_init(void)
 {
 	proc_register(&loop_proc);
 }
 
-static __exit void loop_pure_sync_exit(void)
+static __exit void loop_proc_exit(void)
 {
 	proc_unregister(&loop_proc);
 }
 
-core_initcall(loop_pure_sync_init);
-core_exitcall(loop_pure_sync_exit);
+core_initcall(loop_proc_init);
+core_exitcall(loop_proc_exit);

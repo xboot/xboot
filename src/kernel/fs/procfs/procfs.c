@@ -30,7 +30,7 @@
 #include <xboot/initcall.h>
 #include <fs/fs.h>
 
-extern struct proc_list * proc_list;
+extern struct proc_list_t * proc_list;
 
 /*
  * filesystem operations
@@ -137,8 +137,8 @@ static s32_t procfs_fsync(struct vnode_t * node, struct file_t * fp)
 
 static s32_t procfs_readdir(struct vnode_t * node, struct file_t * fp, struct dirent_t * dir)
 {
-	struct proc_list * plist = (struct proc_list *)node->v_mount->m_data;
-	struct proc_list * list;
+	struct proc_list_t * plist = (struct proc_list_t *)node->v_mount->m_data;
+	struct proc_list_t * list;
 	struct list_head * pos;
 	s32_t i;
 
@@ -162,7 +162,7 @@ static s32_t procfs_readdir(struct vnode_t * node, struct file_t * fp, struct di
 				return EINVAL;
 		}
 
-		list = list_entry(pos, struct proc_list, entry);
+		list = list_entry(pos, struct proc_list_t, entry);
 		dir->d_type = DT_REG;
 		strlcpy((char *)&dir->d_name, list->proc->name, sizeof(dir->d_name));
 	}

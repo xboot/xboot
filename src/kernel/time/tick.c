@@ -208,21 +208,19 @@ static struct proc_t hz_proc = {
 	.read	= hz_proc_read,
 };
 
-static __init void tick_pure_sync_init(void)
+static __init void tick_proc_init(void)
 {
-	/* register proc interface */
 	proc_register(&jiffies_proc);
 	proc_register(&uptime_proc);
 	proc_register(&hz_proc);
 }
 
-static __exit void tick_pure_sync_exit(void)
+static __exit void tick_proc_exit(void)
 {
-	/* unregister proc interface */
 	proc_unregister(&jiffies_proc);
 	proc_unregister(&uptime_proc);
 	proc_unregister(&hz_proc);
 }
 
-core_initcall(tick_pure_sync_init);
-core_exitcall(tick_pure_sync_exit);
+core_initcall(tick_proc_init);
+core_exitcall(tick_proc_exit);

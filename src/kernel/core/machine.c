@@ -234,17 +234,17 @@ static struct proc_t link_proc = {
 	.read	= link_proc_read,
 };
 
-static __init void machine_pure_sync_init(void)
+static __init void machine_proc_init(void)
 {
 	proc_register(&machine_proc);
 	proc_register(&link_proc);
 }
 
-static __exit void machine_pure_sync_exit(void)
+static __exit void machine_proc_exit(void)
 {
 	proc_unregister(&machine_proc);
 	proc_unregister(&link_proc);
 }
 
-core_initcall(machine_pure_sync_init);
-core_exitcall(machine_pure_sync_exit);
+core_initcall(machine_proc_init);
+core_exitcall(machine_proc_exit);

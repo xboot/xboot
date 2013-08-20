@@ -183,20 +183,15 @@ static struct proc_t mounts_proc = {
 	.read	= mounts_proc_read,
 };
 
-/*
- * mounts pure sync init
- */
-static __init void mounts_pure_sync_init(void)
+static __init void mounts_proc_init(void)
 {
-	/* register mounts proc interface */
 	proc_register(&mounts_proc);
 }
 
-static __exit void mounts_pure_sync_exit(void)
+static __exit void mounts_proc_exit(void)
 {
-	/* unregister mounts proc interface */
 	proc_unregister(&mounts_proc);
 }
 
-core_initcall(mounts_pure_sync_init);
-core_exitcall(mounts_pure_sync_exit);
+core_initcall(mounts_proc_init);
+core_exitcall(mounts_proc_exit);

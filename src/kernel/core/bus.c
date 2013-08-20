@@ -151,15 +151,15 @@ static struct proc_t bus_proc = {
 	.read	= bus_proc_read,
 };
 
-static __init void bus_pure_sync_init(void)
+static __init void bus_proc_init(void)
 {
 	proc_register(&bus_proc);
 }
 
-static __exit void bus_pure_sync_exit(void)
+static __exit void bus_proc_exit(void)
 {
 	proc_unregister(&bus_proc);
 }
 
-core_initcall(bus_pure_sync_init);
-core_exitcall(bus_pure_sync_exit);
+core_initcall(bus_proc_init);
+core_exitcall(bus_proc_exit);

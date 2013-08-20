@@ -589,17 +589,17 @@ static struct proc_t mmc_card_proc = {
 /*
  * mmc card pure sync init
  */
-static __init void mmc_card_pure_sync_init(void)
+static __init void mmc_card_proc_init(void)
 {
 	/* register mmc card proc interface */
 	proc_register(&mmc_card_proc);
 }
 
-static __exit void mmc_card_pure_sync_exit(void)
+static __exit void mmc_card_proc_exit(void)
 {
 	/* unregister mmc card proc interface */
 	proc_unregister(&mmc_card_proc);
 }
 
-core_initcall(mmc_card_pure_sync_init);
-core_exitcall(mmc_card_pure_sync_exit);
+core_initcall(mmc_card_proc_init);
+core_exitcall(mmc_card_proc_exit);

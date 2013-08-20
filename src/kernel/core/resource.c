@@ -179,15 +179,15 @@ static struct proc_t resource_proc = {
 	.read	= resource_proc_read,
 };
 
-static __init void resource_pure_sync_init(void)
+static __init void resource_proc_init(void)
 {
 	proc_register(&resource_proc);
 }
 
-static __exit void resource_pure_sync_exit(void)
+static __exit void resource_proc_exit(void)
 {
 	proc_unregister(&resource_proc);
 }
 
-core_initcall(resource_pure_sync_init);
-core_exitcall(resource_pure_sync_exit);
+core_initcall(resource_proc_init);
+core_exitcall(resource_proc_exit);

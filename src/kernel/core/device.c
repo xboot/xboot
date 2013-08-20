@@ -207,15 +207,15 @@ static struct proc_t device_proc = {
 	.read	= device_proc_read,
 };
 
-static __init void device_pure_sync_init(void)
+static __init void device_proc_init(void)
 {
 	proc_register(&device_proc);
 }
 
-static __exit void device_pure_sync_exit(void)
+static __exit void device_proc_exit(void)
 {
 	proc_unregister(&device_proc);
 }
 
-core_initcall(device_pure_sync_init);
-core_exitcall(device_pure_sync_exit);
+core_initcall(device_proc_init);
+core_exitcall(device_proc_exit);

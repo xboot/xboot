@@ -757,17 +757,17 @@ static struct proc_t nand_proc = {
 /*
  * nand pure sync init
  */
-static __init void nand_pure_sync_init(void)
+static __init void nand_proc_init(void)
 {
 	/* register nand proc interface */
 	proc_register(&nand_proc);
 }
 
-static __exit void nand_pure_sync_exit(void)
+static __exit void nand_proc_exit(void)
 {
 	/* unregister nand proc interface */
 	proc_unregister(&nand_proc);
 }
 
-core_initcall(nand_pure_sync_init);
-core_exitcall(nand_pure_sync_exit);
+core_initcall(nand_proc_init);
+core_exitcall(nand_proc_exit);

@@ -371,15 +371,15 @@ static struct proc_t disk_proc = {
 	.read	= disk_proc_read,
 };
 
-static __init void disk_pure_sync_init(void)
+static __init void disk_proc_init(void)
 {
 	proc_register(&disk_proc);
 }
 
-static __exit void disk_pure_sync_exit(void)
+static __exit void disk_proc_exit(void)
 {
 	proc_unregister(&disk_proc);
 }
 
-core_initcall(disk_pure_sync_init);
-core_exitcall(disk_pure_sync_exit);
+core_initcall(disk_proc_init);
+core_exitcall(disk_proc_exit);

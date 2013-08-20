@@ -159,17 +159,15 @@ static struct proc_t bogomips_proc = {
 	.read	= bogomips_proc_read,
 };
 
-static __init void delay_pure_sync_init(void)
+static __init void delay_proc_init(void)
 {
-	/* register bogomips proc interface */
 	proc_register(&bogomips_proc);
 }
 
-static __exit void delay_pure_sync_exit(void)
+static __exit void delay_proc_exit(void)
 {
-	/* unregister bogomips proc interface */
 	proc_unregister(&bogomips_proc);
 }
 
-core_initcall(delay_pure_sync_init);
-core_exitcall(delay_pure_sync_exit);
+core_initcall(delay_proc_init);
+core_exitcall(delay_proc_exit);

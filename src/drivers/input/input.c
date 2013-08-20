@@ -327,17 +327,17 @@ static struct proc_t input_proc = {
 	.read	= input_proc_read,
 };
 
-static __init void input_pure_sync_init(void)
+static __init void input_proc_init(void)
 {
 	input_keyboard_fifo = fifo_alloc(sizeof(struct input_event_t) * 256);
 	proc_register(&input_proc);
 }
 
-static __init void input_pure_sync_exit(void)
+static __init void input_proc_exit(void)
 {
 	fifo_free(input_keyboard_fifo);
 	proc_unregister(&input_proc);
 }
 
-core_initcall(input_pure_sync_init);
-core_exitcall(input_pure_sync_exit);
+core_initcall(input_proc_init);
+core_exitcall(input_proc_exit);

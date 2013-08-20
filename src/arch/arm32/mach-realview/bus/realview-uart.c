@@ -222,7 +222,7 @@ static ssize_t realview_uart_write(struct uart_t * uart, const u8_t * buf, size_
 static bool_t realview_register_bus_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
-	char name[32 + 1];
+	char name[64];
 
 	if(!clk_get_rate("uclk", 0))
 	{
@@ -251,7 +251,7 @@ static bool_t realview_register_bus_uart(struct resource_t * res)
 static bool_t realview_unregister_bus_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
-	char name[32 + 1];
+	char name[64];
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 

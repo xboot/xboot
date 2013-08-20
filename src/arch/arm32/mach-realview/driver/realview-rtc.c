@@ -153,7 +153,7 @@ static void rtc_resume(struct rtc_t * rtc)
 static bool_t realview_register_rtc(struct resource_t * res)
 {
 	struct rtc_t * rtc;
-	char name[32 + 1];
+	char name[64];
 
 	rtc = malloc(sizeof(struct rtc_t));
 	if(!rtc)
@@ -179,7 +179,7 @@ static bool_t realview_register_rtc(struct resource_t * res)
 static bool_t realview_unregister_rtc(struct resource_t * res)
 {
 	struct rtc_t * rtc;
-	char name[32 + 1];
+	char name[64];
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 

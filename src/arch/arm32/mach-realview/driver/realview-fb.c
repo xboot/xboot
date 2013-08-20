@@ -151,7 +151,7 @@ static void fb_resume(struct fb_t * fb)
 static bool_t realview_register_framebuffer(struct resource_t * res)
 {
 	struct fb_t * fb;
-	char name[32 + 1];
+	char name[64];
 
 	fb = malloc(sizeof(struct fb_t));
 	if(!fb)
@@ -179,7 +179,7 @@ static bool_t realview_register_framebuffer(struct resource_t * res)
 static bool_t realview_unregister_framebuffer(struct resource_t * res)
 {
 	struct fb_t * fb;
-	char name[32 + 1];
+	char name[64];
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 

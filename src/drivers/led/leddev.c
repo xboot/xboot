@@ -41,19 +41,19 @@ static void led_exit(struct led_t * led)
 		dat->set(dat, 0);
 }
 
-static void led_set(struct led_t * led, int brightness)
+static void led_set(struct led_t * led, u32_t color)
 {
 	struct resource_t * res = (struct resource_t *)led->priv;
 	struct led_data_t * dat = (struct led_data_t *)res->data;
 
-	if(brightness < 0)
+/*	if(brightness < 0)
 		brightness = 0;
 
 	if(brightness > 255)
 		brightness = 255;
 
 	if(dat->set)
-		return dat->set(dat, brightness);
+		return dat->set(dat, brightness);*/
 }
 
 static void led_suspend(struct led_t * led)

@@ -18,8 +18,16 @@ struct led_t
 	/* Clean up the LED */
 	void (*exit)(struct led_t * led);
 
-	/* Set LED's brightness */
-	void (*set)(struct led_t * led, int brightness);
+    /*
+     * Set LED's color, The color of the LED in ARGB and high byte should be ignored.
+     *
+     * If led can only do red or green, if they ask for blue, you should do green.
+     * If you can only do a brightness ramp, then use this formula:
+     *     unsigned char brightness = ((77*((color>>16)&0x00ff))
+     *     + (150*((color>>8)&0x00ff)) + (29*(color&0x00ff))) >> 8;
+     * If you can only do on or off, 0 is off, anything else is on.
+     */
+	void (*set)(struct led_t * led, u32_t color);
 
 	/* Suspend LED */
 	void (*suspend)(struct led_t * led);

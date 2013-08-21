@@ -171,9 +171,11 @@ static bool_t realview_register_framebuffer(struct resource_t * res)
 	fb->resume = fb_resume,
 	fb->priv = res;
 
-	if(!register_framebuffer(fb))
-		return FALSE;
-	return TRUE;
+	if(register_framebuffer(fb))
+		return TRUE;
+
+	free(fb);
+	return FALSE;
 }
 
 static bool_t realview_unregister_framebuffer(struct resource_t * res)
@@ -187,7 +189,11 @@ static bool_t realview_unregister_framebuffer(struct resource_t * res)
 	if(!fb)
 		return FALSE;
 
-	return unregister_framebuffer(fb);
+	if(!unregister_framebuffer(fb))
+		return FALSE;
+
+	free(fb);
+	return TRUE;
 }
 
 static __init void realview_fb_init(void)

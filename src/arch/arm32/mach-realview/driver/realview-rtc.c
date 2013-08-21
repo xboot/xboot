@@ -171,9 +171,11 @@ static bool_t realview_register_rtc(struct resource_t * res)
 	rtc->resume	= rtc_resume,
 	rtc->priv = res;
 
-	if(!register_rtc(rtc))
-		return FALSE;
-	return TRUE;
+	if(register_rtc(rtc))
+		return TRUE;
+
+	free(rtc);
+	return FALSE;
 }
 
 static bool_t realview_unregister_rtc(struct resource_t * res)
@@ -187,7 +189,11 @@ static bool_t realview_unregister_rtc(struct resource_t * res)
 	if(!rtc)
 		return FALSE;
 
-	return unregister_rtc(rtc);
+	if(!unregister_rtc(rtc))
+		return FALSE;
+
+	free(rtc);
+	return TRUE;
 }
 
 static __init void realview_rtc_init(void)

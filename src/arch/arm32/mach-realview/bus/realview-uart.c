@@ -243,9 +243,11 @@ static bool_t realview_register_bus_uart(struct resource_t * res)
 	uart->setup = realview_uart_setup;
 	uart->priv = res;
 
-	if(!register_bus_uart(uart))
-		return FALSE;
-	return TRUE;
+	if(register_bus_uart(uart))
+		return TRUE;
+
+	free(uart);
+	return FALSE;
 }
 
 static bool_t realview_unregister_bus_uart(struct resource_t * res)
@@ -259,7 +261,11 @@ static bool_t realview_unregister_bus_uart(struct resource_t * res)
 	if(!uart)
 		return FALSE;
 
-	return unregister_bus_uart(uart);
+	if(!unregister_bus_uart(uart))
+		return FALSE;
+
+	free(uart);
+	return TRUE;
 }
 
 static __init void realview_bus_uart_init(void)

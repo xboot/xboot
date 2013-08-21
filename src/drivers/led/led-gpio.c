@@ -81,9 +81,11 @@ static bool_t led_gpio_register_led(struct resource_t * res)
 	led->resume = led_gpio_resume,
 	led->priv = res;
 
-	if(!register_led(led))
-		return FALSE;
-	return TRUE;
+	if(register_led(led))
+		return TRUE;
+
+	free(led);
+	return FALSE;
 }
 
 static bool_t led_gpio_unregister_led(struct resource_t * res)
@@ -98,7 +100,11 @@ static bool_t led_gpio_unregister_led(struct resource_t * res)
 	if(!led)
 		return FALSE;
 
-	return unregister_led(led);
+	if(!unregister_led(led))
+		return FALSE;
+
+	free(led);
+	return TRUE;
 }
 
 static __init void led_gpio_device_init(void)

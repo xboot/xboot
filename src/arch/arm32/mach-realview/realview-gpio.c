@@ -23,50 +23,71 @@
 #include <xboot.h>
 #include <realview/reg-gpio.h>
 
+struct realview_gpio_data_t
+{
+	physical_addr_t regbase;
+};
+
 static void gpio_pull(struct gpio_t * gpio, int offset, enum gpio_pull_t mode)
 {
 }
 
 static void gpio_input(struct gpio_t * gpio, int offset)
 {
+	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
 	u8_t dir;
 
 	if(offset >= gpio->ngpio)
 		return;
 
-	dir = readb(gpio->regbase + REALVIEW_GPIO_OFFSET_DIR);
+	dir = readb(dat->regbase + REALVIEW_GPIO_OFFSET_DIR);
 	dir &= ~(1 << offset);
-	writeb(gpio->regbase + REALVIEW_GPIO_OFFSET_DIR, dir);
+	writeb(dat->regbase + REALVIEW_GPIO_OFFSET_DIR, dir);
 }
 
 static void gpio_output(struct gpio_t * gpio, int offset, int value)
 {
+	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
 	u8_t dir;
 
 	if(offset >= gpio->ngpio)
 		return;
 
-	writeb(gpio->regbase + (1 << (offset + 2)), !!value << offset);
-	dir = readb(gpio->regbase + REALVIEW_GPIO_OFFSET_DIR);
+	writeb(dat->regbase + (1 << (offset + 2)), !!value << offset);
+	dir = readb(dat->regbase + REALVIEW_GPIO_OFFSET_DIR);
 	dir |= 1 << offset;
-	writeb(gpio->regbase  + REALVIEW_GPIO_OFFSET_DIR, dir);
+	writeb(dat->regbase  + REALVIEW_GPIO_OFFSET_DIR, dir);
 
 	/*
 	 * gpio value is set again, because pl061 doesn't allow to set value of
 	 * a gpio pin before configuring it in OUT mode.
 	 */
-	writeb(gpio->regbase + (1 << (offset + 2)), !!value << offset);
+	writeb(dat->regbase + (1 << (offset + 2)), !!value << offset);
 }
 
 static void gpio_set(struct gpio_t * gpio, int offset, int value)
 {
-	writeb(gpio->regbase + (1 << (offset + 2)), !!value << offset);
+	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
+
+	writeb(dat->regbase + (1 << (offset + 2)), !!value << offset);
 }
 
 static int gpio_get(struct gpio_t * gpio, int offset)
 {
-	return !!readb(gpio->regbase + (1 << (offset + 2)));
+	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
+
+	return !!readb(dat->regbase + (1 << (offset + 2)));
 }
+
+static struct realview_gpio_data_t realview_gpio_datas[] = {
+	{
+		.regbase	= REALVIEW_GPIO0_BASE,
+	}, {
+		.regbase	= REALVIEW_GPIO1_BASE,
+	}, {
+		.regbase	= REALVIEW_GPIO2_BASE,
+	},
+};
 
 static struct gpio_t realview_gpios[] = {
 	{
@@ -78,7 +99,7 @@ static struct gpio_t realview_gpios[] = {
 		.output		= gpio_output,
 		.set		= gpio_set,
 		.get		= gpio_get,
-		.regbase	= REALVIEW_GPIO0_BASE,
+		.priv		= &realview_gpio_datas[0],
 	}, {
 		.name		= "GPIO1",
 		.base		= 8,
@@ -88,7 +109,7 @@ static struct gpio_t realview_gpios[] = {
 		.output		= gpio_output,
 		.set		= gpio_set,
 		.get		= gpio_get,
-		.regbase	= REALVIEW_GPIO1_BASE,
+		.priv		= &realview_gpio_datas[1],
 	}, {
 		.name		= "GPIO2",
 		.base		= 16,
@@ -98,7 +119,7 @@ static struct gpio_t realview_gpios[] = {
 		.output		= gpio_output,
 		.set		= gpio_set,
 		.get		= gpio_get,
-		.regbase	= REALVIEW_GPIO2_BASE,
+		.priv		= &realview_gpio_datas[2],
 	},
 };
 

@@ -1,5 +1,5 @@
 /*
- * driver/led/leddev.c
+ * driver/led/led-simple.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,51 +21,46 @@
  */
 
 #include <xboot.h>
-#include <led/leddev.h>
+#include <led/led-simple.h>
 
-static void led_init(struct led_t * led)
+static void led_simple_init(struct led_t * led)
 {
 	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_data_t * dat = (struct led_data_t *)res->data;
+	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
 
 	if(dat->init)
 		dat->init(dat);
 }
 
-static void led_exit(struct led_t * led)
+static void led_simple_exit(struct led_t * led)
 {
 	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_data_t * dat = (struct led_data_t *)res->data;
+	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
 
 	if(dat->set)
 		dat->set(dat, 0);
 }
 
-static void led_set(struct led_t * led, u32_t color)
+static void led_simple_set(struct led_t * led, u32_t color)
 {
 	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_data_t * dat = (struct led_data_t *)res->data;
-
-/*	if(brightness < 0)
-		brightness = 0;
-
-	if(brightness > 255)
-		brightness = 255;
+	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
 
 	if(dat->set)
-		return dat->set(dat, brightness);*/
+		return dat->set(dat, color);
 }
 
-static void led_suspend(struct led_t * led)
+static void led_simple_suspend(struct led_t * led)
 {
 }
 
-static void led_resume(struct led_t * led)
+static void led_simple_resume(struct led_t * led)
 {
 }
 
-static bool_t leddev_register_led(struct resource_t * res)
+static bool_t led_simple_register_led(struct resource_t * res)
 {
+	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
 	struct led_t * led;
 	char name[64];
 
@@ -73,13 +68,14 @@ static bool_t leddev_register_led(struct resource_t * res)
 	if(!led)
 		return FALSE;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	snprintf(name, sizeof(name), "%s.%s", res->name, dat->name);
+
 	led->name = name;
-	led->init = led_init;
-	led->exit = led_exit;
-	led->set = led_set,
-	led->suspend = led_suspend,
-	led->resume	= led_resume,
+	led->init = led_simple_init;
+	led->exit = led_simple_exit;
+	led->set = led_simple_set,
+	led->suspend = led_simple_suspend,
+	led->resume	= led_simple_resume,
 	led->priv = res;
 
 	if(!register_led(led))
@@ -87,12 +83,13 @@ static bool_t leddev_register_led(struct resource_t * res)
 	return TRUE;
 }
 
-static bool_t leddev_unregister_led(struct resource_t * res)
+static bool_t led_simple_unregister_led(struct resource_t * res)
 {
+	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
 	struct led_t * led;
 	char name[64];
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	snprintf(name, sizeof(name), "%s.%s", res->name, dat->name);
 
 	led = search_led(name);
 	if(!led)
@@ -101,15 +98,15 @@ static bool_t leddev_unregister_led(struct resource_t * res)
 	return unregister_led(led);
 }
 
-static __init void led_device_init(void)
+static __init void led_simple_device_init(void)
 {
-	resource_callback_with_name("led", leddev_register_led);
+	resource_callback_with_name("led.simple", led_simple_register_led);
 }
 
-static __exit void led_device_exit(void)
+static __exit void led_simple_device_exit(void)
 {
-	resource_callback_with_name("led", leddev_unregister_led);
+	resource_callback_with_name("led.simple", led_simple_unregister_led);
 }
 
-device_initcall(led_device_init);
-device_exitcall(led_device_exit);
+device_initcall(led_simple_device_init);
+device_exitcall(led_simple_device_exit);

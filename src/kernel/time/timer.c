@@ -206,7 +206,7 @@ bool_t del_timer(struct timer_t * timer)
 	return ret;
 }
 
-void setup_timer(struct timer_t * timer,	void (*function)(u32_t), u32_t data)
+void setup_timer(struct timer_t * timer, void (*function)(u32_t), u32_t data)
 {
 	timer->function = function;
 	timer->data = data;

@@ -26,12 +26,12 @@
 
 static struct led_gpio_data_t led_gpio_datas[] = {
 	[0] = {
-		.name		= "left",
+		.name		= "red",
 		.gpio		= REALVIEW_GPIO0(0),
 		.active_low	= 1,
 	},
 	[1] = {
-		.name		= "right",
+		.name		= "blue",
 		.gpio		= REALVIEW_GPIO0(1),
 		.active_low	= 1,
 	},

@@ -41,12 +41,12 @@ static void led_simple_d1_set(struct led_simple_data_t * dat, u32_t color)
 
 static struct led_simple_data_t led_simple_datas[] = {
 	[0] = {
-		.name		= "D0",
+		.name		= "d0",
 		.init		= led_simple_d0_init,
 		.set		= led_simple_d0_set,
 	},
 	[1] = {
-		.name		= "D1",
+		.name		= "d1",
 		.init		= led_simple_d1_init,
 		.set		= led_simple_d1_set,
 	},

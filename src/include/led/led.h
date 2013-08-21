@@ -39,6 +39,8 @@ struct led_t
 	void * priv;
 };
 
+u8_t led_color_to_brightness(u32_t color);
+
 struct led_t * search_led(const char * name);
 bool_t register_led(struct led_t * led);
 bool_t unregister_led(struct led_t * led);

@@ -53,6 +53,16 @@ static void led_resume(struct device_t * dev)
 		led->resume(led);
 }
 
+u8_t led_color_to_brightness(u32_t color)
+{
+	u8_t brightness;
+
+	color &= 0x00ffffff;
+	brightness = ((77 * ((color >> 16) & 0xff)) + (150 * ((color >> 8) & 0xff)) + (29 * (color & 0xff))) >> 8;
+
+	return brightness;
+}
+
 struct led_t * search_led(const char * name)
 {
 	struct device_t * dev;

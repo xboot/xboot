@@ -24,7 +24,8 @@
 #include <led/ledtrig.h>
 
 static struct led_trigger_data_t led_trigger_data = {
-	.name	= "led.simple.d0",
+	.name	= "blink",
+	.led	= "led.simple.d0",
 };
 
 static struct resource_t res_led_trigger = {

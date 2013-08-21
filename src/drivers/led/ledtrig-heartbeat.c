@@ -1,5 +1,5 @@
 /*
- * driver/led/led-gpio.c
+ * driver/led/ledtrig-heartbeat.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -27,9 +27,11 @@ struct led_trigger_heartbeat_data_t {
 	struct timer_t timer;
 	u32_t phase;
 	u32_t period;
+
+	struct led_trigger_data_t * rdat;
 };
 
-static void heartbeat_function(u32_t data)
+static void heartbeat_timer_function(u32_t data)
 {
 	struct led_trigger_t * trigger = (struct led_trigger_t *)(data);
 	struct led_trigger_heartbeat_data_t * dat = (struct led_trigger_heartbeat_data_t *)trigger->priv;
@@ -78,9 +80,9 @@ static void ledtrig_heartbeat_init(struct led_trigger_t * trigger)
 
 	if(dat)
 	{
-		setup_timer(&dat->timer, heartbeat_function, (u32_t)trigger);
+		setup_timer(&dat->timer, heartbeat_timer_function, (u32_t)trigger);
 		dat->phase = 0;
-		heartbeat_function(dat->timer.data);
+		heartbeat_timer_function(dat->timer.data);
 	}
 }
 
@@ -104,7 +106,7 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 	struct led_t * led;
 	char name[64];
 
-	led = search_led(rdat->name);
+	led = search_led(rdat->led);
 	if(!led)
 		return FALSE;
 
@@ -119,9 +121,10 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 		return FALSE;
 	}
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, res->id);
+	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
 	dat->phase = 0;
 	dat->period = 0;
+	dat->rdat = rdat;
 
 	trigger->name = name;
 	trigger->init = ledtrig_heartbeat_init;
@@ -141,10 +144,11 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 static bool_t ledtrig_unregister_heartbeat(struct resource_t * res)
 {
 	struct led_trigger_heartbeat_data_t * dat = (struct led_trigger_heartbeat_data_t *)res->data;
+	struct led_trigger_data_t * rdat = (struct led_trigger_data_t *)dat->rdat;
 	struct led_trigger_t * trigger;
 	char name[64];
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, res->id);
+	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
 
 	trigger = search_led_trigger(name);
 	if(!trigger)

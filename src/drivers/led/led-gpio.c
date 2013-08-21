@@ -78,7 +78,7 @@ static bool_t led_gpio_register_led(struct resource_t * res)
 	led->exit = led_gpio_exit;
 	led->set = led_gpio_set,
 	led->suspend = led_gpio_suspend,
-	led->resume	= led_gpio_resume,
+	led->resume = led_gpio_resume,
 	led->priv = res;
 
 	if(!register_led(led))

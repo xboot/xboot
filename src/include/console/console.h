@@ -123,7 +123,7 @@ bool_t console_vline(struct console_t * console, u32_t code, u32_t x0, u32_t y0,
 bool_t console_rect(struct console_t * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h);
 int console_print(struct console_t * console, const char * fmt, ...);
 
-struct console_t * search_console(const char *name);
+struct console_t * search_console(const char * name);
 bool_t register_console(struct console_t * console);
 bool_t unregister_console(struct console_t * console);
 

@@ -23,6 +23,7 @@
 #include <xboot.h>
 #include <spinlock.h>
 #include <console/console-uart.h>
+#include <console/console-input.h>
 #include <console/console-fb.h>
 #include <console/console.h>
 
@@ -411,18 +412,21 @@ static bool_t console_stdio_register(struct resource_t * res)
 	{
 		if(register_console_uart(search_bus_uart(dat->in)))	{ }
 		else if (register_console_framebuffer(search_framebuffer(dat->in))) { }
+		else if (register_console_input(search_input(dat->in))) { }
 	}
 
 	if(!search_console(dat->out))
 	{
 		if(register_console_uart(search_bus_uart(dat->out))) { }
 		else if (register_console_framebuffer(search_framebuffer(dat->out))) { }
+		else if (register_console_input(search_input(dat->out))) { }
 	}
 
 	if(!search_console(dat->err))
 	{
 		if(register_console_uart(search_bus_uart(dat->err))) { }
 		else if (register_console_framebuffer(search_framebuffer(dat->err))) { }
+		else if (register_console_input(search_input(dat->err))) { }
 	}
 
 	c = search_console(dat->in);

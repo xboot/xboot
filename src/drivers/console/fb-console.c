@@ -1,5 +1,5 @@
 /*
- * drivers/console/fbcon.c
+ * drivers/console/fb-console.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,10 +22,10 @@
 
 #include <xboot.h>
 #include <console/console.h>
-#include <console/fbfont.h>
-#include <console/fbcon.h>
+#include <console/fb-font.h>
+#include <console/fb-console.h>
 
-struct fbcon_cell_t
+struct fb_console_cell_t
 {
 	/* code pointer */
 	u32_t cp;
@@ -62,7 +62,7 @@ struct fb_console_info_t
 	bool_t onoff;
 
 	/* fb console's cell */
-	struct fbcon_cell_t * cell;
+	struct fb_console_cell_t * cell;
 
 	/* fb console cell's length */
 	u32_t clen;
@@ -137,7 +137,7 @@ static void fb_helper_putcode(struct fb_t * fb, u32_t code, struct color_t * fc,
 	render_free_texture(fb->alone, face);
 }
 
-static bool_t fbcon_getwh(struct console_t * console, s32_t * w, s32_t * h)
+static bool_t fb_console_getwh(struct console_t * console, s32_t * w, s32_t * h)
 {
 	struct fb_console_info_t * info = console->priv;
 
@@ -153,7 +153,7 @@ static bool_t fbcon_getwh(struct console_t * console, s32_t * w, s32_t * h)
 	return TRUE;
 }
 
-static bool_t fbcon_getxy(struct console_t * console, s32_t * x, s32_t * y)
+static bool_t fb_console_getxy(struct console_t * console, s32_t * x, s32_t * y)
 {
 	struct fb_console_info_t * info = console->priv;
 
@@ -169,10 +169,10 @@ static bool_t fbcon_getxy(struct console_t * console, s32_t * x, s32_t * y)
 	return TRUE;
 }
 
-static bool_t fbcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
+static bool_t fb_console_gotoxy(struct console_t * console, s32_t x, s32_t y)
 {
 	struct fb_console_info_t * info = console->priv;
-	struct fbcon_cell_t * cell;
+	struct fb_console_cell_t * cell;
 	s32_t pos, px, py;
 
 	if(!info->onoff)
@@ -209,10 +209,10 @@ static bool_t fbcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 	return TRUE;
 }
 
-static bool_t fbcon_setcursor(struct console_t * console, bool_t on)
+static bool_t fb_console_setcursor(struct console_t * console, bool_t on)
 {
 	struct fb_console_info_t * info = console->priv;
-	struct fbcon_cell_t * cell;
+	struct fb_console_cell_t * cell;
 	s32_t pos, px, py;
 
 	if(!info->onoff)
@@ -233,7 +233,7 @@ static bool_t fbcon_setcursor(struct console_t * console, bool_t on)
 	return TRUE;
 }
 
-static bool_t fbcon_getcursor(struct console_t * console)
+static bool_t fb_console_getcursor(struct console_t * console)
 {
 	struct fb_console_info_t * info = console->priv;
 
@@ -243,7 +243,7 @@ static bool_t fbcon_getcursor(struct console_t * console)
 	return info->cursor;
 }
 
-static bool_t fbcon_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
+static bool_t fb_console_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
 {
 	struct fb_console_info_t * info = console->priv;
 
@@ -259,7 +259,7 @@ static bool_t fbcon_setcolor(struct console_t * console, enum tcolor_t f, enum t
 	return TRUE;
 }
 
-static bool_t fbcon_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
+static bool_t fb_console_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
 {
 	struct fb_console_info_t * info = console->priv;
 
@@ -272,10 +272,10 @@ static bool_t fbcon_getcolor(struct console_t * console, enum tcolor_t * f, enum
 	return TRUE;
 }
 
-static bool_t fbcon_cls(struct console_t * console)
+static bool_t fb_console_cls(struct console_t * console)
 {
 	struct fb_console_info_t * info = console->priv;
-	struct fbcon_cell_t * cell = &(info->cell[0]);
+	struct fb_console_cell_t * cell = &(info->cell[0]);
 	s32_t i;
 
 	if(!info->onoff)
@@ -291,15 +291,15 @@ static bool_t fbcon_cls(struct console_t * console)
 	}
 
 	fb_helper_fill_rect(info->fb, &(info->bc), 0, 0, (info->w * info->fw), (info->h * info->fh));
-	fbcon_gotoxy(console, 0, 0);
+	fb_console_gotoxy(console, 0, 0);
 
 	return TRUE;
 }
 
-static bool_t fbcon_scrollup(struct console_t * console)
+static bool_t fb_console_scrollup(struct console_t * console)
 {
 	struct fb_console_info_t * info = console->priv;
-	struct fbcon_cell_t * p, * q;
+	struct fb_console_cell_t * p, * q;
 	s32_t m, l;
 	s32_t i;
 
@@ -331,15 +331,15 @@ static bool_t fbcon_scrollup(struct console_t * console)
 	fb_helper_blit(info->fb, t, 0, 0, (info->w * info->fw), ((info->h - 1) * info->fh), 0, info->fh);
 	render_free_texture(info->fb->alone, t);
 	fb_helper_fill_rect(info->fb, &(info->bc), 0, ((info->h - 1) * info->fh), (info->w * info->fw), info->fh);
-	fbcon_gotoxy(console, info->x, info->y - 1);
+	fb_console_gotoxy(console, info->x, info->y - 1);
 
 	return TRUE;
 }
 
-static bool_t fbcon_putcode(struct console_t * console, u32_t code)
+static bool_t fb_console_putcode(struct console_t * console, u32_t code)
 {
 	struct fb_console_info_t * info = console->priv;
-	struct fbcon_cell_t * cell;
+	struct fb_console_cell_t * cell;
 	s32_t pos, px, py;
 	s32_t w, i;
 
@@ -370,17 +370,17 @@ static bool_t fbcon_putcode(struct console_t * console, u32_t code)
 			fb_helper_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 			info->x = info->x + 1;
 		}
-		fbcon_gotoxy(console, info->x, info->y);
+		fb_console_gotoxy(console, info->x, info->y);
 		break;
 
 	case UNICODE_LF:
 		if(info->y + 1 >= info->h)
-			fbcon_scrollup(console);
-		fbcon_gotoxy(console, 0, info->y + 1);
+			fb_console_scrollup(console);
+		fb_console_gotoxy(console, 0, info->y + 1);
 		break;
 
 	case UNICODE_CR:
-		fbcon_gotoxy(console, 0, info->y);
+		fb_console_gotoxy(console, 0, info->y);
 		break;
 
 	default:
@@ -397,9 +397,9 @@ static bool_t fbcon_putcode(struct console_t * console, u32_t code)
 
 		for(i = 1; i < w; i++)
 		{
-			((struct fbcon_cell_t *)(cell + i))->cp = UNICODE_SPACE;
-			((struct fbcon_cell_t *)(cell + i))->fc = info->fc;
-			((struct fbcon_cell_t *)(cell + i))->bc = info->bc;
+			((struct fb_console_cell_t *)(cell + i))->cp = UNICODE_SPACE;
+			((struct fb_console_cell_t *)(cell + i))->fc = info->fc;
+			((struct fb_console_cell_t *)(cell + i))->bc = info->bc;
 		}
 
 		px = (pos % info->w) * info->fw;
@@ -407,12 +407,12 @@ static bool_t fbcon_putcode(struct console_t * console, u32_t code)
 		fb_helper_putcode(info->fb, cell->cp, &(cell->fc), &(cell->bc), px, py);
 
 		if(info->x + w < info->w)
-			fbcon_gotoxy(console, info->x + w, info->y);
+			fb_console_gotoxy(console, info->x + w, info->y);
 		else
 		{
 			if(info->y + 1 >= info->h)
-				fbcon_scrollup(console);
-			fbcon_gotoxy(console, 0, info->y + 1);
+				fb_console_scrollup(console);
+			fb_console_gotoxy(console, 0, info->y + 1);
 		}
 		break;
 	}
@@ -420,7 +420,7 @@ static bool_t fbcon_putcode(struct console_t * console, u32_t code)
 	return TRUE;
 }
 
-static bool_t fbcon_onoff(struct console_t * console, bool_t flag)
+static bool_t fb_console_onoff(struct console_t * console, bool_t flag)
 {
 	struct fb_console_info_t * info = console->priv;
 
@@ -460,27 +460,27 @@ bool_t register_framebuffer_console(struct fb_t * fb)
 	info->cursor = TRUE;
 	info->onoff = TRUE;
 	info->clen = info->w * info->h;
-	info->cell = malloc(info->clen * sizeof(struct fbcon_cell_t));
+	info->cell = malloc(info->clen * sizeof(struct fb_console_cell_t));
 	if(!info->cell)
 	{
 		free(console);
 		free(info);
 		return FALSE;
 	}
-	memset(info->cell, 0, info->clen * sizeof(struct fbcon_cell_t));
+	memset(info->cell, 0, info->clen * sizeof(struct fb_console_cell_t));
 
 	console->name = strdup(info->name);
-	console->getwh = fbcon_getwh;
-	console->getxy = fbcon_getxy;
-	console->gotoxy = fbcon_gotoxy;
-	console->setcursor = fbcon_setcursor;
-	console->getcursor = fbcon_getcursor;
-	console->setcolor = fbcon_setcolor;
-	console->getcolor = fbcon_getcolor;
-	console->cls = fbcon_cls;
+	console->getwh = fb_console_getwh;
+	console->getxy = fb_console_getxy;
+	console->gotoxy = fb_console_gotoxy;
+	console->setcursor = fb_console_setcursor;
+	console->getcursor = fb_console_getcursor;
+	console->setcolor = fb_console_setcolor;
+	console->getcolor = fb_console_getcolor;
+	console->cls = fb_console_cls;
 	console->getcode = NULL;
-	console->putcode = fbcon_putcode;
-	console->onoff = fbcon_onoff;
+	console->putcode = fb_console_putcode;
+	console->onoff = fb_console_onoff;
 	console->priv = info;
 
 	if(!register_console(console))

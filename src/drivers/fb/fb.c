@@ -21,7 +21,6 @@
  */
 
 #include <xboot.h>
-#include <console/fbcon.h>
 #include <fb/fb.h>
 
 static void fb_suspend(struct device_t * dev)
@@ -112,7 +111,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 	if(fb->backlight)
 		fb->backlight(fb, 0);
 
-	register_framebuffer_console(fb);
 	return TRUE;
 }
 
@@ -144,6 +142,5 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	free(dev->name);
 	free(dev);
 
-	unregister_framebuffer_console(fb);
 	return TRUE;
 }

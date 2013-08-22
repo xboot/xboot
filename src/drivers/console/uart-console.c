@@ -22,7 +22,7 @@
 
 #include <xboot.h>
 #include <console/console.h>
-#include <console/uartcon.h>
+#include <console/uart-console.h>
 
 enum tty_state_t {
 	TTY_STATE_NORMAL,
@@ -64,7 +64,7 @@ struct uart_console_info_t
 	s32_t size;
 };
 
-static bool_t uartcon_getwh(struct console_t * console, s32_t * w, s32_t * h)
+static bool_t uart_console_getwh(struct console_t * console, s32_t * w, s32_t * h)
 {
 	struct uart_console_info_t * info = console->priv;
 
@@ -80,7 +80,7 @@ static bool_t uartcon_getwh(struct console_t * console, s32_t * w, s32_t * h)
 	return TRUE;
 }
 
-static bool_t uartcon_getxy(struct console_t * console, s32_t * x, s32_t * y)
+static bool_t uart_console_getxy(struct console_t * console, s32_t * x, s32_t * y)
 {
 	struct uart_console_info_t * info = console->priv;
 
@@ -96,7 +96,7 @@ static bool_t uartcon_getxy(struct console_t * console, s32_t * x, s32_t * y)
 	return TRUE;
 }
 
-static bool_t uartcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
+static bool_t uart_console_gotoxy(struct console_t * console, s32_t x, s32_t y)
 {
 	struct uart_console_info_t * info = console->priv;
 	char buf[32];
@@ -123,7 +123,7 @@ static bool_t uartcon_gotoxy(struct console_t * console, s32_t x, s32_t y)
 	return TRUE;
 }
 
-static bool_t uartcon_setcursor(struct console_t * console, bool_t on)
+static bool_t uart_console_setcursor(struct console_t * console, bool_t on)
 {
 	struct uart_console_info_t * info = console->priv;
 	char buf[32];
@@ -142,7 +142,7 @@ static bool_t uartcon_setcursor(struct console_t * console, bool_t on)
 	return TRUE;
 }
 
-static bool_t uartcon_getcursor(struct console_t * console)
+static bool_t uart_console_getcursor(struct console_t * console)
 {
 	struct uart_console_info_t * info = console->priv;
 
@@ -152,7 +152,7 @@ static bool_t uartcon_getcursor(struct console_t * console)
 	return info->cursor;
 }
 
-static bool_t uartcon_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
+static bool_t uart_console_setcolor(struct console_t * console, enum tcolor_t f, enum tcolor_t b)
 {
 	struct uart_console_info_t * info = console->priv;
 	char buf[32];
@@ -172,7 +172,7 @@ static bool_t uartcon_setcolor(struct console_t * console, enum tcolor_t f, enum
 	return TRUE;
 }
 
-static bool_t uartcon_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
+static bool_t uart_console_getcolor(struct console_t * console, enum tcolor_t * f, enum tcolor_t * b)
 {
 	struct uart_console_info_t * info = console->priv;
 
@@ -185,7 +185,7 @@ static bool_t uartcon_getcolor(struct console_t * console, enum tcolor_t * f, en
 	return TRUE;
 }
 
-static bool_t uartcon_cls(struct console_t * console)
+static bool_t uart_console_cls(struct console_t * console)
 {
 	struct uart_console_info_t * info = console->priv;
 	char buf[32];
@@ -208,7 +208,7 @@ static bool_t uartcon_cls(struct console_t * console)
 	return TRUE;
 }
 
-static bool_t uartcon_getcode(struct console_t * console, u32_t * code)
+static bool_t uart_console_getcode(struct console_t * console, u32_t * code)
 {
 	struct uart_console_info_t * info = console->priv;
 	s8_t c;
@@ -344,7 +344,7 @@ static bool_t uartcon_getcode(struct console_t * console, u32_t * code)
 	return FALSE;
 }
 
-static bool_t uartcon_putcode(struct console_t * console, u32_t code)
+static bool_t uart_console_putcode(struct console_t * console, u32_t code)
 {
 	struct uart_console_info_t * info = console->priv;
 	char buf[32];
@@ -396,7 +396,7 @@ static bool_t uartcon_putcode(struct console_t * console, u32_t code)
 	return TRUE;
 }
 
-static bool_t uartcon_onoff(struct console_t * console, bool_t flag)
+static bool_t uart_console_onoff(struct console_t * console, bool_t flag)
 {
 	struct uart_console_info_t * info = console->priv;
 
@@ -436,17 +436,17 @@ bool_t register_uart_console(struct uart_t * uart)
 	info->size = 0;
 
 	console->name = strdup(info->name);
-	console->getwh = uartcon_getwh;
-	console->getxy = uartcon_getxy;
-	console->gotoxy = uartcon_gotoxy;
-	console->setcursor = uartcon_setcursor;
-	console->getcursor = uartcon_getcursor;
-	console->setcolor = uartcon_setcolor;
-	console->getcolor = uartcon_getcolor;
-	console->cls = uartcon_cls;
-	console->getcode = uartcon_getcode;
-	console->putcode = uartcon_putcode;
-	console->onoff = uartcon_onoff;
+	console->getwh = uart_console_getwh;
+	console->getxy = uart_console_getxy;
+	console->gotoxy = uart_console_gotoxy;
+	console->setcursor = uart_console_setcursor;
+	console->getcursor = uart_console_getcursor;
+	console->setcolor = uart_console_setcolor;
+	console->getcolor = uart_console_getcolor;
+	console->cls = uart_console_cls;
+	console->getcode = uart_console_getcode;
+	console->putcode = uart_console_putcode;
+	console->onoff = uart_console_onoff;
 	console->priv = info;
 
 	if(!register_console(console))

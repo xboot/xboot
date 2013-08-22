@@ -1,16 +1,13 @@
 #ifndef __REALVIEW_REG_MOUSE_H__
 #define __REALVIEW_REG_MOUSE_H__
 
-#include <xboot.h>
+#define REALVIEW_MOUSE_BASE	 			(0x10007000)
 
-/*
- * prime cell pl050 register .
- */
-#define REALVIEW_MOUSE_CR	 			(0x10007000 + 0x00)
-#define REALVIEW_MOUSE_STAT	 			(0x10007000 + 0x04)
-#define REALVIEW_MOUSE_DATA	 			(0x10007000 + 0x08)
-#define REALVIEW_MOUSE_CLKDIV 			(0x10007000 + 0x0c)
-#define REALVIEW_MOUSE_IIR	 			(0x10007000 + 0x10)
+#define REALVIEW_MOUSE_OFFSET_CR	 	(0x00)
+#define REALVIEW_MOUSE_OFFSET_STAT	 	(0x04)
+#define REALVIEW_MOUSE_OFFSET_DATA	 	(0x08)
+#define REALVIEW_MOUSE_OFFSET_CLKDIV 	(0x0c)
+#define REALVIEW_MOUSE_OFFSET_IIR	 	(0x10)
 
 
 #define REALVIEW_MOUSE_CR_TYPE	 		(1 << 5)
@@ -30,6 +27,5 @@
 
 #define REALVIEW_MOUSE_IIR_TXINTR		(1 << 1)
 #define REALVIEW_MOUSE_IIR_RXINTR		(1 << 0)
-
 
 #endif /* __REALVIEW_REG_MOUSE_H__ */

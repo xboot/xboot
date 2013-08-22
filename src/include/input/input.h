@@ -8,61 +8,50 @@ extern "C" {
 #include <xboot.h>
 
 enum input_type_t {
-	INPUT_KEYBOARD			= 1,
-	INPUT_MOUSE				= 2,
-	INPUT_TOUCHSCREEN		= 3,
-	INPUT_JOYSTICK			= 4,
-	INPUT_ACCELEROMETER		= 5,
-	INPUT_GYROSCOPE			= 6,
-	INPUT_LIGHT				= 7,
-	INPUT_MAGNETIC			= 8,
-	INPUT_ORIENTATION		= 9,
-	INPUT_PRESSURE			= 10,
-	INPUT_PROXIMITY			= 11,
-	INPUT_TEMPERATURE		= 12,
-};
-
-struct input_event_t {
-	/* time stamp */
-	u32_t time;
-
-	/* input type */
-	enum input_type_t type;
-
-	/* event code */
-	s32_t code;
-
-	/* event value */
-	s32_t value;
+	INPUT_TYPE_KEYBOARD			= 1,
+	INPUT_TYPE_MOUSE			= 2,
+	INPUT_TYPE_TOUCHSCREEN		= 3,
+	INPUT_TYPE_JOYSTICK			= 4,
+	INPUT_TYPE_ACCELEROMETER	= 5,
+	INPUT_TYPE_GYROSCOPE		= 6,
+	INPUT_TYPE_LIGHT			= 7,
+	INPUT_TYPE_MAGNETIC			= 8,
+	INPUT_TYPE_ORIENTATION		= 9,
+	INPUT_TYPE_PRESSURE			= 10,
+	INPUT_TYPE_PROXIMITY		= 11,
+	INPUT_TYPE_TEMPERATURE		= 12,
 };
 
 struct input_t
 {
-	/* input name */
-	const char * name;
+	/* The input name */
+	char * name;
 
-	/* input type */
+	/* Input type */
 	enum input_type_t type;
 
-	/* probe input device */
-	bool_t (*probe)(struct input_t * input);
+	/* Initialize the input */
+	void (*init)(struct input_t * input);
 
-	/* remove input device */
-	bool_t (*remove)(struct input_t * input);
+	/* Clean up the input */
+	void (*exit)(struct input_t * input);
 
-	/* ioctl input device */
+	/* Ioctl interface */
 	int (*ioctl)(struct input_t * input, int cmd, void * arg);
 
-	/* private data */
+	/* Suspend input */
+	void (*suspend)(struct input_t * input);
+
+	/* Resume input */
+	void (*resume)(struct input_t * input);
+
+	/* Private data */
 	void * priv;
 };
 
 struct input_t * search_input(const char * name);
 bool_t register_input(struct input_t * input);
 bool_t unregister_input(struct input_t * input);
-
-void input_report(enum input_type_t type, s32_t code, s32_t value);
-void input_sync(enum input_type_t type);
 
 #ifdef __cplusplus
 }

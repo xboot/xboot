@@ -25,7 +25,6 @@
 #include <time/delay.h>
 #include <xboot/menu.h>
 #include <console/console.h>
-#include <input/keyboard/keyboard.h>
 #include <fb/fb.h>
 #include <init.h>
 

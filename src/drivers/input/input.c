@@ -21,323 +21,99 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <hash.h>
-#include <fifo.h>
-#include <stdio.h>
-#include <xboot/list.h>
-#include <xboot/proc.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <xboot/machine.h>
-#include <xboot/resource.h>
-#include <time/tick.h>
-#include <time/timer.h>
 #include <input/input.h>
 
-extern void keyboard_input_handler(struct input_event_t * event);
-
-struct input_list
+static void input_suspend(struct device_t * dev)
 {
 	struct input_t * input;
-	struct list_head entry;
-};
 
-static struct input_list __input_list = {
-	.entry = {
-		.next	= &(__input_list.entry),
-		.prev	= &(__input_list.entry),
-	},
-};
-static struct input_list * input_list = &__input_list;
+	if(!dev || dev->type != DEVICE_TYPE_INPUT)
+		return;
 
-static struct fifo_t * input_keyboard_fifo;
+	input = (struct input_t *)(dev->driver);
+	if(!input)
+		return;
+
+	if(input->suspend)
+		input->suspend(input);
+}
+
+static void input_resume(struct device_t * dev)
+{
+	struct input_t * input;
+
+	if(!dev || dev->type != DEVICE_TYPE_INPUT)
+		return;
+
+	input = (struct input_t *)(dev->driver);
+	if(!input)
+		return;
+
+	if(input->resume)
+		input->resume(input);
+}
 
 struct input_t * search_input(const char * name)
 {
-	struct input_list * list;
-	struct list_head * pos;
+	struct device_t * dev;
 
-	if(!name)
+	dev = search_device_with_type(name, DEVICE_TYPE_INPUT);
+	if(!dev)
 		return NULL;
 
-	for(pos = (&input_list->entry)->next; pos != (&input_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct input_list, entry);
-		if(strcmp(list->input->name, name) == 0)
-			return list->input;
-	}
-
-	return NULL;
+	return (struct input_t *)dev->driver;
 }
 
 bool_t register_input(struct input_t * input)
 {
-	struct input_list * list;
+	struct device_t * dev;
 
 	if(!input || !input->name)
 		return FALSE;
 
-	if(search_input(input->name))
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
-	if(!input->probe || !input->remove)
-		return FALSE;
+	dev->name = strdup(input->name);
+	dev->type = DEVICE_TYPE_INPUT;
+	dev->suspend = input_suspend;
+	dev->resume = input_resume;
+	dev->driver = input;
 
-	if(search_input(input->name))
-		return FALSE;
-
-	list = malloc(sizeof(struct input_list));
-	if(!list)
-		return FALSE;
-
-	if(! (input->probe)(input))
+	if(!register_device(dev))
 	{
-		free(list);
+		free(dev->name);
+		free(dev);
 		return FALSE;
 	}
 
-	list->input = input;
-	list_add_tail(&list->entry, &input_list->entry);
+	if(input->init)
+		(input->init)(input);
 
 	return TRUE;
 }
 
 bool_t unregister_input(struct input_t * input)
 {
-	struct input_list * list;
-	struct list_head * pos;
+	struct device_t * dev;
+	struct input_t * driver;
 
 	if(!input || !input->name)
 		return FALSE;
 
-	for(pos = (&input_list->entry)->next; pos != (&input_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct input_list, entry);
-		if(list->input == input)
-		{
-			if(input->remove)
-				(input->remove)(input);
+	dev = search_device_with_type(input->name, DEVICE_TYPE_INPUT);
+	if(!dev)
+		return FALSE;
 
-			list_del(pos);
-			free(list);
-			return TRUE;
-		}
-	}
+	driver = (struct input_t *)(dev->driver);
+	if(driver && driver->exit)
+		(driver->exit)(input);
 
-	return FALSE;
+	if(!unregister_device(dev))
+		return FALSE;
+
+	free(dev->name);
+	free(dev);
+	return TRUE;
 }
-
-void input_report(enum input_type_t type, s32_t code, s32_t value)
-{
-	struct input_event_t event;
-
-	event.time = jiffies;
-	event.type = type;
-	event.code = code;
-	event.value = value;
-
-	switch(type)
-	{
-	case INPUT_KEYBOARD:
-		fifo_put(input_keyboard_fifo, (u8_t *)&event, sizeof(struct input_event_t));
-		break;
-
-	case INPUT_MOUSE:
-		break;
-
-	case INPUT_TOUCHSCREEN:
-		break;
-
-	case INPUT_JOYSTICK:
-		break;
-
-	case INPUT_ACCELEROMETER:
-		break;
-
-	case INPUT_GYROSCOPE:
-		break;
-
-	case INPUT_LIGHT:
-		break;
-
-	case INPUT_MAGNETIC:
-		break;
-
-	case INPUT_ORIENTATION:
-		break;
-
-	case INPUT_PRESSURE:
-		break;
-
-	case INPUT_PROXIMITY:
-		break;
-
-	case INPUT_TEMPERATURE:
-		break;
-
-	default:
-		break;
-	}
-}
-
-void input_sync(enum input_type_t type)
-{
-	struct input_event_t event;
-
-	switch(type)
-	{
-	case INPUT_KEYBOARD:
-		while(fifo_get(input_keyboard_fifo, (u8_t *)&event, sizeof(struct input_event_t)) == sizeof(struct input_event_t))
-		{
-			keyboard_input_handler(&event);
-		}
-		break;
-
-	case INPUT_MOUSE:
-		break;
-
-	case INPUT_TOUCHSCREEN:
-		break;
-
-	case INPUT_JOYSTICK:
-		break;
-
-	case INPUT_ACCELEROMETER:
-		break;
-
-	case INPUT_GYROSCOPE:
-		break;
-
-	case INPUT_LIGHT:
-		break;
-
-	case INPUT_MAGNETIC:
-		break;
-
-	case INPUT_ORIENTATION:
-		break;
-
-	case INPUT_PRESSURE:
-		break;
-
-	case INPUT_PROXIMITY:
-		break;
-
-	case INPUT_TEMPERATURE:
-		break;
-
-	default:
-		break;
-	}
-}
-
-static s32_t input_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct input_list * list;
-	struct list_head * pos;
-	s8_t * p;
-	s32_t len = 0;
-	char buff[32];
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), (const char *)"[input]");
-
-	for(pos = (&input_list->entry)->next; pos != (&input_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct input_list, entry);
-
-		switch(list->input->type)
-		{
-		case INPUT_KEYBOARD:
-			strcpy(buff, (const char *)"keyboard");
-			break;
-
-		case INPUT_MOUSE:
-			strcpy(buff, (const char *)"mouse");
-			break;
-
-		case INPUT_TOUCHSCREEN:
-			strcpy(buff, (const char *)"touchscreen");
-			break;
-
-		case INPUT_JOYSTICK:
-			strcpy(buff, (const char *)"joystick");
-			break;
-
-		case INPUT_ACCELEROMETER:
-			strcpy(buff, (const char *)"accelerometer");
-			break;
-
-		case INPUT_GYROSCOPE:
-			strcpy(buff, (const char *)"gyroscope");
-			break;
-
-		case INPUT_LIGHT:
-			strcpy(buff, (const char *)"light");
-			break;
-
-		case INPUT_MAGNETIC:
-			strcpy(buff, (const char *)"magnetic");
-			break;
-
-		case INPUT_ORIENTATION:
-			strcpy(buff, (const char *)"orientation");
-			break;
-
-		case INPUT_PRESSURE:
-			strcpy(buff, (const char *)"pressure");
-			break;
-
-		case INPUT_PROXIMITY:
-			strcpy(buff, (const char *)"proximity");
-			break;
-
-		case INPUT_TEMPERATURE:
-			strcpy(buff, (const char *)"temperature");
-			break;
-
-		default:
-			strcpy(buff, (const char *)"unknown");
-			break;
-		}
-		len += sprintf((char *)(p + len), (const char *)"\r\n %s %*s%s", list->input->name, (int)(16 - strlen(list->input->name)), "", buff);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t input_proc = {
-	.name	= "input",
-	.read	= input_proc_read,
-};
-
-static __init void input_proc_init(void)
-{
-	input_keyboard_fifo = fifo_alloc(sizeof(struct input_event_t) * 256);
-	proc_register(&input_proc);
-}
-
-static __init void input_proc_exit(void)
-{
-	fifo_free(input_keyboard_fifo);
-	proc_unregister(&input_proc);
-}
-
-core_initcall(input_proc_init);
-core_exitcall(input_proc_exit);

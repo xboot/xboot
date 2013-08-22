@@ -28,7 +28,6 @@
 #include <fb/fb.h>
 #include <rtc/rtc.h>
 #include <input/input.h>
-#include <input/keyboard/keyboard.h>
 #include <console/console.h>
 #include <block/loop.h>
 #include <command/command.h>

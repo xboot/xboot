@@ -23,9 +23,7 @@
  */
 
 #include <xboot.h>
-#include <input/input.h>
-#include <input/keyboard/keyboard.h>
-#include <realview/reg-keyboard.h>
+#include <realview-keyboard.h>
 
 #define	KBD_LEFT_SHIFT		(0x00000001)
 #define	KBD_RIGHT_SHIFT		(0x00000002)
@@ -48,6 +46,11 @@ struct keymap {
 	enum key_code_t caps_key;
 	enum key_code_t shift_key;
 	enum key_code_t ctrl_key;
+};
+
+enum key_value_t {
+	KEY_BUTTON_UP,
+	KEY_BUTTON_DOWN,
 };
 
 static const struct keymap map[] = {
@@ -119,8 +122,9 @@ static const struct keymap map[] = {
 
 static void keyboard_report_event(u32_t flag, u8_t data, enum key_value_t press)
 {
-	u32_t i;
+	struct event_t event;
 	enum key_code_t key;
+	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(map); i++)
 	{
@@ -137,26 +141,28 @@ static void keyboard_report_event(u32_t flag, u8_t data, enum key_value_t press)
 
 			if(key != 0)
 			{
-				input_report(INPUT_KEYBOARD, key, press);
-				input_sync(INPUT_KEYBOARD);
+				event.device = "ps2-keyboard";
+				event.type = (press == KEY_BUTTON_DOWN) ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
+				event.e.key.code = key;
+				push_event(&event);
 			}
 		}
 	}
 }
 
-static bool_t kmi_write(u8_t data)
+static bool_t kmi_write(struct realview_keyboard_data_t * dat, u8_t data)
 {
 	s32_t timeout = 1000;
 
-	while((readb(REALVIEW_KEYBOARD_STAT) & REALVIEW_KEYBOARD_STAT_TXEMPTY) == 0 && timeout--);
+	while((readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_STAT) & REALVIEW_KEYBOARD_STAT_TXEMPTY) == 0 && timeout--);
 
 	if(timeout)
 	{
-		writeb(REALVIEW_KEYBOARD_DATA, data);
+		writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA, data);
 
-		while((readb(REALVIEW_KEYBOARD_STAT) & REALVIEW_KEYBOARD_STAT_RXFULL) == 0);
+		while((readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_STAT) & REALVIEW_KEYBOARD_STAT_RXFULL) == 0);
 
-		if( readb(REALVIEW_KEYBOARD_DATA) == 0xfa)
+		if( readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA) == 0xfa)
 			return TRUE;
 		else
 			return FALSE;
@@ -165,28 +171,33 @@ static bool_t kmi_write(u8_t data)
 	return FALSE;
 }
 
-static bool_t kmi_read(u8_t * data)
+static bool_t kmi_read(struct realview_keyboard_data_t * dat, u8_t * data)
 {
-	if( (readb(REALVIEW_KEYBOARD_STAT) & REALVIEW_KEYBOARD_STAT_RXFULL) )
+	if( (readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_STAT) & REALVIEW_KEYBOARD_STAT_RXFULL) )
 	{
-		*data = readb(REALVIEW_KEYBOARD_DATA);
+		*data = readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA);
 		return TRUE;
 	}
 
 	return FALSE;
 }
 
+static struct input_t * data;
 static void keyboard_interrupt(void)
 {
+	struct input_t * input = (struct input_t *)data;
+	struct resource_t * res = (struct resource_t *)input->priv;
+	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
+
 	static enum decode_state ds = DECODE_STATE_MAKE_CODE;
 	static u32_t kbd_flag = KBD_NUM_LOCK;
 	u8_t status, data;
 
-	status = readb(REALVIEW_KEYBOARD_IIR);
+	status = readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_IIR);
 
 	while(status & REALVIEW_KEYBOARD_IIR_RXINTR)
 	{
-		data = readb(REALVIEW_KEYBOARD_DATA);
+		data = readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA);
 
 		switch(ds)
 		{
@@ -333,113 +344,149 @@ static void keyboard_interrupt(void)
 			break;
 		}
 
-		status = readb(REALVIEW_KEYBOARD_IIR);
+		status = readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_IIR);
 	}
 }
 
-static bool_t keyboard_probe(struct input_t * input)
+static void input_init(struct input_t * input)
 {
+	struct resource_t * res = (struct resource_t *)input->priv;
+	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
 	u32_t divisor;
 	u64_t kclk;
 	u8_t data;
 
 	if(! clk_get_rate("kclk", &kclk))
-	{
-		LOG("Can't get clock source 'kclk'");
-		return FALSE;
-	}
+		return;
 
-	/* set keyboard's clock divisor */
+	/* Set keyboard's clock divisor */
 	divisor = (u32_t)(kclk / 8000000) - 1;
-	writeb(REALVIEW_KEYBOARD_CLKDIV, divisor);
+	writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CLKDIV, divisor);
 
-	/* enable keyboard controller */
-	writeb(REALVIEW_KEYBOARD_CR, REALVIEW_KEYBOARD_CR_EN);
+	/* Enable keyboard controller */
+	writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, REALVIEW_KEYBOARD_CR_EN);
 
-	/* clear a receive buffer */
-	kmi_read(&data);
+	/* Clear a receive buffer */
+	kmi_read(dat, &data);
 
-	/* reset keyboard, and wait ack and pass/fail code */
-	if(! kmi_write(0xff) )
-		return FALSE;
-	if(! kmi_read(&data))
-		return FALSE;
+	/* Reset keyboard, and wait ack and pass/fail code */
+	if(! kmi_write(dat, 0xff) )
+		return;
+	if(! kmi_read(dat, &data))
+		return;
 	if(data != 0xaa)
-		return FALSE;
+		return;
 
-	/* set keyboard's typematic rate/delay */
-	kmi_write(0xf3);
+	/* Set keyboard's typematic rate/delay */
+	kmi_write(dat, 0xf3);
 	/* 10.9pcs, 500ms */
-	kmi_write(0x2b);
+	kmi_write(dat, 0x2b);
 
-	/* scan code set 2 */
-	kmi_write(0xf0);
-	kmi_write(0x02);
+	/* Scan code set 2 */
+	kmi_write(dat, 0xf0);
+	kmi_write(dat, 0x02);
 
-	/* set all keys typematic/make/break */
-	kmi_write(0xfa);
+	/* Set all keys typematic/make/break */
+	kmi_write(dat, 0xfa);
 
-	/* set keyboard's number lock, caps lock, and scroll lock */
-	kmi_write(0xed);
-	kmi_write(0x02);
+	/* Set keyboard's number lock, caps lock, and scroll lock */
+	kmi_write(dat, 0xed);
+	kmi_write(dat, 0x02);
 
 	if(!request_irq("KMI0", keyboard_interrupt))
 	{
 		LOG("Can't request irq 'KMI0'");
-		writeb(REALVIEW_KEYBOARD_CR, 0);
-		return FALSE;
+		writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, 0);
+		return;
 	}
 
-	/* re-enables keyboard */
-	writeb(REALVIEW_KEYBOARD_CR, REALVIEW_KEYBOARD_CR_EN | REALVIEW_KEYBOARD_CR_RXINTREN);
-
-	return TRUE;
+	/* Re-enables keyboard */
+	writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, REALVIEW_KEYBOARD_CR_EN | REALVIEW_KEYBOARD_CR_RXINTREN);
 }
 
-static bool_t keyboard_remove(struct input_t * input)
+static void input_exit(struct input_t * input)
 {
+	struct resource_t * res = (struct resource_t *)input->priv;
+	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
+
 	if(!free_irq("KMI0"))
 		LOG("Can't free irq 'KMI0'");
-	writeb(REALVIEW_KEYBOARD_CR, 0);
-
-	return TRUE;
+	writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, 0);
 }
 
-static int keyboard_ioctl(struct input_t * input, int cmd, void * arg)
+static int input_ioctl(struct input_t * input, int cmd, void * arg)
 {
 	return -1;
 }
 
-static struct input_t realview_keyboard = {
-	.name		= "keyboard",
-	.type		= INPUT_KEYBOARD,
-	.probe		= keyboard_probe,
-	.remove		= keyboard_remove,
-	.ioctl		= keyboard_ioctl,
-	.priv		= NULL,
-};
-
-static __init void realview_keyboard_init(void)
+static void input_suspend(struct input_t * input)
 {
+}
+
+static void input_resume(struct input_t * input)
+{
+}
+
+static bool_t realview_register_keyboard(struct resource_t * res)
+{
+	struct input_t * input;
+	char name[64];
+
 	if(! clk_get_rate("kclk", 0))
 	{
 		LOG("Can't get clock source 'kclk'");
-		return;
+		return FALSE;
 	}
 
-	if(register_input(&realview_keyboard))
-		LOG("Register input '%s'", realview_keyboard.name);
-	else
-		LOG("Failed to register input '%s'", realview_keyboard.name);
+	input = malloc(sizeof(struct input_t));
+	if(!input)
+		return FALSE;
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	input->name = name;
+	input->type = INPUT_TYPE_KEYBOARD;
+	input->init = input_init;
+	input->exit = input_exit;
+	input->ioctl = input_ioctl;
+	input->suspend = input_suspend,
+	input->resume	= input_resume,
+	input->priv = res;
+	data = input;
+
+	if(register_input(input))
+		return TRUE;
+
+	free(input);
+	return FALSE;
 }
 
-static __exit void realview_keyboard_exit(void)
+static bool_t realview_unregister_keyboard(struct resource_t * res)
 {
-	if(unregister_input(&realview_keyboard))
-		LOG("Unregister input '%s'", realview_keyboard.name);
-	else
-		LOG("Failed to unregister input '%s'", realview_keyboard.name);
+	struct input_t * input;
+	char name[64];
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	input = search_input(name);
+	if(!input)
+		return FALSE;
+
+	if(!unregister_input(input))
+		return FALSE;
+
+	free(input);
+	return TRUE;
 }
 
-device_initcall(realview_keyboard_init);
-device_exitcall(realview_keyboard_exit);
+static __init void realview_keyboard_device_init(void)
+{
+	resource_callback_with_name("input.keyboard", realview_register_keyboard);
+}
+
+static __exit void realview_keyboard_device_exit(void)
+{
+	resource_callback_with_name("input.keyboard", realview_unregister_keyboard);
+}
+
+device_initcall(realview_keyboard_device_init);
+device_exitcall(realview_keyboard_device_exit);

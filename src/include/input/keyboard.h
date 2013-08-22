@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <input/input.h>
 
 enum key_code_t {
 	KEY_CTRL_A					= 0x0001,
@@ -151,23 +150,6 @@ enum key_code_t {
 	KEY_POWER					= 0x008a,
 	KEY_RESET					= 0x008b,
 };
-
-enum key_value_t {
-	KEY_BUTTON_UP				= 0,
-	KEY_BUTTON_DOWN				= 1,
-};
-
-typedef void (*handler_onkeyraw)(struct input_event_t * event);
-typedef void (*handler_onkeyup)(enum key_code_t key);
-typedef void (*handler_onkeydown)(enum key_code_t key);
-
-
-bool_t install_listener_onkeyraw(handler_onkeyraw raw);
-bool_t remove_listener_onkeyraw(handler_onkeyraw raw);
-bool_t install_listener_onkeyup(handler_onkeyup keyup);
-bool_t remove_listener_onkeyup(handler_onkeyup keyup);
-bool_t install_listener_onkeydown(handler_onkeydown keydown);
-bool_t remove_listener_onkeydown(handler_onkeydown keydown);
 
 #ifdef __cplusplus
 }

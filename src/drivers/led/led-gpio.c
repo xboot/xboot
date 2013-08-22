@@ -73,7 +73,7 @@ static bool_t led_gpio_register_led(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%s", res->name, dat->name);
 
-	led->name = name;
+	led->name = strdup(name);
 	led->init = led_gpio_init;
 	led->exit = led_gpio_exit;
 	led->set = led_gpio_set,
@@ -84,6 +84,7 @@ static bool_t led_gpio_register_led(struct resource_t * res)
 	if(register_led(led))
 		return TRUE;
 
+	free(led->name);
 	free(led);
 	return FALSE;
 }
@@ -103,6 +104,7 @@ static bool_t led_gpio_unregister_led(struct resource_t * res)
 	if(!unregister_led(led))
 		return FALSE;
 
+	free(led->name);
 	free(led);
 	return TRUE;
 }

@@ -160,7 +160,8 @@ static bool_t realview_register_rtc(struct resource_t * res)
 		return FALSE;
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-	rtc->name = name;
+
+	rtc->name = strdup(name);
 	rtc->init = rtc_init;
 	rtc->exit = rtc_exit;
 	rtc->settime = rtc_settime,
@@ -174,6 +175,7 @@ static bool_t realview_register_rtc(struct resource_t * res)
 	if(register_rtc(rtc))
 		return TRUE;
 
+	free(rtc->name);
 	free(rtc);
 	return FALSE;
 }
@@ -192,6 +194,7 @@ static bool_t realview_unregister_rtc(struct resource_t * res)
 	if(!unregister_rtc(rtc))
 		return FALSE;
 
+	free(rtc->name);
 	free(rtc);
 	return TRUE;
 }

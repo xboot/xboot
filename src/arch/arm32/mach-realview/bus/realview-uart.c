@@ -235,7 +235,8 @@ static bool_t realview_register_bus_uart(struct resource_t * res)
 		return FALSE;
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-	uart->name = name;
+
+	uart->name = strdup(name);
 	uart->init = realview_uart_init;
 	uart->exit = realview_uart_exit;
 	uart->read = realview_uart_read;
@@ -246,6 +247,7 @@ static bool_t realview_register_bus_uart(struct resource_t * res)
 	if(register_bus_uart(uart))
 		return TRUE;
 
+	free(uart->name);
 	free(uart);
 	return FALSE;
 }
@@ -264,6 +266,7 @@ static bool_t realview_unregister_bus_uart(struct resource_t * res)
 	if(!unregister_bus_uart(uart))
 		return FALSE;
 
+	free(uart->name);
 	free(uart);
 	return TRUE;
 }

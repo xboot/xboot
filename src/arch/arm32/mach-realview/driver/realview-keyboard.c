@@ -443,7 +443,8 @@ static bool_t realview_register_keyboard(struct resource_t * res)
 		return FALSE;
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-	input->name = name;
+
+	input->name = strdup(name);
 	input->type = INPUT_TYPE_KEYBOARD;
 	input->init = input_init;
 	input->exit = input_exit;
@@ -456,6 +457,7 @@ static bool_t realview_register_keyboard(struct resource_t * res)
 	if(register_input(input))
 		return TRUE;
 
+	free(input->name);
 	free(input);
 	return FALSE;
 }
@@ -474,6 +476,7 @@ static bool_t realview_unregister_keyboard(struct resource_t * res)
 	if(!unregister_input(input))
 		return FALSE;
 
+	free(input->name);
 	free(input);
 	return TRUE;
 }

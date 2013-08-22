@@ -158,7 +158,8 @@ static bool_t realview_register_framebuffer(struct resource_t * res)
 		return FALSE;
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-	fb->name = name;
+
+	fb->name = strdup(name);
 	fb->init = fb_init,
 	fb->exit = fb_exit,
 	fb->xcursor = fb_xcursor,
@@ -174,6 +175,7 @@ static bool_t realview_register_framebuffer(struct resource_t * res)
 	if(register_framebuffer(fb))
 		return TRUE;
 
+	free(fb->name);
 	free(fb);
 	return FALSE;
 }
@@ -192,6 +194,7 @@ static bool_t realview_unregister_framebuffer(struct resource_t * res)
 	if(!unregister_framebuffer(fb))
 		return FALSE;
 
+	free(fb->name);
 	free(fb);
 	return TRUE;
 }

@@ -15,7 +15,7 @@ extern "C" {
 struct fb_t
 {
 	/* Framebuffer name */
-	const char * name;
+	char * name;
 
 	/* Initialize the framebuffer */
 	void (*init)(struct fb_t * fb);

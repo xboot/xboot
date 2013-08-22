@@ -122,11 +122,12 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 	}
 
 	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+
 	dat->phase = 0;
 	dat->period = 0;
 	dat->rdat = rdat;
 
-	trigger->name = name;
+	trigger->name = strdup(name);
 	trigger->init = ledtrig_heartbeat_init;
 	trigger->exit = ledtrig_heartbeat_exit;
 	trigger->activity = ledtrig_heartbeat_activity;
@@ -137,6 +138,7 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 		return TRUE;
 
 	free(dat);
+	free(trigger->name);
 	free(trigger);
 	return FALSE;
 }
@@ -158,6 +160,7 @@ static bool_t ledtrig_unregister_heartbeat(struct resource_t * res)
 		return FALSE;
 
 	free(dat);
+	free(trigger->name);
 	free(trigger);
 	return TRUE;
 }

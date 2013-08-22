@@ -102,11 +102,12 @@ static bool_t ledtrig_register_general(struct resource_t * res)
 	}
 
 	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+
 	dat->activity = 0;
 	dat->last_activity = 0;
 	dat->rdat = rdat;
 
-	trigger->name = name;
+	trigger->name = strdup(name);
 	trigger->init = ledtrig_general_init;
 	trigger->exit = ledtrig_general_exit;
 	trigger->activity = ledtrig_general_activity;
@@ -117,6 +118,7 @@ static bool_t ledtrig_register_general(struct resource_t * res)
 		return TRUE;
 
 	free(dat);
+	free(trigger->name);
 	free(trigger);
 	return FALSE;
 }
@@ -138,6 +140,7 @@ static bool_t ledtrig_unregister_general(struct resource_t * res)
 		return FALSE;
 
 	free(dat);
+	free(trigger->name);
 	free(trigger);
 	return TRUE;
 }

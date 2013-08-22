@@ -307,6 +307,9 @@ static __exit void realview_irq_exit(void)
 			LOG("Failed to unregister irq '%s'", realview_irqs[i].name);
 	}
 
+	/* Disable vector interrupt controller */
+	vic_disable();
+
 	/* Disable irq and fiq */
 	irq_disable();
 	fiq_disable();

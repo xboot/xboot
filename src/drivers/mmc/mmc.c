@@ -31,7 +31,6 @@
 #include <xboot/printk.h>
 #include <xboot/device.h>
 #include <block/block.h>
-#include <xboot/ioctl.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
 #include <mmc/mmc.h>

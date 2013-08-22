@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/command/cmd_xm.c
+ * kernel/command/cmd_xm.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org

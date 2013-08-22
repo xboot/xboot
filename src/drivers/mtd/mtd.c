@@ -31,7 +31,6 @@
 #include <xboot/printk.h>
 #include <xboot/device.h>
 #include <block/block.h>
-#include <xboot/ioctl.h>
 #include <mtd/nand/nand.h>
 #include <mtd/mtd.h>
 

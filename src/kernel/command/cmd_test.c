@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/command/cmd_test.c
+ * kernel/command/cmd_test.c
  */
 
 #include <xboot.h>

@@ -35,7 +35,6 @@ extern "C" {
 #include <xboot/list.h>
 #include <xboot/logger.h>
 #include <xboot/proc.h>
-#include <xboot/ioctl.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <xboot/printk.h>
@@ -114,10 +113,6 @@ extern "C" {
 
 #if !defined(CONFIG_COMMAND_PROBE)
 #define	CONFIG_COMMAND_PROBE						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_TETRIS)
-#define	CONFIG_COMMAND_TETRIS						(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_EXIT)

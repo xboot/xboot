@@ -113,30 +113,56 @@ bool_t unregister_gpio(struct gpio_t * gpio)
 	return FALSE;
 }
 
-void gpio_set_pull(int no, enum gpio_pull_t mode)
+void gpio_cfg_pin(int no, int cfg)
 {
 	struct gpio_t * gpio = search_gpio_with_no(no);
 
 	if(!gpio)
 		return;
 
-	if(!gpio->pull)
+	if(!gpio->cfg_pin)
 		return;
 
-	gpio->pull(gpio, no - gpio->base, mode);
+	gpio->cfg_pin(gpio, no - gpio->base, cfg);
 }
 
-void gpio_direction_input(int no)
+void gpio_set_pull(int no, enum gpio_pull_t pull)
 {
 	struct gpio_t * gpio = search_gpio_with_no(no);
 
 	if(!gpio)
 		return;
 
-	if(!gpio->input)
+	if(!gpio->set_pull)
 		return;
 
-	gpio->input(gpio, no - gpio->base);
+	gpio->set_pull(gpio, no - gpio->base, pull);
+}
+
+void gpio_set_drv(int no, enum gpio_drv_t drv)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
+
+	if(!gpio)
+		return;
+
+	if(!gpio->set_drv)
+		return;
+
+	gpio->set_drv(gpio, no - gpio->base, drv);
+}
+
+void gpio_set_rate(int no, enum gpio_rate_t rate)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
+
+	if(!gpio)
+		return;
+
+	if(!gpio->set_rate)
+		return;
+
+	gpio->set_rate(gpio, no - gpio->base, rate);
 }
 
 void gpio_direction_output(int no, int value)
@@ -146,10 +172,23 @@ void gpio_direction_output(int no, int value)
 	if(!gpio)
 		return;
 
-	if(!gpio->output)
+	if(!gpio->direction_output)
 		return;
 
-	return gpio->output(gpio, no - gpio->base, value);
+	return gpio->direction_output(gpio, no - gpio->base, value);
+}
+
+void gpio_direction_input(int no)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
+
+	if(!gpio)
+		return;
+
+	if(!gpio->direction_input)
+		return;
+
+	gpio->direction_input(gpio, no - gpio->base);
 }
 
 void gpio_set_value(int no, int value)
@@ -159,10 +198,10 @@ void gpio_set_value(int no, int value)
 	if(!gpio)
 		return;
 
-	if(!gpio->set)
+	if(!gpio->set_value)
 		return;
 
-	gpio->set(gpio, no - gpio->base, value);
+	gpio->set_value(gpio, no - gpio->base, value);
 }
 
 int gpio_get_value(int no)
@@ -172,10 +211,10 @@ int gpio_get_value(int no)
 	if(!gpio)
 		return 0;
 
-	if(!gpio->get)
+	if(!gpio->get_value)
 		return 0;
 
-	return gpio->get(gpio, no - gpio->base);
+	return gpio->get_value(gpio, no - gpio->base);
 }
 
 static s32_t gpio_proc_read(u8_t * buf, s32_t offset, s32_t count)

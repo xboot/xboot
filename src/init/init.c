@@ -126,15 +126,6 @@ void do_system_cfg(void)
 	LOG("Load system configure");
 
 	/*
-	 * load the setting of stdin, stdout and stderr console
-	 */
-	if(! console_stdio_load("/etc/console.xml"))
-	{
-		if(! console_stdio_load("/romdisk/etc/console.xml"))
-			LOG("Can not setting the standard console");
-	}
-
-	/*
 	 * load environment variable
 	 */
 	if(! loadenv("/etc/environment.xml"))

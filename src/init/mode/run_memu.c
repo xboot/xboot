@@ -102,9 +102,9 @@ static void menu_ctx_paint(struct menu_ctx * ctx)
 
 static struct menu_ctx * menu_ctx_alloc(void)
 {
-	struct console_t * cin = get_console_stdin();
-	struct console_t * cout = get_console_stdout();
-	struct console_t * cerr = get_console_stderr();
+	struct console_t * cin = console_get_stdin();
+	struct console_t * cout = console_get_stdout();
+	struct console_t * cerr = console_get_stderr();
 	struct menu_ctx * ctx;
 	s32_t w, h;
 

@@ -22,7 +22,8 @@
 
 #include <xboot.h>
 #include <spinlock.h>
-#include <xml.h>
+#include <console/console-uart.h>
+#include <console/console-fb.h>
 #include <console/console.h>
 
 struct console_list_t {
@@ -38,45 +39,34 @@ static struct console_list_t __console_list = {
 };
 static spinlock_t __console_list_lock = SPIN_LOCK_INIT();
 
-static struct console_t * console_stdin = NULL;
-static struct console_t * console_stdout = NULL;
-static struct console_t * console_stderr = NULL;
+static struct console_t * __console_stdin = NULL;
+static struct console_t * __console_stdout = NULL;
+static struct console_t * __console_stderr = NULL;
 
-inline struct console_t * get_console_stdin(void)
-{
-	return console_stdin;
-}
-
-inline struct console_t * get_console_stdout(void)
-{
-	return console_stdout;
-}
-
-inline struct console_t * get_console_stderr(void)
-{
-	return console_stderr;
-}
+struct console_t * console_get_stdin(void)  { return __console_stdin;  }
+struct console_t * console_get_stdout(void) { return __console_stdout; }
+struct console_t * console_get_stderr(void) { return __console_stderr; }
 
 bool_t console_stdin_getcode(u32_t * code)
 {
-	if(!console_stdin || !console_stdin->getcode)
+	if(!__console_stdin || !__console_stdin->getcode)
 		return FALSE;
 
-	return console_stdin->getcode(console_stdin, code);
+	return __console_stdin->getcode(__console_stdin, code);
 }
 
 bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout)
 {
 	u32_t end;
 
-	if(!console_stdin || !console_stdin->getcode)
+	if(!__console_stdin || !__console_stdin->getcode)
 		return FALSE;
 
 	if(get_system_hz() > 0)
 	{
 		end = jiffies + timeout * get_system_hz() / 1000;
 
-		while(! console_stdin->getcode(console_stdin, code))
+		while(! __console_stdin->getcode(__console_stdin, code))
 		{
 			if(jiffies >= end)
 				return FALSE;
@@ -88,7 +78,7 @@ bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout)
 	{
 		end = timeout * 100;
 
-		while(! console_stdin->getcode(console_stdin, code))
+		while(! __console_stdin->getcode(__console_stdin, code))
 		{
 			if(end <= 0)
 				return FALSE;
@@ -108,7 +98,7 @@ bool_t console_stdout_putc(char c)
 	char * rest;
 	u32_t code;
 
-	if(!console_stdout || !console_stdout->putcode)
+	if(!__console_stdout || !__console_stdout->putcode)
 		return FALSE;
 
 	buf[size++] = c;
@@ -116,7 +106,7 @@ bool_t console_stdout_putc(char c)
 	{
 		size -= rest - buf;
 		memmove(buf, rest, size);
-		console_stdout->putcode(console_stdout, code);
+		__console_stdout->putcode(__console_stdout, code);
 	}
 	return TRUE;
 }
@@ -128,7 +118,7 @@ bool_t console_stderr_putc(char c)
 	char * rest;
 	u32_t code;
 
-	if(!console_stderr || !console_stderr->putcode)
+	if(!__console_stderr || !__console_stderr->putcode)
 		return FALSE;
 
 	buf[size++] = c;
@@ -136,210 +126,8 @@ bool_t console_stderr_putc(char c)
 	{
 		size -= rest - buf;
 		memmove(buf, rest, size);
-		console_stderr->putcode(console_stderr, code);
+		__console_stderr->putcode(__console_stderr, code);
 	}
-	return TRUE;
-}
-
-struct console_t * search_console(const char *name)
-{
-	struct console_list_t * pos, * n;
-
-	if(!name)
-		return NULL;
-
-	list_for_each_entry_safe(pos, n, &(__console_list.entry), entry)
-	{
-		if(strcmp(pos->console->name, name) == 0)
-			return pos->console;
-	}
-
-	return NULL;
-}
-
-bool_t register_console(struct console_t * console)
-{
-	struct console_list_t * cl;
-
-	if(!console || !console->name)
-		return FALSE;
-
-	if(!console->getcode && !console->putcode)
-		return FALSE;
-
-	if(search_console(console->name))
-		return FALSE;
-
-	cl = malloc(sizeof(struct console_list_t));
-	if(!cl)
-		return FALSE;
-
-	cl->console = console;
-
-	spin_lock_irq(&__console_list_lock);
-	list_add_tail(&cl->entry, &(__console_list.entry));
-	spin_unlock_irq(&__console_list_lock);
-
-	return TRUE;
-}
-
-bool_t unregister_console(struct console_t * console)
-{
-	struct console_list_t * pos, * n;
-
-	if(!console || !console->name)
-		return FALSE;
-
-	list_for_each_entry_safe(pos, n, &(__console_list.entry), entry)
-	{
-		if(pos->console == console)
-		{
-			spin_lock_irq(&__console_list_lock);
-			list_del(&(pos->entry));
-			spin_unlock_irq(&__console_list_lock);
-
-			free(pos);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-bool_t console_stdio_set(const char * in, const char * out, const char * err)
-{
-	struct console_t * cin, * cout, * cerr;
-
-	if(!in || !out || !err)
-		return FALSE;
-
-	cin = search_console(in);
-	if(!cin || !cin->getcode)
-		return FALSE;
-
-	cout = search_console(out);
-	if(!cout || !cout->putcode)
-		return FALSE;
-
-	cerr = search_console(err);
-	if(!cerr || !cerr->putcode)
-		return FALSE;
-
-	console_stdin = cin;
-	console_stdout = cout;
-	console_stderr = cerr;
-
-	return TRUE;
-}
-
-bool_t console_stdio_load(char * file)
-{
-	struct xml * root;
-	struct xml * in, * out, * err;
-
-	root = xml_parse_file(file);
-	if(!root || !root->name)
-		return FALSE;
-
-	if(strcmp(root->name, "console") != 0)
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	in = xml_get(root, "stdin", -1);
-	if(! in)
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	out = xml_get(root, "stdout", -1);
-	if(! out)
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	err = xml_get(root, "stderr", -1);
-	if(! err)
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	if(! console_stdio_set(xml_attr(in, "name"), xml_attr(out, "name"), xml_attr(err, "name")))
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	xml_free(root);
-	return TRUE;
-}
-
-bool_t console_stdio_save(char * file)
-{
-	struct xml * root;
-	struct xml * in, * out, * err;
-	char * str;
-	s32_t fd;
-
-	root = xml_new("console");
-	if(!root)
-		return FALSE;
-
-	in = xml_add_child(root, "stdin", 0);
-	if(!in)
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	if(console_stdin && console_stdin->name)
-		xml_set_attr(in, "name", console_stdin->name);
-
-	out = xml_add_child(root, "stdout", 1);
-	if(!out)
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	if(console_stdout && console_stdout->name)
-		xml_set_attr(out, "name", console_stdout->name);
-
-	err = xml_add_child(root, "stderr", 1);
-	if(!err)
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	if(console_stderr && console_stderr->name)
-		xml_set_attr(err, "name", console_stderr->name);
-
-	str = xml_toxml(root);
-	if(!str)
-	{
-		xml_free(root);
-		return FALSE;
-	}
-
-	fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-	if(fd < 0)
-	{
-		free(str);
-		xml_free(root);
-		return FALSE;
-	}
-
-	write(fd, str, strlen((const char *)str));
-	close(fd);
-
-	free(str);
-	xml_free(root);
-
 	return TRUE;
 }
 
@@ -548,3 +336,147 @@ int console_print(struct console_t * console, const char * fmt, ...)
 	free(buf);
 	return len;
 }
+
+struct console_t * search_console(const char * name)
+{
+	struct console_list_t * pos, * n;
+
+	if(!name)
+		return NULL;
+
+	list_for_each_entry_safe(pos, n, &(__console_list.entry), entry)
+	{
+		if(strcmp(pos->console->name, name) == 0)
+			return pos->console;
+	}
+
+	return NULL;
+}
+
+bool_t register_console(struct console_t * console)
+{
+	struct console_list_t * cl;
+
+	if(!console || !console->name)
+		return FALSE;
+
+	if(!console->getcode && !console->putcode)
+		return FALSE;
+
+	if(search_console(console->name))
+		return FALSE;
+
+	cl = malloc(sizeof(struct console_list_t));
+	if(!cl)
+		return FALSE;
+
+	cl->console = console;
+
+	spin_lock_irq(&__console_list_lock);
+	list_add_tail(&cl->entry, &(__console_list.entry));
+	spin_unlock_irq(&__console_list_lock);
+
+	return TRUE;
+}
+
+bool_t unregister_console(struct console_t * console)
+{
+	struct console_list_t * pos, * n;
+
+	if(!console || !console->name)
+		return FALSE;
+
+	list_for_each_entry_safe(pos, n, &(__console_list.entry), entry)
+	{
+		if(pos->console == console)
+		{
+			spin_lock_irq(&__console_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__console_list_lock);
+
+			free(pos);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static bool_t console_stdio_register(struct resource_t * res)
+{
+	struct console_stdio_data_t * dat = (struct console_stdio_data_t *)res->data;
+	struct console_t * c;
+
+	if(!search_console(dat->in))
+	{
+		if(register_console_uart(search_bus_uart(dat->in)))	{ }
+		else if (register_console_framebuffer(search_framebuffer(dat->in))) { }
+	}
+
+	if(!search_console(dat->out))
+	{
+		if(register_console_uart(search_bus_uart(dat->out))) { }
+		else if (register_console_framebuffer(search_framebuffer(dat->out))) { }
+	}
+
+	if(!search_console(dat->err))
+	{
+		if(register_console_uart(search_bus_uart(dat->err))) { }
+		else if (register_console_framebuffer(search_framebuffer(dat->err))) { }
+	}
+
+	c = search_console(dat->in);
+	if(c && c->getcode)
+		__console_stdin = c;
+
+	c = search_console(dat->out);
+	if(c && c->putcode)
+		__console_stdout = c;
+
+	c = search_console(dat->err);
+	if(c && c->putcode)
+		__console_stderr = c;
+
+	LOG("Console stdio: [%s] [%s] [%s]",
+			__console_stdin  ? __console_stdin->name  : "N/A",
+			__console_stdout ? __console_stdout->name : "N/A",
+			__console_stderr ? __console_stderr->name : "N/A");
+	return TRUE;
+}
+
+static bool_t console_stdio_unregister(struct resource_t * res)
+{
+	struct console_stdio_data_t * dat = (struct console_stdio_data_t *)res->data;
+	struct console_t * c;
+
+	c = search_console(dat->in);
+	if(c)
+		unregister_console(c);
+
+	c = search_console(dat->out);
+	if(c)
+		unregister_console(c);
+
+	c = search_console(dat->err);
+	if(c)
+		unregister_console(c);
+
+	__console_stdin = NULL;
+	__console_stdout = NULL;
+	__console_stderr = NULL;
+
+	return TRUE;
+}
+
+static __init void console_stdio_device_init(void)
+{
+	resource_callback_with_name("console", console_stdio_register);
+}
+
+static __exit void console_stdio_device_exit(void)
+{
+	resource_callback_with_name("console", console_stdio_unregister);
+}
+
+xxx1_initcall(console_stdio_device_init);
+xxx1_exitcall(console_stdio_device_exit);

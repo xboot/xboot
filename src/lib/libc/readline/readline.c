@@ -234,9 +234,9 @@ static void rl_print(struct rl_buf * rl, s32_t pos)
 
 static struct rl_buf * rl_buf_alloc(const char * prompt)
 {
-	struct console_t * cin = get_console_stdin();
-	struct console_t * cout = get_console_stdout();
-	struct console_t * cerr = get_console_stderr();
+	struct console_t * cin = console_get_stdin();
+	struct console_t * cout = console_get_stdout();
+	struct console_t * cerr = console_get_stderr();
 	struct rl_buf * rl;
 	s32_t x, y, w, h;
 

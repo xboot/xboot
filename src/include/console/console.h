@@ -49,6 +49,13 @@ enum tcolor_t {
 	TCOLOR_BRIGHT_WHITE		= 0x0f,
 };
 
+struct console_stdio_data_t
+{
+	const char * in;
+	const char * out;
+	const char * err;
+};
+
 struct console_t
 {
 	/* the name of console */
@@ -91,22 +98,14 @@ struct console_t
 	void * priv;
 };
 
-struct console_t * get_console_stdin(void);
-struct console_t * get_console_stdout(void);
-struct console_t * get_console_stderr(void);
+struct console_t * console_get_stdin(void);
+struct console_t * console_get_stdout(void);
+struct console_t * console_get_stderr(void);
 
 bool_t console_stdin_getcode(u32_t * code);
 bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout);
 bool_t console_stdout_putc(char c);
 bool_t console_stderr_putc(char c);
-
-struct console_t * search_console(const char *name);
-bool_t register_console(struct console_t * console);
-bool_t unregister_console(struct console_t * console);
-
-bool_t console_stdio_set(const char * in, const char * out, const char * err);
-bool_t console_stdio_load(char * file);
-bool_t console_stdio_save(char * file);
 
 bool_t console_getwh(struct console_t * console, s32_t * w, s32_t * h);
 bool_t console_getxy(struct console_t * console, s32_t * x, s32_t * y);
@@ -123,6 +122,10 @@ bool_t console_hline(struct console_t * console, u32_t code, u32_t x0, u32_t y0,
 bool_t console_vline(struct console_t * console, u32_t code, u32_t x0, u32_t y0, u32_t y);
 bool_t console_rect(struct console_t * console, u32_t hline, u32_t vline, u32_t lt, u32_t rt, u32_t lb, u32_t rb, u32_t x, u32_t y, u32_t w, u32_t h);
 int console_print(struct console_t * console, const char * fmt, ...);
+
+struct console_t * search_console(const char *name);
+bool_t register_console(struct console_t * console);
+bool_t unregister_console(struct console_t * console);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*
- * init/mode/run_shell.c
+ * resource/res-console.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,30 +21,34 @@
  */
 
 #include <xboot.h>
-#include <shell/exec.h>
-#include <mode/mode.h>
 
-/*
- * running the shell mode
- */
-void run_shell_mode(void)
+static struct console_stdio_data_t console_stdio_data = {
+	.in		= "uart.pl011.0",
+	.out	= "uart.pl011.0",
+	.err	= "uart.pl011.0",
+};
+
+static struct resource_t res_console = {
+	.name	= "console",
+	.id		= -1,
+	.data	= &console_stdio_data,
+};
+
+static __init void resource_console_init(void)
 {
-	char * p;
-	char cwd[256];
-	char prompt[256];
-
-	/*
-	 * clear the screen
-	 */
-	console_cls(console_get_stdout());
-
-	do {
-		getcwd(cwd, sizeof(cwd));
-		sprintf(prompt, "%s: %s$ ", getenv("prompt"), cwd);
-
-		p = readline(prompt);
-
-		exec_cmdline(p);
-		free(p);
-	} while(xboot_get_mode() == MODE_SHELL);
+	if(register_resource(&res_console))
+		LOG("Register resource '%s.%d'", res_console.name, res_console.id);
+	else
+		LOG("Failed to register resource '%s.%d'", res_console.name, res_console.id);
 }
+
+static __exit void resource_console_exit(void)
+{
+	if(unregister_resource(&res_console))
+		LOG("Unregister resource '%s.%d'", res_console.name, res_console.id);
+	else
+		LOG("Failed to unregister resource '%s.%d'", res_console.name, res_console.id);
+}
+
+resource_initcall(resource_console_init);
+resource_exitcall(resource_console_exit);

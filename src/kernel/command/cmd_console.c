@@ -33,15 +33,15 @@ static int console(int argc, char ** argv)
 
 	if(strcmp(argv[1], "on") == 0)
 	{
-		console_onoff(get_console_stdin(), TRUE);
-		console_onoff(get_console_stdout(), TRUE);
-		console_onoff(get_console_stderr(), TRUE);
+		console_onoff(console_get_stdin(), TRUE);
+		console_onoff(console_get_stdout(), TRUE);
+		console_onoff(console_get_stderr(), TRUE);
 	}
 	else if(strcmp(argv[1], "off") == 0)
 	{
-		console_onoff(get_console_stdin(), FALSE);
-		console_onoff(get_console_stdout(), FALSE);
-		console_onoff(get_console_stderr(), FALSE);
+		console_onoff(console_get_stdin(), FALSE);
+		console_onoff(console_get_stdout(), FALSE);
+		console_onoff(console_get_stderr(), FALSE);
 	}
 
 	return 0;

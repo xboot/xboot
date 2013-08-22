@@ -180,7 +180,7 @@ static int ls(int argc, char ** argv)
 	if( (v = malloc(sizeof(s8_t *) * argc)) == NULL)
 		return -1;
 
-	if(!console_getwh(get_console_stdout(), &width, &height))
+	if(!console_getwh(console_get_stdout(), &width, &height))
 		return -1;
 
 	for(i=1; i<argc; i++)

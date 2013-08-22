@@ -1,5 +1,5 @@
 /*
- * drivers/console/uartcon.c
+ * drivers/console/console-uart.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,7 +22,7 @@
 
 #include <xboot.h>
 #include <console/console.h>
-#include <console/uart-console.h>
+#include <console/console-uart.h>
 
 enum tty_state_t {
 	TTY_STATE_NORMAL,
@@ -404,7 +404,7 @@ static bool_t uart_console_onoff(struct console_t * console, bool_t flag)
 	return TRUE;
 }
 
-bool_t register_uart_console(struct uart_t * uart)
+bool_t register_console_uart(struct uart_t * uart)
 {
 	struct console_t * console;
 	struct uart_console_info_t * info;
@@ -460,7 +460,7 @@ bool_t register_uart_console(struct uart_t * uart)
 	return TRUE;
 }
 
-bool_t unregister_uart_console(struct uart_t * uart)
+bool_t unregister_console_uart(struct uart_t * uart)
 {
 	struct console_t * console;
 	struct uart_console_info_t * info;

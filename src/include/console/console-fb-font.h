@@ -1,5 +1,5 @@
-#ifndef __FB_FONT_H__
-#define __FB_FONT_H__
+#ifndef __CONSOLE_FB_FONT_H__
+#define __CONSOLE_FB_FONT_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,4 +15,4 @@ struct texture_t * lookup_console_font_face(struct render_t * render, u32_t code
 }
 #endif
 
-#endif /* __FB_FONT_H__ */
+#endif /* __CONSOLE_FB_FONT_H__ */

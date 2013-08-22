@@ -1,5 +1,5 @@
 /*
- * drivers/console/fb-console.c
+ * drivers/console/console-fb.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,8 +22,8 @@
 
 #include <xboot.h>
 #include <console/console.h>
-#include <console/fb-font.h>
-#include <console/fb-console.h>
+#include <console/console-fb-font.h>
+#include <console/console-fb.h>
 
 struct fb_console_cell_t
 {
@@ -428,7 +428,7 @@ static bool_t fb_console_onoff(struct console_t * console, bool_t flag)
 	return TRUE;
 }
 
-bool_t register_framebuffer_console(struct fb_t * fb)
+bool_t register_console_framebuffer(struct fb_t * fb)
 {
 	struct console_t * console;
 	struct fb_console_info_t * info;
@@ -495,7 +495,7 @@ bool_t register_framebuffer_console(struct fb_t * fb)
 	return TRUE;
 }
 
-bool_t unregister_framebuffer_console(struct fb_t * fb)
+bool_t unregister_console_framebuffer(struct fb_t * fb)
 {
 	struct console_t * console;
 	struct fb_console_info_t * info;

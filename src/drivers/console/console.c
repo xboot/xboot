@@ -21,6 +21,7 @@
  */
 
 #include <xboot.h>
+#include <spinlock.h>
 #include <xml.h>
 #include <console/console.h>
 
@@ -35,7 +36,7 @@ static struct console_list_t __console_list = {
 		.prev	= &(__console_list.entry),
 	},
 };
-static struct console_list_t * console_list = &__console_list;
+static spinlock_t __console_list_lock = SPIN_LOCK_INIT();
 
 static struct console_t * console_stdin = NULL;
 static struct console_t * console_stdout = NULL;
@@ -142,17 +143,15 @@ bool_t console_stderr_putc(char c)
 
 struct console_t * search_console(const char *name)
 {
-	struct console_list_t * list;
-	struct list_head * pos;
+	struct console_list_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__console_list.entry), entry)
 	{
-		list = list_entry(pos, struct console_list_t, entry);
-		if(strcmp(list->console->name, name) == 0)
-			return list->console;
+		if(strcmp(pos->console->name, name) == 0)
+			return pos->console;
 	}
 
 	return NULL;
@@ -160,61 +159,46 @@ struct console_t * search_console(const char *name)
 
 bool_t register_console(struct console_t * console)
 {
-	struct console_list_t * list;
+	struct console_list_t * cl;
 
-	list = malloc(sizeof(struct console_list_t));
-	if(!list || !console)
-	{
-		free(list);
+	if(!console || !console->name)
 		return FALSE;
-	}
 
-	if(!console->name || (!console->getcode && !console->putcode) || search_console(console->name))
-	{
-		free(list);
+	if(!console->getcode && !console->putcode)
 		return FALSE;
-	}
 
-	list->console = console;
-	list_add(&list->entry, &console_list->entry);
+	if(search_console(console->name))
+		return FALSE;
 
-	if((console_stdin == NULL) && (console->getcode))
-		console_stdin = console;
+	cl = malloc(sizeof(struct console_list_t));
+	if(!cl)
+		return FALSE;
 
-	if((console_stdout == NULL) && (console->putcode))
-		console_stdout = console;
+	cl->console = console;
 
-	if((console_stderr == NULL) && (console->putcode))
-		console_stderr = console;
+	spin_lock_irq(&__console_list_lock);
+	list_add_tail(&cl->entry, &(__console_list.entry));
+	spin_unlock_irq(&__console_list_lock);
 
 	return TRUE;
 }
 
 bool_t unregister_console(struct console_t * console)
 {
-	struct console_list_t * list;
-	struct list_head * pos;
+	struct console_list_t * pos, * n;
 
 	if(!console || !console->name)
 		return FALSE;
 
-	for(pos = (&console_list->entry)->next; pos != (&console_list->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__console_list.entry), entry)
 	{
-		list = list_entry(pos, struct console_list_t, entry);
-		if(list->console == console)
+		if(pos->console == console)
 		{
-			list_del(pos);
-			free(list);
+			spin_lock_irq(&__console_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__console_list_lock);
 
-			if(console_stdin == console)
-				console_stdin = NULL;
-
-			if(console_stdout == console)
-				console_stdout = NULL;
-
-			if(console_stderr == console)
-				console_stderr = NULL;
-
+			free(pos);
 			return TRUE;
 		}
 	}
@@ -436,35 +420,6 @@ bool_t console_onoff(struct console_t * console, bool_t flag)
 	return FALSE;
 }
 
-int console_print(struct console_t * console, const char * fmt, ...)
-{
-	va_list ap;
-	u32_t code;
-	char *p, *buf;
-	int len;
-
-	if(!console || !console->putcode)
-		return 0;
-
-	va_start(ap, fmt);
-	len = vsnprintf(NULL, 0, fmt, ap);
-	if(len < 0)
-		return 0;
-	buf = malloc(len + 1);
-	if(!buf)
-		return 0;
-	len = vsnprintf(buf, len + 1, fmt, ap);
-	va_end(ap);
-
-	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const char **)&p) > 0; )
-	{
-		console->putcode(console, code);
-	}
-
-	free(buf);
-	return len;
-}
-
 bool_t console_hline(struct console_t * console, u32_t code, u32_t x0, u32_t y0, u32_t x)
 {
 	s32_t w, h;
@@ -563,4 +518,33 @@ bool_t console_rect(struct console_t * console, u32_t hline, u32_t vline, u32_t 
 	}
 
 	return FALSE;
+}
+
+int console_print(struct console_t * console, const char * fmt, ...)
+{
+	va_list ap;
+	u32_t code;
+	char *p, *buf;
+	int len;
+
+	if(!console || !console->putcode)
+		return 0;
+
+	va_start(ap, fmt);
+	len = vsnprintf(NULL, 0, fmt, ap);
+	if(len < 0)
+		return 0;
+	buf = malloc(len + 1);
+	if(!buf)
+		return 0;
+	len = vsnprintf(buf, len + 1, fmt, ap);
+	va_end(ap);
+
+	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const char **)&p) > 0; )
+	{
+		console->putcode(console, code);
+	}
+
+	free(buf);
+	return len;
 }

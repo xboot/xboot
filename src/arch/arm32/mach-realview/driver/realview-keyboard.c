@@ -182,8 +182,7 @@ static bool_t kmi_read(struct realview_keyboard_data_t * dat, u8_t * data)
 	return FALSE;
 }
 
-static struct input_t * data;
-static void keyboard_interrupt(void)
+static void keyboard_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
 	struct resource_t * res = (struct resource_t *)input->priv;
@@ -191,24 +190,24 @@ static void keyboard_interrupt(void)
 
 	static enum decode_state ds = DECODE_STATE_MAKE_CODE;
 	static u32_t kbd_flag = KBD_NUM_LOCK;
-	u8_t status, data;
+	u8_t status, value;
 
 	status = readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_IIR);
 
 	while(status & REALVIEW_KEYBOARD_IIR_RXINTR)
 	{
-		data = readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA);
+		value = readb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA);
 
 		switch(ds)
 		{
 		case DECODE_STATE_MAKE_CODE:
 			/* break code */
-			if(data == 0xf0)
+			if(value == 0xf0)
 			{
 				ds = DECODE_STATE_BREAK_CODE;
 			}
 			/* long make code */
-			else if(data == 0xe0)
+			else if(value == 0xe0)
 			{
 				ds = DECODE_STATE_LONG_MAKE_CODE;
 			}
@@ -217,22 +216,22 @@ static void keyboard_interrupt(void)
 				ds = DECODE_STATE_MAKE_CODE;
 
 				/* left shift */
-				if(data == 0x12)
+				if(value == 0x12)
 				{
 					kbd_flag |= KBD_LEFT_SHIFT;
 				}
 				/* right shift */
-				else if(data == 0x59)
+				else if(value == 0x59)
 				{
 					kbd_flag |= KBD_RIGHT_SHIFT;
 				}
 				/* left ctrl */
-				else if(data == 0x14)
+				else if(value == 0x14)
 				{
 					kbd_flag |= KBD_LEFT_CTRL;
 				}
 				/* caps lock */
-				else if(data == 0x58)
+				else if(value == 0x58)
 				{
 					if(kbd_flag & KBD_CAPS_LOCK)
 						kbd_flag &= ~KBD_CAPS_LOCK;
@@ -240,7 +239,7 @@ static void keyboard_interrupt(void)
 						kbd_flag |= KBD_CAPS_LOCK;
 				}
 				/* scroll lock */
-				else if(data == 0x7e)
+				else if(value == 0x7e)
 				{
 					if(kbd_flag & KBD_SCROLL_LOCK)
 						kbd_flag &= ~KBD_SCROLL_LOCK;
@@ -248,7 +247,7 @@ static void keyboard_interrupt(void)
 						kbd_flag |= KBD_SCROLL_LOCK;
 				}
 				/* num lock */
-				else if(data == 0x77)
+				else if(value == 0x77)
 				{
 					if(kbd_flag & KBD_NUM_LOCK)
 						kbd_flag &= ~KBD_NUM_LOCK;
@@ -258,35 +257,35 @@ static void keyboard_interrupt(void)
 				/* others */
 				else
 				{
-					keyboard_report_event(kbd_flag, data, KEY_BUTTON_DOWN);
+					keyboard_report_event(kbd_flag, value, KEY_BUTTON_DOWN);
 				}
 			}
 			break;
 
 		case DECODE_STATE_BREAK_CODE:
-			if( (data != 0xf0) && (data != 0xe0))
+			if( (value != 0xf0) && (value != 0xe0))
 			{
 				ds = DECODE_STATE_MAKE_CODE;
 
 				/* left shift */
-				if(data == 0x12)
+				if(value == 0x12)
 				{
 					kbd_flag &= ~KBD_LEFT_SHIFT;
 				}
 				/* right shift */
-				else if(data == 0x59)
+				else if(value == 0x59)
 				{
 					kbd_flag &= ~KBD_RIGHT_SHIFT;
 				}
 				/* left ctrl */
-				else if(data == 0x14)
+				else if(value == 0x14)
 				{
 					kbd_flag &= ~KBD_LEFT_CTRL;
 				}
 				/* others */
 				else
 				{
-					keyboard_report_event(kbd_flag, data, KEY_BUTTON_UP);
+					keyboard_report_event(kbd_flag, value, KEY_BUTTON_UP);
 				}
 			}
 			else
@@ -296,19 +295,19 @@ static void keyboard_interrupt(void)
 			break;
 
 		case DECODE_STATE_LONG_MAKE_CODE:
-			if( data != 0xf0 && data!= 0xe0)
+			if( value != 0xf0 && value!= 0xe0)
 			{
 				ds = DECODE_STATE_MAKE_CODE;
 
 				/* left ctrl */
-				if(data == 0x14)
+				if(value == 0x14)
 				{
 					kbd_flag |= KBD_RIGHT_CTRL;
 				}
 				/* others */
 				else
 				{
-					keyboard_report_event(kbd_flag, data, KEY_BUTTON_DOWN);
+					keyboard_report_event(kbd_flag, value, KEY_BUTTON_DOWN);
 				}
 			}
 			else
@@ -318,19 +317,19 @@ static void keyboard_interrupt(void)
 			break;
 
 		case DECODE_STATE_LONG_BREAK_CODE:
-			if( (data != 0xf0) && (data != 0xe0))
+			if( (value != 0xf0) && (value != 0xe0))
 			{
 				ds = DECODE_STATE_MAKE_CODE;
 
 				/* left ctrl */
-				if(data == 0x14)
+				if(value == 0x14)
 				{
 					kbd_flag &= ~KBD_RIGHT_CTRL;
 				}
 				/* others */
 				else
 				{
-					keyboard_report_event(kbd_flag, data, KEY_BUTTON_UP);
+					keyboard_report_event(kbd_flag, value, KEY_BUTTON_UP);
 				}
 			}
 			else
@@ -354,7 +353,7 @@ static void input_init(struct input_t * input)
 	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
 	u32_t divisor;
 	u64_t kclk;
-	u8_t data;
+	u8_t value;
 
 	if(! clk_get_rate("kclk", &kclk))
 		return;
@@ -367,14 +366,14 @@ static void input_init(struct input_t * input)
 	writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, REALVIEW_KEYBOARD_CR_EN);
 
 	/* Clear a receive buffer */
-	kmi_read(dat, &data);
+	kmi_read(dat, &value);
 
 	/* Reset keyboard, and wait ack and pass/fail code */
 	if(! kmi_write(dat, 0xff) )
 		return;
-	if(! kmi_read(dat, &data))
+	if(! kmi_read(dat, &value))
 		return;
-	if(data != 0xaa)
+	if(value != 0xaa)
 		return;
 
 	/* Set keyboard's typematic rate/delay */
@@ -393,7 +392,7 @@ static void input_init(struct input_t * input)
 	kmi_write(dat, 0xed);
 	kmi_write(dat, 0x02);
 
-	if(!request_irq("KMI0", keyboard_interrupt))
+	if(!request_irq("KMI0", keyboard_interrupt, input))
 	{
 		LOG("Can't request irq 'KMI0'");
 		writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, 0);
@@ -452,7 +451,6 @@ static bool_t realview_register_keyboard(struct resource_t * res)
 	input->suspend = input_suspend,
 	input->resume	= input_resume,
 	input->priv = res;
-	data = input;
 
 	if(register_input(input))
 		return TRUE;

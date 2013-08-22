@@ -28,7 +28,7 @@
 /*
  * tick timer interrupt.
  */
-static void timer_interrupt(void)
+static void timer_interrupt(void * data)
 {
 	tick_interrupt();
 
@@ -50,7 +50,7 @@ static bool_t tick_timer_init(void)
 	/* for 1ms reload count */
 	count = (u32_t)(timclk / 1000);
 
-	if(!request_irq("TMIER2_3", timer_interrupt))
+	if(!request_irq("TMIER2_3", timer_interrupt, NULL))
 	{
 		LOG("can't request irq \'TMIER2_3\'");
 		return FALSE;

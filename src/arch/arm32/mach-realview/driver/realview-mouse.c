@@ -57,8 +57,7 @@ static bool_t kmi_read(struct realview_mouse_data_t * dat, u8_t * value)
 	return FALSE;
 }
 
-static struct input_t * data;
-static void mouse_interrupt(void)
+static void mouse_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
 	struct resource_t * res = (struct resource_t *)input->priv;
@@ -112,7 +111,7 @@ static void input_init(struct input_t * input)
 	struct realview_mouse_data_t * dat = (struct realview_mouse_data_t *)res->data;
 	u32_t divisor;
 	u64_t kclk;
-	u8_t data;
+	u8_t value;
 
 	if(! clk_get_rate("kclk", &kclk))
 		return;
@@ -127,9 +126,9 @@ static void input_init(struct input_t * input)
 	/* Reset mouse, and wait ack and pass/fail code */
 	if(! kmi_write(dat, 0xff) )
 		return;
-	if(! kmi_read(dat, &data))
+	if(! kmi_read(dat, &value))
 		return;
-	if(data != 0xaa)
+	if(value != 0xaa)
 		return;
 
 	/* Enable scroll wheel */
@@ -143,8 +142,8 @@ static void input_init(struct input_t * input)
 	kmi_write(dat, 80);
 
 	kmi_write(dat, 0xf2);
-	kmi_read(dat, &data);
-	kmi_read(dat, &data);
+	kmi_read(dat, &value);
+	kmi_read(dat, &value);
 
 	/* Set sample rate, 100 samples/sec */
 	kmi_write(dat, 0xf3);
@@ -159,12 +158,12 @@ static void input_init(struct input_t * input)
 	kmi_write(dat, 0xf4);
 
 	/* Clear a receive buffer */
-	kmi_read(dat, &data);
-	kmi_read(dat, &data);
-	kmi_read(dat, &data);
-	kmi_read(dat, &data);
+	kmi_read(dat, &value);
+	kmi_read(dat, &value);
+	kmi_read(dat, &value);
+	kmi_read(dat, &value);
 
-	if(!request_irq("KMI1", mouse_interrupt))
+	if(!request_irq("KMI1", mouse_interrupt, input))
 	{
 		LOG("Can't request irq 'KMI1'");
 		writeb(dat->regbase + REALVIEW_MOUSE_OFFSET_CR, 0);
@@ -223,7 +222,6 @@ static bool_t realview_register_mouse(struct resource_t * res)
 	input->suspend = input_suspend,
 	input->resume	= input_resume,
 	input->priv = res;
-	data = input;
 
 	if(register_input(input))
 		return TRUE;

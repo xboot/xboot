@@ -24,45 +24,28 @@
 #include <realview-cp15.h>
 #include <realview/reg-gic.h>
 
-/*
- * the struct of regs, which saved and restore in the interrupt.
- */
-struct irq_regs {
+struct pt_regs_t {
 	u32_t	r0,		r1,		r2,		r3, 	r4,		r5;
 	u32_t	r6,		r7,		r8, 	r9, 	r10,	fp;
 	u32_t	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
 };
 
-/*
- * the irq handler.
- */
-static irq_handler_t realview_irq_handler[32];
+static struct irq_handler_t realview_irq_handler[32];
 
-/*
- * null function for irq handler
- */
-static void null_irq_handler(void) { }
-
-/*
- * do irqs.
- */
-void do_irqs(struct irq_regs * regs)
+void do_irqs(struct pt_regs_t * regs)
 {
 	u32_t irq;
 
-	/* get irq's offset */
+	/* Get irq's offset */
 	irq = readl(REALVIEW_GIC1_CPU_INTACK) & 0x3ff;
 
-	/* running interrupt server function */
-	(realview_irq_handler[irq-32])();
+	/* Handle interrupt server function */
+	(realview_irq_handler[irq - 32].func)(realview_irq_handler[irq - 32].data);
 
-	/* end of interrupt */
+	/* Exit interrupt */
 	writel(REALVIEW_GIC1_CPU_EOI, irq);
 }
 
-/*
- * enable or disable irq.
- */
 static void enable_irqs(struct irq_t * irq, bool_t enable)
 {
 	u32_t mask = 1 << (irq->irq_no % 32);
@@ -73,9 +56,6 @@ static void enable_irqs(struct irq_t * irq, bool_t enable)
 		writel(REALVIEW_GIC1_DIST_ENABLE_CLEAR + (irq->irq_no / 32) * 4, mask);
 }
 
-/*
- * the array of irq.
- */
 static struct irq_t realview_irqs[] = {
 	{
 		.name		= "WDOG",
@@ -241,16 +221,20 @@ static __init void realview_irq_init(void)
 	u32_t max_irq;
 	u32_t cpumask;
 
-	/* get cpumask */
+	/*
+	 * Get cpumask
+	 */
 	cpumask = 1 << 0;
 	cpumask |= cpumask << 8;
 	cpumask |= cpumask << 16;
 
-	/* ignore all peripheral interrupt signals */
+	/*
+	 * Ignore all peripheral interrupt signals
+	 */
 	writel(REALVIEW_GIC1_DIST_CTRL, 0);
 
 	/*
-	 * find out how many interrupts are supported.
+	 * Find out how many interrupts are supported.
 	 * and the GIC only supports up to 1020 interrupt sources.
 	 */
 	max_irq = readl(REALVIEW_GIC1_DIST_CTR) & 0x1f;
@@ -260,44 +244,41 @@ static __init void realview_irq_init(void)
 		max_irq = 1020;
 
 	/*
-	 * set all global interrupts to be level triggered, active low.
+	 * Set all global interrupts to be level triggered, active low.
 	 */
 	for(i = 32; i < max_irq; i += 16)
 		writel(REALVIEW_GIC1_DIST_CONFIG + i * 4 / 16, 0);
 
 	/*
-	 * set all global interrupts to this CPU only.
+	 * Set all global interrupts to this CPU only.
 	 */
 	for(i = 32; i < max_irq; i += 4)
 		writel(REALVIEW_GIC1_DIST_TARGET + i * 4 / 4, cpumask);
 
 	/*
-	 * set priority on all interrupts.
+	 * Set priority on all interrupts.
 	 */
 	for(i = 0; i < max_irq; i += 4)
 		writel(REALVIEW_GIC1_DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
 
 	/*
-	 * disable all interrupts.
+	 * Disable all interrupts.
 	 */
 	for(i = 0; i < max_irq; i += 32)
 		writel(REALVIEW_GIC1_DIST_ENABLE_CLEAR + i * 4 / 32, 0xffffffff);
 
-	/* monitor the peripheral interrupt signals */
+	/* Monitor the peripheral interrupt signals */
 	writel(REALVIEW_GIC1_DIST_CTRL, 1);
 
-	/* the priority mask level for cpu interface */
+	/* The priority mask level for cpu interface */
 	writel(REALVIEW_GIC1_CPU_PRIMASK, 0xf0);
 
-	/* enable signalling of interrupts */
+	/* Enable signalling of interrupts */
 	writel(REALVIEW_GIC1_CPU_CTRL, 1);
 
-	/* initial irq's handler to null_irq_handler */
-	for(i = 0; i < ARRAY_SIZE(realview_irq_handler); i++)
-	{
-		realview_irq_handler[i] = (irq_handler_t)null_irq_handler;
-	}
-
+	/*
+	 * Register IRQs
+	 */
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
 	{
 		if(irq_register(&realview_irqs[i]))
@@ -306,17 +287,17 @@ static __init void realview_irq_init(void)
 			LOG("Failed to register irq '%s'", realview_irqs[i].name);
 	}
 
-	/* enable vector interrupt controller */
+	/* Enable vector interrupt controller */
 	vic_enable();
 
-	/* enable irq and fiq */
+	/* Enable irq and fiq */
 	irq_enable();
 	fiq_enable();
 }
 
 static __exit void realview_irq_exit(void)
 {
-	u32_t i;
+	int i;
 
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
 	{
@@ -326,7 +307,7 @@ static __exit void realview_irq_exit(void)
 			LOG("Failed to unregister irq '%s'", realview_irqs[i].name);
 	}
 
-	/* disable irq and fiq */
+	/* Disable irq and fiq */
 	irq_disable();
 	fiq_disable();
 }

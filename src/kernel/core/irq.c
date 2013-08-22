@@ -38,7 +38,9 @@ struct irq_list_t __irq_list = {
 };
 static spinlock_t __irq_list_lock = SPIN_LOCK_INIT();
 
-static void null_irq_handler(void) { }
+static void null_interrupt_function(void * data)
+{
+}
 
 static struct irq_t * irq_search(const char * name)
 {
@@ -71,7 +73,9 @@ bool_t irq_register(struct irq_t * irq)
 		return FALSE;
 
 	il->irq = irq;
-	*(il->irq->handler) = (irq_handler_t)null_irq_handler;
+
+	irq->handler->func = null_interrupt_function;
+	irq->handler->data = NULL;
 
 	spin_lock_irq(&__irq_list_lock);
 	list_add_tail(&il->entry, &(__irq_list.entry));
@@ -91,6 +95,9 @@ bool_t irq_unregister(struct irq_t * irq)
 	{
 		if(pos->irq == irq)
 		{
+			irq->handler->func = null_interrupt_function;
+			irq->handler->data = NULL;
+
 			if(pos->irq->enable)
 				pos->irq->enable(pos->irq, FALSE);
 
@@ -106,21 +113,23 @@ bool_t irq_unregister(struct irq_t * irq)
 	return FALSE;
 }
 
-bool_t request_irq(const char * name, irq_handler_t handler)
+bool_t request_irq(const char * name, interrupt_function_t func, void * data)
 {
 	struct irq_t * irq;
 
-	if(!name || !handler)
+	if(!name || !func)
 		return FALSE;
 
 	irq = irq_search(name);
 	if(!irq)
 		return FALSE;
 
-	if(*(irq->handler) != null_irq_handler)
+	if(irq->handler->func != null_interrupt_function)
 		return FALSE;
 
-	*(irq->handler) = handler;
+	irq->handler->func = func;
+	irq->handler->data = data;
+
 	if(irq->enable)
 		irq->enable(irq, TRUE);
 
@@ -138,7 +147,9 @@ bool_t free_irq(const char * name)
 	if(!irq)
 		return FALSE;
 
-	*(irq->handler) = (irq_handler_t)null_irq_handler;
+	irq->handler->func = null_interrupt_function;
+	irq->handler->data = NULL;
+
 	if(irq->enable)
 		irq->enable(irq, FALSE);
 
@@ -158,7 +169,7 @@ static s32_t interrupt_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	list_for_each_entry_safe(pos, n, &(__irq_list.entry), entry)
 	{
-		if(*(pos->irq->handler) != null_irq_handler)
+		if(pos->irq->handler->func != null_interrupt_function)
 			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3d used", pos->irq->name, (int)(16 - strlen(pos->irq->name)), "", pos->irq->irq_no);
 		else
 			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3d", pos->irq->name, (int)(16 - strlen(pos->irq->name)), "", pos->irq->irq_no);

@@ -23,6 +23,7 @@
 #include <xboot.h>
 #include <realview/reg-eth.h>
 
+#if 0
 static u32_t lan9118_mac_read(u8_t reg)
 {
 	while(readl(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
@@ -299,3 +300,5 @@ static __exit void realview_eth_exit(void)
 
 device_initcall(realview_eth_init);
 device_exitcall(realview_eth_exit);
+#endif
+

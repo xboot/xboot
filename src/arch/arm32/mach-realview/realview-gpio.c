@@ -112,8 +112,8 @@ static struct gpio_t realview_gpios[] = {
 		.set_rate			= realview_gpio_set_rate,
 		.direction_output	= realview_gpio_direction_output,
 		.direction_input	= realview_gpio_direction_input,
-		.set_value			=realview_gpio_set_value,
-		.get_value			=realview_gpio_get_value,
+		.set_value			= realview_gpio_set_value,
+		.get_value			= realview_gpio_get_value,
 		.priv				= &realview_gpio_datas[0],
 	}, {
 		.name				= "GPIO1",
@@ -125,8 +125,8 @@ static struct gpio_t realview_gpios[] = {
 		.set_rate			= realview_gpio_set_rate,
 		.direction_output	= realview_gpio_direction_output,
 		.direction_input	= realview_gpio_direction_input,
-		.set_value			=realview_gpio_set_value,
-		.get_value			=realview_gpio_get_value,
+		.set_value			= realview_gpio_set_value,
+		.get_value			= realview_gpio_get_value,
 		.priv				= &realview_gpio_datas[1],
 	}, {
 		.name				= "GPIO2",
@@ -138,8 +138,8 @@ static struct gpio_t realview_gpios[] = {
 		.set_rate			= realview_gpio_set_rate,
 		.direction_output	= realview_gpio_direction_output,
 		.direction_input	= realview_gpio_direction_input,
-		.set_value			=realview_gpio_set_value,
-		.get_value			=realview_gpio_get_value,
+		.set_value			= realview_gpio_set_value,
+		.get_value			= realview_gpio_get_value,
 		.priv				= &realview_gpio_datas[2],
 	},
 };

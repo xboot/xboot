@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<console>
-	<stdin	name="uart2"/>
-	<stdout	name="uart2"/>
-	<stderr	name="uart2"/>
-</console>

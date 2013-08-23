@@ -57,13 +57,18 @@ int main (int argc, char *argv[])
 	}
 
 	memset(buf, 0x00, size);
+	memcpy(buf, header, sizeof(header));
 	fseek(fp, 0L, SEEK_SET);
 	if(fread(buf, 1, size, fp) != size)
 	{
-		printf("Read body file error\n", argv[1]);
-		free(buf);
-		fclose(fp);
-		return -1;
+		fseek(fp, 0L, SEEK_SET);
+		if(fwrite(buf, 1, size, fp) != size)
+		{
+			printf("Write body file error\n");
+			free(buf);
+			fclose(fp);
+			return -1;
+		}
 	}
 
 	for(i=16, checksum=0; i<size; i++)
@@ -79,7 +84,7 @@ int main (int argc, char *argv[])
 	fseek(fp, 0L, SEEK_SET);
 	if(fwrite(header, 1, sizeof(header), fp) != sizeof(header))
 	{
-		printf("Write file header error\n", argv[1]);
+		printf("Write file header error\n");
 		free(buf);
 		fclose(fp);
 		return -1;
@@ -88,6 +93,6 @@ int main (int argc, char *argv[])
 	free(buf);
 	fclose(fp);
 
-	printf("the checksum is 0x%08x for %d bytes [0x%08x ~ 0x%08x]\n", checksum, (size - sizeof(header)), sizeof(header), size);
+	printf("the checksum is 0x%08x for %ld bytes [0x%08x ~ 0x%08x]\n", checksum, (size - sizeof(header)), (unsigned int)sizeof(header), size);
 	return 0;
 }

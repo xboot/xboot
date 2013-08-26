@@ -125,8 +125,7 @@ static bool_t ledtrig_register_general(struct resource_t * res)
 
 static bool_t ledtrig_unregister_general(struct resource_t * res)
 {
-	struct led_trigger_general_data_t * dat = (struct led_trigger_general_data_t *)res->data;
-	struct led_trigger_data_t * rdat = (struct led_trigger_data_t *)dat->rdat;
+	struct led_trigger_data_t * rdat = (struct led_trigger_data_t *)res->data;
 	struct led_trigger_t * trigger;
 	char name[64];
 
@@ -139,7 +138,7 @@ static bool_t ledtrig_unregister_general(struct resource_t * res)
 	if(!unregister_led_trigger(trigger))
 		return FALSE;
 
-	free(dat);
+	free(trigger->priv);
 	free(trigger->name);
 	free(trigger);
 	return TRUE;

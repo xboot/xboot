@@ -52,14 +52,31 @@ static void fb_exit(struct fb_t * fb)
 		dat->exit(dat);
 }
 
-static int fb_backlight(struct fb_t * fb, int brightness)
+static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 {
 	struct resource_t * res = (struct resource_t *)fb->priv;
 	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
+	int * brightness;
 
-	if(dat->backlight)
-		return dat->backlight(dat, brightness);
-	return 0;
+	switch(cmd)
+	{
+	case IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS:
+		brightness = (int *)arg;
+		if(dat->set_backlight)
+			dat->set_backlight(dat, *brightness);
+		return 0;
+
+	case IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS:
+		brightness = (int *)arg;
+		if(dat->get_backlight)
+			*brightness = dat->get_backlight(dat);
+		return 0;
+
+	default:
+		break;
+	}
+
+	return -1;
 }
 
 struct render_t * fb_create(struct fb_t * fb)
@@ -146,7 +163,7 @@ static bool_t realview_register_framebuffer(struct resource_t * res)
 	fb->name = strdup(name);
 	fb->init = fb_init,
 	fb->exit = fb_exit,
-	fb->backlight = fb_backlight,
+	fb->ioctl = fb_ioctl,
 	fb->create = fb_create,
 	fb->destroy = fb_destroy,
 	fb->present = fb_present,

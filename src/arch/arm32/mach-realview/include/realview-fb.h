@@ -46,17 +46,16 @@ struct realview_fb_data_t
 		s32_t v_sw;
 	} timing;
 
-	/* backlight brightness */
-	int brightness;
-
 	/* init */
 	void (*init)(struct realview_fb_data_t * dat);
 
 	/* exit */
 	void (*exit)(struct realview_fb_data_t * dat);
 
-	/* backlight */
-	int (*backlight)(struct realview_fb_data_t * dat, int brightness);
+	/* backlight brightness */
+	int brightness;
+	void (*set_backlight)(struct realview_fb_data_t * dat, int brightness);
+	int (*get_backlight)(struct realview_fb_data_t * dat);
 };
 
 #ifdef __cplusplus

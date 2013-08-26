@@ -68,6 +68,7 @@ void do_system_logo(void)
 	cairo_surface_t * cs;
 	cairo_t * cr;
 	struct fb_t * fb;
+	int brightness = 255;
 	int x, y;
 
 	LOG("Display system logo");
@@ -111,8 +112,8 @@ void do_system_logo(void)
 			cairo_xboot_surface_present(cs);
 			cairo_surface_destroy(cs);
 
-			if(fb->backlight)
-				fb->backlight(fb, 255);
+			if(fb->ioctl)
+				fb->ioctl(fb, IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS, &brightness);
 		}
 	}
 

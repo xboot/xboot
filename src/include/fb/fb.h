@@ -12,6 +12,11 @@ extern "C" {
 #include <fb/render.h>
 #include <fb/sw/sw.h>
 
+enum {
+	IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS	= 0x00,
+	IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS	= 0x01,
+};
+
 struct fb_t
 {
 	/* Framebuffer name */
@@ -23,8 +28,8 @@ struct fb_t
 	/* Clean up the framebuffer */
 	void (*exit)(struct fb_t * fb);
 
-	/* Backlight brightness */
-	int (*backlight)(struct fb_t * fb, int brightness);
+	/* Ioctl interface */
+	int (*ioctl)(struct fb_t * fb, int cmd, void * arg);
 
 	/* Create a render */
 	struct render_t * (*create)(struct fb_t * fb);

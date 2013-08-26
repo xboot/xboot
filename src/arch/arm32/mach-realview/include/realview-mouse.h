@@ -12,6 +12,8 @@ extern "C" {
 struct realview_mouse_data_t
 {
 	physical_addr_t regbase;
+	s32_t width;
+	s32_t height;
 };
 
 #ifdef __cplusplus

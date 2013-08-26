@@ -527,38 +527,6 @@ static void fb_exit(struct fb_t * fb)
 	s5pv210fb_display_off(lcd);
 }
 
-static int fb_xcursor(struct fb_t * fb, int ox)
-{
-	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
-
-	if(ox == 0)
-		return lcd->xpos;
-
-	lcd->xpos = lcd->xpos + ox;
-	if(lcd->xpos < 0)
-		lcd->xpos = 0;
-	if(lcd->xpos > lcd->width - 1)
-		lcd->xpos = lcd->width - 1;
-
-	return lcd->xpos;
-}
-
-static int fb_ycursor(struct fb_t * fb, int oy)
-{
-	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
-
-	if(oy == 0)
-		return lcd->ypos;
-
-	lcd->ypos = lcd->ypos + oy;
-	if(lcd->ypos < 0)
-		lcd->ypos = 0;
-	if(lcd->ypos > lcd->height - 1)
-		lcd->ypos = lcd->height - 1;
-
-	return lcd->ypos;
-}
-
 static int fb_backlight(struct fb_t * fb, int brightness)
 {
 	struct s5pv210fb_lcd * lcd = (struct s5pv210fb_lcd *)(fb->priv);
@@ -637,8 +605,6 @@ static struct fb_t s5pv210_fb = {
 	.name		= "fb0",
 	.init		= fb_init,
 	.exit		= fb_exit,
-	.xcursor	= fb_xcursor,
-	.ycursor	= fb_ycursor,
 	.backlight	= fb_backlight,
 	.create		= fb_create,
 	.destroy	= fb_destroy,

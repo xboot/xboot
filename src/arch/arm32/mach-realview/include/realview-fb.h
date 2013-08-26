@@ -46,9 +46,6 @@ struct realview_fb_data_t
 		s32_t v_sw;
 	} timing;
 
-	/* cursor position */
-	int xpos, ypos;
-
 	/* backlight brightness */
 	int brightness;
 
@@ -57,12 +54,6 @@ struct realview_fb_data_t
 
 	/* exit */
 	void (*exit)(struct realview_fb_data_t * dat);
-
-	/* xcursor */
-	int (*xcursor)(struct realview_fb_data_t * dat, int ox);
-
-	/* ycursor */
-	int (*ycursor)(struct realview_fb_data_t * dat, int oy);
 
 	/* backlight */
 	int (*backlight)(struct realview_fb_data_t * dat, int brightness);

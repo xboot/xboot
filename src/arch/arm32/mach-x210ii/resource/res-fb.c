@@ -135,9 +135,6 @@ static struct s5pv210fb_lcd lcd = {
 		.inv_vden		= 0,
 	},
 
-	.xpos				= 0,
-	.ypos				= 0,
-
 	.init				= lcd_init,
 	.exit				= lcd_exit,
 	.backlight			= lcd_backlight,

@@ -23,12 +23,6 @@ struct fb_t
 	/* Clean up the framebuffer */
 	void (*exit)(struct fb_t * fb);
 
-	/* Cursor position of x with offset */
-	int (*xcursor)(struct fb_t * fb, int ox);
-
-	/* Cursor position of y with offset */
-	int (*ycursor)(struct fb_t * fb, int oy);
-
 	/* Backlight brightness */
 	int (*backlight)(struct fb_t * fb, int brightness);
 

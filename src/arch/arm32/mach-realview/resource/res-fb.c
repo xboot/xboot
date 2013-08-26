@@ -31,36 +31,6 @@ static void lcd_exit(struct realview_fb_data_t * dat)
 {
 }
 
-static int lcd_xcursor(struct realview_fb_data_t * dat, int ox)
-{
-	if(ox == 0)
-		return dat->xpos;
-
-	dat->xpos = dat->xpos + ox;
-
-	if(dat->xpos < 0)
-		dat->xpos = 0;
-	if(dat->xpos > dat->width - 1)
-		dat->xpos = dat->width - 1;
-
-	return dat->xpos;
-}
-
-static int lcd_ycursor(struct realview_fb_data_t * dat, int oy)
-{
-	if(oy == 0)
-		return dat->ypos;
-
-	dat->ypos = dat->ypos + oy;
-
-	if(dat->ypos < 0)
-		dat->ypos = 0;
-	if(dat->ypos > dat->height - 1)
-		dat->ypos = dat->height - 1;
-
-	return dat->ypos;
-}
-
 static int lcd_backlight(struct realview_fb_data_t * dat, int brightness)
 {
 	if( (brightness < 0) || (brightness > 255) )
@@ -97,14 +67,10 @@ static struct realview_fb_data_t realview_fb_data = {
 		.v_sw			= 2,
 	},
 
-	.xpos				= 0,
-	.ypos				= 0,
 	.brightness			= 0,
 
 	.init				= lcd_init,
 	.exit				= lcd_exit,
-	.xcursor			= lcd_xcursor,
-	.ycursor			= lcd_ycursor,
 	.backlight			= lcd_backlight,
 };
 

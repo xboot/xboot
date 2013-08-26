@@ -25,6 +25,8 @@
 
 static struct realview_mouse_data_t realview_mouse_data = {
 	.regbase	= REALVIEW_MOUSE_BASE,
+	.width		= 800,
+	.height		= 480,
 };
 
 static struct resource_t res_mouse = {

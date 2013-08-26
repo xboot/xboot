@@ -31,7 +31,7 @@ enum {
 };
 
 struct event_t {
-	char * device;
+	void * device;
 	enum event_type_t type;
 	u32_t timestamp;
 
@@ -76,8 +76,12 @@ struct event_base_t {
 
 struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
+
 void push_event(struct event_t * event);
-void push_event_mouse(char * device, u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t delta);
+void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn);
+void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn);
+void push_event_mouse_move(void * device, s32_t x, s32_t y);
+void push_event_mouse_wheel(void * device, s32_t x, s32_t y, s32_t delta);
 bool_t pump_event(struct event_base_t * eb, struct event_t * event);
 
 #ifdef __cplusplus

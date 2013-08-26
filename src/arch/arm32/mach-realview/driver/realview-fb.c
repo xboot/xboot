@@ -52,22 +52,6 @@ static void fb_exit(struct fb_t * fb)
 		dat->exit(dat);
 }
 
-static int fb_xcursor(struct fb_t * fb, int ox)
-{
-	struct resource_t * res = (struct resource_t *)fb->priv;
-	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
-
-	return dat->xcursor(dat, ox);
-}
-
-static int fb_ycursor(struct fb_t * fb, int oy)
-{
-	struct resource_t * res = (struct resource_t *)fb->priv;
-	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
-
-	return dat->ycursor(dat, oy);
-}
-
 static int fb_backlight(struct fb_t * fb, int brightness)
 {
 	struct resource_t * res = (struct resource_t *)fb->priv;
@@ -162,8 +146,6 @@ static bool_t realview_register_framebuffer(struct resource_t * res)
 	fb->name = strdup(name);
 	fb->init = fb_init,
 	fb->exit = fb_exit,
-	fb->xcursor = fb_xcursor,
-	fb->ycursor = fb_ycursor,
 	fb->backlight = fb_backlight,
 	fb->create = fb_create,
 	fb->destroy = fb_destroy,

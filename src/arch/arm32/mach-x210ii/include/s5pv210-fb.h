@@ -134,9 +134,6 @@ struct s5pv210fb_lcd
 		s32_t inv_vden;
 	} polarity;
 
-	/* cursor position */
-	int xpos, ypos;
-
 	/* lcd init */
 	void (*init)(void);
 

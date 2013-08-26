@@ -22,7 +22,6 @@
 
 #include <fifo.h>
 #include <spinlock.h>
-#include <fb/cursor.h>
 #include <xboot/event.h>
 
 static struct event_base_t __event_base = {
@@ -92,51 +91,51 @@ void push_event(struct event_t * event)
 	}
 }
 
-void push_event_mouse(char * device, u32_t btndown, u32_t btnup, s32_t relx, s32_t rely, s32_t delta)
+void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn)
 {
 	struct event_t event;
 
-	btndown &= (MOUSE_BUTTON_LEFT | MOUSE_BUTTON_RIGHT | MOUSE_BUTTON_MIDDLE);
-	btnup &= (MOUSE_BUTTON_LEFT | MOUSE_BUTTON_RIGHT | MOUSE_BUTTON_MIDDLE);
+	event.device = device;
+	event.type = EVENT_TYPE_MOUSE_DOWN;
+	event.e.mouse_down.x = x;
+	event.e.mouse_down.y = y;
+	event.e.mouse_down.button = btn;
+	push_event(&event);
+}
 
-	if((relx != 0) || (rely != 0))
-	{
-		event.device = device;
-		event.type = EVENT_TYPE_MOUSE_MOVE;
-		event.e.mouse_move.x = cursor_xpos_with_offset(relx);
-		event.e.mouse_move.y = cursor_ypos_with_offset(rely);
-		push_event(&event);
-	}
+void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn)
+{
+	struct event_t event;
 
-	if(delta != 0)
-	{
-		event.device = device;
-		event.type = EVENT_TYPE_MOUSE_WHEEL;
-		event.e.mouse_wheel.x = get_cursor_xpos();
-		event.e.mouse_wheel.y = get_cursor_ypos();
-		event.e.mouse_wheel.delta = delta;
-		push_event(&event);
-	}
+	event.device = device;
+	event.type = EVENT_TYPE_MOUSE_UP;
+	event.e.mouse_up.x = x;
+	event.e.mouse_up.y = y;
+	event.e.mouse_up.button = btn;
+	push_event(&event);
+}
 
-	if(btndown)
-	{
-		event.device = device;
-		event.type = EVENT_TYPE_MOUSE_DOWN;
-		event.e.mouse_down.x = get_cursor_xpos();
-		event.e.mouse_down.y = get_cursor_ypos();
-		event.e.mouse_down.button = btndown;
-		push_event(&event);
-	}
+void push_event_mouse_move(void * device, s32_t x, s32_t y)
+{
+	struct event_t event;
 
-	if(btnup)
-	{
-		event.device = device;
-		event.type = EVENT_TYPE_MOUSE_UP;
-		event.e.mouse_up.x = get_cursor_xpos();
-		event.e.mouse_up.y = get_cursor_ypos();
-		event.e.mouse_up.button = btnup;
-		push_event(&event);
-	}
+	event.device = device;
+	event.type = EVENT_TYPE_MOUSE_MOVE;
+	event.e.mouse_move.x = x;
+	event.e.mouse_move.y = y;
+	push_event(&event);
+}
+
+void push_event_mouse_wheel(void * device, s32_t x, s32_t y, s32_t delta)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_MOUSE_WHEEL;
+	event.e.mouse_wheel.x = x;
+	event.e.mouse_wheel.y = y;
+	event.e.mouse_wheel.delta = delta;
+	push_event(&event);
 }
 
 bool_t pump_event(struct event_base_t * eb, struct event_t * event)

@@ -48,34 +48,34 @@ static bool_t input_console_getcode(struct console_t * console, u32_t * code)
 	switch(event.e.key.code)
 	{
 	case KEY_UP:
-		*code = KEY_CTRL_P;
+		*code = 0x10;	/* ctrl-p */
 		break;
 	case KEY_DOWN:
-		*code = KEY_CTRL_N;
+		*code = 0xe;	/* ctrl-n */;
 		break;
 	case KEY_LEFT:
-		*code = KEY_CTRL_B;
+		*code = 0x2;	/* ctrl-b */
 		break;
 	case KEY_RIGHT:
-		*code = KEY_CTRL_F;
+		*code = 0x6;	/* ctrl-f */
 		break;
 	case KEY_TAB:
-		*code = KEY_CTRL_I;
+		*code = 0x9;	/* ctrl-i */
 		break;
 	case KEY_BACKSPACE:
-		*code = KEY_CTRL_H;
+		*code = 0x8;	/* ctrl-h */
 		break;
 	case KEY_ENTER:
-		*code = KEY_CTRL_J;
+		*code = 0xa;	/* ctrl-j */
 		break;
 	case KEY_HOME:
-		*code = KEY_CTRL_A;
+		*code = 0x1;	/* ctrl-a */
 		break;
 	case KEY_MENU:
-		*code = KEY_CTRL_E;
+		*code = 0x5;	/* ctrl-e */
 		break;
 	case KEY_BACK:
-		*code = KEY_CTRL_C;
+		*code = 0x3;	/* ctrl-c */
 		break;
 	default:
 		*code = event.e.key.code;

@@ -45,7 +45,6 @@ struct keymap {
 	enum key_code_t key;
 	enum key_code_t caps_key;
 	enum key_code_t shift_key;
-	enum key_code_t ctrl_key;
 };
 
 enum key_value_t {
@@ -54,70 +53,69 @@ enum key_value_t {
 };
 
 static const struct keymap map[] = {
-	/* code	normal-key					caps-key					shift-key					control-key	*/
-	{0x1c,	KEY_a,						KEY_A,						KEY_A,						KEY_CTRL_A},
-	{0x32,	KEY_b,						KEY_B,						KEY_B,						KEY_CTRL_B},
-	{0x21,	KEY_c,						KEY_C,						KEY_C,						KEY_CTRL_C},
-	{0x23,	KEY_d,						KEY_D,						KEY_D,						KEY_CTRL_D},
-	{0x24,	KEY_e,						KEY_E,						KEY_E,						KEY_CTRL_E},
-	{0x2b,	KEY_f,						KEY_F,						KEY_F,						KEY_CTRL_F},
-	{0x34,	KEY_g,						KEY_G,						KEY_G,						KEY_CTRL_G},
-	{0x33,	KEY_h,						KEY_H,						KEY_H,						KEY_CTRL_H},
-	{0x43,	KEY_i,						KEY_I,						KEY_I,						KEY_CTRL_I},
-	{0x3b,	KEY_j,						KEY_J,						KEY_J,						KEY_CTRL_J},
-	{0x42,	KEY_k,						KEY_K,						KEY_K,						KEY_CTRL_K},
-	{0x4b,	KEY_l,						KEY_L,						KEY_L,						KEY_CTRL_L},
-	{0x3a,	KEY_m,						KEY_M,						KEY_M,						KEY_CTRL_M},
-	{0x31,	KEY_n,						KEY_N,						KEY_N,						KEY_CTRL_N},
-	{0x44,	KEY_o,						KEY_O,						KEY_O,						KEY_CTRL_O},
-	{0x4d,	KEY_p,						KEY_P,						KEY_P,						KEY_CTRL_P},
-	{0x15,	KEY_q,						KEY_Q,						KEY_Q,						KEY_CTRL_Q},
-	{0x2d,	KEY_r,						KEY_R,						KEY_R,						KEY_CTRL_R},
-	{0x1b,	KEY_s,						KEY_S,						KEY_S,						KEY_CTRL_S},
-	{0x2c,	KEY_t,						KEY_T,						KEY_T,						KEY_CTRL_T},
-	{0x3c,	KEY_u,						KEY_U,						KEY_U,						KEY_CTRL_U},
-	{0x2a,	KEY_v,						KEY_V,						KEY_V,						KEY_CTRL_V},
-	{0x1d,	KEY_w,						KEY_W,						KEY_W,						KEY_CTRL_W},
-	{0x22,	KEY_x,						KEY_X,						KEY_X,						KEY_CTRL_X},
-	{0x35,	KEY_y,						KEY_Y,						KEY_Y,						KEY_CTRL_Y},
-	{0x1a,	KEY_z,						KEY_Z,						KEY_Z,						KEY_CTRL_Z},
+	/* code	normal-key					caps-key					shift-key */
+	{0x1c,	KEY_a,						KEY_A,						KEY_A},
+	{0x32,	KEY_b,						KEY_B,						KEY_B},
+	{0x21,	KEY_c,						KEY_C,						KEY_C},
+	{0x23,	KEY_d,						KEY_D,						KEY_D},
+	{0x24,	KEY_e,						KEY_E,						KEY_E},
+	{0x2b,	KEY_f,						KEY_F,						KEY_F},
+	{0x34,	KEY_g,						KEY_G,						KEY_G},
+	{0x33,	KEY_h,						KEY_H,						KEY_H},
+	{0x43,	KEY_i,						KEY_I,						KEY_I},
+	{0x3b,	KEY_j,						KEY_J,						KEY_J},
+	{0x42,	KEY_k,						KEY_K,						KEY_K},
+	{0x4b,	KEY_l,						KEY_L,						KEY_L},
+	{0x3a,	KEY_m,						KEY_M,						KEY_M},
+	{0x31,	KEY_n,						KEY_N,						KEY_N},
+	{0x44,	KEY_o,						KEY_O,						KEY_O},
+	{0x4d,	KEY_p,						KEY_P,						KEY_P},
+	{0x15,	KEY_q,						KEY_Q,						KEY_Q},
+	{0x2d,	KEY_r,						KEY_R,						KEY_R},
+	{0x1b,	KEY_s,						KEY_S,						KEY_S},
+	{0x2c,	KEY_t,						KEY_T,						KEY_T},
+	{0x3c,	KEY_u,						KEY_U,						KEY_U},
+	{0x2a,	KEY_v,						KEY_V,						KEY_V},
+	{0x1d,	KEY_w,						KEY_W,						KEY_W},
+	{0x22,	KEY_x,						KEY_X,						KEY_X},
+	{0x35,	KEY_y,						KEY_Y,						KEY_Y},
+	{0x1a,	KEY_z,						KEY_Z,						KEY_Z},
 
-	{0x45,	KEY_0,						KEY_0,						KEY_PARENTHESIS_RIGHT,		KEY_0},
-	{0x16,	KEY_1,						KEY_1,						KEY_EXCLAMATION_MARK,		KEY_1},
-	{0x1e,	KEY_2,						KEY_2,						KEY_AT,						KEY_2},
-	{0x26,	KEY_3,						KEY_3,						KEY_POUNDSIGN,				KEY_3},
-	{0x25,	KEY_4,						KEY_4,						KEY_DOLLAR,					KEY_4},
-	{0x2e,	KEY_5,						KEY_5,						KEY_PERCENT,				KEY_5},
-	{0x36,	KEY_6,						KEY_6,						KEY_CIRCUMFLEX_ACCENT,		KEY_6},
-	{0x3d,	KEY_7,						KEY_7,						KEY_AMPERSAND,				KEY_7},
-	{0x3e,	KEY_8,						KEY_8,						KEY_ASTERISK,				KEY_8},
-	{0x46,	KEY_9,						KEY_9,						KEY_PARENTHESIS_LEFT,		KEY_9},
+	{0x45,	KEY_0,						KEY_0,						KEY_PARENTHESIS_RIGHT},
+	{0x16,	KEY_1,						KEY_1,						KEY_EXCLAMATION_MARK},
+	{0x1e,	KEY_2,						KEY_2,						KEY_AT},
+	{0x26,	KEY_3,						KEY_3,						KEY_POUNDSIGN},
+	{0x25,	KEY_4,						KEY_4,						KEY_DOLLAR},
+	{0x2e,	KEY_5,						KEY_5,						KEY_PERCENT},
+	{0x36,	KEY_6,						KEY_6,						KEY_CIRCUMFLEX_ACCENT},
+	{0x3d,	KEY_7,						KEY_7,						KEY_AMPERSAND},
+	{0x3e,	KEY_8,						KEY_8,						KEY_ASTERISK},
+	{0x46,	KEY_9,						KEY_9,						KEY_PARENTHESIS_LEFT},
 
-	{0x29,	KEY_SPACE,					KEY_SPACE,					KEY_SPACE,					KEY_SPACE},
-	{0x52,	KEY_APOSTROPHE,				KEY_APOSTROPHE,				KEY_QUOTATION_MARK,			KEY_APOSTROPHE},
-	{0x55,	KEY_EQUAL,					KEY_EQUAL,					KEY_PLUS,					KEY_EQUAL},
-	{0x41,	KEY_COMMA,					KEY_COMMA,					KEY_LESS_THAN,				KEY_COMMA},
-	{0x4e,	KEY_MINUS,					KEY_MINUS,					KEY_LOW_LINE,				KEY_MINUS},
-	{0x49,	KEY_FULL_STOP,				KEY_FULL_STOP,				KEY_GREATER_THAN,			KEY_FULL_STOP},
-	{0x4a,	KEY_SOLIDUS,				KEY_SOLIDUS,				KEY_QUESTION_MARK,			KEY_SOLIDUS},
-	{0x4c,	KEY_SEMICOLON,				KEY_SEMICOLON,				KEY_COLON,					KEY_SEMICOLON},
-	{0x54,	KEY_SQUARE_BRACKET_LEFT,	KEY_SQUARE_BRACKET_LEFT,	KEY_CURLY_BRACKET_LEFT,		KEY_SQUARE_BRACKET_LEFT},
-	{0x5d,	KEY_REVERSE_SOLIDUS,		KEY_REVERSE_SOLIDUS,		KEY_VERTICAL_LINE,			KEY_REVERSE_SOLIDUS},
-	{0x5b,	KEY_SQUARE_BRACKET_RIGHT,	KEY_SQUARE_BRACKET_RIGHT,	KEY_CURLY_BRACKET_RIGHT,	KEY_SQUARE_BRACKET_RIGHT},
-	{0x0e,	KEY_GRAVE_ACCENT,			KEY_GRAVE_ACCENT,			KEY_TILDE,					KEY_GRAVE_ACCENT},
+	{0x29,	KEY_SPACE,					KEY_SPACE,					KEY_SPACE},
+	{0x52,	KEY_APOSTROPHE,				KEY_APOSTROPHE,				KEY_QUOTATION_MARK},
+	{0x55,	KEY_EQUAL,					KEY_EQUAL,					KEY_PLUS},
+	{0x41,	KEY_COMMA,					KEY_COMMA,					KEY_LESS_THAN},
+	{0x4e,	KEY_MINUS,					KEY_MINUS,					KEY_LOW_LINE},
+	{0x49,	KEY_FULL_STOP,				KEY_FULL_STOP,				KEY_GREATER_THAN},
+	{0x4a,	KEY_SOLIDUS,				KEY_SOLIDUS,				KEY_QUESTION_MARK},
+	{0x4c,	KEY_SEMICOLON,				KEY_SEMICOLON,				KEY_COLON},
+	{0x54,	KEY_SQUARE_BRACKET_LEFT,	KEY_SQUARE_BRACKET_LEFT,	KEY_CURLY_BRACKET_LEFT},
+	{0x5d,	KEY_REVERSE_SOLIDUS,		KEY_REVERSE_SOLIDUS,		KEY_VERTICAL_LINE},
+	{0x5b,	KEY_SQUARE_BRACKET_RIGHT,	KEY_SQUARE_BRACKET_RIGHT,	KEY_CURLY_BRACKET_RIGHT},
+	{0x0e,	KEY_GRAVE_ACCENT,			KEY_GRAVE_ACCENT,			KEY_TILDE},
 
-	{0x75,	KEY_UP,						KEY_UP,						KEY_UP,						KEY_UP},
-	{0x72,	KEY_DOWN,					KEY_DOWN,					KEY_DOWN,					KEY_DOWN},
-	{0x6b,	KEY_LEFT,					KEY_LEFT,					KEY_LEFT,					KEY_LEFT},
-	{0x74,	KEY_RIGHT,					KEY_RIGHT,					KEY_RIGHT,					KEY_RIGHT},
-	{0x0d,	KEY_TAB,					KEY_TAB,					KEY_TAB,					KEY_TAB},
-	{0x66,	KEY_BACKSPACE,				KEY_BACKSPACE,				KEY_BACKSPACE,				KEY_BACKSPACE},
-	{0x5a,	KEY_ENTER,					KEY_ENTER,					KEY_ENTER,					KEY_ENTER},
-	{0x6c,	KEY_HOME,					KEY_HOME,					KEY_HOME,					KEY_HOME},
-	{0x69,	KEY_MENU,					KEY_MENU,					KEY_MENU,					KEY_MENU},
-	{0x76,	KEY_BACK,					KEY_BACK,					KEY_BACK,					KEY_BACK},
-	{0x37,	KEY_POWER,					KEY_POWER,					KEY_POWER,					KEY_POWER},
-	{0x3f,	KEY_RESET,					KEY_RESET,					KEY_RESET,					KEY_RESET},
+	{0x75,	KEY_UP,						KEY_UP,						KEY_UP},
+	{0x72,	KEY_DOWN,					KEY_DOWN,					KEY_DOWN},
+	{0x6b,	KEY_LEFT,					KEY_LEFT,					KEY_LEFT},
+	{0x74,	KEY_RIGHT,					KEY_RIGHT,					KEY_RIGHT},
+	{0x0d,	KEY_TAB,					KEY_TAB,					KEY_TAB},
+	{0x66,	KEY_BACKSPACE,				KEY_BACKSPACE,				KEY_BACKSPACE},
+	{0x5a,	KEY_ENTER,					KEY_ENTER,					KEY_ENTER},
+	{0x6c,	KEY_HOME,					KEY_HOME,					KEY_HOME},
+	{0x69,	KEY_MENU,					KEY_MENU,					KEY_MENU},
+	{0x76,	KEY_BACK,					KEY_BACK,					KEY_BACK},
+	{0x37,	KEY_POWER,					KEY_POWER,					KEY_POWER},
 };
 
 static void keyboard_report_event(u32_t flag, u8_t data, enum key_value_t press)
@@ -135,7 +133,7 @@ static void keyboard_report_event(u32_t flag, u8_t data, enum key_value_t press)
 			else if( (flag & (KBD_LEFT_SHIFT | KBD_RIGHT_SHIFT)) )
 				key = map[i].shift_key;
 			else if( (flag & (KBD_LEFT_CTRL | KBD_RIGHT_CTRL)) )
-				key = map[i].ctrl_key;
+				key = 0;
 			else
 				key = map[i].key;
 

@@ -71,7 +71,7 @@ static bool_t input_console_getcode(struct console_t * console, u32_t * code)
 	case KEY_HOME:
 		*code = 0x1;	/* ctrl-a */
 		break;
-	case KEY_MENU:
+	case KEY_END:
 		*code = 0x5;	/* ctrl-e */
 		break;
 	case KEY_BACK:

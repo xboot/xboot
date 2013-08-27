@@ -118,7 +118,7 @@ static const struct keymap map[] = {
 	{0x37,	KEY_POWER,					KEY_POWER,					KEY_POWER},
 };
 
-static void keyboard_report_event(u32_t flag, u8_t data, enum key_value_t press)
+static void keyboard_report_event(void * device, u32_t flag, u8_t data, enum key_value_t press)
 {
 	struct event_t event;
 	enum key_code_t key;
@@ -139,7 +139,7 @@ static void keyboard_report_event(u32_t flag, u8_t data, enum key_value_t press)
 
 			if(key != 0)
 			{
-				event.device = "ps2-keyboard";
+				event.device = device;
 				event.type = (press == KEY_BUTTON_DOWN) ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
 				event.e.key.code = key;
 				push_event(&event);
@@ -255,7 +255,7 @@ static void keyboard_interrupt(void * data)
 				/* others */
 				else
 				{
-					keyboard_report_event(kbd_flag, value, KEY_BUTTON_DOWN);
+					keyboard_report_event(input, kbd_flag, value, KEY_BUTTON_DOWN);
 				}
 			}
 			break;
@@ -283,7 +283,7 @@ static void keyboard_interrupt(void * data)
 				/* others */
 				else
 				{
-					keyboard_report_event(kbd_flag, value, KEY_BUTTON_UP);
+					keyboard_report_event(input, kbd_flag, value, KEY_BUTTON_UP);
 				}
 			}
 			else
@@ -305,7 +305,7 @@ static void keyboard_interrupt(void * data)
 				/* others */
 				else
 				{
-					keyboard_report_event(kbd_flag, value, KEY_BUTTON_DOWN);
+					keyboard_report_event(input, kbd_flag, value, KEY_BUTTON_DOWN);
 				}
 			}
 			else
@@ -327,7 +327,7 @@ static void keyboard_interrupt(void * data)
 				/* others */
 				else
 				{
-					keyboard_report_event(kbd_flag, value, KEY_BUTTON_UP);
+					keyboard_report_event(input, kbd_flag, value, KEY_BUTTON_UP);
 				}
 			}
 			else

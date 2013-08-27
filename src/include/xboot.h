@@ -33,11 +33,11 @@ extern "C" {
 #include <version.h>
 #include <runtime.h>
 #include <xboot/list.h>
-#include <xboot/logger.h>
-#include <xboot/proc.h>
 #include <xboot/initcall.h>
+#include <xboot/kobj.h>
+#include <xboot/proc.h>
 #include <xboot/resource.h>
-#include <xboot/printk.h>
+#include <xboot/logger.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>
 #include <xboot/gpio.h>
@@ -46,6 +46,7 @@ extern "C" {
 #include <xboot/device.h>
 #include <xboot/module.h>
 #include <xboot/event.h>
+#include <xboot/printk.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <time/delay.h>

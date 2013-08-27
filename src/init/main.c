@@ -32,6 +32,9 @@ int xboot_main(int argc, char * argv[])
 	/* Alloc default runtime */
 	runtime_alloc_save(0);
 
+	/* Do kobj initial */
+	do_kobj_init();
+
 	/* Do all init calls */
 	do_initcalls();
 

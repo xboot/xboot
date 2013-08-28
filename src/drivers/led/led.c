@@ -60,7 +60,7 @@ static ssize_t led_get_color(struct kobj_t * kobj, void * buf, size_t size)
 
 	if(led && led->get)
 		color = led->get(led);
-	return sprintf(buf, "0x%08u", color);
+	return sprintf(buf, "0x%08x", color);
 }
 
 static ssize_t led_set_color(struct kobj_t * kobj, void * buf, size_t size)

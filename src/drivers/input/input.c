@@ -80,6 +80,7 @@ bool_t register_input(struct input_t * input)
 	dev->suspend = input_suspend;
 	dev->resume = input_resume;
 	dev->driver = input;
+	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))
 	{

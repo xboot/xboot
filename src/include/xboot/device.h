@@ -18,6 +18,9 @@ enum device_type_t {
 
 struct device_t
 {
+	/* Kobj binding */
+	struct kobj_t * kobj;
+
 	/* Device name */
 	char * name;
 

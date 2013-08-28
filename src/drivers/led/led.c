@@ -90,6 +90,7 @@ bool_t register_led(struct led_t * led)
 	dev->suspend = led_suspend;
 	dev->resume = led_resume;
 	dev->driver = led;
+	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))
 	{

@@ -45,11 +45,17 @@ struct kobj_t
 typedef ssize_t (*kobj_read_t)(struct kobj_t * kobj, void * buf, size_t size);
 typedef ssize_t (*kobj_write_t)(struct kobj_t * kobj, void * buf, size_t size);
 
-struct kobj_t * kobj_search(struct kobj_t * parent, const char * name);
-struct kobj_t * kobj_add_directory(struct kobj_t * parent, const char * name);
-struct kobj_t * kobj_add_regular(struct kobj_t * parent, const char * name, kobj_read_t read, kobj_write_t write, void * priv);
-bool_t kobj_remove(struct kobj_t * parent, const char * name);
 struct kobj_t * kobj_get_root(void);
+struct kobj_t * kobj_search(struct kobj_t * parent, const char * name);
+struct kobj_t * kobj_search_directory_with_create(struct kobj_t * parent, const char * name);
+struct kobj_t * kobj_alloc_directory(const char * name);
+struct kobj_t * kobj_alloc_regular(const char * name, kobj_read_t read, kobj_write_t write, void * priv);
+bool_t kobj_free(struct kobj_t * kobj);
+bool_t kobj_add(struct kobj_t * parent, struct kobj_t * kobj);
+bool_t kobj_remove(struct kobj_t * parent, struct kobj_t * kobj);
+bool_t kobj_add_directory(struct kobj_t * parent, const char * name);
+bool_t kobj_add_regular(struct kobj_t * parent, const char * name, kobj_read_t read, kobj_write_t write, void * priv);
+bool_t kobj_remove_with_name(struct kobj_t * parent, const char * name);
 
 void do_kobj_init(void);
 

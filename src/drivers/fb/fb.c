@@ -92,6 +92,7 @@ bool_t register_framebuffer(struct fb_t * fb)
 	dev->suspend = fb_suspend;
 	dev->resume = fb_resume;
 	dev->driver = fb;
+	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))
 	{

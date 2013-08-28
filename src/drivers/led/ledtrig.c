@@ -58,6 +58,7 @@ bool_t register_led_trigger(struct led_trigger_t * trigger)
 	dev->suspend = led_trigger_suspend;
 	dev->resume = led_trigger_resume;
 	dev->driver = trigger;
+	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))
 	{

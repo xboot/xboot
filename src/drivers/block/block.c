@@ -76,6 +76,7 @@ bool_t register_block(struct block_t * blk)
 	dev->suspend = block_suspend;
 	dev->resume = block_resume;
 	dev->driver = (void *)blk;
+	dev->kobj = kobj_alloc_directory(dev->name);
 
 	return register_device(dev);
 }

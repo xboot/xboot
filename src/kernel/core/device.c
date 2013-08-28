@@ -32,6 +32,45 @@ struct device_list_t __device_list = {
 };
 static spinlock_t __device_list_lock = SPIN_LOCK_INIT();
 
+static struct kobj_t * search_device_kobj(struct device_t * dev)
+{
+	struct kobj_t * kdevice;
+	char * name;
+
+	if(!dev || !dev->kobj)
+		return NULL;
+
+	kdevice = kobj_search_directory_with_create(kobj_get_root(), "device");
+	if(!kdevice)
+		return NULL;
+
+	switch(dev->type)
+	{
+	case DEVICE_TYPE_RTC:
+		name = "rtc";
+		break;
+	case DEVICE_TYPE_LED:
+		name = "led";
+		break;
+	case DEVICE_TYPE_LED_TRIGGER:
+		name = "led-trigger";
+		break;
+	case DEVICE_TYPE_FRAMEBUFFER:
+		name = "framebuffer";
+		break;
+	case DEVICE_TYPE_INPUT:
+		name = "input";
+		break;
+	case DEVICE_TYPE_BLOCK:
+		name = "block";
+		break;
+	default:
+		return NULL;
+	}
+
+	return kobj_search_directory_with_create(kdevice, (const char *)name);
+}
+
 struct device_t * search_device(const char * name)
 {
 	struct device_list_t * pos, * n;
@@ -102,6 +141,7 @@ bool_t register_device(struct device_t * dev)
 	if(!dl)
 		return FALSE;
 
+	kobj_add(search_device_kobj(dev), dev->kobj);
 	dl->device = dev;
 
 	spin_lock_irq(&__device_list_lock);
@@ -126,6 +166,8 @@ bool_t unregister_device(struct device_t * dev)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__device_list_lock);
 
+			kobj_remove(search_device_kobj(dev), pos->device->kobj);
+			kobj_remove_with_name(search_device_kobj(dev), pos->device->kobj->name);
 			free(pos);
 			return TRUE;
 		}

@@ -53,6 +53,31 @@ static void rtc_resume(struct device_t * dev)
 		rtc->resume(rtc);
 }
 
+static ssize_t rtc_time_read(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct rtc_t * rtc = (struct rtc_t *)kobj->priv;
+	struct rtc_time_t time;
+
+	if(rtc && rtc->gettime)
+		rtc->gettime(rtc, &time);
+
+	return sprintf(buf, "%04u-%02u-%02u %01u %02u:%02u:%02u", (u32_t)time.year, (u32_t)time.mon, (u32_t)time.day, (u32_t)time.week, (u32_t)time.hour, (u32_t)time.min, (u32_t)time.sec);
+}
+
+static ssize_t rtc_time_write(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct rtc_t * rtc = (struct rtc_t *)kobj->priv;
+	struct rtc_time_t time;
+
+	if(sscanf(buf, "%04u-%02u-%02u %01u %02u:%02u:%02u", &time.year, &time.mon, &time.day, &time.week, &time.hour, &time.min, &time.sec) == 7)
+	{
+		if(rtc && rtc->settime)
+			rtc->settime(rtc, &time);
+	}
+
+	return size;
+}
+
 struct rtc_t * search_rtc(const char * name)
 {
 	struct device_t * dev;
@@ -80,6 +105,8 @@ bool_t register_rtc(struct rtc_t * rtc)
 	dev->suspend = rtc_suspend;
 	dev->resume = rtc_resume;
 	dev->driver = rtc;
+	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "time", rtc_time_read, rtc_time_write, rtc);
 
 	if(!register_device(dev))
 	{

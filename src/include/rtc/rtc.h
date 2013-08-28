@@ -34,12 +34,6 @@ struct rtc_t
 	/* Get rtc time */
 	bool_t (*gettime)(struct rtc_t * rtc, struct rtc_time_t * time);
 
-	/* Set rtc alarm */
-	bool_t (*setalarm)(struct rtc_t * rtc, struct rtc_time_t * time);
-
-	/* Clear rtc alarm */
-	bool_t (*clralarm)(struct rtc_t * rtc);
-
 	/* Suspend rtc */
 	void (*suspend)(struct rtc_t * rtc);
 

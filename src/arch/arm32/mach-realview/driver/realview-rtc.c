@@ -132,16 +132,6 @@ static bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 	return TRUE;
 }
 
-static bool_t rtc_setalarm(struct rtc_t * rtc, struct rtc_time_t * time)
-{
-	return FALSE;
-}
-
-static bool_t rtc_clralarm(struct rtc_t * rtc)
-{
-	return FALSE;
-}
-
 static void rtc_suspend(struct rtc_t * rtc)
 {
 }
@@ -166,8 +156,6 @@ static bool_t realview_register_rtc(struct resource_t * res)
 	rtc->exit = rtc_exit;
 	rtc->settime = rtc_settime,
 	rtc->gettime = rtc_gettime,
-	rtc->setalarm = rtc_setalarm,
-	rtc->clralarm = rtc_clralarm,
 	rtc->suspend = rtc_suspend,
 	rtc->resume	= rtc_resume,
 	rtc->priv = res;

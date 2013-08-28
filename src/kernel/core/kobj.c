@@ -59,28 +59,6 @@ static void __kobj_free(struct kobj_t * kobj)
 	free(kobj);
 }
 
-static struct kobj_t * __kobj_search(struct kobj_t * parent, const char * name)
-{
-	struct kobj_t * pos, * n;
-
-	if(!parent)
-		return NULL;
-
-	if(parent->type != KOBJ_TYPE_DIR)
-		return NULL;
-
-	if(!name)
-		return NULL;
-
-	list_for_each_entry_safe(pos, n, &(parent->children), entry)
-	{
-		if(strcmp(pos->name, name) == 0)
-			return pos;
-	}
-
-	return NULL;
-}
-
 static bool_t __kobj_add(struct kobj_t * parent, struct kobj_t * kobj)
 {
 	if(!parent)
@@ -92,7 +70,7 @@ static bool_t __kobj_add(struct kobj_t * parent, struct kobj_t * kobj)
 	if(!kobj)
 		return FALSE;
 
-	if(__kobj_search(parent, kobj->name))
+	if(kobj_search(parent, kobj->name))
 		return FALSE;
 
 	spin_lock_irq(&parent->lock);
@@ -141,56 +119,78 @@ static bool_t __kobj_remove(struct kobj_t * parent, struct kobj_t * kobj)
 	return FALSE;
 }
 
-bool_t kobj_add_directory(struct kobj_t * parent, const char * name)
+struct kobj_t * kobj_search(struct kobj_t * parent, const char * name)
+{
+	struct kobj_t * pos, * n;
+
+	if(!parent)
+		return NULL;
+
+	if(parent->type != KOBJ_TYPE_DIR)
+		return NULL;
+
+	if(!name)
+		return NULL;
+
+	list_for_each_entry_safe(pos, n, &(parent->children), entry)
+	{
+		if(strcmp(pos->name, name) == 0)
+			return pos;
+	}
+
+	return NULL;
+}
+
+struct kobj_t * kobj_add_directory(struct kobj_t * parent, const char * name)
 {
 	struct kobj_t * kobj;
 
 	if(!parent)
-		return FALSE;
+		return NULL;
 
 	if(parent->type != KOBJ_TYPE_DIR)
-		return FALSE;
+		return NULL;
 
 	if(!name)
-		return FALSE;
+		return NULL;
 
-	if(__kobj_search(parent, name))
-		return FALSE;
+	if(kobj_search(parent, name))
+		return NULL;
 
 	kobj = __kobj_alloc(name, KOBJ_TYPE_DIR, NULL, NULL, NULL);
 	if(!kobj)
-		return FALSE;
+		return NULL;
 
 	if(!__kobj_add(parent, kobj))
 		__kobj_free(kobj);
 
-	return TRUE;
+	return kobj;
 }
 
-bool_t kobj_add_regular(struct kobj_t * parent, const char * name, kobj_read_t read, kobj_write_t write, void * priv)
+struct kobj_t * kobj_add_regular(struct kobj_t * parent, const char * name, kobj_read_t read, kobj_write_t write, void * priv)
 {
 	struct kobj_t * kobj;
 
 	if(!parent)
-		return FALSE;
+		return NULL;
 
 	if(parent->type != KOBJ_TYPE_DIR)
-		return FALSE;
+		return NULL;
 
 	if(!name)
-		return FALSE;
+		return NULL;
 
-	if(__kobj_search(parent, name))
-		return FALSE;
+	if(kobj_search(parent, name))
+		return NULL;
 
 	kobj = __kobj_alloc(name, KOBJ_TYPE_REG, read, write, priv);
 	if(!kobj)
-		return FALSE;
+		return NULL;
 
 	if(!__kobj_add(parent, kobj))
 		__kobj_free(kobj);
 
-	return TRUE;
+	return kobj;
 }
 
 bool_t kobj_remove(struct kobj_t * parent, const char * name)
@@ -207,7 +207,7 @@ bool_t kobj_remove(struct kobj_t * parent, const char * name)
 	if(!name)
 		return FALSE;
 
-	kobj = __kobj_search(parent, name);
+	kobj = kobj_search(parent, name);
 	if(!kobj)
 		return FALSE;
 

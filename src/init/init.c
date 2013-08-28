@@ -44,6 +44,12 @@ void do_system_rootfs(void)
 	if(mount(NULL, "/proc" , "procfs", 0) != 0)
 		LOG("Failed to mount proc filesystem");
 
+	if(mkdir("/sys", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
+		LOG("Failed to create directory '/sys'");
+
+	if(mount(NULL, "/sys" , "sysfs", 0) != 0)
+		LOG("Failed to mount sys filesystem");
+
 	if(mkdir("/romdisk", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG("Failed to create directory '/romdisk'");
 

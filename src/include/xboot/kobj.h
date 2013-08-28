@@ -45,8 +45,9 @@ struct kobj_t
 typedef ssize_t (*kobj_read_t)(struct kobj_t * kobj, void * buf, size_t size);
 typedef ssize_t (*kobj_write_t)(struct kobj_t * kobj, void * buf, size_t size);
 
-bool_t kobj_add_directory(struct kobj_t * parent, const char * name);
-bool_t kobj_add_regular(struct kobj_t * parent, const char * name, kobj_read_t read, kobj_write_t write, void * priv);
+struct kobj_t * kobj_search(struct kobj_t * parent, const char * name);
+struct kobj_t * kobj_add_directory(struct kobj_t * parent, const char * name);
+struct kobj_t * kobj_add_regular(struct kobj_t * parent, const char * name, kobj_read_t read, kobj_write_t write, void * priv);
 bool_t kobj_remove(struct kobj_t * parent, const char * name);
 struct kobj_t * kobj_get_root(void);
 

@@ -252,7 +252,10 @@ static bool_t realview_register_mouse(struct resource_t * res)
 
 	input = malloc(sizeof(struct input_t));
 	if(!input)
+	{
+		free(dat);
 		return FALSE;
+	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 

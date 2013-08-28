@@ -31,6 +31,20 @@ static void led_trigger_resume(struct device_t * dev)
 {
 }
 
+static ssize_t led_trigger_read_bind_led_name(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct led_trigger_t * trigger = (struct led_trigger_t *)kobj->priv;
+	return sprintf(buf, "%s", trigger->led->name);
+}
+
+static ssize_t led_trigger_write_activity(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct led_trigger_t * trigger = (struct led_trigger_t *)kobj->priv;
+
+	led_trigger_activity(trigger);
+	return size;
+}
+
 struct led_trigger_t * search_led_trigger(const char * name)
 {
 	struct device_t * dev;
@@ -59,6 +73,8 @@ bool_t register_led_trigger(struct led_trigger_t * trigger)
 	dev->resume = led_trigger_resume;
 	dev->driver = trigger;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "led", led_trigger_read_bind_led_name, NULL, trigger);
+	kobj_add_regular(dev->kobj, "activity", NULL, led_trigger_write_activity, trigger);
 
 	if(!register_device(dev))
 	{

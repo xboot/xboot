@@ -23,34 +23,46 @@
 #include <xboot.h>
 #include <led/led-gpio.h>
 
+struct led_gpio_runtime_data_t {
+	u32_t color;
+	struct led_gpio_data_t * rdat;
+};
+
 static void led_gpio_init(struct led_t * led)
 {
-	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_gpio_data_t * dat = (struct led_gpio_data_t *)res->data;
+	struct led_gpio_runtime_data_t * dat = (struct led_gpio_runtime_data_t *)led->priv;
+	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
-	gpio_set_pull(dat->gpio, dat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
+	gpio_set_pull(rdat->gpio, rdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
 }
 
 static void led_gpio_exit(struct led_t * led)
 {
-	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_gpio_data_t * dat = (struct led_gpio_data_t *)res->data;
+	struct led_gpio_runtime_data_t * dat = (struct led_gpio_runtime_data_t *)led->priv;
+	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
-	gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
+	dat->color = 0;
+	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
 }
 
 static void led_gpio_set(struct led_t * led, u32_t color)
 {
-	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_gpio_data_t * dat = (struct led_gpio_data_t *)res->data;
+	struct led_gpio_runtime_data_t * dat = (struct led_gpio_runtime_data_t *)led->priv;
+	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
-	color &= 0x00ffffff;
-
-	if(color != 0)
-		gpio_direction_output(dat->gpio, dat->active_low ? 0 : 1);
+	dat->color = color & 0x00ffffff;
+	if(dat->color != 0)
+		gpio_direction_output(rdat->gpio, rdat->active_low ? 0 : 1);
 	else
-		gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
+		gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+}
+
+static u32_t led_gpio_get(struct led_t * led)
+{
+	struct led_gpio_runtime_data_t * dat = (struct led_gpio_runtime_data_t *)led->priv;
+
+	return dat->color;
 }
 
 static void led_gpio_suspend(struct led_t * led)
@@ -63,23 +75,35 @@ static void led_gpio_resume(struct led_t * led)
 
 static bool_t led_gpio_register_led(struct resource_t * res)
 {
-	struct led_gpio_data_t * dat = (struct led_gpio_data_t *)res->data;
+	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)res->data;
+	struct led_gpio_runtime_data_t * dat;
 	struct led_t * led;
 	char name[64];
 
-	led = malloc(sizeof(struct led_t));
-	if(!led)
+	dat = malloc(sizeof(struct led_gpio_runtime_data_t));
+	if(!dat)
 		return FALSE;
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, dat->name);
+	led = malloc(sizeof(struct led_t));
+	if(!led)
+	{
+		free(dat);
+		return FALSE;
+	}
+
+	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+
+	dat->color = 0x0;
+	dat->rdat = rdat;
 
 	led->name = strdup(name);
 	led->init = led_gpio_init;
 	led->exit = led_gpio_exit;
 	led->set = led_gpio_set,
+	led->get = led_gpio_get,
 	led->suspend = led_gpio_suspend,
 	led->resume = led_gpio_resume,
-	led->priv = res;
+	led->priv = dat;
 
 	if(register_led(led))
 		return TRUE;
@@ -104,6 +128,7 @@ static bool_t led_gpio_unregister_led(struct resource_t * res)
 	if(!unregister_led(led))
 		return FALSE;
 
+	free(led->priv);
 	free(led->name);
 	free(led);
 	return TRUE;

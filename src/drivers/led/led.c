@@ -53,6 +53,26 @@ static void led_resume(struct device_t * dev)
 		led->resume(led);
 }
 
+static ssize_t led_get_color(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct led_t * led = (struct led_t *)kobj->priv;
+	u32_t color = 0;
+
+	if(led && led->get)
+		color = led->get(led);
+	return sprintf(buf, "0x%08u", color);
+}
+
+static ssize_t led_set_color(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct led_t * led = (struct led_t *)kobj->priv;
+	u32_t color = strtoul(buf, NULL, 0);
+
+	if(led && led->set)
+		led->set(led, color);
+	return size;
+}
+
 u8_t led_color_to_brightness(u32_t color)
 {
 	u8_t brightness;
@@ -91,6 +111,7 @@ bool_t register_led(struct led_t * led)
 	dev->resume = led_resume;
 	dev->driver = led;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "color", led_get_color, led_set_color, led);
 
 	if(!register_device(dev))
 	{

@@ -23,31 +23,45 @@
 #include <xboot.h>
 #include <led/led-simple.h>
 
+struct led_simple_runtime_data_t {
+	u32_t color;
+	struct led_simple_data_t * rdat;
+};
+
 static void led_simple_init(struct led_t * led)
 {
-	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
+	struct led_simple_runtime_data_t * dat = (struct led_simple_runtime_data_t *)led->priv;
+	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
 
-	if(dat->init)
-		dat->init(dat);
+	if(rdat->init)
+		rdat->init(rdat);
 }
 
 static void led_simple_exit(struct led_t * led)
 {
-	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
+	struct led_simple_runtime_data_t * dat = (struct led_simple_runtime_data_t *)led->priv;
+	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
 
-	if(dat->set)
-		dat->set(dat, 0);
+	dat->color = 0;
+	if(rdat->set)
+		rdat->set(rdat, dat->color);
 }
 
 static void led_simple_set(struct led_t * led, u32_t color)
 {
-	struct resource_t * res = (struct resource_t *)led->priv;
-	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
+	struct led_simple_runtime_data_t * dat = (struct led_simple_runtime_data_t *)led->priv;
+	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
 
-	if(dat->set)
-		return dat->set(dat, color);
+	dat->color = color;
+	if(rdat->set)
+		return rdat->set(rdat, dat->color);
+}
+
+static u32_t led_simple_get(struct led_t * led)
+{
+	struct led_simple_runtime_data_t * dat = (struct led_simple_runtime_data_t *)led->priv;
+
+	return dat->color;
 }
 
 static void led_simple_suspend(struct led_t * led)
@@ -60,23 +74,35 @@ static void led_simple_resume(struct led_t * led)
 
 static bool_t led_simple_register_led(struct resource_t * res)
 {
-	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
+	struct led_simple_data_t * rdat = (struct led_simple_data_t *)res->data;
+	struct led_simple_runtime_data_t * dat;
 	struct led_t * led;
 	char name[64];
 
-	led = malloc(sizeof(struct led_t));
-	if(!led)
+	dat = malloc(sizeof(struct led_simple_runtime_data_t));
+	if(!dat)
 		return FALSE;
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, dat->name);
+	led = malloc(sizeof(struct led_t));
+	if(!led)
+	{
+		free(dat);
+		return FALSE;
+	}
+
+	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+
+	dat->color = 0x0;
+	dat->rdat = rdat;
 
 	led->name = strdup(name);
 	led->init = led_simple_init;
 	led->exit = led_simple_exit;
 	led->set = led_simple_set,
+	led->get = led_simple_get,
 	led->suspend = led_simple_suspend,
 	led->resume	= led_simple_resume,
-	led->priv = res;
+	led->priv = dat;
 
 	if(register_led(led))
 		return TRUE;
@@ -101,6 +127,7 @@ static bool_t led_simple_unregister_led(struct resource_t * res)
 	if(!unregister_led(led))
 		return FALSE;
 
+	free(led->priv);
 	free(led->name);
 	free(led);
 	return TRUE;

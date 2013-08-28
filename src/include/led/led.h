@@ -29,6 +29,9 @@ struct led_t
      */
 	void (*set)(struct led_t * led, u32_t color);
 
+	/* Get LED's color */
+	u32_t (*get)(struct led_t * led);
+
 	/* Suspend LED */
 	void (*suspend)(struct led_t * led);
 

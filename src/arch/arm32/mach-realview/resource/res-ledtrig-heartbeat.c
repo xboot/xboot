@@ -24,13 +24,12 @@
 #include <led/ledtrig.h>
 
 static struct led_trigger_data_t led_trigger_data = {
-	.name	= "blink",
 	.led	= "led-gpio.0",
 };
 
 static struct resource_t res_led_trigger = {
 	.name	= "ledtrig-heartbeat",
-	.id		= 0,
+	.id		= -1,
 	.data	= &led_trigger_data,
 };
 

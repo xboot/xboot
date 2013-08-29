@@ -31,7 +31,7 @@ static struct realview_mouse_data_t realview_mouse_data = {
 
 static struct resource_t res_mouse = {
 	.name		= "mouse-pl050",
-	.id			= 0,
+	.id			= -1,
 	.data		= &realview_mouse_data,
 };
 

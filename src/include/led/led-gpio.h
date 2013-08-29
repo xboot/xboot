@@ -10,7 +10,6 @@ extern "C" {
 
 struct led_gpio_data_t
 {
-	const char * name;
 	int gpio;
 	int active_low;
 };

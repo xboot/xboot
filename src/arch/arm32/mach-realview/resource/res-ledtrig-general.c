@@ -25,7 +25,6 @@
 
 static struct led_trigger_data_t led_trigger_datas[] = {
 	{
-		.name	= "console",
 		.led	= "led-gpio.1",
 	},
 };
@@ -33,7 +32,7 @@ static struct led_trigger_data_t led_trigger_datas[] = {
 static struct resource_t res_led_triggers[] = {
 	{
 		.name	= "ledtrig-general",
-		.id		= 0,
+		.id		= -1,
 		.data	= &led_trigger_datas[0],
 	},
 };

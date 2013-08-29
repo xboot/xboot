@@ -10,7 +10,6 @@ extern "C" {
 
 struct led_trigger_data_t
 {
-	const char * name;
 	const char * led;
 };
 

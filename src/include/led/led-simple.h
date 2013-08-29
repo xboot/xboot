@@ -10,7 +10,6 @@ extern "C" {
 
 struct led_simple_data_t
 {
-	const char * name;
 	void (*init)(struct led_simple_data_t * dat);
 	void (*set)(struct led_simple_data_t * dat, u32_t color);
 };

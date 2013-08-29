@@ -1,0 +1,300 @@
+/*
+ * driver/input/key-gpio.c
+ *
+ * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
+ * official site: http://xboot.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#include <xboot.h>
+#include <input/key-gpio.h>
+
+#if 0
+struct key_gpio_runtime_data_t {
+	u32_t color;
+	struct key_gpio_data_t * rdat;
+};
+
+static void key_gpio_init(struct key_t * key)
+{
+	struct key_gpio_runtime_data_t * dat = (struct key_gpio_runtime_data_t *)key->priv;
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
+
+	gpio_set_pull(rdat->gpio, rdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+}
+
+static void key_gpio_exit(struct key_t * key)
+{
+	struct key_gpio_runtime_data_t * dat = (struct key_gpio_runtime_data_t *)key->priv;
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
+
+	dat->color = 0;
+	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+}
+
+static void key_gpio_set(struct key_t * key, u32_t color)
+{
+	struct key_gpio_runtime_data_t * dat = (struct key_gpio_runtime_data_t *)key->priv;
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
+
+	dat->color = color & 0x00ffffff;
+	if(dat->color != 0)
+		gpio_direction_output(rdat->gpio, rdat->active_low ? 0 : 1);
+	else
+		gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+}
+
+static u32_t key_gpio_get(struct key_t * key)
+{
+	struct key_gpio_runtime_data_t * dat = (struct key_gpio_runtime_data_t *)key->priv;
+
+	return dat->color;
+}
+
+static void key_gpio_suspend(struct key_t * key)
+{
+}
+
+static void key_gpio_resume(struct key_t * key)
+{
+}
+
+static bool_t key_gpio_register_key(struct resource_t * res)
+{
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)res->data;
+	struct key_gpio_runtime_data_t * dat;
+	struct key_t * key;
+	char name[64];
+
+	dat = malloc(sizeof(struct key_gpio_runtime_data_t));
+	if(!dat)
+		return FALSE;
+
+	key = malloc(sizeof(struct key_t));
+	if(!key)
+	{
+		free(dat);
+		return FALSE;
+	}
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	dat->color = 0x0;
+	dat->rdat = rdat;
+
+	key->name = strdup(name);
+	key->init = key_gpio_init;
+	key->exit = key_gpio_exit;
+	key->set = key_gpio_set,
+	key->get = key_gpio_get,
+	key->suspend = key_gpio_suspend,
+	key->resume = key_gpio_resume,
+	key->priv = dat;
+
+	if(register_key(key))
+		return TRUE;
+
+	free(key->name);
+	free(key);
+	return FALSE;
+}
+
+static bool_t key_gpio_unregister_key(struct resource_t * res)
+{
+	struct key_t * key;
+	char name[64];
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	key = search_key(name);
+	if(!key)
+		return FALSE;
+
+	if(!unregister_key(key))
+		return FALSE;
+
+	free(key->priv);
+	free(key->name);
+	free(key);
+	return TRUE;
+}
+#endif
+
+struct key_gpio_platform_data_t {
+	int * state;
+	struct timer_t timer;
+	struct key_gpio_data_t * rdat;
+};
+
+static void key_gpio_timer_function(u32_t data)
+{
+	struct input_t * input = (struct input_t *)(data);
+	struct key_gpio_platform_data_t * dat = (struct key_gpio_platform_data_t *)input->priv;
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
+	struct event_t event;
+	int i, val;
+
+	for(i = 0; i < rdat->nbutton; i++)
+	{
+		val = gpio_get_value(rdat->buttons[i].gpio);
+		if(val != dat->state[i])
+		{
+			event.device = input;
+			if(rdat->buttons[i].active_low)
+				event.type = val ? EVENT_TYPE_KEY_UP : EVENT_TYPE_KEY_DOWN;
+			else
+				event.type = val ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
+			event.e.key.code = rdat->buttons[i].code;
+			push_event(&event);
+		}
+		dat->state[i] = val;
+	}
+
+	mod_timer(&(dat->timer), jiffies + get_system_hz() / 10);
+}
+
+static void input_init(struct input_t * input)
+{
+	struct key_gpio_platform_data_t * dat = (struct key_gpio_platform_data_t *)input->priv;
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
+	int i;
+
+	if(!dat)
+		return;
+
+	dat->state = malloc(rdat->nbutton * sizeof(int));
+	if(!dat->state)
+		return;
+
+	for(i = 0; i < rdat->nbutton; i++)
+	{
+		gpio_set_pull(rdat->buttons[i].gpio, rdat->buttons[i].active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+		gpio_direction_input(rdat->buttons[i].gpio);
+		dat->state[i] = gpio_get_value(rdat->buttons[i].gpio);
+	}
+
+	setup_timer(&dat->timer, key_gpio_timer_function, (u32_t)input);
+	mod_timer(&(dat->timer), jiffies + get_system_hz() / 10);
+}
+
+static void input_exit(struct input_t * input)
+{
+	struct key_gpio_platform_data_t * dat = (struct key_gpio_platform_data_t *)input->priv;
+
+	if(!dat)
+		return;
+
+	if(!dat->state)
+		return;
+
+	free(dat->state);
+	del_timer(&(dat->timer));
+}
+
+static int input_ioctl(struct input_t * input, int cmd, void * arg)
+{
+	return -1;
+}
+
+static void input_suspend(struct input_t * input)
+{
+}
+
+static void input_resume(struct input_t * input)
+{
+}
+
+static bool_t gpio_register_keyboard(struct resource_t * res)
+{
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)res->data;
+	struct key_gpio_platform_data_t * dat;
+	struct input_t * input;
+	char name[64];
+
+	if(!rdat->buttons)
+		return FALSE;
+
+	if(rdat->nbutton <= 0)
+		return FALSE;
+
+	dat = malloc(sizeof(struct key_gpio_platform_data_t));
+	if(!dat)
+		return FALSE;
+
+	input = malloc(sizeof(struct input_t));
+	if(!input)
+	{
+		free(dat);
+		return FALSE;
+	}
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	dat->state = NULL;
+	dat->rdat = rdat;
+
+	input->name = strdup(name);
+	input->type = INPUT_TYPE_KEYBOARD;
+	input->init = input_init;
+	input->exit = input_exit;
+	input->ioctl = input_ioctl;
+	input->suspend = input_suspend,
+	input->resume	= input_resume,
+	input->priv = dat;
+
+	if(register_input(input))
+		return TRUE;
+
+	free(input->priv);
+	free(input->name);
+	free(input);
+	return FALSE;
+}
+
+static bool_t gpio_unregister_keyboard(struct resource_t * res)
+{
+	struct input_t * input;
+	char name[64];
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	input = search_input(name);
+	if(!input)
+		return FALSE;
+
+	if(!unregister_input(input))
+		return FALSE;
+
+	free(input->priv);
+	free(input->name);
+	free(input);
+	return TRUE;
+}
+
+static __init void key_gpio_device_init(void)
+{
+	resource_callback_with_name("key-gpio", gpio_register_keyboard);
+}
+
+static __exit void key_gpio_device_exit(void)
+{
+	resource_callback_with_name("key-gpio", gpio_unregister_keyboard);
+}
+
+device_initcall(key_gpio_device_init);
+device_exitcall(key_gpio_device_exit);

@@ -78,7 +78,7 @@ static struct realview_fb_data_t realview_fb_data = {
 };
 
 static struct resource_t res_fb = {
-	.name		= "pl110",
+	.name		= "fb-pl110",
 	.id			= 0,
 	.data		= &realview_fb_data,
 };

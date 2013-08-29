@@ -28,7 +28,7 @@ static struct realview_rtc_data_t realview_rtc_data = {
 };
 
 static struct resource_t res_rtc = {
-	.name		= "pl031",
+	.name		= "rtc-pl031",
 	.id			= 0,
 	.data		= &realview_rtc_data,
 };

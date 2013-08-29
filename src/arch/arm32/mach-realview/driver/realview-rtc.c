@@ -189,12 +189,12 @@ static bool_t realview_unregister_rtc(struct resource_t * res)
 
 static __init void realview_rtc_init(void)
 {
-	resource_callback_with_name("pl031", realview_register_rtc);
+	resource_callback_with_name("rtc-pl031", realview_register_rtc);
 }
 
 static __exit void realview_rtc_exit(void)
 {
-	resource_callback_with_name("pl031", realview_unregister_rtc);
+	resource_callback_with_name("rtc-pl031", realview_unregister_rtc);
 }
 
 device_initcall(realview_rtc_init);

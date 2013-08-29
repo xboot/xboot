@@ -78,7 +78,15 @@ bool_t register_block(struct block_t * blk)
 	dev->driver = (void *)blk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
-	return register_device(dev);
+	if(!register_device(dev))
+	{
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 bool_t unregister_block(struct block_t * blk)

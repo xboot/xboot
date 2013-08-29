@@ -78,6 +78,7 @@ bool_t register_led_trigger(struct led_trigger_t * trigger)
 
 	if(!register_device(dev))
 	{
+		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
 		return FALSE;

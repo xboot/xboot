@@ -110,6 +110,7 @@ bool_t register_rtc(struct rtc_t * rtc)
 
 	if(!register_device(dev))
 	{
+		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
 		return FALSE;

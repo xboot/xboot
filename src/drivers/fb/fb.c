@@ -96,6 +96,7 @@ bool_t register_framebuffer(struct fb_t * fb)
 
 	if(!register_device(dev))
 	{
+		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
 		return FALSE;

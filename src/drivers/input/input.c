@@ -84,6 +84,7 @@ bool_t register_input(struct input_t * input)
 
 	if(!register_device(dev))
 	{
+		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
 		return FALSE;

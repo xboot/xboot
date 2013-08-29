@@ -42,9 +42,9 @@ enum decode_state {
 
 struct keymap {
 	u8_t data;
-	enum key_code_t key;
-	enum key_code_t caps_key;
-	enum key_code_t shift_key;
+	u32_t key;
+	u32_t caps_key;
+	u32_t shift_key;
 };
 
 enum key_value_t {
@@ -121,7 +121,7 @@ static const struct keymap map[] = {
 static void keyboard_report_event(void * device, u32_t flag, u8_t data, enum key_value_t press)
 {
 	struct event_t event;
-	enum key_code_t key;
+	u32_t key;
 	u32_t i;
 
 	for(i = 0; i < ARRAY_SIZE(map); i++)

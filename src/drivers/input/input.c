@@ -53,6 +53,57 @@ static void input_resume(struct device_t * dev)
 		input->resume(input);
 }
 
+static ssize_t input_read_type(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct input_t * input = (struct input_t *)kobj->priv;
+	char * name;
+
+	switch(input->type)
+	{
+	case INPUT_TYPE_KEYBOARD:
+		name = "keyboard";
+		break;
+	case INPUT_TYPE_MOUSE:
+		name = "mouse";
+		break;
+	case INPUT_TYPE_TOUCHSCREEN:
+		name = "touchscreen";
+		break;
+	case INPUT_TYPE_JOYSTICK:
+		name = "joystick";
+		break;
+	case INPUT_TYPE_ACCELEROMETER:
+		name = "accelerometer";
+		break;
+	case INPUT_TYPE_GYROSCOPE:
+		name = "gyroscope";
+		break;
+	case INPUT_TYPE_LIGHT:
+		name = "light";
+		break;
+	case INPUT_TYPE_MAGNETIC:
+		name = "magnetic";
+		break;
+	case INPUT_TYPE_ORIENTATION:
+		name = "orientation";
+		break;
+	case INPUT_TYPE_PRESSURE:
+		name = "pressure";
+		break;
+	case INPUT_TYPE_PROXIMITY:
+		name = "proximity";
+		break;
+	case INPUT_TYPE_TEMPERATURE:
+		name = "temperature";
+		break;
+	default:
+		name = "unknown";
+		break;
+	}
+
+	return sprintf(buf, "%s", name);
+}
+
 struct input_t * search_input(const char * name)
 {
 	struct device_t * dev;
@@ -81,6 +132,7 @@ bool_t register_input(struct input_t * input)
 	dev->resume = input_resume;
 	dev->driver = input;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "type", input_read_type, NULL, input);
 
 	if(!register_device(dev))
 	{

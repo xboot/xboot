@@ -26,6 +26,7 @@
 
 struct resource_list_t {
 	struct resource_t * res;
+	struct kobj_t * kobj;
 	struct list_head entry;
 };
 
@@ -73,9 +74,27 @@ static struct resource_t * search_resource_with_id(const char * name, int id)
 	return NULL;
 }
 
+static struct kobj_t * search_resource_kobj(struct resource_t * res)
+{
+	return kobj_search_directory_with_create(kobj_get_root(), "resource");
+}
+
+static ssize_t resource_read_name(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct resource_t * res = (struct resource_t *)kobj->priv;
+	return sprintf(buf, "%s", res->name);
+}
+
+static ssize_t resource_read_id(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct resource_t * res = (struct resource_t *)kobj->priv;
+	return sprintf(buf, "%d", res->id);
+}
+
 bool_t register_resource(struct resource_t * res)
 {
 	struct resource_list_t * rl;
+	char name[64];
 
 	if(!res || !res->name)
 		return FALSE;
@@ -94,6 +113,11 @@ bool_t register_resource(struct resource_t * res)
 	if(!rl)
 		return FALSE;
 
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	res->kobj = kobj_alloc_directory(name);
+	kobj_add_regular(res->kobj, "name", resource_read_name, NULL, res);
+	kobj_add_regular(res->kobj, "id", resource_read_id, NULL, res);
+	kobj_add(search_resource_kobj(res), res->kobj);
 	rl->res = res;
 
 	spin_lock_irq(&__resource_list_lock);
@@ -118,6 +142,8 @@ bool_t unregister_resource(struct resource_t * res)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__resource_list_lock);
 
+			kobj_remove(search_resource_kobj(res), pos->res->kobj);
+			kobj_remove_self(res->kobj);
 			free(pos);
 			return TRUE;
 		}
@@ -144,50 +170,3 @@ void resource_callback_with_name(const char * name, resource_callback_t cb)
 		}
 	}
 }
-
-static s32_t resource_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct resource_list_t * pos, * n;
-	s8_t * p;
-	s32_t len = 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), (const char *)"[resource]");
-	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
-	{
-		len += sprintf((char *)(p + len), (const char *)"\r\n %s.%d", pos->res->name, pos->res->id);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t resource_proc = {
-	.name	= "resource",
-	.read	= resource_proc_read,
-};
-
-static __init void resource_proc_init(void)
-{
-	proc_register(&resource_proc);
-}
-
-static __exit void resource_proc_exit(void)
-{
-	proc_unregister(&resource_proc);
-}
-
-core_initcall(resource_proc_init);
-core_exitcall(resource_proc_exit);

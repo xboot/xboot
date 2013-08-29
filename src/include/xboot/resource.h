@@ -17,6 +17,9 @@ struct resource_t
 
 	/* The resource data */
 	void * data;
+
+	/* Kobj binding */
+	struct kobj_t * kobj;
 };
 
 typedef bool_t (*resource_callback_t)(struct resource_t * res);

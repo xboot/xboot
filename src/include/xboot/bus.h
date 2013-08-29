@@ -8,7 +8,7 @@ extern "C" {
 #include <xboot.h>
 
 enum bus_type_t {
-	BUS_TYPE_1WIRE,
+	BUS_TYPE_W1,
 	BUS_TYPE_UART,
 	BUS_TYPE_IIC,
 	BUS_TYPE_SPI,
@@ -18,6 +18,9 @@ enum bus_type_t {
 
 struct bus_t
 {
+	/* Kobj binding */
+	struct kobj_t * kobj;
+
 	/* Bus name */
 	char * name;
 

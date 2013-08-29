@@ -48,9 +48,11 @@ bool_t register_bus_uart(struct uart_t * uart)
 	bus->name = strdup(uart->name);
 	bus->type = BUS_TYPE_UART;
 	bus->driver = uart;
+	bus->kobj = kobj_alloc_directory(bus->name);
 
 	if(!register_bus(bus))
 	{
+		kobj_remove_self(bus->kobj);
 		free(bus->name);
 		free(bus);
 		return FALSE;
@@ -81,6 +83,7 @@ bool_t unregister_bus_uart(struct uart_t * uart)
 	if(!unregister_bus(bus))
 		return FALSE;
 
+	kobj_remove_self(bus->kobj);
 	free(bus->name);
 	free(bus);
 

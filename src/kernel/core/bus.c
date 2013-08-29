@@ -32,6 +32,45 @@ struct bus_list_t __bus_list = {
 };
 static spinlock_t __bus_list_lock = SPIN_LOCK_INIT();
 
+static struct kobj_t * search_bus_kobj(struct bus_t * bus)
+{
+	struct kobj_t * kbus;
+	char * name;
+
+	if(!bus || !bus->kobj)
+		return NULL;
+
+	kbus = kobj_search_directory_with_create(kobj_get_root(), "bus");
+	if(!kbus)
+		return NULL;
+
+	switch(bus->type)
+	{
+	case BUS_TYPE_W1:
+		name = "w1";
+		break;
+	case BUS_TYPE_UART:
+		name = "uart";
+		break;
+	case BUS_TYPE_IIC:
+		name = "iic";
+		break;
+	case BUS_TYPE_SPI:
+		name = "spi";
+		break;
+	case BUS_TYPE_CAN:
+		name = "can";
+		break;
+	case BUS_TYPE_USB:
+		name = "usb";
+		break;
+	default:
+		return NULL;
+	}
+
+	return kobj_search_directory_with_create(kbus, (const char *)name);
+}
+
 struct bus_t * search_bus(const char * name)
 {
 	struct bus_list_t * pos, * n;
@@ -84,6 +123,7 @@ bool_t register_bus(struct bus_t * bus)
 	if(!bl)
 		return FALSE;
 
+	kobj_add(search_bus_kobj(bus), bus->kobj);
 	bl->bus = bus;
 
 	spin_lock_irq(&__bus_list_lock);
@@ -108,6 +148,7 @@ bool_t unregister_bus(struct bus_t * bus)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__bus_list_lock);
 
+			kobj_remove(search_bus_kobj(bus), pos->bus->kobj);
 			free(pos);
 			return TRUE;
 		}
@@ -115,51 +156,3 @@ bool_t unregister_bus(struct bus_t * bus)
 
 	return FALSE;
 }
-
-static s32_t bus_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct bus_list_t * pos, * n;
-	char * p;
-	int len = 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), "[bus]");
-
-	list_for_each_entry_safe(pos, n, &(__bus_list.entry), entry)
-	{
-		len += sprintf((char *)(p + len), "\r\n    %s", pos->bus->name);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (char *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t bus_proc = {
-	.name	= "bus",
-	.read	= bus_proc_read,
-};
-
-static __init void bus_proc_init(void)
-{
-	proc_register(&bus_proc);
-}
-
-static __exit void bus_proc_exit(void)
-{
-	proc_unregister(&bus_proc);
-}
-
-core_initcall(bus_proc_init);
-core_exitcall(bus_proc_exit);

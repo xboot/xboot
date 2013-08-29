@@ -121,7 +121,7 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 		return FALSE;
 	}
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	dat->phase = 0;
 	dat->period = 0;
@@ -145,11 +145,10 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 
 static bool_t ledtrig_unregister_heartbeat(struct resource_t * res)
 {
-	struct led_trigger_data_t * rdat = (struct led_trigger_data_t *)res->data;
 	struct led_trigger_t * trigger;
 	char name[64];
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	trigger = search_led_trigger(name);
 	if(!trigger)
@@ -166,12 +165,12 @@ static bool_t ledtrig_unregister_heartbeat(struct resource_t * res)
 
 static __init void ledtrig_heartbeat_device_init(void)
 {
-	resource_callback_with_name("ledtrig.heartbeat", ledtrig_register_heartbeat);
+	resource_callback_with_name("ledtrig-heartbeat", ledtrig_register_heartbeat);
 }
 
 static __exit void ledtrig_heartbeat_device_exit(void)
 {
-	resource_callback_with_name("ledtrig.heartbeat", ledtrig_unregister_heartbeat);
+	resource_callback_with_name("ledtrig-heartbeat", ledtrig_unregister_heartbeat);
 }
 
 xxx1_initcall(ledtrig_heartbeat_device_init);

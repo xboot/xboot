@@ -54,12 +54,12 @@ static struct led_simple_data_t led_simple_datas[] = {
 
 static struct resource_t res_led_simples[] = {
 	{
-		.name		= "led.simple",
-		.id			= -1,
+		.name		= "led-simple",
+		.id			= 0,
 		.data		= &led_simple_datas[0],
 	}, {
-		.name		= "led.simple",
-		.id			= -1,
+		.name		= "led-simple",
+		.id			= 1,
 		.data		= &led_simple_datas[1],
 	},
 };

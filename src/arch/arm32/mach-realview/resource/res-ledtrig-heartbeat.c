@@ -25,12 +25,12 @@
 
 static struct led_trigger_data_t led_trigger_data = {
 	.name	= "blink",
-	.led	= "led.simple.d0",
+	.led	= "led-gpio.0",
 };
 
 static struct resource_t res_led_trigger = {
-	.name	= "ledtrig.heartbeat",
-	.id		= -1,
+	.name	= "ledtrig-heartbeat",
+	.id		= 0,
 	.data	= &led_trigger_data,
 };
 

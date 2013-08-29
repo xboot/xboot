@@ -310,12 +310,12 @@ static bool_t realview_unregister_mouse(struct resource_t * res)
 
 static __init void realview_mouse_device_init(void)
 {
-	resource_callback_with_name("input.mouse", realview_register_mouse);
+	resource_callback_with_name("mouse-pl050", realview_register_mouse);
 }
 
 static __exit void realview_mouse_device_exit(void)
 {
-	resource_callback_with_name("input.mouse", realview_unregister_mouse);
+	resource_callback_with_name("mouse-pl050", realview_unregister_mouse);
 }
 
 device_initcall(realview_mouse_device_init);

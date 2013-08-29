@@ -53,7 +53,7 @@ void do_system_rootfs(void)
 	if(mkdir("/romdisk", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG("Failed to create directory '/romdisk'");
 
-	if(mount("blk.romdisk", "/romdisk" , "cpiofs", 0) != 0)
+	if(mount("romdisk", "/romdisk" , "cpiofs", 0) != 0)
 		LOG("Failed to mount romdisk");
 
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)

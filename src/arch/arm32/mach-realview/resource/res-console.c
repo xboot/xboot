@@ -23,9 +23,9 @@
 #include <xboot.h>
 
 static struct console_stdio_data_t console_stdio_data = {
-	.in		= "input.keyboard.0",
-	.out	= "fb.pl110.0",
-	.err	= "fb.pl110.0",
+	.in		= "keyboard-pl050.0",
+	.out	= "pl110.0",
+	.err	= "pl110.0",
 };
 
 static struct resource_t res_console = {

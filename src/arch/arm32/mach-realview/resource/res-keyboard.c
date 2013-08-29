@@ -28,8 +28,8 @@ static struct realview_keyboard_data_t realview_keyboard_data = {
 };
 
 static struct resource_t res_keyboard = {
-	.name		= "input.keyboard",
-	.id			= -1,
+	.name		= "keyboard-pl050",
+	.id			= 0,
 	.data		= &realview_keyboard_data,
 };
 

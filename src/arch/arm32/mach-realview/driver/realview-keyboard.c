@@ -479,12 +479,12 @@ static bool_t realview_unregister_keyboard(struct resource_t * res)
 
 static __init void realview_keyboard_device_init(void)
 {
-	resource_callback_with_name("input.keyboard", realview_register_keyboard);
+	resource_callback_with_name("keyboard-pl050", realview_register_keyboard);
 }
 
 static __exit void realview_keyboard_device_exit(void)
 {
-	resource_callback_with_name("input.keyboard", realview_unregister_keyboard);
+	resource_callback_with_name("keyboard-pl050", realview_unregister_keyboard);
 }
 
 device_initcall(realview_keyboard_device_init);

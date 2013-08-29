@@ -30,8 +30,8 @@ static struct realview_mouse_data_t realview_mouse_data = {
 };
 
 static struct resource_t res_mouse = {
-	.name		= "input.mouse",
-	.id			= -1,
+	.name		= "mouse-pl050",
+	.id			= 0,
 	.data		= &realview_mouse_data,
 };
 

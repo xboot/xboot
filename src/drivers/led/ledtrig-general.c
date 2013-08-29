@@ -101,7 +101,7 @@ static bool_t ledtrig_register_general(struct resource_t * res)
 		return FALSE;
 	}
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	dat->activity = 0;
 	dat->last_activity = 0;
@@ -125,11 +125,10 @@ static bool_t ledtrig_register_general(struct resource_t * res)
 
 static bool_t ledtrig_unregister_general(struct resource_t * res)
 {
-	struct led_trigger_data_t * rdat = (struct led_trigger_data_t *)res->data;
 	struct led_trigger_t * trigger;
 	char name[64];
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	trigger = search_led_trigger(name);
 	if(!trigger)
@@ -146,12 +145,12 @@ static bool_t ledtrig_unregister_general(struct resource_t * res)
 
 static __init void ledtrig_general_device_init(void)
 {
-	resource_callback_with_name("ledtrig.general", ledtrig_register_general);
+	resource_callback_with_name("ledtrig-general", ledtrig_register_general);
 }
 
 static __exit void ledtrig_general_device_exit(void)
 {
-	resource_callback_with_name("ledtrig.general", ledtrig_unregister_general);
+	resource_callback_with_name("ledtrig-general", ledtrig_unregister_general);
 }
 
 xxx1_initcall(ledtrig_general_device_init);

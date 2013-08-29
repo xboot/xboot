@@ -90,7 +90,7 @@ static bool_t led_simple_register_led(struct resource_t * res)
 		return FALSE;
 	}
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, rdat->name);
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	dat->color = 0x0;
 	dat->rdat = rdat;
@@ -114,11 +114,10 @@ static bool_t led_simple_register_led(struct resource_t * res)
 
 static bool_t led_simple_unregister_led(struct resource_t * res)
 {
-	struct led_simple_data_t * dat = (struct led_simple_data_t *)res->data;
 	struct led_t * led;
 	char name[64];
 
-	snprintf(name, sizeof(name), "%s.%s", res->name, dat->name);
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	led = search_led(name);
 	if(!led)
@@ -135,12 +134,12 @@ static bool_t led_simple_unregister_led(struct resource_t * res)
 
 static __init void led_simple_device_init(void)
 {
-	resource_callback_with_name("led.simple", led_simple_register_led);
+	resource_callback_with_name("led-simple", led_simple_register_led);
 }
 
 static __exit void led_simple_device_exit(void)
 {
-	resource_callback_with_name("led.simple", led_simple_unregister_led);
+	resource_callback_with_name("led-simple", led_simple_unregister_led);
 }
 
 device_initcall(led_simple_device_init);

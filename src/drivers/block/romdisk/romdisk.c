@@ -158,12 +158,12 @@ static bool_t unregister_romdisk(const char * name)
 
 static __init void romdisk_init(void)
 {
-	register_romdisk("blk.romdisk", __romdisk_start, __romdisk_end);
+	register_romdisk("romdisk", __romdisk_start, __romdisk_end);
 }
 
 static __exit void romdisk_exit(void)
 {
-	unregister_romdisk("blk.romdisk");
+	unregister_romdisk("romdisk");
 }
 
 device_initcall(romdisk_init);

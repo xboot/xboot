@@ -26,7 +26,6 @@
 
 struct resource_list_t {
 	struct resource_t * res;
-	struct kobj_t * kobj;
 	struct list_head entry;
 };
 

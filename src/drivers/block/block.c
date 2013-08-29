@@ -95,6 +95,7 @@ bool_t unregister_block(struct block_t * blk)
 	if(!unregister_device(dev))
 		return FALSE;
 
+	kobj_remove_self(dev->kobj);
 	free(dev->name);
 	free(dev);
 	return TRUE;

@@ -32,10 +32,10 @@ int xboot_main(int argc, char * argv[])
 	/* Alloc default runtime */
 	runtime_alloc_save(0);
 
-	/* Do kobj initial */
-	do_kobj_init();
+	/* Do initial kobj */
+	do_init_kobj();
 
-	/* Do all init calls */
+	/* Do all initial calls */
 	do_initcalls();
 
 	/* Mount root filesystem */

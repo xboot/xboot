@@ -167,7 +167,6 @@ bool_t unregister_device(struct device_t * dev)
 			spin_unlock_irq(&__device_list_lock);
 
 			kobj_remove(search_device_kobj(dev), pos->device->kobj);
-			kobj_remove_with_name(search_device_kobj(dev), pos->device->kobj->name);
 			free(pos);
 			return TRUE;
 		}
@@ -213,51 +212,3 @@ void resume_all_device(void)
 		pos->device->resume(pos->device);
 	}
 }
-
-static s32_t device_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct device_list_t * pos, * n;
-	char * p;
-	int len = 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), "[device]");
-
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
-	{
-		len += sprintf((char *)(p + len), "\r\n    %s", pos->device->name);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (char *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t device_proc = {
-	.name	= "device",
-	.read	= device_proc_read,
-};
-
-static __init void device_proc_init(void)
-{
-	proc_register(&device_proc);
-}
-
-static __exit void device_proc_exit(void)
-{
-	proc_unregister(&device_proc);
-}
-
-core_initcall(device_proc_init);
-core_exitcall(device_proc_exit);

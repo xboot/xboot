@@ -135,6 +135,7 @@ bool_t unregister_led(struct led_t * led)
 	if(!unregister_device(dev))
 		return FALSE;
 
+	kobj_remove_self(dev->kobj);
 	free(dev->name);
 	free(dev);
 	return TRUE;

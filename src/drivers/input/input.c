@@ -114,6 +114,7 @@ bool_t unregister_input(struct input_t * input)
 	if(!unregister_device(dev))
 		return FALSE;
 
+	kobj_remove_self(dev->kobj);
 	free(dev->name);
 	free(dev);
 	return TRUE;

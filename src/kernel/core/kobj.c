@@ -242,22 +242,12 @@ bool_t kobj_add_regular(struct kobj_t * parent, const char * name, kobj_read_t r
 	return TRUE;
 }
 
-bool_t kobj_remove_with_name(struct kobj_t * parent, const char * name)
+bool_t kobj_remove_self(struct kobj_t * kobj)
 {
-	struct kobj_t * kobj;
+	struct kobj_t * parent;
 	struct kobj_t * pos, * n;
 	bool_t ret;
 
-	if(!parent)
-		return FALSE;
-
-	if(parent->type != KOBJ_TYPE_DIR)
-		return FALSE;
-
-	if(!name)
-		return FALSE;
-
-	kobj = kobj_search(parent, name);
 	if(!kobj)
 		return FALSE;
 
@@ -265,18 +255,24 @@ bool_t kobj_remove_with_name(struct kobj_t * parent, const char * name)
 	{
 		list_for_each_entry_safe(pos, n, &(kobj->children), entry)
 		{
-			kobj_remove_with_name(kobj, pos->name);
+			kobj_remove_self(pos);
 		}
 	}
 
-	ret = kobj_remove(parent, kobj);
-	if(ret)
-		kobj_free(kobj);
+	parent = kobj->parent;
+	if(parent && (parent != kobj))
+	{
+		ret = kobj_remove(parent, kobj);
+		if(ret)
+			kobj_free(kobj);
+		return ret;
+	}
 
-	return ret;
+	kobj_free(kobj);
+	return TRUE;
 }
 
-void do_kobj_init(void)
+void do_init_kobj(void)
 {
 	__kobj_root = kobj_alloc_directory("kobj");
 }

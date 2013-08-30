@@ -1498,7 +1498,7 @@ png_init_read_transformations(png_structp png_ptr)
 #ifdef PNG_READ_GAMMA_SUPPORTED
 #  ifdef PNG_READ_BACKGROUND_SUPPORTED
       /* Includes ALPHA_MODE */
-      png_ptr->background_1 = png_ptr->background;
+      memcpy(&png_ptr->background_1, &png_ptr->background, sizeof(png_color_16));
 #  endif
 
    /* This needs to change - in the palette image case a whole set of tables are

@@ -273,12 +273,12 @@ static bool_t realview_unregister_bus_uart(struct resource_t * res)
 
 static __init void realview_bus_uart_init(void)
 {
-	resource_callback_with_name("uart-pl011", realview_register_bus_uart);
+	resource_for_each_with_name("uart-pl011", realview_register_bus_uart);
 }
 
 static __exit void realview_bus_uart_exit(void)
 {
-	resource_callback_with_name("uart-pl011", realview_unregister_bus_uart);
+	resource_for_each_with_name("uart-pl011", realview_unregister_bus_uart);
 }
 
 bus_initcall(realview_bus_uart_init);

@@ -176,12 +176,12 @@ static bool_t gpio_unregister_keyboard(struct resource_t * res)
 
 static __init void key_gpio_device_init(void)
 {
-	resource_callback_with_name("key-gpio", gpio_register_keyboard);
+	resource_for_each_with_name("key-gpio", gpio_register_keyboard);
 }
 
 static __exit void key_gpio_device_exit(void)
 {
-	resource_callback_with_name("key-gpio", gpio_unregister_keyboard);
+	resource_for_each_with_name("key-gpio", gpio_unregister_keyboard);
 }
 
 device_initcall(key_gpio_device_init);

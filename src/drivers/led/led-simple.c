@@ -134,12 +134,12 @@ static bool_t led_simple_unregister_led(struct resource_t * res)
 
 static __init void led_simple_device_init(void)
 {
-	resource_callback_with_name("led-simple", led_simple_register_led);
+	resource_for_each_with_name("led-simple", led_simple_register_led);
 }
 
 static __exit void led_simple_device_exit(void)
 {
-	resource_callback_with_name("led-simple", led_simple_unregister_led);
+	resource_for_each_with_name("led-simple", led_simple_unregister_led);
 }
 
 device_initcall(led_simple_device_init);

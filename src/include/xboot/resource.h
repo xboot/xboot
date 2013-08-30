@@ -22,11 +22,9 @@ struct resource_t
 	struct kobj_t * kobj;
 };
 
-typedef bool_t (*resource_callback_t)(struct resource_t * res);
-
 bool_t register_resource(struct resource_t * res);
 bool_t unregister_resource(struct resource_t * res);
-void resource_callback_with_name(const char * name, resource_callback_t cb);
+void resource_for_each_with_name(const char * name, bool_t (*fn)(struct resource_t *));
 
 #ifdef __cplusplus
 }

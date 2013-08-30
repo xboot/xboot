@@ -665,12 +665,12 @@ static bool_t s5pv210_unregister_framebuffer(struct resource_t * res)
 
 static __init void s5pv210_fb_init(void)
 {
-	resource_callback_with_name("fb-s5pv210", s5pv210_register_framebuffer);
+	resource_for_each_with_name("fb-s5pv210", s5pv210_register_framebuffer);
 }
 
 static __exit void s5pv210_fb_exit(void)
 {
-	resource_callback_with_name("fb-s5pv210", s5pv210_unregister_framebuffer);
+	resource_for_each_with_name("fb-s5pv210", s5pv210_unregister_framebuffer);
 }
 
 device_initcall(s5pv210_fb_init);

@@ -151,21 +151,21 @@ bool_t unregister_resource(struct resource_t * res)
 	return FALSE;
 }
 
-void resource_callback_with_name(const char * name, resource_callback_t cb)
+void resource_for_each_with_name(const char * name, bool_t (*fn)(struct resource_t *))
 {
 	struct resource_list_t * pos, * n;
 
-	if(!name || !cb)
+	if(!name || !fn)
 		return;
 
 	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
 	{
 		if(strcmp(pos->res->name, name) == 0)
 		{
-			if(cb(pos->res))
-				LOG("Resource callback with '%s.%d'", pos->res->name, pos->res->id);
+			if(fn(pos->res))
+				LOG("Resource iterator with '%s.%d'", pos->res->name, pos->res->id);
 			else
-				LOG("Fail to resource callback with '%s.%d'", pos->res->name, pos->res->id);
+				LOG("Fail to resource iterator with '%s.%d'", pos->res->name, pos->res->id);
 		}
 	}
 }

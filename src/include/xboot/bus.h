@@ -10,7 +10,7 @@ extern "C" {
 enum bus_type_t {
 	BUS_TYPE_W1,
 	BUS_TYPE_UART,
-	BUS_TYPE_IIC,
+	BUS_TYPE_I2C,
 	BUS_TYPE_SPI,
 	BUS_TYPE_CAN,
 	BUS_TYPE_USB,

@@ -52,8 +52,8 @@ static struct kobj_t * search_bus_kobj(struct bus_t * bus)
 	case BUS_TYPE_UART:
 		name = "uart";
 		break;
-	case BUS_TYPE_IIC:
-		name = "iic";
+	case BUS_TYPE_I2C:
+		name = "i2c";
 		break;
 	case BUS_TYPE_SPI:
 		name = "spi";

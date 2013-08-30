@@ -78,10 +78,10 @@ static bool_t mach_reset(void)
 static enum mode_t mach_getmode(void)
 {
 	/* set GPH2_3 intput and pull up */
-	writel(S5PV210_GPH2CON, (readl(S5PV210_GPH2CON) & ~(0xf<<12)) | (0x0<<12));
-	writel(S5PV210_GPH2PUD, (readl(S5PV210_GPH2PUD) & ~(0x3<<6)) | (0x2<<6));
+	writel(S5PV210_GPH2_BASE + S5PV210_GPIO_CON, (readl(S5PV210_GPH2_BASE + S5PV210_GPIO_CON) & ~(0xf<<12)) | (0x0<<12));
+	writel(S5PV210_GPH2_BASE + S5PV210_GPIO_PUD, (readl(S5PV210_GPH2_BASE + S5PV210_GPIO_PUD) & ~(0x3<<6)) | (0x2<<6));
 
-	if((readl(S5PV210_GPH2DAT) & (0x1<<3)) == 0)
+	if((readl(S5PV210_GPH2_BASE + S5PV210_GPIO_DAT) & (0x1<<3)) == 0)
 		return MODE_MENU;
 	return MODE_NORMAL;
 }

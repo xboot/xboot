@@ -163,43 +163,47 @@ static void s5pv210_uart_init(struct uart_t * uart)
 	switch(res->id)
 	{
 	case 0:
-		/* configure GPA01, GPA00 for TXD0, RXD0 */
-		writel(S5PV210_GPA0CON, (readl(S5PV210_GPA0CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
-		/* pull up GPA01 and GPA00 */
-		writel(S5PV210_GPA0PUD, (readl(S5PV210_GPA0PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
-		/* configure clk source (pclk), mode, etc */
+		/* Configure GPA01, GPA00 for TXD0, RXD0 and pull up */
+		gpio_cfg_pin(S5PV210_GPA0(1), 0x2);
+		gpio_cfg_pin(S5PV210_GPA0(0), 0x2);
+		gpio_set_pull(S5PV210_GPA0(1), GPIO_PULL_UP);
+		gpio_set_pull(S5PV210_GPA0(0), GPIO_PULL_UP);
+
 		writel(dat->regbase + S5PV210_UCON, 0x00000005);
 		writel(dat->regbase + S5PV210_UFCON, 0x00000000);
 		writel(dat->regbase + S5PV210_UMON, 0x00000000);
 		break;
 
 	case 1:
-		/* configure GPA05, GPA04 for TXD1, RXD1 */
-		writel(S5PV210_GPA0CON, (readl(S5PV210_GPA0CON) & ~(0xf<<16 | 0x0f<<20)) | (0x2<<16 | 0x2<<20));
-		/* pull up GPA05 and GPA04 */
-		writel(S5PV210_GPA0PUD, (readl(S5PV210_GPA0PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
-		/* configure clk source (pclk), mode, etc */
+		/* Configure GPA05, GPA04 for TXD1, RXD1 */
+		gpio_cfg_pin(S5PV210_GPA0(5), 0x2);
+		gpio_cfg_pin(S5PV210_GPA0(4), 0x2);
+		gpio_set_pull(S5PV210_GPA0(5), GPIO_PULL_UP);
+		gpio_set_pull(S5PV210_GPA0(4), GPIO_PULL_UP);
+
 		writel(dat->regbase + S5PV210_UCON, 0x00000005);
 		writel(dat->regbase + S5PV210_UFCON, 0x00000000);
 		writel(dat->regbase + S5PV210_UMON, 0x00000000);
 		break;
 
 	case 2:
-		/* configure GPA11, GPA10 for TXD2, RXD2 */
-		writel(S5PV210_GPA1CON, (readl(S5PV210_GPA1CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
-		/* pull up GPA11 and GPA10 */
-		writel(S5PV210_GPA1PUD, (readl(S5PV210_GPA1PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
-		/* configure clk source (pclk), etc */
+		/* Configure GPA11, GPA10 for TXD2, RXD2 */
+		gpio_cfg_pin(S5PV210_GPA1(1), 0x2);
+		gpio_cfg_pin(S5PV210_GPA1(0), 0x2);
+		gpio_set_pull(S5PV210_GPA1(1), GPIO_PULL_UP);
+		gpio_set_pull(S5PV210_GPA1(0), GPIO_PULL_UP);
+
 		writel(dat->regbase + S5PV210_UCON, 0x00000005);
 		writel(dat->regbase + S5PV210_UFCON, 0x00000000);
 		break;
 
 	case 3:
-		/* configure GPA13, GPA12 for TXD3, RXD3 */
-		writel(S5PV210_GPA1CON, (readl(S5PV210_GPA1CON) & ~(0xf<<8 | 0x0f<<12)) | (0x2<<8 | 0x2<<12));
-		/* pull up GPA13 and GPA12 */
-		writel(S5PV210_GPA1PUD, (readl(S5PV210_GPA1PUD) & ~(0x3<<4 | 0x03<<6)) | (0x2<<4 | 0x2<<6));
-		/* configure clk source (pclk), etc */
+		/* Configure GPA13, GPA12 for TXD3, RXD3 */
+		gpio_cfg_pin(S5PV210_GPA1(3), 0x2);
+		gpio_cfg_pin(S5PV210_GPA1(2), 0x2);
+		gpio_set_pull(S5PV210_GPA1(3), GPIO_PULL_UP);
+		gpio_set_pull(S5PV210_GPA1(2), GPIO_PULL_UP);
+
 		writel(dat->regbase + S5PV210_UCON, 0x00000005);
 		writel(dat->regbase + S5PV210_UFCON, 0x00000000);
 		break;

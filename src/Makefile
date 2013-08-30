@@ -6,7 +6,7 @@
 #
 # You must pass TARGET and CROSS variable.
 #
-TARGET		?= arm32-x210ii
+TARGET		?= arm32-realview
 CROSS		?= arm-none-eabi-
 
 #

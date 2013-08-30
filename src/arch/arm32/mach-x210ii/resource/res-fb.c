@@ -26,18 +26,16 @@
 static void lcd_init(struct s5pv210_fb_data_t * dat)
 {
 	/*
-	 * set gpd0_0 (backlight pwm pin) output and pull up and high level for disabled
+	 * Set gpd0_0 (backlight pwm pin) output and pull up and high level for disabled
 	 */
-	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
-	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
-	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
+	gpio_set_pull(S5PV210_GPD0(0), GPIO_PULL_UP);
+	gpio_direction_output(S5PV210_GPD0(0), 1);
 
 	/*
 	 * set gpf3_5 (backlight enable pin) output and pull up and low level for disabled
 	 */
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xf<<20)) | (0x1<<20));
-	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
-	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x0<<5));
+	gpio_set_pull(S5PV210_GPF3(5), GPIO_PULL_UP);
+	gpio_direction_output(S5PV210_GPF3(5), 0);
 
 	/*
 	 * wait a moment
@@ -48,18 +46,16 @@ static void lcd_init(struct s5pv210_fb_data_t * dat)
 static void lcd_exit(struct s5pv210_fb_data_t * dat)
 {
 	/*
-	 * set gpd0_0 (backlight pwm pin) output and pull up and high level for disabled
+	 * Set gpd0_0 (backlight pwm pin) output and pull up and high level for disabled
 	 */
-	writel(S5PV210_GPD0CON, (readl(S5PV210_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
-	writel(S5PV210_GPD0PUD, (readl(S5PV210_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
-	writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
+	gpio_set_pull(S5PV210_GPD0(0), GPIO_PULL_UP);
+	gpio_direction_output(S5PV210_GPD0(0), 1);
 
 	/*
 	 * set gpf3_5 (backlight enable pin) output and pull up and low level for disabled
 	 */
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xf<<20)) | (0x1<<20));
-	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0x3<<10)) | (0x2<<10));
-	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x0<<5));
+	gpio_set_pull(S5PV210_GPF3(5), GPIO_PULL_UP);
+	gpio_direction_output(S5PV210_GPF3(5), 0);
 }
 
 static void lcd_set_backlight(struct s5pv210_fb_data_t * dat, int brightness)
@@ -72,13 +68,13 @@ static void lcd_set_backlight(struct s5pv210_fb_data_t * dat, int brightness)
 
 	if(dat->brightness)
 	{
-		writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
-		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
+		gpio_direction_output(S5PV210_GPF3(5), 1);
+		gpio_direction_output(S5PV210_GPD0(0), 0);
 	}
 	else
 	{
-		writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x0<<5));
-		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
+		gpio_direction_output(S5PV210_GPF3(5), 0);
+		gpio_direction_output(S5PV210_GPD0(0), 1);
 	}
 }
 

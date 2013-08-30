@@ -425,18 +425,18 @@ static void fb_init(struct fb_t * fb)
 	/*
 	 * Initial lcd port
 	 */
-	writel(S5PV210_GPF0CON, 0x22222222);
-	writel(S5PV210_GPF0DRV, 0xffffffff);
-	writel(S5PV210_GPF0PUD, 0x0);
-	writel(S5PV210_GPF1CON, 0x22222222);
-	writel(S5PV210_GPF1DRV, 0xffffffff);
-	writel(S5PV210_GPF1PUD, 0x0);
-	writel(S5PV210_GPF2CON, 0x22222222);
-	writel(S5PV210_GPF2DRV, 0xffffffff);
-	writel(S5PV210_GPF2PUD, 0x0);
-	writel(S5PV210_GPF3CON, (readl(S5PV210_GPF3CON) & ~(0xffff<<0)) | (0x2222<<0));
-	writel(S5PV210_GPF3DRV, (readl(S5PV210_GPF3DRV) & ~(0xff<<0)) | (0xff<<0));
-	writel(S5PV210_GPF3PUD, (readl(S5PV210_GPF3PUD) & ~(0xff<<0)) | (0x00<<0));
+	writel(S5PV210_GPF0_BASE + S5PV210_GPIO_CON, 0x22222222);
+	writel(S5PV210_GPF0_BASE + S5PV210_GPIO_DRV, 0xffffffff);
+	writel(S5PV210_GPF0_BASE + S5PV210_GPIO_PUD, 0x0);
+	writel(S5PV210_GPF1_BASE + S5PV210_GPIO_CON, 0x22222222);
+	writel(S5PV210_GPF1_BASE + S5PV210_GPIO_DRV, 0xffffffff);
+	writel(S5PV210_GPF1_BASE + S5PV210_GPIO_PUD, 0x0);
+	writel(S5PV210_GPF2_BASE + S5PV210_GPIO_CON, 0x22222222);
+	writel(S5PV210_GPF2_BASE + S5PV210_GPIO_DRV, 0xffffffff);
+	writel(S5PV210_GPF2_BASE + S5PV210_GPIO_PUD, 0x0);
+	writel(S5PV210_GPF3_BASE + S5PV210_GPIO_CON, (readl(S5PV210_GPF3_BASE + S5PV210_GPIO_CON) & ~(0xffff<<0)) | (0x2222<<0));
+	writel(S5PV210_GPF3_BASE + S5PV210_GPIO_DRV, (readl(S5PV210_GPF3_BASE + S5PV210_GPIO_DRV) & ~(0xff<<0)) | (0xff<<0));
+	writel(S5PV210_GPF3_BASE + S5PV210_GPIO_PUD, (readl(S5PV210_GPF3_BASE + S5PV210_GPIO_PUD) & ~(0xff<<0)) | (0x00<<0));
 
 	/*
 	 * Lcd init function

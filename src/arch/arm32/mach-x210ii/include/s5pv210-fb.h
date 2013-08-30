@@ -2,6 +2,10 @@
 #define __S5PV210_FB_H__
 
 #include <xboot.h>
+#include <fb/fb.h>
+#include <s5pv210/reg-gpio.h>
+#include <s5pv210/reg-others.h>
+#include <s5pv210/reg-lcd.h>
 
 enum s5pv210fb_output
 {
@@ -47,8 +51,11 @@ enum {
 	S5PV210FB_SWAP_BIT				= (0x1 << 3),
 };
 
-struct s5pv210fb_lcd
+struct s5pv210_fb_data_t
 {
+	/* register base address */
+	physical_addr_t regbase;
+
 	/* horizontal resolution */
 	s32_t width;
 
@@ -75,24 +82,6 @@ struct s5pv210fb_lcd
 
 	/* swap flag */
 	u32_t swap;
-
-	struct {
-		/* red color */
-		s32_t r_mask;
-		s32_t r_field;
-
-		/* green color */
-		s32_t g_mask;
-		s32_t g_field;
-
-		/* blue color */
-		s32_t b_mask;
-		s32_t b_field;
-
-		/* alpha color */
-		s32_t a_mask;
-		s32_t a_field;
-	} rgba;
 
 	struct {
 		/* horizontal front porch */
@@ -134,14 +123,17 @@ struct s5pv210fb_lcd
 		s32_t inv_vden;
 	} polarity;
 
-	/* lcd init */
-	void (*init)(void);
+	/* init */
+	void (*init)(struct s5pv210_fb_data_t * dat);
+	/* exit */
+	void (*exit)(struct s5pv210_fb_data_t * dat);
 
-	/* lcd exit */
-	void (*exit)(void);
-
-	/* lcd backlight */
-	int (*backlight)(int brightness);
+	/* backlight brightness */
+	int brightness;
+	/* set backlight brightness */
+	void (*set_backlight)(struct s5pv210_fb_data_t * dat, int brightness);
+	/* get backlight brightness */
+	int (*get_backlight)(struct s5pv210_fb_data_t * dat);
 };
 
 #endif /* __S5PV210_FB_H__ */

@@ -201,19 +201,19 @@ static void s5pv210_setup_clocks(u64_t xtal)
 
 static __init void s5pv210_clk_init(void)
 {
-	u32_t i;
 	u64_t xtal = 0;
+	int i;
 
-	/* get system xtal */
+	/* Get system xtal */
 	if(get_machine() != 0)
 		xtal = (get_machine())->res.xtal;
 	if(xtal == 0)
 		xtal = 24 * 1000 * 1000;
 
-	/* setup clock arrays */
+	/* Setup clock arrays */
 	s5pv210_setup_clocks(xtal);
 
-	/* register clocks to system */
+	/* Register clocks to system */
 	for(i=0; i< ARRAY_SIZE(s5pv210_clocks); i++)
 	{
 		if(clk_register(&s5pv210_clocks[i]))
@@ -225,7 +225,7 @@ static __init void s5pv210_clk_init(void)
 
 static __exit void s5pv210_clk_exit(void)
 {
-	u32_t i;
+	int i;
 
 	for(i=0; i< ARRAY_SIZE(s5pv210_clocks); i++)
 	{
@@ -236,5 +236,5 @@ static __exit void s5pv210_clk_exit(void)
 	}
 }
 
-core_initcall(s5pv210_clk_init);
-core_exitcall(s5pv210_clk_exit);
+postcore_initcall(s5pv210_clk_init);
+postcore_exitcall(s5pv210_clk_exit);

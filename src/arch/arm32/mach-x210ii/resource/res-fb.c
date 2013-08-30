@@ -21,15 +21,9 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <io.h>
-#include <xboot/initcall.h>
-#include <xboot/resource.h>
-#include <time/delay.h>
-#include <s5pv210/reg-gpio.h>
 #include <s5pv210-fb.h>
 
-static void lcd_init(void)
+static void lcd_init(struct s5pv210_fb_data_t * dat)
 {
 	/*
 	 * set gpd0_0 (backlight pwm pin) output and pull up and high level for disabled
@@ -51,7 +45,7 @@ static void lcd_init(void)
 	mdelay(10);
 }
 
-static void lcd_exit(void)
+static void lcd_exit(struct s5pv210_fb_data_t * dat)
 {
 	/*
 	 * set gpd0_0 (backlight pwm pin) output and pull up and high level for disabled
@@ -68,16 +62,15 @@ static void lcd_exit(void)
 	writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x0<<5));
 }
 
-static int lcd_backlight(int brightness)
+static void lcd_set_backlight(struct s5pv210_fb_data_t * dat, int brightness)
 {
-	static int level = 0;
+	if(brightness < 0)
+		brightness = 0;
+	if(brightness > 255)
+		brightness = 255;
+	dat->brightness = brightness;
 
-	if( (brightness < 0) || (brightness > 255) )
-		return level;
-
-	level = brightness;
-
-	if(level)
+	if(dat->brightness)
 	{
 		writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x1<<5));
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
@@ -87,14 +80,17 @@ static int lcd_backlight(int brightness)
 		writel(S5PV210_GPF3DAT, (readl(S5PV210_GPF3DAT) & ~(0x1<<5)) | (0x0<<5));
 		writel(S5PV210_GPD0DAT, (readl(S5PV210_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
 	}
+}
 
-	return level;
+static int lcd_get_backlight(struct s5pv210_fb_data_t * dat)
+{
+	return dat->brightness;
 }
 
 /*
  * lcd module - EK070TN93
  */
-static struct s5pv210fb_lcd lcd = {
+static struct s5pv210_fb_data_t s5pv210_fb_data = {
 	.width				= 800,
 	.height				= 480,
 	.bits_per_pixel		= 32,
@@ -105,17 +101,6 @@ static struct s5pv210fb_lcd lcd = {
 	.rgb_mode			= S5PV210FB_MODE_RGB_P,
 	.bpp_mode			= S5PV210FB_BPP_MODE_32BPP,
 	.swap				= S5PV210FB_SWAP_WORD,
-
-	.rgba = {
-		.r_mask			= 8,
-		.r_field		= 0,
-		.g_mask			= 8,
-		.g_field		= 8,
-		.b_mask			= 8,
-		.b_field		= 16,
-		.a_mask			= 8,
-		.a_field		= 24,
-	},
 
 	.timing = {
 		.h_fp			= 210,
@@ -137,25 +122,33 @@ static struct s5pv210fb_lcd lcd = {
 
 	.init				= lcd_init,
 	.exit				= lcd_exit,
-	.backlight			= lcd_backlight,
+
+	.brightness			= 0,
+	.set_backlight		= lcd_set_backlight,
+	.get_backlight		= lcd_get_backlight,
 };
 
-static struct resource_t fb_res = {
-	.name		= "fb0",
-	.data		= &lcd,
+static struct resource_t res_fb = {
+	.name		= "fb-s5pv210",
+	.id			= -1,
+	.data		= &s5pv210_fb_data,
 };
 
-static __init void res_fb_init(void)
+static __init void resource_fb_init(void)
 {
-	if(!register_resource(&fb_res))
-		LOG("failed to register resource '%s'", fb_res.name);
+	if(register_resource(&res_fb))
+		LOG("Register resource '%s.%d'", res_fb.name, res_fb.id);
+	else
+		LOG("Failed to register resource '%s.%d'", res_fb.name, res_fb.id);
 }
 
-static __exit void res_fb_exit(void)
+static __exit void resource_fb_exit(void)
 {
-	if(!unregister_resource(&fb_res))
-		LOG("failed to unregister resource '%s'", fb_res.name);
+	if(unregister_resource(&res_fb))
+		LOG("Unregister resource '%s.%d'", res_fb.name, res_fb.id);
+	else
+		LOG("Failed to unregister resource '%s.%d'", res_fb.name, res_fb.id);
 }
 
-core_initcall(res_fb_init);
-core_exitcall(res_fb_exit);
+resource_initcall(resource_fb_init);
+resource_exitcall(resource_fb_exit);

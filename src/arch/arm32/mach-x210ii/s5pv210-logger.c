@@ -22,7 +22,7 @@
 
 #include <xboot.h>
 #include <s5pv210/reg-gpio.h>
-#include <s5pv210/reg-serial.h>
+#include <s5pv210/reg-uart.h>
 
 static void logger_uart2_init(void)
 {
@@ -38,8 +38,8 @@ static ssize_t logger_uart2_output(const char * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		while( !(readl(S5PV210_UTRSTAT2) & S5PV210_UTRSTAT_TXE) );
-		writeb(S5PV210_UTXH2, buf[i]);
+		while( !(readl(S5PV210_UART2_BASE + S5PV210_UTRSTAT) & S5PV210_UTRSTAT_TXE) );
+		writeb(S5PV210_UART2_BASE + S5PV210_UTXH, buf[i]);
 	}
 	return i;
 }

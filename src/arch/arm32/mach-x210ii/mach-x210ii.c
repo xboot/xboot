@@ -24,7 +24,6 @@
 #include <s5pv210/reg-wdg.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-timer.h>
-#include <s5pv210/reg-keypad.h>
 #include <s5pv210/reg-others.h>
 #include <s5pv210-cp15.h>
 
@@ -170,7 +169,7 @@ static struct machine_t x210ii = {
 			},
 		},
 
-		.xtal				= 24*1000*1000,
+		.xtal				= 24 * 1000 * 1000,
 	},
 
 	.link = {
@@ -220,4 +219,4 @@ static __init void mach_x210ii_init(void)
 	else
 		LOG("Failed to register machine 'x210ii'");
 }
-arch_initcall(mach_x210ii_init);
+postcore_initcall(mach_x210ii_init);

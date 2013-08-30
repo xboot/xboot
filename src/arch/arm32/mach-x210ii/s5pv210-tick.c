@@ -26,11 +26,11 @@
 /*
  * tick timer interrupt.
  */
-static void timer_interrupt(void)
+static void timer_interrupt(void * data)
 {
 	tick_interrupt();
 
-	/* clear interrupt status bit */
+	/* Clear interrupt status bit */
 	writel(S5PV210_TINT_CSTAT, (readl(S5PV210_TINT_CSTAT) & ~(0x1f<<5)) | (0x01<<9));
 }
 
@@ -40,32 +40,32 @@ static bool_t tick_timer_init(void)
 
 	if(!clk_get_rate("psys-pclk", &pclk))
 	{
-		LOG("can't get the clock of \'pclk\'");
+		LOG("can't get the clock of 'pclk'");
 		return FALSE;
 	}
 
-	if(!request_irq("TIMER4", timer_interrupt))
+	if(!request_irq("TIMER4", timer_interrupt, NULL))
 	{
-		LOG("can't request irq \'TIMER4\'");
+		LOG("can't request irq 'TIMER4'");
 		return FALSE;
 	}
 
-	/* use pwm timer 4, prescaler for timer 4 is 16 */
+	/* Using pwm timer 4, prescaler for timer 4 is 16 */
 	writel(S5PV210_TCFG0, (readl(S5PV210_TCFG0) & ~(0xff<<8)) | (0x0f<<8));
 
-	/* select mux input for pwm timer4 is 1/2 */
+	/* Select mux input for pwm timer4 is 1/2 */
 	writel(S5PV210_TCFG1, (readl(S5PV210_TCFG1) & ~(0xf<<16)) | (0x01<<16));
 
-	/* load value for 10 ms timeout */
+	/* Load value for 10 ms timeout */
 	writel(S5PV210_TCNTB4, (u32_t)(pclk / (2 * 16 * 100)));
 
-	/* auto load, manaual update of timer 4 and stop timer4 */
+	/* Auto load, manaual update of timer 4 and stop timer4 */
 	writel(S5PV210_TCON, (readl(S5PV210_TCON) & ~(0x7<<20)) | (0x06<<20));
 
-	/* enable timer4 interrupt and clear interrupt status bit */
+	/* Enable timer4 interrupt and clear interrupt status bit */
 	writel(S5PV210_TINT_CSTAT, (readl(S5PV210_TINT_CSTAT) & ~(0x1<<4)) | (0x01<<4) | (0x01<<9));
 
-	/* start timer4 */
+	/* Start timer4 */
 	writel(S5PV210_TCON, (readl(S5PV210_TCON) & ~(0x7<<20)) | (0x05<<20));
 
 	return TRUE;
@@ -83,4 +83,4 @@ static __init void s5pv210_tick_init(void)
 	else
 		LOG("Failed to register tick");
 }
-core_initcall(s5pv210_tick_init);
+postcore_initcall(s5pv210_tick_init);

@@ -26,32 +26,18 @@
 #include <s5pv210-cp15.h>
 
 /*
- * exception handlers for irq from start.s
+ * Exception handlers for irq from Start.s
  */
 extern void irq(void);
 
-/*
- * the struct of regs, which saved and restore in the interrupt.
- */
-struct regs {
+struct pt_regs_t {
 	u32_t	r0,		r1,		r2,		r3, 	r4,		r5;
 	u32_t	r6,		r7,		r8, 	r9, 	r10,	fp;
 	u32_t	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
 };
 
-/*
- * the irq handler.
- */
-static irq_handler_t s5pv210_irq_handler[128];
+static struct irq_handler_t s5pv210_irq_handler[128];
 
-/*
- * null function for irq handler
- */
-static void null_irq_handler(void) { }
-
-/*
- * get interrupt offset
- */
 static u32_t irq_offset(u32_t x)
 {
 	u32_t index = x;
@@ -65,15 +51,12 @@ static u32_t irq_offset(u32_t x)
 	return (index);
 }
 
-/*
- * do irqs.
- */
-void do_irqs(struct regs * regs)
+void do_irqs(struct pt_regs_t * regs)
 {
 	u32_t vic0, vic1, vic2, vic3;
 	u32_t offset;
 
-	/* read vector interrupt controller's irq status */
+	/* Read vector interrupt controller's irq status */
 	vic0 = readl(S5PV210_VIC0_IRQSTATUS);
 	vic1 = readl(S5PV210_VIC1_IRQSTATUS);
 	vic2 = readl(S5PV210_VIC2_IRQSTATUS);
@@ -81,69 +64,69 @@ void do_irqs(struct regs * regs)
 
 	if(vic0 != 0)
 	{
-		/* get interrupt offset */
+		/* Get interrupt offset */
 		offset = irq_offset(vic0);
 
-		/* running interrupt server function */
-		(s5pv210_irq_handler[offset])();
+		/* Handle interrupt server function */
+		(s5pv210_irq_handler[offset].func)(s5pv210_irq_handler[offset].data);
 
-		/* clear software interrupt */
+		/* Clear software interrupt */
 		writel(S5PV210_VIC0_SOFTINTCLEAR, 0x1<<offset);
 
-		/* set vic address to zero */
+		/* Set vic address to zero */
 		writel(S5PV210_VIC0_ADDRESS, 0x00000000);
 	}
 	else if(vic1 != 0)
 	{
-		/* get interrupt offset */
+		/* Get interrupt offset */
 		offset = irq_offset(vic1);
 
-		/* running interrupt server function */
-		(s5pv210_irq_handler[offset + 32])();
+		/* Handle interrupt server function */
+		(s5pv210_irq_handler[offset + 32].func)(s5pv210_irq_handler[offset + 32].data);
 
-		/* clear software interrupt */
+		/* Clear software interrupt */
 		writel(S5PV210_VIC1_SOFTINTCLEAR, 0x1<<(offset-32));
 
-		/* set all vic address to zero */
+		/* Set all vic address to zero */
 		writel(S5PV210_VIC1_ADDRESS, 0x00000000);
 	}
 	else if(vic2 != 0)
 	{
-		/* get interrupt offset */
+		/* Get interrupt offset */
 		offset = irq_offset(vic2);
 
-		/* running interrupt server function */
-		(s5pv210_irq_handler[offset + 64])();
+		/* Handle interrupt server function */
+		(s5pv210_irq_handler[offset + 64].func)(s5pv210_irq_handler[offset + 64].data);
 
-		/* clear software interrupt */
+		/* Clear software interrupt */
 		writel(S5PV210_VIC2_SOFTINTCLEAR, 0x1<<(offset-32));
 
-		/* set all vic address to zero */
+		/* Set all vic address to zero */
 		writel(S5PV210_VIC2_ADDRESS, 0x00000000);
 	}
 	else if(vic3 != 0)
 	{
-		/* get interrupt offset */
+		/* Get interrupt offset */
 		offset = irq_offset(vic3);
 
-		/* running interrupt server function */
-		(s5pv210_irq_handler[offset + 96])();
+		/* Handle interrupt server function */
+		(s5pv210_irq_handler[offset + 96].func)(s5pv210_irq_handler[offset + 96].data);
 
-		/* clear software interrupt */
+		/* Clear software interrupt */
 		writel(S5PV210_VIC3_SOFTINTCLEAR, 0x1<<(offset-32));
 
-		/* set all vic address to zero */
+		/* Set all vic address to zero */
 		writel(S5PV210_VIC3_ADDRESS, 0x00000000);
 	}
 	else
 	{
-		/* clear all software interrupts */
+		/* Clear all software interrupts */
 		writel(S5PV210_VIC0_SOFTINTCLEAR, 0xffffffff);
 		writel(S5PV210_VIC1_SOFTINTCLEAR, 0xffffffff);
 		writel(S5PV210_VIC2_SOFTINTCLEAR, 0xffffffff);
 		writel(S5PV210_VIC3_SOFTINTCLEAR, 0xffffffff);
 
-		/* set vic address to zero */
+		/* Set vic address to zero */
 		writel(S5PV210_VIC0_ADDRESS, 0x00000000);
 		writel(S5PV210_VIC1_ADDRESS, 0x00000000);
 		writel(S5PV210_VIC2_ADDRESS, 0x00000000);
@@ -151,9 +134,6 @@ void do_irqs(struct regs * regs)
 	}
 }
 
-/*
- * enable or disable irq.
- */
 static void enable_irqs(struct irq_t * irq, bool_t enable)
 {
 	u32_t irq_no = irq->irq_no;
@@ -194,13 +174,10 @@ static void enable_irqs(struct irq_t * irq, bool_t enable)
 	}
 	else
 	{
-		/* not yet support others */
+		/* Not support */
 	}
 }
 
-/*
- * the array of irq.
- */
 static struct irq_t s5pv210_irqs[] = {
 	{
 		.name		= "EINT0",
@@ -672,45 +649,45 @@ static struct irq_t s5pv210_irqs[] = {
 
 static __init void s5pv210_irq_init(void)
 {
-	u32_t i;
+	int i;
 
-	/* select irq mode */
+	/* Select irq mode */
 	writel(S5PV210_VIC0_INTSELECT, 0x00000000);
 	writel(S5PV210_VIC1_INTSELECT, 0x00000000);
 	writel(S5PV210_VIC2_INTSELECT, 0x00000000);
 	writel(S5PV210_VIC3_INTSELECT, 0x00000000);
 
-	/* disable all interrupts */
+	/* Disable all interrupts */
 	writel(S5PV210_VIC0_INTENABLE, 0x00000000);
 	writel(S5PV210_VIC1_INTENABLE, 0x00000000);
 	writel(S5PV210_VIC2_INTENABLE, 0x00000000);
 	writel(S5PV210_VIC3_INTENABLE, 0x00000000);
 
-	/* clear all interrupts */
+	/* Clear all interrupts */
 	writel(S5PV210_VIC0_INTENCLEAR, 0xffffffff);
 	writel(S5PV210_VIC1_INTENCLEAR, 0xffffffff);
 	writel(S5PV210_VIC2_INTENCLEAR, 0xffffffff);
 	writel(S5PV210_VIC3_INTENCLEAR, 0xffffffff);
 
-	/* clear all irq status */
+	/* Clear all irq status */
 	writel(S5PV210_VIC0_IRQSTATUS, 0x00000000);
 	writel(S5PV210_VIC1_IRQSTATUS, 0x00000000);
 	writel(S5PV210_VIC2_IRQSTATUS, 0x00000000);
 	writel(S5PV210_VIC3_IRQSTATUS, 0x00000000);
 
-	/* clear all fiq status */
+	/* Clear all fiq status */
 	writel(S5PV210_VIC0_FIQSTATUS, 0x00000000);
 	writel(S5PV210_VIC1_FIQSTATUS, 0x00000000);
 	writel(S5PV210_VIC2_FIQSTATUS, 0x00000000);
 	writel(S5PV210_VIC3_FIQSTATUS, 0x00000000);
 
-	/* clear all software interrupts */
+	/* Clear all software interrupts */
 	writel(S5PV210_VIC0_SOFTINTCLEAR, 0xffffffff);
 	writel(S5PV210_VIC1_SOFTINTCLEAR, 0xffffffff);
 	writel(S5PV210_VIC2_SOFTINTCLEAR, 0xffffffff);
 	writel(S5PV210_VIC3_SOFTINTCLEAR, 0xffffffff);
 
-	/* set vic address to zero */
+	/* Set vic address to zero */
 	writel(S5PV210_VIC0_ADDRESS, 0x00000000);
 	writel(S5PV210_VIC1_ADDRESS, 0x00000000);
 	writel(S5PV210_VIC2_ADDRESS, 0x00000000);
@@ -732,11 +709,6 @@ static __init void s5pv210_irq_init(void)
 		writel((S5PV210_VIC3_VECPRIORITY0 + 4 * i), 0xf);
 	}
 
-	for(i = 0; i < ARRAY_SIZE(s5pv210_irq_handler); i++)
-	{
-		s5pv210_irq_handler[i] = (irq_handler_t)null_irq_handler;
-	}
-
 	for(i = 0; i < ARRAY_SIZE(s5pv210_irqs); i++)
 	{
 		if(irq_register(&s5pv210_irqs[i]))
@@ -745,17 +717,17 @@ static __init void s5pv210_irq_init(void)
 			LOG("Failed to register irq '%s'", s5pv210_irqs[i].name);
 	}
 
-	/* enable vector interrupt controller */
+	/* Enable vector interrupt controller */
 	vic_enable();
 
-	/* enable irq and fiq */
+	/* Enable irq and fiq */
 	irq_enable();
 	fiq_enable();
 }
 
 static __exit void s5pv210_irq_exit(void)
 {
-	u32_t i;
+	int i;
 
 	for(i = 0; i < ARRAY_SIZE(s5pv210_irqs); i++)
 	{
@@ -765,13 +737,13 @@ static __exit void s5pv210_irq_exit(void)
 			LOG("Failed to unregister irq '%s'", s5pv210_irqs[i].name);
 	}
 
-	/* disable vector interrupt controller */
+	/* Disable vector interrupt controller */
 	vic_disable();
 
-	/* disable irq and fiq */
+	/* Disable irq and fiq */
 	irq_disable();
 	fiq_disable();
 }
 
-core_initcall(s5pv210_irq_init);
-core_exitcall(s5pv210_irq_exit);
+postcore_initcall(s5pv210_irq_init);
+postcore_exitcall(s5pv210_irq_exit);

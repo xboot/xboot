@@ -35,10 +35,8 @@
  */
 
 #include <xboot.h>
-#include <types.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-nand.h>
-#include <s5pv210/reg-serial.h>
 #include <s5pv210/reg-others.h>
 
 extern u8_t	__text_start[];
@@ -115,14 +113,6 @@ extern u8_t __stack_end[];
  */
 #define irom_sdmmc_to_mem(ch, sector, count, mem, init)		\
 		(((u8_t(*)(s32_t, u32_t, u16_t, u32_t *, s32_t))(*((u32_t *)(0xd0037f98))))(ch, sector, count, mem, init))
-
-/*
- * write a 32-bits value to register.
- */
-static void reg_write(u32_t addr, u32_t value)
-{
-	( *((volatile u32_t *)(addr)) ) = value;
-}
 
 /*
  * read a 32-bits value from register.

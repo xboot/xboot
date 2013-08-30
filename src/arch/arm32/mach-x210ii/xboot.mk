@@ -1,5 +1,5 @@
 #
-# machine makefile.
+# Machine makefile
 #
 
 DEFINES		+= -D__ARM_ARCH__=7 -D__CORTEX_A8__

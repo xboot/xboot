@@ -23,7 +23,7 @@
 #include <xboot.h>
 #include <input/key-gpio.h>
 
-struct key_gpio_platform_data_t {
+struct key_gpio_private_data_t {
 	int * state;
 	struct timer_t timer;
 	struct key_gpio_data_t * rdat;
@@ -32,7 +32,7 @@ struct key_gpio_platform_data_t {
 static void key_gpio_timer_function(u32_t data)
 {
 	struct input_t * input = (struct input_t *)(data);
-	struct key_gpio_platform_data_t * dat = (struct key_gpio_platform_data_t *)input->priv;
+	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
 	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
 	struct event_t event;
 	int i, val;
@@ -58,7 +58,7 @@ static void key_gpio_timer_function(u32_t data)
 
 static void input_init(struct input_t * input)
 {
-	struct key_gpio_platform_data_t * dat = (struct key_gpio_platform_data_t *)input->priv;
+	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
 	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
 	int i;
 
@@ -82,7 +82,7 @@ static void input_init(struct input_t * input)
 
 static void input_exit(struct input_t * input)
 {
-	struct key_gpio_platform_data_t * dat = (struct key_gpio_platform_data_t *)input->priv;
+	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
 
 	if(!dat)
 		return;
@@ -110,7 +110,7 @@ static void input_resume(struct input_t * input)
 static bool_t gpio_register_keyboard(struct resource_t * res)
 {
 	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)res->data;
-	struct key_gpio_platform_data_t * dat;
+	struct key_gpio_private_data_t * dat;
 	struct input_t * input;
 	char name[64];
 
@@ -120,7 +120,7 @@ static bool_t gpio_register_keyboard(struct resource_t * res)
 	if(rdat->nbutton <= 0)
 		return FALSE;
 
-	dat = malloc(sizeof(struct key_gpio_platform_data_t));
+	dat = malloc(sizeof(struct key_gpio_private_data_t));
 	if(!dat)
 		return FALSE;
 

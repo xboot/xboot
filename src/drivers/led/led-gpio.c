@@ -23,14 +23,14 @@
 #include <xboot.h>
 #include <led/led-gpio.h>
 
-struct led_gpio_platform_data_t {
+struct led_gpio_private_data_t {
 	u32_t color;
 	struct led_gpio_data_t * rdat;
 };
 
 static void led_gpio_init(struct led_t * led)
 {
-	struct led_gpio_platform_data_t * dat = (struct led_gpio_platform_data_t *)led->priv;
+	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
 	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
 	gpio_set_pull(rdat->gpio, rdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
@@ -39,7 +39,7 @@ static void led_gpio_init(struct led_t * led)
 
 static void led_gpio_exit(struct led_t * led)
 {
-	struct led_gpio_platform_data_t * dat = (struct led_gpio_platform_data_t *)led->priv;
+	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
 	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
 	dat->color = 0;
@@ -48,7 +48,7 @@ static void led_gpio_exit(struct led_t * led)
 
 static void led_gpio_set(struct led_t * led, u32_t color)
 {
-	struct led_gpio_platform_data_t * dat = (struct led_gpio_platform_data_t *)led->priv;
+	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
 	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
 	dat->color = color & 0x00ffffff;
@@ -60,7 +60,7 @@ static void led_gpio_set(struct led_t * led, u32_t color)
 
 static u32_t led_gpio_get(struct led_t * led)
 {
-	struct led_gpio_platform_data_t * dat = (struct led_gpio_platform_data_t *)led->priv;
+	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
 
 	return dat->color;
 }
@@ -76,11 +76,11 @@ static void led_gpio_resume(struct led_t * led)
 static bool_t led_gpio_register_led(struct resource_t * res)
 {
 	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)res->data;
-	struct led_gpio_platform_data_t * dat;
+	struct led_gpio_private_data_t * dat;
 	struct led_t * led;
 	char name[64];
 
-	dat = malloc(sizeof(struct led_gpio_platform_data_t));
+	dat = malloc(sizeof(struct led_gpio_private_data_t));
 	if(!dat)
 		return FALSE;
 

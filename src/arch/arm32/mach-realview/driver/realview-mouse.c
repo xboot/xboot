@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <realview-mouse.h>
 
-struct realview_mouse_platform_data_t {
+struct realview_mouse_private_data_t {
 	u8_t packet[4];
 	u8_t index;
 	u8_t btn_old;
@@ -71,7 +71,7 @@ static bool_t kmi_read(struct realview_mouse_data_t * dat, u8_t * value)
 static void mouse_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
-	struct realview_mouse_platform_data_t * dat = (struct realview_mouse_platform_data_t *)input->priv;
+	struct realview_mouse_private_data_t * dat = (struct realview_mouse_private_data_t *)input->priv;
 	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)dat->rdat;
 	s32_t x, y, relx, rely, delta;
 	u32_t btndown, btnup, btn;
@@ -143,7 +143,7 @@ static void mouse_interrupt(void * data)
 
 static void input_init(struct input_t * input)
 {
-	struct realview_mouse_platform_data_t * dat = (struct realview_mouse_platform_data_t *)input->priv;
+	struct realview_mouse_private_data_t * dat = (struct realview_mouse_private_data_t *)input->priv;
 	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)dat->rdat;
 	u32_t divisor;
 	u64_t kclk;
@@ -212,7 +212,7 @@ static void input_init(struct input_t * input)
 
 static void input_exit(struct input_t * input)
 {
-	struct realview_mouse_platform_data_t * dat = (struct realview_mouse_platform_data_t *)input->priv;
+	struct realview_mouse_private_data_t * dat = (struct realview_mouse_private_data_t *)input->priv;
 	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)dat->rdat;
 
 	if(!free_irq("KMI1"))
@@ -236,7 +236,7 @@ static void input_resume(struct input_t * input)
 static bool_t realview_register_mouse(struct resource_t * res)
 {
 	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)res->data;
-	struct realview_mouse_platform_data_t * dat;
+	struct realview_mouse_private_data_t * dat;
 	struct input_t * input;
 	char name[64];
 
@@ -246,7 +246,7 @@ static bool_t realview_register_mouse(struct resource_t * res)
 		return FALSE;
 	}
 
-	dat = malloc(sizeof(struct realview_mouse_platform_data_t));
+	dat = malloc(sizeof(struct realview_mouse_private_data_t));
 	if(!dat)
 		return FALSE;
 

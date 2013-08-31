@@ -17,9 +17,9 @@ extern "C" {
 #define I2C_M_RECV_LEN		0x0400	/* length will be first received byte */
 
 struct i2c_msg_t {
-	u16_t addr;
-	u16_t flags;
-	u16_t len;
+	u32_t addr;
+	u32_t flags;
+	u32_t len;
 	u8_t * buf;
 };
 
@@ -41,9 +41,21 @@ struct i2c_t
 	void * priv;
 };
 
+struct i2c_client_t {
+	char * name;
+	u32_t addr;
+	u32_t flags;
+	struct i2c_t * i2c;
+	void * priv;
+};
+
 struct i2c_t * search_bus_i2c(const char * name);
 bool_t register_bus_i2c(struct i2c_t * i2c);
 bool_t unregister_bus_i2c(struct i2c_t * i2c);
+
+int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num);
+int i2c_master_send(const struct i2c_client_t * client, const char * buf, int count);
+int i2c_master_recv(const struct i2c_client_t * client, char * buf, int count);
 
 #ifdef __cplusplus
 }

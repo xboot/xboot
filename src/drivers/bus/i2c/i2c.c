@@ -89,3 +89,49 @@ bool_t unregister_bus_i2c(struct i2c_t * i2c)
 
 	return TRUE;
 }
+
+int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
+{
+	int try, ret = 0;
+
+	if(i2c || i2c->xfer)
+		return -1;
+
+	for(try = 0; try < 3; try++)
+	{
+		ret = i2c->xfer(i2c, msgs, num);
+		if(ret >= 0)
+			break;
+	}
+
+	return ret;
+}
+
+int i2c_master_send(const struct i2c_client_t * client, const char * buf, int count)
+{
+	struct i2c_msg_t msg;
+	int ret;
+
+	msg.addr = client->addr;
+	msg.flags = client->flags & I2C_M_TEN;
+	msg.len = count;
+	msg.buf = (u8_t *)buf;
+
+	ret = i2c_transfer(client->i2c, &msg, 1);
+	return (ret == 1) ? count : ret;
+}
+
+int i2c_master_recv(const struct i2c_client_t * client, char * buf, int count)
+{
+	struct i2c_msg_t msg;
+	int ret;
+
+	msg.addr = client->addr;
+	msg.flags = client->flags & I2C_M_TEN;
+	msg.flags |= I2C_M_RD;
+	msg.len = count;
+	msg.buf = (u8_t *)buf;
+
+	ret = i2c_transfer(client->i2c, &msg, 1);
+	return (ret == 1) ? count : ret;
+}

@@ -47,6 +47,7 @@ struct gpio_t
 bool_t register_gpio(struct gpio_t * gpio);
 bool_t unregister_gpio(struct gpio_t * gpio);
 
+int gpio_is_valid(int no);
 void gpio_cfg_pin(int no, int cfg);
 void gpio_set_pull(int no, enum gpio_pull_t pull);
 void gpio_set_drv(int no, enum gpio_drv_t drv);

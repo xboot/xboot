@@ -113,6 +113,11 @@ bool_t unregister_gpio(struct gpio_t * gpio)
 	return FALSE;
 }
 
+int gpio_is_valid(int no)
+{
+	return search_gpio_with_no(no) ? 1 : 0;
+}
+
 void gpio_cfg_pin(int no, int cfg)
 {
 	struct gpio_t * gpio = search_gpio_with_no(no);

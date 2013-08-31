@@ -277,7 +277,7 @@ static bool_t realview_register_mouse(struct resource_t * res)
 	input->exit = input_exit;
 	input->ioctl = input_ioctl;
 	input->suspend = input_suspend,
-	input->resume	= input_resume,
+	input->resume = input_resume,
 	input->priv = dat;
 
 	if(register_input(input))

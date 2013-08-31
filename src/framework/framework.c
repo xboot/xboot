@@ -29,7 +29,6 @@ static const luaL_Reg xboot_libs[] = {
 	{ "org.xboot.buildin.timecounter",		luaopen_timecounter },
 	{ "org.xboot.buildin.base64",			luaopen_base64 },
 	{ "org.xboot.buildin.cairo",			luaopen_cairo },
-	{ "org.xboot.buildin.boot",				luaopen_boot },
 	{ NULL, NULL }
 };
 
@@ -191,4 +190,9 @@ int luaopen_xboot(lua_State * L)
 		register_preload(L, xboot_libs[i].name, xboot_libs[i].func);
 
 	return 1;
+}
+
+int luaopen_boot(lua_State * L)
+{
+	return (luaL_dofile(L, "/romdisk/system/lib/org/xboot/boot.lua") == LUA_OK) ? 1 : 0;
 }

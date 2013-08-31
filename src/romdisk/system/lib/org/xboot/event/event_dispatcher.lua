@@ -1,6 +1,3 @@
-local class = require("org.xboot.lang.class")
-local event = require("org.xboot.event.event")
-
 ---
 -- All classes that dispatch events inherit from 'event_dispatcher'. The target of
 -- an event is a listener function and an optional data value.

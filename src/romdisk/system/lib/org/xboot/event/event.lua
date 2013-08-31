@@ -1,5 +1,3 @@
-local class = require("org.xboot.lang.class")
-
 ---
 -- The objects of 'event' class contains information about an event that has occurred. 'event' objects
 -- are passed to event listeners when an event occurs.

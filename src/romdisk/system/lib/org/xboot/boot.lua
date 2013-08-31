@@ -1,7 +1,19 @@
 package.path = "/romdisk/system/lib/?.lua;/romdisk/system/lib/?/init.lua;./?.lua"
 package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;./?.so"
 
-print = require("org.xboot.buildin.logger").print
+buildin_event = require("org.xboot.buildin.event")
+buildin_logger = require("org.xboot.buildin.logger")
+buildin_timecounter = require("org.xboot.buildin.timecounter")
+buildin_base64 = require("org.xboot.buildin.base64")
+buildin_cairo = require("org.xboot.buildin.cairo")
+print = buildin_logger.print
+
+class = require("org.xboot.lang.class")
+timer = require("org.xboot.timer.timer")
+event = require("org.xboot.event.event")
+event_dispatcher = require("org.xboot.event.event_dispatcher")
+display_object = require("org.xboot.display.display_object")
+display_image = require("org.xboot.display.display_image")
 
 local function loader()
 	require("main")

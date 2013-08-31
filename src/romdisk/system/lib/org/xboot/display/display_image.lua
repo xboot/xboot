@@ -1,9 +1,3 @@
-local class = require("org.xboot.lang.class")
-local event = require("org.xboot.event.event")
-local event_dispatcher = require("org.xboot.event.event_dispatcher")
-local display_object = require("org.xboot.display.display_object")
-local buildin_cairo = require("org.xboot.buildin.cairo")
-
 ---
 -- 
 -- @module display_image

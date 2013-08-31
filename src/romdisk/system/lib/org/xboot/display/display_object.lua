@@ -1,7 +1,3 @@
-local class = require("org.xboot.lang.class")
-local event = require("org.xboot.event.event")
-local event_dispatcher = require("org.xboot.event.event_dispatcher")
-
 local M_PI2 = math.pi * 2
 
 ---

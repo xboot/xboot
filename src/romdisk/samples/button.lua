@@ -1,7 +1,3 @@
-local class = require("org.xboot.lang.class")
-local event = require("org.xboot.event.event")
-local display_object = require("org.xboot.display.display_object")
-
 local M = class(display_object)
 
 function M:init(normal, active)

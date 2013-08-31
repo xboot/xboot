@@ -1,15 +1,3 @@
-local buildin_logger = require("org.xboot.buildin.logger")
-local buildin_event = require("org.xboot.buildin.event")
-local buildin_timecounter = require("org.xboot.buildin.timecounter")
-local buildin_cairo = require("org.xboot.buildin.cairo")
-
-local class = require("org.xboot.lang.class")
-local timer = require("org.xboot.timer.timer")
-local event = require("org.xboot.event.event")
-local event_dispatcher = require("org.xboot.event.event_dispatcher")
-local display_object = require("org.xboot.display.display_object")
-local display_image = require("org.xboot.display.display_image")
-
 local M = class(display_object)
 
 function M:init()

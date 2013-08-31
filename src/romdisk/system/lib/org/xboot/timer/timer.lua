@@ -1,5 +1,3 @@
-local class = require("org.xboot.lang.class")
-
 ---
 -- The 'timer' class is used to execute a code at specified intervals.
 -- 

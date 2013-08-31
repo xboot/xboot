@@ -467,6 +467,5 @@ int i2c_algo_bit_xfer(struct i2c_algo_bit_data_t * bdat, struct i2c_msg_t * msgs
 
 bailout:
 	i2c_stop(bdat);
-
 	return ret;
 }

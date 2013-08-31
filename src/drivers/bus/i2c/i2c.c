@@ -94,7 +94,7 @@ int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 {
 	int try, ret = 0;
 
-	if(i2c || i2c->xfer)
+	if(!i2c || !i2c->xfer)
 		return -1;
 
 	for(try = 0; try < 3; try++)

@@ -138,14 +138,14 @@ static bool_t i2c_gpio_register_bus(struct resource_t * res)
 		dat->bdat.getscl = i2c_gpio_getscl;
 	dat->bdat.getsda = i2c_gpio_getsda;
 
-	if(rdat->udelay)
+	if(rdat->udelay > 0)
 		dat->bdat.udelay = rdat->udelay;
 	else if(rdat->scl_is_output_only)
 		dat->bdat.udelay = 50;	/* 10 kHz */
 	else
 		dat->bdat.udelay = 5;	/* 100 kHz */
 
-	if(rdat->timeout)
+	if(rdat->timeout > 0)
 		dat->bdat.timeout = rdat->timeout;
 	else
 		dat->bdat.timeout = get_system_hz() / 10;	/* 100 ms */

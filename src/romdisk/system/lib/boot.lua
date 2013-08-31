@@ -1,5 +1,5 @@
-package.path = "/romdisk/system/lib/?.lua;/romdisk/system/lib/?/init.lua;" .. package.path
-package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;" .. package.cpath
+package.path = "/romdisk/system/lib/?.lua;/romdisk/system/lib/?/init.lua;./?.lua"
+package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;./?.so"
 
 print = require("org.xboot.buildin.logger").print
 

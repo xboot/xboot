@@ -1,5 +1,5 @@
 /*
- * framework/timecounter/l_timecounter.c
+ * framework/timecounter/l-timecounter.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/timecounter/l_timecounter.h>
+#include <framework/timecounter/l-timecounter.h>
 
 struct timecounter_t {
 	double __current_time;

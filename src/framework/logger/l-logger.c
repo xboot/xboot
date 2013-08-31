@@ -1,5 +1,5 @@
 /*
- * framework/logger/l_logger.c
+ * framework/logger/l-logger.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/logger/l_logger.h>
+#include <framework/logger/l-logger.h>
 
 static int l_logger_print(lua_State * L)
 {

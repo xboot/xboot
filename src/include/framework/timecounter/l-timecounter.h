@@ -1,5 +1,5 @@
-#ifndef __FRAMEWORK_TIMECOUNTER_H__
-#define __FRAMEWORK_TIMECOUNTER_H__
+#ifndef __FRAMEWORK_L_TIMECOUNTER_H__
+#define __FRAMEWORK_L_TIMECOUNTER_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,4 +15,4 @@ int luaopen_timecounter(lua_State * L);
 }
 #endif
 
-#endif /* __FRAMEWORK_TIMECOUNTER_H__ */
+#endif /* __FRAMEWORK_L_TIMECOUNTER_H__ */

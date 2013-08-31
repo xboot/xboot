@@ -1,5 +1,5 @@
 /*
- * framework/cairo/l_cairo.c
+ * framework/cairo/l-cairo.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -21,7 +21,7 @@
  */
 
 #include <cairo.h>
-#include <framework/cairo/l_cairo.h>
+#include <framework/cairo/l-cairo.h>
 
 static int l_cairo_create(lua_State * L)
 {

@@ -1,5 +1,5 @@
 /*
- * framework/cairo/l_cairo_surface.c
+ * framework/cairo/l-cairo-surface.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -22,7 +22,7 @@
 
 #include <cairo.h>
 #include <cairo-xboot.h>
-#include <framework/cairo/l_cairo.h>
+#include <framework/cairo/l-cairo.h>
 
 int l_cairo_xboot_surface_create(lua_State * L)
 {

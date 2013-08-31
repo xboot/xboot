@@ -1,5 +1,5 @@
 /*
- * framework/event/l_event.c
+ * framework/event/l-event.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/event/l_event.h>
+#include <framework/event/l-event.h>
 
 #define __TYPE_KEY_DOWN				"keydown"
 #define __TYPE_KEY_UP				"keyup"

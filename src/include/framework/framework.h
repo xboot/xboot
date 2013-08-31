@@ -6,11 +6,11 @@ extern "C" {
 #endif
 
 #include <framework/luahelper.h>
-#include <framework/event/l_event.h>
-#include <framework/logger/l_logger.h>
-#include <framework/timecounter/l_timecounter.h>
-#include <framework/base64/l_base64.h>
-#include <framework/cairo/l_cairo.h>
+#include <framework/event/l-event.h>
+#include <framework/logger/l-logger.h>
+#include <framework/timecounter/l-timecounter.h>
+#include <framework/base64/l-base64.h>
+#include <framework/cairo/l-cairo.h>
 
 int luaopen_xboot(lua_State * L);
 int luaopen_boot(lua_State * L);

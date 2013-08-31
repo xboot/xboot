@@ -90,7 +90,7 @@ bool_t unregister_bus_i2c(struct i2c_t * i2c)
 	return TRUE;
 }
 
-struct i2c_client_t * i2c_client_alloc(const char * i2cbus, u32_t addr, u32_t flags, void * priv)
+struct i2c_client_t * i2c_client_alloc(const char * i2cbus, u32_t addr, u32_t flags)
 {
 	struct i2c_client_t * client;
 	struct i2c_t * i2c;
@@ -130,7 +130,6 @@ struct i2c_client_t * i2c_client_alloc(const char * i2cbus, u32_t addr, u32_t fl
 	client->i2c = i2c;
 	client->addr = addr;
 	client->flags = flags;
-	client->priv = priv;
 
 	return client;
 }

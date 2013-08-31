@@ -221,7 +221,7 @@ static bool_t register_ft5206_touchscreen(struct resource_t * res)
 	if(!ft5206_reset(rdat))
 		return FALSE;
 
-	client = i2c_client_alloc(rdat->i2cbus, rdat->addr, 0, 0);
+	client = i2c_client_alloc(rdat->i2cbus, rdat->addr, 0);
 	if(!client)
 		return FALSE;
 

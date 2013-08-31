@@ -47,14 +47,13 @@ struct i2c_client_t {
 	struct i2c_t * i2c;
 	u32_t addr;
 	u32_t flags;
-	void * priv;
 };
 
 struct i2c_t * search_bus_i2c(const char * name);
 bool_t register_bus_i2c(struct i2c_t * i2c);
 bool_t unregister_bus_i2c(struct i2c_t * i2c);
 
-struct i2c_client_t * i2c_client_alloc(const char * i2cbus, u32_t addr, u32_t flags, void * priv);
+struct i2c_client_t * i2c_client_alloc(const char * i2cbus, u32_t addr, u32_t flags);
 void i2c_client_free(struct i2c_client_t * client);
 
 int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num);

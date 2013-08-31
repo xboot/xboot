@@ -82,6 +82,10 @@ void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn);
 void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn);
 void push_event_mouse_move(void * device, s32_t x, s32_t y);
 void push_event_mouse_wheel(void * device, s32_t x, s32_t y, s32_t delta);
+void push_event_touches_begin(void * device, s32_t x, s32_t y, u32_t id);
+void push_event_touches_move(void * device, s32_t x, s32_t y, u32_t id);
+void push_event_touches_end(void * device, s32_t x, s32_t y, u32_t id);
+void push_event_touches_cancel(void * device, s32_t x, s32_t y, u32_t id);
 bool_t pump_event(struct event_base_t * eb, struct event_t * event);
 
 #ifdef __cplusplus

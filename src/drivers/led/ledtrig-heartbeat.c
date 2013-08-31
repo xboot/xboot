@@ -137,7 +137,7 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 	if(register_led_trigger(trigger))
 		return TRUE;
 
-	free(dat);
+	free(trigger->priv);
 	free(trigger->name);
 	free(trigger);
 	return FALSE;

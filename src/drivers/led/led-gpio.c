@@ -108,6 +108,7 @@ static bool_t led_gpio_register_led(struct resource_t * res)
 	if(register_led(led))
 		return TRUE;
 
+	free(led->priv);
 	free(led->name);
 	free(led);
 	return FALSE;

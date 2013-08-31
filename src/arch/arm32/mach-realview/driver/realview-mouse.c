@@ -283,6 +283,7 @@ static bool_t realview_register_mouse(struct resource_t * res)
 	if(register_input(input))
 		return TRUE;
 
+	free(input->priv);
 	free(input->name);
 	free(input);
 	return FALSE;

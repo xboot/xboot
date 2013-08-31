@@ -25,6 +25,11 @@ function M:init()
 		img:add_event_listener(event.MOUSE_MOVE, self.on_mouse_move, img)
 		img:add_event_listener(event.MOUSE_UP, self.on_mouse_up, img)
 	
+		img:add_event_listener(event.TOUCHES_BEGIN, self.on_touches_begin, img)
+		img:add_event_listener(event.TOUCHES_MOVE, self.on_touches_move, img)
+		img:add_event_listener(event.TOUCHES_END, self.on_touches_end, img)
+		img:add_event_listener(event.TOUCHES_CANCEL, self.on_touches_cancel, img)
+	
 		self:add_child(img)
 	end
 	
@@ -58,6 +63,43 @@ function M:on_mouse_move(e)
 end
 
 function M:on_mouse_up(e)
+	if self.isfocus then
+		self.isfocus = false
+		e:stop_propagation()
+	end
+end
+
+function M:on_touches_begin(e)
+	if self:hit_test_point(e.info.x, e.info.y) then
+		self.isfocus = true
+		self:tofront()
+		
+		self.x0 = e.info.x
+		self.y0 = e.info.y
+		e:stop_propagation()
+	end
+end
+
+function M:on_touches_move(e)
+	if self.isfocus then
+		local dx = e.info.x - self.x0
+		local dy = e.info.y - self.y0
+		
+		self:translate(dx, dy)
+		self.x0 = e.info.x
+		self.y0 = e.info.y
+		e:stop_propagation()
+	end
+end
+
+function M:on_touches_end(e)
+	if self.isfocus then
+		self.isfocus = false
+		e:stop_propagation()
+	end
+end
+
+function M:on_touches_cancel(e)
 	if self.isfocus then
 		self.isfocus = false
 		e:stop_propagation()

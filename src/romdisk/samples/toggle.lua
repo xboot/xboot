@@ -53,19 +53,27 @@ function M:on_mouse_up(e)
 end
 
 function M:on_touches_begin(e)
-	if self.focus then
+	if self:hit_test_point(e.info.x, e.info.y) then
+		self.focus = true
+		self.ison = not self.ison
+		self:update_visual_state(self.ison)
+		self:dispatch_event(event:new("toggled"))
 		e:stop_propagation()
 	end
 end
 
 function M:on_touches_move(e)
 	if self.focus then
+		if not self:hit_test_point(e.info.x, e.info.y) then	
+			self.focus = false
+		end
 		e:stop_propagation()
 	end
 end
 
 function M:on_touches_end(e)
 	if self.focus then
+		self.focus = false
 		e:stop_propagation()
 	end
 end

@@ -433,13 +433,6 @@ static int bit_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 	int i, ret;
 	unsigned short nak_ok;
 
-	if(adapter->pre_xfer)
-	{
-		ret = adapter->pre_xfer(i2c);
-		if(ret < 0)
-			return ret;
-	}
-
 	i2c_start(adapter);
 	for(i = 0; i < num; i++)
 	{
@@ -464,7 +457,7 @@ static int bit_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 			if(ret < pmsg->len)
 			{
 				if (ret >= 0)
-					ret = -EIO;
+					ret = -1;
 				goto bailout;
 			}
 		}
@@ -475,7 +468,7 @@ static int bit_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 			if(ret < pmsg->len)
 			{
 				if (ret >= 0)
-					ret = -EIO;
+					ret = -1;
 				goto bailout;
 			}
 		}
@@ -485,7 +478,5 @@ static int bit_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 bailout:
 	i2c_stop(adapter);
 
-	if(adapter->post_xfer)
-		adapter->post_xfer(i2c);
 	return ret;
 }

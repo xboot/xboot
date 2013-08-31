@@ -7,6 +7,7 @@ extern "C" {
 
 #include <xboot.h>
 #include <bus/i2c.h>
+#include <bus/i2c-algo-bit.h>
 
 struct i2c_gpio_data_t {
 	int sda_pin;

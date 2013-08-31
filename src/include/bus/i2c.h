@@ -41,6 +41,10 @@ struct i2c_t
 	void * priv;
 };
 
+struct i2c_t * search_bus_i2c(const char * name);
+bool_t register_bus_i2c(struct i2c_t * i2c);
+bool_t unregister_bus_i2c(struct i2c_t * i2c);
+
 #ifdef __cplusplus
 }
 #endif

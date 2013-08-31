@@ -13,18 +13,10 @@ struct i2c_algo_bit_data_t {
 	void (*setscl)(struct i2c_algo_bit_data_t * data, int state);
 	int (*getsda)(struct i2c_algo_bit_data_t * data);
 	int (*getscl)(struct i2c_algo_bit_data_t * data);
-	int (*pre_xfer)(struct i2c_t *);
-	void (*post_xfer)(struct i2c_t *);
-
-	/* local settings */
-	int udelay;		/* half clock cycle time in us,
-				   minimum 2 us for fast-mode I2C,
-				   minimum 5 us for standard-mode I2C and SMBus,
-				   maximum 50 us for SMBus */
-	int timeout;		/* in jiffies */
-
-	/* Private data */
+	int udelay;
+	int timeout;
 	void * data;
+	void * priv;
 };
 
 #ifdef __cplusplus

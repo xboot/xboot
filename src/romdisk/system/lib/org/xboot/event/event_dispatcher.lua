@@ -107,8 +107,12 @@ function M:dispatch_event(event)
 		return
 	end
 
-	local els = self.event_listeners_map[event.type] or {}
+	local els = self.event_listeners_map[event.type]
 
+	if not els or #els == 0 then
+		return
+	end
+	
 	for i, v in ipairs(els) do
 		if v.type == event.type then
 			v.listener(v.data, event)

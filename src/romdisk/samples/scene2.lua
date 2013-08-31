@@ -21,8 +21,8 @@ function M:init()
 	self:add_child(display_image:new("/romdisk/samples/images/background.png"))
 
 -- button
-	local normal = display_image:new("/romdisk/samples/images/music-ui-elements-off.png")
-	local active = display_image:new("/romdisk/samples/images/music-ui-elements-on.png")
+	local normal = display_image:new("/romdisk/samples/images/off.png")
+	local active = display_image:new("/romdisk/samples/images/on.png")
 	local btn = button:new(normal, active)
 	btn:add_event_listener("click", function(d, e)
 		print("power click...")
@@ -31,8 +31,8 @@ function M:init()
 	self:add_child(btn)
 	
 -- toggle
-	local on = display_image:new("/romdisk/samples/images/on.png")
-	local off = display_image:new("/romdisk/samples/images/off.png")
+	local on = display_image:new("/romdisk/samples/images/music-ui-elements-on.png")
+	local off = display_image:new("/romdisk/samples/images/music-ui-elements-off.png")
 	local tog = toggle:new(on, off)
 	tog:add_event_listener("toggled", function(d, e)
 		print("toggle click...")

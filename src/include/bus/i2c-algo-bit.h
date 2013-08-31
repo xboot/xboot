@@ -15,9 +15,10 @@ struct i2c_algo_bit_data_t {
 	int (*getscl)(struct i2c_algo_bit_data_t * data);
 	int udelay;
 	int timeout;
-	void * data;
 	void * priv;
 };
+
+int i2c_algo_bit_xfer(struct i2c_algo_bit_data_t * bdat, struct i2c_msg_t * msgs, int num);
 
 #ifdef __cplusplus
 }

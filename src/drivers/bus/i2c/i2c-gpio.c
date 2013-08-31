@@ -86,7 +86,10 @@ static void i2c_gpio_exit(struct i2c_t * i2c)
 
 static int i2c_gpio_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 {
-	return -1;
+	struct i2c_gpio_private_data_t * dat = (struct i2c_gpio_private_data_t *)i2c->priv;
+	struct i2c_algo_bit_data_t * bdat = (struct i2c_algo_bit_data_t *)(&dat->bdat);
+
+	return i2c_algo_bit_xfer(bdat, msgs, num);
 }
 
 static bool_t i2c_gpio_register_bus(struct resource_t * res)
@@ -147,7 +150,6 @@ static bool_t i2c_gpio_register_bus(struct resource_t * res)
 	else
 		dat->bdat.timeout = get_system_hz() / 10;	/* 100 ms */
 
-	dat->bdat.data = rdat;
 	dat->bdat.priv = rdat;
 	dat->rdat = rdat;
 

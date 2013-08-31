@@ -90,6 +90,57 @@ bool_t unregister_bus_i2c(struct i2c_t * i2c)
 	return TRUE;
 }
 
+struct i2c_client_t * i2c_client_alloc(const char * i2cbus, u32_t addr, u32_t flags, void * priv)
+{
+	struct i2c_client_t * client;
+	struct i2c_t * i2c;
+
+	i2c = search_bus_i2c(i2cbus);
+	if(!i2c)
+		return NULL;
+
+	if(flags & I2C_M_TEN)
+	{
+		/* 10-bit address, all values are valid */
+		if(addr > 0x3ff)
+			return NULL;
+	}
+	else
+	{
+		/*
+		 * 7-bit address, reject the general call address
+		 *
+		 * Reserved addresses per I2C specification:
+		 *  0x00       General call address / START byte
+		 *  0x01       CBUS address
+		 *  0x02       Reserved for different bus format
+		 *  0x03       Reserved for future purposes
+		 *  0x04-0x07  Hs-mode master code
+		 *  0x78-0x7b  10-bit slave addressing
+		 *  0x7c-0x7f  Reserved for future purposes
+		 */
+		if(addr < 0x08 || addr > 0x77)
+			return NULL;
+	}
+
+	client = malloc(sizeof(struct i2c_client_t));
+	if(!client)
+		return NULL;
+
+	client->i2c = i2c;
+	client->addr = addr;
+	client->flags = flags;
+	client->priv = priv;
+
+	return client;
+}
+
+void i2c_client_free(struct i2c_client_t * client)
+{
+	if(client)
+		free(client);
+}
+
 int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 {
 	int try, ret = 0;

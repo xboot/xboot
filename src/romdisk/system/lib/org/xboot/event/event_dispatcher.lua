@@ -54,9 +54,6 @@ end
 -- @param data (optional) An optional data parameter that is passed as a first argument to the listener function.
 -- @return A value of 'true' or 'false'.
 function M:add_event_listener(type, listener, data)
-	assert(type)
-	assert(listener)
-
 	if self:has_event_listener(type, listener, data) then
 		return false
 	end
@@ -84,9 +81,6 @@ end
 -- @param data The data parameter that is used while registering the event.
 -- @return A value of 'true' or 'false'.
 function M:remove_event_listener(type, listener, data)
-	assert(type)
-	assert(listener)
-
 	local els = self.event_listeners_map[type]
 
 	if not els or #els == 0 then

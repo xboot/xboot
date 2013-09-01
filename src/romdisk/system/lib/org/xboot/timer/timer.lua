@@ -23,7 +23,7 @@ function M:init(delay, iteration, listener, data)
 	self.time = 0
 	self.count = 0
 	self.running = true
-	
+
 	table.insert(timer_list, self)
 end
 
@@ -47,7 +47,7 @@ function M:resume()
 end
 
 ---
--- Pauses the timer that was resumed.
+-- Pauses the timer that was running.
 --
 -- @function [parent=#timer] pause
 -- @param self
@@ -81,7 +81,7 @@ function M:schedule(delta)
 	for i, v in ipairs(timer_list) do
 		if v.running then
 			v.time = v.time + delta
-			
+
 			if v.time > v.delay then
 				v.count = v.count + 1
 				v.listener(v, {time = v.time, count = v.count, data = v.data})

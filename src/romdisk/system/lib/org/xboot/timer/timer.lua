@@ -72,15 +72,15 @@ function M:cancel()
 end
 
 ---
--- Schedule all timers in list.
+-- Schedule all timers according to time interval.
 -- 
 -- @function [parent=#timer] schedule
 -- @param self
--- @param delta (number) The time interval in seconds.
-function M:schedule(delta)
+-- @param dt (number) The time delta in seconds.
+function M:schedule(dt)
 	for i, v in ipairs(timer_list) do
 		if v.running then
-			v.time = v.time + delta
+			v.time = v.time + dt
 
 			if v.time > v.delay then
 				v.count = v.count + 1

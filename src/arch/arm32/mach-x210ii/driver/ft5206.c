@@ -74,9 +74,6 @@ enum {
 };
 
 struct ft5206_private_data_t {
-	struct {
-		int x, y;
-	} node[5];
 	struct i2c_client_t * client;
 	struct ft5206_data_t * rdat;
 };
@@ -149,8 +146,8 @@ static void ft5206_interrupt_function(void * data)
 	{
 		for(i = 0; i < 5; i++)
 		{
-			X = (buf[i*6 + 3])<<8 | buf[i*6 + 4];
-			Y = (buf[i*6 + 5])<<8 | buf[i*6 + 6];
+			X = (buf[i * 6 + 3]) << 8 | buf[i * 6 + 4];
+			Y = (buf[i * 6 + 5]) << 8 | buf[i * 6 + 6];
 
 			x = X & 0xfff;
 			y = Y & 0xfff;
@@ -161,16 +158,20 @@ static void ft5206_interrupt_function(void * data)
 
 			if(id >= 0 && id <= 4)
 			{
-				dat->node[id].x = x;
-				dat->node[id].y = y;
-
-				if((event == 0) || (event == 0x02))
+				if(event == 0)
 				{
-					//LOG("[%d]down: x = %4d, y = %4d", id, dat->node[id].x, dat->node[id].y);
+					push_event_touches_begin(input, x, y, id);
+					//LOG("[%d]down: x = %4d, y = %4d", id, x, y);
 				}
-				else if(event == 0x01)
+				else if(event == 0x2)
 				{
-					//LOG("[%d]up: x = %4d, y = %4d", id, dat->node[id].x, dat->node[id].y);
+					push_event_touches_move(input, x, y, id);
+					//LOG("[%d]move: x = %4d, y = %4d", id, x, y);
+				}
+				else if(event == 0x1)
+				{
+					push_event_touches_end(input, x, y, id);
+					//LOG("[%d]up: x = %4d, y = %4d", id, x, y);
 				}
 			}
 		}

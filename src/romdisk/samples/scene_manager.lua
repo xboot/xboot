@@ -41,11 +41,11 @@ function Transition.inFromTop(scene, t, height)
 end
 
 function Transition.fadeIn(scene, t)
---	scene:setAlpha(t)
+	scene:setalpha(t)
 end
 
 function Transition.fadeOut(scene, t)
---	scene:setAlpha(1-t)
+	scene:setalpha(1-t)
 end
 
 function Transition.shade(scene, t)
@@ -57,27 +57,27 @@ function Transition.unshade(scene, t)
 end
 
 function Transition.horizontalShrink(scene, t, width)
---	scene:setScaleX(1-t)
+	scene:setscalex(1-t)
 	scene:setx(t * width/2)
 end
 
 function Transition.horizontalExpand(scene, t, width)
---	scene:setScaleX(t)
+	scene:setscalex(t)
 	scene:setx((1-t) * width/2)
 end
 
 function Transition.verticalShrink(scene, t, height)
---	scene:setScaleY(1-t)
+	scene:setscaley(1-t)
 	scene:sety(t * height/2)
 end
 
 function Transition.verticalExpand(scene, t, height)
---	scene:setScaleY(t)
+	scene:setscaley(t)
 	scene:sety((1-t) * height/2)
 end
 
 function Transition.rotate(scene, t, startAngle, stopAngle)
---	scene:setRotation((stopAngle - startAngle) * t + startAngle)
+	scene:setrotate((stopAngle - startAngle) * t + startAngle)
 end
 
 local M = class(display_object)

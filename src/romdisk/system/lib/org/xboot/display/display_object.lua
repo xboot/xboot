@@ -18,12 +18,16 @@ function M:init()
 	self.y = 0
 	self.width = 0
 	self.height = 0
-	self.xorigin = 0
-	self.yorigin = 0
-	self.rotation = 0	
-	self.xscale = 1
-	self.yscale = 1
+	self.rotation = 0
+	self.scalex = 1
+	self.scaley = 1
+	self.anchorx = 0
+	self.anchory = 0
 	self.alpha = 1
+
+	self.__rotate = false;
+	self.__scale = false;
+	self.__alpha = false;
 end
 
 ---
@@ -192,7 +196,7 @@ end
 function M:translate(dx, dy)
 	self.x = self.x + dx
 	self.y = self.y + dy
-	
+
 	for i, v in ipairs(self.children) do
 		v:translate(dx, dy)
 	end
@@ -217,13 +221,15 @@ function M:rotate(angle)
 		self.rotation = self.rotation - M_PI2
 	end
 
+	self.__rotate = self.rotation ~= 0
+
 	for i, v in ipairs(self.children) do
-		v:rotation(angle)
+		v:rotate(angle)
 	end
 end
 
 ---
--- Effectively multiplies xscale and yscale properties by sx and sy respectively.
+-- Effectively multiplies scalex and scaley properties by sx and sy respectively.
 -- The scaling occurs around the object's reference point.
 -- The default reference point for most display objects is center.
 -- 
@@ -232,38 +238,14 @@ end
 -- @param sx (number) Factors by which to change the scale in the x directions.
 -- @param sy (number) Factors by which to change the scale in the y directions.
 function M:scale(sx, sy)
-	self.xscale = self.xscale * sx
-	self.yscale = self.yscale * sy
-	
+	self.scalex = self.scalex * sx
+	self.scaley = self.scaley * sy
+
+	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
+
 	for i, v in ipairs(self.children) do
 		v:scale(sx, sy)
 	end
-end
-
---- 
--- Converts the x,y coordinates from the global to the display object's (local) coordinates.
--- 
--- @function [parent=#display_object] global_to_local
--- @param self
--- @param x (number) x coordinate of the global coordinate.
--- @param y (number) y coordinate of the global coordinate.
--- @return x coordinate relative to the display object.
--- @return y coordinate relative to the display object.
-function M:global_to_local(x, y)
-	return x - self.x, y - self.y
-end
-
---- 
--- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
--- 
--- @function [parent=#display_object] local_to_global
--- @param self
--- @param x (number) x coordinate of the local coordinate.
--- @param y (number) y coordinate of the local coordinate.
--- @return x coordinate relative to the display area.
--- @return y coordinate relative to the display area.
-function M:local_to_global(x, y)
-	return x + self.x, y + self.y
 end
 
 ---
@@ -297,14 +279,65 @@ function M:setxy(x, y)
 	self:translate(x - self.x, y - self.y)
 end
 
+function M:setrotate(angle)
+	self:rotate(angle - self.rotation)
+end
 
-function M:origin(dx, dy)
-	self.xorigin = self.xorigin + dx
-	self.yorigin = self.yorigin + dy
+function M:setscalex(x)
+	self:scale(x / self.scalex, 1)
+end
+
+function M:setscaley(y)
+	self:scale(1, y / self.scaley)
+end
+
+function M:setscale(x, y)
+	self:scale(x / self.scalex, y / self.scaley)
+end
+
+function M:setanchor(x, y)
+	self.anchorx = x - self.x
+	self.anchory = y - self.y
+	
+	for i, v in ipairs(self.children) do
+		v:setanchor(x, y)
+	end
+end
+
+function M:setalpha(alpha)
+	self.alpha = alpha
+
+	self.__alpha = self.alpha ~= 1
 
 	for i, v in ipairs(self.children) do
-		v:origin(dx, dy)
+		v:setalpha(alpha)
 	end
+end
+
+--- 
+-- Converts the x,y coordinates from the global to the display object's (local) coordinates.
+-- 
+-- @function [parent=#display_object] global_to_local
+-- @param self
+-- @param x (number) x coordinate of the global coordinate.
+-- @param y (number) y coordinate of the global coordinate.
+-- @return x coordinate relative to the display object.
+-- @return y coordinate relative to the display object.
+function M:global_to_local(x, y)
+	return x - self.x, y - self.y
+end
+
+--- 
+-- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
+-- 
+-- @function [parent=#display_object] local_to_global
+-- @param self
+-- @param x (number) x coordinate of the local coordinate.
+-- @param y (number) y coordinate of the local coordinate.
+-- @return x coordinate relative to the display area.
+-- @return y coordinate relative to the display area.
+function M:local_to_global(x, y)
+	return x + self.x, y + self.y
 end
 
 function M:hit_test_point(x, y)

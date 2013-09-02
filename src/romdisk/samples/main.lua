@@ -12,6 +12,9 @@ runtime:add_child(background)
 
 local s1 = scene1:new()
 local s2 = scene2:new()
+s1:setanchor(800 / 2, 480 / 2)
+s2:setanchor(800 / 2, 480 / 2)
+
 local sm = scene_manager:new({
 	["s1"] = s1,
 	["s2"] = s2,
@@ -36,9 +39,12 @@ local normal = display_image:new("/romdisk/samples/images/button_normal.png")
 local active = display_image:new("/romdisk/samples/images/button_active.png")
 local btn = button:new(normal, active)
 btn:add_event_listener("click", function(d, e)
-	sm:changeScene(nextScene(), 1, scene_manager.moveFromLeft, easing.outBounce) 
+	sm:changeScene(nextScene(), 1, scene_manager.moveFromLeft, easing.outBounce)
+--	d:scale(1.1, 1.1)
+--	d:setalpha(0.2)
 end, btn)
 btn:setxy(40, 200)
+btn:setanchor(btn.x + btn.width / 2, btn.y + btn.height / 2)
 runtime:add_child(btn)
 
 local cursor = display_image:new("/romdisk/samples/images/cursor.png", 0, 0)

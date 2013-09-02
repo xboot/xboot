@@ -58,7 +58,6 @@ cursor:add_event_listener(event.TOUCHES_CANCEL, function(d, e) d:setxy(e.info.x,
 runtime:add_child(cursor)
 
 ------------------- main --------------------------------
-local stopwatch = buildin_stopwatch.new()
 local cs1 = buildin_cairo.xboot_surface_create()
 local cs2 = buildin_cairo.xboot_surface_create()
 local cr1 = buildin_cairo.create(cs1)
@@ -83,14 +82,18 @@ timer:new(1 / 60, 0, function(t, e)
 	end
 end)
 
-while true do
-	stopwatch:reset()
+local sw = buildin_stopwatch.new()
 
+while true do
 	local info = buildin_event.pump()	
 	if info ~= nil then
 		local e = event:new(info.type, info)
 		runtime:dispatch(e)
 	end
 
-	timer:schedule(stopwatch:elapsed())
+	local elapsed = sw:elapsed()
+	if elapsed ~= 0 then
+		sw:reset()
+		timer:schedule(elapsed)
+	end
 end

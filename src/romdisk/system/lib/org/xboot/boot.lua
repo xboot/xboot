@@ -15,8 +15,45 @@ event_dispatcher = require("org.xboot.event.event_dispatcher")
 display_object = require("org.xboot.display.display_object")
 display_image = require("org.xboot.display.display_image")
 
+runtime = display_object:new()
+
 local function loader()
 	require("main")
+
+	local sw = buildin_stopwatch.new()
+	local cs = {
+		buildin_cairo.xboot_surface_create(),
+		buildin_cairo.xboot_surface_create(),
+	}
+	local cr = {
+		buildin_cairo.create(cs[1]),
+		buildin_cairo.create(cs[2]),
+	}
+	local cidx = 1;
+	
+	timer:new(1 / 60, 0, function(t, e)
+		cidx = cidx + 1
+		if cidx > #cs then
+			cidx = 1
+		end
+	
+		runtime:render(cr[cidx], event:new(event.ENTER_FRAME))
+		cs[cidx]:present()
+	end)
+
+	while true do
+		local info = buildin_event.pump()	
+		if info ~= nil then
+			local e = event:new(info.type, info)
+			runtime:dispatch(e)
+		end
+	
+		local elapsed = sw:elapsed()
+		if elapsed ~= 0 then
+			sw:reset()
+			timer:schedule(elapsed)
+		end
+	end
 end
 
 local function handler(msg, layer)

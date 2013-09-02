@@ -5,8 +5,6 @@ local scene_manager = require("scene_manager")
 require("easing")
 
 ----------------------------------------------------------------------------------
-local runtime = display_object:new("runtime")
-
 local background = display_image:new("/romdisk/samples/images/background.png")
 runtime:add_child(background)
 
@@ -56,44 +54,3 @@ cursor:add_event_listener(event.TOUCHES_MOVE, function(d, e) d:setxy(e.info.x, e
 cursor:add_event_listener(event.TOUCHES_END, function(d, e) d:setxy(e.info.x, e.info.y) end, cursor)
 cursor:add_event_listener(event.TOUCHES_CANCEL, function(d, e) d:setxy(e.info.x, e.info.y) end, cursor)
 runtime:add_child(cursor)
-
-------------------- main --------------------------------
-local cs1 = buildin_cairo.xboot_surface_create()
-local cs2 = buildin_cairo.xboot_surface_create()
-local cr1 = buildin_cairo.create(cs1)
-local cr2 = buildin_cairo.create(cs2)
-local index = false;
-
-timer:new(1 / 60, 0, function(t, e)
-	local cr
-	index = not index
-	if index then
-		cr = cr2
-	else
-		cr = cr1
-	end
-	
-	runtime:render(cr, event:new(event.ENTER_FRAME))
-	
-	if index then
-		cs2:present()
-	else
-		cs1:present()
-	end
-end)
-
-local sw = buildin_stopwatch.new()
-
-while true do
-	local info = buildin_event.pump()	
-	if info ~= nil then
-		local e = event:new(info.type, info)
-		runtime:dispatch(e)
-	end
-
-	local elapsed = sw:elapsed()
-	if elapsed ~= 0 then
-		sw:reset()
-		timer:schedule(elapsed)
-	end
-end

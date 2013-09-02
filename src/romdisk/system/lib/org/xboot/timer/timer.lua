@@ -82,7 +82,7 @@ function M:schedule(dt)
 		if v.running then
 			v.time = v.time + dt
 
-			if v.time > v.delay then
+			if v.time >= v.delay then
 				v.count = v.count + 1
 				v.listener(v, {time = v.time, count = v.count, data = v.data})
 

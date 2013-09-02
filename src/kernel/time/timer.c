@@ -21,11 +21,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <xboot/list.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
-#include <time/tick.h>
 #include <time/timer.h>
 
 #define TVN_BITS 				(6)
@@ -215,7 +210,7 @@ void setup_timer(struct timer_t * timer, void (*function)(u32_t), u32_t data)
 
 static __init void timer_pure_init(void)
 {
-	s32_t i;
+	int i;
 
 	timer_jiffies = 0;
 
@@ -232,4 +227,5 @@ static __init void timer_pure_init(void)
 		init_list_head(tv1.vec + i);
 	}
 }
+
 pure_initcall(timer_pure_init);

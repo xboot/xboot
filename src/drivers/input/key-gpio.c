@@ -53,7 +53,7 @@ static void key_gpio_timer_function(u32_t data)
 		dat->state[i] = val;
 	}
 
-	mod_timer(&(dat->timer), jiffies + get_system_hz() / 10);
+	mod_timer(&(dat->timer), jiffies + HZ / 10);
 }
 
 static void input_init(struct input_t * input)
@@ -77,7 +77,7 @@ static void input_init(struct input_t * input)
 	}
 
 	setup_timer(&dat->timer, key_gpio_timer_function, (u32_t)input);
-	mod_timer(&(dat->timer), jiffies + get_system_hz() / 10);
+	mod_timer(&(dat->timer), jiffies + HZ / 10);
 }
 
 static void input_exit(struct input_t * input)

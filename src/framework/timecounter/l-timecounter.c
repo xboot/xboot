@@ -30,7 +30,7 @@ struct timecounter_t {
 
 static double __time_stamp(void)
 {
-	return (double)jiffies / get_system_hz();
+	return (double)jiffies / HZ;
 }
 
 static int l_new(lua_State * L)

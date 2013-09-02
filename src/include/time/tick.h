@@ -16,6 +16,7 @@ extern "C" {
 #define time_before_eq(a,b)		time_after_eq(b, a)
 
 extern volatile u32_t jiffies;
+extern volatile u32_t HZ;
 
 /*
  * The struct of tick.
@@ -30,7 +31,6 @@ struct tick_t {
 
 void tick_interrupt(void);
 bool_t register_tick(struct tick_t * tick);
-u32_t get_system_hz(void);
 bool_t init_system_tick(void);
 u64_t clock_gettime(void);
 

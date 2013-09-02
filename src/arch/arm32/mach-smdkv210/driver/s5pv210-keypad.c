@@ -86,7 +86,7 @@ static void keypad_timer_function(u32_t data)
 		prevmask[col] = keymask[col];
 	}
 
-	mod_timer(&timer, jiffies + get_system_hz() / 10);
+	mod_timer(&timer, jiffies + HZ / 10);
 }
 
 static bool_t keypad_probe(struct input_t * input)
@@ -121,7 +121,7 @@ static bool_t keypad_probe(struct input_t * input)
 	}
 
 	setup_timer(&timer, keypad_timer_function, (u32_t)keypad);
-	mod_timer(&timer, jiffies + get_system_hz() / 10);
+	mod_timer(&timer, jiffies + HZ / 10);
 
 	return TRUE;
 }

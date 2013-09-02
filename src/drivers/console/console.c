@@ -63,9 +63,9 @@ bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout)
 	if(!__console_stdin || !__console_stdin->getcode)
 		return FALSE;
 
-	if(get_system_hz() > 0)
+	if(HZ > 0)
 	{
-		end = jiffies + timeout * get_system_hz() / 1000;
+		end = jiffies + timeout * HZ / 1000;
 
 		while(! __console_stdin->getcode(__console_stdin, code))
 		{

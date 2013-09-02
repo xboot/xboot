@@ -155,14 +155,14 @@ void do_system_wait(void)
 {
 	u32_t timeout;
 
-	if(get_system_hz() > 0)
+	if(HZ > 0)
 	{
 		LOG("Wait a moment, if necessary");
 
 		/*
 		 * wait a moment for uptime until one seconds
 		 */
-		timeout = 0 + get_system_hz() * 1;
+		timeout = 0 + HZ * 1;
 		while(time_before(jiffies, timeout));
 	}
 }

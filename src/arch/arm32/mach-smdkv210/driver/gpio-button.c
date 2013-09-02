@@ -85,7 +85,7 @@ static void button_timer_function(u32_t data)
 	}
 
 	/* mod timer for next 100 ms */
-	mod_timer(&button_timer, jiffies + get_system_hz() / 10);
+	mod_timer(&button_timer, jiffies + HZ / 10);
 }
 
 static bool_t button_probe(struct input_t * input)
@@ -102,7 +102,7 @@ static bool_t button_probe(struct input_t * input)
 	setup_timer(&button_timer, button_timer_function, 0);
 
 	/* mod timer for 100 ms */
-	mod_timer(&button_timer, jiffies + get_system_hz() / 10);
+	mod_timer(&button_timer, jiffies + HZ / 10);
 
 	return TRUE;
 }

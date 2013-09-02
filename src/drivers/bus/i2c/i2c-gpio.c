@@ -148,7 +148,7 @@ static bool_t i2c_gpio_register_bus(struct resource_t * res)
 	if(rdat->timeout > 0)
 		dat->bdat.timeout = rdat->timeout;
 	else
-		dat->bdat.timeout = get_system_hz() / 10;	/* 100 ms */
+		dat->bdat.timeout = HZ / 10;	/* 100 ms */
 
 	dat->bdat.priv = rdat;
 	dat->rdat = rdat;

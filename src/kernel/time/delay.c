@@ -24,36 +24,18 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <sizes.h>
-#include <stdio.h>
-#include <xboot/module.h>
-#include <xboot/printk.h>
-#include <xboot/proc.h>
-#include <xboot/initcall.h>
-#include <time/tick.h>
-#include <time/timer.h>
 #include <time/delay.h>
 
-/*
- * how many loops runnning __delay() function per jiffy.
- */
 static volatile u32_t loops_per_jiffy = 0;
 
-/*
- * the base delay function.
- */
 void __attribute__ ((noinline)) __delay(volatile u32_t loop)
 {
 	for(; loop > 0; loop--);
 }
 
-/*
- * us delay function
- */
 void udelay(u32_t us)
 {
-	u32_t hz = get_system_hz();
+	u32_t hz = HZ;
 
 	if(hz)
 		__delay(us * loops_per_jiffy / (1000000 / hz));
@@ -62,12 +44,9 @@ void udelay(u32_t us)
 }
 EXPORT_SYMBOL(udelay);
 
-/*
- * ms delay function
- */
 void mdelay(u32_t ms)
 {
-	u32_t hz = get_system_hz();
+	u32_t hz = HZ;
 
 	if(hz)
 		__delay(ms * loops_per_jiffy / (1000 / hz));
@@ -83,7 +62,7 @@ void calibrate_delay(void)
 {
 	u32_t ticks, loopbit;
 	s32_t lps_precision = 8;
-	u32_t hz = get_system_hz();
+	u32_t hz = HZ;
 
 	if(hz > 0)
 	{
@@ -127,14 +106,11 @@ void calibrate_delay(void)
 	}
 }
 
-/*
- * bogomips proc interface
- */
 static s32_t bogomips_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[16];
 	s32_t len;
-	u32_t hz = get_system_hz();
+	u32_t hz = HZ;
 
 	if(hz != 0)
 		len = sprintf(tmp, (const char *)"%u.%02u", (u32_t)( loops_per_jiffy / (500000 / hz) ), (u32_t)( (loops_per_jiffy / (5000 / hz) ) % 100) );

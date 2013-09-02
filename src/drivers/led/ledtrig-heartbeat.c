@@ -45,26 +45,26 @@ static void heartbeat_timer_function(u32_t data)
 	switch(dat->phase)
 	{
 	case 0:
-		dat->period = 1260 * get_system_hz() / 1000;
-		delay = 70 * get_system_hz() / 1000;
+		dat->period = 1260 * HZ / 1000;
+		delay = 70 * HZ / 1000;
 		dat->phase++;
 		color = 0x00ffffff;
 		break;
 
 	case 1:
-		delay = dat->period / 4 - (70 * get_system_hz() / 1000);
+		delay = dat->period / 4 - (70 * HZ / 1000);
 		dat->phase++;
 		color = 0;
 		break;
 
 	case 2:
-		delay = 70 * get_system_hz() / 1000;
+		delay = 70 * HZ / 1000;
 		dat->phase++;
 		color = 0x00ffffff;
 		break;
 
 	default:
-		delay = dat->period - dat->period / 4 - (70 * get_system_hz() / 1000);
+		delay = dat->period - dat->period / 4 - (70 * HZ / 1000);
 		dat->phase = 0;
 		color = 0;
 		break;

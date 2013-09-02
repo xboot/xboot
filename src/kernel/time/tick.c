@@ -21,111 +21,61 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <sizes.h>
-#include <malloc.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdio.h>
-#include <mode/mode.h>
-#include <xboot/clk.h>
-#include <xboot/irq.h>
-#include <xboot/proc.h>
-#include <xboot/module.h>
-#include <xboot/printk.h>
-#include <xboot/initcall.h>
 #include <time/tick.h>
 
-/*
- * exec task in timer list.
- */
-extern void exec_timer_task(void);
+static struct tick_t * __tick = NULL;
 
-/*
- * jiffies, userd by timer tick count.
- */
 volatile u32_t jiffies = 0;
 EXPORT_SYMBOL(jiffies);
 
-/*
- * system tick.
- */
-static struct tick_t * xboot_tick = NULL;
+volatile u32_t HZ = 0;
+EXPORT_SYMBOL(HZ);
 
-/*
- * tick frequency.
- */
-static u32_t tick_hz = 0;
-
-/*
- * tick interrupt.
- */
 inline void tick_interrupt(void)
 {
-	/* tick count */
 	jiffies++;
 
-	/* exec task in timer list */
+	extern void exec_timer_task(void);
 	exec_timer_task();
 }
 
-/*
- * get system tick's hz
- */
-u32_t get_system_hz(void)
-{
-	return tick_hz;
-}
-EXPORT_SYMBOL(get_system_hz);
-
-/*
- * register system tick.
- */
 bool_t register_tick(struct tick_t * tick)
 {
-	if( tick && (tick->hz > 0) && (xboot_tick->init != NULL))
+	if( tick && (tick->hz > 0) && (__tick->init != NULL))
 	{
-		xboot_tick = tick;
+		__tick = tick;
 		return TRUE;
 	}
 	else
 	{
-		xboot_tick = NULL;
+		__tick = NULL;
 		return FALSE;
 	}
 }
 
-/*
- * initial system tick, enable tick timer.
- */
 bool_t init_system_tick(void)
 {
-	tick_hz = 0;
+	HZ = 0;
 	jiffies = 0;
 
-	if(!xboot_tick)
+	if(!__tick)
 		return FALSE;
 
-	if( !xboot_tick->init() )
+	if( !__tick->init() )
 		return FALSE;
 
-	/* set system tick's hz */
-	tick_hz = xboot_tick->hz;
-
+	HZ = __tick->hz;
 	return TRUE;
 }
 
 u64_t clock_gettime(void)
 {
-	if(get_system_hz() > 0)
-		return (u64_t)jiffies * 1000000 / get_system_hz();
+	if(HZ > 0)
+		return (u64_t)jiffies * 1000000L / HZ;
 
 	return 0;
 }
 
-/*
- * jiffies proc interface
- */
 static s32_t jiffies_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[16];
@@ -150,16 +100,13 @@ static struct proc_t jiffies_proc = {
 	.read	= jiffies_proc_read,
 };
 
-/*
- * uptime proc interface
- */
 static s32_t uptime_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[16];
 	s32_t len;
 
-	if(tick_hz != 0)
-		len = sprintf(tmp, (const char *)"%u.%03u", jiffies * 1000 / tick_hz / 1000, jiffies * 1000 / tick_hz % 1000);
+	if(HZ != 0)
+		len = sprintf(tmp, (const char *)"%u.%03u", jiffies * 1000 / HZ / 1000, jiffies * 1000 / HZ % 1000);
 	else
 		len = sprintf(tmp, (const char *)"0.00");
 
@@ -181,15 +128,12 @@ static struct proc_t uptime_proc = {
 	.read	= uptime_proc_read,
 };
 
-/*
- * hz proc interface
- */
 static s32_t hz_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	char tmp[16];
 	s32_t len;
 
-	len = sprintf(tmp, (const char *)"%u", tick_hz);
+	len = sprintf(tmp, (const char *)"%u", HZ);
 	len -= offset;
 
 	if(len < 0)

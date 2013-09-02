@@ -31,6 +31,41 @@ EXPORT_SYMBOL(jiffies);
 volatile u32_t HZ = 0;
 EXPORT_SYMBOL(HZ);
 
+u64_t jiffies_to_msecs(const u64_t j)
+{
+	if(HZ > 0)
+		return ((u64_t)j * 1000L) / HZ;
+	return 0;
+}
+EXPORT_SYMBOL(jiffies_to_msecs);
+
+u64_t jiffies_to_usecs(const u64_t j)
+{
+	if(HZ > 0)
+		return ((u64_t)j * 1000000L) / HZ;
+	return 0;
+}
+EXPORT_SYMBOL(jiffies_to_usecs);
+
+u64_t msecs_to_jiffies(const u64_t m)
+{
+	return (u64_t)m * HZ / 1000L;
+}
+EXPORT_SYMBOL(msecs_to_jiffies);
+
+u64_t usecs_to_jiffies(const u64_t u)
+{
+	return (u64_t)u * HZ / 1000000L;
+}
+EXPORT_SYMBOL(usecs_to_jiffies);
+
+u64_t clock_gettime(void)
+{
+	if(HZ > 0)
+		return (u64_t)jiffies * 1000000L / HZ;
+	return 0;
+}
+
 inline void tick_interrupt(void)
 {
 	jiffies++;
@@ -66,14 +101,6 @@ bool_t init_system_tick(void)
 
 	HZ = __tick->hz;
 	return TRUE;
-}
-
-u64_t clock_gettime(void)
-{
-	if(HZ > 0)
-		return (u64_t)jiffies * 1000000L / HZ;
-
-	return 0;
 }
 
 static s32_t jiffies_proc_read(u8_t * buf, s32_t offset, s32_t count)

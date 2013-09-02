@@ -12,8 +12,8 @@ extern "C" {
 struct i2c_gpio_data_t {
 	int sda_pin;
 	int scl_pin;
-	int udelay;
-	int timeout;
+	int udelay;		/* us */
+	int timeout;	/* ms */
 	int sda_is_open_drain;
 	int scl_is_open_drain;
 	int scl_is_output_only;

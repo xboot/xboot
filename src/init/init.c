@@ -160,9 +160,9 @@ void do_system_wait(void)
 		LOG("Wait a moment, if necessary");
 
 		/*
-		 * wait a moment for uptime until one seconds
+		 * Wait a moments
 		 */
-		timeout = 0 + HZ * 1;
+		timeout = msecs_to_jiffies(1000);
 		while(time_before(jiffies, timeout));
 	}
 }

@@ -65,11 +65,11 @@ bool_t console_stdin_getcode_with_timeout(u32_t * code, u32_t timeout)
 
 	if(HZ > 0)
 	{
-		end = jiffies + timeout * HZ / 1000;
+		end = jiffies + msecs_to_jiffies(timeout);
 
 		while(! __console_stdin->getcode(__console_stdin, code))
 		{
-			if(jiffies >= end)
+			if(time_after_eq(jiffies, end))
 				return FALSE;
 		}
 

@@ -146,9 +146,9 @@ static bool_t i2c_gpio_register_bus(struct resource_t * res)
 		dat->bdat.udelay = 5;	/* 100 kHz */
 
 	if(rdat->timeout > 0)
-		dat->bdat.timeout = rdat->timeout;
+		dat->bdat.timeout = msecs_to_jiffies(rdat->timeout);
 	else
-		dat->bdat.timeout = HZ / 10;	/* 100 ms */
+		dat->bdat.timeout = msecs_to_jiffies(100);
 
 	dat->bdat.priv = rdat;
 	dat->rdat = rdat;

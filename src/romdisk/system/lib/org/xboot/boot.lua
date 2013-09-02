@@ -3,7 +3,7 @@ package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;./?.so"
 
 buildin_event = require("org.xboot.buildin.event")
 buildin_logger = require("org.xboot.buildin.logger")
-buildin_timecounter = require("org.xboot.buildin.timecounter")
+buildin_stopwatch = require("org.xboot.buildin.stopwatch")
 buildin_base64 = require("org.xboot.buildin.base64")
 buildin_cairo = require("org.xboot.buildin.cairo")
 print = buildin_logger.print

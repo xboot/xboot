@@ -8,7 +8,7 @@ extern "C" {
 #include <framework/luahelper.h>
 #include <framework/event/l-event.h>
 #include <framework/logger/l-logger.h>
-#include <framework/timecounter/l-timecounter.h>
+#include <framework/stopwatch/l-stopwatch.h>
 #include <framework/base64/l-base64.h>
 #include <framework/cairo/l-cairo.h>
 

@@ -241,7 +241,7 @@ function M:init(scenes)
 	self:add_event_listener(event.ENTER_FRAME, self.onEnterFrame, self)
 end
 
-local tc = buildin_timecounter.new()
+local stopwatch = buildin_stopwatch.new()
 
 function M:changeScene(scene, duration, transition, ease, options)
 	self.eventFilter = options and options.eventFilter
@@ -269,7 +269,7 @@ function M:changeScene(scene, duration, transition, ease, options)
 	self:add_child(self.scene2)
 		
 	self.time = 0
-	self.currentTimer = tc:uptime()
+	self.currentTimer = stopwatch:elapsed()
 	self.tweening = true
 end
 
@@ -312,7 +312,7 @@ function M:onEnterFrame(event)
 		dispatchEvent(self.scene2, "enterBegin")
 	end
 		
-	local timer = tc:uptime()
+	local timer = stopwatch:elapsed()
 	local deltaTime = timer - self.currentTimer
 	self.currentTimer = timer
 

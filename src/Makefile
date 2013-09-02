@@ -127,7 +127,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				framework/cairo								\
 				framework/event								\
 				framework/logger							\
-				framework/timecounter						\
+				framework/stopwatch							\
 				framework/xfs
 
 #

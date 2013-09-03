@@ -5,7 +5,7 @@ function M:init(normal, active)
 
 	self.normal = normal
 	self.active = active
-	self.focus = false
+	self.focus = nil
 
 	self:add_child(self.normal)
 	self:add_child(self.active)
@@ -22,63 +22,63 @@ function M:init(normal, active)
 end
 
 function M:on_mouse_down(e)
-	if self:hit_test_point(e.info.x, e.info.y) then
-		self.focus = true
-		self:update_visual_state(self.focus)
+	if self.focus == nil and self:hit_test_point(e.info.x, e.info.y) then
+		self.focus = -1
+		self:update_visual_state(true)
 		e:stop_propagation()
 	end
 end
 
 function M:on_mouse_move(e)
-	if self.focus then
+	if self.focus == -1 then
 		if not self:hit_test_point(e.info.x, e.info.y) then	
-			self.focus = false
-			self:update_visual_state(self.focus)
+			self.focus = nil
+			self:update_visual_state(false)
 		end
 		e:stop_propagation()
 	end
 end
 
 function M:on_mouse_up(e)
-	if self.focus then
-		self.focus = false
-		self:update_visual_state(self.focus)
+	if self.focus == -1 then
+		self.focus = nil
+		self:update_visual_state(false)
 		self:dispatch_event(event:new("click"))
 		e:stop_propagation()
 	end
 end
 
 function M:on_touches_begin(e)
-	if self:hit_test_point(e.info.x, e.info.y) then
-		self.focus = true
-		self:update_visual_state(self.focus)
+	if self.focus == nil and self:hit_test_point(e.info.x, e.info.y) then
+		self.focus = e.info.id
+		self:update_visual_state(true)
 		e:stop_propagation()
 	end
 end
 
 function M:on_touches_move(e)
-	if self.focus then
-		if not self:hit_test_point(e.info.x, e.info.y) then	
-			self.focus = false
-			self:update_visual_state(self.focus)
+	if self.focus == e.info.id then
+		if not self:hit_test_point(e.info.x, e.info.y) then
+			self.focus = nil
+			self:update_visual_state(false)
 		end
 		e:stop_propagation()
 	end
 end
 
 function M:on_touches_end(e)
-	if self.focus then
-		self.focus = false
-		self:update_visual_state(self.focus)
+	if self.focus == e.info.id then
+		self.focus = nil
+		self:update_visual_state(false)
 		self:dispatch_event(event:new("click"))
 		e:stop_propagation()
 	end
 end
 
 function M:on_touches_cancel(e)
-	if self.focus then
-		self.focus = false;
-		self:update_visual_state(self.focus)
+	if self.focus == e.info.id then
+		self.focus = nil;
+		self:update_visual_state(false)
 		e:stop_propagation()
 	end
 end

@@ -12,6 +12,7 @@ class = require("org.xboot.lang.class")
 timer = require("org.xboot.timer.timer")
 event = require("org.xboot.event.event")
 event_dispatcher = require("org.xboot.event.event_dispatcher")
+texture = require("org.xboot.display.texture")
 display_object = require("org.xboot.display.display_object")
 display_image = require("org.xboot.display.display_image")
 

@@ -8,15 +8,15 @@ buildin_base64 = require("org.xboot.buildin.base64")
 buildin_cairo = require("org.xboot.buildin.cairo")
 print = buildin_logger.print
 
-class = require("org.xboot.lang.class")
-timer = require("org.xboot.timer.timer")
-event = require("org.xboot.event.event")
-event_dispatcher = require("org.xboot.event.event_dispatcher")
-texture = require("org.xboot.display.texture")
-display_object = require("org.xboot.display.display_object")
-display_image = require("org.xboot.display.display_image")
+Class = require "org.xboot.lang.Class"
+Timer = require "org.xboot.timer.Timer"
+Event = require "org.xboot.event.Event"
+EventDispatcher = require "org.xboot.event.EventDispatcher"
+Texture = require "org.xboot.display.Texture"
+DisplayObject = require "org.xboot.display.DisplayObject"
+DisplayImage = require "org.xboot.display.DisplayImage"
 
-runtime = display_object:new()
+runtime = DisplayObject:new()
 
 local function loader()
 	require("main")
@@ -32,27 +32,27 @@ local function loader()
 	}
 	local cidx = 1;
 	
-	timer:new(1 / 60, 0, function(t, e)
+	Timer:new(1 / 60, 0, function(t, e)
 		cidx = cidx + 1
 		if cidx > #cs then
 			cidx = 1
 		end
 	
-		runtime:render(cr[cidx], event:new(event.ENTER_FRAME))
+		runtime:render(cr[cidx], Event:new(Event.ENTER_FRAME))
 		cs[cidx]:present()
 	end)
 
 	while true do
 		local info = buildin_event.pump()	
 		if info ~= nil then
-			local e = event:new(info.type, info)
+			local e = Event:new(info.type, info)
 			runtime:dispatch(e)
 		end
 	
 		local elapsed = sw:elapsed()
 		if elapsed ~= 0 then
 			sw:reset()
-			timer:schedule(elapsed)
+			Timer:schedule(elapsed)
 		end
 	end
 end

@@ -1,7 +1,7 @@
 local M = {}
 setmetatable(M, M)
 
-local function table_copy(src, dst)
+local function tableCopy(src, dst)
     dst = dst or {}
     for i, v in pairs(src) do
         dst[i] = v
@@ -10,10 +10,10 @@ local function table_copy(src, dst)
 end
 
 function M:__call(...)
-	local c = table_copy(self)
+	local c = tableCopy(self)
 	local b = {...}
 	for i = #b, 1, -1 do
-		table_copy(b[i], c)
+		tableCopy(b[i], c)
 	end
 
 	c.__call = function(self, ...)

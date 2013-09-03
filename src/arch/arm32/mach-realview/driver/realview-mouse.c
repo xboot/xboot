@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <realview-mouse.h>
 
-//#define MOUSE_TO_TOUCHES_EVENT
+#define MOUSE_TO_TOUCHES_EVENT
 
 struct realview_mouse_private_data_t {
 	u8_t packet[4];

@@ -1,29 +1,29 @@
 ---
--- All classes that dispatch events inherit from 'event_dispatcher'. The target of
+-- All classes that dispatch events inherit from 'EventDispatcher'. The target of
 -- an event is a listener function and an optional data value.
 -- 
--- @module event_dispatcher
-local M = class()
+-- @module EventDispatcher
+local M = Class()
 
 ---
--- Creates a new 'event_dispatcher' object.
+-- Creates a new 'EventDispatcher' object.
 -- 
--- @function [parent=#event_dispatcher] new
--- @return New 'event_dispatcher' object.
+-- @function [parent=#EventDispatcher] new
+-- @return New 'EventDispatcher' object.
 function M:init()
 	self.event_listeners_map = {}
 end
 
 ---
--- Checks if the 'event_dispatcher' object has a event listener registered for the specified type of event.
+-- Checks if the 'EventDispatcher' object has a event listener registered for the specified type of event.
 -- 
--- @function [parent=#event_dispatcher] has_event_listener
+-- @function [parent=#EventDispatcher] hasEventListener
 -- @param self
 -- @param type (string) The type of event.
 -- @param listener (optional) The listener function that processes the event.
 -- @param data (optional) An optional data parameter that is passed to the listener function.
 -- @return A value of 'true' if a listener of the specified type is registered; 'false' otherwise.
-function M:has_event_listener(type, listener, data)
+function M:hasEventListener(type, listener, data)
 	local els = self.event_listeners_map[type]
 
 	if not els or #els == 0 then
@@ -47,14 +47,14 @@ end
 -- Registers a listener function and an optional data value so that the listener function is called when an event
 -- of a particular type occurs.
 -- 
--- @function [parent=#event_dispatcher] add_event_listener
+-- @function [parent=#EventDispatcher] addEventListener
 -- @param self
 -- @param type (string) The type of event.
 -- @param listener (function) The listener function that processes the event.
 -- @param data (optional) An optional data parameter that is passed as a first argument to the listener function.
 -- @return A value of 'true' or 'false'.
-function M:add_event_listener(type, listener, data)
-	if self:has_event_listener(type, listener, data) then
+function M:addEventListener(type, listener, data)
+	if self:hasEventListener(type, listener, data) then
 		return false
 	end
 
@@ -70,17 +70,17 @@ function M:add_event_listener(type, listener, data)
 end
 
 ---
--- Removes a listener from the 'event_dispatcher' object. 'remove_event_listener()' function expects
--- the same arguments with 'add_event_listener()' to remove the event. If there is no matching listener
+-- Removes a listener from the 'EventDispatcher' object. 'removeEventListener()' function expects
+-- the same arguments with 'addEventListener()' to remove the event. If there is no matching listener
 -- registered, a call to this function has no effect.
 -- 
--- @function [parent=#event_dispatcher] remove_event_listener
+-- @function [parent=#EventDispatcher] removeEventListener
 -- @param self
 -- @param type (string) The type of event.
 -- @param listener (function) The listener object to remove.
 -- @param data The data parameter that is used while registering the event.
 -- @return A value of 'true' or 'false'.
-function M:remove_event_listener(type, listener, data)
+function M:removeEventListener(type, listener, data)
 	local els = self.event_listeners_map[type]
 
 	if not els or #els == 0 then
@@ -98,12 +98,12 @@ function M:remove_event_listener(type, listener, data)
 end
 
 ---
--- Dispatches an event to this 'event_dispatcher' instance.
+-- Dispatches an event to this 'EventDispatcher' instance.
 -- 
--- @function [parent=#event_dispatcher] dispatch_event
+-- @function [parent=#EventDispatcher] dispatchEvent
 -- @param self
 -- @param event (event) The 'event' object to be dispatched.
-function M:dispatch_event(event)
+function M:dispatchEvent(event)
 	if event.stoped == true then
 		return
 	end

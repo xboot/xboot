@@ -1,14 +1,14 @@
 local M_PI2 = math.pi * 2
 
 ---
--- The 'display_object' class is the base class for all objects that can
+-- The 'DisplayObject' class is the base class for all objects that can
 -- be placed on the screen.
 -- 
--- @module display_object
-local M = class(event_dispatcher)
+-- @module DisplayObject
+local M = Class(EventDispatcher)
 
 function M:init()
-	event_dispatcher.init(self)
+	EventDispatcher.init(self)
 
 	self.parent = self
 	self.children = {}
@@ -32,18 +32,18 @@ end
 
 ---
 -- Adds a display object as a child to this display object. The child
--- is added as a last child of this 'display_object' instance.
+-- is added as a last child of this 'DisplayObject' instance.
 -- 
 -- Display object can have only one parent. Therefore if you add a child
 -- object that already has a different display object as a parent, the
 -- display object is removed from the child list of the other display 
 -- object and then added to this display object.
 -- 
--- @function [parent=#display_object] add_child
+-- @function [parent=#DisplayObject] addChild
 -- @param self
--- @param child (display_object) The child display object to add.
+-- @param child (DisplayObject) The child display object to add.
 -- @return A value of 'true' or 'false'.
-function M:add_child(child)
+function M:addChild(child)
 	if child == nil or self == child then
 		return false
 	end
@@ -52,7 +52,7 @@ function M:add_child(child)
 		return false
 	end
 
-	child:remove_self()
+	child:removeSelf()
 	table.insert(self.children, child)
 	child.parent = self
 
@@ -60,14 +60,14 @@ function M:add_child(child)
 end
 
 ---
--- Removes the specified child 'display_object' instance from the child list
--- of this 'display_object' instance.
+-- Removes the specified child 'DisplayObject' instance from the child list
+-- of this 'DisplayObject' instance.
 -- 
--- @function [parent=#display_object] remove_child
+-- @function [parent=#DisplayObject] removeChild
 -- @param self
--- @param child (display_object) The child display object to remove.
+-- @param child (DisplayObject) The child display object to remove.
 -- @return A value of 'true' or 'false'.
-function M:remove_child(child)
+function M:removeChild(child)
 	if child == nil or self == child then
 		return false
 	end
@@ -95,33 +95,33 @@ end
 -- If the display object has a parent, removes the display object from the
 -- child list of its parent display object.
 -- 
--- @function [parent=#display_object] remove_self
+-- @function [parent=#DisplayObject] removeSelf
 -- @param self
 -- @return A value of 'true' or 'false'.
-function M:remove_self()
+function M:removeSelf()
 	local parent = self.parent
 
 	if parent == nil or parent == self then
 		return false
 	end
 
-	return parent:remove_child(self)
+	return parent:removeChild(self)
 end
 
 ---
 -- Moves the display object to the visual front of its parent.
 -- 
--- @function [parent=#display_object] tofront
+-- @function [parent=#DisplayObject] toFront
 -- @param self
 -- @return A value of 'true' or 'false'.
-function M:tofront()
+function M:toFront()
 	local parent = self.parent
 
 	if parent == nil or parent == self then
 		return false
 	end
 
-	if not parent:remove_child(self) then
+	if not parent:removeChild(self) then
 		return false
 	end
 
@@ -134,17 +134,17 @@ end
 ---
 -- Moves the display object to the visual back of its parent.
 -- 
--- @function [parent=#display_object] toback
+-- @function [parent=#DisplayObject] toBack
 -- @param self
 -- @return A value of 'true' or 'false'.
-function M:toback()
+function M:toBack()
 	local parent = self.parent
 
 	if parent == nil or parent == self then
 		return false
 	end
 
-	if not parent:remove_child(self) then
+	if not parent:removeChild(self) then
 		return false
 	end
 
@@ -156,12 +156,12 @@ end
 
 ---
 -- Determines whether the specified display object is contained in the subtree of
--- this 'display_object' instance.
+-- this 'DisplayObject' instance.
 -- 
--- @function [parent=#display_object] contains
+-- @function [parent=#DisplayObject] contains
 -- @param self
--- @param child (display_object) The child object to test.
--- @return `true` if the child object is contained in the subtree of this 'display_object'
+-- @param child (DisplayObject) The child object to test.
+-- @return `true` if the child object is contained in the subtree of this 'DisplayObject'
 -- instance, otherwise `false`.
 function M:contains(child)
 	for i, v in ipairs(self.children) do
@@ -179,7 +179,7 @@ end
 -- Sets whether or not the display object is visible. Display objects that are not visible are also taken
 -- into consideration while calculating bounds.
 -- 
--- @function [parent=#display_object] visible
+-- @function [parent=#DisplayObject] visible
 -- @param self
 -- @param visible (bool) whether or not the display object is visible
 function M:visible(visible)
@@ -189,7 +189,7 @@ end
 ---
 -- Effectively adds values to the x and y properties of an display object. (changing its on-screen position)
 -- 
--- @function [parent=#display_object] translate
+-- @function [parent=#DisplayObject] translate
 -- @param self
 -- @param dx (number) Amount to add to the display object's x properties.
 -- @param dy (number) Amount to add to the display object's y properties.
@@ -207,7 +207,7 @@ end
 -- The rotation occurs around the object's reference point.
 -- The default reference point for most display objects is the center.
 -- 
--- @function [parent=#display_object] rotate
+-- @function [parent=#DisplayObject] rotate
 -- @param self
 -- @param angle (number) The rotation angle in radian.
 function M:rotate(angle)
@@ -233,7 +233,7 @@ end
 -- The scaling occurs around the object's reference point.
 -- The default reference point for most display objects is center.
 -- 
--- @function [parent=#display_object] scale
+-- @function [parent=#DisplayObject] scale
 -- @param self
 -- @param sx (number) Factors by which to change the scale in the x directions.
 -- @param sy (number) Factors by which to change the scale in the y directions.
@@ -251,96 +251,96 @@ end
 ---
 -- Sets the x coordinates of the display object.
 -- 
--- @function [parent=#display_object] setxy
+-- @function [parent=#DisplayObject] setX
 -- @param self
 -- @param x (number) The new x coordinate of the display object.
-function M:setx(x)
+function M:setX(x)
 	self:translate(x - self.x, 0)
 end
 
 ---
 -- Sets the y coordinates of the display object.
 -- 
--- @function [parent=#display_object] setxy
+-- @function [parent=#DisplayObject] setY
 -- @param self
 -- @param y (number) The new y coordinate of the display object.
-function M:sety(y)
+function M:setY(y)
 	self:translate(0, y - self.y)
 end
 
 ---
 -- Sets the x and y coordinates of the display object.
 -- 
--- @function [parent=#display_object] setxy
+-- @function [parent=#DisplayObject] setXY
 -- @param self
 -- @param x (number) The new x coordinate of the display object.
 -- @param y (number) The new y coordinate of the display object.
-function M:setxy(x, y)
+function M:setXY(x, y)
 	self:translate(x - self.x, y - self.y)
 end
 
-function M:setrotate(angle)
+function M:setRotate(angle)
 	self:rotate(angle - self.rotation)
 end
 
-function M:setscalex(x)
+function M:setScalex(x)
 	self:scale(x / self.scalex, 1)
 end
 
-function M:setscaley(y)
+function M:setScaley(y)
 	self:scale(1, y / self.scaley)
 end
 
-function M:setscale(x, y)
+function M:setScale(x, y)
 	self:scale(x / self.scalex, y / self.scaley)
 end
 
-function M:setanchor(x, y)
+function M:setAnchor(x, y)
 	self.anchorx = x - self.x
 	self.anchory = y - self.y
 	
 	for i, v in ipairs(self.children) do
-		v:setanchor(x, y)
+		v:setAnchor(x, y)
 	end
 end
 
-function M:setalpha(alpha)
+function M:setAlpha(alpha)
 	self.alpha = alpha
 
 	self.__alpha = self.alpha ~= 1
 
 	for i, v in ipairs(self.children) do
-		v:setalpha(alpha)
+		v:setAlpha(alpha)
 	end
 end
 
 --- 
 -- Converts the x,y coordinates from the global to the display object's (local) coordinates.
 -- 
--- @function [parent=#display_object] global_to_local
+-- @function [parent=#DisplayObject] globalToLocal
 -- @param self
 -- @param x (number) x coordinate of the global coordinate.
 -- @param y (number) y coordinate of the global coordinate.
 -- @return x coordinate relative to the display object.
 -- @return y coordinate relative to the display object.
-function M:global_to_local(x, y)
+function M:globalToLocal(x, y)
 	return x - self.x, y - self.y
 end
 
 --- 
 -- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
 -- 
--- @function [parent=#display_object] local_to_global
+-- @function [parent=#DisplayObject] localToGlobal
 -- @param self
 -- @param x (number) x coordinate of the local coordinate.
 -- @param y (number) y coordinate of the local coordinate.
 -- @return x coordinate relative to the display area.
 -- @return y coordinate relative to the display area.
-function M:local_to_global(x, y)
+function M:localToGlobal(x, y)
 	return x + self.x, y + self.y
 end
 
-function M:hit_test_point(x, y)
+function M:hitTest(x, y)
 	local left = self.x
 	local top = self.y
 	local right = left + self.width
@@ -358,11 +358,11 @@ end
 -- Returns a rectangle (as x, y, width and height) that encloses the display object as
 -- it appears in another display object’s coordinate system.
 -- 
--- @function [parent=#display_object] get_bounds
+-- @function [parent=#DisplayObject] getBounds
 -- @param self
--- @param target (display_object) The display object that defines the other coordinate system to transform
+-- @param target (DisplayObject) The display object that defines the other coordinate system to transform
 -- @return 4 values as x, y, width and height of bounds
-function M:get_bounds(target)
+function M:getBounds(target)
 	if target ~= nil and target ~= self then
 
 	else
@@ -374,7 +374,7 @@ function M:update(cairo)
 end
 
 function M:render(cairo, event)
-	self:dispatch_event(event)
+	self:dispatchEvent(event)
 
 	if self.isvisible then
 		self:update(cairo)
@@ -392,7 +392,7 @@ function M:dispatch(event)
 		children[i]:dispatch(event)
 	end
 
-	self:dispatch_event(event)
+	self:dispatchEvent(event)
 end
 
 return M

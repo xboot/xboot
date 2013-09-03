@@ -9,35 +9,35 @@ function Transition.interval(t, interval, default, transition)
 end
 
 function Transition.outToRight(scene, t, width)
-	scene:setx(   t  * width)
+	scene:setX(   t  * width)
 end
 
 function Transition.inFromRight(scene, t, width)
-	scene:setx((1-t) * width)
+	scene:setX((1-t) * width)
 end
 
 function Transition.outToLeft(scene, t, width)
-	scene:setx(  -t  * width)
+	scene:setX(  -t  * width)
 end
 
 function Transition.inFromLeft(scene, t, width)
-	scene:setx((t-1) * width)
+	scene:setX((t-1) * width)
 end
 
 function Transition.outToBottom(scene, t, height)
-	scene:sety(   t  * height)
+	scene:setY(   t  * height)
 end
 
 function Transition.inFromBottom(scene, t, height)
-	scene:sety((1-t) * height)
+	scene:setY((1-t) * height)
 end
 
 function Transition.outToTop(scene, t, height)
-	scene:sety(  -t  * height)
+	scene:setY(  -t  * height)
 end
 
 function Transition.inFromTop(scene, t, height)
-	scene:sety((t-1) * height)
+	scene:setY((t-1) * height)
 end
 
 function Transition.fadeIn(scene, t)
@@ -58,29 +58,29 @@ end
 
 function Transition.horizontalShrink(scene, t, width)
 	scene:setscalex(1-t)
-	scene:setx(t * width/2)
+	scene:setX(t * width/2)
 end
 
 function Transition.horizontalExpand(scene, t, width)
 	scene:setscalex(t)
-	scene:setx((1-t) * width/2)
+	scene:setX((1-t) * width/2)
 end
 
 function Transition.verticalShrink(scene, t, height)
 	scene:setscaley(1-t)
-	scene:sety(t * height/2)
+	scene:setY(t * height/2)
 end
 
 function Transition.verticalExpand(scene, t, height)
 	scene:setscaley(t)
-	scene:sety((1-t) * height/2)
+	scene:setY((1-t) * height/2)
 end
 
 function Transition.rotate(scene, t, startAngle, stopAngle)
 	scene:setrotate((stopAngle - startAngle) * t + startAngle)
 end
 
-local M = class(display_object)
+local M = Class(DisplayObject)
 local application_width = 800
 local application_height = 480
 
@@ -224,7 +224,7 @@ end
 
 local function dispatchEvent(dispatcher, name)
 	if dispatcher:has_event_listener(name) then
-		dispatcher:dispatch_event(event:new(name))
+		dispatcher:dispatchEvent(Event:new(name))
 	end
 end
 
@@ -233,12 +233,12 @@ local function defaultEase(ratio)
 end
 
 function M:init(scenes)
-	display_object.init(self)
+	DisplayObject.init(self)
 
 	self.scenes = scenes
 	self.tweening = false
 --	self.transitionEventCatcher = Sprite.new()
-	self:add_event_listener(event.ENTER_FRAME, self.onEnterFrame, self)
+	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
 end
 
 local stopwatch = buildin_stopwatch.new()
@@ -252,7 +252,7 @@ function M:changeScene(scene, duration, transition, ease, options)
 	
 	if self.scene1 == nil then
 		self.scene1 = self.scenes[scene]:new(options and options.userData)
-		self:add_child(self.scene1)
+		self:addChild(self.scene1)
 		dispatchEvent(self, "transitionBegin")
 		dispatchEvent(self.scene1, "enterBegin")
 		dispatchEvent(self, "transitionEnd")
@@ -266,7 +266,7 @@ function M:changeScene(scene, duration, transition, ease, options)
 
 	self.scene2 = self.scenes[scene]:new(options and options.userData)
 	self.scene2:visible(false)
-	self:add_child(self.scene2)
+	self:addChild(self.scene2)
 		
 	self.time = 0
 	self.currentTimer = stopwatch:elapsed()
@@ -274,13 +274,13 @@ function M:changeScene(scene, duration, transition, ease, options)
 end
 
 function M:filterTransitionEvents(event)
-	event:stop_propagation()
+	event:stopPropagation()
 end
 
 function M:onTransitionBegin()
 --[[
 	if self.eventFilter then
-		stage:add_child(self.transitionEventCatcher)
+		stage:addChild(self.transitionEventCatcher)
 		for i,event in ipairs(self.eventFilter) do
 			self.transitionEventCatcher:addEventListener(event, self.filterTransitionEvents, self)
 		end
@@ -326,7 +326,7 @@ function M:onEnterFrame(event)
 		dispatchEvent(self.scene2, "enterEnd")
 		self:onTransitionEnd()
 
-		self:remove_child(self.scene1)
+		self:removeChild(self.scene1)
 		self.scene1 = self.scene2
 		self.scene2 = nil
 		self.tweening = false

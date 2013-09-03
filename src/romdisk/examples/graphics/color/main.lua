@@ -1,29 +1,29 @@
-local background = display_image:new("background.png")
-runtime:add_child(background)
+local background = DisplayImage:new(Texture:new("background.png"))
+runtime:addChild(background)
 
-local redbar = display_image:new("red-bar.png")
-redbar:setxy(91, 230)
-runtime:add_child(redbar)
+local redbar = DisplayImage:new(Texture:new("red-bar.png"))
+redbar:setXY(91, 230)
+runtime:addChild(redbar)
 
-local greenbar = display_image:new("green-bar.png")
-greenbar:setxy(91, 260)
-runtime:add_child(greenbar)
+local greenbar = DisplayImage:new(Texture:new("green-bar.png"))
+greenbar:setXY(91, 260)
+runtime:addChild(greenbar)
 
-local bluebar = display_image:new("blue-bar.png")
-bluebar:setxy(91, 290)
-runtime:add_child(bluebar)
+local bluebar = DisplayImage:new(Texture:new("blue-bar.png"))
+bluebar:setXY(91, 290)
+runtime:addChild(bluebar)
 
-local reddot = display_image:new("red-dot.png")
-reddot:sety(222)
-runtime:add_child(reddot)
+local reddot = DisplayImage:new(Texture:new("red-dot.png"))
+reddot:setY(222)
+runtime:addChild(reddot)
 
-local greendot = display_image:new("green-dot.png")
-greendot:sety(252)
-runtime:add_child(greendot)
+local greendot = DisplayImage:new(Texture:new("green-dot.png"))
+greendot:setY(252)
+runtime:addChild(greendot)
 
-local bluedot = display_image:new("blue-dot.png")
-bluedot:sety(282)
-runtime:add_child(bluedot)
+local bluedot = DisplayImage:new(Texture:new("blue-dot.png"))
+bluedot:setY(282)
+runtime:addChild(bluedot)
 
 local c = 1
 local function onEnterFrame(d, e)
@@ -40,10 +40,9 @@ local function onEnterFrame(d, e)
 --	bitmap:setColorTransform(r, g, b, 1)
 
 	-- update the positions of dots
-	reddot:setx(90 + r * 280)
-	greendot:setx(90 + g * 280)
-	bluedot:setx(90 + b * 280)
+	reddot:setX(90 + r * 280)
+	greendot:setX(90 + g * 280)
+	bluedot:setX(90 + b * 280)
 end
 
-runtime:add_event_listener(event.ENTER_FRAME, onEnterFrame)
-
+runtime:addEventListener(Event.ENTER_FRAME, onEnterFrame)

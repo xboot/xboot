@@ -22,16 +22,16 @@
 
 #include <framework/event/l-event.h>
 
-#define __TYPE_KEY_DOWN				"keydown"
-#define __TYPE_KEY_UP				"keyup"
-#define __TYPE_MOUSE_DOWN			"mousedown"
-#define __TYPE_MOUSE_MOVE			"mousemove"
-#define __TYPE_MOUSE_UP				"mouseup"
-#define __TYPE_MOUSE_WHEEL			"mousewheel"
-#define __TYPE_TOUCHES_BEGIN		"touchesbegin"
-#define __TYPE_TOUCHES_MOVE			"touchesmove"
-#define __TYPE_TOUCHES_END			"touchesend"
-#define __TYPE_TOUCHES_CANCEL		"touchescancel"
+#define __TYPE_KEY_DOWN				"KeyDown"
+#define __TYPE_KEY_UP				"KeyUp"
+#define __TYPE_MOUSE_DOWN			"MouseDown"
+#define __TYPE_MOUSE_MOVE			"MouseMove"
+#define __TYPE_MOUSE_UP				"MouseUp"
+#define __TYPE_MOUSE_WHEEL			"MouseWheel"
+#define __TYPE_TOUCHES_BEGIN		"TouchesBegin"
+#define __TYPE_TOUCHES_MOVE			"TouchesMove"
+#define __TYPE_TOUCHES_END			"TouchesEnd"
+#define __TYPE_TOUCHES_CANCEL		"TouchesCancel"
 
 static int l_event_pump(lua_State * L)
 {

@@ -1,36 +1,36 @@
-local background = display_image:new("background.png")
-runtime:add_child(background)
+local background = DisplayImage:new(Texture:new("background.png"))
+runtime:addChild(background)
 
-dot1tex = "dot-1.png"
-dot2tex = "dot-2.png"
-group1tex = "group-1.png"
-group2tex = "group-2.png"
+dot1tex = Texture:new("dot-1.png")
+dot2tex = Texture:new("dot-2.png")
+group1tex = Texture:new("group-1.png")
+group2tex = Texture:new("group-2.png")
 
-group1 = display_object:new()
-group1:add_child(display_image:new(group1tex))
-
-for i=0,3 do
-	for j=0,3 do
-		local dot = display_image:new(dot1tex)
-		dot:setxy(i * 45 + 10, j * 45 + 60)
-		group1:add_child(dot)
-	end
-end
-
-group1:setxy(10, 10)
-runtime:add_child(group1)
-
-
-group2 = display_object:new()
-group2:add_child(display_image:new(group2tex))
+group1 = DisplayObject:new()
+group1:addChild(DisplayImage:new(group1tex))
 
 for i=0,3 do
 	for j=0,3 do
-		local dot = display_image:new(dot2tex)
-		dot:setxy(i * 45 + 10, j * 45 + 60)
-		group2:add_child(dot)
+		local dot = DisplayImage:new(dot1tex)
+		dot:setXY(i * 45 + 10, j * 45 + 60)
+		group1:addChild(dot)
 	end
 end
 
-group2:setxy(100, 200)
-runtime:add_child(group2)
+group1:setXY(10, 10)
+runtime:addChild(group1)
+
+
+group2 = DisplayObject:new()
+group2:addChild(DisplayImage:new(group2tex))
+
+for i=0,3 do
+	for j=0,3 do
+		local dot = DisplayImage:new(dot2tex)
+		dot:setXY(i * 45 + 10, j * 45 + 60)
+		group2:addChild(dot)
+	end
+end
+
+group2:setXY(100, 200)
+runtime:addChild(group2)

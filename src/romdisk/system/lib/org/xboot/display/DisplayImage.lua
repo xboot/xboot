@@ -1,17 +1,17 @@
 ---
 -- 
--- @module display_image
-local M = class(display_object)
+-- @module DisplayImage
+local M = Class(DisplayObject)
 
 function M:init(t, x, y)
-	display_object.init(self)
+	DisplayObject.init(self)
 
 	self.x = x or 0
 	self.y = y or 0
 
 	self.texture = t
-	self.width = self.texture:get_width()
-	self.height = self.texture:get_height()
+	self.width = self.texture:getWidth()
+	self.height = self.texture:getHeight()
 end
 
 function M:update(cairo)
@@ -34,7 +34,7 @@ function M:update(cairo)
 		cairo:translate(-tx, -ty)
 	end
 
-	cairo:set_source_surface(self.texture:get_surface(), self.x, self.y)
+	cairo:set_source_surface(self.texture:getSurface(), self.x, self.y)
 
 	if self.__alpha then
 		cairo:paint_with_alpha(self.alpha)

@@ -1,2 +1,2 @@
-local background = display_image:new("background.png")
-runtime:add_child(background)
+local background = DisplayImage:new(Texture:new("background.png"))
+runtime:addChild(background)

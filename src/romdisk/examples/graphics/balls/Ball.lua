@@ -1,26 +1,26 @@
-local M = class(display_object)
+local M = Class(DisplayObject)
 
 function M:init(texture)
-	display_object.init(self)
+	DisplayObject.init(self)
 
-	local bitmap = display_image:new(texture)
-	self:add_child(bitmap)
+	local bitmap = DisplayImage:new(texture)
+	self:addChild(bitmap)
 
 	self.xdirection = 1
 	self.ydirection = 1
 	self.xspeed = math.random(40, 100) / 10
 	self.yspeed = math.random(40, 100) / 10
 
-	self:setx(math.random(0, 800 - 80))
-	self:sety(math.random(0, 480 - 80))
+	self:setX(math.random(0, 800 - 80))
+	self:setY(math.random(0, 480 - 80))
 
 	self.width = bitmap.width
 	self.height = bitmap.height
 	
-	self:add_event_listener(event.ENTER_FRAME, self.on_enter_frame, self)
+	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
 end
 
-function M:on_enter_frame(e)
+function M:onEnterFrame(e)
 	local x = self.x
 	local y = self.y
 
@@ -43,7 +43,7 @@ function M:on_enter_frame(e)
 		self.ydirection = -1
 	end
 
-	self:setxy(x, y)
+	self:setXY(x, y)
 end
 
 return M

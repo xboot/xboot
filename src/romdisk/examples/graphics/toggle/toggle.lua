@@ -24,7 +24,7 @@ end
 
 function M:on_mouse_down(e)
 	if self.focus == nil and self:hit_test_point(e.info.x, e.info.y) then
-		self.focus = -1
+		self.focus = 0
 		self.ison = not self.ison
 		self:update_visual_state(self.ison)
 		self:dispatch_event(event:new("toggled", {on = self.ison}))
@@ -33,7 +33,7 @@ function M:on_mouse_down(e)
 end
 
 function M:on_mouse_move(e)
-	if self.focus == -1 then
+	if self.focus == 0 then
 		if not self:hit_test_point(e.info.x, e.info.y) then	
 			self.focus = nil
 		end
@@ -42,7 +42,7 @@ function M:on_mouse_move(e)
 end
 
 function M:on_mouse_up(e)
-	if self.focus == -1 then
+	if self.focus == 0 then
 		self.focus = nil
 		e:stop_propagation()
 	end

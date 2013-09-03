@@ -128,13 +128,13 @@ static void mouse_interrupt(void * data)
 
 #ifdef MOUSE_TO_TOUCHES_EVENT
 			if((btn & MOUSE_BUTTON_LEFT) && ((relx != 0) || (rely != 0)))
-				push_event_touches_move(input, x, y, 0);
+				push_event_touches_move(input, x, y, 1);
 
 			if(btndown & MOUSE_BUTTON_LEFT)
-				push_event_touches_begin(input, x, y, 0);
+				push_event_touches_begin(input, x, y, 1);
 
 			if(btnup & MOUSE_BUTTON_LEFT)
-				push_event_touches_end(input, x, y, 0);
+				push_event_touches_end(input, x, y, 1);
 #else
 			if((relx != 0) || (rely != 0))
 				push_event_mouse_move(input, x, y);

@@ -154,9 +154,9 @@ static void ft5206_interrupt_function(void * data)
 			y = 480 - y;
 
 			event = (X >> 14) & 0x3;
-			id = (Y >> 12) & 0xf;
+			id = ((Y >> 12) & 0xf) + 1;
 
-			if(id >= 0 && id <= 4)
+			if(id >= 1 && id <= 5)
 			{
 				if(event == 0)
 				{

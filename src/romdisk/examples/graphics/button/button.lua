@@ -23,14 +23,14 @@ end
 
 function M:on_mouse_down(e)
 	if self.focus == nil and self:hit_test_point(e.info.x, e.info.y) then
-		self.focus = -1
+		self.focus = 0
 		self:update_visual_state(true)
 		e:stop_propagation()
 	end
 end
 
 function M:on_mouse_move(e)
-	if self.focus == -1 then
+	if self.focus == 0 then
 		if not self:hit_test_point(e.info.x, e.info.y) then	
 			self.focus = nil
 			self:update_visual_state(false)
@@ -40,7 +40,7 @@ function M:on_mouse_move(e)
 end
 
 function M:on_mouse_up(e)
-	if self.focus == -1 then
+	if self.focus == 0 then
 		self.focus = nil
 		self:update_visual_state(false)
 		self:dispatch_event(event:new("click"))

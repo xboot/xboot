@@ -1,14 +1,17 @@
+local Bmfont = require "Bmfont"
+
 local background = DisplayImage:new(Texture:new("background.png"))
 runtime:addChild(background)
 
-local t = Texture:new("font.png")
---local img = DisplayImage:new(t, 100, 100)
---runtime:addChild(img)
+local text = Bmfont:new("font.txt", "font.png", "1234567890")
+text:setXY(100,100)
 
-local t2 = t:region(50, 50, 150, 150)
-local img2 = DisplayImage:new(t2, 50, 50)
-runtime:addChild(img2)
+text:setText("abcdefghijk")
 
-local t1 = t2:region(0, 0, 50, 50)
-local img1 = DisplayImage:new(t1, 200, 200)
-runtime:addChild(img1)
+runtime:addChild(text)
+
+local c = 0.001
+local looptimer = Timer:new(0.1, 0, function(t, e)
+	c = c + 0.001
+	text:setText("time: " .. c)
+end)

@@ -9,7 +9,7 @@ function M:init(normal, active)
 
 	self:add_child(self.normal)
 	self:add_child(self.active)
-	self:update_visual_state(self.focus)
+	self:update_visual_state(false)
 
 	self:add_event_listener(event.MOUSE_DOWN, self.on_mouse_down, self)
 	self:add_event_listener(event.MOUSE_MOVE, self.on_mouse_move, self)

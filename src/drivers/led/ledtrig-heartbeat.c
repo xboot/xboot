@@ -70,7 +70,7 @@ static void heartbeat_timer_function(u32_t data)
 		break;
 	}
 
-	led->set(led, color);
+	led_set_color(led, color);
 	mod_timer(&(dat->timer), jiffies + delay);
 }
 

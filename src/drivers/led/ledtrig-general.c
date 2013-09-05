@@ -40,12 +40,12 @@ static void general_timer_function(u32_t data)
 	if(dat->last_activity != dat->activity)
 	{
 		dat->last_activity = dat->activity;
-		led->set(led, 0x00ffffff);
+		led_set_color(led, 0x00ffffff);
 		mod_timer(&(dat->timer), jiffies + 1);
 	}
 	else
 	{
-		led->set(led, 0);
+		led_set_color(led, 0);
 	}
 }
 

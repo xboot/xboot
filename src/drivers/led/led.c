@@ -56,10 +56,9 @@ static void led_resume(struct device_t * dev)
 static ssize_t led_read_color(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct led_t * led = (struct led_t *)kobj->priv;
-	u32_t color = 0;
+	u32_t color;
 
-	if(led && led->get)
-		color = led->get(led);
+	color = led_get_color(led);
 	return sprintf(buf, "0x%08x", color);
 }
 
@@ -68,8 +67,7 @@ static ssize_t led_write_color(struct kobj_t * kobj, void * buf, size_t size)
 	struct led_t * led = (struct led_t *)kobj->priv;
 	u32_t color = strtoul(buf, NULL, 0);
 
-	if(led && led->set)
-		led->set(led, color);
+	led_set_color(led, color);
 	return size;
 }
 

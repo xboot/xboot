@@ -8,24 +8,24 @@ extern "C" {
 #include <xboot.h>
 #include <led/led.h>
 
-struct led_trigger_data_t
+struct ledtrig_data_t
 {
 	const char * led;
 };
 
-struct led_trigger_t
+struct ledtrig_t
 {
 	/* The led trigger name */
 	char * name;
 
 	/* Initial led trigger */
-	void (*init)(struct led_trigger_t * trigger);
+	void (*init)(struct ledtrig_t * trigger);
 
 	/* Clean up led trigger */
-	void (*exit)(struct led_trigger_t * trigger);
+	void (*exit)(struct ledtrig_t * trigger);
 
 	/* Activity led trigger */
-	void (*activity)(struct led_trigger_t * trigger);
+	void (*activity)(struct ledtrig_t * trigger);
 
 	/* Bind to led device */
 	struct led_t * led;
@@ -34,10 +34,10 @@ struct led_trigger_t
 	void * priv;
 };
 
-struct led_trigger_t * search_led_trigger(const char * name);
-bool_t register_led_trigger(struct led_trigger_t * trigger);
-bool_t unregister_led_trigger(struct led_trigger_t * trigger);
-void led_trigger_activity(struct led_trigger_t * trigger);
+struct ledtrig_t * search_ledtrig(const char * name);
+bool_t register_ledtrig(struct ledtrig_t * trigger);
+bool_t unregister_ledtrig(struct ledtrig_t * trigger);
+void ledtrig_activity(struct ledtrig_t * trigger);
 
 #ifdef __cplusplus
 }

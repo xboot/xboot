@@ -23,18 +23,18 @@
 #include <xboot.h>
 #include <led/ledtrig.h>
 
-struct led_trigger_general_data_t {
+struct ledtrig_general_data_t {
 	struct timer_t timer;
 	u32_t activity;
 	u32_t last_activity;
 
-	struct led_trigger_data_t * rdat;
+	struct ledtrig_data_t * rdat;
 };
 
 static void general_timer_function(u32_t data)
 {
-	struct led_trigger_t * trigger = (struct led_trigger_t *)(data);
-	struct led_trigger_general_data_t * dat = (struct led_trigger_general_data_t *)trigger->priv;
+	struct ledtrig_t * trigger = (struct ledtrig_t *)(data);
+	struct ledtrig_general_data_t * dat = (struct ledtrig_general_data_t *)trigger->priv;
 	struct led_t * led = (struct led_t *)(trigger->led);
 
 	if(dat->last_activity != dat->activity)
@@ -49,9 +49,9 @@ static void general_timer_function(u32_t data)
 	}
 }
 
-static void ledtrig_general_init(struct led_trigger_t * trigger)
+static void ledtrig_general_init(struct ledtrig_t * trigger)
 {
-	struct led_trigger_general_data_t * dat = (struct led_trigger_general_data_t *)trigger->priv;
+	struct ledtrig_general_data_t * dat = (struct ledtrig_general_data_t *)trigger->priv;
 
 	if(dat)
 	{
@@ -61,17 +61,17 @@ static void ledtrig_general_init(struct led_trigger_t * trigger)
 	}
 }
 
-static void ledtrig_general_exit(struct led_trigger_t * trigger)
+static void ledtrig_general_exit(struct ledtrig_t * trigger)
 {
-	struct led_trigger_general_data_t * dat = (struct led_trigger_general_data_t *)trigger->priv;
+	struct ledtrig_general_data_t * dat = (struct ledtrig_general_data_t *)trigger->priv;
 
 	if(dat)
 		del_timer(&(dat->timer));
 }
 
-static void ledtrig_general_activity(struct led_trigger_t * trigger)
+static void ledtrig_general_activity(struct ledtrig_t * trigger)
 {
-	struct led_trigger_general_data_t * dat = (struct led_trigger_general_data_t *)trigger->priv;
+	struct ledtrig_general_data_t * dat = (struct ledtrig_general_data_t *)trigger->priv;
 
 	dat->activity++;
 	if(!timer_pending(&(dat->timer)))
@@ -80,9 +80,9 @@ static void ledtrig_general_activity(struct led_trigger_t * trigger)
 
 static bool_t ledtrig_register_general(struct resource_t * res)
 {
-	struct led_trigger_data_t * rdat = (struct led_trigger_data_t *)res->data;
-	struct led_trigger_general_data_t * dat;
-	struct led_trigger_t * trigger;
+	struct ledtrig_data_t * rdat = (struct ledtrig_data_t *)res->data;
+	struct ledtrig_general_data_t * dat;
+	struct ledtrig_t * trigger;
 	struct led_t * led;
 	char name[64];
 
@@ -90,11 +90,11 @@ static bool_t ledtrig_register_general(struct resource_t * res)
 	if(!led)
 		return FALSE;
 
-	dat = malloc(sizeof(struct led_trigger_general_data_t));
+	dat = malloc(sizeof(struct ledtrig_general_data_t));
 	if(!dat)
 		return FALSE;
 
-	trigger = malloc(sizeof(struct led_trigger_t));
+	trigger = malloc(sizeof(struct ledtrig_t));
 	if(!trigger)
 	{
 		free(dat);
@@ -114,7 +114,7 @@ static bool_t ledtrig_register_general(struct resource_t * res)
 	trigger->led = led;
 	trigger->priv = dat;
 
-	if(register_led_trigger(trigger))
+	if(register_ledtrig(trigger))
 		return TRUE;
 
 	free(trigger->priv);
@@ -125,16 +125,16 @@ static bool_t ledtrig_register_general(struct resource_t * res)
 
 static bool_t ledtrig_unregister_general(struct resource_t * res)
 {
-	struct led_trigger_t * trigger;
+	struct ledtrig_t * trigger;
 	char name[64];
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	trigger = search_led_trigger(name);
+	trigger = search_ledtrig(name);
 	if(!trigger)
 		return FALSE;
 
-	if(!unregister_led_trigger(trigger))
+	if(!unregister_ledtrig(trigger))
 		return FALSE;
 
 	free(trigger->priv);

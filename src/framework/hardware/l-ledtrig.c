@@ -26,14 +26,14 @@
 static int l_ledtrig_list(lua_State * L)
 {
 	struct device_list_t * pos, * n;
-	struct led_trigger_t * trigger;
+	struct ledtrig_t * trigger;
 
 	lua_newtable(L);
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		if(pos->device->type == DEVICE_TYPE_LED_TRIGGER)
+		if(pos->device->type == DEVICE_TYPE_LEDTRIG)
 		{
-			trigger = (struct led_trigger_t *)(pos->device->driver);
+			trigger = (struct ledtrig_t *)(pos->device->driver);
 			if(!trigger)
 				continue;
 
@@ -52,8 +52,8 @@ static const luaL_Reg l_hardware_ledtrig[] = {
 
 static int m_ledtrig_activity(lua_State * L)
 {
-	struct led_trigger_t * trigger = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LEDTRIG);
-	led_trigger_activity(trigger);
+	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LEDTRIG);
+	ledtrig_activity(trigger);
 	return 0;
 }
 

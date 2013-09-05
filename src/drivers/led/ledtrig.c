@@ -23,40 +23,40 @@
 #include <xboot.h>
 #include <led/ledtrig.h>
 
-static void led_trigger_suspend(struct device_t * dev)
+static void ledtrig_suspend(struct device_t * dev)
 {
 }
 
-static void led_trigger_resume(struct device_t * dev)
+static void ledtrig_resume(struct device_t * dev)
 {
 }
 
-static ssize_t led_trigger_read_bind_led_name(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t ledtrig_read_bind_led_name(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct led_trigger_t * trigger = (struct led_trigger_t *)kobj->priv;
+	struct ledtrig_t * trigger = (struct ledtrig_t *)kobj->priv;
 	return sprintf(buf, "%s", trigger->led->name);
 }
 
-static ssize_t led_trigger_write_activity(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t ledtrig_write_activity(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct led_trigger_t * trigger = (struct led_trigger_t *)kobj->priv;
+	struct ledtrig_t * trigger = (struct ledtrig_t *)kobj->priv;
 
-	led_trigger_activity(trigger);
+	ledtrig_activity(trigger);
 	return size;
 }
 
-struct led_trigger_t * search_led_trigger(const char * name)
+struct ledtrig_t * search_ledtrig(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_LED_TRIGGER);
+	dev = search_device_with_type(name, DEVICE_TYPE_LEDTRIG);
 	if(!dev)
 		return NULL;
 
-	return (struct led_trigger_t *)dev->driver;
+	return (struct ledtrig_t *)dev->driver;
 }
 
-bool_t register_led_trigger(struct led_trigger_t * trigger)
+bool_t register_ledtrig(struct ledtrig_t * trigger)
 {
 	struct device_t * dev;
 
@@ -68,13 +68,13 @@ bool_t register_led_trigger(struct led_trigger_t * trigger)
 		return FALSE;
 
 	dev->name = strdup(trigger->name);
-	dev->type = DEVICE_TYPE_LED_TRIGGER;
-	dev->suspend = led_trigger_suspend;
-	dev->resume = led_trigger_resume;
+	dev->type = DEVICE_TYPE_LEDTRIG;
+	dev->suspend = ledtrig_suspend;
+	dev->resume = ledtrig_resume;
 	dev->driver = trigger;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "led", led_trigger_read_bind_led_name, NULL, trigger);
-	kobj_add_regular(dev->kobj, "activity", NULL, led_trigger_write_activity, trigger);
+	kobj_add_regular(dev->kobj, "led", ledtrig_read_bind_led_name, NULL, trigger);
+	kobj_add_regular(dev->kobj, "activity", NULL, ledtrig_write_activity, trigger);
 
 	if(!register_device(dev))
 	{
@@ -90,19 +90,19 @@ bool_t register_led_trigger(struct led_trigger_t * trigger)
 	return TRUE;
 }
 
-bool_t unregister_led_trigger(struct led_trigger_t * trigger)
+bool_t unregister_ledtrig(struct ledtrig_t * trigger)
 {
 	struct device_t * dev;
-	struct led_trigger_t * driver;
+	struct ledtrig_t * driver;
 
 	if(!trigger || !trigger->name)
 		return FALSE;
 
-	dev = search_device_with_type(trigger->name, DEVICE_TYPE_LED_TRIGGER);
+	dev = search_device_with_type(trigger->name, DEVICE_TYPE_LEDTRIG);
 	if(!dev)
 		return FALSE;
 
-	driver = (struct led_trigger_t *)(dev->driver);
+	driver = (struct ledtrig_t *)(dev->driver);
 	if(driver && driver->exit)
 		(driver->exit)(trigger);
 
@@ -115,7 +115,7 @@ bool_t unregister_led_trigger(struct led_trigger_t * trigger)
 	return TRUE;
 }
 
-void led_trigger_activity(struct led_trigger_t * trigger)
+void ledtrig_activity(struct ledtrig_t * trigger)
 {
 	if(trigger && trigger->activity)
 		trigger->activity(trigger);

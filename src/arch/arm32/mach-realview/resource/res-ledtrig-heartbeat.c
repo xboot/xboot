@@ -23,7 +23,7 @@
 #include <xboot.h>
 #include <led/ledtrig.h>
 
-static struct led_trigger_data_t led_trigger_data = {
+static struct ledtrig_data_t led_trigger_data = {
 	.led	= "led-gpio.0",
 };
 

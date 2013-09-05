@@ -52,7 +52,7 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_LED:
 		name = "led";
 		break;
-	case DEVICE_TYPE_LED_TRIGGER:
+	case DEVICE_TYPE_LEDTRIG:
 		name = "ledtrig";
 		break;
 	case DEVICE_TYPE_FRAMEBUFFER:

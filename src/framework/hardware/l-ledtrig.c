@@ -57,8 +57,16 @@ static int m_ledtrig_activity(lua_State * L)
 	return 0;
 }
 
+static int m_ledtrig_bind_led_name(lua_State * L)
+{
+	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LEDTRIG);
+	lua_pushstring(L, trigger->led->name);
+	return 1;
+}
+
 static const luaL_Reg m_hardware_ledtrig[] = {
 	{"activity", m_ledtrig_activity},
+	{"led", m_ledtrig_bind_led_name},
 	{NULL, NULL}
 };
 

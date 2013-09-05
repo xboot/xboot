@@ -153,5 +153,5 @@ static __exit void ledtrig_general_device_exit(void)
 	resource_for_each_with_name("ledtrig-general", ledtrig_unregister_general);
 }
 
-xxx1_initcall(ledtrig_general_device_init);
-xxx1_exitcall(ledtrig_general_device_exit);
+device_sync_initcall(ledtrig_general_device_init);
+device_sync_exitcall(ledtrig_general_device_exit);

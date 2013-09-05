@@ -173,5 +173,5 @@ static __exit void ledtrig_heartbeat_device_exit(void)
 	resource_for_each_with_name("ledtrig-heartbeat", ledtrig_unregister_heartbeat);
 }
 
-xxx1_initcall(ledtrig_heartbeat_device_init);
-xxx1_exitcall(ledtrig_heartbeat_device_exit);
+device_sync_initcall(ledtrig_heartbeat_device_init);
+device_sync_exitcall(ledtrig_heartbeat_device_exit);

@@ -32,8 +32,8 @@ typedef void (*exitcall_t)(void);
 #define resource_initcall(fn)		__define_initcall("4", fn, 4)
 #define bus_initcall(fn)			__define_initcall("5", fn, 5)
 #define device_initcall(fn)			__define_initcall("6", fn, 6)
-#define xxx1_initcall(fn)			__define_initcall("7", fn, 7)
-#define xxx2_initcall(fn)			__define_initcall("8", fn, 8)
+#define device_sync_initcall(fn)	__define_initcall("7", fn, 7)
+#define reserve_initcall(fn)		__define_initcall("8", fn, 8)
 #define late_initcall(fn)			__define_initcall("9", fn, 9)
 
 #define pure_exitcall(fn)			__define_exitcall("0", fn, 0)
@@ -43,8 +43,8 @@ typedef void (*exitcall_t)(void);
 #define resource_exitcall(fn)		__define_exitcall("4", fn, 4)
 #define bus_exitcall(fn)			__define_exitcall("5", fn, 5)
 #define device_exitcall(fn)			__define_exitcall("6", fn, 6)
-#define xxx1_exitcall(fn)			__define_exitcall("7", fn, 7)
-#define xxx2_exitcall(fn)			__define_exitcall("8", fn, 8)
+#define device_sync_exitcall(fn)	__define_exitcall("7", fn, 7)
+#define reserve_exitcall(fn)		__define_exitcall("8", fn, 8)
 #define late_exitcall(fn)			__define_exitcall("9", fn, 9)
 
 void do_initcalls(void);

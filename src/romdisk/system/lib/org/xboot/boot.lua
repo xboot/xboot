@@ -9,7 +9,8 @@ buildin_base64 = require "org.xboot.buildin.base64"
 buildin_cairo = require "org.xboot.buildin.cairo"
 
 buildin_hardware = {
-	led = require "org.xboot.buildin.hardware.led"
+	led = require "org.xboot.buildin.hardware.led",
+	ledtrig = require "org.xboot.buildin.hardware.ledtrig",
 }
 
 Class = require "org.xboot.lang.Class"

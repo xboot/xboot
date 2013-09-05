@@ -45,6 +45,8 @@ struct led_t
 struct led_t * search_led(const char * name);
 bool_t register_led(struct led_t * led);
 bool_t unregister_led(struct led_t * led);
+void led_set_color(struct led_t * led, u32_t color);
+u32_t led_get_color(struct led_t * led);
 
 #ifdef __cplusplus
 }

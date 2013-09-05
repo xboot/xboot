@@ -8,6 +8,10 @@ buildin_stopwatch = require "org.xboot.buildin.stopwatch"
 buildin_base64 = require "org.xboot.buildin.base64"
 buildin_cairo = require "org.xboot.buildin.cairo"
 
+buildin_hardware = {
+	led = require "org.xboot.buildin.hardware.led"
+}
+
 Class = require "org.xboot.lang.Class"
 Timer = require "org.xboot.timer.Timer"
 Event = require "org.xboot.event.Event"

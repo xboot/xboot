@@ -29,6 +29,7 @@ static const luaL_Reg xboot_libs[] = {
 	{ "org.xboot.buildin.stopwatch",		luaopen_stopwatch },
 	{ "org.xboot.buildin.base64",			luaopen_base64 },
 	{ "org.xboot.buildin.cairo",			luaopen_cairo },
+	{ "org.xboot.buildin.hardware.led",		luaopen_hardware_led },
 	{ NULL, NULL }
 };
 

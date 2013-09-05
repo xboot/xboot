@@ -74,6 +74,10 @@ enum {
 };
 
 struct ft5206_private_data_t {
+	struct {
+		int x, y;
+		int event;
+	} node[5];
 	struct i2c_client_t * client;
 	struct ft5206_data_t * rdat;
 };
@@ -154,24 +158,31 @@ static void ft5206_interrupt_function(void * data)
 			y = 480 - y;
 
 			event = (X >> 14) & 0x3;
-			id = ((Y >> 12) & 0xf) + 1;
+			id = ((Y >> 12) & 0xf);
 
-			if(id >= 1 && id <= 5)
+			if(id >= 0 && id <= 4)
 			{
-				if(event == 0)
+				if(dat->node[id].x != x || dat->node[id].y != y || dat->node[i].event != event)
 				{
-					push_event_touches_begin(input, x, y, id);
-					//LOG("[%d]down: x = %4d, y = %4d", id, x, y);
-				}
-				else if(event == 0x2)
-				{
-					push_event_touches_move(input, x, y, id);
-					//LOG("[%d]move: x = %4d, y = %4d", id, x, y);
-				}
-				else if(event == 0x1)
-				{
-					push_event_touches_end(input, x, y, id);
-					//LOG("[%d]up: x = %4d, y = %4d", id, x, y);
+					if(event == 0)
+					{
+						push_event_touches_begin(input, x, y, id + 1);
+						//LOG("[%d]down: x = %4d, y = %4d", id + 1, x, y);
+					}
+					else if(event == 0x2)
+					{
+						push_event_touches_move(input, x, y, id + 1);
+						//LOG("[%d]move: x = %4d, y = %4d", id + 1, x, y);
+					}
+					else if(event == 0x1)
+					{
+						push_event_touches_end(input, x, y, id + 1);
+						//LOG("[%d][%d]up: x = %4d, y = %4d", event, id + 1, x, y);
+					}
+
+					dat->node[id].x = x;
+					dat->node[id].y = y;
+					dat->node[id].event = event;
 				}
 			}
 		}
@@ -260,6 +271,7 @@ static bool_t register_ft5206_touchscreen(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
+	memset(dat, 0xff, sizeof(struct ft5206_private_data_t));
 	dat->client = client;
 	dat->rdat = rdat;
 

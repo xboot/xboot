@@ -1,8 +1,22 @@
 local Leditem = require("Leditem")
+local Led = require("Led")
 
 -- create background
 local background = DisplayImage:new(Texture:new("background.png"))
 runtime:addChild(background)
+
+-- create bgled
+local lon = DisplayImage:new(Texture:new("bgled1.png"))
+local loff = DisplayImage:new(Texture:new("bgled2.png"))
+local bgled = Led:new(lon, loff)
+bgled:setXY(500, 0)
+runtime:addChild(bgled)
+
+local bgledstate = false
+local looptimer = Timer:new(0.4, 0, function(t, e)
+	bgledstate = not bgledstate
+	bgled:setState(bgledstate)
+end)
 
 function spairs(t, order)
     -- collect the keys

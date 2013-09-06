@@ -227,12 +227,12 @@ X_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
 X_LDFLAGS	:=	$(LDFLAGS)
 X_OCFLAGS	:=	$(OCFLAGS)
 X_ODFLAGS	:=	$(ODFLAGS)
-X_LIBDIRS	:=	$(LIBDIRS)
 X_LIBS		:=	$(LIBS) -lgcc
 
 X_OUT		:=	../output
 X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
 X_INCDIRS	:=	$(patsubst %, -I %, $(INCDIRS))
+X_LIBDIRS	:=	$(patsubst %, -L %, $(LIBDIRS))
 X_SRCDIRS	:=	$(patsubst %, %, $(SRCDIRS))
 X_OBJDIRS	:=	$(patsubst %, .obj/%, $(X_SRCDIRS))
 
@@ -257,11 +257,11 @@ M_ASFLAGS	:=	$(DEFINES) $(MODULE_ASFLAGS)
 M_CFLAGS	:=	$(DEFINES) $(MODULE_CFLAGS)
 M_CXXFLAGS	:=	$(DEFINES) $(MODULE_CXXFLAGS)
 M_LDFLAGS	:=	$(MODULE_LDFLAGS) -shared -nostdlib -fPIC
-M_LIBDIRS	:=	$(MODULE_LIB_SEARCH_DIRS)
 M_LIBS		:=	$(MODULE_LIB_LINKS) -lgcc
 
 M_NAME		:= 	$(patsubst %, $(M)/%, $(MODULE_NAME))
 M_INCDIRS	:=	$(X_INCDIRS) $(patsubst %, -I $(M)/%, $(MODULE_INCLUDE_DIRS))
+M_LIBDIRS	:=	$(X_LIBDIRS) $(patsubst %, -L $(M)/%, $(MODULE_LIB_SEARCH_DIRS))
 M_SRCDIRS	:=	$(patsubst %, $(M)/%, $(MODULE_SOURCE_DIRS))
 M_OBJDIRS	:=	$(patsubst %, %, $(M_SRCDIRS))
 
@@ -319,6 +319,8 @@ xclean:
 module : $(M_NAME)
 
 $(M_NAME) : $(M_OBJS)
+	@echo [M][AR] Archiving $@.a
+	@$(AR) $(ARFLAGS) $@.a $(M_OBJS)
 	@echo [M][LD] Linking $@.so
 	@$(CC) $(M_LDFLAGS) $(M_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.so $(M_LIBS)
 

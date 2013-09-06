@@ -4,7 +4,10 @@
 
 XBOOT_SRC_DIR					:= $(CURDIR)/../../../
 
-export MODULE_NAME				:= hello
+export TARGET					?= arm32-realview
+export CROSS					?= arm-none-eabi-
+
+export MODULE_NAME				:= libhello
 export MODULE_INCLUDE_DIRS		:= .
 export MODULE_SOURCE_DIRS		:= .
 
@@ -13,7 +16,7 @@ export MODULE_CFLAGS			:=
 export MODULE_CXXFLAGS			:=
 export MODULE_LDFLAGS			:=
 
-export MODULE_LIB_SEARCH_DIRS	:= -L $(CURDIR)
+export MODULE_LIB_SEARCH_DIRS	:= $(CURDIR)
 export MODULE_LIB_LINKS			:= -lgcc
 
 module:

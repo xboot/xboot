@@ -310,7 +310,7 @@ $(X_CPPOBJS) : .obj/%.o : %.cpp
 	@$(CXX) $(X_CXXFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
 xclean:
-	@$(RM) $(X_DEPS) $(X_OBJS) $(X_OBJDIRS) $(X_OUT)
+	@$(RM) $(X_OBJDIRS) $(X_DEPS) $(X_OBJS) $(X_OUT)
 	@echo Clean xboot complete.
 
 #
@@ -340,7 +340,7 @@ $(M_CPPOBJS) : %.o : %.cpp
 	@$(CXX) $(M_CXXFLAGS) -MD -MP -MF $@.d $(M_INCDIRS) -c $< -o $@
 
 mclean:
-	@$(RM) $(M_DEPS) $(M_OBJS) $(M_NAME).map $(M_NAME).so
+	@$(RM) $(M_DEPS) $(M_OBJS) $(M_NAME).a $(M_NAME).so $(M_NAME).map
 	@echo Clean module complete.
 
 #

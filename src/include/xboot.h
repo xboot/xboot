@@ -53,11 +53,11 @@ extern "C" {
 #include <fs/fileio.h>
 
 #if !defined(__ARCH__)
-#define __ARCH__									""
+#define __ARCH__									"arm32"
 #endif
 
 #if !defined(__MACH__)
-#define __MACH__									""
+#define __MACH__									"realview"
 #endif
 
 #if !defined(CONFIG_HEAP_SIZE)

@@ -390,13 +390,20 @@ _pixman_choose_implementation (void)
     if (!_pixman_disabled ("fast"))
 	imp = _pixman_implementation_create_fast_path (imp);
 
-    /*
+#ifdef __X86__
     imp = _pixman_x86_get_implementations (imp);
+#endif
+#ifdef __ARM32__
     imp = _pixman_arm_get_implementations (imp);
+#endif
+#ifdef __PPC__
     imp = _pixman_ppc_get_implementations (imp);
+#endif
+#ifdef __MIPS__
     imp = _pixman_mips_get_implementations (imp);
-     */
-    imp = _pixman_implementation_create_noop (imp);
+#endif
 
-    return imp;
+	imp = _pixman_implementation_create_noop (imp);
+
+	return imp;
 }

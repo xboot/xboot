@@ -144,8 +144,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 INCDIRS		+= 	external/lua-5.2.2
 SRCDIRS		+=	external/lua-5.2.2
 
-INCDIRS		+= 	external/zlib-1.2.7
-SRCDIRS		+=	external/zlib-1.2.7
+INCDIRS		+= 	external/zlib-1.2.8
+SRCDIRS		+=	external/zlib-1.2.8
 
 INCDIRS		+= 	external/libpng-1.5.14
 SRCDIRS		+=	external/libpng-1.5.14

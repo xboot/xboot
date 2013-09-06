@@ -143,8 +143,8 @@ SRCDIRS		+=	external/zlib-1.2.7
 INCDIRS		+= 	external/libpng-1.5.14
 SRCDIRS		+=	external/libpng-1.5.14
 
-INCDIRS		+= 	external/pixman-0.30
-SRCDIRS		+=	external/pixman-0.30
+INCDIRS		+= 	external/pixman-0.30.2
+SRCDIRS		+=	external/pixman-0.30.2
 
 INCDIRS		+= 	external/cairo-1.12.14
 SRCDIRS		+=	external/cairo-1.12.14

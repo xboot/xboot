@@ -56,6 +56,13 @@ sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 #
 # Modify default variables.
 #
+ifeq ($(strip $(ARCH)), arm32)
+DEFINES		+=	-D__ARM32__
+endif
+ifeq ($(strip $(ARCH)), arm64)
+DEFINES		+=	-D__ARM64__
+endif
+
 DEFINES		+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
 ASFLAGS		+= 	-ffreestanding -std=gnu99 $(DEFINES)
 CFLAGS		+=	-ffreestanding -std=gnu99 $(DEFINES)
@@ -143,8 +150,10 @@ SRCDIRS		+=	external/zlib-1.2.7
 INCDIRS		+= 	external/libpng-1.5.14
 SRCDIRS		+=	external/libpng-1.5.14
 
-INCDIRS		+= 	external/pixman-0.30.2
-SRCDIRS		+=	external/pixman-0.30.2
+INCDIRS		+= 	external/pixman-0.30.2 \
+				external/pixman-0.30.2/$(ARCH)
+SRCDIRS		+=	external/pixman-0.30.2 \
+				external/pixman-0.30.2/$(ARCH)
 
 INCDIRS		+= 	external/cairo-1.12.14
 SRCDIRS		+=	external/cairo-1.12.14
@@ -231,13 +240,13 @@ X_SFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.S))
 X_CFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.c))
 X_CPPFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.cpp))
 
-X_SDEPS	:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o.d))
-X_CDEPS	:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o.d))
+X_SDEPS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o.d))
+X_CDEPS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o.d))
 X_CPPDEPS	:=	$(patsubst %, .obj/%, $(X_CPPFILES:.cpp=.o.d))
 X_DEPS		:=	$(X_SDEPS) $(X_CDEPS) $(X_CPPDEPS)
 
-X_SOBJS	:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o))
-X_COBJS	:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o))
+X_SOBJS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o))
+X_COBJS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o))
 X_CPPOBJS	:=	$(patsubst %, .obj/%, $(X_CPPFILES:.cpp=.o)) 
 X_OBJS		:=	$(X_SOBJS) $(X_COBJS) $(X_CPPOBJS)
 
@@ -260,13 +269,13 @@ M_SFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.S))
 M_CFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.c))
 M_CPPFILES	:=	$(foreach dir, $(M_SRCDIRS), $(wildcard $(dir)/*.cpp))
 
-M_SDEPS	:=	$(M_SFILES:.S=.o.d)
-M_CDEPS	:=	$(M_CFILES:.c=.o.d)
+M_SDEPS		:=	$(M_SFILES:.S=.o.d)
+M_CDEPS		:=	$(M_CFILES:.c=.o.d)
 M_CPPDEPS	:=	$(M_CPPFILES:.cpp=.o.d)
 M_DEPS		:=	$(M_SDEPS) $(M_CDEPS) $(M_CPPDEPS)
 
-M_SOBJS	:=	$(M_SFILES:.S=.o)
-M_COBJS	:=	$(M_CFILES:.c=.o)
+M_SOBJS		:=	$(M_SFILES:.S=.o)
+M_COBJS		:=	$(M_CFILES:.c=.o)
 M_CPPOBJS	:=	$(M_CPPFILES:.cpp=.o)
 M_OBJS		:=	$(M_SOBJS) $(M_COBJS) $(M_CPPOBJS)
 

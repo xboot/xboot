@@ -1,7 +1,7 @@
 #ifndef __ARM32_CACHE_H__
 #define __ARM32_CACHE_H__
 
-#include <configs.h>
+#include <xconfigs.h>
 
 #ifdef __cplusplus
 extern "C" {

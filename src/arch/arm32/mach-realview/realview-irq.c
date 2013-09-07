@@ -21,7 +21,7 @@
  */
 
 #include <xboot.h>
-#include <realview-cp15.h>
+#include <cp15.h>
 #include <realview/reg-gic.h>
 
 struct pt_regs_t {

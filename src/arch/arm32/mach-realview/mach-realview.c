@@ -21,8 +21,8 @@
  */
 
 #include <xboot.h>
+#include <cp15.h>
 #include <realview/reg-system.h>
-#include <realview-cp15.h>
 
 extern u8_t	__text_start[];
 extern u8_t __text_end[];

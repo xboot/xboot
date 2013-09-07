@@ -6,10 +6,13 @@ extern "C" {
 #endif
 
 #include <xconfigs.h>
+#include <endian.h>
+#include <atomic.h>
+#include <barrier.h>
+#include <irqflags.h>
+#include <spinlock.h>
 #include <types.h>
 #include <sizes.h>
-#include <endian.h>
-#include <byteorder.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -18,6 +21,7 @@ extern "C" {
 #include <ctype.h>
 #include <errno.h>
 #include <environ.h>
+#include <byteorder.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

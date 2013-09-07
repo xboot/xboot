@@ -35,6 +35,7 @@ extern void v7_dma_inv_range(unsigned long start, unsigned long end);
 extern void v7_mmu_cache_on(void);
 extern void v7_mmu_cache_off(void);
 extern void v7_mmu_cache_flush(void);
+extern void v7_mmu_cache_invalidate(void);
 #endif
 
 void __dma_clean_range(unsigned long start, unsigned long end)
@@ -130,5 +131,15 @@ void __mmu_cache_flush(void)
 #endif
 #if __ARM_ARCH__ == 7
 	v7_mmu_cache_flush();
+#endif
+}
+
+void __mmu_cache_invalidate(void)
+{
+#if __ARM_ARCH__ >= 4 && __ARM_ARCH__ <= 6
+	asm volatile("mcr p15, 0, %0, c7, c6, 0\n" : : "r"(0));
+#endif
+#if __ARM_ARCH__ == 7
+	v7_mmu_cache_invalidate();
 #endif
 }

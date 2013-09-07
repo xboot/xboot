@@ -13,6 +13,7 @@ void __dma_inv_range(unsigned long start, unsigned long end);
 void __mmu_cache_on(void);
 void __mmu_cache_off(void);
 void __mmu_cache_flush(void);
+void __mmu_cache_invalidate(void);
 
 #ifdef __cplusplus
 }

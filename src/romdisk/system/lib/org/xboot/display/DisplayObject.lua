@@ -16,8 +16,6 @@ function M:init()
 
 	self.x = 0
 	self.y = 0
-	self.width = 0
-	self.height = 0
 	self.rotation = 0
 	self.scalex = 1
 	self.scaley = 1
@@ -340,6 +338,59 @@ function M:localToGlobal(x, y)
 	return x + self.x, y + self.y
 end
 
+---
+-- Returns a rectangle (as x, y, width and height) that encloses the display object as
+-- it appears in another display object’s coordinate system.
+-- 
+-- @function [parent=#DisplayObject] getBounds
+-- @param self
+-- @param target (DisplayObject) The display object that defines the other coordinate system to transform
+-- @return 4 values as x, y, width and height of bounds
+function M:getBounds(target, r)
+	r = r or {l = math.huge, t = math.huge, r = -math.huge, b = -math.huge}
+
+	local x, y = self.x, self.y
+	local w, h = self:__size()
+	if target ~= nil then
+		x, y = self:globalToLocal(x, y)
+	end
+
+	r.l = math.min(r.l, x)
+	r.t = math.min(r.t, y)
+	r.r = math.max(r.r, x + w)
+	r.b = math.max(r.b, y + h)
+
+	for i, v in ipairs(self.children) do
+		v:__area(target, r)
+	end
+
+	return r.l, r.t, (r.r - r.l), (r.b - r.t)
+end
+
+---
+-- Returns the width of the display object, in pixels. The width is calculated based on the
+-- bounds of the content of the display object.
+-- 
+-- @function [parent=#DisplayObject] getWidth
+-- @param self
+-- @return Width of the display object.
+function M:getWidth()
+	local x, y, w, h = self:getBounds()
+	return w
+end
+
+---
+-- Returns the height of the display object, in pixels. The height is calculated based on the
+-- bounds of the content of the display object.
+-- 
+-- @function [parent=#DisplayObject] getHeight
+-- @param self
+-- @return Height of the display object.
+function M:getHeight()
+	local x, y, w, h = self:getBounds()
+	return h
+end
+
 function M:hitTest(x, y)
 	local left = self.x
 	local top = self.y
@@ -355,29 +406,20 @@ function M:hitTest(x, y)
 end
 
 ---
--- Returns a rectangle (as x, y, width and height) that encloses the display object as
--- it appears in another display object’s coordinate system.
+-- Subclassing
 -- 
--- @function [parent=#DisplayObject] getBounds
--- @param self
--- @param target (DisplayObject) The display object that defines the other coordinate system to transform
--- @return 4 values as x, y, width and height of bounds
-function M:getBounds(target)
-	if target ~= nil and target ~= self then
-
-	else
-		return self.x, self.y, self.width, self.height
-	end
+function M:__size()
+	return 0, 0
 end
 
-function M:update(cairo)
+function M:__update(cr)
 end
 
 function M:render(cairo, event)
 	self:dispatchEvent(event)
 
 	if self.isvisible then
-		self:update(cairo)
+		self:__update(cairo)
 	end
 
 	for i, v in ipairs(self.children) do

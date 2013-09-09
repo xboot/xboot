@@ -10,11 +10,13 @@ function M:init(t, x, y)
 	self.y = y or 0
 
 	self.texture = t
-	self.width = self.texture:getWidth()
-	self.height = self.texture:getHeight()
 end
 
-function M:update(cairo)
+function M:__size()
+	return self.texture:getWidth(), self.texture:getHeight()
+end
+
+function M:__update(cairo)
 	cairo:save()
 
 	if self.__scale or self.__rotate then

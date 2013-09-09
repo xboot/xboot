@@ -215,3 +215,47 @@ int branch_status(void)
 {
 	return ((read_p15_c1() & CR_Z) != 0);
 }
+
+void ttb_set(u32_t base)
+{
+	__asm__ __volatile__(
+		"mcr p15, 0, %0, c2, c0, 0"
+		:
+		: "r" (base)
+		: "memory");
+}
+
+u32_t ttb_get(void)
+{
+	u32_t base;
+
+	__asm__ __volatile__(
+		"mrc p15, 0, %0, c2, c0, 0"
+		: "=r" (base)
+		:
+		: "memory");
+
+	return base;
+}
+
+void domain_set(u32_t domain)
+{
+	__asm__ __volatile__(
+		"mcr p15, 0, %0, c3, c0, 0"
+		:
+		: "r" (domain)
+		: "memory");
+}
+
+u32_t domain_get(void)
+{
+	u32_t domain;
+
+	__asm__ __volatile__(
+		"mrc p15, 0, %0, c3, c0, 0"
+		: "=r" (domain)
+		:
+		: "memory");
+
+	return domain;
+}

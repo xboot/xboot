@@ -1,5 +1,3 @@
-local M_PI2 = math.pi * 2
-
 ---
 -- The 'DisplayObject' class is the base class for all objects that can
 -- be placed on the screen.
@@ -179,6 +177,16 @@ function M:contains(child)
 end
 
 ---
+-- Returns whether or not the display object is visible.
+-- 
+-- @function [parent=#DisplayObject] isVisible
+-- @param self
+-- @return A value of 'true' if display object is visible; 'false' otherwise.
+function M:isVisible()
+	return self.visible
+end
+
+---
 -- Sets whether or not the display object is visible. Display objects that are not visible are also taken
 -- into consideration while calculating bounds.
 -- 
@@ -212,9 +220,11 @@ end
 -- 
 -- @function [parent=#DisplayObject] rotate
 -- @param self
--- @param angle (number) The rotation angle in radian.
-function M:rotate(angle)
-	self.rotation = self.rotation + angle
+-- @param rotation (number) The rotation angle in radian.
+function M:rotate(rotation)
+	local M_PI2 = math.pi * 2
+
+	self.rotation = self.rotation + rotation
 
 	while(self.rotation < 0) do
 		self.rotation = self.rotation + M_PI2
@@ -227,7 +237,7 @@ function M:rotate(angle)
 	self.__rotate = self.rotation ~= 0
 
 	for i, v in ipairs(self.children) do
-		v:rotate(angle)
+		v:rotate(rotation)
 	end
 end
 
@@ -282,31 +292,69 @@ function M:setXY(x, y)
 	self:translate(x - self.x, y - self.y)
 end
 
-function M:setRotate(angle)
-	self:rotate(angle - self.rotation)
+--- 
+-- Sets the rotation of the display object in radians.
+-- 
+-- @function [parent=#DisplayObject] setRotate
+-- @param self
+-- @param rotation (number) rotation of the display object
+function M:setRotate(rotation)
+	self:rotate(rotation - self.rotation)
 end
 
+---
+-- Sets the horizontal scale of the display object.
+--
+-- @function [parent=#DisplayObject] setScalex
+-- @param self
+-- @param x (number) horizontal scale of the display object
 function M:setScalex(x)
 	self:scale(x / self.scalex, 1)
 end
 
+---
+-- Sets the vertical scale of the display object.
+-- 
+-- @function [parent=#DisplayObject] setScaley
+-- @param self
+-- @param y (number) vertical scale of the display object
 function M:setScaley(y)
 	self:scale(1, y / self.scaley)
 end
 
+---
+-- Sets the horizontal and vertical scales of the display object.
+-- 
+-- @function [parent=#DisplayObject] setScale
+-- @param self
+-- @param x (number) horizontal scale (percentage) of the display object
+-- @param y (number) vertical scale (percentage) of the display object
 function M:setScale(x, y)
 	self:scale(x / self.scalex, y / self.scaley)
 end
 
+---
+-- Sets the anchor point of the display object.
+--
+-- @function [parent=#DisplayObject] setAnchor
+-- @param self
+-- @param x (number) The x coordinate of anchor point.
+-- @param y (number) The y coordinate of anchor point.
 function M:setAnchor(x, y)
 	self.anchorx = x - self.x
 	self.anchory = y - self.y
-	
+
 	for i, v in ipairs(self.children) do
 		v:setAnchor(x, y)
 	end
 end
 
+---
+-- Sets the alpha transparency of this display object. 0 means fully transparent and 1 means fully opaque.
+--
+-- @function [parent=#DisplayObject] setAlpha
+-- @param self
+-- @param alpha (number) The new alpha transparency of the display object
 function M:setAlpha(alpha)
 	self.alpha = alpha
 
@@ -315,32 +363,6 @@ function M:setAlpha(alpha)
 	for i, v in ipairs(self.children) do
 		v:setAlpha(alpha)
 	end
-end
-
---- 
--- Converts the x,y coordinates from the global to the display object's (local) coordinates.
--- 
--- @function [parent=#DisplayObject] globalToLocal
--- @param self
--- @param x (number) x coordinate of the global coordinate.
--- @param y (number) y coordinate of the global coordinate.
--- @return x coordinate relative to the display object.
--- @return y coordinate relative to the display object.
-function M:globalToLocal(x, y)
-	return x - self.x, y - self.y
-end
-
---- 
--- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
--- 
--- @function [parent=#DisplayObject] localToGlobal
--- @param self
--- @param x (number) x coordinate of the local coordinate.
--- @param y (number) y coordinate of the local coordinate.
--- @return x coordinate relative to the display area.
--- @return y coordinate relative to the display area.
-function M:localToGlobal(x, y)
-	return x + self.x, y + self.y
 end
 
 ---
@@ -416,21 +438,62 @@ function M:hitTestPoint(x, y)
 	return false
 end
 
----
--- Subclassing
+--- 
+-- Converts the x,y coordinates from the global to the display object's (local) coordinates.
 -- 
+-- @function [parent=#DisplayObject] globalToLocal
+-- @param self
+-- @param x (number) x coordinate of the global coordinate.
+-- @param y (number) y coordinate of the global coordinate.
+-- @return x coordinate relative to the display object.
+-- @return y coordinate relative to the display object.
+function M:globalToLocal(x, y)
+	return x - self.x, y - self.y
+end
+
+--- 
+-- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
+-- 
+-- @function [parent=#DisplayObject] localToGlobal
+-- @param self
+-- @param x (number) x coordinate of the local coordinate.
+-- @param y (number) y coordinate of the local coordinate.
+-- @return x coordinate relative to the display area.
+-- @return y coordinate relative to the display area.
+function M:localToGlobal(x, y)
+	return x + self.x, y + self.y
+end
+
+---
+-- Returns the width and height of the display object in pixels. This method must be subclassing.
+-- 
+-- @function [parent=#DisplayObject] __size
+-- @param self
+-- @return The width and height of the display object.
 function M:__size()
 	return 0, 0
 end
 
-function M:__update(cr)
+---
+-- Draw display object to the screen. This method must be subclassing.
+-- 
+-- @function [parent=#DisplayObject] __draw
+-- @param self
+function M:__draw(cr)
 end
 
+---
+-- Render display object and it's children to the screen.
+-- 
+-- @function [parent=#DisplayObject] __draw
+-- @param self
+-- @param cr (Cairo) The context of the target surface.
+-- @param e (Event) The 'Event' object to be dispatched.
 function M:render(cr, e)
 	self:dispatchEvent(e)
 
 	if self.visible then
-		self:__update(cr)
+		self:__draw(cr)
 	end
 
 	for i, v in ipairs(self.children) do
@@ -438,6 +501,12 @@ function M:render(cr, e)
 	end
 end
 
+---
+-- Dispatches an event to display object and it's children.
+-- 
+-- @function [parent=#DisplayObject] dispatch
+-- @param self
+-- @param e (Event) The 'Event' object to be dispatched.
 function M:dispatch(e)
 	local children = self.children
 

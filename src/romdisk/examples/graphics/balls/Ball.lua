@@ -14,9 +14,6 @@ function M:init(texture)
 	self:setX(math.random(0, 800 - 80))
 	self:setY(math.random(0, 480 - 80))
 
-	self.width = bitmap.width
-	self.height = bitmap.height
-	
 	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
 end
 
@@ -31,7 +28,7 @@ function M:onEnterFrame(e)
 		self.xdirection = 1
 	end
 
-	if x > 800 - self.width then
+	if x > 800 - self:getWidth() then
 		self.xdirection = -1
 	end
 
@@ -39,7 +36,7 @@ function M:onEnterFrame(e)
 		self.ydirection = 1
 	end
 
-	if y > 480 - self.height then
+	if y > 480 - self:getHeight() then
 		self.ydirection = -1
 	end
 

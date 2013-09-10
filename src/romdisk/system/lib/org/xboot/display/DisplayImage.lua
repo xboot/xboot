@@ -10,13 +10,12 @@ local M = Class(DisplayObject)
 --
 -- @function [parent=#DisplayImage] new
 -- @return #DisplayImage
-function M:init(t, x, y)
+function M:init(texture, x, y)
 	DisplayObject.init(self)
 
 	self.x = x or 0
 	self.y = y or 0
-
-	self.texture = t
+	self.texture = texture
 end
 
 ---

@@ -22,7 +22,7 @@ function M:init(normal, active)
 end
 
 function M:onMouseDown(e)
-	if self.focus == nil and self:hitTest(e.info.x, e.info.y) then
+	if self.focus == nil and self:hitTestPoint(e.info.x, e.info.y) then
 		self.focus = 0
 		self:updateVisualState(true)
 		e:stopPropagation()
@@ -31,7 +31,7 @@ end
 
 function M:onMouseMove(e)
 	if self.focus == 0 then
-		if not self:hitTest(e.info.x, e.info.y) then	
+		if not self:hitTestPoint(e.info.x, e.info.y) then	
 			self.focus = nil
 			self:updateVisualState(false)
 		end
@@ -49,7 +49,7 @@ function M:onMouseUp(e)
 end
 
 function M:onTouchesBegin(e)
-	if self.focus == nil and self:hitTest(e.info.x, e.info.y) then
+	if self.focus == nil and self:hitTestPoint(e.info.x, e.info.y) then
 		self.focus = e.info.id
 		self:updateVisualState(true)
 		e:stopPropagation()
@@ -58,7 +58,7 @@ end
 
 function M:onTouchesMove(e)
 	if self.focus == e.info.id then
-		if not self:hitTest(e.info.x, e.info.y) then
+		if not self:hitTestPoint(e.info.x, e.info.y) then
 			self.focus = nil
 			self:updateVisualState(false)
 		end
@@ -87,13 +87,9 @@ function M:updateVisualState(state)
 	if state then
 		self.normal:visible(false)
 		self.active:visible(true)
-		self.width = self.active.width
-		self.height = self.active.height
 	else
 		self.normal:visible(true)
 		self.active:visible(false)
-		self.width = self.normal.width
-		self.height = self.normal.height
 	end
 end
 

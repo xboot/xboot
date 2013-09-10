@@ -16,35 +16,35 @@ function M:__size()
 	return self.texture:getWidth(), self.texture:getHeight()
 end
 
-function M:__update(cairo)
-	cairo:save()
+function M:__update(cr)
+	cr:save()
 
 	if self.__scale or self.__rotate then
 		local tx = self.x + self.anchorx
 		local ty = self.y + self.anchory
 
-		cairo:translate(tx, ty)
+		cr:translate(tx, ty)
 
 		if self.__scale then
-			cairo:scale(self.scalex, self.scaley)
+			cr:scale(self.scalex, self.scaley)
 		end
 
 		if self.__rotate then
-			cairo:rotate(self.rotation)
+			cr:rotate(self.rotation)
 		end
 
-		cairo:translate(-tx, -ty)
+		cr:translate(-tx, -ty)
 	end
 
-	cairo:set_source_surface(self.texture:getSurface(), self.x, self.y)
+	cr:set_source_surface(self.texture:getSurface(), self.x, self.y)
 
 	if self.__alpha then
-		cairo:paint_with_alpha(self.alpha)
+		cr:paint_with_alpha(self.alpha)
 	else
-		cairo:paint()
+		cr:paint()
 	end
 
-	cairo:restore()
+	cr:restore()
 end
 
 return M

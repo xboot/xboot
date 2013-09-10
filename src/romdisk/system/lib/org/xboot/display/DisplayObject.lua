@@ -352,7 +352,7 @@ function M:getBounds(target, r)
 	local x, y = self.x, self.y
 	local w, h = self:__size()
 	if target ~= nil then
-		x, y = self:globalToLocal(x, y)
+		x, y = target:globalToLocal(x, y)
 	end
 
 	r.l = math.min(r.l, x)
@@ -361,7 +361,7 @@ function M:getBounds(target, r)
 	r.b = math.max(r.b, y + h)
 
 	for i, v in ipairs(self.children) do
-		v:__area(target, r)
+		v:getBounds(target, r)
 	end
 
 	return r.l, r.t, (r.r - r.l), (r.b - r.t)
@@ -391,18 +391,24 @@ function M:getHeight()
 	return h
 end
 
-function M:hitTest(x, y)
-	local left = self.x
-	local top = self.y
-	local right = left + self.width
-	local bottom = top + self.height
-	
-	if x < left then return false end
-	if x > right then return false end
-	if y < top then return false end
-	if y > bottom then return false end
-	
-	return true
+--- 
+-- Checks whether the given coordinates (in global coordinate system) is in bounds of the display object.
+-- 
+-- @function [parent=#DisplayObject] hitTestPointPoint
+-- @param self
+-- @param x (number)
+-- @param y (number)
+-- @return 'true' if the given global coordinates are in bounds of the display object, 'false' otherwise.
+function M:hitTestPoint(x, y)
+	local x0, y0, w, h = self:getBounds()
+
+	if x > x0 and y > y0 then
+		if x < (x0 + w) and y < (y0 + h) then
+			return true
+		end
+	end
+
+	return false
 end
 
 ---
@@ -415,26 +421,26 @@ end
 function M:__update(cr)
 end
 
-function M:render(cairo, event)
-	self:dispatchEvent(event)
+function M:render(cr, e)
+	self:dispatchEvent(e)
 
 	if self.isvisible then
-		self:__update(cairo)
+		self:__update(cr)
 	end
 
 	for i, v in ipairs(self.children) do
-		v:render(cairo, event)
+		v:render(cr, e)
 	end
 end
 
-function M:dispatch(event)
+function M:dispatch(e)
 	local children = self.children
 
 	for i = #children, 1, -1 do
-		children[i]:dispatch(event)
+		children[i]:dispatch(e)
 	end
 
-	self:dispatchEvent(event)
+	self:dispatchEvent(e)
 end
 
 return M

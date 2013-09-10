@@ -28,7 +28,7 @@ function M:init()
 end
 
 function M:onMouseDown(e)
-	if self:hitTest(e.info.x, e.info.y) then
+	if self:hitTestPoint(e.info.x, e.info.y) then
 		self.isfocus = true
 		self:tofront()
 		
@@ -58,7 +58,7 @@ function M:onMouseUp(e)
 end
 
 function M:onTouchesBegin(e)
-	if self:hitTest(e.info.x, e.info.y) then
+	if self:hitTestPoint(e.info.x, e.info.y) then
 		self.isfocus = true
 		self:tofront()
 		

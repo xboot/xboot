@@ -7,12 +7,17 @@ local M_PI2 = math.pi * 2
 -- @module DisplayObject
 local M = Class(EventDispatcher)
 
+---
+-- Creates a new display object.
+--
+-- @function [parent=#DisplayObject] new
+-- @return #DisplayObject
 function M:init()
 	EventDispatcher.init(self)
 
-	self.parent = self
+	self.parent = nil
 	self.children = {}
-	self.isvisible = true
+	self.visible = true
 
 	self.x = 0
 	self.y = 0
@@ -84,7 +89,7 @@ function M:removeChild(child)
 	end
 
 	table.remove(self.children, index)
-	child.parent = child
+	child.parent = nil
 
 	return true
 end
@@ -99,7 +104,7 @@ end
 function M:removeSelf()
 	local parent = self.parent
 
-	if parent == nil or parent == self then
+	if parent == nil then
 		return false
 	end
 
@@ -115,7 +120,7 @@ end
 function M:toFront()
 	local parent = self.parent
 
-	if parent == nil or parent == self then
+	if parent == nil then
 		return false
 	end
 
@@ -138,7 +143,7 @@ end
 function M:toBack()
 	local parent = self.parent
 
-	if parent == nil or parent == self then
+	if parent == nil then
 		return false
 	end
 
@@ -159,8 +164,8 @@ end
 -- @function [parent=#DisplayObject] contains
 -- @param self
 -- @param child (DisplayObject) The child object to test.
--- @return `true` if the child object is contained in the subtree of this 'DisplayObject'
--- instance, otherwise `false`.
+-- @return 'true' if the child object is contained in the subtree of this 'DisplayObject'
+-- instance, otherwise 'false'.
 function M:contains(child)
 	for i, v in ipairs(self.children) do
 		if v == child then
@@ -177,11 +182,11 @@ end
 -- Sets whether or not the display object is visible. Display objects that are not visible are also taken
 -- into consideration while calculating bounds.
 -- 
--- @function [parent=#DisplayObject] visible
+-- @function [parent=#DisplayObject] setVisible
 -- @param self
 -- @param visible (bool) whether or not the display object is visible
-function M:visible(visible)
-	self.isvisible = visible
+function M:setVisible(visible)
+	self.visible = visible
 end
 
 ---
@@ -424,7 +429,7 @@ end
 function M:render(cr, e)
 	self:dispatchEvent(e)
 
-	if self.isvisible then
+	if self.visible then
 		self:__update(cr)
 	end
 

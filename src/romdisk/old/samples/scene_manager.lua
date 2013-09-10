@@ -265,7 +265,7 @@ function M:changeScene(scene, duration, transition, ease, options)
 	self.ease = ease or defaultEase
 
 	self.scene2 = self.scenes[scene]:new(options and options.userData)
-	self.scene2:visible(false)
+	self.scene2:setVisible(false)
 	self:addChild(self.scene2)
 		
 	self.time = 0
@@ -306,7 +306,7 @@ function M:onEnterFrame(event)
 
 	if self.time == 0 then
 		self:onTransitionBegin()
-		self.scene2:visible(true)
+		self.scene2:setVisible(true)
 		dispatchEvent(self, "transitionBegin")
 		dispatchEvent(self.scene1, "exitBegin")
 		dispatchEvent(self.scene2, "enterBegin")

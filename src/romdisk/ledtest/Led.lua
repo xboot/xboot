@@ -14,15 +14,11 @@ end
 
 function M:setState(state)
 	if state then
-		self.on:visible(true)
-		self.off:visible(false)
-		self.width = self.off.width
-		self.height = self.off.height
+		self.on:setVisible(true)
+		self.off:setVisible(false)
 	else
-		self.on:visible(false)
-		self.off:visible(true)
-		self.width = self.on.width
-		self.height = self.on.height
+		self.on:setVisible(false)
+		self.off:setVisible(true)
 	end	
 end
 

@@ -83,11 +83,11 @@ end
 
 function M:updateVisualState(state)
 	if state then
-		self.on:visible(true)
-		self.off:visible(false)
+		self.on:setVisible(true)
+		self.off:setVisible(false)
 	else
-		self.on:visible(false)
-		self.off:visible(true)
+		self.on:setVisible(false)
+		self.off:setVisible(true)
 	end
 end
 

@@ -20,6 +20,7 @@ EventDispatcher = require "org.xboot.event.EventDispatcher"
 Texture = require "org.xboot.display.Texture"
 DisplayObject = require "org.xboot.display.DisplayObject"
 DisplayImage = require "org.xboot.display.DisplayImage"
+DisplayBmtext = require "org.xboot.display.DisplayBmtext"
 
 runtime = DisplayObject:new()
 

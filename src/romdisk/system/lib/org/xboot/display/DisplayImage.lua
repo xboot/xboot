@@ -9,6 +9,9 @@ local M = Class(DisplayObject)
 -- Creates a new object of display image.
 --
 -- @function [parent=#DisplayImage] new
+-- @param texture (Texture) The texture object
+-- @param x (optional) The x coordinate of the display image.
+-- @param y (optional) The y coordinate of the display image.
 -- @return #DisplayImage
 function M:init(texture, x, y)
 	DisplayObject.init(self)

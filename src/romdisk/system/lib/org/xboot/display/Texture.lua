@@ -12,7 +12,7 @@ local M = Class()
 -- @param filename (string) The name of the texture file to be loaded.
 -- @return #Texture 
 function M:init(filename)
-	if filename then
+	if type(filename) == "string" then
 		self.surface = buildin_cairo.image_surface_create_from_png(filename);
 	end
 end

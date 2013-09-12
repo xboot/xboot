@@ -153,6 +153,27 @@ int dcache_status(void)
 	return ((read_p15_c1() & CR_C) != 0);
 }
 
+void wbuffer_enable(void)
+{
+	u32_t reg;
+
+	reg = read_p15_c1();
+	write_p15_c1(reg | CR_W);
+}
+
+void wbuffer_disable(void)
+{
+	u32_t reg;
+
+	reg = read_p15_c1();
+	write_p15_c1(reg & ~CR_W);
+}
+
+int wbuffer_status(void)
+{
+	return ((read_p15_c1() & CR_W) != 0);
+}
+
 void mmu_enable(void)
 {
 	u32_t reg;

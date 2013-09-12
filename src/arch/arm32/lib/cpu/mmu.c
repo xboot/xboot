@@ -7,6 +7,100 @@
 #include <mmu.h>
 
 /*
+ * Page define
+ */
+#define PAGE_SIZE			(4096)
+#define PAGE_SHIFT			(12)
+#define PAGE_ALIGN(x)		(((x) + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
+#define PAGE_ALIGN_DOWN(x)	((x) & ~(PAGE_SIZE - 1))
+
+/*
+ * Level 1 descriptor (PMD)
+ */
+enum {
+	PMD_TYPE_FAULT		= (0x0 << 0),
+	PMD_TYPE_COARSE		= (0x1 << 0),
+	PMD_TYPE_SECTION	= (0x2 << 0),
+	PMD_TYPE_FINE		= (0x3 << 0),
+};
+
+enum {
+	PMD_NCNB			= (0x0 << 2),
+	PMD_NCB				= (0x1 << 2),
+	PMD_CNB				= (0x2 << 2),
+	PMD_CB				= (0x3 << 2),
+};
+
+enum {
+	PMD_AP_FAULT		= (0x0 << 10),
+	PMD_AP_SU_ONLY		= (0x1 << 10),
+	PMD_AP_USR_RO		= (0x2 << 10),
+	PMD_AP_RW			= (0x3 << 10),
+};
+
+#define PMD_BIT4		(0x1 << 4)
+#define PMD_DOMAIN(x)	((x) << 5)
+
+/*
+ * Level 2 descriptor (PTE)
+ */
+enum {
+	PTE_TYPE_FAULT		= (0x0 << 0),
+	PTE_TYPE_LARGE		= (0x1 << 0),
+	PTE_TYPE_SMALL		= (0x2 << 0),
+	PTE_TYPE_TINY		= (0x3 << 0),
+};
+
+/*
+ * Cache and Write back bit
+ */
+enum {
+	PTE_NCNB			= (0x0 << 2),
+	PTE_NCB				= (0x1 << 2),
+	PTE_CNB				= (0x2 << 2),
+	PTE_CB				= (0x3 << 2),
+};
+
+static u32_t __mmu_ttb[PAGE_SIZE] __attribute__((aligned(0x4000)));
+
+static void mmu_map_l1_section(virtual_addr_t virt, virtual_size_t size, physical_addr_t phys, u32_t attr)
+{
+	int i;
+
+	virt >>= 20;
+	size >>= 20;
+	phys >>= 20;
+
+	for (i = size; i > 0; i--, virt++, phys++)
+		__mmu_ttb[virt] = (phys << 20) | attr;
+
+	__mmu_cache_flush();
+}
+
+void mmu_setup(void)
+{
+	__mmu_cache_invalidate();
+
+	ttb_set((u32_t)(__mmu_ttb));
+	domain_set(0x3);
+
+	mmu_map_l1_section(0x00000000, SZ_2G, 0x00000000, PMD_AP_RW | PMD_BIT4 | PMD_CB | PMD_TYPE_SECTION);
+	mmu_map_l1_section(0x80000000, SZ_2G, 0x80000000, PMD_AP_RW | PMD_BIT4 | PMD_CB | PMD_TYPE_SECTION);
+
+	__mmu_cache_on();
+	__mmu_cache_flush();
+
+	icache_enable();
+	dcache_enable();
+	wbuffer_enable();
+	branch_enable();
+}
+
+//==========================================================================
+
+
+#if 0
+/*
  * Hardware page table definitions.
  *
  * + Level 1 descriptor (PMD)
@@ -16,8 +110,8 @@
 #define PMD_TYPE_FAULT		(0 << 0)
 #define PMD_TYPE_TABLE		(1 << 0)
 #define PMD_TYPE_SECT		(2 << 0)
-#define PMD_BIT4		(1 << 4)
-#define PMD_DOMAIN(x)		((x) << 5)
+//#define PMD_BIT4		(1 << 4)
+//#define PMD_DOMAIN(x)		((x) << 5)
 #define PMD_PROTECTION		(1 << 9)	/* v5 */
 /*
  *   - section
@@ -135,6 +229,8 @@ void mmu_early_enable(u32_t membase, u32_t memsize, u32_t _ttb)
 	dcache_enable();
 	branch_enable();
 }
+
+#endif
 
 physical_addr_t virt_to_phys(virtual_addr_t virt)
 {

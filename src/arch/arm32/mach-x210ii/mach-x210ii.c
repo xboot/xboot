@@ -21,11 +21,11 @@
  */
 
 #include <xboot.h>
+#include <cp15.h>
 #include <s5pv210/reg-wdg.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-timer.h>
 #include <s5pv210/reg-others.h>
-#include <s5pv210-cp15.h>
 
 extern u8_t	__text_start[];
 extern u8_t __text_end[];

@@ -84,8 +84,10 @@ void mmu_setup(void)
 	ttb_set((u32_t)(__mmu_ttb));
 	domain_set(0x3);
 
-	mmu_map_l1_section(0x00000000, SZ_2G, 0x00000000, PMD_AP_RW | PMD_BIT4 | PMD_CB | PMD_TYPE_SECTION);
-	mmu_map_l1_section(0x80000000, SZ_2G, 0x80000000, PMD_AP_RW | PMD_BIT4 | PMD_CB | PMD_TYPE_SECTION);
+	mmu_map_l1_section(0x00000000, SZ_2G, 0x00000000, PMD_AP_RW | PMD_BIT4 | PMD_NCNB | PMD_TYPE_SECTION);
+	mmu_map_l1_section(0x80000000, SZ_2G, 0x80000000, PMD_AP_RW | PMD_BIT4 | PMD_NCNB | PMD_TYPE_SECTION);
+
+	mmu_map_l1_section(0x30000000, SZ_512M, 0x30000000, PMD_AP_RW | PMD_BIT4 | PMD_CB | PMD_TYPE_SECTION);
 
 	__mmu_cache_on();
 	__mmu_cache_flush();

@@ -21,9 +21,9 @@
  */
 
 #include <xboot.h>
+#include <cp15.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-vic.h>
-#include <s5pv210-cp15.h>
 
 /*
  * Exception handlers for irq from Start.s

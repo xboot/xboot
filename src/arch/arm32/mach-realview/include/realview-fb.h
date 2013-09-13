@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
+#include <mmu.h>
 #include <fb/fb.h>
 #include <realview/reg-lcd.h>
 

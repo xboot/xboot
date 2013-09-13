@@ -78,6 +78,9 @@ struct render_t {
 	/* pixel data */
 	void * pixels;
 
+	/* pixel data length */
+	size_t pixlen;
+
 	/* private data */
 	void * priv;
 

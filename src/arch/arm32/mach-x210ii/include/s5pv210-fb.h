@@ -2,6 +2,7 @@
 #define __S5PV210_FB_H__
 
 #include <xboot.h>
+#include <mmu.h>
 #include <fb/fb.h>
 #include <s5pv210/reg-gpio.h>
 #include <s5pv210/reg-others.h>

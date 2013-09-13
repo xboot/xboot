@@ -200,14 +200,6 @@ extern "C" {
 #define	CONFIG_COMMAND_BOOTLINUX					(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_CPUINFO)
-#define	CONFIG_COMMAND_CPUINFO						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_MMUINFO)
-#define	CONFIG_COMMAND_MMUINFO						(1)
-#endif
-
 #ifdef __cplusplus
 }
 #endif

@@ -2,9 +2,9 @@ markdown:         rdiscount
 pygments:         true
 paginate:         4
 
-title:            Black Cube Theme
-url:              http://www.pizn.me
-feed:             /atom.xml
+title:            XBOOT - An extensible bootloader
+url:              http://xboot.org
+feed:             atom.xml
 author:
     name:         PIZn
     email:        pizner@gmail.com
@@ -17,6 +17,6 @@ follow:
 description:      "PIZn's blog theme -- Black Cube Theme 1.0 "
 
 
-style: 			  /css/style.css
-blogName: 		  PIZn
-blogDesc: 		  Phosphorus,Iodine & Zinc.
+style: 			  css/style.css
+blogName: 		  XBOOT
+blogDesc: 		  An extensible bootloader.

@@ -4,14 +4,14 @@
 
 #include <cp15.h>
 #include <cache.h>
+#include <malloc.h>
 #include <mmu.h>
 
-/*
- * Page define
- */
 #define PAGE_SIZE			(4096)
 #define PAGE_SHIFT			(12)
 #define PAGE_ALIGN(x)		(((x) + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
+
+#if	CONFIG_MMU_ON > 0
 
 /*
  * Level 1 descriptor (PMD)
@@ -121,7 +121,7 @@ static u32_t * mmu_search_pte(virtual_addr_t virt)
 	return &pte[(virt >> PAGE_SHIFT) & 0xff];
 }
 
-static void mmu_remap_range(virtual_addr_t virt, virtual_size_t size, u32_t attr)
+static void mmu_remap(virtual_addr_t virt, virtual_size_t size, u32_t attr)
 {
 	u32_t * pte;
 	int i, n;
@@ -140,27 +140,58 @@ static void mmu_remap_range(virtual_addr_t virt, virtual_size_t size, u32_t attr
 	tlb_invalidate();
 }
 
-void mmu_setup(void)
+void mmu_setup(struct machine_t * mach)
 {
-	mmu_cache_invalidate();
+	virtual_addr_t virt, phys;
+	virtual_size_t size;
+	int i;
 
+	mmu_cache_invalidate();
 	ttb_set((u32_t)(__mmu_ttb));
 	domain_set(0x3);
 
 	mmu_map_l1_section(0x00000000, SZ_2G, 0x00000000, PMD_NCNB);
 	mmu_map_l1_section(0x80000000, SZ_2G, 0x80000000, PMD_NCNB);
 
-	mmu_map_l2_page(0x30000000, SZ_512M, 0x30000000, PTE_CB);
+	if(mach)
+	{
+		for(i = 0; i < ARRAY_SIZE(mach->res.mem_banks); i++)
+		{
+			if( (mach->res.mem_banks[i].start == 0) && (mach->res.mem_banks[i].end == 0) )
+				break;
+
+			virt = (virtual_addr_t)mach->res.mem_banks[i].start;
+			phys = (virtual_addr_t)mach->res.mem_banks[i].start;
+			size = (virtual_size_t)(mach->res.mem_banks[i].end - mach->res.mem_banks[i].start + 1);
+			mmu_map_l2_page(virt, size, phys, PTE_CB);
+		}
+	}
 
 	mmu_cache_on();
 	mmu_cache_flush();
-
 	icache_enable();
 	dcache_enable();
 	wbuffer_enable();
 	branch_enable();
+}
 
-	mmu_remap_range(0x30000000, SZ_512M, PTE_CB);
+void * dma_alloc_coherent(size_t size)
+{
+	void * mem;
+
+	size = PAGE_ALIGN(size);
+	mem = memalign(PAGE_SIZE, size);
+
+	dma_inv_range((unsigned long)mem, (unsigned long)mem + size);
+	mmu_remap((virtual_addr_t)mem, size, PTE_NCNB);
+
+	return mem;
+}
+
+void dma_free_coherent(void * mem, size_t size)
+{
+	mmu_remap((virtual_addr_t)mem, PAGE_ALIGN(size), PTE_CB);
+	free(mem);
 }
 
 physical_addr_t virt_to_phys(virtual_addr_t virt)
@@ -173,22 +204,29 @@ virtual_addr_t phys_to_virt(physical_addr_t phys)
 	return (virtual_addr_t)phys;
 }
 
+#else
+
+void mmu_setup(struct machine_t * mach)
+{
+}
+
 void * dma_alloc_coherent(size_t size)
 {
-	void * ret;
-
-	size = PAGE_ALIGN(size);
-	ret = memalign(PAGE_SIZE, size);
-
-	dma_inv_range((unsigned long)ret, (unsigned long)ret + size);
-	mmu_remap_range((virtual_addr_t)ret, size, PTE_NCNB);
-
-	return ret;
+	return memalign(PAGE_SIZE, size);
 }
 
 void dma_free_coherent(void * mem, size_t size)
 {
-	size = PAGE_ALIGN(size);
-	mmu_remap_range((virtual_addr_t)mem, size, PTE_CB);
 	free(mem);
 }
+
+physical_addr_t virt_to_phys(virtual_addr_t virt)
+{
+	return (physical_addr_t)virt;
+}
+
+virtual_addr_t phys_to_virt(physical_addr_t phys)
+{
+	return (virtual_addr_t)phys;
+}
+#endif

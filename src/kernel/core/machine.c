@@ -95,6 +95,9 @@ bool_t register_machine(struct machine_t * mach)
 		if(__machine->misc.getmode)
 			xboot_set_mode(__machine->misc.getmode());
 
+		extern void mmu_setup(struct machine_t * mach);
+		mmu_setup(__machine);
+
 		return TRUE;
 	}
 	else

@@ -1,0 +1,22 @@
+markdown:         rdiscount
+pygments:         true
+paginate:         4
+
+title:            Black Cube Theme
+url:              http://www.pizn.me
+feed:             /atom.xml
+author:
+    name:         PIZn
+    email:        pizner@gmail.com
+description:      "PIZn's blog theme -- Black Cube Theme 1.0 "
+
+about: 			  "I am PIZn.I love all kinds of design, attention to the Internet dynamic, dedicated web front development, learn UI and UED."
+follow:
+    github:       https://github.com/pizn
+    twitter:      http://www.twitter.com/piznlin
+description:      "PIZn's blog theme -- Black Cube Theme 1.0 "
+
+
+style: 			  /css/style.css
+blogName: 		  PIZn
+blogDesc: 		  Phosphorus,Iodine & Zinc.

@@ -1,0 +1,28 @@
+---
+layout: default
+---
+<section class="content">
+	<div class="content-cnt fn-clear">
+		<div class="main fn-clear">
+			<article class="entry">
+				<h1 class="title">{{ page.title }}</h1>
+               	<p class="meta"><time class="date" pubdate="{{ page.date | date_to_utc | date: '%Y-%m-%d' }}">{{ page.date | date_to_string }}</time> By <a href="/contact.html" class="author" title="author">{{ site.author.name }}</a><g:plusone size="small"></g:plusone></p>
+               	<p class="description">{{ page.description }}</p>
+ 			 	{{ content }}
+                <nav class="pagination-link">
+                    {% if page.previous %}
+                    <a class="prev" href="{{ page.previous.url }}" rel="bookmark">&laquo;&nbsp;{{ page.previous.title | truncatewords:5 }}</a>
+                    {% endif %}
+                    {% if page.next %}
+                    <a class="next" href="{{ page.next.url }}" rel="bookmark">{{ page.next.title | truncatewords:5 }}&nbsp;&raquo;</a>
+                    {% endif %}
+                 </nav>
+			</article><!-- .entry -->		
+		</div>
+		<div class="aside fn-clear">
+			{% include wg-contact.html %}
+			{% include wg-project.html %}
+			{% include wg-other.html %}
+		</div>
+	</div>
+</section>

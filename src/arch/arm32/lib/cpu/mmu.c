@@ -2,9 +2,6 @@
  * mmu.c
  */
 
-#include <cp15.h>
-#include <cache.h>
-#include <malloc.h>
 #include <mmu.h>
 
 #define PAGE_SIZE			(4096)

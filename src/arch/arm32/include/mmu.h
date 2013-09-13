@@ -1,11 +1,13 @@
 #ifndef __ARM32_MMU_H__
 #define __ARM32_MMU_H__
 
-#include <xboot.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <xboot.h>
+#include <cp15.h>
+#include <cache.h>
 
 void mmu_setup(struct machine_t * mach);
 void * dma_alloc_coherent(size_t size);

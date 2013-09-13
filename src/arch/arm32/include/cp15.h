@@ -33,6 +33,7 @@ void ttb_set(u32_t base);
 u32_t ttb_get(void);
 void domain_set(u32_t domain);
 u32_t domain_get(void);
+void tlb_invalidate(void);
 
 #ifdef __cplusplus
 }

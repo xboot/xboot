@@ -12,7 +12,6 @@
 #define PAGE_SIZE			(4096)
 #define PAGE_SHIFT			(12)
 #define PAGE_ALIGN(x)		(((x) + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
-#define PAGE_ALIGN_DOWN(x)	((x) & ~(PAGE_SIZE - 1))
 
 /*
  * Level 1 descriptor (PMD)
@@ -75,20 +74,7 @@ static void mmu_map_l1_section(virtual_addr_t virt, virtual_size_t size, physica
 	for(i = size; i > 0; i--, virt++, phys++)
 		__mmu_ttb[virt] = (phys << 20) | (0x1 << 4) | PMD_TYPE_SECTION | PMD_AP_RW | attr;
 
-	__mmu_cache_flush();
-}
-
-static inline void tlb_invalidate(void)
-{
-	asm volatile (
-		"mov	r0, #0\n"
-		"mcr	p15, 0, r0, c7, c10, 4;	@ drain write buffer\n"
-		"mcr	p15, 0, r0, c8, c6, 0;  @ invalidate D TLBs\n"
-		"mcr	p15, 0, r0, c8, c5, 0;  @ invalidate I TLBs\n"
-		:
-		:
-		: "r0"
-	);
+	mmu_cache_flush();
 }
 
 static void mmu_map_l2_page(virtual_addr_t virt, virtual_size_t size, physical_addr_t phys, u32_t attr)
@@ -119,9 +105,8 @@ static void mmu_map_l2_page(virtual_addr_t virt, virtual_size_t size, physical_a
 		n += 256;
 	}
 
-	__dma_flush_range((unsigned long)__mmu_ttb, (unsigned long)__mmu_ttb + sizeof(__mmu_ttb));
-	__dma_flush_range((unsigned long)pte, npte * sizeof(u32_t));
-
+	dma_flush_range((unsigned long)__mmu_ttb, (unsigned long)__mmu_ttb + sizeof(__mmu_ttb));
+	dma_flush_range((unsigned long)pte, npte * sizeof(u32_t));
 	tlb_invalidate();
 }
 
@@ -151,13 +136,13 @@ static void mmu_remap_range(virtual_addr_t virt, virtual_size_t size, u32_t attr
 		pte[i] |= PTE_TYPE_SMALL | attr;
 	}
 
-	__dma_flush_range((unsigned long)pte, (unsigned long)pte + n * sizeof(u32_t));
+	dma_flush_range((unsigned long)pte, (unsigned long)pte + n * sizeof(u32_t));
 	tlb_invalidate();
 }
 
 void mmu_setup(void)
 {
-	__mmu_cache_invalidate();
+	mmu_cache_invalidate();
 
 	ttb_set((u32_t)(__mmu_ttb));
 	domain_set(0x3);
@@ -167,8 +152,8 @@ void mmu_setup(void)
 
 	mmu_map_l2_page(0x30000000, SZ_512M, 0x30000000, PTE_CB);
 
-	__mmu_cache_on();
-	__mmu_cache_flush();
+	mmu_cache_on();
+	mmu_cache_flush();
 
 	icache_enable();
 	dcache_enable();
@@ -195,7 +180,7 @@ void * dma_alloc_coherent(size_t size)
 	size = PAGE_ALIGN(size);
 	ret = memalign(PAGE_SIZE, size);
 
-	__dma_inv_range((unsigned long)ret, (unsigned long)ret + size);
+	dma_inv_range((unsigned long)ret, (unsigned long)ret + size);
 	mmu_remap_range((virtual_addr_t)ret, size, PTE_NCNB);
 
 	return ret;

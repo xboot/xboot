@@ -280,3 +280,15 @@ u32_t domain_get(void)
 
 	return domain;
 }
+
+void tlb_invalidate(void)
+{
+	__asm__ __volatile__(
+		"mov r0, #0\n"
+		"mcr p15, 0, r0, c7, c10, 4\n"
+		"mcr p15, 0, r0, c8, c6, 0\n"
+		"mcr p15, 0, r0, c8, c5, 0\n"
+		:
+		:
+		: "r0");
+}

@@ -38,7 +38,7 @@ extern void v7_mmu_cache_flush(void);
 extern void v7_mmu_cache_invalidate(void);
 #endif
 
-void __dma_clean_range(unsigned long start, unsigned long end)
+void dma_clean_range(unsigned long start, unsigned long end)
 {
 #if __ARM_ARCH__ == 4
 	v4_dma_clean_range(start, end);
@@ -54,7 +54,7 @@ void __dma_clean_range(unsigned long start, unsigned long end)
 #endif
 }
 
-void __dma_flush_range(unsigned long start, unsigned long end)
+void dma_flush_range(unsigned long start, unsigned long end)
 {
 #if __ARM_ARCH__ == 4
 	v4_dma_flush_range(start, end);
@@ -70,7 +70,7 @@ void __dma_flush_range(unsigned long start, unsigned long end)
 #endif
 }
 
-void __dma_inv_range(unsigned long start, unsigned long end)
+void dma_inv_range(unsigned long start, unsigned long end)
 {
 #if __ARM_ARCH__ == 4
 	v4_dma_inv_range(start, end);
@@ -86,7 +86,7 @@ void __dma_inv_range(unsigned long start, unsigned long end)
 #endif
 }
 
-void __mmu_cache_on(void)
+void mmu_cache_on(void)
 {
 #if __ARM_ARCH__ == 4
 	v4_mmu_cache_on();
@@ -102,7 +102,7 @@ void __mmu_cache_on(void)
 #endif
 }
 
-void __mmu_cache_off(void)
+void mmu_cache_off(void)
 {
 #if __ARM_ARCH__ == 4
 	v4_mmu_cache_off();
@@ -118,7 +118,7 @@ void __mmu_cache_off(void)
 #endif
 }
 
-void __mmu_cache_flush(void)
+void mmu_cache_flush(void)
 {
 #if __ARM_ARCH__ == 4
 	v4_mmu_cache_flush();
@@ -134,7 +134,7 @@ void __mmu_cache_flush(void)
 #endif
 }
 
-void __mmu_cache_invalidate(void)
+void mmu_cache_invalidate(void)
 {
 #if __ARM_ARCH__ >= 4 && __ARM_ARCH__ <= 6
 	asm volatile("mcr p15, 0, %0, c7, c6, 0\n" : : "r"(0));

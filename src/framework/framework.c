@@ -24,13 +24,13 @@
 #include <framework/framework.h>
 
 static const luaL_Reg xboot_libs[] = {
-	{ "org.xboot.buildin.event",				luaopen_event },
-	{ "org.xboot.buildin.logger",				luaopen_logger },
-	{ "org.xboot.buildin.stopwatch",			luaopen_stopwatch },
-	{ "org.xboot.buildin.base64",				luaopen_base64 },
-	{ "org.xboot.buildin.cairo",				luaopen_cairo },
-	{ "org.xboot.buildin.hardware.led",			luaopen_hardware_led },
-	{ "org.xboot.buildin.hardware.ledtrig",		luaopen_hardware_ledtrig },
+	{ "builtin.logger",				luaopen_logger },
+	{ "builtin.event",				luaopen_event },
+	{ "builtin.stopwatch",			luaopen_stopwatch },
+	{ "builtin.base64",				luaopen_base64 },
+	{ "builtin.cairo",				luaopen_cairo },
+	{ "builtin.hardware.led",		luaopen_hardware_led },
+	{ "builtin.hardware.ledtrig",	luaopen_hardware_ledtrig },
 	{ NULL, NULL }
 };
 

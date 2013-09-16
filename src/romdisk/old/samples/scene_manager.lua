@@ -241,7 +241,7 @@ function M:init(scenes)
 	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
 end
 
-local stopwatch = buildin_stopwatch.new()
+local stopwatch = Stopwatch.new()
 
 function M:changeScene(scene, duration, transition, ease, options)
 	self.eventFilter = options and options.eventFilter

@@ -41,7 +41,7 @@ function spairs(t, order)
     end
 end
 
-local ledlist = buildin_hardware.led.list()
+local ledlist = Hardware.led.list()
 local x = 0
 local y = 0
 for k, v in spairs(ledlist) do

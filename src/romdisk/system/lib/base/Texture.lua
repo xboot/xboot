@@ -14,7 +14,7 @@ local M = Class()
 -- @return #Texture
 function M:init(data)
 	if type(data) == "string" then
-		self.surface = buildin_cairo.image_surface_create_from_png(data);
+		self.surface = Cairo.image_surface_create_from_png(data);
 	elseif type(data) == "userdata" then
 		self.surface = data
 	else
@@ -84,8 +84,8 @@ function M:region(x, y, width, height)
 	width = width or self.getWidth()
 	height = height or self.getHeight()
 
-	local cs = buildin_cairo.surface_create_similar(self.surface, buildin_cairo.CONTENT_COLOR_ALPHA, width, height);
-	local cr = buildin_cairo.create(cs)
+	local cs = Cairo.surface_create_similar(self.surface, Cairo.CONTENT_COLOR_ALPHA, width, height);
+	local cr = Cairo.create(cs)
 	cr:set_source_surface(self.surface, -x, -y)
 	cr:paint()
 

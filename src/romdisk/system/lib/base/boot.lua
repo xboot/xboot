@@ -1,18 +1,24 @@
+---
+-- Setting package path
+--
 package.path = "/romdisk/system/lib/?.lua;/romdisk/system/lib/?/init.lua;./?.lua"
 package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;./?.so"
 
-print = require("org.xboot.buildin.logger").print
-
-buildin_event = require "org.xboot.buildin.event"
-buildin_stopwatch = require "org.xboot.buildin.stopwatch"
-buildin_base64 = require "org.xboot.buildin.base64"
-buildin_cairo = require "org.xboot.buildin.cairo"
-
-buildin_hardware = {
-	led = require "org.xboot.buildin.hardware.led",
-	ledtrig = require "org.xboot.buildin.hardware.ledtrig",
+---
+-- Builtin module
+--
+print = require("builtin.logger").print
+Stopwatch = require "builtin.stopwatch"
+Base64 = require "builtin.base64"
+Cairo = require "builtin.cairo"
+Hardware = {
+	led = require "builtin.hardware.led",
+	ledtrig = require "builtin.hardware.ledtrig",
 }
 
+---
+-- External module
+--
 Class = require "base.Class"
 Timer = require "base.Timer"
 Event = require "base.Event"
@@ -23,19 +29,26 @@ DisplayObject = require "base.DisplayObject"
 DisplayImage = require "base.DisplayImage"
 DisplayBmtext = require "base.DisplayBmtext"
 
+---
+-- Global runtime
+--
 runtime = DisplayObject:new()
 
+---
+-- Loader function
+--
 local function loader()
 	require("main")
 
-	local stopwatch = buildin_stopwatch.new()
+	local pump = require("builtin.event").pump
+	local stopwatch = Stopwatch.new()
 	local cs = {
-		buildin_cairo.xboot_surface_create(),
-		buildin_cairo.xboot_surface_create(),
+		Cairo.xboot_surface_create(),
+		Cairo.xboot_surface_create(),
 	}
 	local cr = {
-		buildin_cairo.create(cs[1]),
-		buildin_cairo.create(cs[2]),
+		Cairo.create(cs[1]),
+		Cairo.create(cs[2]),
 	}
 	local cidx = 1;
 	
@@ -50,7 +63,7 @@ local function loader()
 	end)
 
 	while true do
-		local info = buildin_event.pump()	
+		local info = pump()	
 		if info ~= nil then
 			local e = Event:new(info.type, info)
 			runtime:dispatch(e)
@@ -64,6 +77,9 @@ local function loader()
 	end
 end
 
+---
+-- Message handler
+--
 local function handler(msg, layer)
 	print((debug.traceback("ERROR: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", "")))
 end

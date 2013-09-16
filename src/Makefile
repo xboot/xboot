@@ -132,6 +132,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				framework									\
 				framework/base64							\
 				framework/cairo								\
+				framework/display							\
 				framework/event								\
 				framework/logger							\
 				framework/hardware							\

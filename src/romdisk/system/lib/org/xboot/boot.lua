@@ -13,15 +13,15 @@ buildin_hardware = {
 	ledtrig = require "org.xboot.buildin.hardware.ledtrig",
 }
 
-Class = require "org.xboot.lang.Class"
-Timer = require "org.xboot.timer.Timer"
-Event = require "org.xboot.event.Event"
-EventDispatcher = require "org.xboot.event.EventDispatcher"
-Texture = require "org.xboot.display.Texture"
-TexturePacker = require "org.xboot.display.TexturePacker"
-DisplayObject = require "org.xboot.display.DisplayObject"
-DisplayImage = require "org.xboot.display.DisplayImage"
-DisplayBmtext = require "org.xboot.display.DisplayBmtext"
+Class = require "org.xboot.Class"
+Timer = require "org.xboot.Timer"
+Event = require "org.xboot.Event"
+EventDispatcher = require "org.xboot.EventDispatcher"
+Texture = require "org.xboot.Texture"
+TexturePacker = require "org.xboot.TexturePacker"
+DisplayObject = require "org.xboot.DisplayObject"
+DisplayImage = require "org.xboot.DisplayImage"
+DisplayBmtext = require "org.xboot.DisplayBmtext"
 
 runtime = DisplayObject:new()
 

@@ -1,4 +1,4 @@
-local background = DisplayImage:new(Texture:new("background.png"))
+local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
 local text = DisplayBmtext:new("simhei_regular_24", "123", 0, 0)

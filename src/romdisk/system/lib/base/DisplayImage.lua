@@ -56,7 +56,7 @@ function M:__draw(cr)
 		cr:translate(-tx, -ty)
 	end
 
-	cr:set_source_surface(self.texture:getSurface(), self.x, self.y)
+	cr:set_source_surface(self.texture, self.x, self.y)
 
 	if self.__alpha then
 		cr:paint_with_alpha(self.alpha)

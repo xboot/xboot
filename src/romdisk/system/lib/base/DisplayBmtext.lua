@@ -26,7 +26,7 @@ function M:init(font, text, x, y)
 	self.caches = {}
 
 	self.font = require(font)
-	self.texture = Texture:new(self.font.texture.file)
+	self.texture = Texture.new(self.font.texture.file)
 	self:setText(text)
 end
 

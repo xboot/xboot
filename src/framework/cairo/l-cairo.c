@@ -440,7 +440,7 @@ static int m_cairo_reset_clip(lua_State * L)
 static int m_cairo_set_source_surface(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_CAIRO);
-	cairo_surface_t ** cs = luaL_checkudata(L, 2, MT_NAME_CAIRO_SURFACE);
+	cairo_surface_t ** cs = luaL_checkudata(L, 2, "mt_name_texture");
 	double x = luaL_optnumber(L, 3, 0);
 	double y = luaL_optnumber(L, 4, 0);
 	cairo_set_source_surface(*cr, *cs, x, y);

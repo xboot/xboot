@@ -16,7 +16,7 @@ local M = Class()
 -- @return #TexturePacker
 function M:init(packer)
 	self.packer = require(packer)
-	self.texture = Texture:new(self.packer.texture)
+	self.texture = Texture.new(self.packer.texture)
 	self.caches = {}
 end
 

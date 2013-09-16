@@ -1,12 +1,12 @@
 local Button = require("Button")
 
 -- create background
-local background = DisplayImage:new(Texture:new("background.png"))
+local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
 -- create the up and down sprites for the button
-local normal = DisplayImage:new(Texture:new("button_normal.png"))
-local active = DisplayImage:new(Texture:new("button_active.png"))
+local normal = DisplayImage:new(Texture.new("button_normal.png"))
+local active = DisplayImage:new(Texture.new("button_active.png"))
 
 -- create the button
 local btn = Button:new(normal, active)

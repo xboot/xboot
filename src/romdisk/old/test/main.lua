@@ -1,6 +1,6 @@
 local Bmfont = require "Bmfont"
 
-local background = DisplayImage:new(Texture:new("background.png"))
+local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
 local text = Bmfont:new("font.txt", "font.png", "1234567890")

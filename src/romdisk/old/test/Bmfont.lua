@@ -17,7 +17,7 @@ end
 function M:init(fntfile, imgfile, str)
 	DisplayObject.init(self)
 
-	self.texture = Texture:new(imgfile)
+	self.texture = Texture.new(imgfile)
 	self.chars = {}
 	
 	local file = io.open(fntfile, "r")

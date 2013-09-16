@@ -1,12 +1,12 @@
-local background = DisplayImage:new(Texture:new("background.png"))
+local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
 local dots = {
-	DisplayImage:new(Texture:new("1.png")),
-	DisplayImage:new(Texture:new("2.png")),
-	DisplayImage:new(Texture:new("3.png")),
-	DisplayImage:new(Texture:new("4.png")),
-	DisplayImage:new(Texture:new("5.png")),
+	DisplayImage:new(Texture.new("1.png")),
+	DisplayImage:new(Texture.new("2.png")),
+	DisplayImage:new(Texture.new("3.png")),
+	DisplayImage:new(Texture.new("4.png")),
+	DisplayImage:new(Texture.new("5.png")),
 }
 
 local function onTouchesBegin(d, e)

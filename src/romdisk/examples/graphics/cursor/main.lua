@@ -1,6 +1,6 @@
-local background = DisplayImage:new(Texture:new("background.png"))
+local background = DisplayImage:new(Texture.new("background.png"))
 
-local cursor = DisplayImage:new(Texture:new("cursor.png", 0, 0))
+local cursor = DisplayImage:new(Texture.new("cursor.png", 0, 0))
 cursor:addEventListener(Event.MOUSE_DOWN, function(d, e) d:setXY(e.info.x, e.info.y) end, cursor)
 cursor:addEventListener(Event.MOUSE_MOVE, function(d, e) d:setXY(e.info.x, e.info.y) end, cursor)
 cursor:addEventListener(Event.MOUSE_UP, function(d, e) d:setXY(e.info.x, e.info.y) end, cursor)

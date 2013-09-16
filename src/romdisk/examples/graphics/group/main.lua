@@ -1,10 +1,10 @@
-local background = DisplayImage:new(Texture:new("background.png"))
+local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
-dot1tex = Texture:new("dot-1.png")
-dot2tex = Texture:new("dot-2.png")
-group1tex = Texture:new("group-1.png")
-group2tex = Texture:new("group-2.png")
+dot1tex = Texture.new("dot-1.png")
+dot2tex = Texture.new("dot-2.png")
+group1tex = Texture.new("group-1.png")
+group2tex = Texture.new("group-2.png")
 
 group1 = DisplayObject:new()
 group1:addChild(DisplayImage:new(group1tex))

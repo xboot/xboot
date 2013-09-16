@@ -6,13 +6,13 @@ local M = Class(DisplayObject)
 function M:init(led)
 	DisplayObject.init(self)
 
-	local lon = DisplayImage:new(Texture:new("amber-led-on.png"))
-	local loff = DisplayImage:new(Texture:new("amber-led-off.png"))
+	local lon = DisplayImage:new(Texture.new("amber-led-on.png"))
+	local loff = DisplayImage:new(Texture.new("amber-led-off.png"))
 	self.uiled = Led:new(lon, loff)
 	self.uiled:setXY(25, 0)
 
-	local ton = DisplayImage:new(Texture:new("toggle-on.png"))
-	local toff = DisplayImage:new(Texture:new("toggle-off.png"))
+	local ton = DisplayImage:new(Texture.new("toggle-on.png"))
+	local toff = DisplayImage:new(Texture.new("toggle-off.png"))
 	self.uitoggle = Toggle:new(ton, toff)
 	self.uitoggle:setXY(100, 0)
 

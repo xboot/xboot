@@ -1,4 +1,4 @@
-local background = DisplayImage:new(Texture:new("background.png"))
+local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
 local packer = TexturePacker:new("cnum")

@@ -1,27 +1,27 @@
-local background = DisplayImage:new(Texture:new("background.png"))
+local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
-local redbar = DisplayImage:new(Texture:new("red-bar.png"))
+local redbar = DisplayImage:new(Texture.new("red-bar.png"))
 redbar:setXY(91, 230)
 runtime:addChild(redbar)
 
-local greenbar = DisplayImage:new(Texture:new("green-bar.png"))
+local greenbar = DisplayImage:new(Texture.new("green-bar.png"))
 greenbar:setXY(91, 260)
 runtime:addChild(greenbar)
 
-local bluebar = DisplayImage:new(Texture:new("blue-bar.png"))
+local bluebar = DisplayImage:new(Texture.new("blue-bar.png"))
 bluebar:setXY(91, 290)
 runtime:addChild(bluebar)
 
-local reddot = DisplayImage:new(Texture:new("red-dot.png"))
+local reddot = DisplayImage:new(Texture.new("red-dot.png"))
 reddot:setY(222)
 runtime:addChild(reddot)
 
-local greendot = DisplayImage:new(Texture:new("green-dot.png"))
+local greendot = DisplayImage:new(Texture.new("green-dot.png"))
 greendot:setY(252)
 runtime:addChild(greendot)
 
-local bluedot = DisplayImage:new(Texture:new("blue-dot.png"))
+local bluedot = DisplayImage:new(Texture.new("blue-dot.png"))
 bluedot:setY(282)
 runtime:addChild(bluedot)
 

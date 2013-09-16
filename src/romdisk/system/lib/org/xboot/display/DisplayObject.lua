@@ -421,7 +421,7 @@ end
 --- 
 -- Checks whether the given coordinates (in global coordinate system) is in bounds of the display object.
 -- 
--- @function [parent=#DisplayObject] hitTestPointPoint
+-- @function [parent=#DisplayObject] hitTestPoint
 -- @param self
 -- @param x (number)
 -- @param y (number)

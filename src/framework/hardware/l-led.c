@@ -45,8 +45,20 @@ static int l_led_list(lua_State * L)
 	return 1;
 }
 
+static int l_led_search(lua_State * L)
+{
+	const char * name = luaL_optstring(L, 1, NULL);
+	struct led_t * led = search_led(name);
+	if(!led)
+		return 0;
+	lua_pushlightuserdata(L, led);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_LED);
+	return 1;
+}
+
 static const luaL_Reg l_hardware_led[] = {
 	{"list", l_led_list},
+	{"search", l_led_search},
 	{NULL, NULL}
 };
 

@@ -11,6 +11,7 @@ print = require("builtin.logger").print
 Stopwatch = require "builtin.stopwatch"
 Base64 = require "builtin.base64"
 Cairo = require "builtin.cairo"
+Matrix = require "builtin.matrix"
 Texture = require "builtin.texture"
 Hardware = {
 	led = require "builtin.hardware.led",

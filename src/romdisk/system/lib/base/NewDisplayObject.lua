@@ -5,7 +5,7 @@
 -- @module DisplayObject
 local M = Class(EventDispatcher)
 
-local __identityMatrix = Matrix.new()
+local __matrix_identity = Matrix.new()
 
 ---
 -- Creates a new display object.
@@ -28,7 +28,7 @@ function M:init()
 	self.anchory = 0
 	self.alpha = 1
 	
-	self.matrix = __identityMatrix
+	self.matrix = __matrix_identity
 	self.__translate = false;
 	self.__rotate = false;
 	self.__scale = false;
@@ -276,6 +276,16 @@ function M:setX(x)
 end
 
 ---
+-- Returns the x coordinate of the display object.
+-- 
+-- @function [parent=#DisplayObject] getX
+-- @param self
+-- @return The x coordinate of the display object.
+function M:getX()
+	return self.x
+end
+
+---
 -- Sets the y coordinates of the display object.
 -- 
 -- @function [parent=#DisplayObject] setY
@@ -290,13 +300,23 @@ function M:setY(y)
 end
 
 ---
+-- Returns the y coordinate of the display object.
+-- 
+-- @function [parent=#DisplayObject] getY
+-- @param self
+-- @return The y coordinate of the display object.
+function M:getY()
+	return self.y
+end
+
+---
 -- Sets the x and y coordinates of the display object.
 -- 
--- @function [parent=#DisplayObject] setXY
+-- @function [parent=#DisplayObject] setPosition
 -- @param self
 -- @param x (number) The new x coordinate of the display object.
 -- @param y (number) The new y coordinate of the display object.
-function M:setXY(x, y)
+function M:setPosition(x, y)
 	self.x = x
 	self.y = y
 
@@ -305,13 +325,23 @@ function M:setXY(x, y)
     self.matrix = nil
 end
 
+---	
+-- Returns the x and y coordinates of the display object.
+-- 
+-- @function [parent=#DisplayObject] getPosition
+-- @param self
+-- @return The x and y coordinates of the display object.
+function M:getPosition()
+	return self.x, self.y
+end
+
 --- 
 -- Sets the rotation of the display object in radians.
 -- 
--- @function [parent=#DisplayObject] setRotate
+-- @function [parent=#DisplayObject] setRotation
 -- @param self
 -- @param rotation (number) rotation of the display object
-function M:setRotate(rotation)
+function M:setRotation(rotation)
 	local M_PI2 = math.pi * 2
 
 	self.rotation = rotation
@@ -327,6 +357,16 @@ function M:setRotate(rotation)
     self.matrix = nil
 end
 
+--- 
+-- Returns the rotation of the display object in radians.
+-- 
+-- @function [parent=#DisplayObject] getRotation
+-- @param self
+-- @return Rotation of the display object.
+function M:getRotation()
+	return self.rotation
+end
+
 ---
 -- Sets the horizontal scale of the display object.
 --
@@ -339,6 +379,16 @@ function M:setScaleX(x)
 	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
 	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
     self.matrix = nil
+end
+
+--- 
+-- Returns the horizontal scale of the display object.
+-- 
+-- @function [parent=#DisplayObject] getScaleX
+-- @param self
+-- @return The horizontal scale (percentage) of the display object.
+function M:getScaleX()
+	return self.scalex
 end
 
 ---
@@ -356,6 +406,16 @@ function M:setScaleY(y)
 end
 
 ---
+-- Returns the vertical scale of the display object.
+-- 
+-- @function [parent=#DisplayObject] getScaleY
+-- @param self
+-- @return The vertical scale of the display object.
+function M:getScaleY()
+	return self.scaley
+end
+
+---
 -- Sets the horizontal and vertical scales of the display object.
 -- 
 -- @function [parent=#DisplayObject] setScale
@@ -369,6 +429,16 @@ function M:setScale(x, y)
 	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
 	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
     self.matrix = nil	
+end
+
+--- 
+-- Returns the horizontal and vertical scales of the display object.
+-- 
+-- @function [parent=#DisplayObject] getScale
+-- @param self
+-- @return The horizontal and vertical scales of the display object
+function M:getScale()
+	return self.scalex, self.scaley
 end
 
 ---
@@ -388,6 +458,16 @@ function M:setAnchor(x, y)
 end
 
 ---
+-- Returns the anchor point of the display object.
+--
+-- @function [parent=#DisplayObject] getAnchor
+-- @param self
+-- @return The anchor point of the display object.
+function M:getAnchor()
+	return self.anchorx, self.anchory
+end
+
+---
 -- Sets the alpha transparency of this display object. 0 means fully transparent and 1 means fully opaque.
 --
 -- @function [parent=#DisplayObject] setAlpha
@@ -402,12 +482,22 @@ function M:setAlpha(alpha)
 	end
 end
 
+--- 
+-- Returns the alpha transparency of this display object.
+-- 
+-- @function [parent=#DisplayObject] getAlpha
+-- @param self
+-- @return The alpha of the display object
+function M:getAlpha()
+	return self.alpha
+end
+
 function M:getMatrix(target)
 	if target == self then
-		return __identityMatrix
+		return __matrix_identity
 	end
 
-	local m = self.matrix or __identityMatrix
+	local m = self.matrix or __matrix_identity
 
 	if self.__transform and not self.matrix then
 		if self.__anchor or self.__translate then
@@ -432,8 +522,6 @@ function M:getMatrix(target)
 		m:multiply(m, self.parent:getMatrix(target))
 		return m
 	else
-		--if parent is null it means that target space is not an
-		--ancestor of the current obj, and that's not valid
 		error("the target is not an ancestor of the current obj")
 	end
 end

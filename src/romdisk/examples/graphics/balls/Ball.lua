@@ -40,7 +40,7 @@ function M:onEnterFrame(e)
 		self.ydirection = -1
 	end
 
-	self:setXY(x, y)
+	self:setPosition(x, y)
 end
 
 return M

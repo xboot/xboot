@@ -1,9 +1,11 @@
 ---
 -- The 'DisplayObject' class is the base class for all objects that can
 -- be placed on the screen.
--- 
+--
 -- @module DisplayObject
 local M = Class(EventDispatcher)
+
+local M_PI2 = math.pi * 2
 
 ---
 -- Creates a new display object.
@@ -26,20 +28,26 @@ function M:init()
 	self.anchory = 0
 	self.alpha = 1
 
+	self.__translate = false;
 	self.__rotate = false;
 	self.__scale = false;
+	self.__anchor = false;
+	self.__transform = false;
 	self.__alpha = false;
+
+	self.__matrix = Matrix.new()
+	self.__matrix_valid = true;
 end
 
 ---
 -- Adds a display object as a child to this display object. The child
 -- is added as a last child of this 'DisplayObject' instance.
--- 
+--
 -- Display object can have only one parent. Therefore if you add a child
 -- object that already has a different display object as a parent, the
--- display object is removed from the child list of the other display 
+-- display object is removed from the child list of the other display
 -- object and then added to this display object.
--- 
+--
 -- @function [parent=#DisplayObject] addChild
 -- @param self
 -- @param child (DisplayObject) The child display object to add.
@@ -63,7 +71,7 @@ end
 ---
 -- Removes the specified child 'DisplayObject' instance from the child list
 -- of this 'DisplayObject' instance.
--- 
+--
 -- @function [parent=#DisplayObject] removeChild
 -- @param self
 -- @param child (DisplayObject) The child display object to remove.
@@ -81,7 +89,7 @@ function M:removeChild(child)
 			break
 		end
 	end
-	
+
 	if index <= 0 then
 		return false
 	end
@@ -95,7 +103,7 @@ end
 ---
 -- If the display object has a parent, removes the display object from the
 -- child list of its parent display object.
--- 
+--
 -- @function [parent=#DisplayObject] removeSelf
 -- @param self
 -- @return A value of 'true' or 'false'.
@@ -111,7 +119,7 @@ end
 
 ---
 -- Moves the display object to the visual front of its parent.
--- 
+--
 -- @function [parent=#DisplayObject] toFront
 -- @param self
 -- @return A value of 'true' or 'false'.
@@ -134,7 +142,7 @@ end
 
 ---
 -- Moves the display object to the visual back of its parent.
--- 
+--
 -- @function [parent=#DisplayObject] toBack
 -- @param self
 -- @return A value of 'true' or 'false'.
@@ -158,7 +166,7 @@ end
 ---
 -- Determines whether the specified display object is contained in the subtree of
 -- this 'DisplayObject' instance.
--- 
+--
 -- @function [parent=#DisplayObject] contains
 -- @param self
 -- @param child (DisplayObject) The child object to test.
@@ -178,7 +186,7 @@ end
 
 ---
 -- Returns whether or not the display object is visible.
--- 
+--
 -- @function [parent=#DisplayObject] isVisible
 -- @param self
 -- @return A value of 'true' if display object is visible; 'false' otherwise.
@@ -189,7 +197,7 @@ end
 ---
 -- Sets whether or not the display object is visible. Display objects that are not visible are also taken
 -- into consideration while calculating bounds.
--- 
+--
 -- @function [parent=#DisplayObject] setVisible
 -- @param self
 -- @param visible (bool) whether or not the display object is visible
@@ -199,7 +207,7 @@ end
 
 ---
 -- Effectively adds values to the x and y properties of an display object. (changing its on-screen position)
--- 
+--
 -- @function [parent=#DisplayObject] translate
 -- @param self
 -- @param dx (number) Amount to add to the display object's x properties.
@@ -208,22 +216,20 @@ function M:translate(dx, dy)
 	self.x = self.x + dx
 	self.y = self.y + dy
 
-	for i, v in ipairs(self.children) do
-		v:translate(dx, dy)
-	end
+	self.__translate = self.x ~= 0 or self.y ~= 0
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
 end
 
 ---
 -- Retrieve or change the rotation of an object.
 -- The rotation occurs around the object's reference point.
 -- The default reference point for most display objects is the center.
--- 
+--
 -- @function [parent=#DisplayObject] rotate
 -- @param self
 -- @param rotation (number) The rotation angle in radian.
 function M:rotate(rotation)
-	local M_PI2 = math.pi * 2
-
 	self.rotation = self.rotation + rotation
 
 	while(self.rotation < 0) do
@@ -235,17 +241,15 @@ function M:rotate(rotation)
 	end
 
 	self.__rotate = self.rotation ~= 0
-
-	for i, v in ipairs(self.children) do
-		v:rotate(rotation)
-	end
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
 end
 
 ---
 -- Effectively multiplies scalex and scaley properties by sx and sy respectively.
 -- The scaling occurs around the object's reference point.
 -- The default reference point for most display objects is center.
--- 
+--
 -- @function [parent=#DisplayObject] scale
 -- @param self
 -- @param sx (number) Factors by which to change the scale in the x directions.
@@ -255,82 +259,188 @@ function M:scale(sx, sy)
 	self.scaley = self.scaley * sy
 
 	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
-
-	for i, v in ipairs(self.children) do
-		v:scale(sx, sy)
-	end
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
 end
 
 ---
 -- Sets the x coordinates of the display object.
--- 
+--
 -- @function [parent=#DisplayObject] setX
 -- @param self
 -- @param x (number) The new x coordinate of the display object.
 function M:setX(x)
-	self:translate(x - self.x, 0)
+	self.x = x
+
+	self.__translate = self.x ~= 0 or self.y ~= 0
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
+end
+
+---
+-- Returns the x coordinate of the display object.
+--
+-- @function [parent=#DisplayObject] getX
+-- @param self
+-- @return The x coordinate of the display object.
+function M:getX()
+	return self.x
 end
 
 ---
 -- Sets the y coordinates of the display object.
--- 
+--
 -- @function [parent=#DisplayObject] setY
 -- @param self
 -- @param y (number) The new y coordinate of the display object.
 function M:setY(y)
-	self:translate(0, y - self.y)
+	self.y = y
+
+	self.__translate = self.x ~= 0 or self.y ~= 0
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
+end
+
+---
+-- Returns the y coordinate of the display object.
+--
+-- @function [parent=#DisplayObject] getY
+-- @param self
+-- @return The y coordinate of the display object.
+function M:getY()
+	return self.y
 end
 
 ---
 -- Sets the x and y coordinates of the display object.
--- 
--- @function [parent=#DisplayObject] setXY
+--
+-- @function [parent=#DisplayObject] setPosition
 -- @param self
 -- @param x (number) The new x coordinate of the display object.
 -- @param y (number) The new y coordinate of the display object.
-function M:setXY(x, y)
-	self:translate(x - self.x, y - self.y)
+function M:setPosition(x, y)
+	self.x = x
+	self.y = y
+
+	self.__translate = self.x ~= 0 or self.y ~= 0
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
 end
 
---- 
+---
+-- Returns the x and y coordinates of the display object.
+--
+-- @function [parent=#DisplayObject] getPosition
+-- @param self
+-- @return The x and y coordinates of the display object.
+function M:getPosition()
+	return self.x, self.y
+end
+
+---
 -- Sets the rotation of the display object in radians.
--- 
--- @function [parent=#DisplayObject] setRotate
+--
+-- @function [parent=#DisplayObject] setRotation
 -- @param self
 -- @param rotation (number) rotation of the display object
-function M:setRotate(rotation)
-	self:rotate(rotation - self.rotation)
+function M:setRotation(rotation)
+	self.rotation = rotation
+
+	while(self.rotation < 0) do
+		self.rotation = self.rotation + M_PI2
+	end
+
+	while(self.rotation > M_PI2) do
+		self.rotation = self.rotation - M_PI2
+	end
+
+	self.__rotate = self.rotation ~= 0
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
+end
+
+---
+-- Returns the rotation of the display object in radians.
+--
+-- @function [parent=#DisplayObject] getRotation
+-- @param self
+-- @return Rotation of the display object.
+function M:getRotation()
+	return self.rotation
 end
 
 ---
 -- Sets the horizontal scale of the display object.
 --
--- @function [parent=#DisplayObject] setScalex
+-- @function [parent=#DisplayObject] setScaleX
 -- @param self
 -- @param x (number) horizontal scale of the display object
-function M:setScalex(x)
-	self:scale(x / self.scalex, 1)
+function M:setScaleX(x)
+	self.scalex = x
+
+	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
+end
+
+---
+-- Returns the horizontal scale of the display object.
+--
+-- @function [parent=#DisplayObject] getScaleX
+-- @param self
+-- @return The horizontal scale (percentage) of the display object.
+function M:getScaleX()
+	return self.scalex
 end
 
 ---
 -- Sets the vertical scale of the display object.
--- 
--- @function [parent=#DisplayObject] setScaley
+--
+-- @function [parent=#DisplayObject] setScaleY
 -- @param self
 -- @param y (number) vertical scale of the display object
-function M:setScaley(y)
-	self:scale(1, y / self.scaley)
+function M:setScaleY(y)
+	self.scaley = y
+
+	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
+end
+
+---
+-- Returns the vertical scale of the display object.
+--
+-- @function [parent=#DisplayObject] getScaleY
+-- @param self
+-- @return The vertical scale of the display object.
+function M:getScaleY()
+	return self.scaley
 end
 
 ---
 -- Sets the horizontal and vertical scales of the display object.
--- 
+--
 -- @function [parent=#DisplayObject] setScale
 -- @param self
 -- @param x (number) horizontal scale (percentage) of the display object
 -- @param y (number) vertical scale (percentage) of the display object
 function M:setScale(x, y)
-	self:scale(x / self.scalex, y / self.scaley)
+	self.scalex = x
+	self.scaley = y
+
+	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
+end
+
+---
+-- Returns the horizontal and vertical scales of the display object.
+--
+-- @function [parent=#DisplayObject] getScale
+-- @param self
+-- @return The horizontal and vertical scales of the display object
+function M:getScale()
+	return self.scalex, self.scaley
 end
 
 ---
@@ -341,12 +451,22 @@ end
 -- @param x (number) The x coordinate of anchor point.
 -- @param y (number) The y coordinate of anchor point.
 function M:setAnchor(x, y)
-	self.anchorx = x - self.x
-	self.anchory = y - self.y
+	self.anchorx = x
+	self.anchory = y
 
-	for i, v in ipairs(self.children) do
-		v:setAnchor(x, y)
-	end
+	self.__anchor = self.anchorx ~= 0 or self.anchory ~= 0
+	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
+	self.__matrix_valid = false
+end
+
+---
+-- Returns the anchor point of the display object.
+--
+-- @function [parent=#DisplayObject] getAnchor
+-- @param self
+-- @return The anchor point of the display object.
+function M:getAnchor()
+	return self.anchorx, self.anchory
 end
 
 ---
@@ -357,7 +477,6 @@ end
 -- @param alpha (number) The new alpha transparency of the display object
 function M:setAlpha(alpha)
 	self.alpha = alpha
-
 	self.__alpha = self.alpha ~= 1
 
 	for i, v in ipairs(self.children) do
@@ -366,9 +485,88 @@ function M:setAlpha(alpha)
 end
 
 ---
+-- Returns the alpha transparency of this display object.
+--
+-- @function [parent=#DisplayObject] getAlpha
+-- @param self
+-- @return The alpha of the display object
+function M:getAlpha()
+	return self.alpha
+end
+
+---
+-- Return a matrix that represents the transformation from the local coordinate system to another.
+--
+-- @function [parent=#DisplayObject] getTransformMatrix
+-- @param self
+-- @param target (optional) The destination space of the transformation, nil for the screen space.
+-- @return The transformation matrix of the display object to another
+function M:getTransformMatrix(target)
+	local matrix = Matrix.new()
+	local o = self
+
+	while(o and o ~= target) do
+		if o.__transform and not o.__matrix_valid then
+			local m = o.__matrix
+			m:init_identity()
+
+			if o.__anchor or o.__translate then
+				m:translate(o.x, o.y)
+			end
+			if o.__rotate then
+				m:rotate(o.rotation)
+			end
+			if o.__anchor then
+				m:translate(-o.anchorx * o.scalex, -o.anchory * o.scaley)
+			end
+			if o.__scale then
+				m:scale(o.scalex, o.scaley)
+			end
+			o.__matrix_valid = true
+		end
+
+		matrix:multiply(matrix, o.__matrix)
+		o = o.parent
+	end
+
+	return matrix
+end
+
+---
+-- Converts the x,y coordinates from the global to the display object's (local) coordinates.
+--
+-- @function [parent=#DisplayObject] globalToLocal
+-- @param self
+-- @param x (number) x coordinate of the global coordinate.
+-- @param y (number) y coordinate of the global coordinate.
+-- @param target (optional) The destination space of the transformation, nil for the screen space.
+-- @return x coordinate relative to the display object.
+-- @return y coordinate relative to the display object.
+function M:globalToLocal(x, y, target)
+	local m = self:getTransformMatrix(target)
+	m:invert()
+	return m:transform_point(x, y)
+end
+
+---
+-- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
+--
+-- @function [parent=#DisplayObject] localToGlobal
+-- @param self
+-- @param x (number) x coordinate of the local coordinate.
+-- @param y (number) y coordinate of the local coordinate.
+-- @param target (optional) The destination space of the transformation, nil for the screen space.
+-- @return x coordinate relative to the display area.
+-- @return y coordinate relative to the display area.
+function M:localToGlobal(x, y, target)
+	local m = self:getTransformMatrix(target)
+	return m:transform_point(x, y)
+end
+
+---
 -- Returns a rectangle (as x, y, width and height) that encloses the display object as
 -- it appears in another display object’s coordinate system.
--- 
+--
 -- @function [parent=#DisplayObject] getBounds
 -- @param self
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
@@ -397,7 +595,7 @@ end
 ---
 -- Returns the width of the display object, in pixels. The width is calculated based on the
 -- bounds of the content of the display object.
--- 
+--
 -- @function [parent=#DisplayObject] getWidth
 -- @param self
 -- @return Width of the display object.
@@ -409,7 +607,7 @@ end
 ---
 -- Returns the height of the display object, in pixels. The height is calculated based on the
 -- bounds of the content of the display object.
--- 
+--
 -- @function [parent=#DisplayObject] getHeight
 -- @param self
 -- @return Height of the display object.
@@ -418,9 +616,9 @@ function M:getHeight()
 	return h
 end
 
---- 
+---
 -- Checks whether the given coordinates (in global coordinate system) is in bounds of the display object.
--- 
+--
 -- @function [parent=#DisplayObject] hitTestPoint
 -- @param self
 -- @param x (number)
@@ -438,35 +636,9 @@ function M:hitTestPoint(x, y)
 	return false
 end
 
---- 
--- Converts the x,y coordinates from the global to the display object's (local) coordinates.
--- 
--- @function [parent=#DisplayObject] globalToLocal
--- @param self
--- @param x (number) x coordinate of the global coordinate.
--- @param y (number) y coordinate of the global coordinate.
--- @return x coordinate relative to the display object.
--- @return y coordinate relative to the display object.
-function M:globalToLocal(x, y)
-	return x - self.x, y - self.y
-end
-
---- 
--- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
--- 
--- @function [parent=#DisplayObject] localToGlobal
--- @param self
--- @param x (number) x coordinate of the local coordinate.
--- @param y (number) y coordinate of the local coordinate.
--- @return x coordinate relative to the display area.
--- @return y coordinate relative to the display area.
-function M:localToGlobal(x, y)
-	return x + self.x, y + self.y
-end
-
 ---
 -- Returns the width and height of the display object in pixels. This method must be subclassing.
--- 
+--
 -- @function [parent=#DisplayObject] __size
 -- @param self
 -- @return The width and height of the display object.
@@ -476,34 +648,34 @@ end
 
 ---
 -- Draw display object to the screen. This method must be subclassing.
--- 
+--
 -- @function [parent=#DisplayObject] __draw
 -- @param self
-function M:__draw(cr)
+function M:__draw(display)
 end
 
 ---
 -- Render display object and it's children to the screen.
--- 
+--
 -- @function [parent=#DisplayObject] __draw
 -- @param self
 -- @param cr (Cairo) The context of the target surface.
 -- @param e (Event) The 'Event' object to be dispatched.
-function M:render(cr, e)
+function M:render(display, e)
 	self:dispatchEvent(e)
 
 	if self.visible then
-		self:__draw(cr)
+		self:__draw(display)
 	end
 
 	for i, v in ipairs(self.children) do
-		v:render(cr, e)
+		v:render(display, e)
 	end
 end
 
 ---
 -- Dispatches an event to display object and it's children.
--- 
+--
 -- @function [parent=#DisplayObject] dispatch
 -- @param self
 -- @param e (Event) The 'Event' object to be dispatched.

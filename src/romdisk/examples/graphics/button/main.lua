@@ -19,5 +19,5 @@ btn:addEventListener("Click",
 		print("Clicked " .. click .. " times")
 	end, btn)
 
-btn:setXY(100, 100)
+btn:setPosition(100, 100)
 runtime:addChild(btn)

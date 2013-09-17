@@ -21,7 +21,7 @@
  */
 
 #include <cairo.h>
-#include <framework/display/l-matrix.h>
+#include <framework/display/l-display.h>
 
 int l_matrix_new(lua_State * L)
 {

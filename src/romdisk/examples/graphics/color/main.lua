@@ -2,15 +2,15 @@ local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
 local redbar = DisplayImage:new(Texture.new("red-bar.png"))
-redbar:setXY(91, 230)
+redbar:setPosition(91, 230)
 runtime:addChild(redbar)
 
 local greenbar = DisplayImage:new(Texture.new("green-bar.png"))
-greenbar:setXY(91, 260)
+greenbar:setPosition(91, 260)
 runtime:addChild(greenbar)
 
 local bluebar = DisplayImage:new(Texture.new("blue-bar.png"))
-bluebar:setXY(91, 290)
+bluebar:setPosition(91, 290)
 runtime:addChild(bluebar)
 
 local reddot = DisplayImage:new(Texture.new("red-dot.png"))

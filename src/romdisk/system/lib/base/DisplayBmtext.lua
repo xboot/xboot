@@ -21,8 +21,7 @@ local M = Class(DisplayObject)
 function M:init(font, text, x, y)
 	DisplayObject.init(self)
 
-	self.x = x or 0
-	self.y = y or 0
+	self:setPosition(x or 0, y or 0)
 	self.caches = {}
 
 	self.font = require(font)

@@ -21,7 +21,7 @@
  */
 
 #include <cairo.h>
-#include <framework/display/l-texture.h>
+#include <framework/display/l-display.h>
 
 int l_texture_new(lua_State * L)
 {

@@ -9,7 +9,7 @@ runtime:addChild(background)
 local lon = DisplayImage:new(Texture.new("bgled1.png"))
 local loff = DisplayImage:new(Texture.new("bgled2.png"))
 local bgled = Led:new(lon, loff)
-bgled:setXY(500, 0)
+bgled:setPosition(500, 0)
 runtime:addChild(bgled)
 
 local bgledstate = false
@@ -48,6 +48,6 @@ for k, v in spairs(ledlist) do
 	x = x + 0
 	y = y + 65
 	local item = Leditem:new(v)
-	item:setXY(x, y)
+	item:setPosition(x, y)
 	runtime:addChild(item)
 end

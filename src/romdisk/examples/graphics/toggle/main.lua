@@ -17,5 +17,5 @@ tog:addEventListener("Toggled",
 		print("toggle click ", e.info.on)
 	end, tog)
 	
-tog:setXY(100, 100)
+tog:setPosition(100, 100)
 runtime:addChild(tog)

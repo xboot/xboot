@@ -15,7 +15,7 @@ function M:init()
 	btn:addEventListener("click", function(d, e)
 		print("power click...")
 	end, btn)
-	btn:setXY(200, 150)
+	btn:setPosition(200, 150)
 	self:addChild(btn)
 	
 -- toggle
@@ -25,7 +25,7 @@ function M:init()
 	tog:addEventListener("toggled", function(d, e)
 		print("toggle click...")
 	end, toggle)
-	tog:setXY(350, 300)
+	tog:setPosition(350, 300)
 	self:addChild(tog)
 	
 	self:addEventListener("enterBegin", self.on_transition_in_begin, self)

@@ -16,8 +16,7 @@ local boylist = {
 	DisplayImage:new(boy:region(72 * 8, 0, 72, 72)),
 	DisplayImage:new(boy:region(72 * 9, 0, 72, 72)),
 	DisplayImage:new(boy:region(72 * 10, 0, 72, 72)),
-} 
+}
 
 local anmi = Animation:new(boylist, 100 ,100)
-anmi:setXY(100,100)
 runtime:addChild(anmi)

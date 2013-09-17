@@ -10,6 +10,7 @@ package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;./?.so"
 print = require("builtin.logger").print
 Stopwatch = require "builtin.stopwatch"
 Base64 = require "builtin.base64"
+Display = require "builtin.display"
 Cairo = require "builtin.cairo"
 Matrix = require "builtin.matrix"
 Texture = require "builtin.texture"
@@ -43,24 +44,11 @@ local function loader()
 
 	local pump = require("builtin.event").pump
 	local stopwatch = Stopwatch.new()
-	local cs = {
-		Cairo.xboot_surface_create(),
-		Cairo.xboot_surface_create(),
-	}
-	local cr = {
-		Cairo.create(cs[1]),
-		Cairo.create(cs[2]),
-	}
-	local cidx = 1;
+	local display = Display.new()
 	
 	Timer:new(1 / 60, 0, function(t, e)
-		cidx = cidx + 1
-		if cidx > #cs then
-			cidx = 1
-		end
-	
-		runtime:render(cr[cidx], Event:new(Event.ENTER_FRAME))
-		cs[cidx]:present()
+		runtime:render(display, Event:new(Event.ENTER_FRAME))
+		display:present()
 	end)
 
 	while true do

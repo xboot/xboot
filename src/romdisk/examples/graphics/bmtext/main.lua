@@ -2,7 +2,7 @@ local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
 local text = DisplayBmtext:new("simhei_regular_24", "123", 0, 0)
---text:setXY(100,100)
+--text:setPosition(100,100)
 text:setText("abcdefg12345我是好人ABC")
 runtime:addChild(text)
 

@@ -62,16 +62,16 @@ static int m_display_gc(lua_State * L)
 	return 0;
 }
 
-static int m_display_draw(lua_State * L)
+static int m_display_draw_texture(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	cairo_surface_t ** cs = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
+	cairo_surface_t ** texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
 	double alpha = luaL_optnumber(L, 4, 1.0);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_transform(cr, matrix);
-	cairo_set_source_surface(cr, *cs, 0, 0);
+	cairo_set_source_surface(cr, *texture, 0, 0);
 	if(alpha == 1.0)
 		cairo_paint(cr);
 	else
@@ -89,10 +89,10 @@ static int m_display_present(lua_State * L)
 }
 
 static const luaL_Reg m_display[] = {
-	{"__gc",		m_display_gc},
-	{"draw",		m_display_draw},
-	{"present",		m_display_present},
-	{NULL,			NULL}
+	{"__gc",			m_display_gc},
+	{"drawTexture",		m_display_draw_texture},
+	{"present",			m_display_present},
+	{NULL,				NULL}
 };
 
 int luaopen_display(lua_State * L)

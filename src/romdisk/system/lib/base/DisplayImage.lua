@@ -36,7 +36,7 @@ end
 -- @function [parent=#DisplayImage] __draw
 -- @param self
 function M:__draw(display)
-	display:draw(self.texture, self:getTransformMatrix(), self:getAlpha())
+	display:drawTexture(self.texture, self:getTransformMatrix(), self:getAlpha())
 end
 
 return M

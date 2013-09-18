@@ -191,7 +191,14 @@ end
 -- @param self
 -- @return A value of 'true' if display object is visible; 'false' otherwise.
 function M:isVisible()
-	return self.visible
+	local o = self
+	while o do
+		if not o.visible then
+			return false
+		end
+		o = o.parent
+	end
+	return true
 end
 
 ---
@@ -202,7 +209,17 @@ end
 -- @param self
 -- @param visible (bool) whether or not the display object is visible
 function M:setVisible(visible)
-	self.visible = visible
+	if not visible then
+		self.visible = false
+	else
+		local o = self
+		while o do
+			if not o.visible then
+				o.visible = true
+			end
+			o = o.parent
+		end
+	end
 end
 
 ---
@@ -666,6 +683,7 @@ end
 --
 -- @function [parent=#DisplayObject] __draw
 -- @param self
+-- @param display (Display) The context of the screen.
 function M:__draw(display)
 end
 
@@ -674,17 +692,17 @@ end
 --
 -- @function [parent=#DisplayObject] __draw
 -- @param self
--- @param cr (Cairo) The context of the target surface.
--- @param e (Event) The 'Event' object to be dispatched.
-function M:render(display, e)
-	self:dispatchEvent(e)
+-- @param display (Display) The context of the screen.
+-- @param event (Event) The 'Event' object to be dispatched.
+function M:render(display, event)
+	self:dispatchEvent(event)
 
-	if self.visible then
+	if self:isVisible() then
 		self:__draw(display)
 	end
 
 	for i, v in ipairs(self.children) do
-		v:render(display, e)
+		v:render(display, event)
 	end
 end
 
@@ -693,15 +711,15 @@ end
 --
 -- @function [parent=#DisplayObject] dispatch
 -- @param self
--- @param e (Event) The 'Event' object to be dispatched.
-function M:dispatch(e)
+-- @param event (Event) The 'Event' object to be dispatched.
+function M:dispatch(event)
 	local children = self.children
 
 	for i = #children, 1, -1 do
-		children[i]:dispatch(e)
+		children[i]:dispatch(event)
 	end
 
-	self:dispatchEvent(e)
+	self:dispatchEvent(event)
 end
 
 return M

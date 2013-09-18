@@ -35,6 +35,7 @@ end
 -- 
 -- @function [parent=#DisplayImage] __draw
 -- @param self
+-- @param display (Display) The context of the screen.
 function M:__draw(display)
 	display:drawTexture(self.texture, self:getTransformMatrix(), self:getAlpha())
 end

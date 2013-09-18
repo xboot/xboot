@@ -1,7 +1,7 @@
 ---
 -- The 'DisplayImage' class is used to display texture related objects that can
 -- be placed on the screen.
--- 
+--
 -- @module DisplayImage
 local M = Class(DisplayObject)
 
@@ -21,23 +21,49 @@ function M:init(texture, x, y)
 end
 
 ---
+-- Attach texture to display image.
+--
+-- @function [parent=#DisplayImage] setTexture
+-- @param self
+-- @param texture (Texture) The texture object
+function M:setTexture(texture)
+	self.texture = texture
+end
+
+---
+-- Get texture of display image.
+--
+-- @function [parent=#DisplayImage] getTexture
+-- @param self
+-- @return The texture object of display image.
+function M:getTexture()
+	return self.texture
+end
+
+---
 -- Returns the width and height of the display image in pixels. (subclasses method)
--- 
+--
 -- @function [parent=#DisplayImage] __size
 -- @param self
 -- @return The width and height of the display image.
 function M:__size()
-	return self.texture:getWidth(), self.texture:getHeight()
+	if self.texture then
+		return self.texture:getWidth(), self.texture:getHeight()
+	else
+		return 0, 0
+	end
 end
 
 ---
 -- Draw display image to the screen. (subclasses method)
--- 
+--
 -- @function [parent=#DisplayImage] __draw
 -- @param self
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
-	display:drawTexture(self.texture, self:getTransformMatrix(), self:getAlpha())
+	if self.texture then
+		display:drawTexture(self.texture, self:getTransformMatrix(), self:getAlpha())
+	end
 end
 
 return M

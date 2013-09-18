@@ -20,7 +20,7 @@ Hardware = {
 }
 
 ---
--- External module
+-- External base module
 --
 Class = require "base.Class"
 Timer = require "base.Timer"

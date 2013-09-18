@@ -6,6 +6,8 @@
 local M = Class(EventDispatcher)
 
 local M_PI2 = math.pi * 2
+local M_RAD = math.rad
+local M_DEG = math.deg
 
 ---
 -- Creates a new display object.
@@ -245,9 +247,9 @@ end
 --
 -- @function [parent=#DisplayObject] rotate
 -- @param self
--- @param rotation (number) The rotation angle in radian.
+-- @param rotation (number) The rotation angle in degrees.
 function M:rotate(rotation)
-	self.rotation = self.rotation + rotation
+	self.rotation = self.rotation + M_RAD(rotation)
 
 	while(self.rotation < 0) do
 		self.rotation = self.rotation + M_PI2
@@ -355,13 +357,13 @@ function M:getPosition()
 end
 
 ---
--- Sets the rotation of the display object in radians.
+-- Sets the rotation of the display object in degrees.
 --
 -- @function [parent=#DisplayObject] setRotation
 -- @param self
 -- @param rotation (number) rotation of the display object
 function M:setRotation(rotation)
-	self.rotation = rotation
+	self.rotation = M_RAD(rotation)
 
 	while(self.rotation < 0) do
 		self.rotation = self.rotation + M_PI2
@@ -383,7 +385,7 @@ end
 -- @param self
 -- @return Rotation of the display object.
 function M:getRotation()
-	return self.rotation
+	return M_DEG(self.rotation)
 end
 
 ---

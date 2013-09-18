@@ -574,7 +574,7 @@ end
 function M:getBounds(target, r)
 	r = r or {l = math.huge, t = math.huge, r = -math.huge, b = -math.huge}
 	local w, h = self:__size()
-	
+
 	local x, y = self:localToGlobal(0, 0, target)
 	r.l = math.min(r.l, x)
 	r.t = math.min(r.t, y)
@@ -598,7 +598,7 @@ function M:getBounds(target, r)
 	r.t = math.min(r.t, y)
 	r.r = math.max(r.r, x)
 	r.b = math.max(r.b, y)
-		
+
 	for i, v in ipairs(self.children) do
 		v:getBounds(target, r)
 	end

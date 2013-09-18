@@ -379,7 +379,7 @@ function M:setRotation(rotation)
 end
 
 ---
--- Returns the rotation of the display object in radians.
+-- Returns the rotation of the display object in degrees.
 --
 -- @function [parent=#DisplayObject] getRotation
 -- @param self
@@ -463,15 +463,15 @@ function M:getScale()
 end
 
 ---
--- Sets the anchor point of the display object.
+-- Sets the anchor point of the display object in percentage.
 --
 -- @function [parent=#DisplayObject] setAnchor
 -- @param self
--- @param x (number) The x coordinate of anchor point.
--- @param y (number) The y coordinate of anchor point.
+-- @param x (number) The horizontal percentage of anchor point.
+-- @param y (number) The vertical percentage of anchor point.
 function M:setAnchor(x, y)
-	self.anchorx = x
-	self.anchory = y
+	self.anchorx = self:getWidth() * x
+	self.anchory = self:getHeight() * y
 
 	self.__anchor = self.anchorx ~= 0 or self.anchory ~= 0
 	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
@@ -479,13 +479,25 @@ function M:setAnchor(x, y)
 end
 
 ---
--- Returns the anchor point of the display object.
+-- Returns the anchor point of the display object in percentage.
 --
 -- @function [parent=#DisplayObject] getAnchor
 -- @param self
--- @return The anchor point of the display object.
+-- @return The anchor point of the display object in percentage.
 function M:getAnchor()
-	return self.anchorx, self.anchory
+	local w = self:getWidth()
+	local h = self:getHeight()
+	local x, y = 0, 0
+
+	if w ~= 0 then
+		x = self.anchorx / w
+	end
+
+	if h ~= 0 then
+		y = self.anchory / h
+	end
+
+	return x, y
 end
 
 ---
@@ -594,7 +606,7 @@ function M:getBounds(target, r)
 	r = r or {l = math.huge, t = math.huge, r = -math.huge, b = -math.huge}
 	local w, h = self:__size()
 	local x, y
-	
+
 	x, y = self:localToGlobal(0, 0, target)
 	r.l = math.min(r.l, x)
 	r.t = math.min(r.t, y)

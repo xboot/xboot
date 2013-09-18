@@ -570,12 +570,13 @@ end
 -- @function [parent=#DisplayObject] getBounds
 -- @param self
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
--- @return 4 values as x, y, width and height of bounds
+-- @return table has 4 values as x, y, w and h of bounds
 function M:getBounds(target, r)
 	r = r or {l = math.huge, t = math.huge, r = -math.huge, b = -math.huge}
 	local w, h = self:__size()
-
-	local x, y = self:localToGlobal(0, 0, target)
+	local x, y
+	
+	x, y = self:localToGlobal(0, 0, target)
 	r.l = math.min(r.l, x)
 	r.t = math.min(r.t, y)
 	r.r = math.max(r.r, x)
@@ -603,7 +604,7 @@ function M:getBounds(target, r)
 		v:getBounds(target, r)
 	end
 
-	return r.l, r.t, (r.r - r.l), (r.b - r.t)
+	return {x = r.l, y = r.t, w = (r.r - r.l), h = (r.b - r.t)}
 end
 
 ---
@@ -614,8 +615,7 @@ end
 -- @param self
 -- @return Width of the display object.
 function M:getWidth()
-	local x, y, w, h = self:getBounds()
-	return w
+	return self:getBounds(self.parent).w
 end
 
 ---
@@ -626,8 +626,7 @@ end
 -- @param self
 -- @return Height of the display object.
 function M:getHeight()
-	local x, y, w, h = self:getBounds()
-	return h
+	return self:getBounds(self.parent).h
 end
 
 ---
@@ -637,16 +636,18 @@ end
 -- @param self
 -- @param x (number)
 -- @param y (number)
+-- @param target (DisplayObject) The display object that defines the other coordinate system to transform
 -- @return 'true' if the given global coordinates are in bounds of the display object, 'false' otherwise.
-function M:hitTestPoint(x, y)
-	local x0, y0, w, h = self:getBounds()
-
-	if x > x0 and y > y0 then
-		if x < (x0 + w) and y < (y0 + h) then
-			return true
+function M:hitTestPoint(x, y, target)
+	if self:isVisible() then
+		local ox, oy = self:globalToLocal(x, y, target)
+		local r = self:getBounds(self)
+		if ox > r.x and oy > r.y then
+			if ox < (r.x + r.w) and oy < (r.y + r.h) then
+				return true
+			end
 		end
 	end
-
 	return false
 end
 

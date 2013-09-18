@@ -13,14 +13,14 @@ local function onTouchesBegin(d, e)
 	local dot = dots[e.info.id]
 	if dot then
 		runtime:addChild(dot)
-		dot:setPosition(e.info.x - dot.width / 2 , e.info.y - dot.height / 2)
+		dot:setPosition(e.info.x - dot:getWidth() / 2 , e.info.y - dot:getHeight() / 2)
 	end
 end
 
 local function onTouchesMove(d, e)
 	local dot = dots[e.info.id]
 	if dot then
-		dot:setPosition(e.info.x - dot.width / 2 , e.info.y - dot.height / 2)
+		dot:setPosition(e.info.x - dot:getWidth() / 2 , e.info.y - dot:getHeight() / 2)
 	end
 end
 

@@ -14,6 +14,7 @@ Display = require "builtin.display"
 Cairo = require "builtin.cairo"
 Matrix = require "builtin.matrix"
 Texture = require "builtin.texture"
+Font = require "builtin.font"
 Hardware = {
 	led = require "builtin.hardware.led",
 	ledtrig = require "builtin.hardware.ledtrig",

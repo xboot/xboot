@@ -22,6 +22,12 @@ local anmi = Animation:new(boylist, 100 ,100)
 anmi:setAnchor(0.5, 0.5)
 runtime:addChild(anmi)
 
-Timer:new(1 / 10, 0, function(t, e)
+local font = Font.new("/romdisk/system/media/fonts/DroidSansFallback.ttf")
+local text = DisplayText:new(font, "我能吞下玻璃，123")
+text:setPosition(100,100)
+text:setScale(24, 24)
+runtime:addChild(text)
+
+Timer:new(1 / 5, 0, function(t, e)
 	anmi:rotate(10)
 end)

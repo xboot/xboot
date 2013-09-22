@@ -30,6 +30,7 @@ EventDispatcher = require "base.EventDispatcher"
 TexturePacker = require "base.TexturePacker"
 DisplayObject = require "base.DisplayObject"
 DisplayImage = require "base.DisplayImage"
+DisplayText = require "base.DisplayText"
 DisplayBmtext = require "base.DisplayBmtext"
 
 ---

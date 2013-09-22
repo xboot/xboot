@@ -24,6 +24,8 @@
 #include <cairo-xboot.h>
 #include <framework/display/l-display.h>
 
+extern cairo_font_face_t * luaL_checkudata_font(lua_State * L, int ud, const char * tname);
+
 struct display_t {
 	struct fb_t * fb;
 	cairo_surface_t * cs[2];
@@ -80,6 +82,23 @@ static int m_display_draw_texture(lua_State * L)
 	return 0;
 }
 
+static int m_display_draw_text(lua_State * L)
+{
+	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	cairo_font_face_t * face = luaL_checkudata_font(L, 2, MT_NAME_FONT);
+	const char * text = luaL_optstring(L, 3, NULL);
+	cairo_matrix_t * matrix = luaL_checkudata(L, 4, MT_NAME_MATRIX);
+	cairo_t * cr = display->cr[display->index];
+	cairo_save(cr);
+	cairo_set_font_face(cr, face);
+	cairo_set_font_matrix(cr, matrix);
+	cairo_text_path(cr, text);
+	cairo_set_source_rgba(cr, 0.7, 0.4, 0, 0.9);
+	cairo_fill(cr);
+	cairo_restore(cr);
+	return 0;
+}
+
 static int m_display_present(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
@@ -91,6 +110,7 @@ static int m_display_present(lua_State * L)
 static const luaL_Reg m_display[] = {
 	{"__gc",			m_display_gc},
 	{"drawTexture",		m_display_draw_texture},
+	{"drawText",		m_display_draw_text},
 	{"present",			m_display_present},
 	{NULL,				NULL}
 };

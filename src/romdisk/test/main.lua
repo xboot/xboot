@@ -19,6 +19,7 @@ local boylist = {
 }
 
 local anmi = Animation:new(boylist, 100 ,100)
+anmi:setAnchor(0.5, 0.5)
 runtime:addChild(anmi)
 
 Timer:new(1 / 10, 0, function(t, e)

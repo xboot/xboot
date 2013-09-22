@@ -704,7 +704,7 @@ end
 ---
 -- Render display object and it's children to the screen.
 --
--- @function [parent=#DisplayObject] __draw
+-- @function [parent=#DisplayObject] render
 -- @param self
 -- @param display (Display) The context of the screen.
 -- @param event (Event) The 'Event' object to be dispatched.

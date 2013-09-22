@@ -17,7 +17,7 @@ function M:init(texture, x, y)
 	DisplayObject.init(self)
 
 	self:setPosition(x or 0, y or 0)
-	self.texture = texture
+	self:setTexture(texture)
 end
 
 ---

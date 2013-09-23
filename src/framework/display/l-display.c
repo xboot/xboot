@@ -90,7 +90,7 @@ static int m_display_draw_texture(lua_State * L)
 	double alpha = luaL_optnumber(L, 4, 1.0);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
-	cairo_transform(cr, matrix);
+	cairo_set_matrix(cr, matrix);
 	cairo_set_source_surface(cr, *texture, 0, 0);
 	if(alpha != 1.0)
 		cairo_paint_with_alpha(cr, alpha);

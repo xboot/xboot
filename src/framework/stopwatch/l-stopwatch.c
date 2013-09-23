@@ -44,13 +44,6 @@ static const luaL_Reg l_stopwatch[] = {
 	{NULL, NULL}
 };
 
-static int m_reset(lua_State * L)
-{
-	struct stopwatch_t * stopwatch = luaL_checkudata(L, 1, MT_NAME_STOPWATCH);
-	stopwatch->__start_time = __time_stamp();
-	return 0;
-}
-
 static int m_elapsed(lua_State * L)
 {
 	struct stopwatch_t * stopwatch = luaL_checkudata(L, 1, MT_NAME_STOPWATCH);
@@ -58,10 +51,17 @@ static int m_elapsed(lua_State * L)
 	return 1;
 }
 
+static int m_reset(lua_State * L)
+{
+	struct stopwatch_t * stopwatch = luaL_checkudata(L, 1, MT_NAME_STOPWATCH);
+	stopwatch->__start_time = __time_stamp();
+	return 0;
+}
+
 static const luaL_Reg m_stopwatch[] = {
-	{"reset", m_reset},
-	{"elapsed", m_elapsed},
-	{NULL, NULL}
+	{"elapsed",	m_elapsed},
+	{"reset",	m_reset},
+	{NULL,		NULL}
 };
 
 int luaopen_stopwatch(lua_State * L)

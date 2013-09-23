@@ -202,8 +202,8 @@ static int l_event_pump(lua_State * L)
 }
 
 static const luaL_Reg l_event[] = {
-	{"pump",		l_event_pump},
-	{NULL, NULL}
+	{"pump",	l_event_pump},
+	{NULL,		NULL}
 };
 
 int luaopen_event(lua_State * L)

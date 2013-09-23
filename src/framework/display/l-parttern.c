@@ -25,9 +25,9 @@
 
 static int l_pattern_create_rgba(lua_State * L)
 {
-	double red = luaL_checknumber(L, 1);
-	double green = luaL_checknumber(L, 2);
-	double blue = luaL_checknumber(L, 3);
+	double red = luaL_optnumber(L, 1, 1);
+	double green = luaL_optnumber(L, 2, 1);
+	double blue = luaL_optnumber(L, 3, 1);
 	double alpha = luaL_optnumber(L, 3, 1);
 	cairo_pattern_t ** pattern = lua_newuserdata(L, sizeof(cairo_pattern_t *));
 	*pattern = cairo_pattern_create_rgba(red, green, blue, alpha);
@@ -62,7 +62,7 @@ static int l_pattern_create_radial(lua_State * L)
 }
 
 static const luaL_Reg l_parttern[] = {
-	{"rgba",	l_pattern_create_rgba},
+	{"color",	l_pattern_create_rgba},
 	{"linear",	l_pattern_create_linear},
 	{"radial",	l_pattern_create_radial},
 	{NULL,		NULL}
@@ -95,14 +95,6 @@ static int m_pattern_add_color_stop_rgba(lua_State * L)
 	return 0;
 }
 
-static int m_pattern_set_matrix(lua_State * L)
-{
-	cairo_pattern_t ** pattern = luaL_checkudata(L, 1, MT_NAME_PARTTERN);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_NAME_MATRIX);
-	cairo_pattern_set_matrix(*pattern, matrix);
-	return 0;
-}
-
 static int m_pattern_set_extend(lua_State * L)
 {
 	cairo_pattern_t ** pattern = luaL_checkudata(L, 1, MT_NAME_PARTTERN);
@@ -111,12 +103,20 @@ static int m_pattern_set_extend(lua_State * L)
 	return 0;
 }
 
+static int m_pattern_set_matrix(lua_State * L)
+{
+	cairo_pattern_t ** pattern = luaL_checkudata(L, 1, MT_NAME_PARTTERN);
+	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_NAME_MATRIX);
+	cairo_pattern_set_matrix(*pattern, matrix);
+	return 0;
+}
+
 static const luaL_Reg m_parttern[] = {
 	{"__eq",		m_pattern_eq},
 	{"__gc",		m_pattern_gc},
 	{"addColor",	m_pattern_add_color_stop_rgba},
-	{"setMatrix",	m_pattern_set_matrix},
 	{"setExtend",	m_pattern_set_extend},
+	{"setMatrix",	m_pattern_set_matrix},
 	{NULL,			NULL}
 };
 

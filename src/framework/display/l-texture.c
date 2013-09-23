@@ -44,19 +44,19 @@ static int m_texture_gc(lua_State * L)
 	return 0;
 }
 
-static int m_texture_get_width(lua_State * L)
-{
-	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
-	int w = cairo_image_surface_get_width(*cs);
-	lua_pushinteger(L, w);
-	return 1;
-}
-
 static int m_texture_get_height(lua_State * L)
 {
 	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
 	int h = cairo_image_surface_get_height(*cs);
 	lua_pushinteger(L, h);
+	return 1;
+}
+
+static int m_texture_get_width(lua_State * L)
+{
+	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
+	int w = cairo_image_surface_get_width(*cs);
+	lua_pushinteger(L, w);
 	return 1;
 }
 
@@ -77,11 +77,21 @@ static int m_texture_region(lua_State * L)
 	return 1;
 }
 
+static int m_texture_to_pattern(lua_State * L)
+{
+	cairo_surface_t ** cs = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
+	cairo_pattern_t ** pattern = lua_newuserdata(L, sizeof(cairo_pattern_t *));
+	*pattern = cairo_pattern_create_for_surface(*cs);
+	luaL_setmetatable(L, MT_NAME_PARTTERN);
+	return 1;
+}
+
 static const luaL_Reg m_texture[] = {
 	{"__gc",		m_texture_gc},
-	{"getWidth",	m_texture_get_width},
 	{"getHeight",	m_texture_get_height},
+	{"getWidth",	m_texture_get_width},
 	{"region",		m_texture_region},
+	{"toPattern",	m_texture_to_pattern},
 	{NULL,			NULL}
 };
 

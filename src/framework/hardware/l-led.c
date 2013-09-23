@@ -62,14 +62,6 @@ static const luaL_Reg l_hardware_led[] = {
 	{NULL, NULL}
 };
 
-static int m_led_set(lua_State * L)
-{
-	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
-	u32_t color = luaL_checkunsigned(L, 2);
-	led_set_color(led, color);
-	return 0;
-}
-
 static int m_led_get(lua_State * L)
 {
 	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
@@ -78,10 +70,18 @@ static int m_led_get(lua_State * L)
 	return 1;
 }
 
+static int m_led_set(lua_State * L)
+{
+	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
+	u32_t color = luaL_checkunsigned(L, 2);
+	led_set_color(led, color);
+	return 0;
+}
+
 static const luaL_Reg m_hardware_led[] = {
-	{"set", m_led_set},
 	{"get", m_led_get},
-	{NULL, NULL}
+	{"set", m_led_set},
+	{NULL,	NULL}
 };
 
 int luaopen_hardware_led(lua_State * L)

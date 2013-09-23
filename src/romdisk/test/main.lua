@@ -23,17 +23,24 @@ anmi:setAnchor(0.5, 0.5)
 runtime:addChild(anmi)
 
 local font = Font.new("/romdisk/system/media/fonts/DroidSansFallback.ttf")
-local text = DisplayText:new(font, "我能吞下玻璃，123,ABC,abc", Parttern.rgba(1,0,1))
+local text = DisplayText:new(font)
 text:setPosition(100,100)
-text:setScale(64, 64)
+text:setScale(100, 100)
 runtime:addChild(text)
 
+--[[
 local par = Parttern.linear(0, 15, 0, 90 * 0.8)
 par:setExtend(Parttern.EXTEND_REPEAT)
 par:addColor(0.0, 1, 0.6, 0)
 par:addColor(0.5, 1, 0.3, 0)
 
 text:setParttern(par)
+
+local ttboy = Texture.new("ttboy.png")
+local ttpar = ttboy:toPattern()
+ttpar:setExtend(Parttern.EXTEND_REPEAT)
+text:setParttern(ttpar)
+]]
 
 local i = 0;
 Timer:new(1 / 5, 0, function(t, e)

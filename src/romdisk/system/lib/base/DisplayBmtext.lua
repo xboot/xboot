@@ -30,12 +30,11 @@ function M:init(font, text, x, y)
 end
 
 ---
--- Draw display image to the screen.
+-- Sets the bitmap text's content.
 -- 
 -- @function [parent=#DisplayBmtext] setText
 -- @param self
 -- @param text (string) The new content of bitmap text.
--- @return A value of 'true' or 'false'.
 function M:setText(text)
 	if not text then return end
 

@@ -77,9 +77,9 @@ static int m_ledtrig_bind_led_name(lua_State * L)
 }
 
 static const luaL_Reg m_hardware_ledtrig[] = {
-	{"activity", m_ledtrig_activity},
-	{"led", m_ledtrig_bind_led_name},
-	{NULL, NULL}
+	{"activity",	m_ledtrig_activity},
+	{"led",			m_ledtrig_bind_led_name},
+	{NULL,			NULL}
 };
 
 int luaopen_hardware_ledtrig(lua_State * L)

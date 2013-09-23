@@ -23,7 +23,7 @@
 #include <cairo.h>
 #include <framework/display/l-display.h>
 
-int l_matrix_new(lua_State * L)
+static int l_matrix_new(lua_State * L)
 {
 	double xx = luaL_optnumber(L, 1, 1);
 	double yx = luaL_optnumber(L, 2, 0);

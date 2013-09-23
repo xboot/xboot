@@ -23,11 +23,22 @@ anmi:setAnchor(0.5, 0.5)
 runtime:addChild(anmi)
 
 local font = Font.new("/romdisk/system/media/fonts/DroidSansFallback.ttf")
-local text = DisplayText:new(font, "我能吞下玻璃，123")
+local text = DisplayText:new(font, "我能吞下玻璃，123,ABC,abc", Parttern.rgba(1,0,1))
 text:setPosition(100,100)
-text:setScale(24, 24)
+text:setScale(64, 64)
 runtime:addChild(text)
 
+local par = Parttern.linear(0, 15, 0, 90 * 0.8)
+par:setExtend(Parttern.EXTEND_REPEAT)
+par:addColor(0.0, 1, 0.6, 0)
+par:addColor(0.5, 1, 0.3, 0)
+
+text:setParttern(par)
+
+local i = 0;
 Timer:new(1 / 5, 0, function(t, e)
 	anmi:rotate(10)
+	text:rotate(5)
+	i = i + 1
+	text:setText("自加 i = " .. i)
 end)

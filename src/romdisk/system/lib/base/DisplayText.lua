@@ -13,11 +13,12 @@ local M = Class(DisplayObject)
 -- @param x (optional) The x coordinate of the display image.
 -- @param y (optional) The y coordinate of the display image.
 -- @return #DisplayText
-function M:init(font, text)
+function M:init(font, text, parttern)
 	DisplayObject.init(self)
 
 	self:setFont(font)
 	self:setText(text)
+	self:setParttern(parttern or Parttern.rgba(1, 1, 1))
 end
 
 function M:setFont(font)
@@ -34,6 +35,14 @@ end
 
 function M:getText()
 	return self.text
+end
+
+function M:setParttern(parttern)
+	self.parttern = parttern
+end
+
+function M:getParttern()
+	return self.parttern
 end
 
 ---
@@ -58,7 +67,7 @@ end
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
 	if self.text then
-		display:drawText(self.font, self.text, self:getTransformMatrix())
+		display:drawText(self.font, self.text, self.parttern, self:getTransformMatrix())
 	end
 end
 

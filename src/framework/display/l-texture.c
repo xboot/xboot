@@ -23,7 +23,7 @@
 #include <cairo.h>
 #include <framework/display/l-display.h>
 
-int l_texture_new(lua_State * L)
+static int l_texture_new(lua_State * L)
 {
 	const char * filename = luaL_checkstring(L, 1);
 	cairo_surface_t ** cs = lua_newuserdata(L, sizeof(cairo_surface_t *));

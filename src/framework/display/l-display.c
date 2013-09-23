@@ -33,7 +33,7 @@ struct display_t {
 	int index;
 };
 
-int l_display_new(lua_State * L)
+static int l_display_new(lua_State * L)
 {
 	const char * name = luaL_optstring(L, 1, NULL);
 	struct display_t * display = lua_newuserdata(L, sizeof(struct display_t));
@@ -87,13 +87,14 @@ static int m_display_draw_text(lua_State * L)
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	cairo_font_face_t * face = luaL_checkudata_font(L, 2, MT_NAME_FONT);
 	const char * text = luaL_optstring(L, 3, NULL);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 4, MT_NAME_MATRIX);
+	cairo_pattern_t ** pattern = luaL_checkudata(L, 4, MT_NAME_PARTTERN);
+	cairo_matrix_t * matrix = luaL_checkudata(L, 5, MT_NAME_MATRIX);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_font_face(cr, face);
 	cairo_set_font_matrix(cr, matrix);
 	cairo_text_path(cr, text);
-	cairo_set_source_rgba(cr, 0.7, 0.4, 0, 0.9);
+	cairo_set_source(cr, *pattern);
 	cairo_fill(cr);
 	cairo_restore(cr);
 	return 0;

@@ -37,7 +37,7 @@ cairo_font_face_t * luaL_checkudata_font(lua_State * L, int ud, const char * tna
 	return font->cface;
 }
 
-int l_font_new(lua_State * L)
+static int l_font_new(lua_State * L)
 {
 	const char * family = luaL_checkstring(L, 1);
 	struct font_t * font = lua_newuserdata(L, sizeof(struct font_t));

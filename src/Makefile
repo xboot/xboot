@@ -151,6 +151,9 @@ SRCDIRS		+=	external/zlib-1.2.8
 INCDIRS		+= 	external/libpng-1.5.14
 SRCDIRS		+=	external/libpng-1.5.14
 
+INCDIRS		+= 	external/expat-2.1.0
+SRCDIRS		+=	external/expat-2.1.0
+
 INCDIRS		+= 	external/pixman-0.30.2 \
 				external/pixman-0.30.2/$(ARCH)
 SRCDIRS		+=	external/pixman-0.30.2 \

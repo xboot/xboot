@@ -121,7 +121,7 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 	}
 	else
 	{
-		if(namei(dir, &vp_covered) != 0)
+		if(vfs_namei(dir, &vp_covered) != 0)
 		{
 			if(device != NULL)
 				device->close(device);
@@ -271,11 +271,11 @@ s32_t sys_open(char * path, u32_t flags, u32_t mode, struct file_t ** pfp)
 
 	if(flags & O_CREAT)
 	{
-		err = namei(path, &vp);
+		err = vfs_namei(path, &vp);
 		if(err == ENOENT)
 		{
 			/* create new file. */
-			if((err = lookup(path, &dvp, &filename)) != 0)
+			if((err = vfs_lookup(path, &dvp, &filename)) != 0)
 				return err;
 			if((err = vn_access(dvp, W_OK)) != 0)
 			{
@@ -288,7 +288,7 @@ s32_t sys_open(char * path, u32_t flags, u32_t mode, struct file_t ** pfp)
 			vput(dvp);
 			if(err)
 				return err;
-			if((err = namei(path, &vp)) != 0)
+			if((err = vfs_namei(path, &vp)) != 0)
 				return err;
 			flags &= ~O_TRUNC;
 		}
@@ -309,7 +309,7 @@ s32_t sys_open(char * path, u32_t flags, u32_t mode, struct file_t ** pfp)
 	}
 	else
 	{
-		if ((err = namei(path, &vp)) != 0)
+		if ((err = vfs_namei(path, &vp)) != 0)
 			return err;
 	}
 
@@ -660,7 +660,7 @@ s32_t sys_mkdir(char * path, u32_t mode)
 	struct vnode_t *vp, *dvp;
 	s32_t err;
 
-	if((err = namei(path, &vp)) == 0)
+	if((err = vfs_namei(path, &vp)) == 0)
 	{
 		/* file already exists */
 		vput(vp);
@@ -668,7 +668,7 @@ s32_t sys_mkdir(char * path, u32_t mode)
 	}
 
 	/* notice: vp is invalid here */
-	if((err = lookup(path, &dvp, &name)) != 0)
+	if((err = vfs_lookup(path, &dvp, &name)) != 0)
 	{
 		/* directory already exists */
 		return err;
@@ -727,7 +727,7 @@ s32_t sys_rmdir(char * path)
 
 	if((err = check_dir_empty(path)) != 0)
 		return err;
-	if((err = namei(path, &vp)) != 0)
+	if((err = vfs_namei(path, &vp)) != 0)
 		return err;
 	if((err = vn_access(vp, W_OK)) != 0)
 	{
@@ -745,7 +745,7 @@ s32_t sys_rmdir(char * path)
 		vput(vp);
 		return EBUSY;
 	}
-	if((err = lookup(path, &dvp, &name)) != 0)
+	if((err = vfs_lookup(path, &dvp, &name)) != 0)
 	{
 		vput(vp);
 		return err;
@@ -781,13 +781,13 @@ s32_t sys_mknod(char * path, u32_t mode)
 		return EINVAL;
 	}
 
-	if((err = namei(path, &vp)) == 0)
+	if((err = vfs_namei(path, &vp)) == 0)
 	{
 		vput(vp);
 		return EEXIST;
 	}
 
-	if((err = lookup(path, &dvp, &name)) != 0)
+	if((err = vfs_lookup(path, &dvp, &name)) != 0)
 		return err;
 
 	if((err = vn_access(dvp, W_OK)) != 0)
@@ -816,7 +816,7 @@ s32_t sys_rename(char * src, char * dest)
 	s32_t len;
 	s32_t err;
 
-	if((err = namei(src, &vp1)) != 0)
+	if((err = vfs_namei(src, &vp1)) != 0)
 		return err;
 	if((err = vn_access(vp1, W_OK)) != 0)
 		goto err1;
@@ -841,7 +841,7 @@ s32_t sys_rename(char * src, char * dest)
 	}
 
 	/* check type of source & target */
-	err = namei(dest, &vp2);
+	err = vfs_namei(dest, &vp2);
 	if(err == 0)
 	{
 		/* target exists */
@@ -880,10 +880,10 @@ s32_t sys_rename(char * src, char * dest)
 	*dname = 0;
 	dname++;
 
-	if((err = lookup(src, &dvp1, &sname)) != 0)
+	if((err = vfs_lookup(src, &dvp1, &sname)) != 0)
 		goto err2;
 
-	if((err = namei(dest, &dvp2)) != 0)
+	if((err = vfs_namei(dest, &dvp2)) != 0)
 		goto err3;
 
 	/* the source and dest must be same file system */
@@ -917,7 +917,7 @@ s32_t sys_unlink(char * path)
 	struct vnode_t *vp, *dvp;
 	s32_t err;
 
-	if((err = namei(path, &vp)) != 0)
+	if((err = vfs_namei(path, &vp)) != 0)
 		return err;
 
 	if((err = vn_access(vp, W_OK)) != 0)
@@ -938,7 +938,7 @@ s32_t sys_unlink(char * path)
 		return EBUSY;
 	}
 
-	if((err = lookup(path, &dvp, &name)) != 0)
+	if((err = vfs_lookup(path, &dvp, &name)) != 0)
 	{
 		vput(vp);
 		return err;
@@ -959,7 +959,7 @@ s32_t sys_access(char * path, u32_t mode)
 	struct vnode_t * vp;
 	s32_t err;
 
-	if((err = namei(path, &vp)) != 0)
+	if((err = vfs_namei(path, &vp)) != 0)
 		return err;
 
 	err = vn_access(vp, mode);
@@ -976,7 +976,7 @@ s32_t sys_stat(char * path, struct stat * st)
 	struct vnode_t * vp;
 	s32_t err;
 
-	if((err = namei(path, &vp)) != 0)
+	if((err = vfs_namei(path, &vp)) != 0)
 		return err;
 
 	err = vn_stat(vp, st);

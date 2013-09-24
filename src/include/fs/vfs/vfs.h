@@ -202,8 +202,6 @@ struct vfsops_t {
 void vfs_busy(struct mount_t * m);
 void vfs_unbusy(struct mount_t * m);
 s32_t vfs_findroot(char * path, struct mount_t ** mp, char ** root);
-s32_t lookup(char * path, struct vnode_t ** vpp, char ** name);
-
 
 /*
  * declare for vfs_vnode
@@ -219,7 +217,6 @@ void vflush(struct mount_t * mp);
 s32_t vn_stat(struct vnode_t * vp, struct stat * st);
 s32_t vn_access(struct vnode_t * vp, u32_t mode);
 
-
 /*
  * declare for vfs_path
  */
@@ -233,13 +230,11 @@ char * vfs_getcwd(char * buf, size_t size);
 void vfs_setcwdfp(struct file_t * fp);
 struct file_t * vfs_getcwdfp(void);
 
-
 /*
  * declare for vfs_lookup
  */
-s32_t namei(char * path, struct vnode_t ** vpp);
-s32_t lookup(char * path, struct vnode_t ** vpp, char ** name);
-
+s32_t vfs_namei(char * path, struct vnode_t ** vpp);
+s32_t vfs_lookup(char * path, struct vnode_t ** vpp, char ** name);
 
 /*
  * declare for vfs syscall

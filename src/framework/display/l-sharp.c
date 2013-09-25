@@ -156,6 +156,14 @@ static int m_shape_set_line_width(lua_State * L)
 	return 0;
 }
 
+static int m_shape_set_source(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_SHAPE);
+	cairo_pattern_t ** pattern = luaL_checkudata(L, 2, MT_NAME_PARTTERN);
+	cairo_set_source(*cr, *pattern);
+	return 0;
+}
+
 static int m_shape_set_source_rgba(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_SHAPE);
@@ -315,6 +323,7 @@ static const luaL_Reg m_shape[] = {
 	{"save",				m_shape_save},
 	{"set_line_width",		m_shape_set_line_width},
 	{"set_source_rgba",		m_shape_set_source_rgba},
+	{"set_source",			m_shape_set_source},
 	{"stroke",				m_shape_stroke},
 	{"stroke_preserve",		m_shape_stroke_preserve},
 	{"bounds",				m_shape_bounds},

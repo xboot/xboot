@@ -18,15 +18,6 @@ function M:init(width, height)
 	self.shape = Shape.new(width or 1, height or 1)
 end
 
-function M:test()
-	self.shape:set_source_rgba(1, 0.6, 0, 1)
-	self.shape:rectangle(0, 0, 1, 1)
-	self.shape:fill()
-	self.shape:set_source_rgba(0, 0.6, 0.9, 1)
-	self.shape:rectangle(0.5, 0.5, 0.5, 0.5)
-	self.shape:fill()
-end
-
 ---
 -- Returns the width and height of the display shape in pixels. (subclasses method)
 --

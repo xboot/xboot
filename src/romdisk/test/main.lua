@@ -3,16 +3,6 @@ local Animation = require ("Animation")
 local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
-local s = DisplayShape:new(1, 1)
-runtime:addChild(s)
-
-s:test()
-s:setPosition(150, 150)
-s:setAnchor(0.5, 0.5)
-s:setRotation(45)
-s:setScale(50, 50)
-
-	
 local boy = Texture.new("boy.png")
 local boylist = {
 	DisplayImage:new(boy:region(72 * 0, 0, 72, 72)),
@@ -37,6 +27,21 @@ local text = DisplayText:new(font)
 text:setPosition(100,100)
 text:setScale(100, 100)
 runtime:addChild(text)
+
+local s = DisplayShape:new(1, 1)
+runtime:addChild(s)
+
+s.shape:set_source_rgba(1, 0.6, 0, 1)
+s.shape:rectangle(0, 0, 1, 1)
+s.shape:fill()
+s.shape:set_source_rgba(0, 0.6, 0.9, 1)
+s.shape:rectangle(0.5, 0.5, 0.5, 0.5)
+s.shape:fill()
+
+s:setPosition(150, 150)
+s:setAnchor(0.5, 0.5)
+s:setRotation(45)
+s:setScale(20, 20)
 
 --[[
 local par = Parttern.linear(0, 15, 0, 90 * 0.8)

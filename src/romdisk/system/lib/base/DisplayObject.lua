@@ -275,7 +275,7 @@ end
 -- @param sy (number) Factors by which to change the scale in the y directions.
 function M:scale(sx, sy)
 	self.scalex = self.scalex * sx
-	self.scaley = self.scaley * sy
+	self.scaley = self.scaley * (sy or sx)
 
 	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
 	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
@@ -445,7 +445,7 @@ end
 -- @param y (number) vertical scale (percentage) of the display object
 function M:setScale(x, y)
 	self.scalex = x
-	self.scaley = y
+	self.scaley = y or x
 
 	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
 	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor

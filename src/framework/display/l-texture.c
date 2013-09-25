@@ -68,7 +68,7 @@ static int m_texture_region(lua_State * L)
 	int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(*cs));
 	int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(*cs));
 	cairo_surface_t ** tcs = lua_newuserdata(L, sizeof(cairo_surface_t *));
-	*tcs = cairo_surface_create_similar(*cs, CAIRO_CONTENT_COLOR_ALPHA, w, h);
+	*tcs = cairo_surface_create_similar(*cs, cairo_surface_get_content(*cs), w, h);
 	cairo_t * cr = cairo_create(*tcs);
 	cairo_set_source_surface(cr, *cs, -x, -y);
 	cairo_paint(cr);

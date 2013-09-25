@@ -3,6 +3,16 @@ local Animation = require ("Animation")
 local background = DisplayImage:new(Texture.new("background.png"))
 runtime:addChild(background)
 
+local s = DisplayShape:new(1, 1)
+runtime:addChild(s)
+
+s:test()
+s:setPosition(150, 150)
+s:setAnchor(0.5, 0.5)
+s:setRotation(45)
+s:setScale(50, 50)
+
+	
 local boy = Texture.new("boy.png")
 local boylist = {
 	DisplayImage:new(boy:region(72 * 0, 0, 72, 72)),
@@ -46,6 +56,8 @@ local i = 0;
 Timer:new(1 / 5, 0, function(t, e)
 	anmi:rotate(10)
 	text:rotate(5)
+	s:rotate(6)
+	
 	i = i + 1
 	text:setText("自加 i = " .. i)
 end)

@@ -12,12 +12,14 @@ extern "C" {
 #define	MT_NAME_FONT		"mt_name_font"
 #define	MT_NAME_PARTTERN	"mt_name_parttern"
 #define	MT_NAME_TEXTURE		"mt_name_texture"
+#define MT_NAME_SHAPE		"mt_name_shape"
 
 int luaopen_display(lua_State * L);
 int luaopen_matrix(lua_State * L);
 int luaopen_font(lua_State * L);
 int luaopen_parttern(lua_State * L);
 int luaopen_texture(lua_State * L);
+int luaopen_shape(lua_State * L);
 
 #ifdef __cplusplus
 }

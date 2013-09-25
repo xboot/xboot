@@ -1,0 +1,72 @@
+---
+-- The 'DisplayShape' class is used to display shape related objects that can
+-- be placed on the screen.
+--
+-- @module DisplayShape
+local M = Class(DisplayObject)
+
+---
+-- Creates a new object of display shape.
+--
+-- @function [parent=#DisplayShape] new
+-- @param width (optional) The width of drawing area in pixels.
+-- @param height (optional) The height of drawing area in pixels.
+-- @return #DisplayShape
+function M:init(width, height)
+	DisplayObject.init(self)
+
+	self.shape = Shape.new(width or 1, height or 1)
+end
+
+function M:test()
+	self.shape:set_source_rgba(1, 0.6, 0, 1)
+	self.shape:rectangle(0, 0, 1, 1)
+	self.shape:fill()
+	self.shape:set_source_rgba(0, 0.6, 0.9, 1)
+	self.shape:rectangle(0.5, 0.5, 0.5, 0.5)
+	self.shape:fill()
+end
+
+---
+-- Returns the width and height of the display shape in pixels. (subclasses method)
+--
+-- @function [parent=#DisplayShape] __size
+-- @param self
+-- @return The width and height of the display shape.
+function M:__size()
+	if self.shape then
+		local r = self.shape:bounds()
+		return r.w, r.h
+	else
+		return 0, 0
+	end
+end
+
+---
+-- Returns a original table of rectangle (x, y, w and h) that encloses
+-- the display shape in pixels. (subclasses method)
+--
+-- @function [parent=#DisplayShape] __bounds
+-- @param self
+-- @return table has 4 values as x, y, w and h of bounds
+function M:__bounds()
+	if self.shape then
+		return self.shape:bounds()
+	else
+		return {x = 0, y = 0, w = 0, h = 0}
+	end
+end
+
+---
+-- Draw display shape to the screen. (subclasses method)
+--
+-- @function [parent=#DisplayShape] __draw
+-- @param self
+-- @param display (Display) The context of the screen.
+function M:__draw(display)
+	if self.shape then
+		display:drawShape(self.shape, self:getTransformMatrix(), self:getAlpha())
+	end
+end
+
+return M

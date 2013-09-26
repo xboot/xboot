@@ -22,26 +22,26 @@ local anmi = Animation:new(boylist, 100 ,100)
 anmi:setAnchor(0.5, 0.5)
 runtime:addChild(anmi)
 
-local font = Font.new("/romdisk/system/media/fonts/DroidSansFallback.ttf")
+local font = Font.new("/romdisk/system/media/fonts/DroidSans.ttf")
 local text = DisplayText:new(font)
 text:setPosition(100,100)
 text:setScale(100, 100)
 runtime:addChild(text)
 
-local s = DisplayShape:new(1, 1)
+local s = DisplayShape:new(100, 100)
 runtime:addChild(s)
 
 s.shape:set_source_rgba(1, 0.6, 0, 1)
-s.shape:rectangle(0, 0, 1, 1)
+s.shape:rectangle(0, 0, 100, 100)
 s.shape:fill()
 s.shape:set_source_rgba(0, 0.6, 0.9, 1)
-s.shape:rectangle(0.5, 0.5, 0.5, 0.5)
-s.shape:fill()
+s.shape:rectangle(50, 50, 50, 50)
+s.shape:stroke()
 
 s:setPosition(150, 150)
 s:setAnchor(0.5, 0.5)
 s:setRotation(45)
-s:setScale(20, 20)
+--s:setScale(80, 80)
 
 --[[
 local par = Parttern.linear(0, 15, 0, 90 * 0.8)
@@ -64,5 +64,5 @@ Timer:new(1 / 5, 0, function(t, e)
 	s:rotate(6)
 	
 	i = i + 1
-	text:setText("自加 i = " .. i)
+	text:setText("add i = " .. i)
 end)

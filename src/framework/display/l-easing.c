@@ -23,6 +23,14 @@
 #include <math.h>
 #include <framework/display/l-display.h>
 
+/*
+ * For all easing functions:
+ *
+ * t = elapsed time
+ * b = begin value
+ * c = change value (ending - beginning)
+ * d = duration (total time)
+ */
 struct easing_t {
 	double b;
 	double c;
@@ -33,7 +41,7 @@ static int l_new(lua_State * L)
 {
 	struct easing_t * e = lua_newuserdata(L, sizeof(struct easing_t));
 	e->b = luaL_optnumber(L, 1, 0);
-	e->c = luaL_optnumber(L, 2, 0);
+	e->c = luaL_optnumber(L, 2, 1);
 	e->d = luaL_optnumber(L, 3, 1);
 	luaL_setmetatable(L, MT_NAME_EASING);
 	return 1;

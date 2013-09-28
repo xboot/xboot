@@ -30,19 +30,118 @@
  * b = begin value
  * c = change value (ending - beginning)
  * d = duration (total time)
+ * func = easing function will be invoked in 'easing' method
  */
 struct easing_t {
 	double b;
 	double c;
 	double d;
+	int (*func)(lua_State *L);
 };
+
+static int m_linear(lua_State * L);
+static int m_in_sine(lua_State * L);
+static int m_out_sine(lua_State * L);
+static int m_in_out_sine(lua_State * L);
+static int m_in_quad(lua_State * L);
+static int m_out_quad(lua_State * L);
+static int m_in_out_quad(lua_State * L);
+static int m_in_cubic(lua_State * L);
+static int m_out_cubic(lua_State * L);
+static int m_in_out_cubic(lua_State * L);
+static int m_in_quart(lua_State * L);
+static int m_out_quart(lua_State * L);
+static int m_in_out_quart(lua_State * L);
+static int m_in_quint(lua_State * L);
+static int m_out_quint(lua_State * L);
+static int m_in_out_quint(lua_State * L);
+static int m_in_expo(lua_State * L);
+static int m_out_expo(lua_State * L);
+static int m_in_out_expo(lua_State * L);
+static int m_in_circ(lua_State * L);
+static int m_out_circ(lua_State * L);
+static int m_in_out_circ(lua_State * L);
+static int m_in_back(lua_State * L);
+static int m_out_back(lua_State * L);
+static int m_in_out_back(lua_State * L);
+static int m_in_elastic(lua_State * L);
+static int m_out_elastic(lua_State * L);
+static int m_in_out_elastic(lua_State * L);
+static int m_in_bounce(lua_State * L);
+static int m_out_bounce(lua_State * L);
+static int m_in_out_bounce(lua_State * L);
 
 static int l_new(lua_State * L)
 {
 	struct easing_t * e = lua_newuserdata(L, sizeof(struct easing_t));
+	const char * type = luaL_optstring(L, 4, "linear");
 	e->b = luaL_optnumber(L, 1, 0);
 	e->c = luaL_optnumber(L, 2, 1);
 	e->d = luaL_optnumber(L, 3, 1);
+	if(strcmp(type, "linear") == 0)
+		e->func = m_linear;
+	else if(strcmp(type, "inSine") == 0)
+		e->func = m_in_sine;
+	else if(strcmp(type, "outSine") == 0)
+		e->func = m_out_sine;
+	else if(strcmp(type, "inOutSine") == 0)
+		e->func = m_in_out_sine;
+	else if(strcmp(type, "inQuad") == 0)
+		e->func = m_in_quad;
+	else if(strcmp(type, "outQuad") == 0)
+		e->func = m_out_quad;
+	else if(strcmp(type, "inOutQuad") == 0)
+		e->func = m_in_out_quad;
+	else if(strcmp(type, "inCubic") == 0)
+		e->func = m_in_cubic;
+	else if(strcmp(type, "outCubic") == 0)
+		e->func = m_out_cubic;
+	else if(strcmp(type, "inOutCubic") == 0)
+		e->func = m_in_out_cubic;
+	else if(strcmp(type, "inQuart") == 0)
+		e->func = m_in_quart;
+	else if(strcmp(type, "outQuart") == 0)
+		e->func = m_out_quart;
+	else if(strcmp(type, "inOutQuart") == 0)
+		e->func = m_in_out_quart;
+	else if(strcmp(type, "inQuint") == 0)
+		e->func = m_in_quint;
+	else if(strcmp(type, "outQuint") == 0)
+		e->func = m_out_quint;
+	else if(strcmp(type, "inOutQuint") == 0)
+		e->func = m_in_out_quint;
+	else if(strcmp(type, "inExpo") == 0)
+		e->func = m_in_expo;
+	else if(strcmp(type, "outExpo") == 0)
+		e->func = m_out_expo;
+	else if(strcmp(type, "inOutExpo") == 0)
+		e->func = m_in_out_expo;
+	else if(strcmp(type, "inCirc") == 0)
+		e->func = m_in_circ;
+	else if(strcmp(type, "outCirc") == 0)
+		e->func = m_out_circ;
+	else if(strcmp(type, "inOutCirc") == 0)
+		e->func = m_in_out_circ;
+	else if(strcmp(type, "inBack") == 0)
+		e->func = m_in_back;
+	else if(strcmp(type, "outBack") == 0)
+		e->func = m_out_back;
+	else if(strcmp(type, "inOutBack") == 0)
+		e->func = m_in_out_back;
+	else if(strcmp(type, "inElastic") == 0)
+		e->func = m_in_elastic;
+	else if(strcmp(type, "outElastic") == 0)
+		e->func = m_out_elastic;
+	else if(strcmp(type, "inOutElastic") == 0)
+		e->func = m_in_out_elastic;
+	else if(strcmp(type, "inBounce") == 0)
+		e->func = m_in_bounce;
+	else if(strcmp(type, "outBounce") == 0)
+		e->func = m_out_bounce;
+	else if(strcmp(type, "inOutBounce") == 0)
+		e->func = m_in_out_bounce;
+	else
+		e->func = m_linear;
 	luaL_setmetatable(L, MT_NAME_EASING);
 	return 1;
 }
@@ -51,6 +150,12 @@ static const luaL_Reg l_easing[] = {
 	{"new", l_new},
 	{NULL, NULL}
 };
+
+static int m_invoke_easing(lua_State * L)
+{
+	struct easing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	return e->func(L);
+}
 
 static int m_linear(lua_State * L)
 {
@@ -514,6 +619,7 @@ static int m_in_out_bounce(lua_State * L)
 }
 
 static const luaL_Reg m_easing[] = {
+	{"easing",			m_invoke_easing},
 	{"linear",			m_linear},
 	{"inSine",			m_in_sine},
 	{"outSine",			m_out_sine},

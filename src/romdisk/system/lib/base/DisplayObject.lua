@@ -683,6 +683,112 @@ function M:hitTestPoint(x, y, target)
 end
 
 ---
+-- Perform a custom animation of a set of display object properties.
+--
+-- @function [parent=#DisplayObject] animate
+-- @param self
+-- @param properties (table) The properties values that the animation will move toward. ['x' 'y' 'rotation' 'scalex' 'scaley' 'alpha']
+-- @param duration (number) Determining how long the animation will run in seconds.
+-- @param easing (#Easing) The string indicating which easing function to use for transition.
+-- The following easing functions can be used:
+-- "linear"
+-- "inSine"		"outSine"		"inOutSine"
+-- "inQuad"		"outQuad"		"inOutQuad"
+-- "inCubic"	"outCubic"		"inOutCubic"
+-- "inQuart"	"outQuart"		"inOutQuart"
+-- "inQuint"	"outQuint"		"inOutQuint"
+-- "inExpo"		"outExpo"		"inOutExpo"
+-- "inCirc"		"outCirc"		"inOutCirc"
+-- "inBack"		"outBack"		"inOutBack"
+-- "inElastic"	"outElastic"	"inOutElastic"
+-- "inBounce"	"outBounce"		"inOutBounce"
+function M:animate(properties, duration, easing)
+	if self.__animate == true then
+		self.__animate = nil
+		self.__duration = nil
+		self.__tween = nil
+		self.__watch = nil
+	end
+
+	if not properties or type(properties) ~= "table" or not next(properties) then
+		return
+	end
+
+	if duration and duration <= 0 then
+		return
+	end
+
+	self.__animate = true
+	self.__duration = duration or 1
+	self.__tween = {}
+	self.__watch = Stopwatch.new()
+
+	for k, v in pairs(properties) do
+		local b = nil
+
+		if k == "x" then
+			b = self:getX()
+		elseif k == "y" then
+			b = self:getY()
+		elseif k == "rotation" then
+			b = self:getRotation()
+		elseif k == "scalex" then
+			b = self:getScaleX()
+		elseif k == "scaley" then
+			b = self:getScaleY()
+		elseif k == "alpha" then
+			b = self:getAlpha()
+		end
+
+		if b ~= nil then
+			self.__tween[k] = Easing.new(b, v - b, self.__duration, easing)
+		end
+	end
+
+	local function __animate_listener(d, e)
+		local elapsed = d.__watch:elapsed()
+
+		if elapsed > d.__duration then
+			elapsed = d.__duration
+		end
+
+		for k, v in pairs(d.__tween) do
+			if k == "x" then
+				d:setX(v:easing(elapsed))
+			elseif k == "y" then
+				d:setY(v:easing(elapsed))
+			elseif k == "rotation" then
+				d:setRotation(v:easing(elapsed))
+			elseif k == "scalex" then
+				d:setScaleX(v:easing(elapsed))
+			elseif k == "scaley" then
+				d:setScaleY(v:easing(elapsed))
+			elseif k == "alpha" then
+				d:setAlpha(v:easing(elapsed))
+			end
+		end
+
+		if elapsed >= d.__duration then
+			d:removeEventListener(Event.ENTER_FRAME, __animate_listener, d)
+			d.__animate = nil
+			d.__duration = nil
+			d.__tween = nil
+			d.__watch = nil
+		end
+	end
+
+	if not next(self.__tween) then
+		self.__animate = nil
+		self.__duration = nil
+		self.__tween = nil
+		self.__watch = nil
+	else
+		self:addEventListener(Event.ENTER_FRAME, __animate_listener, self)
+		self.__watch:reset()
+	end
+end
+
+---
 -- Returns the width and height of the display object in pixels. This method must be subclassing.
 --
 -- @function [parent=#DisplayObject] __size

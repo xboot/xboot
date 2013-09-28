@@ -703,49 +703,16 @@ end
 -- "inElastic"	"outElastic"	"inOutElastic"
 -- "inBounce"	"outBounce"		"inOutBounce"
 function M:animate(properties, duration, easing)
-	if self.__animate == true then
-		self.__animate = nil
-		self.__duration = nil
-		self.__tween = nil
-		self.__watch = nil
-	end
-
-	if not properties or type(properties) ~= "table" or not next(properties) then
-		return
-	end
-
-	if duration and duration <= 0 then
-		return
-	end
-
-	self.__animate = true
-	self.__duration = duration or 1
-	self.__tween = {}
-	self.__watch = Stopwatch.new()
-
-	for k, v in pairs(properties) do
-		local b = nil
-
-		if k == "x" then
-			b = self:getX()
-		elseif k == "y" then
-			b = self:getY()
-		elseif k == "rotation" then
-			b = self:getRotation()
-		elseif k == "scalex" then
-			b = self:getScaleX()
-		elseif k == "scaley" then
-			b = self:getScaleY()
-		elseif k == "alpha" then
-			b = self:getAlpha()
-		end
-
-		if b ~= nil then
-			self.__tween[k] = Easing.new(b, v - b, self.__duration, easing)
-		end
-	end
-
 	local function __animate_listener(d, e)
+		if d.__animate ~= true then
+			d:removeEventListener(Event.ENTER_FRAME, __animate_listener, d)
+			d.__duration = nil
+			d.__tween = nil
+			d.__watch = nil
+			d.__animate = nil
+			return
+		end
+
 		local elapsed = d.__watch:elapsed()
 
 		if elapsed > d.__duration then
@@ -770,21 +737,64 @@ function M:animate(properties, duration, easing)
 
 		if elapsed >= d.__duration then
 			d:removeEventListener(Event.ENTER_FRAME, __animate_listener, d)
-			d.__animate = nil
 			d.__duration = nil
 			d.__tween = nil
 			d.__watch = nil
+			d.__animate = nil
+		end
+	end
+
+	if self.__animate == true then
+		self:removeEventListener(Event.ENTER_FRAME, __animate_listener, self)
+		self.__duration = nil
+		self.__tween = nil
+		self.__watch = nil
+		self.__animate = nil
+	end
+
+	if not properties or type(properties) ~= "table" or not next(properties) then
+		return
+	end
+
+	if duration and duration <= 0 then
+		return
+	end
+
+	self.__duration = duration or 1
+	self.__tween = {}
+	
+	for k, v in pairs(properties) do
+		local b = nil
+
+		if k == "x" then
+			b = self:getX()
+		elseif k == "y" then
+			b = self:getY()
+		elseif k == "rotation" then
+			b = self:getRotation()
+		elseif k == "scalex" then
+			b = self:getScaleX()
+		elseif k == "scaley" then
+			b = self:getScaleY()
+		elseif k == "alpha" then
+			b = self:getAlpha()
+		end
+
+		if b ~= nil then
+			self.__tween[k] = Easing.new(b, v - b, self.__duration, easing)
 		end
 	end
 
 	if not next(self.__tween) then
-		self.__animate = nil
+		self:removeEventListener(Event.ENTER_FRAME, __animate_listener, self)
 		self.__duration = nil
 		self.__tween = nil
 		self.__watch = nil
+		self.__animate = nil
 	else
 		self:addEventListener(Event.ENTER_FRAME, __animate_listener, self)
-		self.__watch:reset()
+		self.__watch = Stopwatch.new()
+		self.__animate = true
 	end
 end
 

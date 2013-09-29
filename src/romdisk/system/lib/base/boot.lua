@@ -47,6 +47,7 @@ DisplayBmtext = require "base.DisplayBmtext"
 Widget = {
 	Button = require "widget.Button",
 	ImageButton = require "widget.ImageButton",
+	Toggle = require "widget.Toggle",
 }
 
 ---

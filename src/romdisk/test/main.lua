@@ -1,34 +1,34 @@
 local Animation = require ("Animation")
 
-local background = DisplayImage:new(Texture.new("background.png"))
+local background = DisplayImage.new(Texture.new("background.png"))
 runtime:addChild(background)
 
 local boy = Texture.new("boy.png")
 local boylist = {
-	DisplayImage:new(boy:region(72 * 0, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 1, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 2, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 3, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 4, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 5, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 6, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 7, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 8, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 9, 0, 72, 72)),
-	DisplayImage:new(boy:region(72 * 10, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 0, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 1, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 2, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 3, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 4, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 5, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 6, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 7, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 8, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 9, 0, 72, 72)),
+	DisplayImage.new(boy:region(72 * 10, 0, 72, 72)),
 }
 
-local anmi = Animation:new(boylist, 100 ,100)
+local anmi = Animation.new(boylist, 100 ,100)
 anmi:setAnchor(0.5, 0.5)
 runtime:addChild(anmi)
 
 local font = Font.new("/romdisk/system/media/fonts/DroidSans.ttf")
-local text = DisplayText:new(font)
+local text = DisplayText.new(font)
 text:setPosition(100,100)
 text:setScale(100, 100)
 runtime:addChild(text)
 
-local s = DisplayShape:new(100, 100)
+local s = DisplayShape.new(100, 100)
 runtime:addChild(s)
 
 s.shape:set_source_rgba(1, 0.6, 0, 1)
@@ -58,7 +58,7 @@ text:setParttern(ttpar)
 ]]
 
 local i = 0;
-Timer:new(1 / 5, 0, function(t, e)
+Timer.new(1 / 5, 0, function(t, e)
 	anmi:rotate(10)
 	text:rotate(5)
 	s:rotate(6)

@@ -2,18 +2,18 @@ local Leditem = require("Leditem")
 local Led = require("Led")
 
 -- create background
-local background = DisplayImage:new(Texture.new("background.png"))
+local background = DisplayImage.new(Texture.new("background.png"))
 runtime:addChild(background)
 
 -- create bgled
-local lon = DisplayImage:new(Texture.new("bgled1.png"))
-local loff = DisplayImage:new(Texture.new("bgled2.png"))
-local bgled = Led:new(lon, loff)
+local lon = DisplayImage.new(Texture.new("bgled1.png"))
+local loff = DisplayImage.new(Texture.new("bgled2.png"))
+local bgled = Led.new(lon, loff)
 bgled:setPosition(500, 0)
 runtime:addChild(bgled)
 
 local bgledstate = false
-local looptimer = Timer:new(0.4, 0, function(t, e)
+local looptimer = Timer.new(0.4, 0, function(t, e)
 	bgledstate = not bgledstate
 	bgled:setState(bgledstate)
 end)
@@ -41,13 +41,13 @@ function spairs(t, order)
     end
 end
 
-local ledlist = Hardware.led.list()
+local ledlist = Hardware.Led.list()
 local x = 0
 local y = 0
 for k, v in spairs(ledlist) do
 	x = x + 0
 	y = y + 65
-	local item = Leditem:new(v)
+	local item = Leditem.new(v)
 	item:setPosition(x, y)
 	runtime:addChild(item)
 end

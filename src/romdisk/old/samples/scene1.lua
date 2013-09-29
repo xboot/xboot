@@ -3,10 +3,10 @@ local M = Class(DisplayObject)
 function M:init()
 	DisplayObject.init(self)
 
-	self:addChild(DisplayImage:new("/romdisk/samples/images/scene1.png"))
+	self:addChild(DisplayImage.new("/romdisk/samples/images/scene1.png"))
 	
 	for i=1,5 do
-		local img = DisplayImage:new("/romdisk/samples/images/" .. i ..".png", math.random(0, 800 - 100), math.random(0, 480 - 100))
+		local img = DisplayImage.new("/romdisk/samples/images/" .. i ..".png", math.random(0, 800 - 100), math.random(0, 480 - 100))
 		img.alpha = 1
 	
 		img:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, img)

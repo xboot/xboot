@@ -50,7 +50,7 @@ function M:createCharacters()
 		if char ~= nil then
 
 			local t = self.texture:region(char.x, char.y, char.width, char.height)
-			local bitmap = DisplayImage:new(t, self.x + x + char.xoffset, self.y + y + char.yoffset)
+			local bitmap = DisplayImage.new(t, self.x + x + char.xoffset, self.y + y + char.yoffset)
 
 			self:addChild(bitmap)
 			x = x + char.xadvance

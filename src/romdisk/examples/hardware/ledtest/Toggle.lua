@@ -27,7 +27,7 @@ function M:onMouseDown(e)
 		self.focus = 0
 		self.ison = not self.ison
 		self:updateVisualState(self.ison)
-		self:dispatchEvent(Event:new("Toggled", {on = self.ison}))
+		self:dispatchEvent(Event.new("Toggled", {on = self.ison}))
 		e:stopPropagation()
 	end
 end
@@ -53,7 +53,7 @@ function M:onTouchesBegin(e)
 		self.focus = e.info.id
 		self.ison = not self.ison
 		self:updateVisualState(self.ison)
-		self:dispatchEvent(Event:new("Toggled", {on = self.ison}))
+		self:dispatchEvent(Event.new("Toggled", {on = self.ison}))
 		e:stopPropagation()
 	end
 end

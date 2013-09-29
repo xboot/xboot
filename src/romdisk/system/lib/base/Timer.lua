@@ -56,7 +56,7 @@ function M:pause()
 end
 
 ---
--- Cancels the timer operation initiated with Timer:new().
+-- Cancels the timer operation initiated with Timer.new().
 -- 
 -- @function [parent=#Timer] cancel
 -- @param self

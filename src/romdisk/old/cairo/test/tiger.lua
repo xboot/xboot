@@ -85,7 +85,7 @@ local function svg_path(cr, style, data)
         if cmd == "M" then --absolute moveto (x y)+
             --wx.wxMessageBox("M")
         
-            cr:new_path ()
+            cr.new_path ()
             local first=true
             for x,y in string.gmatch(dta, "%s*([%-%+]?%d+%.%d+)%s*([%-%+]?%d+%.%d+)") do
                 --wx.wxMessageBox(tostring(x)..":"..tostring(y))
@@ -100,7 +100,7 @@ local function svg_path(cr, style, data)
         elseif cmd == "m" then --relative moveto (x y)+
             --wx.wxMessageBox("m")
             
-            cr:new_path ()
+            cr.new_path ()
             local first=true
             for x,y in string.gmatch(dta, "%s*([%-%+]?%d+%.%d+)%s*([%-%+]?%d+%.%d+)") do
                 --wx.wxMessageBox(tostring(x)..":"..tostring(y))

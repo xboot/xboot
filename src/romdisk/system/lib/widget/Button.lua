@@ -1,7 +1,7 @@
 local M = Class(DisplayObject)
 
 function M:init(up, down)
-	DisplayObject.init(self)
+	self.super:init()
 
 	self.up = assert(up)
 	self.down = assert(down)
@@ -40,7 +40,7 @@ function M:onMouseUp(e)
 	if self.focus == 0 then
 		self.focus = nil
 		self:updateVisualState(false)
-		self:dispatchEvent(Event:new("Click"))
+		self:dispatchEvent(Event.new("Click"))
 		e:stopPropagation()
 	end
 end
@@ -67,7 +67,7 @@ function M:onTouchesEnd(e)
 	if self.focus == e.info.id then
 		self.focus = nil
 		self:updateVisualState(false)
-		self:dispatchEvent(Event:new("Click"))
+		self:dispatchEvent(Event.new("Click"))
 		e:stopPropagation()
 	end
 end

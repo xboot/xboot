@@ -15,7 +15,7 @@ local M_DEG = math.deg
 -- @function [parent=#DisplayObject] new
 -- @return #DisplayObject
 function M:init()
-	EventDispatcher.init(self)
+	self.super:init()
 
 	self.parent = nil
 	self.children = {}

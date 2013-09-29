@@ -19,7 +19,7 @@ local M = Class(DisplayObject)
 -- @param y (optional) The y coordinate of the display bitmap text.
 -- @return #DisplayBmtext
 function M:init(font, text, x, y)
-	DisplayObject.init(self)
+	self.super:init()
 
 	self:setPosition(x or 0, y or 0)
 	self.caches = {}
@@ -53,7 +53,7 @@ function M:setText(text)
 
 		local char = self.caches[c]
 		if char then
-			local img = DisplayImage:new(char.texture, self.x + char.ox + x, self.y + self.font.metrics.height - char.oy)
+			local img = DisplayImage.new(char.texture, self.x + char.ox + x, self.y + self.font.metrics.height - char.oy)
 			self:addChild(img)
 			x = x + char.width
 		end

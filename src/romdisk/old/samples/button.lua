@@ -43,7 +43,7 @@ function M:onMouseUp(e)
 	if self.focus then
 		self.focus = false
 		self:updateVisualState(self.focus)
-		self:dispatchEvent(Event:new("click"))
+		self:dispatchEvent(Event.new("click"))
 		e:stopPropagation()
 	end
 end
@@ -70,7 +70,7 @@ function M:onTouchesEnd(e)
 	if self.focus then
 		self.focus = false
 		self:updateVisualState(self.focus)
-		self:dispatchEvent(Event:new("click"))
+		self:dispatchEvent(Event.new("click"))
 		e:stopPropagation()
 	end
 end

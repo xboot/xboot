@@ -14,7 +14,7 @@ local M = Class(DisplayObject)
 -- @param y (optional) The y coordinate of the display image.
 -- @return #DisplayImage
 function M:init(texture, x, y)
-	DisplayObject.init(self)
+	self.super:init()
 
 	self:setPosition(x or 0, y or 0)
 	self:setTexture(texture)

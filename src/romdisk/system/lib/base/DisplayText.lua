@@ -15,7 +15,7 @@ local M = Class(DisplayObject)
 -- @param text (optional) The content of display text that will be placed on the screen.
 -- @return #DisplayText
 function M:init(font, size, parttern, text)
-	DisplayObject.init(self)
+	self.super:init()
 
 	self:setFont(font)
 	self:setFontSize(size or 10)

@@ -3,7 +3,7 @@ local M = Class(DisplayObject)
 function M:init(texture)
 	DisplayObject.init(self)
 
-	local bitmap = DisplayImage:new(texture)
+	local bitmap = DisplayImage.new(texture)
 	self:addChild(bitmap)
 
 	self.xdirection = 1

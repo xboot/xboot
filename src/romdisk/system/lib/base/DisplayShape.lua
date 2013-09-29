@@ -13,7 +13,7 @@ local M = Class(DisplayObject)
 -- @param height (optional) The height of drawing area in pixels.
 -- @return #DisplayShape
 function M:init(width, height)
-	DisplayObject.init(self)
+	self.super:init()
 
 	self.shape = Shape.new(width or 1, height or 1)
 end

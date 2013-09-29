@@ -224,7 +224,7 @@ end
 
 local function dispatchEvent(dispatcher, name)
 	if dispatcher:has_event_listener(name) then
-		dispatcher:dispatchEvent(Event:new(name))
+		dispatcher:dispatchEvent(Event.new(name))
 	end
 end
 
@@ -251,7 +251,7 @@ function M:changeScene(scene, duration, transition, ease, options)
 	end
 	
 	if self.scene1 == nil then
-		self.scene1 = self.scenes[scene]:new(options and options.userData)
+		self.scene1 = self.scenes[scene].new(options and options.userData)
 		self:addChild(self.scene1)
 		dispatchEvent(self, "transitionBegin")
 		dispatchEvent(self.scene1, "enterBegin")
@@ -264,7 +264,7 @@ function M:changeScene(scene, duration, transition, ease, options)
 	self.transition = transition
 	self.ease = ease or defaultEase
 
-	self.scene2 = self.scenes[scene]:new(options and options.userData)
+	self.scene2 = self.scenes[scene].new(options and options.userData)
 	self.scene2:setVisible(false)
 	self:addChild(self.scene2)
 		

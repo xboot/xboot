@@ -17,7 +17,7 @@ function M.test()
 
 	cr:arc(128.0, 128.0, 76.8, 0, 2*M_PI)
 	cr:clip()
-	cr:new_path()
+	cr.new_path()
 	
 	cr:scale(100.0 / w, 100.0 / h)
 	cr:set_source_surface(image, 100, 100);

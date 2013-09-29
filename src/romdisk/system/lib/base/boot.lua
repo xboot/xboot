@@ -18,9 +18,13 @@ Font = require "builtin.font"
 Parttern = require "builtin.parttern"
 Texture = require "builtin.texture"
 Shape = require "builtin.shape"
+
+---
+-- Builtin hardware module
+--
 Hardware = {
-	led = require "builtin.hardware.led",
-	ledtrig = require "builtin.hardware.ledtrig",
+	Led = require "builtin.hardware.led",
+	Ledtrig = require "builtin.hardware.ledtrig",
 }
 
 ---
@@ -42,12 +46,13 @@ DisplayBmtext = require "base.DisplayBmtext"
 --
 Widget = {
 	Button = require "widget.Button",
+	ImageButton = require "widget.ImageButton",
 }
 
 ---
 -- Global runtime
 --
-runtime = DisplayObject:new()
+runtime = DisplayObject.new()
 
 ---
 -- Loader function
@@ -59,15 +64,15 @@ local function loader()
 	local stopwatch = Stopwatch.new()
 	local display = Display.new()
 	
-	Timer:new(1 / 60, 0, function(t, e)
-		runtime:render(display, Event:new(Event.ENTER_FRAME))
+	Timer.new(1 / 60, 0, function(t, e)
+		runtime:render(display, Event.new(Event.ENTER_FRAME))
 		display:present()
 	end)
 
 	while true do
 		local info = pump()	
 		if info ~= nil then
-			local e = Event:new(info.type, info)
+			local e = Event.new(info.type, info)
 			runtime:dispatch(e)
 		end
 	

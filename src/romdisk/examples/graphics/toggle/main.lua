@@ -1,15 +1,15 @@
 local Toggle = require("Toggle")
 
 -- create background
-local background = DisplayImage:new(Texture.new("background.png"))
+local background = DisplayImage.new(Texture.new("background.png"))
 runtime:addChild(background)
 
 -- create the up and down sprites for the button
-local on = DisplayImage:new(Texture.new("toggle-on.png"))
-local off = DisplayImage:new(Texture.new("toggle-off.png"))
+local on = DisplayImage.new(Texture.new("toggle-on.png"))
+local off = DisplayImage.new(Texture.new("toggle-off.png"))
 	
 -- create the toggle
-local tog = Toggle:new(on, off)
+local tog = Toggle.new(on, off)
 
 -- register to "toggled" event
 tog:addEventListener("Toggled",

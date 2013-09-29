@@ -49,6 +49,8 @@ Widget = {
 	ImageButton = require "widget.ImageButton",
 	Toggle = require "widget.Toggle",
 	ImageToogle = require "widget.ImageToggle",
+	Led = require "widget.Led",
+	ImageLed = require "widget.ImageLed",	
 }
 
 ---

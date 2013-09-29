@@ -38,6 +38,13 @@ DisplayText = require "base.DisplayText"
 DisplayBmtext = require "base.DisplayBmtext"
 
 ---
+-- External widget module
+--
+Widget = {
+	Button = require "widget.Button",
+}
+
+---
 -- Global runtime
 --
 runtime = DisplayObject:new()

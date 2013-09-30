@@ -11,7 +11,6 @@ print = require("builtin.logger").print
 Stopwatch = require "builtin.stopwatch"
 Base64 = require "builtin.base64"
 Display = require "builtin.display"
-Cairo = require "builtin.cairo"
 Matrix = require "builtin.matrix"
 Easing = require "builtin.easing"
 Font = require "builtin.font"

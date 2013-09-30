@@ -28,7 +28,6 @@ static const luaL_Reg xboot_libs[] = {
 	{ "builtin.event",				luaopen_event },
 	{ "builtin.stopwatch",			luaopen_stopwatch },
 	{ "builtin.base64",				luaopen_base64 },
-	{ "builtin.cairo",				luaopen_cairo },
 	{ "builtin.display",			luaopen_display },
 	{ "builtin.matrix",				luaopen_matrix },
 	{ "builtin.easing",				luaopen_easing },

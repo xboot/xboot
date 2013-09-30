@@ -10,7 +10,6 @@ extern "C" {
 #include <framework/logger/l-logger.h>
 #include <framework/stopwatch/l-stopwatch.h>
 #include <framework/base64/l-base64.h>
-#include <framework/cairo/l-cairo.h>
 #include <framework/display/l-display.h>
 #include <framework/hardware/l-hardware.h>
 

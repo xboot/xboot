@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <cairo.h>
 #include <framework/luahelper.h>
 
 #define	MT_NAME_DISPLAY		"mt_name_display"
@@ -14,6 +15,10 @@ extern "C" {
 #define	MT_NAME_PARTTERN	"mt_name_parttern"
 #define	MT_NAME_TEXTURE		"mt_name_texture"
 #define MT_NAME_SHAPE		"mt_name_shape"
+
+struct ltexture_t {
+	cairo_surface_t * surface;
+};
 
 int luaopen_display(lua_State * L);
 int luaopen_matrix(lua_State * L);

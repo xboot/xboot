@@ -105,13 +105,13 @@ static int m_display_draw_text(lua_State * L)
 static int m_display_draw_texture(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	cairo_surface_t ** texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
+	struct ltexture_t * texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
 	double alpha = luaL_optnumber(L, 4, 1.0);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_matrix(cr, matrix);
-	cairo_set_source_surface(cr, *texture, 0, 0);
+	cairo_set_source_surface(cr, texture->surface, 0, 0);
 	if(alpha != 1.0)
 		cairo_paint_with_alpha(cr, alpha);
 	else

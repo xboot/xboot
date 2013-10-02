@@ -109,14 +109,41 @@ static int m_display_draw_texture(lua_State * L)
 	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
 	double alpha = luaL_optnumber(L, 4, 1.0);
 	cairo_t * cr = display->cr[display->index];
-	cairo_save(cr);
-	cairo_set_matrix(cr, matrix);
-	cairo_set_source_surface(cr, texture->surface, 0, 0);
-	if(alpha != 1.0)
+	if(texture->patch.valid)
+	{
+/*		int w, h;
+
+		cairo_save(cr);
+		cairo_set_source_surface(cr, texture->patch.tl, 0, 0);
 		cairo_paint_with_alpha(cr, alpha);
+		cairo_restore(cr);
+
+		cairo_save(cr);
+		w = cairo_image_surface_get_width(texture->patch.tl);
+		h = cairo_image_surface_get_height(texture->patch.tl);
+		cairo_translate(cr, w, 0);
+		cairo_scale(cr, 3, 1);
+		cairo_translate(cr, -w, 0);
+		cairo_set_source_surface(cr, texture->patch.tm, w, 0);
+		cairo_paint_with_alpha(cr, alpha);
+		cairo_restore(cr);
+
+		cairo_save(cr);
+		w += cairo_image_surface_get_width(texture->patch.tm);
+		h += cairo_image_surface_get_height(texture->patch.tm);
+		cairo_set_source_surface(cr, texture->patch.tr, w + 370, 0);
+		cairo_paint_with_alpha(cr, alpha);
+		cairo_restore(cr);
+*/
+	}
 	else
-		cairo_paint(cr);
-	cairo_restore(cr);
+	{
+		cairo_save(cr);
+		cairo_set_matrix(cr, matrix);
+		cairo_set_source_surface(cr, texture->surface, 0, 0);
+		cairo_paint_with_alpha(cr, alpha);
+		cairo_restore(cr);
+	}
 	return 0;
 }
 

@@ -18,6 +18,29 @@ extern "C" {
 
 struct ltexture_t {
 	cairo_surface_t * surface;
+
+	/* Nine patch */
+	struct {
+		int valid;
+
+		struct {
+			int a, b, c, d;
+		} stretch;
+
+		struct {
+			int a, b, c, d;
+		} content;
+
+		cairo_surface_t * tl;
+		cairo_surface_t * tm;
+		cairo_surface_t * tr;
+		cairo_surface_t * ml;
+		cairo_surface_t * mm;
+		cairo_surface_t * mr;
+		cairo_surface_t * bl;
+		cairo_surface_t * bm;
+		cairo_surface_t * br;
+	} patch;
 };
 
 int luaopen_display(lua_State * L);

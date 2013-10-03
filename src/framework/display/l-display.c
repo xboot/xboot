@@ -24,7 +24,7 @@
 #include <cairo-xboot.h>
 #include <framework/display/l-display.h>
 
-extern cairo_font_face_t * luaL_checkudata_font(lua_State * L, int ud, const char * tname);
+extern cairo_scaled_font_t * luaL_checkudata_scaled_font(lua_State * L, int ud, const char * tname);
 
 struct display_t {
 	struct fb_t * fb;
@@ -87,13 +87,13 @@ static int m_display_draw_shape(lua_State * L)
 static int m_display_draw_text(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	cairo_font_face_t * face = luaL_checkudata_font(L, 2, MT_NAME_FONT);
+	cairo_scaled_font_t * sfont = luaL_checkudata_scaled_font(L, 2, MT_NAME_FONT);
 	const char * text = luaL_optstring(L, 3, NULL);
 	cairo_pattern_t ** pattern = luaL_checkudata(L, 4, MT_NAME_PARTTERN);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 5, MT_NAME_MATRIX);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
-	cairo_set_font_face(cr, face);
+	cairo_set_scaled_font(cr, sfont);
 	cairo_set_font_matrix(cr, matrix);
 	cairo_text_path(cr, text);
 	cairo_set_source(cr, *pattern);
@@ -111,30 +111,9 @@ static int m_display_draw_texture(lua_State * L)
 	cairo_t * cr = display->cr[display->index];
 	if(texture->patch.valid)
 	{
-/*		int w, h;
-
-		cairo_save(cr);
-		cairo_set_source_surface(cr, texture->patch.tl, 0, 0);
-		cairo_paint_with_alpha(cr, alpha);
-		cairo_restore(cr);
-
-		cairo_save(cr);
-		w = cairo_image_surface_get_width(texture->patch.tl);
-		h = cairo_image_surface_get_height(texture->patch.tl);
-		cairo_translate(cr, w, 0);
-		cairo_scale(cr, 3, 1);
-		cairo_translate(cr, -w, 0);
-		cairo_set_source_surface(cr, texture->patch.tm, w, 0);
-		cairo_paint_with_alpha(cr, alpha);
-		cairo_restore(cr);
-
-		cairo_save(cr);
-		w += cairo_image_surface_get_width(texture->patch.tm);
-		h += cairo_image_surface_get_height(texture->patch.tm);
-		cairo_set_source_surface(cr, texture->patch.tr, w + 370, 0);
-		cairo_paint_with_alpha(cr, alpha);
-		cairo_restore(cr);
-*/
+		/*
+		 * TODO
+		 */
 	}
 	else
 	{

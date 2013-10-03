@@ -111,10 +111,22 @@ end
 -- @param self
 -- @return The width and height of the display image.
 function M:__size()
-	if self.texture then
-		return self.texture:getWidth(), self.texture:getHeight()
+	local r = self:__bounds()
+	return r.w, r.h
+end
+
+---
+-- Returns a original table of rectangle (x, y, w and h) that encloses
+-- the display shape in pixels. (subclasses method)
+--
+-- @function [parent=#DisplayText] __bounds
+-- @param self
+-- @return table has 4 values as x, y, w and h of bounds
+function M:__bounds()
+	if self.font and self.text then
+		return self.font:bounds(self.text)
 	else
-		return 10, 10
+		return {x = 0, y = 0, w = 0, h = 0}
 	end
 end
 
@@ -125,7 +137,7 @@ end
 -- @param self
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
-	if self.text then
+	if self.font and self.text then
 		display:drawText(self.font, self.text, self.parttern, self:getTransformMatrix())
 	end
 end

@@ -28,13 +28,14 @@
 struct font_t {
 	FT_Library library;
 	FT_Face fface;
-	cairo_font_face_t * cface;
+	cairo_font_face_t * face;
+	cairo_scaled_font_t * sfont;
 };
 
-cairo_font_face_t * luaL_checkudata_font(lua_State * L, int ud, const char * tname)
+cairo_scaled_font_t * luaL_checkudata_scaled_font(lua_State * L, int ud, const char * tname)
 {
 	struct font_t * font = luaL_checkudata(L, ud, tname);
-	return font->cface;
+	return font->sfont;
 }
 
 static int l_font_new(lua_State * L)
@@ -48,13 +49,27 @@ static int l_font_new(lua_State * L)
 		FT_Done_FreeType(font->library);
 		return 0;
 	}
-	font->cface = cairo_ft_font_face_create_for_ft_face(font->fface, 0);
-	if(font->cface->status != CAIRO_STATUS_SUCCESS)
+	font->face = cairo_ft_font_face_create_for_ft_face(font->fface, 0);
+	if(font->face->status != CAIRO_STATUS_SUCCESS)
 	{
 		FT_Done_Face(font->fface);
 		FT_Done_FreeType(font->library);
+		cairo_font_face_destroy(font->face);
 		return 0;
 	}
+	cairo_font_options_t * options = cairo_font_options_create();
+	cairo_matrix_t identity;
+	cairo_matrix_init_identity(&identity);
+	font->sfont = cairo_scaled_font_create(font->face, &identity, &identity, options);
+    cairo_font_options_destroy(options);
+    if(cairo_scaled_font_status(font->sfont) != CAIRO_STATUS_SUCCESS)
+    {
+		FT_Done_Face(font->fface);
+		FT_Done_FreeType(font->library);
+		cairo_font_face_destroy(font->face);
+		cairo_scaled_font_destroy(font->sfont);
+        return 0;
+    }
 	luaL_setmetatable(L, MT_NAME_FONT);
 	return 1;
 }
@@ -67,14 +82,34 @@ static const luaL_Reg l_font[] = {
 static int m_font_gc(lua_State * L)
 {
 	struct font_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
-	cairo_font_face_destroy(font->cface);
 	FT_Done_Face(font->fface);
 	FT_Done_FreeType(font->library);
+	cairo_font_face_destroy(font->face);
+	cairo_scaled_font_destroy(font->sfont);
 	return 0;
+}
+
+static int m_font_bounds(lua_State * L)
+{
+	struct font_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
+	const char * text = luaL_optstring(L, 2, NULL);
+	cairo_text_extents_t extents;
+	cairo_scaled_font_text_extents(font->sfont, text, &extents);
+	lua_newtable(L);
+	lua_pushnumber(L, 0);
+	lua_setfield(L, -2, "x");
+	lua_pushnumber(L, 0);
+	lua_setfield(L, -2, "y");
+	lua_pushnumber(L, extents.width);
+	lua_setfield(L, -2, "w");
+	lua_pushnumber(L, extents.height);
+	lua_setfield(L, -2, "h");
+	return 1;
 }
 
 static const luaL_Reg m_font[] = {
 	{"__gc",		m_font_gc},
+	{"bounds",		m_font_bounds},
 	{NULL,			NULL}
 };
 

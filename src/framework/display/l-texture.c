@@ -360,19 +360,35 @@ static int m_texture_gc(lua_State * L)
 	return 0;
 }
 
-static int m_texture_get_height(lua_State * L)
-{
-	struct ltexture_t * texture = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
-	int h = cairo_image_surface_get_height(texture->surface);
-	lua_pushinteger(L, h);
-	return 1;
-}
-
-static int m_texture_get_width(lua_State * L)
+static int m_texture_bounds(lua_State * L)
 {
 	struct ltexture_t * texture = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
 	int w = cairo_image_surface_get_width(texture->surface);
-	lua_pushinteger(L, w);
+	int h = cairo_image_surface_get_height(texture->surface);
+	if(texture->patch.valid)
+	{
+		lua_newtable(L);
+		lua_pushnumber(L, 0);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, 0);
+		lua_setfield(L, -2, "y");
+		lua_pushnumber(L, w - 2);
+		lua_setfield(L, -2, "w");
+		lua_pushnumber(L, h - 2);
+		lua_setfield(L, -2, "h");
+	}
+	else
+	{
+		lua_newtable(L);
+		lua_pushnumber(L, 0);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, 0);
+		lua_setfield(L, -2, "y");
+		lua_pushnumber(L, w);
+		lua_setfield(L, -2, "w");
+		lua_pushnumber(L, h);
+		lua_setfield(L, -2, "h");
+	}
 	return 1;
 }
 
@@ -409,8 +425,7 @@ static int m_texture_to_pattern(lua_State * L)
 
 static const luaL_Reg m_texture[] = {
 	{"__gc",		m_texture_gc},
-	{"getHeight",	m_texture_get_height},
-	{"getWidth",	m_texture_get_width},
+	{"bounds",		m_texture_bounds},
 	{"region",		m_texture_region},
 	{"toPattern",	m_texture_to_pattern},
 	{NULL,			NULL}

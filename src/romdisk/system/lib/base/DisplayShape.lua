@@ -25,12 +25,8 @@ end
 -- @param self
 -- @return The width and height of the display shape.
 function M:__size()
-	if self.shape then
-		local r = self.shape:bounds()
-		return r.w, r.h
-	else
-		return 0, 0
-	end
+	local r = self:__bounds()
+	return r.w, r.h
 end
 
 ---

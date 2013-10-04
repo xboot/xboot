@@ -102,7 +102,7 @@ static int m_font_bounds(lua_State * L)
 	lua_setfield(L, -2, "y");
 	lua_pushnumber(L, extents.width);
 	lua_setfield(L, -2, "w");
-	lua_pushnumber(L, extents.height);
+	lua_pushnumber(L, extents.height + extents.y_bearing);
 	lua_setfield(L, -2, "h");
 	return 1;
 }

@@ -18,8 +18,8 @@ function M:init(texture)
 end
 
 function M:onEnterFrame(e)
-	local x = self.x
-	local y = self.y
+	local x = self:getX()
+	local y = self:getY()
 
 	x = x + (self.xspeed * self.xdirection)
 	y = y + (self.yspeed * self.ydirection)

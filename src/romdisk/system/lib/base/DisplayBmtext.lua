@@ -53,7 +53,7 @@ function M:setText(text)
 
 		local char = self.caches[c]
 		if char then
-			local img = DisplayImage.new(char.texture, self.x + char.ox + x, self.y + self.font.metrics.height - char.oy)
+			local img = DisplayImage.new(char.texture, self:getX() + char.ox + x, self:getY() + self.font.metrics.height - char.oy)
 			self:addChild(img)
 			x = x + char.width
 		end

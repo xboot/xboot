@@ -5,10 +5,6 @@
 -- @module DisplayObject
 local M = Class(EventDispatcher)
 
-local M_PI2 = math.pi * 2
-local M_RAD = math.rad
-local M_DEG = math.deg
-
 ---
 -- Creates a new display object.
 --
@@ -20,25 +16,7 @@ function M:init()
 	self.parent = nil
 	self.children = {}
 	self.visible = true
-
-	self.x = 0
-	self.y = 0
-	self.rotation = 0
-	self.scalex = 1
-	self.scaley = 1
-	self.anchorx = 0
-	self.anchory = 0
-	self.alpha = 1
-
-	self.__translate = false;
-	self.__rotate = false;
-	self.__scale = false;
-	self.__anchor = false;
-	self.__transform = false;
-	self.__alpha = false;
-
-	self.__matrix = Matrix.new()
-	self.__matrix_valid = true;
+	self.object = Object.new()
 end
 
 ---
@@ -232,12 +210,7 @@ end
 -- @param dx (number) Amount to add to the display object's x properties.
 -- @param dy (number) Amount to add to the display object's y properties.
 function M:translate(dx, dy)
-	self.x = self.x + dx
-	self.y = self.y + dy
-
-	self.__translate = self.x ~= 0 or self.y ~= 0
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:translate(dx, dy)
 end
 
 ---
@@ -249,19 +222,7 @@ end
 -- @param self
 -- @param rotation (number) The rotation angle in degrees.
 function M:rotate(rotation)
-	self.rotation = self.rotation + M_RAD(rotation)
-
-	while(self.rotation < 0) do
-		self.rotation = self.rotation + M_PI2
-	end
-
-	while(self.rotation > M_PI2) do
-		self.rotation = self.rotation - M_PI2
-	end
-
-	self.__rotate = self.rotation ~= 0
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:rotate(rotation)
 end
 
 ---
@@ -274,12 +235,7 @@ end
 -- @param sx (number) Factors by which to change the scale in the x directions.
 -- @param sy (number) Factors by which to change the scale in the y directions.
 function M:scale(sx, sy)
-	self.scalex = self.scalex * sx
-	self.scaley = self.scaley * (sy or sx)
-
-	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:scale(sx, sy or sx)
 end
 
 ---
@@ -289,11 +245,7 @@ end
 -- @param self
 -- @param x (number) The new x coordinate of the display object.
 function M:setX(x)
-	self.x = x
-
-	self.__translate = self.x ~= 0 or self.y ~= 0
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:setX(x)
 end
 
 ---
@@ -303,7 +255,7 @@ end
 -- @param self
 -- @return The x coordinate of the display object.
 function M:getX()
-	return self.x
+	return self.object:getX()
 end
 
 ---
@@ -313,11 +265,7 @@ end
 -- @param self
 -- @param y (number) The new y coordinate of the display object.
 function M:setY(y)
-	self.y = y
-
-	self.__translate = self.x ~= 0 or self.y ~= 0
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:setY(y)
 end
 
 ---
@@ -327,7 +275,7 @@ end
 -- @param self
 -- @return The y coordinate of the display object.
 function M:getY()
-	return self.y
+	return self.object:getY()
 end
 
 ---
@@ -338,12 +286,7 @@ end
 -- @param x (number) The new x coordinate of the display object.
 -- @param y (number) The new y coordinate of the display object.
 function M:setPosition(x, y)
-	self.x = x
-	self.y = y
-
-	self.__translate = self.x ~= 0 or self.y ~= 0
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:setPosition(x, y)
 end
 
 ---
@@ -353,7 +296,7 @@ end
 -- @param self
 -- @return The x and y coordinates of the display object.
 function M:getPosition()
-	return self.x, self.y
+	return self.object:getPosition()
 end
 
 ---
@@ -363,19 +306,7 @@ end
 -- @param self
 -- @param rotation (number) rotation of the display object
 function M:setRotation(rotation)
-	self.rotation = M_RAD(rotation)
-
-	while(self.rotation < 0) do
-		self.rotation = self.rotation + M_PI2
-	end
-
-	while(self.rotation > M_PI2) do
-		self.rotation = self.rotation - M_PI2
-	end
-
-	self.__rotate = self.rotation ~= 0
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:setRotation(rotation)
 end
 
 ---
@@ -385,7 +316,7 @@ end
 -- @param self
 -- @return Rotation of the display object.
 function M:getRotation()
-	return M_DEG(self.rotation)
+	return self.object:getRotation()
 end
 
 ---
@@ -395,11 +326,7 @@ end
 -- @param self
 -- @param x (number) horizontal scale of the display object
 function M:setScaleX(x)
-	self.scalex = x
-
-	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:setScaleX(x)
 end
 
 ---
@@ -409,7 +336,7 @@ end
 -- @param self
 -- @return The horizontal scale (percentage) of the display object.
 function M:getScaleX()
-	return self.scalex
+	return self.object:getScaleX()
 end
 
 ---
@@ -419,11 +346,7 @@ end
 -- @param self
 -- @param y (number) vertical scale of the display object
 function M:setScaleY(y)
-	self.scaley = y
-
-	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:setScaleY(y)
 end
 
 ---
@@ -433,7 +356,7 @@ end
 -- @param self
 -- @return The vertical scale of the display object.
 function M:getScaleY()
-	return self.scaley
+	return self.object:getScaley()
 end
 
 ---
@@ -444,12 +367,7 @@ end
 -- @param x (number) horizontal scale (percentage) of the display object
 -- @param y (number) vertical scale (percentage) of the display object
 function M:setScale(x, y)
-	self.scalex = x
-	self.scaley = y or x
-
-	self.__scale = self.scalex ~= 1 or self.scaley ~= 1
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	self.object:setScale(x, y or x)
 end
 
 ---
@@ -459,7 +377,7 @@ end
 -- @param self
 -- @return The horizontal and vertical scales of the display object
 function M:getScale()
-	return self.scalex, self.scaley
+	return self.object:getScale()
 end
 
 ---
@@ -470,12 +388,9 @@ end
 -- @param x (number) The horizontal percentage of anchor point.
 -- @param y (number) The vertical percentage of anchor point.
 function M:setAnchor(x, y)
-	self.anchorx = self:getWidth() * x
-	self.anchory = self:getHeight() * y
-
-	self.__anchor = self.anchorx ~= 0 or self.anchory ~= 0
-	self.__transform = self.__translate or self.__rotate or self.__scale or self.__anchor
-	self.__matrix_valid = false
+	local ax = self:getWidth() * x
+	local ay = self:getHeight() * y
+	self.object:setAnchor(ax, ay)
 end
 
 ---
@@ -487,17 +402,11 @@ end
 function M:getAnchor()
 	local w = self:getWidth()
 	local h = self:getHeight()
-	local x, y = 0, 0
-
-	if w ~= 0 then
-		x = self.anchorx / w
+	local ax, ay = self.object:getAnchor()
+	if w ~= 0 and h ~= 0 then
+		return ax / w, ay / h
 	end
-
-	if h ~= 0 then
-		y = self.anchory / h
-	end
-
-	return x, y
+	return 0, 0
 end
 
 ---
@@ -507,8 +416,7 @@ end
 -- @param self
 -- @param alpha (number) The new alpha transparency of the display object
 function M:setAlpha(alpha)
-	self.alpha = alpha
-	self.__alpha = self.alpha ~= 1
+	self.object:setAlpha(alpha)
 
 	for i, v in ipairs(self.children) do
 		v:setAlpha(alpha)
@@ -522,7 +430,7 @@ end
 -- @param self
 -- @return The alpha of the display object
 function M:getAlpha()
-	return self.alpha
+	return self.object:getAlpha()
 end
 
 ---
@@ -537,26 +445,7 @@ function M:getTransformMatrix(target)
 	local o = self
 
 	while(o and o ~= target) do
-		if o.__transform and not o.__matrix_valid then
-			local m = o.__matrix
-			m:init_identity()
-
-			if o.__anchor or o.__translate then
-				m:translate(o.x, o.y)
-			end
-			if o.__rotate then
-				m:rotate(o.rotation)
-			end
-			if o.__anchor then
-				m:translate(-o.anchorx * o.scalex, -o.anchory * o.scaley)
-			end
-			if o.__scale then
-				m:scale(o.scalex, o.scaley)
-			end
-			o.__matrix_valid = true
-		end
-
-		matrix:multiply(matrix, o.__matrix)
+		matrix:multiply(matrix, o.object:getMatrix())
 		o = o.parent
 	end
 

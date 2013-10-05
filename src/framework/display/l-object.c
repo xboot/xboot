@@ -279,7 +279,7 @@ static int m_get_matrix(lua_State * L)
 	if(!object->__matrix_valid)
 	{
 		cairo_matrix_init_identity(m);
-		if(object->__anchor || object->__translate)
+		if(object->__translate)
 			cairo_matrix_translate(m, object->x, object->y);
 		if(object->__rotate)
 			cairo_matrix_rotate(m, object->rotation);

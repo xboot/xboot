@@ -25,14 +25,8 @@
 
 static int l_matrix_new(lua_State * L)
 {
-	double xx = luaL_optnumber(L, 1, 1);
-	double yx = luaL_optnumber(L, 2, 0);
-	double xy = luaL_optnumber(L, 3, 0);
-	double yy = luaL_optnumber(L, 4, 1);
-	double x0 = luaL_optnumber(L, 5, 0);
-	double y0 = luaL_optnumber(L, 6, 0);
 	cairo_matrix_t * matrix = lua_newuserdata(L, sizeof(cairo_matrix_t));
-	cairo_matrix_init(matrix, xx, yx, xy, yy, x0, y0);
+	cairo_matrix_init_identity(matrix);
 	luaL_setmetatable(L, MT_NAME_MATRIX);
 	return 1;
 }

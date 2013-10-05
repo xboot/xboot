@@ -28,14 +28,17 @@ static const luaL_Reg xboot_libs[] = {
 	{ "builtin.event",				luaopen_event },
 	{ "builtin.stopwatch",			luaopen_stopwatch },
 	{ "builtin.base64",				luaopen_base64 },
-	{ "builtin.display",			luaopen_display },
+
+	{ "builtin.rectangle",			luaopen_rectangle },
 	{ "builtin.matrix",				luaopen_matrix },
-	{ "builtin.object",				luaopen_object },
 	{ "builtin.easing",				luaopen_easing },
-	{ "builtin.font",				luaopen_font },
+	{ "builtin.object",				luaopen_object },
 	{ "builtin.parttern",			luaopen_parttern },
 	{ "builtin.texture",			luaopen_texture },
 	{ "builtin.shape",				luaopen_shape },
+	{ "builtin.font",				luaopen_font },
+	{ "builtin.display",			luaopen_display },
+
 	{ "builtin.hardware.led",		luaopen_hardware_led },
 	{ "builtin.hardware.ledtrig",	luaopen_hardware_ledtrig },
 	{ NULL, NULL }

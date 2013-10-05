@@ -10,14 +10,15 @@ package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;./?.so"
 print = require("builtin.logger").print
 Stopwatch = require "builtin.stopwatch"
 Base64 = require "builtin.base64"
-Display = require "builtin.display"
+Rectangle = require "builtin.rectangle"
 Matrix = require "builtin.matrix"
-Object = require "builtin.object"
 Easing = require "builtin.easing"
-Font = require "builtin.font"
+Object = require "builtin.object"
 Parttern = require "builtin.parttern"
 Texture = require "builtin.texture"
 Shape = require "builtin.shape"
+Font = require "builtin.font"
+Display = require "builtin.display"
 
 ---
 -- Builtin hardware module

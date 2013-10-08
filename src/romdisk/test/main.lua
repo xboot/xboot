@@ -58,9 +58,10 @@ text:setParttern(ttpar)
 ]]
 
 local i = 0;
-Timer.new(1 / 5, 0, function(t, e)
+Timer.new(1, 0, function(t, e)
 	anmi:rotate(10)
-	text:rotate(5)
+	--text:rotate(5)
+	text:animate({rotation = text:getRotation() + 20}, 2/3, "outBounce")
 	s:rotate(6)
 	
 	i = i + 1

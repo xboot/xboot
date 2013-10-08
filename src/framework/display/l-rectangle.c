@@ -46,60 +46,24 @@ static const luaL_Reg l_rectangle[] = {
 	{NULL,	NULL}
 };
 
-static int m_rectangle_set_x(lua_State * L)
+static int m_rectangle_set(lua_State * L)
 {
 	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
-	r->x = luaL_checknumber(L, 2);
+	r->x = luaL_optnumber(L, 2, r->x);
+	r->y = luaL_optnumber(L, 3, r->y);
+	r->w = luaL_optnumber(L, 4, r->w);
+	r->h = luaL_optnumber(L, 5, r->h);
 	return 0;
 }
 
-static int m_rectangle_get_x(lua_State * L)
+static int m_rectangle_get(lua_State * L)
 {
 	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
 	lua_pushnumber(L, r->x);
-	return 1;
-}
-
-static int m_rectangle_set_y(lua_State * L)
-{
-	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
-	r->y = luaL_checknumber(L, 2);
-	return 0;
-}
-
-static int m_rectangle_get_y(lua_State * L)
-{
-	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
 	lua_pushnumber(L, r->y);
-	return 1;
-}
-
-static int m_rectangle_set_w(lua_State * L)
-{
-	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
-	r->w = luaL_checknumber(L, 2);
-	return 0;
-}
-
-static int m_rectangle_get_w(lua_State * L)
-{
-	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
 	lua_pushnumber(L, r->w);
-	return 1;
-}
-
-static int m_rectangle_set_h(lua_State * L)
-{
-	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
-	r->h = luaL_checknumber(L, 2);
-	return 0;
-}
-
-static int m_rectangle_get_h(lua_State * L)
-{
-	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
 	lua_pushnumber(L, r->h);
-	return 1;
+	return 4;
 }
 
 static int m_rectangle_is_empty(lua_State * L)
@@ -169,14 +133,8 @@ static int m_rectangle_union(lua_State * L)
 }
 
 static const luaL_Reg m_rectangle[] = {
-	{"setX",			m_rectangle_set_x},
-	{"getX",			m_rectangle_get_x},
-	{"setY",			m_rectangle_set_y},
-	{"getY",			m_rectangle_get_y},
-	{"setW",			m_rectangle_set_w},
-	{"getW",			m_rectangle_get_w},
-	{"setH",			m_rectangle_set_h},
-	{"getH",			m_rectangle_get_h},
+	{"set",				m_rectangle_set},
+	{"get",				m_rectangle_get},
 	{"isEmpty",			m_rectangle_is_empty},
 	{"hitTest",			m_rectangle_hit_test},
 	{"hitTestPoint",	m_rectangle_hit_test_point},

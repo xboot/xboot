@@ -278,10 +278,23 @@ function M:getY()
 	return self.object:getY()
 end
 
+---
+-- Sets the width and height of the display object in pixels. (No transform matrix)
+--
+-- @function [parent=#DisplayObject] setSize
+-- @param self
+-- @param w (number) The width of the display object.
+-- @param h (number) The height of the display object.
 function M:setSize(w, h)
 	self.object:setSize(w, h)
 end
 
+---
+-- Returns the width and height of the display object in pixels. (No transform matrix)
+--
+-- @function [parent=#DisplayObject] getSize
+-- @param self
+-- @return The width and height of the display object.
 function M:getSize()
 	return self.object:getSize()
 end
@@ -518,7 +531,8 @@ end
 -- @return Width of the display object.
 function M:getWidth()
 	local r = self:getBounds(self)
-	return r:getW()
+	local x, y, w, h = r:get()
+	return w
 end
 
 ---
@@ -530,7 +544,8 @@ end
 -- @return Height of the display object.
 function M:getHeight()
 	local r = self:getBounds(self)
-	return r:getH()
+	local x, y, w, h = r:get()
+	return h
 end
 
 ---

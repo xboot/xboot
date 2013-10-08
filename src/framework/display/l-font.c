@@ -89,27 +89,20 @@ static int m_font_gc(lua_State * L)
 	return 0;
 }
 
-static int m_font_bounds(lua_State * L)
+static int m_font_size(lua_State * L)
 {
 	struct font_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
 	const char * text = luaL_optstring(L, 2, NULL);
 	cairo_text_extents_t extents;
 	cairo_scaled_font_text_extents(font->sfont, text, &extents);
-	lua_newtable(L);
-	lua_pushnumber(L, 0);
-	lua_setfield(L, -2, "x");
-	lua_pushnumber(L, 0);
-	lua_setfield(L, -2, "y");
 	lua_pushnumber(L, extents.width);
-	lua_setfield(L, -2, "w");
 	lua_pushnumber(L, extents.height + extents.y_bearing);
-	lua_setfield(L, -2, "h");
-	return 1;
+	return 2;
 }
 
 static const luaL_Reg m_font[] = {
 	{"__gc",		m_font_gc},
-	{"bounds",		m_font_bounds},
+	{"size",		m_font_size},
 	{NULL,			NULL}
 };
 

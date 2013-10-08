@@ -267,36 +267,22 @@ static int m_shape_close_path(lua_State * L)
 	return 0;
 }
 
-static int m_shape_bounds(lua_State * L)
+static int m_shape_size(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_SHAPE);
 	cairo_surface_t * surface = cairo_get_target(*cr);
 	cairo_rectangle_t r;
 	if(cairo_recording_surface_get_extents(surface, &r))
 	{
-		lua_newtable(L);
-		lua_pushnumber(L, r.x);
-		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, r.y);
-		lua_setfield(L, -2, "y");
 		lua_pushnumber(L, r.width);
-		lua_setfield(L, -2, "w");
 		lua_pushnumber(L, r.height);
-		lua_setfield(L, -2, "h");
 	}
 	else
 	{
-		lua_newtable(L);
 		lua_pushnumber(L, 0);
-		lua_setfield(L, -2, "x");
 		lua_pushnumber(L, 0);
-		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, 0);
-		lua_setfield(L, -2, "w");
-		lua_pushnumber(L, 0);
-		lua_setfield(L, -2, "h");
 	}
-	return 1;
+	return 2;
 }
 
 static const luaL_Reg m_shape[] = {
@@ -326,7 +312,7 @@ static const luaL_Reg m_shape[] = {
 	{"set_source",			m_shape_set_source},
 	{"stroke",				m_shape_stroke},
 	{"stroke_preserve",		m_shape_stroke_preserve},
-	{"bounds",				m_shape_bounds},
+	{"size",				m_shape_size},
 	{NULL,					NULL}
 };
 

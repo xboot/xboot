@@ -278,6 +278,14 @@ function M:getY()
 	return self.object:getY()
 end
 
+function M:setSize(w, h)
+	self.object:setSize(w, h)
+end
+
+function M:getSize()
+	return self.object:getSize()
+end
+
 ---
 -- Sets the x and y coordinates of the display object.
 --
@@ -484,47 +492,21 @@ function M:localToGlobal(x, y, target)
 end
 
 ---
--- Returns a rectangle (as x, y, width and height) that encloses the display object as
+-- Returns a rectangle (as x, y, w and h) that encloses the display object as
 -- it appears in another display object’s coordinate system.
 --
 -- @function [parent=#DisplayObject] getBounds
 -- @param self
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
--- @return table has 4 values as x, y, w and h of bounds
+-- @return rectangle has 4 values as x, y, w and h of bounds
 function M:getBounds(target, r)
-	r = r or {l = math.huge, t = math.huge, r = -math.huge, b = -math.huge}
-	local w, h = self:__size()
-	local x, y
-
-	x, y = self:localToGlobal(0, 0, target)
-	r.l = math.min(r.l, x)
-	r.t = math.min(r.t, y)
-	r.r = math.max(r.r, x)
-	r.b = math.max(r.b, y)
-
-	x, y = self:localToGlobal(w, 0, target)
-	r.l = math.min(r.l, x)
-	r.t = math.min(r.t, y)
-	r.r = math.max(r.r, x)
-	r.b = math.max(r.b, y)
-
-	x, y = self:localToGlobal(w, h, target)
-	r.l = math.min(r.l, x)
-	r.t = math.min(r.t, y)
-	r.r = math.max(r.r, x)
-	r.b = math.max(r.b, y)
-
-	x, y = self:localToGlobal(0, h, target)
-	r.l = math.min(r.l, x)
-	r.t = math.min(r.t, y)
-	r.r = math.max(r.r, x)
-	r.b = math.max(r.b, y)
-
+	local m = self:getTransformMatrix(target)
+	local r = r or Rectangle.new()
+	r:union(r, self.object:bounds(m))
 	for i, v in ipairs(self.children) do
 		v:getBounds(target, r)
 	end
-
-	return {x = r.l, y = r.t, w = (r.r - r.l), h = (r.b - r.t)}
+	return r
 end
 
 ---
@@ -535,7 +517,8 @@ end
 -- @param self
 -- @return Width of the display object.
 function M:getWidth()
-	return self:getBounds(self.parent).w
+	local r = self:getBounds(self)
+	return r:getW()
 end
 
 ---
@@ -546,7 +529,8 @@ end
 -- @param self
 -- @return Height of the display object.
 function M:getHeight()
-	return self:getBounds(self.parent).h
+	local r = self:getBounds(self)
+	return r:getH()
 end
 
 ---
@@ -562,11 +546,7 @@ function M:hitTestPoint(x, y, target)
 	if self:isVisible() then
 		local ox, oy = self:globalToLocal(x, y, target)
 		local r = self:getBounds(self)
-		if ox > r.x and oy > r.y then
-			if ox < (r.x + r.w) and oy < (r.y + r.h) then
-				return true
-			end
-		end
+		return r:hitTestPoint(ox, oy)
 	end
 	return false
 end
@@ -685,28 +665,6 @@ function M:animate(properties, duration, easing)
 		self.__watch = Stopwatch.new()
 		self.__animate = true
 	end
-end
-
----
--- Returns the width and height of the display object in pixels. This method must be subclassing.
---
--- @function [parent=#DisplayObject] __size
--- @param self
--- @return The width and height of the display object.
-function M:__size()
-	local r = self:__bounds()
-	return r.w, r.h
-end
-
----
--- Returns a original table of rectangle (x, y, w and h) that encloses
--- the display shape in pixels. (subclasses method)
---
--- @function [parent=#DisplayObject] __bounds
--- @param self
--- @return table has 4 values as x, y, w and h of bounds
-function M:__bounds()
-	return {x = 0, y = 0, w = 0, h = 0}
 end
 
 ---

@@ -28,6 +28,12 @@ end
 -- @param texture (Texture) The texture object
 function M:setTexture(texture)
 	self.texture = texture
+	if self.texture then
+		local w, h = self.texture:size()
+		self:setSize(w, h)
+	else
+		self.setSize(0, 0)
+	end
 end
 
 ---
@@ -38,32 +44,6 @@ end
 -- @return The texture object of display image.
 function M:getTexture()
 	return self.texture
-end
-
----
--- Returns the width and height of the display image in pixels. (subclasses method)
---
--- @function [parent=#DisplayImage] __size
--- @param self
--- @return The width and height of the display image.
-function M:__size()
-	local r = self:__bounds()
-	return r.w, r.h
-end
-
----
--- Returns a original table of rectangle (x, y, w and h) that encloses
--- the display shape in pixels. (subclasses method)
---
--- @function [parent=#DisplayImage] __bounds
--- @param self
--- @return table has 4 values as x, y, w and h of bounds
-function M:__bounds()
-	if self.texture then
-		return self.texture:bounds()
-	else
-		return {x = 0, y = 0, w = 0, h = 0}
-	end
 end
 
 ---

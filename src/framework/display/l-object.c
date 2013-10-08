@@ -20,8 +20,9 @@
  *
  */
 
-#include <cairo.h>
 #include <math.h>
+#include <cairo.h>
+#include <cairoint.h>
 #include <framework/display/l-display.h>
 
 struct object_t {
@@ -319,7 +320,18 @@ static int m_bounds(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_NAME_MATRIX);
-	return 0;
+	struct rectangle_t * r = lua_newuserdata(L, sizeof(struct rectangle_t));
+	double x1 = 0;
+	double y1 = 0;
+	double x2 = object->width;
+	double y2 = object->height;
+	_cairo_matrix_transform_bounding_box(matrix, &x1, &y1, &x2, &y2, NULL);
+	r->x = x1;
+	r->y = y1;
+	r->w = x2 - x1;
+	r->h = y2 - y1;
+	luaL_setmetatable(L, MT_NAME_RECTANGLE);
+	return 1;
 }
 
 static const luaL_Reg m_object[] = {
@@ -347,6 +359,7 @@ static const luaL_Reg m_object[] = {
 	{"setAlpha",	m_set_alpha},
 	{"getAlpha",	m_get_alpha},
 	{"getMatrix",	m_get_matrix},
+	{"bounds",		m_bounds},
 	{NULL,			NULL}
 };
 

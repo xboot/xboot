@@ -30,11 +30,6 @@
 #define MAX(a, b)	((a) > (b) ? (a) : (b))
 #endif
 
-struct rectangle_t {
-	double x, y;
-	double w, h;
-};
-
 static int l_rectangle_new(lua_State * L)
 {
 	struct rectangle_t * r = lua_newuserdata(L, sizeof(struct rectangle_t));
@@ -50,6 +45,62 @@ static const luaL_Reg l_rectangle[] = {
 	{"new",	l_rectangle_new},
 	{NULL,	NULL}
 };
+
+static int m_rectangle_set_x(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	r->x = luaL_checknumber(L, 2);
+	return 0;
+}
+
+static int m_rectangle_get_x(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	lua_pushnumber(L, r->x);
+	return 1;
+}
+
+static int m_rectangle_set_y(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	r->y = luaL_checknumber(L, 2);
+	return 0;
+}
+
+static int m_rectangle_get_y(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	lua_pushnumber(L, r->y);
+	return 1;
+}
+
+static int m_rectangle_set_w(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	r->w = luaL_checknumber(L, 2);
+	return 0;
+}
+
+static int m_rectangle_get_w(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	lua_pushnumber(L, r->w);
+	return 1;
+}
+
+static int m_rectangle_set_h(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	r->h = luaL_checknumber(L, 2);
+	return 0;
+}
+
+static int m_rectangle_get_h(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	lua_pushnumber(L, r->h);
+	return 1;
+}
 
 static int m_rectangle_is_empty(lua_State * L)
 {
@@ -78,8 +129,9 @@ static int m_rectangle_hit_test_point(lua_State * L)
 
 static int m_rectangle_intersection(lua_State * L)
 {
-	struct rectangle_t * a = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
-	struct rectangle_t * b = luaL_checkudata(L, 2, MT_NAME_RECTANGLE);
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	struct rectangle_t * a = luaL_checkudata(L, 2, MT_NAME_RECTANGLE);
+	struct rectangle_t * b = luaL_checkudata(L, 3, MT_NAME_RECTANGLE);
 	double x0 = MAX(a->x, b->x);
 	double x1 = MIN(a->x + a->w, b->x + b->w);
 	if(x0 <= x1)
@@ -88,32 +140,43 @@ static int m_rectangle_intersection(lua_State * L)
 		double y1 = MIN(a->y + a->h, b->y + b->h);
 		if(y0 <= y1)
 		{
-			struct rectangle_t * r = lua_newuserdata(L, sizeof(struct rectangle_t));
 			r->x = x0;
 			r->y = y0;
 			r->w = x1 - x0;
 			r->h = y1 - y0;
-			luaL_setmetatable(L, MT_NAME_RECTANGLE);
-			return 1;
+			return 0;
 		}
 	}
+	r->x = 0;
+	r->y = 0;
+	r->w = 0;
+	r->h = 0;
 	return 0;
 }
 
 static int m_rectangle_union(lua_State * L)
 {
-	struct rectangle_t * a = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
-	struct rectangle_t * b = luaL_checkudata(L, 2, MT_NAME_RECTANGLE);
-	struct rectangle_t * r = lua_newuserdata(L, sizeof(struct rectangle_t));
-	r->x = MIN(a->x, b->x);
-	r->y = MIN(a->y, b->y);
-	r->w = MAX(a->x + a->w, b->x + b->w) - r->x;
-	r->h = MAX(a->y + a->h, b->y + b->h) - r->y;
-	luaL_setmetatable(L, MT_NAME_RECTANGLE);
-	return 1;
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	struct rectangle_t * a = luaL_checkudata(L, 2, MT_NAME_RECTANGLE);
+	struct rectangle_t * b = luaL_checkudata(L, 3, MT_NAME_RECTANGLE);
+	struct rectangle_t t;
+	t.x = MIN(a->x, b->x);
+	t.y = MIN(a->y, b->y);
+	t.w = MAX(a->x + a->w, b->x + b->w) - t.x;
+	t.h = MAX(a->y + a->h, b->y + b->h) - t.y;
+	memcpy(r, &t, sizeof(struct rectangle_t));
+	return 0;
 }
 
 static const luaL_Reg m_rectangle[] = {
+	{"setX",			m_rectangle_set_x},
+	{"getX",			m_rectangle_get_x},
+	{"setY",			m_rectangle_set_y},
+	{"getY",			m_rectangle_get_y},
+	{"setW",			m_rectangle_set_w},
+	{"getW",			m_rectangle_get_w},
+	{"setH",			m_rectangle_set_h},
+	{"getH",			m_rectangle_get_h},
 	{"isEmpty",			m_rectangle_is_empty},
 	{"hitTest",			m_rectangle_hit_test},
 	{"hitTestPoint",	m_rectangle_hit_test_point},

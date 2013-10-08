@@ -92,6 +92,12 @@ end
 -- @param text (string) The new content of display text.
 function M:setText(text)
 	self.text = text
+	if self.font and self.text then
+		local w, h = self.font:size(self.text)
+		self:setSize(w, h)
+	else
+		self:setSize(0, 0)
+	end
 end
 
 ---
@@ -102,32 +108,6 @@ end
 -- @return text (string) The content of the display text.
 function M:getText()
 	return self.text
-end
-
----
--- Returns the width and height of the display image in pixels. (subclasses method)
---
--- @function [parent=#DisplayText] __size
--- @param self
--- @return The width and height of the display image.
-function M:__size()
-	local r = self:__bounds()
-	return r.w, r.h
-end
-
----
--- Returns a original table of rectangle (x, y, w and h) that encloses
--- the display shape in pixels. (subclasses method)
---
--- @function [parent=#DisplayText] __bounds
--- @param self
--- @return table has 4 values as x, y, w and h of bounds
-function M:__bounds()
-	if self.font and self.text then
-		return self.font:bounds(self.text)
-	else
-		return {x = 0, y = 0, w = 0, h = 0}
-	end
 end
 
 ---

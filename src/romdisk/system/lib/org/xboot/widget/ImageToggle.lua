@@ -1,5 +1,5 @@
-local Led = require "widget.Led"
-local M = Class(Led)
+local Toggle = require "org.xboot.widget.Toggle"
+local M = Class(Toggle)
 
 function M:init(on, off, state)
 	local ion = DisplayImage.new(Texture.new(assert(on)))

@@ -29,29 +29,41 @@ Hardware = {
 }
 
 ---
--- External base module
+-- External lang module
 --
-Class = require "base.Class"
-Timer = require "base.Timer"
-Event = require "base.Event"
-EventDispatcher = require "base.EventDispatcher"
-TexturePacker = require "base.TexturePacker"
-DisplayObject = require "base.DisplayObject"
-DisplayImage = require "base.DisplayImage"
-DisplayShape = require "base.DisplayShape"
-DisplayText = require "base.DisplayText"
-DisplayBmtext = require "base.DisplayBmtext"
+Class = require "org.xboot.lang.Class"
+
+---
+-- External core module
+--
+Timer = require "org.xboot.core.Timer"
+TexturePacker = require "org.xboot.core.TexturePacker"
+
+---
+-- External event module
+--
+Event = require "org.xboot.event.Event"
+EventDispatcher = require "org.xboot.event.EventDispatcher"
+
+---
+-- External display module
+--
+DisplayObject = require "org.xboot.display.DisplayObject"
+DisplayImage = require "org.xboot.display.DisplayImage"
+DisplayShape = require "org.xboot.display.DisplayShape"
+DisplayText = require "org.xboot.display.DisplayText"
+DisplayBmtext = require "org.xboot.display.DisplayBmtext"
 
 ---
 -- External widget module
 --
 Widget = {
-	Button = require "widget.Button",
-	ImageButton = require "widget.ImageButton",
-	Toggle = require "widget.Toggle",
-	ImageToogle = require "widget.ImageToggle",
-	Led = require "widget.Led",
-	ImageLed = require "widget.ImageLed",	
+	Button = require "org.xboot.widget.Button",
+	ImageButton = require "org.xboot.widget.ImageButton",
+	Toggle = require "org.xboot.widget.Toggle",
+	ImageToogle = require "org.xboot.widget.ImageToggle",
+	Led = require "org.xboot.widget.Led",
+	ImageLed = require "org.xboot.widget.ImageLed",	
 }
 
 ---

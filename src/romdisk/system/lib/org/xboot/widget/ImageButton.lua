@@ -1,4 +1,4 @@
-local Button = require "widget.Button"
+local Button = require "org.xboot.widget.Button"
 local M = Class(Button)
 
 function M:init(up, down)

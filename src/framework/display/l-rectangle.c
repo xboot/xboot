@@ -30,6 +30,24 @@
 #define MAX(a, b)	((a) > (b) ? (a) : (b))
 #endif
 
+enum rectangle_align_t {
+	ALIGN_LEFT					= 0,
+	ALIGN_TOP					= 1,
+	ALIGN_RIGHT					= 2,
+	ALIGN_BOTTOM				= 3,
+	ALIGN_LEFT_TOP				= 4,
+	ALIGN_RIGHT_TOP				= 5,
+	ALIGN_LEFT_BOTTOM			= 6,
+	ALIGN_RIGHT_BOTTOM			= 7,
+	ALIGN_LEFT_CENTER			= 8,
+	ALIGN_TOP_CENTER			= 9,
+	ALIGN_RIGHT_CENTER			= 10,
+	ALIGN_BOTTOM_CENTER			= 11,
+	ALIGN_CENTER_HORIZONTAL		= 12,
+	ALIGN_CENTER_VERTICAL		= 13,
+	ALIGN_CENTER				= 14,
+};
+
 static int l_rectangle_new(lua_State * L)
 {
 	struct rectangle_t * r = lua_newuserdata(L, sizeof(struct rectangle_t));
@@ -132,6 +150,123 @@ static int m_rectangle_union(lua_State * L)
 	return 0;
 }
 
+static int m_rectangle_align(lua_State * L)
+{
+	struct rectangle_t * r = luaL_checkudata(L, 1, MT_NAME_RECTANGLE);
+	struct rectangle_t * a = luaL_checkudata(L, 2, MT_NAME_RECTANGLE);
+	struct rectangle_t * b = luaL_checkudata(L, 3, MT_NAME_RECTANGLE);
+	enum rectangle_align_t align = luaL_checkinteger(L, 4);
+	struct rectangle_t t;
+	double dx1, dy1;
+	double dx2, dy2;
+	double dw, dh;
+
+	dx1 = a->x - b->x;
+	dy1 = a->y - b->y;
+	dx2 = (a->x + a->w) - (b->x + b->w);
+	dy2 = (a->y + a->h) - (b->y + b->h);
+	dw = a->w - b->w;
+	dh = a->h - b->h;
+
+	switch(align)
+	{
+	case ALIGN_LEFT:
+		t.x = b->x + dx1;
+		t.y = b->y;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_TOP:
+		t.x = b->x;
+		t.y = b->y + dy1;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_RIGHT:
+		t.x = b->x + dx2;
+		t.y = b->y;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_BOTTOM:
+		t.x = b->x;
+		t.y = b->y + dy2;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_LEFT_TOP:
+		t.x = b->x + dx1;
+		t.y = b->y + dy1;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_RIGHT_TOP:
+		t.x = b->x + dx2;
+		t.y = b->y + dy1;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_LEFT_BOTTOM:
+		t.x = b->x + dx1;
+		t.y = b->y + dy2;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_RIGHT_BOTTOM:
+		t.x = b->x + dx2;
+		t.y = b->y + dy2;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_LEFT_CENTER:
+		t.x = b->x + dx1;
+		t.y = b->y + dy1 + dh / 2;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_TOP_CENTER:
+		t.x = b->x + dx1 + dw / 2;
+		t.y = b->y + dy1;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_RIGHT_CENTER:
+		t.x = b->x + dx2;
+		t.y = b->y + dy1 + dh / 2;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_BOTTOM_CENTER:
+		t.x = b->x + dx1 + dw / 2;
+		t.y = b->y + dy2;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_CENTER_HORIZONTAL:
+		t.x = b->x + dx1 + dw / 2;
+		t.y = b->y;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_CENTER_VERTICAL:
+		t.x = b->x;
+		t.y = b->y + dy1 + dh / 2;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	case ALIGN_CENTER:
+		t.x = b->x + dx1 + dw / 2;
+		t.y = b->y + dy1 + dh / 2;
+		t.w = b->w;
+		t.h = b->h;
+		break;
+	default:
+		break;
+	}
+	memcpy(r, &t, sizeof(struct rectangle_t));
+	return 0;
+}
+
 static const luaL_Reg m_rectangle[] = {
 	{"set",				m_rectangle_set},
 	{"get",				m_rectangle_get},
@@ -140,12 +275,28 @@ static const luaL_Reg m_rectangle[] = {
 	{"hitTestPoint",	m_rectangle_hit_test_point},
 	{"intersection",	m_rectangle_intersection},
 	{"union",			m_rectangle_union},
+	{"align",			m_rectangle_align},
 	{NULL,				NULL}
 };
 
 int luaopen_rectangle(lua_State * L)
 {
 	luaL_newlib(L, l_rectangle);
+	luahelper_set_intfield(L, "ALIGN_LEFT",				ALIGN_LEFT);
+	luahelper_set_intfield(L, "ALIGN_TOP",				ALIGN_TOP);
+	luahelper_set_intfield(L, "ALIGN_RIGHT",			ALIGN_RIGHT);
+	luahelper_set_intfield(L, "ALIGN_BOTTOM",			ALIGN_BOTTOM);
+	luahelper_set_intfield(L, "ALIGN_LEFT_TOP",			ALIGN_LEFT_TOP);
+	luahelper_set_intfield(L, "ALIGN_RIGHT_TOP",		ALIGN_RIGHT_TOP);
+	luahelper_set_intfield(L, "ALIGN_LEFT_BOTTOM",		ALIGN_LEFT_BOTTOM);
+	luahelper_set_intfield(L, "ALIGN_RIGHT_BOTTOM",		ALIGN_RIGHT_BOTTOM);
+	luahelper_set_intfield(L, "ALIGN_LEFT_CENTER",		ALIGN_LEFT_CENTER);
+	luahelper_set_intfield(L, "ALIGN_TOP_CENTER",		ALIGN_TOP_CENTER);
+	luahelper_set_intfield(L, "ALIGN_RIGHT_CENTER",		ALIGN_RIGHT_CENTER);
+	luahelper_set_intfield(L, "ALIGN_BOTTOM_CENTER",	ALIGN_BOTTOM_CENTER);
+	luahelper_set_intfield(L, "ALIGN_CENTER_HORIZONTAL",ALIGN_CENTER_HORIZONTAL);
+	luahelper_set_intfield(L, "ALIGN_CENTER_VERTICAL",	ALIGN_CENTER_VERTICAL);
+	luahelper_set_intfield(L, "ALIGN_CENTER",			ALIGN_CENTER);
 	luahelper_create_metatable(L, MT_NAME_RECTANGLE, m_rectangle);
 	return 1;
 }

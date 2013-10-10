@@ -120,6 +120,7 @@ static int m_display_draw_texture(lua_State * L)
 		cairo_save(cr);
 		cairo_set_matrix(cr, matrix);
 		cairo_set_source_surface(cr, texture->surface, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_paint_with_alpha(cr, alpha);
 		cairo_restore(cr);
 	}

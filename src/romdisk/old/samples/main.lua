@@ -6,7 +6,7 @@ require("easing")
 
 ----------------------------------------------------------------------------------
 local background = DisplayImage.new("/romdisk/samples/images/background.png")
-runtime:addChild(background)
+stage:addChild(background)
 
 local s1 = scene1.new()
 local s2 = scene2.new()
@@ -17,7 +17,7 @@ local sm = scene_manager.new({
 	["s1"] = s1,
 	["s2"] = s2,
 })
-runtime:addChild(sm)
+stage:addChild(sm)
 
 local scenes = {"s1", "s2"}
 local currentScene = 1
@@ -43,7 +43,7 @@ btn:addEventListener("click", function(d, e)
 end, btn)
 btn:setPosition(40, 200)
 btn:setanchor(btn.x + btn.width / 2, btn.y + btn.height / 2)
-runtime:addChild(btn)
+stage:addChild(btn)
 
 local cursor = DisplayImage.new("/romdisk/samples/images/cursor.png", 0, 0)
 cursor:addEventListener(Event.MOUSE_DOWN, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
@@ -53,4 +53,4 @@ cursor:addEventListener(Event.TOUCHES_BEGIN, function(d, e) d:setPosition(e.info
 cursor:addEventListener(Event.TOUCHES_MOVE, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
 cursor:addEventListener(Event.TOUCHES_END, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
 cursor:addEventListener(Event.TOUCHES_CANCEL, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
-runtime:addChild(cursor)
+stage:addChild(cursor)

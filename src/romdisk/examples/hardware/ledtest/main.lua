@@ -3,14 +3,14 @@ local Led = require("Led")
 
 -- create background
 local background = DisplayImage.new(Texture.new("background.png"))
-runtime:addChild(background)
+stage:addChild(background)
 
 -- create bgled
 local lon = DisplayImage.new(Texture.new("bgled1.png"))
 local loff = DisplayImage.new(Texture.new("bgled2.png"))
 local bgled = Led.new(lon, loff)
 bgled:setPosition(500, 0)
-runtime:addChild(bgled)
+stage:addChild(bgled)
 
 local bgledstate = false
 local looptimer = Timer.new(0.4, 0, function(t, e)
@@ -49,5 +49,5 @@ for k, v in spairs(ledlist) do
 	y = y + 65
 	local item = Leditem.new(v)
 	item:setPosition(x, y)
-	runtime:addChild(item)
+	stage:addChild(item)
 end

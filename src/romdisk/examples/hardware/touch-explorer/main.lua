@@ -1,5 +1,5 @@
 local background = DisplayImage.new(Texture.new("background.png"))
-runtime:addChild(background)
+stage:addChild(background)
 
 local dots = {
 	DisplayImage.new(Texture.new("1.png")),
@@ -12,7 +12,7 @@ local dots = {
 local function onTouchesBegin(d, e)
 	local dot = dots[e.info.id]
 	if dot then
-		runtime:addChild(dot)
+		stage:addChild(dot)
 		dot:setPosition(e.info.x - dot:getWidth() / 2 , e.info.y - dot:getHeight() / 2)
 	end
 end
@@ -26,19 +26,19 @@ end
 
 local function onTouchesEnd(d, e)
 	local dot = dots[e.info.id]
-	if dot and runtime:contains(dot) then
-		runtime:removeChild(dot)
+	if dot and stage:contains(dot) then
+		stage:removeChild(dot)
 	end
 end
 
 local function onTouchesCancel(d, e)
 	local dot = dots[e.info.id]
-	if dot and runtime:contains(dot) then
-		runtime:removeChild(dot)
+	if dot and stage:contains(dot) then
+		stage:removeChild(dot)
 	end
 end
 
-runtime:addEventListener(Event.TOUCHES_BEGIN, onTouchesBegin)
-runtime:addEventListener(Event.TOUCHES_MOVE, onTouchesMove)
-runtime:addEventListener(Event.TOUCHES_END, onTouchesEnd)
-runtime:addEventListener(Event.TOUCHES_CANCEL, onTouchesCancel)
+stage:addEventListener(Event.TOUCHES_BEGIN, onTouchesBegin)
+stage:addEventListener(Event.TOUCHES_MOVE, onTouchesMove)
+stage:addEventListener(Event.TOUCHES_END, onTouchesEnd)
+stage:addEventListener(Event.TOUCHES_CANCEL, onTouchesCancel)

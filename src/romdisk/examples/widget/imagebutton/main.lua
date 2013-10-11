@@ -1,11 +1,11 @@
 -- Create background
 local bg = DisplayImage.new(Texture.new("images/bg.png"))
-runtime:addChild(bg)
+stage:addChild(bg)
 
 -- Create the button
 local btn = Widget.ImageButton.new("images/up.png", "images/down.png")
 btn:setPosition(100, 100)
-runtime:addChild(btn)
+stage:addChild(btn)
 
 -- Register to "Click" event
 local count = 0

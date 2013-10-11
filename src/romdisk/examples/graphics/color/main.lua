@@ -1,29 +1,29 @@
 local background = DisplayImage.new(Texture.new("background.png"))
-runtime:addChild(background)
+stage:addChild(background)
 
 local redbar = DisplayImage.new(Texture.new("red-bar.png"))
 redbar:setPosition(91, 230)
-runtime:addChild(redbar)
+stage:addChild(redbar)
 
 local greenbar = DisplayImage.new(Texture.new("green-bar.png"))
 greenbar:setPosition(91, 260)
-runtime:addChild(greenbar)
+stage:addChild(greenbar)
 
 local bluebar = DisplayImage.new(Texture.new("blue-bar.png"))
 bluebar:setPosition(91, 290)
-runtime:addChild(bluebar)
+stage:addChild(bluebar)
 
 local reddot = DisplayImage.new(Texture.new("red-dot.png"))
 reddot:setY(222)
-runtime:addChild(reddot)
+stage:addChild(reddot)
 
 local greendot = DisplayImage.new(Texture.new("green-dot.png"))
 greendot:setY(252)
-runtime:addChild(greendot)
+stage:addChild(greendot)
 
 local bluedot = DisplayImage.new(Texture.new("blue-dot.png"))
 bluedot:setY(282)
-runtime:addChild(bluedot)
+stage:addChild(bluedot)
 
 local c = 1
 local function onEnterFrame(d, e)
@@ -45,4 +45,4 @@ local function onEnterFrame(d, e)
 	bluedot:setX(90 + b * 280)
 end
 
-runtime:addEventListener(Event.ENTER_FRAME, onEnterFrame)
+stage:addEventListener(Event.ENTER_FRAME, onEnterFrame)

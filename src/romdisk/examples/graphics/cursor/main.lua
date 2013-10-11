@@ -9,5 +9,5 @@ cursor:addEventListener(Event.TOUCHES_MOVE, function(d, e) d:setPosition(e.info.
 cursor:addEventListener(Event.TOUCHES_END, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
 cursor:addEventListener(Event.TOUCHES_CANCEL, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
 
-runtime:addChild(background)
-runtime:addChild(cursor)
+stage:addChild(background)
+stage:addChild(cursor)

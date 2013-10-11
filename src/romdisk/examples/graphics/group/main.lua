@@ -1,5 +1,5 @@
 local background = DisplayImage.new(Texture.new("background.png"))
-runtime:addChild(background)
+stage:addChild(background)
 
 dot1tex = Texture.new("dot-1.png")
 dot2tex = Texture.new("dot-2.png")
@@ -18,7 +18,7 @@ for i=0,3 do
 end
 
 group1:setPosition(10, 10)
-runtime:addChild(group1)
+stage:addChild(group1)
 
 
 group2 = DisplayObject.new()
@@ -33,4 +33,4 @@ for i=0,3 do
 end
 
 group2:setPosition(100, 200)
-runtime:addChild(group2)
+stage:addChild(group2)

@@ -1,9 +1,9 @@
-local Animation = require ("Animation")
+local Animation = require("Animation")
 
 local background = DisplayImage.new(Texture.new("background.png"))
-runtime:addChild(background)
+stage:addChild(background)
 
-local boy = Texture.new("boy.png")
+local boy = asset:loadTexture("boy.png")
 local boylist = {
 	DisplayImage.new(boy:region(72 * 0, 0, 72, 72)),
 	DisplayImage.new(boy:region(72 * 1, 0, 72, 72)),
@@ -20,16 +20,16 @@ local boylist = {
 
 local anmi = Animation.new(boylist, 100 ,100)
 anmi:setAnchor(0.5, 0.5)
-runtime:addChild(anmi)
+stage:addChild(anmi)
 
 local font = Font.new("/romdisk/system/media/fonts/DroidSans.ttf")
 local text = DisplayText.new(font)
 text:setPosition(100,100)
 text:setScale(100, 100)
-runtime:addChild(text)
+stage:addChild(text)
 
 local s = DisplayShape.new(100, 100)
-runtime:addChild(s)
+stage:addChild(s)
 
 s.shape:set_source_rgba(1, 0.6, 0, 1)
 s.shape:rectangle(0, 0, 100, 100)

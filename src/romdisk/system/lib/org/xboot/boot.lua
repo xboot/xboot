@@ -8,6 +8,8 @@ package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;./?.so"
 -- Builtin module
 --
 print = require("builtin.logger").print
+pump = require("builtin.event").pump
+
 Stopwatch = require "builtin.stopwatch"
 Base64 = require "builtin.base64"
 Rectangle = require "builtin.rectangle"
@@ -39,6 +41,7 @@ Class = require "org.xboot.lang.Class"
 Timer = require "org.xboot.core.Timer"
 Asset = require "org.xboot.core.Asset"
 TexturePacker = require "org.xboot.core.TexturePacker"
+Application = require "org.xboot.core.Application"
 
 ---
 -- External event module
@@ -68,38 +71,18 @@ Widget = {
 }
 
 ---
--- Global runtime
+-- Global variable
 --
-runtime = DisplayObject.new()
+application = nil
+stage = nil
+asset = nil
 
 ---
 -- Loader function
 --
 local function loader()
-	require("main")
-
-	local pump = require("builtin.event").pump
-	local stopwatch = Stopwatch.new()
-	local display = Display.new()
-	
-	Timer.new(1 / 60, 0, function(t, e)
-		runtime:render(display, Event.new(Event.ENTER_FRAME))
-		display:present()
-	end)
-
-	while true do
-		local info = pump()	
-		if info ~= nil then
-			local e = Event.new(info.type, info)
-			runtime:dispatch(e)
-		end
-	
-		local elapsed = stopwatch:elapsed()
-		if elapsed ~= 0 then
-			stopwatch:reset()
-			Timer:schedule(elapsed)
-		end
-	end
+	local app = Application.new()
+	app:loop()
 end
 
 ---

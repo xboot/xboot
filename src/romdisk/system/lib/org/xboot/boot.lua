@@ -88,7 +88,7 @@ timermanager = nil
 --
 local function loader()
 	local app = Application.new()
-	app:loop()
+	app:exec()
 end
 
 ---

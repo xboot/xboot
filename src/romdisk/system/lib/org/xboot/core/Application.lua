@@ -16,11 +16,11 @@ function M:init()
 	self.asset = Asset.new()
 	self.stopwatch = Stopwatch.new()
 	self.timermanager = TimerManager.new()
-
 	self.timermanager:addTimer(Timer.new(1 / 60, 0, function(t, e)
 		self.stage:render(self.display, Event.new(Event.ENTER_FRAME))
 		self.display:present()
 	end))
+	self.running = true
 
 	application = self
 	stage = self.stage
@@ -30,9 +30,10 @@ function M:init()
 end
 
 function M:quit()
+	self.running = false
 end
 
-function M:loop()
+function M:exec()
 	while true do
 		local info = pump()
 		if info ~= nil then
@@ -44,6 +45,10 @@ function M:loop()
 		if elapsed ~= 0 then
 			self.stopwatch:reset()
 			self.timermanager:schedule(elapsed)
+		end
+		
+		if not self.running then
+			return;
 		end
 	end
 end

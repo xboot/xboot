@@ -28,6 +28,7 @@ extern cairo_scaled_font_t * luaL_checkudata_scaled_font(lua_State * L, int ud, 
 
 struct display_t {
 	struct fb_t * fb;
+	cairo_surface_t * alone;
 	cairo_surface_t * cs[2];
 	cairo_t * cr[2];
 	int index;
@@ -40,6 +41,7 @@ static int l_display_new(lua_State * L)
 	display->fb = search_framebuffer(name);
 	if(!display->fb)
 		display->fb = search_first_framebuffer();
+	display->alone = cairo_xboot_surface_create(display->fb, display->fb->alone);
 	display->cs[0] = cairo_xboot_surface_create(display->fb, NULL);
 	display->cs[1] = cairo_xboot_surface_create(display->fb, NULL);
 	display->cr[0] = cairo_create(display->cs[0]);
@@ -57,6 +59,7 @@ static const luaL_Reg l_display[] = {
 static int m_display_gc(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	cairo_xboot_surface_present(display->alone);
 	cairo_destroy(display->cr[0]);
 	cairo_destroy(display->cr[1]);
 	cairo_surface_destroy(display->cs[0]);

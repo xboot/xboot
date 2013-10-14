@@ -67,14 +67,9 @@ DisplayBmtext = require "org.xboot.display.DisplayBmtext"
 -- External widget module
 --
 Widget = {
-	Button = require "org.xboot.widget.Button",
-	ImageButton = require "org.xboot.widget.ImageButton",
-	Toggle = require "org.xboot.widget.Toggle",
-	ImageToogle = require "org.xboot.widget.ImageToggle",
-	Led = require "org.xboot.widget.Led",
-	ImageLed = require "org.xboot.widget.ImageLed",	
+	CheckBox = require "org.xboot.widget.CheckBox",
 }
-
+ 
 ---
 -- Global variable
 --

@@ -377,7 +377,7 @@ end
 -- @param self
 -- @return The vertical scale of the display object.
 function M:getScaleY()
-	return self.object:getScaley()
+	return self.object:getScaleY()
 end
 
 ---

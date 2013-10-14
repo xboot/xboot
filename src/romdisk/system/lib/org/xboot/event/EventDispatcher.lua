@@ -11,7 +11,7 @@ local M = Class()
 -- @function [parent=#EventDispatcher] new
 -- @return New 'EventDispatcher' object.
 function M:init()
-	self.event_listeners_map = {}
+	self.eventListenersMap = {}
 end
 
 ---
@@ -24,7 +24,7 @@ end
 -- @param data (optional) An optional data parameter that is passed to the listener function.
 -- @return A value of 'true' if a listener of the specified type is registered; 'false' otherwise.
 function M:hasEventListener(type, listener, data)
-	local els = self.event_listeners_map[type]
+	local els = self.eventListenersMap[type]
 
 	if not els or #els == 0 then
 		return false
@@ -58,11 +58,11 @@ function M:addEventListener(type, listener, data)
 		return false
 	end
 
-	if not self.event_listeners_map[type] then
-		self.event_listeners_map[type] = {}
+	if not self.eventListenersMap[type] then
+		self.eventListenersMap[type] = {}
 	end
 
-	local els = self.event_listeners_map[type]
+	local els = self.eventListenersMap[type]
 	local el = {type = type, listener = listener, data = data}
 	table.insert(els, el)
 
@@ -81,7 +81,7 @@ end
 -- @param data The data parameter that is used while registering the event.
 -- @return A value of 'true' or 'false'.
 function M:removeEventListener(type, listener, data)
-	local els = self.event_listeners_map[type]
+	local els = self.eventListenersMap[type]
 
 	if not els or #els == 0 then
 		return false
@@ -108,7 +108,7 @@ function M:dispatchEvent(event)
 		return
 	end
 
-	local els = self.event_listeners_map[event.type]
+	local els = self.eventListenersMap[event.type]
 
 	if not els or #els == 0 then
 		return

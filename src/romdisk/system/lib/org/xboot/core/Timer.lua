@@ -11,17 +11,15 @@ local M = Class()
 -- @param delay (number) The delay in seconds
 -- @param iteration (number) The number of times listener is to be invoked. pass 0 if you want it to loop forever.
 -- @param listener (function) The listener to invoke after the delay.
--- @param data (optional) An optional data parameter that is passed to the listener function.
 -- @return New 'Timer' object.
-function M:init(delay, iteration, listener, data)
+function M:init(delay, iteration, listener)
 	self.delay = delay or 1
 	self.iteration = iteration or 1
 	self.listener = listener
-	self.data = data or nil
-
-	self.time = 0
-	self.count = 0
 	self.running = true
+
+	self.__time = 0
+	self.__count = 0
 end
 
 ---

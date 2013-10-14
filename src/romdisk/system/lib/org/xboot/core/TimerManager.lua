@@ -10,7 +10,7 @@ local M = Class()
 -- @function [parent=#TimerManager] new
 -- @return New 'TimerManager' object.
 function M:init()
-	self.timerlist = {}
+	self.timerList = {}
 end
 
 ---
@@ -21,7 +21,7 @@ end
 -- @param timer (Timer) The timer was registered.
 -- @return A value of 'true' if a timer is registered; 'false' otherwise.
 function M:hasTimer(timer)
-	local tl = self.timerlist
+	local tl = self.timerList
 
 	if not tl or #tl == 0 then
 		return false
@@ -52,7 +52,7 @@ function M:addTimer(timer)
 		return false
 	end
 
-	table.insert(self.timerlist, timer)
+	table.insert(self.timerList, timer)
 	return true
 end
 
@@ -64,7 +64,7 @@ end
 -- @param timer (Timer) The timer will be removed.
 -- @return A value of 'true' or 'false'.
 function M:removeTimer(timer)
-	local tl = self.timerlist
+	local tl = self.timerList
 
 	if not tl or #tl == 0 then
 		return false
@@ -88,15 +88,15 @@ end
 -- @param self
 -- @param dt (number) The time delta in seconds.
 function M:schedule(dt)
-	for i, v in ipairs(self.timerlist) do
+	for i, v in ipairs(self.timerList) do
 		if v.running then
-			v.time = v.time + dt
+			v.__time = v.__time + dt
 
-			if v.time >= v.delay then
-				v.count = v.count + 1
-				v.listener(v, {time = v.time, count = v.count, data = v.data})
+			if v.__time >= v.delay then
+				v.__count = v.__count + 1
+				v.listener(v, {time = v.__time, count = v.__count})
 
-				v.time = 0
+				v.__time = 0
 				if v.iteration ~= 0 and v.count >= v.iteration then
 					self:delTimer(v)
 				end

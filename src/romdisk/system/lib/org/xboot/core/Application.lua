@@ -29,12 +29,20 @@ function M:init()
 	require("main")
 end
 
+---
+-- Quit application
+--
+-- @function [parent=#Application] quit
 function M:quit()
 	self.running = false
 end
 
+---
+-- Exec application
+--
+-- @function [parent=#Application] exec
 function M:exec()
-	while true do
+	while self.running do
 		local info = pump()
 		if info ~= nil then
 			local e = Event.new(info.type, info)
@@ -45,10 +53,6 @@ function M:exec()
 		if elapsed ~= 0 then
 			self.stopwatch:reset()
 			self.timermanager:schedule(elapsed)
-		end
-		
-		if not self.running then
-			return;
 		end
 	end
 end

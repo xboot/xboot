@@ -3,7 +3,6 @@
 -- 
 -- @module Timer
 local M = Class()
-local TIMER_TABLE = {}
 
 ---
 -- Creates a new 'Timer' object with the specified delay and iteration.
@@ -23,8 +22,6 @@ function M:init(delay, iteration, listener, data)
 	self.time = 0
 	self.count = 0
 	self.running = true
-
-	table.insert(TIMER_TABLE, self)
 end
 
 ---
@@ -53,46 +50,6 @@ end
 -- @param self
 function M:pause()
 	self.running = false
-end
-
----
--- Cancels the timer operation initiated with Timer.new().
--- 
--- @function [parent=#Timer] cancel
--- @param self
--- @return the number of iterations.
-function M:cancel()
-	for i, v in ipairs(TIMER_TABLE) do
-		if v.delay == self.delay and v.iteration == self.iteration and v.listener == self.listener and v.data == self.data then
-			v:pause()
-			table.remove(TIMER_TABLE, i)
-			return v.count
-		end
-	end
-end
-
----
--- Schedule all timers according to time interval.
--- 
--- @function [parent=#Timer] schedule
--- @param self
--- @param dt (number) The time delta in seconds.
-function M:schedule(dt)
-	for i, v in ipairs(TIMER_TABLE) do
-		if v.running then
-			v.time = v.time + dt
-
-			if v.time >= v.delay then
-				v.count = v.count + 1
-				v.listener(v, {time = v.time, count = v.count, data = v.data})
-
-				v.time = 0
-				if v.iteration ~= 0 and v.count >= v.iteration then
-					v:cancel()
-				end
-			end
-		end
-	end
 end
 
 return M

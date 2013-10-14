@@ -58,7 +58,8 @@ text:setParttern(ttpar)
 ]]
 
 local i = 0;
-Timer.new(1, 0, function(t, e)
+
+timermanager:addTimer(Timer.new(1, 0, function(t, e)
 	anmi:rotate(10)
 	--text:rotate(5)
 	text:animate({rotation = text:getRotation() + 20}, 2/3, "outBounce")
@@ -66,4 +67,4 @@ Timer.new(1, 0, function(t, e)
 	
 	i = i + 1
 	text:setText("add i = " .. i)
-end)
+end))

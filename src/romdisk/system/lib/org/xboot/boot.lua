@@ -39,6 +39,7 @@ Class = require "org.xboot.lang.Class"
 -- External core module
 --
 Timer = require "org.xboot.core.Timer"
+TimerManager = require "org.xboot.core.TimerManager"
 Asset = require "org.xboot.core.Asset"
 TexturePacker = require "org.xboot.core.TexturePacker"
 Application = require "org.xboot.core.Application"

@@ -20,7 +20,7 @@
  *
  */
 
-#include <framework/xfs/xfs.h>
+#include <xfs/xfs.h>
 #include <framework/framework.h>
 
 static const luaL_Reg xboot_libs[] = {

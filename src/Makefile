@@ -96,6 +96,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				lib/libc/locale								\
 				lib/libc/malloc								\
 				lib/libm									\
+				lib/xfs										\
 				init										\
 				init/mode									\
 				kernel										\
@@ -135,8 +136,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				framework/event								\
 				framework/logger							\
 				framework/hardware							\
-				framework/stopwatch							\
-				framework/xfs
+				framework/stopwatch
 
 #
 # Add external library

@@ -1,11 +1,11 @@
-#ifndef __FRAMEWORK_XFS_PLATFORM_H__
-#define __FRAMEWORK_XFS_PLATFORM_H__
+#ifndef __XFS_PLATFORM_H__
+#define __XFS_PLATFORM_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <framework/xfs/xfs.h>
+#include <xfs/xfs.h>
 
 void __xfs_platform_sort(void * a, size_t max, int (*cmp)(void *, size_t, size_t), void (*swap)(void *, size_t, size_t));
 
@@ -39,4 +39,4 @@ void __xfs_platform_enumerate(const char * path, xfs_enumerate_callback cb, cons
 }
 #endif
 
-#endif /* __FRAMEWORK_XFS_PLATFORM_H__ */
+#endif /* __XFS_PLATFORM_H__ */

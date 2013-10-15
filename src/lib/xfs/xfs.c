@@ -1,10 +1,10 @@
 /*
- * framework/xfs/xfs.c
+ * xfs/xfs.c
  */
 
-#include <framework/xfs/platform.h>
-#include <framework/xfs/archiver.h>
-#include <framework/xfs/xfs.h>
+#include <xfs/platform.h>
+#include <xfs/archiver.h>
+#include <xfs/xfs.h>
 
 static const struct xfs_archiver_t * const __xfs_archivers[] = {
 	&__xfs_archiver_direct,

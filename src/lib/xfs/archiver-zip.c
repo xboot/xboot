@@ -1,9 +1,9 @@
 /*
- * framework/xfs/archiver_zip.c
+ * xfs/archiver-zip.c
  */
 
-#include <framework/xfs/platform.h>
-#include <framework/xfs/archiver.h>
+#include <xfs/platform.h>
+#include <xfs/archiver.h>
 #include <zlib.h>
 
 u16_t PHYSFS_swapULE16(u16_t x) { return(x); }

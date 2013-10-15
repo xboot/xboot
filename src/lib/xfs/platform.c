@@ -1,9 +1,9 @@
 /*
- * framework/xfs/platform.c
+ * xfs/platform.c
  */
 
 #include <runtime.h>
-#include <framework/xfs/platform.h>
+#include <xfs/platform.h>
 
 static void __bubble_sort(void * a, size_t lo, size_t hi, int (*cmp)(void *, size_t, size_t), void (*swap)(void *, size_t, size_t))
 {

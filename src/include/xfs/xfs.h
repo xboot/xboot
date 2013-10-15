@@ -1,5 +1,5 @@
-#ifndef __FRAMEWORK_XFS_H__
-#define __FRAMEWORK_XFS_H__
+#ifndef __XFS_H__
+#define __XFS_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,4 +82,4 @@ bool_t xfs_flush(struct xfs_file_t * handle);
 }
 #endif
 
-#endif /* __FRAMEWORK_XFS_H__ */
+#endif /* __XFS_H__ */

@@ -1391,6 +1391,7 @@ bool_t xfs_init(const char * path)
 
 	p = __xfs_platform_absolute_path(path);
 	xfs_add_to_search_path(p, 1);
+	xfs_add_to_search_path("/romdisk/system", 1);
 	free(p);
 
 	return TRUE;

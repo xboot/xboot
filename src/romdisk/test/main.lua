@@ -68,3 +68,24 @@ timermanager:addTimer(Timer.new(1, 0, function(t, e)
 	i = i + 1
 	text:setText("add i = " .. i)
 end))
+
+
+
+
+
+
+-- Create the toggle
+local checkbox = Widget.CheckBox.new({
+	width = 10,
+	height = 10,
+	imageChecked = "/romdisk/system/assets/themes/default/checkbox-checked.png",
+	imageUnchecked = "/romdisk/system/assets/themes/default/checkbox-unchecked.png",
+})
+checkbox:setPosition(300, 100)
+stage:addChild(checkbox)
+
+-- Register to "Toggle" event
+checkbox:addEventListener("Change", function(d, e)
+	print("CheckBox state ", e.info.checked)
+end, checkbox)
+

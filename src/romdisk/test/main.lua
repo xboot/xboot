@@ -78,8 +78,8 @@ end))
 local checkbox = Widget.CheckBox.new({
 	width = 10,
 	height = 10,
-	imageChecked = "/romdisk/system/assets/themes/default/checkbox-checked.png",
-	imageUnchecked = "/romdisk/system/assets/themes/default/checkbox-unchecked.png",
+	imageChecked = "themes/default/checkbox-checked.png",
+	imageUnchecked = "themes/default/checkbox-unchecked.png",
 })
 checkbox:setPosition(300, 100)
 stage:addChild(checkbox)

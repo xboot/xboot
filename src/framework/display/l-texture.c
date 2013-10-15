@@ -21,7 +21,38 @@
  */
 
 #include <cairo.h>
+#include <cairoint.h>
+#include <xfs/xfs.h>
 #include <framework/display/l-display.h>
+
+static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsigned int size)
+{
+	struct xfs_file_t * file = closure;
+	size_t ret;
+
+    while(size)
+    {
+    	ret = xfs_read(file, data, 1, size);
+    	size -= ret;
+    	data += ret;
+    	if(size && xfs_eof(file))
+    		return _cairo_error(CAIRO_STATUS_READ_ERROR);
+    }
+    return CAIRO_STATUS_SUCCESS;
+}
+
+static cairo_surface_t * cairo_image_surface_create_from_png_xfs(const char * filename)
+{
+	struct xfs_file_t * file;
+	cairo_surface_t * surface;
+
+	file = xfs_open_read(filename);
+	if(!file)
+		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_FILE_NOT_FOUND));
+	surface = cairo_image_surface_create_from_png_stream(xfs_read_func, file);
+	xfs_close(file);
+    return surface;
+}
 
 static inline int is_black_pixel(unsigned char * p)
 {
@@ -313,7 +344,7 @@ static int l_texture_new(lua_State * L)
 	if(match_extension(filename, ".png"))
 	{
 		struct ltexture_t * texture = lua_newuserdata(L, sizeof(struct ltexture_t));
-		texture->surface = cairo_image_surface_create_from_png(filename);
+		texture->surface = cairo_image_surface_create_from_png_xfs(filename);
 		if(cairo_surface_status(texture->surface) != CAIRO_STATUS_SUCCESS)
 			return 0;
 		if(match_extension(filename, ".9.png") && fill_nine_patch(texture))

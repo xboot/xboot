@@ -23,6 +23,7 @@
 #include <cairo.h>
 #include <cairoint.h>
 #include <cairo-ft.h>
+#include <xfs/xfs.h>
 #include <framework/display/l-display.h>
 
 struct font_t {
@@ -38,13 +39,84 @@ cairo_scaled_font_t * luaL_checkudata_scaled_font(lua_State * L, int ud, const c
 	return font->sfont;
 }
 
+static unsigned long ft_xfs_stream_io(FT_Stream stream, unsigned long offset, unsigned char * buffer, unsigned long count)
+{
+	struct xfs_file_t * file = ((struct xfs_file_t *)stream->descriptor.pointer);
+
+	if(!count && offset > stream->size)
+		return 1;
+
+	if(stream->pos != offset)
+		xfs_seek(file, offset);
+
+	return (unsigned long)xfs_read(file, buffer, 1, count);
+}
+
+static void ft_xfs_stream_close(FT_Stream stream)
+{
+	struct xfs_file_t * file = ((struct xfs_file_t *)stream->descriptor.pointer);
+
+	xfs_close(file);
+	stream->descriptor.pointer = NULL;
+	stream->size = 0;
+	stream->base = 0;
+	free(stream);
+}
+
+static FT_Stream FT_New_Xfs_Stream(const char * pathname)
+{
+	FT_Stream stream = NULL;
+	struct xfs_file_t * file;
+
+	stream = malloc(sizeof(*stream));
+	if(!stream)
+		return NULL;
+
+	file = xfs_open_read(pathname);
+	if(!file)
+	{
+		free(stream);
+		return NULL;
+	}
+
+	stream->size = xfs_length(file);
+	if(!stream->size)
+	{
+		xfs_close(file);
+		free(stream);
+		return NULL;
+	}
+	xfs_seek(file, 0);
+
+	stream->descriptor.pointer = file;
+	stream->pathname.pointer = (char *)pathname;
+	stream->read = ft_xfs_stream_io;
+	stream->close = ft_xfs_stream_close;
+
+    return stream;
+}
+
+static FT_Error FT_New_Xfs_Face(FT_Library library, const char * pathname, FT_Long face_index, FT_Face * aface)
+{
+	FT_Open_Args args;
+
+	if(!pathname)
+		return -1;
+
+	args.flags = FT_OPEN_STREAM;
+	args.pathname = (char *)pathname;
+	args.stream = FT_New_Xfs_Stream(pathname);
+
+	return FT_Open_Face(library, &args, face_index, aface);
+}
+
 static int l_font_new(lua_State * L)
 {
 	const char * family = luaL_checkstring(L, 1);
 	struct font_t * font = lua_newuserdata(L, sizeof(struct font_t));
 	if(FT_Init_FreeType(&font->library))
 		return 0;
-	if(FT_New_Face(font->library, family, 0, &font->fface))
+	if(FT_New_Xfs_Face(font->library, family, 0, &font->fface))
 	{
 		FT_Done_FreeType(font->library);
 		return 0;

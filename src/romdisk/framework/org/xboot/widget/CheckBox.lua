@@ -1,10 +1,10 @@
 local M = Class(DisplayObject)
 
-function M:init(option, theme)
+function M:init(option, name)
 	self.super:init()
 
 	local option = option or {}
-	local theme = theme or {}
+	local theme = asset:loadTheme(name)
 
 	self.opt = {}
 	self.opt.left = option.left or 0

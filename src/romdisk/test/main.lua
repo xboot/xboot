@@ -75,12 +75,7 @@ end))
 
 
 -- Create the toggle
-local checkbox = Widget.CheckBox.new({
-	width = 10,
-	height = 10,
-	imageChecked = "assets/themes/default/checkbox-checked.png",
-	imageUnchecked = "assets/themes/default/checkbox-unchecked.png",
-})
+local checkbox = Widget.CheckBox.new()
 checkbox:setPosition(300, 100)
 stage:addChild(checkbox)
 
@@ -88,7 +83,3 @@ stage:addChild(checkbox)
 checkbox:addEventListener("Change", function(d, e)
 	print("CheckBox state ", e.info.checked)
 end, checkbox)
-
-
-local t = require "assets.themes.default2"
-print (t.checkbox.width, t.checkbox.height)

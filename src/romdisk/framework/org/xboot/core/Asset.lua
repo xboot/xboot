@@ -13,6 +13,7 @@ local M = Class()
 function M:init()
 	self.textures = {}
 	self.fonts = {}
+	self.theme = {}
 end
 
 function M:loadTexture(filename)
@@ -37,6 +38,16 @@ function M:loadFont(family)
 	end
 
 	return self.fonts[family]
+end
+
+function M:loadTheme(name)
+	local name = name or "default"
+
+	if not self.theme[name] then
+		self.theme[name] = require("assets.themes." .. name)
+	end
+	
+	return self.theme[name]
 end
 
 return M

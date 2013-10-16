@@ -68,8 +68,9 @@ DisplayBmtext = require "org.xboot.display.DisplayBmtext"
 --
 Widget = {
 	CheckBox = require "org.xboot.widget.CheckBox",
+	RadioButton = require "org.xboot.widget.RadioButton",
 }
- 
+
 ---
 -- Global variable
 --

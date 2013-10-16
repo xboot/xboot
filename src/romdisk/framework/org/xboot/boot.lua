@@ -1,8 +1,8 @@
 ---
 -- Setting package path
 --
-package.path = "/romdisk/system/lib/?.lua;/romdisk/system/lib/?/init.lua;./?.lua"
-package.cpath = "/romdisk/system/lib/?.so;/romdisk/system/lib/loadall.so;./?.so"
+package.path = "./?/init.lua;./?.lua"
+package.cpath = "./?.so"
 
 ---
 -- Builtin module

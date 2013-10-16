@@ -22,7 +22,7 @@ local anmi = Animation.new(boylist, 100 ,100)
 anmi:setAnchor(0.5, 0.5)
 stage:addChild(anmi)
 
-local font = Font.new("/romdisk/system/media/fonts/DroidSans.ttf")
+local font = Font.new("/romdisk/framework/assets/fonts/DroidSans.ttf")
 local text = DisplayText.new(font)
 text:setPosition(100,100)
 text:setScale(100, 100)
@@ -78,8 +78,8 @@ end))
 local checkbox = Widget.CheckBox.new({
 	width = 10,
 	height = 10,
-	imageChecked = "themes/default/checkbox-checked.png",
-	imageUnchecked = "themes/default/checkbox-unchecked.png",
+	imageChecked = "assets/themes/default/checkbox-checked.png",
+	imageUnchecked = "assets/themes/default/checkbox-unchecked.png",
 })
 checkbox:setPosition(300, 100)
 stage:addChild(checkbox)
@@ -89,3 +89,6 @@ checkbox:addEventListener("Change", function(d, e)
 	print("CheckBox state ", e.info.checked)
 end, checkbox)
 
+
+local t = require "assets.themes.default2"
+print (t.checkbox.width, t.checkbox.height)

@@ -80,10 +80,10 @@ void do_system_logo(void)
 	LOG("Display system logo");
 
 	if(! machine_authentication())
-		watermark = cairo_image_surface_create_from_png("/romdisk/system/media/images/watermark.png");
+		watermark = cairo_image_surface_create_from_png("/romdisk/framework/assets/images/watermark.png");
 	else
 		watermark = NULL;
-	logo = cairo_image_surface_create_from_png("/romdisk/system/media/images/logo.png");
+	logo = cairo_image_surface_create_from_png("/romdisk/framework/assets/images/logo.png");
 
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{

@@ -22,7 +22,7 @@ local anmi = Animation.new(boylist, 100 ,100)
 anmi:setAnchor(0.5, 0.5)
 stage:addChild(anmi)
 
-local font = Font.new("assets/fonts/DroidSans.ttf")
+local font = Font.new("assets/fonts/Roboto-Regular.ttf")
 local text = DisplayText.new(font)
 text:setPosition(100,100)
 text:setScale(100, 100)

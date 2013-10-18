@@ -15,7 +15,7 @@ function M:init(option, name)
 	self.opt.imageChecked = assert(option.imageChecked or theme.checkbox.imageChecked)
 	self.opt.imageUnchecked = assert(option.imageUnchecked or theme.checkbox.imageUnchecked)
 
-	self.focus = nil
+	self.touchid = nil
 	self.checked = self.opt.checked
 	self.frameChecked = DisplayImage.new(asset:loadTexture(self.opt.imageChecked))
 	self.frameUnchecked = DisplayImage.new(asset:loadTexture(self.opt.imageUnchecked))
@@ -45,8 +45,8 @@ function M:getChecked()
 end
 
 function M:onMouseDown(e)
-	if self.focus == nil and self:hitTestPoint(e.info.x, e.info.y) then
-		self.focus = 0
+	if self.touchid == nil and self:hitTestPoint(e.info.x, e.info.y) then
+		self.touchid = 0
 		self.checked = not self.checked
 		self:updateVisualState(self.checked)
 		self:dispatchEvent(Event.new("Change", {checked = self.checked}))
@@ -55,24 +55,24 @@ function M:onMouseDown(e)
 end
 
 function M:onMouseMove(e)
-	if self.focus == 0 then
+	if self.touchid == 0 then
 		if not self:hitTestPoint(e.info.x, e.info.y) then
-			self.focus = nil
+			self.touchid = nil
 		end
 		e:stopPropagation()
 	end
 end
 
 function M:onMouseUp(e)
-	if self.focus == 0 then
-		self.focus = nil
+	if self.touchid == 0 then
+		self.touchid = nil
 		e:stopPropagation()
 	end
 end
 
 function M:onTouchesBegin(e)
-	if self.focus == nil and self:hitTestPoint(e.info.x, e.info.y) then
-		self.focus = e.info.id
+	if self.touchid == nil and self:hitTestPoint(e.info.x, e.info.y) then
+		self.touchid = e.info.id
 		self.checked = not self.checked
 		self:updateVisualState(self.checked)
 		self:dispatchEvent(Event.new("Change", {checked = self.checked}))
@@ -81,24 +81,24 @@ function M:onTouchesBegin(e)
 end
 
 function M:onTouchesMove(e)
-	if self.focus == e.info.id then
+	if self.touchid == e.info.id then
 		if not self:hitTestPoint(e.info.x, e.info.y) then
-			self.focus = nil
+			self.touchid = nil
 		end
 		e:stopPropagation()
 	end
 end
 
 function M:onTouchesEnd(e)
-	if self.focus == e.info.id then
-		self.focus = nil
+	if self.touchid == e.info.id then
+		self.touchid = nil
 		e:stopPropagation()
 	end
 end
 
 function M:onTouchesCancel(e)
-	if self.focus == e.info.id then
-		self.focus = nil
+	if self.touchid == e.info.id then
+		self.touchid = nil
 		e:stopPropagation()
 	end
 end

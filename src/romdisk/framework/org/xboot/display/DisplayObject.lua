@@ -455,6 +455,23 @@ function M:getAlpha()
 end
 
 ---
+-- Suit to size with width and height in pixels.
+--
+-- @function [parent=#DisplayObject] suitToSize
+-- @param self
+-- @param w (number) The width to suiting.
+-- @param h (number) The height to suiting.
+function M:suitToSize(width, height)
+	local r = self:getBounds(self)
+	local x, y, w, h = r:get()
+	if w ~= 0 and h ~= 0 then
+		local width = width or w
+		local height = height or h
+		self:setScale(width / w, height / h)
+	end
+end
+
+---
 -- Return a matrix that represents the transformation from the local coordinate system to another.
 --
 -- @function [parent=#DisplayObject] getTransformMatrix

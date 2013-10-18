@@ -9,9 +9,9 @@ function M:init(option, name)
 	self.opt = {}
 	self.opt.left = option.left or 0
 	self.opt.top = option.top or 0
+	self.opt.width = option.width
+	self.opt.height = option.height
 	self.opt.checked = option.checked or false
-	self.opt.width = assert(option.width or theme.checkbox.width)
-	self.opt.height = assert(option.height or theme.checkbox.height)
 	self.opt.imageChecked = assert(option.imageChecked or theme.checkbox.imageChecked)
 	self.opt.imageUnchecked = assert(option.imageUnchecked or theme.checkbox.imageUnchecked)
 
@@ -20,8 +20,9 @@ function M:init(option, name)
 	self.frameChecked = DisplayImage.new(asset:loadTexture(self.opt.imageChecked))
 	self.frameUnchecked = DisplayImage.new(asset:loadTexture(self.opt.imageUnchecked))
 
-	self:setPosition(self.opt.left, self.opt.top)
 	self:updateVisualState(self.checked)
+	self:setPosition(self.opt.left, self.opt.top)
+	self:suitToSize(self.opt.width, self.opt.height)
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
 	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)

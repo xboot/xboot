@@ -547,7 +547,7 @@ end
 -- @param self
 -- @return Width of the display object.
 function M:getWidth()
-	local r = self:getBounds(self)
+	local r = self:getBounds()
 	local x, y, w, h = r:get()
 	return w
 end
@@ -560,7 +560,7 @@ end
 -- @param self
 -- @return Height of the display object.
 function M:getHeight()
-	local r = self:getBounds(self)
+	local r = self:getBounds()
 	local x, y, w, h = r:get()
 	return h
 end

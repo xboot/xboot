@@ -459,8 +459,8 @@ end
 --
 -- @function [parent=#DisplayObject] suitToSize
 -- @param self
--- @param w (number) The width to suiting.
--- @param h (number) The height to suiting.
+-- @param width (number) The width to suiting.
+-- @param height (number) The height to suiting.
 function M:suitToSize(width, height)
 	local r = self:getBounds(self)
 	local x, y, w, h = r:get()

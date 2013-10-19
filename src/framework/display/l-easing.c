@@ -20,7 +20,6 @@
  *
  */
 
-#include <math.h>
 #include <framework/display/l-display.h>
 
 /*

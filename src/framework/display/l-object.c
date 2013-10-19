@@ -20,7 +20,6 @@
  *
  */
 
-#include <math.h>
 #include <cairo.h>
 #include <cairoint.h>
 #include <framework/display/l-display.h>

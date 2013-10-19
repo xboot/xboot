@@ -51,10 +51,10 @@ enum rectangle_align_t {
 static int l_rectangle_new(lua_State * L)
 {
 	struct rectangle_t * r = lua_newuserdata(L, sizeof(struct rectangle_t));
-	r->x = luaL_optnumber(L, 2, 0);
-	r->y = luaL_optnumber(L, 3, 0);
-	r->w = luaL_optnumber(L, 4, 0);
-	r->h = luaL_optnumber(L, 5, 0);
+	r->x = luaL_optnumber(L, 2,  HUGE_VAL);
+	r->y = luaL_optnumber(L, 3,  HUGE_VAL);
+	r->w = luaL_optnumber(L, 4, -HUGE_VAL);
+	r->h = luaL_optnumber(L, 5, -HUGE_VAL);
 	luaL_setmetatable(L, MT_NAME_RECTANGLE);
 	return 1;
 }

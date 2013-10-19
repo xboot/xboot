@@ -28,6 +28,7 @@ extern "C" {
 #include <assert.h>
 #include <locale.h>
 #include <time.h>
+#include <math.h>
 #include <exit.h>
 #include <io.h>
 #include <ssize.h>

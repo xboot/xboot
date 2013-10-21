@@ -28,7 +28,7 @@ static int l_pattern_create_rgba(lua_State * L)
 	double red = luaL_optnumber(L, 1, 1);
 	double green = luaL_optnumber(L, 2, 1);
 	double blue = luaL_optnumber(L, 3, 1);
-	double alpha = luaL_optnumber(L, 3, 1);
+	double alpha = luaL_optnumber(L, 4, 1);
 	cairo_pattern_t ** pattern = lua_newuserdata(L, sizeof(cairo_pattern_t *));
 	*pattern = cairo_pattern_create_rgba(red, green, blue, alpha);
 	luaL_setmetatable(L, MT_NAME_PARTTERN);

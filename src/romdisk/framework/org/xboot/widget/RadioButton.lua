@@ -7,8 +7,8 @@ function M:init(option, name)
 	local theme = asset:loadTheme(name)
 
 	self.opt = {}
-	self.opt.left = option.left or 0
-	self.opt.top = option.top or 0
+	self.opt.x = option.x or 0
+	self.opt.y = option.y or 0
 	self.opt.width = option.width
 	self.opt.height = option.height
 	self.opt.checked = option.checked or false
@@ -21,7 +21,7 @@ function M:init(option, name)
 	self.frameUnchecked = DisplayImage.new(asset:loadTexture(self.opt.imageUnchecked))
 
 	self:updateVisualState(self.checked)
-	self:setPosition(self.opt.left, self.opt.top)
+	self:setPosition(self.opt.x, self.opt.y)
 	self:suitToSize(self.opt.width, self.opt.height)
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)

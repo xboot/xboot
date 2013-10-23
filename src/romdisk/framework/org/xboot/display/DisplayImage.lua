@@ -16,8 +16,8 @@ local M = Class(DisplayObject)
 function M:init(texture, x, y)
 	self.super:init()
 
-	self:setPosition(x or 0, y or 0)
 	self:setTexture(texture)
+	self:setPosition(x or 0, y or 0)
 end
 
 ---

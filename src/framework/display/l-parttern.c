@@ -23,7 +23,7 @@
 #include <cairo.h>
 #include <framework/display/l-display.h>
 
-static int l_pattern_create_rgba(lua_State * L)
+static int l_pattern_create_color(lua_State * L)
 {
 	double red = luaL_optnumber(L, 1, 1);
 	double green = luaL_optnumber(L, 2, 1);
@@ -31,6 +31,15 @@ static int l_pattern_create_rgba(lua_State * L)
 	double alpha = luaL_optnumber(L, 4, 1);
 	cairo_pattern_t ** pattern = lua_newuserdata(L, sizeof(cairo_pattern_t *));
 	*pattern = cairo_pattern_create_rgba(red, green, blue, alpha);
+	luaL_setmetatable(L, MT_NAME_PARTTERN);
+	return 1;
+}
+
+static int l_pattern_create_texture(lua_State * L)
+{
+	struct ltexture_t * texture = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
+	cairo_pattern_t ** pattern = lua_newuserdata(L, sizeof(cairo_pattern_t *));
+	*pattern = cairo_pattern_create_for_surface(texture->surface);
 	luaL_setmetatable(L, MT_NAME_PARTTERN);
 	return 1;
 }
@@ -62,7 +71,8 @@ static int l_pattern_create_radial(lua_State * L)
 }
 
 static const luaL_Reg l_parttern[] = {
-	{"color",	l_pattern_create_rgba},
+	{"color",	l_pattern_create_color},
+	{"texture",	l_pattern_create_texture},
 	{"linear",	l_pattern_create_linear},
 	{"radial",	l_pattern_create_radial},
 	{NULL,		NULL}
@@ -83,7 +93,7 @@ static int m_pattern_gc(lua_State * L)
 	return 0;
 }
 
-static int m_pattern_add_color_stop_rgba(lua_State * L)
+static int m_pattern_add_color_stop(lua_State * L)
 {
 	cairo_pattern_t ** pattern = luaL_checkudata(L, 1, MT_NAME_PARTTERN);
 	double offset = luaL_checknumber(L, 2);
@@ -103,6 +113,14 @@ static int m_pattern_set_extend(lua_State * L)
 	return 0;
 }
 
+static int m_pattern_set_filter(lua_State * L)
+{
+	cairo_pattern_t ** pattern = luaL_checkudata(L, 1, MT_NAME_PARTTERN);
+	cairo_filter_t filter = (cairo_filter_t)luaL_checkinteger(L, 2);
+	cairo_pattern_set_filter(*pattern, filter);
+	return 0;
+}
+
 static int m_pattern_set_matrix(lua_State * L)
 {
 	cairo_pattern_t ** pattern = luaL_checkudata(L, 1, MT_NAME_PARTTERN);
@@ -112,21 +130,30 @@ static int m_pattern_set_matrix(lua_State * L)
 }
 
 static const luaL_Reg m_parttern[] = {
-	{"__eq",		m_pattern_eq},
-	{"__gc",		m_pattern_gc},
-	{"addColor",	m_pattern_add_color_stop_rgba},
-	{"setExtend",	m_pattern_set_extend},
-	{"setMatrix",	m_pattern_set_matrix},
-	{NULL,			NULL}
+	{"__eq",			m_pattern_eq},
+	{"__gc",			m_pattern_gc},
+	{"addColorStop",	m_pattern_add_color_stop},
+	{"setExtend",		m_pattern_set_extend},
+	{"setFilter",		m_pattern_set_filter},
+	{"setMatrix",		m_pattern_set_matrix},
+	{NULL,				NULL}
 };
 
 int luaopen_parttern(lua_State * L)
 {
 	luaL_newlib(L, l_parttern);
-	luahelper_set_intfield(L, "EXTEND_NONE",	CAIRO_EXTEND_NONE);
-	luahelper_set_intfield(L, "EXTEND_REPEAT",	CAIRO_EXTEND_REPEAT);
-	luahelper_set_intfield(L, "EXTEND_REFLECT",	CAIRO_EXTEND_REFLECT);
-	luahelper_set_intfield(L, "EXTEND_PAD",		CAIRO_EXTEND_PAD);
+	/* cairo_extend_t */
+	luahelper_set_intfield(L, "EXTEND_NONE",		CAIRO_EXTEND_NONE);
+	luahelper_set_intfield(L, "EXTEND_REPEAT",		CAIRO_EXTEND_REPEAT);
+	luahelper_set_intfield(L, "EXTEND_REFLECT",		CAIRO_EXTEND_REFLECT);
+	luahelper_set_intfield(L, "EXTEND_PAD",			CAIRO_EXTEND_PAD);
+	/* cairo_filter_t */
+	luahelper_set_intfield(L, "FILTER_FAST",		CAIRO_FILTER_FAST);
+	luahelper_set_intfield(L, "FILTER_GOOD",		CAIRO_FILTER_GOOD);
+	luahelper_set_intfield(L, "FILTER_BEST",		CAIRO_FILTER_BEST);
+	luahelper_set_intfield(L, "FILTER_NEAREST",		CAIRO_FILTER_NEAREST);
+	luahelper_set_intfield(L, "FILTER_BILINEAR",	CAIRO_FILTER_BILINEAR);
+	luahelper_set_intfield(L, "FILTER_GAUSSIAN",	CAIRO_FILTER_GAUSSIAN);
 	luahelper_create_metatable(L, MT_NAME_PARTTERN, m_parttern);
 	return 1;
 }

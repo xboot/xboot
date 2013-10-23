@@ -429,22 +429,10 @@ static int m_texture_region(lua_State * L)
 	return 1;
 }
 
-static int m_texture_to_pattern(lua_State * L)
-{
-	struct ltexture_t * texture = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
-	if(texture->patch.valid)
-		return 0;
-	cairo_pattern_t ** pattern = lua_newuserdata(L, sizeof(cairo_pattern_t *));
-	*pattern = cairo_pattern_create_for_surface(texture->surface);
-	luaL_setmetatable(L, MT_NAME_PARTTERN);
-	return 1;
-}
-
 static const luaL_Reg m_texture[] = {
 	{"__gc",		m_texture_gc},
 	{"size",		m_texture_size},
 	{"region",		m_texture_region},
-	{"toPattern",	m_texture_to_pattern},
 	{NULL,			NULL}
 };
 

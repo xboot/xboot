@@ -59,6 +59,7 @@ EventDispatcher = require "org.xboot.event.EventDispatcher"
 --
 DisplayObject = require "org.xboot.display.DisplayObject"
 DisplayImage = require "org.xboot.display.DisplayImage"
+DisplayImageMask = require "org.xboot.display.DisplayImageMask"
 DisplayShape = require "org.xboot.display.DisplayShape"
 DisplayText = require "org.xboot.display.DisplayText"
 DisplayBmtext = require "org.xboot.display.DisplayBmtext"

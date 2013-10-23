@@ -130,6 +130,32 @@ static int m_display_draw_texture(lua_State * L)
 	return 0;
 }
 
+static int m_display_draw_texture_mask(lua_State * L)
+{
+	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ltexture_t * texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
+	cairo_pattern_t ** pattern = luaL_checkudata(L, 3, MT_NAME_PARTTERN);
+	cairo_matrix_t * matrix = luaL_checkudata(L, 4, MT_NAME_MATRIX);
+	cairo_t * cr = display->cr[display->index];
+	if(texture->patch.valid)
+	{
+		/*
+		 * TODO
+		 */
+	}
+	else
+	{
+		cairo_save(cr);
+		cairo_set_matrix(cr, matrix);
+		cairo_set_source_surface(cr, texture->surface, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_mask(cr, *pattern);
+		cairo_fill(cr);
+		cairo_restore(cr);
+	}
+	return 0;
+}
+
 static int m_display_present(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
@@ -143,6 +169,7 @@ static const luaL_Reg m_display[] = {
 	{"drawShape",		m_display_draw_shape},
 	{"drawText",		m_display_draw_text},
 	{"drawTexture",		m_display_draw_texture},
+	{"drawTextureMask",	m_display_draw_texture_mask},
 	{"present",			m_display_present},
 	{NULL,				NULL}
 };

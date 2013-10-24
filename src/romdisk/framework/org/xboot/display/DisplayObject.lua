@@ -503,7 +503,7 @@ end
 function M:globalToLocal(x, y, target)
 	local m = self:getTransformMatrix(target)
 	m:invert()
-	return m:transform_point(x, y)
+	return m:transformPoint(x, y)
 end
 
 ---
@@ -518,7 +518,7 @@ end
 -- @return y coordinate relative to the display area.
 function M:localToGlobal(x, y, target)
 	local m = self:getTransformMatrix(target)
-	return m:transform_point(x, y)
+	return m:transformPoint(x, y)
 end
 
 ---

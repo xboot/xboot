@@ -27,12 +27,10 @@ end
 -- @param self
 -- @param texture (Texture) The texture object
 function M:setTexture(texture)
-	self.texture = texture
-	if self.texture then
-		local w, h = self.texture:size()
+	if texture then
+		local w, h = texture:size()
+		self.texture = texture
 		self:setInnerSize(w, h)
-	else
-		self.setInnerSize(0, 0)
 	end
 end
 
@@ -53,9 +51,7 @@ end
 -- @param self
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
-	if self.texture then
-		display:drawTexture(self.texture, self:getTransformMatrix(), self:getAlpha())
-	end
+	display:drawTexture(self.texture, self:getTransformMatrix(), self:getAlpha())
 end
 
 return M

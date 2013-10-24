@@ -79,10 +79,7 @@ static int m_display_draw_shape(lua_State * L)
 	cairo_surface_t * surface = cairo_surface_reference(cairo_get_target(*shape));
 	cairo_set_source_surface(cr, surface, 0, 0);
 	cairo_surface_destroy(surface);
-	if(alpha != 1.0)
-		cairo_paint_with_alpha(cr, alpha);
-	else
-		cairo_paint(cr);
+	cairo_paint_with_alpha(cr, alpha);
 	cairo_restore(cr);
 	return 0;
 }

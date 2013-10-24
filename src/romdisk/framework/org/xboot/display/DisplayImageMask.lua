@@ -18,7 +18,7 @@ function M:init(texture, parttern, x, y)
 	self.super:init()
 
 	self:setTexture(texture)
-	self:setParttern(parttern)
+	self:setParttern(parttern or Parttern.color(1, 1, 1, 0))
 	self:setPosition(x or 0, y or 0)
 end
 
@@ -29,12 +29,10 @@ end
 -- @param self
 -- @param texture (Texture) The texture object
 function M:setTexture(texture)
-	self.texture = texture
-	if self.texture then
-		local w, h = self.texture:size()
+	if texture then
+		local w, h = texture:size()
+		self.texture = texture
 		self:setInnerSize(w, h)
-	else
-		self.setInnerSize(0, 0)
 	end
 end
 
@@ -55,7 +53,9 @@ end
 -- @param self
 -- @param parttern (#Parttern) The new parttern for mask.
 function M:setParttern(parttern)
-	self.parttern = parttern
+	if parttern then
+		self.parttern = parttern
+	end
 end
 
 ---
@@ -75,9 +75,7 @@ end
 -- @param self
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
-	if self.texture and self.parttern then
-		display:drawTextureMask(self.texture, self.parttern, self:getTransformMatrix())
-	end
+	display:drawTextureMask(self.texture, self.parttern, self:getTransformMatrix())
 end
 
 return M

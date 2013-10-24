@@ -20,7 +20,7 @@ function M:init(font, size, parttern, text)
 	self:setFont(font)
 	self:setFontSize(size or 10)
 	self:setParttern(parttern or Parttern.color())
-	self:setText(text)
+	self:setText(text or "")
 end
 
 ---
@@ -30,7 +30,9 @@ end
 -- @param self
 -- @param font (#Font) The new font of display text.
 function M:setFont(font)
-	self.font = font
+	if font then
+		self.font = font
+	end
 end
 
 ---
@@ -71,7 +73,9 @@ end
 -- @param self
 -- @param parttern (#Parttern) The new parttern of display text.
 function M:setParttern(parttern)
-	self.parttern = parttern
+	if parttern then
+		self.parttern = parttern
+	end
 end
 
 ---
@@ -91,12 +95,10 @@ end
 -- @param self
 -- @param text (string) The new content of display text.
 function M:setText(text)
-	self.text = text
-	if self.font and self.text then
-		local w, h = self.font:size(self.text)
+	if text and self.font then
+		local w, h = self.font:size(text)
+		self.text = text
 		self:setInnerSize(w, h)
-	else
-		self:setInnerSize(0, 0)
 	end
 end
 

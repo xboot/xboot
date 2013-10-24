@@ -133,15 +133,15 @@ static int l_font_new(lua_State * L)
 	cairo_matrix_t identity;
 	cairo_matrix_init_identity(&identity);
 	font->sfont = cairo_scaled_font_create(font->face, &identity, &identity, options);
-    cairo_font_options_destroy(options);
-    if(cairo_scaled_font_status(font->sfont) != CAIRO_STATUS_SUCCESS)
-    {
+	cairo_font_options_destroy(options);
+	if(cairo_scaled_font_status(font->sfont) != CAIRO_STATUS_SUCCESS)
+	{
 		FT_Done_Face(font->fface);
 		FT_Done_FreeType(font->library);
 		cairo_font_face_destroy(font->face);
 		cairo_scaled_font_destroy(font->sfont);
-        return 0;
-    }
+		return 0;
+	}
 	luaL_setmetatable(L, MT_NAME_FONT);
 	return 1;
 }

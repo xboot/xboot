@@ -164,7 +164,7 @@ static int m_get_position(lua_State * L)
 	return 2;
 }
 
-static int m_set_size(lua_State * L)
+static int m_set_inner_size(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	double w = luaL_checknumber(L, 2);
@@ -174,7 +174,7 @@ static int m_set_size(lua_State * L)
 	return 0;
 }
 
-static int m_get_size(lua_State * L)
+static int m_get_inner_size(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	lua_pushnumber(L, object->width);
@@ -334,32 +334,32 @@ static int m_bounds(lua_State * L)
 }
 
 static const luaL_Reg m_object[] = {
-	{"translate",	m_translate},
-	{"rotate",		m_rotate},
-	{"scale",		m_scale},
-	{"setX",		m_set_x},
-	{"getX",		m_get_x},
-	{"setY",		m_set_y},
-	{"getY",		m_get_y},
-	{"setPosition",	m_set_position},
-	{"getPosition",	m_get_position},
-	{"setSize",		m_set_size},
-	{"getSize",		m_get_size},
-	{"setRotation",	m_set_rotation},
-	{"getRotation",	m_get_rotation},
-	{"setScaleX",	m_set_scale_x},
-	{"getScaleX",	m_get_scale_x},
-	{"setScaleY",	m_set_scale_y},
-	{"getScaleY",	m_get_scale_y},
-	{"setScale",	m_set_scale},
-	{"getScale",	m_get_scale},
-	{"setAnchor",	m_set_archor},
-	{"getAnchor",	m_get_archor},
-	{"setAlpha",	m_set_alpha},
-	{"getAlpha",	m_get_alpha},
-	{"getMatrix",	m_get_matrix},
-	{"bounds",		m_bounds},
-	{NULL,			NULL}
+	{"translate",		m_translate},
+	{"rotate",			m_rotate},
+	{"scale",			m_scale},
+	{"setX",			m_set_x},
+	{"getX",			m_get_x},
+	{"setY",			m_set_y},
+	{"getY",			m_get_y},
+	{"setPosition",		m_set_position},
+	{"getPosition",		m_get_position},
+	{"setInnerSize",	m_set_inner_size},
+	{"getInnerSize",	m_get_inner_size},
+	{"setRotation",		m_set_rotation},
+	{"getRotation",		m_get_rotation},
+	{"setScaleX",		m_set_scale_x},
+	{"getScaleX",		m_get_scale_x},
+	{"setScaleY",		m_set_scale_y},
+	{"getScaleY",		m_get_scale_y},
+	{"setScale",		m_set_scale},
+	{"getScale",		m_get_scale},
+	{"setAnchor",		m_set_archor},
+	{"getAnchor",		m_get_archor},
+	{"setAlpha",		m_set_alpha},
+	{"getAlpha",		m_get_alpha},
+	{"getMatrix",		m_get_matrix},
+	{"bounds",			m_bounds},
+	{NULL,				NULL}
 };
 
 int luaopen_object(lua_State * L)

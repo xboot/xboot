@@ -279,24 +279,24 @@ function M:getY()
 end
 
 ---
--- Sets the width and height of the display object in pixels. (No transform matrix)
+-- Sets the width and height of the display object in pixels. (Inner, No transform matrix)
 --
--- @function [parent=#DisplayObject] setSize
+-- @function [parent=#DisplayObject] setInnerSize
 -- @param self
 -- @param w (number) The width of the display object.
 -- @param h (number) The height of the display object.
-function M:setSize(w, h)
-	self.object:setSize(w, h)
+function M:setInnerSize(w, h)
+	self.object:setInnerSize(w, h)
 end
 
 ---
--- Returns the width and height of the display object in pixels. (No transform matrix)
+-- Returns the width and height of the display object in pixels. (Inner, No transform matrix)
 --
--- @function [parent=#DisplayObject] getSize
+-- @function [parent=#DisplayObject] getInnerSize
 -- @param self
 -- @return The width and height of the display object.
-function M:getSize()
-	return self.object:getSize()
+function M:getInnerSize()
+	return self.object:getInnerSize()
 end
 
 ---
@@ -455,13 +455,13 @@ function M:getAlpha()
 end
 
 ---
--- Suit to size with width and height in pixels.
+-- Fit width and height in pixels.
 --
--- @function [parent=#DisplayObject] suitToSize
+-- @function [parent=#DisplayObject] fitSize
 -- @param self
 -- @param width (number) The width to suiting.
 -- @param height (number) The height to suiting.
-function M:suitToSize(width, height)
+function M:fitSize(width, height)
 	local r = self:getBounds(self)
 	local x, y, w, h = r:get()
 	if w ~= 0 and h ~= 0 then

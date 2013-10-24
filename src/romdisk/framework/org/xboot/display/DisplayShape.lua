@@ -17,7 +17,7 @@ function M:init(width, height)
 
 	self.shape = Shape.new(width or 1, height or 1)
 	local w, h = self.shape:size()
-	self:setSize(w, h)
+	self:setInnerSize(w, h)
 end
 
 ---

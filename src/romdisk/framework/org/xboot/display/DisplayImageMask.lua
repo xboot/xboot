@@ -32,9 +32,9 @@ function M:setTexture(texture)
 	self.texture = texture
 	if self.texture then
 		local w, h = self.texture:size()
-		self:setSize(w, h)
+		self:setInnerSize(w, h)
 	else
-		self.setSize(0, 0)
+		self.setInnerSize(0, 0)
 	end
 end
 

@@ -94,9 +94,9 @@ function M:setText(text)
 	self.text = text
 	if self.font and self.text then
 		local w, h = self.font:size(self.text)
-		self:setSize(w, h)
+		self:setInnerSize(w, h)
 	else
-		self:setSize(0, 0)
+		self:setInnerSize(0, 0)
 	end
 end
 

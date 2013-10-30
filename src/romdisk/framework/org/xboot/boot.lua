@@ -67,6 +67,7 @@ DisplayText = require "org.xboot.display.DisplayText"
 -- External widget module
 --
 Widget = {
+	Button = require "org.xboot.widget.Button",
 	CheckBox = require "org.xboot.widget.CheckBox",
 	RadioButton = require "org.xboot.widget.RadioButton",
 }

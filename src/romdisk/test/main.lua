@@ -31,10 +31,10 @@ stage:addChild(text)
 local s = DisplayShape.new(100, 100)
 stage:addChild(s)
 
-s.shape:set_source_rgba(1, 0.6, 0, 1)
+s.shape:setSourceColor(1, 0.6, 0, 1)
 s.shape:rectangle(0, 0, 100, 100)
 s.shape:fill()
-s.shape:set_source_rgba(0, 0.6, 0.9, 1)
+s.shape:setSourceColor(0, 0.6, 0.9, 1)
 s.shape:rectangle(50, 50, 50, 50)
 s.shape:stroke()
 
@@ -74,12 +74,12 @@ end))
 
 
 
--- Create the toggle
-local checkbox = Widget.CheckBox.new()
-checkbox:setPosition(300, 100)
-stage:addChild(checkbox)
+-- Create the btn
+local btn = Widget.Button.new()
+btn:setPosition(300, 100)
+stage:addChild(btn)
 
--- Register to "Toggle" event
-checkbox:addEventListener("Change", function(d, e)
-	print("CheckBox state ", e.info.checked)
-end, checkbox)
+-- Register to "btn" event
+btn:addEventListener("Click", function(d, e)
+	print("Button down")
+end, btn)

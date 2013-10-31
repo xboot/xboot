@@ -43,4 +43,22 @@ uart_asm_init:
 	ldr	r1, =0x4f4f4f4f
 	str	r1, [r0, #UTXH_OFFSET]		@'O'
 
+	ldr	r1, =0x4f4f4f4f
+	str	r1, [r0, #UTXH_OFFSET]		@'O'
+
+	ldr	r1, =0x4f4f4f4f
+	str	r1, [r0, #UTXH_OFFSET]		@'O'
+
+	ldr	r1, =0x4f4f4f4f
+	str	r1, [r0, #UTXH_OFFSET]		@'O'
+
+	mov	pc, lr
+
+
+	.globl uart_asm_test
+uart_asm_test:
+	ldr	r0, =S5PV310_UART_CONSOLE_BASE
+	ldr	r1, =0x4e4e4e4e
+	str	r1, [r0, #UTXH_OFFSET]		@'O'
+
 	mov	pc, lr

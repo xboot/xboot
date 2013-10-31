@@ -1,23 +1,23 @@
 #
-# machine makefile.
+# Machine makefile
 #
 
-DEFINES	+= -D__ARM_ARCH__=7 -D__CORTEX_A9__
+DEFINES		+= -D__ARM_ARCH__=7 -D__CORTEX_A9__ -D__ARM_NEON__
 
-ASFLAGS	:= -g -ggdb -Wall
-CFLAGS		:= -g -ggdb -Wall
-CXXFLAGS	:= -g -ggdb -Wall
-LDFLAGS	:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-ARFLAGS	:= -rcs
-OCFLAGS	:= -v -O binary
-ODFLAGS	:= -d
-MCFLAGS	:=
+ASFLAGS		:= -g -ggdb -Wall -O3
+CFLAGS		:= -g -ggdb -Wall -O3
+CXXFLAGS	:= -g -ggdb -Wall -O3
+LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
+ARFLAGS		:= -rcs
+OCFLAGS		:= -v -O binary
+ODFLAGS		:= -d
+MCFLAGS		:= -mcpu=cortex-a9 -mtune=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -ffast-math -mfloat-abi=softfp
 
-LIBDIRS	:=
+LIBDIRS		:=
 LIBS 		:=
 
-INCDIRS	:=
-SRCDIRS	:=
+INCDIRS		:=
+SRCDIRS		:=
 
 #
 # add fixup rule
@@ -30,5 +30,5 @@ MK4412		:= arch/$(ARCH)/$(MACH)/tools/windows/mk4412
 endif
 
 fixup:
-	@echo make checksum information for irom booting
+	@echo make header information for irom booting
 	@$(MK4412) $(X_NAME).bin

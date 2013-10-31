@@ -21,7 +21,7 @@
  */
 
 #include <xboot.h>
-#include <xboot/machine.h>
+#include <cp15.h>
 
 extern u8_t __text_start[];
 extern u8_t __text_end[];
@@ -122,7 +122,7 @@ static struct machine_t exynos4412 = {
 			},
 		},
 
-		.xtal				= 24*1000*1000,
+		.xtal				= 24 * 1000 * 1000,
 	},
 
 	.link = {
@@ -167,7 +167,9 @@ static struct machine_t exynos4412 = {
 
 static __init void mach_exynos4412_init(void)
 {
-	if(!register_machine(&exynos4412))
-		LOG("failed to register machine 'exynos4412'");
+	if(register_machine(&exynos4412))
+		LOG("Register machine 'exynos4412'");
+	else
+		LOG("Failed to register machine 'exynos4412'");
 }
-arch_initcall(mach_exynos4412_init);
+postcore_initcall(mach_exynos4412_init);

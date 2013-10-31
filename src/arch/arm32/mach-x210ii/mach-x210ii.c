@@ -27,7 +27,7 @@
 #include <s5pv210/reg-timer.h>
 #include <s5pv210/reg-others.h>
 
-extern u8_t	__text_start[];
+extern u8_t __text_start[];
 extern u8_t __text_end[];
 extern u8_t __romdisk_start[];
 extern u8_t __romdisk_end[];

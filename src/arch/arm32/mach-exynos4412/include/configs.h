@@ -1,9 +1,7 @@
-#ifndef __CONFIGS_H__
-#define __CONFIGS_H__
+#ifndef __OVERRIDE_CONFIGS_H__
+#define __OVERRIDE_CONFIGS_H__
 
-/*
- * define heap size
- */
-#define	CONFIG_HEAP_SIZE		(SZ_16M)
+#define	CONFIG_MMU_ON			(1)
+#define CONFIG_HEAP_SIZE		(SZ_128M)
 
-#endif /* __CONFIGS_H__ */
+#endif /* __OVERRIDE_CONFIGS_H__ */

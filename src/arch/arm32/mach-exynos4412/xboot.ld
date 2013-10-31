@@ -13,7 +13,7 @@ STACK_SRV_SIZE 	= 0x8000;
 MEMORY
 {
 	rom (rx)	: org = 0x40000000, len = 0x02000000	/* 32 MB */
-	ram (rwx)	: org = 0x42000000, len = 0x02000000	/* 32 MB */
+	ram (rwx)	: org = 0x42000000, len = 0x0a000000	/* 160 MB */
 }
 
 SECTIONS
@@ -25,7 +25,7 @@ SECTIONS
 		.obj/arch/arm32/mach-exynos4412/start.o (.text)
 		.obj/arch/arm32/mach-exynos4412/clock_init_smdk4212.o (.text)
 		.obj/arch/arm32/mach-exynos4412/mem_init_smdk4212.o (.text)
-		.obj/arch/arm32/mach-exynos4412/exynos4x12-irom.o (.text)
+		.obj/arch/arm32/mach-exynos4412/exynos4412-irom.o (.text)
 		*(.text)
 		*(.text.*)
 		*(.init.text)

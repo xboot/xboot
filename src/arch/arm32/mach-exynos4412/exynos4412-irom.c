@@ -1,5 +1,5 @@
 /*
- * exynos4x12-irom.c
+ * exynos4412-irom.c
  *
  * this file used by start.s assembler code, and the linker script
  * must make sure this file is linked within the first 8kB. DO NOT
@@ -35,42 +35,8 @@
  */
 
 #include <xboot.h>
-#include <exynos4x12/reg-gpio.h>
-#include <exynos4x12/reg-pmu.h>
-
-inline static void reg_write(u32_t addr, u32_t value)
-{
-	( *((volatile u32_t *)(addr)) ) = value;
-}
-
-inline static u32_t reg_read(u32_t addr)
-{
-	return( *((volatile u32_t *)(addr)) );
-}
-
-inline void delay_test(int ms)
-{
-	int i, j;
-
-	for(i = 0; i < ms; i++)
-	for(j = 0; j < 100; j++);
-}
-
-void test_led(int ms)
-{
-	reg_write(EXYNOS4X12_GPD0CON, (reg_read(EXYNOS4X12_GPD0CON) & ~(0xf<<0)) | (0x1<<0));
-	reg_write(EXYNOS4X12_GPD0PUD, (reg_read(EXYNOS4X12_GPD0PUD) & ~(0x3<<0)) | (0x2<<0));
-	reg_write(EXYNOS4X12_GPD0DAT, (reg_read(EXYNOS4X12_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
-
-	while(1)
-	{
-		reg_write(EXYNOS4X12_GPD0DAT, (reg_read(EXYNOS4X12_GPD0DAT) & ~(0x1<<0)) | (0x0<<0));
-		delay_test(ms);
-
-		reg_write(EXYNOS4X12_GPD0DAT, (reg_read(EXYNOS4X12_GPD0DAT) & ~(0x1<<0)) | (0x1<<0));
-		delay_test(ms);
-	}
-}
+#include <exynos4412/reg-gpio.h>
+#include <exynos4412/reg-pmu.h>
 
 extern u8_t	__text_start[];
 extern u8_t __text_end[];
@@ -97,6 +63,8 @@ extern u8_t __stack_end[];
 #define irom_emmc441_to_mem_end()					\
 		(((u32_t(*)())(*((u32_t *)(0x02020048))))())
 
+#endif
+
 /*
  * read a 32-bits value from register.
  */
@@ -104,7 +72,6 @@ static u32_t reg_read(u32_t addr)
 {
 	return( *((volatile u32_t *)(addr)) );
 }
-#endif
 
 /*
  * only support irom booting.
@@ -118,7 +85,7 @@ void irom_copyself(void)
 	/*
 	 * read om register, om[5..1]
 	 */
-	om = (u32_t)((reg_read(EXYNOS4X12_PMU_OM_STAT) >> 1) & 0x1f);
+	om = (u32_t)((reg_read(EXYNOS4412_PMU_OM_STAT) >> 1) & 0x1f);
 
 	/* SDMMC CH2 */
 	if(om == 0x2)
@@ -144,6 +111,8 @@ void irom_copyself(void)
 		 * copy xboot to memory from sdmmc ch2.
 		 */
 		irom_sdmmc_to_mem(1, size, mem);
+
+		uart_asm_test();
 	}
 
 	/* eMMC43 CH0 */

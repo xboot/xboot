@@ -117,6 +117,10 @@ function M:setLineJoin(join)
 	self.shape:setLineJoin(join)
 end
 
+function M:setDash(dashes, offset)
+	self.shape:setDash(dashes, offset)
+end
+
 function M:moveTo(x, y)
 	self.shape:moveTo(x, y)
 end

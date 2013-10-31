@@ -190,6 +190,29 @@ static int m_shape_set_line_join(lua_State * L)
 	return 0;
 }
 
+static int m_shape_set_dash(lua_State * L)
+{
+	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_SHAPE);
+	double offset = luaL_checknumber(L, 3);
+	double * dashes;
+	int ndashes, i;
+	luaL_checktype(L, 2, LUA_TTABLE);
+	ndashes = (int)lua_rawlen(L, 2);
+	if(ndashes > 0)
+	{
+		dashes = malloc(ndashes * sizeof(double));
+		for(i = 0; i < ndashes; i++)
+		{
+			lua_rawgeti(L, 2, i + 1);
+			dashes[i] = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+		}
+		cairo_set_dash(*cr, dashes, ndashes, offset);
+		free(dashes);
+	}
+	return 0;
+}
+
 static int m_shape_move_to(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_SHAPE);
@@ -375,6 +398,7 @@ static const luaL_Reg m_shape[] = {
 	{"setLineWidth",		m_shape_set_line_width},
 	{"setLineCap",			m_shape_set_line_cap},
 	{"setLineJoin",			m_shape_set_line_join},
+	{"setDash",				m_shape_set_dash},
 	{"moveTo",				m_shape_move_to},
 	{"relMoveTo",			m_shape_rel_move_to},
 	{"lineTo",				m_shape_line_to},

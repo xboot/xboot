@@ -15,49 +15,56 @@ local M = Class(DisplayObject)
 -- @return #DisplayNinePatch
 function M:init(x, y)
 	self.super:init()
-
-	self.tl = DisplayImage.new(asset:loadTexture("1/tl.png"))
-	self.tm = DisplayImage.new(asset:loadTexture("1/tm.png"))
-	self.tr = DisplayImage.new(asset:loadTexture("1/tr.png"))
-	
-	self.ml = DisplayImage.new(asset:loadTexture("1/ml.png"))
-	self.mm = DisplayImage.new(asset:loadTexture("1/mm.png"))
-	self.mr = DisplayImage.new(asset:loadTexture("1/mr.png"))
-	
-	self.bl = DisplayImage.new(asset:loadTexture("1/bl.png"))
-	self.bm = DisplayImage.new(asset:loadTexture("1/bm.png"))
-	self.br = DisplayImage.new(asset:loadTexture("1/br.png"))
-	
-	local w, h = self.tl:getInnerSize()
-	self.lw = w
-	local w, h = self.tm:getInnerSize()
-	self.mw = w
-	local w, h = self.tr:getInnerSize()
-	self.rw = w
-	local w, h = self.tl:getInnerSize()
-	self.th = h
-	local w, h = self.ml:getInnerSize()
-	self.mh = h
-	local w, h = self.bl:getInnerSize()
-	self.bh = h
-
-	self:addChild(self.tl)
-	self:addChild(self.tm)
-	self:addChild(self.tr)
-	
-	self:addChild(self.ml)
-	self:addChild(self.mm)
-	self:addChild(self.mr)
-	
-	self:addChild(self.bl)
-	self:addChild(self.bm)
-	self:addChild(self.br)
-	
 	self:setPosition(x or 0, y or 0)
+
+	self.lt = DisplayImage.new(asset:loadTexture("2/lt.png"))
+	self.mt = DisplayImage.new(asset:loadTexture("2/mt.png"))
+	self.rt = DisplayImage.new(asset:loadTexture("2/rt.png"))
+	self.lm = DisplayImage.new(asset:loadTexture("2/lm.png"))
+	self.mm = DisplayImage.new(asset:loadTexture("2/mm.png"))
+	self.rm = DisplayImage.new(asset:loadTexture("2/rm.png"))
+	self.lb = DisplayImage.new(asset:loadTexture("2/lb.png"))
+	self.mb = DisplayImage.new(asset:loadTexture("2/mb.png"))
+	self.rb = DisplayImage.new(asset:loadTexture("2/rb.png"))
+
+	self.left, self.top = self.lt:getInnerSize()
+	self.right, self.bottom = self.rb:getInnerSize()
+
+	self:addChild(self.lt)
+	self:addChild(self.mt)
+	self:addChild(self.rt)
+	self:addChild(self.lm)
+	self:addChild(self.mm)
+	self:addChild(self.rm)
+	self:addChild(self.lb)
+	self:addChild(self.mb)
+	self:addChild(self.rb)
 end
 
-function M:setSize(width, height)
+function M:fitSize(width, height)
+	local w = width - self.left - self.right
+	local h = height - self.top - self.bottom
 	
+	self.lt:setPosition(0, 0)
+	self.lt:fitSize(self.left, self.top)
+	self.mt:setPosition(self.left, 0)
+	self.mt:fitSize(w, self.top)
+	self.rt:setPosition(self.left + w, 0)
+	self.rt:fitSize(self.right, self.top)
+	
+	self.lm:setPosition(0, self.top)
+	self.lm:fitSize(self.left, h)
+	self.mm:setPosition(self.left, self.top)
+	self.mm:fitSize(w, h)
+	self.rm:setPosition(self.left + w, self.top)
+	self.rm:fitSize(self.right, h)
+	
+	self.lb:setPosition(0, self.top + h)
+	self.lb:fitSize(self.left, self.bottom)
+	self.mb:setPosition(self.left, self.top + h)
+	self.mb:fitSize(w, self.bottom)
+	self.rb:setPosition(self.left + w, self.top + h)
+	self.rb:fitSize(self.right, self.bottom)
 end
 
 return M

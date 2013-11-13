@@ -109,21 +109,12 @@ static int m_display_draw_texture(lua_State * L)
 	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
 	double alpha = luaL_optnumber(L, 4, 1.0);
 	cairo_t * cr = display->cr[display->index];
-	if(texture->patch.valid)
-	{
-		/*
-		 * TODO
-		 */
-	}
-	else
-	{
-		cairo_save(cr);
-		cairo_set_matrix(cr, matrix);
-		cairo_set_source_surface(cr, texture->surface, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, alpha);
-		cairo_restore(cr);
-	}
+	cairo_save(cr);
+	cairo_set_matrix(cr, matrix);
+	cairo_set_source_surface(cr, texture->surface, 0, 0);
+	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+	cairo_paint_with_alpha(cr, alpha);
+	cairo_restore(cr);
 	return 0;
 }
 
@@ -134,22 +125,13 @@ static int m_display_draw_texture_mask(lua_State * L)
 	cairo_pattern_t ** pattern = luaL_checkudata(L, 3, MT_NAME_PARTTERN);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 4, MT_NAME_MATRIX);
 	cairo_t * cr = display->cr[display->index];
-	if(texture->patch.valid)
-	{
-		/*
-		 * TODO
-		 */
-	}
-	else
-	{
-		cairo_save(cr);
-		cairo_set_matrix(cr, matrix);
-		cairo_set_source_surface(cr, texture->surface, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_mask(cr, *pattern);
-		cairo_fill(cr);
-		cairo_restore(cr);
-	}
+	cairo_save(cr);
+	cairo_set_matrix(cr, matrix);
+	cairo_set_source_surface(cr, texture->surface, 0, 0);
+	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+	cairo_mask(cr, *pattern);
+	cairo_fill(cr);
+	cairo_restore(cr);
 	return 0;
 }
 

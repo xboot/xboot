@@ -26,6 +26,7 @@ struct rectangle_t {
 struct ltexture_t {
 	cairo_surface_t * surface;
 
+#if 0
 	/* Nine patch */
 	struct {
 		int valid;
@@ -48,6 +49,7 @@ struct ltexture_t {
 		cairo_surface_t * mb;
 		cairo_surface_t * rb;
 	} patch;
+#endif
 };
 
 int luaopen_rectangle(lua_State * L);

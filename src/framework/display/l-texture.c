@@ -59,6 +59,7 @@ static inline int is_black_pixel(unsigned char * p)
 	return (((p[0] == 0) && (p[1] == 0) && (p[2] == 0) && (p[3] == 0xff)) ? 1 : 0);
 }
 
+#if 0
 static bool_t fill_nine_patch(struct ltexture_t * texture)
 {
 	cairo_surface_t * cs;
@@ -323,6 +324,7 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 
 	return TRUE;
 }
+#endif
 
 static bool_t match_extension(const char * filename, const char * ext)
 {
@@ -347,10 +349,12 @@ static int l_texture_new(lua_State * L)
 		texture->surface = cairo_image_surface_create_from_png_xfs(filename);
 		if(cairo_surface_status(texture->surface) != CAIRO_STATUS_SUCCESS)
 			return 0;
+#if 0
 		if(match_extension(filename, ".9.png") && fill_nine_patch(texture))
 			texture->patch.valid = 1;
 		else
 			texture->patch.valid = 0;
+#endif
 		luaL_setmetatable(L, MT_NAME_TEXTURE);
 		return 1;
 	}
@@ -366,28 +370,6 @@ static int m_texture_gc(lua_State * L)
 {
 	struct ltexture_t * texture = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
 	cairo_surface_destroy(texture->surface);
-	if(texture->patch.valid)
-	{
-		if(texture->patch.lt)
-			cairo_surface_destroy(texture->patch.lt);
-		if(texture->patch.mt)
-			cairo_surface_destroy(texture->patch.mt);
-		if(texture->patch.rt)
-			cairo_surface_destroy(texture->patch.rt);
-		if(texture->patch.lm)
-			cairo_surface_destroy(texture->patch.lm);
-		if(texture->patch.mm)
-			cairo_surface_destroy(texture->patch.mm);
-		if(texture->patch.rm)
-			cairo_surface_destroy(texture->patch.rm);
-		if(texture->patch.lb)
-			cairo_surface_destroy(texture->patch.lb);
-		if(texture->patch.mb)
-			cairo_surface_destroy(texture->patch.mb);
-		if(texture->patch.rb)
-			cairo_surface_destroy(texture->patch.rb);
-		texture->patch.valid = 0;
-	}
 	return 0;
 }
 
@@ -396,16 +378,8 @@ static int m_texture_size(lua_State * L)
 	struct ltexture_t * texture = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
 	int w = cairo_image_surface_get_width(texture->surface);
 	int h = cairo_image_surface_get_height(texture->surface);
-	if(texture->patch.valid)
-	{
-		lua_pushnumber(L, w - 2);
-		lua_pushnumber(L, h - 2);
-	}
-	else
-	{
-		lua_pushnumber(L, w);
-		lua_pushnumber(L, h);
-	}
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
 	return 2;
 }
 
@@ -416,11 +390,8 @@ static int m_texture_region(lua_State * L)
 	int y = luaL_optinteger(L, 3, 0);
 	int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(texture->surface));
 	int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(texture->surface));
-	if(texture->patch.valid)
-		return 0;
 	struct ltexture_t * tex = lua_newuserdata(L, sizeof(struct ltexture_t));
 	tex->surface = cairo_surface_create_similar(texture->surface, cairo_surface_get_content(texture->surface), w, h);
-	tex->patch.valid = 0;
 	cairo_t * cr = cairo_create(tex->surface);
 	cairo_set_source_surface(cr, texture->surface, -x, -y);
 	cairo_paint(cr);

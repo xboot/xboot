@@ -178,11 +178,11 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 		cairo_set_source_surface(cr, texture->surface, -1, -1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
-		texture->patch.tl = cs;
+		texture->patch.lt = cs;
 	}
 	else
 	{
-		texture->patch.tl = NULL;
+		texture->patch.lt = NULL;
 	}
 
 	/* Top Middle */
@@ -195,11 +195,11 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 		cairo_set_source_surface(cr, texture->surface, -texture->patch.stretch.a, -1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
-		texture->patch.tm = cs;
+		texture->patch.mt = cs;
 	}
 	else
 	{
-		texture->patch.tm = NULL;
+		texture->patch.mt = NULL;
 	}
 
 	/* Top Right */
@@ -212,11 +212,11 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 		cairo_set_source_surface(cr, texture->surface, -texture->patch.stretch.b - 1, -1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
-		texture->patch.tr = cs;
+		texture->patch.rt = cs;
 	}
 	else
 	{
-		texture->patch.tr = NULL;
+		texture->patch.rt = NULL;
 	}
 
 	/* Middle left */
@@ -229,11 +229,11 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 		cairo_set_source_surface(cr, texture->surface, -1, -texture->patch.stretch.c);
 		cairo_paint(cr);
 		cairo_destroy(cr);
-		texture->patch.ml = cs;
+		texture->patch.lm = cs;
 	}
 	else
 	{
-		texture->patch.ml = NULL;
+		texture->patch.lm = NULL;
 	}
 
 	/* Middle Middle */
@@ -263,11 +263,11 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 		cairo_set_source_surface(cr, texture->surface, -texture->patch.stretch.b - 1, -texture->patch.stretch.c);
 		cairo_paint(cr);
 		cairo_destroy(cr);
-		texture->patch.mr = cs;
+		texture->patch.rm = cs;
 	}
 	else
 	{
-		texture->patch.mr = NULL;
+		texture->patch.rm = NULL;
 	}
 
 	/* Bottom left */
@@ -280,11 +280,11 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 		cairo_set_source_surface(cr, texture->surface, -1, -texture->patch.stretch.d - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
-		texture->patch.bl = cs;
+		texture->patch.lb = cs;
 	}
 	else
 	{
-		texture->patch.bl = NULL;
+		texture->patch.lb = NULL;
 	}
 
 	/* Bottom Middle */
@@ -297,11 +297,11 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 		cairo_set_source_surface(cr, texture->surface, -texture->patch.stretch.a, -texture->patch.stretch.d - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
-		texture->patch.bm = cs;
+		texture->patch.mb = cs;
 	}
 	else
 	{
-		texture->patch.bm = NULL;
+		texture->patch.mb = NULL;
 	}
 
 	/* Bottom Right */
@@ -314,11 +314,11 @@ static bool_t fill_nine_patch(struct ltexture_t * texture)
 		cairo_set_source_surface(cr, texture->surface, -texture->patch.stretch.b - 1, -texture->patch.stretch.d - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
-		texture->patch.br = cs;
+		texture->patch.rb = cs;
 	}
 	else
 	{
-		texture->patch.br = NULL;
+		texture->patch.rb = NULL;
 	}
 
 	return TRUE;
@@ -368,24 +368,24 @@ static int m_texture_gc(lua_State * L)
 	cairo_surface_destroy(texture->surface);
 	if(texture->patch.valid)
 	{
-		if(texture->patch.tl)
-			cairo_surface_destroy(texture->patch.tl);
-		if(texture->patch.tm)
-			cairo_surface_destroy(texture->patch.tm);
-		if(texture->patch.tr)
-			cairo_surface_destroy(texture->patch.tr);
-		if(texture->patch.ml)
-			cairo_surface_destroy(texture->patch.ml);
+		if(texture->patch.lt)
+			cairo_surface_destroy(texture->patch.lt);
+		if(texture->patch.mt)
+			cairo_surface_destroy(texture->patch.mt);
+		if(texture->patch.rt)
+			cairo_surface_destroy(texture->patch.rt);
+		if(texture->patch.lm)
+			cairo_surface_destroy(texture->patch.lm);
 		if(texture->patch.mm)
 			cairo_surface_destroy(texture->patch.mm);
-		if(texture->patch.mr)
-			cairo_surface_destroy(texture->patch.mr);
-		if(texture->patch.bl)
-			cairo_surface_destroy(texture->patch.bl);
-		if(texture->patch.bm)
-			cairo_surface_destroy(texture->patch.bm);
-		if(texture->patch.br)
-			cairo_surface_destroy(texture->patch.br);
+		if(texture->patch.rm)
+			cairo_surface_destroy(texture->patch.rm);
+		if(texture->patch.lb)
+			cairo_surface_destroy(texture->patch.lb);
+		if(texture->patch.mb)
+			cairo_surface_destroy(texture->patch.mb);
+		if(texture->patch.rb)
+			cairo_surface_destroy(texture->patch.rb);
 		texture->patch.valid = 0;
 	}
 	return 0;

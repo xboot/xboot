@@ -38,15 +38,15 @@ struct ltexture_t {
 			int a, b, c, d;
 		} content;
 
-		cairo_surface_t * tl;
-		cairo_surface_t * tm;
-		cairo_surface_t * tr;
-		cairo_surface_t * ml;
+		cairo_surface_t * lt;
+		cairo_surface_t * mt;
+		cairo_surface_t * rt;
+		cairo_surface_t * lm;
 		cairo_surface_t * mm;
-		cairo_surface_t * mr;
-		cairo_surface_t * bl;
-		cairo_surface_t * bm;
-		cairo_surface_t * br;
+		cairo_surface_t * rm;
+		cairo_surface_t * lb;
+		cairo_surface_t * mb;
+		cairo_surface_t * rb;
 	} patch;
 };
 

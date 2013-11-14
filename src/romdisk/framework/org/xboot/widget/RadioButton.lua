@@ -22,7 +22,7 @@ function M:init(option, name)
 
 	self:updateVisualState(self.checked)
 	self:setPosition(self.opt.x, self.opt.y)
-	self:fitSize(self.opt.width, self.opt.height)
+	self:resize(self.opt.width, self.opt.height)
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
 	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)

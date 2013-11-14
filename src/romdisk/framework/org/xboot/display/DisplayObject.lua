@@ -455,13 +455,13 @@ function M:getAlpha()
 end
 
 ---
--- Fit width and height in pixels.
+-- Rechange the width and height in pixels.
 --
--- @function [parent=#DisplayObject] fitSize
+-- @function [parent=#DisplayObject] resize
 -- @param self
--- @param width (number) The width to suiting.
--- @param height (number) The height to suiting.
-function M:fitSize(width, height)
+-- @param width (number) The new width.
+-- @param height (number) The new height.
+function M:resize(width, height)
 	local r = self:getBounds(self)
 	local x, y, w, h = r:get()
 	if w ~= 0 and h ~= 0 then

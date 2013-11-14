@@ -1,35 +1,42 @@
 ---
--- The 'DisplayNinePatch' class is used to display texture related objects that can
+-- The 'DisplayNinePatch' class is used to display nine patch related objects that can
 -- be placed on the screen.
 --
 -- @module DisplayNinePatch
 local M = Class(DisplayObject)
 
 ---
--- Creates a new object of display image.
+-- Creates a new object of display nine patch.
 --
 -- @function [parent=#DisplayNinePatch] new
--- @param texture (Texture) The texture object
--- @param x (optional) The x coordinate of the display image.
--- @param y (optional) The y coordinate of the display image.
+-- @param ninepatch (Table) The table of textures
+-- @param width (number) The width of drawing area in pixels.
+-- @param height (number) The height of drawing area in pixels.
+-- @param x (optional) The x coordinate of the display nine patch.
+-- @param y (optional) The y coordinate of the display nine patch.
 -- @return #DisplayNinePatch
-function M:init(x, y)
+function M:init(ninepatch, width, height, x, y)
 	self.super:init()
-	self:setPosition(x or 0, y or 0)
-
-	self.lt = DisplayImage.new(asset:loadTexture("2/lt.png"))
-	self.mt = DisplayImage.new(asset:loadTexture("2/mt.png"))
-	self.rt = DisplayImage.new(asset:loadTexture("2/rt.png"))
-	self.lm = DisplayImage.new(asset:loadTexture("2/lm.png"))
-	self.mm = DisplayImage.new(asset:loadTexture("2/mm.png"))
-	self.rm = DisplayImage.new(asset:loadTexture("2/rm.png"))
-	self.lb = DisplayImage.new(asset:loadTexture("2/lb.png"))
-	self.mb = DisplayImage.new(asset:loadTexture("2/mb.png"))
-	self.rb = DisplayImage.new(asset:loadTexture("2/rb.png"))
+	
+	local ninepatch = asset:loadTexture("test2.9.png")
+	assert(type(ninepatch) == "table")
+	self.lt = DisplayImage.new(assert(ninepatch.lt))
+	self.mt = DisplayImage.new(assert(ninepatch.mt))
+	self.rt = DisplayImage.new(assert(ninepatch.rt))
+	self.lm = DisplayImage.new(assert(ninepatch.lm))
+	self.mm = DisplayImage.new(assert(ninepatch.mm))
+	self.rm = DisplayImage.new(assert(ninepatch.rm))
+	self.lb = DisplayImage.new(assert(ninepatch.lb))
+	self.mb = DisplayImage.new(assert(ninepatch.mb))
+	self.rb = DisplayImage.new(assert(ninepatch.rb))
 
 	self.left, self.top = self.lt:getInnerSize()
 	self.right, self.bottom = self.rb:getInnerSize()
-
+	
+	local mw, mh = self.mm:getInnerSize()
+	self.width = self.left + self.right + mw
+	self.height = self.top + self.bottom + mh
+	
 	self:addChild(self.lt)
 	self:addChild(self.mt)
 	self:addChild(self.rt)
@@ -39,9 +46,14 @@ function M:init(x, y)
 	self:addChild(self.lb)
 	self:addChild(self.mb)
 	self:addChild(self.rb)
+	
+	self:fitSize(width, height)
+	self:setPosition(x or 0, y or 0)
 end
 
 function M:fitSize(width, height)
+	local width = width or self.width
+	local height = height or self.height
 	local w = width - self.left - self.right
 	local h = height - self.top - self.bottom
 	

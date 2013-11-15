@@ -1,0 +1,570 @@
+--------------------------------------------------------------------------------
+--	Copyright (c) 2011-2012 Sierra Wireless.
+--	All rights reserved. This program and the accompanying materials
+--	are made available under the terms of the Eclipse Public License v1.0
+--	which accompanies this distribution, and is available at
+--	http://www.eclipse.org/legal/epl-v10.html
+-- 
+--	Contributors:
+--			Simon BERNARD <sbernard@sierrawireless.com>
+--					- initial API and implementation and initial documentation
+--------------------------------------------------------------------------------
+
+-{ extension ('match', ...) }
+
+local Q = require 'metalua.treequery'
+local bindings = require 'metalua.walk.bindings'
+
+local internalmodel = require 'models.internalmodel'
+local apimodel = require 'models.apimodel'
+local apimodelbuilder = require 'models.apimodelbuilder'
+
+local M = {}
+
+----------------------------------------
+-- debug function : To delete
+local function pdown (node,parent)
+	print (tostring(parent and parent.tag or nil )..' ' .. tostring(node.tag) .. " down")
+end
+	
+local function pup (node, parent)
+	print (tostring(parent and parent.tag or nil) .. ' ' .. tostring(node.tag).. " up")		
+end
+----------------------------------------
+
+
+------------------------------------------------------------
+-- return the comment linked to this node
+local function getlinkedcommentbefore(node)
+	local function _getlinkedcomment(node,line)
+		if node and node.lineinfo and node.lineinfo.first.line == line then
+			-- get the last comment before (the nearest of code)
+			local comments = node.lineinfo.first.comments
+			local comment = comments and  comments[#comments]
+			if comment  and comment.lineinfo.last.line == line-1 then
+				-- ignore the comment if there are code before on the same line
+				if node.lineinfo.first.facing and (node.lineinfo.first.facing.line ~= comment.lineinfo.first.line) then
+					return comment
+				end
+			else
+				return _getlinkedcomment(node.parent,line)
+			end
+		end
+		return nil	
+	end
+	
+	if node.lineinfo and node.lineinfo.first.line then
+		return _getlinkedcomment(node,node.lineinfo.first.line)
+	else
+		return nil
+	end
+end
+
+
+
+------------------------------------------------------------
+-- return the comment linked to this node
+local function getlinkedcommentafter(node)
+	local function _getlinkedcomment(node,line)
+		if node and node.lineinfo and node.lineinfo.last.line == line then
+			-- get the first comment after (the nearest of code)
+			local comments = node.lineinfo.last.comments
+			local comment = comments and  comments[1] 
+			if comment  and comment.lineinfo.first.line == line then
+				return comment
+			else
+				return _getlinkedcomment(node.parent,line)
+			end
+		end
+		return nil	
+	end
+	
+	if node.lineinfo and node.lineinfo.last.line then
+		return _getlinkedcomment(node,node.lineinfo.last.line)
+	else
+		return nil
+	end
+end
+
+
+------------------------------------------------------------
+-- return true if this node is a block for the internal representation
+local supported_b = {
+	Function = true,
+	Do       = true,
+	While    = true,
+	Fornum   = true,
+	Forin    = true,
+	Repeat   = true,
+}
+local function supportedblock(node, parent)
+	return supported_b[ node.tag ] or
+		(parent and parent.tag == "If" and node.tag == nil)
+end
+
+------------------------------------------------------------
+-- create a block from the	metalua node
+local function createblock(block, parent)
+	local _block =	internalmodel._block()
+	match block with
+		| `Function{param, body}
+		| `Do{...}
+		| `Fornum {identifier, min, max, body}
+		| `Forin {identifiers, exprs, body}
+		| `Repeat {body, expr} ->
+				_block.sourcerange.min = block.lineinfo.first.offset
+				_block.sourcerange.max = block.lineinfo.last.offset
+		| `While {expr, body} ->
+				_block.sourcerange.min = body.lineinfo.first.facing.offset
+				_block.sourcerange.max = body.lineinfo.last.facing.offset
+		| _ ->
+				if parent and parent.tag == "If" and block.tag == nil then
+					_block.sourcerange.min = block.lineinfo.first.facing.offset
+					_block.sourcerange.max = block.lineinfo.last.facing.offset
+				end
+	end
+	return _block
+end
+
+------------------------------------------------------------
+-- return true if this node is a expression in the internal representation
+local supported_e = {
+	Index  = true,
+	Id     = true,
+	Call   = true,
+	Invoke = true
+}
+local function supportedexpr(node)
+	return supported_e[ node.tag ]
+end
+
+
+local idto_block = {} -- cache from metalua id to internal model block 
+local idto_identifier = {} -- cache from	metalua id to internal model indentifier
+local expreto_expression = {} -- cache from	metalua expression to internal model expression
+------------------------------------------------------------
+-- create an expression from a metalua node
+local function createexpr(expr,_block)
+	local _expr = nil 
+	
+	match expr with
+		| `Id { name } ->
+				-- we store the block which hold this node 
+				-- to be able to define	
+				idto_block[expr]= _block
+	
+				-- if expr has not line info, it means expr has no representation in the code
+				-- so we don't need it.
+				if not expr.lineinfo then	return nil end
+				
+				-- create identifier
+				local _identifier = internalmodel._identifier()
+				idto_identifier[expr]= _identifier
+				_expr =	_identifier
+		| `Index { innerexpr, `String{fieldname} } ->
+				if not expr.lineinfo then	return nil end
+				-- create index
+				local _expression = createexpr(innerexpr,_block)
+				if _expression then _expr =	internalmodel._index(_expression,fieldname) end
+		| `Call{innerexpr, ...} ->
+				if not expr.lineinfo then	return nil end
+				-- create call 
+				local _expression = createexpr(innerexpr,_block)
+				if _expression then _expr =	internalmodel._call(_expression) end
+		| `Invoke{innerexpr,`String{functionname},...} ->
+				if not expr.lineinfo then	return nil end
+				-- create invoke
+				local _expression = createexpr(innerexpr,_block)
+				if _expression then _expr = internalmodel._invoke(functionname,_expression) end
+		| _ ->
+	end
+	
+	if _expr then
+		_expr.sourcerange.min = expr.lineinfo.first.offset 
+		_expr.sourcerange.max = expr.lineinfo.last.offset
+
+		expreto_expression[expr] = _expr
+	end
+	
+	
+	return _expr
+end
+
+
+
+
+------------------------------------------------------------
+-- create block and expression node
+local function createtreestructure(ast)
+	-- create internal content 
+	local _internalcontent = internalmodel._internalcontent()
+
+	-- create root block
+	local _block = internalmodel._block()
+	local _blocks = { _block }
+	_block.sourcerange.min = ast.lineinfo.first.facing.offset
+	-- TODO remove the math.max when we support partial AST
+	_block.sourcerange.max = math.max(ast.lineinfo.last.facing.offset, 10000)
+
+	_internalcontent.content = _block
+	
+	-- visitor function (down)
+	local function down (node,parent)
+		if supportedblock(node,parent) then
+			-- create the block
+			local _block = createblock(node,parent)
+			-- add it to parent block
+			table.insert(_blocks[#_blocks].content, _block) 
+			-- enqueue the last block to know the "current" block
+			table.insert(_blocks,_block)
+		elseif supportedexpr(node) then
+			-- we handle expression only if it was not already do
+			if not	expreto_expression[node] then
+				-- create expr
+				local _expression = createexpr(node,_blocks[#_blocks])
+				-- add it to parent block
+				if _expression then
+					table.insert(_blocks[#_blocks].content, _expression)
+				end	
+			end
+		end
+	end
+	
+	-- visitor function (up)
+	local function up (node, parent)
+		if supportedblock(node,parent) then
+			-- dequeue the last block to know the "current" block
+			table.remove(_blocks,#_blocks)
+		end		
+	end
+ 
+	-- visit ast and build internal model	
+	Q(ast):foreach(down,up)
+			
+	return _internalcontent
+end
+
+
+------------------------------------------------------------
+-- create the type from the node and position
+local function createtype(node,position)
+	-- create module type ref
+	match node with
+		| `Call{ `Id "require", `String {modulename}} ->
+				return apimodel._moduletyperef(modulename,position)
+		| `Function {params, body} ->
+				-- TODO factorize this code : create internal function type def
+				-- create the functiontypedef
+				local _functiontypedef = apimodel._functiontypedef()
+				for _, p in ipairs(params) do
+					local paramname
+					if p.tag=="Dots" then
+						paramname = "..."
+					else
+						paramname = p[1]
+					end
+					local _param = apimodel._parameter(paramname)
+					table.insert(_functiontypedef.params,_param)
+				end
+				_functiontypedef.name = apimodelbuilder.generatefunctiontypename(_functiontypedef)
+				
+				-- reference the type
+				local typeref = apimodel._internaltyperef(_functiontypedef.name)
+				typeref.internal = _functiontypedef
+				return typeref
+		| _ ->
+	end
+	-- if node is an expression supported
+	local supportedexpr = expreto_expression[node]
+	if supportedexpr then
+		-- create expression type ref
+		return apimodel._exprtyperef(supportedexpr,position)
+	end
+	
+end
+
+------------------------------------------------------------
+-- extract the type and the id with the name itemname 
+-- which could be considered as definition from the binder
+local function extracttype(binder, itemname, comment2apiobj,file)
+	match binder with
+	| `Set {ids, inits} 
+	| `Local {ids, inits} ->
+			-- if this is a single local var declaration
+			-- we check if there are a comment block linked and try to extract the type
+			if #ids == 1 then
+				local currentid, currentinit = ids[1],inits[1]
+				-- ignore non Ids node
+				if currentid.tag ~= 'Id' or currentid[1] ~= itemname then return nil end
+
+  				-- check for "local" typing
+  				local type,desc = apimodelbuilder.extractlocaltype(getlinkedcommentafter(binder),file)
+				if type then
+					return currentid, type, desc
+				end
+				
+				-- check for luadoc typing
+				local commentbefore = getlinkedcommentbefore(binder);
+				local obj = comment2apiobj[commentbefore]
+				if obj then
+					if obj.tag=="item" then
+						if obj.name and obj.name == itemname then  
+							return currentid, obj.type
+						end
+					elseif obj.tag=="file" then
+						local typeref = obj:moduletyperef()
+						if typeref and typeref.tag == "internaltyperef" then 
+							return currentid, apimodel._internaltyperef(typeref.typename) 
+						end
+					elseif obj.tag=="recordtypedef" then
+						return currentid, apimodel._internaltyperef(obj.name)
+					end
+					
+					-- if the documentation before is not link to the given item, do not attached the comment
+					commentbefore = nil
+				end
+				
+				-- else we use code to extract the type
+				return 	currentid, createtype(inits[1],1), desc or (commentbefore and commentbefore[1])
+			end
+			-- else we use code to extract the type			
+			local init,returnposition = nil,1
+			for i,id in ipairs(ids) do
+				-- calculate the current return position
+				if init and (init.tag == "Call" or init.tag == "Invoke") then
+					-- if previous init was a call or an invoke
+					-- we increment the returnposition
+					returnposition= returnposition+1
+				else
+					-- if init is not a function call
+					-- we change the init used to determine the type 
+					init = inits[i]									
+				end
+				
+				-- get the name of the current id
+				local idname = id[1] 
+				
+				-- if this is the good id
+				if itemname == idname then
+					-- create type from init node and return position
+					local type = createtype(init,returnposition)
+					-- return data
+					return id, type 
+				end
+			end
+	| `Function {params, body} ->
+			for i,id in ipairs(params) do
+				-- get the name of the current id
+				local idname = id[1]
+				-- if this is the good id
+				if itemname == idname then
+					-- extract param's type  from luadocumentation
+					local obj = comment2apiobj[getlinkedcommentbefore(binder)]
+					if obj and obj.tag=="item" then
+						local typedef = obj:resolvetype()
+						if typedef and typedef.tag =="functiontypedef" then 
+							for j, param in ipairs(typedef.params) do
+								if i==j then
+									-- TODO perhaps we must clone the typeref
+									return id, param.type,param.description
+								end
+							end
+						end
+					end							
+					return id, nil 
+				end
+			end
+	| `Forin {ids, expr, body} ->
+			for i,id in ipairs(ids) do
+					-- get the name of the current id
+					local idname = id[1]
+					-- if this is the good id
+					if itemname == idname then
+						-- return data : we can not guess the type for now
+						return id, nil 
+					end
+			end	
+	| `Fornum {id, ...} ->
+			-- get the name of the current id
+			local idname = id[1]
+			-- if this is the good id
+			if itemname == idname then
+					-- return data : we can not guess the type for now
+					return id, nil 
+			end					
+	| `Localrec {{id}, {func}} ->
+			-- get the name of the current id
+			local idname = id[1]
+			-- if this is the good id
+			if itemname == idname then
+					-- extract type from luadocumentation
+					local comment = getlinkedcommentafter(binder)
+					if not comment then
+						comment = getlinkedcommentbefore(binder)
+					end
+					local obj = comment2apiobj[comment]
+					if obj then
+						if obj.tag=="item" then 
+							return id, obj.type
+						end
+					end
+					
+					-- else extract type from code					
+					local type = createtype(func,1)
+					return id, type, comment and comment[1]
+			end						
+	| _ ->
+	end
+end
+
+------------------------------------------------------------
+-- create local vars, global vars and linked it with theirs occurences
+local function createvardefinitions(_internalcontent,ast,file,comment2apiobj)
+	-- use bindings to get locals and globals definition
+	local locals, globals = bindings( ast )
+	
+	-- create locals var
+	for binder, namesAndOccurrences in pairs(locals) do
+		for name, occurrences in pairs(namesAndOccurrences) do
+			-- create item
+			local _item = apimodel._item(name)
+			-- get type and id 
+			local id, _type, desc = extracttype(binder, name,comment2apiobj,file)
+			if id then
+				if _type then 
+					_item.type = _type
+					-- TODO manage internal type ref function
+					if _item.type.internal then
+						file:addtype(_item.type.internal)
+						_item.type.internal = nil
+					end
+				end
+				if desc then _item.description = desc end
+				
+				
+				-- add definition as occurence
+				-- we consider the identifier in the binder as an occurence
+				local _identifierdef = idto_identifier[id]
+				if _identifierdef then
+					table.insert(_item.occurrences, _identifierdef)
+					_identifierdef.definition = _item
+				end
+					
+				-- add occurences
+				for _,occurrence in ipairs(occurrences) do
+					local _identifier = idto_identifier[occurrence]
+					if _identifier then
+						table.insert(_item.occurrences, _identifier)
+						_identifier.definition = _item 
+					end 
+				end
+				
+				-- get sourcerange (sourcerange of a local var is the sourcerange of the first occurence)
+				local _firstoccurrence = _item.occurrences[1]
+				if _firstoccurrence then
+					_item.sourcerange.min = _firstoccurrence.sourcerange.min
+					_item.sourcerange.max = _firstoccurrence.sourcerange.max
+				end
+			
+				-- add item to block
+				local _block = idto_block[id]
+				table.insert(_block.localvars,{item=_item,scope = {min=0,max=0}})
+			end	
+		end
+	end
+	
+	-- create globals var
+	for name, occurrences in pairs( globals ) do
+		local _item = file.globalvars[name]
+		
+		if not _item then
+		 	_item =  apimodel._item()
+			_item.name = name
+			
+			-- get type and id
+			local id,_type, desc
+			-- global declaration is only if the Id is in a 'Set'
+			if occurrences[1].parent and occurrences[1].parent.tag == "Set" then
+			 	id,_type,desc = extracttype(occurrences[1].parent, name,comment2apiobj,file)
+			end
+			
+			-- if we find the id, this is a global declaration 
+			if id then
+				if _type then 
+					_item.type = _type-- TODO manage internal type ref function
+					if _item.type.internal then
+						file:addtype(_item.type.internal)
+						_item.type.internal = nil
+					end
+				end
+				if desc then _item.description = desc end
+				
+				file:addglobalvar(_item)
+							
+			else
+				table.insert(_internalcontent.unknownglobalvars,_item)
+			end
+		end
+
+		-- add occurences
+		for _,occurence in ipairs(occurrences) do
+			local _identifier = idto_identifier[occurence]
+			if _identifier then
+				table.insert(_item.occurrences, _identifier)
+				_identifier.definition = _item 
+			end 
+		end
+		
+		-- get sourcerange (sourcerange of a local var is the sourcerange of the first occurence)
+		local _firstoccurrence = _item.occurrences[1]
+		if _firstoccurrence then
+			_item.sourcerange.min = _firstoccurrence.sourcerange.min
+			_item.sourcerange.max = _firstoccurrence.sourcerange.max
+		end
+	end
+end
+
+
+------------------------------------------------------------
+-- create block and expression node
+local function addparents(ast)
+	-- visitor function (down)
+	local function down (node,parent)
+		node.parent = parent
+	end
+
+	-- visit ast and build internal model	
+	Q(ast):foreach(down,up)
+	
+	return _internalcontent
+end
+
+
+------------------------------------------------------------
+-- create the internalcontent from an ast metalua 
+function M.createinternalcontent (ast,file,comment2apiobj)
+	-- init cache
+	idto_block = {}	
+	idto_identifier = {} 
+	expreto_expression = {}
+	comment2apiobj = comment2apiobj or {}
+	file = file or apimodel._file()
+		
+	-- create block and expression node
+	local internalcontent = addparents(ast)
+	
+	-- create block and expression node
+	internalcontent = createtreestructure(ast)
+	
+	-- create Local vars, global vars and linked occurences (Items)
+	createvardefinitions(internalcontent,ast,file,comment2apiobj)
+	
+	-- clean cache
+	idto_block = {}	
+	idto_identifier = {} 
+	expreto_expression = {}
+	
+	return internalcontent
+end
+
+return M 

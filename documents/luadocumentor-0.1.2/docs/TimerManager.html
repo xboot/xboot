@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<link rel="stylesheet" href="stylesheet.css" type="text/css"/>
+	</head>
+<body>
+<div id="container">
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div>
+<div id="main">
+	<div id="navigation">
+		<h2>Modules</h2>
+			<ul><li>
+				<a href="index.html">index</a>
+			</li></ul>
+		<ul>
+					<li><a href="Application.html">Application</a></li>
+					<li><a href="Asset.html">Asset</a></li>
+					<li><a href="DisplayImage.html">DisplayImage</a></li>
+					<li><a href="DisplayImageMask.html">DisplayImageMask</a></li>
+					<li><a href="DisplayNinePatch.html">DisplayNinePatch</a></li>
+					<li><a href="DisplayObject.html">DisplayObject</a></li>
+					<li><a href="DisplayShape.html">DisplayShape</a></li>
+					<li><a href="DisplayText.html">DisplayText</a></li>
+					<li><a href="Event.html">Event</a></li>
+					<li><a href="EventDispatcher.html">EventDispatcher</a></li>
+					<li><a href="TexturePacker.html">TexturePacker</a></li>
+					<li><a href="Timer.html">Timer</a></li>
+					<li>TimerManager</li>
+		</ul>
+	</div>
+	<div id="content">
+   <h1>Module <code>TimerManager</code></h1>
+   
+<p>The 'TimerManager' class is used to manager timer.</p>
+
+
+	<h2><a id="#(TimerManager)" >Type <code>TimerManager</code></a></h2>
+		<table class="function_list">
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(TimerManager).addTimer">TimerManager:addTimer(timer)</a></td>
+		<td class="summary">
+<p>Registers a timer</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(TimerManager).hasTimer">TimerManager:hasTimer(timer)</a></td>
+		<td class="summary">
+<p>Checks if the 'TimerManager' object has a timer.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(TimerManager).new">TimerManager.new()</a></td>
+		<td class="summary">
+<p>Creates a new 'TimerManager' object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(TimerManager).removeTimer">TimerManager:removeTimer(timer)</a></td>
+		<td class="summary">
+<p>Removes a timer from the 'TimerManager'.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(TimerManager).schedule">TimerManager:schedule(dt)</a></td>
+		<td class="summary">
+<p>Schedule timers according to time interval.</p>
+
+</td>
+		</tr>
+	</table>
+
+	<h2><a id="#(TimerManager)" >Type <code>TimerManager</code></a></h2>
+		<h3>Field(s)</h3>
+		<dl class="function">
+<dt>
+
+<a id="#(TimerManager).addTimer" >
+<strong>TimerManager:addTimer(timer)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Registers a timer</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> timer </em></code>: 
+(Timer) The timer will be registered.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(TimerManager).hasTimer" >
+<strong>TimerManager:hasTimer(timer)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Checks if the 'TimerManager' object has a timer.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> timer </em></code>: 
+(Timer) The timer was registered.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' if a timer is registered; 'false' otherwise.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(TimerManager).new" >
+<strong>TimerManager.new()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Creates a new 'TimerManager' object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>New 'TimerManager' object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(TimerManager).removeTimer" >
+<strong>TimerManager:removeTimer(timer)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Removes a timer from the 'TimerManager'.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> timer </em></code>: 
+(Timer) The timer will be removed.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(TimerManager).schedule" >
+<strong>TimerManager:schedule(dt)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Schedule timers according to time interval.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> dt </em></code>: 
+(number) The time delta in seconds.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+
+</div>
+
+</div>
+</body>
+</html>

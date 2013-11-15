@@ -1,0 +1,249 @@
+-------------------------------------------------------------------------------
+-- Copyright (c) 2006-2013 Fabien Fleutot and others.
+--
+-- All rights reserved.
+--
+-- This program and the accompanying materials are made available
+-- under the terms of the Eclipse Public License v1.0 which
+-- accompanies this distribution, and is available at
+-- http://www.eclipse.org/legal/epl-v10.html
+--
+-- This program and the accompanying materials are also made available
+-- under the terms of the MIT public license which accompanies this
+-- distribution, and is available at http://www.lua.org/license.html
+--
+-- Contributors:
+--     Fabien Fleutot - API and implementation
+--
+-------------------------------------------------------------------------------
+
+-- Low level AST traversal library.
+-- This library is a helper for the higher-level treequery library.
+-- It walks through every node of an AST, depth-first, and executes
+-- some callbacks contained in its cfg config table:
+--
+-- * cfg.down(...) is called when it walks down a node, and receive as
+--   parameters the node just entered, followed by its parent, grand-parent
+--   etc. until the root node.
+--
+-- * cfg.up(...) is called when it walks back up a node, and receive as
+--   parameters the node just entered, followed by its parent, grand-parent
+--   etc. until the root node.
+--
+-- * cfg.occurrence(binder, id_node, ...) is called when it visits an `Id{ }
+--   node which isn't a local variable creator. binder is a reference to its
+--   binder with its context. The binder is the `Id{ } node which created 
+--   this local variable. By "binder and its context", we mean a list starting
+--   with the `Id{ }, and followed by every ancestor of the binder node, up until
+--   the common root node.
+--   binder is nil if the variable is global.
+--   id_node is followed by its ancestor, up until the root node.
+--
+-- cfg.scope is maintained during the traversal, associating a
+-- variable name to the binder which creates it in the context of the
+-- node currently visited.
+--
+-- walk.traverse.xxx functions are in charge of the recursive descent into
+-- children nodes. They're private helpers.
+--
+-- corresponding walk.xxx functions also take care of calling cfg callbacks.
+
+-{ extension ("match",...) }
+
+local M = { traverse = { }; tags = { }; debug = false }
+
+--------------------------------------------------------------------------------
+-- Standard tags: can be used to guess the type of an AST, or to check
+-- that the type of an AST is respected.
+--------------------------------------------------------------------------------
+M.tags.stat = table.transpose{ 
+   'Do', 'Set', 'While', 'Repeat', 'Local', 'Localrec', 'Return',
+   'Fornum', 'Forin', 'If', 'Break', 'Goto', 'Label',
+   'Call', 'Invoke' }
+M.tags.expr = table.transpose{
+   'Paren', 'Call', 'Invoke', 'Index', 'Op', 'Function', 'Stat',
+   'Table', 'Nil', 'Dots', 'True', 'False', 'Number', 'String', 'Id' }
+
+--------------------------------------------------------------------------------
+-- These [M.traverse.xxx()] functions are in charge of actually going through
+-- ASTs. At each node, they make sure to call the appropriate walker.
+--------------------------------------------------------------------------------
+function M.traverse.stat (cfg, x, ...)
+   if M.debug then printf("traverse stat %s", table.tostring(x)) end
+   local ancestors = {...}
+   local B  = |y| M.block       (cfg, y, x, unpack(ancestors)) -- Block
+   local S  = |y| M.stat        (cfg, y, x, unpack(ancestors)) -- Statement
+   local E  = |y| M.expr        (cfg, y, x, unpack(ancestors)) -- Expression
+   local EL = |y| M.expr_list   (cfg, y, x, unpack(ancestors)) -- Expression List
+   local IL = |y| M.binder_list (cfg, y, x, unpack(ancestors)) -- Id binders List
+   local OS = || cfg.scope :save()                             -- Open scope
+   local CS = || cfg.scope :restore()                          -- Close scope
+
+   match x with
+   | {...} if x.tag == nil -> for _, y in ipairs(x) do M.stat(cfg, y, ...) end
+                          -- no tag --> node not inserted in the history ancestors
+   | `Do{...}                    -> OS(x); for _, y in ipairs(x) do S(y) end; CS(x) 
+   | `Set{ lhs, rhs }            -> EL(lhs); EL(rhs)
+   | `While{ cond, body }        -> E(cond); OS(); B(body); CS()
+   | `Repeat{ body, cond }       -> OS(body); B(body); E(cond); CS(body)
+   | `Local{ lhs }               -> IL(lhs)
+   | `Local{ lhs, rhs }          -> EL(rhs); IL(lhs)
+   | `Localrec{ lhs, rhs }       -> IL(lhs); EL(rhs)
+   | `Fornum{ i, a, b, body }    -> E(a); E(b); OS(); IL{i}; B(body); CS()
+   | `Fornum{ i, a, b, c, body } -> E(a); E(b); E(c); OS(); IL{i}; B(body); CS()
+   | `Forin{ i, rhs, body }      -> EL(rhs); OS(); IL(i); B(body); CS()
+   | `If{...}                    -> 
+       for i=1, #x-1, 2 do
+           E(x[i]); OS(); B(x[i+1]); CS() 
+       end
+       if #x%2 == 1 then 
+           OS(); B(x[#x]); CS()
+       end
+   | `Call{...}|`Invoke{...}|`Return{...} -> EL(x)
+   | `Break | `Goto{ _ } | `Label{ _ }    -> -- nothing
+   | { tag=tag, ...} if M.tags.stat[tag]-> 
+      M.malformed (cfg, x, unpack (ancestors))
+   | _ ->  
+      M.unknown (cfg, x, unpack (ancestors))
+   end
+end
+
+function M.traverse.expr (cfg, x, ...)
+   if M.debug then printf("traverse expr %s", table.tostring(x)) end
+   local ancestors = {...}
+   local B  = |y| M.block       (cfg, y, x, unpack(ancestors)) -- Block
+   local S  = |y| M.stat        (cfg, y, x, unpack(ancestors)) -- Statement
+   local E  = |y| M.expr        (cfg, y, x, unpack(ancestors)) -- Expression
+   local EL = |y| M.expr_list   (cfg, y, x, unpack(ancestors)) -- Expression List
+   local IL = |y| M.binder_list (cfg, y, x, unpack(ancestors)) -- Id binders list
+   local OS = || cfg.scope :save()                             -- Open scope
+   local CS = || cfg.scope :restore()                          -- Close scope
+
+   match x with
+   | `Paren{ e }               -> E(e)
+   | `Call{...} | `Invoke{...} -> EL(x)
+   | `Index{ a, b }            -> E(a); E(b)
+   | `Op{ opid, ... }          -> E(x[2]); if #x==3 then E(x[3]) end
+   | `Function{ params, body } -> OS(body); IL(params); B(body); CS(body)
+   | `Stat{ b, e }             -> OS(body); B(b); E(e); CS(body)
+   | `Id{ name }               -> M.occurrence(cfg, x, unpack(ancestors))
+   | `Table{ ... }             ->
+      for i = 1, #x do match x[i] with
+         | `Pair{ k, v } -> E(k); E(v)
+         | v             -> E(v)
+      end end
+   | `Nil|`Dots|`True|`False|`Number{_}|`String{_} -> -- terminal node
+   | { tag=tag, ...} if M.tags.expr[tag]-> M.malformed (cfg, x, unpack (ancestors))
+   | _ -> M.unknown (cfg, x, unpack (ancestors))
+   end
+end
+
+function M.traverse.block (cfg, x, ...)
+   assert(type(x)=='table', "traverse.block() expects a table")
+   if x.tag then M.malformed(cfg, x, ...)
+   else for _, y in ipairs(x) do M.stat(cfg, y, x, ...) end
+   end
+end
+
+function M.traverse.expr_list (cfg, x, ...)
+   assert(type(x)=='table', "traverse.expr_list() expects a table")
+   -- x doesn't appear in the ancestors
+   for _, y in ipairs(x) do M.expr(cfg, y, ...) end
+end
+
+function M.malformed(cfg, x, ...)
+    local f = cfg.malformed or cfg.error
+    if f then f(x, ...) else
+        error ("Malformed node of tag "..(x.tag or '(nil)'))
+    end
+end
+
+function M.unknown(cfg, x, ...)
+    local f = cfg.unknown or cfg.error
+    if f then f(x, ...) else
+        error ("Unknown node tag "..(x.tag or '(nil)'))
+    end
+end
+
+function M.occurrence(cfg, x, ...)
+    if cfg.occurrence then cfg.occurrence(cfg.scope :get(x[1]),  x, ...) end
+end
+
+-- TODO: Is it useful to call each error handling function?
+function M.binder_list (cfg, id_list, ...)
+    local f = cfg.binder
+    local ferror = cfg.error or cfg.malformed or cfg.unknown
+    for i, id_node in ipairs(id_list) do
+      if id_node.tag == 'Id' then
+         cfg.scope :set (id_node[1], { id_node, ... })
+         if f then f(id_node, ...) end
+      elseif i==#id_list and id_node.tag=='Dots' then
+         -- Do nothing, those are valid `Dots
+      elseif ferror then
+         -- Traverse error handling function
+         ferror(id_node, ...)
+      else
+         error("Invalid binders list")
+      end
+   end
+end
+
+----------------------------------------------------------------------
+-- Generic walker generator.
+-- * if `cfg' has an entry matching the tree name, use this entry
+-- * if not, try to use the entry whose name matched the ast kind
+-- * if an entry is a table, look for 'up' and 'down' entries
+-- * if it is a function, consider it as a `down' traverser.
+----------------------------------------------------------------------
+local walker_builder = function(traverse)
+   assert(traverse)
+   return function (cfg, ...)
+      if not cfg.scope then cfg.scope = M.newscope() end
+      local down, up = cfg.down, cfg.up
+      local broken = down and down(...)
+      if broken ~= 'break' then M.traverse[traverse] (cfg, ...) end
+      if up then up(...) end
+   end
+end
+
+----------------------------------------------------------------------
+-- Declare [M.stat], [M.expr], [M.block] and [M.expr_list]
+----------------------------------------------------------------------
+for _, w in ipairs{ "stat", "expr", "block" } do --, "malformed", "unknown" } do
+   M[w] = walker_builder (w, M.traverse[w])
+end
+
+-- Don't call up/down callbacks on expr lists
+M.expr_list = M.traverse.expr_list
+
+
+----------------------------------------------------------------------
+-- Try to guess the type of the AST then choose the right walkker.
+----------------------------------------------------------------------
+function M.guess (cfg, x, ...)
+   assert(type(x)=='table', "arg #2 in a walker must be an AST")
+   if M.tags.expr[x.tag] then return M.expr(cfg, x, ...)  end
+   if M.tags.stat[x.tag] then return M.stat(cfg, x, ...)  end
+   if not x.tag          then return M.block(cfg, x, ...) end
+   error ("Can't guess the AST type from tag "..(x.tag or '<none>')) 
+end
+
+local S = { }; S.__index = S
+
+function M.newscope()
+    local instance = { current = { } }
+    instance.stack = { instance.current }
+    setmetatable (instance, S)
+    return instance
+end
+
+function S :save(...)
+    table.insert (self.stack, table.shallow_copy (self.current))
+    if ... then return self :add(...) end
+end
+
+function S :restore() self.current = table.remove (self.stack) end
+function S :get (var_name) return self.current[var_name] end
+function S :set (key, val) self.current[key] = val end
+
+return M

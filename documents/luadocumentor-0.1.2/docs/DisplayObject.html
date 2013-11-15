@@ -1,0 +1,1551 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<link rel="stylesheet" href="stylesheet.css" type="text/css"/>
+	</head>
+<body>
+<div id="container">
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div>
+<div id="main">
+	<div id="navigation">
+		<h2>Modules</h2>
+			<ul><li>
+				<a href="index.html">index</a>
+			</li></ul>
+		<ul>
+					<li><a href="DisplayImage.html">DisplayImage</a></li>
+					<li><a href="DisplayImageMask.html">DisplayImageMask</a></li>
+					<li><a href="DisplayNinePatch.html">DisplayNinePatch</a></li>
+					<li>DisplayObject</li>
+					<li><a href="DisplayShape.html">DisplayShape</a></li>
+					<li><a href="DisplayText.html">DisplayText</a></li>
+		</ul>
+	</div>
+	<div id="content">
+   <h1>Module <code>DisplayObject</code></h1>
+   
+<p>The 'DisplayObject' class is the base class for all objects that can
+be placed on the screen.</p>
+
+
+	<h2><a id="#(DisplayObject)" >Type <code>DisplayObject</code></a></h2>
+		<table class="function_list">
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).__draw">DisplayObject:__draw(display)</a></td>
+		<td class="summary">
+<p>Draw display object to the screen.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).addChild">DisplayObject:addChild(child)</a></td>
+		<td class="summary">
+<p>Adds a display object as a child to this display object.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).animate">DisplayObject:animate(properties, duration, easing)</a></td>
+		<td class="summary">
+<p>Perform a custom animation of a set of display object properties.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).contains">DisplayObject:contains(child)</a></td>
+		<td class="summary">
+<p>Determines whether the specified display object is contained in the subtree of
+this 'DisplayObject' instance.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).dispatch">DisplayObject:dispatch(event)</a></td>
+		<td class="summary">
+<p>Dispatches an event to display object and it's children.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getAlpha">DisplayObject:getAlpha()</a></td>
+		<td class="summary">
+<p>Returns the alpha transparency of this display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getAnchor">DisplayObject:getAnchor()</a></td>
+		<td class="summary">
+<p>Returns the anchor point of the display object in percentage.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getBounds">DisplayObject:getBounds(target)</a></td>
+		<td class="summary">
+<p>Returns a rectangle (as x, y, w and h) that encloses the display object as
+it appears in another display object’s coordinate system.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getHeight">DisplayObject:getHeight()</a></td>
+		<td class="summary">
+<p>Returns the height of the display object, in pixels.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getInnerSize">DisplayObject:getInnerSize()</a></td>
+		<td class="summary">
+<p>Returns the width and height of the display object in pixels.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getPosition">DisplayObject:getPosition()</a></td>
+		<td class="summary">
+<p>Returns the x and y coordinates of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getRotation">DisplayObject:getRotation()</a></td>
+		<td class="summary">
+<p>Returns the rotation of the display object in degrees.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getScale">DisplayObject:getScale()</a></td>
+		<td class="summary">
+<p>Returns the horizontal and vertical scales of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getScaleX">DisplayObject:getScaleX()</a></td>
+		<td class="summary">
+<p>Returns the horizontal scale of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getScaleY">DisplayObject:getScaleY()</a></td>
+		<td class="summary">
+<p>Returns the vertical scale of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getTransformMatrix">DisplayObject:getTransformMatrix(target)</a></td>
+		<td class="summary">
+<p>Return a matrix that represents the transformation from the local coordinate system to another.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getWidth">DisplayObject:getWidth()</a></td>
+		<td class="summary">
+<p>Returns the width of the display object, in pixels.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getX">DisplayObject:getX()</a></td>
+		<td class="summary">
+<p>Returns the x coordinate of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).getY">DisplayObject:getY()</a></td>
+		<td class="summary">
+<p>Returns the y coordinate of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).globalToLocal">DisplayObject:globalToLocal(x, y, target)</a></td>
+		<td class="summary">
+<p>Converts the x,y coordinates from the global to the display object's (local) coordinates.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).hitTestPoint">DisplayObject:hitTestPoint(x, y, target)</a></td>
+		<td class="summary">
+<p>Checks whether the given coordinates (in global coordinate system) is in bounds of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).isVisible">DisplayObject:isVisible()</a></td>
+		<td class="summary">
+<p>Returns whether or not the display object is visible.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).localToGlobal">DisplayObject:localToGlobal(x, y, target)</a></td>
+		<td class="summary">
+<p>Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).new">DisplayObject.new()</a></td>
+		<td class="summary">
+<p>Creates a new display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).removeChild">DisplayObject:removeChild(child)</a></td>
+		<td class="summary">
+<p>Removes the specified child 'DisplayObject' instance from the child list
+of this 'DisplayObject' instance.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).removeSelf">DisplayObject:removeSelf()</a></td>
+		<td class="summary">
+<p>If the display object has a parent, removes the display object from the
+child list of its parent display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).render">DisplayObject:render(display, event)</a></td>
+		<td class="summary">
+<p>Render display object and it's children to the screen.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).resize">DisplayObject:resize(width, height)</a></td>
+		<td class="summary">
+<p>Rechange the width and height in pixels.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).rotate">DisplayObject:rotate(rotation)</a></td>
+		<td class="summary">
+<p>Retrieve or change the rotation of an object.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).scale">DisplayObject:scale(sx, sy)</a></td>
+		<td class="summary">
+<p>Effectively multiplies scalex and scaley properties by sx and sy respectively.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setAlpha">DisplayObject:setAlpha(alpha)</a></td>
+		<td class="summary">
+<p>Sets the alpha transparency of this display object.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setAnchor">DisplayObject:setAnchor(ax, ay)</a></td>
+		<td class="summary">
+<p>Sets the anchor point of the display object in percentage.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setInnerSize">DisplayObject:setInnerSize(w, h)</a></td>
+		<td class="summary">
+<p>Sets the width and height of the display object in pixels.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setPosition">DisplayObject:setPosition(x, y)</a></td>
+		<td class="summary">
+<p>Sets the x and y coordinates of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setRotation">DisplayObject:setRotation(rotation)</a></td>
+		<td class="summary">
+<p>Sets the rotation of the display object in degrees.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setScale">DisplayObject:setScale(x, y)</a></td>
+		<td class="summary">
+<p>Sets the horizontal and vertical scales of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setScaleX">DisplayObject:setScaleX(x)</a></td>
+		<td class="summary">
+<p>Sets the horizontal scale of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setScaleY">DisplayObject:setScaleY(y)</a></td>
+		<td class="summary">
+<p>Sets the vertical scale of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setVisible">DisplayObject:setVisible(visible)</a></td>
+		<td class="summary">
+<p>Sets whether or not the display object is visible.</p>
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setX">DisplayObject:setX(x)</a></td>
+		<td class="summary">
+<p>Sets the x coordinates of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).setY">DisplayObject:setY(y)</a></td>
+		<td class="summary">
+<p>Sets the y coordinates of the display object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).toBack">DisplayObject:toBack()</a></td>
+		<td class="summary">
+<p>Moves the display object to the visual back of its parent.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).toFront">DisplayObject:toFront()</a></td>
+		<td class="summary">
+<p>Moves the display object to the visual front of its parent.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(DisplayObject).translate">DisplayObject:translate(dx, dy)</a></td>
+		<td class="summary">
+<p>Effectively adds values to the x and y properties of an display object.</p>
+</td>
+		</tr>
+	</table>
+
+	<h2><a id="#(DisplayObject)" >Type <code>DisplayObject</code></a></h2>
+		<h3>Field(s)</h3>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).__draw" >
+<strong>DisplayObject:__draw(display)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Draw display object to the screen.</p>
+
+	
+<p>This method must be subclassing.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> display </em></code>: 
+(Display) The context of the screen.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).addChild" >
+<strong>DisplayObject:addChild(child)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Adds a display object as a child to this display object.</p>
+
+	
+<p>The child
+is added as a last child of this 'DisplayObject' instance.</p>
+
+<p>Display object can have only one parent. Therefore if you add a child
+object that already has a different display object as a parent, the
+display object is removed from the child list of the other display
+object and then added to this display object.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> child </em></code>: 
+(DisplayObject) The child display object to add.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).animate" >
+<strong>DisplayObject:animate(properties, duration, easing)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Perform a custom animation of a set of display object properties.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> properties </em></code>: 
+(table) The properties values that the animation will move toward. ['x' 'y' 'rotation' 'scalex' 'scaley' 'alpha']</p>
+
+				</li>
+				<li>
+				
+<p><code><em> duration </em></code>: 
+(number) Determining how long the animation will run in seconds.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> easing </em></code>: 
+(#Easing) The string indicating which easing function to use for transition.
+The following easing functions can be used:
+"linear"
+"inSine"        "outSine"       "inOutSine"
+"inQuad"        "outQuad"       "inOutQuad"
+"inCubic"   "outCubic"      "inOutCubic"
+"inQuart"   "outQuart"      "inOutQuart"
+"inQuint"   "outQuint"      "inOutQuint"
+"inExpo"        "outExpo"       "inOutExpo"
+"inCirc"        "outCirc"       "inOutCirc"
+"inBack"        "outBack"       "inOutBack"
+"inElastic" "outElastic"    "inOutElastic"
+"inBounce"  "outBounce"     "inOutBounce"</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).contains" >
+<strong>DisplayObject:contains(child)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Determines whether the specified display object is contained in the subtree of
+this 'DisplayObject' instance.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> child </em></code>: 
+(DisplayObject) The child object to test.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>'true' if the child object is contained in the subtree of this 'DisplayObject'
+instance, otherwise 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).dispatch" >
+<strong>DisplayObject:dispatch(event)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Dispatches an event to display object and it's children.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> event </em></code>: 
+(Event) The 'Event' object to be dispatched.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getAlpha" >
+<strong>DisplayObject:getAlpha()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the alpha transparency of this display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The alpha of the display object</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getAnchor" >
+<strong>DisplayObject:getAnchor()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the anchor point of the display object in percentage.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The anchor point of the display object in percentage.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getBounds" >
+<strong>DisplayObject:getBounds(target)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns a rectangle (as x, y, w and h) that encloses the display object as
+it appears in another display object’s coordinate system.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> target </em></code>: 
+(DisplayObject) The display object that defines the other coordinate system to transform</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>rectangle has 4 values as x, y, w and h of bounds</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getHeight" >
+<strong>DisplayObject:getHeight()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the height of the display object, in pixels.</p>
+
+	
+<p>The height is calculated based on the
+bounds of the content of the display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>Height of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getInnerSize" >
+<strong>DisplayObject:getInnerSize()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the width and height of the display object in pixels.</p>
+
+	
+<p>(Inner, No transform matrix)</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The width and height of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getPosition" >
+<strong>DisplayObject:getPosition()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the x and y coordinates of the display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The x and y coordinates of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getRotation" >
+<strong>DisplayObject:getRotation()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the rotation of the display object in degrees.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>Rotation of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getScale" >
+<strong>DisplayObject:getScale()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the horizontal and vertical scales of the display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The horizontal and vertical scales of the display object</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getScaleX" >
+<strong>DisplayObject:getScaleX()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the horizontal scale of the display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The horizontal scale (percentage) of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getScaleY" >
+<strong>DisplayObject:getScaleY()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the vertical scale of the display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The vertical scale of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getTransformMatrix" >
+<strong>DisplayObject:getTransformMatrix(target)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Return a matrix that represents the transformation from the local coordinate system to another.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> target </em></code>: 
+(optional) The destination space of the transformation, nil for the screen space.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>The transformation matrix of the display object to another</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getWidth" >
+<strong>DisplayObject:getWidth()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the width of the display object, in pixels.</p>
+
+	
+<p>The width is calculated based on the
+bounds of the content of the display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>Width of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getX" >
+<strong>DisplayObject:getX()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the x coordinate of the display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The x coordinate of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).getY" >
+<strong>DisplayObject:getY()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns the y coordinate of the display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>The y coordinate of the display object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).globalToLocal" >
+<strong>DisplayObject:globalToLocal(x, y, target)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Converts the x,y coordinates from the global to the display object's (local) coordinates.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> x </em></code>: 
+(number) x coordinate of the global coordinate.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> y </em></code>: 
+(number) y coordinate of the global coordinate.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> target </em></code>: 
+(optional) The destination space of the transformation, nil for the screen space.</p>
+
+				</li>
+		</ul>
+		<h3>Return values</h3>
+			<ol>
+				<li>
+				
+
+<p>x coordinate relative to the display object.</p>
+
+				</li>
+				<li>
+				
+
+<p>y coordinate relative to the display object.</p>
+
+
+				</li>
+			</ol>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).hitTestPoint" >
+<strong>DisplayObject:hitTestPoint(x, y, target)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Checks whether the given coordinates (in global coordinate system) is in bounds of the display object.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> x </em></code>: 
+(number)</p>
+
+				</li>
+				<li>
+				
+<p><code><em> y </em></code>: 
+(number)</p>
+
+				</li>
+				<li>
+				
+<p><code><em> target </em></code>: 
+(DisplayObject) The display object that defines the other coordinate system to transform</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>'true' if the given global coordinates are in bounds of the display object, 'false' otherwise.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).isVisible" >
+<strong>DisplayObject:isVisible()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Returns whether or not the display object is visible.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' if display object is visible; 'false' otherwise.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).localToGlobal" >
+<strong>DisplayObject:localToGlobal(x, y, target)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> x </em></code>: 
+(number) x coordinate of the local coordinate.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> y </em></code>: 
+(number) y coordinate of the local coordinate.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> target </em></code>: 
+(optional) The destination space of the transformation, nil for the screen space.</p>
+
+				</li>
+		</ul>
+		<h3>Return values</h3>
+			<ol>
+				<li>
+				
+
+<p>x coordinate relative to the display area.</p>
+
+				</li>
+				<li>
+				
+
+<p>y coordinate relative to the display area.</p>
+
+
+				</li>
+			</ol>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).new" >
+<strong>DisplayObject.new()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Creates a new display object.</p>
+
+
+		<h3>Return value</h3>
+				
+<p><em><a href="##(DisplayObject)">#DisplayObject</a>:</em></p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).removeChild" >
+<strong>DisplayObject:removeChild(child)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Removes the specified child 'DisplayObject' instance from the child list
+of this 'DisplayObject' instance.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> child </em></code>: 
+(DisplayObject) The child display object to remove.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).removeSelf" >
+<strong>DisplayObject:removeSelf()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>If the display object has a parent, removes the display object from the
+child list of its parent display object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).render" >
+<strong>DisplayObject:render(display, event)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Render display object and it's children to the screen.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> display </em></code>: 
+(Display) The context of the screen.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> event </em></code>: 
+(Event) The 'Event' object to be dispatched.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).resize" >
+<strong>DisplayObject:resize(width, height)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Rechange the width and height in pixels.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> width </em></code>: 
+(number) The new width.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> height </em></code>: 
+(number) The new height.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).rotate" >
+<strong>DisplayObject:rotate(rotation)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Retrieve or change the rotation of an object.</p>
+
+	
+<p>The rotation occurs around the object's reference point.
+The default reference point for most display objects is the center.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> rotation </em></code>: 
+(number) The rotation angle in degrees.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).scale" >
+<strong>DisplayObject:scale(sx, sy)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Effectively multiplies scalex and scaley properties by sx and sy respectively.</p>
+
+	
+<p>The scaling occurs around the object's reference point.
+The default reference point for most display objects is center.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> sx </em></code>: 
+(number) Factors by which to change the scale in the x directions.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> sy </em></code>: 
+(number) Factors by which to change the scale in the y directions.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setAlpha" >
+<strong>DisplayObject:setAlpha(alpha)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the alpha transparency of this display object.</p>
+
+	
+<p>0 means fully transparent and 1 means fully opaque.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> alpha </em></code>: 
+(number) The new alpha transparency of the display object</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setAnchor" >
+<strong>DisplayObject:setAnchor(ax, ay)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the anchor point of the display object in percentage.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> ax </em></code>: 
+(number) The horizontal percentage of anchor point.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> ay </em></code>: 
+(number) The vertical percentage of anchor point.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setInnerSize" >
+<strong>DisplayObject:setInnerSize(w, h)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the width and height of the display object in pixels.</p>
+
+	
+<p>(Inner, No transform matrix)</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> w </em></code>: 
+(number) The width of the display object.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> h </em></code>: 
+(number) The height of the display object.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setPosition" >
+<strong>DisplayObject:setPosition(x, y)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the x and y coordinates of the display object.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> x </em></code>: 
+(number) The new x coordinate of the display object.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> y </em></code>: 
+(number) The new y coordinate of the display object.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setRotation" >
+<strong>DisplayObject:setRotation(rotation)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the rotation of the display object in degrees.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> rotation </em></code>: 
+(number) rotation of the display object</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setScale" >
+<strong>DisplayObject:setScale(x, y)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the horizontal and vertical scales of the display object.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> x </em></code>: 
+(number) horizontal scale (percentage) of the display object</p>
+
+				</li>
+				<li>
+				
+<p><code><em> y </em></code>: 
+(number) vertical scale (percentage) of the display object</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setScaleX" >
+<strong>DisplayObject:setScaleX(x)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the horizontal scale of the display object.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> x </em></code>: 
+(number) horizontal scale of the display object</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setScaleY" >
+<strong>DisplayObject:setScaleY(y)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the vertical scale of the display object.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> y </em></code>: 
+(number) vertical scale of the display object</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setVisible" >
+<strong>DisplayObject:setVisible(visible)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets whether or not the display object is visible.</p>
+
+	
+<p>Display objects that are not visible are also taken
+into consideration while calculating bounds.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> visible </em></code>: 
+(bool) whether or not the display object is visible</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setX" >
+<strong>DisplayObject:setX(x)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the x coordinates of the display object.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> x </em></code>: 
+(number) The new x coordinate of the display object.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).setY" >
+<strong>DisplayObject:setY(y)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Sets the y coordinates of the display object.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> y </em></code>: 
+(number) The new y coordinate of the display object.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).toBack" >
+<strong>DisplayObject:toBack()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Moves the display object to the visual back of its parent.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).toFront" >
+<strong>DisplayObject:toFront()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Moves the display object to the visual front of its parent.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(DisplayObject).translate" >
+<strong>DisplayObject:translate(dx, dy)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Effectively adds values to the x and y properties of an display object.</p>
+
+	
+<p>(changing its on-screen position)</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> dx </em></code>: 
+(number) Amount to add to the display object's x properties.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> dy </em></code>: 
+(number) Amount to add to the display object's y properties.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+
+</div>
+
+</div>
+</body>
+</html>

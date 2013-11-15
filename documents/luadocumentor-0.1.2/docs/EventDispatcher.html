@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<link rel="stylesheet" href="stylesheet.css" type="text/css"/>
+	</head>
+<body>
+<div id="container">
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div>
+<div id="main">
+	<div id="navigation">
+		<h2>Modules</h2>
+			<ul><li>
+				<a href="index.html">index</a>
+			</li></ul>
+		<ul>
+					<li><a href="Application.html">Application</a></li>
+					<li><a href="Asset.html">Asset</a></li>
+					<li><a href="DisplayImage.html">DisplayImage</a></li>
+					<li><a href="DisplayImageMask.html">DisplayImageMask</a></li>
+					<li><a href="DisplayNinePatch.html">DisplayNinePatch</a></li>
+					<li><a href="DisplayObject.html">DisplayObject</a></li>
+					<li><a href="DisplayShape.html">DisplayShape</a></li>
+					<li><a href="DisplayText.html">DisplayText</a></li>
+					<li><a href="Event.html">Event</a></li>
+					<li>EventDispatcher</li>
+					<li><a href="TexturePacker.html">TexturePacker</a></li>
+					<li><a href="Timer.html">Timer</a></li>
+					<li><a href="TimerManager.html">TimerManager</a></li>
+		</ul>
+	</div>
+	<div id="content">
+   <h1>Module <code>EventDispatcher</code></h1>
+   
+<p>All classes that dispatch events inherit from 'EventDispatcher'.</p>
+
+   
+<p>The target of
+an event is a listener function and an optional data value.</p>
+
+
+	<h2><a id="#(EventDispatcher)" >Type <code>EventDispatcher</code></a></h2>
+		<table class="function_list">
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(EventDispatcher).addEventListener">EventDispatcher:addEventListener(type, listener, data)</a></td>
+		<td class="summary">
+<p>Registers a listener function and an optional data value so that the listener function is called when an event
+of a particular type occurs.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(EventDispatcher).dispatchEvent">EventDispatcher:dispatchEvent(event)</a></td>
+		<td class="summary">
+<p>Dispatches an event to this 'EventDispatcher' instance.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(EventDispatcher).hasEventListener">EventDispatcher:hasEventListener(type, listener, data)</a></td>
+		<td class="summary">
+<p>Checks if the 'EventDispatcher' object has a event listener registered for the specified type of event.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(EventDispatcher).new">EventDispatcher.new()</a></td>
+		<td class="summary">
+<p>Creates a new 'EventDispatcher' object.</p>
+
+</td>
+		</tr>
+		<tr>
+		<td class="name" nowrap="nowrap"><a href="##(EventDispatcher).removeEventListener">EventDispatcher:removeEventListener(type, listener, data)</a></td>
+		<td class="summary">
+<p>Removes a listener from the 'EventDispatcher' object.</p>
+</td>
+		</tr>
+	</table>
+
+	<h2><a id="#(EventDispatcher)" >Type <code>EventDispatcher</code></a></h2>
+		<h3>Field(s)</h3>
+		<dl class="function">
+<dt>
+
+<a id="#(EventDispatcher).addEventListener" >
+<strong>EventDispatcher:addEventListener(type, listener, data)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Registers a listener function and an optional data value so that the listener function is called when an event
+of a particular type occurs.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> type </em></code>: 
+(string) The type of event.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> listener </em></code>: 
+(function) The listener function that processes the event.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> data </em></code>: 
+(optional) An optional data parameter that is passed as a first argument to the listener function.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(EventDispatcher).dispatchEvent" >
+<strong>EventDispatcher:dispatchEvent(event)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Dispatches an event to this 'EventDispatcher' instance.</p>
+
+
+		<h3>Parameter</h3>
+		<ul>
+				<li>
+				
+<p><code><em> event </em></code>: 
+(event) The 'event' object to be dispatched.</p>
+
+
+				</li>
+		</ul>
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(EventDispatcher).hasEventListener" >
+<strong>EventDispatcher:hasEventListener(type, listener, data)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Checks if the 'EventDispatcher' object has a event listener registered for the specified type of event.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> type </em></code>: 
+(string) The type of event.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> listener </em></code>: 
+(optional) The listener function that processes the event.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> data </em></code>: 
+(optional) An optional data parameter that is passed to the listener function.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' if a listener of the specified type is registered; 'false' otherwise.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(EventDispatcher).new" >
+<strong>EventDispatcher.new()</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Creates a new 'EventDispatcher' object.</p>
+
+
+		<h3>Return value</h3>
+				
+
+<p>New 'EventDispatcher' object.</p>
+
+
+</dd>
+</dl>
+		<dl class="function">
+<dt>
+
+<a id="#(EventDispatcher).removeEventListener" >
+<strong>EventDispatcher:removeEventListener(type, listener, data)</strong>
+</a>
+</dt>
+<dd>
+	
+<p>Removes a listener from the 'EventDispatcher' object.</p>
+
+	
+<p>'removeEventListener()' function expects
+the same arguments with 'addEventListener()' to remove the event. If there is no matching listener
+registered, a call to this function has no effect.</p>
+
+
+		<h3>Parameters</h3>
+		<ul>
+				<li>
+				
+<p><code><em> type </em></code>: 
+(string) The type of event.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> listener </em></code>: 
+(function) The listener object to remove.</p>
+
+				</li>
+				<li>
+				
+<p><code><em> data </em></code>: 
+The data parameter that is used while registering the event.</p>
+
+				</li>
+		</ul>
+		<h3>Return value</h3>
+				
+
+<p>A value of 'true' or 'false'.</p>
+
+
+</dd>
+</dl>
+
+</div>
+
+</div>
+</body>
+</html>

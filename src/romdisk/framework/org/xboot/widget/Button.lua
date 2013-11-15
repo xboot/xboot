@@ -1,3 +1,5 @@
+---
+-- @module Button
 local M = Class(DisplayObject)
 
 function M:init(option, name)

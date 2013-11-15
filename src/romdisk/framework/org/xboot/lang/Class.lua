@@ -1,3 +1,5 @@
+---
+-- @module Class
 local function rethack(t, bbak, mbak, ...)
 	t.base = bbak
 	setmetatable(t.self, mbak)

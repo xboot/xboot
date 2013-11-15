@@ -1,3 +1,5 @@
+---
+-- @module RadioButton
 local M = Class(DisplayObject)
 
 function M:init(option, name)

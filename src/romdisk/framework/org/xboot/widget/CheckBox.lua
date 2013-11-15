@@ -1,3 +1,5 @@
+---
+-- @module CheckBox
 local M = Class(DisplayObject)
 
 function M:init(option, name)

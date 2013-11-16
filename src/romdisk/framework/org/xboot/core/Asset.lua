@@ -46,7 +46,7 @@ function M:loadTheme(name)
 	if not self.theme[name] then
 		self.theme[name] = require("assets.themes." .. name)
 	end
-	
+
 	return self.theme[name]
 end
 

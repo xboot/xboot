@@ -60,6 +60,7 @@ static int m_display_gc(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	cairo_xboot_surface_present(display->alone);
+	cairo_surface_destroy(display->alone);
 	cairo_destroy(display->cr[0]);
 	cairo_destroy(display->cr[1]);
 	cairo_surface_destroy(display->cs[0]);

@@ -68,6 +68,26 @@ static int m_display_gc(lua_State * L)
 	return 0;
 }
 
+static int m_display_info(lua_State * L)
+{
+	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct screen_info_t info;
+	if(display->fb->ioctl)
+		display->fb->ioctl(display->fb, IOCTL_FB_GET_SCREEN_INFORMATION, &info);
+	lua_newtable(L);
+	lua_pushnumber(L, info.width);
+	lua_setfield(L, -2, "width");
+	lua_pushnumber(L, info.height);
+	lua_setfield(L, -2, "height");
+	lua_pushnumber(L, info.xdpi);
+	lua_setfield(L, -2, "xdpi");
+	lua_pushnumber(L, info.ydpi);
+	lua_setfield(L, -2, "ydpi");
+	lua_pushnumber(L, info.bpp);
+	lua_setfield(L, -2, "bpp");
+	return 1;
+}
+
 static int m_display_get_backlight(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
@@ -165,6 +185,7 @@ static int m_display_present(lua_State * L)
 
 static const luaL_Reg m_display[] = {
 	{"__gc",			m_display_gc},
+	{"info",			m_display_info},
 	{"getBacklight",	m_display_get_backlight},
 	{"setBacklight",	m_display_set_backlight},
 	{"drawShape",		m_display_draw_shape},

@@ -13,8 +13,18 @@ extern "C" {
 #include <fb/sw/sw.h>
 
 enum {
-	IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS	= 0x00,
-	IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS	= 0x01,
+	IOCTL_FB_GET_SCREEN_INFORMATION		= 0x00,
+
+	IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS	= 0x01,
+	IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS	= 0x02,
+};
+
+struct screen_info_t {
+	int width;
+	int height;
+	int xdpi;
+	int ydpi;
+	int bpp;
 };
 
 struct fb_t

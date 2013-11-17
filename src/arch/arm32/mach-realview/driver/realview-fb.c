@@ -56,10 +56,20 @@ static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 {
 	struct resource_t * res = (struct resource_t *)fb->priv;
 	struct realview_fb_data_t * dat = (struct realview_fb_data_t *)res->data;
+	struct screen_info_t * info;
 	int * brightness;
 
 	switch(cmd)
 	{
+	case IOCTL_FB_GET_SCREEN_INFORMATION:
+		info = (struct screen_info_t *)arg;
+		info->width = dat->width;
+		info->height = dat->height;
+		info->xdpi = dat->xdpi;
+		info->ydpi = dat->ydpi;
+		info->bpp = dat->bits_per_pixel;
+		return 0;
+
 	case IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS:
 		brightness = (int *)arg;
 		if(dat->set_backlight)

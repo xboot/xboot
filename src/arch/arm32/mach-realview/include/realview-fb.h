@@ -21,6 +21,12 @@ struct realview_fb_data_t
 	/* vertical resolution */
 	s32_t height;
 
+	/* horizontal dpi */
+	s32_t xdpi;
+
+	/* vertical dpi */
+	s32_t ydpi;
+
 	/* bits per pixel */
 	s32_t bits_per_pixel;
 

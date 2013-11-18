@@ -41,10 +41,12 @@ function M:loadFont(family)
 end
 
 function M:loadDisplay(image)
-	if string.lower(string.sub(image, -6)) == ".9.png" then
-		return DisplayNinePatch.new(self:loadTexture(image))
-	elseif string.lower(string.sub(image, -4)) == ".png" then
-		return DisplayImage.new(self:loadTexture(image))
+	if type(image) == "string" then
+		if string.lower(string.sub(image, -6)) == ".9.png" then
+			return DisplayNinePatch.new(self:loadTexture(image))
+		elseif string.lower(string.sub(image, -4)) == ".png" then
+			return DisplayImage.new(self:loadTexture(image))
+		end
 	else
 		return image
 	end

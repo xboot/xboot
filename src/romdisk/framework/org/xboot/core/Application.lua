@@ -14,19 +14,34 @@ function M:init()
 	self.display = Display.new()
 	self.stage = DisplayObject.new()
 	self.asset = Asset.new()
-	self.stopwatch = Stopwatch.new()
 	self.timermanager = TimerManager.new()
-	self.timermanager:addTimer(Timer.new(1 / 60, 0, function(t, e)
-		self.stage:render(self.display, Event.new(Event.ENTER_FRAME))
-		self.display:present()
-	end))
-	self.running = true
+	self.running = false
+end
 
-	application = self
-	stage = self.stage
-	asset = self.asset
-	timermanager = self.timermanager
-	require("main")
+function M:getScreenSize()
+	local info = self.display:info()
+	return info.width, info.height
+end
+
+function M:getScreenDensity()
+	local info = self.display:info()
+	return info.xdpi, info.ydpi
+end
+
+function M:getDisplay()
+	return self.display
+end
+
+function M:getStage()
+	return self.stage
+end
+
+function M:getAsset()
+	return self.asset
+end
+
+function M:getTimerManager()
+	return self.timermanager
 end
 
 ---
@@ -42,17 +57,31 @@ end
 --
 -- @function [parent=#Application] exec
 function M:exec()
+	local display = self:getDisplay()
+	local stage = self:getStage()
+	local timermanager = self:getTimerManager()
+	local stopwatch = Stopwatch.new()
+
+	require("main")
+
+	timermanager:addTimer(Timer.new(1 / 60, 0, function(t, e)
+		stage:render(display, Event.new(Event.ENTER_FRAME))
+		display:present()
+	end))
+
+	self.running = true
+
 	while self.running do
 		local info = pump()
 		if info ~= nil then
 			local e = Event.new(info.type, info)
-			self.stage:dispatch(e)
+			stage:dispatch(e)
 		end
 
-		local elapsed = self.stopwatch:elapsed()
+		local elapsed = stopwatch:elapsed()
 		if elapsed ~= 0 then
-			self.stopwatch:reset()
-			self.timermanager:schedule(elapsed)
+			stopwatch:reset()
+			timermanager:schedule(elapsed)
 		end
 	end
 end

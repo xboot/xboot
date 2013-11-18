@@ -77,16 +77,13 @@ Widget = {
 -- Global variable
 --
 application = nil
-stage = nil
-asset = nil
-timermanager = nil
 
 ---
 -- Loader function
 --
 local function loader()
-	local app = Application.new()
-	app:exec()
+	application = Application.new()
+	application:exec()
 end
 
 ---

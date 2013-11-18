@@ -18,8 +18,8 @@ function M:init(option, name)
 
 	self.touchid = nil
 	self.pressed = false
-	self.frameUp = DisplayImage.new(asset:loadTexture(self.opt.imageUp))
-	self.frameDown = DisplayImage.new(asset:loadTexture(self.opt.imageDown))
+	self.frameUp = asset:loadDisplay(self.opt.imageUp)
+	self.frameDown = asset:loadDisplay(self.opt.imageDown)
 
 	self:updateVisualState(self.pressed)
 	self:setPosition(self.opt.x, self.opt.y)
@@ -33,6 +33,11 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCHES_MOVE, self.onTouchesMove, self)
 	self:addEventListener(Event.TOUCHES_END, self.onTouchesEnd, self)
 	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
+end
+
+function M:resize(width, height)
+	self.frameUp:resize(width, height)
+	self.frameDown:resize(width, height)
 end
 
 function M:getPressed()

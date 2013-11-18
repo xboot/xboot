@@ -40,6 +40,16 @@ function M:loadFont(family)
 	return self.fonts[family]
 end
 
+function M:loadDisplay(image)
+	if string.lower(string.sub(image, -6)) == ".9.png" then
+		return DisplayNinePatch.new(self:loadTexture(image))
+	elseif string.lower(string.sub(image, -4)) == ".png" then
+		return DisplayImage.new(self:loadTexture(image))
+	else
+		return image
+	end
+end
+
 function M:loadTheme(name)
 	local name = name or "default"
 

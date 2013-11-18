@@ -3,7 +3,7 @@ local background = DisplayImage.new(asset:loadTexture("assets/images/background.
 stage:addChild(background)
 
 -- Create the button
-local button = Widget.Button.new({x = 100, y = 100})
+local button = Widget.Button.new({x = 100, y = 100, width = 100, height = 50})
 stage:addChild(button)
 
 -- Register to "Click" event

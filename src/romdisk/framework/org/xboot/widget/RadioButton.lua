@@ -5,6 +5,7 @@ local M = Class(DisplayObject)
 function M:init(option, name)
 	self.super:init()
 
+	local asset = application:getAsset()
 	local option = option or {}
 	local theme = asset:loadTheme(name)
 
@@ -19,8 +20,8 @@ function M:init(option, name)
 
 	self.touchid = nil
 	self.checked = self.opt.checked
-	self.frameChecked = DisplayImage.new(asset:loadTexture(self.opt.imageChecked))
-	self.frameUnchecked = DisplayImage.new(asset:loadTexture(self.opt.imageUnchecked))
+	self.frameChecked = asset:loadDisplay(self.opt.imageChecked)
+	self.frameUnchecked = asset:loadDisplay(self.opt.imageUnchecked)
 
 	self:updateVisualState(self.checked)
 	self:setPosition(self.opt.x, self.opt.y)
@@ -34,6 +35,11 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCHES_MOVE, self.onTouchesMove, self)
 	self:addEventListener(Event.TOUCHES_END, self.onTouchesEnd, self)
 	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
+end
+
+function M:resize(width, height)
+	self.frameChecked:resize(width, height)
+	self.frameUnchecked:resize(width, height)
 end
 
 function M:setChecked(checked)

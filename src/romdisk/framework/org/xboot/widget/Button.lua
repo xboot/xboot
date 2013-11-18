@@ -5,7 +5,7 @@ local M = Class(DisplayObject)
 function M:init(option, name)
 	self.super:init()
 
-	local asset = application:getAsset()	
+	local asset = application:getAsset()
 	local option = option or {}
 	local theme = asset:loadTheme(name)
 

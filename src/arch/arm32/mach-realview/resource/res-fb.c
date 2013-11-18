@@ -57,8 +57,8 @@ static struct realview_fb_data_t realview_fb_data = {
 
 	.width				= 800,
 	.height				= 480,
-	.xdpi				= 160,
-	.ydpi				= 160,
+	.xdpi				= 133,
+	.ydpi				= 133,
 	.bits_per_pixel		= 32,
 	.bytes_per_pixel	= 4,
 

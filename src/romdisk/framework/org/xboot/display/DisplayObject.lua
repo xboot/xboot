@@ -20,6 +20,27 @@ function M:init()
 end
 
 ---
+-- Determines whether the specified display object is contained in the subtree of
+-- this 'DisplayObject' instance.
+--
+-- @function [parent=#DisplayObject] contains
+-- @param self
+-- @param child (DisplayObject) The child object to test.
+-- @return 'true' if the child object is contained in the subtree of this 'DisplayObject'
+-- instance, otherwise 'false'.
+function M:contains(child)
+	for i, v in ipairs(self.children) do
+		if v == child then
+			return true
+		elseif v:contains(child) then
+			return true
+		end
+	end
+
+	return false
+end
+
+---
 -- Adds a display object as a child to this display object. The child
 -- is added as a last child of this 'DisplayObject' instance.
 --
@@ -140,66 +161,6 @@ function M:toBack()
 	table.insert(parent.children, 1, self)
 	self.parent = parent
 
-	return true
-end
-
----
--- Determines whether the specified display object is contained in the subtree of
--- this 'DisplayObject' instance.
---
--- @function [parent=#DisplayObject] contains
--- @param self
--- @param child (DisplayObject) The child object to test.
--- @return 'true' if the child object is contained in the subtree of this 'DisplayObject'
--- instance, otherwise 'false'.
-function M:contains(child)
-	for i, v in ipairs(self.children) do
-		if v == child then
-			return true
-		elseif v:contains(child) then
-			return true
-		end
-	end
-
-	return false
-end
-
----
--- Sets whether or not the display object is visible. Display objects that are not visible are also taken
--- into consideration while calculating bounds.
---
--- @function [parent=#DisplayObject] setVisible
--- @param self
--- @param visible (bool) whether or not the display object is visible
-function M:setVisible(visible)
-	if not visible then
-		self.visible = false
-	else
-		local o = self
-		while o do
-			if not o.visible then
-				o.visible = true
-			end
-			o = o.parent
-		end
-	end
-	return self
-end
-
----
--- Returns whether or not the display object is visible.
---
--- @function [parent=#DisplayObject] getVisible
--- @param self
--- @return A value of 'true' if display object is visible; 'false' otherwise.
-function M:getVisible()
-	local o = self
-	while o do
-		if not o.visible then
-			return false
-		end
-		o = o.parent
-	end
 	return true
 end
 
@@ -407,6 +368,45 @@ function M:getAlpha()
 end
 
 ---
+-- Sets whether or not the display object is visible. Display objects that are not visible are also taken
+-- into consideration while calculating bounds.
+--
+-- @function [parent=#DisplayObject] setVisible
+-- @param self
+-- @param visible (bool) whether or not the display object is visible
+function M:setVisible(visible)
+	if not visible then
+		self.visible = false
+	else
+		local o = self
+		while o do
+			if not o.visible then
+				o.visible = true
+			end
+			o = o.parent
+		end
+	end
+	return self
+end
+
+---
+-- Returns whether or not the display object is visible.
+--
+-- @function [parent=#DisplayObject] getVisible
+-- @param self
+-- @return A value of 'true' if display object is visible; 'false' otherwise.
+function M:getVisible()
+	local o = self
+	while o do
+		if not o.visible then
+			return false
+		end
+		o = o.parent
+	end
+	return true
+end
+
+---
 -- Sets the width and height of the display object in pixels. (Inner, No transform matrix)
 --
 -- @function [parent=#DisplayObject] setInnerSize
@@ -459,25 +459,6 @@ function M:getContentSize()
 end
 
 ---
--- Return a matrix that represents the transformation from the local coordinate system to another.
---
--- @function [parent=#DisplayObject] getTransformMatrix
--- @param self
--- @param target (optional) The destination space of the transformation, nil for the screen space.
--- @return The transformation matrix of the display object to another
-function M:getTransformMatrix(target)
-	local matrix = Matrix.new()
-	local o = self
-
-	while(o and o ~= target) do
-		matrix:multiply(matrix, o.object:getMatrix())
-		o = o.parent
-	end
-
-	return matrix
-end
-
----
 -- Converts the x,y coordinates from the global to the display object's (local) coordinates.
 --
 -- @function [parent=#DisplayObject] globalToLocal
@@ -506,6 +487,25 @@ end
 function M:localToGlobal(x, y, target)
 	local m = self:getTransformMatrix(target)
 	return m:transformPoint(x, y)
+end
+
+---
+-- Return a matrix that represents the transformation from the local coordinate system to another.
+--
+-- @function [parent=#DisplayObject] getTransformMatrix
+-- @param self
+-- @param target (optional) The destination space of the transformation, nil for the screen space.
+-- @return The transformation matrix of the display object to another
+function M:getTransformMatrix(target)
+	local matrix = Matrix.new()
+	local o = self
+
+	while(o and o ~= target) do
+		matrix:multiply(matrix, o.object:getMatrix())
+		o = o.parent
+	end
+
+	return matrix
 end
 
 ---

@@ -46,14 +46,14 @@ static int l_object_new(lua_State * L)
 	struct object_t * object = lua_newuserdata(L, sizeof(struct object_t));
 	object->x = 0;
 	object->y = 0;
-	object->width = 0;
-	object->height = 0;
 	object->rotation = 0;
 	object->scalex = 1;
 	object->scaley = 1;
 	object->anchorx = 0;
 	object->anchory = 0;
 	object->alpha = 1;
+	object->width = 0;
+	object->height = 0;
 
 	object->__translate = 0;
 	object->__rotate = 0;
@@ -123,24 +123,6 @@ static int m_get_position(lua_State * L)
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	lua_pushnumber(L, object->x);
 	lua_pushnumber(L, object->y);
-	return 2;
-}
-
-static int m_set_inner_size(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	double w = luaL_checknumber(L, 2);
-	double h = luaL_checknumber(L, 3);
-	object->width = w;
-	object->height = h;
-	return 0;
-}
-
-static int m_get_inner_size(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	lua_pushnumber(L, object->width);
-	lua_pushnumber(L, object->height);
 	return 2;
 }
 
@@ -254,6 +236,24 @@ static int m_get_alpha(lua_State * L)
 	return 1;
 }
 
+static int m_set_inner_size(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	double w = luaL_checknumber(L, 2);
+	double h = luaL_checknumber(L, 3);
+	object->width = w;
+	object->height = h;
+	return 0;
+}
+
+static int m_get_inner_size(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	lua_pushnumber(L, object->width);
+	lua_pushnumber(L, object->height);
+	return 2;
+}
+
 static int m_get_matrix(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -302,8 +302,6 @@ static const luaL_Reg m_object[] = {
 	{"getY",			m_get_y},
 	{"setPosition",		m_set_position},
 	{"getPosition",		m_get_position},
-	{"setInnerSize",	m_set_inner_size},
-	{"getInnerSize",	m_get_inner_size},
 	{"setRotation",		m_set_rotation},
 	{"getRotation",		m_get_rotation},
 	{"setScaleX",		m_set_scale_x},
@@ -316,6 +314,8 @@ static const luaL_Reg m_object[] = {
 	{"getAnchor",		m_get_archor},
 	{"setAlpha",		m_set_alpha},
 	{"getAlpha",		m_get_alpha},
+	{"setInnerSize",	m_set_inner_size},
+	{"getInnerSize",	m_get_inner_size},
 	{"getMatrix",		m_get_matrix},
 	{"bounds",			m_bounds},
 	{NULL,				NULL}

@@ -72,44 +72,6 @@ static const luaL_Reg l_object[] = {
 	{NULL,	NULL}
 };
 
-static int m_translate(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	double dx = luaL_checknumber(L, 2);
-	double dy = luaL_checknumber(L, 3);
-	object->x = object->x + dx;
-	object->y = object->y + dy;
-	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
-	object->__matrix_valid = 0;
-	return 0;
-}
-
-static int m_rotate(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	double rotation = luaL_checknumber(L, 2);
-	object->rotation = object->rotation + rotation * (M_PI / 180.0);
-	while(object->rotation < 0)
-		object->rotation = object->rotation + (M_PI * 2);
-	while(object->rotation > (M_PI * 2))
-		object->rotation = object->rotation - (M_PI * 2);
-	object->__rotate = (object->rotation != 0) ? 1 : 0;
-	object->__matrix_valid = 0;
-	return 0;
-}
-
-static int m_scale(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	double sx = luaL_checknumber(L, 2);
-	double sy = luaL_checknumber(L, 3);
-	object->scalex = object->scalex * sx;
-	object->scaley = object->scaley * sy;
-	object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
-	object->__matrix_valid = 0;
-	return 0;
-}
-
 static int m_set_x(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -334,9 +296,6 @@ static int m_bounds(lua_State * L)
 }
 
 static const luaL_Reg m_object[] = {
-	{"translate",		m_translate},
-	{"rotate",			m_rotate},
-	{"scale",			m_scale},
 	{"setX",			m_set_x},
 	{"getX",			m_get_x},
 	{"setY",			m_set_y},

@@ -165,23 +165,6 @@ function M:contains(child)
 end
 
 ---
--- Returns whether or not the display object is visible.
---
--- @function [parent=#DisplayObject] isVisible
--- @param self
--- @return A value of 'true' if display object is visible; 'false' otherwise.
-function M:isVisible()
-	local o = self
-	while o do
-		if not o.visible then
-			return false
-		end
-		o = o.parent
-	end
-	return true
-end
-
----
 -- Sets whether or not the display object is visible. Display objects that are not visible are also taken
 -- into consideration while calculating bounds.
 --
@@ -201,6 +184,23 @@ function M:setVisible(visible)
 		end
 	end
 	return self
+end
+
+---
+-- Returns whether or not the display object is visible.
+--
+-- @function [parent=#DisplayObject] getVisible
+-- @param self
+-- @return A value of 'true' if display object is visible; 'false' otherwise.
+function M:getVisible()
+	local o = self
+	while o do
+		if not o.visible then
+			return false
+		end
+		o = o.parent
+	end
+	return true
 end
 
 ---
@@ -575,7 +575,7 @@ end
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
 -- @return 'true' if the given global coordinates are in bounds of the display object, 'false' otherwise.
 function M:hitTestPoint(x, y, target)
-	if self:isVisible() then
+	if self:getVisible() then
 		local ox, oy = self:globalToLocal(x, y, target)
 		local r = self:getBounds(self)
 		return r:hitTestPoint(ox, oy)
@@ -718,7 +718,7 @@ end
 function M:render(display, event)
 	self:dispatchEvent(event)
 
-	if self:isVisible() then
+	if self:getVisible() then
 		self:__draw(display)
 	end
 

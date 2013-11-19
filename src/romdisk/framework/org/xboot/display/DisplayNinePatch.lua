@@ -46,43 +46,43 @@ function M:init(ninepatch, width, height, x, y)
 	self:addChild(self.mb)
 	self:addChild(self.rb)
 	
-	self:resize(width, height)
+	self:setContentSize(width, height)
 	self:setPosition(x or 0, y or 0)
 end
 
 ---
 -- Rechange the width and height in pixels.
 --
--- @function [parent=#DisplayObject] resize
+-- @function [parent=#DisplayObject] setContentSize
 -- @param self
 -- @param width (number) The new width.
 -- @param height (number) The new height.
-function M:resize(width, height)
+function M:setContentSize(width, height)
 	local width = width or self.width
 	local height = height or self.height
 	local w = width - self.left - self.right
 	local h = height - self.top - self.bottom
 	
 	self.lt:setPosition(0, 0)
-	self.lt:resize(self.left, self.top)
+	self.lt:setContentSize(self.left, self.top)
 	self.mt:setPosition(self.left, 0)
-	self.mt:resize(w, self.top)
+	self.mt:setContentSize(w, self.top)
 	self.rt:setPosition(self.left + w, 0)
-	self.rt:resize(self.right, self.top)
+	self.rt:setContentSize(self.right, self.top)
 	
 	self.lm:setPosition(0, self.top)
-	self.lm:resize(self.left, h)
+	self.lm:setContentSize(self.left, h)
 	self.mm:setPosition(self.left, self.top)
-	self.mm:resize(w, h)
+	self.mm:setContentSize(w, h)
 	self.rm:setPosition(self.left + w, self.top)
-	self.rm:resize(self.right, h)
+	self.rm:setContentSize(self.right, h)
 	
 	self.lb:setPosition(0, self.top + h)
-	self.lb:resize(self.left, self.bottom)
+	self.lb:setContentSize(self.left, self.bottom)
 	self.mb:setPosition(self.left, self.top + h)
-	self.mb:resize(w, self.bottom)
+	self.mb:setContentSize(w, self.bottom)
 	self.rb:setPosition(self.left + w, self.top + h)
-	self.rb:resize(self.right, self.bottom)
+	self.rb:setContentSize(self.right, self.bottom)
 
 	return self
 end

@@ -285,28 +285,6 @@ function M:getY()
 end
 
 ---
--- Sets the width and height of the display object in pixels. (Inner, No transform matrix)
---
--- @function [parent=#DisplayObject] setInnerSize
--- @param self
--- @param w (number) The width of the display object.
--- @param h (number) The height of the display object.
-function M:setInnerSize(w, h)
-	self.object:setInnerSize(w, h)
-	return self
-end
-
----
--- Returns the width and height of the display object in pixels. (Inner, No transform matrix)
---
--- @function [parent=#DisplayObject] getInnerSize
--- @param self
--- @return The width and height of the display object.
-function M:getInnerSize()
-	return self.object:getInnerSize()
-end
-
----
 -- Sets the x and y coordinates of the display object.
 --
 -- @function [parent=#DisplayObject] setPosition
@@ -468,21 +446,55 @@ function M:getAlpha()
 end
 
 ---
--- Rechange the width and height in pixels.
+-- Sets the width and height of the display object in pixels. (Inner, No transform matrix)
 --
--- @function [parent=#DisplayObject] resize
+-- @function [parent=#DisplayObject] setInnerSize
 -- @param self
--- @param width (number) The new width.
--- @param height (number) The new height.
-function M:resize(width, height)
-	local r = self:getBounds(self)
-	local x, y, w, h = r:get()
-	if w ~= 0 and h ~= 0 then
+-- @param w (number) The width of the display object.
+-- @param h (number) The height of the display object.
+function M:setInnerSize(w, h)
+	self.object:setInnerSize(w, h)
+	return self
+end
+
+---
+-- Returns the width and height of the display object in pixels. (Inner, No transform matrix)
+--
+-- @function [parent=#DisplayObject] getInnerSize
+-- @param self
+-- @return The width and height of the display object.
+function M:getInnerSize()
+	return self.object:getInnerSize()
+end
+
+---
+-- Sets the size of the display object in pixels.
+--
+-- @function [parent=#DisplayObject] setContentSize
+-- @param self
+-- @param width (number) The new width of the display object.
+-- @param height (number) The new height of the display object.
+function M:setContentSize(width, height)
+	local w, h = self:getContentSize()
+	if w > 0 and h > 0 then
 		local width = width or w
 		local height = height or h
 		self:setScale(width / w, height / h)
 	end
 	return self
+end
+
+---
+-- Returns the size of the display object in pixels. The size is calculated based on the
+-- bounds of the content of the display object.
+--
+-- @function [parent=#DisplayObject] getContentSize
+-- @param self
+-- @return Size of the display object.
+function M:getContentSize()
+	local r = self:getBounds(self)
+	local x, y, w, h = r:get()
+	return w, h
 end
 
 ---
@@ -551,32 +563,6 @@ function M:getBounds(target, r)
 		v:getBounds(target, r)
 	end
 	return r
-end
-
----
--- Returns the width of the display object, in pixels. The width is calculated based on the
--- bounds of the content of the display object.
---
--- @function [parent=#DisplayObject] getWidth
--- @param self
--- @return Width of the display object.
-function M:getWidth()
-	local r = self:getBounds()
-	local x, y, w, h = r:get()
-	return w
-end
-
----
--- Returns the height of the display object, in pixels. The height is calculated based on the
--- bounds of the content of the display object.
---
--- @function [parent=#DisplayObject] getHeight
--- @param self
--- @return Height of the display object.
-function M:getHeight()
-	local r = self:getBounds()
-	local x, y, w, h = r:get()
-	return h
 end
 
 ---

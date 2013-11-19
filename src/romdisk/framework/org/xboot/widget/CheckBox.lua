@@ -25,7 +25,7 @@ function M:init(option, name)
 
 	self:updateVisualState(self.checked)
 	self:setPosition(self.opt.x, self.opt.y)
-	self:resize(self.opt.width, self.opt.height)
+	self:setContentSize(self.opt.width, self.opt.height)
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
 	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)
@@ -37,9 +37,9 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
 end
 
-function M:resize(width, height)
-	self.frameChecked:resize(width, height)
-	self.frameUnchecked:resize(width, height)
+function M:setContentSize(width, height)
+	self.frameChecked:setContentSize(width, height)
+	self.frameUnchecked:setContentSize(width, height)
 	return self
 end
 

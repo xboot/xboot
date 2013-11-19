@@ -33,6 +33,7 @@ function M:setShape(shape)
 		self.shape = shape
 		self:setInnerSize(w, h)
 	end
+	return self
 end
 
 ---

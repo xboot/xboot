@@ -40,6 +40,7 @@ end
 function M:resize(width, height)
 	self.frameChecked:resize(width, height)
 	self.frameUnchecked:resize(width, height)
+	return self
 end
 
 function M:setChecked(checked)

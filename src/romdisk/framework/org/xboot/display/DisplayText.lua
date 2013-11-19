@@ -33,6 +33,7 @@ function M:setFont(font)
 	if font then
 		self.font = font
 	end
+	return self
 end
 
 ---
@@ -54,6 +55,7 @@ end
 -- @param y (number) vertical font size of the display text.
 function M:setFontSize(x, y)
 	self:setScale(x, y or x)
+	return self
 end
 
 ---
@@ -76,6 +78,7 @@ function M:setParttern(parttern)
 	if parttern then
 		self.parttern = parttern
 	end
+	return self
 end
 
 ---
@@ -100,6 +103,7 @@ function M:setText(text)
 		self.text = text
 		self:setInnerSize(w, h)
 	end
+	return self
 end
 
 ---

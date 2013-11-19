@@ -34,6 +34,7 @@ function M:setTexture(texture)
 		self.texture = texture
 		self:setInnerSize(w, h)
 	end
+	return self
 end
 
 ---
@@ -56,6 +57,7 @@ function M:setParttern(parttern)
 	if parttern then
 		self.parttern = parttern
 	end
+	return self
 end
 
 ---

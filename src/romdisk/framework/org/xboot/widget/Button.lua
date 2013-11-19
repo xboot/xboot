@@ -39,6 +39,7 @@ end
 function M:resize(width, height)
 	self.frameUp:resize(width, height)
 	self.frameDown:resize(width, height)
+	return self
 end
 
 function M:getPressed()

@@ -83,6 +83,8 @@ function M:resize(width, height)
 	self.mb:resize(w, self.bottom)
 	self.rb:setPosition(self.left + w, self.top + h)
 	self.rb:resize(self.right, self.bottom)
+
+	return self
 end
 
 return M

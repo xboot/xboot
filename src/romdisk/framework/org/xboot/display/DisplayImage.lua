@@ -32,6 +32,7 @@ function M:setTexture(texture)
 		self.texture = texture
 		self:setInnerSize(w, h)
 	end
+	return self
 end
 
 ---

@@ -200,6 +200,7 @@ function M:setVisible(visible)
 			o = o.parent
 		end
 	end
+	return self
 end
 
 ---
@@ -211,6 +212,7 @@ end
 -- @param dy (number) Amount to add to the display object's y properties.
 function M:translate(dx, dy)
 	self.object:translate(dx, dy)
+	return self
 end
 
 ---
@@ -223,6 +225,7 @@ end
 -- @param rotation (number) The rotation angle in degrees.
 function M:rotate(rotation)
 	self.object:rotate(rotation)
+	return self
 end
 
 ---
@@ -236,6 +239,7 @@ end
 -- @param sy (number) Factors by which to change the scale in the y directions.
 function M:scale(sx, sy)
 	self.object:scale(sx, sy or sx)
+	return self
 end
 
 ---
@@ -246,6 +250,7 @@ end
 -- @param x (number) The new x coordinate of the display object.
 function M:setX(x)
 	self.object:setX(x)
+	return self
 end
 
 ---
@@ -266,6 +271,7 @@ end
 -- @param y (number) The new y coordinate of the display object.
 function M:setY(y)
 	self.object:setY(y)
+	return self
 end
 
 ---
@@ -287,6 +293,7 @@ end
 -- @param h (number) The height of the display object.
 function M:setInnerSize(w, h)
 	self.object:setInnerSize(w, h)
+	return self
 end
 
 ---
@@ -308,6 +315,7 @@ end
 -- @param y (number) The new y coordinate of the display object.
 function M:setPosition(x, y)
 	self.object:setPosition(x, y)
+	return self
 end
 
 ---
@@ -328,6 +336,7 @@ end
 -- @param rotation (number) rotation of the display object
 function M:setRotation(rotation)
 	self.object:setRotation(rotation)
+	return self
 end
 
 ---
@@ -348,6 +357,7 @@ end
 -- @param x (number) horizontal scale of the display object
 function M:setScaleX(x)
 	self.object:setScaleX(x)
+	return self
 end
 
 ---
@@ -368,6 +378,7 @@ end
 -- @param y (number) vertical scale of the display object
 function M:setScaleY(y)
 	self.object:setScaleY(y)
+	return self
 end
 
 ---
@@ -389,6 +400,7 @@ end
 -- @param y (number) vertical scale (percentage) of the display object
 function M:setScale(x, y)
 	self.object:setScale(x, y or x)
+	return self
 end
 
 ---
@@ -412,6 +424,7 @@ function M:setAnchor(ax, ay)
 	local r = self:getBounds(self)
 	local x, y, w, h = r:get()
 	self.object:setAnchor(w * ax, h * (ay or ax))
+	return self
 end
 
 ---
@@ -438,10 +451,10 @@ end
 -- @param alpha (number) The new alpha transparency of the display object
 function M:setAlpha(alpha)
 	self.object:setAlpha(alpha)
-
 	for i, v in ipairs(self.children) do
 		v:setAlpha(alpha)
 	end
+	return self
 end
 
 ---
@@ -469,6 +482,7 @@ function M:resize(width, height)
 		local height = height or h
 		self:setScale(width / w, height / h)
 	end
+	return self
 end
 
 ---

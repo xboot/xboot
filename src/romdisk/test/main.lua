@@ -1,8 +1,8 @@
 local stage = application:getStage()
-local asset = application:getAsset()
+local assets = application:getAssets()
 local timermanager = application:getTimerManager()
 
-local background = DisplayImage.new(asset:loadTexture("assets/images/bg.png"))
+local background = DisplayImage.new(assets:loadTexture("assets/images/bg.png"))
 stage:addChild(background)
 
 -- Create the button

@@ -38,7 +38,7 @@ Class = require "org.xboot.lang.Class"
 ---
 -- External core module
 --
-Asset = require "org.xboot.core.Asset"
+Assets = require "org.xboot.core.Assets"
 TexturePacker = require "org.xboot.core.TexturePacker"
 Application = require "org.xboot.core.Application"
 

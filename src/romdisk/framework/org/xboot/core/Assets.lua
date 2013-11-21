@@ -1,15 +1,15 @@
 ---
--- The 'Asset' class provides facilities to load and cache different
+-- The 'Assets' class provides facilities to load and cache different
 -- type of resources.
 --
--- @module Asset
+-- @module Assets
 local M = Class()
 
 ---
--- Creates a new 'Asset' for cache different type of resources.
+-- Creates a new 'Assets' for cache different type of resources.
 --
--- @function [parent=#Asset] new
--- @return New 'Asset' object.
+-- @function [parent=#Assets] new
+-- @return New 'Assets' object.
 function M:init()
 	self.textures = {}
 	self.fonts = {}

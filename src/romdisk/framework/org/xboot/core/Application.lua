@@ -13,7 +13,7 @@ local M = Class()
 function M:init()
 	self.display = Display.new()
 	self.stage = DisplayObject.new()
-	self.asset = Asset.new()
+	self.assets = Assets.new()
 	self.timermanager = TimerManager.new()
 	self.running = false
 end
@@ -36,8 +36,8 @@ function M:getStage()
 	return self.stage
 end
 
-function M:getAsset()
-	return self.asset
+function M:getAssets()
+	return self.assets
 end
 
 function M:getTimerManager()

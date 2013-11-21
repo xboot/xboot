@@ -20,18 +20,14 @@ end
 -- @function [parent=#EventDispatcher] hasEventListener
 -- @param self
 -- @param type (string) The type of event.
--- @param listener (optional) The listener function that processes the event.
--- @param data (optional) An optional data parameter that is passed to the listener function.
+-- @param listener (listener) The listener function that processes the event.
+-- @param data (data) An optional data parameter that is passed to the listener function.
 -- @return A value of 'true' if a listener of the specified type is registered; 'false' otherwise.
 function M:hasEventListener(type, listener, data)
 	local els = self.eventListenersMap[type]
 
 	if not els or #els == 0 then
 		return false
-	end
-
-	if listener == nil and data == nil then
-		return true
 	end
 
 	for i, v in ipairs(els) do
@@ -54,8 +50,10 @@ end
 -- @param data (optional) An optional data parameter that is passed as a first argument to the listener function.
 -- @return A value of 'true' or 'false'.
 function M:addEventListener(type, listener, data)
+	local data = data or self
+
 	if self:hasEventListener(type, listener, data) then
-		return false
+		return self
 	end
 
 	if not self.eventListenersMap[type] then
@@ -66,7 +64,7 @@ function M:addEventListener(type, listener, data)
 	local el = {type = type, listener = listener, data = data}
 	table.insert(els, el)
 
-	return true
+	return self
 end
 
 ---
@@ -81,20 +79,21 @@ end
 -- @param data The data parameter that is used while registering the event.
 -- @return A value of 'true' or 'false'.
 function M:removeEventListener(type, listener, data)
+	local data = data or self
 	local els = self.eventListenersMap[type]
 
 	if not els or #els == 0 then
-		return false
+		return self
 	end
 
 	for i, v in ipairs(els) do
 		if v.type == type and v.listener == listener and v.data == data then
 			table.remove(els, i)
-			return true
+			break
 		end
 	end
 
-	return false
+	return self
 end
 
 ---
@@ -105,13 +104,13 @@ end
 -- @param event (event) The 'event' object to be dispatched.
 function M:dispatchEvent(event)
 	if event.stoped == true then
-		return
+		return self
 	end
 
 	local els = self.eventListenersMap[event.type]
 
 	if not els or #els == 0 then
-		return
+		return self
 	end
 
 	for i, v in ipairs(els) do
@@ -119,6 +118,8 @@ function M:dispatchEvent(event)
 			v.listener(v.data, event)
 		end
 	end
+
+	return self
 end
 
 return M

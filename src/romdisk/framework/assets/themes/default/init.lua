@@ -4,8 +4,9 @@ end
 
 return {
 	button = {
-		imageUp = D("button-up.9.png"),
-		imageDown = D("button-down.9.png"),
+		imageNormal = D("button-normal.9.png"),
+		imagePressed = D("button-pressed.9.png"),
+		imageDisabled = D("button-disabled.9.png"),
 	},
 
 	checkbox = {

@@ -16,6 +16,7 @@ function M:init()
 	self.parent = nil
 	self.children = {}
 	self.visible = true
+	self.touchable = true
 	self.object = Object.new()
 end
 
@@ -375,17 +376,7 @@ end
 -- @param self
 -- @param visible (bool) whether or not the display object is visible
 function M:setVisible(visible)
-	if not visible then
-		self.visible = false
-	else
-		local o = self
-		while o do
-			if not o.visible then
-				o.visible = true
-			end
-			o = o.parent
-		end
-	end
+	self.visible = visible
 	return self
 end
 
@@ -396,14 +387,28 @@ end
 -- @param self
 -- @return A value of 'true' if display object is visible; 'false' otherwise.
 function M:getVisible()
-	local o = self
-	while o do
-		if not o.visible then
-			return false
-		end
-		o = o.parent
-	end
-	return true
+	return self.visible
+end
+
+---
+-- Sets whether or not the display object is touchable.
+--
+-- @function [parent=#DisplayObject] setTouchable
+-- @param self
+-- @param touchable (bool) whether or not the display object is touchable
+function M:setTouchable(touchable)
+	self.touchable = touchable
+	return self
+end
+
+---
+-- Returns whether or not the display object is touchable.
+--
+-- @function [parent=#DisplayObject] getTouchable
+-- @param self
+-- @return A value of 'true' if display object is touchable; 'false' otherwise.
+function M:getTouchable()
+	return self.touchable
 end
 
 ---
@@ -536,7 +541,7 @@ end
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
 -- @return 'true' if the given global coordinates are in bounds of the display object, 'false' otherwise.
 function M:hitTestPoint(x, y, target)
-	if self:getVisible() then
+	if self:getVisible() and self:getTouchable() then
 		local ox, oy = self:globalToLocal(x, y, target)
 		local r = self:getBounds(self)
 		return r:hitTestPoint(ox, oy)

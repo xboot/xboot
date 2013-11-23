@@ -26,11 +26,13 @@
 
 struct object_t {
 	double x, y;
-	double width, height;
 	double rotation;
 	double scalex, scaley;
 	double anchorx, anchory;
 	double alpha;
+	double iwidth, iheight;
+	int visible;
+	int touchable;
 
 	int __translate;
 	int __rotate;
@@ -52,8 +54,10 @@ static int l_object_new(lua_State * L)
 	object->anchorx = 0;
 	object->anchory = 0;
 	object->alpha = 1;
-	object->width = 0;
-	object->height = 0;
+	object->iwidth = 0;
+	object->iheight = 0;
+	object->visible = 1;
+	object->touchable = 1;
 
 	object->__translate = 0;
 	object->__rotate = 0;
@@ -241,17 +245,45 @@ static int m_set_inner_size(lua_State * L)
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	double w = luaL_checknumber(L, 2);
 	double h = luaL_checknumber(L, 3);
-	object->width = w;
-	object->height = h;
+	object->iwidth = w;
+	object->iheight = h;
 	return 0;
 }
 
 static int m_get_inner_size(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	lua_pushnumber(L, object->width);
-	lua_pushnumber(L, object->height);
+	lua_pushnumber(L, object->iwidth);
+	lua_pushnumber(L, object->iheight);
 	return 2;
+}
+
+static int m_set_visible(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	object->visible = lua_toboolean(L, 2) ? 1 : 0;
+	return 0;
+}
+
+static int m_get_visible(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	lua_pushboolean(L, object->visible);
+	return 1;
+}
+
+static int m_set_touchable(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	object->touchable = lua_toboolean(L, 2) ? 1 : 0;
+	return 0;
+}
+
+static int m_get_touchable(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	lua_pushboolean(L, object->touchable);
+	return 1;
 }
 
 static int m_get_matrix(lua_State * L)
@@ -284,8 +316,8 @@ static int m_bounds(lua_State * L)
 	struct rectangle_t * r = lua_newuserdata(L, sizeof(struct rectangle_t));
 	double x1 = 0;
 	double y1 = 0;
-	double x2 = object->width;
-	double y2 = object->height;
+	double x2 = object->iwidth;
+	double y2 = object->iheight;
 	_cairo_matrix_transform_bounding_box(matrix, &x1, &y1, &x2, &y2, NULL);
 	r->x = x1;
 	r->y = y1;
@@ -316,6 +348,10 @@ static const luaL_Reg m_object[] = {
 	{"getAlpha",		m_get_alpha},
 	{"setInnerSize",	m_set_inner_size},
 	{"getInnerSize",	m_get_inner_size},
+	{"setVisible",		m_set_visible},
+	{"getVisible",		m_get_visible},
+	{"setTouchable",	m_set_touchable},
+	{"getTouchable",	m_get_touchable},
 	{"getMatrix",		m_get_matrix},
 	{"bounds",			m_bounds},
 	{NULL,				NULL}

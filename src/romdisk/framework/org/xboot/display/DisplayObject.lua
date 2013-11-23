@@ -15,8 +15,6 @@ function M:init()
 
 	self.parent = nil
 	self.children = {}
-	self.visible = true
-	self.touchable = true
 	self.object = Object.new()
 end
 
@@ -32,8 +30,6 @@ end
 function M:contains(child)
 	for i, v in ipairs(self.children) do
 		if v == child then
-			return true
-		elseif v:contains(child) then
 			return true
 		end
 	end
@@ -352,9 +348,6 @@ end
 -- @param alpha (number) The new alpha transparency of the display object
 function M:setAlpha(alpha)
 	self.object:setAlpha(alpha)
-	for i, v in ipairs(self.children) do
-		v:setAlpha(alpha)
-	end
 	return self
 end
 
@@ -376,7 +369,7 @@ end
 -- @param self
 -- @param visible (bool) whether or not the display object is visible
 function M:setVisible(visible)
-	self.visible = visible
+	self.object:setVisible(visible)
 	return self
 end
 
@@ -387,7 +380,7 @@ end
 -- @param self
 -- @return A value of 'true' if display object is visible; 'false' otherwise.
 function M:getVisible()
-	return self.visible
+	return self.object:getVisible()
 end
 
 ---
@@ -397,7 +390,7 @@ end
 -- @param self
 -- @param touchable (bool) whether or not the display object is touchable
 function M:setTouchable(touchable)
-	self.touchable = touchable
+	self.object:setTouchable(touchable)
 	return self
 end
 
@@ -408,7 +401,7 @@ end
 -- @param self
 -- @return A value of 'true' if display object is touchable; 'false' otherwise.
 function M:getTouchable()
-	return self.touchable
+	return self.object:getTouchable()
 end
 
 ---

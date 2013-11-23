@@ -10,12 +10,20 @@ return {
 	},
 
 	checkbox = {
-		imageChecked = D("checkbox-checked.png"),
-		imageUnchecked = D("checkbox-unchecked.png"),
+		imageOnNormal = D("checkbox-on-normal.png"),
+		imageOnPressed = D("checkbox-on-pressed.png"),
+		imageOnDisabled = D("checkbox-on-disabled.png"),
+		imageOffNormal = D("checkbox-off-normal.png"),
+		imageOffPressed = D("checkbox-off-pressed.png"),
+		imageOffDisabled = D("checkbox-off-disabled.png"),
 	},
 
 	radiobutton = {
-		imageChecked = D("radiobutton-checked.png"),
-		imageUnchecked = D("radiobutton-unchecked.png"),
+		imageOnNormal = D("radiobutton-on-normal.png"),
+		imageOnPressed = D("radiobutton-on-pressed.png"),
+		imageOnDisabled = D("radiobutton-on-disabled.png"),
+		imageOffNormal = D("radiobutton-off-normal.png"),
+		imageOffPressed = D("radiobutton-off-pressed.png"),
+		imageOffDisabled = D("radiobutton-off-disabled.png"),
 	},
 }

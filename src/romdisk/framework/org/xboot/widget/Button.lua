@@ -28,6 +28,7 @@ function M:init(option, name)
 	self.frameNormal = assets:loadDisplay(self.opt.imageNormal)
 	self.framePressed = assets:loadDisplay(self.opt.imagePressed)
 	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled)
+
 	self.touchid = nil
 	self.state = M.STATE_NORMAL
 	self:updateVisualState()
@@ -55,14 +56,6 @@ function M:setContentSize(width, height)
 	return self
 end
 
-function M:enable()
-	return self:setEnable(true)
-end
-
-function M:disable()
-	return self:setEnable(false)
-end
-
 function M:setEnable(enable)
 	if enable then
 		self.state = self.STATE_NORMAL
@@ -78,6 +71,14 @@ function M:getEnable()
 		return true
 	end
 	return false
+end
+
+function M:enable()
+	return self:setEnable(true)
+end
+
+function M:disable()
+	return self:setEnable(false)
 end
 
 function M:onMouseDown(e)

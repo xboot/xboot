@@ -299,7 +299,7 @@ static int m_get_matrix(lua_State * L)
 		if(object->__rotate)
 			cairo_matrix_rotate(m, object->rotation);
 		if(object->__anchor)
-			cairo_matrix_translate(m, -object->anchorx * object->scalex, -object->anchory * object->scaley);
+			cairo_matrix_translate(m, -object->anchorx * object->iwidth * object->scalex, -object->anchory * object->iheight * object->scaley);
 		if(object->__scale)
 			cairo_matrix_scale(m, object->scalex, object->scaley);
 		object->__matrix_valid = 1;

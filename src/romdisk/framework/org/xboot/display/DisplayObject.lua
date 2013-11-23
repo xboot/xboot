@@ -315,12 +315,10 @@ end
 --
 -- @function [parent=#DisplayObject] setAnchor
 -- @param self
--- @param ax (number) The horizontal percentage of anchor point.
--- @param ay (number) The vertical percentage of anchor point.
-function M:setAnchor(ax, ay)
-	local r = self:getBounds(self)
-	local x, y, w, h = r:get()
-	self.object:setAnchor(w * ax, h * (ay or ax))
+-- @param x (number) The horizontal percentage of anchor point.
+-- @param y (number) The vertical percentage of anchor point.
+function M:setAnchor(x, y)
+	self.object:setAnchor(x, y or x)
 	return self
 end
 
@@ -331,13 +329,7 @@ end
 -- @param self
 -- @return The anchor point of the display object in percentage.
 function M:getAnchor()
-	local r = self:getBounds(self)
-	local x, y, w, h = r:get()
-	local ax, ay = self.object:getAnchor()
-	if w ~= 0 and h ~= 0 then
-		return ax / w, ay / h
-	end
-	return 0, 0
+	return self.object:getAnchor()
 end
 
 ---

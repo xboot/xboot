@@ -63,6 +63,17 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
 end
 
+function M:setInnerSize(width, height)
+	self.super:setInnerSize(width, height)
+	self.frameOnNormal:setContentSize(width, height)
+	self.frameOnPressed:setContentSize(width, height)
+	self.frameOnDisabled:setContentSize(width, height)
+	self.frameOffNormal:setContentSize(width, height)
+	self.frameOffPressed:setContentSize(width, height)
+	self.frameOffDisabled:setContentSize(width, height)
+	return self
+end
+
 function M:setEnable(enable)
 	if enable then
 		self.state = self.STATE_NORMAL

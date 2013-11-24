@@ -426,12 +426,7 @@ end
 -- @param width (number) The new width of the display object.
 -- @param height (number) The new height of the display object.
 function M:setContentSize(width, height)
-	local w, h = self:getInnerSize()
-	if w > 0 and h > 0 then
-		local width = width or w
-		local height = height or h
-		self:setScale(width / w, height / h)
-	end
+	self.object:setContentSize(width, height)
 	return self
 end
 
@@ -443,9 +438,7 @@ end
 -- @param self
 -- @return Size of the display object.
 function M:getContentSize()
-	local r = self:getBounds(self)
-	local x, y, w, h = r:get()
-	return w, h
+	return self.object:getContentSize()
 end
 
 ---

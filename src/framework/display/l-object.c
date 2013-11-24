@@ -258,6 +258,28 @@ static int m_get_inner_size(lua_State * L)
 	return 2;
 }
 
+static int m_set_content_size(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	double width = luaL_optnumber(L, 2, object->iwidth);
+	double height = luaL_optnumber(L, 3, object->iheight);
+	if(object->iwidth == 0 || object->iheight == 0)
+		return 0;
+	object->scalex = width / object->iwidth;
+	object->scaley = height / object->iheight;
+	object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
+	object->__matrix_valid = 0;
+	return 0;
+}
+
+static int m_get_content_size(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	lua_pushnumber(L, object->iwidth * object->scalex);
+	lua_pushnumber(L, object->iheight * object->scaley);
+	return 2;
+}
+
 static int m_set_visible(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -348,6 +370,8 @@ static const luaL_Reg m_object[] = {
 	{"getAlpha",		m_get_alpha},
 	{"setInnerSize",	m_set_inner_size},
 	{"getInnerSize",	m_get_inner_size},
+	{"setContentSize",	m_set_content_size},
+	{"getContentSize",	m_get_content_size},
 	{"setVisible",		m_set_visible},
 	{"getVisible",		m_get_visible},
 	{"setTouchable",	m_set_touchable},

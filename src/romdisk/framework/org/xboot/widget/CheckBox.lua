@@ -37,17 +37,21 @@ function M:init(option, name)
 	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed)
 	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled)
 
+	local width, height = self.frameOnNormal:getInnerSize()
+	self.opt.width = self.opt.width or width
+	self.opt.height = self.opt.height or height
+
 	self.touchid = nil
 	self.state = M.STATE_NORMAL
 	self.checked = self.opt.checked
-	self:updateVisualState()
 
 	self:setPosition(self.opt.x, self.opt.y)
-	self:setContentSize(self.opt.width, self.opt.height)
+	self:setInnerSize(self.opt.width, self.opt.height)
 	self:setVisible(self.opt.visible)
 	self:setTouchable(self.opt.touchable)
 	self:setEnable(self.opt.enable)
 	self:setChecked(self.opt.checked)
+	self:updateVisualState()
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
 	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)

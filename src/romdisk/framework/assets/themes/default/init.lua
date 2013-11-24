@@ -4,8 +4,6 @@ end
 
 return {
 	button = {
-		width = 100,
-		height = 50,
 		imageNormal = D("button-normal.9.png"),
 		imagePressed = D("button-pressed.9.png"),
 		imageDisabled = D("button-disabled.9.png"),

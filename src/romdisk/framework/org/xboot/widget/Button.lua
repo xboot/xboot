@@ -16,8 +16,8 @@ function M:init(option, name)
 	self.opt = {}
 	self.opt.x = option.x or 0
 	self.opt.y = option.y or 0
-	self.opt.width = assert(option.width or theme.button.width)
-	self.opt.height = assert(option.height or theme.button.height)
+	self.opt.width = option.width
+	self.opt.height = option.height
 	self.opt.visible = option.visible or true
 	self.opt.touchable = option.touchable or true
 	self.opt.enable = option.enable or true
@@ -28,6 +28,11 @@ function M:init(option, name)
 	self.frameNormal = assets:loadDisplay(self.opt.imageNormal)
 	self.framePressed = assets:loadDisplay(self.opt.imagePressed)
 	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled)
+
+	local width, height = self.frameNormal:getInnerSize()
+	self.opt.width = self.opt.width or width
+	self.opt.height = self.opt.height or height
+
 	self.touchid = nil
 	self.state = M.STATE_NORMAL
 

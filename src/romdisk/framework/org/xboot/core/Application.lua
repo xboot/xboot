@@ -12,7 +12,7 @@ local M = Class()
 -- @return New 'Application' object.
 function M:init()
 	self.display = Display.new()
-	self.stage = DisplayObject.new()
+	self.stage = DisplayObject.new():setInnerSize(self:getScreenSize())
 	self.assets = Assets.new()
 	self.timermanager = TimerManager.new()
 	self.running = false

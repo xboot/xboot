@@ -16,8 +16,8 @@ function M:init(option, name)
 	self.opt = {}
 	self.opt.x = option.x or 0
 	self.opt.y = option.y or 0
-	self.opt.width = option.width
-	self.opt.height = option.height
+	self.opt.width = assert(option.width or theme.button.width)
+	self.opt.height = assert(option.height or theme.button.height)
 	self.opt.visible = option.visible or true
 	self.opt.touchable = option.touchable or true
 	self.opt.enable = option.enable or true
@@ -28,16 +28,15 @@ function M:init(option, name)
 	self.frameNormal = assets:loadDisplay(self.opt.imageNormal)
 	self.framePressed = assets:loadDisplay(self.opt.imagePressed)
 	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled)
-
 	self.touchid = nil
 	self.state = M.STATE_NORMAL
-	self:updateVisualState()
 
 	self:setPosition(self.opt.x, self.opt.y)
-	self:setContentSize(self.opt.width, self.opt.height)
+	self:setInnerSize(self.opt.width, self.opt.height)
 	self:setVisible(self.opt.visible)
 	self:setTouchable(self.opt.touchable)
 	self:setEnable(self.opt.enable)
+	self:updateVisualState()
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
 	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)
@@ -49,7 +48,8 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
 end
 
-function M:setContentSize(width, height)
+function M:setInnerSize(width, height)
+	self.super:setInnerSize(width, height)
 	self.frameNormal:setContentSize(width, height)
 	self.framePressed:setContentSize(width, height)
 	self.frameDisabled:setContentSize(width, height)

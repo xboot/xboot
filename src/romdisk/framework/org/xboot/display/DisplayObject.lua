@@ -401,10 +401,10 @@ end
 --
 -- @function [parent=#DisplayObject] setInnerSize
 -- @param self
--- @param w (number) The width of the display object.
--- @param h (number) The height of the display object.
-function M:setInnerSize(w, h)
-	self.object:setInnerSize(w, h)
+-- @param width (number) The width of the display object.
+-- @param height (number) The height of the display object.
+function M:setInnerSize(width, height)
+	self.object:setInnerSize(width, height)
 	return self
 end
 
@@ -426,7 +426,7 @@ end
 -- @param width (number) The new width of the display object.
 -- @param height (number) The new height of the display object.
 function M:setContentSize(width, height)
-	local w, h = self:getContentSize()
+	local w, h = self:getInnerSize()
 	if w > 0 and h > 0 then
 		local width = width or w
 		local height = height or h
@@ -506,14 +506,9 @@ end
 -- @param self
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
 -- @return rectangle has 4 values as x, y, w and h of bounds
-function M:getBounds(target, r)
+function M:getBounds(target)
 	local m = self:getTransformMatrix(target)
-	local r = r or Rectangle.new()
-	r:union(r, self.object:bounds(m))
-	for i, v in ipairs(self.children) do
-		v:getBounds(target, r)
-	end
-	return r
+	return self.object:bounds(m)
 end
 
 ---

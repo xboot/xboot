@@ -5,6 +5,30 @@
 -- @module DisplayObject
 local M = Class(EventDispatcher)
 
+M.ALIGN_NONE				= 0
+M.ALIGN_LEFT				= 1
+M.ALIGN_TOP					= 2
+M.ALIGN_RIGHT				= 3
+M.ALIGN_BOTTOM				= 4
+M.ALIGN_LEFT_TOP			= 5
+M.ALIGN_RIGHT_TOP			= 6
+M.ALIGN_LEFT_BOTTOM			= 7
+M.ALIGN_RIGHT_BOTTOM		= 8
+M.ALIGN_LEFT_CENTER			= 9
+M.ALIGN_TOP_CENTER			= 10
+M.ALIGN_RIGHT_CENTER		= 11
+M.ALIGN_BOTTOM_CENTER		= 12
+M.ALIGN_HORIZONTAL_CENTER	= 13
+M.ALIGN_VERTICAL_CENTER		= 14
+M.ALIGN_CENTER				= 15
+M.ALIGN_LEFT_FILL			= 16
+M.ALIGN_TOP_FILL			= 17
+M.ALIGN_RIGHT_FILL			= 18
+M.ALIGN_BOTTOM_FILL			= 19
+M.ALIGN_HORIZONTAL_FILL		= 20
+M.ALIGN_VERTICAL_FILL		= 21
+M.ALIGN_CENTER_FILL			= 22
+
 ---
 -- Creates a new display object.
 --
@@ -513,13 +537,13 @@ function M:getTransformMatrix(target)
 end
 
 ---
--- Returns a rectangle (as x, y, w and h) that encloses the display object as
+-- Returns a area (as x, y, w and h) that encloses the display object as
 -- it appears in another display object’s coordinate system.
 --
 -- @function [parent=#DisplayObject] getBounds
 -- @param self
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
--- @return rectangle has 4 values as x, y, w and h of bounds
+-- @return area has 4 values as x, y, w and h of bounds
 function M:getBounds(target)
 	local m = self:getTransformMatrix(target)
 	return self.object:bounds(m)
@@ -662,6 +686,20 @@ end
 -- @param self
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
+end
+
+---
+-- Layout display object and it's children to the screen.
+--
+-- @function [parent=#DisplayObject] layout
+-- @param self
+function M:layout()
+	for i, v in ipairs(self.children) do
+		if v:getVisible() then
+			self.object:layout(v.object)
+			v:layout()
+		end
+	end
 end
 
 ---

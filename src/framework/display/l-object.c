@@ -350,10 +350,8 @@ static int m_get_touchable(lua_State * L)
 	return 1;
 }
 
-static int m_get_matrix(lua_State * L)
+static cairo_matrix_t * __get_matrix(struct object_t * object)
 {
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	cairo_matrix_t * matrix = lua_newuserdata(L, sizeof(cairo_matrix_t));
 	cairo_matrix_t * m = &object->__matrix;
 	if(!object->__matrix_valid)
 	{
@@ -368,7 +366,14 @@ static int m_get_matrix(lua_State * L)
 			cairo_matrix_scale(m, object->scalex, object->scaley);
 		object->__matrix_valid = 1;
 	}
-	memcpy(matrix, m, sizeof(cairo_matrix_t));
+	return m;
+}
+
+static int m_get_matrix(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	cairo_matrix_t * matrix = lua_newuserdata(L, sizeof(cairo_matrix_t));
+	memcpy(matrix, __get_matrix(object), sizeof(cairo_matrix_t));
 	luaL_setmetatable(L, MT_NAME_MATRIX);
 	return 1;
 }
@@ -389,61 +394,148 @@ static int m_bounds(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_NAME_MATRIX);
-	struct rectangle_t * r = lua_newuserdata(L, sizeof(struct rectangle_t));
 	double x1 = 0;
 	double y1 = 0;
 	double x2 = object->iwidth;
 	double y2 = object->iheight;
 	_cairo_matrix_transform_bounding_box(matrix, &x1, &y1, &x2, &y2, NULL);
-	r->x = x1;
-	r->y = y1;
-	r->w = x2 - x1;
-	r->h = y2 - y1;
-	luaL_setmetatable(L, MT_NAME_RECTANGLE);
-	return 1;
+	lua_pushnumber(L, x1);
+	lua_pushnumber(L, y1);
+	lua_pushnumber(L, x2 - x1);
+	lua_pushnumber(L, y2 - y1);
+	return 4;
 }
 
 static int m_layout(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	struct object_t * child = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	double ox1 = 0;
+	double oy1 = 0;
+	double ox2 = object->iwidth;
+	double oy2 = object->iheight;
+	double cx1 = 0;
+	double cy1 = 0;
+	double cx2 = child->iwidth;
+	double cy2 = child->iheight;
+	double dx1, dy1;
+	double dx2, dy2;
+	double dw, dh;
+	double x1, y1, x2, y2;
+	_cairo_matrix_transform_bounding_box(__get_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
+
+	dx1 = ox1 - cx1;
+	dy1 = oy1 - cy1;
+	dx2 = ox2 - cx2;
+	dy2 = oy2 - cy2;
+	dw = (ox2 - ox1) - (cx2 - cx1);
+	dh = (oy2 - oy1) - (cy2 - cy1);
+
 	switch(child->alignment)
 	{
 	case ALIGN_NONE:
+		x1 = cx1;
+		y1 = cy1;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_LEFT:
+		x1 = cx1 + dx1;
+		y1 = cy1;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_TOP:
+		x1 = cx1;
+		y1 = cy1 + dy1;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_RIGHT:
+		x1 = cx1 + dx2;
+		y1 = cy1;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_BOTTOM:
+		x1 = cx1;
+		y1 = cy1 + dy2;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_LEFT_TOP:
+		x1 = cx1 + dx1;
+		y1 = cy1 + dy1;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_RIGHT_TOP:
+		x1 = cx1 + dx2;
+		y1 = cy1 + dy1;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_LEFT_BOTTOM:
+		x1 = cx1 + dx1;
+		y1 = cy1 + dy2;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_RIGHT_BOTTOM:
+		x1 = cx1 + dx2;
+		y1 = cy1 + dy2;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_LEFT_CENTER:
+		x1 = cx1 + dx1;
+		y1 = cy1 + dy1 + dh / 2;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_TOP_CENTER:
+		x1 = cx1 + dx1 + dw / 2;
+		y1 = cy1 + dy1;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_RIGHT_CENTER:
+		x1 = cx1 + dx2;
+		y1 = cy1 + dy1 + dh / 2;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_BOTTOM_CENTER:
+		x1 = cx1 + dx1 + dw / 2;
+		y1 = cy1 + dy2;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_HORIZONTAL_CENTER:
+		x1 = cx1 + dx1 + dw / 2;
+		y1 = cy1;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_VERTICAL_CENTER:
+		x1 = cx1;
+		y1 = cy1 + dy1 + dh / 2;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_CENTER:
+		x1 = cx1 + dx1 + dw / 2;
+		y1 = cy1 + dy1 + dh / 2;
+		x2 = cx2;
+		y2 = cy2;
 		break;
 	case ALIGN_LEFT_FILL:
 		break;
 	case ALIGN_TOP_FILL:
+/*		x1 = ox1;
+		y1 = oy1;
+		x2 = ox2;
+		y2 = ox1 + cy2 - cy1;*/
 		break;
 	case ALIGN_RIGHT_FILL:
 		break;
@@ -458,6 +550,23 @@ static int m_layout(lua_State * L)
 	default:
 		break;
 	}
+
+	/* set child position */
+	child->x = x1;
+	child->y = y1;
+	child->__translate = ((child->x != 0) || (child->y != 0)) ? 1 : 0;
+	child->__matrix_valid = 0;
+
+#if 0
+	/* set content size */
+	if(child->iwidth != 0 && child->iheight != 0)
+	{
+		child->scalex = (x2 - x1) / child->iwidth;
+		child->scaley = (y2 - y1) / child->iheight;
+		child->__scale = ((child->scalex != 1) || (child->scaley != 1)) ? 1 : 0;
+		child->__matrix_valid = 0;
+	}
+#endif
 	return 0;
 }
 

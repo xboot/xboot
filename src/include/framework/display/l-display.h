@@ -18,11 +18,6 @@ extern "C" {
 #define	MT_NAME_FONT		"mt_name_font"
 #define	MT_NAME_DISPLAY		"mt_name_display"
 
-struct rectangle_t {
-	double x, y;
-	double w, h;
-};
-
 struct ltexture_t {
 	cairo_surface_t * surface;
 };

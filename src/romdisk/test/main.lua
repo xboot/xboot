@@ -5,15 +5,25 @@ local width, height = application:getScreenSize()
 
 stage:addChild(DisplayShape.new(width, height):setSourceColor(0.8, 0.8, 0.8):paint())
 
--- Create the RadioButton
-local radiobutton = Widget.RadioButton.new({x = 100, y = 100})
-stage:addChild(radiobutton)
+local w = DisplayShape.new(400, 400):setAlignment(DisplayShape.ALIGN_NONE):setPosition(0, 0):setSourceColor(0.3, 0.3, 0.3):paint()
 
--- Create the CheckBox
-local checkbox = Widget.CheckBox.new({x = 300, y = 100})
-stage:addChild(checkbox)
+local w1 = DisplayShape.new(100, 100):setAlignment(DisplayShape.ALIGN_TOP):setPosition(100, 100):setSourceColor(0.7, 0, 0):paint()
+local w1s1 = DisplayShape.new(50, 50):setAlignment(DisplayShape.ALIGN_LEFT):setPosition(20, 20):setSourceColor(0.3, 0.8, 0.8):paint()
+local w1s2 = DisplayShape.new(50, 50):setAlignment(DisplayShape.ALIGN_RIGHT):setPosition(70, 70):setSourceColor(0.5, 0.7, 0.2):paint()
+w1:addChild(w1s1)
+w1:addChild(w1s2)
 
-checkbox:addEventListener("Change", function(d, e)
-	print("Checkbox changed:", e.info.checked)
-	radiobutton:setEnable(e.info.checked)
-end)
+local w2 = DisplayShape.new(100, 100):setAlignment(DisplayShape.ALIGN_CENTER):setPosition(200, 200):setSourceColor(0, 0.7, 0):paint()
+w:addChild(w1)
+w:addChild(w2)
+
+stage:addChild(w)
+
+-- Create the Button
+local button = Widget.Button.new({x = 200, y = 400, width = 100, height = 50})
+	:addEventListener("Click",
+	function(d, e)
+		print("Button [Click]")
+		w:layout()
+	end)
+stage:addChild(button)

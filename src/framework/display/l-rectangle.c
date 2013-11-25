@@ -30,6 +30,11 @@
 #define MAX(a, b)	((a) > (b) ? (a) : (b))
 #endif
 
+struct rectangle_t {
+	double x, y;
+	double w, h;
+};
+
 enum rectangle_align_t {
 	ALIGN_LEFT					= 0,
 	ALIGN_TOP					= 1,

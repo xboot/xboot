@@ -535,12 +535,8 @@ end
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
 -- @return 'true' if the given global coordinates are in bounds of the display object, 'false' otherwise.
 function M:hitTestPoint(x, y, target)
-	if self:getVisible() and self:getTouchable() then
-		local ox, oy = self:globalToLocal(x, y, target)
-		local r = self:getBounds(self)
-		return r:hitTestPoint(ox, oy)
-	end
-	return false
+	local ox, oy = self:globalToLocal(x, y, target)
+	return self.object:hitTestPoint(ox, oy)
 end
 
 ---

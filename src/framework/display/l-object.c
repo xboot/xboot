@@ -373,6 +373,18 @@ static int m_get_matrix(lua_State * L)
 	return 1;
 }
 
+static int m_hit_test_point(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	double ox = luaL_checknumber(L, 2);
+	double oy = luaL_checknumber(L, 3);
+	if(object->visible && object->touchable)
+		lua_pushboolean(L, ((ox >= 0) && (oy >= 0) && (ox <= object->iwidth) && (oy <= object->iheight)) ? 1 : 0);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+
 static int m_bounds(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -389,6 +401,64 @@ static int m_bounds(lua_State * L)
 	r->h = y2 - y1;
 	luaL_setmetatable(L, MT_NAME_RECTANGLE);
 	return 1;
+}
+
+static int m_layout(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct object_t * child = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	switch(child->alignment)
+	{
+	case ALIGN_NONE:
+		break;
+	case ALIGN_LEFT:
+		break;
+	case ALIGN_TOP:
+		break;
+	case ALIGN_RIGHT:
+		break;
+	case ALIGN_BOTTOM:
+		break;
+	case ALIGN_LEFT_TOP:
+		break;
+	case ALIGN_RIGHT_TOP:
+		break;
+	case ALIGN_LEFT_BOTTOM:
+		break;
+	case ALIGN_RIGHT_BOTTOM:
+		break;
+	case ALIGN_LEFT_CENTER:
+		break;
+	case ALIGN_TOP_CENTER:
+		break;
+	case ALIGN_RIGHT_CENTER:
+		break;
+	case ALIGN_BOTTOM_CENTER:
+		break;
+	case ALIGN_HORIZONTAL_CENTER:
+		break;
+	case ALIGN_VERTICAL_CENTER:
+		break;
+	case ALIGN_CENTER:
+		break;
+	case ALIGN_LEFT_FILL:
+		break;
+	case ALIGN_TOP_FILL:
+		break;
+	case ALIGN_RIGHT_FILL:
+		break;
+	case ALIGN_BOTTOM_FILL:
+		break;
+	case ALIGN_HORIZONTAL_FILL:
+		break;
+	case ALIGN_VERTICAL_FILL:
+		break;
+	case ALIGN_CENTER_FILL:
+		break;
+	default:
+		break;
+	}
+	return 0;
 }
 
 static const luaL_Reg m_object[] = {
@@ -421,7 +491,9 @@ static const luaL_Reg m_object[] = {
 	{"setTouchable",	m_set_touchable},
 	{"getTouchable",	m_get_touchable},
 	{"getMatrix",		m_get_matrix},
+	{"hitTestPoint",	m_hit_test_point},
 	{"bounds",			m_bounds},
+	{"layout",			m_layout},
 	{NULL,				NULL}
 };
 

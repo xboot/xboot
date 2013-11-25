@@ -24,6 +24,32 @@
 #include <cairoint.h>
 #include <framework/display/l-display.h>
 
+enum alignment_t {
+	ALIGN_NONE					= 0,
+	ALIGN_LEFT					= 1,
+	ALIGN_TOP					= 2,
+	ALIGN_RIGHT					= 3,
+	ALIGN_BOTTOM				= 4,
+	ALIGN_LEFT_TOP				= 5,
+	ALIGN_RIGHT_TOP				= 6,
+	ALIGN_LEFT_BOTTOM			= 7,
+	ALIGN_RIGHT_BOTTOM			= 8,
+	ALIGN_LEFT_CENTER			= 9,
+	ALIGN_TOP_CENTER			= 10,
+	ALIGN_RIGHT_CENTER			= 11,
+	ALIGN_BOTTOM_CENTER			= 12,
+	ALIGN_HORIZONTAL_CENTER		= 13,
+	ALIGN_VERTICAL_CENTER		= 14,
+	ALIGN_CENTER				= 15,
+	ALIGN_LEFT_FILL				= 16,
+	ALIGN_TOP_FILL				= 17,
+	ALIGN_RIGHT_FILL			= 18,
+	ALIGN_BOTTOM_FILL			= 19,
+	ALIGN_HORIZONTAL_FILL		= 20,
+	ALIGN_VERTICAL_FILL			= 21,
+	ALIGN_CENTER_FILL			= 22,
+};
+
 struct object_t {
 	double x, y;
 	double rotation;
@@ -31,6 +57,7 @@ struct object_t {
 	double anchorx, anchory;
 	double alpha;
 	double iwidth, iheight;
+	enum alignment_t alignment;
 	int visible;
 	int touchable;
 
@@ -56,6 +83,7 @@ static int l_object_new(lua_State * L)
 	object->alpha = 1;
 	object->iwidth = 0;
 	object->iheight = 0;
+	object->alignment = ALIGN_NONE;
 	object->visible = 1;
 	object->touchable = 1;
 
@@ -280,6 +308,20 @@ static int m_get_content_size(lua_State * L)
 	return 2;
 }
 
+static int m_set_alignment(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	object->alignment = (enum alignment_t)luaL_checkinteger(L, 2);
+	return 0;
+}
+
+static int m_get_alignment(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	lua_pushinteger(L, object->alignment);
+	return 1;
+}
+
 static int m_set_visible(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -372,6 +414,8 @@ static const luaL_Reg m_object[] = {
 	{"getInnerSize",	m_get_inner_size},
 	{"setContentSize",	m_set_content_size},
 	{"getContentSize",	m_get_content_size},
+	{"setAlignment",	m_set_alignment},
+	{"getAlignment",	m_get_alignment},
 	{"setVisible",		m_set_visible},
 	{"getVisible",		m_get_visible},
 	{"setTouchable",	m_set_touchable},

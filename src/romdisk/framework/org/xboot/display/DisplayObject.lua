@@ -354,6 +354,27 @@ function M:getAlpha()
 end
 
 ---
+-- Sets the alignment of this display object.
+--
+-- @function [parent=#DisplayObject] setAlignment
+-- @param self
+-- @param align the alignment of display object
+function M:setAlignment(align)
+	self.object:setAlignment(align)
+	return self
+end
+
+---
+-- Returns the alignment of this display object.
+--
+-- @function [parent=#DisplayObject] getAlignment
+-- @param self
+-- @return the alignment of display object
+function M:getAlignment()
+	return self.object:getAlignment()
+end
+
+---
 -- Sets whether or not the display object is visible. Display objects that are not visible are also taken
 -- into consideration while calculating bounds.
 --

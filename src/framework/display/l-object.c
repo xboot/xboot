@@ -350,7 +350,7 @@ static int m_get_touchable(lua_State * L)
 	return 1;
 }
 
-static cairo_matrix_t * __get_matrix(struct object_t * object)
+static inline cairo_matrix_t * __get_matrix(struct object_t * object)
 {
 	cairo_matrix_t * m = &object->__matrix;
 	if(!object->__matrix_valid)
@@ -406,6 +406,14 @@ static int m_bounds(lua_State * L)
 	return 4;
 }
 
+static void __object_translate(struct object_t * object, double dx, double dy)
+{
+	object->x = object->x + dx;
+	object->y = object->y + dy;
+	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
+	object->__matrix_valid = 0;
+}
+
 static int m_layout(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -418,124 +426,68 @@ static int m_layout(lua_State * L)
 	double cy1 = 0;
 	double cx2 = child->iwidth;
 	double cy2 = child->iheight;
-	double dx1, dy1;
-	double dx2, dy2;
-	double dw, dh;
-	double x1, y1, x2, y2;
-	_cairo_matrix_transform_bounding_box(__get_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
 
-	dx1 = ox1 - cx1;
-	dy1 = oy1 - cy1;
-	dx2 = ox2 - cx2;
-	dy2 = oy2 - cy2;
-	dw = (ox2 - ox1) - (cx2 - cx1);
-	dh = (oy2 - oy1) - (cy2 - cy1);
+	_cairo_matrix_transform_bounding_box(__get_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
+	double dx1 = ox1 - cx1;
+	double dy1 = oy1 - cy1;
+	double dx2 = ox2 - cx2;
+	double dy2 = oy2 - cy2;
+	double dw = (ox2 - ox1) - (cx2 - cx1);
+	double dh = (oy2 - oy1) - (cy2 - cy1);
 
 	switch(child->alignment)
 	{
 	case ALIGN_NONE:
-		x1 = cx1;
-		y1 = cy1;
-		x2 = cx2;
-		y2 = cy2;
 		break;
 	case ALIGN_LEFT:
-		x1 = cx1 + dx1;
-		y1 = cy1;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx1, 0);
 		break;
 	case ALIGN_TOP:
-		x1 = cx1;
-		y1 = cy1 + dy1;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, 0, dy1);
 		break;
 	case ALIGN_RIGHT:
-		x1 = cx1 + dx2;
-		y1 = cy1;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx2, 0);
 		break;
 	case ALIGN_BOTTOM:
-		x1 = cx1;
-		y1 = cy1 + dy2;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, 0, dy2);
 		break;
 	case ALIGN_LEFT_TOP:
-		x1 = cx1 + dx1;
-		y1 = cy1 + dy1;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx1, dy1);
 		break;
 	case ALIGN_RIGHT_TOP:
-		x1 = cx1 + dx2;
-		y1 = cy1 + dy1;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx2, dy1);
 		break;
 	case ALIGN_LEFT_BOTTOM:
-		x1 = cx1 + dx1;
-		y1 = cy1 + dy2;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx1, dy2);
 		break;
 	case ALIGN_RIGHT_BOTTOM:
-		x1 = cx1 + dx2;
-		y1 = cy1 + dy2;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx2, dy2);
 		break;
 	case ALIGN_LEFT_CENTER:
-		x1 = cx1 + dx1;
-		y1 = cy1 + dy1 + dh / 2;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx1, dy1 + dh / 2);
 		break;
 	case ALIGN_TOP_CENTER:
-		x1 = cx1 + dx1 + dw / 2;
-		y1 = cy1 + dy1;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx1 + dw / 2, dy1);
 		break;
 	case ALIGN_RIGHT_CENTER:
-		x1 = cx1 + dx2;
-		y1 = cy1 + dy1 + dh / 2;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx2, dy1 + dh / 2);
 		break;
 	case ALIGN_BOTTOM_CENTER:
-		x1 = cx1 + dx1 + dw / 2;
-		y1 = cy1 + dy2;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx1 + dw / 2, dy2);
 		break;
 	case ALIGN_HORIZONTAL_CENTER:
-		x1 = cx1 + dx1 + dw / 2;
-		y1 = cy1;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx1 + dw / 2, 0);
 		break;
 	case ALIGN_VERTICAL_CENTER:
-		x1 = cx1;
-		y1 = cy1 + dy1 + dh / 2;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, 0, dy1 + dh / 2);
 		break;
 	case ALIGN_CENTER:
-		x1 = cx1 + dx1 + dw / 2;
-		y1 = cy1 + dy1 + dh / 2;
-		x2 = cx2;
-		y2 = cy2;
+		__object_translate(child, dx1 + dw / 2, dy1 + dh / 2);
 		break;
+
 	case ALIGN_LEFT_FILL:
 		break;
 	case ALIGN_TOP_FILL:
-/*		x1 = ox1;
-		y1 = oy1;
-		x2 = ox2;
-		y2 = ox1 + cy2 - cy1;*/
 		break;
 	case ALIGN_RIGHT_FILL:
 		break;
@@ -550,23 +502,6 @@ static int m_layout(lua_State * L)
 	default:
 		break;
 	}
-
-	/* set child position */
-	child->x = x1;
-	child->y = y1;
-	child->__translate = ((child->x != 0) || (child->y != 0)) ? 1 : 0;
-	child->__matrix_valid = 0;
-
-#if 0
-	/* set content size */
-	if(child->iwidth != 0 && child->iheight != 0)
-	{
-		child->scalex = (x2 - x1) / child->iwidth;
-		child->scaley = (y2 - y1) / child->iheight;
-		child->__scale = ((child->scalex != 1) || (child->scaley != 1)) ? 1 : 0;
-		child->__matrix_valid = 0;
-	}
-#endif
 	return 0;
 }
 

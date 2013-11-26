@@ -12,7 +12,6 @@ pump = require("builtin.event").pump
 
 Stopwatch = require "builtin.stopwatch"
 Base64 = require "builtin.base64"
-Rectangle = require "builtin.rectangle"
 Matrix = require "builtin.matrix"
 Easing = require "builtin.easing"
 Object = require "builtin.object"

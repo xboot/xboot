@@ -8,7 +8,6 @@ extern "C" {
 #include <cairo.h>
 #include <framework/luahelper.h>
 
-#define	MT_NAME_RECTANGLE	"mt_name_rectangle"
 #define	MT_NAME_MATRIX		"mt_name_matrix"
 #define MT_NAME_EASING		"mt_name_easing"
 #define	MT_NAME_OBJECT		"mt_name_object"
@@ -22,7 +21,6 @@ struct ltexture_t {
 	cairo_surface_t * surface;
 };
 
-int luaopen_rectangle(lua_State * L);
 int luaopen_matrix(lua_State * L);
 int luaopen_easing(lua_State * L);
 int luaopen_object(lua_State * L);

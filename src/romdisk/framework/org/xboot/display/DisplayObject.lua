@@ -697,7 +697,7 @@ function M:layout()
 	local x1, y1, x2, y2
 	for i, v in ipairs(self.children) do
 		if v:getVisible() then
-			x1, y1, x2,y2 = self.object:layout(v.object, x1, y1, x2, y2)
+			x1, y1, x2, y2 = self.object:layout(v.object, x1, y1, x2, y2)
 			v:layout()
 		end
 	end

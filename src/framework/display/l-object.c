@@ -78,6 +78,27 @@ static void __object_translate(struct object_t * object, double dx, double dy)
 	object->__matrix_valid = 0;
 }
 
+static void __object_translate_fill(struct object_t * object, double x, double y, double w, double h)
+{
+	object->x = x;
+	object->y = y;
+	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
+
+	if(object->iwidth != 0 && object->iheight != 0)
+	{
+		object->scalex = w / object->iwidth;
+		object->scaley = h / object->iheight;
+		object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
+	}
+
+	object->rotation = 0;
+	object->__rotate = 0;
+	object->anchorx = 0;
+	object->anchory = 0;
+	object->__anchor = 0;
+	object->__matrix_valid = 0;
+}
+
 static inline cairo_matrix_t * __get_matrix(struct object_t * object)
 {
 	cairo_matrix_t * m = &object->__matrix;
@@ -418,83 +439,135 @@ static int m_layout(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	struct object_t * child = luaL_checkudata(L, 2, MT_NAME_OBJECT);
-	double ox1 = 0;
-	double oy1 = 0;
-	double ox2 = object->iwidth;
-	double oy2 = object->iheight;
-	double cx1 = 0;
-	double cy1 = 0;
-	double cx2 = child->iwidth;
-	double cy2 = child->iheight;
-	_cairo_matrix_transform_bounding_box(__get_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
-	switch(child->alignment)
-	{
-	case ALIGN_NONE:
-		break;
-	case ALIGN_LEFT:
-		__object_translate(child, ox1 - cx1, 0);
-		break;
-	case ALIGN_TOP:
-		__object_translate(child, 0, oy1 - cy1);
-		break;
-	case ALIGN_RIGHT:
-		__object_translate(child, ox2 - cx2, 0);
-		break;
-	case ALIGN_BOTTOM:
-		__object_translate(child, 0, oy2 - cy2);
-		break;
-	case ALIGN_LEFT_TOP:
-		__object_translate(child, ox1 - cx1, oy1 - cy1);
-		break;
-	case ALIGN_RIGHT_TOP:
-		__object_translate(child, ox2 - cx2, oy1 - cy1);
-		break;
-	case ALIGN_LEFT_BOTTOM:
-		__object_translate(child, ox1 - cx1, oy2 - cy2);
-		break;
-	case ALIGN_RIGHT_BOTTOM:
-		__object_translate(child, ox2 - cx2, oy2 - cy2);
-		break;
-	case ALIGN_LEFT_CENTER:
-		__object_translate(child, ox1 - cx1, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
-		break;
-	case ALIGN_TOP_CENTER:
-		__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1);
-		break;
-	case ALIGN_RIGHT_CENTER:
-		__object_translate(child, ox2 - cx2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
-		break;
-	case ALIGN_BOTTOM_CENTER:
-		__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy2 - cy2);
-		break;
-	case ALIGN_HORIZONTAL_CENTER:
-		__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, 0);
-		break;
-	case ALIGN_VERTICAL_CENTER:
-		__object_translate(child, 0, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
-		break;
-	case ALIGN_CENTER:
-		__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
-		break;
+	double rx1 = luaL_optnumber(L, 3, 0);
+	double ry1 = luaL_optnumber(L, 4, 0);
+	double rx2 = luaL_optnumber(L, 5, object->iwidth);
+	double ry2 = luaL_optnumber(L, 6, object->iheight);
 
-	case ALIGN_LEFT_FILL:
-		break;
-	case ALIGN_TOP_FILL:
-		break;
-	case ALIGN_RIGHT_FILL:
-		break;
-	case ALIGN_BOTTOM_FILL:
-		break;
-	case ALIGN_HORIZONTAL_FILL:
-		break;
-	case ALIGN_VERTICAL_FILL:
-		break;
-	case ALIGN_CENTER_FILL:
-		break;
-	default:
-		break;
+	if(child->alignment <= ALIGN_NONE)
+	{
 	}
-	return 0;
+	else if((child->alignment <= ALIGN_CENTER))
+	{
+		double ox1 = rx1;
+		double oy1 = ry1;
+		double ox2 = rx2;
+		double oy2 = ry2;
+		double cx1 = 0;
+		double cy1 = 0;
+		double cx2 = child->iwidth;
+		double cy2 = child->iheight;
+		_cairo_matrix_transform_bounding_box(__get_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
+
+		switch(child->alignment)
+		{
+		case ALIGN_LEFT:
+			__object_translate(child, ox1 - cx1, 0);
+			break;
+		case ALIGN_TOP:
+			__object_translate(child, 0, oy1 - cy1);
+			break;
+		case ALIGN_RIGHT:
+			__object_translate(child, ox2 - cx2, 0);
+			break;
+		case ALIGN_BOTTOM:
+			__object_translate(child, 0, oy2 - cy2);
+			break;
+		case ALIGN_LEFT_TOP:
+			__object_translate(child, ox1 - cx1, oy1 - cy1);
+			break;
+		case ALIGN_RIGHT_TOP:
+			__object_translate(child, ox2 - cx2, oy1 - cy1);
+			break;
+		case ALIGN_LEFT_BOTTOM:
+			__object_translate(child, ox1 - cx1, oy2 - cy2);
+			break;
+		case ALIGN_RIGHT_BOTTOM:
+			__object_translate(child, ox2 - cx2, oy2 - cy2);
+			break;
+		case ALIGN_LEFT_CENTER:
+			__object_translate(child, ox1 - cx1, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			break;
+		case ALIGN_TOP_CENTER:
+			__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1);
+			break;
+		case ALIGN_RIGHT_CENTER:
+			__object_translate(child, ox2 - cx2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			break;
+		case ALIGN_BOTTOM_CENTER:
+			__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy2 - cy2);
+			break;
+		case ALIGN_HORIZONTAL_CENTER:
+			__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, 0);
+			break;
+		case ALIGN_VERTICAL_CENTER:
+			__object_translate(child, 0, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			break;
+		case ALIGN_CENTER:
+			__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			break;
+		default:
+			break;
+		}
+	}
+	else if((child->alignment <= ALIGN_CENTER_FILL))
+	{
+		double w;
+		double h;
+
+		switch(child->alignment)
+		{
+		case ALIGN_LEFT_FILL:
+			w = child->iwidth * child->scalex;
+			h = ry2 - ry1;
+			__object_translate_fill(child, rx1, ry1, w, h);
+			rx1 += w;
+			break;
+		case ALIGN_TOP_FILL:
+			w = rx2 - rx1;
+			h = child->iheight * child->scaley;
+			__object_translate_fill(child, rx1, ry1, w, h);
+			ry1 += h;
+			break;
+		case ALIGN_RIGHT_FILL:
+			w = child->iwidth * child->scalex;
+			h = ry2 - ry1;
+			__object_translate_fill(child, rx2 - w, ry1, w, h);
+			rx2 -= w;
+			break;
+		case ALIGN_BOTTOM_FILL:
+			w = rx2 - rx1;
+			h = child->iheight * child->scaley;
+			__object_translate_fill(child, rx1, ry2 - h, w, h);
+			ry2 -= h;
+			break;
+		case ALIGN_HORIZONTAL_FILL:
+			w = rx2 - rx1;
+			h = child->iheight * child->scaley;
+			__object_translate_fill(child, rx1, child->y, w, h);
+			break;
+		case ALIGN_VERTICAL_FILL:
+			w = child->iwidth * child->scalex;
+			h = ry2 - ry1;
+			__object_translate_fill(child, child->x, ry1, w, h);
+			break;
+		case ALIGN_CENTER_FILL:
+			w = rx2 - rx1;
+			h = ry2 - ry1;
+			__object_translate_fill(child, rx1, ry1, w, h);
+			rx1 += w;
+			ry1 += h;
+			break;
+		default:
+			break;
+		}
+	}
+
+	lua_pushnumber(L, rx1);
+	lua_pushnumber(L, ry1);
+	lua_pushnumber(L, rx2);
+	lua_pushnumber(L, ry2);
+	return 4;
 }
 
 static const luaL_Reg m_object[] = {

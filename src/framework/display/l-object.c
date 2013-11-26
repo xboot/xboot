@@ -70,6 +70,33 @@ struct object_t {
 	cairo_matrix_t __matrix;
 };
 
+static void __object_translate(struct object_t * object, double dx, double dy)
+{
+	object->x = object->x + dx;
+	object->y = object->y + dy;
+	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
+	object->__matrix_valid = 0;
+}
+
+static inline cairo_matrix_t * __get_matrix(struct object_t * object)
+{
+	cairo_matrix_t * m = &object->__matrix;
+	if(!object->__matrix_valid)
+	{
+		cairo_matrix_init_identity(m);
+		if(object->__translate)
+			cairo_matrix_translate(m, object->x, object->y);
+		if(object->__rotate)
+			cairo_matrix_rotate(m, object->rotation);
+		if(object->__anchor)
+			cairo_matrix_translate(m, -object->anchorx * object->iwidth * object->scalex, -object->anchory * object->iheight * object->scaley);
+		if(object->__scale)
+			cairo_matrix_scale(m, object->scalex, object->scaley);
+		object->__matrix_valid = 1;
+	}
+	return m;
+}
+
 static int l_object_new(lua_State * L)
 {
 	struct object_t * object = lua_newuserdata(L, sizeof(struct object_t));
@@ -350,25 +377,6 @@ static int m_get_touchable(lua_State * L)
 	return 1;
 }
 
-static inline cairo_matrix_t * __get_matrix(struct object_t * object)
-{
-	cairo_matrix_t * m = &object->__matrix;
-	if(!object->__matrix_valid)
-	{
-		cairo_matrix_init_identity(m);
-		if(object->__translate)
-			cairo_matrix_translate(m, object->x, object->y);
-		if(object->__rotate)
-			cairo_matrix_rotate(m, object->rotation);
-		if(object->__anchor)
-			cairo_matrix_translate(m, -object->anchorx * object->iwidth * object->scalex, -object->anchory * object->iheight * object->scaley);
-		if(object->__scale)
-			cairo_matrix_scale(m, object->scalex, object->scaley);
-		object->__matrix_valid = 1;
-	}
-	return m;
-}
-
 static int m_get_matrix(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -406,14 +414,6 @@ static int m_bounds(lua_State * L)
 	return 4;
 }
 
-static void __object_translate(struct object_t * object, double dx, double dy)
-{
-	object->x = object->x + dx;
-	object->y = object->y + dy;
-	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
-	object->__matrix_valid = 0;
-}
-
 static int m_layout(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -426,63 +426,55 @@ static int m_layout(lua_State * L)
 	double cy1 = 0;
 	double cx2 = child->iwidth;
 	double cy2 = child->iheight;
-
 	_cairo_matrix_transform_bounding_box(__get_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
-	double dx1 = ox1 - cx1;
-	double dy1 = oy1 - cy1;
-	double dx2 = ox2 - cx2;
-	double dy2 = oy2 - cy2;
-	double dw = (ox2 - ox1) - (cx2 - cx1);
-	double dh = (oy2 - oy1) - (cy2 - cy1);
-
 	switch(child->alignment)
 	{
 	case ALIGN_NONE:
 		break;
 	case ALIGN_LEFT:
-		__object_translate(child, dx1, 0);
+		__object_translate(child, ox1 - cx1, 0);
 		break;
 	case ALIGN_TOP:
-		__object_translate(child, 0, dy1);
+		__object_translate(child, 0, oy1 - cy1);
 		break;
 	case ALIGN_RIGHT:
-		__object_translate(child, dx2, 0);
+		__object_translate(child, ox2 - cx2, 0);
 		break;
 	case ALIGN_BOTTOM:
-		__object_translate(child, 0, dy2);
+		__object_translate(child, 0, oy2 - cy2);
 		break;
 	case ALIGN_LEFT_TOP:
-		__object_translate(child, dx1, dy1);
+		__object_translate(child, ox1 - cx1, oy1 - cy1);
 		break;
 	case ALIGN_RIGHT_TOP:
-		__object_translate(child, dx2, dy1);
+		__object_translate(child, ox2 - cx2, oy1 - cy1);
 		break;
 	case ALIGN_LEFT_BOTTOM:
-		__object_translate(child, dx1, dy2);
+		__object_translate(child, ox1 - cx1, oy2 - cy2);
 		break;
 	case ALIGN_RIGHT_BOTTOM:
-		__object_translate(child, dx2, dy2);
+		__object_translate(child, ox2 - cx2, oy2 - cy2);
 		break;
 	case ALIGN_LEFT_CENTER:
-		__object_translate(child, dx1, dy1 + dh / 2);
+		__object_translate(child, ox1 - cx1, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
 		break;
 	case ALIGN_TOP_CENTER:
-		__object_translate(child, dx1 + dw / 2, dy1);
+		__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1);
 		break;
 	case ALIGN_RIGHT_CENTER:
-		__object_translate(child, dx2, dy1 + dh / 2);
+		__object_translate(child, ox2 - cx2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
 		break;
 	case ALIGN_BOTTOM_CENTER:
-		__object_translate(child, dx1 + dw / 2, dy2);
+		__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy2 - cy2);
 		break;
 	case ALIGN_HORIZONTAL_CENTER:
-		__object_translate(child, dx1 + dw / 2, 0);
+		__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, 0);
 		break;
 	case ALIGN_VERTICAL_CENTER:
-		__object_translate(child, 0, dy1 + dh / 2);
+		__object_translate(child, 0, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
 		break;
 	case ALIGN_CENTER:
-		__object_translate(child, dx1 + dw / 2, dy1 + dh / 2);
+		__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
 		break;
 
 	case ALIGN_LEFT_FILL:

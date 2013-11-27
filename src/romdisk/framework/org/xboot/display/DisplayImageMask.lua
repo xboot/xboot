@@ -11,15 +11,11 @@ local M = Class(DisplayObject)
 -- @function [parent=#DisplayImageMask] new
 -- @param texture (Texture) The texture object
 -- @param parttern (Parttern) The parttern for mask.
--- @param x (optional) The x coordinate of the display image.
--- @param y (optional) The y coordinate of the display image.
 -- @return #DisplayImageMask
-function M:init(texture, parttern, x, y)
+function M:init(texture, parttern)
 	self.super:init()
-
 	self:setTexture(texture)
 	self:setParttern(parttern or Parttern.color(1, 1, 1, 0))
-	self:setPosition(x or 0, y or 0)
 end
 
 ---

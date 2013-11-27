@@ -11,14 +11,10 @@ local M = Class(DisplayObject)
 -- @function [parent=#DisplayShape] new
 -- @param width (number) The width of drawing area in pixels.
 -- @param height (number) The height of drawing area in pixels.
--- @param x (optional) The x coordinate of the display shape.
--- @param y (optional) The y coordinate of the display shape.
 -- @return #DisplayShape
-function M:init(width, height, x, y)
+function M:init(width, height)
 	self.super:init()
-
 	self:setShape(Shape.new(width, height))
-	self:setPosition(x or 0, y or 0)
 end
 
 ---

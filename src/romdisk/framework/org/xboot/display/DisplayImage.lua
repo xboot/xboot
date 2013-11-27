@@ -10,14 +10,10 @@ local M = Class(DisplayObject)
 --
 -- @function [parent=#DisplayImage] new
 -- @param texture (Texture) The texture object
--- @param x (optional) The x coordinate of the display image.
--- @param y (optional) The y coordinate of the display image.
 -- @return #DisplayImage
-function M:init(texture, x, y)
+function M:init(texture)
 	self.super:init()
-
 	self:setTexture(texture)
-	self:setPosition(x or 0, y or 0)
 end
 
 ---

@@ -51,12 +51,12 @@ enum alignment_t {
 };
 
 struct object_t {
+	double width, height;
 	double x, y;
 	double rotation;
 	double scalex, scaley;
 	double anchorx, anchory;
 	double alpha;
-	double iwidth, iheight;
 	enum alignment_t alignment;
 	int visible;
 	int touchable;
@@ -84,10 +84,10 @@ static void __object_translate_fill(struct object_t * object, double x, double y
 	object->y = y;
 	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
 
-	if(object->iwidth != 0 && object->iheight != 0)
+	if(object->width != 0 && object->height != 0)
 	{
-		object->scalex = w / object->iwidth;
-		object->scaley = h / object->iheight;
+		object->scalex = w / object->width;
+		object->scaley = h / object->height;
 		object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
 	}
 
@@ -110,7 +110,7 @@ static inline cairo_matrix_t * __get_matrix(struct object_t * object)
 		if(object->__rotate)
 			cairo_matrix_rotate(m, object->rotation);
 		if(object->__anchor)
-			cairo_matrix_translate(m, -object->anchorx * object->iwidth * object->scalex, -object->anchory * object->iheight * object->scaley);
+			cairo_matrix_translate(m, -object->anchorx * object->width * object->scalex, -object->anchory * object->height * object->scaley);
 		if(object->__scale)
 			cairo_matrix_scale(m, object->scalex, object->scaley);
 		object->__matrix_valid = 1;
@@ -121,6 +121,8 @@ static inline cairo_matrix_t * __get_matrix(struct object_t * object)
 static int l_object_new(lua_State * L)
 {
 	struct object_t * object = lua_newuserdata(L, sizeof(struct object_t));
+	object->width = 0;
+	object->height = 0;
 	object->x = 0;
 	object->y = 0;
 	object->rotation = 0;
@@ -129,8 +131,6 @@ static int l_object_new(lua_State * L)
 	object->anchorx = 0;
 	object->anchory = 0;
 	object->alpha = 1;
-	object->iwidth = 0;
-	object->iheight = 0;
 	object->alignment = ALIGN_NONE;
 	object->visible = 1;
 	object->touchable = 1;
@@ -151,6 +151,24 @@ static const luaL_Reg l_object[] = {
 	{"new",	l_object_new},
 	{NULL,	NULL}
 };
+
+static int m_set_inner_size(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	double w = luaL_checknumber(L, 2);
+	double h = luaL_checknumber(L, 3);
+	object->width = w;
+	object->height = h;
+	return 0;
+}
+
+static int m_get_inner_size(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	lua_pushnumber(L, object->width);
+	lua_pushnumber(L, object->height);
+	return 2;
+}
 
 static int m_set_x(lua_State * L)
 {
@@ -316,46 +334,6 @@ static int m_get_alpha(lua_State * L)
 	return 1;
 }
 
-static int m_set_inner_size(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	double w = luaL_checknumber(L, 2);
-	double h = luaL_checknumber(L, 3);
-	object->iwidth = w;
-	object->iheight = h;
-	return 0;
-}
-
-static int m_get_inner_size(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	lua_pushnumber(L, object->iwidth);
-	lua_pushnumber(L, object->iheight);
-	return 2;
-}
-
-static int m_set_content_size(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	double width = luaL_optnumber(L, 2, object->iwidth);
-	double height = luaL_optnumber(L, 3, object->iheight);
-	if(object->iwidth == 0 || object->iheight == 0)
-		return 0;
-	object->scalex = width / object->iwidth;
-	object->scaley = height / object->iheight;
-	object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
-	object->__matrix_valid = 0;
-	return 0;
-}
-
-static int m_get_content_size(lua_State * L)
-{
-	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	lua_pushnumber(L, object->iwidth * object->scalex);
-	lua_pushnumber(L, object->iheight * object->scaley);
-	return 2;
-}
-
 static int m_set_alignment(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
@@ -413,7 +391,7 @@ static int m_hit_test_point(lua_State * L)
 	double ox = luaL_checknumber(L, 2);
 	double oy = luaL_checknumber(L, 3);
 	if(object->visible && object->touchable)
-		lua_pushboolean(L, ((ox >= 0) && (oy >= 0) && (ox <= object->iwidth) && (oy <= object->iheight)) ? 1 : 0);
+		lua_pushboolean(L, ((ox >= 0) && (oy >= 0) && (ox <= object->width) && (oy <= object->height)) ? 1 : 0);
 	else
 		lua_pushboolean(L, 0);
 	return 1;
@@ -425,8 +403,8 @@ static int m_bounds(lua_State * L)
 	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_NAME_MATRIX);
 	double x1 = 0;
 	double y1 = 0;
-	double x2 = object->iwidth;
-	double y2 = object->iheight;
+	double x2 = object->width;
+	double y2 = object->height;
 	_cairo_matrix_transform_bounding_box(matrix, &x1, &y1, &x2, &y2, NULL);
 	lua_pushnumber(L, x1);
 	lua_pushnumber(L, y1);
@@ -441,8 +419,8 @@ static int m_layout(lua_State * L)
 	struct object_t * child = luaL_checkudata(L, 2, MT_NAME_OBJECT);
 	double rx1 = luaL_optnumber(L, 3, 0);
 	double ry1 = luaL_optnumber(L, 4, 0);
-	double rx2 = luaL_optnumber(L, 5, object->iwidth);
-	double ry2 = luaL_optnumber(L, 6, object->iheight);
+	double rx2 = luaL_optnumber(L, 5, object->width);
+	double ry2 = luaL_optnumber(L, 6, object->height);
 
 	if(child->alignment <= ALIGN_NONE)
 	{
@@ -455,8 +433,8 @@ static int m_layout(lua_State * L)
 		double oy2 = ry2;
 		double cx1 = 0;
 		double cy1 = 0;
-		double cx2 = child->iwidth;
-		double cy2 = child->iheight;
+		double cx2 = child->width;
+		double cy2 = child->height;
 		_cairo_matrix_transform_bounding_box(__get_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
 
 		switch(child->alignment)
@@ -518,36 +496,36 @@ static int m_layout(lua_State * L)
 		switch(child->alignment)
 		{
 		case ALIGN_LEFT_FILL:
-			w = child->iwidth * child->scalex;
+			w = child->width * child->scalex;
 			h = ry2 - ry1;
 			__object_translate_fill(child, rx1, ry1, w, h);
 			rx1 += w;
 			break;
 		case ALIGN_TOP_FILL:
 			w = rx2 - rx1;
-			h = child->iheight * child->scaley;
+			h = child->height * child->scaley;
 			__object_translate_fill(child, rx1, ry1, w, h);
 			ry1 += h;
 			break;
 		case ALIGN_RIGHT_FILL:
-			w = child->iwidth * child->scalex;
+			w = child->width * child->scalex;
 			h = ry2 - ry1;
 			__object_translate_fill(child, rx2 - w, ry1, w, h);
 			rx2 -= w;
 			break;
 		case ALIGN_BOTTOM_FILL:
 			w = rx2 - rx1;
-			h = child->iheight * child->scaley;
+			h = child->height * child->scaley;
 			__object_translate_fill(child, rx1, ry2 - h, w, h);
 			ry2 -= h;
 			break;
 		case ALIGN_HORIZONTAL_FILL:
 			w = rx2 - rx1;
-			h = child->iheight * child->scaley;
+			h = child->height * child->scaley;
 			__object_translate_fill(child, rx1, child->y, w, h);
 			break;
 		case ALIGN_VERTICAL_FILL:
-			w = child->iwidth * child->scalex;
+			w = child->width * child->scalex;
 			h = ry2 - ry1;
 			__object_translate_fill(child, child->x, ry1, w, h);
 			break;
@@ -571,6 +549,8 @@ static int m_layout(lua_State * L)
 }
 
 static const luaL_Reg m_object[] = {
+	{"setInnerSize",	m_set_inner_size},
+	{"getInnerSize",	m_get_inner_size},
 	{"setX",			m_set_x},
 	{"getX",			m_get_x},
 	{"setY",			m_set_y},
@@ -589,10 +569,6 @@ static const luaL_Reg m_object[] = {
 	{"getAnchor",		m_get_archor},
 	{"setAlpha",		m_set_alpha},
 	{"getAlpha",		m_get_alpha},
-	{"setInnerSize",	m_set_inner_size},
-	{"getInnerSize",	m_get_inner_size},
-	{"setContentSize",	m_set_content_size},
-	{"getContentSize",	m_get_content_size},
 	{"setAlignment",	m_set_alignment},
 	{"getAlignment",	m_get_alignment},
 	{"setVisible",		m_set_visible},

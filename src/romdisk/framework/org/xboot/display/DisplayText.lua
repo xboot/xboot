@@ -16,7 +16,6 @@ local M = Class(DisplayObject)
 -- @return #DisplayText
 function M:init(font, size, parttern, text)
 	self.super:init()
-
 	self:setFont(font)
 	self:setFontSize(size or 10)
 	self:setParttern(parttern or Parttern.color())

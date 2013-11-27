@@ -12,10 +12,8 @@ local M = Class(DisplayObject)
 -- @param ninepatch (Table) The table of textures
 -- @param width (number) The width of drawing area in pixels.
 -- @param height (number) The height of drawing area in pixels.
--- @param x (optional) The x coordinate of the display nine patch.
--- @param y (optional) The y coordinate of the display nine patch.
 -- @return #DisplayNinePatch
-function M:init(ninepatch, width, height, x, y)
+function M:init(ninepatch, width, height)
 	self.super:init()
 	
 	assert(type(ninepatch) == "table")
@@ -46,43 +44,52 @@ function M:init(ninepatch, width, height, x, y)
 	self:addChild(self.mb)
 	self:addChild(self.rb)
 	
-	self:setContentSize(width, height)
-	self:setPosition(x or 0, y or 0)
+	self:setInnerSize(self.width, self.height)
+	self:resize(width, height)
+end
+
+local function SETCONTENTSIZE(obj, width, height)
+	local w, h = obj:getInnerSize()
+	if w > 0 and h > 0 then
+		local width = width or w
+		local height = height or h
+		obj:setScale(width / w, height / h)
+	end
 end
 
 ---
 -- Rechange the width and height in pixels.
 --
--- @function [parent=#DisplayObject] setContentSize
+-- @function [parent=#DisplayObject] resize
 -- @param self
 -- @param width (number) The new width.
 -- @param height (number) The new height.
-function M:setContentSize(width, height)
+function M:resize(width, height)
 	local width = width or self.width
 	local height = height or self.height
 	local w = width - self.left - self.right
 	local h = height - self.top - self.bottom
 	
 	self.lt:setPosition(0, 0)
-	self.lt:setContentSize(self.left, self.top)
+	SETCONTENTSIZE(self.lt, self.left, self.top)
 	self.mt:setPosition(self.left, 0)
-	self.mt:setContentSize(w, self.top)
+	SETCONTENTSIZE(self.mt, w, self.top)
 	self.rt:setPosition(self.left + w, 0)
-	self.rt:setContentSize(self.right, self.top)
+	SETCONTENTSIZE(self.rt, self.right, self.top)
 	
 	self.lm:setPosition(0, self.top)
-	self.lm:setContentSize(self.left, h)
+	SETCONTENTSIZE(self.lm, self.left, h)
 	self.mm:setPosition(self.left, self.top)
-	self.mm:setContentSize(w, h)
+	SETCONTENTSIZE(self.mm, w, h)
 	self.rm:setPosition(self.left + w, self.top)
-	self.rm:setContentSize(self.right, h)
+	SETCONTENTSIZE(self.rm, self.right, h)
 	
 	self.lb:setPosition(0, self.top + h)
-	self.lb:setContentSize(self.left, self.bottom)
+	SETCONTENTSIZE(self.lb, self.left, self.bottom)
 	self.mb:setPosition(self.left, self.top + h)
-	self.mb:setContentSize(w, self.bottom)
+	SETCONTENTSIZE(self.mb, w, self.bottom)
 	self.rb:setPosition(self.left + w, self.top + h)
-	self.rb:setContentSize(self.right, self.bottom)
+	SETCONTENTSIZE(self.rb, self.right, self.bottom)
 
 	return self
 end

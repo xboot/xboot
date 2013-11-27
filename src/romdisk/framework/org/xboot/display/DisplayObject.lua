@@ -33,13 +33,15 @@ M.ALIGN_CENTER_FILL			= 22
 -- Creates a new display object.
 --
 -- @function [parent=#DisplayObject] new
+-- @param width (number) The inner width of the display object in pixels.
+-- @param height (number) The inner height of the display object in pixels.
 -- @return #DisplayObject
-function M:init()
+function M:init(width, height)
 	self.super:init()
-
 	self.parent = nil
 	self.children = {}
 	self.object = Object.new()
+	self.object:setInnerSize(width or 0, height or 0)
 end
 
 ---
@@ -183,6 +185,28 @@ function M:toBack()
 	self.parent = parent
 
 	return true
+end
+
+---
+-- Sets the width and height of the display object in pixels. (Inner, No transform matrix)
+--
+-- @function [parent=#DisplayObject] setInnerSize
+-- @param self
+-- @param width (number) The width of the display object.
+-- @param height (number) The height of the display object.
+function M:setInnerSize(width, height)
+	self.object:setInnerSize(width, height)
+	return self
+end
+
+---
+-- Returns the width and height of the display object in pixels. (Inner, No transform matrix)
+--
+-- @function [parent=#DisplayObject] getInnerSize
+-- @param self
+-- @return The width and height of the display object.
+function M:getInnerSize()
+	return self.object:getInnerSize()
 end
 
 ---
@@ -439,51 +463,6 @@ end
 -- @return A value of 'true' if display object is touchable; 'false' otherwise.
 function M:getTouchable()
 	return self.object:getTouchable()
-end
-
----
--- Sets the width and height of the display object in pixels. (Inner, No transform matrix)
---
--- @function [parent=#DisplayObject] setInnerSize
--- @param self
--- @param width (number) The width of the display object.
--- @param height (number) The height of the display object.
-function M:setInnerSize(width, height)
-	self.object:setInnerSize(width, height)
-	return self
-end
-
----
--- Returns the width and height of the display object in pixels. (Inner, No transform matrix)
---
--- @function [parent=#DisplayObject] getInnerSize
--- @param self
--- @return The width and height of the display object.
-function M:getInnerSize()
-	return self.object:getInnerSize()
-end
-
----
--- Sets the size of the display object in pixels.
---
--- @function [parent=#DisplayObject] setContentSize
--- @param self
--- @param width (number) The new width of the display object.
--- @param height (number) The new height of the display object.
-function M:setContentSize(width, height)
-	self.object:setContentSize(width, height)
-	return self
-end
-
----
--- Returns the size of the display object in pixels. The size is calculated based on the
--- bounds of the content of the display object.
---
--- @function [parent=#DisplayObject] getContentSize
--- @param self
--- @return Size of the display object.
-function M:getContentSize()
-	return self.object:getContentSize()
 end
 
 ---

@@ -29,6 +29,10 @@ function M:init(option, name)
 	self.framePressed = assets:loadDisplay(self.opt.imagePressed)
 	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled)
 
+	self.frameNormal:setAlignment(self.ALIGN_CENTER_FILL)
+	self.framePressed:setAlignment(self.ALIGN_CENTER_FILL)
+	self.frameDisabled:setAlignment(self.ALIGN_CENTER_FILL)
+
 	local width, height = self.frameNormal:getInnerSize()
 	self.opt.width = self.opt.width or width
 	self.opt.height = self.opt.height or height
@@ -51,14 +55,6 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCHES_MOVE, self.onTouchesMove, self)
 	self:addEventListener(Event.TOUCHES_END, self.onTouchesEnd, self)
 	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
-end
-
-function M:setInnerSize(width, height)
-	self.super:setInnerSize(width, height)
-	self.frameNormal:setContentSize(width, height)
-	self.framePressed:setContentSize(width, height)
-	self.frameDisabled:setContentSize(width, height)
-	return self
 end
 
 function M:setEnable(enable)
@@ -193,6 +189,7 @@ function M:updateVisualState()
 			self:addChild(self.frameDisabled)
 		end
 	end
+	self:layout()
 end
 
 return M

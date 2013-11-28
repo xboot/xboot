@@ -441,39 +441,55 @@ static int m_layout(lua_State * L)
 		{
 		case ALIGN_LEFT:
 			__object_translate(child, ox1 - cx1, 0);
+			rx1 += cx2 - cx1;
 			break;
 		case ALIGN_TOP:
 			__object_translate(child, 0, oy1 - cy1);
+			ry1 += cy2 - cy1;
 			break;
 		case ALIGN_RIGHT:
 			__object_translate(child, ox2 - cx2, 0);
+			rx2 -= cx2 - cx1;
 			break;
 		case ALIGN_BOTTOM:
 			__object_translate(child, 0, oy2 - cy2);
+			ry2 -= cy2 - cy1;
 			break;
 		case ALIGN_LEFT_TOP:
 			__object_translate(child, ox1 - cx1, oy1 - cy1);
+			rx1 += cx2 - cx1;
+			ry1 += cy2 - cy1;
 			break;
 		case ALIGN_RIGHT_TOP:
 			__object_translate(child, ox2 - cx2, oy1 - cy1);
+			rx2 -= cx2 - cx1;
+			ry1 += cy2 - cy1;
 			break;
 		case ALIGN_LEFT_BOTTOM:
 			__object_translate(child, ox1 - cx1, oy2 - cy2);
+			rx1 += cx2 - cx1;
+			ry2 -= cy2 - cy1;
 			break;
 		case ALIGN_RIGHT_BOTTOM:
 			__object_translate(child, ox2 - cx2, oy2 - cy2);
+			rx2 -= cx2 - cx1;
+			ry2 -= cy2 - cy1;
 			break;
 		case ALIGN_LEFT_CENTER:
 			__object_translate(child, ox1 - cx1, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			rx1 += cx2 - cx1;
 			break;
 		case ALIGN_TOP_CENTER:
 			__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1);
+			ry1 += cy2 - cy1;
 			break;
 		case ALIGN_RIGHT_CENTER:
 			__object_translate(child, ox2 - cx2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			rx2 -= cx2 - cx1;
 			break;
 		case ALIGN_BOTTOM_CENTER:
 			__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy2 - cy2);
+			ry2 -= cy2 - cy1;
 			break;
 		case ALIGN_HORIZONTAL_CENTER:
 			__object_translate(child, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, 0);

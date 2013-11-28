@@ -152,7 +152,7 @@ static const luaL_Reg l_object[] = {
 	{NULL,	NULL}
 };
 
-static int m_set_inner_size(lua_State * L)
+static int m_set_size(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	double w = luaL_checknumber(L, 2);
@@ -162,7 +162,7 @@ static int m_set_inner_size(lua_State * L)
 	return 0;
 }
 
-static int m_get_inner_size(lua_State * L)
+static int m_get_size(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	lua_pushnumber(L, object->width);
@@ -565,8 +565,8 @@ static int m_layout(lua_State * L)
 }
 
 static const luaL_Reg m_object[] = {
-	{"setInnerSize",	m_set_inner_size},
-	{"getInnerSize",	m_get_inner_size},
+	{"setSize",			m_set_size},
+	{"getSize",			m_get_size},
 	{"setX",			m_set_x},
 	{"getX",			m_get_x},
 	{"setY",			m_set_y},

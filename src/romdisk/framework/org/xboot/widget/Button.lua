@@ -33,7 +33,7 @@ function M:init(option, name)
 	self.framePressed:setAlignment(self.ALIGN_CENTER_FILL)
 	self.frameDisabled:setAlignment(self.ALIGN_CENTER_FILL)
 
-	local width, height = self.frameNormal:getInnerSize()
+	local width, height = self.frameNormal:getSize()
 	self.opt.width = self.opt.width or width
 	self.opt.height = self.opt.height or height
 
@@ -41,7 +41,7 @@ function M:init(option, name)
 	self.state = M.STATE_NORMAL
 
 	self:setPosition(self.opt.x, self.opt.y)
-	self:setInnerSize(self.opt.width, self.opt.height)
+	self:setSize(self.opt.width, self.opt.height)
 	self:setVisible(self.opt.visible)
 	self:setTouchable(self.opt.touchable)
 	self:setEnable(self.opt.enable)

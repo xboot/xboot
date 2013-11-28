@@ -100,7 +100,7 @@ function M:setText(text)
 	if text and self.font then
 		local w, h = self.font:size(text)
 		self.text = text
-		self:setInnerSize(w, h)
+		self:setSize(w, h)
 	end
 	return self
 end

@@ -27,7 +27,7 @@ function M:setShape(shape)
 	if shape then
 		local w, h = shape:size()
 		self.shape = shape
-		self:setInnerSize(w, h)
+		self:setSize(w, h)
 	end
 	return self
 end

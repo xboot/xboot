@@ -33,15 +33,15 @@ M.ALIGN_CENTER_FILL			= 22
 -- Creates a new display object.
 --
 -- @function [parent=#DisplayObject] new
--- @param width (number) The inner width of the display object in pixels.
--- @param height (number) The inner height of the display object in pixels.
+-- @param width (number) The width of the display object in pixels.
+-- @param height (number) The height of the display object in pixels.
 -- @return #DisplayObject
 function M:init(width, height)
 	self.super:init()
 	self.parent = nil
 	self.children = {}
 	self.object = Object.new()
-	self.object:setInnerSize(width or 0, height or 0)
+	self.object:setSize(width or 0, height or 0)
 end
 
 ---
@@ -190,23 +190,23 @@ end
 ---
 -- Sets the width and height of the display object in pixels. (Inner, No transform matrix)
 --
--- @function [parent=#DisplayObject] setInnerSize
+-- @function [parent=#DisplayObject] setSize
 -- @param self
 -- @param width (number) The width of the display object.
 -- @param height (number) The height of the display object.
-function M:setInnerSize(width, height)
-	self.object:setInnerSize(width, height)
+function M:setSize(width, height)
+	self.object:setSize(width, height)
 	return self
 end
 
 ---
 -- Returns the width and height of the display object in pixels. (Inner, No transform matrix)
 --
--- @function [parent=#DisplayObject] getInnerSize
+-- @function [parent=#DisplayObject] getSize
 -- @param self
 -- @return The width and height of the display object.
-function M:getInnerSize()
-	return self.object:getInnerSize()
+function M:getSize()
+	return self.object:getSize()
 end
 
 ---

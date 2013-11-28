@@ -27,10 +27,10 @@ function M:init(ninepatch, width, height)
 	self.mb = DisplayImage.new(assert(ninepatch.mb))
 	self.rb = DisplayImage.new(assert(ninepatch.rb))
 
-	self.left, self.top = self.lt:getInnerSize()
-	self.right, self.bottom = self.rb:getInnerSize()
+	self.left, self.top = self.lt:getSize()
+	self.right, self.bottom = self.rb:getSize()
 	
-	local mw, mh = self.mm:getInnerSize()
+	local mw, mh = self.mm:getSize()
 	self.width = self.left + self.right + mw
 	self.height = self.top + self.bottom + mh
 	
@@ -44,12 +44,12 @@ function M:init(ninepatch, width, height)
 	self:addChild(self.mb)
 	self:addChild(self.rb)
 	
-	self:setInnerSize(self.width, self.height)
+	self:setSize(self.width, self.height)
 	self:resize(width, height)
 end
 
 local function SETCONTENTSIZE(obj, width, height)
-	local w, h = obj:getInnerSize()
+	local w, h = obj:getSize()
 	if w > 0 and h > 0 then
 		local width = width or w
 		local height = height or h

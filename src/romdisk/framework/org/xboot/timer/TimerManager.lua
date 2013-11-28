@@ -97,8 +97,8 @@ function M:schedule(dt)
 				v.listener(v, {time = v.__time, count = v.__count})
 
 				v.__time = 0
-				if v.iteration ~= 0 and v.count >= v.iteration then
-					self:delTimer(v)
+				if v.iteration ~= 0 and v.__count >= v.iteration then
+					self:removeTimer(v)
 				end
 			end
 		end

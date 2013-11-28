@@ -29,9 +29,9 @@ function M:init(option, name)
 	self.framePressed = assets:loadDisplay(self.opt.imagePressed)
 	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled)
 
-	self.frameNormal:setAlignment(self.ALIGN_CENTER_FILL)
-	self.framePressed:setAlignment(self.ALIGN_CENTER_FILL)
-	self.frameDisabled:setAlignment(self.ALIGN_CENTER_FILL)
+	self.frameNormal:setAlignment(Object.ALIGN_CENTER_FILL)
+	self.framePressed:setAlignment(Object.ALIGN_CENTER_FILL)
+	self.frameDisabled:setAlignment(Object.ALIGN_CENTER_FILL)
 
 	local width, height = self.frameNormal:getSize()
 	self.opt.width = self.opt.width or width

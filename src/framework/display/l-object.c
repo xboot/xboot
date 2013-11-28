@@ -601,6 +601,30 @@ static const luaL_Reg m_object[] = {
 int luaopen_object(lua_State * L)
 {
 	luaL_newlib(L, l_object);
+	/* enum alignment_t */
+	luahelper_set_intfield(L, "ALIGN_NONE", 				ALIGN_NONE);
+	luahelper_set_intfield(L, "ALIGN_LEFT", 				ALIGN_LEFT);
+	luahelper_set_intfield(L, "ALIGN_TOP", 					ALIGN_TOP);
+	luahelper_set_intfield(L, "ALIGN_RIGHT", 				ALIGN_RIGHT);
+	luahelper_set_intfield(L, "ALIGN_BOTTOM", 				ALIGN_BOTTOM);
+	luahelper_set_intfield(L, "ALIGN_LEFT_TOP", 			ALIGN_LEFT_TOP);
+	luahelper_set_intfield(L, "ALIGN_RIGHT_TOP", 			ALIGN_RIGHT_TOP);
+	luahelper_set_intfield(L, "ALIGN_LEFT_BOTTOM", 			ALIGN_LEFT_BOTTOM);
+	luahelper_set_intfield(L, "ALIGN_RIGHT_BOTTOM", 		ALIGN_RIGHT_BOTTOM);
+	luahelper_set_intfield(L, "ALIGN_LEFT_CENTER", 			ALIGN_LEFT_CENTER);
+	luahelper_set_intfield(L, "ALIGN_TOP_CENTER", 			ALIGN_TOP_CENTER);
+	luahelper_set_intfield(L, "ALIGN_RIGHT_CENTER", 		ALIGN_RIGHT_CENTER);
+	luahelper_set_intfield(L, "ALIGN_BOTTOM_CENTER",		ALIGN_BOTTOM_CENTER);
+	luahelper_set_intfield(L, "ALIGN_HORIZONTAL_CENTER",	ALIGN_HORIZONTAL_CENTER);
+	luahelper_set_intfield(L, "ALIGN_VERTICAL_CENTER", 		ALIGN_VERTICAL_CENTER);
+	luahelper_set_intfield(L, "ALIGN_CENTER", 				ALIGN_CENTER);
+	luahelper_set_intfield(L, "ALIGN_LEFT_FILL", 			ALIGN_LEFT_FILL);
+	luahelper_set_intfield(L, "ALIGN_TOP_FILL", 			ALIGN_TOP_FILL);
+	luahelper_set_intfield(L, "ALIGN_RIGHT_FILL", 			ALIGN_RIGHT_FILL);
+	luahelper_set_intfield(L, "ALIGN_BOTTOM_FILL", 			ALIGN_BOTTOM_FILL);
+	luahelper_set_intfield(L, "ALIGN_HORIZONTAL_FILL", 		ALIGN_HORIZONTAL_FILL);
+	luahelper_set_intfield(L, "ALIGN_VERTICAL_FILL", 		ALIGN_VERTICAL_FILL);
+	luahelper_set_intfield(L, "ALIGN_CENTER_FILL", 			ALIGN_CENTER_FILL);
 	luahelper_create_metatable(L, MT_NAME_OBJECT, m_object);
 	return 1;
 }

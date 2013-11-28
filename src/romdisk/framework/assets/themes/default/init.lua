@@ -26,4 +26,13 @@ return {
 		imageOffPressed = D("radiobutton-off-pressed.png"),
 		imageOffDisabled = D("radiobutton-off-disabled.png"),
 	},
+	
+	stepper = {
+		imageMinusNormal = D("stepper-minus-normal.png"),
+		imageMinusPressed = D("stepper-minus-pressed.png"),
+		imageMinusDisabled = D("stepper-minus-disabled.png"),
+		imagePlusNormal = D("stepper-plus-normal.png"),
+		imagePlusPressed = D("stepper-plus-pressed.png"),
+		imagePlusDisabled = D("stepper-plus-disabled.png"),
+	},
 }

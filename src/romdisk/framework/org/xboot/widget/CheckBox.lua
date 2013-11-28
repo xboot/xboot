@@ -25,10 +25,10 @@ function M:init(option, name)
 
 	self.opt.imageOnNormal = assert(option.imageOnNormal or theme.checkbox.imageOnNormal)
 	self.opt.imageOnPressed = assert(option.imageOnPressed or theme.checkbox.imageOnPressed)
-	self.opt.imageOnDisabled = assert(option.imageOnPressed or theme.checkbox.imageOnDisabled)
+	self.opt.imageOnDisabled = assert(option.imageOnDisabled or theme.checkbox.imageOnDisabled)
 	self.opt.imageOffNormal = assert(option.imageOffNormal or theme.checkbox.imageOffNormal)
 	self.opt.imageOffPressed = assert(option.imageOffPressed or theme.checkbox.imageOffPressed)
-	self.opt.imageOffDisabled = assert(option.imageOffPressed or theme.checkbox.imageOffDisabled)
+	self.opt.imageOffDisabled = assert(option.imageOffDisabled or theme.checkbox.imageOffDisabled)
 
 	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal)
 	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed)

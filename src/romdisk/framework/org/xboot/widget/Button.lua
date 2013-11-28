@@ -23,7 +23,7 @@ function M:init(option, name)
 	self.opt.enable = option.enable or true
 	self.opt.imageNormal = assert(option.imageNormal or theme.button.imageNormal)
 	self.opt.imagePressed = assert(option.imagePressed or theme.button.imagePressed)
-	self.opt.imageDisabled = assert(option.imagePressed or theme.button.imageDisabled)
+	self.opt.imageDisabled = assert(option.imageDisabled or theme.button.imageDisabled)
 
 	self.frameNormal = assets:loadDisplay(self.opt.imageNormal)
 	self.framePressed = assets:loadDisplay(self.opt.imagePressed)

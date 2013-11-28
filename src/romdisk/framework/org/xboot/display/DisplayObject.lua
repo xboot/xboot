@@ -40,6 +40,16 @@ function M:contains(child)
 end
 
 ---
+-- Returns the display object that contains this display object.
+-- 
+-- @function [parent=#DisplayObject] getParent
+-- @param self
+-- @return The parent display object.
+function M:getParent()
+	return self.parent
+end
+
+---
 -- Adds a display object as a child to this display object. The child
 -- is added as a last child of this 'DisplayObject' instance.
 --

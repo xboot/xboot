@@ -57,6 +57,12 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
 end
 
+function M:setSize(width, height)
+	self.super:setSize(width, height)
+	self:updateVisualState()
+	return self
+end
+
 function M:setEnable(enable)
 	if enable then
 		self.state = self.STATE_NORMAL

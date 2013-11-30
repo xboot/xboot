@@ -35,4 +35,13 @@ return {
 		imagePlusPressed = D("stepper-plus-pressed.png"),
 		imagePlusDisabled = D("stepper-plus-disabled.png"),
 	},
+
+	slider = {
+		imagePrimary = D("slider-primary.9.png"),
+		imageSecondary = D("slider-secondary.9.png"),
+		imageTrack = D("slider-track.9.png"),
+		imageHandleNormal = D("slider-handle-normal.png"),
+		imageHandlePressed = D("slider-handle-pressed.png"),
+		imageHandleDisabled = D("slider-handle-disabled.png"),
+	},
 }

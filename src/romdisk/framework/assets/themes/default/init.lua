@@ -37,11 +37,10 @@ return {
 	},
 
 	slider = {
-		imagePrimary = D("slider-primary.9.png"),
-		imageSecondary = D("slider-secondary.9.png"),
 		imageTrack = D("slider-track.9.png"),
-		imageHandleNormal = D("slider-handle-normal.png"),
-		imageHandlePressed = D("slider-handle-pressed.png"),
-		imageHandleDisabled = D("slider-handle-disabled.png"),
+		imageBackground = D("slider-background.9.png"),
+		imageThumbNormal = D("slider-thumb-normal.png"),
+		imageThumbPressed = D("slider-thumb-pressed.png"),
+		imageThumbDisabled = D("slider-thumb-disabled.png"),
 	},
 }

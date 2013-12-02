@@ -71,6 +71,7 @@ Widget = {
 	CheckBox = require "org.xboot.widget.CheckBox",
 	RadioButton = require "org.xboot.widget.RadioButton",
 	Stepper = require "org.xboot.widget.Stepper",
+	Slider = require "org.xboot.widget.Slider",
 }
 
 ---

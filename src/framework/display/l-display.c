@@ -175,6 +175,39 @@ static int m_display_draw_texture_mask(lua_State * L)
 	return 0;
 }
 
+static int m_display_draw_ninepatch(lua_State * L)
+{
+	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ninepatch_t * ninepatch = luaL_checkudata(L, 2, MT_NAME_NINEPATCH);
+	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
+	double alpha = luaL_optnumber(L, 4, 1.0);
+	cairo_t * cr = display->cr[display->index];
+
+	double w = ninepatch->width - ninepatch->left - ninepatch->right;
+	double h = ninepatch->height - ninepatch->top - ninepatch->bottom;
+
+	cairo_save(cr);
+	cairo_set_matrix(cr, matrix);
+
+	cairo_set_source_surface(cr, ninepatch->lt, 0, 0);
+//	cairo_set_source_surface(cr, ninepatch->mt, ninepatch->left, 0);
+	cairo_set_source_surface(cr, ninepatch->rt, ninepatch->left + w, 0);
+/*
+	cairo_set_source_surface(cr, ninepatch->lm, 0, ninepatch->top);
+	cairo_set_source_surface(cr, ninepatch->mm, ninepatch->left, ninepatch->top);
+	cairo_set_source_surface(cr, ninepatch->rm, ninepatch->left + w, ninepatch->top);
+
+	cairo_set_source_surface(cr, ninepatch->lb, 0, ninepatch->top + h);
+	cairo_set_source_surface(cr, ninepatch->mb, ninepatch->left, ninepatch->top + h);
+	cairo_set_source_surface(cr, ninepatch->rb, ninepatch->left + w, ninepatch->top + h);
+*/
+	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+	cairo_paint_with_alpha(cr, alpha);
+	cairo_restore(cr);
+//	LOG("w=%f,h=%f", ninepatch->width, ninepatch->height);
+	return 0;
+}
+
 static int m_display_present(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
@@ -192,6 +225,7 @@ static const luaL_Reg m_display[] = {
 	{"drawText",		m_display_draw_text},
 	{"drawTexture",		m_display_draw_texture},
 	{"drawTextureMask",	m_display_draw_texture_mask},
+	{"drawNinepatch",	m_display_draw_ninepatch},
 	{"present",			m_display_present},
 	{NULL,				NULL}
 };

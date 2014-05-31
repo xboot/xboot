@@ -59,6 +59,9 @@ end
 
 function M:setSize(width, height)
 	self.super:setSize(width, height)
+	self.frameNormal:setSize(width, height)
+	self.framePressed:setSize(width, height)
+	self.frameDisabled:setSize(width, height)
 	self:updateVisualState()
 	return self
 end

@@ -483,6 +483,23 @@ function M:localToGlobal(x, y, target)
 end
 
 ---
+-- Update cache matrix that represents the transformation from the local coordinate system to another.
+--
+-- @function [parent=#DisplayObject] updateTransformMatrix
+-- @param self
+-- @param target (optional) The destination space of the transformation, nil for the screen space.
+function M:updateTransformMatrix(target)
+	local o = self.parent
+
+	self.object:initTransormMatrix()
+	while(o and o ~= target) do
+		self.object:upatetransformMatrix(o.object)
+		o = o.parent
+	end
+	return self
+end
+
+---
 -- Return a matrix that represents the transformation from the local coordinate system to another.
 --
 -- @function [parent=#DisplayObject] getTransformMatrix
@@ -490,15 +507,8 @@ end
 -- @param target (optional) The destination space of the transformation, nil for the screen space.
 -- @return The transformation matrix of the display object to another
 function M:getTransformMatrix(target)
-	local matrix = Matrix.new()
-	local o = self
-
-	while(o and o ~= target) do
-		matrix:multiply(matrix, o.object:getMatrix())
-		o = o.parent
-	end
-
-	return matrix
+	self:updateTransformMatrix(target)
+	return self.object:getTransformMatrix()
 end
 
 ---

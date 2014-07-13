@@ -66,8 +66,9 @@ struct object_t {
 	int __scale;
 	int __anchor;
 
-	int __matrix_valid;
-	cairo_matrix_t __matrix;
+	int __obj_matrix_valid;
+	cairo_matrix_t __obj_matrix;
+	cairo_matrix_t __transform_matrix;
 };
 
 static void __object_translate(struct object_t * object, double dx, double dy)
@@ -75,7 +76,7 @@ static void __object_translate(struct object_t * object, double dx, double dy)
 	object->x = object->x + dx;
 	object->y = object->y + dy;
 	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 }
 
 static void __object_translate_fill(struct object_t * object, double x, double y, double w, double h)
@@ -96,13 +97,13 @@ static void __object_translate_fill(struct object_t * object, double x, double y
 	object->anchorx = 0;
 	object->anchory = 0;
 	object->__anchor = 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 }
 
-static inline cairo_matrix_t * __get_matrix(struct object_t * object)
+static inline cairo_matrix_t * __get_obj_matrix(struct object_t * object)
 {
-	cairo_matrix_t * m = &object->__matrix;
-	if(!object->__matrix_valid)
+	cairo_matrix_t * m = &object->__obj_matrix;
+	if(!object->__obj_matrix_valid)
 	{
 		cairo_matrix_init_identity(m);
 		if(object->__translate)
@@ -113,7 +114,7 @@ static inline cairo_matrix_t * __get_matrix(struct object_t * object)
 			cairo_matrix_translate(m, -object->anchorx * object->width * object->scalex, -object->anchory * object->height * object->scaley);
 		if(object->__scale)
 			cairo_matrix_scale(m, object->scalex, object->scaley);
-		object->__matrix_valid = 1;
+		object->__obj_matrix_valid = 1;
 	}
 	return m;
 }
@@ -140,8 +141,9 @@ static int l_object_new(lua_State * L)
 	object->__scale = 0;
 	object->__anchor = 0;
 
-	object->__matrix_valid = 1;
-	cairo_matrix_init_identity(&object->__matrix);
+	object->__obj_matrix_valid = 1;
+	cairo_matrix_init_identity(&object->__obj_matrix);
+	cairo_matrix_init_identity(&object->__transform_matrix);
 
 	luaL_setmetatable(L, MT_NAME_OBJECT);
 	return 1;
@@ -176,7 +178,7 @@ static int m_set_x(lua_State * L)
 	double x = luaL_checknumber(L, 2);
 	object->x = x;
 	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 	return 0;
 }
 
@@ -193,7 +195,7 @@ static int m_set_y(lua_State * L)
 	double y = luaL_checknumber(L, 2);
 	object->y = y;
 	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 	return 0;
 }
 
@@ -212,7 +214,7 @@ static int m_set_position(lua_State * L)
 	object->x = x;
 	object->y = y;
 	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 	return 0;
 }
 
@@ -234,7 +236,7 @@ static int m_set_rotation(lua_State * L)
 	while(object->rotation > (M_PI * 2))
 		object->rotation = object->rotation - (M_PI * 2);
 	object->__rotate = (object->rotation != 0) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 	return 0;
 }
 
@@ -251,7 +253,7 @@ static int m_set_scale_x(lua_State * L)
 	double x = luaL_checknumber(L, 2);
 	object->scalex = x;
 	object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 	return 0;
 }
 
@@ -268,7 +270,7 @@ static int m_set_scale_y(lua_State * L)
 	double y = luaL_checknumber(L, 2);
 	object->scaley = y;
 	object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 	return 0;
 }
 
@@ -287,7 +289,7 @@ static int m_set_scale(lua_State * L)
 	object->scalex = x;
 	object->scaley = y;
 	object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 	return 0;
 }
 
@@ -307,7 +309,7 @@ static int m_set_archor(lua_State * L)
 	object->anchorx = x;
 	object->anchory = y;
 	object->__anchor = ((object->anchorx != 0) || (object->anchory != 0)) ? 1 : 0;
-	object->__matrix_valid = 0;
+	object->__obj_matrix_valid = 0;
 	return 0;
 }
 
@@ -376,11 +378,26 @@ static int m_get_touchable(lua_State * L)
 	return 1;
 }
 
-static int m_get_matrix(lua_State * L)
+static int m_init_transform_matrix(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	memcpy(&object->__transform_matrix, __get_obj_matrix(object), sizeof(cairo_matrix_t));
+	return 0;
+}
+
+static int m_update_transform_matrix(lua_State * L)
+{
+	struct object_t * obj1 = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct object_t * obj2 = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	cairo_matrix_multiply(&obj1->__transform_matrix, &obj1->__transform_matrix, __get_obj_matrix(obj2));
+	return 0;
+}
+
+static int m_get_transform_matrix(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
 	cairo_matrix_t * matrix = lua_newuserdata(L, sizeof(cairo_matrix_t));
-	memcpy(matrix, __get_matrix(object), sizeof(cairo_matrix_t));
+	memcpy(matrix, &object->__transform_matrix, sizeof(cairo_matrix_t));
 	luaL_setmetatable(L, MT_NAME_MATRIX);
 	return 1;
 }
@@ -435,7 +452,7 @@ static int m_layout(lua_State * L)
 		double cy1 = 0;
 		double cx2 = child->width;
 		double cy2 = child->height;
-		_cairo_matrix_transform_bounding_box(__get_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
+		_cairo_matrix_transform_bounding_box(__get_obj_matrix(child), &cx1, &cy1, &cx2, &cy2, NULL);
 
 		switch(child->alignment)
 		{
@@ -565,37 +582,39 @@ static int m_layout(lua_State * L)
 }
 
 static const luaL_Reg m_object[] = {
-	{"setSize",			m_set_size},
-	{"getSize",			m_get_size},
-	{"setX",			m_set_x},
-	{"getX",			m_get_x},
-	{"setY",			m_set_y},
-	{"getY",			m_get_y},
-	{"setPosition",		m_set_position},
-	{"getPosition",		m_get_position},
-	{"setRotation",		m_set_rotation},
-	{"getRotation",		m_get_rotation},
-	{"setScaleX",		m_set_scale_x},
-	{"getScaleX",		m_get_scale_x},
-	{"setScaleY",		m_set_scale_y},
-	{"getScaleY",		m_get_scale_y},
-	{"setScale",		m_set_scale},
-	{"getScale",		m_get_scale},
-	{"setAnchor",		m_set_archor},
-	{"getAnchor",		m_get_archor},
-	{"setAlpha",		m_set_alpha},
-	{"getAlpha",		m_get_alpha},
-	{"setAlignment",	m_set_alignment},
-	{"getAlignment",	m_get_alignment},
-	{"setVisible",		m_set_visible},
-	{"getVisible",		m_get_visible},
-	{"setTouchable",	m_set_touchable},
-	{"getTouchable",	m_get_touchable},
-	{"getMatrix",		m_get_matrix},
-	{"hitTestPoint",	m_hit_test_point},
-	{"bounds",			m_bounds},
-	{"layout",			m_layout},
-	{NULL,				NULL}
+	{"setSize",					m_set_size},
+	{"getSize",					m_get_size},
+	{"setX",					m_set_x},
+	{"getX",					m_get_x},
+	{"setY",					m_set_y},
+	{"getY",					m_get_y},
+	{"setPosition",				m_set_position},
+	{"getPosition",				m_get_position},
+	{"setRotation",				m_set_rotation},
+	{"getRotation",				m_get_rotation},
+	{"setScaleX",				m_set_scale_x},
+	{"getScaleX",				m_get_scale_x},
+	{"setScaleY",				m_set_scale_y},
+	{"getScaleY",				m_get_scale_y},
+	{"setScale",				m_set_scale},
+	{"getScale",				m_get_scale},
+	{"setAnchor",				m_set_archor},
+	{"getAnchor",				m_get_archor},
+	{"setAlpha",				m_set_alpha},
+	{"getAlpha",				m_get_alpha},
+	{"setAlignment",			m_set_alignment},
+	{"getAlignment",			m_get_alignment},
+	{"setVisible",				m_set_visible},
+	{"getVisible",				m_get_visible},
+	{"setTouchable",			m_set_touchable},
+	{"getTouchable",			m_get_touchable},
+	{"initTransormMatrix",		m_init_transform_matrix},
+	{"upatetransformMatrix",	m_update_transform_matrix},
+	{"getTransformMatrix",		m_get_transform_matrix},
+	{"hitTestPoint",			m_hit_test_point},
+	{"bounds",					m_bounds},
+	{"layout",					m_layout},
+	{NULL,						NULL}
 };
 
 int luaopen_object(lua_State * L)

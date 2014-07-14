@@ -450,38 +450,6 @@ end
 function M:getTouchable()
 	return self.object:getTouchable()
 end
-
----
--- Converts the x,y coordinates from the global to the display object's (local) coordinates.
---
--- @function [parent=#DisplayObject] globalToLocal
--- @param self
--- @param x (number) x coordinate of the global coordinate.
--- @param y (number) y coordinate of the global coordinate.
--- @param target (optional) The destination space of the transformation, nil for the screen space.
--- @return x coordinate relative to the display object.
--- @return y coordinate relative to the display object.
-function M:globalToLocal(x, y, target)
-	local m = self:getTransformMatrix(target)
-	m:invert()
-	return m:transformPoint(x, y)
-end
-
----
--- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
---
--- @function [parent=#DisplayObject] localToGlobal
--- @param self
--- @param x (number) x coordinate of the local coordinate.
--- @param y (number) y coordinate of the local coordinate.
--- @param target (optional) The destination space of the transformation, nil for the screen space.
--- @return x coordinate relative to the display area.
--- @return y coordinate relative to the display area.
-function M:localToGlobal(x, y, target)
-	local m = self:getTransformMatrix(target)
-	return m:transformPoint(x, y)
-end
-
 ---
 -- Update cache matrix that represents the transformation from the local coordinate system to another.
 --
@@ -493,7 +461,7 @@ function M:updateTransformMatrix(target)
 
 	self.object:initTransormMatrix()
 	while(o and o ~= target) do
-		self.object:upatetransformMatrix(o.object)
+		self.object:upateTransformMatrix(o.object)
 		o = o.parent
 	end
 	return self
@@ -512,16 +480,33 @@ function M:getTransformMatrix(target)
 end
 
 ---
--- Returns a area (as x, y, w and h) that encloses the display object as
--- it appears in another display object’s coordinate system.
+-- Converts the x,y coordinates from the global to the display object's (local) coordinates.
 --
--- @function [parent=#DisplayObject] getBounds
+-- @function [parent=#DisplayObject] globalToLocal
 -- @param self
--- @param target (DisplayObject) The display object that defines the other coordinate system to transform
--- @return area has 4 values as x, y, w and h of bounds
-function M:getBounds(target)
-	local m = self:getTransformMatrix(target)
-	return self.object:bounds(m)
+-- @param x (number) x coordinate of the global coordinate.
+-- @param y (number) y coordinate of the global coordinate.
+-- @param target (optional) The destination space of the transformation, nil for the screen space.
+-- @return x coordinate relative to the display object.
+-- @return y coordinate relative to the display object.
+function M:globalToLocal(x, y, target)
+	self:updateTransformMatrix(target)
+	return self.object:globalToLocal(x, y)
+end
+
+---
+-- Converts the x,y coordinates from the display object's (local) coordinates to the global coordinates.
+--
+-- @function [parent=#DisplayObject] localToGlobal
+-- @param self
+-- @param x (number) x coordinate of the local coordinate.
+-- @param y (number) y coordinate of the local coordinate.
+-- @param target (optional) The destination space of the transformation, nil for the screen space.
+-- @return x coordinate relative to the display area.
+-- @return y coordinate relative to the display area.
+function M:localToGlobal(x, y, target)
+	self:updateTransformMatrix(target)
+	return self.object:localToGlobal(x, y)
 end
 
 ---
@@ -534,8 +519,25 @@ end
 -- @param target (DisplayObject) The display object that defines the other coordinate system to transform
 -- @return 'true' if the given global coordinates are in bounds of the display object, 'false' otherwise.
 function M:hitTestPoint(x, y, target)
-	local ox, oy = self:globalToLocal(x, y, target)
-	return self.object:hitTestPoint(ox, oy)
+	if self:getVisible() and self:getTouchable() then
+		self:updateTransformMatrix(target)
+		return self.object:hitTestPoint(x, y)
+	else
+		return false
+	end
+end
+
+---
+-- Returns a area (as x, y, w and h) that encloses the display object as
+-- it appears in another display object’s coordinate system.
+--
+-- @function [parent=#DisplayObject] getBounds
+-- @param self
+-- @param target (DisplayObject) The display object that defines the other coordinate system to transform
+-- @return area has 4 values as x, y, w and h of bounds
+function M:getBounds(target)
+	self:updateTransformMatrix(target)
+	return self.object:bounds()
 end
 
 ---

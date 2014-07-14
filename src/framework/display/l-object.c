@@ -402,27 +402,48 @@ static int m_get_transform_matrix(lua_State * L)
 	return 1;
 }
 
+static int m_global_to_local(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	cairo_matrix_invert(&object->__transform_matrix);
+	cairo_matrix_transform_point(&object->__transform_matrix, &x, &y);
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	return 2;
+}
+
+static int m_local_to_global(lua_State * L)
+{
+	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	cairo_matrix_transform_point(&object->__transform_matrix, &x, &y);
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	return 2;
+}
+
 static int m_hit_test_point(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	double ox = luaL_checknumber(L, 2);
-	double oy = luaL_checknumber(L, 3);
-	if(object->visible && object->touchable)
-		lua_pushboolean(L, ((ox >= 0) && (oy >= 0) && (ox <= object->width) && (oy <= object->height)) ? 1 : 0);
-	else
-		lua_pushboolean(L, 0);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	cairo_matrix_invert(&object->__transform_matrix);
+	cairo_matrix_transform_point(&object->__transform_matrix, &x, &y);
+	lua_pushboolean(L, ((x >= 0) && (y >= 0) && (x <= object->width) && (y <= object->height)) ? 1 : 0);
 	return 1;
 }
 
 static int m_bounds(lua_State * L)
 {
 	struct object_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_NAME_MATRIX);
 	double x1 = 0;
 	double y1 = 0;
 	double x2 = object->width;
 	double y2 = object->height;
-	_cairo_matrix_transform_bounding_box(matrix, &x1, &y1, &x2, &y2, NULL);
+	_cairo_matrix_transform_bounding_box(&object->__transform_matrix, &x1, &y1, &x2, &y2, NULL);
 	lua_pushnumber(L, x1);
 	lua_pushnumber(L, y1);
 	lua_pushnumber(L, x2 - x1);
@@ -609,8 +630,10 @@ static const luaL_Reg m_object[] = {
 	{"setTouchable",			m_set_touchable},
 	{"getTouchable",			m_get_touchable},
 	{"initTransormMatrix",		m_init_transform_matrix},
-	{"upatetransformMatrix",	m_update_transform_matrix},
+	{"upateTransformMatrix",	m_update_transform_matrix},
 	{"getTransformMatrix",		m_get_transform_matrix},
+	{"globalToLocal",			m_global_to_local},
+	{"localToGlobal",			m_local_to_global},
 	{"hitTestPoint",			m_hit_test_point},
 	{"bounds",					m_bounds},
 	{"layout",					m_layout},

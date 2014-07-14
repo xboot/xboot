@@ -89,6 +89,8 @@ static int lcd_get_backlight(struct s5pv210_fb_data_t * dat)
 static struct s5pv210_fb_data_t s5pv210_fb_data = {
 	.width				= 800,
 	.height				= 480,
+	.xdpi				= 133,
+	.ydpi				= 133,
 	.bits_per_pixel		= 32,
 	.bytes_per_pixel	= 4,
 	.freq				= 60,

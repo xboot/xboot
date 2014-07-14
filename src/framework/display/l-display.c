@@ -31,6 +31,7 @@ struct display_t {
 	cairo_surface_t * alone;
 	cairo_surface_t * cs[2];
 	cairo_t * cr[2];
+	double r, g, b, a;
 	int index;
 };
 
@@ -46,6 +47,10 @@ static int l_display_new(lua_State * L)
 	display->cs[1] = cairo_xboot_surface_create(display->fb, NULL);
 	display->cr[0] = cairo_create(display->cs[0]);
 	display->cr[1] = cairo_create(display->cs[1]);
+	display->r = 1;
+	display->g = 1;
+	display->b = 1;
+	display->a = 1;
 	display->index = 0;
 	luaL_setmetatable(L, MT_NAME_DISPLAY);
 	return 1;
@@ -208,26 +213,55 @@ static int m_display_draw_ninepatch(lua_State * L)
 	return 0;
 }
 
+static int m_display_set_background_color(lua_State * L)
+{
+	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	display->r = luaL_checknumber(L, 2);
+	display->g = luaL_checknumber(L, 3);
+	display->b = luaL_checknumber(L, 4);
+	display->a = luaL_optnumber(L, 5, 1);
+	return 0;
+}
+
+static int m_display_get_background_color(lua_State * L)
+{
+	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	lua_pushnumber(L, display->r);
+	lua_pushnumber(L, display->g);
+	lua_pushnumber(L, display->b);
+	return 3;
+}
+
 static int m_display_present(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	cairo_xboot_surface_present(display->cs[display->index]);
 	display->index = (display->index + 1) % 2;
+	if(display->a != 0)
+	{
+		cairo_t * cr = display->cr[display->index];
+		cairo_save(cr);
+		cairo_set_source_rgb(cr, display->r, display->g, display->b);
+		cairo_paint(cr);
+		cairo_restore(cr);
+	}
 	return 0;
 }
 
 static const luaL_Reg m_display[] = {
-	{"__gc",			m_display_gc},
-	{"info",			m_display_info},
-	{"getBacklight",	m_display_get_backlight},
-	{"setBacklight",	m_display_set_backlight},
-	{"drawShape",		m_display_draw_shape},
-	{"drawText",		m_display_draw_text},
-	{"drawTexture",		m_display_draw_texture},
-	{"drawTextureMask",	m_display_draw_texture_mask},
-	{"drawNinepatch",	m_display_draw_ninepatch},
-	{"present",			m_display_present},
-	{NULL,				NULL}
+	{"__gc",				m_display_gc},
+	{"info",				m_display_info},
+	{"getBacklight",		m_display_get_backlight},
+	{"setBacklight",		m_display_set_backlight},
+	{"drawShape",			m_display_draw_shape},
+	{"drawText",			m_display_draw_text},
+	{"drawTexture",			m_display_draw_texture},
+	{"drawTextureMask",		m_display_draw_texture_mask},
+	{"drawNinepatch",		m_display_draw_ninepatch},
+	{"setBackgroundColor",	m_display_set_background_color},
+	{"getBackgroundColor",	m_display_get_background_color},
+	{"present",				m_display_present},
+	{NULL,					NULL}
 };
 
 int luaopen_display(lua_State * L)

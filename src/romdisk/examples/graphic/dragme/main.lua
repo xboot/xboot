@@ -1,10 +1,6 @@
 local stage = application:getStage()
 local width, height = application:getScreenSize()
 
--- Create background
-stage:addChild(DisplayShape.new(width, height):setSourceColor(0.8, 0.8, 0.8):paint())
-
--- Create the shapes
 local function onMouseDown(self, e)
 	if self.touchid == nil and self:hitTestPoint(e.info.x, e.info.y) then
 		self.touchid = 0
@@ -72,9 +68,9 @@ for i=1,5 do
 	local shape = DisplayShape.new(100, 50)
 		:setLineWidth(6)
 		:rectangle(0, 0, 100, 50)
-		:setSourceColor(1, 0, 0, 0.7)
+		:setSourceColor(1, 0, 0, 0.5)
 		:fillPreserve()
-		:setSourceColor(0, 0, 1)
+		:setSourceColor(0, 0, 0)
 		:stroke()
 		:setPosition(math.random(0, width - 100), math.random(0, height - 50))
 	

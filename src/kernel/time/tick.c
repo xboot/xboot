@@ -76,7 +76,7 @@ inline void tick_interrupt(void)
 
 bool_t register_tick(struct tick_t * tick)
 {
-	if( tick && (tick->hz > 0) && (__tick->init != NULL))
+	if( tick && (tick->hz > 0) && (tick->init != NULL))
 	{
 		__tick = tick;
 		return TRUE;

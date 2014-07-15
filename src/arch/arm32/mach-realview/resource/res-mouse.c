@@ -25,7 +25,7 @@
 
 static struct realview_mouse_data_t realview_mouse_data = {
 	.regbase	= REALVIEW_MOUSE_BASE,
-	.width		= 800,
+	.width		= 640,
 	.height		= 480,
 };
 

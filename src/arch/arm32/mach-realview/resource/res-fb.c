@@ -55,7 +55,7 @@ static int lcd_get_backlight(struct realview_fb_data_t * dat)
 static struct realview_fb_data_t realview_fb_data = {
 	.regbase			= REALVIEW_CLCD_BASE,
 
-	.width				= 800,
+	.width				= 640,
 	.height				= 480,
 	.xdpi				= 133,
 	.ydpi				= 133,

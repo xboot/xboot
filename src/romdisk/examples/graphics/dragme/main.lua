@@ -2,8 +2,8 @@ local stage = application:getStage()
 local width, height = application:getScreenSize()
 
 local function onMouseDown(self, e)
-	if self.touchid == nil and self:hitTestPoint(e.info.x, e.info.y) then
-		self.touchid = 0
+	if self:hitTestPoint(e.info.x, e.info.y) then
+		self.touchid = -1
 		self.x0 = e.info.x
 		self.y0 = e.info.y
 		e:stopPropagation()
@@ -11,7 +11,7 @@ local function onMouseDown(self, e)
 end
 
 local function onMouseMove(self, e)
-	if self.touchid == 0 then	
+	if self.touchid == -1 then	
 		local dx = e.info.x - self.x0
 		local dy = e.info.y - self.y0
 		self:setX(self:getX() + dx)
@@ -23,14 +23,14 @@ local function onMouseMove(self, e)
 end
 
 local function onMouseUp(self, e)
-	if self.touchid == 0 then
+	if self.touchid == -1 then
 		self.touchid = nil
 		e:stopPropagation()
 	end
 end
 
 local function onTouchesBegin(self, e)
-	if self.touchid == nil and self:hitTestPoint(e.info.x, e.info.y) then
+	if self:hitTestPoint(e.info.x, e.info.y) then
 		self.touchid = e.info.id
 		self.x0 = e.info.x
 		self.y0 = e.info.y

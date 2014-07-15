@@ -120,8 +120,8 @@ function M:unchecked()
 end
 
 function M:onMouseDown(e)
-	if self.touchid == nil and self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
-		self.touchid = 0
+	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
+		self.touchid = -1
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
 		e:stopPropagation()
@@ -129,7 +129,7 @@ function M:onMouseDown(e)
 end
 
 function M:onMouseMove(e)
-	if self.touchid == 0 then
+	if self.state ~= self.STATE_DISABLED and self.touchid == -1 then
 		if not self:hitTestPoint(e.info.x, e.info.y) then
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
@@ -140,7 +140,7 @@ function M:onMouseMove(e)
 end
 
 function M:onMouseUp(e)
-	if self.touchid == 0 then
+	if self.state ~= self.STATE_DISABLED and self.touchid == -1 then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
 		self.checked = not self.checked
@@ -151,7 +151,7 @@ function M:onMouseUp(e)
 end
 
 function M:onTouchesBegin(e)
-	if self.touchid == nil and self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
+	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
 		self.touchid = e.info.id
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
@@ -160,7 +160,7 @@ function M:onTouchesBegin(e)
 end
 
 function M:onTouchesMove(e)
-	if self.touchid == e.info.id then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
 		if not self:hitTestPoint(e.info.x, e.info.y) then
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
@@ -171,7 +171,7 @@ function M:onTouchesMove(e)
 end
 
 function M:onTouchesEnd(e)
-	if self.touchid == e.info.id then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
 		self.checked = not self.checked
@@ -182,7 +182,7 @@ function M:onTouchesEnd(e)
 end
 
 function M:onTouchesCancel(e)
-	if self.touchid == e.info.id then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
 		self:updateVisualState()

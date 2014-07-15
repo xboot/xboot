@@ -125,20 +125,16 @@ int logger_print(const char * fmt, ...)
 {
 	va_list ap;
 	struct timeval tv;
-	char * p;
+	char buf[SZ_4K];
 	int len = 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
 
 	va_start(ap, fmt);
 	gettimeofday(&tv, 0);
-	len += sprintf((char *)(p + len), "[%5u.%06u]", tv.tv_sec, tv.tv_usec % 1000000);
-	len += vsnprintf((char *)(p + len), (SZ_4K - len), fmt, ap);
+	len += sprintf((char *)(buf + len), "[%5u.%06u]", tv.tv_sec, tv.tv_usec % 1000000);
+	len += vsnprintf((char *)(buf + len), (SZ_4K - len), fmt, ap);
 	va_end(ap);
 
-	logger_output((const char *)p, len);
-	free(p);
+	logger_output((const char *)buf, len);
 
 	return len;
 }

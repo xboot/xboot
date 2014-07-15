@@ -313,20 +313,15 @@ int console_print(struct console_t * console, const char * fmt, ...)
 {
 	va_list ap;
 	u32_t code;
-	char *p, *buf;
+	char buf[SZ_4K];
+	char *p;
 	int len;
 
 	if(!console || !console->putcode)
 		return 0;
 
 	va_start(ap, fmt);
-	len = vsnprintf(NULL, 0, fmt, ap);
-	if(len < 0)
-		return 0;
-	buf = malloc(len + 1);
-	if(!buf)
-		return 0;
-	len = vsnprintf(buf, len + 1, fmt, ap);
+	len = vsnprintf(buf, SZ_4K, fmt, ap);
 	va_end(ap);
 
 	for(p = buf; utf8_to_ucs4(&code, 1, p, -1, (const char **)&p) > 0; )
@@ -334,7 +329,6 @@ int console_print(struct console_t * console, const char * fmt, ...)
 		console->putcode(console, code);
 	}
 
-	free(buf);
 	return len;
 }
 

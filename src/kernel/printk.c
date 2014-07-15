@@ -29,17 +29,12 @@
 int printk(const char * fmt, ...)
 {
 	va_list ap;
-	char *p, *buf;
+	char buf[SZ_4K];
+	char *p;
 	int len;
 
 	va_start(ap, fmt);
-	len = vsnprintf(NULL, 0, fmt, ap);
-	if(len < 0)
-		return 0;
-	buf = malloc(len + 1);
-	if(!buf)
-		return 0;
-	len = vsnprintf(buf, len + 1, fmt, ap);
+	len = vsnprintf(buf, SZ_4K, fmt, ap);
 	va_end(ap);
 
 	p = buf;
@@ -52,7 +47,6 @@ int printk(const char * fmt, ...)
 		len++;
 	}
 
-	free(buf);
 	return len;
 }
 EXPORT_SYMBOL(printk);

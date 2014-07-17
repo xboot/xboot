@@ -24,7 +24,7 @@
 #include <led/led-gpio.h>
 
 struct led_gpio_private_data_t {
-	u32_t color;
+	int brightness;
 	struct led_gpio_data_t * rdat;
 };
 
@@ -42,27 +42,33 @@ static void led_gpio_exit(struct led_t * led)
 	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
 	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
-	dat->color = 0;
+	dat->brightness = 0;
 	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
 }
 
-static void led_gpio_set(struct led_t * led, u32_t color)
+static void led_gpio_set(struct led_t * led, int brightness)
 {
 	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
 	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
-	dat->color = color & 0x00ffffff;
-	if(dat->color != 0)
+	if(brightness < 0)
+		dat->brightness = 0;
+	else if(brightness > 255)
+		dat->brightness = 255;
+	else
+		dat->brightness = brightness;
+
+	if(dat->brightness != 0)
 		gpio_direction_output(rdat->gpio, rdat->active_low ? 0 : 1);
 	else
 		gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
 }
 
-static u32_t led_gpio_get(struct led_t * led)
+static int led_gpio_get(struct led_t * led)
 {
 	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
 
-	return dat->color;
+	return dat->brightness;
 }
 
 static void led_gpio_suspend(struct led_t * led)
@@ -93,7 +99,7 @@ static bool_t led_gpio_register_led(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->color = 0x0;
+	dat->brightness = 0;
 	dat->rdat = rdat;
 
 	led->name = strdup(name);

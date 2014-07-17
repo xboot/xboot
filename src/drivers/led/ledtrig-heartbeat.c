@@ -36,7 +36,7 @@ static void heartbeat_timer_function(u32_t data)
 	struct ledtrig_t * trigger = (struct ledtrig_t *)(data);
 	struct ledtrig_heartbeat_data_t * dat = (struct ledtrig_heartbeat_data_t *)trigger->priv;
 	struct led_t * led = (struct led_t *)(trigger->led);
-	u32_t color = 0;
+	int brightness = 0;
 	u32_t delay = 0;
 
 	/*
@@ -48,29 +48,29 @@ static void heartbeat_timer_function(u32_t data)
 		dat->period = 1260 * HZ / 1000;
 		delay = 70 * HZ / 1000;
 		dat->phase++;
-		color = 0x00ffffff;
+		brightness = 255;
 		break;
 
 	case 1:
 		delay = dat->period / 4 - (70 * HZ / 1000);
 		dat->phase++;
-		color = 0;
+		brightness = 0;
 		break;
 
 	case 2:
 		delay = 70 * HZ / 1000;
 		dat->phase++;
-		color = 0x00ffffff;
+		brightness = 255;
 		break;
 
 	default:
 		delay = dat->period - dat->period / 4 - (70 * HZ / 1000);
 		dat->phase = 0;
-		color = 0;
+		brightness = 0;
 		break;
 	}
 
-	led_set_color(led, color);
+	led_set_brightness(led, brightness);
 	mod_timer(&(dat->timer), jiffies + delay);
 }
 

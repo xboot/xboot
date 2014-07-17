@@ -11,7 +11,7 @@ extern "C" {
 struct led_simple_data_t
 {
 	void (*init)(struct led_simple_data_t * dat);
-	void (*set)(struct led_simple_data_t * dat, u32_t color);
+	void (*set)(struct led_simple_data_t * dat, int brightness);
 };
 
 #ifdef __cplusplus

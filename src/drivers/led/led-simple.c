@@ -24,7 +24,7 @@
 #include <led/led-simple.h>
 
 struct led_simple_private_data_t {
-	u32_t color;
+	int brightness;
 	struct led_simple_data_t * rdat;
 };
 
@@ -42,26 +42,31 @@ static void led_simple_exit(struct led_t * led)
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
 	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
 
-	dat->color = 0;
+	dat->brightness = 0;
 	if(rdat->set)
-		rdat->set(rdat, dat->color);
+		rdat->set(rdat, dat->brightness);
 }
 
-static void led_simple_set(struct led_t * led, u32_t color)
+static void led_simple_set(struct led_t * led, int brightness)
 {
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
 	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
 
-	dat->color = color;
+	if(brightness < 0)
+		dat->brightness = 0;
+	else if(brightness > 255)
+		dat->brightness = 255;
+	else
+		dat->brightness = brightness;
+
 	if(rdat->set)
-		return rdat->set(rdat, dat->color);
+		return rdat->set(rdat, dat->brightness);
 }
 
 static u32_t led_simple_get(struct led_t * led)
 {
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
-
-	return dat->color;
+	return dat->brightness;
 }
 
 static void led_simple_suspend(struct led_t * led)
@@ -92,7 +97,7 @@ static bool_t led_simple_register_led(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->color = 0x0;
+	dat->brightness = 0;
 	dat->rdat = rdat;
 
 	led->name = strdup(name);

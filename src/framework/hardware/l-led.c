@@ -65,16 +65,16 @@ static const luaL_Reg l_hardware_led[] = {
 static int m_led_get(lua_State * L)
 {
 	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
-	u32_t color = led_get_color(led);
-	lua_pushunsigned(L, color);
+	int brightness = led_get_brightness(led);
+	lua_pushnumber(L, brightness / 255.0);
 	return 1;
 }
 
 static int m_led_set(lua_State * L)
 {
 	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
-	u32_t color = luaL_checkunsigned(L, 2);
-	led_set_color(led, color);
+	int brightness = luaL_checknumber(L, 2) * 255.0;
+	led_set_brightness(led, brightness);
 	return 0;
 }
 

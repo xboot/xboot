@@ -27,7 +27,7 @@ static void led_simple_d0_init(struct led_simple_data_t * dat)
 {
 }
 
-static void led_simple_d0_set(struct led_simple_data_t * dat, u32_t color)
+static void led_simple_d0_set(struct led_simple_data_t * dat, int brightness)
 {
 }
 
@@ -35,7 +35,7 @@ static void led_simple_d1_init(struct led_simple_data_t * dat)
 {
 }
 
-static void led_simple_d1_set(struct led_simple_data_t * dat, u32_t color)
+static void led_simple_d1_set(struct led_simple_data_t * dat, int brightness)
 {
 }
 

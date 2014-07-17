@@ -99,14 +99,14 @@ static int m_display_get_backlight(lua_State * L)
 	int brightness = 0;
 	if(display->fb->ioctl)
 		display->fb->ioctl(display->fb, IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS, &brightness);
-	lua_pushinteger(L, brightness);
+	lua_pushnumber(L, brightness / 255.0);
 	return 1;
 }
 
 static int m_display_set_backlight(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	int brightness = luaL_checkinteger(L, 2);
+	int brightness = luaL_checknumber(L, 2) * 255.0;
 	if(display->fb->ioctl)
 		display->fb->ioctl(display->fb, IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS, &brightness);
 	return 0;

@@ -74,7 +74,7 @@ void do_system_logo(void)
 	cairo_surface_t * cs;
 	cairo_t * cr;
 	struct fb_t * fb;
-	int brightness = 255;
+	int brightness = CONFIG_MAX_BRIGHTNESS;
 	int x, y;
 
 	LOG("Display system logo");

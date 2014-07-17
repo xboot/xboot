@@ -51,13 +51,7 @@ static void led_gpio_set(struct led_t * led, int brightness)
 	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
 	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
-	if(brightness < 0)
-		dat->brightness = 0;
-	else if(brightness > 255)
-		dat->brightness = 255;
-	else
-		dat->brightness = brightness;
-
+	dat->brightness = brightness;
 	if(dat->brightness != 0)
 		gpio_direction_output(rdat->gpio, rdat->active_low ? 0 : 1);
 	else
@@ -67,7 +61,6 @@ static void led_gpio_set(struct led_t * led, int brightness)
 static int led_gpio_get(struct led_t * led)
 {
 	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
-
 	return dat->brightness;
 }
 

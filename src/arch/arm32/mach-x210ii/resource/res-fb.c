@@ -60,12 +60,7 @@ static void lcd_exit(struct s5pv210_fb_data_t * dat)
 
 static void lcd_set_backlight(struct s5pv210_fb_data_t * dat, int brightness)
 {
-	if(brightness < 0)
-		brightness = 0;
-	if(brightness > 255)
-		brightness = 255;
 	dat->brightness = brightness;
-
 	if(dat->brightness)
 	{
 		gpio_direction_output(S5PV210_GPF3(5), 1);

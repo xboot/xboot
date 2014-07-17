@@ -40,7 +40,7 @@ static void general_timer_function(u32_t data)
 	if(dat->last_activity != dat->activity)
 	{
 		dat->last_activity = dat->activity;
-		led_set_brightness(led, 255);
+		led_set_brightness(led, CONFIG_MAX_BRIGHTNESS);
 		mod_timer(&(dat->timer), jiffies + 1);
 	}
 	else

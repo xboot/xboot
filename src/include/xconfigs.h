@@ -28,6 +28,10 @@ extern "C" {
 #define	CONFIG_NO_LOG								(0)
 #endif
 
+#if !defined(CONFIG_MAX_BRIGHTNESS)
+#define	CONFIG_MAX_BRIGHTNESS						(1023)
+#endif
+
 #if !defined(CONFIG_EVENT_FIFO_LENGTH)
 #define	CONFIG_EVENT_FIFO_LENGTH					(256)
 #endif

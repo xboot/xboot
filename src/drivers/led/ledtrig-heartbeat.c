@@ -48,7 +48,7 @@ static void heartbeat_timer_function(u32_t data)
 		dat->period = 1260 * HZ / 1000;
 		delay = 70 * HZ / 1000;
 		dat->phase++;
-		brightness = 255;
+		brightness = CONFIG_MAX_BRIGHTNESS;
 		break;
 
 	case 1:
@@ -60,7 +60,7 @@ static void heartbeat_timer_function(u32_t data)
 	case 2:
 		delay = 70 * HZ / 1000;
 		dat->phase++;
-		brightness = 255;
+		brightness = CONFIG_MAX_BRIGHTNESS;
 		break;
 
 	default:

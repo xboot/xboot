@@ -52,18 +52,12 @@ static void led_simple_set(struct led_t * led, int brightness)
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
 	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
 
-	if(brightness < 0)
-		dat->brightness = 0;
-	else if(brightness > 255)
-		dat->brightness = 255;
-	else
-		dat->brightness = brightness;
-
+	dat->brightness = brightness;
 	if(rdat->set)
 		return rdat->set(rdat, dat->brightness);
 }
 
-static u32_t led_simple_get(struct led_t * led)
+static int led_simple_get(struct led_t * led)
 {
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
 	return dat->brightness;

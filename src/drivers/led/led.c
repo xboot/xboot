@@ -143,7 +143,13 @@ bool_t unregister_led(struct led_t * led)
 void led_set_brightness(struct led_t * led, int brightness)
 {
 	if(led && led->set)
+	{
+		if(brightness < 0)
+			brightness = 0;
+		else if(brightness > CONFIG_MAX_BRIGHTNESS)
+			brightness = CONFIG_MAX_BRIGHTNESS;
 		led->set(led, brightness);
+	}
 }
 
 int led_get_brightness(struct led_t * led)

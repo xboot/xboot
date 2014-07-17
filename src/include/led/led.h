@@ -18,11 +18,11 @@ struct led_t
 	/* Clean up the LED */
 	void (*exit)(struct led_t * led);
 
-	/* Set LED's brightness (0 ~ 255) */
+	/* Set LED's brightness (0 ~ CONFIG_MAX_BRIGHTNESS) */
 	void (*set)(struct led_t * led, int brightness);
 
-	/* Get LED's brightness (0 ~ 255) */
-	u32_t (*get)(struct led_t * led);
+	/* Get LED's brightness */
+	int (*get)(struct led_t * led);
 
 	/* Suspend LED */
 	void (*suspend)(struct led_t * led);

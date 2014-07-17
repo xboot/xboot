@@ -67,6 +67,8 @@ struct fb_t * search_framebuffer(const char * name);
 struct fb_t * search_first_framebuffer(void);
 bool_t register_framebuffer(struct fb_t * fb);
 bool_t unregister_framebuffer(struct fb_t * fb);
+void framebuffer_set_backlight_brightness(struct fb_t * fb, int brightness);
+int framebuffer_get_backlight_brightness(struct fb_t * fb);
 
 #ifdef __cplusplus
 }

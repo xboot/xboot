@@ -149,3 +149,24 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 
 	return TRUE;
 }
+
+void framebuffer_set_backlight_brightness(struct fb_t * fb, int brightness)
+{
+	if(fb && fb->ioctl)
+	{
+		if(brightness < 0)
+			brightness = 0;
+		else if(brightness > CONFIG_MAX_BRIGHTNESS)
+			brightness = CONFIG_MAX_BRIGHTNESS;
+		fb->ioctl(fb, IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS, &brightness);
+	}
+}
+
+int framebuffer_get_backlight_brightness(struct fb_t * fb)
+{
+	int brightness = 0;
+
+	if(fb && fb->ioctl)
+		fb->ioctl(fb, IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS, &brightness);
+	return brightness;
+}

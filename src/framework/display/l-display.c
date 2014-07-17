@@ -96,9 +96,7 @@ static int m_display_info(lua_State * L)
 static int m_display_get_backlight(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	int brightness = 0;
-	if(display->fb->ioctl)
-		display->fb->ioctl(display->fb, IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS, &brightness);
+	int brightness = framebuffer_get_backlight_brightness(display->fb);
 	lua_pushnumber(L, brightness / ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1)));
 	return 1;
 }
@@ -107,8 +105,7 @@ static int m_display_set_backlight(lua_State * L)
 {
 	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	int brightness = luaL_checknumber(L, 2) * ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1));
-	if(display->fb->ioctl)
-		display->fb->ioctl(display->fb, IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS, &brightness);
+	framebuffer_set_backlight_brightness(display->fb, brightness);
 	return 0;
 }
 

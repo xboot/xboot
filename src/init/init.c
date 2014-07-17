@@ -74,7 +74,6 @@ void do_system_logo(void)
 	cairo_surface_t * cs;
 	cairo_t * cr;
 	struct fb_t * fb;
-	int brightness = CONFIG_MAX_BRIGHTNESS;
 	int x, y;
 
 	LOG("Display system logo");
@@ -118,8 +117,7 @@ void do_system_logo(void)
 			cairo_xboot_surface_present(cs);
 			cairo_surface_destroy(cs);
 
-			if(fb->ioctl)
-				fb->ioctl(fb, IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS, &brightness);
+			framebuffer_set_backlight_brightness(fb, CONFIG_MAX_BRIGHTNESS);
 		}
 	}
 

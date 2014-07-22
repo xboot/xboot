@@ -148,14 +148,13 @@ static int m_display_draw_texture(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	struct ltexture_t * texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
-	double alpha = luaL_optnumber(L, 4, 1.0);
+	struct lobject_t * object = luaL_checkudata(L, 3, MT_NAME_OBJECT);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
-	cairo_set_matrix(cr, matrix);
+	cairo_set_matrix(cr, &object->__transform_matrix);
 	cairo_set_source_surface(cr, texture->surface, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-	cairo_paint_with_alpha(cr, alpha);
+	cairo_paint_with_alpha(cr, object->alpha);
 	cairo_restore(cr);
 	return 0;
 }
@@ -164,14 +163,14 @@ static int m_display_draw_texture_mask(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	struct ltexture_t * texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
-	cairo_pattern_t ** pattern = luaL_checkudata(L, 3, MT_NAME_PARTTERN);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 4, MT_NAME_MATRIX);
+	cairo_pattern_t ** parttern = luaL_checkudata(L, 3, MT_NAME_PARTTERN);
+	struct lobject_t * object = luaL_checkudata(L, 4, MT_NAME_OBJECT);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
-	cairo_set_matrix(cr, matrix);
+	cairo_set_matrix(cr, &object->__transform_matrix);
 	cairo_set_source_surface(cr, texture->surface, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-	cairo_mask(cr, *pattern);
+	cairo_mask(cr, *parttern);
 	cairo_fill(cr);
 	cairo_restore(cr);
 	return 0;

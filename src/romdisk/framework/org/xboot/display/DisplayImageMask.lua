@@ -73,7 +73,8 @@ end
 -- @param self
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
-	display:drawTextureMask(self.texture, self.parttern, self:getTransformMatrix())
+	self:updateTransformMatrix()
+	display:drawTextureMask(self.texture, self.parttern, self.object)
 end
 
 return M

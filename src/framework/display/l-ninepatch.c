@@ -59,7 +59,7 @@ static inline int is_black_pixel(unsigned char * p)
 	return (((p[0] == 0) && (p[1] == 0) && (p[2] == 0) && (p[3] != 0)) ? 1 : 0);
 }
 
-static bool_t to_ninepatch(cairo_surface_t * surface, struct ninepatch_t * patch)
+static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patch)
 {
 	cairo_surface_t * cs;
 	cairo_t * cr;
@@ -296,7 +296,7 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct ninepatch_t * patch
 static int l_ninepatch_new(lua_State * L)
 {
 	const char * filename = luaL_checkstring(L, 1);
-	struct ninepatch_t * ninepatch = lua_newuserdata(L, sizeof(struct ninepatch_t));
+	struct lninepatch_t * ninepatch = lua_newuserdata(L, sizeof(struct lninepatch_t));
 	cairo_surface_t * surface = cairo_image_surface_create_from_png_xfs(filename);
 	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS)
 		return 0;
@@ -315,7 +315,7 @@ static const luaL_Reg l_ninepatch[] = {
 
 static int m_ninepatch_gc(lua_State * L)
 {
-	struct ninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
 	if(ninepatch->lt)
 		cairo_surface_destroy(ninepatch->lt);
 	if(ninepatch->mt)
@@ -339,7 +339,7 @@ static int m_ninepatch_gc(lua_State * L)
 
 static int m_ninepatch_set_size(lua_State * L)
 {
-	struct ninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
 	double w = luaL_checknumber(L, 2);
 	double h = luaL_checknumber(L, 3);
 	ninepatch->width = w;
@@ -349,7 +349,7 @@ static int m_ninepatch_set_size(lua_State * L)
 
 static int m_ninepatch_get_size(lua_State * L)
 {
-	struct ninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
 	lua_pushnumber(L, ninepatch->width);
 	lua_pushnumber(L, ninepatch->height);
 	return 2;

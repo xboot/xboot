@@ -180,7 +180,7 @@ static int m_display_draw_texture_mask(lua_State * L)
 static int m_display_draw_ninepatch(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct ninepatch_t * ninepatch = luaL_checkudata(L, 2, MT_NAME_NINEPATCH);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 2, MT_NAME_NINEPATCH);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
 	double alpha = luaL_optnumber(L, 4, 1.0);
 	cairo_t * cr = display->cr[display->index];

@@ -69,7 +69,7 @@ struct ltexture_t {
 	cairo_surface_t * surface;
 };
 
-struct ninepatch_t {
+struct lninepatch_t {
 	double width, height;
 
 	struct {

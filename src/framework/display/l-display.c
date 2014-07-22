@@ -26,7 +26,7 @@
 
 extern cairo_scaled_font_t * luaL_checkudata_scaled_font(lua_State * L, int ud, const char * tname);
 
-struct display_t {
+struct ldisplay_t {
 	struct fb_t * fb;
 	cairo_surface_t * alone;
 	cairo_surface_t * cs[2];
@@ -38,7 +38,7 @@ struct display_t {
 static int l_display_new(lua_State * L)
 {
 	const char * name = luaL_optstring(L, 1, NULL);
-	struct display_t * display = lua_newuserdata(L, sizeof(struct display_t));
+	struct ldisplay_t * display = lua_newuserdata(L, sizeof(struct ldisplay_t));
 	display->fb = search_framebuffer(name);
 	if(!display->fb)
 		display->fb = search_first_framebuffer();
@@ -63,7 +63,7 @@ static const luaL_Reg l_display[] = {
 
 static int m_display_gc(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	cairo_xboot_surface_present(display->alone);
 	cairo_surface_destroy(display->alone);
 	cairo_destroy(display->cr[0]);
@@ -75,7 +75,7 @@ static int m_display_gc(lua_State * L)
 
 static int m_display_info(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	struct screen_info_t info;
 	if(display->fb->ioctl)
 		display->fb->ioctl(display->fb, IOCTL_FB_GET_SCREEN_INFORMATION, &info);
@@ -95,7 +95,7 @@ static int m_display_info(lua_State * L)
 
 static int m_display_get_backlight(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	int brightness = framebuffer_get_backlight_brightness(display->fb);
 	lua_pushnumber(L, brightness / ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1)));
 	return 1;
@@ -103,7 +103,7 @@ static int m_display_get_backlight(lua_State * L)
 
 static int m_display_set_backlight(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	int brightness = luaL_checknumber(L, 2) * ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1));
 	framebuffer_set_backlight_brightness(display->fb, brightness);
 	return 0;
@@ -111,7 +111,7 @@ static int m_display_set_backlight(lua_State * L)
 
 static int m_display_draw_shape(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	cairo_t ** shape = luaL_checkudata(L, 2, MT_NAME_SHAPE);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
 	double alpha = luaL_optnumber(L, 4, 1.0);
@@ -128,7 +128,7 @@ static int m_display_draw_shape(lua_State * L)
 
 static int m_display_draw_text(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	cairo_scaled_font_t * sfont = luaL_checkudata_scaled_font(L, 2, MT_NAME_FONT);
 	const char * text = luaL_optstring(L, 3, NULL);
 	cairo_pattern_t ** pattern = luaL_checkudata(L, 4, MT_NAME_PARTTERN);
@@ -146,7 +146,7 @@ static int m_display_draw_text(lua_State * L)
 
 static int m_display_draw_texture(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	struct ltexture_t * texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
 	double alpha = luaL_optnumber(L, 4, 1.0);
@@ -162,7 +162,7 @@ static int m_display_draw_texture(lua_State * L)
 
 static int m_display_draw_texture_mask(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	struct ltexture_t * texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
 	cairo_pattern_t ** pattern = luaL_checkudata(L, 3, MT_NAME_PARTTERN);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 4, MT_NAME_MATRIX);
@@ -179,7 +179,7 @@ static int m_display_draw_texture_mask(lua_State * L)
 
 static int m_display_draw_ninepatch(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	struct ninepatch_t * ninepatch = luaL_checkudata(L, 2, MT_NAME_NINEPATCH);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
 	double alpha = luaL_optnumber(L, 4, 1.0);
@@ -212,7 +212,7 @@ static int m_display_draw_ninepatch(lua_State * L)
 
 static int m_display_set_background_color(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	display->r = luaL_checknumber(L, 2);
 	display->g = luaL_checknumber(L, 3);
 	display->b = luaL_checknumber(L, 4);
@@ -222,7 +222,7 @@ static int m_display_set_background_color(lua_State * L)
 
 static int m_display_get_background_color(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	lua_pushnumber(L, display->r);
 	lua_pushnumber(L, display->g);
 	lua_pushnumber(L, display->b);
@@ -231,7 +231,7 @@ static int m_display_get_background_color(lua_State * L)
 
 static int m_display_present(lua_State * L)
 {
-	struct display_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	cairo_xboot_surface_present(display->cs[display->index]);
 	display->index = (display->index + 1) % 2;
 	if(display->a != 0)

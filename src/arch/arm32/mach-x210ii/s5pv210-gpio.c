@@ -84,16 +84,13 @@ void s5pv210_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_drv_t drv)
 
 	switch(drv)
 	{
-	case GPIO_DRV_1X:
+	case GPIO_DRV_LOW:
 		d = 0x0;
 		break;
-	case GPIO_DRV_2X:
+	case GPIO_DRV_MEDIAN:
 		d = 0x2;
 		break;
-	case GPIO_DRV_3X:
-		d = 0x1;
-		break;
-	case GPIO_DRV_4X:
+	case GPIO_DRV_HIGH:
 		d = 0x3;
 		break;
 	default:

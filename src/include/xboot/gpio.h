@@ -14,10 +14,9 @@ enum gpio_pull_t {
 };
 
 enum gpio_drv_t {
-	GPIO_DRV_1X		= 0,
-	GPIO_DRV_2X		= 1,
-	GPIO_DRV_3X		= 2,
-	GPIO_DRV_4X		= 3,
+	GPIO_DRV_LOW	= 0,
+	GPIO_DRV_MEDIAN	= 1,
+	GPIO_DRV_HIGH	= 2,
 };
 
 enum gpio_rate_t {

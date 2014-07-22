@@ -180,7 +180,7 @@ void gpio_direction_output(int no, int value)
 	if(!gpio->direction_output)
 		return;
 
-	return gpio->direction_output(gpio, no - gpio->base, value);
+	gpio->direction_output(gpio, no - gpio->base, value);
 }
 
 void gpio_direction_input(int no)

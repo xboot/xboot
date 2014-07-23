@@ -20,7 +20,7 @@ INCDIRS		:=
 SRCDIRS		:=
 
 #
-# add fixup rule
+# Add fixup rule
 #
 ifeq ($(strip $(HOSTOS)), linux)
 MK4412		:= arch/$(ARCH)/$(MACH)/tools/linux/mk4412

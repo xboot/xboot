@@ -20,7 +20,7 @@ INCDIRS		:=
 SRCDIRS		:=
 
 #
-# add fixup rule
+# Add fixup rule
 #
 ifeq ($(strip $(HOSTOS)), linux)
 MKV210		:= arch/$(ARCH)/$(MACH)/tools/linux/mkv210

@@ -160,10 +160,6 @@ static bool_t exynos4412_uart_setup(struct uart_t * uart, enum baud_rate_t baud,
 		if(!clk_get_rate("sclk_uart3", &sclk_uart))
 			return FALSE;
 		break;
-	case 4:
-		if(!clk_get_rate("sclk_uart4", &sclk_uart))
-			return FALSE;
-		break;
 	default:
 		return FALSE;
 	}
@@ -248,12 +244,6 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		/* pull up GPA15 and GPA14 */
 		writel(EXYNOS4412_GPA1PUD, (readl(EXYNOS4412_GPA1PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
 
-		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
-		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
-		break;
-
-	case 4:
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
 		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
 		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);

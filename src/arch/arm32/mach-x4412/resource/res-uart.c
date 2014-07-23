@@ -51,13 +51,6 @@ static struct exynos4412_uart_data_t exynos4412_uart_data[] = {
 		.parity		= PARITY_NONE,
 		.stop		= STOP_BITS_1,
 		.regbase	= EXYNOS4412_UART3_BASE,
-	},
-	[4] = {
-		.baud		= B115200,
-		.data		= DATA_BITS_8,
-		.parity		= PARITY_NONE,
-		.stop		= STOP_BITS_1,
-		.regbase	= EXYNOS4412_UART4_BASE,
 	}
 };
 
@@ -78,10 +71,6 @@ static struct resource_t res_uarts[] = {
 		.name		= "uart-exynos4412",
 		.id			= 3,
 		.data		= &exynos4412_uart_data[3],
-	}, {
-		.name		= "uart-exynos4412",
-		.id			= 4,
-		.data		= &exynos4412_uart_data[4],
 	}
 };
 

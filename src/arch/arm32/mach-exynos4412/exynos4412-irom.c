@@ -111,8 +111,6 @@ void irom_copyself(void)
 		 * copy xboot to memory from sdmmc ch2.
 		 */
 		irom_sdmmc_to_mem(1, size, mem);
-
-		uart_asm_test();
 	}
 
 	/* eMMC43 CH0 */

@@ -305,12 +305,12 @@ static bool_t s5pv210_unregister_bus_uart(struct resource_t * res)
 
 static __init void s5pv210_bus_uart_init(void)
 {
-	resource_for_each_with_name("uart-s5pv210", s5pv210_register_bus_uart);
+	resource_for_each_with_name("s5pv210-uart", s5pv210_register_bus_uart);
 }
 
 static __exit void s5pv210_bus_uart_exit(void)
 {
-	resource_for_each_with_name("uart-s5pv210", s5pv210_unregister_bus_uart);
+	resource_for_each_with_name("s5pv210-uart", s5pv210_unregister_bus_uart);
 }
 
 bus_initcall(s5pv210_bus_uart_init);

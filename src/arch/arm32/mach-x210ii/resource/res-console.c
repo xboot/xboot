@@ -23,9 +23,9 @@
 #include <xboot.h>
 
 static struct console_stdio_data_t console_stdio_data = {
-	.in		= "uart-s5pv210.2",
-	.out	= "uart-s5pv210.2",
-	.err	= "uart-s5pv210.2",
+	.in		= "s5pv210-uart.2",
+	.out	= "s5pv210-uart.2",
+	.err	= "s5pv210-uart.2",
 };
 
 static struct resource_t res_console = {

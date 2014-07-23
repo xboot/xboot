@@ -122,7 +122,7 @@ static struct s5pv210_fb_data_t s5pv210_fb_data = {
 };
 
 static struct resource_t res_fb = {
-	.name		= "fb-s5pv210",
+	.name		= "s5pv210-fb",
 	.id			= -1,
 	.data		= &s5pv210_fb_data,
 };

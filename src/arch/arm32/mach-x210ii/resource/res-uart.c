@@ -56,19 +56,19 @@ static struct s5pv210_uart_data_t s5pv210_uart_data[] = {
 
 static struct resource_t res_uarts[] = {
 	{
-		.name		= "uart-s5pv210",
+		.name		= "s5pv210-uart",
 		.id			= 0,
 		.data		= &s5pv210_uart_data[0],
 	}, {
-		.name		= "uart-s5pv210",
+		.name		= "s5pv210-uart",
 		.id			= 1,
 		.data		= &s5pv210_uart_data[1],
 	}, {
-		.name		= "uart-s5pv210",
+		.name		= "s5pv210-uart",
 		.id			= 2,
 		.data		= &s5pv210_uart_data[2],
 	}, {
-		.name		= "uart-s5pv210",
+		.name		= "s5pv210-uart",
 		.id			= 3,
 		.data		= &s5pv210_uart_data[3],
 	}

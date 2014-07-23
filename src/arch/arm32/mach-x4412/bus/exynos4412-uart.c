@@ -183,15 +183,10 @@ static void exynos4412_uart_init(struct uart_t * uart)
 	{
 	case 0:
 		/* Configure GPA01, GPA00 for TXD0, RXD0 and pull up */
-/*		gpio_cfg_pin(EXYNOS4412_GPA0(1), 0x2);
+		gpio_cfg_pin(EXYNOS4412_GPA0(1), 0x2);
 		gpio_cfg_pin(EXYNOS4412_GPA0(0), 0x2);
 		gpio_set_pull(EXYNOS4412_GPA0(1), GPIO_PULL_UP);
-		gpio_set_pull(EXYNOS4412_GPA0(0), GPIO_PULL_UP);*/
-
-		/* configure GPA01, GPA00 for TXD0, RXD0 */
-		writel(EXYNOS4412_GPA0CON, (readl(EXYNOS4412_GPA0CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
-		/* pull up GPA01 and GPA00 */
-		writel(EXYNOS4412_GPA0PUD, (readl(EXYNOS4412_GPA0PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
+		gpio_set_pull(EXYNOS4412_GPA0(0), GPIO_PULL_UP);
 
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
 		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
@@ -200,15 +195,10 @@ static void exynos4412_uart_init(struct uart_t * uart)
 
 	case 1:
 		/* Configure GPA05, GPA04 for TXD1, RXD1 */
-/*		gpio_cfg_pin(EXYNOS4412_GPA0(5), 0x2);
+		gpio_cfg_pin(EXYNOS4412_GPA0(5), 0x2);
 		gpio_cfg_pin(EXYNOS4412_GPA0(4), 0x2);
 		gpio_set_pull(EXYNOS4412_GPA0(5), GPIO_PULL_UP);
-		gpio_set_pull(EXYNOS4412_GPA0(4), GPIO_PULL_UP);*/
-
-		/* configure GPA05, GPA04 for TXD1, RXD1 */
-		writel(EXYNOS4412_GPA0CON, (readl(EXYNOS4412_GPA0CON) & ~(0xf<<16 | 0x0f<<20)) | (0x2<<16 | 0x2<<20));
-		/* pull up GPA05 and GPA04 */
-		writel(EXYNOS4412_GPA0PUD, (readl(EXYNOS4412_GPA0PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
+		gpio_set_pull(EXYNOS4412_GPA0(4), GPIO_PULL_UP);
 
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
 		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
@@ -217,15 +207,10 @@ static void exynos4412_uart_init(struct uart_t * uart)
 
 	case 2:
 		/* Configure GPA11, GPA10 for TXD2, RXD2 */
-/*		gpio_cfg_pin(EXYNOS4412_GPA1(1), 0x2);
+		gpio_cfg_pin(EXYNOS4412_GPA1(1), 0x2);
 		gpio_cfg_pin(EXYNOS4412_GPA1(0), 0x2);
 		gpio_set_pull(EXYNOS4412_GPA1(1), GPIO_PULL_UP);
-		gpio_set_pull(EXYNOS4412_GPA1(0), GPIO_PULL_UP);*/
-
-		/* configure GPA11, GPA10 for TXD2, RXD2 */
-		writel(EXYNOS4412_GPA1CON, (readl(EXYNOS4412_GPA1CON) & ~(0xf<<0 | 0x0f<<4)) | (0x2<<0 | 0x2<<4));
-		/* pull up GPA11 and GPA10 */
-		writel(EXYNOS4412_GPA1PUD, (readl(EXYNOS4412_GPA1PUD) & ~(0x3<<0 | 0x03<<2)) | (0x2<<0 | 0x2<<2));
+		gpio_set_pull(EXYNOS4412_GPA1(0), GPIO_PULL_UP);
 
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
 		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
@@ -234,15 +219,10 @@ static void exynos4412_uart_init(struct uart_t * uart)
 
 	case 3:
 		/* Configure GPA15, GPA14 for TXD3, RXD3 */
-/*		gpio_cfg_pin(EXYNOS4412_GPA1(5), 0x2);
+		gpio_cfg_pin(EXYNOS4412_GPA1(5), 0x2);
 		gpio_cfg_pin(EXYNOS4412_GPA1(4), 0x2);
 		gpio_set_pull(EXYNOS4412_GPA1(5), GPIO_PULL_UP);
-		gpio_set_pull(EXYNOS4412_GPA1(4), GPIO_PULL_UP);*/
-
-		/* configure GPA15, GPA14 for TXD3, RXD3 */
-		writel(EXYNOS4412_GPA1CON, (readl(EXYNOS4412_GPA1CON) & ~(0xf<<16 | 0x0f<<20)) | (0x2<<16 | 0x2<<20));
-		/* pull up GPA15 and GPA14 */
-		writel(EXYNOS4412_GPA1PUD, (readl(EXYNOS4412_GPA1PUD) & ~(0x3<<8 | 0x03<<10)) | (0x2<<8 | 0x2<<10));
+		gpio_set_pull(EXYNOS4412_GPA1(4), GPIO_PULL_UP);
 
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
 		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);

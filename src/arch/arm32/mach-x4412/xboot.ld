@@ -22,10 +22,10 @@ SECTIONS
 	{
 		. = ALIGN(8);
 		PROVIDE (__text_start = .);
-		.obj/arch/arm32/mach-exynos4412/start.o (.text)
-		.obj/arch/arm32/mach-exynos4412/clock_init_smdk4212.o (.text)
-		.obj/arch/arm32/mach-exynos4412/mem_init_smdk4212.o (.text)
-		.obj/arch/arm32/mach-exynos4412/exynos4412-irom.o (.text)
+		.obj/arch/arm32/mach-x4412/start.o (.text)
+		.obj/arch/arm32/mach-x4412/clock_init_smdk4212.o (.text)
+		.obj/arch/arm32/mach-x4412/mem_init_smdk4212.o (.text)
+		.obj/arch/arm32/mach-x4412/exynos4412-irom.o (.text)
 		*(.text)
 		*(.text.*)
 		*(.init.text)

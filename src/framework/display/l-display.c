@@ -171,7 +171,6 @@ static int m_display_draw_texture_mask(lua_State * L)
 	cairo_set_source_surface(cr, texture->surface, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 	cairo_mask(cr, *parttern);
-	cairo_fill(cr);
 	cairo_restore(cr);
 	return 0;
 }

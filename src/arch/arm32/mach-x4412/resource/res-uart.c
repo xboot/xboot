@@ -56,19 +56,19 @@ static struct exynos4412_uart_data_t exynos4412_uart_data[] = {
 
 static struct resource_t res_uarts[] = {
 	{
-		.name		= "uart-exynos4412",
+		.name		= "exynos4412-uart",
 		.id			= 0,
 		.data		= &exynos4412_uart_data[0],
 	}, {
-		.name		= "uart-exynos4412",
+		.name		= "exynos4412-uart",
 		.id			= 1,
 		.data		= &exynos4412_uart_data[1],
 	}, {
-		.name		= "uart-exynos4412",
+		.name		= "exynos4412-uart",
 		.id			= 2,
 		.data		= &exynos4412_uart_data[2],
 	}, {
-		.name		= "uart-exynos4412",
+		.name		= "exynos4412-uart",
 		.id			= 3,
 		.data		= &exynos4412_uart_data[3],
 	}

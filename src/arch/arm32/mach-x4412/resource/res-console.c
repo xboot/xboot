@@ -23,9 +23,9 @@
 #include <xboot.h>
 
 static struct console_stdio_data_t console_stdio_data = {
-	.in		= "uart-exynos4412.3",
-	.out	= "uart-exynos4412.3",
-	.err	= "uart-exynos4412.3",
+	.in		= "exynos4412-uart.3",
+	.out	= "exynos4412-uart.3",
+	.err	= "exynos4412-uart.3",
 };
 
 static struct resource_t res_console = {

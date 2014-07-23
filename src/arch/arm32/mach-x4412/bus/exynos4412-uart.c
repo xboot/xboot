@@ -340,12 +340,12 @@ static bool_t exynos4412_unregister_bus_uart(struct resource_t * res)
 
 static __init void exynos4412_bus_uart_init(void)
 {
-	resource_for_each_with_name("uart-exynos4412", exynos4412_register_bus_uart);
+	resource_for_each_with_name("exynos4412-uart", exynos4412_register_bus_uart);
 }
 
 static __exit void exynos4412_bus_uart_exit(void)
 {
-	resource_for_each_with_name("uart-exynos4412", exynos4412_unregister_bus_uart);
+	resource_for_each_with_name("exynos4412-uart", exynos4412_unregister_bus_uart);
 }
 
 bus_initcall(exynos4412_bus_uart_init);

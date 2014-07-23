@@ -709,7 +709,7 @@ static struct gpio_t exynos4412_gpios[] = {
 		.direction_input	= exynos4412_gpio_direction_input,
 		.set_value			= exynos4412_gpio_set_value,
 		.get_value			= exynos4412_gpio_get_value,
-		.priv				= &exynos4412_gpio_datas[33],
+		.priv				= &exynos4412_gpio_datas[34],
 	}, {
 		.name				= "GPX3",
 		.base				= 280,
@@ -722,7 +722,7 @@ static struct gpio_t exynos4412_gpios[] = {
 		.direction_input	= exynos4412_gpio_direction_input,
 		.set_value			= exynos4412_gpio_set_value,
 		.get_value			= exynos4412_gpio_get_value,
-		.priv				= &exynos4412_gpio_datas[33],
+		.priv				= &exynos4412_gpio_datas[35],
 	}, {
 		.name				= "GPZ",
 		.base				= 288,
@@ -735,7 +735,7 @@ static struct gpio_t exynos4412_gpios[] = {
 		.direction_input	= exynos4412_gpio_direction_input,
 		.set_value			= exynos4412_gpio_set_value,
 		.get_value			= exynos4412_gpio_get_value,
-		.priv				= &exynos4412_gpio_datas[33],
+		.priv				= &exynos4412_gpio_datas[36],
 	}, {
 		.name				= "GPV0",
 		.base				= 296,
@@ -748,7 +748,7 @@ static struct gpio_t exynos4412_gpios[] = {
 		.direction_input	= exynos4412_gpio_direction_input,
 		.set_value			= exynos4412_gpio_set_value,
 		.get_value			= exynos4412_gpio_get_value,
-		.priv				= &exynos4412_gpio_datas[33],
+		.priv				= &exynos4412_gpio_datas[37],
 	}, {
 		.name				= "GPV1",
 		.base				= 304,
@@ -761,7 +761,7 @@ static struct gpio_t exynos4412_gpios[] = {
 		.direction_input	= exynos4412_gpio_direction_input,
 		.set_value			= exynos4412_gpio_set_value,
 		.get_value			= exynos4412_gpio_get_value,
-		.priv				= &exynos4412_gpio_datas[33],
+		.priv				= &exynos4412_gpio_datas[38],
 	}, {
 		.name				= "GPV2",
 		.base				= 312,
@@ -774,7 +774,7 @@ static struct gpio_t exynos4412_gpios[] = {
 		.direction_input	= exynos4412_gpio_direction_input,
 		.set_value			= exynos4412_gpio_set_value,
 		.get_value			= exynos4412_gpio_get_value,
-		.priv				= &exynos4412_gpio_datas[33],
+		.priv				= &exynos4412_gpio_datas[39],
 	}, {
 		.name				= "GPV3",
 		.base				= 320,
@@ -787,7 +787,7 @@ static struct gpio_t exynos4412_gpios[] = {
 		.direction_input	= exynos4412_gpio_direction_input,
 		.set_value			= exynos4412_gpio_set_value,
 		.get_value			= exynos4412_gpio_get_value,
-		.priv				= &exynos4412_gpio_datas[33],
+		.priv				= &exynos4412_gpio_datas[40],
 	}, {
 		.name				= "GPV4",
 		.base				= 328,
@@ -800,7 +800,7 @@ static struct gpio_t exynos4412_gpios[] = {
 		.direction_input	= exynos4412_gpio_direction_input,
 		.set_value			= exynos4412_gpio_set_value,
 		.get_value			= exynos4412_gpio_get_value,
-		.priv				= &exynos4412_gpio_datas[33],
+		.priv				= &exynos4412_gpio_datas[41],
 	}
 };
 

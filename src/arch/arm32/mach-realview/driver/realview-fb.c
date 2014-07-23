@@ -211,12 +211,12 @@ static bool_t realview_unregister_framebuffer(struct resource_t * res)
 
 static __init void realview_fb_init(void)
 {
-	resource_for_each_with_name("fb-pl110", realview_register_framebuffer);
+	resource_for_each_with_name("realview-fb", realview_register_framebuffer);
 }
 
 static __exit void realview_fb_exit(void)
 {
-	resource_for_each_with_name("fb-pl110", realview_unregister_framebuffer);
+	resource_for_each_with_name("realview-fb", realview_unregister_framebuffer);
 }
 
 device_initcall(realview_fb_init);

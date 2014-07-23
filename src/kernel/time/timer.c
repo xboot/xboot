@@ -216,15 +216,15 @@ static __init void timer_pure_init(void)
 
 	for(i = 0; i < TVN_SIZE; i++)
 	{
-		init_list_head(tv5.vec + i);
-		init_list_head(tv4.vec + i);
-		init_list_head(tv3.vec + i);
-		init_list_head(tv2.vec + i);
+		init_list_head(&(tv5.vec[i]));
+		init_list_head(&(tv4.vec[i]));
+		init_list_head(&(tv3.vec[i]));
+		init_list_head(&(tv2.vec[i]));
 	}
 
 	for(i = 0; i < TVR_SIZE; i++)
 	{
-		init_list_head(tv1.vec + i);
+		init_list_head(&(tv1.vec[i]));
 	}
 }
 

@@ -73,20 +73,11 @@ mem_ctrl_asm_init:
 	ldr	r1, =0x0FFF30CA
 	str	r1, [r0, #DMC_CONCONTROL]
 
-#ifdef USE_2G_DRAM
-	ldr	r1, =0x00212500
-#else
-	ldr	r1, =0x00202500
-#endif
+	ldr	r1, =0x00202500				
 	str	r1, [r0, #DMC_MEMCONTROL]
 
 	ldr	r1, =0x40C01323	
 	str	r1, [r0, #DMC_MEMCONFIG0]
-
-#ifdef USE_2G_DRAM
-	ldr	r1, =0x80C01323
-	str     r1, [r0, #DMC_MEMCONFIG1]
-#endif
 
 	ldr	r1, =(0x80000000 | CONFIG_IV_SIZE)
 	str	r1, [r0, #DMC_IVCONTROL]
@@ -126,7 +117,7 @@ mem_ctrl_asm_init:
 #elif defined(CONFIG_CLK_BUS_DMC_220_440)
 	ldr	r1, =0x3A5A8713
 	str	r1, [r0, #DMC_TIMINGROW] @TimingRow
-	ldr	r1, =0x47400407
+	ldr	r1, =0x47400306
 	str	r1, [r0, #DMC_TIMINGDATA] @TimingData
 	ldr	r1, =0x583E0475
 	str	r1, [r0, #DMC_TIMINGPOWER] @TimingPower
@@ -162,56 +153,12 @@ mem_ctrl_asm_init:
 	mov	r2, #0x3f0
 	bl dmc_delay
 
-#if defined(CONFIG_CLK_BUS_DMC_200_400)
 	ldr	r1, =0x00000608
-	str	r1, [r0, #DMC_DIRECTCMD]
-	ldr	r1, =0x00000810
-	str	r1, [r0, #DMC_DIRECTCMD]
-#elif defined(CONFIG_CLK_BUS_DMC_220_440)
-	ldr	r1, =0x00000808
-	str	r1, [r0, #DMC_DIRECTCMD]
-	ldr	r1, =0x00000814
-	str	r1, [r0, #DMC_DIRECTCMD]
-#endif
+	str	r1, [r0, #DMC_DIRECTCMD] 
+	ldr	r1, =0x00000810       				
+	str	r1, [r0, #DMC_DIRECTCMD] 
 	ldr	r1, =0x00000C08       				
 	str	r1, [r0, #DMC_DIRECTCMD] 
-
-#ifdef USE_2G_DRAM
-	mov	r2, #0x64
-	bl dmc_delay
-
-	ldr	r1, =0x07100000
-	str	r1, [r0, #DMC_DIRECTCMD]
-
-	mov	r2, #0x19000
-	bl dmc_delay
-
-	ldr	r1, =0x00171C00
-	str	r1, [r0, #DMC_DIRECTCMD]
-
-	mov	r2, #0x2700
-	bl dmc_delay
-
-	ldr	r1, =0x00110BFC
-	str	r1, [r0, #DMC_DIRECTCMD]
-
-	mov	r2, #0x3f0
-	bl dmc_delay
-
-#if defined(CONFIG_CLK_BUS_DMC_200_400)
-	ldr	r1, =0x00100608
-	str	r1, [r0, #DMC_DIRECTCMD]
-	ldr	r1, =0x00100810
-	str	r1, [r0, #DMC_DIRECTCMD]
-#elif defined(CONFIG_CLK_BUS_DMC_220_440)
-	ldr	r1, =0x00100808
-	str	r1, [r0, #DMC_DIRECTCMD]
-	ldr	r1, =0x00100814
-	str	r1, [r0, #DMC_DIRECTCMD]
-#endif
-	ldr	r1, =0x00100C08
-	str	r1, [r0, #DMC_DIRECTCMD]
-#endif
 
 /*****************************************************************/
 /*DREX1***********************************************************/
@@ -248,20 +195,11 @@ mem_ctrl_asm_init:
 	ldr	r1, =0x0FFF30CA
 	str	r1, [r0, #DMC_CONCONTROL]
 
-#ifdef USE_2G_DRAM
-	ldr	r1, =0x00212500
-#else
 	ldr	r1, =0x00202500
-#endif
 	str	r1, [r0, #DMC_MEMCONTROL]
 
 	ldr	r1, =0x40C01323
 	str	r1, [r0, #DMC_MEMCONFIG0]
-
-#ifdef USE_2G_DRAM
-	ldr	r1, =0x80C01323
-	str	r1, [r0, #DMC_MEMCONFIG1]
-#endif
 
 	ldr	r1, =(0x80000000 | CONFIG_IV_SIZE)
 	str	r1, [r0, #DMC_IVCONTROL]
@@ -301,7 +239,7 @@ mem_ctrl_asm_init:
 #elif defined(CONFIG_CLK_BUS_DMC_220_440)
 	ldr	r1, =0x3A5A8713
 	str	r1, [r0, #DMC_TIMINGROW] @TimingRow
-	ldr	r1, =0x47400407
+	ldr	r1, =0x47400306
 	str	r1, [r0, #DMC_TIMINGDATA] @TimingData
 	ldr	r1, =0x583E0475
 	str	r1, [r0, #DMC_TIMINGPOWER] @TimingPower
@@ -337,58 +275,18 @@ mem_ctrl_asm_init:
 	mov	r2, #0x3f0
 	bl dmc_delay
 
-#if defined(CONFIG_CLK_BUS_DMC_200_400)
 	ldr	r1, =0x00000608
 	str	r1, [r0, #DMC_DIRECTCMD]
 	ldr	r1, =0x00000810
 	str	r1, [r0, #DMC_DIRECTCMD]
-#elif defined(CONFIG_CLK_BUS_DMC_220_440)
-	ldr	r1, =0x00000808
-	str	r1, [r0, #DMC_DIRECTCMD]
-	ldr	r1, =0x00000814
-	str	r1, [r0, #DMC_DIRECTCMD]
-#endif
 	ldr	r1, =0x00000C08
 	str	r1, [r0, #DMC_DIRECTCMD]
 
-#ifdef USE_2G_DRAM
-	mov	r2, #0x64
-	bl dmc_delay
-
-	ldr	r1, =0x07100000
-	str	r1, [r0, #DMC_DIRECTCMD]
-
-	mov	r2, #0x19000
-	bl dmc_delay
-
-	ldr	r1, =0x00171C00
-	str	r1, [r0, #DMC_DIRECTCMD]
-
-	mov	r2, #0x2700
-	bl dmc_delay
-
-	ldr	r1, =0x00110BFC
-	str	r1, [r0, #DMC_DIRECTCMD]
-
-	mov	r2, #0x3f0
-	bl dmc_delay
-
-#if defined(CONFIG_CLK_BUS_DMC_200_400)
-	ldr	r1, =0x00100608
-	str	r1, [r0, #DMC_DIRECTCMD]
-	ldr	r1, =0x00100810
-	str	r1, [r0, #DMC_DIRECTCMD]
-#elif defined(CONFIG_CLK_BUS_DMC_220_440)
-	ldr	r1, =0x00100808
-	str	r1, [r0, #DMC_DIRECTCMD]
-	ldr	r1, =0x00100814
-	str	r1, [r0, #DMC_DIRECTCMD]
-#endif
-	ldr	r1, =0x00100C08
-	str	r1, [r0, #DMC_DIRECTCMD]
-#endif
-
 	pop	{pc}
+
+
+//==================================
+
 
 	.globl mem_ctrl_asm_init_ddr3
 mem_ctrl_asm_init_ddr3:

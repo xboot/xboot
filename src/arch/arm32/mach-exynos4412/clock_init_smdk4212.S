@@ -30,15 +30,6 @@ wait_phy_state:
 	beq wait_phy_state
 	mov pc, lr
 
-#ifdef USE_2G_DRAM
-check_2GB_DRAM:
-	ldr	r6, =0x10000004
-	ldr	r5, [r6]
-	and	r5, r5, #0x30
-	cmp	r5, #0x10
-	mov	pc, lr
-#endif
-
 /*
  * system_clock_init: Initialize core clock and bus clock.
  * void system_clock_init(void)
@@ -48,7 +39,7 @@ check_2GB_DRAM:
 	.globl system_clock_init
 system_clock_init:
 	push	{lr}
-	
+
 	ldr	r0, =ELFIN_CLOCK_BASE	@0x1003_0000
 
 @ CMU_CPU MUX / DIV
@@ -304,24 +295,12 @@ skip_mpll:
 	str	r1, [r0, r2]
 
 	ldr	r0, =APB_DMC_0_BASE
-#ifdef USE_2G_DRAM
-	bl	check_2GB_DRAM
-	ldreq	r1, =0x00212533
-	ldrne	r1, =0x00202533
-#else
 	ldr	r1, =0x00202533
-#endif
 	ldr	r2, =DMC_MEMCONTROL
 	str	r1, [r0, r2]
 
 	ldr	r0, =APB_DMC_1_BASE
-#ifdef USE_2G_DRAM
-	bl	check_2GB_DRAM
-	ldreq	r1, =0x00212533
-	ldrne	r1, =0x00202533
-#else
 	ldr	r1, =0x00202533
-#endif
 	ldr	r2, =DMC_MEMCONTROL
 	str	r1, [r0, r2]
 

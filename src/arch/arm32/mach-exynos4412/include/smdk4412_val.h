@@ -17,8 +17,6 @@
 #define CONFIG_CLK_ARM_1000_APLL_1000
 /* bus clock: 200Mhz, DMC clock 400Mhz */
 #define CONFIG_CLK_BUS_DMC_200_400
-#undef USE_2G_DRAM
-
 
 #define DMC_PHYSTATUS                   0x40
 #define C2C_CTRL_OFFSET                 0x24

@@ -147,8 +147,8 @@ static int m_display_draw_text(lua_State * L)
 static int m_display_draw_texture(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct ltexture_t * texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
-	struct lobject_t * object = luaL_checkudata(L, 3, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_NAME_TEXTURE);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
@@ -162,9 +162,9 @@ static int m_display_draw_texture(lua_State * L)
 static int m_display_draw_texture_mask(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct ltexture_t * texture = luaL_checkudata(L, 2, MT_NAME_TEXTURE);
-	cairo_pattern_t ** parttern = luaL_checkudata(L, 3, MT_NAME_PARTTERN);
-	struct lobject_t * object = luaL_checkudata(L, 4, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_NAME_TEXTURE);
+	cairo_pattern_t ** parttern = luaL_checkudata(L, 4, MT_NAME_PARTTERN);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);

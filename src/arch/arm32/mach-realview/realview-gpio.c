@@ -28,66 +28,95 @@ struct realview_gpio_data_t
 	physical_addr_t regbase;
 };
 
-void realview_gpio_cfg_pin(struct gpio_t * gpio, int offset, int cfg)
+static void realview_gpio_set_cfg(struct gpio_t * gpio, int offset, int cfg)
 {
+}
+
+static int realview_gpio_get_cfg(struct gpio_t * gpio, int offset)
+{
+	return 0;
 }
 
 static void realview_gpio_set_pull(struct gpio_t * gpio, int offset, enum gpio_pull_t pull)
 {
 }
 
-void realview_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_drv_t drv)
+static enum gpio_pull_t realview_gpio_get_pull(struct gpio_t * gpio, int offset)
+{
+	return GPIO_PULL_NONE;
+}
+
+static void realview_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_drv_t drv)
 {
 }
 
-void realview_gpio_set_rate(struct gpio_t * gpio, int offset, enum gpio_rate_t rate)
+static enum gpio_drv_t realview_gpio_get_drv(struct gpio_t * gpio, int offset)
+{
+	return GPIO_DRV_NONE;
+}
+
+static void realview_gpio_set_rate(struct gpio_t * gpio, int offset, enum gpio_rate_t rate)
 {
 }
 
-static void realview_gpio_direction_output(struct gpio_t * gpio, int offset, int value)
+static enum gpio_rate_t realview_gpio_get_rate(struct gpio_t * gpio, int offset)
+{
+	return GPIO_RATE_NONE;
+}
+
+static void realview_gpio_set_dir(struct gpio_t * gpio, int offset, enum gpio_direction_t dir)
 {
 	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
-	u8_t dir;
+	u8_t val;
 
 	if(offset >= gpio->ngpio)
 		return;
 
-	writeb(dat->regbase + (1 << (offset + 2)), !!value << offset);
-	dir = readb(dat->regbase + REALVIEW_GPIO_OFFSET_DIR);
-	dir |= 1 << offset;
-	writeb(dat->regbase  + REALVIEW_GPIO_OFFSET_DIR, dir);
+	switch(dir)
+	{
+	case GPIO_DIRECTION_NONE:
+		break;
 
-	/*
-	 * gpio value is set again, because pl061 doesn't allow to set value of
-	 * a gpio pin before configuring it in OUT mode.
-	 */
-	writeb(dat->regbase + (1 << (offset + 2)), !!value << offset);
+	case GPIO_DIRECTION_INPUT:
+		val = readb(dat->regbase + REALVIEW_GPIO_DIR);
+		val &= ~(1 << offset);
+		writeb(dat->regbase  + REALVIEW_GPIO_DIR, val);
+		break;
+
+	case GPIO_DIRECTION_OUTPUT:
+		val = readb(dat->regbase + REALVIEW_GPIO_DIR);
+		val |= 1 << offset;
+		writeb(dat->regbase  + REALVIEW_GPIO_DIR, val);
+		break;
+
+	default:
+		break;
+	}
 }
 
-static void realview_gpio_direction_input(struct gpio_t * gpio, int offset)
+static enum gpio_direction_t realview_gpio_get_dir(struct gpio_t * gpio, int offset)
 {
 	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
-	u8_t dir;
+	u8_t val;
 
 	if(offset >= gpio->ngpio)
-		return;
+		return GPIO_DIRECTION_NONE;
 
-	dir = readb(dat->regbase + REALVIEW_GPIO_OFFSET_DIR);
-	dir &= ~(1 << offset);
-	writeb(dat->regbase + REALVIEW_GPIO_OFFSET_DIR, dir);
+	val = readb(dat->regbase + REALVIEW_GPIO_DIR);
+	if((val & (1 << offset)) == 0)
+		return GPIO_DIRECTION_INPUT;
+	return GPIO_DIRECTION_OUTPUT;
 }
 
 static void realview_gpio_set_value(struct gpio_t * gpio, int offset, int value)
 {
 	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
-
 	writeb(dat->regbase + (1 << (offset + 2)), !!value << offset);
 }
 
 static int realview_gpio_get_value(struct gpio_t * gpio, int offset)
 {
 	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
-
 	return !!readb(dat->regbase + (1 << (offset + 2)));
 }
 
@@ -104,40 +133,52 @@ static struct realview_gpio_data_t realview_gpio_datas[] = {
 static struct gpio_t realview_gpios[] = {
 	{
 		.name				= "GPIO0",
-		.base				= 0,
+		.base				= REALVIEW_GPIO0(0),
 		.ngpio				= 8,
-		.cfg_pin			= realview_gpio_cfg_pin,
+		.set_cfg			= realview_gpio_set_cfg,
+		.get_cfg			= realview_gpio_get_cfg,
 		.set_pull			= realview_gpio_set_pull,
+		.get_pull			= realview_gpio_get_pull,
 		.set_drv			= realview_gpio_set_drv,
+		.get_drv			= realview_gpio_get_drv,
 		.set_rate			= realview_gpio_set_rate,
-		.direction_output	= realview_gpio_direction_output,
-		.direction_input	= realview_gpio_direction_input,
+		.get_rate			= realview_gpio_get_rate,
+		.set_dir			= realview_gpio_set_dir,
+		.get_dir			= realview_gpio_get_dir,
 		.set_value			= realview_gpio_set_value,
 		.get_value			= realview_gpio_get_value,
 		.priv				= &realview_gpio_datas[0],
 	}, {
 		.name				= "GPIO1",
-		.base				= 8,
+		.base				= REALVIEW_GPIO1(0),
 		.ngpio				= 8,
-		.cfg_pin			= realview_gpio_cfg_pin,
+		.set_cfg			= realview_gpio_set_cfg,
+		.get_cfg			= realview_gpio_get_cfg,
 		.set_pull			= realview_gpio_set_pull,
+		.get_pull			= realview_gpio_get_pull,
 		.set_drv			= realview_gpio_set_drv,
+		.get_drv			= realview_gpio_get_drv,
 		.set_rate			= realview_gpio_set_rate,
-		.direction_output	= realview_gpio_direction_output,
-		.direction_input	= realview_gpio_direction_input,
+		.get_rate			= realview_gpio_get_rate,
+		.set_dir			= realview_gpio_set_dir,
+		.get_dir			= realview_gpio_get_dir,
 		.set_value			= realview_gpio_set_value,
 		.get_value			= realview_gpio_get_value,
 		.priv				= &realview_gpio_datas[1],
 	}, {
 		.name				= "GPIO2",
-		.base				= 16,
+		.base				= REALVIEW_GPIO2(0),
 		.ngpio				= 8,
-		.cfg_pin			= realview_gpio_cfg_pin,
+		.set_cfg			= realview_gpio_set_cfg,
+		.get_cfg			= realview_gpio_get_cfg,
 		.set_pull			= realview_gpio_set_pull,
+		.get_pull			= realview_gpio_get_pull,
 		.set_drv			= realview_gpio_set_drv,
+		.get_drv			= realview_gpio_get_drv,
 		.set_rate			= realview_gpio_set_rate,
-		.direction_output	= realview_gpio_direction_output,
-		.direction_input	= realview_gpio_direction_input,
+		.get_rate			= realview_gpio_get_rate,
+		.set_dir			= realview_gpio_set_dir,
+		.get_dir			= realview_gpio_get_dir,
 		.set_value			= realview_gpio_set_value,
 		.get_value			= realview_gpio_get_value,
 		.priv				= &realview_gpio_datas[2],

@@ -118,56 +118,106 @@ int gpio_is_valid(int no)
 	return search_gpio_with_no(no) ? 1 : 0;
 }
 
-void gpio_cfg_pin(int no, int cfg)
+void gpio_set_cfg(int no, int cfg)
 {
 	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	if(!gpio)
-		return;
+	if(gpio && gpio->set_cfg)
+		gpio->set_cfg(gpio, no - gpio->base, cfg);
+}
 
-	if(!gpio->cfg_pin)
-		return;
+int gpio_get_cfg(int no)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	gpio->cfg_pin(gpio, no - gpio->base, cfg);
+	if(gpio && gpio->get_cfg)
+		return gpio->get_cfg(gpio, no - gpio->base);
+	return 0;
 }
 
 void gpio_set_pull(int no, enum gpio_pull_t pull)
 {
 	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	if(!gpio)
-		return;
+	if(gpio && gpio->set_pull)
+		gpio->set_pull(gpio, no - gpio->base, pull);
+}
 
-	if(!gpio->set_pull)
-		return;
+enum gpio_pull_t gpio_get_pull(int no)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	gpio->set_pull(gpio, no - gpio->base, pull);
+	if(gpio && gpio->get_pull)
+		return gpio->get_pull(gpio, no - gpio->base);
+	return GPIO_PULL_NONE;
 }
 
 void gpio_set_drv(int no, enum gpio_drv_t drv)
 {
 	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	if(!gpio)
-		return;
+	if(gpio && gpio->set_drv)
+		gpio->set_drv(gpio, no - gpio->base, drv);
+}
 
-	if(!gpio->set_drv)
-		return;
+enum gpio_drv_t gpio_get_drv(int no)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	gpio->set_drv(gpio, no - gpio->base, drv);
+	if(gpio && gpio->get_drv)
+		return gpio->get_drv(gpio, no - gpio->base);
+	return GPIO_DRV_NONE;
 }
 
 void gpio_set_rate(int no, enum gpio_rate_t rate)
 {
 	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	if(!gpio)
-		return;
+	if(gpio && gpio->set_rate)
+		gpio->set_rate(gpio, no - gpio->base, rate);
+}
 
-	if(!gpio->set_rate)
-		return;
+enum gpio_rate_t gpio_get_rate(int no)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	gpio->set_rate(gpio, no - gpio->base, rate);
+	if(gpio && gpio->get_rate)
+		return gpio->get_rate(gpio, no - gpio->base);
+	return GPIO_RATE_NONE;
+}
+
+void gpio_set_direction(int no, enum gpio_direction_t dir)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
+
+	if(gpio && gpio->set_dir)
+		gpio->set_dir(gpio, no - gpio->base, dir);
+}
+
+enum gpio_direction_t gpio_get_direction(int no)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
+
+	if(gpio && gpio->get_dir)
+		return gpio->get_dir(gpio, no - gpio->base);
+	return GPIO_DIRECTION_NONE;
+}
+
+void gpio_set_value(int no, int value)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
+
+	if(gpio && gpio->set_value)
+		gpio->set_value(gpio, no - gpio->base, value);
+}
+
+int gpio_get_value(int no)
+{
+	struct gpio_t * gpio = search_gpio_with_no(no);
+
+	if(gpio && gpio->get_value)
+		return gpio->get_value(gpio, no - gpio->base);
+	return 0;
 }
 
 void gpio_direction_output(int no, int value)
@@ -177,49 +227,19 @@ void gpio_direction_output(int no, int value)
 	if(!gpio)
 		return;
 
-	if(!gpio->direction_output)
-		return;
+	if(gpio->set_dir)
+		gpio->set_dir(gpio, no - gpio->base, GPIO_DIRECTION_OUTPUT);
 
-	gpio->direction_output(gpio, no - gpio->base, value);
+	if(gpio->set_value)
+		gpio->set_value(gpio, no - gpio->base, value);
 }
 
 void gpio_direction_input(int no)
 {
 	struct gpio_t * gpio = search_gpio_with_no(no);
 
-	if(!gpio)
-		return;
-
-	if(!gpio->direction_input)
-		return;
-
-	gpio->direction_input(gpio, no - gpio->base);
-}
-
-void gpio_set_value(int no, int value)
-{
-	struct gpio_t * gpio = search_gpio_with_no(no);
-
-	if(!gpio)
-		return;
-
-	if(!gpio->set_value)
-		return;
-
-	gpio->set_value(gpio, no - gpio->base, value);
-}
-
-int gpio_get_value(int no)
-{
-	struct gpio_t * gpio = search_gpio_with_no(no);
-
-	if(!gpio)
-		return 0;
-
-	if(!gpio->get_value)
-		return 0;
-
-	return gpio->get_value(gpio, no - gpio->base);
+	if(gpio && gpio->set_dir)
+		gpio->set_dir(gpio, no - gpio->base, GPIO_DIRECTION_INPUT);
 }
 
 static s32_t gpio_proc_read(u8_t * buf, s32_t offset, s32_t count)

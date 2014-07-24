@@ -25,11 +25,11 @@
 
 static struct ledtrig_data_t led_trigger_datas[] = {
 	{
-		.led	= "led-gpio.0",
-	}, {
 		.led	= "led-gpio.1",
 	}, {
 		.led	= "led-gpio.2",
+	}, {
+		.led	= "led-gpio.3",
 	}
 };
 

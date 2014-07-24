@@ -126,7 +126,7 @@ static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
 	{
-		len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", pos->clk->name, (u64_t)(pos->clk->rate / 1000*1000), (u64_t)(pos->clk->rate % 1000*1000));
+		len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", pos->clk->name, pos->clk->rate / (u64_t)(1000 * 1000), pos->clk->rate % (u64_t)(1000 * 1000));
 	}
 
 	len -= offset;

@@ -183,8 +183,8 @@ static void exynos4412_uart_init(struct uart_t * uart)
 	{
 	case 0:
 		/* Configure GPA01, GPA00 for TXD0, RXD0 and pull up */
-		gpio_cfg_pin(EXYNOS4412_GPA0(1), 0x2);
-		gpio_cfg_pin(EXYNOS4412_GPA0(0), 0x2);
+		gpio_set_cfg(EXYNOS4412_GPA0(1), 0x2);
+		gpio_set_cfg(EXYNOS4412_GPA0(0), 0x2);
 		gpio_set_pull(EXYNOS4412_GPA0(1), GPIO_PULL_UP);
 		gpio_set_pull(EXYNOS4412_GPA0(0), GPIO_PULL_UP);
 
@@ -195,8 +195,8 @@ static void exynos4412_uart_init(struct uart_t * uart)
 
 	case 1:
 		/* Configure GPA05, GPA04 for TXD1, RXD1 */
-		gpio_cfg_pin(EXYNOS4412_GPA0(5), 0x2);
-		gpio_cfg_pin(EXYNOS4412_GPA0(4), 0x2);
+		gpio_set_cfg(EXYNOS4412_GPA0(5), 0x2);
+		gpio_set_cfg(EXYNOS4412_GPA0(4), 0x2);
 		gpio_set_pull(EXYNOS4412_GPA0(5), GPIO_PULL_UP);
 		gpio_set_pull(EXYNOS4412_GPA0(4), GPIO_PULL_UP);
 
@@ -207,8 +207,8 @@ static void exynos4412_uart_init(struct uart_t * uart)
 
 	case 2:
 		/* Configure GPA11, GPA10 for TXD2, RXD2 */
-		gpio_cfg_pin(EXYNOS4412_GPA1(1), 0x2);
-		gpio_cfg_pin(EXYNOS4412_GPA1(0), 0x2);
+		gpio_set_cfg(EXYNOS4412_GPA1(1), 0x2);
+		gpio_set_cfg(EXYNOS4412_GPA1(0), 0x2);
 		gpio_set_pull(EXYNOS4412_GPA1(1), GPIO_PULL_UP);
 		gpio_set_pull(EXYNOS4412_GPA1(0), GPIO_PULL_UP);
 
@@ -219,8 +219,8 @@ static void exynos4412_uart_init(struct uart_t * uart)
 
 	case 3:
 		/* Configure GPA15, GPA14 for TXD3, RXD3 */
-		gpio_cfg_pin(EXYNOS4412_GPA1(5), 0x2);
-		gpio_cfg_pin(EXYNOS4412_GPA1(4), 0x2);
+		gpio_set_cfg(EXYNOS4412_GPA1(5), 0x2);
+		gpio_set_cfg(EXYNOS4412_GPA1(4), 0x2);
 		gpio_set_pull(EXYNOS4412_GPA1(5), GPIO_PULL_UP);
 		gpio_set_pull(EXYNOS4412_GPA1(4), GPIO_PULL_UP);
 

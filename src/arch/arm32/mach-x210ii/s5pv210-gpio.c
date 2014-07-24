@@ -174,7 +174,7 @@ static enum gpio_drv_t s5pv210_gpio_get_drv(struct gpio_t * gpio, int offset)
 	return GPIO_DRV_NONE;
 }
 
-void s5pv210_gpio_set_rate(struct gpio_t * gpio, int offset, enum gpio_rate_t rate)
+static void s5pv210_gpio_set_rate(struct gpio_t * gpio, int offset, enum gpio_rate_t rate)
 {
 }
 

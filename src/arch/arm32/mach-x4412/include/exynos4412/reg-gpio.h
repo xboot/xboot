@@ -51,7 +51,6 @@
 #define EXYNOS4412_GPIO_CONPDN		(0x10)
 #define EXYNOS4412_GPIO_PUDPDN		(0x14)
 
-
 #define EXYNOS4412_GPA0(x)			(x)
 #define EXYNOS4412_GPA1(x)			(x + 8)
 #define EXYNOS4412_GPB(x)			(x + 16)

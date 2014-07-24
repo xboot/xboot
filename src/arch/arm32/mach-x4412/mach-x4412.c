@@ -1,5 +1,5 @@
 /*
- * mach-exynos4412.c
+ * mach-x4412.c
  *
  * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
  * official site: http://xboot.org
@@ -93,10 +93,10 @@ static bool_t mach_authentication(void)
 /*
  * A portable machine interface.
  */
-static struct machine_t exynos4412 = {
+static struct machine_t x4412 = {
 	.info = {
-		.board_name 		= "exynos4412",
-		.board_desc 		= "Samsung exynos4412 development kit",
+		.board_name 		= "x4412",
+		.board_desc 		= "x4412 based on exynos4412",
 		.board_id			= "0x00000000",
 
 		.cpu_name			= "exynos4412",
@@ -165,11 +165,11 @@ static struct machine_t exynos4412 = {
 	.priv					= NULL,
 };
 
-static __init void mach_exynos4412_init(void)
+static __init void mach_x4412_init(void)
 {
-	if(register_machine(&exynos4412))
-		LOG("Register machine 'exynos4412'");
+	if(register_machine(&x4412))
+		LOG("Register machine 'x4412'");
 	else
-		LOG("Failed to register machine 'exynos4412'");
+		LOG("Failed to register machine 'x4412'");
 }
-postcore_initcall(mach_exynos4412_init);
+postcore_initcall(mach_x4412_init);

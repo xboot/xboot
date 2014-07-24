@@ -193,7 +193,7 @@ static void ft5206_interrupt_function(void * data)
 
 static void input_init(struct input_t * input)
 {
-	gpio_cfg_pin(S5PV210_GPH0(7), 0xf);
+	gpio_set_cfg(S5PV210_GPH0(7), 0xf);
 	gpio_set_pull(S5PV210_GPH0(7), GPIO_PULL_NONE);
 	writel(S5PV210_EXT_INT0_CON, (readl(S5PV210_EXT_INT0_CON) & ~(0x7<<28)) | (0x4<<28));
 	writel(S5PV210_EXT_INT0_MASK, (readl(S5PV210_EXT_INT0_MASK) & ~(0x1<<7)) | (0x0<<7));

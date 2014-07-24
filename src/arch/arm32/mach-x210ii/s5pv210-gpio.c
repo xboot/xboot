@@ -25,10 +25,14 @@
 
 struct s5pv210_gpio_data_t
 {
+	const char * name;
+	int base;
+	int ngpio;
+
 	physical_addr_t regbase;
 };
 
-void s5pv210_gpio_cfg_pin(struct gpio_t * gpio, int offset, int cfg)
+static void s5pv210_gpio_set_cfg(struct gpio_t * gpio, int offset, int cfg)
 {
 	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
 	u32_t val;
@@ -41,6 +45,19 @@ void s5pv210_gpio_cfg_pin(struct gpio_t * gpio, int offset, int cfg)
 	val &= ~(0xf << offset);
 	val |= cfg << offset;
 	writel(dat->regbase + S5PV210_GPIO_CON, val);
+}
+
+static int s5pv210_gpio_get_cfg(struct gpio_t * gpio, int offset)
+{
+	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
+	u32_t val;
+
+	if(offset >= gpio->ngpio)
+		return 0;
+
+	offset <<= 0x2;
+	val = readl(dat->regbase + S5PV210_GPIO_CON);
+	return ((val >> offset) & 0xf);
 }
 
 static void s5pv210_gpio_set_pull(struct gpio_t * gpio, int offset, enum gpio_pull_t pull)
@@ -74,7 +91,32 @@ static void s5pv210_gpio_set_pull(struct gpio_t * gpio, int offset, enum gpio_pu
 	writel(dat->regbase + S5PV210_GPIO_PUD, val);
 }
 
-void s5pv210_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_drv_t drv)
+static enum gpio_pull_t s5pv210_gpio_get_pull(struct gpio_t * gpio, int offset)
+{
+	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
+	u32_t val, p;
+
+	if(offset >= gpio->ngpio)
+		return GPIO_PULL_NONE;
+
+	offset <<= 0x1;
+	val = readl(dat->regbase + S5PV210_GPIO_PUD);
+	p = (val >> offset) & 0x3;
+	switch(p)
+	{
+	case 0x0:
+		return GPIO_PULL_NONE;
+	case 0x1:
+		return GPIO_PULL_DOWN;
+	case 0x2:
+		return GPIO_PULL_UP;
+	default:
+		break;
+	}
+	return GPIO_PULL_NONE;
+}
+
+static void s5pv210_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_drv_t drv)
 {
 	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
 	u32_t val, d;
@@ -105,8 +147,93 @@ void s5pv210_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_drv_t drv)
 	writel(dat->regbase + S5PV210_GPIO_DRV, val);
 }
 
+static enum gpio_drv_t s5pv210_gpio_get_drv(struct gpio_t * gpio, int offset)
+{
+	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
+	u32_t val, d;
+
+	if(offset >= gpio->ngpio)
+		return GPIO_DRV_NONE;
+
+	offset <<= 0x1;
+	val = readl(dat->regbase + S5PV210_GPIO_DRV);
+	d = (val >> offset) & 0x3;
+	switch(d)
+	{
+	case 0x0:
+		return GPIO_DRV_LOW;
+	case 0x1:
+		return GPIO_DRV_LOW;
+	case 0x2:
+		return GPIO_DRV_MEDIAN;
+	case 0x3:
+		return GPIO_DRV_HIGH;
+	default:
+		break;
+	}
+	return GPIO_DRV_NONE;
+}
+
 void s5pv210_gpio_set_rate(struct gpio_t * gpio, int offset, enum gpio_rate_t rate)
 {
+}
+
+static enum gpio_rate_t s5pv210_gpio_get_rate(struct gpio_t * gpio, int offset)
+{
+	return GPIO_RATE_NONE;
+}
+
+static void s5pv210_gpio_set_dir(struct gpio_t * gpio, int offset, enum gpio_direction_t dir)
+{
+	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
+	u32_t val;
+
+	if(offset >= gpio->ngpio)
+		return;
+
+	switch(dir)
+	{
+	case GPIO_DIRECTION_INPUT:
+		offset <<= 0x2;
+		val = readl(dat->regbase + S5PV210_GPIO_CON);
+		val &= ~(0xf << offset);
+		writel(dat->regbase + S5PV210_GPIO_CON, val);
+		break;
+
+	case GPIO_DIRECTION_OUTPUT:
+		offset <<= 0x2;
+		val = readl(dat->regbase + S5PV210_GPIO_CON);
+		val &= ~(0xf << offset);
+		val |= 0x1 << offset;
+		writel(dat->regbase + S5PV210_GPIO_CON, val);
+		break;
+
+	default:
+		break;
+	}
+}
+
+static enum gpio_direction_t s5pv210_gpio_get_dir(struct gpio_t * gpio, int offset)
+{
+	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
+	u32_t val, d;
+
+	if(offset >= gpio->ngpio)
+		return GPIO_DIRECTION_NONE;
+
+	offset <<= 0x2;
+	val = readl(dat->regbase + S5PV210_GPIO_CON);
+	d = (val >> offset) & 0x4;
+	switch(d)
+	{
+	case 0x0:
+		return GPIO_DIRECTION_INPUT;
+	case 0x1:
+		return GPIO_DIRECTION_OUTPUT;
+	default:
+		break;
+	}
+	return GPIO_DIRECTION_NONE;
 }
 
 static void s5pv210_gpio_set_value(struct gpio_t * gpio, int offset, int value)
@@ -135,578 +262,230 @@ static int s5pv210_gpio_get_value(struct gpio_t * gpio, int offset)
 	return !!(val & (1 << offset));
 }
 
-static void s5pv210_gpio_direction_output(struct gpio_t * gpio, int offset, int value)
-{
-	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
-	u32_t val;
-
-	if(offset >= gpio->ngpio)
-		return;
-
-	s5pv210_gpio_set_value(gpio, offset, value);
-
-	offset <<= 0x2;
-	val = readl(dat->regbase + S5PV210_GPIO_CON);
-	val &= ~(0xf << offset);
-	val |= 0x1 << offset;
-	writel(dat->regbase + S5PV210_GPIO_CON, val);
-}
-
-static void s5pv210_gpio_direction_input(struct gpio_t * gpio, int offset)
-{
-	struct s5pv210_gpio_data_t * dat = (struct s5pv210_gpio_data_t *)gpio->priv;
-	u32_t val;
-
-	if(offset >= gpio->ngpio)
-		return;
-
-	offset <<= 0x2;
-	val = readl(dat->regbase + S5PV210_GPIO_CON);
-	val &= ~(0xf << offset);
-	writel(dat->regbase + S5PV210_GPIO_CON, val);
-}
-
-static struct s5pv210_gpio_data_t s5pv210_gpio_datas[] = {
+static struct s5pv210_gpio_data_t gpio_datas[] = {
 	{
+		.name		= "GPA0",
+		.base		= S5PV210_GPA0(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPA0_BASE,
 	}, {
+		.name		= "GPA1",
+		.base		= S5PV210_GPA1(0),
+		.ngpio		= 4,
 		.regbase	= S5PV210_GPA1_BASE,
 	}, {
+		.name		= "GPB",
+		.base		= S5PV210_GPB(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPB_BASE,
 	}, {
+		.name		= "GPC0",
+		.base		= S5PV210_GPC0(0),
+		.ngpio		= 5,
 		.regbase	= S5PV210_GPC0_BASE,
 	}, {
+		.name		= "GPC1",
+		.base		= S5PV210_GPC1(0),
+		.ngpio		= 5,
 		.regbase	= S5PV210_GPC1_BASE,
 	}, {
+		.name		= "GPD0",
+		.base		= S5PV210_GPD0(0),
+		.ngpio		= 4,
 		.regbase	= S5PV210_GPD0_BASE,
 	}, {
+		.name		= "GPD1",
+		.base		= S5PV210_GPD1(0),
+		.ngpio		= 6,
 		.regbase	= S5PV210_GPD1_BASE,
 	}, {
+		.name		= "GPE0",
+		.base		= S5PV210_GPE0(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPE0_BASE,
 	}, {
+		.name		= "GPE1",
+		.base		= S5PV210_GPE1(0),
+		.ngpio		= 5,
 		.regbase	= S5PV210_GPE1_BASE,
 	}, {
+		.name		= "GPF0",
+		.base		= S5PV210_GPF0(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPF0_BASE,
 	}, {
+		.name		= "GPF1",
+		.base		= S5PV210_GPF1(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPF1_BASE,
 	}, {
+		.name		= "GPF2",
+		.base		= S5PV210_GPF2(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPF2_BASE,
 	}, {
+		.name		= "GPF3",
+		.base		= S5PV210_GPF3(0),
+		.ngpio		= 6,
 		.regbase	= S5PV210_GPF3_BASE,
 	}, {
+		.name		= "GPG0",
+		.base		= S5PV210_GPG0(0),
+		.ngpio		= 7,
 		.regbase	= S5PV210_GPG0_BASE,
 	}, {
+		.name		= "GPG1",
+		.base		= S5PV210_GPG1(0),
+		.ngpio		= 7,
 		.regbase	= S5PV210_GPG1_BASE,
 	}, {
+		.name		= "GPG2",
+		.base		= S5PV210_GPG2(0),
+		.ngpio		= 7,
 		.regbase	= S5PV210_GPG2_BASE,
 	}, {
+		.name		= "GPG3",
+		.base		= S5PV210_GPG3(0),
+		.ngpio		= 7,
 		.regbase	= S5PV210_GPG3_BASE,
 	}, {
+		.name		= "GPH0",
+		.base		= S5PV210_GPH0(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPH0_BASE,
 	}, {
+		.name		= "GPH1",
+		.base		= S5PV210_GPH1(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPH1_BASE,
 	}, {
+		.name		= "GPH2",
+		.base		= S5PV210_GPH2(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPH2_BASE,
 	}, {
+		.name		= "GPH3",
+		.base		= S5PV210_GPH3(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPH3_BASE,
 	}, {
+		.name		= "GPI",
+		.base		= S5PV210_GPI(0),
+		.ngpio		= 7,
 		.regbase	= S5PV210_GPI_BASE,
 	}, {
+		.name		= "GPJ0",
+		.base		= S5PV210_GPJ0(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPJ0_BASE,
 	}, {
+		.name		= "GPJ1",
+		.base		= S5PV210_GPJ1(0),
+		.ngpio		= 6,
 		.regbase	= S5PV210_GPJ1_BASE,
 	}, {
+		.name		= "GPJ2",
+		.base		= S5PV210_GPJ2(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPJ2_BASE,
 	}, {
+		.name		= "GPJ3",
+		.base		= S5PV210_GPJ3(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPJ3_BASE,
 	}, {
+		.name		= "GPJ4",
+		.base		= S5PV210_GPJ4(0),
+		.ngpio		= 5,
 		.regbase	= S5PV210_GPJ4_BASE,
 	}, {
+		.name		= "GPMP01",
+		.base		= S5PV210_GPMP01(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPMP01_BASE,
 	}, {
+		.name		= "GPMP02",
+		.base		= S5PV210_GPMP02(0),
+		.ngpio		= 4,
 		.regbase	= S5PV210_GPMP02_BASE,
 	}, {
+		.name		= "GPMP03",
+		.base		= S5PV210_GPMP03(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPMP03_BASE,
 	}, {
+		.name		= "GPMP04",
+		.base		= S5PV210_GPMP04(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPMP04_BASE,
 	}, {
+		.name		= "GPMP05",
+		.base		= S5PV210_GPMP05(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPMP05_BASE,
 	}, {
+		.name		= "GPMP06",
+		.base		= S5PV210_GPMP06(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPMP06_BASE,
 	}, {
+		.name		= "GPMP07",
+		.base		= S5PV210_GPMP07(0),
+		.ngpio		= 8,
 		.regbase	= S5PV210_GPMP07_BASE,
-	}
-};
-
-static struct gpio_t s5pv210_gpios[] = {
-	{
-		.name				= "GPA0",
-		.base				= 0,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[0],
-	}, {
-		.name				= "GPA1",
-		.base				= 8,
-		.ngpio				= 4,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[1],
-	}, {
-		.name				= "GPB",
-		.base				= 16,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[2],
-	}, {
-		.name				= "GPC0",
-		.base				= 24,
-		.ngpio				= 5,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[3],
-	}, {
-		.name				= "GPC1",
-		.base				= 32,
-		.ngpio				= 5,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[4],
-	}, {
-		.name				= "GPD0",
-		.base				= 40,
-		.ngpio				= 4,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[5],
-	}, {
-		.name				= "GPD1",
-		.base				= 48,
-		.ngpio				= 6,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[6],
-	}, {
-		.name				= "GPE0",
-		.base				= 56,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[7],
-	}, {
-		.name				= "GPE1",
-		.base				= 64,
-		.ngpio				= 5,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[8],
-	}, {
-		.name				= "GPF0",
-		.base				= 72,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[9],
-	}, {
-		.name				= "GPF1",
-		.base				= 80,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[10],
-	}, {
-		.name				= "GPF2",
-		.base				= 88,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[11],
-	}, {
-		.name				= "GPF3",
-		.base				= 96,
-		.ngpio				= 6,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[12],
-	}, {
-		.name				= "GPG0",
-		.base				= 104,
-		.ngpio				= 7,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[13],
-	}, {
-		.name				= "GPG1",
-		.base				= 112,
-		.ngpio				= 7,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[14],
-	}, {
-		.name				= "GPG2",
-		.base				= 120,
-		.ngpio				= 7,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[15],
-	}, {
-		.name				= "GPG3",
-		.base				= 128,
-		.ngpio				= 7,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[16],
-	}, {
-		.name				= "GPH0",
-		.base				= 136,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[17],
-	}, {
-		.name				= "GPH1",
-		.base				= 144,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[18],
-	}, {
-		.name				= "GPH2",
-		.base				= 152,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[19],
-	}, {
-		.name				= "GPH3",
-		.base				= 160,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[20],
-	}, {
-		.name				= "GPI",
-		.base				= 168,
-		.ngpio				= 7,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[21],
-	}, {
-		.name				= "GPJ0",
-		.base				= 176,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[22],
-	}, {
-		.name				= "GPJ1",
-		.base				= 184,
-		.ngpio				= 6,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[23],
-	}, {
-		.name				= "GPJ2",
-		.base				= 192,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[24],
-	}, {
-		.name				= "GPJ3",
-		.base				= 200,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[25],
-	}, {
-		.name				= "GPJ4",
-		.base				= 208,
-		.ngpio				= 5,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[26],
-	}, {
-		.name				= "GPMP01",
-		.base				= 216,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[27],
-	}, {
-		.name				= "GPMP02",
-		.base				= 224,
-		.ngpio				= 4,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[28],
-	}, {
-		.name				= "GPMP03",
-		.base				= 232,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[29],
-	}, {
-		.name				= "GPMP04",
-		.base				= 240,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[30],
-	}, {
-		.name				= "GPMP05",
-		.base				= 248,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[31],
-	}, {
-		.name				= "GPMP06",
-		.base				= 256,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[32],
-	}, {
-		.name				= "GPMP07",
-		.base				= 264,
-		.ngpio				= 8,
-		.cfg_pin			= s5pv210_gpio_cfg_pin,
-		.set_pull			= s5pv210_gpio_set_pull,
-		.set_drv			= s5pv210_gpio_set_drv,
-		.set_rate			= s5pv210_gpio_set_rate,
-		.direction_output	= s5pv210_gpio_direction_output,
-		.direction_input	= s5pv210_gpio_direction_input,
-		.set_value			= s5pv210_gpio_set_value,
-		.get_value			= s5pv210_gpio_get_value,
-		.priv				= &s5pv210_gpio_datas[33],
 	}
 };
 
 static __init void s5pv210_gpio_init(void)
 {
+	struct gpio_t * gpio;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(s5pv210_gpios); i++)
+	for(i = 0; i < ARRAY_SIZE(gpio_datas); i++)
 	{
-		if(register_gpio(&s5pv210_gpios[i]))
-			LOG("Register gpio '%s'", s5pv210_gpios[i].name);
+		gpio = malloc(sizeof(struct gpio_t));
+		if(!gpio)
+			continue;
+
+		gpio->name = gpio_datas[i].name;
+		gpio->base = gpio_datas[i].base;
+		gpio->ngpio = gpio_datas[i].ngpio;
+		gpio->set_cfg = s5pv210_gpio_set_cfg;
+		gpio->get_cfg = s5pv210_gpio_get_cfg;
+		gpio->set_pull = s5pv210_gpio_set_pull;
+		gpio->get_pull = s5pv210_gpio_get_pull;
+		gpio->set_drv = s5pv210_gpio_set_drv;
+		gpio->get_drv = s5pv210_gpio_get_drv;
+		gpio->set_rate = s5pv210_gpio_set_rate;
+		gpio->get_rate = s5pv210_gpio_get_rate;
+		gpio->set_dir = s5pv210_gpio_set_dir;
+		gpio->get_dir = s5pv210_gpio_get_dir;
+		gpio->set_value = s5pv210_gpio_set_value;
+		gpio->get_value = s5pv210_gpio_get_value;
+		gpio->priv = &gpio_datas[i];
+
+		if(register_gpio(gpio))
+			LOG("Register gpio '%s'", gpio->name);
 		else
-			LOG("Failed to register gpio '%s'", s5pv210_gpios[i].name);
+			LOG("Failed to register gpio '%s'", gpio->name);
 	}
 }
 
 static __exit void s5pv210_gpio_exit(void)
 {
+	struct gpio_t * gpio;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(s5pv210_gpios); i++)
+	for(i = 0; i < ARRAY_SIZE(gpio_datas); i++)
 	{
-		if(register_gpio(&s5pv210_gpios[i]))
-			LOG("Unregister gpio '%s'", s5pv210_gpios[i].name);
+		gpio = search_gpio(gpio_datas[i].name);
+		if(!gpio)
+			continue;
+		if(unregister_gpio(gpio))
+			LOG("Unregister gpio '%s'", gpio->name);
 		else
-			LOG("Failed to unregister gpio '%s'", s5pv210_gpios[i].name);
+			LOG("Failed to unregister gpio '%s'", gpio->name);
+		free(gpio);
 	}
 }
 

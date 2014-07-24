@@ -68,4 +68,4 @@ static __exit void exynos4412_logger_exit(void)
 }
 
 pure_initcall(exynos4412_logger_init);
-pure_initcall(exynos4412_logger_exit);
+pure_exitcall(exynos4412_logger_exit);

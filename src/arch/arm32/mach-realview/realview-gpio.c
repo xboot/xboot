@@ -25,6 +25,10 @@
 
 struct realview_gpio_data_t
 {
+	const char * name;
+	int base;
+	int ngpio;
+
 	physical_addr_t regbase;
 };
 
@@ -120,94 +124,75 @@ static int realview_gpio_get_value(struct gpio_t * gpio, int offset)
 	return !!readb(dat->regbase + (1 << (offset + 2)));
 }
 
-static struct realview_gpio_data_t realview_gpio_datas[] = {
+static struct realview_gpio_data_t gpio_datas[] = {
 	{
+		.name		= "GPIO0",
+		.base		= REALVIEW_GPIO0(0),
+		.ngpio		= 8,
 		.regbase	= REALVIEW_GPIO0_BASE,
 	}, {
+		.name		= "GPIO1",
+		.base		= REALVIEW_GPIO1(0),
+		.ngpio		= 8,
 		.regbase	= REALVIEW_GPIO1_BASE,
 	}, {
+		.name		= "GPIO2",
+		.base		= REALVIEW_GPIO2(0),
+		.ngpio		= 8,
 		.regbase	= REALVIEW_GPIO2_BASE,
-	},
-};
-
-static struct gpio_t realview_gpios[] = {
-	{
-		.name				= "GPIO0",
-		.base				= REALVIEW_GPIO0(0),
-		.ngpio				= 8,
-		.set_cfg			= realview_gpio_set_cfg,
-		.get_cfg			= realview_gpio_get_cfg,
-		.set_pull			= realview_gpio_set_pull,
-		.get_pull			= realview_gpio_get_pull,
-		.set_drv			= realview_gpio_set_drv,
-		.get_drv			= realview_gpio_get_drv,
-		.set_rate			= realview_gpio_set_rate,
-		.get_rate			= realview_gpio_get_rate,
-		.set_dir			= realview_gpio_set_dir,
-		.get_dir			= realview_gpio_get_dir,
-		.set_value			= realview_gpio_set_value,
-		.get_value			= realview_gpio_get_value,
-		.priv				= &realview_gpio_datas[0],
-	}, {
-		.name				= "GPIO1",
-		.base				= REALVIEW_GPIO1(0),
-		.ngpio				= 8,
-		.set_cfg			= realview_gpio_set_cfg,
-		.get_cfg			= realview_gpio_get_cfg,
-		.set_pull			= realview_gpio_set_pull,
-		.get_pull			= realview_gpio_get_pull,
-		.set_drv			= realview_gpio_set_drv,
-		.get_drv			= realview_gpio_get_drv,
-		.set_rate			= realview_gpio_set_rate,
-		.get_rate			= realview_gpio_get_rate,
-		.set_dir			= realview_gpio_set_dir,
-		.get_dir			= realview_gpio_get_dir,
-		.set_value			= realview_gpio_set_value,
-		.get_value			= realview_gpio_get_value,
-		.priv				= &realview_gpio_datas[1],
-	}, {
-		.name				= "GPIO2",
-		.base				= REALVIEW_GPIO2(0),
-		.ngpio				= 8,
-		.set_cfg			= realview_gpio_set_cfg,
-		.get_cfg			= realview_gpio_get_cfg,
-		.set_pull			= realview_gpio_set_pull,
-		.get_pull			= realview_gpio_get_pull,
-		.set_drv			= realview_gpio_set_drv,
-		.get_drv			= realview_gpio_get_drv,
-		.set_rate			= realview_gpio_set_rate,
-		.get_rate			= realview_gpio_get_rate,
-		.set_dir			= realview_gpio_set_dir,
-		.get_dir			= realview_gpio_get_dir,
-		.set_value			= realview_gpio_set_value,
-		.get_value			= realview_gpio_get_value,
-		.priv				= &realview_gpio_datas[2],
 	},
 };
 
 static __init void realview_gpio_init(void)
 {
+	struct gpio_t * gpio;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(realview_gpios); i++)
+	for(i = 0; i < ARRAY_SIZE(gpio_datas); i++)
 	{
-		if(register_gpio(&realview_gpios[i]))
-			LOG("Register gpio '%s'", realview_gpios[i].name);
+		gpio = malloc(sizeof(struct gpio_t));
+		if(!gpio)
+			continue;
+
+		gpio->name = gpio_datas[i].name;
+		gpio->base = gpio_datas[i].base;
+		gpio->ngpio = gpio_datas[i].ngpio;
+		gpio->set_cfg = realview_gpio_set_cfg;
+		gpio->get_cfg = realview_gpio_get_cfg;
+		gpio->set_pull = realview_gpio_set_pull;
+		gpio->get_pull = realview_gpio_get_pull;
+		gpio->set_drv = realview_gpio_set_drv;
+		gpio->get_drv = realview_gpio_get_drv;
+		gpio->set_rate = realview_gpio_set_rate;
+		gpio->get_rate = realview_gpio_get_rate;
+		gpio->set_dir = realview_gpio_set_dir;
+		gpio->get_dir = realview_gpio_get_dir;
+		gpio->set_value = realview_gpio_set_value;
+		gpio->get_value = realview_gpio_get_value;
+		gpio->priv = &gpio_datas[i];
+
+		if(register_gpio(gpio))
+			LOG("Register gpio '%s'", gpio->name);
 		else
-			LOG("Failed to register gpio '%s'", realview_gpios[i].name);
+			LOG("Failed to register gpio '%s'", gpio->name);
 	}
 }
 
 static __exit void realview_gpio_exit(void)
 {
+	struct gpio_t * gpio;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(realview_gpios); i++)
+	for(i = 0; i < ARRAY_SIZE(gpio_datas); i++)
 	{
-		if(register_gpio(&realview_gpios[i]))
-			LOG("Unregister gpio '%s'", realview_gpios[i].name);
+		gpio = search_gpio(gpio_datas[i].name);
+		if(!gpio)
+			continue;
+		if(unregister_gpio(gpio))
+			LOG("Unregister gpio '%s'", gpio->name);
 		else
-			LOG("Failed to unregister gpio '%s'", realview_gpios[i].name);
+			LOG("Failed to unregister gpio '%s'", gpio->name);
+		free(gpio);
 	}
 }
 

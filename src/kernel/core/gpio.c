@@ -38,7 +38,7 @@ struct gpio_list_t __gpio_list = {
 };
 static spinlock_t __gpio_list_lock = SPIN_LOCK_INIT();
 
-static struct gpio_t * search_gpio(const char * name)
+struct gpio_t * search_gpio(const char * name)
 {
 	struct gpio_list_t * pos, * n;
 
@@ -54,7 +54,7 @@ static struct gpio_t * search_gpio(const char * name)
 	return NULL;
 }
 
-static struct gpio_t * search_gpio_with_no(int no)
+struct gpio_t * search_gpio_with_no(int no)
 {
 	struct gpio_list_t * pos, * n;
 

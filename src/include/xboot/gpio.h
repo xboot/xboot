@@ -55,6 +55,8 @@ struct gpio_t
 	void * priv;
 };
 
+struct gpio_t * search_gpio(const char * name);
+struct gpio_t * search_gpio_with_no(int no);
 bool_t register_gpio(struct gpio_t * gpio);
 bool_t unregister_gpio(struct gpio_t * gpio);
 

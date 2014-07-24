@@ -86,19 +86,15 @@ static bool_t register_romdisk(const char * name, void * start, void * end)
 {
 	struct block_t * blk;
 	struct romdisk_t * romdisk;
-	u64_t size, rem;
+	size_t size;
 
 	if(!name)
 		return FALSE;
 
-	size = (u64_t)(end - start);
+	size = (size_t)(end - start);
+	size = (size + SZ_512) / SZ_512;
 	if(size <= 0)
 		return FALSE;
-
-	rem = size % SZ_512;
-	size = size / SZ_512;
-	if(rem > 0)
-		size++;
 
 	blk = malloc(sizeof(struct block_t));
 	if(!blk)

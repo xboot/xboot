@@ -33,6 +33,12 @@ int logger_print(const char * fmt, ...);
 #define LOG(fmt, arg...)	do { logger_print("[%s:%d] " fmt "\r\n", __FILE__, __LINE__, ##arg); } while(0)
 #endif
 
+#if !defined(__DEBUG__)
+#define DEBUG(fmt, arg...)	do { } while(0)
+#else
+#define DEBUG(fmt, arg...)	do { logger_print("[DEBUG][%s:%d] " fmt "\r\n", __FILE__, __LINE__, ##arg); } while(0)
+#endif
+
 #ifdef __cplusplus
 }
 #endif

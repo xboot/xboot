@@ -38,6 +38,7 @@ void do_initcalls(void)
 	call =  &(*__initcall_start);
 	while (call < &(*__initcall_end))
 	{
+		DEBUG("initcall -> %p", *call);
 		(*call)();
 		call++;
 	}
@@ -53,6 +54,7 @@ void do_exitcalls(void)
 	call =  &(*__exitcall_start);
 	while (call < &(*__exitcall_end))
 	{
+		DEBUG("exitcall -> %p", *call);
 		(*call)();
 		call++;
 	}

@@ -34,6 +34,7 @@ enum gpio_direction_t {
 
 struct gpio_t
 {
+	struct kobj_t * kobj;
 	const char * name;
 	int base;
 	int ngpio;
@@ -51,7 +52,6 @@ struct gpio_t
 	void (*set_value)(struct gpio_t * gpio, int offset, int value);
 	int  (*get_value)(struct gpio_t * gpio, int offset);
 
-	/* Private data */
 	void * priv;
 };
 

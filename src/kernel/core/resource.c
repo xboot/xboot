@@ -73,7 +73,7 @@ static struct resource_t * search_resource_with_id(const char * name, int id)
 	return NULL;
 }
 
-static struct kobj_t * search_resource_kobj(struct resource_t * res)
+static struct kobj_t * search_resource_kobj(void)
 {
 	return kobj_search_directory_with_create(kobj_get_root(), "resource");
 }
@@ -116,7 +116,7 @@ bool_t register_resource(struct resource_t * res)
 	res->kobj = kobj_alloc_directory(name);
 	kobj_add_regular(res->kobj, "name", resource_read_name, NULL, res);
 	kobj_add_regular(res->kobj, "id", resource_read_id, NULL, res);
-	kobj_add(search_resource_kobj(res), res->kobj);
+	kobj_add(search_resource_kobj(), res->kobj);
 	rl->res = res;
 
 	spin_lock_irq(&__resource_list_lock);
@@ -141,7 +141,7 @@ bool_t unregister_resource(struct resource_t * res)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__resource_list_lock);
 
-			kobj_remove(search_resource_kobj(res), pos->res->kobj);
+			kobj_remove(search_resource_kobj(), pos->res->kobj);
 			kobj_remove_self(res->kobj);
 			free(pos);
 			return TRUE;

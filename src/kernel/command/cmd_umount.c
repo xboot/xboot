@@ -74,7 +74,7 @@ static __exit void umount_cmd_exit(void)
 	else
 		LOG("Failed to unregister command 'umount'");
 }
-core_initcall(umount_cmd_init);
-core_exitcall(umount_cmd_exit);
+command_initcall(umount_cmd_init);
+command_exitcall(umount_cmd_exit);
 
 #endif

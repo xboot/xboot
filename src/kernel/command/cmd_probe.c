@@ -136,7 +136,7 @@ static __exit void probe_cmd_exit(void)
 		LOG("Failed to unregister command 'probe'");
 }
 
-core_initcall(probe_cmd_init);
-core_exitcall(probe_cmd_exit);
+command_initcall(probe_cmd_init);
+command_exitcall(probe_cmd_exit);
 
 #endif

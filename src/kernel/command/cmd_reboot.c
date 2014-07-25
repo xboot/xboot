@@ -72,7 +72,7 @@ static __exit void reboot_cmd_exit(void)
 		LOG("Failed to unregister command 'reboot'");
 }
 
-core_initcall(reboot_cmd_init);
-core_exitcall(reboot_cmd_exit);
+command_initcall(reboot_cmd_init);
+command_exitcall(reboot_cmd_exit);
 
 #endif

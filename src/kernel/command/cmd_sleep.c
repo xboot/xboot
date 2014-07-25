@@ -88,7 +88,7 @@ static __exit void sleep_cmd_exit(void)
 		LOG("Failed to unregister command 'sleep'");
 }
 
-core_initcall(sleep_cmd_init);
-core_exitcall(sleep_cmd_exit);
+command_initcall(sleep_cmd_init);
+command_exitcall(sleep_cmd_exit);
 
 #endif

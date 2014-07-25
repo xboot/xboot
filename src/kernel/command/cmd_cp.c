@@ -106,7 +106,7 @@ static __exit void cp_cmd_exit(void)
 		LOG("Failed to unregister command 'cp'");
 }
 
-core_initcall(cp_cmd_init);
-core_exitcall(cp_cmd_exit);
+command_initcall(cp_cmd_init);
+command_exitcall(cp_cmd_exit);
 
 #endif

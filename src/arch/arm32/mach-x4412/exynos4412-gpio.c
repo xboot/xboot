@@ -529,5 +529,5 @@ static __exit void exynos4412_gpio_exit(void)
 	}
 }
 
-postcore_initcall(exynos4412_gpio_init);
-postcore_exitcall(exynos4412_gpio_exit);
+core_initcall(exynos4412_gpio_init);
+core_exitcall(exynos4412_gpio_exit);

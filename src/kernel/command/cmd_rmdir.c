@@ -80,7 +80,7 @@ static __exit void rmdir_cmd_exit(void)
 		LOG("Failed to unregister command 'rmdir'");
 }
 
-core_initcall(rmdir_cmd_init);
-core_exitcall(rmdir_cmd_exit);
+command_initcall(rmdir_cmd_init);
+command_exitcall(rmdir_cmd_exit);
 
 #endif

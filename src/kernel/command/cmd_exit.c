@@ -107,7 +107,7 @@ static __exit void exit_cmd_exit(void)
 		LOG("Failed to unregister command 'exit'");
 }
 
-core_initcall(exit_cmd_init);
-core_exitcall(exit_cmd_exit);
+command_initcall(exit_cmd_init);
+command_exitcall(exit_cmd_exit);
 
 #endif

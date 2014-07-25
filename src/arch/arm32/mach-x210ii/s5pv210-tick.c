@@ -83,4 +83,4 @@ static __init void s5pv210_tick_init(void)
 	else
 		LOG("Failed to register tick");
 }
-postcore_initcall(s5pv210_tick_init);
+core_initcall(s5pv210_tick_init);

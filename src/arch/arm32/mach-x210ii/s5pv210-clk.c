@@ -236,5 +236,5 @@ static __exit void s5pv210_clk_exit(void)
 	}
 }
 
-postcore_initcall(s5pv210_clk_init);
-postcore_exitcall(s5pv210_clk_exit);
+core_initcall(s5pv210_clk_init);
+core_exitcall(s5pv210_clk_exit);

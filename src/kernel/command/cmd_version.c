@@ -63,7 +63,7 @@ static __exit void version_cmd_exit(void)
 		LOG("Failed to unregister command 'version'");
 }
 
-core_initcall(version_cmd_init);
-core_exitcall(version_cmd_exit);
+command_initcall(version_cmd_init);
+command_exitcall(version_cmd_exit);
 
 #endif

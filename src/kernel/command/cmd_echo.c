@@ -219,7 +219,7 @@ static __exit void echo_cmd_exit(void)
 		LOG("Failed to unregister command 'echo'");
 }
 
-core_initcall(echo_cmd_init);
-core_exitcall(echo_cmd_exit);
+command_initcall(echo_cmd_init);
+command_exitcall(echo_cmd_exit);
 
 #endif

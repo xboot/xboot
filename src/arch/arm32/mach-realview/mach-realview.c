@@ -186,4 +186,4 @@ static __init void mach_realview_init(void)
 	else
 		LOG("Failed to register machine 'realview'");
 }
-postcore_initcall(mach_realview_init);
+core_initcall(mach_realview_init);

@@ -489,5 +489,5 @@ static __exit void s5pv210_gpio_exit(void)
 	}
 }
 
-postcore_initcall(s5pv210_gpio_init);
-postcore_exitcall(s5pv210_gpio_exit);
+core_initcall(s5pv210_gpio_init);
+core_exitcall(s5pv210_gpio_exit);

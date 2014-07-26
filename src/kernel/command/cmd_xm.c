@@ -500,8 +500,8 @@ static __exit void sx_cmd_exit(void)
 		LOG("Failed to unregister command 'rx'");
 }
 
-core_initcall(xmodem_cmd_init);
-core_exitcall(xmodem_cmd_exit);
+command_initcall(xmodem_cmd_init);
+command_exitcall(xmodem_cmd_exit);
 
 #endif
 #endif

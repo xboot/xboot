@@ -219,4 +219,4 @@ static __init void mach_x210ii_init(void)
 	else
 		LOG("Failed to register machine 'x210ii'");
 }
-postcore_initcall(mach_x210ii_init);
+core_initcall(mach_x210ii_init);

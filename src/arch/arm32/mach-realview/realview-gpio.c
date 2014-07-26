@@ -196,5 +196,5 @@ static __exit void realview_gpio_exit(void)
 	}
 }
 
-postcore_initcall(realview_gpio_init);
-postcore_exitcall(realview_gpio_exit);
+core_initcall(realview_gpio_init);
+core_exitcall(realview_gpio_exit);

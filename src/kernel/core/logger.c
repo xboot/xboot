@@ -135,7 +135,6 @@ int logger_print(const char * fmt, ...)
 	va_end(ap);
 
 	logger_output((const char *)buf, len);
-
 	return len;
 }
 EXPORT_SYMBOL(logger_print);

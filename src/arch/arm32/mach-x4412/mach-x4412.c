@@ -172,4 +172,4 @@ static __init void mach_x4412_init(void)
 	else
 		LOG("Failed to register machine 'x4412'");
 }
-postcore_initcall(mach_x4412_init);
+core_initcall(mach_x4412_init);

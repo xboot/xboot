@@ -157,7 +157,7 @@ static __exit void memtest_cmd_exit(void)
 		LOG("Failed to unregister command 'memtest'");
 }
 
-core_initcall(memtest_cmd_init);
-core_exitcall(memtest_cmd_exit);
+command_initcall(memtest_cmd_init);
+command_exitcall(memtest_cmd_exit);
 
 #endif

@@ -315,5 +315,5 @@ static __exit void realview_irq_exit(void)
 	fiq_disable();
 }
 
-postcore_initcall(realview_irq_init);
-postcore_exitcall(realview_irq_exit);
+core_initcall(realview_irq_init);
+core_exitcall(realview_irq_exit);

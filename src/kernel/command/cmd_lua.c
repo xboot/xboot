@@ -71,7 +71,7 @@ static __exit void lua_cmd_exit(void)
 		LOG("Failed to unregister command 'lua'");
 }
 
-core_initcall(lua_cmd_init);
-core_exitcall(lua_cmd_exit);
+command_initcall(lua_cmd_init);
+command_exitcall(lua_cmd_exit);
 
 #endif

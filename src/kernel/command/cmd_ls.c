@@ -230,7 +230,7 @@ static __exit void ls_cmd_exit(void)
 		LOG("Failed to unregister command 'ls'");
 }
 
-core_initcall(ls_cmd_init);
-core_exitcall(ls_cmd_exit);
+command_initcall(ls_cmd_init);
+command_exitcall(ls_cmd_exit);
 
 #endif

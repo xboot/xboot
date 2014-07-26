@@ -94,5 +94,5 @@ static __exit void realview_clk_exit(void)
 	}
 }
 
-postcore_initcall(realview_clk_init);
-postcore_exitcall(realview_clk_exit);
+core_initcall(realview_clk_init);
+core_exitcall(realview_clk_exit);

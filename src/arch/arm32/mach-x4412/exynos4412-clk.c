@@ -320,5 +320,5 @@ static __exit void exynos4412_clk_exit(void)
 	}
 }
 
-postcore_initcall(exynos4412_clk_init);
-postcore_exitcall(exynos4412_clk_exit);
+core_initcall(exynos4412_clk_init);
+core_exitcall(exynos4412_clk_exit);

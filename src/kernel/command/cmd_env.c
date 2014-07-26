@@ -94,7 +94,7 @@ static __exit void env_cmd_exit(void)
 		LOG("Failed to unregister command 'env'");
 }
 
-core_initcall(env_cmd_init);
-core_exitcall(env_cmd_exit);
+command_initcall(env_cmd_init);
+command_exitcall(env_cmd_exit);
 
 #endif

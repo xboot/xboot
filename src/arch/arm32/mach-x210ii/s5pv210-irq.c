@@ -745,5 +745,5 @@ static __exit void s5pv210_irq_exit(void)
 	fiq_disable();
 }
 
-postcore_initcall(s5pv210_irq_init);
-postcore_exitcall(s5pv210_irq_exit);
+core_initcall(s5pv210_irq_init);
+core_exitcall(s5pv210_irq_exit);

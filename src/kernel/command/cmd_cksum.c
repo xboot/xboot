@@ -170,7 +170,7 @@ static __exit void cksum_cmd_exit(void)
 		LOG("Failed to unregister command 'cksum'");
 }
 
-core_initcall(cksum_cmd_init);
-core_exitcall(cksum_cmd_exit);
+command_initcall(cksum_cmd_init);
+command_exitcall(cksum_cmd_exit);
 
 #endif

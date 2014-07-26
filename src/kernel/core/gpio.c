@@ -38,6 +38,24 @@ struct gpio_list_t __gpio_list = {
 };
 static spinlock_t __gpio_list_lock = SPIN_LOCK_INIT();
 
+static struct kobj_t * search_class_gpio_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "gpio");
+}
+
+static ssize_t gpio_read_base(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpio_t * gpio = (struct gpio_t *)kobj->priv;
+	return sprintf(buf, "%d", gpio->base);
+}
+
+static ssize_t gpio_read_ngpio(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpio_t * gpio = (struct gpio_t *)kobj->priv;
+	return sprintf(buf, "%d", gpio->ngpio);
+}
+
 struct gpio_t * search_gpio(const char * name)
 {
 	struct gpio_list_t * pos, * n;
@@ -81,6 +99,10 @@ bool_t register_gpio(struct gpio_t * gpio)
 	if(!gl)
 		return FALSE;
 
+	gpio->kobj = kobj_alloc_directory(gpio->name);
+	kobj_add_regular(gpio->kobj, "base", gpio_read_base, NULL, gpio);
+	kobj_add_regular(gpio->kobj, "ngpio", gpio_read_ngpio, NULL, gpio);
+	kobj_add(search_class_gpio_kobj(), gpio->kobj);
 	gl->gpio = gpio;
 
 	spin_lock_irq(&__gpio_list_lock);
@@ -105,6 +127,8 @@ bool_t unregister_gpio(struct gpio_t * gpio)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__gpio_list_lock);
 
+			kobj_remove(search_class_gpio_kobj(), pos->gpio->kobj);
+			kobj_remove_self(gpio->kobj);
 			free(pos);
 			return TRUE;
 		}
@@ -241,51 +265,3 @@ void gpio_direction_input(int no)
 	if(gpio && gpio->set_dir)
 		gpio->set_dir(gpio, no - gpio->base, GPIO_DIRECTION_INPUT);
 }
-
-static s32_t gpio_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct gpio_list_t * pos, * n;
-	s8_t * p;
-	s32_t len = 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), "[gpio]");
-
-	list_for_each_entry_safe(pos, n, &(__gpio_list.entry), entry)
-	{
-		len += sprintf((char *)(p + len), "\r\n %s: [%d - %d]", pos->gpio->name, pos->gpio->base, pos->gpio->base + pos->gpio->ngpio);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t gpio_proc = {
-	.name	= "gpio",
-	.read	= gpio_proc_read,
-};
-
-static __init void gpio_proc_init(void)
-{
-	proc_register(&gpio_proc);
-}
-
-static __exit void gpio_proc_exit(void)
-{
-	proc_unregister(&gpio_proc);
-}
-
-core_initcall(gpio_proc_init);
-core_exitcall(gpio_proc_exit);

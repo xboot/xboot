@@ -189,7 +189,7 @@ static __exit void mount_cmd_exit(void)
 		LOG("Failed to unregister command 'mount'");
 }
 
-core_initcall(mount_cmd_init);
-core_exitcall(mount_cmd_exit);
+command_initcall(mount_cmd_init);
+command_exitcall(mount_cmd_exit);
 
 #endif

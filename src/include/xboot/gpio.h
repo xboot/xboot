@@ -56,7 +56,6 @@ struct gpiochip_t
 };
 
 struct gpiochip_t * search_gpiochip(const char * name);
-struct gpiochip_t * search_gpiochip_with_no(int no);
 bool_t register_gpiochip(struct gpiochip_t * chip);
 bool_t unregister_gpiochip(struct gpiochip_t * chip);
 

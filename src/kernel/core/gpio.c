@@ -56,6 +56,19 @@ static ssize_t gpiochip_read_ngpio(struct kobj_t * kobj, void * buf, size_t size
 	return sprintf(buf, "%d", chip->ngpio);
 }
 
+static struct gpiochip_t * search_gpiochip_with_no(int no)
+{
+	struct gpiochip_list_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(__gpiochip_list.entry), entry)
+	{
+		if( (no >= pos->chip->base) && (no < (pos->chip->base + pos->chip->ngpio)) )
+			return pos->chip;
+	}
+
+	return NULL;
+}
+
 struct gpiochip_t * search_gpiochip(const char * name)
 {
 	struct gpiochip_list_t * pos, * n;
@@ -66,19 +79,6 @@ struct gpiochip_t * search_gpiochip(const char * name)
 	list_for_each_entry_safe(pos, n, &(__gpiochip_list.entry), entry)
 	{
 		if(strcmp(pos->chip->name, name) == 0)
-			return pos->chip;
-	}
-
-	return NULL;
-}
-
-struct gpiochip_t * search_gpiochip_with_no(int no)
-{
-	struct gpiochip_list_t * pos, * n;
-
-	list_for_each_entry_safe(pos, n, &(__gpiochip_list.entry), entry)
-	{
-		if( (no >= pos->chip->base) && (no < (pos->chip->base + pos->chip->ngpio)) )
 			return pos->chip;
 	}
 

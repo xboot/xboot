@@ -23,21 +23,20 @@
 #include <xboot.h>
 #include <exynos4412/reg-gpio.h>
 
-struct exynos4412_gpio_data_t
+struct exynos4412_gpiochip_data_t
 {
 	const char * name;
 	int base;
 	int ngpio;
-
 	physical_addr_t regbase;
 };
 
-static void exynos4412_gpio_set_cfg(struct gpio_t * gpio, int offset, int cfg)
+static void exynos4412_gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return;
 
 	offset <<= 0x2;
@@ -47,12 +46,12 @@ static void exynos4412_gpio_set_cfg(struct gpio_t * gpio, int offset, int cfg)
 	writel(dat->regbase + EXYNOS4412_GPIO_CON, val);
 }
 
-static int exynos4412_gpio_get_cfg(struct gpio_t * gpio, int offset)
+static int exynos4412_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return 0;
 
 	offset <<= 0x2;
@@ -60,12 +59,12 @@ static int exynos4412_gpio_get_cfg(struct gpio_t * gpio, int offset)
 	return ((val >> offset) & 0xf);
 }
 
-static void exynos4412_gpio_set_pull(struct gpio_t * gpio, int offset, enum gpio_pull_t pull)
+static void exynos4412_gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val, p;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return;
 
 	switch(pull)
@@ -91,12 +90,12 @@ static void exynos4412_gpio_set_pull(struct gpio_t * gpio, int offset, enum gpio
 	writel(dat->regbase + EXYNOS4412_GPIO_PUD, val);
 }
 
-static enum gpio_pull_t exynos4412_gpio_get_pull(struct gpio_t * gpio, int offset)
+static enum gpio_pull_t exynos4412_gpiochip_get_pull(struct gpiochip_t * chip, int offset)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val, p;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return GPIO_PULL_NONE;
 
 	offset <<= 0x1;
@@ -116,12 +115,12 @@ static enum gpio_pull_t exynos4412_gpio_get_pull(struct gpio_t * gpio, int offse
 	return GPIO_PULL_NONE;
 }
 
-static void exynos4412_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_drv_t drv)
+static void exynos4412_gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val, d;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return;
 
 	switch(drv)
@@ -147,12 +146,12 @@ static void exynos4412_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_
 	writel(dat->regbase + EXYNOS4412_GPIO_DRV, val);
 }
 
-static enum gpio_drv_t exynos4412_gpio_get_drv(struct gpio_t * gpio, int offset)
+static enum gpio_drv_t exynos4412_gpiochip_get_drv(struct gpiochip_t * chip, int offset)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val, d;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return GPIO_DRV_NONE;
 
 	offset <<= 0x1;
@@ -174,21 +173,21 @@ static enum gpio_drv_t exynos4412_gpio_get_drv(struct gpio_t * gpio, int offset)
 	return GPIO_DRV_NONE;
 }
 
-static void exynos4412_gpio_set_rate(struct gpio_t * gpio, int offset, enum gpio_rate_t rate)
+static void exynos4412_gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
 {
 }
 
-static enum gpio_rate_t exynos4412_gpio_get_rate(struct gpio_t * gpio, int offset)
+static enum gpio_rate_t exynos4412_gpiochip_get_rate(struct gpiochip_t * chip, int offset)
 {
 	return GPIO_RATE_NONE;
 }
 
-static void exynos4412_gpio_set_dir(struct gpio_t * gpio, int offset, enum gpio_direction_t dir)
+static void exynos4412_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return;
 
 	switch(dir)
@@ -213,12 +212,12 @@ static void exynos4412_gpio_set_dir(struct gpio_t * gpio, int offset, enum gpio_
 	}
 }
 
-static enum gpio_direction_t exynos4412_gpio_get_dir(struct gpio_t * gpio, int offset)
+static enum gpio_direction_t exynos4412_gpiochip_get_dir(struct gpiochip_t * chip, int offset)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val, d;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return GPIO_DIRECTION_NONE;
 
 	offset <<= 0x2;
@@ -236,12 +235,12 @@ static enum gpio_direction_t exynos4412_gpio_get_dir(struct gpio_t * gpio, int o
 	return GPIO_DIRECTION_NONE;
 }
 
-static void exynos4412_gpio_set_value(struct gpio_t * gpio, int offset, int value)
+static void exynos4412_gpiochip_set_value(struct gpiochip_t * chip, int offset, int value)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return;
 
 	val = readl(dat->regbase + EXYNOS4412_GPIO_DAT);
@@ -250,19 +249,19 @@ static void exynos4412_gpio_set_value(struct gpio_t * gpio, int offset, int valu
 	writel(dat->regbase + EXYNOS4412_GPIO_DAT, val);
 }
 
-static int exynos4412_gpio_get_value(struct gpio_t * gpio, int offset)
+static int exynos4412_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 {
-	struct exynos4412_gpio_data_t * dat = (struct exynos4412_gpio_data_t *)gpio->priv;
+	struct exynos4412_gpiochip_data_t * dat = (struct exynos4412_gpiochip_data_t *)chip->priv;
 	u32_t val;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return 0;
 
 	val = readl(dat->regbase + EXYNOS4412_GPIO_DAT);
 	return !!(val & (1 << offset));
 }
 
-static struct exynos4412_gpio_data_t gpio_datas[] = {
+static struct exynos4412_gpiochip_data_t gpiochip_datas[] = {
 	{
 		.name		= "GPA0",
 		.base		= EXYNOS4412_GPA0(0),
@@ -476,58 +475,58 @@ static struct exynos4412_gpio_data_t gpio_datas[] = {
 	}
 };
 
-static __init void exynos4412_gpio_init(void)
+static __init void exynos4412_gpiochip_init(void)
 {
-	struct gpio_t * gpio;
+	struct gpiochip_t * chip;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(gpio_datas); i++)
+	for(i = 0; i < ARRAY_SIZE(gpiochip_datas); i++)
 	{
-		gpio = malloc(sizeof(struct gpio_t));
-		if(!gpio)
+		chip = malloc(sizeof(struct gpiochip_t));
+		if(!chip)
 			continue;
 
-		gpio->name = gpio_datas[i].name;
-		gpio->base = gpio_datas[i].base;
-		gpio->ngpio = gpio_datas[i].ngpio;
-		gpio->set_cfg = exynos4412_gpio_set_cfg;
-		gpio->get_cfg = exynos4412_gpio_get_cfg;
-		gpio->set_pull = exynos4412_gpio_set_pull;
-		gpio->get_pull = exynos4412_gpio_get_pull;
-		gpio->set_drv = exynos4412_gpio_set_drv;
-		gpio->get_drv = exynos4412_gpio_get_drv;
-		gpio->set_rate = exynos4412_gpio_set_rate;
-		gpio->get_rate = exynos4412_gpio_get_rate;
-		gpio->set_dir = exynos4412_gpio_set_dir;
-		gpio->get_dir = exynos4412_gpio_get_dir;
-		gpio->set_value = exynos4412_gpio_set_value;
-		gpio->get_value = exynos4412_gpio_get_value;
-		gpio->priv = &gpio_datas[i];
+		chip->name = gpiochip_datas[i].name;
+		chip->base = gpiochip_datas[i].base;
+		chip->ngpio = gpiochip_datas[i].ngpio;
+		chip->set_cfg = exynos4412_gpiochip_set_cfg;
+		chip->get_cfg = exynos4412_gpiochip_get_cfg;
+		chip->set_pull = exynos4412_gpiochip_set_pull;
+		chip->get_pull = exynos4412_gpiochip_get_pull;
+		chip->set_drv = exynos4412_gpiochip_set_drv;
+		chip->get_drv = exynos4412_gpiochip_get_drv;
+		chip->set_rate = exynos4412_gpiochip_set_rate;
+		chip->get_rate = exynos4412_gpiochip_get_rate;
+		chip->set_dir = exynos4412_gpiochip_set_dir;
+		chip->get_dir = exynos4412_gpiochip_get_dir;
+		chip->set_value = exynos4412_gpiochip_set_value;
+		chip->get_value = exynos4412_gpiochip_get_value;
+		chip->priv = &gpiochip_datas[i];
 
-		if(register_gpio(gpio))
-			LOG("Register gpio '%s'", gpio->name);
+		if(register_gpiochip(chip))
+			LOG("Register gpiochip '%s'", chip->name);
 		else
-			LOG("Failed to register gpio '%s'", gpio->name);
+			LOG("Failed to register gpiochip '%s'", chip->name);
 	}
 }
 
-static __exit void exynos4412_gpio_exit(void)
+static __exit void exynos4412_gpiochip_exit(void)
 {
-	struct gpio_t * gpio;
+	struct gpiochip_t * chip;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(gpio_datas); i++)
+	for(i = 0; i < ARRAY_SIZE(gpiochip_datas); i++)
 	{
-		gpio = search_gpio(gpio_datas[i].name);
-		if(!gpio)
+		chip = search_gpiochip(gpiochip_datas[i].name);
+		if(!chip)
 			continue;
-		if(unregister_gpio(gpio))
-			LOG("Unregister gpio '%s'", gpio->name);
+		if(unregister_gpiochip(chip))
+			LOG("Unregister gpiochip '%s'", chip->name);
 		else
-			LOG("Failed to unregister gpio '%s'", gpio->name);
-		free(gpio);
+			LOG("Failed to unregister gpiochip '%s'", chip->name);
+		free(chip);
 	}
 }
 
-core_initcall(exynos4412_gpio_init);
-core_exitcall(exynos4412_gpio_exit);
+core_initcall(exynos4412_gpiochip_init);
+core_exitcall(exynos4412_gpiochip_exit);

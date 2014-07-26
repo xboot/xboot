@@ -32,33 +32,33 @@ enum gpio_direction_t {
 	GPIO_DIRECTION_OUTPUT	= 2,
 };
 
-struct gpio_t
+struct gpiochip_t
 {
 	struct kobj_t * kobj;
 	const char * name;
 	int base;
 	int ngpio;
 
-	void (*set_cfg)(struct gpio_t * gpio, int offset, int cfg);
-	int  (*get_cfg)(struct gpio_t * gpio, int offset);
-	void (*set_pull)(struct gpio_t * gpio, int offset, enum gpio_pull_t pull);
-	enum gpio_pull_t (*get_pull)(struct gpio_t * gpio, int offset);
-	void (*set_drv)(struct gpio_t * gpio, int offset, enum gpio_drv_t drv);
-	enum gpio_drv_t (*get_drv)(struct gpio_t * gpio, int offset);
-	void (*set_rate)(struct gpio_t * gpio, int offset, enum gpio_rate_t rate);
-	enum gpio_rate_t (*get_rate)(struct gpio_t * gpio, int offset);
-	void (*set_dir)(struct gpio_t * gpio, int offset, enum gpio_direction_t dir);
-	enum gpio_direction_t (*get_dir)(struct gpio_t * gpio, int offset);
-	void (*set_value)(struct gpio_t * gpio, int offset, int value);
-	int  (*get_value)(struct gpio_t * gpio, int offset);
+	void (*set_cfg)(struct gpiochip_t * chip, int offset, int cfg);
+	int  (*get_cfg)(struct gpiochip_t * chip, int offset);
+	void (*set_pull)(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull);
+	enum gpio_pull_t (*get_pull)(struct gpiochip_t * chip, int offset);
+	void (*set_drv)(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv);
+	enum gpio_drv_t (*get_drv)(struct gpiochip_t * chip, int offset);
+	void (*set_rate)(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate);
+	enum gpio_rate_t (*get_rate)(struct gpiochip_t * chip, int offset);
+	void (*set_dir)(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir);
+	enum gpio_direction_t (*get_dir)(struct gpiochip_t * chip, int offset);
+	void (*set_value)(struct gpiochip_t * chip, int offset, int value);
+	int  (*get_value)(struct gpiochip_t * chip, int offset);
 
 	void * priv;
 };
 
-struct gpio_t * search_gpio(const char * name);
-struct gpio_t * search_gpio_with_no(int no);
-bool_t register_gpio(struct gpio_t * gpio);
-bool_t unregister_gpio(struct gpio_t * gpio);
+struct gpiochip_t * search_gpiochip(const char * name);
+struct gpiochip_t * search_gpiochip_with_no(int no);
+bool_t register_gpiochip(struct gpiochip_t * chip);
+bool_t unregister_gpiochip(struct gpiochip_t * chip);
 
 int gpio_is_valid(int no);
 void gpio_set_cfg(int no, int cfg);

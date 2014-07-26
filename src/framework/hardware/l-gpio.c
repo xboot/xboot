@@ -55,7 +55,9 @@ static int m_gpio_set_cfg(lua_State * L)
 	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
 	int cfg = luaL_checkinteger(L, 2);
 	gpio->chip->set_cfg(gpio->chip, gpio->offset, cfg);
-	return 0;
+	lua_pushlightuserdata(L, gpio);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	return 1;
 }
 
 static int m_gpio_get_cfg(lua_State * L)
@@ -71,7 +73,9 @@ static int m_gpio_set_pull(lua_State * L)
 	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
 	enum gpio_pull_t pull = (enum gpio_pull_t)luaL_checkinteger(L, 2);
 	gpio->chip->set_pull(gpio->chip, gpio->offset, pull);
-	return 0;
+	lua_pushlightuserdata(L, gpio);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	return 1;
 }
 
 static int m_gpio_get_pull(lua_State * L)
@@ -87,7 +91,9 @@ static int m_gpio_set_drv(lua_State * L)
 	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
 	enum gpio_drv_t drv = (enum gpio_pull_t)luaL_checkinteger(L, 2);
 	gpio->chip->set_drv(gpio->chip, gpio->offset, drv);
-	return 0;
+	lua_pushlightuserdata(L, gpio);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	return 1;
 }
 
 static int m_gpio_get_drv(lua_State * L)
@@ -103,7 +109,9 @@ static int m_gpio_set_rate(lua_State * L)
 	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
 	enum gpio_rate_t rate = (enum gpio_pull_t)luaL_checkinteger(L, 2);
 	gpio->chip->set_rate(gpio->chip, gpio->offset, rate);
-	return 0;
+	lua_pushlightuserdata(L, gpio);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	return 1;
 }
 
 static int m_gpio_get_rate(lua_State * L)
@@ -119,7 +127,9 @@ static int m_gpio_set_dir(lua_State * L)
 	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
 	enum gpio_direction_t dir = (enum gpio_pull_t)luaL_checkinteger(L, 2);
 	gpio->chip->set_dir(gpio->chip, gpio->offset, dir);
-	return 0;
+	lua_pushlightuserdata(L, gpio);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	return 1;
 }
 
 static int m_gpio_get_dir(lua_State * L)
@@ -135,7 +145,9 @@ static int m_gpio_set_value(lua_State * L)
 	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
 	int value = luaL_checkinteger(L, 2);
 	gpio->chip->set_value(gpio->chip, gpio->offset, value);
-	return 0;
+	lua_pushlightuserdata(L, gpio);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	return 1;
 }
 
 static int m_gpio_get_value(lua_State * L)

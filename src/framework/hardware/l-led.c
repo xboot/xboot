@@ -23,6 +23,17 @@
 #include <led/led.h>
 #include <framework/hardware/l-hardware.h>
 
+static int l_led_new(lua_State * L)
+{
+	const char * name = luaL_checkstring(L, 1);
+	struct led_t * led = search_led(name);
+	if(!led)
+		return 0;
+	lua_pushlightuserdata(L, led);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_LED);
+	return 1;
+}
+
 static int l_led_list(lua_State * L)
 {
 	struct device_list_t * pos, * n;
@@ -45,24 +56,23 @@ static int l_led_list(lua_State * L)
 	return 1;
 }
 
-static int l_led_search(lua_State * L)
+static const luaL_Reg l_hardware_led[] = {
+	{"new",		l_led_new},
+	{"list",	l_led_list},
+	{NULL,	NULL}
+};
+
+static int m_led_set_brightness(lua_State * L)
 {
-	const char * name = luaL_optstring(L, 1, NULL);
-	struct led_t * led = search_led(name);
-	if(!led)
-		return 0;
+	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
+	int brightness = luaL_checknumber(L, 2) * ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1));
+	led_set_brightness(led, brightness);
 	lua_pushlightuserdata(L, led);
 	luaL_setmetatable(L, MT_NAME_HARDWARE_LED);
 	return 1;
 }
 
-static const luaL_Reg l_hardware_led[] = {
-	{"list", l_led_list},
-	{"search", l_led_search},
-	{NULL, NULL}
-};
-
-static int m_led_get(lua_State * L)
+static int m_led_get_brightness(lua_State * L)
 {
 	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
 	int brightness = led_get_brightness(led);
@@ -70,17 +80,9 @@ static int m_led_get(lua_State * L)
 	return 1;
 }
 
-static int m_led_set(lua_State * L)
-{
-	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
-	int brightness = luaL_checknumber(L, 2) * ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1));
-	led_set_brightness(led, brightness);
-	return 0;
-}
-
 static const luaL_Reg m_hardware_led[] = {
-	{"get", m_led_get},
-	{"set", m_led_set},
+	{"setBrightness",	m_led_set_brightness},
+	{"getBrightness",	m_led_get_brightness},
 	{NULL,	NULL}
 };
 

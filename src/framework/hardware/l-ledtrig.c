@@ -23,6 +23,17 @@
 #include <led/ledtrig.h>
 #include <framework/hardware/l-hardware.h>
 
+static int l_ledtrig_new(lua_State * L)
+{
+	const char * name = luaL_checkstring(L, 1);
+	struct ledtrig_t * trigger = search_ledtrig(name);
+	if(!trigger)
+		return 0;
+	lua_pushlightuserdata(L, trigger);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_LEDTRIG);
+	return 1;
+}
+
 static int l_ledtrig_list(lua_State * L)
 {
 	struct device_list_t * pos, * n;
@@ -45,20 +56,9 @@ static int l_ledtrig_list(lua_State * L)
 	return 1;
 }
 
-static int l_ledtrig_search(lua_State * L)
-{
-	const char * name = luaL_optstring(L, 1, NULL);
-	struct ledtrig_t * trigger = search_ledtrig(name);
-	if(!trigger)
-		return 0;
-	lua_pushlightuserdata(L, trigger);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_LEDTRIG);
-	return 1;
-}
-
 static const luaL_Reg l_hardware_ledtrig[] = {
-	{"list", l_ledtrig_list},
-	{"search", l_ledtrig_search},
+	{"new",		l_ledtrig_new},
+	{"list",	l_ledtrig_list},
 	{NULL, NULL}
 };
 
@@ -66,20 +66,14 @@ static int m_ledtrig_activity(lua_State * L)
 {
 	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LEDTRIG);
 	ledtrig_activity(trigger);
-	return 0;
-}
-
-static int m_ledtrig_bind_led_name(lua_State * L)
-{
-	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LEDTRIG);
-	lua_pushstring(L, trigger->led->name);
+	lua_pushlightuserdata(L, trigger);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_LEDTRIG);
 	return 1;
 }
 
 static const luaL_Reg m_hardware_ledtrig[] = {
 	{"activity",	m_ledtrig_activity},
-	{"led",			m_ledtrig_bind_led_name},
-	{NULL,			NULL}
+	{NULL,	NULL}
 };
 
 int luaopen_hardware_ledtrig(lua_State * L)

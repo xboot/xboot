@@ -38,7 +38,6 @@ static int l_gpio_new(lua_State * L)
 		struct lgpio_t * gpio = lua_newuserdata(L, sizeof(struct lgpio_t));
 		gpio->chip = chip;
 		gpio->offset = offset;
-		lua_pushlightuserdata(L, gpio);
 		luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
 		return 1;
 	}

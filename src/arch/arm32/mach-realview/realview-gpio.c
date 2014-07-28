@@ -23,57 +23,56 @@
 #include <xboot.h>
 #include <realview/reg-gpio.h>
 
-struct realview_gpio_data_t
+struct realview_gpiochip_data_t
 {
 	const char * name;
 	int base;
 	int ngpio;
-
 	physical_addr_t regbase;
 };
 
-static void realview_gpio_set_cfg(struct gpio_t * gpio, int offset, int cfg)
+static void realview_gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 {
 }
 
-static int realview_gpio_get_cfg(struct gpio_t * gpio, int offset)
+static int realview_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
 {
 	return 0;
 }
 
-static void realview_gpio_set_pull(struct gpio_t * gpio, int offset, enum gpio_pull_t pull)
+static void realview_gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
 {
 }
 
-static enum gpio_pull_t realview_gpio_get_pull(struct gpio_t * gpio, int offset)
+static enum gpio_pull_t realview_gpiochip_get_pull(struct gpiochip_t * chip, int offset)
 {
 	return GPIO_PULL_NONE;
 }
 
-static void realview_gpio_set_drv(struct gpio_t * gpio, int offset, enum gpio_drv_t drv)
+static void realview_gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
 {
 }
 
-static enum gpio_drv_t realview_gpio_get_drv(struct gpio_t * gpio, int offset)
+static enum gpio_drv_t realview_gpiochip_get_drv(struct gpiochip_t * chip, int offset)
 {
 	return GPIO_DRV_NONE;
 }
 
-static void realview_gpio_set_rate(struct gpio_t * gpio, int offset, enum gpio_rate_t rate)
+static void realview_gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
 {
 }
 
-static enum gpio_rate_t realview_gpio_get_rate(struct gpio_t * gpio, int offset)
+static enum gpio_rate_t realview_gpiochip_get_rate(struct gpiochip_t * chip, int offset)
 {
 	return GPIO_RATE_NONE;
 }
 
-static void realview_gpio_set_dir(struct gpio_t * gpio, int offset, enum gpio_direction_t dir)
+static void realview_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
 {
-	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
+	struct realview_gpiochip_data_t * dat = (struct realview_gpiochip_data_t *)chip->priv;
 	u8_t val;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return;
 
 	switch(dir)
@@ -98,12 +97,12 @@ static void realview_gpio_set_dir(struct gpio_t * gpio, int offset, enum gpio_di
 	}
 }
 
-static enum gpio_direction_t realview_gpio_get_dir(struct gpio_t * gpio, int offset)
+static enum gpio_direction_t realview_gpiochip_get_dir(struct gpiochip_t * chip, int offset)
 {
-	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
+	struct realview_gpiochip_data_t * dat = (struct realview_gpiochip_data_t *)chip->priv;
 	u8_t val;
 
-	if(offset >= gpio->ngpio)
+	if(offset >= chip->ngpio)
 		return GPIO_DIRECTION_NONE;
 
 	val = readb(dat->regbase + REALVIEW_GPIO_DIR);
@@ -112,19 +111,19 @@ static enum gpio_direction_t realview_gpio_get_dir(struct gpio_t * gpio, int off
 	return GPIO_DIRECTION_OUTPUT;
 }
 
-static void realview_gpio_set_value(struct gpio_t * gpio, int offset, int value)
+static void realview_gpiochip_set_value(struct gpiochip_t * chip, int offset, int value)
 {
-	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
+	struct realview_gpiochip_data_t * dat = (struct realview_gpiochip_data_t *)chip->priv;
 	writeb(dat->regbase + (1 << (offset + 2)), !!value << offset);
 }
 
-static int realview_gpio_get_value(struct gpio_t * gpio, int offset)
+static int realview_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 {
-	struct realview_gpio_data_t * dat = (struct realview_gpio_data_t *)gpio->priv;
+	struct realview_gpiochip_data_t * dat = (struct realview_gpiochip_data_t *)chip->priv;
 	return !!readb(dat->regbase + (1 << (offset + 2)));
 }
 
-static struct realview_gpio_data_t gpio_datas[] = {
+static struct realview_gpiochip_data_t gpiochip_datas[] = {
 	{
 		.name		= "GPIO0",
 		.base		= REALVIEW_GPIO0(0),
@@ -143,58 +142,58 @@ static struct realview_gpio_data_t gpio_datas[] = {
 	},
 };
 
-static __init void realview_gpio_init(void)
+static __init void realview_gpiochip_init(void)
 {
-	struct gpio_t * gpio;
+	struct gpiochip_t * chip;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(gpio_datas); i++)
+	for(i = 0; i < ARRAY_SIZE(gpiochip_datas); i++)
 	{
-		gpio = malloc(sizeof(struct gpio_t));
-		if(!gpio)
+		chip = malloc(sizeof(struct gpiochip_t));
+		if(!chip)
 			continue;
 
-		gpio->name = gpio_datas[i].name;
-		gpio->base = gpio_datas[i].base;
-		gpio->ngpio = gpio_datas[i].ngpio;
-		gpio->set_cfg = realview_gpio_set_cfg;
-		gpio->get_cfg = realview_gpio_get_cfg;
-		gpio->set_pull = realview_gpio_set_pull;
-		gpio->get_pull = realview_gpio_get_pull;
-		gpio->set_drv = realview_gpio_set_drv;
-		gpio->get_drv = realview_gpio_get_drv;
-		gpio->set_rate = realview_gpio_set_rate;
-		gpio->get_rate = realview_gpio_get_rate;
-		gpio->set_dir = realview_gpio_set_dir;
-		gpio->get_dir = realview_gpio_get_dir;
-		gpio->set_value = realview_gpio_set_value;
-		gpio->get_value = realview_gpio_get_value;
-		gpio->priv = &gpio_datas[i];
+		chip->name = gpiochip_datas[i].name;
+		chip->base = gpiochip_datas[i].base;
+		chip->ngpio = gpiochip_datas[i].ngpio;
+		chip->set_cfg = realview_gpiochip_set_cfg;
+		chip->get_cfg = realview_gpiochip_get_cfg;
+		chip->set_pull = realview_gpiochip_set_pull;
+		chip->get_pull = realview_gpiochip_get_pull;
+		chip->set_drv = realview_gpiochip_set_drv;
+		chip->get_drv = realview_gpiochip_get_drv;
+		chip->set_rate = realview_gpiochip_set_rate;
+		chip->get_rate = realview_gpiochip_get_rate;
+		chip->set_dir = realview_gpiochip_set_dir;
+		chip->get_dir = realview_gpiochip_get_dir;
+		chip->set_value = realview_gpiochip_set_value;
+		chip->get_value = realview_gpiochip_get_value;
+		chip->priv = &gpiochip_datas[i];
 
-		if(register_gpio(gpio))
-			LOG("Register gpio '%s'", gpio->name);
+		if(register_gpiochip(chip))
+			LOG("Register gpiochip '%s'", chip->name);
 		else
-			LOG("Failed to register gpio '%s'", gpio->name);
+			LOG("Failed to register gpiochip '%s'", chip->name);
 	}
 }
 
-static __exit void realview_gpio_exit(void)
+static __exit void realview_gpiochip_exit(void)
 {
-	struct gpio_t * gpio;
+	struct gpiochip_t * chip;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(gpio_datas); i++)
+	for(i = 0; i < ARRAY_SIZE(gpiochip_datas); i++)
 	{
-		gpio = search_gpio(gpio_datas[i].name);
-		if(!gpio)
+		chip = search_gpiochip(gpiochip_datas[i].name);
+		if(!chip)
 			continue;
-		if(unregister_gpio(gpio))
-			LOG("Unregister gpio '%s'", gpio->name);
+		if(unregister_gpiochip(chip))
+			LOG("Unregister gpiochip '%s'", chip->name);
 		else
-			LOG("Failed to unregister gpio '%s'", gpio->name);
-		free(gpio);
+			LOG("Failed to unregister gpiochip '%s'", chip->name);
+		free(chip);
 	}
 }
 
-core_initcall(realview_gpio_init);
-core_exitcall(realview_gpio_exit);
+core_initcall(realview_gpiochip_init);
+core_exitcall(realview_gpiochip_exit);

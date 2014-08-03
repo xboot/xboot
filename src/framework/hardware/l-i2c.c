@@ -58,11 +58,27 @@ static int m_i2c_read(lua_State * L)
 {
 	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_NAME_HARDWARE_I2C);
 	size_t count = luaL_checkinteger(L, 2);
-	char buf[SZ_4K];
-	if((count > 0) && (i2c_master_recv(i2c->client, buf, count) == count))
-		lua_pushlstring(L, buf, count);
-	else
+	if(count <= 0)
+	{
 		lua_pushnil(L);
+	}
+	else if(count > SZ_4K)
+	{
+		char * p = malloc(count);
+		if(p && i2c_master_recv(i2c->client, p, count) == count)
+			lua_pushlstring(L, p, count);
+		else
+			lua_pushnil(L);
+		free(p);
+	}
+	else
+	{
+		char buf[SZ_4K];
+		if(i2c_master_recv(i2c->client, buf, count) == count)
+			lua_pushlstring(L, buf, count);
+		else
+			lua_pushnil(L);
+	}
 	return 1;
 }
 

@@ -50,11 +50,27 @@ static int m_uart_read(lua_State * L)
 {
 	struct uart_t * uart = luaL_checkudata(L, 1, MT_NAME_HARDWARE_UART);
 	size_t count = luaL_checkinteger(L, 2);
-	char buf[SZ_4K];
-	if((count > 0) && (uart_read(uart, (u8_t *)buf, count) == count))
-		lua_pushlstring(L, buf, count);
-	else
+	if(count <= 0)
+	{
 		lua_pushnil(L);
+	}
+	else if(count > SZ_4K)
+	{
+		char * p = malloc(count);
+		if(p && uart_read(uart, (u8_t *)p, count) == count)
+			lua_pushlstring(L, p, count);
+		else
+			lua_pushnil(L);
+		free(p);
+	}
+	else
+	{
+		char buf[SZ_4K];
+		if(uart_read(uart, (u8_t *)buf, count) == count)
+			lua_pushlstring(L, buf, count);
+		else
+			lua_pushnil(L);
+	}
 	return 1;
 }
 

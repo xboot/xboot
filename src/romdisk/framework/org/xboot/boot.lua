@@ -26,6 +26,7 @@ Display = require "builtin.display"
 -- Builtin hardware module
 --
 Hardware = {
+	Uart = require "builtin.hardware.uart",
 	I2c = require "builtin.hardware.i2c",
 	Gpio = require "builtin.hardware.gpio",
 	Led = require "builtin.hardware.led",

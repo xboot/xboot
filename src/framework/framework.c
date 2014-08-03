@@ -41,6 +41,7 @@ static const luaL_Reg xboot_libs[] = {
 	{ "builtin.font",				luaopen_font },
 	{ "builtin.display",			luaopen_display },
 
+	{ "builtin.hardware.uart",		luaopen_hardware_uart },
 	{ "builtin.hardware.i2c",		luaopen_hardware_i2c },
 	{ "builtin.hardware.gpio",		luaopen_hardware_gpio },
 	{ "builtin.hardware.led",		luaopen_hardware_led },

@@ -91,3 +91,24 @@ bool_t unregister_bus_uart(struct uart_t * uart)
 
 	return TRUE;
 }
+
+bool_t uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
+{
+	if(uart && uart->setup)
+		return uart->setup(uart, baud, data, parity, stop);
+	return FALSE;
+}
+
+ssize_t uart_read(struct uart_t * uart, u8_t * buf, size_t count)
+{
+	if(uart && uart->read)
+		return uart->read(uart, buf, count);
+	return 0;
+}
+
+ssize_t uart_write(struct uart_t * uart, const u8_t * buf, size_t count)
+{
+	if(uart && uart->write)
+		return uart->write(uart, buf, count);
+	return 0;
+}

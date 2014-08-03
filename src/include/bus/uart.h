@@ -67,7 +67,7 @@ struct uart_t
 	/* write buffer */
 	ssize_t (*write)(struct uart_t * uart, const u8_t * buf, size_t count);
 
-	/* setup ... */
+	/* setup param */
 	bool_t (*setup)(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop);
 
 	/* Private data */
@@ -77,6 +77,9 @@ struct uart_t
 struct uart_t * search_bus_uart(const char * name);
 bool_t register_bus_uart(struct uart_t * uart);
 bool_t unregister_bus_uart(struct uart_t * uart);
+bool_t uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop);
+ssize_t uart_read(struct uart_t * uart, u8_t * buf, size_t count);
+ssize_t uart_write(struct uart_t * uart, const u8_t * buf, size_t count);
 
 #ifdef __cplusplus
 }

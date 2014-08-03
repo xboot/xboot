@@ -1,6 +1,6 @@
 #
-# Makefile for xboot.
-# Create by: jianjun jiang <jerryjianjun@gmail.com>.
+# Makefile for xboot
+# Create by: Jianjun Jiang <8192542@qq.com>
 #
 
 #

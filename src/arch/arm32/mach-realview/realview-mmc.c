@@ -1,8 +1,10 @@
 /*
  * realview-mmc.c
  *
- * Copyright(c) 2007-2013 jianjun jiang <jerryjianjun@gmail.com>
- * official site: http://xboot.org
+ * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
+ * Official site: http://xboot.org
+ * Mobile phone: +86-18665388956
+ * QQ: 8192542
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

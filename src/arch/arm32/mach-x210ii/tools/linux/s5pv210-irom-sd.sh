@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # s5pv210 irom sd boot fusing tool.
-# Author: jianjun jiang <jerryjianjun@gmail.com>
+# Author: Jianjun Jiang <8192542@qq.com>
 
 
 # display usage message

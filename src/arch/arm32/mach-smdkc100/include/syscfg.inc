@@ -1,7 +1,7 @@
 /*
  * mach/mach-smdkc100/syscfg.inc
  *
- * Copyright (c) 2007-2009  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright (c) 2007-2009  Jianjun Jiang <8192542@qq.com>
  */
 
 

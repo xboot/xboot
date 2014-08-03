@@ -1,7 +1,7 @@
 /*
  * include/syscfg.inc
  *
- * Copyright (c) 2007-2010  jianjun jiang <jerryjianjun@gmail.com>
+ * Copyright (c) 2007-2010  Jianjun Jiang <8192542@qq.com>
  */
 
 .equ CLK_400_100_166_133,		0

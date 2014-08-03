@@ -3,11 +3,11 @@
  *
  * memory configure for mach-sbc2410x.
  *
- * Copyright (c) 2007-2009  jianjun jiang <jiangjianjun20000@126.com>
+ * Copyright (c) 2007-2009  Jianjun Jiang <jiangjianjun20000@126.com>
  *
  * Change Logs:
  * Date			Author			Notes
- * 2009-01-15	jianjun jiang	the first version
+ * 2009-01-15	Jianjun Jiang	the first version
  *
  */
 

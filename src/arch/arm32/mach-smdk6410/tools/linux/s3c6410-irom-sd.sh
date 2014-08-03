@@ -1,11 +1,11 @@
 #!/bin/sh
 #
 # s3c6410 irom sd boot fusing tool.
-# Author: jianjun jiang <jerryjianjun@gmail.com>
+# Author: Jianjun Jiang <8192542@qq.com>
 
 
 echo "s3c6410 irom sd boot fusing tool."
-echo "jianjun jiang <jerryjianjun@gmail.com>"
+echo "Jianjun Jiang <8192542@qq.com>"
 echo
 
 # display usage message and exit

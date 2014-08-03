@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # exynos4x12 irom sd/mmc boot fusing tool.
-# Author: jianjun jiang <jerryjianjun@gmail.com>
+# Author: Jianjun Jiang <8192542@qq.com>
 
 
 # display usage message

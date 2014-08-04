@@ -172,7 +172,7 @@ static void s5pv210_uart_init(struct uart_t * uart)
 		gpio_set_pull(S5PV210_GPA0(0), GPIO_PULL_UP);
 
 		writel(dat->regbase + S5PV210_UCON, 0x00000005);
-		writel(dat->regbase + S5PV210_UFCON, 0x00000000);
+		writel(dat->regbase + S5PV210_UFCON, 0x00000777);
 		writel(dat->regbase + S5PV210_UMON, 0x00000000);
 		break;
 
@@ -184,7 +184,7 @@ static void s5pv210_uart_init(struct uart_t * uart)
 		gpio_set_pull(S5PV210_GPA0(4), GPIO_PULL_UP);
 
 		writel(dat->regbase + S5PV210_UCON, 0x00000005);
-		writel(dat->regbase + S5PV210_UFCON, 0x00000000);
+		writel(dat->regbase + S5PV210_UFCON, 0x00000777);
 		writel(dat->regbase + S5PV210_UMON, 0x00000000);
 		break;
 
@@ -196,7 +196,7 @@ static void s5pv210_uart_init(struct uart_t * uart)
 		gpio_set_pull(S5PV210_GPA1(0), GPIO_PULL_UP);
 
 		writel(dat->regbase + S5PV210_UCON, 0x00000005);
-		writel(dat->regbase + S5PV210_UFCON, 0x00000000);
+		writel(dat->regbase + S5PV210_UFCON, 0x00000777);
 		break;
 
 	case 3:
@@ -207,7 +207,7 @@ static void s5pv210_uart_init(struct uart_t * uart)
 		gpio_set_pull(S5PV210_GPA1(2), GPIO_PULL_UP);
 
 		writel(dat->regbase + S5PV210_UCON, 0x00000005);
-		writel(dat->regbase + S5PV210_UFCON, 0x00000000);
+		writel(dat->regbase + S5PV210_UFCON, 0x00000777);
 		break;
 
 	default:
@@ -246,7 +246,7 @@ static ssize_t s5pv210_uart_write(struct uart_t * uart, const u8_t * buf, size_t
 
 	for(i = 0; i < count; i++)
 	{
-		while( !(readl(dat->regbase + S5PV210_UTRSTAT) & S5PV210_UTRSTAT_TXE) );
+		while( !(readl(dat->regbase + S5PV210_UTRSTAT) & S5PV210_UTRSTAT_TXFE) );
 		writeb(dat->regbase + S5PV210_UTXH, buf[i]);
 	}
 

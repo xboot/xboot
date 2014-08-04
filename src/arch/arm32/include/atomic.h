@@ -135,8 +135,7 @@ static inline long atomic_sub_return(long i, atomic_t * v)
 }
 #endif
 
-#define ATOMIC_INIT(i)				{ (i) }
-
+#define atomic_set(v, i)			(((v)->counter) = (i))
 #define atomic_inc(v)				atomic_add(1, v)
 #define atomic_dec(v)				atomic_sub(1, v)
 #define atomic_inc_return(v)		(atomic_add_return(1, v))

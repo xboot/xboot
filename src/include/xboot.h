@@ -40,6 +40,7 @@ extern "C" {
 #include <xboot/list.h>
 #include <xboot/initcall.h>
 #include <xboot/kobj.h>
+#include <xboot/kref.h>
 #include <xboot/proc.h>
 #include <xboot/resource.h>
 #include <xboot/logger.h>

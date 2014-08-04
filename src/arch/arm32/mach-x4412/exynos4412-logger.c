@@ -40,7 +40,7 @@ static ssize_t logger_uart3_output(const char * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		while( !(readl(EXYNOS4412_UART3_BASE + EXYNOS4412_UTRSTAT) & EXYNOS4412_UTRSTAT_TXE) );
+		while( !(readl(EXYNOS4412_UART3_BASE + EXYNOS4412_UTRSTAT) & EXYNOS4412_UTRSTAT_TXFE) );
 		writeb(EXYNOS4412_UART3_BASE + EXYNOS4412_UTXH, buf[i]);
 	}
 	return i;

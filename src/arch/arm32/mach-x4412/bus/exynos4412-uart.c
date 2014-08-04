@@ -191,7 +191,7 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		gpio_set_pull(EXYNOS4412_GPA0(0), GPIO_PULL_UP);
 
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
+		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
 		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
 		break;
 
@@ -203,7 +203,7 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		gpio_set_pull(EXYNOS4412_GPA0(4), GPIO_PULL_UP);
 
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
+		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
 		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
 		break;
 
@@ -215,7 +215,7 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		gpio_set_pull(EXYNOS4412_GPA1(0), GPIO_PULL_UP);
 
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
+		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
 		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
 		break;
 
@@ -227,7 +227,7 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		gpio_set_pull(EXYNOS4412_GPA1(4), GPIO_PULL_UP);
 
 		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000000);
+		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
 		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
 		break;
 
@@ -267,7 +267,7 @@ static ssize_t exynos4412_uart_write(struct uart_t * uart, const u8_t * buf, siz
 
 	for(i = 0; i < count; i++)
 	{
-		while( !(readl(dat->regbase + EXYNOS4412_UTRSTAT) & EXYNOS4412_UTRSTAT_TXE) );
+		while( !(readl(dat->regbase + EXYNOS4412_UTRSTAT) & EXYNOS4412_UTRSTAT_TXFE) );
 		writeb(dat->regbase + EXYNOS4412_UTXH, buf[i]);
 	}
 

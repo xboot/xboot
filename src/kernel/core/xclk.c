@@ -34,8 +34,10 @@ struct xclk_t
 	char * (*get_parent)(struct xclk_t * clk);
 	void (*set_enable)(struct xclk_t * clk, bool_t enable);
 	bool_t (*get_enable)(struct xclk_t * clk);
-	void (*set_rate)(struct xclk_t * clk, u64_t rate, u64_t parent);
-	u64_t (*get_rate)(struct xclk_t * clk);
+	void (*set_rate)(struct xclk_t * clk, u64_t parent, u64_t rate);
+	u64_t (*get_rate)(struct xclk_t * clk, u64_t parent);
+
+	void * priv;
 };
 
 struct xclk_list_t
@@ -172,3 +174,42 @@ void xclk_disable(const char * name)
 	}
 }
 
+bool_t xclk_status(const char * name)
+{
+	struct xclk_t * clk = xclk_lookup(name);
+
+	if(!clk)
+		return FALSE;
+
+	if(clk->get_enable)
+		return clk->get_enable(clk);
+	return clk->count != 0 ? TRUE : FALSE;
+}
+
+void xclk_set_rate(const char * name, u64_t rate)
+{
+	struct xclk_t * clk = xclk_lookup(name);
+	u64_t prate;
+
+	if(!clk)
+		return;
+
+	prate = xclk_get_rate(clk->get_parent(clk));
+	if(clk->set_rate)
+		clk->set_rate(clk, prate, rate);
+}
+
+u64_t xclk_get_rate(const char * name)
+{
+	struct xclk_t * clk = xclk_lookup(name);
+	u64_t prate;
+
+	if(!clk)
+		return 0;
+
+	prate = xclk_get_rate(clk->get_parent(clk));
+	if(clk->get_rate)
+		return clk->get_rate(clk, prate);
+
+	return 0;
+}

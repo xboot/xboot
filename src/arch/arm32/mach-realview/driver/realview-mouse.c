@@ -164,7 +164,9 @@ static void input_init(struct input_t * input)
 	u64_t kclk;
 	u8_t value;
 
-	if(! clk_get_rate("kclk", &kclk))
+	clk_enable("kclk");
+	kclk = clk_get_rate("kclk");
+	if(!kclk)
 		return;
 
 	/* Set mouse's clock divisor */
@@ -230,6 +232,7 @@ static void input_exit(struct input_t * input)
 	struct realview_mouse_private_data_t * dat = (struct realview_mouse_private_data_t *)input->priv;
 	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)dat->rdat;
 
+	clk_disable("kclk");
 	if(!free_irq("KMI1"))
 		LOG("Can't free irq 'KMI1'");
 	writeb(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, 0);
@@ -254,12 +257,6 @@ static bool_t realview_register_mouse(struct resource_t * res)
 	struct realview_mouse_private_data_t * dat;
 	struct input_t * input;
 	char name[64];
-
-	if(! clk_get_rate("kclk", 0))
-	{
-		LOG("Can't get clock source 'kclk'");
-		return FALSE;
-	}
 
 	dat = malloc(sizeof(struct realview_mouse_private_data_t));
 	if(!dat)

@@ -32,7 +32,7 @@ struct clk_list_t
 	struct list_head entry;
 };
 
-struct clk_list_t __clk_list = {
+static struct clk_list_t __clk_list = {
 	.entry = {
 		.next	= &(__clk_list.entry),
 		.prev	= &(__clk_list.entry),
@@ -40,7 +40,7 @@ struct clk_list_t __clk_list = {
 };
 static spinlock_t __clk_list_lock = SPIN_LOCK_INIT();
 
-static struct clk_t * clk_search(const char * name)
+struct clk_t * clk_search(const char * name)
 {
 	struct clk_list_t * pos, * n;
 
@@ -70,6 +70,7 @@ bool_t clk_register(struct clk_t * clk)
 	if(!cl)
 		return FALSE;
 
+	clk->count = 0;
 	cl->clk = clk;
 
 	spin_lock_irq(&__clk_list_lock);
@@ -102,24 +103,111 @@ bool_t clk_unregister(struct clk_t * clk)
 	return FALSE;
 }
 
-bool_t clk_get_rate(const char * name, u64_t * rate)
+/*
+void clk_set_parent(struct clk_t * clk, const char * name)
 {
-	struct clk_t * clk;
+	if(clk && clk->set_parent)
+		clk->set_parent(clk, name);
+}
 
-	clk = clk_search(name);
+struct clk_t * clk_get_parent(struct clk_t * clk)
+{
+	if(!clk)
+		return NULL;
+
+	if(clk->get_parent)
+		return clk_search(clk->get_parent(clk));
+
+	return NULL;
+}
+*/
+
+void clk_enable(const char * name)
+{
+	struct clk_t * clk = clk_search(name);
+
+	if(!clk)
+		return;
+
+	if(clk->count == 0)
+	{
+		if(clk->get_parent)
+			clk_enable(clk->get_parent(clk));
+
+		if(clk->set_enable)
+			clk->set_enable(clk, TRUE);
+	}
+	clk->count++;
+}
+
+void clk_disable(const char * name)
+{
+	struct clk_t * clk = clk_search(name);
+
+	if(!clk)
+		return;
+
+	if(clk->count == 0)
+		return;
+
+	clk->count--;
+	if(clk->count == 0)
+	{
+		if(clk->get_parent)
+			clk_disable(clk->get_parent(clk));
+
+		if(clk->set_enable)
+			clk->set_enable(clk, FALSE);
+	}
+}
+
+bool_t clk_status(const char * name)
+{
+	struct clk_t * clk = clk_search(name);
+
 	if(!clk)
 		return FALSE;
 
-	if(rate)
-		*rate = clk->rate;
-	return TRUE;
+	if(clk->get_enable)
+		return clk->get_enable(clk);
+	return clk->count != 0 ? TRUE : FALSE;
 }
 
+void clk_set_rate(const char * name, u64_t rate)
+{
+	struct clk_t * clk = clk_search(name);
+	u64_t prate;
+
+	if(!clk)
+		return;
+
+	prate = clk_get_rate(clk->get_parent(clk));
+	if(clk->set_rate)
+		clk->set_rate(clk, prate, rate);
+}
+
+u64_t clk_get_rate(const char * name)
+{
+	struct clk_t * clk = clk_search(name);
+	u64_t prate;
+
+	if(!clk)
+		return 0;
+
+	prate = clk_get_rate(clk->get_parent(clk));
+	if(clk->get_rate)
+		return clk->get_rate(clk, prate);
+
+	return 0;
+}
+
+//TODO
 static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct clk_list_t * pos, * n;
 	s8_t * p;
 	s32_t len = 0;
+	u64_t rate;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -128,7 +216,8 @@ static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
 	{
-		len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", pos->clk->name, pos->clk->rate / (u64_t)(1000 * 1000), pos->clk->rate % (u64_t)(1000 * 1000));
+		rate = clk_get_rate(pos->clk->name);
+		len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", pos->clk->name, rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000));
 	}
 
 	len -= offset;

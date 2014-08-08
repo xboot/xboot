@@ -36,7 +36,8 @@ static bool_t realview_uart_setup(struct uart_t * uart, enum baud_rate_t baud, e
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
 	u64_t uclk;
 
-	if(! clk_get_rate("uclk", &uclk))
+	uclk = clk_get_rate("uclk");
+	if(!uclk)
 		return FALSE;
 
 	switch(baud)
@@ -175,6 +176,8 @@ static void realview_uart_init(struct uart_t * uart)
 	struct resource_t * res = (struct resource_t *)uart->priv;
 	struct realview_uart_data_t * dat = (struct realview_uart_data_t *)res->data;
 
+	clk_enable("uclk");
+
 	/* Disable everything */
 	writel(dat->regbase + REALVIEW_UART_OFFSET_CR, 0x0);
 
@@ -187,6 +190,7 @@ static void realview_uart_init(struct uart_t * uart)
 
 static void realview_uart_exit(struct uart_t * uart)
 {
+	clk_disable("uclk");
 }
 
 static ssize_t realview_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
@@ -225,12 +229,6 @@ static bool_t realview_register_bus_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
 	char name[64];
-
-	if(!clk_get_rate("uclk", 0))
-	{
-		LOG("Can't get clock source 'uclk'");
-		return FALSE;
-	}
 
 	uart = malloc(sizeof(struct uart_t));
 	if(!uart)

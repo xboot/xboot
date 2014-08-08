@@ -27,14 +27,9 @@
 #include <xboot.h>
 #include <realview/reg-timer.h>
 
-/*
- * tick timer interrupt.
- */
 static void timer_interrupt(void * data)
 {
 	tick_interrupt();
-
-	/* clear interrupt - timer3 */
 	writel(REALVIEW_T3_ICLR, 0x0);
 }
 
@@ -43,31 +38,35 @@ static bool_t tick_timer_init(void)
 	u64_t timclk;
 	u32_t count;
 
-	if(!clk_get_rate("timclk", &timclk))
+	clk_enable("timclk");
+
+	timclk = clk_get_rate("timclk");
+	if(!timclk)
 	{
-		LOG("can't get the clock of \'timclk\'");
+		clk_disable("timclk");
 		return FALSE;
 	}
-
-	/* for 1ms reload count */
-	count = (u32_t)(timclk / 1000);
 
 	if(!request_irq("TMIER2_3", timer_interrupt, NULL))
 	{
-		LOG("can't request irq \'TMIER2_3\'");
+		LOG("Can't request irq 'TMIER2_3'");
+		clk_disable("timclk");
 		return FALSE;
 	}
 
-	/* using timer3 for tick, 1ms for reload value */
+	/* For 1ms reload count */
+	count = (u32_t)(timclk / 1000);
+
+	/* Using timer3 for tick, 1ms for reload value */
 	writel(REALVIEW_T3_LOAD, count);
 
-	/* setting timer controller */
+	/* Setting timer controller */
 	writel(REALVIEW_T3_CTRL, REALVIEW_TC_32BIT | REALVIEW_TC_DIV1 | REALVIEW_TC_IE | REALVIEW_TC_PERIODIC);
 
-	/* clear all interrupt */
+	/* Clear all interrupt */
 	writel(REALVIEW_T3_ICLR, 0x0);
 
-	/* enable timer3 */
+	/* Enable timer3 */
 	writel(REALVIEW_T3_CTRL, readl(REALVIEW_T3_CTRL) | REALVIEW_TC_ENABLE);
 
 	return TRUE;

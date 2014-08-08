@@ -355,7 +355,9 @@ static void input_init(struct input_t * input)
 	u64_t kclk;
 	u8_t value;
 
-	if(! clk_get_rate("kclk", &kclk))
+	clk_enable("kclk");
+	kclk = clk_get_rate("kclk");
+	if(!kclk)
 		return;
 
 	/* Set keyboard's clock divisor */
@@ -408,6 +410,7 @@ static void input_exit(struct input_t * input)
 	struct resource_t * res = (struct resource_t *)input->priv;
 	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
 
+	clk_disable("kclk");
 	if(!free_irq("KMI0"))
 		LOG("Can't free irq 'KMI0'");
 	writeb(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, 0);
@@ -430,12 +433,6 @@ static bool_t realview_register_keyboard(struct resource_t * res)
 {
 	struct input_t * input;
 	char name[64];
-
-	if(! clk_get_rate("kclk", 0))
-	{
-		LOG("Can't get clock source 'kclk'");
-		return FALSE;
-	}
 
 	input = malloc(sizeof(struct input_t));
 	if(!input)

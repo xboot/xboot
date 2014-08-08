@@ -24,75 +24,51 @@
 
 #include <xboot.h>
 
-/*
- * the array of clocks, which will to be setup.
- */
-static struct clk_t realview_clocks[6];
-
-/*
- * setup the realview's clock array.
- */
-static void realview_setup_clocks(u64_t xtal)
-{
-	/* initialize system clocks */
-	realview_clocks[0].name = "xtal";
-	realview_clocks[0].rate = xtal;
-
-	/* uart clock */
-	realview_clocks[1].name = "uclk";
-	realview_clocks[1].rate = 24*1000*1000;
-
-	/* kmi clock */
-	realview_clocks[2].name = "kclk";
-	realview_clocks[2].rate = 24*1000*1000;
-
-	/* mmci clock */
-	realview_clocks[3].name = "mclk";
-	realview_clocks[3].rate = 24*1000*1000;
-
-	/* timer clock */
-	realview_clocks[4].name = "timclk";
-	realview_clocks[4].rate = 1*1000*1000;
-
-	/* ref clock */
-	realview_clocks[5].name = "refclk";
-	realview_clocks[5].rate = 32768;
-}
+static struct clk_fixed_t realview_clks[] = {
+	{
+		.name = "xtal",
+		.rate = 12 * 1000 * 1000,
+	}, {
+		.name = "uclk",
+		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "kclk",
+		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "mclk",
+		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "timclk",
+		.rate = 1 * 1000 * 1000,
+	}, {
+		.name = "refclk",
+		.rate = 32768,
+	}
+};
 
 static __init void realview_clk_init(void)
 {
-	u32_t i;
-	u64_t xtal = 0;
+	int i;
 
-	/* get system xtal */
-	if(get_machine() != 0)
-		xtal = (get_machine())->res.xtal;
-	if(xtal == 0)
-		xtal = 12*1000*1000;
-
-	/* setup clock arrays */
-	realview_setup_clocks(xtal);
-
-	/* register clocks to system */
-	for(i=0; i< ARRAY_SIZE(realview_clocks); i++)
+	for(i = 0; i < ARRAY_SIZE(realview_clks); i++)
 	{
-		if(clk_register(&realview_clocks[i]))
-			LOG("Register clock source '%s' [%LdHZ]", realview_clocks[i].name, realview_clocks[i].rate);
+		if(clk_fixed_register(&realview_clks[i]))
+			LOG("Register clock source '%s' [%LdHZ]", realview_clks[i].name, realview_clks[i].rate);
 		else
-			LOG("Failed to register clock source '%s' [%LdHZ]", realview_clocks[i].name, realview_clocks[i].rate);
+			LOG("Failed to register clock source '%s' [%LdHZ]", realview_clks[i].name, realview_clks[i].rate);
 	}
 }
 
 static __exit void realview_clk_exit(void)
 {
-	u32_t i;
+	int i;
 
-	for(i=0; i< ARRAY_SIZE(realview_clocks); i++)
+	for(i = 0; i < ARRAY_SIZE(realview_clks); i++)
 	{
-		if(clk_unregister(&realview_clocks[i]))
-			LOG("Unregister clock source '%s' [%LdHZ]", realview_clocks[i].name, realview_clocks[i].rate);
+		if(clk_fixed_unregister(&realview_clks[i]))
+			LOG("Unregister clock source '%s' [%LdHZ]", realview_clks[i].name, realview_clks[i].rate);
 		else
-			LOG("Failed to unregister clock '%s' [%LdHZ]", realview_clocks[i].name, realview_clocks[i].rate);
+			LOG("Failed to unregister clock '%s' [%LdHZ]", realview_clks[i].name, realview_clks[i].rate);
 	}
 }
 

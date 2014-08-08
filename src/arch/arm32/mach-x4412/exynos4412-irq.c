@@ -37,9 +37,27 @@ struct pt_regs_t {
 
 void do_irqs(struct pt_regs_t * regs)
 {
-	u32_t status;
-	status = readl(EXYNOS4412_GIC_CPU_BASE + GIC_CPU_INTACK);
-	printk("do irqs = 0x%08x\r\n", status);
+	u32_t irq;
+
+	/* Get irq's offset */
+	irq = readl(EXYNOS4412_GIC_CPU_BASE + GIC_CPU_INTACK) & 0x3ff;
+
+	/* Handle interrupt server function */
+	printk("do irqs = 0x%08x\r\n", irq);
+
+	/* Exit interrupt */
+	writel(EXYNOS4412_GIC_CPU_BASE + GIC_CPU_EOI, irq);
+}
+
+static void enable_irqs(struct irq_t * irq, bool_t enable)
+{
+	u32_t no = irq->irq_no;
+	u32_t mask = 1 << (no % 32);
+
+	if(enable)
+		writel(EXYNOS4412_GIC_DIST_BASE + GIC_DIST_ENABLE_SET + no * 4 / 32, mask);
+	else
+		writel(EXYNOS4412_GIC_DIST_BASE + GIC_DIST_ENABLE_CLEAR + no * 4 / 32, mask);
 }
 
 static void gic_dist_init(physical_addr_t dist)
@@ -86,8 +104,8 @@ static void gic_dist_init(physical_addr_t dist)
 	 * as these enables are banked registers.
 	 */
 	for(i = 32; i < gic_irqs; i += 32)
-		writel(dist + GIC_DIST_ENABLE_SET + i * 4 / 32, 0xffffffff);
-		//writel(dist + GIC_DIST_ENABLE_CLEAR + i * 4 / 32, 0xffffffff);
+		writel(dist + GIC_DIST_ENABLE_CLEAR + i * 4 / 32, 0xffffffff);
+//	writel(dist + GIC_DIST_ENABLE_SET + 64 * 4 / 32, 0xffffffff);
 
 	writel(dist + GIC_DIST_CTRL, 0x1);
 }
@@ -113,12 +131,21 @@ static void gic_cpu_init(physical_addr_t dist, physical_addr_t cpu)
 	writel(cpu + GIC_CPU_CTRL, 0x1);
 }
 
+static void combiner_init(physical_addr_t comb)
+{
+	int i;
+
+	for(i = 0; i < 5; i++)
+		writel(comb + COMBINER_ENABLE_CLEAR + i * 0x10, 0xffffffff);
+}
+
 void gic_test(void)
 {
 	printk("gic test...\r\n");
 
 	gic_dist_init(EXYNOS4412_GIC_DIST_BASE);
 	gic_cpu_init(EXYNOS4412_GIC_DIST_BASE, EXYNOS4412_GIC_CPU_BASE);
+	combiner_init(EXYNOS4412_COMBINER_BASE);
 
 	gpio_set_cfg(EXYNOS4412_GPX0(0), 0xF);
 	gpio_set_cfg(EXYNOS4412_GPX0(1), 0xF);

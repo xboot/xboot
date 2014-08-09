@@ -128,14 +128,12 @@ void clk_enable(const char * name)
 	if(!clk)
 		return;
 
-	if(clk->count == 0)
-	{
-		if(clk->get_parent)
-			clk_enable(clk->get_parent(clk));
+	if(clk->get_parent)
+		clk_enable(clk->get_parent(clk));
 
-		if(clk->set_enable)
-			clk->set_enable(clk, TRUE);
-	}
+	if(clk->set_enable)
+		clk->set_enable(clk, TRUE);
+
 	clk->count++;
 }
 
@@ -146,10 +144,9 @@ void clk_disable(const char * name)
 	if(!clk)
 		return;
 
-	if(clk->count == 0)
-		return;
+	if(clk->count > 0)
+		clk->count--;
 
-	clk->count--;
 	if(clk->count == 0)
 	{
 		if(clk->get_parent)
@@ -167,9 +164,13 @@ bool_t clk_status(const char * name)
 	if(!clk)
 		return FALSE;
 
-	if(clk->get_enable)
+	if(!clk->get_parent(clk))
 		return clk->get_enable(clk);
-	return clk->count != 0 ? TRUE : FALSE;
+
+	if(clk->get_enable(clk))
+		return clk_status(clk->get_parent(clk));
+
+	return FALSE;
 }
 
 void clk_set_rate(const char * name, u64_t rate)

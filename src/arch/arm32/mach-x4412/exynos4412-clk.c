@@ -23,22 +23,41 @@
  */
 
 #include <xboot.h>
+#include <exynos4412/reg-pmu.h>
 #include <exynos4412/reg-clk.h>
 
-static struct clk_fixed_t fixed_clks[] = {
+/*
+ * CORE CLK
+ */
+static struct clk_fixed_t core_fixed_clks[] = {
 	{
-		.name = "FIN",
-		.rate = 24 * 1000 * 1000,
-	}, {
 		.name = "XXTI",
 		.rate = 24 * 1000 * 1000,
 	}, {
-		.name = "XUSBTI",
+		.name = "XUSBXTI",
 		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "USBPHY0",
+		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "USBPHY1",
+		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "MIPIPHY",
+		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "HDMIPHY",
+		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "HDMI24M",
+		.rate = 24 * 1000 * 1000,
+	}, {
+		.name = "XRTCXTI",
+		.rate = 32768,
 	}
 };
 
-static void pll_clk_set_rate(struct clk_pll_t * pclk, u64_t prate, u64_t rate)
+static void core_pll_clk_set_rate(struct clk_pll_t * pclk, u64_t prate, u64_t rate)
 {
 	if(strcmp(pclk->name, "APLL") == 0)
 	{
@@ -54,7 +73,7 @@ static void pll_clk_set_rate(struct clk_pll_t * pclk, u64_t prate, u64_t rate)
 	}
 }
 
-static u64_t pll_clk_get_rate(struct clk_pll_t * pclk, u64_t prate)
+static u64_t core_pll_clk_get_rate(struct clk_pll_t * pclk, u64_t prate)
 {
 	u32_t r, k, m, p, s;
 	u64_t fout = 0;
@@ -111,161 +130,131 @@ static u64_t pll_clk_get_rate(struct clk_pll_t * pclk, u64_t prate)
 	return fout;
 }
 
-static struct clk_pll_t pll_clks[] = {
+static struct clk_pll_t core_pll_clks[] = {
 	{
 		.name = "APLL",
 		.parent = "FIN",
-		.set_rate = pll_clk_set_rate,
-		.get_rate = pll_clk_get_rate,
+		.set_rate = core_pll_clk_set_rate,
+		.get_rate = core_pll_clk_get_rate,
 	}, {
 		.name = "MPLL",
 		.parent = "FIN",
-		.set_rate = pll_clk_set_rate,
-		.get_rate = pll_clk_get_rate,
+		.set_rate = core_pll_clk_set_rate,
+		.get_rate = core_pll_clk_get_rate,
 	}, {
 		.name = "EPLL",
 		.parent = "FIN",
-		.set_rate = pll_clk_set_rate,
-		.get_rate = pll_clk_get_rate,
+		.set_rate = core_pll_clk_set_rate,
+		.get_rate = core_pll_clk_get_rate,
 	}, {
 		.name = "VPLL",
 		.parent = "FIN",
-		.set_rate = pll_clk_set_rate,
-		.get_rate = pll_clk_get_rate,
+		.set_rate = core_pll_clk_set_rate,
+		.get_rate = core_pll_clk_get_rate,
 	},
 };
 
-static struct clk_mux_table_t mux_apll_table[] = {
+static struct clk_mux_table_t fin_mux_tables[] = {
+	{ .name = "XXTI",		.val = 0 },
+	{ .name = "XUSBXTI",	.val = 1 },
+	{ 0, 0 },
+};
+
+static struct clk_mux_table_t apll_mux_tables[] = {
 	{ .name = "FIN",	.val = 0 },
 	{ .name = "APLL",	.val = 1 },
 	{ 0, 0 },
 };
 
-static struct clk_mux_table_t mux_mpll_table[] = {
+static struct clk_mux_table_t mpll_mux_tables[] = {
 	{ .name = "FIN",	.val = 0 },
 	{ .name = "MPLL",	.val = 1 },
 	{ 0, 0 },
 };
 
-static struct clk_mux_table_t mux_core_table[] = {
+static struct clk_mux_table_t core_mux_tables[] = {
 	{ .name = "MUX-APLL",	.val = 0 },
 	{ .name = "MUX-MPLL",	.val = 1 },
 	{ 0, 0 },
 };
 
-static struct clk_mux_table_t mux_hpm_table[] = {
+static struct clk_mux_table_t hpm_mux_tables[] = {
 	{ .name = "MUX-APLL",	.val = 0 },
 	{ .name = "MUX-MPLL",	.val = 1 },
 	{ 0, 0 },
 };
 
-static struct clk_mux_table_t mux_epll_table[] = {
+static struct clk_mux_table_t epll_mux_tables[] = {
 	{ .name = "FIN",	.val = 0 },
 	{ .name = "EPLL",	.val = 1 },
 	{ 0, 0 },
 };
 
-static struct clk_mux_table_t mux_vpll_table[] = {
+static struct clk_mux_table_t vpll_mux_tables[] = {
 	{ .name = "FIN",	.val = 0 },
 	{ .name = "VPLL",	.val = 1 },
 	{ 0, 0 },
 };
 
-static struct clk_mux_table_t mux_mpll_ctrl_user_t_table[] = {
+static struct clk_mux_table_t mpll_user_t_mux_tables[] = {
 	{ .name = "FIN",		.val = 0 },
 	{ .name = "MUX-MPLL",	.val = 1 },
 	{ 0, 0 },
 };
 
-static struct clk_mux_table_t mux_uart_table[] = {
-	{ .name = "XXTI",					.val = 0 },
-	{ .name = "XUSBTI",					.val = 1 },
-	{ .name = "SCLK_HDMI24M",			.val = 2 },
-	{ .name = "SCLK_USBPHY0",			.val = 3 },
-	{ .name = "SCLK_HDMIPHY",			.val = 5 },
-	{ .name = "MUX-MPLL-CTRL-USER-T",	.val = 6 },
-	{ .name = "MUX-EPLL",				.val = 7 },
-	{ .name = "MUX-VPLL",				.val = 8 },
-	{ 0, 0 },
-};
-
-static struct clk_mux_t mux_clks[] = {
+static struct clk_mux_t core_mux_clks[] = {
 	{
+		.name = "FIN",
+		.parent = fin_mux_tables,
+		.reg = EXYNOS4412_PMU_OM_STAT,
+		.shift = 0,
+		.width = 1,
+	}, {
 		.name = "MUX-APLL",
-		.parent = mux_apll_table,
+		.parent = apll_mux_tables,
 		.reg = EXYNOS4412_CLK_SRC_CPU,
 		.shift = 0,
 		.width = 1,
 	}, {
 		.name = "MUX-MPLL",
-		.parent = mux_mpll_table,
+		.parent = mpll_mux_tables,
 		.reg = EXYNOS4412_CLK_SRC_CPU,
 		.shift = 24,
 		.width = 1,
 	}, {
 		.name = "MUX-CORE",
-		.parent = mux_core_table,
+		.parent = core_mux_tables,
 		.reg = EXYNOS4412_CLK_SRC_CPU,
 		.shift = 16,
 		.width = 1,
 	}, {
 		.name = "MUX-HPM",
-		.parent = mux_hpm_table,
+		.parent = hpm_mux_tables,
 		.reg = EXYNOS4412_CLK_SRC_CPU,
 		.shift = 20,
 		.width = 1,
 	}, {
 		.name = "MUX-EPLL",
-		.parent = mux_epll_table,
+		.parent = epll_mux_tables,
 		.reg = EXYNOS4412_CLK_SRC_TOP0,
 		.shift = 4,
 		.width = 1,
 	}, {
 		.name = "MUX-VPLL",
-		.parent = mux_vpll_table,
+		.parent = vpll_mux_tables,
 		.reg = EXYNOS4412_CLK_SRC_TOP0,
 		.shift = 8,
 		.width = 1,
 	}, {
-		.name = "MUX-MPLL-CTRL-USER-T",
-		.parent = mux_mpll_ctrl_user_t_table,
+		.name = "MUX-MPLL-USER-T",
+		.parent = mpll_user_t_mux_tables,
 		.reg = EXYNOS4412_CLK_SRC_TOP1,
 		.shift = 12,
 		.width = 1,
-	}, {
-		.name = "MUX-UART0",
-		.parent = mux_uart_table,
-		.reg = EXYNOS4412_CLK_SRC_PERIL0,
-		.shift = 0,
-		.width = 4,
-	}, {
-		.name = "MUX-UART1",
-		.parent = mux_uart_table,
-		.reg = EXYNOS4412_CLK_SRC_PERIL0,
-		.shift = 4,
-		.width = 4,
-	}, {
-		.name = "MUX-UART2",
-		.parent = mux_uart_table,
-		.reg = EXYNOS4412_CLK_SRC_PERIL0,
-		.shift = 8,
-		.width = 4,
-	}, {
-		.name = "MUX-UART3",
-		.parent = mux_uart_table,
-		.reg = EXYNOS4412_CLK_SRC_PERIL0,
-		.shift = 12,
-		.width = 4,
-	}, {
-		.name = "MUX-UART4",
-		.parent = mux_uart_table,
-		.reg = EXYNOS4412_CLK_SRC_PERIL0,
-		.shift = 16,
-		.width = 4,
 	},
 };
 
-static struct clk_divider_t div_clks[] = {
+static struct clk_divider_t core_div_clks[] = {
 	{
 		.name = "DIV-APLL",
 		.parent = "MUX-APLL",
@@ -308,45 +297,176 @@ static struct clk_divider_t div_clks[] = {
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 4,
 		.width = 3,
+	},
+};
+
+static struct clk_gate_t core_gate_clks[] = {
+
+};
+
+static void clk_register_core(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(core_fixed_clks); i++)
+		clk_fixed_register(&core_fixed_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(core_pll_clks); i++)
+		clk_pll_register(&core_pll_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(core_mux_clks); i++)
+		clk_mux_register(&core_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(core_div_clks); i++)
+		clk_divider_register(&core_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(core_gate_clks); i++)
+		clk_gate_register(&core_gate_clks[i]);
+}
+
+static void clk_unregister_core(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(core_fixed_clks); i++)
+		clk_fixed_unregister(&core_fixed_clks[i]);
+	for(i = 0; i< ARRAY_SIZE(core_pll_clks); i++)
+		clk_pll_unregister(&core_pll_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(core_mux_clks); i++)
+		clk_mux_unregister(&core_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(core_div_clks); i++)
+		clk_divider_unregister(&core_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(core_gate_clks); i++)
+		clk_gate_unregister(&core_gate_clks[i]);
+}
+
+/*
+ * UART CLK
+ *
+ * XXTI-------------\
+ * XUSBXTI----------|
+ * HDMI24M----------|
+ * USBPHY0----------|
+ * HDMIPHY----------|--> MUX-UART --> GATE-MUX-UART --> DIV-UART --> GATE-UART
+ * MUX-MPLL-USER-T--|
+ * MUX-EPLL---------|
+ * MUX-VPLL---------/
+ */
+static struct clk_mux_table_t uart_mux_tables[] = {
+	{ .name = "XXTI",					.val = 0 },
+	{ .name = "XUSBXTI",				.val = 1 },
+	{ .name = "HDMI24M",				.val = 2 },
+	{ .name = "USBPHY0",				.val = 3 },
+	{ .name = "HDMIPHY",				.val = 5 },
+	{ .name = "MUX-MPLL-USER-T",		.val = 6 },
+	{ .name = "MUX-EPLL",				.val = 7 },
+	{ .name = "MUX-VPLL",				.val = 8 },
+	{ 0, 0 },
+};
+
+static struct clk_mux_t uart_mux_clks[] = {
+	{
+		.name = "MUX-UART0",
+		.parent = uart_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_PERIL0,
+		.shift = 0,
+		.width = 4,
 	}, {
+		.name = "MUX-UART1",
+		.parent = uart_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_PERIL0,
+		.shift = 4,
+		.width = 4,
+	}, {
+		.name = "MUX-UART2",
+		.parent = uart_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_PERIL0,
+		.shift = 8,
+		.width = 4,
+	}, {
+		.name = "MUX-UART3",
+		.parent = uart_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_PERIL0,
+		.shift = 12,
+		.width = 4,
+	}, {
+		.name = "MUX-UART4",
+		.parent = uart_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_PERIL0,
+		.shift = 16,
+		.width = 4,
+	},
+};
+
+static struct clk_divider_t uart_div_clks[] = {
+	{
 		.name = "DIV-UART0",
-		.parent = "MUX-UART0",
+		.parent = "GATE-MUX-UART0",
 		.reg = EXYNOS4412_CLK_DIV_PERIL0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 0,
 		.width = 4,
 	}, {
 		.name = "DIV-UART1",
-		.parent = "MUX-UART1",
+		.parent = "GATE-MUX-UART1",
 		.reg = EXYNOS4412_CLK_DIV_PERIL0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 4,
 		.width = 4,
 	}, {
 		.name = "DIV-UART2",
-		.parent = "MUX-UART2",
+		.parent = "GATE-MUX-UART2",
 		.reg = EXYNOS4412_CLK_DIV_PERIL0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 8,
 		.width = 4,
 	}, {
 		.name = "DIV-UART3",
-		.parent = "MUX-UART3",
+		.parent = "GATE-MUX-UART3",
 		.reg = EXYNOS4412_CLK_DIV_PERIL0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 12,
 		.width = 4,
 	}, {
 		.name = "DIV-UART4",
-		.parent = "MUX-UART4",
+		.parent = "GATE-MUX-UART4",
 		.reg = EXYNOS4412_CLK_DIV_PERIL0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 16,
 		.width = 4,
-	}
+	},
 };
 
-struct clk_gate_t gate_clks[] = {
+static struct clk_gate_t uart_gate_clks[] = {
+	/* GATE-MUX-UART */
+	{
+		.name = "GATE-MUX-UART0",
+		.parent = "MUX-UART0",
+		.reg = EXYNOS4412_CLK_SRC_MASK_PERIL0,
+		.shift = 0,
+		.invert = 0,
+	}, {
+		.name = "GATE-MUX-UART1",
+		.parent = "MUX-UART1",
+		.reg = EXYNOS4412_CLK_SRC_MASK_PERIL0,
+		.shift = 4,
+		.invert = 0,
+	}, {
+		.name = "GATE-MUX-UART2",
+		.parent = "MUX-UART2",
+		.reg = EXYNOS4412_CLK_SRC_MASK_PERIL0,
+		.shift = 8,
+		.invert = 0,
+	}, {
+		.name = "GATE-MUX-UART3",
+		.parent = "MUX-UART3",
+		.reg = EXYNOS4412_CLK_SRC_MASK_PERIL0,
+		.shift = 12,
+		.invert = 0,
+	}, {
+		.name = "GATE-MUX-UART4",
+		.parent = "MUX-UART4",
+		.reg = EXYNOS4412_CLK_SRC_MASK_PERIL0,
+		.shift = 16,
+		.invert = 0,
+	},
+	/* GATE-UART */
 	{
 		.name = "GATE-UART0",
 		.parent = "DIV-UART0",
@@ -380,44 +500,67 @@ struct clk_gate_t gate_clks[] = {
 	},
 };
 
-static __init void exynos4412_clk_init(void)
+static void clk_register_uart(void)
 {
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(fixed_clks); i++)
-		clk_fixed_register(&fixed_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_mux_clks); i++)
+		clk_mux_register(&uart_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_div_clks); i++)
+		clk_divider_register(&uart_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_gate_clks); i++)
+		clk_gate_register(&uart_gate_clks[i]);
+}
 
-	for(i = 0; i < ARRAY_SIZE(pll_clks); i++)
-		clk_pll_register(&pll_clks[i]);
+static void clk_unregister_uart(void)
+{
+	int i;
 
-	for(i = 0; i < ARRAY_SIZE(mux_clks); i++)
-		clk_mux_register(&mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_mux_clks); i++)
+		clk_mux_unregister(&uart_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_div_clks); i++)
+		clk_divider_unregister(&uart_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_gate_clks); i++)
+		clk_gate_unregister(&uart_gate_clks[i]);
+}
 
-	for(i = 0; i < ARRAY_SIZE(div_clks); i++)
-		clk_divider_register(&div_clks[i]);
+/*
+ * DEFAULT ON/OFF CLKS
+ */
+static const char * default_off_clks[] = {
+	"GATE-UART0",
+	"GATE-UART1",
+	"GATE-UART2",
+	"GATE-UART3",
+	"GATE-UART4",
+};
 
-	for(i = 0; i < ARRAY_SIZE(gate_clks); i++)
-		clk_gate_register(&gate_clks[i]);
+static const char * default_on_clks[] = {
+
+};
+
+static void default_clks_init(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(default_off_clks); i++)
+		clk_disable(default_off_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(default_on_clks); i++)
+		clk_enable(default_on_clks[i]);
+}
+
+static __init void exynos4412_clk_init(void)
+{
+	clk_register_core();
+	clk_register_uart();
+
+	default_clks_init();
 }
 
 static __exit void exynos4412_clk_exit(void)
 {
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(fixed_clks); i++)
-		clk_fixed_unregister(&fixed_clks[i]);
-
-	for(i = 0; i< ARRAY_SIZE(pll_clks); i++)
-		clk_pll_unregister(&pll_clks[i]);
-
-	for(i = 0; i < ARRAY_SIZE(mux_clks); i++)
-		clk_mux_unregister(&mux_clks[i]);
-
-	for(i = 0; i < ARRAY_SIZE(div_clks); i++)
-		clk_divider_unregister(&div_clks[i]);
-
-	for(i = 0; i < ARRAY_SIZE(gate_clks); i++)
-		clk_gate_unregister(&gate_clks[i]);
+	clk_unregister_core();
+	clk_unregister_uart();
 }
 
 core_initcall(exynos4412_clk_init);

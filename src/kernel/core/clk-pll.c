@@ -1,5 +1,5 @@
 /*
- * kernel/core/clk-fixed.c
+ * kernel/core/clk-pll.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,56 +24,62 @@
 
 #include <xboot/clk.h>
 
-static void clk_fixed_set_parent(struct clk_t * clk, const char * pname)
+static void clk_pll_set_parent(struct clk_t * clk, const char * pname)
 {
 }
 
-static const char * clk_fixed_get_parent(struct clk_t * clk)
+static const char * clk_pll_get_parent(struct clk_t * clk)
 {
-	return NULL;
+	struct clk_pll_t * pclk = (struct clk_pll_t *)clk->priv;
+	return pclk->parent;
 }
 
-static void clk_fixed_set_enable(struct clk_t * clk, bool_t enable)
+static void clk_pll_set_enable(struct clk_t * clk, bool_t enable)
 {
 }
 
-static bool_t clk_fixed_get_enable(struct clk_t * clk)
+static bool_t clk_pll_get_enable(struct clk_t * clk)
 {
 	return TRUE;
 }
 
-static void clk_fixed_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
+static void clk_pll_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
+	struct clk_pll_t * pclk = (struct clk_pll_t *)clk->priv;
+	if(pclk->set_rate)
+		pclk->set_rate(pclk, prate, rate);
 }
 
-static u64_t clk_fixed_get_rate(struct clk_t * clk, u64_t prate)
+static u64_t clk_pll_get_rate(struct clk_t * clk, u64_t prate)
 {
-	struct clk_fixed_t * fclk = (struct clk_fixed_t *)clk->priv;
-	return fclk->rate;
+	struct clk_pll_t * pclk = (struct clk_pll_t *)clk->priv;
+	if(pclk->get_rate)
+		return pclk->get_rate(pclk, prate);
+	return 0;
 }
 
-bool_t clk_fixed_register(struct clk_fixed_t * fclk)
+bool_t clk_pll_register(struct clk_pll_t * pclk)
 {
 	struct clk_t * clk;
 
-	if(!fclk || !fclk->name)
+	if(!pclk || !pclk->name)
 		return FALSE;
 
-	if(clk_search(fclk->name))
+	if(clk_search(pclk->name))
 		return FALSE;
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
 		return FALSE;
 
-	clk->name = fclk->name;
-	clk->set_parent = clk_fixed_set_parent;
-	clk->get_parent = clk_fixed_get_parent;
-	clk->set_enable = clk_fixed_set_enable;
-	clk->get_enable = clk_fixed_get_enable;
-	clk->set_rate = clk_fixed_set_rate;
-	clk->get_rate = clk_fixed_get_rate;
-	clk->priv = fclk;
+	clk->name = pclk->name;
+	clk->set_parent = clk_pll_set_parent;
+	clk->get_parent = clk_pll_get_parent;
+	clk->set_enable = clk_pll_set_enable;
+	clk->get_enable = clk_pll_get_enable;
+	clk->set_rate = clk_pll_set_rate;
+	clk->get_rate = clk_pll_get_rate;
+	clk->priv = pclk;
 
 	if(!clk_register(clk))
 	{
@@ -84,14 +90,14 @@ bool_t clk_fixed_register(struct clk_fixed_t * fclk)
 	return TRUE;
 }
 
-bool_t clk_fixed_unregister(struct clk_fixed_t * fclk)
+bool_t clk_pll_unregister(struct clk_pll_t * pclk)
 {
 	struct clk_t * clk;
 
-	if(!fclk || !fclk->name)
+	if(!pclk || !pclk->name)
 		return FALSE;
 
-	clk = clk_search(fclk->name);
+	clk = clk_search(pclk->name);
 	if(!clk)
 		return FALSE;
 

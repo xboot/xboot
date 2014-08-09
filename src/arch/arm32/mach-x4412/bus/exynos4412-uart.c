@@ -35,7 +35,7 @@ static bool_t exynos4412_uart_setup(struct uart_t * uart, enum baud_rate_t baud,
 									 0xdddd, 0xdfdd, 0xdfdf, 0xffdf};
 	u32_t ibaud, baud_div_reg, baud_divslot_reg;
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
-	u64_t sclk_uart;
+	u64_t rate = 0;
 
 	switch(baud)
 	{
@@ -147,27 +147,23 @@ static bool_t exynos4412_uart_setup(struct uart_t * uart, enum baud_rate_t baud,
 	switch(res->id)
 	{
 	case 0:
-		if(!clk_get_rate("sclk_uart0", &sclk_uart))
-			return FALSE;
+		rate = clk_get_rate("GATE-UART0");
 		break;
 	case 1:
-		if(!clk_get_rate("sclk_uart1", &sclk_uart))
-			return FALSE;
+		rate = clk_get_rate("GATE-UART1");
 		break;
 	case 2:
-		if(!clk_get_rate("sclk_uart2", &sclk_uart))
-			return FALSE;
+		rate = clk_get_rate("GATE-UART2");
 		break;
 	case 3:
-		if(!clk_get_rate("sclk_uart3", &sclk_uart))
-			return FALSE;
+		rate = clk_get_rate("GATE-UART3");
 		break;
 	default:
 		return FALSE;
 	}
 
-	baud_div_reg = (u32_t)((sclk_uart / (ibaud * 16)) ) - 1;
-	baud_divslot_reg = udivslot_code[( (u32_t)((sclk_uart % (ibaud*16)) / ibaud) ) & 0xf];
+	baud_div_reg = (u32_t)((rate / (ibaud * 16)) ) - 1;
+	baud_divslot_reg = udivslot_code[( (u32_t)((rate % (ibaud*16)) / ibaud) ) & 0xf];
 
 	writel(dat->regbase + EXYNOS4412_UBRDIV, baud_div_reg);
 	writel(dat->regbase + EXYNOS4412_UFRACVAL, baud_divslot_reg);
@@ -184,6 +180,8 @@ static void exynos4412_uart_init(struct uart_t * uart)
 	switch(res->id)
 	{
 	case 0:
+		clk_enable("GATE-UART0");
+
 		/* Configure GPA01, GPA00 for TXD0, RXD0 and pull up */
 		gpio_set_cfg(EXYNOS4412_GPA0(1), 0x2);
 		gpio_set_cfg(EXYNOS4412_GPA0(0), 0x2);
@@ -196,6 +194,8 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		break;
 
 	case 1:
+		clk_enable("GATE-UART1");
+
 		/* Configure GPA05, GPA04 for TXD1, RXD1 */
 		gpio_set_cfg(EXYNOS4412_GPA0(5), 0x2);
 		gpio_set_cfg(EXYNOS4412_GPA0(4), 0x2);
@@ -208,6 +208,8 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		break;
 
 	case 2:
+		clk_enable("GATE-UART2");
+
 		/* Configure GPA11, GPA10 for TXD2, RXD2 */
 		gpio_set_cfg(EXYNOS4412_GPA1(1), 0x2);
 		gpio_set_cfg(EXYNOS4412_GPA1(0), 0x2);
@@ -220,6 +222,8 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		break;
 
 	case 3:
+		clk_enable("GATE-UART3");
+
 		/* Configure GPA15, GPA14 for TXD3, RXD3 */
 		gpio_set_cfg(EXYNOS4412_GPA1(5), 0x2);
 		gpio_set_cfg(EXYNOS4412_GPA1(4), 0x2);
@@ -240,6 +244,25 @@ static void exynos4412_uart_init(struct uart_t * uart)
 
 static void exynos4412_uart_exit(struct uart_t * uart)
 {
+	struct resource_t * res = (struct resource_t *)uart->priv;
+
+	switch(res->id)
+	{
+	case 0:
+		clk_disable("GATE-UART0");
+		break;
+	case 1:
+		clk_disable("GATE-UART1");
+		break;
+	case 2:
+		clk_disable("GATE-UART2");
+		break;
+	case 3:
+		clk_disable("GATE-UART3");
+		break;
+	default:
+		break;
+	}
 }
 
 static ssize_t exynos4412_uart_read(struct uart_t * uart, u8_t * buf, size_t count)

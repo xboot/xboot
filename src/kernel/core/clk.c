@@ -103,24 +103,23 @@ bool_t clk_unregister(struct clk_t * clk)
 	return FALSE;
 }
 
-/*
-void clk_set_parent(struct clk_t * clk, const char * name)
+void clk_set_parent(const char * name, const char * pname)
 {
-	if(clk && clk->set_parent)
-		clk->set_parent(clk, name);
+	struct clk_t * clk = clk_search(name);
+	struct clk_t * pclk = clk_search(pname);
+
+	if(pclk && clk && clk->set_parent)
+		clk->set_parent(clk, pname);
 }
 
-struct clk_t * clk_get_parent(struct clk_t * clk)
+const char * clk_get_parent(const char * name)
 {
-	if(!clk)
-		return NULL;
+	struct clk_t * clk = clk_search(name);
 
-	if(clk->get_parent)
-		return clk_search(clk->get_parent(clk));
-
+	if(clk && clk->get_parent)
+		return clk->get_parent(clk);
 	return NULL;
 }
-*/
 
 void clk_enable(const char * name)
 {
@@ -181,7 +180,11 @@ void clk_set_rate(const char * name, u64_t rate)
 	if(!clk)
 		return;
 
-	prate = clk_get_rate(clk->get_parent(clk));
+	if(clk->get_parent)
+		prate = clk_get_rate(clk->get_parent(clk));
+	else
+		prate = 0;
+
 	if(clk->set_rate)
 		clk->set_rate(clk, prate, rate);
 }
@@ -194,20 +197,26 @@ u64_t clk_get_rate(const char * name)
 	if(!clk)
 		return 0;
 
-	prate = clk_get_rate(clk->get_parent(clk));
+	if(clk->get_parent)
+		prate = clk_get_rate(clk->get_parent(clk));
+	else
+		prate = 0;
+
 	if(clk->get_rate)
 		return clk->get_rate(clk, prate);
 
 	return 0;
 }
 
-//TODO
 static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 {
 	struct clk_list_t * pos, * n;
 	s8_t * p;
 	s32_t len = 0;
+	const char * name;
+	const char * parent;
 	u64_t rate;
+	bool_t enable;
 
 	if((p = malloc(SZ_4K)) == NULL)
 		return 0;
@@ -216,8 +225,12 @@ static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
 	{
-		rate = clk_get_rate(pos->clk->name);
-		len += sprintf((char *)(p + len), "\r\n %s: %Ld.%06LdMHZ", pos->clk->name, rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000));
+		name = pos->clk->name;
+		parent = clk_get_parent(name);
+		rate = clk_get_rate(name);
+		enable = clk_status(name);
+
+		len += sprintf((char *)(p + len), "\r\n %s(%d): %Ld.%06LdMHZ %s %s", name, pos->clk->count, rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000), enable ? "Enable" : "Disable", parent ? parent : "None");
 	}
 
 	len -= offset;

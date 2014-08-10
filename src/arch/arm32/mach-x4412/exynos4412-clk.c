@@ -525,6 +525,390 @@ static void clk_unregister_uart(void)
 }
 
 /*
+ * SPI CLK
+ *
+ * XXTI-------------\
+ * XUSBXTI----------|
+ * HDMI24M----------|
+ * USBPHY0----------|
+ * HDMIPHY----------|--> MUX-SPI --> GATE-MUX-SPI --> DIV-SPI --> DIV-PRESPI --> GATE-SPI
+ * MUX-MPLL-USER-T--|
+ * MUX-EPLL---------|
+ * MUX-VPLL---------/
+ */
+static struct clk_mux_table_t spi_mux_tables[] = {
+	{ .name = "XXTI",					.val = 0 },
+	{ .name = "XUSBXTI",				.val = 1 },
+	{ .name = "HDMI24M",				.val = 2 },
+	{ .name = "USBPHY0",				.val = 3 },
+	{ .name = "HDMIPHY",				.val = 5 },
+	{ .name = "MUX-MPLL-USER-T",		.val = 6 },
+	{ .name = "MUX-EPLL",				.val = 7 },
+	{ .name = "MUX-VPLL",				.val = 8 },
+	{ 0, 0 },
+};
+
+static struct clk_mux_t spi_mux_clks[] = {
+	{
+		.name = "MUX-SPI0",
+		.parent = spi_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_PERIL1,
+		.shift = 16,
+		.width = 4,
+	}, {
+		.name = "MUX-SPI1",
+		.parent = spi_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_PERIL1,
+		.shift = 20,
+		.width = 4,
+	}, {
+		.name = "MUX-SPI2",
+		.parent = spi_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_PERIL1,
+		.shift = 24,
+		.width = 4,
+	},
+};
+
+static struct clk_divider_t spi_div_clks[] = {
+	/* DIV-SPI */
+	{
+		.name = "DIV-SPI0",
+		.parent = "GATE-MUX-SPI0",
+		.reg = EXYNOS4412_CLK_DIV_PERIL1,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 0,
+		.width = 4,
+	}, {
+		.name = "DIV-SPI1",
+		.parent = "GATE-MUX-SPI1",
+		.reg = EXYNOS4412_CLK_DIV_PERIL1,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 16,
+		.width = 4,
+	}, {
+		.name = "DIV-SPI2",
+		.parent = "GATE-MUX-SPI2",
+		.reg = EXYNOS4412_CLK_DIV_PERIL2,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 0,
+		.width = 4,
+	},
+	/* DIV-PRESPI */
+	{
+		.name = "DIV-PRESPI0",
+		.parent = "DIV-SPI0",
+		.reg = EXYNOS4412_CLK_DIV_PERIL1,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 8,
+		.width = 8,
+	}, {
+		.name = "DIV-PRESPI1",
+		.parent = "DIV-SPI1",
+		.reg = EXYNOS4412_CLK_DIV_PERIL1,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 24,
+		.width = 8,
+	}, {
+		.name = "DIV-PRESPI2",
+		.parent = "DIV-SPI2",
+		.reg = EXYNOS4412_CLK_DIV_PERIL2,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 8,
+		.width = 8,
+	},
+};
+
+static struct clk_gate_t spi_gate_clks[] = {
+	/* GATE-MUX-SPI */
+	{
+		.name = "GATE-MUX-SPI0",
+		.parent = "MUX-SPI0",
+		.reg = EXYNOS4412_CLK_SRC_MASK_PERIL1,
+		.shift = 16,
+		.invert = 0,
+	}, {
+		.name = "GATE-MUX-SPI1",
+		.parent = "MUX-SPI1",
+		.reg = EXYNOS4412_CLK_SRC_MASK_PERIL1,
+		.shift = 20,
+		.invert = 0,
+	}, {
+		.name = "GATE-MUX-SPI2",
+		.parent = "MUX-SPI2",
+		.reg = EXYNOS4412_CLK_SRC_MASK_PERIL1,
+		.shift = 24,
+		.invert = 0,
+	},
+	/* GATE-SPI */
+	{
+		.name = "GATE-SPI0",
+		.parent = "DIV-PRESPI0",
+		.reg = EXYNOS4412_CLK_GATE_IP_PERIL,
+		.shift = 16,
+		.invert = 0,
+	}, {
+		.name = "GATE-SPI1",
+		.parent = "DIV-PRESPI1",
+		.reg = EXYNOS4412_CLK_GATE_IP_PERIL,
+		.shift = 17,
+		.invert = 0,
+	}, {
+		.name = "GATE-SPI2",
+		.parent = "DIV-PRESPI2",
+		.reg = EXYNOS4412_CLK_GATE_IP_PERIL,
+		.shift = 18,
+		.invert = 0,
+	},
+};
+
+static void clk_register_spi(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(spi_mux_clks); i++)
+		clk_mux_register(&spi_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(spi_div_clks); i++)
+		clk_divider_register(&spi_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(spi_gate_clks); i++)
+		clk_gate_register(&spi_gate_clks[i]);
+}
+
+static void clk_unregister_spi(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(spi_mux_clks); i++)
+		clk_mux_unregister(&spi_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(spi_div_clks); i++)
+		clk_divider_unregister(&spi_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(spi_gate_clks); i++)
+		clk_gate_unregister(&spi_gate_clks[i]);
+}
+
+/*
+ * LCD CLK
+ *
+ * XXTI-------------\
+ * XUSBXTI----------|
+ * HDMI24M----------|
+ * USBPHY0----------|
+ * HDMIPHY----------|--> MUX-FIMD --> GATE-MUX-FIMD --> DIV-FIMD --> GATE-FIMD
+ * MUX-MPLL-USER-T--|
+ * MUX-EPLL---------|
+ * MUX-VPLL---------/
+ *
+ * XXTI-------------\
+ * XUSBXTI----------|
+ * HDMI24M----------|
+ * USBPHY0----------|
+ * HDMIPHY----------|--> MUX-MIPI --> GATE-MUX-MIPI --> DIV-MIPI --> DIV-PREMIPI --> GATE-MIPI
+ * MUX-MPLL-USER-T--|
+ * MUX-EPLL---------|
+ * MUX-VPLL---------/
+ */
+static struct clk_mux_table_t lcd_mux_tables[] = {
+	{ .name = "XXTI",					.val = 0 },
+	{ .name = "XUSBXTI",				.val = 1 },
+	{ .name = "HDMI24M",				.val = 2 },
+	{ .name = "USBPHY0",				.val = 3 },
+	{ .name = "HDMIPHY",				.val = 5 },
+	{ .name = "MUX-MPLL-USER-T",		.val = 6 },
+	{ .name = "MUX-EPLL",				.val = 7 },
+	{ .name = "MUX-VPLL",				.val = 8 },
+	{ 0, 0 },
+};
+
+static struct clk_mux_t lcd_mux_clks[] = {
+	{
+		.name = "MUX-FIMD",
+		.parent = lcd_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_LCD,
+		.shift = 0,
+		.width = 4,
+	}, {
+		.name = "MUX-MIPI",
+		.parent = lcd_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_LCD,
+		.shift = 12,
+		.width = 4,
+	},
+};
+
+static struct clk_divider_t lcd_div_clks[] = {
+	{
+		.name = "DIV-FIMD",
+		.parent = "GATE-MUX-FIMD",
+		.reg = EXYNOS4412_CLK_DIV_LCD,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 0,
+		.width = 4,
+	}, {
+		.name = "DIV-MIPI",
+		.parent = "GATE-MUX-MIPI",
+		.reg = EXYNOS4412_CLK_DIV_LCD,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 16,
+		.width = 4,
+	}, {
+		.name = "DIV-PREMIPI",
+		.parent = "DIV-MIPI",
+		.reg = EXYNOS4412_CLK_DIV_LCD,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 20,
+		.width = 4,
+	},
+};
+
+static struct clk_gate_t lcd_gate_clks[] = {
+	{
+		.name = "GATE-MUX-FIMD",
+		.parent = "MUX-FIMD",
+		.reg = EXYNOS4412_CLK_SRC_MASK_LCD,
+		.shift = 0,
+		.invert = 0,
+	}, {
+		.name = "GATE-MUX-MIPI",
+		.parent = "MUX-MIPI",
+		.reg = EXYNOS4412_CLK_SRC_MASK_LCD,
+		.shift = 12,
+		.invert = 0,
+	}, {
+		.name = "GATE-FIMD",
+		.parent = "DIV-FIMD",
+		.reg = EXYNOS4412_CLK_GATE_IP_LCD,
+		.shift = 0,
+		.invert = 0,
+	}, {
+		.name = "GATE-MIPI",
+		.parent = "DIV-PREMIPI",
+		.reg = EXYNOS4412_CLK_GATE_IP_LCD,
+		.shift = 3,
+		.invert = 0,
+	},
+};
+
+static void clk_register_lcd(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(lcd_mux_clks); i++)
+		clk_mux_register(&lcd_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(lcd_div_clks); i++)
+		clk_divider_register(&lcd_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(lcd_gate_clks); i++)
+		clk_gate_register(&lcd_gate_clks[i]);
+}
+
+static void clk_unregister_lcd(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(lcd_mux_clks); i++)
+		clk_mux_unregister(&lcd_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(lcd_div_clks); i++)
+		clk_divider_unregister(&lcd_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(lcd_gate_clks); i++)
+		clk_gate_unregister(&lcd_gate_clks[i]);
+}
+
+/*
+ * JPEG CLK
+ *
+ * MUX-MPLL-USER-T--\
+ *                  |-> MUX-JPEG0---\
+ * MUX-APLL---------/               |
+ *                                  |-> MUX-JPEG -> DIV-JPEG -> GATE-JPEG
+ * MUX-EPLL---------\               |
+ *                  |-> MUX-JPEG0---/
+ * MUX-VPLL---------/
+ */
+static struct clk_mux_table_t jpeg0_mux_tables[] = {
+	{ .name = "MUX-MPLL-USER-T",	.val = 0 },
+	{ .name = "MUX-APLL",			.val = 1 },
+	{ 0, 0 },
+};
+
+static struct clk_mux_table_t jpeg1_mux_tables[] = {
+	{ .name = "MUX-EPLL",			.val = 0 },
+	{ .name = "MUX-VPLL",			.val = 1 },
+	{ 0, 0 },
+};
+
+static struct clk_mux_table_t jpeg_mux_tables[] = {
+	{ .name = "MUX-JPEG0",			.val = 0 },
+	{ .name = "MUX-JPEG1",			.val = 1 },
+	{ 0, 0 },
+};
+
+static struct clk_mux_t jpeg_mux_clks[] = {
+	{
+		.name = "MUX-JPEG0",
+		.parent = jpeg0_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_CAM1,
+		.shift = 0,
+		.width = 1,
+	}, {
+		.name = "MUX-JPEG1",
+		.parent = jpeg1_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_CAM1,
+		.shift = 4,
+		.width = 1,
+	}, {
+		.name = "MUX-JPEG",
+		.parent = jpeg_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_CAM1,
+		.shift = 8,
+		.width = 1,
+	},
+};
+
+static struct clk_divider_t jpeg_div_clks[] = {
+	{
+		.name = "DIV-JPEG",
+		.parent = "MUX-JPEG",
+		.reg = EXYNOS4412_CLK_DIV_CAM1,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 0,
+		.width = 4,
+	},
+};
+
+static struct clk_gate_t jpeg_gate_clks[] = {
+	{
+		.name = "GATE-JPEG",
+		.parent = "DIV-JPEG",
+		.reg = EXYNOS4412_CLK_GATE_IP_CAM,
+		.shift = 6,
+		.invert = 0,
+	},
+};
+
+static void clk_register_jpeg(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(jpeg_mux_clks); i++)
+		clk_mux_register(&jpeg_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(jpeg_div_clks); i++)
+		clk_divider_register(&jpeg_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(jpeg_gate_clks); i++)
+		clk_gate_register(&jpeg_gate_clks[i]);
+}
+
+static void clk_unregister_jpeg(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(jpeg_mux_clks); i++)
+		clk_mux_unregister(&jpeg_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(jpeg_div_clks); i++)
+		clk_divider_unregister(&jpeg_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(jpeg_gate_clks); i++)
+		clk_gate_unregister(&jpeg_gate_clks[i]);
+}
+
+/*
  * DEFAULT ON/OFF CLKS
  */
 static const char * default_off_clks[] = {
@@ -533,6 +917,15 @@ static const char * default_off_clks[] = {
 	"GATE-UART2",
 	"GATE-UART3",
 	"GATE-UART4",
+
+	"GATE-SPI0",
+	"GATE-SPI1",
+	"GATE-SPI2",
+
+	"GATE-FIMD",
+	"GATE-MIPI",
+
+	"GATE-JPEG",
 };
 
 static const char * default_on_clks[] = {
@@ -542,6 +935,13 @@ static const char * default_on_clks[] = {
 static void default_clks_init(void)
 {
 	int i;
+
+	clk_set_parent("MUX-SPI0", "MUX-MPLL-USER-T");
+	clk_set_parent("MUX-SPI1", "MUX-MPLL-USER-T");
+	clk_set_parent("MUX-SPI2", "MUX-MPLL-USER-T");
+
+	clk_set_parent("MUX-FIMD", "MUX-MPLL-USER-T");
+	clk_set_parent("MUX-MIPI", "MUX-MPLL-USER-T");
 
 	for(i = 0; i < ARRAY_SIZE(default_off_clks); i++)
 		clk_disable(default_off_clks[i]);
@@ -553,6 +953,9 @@ static __init void exynos4412_clk_init(void)
 {
 	clk_register_core();
 	clk_register_uart();
+	clk_register_spi();
+	clk_register_lcd();
+	clk_register_jpeg();
 
 	default_clks_init();
 }
@@ -561,6 +964,9 @@ static __exit void exynos4412_clk_exit(void)
 {
 	clk_unregister_core();
 	clk_unregister_uart();
+	clk_unregister_spi();
+	clk_unregister_lcd();
+	clk_unregister_jpeg();
 }
 
 core_initcall(exynos4412_clk_init);

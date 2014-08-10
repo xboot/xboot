@@ -37,7 +37,8 @@ static void clk_mux_set_parent(struct clk_t * clk, const char * pname)
 			val = readl(mclk->reg);
 			val &= ~(((1 << mclk->width) - 1) << mclk->shift);
 			val |= table->val << mclk->shift;
-			writel(val, mclk->reg);
+			writel(mclk->reg, val);
+			return;
 		}
 	}
 }

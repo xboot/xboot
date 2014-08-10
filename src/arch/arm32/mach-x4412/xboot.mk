@@ -11,7 +11,7 @@ LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:= -d
-MCFLAGS		:= -mcpu=cortex-a9 -mtune=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -ffast-math
+MCFLAGS		:= -mcpu=cortex-a9 -mtune=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -ffast-math -mfloat-abi=softfp
 
 LIBDIRS		:=
 LIBS 		:=

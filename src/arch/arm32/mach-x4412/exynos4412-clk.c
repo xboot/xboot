@@ -942,6 +942,7 @@ static void default_clks_init(void)
 
 	clk_set_parent("MUX-FIMD", "MUX-MPLL-USER-T");
 	clk_set_parent("MUX-MIPI", "MUX-MPLL-USER-T");
+	clk_set_rate("DIV-FIMD", 200 * 1000 * 1000);
 
 	for(i = 0; i < ARRAY_SIZE(default_off_clks); i++)
 		clk_disable(default_off_clks[i]);

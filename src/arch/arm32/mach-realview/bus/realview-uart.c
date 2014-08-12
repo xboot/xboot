@@ -1,8 +1,6 @@
 /*
  * bus/realview-uart.c
  *
- * realview serial drivers, the primecell pl011 uarts.
- *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
  * Mobile phone: +86-18665388956

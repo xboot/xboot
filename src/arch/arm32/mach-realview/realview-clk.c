@@ -22,7 +22,7 @@
  *
  */
 
-#include <clk/clk.h>
+#include <xboot.h>
 
 static struct clk_fixed_t realview_clks[] = {
 	{

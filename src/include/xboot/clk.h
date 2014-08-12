@@ -27,6 +27,13 @@ struct clk_fixed_t {
 	u64_t rate;
 };
 
+struct clk_fixed_factor_t {
+	const char * name;
+	const char * parent;
+	int mult;
+	int div;
+};
+
 struct clk_gate_t {
 	const char * name;
 	const char * parent;
@@ -74,6 +81,8 @@ bool_t clk_register(struct clk_t * clk);
 bool_t clk_unregister(struct clk_t * clk);
 bool_t clk_fixed_register(struct clk_fixed_t * fclk);
 bool_t clk_fixed_unregister(struct clk_fixed_t * fclk);
+bool_t clk_fixed_factor_register(struct clk_fixed_factor_t * fclk);
+bool_t clk_fixed_factor_unregister(struct clk_fixed_factor_t * fclk);
 bool_t clk_gate_register(struct clk_gate_t * gclk);
 bool_t clk_gate_unregister(struct clk_gate_t * gclk);
 bool_t clk_divider_register(struct clk_divider_t * dclk);

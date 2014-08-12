@@ -1,5 +1,5 @@
 /*
- * kernel/core/gpio.c
+ * driver/clk/gpio.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,8 +23,7 @@
  */
 
 #include <xboot.h>
-#include <spinlock.h>
-#include <xboot/gpio.h>
+#include <gpio/gpio.h>
 
 struct gpiochip_list_t
 {

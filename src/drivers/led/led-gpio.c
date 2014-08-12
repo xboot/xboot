@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <gpio/gpio.h>
 #include <led/led-gpio.h>
 
 struct led_gpio_private_data_t {

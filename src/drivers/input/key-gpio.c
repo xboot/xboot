@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <gpio/gpio.h>
 #include <input/key-gpio.h>
 
 struct key_gpio_private_data_t {

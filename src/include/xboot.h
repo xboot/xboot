@@ -45,7 +45,6 @@ extern "C" {
 #include <xboot/resource.h>
 #include <xboot/logger.h>
 #include <xboot/irq.h>
-#include <xboot/gpio.h>
 #include <xboot/machine.h>
 #include <xboot/bus.h>
 #include <xboot/device.h>

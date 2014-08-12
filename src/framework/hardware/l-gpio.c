@@ -22,7 +22,7 @@
  *
  */
 
-#include <xboot/gpio.h>
+#include <gpio/gpio.h>
 #include <framework/hardware/l-hardware.h>
 
 struct lgpio_t {

@@ -114,6 +114,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/cpiofs							\
 				kernel/fs/fatfs								\
 				drivers/clk									\
+				drivers/gpio								\
 				drivers/bus/i2c								\
 				drivers/bus/uart							\
 				drivers/block								\

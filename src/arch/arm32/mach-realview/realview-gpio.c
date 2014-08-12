@@ -22,7 +22,7 @@
  *
  */
 
-#include <xboot.h>
+#include <gpio/gpio.h>
 #include <realview/reg-gpio.h>
 
 struct realview_gpiochip_data_t

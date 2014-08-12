@@ -1,5 +1,5 @@
 /*
- * kernel/core/clk.c
+ * driver/clk.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,8 +23,7 @@
  */
 
 #include <xboot.h>
-#include <spinlock.h>
-#include <xboot/clk.h>
+#include <clk/clk.h>
 
 struct clk_list_t
 {

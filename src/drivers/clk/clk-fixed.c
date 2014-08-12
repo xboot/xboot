@@ -1,5 +1,5 @@
 /*
- * kernel/core/clk-fixed.c
+ * driver/clk-fixed.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,7 +22,7 @@
  *
  */
 
-#include <xboot/clk.h>
+#include <clk/clk.h>
 
 static void clk_fixed_set_parent(struct clk_t * clk, const char * pname)
 {

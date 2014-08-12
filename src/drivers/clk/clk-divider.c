@@ -1,5 +1,5 @@
 /*
- * kernel/core/clk-divider.c
+ * driver/clk-divider.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,7 +22,7 @@
  *
  */
 
-#include <xboot/clk.h>
+#include <clk/clk.h>
 
 #define div_mask(d)		((1 << (d->width)) - 1)
 

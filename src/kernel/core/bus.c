@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <spinlock.h>
 #include <xboot/bus.h>
 
 struct bus_list_t __bus_list = {

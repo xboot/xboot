@@ -292,3 +292,16 @@ void tlb_invalidate(void)
 		:
 		: "r0");
 }
+
+u32_t get_cpuid(void)
+{
+	u32_t tmp;
+
+	__asm__ __volatile__(
+		"mrc     p15,0,%0,c0,c0,5\n"
+		"and     %0,%0,#0x3\n"
+		: "=r" (tmp)
+		:
+		: "memory");
+	return tmp;
+}

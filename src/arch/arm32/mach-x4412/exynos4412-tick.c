@@ -35,21 +35,24 @@ static void timer_interrupt(void * data)
 
 static bool_t tick_timer_init(void)
 {
-	u64_t pclk = 66 * 1000 * 1000;
+	u64_t pclk = 100 * 1000 * 1000;
 
-/*
-	if(!clk_get_rate("psys-pclk", &pclk))
+	/*
+	clk_enable("MUX-MPLL-USER-T");
+
+	pclk = clk_get_rate("MUX-MPLL-USER-T");
+	if(!pclk)
 	{
-		LOG("can't get the clock of 'pclk'");
+		clk_disable("MUX-MPLL-USER-T");
 		return FALSE;
 	}
+	 */
 
 	if(!request_irq("TIMER4", timer_interrupt, NULL))
 	{
 		LOG("can't request irq 'TIMER4'");
 		return FALSE;
 	}
-*/
 
 	/* Using pwm timer 4, prescaler for timer 4 is 16 */
 	writel(EXYNOS4412_TCFG0, (readl(EXYNOS4412_TCFG0) & ~(0xff<<8)) | (0x0f<<8));
@@ -84,4 +87,4 @@ static __init void exynos4412_tick_init(void)
 	else
 		LOG("Failed to register tick");
 }
-//postcore_initcall(exynos4412_tick_init);
+core_initcall(exynos4412_tick_init);

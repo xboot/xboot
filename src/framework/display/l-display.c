@@ -114,16 +114,15 @@ static int m_display_set_backlight(lua_State * L)
 static int m_display_draw_shape(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	cairo_t ** shape = luaL_checkudata(L, 2, MT_NAME_SHAPE);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
-	double alpha = luaL_optnumber(L, 4, 1.0);
+	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	cairo_t ** shape = luaL_checkudata(L, 3, MT_NAME_SHAPE);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
-	cairo_set_matrix(cr, matrix);
+	cairo_set_matrix(cr, &object->__transform_matrix);
 	cairo_surface_t * surface = cairo_surface_reference(cairo_get_target(*shape));
 	cairo_set_source_surface(cr, surface, 0, 0);
 	cairo_surface_destroy(surface);
-	cairo_paint_with_alpha(cr, alpha);
+	cairo_paint_with_alpha(cr, object->alpha);
 	cairo_restore(cr);
 	return 0;
 }
@@ -180,33 +179,98 @@ static int m_display_draw_texture_mask(lua_State * L)
 static int m_display_draw_ninepatch(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct lninepatch_t * ninepatch = luaL_checkudata(L, 2, MT_NAME_NINEPATCH);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 3, MT_NAME_MATRIX);
-	double alpha = luaL_optnumber(L, 4, 1.0);
+	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 3, MT_NAME_NINEPATCH);
 	cairo_t * cr = display->cr[display->index];
-
-	double w = ninepatch->width - ninepatch->left - ninepatch->right;
-	double h = ninepatch->height - ninepatch->top - ninepatch->bottom;
-
 	cairo_save(cr);
-	cairo_set_matrix(cr, matrix);
-
-	cairo_set_source_surface(cr, ninepatch->lt, 0, 0);
-//	cairo_set_source_surface(cr, ninepatch->mt, ninepatch->left, 0);
-	cairo_set_source_surface(cr, ninepatch->rt, ninepatch->left + w, 0);
-/*
-	cairo_set_source_surface(cr, ninepatch->lm, 0, ninepatch->top);
-	cairo_set_source_surface(cr, ninepatch->mm, ninepatch->left, ninepatch->top);
-	cairo_set_source_surface(cr, ninepatch->rm, ninepatch->left + w, ninepatch->top);
-
-	cairo_set_source_surface(cr, ninepatch->lb, 0, ninepatch->top + h);
-	cairo_set_source_surface(cr, ninepatch->mb, ninepatch->left, ninepatch->top + h);
-	cairo_set_source_surface(cr, ninepatch->rb, ninepatch->left + w, ninepatch->top + h);
-*/
-	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-	cairo_paint_with_alpha(cr, alpha);
+	cairo_set_matrix(cr, &object->__transform_matrix);
+	if(ninepatch->lt)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, 0, 0);
+		cairo_set_source_surface(cr, ninepatch->lt, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_restore(cr);
+	}
+	if(ninepatch->mt)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, ninepatch->left, 0);
+		cairo_scale(cr, ninepatch->__sx, 1);
+		cairo_set_source_surface(cr, ninepatch->mt, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_restore(cr);
+	}
+	if(ninepatch->rt)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, ninepatch->__w - ninepatch->right, 0);
+		cairo_set_source_surface(cr, ninepatch->rt, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_restore(cr);
+	}
+	if(ninepatch->lm)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, 0, ninepatch->top);
+		cairo_scale(cr, 1, ninepatch->__sy);
+		cairo_set_source_surface(cr, ninepatch->lm, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_restore(cr);
+	}
+	if(ninepatch->mm)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, ninepatch->left, ninepatch->top);
+		cairo_scale(cr, ninepatch->__sx, ninepatch->__sy);
+		cairo_set_source_surface(cr, ninepatch->mm, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_restore(cr);
+	}
+	if(ninepatch->rm)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, ninepatch->__w - ninepatch->right, ninepatch->top);
+		cairo_scale(cr, 1, ninepatch->__sy);
+		cairo_set_source_surface(cr, ninepatch->rm, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_restore(cr);
+	}
+	if(ninepatch->lb)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, 0, ninepatch->__h - ninepatch->bottom);
+		cairo_set_source_surface(cr, ninepatch->lb, 0, 0);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_restore(cr);
+	}
+	if(ninepatch->mb)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, ninepatch->left, ninepatch->__h - ninepatch->bottom);
+		cairo_scale(cr, ninepatch->__sx, 1);
+		cairo_set_source_surface(cr, ninepatch->mb, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_restore(cr);
+	}
+	if(ninepatch->rb)
+	{
+		cairo_save(cr);
+		cairo_translate(cr, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
+		cairo_set_source_surface(cr, ninepatch->rb, 0, 0);
+		cairo_paint_with_alpha(cr, object->alpha);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_restore(cr);
+	}
 	cairo_restore(cr);
-//	LOG("w=%f,h=%f", ninepatch->width, ninepatch->height);
 	return 0;
 }
 

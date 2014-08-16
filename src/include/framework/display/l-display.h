@@ -70,14 +70,8 @@ struct ltexture_t {
 };
 
 struct lninepatch_t {
-	double width, height;
-
-	struct {
-		int a, b, c, d;
-	} stretch;
-
+	int width, height;
 	int left, top, right, bottom;
-
 	cairo_surface_t * lt;
 	cairo_surface_t * mt;
 	cairo_surface_t * rt;
@@ -87,6 +81,8 @@ struct lninepatch_t {
 	cairo_surface_t * lb;
 	cairo_surface_t * mb;
 	cairo_surface_t * rb;
+	double __w, __h;
+	double __sx, __sy;
 };
 
 int luaopen_matrix(lua_State * L);

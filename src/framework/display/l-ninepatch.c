@@ -56,9 +56,24 @@ static cairo_surface_t * cairo_image_surface_create_from_png_xfs(const char * fi
     return surface;
 }
 
-static inline int is_black_pixel(unsigned char * p)
+static inline int detect_black_pixel(unsigned char * p)
 {
 	return (((p[0] == 0) && (p[1] == 0) && (p[2] == 0) && (p[3] != 0)) ? 1 : 0);
+}
+
+static inline void ninepatch_stretch(struct lninepatch_t * ninepatch, double width, double height)
+{
+	int lr = ninepatch->left + ninepatch->right;
+	int tb = ninepatch->top + ninepatch->bottom;
+
+	if(width < ninepatch->width)
+		width = ninepatch->width;
+	if(height < ninepatch->height)
+		height = ninepatch->height;
+	ninepatch->__w = width;
+	ninepatch->__h = height;
+	ninepatch->__sx = (ninepatch->__w - lr) / (ninepatch->width - lr);
+	ninepatch->__sy = (ninepatch->__h - tb) / (ninepatch->height - tb);
 }
 
 static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patch)
@@ -79,72 +94,67 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	if(width < 3 || height < 3)
 		return FALSE;
 
-	/* Nine patch size */
-	patch->width = width - 2;
-	patch->height = height - 2;
-
 	/* Nine patch chunk */
 	cs = cairo_surface_create_similar_image(surface, CAIRO_FORMAT_ARGB32, width, height);
 	cr = cairo_create(cs);
 	cairo_set_source_surface(cr, surface, 0, 0);
 	cairo_paint(cr);
 	cairo_destroy(cr);
-
 	data = cairo_image_surface_get_data(cs);
 	stride = cairo_image_surface_get_stride(cs);
 
-	/* Top stretch row line */
-	patch->stretch.a = 1;
-	patch->stretch.b = width - 2;
-	for(i = 1; i < width - 1; i++)
-	{
-		if(is_black_pixel(&data[stride * 0 + i * 4]))
-		{
-			patch->stretch.a = i;
-			break;
-		}
-	}
-	for(i = width - 2; i > 0; i--)
-	{
-		if(is_black_pixel(&data[stride * 0 + i * 4]))
-		{
-			patch->stretch.b = i;
-			break;
-		}
-	}
+	/* Nine patch default size */
+	width = width - 2;
+	height = height - 2;
+	patch->width = width;
+	patch->height = height;
 
-	/* Left stretch column line */
-	patch->stretch.c = 1;
-	patch->stretch.d = height - 2;
-	for(i = 1; i < height - 1; i++)
+	/* Stretch information */
+	patch->left = 0;
+	patch->right = 0;
+	patch->top = 0;
+	patch->right = 0;
+
+	for(i = 0; i < width; i++)
 	{
-		if(is_black_pixel(&data[stride * i + 0 * 4]))
+		if(detect_black_pixel(&data[(i + 1) * 4]))
 		{
-			patch->stretch.c = i;
+			patch->left = i;
 			break;
 		}
 	}
-	for(i = height - 2; i > 0; i--)
+	for(i = width - 1; i >= 0; i--)
 	{
-		if(is_black_pixel(&data[stride * i + 0 * 4]))
+		if(detect_black_pixel(&data[(i + 1) * 4]))
 		{
-			patch->stretch.d = i;
+			patch->right = width - 1 - i;
+			break;
+		}
+	}
+	for(i = 0; i < height; i++)
+	{
+		if(detect_black_pixel(&data[stride * (i + 1)]))
+		{
+			patch->top = i;
+			break;
+		}
+	}
+	for(i = height - 1; i >= 0; i--)
+	{
+		if(detect_black_pixel(&data[stride * (i + 1)]))
+		{
+			patch->bottom = height - 1 - i;
 			break;
 		}
 	}
 	cairo_surface_destroy(cs);
 
-	patch->left = patch->stretch.a - 1;
-	patch->right = width - 2 - patch->stretch.b;
-	patch->top = patch->stretch.c - 1;
-	patch->bottom = height - 2 - patch->stretch.d;
-
 	/* Left top */
-	w = patch->stretch.a - 1;
-	h = patch->stretch.c - 1;
+	w = patch->left;
+	h = patch->top;
 	if(w > 0 && h > 0)
 	{
-		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
+		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), patch->left, patch->top);
 		cr = cairo_create(cs);
 		cairo_set_source_surface(cr, surface, -1, -1);
 		cairo_paint(cr);
@@ -157,13 +167,13 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	}
 
 	/* Middle top */
-	w = patch->stretch.b - patch->stretch.a + 1;
-	h = patch->stretch.c - 1;
+	w = width - patch->left - patch->right;
+	h = patch->top;
 	if(w > 0 && h > 0)
 	{
 		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
 		cr = cairo_create(cs);
-		cairo_set_source_surface(cr, surface, -patch->stretch.a, -1);
+		cairo_set_source_surface(cr, surface, -patch->left - 1, -1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
 		patch->mt = cs;
@@ -174,13 +184,13 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	}
 
 	/* Right top */
-	w = width -2 - patch->stretch.b;
-	h = patch->stretch.c - 1;
+	w = patch->right;
+	h = patch->top;
 	if(w > 0 && h > 0)
 	{
 		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
 		cr = cairo_create(cs);
-		cairo_set_source_surface(cr, surface, -patch->stretch.b - 1, -1);
+		cairo_set_source_surface(cr, surface, -(width - patch->right) - 1, -1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
 		patch->rt = cs;
@@ -191,13 +201,13 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	}
 
 	/* Left Middle */
-	w = patch->stretch.a - 1;
-	h = patch->stretch.d - patch->stretch.c + 1;
+	w = patch->left;
+	h = height - patch->top - patch->bottom;
 	if(w > 0 && h > 0)
 	{
 		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
 		cr = cairo_create(cs);
-		cairo_set_source_surface(cr, surface, -1, -patch->stretch.c);
+		cairo_set_source_surface(cr, surface, -1, -patch->top - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
 		patch->lm = cs;
@@ -208,13 +218,13 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	}
 
 	/* Middle Middle */
-	w = patch->stretch.b - patch->stretch.a + 1;
-	h = patch->stretch.d - patch->stretch.c + 1;
+	w = width - patch->left - patch->right;
+	h = height - patch->top - patch->bottom;
 	if(w > 0 && h > 0)
 	{
 		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
 		cr = cairo_create(cs);
-		cairo_set_source_surface(cr, surface, -patch->stretch.a, -patch->stretch.c);
+		cairo_set_source_surface(cr, surface, -patch->left - 1, -patch->top - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
 		patch->mm = cs;
@@ -225,13 +235,13 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	}
 
 	/* Right middle */
-	w = width -2 - patch->stretch.b;
-	h = patch->stretch.d - patch->stretch.c + 1;
+	w = patch->right;
+	h = height - patch->top - patch->bottom;
 	if(w > 0 && h > 0)
 	{
 		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
 		cr = cairo_create(cs);
-		cairo_set_source_surface(cr, surface, -patch->stretch.b - 1, -patch->stretch.c);
+		cairo_set_source_surface(cr, surface, -(width - patch->right) - 1, -patch->top - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
 		patch->rm = cs;
@@ -242,13 +252,13 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	}
 
 	/* Left bottom */
-	w = patch->stretch.a - 1;
-	h = height - 2 - patch->stretch.d;
+	w = patch->left;
+	h = patch->bottom;
 	if(w > 0 && h > 0)
 	{
 		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
 		cr = cairo_create(cs);
-		cairo_set_source_surface(cr, surface, -1, -patch->stretch.d - 1);
+		cairo_set_source_surface(cr, surface, -1, -(height - patch->bottom) - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
 		patch->lb = cs;
@@ -259,13 +269,13 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	}
 
 	/* Middle bottom */
-	w = patch->stretch.b - patch->stretch.a + 1;
-	h = height - 2 - patch->stretch.d;
+	w = width - patch->left - patch->right;
+	h = patch->bottom;
 	if(w > 0 && h > 0)
 	{
 		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
 		cr = cairo_create(cs);
-		cairo_set_source_surface(cr, surface, -patch->stretch.a, -patch->stretch.d - 1);
+		cairo_set_source_surface(cr, surface, -patch->left - 1, -(height - patch->bottom) - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
 		patch->mb = cs;
@@ -276,13 +286,13 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 	}
 
 	/* Right bottom */
-	w = width -2 - patch->stretch.b;
-	h = height - 2 - patch->stretch.d;
+	w = patch->right;
+	h = patch->bottom;
 	if(w > 0 && h > 0)
 	{
 		cs = cairo_surface_create_similar(surface, cairo_surface_get_content(surface), w, h);
 		cr = cairo_create(cs);
-		cairo_set_source_surface(cr, surface, -patch->stretch.b - 1, -patch->stretch.d - 1);
+		cairo_set_source_surface(cr, surface, -(width - patch->right) - 1, -(height - patch->bottom) - 1);
 		cairo_paint(cr);
 		cairo_destroy(cr);
 		patch->rb = cs;
@@ -292,6 +302,7 @@ static bool_t to_ninepatch(cairo_surface_t * surface, struct lninepatch_t * patc
 		patch->rb = NULL;
 	}
 
+	ninepatch_stretch(patch, width, height);
 	return TRUE;
 }
 
@@ -344,16 +355,15 @@ static int m_ninepatch_set_size(lua_State * L)
 	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
 	double w = luaL_checknumber(L, 2);
 	double h = luaL_checknumber(L, 3);
-	ninepatch->width = w;
-	ninepatch->height = h;
+	ninepatch_stretch(ninepatch, w, h);
 	return 0;
 }
 
 static int m_ninepatch_get_size(lua_State * L)
 {
 	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
-	lua_pushnumber(L, ninepatch->width);
-	lua_pushnumber(L, ninepatch->height);
+	lua_pushnumber(L, ninepatch->__w);
+	lua_pushnumber(L, ninepatch->__h);
 	return 2;
 }
 

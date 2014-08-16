@@ -224,7 +224,8 @@ end
 -- @param self
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
-	display:drawShape(self.shape, self:getTransformMatrix(), self:getAlpha())
+  self:updateTransformMatrix()
+  display:drawShape(self.object, self.texture)
 end
 
 return M

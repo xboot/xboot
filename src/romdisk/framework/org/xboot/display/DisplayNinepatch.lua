@@ -58,7 +58,8 @@ end
 -- @param self
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
-	display:drawNinepatch(self.ninepatch, self:getTransformMatrix(), self:getAlpha())
+  self:updateTransformMatrix()
+  display:drawNinepatch(self.object, self.ninepatch)
 end
 
 return M

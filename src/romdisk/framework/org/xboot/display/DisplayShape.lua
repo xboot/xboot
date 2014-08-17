@@ -225,7 +225,7 @@ end
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
   self:updateTransformMatrix()
-  display:drawShape(self.object, self.texture)
+  display:drawShape(self.object, self.shape)
 end
 
 return M

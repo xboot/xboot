@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/command/cmd-halt.c
+ * xboot/kernel/command/cmd-shutdown.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -34,48 +34,48 @@
 #include <command/command.h>
 
 
-#if	defined(CONFIG_COMMAND_HALT) && (CONFIG_COMMAND_HALT > 0)
+#if	defined(CONFIG_COMMAND_SHUTDOWN) && (CONFIG_COMMAND_SHUTDOWN > 0)
 
-static int do_halt(int argc, char ** argv)
+static int do_shutdown(int argc, char ** argv)
 {
 	sync();
 
-	if(machine_halt())
+	if(machine_shutdown())
 	{
 		return 0;
 	}
 	else
 	{
-		printk(" the machine does not support 'halt'\r\n");
+		printk(" The machine does not support 'shutdown'\r\n");
 		return -1;
 	}
 }
 
-static struct command_t halt_cmd = {
-	.name		= "halt",
-	.func		= do_halt,
-	.desc		= "halt the target system\r\n",
-	.usage		= "halt\r\n",
-	.help		= "    halt ignores any command line parameters that may be present.\r\n"
+static struct command_t shutdown_cmd = {
+	.name		= "shutdown",
+	.func		= do_shutdown,
+	.desc		= "shutdown the target system\r\n",
+	.usage		= "shutdown\r\n",
+	.help		= "    shutdown ignores any command line parameters that may be present.\r\n"
 };
 
-static __init void halt_cmd_init(void)
+static __init void shutdown_cmd_init(void)
 {
-	if(command_register(&halt_cmd))
-		LOG("Register command 'halt'");
+	if(command_register(&shutdown_cmd))
+		LOG("Register command 'shutdown'");
 	else
-		LOG("Failed to register command 'halt'");
+		LOG("Failed to register command 'shutdown'");
 }
 
-static __exit void halt_cmd_exit(void)
+static __exit void shutdown_cmd_exit(void)
 {
-	if(command_unregister(&halt_cmd))
-		LOG("Unegister command 'halt'");
+	if(command_unregister(&shutdown_cmd))
+		LOG("Unegister command 'shutdown'");
 	else
-		LOG("Failed to unregister command 'halt'");
+		LOG("Failed to unregister command 'shutdown'");
 }
 
-command_initcall(halt_cmd_init);
-command_exitcall(halt_cmd_exit);
+command_initcall(shutdown_cmd_init);
+command_exitcall(shutdown_cmd_exit);
 
 #endif

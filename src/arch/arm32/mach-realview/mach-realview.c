@@ -24,34 +24,18 @@
 
 #include <xboot.h>
 #include <cp15.h>
-#include <realview/reg-system.h>
 
-extern u8_t	__text_start[];
-extern u8_t __text_end[];
-extern u8_t __romdisk_start[];
-extern u8_t __romdisk_end[];
-extern u8_t __data_shadow_start[];
-extern u8_t __data_shadow_end[];
-extern u8_t __data_start[];
-extern u8_t __data_end[];
-extern u8_t __bss_start[];
-extern u8_t __bss_end[];
-extern u8_t __heap_start[];
-extern u8_t __heap_end[];
-extern u8_t __stack_start[];
-extern u8_t __stack_end[];
-
-static void mach_init(void)
+static bool_t mach_detect(void)
 {
-
+	return TRUE;
 }
 
-static bool_t mach_sleep(void)
+static bool_t mach_powerup(void)
 {
-	return FALSE;
+	return TRUE;
 }
 
-static bool_t mach_halt(void)
+static bool_t mach_shutdown(void)
 {
 	return FALSE;
 }
@@ -61,26 +45,9 @@ static bool_t mach_reset(void)
 	return FALSE;
 }
 
-static enum mode_t mach_getmode(void)
+static bool_t mach_sleep(void)
 {
-	return MODE_MENU;
-}
-
-static bool_t mach_batinfo(struct battery_info_t * info)
-{
-	if(!info)
-		return FALSE;
-
-	info->charging = FALSE;
-	info->voltage = 3700;
-	info->charge_current = 0;
-	info->discharge_current = 300;
-	info->temperature = 200;
-	info->capacity = 3600;
-	info->internal_resistance = 100;
-	info->level = 100;
-
-	return TRUE;
+	return FALSE;
 }
 
 static bool_t mach_cleanup(void)
@@ -111,81 +78,52 @@ static bool_t mach_authentication(void)
 	return TRUE;
 }
 
-/*
- * A portable machine interface.
- */
+static enum mode_t mach_getmode(void)
+{
+	return MODE_MENU;
+}
+
 static struct machine_t realview = {
-	.info = {
-		.board_name 		= "realview-pb-a8",
-		.board_desc 		= "ARM RealView Platform Baseboard for Cortex-A8",
-		.board_id			= "0x01780500",
+	.name 				= "realview-pb-a8",
+	.desc 				= "ARM RealView Platform Baseboard for Cortex-A8",
 
-		.cpu_name			= "cortex-a8",
-		.cpu_desc			= "cortex-a8",
-		.cpu_id				= "0x00000000",
-	},
-
-	.res = {
-		.mem_banks = {
-			[0] = {
-				.start		= 0x70000000,
-				.end		= 0x70000000 + (SZ_256M - 1),
-			},
-
-			[1] = {
-				.start		= 0,
-				.end		= 0,
-			},
+	.banks = {
+		[0] = {
+			.start		= 0x70000000,
+			.size		= SZ_256M,
 		},
 
-		.xtal				= 12 * 1000 * 1000,
+		[1] = {
+			.start		= 0,
+			.size		= 0,
+		},
 	},
 
-	.link = {
-		.text_start			= (const ptrdiff_t)__text_start,
-		.text_end			= (const ptrdiff_t)__text_end,
-
-		.romdisk_start		= (const ptrdiff_t)__romdisk_start,
-		.romdisk_end		= (const ptrdiff_t)__romdisk_end,
-
-		.data_shadow_start	= (const ptrdiff_t)__data_shadow_start,
-		.data_shadow_end	= (const ptrdiff_t)__data_shadow_end,
-
-		.data_start			= (const ptrdiff_t)__data_start,
-		.data_end			= (const ptrdiff_t)__data_end,
-
-		.bss_start			= (const ptrdiff_t)__bss_start,
-		.bss_end			= (const ptrdiff_t)__bss_end,
-
-		.heap_start			= (const ptrdiff_t)__heap_start,
-		.heap_end			= (const ptrdiff_t)__heap_end,
-
-		.stack_start		= (const ptrdiff_t)__stack_start,
-		.stack_end			= (const ptrdiff_t)__stack_end,
-	},
-
-	.pm = {
-		.init 				= mach_init,
-		.sleep				= mach_sleep,
-		.halt				= mach_halt,
-		.reset				= mach_reset,
-	},
-
-	.misc = {
-		.getmode			= mach_getmode,
-		.batinfo			= mach_batinfo,
-		.cleanup			= mach_cleanup,
-		.authentication		= mach_authentication,
-	},
-
-	.priv					= NULL,
+	.detect 			= mach_detect,
+	.powerup			= mach_powerup,
+	.shutdown			= mach_shutdown,
+	.reset				= mach_reset,
+	.sleep				= mach_sleep,
+	.cleanup			= mach_cleanup,
+	.authentication		= mach_authentication,
+	.getmode			= mach_getmode,
 };
 
 static __init void mach_realview_init(void)
 {
 	if(register_machine(&realview))
-		LOG("Register machine 'realview'");
+		LOG("Register machine '%s'", realview.name);
 	else
-		LOG("Failed to register machine 'realview'");
+		LOG("Failed to register machine '%s'", realview.name);
 }
+
+static __exit void mach_realview_exit(void)
+{
+	if(unregister_machine(&realview))
+		LOG("Unregister machine '%s'", realview.name);
+	else
+		LOG("Failed to unregister machine '%s'", realview.name);
+}
+
 core_initcall(mach_realview_init);
+core_exitcall(mach_realview_exit);

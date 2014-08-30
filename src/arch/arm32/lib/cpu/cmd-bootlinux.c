@@ -71,15 +71,15 @@ static int bootlinux(int argc, char ** argv)
 	params = tag_next(params);
 
 	/* memory tags */
-	for(i = 0; i < ARRAY_SIZE(mach->res.mem_banks); i++)
+	for(i = 0; i < ARRAY_SIZE(mach->banks); i++)
 	{
-		if( (mach->res.mem_banks[i].start == 0) && (mach->res.mem_banks[i].end == 0) )
+		if( (mach->banks[i].start == 0) && (mach->banks[i].size == 0) )
 			break;
 
 		params->hdr.tag = ATAG_MEM;
 		params->hdr.size = tag_size(tag_mem32);
-		params->u.mem.start = (u32_t)mach->res.mem_banks[i].start;
-		params->u.mem.size = (u32_t)(mach->res.mem_banks[i].end - mach->res.mem_banks[i].start + 1);
+		params->u.mem.start = (u32_t)mach->banks[i].start;
+		params->u.mem.size = (u32_t)mach->banks[i].size;
 		params = tag_next(params);
 	}
 

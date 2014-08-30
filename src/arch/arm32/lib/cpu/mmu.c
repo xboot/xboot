@@ -152,14 +152,14 @@ void mmu_setup(struct machine_t * mach)
 
 	if(mach)
 	{
-		for(i = 0; i < ARRAY_SIZE(mach->res.mem_banks); i++)
+		for(i = 0; i < ARRAY_SIZE(mach->banks); i++)
 		{
-			if( (mach->res.mem_banks[i].start == 0) && (mach->res.mem_banks[i].end == 0) )
+			if( (mach->banks[i].start == 0) && (mach->banks[i].size == 0) )
 				break;
 
-			virt = (virtual_addr_t)mach->res.mem_banks[i].start;
-			phys = (virtual_addr_t)mach->res.mem_banks[i].start;
-			size = (virtual_size_t)(mach->res.mem_banks[i].end - mach->res.mem_banks[i].start + 1);
+			virt = (virtual_addr_t)mach->banks[i].start;
+			phys = (virtual_addr_t)mach->banks[i].start;
+			size = (virtual_size_t)mach->banks[i].size;
 			mmu_map_l2_page(virt, size, phys, PTE_CB);
 		}
 	}

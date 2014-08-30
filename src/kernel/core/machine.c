@@ -23,233 +23,156 @@
  */
 
 #include <xboot.h>
+#include <spinlock.h>
 #include <xboot/machine.h>
 
+struct machine_list_t
+{
+	struct machine_t * mach;
+	struct list_head entry;
+};
+
+static struct machine_list_t __machine_list = {
+	.entry = {
+		.next	= &(__machine_list.entry),
+		.prev	= &(__machine_list.entry),
+	},
+};
+static spinlock_t __machine_list_lock = SPIN_LOCK_INIT();
 static struct machine_t * __machine = NULL;
 
-inline struct machine_t * get_machine(void)
+static struct machine_t * search_machine(const char * name)
+{
+	struct machine_list_t * pos, * n;
+
+	if(!name)
+		return NULL;
+
+	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
+	{
+		if(strcmp(pos->mach->name, name) == 0)
+			return pos->mach;
+	}
+
+	return NULL;
+}
+
+extern void mmu_setup(struct machine_t * mach);
+bool_t init_system_machine(void)
+{
+	struct machine_list_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
+	{
+		if(pos->mach->detect && pos->mach->detect())
+		{
+			__machine = pos->mach;
+
+			if(pos->mach->powerup)
+				pos->mach->powerup();
+			if(pos->mach->getmode)
+				xboot_set_mode(pos->mach->getmode());
+
+			mmu_setup(pos->mach);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+struct machine_t * get_machine(void)
 {
 	return __machine;
 }
 
-bool_t machine_sleep(void)
+bool_t register_machine(struct machine_t * mach)
 {
-	if(get_machine() && get_machine()->pm.sleep)
-		return get_machine()->pm.sleep();
+	struct machine_list_t * ml;
+
+	if(!mach || !mach->name)
+		return FALSE;
+
+	if(search_machine(mach->name))
+		return FALSE;
+
+	ml = malloc(sizeof(struct machine_list_t));
+	if(!ml)
+		return FALSE;
+
+	ml->mach = mach;
+
+	spin_lock_irq(&__machine_list_lock);
+	list_add_tail(&ml->entry, &(__machine_list.entry));
+	spin_unlock_irq(&__machine_list_lock);
+
+	return TRUE;
+}
+
+bool_t unregister_machine(struct machine_t * mach)
+{
+	struct machine_list_t * pos, * n;
+
+	if(!mach || !mach->name)
+		return FALSE;
+
+	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
+	{
+		if(pos->mach == mach)
+		{
+			spin_lock_irq(&__machine_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__machine_list_lock);
+
+			free(pos);
+			return TRUE;
+		}
+	}
+
 	return FALSE;
 }
 
-bool_t machine_halt(void)
+bool_t machine_shutdown(void)
 {
-	if(get_machine() && get_machine()->pm.halt)
-		return get_machine()->pm.halt();
+	struct machine_t * mach = get_machine();
 
+	if(mach && mach->shutdown)
+		return mach->shutdown();
 	return FALSE;
 }
 
 bool_t machine_reset(void)
 {
-	if(get_machine() && get_machine()->pm.reset)
-		return get_machine()->pm.reset();
+	struct machine_t * mach = get_machine();
 
+	if(mach && mach->reset)
+		return mach->reset();
 	return FALSE;
 }
 
-bool_t machine_batinfo(struct battery_info_t * info)
+bool_t machine_sleep(void)
 {
-	if(get_machine() && get_machine()->misc.batinfo)
-		return get_machine()->misc.batinfo(info);
+	struct machine_t * mach = get_machine();
 
+	if(mach && mach->sleep)
+		return mach->sleep();
 	return FALSE;
 }
 
-/*
- * clean up system before running os
- */
 bool_t machine_cleanup(void)
 {
-	if(get_machine() && get_machine()->misc.cleanup)
-		return get_machine()->misc.cleanup();
+	struct machine_t * mach = get_machine();
 
+	if(mach && mach->cleanup)
+		return mach->cleanup();
 	return FALSE;
 }
 
-/*
- * machine authentication for anti-piracy
- */
 bool_t machine_authentication(void)
 {
-	if(get_machine() && get_machine()->misc.authentication)
-		return get_machine()->misc.authentication();
+	struct machine_t * mach = get_machine();
 
+	if(mach && mach->authentication)
+		return mach->authentication();
 	return FALSE;
 }
-
-bool_t register_machine(struct machine_t * mach)
-{
-	if(mach)
-	{
-		__machine = mach;
-
-		if(__machine->pm.init)
-			__machine->pm.init();
-
-		if(__machine->misc.getmode)
-			xboot_set_mode(__machine->misc.getmode());
-
-		extern void mmu_setup(struct machine_t * mach);
-		mmu_setup(__machine);
-
-		return TRUE;
-	}
-	else
-	{
-		__machine = NULL;
-		return FALSE;
-	}
-}
-
-static s32_t machine_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct battery_info_t info;
-	char size[16];
-	char * p;
-	s32_t len = 0;
-	s32_t i;
-
-	if(get_machine() == 0)
-		return 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), (const char *)" board name         : %s\r\n", get_machine()->info.board_name);
-	len += sprintf((char *)(p + len), (const char *)" board desc         : %s\r\n", get_machine()->info.board_desc);
-	len += sprintf((char *)(p + len), (const char *)" board id           : %s\r\n", get_machine()->info.board_id);
-
-	len += sprintf((char *)(p + len), (const char *)" cpu name           : %s\r\n", get_machine()->info.cpu_name);
-	len += sprintf((char *)(p + len), (const char *)" cpu desc           : %s\r\n", get_machine()->info.cpu_desc);
-	len += sprintf((char *)(p + len), (const char *)" cpu id             : %s\r\n", get_machine()->info.cpu_id);
-
-	if(machine_batinfo(&info))
-	{
-		len += sprintf((char *)(p + len), (const char *)" battery charging   : %s\r\n", info.charging ? "yes" : "no");
-		len += sprintf((char *)(p + len), (const char *)" battery voltage    : %dmV\r\n", info.voltage);
-		len += sprintf((char *)(p + len), (const char *)" charge current     : %dmA\r\n", info.charge_current);
-		len += sprintf((char *)(p + len), (const char *)" discharge current  : %dmA\r\n", info.discharge_current);
-		len += sprintf((char *)(p + len), (const char *)" battery temperature: %d.%dC\r\n", info.temperature/10, info.temperature%10);
-		len += sprintf((char *)(p + len), (const char *)" battery capacity   : %dmAh\r\n", info.capacity);
-		len += sprintf((char *)(p + len), (const char *)" internal resistance: %dmohm\r\n", info.internal_resistance);
-		len += sprintf((char *)(p + len), (const char *)" battery level      : %d%%\r\n", info.level);
-	}
-
-	for(i = 0; i < ARRAY_SIZE(get_machine()->res.mem_banks); i++)
-	{
-		if( (get_machine()->res.mem_banks[i].start == 0) && (get_machine()->res.mem_banks[i].end == 0) )
-			break;
-
-		len += sprintf((char *)(p + len), (const char *)" memory bank%d start : %p\r\n", i, (void *)get_machine()->res.mem_banks[i].start);
-		len += sprintf((char *)(p + len), (const char *)" memory bank%d end   : %p\r\n", i, (void *)get_machine()->res.mem_banks[i].end);
-		ssize(size, (u64_t)(get_machine()->res.mem_banks[i].end - get_machine()->res.mem_banks[i].start + 1));
-		len += sprintf((char *)(p + len), (const char *)" memory bank%d size  : %s\r\n", i, size);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t machine_proc = {
-	.name	= "machine",
-	.read	= machine_proc_read,
-};
-
-static s32_t link_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	char size[16];
-	char * p;
-	s32_t len = 0;
-
-	if(get_machine() == 0)
-		return 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), (const char *)" text start   : %p\r\n", (void *)get_machine()->link.text_start);
-	len += sprintf((char *)(p + len), (const char *)" text end     : %p\r\n", (void *)get_machine()->link.text_end);
-	ssize(size, (u64_t)(get_machine()->link.text_end - get_machine()->link.text_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" text size    : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" romdisk start: %p\r\n", (void *)get_machine()->link.romdisk_start);
-	len += sprintf((char *)(p + len), (const char *)" romdisk end  : %p\r\n", (void *)get_machine()->link.romdisk_end);
-	ssize(size, (u64_t)(get_machine()->link.romdisk_end - get_machine()->link.romdisk_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" romdisk size : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" data' start  : %p\r\n", (void *)get_machine()->link.data_shadow_start);
-	len += sprintf((char *)(p + len), (const char *)" data' end    : %p\r\n", (void *)get_machine()->link.data_shadow_end);
-	ssize(size, (u64_t)(get_machine()->link.data_shadow_end - get_machine()->link.data_shadow_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" data' size   : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" data start   : %p\r\n", (void *)get_machine()->link.data_start);
-	len += sprintf((char *)(p + len), (const char *)" data end     : %p\r\n", (void *)get_machine()->link.data_end);
-	ssize(size, (u64_t)(get_machine()->link.data_end - get_machine()->link.data_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" data size    : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" bss start    : %p\r\n", (void *)get_machine()->link.bss_start);
-	len += sprintf((char *)(p + len), (const char *)" bss end      : %p\r\n", (void *)get_machine()->link.bss_end);
-	ssize(size, (u64_t)(get_machine()->link.bss_end - get_machine()->link.bss_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" bss size     : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" heap start   : %p\r\n", (void *)get_machine()->link.heap_start);
-	len += sprintf((char *)(p + len), (const char *)" heap end     : %p\r\n", (void *)get_machine()->link.heap_end);
-	ssize(size, (u64_t)(get_machine()->link.heap_end - get_machine()->link.heap_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" heap size    : %s\r\n", size);
-
-	len += sprintf((char *)(p + len), (const char *)" stack start  : %p\r\n", (void *)get_machine()->link.stack_start);
-	len += sprintf((char *)(p + len), (const char *)" stack end    : %p\r\n", (void *)get_machine()->link.stack_end);
-	ssize(size, (u64_t)(get_machine()->link.stack_end - get_machine()->link.stack_start + 1));
-	len += sprintf((char *)(p + len), (const char *)" stack size   : %s", size);
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t link_proc = {
-	.name	= "link",
-	.read	= link_proc_read,
-};
-
-static __init void machine_proc_init(void)
-{
-	proc_register(&machine_proc);
-	proc_register(&link_proc);
-}
-
-static __exit void machine_proc_exit(void)
-{
-	proc_unregister(&machine_proc);
-	proc_unregister(&link_proc);
-}
-
-core_initcall(machine_proc_init);
-core_exitcall(machine_proc_exit);

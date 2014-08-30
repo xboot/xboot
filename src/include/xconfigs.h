@@ -112,8 +112,8 @@ extern "C" {
 #define	CONFIG_COMMAND_XMODEM						(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_HALT)
-#define	CONFIG_COMMAND_HALT							(1)
+#if !defined(CONFIG_COMMAND_SHUTDOWN)
+#define	CONFIG_COMMAND_SHUTDOWN						(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_MC)

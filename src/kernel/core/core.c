@@ -23,8 +23,6 @@
  */
 
 #include <xboot.h>
-#include <malloc.h>
-#include <xboot/initcall.h>
 #include <time/tick.h>
 #include <time/delay.h>
 
@@ -32,6 +30,15 @@ extern void calibrate_delay(void);
 
 static __init void core_init(void)
 {
+	if(init_system_machine())
+	{
+		LOG("Found machine [%s]", get_machine()->name);
+	}
+	else
+	{
+		LOG("Not found any machine");
+	}
+
 	if(init_system_tick())
 	{
 		LOG("Initial system tick and calibrate delay");

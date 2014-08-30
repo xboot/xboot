@@ -57,6 +57,7 @@ extern "C" {
 #include <time/timer.h>
 #include <time/delay.h>
 #include <fs/fileio.h>
+#include <mode/mode.h>
 
 #ifdef __cplusplus
 }

@@ -28,7 +28,7 @@
 #include <xfs/xfs.h>
 #include <framework/display/l-display.h>
 
-struct font_t {
+struct lfont_t {
 	FT_Library library;
 	FT_Face fface;
 	cairo_font_face_t * face;
@@ -37,7 +37,7 @@ struct font_t {
 
 cairo_scaled_font_t * luaL_checkudata_scaled_font(lua_State * L, int ud, const char * tname)
 {
-	struct font_t * font = luaL_checkudata(L, ud, tname);
+	struct lfont_t * font = luaL_checkudata(L, ud, tname);
 	return font->sfont;
 }
 
@@ -115,7 +115,7 @@ static FT_Error FT_New_Xfs_Face(FT_Library library, const char * pathname, FT_Lo
 static int l_font_new(lua_State * L)
 {
 	const char * family = luaL_checkstring(L, 1);
-	struct font_t * font = lua_newuserdata(L, sizeof(struct font_t));
+	struct lfont_t * font = lua_newuserdata(L, sizeof(struct lfont_t));
 	if(FT_Init_FreeType(&font->library))
 		return 0;
 	if(FT_New_Xfs_Face(font->library, family, 0, &font->fface))
@@ -155,7 +155,7 @@ static const luaL_Reg l_font[] = {
 
 static int m_font_gc(lua_State * L)
 {
-	struct font_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
+	struct lfont_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
 	FT_Done_Face(font->fface);
 	FT_Done_FreeType(font->library);
 	cairo_font_face_destroy(font->face);
@@ -165,7 +165,7 @@ static int m_font_gc(lua_State * L)
 
 static int m_font_size(lua_State * L)
 {
-	struct font_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
+	struct lfont_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
 	const char * text = luaL_optstring(L, 2, NULL);
 	cairo_text_extents_t extents;
 	cairo_scaled_font_text_extents(font->sfont, text, &extents);

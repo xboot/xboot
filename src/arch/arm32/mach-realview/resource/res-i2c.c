@@ -48,9 +48,9 @@ static __init void resource_realview_i2c_init(void)
 	for(i = 0; i < ARRAY_SIZE(res_i2cs); i++)
 	{
 		if(register_resource(&res_i2cs[i]))
-			LOG("Register resource '%s.%d'", res_i2cs[i].name, res_i2cs[i].id);
+			LOG("Register resource %s:'%s.%d'", res_i2cs[i].mach, res_i2cs[i].name, res_i2cs[i].id);
 		else
-			LOG("Failed to register resource '%s.%d'", res_i2cs[i].name, res_i2cs[i].id);
+			LOG("Failed to register resource %s:'%s.%d'", res_i2cs[i].mach, res_i2cs[i].name, res_i2cs[i].id);
 	}
 }
 
@@ -61,9 +61,9 @@ static __exit void resource_realview_i2c_exit(void)
 	for(i = 0; i < ARRAY_SIZE(res_i2cs); i++)
 	{
 		if(unregister_resource(&res_i2cs[i]))
-			LOG("Unregister resource '%s.%d'", res_i2cs[i].name, res_i2cs[i].id);
+			LOG("Unregister resource %s:'%s.%d'", res_i2cs[i].mach, res_i2cs[i].name, res_i2cs[i].id);
 		else
-			LOG("Failed to unregister resource '%s.%d'", res_i2cs[i].name, res_i2cs[i].id);
+			LOG("Failed to unregister resource %s:'%s.%d'", res_i2cs[i].mach, res_i2cs[i].name, res_i2cs[i].id);
 	}
 }
 

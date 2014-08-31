@@ -40,17 +40,17 @@ static struct resource_t res_mouse = {
 static __init void resource_mouse_init(void)
 {
 	if(register_resource(&res_mouse))
-		LOG("Register resource '%s.%d'", res_mouse.name, res_mouse.id);
+		LOG("Register resource %s:'%s.%d'", res_mouse.mach, res_mouse.name, res_mouse.id);
 	else
-		LOG("Failed to register resource '%s.%d'", res_mouse.name, res_mouse.id);
+		LOG("Failed to register resource %s:'%s.%d'", res_mouse.mach, res_mouse.name, res_mouse.id);
 }
 
 static __exit void resource_mouse_exit(void)
 {
 	if(unregister_resource(&res_mouse))
-		LOG("Unregister resource '%s.%d'", res_mouse.name, res_mouse.id);
+		LOG("Unregister resource %s:'%s.%d'", res_mouse.mach, res_mouse.name, res_mouse.id);
 	else
-		LOG("Failed to unregister resource '%s.%d'", res_mouse.name, res_mouse.id);
+		LOG("Failed to unregister resource %s:'%s.%d'", res_mouse.mach, res_mouse.name, res_mouse.id);
 }
 
 resource_initcall(resource_mouse_init);

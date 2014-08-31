@@ -71,9 +71,9 @@ static __init void resource_led_simple_init(void)
 	for(i = 0; i < ARRAY_SIZE(res_led_simples); i++)
 	{
 		if(register_resource(&res_led_simples[i]))
-			LOG("Register resource '%s.%d'", res_led_simples[i].name, res_led_simples[i].id);
+			LOG("Register resource %s:'%s.%d'", res_led_simples[i].mach, res_led_simples[i].name, res_led_simples[i].id);
 		else
-			LOG("Failed to register resource '%s.%d'", res_led_simples[i].name, res_led_simples[i].id);
+			LOG("Failed to register resource %s:'%s.%d'", res_led_simples[i].mach, res_led_simples[i].name, res_led_simples[i].id);
 	}
 }
 
@@ -84,9 +84,9 @@ static __exit void resource_led_simple_exit(void)
 	for(i = 0; i < ARRAY_SIZE(res_led_simples); i++)
 	{
 		if(unregister_resource(&res_led_simples[i]))
-			LOG("Unregister resource '%s.%d'", res_led_simples[i].name, res_led_simples[i].id);
+			LOG("Unregister resource %s:'%s.%d'", res_led_simples[i].mach, res_led_simples[i].name, res_led_simples[i].id);
 		else
-			LOG("Failed to unregister resource '%s.%d'", res_led_simples[i].name, res_led_simples[i].id);
+			LOG("Failed to unregister resource %s:'%s.%d'", res_led_simples[i].mach, res_led_simples[i].name, res_led_simples[i].id);
 	}
 }
 

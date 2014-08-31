@@ -38,17 +38,17 @@ static struct resource_t res_keyboard = {
 static __init void resource_keyboard_init(void)
 {
 	if(register_resource(&res_keyboard))
-		LOG("Register resource '%s.%d'", res_keyboard.name, res_keyboard.id);
+		LOG("Register resource %s:'%s.%d'", res_keyboard.mach, res_keyboard.name, res_keyboard.id);
 	else
-		LOG("Failed to register resource '%s.%d'", res_keyboard.name, res_keyboard.id);
+		LOG("Failed to register resource %s:'%s.%d'", res_keyboard.mach, res_keyboard.name, res_keyboard.id);
 }
 
 static __exit void resource_keyboard_exit(void)
 {
 	if(unregister_resource(&res_keyboard))
-		LOG("Unregister resource '%s.%d'", res_keyboard.name, res_keyboard.id);
+		LOG("Unregister resource %s:'%s.%d'", res_keyboard.mach, res_keyboard.name, res_keyboard.id);
 	else
-		LOG("Failed to unregister resource '%s.%d'", res_keyboard.name, res_keyboard.id);
+		LOG("Failed to unregister resource %s:'%s.%d'", res_keyboard.mach, res_keyboard.name, res_keyboard.id);
 }
 
 resource_initcall(resource_keyboard_init);

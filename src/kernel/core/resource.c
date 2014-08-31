@@ -39,7 +39,7 @@ static struct resource_list_t __resource_list = {
 };
 static spinlock_t __resource_list_lock = SPIN_LOCK_INIT();
 
-static int resource_alloc_free_id(const char * name)
+static int resource_alloc_free_id(const char * mach, const char * name)
 {
 	struct resource_list_t * pos, * n;
 	int id = 0;
@@ -49,14 +49,14 @@ static int resource_alloc_free_id(const char * name)
 
 	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
 	{
-		if(strcmp(pos->res->name, name) == 0)
+		if((strcmp(pos->res->mach, mach) == 0) && (strcmp(pos->res->name, name) == 0))
 			id++;
 	}
 
 	return id;
 }
 
-static struct resource_t * search_resource_with_id(const char * name, int id)
+static struct resource_t * search_resource_with_id(const char * mach, const char * name, int id)
 {
 	struct resource_list_t * pos, * n;
 
@@ -65,19 +65,17 @@ static struct resource_t * search_resource_with_id(const char * name, int id)
 
 	list_for_each_entry_safe(pos, n, &(__resource_list.entry), entry)
 	{
-		if(pos->res->id == id)
-		{
-			if(strcmp(pos->res->name, name) == 0)
-				return pos->res;
-		}
+		if((pos->res->id == id) && (strcmp(pos->res->name, name) == 0) && (strcmp(pos->res->mach, mach) == 0))
+			return pos->res;
 	}
 
 	return NULL;
 }
 
-static struct kobj_t * search_resource_kobj(void)
+static struct kobj_t * search_resource_kobj(const char * name)
 {
-	return kobj_search_directory_with_create(kobj_get_root(), "resource");
+	struct kobj_t * kres = kobj_search_directory_with_create(kobj_get_root(), "resource");
+	return kobj_search_directory_with_create(kres, name);
 }
 
 static ssize_t resource_read_name(struct kobj_t * kobj, void * buf, size_t size)
@@ -100,15 +98,14 @@ bool_t register_resource(struct resource_t * res)
 	if(!res || !res->name)
 		return FALSE;
 
+	if(!res->mach)
+		res->mach = "public";
+
 	if(res->id < 0)
-	{
-		res->id = resource_alloc_free_id(res->name);
-	}
-	else
-	{
-		if(search_resource_with_id(res->name, res->id))
-			return FALSE;
-	}
+		res->id = resource_alloc_free_id(res->mach, res->name);
+
+	if(search_resource_with_id(res->mach, res->name, res->id))
+		return FALSE;
 
 	rl = malloc(sizeof(struct resource_list_t));
 	if(!rl)
@@ -118,7 +115,7 @@ bool_t register_resource(struct resource_t * res)
 	res->kobj = kobj_alloc_directory(name);
 	kobj_add_regular(res->kobj, "name", resource_read_name, NULL, res);
 	kobj_add_regular(res->kobj, "id", resource_read_id, NULL, res);
-	kobj_add(search_resource_kobj(), res->kobj);
+	kobj_add(search_resource_kobj(res->mach), res->kobj);
 	rl->res = res;
 
 	spin_lock_irq(&__resource_list_lock);
@@ -143,7 +140,7 @@ bool_t unregister_resource(struct resource_t * res)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__resource_list_lock);
 
-			kobj_remove(search_resource_kobj(), pos->res->kobj);
+			kobj_remove(search_resource_kobj(pos->res->mach), pos->res->kobj);
 			kobj_remove_self(res->kobj);
 			free(pos);
 			return TRUE;
@@ -155,6 +152,7 @@ bool_t unregister_resource(struct resource_t * res)
 
 void resource_for_each_with_name(const char * name, bool_t (*fn)(struct resource_t *))
 {
+	struct machine_t * mach = get_machine();
 	struct resource_list_t * pos, * n;
 
 	if(!name || !fn)
@@ -164,10 +162,13 @@ void resource_for_each_with_name(const char * name, bool_t (*fn)(struct resource
 	{
 		if(strcmp(pos->res->name, name) == 0)
 		{
-			if(fn(pos->res))
-				LOG("Resource iterator with '%s.%d'", pos->res->name, pos->res->id);
-			else
-				LOG("Fail to resource iterator with '%s.%d'", pos->res->name, pos->res->id);
+			if((strcmp(pos->res->mach, "public") == 0) || (strcmp(pos->res->mach, mach->name) == 0))
+			{
+				if(fn(pos->res))
+					LOG("Resource iterator with %s:'%s.%d'", pos->res->mach, pos->res->name, pos->res->id);
+				else
+					LOG("Fail to resource iterator with %s:'%s.%d'", pos->res->mach, pos->res->name, pos->res->id);
+			}
 		}
 	}
 }

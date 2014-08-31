@@ -9,17 +9,20 @@ extern "C" {
 
 struct resource_t
 {
+	/* Kobj binding */
+	struct kobj_t * kobj;
+
+	/* The machine name, NULL for all */
+	const char * mach;
+
 	/* The resource name */
-	char * name;
+	const char * name;
 
 	/* The resource id */
 	int id;
 
 	/* The resource data */
 	void * data;
-
-	/* Kobj binding */
-	struct kobj_t * kobj;
 };
 
 bool_t register_resource(struct resource_t * res);

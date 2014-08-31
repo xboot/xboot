@@ -56,17 +56,17 @@ static struct resource_t res_key_gpio = {
 static __init void resource_key_gpio_init(void)
 {
 	if(register_resource(&res_key_gpio))
-		LOG("Register resource '%s.%d'", res_key_gpio.name, res_key_gpio.id);
+		LOG("Register resource %s:'%s.%d'", res_key_gpio.mach, res_key_gpio.name, res_key_gpio.id);
 	else
-		LOG("Failed to register resource '%s.%d'", res_key_gpio.name, res_key_gpio.id);
+		LOG("Failed to register resource %s:'%s.%d'", res_key_gpio.mach, res_key_gpio.name, res_key_gpio.id);
 }
 
 static __exit void resource_key_gpio_exit(void)
 {
 	if(unregister_resource(&res_key_gpio))
-		LOG("Unregister resource '%s.%d'", res_key_gpio.name, res_key_gpio.id);
+		LOG("Unregister resource %s:'%s.%d'", res_key_gpio.mach, res_key_gpio.name, res_key_gpio.id);
 	else
-		LOG("Failed to unregister resource '%s.%d'", res_key_gpio.name, res_key_gpio.id);
+		LOG("Failed to unregister resource %s:'%s.%d'", res_key_gpio.mach, res_key_gpio.name, res_key_gpio.id);
 }
 
 resource_initcall(resource_key_gpio_init);

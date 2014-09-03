@@ -23,6 +23,8 @@ NS_ERRNO	:=	-Dstrerror=xboot_strerror
 
 NS_EXIT		:=	-Dabort=xboot_abort -Dexit=xboot_exit
 
+NS_JMP		:=	-Dsetjmp=xboot_setjmp -Dlongjmp=xboot_longjmp
+
 NS_LOCALE	:=	-Dsetlocale=xboot_setlocale -Dlocaleconv=xboot_localeconv \
 
 NS_MALLOC	:=	-Dmalloc=xboot_malloc -Dmemalign=xboot_memalign \
@@ -36,6 +38,7 @@ NS_STDIO	:=	-Dfopen=xboot_fopen \
 				-Dfeof=xboot_feof -Dferror=xboot_ferror \
 				-Dfflush=xboot_fflush -Dclearerr=xboot_clearerr \
 				-Dfseek=xboot_fseek -Dftell=xboot_ftell \
+				-Dgetc=xboot_getc -Dputc=xboot_putc \
 				-Drewind=xboot_rewind -Dfgetpos=xboot_fgetpos \
 				-Dfsetpos=xboot_fsetpos -Dfread=xboot_fread \
 				-Dfwrite=xboot_fwrite -Dfgetc=xboot_fgetc \
@@ -56,7 +59,9 @@ NS_STDLIB	:=	-Drand=xboot_rand -Dsrand=xboot_srand \
 				-Dstrtoul=xboot_strtoul -Dstrtoull=xboot_strtoull \
 				-Dstrtod=xboot_strtod -Dstrtoimax=xboot_strtoimax \
 				-Dstrtoumax=xboot_strtoumax -Dstrntoimax=xboot_strntoimax \
-				-Dstrntoumax=xboot_strntoumax -Dbsearch=xboot_bsearch
+				-Dstrntoumax=xboot_strntoumax -Dbsearch=xboot_bsearch \
+				-Ddiv=xboot_div -Dldiv=xboot_ldiv \
+				-Dlldiv=xboot_lldiv -Dqsort=xboot_qsort
 
 NS_STRING	:=	-Dstrcpy=xboot_strcpy -Dstrncpy=xboot_strncpy \
 				-Dstrlcpy=xboot_strlcpy -Dstrcat=xboot_strcat \
@@ -74,7 +79,11 @@ NS_STRING	:=	-Dstrcpy=xboot_strcpy -Dstrncpy=xboot_strncpy \
 				-Dmemmove=xboot_memmove -Dmemchr=xboot_memchr \
 				-Dmemscan=xboot_memscan -Dmemcmp=xboot_memcmp
 
-NS_TIME		:=	-Dstrftime=xboot_strftime
+NS_TIME		:=	-Dstrftime=xboot_strftime -Dasctime=xboot_asctime \
+				-Dclock=xboot_clock -Dctime=xboot_ctime \
+				-Ddifftime=xboot_difftime -Dgettimeofday=xboot_gettimeofday \
+				-Dgmtime=xboot_gmtime -Dlocaltime=xboot_localtime \
+				-Dtime=xboot_time
 
 NS_MATH		:=	-D__ieee754_rem_pio2=xboot___ieee754_rem_pio2 -D__kernel_rem_pio2=xboot___kernel_rem_pio2 \
 				-D__kernel_sin=xboot___kernel_sin -D__kernel_cos=xboot___kernel_cos \
@@ -105,7 +114,8 @@ NS_MATH		:=	-D__ieee754_rem_pio2=xboot___ieee754_rem_pio2 -D__kernel_rem_pio2=xb
 				-Dasin=xboot_asin -Dasinf=xboot_asinf \
 				-Dacos=xboot_acos -Dacosf=xboot_acosf \
 				-Datan=xboot_atan -Datanf=xboot_atanf \
-				-Datan2=xboot_atan2 -Datan2f=xboot_atan2f
+				-Datan2=xboot_atan2 -Datan2f=xboot_atan2f \
+				-Dhypot=xboot_hypot -Dhypotf=xboot_hypotf
 
 NS_FILEIO	:=	-Dmount=xboot_mount -Dsync=xboot_sync \
 				-Dumount=xboot_umount -Dopen=xboot_open \
@@ -128,9 +138,9 @@ NS_TEMP		:=	-Dmktime=xboot_mktime -Dctrlc=xboot_ctrlc \
 				-Dexec_cmdline=xboot_exec_cmdline -Dparser=xboot_parser
 
 DEFINES		+=	$(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) $(NS_EXIT) \
-				$(NS_LOCALE) $(NS_MALLOC) $(NS_READLINE) $(NS_STDIO) \
-				$(NS_STDLIB) $(NS_STRING) $(NS_TIME) $(NS_MATH) \
-				$(NS_FILEIO) $(NS_TEMP)
+				$(NS_JMP) $(NS_LOCALE) $(NS_MALLOC) $(NS_READLINE) \
+				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
+				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
 
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall

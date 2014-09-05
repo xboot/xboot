@@ -22,9 +22,14 @@
  *
  */
 
+#include <xfs/xfs.h>
 #include <runtime.h>
 
-static char heap[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap")));
+#ifdef __SANDBOX__
+static char __heap[CONFIG_HEAP_SIZE];
+#else
+static char __heap[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap")));
+#endif
 static struct runtime_t * __current_runtime = NULL;
 
 static void do_runtime_init(void)
@@ -37,7 +42,7 @@ static void do_runtime_init(void)
 	/* Initial the default runtime */
 	memset(&rt, 0, sizeof(struct runtime_t));
 
-	rt.__pool = memory_pool_create((void *)heap, sizeof(heap));
+	rt.__pool = memory_pool_create((void *)__heap, sizeof(__heap));
 	rt.__errno = 0;
 
 	rt.__seed[0] = 1;

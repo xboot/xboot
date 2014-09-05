@@ -3,12 +3,10 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 
 
-STACK_FIQ_SIZE 	= 0x0400;
 STACK_IRQ_SIZE 	= 0x0400;
 STACK_ABT_SIZE 	= 0x0400;
 STACK_UND_SIZE 	= 0x0400;
 STACK_SRV_SIZE 	= 0x8000;
-
 
 MEMORY
 {
@@ -116,13 +114,13 @@ SECTIONS
 		*(.sbss)
 		*(COMMON)
 		PROVIDE (__bss_end = .);
-		
+
 		. = ALIGN(8);
 		PROVIDE (__heap_start = .);
 		*(.heap)
 		. = ALIGN(8);
 		PROVIDE (__heap_end = .);
-		
+
 		. = ALIGN(8);
 		PROVIDE (__stack_start = .);
 		PROVIDE (__stack_fiq_start = .);

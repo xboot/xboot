@@ -38,8 +38,6 @@ extern u8_t __data_start[];
 extern u8_t __data_end[];
 extern u8_t __bss_start[];
 extern u8_t __bss_end[];
-extern u8_t __heap_start[];
-extern u8_t __heap_end[];
 extern u8_t __stack_start[];
 extern u8_t __stack_end[];
 

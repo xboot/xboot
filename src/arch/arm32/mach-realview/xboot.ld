@@ -2,13 +2,11 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 
-
 STACK_FIQ_SIZE 	= 0x10000;	/* 64KB */
 STACK_IRQ_SIZE 	= 0x10000;	/* 64KB */
 STACK_ABT_SIZE 	= 0x10000;	/* 64KB */
 STACK_UND_SIZE 	= 0x10000;	/* 64KB */
 STACK_SRV_SIZE 	= 0x100000;	/* 1 MB */
-
 
 MEMORY
 {
@@ -115,13 +113,13 @@ SECTIONS
 		*(.sbss)
 		*(COMMON)
 		PROVIDE (__bss_end = .);
-		
+
 		. = ALIGN(8);
 		PROVIDE (__heap_start = .);
 		*(.heap)
 		. = ALIGN(8);
 		PROVIDE (__heap_end = .);
-		
+
 		. = ALIGN(8);
 		PROVIDE (__stack_start = .);
 		PROVIDE (__stack_fiq_start = .);

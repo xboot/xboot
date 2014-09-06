@@ -5,11 +5,11 @@
 
 /* 1234 = LIL_ENDIAN, 4321 = BIGENDIAN */
 #if defined(__LITTLE_ENDIAN)
-# define BYTEORDER 1234
+#define BYTEORDER	1234
 #elif defined(__BIG_ENDIAN)
-# define BYTEORDER 4321
+#define BYTEORDER	4321
 #else
-# error "Unknown byte order!"
+#error "Unknown byte order!"
 #endif
 
 /* Define to 1 if you have the `memmove' function. */

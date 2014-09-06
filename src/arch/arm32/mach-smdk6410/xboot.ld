@@ -2,7 +2,7 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 
-
+STACK_FIQ_SIZE 	= 0x0400;
 STACK_IRQ_SIZE 	= 0x0400;
 STACK_ABT_SIZE 	= 0x0400;
 STACK_UND_SIZE 	= 0x0400;

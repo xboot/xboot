@@ -137,6 +137,12 @@ void sandbox_linux_sdl_event_init(void)
 	__event_thread = SDL_CreateThread(handle_event, &__event_callback);
 }
 
+void sandbox_linux_sdl_event_exit(void)
+{
+	if(__event_thread)
+		SDL_WaitThread(__event_thread, NULL);
+}
+
 void sandbox_linux_sdl_event_set_key_callback(void * device,
 		void (*down)(void * device, unsigned int code),
 		void (*up)(void * device, unsigned int code))

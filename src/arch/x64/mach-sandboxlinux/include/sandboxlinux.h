@@ -46,6 +46,7 @@ int sandbox_linux_pm_sleep(void);
  * Event interface
  */
 void sandbox_linux_sdl_event_init(void);
+void sandbox_linux_sdl_event_exit(void);
 void sandbox_linux_sdl_event_set_key_callback(void * device,
 		void (*down)(void * device, unsigned int code),
 		void (*up)(void * device, unsigned int code));
@@ -67,6 +68,7 @@ struct sandbox_fb_surface_t {
 };
 
 void sandbox_linux_sdl_fb_init(int width, int height, int bpp);
+void sandbox_linux_sdl_fb_exit(void);
 int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height, int bpp);
 int sandbox_linux_sdl_fb_surface_destroy(struct sandbox_fb_surface_t * surface);
 int sandbox_linux_sdl_fb_surface_present(struct sandbox_fb_surface_t * surface);
@@ -77,5 +79,6 @@ int sandbox_linux_sdl_fb_get_backlight(void);
  * Timer interface
  */
 void sandbox_linux_sdl_timer_init(int delay, void (*cb)(void));
+void sandbox_linux_sdl_timer_exit(void);
 
 #endif /* __SANDBOXLINUX_H__ */

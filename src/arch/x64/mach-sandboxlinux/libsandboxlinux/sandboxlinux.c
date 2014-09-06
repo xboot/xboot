@@ -50,6 +50,9 @@ void sandbox_linux_init(int argc, char * argv[])
 void sandbox_linux_exit(void)
 {
 	cookmode();
+	sandbox_linux_sdl_event_exit();
+	sandbox_linux_sdl_timer_exit();
+	sandbox_linux_sdl_fb_exit();
 	SDL_Quit();
 	exit(0);
 }

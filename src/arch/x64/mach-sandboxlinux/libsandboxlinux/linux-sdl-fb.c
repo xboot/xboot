@@ -18,6 +18,10 @@ void sandbox_linux_sdl_fb_init(int width, int height, int bpp)
 	SDL_Flip(__screen);
 }
 
+void sandbox_linux_sdl_fb_exit(void)
+{
+}
+
 int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height, int bpp)
 {
 	SDL_Surface * face = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL | SDL_DOUBLEBUF, width, height, bpp, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);

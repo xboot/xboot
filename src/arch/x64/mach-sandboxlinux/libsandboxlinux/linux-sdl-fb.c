@@ -4,34 +4,23 @@
 #include <SDL.h>
 #include <sandboxlinux.h>
 
-static SDL_Surface * screen = NULL;
+static SDL_Surface * __screen = NULL;
+static int __brightness = 0;
 
-int sandbox_linux_sdl_fb_open(void)
+void sandbox_linux_sdl_fb_init(int width, int height, int bpp)
 {
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0)
-		return -1;
+	__screen = SDL_SetVideoMode(width, height, bpp, SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL | SDL_DOUBLEBUF);
+	if(!__screen)
+		return;
 
-	screen = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL);
-	if(!screen)
-	{
-		SDL_Quit();
-		return -1;
-	}
-
-	SDL_FillRect(screen, NULL, 0xff0000);
-	SDL_Flip(screen);
-	return 0;
+	SDL_WM_SetCaption("xboot sandbox for linux", "xboot");
+	SDL_FillRect(__screen, NULL, 0x000000);
+	SDL_Flip(__screen);
 }
 
-int sandbox_linux_sdl_fb_close(void)
+int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height, int bpp)
 {
-	SDL_Quit();
-	return 0;
-}
-
-int sandbox_linux_sdl_surface_create(struct linux_fb_surface_t * surface)
-{
-	SDL_Surface * face = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL, 640, 480, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
+	SDL_Surface * face = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL | SDL_DOUBLEBUF, width, height, bpp, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
 	if(!face)
 		return -1;
 
@@ -44,16 +33,26 @@ int sandbox_linux_sdl_surface_create(struct linux_fb_surface_t * surface)
 	return 0;
 }
 
-int sandbox_linux_sdl_surface_destroy(struct linux_fb_surface_t * surface)
+int sandbox_linux_sdl_fb_surface_destroy(struct sandbox_fb_surface_t * surface)
 {
 	if(surface)
 		SDL_FreeSurface(surface->surface);
 	return 0;
 }
 
-int sandbox_linux_sdl_present(struct linux_fb_surface_t * surface)
+int sandbox_linux_sdl_fb_surface_present(struct sandbox_fb_surface_t * surface)
 {
-	SDL_BlitSurface(surface->surface, NULL, screen, NULL);
-	SDL_Flip(screen);
+	SDL_BlitSurface(surface->surface, NULL, __screen, NULL);
+	SDL_Flip(__screen);
 	return 0;
+}
+
+void sandbox_linux_sdl_fb_set_backlight(int brightness)
+{
+	__brightness = brightness;
+}
+
+int sandbox_linux_sdl_fb_get_backlight(void)
+{
+	return __brightness;
 }

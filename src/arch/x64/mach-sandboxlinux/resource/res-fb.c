@@ -25,7 +25,7 @@
 #include <xboot.h>
 
 static struct resource_t res_fb = {
-	.name		= "sdlfb",
+	.name		= "sandboxlinux-fb",
 	.id			= -1,
 };
 

@@ -25,9 +25,9 @@
 #include <xboot.h>
 
 static struct console_stdio_data_t console_stdio_data = {
-	.in		= "linux-uart.0",
-	.out	= "linux-uart.0",
-	.err	= "linux-uart.0",
+	.in		= "sandboxlinux-uart.0",
+	.out	= "sandboxlinux-uart.0",
+	.err	= "sandboxlinux-uart.0",
 };
 
 static struct resource_t res_console = {

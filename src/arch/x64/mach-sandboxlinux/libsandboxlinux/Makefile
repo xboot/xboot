@@ -12,6 +12,7 @@ LD		:= $(CROSS)ld
 AR		:= $(CROSS)ar
 OC		:= $(CROSS)objcopy
 OD		:= $(CROSS)objdump
+CP		:= cp -af
 RM		:= rm -fr
 
 
@@ -54,8 +55,11 @@ VPATH		:= $(OBJDIRS)
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-	@echo [M][AR] Archiving $@.a
+	@echo [AR] Archiving $@.a
 	@$(AR) $(ARFLAGS) $@.a $(OBJS)
+	@echo [CP] Copying $@.a and sandboxlinux.h
+	@$(CP) $@.a ../
+	@$(CP) sandboxlinux.h ../include/
 	
 $(SOBJS) : %.o : %.S
 	@echo [AS] $<

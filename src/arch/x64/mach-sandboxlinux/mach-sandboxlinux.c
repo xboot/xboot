@@ -37,7 +37,7 @@ static bool_t mach_powerup(void)
 
 static bool_t mach_shutdown(void)
 {
-	return (sandbox_linux_pm_halt() == 0) ? TRUE : FALSE;
+	return (sandbox_linux_pm_shutdown() == 0) ? TRUE : FALSE;
 }
 
 static bool_t mach_reset(void)

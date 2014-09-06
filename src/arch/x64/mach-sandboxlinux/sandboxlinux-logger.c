@@ -25,41 +25,41 @@
 #include <xboot.h>
 #include <sandboxlinux.h>
 
-static void logger_linux_init(void)
+static void logger_sandboxlinux_init(void)
 {
 }
 
-static void logger_linux_exit(void)
+static void logger_sandboxlinux_exit(void)
 {
 }
 
-static ssize_t logger_linux_output(const char * buf, size_t count)
+static ssize_t logger_sandboxlinux_output(const char * buf, size_t count)
 {
 	return sandbox_linux_console_write((void *)buf, count);
 }
 
-static struct logger_t linux_logger = {
-	.name	= "logger-linux",
-	.init	= logger_linux_init,
-	.exit	= logger_linux_exit,
-	.output	= logger_linux_output,
+static struct logger_t sandboxlinux_logger = {
+	.name	= "logger-sandboxlinux",
+	.init	= logger_sandboxlinux_init,
+	.exit	= logger_sandboxlinux_exit,
+	.output	= logger_sandboxlinux_output,
 };
 
-static __init void linux_logger_init(void)
+static __init void sandboxlinux_logger_init(void)
 {
-	if(register_logger(&linux_logger))
-		LOG("Register logger '%s'", linux_logger.name);
+	if(register_logger(&sandboxlinux_logger))
+		LOG("Register logger '%s'", sandboxlinux_logger.name);
 	else
-		LOG("Failed to register logger '%s'", linux_logger.name);
+		LOG("Failed to register logger '%s'", sandboxlinux_logger.name);
 }
 
-static __exit void linux_logger_exit(void)
+static __exit void sandboxlinux_logger_exit(void)
 {
-	if(unregister_logger(&linux_logger))
-		LOG("Unregister logger '%s'", linux_logger.name);
+	if(unregister_logger(&sandboxlinux_logger))
+		LOG("Unregister logger '%s'", sandboxlinux_logger.name);
 	else
-		LOG("Failed to unregister logger '%s'", linux_logger.name);
+		LOG("Failed to unregister logger '%s'", sandboxlinux_logger.name);
 }
 
-pure_initcall(linux_logger_init);
-pure_exitcall(linux_logger_exit);
+pure_initcall(sandboxlinux_logger_init);
+pure_exitcall(sandboxlinux_logger_exit);

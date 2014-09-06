@@ -32,20 +32,20 @@ static void timer_callback(void)
 
 static bool_t tick_timer_init(void)
 {
-	sandbox_linux_timer_start(timer_callback);
+	sandbox_linux_sdl_timer_init(10, timer_callback);
 	return TRUE;
 }
 
-static struct tick_t linux_tick = {
-	.hz	= 100,
+static struct tick_t sandboxlinux_tick = {
+	.hz		= 100,
 	.init	= tick_timer_init,
 };
 
-static __init void linux_tick_init(void)
+static __init void sandboxlinux_tick_init(void)
 {
-	if(register_tick(&linux_tick))
+	if(register_tick(&sandboxlinux_tick))
 		LOG("Register tick");
 	else
 		LOG("Failed to register tick");
 }
-postcore_initcall(linux_tick_init);
+postcore_initcall(sandboxlinux_tick_init);

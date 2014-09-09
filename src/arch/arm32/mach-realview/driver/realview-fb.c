@@ -118,6 +118,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 	render->pixlen = pixlen;
+	render->priv = NULL;
 
 	render->clear = sw_render_clear;
 	render->snapshot = sw_render_snapshot;
@@ -126,7 +127,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	render->free_texture = sw_render_free_texture;
 	render->fill_texture = sw_render_fill_texture;
 	render->blit_texture = sw_render_blit_texture;
-	sw_render_create_priv_data(render);
+	sw_render_create_data(render);
 
 	return render;
 }

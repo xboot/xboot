@@ -24,18 +24,18 @@
 
 #include <fb/sw/sw.h>
 
-void sw_render_create_priv_data(struct render_t * render)
+void sw_render_create_data(struct render_t * render)
 {
 	if(!render)
 		return;
-	render->priv = pixman_image_create_bits_no_clear(pixel_format_to_pixman_format_code(render->format), render->width, render->height, render->pixels, render->pitch);
+	render->data = pixman_image_create_bits_no_clear(pixel_format_to_pixman_format_code(render->format), render->width, render->height, render->pixels, render->pitch);
 }
 
 void sw_render_destroy_priv_data(struct render_t * render)
 {
 	if(!render)
 		return;
-	pixman_image_unref((pixman_image_t *)render->priv);
+	pixman_image_unref((pixman_image_t *)render->data);
 }
 
 void sw_render_clear(struct render_t * render, struct rect_t * r, struct color_t * c)
@@ -76,7 +76,7 @@ void sw_render_clear(struct render_t * render, struct rect_t * r, struct color_t
 		color.alpha = 0xffff;
 	}
 
-	pixman_image_fill_rectangles(PIXMAN_OP_SRC, render->priv, &color, 1, &rect);
+	pixman_image_fill_rectangles(PIXMAN_OP_SRC, render->data, &color, 1, &rect);
 }
 
 struct texture_t * sw_render_snapshot(struct render_t * render)

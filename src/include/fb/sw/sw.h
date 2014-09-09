@@ -11,8 +11,8 @@ extern "C" {
 
 pixman_format_code_t pixel_format_to_pixman_format_code(enum pixel_format_t format);
 
-void sw_render_create_priv_data(struct render_t * render);
-void sw_render_destroy_priv_data(struct render_t * render);
+void sw_render_create_data(struct render_t * render);
+void sw_render_destroy_data(struct render_t * render);
 void sw_render_clear(struct render_t * render, struct rect_t * r, struct color_t * c);
 struct texture_t * sw_render_snapshot(struct render_t * render);
 

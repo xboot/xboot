@@ -118,6 +118,6 @@ void sw_render_blit_texture(struct render_t * render, struct rect_t * drect, str
 		sr.y = y;
 		sr.w = dr.w = w;
 		sr.h = dr.h = h;
-		pixman_image_composite(PIXMAN_OP_SRC, texture->priv, NULL, render->priv, sr.x, sr.y, 0, 0, dr.x, dr.y, dr.w, dr.h);
+		pixman_image_composite(PIXMAN_OP_SRC, texture->priv, NULL, render->data, sr.x, sr.y, 0, 0, dr.x, dr.y, dr.w, dr.h);
 	}
 }

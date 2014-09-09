@@ -84,7 +84,7 @@ struct render_t {
 	/* private data */
 	void * priv;
 
-	/* functions ... */
+	/* low level functions, just for console */
 	void (*clear)(struct render_t * render, struct rect_t * r, struct color_t * c);
 	struct texture_t * (*snapshot)(struct render_t * render);
 	struct texture_t * (*alloc_texture)(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);
@@ -92,6 +92,7 @@ struct render_t {
 	void (*free_texture)(struct render_t * render, struct texture_t * texture);
 	void (*fill_texture)(struct render_t * render, struct texture_t * texture, struct rect_t * r, struct color_t * c);
 	void (*blit_texture)(struct render_t * render, struct rect_t * drect, struct texture_t * texture, struct rect_t * srect);
+	void * data;
 };
 
 void render_clear(struct render_t * render, struct rect_t * r, struct color_t * c);

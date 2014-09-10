@@ -1,5 +1,5 @@
 /*
- * driver/clk-pll.c
+ * driver/clk/clk-pll.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org

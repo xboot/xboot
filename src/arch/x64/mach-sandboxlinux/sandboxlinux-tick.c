@@ -48,4 +48,4 @@ static __init void sandboxlinux_tick_init(void)
 	else
 		LOG("Failed to register tick");
 }
-postcore_initcall(sandboxlinux_tick_init);
+core_initcall(sandboxlinux_tick_init);

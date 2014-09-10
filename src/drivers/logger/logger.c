@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <spinlock.h>
-#include <xboot/logger.h>
+#include <logger/logger.h>
 
 struct logger_list_t
 {

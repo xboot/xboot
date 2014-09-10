@@ -30,9 +30,6 @@ extern initcall_t __initcall_end[];
 extern exitcall_t __exitcall_start[];
 extern exitcall_t __exitcall_end[];
 
-/*
- * do all initial calls
- */
 void do_initcalls(void)
 {
 	initcall_t *call;
@@ -40,15 +37,11 @@ void do_initcalls(void)
 	call =  &(*__initcall_start);
 	while (call < &(*__initcall_end))
 	{
-		DEBUG("initcall -> %p", *call);
 		(*call)();
 		call++;
 	}
 }
 
-/*
- * do all exit calls
- */
 void do_exitcalls(void)
 {
 	exitcall_t *call;
@@ -56,7 +49,6 @@ void do_exitcalls(void)
 	call =  &(*__exitcall_start);
 	while (call < &(*__exitcall_end))
 	{
-		DEBUG("exitcall -> %p", *call);
 		(*call)();
 		call++;
 	}

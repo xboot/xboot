@@ -43,7 +43,6 @@ extern "C" {
 #include <xboot/kref.h>
 #include <xboot/proc.h>
 #include <xboot/resource.h>
-#include <xboot/logger.h>
 #include <xboot/irq.h>
 #include <xboot/machine.h>
 #include <xboot/bus.h>
@@ -51,6 +50,7 @@ extern "C" {
 #include <xboot/module.h>
 #include <xboot/event.h>
 #include <xboot/printk.h>
+#include <logger/logger.h>
 #include <clk/clk.h>
 #include <gpio/gpio.h>
 #include <time/tick.h>

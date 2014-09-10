@@ -57,7 +57,7 @@ static void realview_gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum
 
 static enum gpio_drv_t realview_gpiochip_get_drv(struct gpiochip_t * chip, int offset)
 {
-	return GPIO_DRV_NONE;
+	return GPIO_DRV_LOW;
 }
 
 static void realview_gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
@@ -66,7 +66,7 @@ static void realview_gpiochip_set_rate(struct gpiochip_t * chip, int offset, enu
 
 static enum gpio_rate_t realview_gpiochip_get_rate(struct gpiochip_t * chip, int offset)
 {
-	return GPIO_RATE_NONE;
+	return GPIO_RATE_SLOW;
 }
 
 static void realview_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
@@ -79,9 +79,6 @@ static void realview_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum
 
 	switch(dir)
 	{
-	case GPIO_DIRECTION_NONE:
-		break;
-
 	case GPIO_DIRECTION_INPUT:
 		val = readb(dat->regbase + REALVIEW_GPIO_DIR);
 		val &= ~(1 << offset);
@@ -105,7 +102,7 @@ static enum gpio_direction_t realview_gpiochip_get_dir(struct gpiochip_t * chip,
 	u8_t val;
 
 	if(offset >= chip->ngpio)
-		return GPIO_DIRECTION_NONE;
+		return GPIO_DIRECTION_UNKOWN;
 
 	val = readb(dat->regbase + REALVIEW_GPIO_DIR);
 	if((val & (1 << offset)) == 0)

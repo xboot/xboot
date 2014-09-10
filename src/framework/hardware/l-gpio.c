@@ -179,22 +179,20 @@ int luaopen_hardware_gpio(lua_State * L)
 {
 	luaL_newlib(L, l_hardware_gpio);
     /* gpio_pull_t */
-	luahelper_set_intfield(L, "GPIO_PULL_NONE",			GPIO_PULL_NONE);
 	luahelper_set_intfield(L, "GPIO_PULL_UP",			GPIO_PULL_UP);
 	luahelper_set_intfield(L, "GPIO_PULL_DOWN",			GPIO_PULL_DOWN);
+	luahelper_set_intfield(L, "GPIO_PULL_NONE",			GPIO_PULL_NONE);
     /* gpio_drv_t */
-	luahelper_set_intfield(L, "GPIO_DRV_NONE",			GPIO_DRV_NONE);
 	luahelper_set_intfield(L, "GPIO_DRV_LOW",			GPIO_DRV_LOW);
 	luahelper_set_intfield(L, "GPIO_DRV_MEDIAN",		GPIO_DRV_MEDIAN);
 	luahelper_set_intfield(L, "GPIO_DRV_HIGH",			GPIO_DRV_HIGH);
     /* gpio_rate_t */
-	luahelper_set_intfield(L, "GPIO_RATE_NONE",			GPIO_RATE_NONE);
 	luahelper_set_intfield(L, "GPIO_RATE_FAST",			GPIO_RATE_FAST);
 	luahelper_set_intfield(L, "GPIO_RATE_SLOW",			GPIO_RATE_SLOW);
     /* gpio_direction_t */
-	luahelper_set_intfield(L, "GPIO_DIRECTION_NONE",	GPIO_DIRECTION_NONE);
 	luahelper_set_intfield(L, "GPIO_DIRECTION_INPUT",	GPIO_DIRECTION_INPUT);
 	luahelper_set_intfield(L, "GPIO_DIRECTION_OUTPUT",	GPIO_DIRECTION_OUTPUT);
+	luahelper_set_intfield(L, "GPIO_DIRECTION_UNKOWN",	GPIO_DIRECTION_UNKOWN);
 	luahelper_create_metatable(L, MT_NAME_HARDWARE_GPIO, m_hardware_gpio);
 	return 1;
 }

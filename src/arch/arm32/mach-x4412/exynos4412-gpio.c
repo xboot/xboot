@@ -154,7 +154,7 @@ static enum gpio_drv_t exynos4412_gpiochip_get_drv(struct gpiochip_t * chip, int
 	u32_t val, d;
 
 	if(offset >= chip->ngpio)
-		return GPIO_DRV_NONE;
+		return GPIO_DRV_LOW;
 
 	offset <<= 0x1;
 	val = readl(dat->regbase + EXYNOS4412_GPIO_DRV);
@@ -172,7 +172,7 @@ static enum gpio_drv_t exynos4412_gpiochip_get_drv(struct gpiochip_t * chip, int
 	default:
 		break;
 	}
-	return GPIO_DRV_NONE;
+	return GPIO_DRV_LOW;
 }
 
 static void exynos4412_gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
@@ -181,7 +181,7 @@ static void exynos4412_gpiochip_set_rate(struct gpiochip_t * chip, int offset, e
 
 static enum gpio_rate_t exynos4412_gpiochip_get_rate(struct gpiochip_t * chip, int offset)
 {
-	return GPIO_RATE_NONE;
+	return GPIO_RATE_SLOW;
 }
 
 static void exynos4412_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
@@ -220,7 +220,7 @@ static enum gpio_direction_t exynos4412_gpiochip_get_dir(struct gpiochip_t * chi
 	u32_t val, d;
 
 	if(offset >= chip->ngpio)
-		return GPIO_DIRECTION_NONE;
+		return GPIO_DIRECTION_UNKOWN;
 
 	offset <<= 0x2;
 	val = readl(dat->regbase + EXYNOS4412_GPIO_CON);
@@ -234,7 +234,7 @@ static enum gpio_direction_t exynos4412_gpiochip_get_dir(struct gpiochip_t * chi
 	default:
 		break;
 	}
-	return GPIO_DIRECTION_NONE;
+	return GPIO_DIRECTION_UNKOWN;
 }
 
 static void exynos4412_gpiochip_set_value(struct gpiochip_t * chip, int offset, int value)

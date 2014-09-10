@@ -8,28 +8,26 @@ extern "C" {
 #include <xboot.h>
 
 enum gpio_pull_t {
-	GPIO_PULL_NONE			= 0,
-	GPIO_PULL_UP			= 1,
-	GPIO_PULL_DOWN			= 2,
+	GPIO_PULL_UP			= 0,
+	GPIO_PULL_DOWN			= 1,
+	GPIO_PULL_NONE			= 2,
 };
 
 enum gpio_drv_t {
-	GPIO_DRV_NONE			= 0,
-	GPIO_DRV_LOW			= 1,
-	GPIO_DRV_MEDIAN			= 2,
-	GPIO_DRV_HIGH			= 3,
+	GPIO_DRV_LOW			= 0,
+	GPIO_DRV_MEDIAN			= 1,
+	GPIO_DRV_HIGH			= 2,
 };
 
 enum gpio_rate_t {
-	GPIO_RATE_NONE			= 0,
+	GPIO_RATE_SLOW			= 0,
 	GPIO_RATE_FAST			= 1,
-	GPIO_RATE_SLOW			= 2,
 };
 
 enum gpio_direction_t {
-	GPIO_DIRECTION_NONE		= 0,
-	GPIO_DIRECTION_INPUT	= 1,
-	GPIO_DIRECTION_OUTPUT	= 2,
+	GPIO_DIRECTION_INPUT	= 0,
+	GPIO_DIRECTION_OUTPUT	= 1,
+	GPIO_DIRECTION_UNKOWN	= 2,
 };
 
 struct gpiochip_t

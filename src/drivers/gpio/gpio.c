@@ -191,7 +191,7 @@ enum gpio_drv_t gpio_get_drv(int no)
 
 	if(chip && chip->get_drv)
 		return chip->get_drv(chip, no - chip->base);
-	return GPIO_DRV_NONE;
+	return GPIO_DRV_LOW;
 }
 
 void gpio_set_rate(int no, enum gpio_rate_t rate)
@@ -208,7 +208,7 @@ enum gpio_rate_t gpio_get_rate(int no)
 
 	if(chip && chip->get_rate)
 		return chip->get_rate(chip, no - chip->base);
-	return GPIO_RATE_NONE;
+	return GPIO_RATE_SLOW;
 }
 
 void gpio_set_direction(int no, enum gpio_direction_t dir)
@@ -225,7 +225,7 @@ enum gpio_direction_t gpio_get_direction(int no)
 
 	if(chip && chip->get_dir)
 		return chip->get_dir(chip, no - chip->base);
-	return GPIO_DIRECTION_NONE;
+	return GPIO_DIRECTION_UNKOWN;
 }
 
 void gpio_set_value(int no, int value)

@@ -126,12 +126,13 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/fb									\
 				drivers/fb/sw								\
 				drivers/led									\
-				drivers/rtc									\
 				drivers/input								\
 				drivers/mmc									\
 				drivers/mtd									\
 				drivers/mtd/nand							\
 				drivers/mtd/nor								\
+				drivers/rtc									\
+				drivers/watchdog							\
 				framework									\
 				framework/base64							\
 				framework/display							\

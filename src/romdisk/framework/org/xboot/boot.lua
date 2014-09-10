@@ -31,6 +31,7 @@ Hardware = {
 	gpio = require "builtin.hardware.gpio",
 	led = require "builtin.hardware.led",
 	ledtrig = require "builtin.hardware.ledtrig",
+  watchdog = require "builtin.hardware.watchdog",
 }
 
 ---

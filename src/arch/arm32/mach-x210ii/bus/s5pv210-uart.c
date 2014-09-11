@@ -144,7 +144,8 @@ static bool_t s5pv210_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 		return FALSE;
 	}
 
-	if(!clk_get_rate("psys-pclk", &pclk))
+	pclk = clk_get_rate("psys-pclk");
+	if(!pclk)
 		return FALSE;
 
 	baud_div_reg = (u32_t)((pclk / (ibaud * 16)) ) - 1;
@@ -165,6 +166,8 @@ static void s5pv210_uart_init(struct uart_t * uart)
 	switch(res->id)
 	{
 	case 0:
+		clk_enable("psys-pclk");
+
 		/* Configure GPA01, GPA00 for TXD0, RXD0 and pull up */
 		gpio_set_cfg(S5PV210_GPA0(1), 0x2);
 		gpio_set_cfg(S5PV210_GPA0(0), 0x2);
@@ -177,6 +180,8 @@ static void s5pv210_uart_init(struct uart_t * uart)
 		break;
 
 	case 1:
+		clk_enable("psys-pclk");
+
 		/* Configure GPA05, GPA04 for TXD1, RXD1 */
 		gpio_set_cfg(S5PV210_GPA0(5), 0x2);
 		gpio_set_cfg(S5PV210_GPA0(4), 0x2);
@@ -189,6 +194,8 @@ static void s5pv210_uart_init(struct uart_t * uart)
 		break;
 
 	case 2:
+		clk_enable("psys-pclk");
+
 		/* Configure GPA11, GPA10 for TXD2, RXD2 */
 		gpio_set_cfg(S5PV210_GPA1(1), 0x2);
 		gpio_set_cfg(S5PV210_GPA1(0), 0x2);
@@ -200,6 +207,8 @@ static void s5pv210_uart_init(struct uart_t * uart)
 		break;
 
 	case 3:
+		clk_enable("psys-pclk");
+
 		/* Configure GPA13, GPA12 for TXD3, RXD3 */
 		gpio_set_cfg(S5PV210_GPA1(3), 0x2);
 		gpio_set_cfg(S5PV210_GPA1(2), 0x2);
@@ -219,6 +228,25 @@ static void s5pv210_uart_init(struct uart_t * uart)
 
 static void s5pv210_uart_exit(struct uart_t * uart)
 {
+	struct resource_t * res = (struct resource_t *)uart->priv;
+
+	switch(res->id)
+	{
+	case 0:
+		clk_disable("psys-pclk");
+		break;
+	case 1:
+		clk_disable("psys-pclk");
+		break;
+	case 2:
+		clk_disable("psys-pclk");
+		break;
+	case 3:
+		clk_disable("psys-pclk");
+		break;
+	default:
+		break;
+	}
 }
 
 static ssize_t s5pv210_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
@@ -257,12 +285,6 @@ static bool_t s5pv210_register_bus_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
 	char name[64];
-
-	if(!clk_get_rate("psys-pclk", 0))
-	{
-		LOG("Can't get clock source 'uclk'");
-		return FALSE;
-	}
 
 	uart = malloc(sizeof(struct uart_t));
 	if(!uart)

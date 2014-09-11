@@ -32,14 +32,6 @@ enum S5PV210_PLL {
 	S5PV210_VPLL
 };
 
-/*
- * the array of clocks, which will to be setup.
- */
-static struct clk_t s5pv210_clocks[8];
-
-/*
- * get pll frequency.
- */
 static u64_t s5pv210_get_pll(u64_t baseclk, enum S5PV210_PLL pll)
 {
 	u32_t r, m, p, s;
@@ -80,9 +72,8 @@ static u64_t s5pv210_get_pll(u64_t baseclk, enum S5PV210_PLL pll)
 	return (u64_t)fvco;
 }
 
-/*
- * setup the s5pv210's clock array.
- */
+static struct clk_fixed_t s5pv210_clks[8];
+
 static void s5pv210_setup_clocks(u64_t xtal)
 {
 	u64_t fin, apll, mpll, epll, vpll, a2m;
@@ -105,8 +96,8 @@ static void s5pv210_setup_clocks(u64_t xtal)
 	fin = xtal;
 
 	/* extern clock */
-	s5pv210_clocks[0].name = "xtal";
-	s5pv210_clocks[0].rate = xtal;
+	s5pv210_clks[0].name = "xtal";
+	s5pv210_clks[0].rate = xtal;
 
 	/* get apll clock */
 	if( ((muxstat0 >> 0) & 0x7) == 0x2 )
@@ -173,55 +164,46 @@ static void s5pv210_setup_clocks(u64_t xtal)
 	psys_hclk = psys / ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_PSYS_MASK) >> S5PV210_CLKDIV0_HCLK_PSYS_SHIFT) + 1);
 
 	/* armclk */
-	s5pv210_clocks[1].name = "armclk";
-	s5pv210_clocks[1].rate = armclk;
+	s5pv210_clks[1].name = "armclk";
+	s5pv210_clks[1].rate = armclk;
 
 	/* msys hclk */
-	s5pv210_clocks[2].name = "msys-hclk";
-	s5pv210_clocks[2].rate = armclk / ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_MSYS_MASK) >> S5PV210_CLKDIV0_HCLK_MSYS_SHIFT) + 1);
+	s5pv210_clks[2].name = "msys-hclk";
+	s5pv210_clks[2].rate = armclk / ((((clkdiv0) & S5PV210_CLKDIV0_HCLK_MSYS_MASK) >> S5PV210_CLKDIV0_HCLK_MSYS_SHIFT) + 1);
 
 	/* msys pclk */
-	s5pv210_clocks[3].name = "msys-pclk";
-	s5pv210_clocks[3].rate = s5pv210_clocks[2].rate / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_MSYS_MASK) >> S5PV210_CLKDIV0_PCLK_MSYS_SHIFT) + 1);
+	s5pv210_clks[3].name = "msys-pclk";
+	s5pv210_clks[3].rate = s5pv210_clks[2].rate / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_MSYS_MASK) >> S5PV210_CLKDIV0_PCLK_MSYS_SHIFT) + 1);
 
 	/* dsys hclk */
-	s5pv210_clocks[4].name = "dsys-hclk";
-	s5pv210_clocks[4].rate = dsys_hclk;
+	s5pv210_clks[4].name = "dsys-hclk";
+	s5pv210_clks[4].rate = dsys_hclk;
 
 	/* dsys pclk */
-	s5pv210_clocks[5].name = "dsys-pclk";
-	s5pv210_clocks[5].rate = dsys_hclk / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_DSYS_MASK) >> S5PV210_CLKDIV0_PCLK_DSYS_SHIFT) + 1);
+	s5pv210_clks[5].name = "dsys-pclk";
+	s5pv210_clks[5].rate = dsys_hclk / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_DSYS_MASK) >> S5PV210_CLKDIV0_PCLK_DSYS_SHIFT) + 1);
 
 	/* psys hclk */
-	s5pv210_clocks[6].name = "psys-hclk";
-	s5pv210_clocks[6].rate = psys_hclk;
+	s5pv210_clks[6].name = "psys-hclk";
+	s5pv210_clks[6].rate = psys_hclk;
 
 	/* psys pclk */
-	s5pv210_clocks[7].name = "psys-pclk";
-	s5pv210_clocks[7].rate = psys_hclk / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_PSYS_MASK) >> S5PV210_CLKDIV0_PCLK_PSYS_SHIFT) + 1);
+	s5pv210_clks[7].name = "psys-pclk";
+	s5pv210_clks[7].rate = psys_hclk / ((((clkdiv0) & S5PV210_CLKDIV0_PCLK_PSYS_MASK) >> S5PV210_CLKDIV0_PCLK_PSYS_SHIFT) + 1);
 }
 
 static __init void s5pv210_clk_init(void)
 {
-	u64_t xtal = 0;
 	int i;
 
-	/* Get system xtal */
-	if(get_machine() != 0)
-		xtal = (get_machine())->res.xtal;
-	if(xtal == 0)
-		xtal = 24 * 1000 * 1000;
+	s5pv210_setup_clocks(24 * 1000 * 1000);
 
-	/* Setup clock arrays */
-	s5pv210_setup_clocks(xtal);
-
-	/* Register clocks to system */
-	for(i=0; i< ARRAY_SIZE(s5pv210_clocks); i++)
+	for(i = 0; i< ARRAY_SIZE(s5pv210_clks); i++)
 	{
-		if(clk_register(&s5pv210_clocks[i]))
-			LOG("Register clock source '%s' [%LdHZ]", s5pv210_clocks[i].name, s5pv210_clocks[i].rate);
+		if(clk_fixed_register(&s5pv210_clks[i]))
+			LOG("Register clock source '%s' [%LdHZ]", s5pv210_clks[i].name, s5pv210_clks[i].rate);
 		else
-			LOG("Failed to register clock source '%s' [%LdHZ]", s5pv210_clocks[i].name, s5pv210_clocks[i].rate);
+			LOG("Failed to register clock source '%s' [%LdHZ]", s5pv210_clks[i].name, s5pv210_clks[i].rate);
 	}
 }
 
@@ -229,12 +211,12 @@ static __exit void s5pv210_clk_exit(void)
 {
 	int i;
 
-	for(i=0; i< ARRAY_SIZE(s5pv210_clocks); i++)
+	for(i = 0; i< ARRAY_SIZE(s5pv210_clks); i++)
 	{
-		if(clk_unregister(&s5pv210_clocks[i]))
-			LOG("Unregister clock source '%s' [%LdHZ]", s5pv210_clocks[i].name, s5pv210_clocks[i].rate);
+		if(clk_fixed_unregister(&s5pv210_clks[i]))
+			LOG("Unregister clock source '%s' [%LdHZ]", s5pv210_clks[i].name, s5pv210_clks[i].rate);
 		else
-			LOG("Failed to unregister clock '%s' [%LdHZ]", s5pv210_clocks[i].name, s5pv210_clocks[i].rate);
+			LOG("Failed to unregister clock '%s' [%LdHZ]", s5pv210_clks[i].name, s5pv210_clks[i].rate);
 	}
 }
 

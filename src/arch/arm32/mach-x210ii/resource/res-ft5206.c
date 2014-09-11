@@ -40,17 +40,17 @@ static struct resource_t res_ft5206 = {
 static __init void resource_rtc_init(void)
 {
 	if(register_resource(&res_ft5206))
-		LOG("Register resource '%s.%d'", res_ft5206.name, res_ft5206.id);
+		LOG("Register resource '%s:%s.%d'", res_ft5206.mach, res_ft5206.name, res_ft5206.id);
 	else
-		LOG("Failed to register resource '%s.%d'", res_ft5206.name, res_ft5206.id);
+		LOG("Failed to register resource '%s:%s.%d'", res_ft5206.mach, res_ft5206.name, res_ft5206.id);
 }
 
 static __exit void resource_rtc_exit(void)
 {
 	if(unregister_resource(&res_ft5206))
-		LOG("Unregister resource '%s.%d'", res_ft5206.name, res_ft5206.id);
+		LOG("Unregister resource '%s:%s.%d'", res_ft5206.mach, res_ft5206.name, res_ft5206.id);
 	else
-		LOG("Failed to unregister resource '%s.%d'", res_ft5206.name, res_ft5206.id);
+		LOG("Failed to unregister resource '%s:%s.%d'", res_ft5206.mach, res_ft5206.name, res_ft5206.id);
 }
 
 resource_initcall(resource_rtc_init);

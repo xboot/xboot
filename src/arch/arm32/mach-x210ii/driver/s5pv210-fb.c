@@ -118,7 +118,8 @@ static bool_t s5pv210fb_set_clock(struct s5pv210_fb_data_t * dat)
 	u32_t div;
 	u32_t cfg;
 
-	if(! clk_get_rate("dsys-hclk", &hclk))
+	hclk = clk_get_rate("dsys-hclk");
+	if(!hclk)
 		return FALSE;
 
 	pixel_clock = ( dat->freq * (dat->timing.h_fp + dat->timing.h_bp + dat->timing.h_sw + dat->width) *
@@ -425,6 +426,11 @@ static void fb_init(struct fb_t * fb)
 	struct s5pv210_fb_data_t * dat = (struct s5pv210_fb_data_t *)res->data;
 
 	/*
+	 * Enable fimd clk
+	 */
+	clk_enable("dsys-hclk");
+
+	/*
 	 * Initial lcd port
 	 */
 	writel(S5PV210_GPF0_BASE + S5PV210_GPIO_CON, 0x22222222);
@@ -520,6 +526,7 @@ static void fb_exit(struct fb_t * fb)
 		dat->exit(dat);
 
 	s5pv210fb_display_off(dat);
+	clk_disable("dsys-hclk");
 }
 
 static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)

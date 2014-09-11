@@ -25,14 +25,9 @@
 #include <xboot.h>
 #include <s5pv210/reg-timer.h>
 
-/*
- * tick timer interrupt.
- */
 static void timer_interrupt(void * data)
 {
 	tick_interrupt();
-
-	/* Clear interrupt status bit */
 	writel(S5PV210_TINT_CSTAT, (readl(S5PV210_TINT_CSTAT) & ~(0x1f<<5)) | (0x01<<9));
 }
 
@@ -40,9 +35,12 @@ static bool_t tick_timer_init(void)
 {
 	u64_t pclk;
 
-	if(!clk_get_rate("psys-pclk", &pclk))
+	clk_enable("psys-pclk");
+
+	pclk = clk_get_rate("psys-pclk");
+	if(!pclk)
 	{
-		LOG("can't get the clock of 'pclk'");
+		clk_disable("psys-pclk");
 		return FALSE;
 	}
 

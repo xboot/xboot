@@ -72,9 +72,9 @@ static __init void resource_led_gpio_init(void)
 	for(i = 0; i < ARRAY_SIZE(res_led_gpios); i++)
 	{
 		if(register_resource(&res_led_gpios[i]))
-			LOG("Register resource '%s.%d'", res_led_gpios[i].name, res_led_gpios[i].id);
+			LOG("Register resource %s:'%s.%d'", res_led_gpios[i].mach, res_led_gpios[i].name, res_led_gpios[i].id);
 		else
-			LOG("Failed to register resource '%s.%d'", res_led_gpios[i].name, res_led_gpios[i].id);
+			LOG("Failed to register resource %s:'%s.%d'", res_led_gpios[i].mach, res_led_gpios[i].name, res_led_gpios[i].id);
 	}
 }
 
@@ -85,9 +85,9 @@ static __exit void resource_led_gpio_exit(void)
 	for(i = 0; i < ARRAY_SIZE(res_led_gpios); i++)
 	{
 		if(unregister_resource(&res_led_gpios[i]))
-			LOG("Unregister resource '%s.%d'", res_led_gpios[i].name, res_led_gpios[i].id);
+			LOG("Unregister resource %s:'%s.%d'", res_led_gpios[i].mach, res_led_gpios[i].name, res_led_gpios[i].id);
 		else
-			LOG("Failed to unregister resource '%s.%d'", res_led_gpios[i].name, res_led_gpios[i].id);
+			LOG("Failed to unregister resource %s:'%s.%d'", res_led_gpios[i].mach, res_led_gpios[i].name, res_led_gpios[i].id);
 	}
 }
 

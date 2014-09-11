@@ -78,7 +78,7 @@ static struct resource_t res_uarts[] = {
 
 static __init void resource_uart_init(void)
 {
-	u32_t i;
+	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
 	{
@@ -91,7 +91,7 @@ static __init void resource_uart_init(void)
 
 static __exit void resource_uart_exit(void)
 {
-	u32_t i;
+	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
 	{

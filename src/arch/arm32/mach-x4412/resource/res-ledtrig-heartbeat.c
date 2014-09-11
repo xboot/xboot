@@ -38,17 +38,17 @@ static struct resource_t res_led_trigger = {
 static __init void resource_led_trigger_heartbeat_init(void)
 {
 	if(register_resource(&res_led_trigger))
-		LOG("Register resource '%s.%d'", res_led_trigger.name, res_led_trigger.id);
+		LOG("Register resource %s:'%s.%d'", res_led_trigger.mach, res_led_trigger.name, res_led_trigger.id);
 	else
-		LOG("Failed to register resource '%s.%d'", res_led_trigger.name, res_led_trigger.id);
+		LOG("Failed to register resource %s:'%s.%d'", res_led_trigger.mach, res_led_trigger.name, res_led_trigger.id);
 }
 
 static __exit void resource_led_trigger_heartbeat_exit(void)
 {
 	if(unregister_resource(&res_led_trigger))
-		LOG("Unregister resource '%s.%d'", res_led_trigger.name, res_led_trigger.id);
+		LOG("Unregister resource %s:'%s.%d'", res_led_trigger.mach, res_led_trigger.name, res_led_trigger.id);
 	else
-		LOG("Failed to unregister resource '%s.%d'", res_led_trigger.name, res_led_trigger.id);
+		LOG("Failed to unregister resource %s:'%s.%d'", res_led_trigger.mach, res_led_trigger.name, res_led_trigger.id);
 }
 
 resource_initcall(resource_led_trigger_heartbeat_init);

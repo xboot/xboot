@@ -10,6 +10,7 @@ extern "C" {
 #define	MT_NAME_HARDWARE_UART		"mt_name_hardware_uart"
 #define	MT_NAME_HARDWARE_I2C		"mt_name_hardware_i2c"
 #define	MT_NAME_HARDWARE_GPIO		"mt_name_hardware_gpio"
+#define	MT_NAME_HARDWARE_PWM		"mt_name_hardware_pwm"
 #define	MT_NAME_HARDWARE_LED		"mt_name_hardware_led"
 #define	MT_NAME_HARDWARE_LEDTRIG	"mt_name_hardware_ledtrig"
 #define	MT_NAME_HARDWARE_WATCHDOG	"mt_name_hardware_watchdog"
@@ -17,6 +18,7 @@ extern "C" {
 int luaopen_hardware_uart(lua_State * L);
 int luaopen_hardware_i2c(lua_State * L);
 int luaopen_hardware_gpio(lua_State * L);
+int luaopen_hardware_pwm(lua_State * L);
 int luaopen_hardware_led(lua_State * L);
 int luaopen_hardware_ledtrig(lua_State * L);
 int luaopen_hardware_watchdog(lua_State * L);

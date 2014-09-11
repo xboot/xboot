@@ -29,6 +29,7 @@ Hardware = {
 	uart = require "builtin.hardware.uart",
 	i2c = require "builtin.hardware.i2c",
 	gpio = require "builtin.hardware.gpio",
+	pwm = require "builtin.hardware.pwm",
 	led = require "builtin.hardware.led",
 	ledtrig = require "builtin.hardware.ledtrig",
   watchdog = require "builtin.hardware.watchdog",

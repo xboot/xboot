@@ -83,7 +83,7 @@ static ssize_t clk_read_dump(struct kobj_t * kobj, void * buf, size_t size)
 	while(name)
 	{
 		rate = clk_get_rate(name);
-		len += sprintf((char *)(p + len), " %s: %Ld.%06LdMHZ %s %s\r\n", name, rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000), clk_type_to_string(name), clk_status(name) ? "enable" : "disable");
+		len += sprintf((char *)(p + len), " %s(%s): %Ld.%06LdMHZ %s\r\n", name, clk_type_to_string(name), rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000), clk_status(name) ? "enable" : "disable");
 		name = clk_get_parent(name);
 	}
 	return len;

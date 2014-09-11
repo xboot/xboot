@@ -73,6 +73,8 @@ bool_t clk_pll_register(struct clk_pll_t * pclk)
 		return FALSE;
 
 	clk->name = pclk->name;
+	clk->type = CLK_TYPE_PLL;
+	clk->count = 0;
 	clk->set_parent = clk_pll_set_parent;
 	clk->get_parent = clk_pll_get_parent;
 	clk->set_enable = clk_pll_set_enable;

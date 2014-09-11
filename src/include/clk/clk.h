@@ -13,9 +13,20 @@ extern "C" {
 #include <clk/clk-mux.h>
 #include <clk/clk-pll.h>
 
+enum clk_type_t {
+	CLK_TYPE_FIXED,
+	CLK_TYPE_FIXED_FACTOR,
+	CLK_TYPE_PLL,
+	CLK_TYPE_MUX,
+	CLK_TYPE_DIVIDER,
+	CLK_TYPE_GATE,
+};
+
 struct clk_t
 {
+	struct kobj_t * kobj;
 	const char * name;
+	enum clk_type_t type;
 	int count;
 
 	void (*set_parent)(struct clk_t * clk, const char * pname);

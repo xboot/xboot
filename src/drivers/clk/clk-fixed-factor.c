@@ -71,6 +71,8 @@ bool_t clk_fixed_factor_register(struct clk_fixed_factor_t * fclk)
 		return FALSE;
 
 	clk->name = fclk->name;
+	clk->type = CLK_TYPE_FIXED_FACTOR;
+	clk->count = 0;
 	clk->set_parent = clk_fixed_factor_set_parent;
 	clk->get_parent = clk_fixed_factor_get_parent;
 	clk->set_enable = clk_fixed_factor_set_enable;

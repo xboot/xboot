@@ -39,6 +39,108 @@ static struct clk_list_t __clk_list = {
 };
 static spinlock_t __clk_list_lock = SPIN_LOCK_INIT();
 
+static struct kobj_t * search_class_clk_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "clk");
+}
+
+static const char * clk_type_to_string(const char * name)
+{
+	struct clk_t * clk = clk_search(name);
+
+	if(!clk)
+		return "unkown";
+
+	switch(clk->type)
+	{
+	case CLK_TYPE_FIXED:
+		return "fixed";
+	case CLK_TYPE_FIXED_FACTOR:
+		return "fixed-factor";
+	case CLK_TYPE_PLL:
+		return "pll";
+	case CLK_TYPE_MUX:
+		return "mux";
+	case CLK_TYPE_DIVIDER:
+		return "divider";
+	case CLK_TYPE_GATE:
+		return "gate";
+	default:
+		break;
+	}
+	return "unkown";
+}
+
+static ssize_t clk_read_dump(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	const char * name = clk->name;
+	char * p = buf;
+	int len = 0;
+	u64_t rate;
+
+	while(name)
+	{
+		rate = clk_get_rate(name);
+		len += sprintf((char *)(p + len), " %s: %Ld.%06LdMHZ %s %s\r\n", name, rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000), clk_type_to_string(name), clk_status(name) ? "enable" : "disable");
+		name = clk_get_parent(name);
+	}
+	return len;
+}
+
+static ssize_t clk_read_type(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	return sprintf(buf, "%s", clk_type_to_string(clk->name));
+}
+
+static ssize_t clk_read_enable(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	return sprintf(buf, "%d", clk_status(clk->name) ? 1 : 0);
+}
+
+static ssize_t clk_write_enable(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	int enable = strtol(buf, NULL, 0);
+	if(enable != 0)
+		clk_enable(clk->name);
+	else
+		clk_disable(clk->name);
+	return size;
+}
+
+static ssize_t clk_read_rate(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	u64_t rate = clk_get_rate(clk->name);
+	return sprintf(buf, "%Ld.%06LdMHZ", rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000));
+}
+
+static ssize_t clk_write_rate(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	u64_t rate = strtoull(buf, NULL, 0);
+	clk_set_rate(clk->name, rate);
+	return size;
+}
+
+static ssize_t clk_read_parent(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	const char * parent = clk_get_parent(clk->name);
+	return sprintf(buf, "%s", parent ? parent : "NONE");
+}
+
+static ssize_t clk_write_parent(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	clk_set_parent(clk->name, buf);
+	return size;
+}
+
 struct clk_t * clk_search(const char * name)
 {
 	struct clk_list_t * pos, * n;
@@ -69,7 +171,13 @@ bool_t clk_register(struct clk_t * clk)
 	if(!cl)
 		return FALSE;
 
-	clk->count = 0;
+	clk->kobj = kobj_alloc_directory(clk->name);
+	kobj_add_regular(clk->kobj, "dump", clk_read_dump, NULL, clk);
+	kobj_add_regular(clk->kobj, "type", clk_read_type, NULL, clk);
+	kobj_add_regular(clk->kobj, "enable", clk_read_enable, clk_write_enable, clk);
+	kobj_add_regular(clk->kobj, "rate", clk_read_rate, clk_write_rate, clk);
+	kobj_add_regular(clk->kobj, "parent", clk_read_parent, clk_write_parent, clk);
+	kobj_add(search_class_clk_kobj(), clk->kobj);
 	cl->clk = clk;
 
 	spin_lock_irq(&__clk_list_lock);
@@ -94,6 +202,8 @@ bool_t clk_unregister(struct clk_t * clk)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__clk_list_lock);
 
+			kobj_remove(search_class_clk_kobj(), pos->clk->kobj);
+			kobj_remove_self(clk->kobj);
 			free(pos);
 			return TRUE;
 		}
@@ -207,60 +317,3 @@ u64_t clk_get_rate(const char * name)
 
 	return 0;
 }
-
-static s32_t clk_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct clk_list_t * pos, * n;
-	s8_t * p;
-	s32_t len = 0;
-	const char * name;
-	const char * parent;
-	u64_t rate;
-	bool_t enable;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), "[clk]");
-
-	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
-	{
-		name = pos->clk->name;
-		parent = clk_get_parent(name);
-		rate = clk_get_rate(name);
-		enable = clk_status(name);
-
-		len += sprintf((char *)(p + len), "\r\n %s(%d): %Ld.%06LdMHZ %s %s", name, pos->clk->count, rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000), enable ? "Enable" : "Disable", parent ? parent : "None");
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t clk_proc = {
-	.name	= "clk",
-	.read	= clk_proc_read,
-};
-
-static __init void clk_proc_init(void)
-{
-	proc_register(&clk_proc);
-}
-
-static __exit void clk_proc_exit(void)
-{
-	proc_unregister(&clk_proc);
-}
-
-core_initcall(clk_proc_init);
-core_exitcall(clk_proc_exit);

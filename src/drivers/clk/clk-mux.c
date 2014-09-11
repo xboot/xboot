@@ -90,6 +90,8 @@ bool_t clk_mux_register(struct clk_mux_t * mclk)
 		return FALSE;
 
 	clk->name = mclk->name;
+	clk->type = CLK_TYPE_MUX;
+	clk->count = 0;
 	clk->set_parent = clk_mux_set_parent;
 	clk->get_parent = clk_mux_get_parent;
 	clk->set_enable = clk_mux_set_enable;

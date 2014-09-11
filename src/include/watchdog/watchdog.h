@@ -28,9 +28,9 @@ struct watchdog_t
 	void * priv;
 };
 
+struct watchdog_t * search_default_watchdog_with_name(const char * name);
 bool_t register_watchdog(struct watchdog_t * watchdog);
 bool_t unregister_watchdog(struct watchdog_t * watchdog);
-struct watchdog_t * search_default_watchdog_with_name(const char * name);
 void watchdog_set_timeout(struct watchdog_t * watchdog, int timeout);
 int watchdog_get_timeout(struct watchdog_t * watchdog);
 

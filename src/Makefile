@@ -113,24 +113,25 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/tarfs								\
 				kernel/fs/cpiofs							\
 				kernel/fs/fatfs								\
-				drivers/logger								\
-				drivers/clk									\
-				drivers/gpio								\
-				drivers/clocksource							\
-				drivers/bus/i2c								\
-				drivers/bus/uart							\
 				drivers/block								\
 				drivers/block/partition						\
 				drivers/block/romdisk						\
+				drivers/bus/i2c								\
+				drivers/bus/uart							\
+				drivers/clk									\
+				drivers/clocksource							\
 				drivers/console								\
 				drivers/fb									\
 				drivers/fb/sw								\
-				drivers/led									\
+				drivers/gpio								\
 				drivers/input								\
+				drivers/led									\
+				drivers/logger								\
 				drivers/mmc									\
 				drivers/mtd									\
 				drivers/mtd/nand							\
 				drivers/mtd/nor								\
+				drivers/pwm									\
 				drivers/rtc									\
 				drivers/watchdog							\
 				framework									\

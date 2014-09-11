@@ -11,6 +11,7 @@ extern "C" {
 
 struct clocksource_t
 {
+	struct kobj_t * kobj;
 	const char * name;
 	int rating;
 	u64_t last;
@@ -19,7 +20,6 @@ struct clocksource_t
 	void (*init)(struct clocksource_t * cs);
 	u64_t (*read)(struct clocksource_t * cs);
 
-	struct kobj_t * kobj;
 	void * pirv;
 };
 

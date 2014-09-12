@@ -202,6 +202,12 @@ static struct clk_mux_table_t mpll_user_t_mux_tables[] = {
 	{ 0, 0 },
 };
 
+static struct clk_mux_table_t aclk_mux_tables[] = {
+	{ .name = "MUX-MPLL-USER-T",	.val = 0 },
+	{ .name = "DIV-APLL",			.val = 1 },
+	{ 0, 0 },
+};
+
 static struct clk_mux_t core_mux_clks[] = {
 	{
 		.name = "FIN",
@@ -251,6 +257,30 @@ static struct clk_mux_t core_mux_clks[] = {
 		.reg = EXYNOS4412_CLK_SRC_TOP1,
 		.shift = 12,
 		.width = 1,
+	}, {
+		.name = "MUX-ACLK-133",
+		.parent = aclk_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_TOP0,
+		.shift = 24,
+		.width = 1,
+	}, {
+		.name = "MUX-ACLK-160",
+		.parent = aclk_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_TOP0,
+		.shift = 20,
+		.width = 1,
+	}, {
+		.name = "MUX-ACLK-100",
+		.parent = aclk_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_TOP0,
+		.shift = 16,
+		.width = 1,
+	}, {
+		.name = "MUX-ACLK-200",
+		.parent = aclk_mux_tables,
+		.reg = EXYNOS4412_CLK_SRC_TOP0,
+		.shift = 12,
+		.width = 1,
 	},
 };
 
@@ -296,6 +326,34 @@ static struct clk_divider_t core_div_clks[] = {
 		.reg = EXYNOS4412_CLK_DIV_CPU1,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 4,
+		.width = 3,
+	}, {
+		.name = "DIV-ACLK-133",
+		.parent = "MUX-ACLK-133",
+		.reg = EXYNOS4412_CLK_DIV_TOP,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 12,
+		.width = 3,
+	}, {
+		.name = "DIV-ACLK-160",
+		.parent = "MUX-ACLK-160",
+		.reg = EXYNOS4412_CLK_DIV_TOP,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 8,
+		.width = 3,
+	}, {
+		.name = "DIV-ACLK-100",
+		.parent = "MUX-ACLK-100",
+		.reg = EXYNOS4412_CLK_DIV_TOP,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 4,
+		.width = 3,
+	}, {
+		.name = "DIV-ACLK-200",
+		.parent = "MUX-ACLK-200",
+		.reg = EXYNOS4412_CLK_DIV_TOP,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 0,
 		.width = 3,
 	},
 };
@@ -942,7 +1000,11 @@ static void default_clks_init(void)
 
 	clk_set_parent("MUX-FIMD", "MUX-MPLL-USER-T");
 	clk_set_parent("MUX-MIPI", "MUX-MPLL-USER-T");
+
+	clk_set_rate("DIV-ACLK-200", 200 * 1000 * 1000);
 	clk_set_rate("DIV-FIMD", 800 * 1000 * 1000);
+	clk_set_rate("DIV-MIPI", 400 * 1000 * 1000);
+	clk_set_rate("DIV-PREMIPI", 200 * 1000 * 1000);
 
 	for(i = 0; i < ARRAY_SIZE(default_off_clks); i++)
 		clk_disable(default_off_clks[i]);

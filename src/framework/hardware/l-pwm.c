@@ -36,8 +36,23 @@ static int l_pwm_new(lua_State * L)
 	return 1;
 }
 
+static int l_pwm_list(lua_State * L)
+{
+	struct pwm_list_t * pos, * n;
+
+	lua_newtable(L);
+	list_for_each_entry_safe(pos, n, &(__pwm_list.entry), entry)
+	{
+		lua_pushlightuserdata(L, pos->pwm);
+		luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
+		lua_setfield(L, -2, pos->pwm->name);
+	}
+	return 1;
+}
+
 static const luaL_Reg l_hardware_pwm[] = {
 	{"new",		l_pwm_new},
+	{"list",	l_pwm_list},
 	{NULL, NULL}
 };
 

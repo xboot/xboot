@@ -22,6 +22,14 @@ struct pwm_t
 	void * pirv;
 };
 
+struct pwm_list_t
+{
+	struct pwm_t * pwm;
+	struct list_head entry;
+};
+
+extern struct pwm_list_t __pwm_list;
+
 struct pwm_t * search_pwm(const char * name);
 bool_t register_pwm(struct pwm_t * pwm);
 bool_t unregister_pwm(struct pwm_t * pwm);

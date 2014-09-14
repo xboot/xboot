@@ -25,12 +25,6 @@
 #include <xboot.h>
 #include <pwm/pwm.h>
 
-struct pwm_list_t
-{
-	struct pwm_t * pwm;
-	struct list_head entry;
-};
-
 struct pwm_list_t __pwm_list = {
 	.entry = {
 		.next	= &(__pwm_list.entry),

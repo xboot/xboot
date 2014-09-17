@@ -9,7 +9,7 @@ ddwin if=%TEMP%/xboot.bin of=%1 bs=512 seek=1 --progress
 goto :EOF
 
 :USAGE
-@echo Usage: exynos4x12-irom-sd.bat device bootloader
+@echo Usage: exynos4412-irom-sd.bat device bootloader
 @echo        device     = disk device name for SD card
 @echo        bootloader = \path\to\xboot.bin
 @echo e.g. : exynos4x12-irom-sd.bat \\?\Device\Harddisk1\Partition0 d:\xboot.bin

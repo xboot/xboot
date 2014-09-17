@@ -19,7 +19,7 @@ struct pwm_t
 	void (*disable)(struct pwm_t * pwm);
 	void (*config)(struct pwm_t * pwm, u32_t duty, u32_t period);
 
-	void * pirv;
+	void * priv;
 };
 
 struct pwm_list_t

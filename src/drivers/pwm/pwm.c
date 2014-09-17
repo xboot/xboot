@@ -160,8 +160,8 @@ void pwm_enable(struct pwm_t * pwm)
 {
 	if(pwm && pwm->enable)
 	{
-		pwm->__enable = TRUE;
 		pwm->enable(pwm);
+		pwm->__enable = TRUE;
 	}
 }
 
@@ -169,8 +169,8 @@ void pwm_disable(struct pwm_t * pwm)
 {
 	if(pwm && pwm->disable)
 	{
-		pwm->__enable = FALSE;
 		pwm->disable(pwm);
+		pwm->__enable = FALSE;
 	}
 }
 
@@ -180,8 +180,8 @@ void pwm_config(struct pwm_t * pwm, u32_t duty, u32_t period)
 	{
 		if(duty > period)
 			duty = period;
+		pwm->config(pwm, duty, period);
 		pwm->__duty = duty;
 		pwm->__period = period;
-		pwm->config(pwm, pwm->__duty, pwm->__period);
 	}
 }

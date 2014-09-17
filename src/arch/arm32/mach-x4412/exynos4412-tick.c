@@ -35,18 +35,16 @@ static void timer_interrupt(void * data)
 
 static bool_t tick_timer_init(void)
 {
-	u64_t pclk = 100 * 1000 * 1000;
+	u64_t pclk;
 
-	/*
-	clk_enable("MUX-MPLL-USER-T");
+	clk_enable("DIV-ACLK-100");
 
-	pclk = clk_get_rate("MUX-MPLL-USER-T");
+	pclk = clk_get_rate("DIV-ACLK-100");
 	if(!pclk)
 	{
-		clk_disable("MUX-MPLL-USER-T");
+		clk_disable("DIV-ACLK-100");
 		return FALSE;
 	}
-	 */
 
 	if(!request_irq("TIMER4", timer_interrupt, NULL))
 	{

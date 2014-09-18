@@ -35,14 +35,14 @@ static void timer_interrupt(void * data)
 
 static bool_t tick_timer_init(void)
 {
-	u64_t pclk;
+	u64_t clk;
 
-	clk_enable("DIV-ACLK-100");
+	clk_enable("DIV-PRESCALER1");
 
-	pclk = clk_get_rate("DIV-ACLK-100");
-	if(!pclk)
+	clk = clk_get_rate("DIV-PRESCALER1");
+	if(!clk)
 	{
-		clk_disable("DIV-ACLK-100");
+		clk_disable("DIV-PRESCALER1");
 		return FALSE;
 	}
 
@@ -52,20 +52,17 @@ static bool_t tick_timer_init(void)
 		return FALSE;
 	}
 
-	/* Using pwm timer 4, prescaler for timer 4 is 16 */
-	writel(EXYNOS4412_TCFG0, (readl(EXYNOS4412_TCFG0) & ~(0xff<<8)) | (0x0f<<8));
-
-	/* Select mux input for pwm timer4 is 1/2 */
-	writel(EXYNOS4412_TCFG1, (readl(EXYNOS4412_TCFG1) & ~(0xf<<16)) | (0x01<<16));
+	/* Select mux input for pwm timer4 is 1/1 */
+	writel(EXYNOS4412_TCFG1, (readl(EXYNOS4412_TCFG1) & ~(0xf<<16)) | (0x00<<16));
 
 	/* Load value for 10 ms timeout */
-	writel(EXYNOS4412_TCNTB4, (u32_t)(pclk / (2 * 16 * 100)));
-
-	/* Auto load, manaual update of timer 4 and stop timer4 */
-	writel(EXYNOS4412_TCON, (readl(EXYNOS4412_TCON) & ~(0x7<<20)) | (0x06<<20));
+	writel(EXYNOS4412_TCNTB4, (u32_t)(clk / 100));
 
 	/* Enable timer4 interrupt and clear interrupt status bit */
 	writel(EXYNOS4412_TINT_CSTAT, (readl(EXYNOS4412_TINT_CSTAT) & ~(0x1<<4)) | (0x01<<4) | (0x01<<9));
+
+	/* Auto load, manaual update of timer 4 and stop timer4 */
+	writel(EXYNOS4412_TCON, (readl(EXYNOS4412_TCON) & ~(0x7<<20)) | (0x06<<20));
 
 	/* Start timer4 */
 	writel(EXYNOS4412_TCON, (readl(EXYNOS4412_TCON) & ~(0x7<<20)) | (0x05<<20));

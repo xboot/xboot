@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <exynos4412/reg-pmu.h>
+#include <exynos4412/reg-timer.h>
 #include <exynos4412/reg-clk.h>
 
 /*
@@ -355,6 +356,20 @@ static struct clk_divider_t core_div_clks[] = {
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 0,
 		.width = 3,
+	}, {
+		.name = "DIV-PRESCALER0",
+		.parent = "DIV-ACLK-100",
+		.reg = EXYNOS4412_TCFG0,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 0,
+		.width = 8,
+	}, {
+		.name = "DIV-PRESCALER1",
+		.parent = "DIV-ACLK-100",
+		.reg = EXYNOS4412_TCFG0,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 8,
+		.width = 8,
 	},
 };
 
@@ -1002,6 +1017,8 @@ static void default_clks_init(void)
 	clk_set_parent("MUX-MIPI", "MUX-MPLL-USER-T");
 
 	clk_set_rate("DIV-ACLK-200", 200 * 1000 * 1000);
+	clk_set_rate("DIV-PRESCALER0", 50 * 1000 * 1000);
+	clk_set_rate("DIV-PRESCALER1", 50 * 1000 * 1000);
 	clk_set_rate("DIV-FIMD", 800 * 1000 * 1000);
 	clk_set_rate("DIV-MIPI", 400 * 1000 * 1000);
 	clk_set_rate("DIV-PREMIPI", 200 * 1000 * 1000);

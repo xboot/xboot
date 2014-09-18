@@ -56,19 +56,12 @@ static const luaL_Reg l_hardware_pwm[] = {
 	{NULL, NULL}
 };
 
-static int m_pwm_enable(lua_State * L)
+static int m_pwm_start(lua_State * L)
 {
 	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_NAME_HARDWARE_PWM);
-	pwm_enable(pwm);
-	lua_pushlightuserdata(L, pwm);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
-	return 1;
-}
-
-static int m_pwm_disable(lua_State * L)
-{
-	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_NAME_HARDWARE_PWM);
-	pwm_disable(pwm);
+	u32_t duty = luaL_optinteger(L, 2, pwm->__duty);
+	u32_t period = luaL_optinteger(L, 3, pwm->__period);
+	pwm_start(pwm, duty, period);
 	lua_pushlightuserdata(L, pwm);
 	luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
 	return 1;
@@ -85,10 +78,19 @@ static int m_pwm_config(lua_State * L)
 	return 1;
 }
 
+static int m_pwm_stop(lua_State * L)
+{
+	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_NAME_HARDWARE_PWM);
+	pwm_stop(pwm);
+	lua_pushlightuserdata(L, pwm);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
+	return 1;
+}
+
 static const luaL_Reg m_hardware_pwm[] = {
-	{"enable",		m_pwm_enable},
-	{"disable",		m_pwm_disable},
+	{"start",		m_pwm_start},
 	{"config",		m_pwm_config},
+	{"stop",		m_pwm_stop},
 	{NULL, NULL}
 };
 

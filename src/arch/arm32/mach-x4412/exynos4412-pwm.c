@@ -135,9 +135,6 @@ static void exynos4412_pwm_enable(struct pwm_t * pwm)
 	struct exynos4412_pwm_data_t * dat = (struct exynos4412_pwm_data_t *)pwm->priv;
 	u32_t tcon;
 
-	if(pwm->__enable == TRUE)
-		return;
-
 	gpio_set_cfg(dat->gpio, 0x2);
 	gpio_set_pull(dat->gpio, GPIO_PULL_UP);
 
@@ -160,9 +157,6 @@ static void exynos4412_pwm_disable(struct pwm_t * pwm)
 {
 	struct exynos4412_pwm_data_t * dat = (struct exynos4412_pwm_data_t *)pwm->priv;
 	u32_t tcon;
-
-	if(pwm->__enable == FALSE)
-		return;
 
 	tcon = readl(EXYNOS4412_TCON);
 	tcon &= ~TCON_AUTORELOAD(dat->id);

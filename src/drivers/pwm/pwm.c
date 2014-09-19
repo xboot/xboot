@@ -178,19 +178,20 @@ void pwm_config(struct pwm_t * pwm, u32_t duty, u32_t period, bool_t polarity)
 	{
 		if(duty > period)
 			duty = period;
-		pwm->config(pwm, duty, period, polarity);
-		pwm->__duty = duty;
-		pwm->__period = period;
-		pwm->__polarity = polarity;
+		if((pwm->__duty != duty) || (pwm->__period != period) || (pwm->__polarity != polarity))
+		{
+			pwm->config(pwm, duty, period, polarity);
+			pwm->__duty = duty;
+			pwm->__period = period;
+			pwm->__polarity = polarity;
+		}
 	}
 }
 
 void pwm_enable(struct pwm_t * pwm)
 {
-	if(pwm && pwm->enable)
+	if(pwm && pwm->enable && !pwm->__enable)
 	{
-		if((pwm->__duty == 0) && (pwm->__period == 0))
-			pwm_config(pwm, 1000000 / 2, 1000000, FALSE);
 		pwm->enable(pwm);
 		pwm->__enable = TRUE;
 	}
@@ -198,7 +199,7 @@ void pwm_enable(struct pwm_t * pwm)
 
 void pwm_disable(struct pwm_t * pwm)
 {
-	if(pwm && pwm->disable)
+	if(pwm && pwm->disable && pwm->__enable)
 	{
 		pwm->disable(pwm);
 		pwm->__enable = FALSE;

@@ -39,34 +39,6 @@ static struct kobj_t * search_class_pwm_kobj(void)
 	return kobj_search_directory_with_create(kclass, "pwm");
 }
 
-static ssize_t pwm_read_duty(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
-	return sprintf(buf, "%d", pwm->__duty);
-}
-
-static ssize_t pwm_write_duty(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
-	u32_t duty = strtol(buf, NULL, 0);
-	pwm_config(pwm, duty, pwm->__period);
-	return size;
-}
-
-static ssize_t pwm_read_period(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
-	return sprintf(buf, "%d", pwm->__period);
-}
-
-static ssize_t pwm_write_period(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
-	u32_t period = strtol(buf, NULL, 0);
-	pwm_config(pwm, pwm->__duty, period);
-	return size;
-}
-
 static ssize_t pwm_read_enable(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
@@ -78,9 +50,51 @@ static ssize_t pwm_write_enable(struct kobj_t * kobj, void * buf, size_t size)
 	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
 	int enable = strtol(buf, NULL, 0);
 	if(enable != 0)
-		pwm_start(pwm, pwm->__duty, pwm->__period);
+		pwm_enable(pwm);
 	else
-		pwm_stop(pwm);
+		pwm_disable(pwm);
+	return size;
+}
+
+static ssize_t pwm_read_duty(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
+	return sprintf(buf, "%u", pwm->__duty);
+}
+
+static ssize_t pwm_write_duty(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
+	u32_t duty = strtol(buf, NULL, 0);
+	pwm_config(pwm, duty, pwm->__period, pwm->__polarity);
+	return size;
+}
+
+static ssize_t pwm_read_period(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
+	return sprintf(buf, "%u", pwm->__period);
+}
+
+static ssize_t pwm_write_period(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
+	u32_t period = strtol(buf, NULL, 0);
+	pwm_config(pwm, pwm->__duty, period, pwm->__polarity);
+	return size;
+}
+
+static ssize_t pwm_read_polarity(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
+	return sprintf(buf, "%d", pwm->__polarity ? 1 : 0);
+}
+
+static ssize_t pwm_write_polarity(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct pwm_t * pwm = (struct pwm_t *)kobj->priv;
+	int polarity = strtol(buf, NULL, 0);
+	pwm_config(pwm, pwm->__duty, pwm->__period, (polarity != 0) ? TRUE : FALSE);
 	return size;
 }
 
@@ -114,13 +128,15 @@ bool_t register_pwm(struct pwm_t * pwm)
 	if(!pl)
 		return FALSE;
 
+	pwm->__enable = FALSE;
 	pwm->__duty = 0;
 	pwm->__period = 0;
-	pwm->__enable = FALSE;
+	pwm->__polarity = FALSE;
 	pwm->kobj = kobj_alloc_directory(pwm->name);
+	kobj_add_regular(pwm->kobj, "enable", pwm_read_enable, pwm_write_enable, pwm);
 	kobj_add_regular(pwm->kobj, "duty", pwm_read_duty, pwm_write_duty, pwm);
 	kobj_add_regular(pwm->kobj, "period", pwm_read_period, pwm_write_period, pwm);
-	kobj_add_regular(pwm->kobj, "enable", pwm_read_enable, pwm_write_enable, pwm);
+	kobj_add_regular(pwm->kobj, "polarity", pwm_read_polarity, pwm_write_polarity, pwm);
 	kobj_add(search_class_pwm_kobj(), pwm->kobj);
 	pl->pwm = pwm;
 
@@ -156,32 +172,35 @@ bool_t unregister_pwm(struct pwm_t * pwm)
 	return FALSE;
 }
 
-void pwm_start(struct pwm_t * pwm, u32_t duty, u32_t period)
-{
-	if(pwm && pwm->start)
-	{
-		pwm->start(pwm, duty, period);
-		pwm->__enable = TRUE;
-	}
-}
-
-void pwm_config(struct pwm_t * pwm, u32_t duty, u32_t period)
+void pwm_config(struct pwm_t * pwm, u32_t duty, u32_t period, bool_t polarity)
 {
 	if(pwm && pwm->config)
 	{
 		if(duty > period)
 			duty = period;
-		pwm->config(pwm, duty, period);
+		pwm->config(pwm, duty, period, polarity);
 		pwm->__duty = duty;
 		pwm->__period = period;
+		pwm->__polarity = polarity;
 	}
 }
 
-void pwm_stop(struct pwm_t * pwm)
+void pwm_enable(struct pwm_t * pwm)
 {
-	if(pwm && pwm->stop)
+	if(pwm && pwm->enable)
 	{
-		pwm->stop(pwm);
+		if((pwm->__duty == 0) && (pwm->__period == 0))
+			pwm_config(pwm, 1000000 / 2, 1000000, FALSE);
+		pwm->enable(pwm);
+		pwm->__enable = TRUE;
+	}
+}
+
+void pwm_disable(struct pwm_t * pwm)
+{
+	if(pwm && pwm->disable)
+	{
+		pwm->disable(pwm);
 		pwm->__enable = FALSE;
 	}
 }

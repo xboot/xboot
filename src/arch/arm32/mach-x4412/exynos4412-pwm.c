@@ -26,62 +26,114 @@
 #include <exynos4412/reg-gpio.h>
 #include <exynos4412/reg-timer.h>
 
+#define TCON_START(ch)				(0x1 << (4 * ch + 0))
+#define TCON_MANUALUPDATE(ch)		(0x1 << (4 * ch + 1))
+#define TCON_INVERT(ch)				(0x1 << (4 * ch + 2))
+#define TCON_AUTORELOAD(ch)			(0x1 << (4 * ch + 3))
+
 struct exynos4412_pwm_data_t
 {
 	const char * name;
+	int id;
 	int gpio;
 	physical_addr_t regbase;
-
-	u64_t __clk;
 };
 
 static struct exynos4412_pwm_data_t pwm_datas[] = {
 	{
 		.name		= "pwm0",
+		.id			= 0,
 		.gpio		= EXYNOS4412_GPD0(0),
 		.regbase	= EXYNOS4412_TIMER0_BASE,
 	}, {
 		.name		= "pwm1",
+		.id			= 1,
 		.gpio		= EXYNOS4412_GPD0(1),
 		.regbase	= EXYNOS4412_TIMER1_BASE,
 	},
 	{
 		.name		= "pwm2",
+		.id			= 2,
 		.gpio		= EXYNOS4412_GPD0(2),
 		.regbase	= EXYNOS4412_TIMER2_BASE,
 	},
 	{
 		.name		= "pwm3",
+		.id			= 3,
 		.gpio		= EXYNOS4412_GPD0(3),
 		.regbase	= EXYNOS4412_TIMER3_BASE,
 	},
 };
 
-static void exynos4412_pwm_config(struct pwm_t * pwm, u32_t duty, u32_t period)
+static u64_t exynos4412_pwm_calc_tin(struct pwm_t * pwm, u32_t period)
 {
 	struct exynos4412_pwm_data_t * dat = (struct exynos4412_pwm_data_t *)pwm->priv;
-	u32_t val;
+	u64_t rate, freq = 1000000000L / period;
+	u8_t div, shift;
 
-	if(pwm->__duty != duty)
+	if(dat->id < 2)
+		rate = clk_get_rate("DIV-PRESCALER0");
+	else
+		rate = clk_get_rate("DIV-PRESCALER1");
+
+	for(div = 0; div < 4; div++)
 	{
-		val = dat->__clk * duty / 1000000000L;
-		writel(dat->regbase + EXYNOS4412_TCMPB, val);
+		if((rate >> div) < freq)
+			break;
 	}
 
-	if(pwm->__period != period)
-	{
-		val = dat->__clk * period / 1000000000L;
-		writel(dat->regbase + EXYNOS4412_TCNTB, val);
-	}
+	shift = dat->id * 4;
+	writel(EXYNOS4412_TCFG1, (readl(EXYNOS4412_TCFG1) & ~(0xf<<shift)) | (div<<shift));
 
-	writel(EXYNOS4412_TCON, (readl(EXYNOS4412_TCON) & ~(0x1 << 1)) | (0x1 << 1));
-	writel(EXYNOS4412_TCON, (readl(EXYNOS4412_TCON) & ~(0x1 << 1)) | (0x0 << 1));
+	return rate >> div;
 }
 
-static void exynos4412_pwm_start(struct pwm_t * pwm, u32_t duty, u32_t period)
+static void exynos4412_pwm_config(struct pwm_t * pwm, u32_t duty, u32_t period, bool_t polarity)
 {
 	struct exynos4412_pwm_data_t * dat = (struct exynos4412_pwm_data_t *)pwm->priv;
-	u32_t val;
+	u64_t rate;
+	u32_t tcnt, tcmp;
+	u32_t tcon;
+
+	if((pwm->__duty != duty) || (pwm->__period != period))
+	{
+		rate = exynos4412_pwm_calc_tin(pwm, period);
+
+		if(pwm->__duty != duty)
+		{
+			tcmp = rate * duty / 1000000000L;
+			writel(dat->regbase + EXYNOS4412_TCMPB, tcmp);
+		}
+
+		if(pwm->__period != period)
+		{
+			tcnt = rate * period / 1000000000L;
+			writel(dat->regbase + EXYNOS4412_TCNTB, tcnt);
+		}
+
+		tcon = readl(EXYNOS4412_TCON);
+		tcon |= TCON_MANUALUPDATE(dat->id);
+		writel(EXYNOS4412_TCON, tcon);
+
+		tcon &= ~TCON_MANUALUPDATE(dat->id);
+		writel(EXYNOS4412_TCON, tcon);
+	}
+
+	if(pwm->__polarity != polarity)
+	{
+		tcon = readl(EXYNOS4412_TCON);
+		if(polarity)
+			tcon |= TCON_INVERT(dat->id);
+		else
+			tcon &= ~TCON_INVERT(dat->id);
+		writel(EXYNOS4412_TCON, tcon);
+	}
+}
+
+static void exynos4412_pwm_enable(struct pwm_t * pwm)
+{
+	struct exynos4412_pwm_data_t * dat = (struct exynos4412_pwm_data_t *)pwm->priv;
+	u32_t tcon;
 
 	if(pwm->__enable == TRUE)
 		return;
@@ -89,78 +141,37 @@ static void exynos4412_pwm_start(struct pwm_t * pwm, u32_t duty, u32_t period)
 	gpio_set_cfg(dat->gpio, 0x2);
 	gpio_set_pull(dat->gpio, GPIO_PULL_UP);
 
-	val = readl(EXYNOS4412_TCON);
-	if(strcmp(dat->name, "pwm0") == 0)
-	{
-		val &= ~(0xf << 0);
-		val |= (0x9 << 0);
-
-		writel(EXYNOS4412_TCFG1, (readl(EXYNOS4412_TCFG1) & ~(0xf<<0)) | (0x0<<0));
+	if(dat->id < 2)
 		clk_enable("DIV-PRESCALER0");
-		dat->__clk = clk_get_rate("DIV-PRESCALER0");
-	}
-	else if(strcmp(dat->name, "pwm1") == 0)
-	{
-		val &= ~(0xf << 8);
-		val |= (0x9 << 8);
-
-		writel(EXYNOS4412_TCFG1, (readl(EXYNOS4412_TCFG1) & ~(0xf<<4)) | (0x0<<4));
-		clk_enable("DIV-PRESCALER0");
-		dat->__clk = clk_get_rate("DIV-PRESCALER0");
-	}
-	else if(strcmp(dat->name, "pwm2") == 0)
-	{
-		val &= ~(0xf << 12);
-		val |= (0x9 << 12);
-
-		writel(EXYNOS4412_TCFG1, (readl(EXYNOS4412_TCFG1) & ~(0xf<<8)) | (0x0<<8));
+	else
 		clk_enable("DIV-PRESCALER1");
-		dat->__clk = clk_get_rate("DIV-PRESCALER1");
-	}
-	else if(strcmp(dat->name, "pwm3") == 0)
-	{
-		val &= ~(0xf << 16);
-		val |= (0x9 << 16);
 
-		writel(EXYNOS4412_TCFG1, (readl(EXYNOS4412_TCFG1) & ~(0xf<<12)) | (0x0<<12));
-		clk_enable("DIV-PRESCALER1");
-		dat->__clk = clk_get_rate("DIV-PRESCALER1");
-	}
+	tcon = readl(EXYNOS4412_TCON);
+	tcon &= ~TCON_START(dat->id);
+	tcon |= TCON_MANUALUPDATE(dat->id);
+	writel(EXYNOS4412_TCON, tcon);
 
-	exynos4412_pwm_config(pwm, duty, period);
-	writel(EXYNOS4412_TCON, val);
+	tcon &= ~TCON_MANUALUPDATE(dat->id);
+	tcon |= TCON_START(dat->id) | TCON_AUTORELOAD(dat->id);
+	writel(EXYNOS4412_TCON, tcon);
 }
 
-static void exynos4412_pwm_stop(struct pwm_t * pwm)
+static void exynos4412_pwm_disable(struct pwm_t * pwm)
 {
 	struct exynos4412_pwm_data_t * dat = (struct exynos4412_pwm_data_t *)pwm->priv;
-	u32_t val;
+	u32_t tcon;
 
 	if(pwm->__enable == FALSE)
 		return;
 
-	val = readl(EXYNOS4412_TCON);
-	if(strcmp(dat->name, "pwm0") == 0)
-	{
-		val &= ~(0x1 << 0);
+	tcon = readl(EXYNOS4412_TCON);
+	tcon &= ~TCON_AUTORELOAD(dat->id);
+	writel(EXYNOS4412_TCON, tcon);
+
+	if(dat->id < 2)
 		clk_disable("DIV-PRESCALER0");
-	}
-	else if(strcmp(dat->name, "pwm1") == 0)
-	{
-		val &= ~(0x1 << 8);
-		clk_disable("DIV-PRESCALER0");
-	}
-	else if(strcmp(dat->name, "pwm2") == 0)
-	{
-		val &= ~(0x1 << 12);
+	else
 		clk_disable("DIV-PRESCALER1");
-	}
-	else if(strcmp(dat->name, "pwm3") == 0)
-	{
-		val &= ~(0x1 << 16);
-		clk_disable("DIV-PRESCALER1");
-	}
-	writel(EXYNOS4412_TCON, val);
 }
 
 static __init void exynos4412_pwm_init(void)
@@ -175,9 +186,9 @@ static __init void exynos4412_pwm_init(void)
 			continue;
 
 		pwm->name = pwm_datas[i].name;
-		pwm->start = exynos4412_pwm_start;
 		pwm->config = exynos4412_pwm_config;
-		pwm->stop = exynos4412_pwm_stop;
+		pwm->enable = exynos4412_pwm_enable;
+		pwm->disable = exynos4412_pwm_disable;
 		pwm->priv = &pwm_datas[i];
 
 		if(register_pwm(pwm))

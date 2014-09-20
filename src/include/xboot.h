@@ -51,8 +51,9 @@ extern "C" {
 #include <xboot/event.h>
 #include <xboot/printk.h>
 #include <logger/logger.h>
-#include <clk/clk.h>
 #include <gpio/gpio.h>
+#include <clk/clk.h>
+#include <clocksource/clocksource.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <time/delay.h>

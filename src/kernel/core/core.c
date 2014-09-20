@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <clocksource/clocksource.h>
 #include <time/tick.h>
 #include <time/delay.h>
 

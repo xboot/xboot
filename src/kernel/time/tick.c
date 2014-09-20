@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <clocksource/clocksource.h>
 #include <time/tick.h>
 
 static struct tick_t * __tick = NULL;
@@ -70,13 +69,6 @@ u64_t usecs_to_jiffies(const u64_t u)
 }
 EXPORT_SYMBOL(usecs_to_jiffies);
 
-u64_t clock_gettime(void)
-{
-	if(HZ > 0)
-		return (u64_t)jiffies * 1000000L / HZ;
-	return 0;
-}
-
 bool_t register_tick(struct tick_t * tick)
 {
 	if( tick && (tick->hz > 0) && (tick->init != NULL))
@@ -93,7 +85,7 @@ bool_t register_tick(struct tick_t * tick)
 
 static void __cs_tick_init(struct clocksource_t * cs)
 {
-	clocks_calc_mult_shift(&cs->mult, &cs->shift, HZ, 1000000000L, 60);
+	clocks_calc_mult_shift(&cs->mult, &cs->shift, HZ, 1000000L, 10);
 }
 
 static u64_t __cs_tick_read(struct clocksource_t * cs)

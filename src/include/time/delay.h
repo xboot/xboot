@@ -8,7 +8,6 @@ extern "C" {
 #include <xboot.h>
 
 bool_t is_timeout(u64_t start, u64_t offset);
-void ndelay(u32_t ns);
 void udelay(u32_t us);
 void mdelay(u32_t ms);
 

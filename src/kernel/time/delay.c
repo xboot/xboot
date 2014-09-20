@@ -25,7 +25,6 @@
  *
  */
 
-#include <clocksource/clocksource.h>
 #include <time/delay.h>
 
 static inline bool_t __is_timeout(u64_t start, u64_t offset)
@@ -38,7 +37,7 @@ static inline bool_t __is_timeout(u64_t start, u64_t offset)
 
 bool_t is_timeout(u64_t start, u64_t offset)
 {
-	if(offset >= 100000)
+	if(offset >= 100)
 	{
 		//poller_call();
 	}
@@ -46,23 +45,16 @@ bool_t is_timeout(u64_t start, u64_t offset)
 }
 EXPORT_SYMBOL(is_timeout);
 
-void ndelay(u32_t ns)
-{
-	u64_t start = clocksource_gettime();
-	while(!__is_timeout(start, ns));
-}
-EXPORT_SYMBOL(ndelay);
-
 void udelay(u32_t us)
 {
 	u64_t start = clocksource_gettime();
-	while(!is_timeout(start, us * (u64_t)1000));
+	while(!is_timeout(start, us));
 }
 EXPORT_SYMBOL(udelay);
 
 void mdelay(u32_t ms)
 {
 	u64_t start = clocksource_gettime();
-	while(!is_timeout(start, ms * (u64_t)1000000));
+	while(!is_timeout(start, ms * (u64_t)1000));
 }
 EXPORT_SYMBOL(mdelay);

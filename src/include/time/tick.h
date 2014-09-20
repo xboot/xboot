@@ -23,12 +23,11 @@ struct tick_t {
 	bool_t (*init)(void);
 };
 
+void tick_interrupt(void);
 u64_t jiffies_to_msecs(const u64_t j);
 u64_t jiffies_to_usecs(const u64_t j);
 u64_t msecs_to_jiffies(const u64_t m);
 u64_t usecs_to_jiffies(const u64_t u);
-u64_t clock_gettime(void);
-void tick_interrupt(void);
 bool_t register_tick(struct tick_t * tick);
 bool_t init_system_tick(void);
 

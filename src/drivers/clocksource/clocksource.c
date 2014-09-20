@@ -52,7 +52,7 @@ static u64_t __cs_dummy_read(struct clocksource_t * cs)
 static struct clocksource_t __cs_dummy = {
 	.name	= "dummy-cs",
 	.shift	= 0,
-	.mult	= 1000000,
+	.mult	= 1000,
 	.mask	= CLOCKSOURCE_MASK(64),
 	.last	= 0,
 	.time	= 0,
@@ -194,7 +194,7 @@ void clocks_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u
 
 u32_t clocksource_hz2mult(u32_t hz, u32_t shift)
 {
-	u64_t t = ((u64_t)1000000000) << shift;
+	u64_t t = ((u64_t)1000000) << shift;
 
 	t += hz / 2;
 	t = t / hz;

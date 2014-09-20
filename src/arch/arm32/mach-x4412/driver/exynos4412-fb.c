@@ -570,7 +570,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 {
 	if(render)
 	{
-		sw_render_destroy_priv_data(render);
+		sw_render_destroy_data(render);
 		dma_free_coherent(render->pixels, render->pixlen);
 		free(render);
 	}

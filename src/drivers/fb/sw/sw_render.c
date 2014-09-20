@@ -31,7 +31,7 @@ void sw_render_create_data(struct render_t * render)
 	render->data = pixman_image_create_bits_no_clear(pixel_format_to_pixman_format_code(render->format), render->width, render->height, render->pixels, render->pitch);
 }
 
-void sw_render_destroy_priv_data(struct render_t * render)
+void sw_render_destroy_data(struct render_t * render)
 {
 	if(!render)
 		return;

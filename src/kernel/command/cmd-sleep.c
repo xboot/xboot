@@ -27,7 +27,6 @@
 #include <string.h>
 #include <version.h>
 #include <stdlib.h>
-#include <time/delay.h>
 #include <shell/ctrlc.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>

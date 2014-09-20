@@ -24,7 +24,6 @@
 
 #include <xboot.h>
 #include <cairo-xboot.h>
-#include <time/delay.h>
 #include <xboot/menu.h>
 #include <console/console.h>
 #include <fb/fb.h>

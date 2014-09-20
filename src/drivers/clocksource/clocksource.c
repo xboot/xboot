@@ -88,6 +88,40 @@ struct clocksource_t * get_clocksource(void)
 	return __current_clocksource;
 }
 
+void clocks_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec)
+{
+	u32_t sft, sftacc = 32;
+	u64_t t;
+
+	t = ((u64_t) maxsec * from) >> 32;
+	while(t)
+	{
+		t >>= 1;
+		sftacc--;
+	}
+
+	for(sft = 32; sft > 0; sft--)
+	{
+		t = (u64_t)to << sft;
+		t += from / 2;
+		t = t / from;
+		if((t >> sftacc) == 0)
+			break;
+	}
+
+	*mult = t;
+	*shift = sft;
+}
+
+u32_t clocksource_hz2mult(u32_t hz, u32_t shift)
+{
+	u64_t t = ((u64_t)1000000) << shift;
+
+	t += hz / 2;
+	t = t / hz;
+	return (u32_t)t;
+}
+
 bool_t register_clocksource(struct clocksource_t * cs)
 {
 	struct clocksource_list_t * cl;
@@ -167,40 +201,6 @@ bool_t init_system_clocksource(void)
 	return TRUE;
 }
 
-void clocks_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec)
-{
-	u32_t sft, sftacc = 32;
-	u64_t t;
-
-	t = ((u64_t) maxsec * from) >> 32;
-	while(t)
-	{
-		t >>= 1;
-		sftacc--;
-	}
-
-	for(sft = 32; sft > 0; sft--)
-	{
-		t = (u64_t)to << sft;
-		t += from / 2;
-		t = t / from;
-		if((t >> sftacc) == 0)
-			break;
-	}
-
-	*mult = t;
-	*shift = sft;
-}
-
-u32_t clocksource_hz2mult(u32_t hz, u32_t shift)
-{
-	u64_t t = ((u64_t)1000000) << shift;
-
-	t += hz / 2;
-	t = t / hz;
-	return (u32_t)t;
-}
-
 u64_t clocksource_gettime(void)
 {
 	struct clocksource_t * cs = __current_clocksource;
@@ -213,3 +213,30 @@ u64_t clocksource_gettime(void)
 
 	return cs->time;
 }
+EXPORT_SYMBOL(clocksource_gettime);
+
+bool_t is_timeout(u64_t start, u64_t offset)
+{
+	/*
+ 	if(offset >= 100)
+		poller_call();
+	*/
+	if((int64_t)(start + offset - clocksource_gettime()) < 0)
+		return TRUE;
+	return FALSE;
+}
+EXPORT_SYMBOL(is_timeout);
+
+void udelay(u32_t us)
+{
+	u64_t start = clocksource_gettime();
+	while(!is_timeout(start, us));
+}
+EXPORT_SYMBOL(udelay);
+
+void mdelay(u32_t ms)
+{
+	u64_t start = clocksource_gettime();
+	while(!is_timeout(start, ms * (u64_t)1000));
+}
+EXPORT_SYMBOL(mdelay);

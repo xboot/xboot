@@ -23,8 +23,6 @@
  */
 
 #include <xboot.h>
-#include <time/tick.h>
-#include <time/delay.h>
 
 static __init void core_init(void)
 {

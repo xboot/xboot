@@ -28,7 +28,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <version.h>
-#include <time/delay.h>
 #include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>

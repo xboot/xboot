@@ -50,7 +50,7 @@ static u64_t __cs_dummy_read(struct clocksource_t * cs)
 }
 
 static struct clocksource_t __cs_dummy = {
-	.name	= "dummy",
+	.name	= "dummy-cs",
 	.shift	= 0,
 	.mult	= 1000000,
 	.mask	= CLOCKSOURCE_MASK(64),
@@ -81,6 +81,11 @@ static struct clocksource_t * search_clocksource(const char * name)
 	}
 
 	return NULL;
+}
+
+struct clocksource_t * get_clocksource(void)
+{
+	return __current_clocksource;
 }
 
 bool_t register_clocksource(struct clocksource_t * cs)
@@ -160,6 +165,31 @@ bool_t init_system_clocksource(void)
 	}
 
 	return TRUE;
+}
+
+void clocks_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec)
+{
+	u32_t sft, sftacc = 32;
+	u64_t t;
+
+	t = ((u64_t) maxsec * from) >> 32;
+	while(t)
+	{
+		t >>= 1;
+		sftacc--;
+	}
+
+	for(sft = 32; sft > 0; sft--)
+	{
+		t = (u64_t)to << sft;
+		t += from / 2;
+		t = t / from;
+		if((t >> sftacc) == 0)
+			break;
+	}
+
+	*mult = t;
+	*shift = sft;
 }
 
 u32_t clocksource_hz2mult(u32_t hz, u32_t shift)

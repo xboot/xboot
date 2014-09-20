@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <clocksource/clocksource.h>
 #include <time/tick.h>
 
 static struct tick_t * __tick = NULL;
@@ -32,6 +33,14 @@ EXPORT_SYMBOL(jiffies);
 
 volatile u32_t HZ = 0;
 EXPORT_SYMBOL(HZ);
+
+inline void tick_interrupt(void)
+{
+	jiffies++;
+
+	extern void exec_timer_task(void);
+	exec_timer_task();
+}
 
 u64_t jiffies_to_msecs(const u64_t j)
 {
@@ -68,14 +77,6 @@ u64_t clock_gettime(void)
 	return 0;
 }
 
-inline void tick_interrupt(void)
-{
-	jiffies++;
-
-	extern void exec_timer_task(void);
-	exec_timer_task();
-}
-
 bool_t register_tick(struct tick_t * tick)
 {
 	if( tick && (tick->hz > 0) && (tick->init != NULL))
@@ -90,6 +91,31 @@ bool_t register_tick(struct tick_t * tick)
 	}
 }
 
+static void __cs_tick_init(struct clocksource_t * cs)
+{
+	clocks_calc_mult_shift(&cs->mult, &cs->shift, HZ, 1000000000L, 60);
+}
+
+static u64_t __cs_tick_read(struct clocksource_t * cs)
+{
+	return (u64_t)(jiffies);
+}
+
+static struct clocksource_t __cs_tick = {
+	.name	= "tick-cs",
+	.mask	= CLOCKSOURCE_MASK(32),
+	.init	= __cs_tick_init,
+	.read	= __cs_tick_read,
+};
+
+static void tick_clocksource_init(void)
+{
+	if(register_clocksource(&__cs_tick))
+		LOG("Register clocksource");
+	else
+		LOG("Failed to register clocksource");
+}
+
 bool_t init_system_tick(void)
 {
 	HZ = 0;
@@ -102,5 +128,7 @@ bool_t init_system_tick(void)
 		return FALSE;
 
 	HZ = __tick->hz;
+	tick_clocksource_init();
+
 	return TRUE;
 }

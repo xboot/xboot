@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <clocksource/clocksource.h>
 #include <time/tick.h>
 #include <time/delay.h>
 
@@ -48,11 +49,11 @@ static __init void core_init(void)
 
 	if(init_system_clocksource())
 	{
-		LOG("Initial system clocksource");
+		LOG("Initial system clocksource [%s]", get_clocksource()->name);
 	}
 	else
 	{
-		LOG("No system tick");
+		LOG("No system clocksource");
 	}
 }
 subsys_initcall(core_init);

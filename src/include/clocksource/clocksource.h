@@ -24,10 +24,11 @@ struct clocksource_t
 	void * pirv;
 };
 
+struct clocksource_t * get_clocksource(void);
 bool_t register_clocksource(struct clocksource_t * cs);
 bool_t unregister_clocksource(struct clocksource_t * cs);
 bool_t init_system_clocksource(void);
-
+void clocks_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec);
 u32_t clocksource_hz2mult(u32_t hz, u32_t shift);
 u64_t clocksource_gettime(void);
 

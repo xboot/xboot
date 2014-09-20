@@ -26,8 +26,6 @@
 #include <time/tick.h>
 #include <time/delay.h>
 
-extern void calibrate_delay(void);
-
 static __init void core_init(void)
 {
 	if(init_system_machine())
@@ -41,8 +39,16 @@ static __init void core_init(void)
 
 	if(init_system_tick())
 	{
-		LOG("Initial system tick and calibrate delay");
-		calibrate_delay();
+		LOG("Initial system tick");
+	}
+	else
+	{
+		LOG("No system tick");
+	}
+
+	if(init_system_clocksource())
+	{
+		LOG("Initial system clocksource");
 	}
 	else
 	{

@@ -39,13 +39,35 @@ struct clocksource_list_t __clocksource_list = {
 };
 static spinlock_t __clocksource_list_lock = SPIN_LOCK_INIT();
 
+/*
+ * Dummy clocksource
+ */
+static volatile u64_t __cs_dummy_counter = 0;
+static u64_t __cs_dummy_read(struct clocksource_t * cs)
+{
+	__cs_dummy_counter += 1;
+	return __cs_dummy_counter;
+}
+
+static struct clocksource_t __cs_dummy = {
+	.name	= "dummy",
+	.shift	= 0,
+	.mult	= 1000000,
+	.mask	= CLOCKSOURCE_MASK(64),
+	.last	= 0,
+	.time	= 0,
+	.init	= NULL,
+	.read	= __cs_dummy_read,
+};
+static struct clocksource_t * __current_clocksource = &__cs_dummy;
+
 static struct kobj_t * search_class_clocksource_kobj(void)
 {
 	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
 	return kobj_search_directory_with_create(kclass, "clocksource");
 }
 
-struct clocksource_t * search_clocksource(const char * name)
+static struct clocksource_t * search_clocksource(const char * name)
 {
 	struct clocksource_list_t * pos, * n;
 
@@ -76,6 +98,8 @@ bool_t register_clocksource(struct clocksource_t * cs)
 		return FALSE;
 
 	cs->kobj = kobj_alloc_directory(cs->name);
+	cs->last = 0;
+	cs->time = 0;
 	kobj_add(search_class_clocksource_kobj(), cs->kobj);
 	cl->cs = cs;
 
@@ -109,4 +133,53 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 	}
 
 	return FALSE;
+}
+
+bool_t init_system_clocksource(void)
+{
+	struct clocksource_list_t * pos, * n;
+	struct clocksource_t * cs;
+	u64_t period = ~0;
+	u64_t t;
+
+	list_for_each_entry_safe(pos, n, &(__clocksource_list.entry), entry)
+	{
+		cs = pos->cs;
+		if(!cs)
+			continue;
+
+		if(cs->init)
+			cs->init(cs);
+
+		t = (cs->mult) >> cs->shift;
+		if(t < period)
+		{
+			__current_clocksource = cs;
+			period = t;
+		}
+	}
+
+	return TRUE;
+}
+
+u32_t clocksource_hz2mult(u32_t hz, u32_t shift)
+{
+	u64_t t = ((u64_t)1000000000) << shift;
+
+	t += hz / 2;
+	t = t / hz;
+	return (u32_t)t;
+}
+
+u64_t clocksource_gettime(void)
+{
+	struct clocksource_t * cs = __current_clocksource;
+	u64_t now, delta;
+
+	now = cs->read(cs) & cs->mask;
+	delta = (now - cs->last) & cs->mask;
+	cs->time += ((delta * cs->mult) >> cs->shift);
+	cs->last = now;
+
+	return cs->time;
 }

@@ -28,7 +28,11 @@
 
 static void realview_cs_init(struct clocksource_t * cs)
 {
+	u64_t rate;
+
 	clk_enable("timclk");
+	rate = clk_get_rate("timclk");
+	cs->mult = clocksource_hz2mult(rate, cs->shift);
 
 	writel(REALVIEW_T0_CTRL, 0);
 	writel(REALVIEW_T0_LOAD, 0xffffffff);
@@ -44,8 +48,7 @@ static u64_t realview_cs_read(struct clocksource_t * cs)
 
 static struct clocksource_t realview_cs = {
 	.name	= "realview-cs",
-	.rating = 100,
-	.last	= 0,
+	.shift	= 20,
 	.mask	= CLOCKSOURCE_MASK(32),
 	.init	= realview_cs_init,
 	.read	= realview_cs_read,

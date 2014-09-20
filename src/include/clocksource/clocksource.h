@@ -17,7 +17,6 @@ struct clocksource_t
 	u32_t mult;
 	u64_t mask;
 	u64_t last;
-	u64_t time;
 
 	void (*init)(struct clocksource_t * cs);
 	u64_t (*read)(struct clocksource_t * cs);

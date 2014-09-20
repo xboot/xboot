@@ -30,11 +30,7 @@ struct stopwatch_t {
 
 static double __time_stamp(void)
 {
-	static volatile double __time_ho_hz = 0;
-	if(HZ > 0)
-		return (double)jiffies / HZ;
-	__time_ho_hz += 0.001;
-	return __time_ho_hz;
+	return ((double)clocksource_gettime() / (double)1000000.0);
 }
 
 static int l_new(lua_State * L)

@@ -55,7 +55,6 @@ static struct clocksource_t __cs_dummy = {
 	.mult	= 1000,
 	.mask	= CLOCKSOURCE_MASK(64),
 	.last	= 0,
-	.time	= 0,
 	.init	= NULL,
 	.read	= __cs_dummy_read,
 };
@@ -138,7 +137,6 @@ bool_t register_clocksource(struct clocksource_t * cs)
 
 	cs->kobj = kobj_alloc_directory(cs->name);
 	cs->last = 0;
-	cs->time = 0;
 	kobj_add(search_class_clocksource_kobj(), cs->kobj);
 	cl->cs = cs;
 
@@ -203,15 +201,16 @@ bool_t init_system_clocksource(void)
 
 u64_t clocksource_gettime(void)
 {
+	static volatile u64_t time_us = 0;
 	struct clocksource_t * cs = __current_clocksource;
 	u64_t now, delta;
 
 	now = cs->read(cs) & cs->mask;
 	delta = (now - cs->last) & cs->mask;
-	cs->time += ((delta * cs->mult) >> cs->shift);
 	cs->last = now;
+	time_us += ((delta * cs->mult) >> cs->shift);
 
-	return cs->time;
+	return time_us;
 }
 EXPORT_SYMBOL(clocksource_gettime);
 

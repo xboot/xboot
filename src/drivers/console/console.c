@@ -478,5 +478,5 @@ static __exit void console_stdio_device_exit(void)
 	resource_for_each_with_name("console", console_stdio_unregister);
 }
 
-device_sync_initcall(console_stdio_device_init);
-device_sync_exitcall(console_stdio_device_exit);
+postdevice_initcall(console_stdio_device_init);
+postdevice_exitcall(console_stdio_device_exit);

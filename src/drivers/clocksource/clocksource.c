@@ -66,13 +66,33 @@ static struct kobj_t * search_class_clocksource_kobj(void)
 	return kobj_search_directory_with_create(kclass, "clocksource");
 }
 
+static ssize_t classsource_read_mult(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
+	return sprintf(buf, "%u", cs->mult);
+}
+
+static ssize_t classsource_read_shift(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
+	return sprintf(buf, "%u", cs->shift);
+}
+
 static ssize_t classsource_read_count(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t count;
-
 	count = cs->read(cs) & cs->mask;
 	return sprintf(buf, "%llu", count);
+}
+
+static ssize_t classsource_read_time(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
+	u64_t count, time;
+	count = cs->read(cs) & cs->mask;
+	time = (count * cs->mult) >> cs->shift;
+	return sprintf(buf, "%llu", time);
 }
 
 static struct clocksource_t * search_clocksource(const char * name)
@@ -141,7 +161,10 @@ bool_t register_clocksource(struct clocksource_t * cs)
 
 	cs->last = 0;
 	cs->kobj = kobj_alloc_directory(cs->name);
+	kobj_add_regular(cs->kobj, "mult", classsource_read_mult, NULL, cs);
+	kobj_add_regular(cs->kobj, "shift", classsource_read_shift, NULL, cs);
 	kobj_add_regular(cs->kobj, "count", classsource_read_count, NULL, cs);
+	kobj_add_regular(cs->kobj, "time", classsource_read_time, NULL, cs);
 	kobj_add(search_class_clocksource_kobj(), cs->kobj);
 	cl->cs = cs;
 

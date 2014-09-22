@@ -1,5 +1,5 @@
 /*
- * kernel/core/core.c
+ * kernel/core/subsys.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,33 +24,10 @@
 
 #include <xboot.h>
 
-static __init void core_init(void)
+static __init void subsys_init(void)
 {
-	if(init_system_machine())
-	{
-		LOG("Found machine [%s]", get_machine()->name);
-	}
-	else
-	{
-		LOG("Not found any machine");
-	}
-
-	if(init_system_tick())
-	{
-		LOG("Initial system tick");
-	}
-	else
-	{
-		LOG("No system tick");
-	}
-
-	if(init_system_clocksource())
-	{
-		LOG("Initial system clocksource [%s]", get_clocksource()->name);
-	}
-	else
-	{
-		LOG("No system clocksource");
-	}
+	subsys_init_machine();
+	subsys_init_tick();
+	subsys_init_clocksource();
 }
-subsys_initcall(core_init);
+subsys_initcall(subsys_init);

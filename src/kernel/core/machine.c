@@ -57,30 +57,6 @@ static struct machine_t * search_machine(const char * name)
 	return NULL;
 }
 
-extern void mmu_setup(struct machine_t * mach);
-bool_t init_system_machine(void)
-{
-	struct machine_list_t * pos, * n;
-
-	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
-	{
-		if(pos->mach->detect && pos->mach->detect())
-		{
-			__machine = pos->mach;
-
-			if(pos->mach->powerup)
-				pos->mach->powerup();
-			if(pos->mach->getmode)
-				xboot_set_mode(pos->mach->getmode());
-
-			mmu_setup(pos->mach);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
 struct machine_t * get_machine(void)
 {
 	return __machine;
@@ -175,4 +151,30 @@ bool_t machine_authentication(void)
 	if(mach && mach->authentication)
 		return mach->authentication();
 	return FALSE;
+}
+
+void subsys_init_machine(void)
+{
+	struct machine_list_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
+	{
+		if(pos->mach->detect && pos->mach->detect())
+		{
+			__machine = pos->mach;
+
+			if(pos->mach->powerup)
+				pos->mach->powerup();
+			if(pos->mach->getmode)
+				xboot_set_mode(pos->mach->getmode());
+
+			extern void mmu_setup(struct machine_t * mach);
+			mmu_setup(pos->mach);
+
+			LOG("Found machine [%s]", get_machine()->name);
+			return;
+		}
+	}
+
+	LOG("Not found any machine");
 }

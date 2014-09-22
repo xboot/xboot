@@ -29,7 +29,8 @@ u64_t jiffies_to_usecs(const u64_t j);
 u64_t msecs_to_jiffies(const u64_t m);
 u64_t usecs_to_jiffies(const u64_t u);
 bool_t register_tick(struct tick_t * tick);
-bool_t init_system_tick(void);
+
+void subsys_init_tick(void);
 
 #ifdef __cplusplus
 }

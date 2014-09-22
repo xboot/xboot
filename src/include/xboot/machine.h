@@ -26,7 +26,6 @@ struct machine_t {
 	enum mode_t (*getmode)(void);
 };
 
-bool_t init_system_machine(void);
 struct machine_t * get_machine(void);
 bool_t register_machine(struct machine_t * mach);
 bool_t unregister_machine(struct machine_t * mach);
@@ -36,6 +35,8 @@ bool_t machine_reset(void);
 bool_t machine_sleep(void);
 bool_t machine_cleanup(void);
 bool_t machine_authentication(void);
+
+void subsys_init_machine(void);
 
 #ifdef __cplusplus
 }

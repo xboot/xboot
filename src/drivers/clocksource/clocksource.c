@@ -66,6 +66,15 @@ static struct kobj_t * search_class_clocksource_kobj(void)
 	return kobj_search_directory_with_create(kclass, "clocksource");
 }
 
+static ssize_t classsource_read_count(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
+	u64_t count;
+
+	count = cs->read(cs) & cs->mask;
+	return sprintf(buf, "%llu", count);
+}
+
 static struct clocksource_t * search_clocksource(const char * name)
 {
 	struct clocksource_list_t * pos, * n;
@@ -82,12 +91,7 @@ static struct clocksource_t * search_clocksource(const char * name)
 	return NULL;
 }
 
-struct clocksource_t * get_clocksource(void)
-{
-	return __current_clocksource;
-}
-
-void clocks_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec)
+void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec)
 {
 	u32_t sft, sftacc = 32;
 	u64_t t;
@@ -135,8 +139,9 @@ bool_t register_clocksource(struct clocksource_t * cs)
 	if(!cl)
 		return FALSE;
 
-	cs->kobj = kobj_alloc_directory(cs->name);
 	cs->last = 0;
+	cs->kobj = kobj_alloc_directory(cs->name);
+	kobj_add_regular(cs->kobj, "count", classsource_read_count, NULL, cs);
 	kobj_add(search_class_clocksource_kobj(), cs->kobj);
 	cl->cs = cs;
 
@@ -172,7 +177,44 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 	return FALSE;
 }
 
-bool_t init_system_clocksource(void)
+u64_t clocksource_gettime(void)
+{
+	static volatile u64_t time_us = 0;
+	struct clocksource_t * cs = __current_clocksource;
+	u64_t now, delta;
+
+	now = cs->read(cs) & cs->mask;
+	delta = (now - cs->last) & cs->mask;
+	cs->last = now;
+	time_us += ((delta * cs->mult) >> cs->shift);
+
+	return time_us;
+}
+EXPORT_SYMBOL(clocksource_gettime);
+
+bool_t is_timeout(u64_t start, u64_t offset)
+{
+	if((int64_t)(start + offset - clocksource_gettime()) < 0)
+		return TRUE;
+	return FALSE;
+}
+EXPORT_SYMBOL(is_timeout);
+
+void udelay(u32_t us)
+{
+	u64_t start = clocksource_gettime();
+	while(!is_timeout(start, us));
+}
+EXPORT_SYMBOL(udelay);
+
+void mdelay(u32_t ms)
+{
+	u64_t start = clocksource_gettime();
+	while(!is_timeout(start, ms * (u64_t)1000));
+}
+EXPORT_SYMBOL(mdelay);
+
+void subsys_init_clocksource(void)
 {
 	struct clocksource_list_t * pos, * n;
 	struct clocksource_t * cs;
@@ -196,46 +238,5 @@ bool_t init_system_clocksource(void)
 		}
 	}
 
-	return TRUE;
+	LOG("Attach system clocksource [%s]", __current_clocksource->name);
 }
-
-u64_t clocksource_gettime(void)
-{
-	static volatile u64_t time_us = 0;
-	struct clocksource_t * cs = __current_clocksource;
-	u64_t now, delta;
-
-	now = cs->read(cs) & cs->mask;
-	delta = (now - cs->last) & cs->mask;
-	cs->last = now;
-	time_us += ((delta * cs->mult) >> cs->shift);
-
-	return time_us;
-}
-EXPORT_SYMBOL(clocksource_gettime);
-
-bool_t is_timeout(u64_t start, u64_t offset)
-{
-	/*
- 	if(offset >= 100)
-		poller_call();
-	*/
-	if((int64_t)(start + offset - clocksource_gettime()) < 0)
-		return TRUE;
-	return FALSE;
-}
-EXPORT_SYMBOL(is_timeout);
-
-void udelay(u32_t us)
-{
-	u64_t start = clocksource_gettime();
-	while(!is_timeout(start, us));
-}
-EXPORT_SYMBOL(udelay);
-
-void mdelay(u32_t ms)
-{
-	u64_t start = clocksource_gettime();
-	while(!is_timeout(start, ms * (u64_t)1000));
-}
-EXPORT_SYMBOL(mdelay);

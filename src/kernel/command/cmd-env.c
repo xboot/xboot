@@ -40,7 +40,6 @@ static int env(int argc, char ** argv)
 {
 	struct environ_t * environ = &(runtime_get()->__environ);
 	struct environ_t * p;
-	bool_t save = FALSE;
 	int i;
 
 	for(i=1; i<argc; ++i)
@@ -49,13 +48,9 @@ static int env(int argc, char ** argv)
 		{
 			putenv(argv[i]);
 		}
-		else if(strcmp(argv[i], "-s") == 0)
-		{
-			save = TRUE;
-		}
 		else
 		{
-			printk("usage:\r\n    env [-s] [NAME=VALUE] ...\r\n");
+			printk("usage:\r\n    env [NAME=VALUE] ...\r\n");
 			return -1;
 		}
 	}
@@ -65,9 +60,6 @@ static int env(int argc, char ** argv)
 		printk(" %s\n", p->content);
 	}
 
-	if(save)
-		saveenv("/etc/environment.xml");
-
 	return 0;
 }
 
@@ -75,9 +67,8 @@ static struct command_t env_cmd = {
 	.name		= "env",
 	.func		= env,
 	.desc		= "display environment variable\r\n",
-	.usage		= "env [-s] [NAME=VALUE] ...\r\n",
-	.help		= "    no arguments for list of all variable.\r\n"
-				  "    -s    save environment variable\r\n"
+	.usage		= "env [NAME=VALUE] ...\r\n",
+	.help		= "    list of all variable.\r\n"
 };
 
 static __init void env_cmd_init(void)

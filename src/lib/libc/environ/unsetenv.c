@@ -2,11 +2,10 @@
  * libc/environ/unsetenv.c
  */
 
-#include <xboot/module.h>
+#include <runtime.h>
 #include <errno.h>
 #include <string.h>
 #include <malloc.h>
-#include <runtime.h>
 #include <environ.h>
 
 int unsetenv(const char * name)
@@ -51,4 +50,3 @@ int unsetenv(const char * name)
 
 	return 0;
 }
-EXPORT_SYMBOL(unsetenv);

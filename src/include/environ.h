@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <types.h>
-
 /*
  * environment variable
  */
@@ -21,9 +19,6 @@ int putenv(const char * str);
 int setenv(const char * name, const char * val, int overwrite);
 int unsetenv(const char * name);
 int clearenv(void);
-
-bool_t loadenv(char * file);
-bool_t saveenv(char * file);
 
 #ifdef __cplusplus
 }

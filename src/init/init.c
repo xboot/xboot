@@ -132,15 +132,6 @@ void do_system_cfg(void)
 	LOG("Load system configure");
 
 	/*
-	 * load environment variable
-	 */
-	if(! loadenv("/etc/environment.xml"))
-	{
-		if(! loadenv("/romdisk/etc/environment.xml"))
-			LOG("Can not load environment variable");
-	}
-
-	/*
 	 * load menu context
 	 */
 	if(! menu_load("/etc/menu.xml"))

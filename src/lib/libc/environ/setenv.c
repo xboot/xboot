@@ -2,9 +2,8 @@
  * libc/environ/setenv.c
  */
 
-#include <xboot/module.h>
-#include <string.h>
 #include <errno.h>
+#include <string.h>
 #include <malloc.h>
 #include <environ.h>
 
@@ -45,4 +44,3 @@ int setenv(const char * name, const char * val, int overwrite)
 
 	return __put_env(s, l1 + 1, overwrite);
 }
-EXPORT_SYMBOL(setenv);

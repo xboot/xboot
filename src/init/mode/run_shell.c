@@ -42,7 +42,7 @@ void run_shell_mode(void)
 
 	do {
 		getcwd(cwd, sizeof(cwd));
-		sprintf(prompt, "%s: %s$ ", getenv("prompt"), cwd);
+		sprintf(prompt, "xboot: %s$ ", cwd);
 
 		p = readline(prompt);
 

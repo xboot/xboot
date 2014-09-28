@@ -10,10 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef printf
-#define printf(fmt, args ...)	fprintf(stdout, #fmt, ##args)
-#endif
-
 #define luac_c
 #define LUA_CORE
 

@@ -102,6 +102,8 @@ FILE * tmpfile(void);
 
 int fprintf(FILE * f, const char * fmt, ...);
 int fscanf(FILE * f, const char * fmt, ...);
+int printf(const char * fmt, ...);
+int scanf(const char * fmt, ...);
 
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
 int vsscanf(const char * buf, const char * fmt, va_list ap);

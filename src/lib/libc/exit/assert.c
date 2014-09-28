@@ -2,12 +2,10 @@
  * libc/exit/assert.c
  */
 
-#include <xboot.h>
-#include <xboot/module.h>
+#include <stdio.h>
 #include <assert.h>
 
-void __assert_fail(const char * file, int line, const char * func, const char * expr)
+void __assert_fail(const char * expr, const char * file, int line, const char * func)
 {
-	fprintf(stderr, "assertion \"%s\" failed: file \"%s\", line %d, function \"%s\"\n", expr, file, line, func);
+	fprintf(stderr, "Assertion failed: %s (%s: %s: %d)\n", expr, file, func, line);
 }
-EXPORT_SYMBOL(__assert_fail);

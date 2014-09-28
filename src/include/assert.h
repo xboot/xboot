@@ -6,12 +6,12 @@ extern "C" {
 #endif
 
 #ifdef DEBUG
-#define	assert(x)	((x) ? (void)0 : __assert_fail(__FILE__, __LINE__, __func__, #x))
+#define assert(x)	((void)((x) || (__assert_fail(#x, __FILE__, __LINE__, __func__), 0)))
 #else
 #define	assert(x)	((void)0)
 #endif
 
-void __assert_fail(const char * file, int line, const char * func, const char * expr);
+void __assert_fail(const char * expr, const char * file, int line, const char * func);
 
 #ifdef __cplusplus
 }

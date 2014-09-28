@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-/*
- * environment variable
- */
 struct environ_t {
 	char * content;
 	struct environ_t * prev;

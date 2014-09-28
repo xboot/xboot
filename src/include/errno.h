@@ -42,19 +42,19 @@ enum {
 };
 
 /*
- * Internal function returning the address of the thread-specific errno
- */
-extern volatile int * __runtime_errno_location(void);
-
-/*
  * A macro expanding to the errno l-value
  */
-#define errno 		(*__runtime_errno_location())
+#define errno 	(*__runtime_errno_location())
+
+/*
+ * Internal function returning the address of the thread-specific errno
+ */
+volatile int * __runtime_errno_location(void);
 
 /*
  * Returns a string containing a message derived from an error code
  */
-char * strerror(int num);
+char * strerror(int e);
 
 #ifdef __cplusplus
 }

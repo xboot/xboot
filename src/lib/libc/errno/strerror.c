@@ -2,155 +2,80 @@
  * libc/errno/strerror.c
  */
 
-#include <xboot/module.h>
 #include <errno.h>
 
-/*
- * Returns a string containing a message derived from an error code
- */
-char * strerror(int num)
+char * strerror(int e)
 {
-	char * p;
-
-	switch(num)
+	switch(e)
 	{
 	case ENOERR:
-		p = "No error";
-		break;
-
+		return "No error";
 	case EDOM:
-		p = "Argument outside domain";
-		break;
-
+		return "Argument outside domain";
 	case ERANGE:
-		p = "Result not representable";
-		break;
-
+		return "Result not representable";
 	case ENOSYS:
-		p = "Function not supported";
-		break;
-
+		return "Function not supported";
 	case EINVAL:
-		p = "Invalid argument";
-		break;
-
+		return "Invalid argument";
 	case ESPIPE:
-		p = "Illegal seek";
-		break;
-
+		return "Illegal seek";
 	case EBADF:
-		p = "Bad file number";
-		break;
-
+		return "Bad file number";
 	case ENOMEM:
-		p = "Out of memory";
-		break;
-
+		return "Out of memory";
 	case EACCES:
-		p = "Permission denied";
-		break;
-
+		return "Permission denied";
 	case ENFILE:
-		p = "File table overflow";
-		break;
-
+		return "File table overflow";
 	case EMFILE:
-		p = "Too many open files";
-		break;
-
+		return "Too many open files";
 	case ENAMETOOLONG:
-		p = "Filename too long";
-		break;
-
+		return "Filename too long";
 	case ELOOP:
-		p = "Too many levels of symbolic links";
-		break;
-
+		return "Too many levels of symbolic links";
 	case ENOMSG:
-		p = "No message of desired type";
-		break;
-
+		return "No message of desired type";
 	case E2BIG:
-		p = "Argument list too long";
-		break;
-
+		return "Argument list too long";
 	case EINTR:
-		p = "Interrupted system call";
-		break;
-
+		return "Interrupted system call";
 	case EILSEQ:
-		p = "Illegal byte sequence";
-		break;
-
+		return "Illegal byte sequence";
 	case ENOEXEC:
-		p = "Exec format error";
-		break;
-
+		return "Exec format error";
 	case ENOENT:
-		p = "No such file or directory";
-		break;
-
+		return "No such file or directory";
 	case EPROTOTYPE:
-		p = "Protocol wrong type for socket";
-		break;
-
+		return "Protocol wrong type for socket";
 	case ESRCH:
-		p = "No such process";
-		break;
-
+		return "No such process";
 	case EPERM:
-		p = "Operation not permitted";
-		break;
-
+		return "Operation not permitted";
 	case ENOTDIR:
-		p = "Not a directory";
-		break;
-
+		return "Not a directory";
 	case ESTALE:
-		p = "Stale NFS file handle";
-		break;
-
+		return "Stale NFS file handle";
 	case EISDIR:
-		p = "Is a directory";
-		break;
-
+		return "Is a directory";
 	case EOPNOTSUPP:
-		p = "Operation not supported on socket";
-		break;
-
+		return "Operation not supported on socket";
 	case ENOTTY:
-		p = "Not a tty";
-		break;
-
+		return "Not a tty";
 	case EAGAIN:
-		p = "Operation would block";
-		break;
-
+		return "Operation would block";
 	case EIO:
-		p = "I/O error";
-		break;
-
+		return "I/O error";
 	case ENOSPC:
-		p = "No space left on device";
-		break;
-
+		return "No space left on device";
 	case EEXIST:
-		p = "File exists";
-		break;
-
+		return "File exists";
 	case EBUSY:
-		p = "Device or resource busy";
-		break;
-
+		return "Device or resource busy";
 	case EOVERFLOW:
-		p = "Value too large for defined data type";
-		break;
-
+		return "Value too large for defined data type";
 	default:
-		p = "Invalid error number";
 		break;
 	}
-
-	return p;
+	return "Invalid error number";
 }
-EXPORT_SYMBOL(strerror);

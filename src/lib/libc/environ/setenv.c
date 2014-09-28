@@ -2,7 +2,6 @@
  * libc/environ/setenv.c
  */
 
-#include <errno.h>
 #include <string.h>
 #include <malloc.h>
 #include <environ.h>
@@ -15,27 +14,21 @@ int setenv(const char * name, const char * val, int overwrite)
 	char *s;
 	size_t l1, l2;
 
-	if (!name || !name[0])
-	{
-		errno = EINVAL;
+	if(!name || !name[0])
 		return -1;
-	}
 
 	l1 = 0;
-	for (z = name; *z; z++)
+	for(z = name; *z; z++)
 	{
 		l1++;
-		if (*z == '=')
-		{
-			errno = EINVAL;
+		if(*z == '=')
 			return -1;
-		}
 	}
 
 	l2 = strlen(val);
 
 	s = malloc(l1 + l2 + 2);
-	if (!s)
+	if(!s)
 		return -1;
 
 	memcpy(s, name, l1);

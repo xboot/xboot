@@ -13,7 +13,7 @@ int clearenv(void)
 	if (!environ)
 		return -1;
 
-	for(p = environ->next; p != environ; )
+	for(p = environ->next; p != environ;)
 	{
 		q = p;
 		p = p->next;

@@ -3,7 +3,6 @@
  */
 
 #include <runtime.h>
-#include <errno.h>
 #include <string.h>
 #include <malloc.h>
 #include <environ.h>
@@ -14,7 +13,7 @@ int __put_env(char * str, size_t len, int overwrite)
 	struct environ_t * env;
 	struct environ_t * p;
 
-	if (!environ)
+	if(!environ)
 		return -1;
 
 	for(p = environ->next; p != environ; p = p->next)
@@ -53,27 +52,21 @@ int putenv(const char * str)
 	char * s;
 	const char * e, * z;
 
-	if (!str)
-	{
-		errno = EINVAL;
+	if(!str)
 		return -1;
-	}
 
 	e = NULL;
-	for (z = str; *z; z++)
+	for(z = str; *z; z++)
 	{
-		if (*z == '=')
+		if(*z == '=')
 			e = z;
 	}
 
-	if (!e)
-	{
-		errno = EINVAL;
+	if(!e)
 		return -1;
-	}
 
 	s = strdup(str);
-	if (!s)
+	if(!s)
 		return -1;
 
 	return __put_env(s, e - str, 1);

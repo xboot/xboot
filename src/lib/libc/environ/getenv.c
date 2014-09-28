@@ -13,13 +13,13 @@ char * getenv(const char * name)
 	struct environ_t * p;
 	int len;
 
-	if (!environ)
+	if(!environ)
 		return NULL;
 
 	len = strlen(name);
 	for(p = environ->next; p != environ; p = p->next)
 	{
-		if (!strncmp(name, p->content, len) && (p->content[len] == '='))
+		if(!strncmp(name, p->content, len) && (p->content[len] == '='))
 		{
 			return p->content + (len + 1);
 		}

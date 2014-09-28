@@ -15,29 +15,23 @@ int unsetenv(const char * name)
 	size_t len;
 	const char * z;
 
-	if (!name || !name[0])
-	{
-		errno = EINVAL;
+	if(!name || !name[0])
 		return -1;
-	}
 
 	len = 0;
-	for (z = name; *z; z++)
+	for(z = name; *z; z++)
 	{
 		len++;
-		if (*z == '=')
-		{
-			errno = EINVAL;
+		if(*z == '=')
 			return -1;
-		}
 	}
 
-	if (!environ)
+	if(!environ)
 		return 0;
 
 	for(p = environ->next; p != environ; p = p->next)
 	{
-		if (!strncmp(name, p->content, len) && (p->content[len] == '='))
+		if(!strncmp(name, p->content, len) && (p->content[len] == '='))
 		{
 			p->next->prev = p->prev;
 			p->prev->next = p->next;

@@ -29,7 +29,7 @@
 #include <shell/exec.h>
 #include <mode/mode.h>
 
-
+#if 0
 struct menu_ctx
 {
 	struct menu_list_t * list;
@@ -190,12 +190,14 @@ static void menu_ctx_free(struct menu_ctx * ctx)
 		free(ctx);
 	}
 }
+#endif
 
 /*
  * running the menu mode
  */
 void run_menu_mode(void)
 {
+#if 0
 	struct menu_item_t * item = NULL;
 	struct menu_ctx * ctx;
 	u32_t code;
@@ -243,4 +245,5 @@ void run_menu_mode(void)
 
 	if(item && item->title && item->command)
 		exec_cmdline(item->command);
+#endif
 }

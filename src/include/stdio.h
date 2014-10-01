@@ -87,6 +87,7 @@ int fsetpos(FILE * f, const fpos_t * pos);
 size_t fread(void * buf, size_t size, size_t count, FILE * f);
 size_t fwrite(const void * buf, size_t size, size_t count, FILE * f);
 
+int getchar(void);
 int getc(FILE * f);
 int fgetc(FILE * f);
 char * fgets(char * s, int n, FILE * f);

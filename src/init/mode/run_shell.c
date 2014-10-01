@@ -26,26 +26,17 @@
 #include <shell/exec.h>
 #include <mode/mode.h>
 
-/*
- * running the shell mode
- */
 void run_shell_mode(void)
 {
 	char * p;
 	char cwd[256];
 	char prompt[256];
 
-	/*
-	 * clear the screen
-	 */
-	console_cls(console_get_stdout());
-
 	do {
 		getcwd(cwd, sizeof(cwd));
 		sprintf(prompt, "xboot: %s$ ", cwd);
 
 		p = readline(prompt);
-
 		exec_cmdline(p);
 		free(p);
 	} while(xboot_get_mode() == MODE_SHELL);

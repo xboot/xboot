@@ -80,7 +80,7 @@ static bool_t mach_authentication(void)
 
 static enum mode_t mach_getmode(void)
 {
-	return MODE_MENU;
+	return MODE_SHELL;
 }
 
 static struct machine_t realview = {

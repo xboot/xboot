@@ -173,16 +173,13 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 
 static int ls(int argc, char ** argv)
 {
-	s32_t width, height;
+	s32_t width = 80, height = 24;
 	u32_t flags = 0;
 	s32_t c = 0;
 	s8_t ** v;
 	s32_t i;
 
 	if( (v = malloc(sizeof(s8_t *) * argc)) == NULL)
-		return -1;
-
-	if(!console_getwh(console_get_stdout(), &width, &height))
 		return -1;
 
 	for(i=1; i<argc; i++)

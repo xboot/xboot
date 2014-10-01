@@ -4,6 +4,7 @@
 
 #include <runtime.h>
 #include <xboot/module.h>
+#include <console/console.h>
 #include <stdio.h>
 
 /*
@@ -11,42 +12,17 @@
  */
 static ssize_t __tty_stdin_read(FILE * f, unsigned char * buf, size_t size)
 {
-	ssize_t cnt = 0;
-	u32_t code;
-
-	while(size > 0)
-	{
-		if(console_stdin_getcode(&code))
-		{
-			*buf = code;
-
-			buf++;
-			cnt++;
-		}
-		size--;
-	}
-
-	return cnt;
+	return console_stdin_read(buf, size);
 }
 
 static ssize_t __tty_stdout_write(FILE * f, const unsigned char * buf, size_t size)
 {
-	size_t i;
-
-	for(i = 0; i < size; i++)
-		console_stdout_putc(*(buf++));
-
-	return size;
+	return console_stdout_write(buf, size);
 }
 
 static ssize_t __tty_stderr_write(FILE * f, const unsigned char * buf, size_t size)
 {
-	size_t i;
-
-	for(i = 0; i < size; i++)
-		console_stderr_putc(*(buf++));
-
-	return size;
+	return console_stderr_write(buf, size);
 }
 
 static ssize_t __tty_null_read(FILE * f, unsigned char * buf, size_t size)
@@ -208,4 +184,3 @@ FILE * __runtime_get_stderr(void)
 	return (runtime_get()->__stderr);
 }
 EXPORT_SYMBOL(__runtime_get_stderr);
-

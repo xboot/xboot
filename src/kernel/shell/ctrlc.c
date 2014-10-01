@@ -23,27 +23,19 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <time/timer.h>
 #include <xboot/module.h>
-#include <xboot/printk.h>
+#include <console/console.h>
 #include <shell/ctrlc.h>
 
-/*
- * check ctrl-c
- */
 bool_t ctrlc(void)
 {
-	u32_t code;
+	unsigned char c = 0;
 
-	if(console_stdin_getcode(&code))
+	if(console_stdin_read(&c, 1) == 1)
 	{
-		if(code == 0x3)
+		if(c == 0x3)
 			return TRUE;
 	}
-
 	return FALSE;
 }
 EXPORT_SYMBOL(ctrlc);

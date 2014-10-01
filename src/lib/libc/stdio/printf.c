@@ -17,6 +17,7 @@ int printf(const char * fmt, ...)
 	va_end(ap);
 
 	rv = (fputs(buf, stdout) < 0) ? 0 : rv;
+	fflush(stdout);
 	return rv;
 }
 EXPORT_SYMBOL(printf);

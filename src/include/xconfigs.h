@@ -184,10 +184,6 @@ extern "C" {
 #define	CONFIG_COMMAND_CAT							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_CONSOLE)
-#define	CONFIG_COMMAND_CONSOLE						(1)
-#endif
-
 #if !defined(CONFIG_COMMAND_LUA)
 #define	CONFIG_COMMAND_LUA							(1)
 #endif

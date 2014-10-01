@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-#include <console/console.h>
-
 int printk(const char * fmt, ...);
 
 #ifdef __cplusplus

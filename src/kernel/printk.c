@@ -23,6 +23,7 @@
  */
 
 #include <xboot/module.h>
+#include <console/console.h>
 #include <xboot/printk.h>
 
 /*
@@ -32,23 +33,13 @@ int printk(const char * fmt, ...)
 {
 	va_list ap;
 	char buf[SZ_4K];
-	char *p;
 	int len;
 
 	va_start(ap, fmt);
 	len = vsnprintf(buf, SZ_4K, fmt, ap);
 	va_end(ap);
 
-	p = buf;
-	len = 0;
-	while(*p != '\0')
-	{
-		if(!console_stdout_putc(*p))
-			break;
-		p++;
-		len++;
-	}
-
+	console_stdout_write((const unsigned char *)buf, len);
 	return len;
 }
 EXPORT_SYMBOL(printk);

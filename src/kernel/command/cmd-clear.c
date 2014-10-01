@@ -37,8 +37,7 @@
 
 static int clear(int argc, char ** argv)
 {
-	console_cls(console_get_stdout());
-
+	printf("\033[2J");
 	return 0;
 }
 

@@ -68,6 +68,7 @@ struct console_fb_data_t {
 	int sx, sy;
 	int cursor;
 	enum tcolor_t f, b;
+	enum tcolor_t sf, sb;
 	struct color_t fc, bc;
 
 	struct cell_t * cell;
@@ -220,6 +221,17 @@ static void console_fb_set_color(struct console_fb_data_t * dat, enum tcolor_t f
 	tcolor_to_color(b, &(dat->bc));
 }
 
+static void console_fb_save_color(struct console_fb_data_t * dat)
+{
+	dat->sf = dat->f;
+	dat->sb = dat->b;
+}
+
+static void console_fb_restore_color(struct console_fb_data_t * dat)
+{
+	console_fb_set_color(dat, dat->sf, dat->sb);
+}
+
 static void console_fb_clear_screen(struct console_fb_data_t * dat)
 {
 	struct cell_t * cell = &(dat->cell[0]);
@@ -361,7 +373,7 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 	case ESC_STATE_NORMAL:
 		switch(c)
 		{
-		case 27:
+		case '\e':	/* ESC state */
 			dat->state = ESC_STATE_ESC;
 			break;
 
@@ -378,14 +390,42 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 		break;
 
 	case ESC_STATE_ESC:
-		if(c == '[')
+		switch(c)
 		{
+		case 'c':	/* Reset */
+			console_fb_show_cursor(dat, 1);
+			console_fb_set_color(dat, TCOLOR_WHITE, TCOLOR_BLACK);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'D':	/* Scroll display down one line */
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'M':	/* Scroll display up one line */
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case '7':	/* Save cursor position and attrs */
+			console_fb_save_cursor(dat);
+			console_fb_save_color(dat);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case '8':	/* Restore cursor position and attrs */
+			console_fb_restore_cursor(dat);
+			console_fb_restore_color(dat);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case '[':	/* CSI codes */
 			dat->num_params = 0;
 			dat->state = ESC_STATE_CSI;
-		}
-		else
-		{
+			break;
+
+		default:
 			dat->state = ESC_STATE_NORMAL;
+			break;
 		}
 		break;
 
@@ -529,6 +569,8 @@ bool_t register_console_framebuffer(struct fb_t * fb)
 	dat->cursor = 1;
 	dat->f = TCOLOR_WHITE;
 	dat->b = TCOLOR_BLACK;
+	dat->sf = dat->f;
+	dat->sb = dat->b;
 	tcolor_to_color(dat->f, &(dat->fc));
 	tcolor_to_color(dat->b, &(dat->bc));
 	dat->clen = dat->w * dat->h;

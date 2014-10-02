@@ -27,8 +27,8 @@
 
 static struct console_stdio_data_t console_stdio_data = {
 	.in		= "realview-uart.0",
-	.out	= "realview-uart.0",
-	.err	= "realview-uart.0",
+	.out	= "realview-fb.0",
+	.err	= "realview-fb.0",
 };
 
 static struct resource_t res_console = {

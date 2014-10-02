@@ -68,6 +68,7 @@ struct console_fb_data_t {
 	int sx, sy;
 	int cursor;
 	int bright;
+	int sbright;
 	enum tcolor_t f, b;
 	enum tcolor_t sf, sb;
 	struct color_t fc, bc;
@@ -218,8 +219,16 @@ static void console_fb_show_cursor(struct console_fb_data_t * dat, int show)
 
 static void console_fb_set_color(struct console_fb_data_t * dat, enum tcolor_t f, enum tcolor_t b)
 {
-	dat->f = f;
-	dat->b = b;
+	if(dat->bright != 0)
+	{
+		dat->f = f + 0x8;
+		dat->b = b + 0x8;
+	}
+	else
+	{
+		dat->f = f;
+		dat->b = b;
+	}
 	tcolor_to_color(f, &(dat->fc));
 	tcolor_to_color(b, &(dat->bc));
 }
@@ -233,10 +242,12 @@ static void console_fb_save_color(struct console_fb_data_t * dat)
 {
 	dat->sf = dat->f;
 	dat->sb = dat->b;
+	dat->sbright = dat->bright;
 }
 
 static void console_fb_restore_color(struct console_fb_data_t * dat)
 {
+	console_fb_set_color_bright(dat, dat->sbright);
 	console_fb_set_color(dat, dat->sf, dat->sb);
 }
 
@@ -543,6 +554,7 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 					break;
 				case 1:		/* Bright */
 					console_fb_set_color_bright(dat, 1);
+					console_fb_set_color(dat, dat->f, dat->b);
 					break;
 				case 2:		/* Dim */
 					break;
@@ -650,6 +662,7 @@ bool_t register_console_framebuffer(struct fb_t * fb)
 	dat->sy = dat->y;
 	dat->cursor = 1;
 	dat->bright = 0;
+	dat->sbright = dat->bright;
 	dat->f = TCOLOR_WHITE;
 	dat->b = TCOLOR_BLACK;
 	dat->sf = dat->f;

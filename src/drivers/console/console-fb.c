@@ -403,7 +403,7 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 		{
 		case 'c':	/* Reset */
 			console_fb_show_cursor(dat, 1);
-			console_fb_set_color_bright(0);
+			console_fb_set_color_bright(dat, 0);
 			console_fb_set_color(dat, TCOLOR_WHITE, TCOLOR_BLACK);
 			dat->state = ESC_STATE_NORMAL;
 			break;
@@ -538,9 +538,11 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 				switch(dat->abuf[t])
 				{
 				case 0:		/* Reset all attrs */
+					console_fb_set_color_bright(dat, 0);
 					console_fb_set_color(dat, TCOLOR_WHITE, TCOLOR_BLACK);
 					break;
 				case 1:		/* Bright */
+					console_fb_set_color_bright(dat, 1);
 					break;
 				case 2:		/* Dim */
 					break;

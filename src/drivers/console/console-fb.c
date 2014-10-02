@@ -67,6 +67,7 @@ struct console_fb_data_t {
 	int x, y;
 	int sx, sy;
 	int cursor;
+	int bright;
 	enum tcolor_t f, b;
 	enum tcolor_t sf, sb;
 	struct color_t fc, bc;
@@ -75,8 +76,10 @@ struct console_fb_data_t {
 	int clen;
 
 	enum esc_state_t state;
-	int params[8];
-	int num_params;
+	int cbuf[17 * 3];
+	int csize;
+	int abuf[17];
+	int asize;
 	char utf8[32];
 	int usize;
 };
@@ -219,6 +222,11 @@ static void console_fb_set_color(struct console_fb_data_t * dat, enum tcolor_t f
 	dat->b = b;
 	tcolor_to_color(f, &(dat->fc));
 	tcolor_to_color(b, &(dat->bc));
+}
+
+static void console_fb_set_color_bright(struct console_fb_data_t * dat, int bright)
+{
+	dat->bright = (bright != 0) ? 1 : 0;
 }
 
 static void console_fb_save_color(struct console_fb_data_t * dat)
@@ -365,8 +373,9 @@ static void console_fb_putcode(struct console_fb_data_t * dat, u32_t code)
 
 static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 {
-	char * rest;
 	u32_t cp;
+	char * rest;
+	int t;
 
 	switch(dat->state)
 	{
@@ -394,6 +403,7 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 		{
 		case 'c':	/* Reset */
 			console_fb_show_cursor(dat, 1);
+			console_fb_set_color_bright(0);
 			console_fb_set_color(dat, TCOLOR_WHITE, TCOLOR_BLACK);
 			dat->state = ESC_STATE_NORMAL;
 			break;
@@ -419,7 +429,9 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 			break;
 
 		case '[':	/* CSI codes */
-			dat->num_params = 0;
+			dat->csize = 0;
+			dat->abuf[0] = 0;
+			dat->asize = 0;
 			dat->state = ESC_STATE_CSI;
 			break;
 
@@ -430,82 +442,150 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 		break;
 
 	case ESC_STATE_CSI:
-		dat->params[dat->num_params++] = c;
+		dat->cbuf[dat->csize++] = c;
 
-		if(dat->num_params == 1)
+		switch(dat->cbuf[dat->csize - 1])
 		{
-			switch(dat->params[0])
-			{
-			case 's':
-				console_fb_save_cursor(dat);
-				dat->state = ESC_STATE_NORMAL;
-				break;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			dat->abuf[dat->asize] *= 10;
+			dat->abuf[dat->asize] += (dat->cbuf[dat->csize - 1] - '0');
+			break;
 
-			case 'u':
-				console_fb_restore_cursor(dat);
-				dat->state = ESC_STATE_NORMAL;
-				break;
+		case ';':
+			dat->asize++;
+			dat->abuf[dat->asize] = 0;
+			break;
 
-			case 'A':
-				console_fb_cursor_gotoxy(dat, dat->x, dat->y - 1);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			case 'B':
-				console_fb_cursor_gotoxy(dat, dat->x, dat->y + 1);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			case 'C':
-				console_fb_cursor_gotoxy(dat, dat->x + 1, dat->y);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			case 'D':
-				console_fb_cursor_gotoxy(dat, dat->x - 1, dat->y);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			default:
-				break;
-			}
-		}
-		else if(dat->num_params == 2)
-		{
-			switch(dat->params[1])
-			{
-			case 'A':
-				console_fb_cursor_gotoxy(dat, dat->x, dat->y - dat->params[0]);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			case 'B':
-				console_fb_cursor_gotoxy(dat, dat->x, dat->y + dat->params[0]);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			case 'C':
-				console_fb_cursor_gotoxy(dat, dat->x + dat->params[0], dat->y);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			case 'D':
-				console_fb_cursor_gotoxy(dat, dat->x - dat->params[0], dat->y);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			case 'J':
-				console_fb_clear_screen(dat);
-				dat->state = ESC_STATE_NORMAL;
-				break;
-
-			default:
-				break;
-			}
-		}
-		else
-		{
+		case 'A':	/* Move the cursor up */
+			t = dat->abuf[0];
+			t = (t) ? t : 1;
+			console_fb_cursor_gotoxy(dat, dat->x, dat->y - t);
 			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'B':	/* Move the cursor down */
+			t = dat->abuf[0];
+			t = (t) ? t : 1;
+			console_fb_cursor_gotoxy(dat, dat->x, dat->y + t);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'C':	/* Move the cursor right */
+			t = dat->abuf[0];
+			t = (t) ? t : 1;
+			console_fb_cursor_gotoxy(dat, dat->x + t, dat->y);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'D':	/* Move the cursor left */
+			t = dat->abuf[0];
+			t = (t) ? t : 1;
+			console_fb_cursor_gotoxy(dat, dat->x - t, dat->y);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 's':	/* Save cursor position */
+			console_fb_save_cursor(dat);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'u':	/* Restore cursor position */
+			console_fb_restore_cursor(dat);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'J':	/* Clear the screen */
+			console_fb_clear_screen(dat);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'H':	/* Cursor home */
+		case 'f':	/* Force cursor position */
+			if(dat->asize == 0)
+				console_fb_cursor_gotoxy(dat, 0, dat->y);
+			else
+				console_fb_cursor_gotoxy(dat, dat->abuf[1], dat->abuf[0]);
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'c':		/* Request terminal Type */
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'n':
+			switch(dat->abuf[0])
+			{
+			case 5:		/* Request terminal status */
+				break;
+			case 6:		/* Request cursor position */
+				break;
+			};
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		case 'm':		/* Set Display Attributes */
+			for(t = 0; t <= dat->asize; t++)
+			{
+				switch(dat->abuf[t])
+				{
+				case 0:		/* Reset all attrs */
+					console_fb_set_color(dat, TCOLOR_WHITE, TCOLOR_BLACK);
+					break;
+				case 1:		/* Bright */
+					break;
+				case 2:		/* Dim */
+					break;
+				case 4:		/* Underscore */
+					break;
+				case 5:		/* Blink */
+					break;
+				case 7:		/* Reverse */
+					console_fb_set_color(dat, dat->b, dat->f);
+					break;
+				case 8:		/* Hidden */
+					break;
+
+				case 30:	/* Set foreground colours */
+				case 31:
+				case 32:
+				case 33:
+				case 34:
+				case 35:
+				case 36:
+				case 37:
+					console_fb_set_color(dat, dat->abuf[t] - 30, dat->b);
+					break;
+
+				case 40:	/* Set background colours */
+				case 41:
+				case 42:
+				case 43:
+				case 44:
+				case 45:
+				case 46:
+				case 47:
+					console_fb_set_color(dat, dat->f, dat->abuf[t] - 40);
+					break;
+
+				default:
+					break;
+				}
+			}
+			dat->state = ESC_STATE_NORMAL;
+			break;
+
+		default:
+			dat->state = ESC_STATE_NORMAL;
+			break;
 		}
 		break;
 
@@ -567,6 +647,7 @@ bool_t register_console_framebuffer(struct fb_t * fb)
 	dat->sx = dat->x;
 	dat->sy = dat->y;
 	dat->cursor = 1;
+	dat->bright = 0;
 	dat->f = TCOLOR_WHITE;
 	dat->b = TCOLOR_BLACK;
 	dat->sf = dat->f;
@@ -583,7 +664,8 @@ bool_t register_console_framebuffer(struct fb_t * fb)
 	}
 	memset(dat->cell, 0, dat->clen * sizeof(struct cell_t));
 	dat->state = ESC_STATE_NORMAL;
-	dat->num_params = 0;
+	dat->csize = 0;
+	dat->asize = 0;
 	dat->usize = 0;
 
 	console->name = strdup(fb->name);

@@ -27,30 +27,21 @@
 #include <console/console-fb-font.h>
 #include <console/console-fb.h>
 
-enum tcolor_t {
-	TCOLOR_BLACK			= 0x00,
-	TCOLOR_RED				= 0x01,
-	TCOLOR_GREEN			= 0x02,
-	TCOLOR_YELLOW			= 0x03,
-	TCOLOR_BULE				= 0x04,
-	TCOLOR_MAGENTA			= 0x05,
-	TCOLOR_CYAN				= 0x06,
-	TCOLOR_WHITE			= 0x07,
-
-	TCOLOR_BRIGHT_BLACK		= 0x08,
-	TCOLOR_BRIGHT_RED		= 0x09,
-	TCOLOR_BRIGHT_GREEN		= 0x0a,
-	TCOLOR_BRIGHT_YELLOW	= 0x0b,
-	TCOLOR_BRIGHT_BULE		= 0x0c,
-	TCOLOR_BRIGHT_MAGENTA	= 0x0d,
-	TCOLOR_BRIGHT_CYAN		= 0x0e,
-	TCOLOR_BRIGHT_WHITE		= 0x0f,
-};
-
 enum esc_state_t {
 	ESC_STATE_NORMAL,
 	ESC_STATE_ESC,
 	ESC_STATE_CSI,
+};
+
+enum tcolor_t {
+	TCOLOR_BLACK	= 0x00,
+	TCOLOR_RED		= 0x01,
+	TCOLOR_GREEN	= 0x02,
+	TCOLOR_YELLOW	= 0x03,
+	TCOLOR_BULE		= 0x04,
+	TCOLOR_MAGENTA	= 0x05,
+	TCOLOR_CYAN		= 0x06,
+	TCOLOR_WHITE	= 0x07,
 };
 
 struct cell_t
@@ -72,7 +63,6 @@ struct console_fb_data_t {
 	enum tcolor_t f, b;
 	enum tcolor_t sf, sb;
 	struct color_t fc, bc;
-
 	struct cell_t * cell;
 	int clen;
 
@@ -94,6 +84,7 @@ static const u8_t tcolor_to_rgba_table[16][3] = {
 	/* 0x05 */	{ 0xcd, 0x00, 0xcd },
 	/* 0x06 */	{ 0x00, 0xcd, 0xcd },
 	/* 0x07 */	{ 0xe5, 0xe5, 0xe5 },
+
 	/* 0x08 */	{ 0x7f, 0x7f, 0x7f },
 	/* 0x09 */	{ 0xff, 0x00, 0x00 },
 	/* 0x0a */	{ 0x00, 0xff, 0x00 },
@@ -104,15 +95,17 @@ static const u8_t tcolor_to_rgba_table[16][3] = {
 	/* 0x0f */	{ 0xff, 0xff, 0xff },
 };
 
-static bool_t tcolor_to_color(enum tcolor_t c, struct color_t * col)
+static bool_t tcolor_to_color(enum tcolor_t c, int bright, struct color_t * col)
 {
-	u8_t index = c & 0x0f;
+	u8_t index = c & 0x07;
+
+	if(bright != 0)
+		index += 8;
 
 	col->r = tcolor_to_rgba_table[index][0];
 	col->g = tcolor_to_rgba_table[index][1];
 	col->b = tcolor_to_rgba_table[index][2];
 	col->a = 0xff;
-
 	return TRUE;
 }
 
@@ -219,18 +212,10 @@ static void console_fb_show_cursor(struct console_fb_data_t * dat, int show)
 
 static void console_fb_set_color(struct console_fb_data_t * dat, enum tcolor_t f, enum tcolor_t b)
 {
-	if(dat->bright != 0)
-	{
-		dat->f = f + 0x8;
-		dat->b = b + 0x8;
-	}
-	else
-	{
-		dat->f = f;
-		dat->b = b;
-	}
-	tcolor_to_color(f, &(dat->fc));
-	tcolor_to_color(b, &(dat->bc));
+	dat->f = f;
+	dat->b = b;
+	tcolor_to_color(f, dat->bright, &(dat->fc));
+	tcolor_to_color(b, dat->bright, &(dat->bc));
 }
 
 static void console_fb_set_color_bright(struct console_fb_data_t * dat, int bright)
@@ -337,14 +322,14 @@ static void console_fb_putcode(struct console_fb_data_t * dat, u32_t code)
 		console_fb_cursor_gotoxy(dat, dat->x, dat->y);
 		break;
 
+	case '\r':
+		console_fb_cursor_gotoxy(dat, 0, dat->y);
+		break;
+
 	case '\n':
 		if(dat->y + 1 >= dat->h)
 			console_fb_scrollup(dat);
 		console_fb_cursor_gotoxy(dat, 0, dat->y + 1);
-		break;
-
-	case '\r':
-		console_fb_cursor_gotoxy(dat, 0, dat->y);
 		break;
 
 	default:
@@ -382,7 +367,7 @@ static void console_fb_putcode(struct console_fb_data_t * dat, u32_t code)
 	}
 }
 
-static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
+static void console_fb_write_byte(struct console_fb_data_t * dat, unsigned char c)
 {
 	u32_t cp;
 	char * rest;
@@ -568,7 +553,7 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 				case 8:		/* Hidden */
 					break;
 
-				case 30:	/* Set foreground colours */
+				case 30:	/* Set foreground color */
 				case 31:
 				case 32:
 				case 33:
@@ -579,7 +564,7 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 					console_fb_set_color(dat, dat->abuf[t] - 30, dat->b);
 					break;
 
-				case 40:	/* Set background colours */
+				case 40:	/* Set background color */
 				case 41:
 				case 42:
 				case 43:
@@ -609,18 +594,13 @@ static void console_fb_putchar(struct console_fb_data_t * dat, unsigned char c)
 	}
 }
 
-static ssize_t console_fb_read(struct console_t * console, unsigned char * buf, size_t count)
-{
-	return 0;
-}
-
 static ssize_t console_fb_write(struct console_t * console, const unsigned char * buf, size_t count)
 {
 	struct console_fb_data_t * dat = (struct console_fb_data_t *)console->priv;
 	size_t i;
 
 	for(i = 0; i < count; i++)
-		console_fb_putchar(dat, buf[i]);
+		console_fb_write_byte(dat, buf[i]);
 	return count;
 }
 
@@ -667,8 +647,8 @@ bool_t register_console_framebuffer(struct fb_t * fb)
 	dat->b = TCOLOR_BLACK;
 	dat->sf = dat->f;
 	dat->sb = dat->b;
-	tcolor_to_color(dat->f, &(dat->fc));
-	tcolor_to_color(dat->b, &(dat->bc));
+	tcolor_to_color(dat->f, dat->bright, &(dat->fc));
+	tcolor_to_color(dat->b, dat->bright, &(dat->bc));
 	dat->clen = dat->w * dat->h;
 	dat->cell = malloc(dat->clen * sizeof(struct cell_t));
 	if(!dat->cell)
@@ -684,7 +664,7 @@ bool_t register_console_framebuffer(struct fb_t * fb)
 	dat->usize = 0;
 
 	console->name = strdup(fb->name);
-	console->read = console_fb_read,
+	console->read = NULL,
 	console->write = console_fb_write,
 	console->suspend = console_fb_suspend,
 	console->resume	= console_fb_resume,

@@ -2,7 +2,6 @@
  * libc/string/strnlen.c
  */
 
-#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 

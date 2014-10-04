@@ -2,7 +2,6 @@
  * libc/time/time.c
  */
 
-#include <xboot/module.h>
 #include <time.h>
 
 time_t time(time_t * t)

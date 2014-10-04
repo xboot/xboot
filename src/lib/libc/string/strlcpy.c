@@ -2,7 +2,6 @@
  * libc/string/strlcpy.c
  */
 
-#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 

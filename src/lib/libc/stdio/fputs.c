@@ -2,7 +2,6 @@
  * libc/stdio/fputs.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 int fputs(const char * s, FILE * f)

@@ -5,10 +5,7 @@
 extern "C" {
 #endif
 
-enum {
-	EXIT_SUCCESS	= 0,
-	EXIT_FAILURE	= 1,
-};
+#include <xboot/module.h>
 
 void abort(void);
 void exit(int code);

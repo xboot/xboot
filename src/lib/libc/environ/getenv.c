@@ -27,3 +27,4 @@ char * getenv(const char * name)
 
 	return NULL;
 }
+EXPORT_SYMBOL(getenv);

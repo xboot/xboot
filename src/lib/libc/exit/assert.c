@@ -9,3 +9,4 @@ void __assert_fail(const char * expr, const char * file, int line, const char * 
 {
 	fprintf(stderr, "Assertion failed: %s (%s: %s: %d)\n", expr, file, func, line);
 }
+EXPORT_SYMBOL(__assert_fail);

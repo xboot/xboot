@@ -2,7 +2,6 @@
  * libc/stdio/fscanf.c
  */
 
-#include <xboot/module.h>
 #include <sizes.h>
 #include <malloc.h>
 #include <stdio.h>

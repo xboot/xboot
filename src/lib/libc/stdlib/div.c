@@ -2,7 +2,6 @@
  * libc/stdlib/div.c
  */
 
-#include <xboot/module.h>
 #include <stdlib.h>
 
 div_t div(int num, int den)

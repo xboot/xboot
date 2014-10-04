@@ -2,7 +2,6 @@
  * libc/stdio/rewind.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 void rewind(FILE * f)

@@ -2,7 +2,6 @@
  * libc/stdlib/llabs.c
  */
 
-#include <xboot/module.h>
 #include <stdlib.h>
 
 long long llabs(long long n)

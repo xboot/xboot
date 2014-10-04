@@ -2,7 +2,6 @@
  * libc/stdlib/rand.c
  */
 
-#include <xboot/module.h>
 #include <runtime.h>
 #include <stdlib.h>
 

@@ -2,7 +2,6 @@
  * libc/time/clock.c
  */
 
-#include <xboot/module.h>
 #include <types.h>
 #include <time.h>
 

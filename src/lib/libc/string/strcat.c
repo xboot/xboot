@@ -2,7 +2,6 @@
  * libc/string/strcat.c
  */
 
-#include <xboot/module.h>
 #include <string.h>
 
 /*

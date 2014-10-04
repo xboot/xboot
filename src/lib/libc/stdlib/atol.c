@@ -2,7 +2,6 @@
  * libc/stdlib/atol.c
  */
 
-#include <xboot/module.h>
 #include <stddef.h>
 #include <stdlib.h>
 

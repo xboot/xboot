@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <xboot/module.h>
+
 enum {
 	ENOERR			=  0,
 	EDOM			= -1,

@@ -10,3 +10,4 @@ int tolower(int c)
 		return c | 32;
 	return c;
 }
+EXPORT_SYMBOL(tolower);

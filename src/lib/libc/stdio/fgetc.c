@@ -2,7 +2,6 @@
  * libc/stdio/fgetc.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 int fgetc(FILE * f)

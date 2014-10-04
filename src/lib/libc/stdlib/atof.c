@@ -2,7 +2,6 @@
  * libc/stdlib/atof.c
  */
 
-#include <xboot/module.h>
 #include <stdlib.h>
 
 double atof(const char * nptr)

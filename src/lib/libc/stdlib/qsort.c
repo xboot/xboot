@@ -2,7 +2,6 @@
  * libc/stdlib/qsort.c
  */
 
-#include <xboot/module.h>
 #include <stdlib.h>
 
 #ifndef MIN

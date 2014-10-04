@@ -44,3 +44,4 @@ int unsetenv(const char * name)
 
 	return 0;
 }
+EXPORT_SYMBOL(unsetenv);

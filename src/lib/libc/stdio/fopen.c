@@ -2,7 +2,6 @@
  * libc/stdio/fopen.c
  */
 
-#include <xboot/module.h>
 #include <fs/fileio.h>
 #include <stdio.h>
 

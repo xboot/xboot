@@ -2,7 +2,6 @@
  * libc/time/mktime.c
  */
 
-#include <xboot/module.h>
 #include <time.h>
 
 time_t mktime(struct tm * tm)

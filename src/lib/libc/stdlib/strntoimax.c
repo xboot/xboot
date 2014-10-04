@@ -2,7 +2,6 @@
  * libc/stdlib/strntoimax.c
  */
 
-#include <xboot/module.h>
 #include <stddef.h>
 #include <ctype.h>
 #include <stdlib.h>

@@ -2,7 +2,6 @@
  * libc/stdio/vsscanf.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 enum flags {

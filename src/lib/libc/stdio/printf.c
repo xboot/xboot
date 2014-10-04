@@ -2,7 +2,6 @@
  * libc/stdio/printf.c
  */
 
-#include <xboot/module.h>
 #include <malloc.h>
 #include <stdio.h>
 

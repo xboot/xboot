@@ -2,8 +2,6 @@
  * lib/libc/malloc/malloc.c
  */
 
-#include <xboot.h>
-#include <xboot/module.h>
 #include <runtime.h>
 #include <malloc.h>
 

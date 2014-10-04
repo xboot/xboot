@@ -2,7 +2,6 @@
  * libc/stdio/snprintf.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 int snprintf(char * buf, size_t n, const char * fmt, ...)

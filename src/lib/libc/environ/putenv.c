@@ -71,3 +71,4 @@ int putenv(const char * str)
 
 	return __put_env(s, e - str, 1);
 }
+EXPORT_SYMBOL(putenv);

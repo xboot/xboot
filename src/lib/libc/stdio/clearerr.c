@@ -2,7 +2,6 @@
  * libc/stdio/clearerr.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 void clearerr(FILE * f)

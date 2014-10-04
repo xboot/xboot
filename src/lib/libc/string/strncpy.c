@@ -2,7 +2,6 @@
  * libc/string/strncpy.c
  */
 
-#include <xboot/module.h>
 #include <types.h>
 #include <string.h>
 

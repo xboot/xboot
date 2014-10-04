@@ -2,7 +2,6 @@
  * libc/stdio/vsnprintf.c
  */
 
-#include <xboot/module.h>
 #include <math.h>
 #include <stdio.h>
 

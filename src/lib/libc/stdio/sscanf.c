@@ -2,7 +2,6 @@
  * libc/stdio/sscanf.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 int sscanf(const char * buf, const char * fmt, ...)

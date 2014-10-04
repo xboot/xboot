@@ -8,3 +8,4 @@ int isalnum(int c)
 {
 	return isalpha(c) || isdigit(c);
 }
+EXPORT_SYMBOL(isalnum);

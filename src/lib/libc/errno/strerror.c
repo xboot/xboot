@@ -79,3 +79,4 @@ char * strerror(int e)
 	}
 	return "Invalid error number";
 }
+EXPORT_SYMBOL(strerror);

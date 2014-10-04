@@ -2,7 +2,6 @@
  * libc/stdlib/abs.c
  */
 
-#include <xboot/module.h>
 #include <stdlib.h>
 
 int abs(int n)

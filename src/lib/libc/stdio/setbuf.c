@@ -2,7 +2,6 @@
  * libc/stdio/setbuf.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 void setbuf(FILE * f, char * buf)

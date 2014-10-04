@@ -2,7 +2,6 @@
  * libc/stdio/fwrite.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 size_t fwrite(const void * buf, size_t size, size_t count, FILE * f)

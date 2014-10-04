@@ -2,7 +2,6 @@
  * libc/string/strsep.c
  */
 
-#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>

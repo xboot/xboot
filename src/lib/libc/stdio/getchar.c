@@ -2,7 +2,6 @@
  * libc/stdio/getchar.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 int getchar(void)

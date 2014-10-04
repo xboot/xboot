@@ -8,3 +8,4 @@ int isupper(int c)
 {
 	return ((unsigned)c - 'A') < 26;
 }
+EXPORT_SYMBOL(isupper);

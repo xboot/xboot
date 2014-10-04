@@ -2,7 +2,6 @@
  * libc/stdio/ftell.c
  */
 
-#include <xboot/module.h>
 #include <errno.h>
 #include <stdio.h>
 

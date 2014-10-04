@@ -2,7 +2,6 @@
  * libc/stdio/fflush.c
  */
 
-#include <xboot/module.h>
 #include <stdio.h>
 
 int fflush(FILE * f)

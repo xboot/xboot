@@ -2,7 +2,6 @@
  * libc/string/strnicmp.c
  */
 
-#include <xboot/module.h>
 #include <types.h>
 #include <ctype.h>
 #include <string.h>

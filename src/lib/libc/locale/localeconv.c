@@ -2,7 +2,6 @@
  * libc/locale/localeconv.c
  */
 
-#include <xboot/module.h>
 #include <locale.h>
 
 static const struct lconv posix_lconv = {

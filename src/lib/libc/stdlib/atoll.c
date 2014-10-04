@@ -2,7 +2,6 @@
  * libc/stdlib/atoll.c
  */
 
-#include <xboot/module.h>
 #include <stddef.h>
 #include <stdlib.h>
 

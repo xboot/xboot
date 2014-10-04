@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <xboot/module.h>
 #include <types.h>
 #include <ctype.h>
 #include <sizes.h>

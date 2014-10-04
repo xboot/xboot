@@ -2,7 +2,6 @@
  * libc/string/strdup.c
  */
 
-#include <xboot/module.h>
 #include <types.h>
 #include <stddef.h>
 #include <malloc.h>

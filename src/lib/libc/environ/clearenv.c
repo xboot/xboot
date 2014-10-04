@@ -26,3 +26,4 @@ int clearenv(void)
 
 	return 0;
 }
+EXPORT_SYMBOL(clearenv);

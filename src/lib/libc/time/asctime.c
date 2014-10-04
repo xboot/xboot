@@ -2,7 +2,6 @@
  * libc/time/asctime.c
  */
 
-#include <xboot/module.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <time.h>

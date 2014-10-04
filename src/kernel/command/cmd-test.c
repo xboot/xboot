@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <fifo.h>
 #include <byteorder.h>
-#include <sha.h>
 #include <io.h>
 #include <math.h>
 #include <time/timer.h>

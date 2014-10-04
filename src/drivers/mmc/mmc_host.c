@@ -26,7 +26,6 @@
 #include <types.h>
 #include <string.h>
 #include <malloc.h>
-#include <hash.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <mmc/mmc_host.h>

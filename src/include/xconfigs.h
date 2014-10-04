@@ -184,14 +184,6 @@ extern "C" {
 #define	CONFIG_COMMAND_CAT							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_LUA)
-#define	CONFIG_COMMAND_LUA							(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_LUAC)
-#define	CONFIG_COMMAND_LUAC							(1)
-#endif
-
 #if !defined(CONFIG_COMMAND_TEST)
 #define	CONFIG_COMMAND_TEST							(1)
 #endif

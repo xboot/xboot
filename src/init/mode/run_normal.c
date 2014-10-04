@@ -26,11 +26,7 @@
 #include <xboot.h>
 #include <xboot/menu.h>
 #include <shell/exec.h>
-#include <mode/mode.h>
 
-/*
- * running the normal mode
- */
 void run_normal_mode(void)
 {
 	struct menu_item_t * item;

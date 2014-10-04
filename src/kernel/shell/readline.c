@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <readline.h>
+#include <shell/readline.h>
 
 enum esc_state_t {
 	ESC_STATE_NORMAL,

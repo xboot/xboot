@@ -23,12 +23,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <ctype.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/printk.h>
 #include <shell/parser.h>
 
 /*

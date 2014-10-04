@@ -5,10 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
 #include <types.h>
-#include <ctype.h>
-#include <string.h>
 
 enum paser_state_t {
 	PARSER_STATE_TEXT = 1,

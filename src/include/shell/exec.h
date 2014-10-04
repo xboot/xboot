@@ -5,11 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-
 void exec_cmdline(const char * cmdline);
 
 #ifdef __cplusplus

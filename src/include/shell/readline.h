@@ -5,15 +5,6 @@
 extern "C" {
 #endif
 
-/*
- * The enum type of readline mode
- */
-enum readline_mode {
-	RL_NORMAL,
-	RL_ESC,
-	RL_CSI
-};
-
 char * readline(const char * prompt);
 
 #ifdef __cplusplus

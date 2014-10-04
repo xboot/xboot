@@ -23,8 +23,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
 #include <mode/mode.h>
 
 /*

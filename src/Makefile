@@ -88,7 +88,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				lib/libc/errno								\
 				lib/libc/exit								\
 				lib/libc/fifo								\
-				lib/libc/readline							\
 				lib/libc/stdio								\
 				lib/libc/stdlib								\
 				lib/libc/string								\

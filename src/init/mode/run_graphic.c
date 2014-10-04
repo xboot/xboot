@@ -24,11 +24,7 @@
 
 
 #include <xboot.h>
-#include <mode/mode.h>
 
-/*
- * running the graphic mode
- */
 void run_graphic_mode(void)
 {
 	do {

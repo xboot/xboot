@@ -27,7 +27,6 @@
 #include <xboot/menu.h>
 #include <console/console.h>
 #include <shell/exec.h>
-#include <mode/mode.h>
 
 #if 0
 struct menu_ctx
@@ -192,9 +191,6 @@ static void menu_ctx_free(struct menu_ctx * ctx)
 }
 #endif
 
-/*
- * running the menu mode
- */
 void run_menu_mode(void)
 {
 #if 0

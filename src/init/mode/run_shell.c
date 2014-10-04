@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <shell/exec.h>
-#include <mode/mode.h>
+#include <shell/readline.h>
 
 void run_shell_mode(void)
 {

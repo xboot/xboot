@@ -23,22 +23,10 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <ctype.h>
-#include <string.h>
-#include <malloc.h>
-#include <version.h>
-#include <xboot/module.h>
-#include <xboot/printk.h>
-#include <xboot/list.h>
-#include <fs/fileio.h>
 #include <shell/parser.h>
 #include <shell/exec.h>
 #include <command/command.h>
 
-/*
- * exec the command line
- */
 void exec_cmdline(const char * cmdline)
 {
 	struct command_t * cmd;

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
 
 bool_t ctrlc(void);
 

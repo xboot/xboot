@@ -34,7 +34,6 @@ extern "C" {
 #include <ssize.h>
 #include <malloc.h>
 #include <charset.h>
-#include <readline.h>
 #include <version.h>
 #include <runtime.h>
 #include <xboot/list.h>

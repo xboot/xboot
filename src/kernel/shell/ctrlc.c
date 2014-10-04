@@ -29,11 +29,11 @@
 
 bool_t ctrlc(void)
 {
-	unsigned char c = 0;
+	int ch;
 
-	if(console_stdin_read(&c, 1) == 1)
+	if((ch = getchar()) != EOF)
 	{
-		if(c == 0x3)
+		if(ch == 0x3)
 			return TRUE;
 	}
 	return FALSE;

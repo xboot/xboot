@@ -23,11 +23,40 @@
  */
 
 #include <xboot.h>
-#include <runtime.h>
 #include <xboot/module.h>
 
 extern struct symbol_t __ksymtab_start[];
 extern struct symbol_t __ksymtab_end[];
+
+struct module_list_t
+{
+	struct module_t * module;
+	struct list_head entry;
+};
+
+static struct module_list_t __module_list = {
+	.entry = {
+		.next	= &(__module_list.entry),
+		.prev	= &(__module_list.entry),
+	},
+};
+static spinlock_t __module_list_lock = SPIN_LOCK_INIT();
+
+static struct module_t * search_module(const char * name)
+{
+	struct module_list_t * pos, * n;
+
+	if(!name)
+		return NULL;
+
+	list_for_each_entry_safe(pos, n, &(__module_list.entry), entry)
+	{
+		if(strcmp(pos->module->name, name) == 0)
+			return pos->module;
+	}
+
+	return NULL;
+}
 
 static struct symbol_t * __lookup_symbol_in_range(struct symbol_t * from, struct symbol_t * to, const char * name)
 {
@@ -62,9 +91,7 @@ static struct symbol_t * __lookup_symbol_in_module(struct module_t * module, con
 
 static struct symbol_t * __lookup_symbol_all(const char * name)
 {
-	struct module_list * m = runtime_get()->__module_list;
-	struct module_list * list;
-	struct list_head * pos;
+	struct module_list_t * pos, * n;
 	struct symbol_t * sym;
 
 	if(!name)
@@ -74,10 +101,9 @@ static struct symbol_t * __lookup_symbol_all(const char * name)
 	if(sym)
 		return sym;
 
-	for(pos = (&m->entry)->next; pos != (&m->entry); pos = pos->next)
+	list_for_each_entry_safe(pos, n, &(__module_list.entry), entry)
 	{
-		list = list_entry(pos, struct module_list, entry);
-		sym = __lookup_symbol_in_module(list->module, name);
+		sym = __lookup_symbol_in_module(pos->module, name);
 		if(sym)
 			return sym;
 	}
@@ -94,104 +120,50 @@ void * __symbol_get(const char * name)
 }
 EXPORT_SYMBOL(__symbol_get);
 
-struct symbol_t * find_symbol(struct module_t * module, const char * name)
+bool_t register_module(struct module_t * module)
 {
-	return __lookup_symbol_in_module(module, name);
-}
-EXPORT_SYMBOL(find_symbol);
-
-struct module_t * find_module(const char * name)
-{
-	struct module_list * m = runtime_get()->__module_list;
-	struct module_list * list;
-	struct list_head * pos;
-
-	if(!name)
-		return NULL;
-
-	for(pos = (&m->entry)->next; pos != (&m->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct module_list, entry);
-		if(strcmp(list->module->name, name) == 0)
-			return list->module;
-	}
-
-	return NULL;
-}
-EXPORT_SYMBOL(find_module);
-
-
-
-
-
-bool_t add_module(struct module_t * module)
-{
-	struct module_list * m = runtime_get()->__module_list;
-	struct module_list * list;
-
-	list = malloc(sizeof(struct module_list));
-	if(!list || !module)
-	{
-		free(list);
-		return FALSE;
-	}
-
-	if(!module->name || find_module(module->name))
-	{
-		free(list);
-		return FALSE;
-	}
-
-	list->module = module;
-	list_add(&list->entry, &m->entry);
-
-	return TRUE;
-}
-
-static bool_t delete_module(struct module_t * module)
-{
-	struct module_list * m = runtime_get()->__module_list;
-	struct module_list * list;
-	struct list_head * pos;
+	struct module_list_t * ml;
 
 	if(!module || !module->name)
 		return FALSE;
 
-	for(pos = (&m->entry)->next; pos != (&m->entry); pos = pos->next)
+	if(search_module(module->name))
+		return FALSE;
+
+	ml = malloc(sizeof(struct module_list_t));
+	if(!ml)
+		return FALSE;
+
+	ml->module = module;
+
+	spin_lock_irq(&__module_list_lock);
+	list_add_tail(&ml->entry, &(__module_list.entry));
+	spin_unlock_irq(&__module_list_lock);
+
+	return TRUE;
+}
+EXPORT_SYMBOL(register_module);
+
+bool_t unregister_module(struct module_t * module)
+{
+	struct module_list_t * pos, * n;
+
+	if(!module || !module->name)
+		return FALSE;
+
+	list_for_each_entry_safe(pos, n, &(__module_list.entry), entry)
 	{
-		list = list_entry(pos, struct module_list, entry);
-		if(list->module == module)
+		if(pos->module == module)
 		{
-			list_del(pos);
-			free(list);
+			spin_lock_irq(&__module_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__module_list_lock);
+
+			free(pos);
 			return TRUE;
 		}
 	}
 
 	return FALSE;
 }
-
-
-
-
-struct module_list * __module_list_init(void)
-{
-	struct module_list * m;
-
-	m = malloc(sizeof(struct module_list));
-	if(!m)
-		return NULL;
-
-	m->module = NULL;
-	init_list_head(&(m->entry));
-
-	return m;
-}
-
-void __module_list_exit(struct module_list * m)
-{
-	if(!m)
-		return;
-
-	free(m);
-}
+EXPORT_SYMBOL(unregister_module);

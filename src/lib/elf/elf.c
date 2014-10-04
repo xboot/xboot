@@ -467,7 +467,7 @@ void test_elf(char * path)
 	module = module_load(img->data);
 	if(module)
 	{
-		if(add_module(module))
+		if(register_module(module))
 			printf(" add module ok\r\n");
 		else
 			printf(" add module false\r\n");

@@ -7,6 +7,7 @@ extern "C" {
 
 #include <types.h>
 #include <ctype.h>
+#include <sizes.h>
 #include <errno.h>
 #include <fifo.h>
 #include <stdarg.h>

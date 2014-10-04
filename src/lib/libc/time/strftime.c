@@ -3,6 +3,7 @@
  */
 
 #include <xboot/module.h>
+#include <stdarg.h>
 #include <time.h>
 
 static char * aday[] = {

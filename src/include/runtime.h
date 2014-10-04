@@ -23,9 +23,6 @@ struct runtime_t {
 	/* standard input, output and error */
 	FILE *__stdin, *__stdout, *__stderr;
 
-	/* module list */
-	struct module_list * __module_list;
-
 	/* event base */
 	struct event_base_t * __event_base;
 

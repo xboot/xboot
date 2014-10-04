@@ -37,8 +37,8 @@ struct xfs_archiver_t
     bool_t (*file_close)(void * handle);
 };
 
-extern const struct xfs_archiver_t __xfs_archiver_direct;
-extern const struct xfs_archiver_t __xfs_archiver_zip;
+extern struct xfs_archiver_t __xfs_archiver_direct;
+extern struct xfs_archiver_t __xfs_archiver_zip;
 
 #ifdef __cplusplus
 }

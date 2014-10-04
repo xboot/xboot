@@ -1507,7 +1507,7 @@ static int ZIP_mkdir(void *opaque, const char *name)
 	return 0;
 }
 
-const struct xfs_archiver_t __xfs_archiver_zip = {
+struct xfs_archiver_t __xfs_archiver_zip = {
 	.extension			= "zip",
 	.description		= "PkZip/WinZip/Info-Zip compatible",
 

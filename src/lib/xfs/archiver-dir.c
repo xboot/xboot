@@ -223,7 +223,7 @@ static void direct_dir_close(void * handle)
 	free(handle);
 }
 
-const struct xfs_archiver_t __xfs_archiver_direct = {
+struct xfs_archiver_t __xfs_archiver_direct = {
 	.extension			= "",
 	.description		= "Non-archive, direct I/O",
 

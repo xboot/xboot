@@ -22,7 +22,7 @@ struct xfs_dir_handle_t
     void * handle;
     char * dname;
     char * mpoint;
-	const struct xfs_archiver_t * archiver;
+	struct xfs_archiver_t * archiver;
     struct xfs_dir_handle_t * next;
 };
 

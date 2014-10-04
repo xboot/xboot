@@ -6,7 +6,7 @@
 #include <xfs/archiver.h>
 #include <xfs/xfs.h>
 
-static const struct xfs_archiver_t * const __xfs_archivers[] = {
+static struct xfs_archiver_t * __xfs_archivers[] = {
 	&__xfs_archiver_direct,
 	&__xfs_archiver_zip,
 	NULL,
@@ -35,7 +35,7 @@ static const char * find_filename_extension(const char * name)
 	return ret;
 }
 
-static struct xfs_dir_handle_t * try_open_directory(const struct xfs_archiver_t * archive, const char * name, int forWriting)
+static struct xfs_dir_handle_t * try_open_directory(struct xfs_archiver_t * archive, const char * name, int forWriting)
 {
 	struct xfs_dir_handle_t * ret = NULL;
 	void * handle;
@@ -64,7 +64,7 @@ static struct xfs_dir_handle_t * try_open_directory(const struct xfs_archiver_t 
 static struct xfs_dir_handle_t * open_directory(const char * name, int forWriting)
 {
 	struct xfs_dir_handle_t * ret = NULL;
-	const struct xfs_archiver_t * const *i;
+	struct xfs_archiver_t ** i;
 	const char * ext;
 
 	if(!__xfs_platform_exists(name))
@@ -1279,7 +1279,7 @@ void PHYSFS_enumerateFilesCallback(const char *_fname,
     if (sanitize_platform_independent_path(_fname, fname))
     {
         struct xfs_dir_handle_t *i;
-        int noSyms;
+        //int noSyms;
 
         __xfs_platform_lock();
        //xxx noSyms = !allowSymLinks;
@@ -1424,83 +1424,4 @@ void __xfs_free(struct xfs_context_t * ctx)
 		free(ctx->user_dir);
 
 	free(ctx);
-}
-
-//-----------------------------------------------------------------------------
-//xxx for test
-static void printDir(void *data, const char *origdir, const char *fname)
-{
-	printf(" * We've got [%s] in [%s].\n", fname, origdir);
-}
-
-void tt(void)
-{
-	 int rc;
-	struct xfs_file_t * f;
-	 char buf[128];
-
-    if (!xfs_add_to_search_path(".", 1))
-    {
-        fprintf(stderr, "PHYSFS_addToSearchPath(): %s\n", "error");
-        return ;
-    } /* if */
-
-    if (! xfs_set_write_dir("."))
-    {
-        fprintf(stderr, "PHYSFS_setWriteDir(): %s\n", "error");
-        return;
-    } /* if */
-
-    if (!xfs_mkdir("/a/b/c"))
-    {
-        fprintf(stderr, "PHYSFS_mkdir(): %s\n", "error");
-        return;
-    } /* if */
-
-    if (!xfs_mkdir("/a/b/C"))
-    {
-        fprintf(stderr, "PHYSFS_mkdir(): %s\n", "error");
-        return;
-    } /* if */
-
-    f = xfs_open_write("/a/b/c/x.txt");
-    xfs_close(f);
-    if (f == NULL)
-    {
-        fprintf(stderr, "xfs_open_write(): %s\n", "error");
-        return ;
-    } /* if */
-
-    f = xfs_open_write("/a/b/C/X.txt");
-    xfs_close(f);
-    if (f == NULL)
-    {
-        fprintf(stderr, "xfs_open_write(): %s\n", "error");
-        return ;
-    } /* if */
-
-    printf("Testing completed.\n");
-    printf("  If no errors were reported, you're good to go.\n");
-
-/*    xfs_delete("/a/b/c/x.txt");
-    xfs_delete("/a/b/C/X.txt");
-    xfs_delete("/a/b/c");
-    xfs_delete("/a/b/C");
-    xfs_delete("/a/b");
-    xfs_delete("/a");*/
-
-/*	xfs_add_to_search_path("/romdisk/test.zip", 1);
-	xfs_set_write_dir("/tmp");
-
-	printf("init\r\n");
-
-    char **files = PHYSFS_enumerateFiles("/");
-    char **i;
-    for (i = files; *i != NULL; i++)
-    {
-        const char *dirorfile = xfs_is_directory(*i) ? "Directory" : "File";
-        printf(" * %s '%s' is in root of attached data.\n", dirorfile, *i);
-    }
-    xfs_free_list(files);*/
-
 }

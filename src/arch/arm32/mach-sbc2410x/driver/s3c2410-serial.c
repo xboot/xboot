@@ -32,7 +32,6 @@
 #include <xboot/initcall.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
-#include <xboot/printk.h>
 #include <xboot/resource.h>
 #include <s3c2410/reg-serial.h>
 #include <s3c2410/reg-gpio.h>

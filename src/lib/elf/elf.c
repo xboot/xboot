@@ -90,7 +90,7 @@ struct module_t * module_load(void * elf)
 	struct elf32_ehdr * e = (struct elf32_ehdr *) (elf);
 	if(e->e_type == ET_DYN)
 	{
-		printk("et_dyn\r\n");
+		printf("et_dyn\r\n");
 	}
 
 	return _load_shared_object("abc", elf);
@@ -191,7 +191,7 @@ static int rt_module_arm_relocate(struct module_t *module, struct elf32_rel *rel
 		break;
 	case R_ARM_ABS32:
 		*where += (elf32_addr)sym_val;
-		printk("R_ARM_ABS32: %x -> %x\n", where, *where);
+		printf("R_ARM_ABS32: %x -> %x\n", where, *where);
 		break;
 	case R_ARM_PC24:
 	case R_ARM_PLT32:
@@ -203,11 +203,11 @@ static int rt_module_arm_relocate(struct module_t *module, struct elf32_rel *rel
 		tmp = sym_val - (elf32_addr)where + (addend << 2);
 		tmp >>= 2;
 		*where = (*where & 0xff000000) | (tmp & 0x00ffffff);
-		printk( "R_ARM_PC24: %x -> %x\n", where, *where);
+		printf( "R_ARM_PC24: %x -> %x\n", where, *where);
 		break;
 	case R_ARM_REL32:
 		*where += sym_val - (elf32_addr)where;
-		printk("R_ARM_REL32: %x -> %x, sym %x, offset %x\n", where, *where, sym_val, rel->r_offset);
+		printf("R_ARM_REL32: %x -> %x, sym %x, offset %x\n", where, *where, sym_val, rel->r_offset);
 		break;
 	case R_ARM_V4BX:
 		*where &= 0xf000000f;
@@ -216,7 +216,7 @@ static int rt_module_arm_relocate(struct module_t *module, struct elf32_rel *rel
 	case R_ARM_GLOB_DAT:
 	case R_ARM_JUMP_SLOT:
 		*where = (elf32_addr)sym_val;
-		printk(	"R_ARM_JUMP_SLOT: 0x%x -> 0x%x 0x%x\n", where, *where, sym_val);
+		printf(	"R_ARM_JUMP_SLOT: 0x%x -> 0x%x 0x%x\n", where, *where, sym_val);
 		break;
 #if 0		/* To do */
 	case R_ARM_GOT_BREL:
@@ -250,7 +250,7 @@ static int rt_module_arm_relocate(struct module_t *module, struct elf32_rel *rel
 		if (!(offset & 1) || offset <= (s32_t)0xff000000 ||
 			 	offset >= (s32_t)0x01000000)
 		{
-			printk("only Thumb addresses allowed\n");
+			printf("only Thumb addresses allowed\n");
 
 			return -1;
 		}
@@ -296,7 +296,7 @@ static struct module_t * _load_shared_object(const char *name, void *module_ptr)
 
 	if (module_size == 0)
 	{
-		printk(" module size error\n");
+		printf(" module size error\n");
 		return NULL;
 	}
 
@@ -324,7 +324,7 @@ static struct module_t * _load_shared_object(const char *name, void *module_ptr)
 	ptr = module->space;
 	memset(ptr, 0, module_size);
 
-	printk(" load address at 0x%x\n", ptr);
+	printf(" load address at 0x%x\n", ptr);
 
 	for (index = 0; index < elf_module->e_phnum; index++)
 	{
@@ -362,7 +362,7 @@ static struct module_t * _load_shared_object(const char *name, void *module_ptr)
 			{
 				struct elf32_sym *sym = &symtab[ELF32_R_SYM(rel->r_info)];
 
-				printk("relocate symbol %s shndx %d\n", strtab + sym->st_name, sym->st_shndx);
+				printf("relocate symbol %s shndx %d\n", strtab + sym->st_name, sym->st_shndx);
 
 				if((sym->st_shndx != SHT_NULL) || (ELF_ST_BIND(sym->st_info) == STB_LOCAL))
 				{
@@ -372,13 +372,13 @@ static struct module_t * _load_shared_object(const char *name, void *module_ptr)
 				{
 					elf32_addr addr;
 
-					printk("relocate symbol: %s\n", strtab + sym->st_name);
+					printf("relocate symbol: %s\n", strtab + sym->st_name);
 
 					/* need to resolve symbol in kernel symbol table */
 					addr = (u32_t)(__symbol_get((const char *)(strtab + sym->st_name)));
 					if (addr == 0)
 					{
-						printk("can't find %s in kernel symbol table\n", strtab + sym->st_name);
+						printf("can't find %s in kernel symbol table\n", strtab + sym->st_name);
 						unsolved = TRUE;
 					}
 					else
@@ -458,22 +458,22 @@ void test_elf(char * path)
 	img = elf_image_alloc(path);
 	if(!img)
 	{
-		printk("load elf fail\r\n");
+		printf("load elf fail\r\n");
 		return;
 	}
 
-	printk("load elf ok\r\n");
+	printf("load elf ok\r\n");
 
 	module = module_load(img->data);
 	if(module)
 	{
 		if(add_module(module))
-			printk(" add module ok\r\n");
+			printf(" add module ok\r\n");
 		else
-			printk(" add module false\r\n");
+			printf(" add module false\r\n");
 	}
 	else
-		printk("load fail\r\n");
+		printf("load fail\r\n");
 
 	/*
 

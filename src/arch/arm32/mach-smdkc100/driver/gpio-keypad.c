@@ -29,7 +29,6 @@
 #include <xboot/initcall.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
-#include <xboot/printk.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <input/keyboard/keyboard.h>

@@ -28,7 +28,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <version.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 
@@ -42,17 +41,17 @@ static int go(int argc, char ** argv)
 
 	if(argc < 2)
 	{
-		printk("usage:\r\n    go address [arg ...]\r\n");
+		printf("usage:\r\n    go address [arg ...]\r\n");
 		return (-1);
 	}
 
 	addr = strtoul((const char *)argv[1], NULL, 0);
 
-	printk("starting appligoion at 0x%08lx ...\r\n", addr);
+	printf("starting appligoion at 0x%08lx ...\r\n", addr);
 
 	ret = ((int(*)(int, char **))(addr)) (--argc, &argv[1]);
 
-	printk("application terminated.(ret = 0x%08lx)\r\n", ret);
+	printf("application terminated.(ret = 0x%08lx)\r\n", ret);
 
 	return ret;
 }

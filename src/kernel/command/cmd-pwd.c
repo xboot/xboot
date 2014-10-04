@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/vfs/vfs.h>
@@ -42,7 +41,7 @@ static int do_pwd(int argc, char ** argv)
 
 	if(getcwd((char *)cwd, sizeof(cwd)))
 	{
-		printk("%s\r\n", (char *)cwd);
+		printf("%s\r\n", (char *)cwd);
 		return 0;
 	}
 

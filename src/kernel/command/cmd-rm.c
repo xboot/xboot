@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/fileio.h>
@@ -43,7 +42,7 @@ static int do_rm(int argc, char ** argv)
 
 	if(argc < 2)
 	{
-		printk("usage:\r\n    rm [OPTION] FILE...\r\n");
+		printf("usage:\r\n    rm [OPTION] FILE...\r\n");
 		return (-1);
 	}
 
@@ -56,10 +55,10 @@ static int do_rm(int argc, char ** argv)
 	        else
 	            ret = unlink((const char*)argv[i]);
 			if(ret != 0)
-				printk("rm: cannot remove %s: No such file or directory\r\n", argv[i]);
+				printf("rm: cannot remove %s: No such file or directory\r\n", argv[i]);
 	    }
 	    else
-	    	printk("rm: cannot stat file or directory %s\r\n", argv[i]);
+	    	printf("rm: cannot stat file or directory %s\r\n", argv[i]);
 	}
 
 	return 0;

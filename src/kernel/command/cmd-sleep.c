@@ -28,7 +28,6 @@
 #include <version.h>
 #include <stdlib.h>
 #include <shell/ctrlc.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
 #include <command/command.h>

@@ -29,7 +29,6 @@
 #include <hash.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <mtd/nand/nand.h>
 #include <mtd/nand/nfc.h>
 

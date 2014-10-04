@@ -48,7 +48,6 @@ extern "C" {
 #include <xboot/device.h>
 #include <xboot/module.h>
 #include <xboot/event.h>
-#include <xboot/printk.h>
 #include <logger/logger.h>
 #include <gpio/gpio.h>
 #include <clk/clk.h>

@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <version.h>
 #include <shell/ctrlc.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 
@@ -43,7 +42,7 @@ static int mw(int argc, char ** argv)
 
 	if(argc < 3)
 	{
-		printk("usage:\r\n    mw [-b|-w|-l] address value [-c count]\r\n");
+		printf("usage:\r\n    mw [-b|-w|-l] address value [-c count]\r\n");
 		return (-1);
 	}
 
@@ -60,16 +59,16 @@ static int mw(int argc, char ** argv)
 			c = strtoul((const char *)argv[i+1], NULL, 0);
 			if(c == 0)
 			{
-				printk("mw: the parmater of write count is zero by '-c %s'", argv[i+1]);
+				printf("mw: the parmater of write count is zero by '-c %s'", argv[i+1]);
 				return -1;
 			}
 			i++;
 		}
 		else if(*argv[i] == '-')
 		{
-			printk("mw: invalid option '%s'\r\n", argv[i]);
-			printk("usage:\r\n    mw [-b|-w|-l] address value [-c count]\r\n");
-			printk("try 'help mw' for more information.\r\n");
+			printf("mw: invalid option '%s'\r\n", argv[i]);
+			printf("usage:\r\n    mw [-b|-w|-l] address value [-c count]\r\n");
+			printf("try 'help mw' for more information.\r\n");
 			return (-1);
 		}
 		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
@@ -80,8 +79,8 @@ static int mw(int argc, char ** argv)
 				value = strtoul((const char *)argv[i], NULL, 0);
 			else if(index >= 2)
 			{
-				printk("mw: invalid paramter '%s'\r\n", argv[i]);
-				printk("try 'help mw' for more information.\r\n");
+				printf("mw: invalid paramter '%s'\r\n", argv[i]);
+				printf("try 'help mw' for more information.\r\n");
 				return (-1);
 			}
 			index++;
@@ -93,7 +92,7 @@ static int mw(int argc, char ** argv)
 		if(base_addr & 0x00000001)
 		{
 			base_addr = base_addr & (~0x00000001);
-			printk("warnning: the address has been fixed to 0x%08lx.\r\n", base_addr);
+			printf("warnning: the address has been fixed to 0x%08lx.\r\n", base_addr);
 		}
 	}
 	else if(size == 4)
@@ -101,7 +100,7 @@ static int mw(int argc, char ** argv)
 		if(base_addr & 0x00000003)
 		{
 			base_addr = base_addr & (~0x00000003);
-			printk("warnning: the address has been fixed to 0x%08lx.\r\n", base_addr);
+			printf("warnning: the address has been fixed to 0x%08lx.\r\n", base_addr);
 		}
 	}
 
@@ -125,7 +124,7 @@ static int mw(int argc, char ** argv)
 		if(ctrlc())
 			return -1;
 	}
-	printk("write done.\r\n");
+	printf("write done.\r\n");
 
 	return 0;
 }

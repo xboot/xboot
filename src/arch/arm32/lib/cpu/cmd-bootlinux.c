@@ -45,13 +45,13 @@ static int bootlinux(int argc, char ** argv)
 
 	if(argc != 5)
 	{
-		printk("usage:\r\n    bootlinux <KERNEL ADDR> <PARAM ADDR> <MACH TYPE> <COMMAND LINE>\r\n");
+		printf("usage:\r\n    bootlinux <KERNEL ADDR> <PARAM ADDR> <MACH TYPE> <COMMAND LINE>\r\n");
 		return -1;
 	}
 
 	if(!mach)
 	{
-		printk("can not get machine information.\r\n");
+		printf("can not get machine information.\r\n");
 		return -1;
 	}
 
@@ -98,8 +98,8 @@ static int bootlinux(int argc, char ** argv)
 	params->hdr.size = 0;
 
 	/* now, booting linux */
-	printk("kernel address: 0x%08lx, param address: 0x%08lx, machine type: %d\r\n", linux_kernel, linux_tag_placement, linux_mach_type);
-	printk("now, booting linux......\r\n");
+	printf("kernel address: 0x%08lx, param address: 0x%08lx, machine type: %d\r\n", linux_kernel, linux_tag_placement, linux_mach_type);
+	printf("now, booting linux......\r\n");
 
 	/* clean up before run linux */
 	machine_cleanup();

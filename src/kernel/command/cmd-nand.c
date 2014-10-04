@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <mtd/nand/nfc.h>
 #include <mtd/nand/nand.h>
@@ -42,7 +41,7 @@ extern struct nand_list * nand_list;
 
 static void usage(void)
 {
-	printk("usage:\r\n    nand [list]\r\n"
+	printf("usage:\r\n    nand [list]\r\n"
 		   "    nand probe\r\n"
 		   "    nand read <device> <offset> <size> <-r addr | -f file>\r\n"
 		   "    nand write <device> <offset> <size> <file>\r\n");
@@ -56,7 +55,7 @@ static void list_nand_device(void)
 	for(pos = (&nand_list->entry)->next; pos != (&nand_list->entry); pos = pos->next)
 	{
 		list = list_entry(pos, struct nand_list, entry);
-		printk(" \"%s\" - %s (%s)\r\n", list->nand->name, list->nand->info->name, list->nand->manufacturer->name);
+		printf(" \"%s\" - %s (%s)\r\n", list->nand->name, list->nand->info->name, list->nand->manufacturer->name);
 	}
 }
 
@@ -103,8 +102,8 @@ static int nand(int argc, char ** argv)
 		nand = search_nand_device((const char *)argv[2]);
 		if(!nand)
 		{
-			printk(" not found nand device \"%s\"\r\n", argv[2]);
-			printk(" try 'nand list' for list all of nand devices\r\n");
+			printf(" not found nand device \"%s\"\r\n", argv[2]);
+			printf(" try 'nand list' for list all of nand devices\r\n");
 			return -1;
 		}
 
@@ -118,7 +117,7 @@ static int nand(int argc, char ** argv)
 			if(nand_read(nand, (u8_t *)addr, off, size) != 0)
 				return -1;
 
-			printk("read %s 0x%08lx ~ 0x%08lx to ram 0x%08lx.\r\n", nand->name, off, off + size, addr);
+			printf("read %s 0x%08lx ~ 0x%08lx to ram 0x%08lx.\r\n", nand->name, off, off + size, addr);
 		}
 		else if( !strcmp((const char *)argv[5], "-f") )
 		{
@@ -167,7 +166,7 @@ static int nand(int argc, char ** argv)
 			close(fd);
 			free(buf);
 
-			printk("read %s 0x%08lx ~ 0x%08lx to file %s.\r\n", nand->name, off, off + size, filename);
+			printf("read %s 0x%08lx ~ 0x%08lx to file %s.\r\n", nand->name, off, off + size, filename);
 		}
 		else
 		{

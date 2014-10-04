@@ -28,7 +28,6 @@
 #include <malloc.h>
 #include <mode/mode.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 
@@ -36,9 +35,9 @@
 
 static void usage(void)
 {
-	printk("usage:\r\n");
-	printk("    exit [-n|-s|-m|-g|-a]\r\n");
-	printk("    exit [--normal|--shell|--menu|--graphic]\r\n");
+	printf("usage:\r\n");
+	printf("    exit [-n|-s|-m|-g|-a]\r\n");
+	printf("    exit [--normal|--shell|--menu|--graphic]\r\n");
 }
 
 static int exit_to_mode(int argc, char ** argv)

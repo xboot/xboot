@@ -7,6 +7,6 @@
 
 void module_main(void)
 {
-	printk("hello world\r\n");
+	printf("hello world\r\n");
 }
 

@@ -29,7 +29,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <byteorder.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <block/block.h>
 #include <xboot/device.h>

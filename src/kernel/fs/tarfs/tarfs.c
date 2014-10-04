@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <errno.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <block/block.h>
 #include <xboot/device.h>

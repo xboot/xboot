@@ -31,7 +31,6 @@
 #include <xboot/initcall.h>
 #include <xboot/proc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <block/block.h>
 #include <block/disk.h>
 #include <block/partition.h>

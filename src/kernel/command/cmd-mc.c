@@ -28,7 +28,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <version.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/ctrlc.h>
 #include <command/command.h>
@@ -42,7 +41,7 @@ static int mc(int argc, char ** argv)
 
 	if(argc != 4)
 	{
-		printk("usage:\r\n    mc <src> <dst> <size>\r\n");
+		printf("usage:\r\n    mc <src> <dst> <size>\r\n");
 		return (-1);
 	}
 

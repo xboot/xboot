@@ -29,7 +29,6 @@
 #include <malloc.h>
 #include <runtime.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 
@@ -50,14 +49,14 @@ static int env(int argc, char ** argv)
 		}
 		else
 		{
-			printk("usage:\r\n    env [NAME=VALUE] ...\r\n");
+			printf("usage:\r\n    env [NAME=VALUE] ...\r\n");
 			return -1;
 		}
 	}
 
 	for(p = environ->next; p != environ; p = p->next)
 	{
-		printk(" %s\n", p->content);
+		printf(" %s\n", p->content);
 	}
 
 	return 0;

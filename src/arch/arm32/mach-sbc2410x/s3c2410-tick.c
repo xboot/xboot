@@ -29,7 +29,6 @@
 #include <time/tick.h>
 #include <xboot/clk.h>
 #include <xboot/irq.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <s3c2410/reg-timer.h>
 

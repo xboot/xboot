@@ -28,7 +28,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 
@@ -56,7 +55,7 @@ static int help(int argc, char ** argv)
 
 		if(!cmd_array)
 		{
-			printk("malloc command array fail for sort command list\r\n");
+			printf("malloc command array fail for sort command list\r\n");
 			return -1;
 		}
 
@@ -89,7 +88,7 @@ static int help(int argc, char ** argv)
 		/* display online help (desc) */
 		for (i=0; i<cmd_num; i++)
 		{
-			printk(" %s%*s - %s",cmd_array[i]->name, k-strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
+			printf(" %s%*s - %s",cmd_array[i]->name, k-strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
 		}
 		free(cmd_array);
 	}
@@ -99,11 +98,11 @@ static int help(int argc, char ** argv)
 		{
 			if( (cmd = command_search((char*)argv[i])) != NULL )
 			{
-				printk("%s - %s" "usage: %s" "help:\r\n" "%s", cmd->name, cmd->desc, cmd->usage, cmd->help);
+				printf("%s - %s" "usage: %s" "help:\r\n" "%s", cmd->name, cmd->desc, cmd->usage, cmd->help);
 			}
 			else
 			{
-				printk("unknown command '%s' - try 'help' without arguments for list of all known commands\r\n", argv[i]);
+				printf("unknown command '%s' - try 'help' without arguments for list of all known commands\r\n", argv[i]);
 			}
 		}
 	}

@@ -28,7 +28,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/fileio.h>
@@ -85,7 +84,7 @@ static int do_mkdir(int argc, char ** argv)
 
 	if(c == 0)
 	{
-		printk("usage:\r\n    mkdir [-p] DIRECTORY...\r\n");
+		printf("usage:\r\n    mkdir [-p] DIRECTORY...\r\n");
 		free(v);
 		return (-1);
 	}
@@ -101,7 +100,7 @@ static int do_mkdir(int argc, char ** argv)
 		if(mkdir((const char*)v[i], (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) != 0)
 		{
 			ret = -1;
-			printk("mkdir: failed to create directory %s\r\n", v[i]);
+			printf("mkdir: failed to create directory %s\r\n", v[i]);
 		}
 	}
 

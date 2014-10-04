@@ -28,7 +28,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <console/console.h>
@@ -58,30 +57,30 @@ static void print_entry(const char * name, struct stat * st, u32_t flags, u32_t 
 	if(flags & LSFLAG_LONG)
 	{
 	    if(S_ISDIR(st->st_mode))
-	    	printk("d");
+	    	printf("d");
 	    if(S_ISCHR(st->st_mode))
-	    	printk("c");
+	    	printf("c");
 	    if(S_ISBLK(st->st_mode))
-	    	printk("b");
+	    	printf("b");
 	    if(S_ISREG(st->st_mode))
-	    	printk("-");
+	    	printf("-");
 	    if(S_ISLNK(st->st_mode))
-	    	printk("l");
+	    	printf("l");
 	    if(S_ISFIFO(st->st_mode))
-	    	printk("p");
+	    	printf("p");
 	    if(S_ISSOCK(st->st_mode))
-	    	printk("s");
+	    	printf("s");
 
-	    printk("%s%s%s", rwx[(st->st_mode & S_IRWXU) >> 16], rwx[(st->st_mode & S_IRWXG) >> 19], rwx[(st->st_mode & S_IRWXO) >> 22]);
+	    printf("%s%s%s", rwx[(st->st_mode & S_IRWXU) >> 16], rwx[(st->st_mode & S_IRWXG) >> 19], rwx[(st->st_mode & S_IRWXO) >> 22]);
 
 		if((st->st_uid == 0) && (st->st_gid == 0))
-			printk(" %s %s", "root", "root");
+			printf(" %s %s", "root", "root");
 		else
-			printk(" %4d %4d", st->st_uid, st->st_gid);
+			printf(" %4d %4d", st->st_uid, st->st_gid);
 
-		printk(" %8ld", (s32_t)st->st_size);
+		printf(" %8ld", (s32_t)st->st_size);
 
-		printk(" %s\r\n", name);
+		printf(" %s\r\n", name);
 	}
 	else
 	{
@@ -90,14 +89,14 @@ static void print_entry(const char * name, struct stat * st, u32_t flags, u32_t 
 
 		if(position + rlen >= width)
 		{
-			printk("\r\n");
+			printf("\r\n");
 			position = 0;
 		}
 
-		printk("%s", name);
+		printf("%s", name);
 		for(i=len; i < rlen; i++)
 		{
-			printk(" ");
+			printf(" ");
 		}
 		position += rlen;
 	}
@@ -116,7 +115,7 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 
 	if(stat(path, &st) != 0)
 	{
-		printk("ls: cannot access %s: No such file or directory\r\n", path);
+		printf("ls: cannot access %s: No such file or directory\r\n", path);
 		return;
 	}
 
@@ -167,7 +166,7 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 	if(!(flags & LSFLAG_LONG))
 	{
 		if( ! ( !(flags & LSFLAG_DOT) && (n_file == 0) ) )
-			printk("\r\n");
+			printf("\r\n");
 	}
 }
 

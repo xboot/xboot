@@ -63,7 +63,7 @@ void exec_cmdline(const char * cmdline)
     					 */
     			    	if(pos)
     			    	{
-    			    		printk(" when exec \'%s\' command return an error code (%ld).\r\n", args[0], ret);
+    			    		printf(" when exec \'%s\' command return an error code (%ld).\r\n", args[0], ret);
     			    		free(args[0]);
     			    		free(args);
     			    		break;
@@ -72,8 +72,8 @@ void exec_cmdline(const char * cmdline)
     			}
     			else
     			{
-    				printk(" could not found \'%s\' command \r\n", args[0]);
-    				printk(" if you want to kown available commands, type 'help'.\r\n");
+    				printf(" could not found \'%s\' command \r\n", args[0]);
+    				printf(" if you want to kown available commands, type 'help'.\r\n");
 
 					/*
 					 * if having other command which waitting be exec, abort.

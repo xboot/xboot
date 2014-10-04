@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/fileio.h>
@@ -42,7 +41,7 @@ static int do_rmdir(int argc, char ** argv)
 
 	if(argc < 2)
 	{
-		printk("usage:\r\n    rmdir DIRECTORY...\r\n");
+		printf("usage:\r\n    rmdir DIRECTORY...\r\n");
 		return (-1);
 	}
 
@@ -51,7 +50,7 @@ static int do_rmdir(int argc, char ** argv)
 		if(rmdir((const char*)argv[i]) != 0)
 		{
 			ret = -1;
-			printk("mkdir: failed to remove directory %s\r\n", argv[i]);
+			printf("mkdir: failed to remove directory %s\r\n", argv[i]);
 		}
 	}
 

@@ -29,7 +29,6 @@
 #include <malloc.h>
 #include <hash.h>
 #include <stdio.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
 #include <xboot/proc.h>

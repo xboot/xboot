@@ -25,7 +25,6 @@
 #include <xboot.h>
 #include <errno.h>
 #include <malloc.h>
-#include <xboot/printk.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>
 #include <fs/vfs/vfs.h>

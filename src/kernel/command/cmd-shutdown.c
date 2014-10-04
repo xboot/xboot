@@ -27,7 +27,6 @@
 #include <types.h>
 #include <string.h>
 #include <version.h>
-#include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
 #include <fs/fileio.h>
@@ -46,7 +45,7 @@ static int do_shutdown(int argc, char ** argv)
 	}
 	else
 	{
-		printk(" The machine does not support 'shutdown'\r\n");
+		printf(" The machine does not support 'shutdown'\r\n");
 		return -1;
 	}
 }

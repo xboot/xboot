@@ -133,20 +133,20 @@ void module_main(void)
 {
 	int count = 0;
 	struct vgafb_context *ctx = NULL;
-	printk("=====1======\r\n");
+	printf("=====1======\r\n");
 
 	if (vgafb_create_context(&ctx) != 0)
         return;
-	printk("=====2======\r\n");
+	printf("=====2======\r\n");
 	vgafb_make_current(ctx, 0);
-	printk("=====3======\r\n");
+	printf("=====3======\r\n");
     init();
-	printk("=====4xx======\r\n");
+	printf("=====4xx======\r\n");
 	reshape(400,200);
-	printk("=====4======\r\n");
+	printf("=====4======\r\n");
     while(1)
     {
-		//printk("=====5======\r\n");
+		//printf("=====5======\r\n");
     	idle();
 	if(count++ > 100)
 		return;

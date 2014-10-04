@@ -28,7 +28,6 @@
 #include <malloc.h>
 #include <block/loop.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/fileio.h>
@@ -40,13 +39,13 @@ static int do_umount(int argc, char ** argv)
 {
 	if(argc != 2)
 	{
-		printk("usage:\r\n    umount <dir>\r\n");
+		printf("usage:\r\n    umount <dir>\r\n");
 		return -1;
 	}
 
 	if(umount((const char *)argv[1]) != 0)
 	{
-		printk("umount '%s' fail\r\n", argv[1]);
+		printf("umount '%s' fail\r\n", argv[1]);
 		return -1;
 	}
 

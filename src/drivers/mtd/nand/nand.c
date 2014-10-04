@@ -31,7 +31,6 @@
 #include <xboot/initcall.h>
 #include <xboot/proc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <mtd/nand/nfc.h>
 #include <mtd/nand/nand.h>
 

@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <time/tick.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/fileio.h>
@@ -40,9 +39,9 @@
 
 static void usage(void)
 {
-	printk("usage:\r\n");
-	printk("    fileram -f <file> <addr>\r\n");
-	printk("    fileram -r <addr> <size> <file>\r\n");
+	printf("usage:\r\n");
+	printf("    fileram -f <file> <addr>\r\n");
+	printf("    fileram -r <addr> <size> <file>\r\n");
 }
 
 static int fileram(int argc, char ** argv)
@@ -62,8 +61,8 @@ static int fileram(int argc, char ** argv)
 	{
 		if(argc != 4)
 		{
-			printk("usage:\r\n");
-			printk("    fileram -f <file> <addr>\r\n");
+			printf("usage:\r\n");
+			printf("    fileram -f <file> <addr>\r\n");
 			return -1;
 		}
 
@@ -74,7 +73,7 @@ static int fileram(int argc, char ** argv)
 		fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 		if(fd < 0)
 		{
-			printk("can not to open the file '%s'\r\n", filename);
+			printf("can not to open the file '%s'\r\n", filename);
 			return -1;
 		}
 
@@ -87,14 +86,14 @@ static int fileram(int argc, char ** argv)
 	    }
 
 		close(fd);
-		printk("copy file %s to ram 0x%08lx ~ 0x%08lx.\r\n", filename, addr, addr + size);
+		printf("copy file %s to ram 0x%08lx ~ 0x%08lx.\r\n", filename, addr, addr + size);
 	}
 	else if( !strcmp((const char *)argv[1], "-r") )
 	{
 		if(argc != 5)
 		{
-			printk("usage:\r\n");
-			printk("    fileram -r <addr> <size> <file>\r\n");
+			printf("usage:\r\n");
+			printf("    fileram -r <addr> <size> <file>\r\n");
 			return (-1);
 		}
 
@@ -111,11 +110,11 @@ static int fileram(int argc, char ** argv)
 		{
 			close(fd);
 			unlink(filename);
-			printk("failed to write file from ram\r\n");
+			printf("failed to write file from ram\r\n");
 			return -1;
 		}
 		close(fd);
-		printk("copy ram 0x%08lx ~ 0x%08lx to file %s.\r\n", addr, addr + size, filename);
+		printf("copy ram 0x%08lx ~ 0x%08lx to file %s.\r\n", addr, addr + size, filename);
 	}
 	else
 	{

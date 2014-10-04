@@ -28,7 +28,6 @@
 #include <string.h>
 #include <version.h>
 #include <malloc.h>
-#include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
@@ -120,7 +119,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 	if(fd < 0)
 	{
 		free(packet_buf);
-		printk("can not to open the file '%s'\r\n", filename);
+		printf("can not to open the file '%s'\r\n", filename);
 		return FALSE;
 	}
 
@@ -129,7 +128,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 		for(retry = 0; retry < 16; retry++)
 		{
 			if(trychar)
-				printk("%c", trychar);
+				printf("%c", trychar);
 
 			if( console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) )
 			{
@@ -145,7 +144,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 
 				case EOT:
 					flush_input();
-					printk("%c", ACK);
+					printf("%c", ACK);
 					free(packet_buf);
 					close(fd);
 					return TRUE;
@@ -154,7 +153,7 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 					if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c==CAN))
 					{
 						flush_input();
-						printk("%c", ACK);
+						printf("%c", ACK);
 						free(packet_buf);
 						close(fd);
 						unlink(filename);
@@ -176,9 +175,9 @@ static bool_t xmodem_receive(const char * filename, s32_t * size)
 
 		/* sync error */
 		flush_input();
-		printk("%c", CAN);
-		printk("%c", CAN);
-		printk("%c", CAN);
+		printf("%c", CAN);
+		printf("%c", CAN);
+		printf("%c", CAN);
 		free(packet_buf);
 		close(fd);
 		unlink(filename);
@@ -211,21 +210,21 @@ start_recv:
 			if(--retrans <= 0)
 			{
 				flush_input();
-				printk("%c", CAN);
-				printk("%c", CAN);
-				printk("%c", CAN);
+				printf("%c", CAN);
+				printf("%c", CAN);
+				printf("%c", CAN);
 				free(packet_buf);
 				close(fd);
 				unlink(filename);
 				return FALSE;
 			}
-			printk("%c", ACK);
+			printf("%c", ACK);
 			continue;
 		}
 
 reject:
 		flush_input();
-		printk("%c", NAK);
+		printf("%c", NAK);
 	}
 
 	return FALSE;
@@ -261,7 +260,7 @@ static bool_t xmodem_transmit(const char * filename, s32_t * size)
 	{
 		free(file_buf);
 		free(packet_buf);
-		printk("can not to open the file '%s'\r\n", filename);
+		printf("can not to open the file '%s'\r\n", filename);
 		return FALSE;
 	}
 
@@ -284,7 +283,7 @@ static bool_t xmodem_transmit(const char * filename, s32_t * size)
 				case CAN:
 					if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
 					{
-						printk("%c", ACK);
+						printf("%c", ACK);
 						flush_input();
 						free(file_buf);
 						free(packet_buf);
@@ -300,9 +299,9 @@ static bool_t xmodem_transmit(const char * filename, s32_t * size)
 		}
 
 		/* no sync */
-		printk("%c", CAN);
-		printk("%c", CAN);
-		printk("%c", CAN);
+		printf("%c", CAN);
+		printf("%c", CAN);
+		printf("%c", CAN);
 		flush_input();
 		free(file_buf);
 		free(packet_buf);
@@ -343,7 +342,7 @@ start_trans:
 				{
 					for(i = 0; i < packet_size + 4 + (crc_flag ? 1 : 0); i++)
 					{
-						printk("%c", packet_buf[i]);
+						printf("%c", packet_buf[i]);
 					}
 
 					if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT))
@@ -358,7 +357,7 @@ start_trans:
 						case CAN:
 							if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT) && (c == CAN))
 							{
-								printk("%c", ACK);
+								printf("%c", ACK);
 								flush_input();
 								free(file_buf);
 								free(packet_buf);
@@ -377,9 +376,9 @@ start_trans:
 				}
 
 				/* xmit error */
-				printk("%c", CAN);
-				printk("%c", CAN);
-				printk("%c", CAN);
+				printf("%c", CAN);
+				printf("%c", CAN);
+				printf("%c", CAN);
 				flush_input();
 				free(file_buf);
 				free(packet_buf);
@@ -390,7 +389,7 @@ start_trans:
 			{
 				for(retry = 0; retry < 10; ++retry)
 				{
-					printk("%c", EOT);
+					printf("%c", EOT);
 					if(console_stdin_getcode_with_timeout(&c, XMODEM_TIMEOUT<<1) && (c == ACK))
 						break;
 				}
@@ -416,18 +415,18 @@ static int sx(int argc, char ** argv)
 
 	if(argc != 2)
 	{
-		printk("usage:\r\n    sx <filename>\r\n");
+		printf("usage:\r\n    sx <filename>\r\n");
 		return (-1);
 	}
 
 	if(xmodem_transmit((const char *)argv[1], &size))
 	{
-		printk("transmit complete, the size is %ld bytes\r\n", size);
+		printf("transmit complete, the size is %ld bytes\r\n", size);
 		return 0;
 	}
 	else
 	{
-		printk("transmit fail\r\n");
+		printf("transmit fail\r\n");
 		return -1;
 	}
 
@@ -440,20 +439,20 @@ static int rx(int argc, char ** argv)
 
 	if(argc != 2)
 	{
-		printk("usage:\r\n    rx <filename>\r\n");
+		printf("usage:\r\n    rx <filename>\r\n");
 		return (-1);
 	}
 
 	if(xmodem_receive((const char *)argv[1], &size))
 	{
-		printk("\r\n");
-		printk("receive complete, the size is %ld bytes\r\n", size);
+		printf("\r\n");
+		printf("receive complete, the size is %ld bytes\r\n", size);
 		return 0;
 	}
 	else
 	{
-		printk("\r\n");
-		printk("receive fail\r\n");
+		printf("\r\n");
+		printf("receive fail\r\n");
 		return -1;
 	}
 

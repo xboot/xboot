@@ -26,7 +26,6 @@
 #include <xboot.h>
 #include <types.h>
 #include <fb/fb.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <serial/serial.h>
 #include <xboot/resource.h>

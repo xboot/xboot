@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/fileio.h>
@@ -47,20 +46,20 @@ static int do_mv(int argc, char ** argv)
 
 	if(argc != 3)
 	{
-		printk("usage:\r\n    mv SOURCE DEST\r\n");
+		printf("usage:\r\n    mv SOURCE DEST\r\n");
 		return -1;
 	}
 
 	/* check if source exists and it's regular file. */
 	if(stat((const char *)src, &st1) != 0)
 	{
-		printk("mv: cannot access %s: No such file or directory\r\n", src);
+		printf("mv: cannot access %s: No such file or directory\r\n", src);
 		return -1;
 	}
 
 	if(!S_ISREG(st1.st_mode))
 	{
-		printk("mv: invalid file type\r\n");
+		printf("mv: invalid file type\r\n");
 		return -1;
 	}
 
@@ -79,7 +78,7 @@ static int do_mv(int argc, char ** argv)
 
     if(rename((char *)src, (char *)dest) != 0)
     {
-    	printk("mv: failed to move file %s to %s\r\n", src, dest);
+    	printf("mv: failed to move file %s to %s\r\n", src, dest);
     	return -1;
     }
 

@@ -27,7 +27,6 @@
 #include <xboot.h>
 #include <xboot/ioctl.h>
 #include <xboot/clk.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <fb/fb.h>

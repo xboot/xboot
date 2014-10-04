@@ -29,7 +29,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 
@@ -164,32 +163,32 @@ just_echo:
 						break;
 not_an_escape:
 					default:
-						printk("\\");
+						printf("\\");
 						break;
 					}
 				}
-				printk("%c", c);
+				printf("%c", c);
 		    }
 			argc--;
 			argv++;
 			if (argc > 0)
-				printk(" ");
+				printf(" ");
 		}
 	}
 	else
 	{
 		while(argc > 0)
 		{
-			printk("%s",argv[0]);
+			printf("%s",argv[0]);
 			argc--;
 			argv++;
 			if(argc > 0)
-				printk(" ");
+				printf(" ");
 		}
 	}
 
 	if(display_return)
-		printk("\r\n");
+		printf("\r\n");
 
 	return 0;
 }

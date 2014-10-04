@@ -29,7 +29,6 @@
 #include <malloc.h>
 #include <fs/fileio.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 
@@ -45,19 +44,19 @@ static int cat(int argc, char ** argv)
 
 	if(argc != 2)
 	{
-		printk("usage:\r\n    cat <file>\r\n");
+		printf("usage:\r\n    cat <file>\r\n");
 		return -1;
 	}
 
 	if(stat((const char *)argv[1], &st) != 0)
 	{
-		printk("cat: cannot access %s: No such file or directory\r\n", argv[1]);
+		printf("cat: cannot access %s: No such file or directory\r\n", argv[1]);
 		return -1;
 	}
 
 	if(S_ISDIR(st.st_mode))
 	{
-		printk("cat: the file %s is a directory\r\n", argv[1]);
+		printf("cat: the file %s is a directory\r\n", argv[1]);
 		return -1;
 	}
 
@@ -68,7 +67,7 @@ static int cat(int argc, char ** argv)
 	fd = open((const char *)argv[1], O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 	if(fd < 0)
 	{
-		printk("can not to open the file '%s'\r\n", argv[1]);
+		printf("can not to open the file '%s'\r\n", argv[1]);
 		free(buf);
 		return -1;
 	}
@@ -82,14 +81,14 @@ static int cat(int argc, char ** argv)
 			if(isprint(c) || isspace(c))
 			{
 				if(c == '\n')
-					printk("\r");
-				printk("%c", c);
+					printf("\r");
+				printf("%c", c);
 			}
 			else
-				printk("<%02x>", c);
+				printf("<%02x>", c);
 		}
 	}
-	printk("\r\n");
+	printf("\r\n");
 
 	free(buf);
 	close(fd);

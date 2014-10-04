@@ -32,7 +32,7 @@
 
 static void usage(void)
 {
-	printk("usage:\r\n    mount <-t fstype> [-o option] <dev> <dir>\r\n");
+	printf("usage:\r\n    mount <-t fstype> [-o option] <dev> <dir>\r\n");
 }
 
 static int do_mount(int argc, char ** argv)
@@ -70,7 +70,7 @@ static int do_mount(int argc, char ** argv)
 				ro_flag = FALSE;
 			else
 			{
-				printk("unrecognized the option '%s'\r\n", argv[i+1]);
+				printf("unrecognized the option '%s'\r\n", argv[i+1]);
 				return -1;
 			}
 			i++;
@@ -98,19 +98,19 @@ static int do_mount(int argc, char ** argv)
 
 	if(!filesystem_search(fstype))
 	{
-		printk("the filesystem %s not found\r\n", fstype);
+		printf("the filesystem %s not found\r\n", fstype);
 		return -1;
 	}
 
 	if(stat(dir, &st) != 0)
 	{
-		printk("cannot access %s: no such directory\r\n", dir);
+		printf("cannot access %s: no such directory\r\n", dir);
 		return -1;
 	}
 
 	if(!S_ISDIR(st.st_mode))
 	{
-		printk("the '%s' does not a directory\r\n", dir);
+		printf("the '%s' does not a directory\r\n", dir);
 		return -1;
 	}
 
@@ -119,26 +119,26 @@ static int do_mount(int argc, char ** argv)
 		pdev = dev;
 		if(stat(pdev, &st) != 0)
 		{
-			printk("cannot access %s: no such file\r\n", pdev);
+			printf("cannot access %s: no such file\r\n", pdev);
 			return -1;
 		}
 
 		if(!S_ISREG(st.st_mode))
 		{
-			printk("it's not a regulation file\r\n", pdev);
+			printf("it's not a regulation file\r\n", pdev);
 			return -1;
 		}
 
 		if(!register_loop(pdev))
 		{
-			printk("register a loop block device fail\r\n");
+			printf("register a loop block device fail\r\n");
 			return -1;
 		}
 
 		blk = search_loop(pdev);
 		if(!blk)
 		{
-			printk("special loop block device not found\r\n");
+			printf("special loop block device not found\r\n");
 			return -1;
 		}
 
@@ -156,7 +156,7 @@ static int do_mount(int argc, char ** argv)
 		if(loop_flag)
 			unregister_loop(pdev);
 
-		printk("mount '%s' filesystem on special device '%s' fail\r\n", fstype, dev);
+		printf("mount '%s' filesystem on special device '%s' fail\r\n", fstype, dev);
 		return -1;
 	}
 

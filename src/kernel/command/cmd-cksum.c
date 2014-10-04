@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/ctrlc.h>
 #include <command/command.h>
@@ -106,7 +105,7 @@ static u32_t crc32(u8_t *p, s32_t len, u32_t *crc)
     	{
     		if(ctrlc())
     		{
-    			printk("\r\n");
+    			printf("\r\n");
     			return -1;
     		}
     	}
@@ -130,7 +129,7 @@ static int cksum(int argc, char ** argv)
 
 	if(argc != 3)
 	{
-		printk("usage:\r\n    cksum <address> <size>\r\n");
+		printf("usage:\r\n    cksum <address> <size>\r\n");
 		return (-1);
 	}
 
@@ -142,7 +141,7 @@ static int cksum(int argc, char ** argv)
 
 	if(crc32((void *) addr, len, &crc) == 0)
 	{
-		printk("cksum of memory area [0x%08lx .. 0x%08lx] = 0x%08lx  (%lu)\r\n", addr, addr + len - 1, crc, crc);
+		printf("cksum of memory area [0x%08lx .. 0x%08lx] = 0x%08lx  (%lu)\r\n", addr, addr + len - 1, crc, crc);
 	}
 
 	return 0;

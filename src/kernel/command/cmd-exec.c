@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <framework/vm.h>
 #include <command/command.h>
@@ -36,8 +35,8 @@
 
 static void usage(void)
 {
-	printk("usage:\r\n");
-	printk("    exec <file> [arg ...]\r\n");
+	printf("usage:\r\n");
+	printf("    exec <file> [arg ...]\r\n");
 }
 
 static int exec(int argc, char ** argv)

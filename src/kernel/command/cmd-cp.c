@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 
@@ -44,27 +43,27 @@ static int do_cp(int argc, char ** argv)
 
 	if(argc != 3)
 	{
-		printk("usage:\r\n    cp SOURCE DEST\r\n");
+		printf("usage:\r\n    cp SOURCE DEST\r\n");
 		return -1;
 	}
 
     if(access((const char *)argv[1], F_OK) != 0)
     {
-    	printk("1\r\n");
+    	printf("1\r\n");
     }
 
     if(access((const char *)argv[2], F_OK) != 0)
     {
-    	printk("2\r\n");
+    	printf("2\r\n");
     }
 
     fd1 = open((const char *)argv[1], O_RDONLY);
     if(fd1 < 0)
-    	printk("3\r\n");
+    	printf("3\r\n");
 
     fd2 = open((const char *)argv[2], O_WRONLY|O_CREAT );
     if( fd2 < 0 )
-    	printk("4\r\n");
+    	printf("4\r\n");
 
     for(;;)
     {

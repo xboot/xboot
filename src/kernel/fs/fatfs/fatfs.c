@@ -27,7 +27,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <malloc.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <block/block.h>
 #include <xboot/device.h>

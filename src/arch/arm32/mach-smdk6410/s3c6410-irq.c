@@ -27,7 +27,6 @@
 #include <types.h>
 #include <io.h>
 #include <xboot/clk.h>
-#include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
 #include <xboot/irq.h>

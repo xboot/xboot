@@ -26,7 +26,6 @@
 #include <xboot.h>
 #include <types.h>
 #include <io.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <led/led.h>
 #include <led/trigger.h>

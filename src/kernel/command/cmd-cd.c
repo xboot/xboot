@@ -27,7 +27,6 @@
 #include <string.h>
 #include <malloc.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <command/command.h>
 #include <fs/fileio.h>
@@ -41,7 +40,7 @@ static int do_cd(int argc, char ** argv)
 	{
 		if(chdir("/") != 0)
 		{
-			printk("cd: %s: no such directory\r\n", "/");
+			printf("cd: %s: no such directory\r\n", "/");
 			return -1;
 		}
 	}
@@ -49,7 +48,7 @@ static int do_cd(int argc, char ** argv)
 	{
 		if(chdir((char *)argv[1]) != 0)
 		{
-			printk("cd: %s: no such directory\r\n", argv[1]);
+			printf("cd: %s: no such directory\r\n", argv[1]);
 			return -1;
 		}
 	}

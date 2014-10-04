@@ -28,7 +28,6 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <xboot/list.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <mtd/nand/nfc.h>
 #include <mtd/nand/nand.h>
@@ -44,7 +43,7 @@ extern struct mmc_card_list * mmc_card_list;
 
 static void usage(void)
 {
-	printk("usage:\r\n    probe <TYPE>\r\n");
+	printf("usage:\r\n    probe <TYPE>\r\n");
 }
 
 static void list_nand_flash(void)
@@ -56,7 +55,7 @@ static void list_nand_flash(void)
 	{
 		list = list_entry(pos, struct nand_list, entry);
 
-		printk(" \"%s\" - %s (%s)\r\n", list->nand->name, list->nand->info->name, list->nand->manufacturer->name);
+		printf(" \"%s\" - %s (%s)\r\n", list->nand->name, list->nand->info->name, list->nand->manufacturer->name);
 	}
 }
 
@@ -71,7 +70,7 @@ static void list_mmc_card(void)
 		list = list_entry(pos, struct mmc_card_list, entry);
 
 		ssize(buff, (u64_t)(list->card->info->capacity));
-		printk(" \"%s\" - %s (%s)\r\n", list->card->name, list->card->info->cid.pnm, buff);
+		printf(" \"%s\" - %s (%s)\r\n", list->card->name, list->card->info->cid.pnm, buff);
 	}
 }
 
@@ -103,7 +102,7 @@ static int probe(int argc, char ** argv)
 		}
 		else
 		{
-			printk("do not probe device with the type of '%s'\r\n", argv[i]);
+			printf("do not probe device with the type of '%s'\r\n", argv[i]);
 		}
 	}
 

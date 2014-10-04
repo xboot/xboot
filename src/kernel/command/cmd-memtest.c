@@ -28,7 +28,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <version.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <xboot/machine.h>
 #include <shell/ctrlc.h>
@@ -60,16 +59,16 @@ static int memtest(int argc, char ** argv)
 	}
 	else
 	{
-		printk("usage:\r\n    memtest <address> <size>\r\n");
+		printf("usage:\r\n    memtest <address> <size>\r\n");
 		return (-1);
 	}
 
-	printk("testing 0x%08lx .. 0x%08lx\r\n", base, base + size);
+	printf("testing 0x%08lx .. 0x%08lx\r\n", base, base + size);
 	start = (u32_t *)base;
 
 	if(size == 0)
 	{
-		printk("not do any testing\r\n");
+		printf("not do any testing\r\n");
 		return 0;
 	}
 
@@ -89,7 +88,7 @@ static int memtest(int argc, char ** argv)
 		if(readback != walker)
 		{
 			errcnt++;
-			printk("error at 0x%08lx: read 0x%lx expected x%lx\r\n", (u32_t)i, readback, walker);
+			printf("error at 0x%08lx: read 0x%lx expected x%lx\r\n", (u32_t)i, readback, walker);
 			break;
 		}
 		walker <<= 1;
@@ -120,15 +119,15 @@ static int memtest(int argc, char ** argv)
 		if(readback != (u32_t)i)
 		{
 			errcnt++;
-			printk("error at 0x%08lx: read 0x%08lx expected 0x%08lx\r\n", (u32_t)i, readback, (u32_t)i);
+			printf("error at 0x%08lx: read 0x%08lx expected 0x%08lx\r\n", (u32_t)i, readback, (u32_t)i);
 			break;
 		}
 	}
 
 	if(errcnt > 0)
-		printk("found %d errors\r\n", errcnt);
+		printf("found %d errors\r\n", errcnt);
 	else
-		printk("no found any errors\r\n");
+		printf("no found any errors\r\n");
 
 	return 0;
 }

@@ -26,7 +26,6 @@
 #include <types.h>
 #include <string.h>
 #include <version.h>
-#include <xboot/printk.h>
 #include <xboot/machine.h>
 #include <xboot/initcall.h>
 #include <fs/fileio.h>
@@ -45,7 +44,7 @@ static int reboot(int argc, char ** argv)
 	}
 	else
 	{
-		printk(" the machine does not support 'reboot'\r\n");
+		printf(" the machine does not support 'reboot'\r\n");
 		return -1;
 	}
 }

@@ -1430,7 +1430,7 @@ void __xfs_free(struct xfs_context_t * ctx)
 //xxx for test
 static void printDir(void *data, const char *origdir, const char *fname)
 {
-	printk(" * We've got [%s] in [%s].\n", fname, origdir);
+	printf(" * We've got [%s] in [%s].\n", fname, origdir);
 }
 
 void tt(void)
@@ -1479,8 +1479,8 @@ void tt(void)
         return ;
     } /* if */
 
-    printk("Testing completed.\n");
-    printk("  If no errors were reported, you're good to go.\n");
+    printf("Testing completed.\n");
+    printf("  If no errors were reported, you're good to go.\n");
 
 /*    xfs_delete("/a/b/c/x.txt");
     xfs_delete("/a/b/C/X.txt");
@@ -1492,14 +1492,14 @@ void tt(void)
 /*	xfs_add_to_search_path("/romdisk/test.zip", 1);
 	xfs_set_write_dir("/tmp");
 
-	printk("init\r\n");
+	printf("init\r\n");
 
     char **files = PHYSFS_enumerateFiles("/");
     char **i;
     for (i = files; *i != NULL; i++)
     {
         const char *dirorfile = xfs_is_directory(*i) ? "Directory" : "File";
-        printk(" * %s '%s' is in root of attached data.\n", dirorfile, *i);
+        printf(" * %s '%s' is in root of attached data.\n", dirorfile, *i);
     }
     xfs_free_list(files);*/
 

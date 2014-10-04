@@ -28,7 +28,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <version.h>
-#include <xboot/printk.h>
 #include <xboot/initcall.h>
 #include <shell/ctrlc.h>
 #include <command/command.h>
@@ -44,7 +43,7 @@ static int md(int argc, char ** argv)
 
 	if(argc < 2)
 	{
-		printk("usage:\r\n    md [-b|-w|-l] address [-c count]\r\n");
+		printf("usage:\r\n    md [-b|-w|-l] address [-c count]\r\n");
 		return (-1);
 	}
 
@@ -63,9 +62,9 @@ static int md(int argc, char ** argv)
 		}
 		else if(*argv[i] == '-')
 		{
-			printk("md: invalid option '%s'\r\n", argv[i]);
-			printk("usage:\r\n    md [-b|-w|-l] address [-c count]\r\n");
-			printk("try 'help md' for more information.\r\n");
+			printf("md: invalid option '%s'\r\n", argv[i]);
+			printf("usage:\r\n    md [-b|-w|-l] address [-c count]\r\n");
+			printf("try 'help md' for more information.\r\n");
 			return (-1);
 		}
 		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
@@ -89,14 +88,14 @@ static int md(int argc, char ** argv)
 	{
 		line_len = (nbytes > 16) ? 16:nbytes;
 
-		printk("%08lx: ", base_addr);
+		printf("%08lx: ", base_addr);
 		if(size == 1)
 		{
 			for(i=0; i<line_len; i+= size)
 				*((u8_t *)(&linebuf[i])) = *((u8_t *)(base_addr+i));
 
 			for(i=0; i<line_len; i+= size)
-				printk(" %02lx", *((u8_t *)(&linebuf[i])));
+				printf(" %02lx", *((u8_t *)(&linebuf[i])));
 		}
 		else if(size == 2)
 		{
@@ -104,7 +103,7 @@ static int md(int argc, char ** argv)
 				*((u16_t *)(&linebuf[i])) = *((u16_t *)(base_addr+i));
 
 			for(i=0; i<line_len; i+= size)
-				printk(" %04lx", *((u16_t *)(&linebuf[i])));
+				printf(" %04lx", *((u16_t *)(&linebuf[i])));
 		}
 		else if(size == 4)
 		{
@@ -112,21 +111,21 @@ static int md(int argc, char ** argv)
 				*((u32_t *)(&linebuf[i])) = *((u32_t *)(base_addr+i));
 
 			for(i=0; i<line_len; i+= size)
-				printk(" %08lx", *((u32_t *)(&linebuf[i])));
+				printf(" %08lx", *((u32_t *)(&linebuf[i])));
 		}
 
-		printk("%*s", (16-line_len)*2+(16-line_len)/size+4, (s8_t*)"");
+		printf("%*s", (16-line_len)*2+(16-line_len)/size+4, (s8_t*)"");
 		for(i=0; i<line_len; i++)
 		{
 			if( (linebuf[i] < 0x20) || (linebuf[i] > 0x7e) )
-				printk(".");
+				printf(".");
 			else
-				printk("%c", linebuf[i]);
+				printf("%c", linebuf[i]);
 		}
 
 		base_addr += line_len;
 		nbytes -= line_len;
-		printk("\r\n");
+		printf("\r\n");
 
 		if(ctrlc())
 			return -1;

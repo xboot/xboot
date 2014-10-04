@@ -83,17 +83,18 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/$(MACH)/resource				\
 				lib/elf										\
 				lib/libc									\
+				lib/libc/charset							\
 				lib/libc/ctype								\
 				lib/libc/environ							\
 				lib/libc/errno								\
 				lib/libc/exit								\
 				lib/libc/fifo								\
+				lib/libc/locale								\
+				lib/libc/malloc								\
 				lib/libc/stdio								\
 				lib/libc/stdlib								\
 				lib/libc/string								\
 				lib/libc/time								\
-				lib/libc/locale								\
-				lib/libc/malloc								\
 				lib/libm									\
 				lib/xfs										\
 				init										\

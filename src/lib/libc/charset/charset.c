@@ -1,17 +1,13 @@
 /*
- * lib/libc/charset.c
+ * libc/charset/charset.c
  */
 
-#include <xboot.h>
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
 #include <charset.h>
 
-/*
- * non-spacing attribute table.
- */
 static const u8_t nonspacing_table_data[26 * 64] = {
 	/* 0x0000-0x01ff */
 	0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, /* 0x0000-0x003f */
@@ -282,24 +278,21 @@ static const s8_t nonspacing_table_ind[240] = {
 	24, 25, -1, -1, -1, -1, -1, -1					/* 0x1d000-0x1dfff */
 };
 
-/*
- * utf8_to_ucs4 - convert a UTF-8 string to UCS-4 string
- */
-ssize_t utf8_to_ucs4(u32_t * dst, size_t dst_size, const char * src, size_t src_size, const char ** src_end)
+ssize_t utf8_to_ucs4(u32_t * dst, size_t dsz, const char * src, size_t ssz, const char ** end)
 {
 	u32_t *p = dst;
 	int count = 0;
 	u32_t code = 0;
 	u32_t c;
 
-	if(src_end)
-		*src_end = src;
+	if(end)
+		*end = src;
 
-	while(src_size && dst_size)
+	while(ssz && dsz)
 	{
 		c = *src++;
-		if(src_size != (size_t)-1)
-			src_size--;
+		if(ssz != (size_t)-1)
+			ssz--;
 		if(count)
 		{
 			if((c & 0xc0) != 0x80)
@@ -307,8 +300,8 @@ ssize_t utf8_to_ucs4(u32_t * dst, size_t dst_size, const char * src, size_t src_
 				code = '?';
 				/* character c may be valid, don't eat it */
 				src--;
-				if(src_size != (size_t)-1)
-					src_size++;
+				if(ssz != (size_t)-1)
+					ssz++;
 				count = 0;
 			}
 			else
@@ -360,26 +353,24 @@ ssize_t utf8_to_ucs4(u32_t * dst, size_t dst_size, const char * src, size_t src_
 		if (count == 0)
 		{
 			*p++ = code;
-			dst_size--;
+			dsz--;
 		}
 	}
 
-	if(src_end)
-		*src_end = src;
+	if(end)
+		*end = src;
 
 	return p - dst;
 }
+EXPORT_SYMBOL(utf8_to_ucs4);
 
-/*
- * utf4_to_utf8 - convert a UCS-4 to UTF-8
- */
-char * ucs4_to_utf8(u32_t * src, size_t src_size, char * dst, size_t dst_size)
+char * ucs4_to_utf8(u32_t * src, size_t ssz, char * dst, size_t dsz)
 {
-	char * destend = dst + dst_size - 1;
+	char * destend = dst + dsz - 1;
 	char * p = dst;
 	u32_t code = 0;
 
-	while(src_size-- && p < destend)
+	while(ssz-- && p < destend)
 	{
 		code = *src++;
 
@@ -418,25 +409,23 @@ char * ucs4_to_utf8(u32_t * src, size_t src_size, char * dst, size_t dst_size)
 	*p = 0;
 	return dst;
 }
+EXPORT_SYMBOL(ucs4_to_utf8);
 
-/*
- * utf8_to_utf16 - convert a UTF-8 string to UTF-16 string
- */
-ssize_t utf8_to_utf16(u16_t * dst, size_t dst_size, const char * src, size_t src_size, const char ** src_end)
+ssize_t utf8_to_utf16(u16_t * dst, size_t dsz, const char * src, size_t ssz, const char ** end)
 {
 	u16_t *p = dst;
 	int count = 0;
 	u32_t code = 0;
 	u32_t c;
 
-	if(src_end)
-		*src_end = src;
+	if(end)
+		*end = src;
 
-	while(src_size && dst_size)
+	while(ssz && dsz)
 	{
 		c = *src++;
-		if(src_size != (size_t)-1)
-			src_size--;
+		if(ssz != (size_t)-1)
+			ssz--;
 		if(count)
 		{
 			if ((c & 0xc0) != 0x80)
@@ -488,31 +477,29 @@ ssize_t utf8_to_utf16(u16_t * dst, size_t dst_size, const char * src, size_t src
 
 		if(count == 0)
 		{
-			if((dst_size < 2) && (code >= 0x10000))
+			if((dsz < 2) && (code >= 0x10000))
 				break;
 			if(code >= 0x10000)
 			{
 				*p++ = (0xd800 + ((((code) - 0x10000) >> 12) & 0xfff));
 				*p++ = (0xdc00 + (((code) - 0x10000) & 0xfff));
-				dst_size -= 2;
+				dsz -= 2;
 			}
 			else
 			{
 				*p++ = code;
-				dst_size--;
+				dsz--;
 			}
 		}
     }
 
-	if(src_end)
-		*src_end = src;
+	if(end)
+		*end = src;
 
 	return p - dst;
 }
+EXPORT_SYMBOL(utf8_to_utf16);
 
-/*
- * utf16_to_utf8 - convert a UTF-16 string to UTF-8 string
- */
 char * utf16_to_utf8(char * dst, u16_t * src, size_t size)
 {
 	u32_t code_high = 0;
@@ -569,10 +556,8 @@ char * utf16_to_utf8(char * dst, u16_t * src, size_t size)
 
 	return dst;
 }
+EXPORT_SYMBOL(utf16_to_utf8);
 
-/*
- * utf4_to_utf8_alloc - convert a UCS-4 to UTF-8
- */
 char * ucs4_to_utf8_alloc(u32_t * src, size_t size)
 {
 	size_t remaining;
@@ -608,10 +593,8 @@ char * ucs4_to_utf8_alloc(u32_t * src, size_t size)
 	ucs4_to_utf8(src, size, ret, cnt);
 	return ret;
 }
+EXPORT_SYMBOL(ucs4_to_utf8_alloc);
 
-/*
- * utf8_to_ucs4_alloc - convert a UTF-8 string to UCS-4 string
- */
 ssize_t utf8_to_ucs4_alloc(const char * src, u32_t ** dst, u32_t ** pos)
 {
 	ssize_t len = strlen((char *)src);
@@ -628,18 +611,13 @@ ssize_t utf8_to_ucs4_alloc(const char * src, u32_t ** dst, u32_t ** pos)
 
 	return len;
 }
+EXPORT_SYMBOL(utf8_to_ucs4_alloc);
 
-/*
- * determine number of column positions required for unicode
-  */
 int ucs4_width(u32_t uc)
 {
 	bool_t cjk = FALSE;
 	int ind;
 
-	/*
-	 * test for non-spacing or control character
-	 */
 	if((uc >> 9) < 240)
 	{
 		ind = nonspacing_table_ind[uc >> 9];
@@ -668,9 +646,6 @@ int ucs4_width(u32_t uc)
 		}
 	}
 
-	/*
-	 * test for double-width character
-	 */
 	if( (uc >= 0x1100) && ((uc < 0x1160)
 		|| (uc >= 0x2329 && uc < 0x232b)
 		|| (uc >= 0x2e80 && uc < 0xa4d0 && !(uc == 0x303f) && !(uc >= 0x4dc0 && uc < 0x4e00))
@@ -684,18 +659,13 @@ int ucs4_width(u32_t uc)
 		|| (uc >= 0x2f800 && uc <= 0x2fa1d)) )
 		return 2;
 
-	/*
-	 * in ancient cjk encodings
-	 */
 	if(uc >= 0x00A1 && uc < 0xFF61 && uc != 0x20A9 && cjk)
 		return 2;
 
 	return 1;
 }
+EXPORT_SYMBOL(ucs4_width);
 
-/*
- * determine number of column positions required for utf8 string
-  */
 size_t utf8_width(const char * s)
 {
 	const char * p;
@@ -713,6 +683,7 @@ size_t utf8_width(const char * s)
 
 	return width;
 }
+EXPORT_SYMBOL(utf8_width);
 
 bool_t utf8_is_valid(const char * src, size_t size)
 {
@@ -768,6 +739,7 @@ bool_t utf8_is_valid(const char * src, size_t size)
 
 	return TRUE;
 }
+EXPORT_SYMBOL(utf8_is_valid);
 
 size_t utf8_strlen(const char * s)
 {
@@ -782,3 +754,4 @@ size_t utf8_strlen(const char * s)
 
 	return j;
 }
+EXPORT_SYMBOL(utf8_strlen);

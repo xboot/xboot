@@ -26,9 +26,6 @@
 #include <init.h>
 #include <mode/mode.h>
 
-/*
- * The entry of main function.
- */
 int xboot_main(int argc, char * argv[])
 {
 	/* Alloc default runtime */
@@ -46,45 +43,19 @@ int xboot_main(int argc, char * argv[])
 	/* Display system logo */
 	do_system_logo();
 
-	/* Load system configure */
-	do_system_cfg();
-
 	/* Wait a moment */
 	do_system_wait();
 
 	/* Run loop */
 	while(1)
 	{
-		/*
-		 * Normal mode
-		 */
 		if(xboot_get_mode() == MODE_NORMAL)
 		{
 			run_normal_mode();
 		}
-
-		/*
-		 * Shell mode
-		 */
 		else if(xboot_get_mode() == MODE_SHELL)
 		{
 			run_shell_mode();
-		}
-
-		/*
-		 * Memu mode
-		 */
-		else if(xboot_get_mode() == MODE_MENU)
-		{
-			run_menu_mode();
-		}
-
-		/*
-		 * Graphic mode
-		 */
-		else if(xboot_get_mode() == MODE_GRAPHIC)
-		{
-			run_graphic_mode();
 		}
 	}
 

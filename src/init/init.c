@@ -24,7 +24,6 @@
 
 #include <xboot.h>
 #include <cairo-xboot.h>
-#include <xboot/menu.h>
 #include <console/console.h>
 #include <fb/fb.h>
 #include <init.h>
@@ -125,20 +124,6 @@ void do_system_logo(void)
 	if(watermark)
 		cairo_surface_destroy(watermark);
 	cairo_surface_destroy(logo);
-}
-
-void do_system_cfg(void)
-{
-	LOG("Load system configure");
-
-	/*
-	 * load menu context
-	 */
-	if(! menu_load("/etc/menu.xml"))
-	{
-		if(! menu_load("/romdisk/etc/menu.xml"))
-			LOG("Can not load menu context");
-	}
 }
 
 void do_system_wait(void)

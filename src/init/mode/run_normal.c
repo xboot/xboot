@@ -24,20 +24,11 @@
 
 
 #include <xboot.h>
-#include <xboot/menu.h>
 #include <shell/exec.h>
 
 void run_normal_mode(void)
 {
-	struct menu_item_t * item;
-
 	do {
-		item = get_menu_indexof_item(0);
-
-		if(item && item->title && item->command)
-			exec_cmdline(item->command);
-		else
-			xboot_set_mode(MODE_SHELL);
-
+		xboot_set_mode(MODE_SHELL);
 	} while(xboot_get_mode() == MODE_NORMAL);
 }

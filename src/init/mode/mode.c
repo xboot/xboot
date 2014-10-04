@@ -25,22 +25,13 @@
 #include <xboot.h>
 #include <mode/mode.h>
 
-/*
- * xboot running mode.
- */
 static enum mode_t xboot_mode = MODE_NORMAL;
 
-/*
- * get xboot's running mode.
- */
-inline enum mode_t xboot_get_mode(void)
+enum mode_t xboot_get_mode(void)
 {
 	return xboot_mode;
 }
 
-/*
- * set xboot's running mode.
- */
 bool_t xboot_set_mode(enum mode_t m)
 {
 	switch(m)
@@ -51,14 +42,6 @@ bool_t xboot_set_mode(enum mode_t m)
 
 	case MODE_SHELL:
 		xboot_mode = MODE_SHELL;
-		break;
-
-	case MODE_MENU:
-		xboot_mode = MODE_MENU;
-		break;
-
-	case MODE_GRAPHIC:
-		xboot_mode = MODE_GRAPHIC;
 		break;
 
 	default:

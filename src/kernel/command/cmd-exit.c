@@ -44,7 +44,7 @@ static int exit_to_mode(int argc, char ** argv)
 {
 	if(argc == 1)
 	{
-		xboot_set_mode(MODE_MENU);
+		xboot_set_mode(MODE_NORMAL);
 	}
 	else if(argc == 2)
 	{
@@ -55,14 +55,6 @@ static int exit_to_mode(int argc, char ** argv)
 		else if( (strcmp((const char *)argv[1], "-s") == 0) || (strcmp((const char *)argv[1], "--shell") == 0) )
 		{
 			xboot_set_mode(MODE_SHELL);
-		}
-		else if( (strcmp((const char *)argv[1], "-m") == 0) || (strcmp((const char *)argv[1], "--menu") == 0) )
-		{
-			xboot_set_mode(MODE_MENU);
-		}
-		else if( (strcmp((const char *)argv[1], "-g") == 0) || (strcmp((const char *)argv[1], "--graphic") == 0) )
-		{
-			xboot_set_mode(MODE_GRAPHIC);
 		}
 		else
 		{
@@ -88,8 +80,6 @@ static struct command_t exit_cmd = {
 				  "    no arguments for enter to menu mode.\r\n"
 				  "    -n | --normal      enter to normal mode\r\n"
 				  "    -s | --shell       enter to shell mode\r\n"
-				  "    -m | --menu        enter to menu mode\r\n"
-				  "    -g | --graphic     enter to graphic mode\r\n"
 };
 
 static __init void exit_cmd_init(void)

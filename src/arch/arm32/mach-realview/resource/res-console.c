@@ -26,7 +26,7 @@
 #include <console/console.h>
 
 static struct console_stdio_data_t console_stdio_data = {
-	.in		= "realview-uart.0",
+	.in		= "realview-keyboard.0",
 	.out	= "realview-fb.0",
 	.err	= "realview-fb.0",
 };

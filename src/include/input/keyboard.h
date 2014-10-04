@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-
 enum {
 	KEY_SPACE					= 0x0020,	/*   */
 	KEY_EXCLAMATION_MARK		= 0x0021,	/* ! */

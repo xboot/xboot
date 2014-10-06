@@ -27,7 +27,7 @@ struct runtime_t {
 	struct event_base_t * __event_base;
 
 	/* xfs context */
-	struct xfs_context_t * __xfs_ctx;
+	void * __xfs_ctx;
 };
 
 struct runtime_t * runtime_get(void);

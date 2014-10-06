@@ -81,7 +81,7 @@ static FT_Stream FT_New_Xfs_Stream(const char * pathname)
 		return NULL;
 	}
 
-	stream->size = xfs_length(file);
+	stream->size = xfs_filelength(file);
 	if(!stream->size)
 	{
 		xfs_close(file);

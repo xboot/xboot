@@ -7,52 +7,14 @@ extern "C" {
 
 #include <xboot.h>
 
-/*
- * Function signature for callback that enumerate files
- */
-typedef void (*xfs_enumerate_callback)(void * cbdata, const char * odir, const char * filename);
+typedef void (*xfs_enumfiles_callback_t)(void * cbdata, const char * odir, const char * filename);
 
-struct xfs_file_t
-{
+struct xfs_file_t {
 	void * handle;
 };
 
-struct xfs_dir_handle_t
-{
-    void * handle;
-    char * dname;
-    char * mpoint;
-	struct xfs_archiver_t * archiver;
-    struct xfs_dir_handle_t * next;
-};
-
-struct xfs_file_handle_t
-{
-	void * handle;
-    u8_t forReading;
-    struct xfs_dir_handle_t * dhandle;
-    struct xfs_archiver_t * archiver;
-    u8_t * buffer;
-    u32_t bufsize;
-    u32_t buffill;
-    u32_t bufpos;
-    struct xfs_file_handle_t * next;
-};
-
-struct xfs_context_t {
-	struct xfs_dir_handle_t * search_path;
-	struct xfs_dir_handle_t * write_dir;
-	struct xfs_file_handle_t * open_write_list;
-	struct xfs_file_handle_t * open_read_list;
-
-	char * base_dir;
-	char * user_dir;
-
-	void * lock;
-};
-
-struct xfs_context_t * __xfs_alloc(void);
-void __xfs_free(struct xfs_context_t * ctx);
+void * __xfs_alloc(void);
+void __xfs_free(void * context);
 
 bool_t xfs_init(const char * path);
 bool_t xfs_mount(const char * dir, const char * mpoint, int appendToPath);
@@ -68,14 +30,14 @@ bool_t xfs_is_directory(const char * name);
 bool_t xfs_is_symlink(const char * name);
 struct xfs_file_t * xfs_open_write(const char * name);
 struct xfs_file_t * xfs_open_append(const char * name);
-struct xfs_file_t *xfs_open_read(const char * name);
+struct xfs_file_t * xfs_open_read(const char * name);
 bool_t xfs_close(struct xfs_file_t * h);
 s64_t xfs_read(struct xfs_file_t * handle, void * buffer, u32_t objSize, u32_t objCount);
 s64_t xfs_write(struct xfs_file_t * handle, const void * buffer, u32_t objSize, u32_t objCount);
 bool_t xfs_eof(struct xfs_file_t * handle);
 s64_t xfs_tell(struct xfs_file_t * handle);
 bool_t xfs_seek(struct xfs_file_t * handle, u64_t pos);
-s64_t xfs_length(struct xfs_file_t * handle);
+s64_t xfs_filelength(struct xfs_file_t * handle);
 bool_t xfs_flush(struct xfs_file_t * handle);
 
 #ifdef __cplusplus

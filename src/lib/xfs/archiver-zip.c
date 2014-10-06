@@ -376,7 +376,7 @@ static s64_t zip_find_end_of_central_dir(void *in, s64_t *len)
     s32_t totalread = 0;
     int found = 0;
 
-    filelen = __xfs_platform_length(in);
+    filelen = __xfs_platform_filelength(in);
     if(filelen == -1)
     	return 0;
     if(filelen > 0xFFFFFFFF)
@@ -1275,7 +1275,7 @@ static s32_t zip_find_start_of_dir(ZIPinfo *info, const char *path,
  * Moved to seperate function so we can use alloca then immediately throw
  *  away the allocated stack space...
  */
-static void doEnumCallback(xfs_enumerate_callback cb, void *callbackdata,
+static void doEnumCallback(xfs_enumfiles_callback_t cb, void *callbackdata,
                            const char *odir, const char *str, s32_t ln)
 {
     char *newstr = malloc(ln + 1);
@@ -1290,7 +1290,7 @@ static void doEnumCallback(xfs_enumerate_callback cb, void *callbackdata,
 
 
 static void ZIP_enumerateFiles(void *opaque, const char *dname,
-                               xfs_enumerate_callback cb,
+                               xfs_enumfiles_callback_t cb,
                                const char *origdir, void *callbackdata)
 {
     ZIPinfo *info = ((ZIPinfo *) opaque);
@@ -1489,7 +1489,7 @@ static void *ZIP_openAppend(void *opaque, const char *filename)
 	return NULL;
 }
 
-static void ZIP_dirClose(void *opaque)
+static void ZIP_closeArchive(void *opaque)
 {
     ZIPinfo *zi = (ZIPinfo *) (opaque);
     zip_free_entries(zi->entries, zi->entryCount);
@@ -1523,7 +1523,7 @@ struct xfs_archiver_t __xfs_archiver_zip = {
 	.open_append		= ZIP_openAppend,
 	.remove				= ZIP_remove,
 	.mkdir				= ZIP_mkdir,
-	.dir_close			= ZIP_dirClose,
+	.close_archive		= ZIP_closeArchive,
 	.read				= ZIP_read,
 	.write				= ZIP_write,
 	.eof				= ZIP_eof,

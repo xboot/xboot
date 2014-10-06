@@ -6,6 +6,38 @@
 #include <xfs/archiver.h>
 #include <xfs/xfs.h>
 
+struct xfs_dir_handle_t
+{
+    void * handle;
+    char * dname;
+    char * mpoint;
+	struct xfs_archiver_t * archiver;
+    struct xfs_dir_handle_t * next;
+};
+
+struct xfs_file_handle_t
+{
+	void * handle;
+    u8_t forReading;
+    struct xfs_dir_handle_t * dhandle;
+    struct xfs_archiver_t * archiver;
+    u8_t * buffer;
+    u32_t bufsize;
+    u32_t buffill;
+    u32_t bufpos;
+    struct xfs_file_handle_t * next;
+};
+
+struct xfs_context_t {
+	struct xfs_dir_handle_t * search_path;
+	struct xfs_dir_handle_t * write_dir;
+	struct xfs_file_handle_t * open_write_list;
+	struct xfs_file_handle_t * open_read_list;
+	char * base_dir;
+	char * user_dir;
+	void * lock;
+};
+
 static struct xfs_archiver_t * __xfs_archivers[] = {
 	&__xfs_archiver_direct,
 	&__xfs_archiver_zip,
@@ -47,7 +79,7 @@ static struct xfs_dir_handle_t * try_open_directory(struct xfs_archiver_t * arch
 		{
 			ret = (struct xfs_dir_handle_t *)malloc(sizeof(struct xfs_dir_handle_t));
 			if(ret == NULL)
-				archive->dir_close(handle);
+				archive->close_archive(handle);
 			else
 			{
 				memset(ret, '\0', sizeof(struct xfs_dir_handle_t));
@@ -200,7 +232,7 @@ static struct xfs_dir_handle_t * create_dir_handle(const char * dir, const char 
 bad_dir_handle:
     if(dhandle != NULL )
 	{
-		dhandle->archiver->dir_close(dhandle->handle);
+		dhandle->archiver->close_archive(dhandle->handle);
 		free(dhandle->dname);
 		free(dhandle->mpoint);
 		free(dhandle);
@@ -223,7 +255,7 @@ static bool_t free_dir_handle(struct xfs_dir_handle_t * dh, struct xfs_file_hand
     		return FALSE;
     }
 
-	dh->archiver->dir_close(dh->handle);
+	dh->archiver->close_archive(dh->handle);
 	free(dh->dname);
 	free(dh->mpoint);
 	free(dh);
@@ -253,19 +285,20 @@ static bool_t close_file_handle_list(struct xfs_file_handle_t ** list)
 
 static void free_search_path(void)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	struct xfs_dir_handle_t * i;
 	struct xfs_dir_handle_t * next = NULL;
 
-	close_file_handle_list(&__xfs_platform_get_context()->open_read_list);
+	close_file_handle_list(&ctx->open_read_list);
 
-	if(__xfs_platform_get_context()->search_path != NULL )
+	if(ctx->search_path != NULL )
 	{
-		for(i = __xfs_platform_get_context()->search_path; i != NULL ; i = next)
+		for(i = ctx->search_path; i != NULL ; i = next)
 		{
 			next = i->next;
-			free_dir_handle(i, __xfs_platform_get_context()->open_read_list);
+			free_dir_handle(i, ctx->open_read_list);
 		}
-		__xfs_platform_get_context()->search_path = NULL;
+		ctx->search_path = NULL;
 	}
 }
 
@@ -286,55 +319,60 @@ const char * xfs_get_directory_separator(void)
 
 const char * xfs_get_base_dir(void)
 {
-	return __xfs_platform_get_context()->base_dir;
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
+	return ctx->base_dir;
 }
 
 const char * xfs_get_user_dir(void)
 {
-	return __xfs_platform_get_context()->user_dir;
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
+	return ctx->user_dir;
 }
 
 const char * xfs_get_write_dir(void)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	const char * ret = NULL;
 
-	__xfs_platform_lock();
+	__xfs_platform_lock(ctx->lock);
 
-	if(__xfs_platform_get_context()->write_dir != NULL)
-		ret = (__xfs_platform_get_context()->write_dir)->dname;
+	if(ctx->write_dir != NULL)
+		ret = (ctx->write_dir)->dname;
 
-	__xfs_platform_unlock();
+	__xfs_platform_unlock(ctx->lock);
 	return (ret);
 }
 
 bool_t xfs_set_write_dir(const char * dir)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	bool_t ret = TRUE;
 
-	__xfs_platform_lock();
+	__xfs_platform_lock(ctx->lock);
 
-	if(__xfs_platform_get_context()->write_dir != NULL )
+	if(ctx->write_dir != NULL )
 	{
-		if (!free_dir_handle(__xfs_platform_get_context()->write_dir, __xfs_platform_get_context()->open_write_list))
+		if (!free_dir_handle(ctx->write_dir, ctx->open_write_list))
 		{
-			__xfs_platform_unlock();
+			__xfs_platform_unlock(ctx->lock);
 			return FALSE;
 		}
-		__xfs_platform_get_context()->write_dir = NULL;
+		ctx->write_dir = NULL;
 	}
 
 	if(dir != NULL )
 	{
-		__xfs_platform_get_context()->write_dir = create_dir_handle(dir, NULL, 1);
-		ret = (__xfs_platform_get_context()->write_dir) ? TRUE : FALSE;
+		ctx->write_dir = create_dir_handle(dir, NULL, 1);
+		ret = (ctx->write_dir) ? TRUE : FALSE;
 	}
 
-	__xfs_platform_unlock();
+	__xfs_platform_unlock(ctx->lock);
 	return (ret);
 }
 
 bool_t xfs_mount(const char * dir, const char * mpoint, int appendToPath)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	struct xfs_dir_handle_t * dh;
 	struct xfs_dir_handle_t * prev = NULL;
 	struct xfs_dir_handle_t * i;
@@ -345,13 +383,13 @@ bool_t xfs_mount(const char * dir, const char * mpoint, int appendToPath)
 	if(mpoint == NULL )
 		mpoint = "/";
 
-	__xfs_platform_lock();
+	__xfs_platform_lock(ctx->lock);
 
-	for(i = __xfs_platform_get_context()->search_path; i != NULL ; i = i->next)
+	for(i = ctx->search_path; i != NULL ; i = i->next)
 	{
 		if(strcmp(dir, i->dname) == 0)
 		{
-			__xfs_platform_unlock();
+			__xfs_platform_unlock(ctx->lock);
 			return TRUE;
 		}
 		prev = i;
@@ -360,24 +398,24 @@ bool_t xfs_mount(const char * dir, const char * mpoint, int appendToPath)
 	dh = create_dir_handle(dir, mpoint, 0);
 	if(dh == NULL )
 	{
-		__xfs_platform_unlock();
+		__xfs_platform_unlock(ctx->lock);
 		return FALSE;
 	}
 
 	if(appendToPath)
 	{
 		if(prev == NULL)
-			__xfs_platform_get_context()->search_path = dh;
+			ctx->search_path = dh;
 		else
 			prev->next = dh;
 	}
 	else
 	{
-		dh->next = __xfs_platform_get_context()->search_path;
-		__xfs_platform_get_context()->search_path = dh;
+		dh->next = ctx->search_path;
+		ctx->search_path = dh;
 	}
 
-	__xfs_platform_unlock();
+	__xfs_platform_unlock(ctx->lock);
 	return TRUE;
 }
 
@@ -388,6 +426,7 @@ bool_t xfs_add_to_search_path(const char * dir, int appendToPath)
 
 bool_t xfs_remove_from_search_path(const char * dir)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	struct xfs_dir_handle_t * i;
 	struct xfs_dir_handle_t * prev = NULL;
 	struct xfs_dir_handle_t * next = NULL;
@@ -395,51 +434,52 @@ bool_t xfs_remove_from_search_path(const char * dir)
 	if(dir == NULL )
 		return FALSE;
 
-	__xfs_platform_lock();
-	for(i = __xfs_platform_get_context()->search_path; i != NULL ; i = i->next)
+	__xfs_platform_lock(ctx->lock);
+	for(i = ctx->search_path; i != NULL ; i = i->next)
 	{
 		if(strcmp(i->dname, dir) == 0)
 		{
 			next = i->next;
-			if(!free_dir_handle(i, __xfs_platform_get_context()->open_read_list))
+			if(!free_dir_handle(i, ctx->open_read_list))
 			{
-				__xfs_platform_unlock();
+				__xfs_platform_unlock(ctx->lock);
 				return FALSE;
 			}
 
 			if(prev == NULL)
-				__xfs_platform_get_context()->search_path = next;
+				ctx->search_path = next;
 			else
 				prev->next = next;
 
-			__xfs_platform_unlock();
+			__xfs_platform_unlock(ctx->lock);
 			return TRUE;
 		}
 		prev = i;
 	}
 
-	__xfs_platform_unlock();
+	__xfs_platform_unlock(ctx->lock);
 	return FALSE;
 }
 
 const char * xfs_get_mount_point(const char * dir)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	struct xfs_dir_handle_t * i;
 	char * ret;
 
-	__xfs_platform_lock();
+	__xfs_platform_lock(ctx->lock);
 
-	for(i = __xfs_platform_get_context()->search_path; i != NULL ; i = i->next)
+	for(i = ctx->search_path; i != NULL ; i = i->next)
 	{
 		if(strcmp(i->dname, dir) == 0)
 		{
 			ret = ((i->mpoint) ? i->mpoint : "/");
-			__xfs_platform_unlock();
+			__xfs_platform_unlock(ctx->lock);
 			return ret;
 		}
 	}
 
-	__xfs_platform_unlock();
+	__xfs_platform_unlock(ctx->lock);
 	return NULL;
 }
 
@@ -515,6 +555,7 @@ static bool_t verify_path(struct xfs_dir_handle_t * df, char ** name, int allowM
 
 static bool_t do_mkdir(const char * _dname, char * dname)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	struct xfs_dir_handle_t * h;
 	char * start;
 	char * end;
@@ -524,16 +565,16 @@ static bool_t do_mkdir(const char * _dname, char * dname)
 	if (!sanitize_platform_independent_path(_dname, dname))
 		return FALSE;
 
-	__xfs_platform_lock();
-	if (__xfs_platform_get_context()->write_dir == NULL )
+	__xfs_platform_lock(ctx->lock);
+	if (ctx->write_dir == NULL )
 	{
-		__xfs_platform_unlock();
+		__xfs_platform_unlock(ctx->lock);
 		return FALSE;
 	}
-	h = __xfs_platform_get_context()->write_dir;
+	h = ctx->write_dir;
 	if (!verify_path(h, &dname, 1))
 	{
-		__xfs_platform_unlock();
+		__xfs_platform_unlock(ctx->lock);
 		return FALSE;
 	}
 
@@ -560,7 +601,7 @@ static bool_t do_mkdir(const char * _dname, char * dname)
 		start = end + 1;
 	}
 
-	__xfs_platform_unlock();
+	__xfs_platform_unlock(ctx->lock);
 	return ret;
 }
 
@@ -586,29 +627,30 @@ bool_t xfs_mkdir(const char * dir)
 
 static bool_t do_delete(const char * _fname, char * fname)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	bool_t ret;
     struct xfs_dir_handle_t * dh;
 
     if(!sanitize_platform_independent_path(_fname, fname))
     	return FALSE;
 
-    __xfs_platform_lock();
+    __xfs_platform_lock(ctx->lock);
 
-    if(__xfs_platform_get_context()->write_dir == NULL)
+    if(ctx->write_dir == NULL)
     {
-    	__xfs_platform_unlock();
+    	__xfs_platform_unlock(ctx->lock);
     	return FALSE;
     }
-    dh = __xfs_platform_get_context()->write_dir;
+    dh = ctx->write_dir;
 
     if(!verify_path(dh, &fname, 0))
     {
-    	 __xfs_platform_unlock();
+    	 __xfs_platform_unlock(ctx->lock);
     	return FALSE;
     }
     ret = dh->archiver->remove(dh->handle, fname);
 
-    __xfs_platform_unlock();
+    __xfs_platform_unlock(ctx->lock);
     return ret;
 }
 
@@ -634,6 +676,7 @@ bool_t xfs_delete(const char * name)
 
 const char * xfs_get_real_dir(const char * name)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	struct xfs_dir_handle_t * i;
 	const char * ret = NULL;
 	char * fname = NULL;
@@ -648,9 +691,9 @@ const char * xfs_get_real_dir(const char * name)
 
 	if(sanitize_platform_independent_path(name, fname))
 	{
-		__xfs_platform_lock();
+		__xfs_platform_lock(ctx->lock);
 
-		for (i = __xfs_platform_get_context()->search_path; ((i != NULL )&& (ret == NULL)); i = i->next)
+		for (i = ctx->search_path; ((i != NULL )&& (ret == NULL)); i = i->next)
 		{
 			char * arcfname = fname;
 
@@ -663,7 +706,7 @@ const char * xfs_get_real_dir(const char * name)
 			}
 		}
 
-		__xfs_platform_unlock();
+		__xfs_platform_unlock(ctx->lock);
 	}
 
 	free(fname);
@@ -677,6 +720,7 @@ bool_t xfs_exists(const char * name)
 
 s64_t xfs_get_last_modtime(const char * name)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
     s64_t ret = -1;
     char *fname;
     size_t len;
@@ -695,8 +739,8 @@ s64_t xfs_get_last_modtime(const char * name)
         {
             struct xfs_dir_handle_t *i;
             int exists = 0;
-            __xfs_platform_lock();
-            for (i = __xfs_platform_get_context()->search_path; ((i != NULL) && (!exists)); i = i->next)
+            __xfs_platform_lock(ctx->lock);
+            for (i = ctx->search_path; ((i != NULL) && (!exists)); i = i->next)
             {
                 char *arcfname = fname;
                 exists = part_of_mount_point(i, arcfname);
@@ -707,7 +751,7 @@ s64_t xfs_get_last_modtime(const char * name)
                     ret = i->archiver->get_last_modtime(i->handle, arcfname, &exists);
                 }
             }
-            __xfs_platform_unlock();
+            __xfs_platform_unlock(ctx->lock);
         }
     }
 
@@ -717,6 +761,7 @@ s64_t xfs_get_last_modtime(const char * name)
 
 bool_t xfs_is_directory(const char * name)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
     bool_t retval = FALSE;
     size_t len;
     char *fname;
@@ -739,8 +784,8 @@ bool_t xfs_is_directory(const char * name)
         struct xfs_dir_handle_t *i;
         int exists = 0;
 
-        __xfs_platform_lock();
-        for (i = __xfs_platform_get_context()->search_path; ((i != NULL) && (!exists)); i = i->next)
+        __xfs_platform_lock(ctx->lock);
+        for (i = ctx->search_path; ((i != NULL) && (!exists)); i = i->next)
         {
             char *arcfname = fname;
             if ((exists = part_of_mount_point(i, arcfname)) != 0)
@@ -748,7 +793,7 @@ bool_t xfs_is_directory(const char * name)
             else if (verify_path(i, &arcfname, 0))
                 retval = i->archiver->is_directory(i->handle, arcfname, &exists);
         }
-        __xfs_platform_unlock();
+        __xfs_platform_unlock(ctx->lock);
     }
 
     free(fname);
@@ -757,6 +802,7 @@ bool_t xfs_is_directory(const char * name)
 
 bool_t xfs_is_symlink(const char * name)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
 	bool_t retval = FALSE;
     size_t len;
     char *fname;
@@ -784,8 +830,8 @@ bool_t xfs_is_symlink(const char * name)
         struct xfs_dir_handle_t *i;
         int fileExists = 0;
 
-        __xfs_platform_lock();
-        for (i = __xfs_platform_get_context()->search_path; ((i != NULL) && (!fileExists)); i = i->next)
+        __xfs_platform_lock(ctx->lock);
+        for (i = ctx->search_path; ((i != NULL) && (!fileExists)); i = i->next)
         {
             char *arcfname = fname;
             if ((fileExists = part_of_mount_point(i, arcfname)) != 0)
@@ -793,7 +839,7 @@ bool_t xfs_is_symlink(const char * name)
             else if (verify_path(i, &arcfname, 0))
                 retval = i->archiver->is_symlink(i->handle, arcfname, &fileExists);
         }
-        __xfs_platform_unlock();
+        __xfs_platform_unlock(ctx->lock);
     }
 
     free(fname);
@@ -802,6 +848,7 @@ bool_t xfs_is_symlink(const char * name)
 
 static struct xfs_file_t *doOpenWrite(const char *_fname, int appending)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
     struct xfs_file_handle_t *fh = NULL;
     size_t len;
     char *fname;
@@ -820,12 +867,12 @@ static struct xfs_file_t *doOpenWrite(const char *_fname, int appending)
         struct xfs_dir_handle_t *h = NULL;
         const struct xfs_archiver_t *f;
 
-        __xfs_platform_lock();
+        __xfs_platform_lock(ctx->lock);
 
-        if(!__xfs_platform_get_context()->write_dir)
+        if(!ctx->write_dir)
         	goto doOpenWriteEnd;
 
-        h = __xfs_platform_get_context()->write_dir;
+        h = ctx->write_dir;
         if(!verify_path(h, &fname, 0))
         	goto doOpenWriteEnd;
 
@@ -850,12 +897,12 @@ static struct xfs_file_t *doOpenWrite(const char *_fname, int appending)
             fh->handle = handle;
             fh->dhandle = h;
             fh->archiver = h->archiver;
-            fh->next = __xfs_platform_get_context()->open_write_list;
-            __xfs_platform_get_context()->open_write_list = fh;
+            fh->next = ctx->open_write_list;
+            ctx->open_write_list = fh;
         }
 
 doOpenWriteEnd:
-        __xfs_platform_unlock();
+        __xfs_platform_unlock(ctx->lock);
     }
 
     free(fname);
@@ -872,8 +919,9 @@ struct xfs_file_t * xfs_open_append(const char * name)
     return(doOpenWrite(name, 1));
 }
 
-struct xfs_file_t *xfs_open_read(const char * name)
+struct xfs_file_t * xfs_open_read(const char * name)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
     struct xfs_file_handle_t *fh = NULL;
     char *fname;
     size_t len;
@@ -892,13 +940,13 @@ struct xfs_file_t *xfs_open_read(const char * name)
         struct xfs_dir_handle_t *i = NULL;
         void *handle = NULL;
 
-        __xfs_platform_lock();
+        __xfs_platform_lock(ctx->lock);
 
-        if(!__xfs_platform_get_context()->search_path)
+        if(!ctx->search_path)
         	goto openReadEnd;
 
         /* !!! FIXME: Why aren't we using a for loop here? */
-        i = __xfs_platform_get_context()->search_path;
+        i = ctx->search_path;
 
         do
         {
@@ -928,11 +976,11 @@ struct xfs_file_t *xfs_open_read(const char * name)
         fh->forReading = 1;
         fh->dhandle = i;
         fh->archiver = i->archiver;
-        fh->next = __xfs_platform_get_context()->open_read_list;
-        __xfs_platform_get_context()->open_read_list = fh;
+        fh->next = ctx->open_read_list;
+        ctx->open_read_list = fh;
 
         openReadEnd:
-        __xfs_platform_unlock();
+        __xfs_platform_unlock(ctx->lock);
     } /* if */
 
     free(fname);
@@ -977,30 +1025,31 @@ static int closeHandleInOpenList(struct xfs_file_handle_t **list, struct xfs_fil
 
 bool_t xfs_close(struct xfs_file_t * h)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
     struct xfs_file_handle_t * handle = (struct xfs_file_handle_t *)h;
     int rc;
 
-    __xfs_platform_lock();
+    __xfs_platform_lock(ctx->lock);
 
     /* -1 == close failure. 0 == not found. 1 == success. */
-    rc = closeHandleInOpenList(&__xfs_platform_get_context()->open_read_list, handle);
+    rc = closeHandleInOpenList(&ctx->open_read_list, handle);
     if(rc == -1)
     {
-    	__xfs_platform_unlock();
+    	__xfs_platform_unlock(ctx->lock);
     	return FALSE;
     }
 
     if (!rc)
     {
-        rc = closeHandleInOpenList(&__xfs_platform_get_context()->open_write_list, handle);
+        rc = closeHandleInOpenList(&ctx->open_write_list, handle);
         if(rc == -1)
         {
-        	__xfs_platform_unlock();
+        	__xfs_platform_unlock(ctx->lock);
         	return FALSE;
         }
     } /* if */
 
-    __xfs_platform_unlock();
+    __xfs_platform_unlock(ctx->lock);
     if(!rc)
     	return FALSE;
     return(TRUE);
@@ -1156,7 +1205,7 @@ bool_t xfs_seek(struct xfs_file_t * handle, u64_t pos)
 } /* PHYSFS_seek */
 
 
-s64_t xfs_length(struct xfs_file_t * handle)
+s64_t xfs_filelength(struct xfs_file_t * handle)
 {
     struct xfs_file_handle_t *fh = (struct xfs_file_handle_t *) handle;
     return(fh->archiver->length(fh->handle));
@@ -1236,7 +1285,7 @@ bool_t xfs_flush(struct xfs_file_t * handle)
  * Broke out to seperate function so we can use stack allocation gratuitously.
  */
 static void enumerateFromMountPoint(struct xfs_dir_handle_t *i, const char *arcfname,
-                                    xfs_enumerate_callback callback,
+                                    xfs_enumfiles_callback_t callback,
                                     const char *_fname, void *data)
 {
     const size_t len = strlen(arcfname);
@@ -1259,9 +1308,10 @@ static void enumerateFromMountPoint(struct xfs_dir_handle_t *i, const char *arcf
 
 /* !!! FIXME: this should report error conditions. */
 void PHYSFS_enumerateFilesCallback(const char *_fname,
-                                   xfs_enumerate_callback callback,
+                                   xfs_enumfiles_callback_t callback,
                                    void *data)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)__xfs_platform_get_context();
     size_t len;
     char *fname;
 
@@ -1281,9 +1331,9 @@ void PHYSFS_enumerateFilesCallback(const char *_fname,
         struct xfs_dir_handle_t *i;
         //int noSyms;
 
-        __xfs_platform_lock();
+        __xfs_platform_lock(ctx->lock);
        //xxx noSyms = !allowSymLinks;
-        for (i = __xfs_platform_get_context()->search_path; i != NULL; i = i->next)
+        for (i = ctx->search_path; i != NULL; i = i->next)
         {
             char *arcfname = fname;
             if (part_of_mount_point(i, arcfname))
@@ -1294,7 +1344,7 @@ void PHYSFS_enumerateFilesCallback(const char *_fname,
                 i->archiver->enumerate(i->handle, arcfname, callback, _fname, data);
             }
         }
-        __xfs_platform_unlock();
+        __xfs_platform_unlock(ctx->lock);
     }
 
     free(fname);
@@ -1397,20 +1447,22 @@ bool_t xfs_init(const char * path)
 	return TRUE;
 }
 
-struct xfs_context_t * __xfs_alloc(void)
+void * __xfs_alloc(void)
 {
 	struct xfs_context_t * ctx;
 
 	ctx = malloc(sizeof(struct xfs_context_t));
 	if(!ctx)
 		return NULL;
-
 	memset(ctx, 0, sizeof(struct xfs_context_t));
+	ctx->lock = __xfs_platform_create_lock();
 	return ctx;
 }
 
-void __xfs_free(struct xfs_context_t * ctx)
+void __xfs_free(void * context)
 {
+	struct xfs_context_t * ctx = (struct xfs_context_t *)context;
+
 	if(!ctx)
 		return;
 
@@ -1422,6 +1474,7 @@ void __xfs_free(struct xfs_context_t * ctx)
 		free(ctx->base_dir);
 	if(ctx->user_dir)
 		free(ctx->user_dir);
-
+    if(ctx->lock)
+    	__xfs_platform_destroy_lock(ctx->lock);
 	free(ctx);
 }

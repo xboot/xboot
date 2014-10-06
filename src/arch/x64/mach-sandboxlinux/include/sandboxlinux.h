@@ -18,12 +18,25 @@ int sandbox_linux_execve(const char * filename, char * const argv[], char * cons
  */
 struct sandbox_config_t {
 	struct {
+		char * name;
+	} file;
+
+	struct {
+		void * mem;
+		size_t size;
+	} memory;
+
+	struct {
 		int width;
 		int height;
 		int xdpi;
 		int ydpi;
 		int bpp;
 	} framebuffer;
+
+	struct {
+		int mouse_to_touch;
+	} input;
 };
 struct sandbox_config_t * sandbox_linux_get_config(void);
 void sandbox_linux_init(int argc, char * argv[]);

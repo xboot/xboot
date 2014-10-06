@@ -7,6 +7,8 @@ DEFINES		+=	-D__X64_ARCH__ -D__SANDBOX__
 #
 # Sandbox namespace
 #
+NS_JMP		:=	-Dsetjmp=xboot_setjmp -Dlongjmp=xboot_longjmp
+
 NS_CTYPE	:=	-Disalnum=xboot_isalnum -Disalpha=xboot_isalpha \
 				-Disalpha=xboot_isalpha -Disascii=xboot_isascii \
 				-Disblank=xboot_isblank -Discntrl=xboot_iscntrl \
@@ -17,40 +19,37 @@ NS_CTYPE	:=	-Disalnum=xboot_isalnum -Disalpha=xboot_isalpha \
 				-Dtoascii=xboot_toascii -Dtolower=xboot_tolower \
 				-Dtoupper=xboot_toupper
 
-NS_ENVIRON	:=	-Dgetenv=xboot_getenv -Dputenv=xboot_putenv \
-				-Dsetenv=xboot_setenv -Dunsetenv=xboot_unsetenv \
-				-Dclearenv=xboot_clearenv
+NS_ENVIRON	:=	-Dclearenv=xboot_clearenv -Dgetenv=xboot_getenv \
+				-Dputenv=xboot_putenv -Dsetenv=xboot_setenv \
+				-Dunsetenv=xboot_unsetenv
 
 NS_ERRNO	:=	-Dstrerror=xboot_strerror
 
 NS_EXIT		:=	-Dabort=xboot_abort -Dexit=xboot_exit
 
-NS_JMP		:=	-Dsetjmp=xboot_setjmp -Dlongjmp=xboot_longjmp
-
-NS_LOCALE	:=	-Dsetlocale=xboot_setlocale -Dlocaleconv=xboot_localeconv \
+NS_LOCALE	:=	-Dsetlocale=xboot_setlocale -Dlocaleconv=xboot_localeconv
 
 NS_MALLOC	:=	-Dmalloc=xboot_malloc -Dmemalign=xboot_memalign \
 				-Drealloc=xboot_realloc -Dcalloc=xboot_calloc \
 				-Dfree=xboot_free
 
-NS_READLINE	:=	-Dreadline=xboot_readline
-
-NS_STDIO	:=	-Dfopen=xboot_fopen \
-				-Dfreopen=xboot_freopen -Dfclose=xboot_fclose \
+NS_STDIO	:=	-Dclearerr=xboot_clearerr -Dfclose=xboot_fclose \
 				-Dfeof=xboot_feof -Dferror=xboot_ferror \
-				-Dfflush=xboot_fflush -Dclearerr=xboot_clearerr \
-				-Dfseek=xboot_fseek -Dftell=xboot_ftell \
-				-Dgetc=xboot_getc -Dputc=xboot_putc \
-				-Drewind=xboot_rewind -Dfgetpos=xboot_fgetpos \
-				-Dfsetpos=xboot_fsetpos -Dfread=xboot_fread \
-				-Dfwrite=xboot_fwrite -Dfgetc=xboot_fgetc \
-				-Dfgets=xboot_fgets -Dfputc=xboot_fputc \
-				-Dfputs=xboot_fputs -Dungetc=xboot_ungetc \
-				-Dsetvbuf=xboot_setvbuf -Dsetbuf=xboot_setbuf \
-				-Dtmpfile=xboot_tmpfile -Dfprintf=xboot_fprintf \
-				-Dfscanf=xboot_fscanf -Dvsnprintf=xboot_vsnprintf \
-				-Dvsscanf=xboot_vsscanf -Dsprintf=xboot_sprintf \
-				-Dsnprintf=xboot_snprintf -Dsscanf=xboot_sscanf
+				-Dfflush=xboot_fflush -Dfgetc=xboot_fgetc \
+				-Dfgetpos=xboot_fgetpos -Dfgets=xboot_fgets \
+				-Dfopen=xboot_fopen -Dfprintf=xboot_fprintf \
+				-Dfputc=xboot_fputc -Dfputs=xboot_fputs \
+				-Dfread=xboot_fread -Dfreopen=xboot_freopen \
+				-Dfscanf=xboot_fscanf -Dfseek=xboot_fseek \
+				-Dfsetpos=xboot_fsetpos -Dftell=xboot_ftell \
+				-Dfwrite=xboot_fwrite -Dgetc=xboot_getc \
+				-Dgetchar=xboot_getchar -Dprintf=xboot_printf \
+				-Dputc=xboot_putc -Drewind=xboot_rewind \
+				-Dscanf=xboot_scanf -Dsetbuf=xboot_setbuf \
+				-Dsetvbuf=xboot_setvbuf -Dsnprintf=xboot_snprintf \
+				-Dsprintf=xboot_sprintf -Dsscanf=xboot_sscanf \
+				-Dtmpfile=xboot_tmpfile -Dungetc=xboot_ungetc \
+				-Dvsnprintf=xboot_vsnprintf -Dvsscanf=xboot_vsscanf
 
 NS_STDLIB	:=	-Drand=xboot_rand -Dsrand=xboot_srand \
 				-Dabs=xboot_abs -Dlabs=xboot_labs \
@@ -137,12 +136,13 @@ NS_FILEIO	:=	-Dmount=xboot_mount -Dsync=xboot_sync \
 				-Dwritev=xboot_writev
 
 NS_TEMP		:=	-Dmktime=xboot_mktime -Dctrlc=xboot_ctrlc \
-				-Dexec_cmdline=xboot_exec_cmdline -Dparser=xboot_parser
+				-Dexec_cmdline=xboot_exec_cmdline -Dparser=xboot_parser \
+				-Dreadline=xboot_readline
 
-DEFINES		+=	$(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) $(NS_EXIT) \
-				$(NS_JMP) $(NS_LOCALE) $(NS_MALLOC) $(NS_READLINE) \
+DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
+				$(NS_EXIT) $(NS_LOCALE) $(NS_MALLOC) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
-				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
+				$(NS_FILEIO) $(NS_TEMP)
 
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
@@ -154,7 +154,7 @@ ODFLAGS		:= -d
 MCFLAGS		:=
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)
-LIBS 		:= -lsandboxlinux -lc -lgcc -lgcc_eh -lpthread $(shell pkg-config sdl --libs)
+LIBS 		:= -lsandboxlinux -lc -lm -lgcc -lgcc_eh -lpthread $(shell pkg-config sdl --libs)
 
 INCDIRS		:=
 SRCDIRS		:=

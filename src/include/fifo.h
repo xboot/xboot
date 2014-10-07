@@ -7,28 +7,24 @@ extern "C" {
 
 #include <xboot/module.h>
 #include <types.h>
+#include <spinlock.h>
 
 struct fifo_t {
-	/* the buffer holding the data */
 	u8_t * buffer;
-
-	/* the size of the allocated buffer */
 	size_t size;
-
-	/* data is added at offset (in % size) */
 	size_t in;
-
-	/* data is extracted from off (out % size) */
 	size_t out;
+	spinlock_t lock;
 };
 
-struct fifo_t * fifo_init(u8_t * buf, size_t size);
 struct fifo_t * fifo_alloc(size_t size);
-void fifo_free(struct fifo_t * fifo);
-void fifo_reset(struct fifo_t * fifo);
-size_t fifo_len(struct fifo_t * fifo);
-size_t fifo_put(struct fifo_t * fifo, u8_t * buf, size_t len);
-size_t fifo_get(struct fifo_t * fifo, u8_t * buf, size_t len);
+void fifo_free(struct fifo_t * f);
+void fifo_clear(struct fifo_t * f);
+bool_t fifo_isempty(struct fifo_t * f);
+bool_t fifo_isfull(struct fifo_t * f);
+size_t fifo_avail(struct fifo_t * f);
+size_t fifo_put(struct fifo_t * f, u8_t * buf, size_t len);
+size_t fifo_get(struct fifo_t * f, u8_t * buf, size_t len);
 
 #ifdef __cplusplus
 }

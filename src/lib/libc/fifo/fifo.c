@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <malloc.h>
 #include <string.h>
+#include <spinlock.h>
 #include <fifo.h>
 
 #ifndef MIN
@@ -16,99 +17,154 @@
 #define MAX(a, b)	((a) > (b) ? (a) : (b))
 #endif
 
-struct fifo_t * fifo_init(u8_t * buf, size_t size)
-{
-	struct fifo_t * fifo;
-
-	if(!buf)
-		return NULL;
-
-	fifo = malloc(sizeof(struct fifo_t));
-	if(!fifo)
-		return NULL;
-
-	fifo->buffer = buf;
-	fifo->size = size;
-	fifo->in = fifo->out = 0;
-
-	return fifo;
-}
-EXPORT_SYMBOL(fifo_init);
-
 struct fifo_t * fifo_alloc(size_t size)
 {
-	u8_t * buffer;
-	struct fifo_t * fifo;
+	struct fifo_t * f;
 
-	buffer = malloc(size);
-	if(!buffer)
+	f = malloc(sizeof(struct fifo_t));
+	if(!f)
 		return NULL;
 
-	fifo = fifo_init(buffer, size);
-	if(!fifo)
-		free(buffer);
+	f->buffer = malloc(size);
+	if(!f->buffer)
+	{
+		free(f);
+		return NULL;
+	}
+	f->size = size;
+	f->in = 0;
+	f->out = 0;
+	spin_lock_init(&f->lock);
 
-	return fifo;
+	return f;
 }
 EXPORT_SYMBOL(fifo_alloc);
 
-void fifo_free(struct fifo_t * fifo)
+void fifo_free(struct fifo_t * f)
 {
-	if(!fifo)
-		return;
-
-	free(fifo->buffer);
-	free(fifo);
+	if(f)
+	{
+		free(f->buffer);
+		free(f);
+	}
 }
 EXPORT_SYMBOL(fifo_free);
 
-void fifo_reset(struct fifo_t * fifo)
+void fifo_clear(struct fifo_t * f)
 {
-	fifo->in = fifo->out = 0;
-}
-EXPORT_SYMBOL(fifo_reset);
+	irq_flags_t flags;
 
-size_t fifo_len(struct fifo_t * fifo)
-{
-	return fifo->in - fifo->out;
+	if(f)
+	{
+		spin_lock_irqsave(&f->lock, flags);
+		f->in = 0;
+		f->out = 0;
+		spin_unlock_irqrestore(&f->lock, flags);
+	}
 }
-EXPORT_SYMBOL(fifo_len);
+EXPORT_SYMBOL(fifo_clear);
 
-size_t fifo_put(struct fifo_t * fifo, u8_t * buf, size_t len)
+bool_t fifo_isempty(struct fifo_t * f)
 {
+	irq_flags_t flags;
+	bool_t ret = FALSE;
+
+	if(!f)
+		return TRUE;
+
+	spin_lock_irqsave(&f->lock, flags);
+	if(f->in - f->out <= 0)
+		ret = TRUE;
+	spin_unlock_irqrestore(&f->lock, flags);
+	return ret;
+}
+EXPORT_SYMBOL(fifo_isempty);
+
+bool_t fifo_isfull(struct fifo_t * f)
+{
+	irq_flags_t flags;
+	bool_t ret = FALSE;
+
+	if(!f)
+		return TRUE;
+
+	spin_lock_irqsave(&f->lock, flags);
+	if(f->in - f->out >= f->size)
+		ret = TRUE;
+	spin_unlock_irqrestore(&f->lock, flags);
+	return ret;
+}
+EXPORT_SYMBOL(fifo_isfull);
+
+size_t fifo_avail(struct fifo_t * f)
+{
+	irq_flags_t flags;
+	size_t ret = 0;
+
+	if(f)
+	{
+		spin_lock_irqsave(&f->lock, flags);
+		ret = f->in - f->out;
+		spin_unlock_irqrestore(&f->lock, flags);
+	}
+	return ret;
+}
+EXPORT_SYMBOL(fifo_avail);
+
+size_t fifo_put(struct fifo_t * f, u8_t * buf, size_t len)
+{
+	irq_flags_t flags;
+	size_t ret = 0;
 	size_t l;
 
-	len = MIN(len, fifo->size - fifo->in + fifo->out);
-	if(len <= 0)
+	if(!f || !buf)
 		return 0;
 
-	l = MIN(len, fifo->size - (fifo->in % fifo->size));
-	memcpy(fifo->buffer + (fifo->in % fifo->size), buf, l);
-	memcpy(fifo->buffer, buf + l, len - l);
+	spin_lock_irqsave(&f->lock, flags);
+	ret = MIN(len, f->size - f->in + f->out);
+	if(ret > 0)
+	{
+		l = MIN(ret, f->size - (f->in % f->size));
+		memcpy(f->buffer + (f->in % f->size), buf, l);
+		memcpy(f->buffer, buf + l, ret - l);
+		f->in += ret;
+	}
+	else
+	{
+		ret = 0;
+	}
+	spin_unlock_irqrestore(&f->lock, flags);
 
-	fifo->in += len;
-
-	return len;
+	return ret;
 }
 EXPORT_SYMBOL(fifo_put);
 
-size_t fifo_get(struct fifo_t * fifo, u8_t * buf, size_t len)
+size_t fifo_get(struct fifo_t * f, u8_t * buf, size_t len)
 {
+	irq_flags_t flags;
+	size_t ret = 0;
 	size_t l;
 
-	len = MIN(len, fifo->in - fifo->out);
-	if(len <= 0)
+	if(!f || !buf)
 		return 0;
 
-	l = MIN(len, fifo->size - (fifo->out % fifo->size));
-	memcpy(buf, fifo->buffer + (fifo->out % fifo->size), l);
-	memcpy(buf + l, fifo->buffer, len - l);
+	spin_lock_irqsave(&f->lock, flags);
+	ret = MIN(len, f->in - f->out);
+	if(ret > 0)
+	{
+		l = MIN(ret, f->size - (f->out % f->size));
+		memcpy(buf, f->buffer + (f->out % f->size), l);
+		memcpy(buf + l, f->buffer, ret - l);
+		f->out += ret;
+		if(f->in == f->out)
+			f->in = f->out = 0;
+	}
+	else
+	{
+		ret = 0;
+	}
+	spin_unlock_irqrestore(&f->lock, flags);
 
-	fifo->out += len;
-
-	if (fifo->in == fifo->out)
-		fifo->in = fifo->out = 0;
-
-	return len;
+	return ret;
 }
 EXPORT_SYMBOL(fifo_get);

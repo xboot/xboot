@@ -57,6 +57,9 @@ int xboot_main(int argc, char * argv[])
 		{
 			run_shell_mode();
 		}
+
+		/* Yield poller task */
+		schedule_poller_yield();
 	}
 
 	/* Do all exit calls */

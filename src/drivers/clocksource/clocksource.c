@@ -61,26 +61,26 @@ static struct clocksource_t __cs_dummy = {
 };
 static struct clocksource_t * __current_clocksource = &__cs_dummy;
 
-static inline u64_t __clocksource_gettime_us(struct clocksource_t * cs)
+static inline u64_t __clocksource_gettime(struct clocksource_t * cs)
 {
 	cycle_t now, delta;
-	u64_t usec;
+	u64_t usec, offset;
 
 	now = cs->read(cs);
 	delta = (now - cs->last) & cs->mask;
 	cs->last = now;
-
-	usec = ((u64_t)delta * cs->mult) >> cs->shift;
-	usec += cs->usec;
+	offset = ((u64_t)delta * cs->mult) >> cs->shift;
+	usec = cs->usec + offset;
 	cs->usec = usec;
+	schedule_poller_task(usec);
 	return usec;
 }
 
-u64_t clocksource_gettime_us(void)
+u64_t clocksource_gettime(void)
 {
-	return __clocksource_gettime_us(__current_clocksource);
+	return __clocksource_gettime(__current_clocksource);
 }
-EXPORT_SYMBOL(clocksource_gettime_us);
+EXPORT_SYMBOL(clocksource_gettime);
 
 static struct kobj_t * search_class_clocksource_kobj(void)
 {
@@ -118,7 +118,7 @@ static ssize_t classsource_read_cycle(struct kobj_t * kobj, void * buf, size_t s
 static ssize_t classsource_read_time(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t time = __clocksource_gettime_us(cs);
+	u64_t time = __clocksource_gettime(cs);
 	return sprintf(buf, "%llu.%06llu", time / 1000000, time % 1000000);
 }
 

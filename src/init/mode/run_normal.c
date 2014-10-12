@@ -28,7 +28,5 @@
 
 void run_normal_mode(void)
 {
-	do {
-		xboot_set_mode(MODE_SHELL);
-	} while(xboot_get_mode() == MODE_NORMAL);
+	xboot_set_mode(MODE_SHELL);
 }

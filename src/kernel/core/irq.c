@@ -157,36 +157,3 @@ bool_t free_irq(const char * name)
 
 	return TRUE;
 }
-
-static s32_t interrupt_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct irq_list_t * pos, * n;
-	s8_t * p;
-	s32_t len = 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), (const char *)"[interrupt]");
-
-	list_for_each_entry_safe(pos, n, &(__irq_list.entry), entry)
-	{
-		if(pos->irq->handler->func != null_interrupt_function)
-			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3d used", pos->irq->name, (int)(16 - strlen(pos->irq->name)), "", pos->irq->irq_no);
-		else
-			len += sprintf((char *)(p + len), (const char *)"\r\n %s%*s%3d", pos->irq->name, (int)(16 - strlen(pos->irq->name)), "", pos->irq->irq_no);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}

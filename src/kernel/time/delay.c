@@ -27,7 +27,7 @@
 
 bool_t istimeout(u64_t start, u64_t offset)
 {
-	if((int64_t)(start + offset - clocksource_gettime_us()) < 0)
+	if((int64_t)(start + offset - clocksource_gettime()) < 0)
 		return TRUE;
 	return FALSE;
 }
@@ -35,7 +35,7 @@ EXPORT_SYMBOL(istimeout);
 
 void udelay(u32_t us)
 {
-	u64_t start = clocksource_gettime_us();
+	u64_t start = clocksource_gettime();
 	u64_t offset = us;
 	while(!istimeout(start, offset));
 }
@@ -43,7 +43,7 @@ EXPORT_SYMBOL(udelay);
 
 void mdelay(u32_t ms)
 {
-	u64_t start = clocksource_gettime_us();
+	u64_t start = clocksource_gettime();
 	u64_t offset = ms * (u64_t)1000;
 	while(!istimeout(start, offset));
 }

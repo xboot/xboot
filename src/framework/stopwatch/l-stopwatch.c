@@ -30,7 +30,7 @@ struct stopwatch_t {
 
 static double __time_stamp(void)
 {
-	return ((double)clocksource_gettime_us() / (double)1000000.0);
+	return ((double)clocksource_gettime() / (double)1000000.0);
 }
 
 static int l_new(lua_State * L)

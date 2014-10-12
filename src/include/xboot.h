@@ -41,6 +41,7 @@ extern "C" {
 #include <xboot/kobj.h>
 #include <xboot/initcall.h>
 #include <xboot/module.h>
+#include <xboot/poller.h>
 #include <xboot/irq.h>
 #include <xboot/resource.h>
 #include <xboot/bus.h>

@@ -32,7 +32,7 @@ struct clocksource_t
 	void * pirv;
 };
 
-u64_t clocksource_gettime_us(void);
+u64_t clocksource_gettime(void);
 u32_t clocksource_hz2mult(u32_t hz, u32_t shift);
 void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec);
 bool_t register_clocksource(struct clocksource_t * cs);

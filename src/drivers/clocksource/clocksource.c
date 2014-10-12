@@ -61,7 +61,7 @@ static struct clocksource_t __cs_dummy = {
 };
 static struct clocksource_t * __current_clocksource = &__cs_dummy;
 
-static inline u64_t clocksource_read_time(struct clocksource_t * cs)
+static inline u64_t __clocksource_gettime_us(struct clocksource_t * cs)
 {
 	cycle_t now, delta;
 	u64_t usec;
@@ -75,6 +75,12 @@ static inline u64_t clocksource_read_time(struct clocksource_t * cs)
 	cs->usec = usec;
 	return usec;
 }
+
+u64_t clocksource_gettime_us(void)
+{
+	return __clocksource_gettime_us(__current_clocksource);
+}
+EXPORT_SYMBOL(clocksource_gettime_us);
 
 static struct kobj_t * search_class_clocksource_kobj(void)
 {
@@ -112,7 +118,7 @@ static ssize_t classsource_read_cycle(struct kobj_t * kobj, void * buf, size_t s
 static ssize_t classsource_read_time(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t time = clocksource_read_time(cs);
+	u64_t time = __clocksource_gettime_us(cs);
 	return sprintf(buf, "%llu.%06llu", time / 1000000, time % 1000000);
 }
 
@@ -221,36 +227,6 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 
 	return FALSE;
 }
-
-u64_t clocksource_gettime(void)
-{
-	return clocksource_read_time(__current_clocksource);
-}
-EXPORT_SYMBOL(clocksource_gettime);
-
-bool_t is_timeout(u64_t start, u64_t offset)
-{
-	if((int64_t)(start + offset - clocksource_gettime()) < 0)
-		return TRUE;
-	return FALSE;
-}
-EXPORT_SYMBOL(is_timeout);
-
-void udelay(u32_t us)
-{
-	u64_t start = clocksource_gettime();
-	u64_t offset = us;
-	while(!is_timeout(start, offset));
-}
-EXPORT_SYMBOL(udelay);
-
-void mdelay(u32_t ms)
-{
-	u64_t start = clocksource_gettime();
-	u64_t offset = ms * (u64_t)1000;
-	while(!is_timeout(start, offset));
-}
-EXPORT_SYMBOL(mdelay);
 
 void subsys_init_clocksource(void)
 {

@@ -53,6 +53,8 @@ extern "C" {
 #include <pwm/pwm.h>
 #include <clk/clk.h>
 #include <clocksource/clocksource.h>
+#include <time/delay.h>
+#include <time/jiffies.h>
 #include <time/tick.h>
 #include <time/timer.h>
 #include <fs/fileio.h>

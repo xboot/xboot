@@ -32,15 +32,11 @@ struct clocksource_t
 	void * pirv;
 };
 
+u64_t clocksource_gettime_us(void);
 u32_t clocksource_hz2mult(u32_t hz, u32_t shift);
 void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec);
 bool_t register_clocksource(struct clocksource_t * cs);
 bool_t unregister_clocksource(struct clocksource_t * cs);
-
-u64_t clocksource_gettime(void);
-bool_t is_timeout(u64_t start, u64_t offset);
-void udelay(u32_t us);
-void mdelay(u32_t ms);
 
 void subsys_init_clocksource(void);
 

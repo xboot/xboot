@@ -128,7 +128,7 @@ static inline void cascade_timers(struct timer_vec *tv)
 	tv->index = (tv->index + 1) & TVN_MASK;
 }
 
-void exec_timer_task(void)
+void schedule_timer_task(void)
 {
 	struct list_head *head, *curr;
 	struct timer_t * timer;

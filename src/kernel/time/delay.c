@@ -1,5 +1,5 @@
 /*
- * kernel/core/subsys.c
+ * kernel/time/delay.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,11 +23,28 @@
  */
 
 #include <xboot.h>
+#include <time/delay.h>
 
-static __init void subsys_init(void)
+bool_t istimeout(u64_t start, u64_t offset)
 {
-	subsys_init_machine();
-	subsys_init_jiffies();
-	subsys_init_clocksource();
+	if((int64_t)(start + offset - clocksource_gettime_us()) < 0)
+		return TRUE;
+	return FALSE;
 }
-subsys_initcall(subsys_init);
+EXPORT_SYMBOL(istimeout);
+
+void udelay(u32_t us)
+{
+	u64_t start = clocksource_gettime_us();
+	u64_t offset = us;
+	while(!istimeout(start, offset));
+}
+EXPORT_SYMBOL(udelay);
+
+void mdelay(u32_t ms)
+{
+	u64_t start = clocksource_gettime_us();
+	u64_t offset = ms * (u64_t)1000;
+	while(!istimeout(start, offset));
+}
+EXPORT_SYMBOL(mdelay);

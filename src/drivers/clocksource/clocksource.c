@@ -42,23 +42,39 @@ static spinlock_t __clocksource_list_lock = SPIN_LOCK_INIT();
 /*
  * Dummy clocksource
  */
-static volatile u64_t __cs_dummy_counter = 0;
+static volatile u64_t __cs_dummy_cycle = 0;
 static u64_t __cs_dummy_read(struct clocksource_t * cs)
 {
-	__cs_dummy_counter += 1;
-	return __cs_dummy_counter;
+	__cs_dummy_cycle += 1;
+	return __cs_dummy_cycle;
 }
 
 static struct clocksource_t __cs_dummy = {
-	.name	= "dummy-cs",
-	.shift	= 0,
+	.name	= "dummy",
 	.mult	= 1000,
+	.shift	= 0,
 	.mask	= CLOCKSOURCE_MASK(64),
 	.last	= 0,
+	.usec	= 0,
 	.init	= NULL,
 	.read	= __cs_dummy_read,
 };
 static struct clocksource_t * __current_clocksource = &__cs_dummy;
+
+static inline u64_t clocksource_read_time(struct clocksource_t * cs)
+{
+	cycle_t now, delta;
+	u64_t usec;
+
+	now = cs->read(cs);
+	delta = (now - cs->last) & cs->mask;
+	cs->last = now;
+
+	usec = ((u64_t)delta * cs->mult) >> cs->shift;
+	usec += cs->usec;
+	cs->usec = usec;
+	return usec;
+}
 
 static struct kobj_t * search_class_clocksource_kobj(void)
 {
@@ -78,21 +94,26 @@ static ssize_t classsource_read_shift(struct kobj_t * kobj, void * buf, size_t s
 	return sprintf(buf, "%u", cs->shift);
 }
 
-static ssize_t classsource_read_count(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t classsource_read_period(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t count;
-	count = cs->read(cs) & cs->mask;
-	return sprintf(buf, "%llu", count);
+	u64_t period = ((u64_t)cs->mult) >> cs->shift;
+	return sprintf(buf, "%llu.%06llu", period / 1000000, period % 1000000);
+}
+
+static ssize_t classsource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
+	cycle_t cycle;
+	cycle = cs->read(cs) & cs->mask;
+	return sprintf(buf, "%llu", cycle);
 }
 
 static ssize_t classsource_read_time(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t count, time;
-	count = cs->read(cs) & cs->mask;
-	time = (count * cs->mult) >> cs->shift;
-	return sprintf(buf, "%llu", time);
+	u64_t time = clocksource_read_time(cs);
+	return sprintf(buf, "%llu.%06llu", time / 1000000, time % 1000000);
 }
 
 static struct clocksource_t * search_clocksource(const char * name)
@@ -111,38 +132,37 @@ static struct clocksource_t * search_clocksource(const char * name)
 	return NULL;
 }
 
+u32_t clocksource_hz2mult(u32_t hz, u32_t shift)
+{
+	u64_t tmp = ((u64_t)1000000) << shift;
+
+	tmp += hz / 2;
+	tmp = tmp / hz;
+	return (u32_t)tmp;
+}
+
 void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec)
 {
+	u64_t tmp;
 	u32_t sft, sftacc = 32;
-	u64_t t;
 
-	t = ((u64_t) maxsec * from) >> 32;
-	while(t)
+	tmp = ((u64_t)maxsec * from) >> 32;
+	while(tmp)
 	{
-		t >>= 1;
+		tmp >>=1;
 		sftacc--;
 	}
 
 	for(sft = 32; sft > 0; sft--)
 	{
-		t = (u64_t)to << sft;
-		t += from / 2;
-		t = t / from;
-		if((t >> sftacc) == 0)
+		tmp = (u64_t) to << sft;
+		tmp += from / 2;
+		tmp = tmp / from;
+		if ((tmp >> sftacc) == 0)
 			break;
 	}
-
-	*mult = t;
+	*mult = tmp;
 	*shift = sft;
-}
-
-u32_t clocksource_hz2mult(u32_t hz, u32_t shift)
-{
-	u64_t t = ((u64_t)1000000) << shift;
-
-	t += hz / 2;
-	t = t / hz;
-	return (u32_t)t;
 }
 
 bool_t register_clocksource(struct clocksource_t * cs)
@@ -160,10 +180,12 @@ bool_t register_clocksource(struct clocksource_t * cs)
 		return FALSE;
 
 	cs->last = 0;
+	cs->usec = 0;
 	cs->kobj = kobj_alloc_directory(cs->name);
 	kobj_add_regular(cs->kobj, "mult", classsource_read_mult, NULL, cs);
 	kobj_add_regular(cs->kobj, "shift", classsource_read_shift, NULL, cs);
-	kobj_add_regular(cs->kobj, "count", classsource_read_count, NULL, cs);
+	kobj_add_regular(cs->kobj, "period", classsource_read_period, NULL, cs);
+	kobj_add_regular(cs->kobj, "cycle", classsource_read_cycle, NULL, cs);
 	kobj_add_regular(cs->kobj, "time", classsource_read_time, NULL, cs);
 	kobj_add(search_class_clocksource_kobj(), cs->kobj);
 	cl->cs = cs;
@@ -202,16 +224,7 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 
 u64_t clocksource_gettime(void)
 {
-	static volatile u64_t time_us = 0;
-	struct clocksource_t * cs = __current_clocksource;
-	u64_t now, delta;
-
-	now = cs->read(cs) & cs->mask;
-	delta = (now - cs->last) & cs->mask;
-	cs->last = now;
-	time_us += ((delta * cs->mult) >> cs->shift);
-
-	return time_us;
+	return clocksource_read_time(__current_clocksource);
 }
 EXPORT_SYMBOL(clocksource_gettime);
 
@@ -226,14 +239,16 @@ EXPORT_SYMBOL(is_timeout);
 void udelay(u32_t us)
 {
 	u64_t start = clocksource_gettime();
-	while(!is_timeout(start, us));
+	u64_t offset = us;
+	while(!is_timeout(start, offset));
 }
 EXPORT_SYMBOL(udelay);
 
 void mdelay(u32_t ms)
 {
 	u64_t start = clocksource_gettime();
-	while(!is_timeout(start, ms * (u64_t)1000));
+	u64_t offset = ms * (u64_t)1000;
+	while(!is_timeout(start, offset));
 }
 EXPORT_SYMBOL(mdelay);
 
@@ -253,7 +268,7 @@ void subsys_init_clocksource(void)
 		if(cs->init)
 			cs->init(cs);
 
-		t = (cs->mult) >> cs->shift;
+		t = ((u64_t)cs->mult) >> cs->shift;
 		if(t < period)
 		{
 			__current_clocksource = cs;

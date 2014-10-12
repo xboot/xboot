@@ -77,21 +77,18 @@ bool_t register_tick(struct tick_t * tick)
 	return TRUE;
 }
 
-/*
- * Tick clocksource
- */
 static void __cs_tick_init(struct clocksource_t * cs)
 {
-	clocksource_calc_mult_shift(&cs->mult, &cs->shift, HZ, 1000000L, 10);
+	clocksource_calc_mult_shift(&cs->mult, &cs->shift, HZ, 1000000LL, 10);
 }
 
-static u64_t __cs_tick_read(struct clocksource_t * cs)
+static cycle_t __cs_tick_read(struct clocksource_t * cs)
 {
-	return (u64_t)(jiffies);
+	return (cycle_t)(jiffies);
 }
 
 static struct clocksource_t __cs_tick = {
-	.name	= "tick-cs",
+	.name	= "tick",
 	.mask	= CLOCKSOURCE_MASK(32),
 	.init	= __cs_tick_init,
 	.read	= __cs_tick_read,

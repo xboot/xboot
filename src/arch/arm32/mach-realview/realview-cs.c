@@ -40,10 +40,10 @@ static void realview_cs_init(struct clocksource_t * cs)
 	writel(REALVIEW_T0_CTRL, REALVIEW_TC_32BIT | REALVIEW_TC_ENABLE | REALVIEW_TC_PERIODIC);
 }
 
-static u64_t realview_cs_read(struct clocksource_t * cs)
+static cycle_t realview_cs_read(struct clocksource_t * cs)
 {
 	u32_t val = readl(REALVIEW_T0_VALUE);
-	return (u64_t)(~val);
+	return (cycle_t)(~val);
 }
 
 static struct clocksource_t realview_cs = {

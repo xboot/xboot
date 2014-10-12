@@ -38,7 +38,6 @@ int __put_env(char * str, size_t len, int overwrite)
 		return -1;
 
 	env->content = str;
-
 	env->prev = environ->prev;
 	env->next = environ;
 	environ->prev->next = env;

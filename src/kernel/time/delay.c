@@ -37,7 +37,10 @@ void udelay(u32_t us)
 {
 	u64_t start = clocksource_gettime();
 	u64_t offset = us;
-	while(!istimeout(start, offset));
+
+	do {
+		schedule_poller_yield();
+	} while(!istimeout(start, offset));
 }
 EXPORT_SYMBOL(udelay);
 
@@ -45,6 +48,9 @@ void mdelay(u32_t ms)
 {
 	u64_t start = clocksource_gettime();
 	u64_t offset = ms * (u64_t)1000;
-	while(!istimeout(start, offset));
+
+	do {
+		schedule_poller_yield();
+	} while(!istimeout(start, offset));
 }
 EXPORT_SYMBOL(mdelay);

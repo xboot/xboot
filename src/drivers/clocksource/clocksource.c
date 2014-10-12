@@ -64,16 +64,12 @@ static struct clocksource_t * __current_clocksource = &__cs_dummy;
 static inline u64_t __clocksource_gettime(struct clocksource_t * cs)
 {
 	cycle_t now, delta;
-	u64_t usec, offset;
 
 	now = cs->read(cs);
 	delta = (now - cs->last) & cs->mask;
 	cs->last = now;
-	offset = ((u64_t)delta * cs->mult) >> cs->shift;
-	usec = cs->usec + offset;
-	cs->usec = usec;
-	schedule_poller_task(usec);
-	return usec;
+	cs->usec += ((u64_t)delta * cs->mult) >> cs->shift;
+	return cs->usec;
 }
 
 u64_t clocksource_gettime(void)

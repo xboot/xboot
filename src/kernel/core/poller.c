@@ -97,10 +97,11 @@ bool_t poller_destroy(struct poller_t * poller)
 	return FALSE;
 }
 
-void schedule_poller_task(u64_t time)
+void schedule_poller_yield(void)
 {
 	struct poller_list_t * pl;
 	struct poller_t * poller;
+	u64_t timeus;
 
 	if(list_empty(&(__poller_list.entry)))
 		return;
@@ -111,14 +112,10 @@ void schedule_poller_task(u64_t time)
 
 	pl = list_entry(__poller_head, struct poller_list_t, entry);
 	poller = pl->poller;
-	if(time >= poller->timeout)
+	timeus = clocksource_gettime();
+	if(timeus >= poller->timeout)
 	{
-		poller->timeout = time + poller->interval;
+		poller->timeout = timeus + poller->interval;
 		poller->func(poller, poller->data);
 	}
-}
-
-void schedule_poller_yield(void)
-{
-	clocksource_gettime();
 }

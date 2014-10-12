@@ -17,8 +17,6 @@ struct poller_t
 
 struct poller_t * poller_create(u64_t interval, void (*func)(struct poller_t *, void *), void * data);
 bool_t poller_destroy(struct poller_t * poller);
-
-void schedule_poller_task(u64_t time);
 void schedule_poller_yield(void);
 
 #ifdef __cplusplus

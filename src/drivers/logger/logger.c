@@ -132,7 +132,7 @@ int logger_print(const char * fmt, ...)
 
 	va_start(ap, fmt);
 	gettimeofday(&tv, 0);
-	len += sprintf((char *)(buf + len), "[%5u.%06u]", tv.tv_sec, tv.tv_usec % 1000000);
+	len += sprintf((char *)(buf + len), "[%5u.%06u]", tv.tv_sec, tv.tv_usec);
 	len += vsnprintf((char *)(buf + len), (SZ_4K - len), fmt, ap);
 	va_end(ap);
 

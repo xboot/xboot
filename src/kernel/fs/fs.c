@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
-#include <xboot/proc.h>
 #include <fs/fs.h>
 
 /*
@@ -115,56 +114,3 @@ bool_t filesystem_unregister(struct filesystem_t * fs)
 
 	return FALSE;
 }
-
-/*
- * filesystem proc interface
- */
-static s32_t filesystem_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct fs_list * list;
-	struct list_head * pos;
-	s8_t * p;
-	s32_t len = 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), (const char *)"[filesystem]");
-
-	for(pos = (&fs_list->entry)->next; pos != (&fs_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct fs_list, entry);
-		len += sprintf((char *)(p + len), (const char *)"\r\n %s", list->fs->name);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t filesystem_proc = {
-	.name	= "filesystem",
-	.read	= filesystem_proc_read,
-};
-
-static __init void filesystem_proc_init(void)
-{
-	proc_register(&filesystem_proc);
-}
-
-static __exit void filesystem_proc_exit(void)
-{
-	proc_unregister(&filesystem_proc);
-}
-
-core_initcall(filesystem_proc_init);
-core_exitcall(filesystem_proc_exit);

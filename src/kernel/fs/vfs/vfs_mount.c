@@ -31,7 +31,6 @@
 #include <block/block.h>
 #include <xboot/list.h>
 #include <xboot/initcall.h>
-#include <xboot/proc.h>
 #include <fs/fs.h>
 #include <fs/vfs/vfs.h>
 
@@ -126,74 +125,3 @@ s32_t vfs_findroot(char * path, struct mount_t ** mp, char ** root)
 
 	return 0;
 }
-
-/*
- * mounts proc interface
- */
-static s32_t mounts_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct block_t * blk;
-	struct mount_t * m;
-	struct list_head * pos;
-	s8_t * p;
-	s32_t len = 0;
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	len += sprintf((char *)(p + len), (const char *)"[mounts]");
-
-	list_for_each(pos, &mount_list)
-	{
-		m = list_entry(pos, struct mount_t, m_link);
-
-		if(m->m_dev == NULL)
-			len += sprintf((char *)(p + len), (const char *)"\r\n none");
-		else
-		{
-			blk = (struct block_t *)m->m_dev;
-			len += sprintf((char *)(p + len), (const char *)"\r\n %s", blk->name);
-		}
-
-		len += sprintf((char *)(p + len), (const char *)" %s %s ", m->m_path, m->m_fs->name);
-
-		if(m->m_flags & MOUNT_LOOP)
-			len += sprintf((char *)(p + len), (const char *)"loop,");
-
-		if(m->m_flags & MOUNT_RDONLY)
-			len += sprintf((char *)(p + len), (const char *)"ro");
-		else
-			len += sprintf((char *)(p + len), (const char *)"rw");
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t mounts_proc = {
-	.name	= "mounts",
-	.read	= mounts_proc_read,
-};
-
-static __init void mounts_proc_init(void)
-{
-	proc_register(&mounts_proc);
-}
-
-static __exit void mounts_proc_exit(void)
-{
-	proc_unregister(&mounts_proc);
-}
-
-core_initcall(mounts_proc_init);
-core_exitcall(mounts_proc_exit);

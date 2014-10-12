@@ -47,7 +47,6 @@ extern "C" {
 #include <xboot/device.h>
 #include <xboot/machine.h>
 #include <xboot/event.h>
-#include <xboot/proc.h>
 #include <logger/logger.h>
 #include <gpio/gpio.h>
 #include <pwm/pwm.h>

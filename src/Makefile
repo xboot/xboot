@@ -107,7 +107,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs									\
 				kernel/fs/vfs								\
 				kernel/fs/ramfs								\
-				kernel/fs/procfs							\
 				kernel/fs/sysfs								\
 				kernel/fs/arfs								\
 				kernel/fs/tarfs								\

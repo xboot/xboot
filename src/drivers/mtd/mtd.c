@@ -29,7 +29,6 @@
 #include <malloc.h>
 #include <xboot/initcall.h>
 #include <xboot/list.h>
-#include <xboot/proc.h>
 #include <xboot/device.h>
 #include <block/block.h>
 #include <mtd/nand/nand.h>

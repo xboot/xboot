@@ -190,21 +190,3 @@ static s32_t interrupt_proc_read(u8_t * buf, s32_t offset, s32_t count)
 
 	return len;
 }
-
-static struct proc_t interrupt_proc = {
-	.name	= "interrupt",
-	.read	= interrupt_proc_read,
-};
-
-static __init void interrupt_proc_init(void)
-{
-	proc_register(&interrupt_proc);
-}
-
-static __exit void interrupt_proc_exit(void)
-{
-	proc_unregister(&interrupt_proc);
-}
-
-core_initcall(interrupt_proc_init);
-core_exitcall(interrupt_proc_exit);

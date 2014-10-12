@@ -28,7 +28,6 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <xboot/initcall.h>
-#include <xboot/proc.h>
 #include <xboot/list.h>
 #include <mtd/nand/nfc.h>
 #include <mtd/nand/nand.h>
@@ -703,71 +702,3 @@ s32_t nand_read(struct nand_device_t * nand, u8_t * buf, u32_t addr, u32_t size)
 
 	return 0;
 }
-
-/*
- * nand proc interface
- */
-static s32_t nand_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct nand_list * list;
-	struct list_head * pos;
-	s8_t * p;
-	s32_t len = 0;
-	char size[16];
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	for(pos = (&nand_list->entry)->next; pos != (&nand_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct nand_list, entry);
-
-		len += sprintf((char *)(p + len), (const char *)"%s:\r\n", list->nand->name);
-		len += sprintf((char *)(p + len), (const char *)" description     : %s\r\n", list->nand->info->name);
-		len += sprintf((char *)(p + len), (const char *)" manufacturer    : %s\r\n", list->nand->manufacturer->name);
-		len += sprintf((char *)(p + len), (const char *)" nand controller : %s\r\n", list->nand->nfc->name);
-		len += sprintf((char *)(p + len), (const char *)" bus width       : %d\r\n", list->nand->bus_width);
-		len += sprintf((char *)(p + len), (const char *)" address cycles  : %d\r\n", list->nand->addr_cycles);
-		ssize(size, (u64_t)(list->nand->page_size));
-		len += sprintf((char *)(p + len), (const char *)" page size       : %s\r\n", size);
-		ssize(size, (u64_t)(list->nand->erase_size));
-		len += sprintf((char *)(p + len), (const char *)" block size      : %s\r\n", size);
-		len += sprintf((char *)(p + len), (const char *)" block number    : %d\r\n", list->nand->num_blocks);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t nand_proc = {
-	.name	= "nand",
-	.read	= nand_proc_read,
-};
-
-/*
- * nand pure sync init
- */
-static __init void nand_proc_init(void)
-{
-	/* register nand proc interface */
-	proc_register(&nand_proc);
-}
-
-static __exit void nand_proc_exit(void)
-{
-	/* unregister nand proc interface */
-	proc_unregister(&nand_proc);
-}
-
-core_initcall(nand_proc_init);
-core_exitcall(nand_proc_exit);

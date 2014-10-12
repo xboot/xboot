@@ -19,7 +19,6 @@
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <xboot/module.h>
-#include <xboot/proc.h>
 #include <shell/exec.h>
 #include <fb/fb.h>
 #include <rtc/rtc.h>

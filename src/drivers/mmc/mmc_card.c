@@ -28,7 +28,6 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <xboot/initcall.h>
-#include <xboot/proc.h>
 #include <xboot/list.h>
 #include <block/block.h>
 #include <block/disk.h>
@@ -508,98 +507,3 @@ struct mmc_card_t * search_mmc_card(const char * name)
 
 	return NULL;
 }
-
-/*
- * mmc card proc interface
- */
-static s32_t mmc_card_proc_read(u8_t * buf, s32_t offset, s32_t count)
-{
-	struct mmc_card_list * list;
-	struct list_head * pos;
-	s8_t * p;
-	s32_t len = 0;
-	char buff[32];
-
-	if((p = malloc(SZ_4K)) == NULL)
-		return 0;
-
-	for(pos = (&mmc_card_list->entry)->next; pos != (&mmc_card_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct mmc_card_list, entry);
-
-		len += sprintf((char *)(p + len), (const char *)"%s:\r\n", list->card->name);
-		len += sprintf((char *)(p + len), (const char *)" host controller   : %s\r\n", list->card->host->name);
-		switch(list->card->info->type)
-		{
-		case MMC_CARD_TYPE_MMC:
-			strcpy(buff, (const char *)"mmc card");
-			break;
-
-		case MMC_CARD_TYPE_SD:
-			strcpy(buff, (const char *)"sd card");
-			break;
-
-		case MMC_CARD_TYPE_SD20:
-			strcpy(buff, (const char *)"sd card version 2.0");
-			break;
-
-		case MMC_CARD_TYPE_SDHC:
-			strcpy(buff, (const char *)"sdhc card");
-			break;
-
-		default:
-			strcpy(buff, (const char *)"unknown");
-			break;
-		}
-		len += sprintf((char *)(p + len), (const char *)" card type         : %s\r\n", buff);
-		len += sprintf((char *)(p + len), (const char *)" manufacturer id   : 0x%x\r\n", (u32_t)list->card->info->cid.mid);
-		len += sprintf((char *)(p + len), (const char *)" oem id            : 0x%x\r\n", (u32_t)list->card->info->cid.oid);
-		len += sprintf((char *)(p + len), (const char *)" product name      : %s\r\n", list->card->info->cid.pnm);
-		len += sprintf((char *)(p + len), (const char *)" hardware revision : 0x%x\r\n", (u32_t)list->card->info->cid.hwrev);
-		len += sprintf((char *)(p + len), (const char *)" firmware revision : 0x%x\r\n", (u32_t)list->card->info->cid.fwrev);
-		len += sprintf((char *)(p + len), (const char *)" serial number     : 0x%x\r\n", (u32_t)list->card->info->cid.serial);
-		len += sprintf((char *)(p + len), (const char *)" manufacture date  : %d/%02d\r\n", (u32_t)list->card->info->cid.year, (u32_t)list->card->info->cid.month);
-
-		ssize(buff, (u64_t)(list->card->info->sector_size));
-		len += sprintf((char *)(p + len), (const char *)" sector size       : %s\r\n", buff);
-		len += sprintf((char *)(p + len), (const char *)" sector count      : %zd\r\n", list->card->info->sector_count);
-		ssize(buff, (u64_t)(list->card->info->capacity));
-		len += sprintf((char *)(p + len), (const char *)" total capacity    : %s\r\n", buff);
-	}
-
-	len -= offset;
-
-	if(len < 0)
-		len = 0;
-
-	if(len > count)
-		len = count;
-
-	memcpy(buf, (u8_t *)(p + offset), len);
-	free(p);
-
-	return len;
-}
-
-static struct proc_t mmc_card_proc = {
-	.name	= "mmc",
-	.read	= mmc_card_proc_read,
-};
-
-/*
- * mmc card pure sync init
- */
-static __init void mmc_card_proc_init(void)
-{
-	/* register mmc card proc interface */
-	proc_register(&mmc_card_proc);
-}
-
-static __exit void mmc_card_proc_exit(void)
-{
-	/* unregister mmc card proc interface */
-	proc_unregister(&mmc_card_proc);
-}
-
-core_initcall(mmc_card_proc_init);
-core_exitcall(mmc_card_proc_exit);

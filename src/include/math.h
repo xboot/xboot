@@ -6,11 +6,13 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <stdint.h>
+#include <float.h>
 #include <endian.h>
 #include <libm.h>
 
-typedef float float_t;
-typedef double double_t;
+typedef float		float_t;
+typedef double		double_t;
 
 #define FORCE_EVAL(x) do {						\
 	if (sizeof(x) == sizeof(float)) {			\
@@ -118,9 +120,6 @@ do {                                              \
 #define FP_ZERO      2
 #define FP_SUBNORMAL 3
 #define FP_NORMAL    4
-
-int __fpclassify(double);
-int __fpclassifyf(float);
 
 static __inline unsigned __FLOAT_BITS(float __f)
 {
@@ -278,8 +277,21 @@ double      trunc(double);
 float       truncf(float);
 
 /*
- * fdlibm kernel functions
+ * libm kernel functions
  */
+double	__cos(double,double);
+float	__cosdf(double);
+double	__expo2(double);
+float	__expo2f(float);
+int		__fpclassify(double);
+int		__fpclassifyf(float);
+int		__rem_pio2_large(double*,double*,int,int,int);
+int		__rem_pio2(double,double*);
+int		__rem_pio2f(float,double*);
+double	__sin(double,double,int);
+float	__sindf(double);
+double	__tan(double,double,int);
+float	__tandf(double,int);
 
 #ifdef __cplusplus
 }

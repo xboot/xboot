@@ -38,12 +38,6 @@ void do_system_rootfs(void)
 	if(chdir("/") != 0)
 		LOG("Can't change directory to '/'");
 
-	if(mkdir("/proc", S_IRUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("Failed to create directory '/proc'");
-
-	if(mount(NULL, "/proc" , "procfs", 0) != 0)
-		LOG("Failed to mount proc filesystem");
-
 	if(mkdir("/sys", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG("Failed to create directory '/sys'");
 

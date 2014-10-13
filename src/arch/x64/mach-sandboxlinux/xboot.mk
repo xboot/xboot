@@ -86,37 +86,50 @@ NS_TIME		:=	-Dstrftime=xboot_strftime -Dasctime=xboot_asctime \
 				-Dgmtime=xboot_gmtime -Dlocaltime=xboot_localtime \
 				-Dtime=xboot_time
 
-NS_MATH		:=	-D__ieee754_rem_pio2=xboot___ieee754_rem_pio2 -D__kernel_rem_pio2=xboot___kernel_rem_pio2 \
-				-D__kernel_sin=xboot___kernel_sin -D__kernel_cos=xboot___kernel_cos \
-				-D__kernel_tan=xboot___kernel_tan -D__ieee754_rem_pio2f=xboot___ieee754_rem_pio2f \
-				-D__kernel_rem_pio2f=xboot___kernel_rem_pio2f -D__kernel_sindf=xboot___kernel_sindf \
-				-D__kernel_cosdf=xboot___kernel_cosdf -D__kernel_tandf=xboot___kernel_tandf \
-				-Dcopysign=xboot_copysign -Dcopysignf=xboot_copysignf \
-				-Dscalbn=xboot_scalbn -Dldexp=xboot_ldexp \
-				-Dscalbnf=xboot_scalbnf -Dldexpf=xboot_ldexpf \
-				-Dexpm1=xboot_expm1 -Dexpm1f=xboot_expm1f \
-				-Dfabs=xboot_fabs -Dfabsf=xboot_fabsf \
-				-Dceil=xboot_ceil -Dceilf=xboot_ceilf \
-				-Dfloor=xboot_floor -Dfloorf=xboot_floorf \
-				-Dmodf=xboot_modf -Dmodff=xboot_modff \
-				-Dfrexp=xboot_frexp -Dfrexpf=xboot_frexpf \
-				-Dsqrt=xboot_sqrt -Dsqrtf=xboot_sqrtf \
-				-Dexp=xboot_exp -Dexpf=xboot_expf \
-				-Dfmod=xboot_fmod -Dfmodf=xboot_fmodf \
-				-Dpow=xboot_pow -Dpowf=xboot_powf \
-				-Dlog=xboot_log -Dlogf=xboot_logf \
-				-Dlog10=xboot_log10 -Dlog10f=xboot_log10f \
-				-Dsin=xboot_sin -Dsinf=xboot_sinf \
-				-Dcos=xboot_cos -Dcosf=xboot_cosf \
-				-Dtan=xboot_tan -Dtanf=xboot_tanf \
-				-Dsinh=xboot_sinh -Dsinhf=xboot_sinhf \
-				-Dcosh=xboot_cosh -Dcoshf=xboot_coshf \
-				-Dtanh=xboot_tanh -Dtanhf=xboot_tanhf \
+NS_MATH		:=	-Dacos=xboot_acos -Dacosf=xboot_acosf \
+				-Dacosh=xboot_acosh -Dacoshf=xboot_acoshf \
 				-Dasin=xboot_asin -Dasinf=xboot_asinf \
-				-Dacos=xboot_acos -Dacosf=xboot_acosf \
+				-Dasinh=xboot_asinh -Dasinhf=xboot_asinhf \
 				-Datan=xboot_atan -Datanf=xboot_atanf \
 				-Datan2=xboot_atan2 -Datan2f=xboot_atan2f \
-				-Dhypot=xboot_hypot -Dhypotf=xboot_hypotf
+				-Datanh=xboot_atanh -Datanhf=xboot_atanhf \
+				-Dcbrt=xboot_cbrt -Dcbrtf=xboot_cbrtf \
+				-Dceil=xboot_ceil -Dceilf=xboot_ceilf \
+				-Dcos=xboot_cos -Dcosf=xboot_cosf \
+				-Dcosh=xboot_cosh -Dcoshf=xboot_coshf \
+				-Dexp=xboot_exp -Dexpf=xboot_expf \
+				-Dexp2=xboot_exp2 -Dexp2f=xboot_exp2f \
+				-Dexpm1=xboot_expm1 -Dexpm1f=xboot_expm1f \
+				-Dfabs=xboot_fabs -Dfabsf=xboot_fabsf \
+				-Dfdim=xboot_fdim -Dfdimf=xboot_fdimf \
+				-Dfloor=xboot_floor -Dfloorf=xboot_floorf \
+				-Dfmod=xboot_fmod -Dfmodf=xboot_fmodf \
+				-Dfrexp=xboot_frexp -Dfrexpf=xboot_frexpf \
+				-Dhypot=xboot_hypot -Dhypotf=xboot_hypotf \
+				-Dldexp=xboot_ldexp -Dldexpf=xboot_ldexpf \
+				-Dlog=xboot_log -Dlogf=xboot_logf \
+				-Dlog10=xboot_log10 -Dlog10f=xboot_log10f \
+				-Dlog1p=xboot_log1p -Dlog1pf=xboot_log1pf \
+				-Dlog2=xboot_log2 -Dlog2f=xboot_log2f \
+				-Dmodf=xboot_modf -Dmodff=xboot_modff \
+				-Dpow=xboot_pow -Dpowf=xboot_powf \
+				-Drint=xboot_rint -Drintf=xboot_rintf \
+				-Dround=xboot_round -Droundf=xboot_roundf \
+				-Dscalbn=xboot_scalbn -Dscalbnf=xboot_scalbnf \
+				-Dscalbln=xboot_scalbln -Dscalblnf=xboot_scalblnf \
+				-Dsin=xboot_sin -Dsinf=xboot_sinf \
+				-Dsinh=xboot_sinh -Dsinhf=xboot_sinhf \
+				-Dsqrt=xboot_sqrt -Dsqrtf=xboot_sqrtf \
+				-Dtan=xboot_tan -Dtanf=xboot_tanf \
+				-Dtanh=xboot_tanh -Dtanhf=xboot_tanhf \
+				-Dtrunc=xboot_trunc -Dtruncf=xboot_truncf \
+				-D__cos=xboot___cos -D__cosdf=xboot___cosdf \
+				-D__expo2=xboot___expo2 -D__expo2f=xboot___expo2f \
+				-D__fpclassify=xboot___fpclassify -D__fpclassifyf=xboot___fpclassifyf \
+				-D__rem_pio2_large=xboot___rem_pio2_large -D__rem_pio2=xboot___rem_pio2 \
+				-D__rem_pio2f=xboot___rem_pio2f -D__sin=xboot___sin \
+				-D__sindf=xboot___sindf -D__tan=xboot___tan \
+				-D__tandf=xboot___tandf
 
 NS_FILEIO	:=	-Dmount=xboot_mount -Dsync=xboot_sync \
 				-Dumount=xboot_umount -Dopen=xboot_open \
@@ -142,7 +155,7 @@ NS_TEMP		:=	-Dmktime=xboot_mktime -Dctrlc=xboot_ctrlc \
 DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 				$(NS_EXIT) $(NS_LOCALE) $(NS_MALLOC) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
-				$(NS_FILEIO) $(NS_TEMP)
+				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
 
 ASFLAGS		:= -g -ggdb -Wall
 CFLAGS		:= -g -ggdb -Wall
@@ -154,7 +167,7 @@ ODFLAGS		:= -d
 MCFLAGS		:=
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)
-LIBS 		:= -lsandboxlinux -lc -lm -lgcc -lgcc_eh -lpthread $(shell pkg-config sdl --libs)
+LIBS 		:= -lsandboxlinux -lc -lgcc -lgcc_eh -lpthread -lSDL
 
 INCDIRS		:=
 SRCDIRS		:=

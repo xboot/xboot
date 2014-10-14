@@ -64,7 +64,7 @@ double asin(double x)
 	if (ix >= 0x3ff00000) {
 		uint32_t lx;
 		GET_LOW_WORD(lx, x);
-		if ((ix-0x3ff00000 | lx) == 0)
+		if (((ix-0x3ff00000) | lx) == 0)
 			/* asin(1) = +-pi/2 with inexact */
 			return x*pio2_hi + 0x1p-120f;
 		return 0/(x-x);

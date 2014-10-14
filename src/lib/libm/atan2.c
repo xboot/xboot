@@ -40,7 +40,7 @@ double atan2(double y, double x)
 		return x+y;
 	EXTRACT_WORDS(ix, lx, x);
 	EXTRACT_WORDS(iy, ly, y);
-	if ((ix-0x3ff00000 | lx) == 0)  /* x = 1.0 */
+	if (((ix-0x3ff00000) | lx) == 0)  /* x = 1.0 */
 		return atan(y);
 	m = ((iy>>31)&1) | ((ix>>30)&2);  /* 2*sign(x)+sign(y) */
 	ix = ix & 0x7fffffff;

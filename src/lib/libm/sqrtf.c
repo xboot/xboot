@@ -2,7 +2,7 @@
 
 static const float tiny = 1.0e-30;
 
-float sqrtf(float x)
+static float __sqrtf(float x)
 {
 	float z;
 	int32_t sign = (int)0x80000000;
@@ -67,4 +67,6 @@ float sqrtf(float x)
 	SET_FLOAT_WORD(z, ix);
 	return z;
 }
+
+extern __typeof(__sqrtf) sqrtf __attribute__((weak, alias("__sqrtf")));
 EXPORT_SYMBOL(sqrtf);

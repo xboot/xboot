@@ -95,6 +95,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				lib/libc/stdlib								\
 				lib/libc/string								\
 				lib/libc/time								\
+				lib/libm/$(ARCH)							\
 				lib/libm									\
 				lib/xfs										\
 				init										\

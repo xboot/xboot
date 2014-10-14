@@ -69,7 +69,7 @@
 
 static const double tiny = 1.0e-300;
 
-double sqrt(double x)
+static double __sqrt(double x)
 {
 	double z;
 	int32_t sign = (int)0x80000000;
@@ -172,4 +172,6 @@ double sqrt(double x)
 	INSERT_WORDS(z, ix0, ix1);
 	return z;
 }
+
+extern __typeof(__sqrt) sqrt __attribute__((weak, alias("__sqrt")));
 EXPORT_SYMBOL(sqrt);

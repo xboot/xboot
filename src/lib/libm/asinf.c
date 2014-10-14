@@ -45,3 +45,4 @@ float asinf(float x)
 		return -x;
 	return x;
 }
+EXPORT_SYMBOL(asinf);

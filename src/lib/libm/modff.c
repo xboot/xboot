@@ -32,3 +32,4 @@ float modff(float x, float *iptr)
 	*iptr = u.f;
 	return x - u.f;
 }
+EXPORT_SYMBOL(modff);

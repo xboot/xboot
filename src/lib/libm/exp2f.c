@@ -95,3 +95,4 @@ float exp2f(float x)
 	/* Scale by 2**k */
 	return r * uk.f;
 }
+EXPORT_SYMBOL(exp2f);

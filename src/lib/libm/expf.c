@@ -64,3 +64,4 @@ float expf(float x)
 		return y;
 	return scalbnf(y, k);
 }
+EXPORT_SYMBOL(expf);

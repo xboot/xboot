@@ -26,3 +26,4 @@ double asinh(double x)
 	}
 	return s ? -x : x;
 }
+EXPORT_SYMBOL(asinh);

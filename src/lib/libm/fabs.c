@@ -6,3 +6,4 @@ double fabs(double x)
 	u.i &= -1ULL/2;
 	return u.f;
 }
+EXPORT_SYMBOL(fabs);

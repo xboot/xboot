@@ -32,3 +32,4 @@ float hypotf(float x, float y)
 	}
 	return z*sqrtf((double)x*x + (double)y*y);
 }
+EXPORT_SYMBOL(hypotf);

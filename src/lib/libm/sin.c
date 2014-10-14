@@ -65,3 +65,4 @@ double sin(double x)
 		return -__cos(y[0], y[1]);
 	}
 }
+EXPORT_SYMBOL(sin);

@@ -59,3 +59,4 @@ double hypot(double x, double y)
 	sq(&hy, &ly, y);
 	return z*sqrt(ly+lx+hy+hx);
 }
+EXPORT_SYMBOL(hypot);

@@ -108,3 +108,4 @@ double log2(double x)
 
 	return val_lo + val_hi;
 }
+EXPORT_SYMBOL(log2);

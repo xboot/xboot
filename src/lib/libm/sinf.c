@@ -58,3 +58,4 @@ float sinf(float x)
 		return -__cosdf(y);
 	}
 }
+EXPORT_SYMBOL(sinf);

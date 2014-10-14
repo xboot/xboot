@@ -109,3 +109,4 @@ double log1p(double x)
 	dk = k;
 	return s*(hfsq+R) + (dk*ln2_lo+c) - hfsq + f + dk*ln2_hi;
 }
+EXPORT_SYMBOL(log1p);

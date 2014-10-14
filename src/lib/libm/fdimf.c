@@ -8,3 +8,4 @@ float fdimf(float x, float y)
 		return y;
 	return x > y ? x - y : 0;
 }
+EXPORT_SYMBOL(fdimf);

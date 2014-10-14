@@ -8,3 +8,4 @@ double fdim(double x, double y)
 		return y;
 	return x > y ? x - y : 0;
 }
+EXPORT_SYMBOL(fdim);

@@ -8,3 +8,4 @@ float scalblnf(float x, long n)
 		n = INT_MIN;
 	return scalbnf(x, n);
 }
+EXPORT_SYMBOL(scalblnf);

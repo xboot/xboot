@@ -25,3 +25,4 @@ float floorf(float x)
 	}
 	return u.f;
 }
+EXPORT_SYMBOL(floorf);

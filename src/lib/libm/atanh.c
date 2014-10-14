@@ -27,3 +27,4 @@ double atanh(double x)
 	}
 	return s ? -y : y;
 }
+EXPORT_SYMBOL(atanh);

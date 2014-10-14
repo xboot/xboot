@@ -26,3 +26,4 @@ float asinhf(float x)
 	}
 	return s ? -x : x;
 }
+EXPORT_SYMBOL(asinhf);

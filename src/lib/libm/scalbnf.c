@@ -28,3 +28,4 @@ float scalbnf(float x, int n)
 	x = y * u.f;
 	return x;
 }
+EXPORT_SYMBOL(scalbnf);

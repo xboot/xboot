@@ -60,3 +60,4 @@ float cosf(float x)
 		return  __sindf(y);
 	}
 }
+EXPORT_SYMBOL(cosf);

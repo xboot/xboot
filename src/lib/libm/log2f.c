@@ -60,3 +60,4 @@ float log2f(float x)
 	lo = f - hi - hfsq + s*(hfsq+R);
 	return (lo+hi)*ivln2lo + lo*ivln2hi + hi*ivln2hi + k;
 }
+EXPORT_SYMBOL(log2f);

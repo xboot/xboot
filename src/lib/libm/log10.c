@@ -87,3 +87,4 @@ double log10(double x)
 
 	return val_lo + val_hi;
 }
+EXPORT_SYMBOL(log10);

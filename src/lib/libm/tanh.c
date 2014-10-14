@@ -43,3 +43,4 @@ double tanh(double x)
 	}
 	return sign ? -t : t;
 }
+EXPORT_SYMBOL(tanh);

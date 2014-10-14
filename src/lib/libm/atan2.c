@@ -93,3 +93,4 @@ double atan2(double y, double x)
 		return (z-pi_lo) - pi; /* atan(-,-) */
 	}
 }
+EXPORT_SYMBOL(atan2);

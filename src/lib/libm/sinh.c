@@ -37,3 +37,4 @@ double sinh(double x)
 	t = 2*h*__expo2(absx);
 	return t;
 }
+EXPORT_SYMBOL(sinh);

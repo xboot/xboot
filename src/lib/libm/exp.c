@@ -122,3 +122,4 @@ double exp(double x)
 		return y;
 	return scalbn(y, k);
 }
+EXPORT_SYMBOL(exp);

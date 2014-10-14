@@ -46,3 +46,4 @@ float tanf(float x)
 	n = __rem_pio2f(x, &y);
 	return __tandf(y, n&1);
 }
+EXPORT_SYMBOL(tanf);

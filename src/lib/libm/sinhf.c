@@ -29,3 +29,4 @@ float sinhf(float x)
 	t = 2*h*__expo2f(absx);
 	return t;
 }
+EXPORT_SYMBOL(sinhf);

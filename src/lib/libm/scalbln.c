@@ -8,3 +8,4 @@ double scalbln(double x, long n)
 		n = INT_MIN;
 	return scalbn(x, n);
 }
+EXPORT_SYMBOL(scalbln);

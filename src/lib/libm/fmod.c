@@ -65,3 +65,4 @@ double fmod(double x, double y)
 	ux.i = uxi;
 	return ux.f;
 }
+EXPORT_SYMBOL(fmod);

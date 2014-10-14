@@ -67,3 +67,4 @@ float sqrtf(float x)
 	SET_FLOAT_WORD(z, ix);
 	return z;
 }
+EXPORT_SYMBOL(sqrtf);

@@ -48,3 +48,4 @@ float cbrtf(float x)
 	/* rounding to 24 bits is perfect in round-to-nearest mode */
 	return T;
 }
+EXPORT_SYMBOL(cbrtf);

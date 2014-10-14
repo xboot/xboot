@@ -6,3 +6,4 @@ float fabsf(float x)
 	u.i &= 0x7fffffff;
 	return u.f;
 }
+EXPORT_SYMBOL(fabsf);

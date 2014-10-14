@@ -25,3 +25,4 @@ float roundf(float x)
 		y = -y;
 	return y;
 }
+EXPORT_SYMBOL(roundf);

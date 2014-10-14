@@ -346,3 +346,4 @@ double exp2(double x)
 
 	return scalbn(r, k.i);
 }
+EXPORT_SYMBOL(exp2);

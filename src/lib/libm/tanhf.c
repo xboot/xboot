@@ -37,3 +37,4 @@ float tanhf(float x)
 	}
 	return sign ? -t : t;
 }
+EXPORT_SYMBOL(tanhf);

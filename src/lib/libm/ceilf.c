@@ -25,3 +25,4 @@ float ceilf(float x)
 	}
 	return u.f;
 }
+EXPORT_SYMBOL(ceilf);

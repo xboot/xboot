@@ -94,3 +94,4 @@ float expm1f(float x)
 		y = (x-(e+u.f)+1)*twopk;
 	return y;
 }
+EXPORT_SYMBOL(expm1f);

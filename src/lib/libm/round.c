@@ -26,3 +26,4 @@ double round(double x)
 		y = -y;
 	return y;
 }
+EXPORT_SYMBOL(round);

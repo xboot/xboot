@@ -26,3 +26,4 @@ float atanhf(float x)
 	}
 	return s ? -y : y;
 }
+EXPORT_SYMBOL(atanhf);

@@ -63,3 +63,4 @@ float log10f(float x)
 	dk = k;
 	return dk*log10_2lo + (lo+hi)*ivln10lo + lo*ivln10hi + hi*ivln10hi + dk*log10_2hi;
 }
+EXPORT_SYMBOL(log10f);

@@ -94,3 +94,4 @@ double asin(double x)
 		return -x;
 	return x;
 }
+EXPORT_SYMBOL(asin);

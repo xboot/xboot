@@ -31,3 +31,4 @@ float coshf(float x)
 	t = __expo2f(x);
 	return t;
 }
+EXPORT_SYMBOL(coshf);

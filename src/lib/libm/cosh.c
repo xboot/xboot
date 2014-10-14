@@ -38,3 +38,4 @@ double cosh(double x)
 	t = __expo2(x);
 	return t;
 }
+EXPORT_SYMBOL(cosh);

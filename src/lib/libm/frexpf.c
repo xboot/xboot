@@ -20,3 +20,4 @@ float frexpf(float x, int *e)
 	y.i |= 0x3f000000ul;
 	return y.f;
 }
+EXPORT_SYMBOL(frexpf);

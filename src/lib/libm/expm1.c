@@ -104,7 +104,7 @@
  * to produce the hexadecimal values shown.
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const double
 o_threshold = 7.09782712893383973096e+02, /* 0x40862E42, 0xFEFA39EF */

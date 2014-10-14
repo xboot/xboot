@@ -1,4 +1,4 @@
-#include "libm.h"
+#include <math.h>
 
 double trunc(double x)
 {

@@ -6,10 +6,10 @@ extern "C" {
 #endif
 
 #include <types.h>
-#include <stdint.h>
 #include <float.h>
 #include <endian.h>
-#include <libm.h>
+#include <stdint.h>
+#include <xboot/module.h>
 
 typedef float	float_t;
 typedef double	double_t;

@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdint.h>
 
 int __fpclassifyf(float x)
 {

@@ -14,7 +14,6 @@
  */
 
 #include <math.h>
-#include <stdint.h>
 
 static const float
 ivln2hi =  1.4428710938e+00, /* 0x3fb8b000 */

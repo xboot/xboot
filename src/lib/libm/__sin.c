@@ -39,7 +39,7 @@
  *              sin(x) = x + (S1*x + (x *(r-y/2)+y))
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const double
 S1  = -1.66666666666666324348e-01, /* 0xBFC55555, 0x55555549 */

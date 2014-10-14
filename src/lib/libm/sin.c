@@ -40,7 +40,7 @@
  *      TRIG(x) returns trig(x) nearly rounded
  */
 
-#include "libm.h"
+#include <math.h>
 
 double sin(double x)
 {

@@ -48,7 +48,7 @@
  *         any extra precision in w.
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const double
 C1  =  4.16666666666666019037e-02, /* 0x3FA55555, 0x5555554C */

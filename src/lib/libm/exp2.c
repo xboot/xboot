@@ -25,7 +25,7 @@
  * SUCH DAMAGE.
  */
 
-#include "libm.h"
+#include <math.h>
 
 #define TBLSIZE 256
 

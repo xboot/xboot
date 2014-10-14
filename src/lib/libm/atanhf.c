@@ -1,4 +1,4 @@
-#include "libm.h"
+#include <math.h>
 
 /* atanh(x) = log((1+x)/(1-x))/2 = log1p(2x/(1-x))/2 ~= x + x^3/3 + o(x^5) */
 float atanhf(float x)

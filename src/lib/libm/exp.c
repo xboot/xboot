@@ -65,7 +65,7 @@
  *          if x < -745.133219101941108420 then exp(x) underflows
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const double
 half[2] = {0.5,-0.5},

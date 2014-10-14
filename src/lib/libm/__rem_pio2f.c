@@ -20,7 +20,7 @@
  * use __rem_pio2_large() for large x
  */
 
-#include "libm.h"
+#include <math.h>
 
 /*
  * invpio2:  53 bits of 2/pi

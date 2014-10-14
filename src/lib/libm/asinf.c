@@ -12,7 +12,7 @@
  * is preserved.
  * ====================================================
  */
-#include "libm.h"
+#include <math.h>
 
 static const double
 pio2 = 1.570796326794896558e+00;

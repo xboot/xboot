@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdint.h>
 
 float rintf(float x)
 {

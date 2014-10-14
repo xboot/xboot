@@ -1,4 +1,4 @@
-#include "libm.h"
+#include <math.h>
 
 /* sinh(x) = (exp(x) - 1/exp(x))/2
  *         = (exp(x)-1 + (exp(x)-1)/exp(x))/2

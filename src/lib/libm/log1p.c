@@ -53,7 +53,7 @@
  *       See HP-15C Advanced Functions Handbook, p.193.
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const double
 ln2_hi = 6.93147180369123816490e-01,  /* 3fe62e42 fee00000 */

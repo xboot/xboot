@@ -37,7 +37,7 @@
  * to produce the hexadecimal values shown.
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const double
 pi     = 3.1415926535897931160E+00, /* 0x400921FB, 0x54442D18 */

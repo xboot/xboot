@@ -57,7 +57,7 @@
  * to produce the hexadecimal values shown.
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const double
 bp[]   = {1.0, 1.5,},

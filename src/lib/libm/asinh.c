@@ -1,4 +1,4 @@
-#include "libm.h"
+#include <math.h>
 
 /* asinh(x) = sign(x)*log(|x|+sqrt(x*x+1)) ~= x - x^3/6 + o(x^5) */
 double asinh(double x)

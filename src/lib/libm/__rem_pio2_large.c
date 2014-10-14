@@ -122,7 +122,7 @@
  * to produce the hexadecimal values shown.
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const int init_jk[] = {3,4,4,6}; /* initial value for jk */
 

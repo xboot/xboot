@@ -1,4 +1,4 @@
-#include "libm.h"
+#include <math.h>
 
 /* k is such that k*ln2 has minimal relative error and x - kln2 > log(FLT_MIN) */
 static const int k = 235;

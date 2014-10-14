@@ -13,7 +13,7 @@
  * ====================================================
  */
 
-#include "libm.h"
+#include <math.h>
 
 static const float
 bp[]   = {1.0, 1.5,},

@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdint.h>
 
 double fmod(double x, double y)
 {

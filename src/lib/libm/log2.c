@@ -18,7 +18,6 @@
  */
 
 #include <math.h>
-#include <stdint.h>
 
 static const double
 ivln2hi = 1.44269504072144627571e+00, /* 0x3ff71547, 0x65200000 */

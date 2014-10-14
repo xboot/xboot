@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdint.h>
 
 float scalbnf(float x, int n)
 {

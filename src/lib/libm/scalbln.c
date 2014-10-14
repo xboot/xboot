@@ -1,5 +1,4 @@
 #include <limits.h>
-#include <math.h>
 
 double scalbln(double x, long n)
 {

@@ -1,13 +1,3 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/e_pow.c */
-/*
- * ====================================================
- * Copyright (C) 2004 by Sun Microsystems, Inc. All rights reserved.
- *
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
 /* pow(x,y) return x**y
  *
  *                    n
@@ -286,7 +276,7 @@ double pow(double x, double y)
 			return s*huge*huge;         /* overflow */
 		if (p_l + ovt > z - p_h)
 			return s*huge*huge;         /* overflow */
-	} else if ((j&0x7fffffff) >= 0x4090cc00) {  /* z <= -1075 */  // FIXME: instead of abs(j) use unsigned j
+	} else if ((j&0x7fffffff) >= 0x4090cc00) {  /* z <= -1075 */
 		if (((j-0xc090cc00)|i) != 0)        /* z < -1075 */
 			return s*tiny*tiny;         /* underflow */
 		if (p_l <= z - p_h)

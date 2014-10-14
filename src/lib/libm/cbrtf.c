@@ -1,24 +1,8 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/s_cbrtf.c */
-/*
- * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
- * Debugged and optimized by Bruce D. Evans.
- */
-/*
- * ====================================================
- * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
- *
- * Developed at SunPro, a Sun Microsystems, Inc. business.
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
 /* cbrtf(x)
  * Return cube root of x
  */
 
 #include <math.h>
-#include <stdint.h>
 
 static const unsigned
 B1 = 709958130, /* B1 = (127-127.0/3-0.03306235651)*2**23 */

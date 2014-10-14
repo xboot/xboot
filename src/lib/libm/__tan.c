@@ -1,13 +1,3 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/k_tan.c */
-/*
- * ====================================================
- * Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved.
- *
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
 /* __tan( x, y, k )
  * kernel tan function on ~[-pi/4, pi/4] (except on -0), pi/4 ~ 0.7854
  * Input x is assumed to be bounded by ~pi/4 in magnitude.

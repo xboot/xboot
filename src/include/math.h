@@ -8,6 +8,7 @@ extern "C" {
 #include <types.h>
 #include <float.h>
 #include <endian.h>
+#include <limits.h>
 #include <stdint.h>
 #include <xboot/module.h>
 

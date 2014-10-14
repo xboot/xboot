@@ -1,13 +1,3 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/e_exp.c */
-/*
- * ====================================================
- * Copyright (C) 2004 by Sun Microsystems, Inc. All rights reserved.
- *
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
 /* exp(x)
  * Returns the exponential of x.
  *

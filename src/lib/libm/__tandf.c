@@ -1,18 +1,3 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/k_tanf.c */
-/*
- * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
- * Optimized by Bruce D. Evans.
- */
-/*
- * ====================================================
- * Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved.
- *
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
-
 #include <math.h>
 
 /* |tan(x)/x - t(x)| < 2**-25.5 (~[-2e-08, 2e-08]). */

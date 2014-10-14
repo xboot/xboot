@@ -1,14 +1,3 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/k_rem_pio2.c */
-/*
- * ====================================================
- * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
- *
- * Developed at SunSoft, a Sun Microsystems, Inc. business.
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
 /*
  * __rem_pio2_large(x,y,e0,nx,prec)
  * double x[],y[]; int e0,nx,prec;
@@ -411,7 +400,6 @@ recompute:
 		fw = 0.0;
 		for (i=jz; i>=0; i--)
 			fw += fq[i];
-		// TODO: drop excess precision here once double_t is used
 		fw = (double)fw;
 		y[0] = ih==0 ? fw : -fw;
 		fw = fq[0]-fw;

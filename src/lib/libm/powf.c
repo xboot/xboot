@@ -1,18 +1,3 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/e_powf.c */
-/*
- * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
- */
-/*
- * ====================================================
- * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
- *
- * Developed at SunPro, a Sun Microsystems, Inc. business.
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
-
 #include <math.h>
 
 static const float
@@ -217,7 +202,7 @@ float powf(float x, float y)
 	else if (j == 0x43000000) {  /* if z == 128 */
 		if (p_l + ovt > z - p_h)
 			return sn*huge*huge;  /* overflow */
-	} else if ((j&0x7fffffff) > 0x43160000)  /* z < -150 */ // FIXME: check should be  (uint32_t)j > 0xc3160000
+	} else if ((j&0x7fffffff) > 0x43160000)  /* z < -150 */
 		return sn*tiny*tiny;  /* underflow */
 	else if (j == 0xc3160000) {  /* z == -150 */
 		if (p_l <= z-p_h)

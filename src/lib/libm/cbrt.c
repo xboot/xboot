@@ -1,22 +1,8 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/s_cbrt.c */
-/*
- * ====================================================
- * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
- *
- * Developed at SunPro, a Sun Microsystems, Inc. business.
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- *
- * Optimized by Bruce D. Evans.
- */
 /* cbrt(x)
  * Return cube root of x
  */
 
 #include <math.h>
-#include <stdint.h>
 
 static const uint32_t
 B1 = 715094163, /* B1 = (1023-1023/3-0.03306235651)*2**20 */

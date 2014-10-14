@@ -1,16 +1,3 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/e_rem_pio2.c */
-/*
- * ====================================================
- * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
- *
- * Developed at SunSoft, a Sun Microsystems, Inc. business.
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- *
- * Optimized by Bruce D. Evans.
- */
 /* __rem_pio2(x,y)
  *
  * return the remainder of x rem pi/2 in y[0]+y[1]

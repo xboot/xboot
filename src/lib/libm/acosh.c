@@ -1,10 +1,5 @@
 #include <math.h>
 
-#if FLT_EVAL_METHOD==2
-#undef sqrt
-#define sqrt sqrtl
-#endif
-
 /* acosh(x) = log(x + sqrt(x*x-1)) */
 double acosh(double x)
 {

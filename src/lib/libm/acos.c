@@ -1,14 +1,3 @@
-/* origin: FreeBSD /usr/src/lib/msun/src/e_acos.c */
-/*
- * ====================================================
- * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
- *
- * Developed at SunSoft, a Sun Microsystems, Inc. business.
- * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
- * is preserved.
- * ====================================================
- */
 /* acos(x)
  * Method :
  *      acos(x)  = pi/2 - asin(x)

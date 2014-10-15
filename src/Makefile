@@ -145,8 +145,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 #
 # Add external library
 #
-INCDIRS		+= 	external/lua-5.2.2
-SRCDIRS		+=	external/lua-5.2.2
+INCDIRS		+= 	external/lua-5.2.3
+SRCDIRS		+=	external/lua-5.2.3
 
 INCDIRS		+= 	external/zlib-1.2.8
 SRCDIRS		+=	external/zlib-1.2.8

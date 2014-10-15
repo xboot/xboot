@@ -49,6 +49,15 @@ _pixman_addition_overflows_int (unsigned int a, unsigned int b)
 }
 
 void *
+pixman_malloc_ab_plus_c (unsigned int a, unsigned int b, unsigned int c)
+{
+    if (!b || a >= INT32_MAX / b || (a * b) > INT32_MAX - c)
+	return NULL;
+
+    return malloc (a * b + c);
+}
+
+void *
 pixman_malloc_ab (unsigned int a,
                   unsigned int b)
 {
@@ -212,6 +221,17 @@ uint32_t *
 _pixman_iter_get_scanline_noop (pixman_iter_t *iter, const uint32_t *mask)
 {
     return iter->buffer;
+}
+
+void
+_pixman_iter_init_bits_stride (pixman_iter_t *iter, const pixman_iter_info_t *info)
+{
+    pixman_image_t *image = iter->image;
+    uint8_t *b = (uint8_t *)image->bits.bits;
+    int s = image->bits.rowstride * 4;
+
+    iter->bits = b + s * iter->y + iter->x * PIXMAN_FORMAT_BPP (info->format) / 8;
+    iter->stride = s;
 }
 
 #define N_TMP_BOXES (16)

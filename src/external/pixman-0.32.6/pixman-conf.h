@@ -28,6 +28,7 @@
 #endif
 
 #define PIXMAN_NO_TLS 			(1)
+#define HAVE_BUILTIN_CLZ		(1)
 
 #endif /* __PIXMAN_CONF_H__ */
 

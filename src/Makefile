@@ -157,10 +157,10 @@ SRCDIRS		+=	external/libpng-1.5.14
 INCDIRS		+= 	external/expat-2.1.0
 SRCDIRS		+=	external/expat-2.1.0
 
-INCDIRS		+= 	external/pixman-0.30.2 \
-				external/pixman-0.30.2/$(ARCH)
-SRCDIRS		+=	external/pixman-0.30.2 \
-				external/pixman-0.30.2/$(ARCH)
+INCDIRS		+= 	external/pixman-0.32.6 \
+				external/pixman-0.32.6/$(ARCH)
+SRCDIRS		+=	external/pixman-0.32.6 \
+				external/pixman-0.32.6/$(ARCH)
 
 INCDIRS		+= 	external/cairo-1.12.16
 SRCDIRS		+=	external/cairo-1.12.16

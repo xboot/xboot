@@ -285,50 +285,26 @@ _pixman_implementation_fill (pixman_implementation_t *imp,
     return FALSE;
 }
 
-pixman_bool_t
-_pixman_implementation_src_iter_init (pixman_implementation_t	*imp,
-				      pixman_iter_t             *iter,
-				      pixman_image_t		*image,
-				      int			 x,
-				      int			 y,
-				      int			 width,
-				      int			 height,
-				      uint8_t			*buffer,
-				      iter_flags_t		 iter_flags,
-				      uint32_t                   image_flags)
+static uint32_t *
+get_scanline_null (pixman_iter_t *iter, const uint32_t *mask)
 {
-    iter->image = image;
-    iter->buffer = (uint32_t *)buffer;
-    iter->x = x;
-    iter->y = y;
-    iter->width = width;
-    iter->height = height;
-    iter->iter_flags = iter_flags;
-    iter->image_flags = image_flags;
-
-    while (imp)
-    {
-	if (imp->src_iter_init && (*imp->src_iter_init) (imp, iter))
-	    return TRUE;
-
-	imp = imp->fallback;
-    }
-
-    return FALSE;
+    return NULL;
 }
 
-pixman_bool_t
-_pixman_implementation_dest_iter_init (pixman_implementation_t	*imp,
-				       pixman_iter_t            *iter,
-				       pixman_image_t		*image,
-				       int			 x,
-				       int			 y,
-				       int			 width,
-				       int			 height,
-				       uint8_t			*buffer,
-				       iter_flags_t		 iter_flags,
-				       uint32_t                  image_flags)
+void
+_pixman_implementation_iter_init (pixman_implementation_t *imp,
+                                  pixman_iter_t           *iter,
+                                  pixman_image_t          *image,
+                                  int                      x,
+                                  int                      y,
+                                  int                      width,
+                                  int                      height,
+                                  uint8_t                 *buffer,
+                                  iter_flags_t             iter_flags,
+                                  uint32_t                 image_flags)
 {
+    pixman_format_code_t format;
+
     iter->image = image;
     iter->buffer = (uint32_t *)buffer;
     iter->x = x;
@@ -337,16 +313,40 @@ _pixman_implementation_dest_iter_init (pixman_implementation_t	*imp,
     iter->height = height;
     iter->iter_flags = iter_flags;
     iter->image_flags = image_flags;
+    iter->fini = NULL;
+
+    if (!iter->image)
+    {
+	iter->get_scanline = get_scanline_null;
+	return;
+    }
+
+    format = iter->image->common.extended_format_code;
 
     while (imp)
     {
-	if (imp->dest_iter_init && (*imp->dest_iter_init) (imp, iter))
-	    return TRUE;
+        if (imp->iter_info)
+        {
+            const pixman_iter_info_t *info;
 
-	imp = imp->fallback;
+            for (info = imp->iter_info; info->format != PIXMAN_null; ++info)
+            {
+                if ((info->format == PIXMAN_any || info->format == format) &&
+                    (info->image_flags & image_flags) == info->image_flags &&
+                    (info->iter_flags & iter_flags) == info->iter_flags)
+                {
+                    iter->get_scanline = info->get_scanline;
+                    iter->write_back = info->write_back;
+
+                    if (info->initializer)
+                        info->initializer (iter, info);
+                    return;
+                }
+            }
+        }
+
+        imp = imp->fallback;
     }
-
-    return FALSE;
 }
 
 pixman_bool_t
@@ -368,7 +368,7 @@ _pixman_disabled (const char *name)
 
 	    if (strlen (name) == len && strncmp (name, env, len) == 0)
 	    {
-//		printf ("pixman: Disabled %s implementation\n", name);
+		printf ("pixman: Disabled %s implementation\n", name);
 		return TRUE;
 	    }
 
@@ -403,7 +403,7 @@ _pixman_choose_implementation (void)
     imp = _pixman_mips_get_implementations (imp);
 #endif
 
-	imp = _pixman_implementation_create_noop (imp);
+    imp = _pixman_implementation_create_noop (imp);
 
-	return imp;
+    return imp;
 }

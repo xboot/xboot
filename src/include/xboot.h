@@ -44,7 +44,6 @@ extern "C" {
 #include <xboot/module.h>
 #include <xboot/notifier.h>
 #include <xboot/poller.h>
-#include <xboot/irq.h>
 #include <xboot/resource.h>
 #include <xboot/bus.h>
 #include <xboot/device.h>
@@ -55,6 +54,7 @@ extern "C" {
 #include <pwm/pwm.h>
 #include <clk/clk.h>
 #include <clocksource/clocksource.h>
+#include <interrupt/interrupt.h>
 #include <time/delay.h>
 #include <time/jiffies.h>
 #include <time/tick.h>

@@ -1,5 +1,5 @@
 /*
- * kernel/core/irq.c
+ * driver/interrupt/interrupt.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,8 +23,7 @@
  */
 
 #include <xboot.h>
-#include <spinlock.h>
-#include <xboot/irq.h>
+#include <interrupt/interrupt.h>
 
 struct irq_list_t
 {
@@ -42,6 +41,18 @@ static spinlock_t __irq_list_lock = SPIN_LOCK_INIT();
 
 static void null_interrupt_function(void * data)
 {
+}
+
+static struct kobj_t * search_class_interrupt_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "interrupt");
+}
+
+static ssize_t irq_read_no(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct irq_t * irq = (struct irq_t *)kobj->priv;
+	return sprintf(buf, "%u", irq->irq_no);
 }
 
 static struct irq_t * irq_search(const char * name)
@@ -74,10 +85,12 @@ bool_t irq_register(struct irq_t * irq)
 	if(!il)
 		return FALSE;
 
-	il->irq = irq;
-
 	irq->handler->func = null_interrupt_function;
 	irq->handler->data = NULL;
+	irq->kobj = kobj_alloc_directory(irq->name);
+	kobj_add_regular(irq->kobj, "no", irq_read_no, NULL, irq);
+	kobj_add(search_class_interrupt_kobj(), irq->kobj);
+	il->irq = irq;
 
 	spin_lock_irq(&__irq_list_lock);
 	list_add_tail(&il->entry, &(__irq_list.entry));
@@ -99,7 +112,6 @@ bool_t irq_unregister(struct irq_t * irq)
 		{
 			irq->handler->func = null_interrupt_function;
 			irq->handler->data = NULL;
-
 			if(pos->irq->enable)
 				pos->irq->enable(pos->irq, FALSE);
 
@@ -107,6 +119,8 @@ bool_t irq_unregister(struct irq_t * irq)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__irq_list_lock);
 
+			kobj_remove(search_class_interrupt_kobj(), pos->irq->kobj);
+			kobj_remove_self(irq->kobj);
 			free(pos);
 			return TRUE;
 		}
@@ -115,7 +129,7 @@ bool_t irq_unregister(struct irq_t * irq)
 	return FALSE;
 }
 
-bool_t request_irq(const char * name, interrupt_function_t func, void * data)
+bool_t request_irq(const char * name, void (*func)(void *), void * data)
 {
 	struct irq_t * irq;
 
@@ -131,7 +145,6 @@ bool_t request_irq(const char * name, interrupt_function_t func, void * data)
 
 	irq->handler->func = func;
 	irq->handler->data = data;
-
 	if(irq->enable)
 		irq->enable(irq, TRUE);
 
@@ -151,7 +164,6 @@ bool_t free_irq(const char * name)
 
 	irq->handler->func = null_interrupt_function;
 	irq->handler->data = NULL;
-
 	if(irq->enable)
 		irq->enable(irq, FALSE);
 

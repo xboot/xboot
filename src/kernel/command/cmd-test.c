@@ -15,7 +15,6 @@
 #include <time/tick.h>
 #include <xboot/machine.h>
 #include <xboot/list.h>
-#include <xboot/irq.h>
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <xboot/module.h>

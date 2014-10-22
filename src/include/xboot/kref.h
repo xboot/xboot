@@ -41,4 +41,4 @@ static inline int kref_put(struct kref_t * ref, void (*release)(struct kref_t * 
 }
 #endif
 
-#endif /* __KOBJ_H__ */
+#endif /* __KREF_H__ */

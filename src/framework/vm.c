@@ -22,9 +22,15 @@
  *
  */
 
+#include <xfs/xfs.h>
+#include <framework/framework.h>
 #include <framework/vm.h>
 
-struct vm_t * vm_alloc(const char * path, int argc, char * argv[])
+struct vm_t {
+	lua_State * lua;
+};
+
+static struct vm_t * vm_alloc(const char * path, int argc, char * argv[])
 {
 	struct vm_t * vm;
 	int i;
@@ -65,7 +71,7 @@ struct vm_t * vm_alloc(const char * path, int argc, char * argv[])
 	return vm;
 }
 
-void vm_free(struct vm_t * vm)
+static void vm_free(struct vm_t * vm)
 {
 	if(!vm)
 		return;
@@ -76,7 +82,7 @@ void vm_free(struct vm_t * vm)
 	free(vm);
 }
 
-int vm_run(struct vm_t * vm)
+static int vm_run(struct vm_t * vm)
 {
 	int ret = -1;
 

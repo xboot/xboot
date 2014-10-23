@@ -22,91 +22,48 @@
  *
  */
 
-#include <xfs/xfs.h>
 #include <framework/framework.h>
 #include <framework/vm.h>
 
-struct vm_t {
-	lua_State * lua;
-};
-
-static struct vm_t * vm_alloc(int argc, char * argv[])
+static int luaopen_boot(lua_State * L)
 {
-	struct vm_t * vm;
-	int i;
-
-	vm = malloc(sizeof(struct vm_t));
-	if(!vm)
-		return NULL;
-
-	vm->lua = luaL_newstate();
-
-	luaL_openlibs(vm->lua);
-	luaopen_xboot(vm->lua);
-
-	do {
-		lua_newtable(vm->lua);
-
-		if(argc > 0)
-		{
-			lua_pushstring(vm->lua, argv[0]);
-			lua_rawseti(vm->lua, -2, -2);
-		}
-
-		lua_pushstring(vm->lua, "embedded boot.lua");
-		lua_rawseti(vm->lua, -2, -1);
-
-		for(i = 1; i < argc; i++)
-		{
-			lua_pushstring(vm->lua, argv[i]);
-			lua_rawseti(vm->lua, -2, i);
-		}
-
-		lua_setglobal(vm->lua, "arg");
-	} while(0);
-
-	return vm;
-}
-
-static void vm_free(struct vm_t * vm)
-{
-	if(!vm)
-		return;
-
-	if(vm->lua)
-		lua_close(vm->lua);
-
-	free(vm);
-}
-
-static int vm_run(struct vm_t * vm)
-{
-	int ret = -1;
-
-	if(!vm)
-		return ret;
-
-	luaopen_boot(vm->lua);
-	lua_call(vm->lua, 0, 1);
-
-	if(lua_isnumber(vm->lua, 1))
-		ret = (int)lua_tonumber(vm->lua, 1);
-	lua_pop(vm->lua, 1);
-
-	return ret;
+	return (luaL_dofile(L, "/romdisk/framework/org/xboot/boot.lua") == LUA_OK) ? 1 : 0;
 }
 
 int vm_exec(const char * path, int argc, char * argv[])
 {
 	struct runtime_t rt, *r;
-	struct vm_t * vm;
-	int ret = -1;
+	lua_State * lua;
+	int i, ret = -1;
 
 	runtime_create_save(&rt, 0, 0, path, &r);
-	vm = vm_alloc(argc, argv);
-	ret = vm_run(vm);
-	vm_free(vm);
-	runtime_destroy_restore(&rt, r);
+	lua = luaL_newstate();
+	luaL_openlibs(lua);
+	luaopen_xboot(lua);
+	do {
+		lua_newtable(lua);
+		if(argc > 0)
+		{
+			lua_pushstring(lua, argv[0]);
+			lua_rawseti(lua, -2, -2);
+		}
+		lua_pushstring(lua, "embedded boot.lua");
+		lua_rawseti(lua, -2, -1);
+		for(i = 1; i < argc; i++)
+		{
+			lua_pushstring(lua, argv[i]);
+			lua_rawseti(lua, -2, i);
+		}
+		lua_setglobal(lua, "arg");
+	} while(0);
 
+	luaopen_boot(lua);
+	lua_call(lua, 0, 1);
+	if(lua_isnumber(lua, 1))
+		ret = (int)lua_tonumber(lua, 1);
+	lua_pop(lua, 1);
+
+	lua_close(lua);
+	runtime_destroy_restore(&rt, r);
 	return ret;
 }

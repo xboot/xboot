@@ -210,8 +210,3 @@ int luaopen_xboot(lua_State * L)
 
 	return 1;
 }
-
-int luaopen_boot(lua_State * L)
-{
-	return (luaL_dofile(L, "/romdisk/framework/org/xboot/boot.lua") == LUA_OK) ? 1 : 0;
-}

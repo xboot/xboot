@@ -14,7 +14,6 @@ extern "C" {
 #include <framework/hardware/l-hardware.h>
 
 int luaopen_xboot(lua_State * L);
-int luaopen_boot(lua_State * L);
 
 #ifdef __cplusplus
 }

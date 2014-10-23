@@ -1439,11 +1439,13 @@ bool_t xfs_init(const char * path)
 {
 	char * p;
 
-	p = __xfs_platform_absolute_path(path);
-	xfs_add_to_search_path(p, 1);
-	xfs_add_to_search_path("/romdisk/framework", 1);
-	free(p);
-
+	if(path)
+	{
+		p = __xfs_platform_absolute_path(path);
+		xfs_add_to_search_path(p, 1);
+		xfs_add_to_search_path("/romdisk/framework", 1);
+		free(p);
+	}
 	return TRUE;
 }
 

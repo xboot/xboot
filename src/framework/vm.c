@@ -30,13 +30,10 @@ struct vm_t {
 	lua_State * lua;
 };
 
-static struct vm_t * vm_alloc(const char * path, int argc, char * argv[])
+static struct vm_t * vm_alloc(int argc, char * argv[])
 {
 	struct vm_t * vm;
 	int i;
-
-	if(!xfs_init(path))
-		return NULL;
 
 	vm = malloc(sizeof(struct vm_t));
 	if(!vm)
@@ -101,24 +98,15 @@ static int vm_run(struct vm_t * vm)
 
 int vm_exec(const char * path, int argc, char * argv[])
 {
-	struct runtime_t * r;
+	struct runtime_t rt, *r;
 	struct vm_t * vm;
 	int ret = -1;
 
-	if(!runtime_alloc_save(&r))
-		return ret;
-
-	vm = vm_alloc(path, argc, argv);
-	if(!vm)
-	{
-		runtime_free_restore(r);
-		return ret;
-	}
-
+	runtime_create_save(&rt, 0, 0, path, &r);
+	vm = vm_alloc(argc, argv);
 	ret = vm_run(vm);
-
 	vm_free(vm);
-	runtime_free_restore(r);
+	runtime_destroy_restore(&rt, r);
 
 	return ret;
 }

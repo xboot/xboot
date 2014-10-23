@@ -32,26 +32,13 @@ static char __heap[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap
 #endif
 static struct runtime_t * __current_runtime = NULL;
 
-static void do_runtime_init(void)
+static void * default_memory_pool(void)
 {
-	static struct runtime_t rt;
+	static void * __pool = NULL;
 
-	/* Set default runtime to current */
-	__current_runtime = &rt;
-
-	/* Initial the default runtime */
-	memset(&rt, 0, sizeof(struct runtime_t));
-
-	rt.__pool = memory_pool_create((void *)__heap, sizeof(__heap));
-	rt.__errno = 0;
-
-	rt.__seed[0] = 1;
-	rt.__seed[1] = 1;
-	rt.__seed[2] = 1;
-
-	rt.__environ.content = "";
-	rt.__environ.next = &(rt.__environ);
-	rt.__environ.prev = &(rt.__environ);
+	if(!__pool)
+		__pool = memory_pool_create((void *)__heap, sizeof(__heap));
+	return __pool;
 }
 
 struct runtime_t * runtime_get(void)
@@ -59,74 +46,58 @@ struct runtime_t * runtime_get(void)
 	return __current_runtime;
 }
 
-bool_t runtime_alloc_save(struct runtime_t ** rt)
+void runtime_create_save(struct runtime_t * rt, void * pool, size_t size, const char * path, struct runtime_t ** r)
 {
-	struct runtime_t * r;
-
-	/* No current runtime */
-	if(__current_runtime == NULL)
-		do_runtime_init();
-
-	/* Save the current runtime */
-	if(rt)
-		*rt = __current_runtime;
-
-	/* New runtime */
-	r = malloc(sizeof(struct runtime_t));
-	if(!r)
-		return FALSE;
-
-	r->__pool = __current_runtime->__pool;
-	r->__errno = 0;
-
-	r->__seed[0] = 1;
-	r->__seed[1] = 1;
-	r->__seed[2] = 1;
-
-	r->__environ.content = "";
-	r->__environ.next = &(r->__environ);
-	r->__environ.prev = &(r->__environ);
-
-	r->__stdin = __file_alloc(0);
-	r->__stdout = __file_alloc(1);
-	r->__stderr = __file_alloc(2);
-
-	r->__event_base = __event_base_alloc();
-	r->__xfs_ctx = __xfs_alloc();
-
-	/* Set new runtime to current */
-	__current_runtime = r;
-
-	return TRUE;
-}
-
-bool_t runtime_free_restore(struct runtime_t * rt)
-{
-	struct runtime_t * r = __current_runtime;
+	if(!rt)
+		return;
 
 	if(r)
-	{
-		if(r->__xfs_ctx)
-			__xfs_free(r->__xfs_ctx);
+		*r = __current_runtime;
+	__current_runtime = rt;
 
-		if(r->__event_base)
-			__event_base_free(r->__event_base);
+	if(pool && (size > 0))
+		rt->__pool = memory_pool_create(pool, size);
+	else
+		rt->__pool = default_memory_pool();
+	rt->__errno = 0;
 
-		if(r->__stderr)
-			fclose(r->__stderr);
+	rt->__seed[0] = 1;
+	rt->__seed[1] = 1;
+	rt->__seed[2] = 1;
 
-		if(r->__stdout)
-			fclose(r->__stdout);
+	rt->__environ.content = "";
+	rt->__environ.next = &(rt->__environ);
+	rt->__environ.prev = &(rt->__environ);
 
-		if(r->__stdin)
-			fclose(r->__stdin);
+	rt->__stdin = __file_alloc(0);
+	rt->__stdout = __file_alloc(1);
+	rt->__stderr = __file_alloc(2);
 
-		free(r);
-	}
+	rt->__event_base = __event_base_alloc();
+	rt->__xfs_ctx = __xfs_alloc();
+	xfs_init(path);
+}
 
-	/* Restore the current runtime */
-	if(rt)
-		__current_runtime = rt;
+void runtime_destroy_restore(struct runtime_t * rt, struct runtime_t * r)
+{
+	if(!rt)
+		return;
 
-	return TRUE;
+	if(rt->__xfs_ctx)
+		__xfs_free(rt->__xfs_ctx);
+
+	if(rt->__event_base)
+		__event_base_free(rt->__event_base);
+
+	if(rt->__stderr)
+		fclose(rt->__stderr);
+
+	if(rt->__stdout)
+		fclose(rt->__stdout);
+
+	if(rt->__stdin)
+		fclose(rt->__stdin);
+
+	if(r)
+		__current_runtime = r;
 }

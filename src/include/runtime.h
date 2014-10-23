@@ -31,8 +31,8 @@ struct runtime_t {
 };
 
 struct runtime_t * runtime_get(void);
-bool_t runtime_alloc_save(struct runtime_t ** rt);
-bool_t runtime_free_restore(struct runtime_t * rt);
+void runtime_create_save(struct runtime_t * rt, void * pool, size_t size, const char * path, struct runtime_t ** r);
+void runtime_destroy_restore(struct runtime_t * rt, struct runtime_t * r);
 
 #ifdef __cplusplus
 }

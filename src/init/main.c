@@ -28,8 +28,10 @@
 
 int xboot_main(int argc, char * argv[])
 {
-	/* Alloc default runtime */
-	runtime_alloc_save(0);
+	struct runtime_t rt;
+
+	/* Create runtime */
+	runtime_create_save(&rt, 0, 0, 0, 0);
 
 	/* Do initial kobj */
 	do_init_kobj();
@@ -64,6 +66,9 @@ int xboot_main(int argc, char * argv[])
 
 	/* Do all exit calls */
 	do_exitcalls();
+
+	/* Destroy runtime */
+	runtime_destroy_restore(&rt, 0);
 
 	/* Xboot return */
 	return 0;

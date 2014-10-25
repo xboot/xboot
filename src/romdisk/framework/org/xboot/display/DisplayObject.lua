@@ -595,6 +595,7 @@ function M:animate(properties, duration, easing)
 
 		if elapsed >= d.__duration then
 			d:removeEventListener(Event.ENTER_FRAME, __animate_listener, d)
+			self:dispatchEvent(Event.new(Event.ANIMATE_COMPLETE))
 			d.__duration = nil
 			d.__tween = nil
 			d.__watch = nil
@@ -604,6 +605,7 @@ function M:animate(properties, duration, easing)
 
 	if self.__animate == true then
 		self:removeEventListener(Event.ENTER_FRAME, __animate_listener, self)
+		self:dispatchEvent(Event.new(Event.ANIMATE_COMPLETE))
 		self.__duration = nil
 		self.__tween = nil
 		self.__watch = nil

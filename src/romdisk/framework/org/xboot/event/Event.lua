@@ -50,6 +50,10 @@ M.TOUCHES_CANCEL = "TouchesCancel"
 M.ENTER_FRAME = "EnterFrame"
 
 ---
+-- @field [parent=#Event] ANIMATE_COMPLETE AnimateComplete
+M.ANIMATE_COMPLETE = "AnimateComplete"
+
+---
 -- Creates a new 'Event' object to be dispatched from an 'EventDispatcher'.
 -- 
 -- @function [parent=#Event] new

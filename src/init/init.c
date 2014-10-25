@@ -128,8 +128,9 @@ void do_system_autoboot(void)
 
 	LOG("System autoboot ...");
 
-	do {
-		printf("\rPress any key to stop autoboot: %d", delay);
+	while(delay-- > 0)
+	{
+		printf("\rPress any key to stop autoboot: %2d", delay);
 
 		for(i = 0; i < 100; i++)
 		{
@@ -140,7 +141,7 @@ void do_system_autoboot(void)
 			}
 			mdelay(10);
 		}
-	}while(delay-- > 0);
+	}
 
 	exec_cmdline(CONFIG_AUTO_BOOT_COMMAND);
 }

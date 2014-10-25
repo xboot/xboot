@@ -1,5 +1,5 @@
 /*
- * init/mode/run_normal.c
+ * kernel/shell/shell.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,11 +22,20 @@
  *
  */
 
-
 #include <xboot.h>
 #include <shell/exec.h>
+#include <shell/readline.h>
 
-void run_normal_mode(void)
+void run_shell(void)
 {
-	xboot_set_mode(MODE_SHELL);
+	char * p;
+	char cwd[256];
+	char prompt[256];
+
+	getcwd(cwd, sizeof(cwd));
+	sprintf(prompt, "xboot: %s$ ", cwd);
+
+	p = readline(prompt);
+	exec_cmdline(p);
+	free(p);
 }

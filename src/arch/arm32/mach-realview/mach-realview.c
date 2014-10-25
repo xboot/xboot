@@ -78,11 +78,6 @@ static bool_t mach_authentication(void)
 	return TRUE;
 }
 
-static enum mode_t mach_getmode(void)
-{
-	return MODE_SHELL;
-}
-
 static struct machine_t realview = {
 	.name 				= "realview-pb-a8",
 	.desc 				= "ARM RealView Platform Baseboard for Cortex-A8",
@@ -106,7 +101,6 @@ static struct machine_t realview = {
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
 	.authentication		= mach_authentication,
-	.getmode			= mach_getmode,
 };
 
 static __init void mach_realview_init(void)

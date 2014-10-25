@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <init.h>
-#include <mode/mode.h>
+#include <shell/shell.h>
 
 int xboot_main(int argc, char * argv[])
 {
@@ -51,14 +51,8 @@ int xboot_main(int argc, char * argv[])
 	/* Run loop */
 	while(1)
 	{
-		if(xboot_get_mode() == MODE_NORMAL)
-		{
-			run_normal_mode();
-		}
-		else if(xboot_get_mode() == MODE_SHELL)
-		{
-			run_shell_mode();
-		}
+		/* Run shell */
+		run_shell();
 
 		/* Yield poller task */
 		schedule_poller_yield();

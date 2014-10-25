@@ -60,11 +60,6 @@ static bool_t mach_authentication(void)
 	return TRUE;
 }
 
-static enum mode_t mach_getmode(void)
-{
-	return MODE_SHELL;
-}
-
 static struct machine_t sandbox = {
 	.name 				= "linux",
 	.desc 				= "Linux sandbox",
@@ -83,7 +78,6 @@ static struct machine_t sandbox = {
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
 	.authentication		= mach_authentication,
-	.getmode			= mach_getmode,
 };
 
 static __init void mach_sandbox_init(void)

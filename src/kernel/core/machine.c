@@ -165,8 +165,6 @@ void subsys_init_machine(void)
 
 			if(pos->mach->powerup)
 				pos->mach->powerup();
-			if(pos->mach->getmode)
-				xboot_set_mode(pos->mach->getmode());
 
 			extern void mmu_setup(struct machine_t * mach);
 			mmu_setup(pos->mach);

@@ -99,7 +99,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				lib/libm									\
 				lib/xfs										\
 				init										\
-				init/mode									\
 				kernel										\
 				kernel/core									\
 				kernel/shell								\

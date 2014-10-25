@@ -88,10 +88,6 @@ extern "C" {
 #define	CONFIG_COMMAND_PROBE						(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_EXIT)
-#define	CONFIG_COMMAND_EXIT							(1)
-#endif
-
 #if !defined(CONFIG_COMMAND_NAND)
 #define	CONFIG_COMMAND_NAND							(1)
 #endif

@@ -99,17 +99,6 @@ static bool_t mach_authentication(void)
 	return TRUE;
 }
 
-static enum mode_t mach_getmode(void)
-{
-	/* set GPH2_3 intput and pull up */
-	writel(S5PV210_GPH2_BASE + S5PV210_GPIO_CON, (readl(S5PV210_GPH2_BASE + S5PV210_GPIO_CON) & ~(0xf<<12)) | (0x0<<12));
-	writel(S5PV210_GPH2_BASE + S5PV210_GPIO_PUD, (readl(S5PV210_GPH2_BASE + S5PV210_GPIO_PUD) & ~(0x3<<6)) | (0x2<<6));
-
-	if((readl(S5PV210_GPH2_BASE + S5PV210_GPIO_DAT) & (0x1<<3)) == 0)
-		return MODE_MENU;
-	return MODE_NORMAL;
-}
-
 static struct machine_t x210ii = {
 	.name 				= "x210ii",
 	.desc 				= "x210ii based on s5pv210",
@@ -138,7 +127,6 @@ static struct machine_t x210ii = {
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
 	.authentication		= mach_authentication,
-	.getmode			= mach_getmode,
 };
 
 static __init void mach_x210ii_init(void)

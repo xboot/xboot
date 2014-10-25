@@ -78,11 +78,6 @@ static bool_t mach_authentication(void)
 	return TRUE;
 }
 
-static enum mode_t mach_getmode(void)
-{
-	return MODE_MENU;
-}
-
 static struct machine_t x4412 = {
 	.name 				= "x4412",
 	.desc 				= "x4412 based on exynos4412",
@@ -111,7 +106,6 @@ static struct machine_t x4412 = {
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
 	.authentication		= mach_authentication,
-	.getmode			= mach_getmode,
 };
 
 static __init void mach_x4412_init(void)

@@ -60,7 +60,6 @@ extern "C" {
 #include <time/tick.h>
 #include <time/timer.h>
 #include <fs/fileio.h>
-#include <mode/mode.h>
 
 #ifdef __cplusplus
 }

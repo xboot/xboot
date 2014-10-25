@@ -23,7 +23,6 @@ struct machine_t {
 	bool_t (*sleep)(void);
 	bool_t (*cleanup)(void);
 	bool_t (*authentication)(void);
-	enum mode_t (*getmode)(void);
 };
 
 struct machine_t * get_machine(void);

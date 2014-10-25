@@ -9,7 +9,7 @@ extern "C" {
 
 void do_system_rootfs(void);
 void do_system_logo(void);
-void do_system_wait(void);
+void do_system_autoboot(void);
 
 #ifdef __cplusplus
 }

@@ -28,6 +28,14 @@ extern "C" {
 #define	CONFIG_NO_LOG								(0)
 #endif
 
+#if !defined(CONFIG_AUTO_BOOT_DELAY)
+#define	CONFIG_AUTO_BOOT_DELAY						(3)
+#endif
+
+#if !defined(CONFIG_AUTO_BOOT_COMMAND)
+#define	CONFIG_AUTO_BOOT_COMMAND					"exec /romdisk/demos/"
+#endif
+
 #if !defined(CONFIG_MAX_BRIGHTNESS)
 #define	CONFIG_MAX_BRIGHTNESS						(1023)
 #endif

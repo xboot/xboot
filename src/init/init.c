@@ -25,6 +25,7 @@
 #include <xboot.h>
 #include <cairo-xboot.h>
 #include <console/console.h>
+#include <shell/exec.h>
 #include <fb/fb.h>
 #include <init.h>
 
@@ -120,18 +121,26 @@ void do_system_logo(void)
 	cairo_surface_destroy(logo);
 }
 
-void do_system_wait(void)
+void do_system_autoboot(void)
 {
-	u32_t timeout;
+	int delay = CONFIG_AUTO_BOOT_DELAY;
+	int i;
 
-	if(HZ > 0)
-	{
-		LOG("Wait a moment, if necessary");
+	LOG("System autoboot ...");
 
-		/*
-		 * Wait a moments
-		 */
-		timeout = msecs_to_jiffies(1000);
-		while(time_before(jiffies, timeout));
-	}
+	do {
+		printf("\rPress any key to stop autoboot: %d", delay);
+
+		for(i = 0; i < 100; i++)
+		{
+			if(getchar() != EOF)
+			{
+				printf("\r\n");
+				return;
+			}
+			mdelay(10);
+		}
+	}while(delay-- > 0);
+
+	exec_cmdline(CONFIG_AUTO_BOOT_COMMAND);
 }

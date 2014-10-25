@@ -45,8 +45,8 @@ int xboot_main(int argc, char * argv[])
 	/* Display system logo */
 	do_system_logo();
 
-	/* Wait a moment */
-	do_system_wait();
+	/* System autoboot */
+	do_system_autoboot();
 
 	/* Run loop */
 	while(1)

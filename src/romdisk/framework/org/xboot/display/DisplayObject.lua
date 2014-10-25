@@ -613,11 +613,11 @@ function M:animate(properties, duration, easing)
 	end
 
 	if not properties or type(properties) ~= "table" or not next(properties) then
-		return
+		return self
 	end
 
 	if duration and duration <= 0 then
-		return
+		return self
 	end
 
 	self.__duration = duration or 1
@@ -656,15 +656,8 @@ function M:animate(properties, duration, easing)
 		self.__watch = Stopwatch.new()
 		self.__animate = true
 	end
-end
-
----
--- Draw display object to the screen. This method must be subclassing.
---
--- @function [parent=#DisplayObject] __draw
--- @param self
--- @param display (Display) The context of the screen.
-function M:__draw(display)
+	
+	return self
 end
 
 ---
@@ -680,6 +673,15 @@ function M:layout()
 			v:layout()
 		end
 	end
+end
+
+---
+-- Draw display object to the screen. This method must be subclassing.
+--
+-- @function [parent=#DisplayObject] __draw
+-- @param self
+-- @param display (Display) The context of the screen.
+function M:__draw(display)
 end
 
 ---

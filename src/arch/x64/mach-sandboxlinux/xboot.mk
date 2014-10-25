@@ -157,9 +157,9 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
 				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
 
-ASFLAGS		:= -g -ggdb -Wall
-CFLAGS		:= -g -ggdb -Wall
-CXXFLAGS	:= -g -ggdb -Wall
+ASFLAGS		:= -g -ggdb -Wall -O2
+CFLAGS		:= -g -ggdb -Wall -O2
+CXXFLAGS	:= -g -ggdb -Wall -O2
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary

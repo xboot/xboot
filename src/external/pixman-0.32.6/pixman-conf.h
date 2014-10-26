@@ -27,6 +27,12 @@
 #endif
 #endif
 
+#ifdef __X64__
+# define USE_X86_MMX
+# define USE_SSE2
+# define USE_SSSE3
+#endif
+
 #define PIXMAN_NO_TLS 			(1)
 #define HAVE_BUILTIN_CLZ		(1)
 

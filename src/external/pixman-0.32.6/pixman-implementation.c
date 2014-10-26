@@ -390,7 +390,7 @@ _pixman_choose_implementation (void)
     if (!_pixman_disabled ("fast"))
 	imp = _pixman_implementation_create_fast_path (imp);
 
-#ifdef __X86__
+#ifdef __X64__
     imp = _pixman_x86_get_implementations (imp);
 #endif
 #ifdef __ARM32__

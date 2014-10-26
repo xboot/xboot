@@ -62,6 +62,9 @@ endif
 ifeq ($(strip $(ARCH)), arm64)
 DEFINES		+=	-D__ARM64__
 endif
+ifeq ($(strip $(ARCH)), x64)
+DEFINES		+=	-D__X64__
+endif
 
 DEFINES		+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
 ASFLAGS		+= 	-ffreestanding -std=gnu99 $(DEFINES)

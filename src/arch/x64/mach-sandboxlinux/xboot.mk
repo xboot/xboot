@@ -164,7 +164,7 @@ LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:= -d
-MCFLAGS		:=
+MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)
 LIBS 		:= -lsandboxlinux -lc -lgcc -lgcc_eh -lpthread -lSDL

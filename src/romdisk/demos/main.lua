@@ -7,10 +7,9 @@ application:setBackgroundColor(0.8, 0.8, 0.8)
 
 local testcases = TestCase.new({
 	require("scene1"),
+	require("scene2"),	
 	require("widgets.button"),
-	require("scene2"),
-	require("widgets.button"),
-	require("scene2"),
+	require("graphics.balls"),
 })
 stage:addChild(testcases)
 

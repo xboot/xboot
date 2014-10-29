@@ -13,73 +13,47 @@
 #include <sys/mman.h>
 #include <sys/select.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include <sandboxlinux.h>
 
 uint64_t sandbox_linux_get_time(void)
 {
-	struct timespec ts;
-	uint64_t now;
+	struct timeval time;
 
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	now = ts.tv_sec * 1000 * 1000 * 1000 + ts.tv_nsec;
-	return now;
+	gettimeofday(&time, 0);
+	return ((uint64_t)time.tv_sec * 1000000 + time.tv_usec);
 }
 
-int sandbox_linux_read(int fd, void * buf, size_t count)
+ssize_t sandbox_linux_read(int fd, void * buf, size_t count)
+{
+	ssize_t ret = read(fd, buf, count);
+	return (ret > 0) ? ret: 0;
+}
+
+ssize_t sandbox_linux_read_nonblock(int fd, void * buf, size_t count)
 {
 	ssize_t ret;
+	int flags;
 
-	if (count == 0)
+	flags = fcntl(fd, F_GETFL);
+	if(flags == -1)
 		return 0;
 
-	do {
-		ret = read(fd, buf, count);
-
-		if (ret == 0)
-		{
-			printf("read on fd %d returned 0, device gone? - exiting\n", fd);
-		}
-		else if (ret == -1)
-		{
-			if (errno == EAGAIN)
-				return -errno;
-			else if (errno == EINTR)
-				continue;
-			else {
-				printf("read on fd %d returned -1, errno %d - exiting\n", fd, errno);
-			}
-		}
-	} while (ret <= 0);
-
-	return (int)ret;
-}
-
-int sandbox_linux_read_nonblock(int fd, void * buf, size_t count)
-{
-	int oldflags, ret;
-
-	oldflags = fcntl(fd, F_GETFL);
-	if (oldflags == -1)
-		goto err_out;
-
-	if (fcntl(fd, F_SETFL, oldflags | O_NONBLOCK) == -1)
-		goto err_out;
+	if(fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
+		return 0;
 
 	ret = sandbox_linux_read(fd, buf, count);
 
-	if (fcntl(fd, F_SETFL, oldflags) == -1)
-		goto err_out;
+	if(fcntl(fd, F_SETFL, flags) == -1)
+		return 0;
 
 	return ret;
-
-err_out:
-	perror("fcntl");
-	return -1;
 }
 
 ssize_t sandbox_linux_write(int fd, const void * buf, size_t count)
 {
-	return write(fd, buf, count);
+	ssize_t ret = write(fd, buf, count);
+	return (ret > 0) ? ret: 0;
 }
 
 off_t sandbox_linux_lseek(int fd, off_t offset)

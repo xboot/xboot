@@ -7,8 +7,8 @@
  * Common interface
  */
 uint64_t sandbox_linux_get_time(void);
-int sandbox_linux_read(int fd, void * buf, size_t count);
-int sandbox_linux_read_nonblock(int fd, void * buf, size_t count);
+ssize_t sandbox_linux_read(int fd, void * buf, size_t count);
+ssize_t sandbox_linux_read_nonblock(int fd, void * buf, size_t count);
 ssize_t sandbox_linux_write(int fd, const void * buf, size_t count);
 off_t sandbox_linux_lseek(int fd, off_t offset);
 int sandbox_linux_execve(const char * filename, char * const argv[], char * const envp[]);

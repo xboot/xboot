@@ -4,17 +4,17 @@
 #
 
 #
-# You must pass TARGET and CROSS variable.
+# You must pass CROSS_COMPILE and PLATFORM variable.
 #
-TARGET		?= arm32-realview
-CROSS		?= arm-none-eabi-
+CROSS_COMPILE	?= arm-none-eabi-
+PLATFORM		?= arm32-realview
 
 #
-# Get platform information about ARCH and MACH from TARGET variable.
+# Get platform information about ARCH and MACH from PLATFORM variable.
 #
-ifeq ($(words $(subst -, , $(TARGET))), 2)
-ARCH		:= $(word 1, $(subst -, , $(TARGET)))
-MACH		:= mach-$(word 2, $(subst -, , $(TARGET)))
+ifeq ($(words $(subst -, , $(PLATFORM))), 2)
+ARCH		:= $(word 1, $(subst -, , $(PLATFORM)))
+MACH		:= mach-$(word 2, $(subst -, , $(PLATFORM)))
 endif
 
 #
@@ -214,13 +214,13 @@ SRCDIRS		+=	external/chipmunk-6.2.1/src \
 #
 # You shouldn't need to change anything below this point.
 #
-AS			:=	$(CROSS)gcc -x assembler-with-cpp
-CC			:=	$(CROSS)gcc
-CXX			:=	$(CROSS)g++
-LD			:=	$(CROSS)ld
-AR			:=	$(CROSS)ar
-OC			:=	$(CROSS)objcopy
-OD			:=	$(CROSS)objdump
+AS			:=	$(CROSS_COMPILE)gcc -x assembler-with-cpp
+CC			:=	$(CROSS_COMPILE)gcc
+CXX			:=	$(CROSS_COMPILE)g++
+LD			:=	$(CROSS_COMPILE)ld
+AR			:=	$(CROSS_COMPILE)ar
+OC			:=	$(CROSS_COMPILE)objcopy
+OD			:=	$(CROSS_COMPILE)objdump
 MKDIR		:=	mkdir -p
 CP			:=	cp -af
 RM			:=	rm -fr

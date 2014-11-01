@@ -44,13 +44,14 @@ TO COMPILE XBOOT
 	using xboot's IDE directly.
 	
 	make clean
-	make TARGET=arm32-realview CROSS=/path/to/arm-none-eabi-
+	make CROSS_COMPILE=/path/to/arm-none-eabi- PLATFORM=arm32-realview
 
-	"TARGET" for your machine which will be compiled;
-	"CROSS"  for your cross compiler;
+	"CROSS_COMPILE" for your cross compiler
+	"PLATFORM" for your hardware machine which will be compiled
 
 
 RUNNING XBOOT
-	if you have no hardware machine for running xboot, you
+	if you have no hardware platform for running xboot, you
 	can using a simulator, such as qemu-system-arm in tools
 	directory.
+

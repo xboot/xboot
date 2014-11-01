@@ -20,7 +20,7 @@ INCDIRS		:=
 SRCDIRS		:=
 
 #
-# Add fake rule
+# Add end rule
 #
 ifeq ($(strip $(HOSTOS)), linux)
 MKV210		:= arch/$(ARCH)/$(MACH)/tools/linux/mkv210
@@ -29,6 +29,6 @@ ifeq ($(strip $(HOSTOS)), windows)
 MKV210		:= arch/$(ARCH)/$(MACH)/tools/windows/mkv210
 endif
 
-fake:
+end:
 	@echo make header information for irom booting
 	$(MKV210) $(X_NAME).bin

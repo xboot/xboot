@@ -20,7 +20,7 @@ INCDIRS		:=
 SRCDIRS		:=
 
 #
-# Add fake rule
+# Add end rule
 #
 ifeq ($(strip $(HOSTOS)), linux)
 MK4412		:= arch/$(ARCH)/$(MACH)/tools/linux/mk4412
@@ -29,6 +29,6 @@ ifeq ($(strip $(HOSTOS)), windows)
 MK4412		:= arch/$(ARCH)/$(MACH)/tools/windows/mk4412
 endif
 
-fake:
+end:
 	@echo make header information for irom booting
 	@$(MK4412) $(X_NAME).bin

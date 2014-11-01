@@ -9,6 +9,7 @@
 CROSS_COMPILE	?= arm-none-eabi-
 PLATFORM		?= arm32-realview
 
+
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.
 #
@@ -290,12 +291,12 @@ M_CPPOBJS	:=	$(M_CPPFILES:.cpp=.o)
 M_OBJS		:=	$(M_SOBJS) $(M_COBJS) $(M_CPPOBJS)
 
 VPATH		:=	$(X_OBJDIRS) $(M_OBJDIRS)
-.PHONY:	all clean xclean fake module mclean
+.PHONY:	all begin end clean xclean module mclean
 
 #
 # Xboot rules
 #
-all : $(X_NAME) fake
+all : begin $(X_NAME) end 
 clean : xclean
 
 $(X_NAME) : $(X_OBJS)

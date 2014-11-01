@@ -1,5 +1,8 @@
 #include <math.h>
 
+#define EPS DBL_EPSILON
+static const double_t toint = 1/EPS;
+
 double ceil(double x)
 {
 	union {double f; uint64_t i;} u = {x};
@@ -10,9 +13,9 @@ double ceil(double x)
 		return x;
 	/* y = int(x) - x, where int(x) is an integer neighbor of x */
 	if (u.i >> 63)
-		y = (double)(x - 0x1p52) + 0x1p52 - x;
+		y = x - toint + toint - x;
 	else
-		y = (double)(x + 0x1p52) - 0x1p52 - x;
+		y = x + toint - toint - x;
 	/* special case because of non-nearest rounding modes */
 	if (e <= 0x3ff-1) {
 		FORCE_EVAL(y);

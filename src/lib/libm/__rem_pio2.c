@@ -6,6 +6,7 @@
 
 #include <math.h>
 
+#define EPS DBL_EPSILON
 /*
  * invpio2:  53 bits of 2/pi
  * pio2_1:   first  33 bit of pi/2
@@ -16,6 +17,7 @@
  * pio2_3t:  pi/2 - (pio2_1+pio2_2+pio2_3)
  */
 static const double
+toint   = 1.5/EPS,
 invpio2 = 6.36619772367581382433e-01, /* 0x3FE45F30, 0x6DC9C883 */
 pio2_1  = 1.57079632673412561417e+00, /* 0x3FF921FB, 0x54400000 */
 pio2_1t = 6.07710050650619224932e-11, /* 0x3DD0B461, 0x1A626331 */
@@ -28,8 +30,8 @@ pio2_3t = 8.47842766036889956997e-32; /* 0x397B839A, 0x252049C1 */
 int __rem_pio2(double x, double *y)
 {
 	union {double f; uint64_t i;} u = {x};
-	double_t z,w,t,r;
-	double tx[3],ty[2],fn;
+	double_t z,w,t,r,fn;
+	double tx[3],ty[2];
 	uint32_t ix;
 	int sign, n, ex, ey, i;
 
@@ -98,8 +100,7 @@ int __rem_pio2(double x, double *y)
 	if (ix < 0x413921fb) {  /* |x| ~< 2^20*(pi/2), medium size */
 medium:
 		/* rint(x/(pi/2)), Assume round-to-nearest. */
-		fn = x*invpio2 + 0x1.8p52;
-		fn = fn - 0x1.8p52;
+		fn = x*invpio2 + toint - toint;
 		n = (int32_t)fn;
 		r = x - fn*pio2_1;
 		w = fn*pio2_1t;  /* 1st round, good to 85 bits */

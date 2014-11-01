@@ -1,5 +1,8 @@
 #include <math.h>
 
+#define EPS DBL_EPSILON
+static const double_t toint = 1/EPS;
+
 double round(double x)
 {
 	union {double f; uint64_t i;} u = {x};
@@ -12,10 +15,10 @@ double round(double x)
 		x = -x;
 	if (e < 0x3ff-1) {
 		/* raise inexact if x!=0 */
-		FORCE_EVAL(x + 0x1p52);
+		FORCE_EVAL(x + toint);
 		return 0*u.f;
 	}
-	y = (double)(x + 0x1p52) - 0x1p52 - x;
+	y = x + toint - toint - x;
 	if (y > 0.5)
 		y = y + x - 1;
 	else if (y <= -0.5)

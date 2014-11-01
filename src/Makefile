@@ -9,7 +9,6 @@
 CROSS_COMPILE	?= arm-none-eabi-
 PLATFORM		?= arm32-realview
 
-
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.
 #
@@ -34,18 +33,14 @@ endif
 #
 # Load default variables.
 #
-ASFLAGS		:= -g -ggdb -Wall
-CFLAGS		:= -g -ggdb -Wall
-CXXFLAGS	:= -g -ggdb -Wall
+ASFLAGS		:= -g -ggdb -Wall -O0
+CFLAGS		:= -g -ggdb -Wall -O0
+CXXFLAGS	:= -g -ggdb -Wall -O0
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-ARFLAGS		:= -rcs
-OCFLAGS		:= -v -O binary
-ODFLAGS		:= -d
 MCFLAGS		:=
 
 LIBDIRS		:=
 LIBS 		:=
-
 INCDIRS		:=
 SRCDIRS		:=
 
@@ -236,8 +231,6 @@ X_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
 X_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
 X_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
 X_LDFLAGS	:=	$(LDFLAGS)
-X_OCFLAGS	:=	$(OCFLAGS)
-X_ODFLAGS	:=	$(ODFLAGS)
 X_LIBS		:=	$(LIBS) -lgcc
 
 X_OUT		:=	../output
@@ -303,7 +296,7 @@ $(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@
 	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@ $(X_LIBS)
 	@echo [OC] Objcopying $@.bin
-	@$(OC) $(X_OCFLAGS) $@ $@.bin
+	@$(OC) -v -O binary $@ $@.bin
 
 $(X_SOBJS) : .obj/%.o : %.S
 	@echo [AS] $<
@@ -331,7 +324,7 @@ module : $(M_NAME)
 
 $(M_NAME) : $(M_OBJS)
 	@echo [M][AR] Archiving $@.a
-	@$(AR) $(ARFLAGS) $@.a $(M_OBJS)
+	@$(AR) -rcs $@.a $(M_OBJS)
 	@echo [M][LD] Linking $@.so
 	@$(CC) $(M_LDFLAGS) $(M_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.so $(M_LIBS)
 

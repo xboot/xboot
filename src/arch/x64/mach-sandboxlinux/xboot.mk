@@ -2,11 +2,6 @@
 # Machine makefile
 #
 
-EXT_CFLAGS	?= $(shell pkg-config sdl --cflags)
-EXT_LIBS	?= $(shell pkg-config sdl --libs)
-
-DEFINES		+=	-D__X64_ARCH__ -D__SANDBOX__
-
 #
 # Sandbox namespace
 #
@@ -160,18 +155,20 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
 				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
 
+DEFINES		+=	-D__SANDBOX__
+
+SDL_CONFIG	?= pkg-config sdl
+SDL_FLAGS	:= $(shell $(SDL_CONFIG) --cflags)
+SDL_LIBS	:= $(shell $(SDL_CONFIG) --libs)
+
 ASFLAGS		:= -g -ggdb -Wall -O2
 CFLAGS		:= -g -ggdb -Wall -O2
 CXXFLAGS	:= -g -ggdb -Wall -O2
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
-ARFLAGS		:= -rcs
-OCFLAGS		:= -v -O binary
-ODFLAGS		:= -d
 MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
-LIBS 		:= -lsandboxlinux -lc -lgcc -lpthread -lSDL
-
+LIBS 		:= -lsandboxlinux -lc -lgcc -lpthread $(SDL_LIBS)
 INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
 SRCDIRS		:=
 
@@ -180,4 +177,4 @@ SRCDIRS		:=
 #
 begin:
 	@echo Building static library for libsandboxlinux
-	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" EXT_CFLAGS="$(EXT_CFLAGS)" EXT_LIBS="$(EXT_LIBS)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux
+	$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux

@@ -2,35 +2,21 @@
 # Makefile for module.
 #
 
-CROSS_COMPILE	?= 
-EXT_CFLAGS		?=
-EXT_LIBS		?=
+AS			:= $(CROSS_COMPILE)gcc -x assembler-with-cpp
+CC			:= $(CROSS_COMPILE)gcc
+CXX			:= $(CROSS_COMPILE)g++
+LD			:= $(CROSS_COMPILE)ld
+AR			:= $(CROSS_COMPILE)ar
+OC			:= $(CROSS_COMPILE)objcopy
+OD			:= $(CROSS_COMPILE)objdump
+RM			:= rm -fr
 
-AS		:= $(CROSS_COMPILE)gcc -x assembler-with-cpp
-CC		:= $(CROSS_COMPILE)gcc
-CXX		:= $(CROSS_COMPILE)g++
-LD		:= $(CROSS_COMPILE)ld
-AR		:= $(CROSS_COMPILE)ar
-OC		:= $(CROSS_COMPILE)objcopy
-OD		:= $(CROSS_COMPILE)objdump
-RM		:= rm -fr
-
-
-ASFLAGS		:= -g -ggdb -Wall -O2
-CFLAGS		:= -g -ggdb -Wall -O2
-CXXFLAGS	:= -g -ggdb -Wall -O2
-LDFLAGS		:=
-ARFLAGS		:= -rcs
-OCFLAGS		:= -v -O binary
-ODFLAGS		:=
-MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
-
-LIBDIRS		:=
-LIBS 		:= -lgcc -lc -lm -lpthread $(EXT_LIBS)
-
-INCDIRS		:= -I . $(EXT_CFLAGS)
-SRCDIRS		:= .
-
+ASFLAGS		+= -g -ggdb -Wall -O2
+CFLAGS		+= -g -ggdb -Wall -O2
+CXXFLAGS	+= -g -ggdb -Wall -O2
+MCFLAGS		+= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
+INCDIRS		+= -I .
+SRCDIRS		+= .
 
 SFILES		:= $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.S))
 CFILES		:= $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
@@ -56,22 +42,22 @@ all : $(NAME)
 
 $(NAME) : $(OBJS)
 	@echo [AR] Archiving $@.a
-	@$(AR) $(ARFLAGS) $@.a $(OBJS)
+	@$(AR) -rcs $@.a $(OBJS)
 	
 $(SOBJS) : %.o : %.S
 	@echo [AS] $<
-	@$(AS) $(ASFLAGS) $(INCDIRS) -c $< -o $@
-	@$(AS) $(ASFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
+	@$(AS) $(ASFLAGS) $(MCFLAGS) $(INCDIRS) -c $< -o $@
+	@$(AS) $(ASFLAGS) $(MCFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
 $(COBJS) : %.o : %.c
 	@echo [CC] $<
-	@$(CC) $(CFLAGS) $(INCDIRS) -c $< -o $@
-	@$(CC) $(CFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(MCFLAGS) $(INCDIRS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(MCFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
 $(CPPOBJS) : %.o : %.cpp
 	@echo [CXX] $<
-	@$(CXX) $(CXXFLAGS) $(INCDIRS) -c $< -o $@	
-	@$(CXX) $(CXXFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(MCFLAGS) $(INCDIRS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(MCFLAGS) -MD -MP -MF $@.d $(INCDIRS) -c $< -o $@
 
 clean:
 	@$(RM) $(DEPS) $(OBJS) $(NAME).a *~

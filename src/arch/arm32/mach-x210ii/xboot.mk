@@ -15,9 +15,6 @@ LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
 
-#
-# Add end rule
-#
 ifeq ($(strip $(HOSTOS)), linux)
 MKV210		:= arch/$(ARCH)/$(MACH)/tools/linux/mkv210
 endif
@@ -25,6 +22,6 @@ ifeq ($(strip $(HOSTOS)), windows)
 MKV210		:= arch/$(ARCH)/$(MACH)/tools/windows/mkv210
 endif
 
-end:
-	@echo make header information for irom booting
+xend:
+	@echo Make header information for irom booting
 	$(MKV210) $(X_NAME).bin

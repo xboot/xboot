@@ -15,9 +15,6 @@ LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
 
-#
-# Add end rule
-#
 ifeq ($(strip $(HOSTOS)), linux)
 MK4412		:= arch/$(ARCH)/$(MACH)/tools/linux/mk4412
 endif
@@ -25,6 +22,6 @@ ifeq ($(strip $(HOSTOS)), windows)
 MK4412		:= arch/$(ARCH)/$(MACH)/tools/windows/mk4412
 endif
 
-end:
-	@echo make header information for irom booting
+xend:
+	@echo Make header information for irom booting
 	@$(MK4412) $(X_NAME).bin

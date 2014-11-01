@@ -284,13 +284,12 @@ M_CPPOBJS	:=	$(M_CPPFILES:.cpp=.o)
 M_OBJS		:=	$(M_SOBJS) $(M_COBJS) $(M_CPPOBJS)
 
 VPATH		:=	$(X_OBJDIRS) $(M_OBJDIRS)
-.PHONY:	all begin end clean xclean module mclean
+.PHONY:	all clean xbegin xend xclean module mclean
 
 #
 # Xboot rules
 #
-all : begin $(X_NAME) end 
-clean : xclean
+all : xbegin $(X_NAME) xend
 
 $(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@
@@ -313,7 +312,7 @@ $(X_CPPOBJS) : .obj/%.o : %.cpp
 	@$(CXX) $(X_CXXFLAGS) $(X_INCDIRS) -c $< -o $@	
 	@$(CXX) $(X_CXXFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
-xclean:
+clean: xclean
 	@$(RM) $(X_OBJDIRS) $(X_DEPS) $(X_OBJS) $(X_OUT)
 	@echo Clean xboot complete.
 

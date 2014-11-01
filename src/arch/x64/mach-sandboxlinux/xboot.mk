@@ -2,6 +2,9 @@
 # Machine makefile
 #
 
+EXT_CFLAGS	?= $(shell pkg-config sdl --cflags)
+EXT_LIBS	?= $(shell pkg-config sdl --libs)
+
 DEFINES		+=	-D__X64_ARCH__ -D__SANDBOX__
 
 #
@@ -167,14 +170,14 @@ ODFLAGS		:= -d
 MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
-LIBS 		:= -lsandboxlinux -lc -lgcc -lgcc_eh -lpthread -lSDL
+LIBS 		:= -lsandboxlinux -lc -lgcc -lpthread -lSDL
 
 INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
 SRCDIRS		:=
 
 #
-# Add fake rule
+# Add begin rule
 #
-fake:
+begin:
 	@echo Building static library for libsandboxlinux
-	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux
+	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" EXT_CFLAGS="$(EXT_CFLAGS)" EXT_LIBS="$(EXT_LIBS)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux

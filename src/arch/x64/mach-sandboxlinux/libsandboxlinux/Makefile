@@ -3,7 +3,8 @@
 #
 
 CROSS_COMPILE	?= 
-
+EXT_CFLAGS		?=
+EXT_LIBS		?=
 
 AS		:= $(CROSS_COMPILE)gcc -x assembler-with-cpp
 CC		:= $(CROSS_COMPILE)gcc
@@ -15,19 +16,19 @@ OD		:= $(CROSS_COMPILE)objdump
 RM		:= rm -fr
 
 
-ASFLAGS		:= -g -ggdb -Wall
-CFLAGS		:= -g -ggdb -Wall
-CXXFLAGS	:= -g -ggdb -Wall
+ASFLAGS		:= -g -ggdb -Wall -O2
+CFLAGS		:= -g -ggdb -Wall -O2
+CXXFLAGS	:= -g -ggdb -Wall -O2
 LDFLAGS		:=
 ARFLAGS		:= -rcs
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=
-MCFLAGS		:=
+MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
 LIBDIRS		:=
-LIBS 		:= -lc -lm -lgcc -lgcc_eh -lpthread $(shell pkg-config sdl --libs)
+LIBS 		:= -lgcc -lc -lm -lpthread $(EXT_LIBS)
 
-INCDIRS		:= -I . $(shell pkg-config sdl --cflags)
+INCDIRS		:= -I . $(EXT_CFLAGS)
 SRCDIRS		:= .
 
 

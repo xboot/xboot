@@ -166,8 +166,15 @@ OCFLAGS		:= -v -O binary
 ODFLAGS		:= -d
 MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
-LIBDIRS		:= arch/$(ARCH)/$(MACH)
+LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
 LIBS 		:= -lsandboxlinux -lc -lgcc -lgcc_eh -lpthread -lSDL
 
-INCDIRS		:=
+INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
 SRCDIRS		:=
+
+#
+# Add fake rule
+#
+fake:
+	@echo Building static library for libsandboxlinux
+	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux

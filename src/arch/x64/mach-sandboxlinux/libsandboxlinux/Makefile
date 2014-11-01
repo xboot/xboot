@@ -2,17 +2,16 @@
 # Makefile for module.
 #
 
-CROSS		?= 
+CROSS_COMPILE	?= 
 
 
-AS		:= $(CROSS)gcc -x assembler-with-cpp
-CC		:= $(CROSS)gcc
-CXX		:= $(CROSS)g++
-LD		:= $(CROSS)ld
-AR		:= $(CROSS)ar
-OC		:= $(CROSS)objcopy
-OD		:= $(CROSS)objdump
-CP		:= cp -af
+AS		:= $(CROSS_COMPILE)gcc -x assembler-with-cpp
+CC		:= $(CROSS_COMPILE)gcc
+CXX		:= $(CROSS_COMPILE)g++
+LD		:= $(CROSS_COMPILE)ld
+AR		:= $(CROSS_COMPILE)ar
+OC		:= $(CROSS_COMPILE)objcopy
+OD		:= $(CROSS_COMPILE)objdump
 RM		:= rm -fr
 
 
@@ -57,9 +56,6 @@ all : $(NAME)
 $(NAME) : $(OBJS)
 	@echo [AR] Archiving $@.a
 	@$(AR) $(ARFLAGS) $@.a $(OBJS)
-	@echo [CP] Copying $@.a and sandboxlinux.h
-	@$(CP) $@.a ../
-	@$(CP) sandboxlinux.h ../include/
 	
 $(SOBJS) : %.o : %.S
 	@echo [AS] $<

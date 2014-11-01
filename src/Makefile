@@ -299,10 +299,10 @@ all : $(X_NAME) fixup
 clean : xclean
 
 $(X_NAME) : $(X_OBJS)
-	@echo [LD] Linking $@.elf
-	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@.elf $(X_LIBS)
+	@echo [LD] Linking $@
+	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@ $(X_LIBS)
 	@echo [OC] Objcopying $@.bin
-	@$(OC) $(X_OCFLAGS) $@.elf $@.bin
+	@$(OC) $(X_OCFLAGS) $@ $@.bin
 
 $(X_SOBJS) : .obj/%.o : %.S
 	@echo [AS] $<

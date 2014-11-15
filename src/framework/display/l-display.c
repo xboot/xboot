@@ -132,7 +132,7 @@ static int m_display_draw_text(lua_State * L)
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	cairo_scaled_font_t * sfont = luaL_checkudata_scaled_font(L, 2, MT_NAME_FONT);
 	const char * text = luaL_optstring(L, 3, NULL);
-	cairo_pattern_t ** pattern = luaL_checkudata(L, 4, MT_NAME_PARTTERN);
+	cairo_pattern_t ** pattern = luaL_checkudata(L, 4, MT_NAME_PATTERN);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 5, MT_NAME_MATRIX);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
@@ -165,7 +165,7 @@ static int m_display_draw_texture_mask(lua_State * L)
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
 	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_NAME_TEXTURE);
-	cairo_pattern_t ** parttern = luaL_checkudata(L, 4, MT_NAME_PARTTERN);
+	cairo_pattern_t ** parttern = luaL_checkudata(L, 4, MT_NAME_PATTERN);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);

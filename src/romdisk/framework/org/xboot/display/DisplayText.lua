@@ -11,14 +11,14 @@ local M = Class(DisplayObject)
 -- @function [parent=#DisplayText] new
 -- @param font (Font) The font of the display text.
 -- @param size (optional) Sets the current font matrix to a scale by a factor of size.
--- @param parttern (optional) The parttern of the display text.
+-- @param pattern (optional) The pattern of the display text.
 -- @param text (optional) The content of display text that will be placed on the screen.
 -- @return #DisplayText
-function M:init(font, size, parttern, text)
+function M:init(font, size, pattern, text)
 	self.super:init()
 	self:setFont(font)
 	self:setFontSize(size or 10)
-	self:setParttern(parttern or Parttern.color())
+	self:setPattern(pattern or Pattern.color())
 	self:setText(text or "")
 end
 
@@ -68,26 +68,26 @@ function M:getFontSize()
 end
 
 ---
--- Sets the display text's parttern.
+-- Sets the display text's pattern.
 -- 
--- @function [parent=#DisplayText] setParttern
+-- @function [parent=#DisplayText] setPattern
 -- @param self
--- @param parttern (#Parttern) The new parttern of display text.
-function M:setParttern(parttern)
-	if parttern then
-		self.parttern = parttern
+-- @param pattern (#Pattern) The new pattern of display text.
+function M:setPattern(pattern)
+	if pattern then
+		self.pattern = pattern
 	end
 	return self
 end
 
 ---
--- Gets the display text's parttern.
+-- Gets the display text's pattern.
 -- 
--- @function [parent=#DisplayText] getParttern
+-- @function [parent=#DisplayText] getPattern
 -- @param self
--- @return parttern (#Parttern) The parttern of the display text.
-function M:getParttern()
-	return self.parttern
+-- @return pattern (#Pattern) The pattern of the display text.
+function M:getPattern()
+	return self.pattern
 end
 
 ---
@@ -123,7 +123,7 @@ end
 -- @param display (Display) The context of the screen.
 function M:__draw(display)
 	if self.font and self.text then
-		display:drawText(self.font, self.text, self.parttern, self:getTransformMatrix())
+		display:drawText(self.font, self.text, self.pattern, self:getTransformMatrix())
 	end
 end
 

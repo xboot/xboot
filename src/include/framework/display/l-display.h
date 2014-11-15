@@ -11,7 +11,7 @@ extern "C" {
 #define	MT_NAME_MATRIX		"mt_name_matrix"
 #define MT_NAME_EASING		"mt_name_easing"
 #define	MT_NAME_OBJECT		"mt_name_object"
-#define	MT_NAME_PARTTERN	"mt_name_parttern"
+#define	MT_NAME_PATTERN		"mt_name_pattern"
 #define	MT_NAME_TEXTURE		"mt_name_texture"
 #define	MT_NAME_NINEPATCH	"mt_name_ninepatch"
 #define MT_NAME_SHAPE		"mt_name_shape"
@@ -88,7 +88,7 @@ struct lninepatch_t {
 int luaopen_matrix(lua_State * L);
 int luaopen_easing(lua_State * L);
 int luaopen_object(lua_State * L);
-int luaopen_parttern(lua_State * L);
+int luaopen_pattern(lua_State * L);
 int luaopen_texture(lua_State * L);
 int luaopen_ninepatch(lua_State * L);
 int luaopen_shape(lua_State * L);

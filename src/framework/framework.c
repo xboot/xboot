@@ -34,7 +34,7 @@ static const luaL_Reg xboot_libs[] = {
 	{ "builtin.matrix",				luaopen_matrix },
 	{ "builtin.easing",				luaopen_easing },
 	{ "builtin.object",				luaopen_object },
-	{ "builtin.parttern",			luaopen_parttern },
+	{ "builtin.pattern",			luaopen_pattern },
 	{ "builtin.texture",			luaopen_texture },
 	{ "builtin.ninepatch",			luaopen_ninepatch },
 	{ "builtin.shape",				luaopen_shape },

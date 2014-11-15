@@ -85,6 +85,10 @@ struct lninepatch_t {
 	double __sx, __sy;
 };
 
+struct lpattern_t {
+	cairo_pattern_t * pattern;
+};
+
 int luaopen_matrix(lua_State * L);
 int luaopen_easing(lua_State * L);
 int luaopen_object(lua_State * L);

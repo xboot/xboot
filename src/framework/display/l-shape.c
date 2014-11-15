@@ -120,8 +120,8 @@ static int m_shape_set_operator(lua_State * L)
 static int m_shape_set_source(lua_State * L)
 {
 	cairo_t ** cr = luaL_checkudata(L, 1, MT_NAME_SHAPE);
-	cairo_pattern_t ** pattern = luaL_checkudata(L, 2, MT_NAME_PATTERN);
-	cairo_set_source(*cr, *pattern);
+	struct lpattern_t * pattern = luaL_checkudata(L, 2, MT_NAME_PATTERN);
+	cairo_set_source(*cr, pattern->pattern);
 	return 0;
 }
 

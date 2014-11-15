@@ -3,11 +3,10 @@ local M = Class(DisplayObject)
 function M:init()
 	self.super:init()
 
-	local width, height = application:getScreenSize()
-	local assets = application:getAssets()
-	self:addChild(assets:loadDisplay("scene1.png"))
+	local w, h = application:getScreenSize()
+	self:addChild(DisplayShape.new(w, h):setSourceColor(0.8, 0.7, 0.5):paint())
 
-	for i=1,5 do
+	for i = 1, 5 do
 		local shape = DisplayShape.new(100, 50)
 			:setLineWidth(6)
 			:rectangle(0, 0, 100, 50)
@@ -15,7 +14,7 @@ function M:init()
 			:fillPreserve()
 			:setSourceColor(0, 0, 0)
 			:stroke()
-			:setPosition(math.random(0, width - 100), math.random(0, height - 50))
+			:setPosition(math.random(0, w - 100), math.random(0, h - 50))
 	
 		shape:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, shape)
 		shape:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, shape)

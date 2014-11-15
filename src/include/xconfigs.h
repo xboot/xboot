@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_AUTO_BOOT_COMMAND)
-#define	CONFIG_AUTO_BOOT_COMMAND					"exec /romdisk/demos/"
+#define	CONFIG_AUTO_BOOT_COMMAND					"exec /romdisk/examples/"
 #endif
 
 #if !defined(CONFIG_MAX_BRIGHTNESS)

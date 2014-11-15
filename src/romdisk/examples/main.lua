@@ -1,15 +1,15 @@
 local TestCase = require("TestCase")
 
 local stage = application:getStage()
-local assets = application:getAssets()
 local width, height = application:getScreenSize()
-application:setBackgroundColor(0.8, 0.8, 0.8) 
 
 local testcases = TestCase.new({
-	require("scene1"),
-	require("scene2"),	
-	require("widgets.button"),
 	require("graphics.balls"),
+	require("graphics.cursor"),
+	require("graphics.dragme"),
+	require("widgets.button"),
+	require("widgets.checkbox"),
+	require("widgets.radiobutton"),
 })
 stage:addChild(testcases)
 

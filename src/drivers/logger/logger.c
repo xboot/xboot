@@ -74,7 +74,10 @@ bool_t register_logger(struct logger_t * logger)
 		(logger->init)();
 
 	if(logger->output)
+	{
 		logger->output(xboot_banner_string(), strlen(xboot_banner_string()));
+		logger->output("\r\n", 2);
+	}
 
 	ll->logger = logger;
 

@@ -5,14 +5,12 @@
 extern "C" {
 #endif
 
-/*
- * xboot version
- */
-#define	XBOOT_MAJOY			"1"
-#define	XBOOT_MINIOR		"5"
-#define	XBOOT_PATCH			"0"
-#define	XBOOT_VERSION		XBOOT_MAJOY "." XBOOT_MINIOR "." XBOOT_PATCH
+#define	XBOOT_MAJOY			1
+#define	XBOOT_MINIOR		6
+#define	XBOOT_PATCH			0
 
+int xboot_version(void);
+const char * xboot_version_string(void);
 const char * xboot_banner_string(void);
 
 #ifdef __cplusplus

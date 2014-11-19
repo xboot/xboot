@@ -184,23 +184,14 @@ int luaopen_xboot(lua_State * L)
 		lua_setglobal(L, "xboot");
 	}
 
-	lua_pushstring(L, XBOOT_VERSION);
-	lua_setfield(L, -2, "_VERSION");
-
-	lua_pushnumber(L, atoi(XBOOT_MAJOY));
-	lua_setfield(L, -2, "_MAJOY");
-
-	lua_pushnumber(L, atoi(XBOOT_MINIOR));
-	lua_setfield(L, -2, "_MINIOR");
-
-	lua_pushnumber(L, atoi(XBOOT_PATCH));
-	lua_setfield(L, -2, "_PATCH");
+	lua_pushnumber(L, xboot_version());
+	lua_setfield(L, -2, "VERSION");
 
 	lua_pushstring(L, __ARCH__);
-	lua_setfield(L, -2, "_ARCH");
+	lua_setfield(L, -2, "ARCH");
 
 	lua_pushstring(L, __MACH__);
-	lua_setfield(L, -2, "_MACH");
+	lua_setfield(L, -2, "MACH");
 
 	register_searcher(L, searcher_package_lua, 2);
 	register_preload(L, "xboot", luaopen_xboot);

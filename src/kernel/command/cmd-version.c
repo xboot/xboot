@@ -36,7 +36,7 @@
 
 static int version(int argc, char ** argv)
 {
-	printf("%s", xboot_banner_string());
+	printf("%s\r\n", xboot_banner_string());
 	return 0;
 }
 

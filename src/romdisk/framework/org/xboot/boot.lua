@@ -7,6 +7,8 @@ package.cpath = "./?.so"
 ---
 -- Builtin module
 --
+Json = require "builtin.json"
+
 print = require("builtin.logger").print
 pump = require("builtin.event").pump
 

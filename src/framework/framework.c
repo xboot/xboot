@@ -25,6 +25,9 @@
 #include <xfs/xfs.h>
 #include <framework/framework.h>
 
+extern int luaopen_cjson(lua_State *);
+extern int luaopen_cjson_safe(lua_State *);
+
 static const luaL_Reg xboot_libs[] = {
 	{ "builtin.logger",				luaopen_logger },
 	{ "builtin.event",				luaopen_event },
@@ -48,6 +51,9 @@ static const luaL_Reg xboot_libs[] = {
 	{ "builtin.hardware.led",		luaopen_hardware_led },
 	{ "builtin.hardware.ledtrig",	luaopen_hardware_ledtrig },
 	{ "builtin.hardware.watchdog",	luaopen_hardware_watchdog },
+
+	{ "builtin.json",				luaopen_cjson },
+	{ "builtin.json.safe",			luaopen_cjson_safe },
 	{ NULL, NULL }
 };
 

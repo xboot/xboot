@@ -184,7 +184,7 @@ int luaopen_xboot(lua_State * L)
 		lua_setglobal(L, "xboot");
 	}
 
-	lua_pushnumber(L, xboot_version());
+	lua_pushstring(L, xboot_version_string());
 	lua_setfield(L, -2, "VERSION");
 
 	lua_pushstring(L, __ARCH__);

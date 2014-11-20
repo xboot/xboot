@@ -22,25 +22,22 @@
  *
  */
 
+#include <xconfigs.h>
 #include <version.h>
+
+#define	XBOOT_MAJOY		1
+#define	XBOOT_MINIOR	6
+#define	XBOOT_PATCH		0
 
 #define VERSION_TO_STRING(major, minor, patch) \
 	#major"."#minor"."#patch
 
-#define XBOOT_VERSION(major, minor, patch) \
-	((major * 10000) + (minor * 100) + (patch * 1))
-
 #define XBOOT_VERSION_STRING(major, minor, patch) \
 	VERSION_TO_STRING(major, minor, patch)
 
-#define XBOOT_BANNER_STRING(major, minor, patch) \
-	"xboot version: " \
-	VERSION_TO_STRING(major, minor, patch) \
-	" (" __DATE__ " - " __TIME__ ") for " __MACH__
-
 int xboot_version(void)
 {
-	return XBOOT_VERSION(XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH);
+	return (XBOOT_MAJOY * 10000) + (XBOOT_MINIOR * 100) + (XBOOT_PATCH * 1);
 }
 
 const char * xboot_version_string(void)
@@ -50,5 +47,5 @@ const char * xboot_version_string(void)
 
 const char * xboot_banner_string(void)
 {
-	return XBOOT_BANNER_STRING(XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH);
+	return ("xboot version: "XBOOT_VERSION_STRING(XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH)" ("__DATE__" - "__TIME__") for ["__ARCH__"]["__MACH__"]");
 }

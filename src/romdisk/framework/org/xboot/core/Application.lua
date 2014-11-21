@@ -44,15 +44,6 @@ function M:getTimerManager()
 	return self.timermanager
 end
 
-function M:setBackgroundColor(r, g, b, a)
-	self.display:setBackgroundColor(r, g, b, a)
-	return self
-end
-
-function M:getBackgroundColor()
-	return self.display:getBackgroundColor()
-end
-
 ---
 -- Quit application
 --

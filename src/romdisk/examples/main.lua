@@ -4,6 +4,7 @@ local stage = application:getStage()
 local width, height = application:getScreenSize()
 
 local testcases = TestCase.new({
+	require("games.2048"),
 	require("graphics.balls"),
 	require("graphics.cursor"),
 	require("graphics.dragme"),

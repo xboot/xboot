@@ -57,8 +57,7 @@ struct event_t {
 		} mouse_up;
 
 		struct {
-			s32_t x, y;
-			s32_t delta;
+			s32_t dx, dy;
 		} mouse_wheel;
 
 		/* touches */
@@ -81,7 +80,7 @@ void push_event(struct event_t * event);
 void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn);
 void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn);
 void push_event_mouse_move(void * device, s32_t x, s32_t y);
-void push_event_mouse_wheel(void * device, s32_t x, s32_t y, s32_t delta);
+void push_event_mouse_wheel(void * device, s32_t dx, s32_t dy);
 void push_event_touches_begin(void * device, s32_t x, s32_t y, u32_t id);
 void push_event_touches_move(void * device, s32_t x, s32_t y, u32_t id);
 void push_event_touches_end(void * device, s32_t x, s32_t y, u32_t id);

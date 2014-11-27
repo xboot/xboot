@@ -142,7 +142,7 @@ static void mouse_interrupt(void * data)
 				push_event_mouse_move(input, x, y);
 
 			if(delta != 0)
-				push_event_mouse_wheel(input, x, y, delta);
+				push_event_mouse_wheel(input, 0, delta);
 
 			if(btndown)
 				push_event_mouse_button_down(input, x, y, btndown);

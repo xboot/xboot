@@ -131,12 +131,10 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.mouse_wheel.x);
-		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.mouse_wheel.y);
-		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, event.e.mouse_wheel.delta);
-		lua_setfield(L, -2, "delta");
+		lua_pushnumber(L, event.e.mouse_wheel.dx);
+		lua_setfield(L, -2, "dx");
+		lua_pushnumber(L, event.e.mouse_wheel.dy);
+		lua_setfield(L, -2, "dy");
 		return 1;
 
 	/* touches */

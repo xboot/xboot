@@ -128,15 +128,14 @@ void push_event_mouse_move(void * device, s32_t x, s32_t y)
 	push_event(&event);
 }
 
-void push_event_mouse_wheel(void * device, s32_t x, s32_t y, s32_t delta)
+void push_event_mouse_wheel(void * device, s32_t dx, s32_t dy)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_MOUSE_WHEEL;
-	event.e.mouse_wheel.x = x;
-	event.e.mouse_wheel.y = y;
-	event.e.mouse_wheel.delta = delta;
+	event.e.mouse_wheel.dx = dx;
+	event.e.mouse_wheel.dy = dy;
 	push_event(&event);
 }
 

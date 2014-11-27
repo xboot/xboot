@@ -9,10 +9,10 @@ function M:init(n, x, y)
 	block:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, block)
 	block:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, block)
 	block:addEventListener(Event.MOUSE_UP, self.onMouseUp, block)
-	block:addEventListener(Event.TOUCHES_BEGIN, self.onTouchesBegin, block)
-	block:addEventListener(Event.TOUCHES_MOVE, self.onTouchesMove, block)
-	block:addEventListener(Event.TOUCHES_END, self.onTouchesEnd, block)
-	block:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, block)
+	block:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, block)
+	block:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, block)
+	block:addEventListener(Event.TOUCH_END, self.onTouchEnd, block)
+	block:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, block)
 
 	self:addChild(block)
 end
@@ -45,7 +45,7 @@ function M:onMouseUp(e)
 	end
 end
 
-function M:onTouchesBegin(e)
+function M:onTouchBegin(e)
 	if self:hitTestPoint(e.info.x, e.info.y) then
 		self.touchid = e.info.id
 		self.x0 = e.info.x
@@ -54,7 +54,7 @@ function M:onTouchesBegin(e)
 	end
 end
 
-function M:onTouchesMove(e)
+function M:onTouchMove(e)
 	if self.touchid == e.info.id then
 		local dx = e.info.x - self.x0
 		local dy = e.info.y - self.y0
@@ -66,14 +66,14 @@ function M:onTouchesMove(e)
 	end
 end
 
-function M:onTouchesEnd(e)
+function M:onTouchEnd(e)
 	if self.touchid == e.info.id then
 		self.touchid = nil
 		e:stopPropagation()
 	end
 end
 
-function M:onTouchesCancel(e)
+function M:onTouchCancel(e)
 	if self.touchid == e.info.id then
 		self.touchid = nil
 		e:stopPropagation()

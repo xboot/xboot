@@ -30,20 +30,20 @@ M.MOUSE_UP = "MouseUp"
 M.MOUSE_WHEEL = "MouseWheel"
 
 ---
--- @field [parent=#Event] TOUCHES_BEGIN TouchesBegin
-M.TOUCHES_BEGIN = "TouchesBegin"
+-- @field [parent=#Event] TOUCH_BEGIN TouchBegin
+M.TOUCH_BEGIN = "TouchBegin"
 
 ---
--- @field [parent=#Event] TOUCHES_MOVE TouchesMove
-M.TOUCHES_MOVE = "TouchesMove"
+-- @field [parent=#Event] TOUCH_MOVE TouchMove
+M.TOUCH_MOVE = "TouchMove"
 
 ---
--- @field [parent=#Event] TOUCHES_END TouchesEnd
-M.TOUCHES_END = "TouchesEnd"
+-- @field [parent=#Event] TOUCH_END TouchEnd
+M.TOUCH_END = "TouchEnd"
 
 ---
--- @field [parent=#Event] TOUCHES_CANCEL TouchesCancel
-M.TOUCHES_CANCEL = "TouchesCancel"
+-- @field [parent=#Event] TOUCH_CANCEL TouchCancel
+M.TOUCH_CANCEL = "TouchCancel"
 
 ---
 -- @field [parent=#Event] ENTER_FRAME EnterFrame

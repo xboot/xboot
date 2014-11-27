@@ -58,10 +58,10 @@ function M:init(option, name)
 	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)
 	self:addEventListener(Event.MOUSE_UP, self.onMouseUp, self)
 
-	self:addEventListener(Event.TOUCHES_BEGIN, self.onTouchesBegin, self)
-	self:addEventListener(Event.TOUCHES_MOVE, self.onTouchesMove, self)
-	self:addEventListener(Event.TOUCHES_END, self.onTouchesEnd, self)
-	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
+	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
+	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
+	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
+	self:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, self)
 end
 
 function M:setSize(width, height)
@@ -126,7 +126,7 @@ function M:onMouseUp(e)
 	end
 end
 
-function M:onTouchesBegin(e)
+function M:onTouchBegin(e)
 	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
 		self.touchid = e.info.id
 		self.state = self.STATE_PRESSED
@@ -135,7 +135,7 @@ function M:onTouchesBegin(e)
 	end
 end
 
-function M:onTouchesMove(e)
+function M:onTouchMove(e)
 	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
 		if not self:hitTestPoint(e.info.x, e.info.y) then
 			self.touchid = nil
@@ -146,7 +146,7 @@ function M:onTouchesMove(e)
 	end
 end
 
-function M:onTouchesEnd(e)
+function M:onTouchEnd(e)
 	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
@@ -157,7 +157,7 @@ function M:onTouchesEnd(e)
 	end
 end
 
-function M:onTouchesCancel(e)
+function M:onTouchCancel(e)
 	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL

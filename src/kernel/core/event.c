@@ -139,51 +139,51 @@ void push_event_mouse_wheel(void * device, s32_t dx, s32_t dy)
 	push_event(&event);
 }
 
-void push_event_touches_begin(void * device, s32_t x, s32_t y, u32_t id)
+void push_event_touch_begin(void * device, s32_t x, s32_t y, u32_t id)
 {
 	struct event_t event;
 
 	event.device = device;
-	event.type = EVENT_TYPE_TOUCHES_BEGIN;
-	event.e.touches.x = x;
-	event.e.touches.y = y;
-	event.e.touches.id = id;
+	event.type = EVENT_TYPE_TOUCH_BEGIN;
+	event.e.touch.x = x;
+	event.e.touch.y = y;
+	event.e.touch.id = id;
 	push_event(&event);
 }
 
-void push_event_touches_move(void * device, s32_t x, s32_t y, u32_t id)
+void push_event_touch_move(void * device, s32_t x, s32_t y, u32_t id)
 {
 	struct event_t event;
 
 	event.device = device;
-	event.type = EVENT_TYPE_TOUCHES_MOVE;
-	event.e.touches.x = x;
-	event.e.touches.y = y;
-	event.e.touches.id = id;
+	event.type = EVENT_TYPE_TOUCH_MOVE;
+	event.e.touch.x = x;
+	event.e.touch.y = y;
+	event.e.touch.id = id;
 	push_event(&event);
 }
 
-void push_event_touches_end(void * device, s32_t x, s32_t y, u32_t id)
+void push_event_touch_end(void * device, s32_t x, s32_t y, u32_t id)
 {
 	struct event_t event;
 
 	event.device = device;
-	event.type = EVENT_TYPE_TOUCHES_END;
-	event.e.touches.x = x;
-	event.e.touches.y = y;
-	event.e.touches.id = id;
+	event.type = EVENT_TYPE_TOUCH_END;
+	event.e.touch.x = x;
+	event.e.touch.y = y;
+	event.e.touch.id = id;
 	push_event(&event);
 }
 
-void push_event_touches_cancel(void * device, s32_t x, s32_t y, u32_t id)
+void push_event_touch_cancel(void * device, s32_t x, s32_t y, u32_t id)
 {
 	struct event_t event;
 
 	event.device = device;
-	event.type = EVENT_TYPE_TOUCHES_CANCEL;
-	event.e.touches.x = x;
-	event.e.touches.y = y;
-	event.e.touches.id = id;
+	event.type = EVENT_TYPE_TOUCH_CANCEL;
+	event.e.touch.x = x;
+	event.e.touch.y = y;
+	event.e.touch.id = id;
 	push_event(&event);
 }
 

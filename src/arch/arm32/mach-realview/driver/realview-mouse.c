@@ -27,7 +27,7 @@
 #include <xboot.h>
 #include <realview-mouse.h>
 
-#define MOUSE_TO_TOUCHES_EVENT
+#define MOUSE_TO_TOUCH_EVENT
 
 struct realview_mouse_private_data_t {
 	u8_t packet[4];
@@ -128,15 +128,15 @@ static void mouse_interrupt(void * data)
 			x = dat->xpos;
 			y = dat->ypos;
 
-#ifdef MOUSE_TO_TOUCHES_EVENT
+#ifdef MOUSE_TO_TOUCH_EVENT
 			if((btn & MOUSE_BUTTON_LEFT) && ((relx != 0) || (rely != 0)))
-				push_event_touches_move(input, x, y, 0);
+				push_event_touch_move(input, x, y, 0);
 
 			if(btndown & MOUSE_BUTTON_LEFT)
-				push_event_touches_begin(input, x, y, 0);
+				push_event_touch_begin(input, x, y, 0);
 
 			if(btnup & MOUSE_BUTTON_LEFT)
-				push_event_touches_end(input, x, y, 0);
+				push_event_touch_end(input, x, y, 0);
 #else
 			if((relx != 0) || (rely != 0))
 				push_event_mouse_move(input, x, y);

@@ -13,10 +13,10 @@ function M:init()
 		img:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, img)
 		img:addEventListener(Event.MOUSE_UP, self.onMouseUp, img)
 	
-		img:addEventListener(Event.TOUCHES_BEGIN, self.onTouchesBegin, img)
-		img:addEventListener(Event.TOUCHES_MOVE, self.onTouchesMove, img)
-		img:addEventListener(Event.TOUCHES_END, self.onTouchesEnd, img)
-		img:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, img)
+		img:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, img)
+		img:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, img)
+		img:addEventListener(Event.TOUCH_END, self.onTouchEnd, img)
+		img:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, img)
 	
 		self:addChild(img)
 	end
@@ -57,7 +57,7 @@ function M:onMouseUp(e)
 	end
 end
 
-function M:onTouchesBegin(e)
+function M:onTouchBegin(e)
 	if self:hitTestPoint(e.info.x, e.info.y) then
 		self.isfocus = true
 		self:tofront()
@@ -68,7 +68,7 @@ function M:onTouchesBegin(e)
 	end
 end
 
-function M:onTouchesMove(e)
+function M:onTouchMove(e)
 	if self.isfocus then
 		local dx = e.info.x - self.x0
 		local dy = e.info.y - self.y0
@@ -80,14 +80,14 @@ function M:onTouchesMove(e)
 	end
 end
 
-function M:onTouchesEnd(e)
+function M:onTouchEnd(e)
 	if self.isfocus then
 		self.isfocus = false
 		e:stopPropagation()
 	end
 end
 
-function M:onTouchesCancel(e)
+function M:onTouchCancel(e)
 	if self.isfocus then
 		self.isfocus = false
 		e:stopPropagation()

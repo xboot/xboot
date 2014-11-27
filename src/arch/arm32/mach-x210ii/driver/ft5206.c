@@ -168,17 +168,17 @@ static void ft5206_interrupt_function(void * data)
 				{
 					if(event == 0)
 					{
-						push_event_touches_begin(input, x, y, id);
+						push_event_touch_begin(input, x, y, id);
 						//LOG("[%d]down: x = %4d, y = %4d", id, x, y);
 					}
 					else if(event == 0x2)
 					{
-						push_event_touches_move(input, x, y, id);
+						push_event_touch_move(input, x, y, id);
 						//LOG("[%d]move: x = %4d, y = %4d", id, x, y);
 					}
 					else if(event == 0x1)
 					{
-						push_event_touches_end(input, x, y, id);
+						push_event_touch_end(input, x, y, id);
 						//LOG("[%d]up: x = %4d, y = %4d", id, x, y);
 					}
 

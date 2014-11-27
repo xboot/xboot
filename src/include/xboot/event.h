@@ -18,10 +18,10 @@ enum event_type_t {
 	EVENT_TYPE_MOUSE_UP				= 0x0202,
 	EVENT_TYPE_MOUSE_WHEEL			= 0x0203,
 
-	EVENT_TYPE_TOUCHES_BEGIN		= 0x0301,
-	EVENT_TYPE_TOUCHES_MOVE			= 0x0302,
-	EVENT_TYPE_TOUCHES_END			= 0x0303,
-	EVENT_TYPE_TOUCHES_CANCEL		= 0x0304,
+	EVENT_TYPE_TOUCH_BEGIN			= 0x0301,
+	EVENT_TYPE_TOUCH_MOVE			= 0x0302,
+	EVENT_TYPE_TOUCH_END			= 0x0303,
+	EVENT_TYPE_TOUCH_CANCEL			= 0x0304,
 };
 
 enum {
@@ -60,11 +60,11 @@ struct event_t {
 			s32_t dx, dy;
 		} mouse_wheel;
 
-		/* touches */
+		/* touch */
 		struct {
 			s32_t x, y;
 			u32_t id;
-		} touches;
+		} touch;
 	} e;
 };
 
@@ -81,10 +81,10 @@ void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn);
 void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn);
 void push_event_mouse_move(void * device, s32_t x, s32_t y);
 void push_event_mouse_wheel(void * device, s32_t dx, s32_t dy);
-void push_event_touches_begin(void * device, s32_t x, s32_t y, u32_t id);
-void push_event_touches_move(void * device, s32_t x, s32_t y, u32_t id);
-void push_event_touches_end(void * device, s32_t x, s32_t y, u32_t id);
-void push_event_touches_cancel(void * device, s32_t x, s32_t y, u32_t id);
+void push_event_touch_begin(void * device, s32_t x, s32_t y, u32_t id);
+void push_event_touch_move(void * device, s32_t x, s32_t y, u32_t id);
+void push_event_touch_end(void * device, s32_t x, s32_t y, u32_t id);
+void push_event_touch_cancel(void * device, s32_t x, s32_t y, u32_t id);
 bool_t pump_event(struct event_base_t * eb, struct event_t * event);
 
 #ifdef __cplusplus

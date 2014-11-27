@@ -16,10 +16,10 @@ function M:init(on, off)
 	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)
 	self:addEventListener(Event.MOUSE_UP, self.onMouseUp, self)
 
-	self:addEventListener(Event.TOUCHES_BEGIN, self.onTouchesBegin, self)
-	self:addEventListener(Event.TOUCHES_MOVE, self.onTouchesMove, self)
-	self:addEventListener(Event.TOUCHES_END, self.onTouchesEnd, self)
-	self:addEventListener(Event.TOUCHES_CANCEL, self.onTouchesCancel, self)
+	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
+	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
+	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
+	self:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, self)
 end
 
 function M:onMouseDown(e)
@@ -48,7 +48,7 @@ function M:onMouseUp(e)
 	end
 end
 
-function M:onTouchesBegin(e)
+function M:onTouchBegin(e)
 	if self:hitTestPoint(e.info.x, e.info.y) then
 		self.focus = true
 		self.ison = not self.ison
@@ -58,7 +58,7 @@ function M:onTouchesBegin(e)
 	end
 end
 
-function M:onTouchesMove(e)
+function M:onTouchMove(e)
 	if self.focus then
 		if not self:hitTestPoint(e.info.x, e.info.y) then	
 			self.focus = false
@@ -67,14 +67,14 @@ function M:onTouchesMove(e)
 	end
 end
 
-function M:onTouchesEnd(e)
+function M:onTouchEnd(e)
 	if self.focus then
 		self.focus = false
 		e:stopPropagation()
 	end
 end
 
-function M:onTouchesCancel(e)
+function M:onTouchCancel(e)
 	if self.focus then
 		self.focus = false;
 		e:stopPropagation()

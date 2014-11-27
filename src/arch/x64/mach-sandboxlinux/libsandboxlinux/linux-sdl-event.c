@@ -18,6 +18,13 @@ struct event_callback_t {
 		void (*up)(void * device, int x, int y, unsigned int btn);
 		void (*wheel)(void * device, int dx, int dy);
 	} mouse;
+
+	struct {
+		void * device;
+		void (*begin)(void * device, int x, int y, unsigned int id);
+		void (*move)(void * device, int x, int y, unsigned int id);
+		void (*end)(void * device, int x, int y, unsigned int id);
+	} touches;
 };
 
 static struct event_callback_t __event_callback = {
@@ -34,11 +41,19 @@ static struct event_callback_t __event_callback = {
 		.up			= NULL,
 		.wheel		= NULL,
 	},
+
+	.touches = {
+		.device		= NULL,
+		.begin		= NULL,
+		.move		= NULL,
+		.end		= NULL,
+	},
 };
 static SDL_Thread * __event = NULL;
 
 static int handle_event(void * data)
 {
+	struct sandbox_config_t * cfg = sandbox_linux_get_config();
 	struct event_callback_t * cb = (struct event_callback_t *)(data);
 	SDL_Event e;
 
@@ -104,6 +119,21 @@ static int handle_event(void * data)
 	        		cb->mouse.wheel(cb->mouse.device, e.wheel.x, e.wheel.y);
 	        	break;
 
+	        case SDL_FINGERDOWN:
+				if(cb->touches.begin)
+					cb->touches.begin(cb->touches.device, (int)(e.tfinger.x * cfg->framebuffer.width), (int)(e.tfinger.y * cfg->framebuffer.height), (unsigned int)e.tfinger.fingerId);
+	        	break;
+
+	        case SDL_FINGERMOTION:
+				if(cb->touches.move)
+					cb->touches.move(cb->touches.device, (int)(e.tfinger.x * cfg->framebuffer.width), (int)(e.tfinger.y * cfg->framebuffer.height), (unsigned int)e.tfinger.fingerId);
+	        	break;
+
+	        case SDL_FINGERUP:
+				if(cb->touches.end)
+					cb->touches.end(cb->touches.device, (int)(e.tfinger.x * cfg->framebuffer.width), (int)(e.tfinger.y * cfg->framebuffer.height), (unsigned int)e.tfinger.fingerId);
+	        	break;
+
 	        case SDL_QUIT:
 	        	sandbox_linux_exit();
 	        	break;
@@ -148,4 +178,15 @@ void sandbox_linux_sdl_event_set_mouse_callback(void * device,
 	__event_callback.mouse.move = move;
 	__event_callback.mouse.up = up;
 	__event_callback.mouse.wheel = wheel;
+}
+
+void sandbox_linux_sdl_event_set_touches_callback(void * device,
+		void (*begin)(void * device, int x, int y, unsigned int id),
+		void (*move)(void * device, int x, int y, unsigned int id),
+		void (*end)(void * device, int x, int y, unsigned int id))
+{
+	__event_callback.touches.device = device;
+	__event_callback.touches.begin = begin;
+	__event_callback.touches.move = move;
+	__event_callback.touches.end = end;
 }

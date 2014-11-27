@@ -101,15 +101,14 @@ static void cb_mouse_up(void * device, int x, int y, unsigned int btn)
 	push_event(&event);
 }
 
-static void cb_mouse_wheel(void * device, int x, int y, int delta)
+static void cb_mouse_wheel(void * device, int dx, int dy)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_MOUSE_WHEEL;
-	event.e.mouse_wheel.x = x;
-	event.e.mouse_wheel.y = y;
-	event.e.mouse_wheel.delta = delta;
+	event.e.mouse_wheel.dx = dx;
+	event.e.mouse_wheel.dy = dy;
 	push_event(&event);
 }
 
@@ -185,6 +184,7 @@ static __init void sandboxlinux_input_init(void)
 static __exit void sandboxlinux_input_exit(void)
 {
 	resource_for_each_with_name("sandboxlinux-input", sandboxlinux_unregister_input);
+	sandbox_linux_sdl_event_exit();
 }
 
 device_initcall(sandboxlinux_input_init);

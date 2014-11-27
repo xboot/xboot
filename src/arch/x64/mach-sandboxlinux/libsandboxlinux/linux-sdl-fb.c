@@ -4,35 +4,58 @@
 #include <SDL.h>
 #include <sandboxlinux.h>
 
-static SDL_Surface * __screen = NULL;
-static int __brightness = 0;
+struct {
+	SDL_Window * window;
+	SDL_Renderer * render;
+} __fb;
 
-void sandbox_linux_sdl_fb_init(int width, int height, int bpp)
+void sandbox_linux_sdl_fb_init(int width, int height)
 {
-	__screen = SDL_SetVideoMode(width, height, bpp, SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL | SDL_DOUBLEBUF);
-	if(!__screen)
+	__fb.window = SDL_CreateWindow("Xboot Runtime Environment", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+	if(!__fb.window)
 		return;
 
-	SDL_WM_SetCaption("xboot sandbox for linux", "xboot");
-	SDL_FillRect(__screen, NULL, 0x000000);
-	SDL_Flip(__screen);
+	__fb.render = SDL_CreateRenderer(__fb.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if(!__fb.render)
+		return;
+
+    SDL_RenderClear(__fb.render);
+    SDL_RenderPresent(__fb.render);
 }
 
 void sandbox_linux_sdl_fb_exit(void)
 {
+	if(__fb.window)
+		SDL_DestroyWindow(__fb.window);
+
+	if(__fb.render)
+		SDL_DestroyRenderer(__fb.render);
 }
 
-int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height, int bpp)
+int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height)
 {
-	SDL_Surface * face = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL | SDL_DOUBLEBUF, width, height, bpp, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
-	if(!face)
+	SDL_Texture * texture = SDL_CreateTexture(__fb.render, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+	void * pixels;
+	int pitch;
+
+	if(!texture)
 		return -1;
 
-	surface->width = face->w;
-	surface->height = face->h;
-	surface->pitch = face->pitch;
-	surface->pixels = face->pixels;
-	surface->surface = face;
+	SDL_LockTexture(texture, NULL, &pixels, &pitch);
+	SDL_UnlockTexture(texture);
+
+	pixels = malloc(height * pitch);
+	if(!pixels)
+	{
+		SDL_DestroyTexture(texture);
+		return -1;
+	}
+
+	surface->width = width;
+	surface->height = height;
+	surface->pitch = pitch;
+	surface->pixels = pixels;
+	surface->texture = texture;
 
 	return 0;
 }
@@ -40,23 +63,27 @@ int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, i
 int sandbox_linux_sdl_fb_surface_destroy(struct sandbox_fb_surface_t * surface)
 {
 	if(surface)
-		SDL_FreeSurface(surface->surface);
+	{
+		SDL_DestroyTexture(surface->texture);
+		free(surface->pixels);
+	}
 	return 0;
 }
 
 int sandbox_linux_sdl_fb_surface_present(struct sandbox_fb_surface_t * surface)
 {
-	SDL_BlitSurface(surface->surface, NULL, __screen, NULL);
-	SDL_Flip(__screen);
+	SDL_UpdateTexture(surface->texture, NULL, surface->pixels, surface->pitch);
+	SDL_RenderCopy(__fb.render, surface->texture, NULL, NULL);
+	SDL_RenderPresent(__fb.render);
 	return 0;
 }
 
 void sandbox_linux_sdl_fb_set_backlight(int brightness)
 {
-	__brightness = brightness;
+	SDL_SetWindowBrightness(__fb.window, brightness / 1024.0);
 }
 
 int sandbox_linux_sdl_fb_get_backlight(void)
 {
-	return __brightness;
+	return (int)(SDL_GetWindowBrightness(__fb.window) * 1024);
 }

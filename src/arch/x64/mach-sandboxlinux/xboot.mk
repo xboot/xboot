@@ -157,7 +157,7 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 
 DEFINES		+=	-D__SANDBOX__
 
-SDL_CONFIG	?= sdl-config
+SDL_CONFIG	?= sdl2-config
 SDL_FLAGS	:= $(shell $(SDL_CONFIG) --cflags)
 SDL_LIBS	:= $(shell $(SDL_CONFIG) --libs)
 

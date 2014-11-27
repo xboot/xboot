@@ -24,6 +24,7 @@ struct event_callback_t {
 		void (*begin)(void * device, int x, int y, unsigned int id);
 		void (*move)(void * device, int x, int y, unsigned int id);
 		void (*end)(void * device, int x, int y, unsigned int id);
+		void (*cancel)(void * device, int x, int y, unsigned int id);
 	} touches;
 };
 
@@ -47,6 +48,7 @@ static struct event_callback_t __event_callback = {
 		.begin		= NULL,
 		.move		= NULL,
 		.end		= NULL,
+		.cancel		= NULL,
 	},
 };
 static SDL_Thread * __event = NULL;
@@ -183,10 +185,12 @@ void sandbox_linux_sdl_event_set_mouse_callback(void * device,
 void sandbox_linux_sdl_event_set_touches_callback(void * device,
 		void (*begin)(void * device, int x, int y, unsigned int id),
 		void (*move)(void * device, int x, int y, unsigned int id),
-		void (*end)(void * device, int x, int y, unsigned int id))
+		void (*end)(void * device, int x, int y, unsigned int id),
+		void (*cancel)(void * device, int x, int y, unsigned int id))
 {
 	__event_callback.touches.device = device;
 	__event_callback.touches.begin = begin;
 	__event_callback.touches.move = move;
 	__event_callback.touches.end = end;
+	__event_callback.touches.cancel = cancel;
 }

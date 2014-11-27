@@ -123,25 +123,20 @@ void do_system_logo(void)
 
 void do_system_autoboot(void)
 {
-	int delay = CONFIG_AUTO_BOOT_DELAY;
-	int i;
+	int delay = CONFIG_AUTO_BOOT_DELAY * 1000;
 
 	LOG("System autoboot ...");
+	do {
+		if(getchar() != EOF)
+			return;
 
-	while(delay-- > 0)
-	{
-		printf("\rPress any key to stop autoboot: %2d", delay);
+		mdelay(10);
+		delay -= 10;
+		if(delay < 0)
+			delay = 0;
 
-		for(i = 0; i < 100; i++)
-		{
-			if(getchar() != EOF)
-			{
-				printf("\r\n");
-				return;
-			}
-			mdelay(10);
-		}
-	}
+		printf("\rPress any key to stop autoboot:%3d.%03d", delay / 1000, delay % 1000);
+	} while(delay > 0);
 
 	exec_cmdline(CONFIG_AUTO_BOOT_COMMAND);
 }

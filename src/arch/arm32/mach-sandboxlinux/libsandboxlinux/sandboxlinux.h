@@ -31,12 +31,7 @@ struct sandbox_config_t {
 		int height;
 		int xdpi;
 		int ydpi;
-		int bpp;
 	} framebuffer;
-
-	struct {
-		int mouse_to_touch;
-	} input;
 };
 struct sandbox_config_t * sandbox_linux_get_config(void);
 void sandbox_linux_init(int argc, char * argv[]);
@@ -67,7 +62,11 @@ void sandbox_linux_sdl_event_set_mouse_callback(void * device,
 		void (*down)(void * device, int x, int y, unsigned int btn),
 		void (*move)(void * device, int x, int y),
 		void (*up)(void * device, int x, int y, unsigned int btn),
-		void (*wheel)(void * device, int x, int y, int delta));
+		void (*wheel)(void * device, int dx, int dy));
+void sandbox_linux_sdl_event_set_touch_callback(void * device,
+		void (*begin)(void * device, int x, int y, unsigned int id),
+		void (*move)(void * device, int x, int y, unsigned int id),
+		void (*end)(void * device, int x, int y, unsigned int id));
 
 /*
  * Framebuffer interface
@@ -77,12 +76,12 @@ struct sandbox_fb_surface_t {
 	int height;
 	int pitch;
 	void * pixels;
-	void * surface;
+	void * texture;
 };
 
-void sandbox_linux_sdl_fb_init(int width, int height, int bpp);
+void sandbox_linux_sdl_fb_init(int width, int height);
 void sandbox_linux_sdl_fb_exit(void);
-int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height, int bpp);
+int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height);
 int sandbox_linux_sdl_fb_surface_destroy(struct sandbox_fb_surface_t * surface);
 int sandbox_linux_sdl_fb_surface_present(struct sandbox_fb_surface_t * surface);
 void sandbox_linux_sdl_fb_set_backlight(int brightness);

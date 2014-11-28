@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <sandboxlinux.h>
 
-static SDL_TimerID __timer_id = NULL;
+static SDL_TimerID __timer = 0;
 
 static Uint32 tick_timer_callback(Uint32 interval, void * param)
 {
@@ -15,11 +15,11 @@ static Uint32 tick_timer_callback(Uint32 interval, void * param)
 
 void sandbox_linux_sdl_timer_init(int delay, void (*cb)(void))
 {
-	__timer_id = SDL_AddTimer(delay, tick_timer_callback, cb);
+	__timer = SDL_AddTimer(delay, tick_timer_callback, cb);
 }
 
 void sandbox_linux_sdl_timer_exit(void)
 {
-	if(__timer_id)
-		SDL_RemoveTimer(__timer_id);
+	if(__timer)
+		SDL_RemoveTimer(__timer);
 }

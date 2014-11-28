@@ -101,15 +101,50 @@ static void cb_mouse_up(void * device, int x, int y, unsigned int btn)
 	push_event(&event);
 }
 
-static void cb_mouse_wheel(void * device, int x, int y, int delta)
+static void cb_mouse_wheel(void * device, int dx, int dy)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_MOUSE_WHEEL;
-	event.e.mouse_wheel.x = x;
-	event.e.mouse_wheel.y = y;
-	event.e.mouse_wheel.delta = delta;
+	event.e.mouse_wheel.dx = dx;
+	event.e.mouse_wheel.dy = dy;
+	push_event(&event);
+}
+
+static void cb_touch_begin(void * device, int x, int y, unsigned int id)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_TOUCH_BEGIN;
+	event.e.touch.x = x;
+	event.e.touch.y = y;
+	event.e.touch.id = id;
+	push_event(&event);
+}
+
+static void cb_touch_move(void * device, int x, int y, unsigned int id)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_TOUCH_MOVE;
+	event.e.touch.x = x;
+	event.e.touch.y = y;
+	event.e.touch.id = id;
+	push_event(&event);
+}
+
+static void cb_touch_end(void * device, int x, int y, unsigned int id)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_TOUCH_END;
+	event.e.touch.x = x;
+	event.e.touch.y = y;
+	event.e.touch.id = id;
 	push_event(&event);
 }
 
@@ -131,6 +166,10 @@ static bool_t sandboxlinux_register_input(struct resource_t * res)
 
 	case INPUT_TYPE_MOUSE:
 		sandbox_linux_sdl_event_set_mouse_callback(input, cb_mouse_down, cb_mouse_move, cb_mouse_up, cb_mouse_wheel);
+		break;
+
+	case INPUT_TYPE_TOUCHSCREEN:
+		sandbox_linux_sdl_event_set_touch_callback(input, cb_touch_begin, cb_touch_move, cb_touch_end);
 		break;
 
 	default:
@@ -185,6 +224,7 @@ static __init void sandboxlinux_input_init(void)
 static __exit void sandboxlinux_input_exit(void)
 {
 	resource_for_each_with_name("sandboxlinux-input", sandboxlinux_unregister_input);
+	sandbox_linux_sdl_event_exit();
 }
 
 device_initcall(sandboxlinux_input_init);

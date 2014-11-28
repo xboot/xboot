@@ -29,11 +29,12 @@
 static void fb_init(struct fb_t * fb)
 {
 	struct sandbox_config_t * cfg = sandbox_linux_get_config();
-	sandbox_linux_sdl_fb_init(cfg->framebuffer.width, cfg->framebuffer.height, cfg->framebuffer.bpp);
+	sandbox_linux_sdl_fb_init(cfg->framebuffer.width, cfg->framebuffer.height);
 }
 
 static void fb_exit(struct fb_t * fb)
 {
+	sandbox_linux_sdl_fb_exit();
 }
 
 static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
@@ -50,7 +51,7 @@ static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 		info->height = cfg->framebuffer.height;
 		info->xdpi = cfg->framebuffer.xdpi;
 		info->ydpi = cfg->framebuffer.ydpi;
-		info->bpp = cfg->framebuffer.bpp;
+		info->bpp = 32;
 		return 0;
 
 	case IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS:
@@ -80,7 +81,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	if(!surface)
 		return NULL;
 
-	if(sandbox_linux_sdl_fb_surface_create(surface, cfg->framebuffer.width, cfg->framebuffer.height, cfg->framebuffer.bpp) != 0)
+	if(sandbox_linux_sdl_fb_surface_create(surface, cfg->framebuffer.width, cfg->framebuffer.height) != 0)
 	{
 		free(surface);
 		return NULL;

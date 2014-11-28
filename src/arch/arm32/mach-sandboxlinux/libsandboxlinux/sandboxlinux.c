@@ -20,11 +20,6 @@ static struct sandbox_config_t __sandbox_linux_config = {
 		.height			= 480,
 		.xdpi			= 160,
 		.ydpi			= 160,
-		.bpp			= 32,
-	},
-
-	.input				= {
-		.mouse_to_touch	= 0,
 	},
 };
 static struct termios __term_config;
@@ -65,8 +60,6 @@ static void usage(const char * name)
 		"  --height <size>  SDL framebuffer height\n"
 		"  --xdpi <value>   SDL xdpi\n"
 		"  --ydpi <value>   SDL ydpi\n"
-		"  --bpp <value>    SDL bpp\n"
-		"  --touchscreen    Mouse event to touch screen event\n"
 		,name);
 }
 
@@ -107,15 +100,6 @@ void sandbox_linux_init(int argc, char * argv[])
 			__sandbox_linux_config.framebuffer.ydpi = strtoul(argv[i + 1], NULL, 0);
 			i++;
 		}
-		else if(!strcmp(argv[i], "--bpp") && (argc > i + 1))
-		{
-			__sandbox_linux_config.framebuffer.bpp = strtoul(argv[i + 1], NULL, 0);
-			i++;
-		}
-		else if(!strcmp(argv[i], "--touchscreen"))
-		{
-			__sandbox_linux_config.input.mouse_to_touch = 1;
-		}
 		else
 		{
 			if(idx == 0)
@@ -142,7 +126,7 @@ void sandbox_linux_init(int argc, char * argv[])
 	memset(__sandbox_linux_config.memory.mem, 0, __sandbox_linux_config.memory.size);
 
 	rawmode();
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE);
+	SDL_Init(SDL_INIT_EVERYTHING);
 }
 
 void sandbox_linux_exit(void)

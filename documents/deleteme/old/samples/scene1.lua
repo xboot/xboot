@@ -16,7 +16,6 @@ function M:init()
 		img:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, img)
 		img:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, img)
 		img:addEventListener(Event.TOUCH_END, self.onTouchEnd, img)
-		img:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, img)
 	
 		self:addChild(img)
 	end
@@ -81,13 +80,6 @@ function M:onTouchMove(e)
 end
 
 function M:onTouchEnd(e)
-	if self.isfocus then
-		self.isfocus = false
-		e:stopPropagation()
-	end
-end
-
-function M:onTouchCancel(e)
 	if self.isfocus then
 		self.isfocus = false
 		e:stopPropagation()

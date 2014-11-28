@@ -16,7 +16,6 @@ function M:init(on, off, state)
 	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
 	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
 	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
-	self:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, self)
 end
 
 function M:setState(state)
@@ -76,13 +75,6 @@ function M:onTouchMove(e)
 end
 
 function M:onTouchEnd(e)
-	if self.focus == e.info.id then
-		self.focus = nil
-		e:stopPropagation()
-	end
-end
-
-function M:onTouchCancel(e)
 	if self.focus == e.info.id then
 		self.focus = nil
 		e:stopPropagation()

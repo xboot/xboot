@@ -31,14 +31,6 @@ local function onTouchEnd(d, e)
 	end
 end
 
-local function onTouchCancel(d, e)
-	local dot = dots[e.info.id]
-	if dot and stage:contains(dot) then
-		stage:removeChild(dot)
-	end
-end
-
 stage:addEventListener(Event.TOUCH_BEGIN, onTouchBegin)
 stage:addEventListener(Event.TOUCH_MOVE, onTouchMove)
 stage:addEventListener(Event.TOUCH_END, onTouchEnd)
-stage:addEventListener(Event.TOUCH_CANCEL, onTouchCancel)

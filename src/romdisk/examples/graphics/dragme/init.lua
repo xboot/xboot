@@ -22,7 +22,6 @@ function M:init()
 		shape:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, shape)
 		shape:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, shape)
 		shape:addEventListener(Event.TOUCH_END, self.onTouchEnd, shape)
-		shape:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, shape)
 	
 		self:addChild(shape)
 	end
@@ -78,13 +77,6 @@ function M:onTouchMove(e)
 end
 
 function M:onTouchEnd(e)
-	if self.touchid == e.info.id then
-		self.touchid = nil
-		e:stopPropagation()
-	end
-end
-
-function M:onTouchCancel(e)
 	if self.touchid == e.info.id then
 		self.touchid = nil
 		e:stopPropagation()

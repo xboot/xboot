@@ -21,7 +21,6 @@ enum event_type_t {
 	EVENT_TYPE_TOUCH_BEGIN			= 0x0301,
 	EVENT_TYPE_TOUCH_MOVE			= 0x0302,
 	EVENT_TYPE_TOUCH_END			= 0x0303,
-	EVENT_TYPE_TOUCH_CANCEL			= 0x0304,
 };
 
 enum {
@@ -84,7 +83,6 @@ void push_event_mouse_wheel(void * device, s32_t dx, s32_t dy);
 void push_event_touch_begin(void * device, s32_t x, s32_t y, u32_t id);
 void push_event_touch_move(void * device, s32_t x, s32_t y, u32_t id);
 void push_event_touch_end(void * device, s32_t x, s32_t y, u32_t id);
-void push_event_touch_cancel(void * device, s32_t x, s32_t y, u32_t id);
 bool_t pump_event(struct event_base_t * eb, struct event_t * event);
 
 #ifdef __cplusplus

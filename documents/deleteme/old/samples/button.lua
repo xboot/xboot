@@ -18,7 +18,6 @@ function M:init(normal, active)
 	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
 	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
 	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
-	self:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, self)
 end
 
 function M:onMouseDown(e)
@@ -71,14 +70,6 @@ function M:onTouchEnd(e)
 		self.focus = false
 		self:updateVisualState(self.focus)
 		self:dispatchEvent(Event.new("click"))
-		e:stopPropagation()
-	end
-end
-
-function M:onTouchCancel(e)
-	if self.focus then
-		self.focus = false;
-		self:updateVisualState(self.focus)
 		e:stopPropagation()
 	end
 end

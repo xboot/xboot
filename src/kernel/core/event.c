@@ -175,18 +175,6 @@ void push_event_touch_end(void * device, s32_t x, s32_t y, u32_t id)
 	push_event(&event);
 }
 
-void push_event_touch_cancel(void * device, s32_t x, s32_t y, u32_t id)
-{
-	struct event_t event;
-
-	event.device = device;
-	event.type = EVENT_TYPE_TOUCH_CANCEL;
-	event.e.touch.x = x;
-	event.e.touch.y = y;
-	event.e.touch.id = id;
-	push_event(&event);
-}
-
 bool_t pump_event(struct event_base_t * eb, struct event_t * event)
 {
 	bool_t ret;

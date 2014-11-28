@@ -33,7 +33,6 @@
 #define __TYPE_TOUCH_BEGIN			"TouchBegin"
 #define __TYPE_TOUCH_MOVE			"TouchMove"
 #define __TYPE_TOUCH_END			"TouchEnd"
-#define __TYPE_TOUCH_CANCEL			"TouchCancel"
 
 static int l_event_pump(lua_State * L)
 {
@@ -169,20 +168,6 @@ static int l_event_pump(lua_State * L)
 	case EVENT_TYPE_TOUCH_END:
 		lua_newtable(L);
 		lua_pushstring(L, __TYPE_TOUCH_END);
-		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, event.timestamp);
-		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.touch.x);
-		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.touch.y);
-		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, event.e.touch.id);
-		lua_setfield(L, -2, "id");
-		return 1;
-
-	case EVENT_TYPE_TOUCH_CANCEL:
-		lua_newtable(L);
-		lua_pushstring(L, __TYPE_TOUCH_CANCEL);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");

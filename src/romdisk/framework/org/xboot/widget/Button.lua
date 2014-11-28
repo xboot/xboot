@@ -54,7 +54,6 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
 	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
 	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
-	self:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, self)
 end
 
 function M:setSize(width, height)
@@ -153,15 +152,6 @@ function M:onTouchEnd(e)
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Release"))
 		self:dispatchEvent(Event.new("Click"))
-		e:stopPropagation()
-	end
-end
-
-function M:onTouchCancel(e)
-	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
-		self.touchid = nil
-		self.state = self.STATE_NORMAL
-		self:updateVisualState()
 		e:stopPropagation()
 	end
 end

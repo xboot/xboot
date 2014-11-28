@@ -16,7 +16,6 @@ function M:init()
 		:addEventListener(Event.TOUCH_BEGIN, function(d, e) d:setPosition(e.info.x, e.info.y) end)
 		:addEventListener(Event.TOUCH_MOVE, function(d, e) d:setPosition(e.info.x, e.info.y) end)
 		:addEventListener(Event.TOUCH_END, function(d, e) d:setPosition(e.info.x, e.info.y) end)
-		:addEventListener(Event.TOUCH_CANCEL, function(d, e) d:setPosition(e.info.x, e.info.y) end)
 	self:addChild(cursor)
 end
 

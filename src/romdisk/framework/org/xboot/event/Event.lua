@@ -42,10 +42,6 @@ M.TOUCH_MOVE = "TouchMove"
 M.TOUCH_END = "TouchEnd"
 
 ---
--- @field [parent=#Event] TOUCH_CANCEL TouchCancel
-M.TOUCH_CANCEL = "TouchCancel"
-
----
 -- @field [parent=#Event] ENTER_FRAME EnterFrame
 M.ENTER_FRAME = "EnterFrame"
 

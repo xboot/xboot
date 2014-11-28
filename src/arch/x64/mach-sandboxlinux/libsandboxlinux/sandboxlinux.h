@@ -66,8 +66,7 @@ void sandbox_linux_sdl_event_set_mouse_callback(void * device,
 void sandbox_linux_sdl_event_set_touch_callback(void * device,
 		void (*begin)(void * device, int x, int y, unsigned int id),
 		void (*move)(void * device, int x, int y, unsigned int id),
-		void (*end)(void * device, int x, int y, unsigned int id),
-		void (*cancel)(void * device, int x, int y, unsigned int id));
+		void (*end)(void * device, int x, int y, unsigned int id));
 
 /*
  * Framebuffer interface

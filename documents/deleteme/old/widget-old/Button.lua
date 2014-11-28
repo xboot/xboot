@@ -15,7 +15,6 @@ function M:init(up, down)
 	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
 	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
 	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
-	self:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel, self)
 end
 
 function M:onMouseDown(e)
@@ -68,14 +67,6 @@ function M:onTouchEnd(e)
 		self.focus = nil
 		self:updateVisualState(false)
 		self:dispatchEvent(Event.new("Click"))
-		e:stopPropagation()
-	end
-end
-
-function M:onTouchCancel(e)
-	if self.focus == e.info.id then
-		self.focus = nil
-		self:updateVisualState(false)
 		e:stopPropagation()
 	end
 end

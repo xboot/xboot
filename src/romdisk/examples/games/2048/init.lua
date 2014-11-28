@@ -12,7 +12,6 @@ function M:init()
 	game:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin)
 	game:addEventListener(Event.TOUCH_MOVE, self.onTouchMove)
 	game:addEventListener(Event.TOUCH_END, self.onTouchEnd)
-	game:addEventListener(Event.TOUCH_CANCEL, self.onTouchCancel)
 
 	self:addChild(game)
 end
@@ -67,13 +66,6 @@ function M:onTouchMove(e)
 end
 
 function M:onTouchEnd(e)
-	if self.touchid == e.info.id then
-		self.touchid = nil
-		e:stopPropagation()
-	end
-end
-
-function M:onTouchCancel(e)
 	if self.touchid == e.info.id then
 		self.touchid = nil
 		e:stopPropagation()

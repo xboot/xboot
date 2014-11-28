@@ -148,18 +148,6 @@ static void cb_touch_end(void * device, int x, int y, unsigned int id)
 	push_event(&event);
 }
 
-static void cb_touch_cancel(void * device, int x, int y, unsigned int id)
-{
-	struct event_t event;
-
-	event.device = device;
-	event.type = EVENT_TYPE_TOUCH_CANCEL;
-	event.e.touch.x = x;
-	event.e.touch.y = y;
-	event.e.touch.id = id;
-	push_event(&event);
-}
-
 static bool_t sandboxlinux_register_input(struct resource_t * res)
 {
 	struct sandboxlinux_input_data_t * rdat = (struct sandboxlinux_input_data_t *)res->data;
@@ -181,7 +169,7 @@ static bool_t sandboxlinux_register_input(struct resource_t * res)
 		break;
 
 	case INPUT_TYPE_TOUCHSCREEN:
-		sandbox_linux_sdl_event_set_touch_callback(input, cb_touch_begin, cb_touch_move, cb_touch_end, cb_touch_cancel);
+		sandbox_linux_sdl_event_set_touch_callback(input, cb_touch_begin, cb_touch_move, cb_touch_end);
 		break;
 
 	default:

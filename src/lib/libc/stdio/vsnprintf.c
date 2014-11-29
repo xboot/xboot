@@ -728,7 +728,8 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap)
 					goto is_unsigned;
 				case 'X':		/* Upper case hexadecimal */
 					flags |= FL_UPPER;
-					break;
+					base = 16;
+					goto is_unsigned;
 				case 'x':		/* Hexadecimal */
 					base = 16;
 					goto is_unsigned;

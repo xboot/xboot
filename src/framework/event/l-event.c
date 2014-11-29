@@ -24,15 +24,21 @@
 
 #include <framework/event/l-event.h>
 
-#define __TYPE_KEY_DOWN				"KeyDown"
-#define __TYPE_KEY_UP				"KeyUp"
-#define __TYPE_MOUSE_DOWN			"MouseDown"
-#define __TYPE_MOUSE_MOVE			"MouseMove"
-#define __TYPE_MOUSE_UP				"MouseUp"
-#define __TYPE_MOUSE_WHEEL			"MouseWheel"
-#define __TYPE_TOUCH_BEGIN			"TouchBegin"
-#define __TYPE_TOUCH_MOVE			"TouchMove"
-#define __TYPE_TOUCH_END			"TouchEnd"
+#define __TYPE_KEY_DOWN					"KeyDown"
+#define __TYPE_KEY_UP					"KeyUp"
+#define __TYPE_MOUSE_DOWN				"MouseDown"
+#define __TYPE_MOUSE_MOVE				"MouseMove"
+#define __TYPE_MOUSE_UP					"MouseUp"
+#define __TYPE_MOUSE_WHEEL				"MouseWheel"
+#define __TYPE_TOUCH_BEGIN				"TouchBegin"
+#define __TYPE_TOUCH_MOVE				"TouchMove"
+#define __TYPE_TOUCH_END				"TouchEnd"
+#define __TYPE_JOYSTICK_LEFTSTICK		"JoystickLeftStick"
+#define __TYPE_JOYSTICK_RIGHTSTICK		"JoystickRightStick"
+#define __TYPE_JOYSTICK_LEFTTRIGGER		"JoystickLeftTrigger"
+#define __TYPE_JOYSTICK_RIGHTTRIGGER	"JoystickRightTrigger"
+#define __TYPE_JOYSTICK_BUTTONDOWN		"JoystickButtonDown"
+#define __TYPE_JOYSTICK_BUTTONUP		"JoystickButtonUp"
 
 static int l_event_pump(lua_State * L)
 {
@@ -177,6 +183,72 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "y");
 		lua_pushnumber(L, event.e.touch_end.id);
 		lua_setfield(L, -2, "id");
+		return 1;
+
+	case EVENT_TYPE_JOYSTICK_LEFTSTICK:
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_JOYSTICK_LEFTSTICK);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.joystick_left_stick.x);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, event.e.joystick_left_stick.y);
+		lua_setfield(L, -2, "y");
+		return 1;
+
+	case EVENT_TYPE_JOYSTICK_RIGHTSTICK:
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_JOYSTICK_RIGHTSTICK);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.joystick_right_stick.x);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, event.e.joystick_right_stick.y);
+		lua_setfield(L, -2, "y");
+		return 1;
+
+	case EVENT_TYPE_JOYSTICK_LEFTTRIGGER:
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_JOYSTICK_LEFTTRIGGER);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.joystick_left_trigger.value);
+		lua_setfield(L, -2, "value");
+		return 1;
+
+	case EVENT_TYPE_JOYSTICK_RIGHTTRIGGER:
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_JOYSTICK_RIGHTTRIGGER);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.joystick_right_trigger.value);
+		lua_setfield(L, -2, "value");
+		return 1;
+
+	case EVENT_TYPE_JOYSTICK_BUTTONDOWN:
+		button = event.e.joystick_button_down.button;
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_JOYSTICK_BUTTONDOWN);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.joystick_button_down.button);
+		lua_setfield(L, -2, "button");
+		return 1;
+
+	case EVENT_TYPE_JOYSTICK_BUTTONUP:
+		button = event.e.joystick_button_up.button;
+		lua_newtable(L);
+		lua_pushstring(L, __TYPE_JOYSTICK_BUTTONUP);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, event.timestamp);
+		lua_setfield(L, -2, "time");
+		lua_pushnumber(L, event.e.joystick_button_up.button);
+		lua_setfield(L, -2, "button");
 		return 1;
 
 	default:

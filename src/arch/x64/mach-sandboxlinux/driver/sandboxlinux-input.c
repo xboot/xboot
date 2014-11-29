@@ -66,7 +66,7 @@ static void cb_key_up(void * device, unsigned int key)
 	push_event(&event);
 }
 
-static void cb_mouse_down(void * device, int x, int y, unsigned int btn)
+static void cb_mouse_down(void * device, int x, int y, unsigned int button)
 {
 	struct event_t event;
 
@@ -74,7 +74,7 @@ static void cb_mouse_down(void * device, int x, int y, unsigned int btn)
 	event.type = EVENT_TYPE_MOUSE_DOWN;
 	event.e.mouse_down.x = x;
 	event.e.mouse_down.y = y;
-	event.e.mouse_down.button = btn;
+	event.e.mouse_down.button = button;
 	push_event(&event);
 }
 
@@ -89,7 +89,7 @@ static void cb_mouse_move(void * device, int x, int y)
 	push_event(&event);
 }
 
-static void cb_mouse_up(void * device, int x, int y, unsigned int btn)
+static void cb_mouse_up(void * device, int x, int y, unsigned int button)
 {
 	struct event_t event;
 
@@ -97,7 +97,7 @@ static void cb_mouse_up(void * device, int x, int y, unsigned int btn)
 	event.type = EVENT_TYPE_MOUSE_UP;
 	event.e.mouse_down.x = x;
 	event.e.mouse_down.y = y;
-	event.e.mouse_down.button = btn;
+	event.e.mouse_down.button = button;
 	push_event(&event);
 }
 
@@ -148,6 +148,68 @@ static void cb_touch_end(void * device, int x, int y, unsigned int id)
 	push_event(&event);
 }
 
+static void cb_joystick_left_stick(void * device, int x, int y)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_LEFTSTICK;
+	event.e.joystick_left_stick.x = x;
+	event.e.joystick_left_stick.y = y;
+	push_event(&event);
+}
+
+static void cb_joystick_right_stick(void * device, int x, int y)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_RIGHTSTICK;
+	event.e.joystick_right_stick.x = x;
+	event.e.joystick_right_stick.y = y;
+	push_event(&event);
+}
+
+static void cb_joystick_left_trigger(void * device, int value)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_LEFTTRIGGER;
+	event.e.joystick_left_trigger.value = value;
+	push_event(&event);
+}
+
+static void cb_joystick_right_trigger(void * device, int value)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_RIGHTTRIGGER;
+	event.e.joystick_left_trigger.value = value;
+	push_event(&event);
+}
+
+static void cb_joystick_button_down(void * device, unsigned int button)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_BUTTONDOWN;
+	event.e.joystick_button_down.button = button;
+	push_event(&event);
+}
+
+static void cb_joystick_button_up(void * device, unsigned int button)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_BUTTONUP;
+	event.e.joystick_button_down.button = button;
+	push_event(&event);
+}
+
 static bool_t sandboxlinux_register_input(struct resource_t * res)
 {
 	struct sandboxlinux_input_data_t * rdat = (struct sandboxlinux_input_data_t *)res->data;
@@ -161,15 +223,34 @@ static bool_t sandboxlinux_register_input(struct resource_t * res)
 	switch(rdat->type)
 	{
 	case INPUT_TYPE_KEYBOARD:
-		sandbox_linux_sdl_event_set_key_callback(input, cb_key_down, cb_key_up);
+		sandbox_linux_sdl_event_set_key_callback(input,
+				cb_key_down,
+				cb_key_up);
 		break;
 
 	case INPUT_TYPE_MOUSE:
-		sandbox_linux_sdl_event_set_mouse_callback(input, cb_mouse_down, cb_mouse_move, cb_mouse_up, cb_mouse_wheel);
+		sandbox_linux_sdl_event_set_mouse_callback(input,
+				cb_mouse_down,
+				cb_mouse_move,
+				cb_mouse_up,
+				cb_mouse_wheel);
 		break;
 
 	case INPUT_TYPE_TOUCHSCREEN:
-		sandbox_linux_sdl_event_set_touch_callback(input, cb_touch_begin, cb_touch_move, cb_touch_end);
+		sandbox_linux_sdl_event_set_touch_callback(input,
+				cb_touch_begin,
+				cb_touch_move,
+				cb_touch_end);
+		break;
+
+	case INPUT_TYPE_JOYSTICK:
+		sandbox_linux_sdl_event_set_joystick_callback(input,
+				cb_joystick_left_stick,
+				cb_joystick_right_stick,
+				cb_joystick_left_trigger,
+				cb_joystick_right_trigger,
+				cb_joystick_button_down,
+				cb_joystick_button_up);
 		break;
 
 	default:

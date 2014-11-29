@@ -113,7 +113,7 @@ void push_event_key_up(void * device, u32_t key)
 	push_event(&event);
 }
 
-void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn)
+void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t button)
 {
 	struct event_t event;
 
@@ -121,11 +121,11 @@ void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn)
 	event.type = EVENT_TYPE_MOUSE_DOWN;
 	event.e.mouse_down.x = x;
 	event.e.mouse_down.y = y;
-	event.e.mouse_down.button = btn;
+	event.e.mouse_down.button = button;
 	push_event(&event);
 }
 
-void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn)
+void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t button)
 {
 	struct event_t event;
 
@@ -133,7 +133,7 @@ void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn)
 	event.type = EVENT_TYPE_MOUSE_UP;
 	event.e.mouse_up.x = x;
 	event.e.mouse_up.y = y;
-	event.e.mouse_up.button = btn;
+	event.e.mouse_up.button = button;
 	push_event(&event);
 }
 
@@ -192,6 +192,68 @@ void push_event_touch_end(void * device, s32_t x, s32_t y, u32_t id)
 	event.e.touch_end.x = x;
 	event.e.touch_end.y = y;
 	event.e.touch_end.id = id;
+	push_event(&event);
+}
+
+void push_event_joystick_left_stick(void * device, s32_t x, s32_t y)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_LEFTSTICK;
+	event.e.joystick_left_stick.x = x;
+	event.e.joystick_left_stick.y = y;
+	push_event(&event);
+}
+
+void push_event_joystick_right_stick(void * device, s32_t x, s32_t y)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_RIGHTSTICK;
+	event.e.joystick_right_stick.x = x;
+	event.e.joystick_right_stick.y = y;
+	push_event(&event);
+}
+
+void push_event_joystick_left_trigger(void * device, s32_t value)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_LEFTTRIGGER;
+	event.e.joystick_left_trigger.value = value;
+	push_event(&event);
+}
+
+void push_event_joystick_right_trigger(void * device, s32_t value)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_RIGHTTRIGGER;
+	event.e.joystick_left_trigger.value = value;
+	push_event(&event);
+}
+
+void push_event_joystick_button_down(void * device, u32_t button)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_BUTTONDOWN;
+	event.e.joystick_button_down.button = button;
+	push_event(&event);
+}
+
+void push_event_joystick_button_up(void * device, u32_t button)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_JOYSTICK_BUTTONUP;
+	event.e.joystick_button_down.button = button;
 	push_event(&event);
 }
 

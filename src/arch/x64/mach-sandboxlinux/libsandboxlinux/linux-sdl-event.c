@@ -13,9 +13,9 @@ struct event_callback_t {
 
 	struct {
 		void * device;
-		void (*down)(void * device, int x, int y, unsigned int btn);
+		void (*down)(void * device, int x, int y, unsigned int button);
 		void (*move)(void * device, int x, int y);
-		void (*up)(void * device, int x, int y, unsigned int btn);
+		void (*up)(void * device, int x, int y, unsigned int button);
 		void (*wheel)(void * device, int dx, int dy);
 	} mouse;
 
@@ -25,6 +25,16 @@ struct event_callback_t {
 		void (*move)(void * device, int x, int y, unsigned int id);
 		void (*end)(void * device, int x, int y, unsigned int id);
 	} touch;
+
+	struct {
+		void * device;
+		void (*left_stick)(void * device, int x, int y);
+		void (*right_stick)(void * device, int x, int y);
+		void (*left_trigger)(void * device, int value);
+		void (*right_trigger)(void * device, int value);
+		void (*button_down)(void * device, unsigned int button);
+		void (*button_up)(void * device, unsigned int button);
+	} joystick;
 };
 
 static struct event_callback_t __event_callback = {
@@ -48,7 +58,18 @@ static struct event_callback_t __event_callback = {
 		.move		= NULL,
 		.end		= NULL,
 	},
+
+	.joystick = {
+		.device			= NULL,
+		.left_stick		= NULL,
+		.right_stick	= NULL,
+		.left_trigger	= NULL,
+		.right_trigger	= NULL,
+		.button_down	= NULL,
+		.button_up		= NULL,
+	},
 };
+
 static SDL_Thread * __event = NULL;
 
 static int handle_event(void * data)
@@ -168,9 +189,9 @@ void sandbox_linux_sdl_event_set_key_callback(void * device,
 }
 
 void sandbox_linux_sdl_event_set_mouse_callback(void * device,
-		void (*down)(void * device, int x, int y, unsigned int btn),
+		void (*down)(void * device, int x, int y, unsigned int button),
 		void (*move)(void * device, int x, int y),
-		void (*up)(void * device, int x, int y, unsigned int btn),
+		void (*up)(void * device, int x, int y, unsigned int button),
 		void (*wheel)(void * device, int dx, int dy))
 {
 	__event_callback.mouse.device = device;
@@ -189,4 +210,21 @@ void sandbox_linux_sdl_event_set_touch_callback(void * device,
 	__event_callback.touch.begin = begin;
 	__event_callback.touch.move = move;
 	__event_callback.touch.end = end;
+}
+
+void sandbox_linux_sdl_event_set_joystick_callback(void * device,
+		void (*left_stick)(void * device, int x, int y),
+		void (*right_stick)(void * device, int x, int y),
+		void (*left_trigger)(void * device, int value),
+		void (*right_trigger)(void * device, int value),
+		void (*button_down)(void * device, unsigned int button),
+		void (*button_up)(void * device, unsigned int button))
+{
+	__event_callback.joystick.device = device;
+	__event_callback.joystick.left_stick = left_stick;
+	__event_callback.joystick.right_stick = right_stick;
+	__event_callback.joystick.left_trigger = left_trigger;
+	__event_callback.joystick.right_trigger = right_trigger;
+	__event_callback.joystick.button_down = button_down;
+	__event_callback.joystick.button_up = button_up;
 }

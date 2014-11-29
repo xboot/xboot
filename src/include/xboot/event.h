@@ -8,25 +8,50 @@ extern "C" {
 #include <xboot.h>
 
 enum event_type_t {
-	EVENT_TYPE_UNKNOWN				= 0x0000,
+	EVENT_TYPE_UNKNOWN					= 0x0000,
 
-	EVENT_TYPE_KEY_DOWN				= 0x0100,
-	EVENT_TYPE_KEY_UP				= 0x0101,
+	EVENT_TYPE_KEY_DOWN					= 0x0100,
+	EVENT_TYPE_KEY_UP					= 0x0101,
 
-	EVENT_TYPE_MOUSE_DOWN			= 0x0200,
-	EVENT_TYPE_MOUSE_MOVE			= 0x0201,
-	EVENT_TYPE_MOUSE_UP				= 0x0202,
-	EVENT_TYPE_MOUSE_WHEEL			= 0x0203,
+	EVENT_TYPE_MOUSE_DOWN				= 0x0200,
+	EVENT_TYPE_MOUSE_MOVE				= 0x0201,
+	EVENT_TYPE_MOUSE_UP					= 0x0202,
+	EVENT_TYPE_MOUSE_WHEEL				= 0x0203,
 
-	EVENT_TYPE_TOUCH_BEGIN			= 0x0300,
-	EVENT_TYPE_TOUCH_MOVE			= 0x0301,
-	EVENT_TYPE_TOUCH_END			= 0x0302,
+	EVENT_TYPE_TOUCH_BEGIN				= 0x0300,
+	EVENT_TYPE_TOUCH_MOVE				= 0x0301,
+	EVENT_TYPE_TOUCH_END				= 0x0302,
+
+	EVENT_TYPE_JOYSTICK_LEFTSTICK		= 0x0400,
+	EVENT_TYPE_JOYSTICK_RIGHTSTICK		= 0x0401,
+	EVENT_TYPE_JOYSTICK_LEFTTRIGGER		= 0x0402,
+	EVENT_TYPE_JOYSTICK_RIGHTTRIGGER	= 0x0403,
+	EVENT_TYPE_JOYSTICK_BUTTONDOWN		= 0x0404,
+	EVENT_TYPE_JOYSTICK_BUTTONUP		= 0x0405,
 };
 
 enum {
-	MOUSE_BUTTON_LEFT				= (0x1 << 0),
-	MOUSE_BUTTON_RIGHT				= (0x1 << 1),
-	MOUSE_BUTTON_MIDDLE				= (0x1 << 2),
+	MOUSE_BUTTON_LEFT					= (0x1 << 0),
+	MOUSE_BUTTON_RIGHT					= (0x1 << 1),
+	MOUSE_BUTTON_MIDDLE					= (0x1 << 2),
+};
+
+enum {
+	JOYSTICK_BUTTON_UP					= (0x1 << 0),
+	JOYSTICK_BUTTON_DOWN				= (0x1 << 1),
+	JOYSTICK_BUTTON_LEFT				= (0x1 << 2),
+	JOYSTICK_BUTTON_RIGHT				= (0x1 << 3),
+	JOYSTICK_BUTTON_A					= (0x1 << 4),
+	JOYSTICK_BUTTON_B					= (0x1 << 5),
+	JOYSTICK_BUTTON_X					= (0x1 << 6),
+	JOYSTICK_BUTTON_Y					= (0x1 << 7),
+	JOYSTICK_BUTTON_BACK				= (0x1 << 8),
+	JOYSTICK_BUTTON_START				= (0x1 << 9),
+	JOYSTICK_BUTTON_GUIDE				= (0x1 << 10),
+	JOYSTICK_BUTTON_LBUMPER				= (0x1 << 11),
+	JOYSTICK_BUTTON_RBUMPER				= (0x1 << 12),
+	JOYSTICK_BUTTON_LSTICK				= (0x1 << 13),
+	JOYSTICK_BUTTON_RSTICK				= (0x1 << 14),
 };
 
 struct event_t {
@@ -78,6 +103,31 @@ struct event_t {
 			s32_t x, y;
 			u32_t id;
 		} touch_end;
+
+		/* joystick */
+		struct {
+			s32_t x, y;
+		} joystick_left_stick;
+
+		struct {
+			s32_t x, y;
+		} joystick_right_stick;
+
+		struct {
+			s32_t value;
+		} joystick_left_trigger;
+
+		struct {
+			s32_t value;
+		} joystick_right_trigger;
+
+		struct {
+			u32_t button;
+		} joystick_button_down;
+
+		struct {
+			u32_t button;
+		} joystick_button_up;
 	} e;
 };
 
@@ -92,13 +142,19 @@ void __event_base_free(struct event_base_t * eb);
 void push_event(struct event_t * event);
 void push_event_key_down(void * device, u32_t key);
 void push_event_key_up(void * device, u32_t key);
-void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn);
-void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn);
+void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t button);
+void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t button);
 void push_event_mouse_move(void * device, s32_t x, s32_t y);
 void push_event_mouse_wheel(void * device, s32_t dx, s32_t dy);
 void push_event_touch_begin(void * device, s32_t x, s32_t y, u32_t id);
 void push_event_touch_move(void * device, s32_t x, s32_t y, u32_t id);
 void push_event_touch_end(void * device, s32_t x, s32_t y, u32_t id);
+void push_event_joystick_left_stick(void * device, s32_t x, s32_t y);
+void push_event_joystick_right_stick(void * device, s32_t x, s32_t y);
+void push_event_joystick_left_trigger(void * device, s32_t value);
+void push_event_joystick_right_trigger(void * device, s32_t value);
+void push_event_joystick_button_down(void * device, u32_t button);
+void push_event_joystick_button_up(void * device, u32_t button);
 bool_t pump_event(struct event_base_t * eb, struct event_t * event);
 
 #ifdef __cplusplus

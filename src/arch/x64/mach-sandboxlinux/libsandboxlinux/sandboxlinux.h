@@ -56,8 +56,8 @@ int sandbox_linux_pm_sleep(void);
 void sandbox_linux_sdl_event_init(void);
 void sandbox_linux_sdl_event_exit(void);
 void sandbox_linux_sdl_event_set_key_callback(void * device,
-		void (*down)(void * device, unsigned int code),
-		void (*up)(void * device, unsigned int code));
+		void (*down)(void * device, unsigned int key),
+		void (*up)(void * device, unsigned int key));
 void sandbox_linux_sdl_event_set_mouse_callback(void * device,
 		void (*down)(void * device, int x, int y, unsigned int btn),
 		void (*move)(void * device, int x, int y),

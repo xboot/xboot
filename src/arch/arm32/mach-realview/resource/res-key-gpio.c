@@ -28,15 +28,15 @@
 
 static struct gpio_button_t buttons[] = {
 	{
-		.code = KEY_UP,
+		.key = KEY_UP,
 		.gpio = REALVIEW_GPIO1(0),
 		.active_low = 1,
 	}, {
-		.code = KEY_DOWN,
+		.key = KEY_DOWN,
 		.gpio = REALVIEW_GPIO1(1),
 		.active_low = 1,
 	}, {
-		.code = KEY_ENTER,
+		.key = KEY_ENTER,
 		.gpio = REALVIEW_GPIO1(2),
 		.active_low = 1,
 	},

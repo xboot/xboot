@@ -10,7 +10,7 @@ extern "C" {
 #include <input/keyboard.h>
 
 struct gpio_button_t {
-	u32_t code;
+	u32_t key;
 	int gpio;
 	int active_low;
 };

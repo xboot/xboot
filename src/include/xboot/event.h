@@ -18,9 +18,9 @@ enum event_type_t {
 	EVENT_TYPE_MOUSE_UP				= 0x0202,
 	EVENT_TYPE_MOUSE_WHEEL			= 0x0203,
 
-	EVENT_TYPE_TOUCH_BEGIN			= 0x0301,
-	EVENT_TYPE_TOUCH_MOVE			= 0x0302,
-	EVENT_TYPE_TOUCH_END			= 0x0303,
+	EVENT_TYPE_TOUCH_BEGIN			= 0x0300,
+	EVENT_TYPE_TOUCH_MOVE			= 0x0301,
+	EVENT_TYPE_TOUCH_END			= 0x0302,
 };
 
 enum {
@@ -37,8 +37,12 @@ struct event_t {
 	union {
 		/* key */
 		struct {
-			u32_t code;
-		} key;
+			u32_t key;
+		} key_down;
+
+		struct {
+			u32_t key;
+		} key_up;
 
 		/* mouse */
 		struct {
@@ -76,6 +80,8 @@ struct event_base_t * __event_base_alloc(void);
 void __event_base_free(struct event_base_t * eb);
 
 void push_event(struct event_t * event);
+void push_event_key_down(void * device, u32_t key);
+void push_event_key_up(void * device, u32_t key);
 void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn);
 void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t btn);
 void push_event_mouse_move(void * device, s32_t x, s32_t y);

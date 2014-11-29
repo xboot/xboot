@@ -46,23 +46,23 @@ static void input_resume(struct input_t * input)
 {
 }
 
-static void cb_key_down(void * device, unsigned int code)
+static void cb_key_down(void * device, unsigned int key)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_KEY_DOWN;
-	event.e.key.code = code;
+	event.e.key_down.key = key;
 	push_event(&event);
 }
 
-static void cb_key_up(void * device, unsigned int code)
+static void cb_key_up(void * device, unsigned int key)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_KEY_UP;
-	event.e.key.code = code;
+	event.e.key_up.key = key;
 	push_event(&event);
 }
 

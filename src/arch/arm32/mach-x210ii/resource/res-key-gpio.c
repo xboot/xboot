@@ -28,31 +28,31 @@
 
 static struct gpio_button_t buttons[] = {
 	{
-		.code = KEY_UP,
+		.key = KEY_UP,
 		.gpio = S5PV210_GPH2(0),
 		.active_low = 1,
 	}, {
-		.code = KEY_DOWN,
+		.key = KEY_DOWN,
 		.gpio = S5PV210_GPH0(3),
 		.active_low = 1,
 	}, {
-		.code = KEY_LEFT,
+		.key = KEY_LEFT,
 		.gpio = S5PV210_GPH0(2),
 		.active_low = 1,
 	}, {
-		.code = KEY_RIGHT,
+		.key = KEY_RIGHT,
 		.gpio = S5PV210_GPH2(1),
 		.active_low = 1,
 	}, {
-		.code = KEY_MENU,
+		.key = KEY_MENU,
 		.gpio = S5PV210_GPH2(3),
 		.active_low = 1,
 	}, {
-		.code = KEY_ENTER,
+		.key = KEY_ENTER,
 		.gpio = S5PV210_GPH2(2),
 		.active_low = 1,
 	}, {
-		.code = KEY_POWER,
+		.key = KEY_POWER,
 		.gpio = S5PV210_GPH0(1),
 		.active_low = 1,
 	}

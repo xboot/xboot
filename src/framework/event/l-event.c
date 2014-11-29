@@ -55,8 +55,8 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.key.code);
-		lua_setfield(L, -2, "code");
+		lua_pushnumber(L, event.e.key_down.key);
+		lua_setfield(L, -2, "key");
 		return 1;
 
 	case EVENT_TYPE_KEY_UP:
@@ -65,8 +65,8 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.key.code);
-		lua_setfield(L, -2, "code");
+		lua_pushnumber(L, event.e.key_up.key);
+		lua_setfield(L, -2, "key");
 		return 1;
 
 	/* mouse */

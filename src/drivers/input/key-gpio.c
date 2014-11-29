@@ -37,6 +37,7 @@ static void key_gpio_timer_function(u32_t data)
 	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
 	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
 	struct event_t event;
+	enum event_type_t type;
 	int i, val;
 
 	for(i = 0; i < rdat->nbutton; i++)
@@ -44,13 +45,15 @@ static void key_gpio_timer_function(u32_t data)
 		val = gpio_get_value(rdat->buttons[i].gpio);
 		if(val != dat->state[i])
 		{
-			event.device = input;
 			if(rdat->buttons[i].active_low)
-				event.type = val ? EVENT_TYPE_KEY_UP : EVENT_TYPE_KEY_DOWN;
+				type = val ? EVENT_TYPE_KEY_UP : EVENT_TYPE_KEY_DOWN;
 			else
-				event.type = val ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
-			event.e.key.code = rdat->buttons[i].code;
-			push_event(&event);
+				type = val ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
+
+			if(type == EVENT_TYPE_KEY_DOWN)
+				push_event_key_down(input, rdat->buttons[i].key);
+			else if(type == EVENT_TYPE_KEY_UP)
+				push_event_key_up(input, rdat->buttons[i].key);
 		}
 		dat->state[i] = val;
 	}

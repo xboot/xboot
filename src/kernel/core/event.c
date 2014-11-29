@@ -93,6 +93,26 @@ void push_event(struct event_t * event)
 	}
 }
 
+void push_event_key_down(void * device, u32_t key)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_KEY_DOWN;
+	event.e.key_down.key = key;
+	push_event(&event);
+}
+
+void push_event_key_up(void * device, u32_t key)
+{
+	struct event_t event;
+
+	event.device = device;
+	event.type = EVENT_TYPE_KEY_UP;
+	event.e.key_up.key = key;
+	push_event(&event);
+}
+
 void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t btn)
 {
 	struct event_t event;

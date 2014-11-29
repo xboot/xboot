@@ -35,87 +35,87 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 {
 	struct console_input_data_t * dat = (struct console_input_data_t *)console->priv;
 	struct event_t event;
-	u32_t code;
-	u8_t key[16];
+	u32_t key;
+	u8_t sym[16];
 	size_t len;
 
 	if(pump_event(runtime_get()->__event_base, &event) && (event.type == EVENT_TYPE_KEY_DOWN) && (event.device == dat->input))
 	{
-		code = event.e.key.code;
-		switch(code)
+		key = event.e.key_down.key;
+		switch(key)
 		{
 		case KEY_BACKSPACE:
-			key[0] = 0x7f;
+			sym[0] = 0x7f;
 			len = 1;
 			break;
 
 		case KEY_TAB:
-			key[0] = 0x9;
+			sym[0] = 0x9;
 			len = 1;
 			break;
 
 		case KEY_ENTER:
-			key[0] = 0xd;
+			sym[0] = 0xd;
 			len = 1;
 			break;
 
 		case KEY_UP:
-			key[0] = '\e';
-			key[1] = '[';
-			key[2] = 'A';
+			sym[0] = '\e';
+			sym[1] = '[';
+			sym[2] = 'A';
 			len = 3;
 			break;
 
 		case KEY_DOWN:
-			key[0] = '\e';
-			key[1] = '[';
-			key[2] = 'B';
+			sym[0] = '\e';
+			sym[1] = '[';
+			sym[2] = 'B';
 			len = 3;
 			break;
 
 		case KEY_LEFT:
-			key[0] = '\e';
-			key[1] = '[';
-			key[2] = 'D';
+			sym[0] = '\e';
+			sym[1] = '[';
+			sym[2] = 'D';
 			len = 3;
 			break;
 
 		case KEY_RIGHT:
-			key[0] = '\e';
-			key[1] = '[';
-			key[2] = 'C';
+			sym[0] = '\e';
+			sym[1] = '[';
+			sym[2] = 'C';
 			len = 3;
 			break;
 
 		case KEY_PAGE_UP:
-			key[0] = '\e';
-			key[1] = '[';
-			key[2] = '5';
-			key[3] = '~';
+			sym[0] = '\e';
+			sym[1] = '[';
+			sym[2] = '5';
+			sym[3] = '~';
 			len = 4;
 			break;
 
 		case KEY_PAGE_DOWN:
-			key[0] = '\e';
-			key[1] = '[';
-			key[2] = '6';
-			key[3] = '~';
+			sym[0] = '\e';
+			sym[1] = '[';
+			sym[2] = '6';
+			sym[3] = '~';
 			len = 4;
 			break;
 
 		case KEY_HOME:
-			key[0] = '\e';
-			key[1] = '[';
-			key[2] = '1';
-			key[3] = '~';
+			sym[0] = '\e';
+			sym[1] = '[';
+			sym[2] = '1';
+			sym[3] = '~';
 			len = 4;
 			break;
 
 		case KEY_END:
-			key[0] = '\e';
-			key[1] = '[';
-			key[2] = '4';
-			key[3] = '~';
+			sym[0] = '\e';
+			sym[1] = '[';
+			sym[2] = '4';
+			sym[3] = '~';
 			len = 4;
 			break;
 
@@ -128,11 +128,11 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 			break;
 
 		default:
-			ucs4_to_utf8(&code, 1, (char *)key, sizeof(key));
-			len = strlen((const char *)key);
+			ucs4_to_utf8(&key, 1, (char *)sym, sizeof(sym));
+			len = strlen((const char *)sym);
 			break;
 		}
-		fifo_put(dat->fifo, key, len);
+		fifo_put(dat->fifo, sym, len);
 	}
 
 	return fifo_get(dat->fifo, buf, count);

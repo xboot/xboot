@@ -141,10 +141,10 @@ static void keyboard_report_event(void * device, u32_t flag, u8_t data, enum key
 
 			if(key != 0)
 			{
-				event.device = device;
-				event.type = (press == KEY_BUTTON_DOWN) ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
-				event.e.key.code = key;
-				push_event(&event);
+				if(press == KEY_BUTTON_DOWN)
+					push_event_key_down(device, key);
+				else if(press == KEY_BUTTON_UP)
+					push_event_key_up(device, key);
 			}
 		}
 	}

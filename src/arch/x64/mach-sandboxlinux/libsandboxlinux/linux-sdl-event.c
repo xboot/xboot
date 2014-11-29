@@ -7,8 +7,8 @@
 struct event_callback_t {
 	struct {
 		void * device;
-		void (*down)(void * device, unsigned int code);
-		void (*up)(void * device, unsigned int code);
+		void (*down)(void * device, unsigned int key);
+		void (*up)(void * device, unsigned int key);
 	} key;
 
 	struct {
@@ -159,8 +159,8 @@ void sandbox_linux_sdl_event_exit(void)
 }
 
 void sandbox_linux_sdl_event_set_key_callback(void * device,
-		void (*down)(void * device, unsigned int code),
-		void (*up)(void * device, unsigned int code))
+		void (*down)(void * device, unsigned int key),
+		void (*up)(void * device, unsigned int key))
 {
 	__event_callback.key.device = device;
 	__event_callback.key.down = down;

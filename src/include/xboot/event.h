@@ -67,7 +67,17 @@ struct event_t {
 		struct {
 			s32_t x, y;
 			u32_t id;
-		} touch;
+		} touch_begin;
+
+		struct {
+			s32_t x, y;
+			u32_t id;
+		} touch_move;
+
+		struct {
+			s32_t x, y;
+			u32_t id;
+		} touch_end;
 	} e;
 };
 

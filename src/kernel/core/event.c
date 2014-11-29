@@ -165,9 +165,9 @@ void push_event_touch_begin(void * device, s32_t x, s32_t y, u32_t id)
 
 	event.device = device;
 	event.type = EVENT_TYPE_TOUCH_BEGIN;
-	event.e.touch.x = x;
-	event.e.touch.y = y;
-	event.e.touch.id = id;
+	event.e.touch_begin.x = x;
+	event.e.touch_begin.y = y;
+	event.e.touch_begin.id = id;
 	push_event(&event);
 }
 
@@ -177,9 +177,9 @@ void push_event_touch_move(void * device, s32_t x, s32_t y, u32_t id)
 
 	event.device = device;
 	event.type = EVENT_TYPE_TOUCH_MOVE;
-	event.e.touch.x = x;
-	event.e.touch.y = y;
-	event.e.touch.id = id;
+	event.e.touch_move.x = x;
+	event.e.touch_move.y = y;
+	event.e.touch_move.id = id;
 	push_event(&event);
 }
 
@@ -189,9 +189,9 @@ void push_event_touch_end(void * device, s32_t x, s32_t y, u32_t id)
 
 	event.device = device;
 	event.type = EVENT_TYPE_TOUCH_END;
-	event.e.touch.x = x;
-	event.e.touch.y = y;
-	event.e.touch.id = id;
+	event.e.touch_end.x = x;
+	event.e.touch_end.y = y;
+	event.e.touch_end.id = id;
 	push_event(&event);
 }
 

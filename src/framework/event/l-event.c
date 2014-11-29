@@ -143,11 +143,11 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.touch.x);
+		lua_pushnumber(L, event.e.touch_begin.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.touch.y);
+		lua_pushnumber(L, event.e.touch_begin.y);
 		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, event.e.touch.id);
+		lua_pushnumber(L, event.e.touch_begin.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 
@@ -157,11 +157,11 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.touch.x);
+		lua_pushnumber(L, event.e.touch_move.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.touch.y);
+		lua_pushnumber(L, event.e.touch_move.y);
 		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, event.e.touch.id);
+		lua_pushnumber(L, event.e.touch_move.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 
@@ -171,11 +171,11 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.touch.x);
+		lua_pushnumber(L, event.e.touch_end.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.touch.y);
+		lua_pushnumber(L, event.e.touch_end.y);
 		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, event.e.touch.id);
+		lua_pushnumber(L, event.e.touch_end.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 

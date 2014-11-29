@@ -118,9 +118,9 @@ static void cb_touch_begin(void * device, int x, int y, unsigned int id)
 
 	event.device = device;
 	event.type = EVENT_TYPE_TOUCH_BEGIN;
-	event.e.touch.x = x;
-	event.e.touch.y = y;
-	event.e.touch.id = id;
+	event.e.touch_begin.x = x;
+	event.e.touch_begin.y = y;
+	event.e.touch_begin.id = id;
 	push_event(&event);
 }
 
@@ -130,9 +130,9 @@ static void cb_touch_move(void * device, int x, int y, unsigned int id)
 
 	event.device = device;
 	event.type = EVENT_TYPE_TOUCH_MOVE;
-	event.e.touch.x = x;
-	event.e.touch.y = y;
-	event.e.touch.id = id;
+	event.e.touch_move.x = x;
+	event.e.touch_move.y = y;
+	event.e.touch_move.id = id;
 	push_event(&event);
 }
 
@@ -142,9 +142,9 @@ static void cb_touch_end(void * device, int x, int y, unsigned int id)
 
 	event.device = device;
 	event.type = EVENT_TYPE_TOUCH_END;
-	event.e.touch.x = x;
-	event.e.touch.y = y;
-	event.e.touch.id = id;
+	event.e.touch_end.x = x;
+	event.e.touch_end.y = y;
+	event.e.touch_end.id = id;
 	push_event(&event);
 }
 

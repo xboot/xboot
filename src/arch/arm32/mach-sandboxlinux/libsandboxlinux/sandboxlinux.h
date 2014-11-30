@@ -56,17 +56,24 @@ int sandbox_linux_pm_sleep(void);
 void sandbox_linux_sdl_event_init(void);
 void sandbox_linux_sdl_event_exit(void);
 void sandbox_linux_sdl_event_set_key_callback(void * device,
-		void (*down)(void * device, unsigned int code),
-		void (*up)(void * device, unsigned int code));
+		void (*down)(void * device, unsigned int key),
+		void (*up)(void * device, unsigned int key));
 void sandbox_linux_sdl_event_set_mouse_callback(void * device,
-		void (*down)(void * device, int x, int y, unsigned int btn),
+		void (*down)(void * device, int x, int y, unsigned int button),
 		void (*move)(void * device, int x, int y),
-		void (*up)(void * device, int x, int y, unsigned int btn),
+		void (*up)(void * device, int x, int y, unsigned int button),
 		void (*wheel)(void * device, int dx, int dy));
 void sandbox_linux_sdl_event_set_touch_callback(void * device,
 		void (*begin)(void * device, int x, int y, unsigned int id),
 		void (*move)(void * device, int x, int y, unsigned int id),
 		void (*end)(void * device, int x, int y, unsigned int id));
+void sandbox_linux_sdl_event_set_joystick_callback(void * device,
+		void (*left_stick)(void * device, int x, int y),
+		void (*right_stick)(void * device, int x, int y),
+		void (*left_trigger)(void * device, int v),
+		void (*right_trigger)(void * device, int v),
+		void (*button_down)(void * device, unsigned int button),
+		void (*button_up)(void * device, unsigned int button));
 
 /*
  * Framebuffer interface

@@ -19,6 +19,7 @@ void sandbox_linux_sdl_fb_init(int width, int height)
 	if(!__fb.render)
 		return;
 
+    SDL_SetRenderDrawColor(__fb.render, 0xff, 0xff, 0xff, 0xff);
     SDL_RenderClear(__fb.render);
     SDL_RenderPresent(__fb.render);
 }

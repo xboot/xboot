@@ -35,6 +35,9 @@ static struct sandboxlinux_input_data_t input_datas[] = {
 	[2] = {
 		.type	= INPUT_TYPE_TOUCHSCREEN,
 	},
+	[3] = {
+		.type	= INPUT_TYPE_JOYSTICK,
+	},
 };
 
 static struct resource_t res_inputs[] = {
@@ -50,6 +53,10 @@ static struct resource_t res_inputs[] = {
 		.name	= "sandboxlinux-input",
 		.id		= 2,
 		.data	= &input_datas[2],
+	}, {
+		.name	= "sandboxlinux-input",
+		.id		= 3,
+		.data	= &input_datas[3],
 	},
 };
 

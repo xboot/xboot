@@ -35,7 +35,7 @@ static struct sandboxlinux_input_data_t input_datas[] = {
 	[2] = {
 		.type	= INPUT_TYPE_TOUCHSCREEN,
 	},
-	[4] = {
+	[3] = {
 		.type	= INPUT_TYPE_JOYSTICK,
 	},
 };

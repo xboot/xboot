@@ -31,27 +31,29 @@ enum event_type_t {
 };
 
 enum {
-	MOUSE_BUTTON_LEFT					= (0x1 << 0),
-	MOUSE_BUTTON_RIGHT					= (0x1 << 1),
-	MOUSE_BUTTON_MIDDLE					= (0x1 << 2),
+	MOUSE_BUTTON_LEFT					= 0x01,
+	MOUSE_BUTTON_MIDDLE					= 0x02,
+	MOUSE_BUTTON_RIGHT					= 0x03,
+	MOUSE_BUTTON_X1						= 0x04,
+	MOUSE_BUTTON_X2						= 0x05,
 };
 
 enum {
-	JOYSTICK_BUTTON_UP					= (0x1 << 0),
-	JOYSTICK_BUTTON_DOWN				= (0x1 << 1),
-	JOYSTICK_BUTTON_LEFT				= (0x1 << 2),
-	JOYSTICK_BUTTON_RIGHT				= (0x1 << 3),
-	JOYSTICK_BUTTON_A					= (0x1 << 4),
-	JOYSTICK_BUTTON_B					= (0x1 << 5),
-	JOYSTICK_BUTTON_X					= (0x1 << 6),
-	JOYSTICK_BUTTON_Y					= (0x1 << 7),
-	JOYSTICK_BUTTON_BACK				= (0x1 << 8),
-	JOYSTICK_BUTTON_START				= (0x1 << 9),
-	JOYSTICK_BUTTON_GUIDE				= (0x1 << 10),
-	JOYSTICK_BUTTON_LBUMPER				= (0x1 << 11),
-	JOYSTICK_BUTTON_RBUMPER				= (0x1 << 12),
-	JOYSTICK_BUTTON_LSTICK				= (0x1 << 13),
-	JOYSTICK_BUTTON_RSTICK				= (0x1 << 14),
+	JOYSTICK_BUTTON_UP					= 0x01,
+	JOYSTICK_BUTTON_DOWN				= 0x02,
+	JOYSTICK_BUTTON_LEFT				= 0x03,
+	JOYSTICK_BUTTON_RIGHT				= 0x04,
+	JOYSTICK_BUTTON_A					= 0x05,
+	JOYSTICK_BUTTON_B					= 0x06,
+	JOYSTICK_BUTTON_X					= 0x07,
+	JOYSTICK_BUTTON_Y					= 0x08,
+	JOYSTICK_BUTTON_BACK				= 0x09,
+	JOYSTICK_BUTTON_START				= 0x0a,
+	JOYSTICK_BUTTON_GUIDE				= 0x0b,
+	JOYSTICK_BUTTON_LBUMPER				= 0x0c,
+	JOYSTICK_BUTTON_RBUMPER				= 0x0d,
+	JOYSTICK_BUTTON_LSTICK				= 0x0e,
+	JOYSTICK_BUTTON_RSTICK				= 0x0f,
 };
 
 struct event_t {
@@ -114,11 +116,11 @@ struct event_t {
 		} joystick_right_stick;
 
 		struct {
-			s32_t value;
+			s32_t v;
 		} joystick_left_trigger;
 
 		struct {
-			s32_t value;
+			s32_t v;
 		} joystick_right_trigger;
 
 		struct {
@@ -151,8 +153,8 @@ void push_event_touch_move(void * device, s32_t x, s32_t y, u32_t id);
 void push_event_touch_end(void * device, s32_t x, s32_t y, u32_t id);
 void push_event_joystick_left_stick(void * device, s32_t x, s32_t y);
 void push_event_joystick_right_stick(void * device, s32_t x, s32_t y);
-void push_event_joystick_left_trigger(void * device, s32_t value);
-void push_event_joystick_right_trigger(void * device, s32_t value);
+void push_event_joystick_left_trigger(void * device, s32_t v);
+void push_event_joystick_right_trigger(void * device, s32_t v);
 void push_event_joystick_button_down(void * device, u32_t button);
 void push_event_joystick_button_up(void * device, u32_t button);
 bool_t pump_event(struct event_base_t * eb, struct event_t * event);

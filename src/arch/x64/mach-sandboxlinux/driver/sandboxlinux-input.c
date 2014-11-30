@@ -170,23 +170,23 @@ static void cb_joystick_right_stick(void * device, int x, int y)
 	push_event(&event);
 }
 
-static void cb_joystick_left_trigger(void * device, int value)
+static void cb_joystick_left_trigger(void * device, int v)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_JOYSTICK_LEFTTRIGGER;
-	event.e.joystick_left_trigger.value = value;
+	event.e.joystick_left_trigger.v = v;
 	push_event(&event);
 }
 
-static void cb_joystick_right_trigger(void * device, int value)
+static void cb_joystick_right_trigger(void * device, int v)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_JOYSTICK_RIGHTTRIGGER;
-	event.e.joystick_left_trigger.value = value;
+	event.e.joystick_left_trigger.v = v;
 	push_event(&event);
 }
 

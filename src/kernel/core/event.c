@@ -217,23 +217,23 @@ void push_event_joystick_right_stick(void * device, s32_t x, s32_t y)
 	push_event(&event);
 }
 
-void push_event_joystick_left_trigger(void * device, s32_t value)
+void push_event_joystick_left_trigger(void * device, s32_t v)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_JOYSTICK_LEFTTRIGGER;
-	event.e.joystick_left_trigger.value = value;
+	event.e.joystick_left_trigger.v = v;
 	push_event(&event);
 }
 
-void push_event_joystick_right_trigger(void * device, s32_t value)
+void push_event_joystick_right_trigger(void * device, s32_t v)
 {
 	struct event_t event;
 
 	event.device = device;
 	event.type = EVENT_TYPE_JOYSTICK_RIGHTTRIGGER;
-	event.e.joystick_left_trigger.value = value;
+	event.e.joystick_left_trigger.v = v;
 	push_event(&event);
 }
 

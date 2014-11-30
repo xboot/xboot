@@ -70,8 +70,8 @@ void sandbox_linux_sdl_event_set_touch_callback(void * device,
 void sandbox_linux_sdl_event_set_joystick_callback(void * device,
 		void (*left_stick)(void * device, int x, int y),
 		void (*right_stick)(void * device, int x, int y),
-		void (*left_trigger)(void * device, int value),
-		void (*right_trigger)(void * device, int value),
+		void (*left_trigger)(void * device, int v),
+		void (*right_trigger)(void * device, int v),
 		void (*button_down)(void * device, unsigned int button),
 		void (*button_up)(void * device, unsigned int button));
 

@@ -61,7 +61,7 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.key_down.key);
+		lua_pushinteger(L, event.e.key_down.key);
 		lua_setfield(L, -2, "key");
 		return 1;
 
@@ -71,7 +71,7 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.key_up.key);
+		lua_pushinteger(L, event.e.key_up.key);
 		lua_setfield(L, -2, "key");
 		return 1;
 
@@ -83,17 +83,11 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.mouse_down.x);
+		lua_pushinteger(L, event.e.mouse_down.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.mouse_down.y);
+		lua_pushinteger(L, event.e.mouse_down.y);
 		lua_setfield(L, -2, "y");
-		lua_newtable(L);
-		lua_pushboolean(L, (button & MOUSE_BUTTON_LEFT) != 0);
-		lua_setfield(L, -2, "left");
-		lua_pushboolean(L, (button & MOUSE_BUTTON_RIGHT) != 0);
-		lua_setfield(L, -2, "right");
-		lua_pushboolean(L, (button & MOUSE_BUTTON_MIDDLE) != 0);
-		lua_setfield(L, -2, "middle");
+		lua_pushinteger(L, event.e.mouse_down.button);
 		lua_setfield(L, -2, "button");
 		return 1;
 
@@ -103,9 +97,9 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.mouse_move.x);
+		lua_pushinteger(L, event.e.mouse_move.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.mouse_move.y);
+		lua_pushinteger(L, event.e.mouse_move.y);
 		lua_setfield(L, -2, "y");
 		return 1;
 
@@ -116,17 +110,11 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.mouse_up.x);
+		lua_pushinteger(L, event.e.mouse_up.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.mouse_up.y);
+		lua_pushinteger(L, event.e.mouse_up.y);
 		lua_setfield(L, -2, "y");
-		lua_newtable(L);
-		lua_pushboolean(L, (button & MOUSE_BUTTON_LEFT) != 0);
-		lua_setfield(L, -2, "left");
-		lua_pushboolean(L, (button & MOUSE_BUTTON_RIGHT) != 0);
-		lua_setfield(L, -2, "right");
-		lua_pushboolean(L, (button & MOUSE_BUTTON_MIDDLE) != 0);
-		lua_setfield(L, -2, "middle");
+		lua_pushinteger(L, event.e.mouse_up.button);
 		lua_setfield(L, -2, "button");
 		return 1;
 
@@ -136,9 +124,9 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.mouse_wheel.dx);
+		lua_pushinteger(L, event.e.mouse_wheel.dx);
 		lua_setfield(L, -2, "dx");
-		lua_pushnumber(L, event.e.mouse_wheel.dy);
+		lua_pushinteger(L, event.e.mouse_wheel.dy);
 		lua_setfield(L, -2, "dy");
 		return 1;
 
@@ -149,11 +137,11 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.touch_begin.x);
+		lua_pushinteger(L, event.e.touch_begin.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.touch_begin.y);
+		lua_pushinteger(L, event.e.touch_begin.y);
 		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, event.e.touch_begin.id);
+		lua_pushinteger(L, event.e.touch_begin.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 
@@ -163,11 +151,11 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.touch_move.x);
+		lua_pushinteger(L, event.e.touch_move.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.touch_move.y);
+		lua_pushinteger(L, event.e.touch_move.y);
 		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, event.e.touch_move.id);
+		lua_pushinteger(L, event.e.touch_move.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 
@@ -177,11 +165,11 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.touch_end.x);
+		lua_pushinteger(L, event.e.touch_end.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.touch_end.y);
+		lua_pushinteger(L, event.e.touch_end.y);
 		lua_setfield(L, -2, "y");
-		lua_pushnumber(L, event.e.touch_end.id);
+		lua_pushinteger(L, event.e.touch_end.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 
@@ -191,9 +179,9 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.joystick_left_stick.x);
+		lua_pushinteger(L, event.e.joystick_left_stick.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.joystick_left_stick.y);
+		lua_pushinteger(L, event.e.joystick_left_stick.y);
 		lua_setfield(L, -2, "y");
 		return 1;
 
@@ -203,9 +191,9 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.joystick_right_stick.x);
+		lua_pushinteger(L, event.e.joystick_right_stick.x);
 		lua_setfield(L, -2, "x");
-		lua_pushnumber(L, event.e.joystick_right_stick.y);
+		lua_pushinteger(L, event.e.joystick_right_stick.y);
 		lua_setfield(L, -2, "y");
 		return 1;
 
@@ -215,8 +203,8 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.joystick_left_trigger.value);
-		lua_setfield(L, -2, "value");
+		lua_pushinteger(L, event.e.joystick_left_trigger.v);
+		lua_setfield(L, -2, "v");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_RIGHTTRIGGER:
@@ -225,8 +213,8 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.joystick_right_trigger.value);
-		lua_setfield(L, -2, "value");
+		lua_pushinteger(L, event.e.joystick_right_trigger.v);
+		lua_setfield(L, -2, "v");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_BUTTONDOWN:
@@ -236,7 +224,7 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.joystick_button_down.button);
+		lua_pushinteger(L, event.e.joystick_button_down.button);
 		lua_setfield(L, -2, "button");
 		return 1;
 
@@ -247,7 +235,7 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, event.timestamp);
 		lua_setfield(L, -2, "time");
-		lua_pushnumber(L, event.e.joystick_button_up.button);
+		lua_pushinteger(L, event.e.joystick_button_up.button);
 		lua_setfield(L, -2, "button");
 		return 1;
 

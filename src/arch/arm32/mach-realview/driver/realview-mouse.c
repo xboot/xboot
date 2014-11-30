@@ -129,13 +129,13 @@ static void mouse_interrupt(void * data)
 			y = dat->ypos;
 
 #ifdef MOUSE_TO_TOUCH_EVENT
-			if((btn & MOUSE_BUTTON_LEFT) && ((relx != 0) || (rely != 0)))
+			if((btn & (0x01 << 0)) && ((relx != 0) || (rely != 0)))
 				push_event_touch_move(input, x, y, 0);
 
-			if(btndown & MOUSE_BUTTON_LEFT)
+			if(btndown & (0x01 << 0))
 				push_event_touch_begin(input, x, y, 0);
 
-			if(btnup & MOUSE_BUTTON_LEFT)
+			if(btnup & (0x01 << 0))
 				push_event_touch_end(input, x, y, 0);
 #else
 			if((relx != 0) || (rely != 0))
@@ -145,10 +145,24 @@ static void mouse_interrupt(void * data)
 				push_event_mouse_wheel(input, 0, delta);
 
 			if(btndown)
-				push_event_mouse_button_down(input, x, y, btndown);
+			{
+				if(btndown & (0x01 << 0))
+					push_event_mouse_button_down(input, x, y, MOUSE_BUTTON_LEFT);
+				else if(btndown & (0x01 << 1))
+					push_event_mouse_button_down(input, x, y, MOUSE_BUTTON_RIGHT);
+				else if(btndown & (0x01 << 2))
+					push_event_mouse_button_down(input, x, y, MOUSE_BUTTON_MIDDLE);
+			}
 
 			if(btnup)
-				push_event_mouse_button_up(input, x, y, btnup);
+			{
+				if(btnup & (0x01 << 0))
+					push_event_mouse_button_up(input, x, y, MOUSE_BUTTON_LEFT);
+				else if(btnup & (0x01 << 1))
+					push_event_mouse_button_up(input, x, y, MOUSE_BUTTON_RIGHT);
+				else if(btnup & (0x01 << 2))
+					push_event_mouse_button_up(input, x, y, MOUSE_BUTTON_MIDDLE);
+			}
 #endif
 		}
 

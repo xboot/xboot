@@ -30,8 +30,8 @@ struct event_callback_t {
 		void * device;
 		void (*left_stick)(void * device, int x, int y);
 		void (*right_stick)(void * device, int x, int y);
-		void (*left_trigger)(void * device, int value);
-		void (*right_trigger)(void * device, int value);
+		void (*left_trigger)(void * device, int v);
+		void (*right_trigger)(void * device, int v);
 		void (*button_down)(void * device, unsigned int button);
 		void (*button_up)(void * device, unsigned int button);
 	} joystick;
@@ -76,7 +76,10 @@ static int handle_event(void * data)
 {
 	struct sandbox_config_t * cfg = sandbox_linux_get_config();
 	struct event_callback_t * cb = (struct event_callback_t *)(data);
+	SDL_GameController * gc = NULL;
 	SDL_Event e;
+	int x, y, v;
+	unsigned int button;
 
 	while(1)
 	{
@@ -95,21 +98,29 @@ static int handle_event(void * data)
 	        	break;
 
 	        case SDL_MOUSEBUTTONDOWN:
-				if(e.button.button == SDL_BUTTON_LEFT)
-				{
-					if(cb->mouse.down)
-						cb->mouse.down(cb->mouse.device, e.button.x, e.button.y, (0x1 << 0));
-				}
-				else if(e.button.button == SDL_BUTTON_RIGHT)
-				{
-					if(cb->mouse.down)
-						cb->mouse.down(cb->mouse.device, e.button.x, e.button.y, (0x1 << 1));
-				}
-				else if(e.button.button == SDL_BUTTON_MIDDLE)
-				{
-					if(cb->mouse.down)
-						cb->mouse.down(cb->mouse.device, e.button.x, e.button.y, (0x1 << 2));
-				}
+	        	switch(e.button.button)
+	        	{
+				case SDL_BUTTON_LEFT:
+					button = 0x01;
+					break;
+				case SDL_BUTTON_MIDDLE:
+					button = 0x02;
+					break;
+				case SDL_BUTTON_RIGHT:
+					button = 0x03;
+					break;
+				case SDL_BUTTON_X1:
+					button = 0x04;
+					break;
+				case SDL_BUTTON_X2:
+					button = 0x05;
+					break;
+				default:
+					button = 0x00;
+					break;
+	        	}
+				if(cb->mouse.down && (button != 0x00))
+					cb->mouse.down(cb->mouse.device, e.button.x, e.button.y, button);
 				break;
 
 	        case SDL_MOUSEMOTION:
@@ -118,21 +129,29 @@ static int handle_event(void * data)
 	        	break;
 
 	        case SDL_MOUSEBUTTONUP:
-				if(e.button.button == SDL_BUTTON_LEFT)
-				{
-					if(cb->mouse.up)
-						cb->mouse.up(cb->mouse.device, e.button.x, e.button.y, (0x1 << 0));
-				}
-				else if(e.button.button == SDL_BUTTON_RIGHT)
-				{
-					if(cb->mouse.up)
-						cb->mouse.up(cb->mouse.device, e.button.x, e.button.y, (0x1 << 1));
-				}
-				else if(e.button.button == SDL_BUTTON_MIDDLE)
-				{
-					if(cb->mouse.up)
-						cb->mouse.up(cb->mouse.device, e.button.x, e.button.y, (0x1 << 2));
-				}
+	        	switch(e.button.button)
+	        	{
+				case SDL_BUTTON_LEFT:
+					button = 0x01;
+					break;
+				case SDL_BUTTON_MIDDLE:
+					button = 0x02;
+					break;
+				case SDL_BUTTON_RIGHT:
+					button = 0x03;
+					break;
+				case SDL_BUTTON_X1:
+					button = 0x04;
+					break;
+				case SDL_BUTTON_X2:
+					button = 0x05;
+					break;
+				default:
+					button = 0x00;
+					break;
+	        	}
+				if(cb->mouse.up && (button != 0x00))
+					cb->mouse.up(cb->mouse.device, e.button.x, e.button.y, button);
 				break;
 
 	        case SDL_MOUSEWHEEL:
@@ -153,6 +172,167 @@ static int handle_event(void * data)
 	        case SDL_FINGERUP:
 				if(cb->touch.end)
 					cb->touch.end(cb->touch.device, (int)(e.tfinger.x * cfg->framebuffer.width), (int)(e.tfinger.y * cfg->framebuffer.height), (unsigned int)e.tfinger.fingerId);
+	        	break;
+
+	        case SDL_CONTROLLERDEVICEADDED:
+	        	if(!gc)
+	        		gc = SDL_GameControllerOpen(e.cdevice.which);
+	            break;
+
+	        case SDL_CONTROLLERDEVICEREMOVED:
+	        	if(gc)
+	        	{
+	        		SDL_GameControllerClose(gc);
+	        		gc = NULL;
+	        	}
+	            break;
+
+	        case SDL_CONTROLLERAXISMOTION:
+	        	switch(e.caxis.axis)
+	        	{
+				case SDL_CONTROLLER_AXIS_LEFTX:
+				case SDL_CONTROLLER_AXIS_LEFTY:
+					x = SDL_GameControllerGetAxis(gc, SDL_CONTROLLER_AXIS_LEFTX);
+					y = SDL_GameControllerGetAxis(gc, SDL_CONTROLLER_AXIS_LEFTY);
+					if(cb->joystick.left_stick)
+						cb->joystick.left_stick(cb->joystick.device, x, y);
+					break;
+
+				case SDL_CONTROLLER_AXIS_RIGHTX:
+				case SDL_CONTROLLER_AXIS_RIGHTY:
+					x = SDL_GameControllerGetAxis(gc, SDL_CONTROLLER_AXIS_RIGHTX);
+					y = SDL_GameControllerGetAxis(gc, SDL_CONTROLLER_AXIS_RIGHTY);
+					if(cb->joystick.right_stick)
+						cb->joystick.right_stick(cb->joystick.device, x, y);
+					break;
+
+				case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+					v = SDL_GameControllerGetAxis(gc, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+					if(cb->joystick.left_trigger)
+						cb->joystick.left_trigger(cb->joystick.device, v);
+					break;
+
+				case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+					v = SDL_GameControllerGetAxis(gc, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+					if(cb->joystick.right_trigger)
+						cb->joystick.right_trigger(cb->joystick.device, v);
+					break;
+
+				default:
+					break;
+	        	}
+	        	break;
+
+	        case SDL_CONTROLLERBUTTONDOWN:
+				switch(e.cbutton.button)
+				{
+				case SDL_CONTROLLER_BUTTON_A:
+					button = 0x05;
+					break;
+				case SDL_CONTROLLER_BUTTON_B:
+					button = 0x06;
+					break;
+				case SDL_CONTROLLER_BUTTON_X:
+					button = 0x07;
+					break;
+				case SDL_CONTROLLER_BUTTON_Y:
+					button = 0x08;
+					break;
+				case SDL_CONTROLLER_BUTTON_BACK:
+					button = 0x09;
+					break;
+				case SDL_CONTROLLER_BUTTON_GUIDE:
+					button = 0x0b;
+					break;
+				case SDL_CONTROLLER_BUTTON_START:
+					button = 0x0a;
+					break;
+				case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+					button = 0x0e;
+					break;
+				case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+					button = 0x0f;
+					break;
+				case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+					button = 0x0c;
+					break;
+				case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+					button = 0x0d;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_UP:
+					button = 0x01;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+					button = 0x02;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+					button = 0x03;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+					button = 0x04;
+					break;
+				default:
+					button = 0x00;
+					break;
+				}
+				if(cb->joystick.button_down && (button != 0x00))
+					cb->joystick.button_down(cb->joystick.device, button);
+				break;
+
+	        case SDL_CONTROLLERBUTTONUP:
+				switch(e.cbutton.button)
+				{
+				case SDL_CONTROLLER_BUTTON_A:
+					button = 0x05;
+					break;
+				case SDL_CONTROLLER_BUTTON_B:
+					button = 0x06;
+					break;
+				case SDL_CONTROLLER_BUTTON_X:
+					button = 0x07;
+					break;
+				case SDL_CONTROLLER_BUTTON_Y:
+					button = 0x08;
+					break;
+				case SDL_CONTROLLER_BUTTON_BACK:
+					button = 0x09;
+					break;
+				case SDL_CONTROLLER_BUTTON_GUIDE:
+					button = 0x0b;
+					break;
+				case SDL_CONTROLLER_BUTTON_START:
+					button = 0x0a;
+					break;
+				case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+					button = 0x0e;
+					break;
+				case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+					button = 0x0f;
+					break;
+				case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+					button = 0x0c;
+					break;
+				case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+					button = 0x0d;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_UP:
+					button = 0x01;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+					button = 0x02;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+					button = 0x03;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+					button = 0x04;
+					break;
+				default:
+					button = 0x00;
+					break;
+				}
+				if(cb->joystick.button_up && (button != 0x00))
+					cb->joystick.button_up(cb->joystick.device, button);
 	        	break;
 
 	        case SDL_QUIT:
@@ -215,8 +395,8 @@ void sandbox_linux_sdl_event_set_touch_callback(void * device,
 void sandbox_linux_sdl_event_set_joystick_callback(void * device,
 		void (*left_stick)(void * device, int x, int y),
 		void (*right_stick)(void * device, int x, int y),
-		void (*left_trigger)(void * device, int value),
-		void (*right_trigger)(void * device, int value),
+		void (*left_trigger)(void * device, int v),
+		void (*right_trigger)(void * device, int v),
 		void (*button_down)(void * device, unsigned int button),
 		void (*button_up)(void * device, unsigned int button))
 {

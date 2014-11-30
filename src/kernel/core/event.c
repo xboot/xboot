@@ -85,7 +85,7 @@ void push_event(struct event_t * event)
 	if(!event)
 		return;
 
-	event->timestamp = jiffies;
+	event->timestamp = clocksource_gettime();
 
 	list_for_each_entry_safe(pos, n, &(__event_base.entry), entry)
 	{

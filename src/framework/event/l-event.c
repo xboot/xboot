@@ -43,17 +43,12 @@
 static int l_event_pump(lua_State * L)
 {
 	struct event_t event;
-	u32_t button;
 
 	if(!pump_event(runtime_get()->__event_base, &event))
 		return 0;
 
 	switch(event.type)
 	{
-	/* unknown */
-	case EVENT_TYPE_UNKNOWN:
-		return 0;
-
 	/* key */
 	case EVENT_TYPE_KEY_DOWN:
 		lua_newtable(L);
@@ -77,7 +72,6 @@ static int l_event_pump(lua_State * L)
 
 	/* mouse */
 	case EVENT_TYPE_MOUSE_DOWN:
-		button = event.e.mouse_down.button;
 		lua_newtable(L);
 		lua_pushstring(L, __TYPE_MOUSE_DOWN);
 		lua_setfield(L, -2, "type");
@@ -104,7 +98,6 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_MOUSE_UP:
-		button = event.e.mouse_up.button;
 		lua_newtable(L);
 		lua_pushstring(L, __TYPE_MOUSE_UP);
 		lua_setfield(L, -2, "type");
@@ -218,7 +211,6 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_BUTTONDOWN:
-		button = event.e.joystick_button_down.button;
 		lua_newtable(L);
 		lua_pushstring(L, __TYPE_JOYSTICK_BUTTONDOWN);
 		lua_setfield(L, -2, "type");
@@ -229,7 +221,6 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_BUTTONUP:
-		button = event.e.joystick_button_up.button;
 		lua_newtable(L);
 		lua_pushstring(L, __TYPE_JOYSTICK_BUTTONUP);
 		lua_setfield(L, -2, "type");

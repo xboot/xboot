@@ -8,8 +8,6 @@ extern "C" {
 #include <xboot.h>
 
 enum event_type_t {
-	EVENT_TYPE_UNKNOWN					= 0x0000,
-
 	EVENT_TYPE_KEY_DOWN					= 0x0100,
 	EVENT_TYPE_KEY_UP					= 0x0101,
 
@@ -59,7 +57,7 @@ enum {
 struct event_t {
 	void * device;
 	enum event_type_t type;
-	u32_t timestamp;
+	u64_t timestamp;
 
 	union {
 		/* key */

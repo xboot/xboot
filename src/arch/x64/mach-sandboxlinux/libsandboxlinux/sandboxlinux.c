@@ -49,10 +49,10 @@ struct sandbox_config_t * sandbox_linux_get_config(void)
 	return &__sandbox_linux_config;
 }
 
-static void usage(const char * name)
+static void usage(void)
 {
 	printf(
-		"Usage: %s [OPTIONS] <filename>\n"
+		"Usage: xboot [OPTIONS] <filename>\n"
 		"Options:\n"
 		"  --help           Print help information\n"
 		"  --malloc <size>  Start xboot with a specified memory malloc space size in MB\n"
@@ -60,7 +60,7 @@ static void usage(const char * name)
 		"  --height <size>  SDL framebuffer height\n"
 		"  --xdpi <value>   SDL xdpi\n"
 		"  --ydpi <value>   SDL ydpi\n"
-		,name);
+	);
 }
 
 void sandbox_linux_init(int argc, char * argv[])
@@ -71,7 +71,7 @@ void sandbox_linux_init(int argc, char * argv[])
 	{
 		if(!strcmp(argv[i], "--help"))
 		{
-			usage(basename(argv[0]));
+			usage();
 			exit(0);
 			return;
 		}
@@ -108,7 +108,7 @@ void sandbox_linux_init(int argc, char * argv[])
 			}
 			else if(idx >= 1)
 			{
-				usage(basename(argv[0]));
+				usage();
 				exit(-1);
 				return;
 			}

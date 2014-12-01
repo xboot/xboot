@@ -2,27 +2,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
-#include <signal.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <sys/select.h>
-#include <sys/wait.h>
-#include <sys/time.h>
 #include <sandboxlinux.h>
-
-uint64_t sandbox_linux_get_time(void)
-{
-	struct timeval time;
-
-	gettimeofday(&time, 0);
-	return ((uint64_t)time.tv_sec * 1000000 + time.tv_usec);
-}
 
 ssize_t sandbox_linux_read(int fd, void * buf, size_t count)
 {
@@ -86,4 +69,3 @@ int sandbox_linux_execve(const char * filename, char * const argv[], char * cons
 		return execve_status;
 	}
 }
-

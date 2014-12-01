@@ -31,7 +31,12 @@ void sandbox_linux_sdl_fb_exit(void)
 
 int sandbox_linux_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height)
 {
-	SDL_Surface * face = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
+	SDL_Surface * face;
+	Uint32 r, g, b, a;
+	int bpp;
+
+	SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_ARGB8888, &bpp, &r, &g, &b, &a);
+	face = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, bpp, r, g, b, a);
 	if(!face)
 		return -1;
 

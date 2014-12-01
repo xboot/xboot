@@ -82,7 +82,7 @@ struct sandbox_fb_surface_t {
 	int height;
 	int pitch;
 	void * pixels;
-	void * texture;
+	void * surface;
 };
 
 void sandbox_linux_sdl_fb_init(int width, int height);

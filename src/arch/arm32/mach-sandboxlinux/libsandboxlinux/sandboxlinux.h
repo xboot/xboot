@@ -6,7 +6,6 @@
 /*
  * Common interface
  */
-uint64_t sandbox_linux_get_time(void);
 ssize_t sandbox_linux_read(int fd, void * buf, size_t count);
 ssize_t sandbox_linux_read_nonblock(int fd, void * buf, size_t count);
 ssize_t sandbox_linux_write(int fd, const void * buf, size_t count);
@@ -97,6 +96,8 @@ int sandbox_linux_sdl_fb_get_backlight(void);
 /*
  * Timer interface
  */
+uint64_t sandbox_linux_get_time_counter(void);
+uint64_t sandbox_linux_get_time_frequency(void);
 void sandbox_linux_sdl_timer_init(int delay, void (*cb)(void));
 void sandbox_linux_sdl_timer_exit(void);
 

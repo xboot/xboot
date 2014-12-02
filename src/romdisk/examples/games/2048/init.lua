@@ -5,6 +5,13 @@ local M = Class(DisplayObject)
 function M:init()
 	self.super:init()
 	
+	local w, h = application:getScreenSize()
+	local assets = application:getAssets()
+	
+	self:addChild(DisplayShape.new(w, h)
+		:setSource(Pattern.texture(assets:loadTexture("games/2048/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:paint())
+		
 	local game = Game.new()
 	game:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
 	game:addEventListener(Event.MOUSE_MOVE, self.onMouseMove)

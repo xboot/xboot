@@ -7,7 +7,11 @@ function M:init()
 	local assets = application:getAssets()
 
 	local w, h = application:getScreenSize()
-	self:addChild(DisplayShape.new(w, h):setSourceColor(1, 1, 1):paint())
+	local assets = application:getAssets()
+
+	self:addChild(DisplayShape.new(w, h)
+		:setSource(Pattern.texture(assets:loadTexture("graphics/cursor/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:paint())
 
 	local cursor = assets:loadDisplay("graphics/cursor/cursor.png")
 		:addEventListener(Event.MOUSE_DOWN, function(d, e) d:setPosition(e.info.x, e.info.y) end)

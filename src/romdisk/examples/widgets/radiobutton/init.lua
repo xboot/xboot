@@ -4,7 +4,11 @@ function M:init()
 	self.super:init()
 
 	local w, h = application:getScreenSize()
-	self:addChild(DisplayShape.new(w, h):setSourceColor(0.4, 0.647, 0.5):paint())
+	local assets = application:getAssets()
+
+	self:addChild(DisplayShape.new(w, h)
+		:setSource(Pattern.texture(assets:loadTexture("widgets/radiobutton/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:paint())
 
 	local radiobutton = Widget.RadioButton.new({x = 100, y = 100})
 		:addEventListener("Change", function(d, e) print("RadioButton changed:", e.info.checked) end)

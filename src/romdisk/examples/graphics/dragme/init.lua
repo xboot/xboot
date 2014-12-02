@@ -4,7 +4,11 @@ function M:init()
 	self.super:init()
 
 	local w, h = application:getScreenSize()
-	self:addChild(DisplayShape.new(w, h):setSourceColor(0.8, 0.7, 0.5):paint())
+	local assets = application:getAssets()
+
+	self:addChild(DisplayShape.new(w, h)
+		:setSource(Pattern.texture(assets:loadTexture("graphics/dragme/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:paint())
 
 	for i = 1, 5 do
 		local shape = DisplayShape.new(100, 50)

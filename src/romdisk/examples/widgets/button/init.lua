@@ -4,7 +4,11 @@ function M:init()
 	self.super:init()
 
 	local w, h = application:getScreenSize()
-	self:addChild(DisplayShape.new(w, h):setSourceColor(1, 0.647, 0):paint())
+	local assets = application:getAssets()
+
+	self:addChild(DisplayShape.new(w, h)
+		:setSource(Pattern.texture(assets:loadTexture("widgets/button/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:paint())
 
 	local button = Widget.Button.new({x = 100, y = 100, width = 100, height = 50})
 		:addEventListener("Press", function(d, e) print("Button [Press]") end)

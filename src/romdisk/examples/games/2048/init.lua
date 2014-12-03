@@ -48,6 +48,8 @@ function M:onMouseUp(e)
 	if self.touchid == -1 then
 		self.touchid = nil
 		e:stopPropagation()
+		
+		self:randomTile()
 	end
 end
 

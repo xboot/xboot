@@ -49,7 +49,7 @@ function M:onMouseUp(e)
 		self.touchid = nil
 		e:stopPropagation()
 		
-		self:randomTile()
+		self:moveLeft()
 	end
 end
 

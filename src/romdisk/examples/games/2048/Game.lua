@@ -65,7 +65,9 @@ function M:moveTile(fx, fy, tx, ty)
 			v:move(tx, ty)
 		end
 		self.cells[fy][fx] = {}
+		return true
 	end
+	return false
 end
 
 function M:randomTile()
@@ -122,6 +124,8 @@ function M:isGameOver()
 end
 
 function M:moveLeft()
+	local changed = false
+
 	for y = 1, 4 do
 		local line = {}
 		for x = 1, 4 do
@@ -148,13 +152,19 @@ function M:moveLeft()
 		end
 		
 		for x = 1, 4 do
-			self:moveTile(line[x].fx, line[x].fy, line[x].tx, line[x].ty)
+			if self:moveTile(line[x].fx, line[x].fy, line[x].tx, line[x].ty) then
+				changed = true
+			end
 		end
 	end
+
 	self:mergeTile()
+	return changed
 end
 
 function M:moveRight()
+	local changed = false
+
 	for y = 1, 4 do
 		local line = {}
 		for x = 1, 4 do
@@ -181,13 +191,19 @@ function M:moveRight()
 		end
 		
 		for x = 4, 1, -1 do
-			self:moveTile(line[x].fx, line[x].fy, line[x].tx, line[x].ty)
+			if self:moveTile(line[x].fx, line[x].fy, line[x].tx, line[x].ty) then
+				changed = true
+			end
 		end
 	end
+	
 	self:mergeTile()
+	return changed
 end
 
 function M:moveTop()
+	local changed = false
+	
 	for x = 1, 4 do
 		local line = {}
 		for y = 1, 4 do
@@ -214,13 +230,19 @@ function M:moveTop()
 		end
 		
 		for y = 1, 4 do
-			self:moveTile(line[y].fx, line[y].fy, line[y].tx, line[y].ty)
+			if self:moveTile(line[y].fx, line[y].fy, line[y].tx, line[y].ty) then
+				changed = true
+			end
 		end
 	end
+	
 	self:mergeTile()
+	return changed
 end
 
 function M:moveDown()
+	local changed = false
+	
 	for x = 1, 4 do
 		local line = {}
 		for y = 1, 4 do
@@ -247,28 +269,37 @@ function M:moveDown()
 		end
 		
 		for y = 4, 1, -1 do
-			self:moveTile(line[y].fx, line[y].fy, line[y].tx, line[y].ty)
+			if self:moveTile(line[y].fx, line[y].fy, line[y].tx, line[y].ty) then
+				changed = true
+			end
 		end
 	end
+	
 	self:mergeTile()
+	return changed
 end
 
 function M:onKeyDown(e)
+	local changed = false
 	local key = e.info.key
+	e:stopPropagation()
 
 	if key == 97 then
-		self:moveLeft()
+		changed = self:moveLeft()
 	elseif key == 100 then
-		self:moveRight()
+		changed = self:moveRight()
 	elseif key == 119 then
-		self:moveTop()
+		changed = self:moveTop()
 	elseif key == 115 then
-		self:moveDown()
+		changed = self:moveDown()
 	end
 
-	self:randomTile()
-	
-	e:stopPropagation()
+	if changed then
+		self:randomTile()
+		if self:isGameOver() then
+			print("game over")
+		end
+	end
 end
 
 return M

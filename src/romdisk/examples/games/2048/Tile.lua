@@ -7,7 +7,7 @@ function M:init(x, y, n)
 	self.gx = x
 	self.gy = y
 	self.n = n
-	self.o = assets:loadDisplay("games/2048/tile" .. self.n .. ".png")
+	self.o = assets:loadDisplay("games/2048/images/tile" .. self.n .. ".png")
 		:setPosition((self.gx - 1) * 70 + 55, (self.gy - 1) * 70 + 171)
 		:setAnchor(0.5, 0.5)
 		:setScale(0.1, 0.1)

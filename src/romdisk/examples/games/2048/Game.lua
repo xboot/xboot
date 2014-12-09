@@ -1,4 +1,5 @@
 local Tile = require("games.2048.Tile")
+local Score = require("games.2048.Score")
 local M = Class(DisplayObject)
 
 function M:init()
@@ -6,17 +7,22 @@ function M:init()
 	
 	local w, h = application:getScreenSize()
 	local assets = application:getAssets()
-	local bg = assets:loadDisplay("games/2048/gamebg.png")
+	local bg = assets:loadDisplay("games/2048/images/gamebg.png")
 	local width, height = bg:getSize()
 	self:setSize(width, height)
 	self:addChild(bg)
 
 	local button = Widget.Button.new({x = 130, y = 90,
-		imageNormal = "games/2048/restartNormal.png",
-		imagePressed = "games/2048/restartPressed.png",
-		imageDisabled = "games/2048/restartDisabled.png"})
+		imageNormal = "games/2048/images/restartNormal.png",
+		imagePressed = "games/2048/images/restartPressed.png",
+		imageDisabled = "games/2048/images/restartDisabled.png"})
 		:addEventListener("Release", function(d, e) self:restart() end, self)
 	self:addChild(button)
+
+	self.score = Score.new(0):setPosition(140, 50)
+	self.bestscore = Score.new(0):setPosition(235, 50)
+	self:addChild(self.score)
+	self:addChild(self.bestscore)
 
 	self.cells = {}
 	for y = 1, 4 do
@@ -95,6 +101,11 @@ function M:mergeTile()
 				end
 				self:removeTile(x, y)
 				self:addTile(x, y, n)
+
+				self.score:set(self.score:get() + n)
+				if self.bestscore:get() < self.score:get() then
+					self.bestscore:set(self.score:get())
+				end
 			end
 		end
 	end
@@ -106,6 +117,7 @@ function M:restart()
 			self:removeTile(x, y)
 		end
 	end
+	self.score:set(0)
 	self:randomTile()
 	self:randomTile()
 end

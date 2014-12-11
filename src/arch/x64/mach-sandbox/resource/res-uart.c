@@ -25,7 +25,7 @@
 #include <xboot.h>
 
 static struct resource_t res_uart = {
-	.name		= "sandboxlinux-uart",
+	.name		= "sandbox-uart",
 	.id			= 0,
 };
 

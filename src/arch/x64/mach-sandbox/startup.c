@@ -1,12 +1,12 @@
-#include <sandboxlinux.h>
+#include <sandbox.h>
 
 extern int xboot_main(int argc, char * argv[]);
 
 int main(int argc, char * argv[])
 {
-	sandbox_linux_init(argc, argv);
+	sandbox_init(argc, argv);
 	xboot_main(argc, argv);
-	sandbox_linux_exit();
+	sandbox_exit();
 
 	return 0;
 }

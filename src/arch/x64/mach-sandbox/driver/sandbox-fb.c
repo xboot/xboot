@@ -1,5 +1,5 @@
 /*
- * driver/sandboxlinux-fb.c
+ * driver/sandbox-fb.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,22 +24,22 @@
 
 #include <xboot.h>
 #include <fb/fb.h>
-#include <sandboxlinux.h>
+#include <sandbox.h>
 
 static void fb_init(struct fb_t * fb)
 {
-	struct sandbox_config_t * cfg = sandbox_linux_get_config();
-	sandbox_linux_sdl_fb_init(cfg->framebuffer.width, cfg->framebuffer.height);
+	struct sandbox_config_t * cfg = sandbox_get_config();
+	sandbox_sdl_fb_init(cfg->framebuffer.width, cfg->framebuffer.height);
 }
 
 static void fb_exit(struct fb_t * fb)
 {
-	sandbox_linux_sdl_fb_exit();
+	sandbox_sdl_fb_exit();
 }
 
 static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 {
-	struct sandbox_config_t * cfg = sandbox_linux_get_config();
+	struct sandbox_config_t * cfg = sandbox_get_config();
 	struct screen_info_t * info;
 	int * brightness;
 
@@ -56,12 +56,12 @@ static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 
 	case IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS:
 		brightness = (int *)arg;
-		sandbox_linux_sdl_fb_set_backlight(*brightness);
+		sandbox_sdl_fb_set_backlight(*brightness);
 		return 0;
 
 	case IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS:
 		brightness = (int *)arg;
-		*brightness = sandbox_linux_sdl_fb_get_backlight();
+		*brightness = sandbox_sdl_fb_get_backlight();
 		return 0;
 
 	default:
@@ -73,7 +73,7 @@ static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 
 struct render_t * fb_create(struct fb_t * fb)
 {
-	struct sandbox_config_t * cfg = sandbox_linux_get_config();
+	struct sandbox_config_t * cfg = sandbox_get_config();
 	struct sandbox_fb_surface_t * surface;
 	struct render_t * render;
 
@@ -81,7 +81,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	if(!surface)
 		return NULL;
 
-	if(sandbox_linux_sdl_fb_surface_create(surface, cfg->framebuffer.width, cfg->framebuffer.height) != 0)
+	if(sandbox_sdl_fb_surface_create(surface, cfg->framebuffer.width, cfg->framebuffer.height) != 0)
 	{
 		free(surface);
 		return NULL;
@@ -90,7 +90,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	render = malloc(sizeof(struct render_t));
 	if(!render)
 	{
-		sandbox_linux_sdl_fb_surface_destroy(surface);
+		sandbox_sdl_fb_surface_destroy(surface);
 		free(surface);
 		return NULL;
 	}
@@ -119,7 +119,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 {
 	if(render)
 	{
-		sandbox_linux_sdl_fb_surface_destroy(render->priv);
+		sandbox_sdl_fb_surface_destroy(render->priv);
 		free(render->priv);
 		free(render);
 	}
@@ -127,7 +127,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
-	sandbox_linux_sdl_fb_surface_present(render->priv);
+	sandbox_sdl_fb_surface_present(render->priv);
 }
 
 static void fb_suspend(struct fb_t * fb)
@@ -138,7 +138,7 @@ static void fb_resume(struct fb_t * fb)
 {
 }
 
-static bool_t sandboxlinux_register_framebuffer(struct resource_t * res)
+static bool_t sandbox_register_framebuffer(struct resource_t * res)
 {
 	struct fb_t * fb;
 	char name[64];
@@ -168,7 +168,7 @@ static bool_t sandboxlinux_register_framebuffer(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t sandboxlinux_unregister_framebuffer(struct resource_t * res)
+static bool_t sandbox_unregister_framebuffer(struct resource_t * res)
 {
 	struct fb_t * fb;
 	char name[64];
@@ -187,15 +187,15 @@ static bool_t sandboxlinux_unregister_framebuffer(struct resource_t * res)
 	return TRUE;
 }
 
-static __init void sandboxlinux_fb_init(void)
+static __init void sandbox_fb_init(void)
 {
-	resource_for_each_with_name("sandboxlinux-fb", sandboxlinux_register_framebuffer);
+	resource_for_each_with_name("sandbox-fb", sandbox_register_framebuffer);
 }
 
-static __exit void sandboxlinux_fb_exit(void)
+static __exit void sandbox_fb_exit(void)
 {
-	resource_for_each_with_name("sandboxlinux-fb", sandboxlinux_unregister_framebuffer);
+	resource_for_each_with_name("sandbox-fb", sandbox_unregister_framebuffer);
 }
 
-device_initcall(sandboxlinux_fb_init);
-device_exitcall(sandboxlinux_fb_exit);
+device_initcall(sandbox_fb_init);
+device_exitcall(sandbox_fb_exit);

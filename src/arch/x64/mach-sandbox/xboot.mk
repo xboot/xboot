@@ -167,15 +167,15 @@ CXXFLAGS	:= -g -ggdb -Wall -O2
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
-LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
-LIBS 		:= -lsandboxlinux -lc -lgcc -lpthread $(SDL_LIBS)
-INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
+LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
+LIBS 		:= -lsandbox -lc -lgcc -lpthread $(SDL_LIBS)
+INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
 SRCDIRS		:=
 
 xbegin:
-	@echo Building libsandboxlinux
-	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux
+	@echo Building libsandbox
+	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandbox
 
 xclean:
-	@echo Clean libsandboxlinux
-	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux clean
+	@echo Clean libsandbox
+	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandbox clean

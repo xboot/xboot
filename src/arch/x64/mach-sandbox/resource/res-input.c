@@ -23,9 +23,9 @@
  */
 
 #include <xboot.h>
-#include <sandboxlinux-input.h>
+#include <sandbox-input.h>
 
-static struct sandboxlinux_input_data_t input_datas[] = {
+static struct sandbox_input_data_t input_datas[] = {
 	[0] = {
 		.type	= INPUT_TYPE_KEYBOARD,
 	},
@@ -42,19 +42,19 @@ static struct sandboxlinux_input_data_t input_datas[] = {
 
 static struct resource_t res_inputs[] = {
 	{
-		.name	= "sandboxlinux-input",
+		.name	= "sandbox-input",
 		.id		= 0,
 		.data	= &input_datas[0],
 	}, {
-		.name	= "sandboxlinux-input",
+		.name	= "sandbox-input",
 		.id		= 1,
 		.data	= &input_datas[1],
 	}, {
-		.name	= "sandboxlinux-input",
+		.name	= "sandbox-input",
 		.id		= 2,
 		.data	= &input_datas[2],
 	}, {
-		.name	= "sandboxlinux-input",
+		.name	= "sandbox-input",
 		.id		= 3,
 		.data	= &input_datas[3],
 	},

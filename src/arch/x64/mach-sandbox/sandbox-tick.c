@@ -1,5 +1,5 @@
 /*
- * resource/res-fb.c
+ * sandbox-tick.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,27 +23,29 @@
  */
 
 #include <xboot.h>
+#include <sandbox.h>
 
-static struct resource_t res_fb = {
-	.name		= "sandboxlinux-fb",
-	.id			= -1,
+static void timer_callback(void)
+{
+	tick_interrupt();
+}
+
+static bool_t tick_timer_init(void)
+{
+	sandbox_sdl_timer_init(10, timer_callback);
+	return TRUE;
+}
+
+static struct tick_t sandbox_tick = {
+	.hz		= 100,
+	.init	= tick_timer_init,
 };
 
-static __init void resource_fb_init(void)
+static __init void sandbox_tick_init(void)
 {
-	if(register_resource(&res_fb))
-		LOG("Register resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
+	if(register_tick(&sandbox_tick))
+		LOG("Register tick");
 	else
-		LOG("Failed to register resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
+		LOG("Failed to register tick");
 }
-
-static __exit void resource_fb_exit(void)
-{
-	if(unregister_resource(&res_fb))
-		LOG("Unregister resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
-	else
-		LOG("Failed to unregister resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
-}
-
-resource_initcall(resource_fb_init);
-resource_exitcall(resource_fb_exit);
+core_initcall(sandbox_tick_init);

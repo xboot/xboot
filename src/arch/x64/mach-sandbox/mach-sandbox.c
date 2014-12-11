@@ -1,5 +1,5 @@
 /*
- * mach-sandboxlinux.c
+ * mach-sandbox.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <sandboxlinux.h>
+#include <sandbox.h>
 
 static bool_t mach_detect(void)
 {
@@ -37,17 +37,17 @@ static bool_t mach_powerup(void)
 
 static bool_t mach_shutdown(void)
 {
-	return (sandbox_linux_pm_shutdown() == 0) ? TRUE : FALSE;
+	return (sandbox_pm_shutdown() == 0) ? TRUE : FALSE;
 }
 
 static bool_t mach_reset(void)
 {
-	return (sandbox_linux_pm_reset() == 0) ? TRUE : FALSE;
+	return (sandbox_pm_reset() == 0) ? TRUE : FALSE;
 }
 
 static bool_t mach_sleep(void)
 {
-	return (sandbox_linux_pm_sleep() == 0) ? TRUE : FALSE;
+	return (sandbox_pm_sleep() == 0) ? TRUE : FALSE;
 }
 
 static bool_t mach_cleanup(void)
@@ -61,8 +61,8 @@ static bool_t mach_authentication(void)
 }
 
 static struct machine_t sandbox = {
-	.name 				= "linux",
-	.desc 				= "Linux sandbox",
+	.name 				= "sandbox",
+	.desc 				= "xboot sandbox runtime enverionment",
 
 	.banks = {
 		[0] = {

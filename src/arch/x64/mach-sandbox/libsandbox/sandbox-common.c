@@ -5,15 +5,15 @@
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
-#include <sandboxlinux.h>
+#include <sandbox.h>
 
-ssize_t sandbox_linux_read(int fd, void * buf, size_t count)
+ssize_t sandbox_read(int fd, void * buf, size_t count)
 {
 	ssize_t ret = read(fd, buf, count);
 	return (ret > 0) ? ret: 0;
 }
 
-ssize_t sandbox_linux_read_nonblock(int fd, void * buf, size_t count)
+ssize_t sandbox_read_nonblock(int fd, void * buf, size_t count)
 {
 	ssize_t ret;
 	int flags;
@@ -25,7 +25,7 @@ ssize_t sandbox_linux_read_nonblock(int fd, void * buf, size_t count)
 	if(fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
 		return 0;
 
-	ret = sandbox_linux_read(fd, buf, count);
+	ret = sandbox_read(fd, buf, count);
 
 	if(fcntl(fd, F_SETFL, flags) == -1)
 		return 0;
@@ -33,18 +33,18 @@ ssize_t sandbox_linux_read_nonblock(int fd, void * buf, size_t count)
 	return ret;
 }
 
-ssize_t sandbox_linux_write(int fd, const void * buf, size_t count)
+ssize_t sandbox_write(int fd, const void * buf, size_t count)
 {
 	ssize_t ret = write(fd, buf, count);
 	return (ret > 0) ? ret: 0;
 }
 
-off_t sandbox_linux_lseek(int fd, off_t offset)
+off_t sandbox_lseek(int fd, off_t offset)
 {
 	return lseek(fd, offset, SEEK_SET);
 }
 
-int sandbox_linux_execve(const char * filename, char * const argv[], char * const envp[])
+int sandbox_execve(const char * filename, char * const argv[], char * const envp[])
 {
 	pid_t pid, tpid;
 	int execve_status;

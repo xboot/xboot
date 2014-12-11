@@ -147,6 +147,12 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 INCDIRS		+= 	external/lua-5.2.3
 SRCDIRS		+=	external/lua-5.2.3
 
+INCDIRS		+= 	external/lua-cjson-2.1.0
+SRCDIRS		+=	external/lua-cjson-2.1.0
+
+INCDIRS		+= 	external/json-parser-1.1.0
+SRCDIRS		+=	external/json-parser-1.1.0
+
 INCDIRS		+= 	external/zlib-1.2.8
 SRCDIRS		+=	external/zlib-1.2.8
 
@@ -206,9 +212,6 @@ INCDIRS		+=	external/chipmunk-6.2.1/include/chipmunk \
 				external/chipmunk-6.2.1/include/chipmunk/constraints
 SRCDIRS		+=	external/chipmunk-6.2.1/src \
 			 	external/chipmunk-6.2.1/src/constraints
-
-INCDIRS		+= 	external/lua-cjson-2.1.0
-SRCDIRS		+=	external/lua-cjson-2.1.0
 
 #
 # You shouldn't need to change anything below this point.

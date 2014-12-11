@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <console/console.h>
 
 static struct console_stdio_data_t console_stdio_data = {
 	.in		= "s5pv210-uart.2",

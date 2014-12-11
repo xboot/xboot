@@ -155,7 +155,7 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
 				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
 
-DEFINES		+=	-D__SANDBOX__ -D__ARM_ARCH__=7 -D__CORTEX_A8__ -D__ARM_NEON__
+DEFINES		+=	-D__SANDBOX__ -D__ARM_ARCH__=7 -D__CORTEX_A9__ -D__ARM_NEON__
 
 SDL_CONFIG	?= sdl2-config
 SDL_FLAGS	:= $(shell $(SDL_CONFIG) --cflags)
@@ -165,7 +165,7 @@ ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 CXXFLAGS	:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
-MCFLAGS		:= -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a -mfpu=neon -ftree-vectorize -mfloat-abi=softfp
+MCFLAGS		:= -mcpu=cortex-a9 -mtune=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -mfloat-abi=softfp
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
 LIBS 		:= -lsandboxlinux -lc -lgcc -lpthread $(SDL_LIBS)

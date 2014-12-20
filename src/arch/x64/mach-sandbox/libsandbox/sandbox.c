@@ -4,7 +4,22 @@
 #include <SDL.h>
 #include <sandbox.h>
 
+static const char __default_json[] =
+"{"
+	"\"input\": [\"keyboard\", \"mouse\", \"touchscreen\", \"joystick\"],"
+	"\"memory\": {"
+        "\"device_type\": [\"strings\", \"memory\"],"
+        "\"reg\": [\"words\", \"0x00000000\", \"0x00000000\"],"
+        "\"cfg\": [\"bytes\", \"12\", \"23\", \"-64\"]"
+	"},"
+	"\"chosen\" : {"
+		"\"cmdline\": [\"strings\", \"debug=on\"]"
+	"}"
+"}";
+
 static struct sandbox_config_t __sandbox_config = {
+	.json				= (char *)__default_json,
+
 	.file				= {
 		.name			= NULL,
 	},

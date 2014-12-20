@@ -16,6 +16,8 @@ int sandbox_execve(const char * filename, char * const argv[], char * const envp
  * Sandbox interface
  */
 struct sandbox_config_t {
+	char * json;
+
 	struct {
 		char * name;
 	} file;

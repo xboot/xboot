@@ -24,8 +24,9 @@
 
 #include <xboot.h>
 #include <json.h>
-#include <sandbox-input.h>
 #include <sandbox.h>
+#include <console/console.h>
+#include <sandbox-input.h>
 
 static void json_resource_register(struct resource_t * res)
 {
@@ -33,6 +34,54 @@ static void json_resource_register(struct resource_t * res)
 		LOG("Register resource %s:'%s.%d'", res->mach, res->name, res->id);
 	else
 		LOG("Failed to register resource %s:'%s.%d'", res->mach, res->name, res->id);
+}
+
+static void json_resource_console(json_value * value)
+{
+	struct resource_t * res;
+	struct console_stdio_data_t * data;
+	char * in = NULL, * out = NULL, * err = NULL;
+	json_value * v;
+	int i;
+
+	if(value->type == json_object)
+	{
+		for(i = 0; i < value->u.object.length; i++)
+		{
+			if(strcmp(value->u.object.values[i].name, "in") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_string)
+					in = v->u.string.ptr;
+			}
+			else if(strcmp(value->u.object.values[i].name, "out") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_string)
+					out = v->u.string.ptr;
+			}
+			else if(strcmp(value->u.object.values[i].name, "err") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_string)
+					err = v->u.string.ptr;
+			}
+		}
+
+		if(in && out && err)
+		{
+			res = malloc(sizeof(struct resource_t));
+			data = malloc(sizeof(struct console_stdio_data_t));
+			data->in = strdup(in);
+			data->out = strdup(out);
+			data->err = strdup(err);
+			res->mach = NULL;
+			res->name = "console";
+			res->id = -1;
+			res->data = data;
+			json_resource_register(res);
+		}
+	}
 }
 
 static void json_resource_input(json_value * value)
@@ -50,13 +99,13 @@ static void json_resource_input(json_value * value)
 			v = value->u.array.values[i];
 			if(v->type == json_string)
 			{
-				if(strncmp("keyboard", v->u.string.ptr, v->u.string.length) == 0)
+				if(strcmp(v->u.string.ptr, "keyboard") == 0)
 					type = INPUT_TYPE_KEYBOARD;
-				else if(strncmp("mouse", v->u.string.ptr, v->u.string.length) == 0)
+				else if(strcmp(v->u.string.ptr, "mouse") == 0)
 					type = INPUT_TYPE_MOUSE;
-				else if(strncmp("touchscreen", v->u.string.ptr, v->u.string.length) == 0)
+				else if(strcmp(v->u.string.ptr, "touchscreen") == 0)
 					type = INPUT_TYPE_TOUCHSCREEN;
-				else if(strncmp("joystick", v->u.string.ptr, v->u.string.length) == 0)
+				else if(strcmp(v->u.string.ptr, "joystick") == 0)
 					type = INPUT_TYPE_JOYSTICK;
 				else
 					type = -1;
@@ -91,7 +140,11 @@ static __init void resource_json_init(void)
 	{
 		for(i = 0; i < value->u.object.length; i++)
 		{
-			if(strcmp(value->u.object.values[i].name, "input") == 0)
+			if(strcmp(value->u.object.values[i].name, "console") == 0)
+			{
+				json_resource_console(value->u.object.values[i].value);
+			}
+			else if(strcmp(value->u.object.values[i].name, "input") == 0)
 			{
 				json_resource_input(value->u.object.values[i].value);
 			}

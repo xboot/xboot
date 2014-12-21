@@ -6,6 +6,11 @@
 
 static const char __default_json[] =
 "{"
+	"\"console\": {"
+		"\"in\": \"stdio\","
+		"\"out\": \"stdio\","
+		"\"err\": \"stdio\","
+	"},"
 	"\"input\": [\"keyboard\", \"mouse\", \"touchscreen\", \"joystick\"],"
 	"\"memory\": {"
         "\"device_type\": [\"strings\", \"memory\"],"

@@ -1,0 +1,14 @@
+{
+	"console": {
+		"in" : "stdio",
+		"out": "stdio",
+		"err": "stdio",
+	},
+
+	"input": [
+		"keyboard",
+		"mouse",
+		"touchscreen",
+		"joystick"
+	],
+}

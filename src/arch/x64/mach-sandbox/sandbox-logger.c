@@ -27,12 +27,10 @@
 
 static void logger_sandbox_init(void)
 {
-	sandbox_console_init();
 }
 
 static void logger_sandbox_exit(void)
 {
-	sandbox_console_exit();
 }
 
 static ssize_t logger_sandbox_output(const char * buf, size_t count)

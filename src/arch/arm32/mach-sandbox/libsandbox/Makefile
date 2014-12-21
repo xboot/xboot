@@ -33,7 +33,7 @@ CPPOBJS		:= $(patsubst %, %, $(CPPFILES:.cpp=.o))
 OBJS		:= $(SOBJS) $(COBJS) $(CPPOBJS)
 
 OBJDIRS		:= $(patsubst %, %, $(SRCDIRS))
-NAME		:= libsandboxlinux
+NAME		:= libsandbox
 VPATH		:= $(OBJDIRS)
 
 .PHONY:		all clean

@@ -1,5 +1,5 @@
 /*
- * sandboxlinux-tick.c
+ * sandbox-tick.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <sandboxlinux.h>
+#include <sandbox.h>
 
 static void timer_callback(void)
 {
@@ -32,20 +32,20 @@ static void timer_callback(void)
 
 static bool_t tick_timer_init(void)
 {
-	sandbox_linux_sdl_timer_init(10, timer_callback);
+	sandbox_sdl_timer_init(10, timer_callback);
 	return TRUE;
 }
 
-static struct tick_t sandboxlinux_tick = {
+static struct tick_t sandbox_tick = {
 	.hz		= 100,
 	.init	= tick_timer_init,
 };
 
-static __init void sandboxlinux_tick_init(void)
+static __init void sandbox_tick_init(void)
 {
-	if(register_tick(&sandboxlinux_tick))
+	if(register_tick(&sandbox_tick))
 		LOG("Register tick");
 	else
 		LOG("Failed to register tick");
 }
-core_initcall(sandboxlinux_tick_init);
+core_initcall(sandbox_tick_init);

@@ -1,5 +1,5 @@
 /*
- * driver/sandboxlinux-input.c
+ * driver/sandbox-input.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <sandboxlinux-input.h>
+#include <sandbox-input.h>
 
 static void input_init(struct input_t * input)
 {
@@ -210,9 +210,9 @@ static void cb_joystick_button_up(void * device, unsigned int button)
 	push_event(&event);
 }
 
-static bool_t sandboxlinux_register_input(struct resource_t * res)
+static bool_t sandbox_register_input(struct resource_t * res)
 {
-	struct sandboxlinux_input_data_t * rdat = (struct sandboxlinux_input_data_t *)res->data;
+	struct sandbox_input_data_t * rdat = (struct sandbox_input_data_t *)res->data;
 	struct input_t * input;
 	char name[64];
 
@@ -223,13 +223,13 @@ static bool_t sandboxlinux_register_input(struct resource_t * res)
 	switch(rdat->type)
 	{
 	case INPUT_TYPE_KEYBOARD:
-		sandbox_linux_sdl_event_set_key_callback(input,
+		sandbox_sdl_event_set_key_callback(input,
 				cb_key_down,
 				cb_key_up);
 		break;
 
 	case INPUT_TYPE_MOUSE:
-		sandbox_linux_sdl_event_set_mouse_callback(input,
+		sandbox_sdl_event_set_mouse_callback(input,
 				cb_mouse_down,
 				cb_mouse_move,
 				cb_mouse_up,
@@ -237,14 +237,14 @@ static bool_t sandboxlinux_register_input(struct resource_t * res)
 		break;
 
 	case INPUT_TYPE_TOUCHSCREEN:
-		sandbox_linux_sdl_event_set_touch_callback(input,
+		sandbox_sdl_event_set_touch_callback(input,
 				cb_touch_begin,
 				cb_touch_move,
 				cb_touch_end);
 		break;
 
 	case INPUT_TYPE_JOYSTICK:
-		sandbox_linux_sdl_event_set_joystick_callback(input,
+		sandbox_sdl_event_set_joystick_callback(input,
 				cb_joystick_left_stick,
 				cb_joystick_right_stick,
 				cb_joystick_left_trigger,
@@ -277,7 +277,7 @@ static bool_t sandboxlinux_register_input(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t sandboxlinux_unregister_input(struct resource_t * res)
+static bool_t sandbox_unregister_input(struct resource_t * res)
 {
 	struct input_t * input;
 	char name[64];
@@ -296,17 +296,17 @@ static bool_t sandboxlinux_unregister_input(struct resource_t * res)
 	return TRUE;
 }
 
-static __init void sandboxlinux_input_init(void)
+static __init void sandbox_input_init(void)
 {
-	resource_for_each_with_name("sandboxlinux-input", sandboxlinux_register_input);
-	sandbox_linux_sdl_event_init();
+	sandbox_sdl_event_init();
+	resource_for_each_with_name("sandbox-input", sandbox_register_input);
 }
 
-static __exit void sandboxlinux_input_exit(void)
+static __exit void sandbox_input_exit(void)
 {
-	resource_for_each_with_name("sandboxlinux-input", sandboxlinux_unregister_input);
-	sandbox_linux_sdl_event_exit();
+	sandbox_sdl_event_exit();
+	resource_for_each_with_name("sandbox-input", sandbox_unregister_input);
 }
 
-device_initcall(sandboxlinux_input_init);
-device_exitcall(sandboxlinux_input_exit);
+device_initcall(sandbox_input_init);
+device_exitcall(sandbox_input_exit);

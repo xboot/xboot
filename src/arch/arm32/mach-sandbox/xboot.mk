@@ -167,15 +167,15 @@ CXXFLAGS	:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 MCFLAGS		:= -mcpu=cortex-a9 -mtune=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -mfloat-abi=softfp
 
-LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
-LIBS 		:= -lsandboxlinux -lc -lgcc -lpthread $(SDL_LIBS)
-INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandboxlinux
+LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
+LIBS 		:= -lsandbox -lc -lgcc -lpthread $(SDL_LIBS)
+INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
 SRCDIRS		:=
 
 xbegin:
-	@echo Building libsandboxlinux
-	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux
+	@echo Building libsandbox
+	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandbox
 
 xclean:
-	@echo Clean libsandboxlinux
-	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandboxlinux clean
+	@echo Clean libsandbox
+	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandbox clean

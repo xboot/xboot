@@ -1,5 +1,5 @@
 /*
- * resource/res-fb.c
+ * sandbox-logger.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,27 +23,43 @@
  */
 
 #include <xboot.h>
+#include <sandbox.h>
 
-static struct resource_t res_fb = {
-	.name		= "sandboxlinux-fb",
-	.id			= -1,
+static void logger_sandbox_init(void)
+{
+}
+
+static void logger_sandbox_exit(void)
+{
+}
+
+static ssize_t logger_sandbox_output(const char * buf, size_t count)
+{
+	return sandbox_console_write((void *)buf, count);
+}
+
+static struct logger_t sandbox_logger = {
+	.name	= "logger-sandbox",
+	.init	= logger_sandbox_init,
+	.exit	= logger_sandbox_exit,
+	.output	= logger_sandbox_output,
 };
 
-static __init void resource_fb_init(void)
+static __init void sandbox_logger_init(void)
 {
-	if(register_resource(&res_fb))
-		LOG("Register resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
+	if(register_logger(&sandbox_logger))
+		LOG("Register logger '%s'", sandbox_logger.name);
 	else
-		LOG("Failed to register resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
+		LOG("Failed to register logger '%s'", sandbox_logger.name);
 }
 
-static __exit void resource_fb_exit(void)
+static __exit void sandbox_logger_exit(void)
 {
-	if(unregister_resource(&res_fb))
-		LOG("Unregister resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
+	if(unregister_logger(&sandbox_logger))
+		LOG("Unregister logger '%s'", sandbox_logger.name);
 	else
-		LOG("Failed to unregister resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
+		LOG("Failed to unregister logger '%s'", sandbox_logger.name);
 }
 
-resource_initcall(resource_fb_init);
-resource_exitcall(resource_fb_exit);
+pure_initcall(sandbox_logger_init);
+pure_exitcall(sandbox_logger_exit);

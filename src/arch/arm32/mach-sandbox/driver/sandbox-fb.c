@@ -1,5 +1,5 @@
 /*
- * driver/sandboxlinux-fb.c
+ * driver/sandbox-fb.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,23 +23,28 @@
  */
 
 #include <xboot.h>
-#include <fb/fb.h>
-#include <sandboxlinux.h>
+#include <sandbox-fb.h>
 
 static void fb_init(struct fb_t * fb)
 {
-	struct sandbox_config_t * cfg = sandbox_linux_get_config();
-	sandbox_linux_sdl_fb_init(cfg->framebuffer.width, cfg->framebuffer.height);
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct sandbox_fb_data_t * dat = (struct sandbox_fb_data_t *)res->data;
+	dat->priv = sandbox_sdl_fb_init(dat->width, dat->height, dat->fullscreen);
+	dat->width = sandbox_sdl_fb_get_width(dat->priv);
+	dat->height = sandbox_sdl_fb_get_height(dat->priv);
 }
 
 static void fb_exit(struct fb_t * fb)
 {
-	sandbox_linux_sdl_fb_exit();
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct sandbox_fb_data_t * dat = (struct sandbox_fb_data_t *)res->data;
+	sandbox_sdl_fb_exit(dat->priv);
 }
 
 static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 {
-	struct sandbox_config_t * cfg = sandbox_linux_get_config();
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct sandbox_fb_data_t * dat = (struct sandbox_fb_data_t *)res->data;
 	struct screen_info_t * info;
 	int * brightness;
 
@@ -47,21 +52,21 @@ static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 	{
 	case IOCTL_FB_GET_SCREEN_INFORMATION:
 		info = (struct screen_info_t *)arg;
-		info->width = cfg->framebuffer.width;
-		info->height = cfg->framebuffer.height;
-		info->xdpi = cfg->framebuffer.xdpi;
-		info->ydpi = cfg->framebuffer.ydpi;
+		info->width = dat->width;
+		info->height = dat->height;
+		info->xdpi = dat->xdpi;
+		info->ydpi = dat->ydpi;
 		info->bpp = 32;
 		return 0;
 
 	case IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS:
 		brightness = (int *)arg;
-		sandbox_linux_sdl_fb_set_backlight(*brightness);
+		sandbox_sdl_fb_set_backlight(dat->priv, *brightness);
 		return 0;
 
 	case IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS:
 		brightness = (int *)arg;
-		*brightness = sandbox_linux_sdl_fb_get_backlight();
+		*brightness = sandbox_sdl_fb_get_backlight(dat->priv);
 		return 0;
 
 	default:
@@ -73,7 +78,8 @@ static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
 
 struct render_t * fb_create(struct fb_t * fb)
 {
-	struct sandbox_config_t * cfg = sandbox_linux_get_config();
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct sandbox_fb_data_t * dat = (struct sandbox_fb_data_t *)res->data;
 	struct sandbox_fb_surface_t * surface;
 	struct render_t * render;
 
@@ -81,7 +87,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	if(!surface)
 		return NULL;
 
-	if(sandbox_linux_sdl_fb_surface_create(surface, cfg->framebuffer.width, cfg->framebuffer.height) != 0)
+	if(sandbox_sdl_fb_surface_create(dat->priv, surface) != 0)
 	{
 		free(surface);
 		return NULL;
@@ -90,7 +96,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	render = malloc(sizeof(struct render_t));
 	if(!render)
 	{
-		sandbox_linux_sdl_fb_surface_destroy(surface);
+		sandbox_sdl_fb_surface_destroy(dat->priv, surface);
 		free(surface);
 		return NULL;
 	}
@@ -117,9 +123,12 @@ struct render_t * fb_create(struct fb_t * fb)
 
 void fb_destroy(struct fb_t * fb, struct render_t * render)
 {
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct sandbox_fb_data_t * dat = (struct sandbox_fb_data_t *)res->data;
+
 	if(render)
 	{
-		sandbox_linux_sdl_fb_surface_destroy(render->priv);
+		sandbox_sdl_fb_surface_destroy(dat->priv, render->priv);
 		free(render->priv);
 		free(render);
 	}
@@ -127,7 +136,10 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
-	sandbox_linux_sdl_fb_surface_present(render->priv);
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct sandbox_fb_data_t * dat = (struct sandbox_fb_data_t *)res->data;
+
+	sandbox_sdl_fb_surface_present(dat->priv, render->priv);
 }
 
 static void fb_suspend(struct fb_t * fb)
@@ -138,7 +150,7 @@ static void fb_resume(struct fb_t * fb)
 {
 }
 
-static bool_t sandboxlinux_register_framebuffer(struct resource_t * res)
+static bool_t sandbox_register_framebuffer(struct resource_t * res)
 {
 	struct fb_t * fb;
 	char name[64];
@@ -168,7 +180,7 @@ static bool_t sandboxlinux_register_framebuffer(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t sandboxlinux_unregister_framebuffer(struct resource_t * res)
+static bool_t sandbox_unregister_framebuffer(struct resource_t * res)
 {
 	struct fb_t * fb;
 	char name[64];
@@ -187,15 +199,15 @@ static bool_t sandboxlinux_unregister_framebuffer(struct resource_t * res)
 	return TRUE;
 }
 
-static __init void sandboxlinux_fb_init(void)
+static __init void sandbox_fb_init(void)
 {
-	resource_for_each_with_name("sandboxlinux-fb", sandboxlinux_register_framebuffer);
+	resource_for_each_with_name("sandbox-fb", sandbox_register_framebuffer);
 }
 
-static __exit void sandboxlinux_fb_exit(void)
+static __exit void sandbox_fb_exit(void)
 {
-	resource_for_each_with_name("sandboxlinux-fb", sandboxlinux_unregister_framebuffer);
+	resource_for_each_with_name("sandbox-fb", sandbox_unregister_framebuffer);
 }
 
-device_initcall(sandboxlinux_fb_init);
-device_exitcall(sandboxlinux_fb_exit);
+device_initcall(sandbox_fb_init);
+device_exitcall(sandbox_fb_exit);

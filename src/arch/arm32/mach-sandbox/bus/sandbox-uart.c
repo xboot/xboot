@@ -1,5 +1,5 @@
 /*
- * bus/sandboxlinux-uart.c
+ * bus/sandbox-uart.c
  *
  * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,32 +24,32 @@
 
 #include <xboot.h>
 #include <bus/uart.h>
-#include <sandboxlinux.h>
+#include <sandbox.h>
 
-static bool_t sandboxlinux_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
+static bool_t sandbox_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
 {
 	return TRUE;
 }
 
-static void sandboxlinux_uart_init(struct uart_t * uart)
+static void sandbox_uart_init(struct uart_t * uart)
 {
 }
 
-static void sandboxlinux_uart_exit(struct uart_t * uart)
+static void sandbox_uart_exit(struct uart_t * uart)
 {
 }
 
-static ssize_t sandboxlinux_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
+static ssize_t sandbox_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
 {
-	return sandbox_linux_console_read((void *)buf, count);
+	return sandbox_console_read((void *)buf, count);
 }
 
-static ssize_t sandboxlinux_uart_write(struct uart_t * uart, const u8_t * buf, size_t count)
+static ssize_t sandbox_uart_write(struct uart_t * uart, const u8_t * buf, size_t count)
 {
-	return sandbox_linux_console_write((void *)buf, count);
+	return sandbox_console_write((void *)buf, count);
 }
 
-static bool_t sandboxlinux_register_bus_uart(struct resource_t * res)
+static bool_t sandbox_register_bus_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
 	char name[64];
@@ -61,11 +61,11 @@ static bool_t sandboxlinux_register_bus_uart(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	uart->name = strdup(name);
-	uart->init = sandboxlinux_uart_init;
-	uart->exit = sandboxlinux_uart_exit;
-	uart->read = sandboxlinux_uart_read;
-	uart->write = sandboxlinux_uart_write;
-	uart->setup = sandboxlinux_uart_setup;
+	uart->init = sandbox_uart_init;
+	uart->exit = sandbox_uart_exit;
+	uart->read = sandbox_uart_read;
+	uart->write = sandbox_uart_write;
+	uart->setup = sandbox_uart_setup;
 	uart->priv = res;
 
 	if(register_bus_uart(uart))
@@ -76,7 +76,7 @@ static bool_t sandboxlinux_register_bus_uart(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t sandboxlinux_unregister_bus_uart(struct resource_t * res)
+static bool_t sandbox_unregister_bus_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
 	char name[64];
@@ -95,15 +95,15 @@ static bool_t sandboxlinux_unregister_bus_uart(struct resource_t * res)
 	return TRUE;
 }
 
-static __init void sandboxlinux_bus_uart_init(void)
+static __init void sandbox_bus_uart_init(void)
 {
-	resource_for_each_with_name("sandboxlinux-uart", sandboxlinux_register_bus_uart);
+	resource_for_each_with_name("sandbox-uart", sandbox_register_bus_uart);
 }
 
-static __exit void sandboxlinux_bus_uart_exit(void)
+static __exit void sandbox_bus_uart_exit(void)
 {
-	resource_for_each_with_name("sandboxlinux-uart", sandboxlinux_unregister_bus_uart);
+	resource_for_each_with_name("sandbox-uart", sandbox_unregister_bus_uart);
 }
 
-bus_initcall(sandboxlinux_bus_uart_init);
-bus_exitcall(sandboxlinux_bus_uart_exit);
+bus_initcall(sandbox_bus_uart_init);
+bus_exitcall(sandbox_bus_uart_exit);

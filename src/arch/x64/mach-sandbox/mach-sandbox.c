@@ -40,9 +40,9 @@ static bool_t mach_shutdown(void)
 	return (sandbox_pm_shutdown() == 0) ? TRUE : FALSE;
 }
 
-static bool_t mach_reset(void)
+static bool_t mach_reboot(void)
 {
-	return (sandbox_pm_reset() == 0) ? TRUE : FALSE;
+	return (sandbox_pm_reboot() == 0) ? TRUE : FALSE;
 }
 
 static bool_t mach_sleep(void)
@@ -60,6 +60,11 @@ static bool_t mach_authentication(void)
 	return TRUE;
 }
 
+const char * mach_uniqueid(void)
+{
+	return "0123456789";
+}
+
 static struct machine_t sandbox = {
 	.name 				= "sandbox",
 	.desc 				= "xboot sandbox runtime enverionment",
@@ -74,10 +79,11 @@ static struct machine_t sandbox = {
 	.detect 			= mach_detect,
 	.powerup			= mach_powerup,
 	.shutdown			= mach_shutdown,
-	.reset				= mach_reset,
+	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
 	.authentication		= mach_authentication,
+	.uniqueid			= mach_uniqueid,
 };
 
 static __init void mach_sandbox_init(void)

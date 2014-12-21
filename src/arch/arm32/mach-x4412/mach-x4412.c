@@ -40,7 +40,7 @@ static bool_t mach_shutdown(void)
 	return FALSE;
 }
 
-static bool_t mach_reset(void)
+static bool_t mach_reboot(void)
 {
 	return FALSE;
 }
@@ -78,6 +78,11 @@ static bool_t mach_authentication(void)
 	return TRUE;
 }
 
+const char * mach_uniqueid(void)
+{
+	return "0123456789";
+}
+
 static struct machine_t x4412 = {
 	.name 				= "x4412",
 	.desc 				= "x4412 based on exynos4412",
@@ -102,10 +107,11 @@ static struct machine_t x4412 = {
 	.detect 			= mach_detect,
 	.powerup			= mach_powerup,
 	.shutdown			= mach_shutdown,
-	.reset				= mach_reset,
+	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
 	.authentication		= mach_authentication,
+	.uniqueid			= mach_uniqueid,
 };
 
 static __init void mach_x4412_init(void)

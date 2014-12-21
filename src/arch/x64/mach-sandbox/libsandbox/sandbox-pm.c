@@ -9,7 +9,7 @@ int sandbox_pm_shutdown(void)
 	return 0;
 }
 
-int sandbox_pm_reset(void)
+int sandbox_pm_reboot(void)
 {
 	return 0;
 }

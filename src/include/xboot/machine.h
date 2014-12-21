@@ -19,10 +19,11 @@ struct machine_t {
 	bool_t (*detect)(void);
 	bool_t (*powerup)(void);
 	bool_t (*shutdown)(void);
-	bool_t (*reset)(void);
+	bool_t (*reboot)(void);
 	bool_t (*sleep)(void);
 	bool_t (*cleanup)(void);
 	bool_t (*authentication)(void);
+	const char * (*uniqueid)(void);
 };
 
 struct machine_t * get_machine(void);
@@ -30,10 +31,11 @@ bool_t register_machine(struct machine_t * mach);
 bool_t unregister_machine(struct machine_t * mach);
 
 bool_t machine_shutdown(void);
-bool_t machine_reset(void);
+bool_t machine_reboot(void);
 bool_t machine_sleep(void);
 bool_t machine_cleanup(void);
 bool_t machine_authentication(void);
+const char * machine_uniqueid(void);
 
 void subsys_init_machine(void);
 

@@ -50,7 +50,7 @@ ssize_t sandbox_console_write(void * buf, size_t count);
  * PM interface
  */
 int sandbox_pm_shutdown(void);
-int sandbox_pm_reset(void);
+int sandbox_pm_reboot(void);
 int sandbox_pm_sleep(void);
 
 /*

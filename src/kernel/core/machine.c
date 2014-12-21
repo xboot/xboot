@@ -117,12 +117,12 @@ bool_t machine_shutdown(void)
 	return FALSE;
 }
 
-bool_t machine_reset(void)
+bool_t machine_reboot(void)
 {
 	struct machine_t * mach = get_machine();
 
-	if(mach && mach->reset)
-		return mach->reset();
+	if(mach && mach->reboot)
+		return mach->reboot();
 	return FALSE;
 }
 
@@ -151,6 +151,16 @@ bool_t machine_authentication(void)
 	if(mach && mach->authentication)
 		return mach->authentication();
 	return FALSE;
+}
+
+const char * machine_uniqueid(void)
+{
+	struct machine_t * mach = get_machine();
+	const char * id = NULL;
+
+	if(mach && mach->uniqueid)
+		id = mach->uniqueid();
+	return id ? id : "0123456789";
 }
 
 void subsys_init_machine(void)

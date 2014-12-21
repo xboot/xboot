@@ -46,7 +46,7 @@ static bool_t mach_shutdown(void)
 	return TRUE;
 }
 
-static bool_t mach_reset(void)
+static bool_t mach_reboot(void)
 {
 	/* disable watchdog */
 	writel(S5PV210_WTCON, 0x0000);
@@ -99,6 +99,11 @@ static bool_t mach_authentication(void)
 	return TRUE;
 }
 
+const char * mach_uniqueid(void)
+{
+	return "0123456789";
+}
+
 static struct machine_t x210ii = {
 	.name 				= "x210ii",
 	.desc 				= "x210ii based on s5pv210",
@@ -123,10 +128,11 @@ static struct machine_t x210ii = {
 	.detect 			= mach_detect,
 	.powerup			= mach_powerup,
 	.shutdown			= mach_shutdown,
-	.reset				= mach_reset,
+	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
 	.authentication		= mach_authentication,
+	.uniqueid			= mach_uniqueid,
 };
 
 static __init void mach_x210ii_init(void)

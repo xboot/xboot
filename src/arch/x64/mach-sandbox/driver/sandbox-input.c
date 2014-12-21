@@ -298,14 +298,14 @@ static bool_t sandbox_unregister_input(struct resource_t * res)
 
 static __init void sandbox_input_init(void)
 {
-	resource_for_each_with_name("sandbox-input", sandbox_register_input);
 	sandbox_sdl_event_init();
+	resource_for_each_with_name("sandbox-input", sandbox_register_input);
 }
 
 static __exit void sandbox_input_exit(void)
 {
-	resource_for_each_with_name("sandbox-input", sandbox_unregister_input);
 	sandbox_sdl_event_exit();
+	resource_for_each_with_name("sandbox-input", sandbox_unregister_input);
 }
 
 device_initcall(sandbox_input_init);

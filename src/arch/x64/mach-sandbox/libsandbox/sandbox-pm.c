@@ -11,6 +11,7 @@ int sandbox_pm_shutdown(void)
 
 int sandbox_pm_reboot(void)
 {
+	sandbox_pm_shutdown();
 	return 0;
 }
 

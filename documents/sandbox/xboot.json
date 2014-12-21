@@ -5,6 +5,14 @@
 		"err": "stdio",
 	},
 
+	"framebuffer": {
+		"width": 640,
+		"height": 480,
+		"xdpi": 160,
+		"ydpi": 160,
+		"fullscreen": false
+	},
+
 	"input": [
 		"keyboard",
 		"mouse",

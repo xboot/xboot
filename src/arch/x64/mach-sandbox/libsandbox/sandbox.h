@@ -4,35 +4,11 @@
 #include <stdint.h>
 
 /*
- * Common interface
- */
-ssize_t sandbox_read(int fd, void * buf, size_t count);
-ssize_t sandbox_read_nonblock(int fd, void * buf, size_t count);
-ssize_t sandbox_write(int fd, const void * buf, size_t count);
-off_t sandbox_lseek(int fd, off_t offset);
-int sandbox_execve(const char * filename, char * const argv[], char * const envp[]);
-
-/*
  * Sandbox interface
  */
 struct sandbox_config_t {
-	char * json;
-
-	struct {
-		char * name;
-	} file;
-
-	struct {
-		void * mem;
-		size_t size;
-	} memory;
-
-	struct {
-		int width;
-		int height;
-		int xdpi;
-		int ydpi;
-	} framebuffer;
+	const char * json;
+	const char * application;
 };
 struct sandbox_config_t * sandbox_get_config(void);
 void sandbox_init(int argc, char * argv[]);
@@ -45,6 +21,17 @@ void sandbox_console_init(void);
 void sandbox_console_exit(void);
 ssize_t sandbox_console_read(void * buf, size_t count);
 ssize_t sandbox_console_write(void * buf, size_t count);
+
+/*
+ * File interface
+ */
+int sandbox_file_open(const char * filename);
+int sandbox_file_close(int fd);
+ssize_t sandbox_file_read(int fd, void * buf, size_t count);
+ssize_t sandbox_file_read_nonblock(int fd, void * buf, size_t count);
+ssize_t sandbox_file_write(int fd, const void * buf, size_t count);
+ssize_t sandbox_file_seek(int fd, size_t offset);
+ssize_t sandbox_file_length(int fd);
 
 /*
  * PM interface
@@ -89,13 +76,15 @@ struct sandbox_fb_surface_t {
 	void * surface;
 };
 
-void sandbox_sdl_fb_init(int width, int height);
-void sandbox_sdl_fb_exit(void);
-int sandbox_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height);
-int sandbox_sdl_fb_surface_destroy(struct sandbox_fb_surface_t * surface);
-int sandbox_sdl_fb_surface_present(struct sandbox_fb_surface_t * surface);
-void sandbox_sdl_fb_set_backlight(int brightness);
-int sandbox_sdl_fb_get_backlight(void);
+void * sandbox_sdl_fb_init(int width, int height, int fullscreen);
+void sandbox_sdl_fb_exit(void * handle);
+int sandbox_sdl_fb_get_width(void * handle);
+int sandbox_sdl_fb_get_height(void * handle);
+int sandbox_sdl_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface);
+int sandbox_sdl_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface);
+int sandbox_sdl_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface);
+void sandbox_sdl_fb_set_backlight(void * handle, int brightness);
+int sandbox_sdl_fb_get_backlight(void * handle);
 
 /*
  * Timer interface

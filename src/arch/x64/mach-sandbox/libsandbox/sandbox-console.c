@@ -28,10 +28,10 @@ void sandbox_console_exit(void)
 
 ssize_t sandbox_console_read(void * buf, size_t count)
 {
-	return sandbox_read_nonblock(fileno(stdin), buf, count);
+	return sandbox_file_read_nonblock(fileno(stdin), buf, count);
 }
 
 ssize_t sandbox_console_write(void * buf, size_t count)
 {
-	return sandbox_write(fileno(stdout), buf, count);
+	return sandbox_file_write(fileno(stdout), buf, count);
 }

@@ -7,6 +7,5 @@ int main(int argc, char * argv[])
 	sandbox_init(argc, argv);
 	xboot_main(argc, argv);
 	sandbox_exit();
-
 	return 0;
 }

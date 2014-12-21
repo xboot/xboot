@@ -53,8 +53,6 @@ static struct console_t stdio = {
 
 static __init void sandbox_stdio_console_init(void)
 {
-	sandbox_console_init();
-
 	if(register_console(&stdio))
 		LOG("Register console '%s'", stdio.name);
 	else
@@ -63,8 +61,6 @@ static __init void sandbox_stdio_console_init(void)
 
 static __exit void sandbox_stdio_console_exit(void)
 {
-	sandbox_console_exit();
-
 	if(unregister_console(&stdio))
 		LOG("Unregister console '%s'", stdio.name);
 	else

@@ -26,13 +26,6 @@ struct sandbox_config_t {
 		void * mem;
 		size_t size;
 	} memory;
-
-	struct {
-		int width;
-		int height;
-		int xdpi;
-		int ydpi;
-	} framebuffer;
 };
 struct sandbox_config_t * sandbox_get_config(void);
 void sandbox_init(int argc, char * argv[]);
@@ -89,13 +82,15 @@ struct sandbox_fb_surface_t {
 	void * surface;
 };
 
-void sandbox_sdl_fb_init(int width, int height);
-void sandbox_sdl_fb_exit(void);
-int sandbox_sdl_fb_surface_create(struct sandbox_fb_surface_t * surface, int width, int height);
-int sandbox_sdl_fb_surface_destroy(struct sandbox_fb_surface_t * surface);
-int sandbox_sdl_fb_surface_present(struct sandbox_fb_surface_t * surface);
-void sandbox_sdl_fb_set_backlight(int brightness);
-int sandbox_sdl_fb_get_backlight(void);
+void * sandbox_sdl_fb_init(int width, int height, int fullscreen);
+void sandbox_sdl_fb_exit(void * handle);
+int sandbox_sdl_fb_get_width(void * handle);
+int sandbox_sdl_fb_get_height(void * handle);
+int sandbox_sdl_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface);
+int sandbox_sdl_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface);
+int sandbox_sdl_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface);
+void sandbox_sdl_fb_set_backlight(void * handle, int brightness);
+int sandbox_sdl_fb_get_backlight(void * handle);
 
 /*
  * Timer interface

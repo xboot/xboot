@@ -26,6 +26,7 @@
 #include <json.h>
 #include <sandbox.h>
 #include <console/console.h>
+#include <sandbox-fb.h>
 #include <sandbox-input.h>
 
 static void json_resource_register(struct resource_t * res)
@@ -40,7 +41,7 @@ static void json_resource_console(json_value * value)
 {
 	struct resource_t * res;
 	struct console_stdio_data_t * data;
-	char * in = NULL, * out = NULL, * err = NULL;
+	char * in = "stdio", * out = "stdio", * err = "stdio";
 	json_value * v;
 	int i;
 
@@ -68,19 +69,76 @@ static void json_resource_console(json_value * value)
 			}
 		}
 
-		if(in && out && err)
+		res = malloc(sizeof(struct resource_t));
+		data = malloc(sizeof(struct console_stdio_data_t));
+		data->in = strdup(in);
+		data->out = strdup(out);
+		data->err = strdup(err);
+		res->mach = NULL;
+		res->name = "console";
+		res->id = -1;
+		res->data = data;
+		json_resource_register(res);
+	}
+}
+
+static void json_resource_framebuffer(json_value * value)
+{
+	struct resource_t * res;
+	struct sandbox_fb_data_t * data;
+	int width = 640, height = 480, xdpi = 160, ydpi = 160, fullscreen = 0;
+	json_value * v;
+	int i;
+
+	if(value->type == json_object)
+	{
+		for(i = 0; i < value->u.object.length; i++)
 		{
-			res = malloc(sizeof(struct resource_t));
-			data = malloc(sizeof(struct console_stdio_data_t));
-			data->in = strdup(in);
-			data->out = strdup(out);
-			data->err = strdup(err);
-			res->mach = NULL;
-			res->name = "console";
-			res->id = -1;
-			res->data = data;
-			json_resource_register(res);
+			if(strcmp(value->u.object.values[i].name, "width") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_integer)
+					width = v->u.integer;
+			}
+			else if(strcmp(value->u.object.values[i].name, "height") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_integer)
+					height = v->u.integer;
+			}
+			else if(strcmp(value->u.object.values[i].name, "xdpi") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_integer)
+					xdpi = v->u.integer;
+			}
+			else if(strcmp(value->u.object.values[i].name, "ydpi") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_integer)
+					ydpi = v->u.integer;
+			}
+			else if(strcmp(value->u.object.values[i].name, "fullscreen") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_boolean)
+					fullscreen = (v->u.boolean != 0) ? 1 : 0;
+			}
 		}
+
+		res = malloc(sizeof(struct resource_t));
+		data = malloc(sizeof(struct sandbox_fb_data_t));
+		data->width = width;
+		data->height = height;
+		data->xdpi = xdpi;
+		data->ydpi = ydpi;
+		data->fullscreen = fullscreen;
+		data->priv = NULL;
+		res->mach = NULL;
+		res->name = "sandbox-fb";
+		res->id = -1;
+		res->data = data;
+		json_resource_register(res);
 	}
 }
 
@@ -143,6 +201,10 @@ static __init void resource_json_init(void)
 			if(strcmp(value->u.object.values[i].name, "console") == 0)
 			{
 				json_resource_console(value->u.object.values[i].value);
+			}
+			else if(strcmp(value->u.object.values[i].name, "framebuffer") == 0)
+			{
+				json_resource_framebuffer(value->u.object.values[i].value);
 			}
 			else if(strcmp(value->u.object.values[i].name, "input") == 0)
 			{

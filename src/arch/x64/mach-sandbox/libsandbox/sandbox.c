@@ -4,26 +4,32 @@
 #include <SDL.h>
 #include <sandbox.h>
 
-static const char __default_json[] =
+static const char __json[] =
 "{"
 	"\"console\": {"
-		"\"in\": \"stdio\","
+		"\"in\" : \"stdio\","
 		"\"out\": \"stdio\","
 		"\"err\": \"stdio\","
 	"},"
-	"\"input\": [\"keyboard\", \"mouse\", \"touchscreen\", \"joystick\"],"
-	"\"memory\": {"
-        "\"device_type\": [\"strings\", \"memory\"],"
-        "\"reg\": [\"words\", \"0x00000000\", \"0x00000000\"],"
-        "\"cfg\": [\"bytes\", \"12\", \"23\", \"-64\"]"
+	""
+	"\"framebuffer\": {"
+		"\"width\": 640,"
+		"\"height\": 480,"
+		"\"xdpi\": 160,"
+		"\"ydpi\": 160,"
+		"\"fullscreen\": false"
 	"},"
-	"\"chosen\" : {"
-		"\"cmdline\": [\"strings\", \"debug=on\"]"
-	"}"
+	""
+	"\"input\": ["
+		"\"keyboard\","
+		"\"mouse\","
+		"\"touchscreen\","
+		"\"joystick\""
+	"],"
 "}";
 
 static struct sandbox_config_t __sandbox_config = {
-	.json				= (char *)__default_json,
+	.json				= (char *)__json,
 
 	.file				= {
 		.name			= NULL,
@@ -32,13 +38,6 @@ static struct sandbox_config_t __sandbox_config = {
 	.memory				= {
 		.mem			= NULL,
 		.size			= 128 * 1024 * 1024,
-	},
-
-	.framebuffer		= {
-		.width			= 640,
-		.height			= 480,
-		.xdpi			= 160,
-		.ydpi			= 160,
 	},
 };
 
@@ -54,10 +53,6 @@ static void usage(void)
 		"Options:\n"
 		"  --help           Print help information\n"
 		"  --malloc <size>  Start xboot with a specified memory malloc space size in MB\n"
-		"  --width <size>   SDL framebuffer width\n"
-		"  --height <size>  SDL framebuffer height\n"
-		"  --xdpi <value>   SDL xdpi\n"
-		"  --ydpi <value>   SDL ydpi\n"
 	);
 }
 
@@ -76,26 +71,6 @@ void sandbox_init(int argc, char * argv[])
 		else if(!strcmp(argv[i], "--malloc") && (argc > i + 1))
 		{
 			__sandbox_config.memory.size = strtoul(argv[i + 1], NULL, 0) * 1024 * 1024;
-			i++;
-		}
-		else if(!strcmp(argv[i], "--width") && (argc > i + 1))
-		{
-			__sandbox_config.framebuffer.width = strtoul(argv[i + 1], NULL, 0);
-			i++;
-		}
-		else if(!strcmp(argv[i], "--height") && (argc > i + 1))
-		{
-			__sandbox_config.framebuffer.height = strtoul(argv[i + 1], NULL, 0);
-			i++;
-		}
-		else if(!strcmp(argv[i], "--xdpi") && (argc > i + 1))
-		{
-			__sandbox_config.framebuffer.xdpi = strtoul(argv[i + 1], NULL, 0);
-			i++;
-		}
-		else if(!strcmp(argv[i], "--ydpi") && (argc > i + 1))
-		{
-			__sandbox_config.framebuffer.ydpi = strtoul(argv[i + 1], NULL, 0);
 			i++;
 		}
 		else
@@ -131,7 +106,6 @@ void sandbox_exit(void)
 	sandbox_console_exit();
 	sandbox_sdl_event_exit();
 	sandbox_sdl_timer_exit();
-	sandbox_sdl_fb_exit();
 
 	if(__sandbox_config.memory.mem)
 		free(__sandbox_config.memory.mem);

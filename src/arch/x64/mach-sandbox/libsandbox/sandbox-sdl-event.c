@@ -37,44 +37,11 @@ struct event_callback_t {
 	} joystick;
 };
 
-static struct event_callback_t __event_callback = {
-	.key = {
-		.device		= NULL,
-		.down		= NULL,
-		.up			= NULL,
-	},
-
-	.mouse = {
-		.device		= NULL,
-		.down		= NULL,
-		.move		= NULL,
-		.up			= NULL,
-		.wheel		= NULL,
-	},
-
-	.touch = {
-		.device		= NULL,
-		.begin		= NULL,
-		.move		= NULL,
-		.end		= NULL,
-	},
-
-	.joystick = {
-		.device			= NULL,
-		.left_stick		= NULL,
-		.right_stick	= NULL,
-		.left_trigger	= NULL,
-		.right_trigger	= NULL,
-		.button_down	= NULL,
-		.button_up		= NULL,
-	},
-};
-
+static struct event_callback_t __event_callback = { 0 };
 static SDL_Thread * __event = NULL;
 
 static int handle_event(void * data)
 {
-	struct sandbox_config_t * cfg = sandbox_get_config();
 	struct event_callback_t * cb = (struct event_callback_t *)(data);
 	SDL_GameController * gc = NULL;
 	SDL_Event e;
@@ -159,20 +126,22 @@ static int handle_event(void * data)
 	        		cb->mouse.wheel(cb->mouse.device, e.wheel.x, e.wheel.y);
 	        	break;
 
+/*
 	        case SDL_FINGERDOWN:
 				if(cb->touch.begin)
-					cb->touch.begin(cb->touch.device, (int)(e.tfinger.x * cfg->framebuffer.width), (int)(e.tfinger.y * cfg->framebuffer.height), (unsigned int)e.tfinger.fingerId);
+					cb->touch.begin(cb->touch.device, (int)(e.tfinger.x * sandbox_sdl_fb_get_width()), (int)(e.tfinger.y * sandbox_sdl_fb_get_height()), (unsigned int)e.tfinger.fingerId);
 	        	break;
 
 	        case SDL_FINGERMOTION:
 				if(cb->touch.move)
-					cb->touch.move(cb->touch.device, (int)(e.tfinger.x * cfg->framebuffer.width), (int)(e.tfinger.y * cfg->framebuffer.height), (unsigned int)e.tfinger.fingerId);
+					cb->touch.move(cb->touch.device, (int)(e.tfinger.x * sandbox_sdl_fb_get_width()), (int)(e.tfinger.y * sandbox_sdl_fb_get_height()), (unsigned int)e.tfinger.fingerId);
 	        	break;
 
 	        case SDL_FINGERUP:
 				if(cb->touch.end)
-					cb->touch.end(cb->touch.device, (int)(e.tfinger.x * cfg->framebuffer.width), (int)(e.tfinger.y * cfg->framebuffer.height), (unsigned int)e.tfinger.fingerId);
+					cb->touch.end(cb->touch.device, (int)(e.tfinger.x * sandbox_sdl_fb_get_width()), (int)(e.tfinger.y * sandbox_sdl_fb_get_height()), (unsigned int)e.tfinger.fingerId);
 	        	break;
+*/
 
 	        case SDL_CONTROLLERDEVICEADDED:
 	        	if(!gc)
@@ -350,6 +319,7 @@ static int handle_event(void * data)
 
 void sandbox_sdl_event_init(void)
 {
+	memset(&__event_callback, 0, sizeof(struct event_callback_t));
 	__event = SDL_CreateThread(handle_event, "event", &__event_callback);
 }
 

@@ -91,7 +91,7 @@ void do_system_logo(void)
 			cr = cairo_create(cs);
 
 			cairo_save(cr);
-			cairo_set_source_rgb(cr, 0, 0, 0);
+			cairo_set_source_rgb(cr, 0.2, 0.6, 0.8);
 			cairo_paint(cr);
 			cairo_restore(cr);
 

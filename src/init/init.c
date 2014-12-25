@@ -64,7 +64,6 @@ void do_system_rootfs(void)
 void do_system_logo(void)
 {
 	struct device_list_t * pos, * n;
-	cairo_surface_t * watermark;
 	cairo_surface_t * logo;
 	cairo_surface_t * cs;
 	cairo_t * cr;
@@ -72,11 +71,6 @@ void do_system_logo(void)
 	int x, y;
 
 	LOG("Display system logo");
-
-	if(! machine_authentication())
-		watermark = cairo_image_surface_create_from_png("/romdisk/framework/assets/images/watermark.png");
-	else
-		watermark = NULL;
 	logo = cairo_image_surface_create_from_png("/romdisk/framework/assets/images/logo.png");
 
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
@@ -100,14 +94,6 @@ void do_system_logo(void)
 			cairo_set_source_surface(cr, logo, x, y);
 			cairo_paint(cr);
 
-			if(watermark)
-			{
-				x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(watermark)) / 2;
-				y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(watermark)) / 2;
-				cairo_set_source_surface(cr, watermark, x, y);
-				cairo_paint_with_alpha(cr, 0.9);
-			}
-
 			cairo_destroy(cr);
 			cairo_xboot_surface_present(cs);
 			cairo_surface_destroy(cs);
@@ -116,8 +102,6 @@ void do_system_logo(void)
 		}
 	}
 
-	if(watermark)
-		cairo_surface_destroy(watermark);
 	cairo_surface_destroy(logo);
 }
 

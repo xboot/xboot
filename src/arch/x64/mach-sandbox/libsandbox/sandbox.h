@@ -94,4 +94,13 @@ void sandbox_sdl_timer_exit(void);
 uint64_t sandbox_get_time_counter(void);
 uint64_t sandbox_get_time_frequency(void);
 
+/*
+ * Sysfs interface
+ */
+int sandbox_sysfs_access(const char * path);
+int sandbox_sysfs_read_value(const char * path, int * v);
+int sandbox_sysfs_write_value(const char * path, const int v);
+int sandbox_sysfs_read_string(const char * path, char * s);
+int sandbox_sysfs_write_string(const char * path, const char * s);
+
 #endif /* __SANDBOX_H__ */

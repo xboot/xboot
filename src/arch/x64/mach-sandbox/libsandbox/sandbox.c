@@ -33,10 +33,10 @@ static struct sandbox_config_t __sandbox_config = {
 	.application	= NULL,
 };
 
-static char * read_json_config_file(const char * filename)
+static char * json_config_file(const char * filename)
 {
 	ssize_t len;
-	char * content;
+	char * buf;
 	int fd;
 
 	fd = sandbox_file_open(filename);
@@ -47,14 +47,14 @@ static char * read_json_config_file(const char * filename)
 	if(len <= 0)
 		return NULL;
 
-	content = malloc(len + 1);
-	if(!content)
+	buf = malloc(len + 1);
+	if(!buf)
 		return NULL;
-	memset(content, 0, len + 1);
+	memset(buf, 0, len + 1);
 
 	sandbox_file_seek(fd, 0);
-	sandbox_file_read(fd, content, len);
-	return content;
+	sandbox_file_read(fd, buf, len);
+	return buf;
 }
 
 static void print_usage(void)
@@ -77,7 +77,7 @@ void sandbox_init(int argc, char * argv[])
 {
 	char * jsonfile = "/etc/xboot.json";
 	int i, idx = 0;
-	char * content;
+	char * json;
 
 	for(i = 1; i < argc; i++)
 	{
@@ -106,9 +106,9 @@ void sandbox_init(int argc, char * argv[])
 	/*
 	 * Read config file with json format
 	 */
-	content = read_json_config_file(jsonfile);
-	if(content)
-		__sandbox_config.json = content;
+	json = json_config_file(jsonfile);
+	if(json)
+		__sandbox_config.json = json;
 
 	/*
 	 * Initial sandbox system

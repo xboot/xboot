@@ -194,7 +194,7 @@ static __init void resource_json_init(void)
 	json_value * value = json_parse(cfg->json, strlen(cfg->json));
 	int i;
 
-	if(value->type == json_object)
+	if(value && (value->type == json_object))
 	{
 		for(i = 0; i < value->u.object.length; i++)
 		{

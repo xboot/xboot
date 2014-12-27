@@ -87,18 +87,17 @@ void sandbox_init(int argc, char * argv[])
 		}
 		else if(!strcmp(argv[i], "--config") && (argc > i + 1))
 		{
-			jsonfile = argv[++i];
+			if(sandbox_sysfs_file_exist(argv[++i]) == 0)
+				jsonfile = argv[i];
+			else
+				print_usage();
 		}
 		else
 		{
-			if(idx == 0)
-			{
+			if((idx == 0) && (sandbox_sysfs_file_exist(argv[i]) == 0))
 				__sandbox_config.application = argv[i];
-			}
-			else if(idx >= 1)
-			{
+			else
 				print_usage();
-			}
 			idx++;
 		}
 	}

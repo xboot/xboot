@@ -76,7 +76,7 @@ bool_t register_logger(struct logger_t * logger)
 
 	if(logger->output)
 	{
-		for(i = 0; i < 6; i++)
+		for(i = 0; i < 5; i++)
 		{
 			logger->output(xboot_character_logo_string(i), strlen(xboot_character_logo_string(i)));
 			logger->output("\r\n", 2);

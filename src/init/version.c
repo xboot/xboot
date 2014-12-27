@@ -49,3 +49,28 @@ const char * xboot_banner_string(void)
 {
 	return ("xboot version: "XBOOT_VERSION_STRING(XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH)" ("__DATE__" - "__TIME__") for ["__ARCH__"]["__MACH__"]");
 }
+
+/*
+ *         _
+ *        | |                  _
+ *   _  _ | |___ _____ _____ _| |_
+ *  \ \/ /|  _  |  _  |  _  |_   _|  (C) 2007-2015
+ *   )  ( | |_| | |_| | |_| | | |____JIANJUN.JIANG__
+ *  /_/\_\|_____|_____|_____| |_____________________|
+ *
+ */
+const char * xboot_character_logo_string(int i)
+{
+	static const char clogo[6][50] = {
+		"       _                                         ",
+		"      | |                  _                     ",
+		" _  _ | |___ _____ _____ _| |_                   ",
+		"\\ \\/ /|  _  |  _  |  _  |_   _|  (C) 2007-2015   ",
+		" )  ( | |_| | |_| | |_| | | |____JIANJUN.JIANG__ ",
+		"/_/\\_\\|_____|_____|_____| |_____________________|",
+	};
+
+	if(i < 0 && i > 5)
+		return "";
+	return &clogo[i][0];
+}

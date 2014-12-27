@@ -59,6 +59,7 @@ static struct logger_t * search_logger(const char * name)
 bool_t register_logger(struct logger_t * logger)
 {
 	struct logger_list_t * ll;
+	int i;
 
 	if(!logger || !logger->name)
 		return FALSE;
@@ -75,6 +76,11 @@ bool_t register_logger(struct logger_t * logger)
 
 	if(logger->output)
 	{
+		for(i = 0; i < 6; i++)
+		{
+			logger->output(xboot_character_logo_string(i), strlen(xboot_character_logo_string(i)));
+			logger->output("\r\n", 2);
+		}
 		logger->output(xboot_banner_string(), strlen(xboot_banner_string()));
 		logger->output("\r\n", 2);
 	}

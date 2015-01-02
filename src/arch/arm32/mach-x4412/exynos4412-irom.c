@@ -15,7 +15,7 @@
  *     look at the file of xboot.map.
  *
  *
- * Copyright(c) 2007-2014 Jianjun Jiang <8192542@qq.com>
+ * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
  * Mobile phone: +86-18665388956
  * QQ: 8192542

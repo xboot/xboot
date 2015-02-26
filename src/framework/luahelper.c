@@ -57,17 +57,6 @@ lua_Integer luahelper_get_intfield(lua_State * L, const char * key, lua_Integer 
 	return value;
 }
 
-lua_Unsigned luahelper_get_uintfield(lua_State * L, const char * key, lua_Unsigned def)
-{
-	lua_Unsigned value;
-
-	lua_getfield(L, -1, key);
-	value = luaL_optinteger(L, -1, def);
-	lua_pop(L, 1);
-
-	return value;
-}
-
 void luahelper_set_strfield(lua_State * L, const char * key, const char * value)
 {
 	lua_pushstring(L, value);
@@ -83,12 +72,6 @@ void luahelper_set_numfield(lua_State * L, const char * key, lua_Number value)
 void luahelper_set_intfield(lua_State * L, const char * key, lua_Integer value)
 {
 	lua_pushinteger(L, value);
-	lua_setfield(L, -2, key);
-}
-
-void luahelper_set_uintfield(lua_State * L, const char * key, lua_Unsigned value)
-{
-	lua_pushunsigned(L, value);
 	lua_setfield(L, -2, key);
 }
 

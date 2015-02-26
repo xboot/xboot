@@ -32,8 +32,8 @@ struct li2c_t {
 static int l_i2c_new(lua_State * L)
 {
 	const char * name = luaL_checkstring(L, 1);
-	u32_t addr = luaL_checkunsigned(L, 2);
-	u32_t flags = luaL_optunsigned(L, 3, 0);
+	u32_t addr = (u32_t)luaL_checkinteger(L, 2);
+	u32_t flags = (u32_t)luaL_optinteger(L, 3, 0);
 	struct li2c_t * i2c = lua_newuserdata(L, sizeof(struct li2c_t));
 	i2c->client = i2c_client_alloc(name, addr, flags);
 	if(!i2c->client)

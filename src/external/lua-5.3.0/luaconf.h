@@ -270,7 +270,6 @@
 ** ===================================================================
 */
 
-#define LUA_COMPAT_5_2
 /*
 @@ LUA_COMPAT_5_2 controls other macros for compatibility with Lua 5.2.
 @@ LUA_COMPAT_5_1 controls other macros for compatibility with Lua 5.1.

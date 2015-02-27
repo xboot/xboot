@@ -8,6 +8,8 @@ extern "C" {
 #include <xboot/module.h>
 #include <types.h>
 
+#define CLOCKS_PER_SEC	(1000000L)
+
 struct tm {
 	int tm_sec;
 	int tm_min;

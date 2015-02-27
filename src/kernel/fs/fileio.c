@@ -422,16 +422,16 @@ int access(const char * path, u32_t mode)
 /*
  * rename a file or directory
  */
-int rename(char * oldpath, char * newpath)
+int rename(const char * old, const char * new)
 {
 	char src[MAX_PATH];
 	char dest[MAX_PATH];
 	int err;
 
-	if((err = vfs_path_conv(oldpath, src)) != 0)
+	if((err = vfs_path_conv(old, src)) != 0)
 		return err;
 
-	if((err = vfs_path_conv(newpath, dest)) != 0)
+	if((err = vfs_path_conv(new, dest)) != 0)
 		return err;
 
 	return sys_rename(src, dest);

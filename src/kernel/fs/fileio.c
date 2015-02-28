@@ -452,6 +452,25 @@ int unlink(const char * path)
 }
 
 /*
+ * remove a file or directory
+ */
+int remove(const char * path)
+{
+	struct stat st;
+	int err = -1;
+
+    if(stat(path, &st) == 0)
+    {
+        if(S_ISDIR(st.st_mode))
+            err = rmdir(path);
+        else
+            err = unlink(path);
+    }
+
+    return err;
+}
+
+/*
  * create the special node.
  */
 int mknod(const char * path, u32_t mode)

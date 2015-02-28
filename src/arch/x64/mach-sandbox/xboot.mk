@@ -141,11 +141,11 @@ NS_FILEIO	:=	-Dmount=xboot_mount -Dsync=xboot_sync \
 				-Dchdir=xboot_chdir -Dmkdir=xboot_mkdir \
 				-Drmdir=xboot_rmdir -Dstat=xboot_stat \
 				-Daccess=xboot_access -Drename=xboot_rename \
-				-Dunlink=xboot_unlink -Dmknod=xboot_mknod \
-				-Dchmod=xboot_chmod -Dchown=xboot_chown \
-				-Dumask=xboot_umask -Dftruncate=xboot_ftruncate \
-				-Dtruncate=xboot_truncate -Dreadv=xboot_readv \
-				-Dwritev=xboot_writev
+				-Dunlink=xboot_unlink -Dremove=xboot_remove \
+				-Dmknod=xboot_mknod -Dchmod=xboot_chmod \
+				-Dchown=xboot_chown -Dumask=xboot_umask \
+				-Dftruncate=xboot_ftruncate -Dtruncate=xboot_truncate \
+				-Dreadv=xboot_readv -Dwritev=xboot_writev
 
 NS_TEMP		:=	-Dmktime=xboot_mktime -Dctrlc=xboot_ctrlc \
 				-Dexec_cmdline=xboot_exec_cmdline -Dparser=xboot_parser \

@@ -38,6 +38,7 @@ int stat(const char * path, struct stat * st);
 int access(const char * path, u32_t mode);
 int rename(const char * old, const char * new);
 int unlink(const char * path);
+int remove(const char * path);
 int mknod(const char * path, u32_t mode);
 int chmod(const char * path, u32_t mode);
 int chown(const char * path, u32_t owner, u32_t group);

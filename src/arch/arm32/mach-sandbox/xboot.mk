@@ -46,8 +46,9 @@ NS_STDIO	:=	-Dclearerr=xboot_clearerr -Dfclose=xboot_fclose \
 				-Dscanf=xboot_scanf -Dsetbuf=xboot_setbuf \
 				-Dsetvbuf=xboot_setvbuf -Dsnprintf=xboot_snprintf \
 				-Dsprintf=xboot_sprintf -Dsscanf=xboot_sscanf \
-				-Dtmpfile=xboot_tmpfile -Dungetc=xboot_ungetc \
-				-Dvsnprintf=xboot_vsnprintf -Dvsscanf=xboot_vsscanf
+				-Dtmpfile=xboot_tmpfile -Dtmpnam=xboot_tmpnam \
+				-Dungetc=xboot_ungetc -Dvsnprintf=xboot_vsnprintf \
+				-Dvsscanf=xboot_vsscanf
 
 NS_STDLIB	:=	-Drand=xboot_rand -Dsrand=xboot_srand \
 				-Dabs=xboot_abs -Dlabs=xboot_labs \
@@ -140,11 +141,11 @@ NS_FILEIO	:=	-Dmount=xboot_mount -Dsync=xboot_sync \
 				-Dchdir=xboot_chdir -Dmkdir=xboot_mkdir \
 				-Drmdir=xboot_rmdir -Dstat=xboot_stat \
 				-Daccess=xboot_access -Drename=xboot_rename \
-				-Dunlink=xboot_unlink -Dmknod=xboot_mknod \
-				-Dchmod=xboot_chmod -Dchown=xboot_chown \
-				-Dumask=xboot_umask -Dftruncate=xboot_ftruncate \
-				-Dtruncate=xboot_truncate -Dreadv=xboot_readv \
-				-Dwritev=xboot_writev
+				-Dunlink=xboot_unlink -Dremove=xboot_remove \
+				-Dmknod=xboot_mknod -Dchmod=xboot_chmod \
+				-Dchown=xboot_chown -Dumask=xboot_umask \
+				-Dftruncate=xboot_ftruncate -Dtruncate=xboot_truncate \
+				-Dreadv=xboot_readv -Dwritev=xboot_writev
 
 NS_TEMP		:=	-Dmktime=xboot_mktime -Dctrlc=xboot_ctrlc \
 				-Dexec_cmdline=xboot_exec_cmdline -Dparser=xboot_parser \

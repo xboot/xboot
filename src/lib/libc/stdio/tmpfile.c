@@ -11,7 +11,7 @@ FILE * tmpfile(void)
 	char path[MAX_PATH];
 
 	do {
-		sprintf(path, "%s/tmp.%d", "/tmp", rand());
+		sprintf(path, "%s/tmpfile_%d", "/tmp", rand());
 	} while(stat(path, &st) == 0);
 
 	return fopen(path, "wb+");

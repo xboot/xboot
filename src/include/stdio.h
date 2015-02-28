@@ -18,23 +18,27 @@ extern "C" {
 #include <string.h>
 
 #ifndef EOF
-#define EOF		(-1)
+#define EOF			(-1)
 #endif
 
 #ifndef BUFSIZ
-#define BUFSIZ	(4096)
+#define BUFSIZ		(4096)
+#endif
+
+#ifndef L_tmpnam
+#define L_tmpnam	(32)
 #endif
 
 enum {
-	_IONBF		= 0,
-	_IOLBF		= 1,
-	_IOFBF		= 2,
+	_IONBF			= 0,
+	_IOLBF			= 1,
+	_IOFBF			= 2,
 };
 
 enum {
-	SEEK_SET	= 0,		/* set file offset to offset */
-	SEEK_CUR	= 1,		/* set file offset to current plus offset */
-	SEEK_END	= 2,		/* set file offset to EOF plus offset */
+	SEEK_SET		= 0,		/* set file offset to offset */
+	SEEK_CUR		= 1,		/* set file offset to current plus offset */
+	SEEK_END		= 2,		/* set file offset to EOF plus offset */
 };
 
 /*
@@ -102,6 +106,7 @@ int setvbuf(FILE * f, char * buf, int mode, size_t size);
 void setbuf(FILE * f, char * buf);
 
 FILE * tmpfile(void);
+char * tmpnam(char * buf);
 
 int fprintf(FILE * f, const char * fmt, ...);
 int fscanf(FILE * f, const char * fmt, ...);

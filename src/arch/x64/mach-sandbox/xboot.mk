@@ -148,7 +148,7 @@ NS_FILEIO	:=	-Dmount=xboot_mount -Dsync=xboot_sync \
 				-Dreadv=xboot_readv -Dwritev=xboot_writev
 
 NS_TEMP		:=	-Dmktime=xboot_mktime -Dctrlc=xboot_ctrlc \
-				-Dexec_cmdline=xboot_exec_cmdline -Dparser=xboot_parser \
+				-Dsystem=xboot_system -Dparser=xboot_parser \
 				-Dreadline=xboot_readline
 
 DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \

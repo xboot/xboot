@@ -1,5 +1,5 @@
 /*
- * kernel/shell/exec.c
+ * kernel/shell/system.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,10 +24,10 @@
 
 #include <xboot.h>
 #include <shell/parser.h>
-#include <shell/exec.h>
+#include <shell/system.h>
 #include <command/command.h>
 
-void exec_cmdline(const char * cmdline)
+void system(const char * cmdline)
 {
 	struct command_t * cmd;
 	char **args;
@@ -99,4 +99,4 @@ void exec_cmdline(const char * cmdline)
 
 	free(buf);
 }
-EXPORT_SYMBOL(exec_cmdline);
+EXPORT_SYMBOL(system);

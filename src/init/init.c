@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <cairo-xboot.h>
 #include <console/console.h>
-#include <shell/exec.h>
+#include <shell/system.h>
 #include <fb/fb.h>
 #include <init.h>
 
@@ -124,5 +124,5 @@ void do_system_autoboot(void)
 		printf("\rPress any key to stop autoboot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	} while(delay > 0);
 
-	exec_cmdline(CONFIG_AUTO_BOOT_COMMAND);
+	system(CONFIG_AUTO_BOOT_COMMAND);
 }

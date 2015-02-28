@@ -18,7 +18,7 @@
 #include <xboot/initcall.h>
 #include <xboot/resource.h>
 #include <xboot/module.h>
-#include <shell/exec.h>
+#include <shell/system.h>
 #include <fb/fb.h>
 #include <rtc/rtc.h>
 #include <input/input.h>

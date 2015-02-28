@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <shell/exec.h>
+#include <shell/system.h>
 #include <shell/readline.h>
 
 void run_shell(void)
@@ -36,6 +36,6 @@ void run_shell(void)
 	sprintf(prompt, "xboot: %s$ ", cwd);
 
 	p = readline(prompt);
-	exec_cmdline(p);
+	system(p);
 	free(p);
 }

@@ -21,3 +21,5 @@ stage:addChild(prevbtn)
 local nextbtn = Widget.Button.new({x = width - 150, y = height - 100, width = 100, height = 50})
 	:addEventListener("Click", function(d, e) testcases:next() end)
 stage:addChild(nextbtn)
+
+application:fps(true)

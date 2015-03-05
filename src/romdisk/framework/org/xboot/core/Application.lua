@@ -16,7 +16,6 @@ function M:init()
 	self.assets = Assets.new()
 	self.timermanager = TimerManager.new()
 	self.running = false
-	self.fpsflag = false
 end
 
 function M:getScreenSize()
@@ -45,12 +44,8 @@ function M:getTimerManager()
 	return self.timermanager
 end
 
-function M:fps(enable)
-	if enable then
-		self.fpsflag = true
-	else
-		self.fpsflag = false
-	end
+function M:showfps(value)
+	self.display:showfps(value)
 	return self
 end
 
@@ -72,24 +67,12 @@ function M:exec()
 	local stage = self:getStage()
 	local timermanager = self:getTimerManager()
 	local stopwatch = Stopwatch.new()
-	local time = 0
-	local frame = 0
 
 	require("main")
 
 	timermanager:addTimer(Timer.new(1 / 60, 0, function(t, i)
 		stage:render(display, Event.new(Event.ENTER_FRAME, i))
 		display:present()
-		if self.fpsflag then
-			time = time + i.time
-			frame = frame + 1
-			if time > 0.5 then
-				local fps = math.floor(frame / time + 0.5)
-				print(fps)
-				time = 0
-				frame = 0
-			end
-		end
 	end))
 
 	self.running = true

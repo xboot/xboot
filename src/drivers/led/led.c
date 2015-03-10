@@ -156,7 +156,15 @@ void led_set_brightness(struct led_t * led, int brightness)
 
 int led_get_brightness(struct led_t * led)
 {
+	int brightness = 0;
+
 	if(led && led->get)
-		return led->get(led);
-	return 0;
+		brightness = led->get(led);
+
+	if(brightness < 0)
+		brightness = 0;
+	else if(brightness > CONFIG_MAX_BRIGHTNESS)
+		brightness = CONFIG_MAX_BRIGHTNESS;
+
+	return brightness;
 }

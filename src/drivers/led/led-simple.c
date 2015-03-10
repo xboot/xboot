@@ -56,7 +56,7 @@ static void led_simple_set(struct led_t * led, int brightness)
 
 	dat->brightness = brightness;
 	if(rdat->set)
-		return rdat->set(rdat, dat->brightness);
+		rdat->set(rdat, dat->brightness);
 }
 
 static int led_simple_get(struct led_t * led)

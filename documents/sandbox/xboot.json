@@ -1,22 +1,21 @@
 {
-	"console": {
-		"in" : "stdio",
-		"out": "stdio",
-		"err": "stdio",
-	},
-
-	"framebuffer": {
-		"width": 640,
-		"height": 480,
-		"xdpi": 160,
-		"ydpi": 160,
-		"fullscreen": false
-	},
-
-	"input": [
-		"keyboard",
-		"mouse",
-		"touchscreen",
-		"joystick"
-	],
+    "console": {
+        "in": "stdio",
+        "out": "stdio",
+        "err": "stdio"
+    },
+    "framebuffer": {
+        "width": 640,
+        "height": 480,
+        "xdpi": 160,
+        "ydpi": 160,
+        "fullscreen": false
+    },
+    "input": [
+        "keyboard",
+        "mouse",
+        "touchscreen",
+        "joystick"
+    ],
+    "led": [null]
 }

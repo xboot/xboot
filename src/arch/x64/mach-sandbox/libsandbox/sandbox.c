@@ -9,9 +9,8 @@ static const char default_json_config[] =
 	"\"console\": {"
 		"\"in\" : \"stdio\","
 		"\"out\": \"stdio\","
-		"\"err\": \"stdio\","
+		"\"err\": \"stdio\""
 	"},"
-	""
 	"\"framebuffer\": {"
 		"\"width\": 640,"
 		"\"height\": 480,"
@@ -19,13 +18,13 @@ static const char default_json_config[] =
 		"\"ydpi\": 160,"
 		"\"fullscreen\": false"
 	"},"
-	""
 	"\"input\": ["
 		"\"keyboard\","
 		"\"mouse\","
 		"\"touchscreen\","
 		"\"joystick\""
 	"],"
+	"\"led\": [null]"
 "}";
 
 static struct sandbox_config_t __sandbox_config = {

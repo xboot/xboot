@@ -98,7 +98,7 @@ uint64_t sandbox_get_time_frequency(void);
 /*
  * Sysfs interface
  */
-int sandbox_sysfs_access(const char * path);
+int sandbox_sysfs_access(const char * path, const char * mode);
 int sandbox_sysfs_read_value(const char * path, int * v);
 int sandbox_sysfs_write_value(const char * path, const int v);
 int sandbox_sysfs_read_string(const char * path, char * s);

@@ -4,9 +4,29 @@
 #include <fcntl.h>
 #include <sandbox.h>
 
-int sandbox_sysfs_access(const char * path)
+int sandbox_sysfs_access(const char * path, const char * mode)
 {
-	if(access(path, F_OK) == 0)
+	int m = F_OK;
+
+	while(*mode)
+	{
+		switch(*mode++)
+		{
+		case 'r':
+			m |= R_OK;
+			break;
+		case 'w':
+			m |= W_OK;
+			break;
+		case 'x':
+			m |= X_OK;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if(access(path, m) == 0)
 		return 0;
 	return -1;
 }

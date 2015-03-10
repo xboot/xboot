@@ -54,7 +54,7 @@ static int l_display_new(lua_State * L)
 	display->cr[0] = cairo_create(display->cs[0]);
 	display->cr[1] = cairo_create(display->cs[1]);
 	display->index = 0;
-	display->showfps = FALSE;
+	display->showfps = 0;
 	display->fps = 60;
 	display->frame = 0;
 	display->stamp = clocksource_gettime();

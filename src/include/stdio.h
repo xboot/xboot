@@ -97,6 +97,7 @@ int getchar(void);
 int getc(FILE * f);
 int fgetc(FILE * f);
 char * fgets(char * s, int n, FILE * f);
+int putchar(int c);
 int putc(int c, FILE * f);
 int fputc(int c, FILE * f);
 int fputs(const char * s, FILE * f);

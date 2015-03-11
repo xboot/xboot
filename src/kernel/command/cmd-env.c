@@ -23,15 +23,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <malloc.h>
-#include <runtime.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-
 
 #if	defined(CONFIG_COMMAND_ENV) && (CONFIG_COMMAND_ENV > 0)
 
@@ -41,7 +33,7 @@ static int env(int argc, char ** argv)
 	struct environ_t * p;
 	int i;
 
-	for(i=1; i<argc; ++i)
+	for(i = 1; i < argc; i++)
 	{
 		if(strchr(argv[i], '='))
 		{

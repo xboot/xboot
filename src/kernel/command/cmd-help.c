@@ -23,22 +23,12 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-
 
 #if	defined(CONFIG_COMMAND_HELP) && (CONFIG_COMMAND_HELP > 0)
 
 extern struct command_list * command_list;
 
-/**
- * the entry of help command.
- */
 static int help(int argc, char ** argv)
 {
 	struct command_list * list;
@@ -67,8 +57,7 @@ static int help(int argc, char ** argv)
 			if(j > k)	k = j;
 		}
 
-		/* sort command list (trivial bubble sort) */
-		for (i = cmd_num - 1; i > 0; --i)
+		for(i = cmd_num - 1; i > 0; --i)
 		{
 			swaps = 0;
 			for(j=0; j<i; ++j)
@@ -85,8 +74,7 @@ static int help(int argc, char ** argv)
 				break;
 		}
 
-		/* display online help (desc) */
-		for (i=0; i<cmd_num; i++)
+		for(i = 0; i < cmd_num; i++)
 		{
 			printf(" %s%*s - %s",cmd_array[i]->name, k-strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
 		}
@@ -94,7 +82,7 @@ static int help(int argc, char ** argv)
 	}
 	else
 	{
-		for (i=1; i<argc; ++i)
+		for (i = 1; i < argc; i++)
 		{
 			if( (cmd = command_search((char*)argv[i])) != NULL )
 			{

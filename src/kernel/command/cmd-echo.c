@@ -23,15 +23,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <ctype.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-
 
 #if	defined(CONFIG_COMMAND_ECHO) && (CONFIG_COMMAND_ECHO > 0)
 

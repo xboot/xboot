@@ -23,14 +23,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <version.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-
 
 #if	defined(CONFIG_COMMAND_GO) && (CONFIG_COMMAND_GO > 0)
 

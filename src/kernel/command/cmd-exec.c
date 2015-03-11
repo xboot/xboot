@@ -23,11 +23,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <framework/vm.h>
 #include <command/command.h>
 

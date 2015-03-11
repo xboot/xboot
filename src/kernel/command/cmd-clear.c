@@ -23,14 +23,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
-#include <console/console.h>
 #include <command/command.h>
-
 
 #if	defined(CONFIG_COMMAND_CLEAR) && (CONFIG_COMMAND_CLEAR > 0)
 

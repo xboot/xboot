@@ -23,17 +23,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <malloc.h>
-#include <stdlib.h>
-#include <time/tick.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fileio.h>
-
 
 #if	defined(CONFIG_COMMAND_FILERAM) && (CONFIG_COMMAND_FILERAM > 0)
 

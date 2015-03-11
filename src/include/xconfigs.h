@@ -56,8 +56,24 @@ extern "C" {
 #define	CONFIG_VARNAME_LENGTH						(256)
 #endif
 
-#if !defined(CONFIG_COMMAND_HELP)
-#define	CONFIG_COMMAND_HELP							(1)
+#if !defined(CONFIG_COMMAND_CAT)
+#define	CONFIG_COMMAND_CAT							(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_CD)
+#define	CONFIG_COMMAND_CD							(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_CKSUM)
+#define	CONFIG_COMMAND_CKSUM						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_CLEAR)
+#define	CONFIG_COMMAND_CLEAR						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_CP)
+#define	CONFIG_COMMAND_CP							(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_ECHO)
@@ -72,44 +88,20 @@ extern "C" {
 #define	CONFIG_COMMAND_EXEC							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_HISTORY)
-#define	CONFIG_COMMAND_HISTORY						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_VERSION)
-#define	CONFIG_COMMAND_VERSION						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_CLEAR)
-#define	CONFIG_COMMAND_CLEAR						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_SLEEP)
-#define	CONFIG_COMMAND_SLEEP						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_SYNC)
-#define	CONFIG_COMMAND_SYNC							(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_MEMTEST)
-#define	CONFIG_COMMAND_MEMTEST						(1)
+#if !defined(CONFIG_COMMAND_FILERAM)
+#define	CONFIG_COMMAND_FILERAM						(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_GO)
 #define	CONFIG_COMMAND_GO							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_REBOOT)
-#define	CONFIG_COMMAND_REBOOT						(1)
+#if !defined(CONFIG_COMMAND_HELP)
+#define	CONFIG_COMMAND_HELP							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_XMODEM)
-#define	CONFIG_COMMAND_XMODEM						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_SHUTDOWN)
-#define	CONFIG_COMMAND_SHUTDOWN						(1)
+#if !defined(CONFIG_COMMAND_LS)
+#define	CONFIG_COMMAND_LS							(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_MC)
@@ -120,68 +112,68 @@ extern "C" {
 #define	CONFIG_COMMAND_MD							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_MW)
-#define	CONFIG_COMMAND_MW							(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_CKSUM)
-#define	CONFIG_COMMAND_CKSUM						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_LOAD)
-#define	CONFIG_COMMAND_LOAD							(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_MOUNT)
-#define	CONFIG_COMMAND_MOUNT						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_UMOUNT)
-#define	CONFIG_COMMAND_UMOUNT						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_LS)
-#define	CONFIG_COMMAND_LS							(1)
+#if !defined(CONFIG_COMMAND_MEMTEST)
+#define	CONFIG_COMMAND_MEMTEST						(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_MKDIR)
 #define	CONFIG_COMMAND_MKDIR						(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_CD)
-#define	CONFIG_COMMAND_CD							(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_PWD)
-#define	CONFIG_COMMAND_PWD							(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_RMDIR)
-#define	CONFIG_COMMAND_RMDIR						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_RM)
-#define	CONFIG_COMMAND_RM							(1)
+#if !defined(CONFIG_COMMAND_MOUNT)
+#define	CONFIG_COMMAND_MOUNT						(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_MV)
 #define	CONFIG_COMMAND_MV							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_FILERAM)
-#define	CONFIG_COMMAND_FILERAM						(1)
+#if !defined(CONFIG_COMMAND_MW)
+#define	CONFIG_COMMAND_MW							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_CP)
-#define	CONFIG_COMMAND_CP							(1)
+#if !defined(CONFIG_COMMAND_PWD)
+#define	CONFIG_COMMAND_PWD							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_CAT)
-#define	CONFIG_COMMAND_CAT							(1)
+#if !defined(CONFIG_COMMAND_REBOOT)
+#define	CONFIG_COMMAND_REBOOT						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_RM)
+#define	CONFIG_COMMAND_RM							(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_RMDIR)
+#define	CONFIG_COMMAND_RMDIR						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_SHUTDOWN)
+#define	CONFIG_COMMAND_SHUTDOWN						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_SLEEP)
+#define	CONFIG_COMMAND_SLEEP						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_SYNC)
+#define	CONFIG_COMMAND_SYNC							(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_TEST)
 #define	CONFIG_COMMAND_TEST							(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_UMOUNT)
+#define	CONFIG_COMMAND_UMOUNT						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_VERSION)
+#define	CONFIG_COMMAND_VERSION						(1)
+#endif
+
+#if !defined(CONFIG_COMMAND_XMODEM)
+#define	CONFIG_COMMAND_XMODEM						(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_BOOTLINUX)

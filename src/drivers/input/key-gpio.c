@@ -31,12 +31,11 @@ struct key_gpio_private_data_t {
 	struct key_gpio_data_t * rdat;
 };
 
-static void key_gpio_timer_function(u32_t data)
+static void key_gpio_timer_function(void * data)
 {
 	struct input_t * input = (struct input_t *)(data);
 	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
 	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
-	struct event_t event;
 	enum event_type_t type;
 	int i, val;
 
@@ -81,7 +80,7 @@ static void input_init(struct input_t * input)
 		dat->state[i] = gpio_get_value(rdat->buttons[i].gpio);
 	}
 
-	setup_timer(&dat->timer, key_gpio_timer_function, (u32_t)input);
+	setup_timer(&dat->timer, key_gpio_timer_function, input);
 	mod_timer(&(dat->timer), jiffies + msecs_to_jiffies(100));
 }
 

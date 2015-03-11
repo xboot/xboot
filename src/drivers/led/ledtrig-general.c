@@ -33,7 +33,7 @@ struct ledtrig_general_data_t {
 	struct ledtrig_data_t * rdat;
 };
 
-static void general_timer_function(u32_t data)
+static void general_timer_function(void * data)
 {
 	struct ledtrig_t * trigger = (struct ledtrig_t *)(data);
 	struct ledtrig_general_data_t * dat = (struct ledtrig_general_data_t *)trigger->priv;
@@ -57,7 +57,7 @@ static void ledtrig_general_init(struct ledtrig_t * trigger)
 
 	if(dat)
 	{
-		setup_timer(&dat->timer, general_timer_function, (u32_t)trigger);
+		setup_timer(&dat->timer, general_timer_function, trigger);
 		dat->activity = 0;
 		dat->last_activity = 0;
 	}

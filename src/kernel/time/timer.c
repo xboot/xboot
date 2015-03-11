@@ -132,8 +132,8 @@ void schedule_timer_task(void)
 {
 	struct list_head *head, *curr;
 	struct timer_t * timer;
-	void (*fn)(u32_t);
-	u32_t data;
+	void (*fn)(void *);
+	void * data;
 	s32_t n = 1;
 
 	while((s32_t)(jiffies - timer_jiffies) >= 0)
@@ -203,7 +203,7 @@ bool_t del_timer(struct timer_t * timer)
 	return ret;
 }
 
-void setup_timer(struct timer_t * timer, void (*function)(u32_t), u32_t data)
+void setup_timer(struct timer_t * timer, void (*function)(void *), void * data)
 {
 	timer->function = function;
 	timer->data = data;

@@ -33,7 +33,7 @@ struct ledtrig_heartbeat_data_t {
 	struct ledtrig_data_t * rdat;
 };
 
-static void heartbeat_timer_function(u32_t data)
+static void heartbeat_timer_function(void * data)
 {
 	struct ledtrig_t * trigger = (struct ledtrig_t *)(data);
 	struct ledtrig_heartbeat_data_t * dat = (struct ledtrig_heartbeat_data_t *)trigger->priv;
@@ -82,7 +82,7 @@ static void ledtrig_heartbeat_init(struct ledtrig_t * trigger)
 
 	if(dat)
 	{
-		setup_timer(&dat->timer, heartbeat_timer_function, (u32_t)trigger);
+		setup_timer(&dat->timer, heartbeat_timer_function, trigger);
 		dat->phase = 0;
 		heartbeat_timer_function(dat->timer.data);
 	}

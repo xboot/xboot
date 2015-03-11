@@ -14,8 +14,8 @@ extern "C" {
 struct timer_t {
 	struct list_head list;
 	u32_t expires;
-	u32_t data;
-	void (*function)(u32_t);
+	void * data;
+	void (*function)(void *);
 };
 
 void init_timer(struct timer_t * timer);
@@ -23,7 +23,7 @@ bool_t timer_pending(const struct timer_t * timer);
 void add_timer(struct timer_t * timer);
 bool_t mod_timer(struct timer_t * timer, u32_t expires);
 bool_t del_timer(struct timer_t * timer);
-void setup_timer(struct timer_t * timer, void (*function)(u32_t), u32_t data);
+void setup_timer(struct timer_t * timer, void (*function)(void *), void * data);
 
 void schedule_timer_task(void);
 

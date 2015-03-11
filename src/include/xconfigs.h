@@ -168,6 +168,10 @@ extern "C" {
 #define	CONFIG_COMMAND_VERSION						(1)
 #endif
 
+#if !defined(CONFIG_COMMAND_WRITE)
+#define	CONFIG_COMMAND_WRITE						(1)
+#endif
+
 #if !defined(CONFIG_COMMAND_XMODEM)
 #define	CONFIG_COMMAND_XMODEM						(1)
 #endif

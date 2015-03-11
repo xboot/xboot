@@ -27,28 +27,10 @@
 
 #if	defined(CONFIG_COMMAND_WRITE) && (CONFIG_COMMAND_WRITE > 0)
 
-static int write_file(const char * filename, const char * value)
-{
-	int fd;
-	size_t len;
-	ssize_t ret;
-
-	fd = open(filename, O_WRONLY | O_CREAT, 0600);
-	if(fd < 0)
-		return -1;
-
-	len = strlen(value);
-	do {
-		ret = write(fd, value, len);
-	} while(ret < 0);
-
-	close(fd);
-	return ret;
-}
-
 static int do_write(int argc, char ** argv)
 {
-	int i;
+	int fd;
+	ssize_t ret;
 
 	if(argc != 3)
 	{
@@ -56,19 +38,20 @@ static int do_write(int argc, char ** argv)
 		return -1;
 	}
 
-	for(i = 1; i < argc; i++)
-	{
-		if(write_one_file(argv[i]) != 0)
-			return -1;
-	}
-	return 0;
+	fd = open(argv[2], O_WRONLY | O_CREAT, (S_IRUSR|S_IWUSR));
+	if(fd < 0)
+		return -1;
+
+	ret = write(fd, argv[1], strlen(argv[1]));
+	close(fd);
+	return ret < 0 ? -1 : 0;
 }
 
 static struct command_t write_cmd = {
 	.name		= "write",
 	.func		= do_write,
 	.desc		= "write contents to a file\r\n",
-	.usage		= "write <file> ...\r\n",
+	.usage		= "write <string> <file>\r\n",
 	.help		= "    write contents to a file.\r\n"
 };
 

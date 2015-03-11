@@ -84,10 +84,6 @@ extern "C" {
 #define	CONFIG_COMMAND_CLEAR						(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_PROBE)
-#define	CONFIG_COMMAND_PROBE						(1)
-#endif
-
 #if !defined(CONFIG_COMMAND_NAND)
 #define	CONFIG_COMMAND_NAND							(1)
 #endif

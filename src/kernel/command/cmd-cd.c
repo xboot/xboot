@@ -23,14 +23,7 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fileio.h>
-
 
 #if	defined(CONFIG_COMMAND_CD) && (CONFIG_COMMAND_CD > 0)
 
@@ -40,15 +33,15 @@ static int do_cd(int argc, char ** argv)
 	{
 		if(chdir("/") != 0)
 		{
-			printf("cd: %s: no such directory\r\n", "/");
+			printf("cd: %s: No such file or directory\r\n", "/");
 			return -1;
 		}
 	}
 	else
 	{
-		if(chdir((char *)argv[1]) != 0)
+		if(chdir(argv[1]) != 0)
 		{
-			printf("cd: %s: no such directory\r\n", argv[1]);
+			printf("cd: %s: No such file or directory\r\n", argv[1]);
 			return -1;
 		}
 	}

@@ -23,76 +23,63 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <ctype.h>
-#include <string.h>
-#include <malloc.h>
-#include <fs/fileio.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
 
 #if	defined(CONFIG_COMMAND_CAT) && (CONFIG_COMMAND_CAT > 0)
 
-static int cat(int argc, char ** argv)
+static int cat_one_file(const char * filename)
 {
-	struct stat st;
-	s8_t * buf;
-	s32_t fd;
-	s32_t i, n;
-	s8_t c;
+    struct stat st;
+	char buf[SZ_4K];
+    ssize_t i, n;
+    int fd;
 
-	if(argc != 2)
+	if(stat(filename, &st) != 0)
 	{
-		printf("usage:\r\n    cat <file>\r\n");
-		return -1;
-	}
-
-	if(stat((const char *)argv[1], &st) != 0)
-	{
-		printf("cat: cannot access %s: No such file or directory\r\n", argv[1]);
+		printf("cat: %s: No such file or directory\r\n", filename);
 		return -1;
 	}
 
 	if(S_ISDIR(st.st_mode))
 	{
-		printf("cat: the file %s is a directory\r\n", argv[1]);
+		printf("cat: %s: Is a directory\r\n", filename);
 		return -1;
 	}
 
-	buf = malloc(SZ_64K);
-	if(!buf)
-		return -1;
-
-	fd = open((const char *)argv[1], O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 	if(fd < 0)
 	{
-		printf("can not to open the file '%s'\r\n", argv[1]);
-		free(buf);
+		printf("cat: %s: Can not open\r\n", filename);
 		return -1;
 	}
 
-	while((n = read(fd, (void *)buf, SZ_64K)) > 0)
+	while((n = read(fd, buf, sizeof(buf))) > 0)
 	{
 		for(i = 0; i < n; i++)
-		{
-			c = buf[i];
-
-			if(isprint(c) || isspace(c))
-			{
-				if(c == '\n')
-					printf("\r");
-				printf("%c", c);
-			}
-			else
-				printf("<%02x>", c);
-		}
+			putchar(buf[i]);
 	}
-	printf("\r\n");
 
-	free(buf);
 	close(fd);
+	return 0;
+}
 
+static int cat(int argc, char ** argv)
+{
+	int i;
+
+	if(argc == 1)
+	{
+		printf("usage:\r\n    cat <file> ...\r\n");
+		return -1;
+	}
+
+	for(i = 1; i < argc; i++)
+	{
+		if(cat_one_file(argv[i]) != 0)
+			return -1;
+	}
+
+	printf("\r\n");
 	return 0;
 }
 
@@ -100,7 +87,7 @@ static struct command_t cat_cmd = {
 	.name		= "cat",
 	.func		= cat,
 	.desc		= "show the contents of a file\r\n",
-	.usage		= "cat <file>\r\n",
+	.usage		= "cat <file> ...\r\n",
 	.help		= "    show the contents of a file.\r\n"
 };
 

@@ -64,10 +64,6 @@ extern "C" {
 #define	CONFIG_COMMAND_CD							(1)
 #endif
 
-#if !defined(CONFIG_COMMAND_CKSUM)
-#define	CONFIG_COMMAND_CKSUM						(1)
-#endif
-
 #if !defined(CONFIG_COMMAND_CLEAR)
 #define	CONFIG_COMMAND_CLEAR						(1)
 #endif

@@ -27,160 +27,26 @@
 
 #if	defined(CONFIG_COMMAND_ECHO) && (CONFIG_COMMAND_ECHO > 0)
 
-static int hextobin (char c)
-{
-	switch (c)
-    {
-    default: return c - '0';
-    case 'a': case 'A': return 10;
-    case 'b': case 'B': return 11;
-    case 'c': case 'C': return 12;
-    case 'd': case 'D': return 13;
-    case 'e': case 'E': return 14;
-    case 'f': case 'F': return 15;
-    }
-}
-
 static int echo(int argc, char ** argv)
 {
-	const char *temp;
-	const char *s;
-	char c, ch;
-	int i;
-	bool_t do_v9 = FALSE;
-	bool_t display_return = TRUE;
+	int nflag = 0;
 
-	--argc;
-	++argv;
-
-	while(argc > 0 && *argv[0] == '-')
+	if(*++argv && !strcmp(*argv, "-n"))
 	{
-		temp = argv[0] + 1;
-
-		/*
-		 * If it appears that we are handling options, then make sure that
-		 * all of the options specified are actually valid.  Otherwise, the
-		 * string should just be echoed.
-		 */
-		for(i = 0; temp[i]; i++)
-		{
-			switch (temp[i])
-			{
-			case 'e':
-			case 'E':
-			case 'n':
-				break;
-			default:
-				goto just_echo;
-			}
-		}
-
-		if (i == 0)
-		  goto just_echo;
-
-		/*
-		 * All of the options in TEMP are valid options to ECHO.
-		 * Handle them.
-		 */
-		while(*temp)
-		{
-			switch(*temp++)
-		    {
-		    case 'e':
-		      do_v9 = TRUE;
-		      break;
-
-		    case 'E':
-		      do_v9 = FALSE;
-		      break;
-
-		    case 'n':
-		      display_return = FALSE;
-		      break;
-		    }
-		}
-
-		argc--;
-		argv++;
+		++argv;
+		nflag = 1;
 	}
 
-just_echo:
-	if(do_v9)
+	while(*argv)
 	{
-		while(argc > 0)
-		{
-			s = argv[0];
-			while ((c = *s++))
-		    {
-				if (c == '\\' && *s)
-				{
-					switch (c = *s++)
-					{
-					case 'a': c = '\a'; break;
-					case 'b': c = '\b'; break;
-					case 'c': return 0;
-					case 'f': c = '\f'; break;
-					case 'n': c = '\n'; break;
-					case 'r': c = '\r'; break;
-					case 't': c = '\t'; break;
-					case 'v': c = '\v'; break;
-					case 'x':
-						ch = *s;
-						if (! isxdigit (ch))
-							goto not_an_escape;
-						s++;
-						c = hextobin (ch);
-						ch = *s;
-						if (isxdigit (ch))
-						{
-							s++;
-							c = c * 16 + hextobin (ch);
-						}
-						break;
-					case '0':
-						c = 0;
-						if (! ('0' <= *s && *s <= '7'))
-							break;
-						c = *s++;
-						/* fall through */
-					case '1': case '2': case '3':
-					case '4': case '5': case '6': case '7':
-						c -= '0';
-						if ('0' <= *s && *s <= '7')
-							c = c * 8 + (*s++ - '0');
-						if ('0' <= *s && *s <= '7')
-							c = c * 8 + (*s++ - '0');
-						break;
-					case '\\':
-						break;
-not_an_escape:
-					default:
-						printf("\\");
-						break;
-					}
-				}
-				printf("%c", c);
-		    }
-			argc--;
-			argv++;
-			if (argc > 0)
-				printf(" ");
-		}
-	}
-	else
-	{
-		while(argc > 0)
-		{
-			printf("%s",argv[0]);
-			argc--;
-			argv++;
-			if(argc > 0)
-				printf(" ");
-		}
+		printf("%s", *argv);
+		if(*++argv)
+			putchar(' ');
 	}
 
-	if(display_return)
+	if(nflag == 0)
 		printf("\r\n");
+	fflush(stdout);
 
 	return 0;
 }
@@ -192,8 +58,6 @@ static struct command_t echo_cmd = {
 	.usage		= "echo [OPTION]... [STRING]...\r\n",
 	.help		= "    echo the STRING(s) to standard output.\r\n"
 				  "    -n    do not output the trailing newline\r\n"
-				  "    -e    enable interpretation of backslash escapes\r\n"
-				  "    -E    disable interpretation of backslash escapes (default)\r\n"
 };
 
 static __init void echo_cmd_init(void)

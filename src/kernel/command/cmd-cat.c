@@ -30,7 +30,7 @@
 static int cat_one_file(const char * filename)
 {
     struct stat st;
-	char buf[SZ_4K];
+	char buf[BUFSIZ];
     ssize_t i, n;
     int fd;
 
@@ -78,8 +78,6 @@ static int cat(int argc, char ** argv)
 		if(cat_one_file(argv[i]) != 0)
 			return -1;
 	}
-
-	printf("\r\n");
 	return 0;
 }
 

@@ -74,7 +74,7 @@ struct sandbox_config_t * sandbox_get_config(void)
 
 void sandbox_init(int argc, char * argv[])
 {
-	char * jsonfile = "/etc/xboot.json";
+	char * jsonfile = "xboot.json";
 	int i, idx = 0;
 	char * json;
 

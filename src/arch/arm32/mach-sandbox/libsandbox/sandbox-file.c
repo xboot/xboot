@@ -7,9 +7,9 @@
 #include <errno.h>
 #include <sandbox.h>
 
-int sandbox_file_open(const char * filename)
+int sandbox_file_open(const char * path)
 {
-	int fd = open(filename, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH));
+	int fd = open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH));
 	return fd < 0 ? 0 : fd;
 }
 
@@ -17,6 +17,13 @@ int sandbox_file_close(int fd)
 {
 	int ret = close(fd);
 	return ret < 0 ? 0 : 1;
+}
+
+int sandbox_sysfs_file_exist(const char * path)
+{
+	if(access(path, F_OK) == 0)
+		return 0;
+	return -1;
 }
 
 ssize_t sandbox_file_read(int fd, void * buf, size_t count)
@@ -51,13 +58,16 @@ ssize_t sandbox_file_write(int fd, const void * buf, size_t count)
 	return (ret > 0) ? ret: 0;
 }
 
-ssize_t sandbox_file_seek(int fd, size_t offset)
+uint64_t sandbox_file_seek(int fd, uint64_t offset)
 {
-	return lseek(fd, offset, SEEK_SET);
+	return (uint64_t)lseek(fd, offset, SEEK_SET);
 }
 
-ssize_t sandbox_file_length(int fd)
+uint64_t sandbox_file_length(int fd)
 {
-	ssize_t ret = lseek(fd, 0, SEEK_END);
+	off_t off, ret;
+	off = lseek(fd, 0, SEEK_CUR);
+	ret = lseek(fd, 0, SEEK_END);
+	lseek(fd, off, SEEK_SET);
 	return (ret > 0) ? ret: 0;
 }

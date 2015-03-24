@@ -42,13 +42,13 @@ NS_STDIO	:=	-Dclearerr=xboot_clearerr -Dfclose=xboot_fclose \
 				-Dfsetpos=xboot_fsetpos -Dftell=xboot_ftell \
 				-Dfwrite=xboot_fwrite -Dgetc=xboot_getc \
 				-Dgetchar=xboot_getchar -Dprintf=xboot_printf \
-				-Dputc=xboot_putc -Drewind=xboot_rewind \
-				-Dscanf=xboot_scanf -Dsetbuf=xboot_setbuf \
-				-Dsetvbuf=xboot_setvbuf -Dsnprintf=xboot_snprintf \
-				-Dsprintf=xboot_sprintf -Dsscanf=xboot_sscanf \
-				-Dtmpfile=xboot_tmpfile -Dtmpnam=xboot_tmpnam \
-				-Dungetc=xboot_ungetc -Dvsnprintf=xboot_vsnprintf \
-				-Dvsscanf=xboot_vsscanf
+				-Dputchar=xboot_putchar -Dputc=xboot_putc \
+				-Drewind=xboot_rewind -Dscanf=xboot_scanf \
+				-Dsetbuf=xboot_setbuf -Dsetvbuf=xboot_setvbuf \
+				-Dsnprintf=xboot_snprintf -Dsprintf=xboot_sprintf \
+				-Dsscanf=xboot_sscanf -Dtmpfile=xboot_tmpfile \
+				-Dtmpnam=xboot_tmpnam -Dungetc=xboot_ungetc \
+				-Dvsnprintf=xboot_vsnprintf -Dvsscanf=xboot_vsscanf
 
 NS_STDLIB	:=	-Drand=xboot_rand -Dsrand=xboot_srand \
 				-Dabs=xboot_abs -Dlabs=xboot_labs \

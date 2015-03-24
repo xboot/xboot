@@ -25,13 +25,14 @@ ssize_t sandbox_console_write(void * buf, size_t count);
 /*
  * File interface
  */
-int sandbox_file_open(const char * filename);
+int sandbox_file_open(const char * path);
 int sandbox_file_close(int fd);
+int sandbox_sysfs_file_exist(const char * path);
 ssize_t sandbox_file_read(int fd, void * buf, size_t count);
 ssize_t sandbox_file_read_nonblock(int fd, void * buf, size_t count);
 ssize_t sandbox_file_write(int fd, const void * buf, size_t count);
-ssize_t sandbox_file_seek(int fd, size_t offset);
-ssize_t sandbox_file_length(int fd);
+uint64_t sandbox_file_seek(int fd, uint64_t offset);
+uint64_t sandbox_file_length(int fd);
 
 /*
  * PM interface
@@ -93,5 +94,14 @@ void sandbox_sdl_timer_init(int delay, void (*cb)(void));
 void sandbox_sdl_timer_exit(void);
 uint64_t sandbox_get_time_counter(void);
 uint64_t sandbox_get_time_frequency(void);
+
+/*
+ * Sysfs interface
+ */
+int sandbox_sysfs_access(const char * path, const char * mode);
+int sandbox_sysfs_read_value(const char * path, int * v);
+int sandbox_sysfs_write_value(const char * path, const int v);
+int sandbox_sysfs_read_string(const char * path, char * s);
+int sandbox_sysfs_write_string(const char * path, const char * s);
 
 #endif /* __SANDBOX_H__ */

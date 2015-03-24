@@ -63,7 +63,7 @@ static int cat_one_file(const char * filename)
 	return 0;
 }
 
-static int cat(int argc, char ** argv)
+static int do_cat(int argc, char ** argv)
 {
 	int i;
 
@@ -83,7 +83,7 @@ static int cat(int argc, char ** argv)
 
 static struct command_t cat_cmd = {
 	.name		= "cat",
-	.func		= cat,
+	.func		= do_cat,
 	.desc		= "show the contents of a file\r\n",
 	.usage		= "cat <file> ...\r\n",
 	.help		= "    show the contents of a file.\r\n"

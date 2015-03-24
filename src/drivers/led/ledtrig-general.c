@@ -22,7 +22,6 @@
  *
  */
 
-#include <xboot.h>
 #include <led/ledtrig.h>
 
 struct ledtrig_general_data_t {

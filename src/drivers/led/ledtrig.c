@@ -22,7 +22,6 @@
  *
  */
 
-#include <xboot.h>
 #include <led/ledtrig.h>
 
 static void ledtrig_suspend(struct device_t * dev)

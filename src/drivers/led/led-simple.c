@@ -22,7 +22,6 @@
  *
  */
 
-#include <xboot.h>
 #include <led/led-simple.h>
 
 struct led_simple_private_data_t {
@@ -54,9 +53,12 @@ static void led_simple_set(struct led_t * led, int brightness)
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
 	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
 
-	dat->brightness = brightness;
-	if(rdat->set)
-		rdat->set(rdat, dat->brightness);
+	if(dat->brightness != brightness)
+	{
+		if(rdat->set)
+			rdat->set(rdat, dat->brightness);
+		dat->brightness = brightness;
+	}
 }
 
 static int led_simple_get(struct led_t * led)

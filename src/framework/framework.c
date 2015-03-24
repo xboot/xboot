@@ -53,6 +53,7 @@ static const luaL_Reg xboot_libs[] = {
 	{ "builtin.hardware.pwm",		luaopen_hardware_pwm },
 	{ "builtin.hardware.led",		luaopen_hardware_led },
 	{ "builtin.hardware.ledtrig",	luaopen_hardware_ledtrig },
+	{ "builtin.hardware.buzzer",	luaopen_hardware_buzzer },
 	{ "builtin.hardware.watchdog",	luaopen_hardware_watchdog },
 
 	{ NULL, NULL }

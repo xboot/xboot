@@ -34,6 +34,7 @@ Hardware = {
 	pwm = require "builtin.hardware.pwm",
 	led = require "builtin.hardware.led",
 	ledtrig = require "builtin.hardware.ledtrig",
+	buzzer = require "builtin.hardware.buzzer",
 	watchdog = require "builtin.hardware.watchdog",
 }
 

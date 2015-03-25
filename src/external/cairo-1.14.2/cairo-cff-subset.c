@@ -433,7 +433,7 @@ cff_index_read (cairo_array_t *index, unsigned char **ptr, unsigned char *end_pt
     p = *ptr;
     if (p + 2 > end_ptr)
         return CAIRO_INT_STATUS_UNSUPPORTED;
-    count = be16_to_cpu( *((uint16_t *)p) );
+    count = get_unaligned_be16 (p);
     p += 2;
     if (count > 0) {
         offset_size = *p++;
@@ -984,14 +984,14 @@ cairo_cff_font_read_fdselect (cairo_cff_font_t *font, unsigned char *p)
         for (i = 0; i < font->num_glyphs; i++)
             font->fdselect[i] = *p++;
     } else if (type == 3) {
-        num_ranges = be16_to_cpu( *((uint16_t *)p) );
+        num_ranges = get_unaligned_be16 (p);
         p += 2;
         for  (i = 0; i < num_ranges; i++)
         {
-            first = be16_to_cpu( *((uint16_t *)p) );
+            first = get_unaligned_be16 (p);
             p += 2;
             fd = *p++;
-            last = be16_to_cpu( *((uint16_t *)p) );
+            last = get_unaligned_be16 (p);
             for (j = first; j < last; j++)
                 font->fdselect[j] = fd;
         }
@@ -1722,7 +1722,7 @@ cairo_cff_font_get_gid_for_cid (cairo_cff_font_t  *font, unsigned long cid, unsi
 	    p = font->charset + 1;
 	    g = 1;
 	    while (g <= (unsigned)font->num_glyphs && p < font->data_end) {
-		c = be16_to_cpu( *((uint16_t *)p) );
+		c = get_unaligned_be16 (p);
 		if (c == cid) {
 		    *gid = g;
 		    return CAIRO_STATUS_SUCCESS;
@@ -1737,7 +1737,7 @@ cairo_cff_font_get_gid_for_cid (cairo_cff_font_t  *font, unsigned long cid, unsi
 	    first_gid = 1;
 	    p = font->charset + 1;
 	    while (first_gid <= (unsigned)font->num_glyphs && p + 2 < font->data_end) {
-		first_cid = be16_to_cpu( *((uint16_t *)p) );
+		first_cid = get_unaligned_be16 (p);
 		num_left = p[2];
 		if (cid >= first_cid && cid <= first_cid + num_left) {
 		    *gid = first_gid + cid - first_cid;
@@ -1753,8 +1753,8 @@ cairo_cff_font_get_gid_for_cid (cairo_cff_font_t  *font, unsigned long cid, unsi
 	    first_gid = 1;
 	    p = font->charset + 1;
 	    while (first_gid <= (unsigned)font->num_glyphs && p + 3 < font->data_end) {
-		first_cid = be16_to_cpu( *((uint16_t *)p) );
-		num_left = be16_to_cpu( *((uint16_t *)(p+2)) );
+		first_cid = get_unaligned_be16 (p);
+		num_left = get_unaligned_be16 (p+2);
 		if (cid >= first_cid && cid <= first_cid + num_left) {
 		    *gid = first_gid + cid - first_cid;
 		    return CAIRO_STATUS_SUCCESS;
@@ -2328,7 +2328,7 @@ cairo_cff_font_write_cid_fontdict (cairo_cff_font_t *font)
     unsigned int i;
     cairo_int_status_t status;
     unsigned int offset_array;
-    uint32_t *offset_array_ptr;
+    unsigned char *offset_array_ptr;
     int offset_base;
     uint16_t count;
     uint8_t offset_size = 4;
@@ -2349,7 +2349,7 @@ cairo_cff_font_write_cid_fontdict (cairo_cff_font_t *font)
     if (unlikely (status))
         return status;
     offset_base = _cairo_array_num_elements (&font->output) - 1;
-    *offset_array_ptr = cpu_to_be32(1);
+    put_unaligned_be32(1, offset_array_ptr);
     offset_array += sizeof(uint32_t);
     for (i = 0; i < font->num_subset_fontdicts; i++) {
         status = cff_dict_write (font->fd_dict[font->fd_subset_map[i]],
@@ -2357,8 +2357,9 @@ cairo_cff_font_write_cid_fontdict (cairo_cff_font_t *font)
         if (unlikely (status))
             return status;
 
-	offset_array_ptr = (uint32_t *) _cairo_array_index (&font->output, offset_array);
-        *offset_array_ptr = cpu_to_be32(_cairo_array_num_elements (&font->output) - offset_base);
+	offset_array_ptr = _cairo_array_index (&font->output, offset_array);
+	put_unaligned_be32 (_cairo_array_num_elements (&font->output) - offset_base,
+			    offset_array_ptr);
 	offset_array += sizeof(uint32_t);
     }
 
@@ -2609,7 +2610,7 @@ cairo_cff_font_create_set_widths (cairo_cff_font_t *font)
     unsigned int i;
     tt_hhea_t hhea;
     int num_hmetrics;
-    unsigned char buf[10];
+    uint16_t short_entry;
     int glyph_index;
     cairo_int_status_t status;
 
@@ -2629,7 +2630,8 @@ cairo_cff_font_create_set_widths (cairo_cff_font_t *font)
             status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
                                                          TT_TAG_hmtx,
                                                          glyph_index * long_entry_size,
-                                                         buf, &short_entry_size);
+                                                         (unsigned char *) &short_entry,
+							 &short_entry_size);
             if (unlikely (status))
                 return status;
         }
@@ -2638,11 +2640,12 @@ cairo_cff_font_create_set_widths (cairo_cff_font_t *font)
             status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
                                                          TT_TAG_hmtx,
                                                          (num_hmetrics - 1) * long_entry_size,
-                                                         buf, &short_entry_size);
+                                                         (unsigned char *) &short_entry,
+							 &short_entry_size);
             if (unlikely (status))
                 return status;
         }
-        font->widths[i] = be16_to_cpu (*((int16_t*)buf));
+	font->widths[i] = be16_to_cpu (short_entry);
     }
 
     return CAIRO_STATUS_SUCCESS;

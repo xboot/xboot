@@ -79,10 +79,10 @@
  * 1.0.1 - Development on a maintenance branch (toward 1.0.2 release)
  * 1.1.1 - Development on head (toward 1.1.2 snapshot and 1.2.0 release)
  * </screen></informalexample>
- * </para>
+ *
  * <refsect2>
  * <title>Compatibility</title>
- * <para>
+ *
  * The API/ABI compatibility guarantees for various versions are as
  * follows. First, let's assume some cairo-using application code that is
  * successfully using the API/ABI "from" one version of cairo. Then let's
@@ -102,11 +102,11 @@
  * with the same in-development version number. This is because these
  * numbers don't correspond to any fixed state of the software, but
  * rather the many states between snapshots and releases.
- * </para>
+ *
  * </refsect2>
  * <refsect2>
  * <title>Examining the version</title>
- * <para>
+ *
  * Cairo provides the ability to examine the version at either
  * compile-time or run-time and in both a human-readable form as well as
  * an encoded form suitable for direct comparison. Cairo also provides the
@@ -135,9 +135,9 @@
  * if (cairo_version() >= CAIRO_VERSION_ENCODE(1, 0, 0))
  *     printf ("Running with suitable cairo version: %s\n", cairo_version_string ());
  * </programlisting></informalexample>
- * </para>
+ *
  * </refsect2>
- * <para>
+ *
  **/
 
 /**

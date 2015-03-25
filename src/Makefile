@@ -168,8 +168,8 @@ INCDIRS		+= 	external/pixman-0.32.6 \
 SRCDIRS		+=	external/pixman-0.32.6 \
 				external/pixman-0.32.6/$(ARCH)
 
-INCDIRS		+= 	external/cairo-1.14.0
-SRCDIRS		+=	external/cairo-1.14.0
+INCDIRS		+= 	external/cairo-1.14.2
+SRCDIRS		+=	external/cairo-1.14.2
 
 INCDIRS		+= 	external/freetype-2.4.11/include \
 				external/freetype-2.4.11/src/base \

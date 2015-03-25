@@ -58,7 +58,7 @@ static const cairo_surface_backend_t _cairo_surface_observer_backend;
 
 /* observation/stats */
 
-static void init_stats (struct stat_cairo_xboot_t *s)
+static void init_stats (struct stat *s)
 {
     s->min = HUGE_VAL;
     s->max = -HUGE_VAL;
@@ -261,7 +261,7 @@ add_clip (struct clip *stats,
 }
 
 static void
-stats_add (struct stat_cairo_xboot_t *s, double v)
+stats_add (struct stat *s, double v)
 {
     if (v < s->min)
 	s->min = v;
@@ -653,7 +653,7 @@ add_record (cairo_observation_t *log,
 }
 
 static void
-sync_xboot_fix (cairo_surface_t *target, int x, int y)
+_cairo_surface_sync (cairo_surface_t *target, int x, int y)
 {
     cairo_rectangle_int_t extents;
 
@@ -751,7 +751,7 @@ _cairo_surface_observer_paint (void *abstract_surface,
     if (unlikely (status))
 	return status;
 
-    sync_xboot_fix (surface->target, x, y);
+    _cairo_surface_sync (surface->target, x, y);
     t = _cairo_time_get_delta (t);
 
     add_record_paint (&surface->log, surface->target, op, source, clip, t);
@@ -837,7 +837,7 @@ _cairo_surface_observer_mask (void *abstract_surface,
     if (unlikely (status))
 	return status;
 
-    sync_xboot_fix (surface->target, x, y);
+    _cairo_surface_sync (surface->target, x, y);
     t = _cairo_time_get_delta (t);
 
     add_record_mask (&surface->log,
@@ -944,7 +944,7 @@ _cairo_surface_observer_fill (void			*abstract_surface,
     if (unlikely (status))
 	return status;
 
-    sync_xboot_fix (surface->target, x, y);
+    _cairo_surface_sync (surface->target, x, y);
     t = _cairo_time_get_delta (t);
 
     add_record_fill (&surface->log,
@@ -1063,7 +1063,7 @@ _cairo_surface_observer_stroke (void				*abstract_surface,
     if (unlikely (status))
 	return status;
 
-    sync_xboot_fix (surface->target, x, y);
+    _cairo_surface_sync (surface->target, x, y);
     t = _cairo_time_get_delta (t);
 
     add_record_stroke (&surface->log,
@@ -1183,7 +1183,7 @@ _cairo_surface_observer_glyphs (void			*abstract_surface,
     if (unlikely (status))
 	return status;
 
-    sync_xboot_fix (surface->target, x, y);
+    _cairo_surface_sync (surface->target, x, y);
     t = _cairo_time_get_delta (t);
 
     add_record_glyphs (&surface->log,

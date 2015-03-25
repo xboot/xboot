@@ -57,11 +57,13 @@ void
 _cairo_pdf_operators_init (cairo_pdf_operators_t	*pdf_operators,
 			   cairo_output_stream_t	*stream,
 			   cairo_matrix_t		*cairo_to_pdf,
-			   cairo_scaled_font_subsets_t  *font_subsets)
+			   cairo_scaled_font_subsets_t  *font_subsets,
+			   cairo_bool_t                  ps)
 {
     pdf_operators->stream = stream;
     pdf_operators->cairo_to_pdf = *cairo_to_pdf;
     pdf_operators->font_subsets = font_subsets;
+    pdf_operators->ps_output = ps;
     pdf_operators->use_font_subset = NULL;
     pdf_operators->use_font_subset_closure = NULL;
     pdf_operators->in_text_object = FALSE;
@@ -176,6 +178,7 @@ typedef struct _word_wrap_stream {
     cairo_output_stream_t base;
     cairo_output_stream_t *output;
     int max_column;
+    cairo_bool_t ps_output;
     int column;
     cairo_word_wrap_state_t state;
     cairo_bool_t in_escape;
@@ -269,7 +272,7 @@ _word_wrap_stream_count_string_up_to (word_wrap_stream_t *stream,
 	    if (*s == '\\') {
 		stream->in_escape = TRUE;
 		stream->escape_digits = 0;
-	    } else if (stream->column > stream->max_column) {
+	    } else if (stream->ps_output && stream->column > stream->max_column) {
 		newline = TRUE;
 		break;
 	    }
@@ -284,7 +287,7 @@ _word_wrap_stream_count_string_up_to (word_wrap_stream_t *stream,
 	_cairo_output_stream_write (stream->output, data, count);
 
     if (newline) {
-	_cairo_output_stream_printf (stream->output, ")\n(");
+	_cairo_output_stream_printf (stream->output, "\\\n");
 	stream->column = 0;
     }
 
@@ -348,7 +351,7 @@ _word_wrap_stream_close (cairo_output_stream_t *base)
 }
 
 static cairo_output_stream_t *
-_word_wrap_stream_create (cairo_output_stream_t *output, int max_column)
+_word_wrap_stream_create (cairo_output_stream_t *output, cairo_bool_t ps, int max_column)
 {
     word_wrap_stream_t *stream;
 
@@ -367,6 +370,7 @@ _word_wrap_stream_create (cairo_output_stream_t *output, int max_column)
 			       _word_wrap_stream_close);
     stream->output = output;
     stream->max_column = max_column;
+    stream->ps_output = ps;
     stream->column = 0;
     stream->state = WRAP_STATE_DELIMITER;
     stream->in_escape = FALSE;
@@ -502,7 +506,7 @@ _cairo_pdf_operators_emit_path (cairo_pdf_operators_t	*pdf_operators,
     pdf_path_info_t info;
     cairo_box_t box;
 
-    word_wrap = _word_wrap_stream_create (pdf_operators->stream, 72);
+    word_wrap = _word_wrap_stream_create (pdf_operators->stream, pdf_operators->ps_output, 72);
     status = _cairo_output_stream_get_status (word_wrap);
     if (unlikely (status))
 	return _cairo_output_stream_destroy (word_wrap);
@@ -1051,7 +1055,7 @@ _cairo_pdf_operators_flush_glyphs (cairo_pdf_operators_t    *pdf_operators)
     if (pdf_operators->num_glyphs == 0)
 	return CAIRO_STATUS_SUCCESS;
 
-    word_wrap_stream = _word_wrap_stream_create (pdf_operators->stream, 72);
+    word_wrap_stream = _word_wrap_stream_create (pdf_operators->stream, pdf_operators->ps_output, 72);
     status = _cairo_output_stream_get_status (word_wrap_stream);
     if (unlikely (status))
 	return _cairo_output_stream_destroy (word_wrap_stream);
@@ -1411,7 +1415,11 @@ _cairo_pdf_operators_emit_cluster (cairo_pdf_operators_t      *pdf_operators,
 	    return status;
     }
 
-    cur_glyph = glyphs;
+    if (cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD)
+	cur_glyph = glyphs + num_glyphs - 1;
+    else
+	cur_glyph = glyphs;
+
     /* XXX
      * If no glyphs, we should put *something* here for the text to be selectable. */
     for (i = 0; i < num_glyphs; i++) {

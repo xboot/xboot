@@ -39,12 +39,6 @@
 #include "cairo-error-private.h"
 #include "cairo-image-info-private.h"
 
-static uint32_t
-_get_be32 (const unsigned char *p)
-{
-    return p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
-}
-
 /* JPEG (image/jpeg)
  *
  * http://www.w3.org/Graphics/JPEG/itu-t81.pdf
@@ -170,7 +164,7 @@ static const unsigned char _jpx_signature[] = {
 static const unsigned char *
 _jpx_next_box (const unsigned char *p)
 {
-    return p + _get_be32 (p);
+    return p + get_unaligned_be32 (p);
 }
 
 static const unsigned char *
@@ -185,8 +179,8 @@ _jpx_match_box (const unsigned char *p, const unsigned char *end, uint32_t type)
     uint32_t length;
 
     if (p + 8 < end) {
-	length = _get_be32 (p);
-	if (_get_be32 (p + 4) == type &&  p + length < end)
+	length = get_unaligned_be32 (p);
+	if (get_unaligned_be32 (p + 4) == type &&  p + length < end)
 	    return TRUE;
     }
 
@@ -208,8 +202,8 @@ _jpx_find_box (const unsigned char *p, const unsigned char *end, uint32_t type)
 static void
 _jpx_extract_info (const unsigned char *p, cairo_image_info_t *info)
 {
-    info->height = _get_be32 (p);
-    info->width = _get_be32 (p + 4);
+    info->height = get_unaligned_be32 (p);
+    info->width = get_unaligned_be32 (p + 4);
     info->num_components = (p[8] << 8) + p[9];
     info->bits_per_component = p[10];
 }
@@ -281,13 +275,13 @@ _cairo_image_info_get_png_info (cairo_image_info_t     *info,
        return CAIRO_INT_STATUS_UNSUPPORTED;
 
     p += 4;
-    if (_get_be32 (p) != PNG_IHDR)
+    if (get_unaligned_be32 (p) != PNG_IHDR)
        return CAIRO_INT_STATUS_UNSUPPORTED;
 
     p += 4;
-    info->width = _get_be32 (p);
+    info->width = get_unaligned_be32 (p);
     p += 4;
-    info->height = _get_be32 (p);
+    info->height = get_unaligned_be32 (p);
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -347,14 +341,14 @@ _jbig2_get_next_segment (const unsigned char  *p,
     if (p + 6 >= end)
 	return NULL;
 
-    seg_num = _get_be32 (p);
+    seg_num = get_unaligned_be32 (p);
     *type = p[4] & 0x3f;
     big_page_size = (p[4] & 0x40) != 0;
     p += 5;
 
     num_segs = p[0] >> 5;
     if (num_segs == 7) {
-	num_segs = _get_be32 (p) & 0x1fffffff;
+	num_segs = get_unaligned_be32 (p) & 0x1fffffff;
 	ref_seg_bytes = 4 + ((num_segs + 1)/8);
     } else {
 	ref_seg_bytes = 1;
@@ -373,7 +367,7 @@ _jbig2_get_next_segment (const unsigned char  *p,
     if (p + 4 >= end)
 	return NULL;
 
-    *data_len = _get_be32 (p);
+    *data_len = get_unaligned_be32 (p);
     p += 4;
     *data = p;
 
@@ -397,8 +391,8 @@ _jbig2_get_next_segment (const unsigned char  *p,
 static void
 _jbig2_extract_info (cairo_image_info_t *info, const unsigned char *p)
 {
-    info->width = _get_be32 (p);
-    info->height = _get_be32 (p + 4);
+    info->width = get_unaligned_be32 (p);
+    info->height = get_unaligned_be32 (p + 4);
     info->num_components = 1;
     info->bits_per_component = 1;
 }

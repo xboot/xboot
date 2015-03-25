@@ -628,7 +628,8 @@ _cairo_ps_surface_analyze_user_font_subset (cairo_scaled_font_subset_t *font_sub
     type3_surface = _cairo_type3_glyph_surface_create (font_subset->scaled_font,
 						       NULL,
 						       _cairo_ps_emit_imagemask,
-						       surface->font_subsets);
+						       surface->font_subsets,
+						       TRUE);
 
     for (i = 0; i < font_subset->num_glyphs; i++) {
 	status = _cairo_type3_glyph_surface_analyze_glyph (type3_surface,
@@ -676,7 +677,8 @@ _cairo_ps_surface_emit_type3_font_subset (cairo_ps_surface_t		*surface,
     type3_surface = _cairo_type3_glyph_surface_create (font_subset->scaled_font,
 						       NULL,
 						       _cairo_ps_emit_imagemask,
-						       surface->font_subsets);
+						       surface->font_subsets,
+						       TRUE);
     status = type3_surface->status;
     if (unlikely (status))
 	return status;
@@ -1068,7 +1070,8 @@ _cairo_ps_surface_create_for_stream_internal (cairo_output_stream_t *stream,
     _cairo_pdf_operators_init (&surface->pdf_operators,
 			       surface->stream,
 			       &surface->cairo_to_ps,
-			       surface->font_subsets);
+			       surface->font_subsets,
+			       TRUE);
     surface->num_pages = 0;
 
     cairo_list_init (&surface->document_media);

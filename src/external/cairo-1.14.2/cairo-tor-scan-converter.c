@@ -277,8 +277,13 @@ struct _pool_chunk {
      * chunk in the pool header. */
     struct _pool_chunk *prev_chunk;
 
-    /* Actual data starts here.	 Well aligned for pointers. */
+    /* Actual data starts here. Well aligned even for 64 bit types. */
+    int64_t data;
 };
+
+/* The int64_t data member of _pool_chunk just exists to enforce alignment,
+ * it shouldn't be included in the allocated size for the struct. */
+#define SIZEOF_POOL_CHUNK (sizeof(struct _pool_chunk) - sizeof(int64_t))
 
 /* A memory pool.  This is supposed to be embedded on the stack or
  * within some other structure.	 It may optionally be followed by an
@@ -299,8 +304,11 @@ struct pool {
 
     /* Header for the sentinel chunk.  Directly following the pool
      * struct should be some space for embedded elements from which
-     * the sentinel chunk allocates from. */
-    struct _pool_chunk sentinel[1];
+     * the sentinel chunk allocates from. This is expressed as a char
+     * array so that the 'int64_t data' member of _pool_chunk isn't
+     * included. This way embedding struct pool in other structs works
+     * without wasting space. */
+    char sentinel[SIZEOF_POOL_CHUNK];
 };
 
 /* A polygon edge. */
@@ -475,7 +483,7 @@ _pool_chunk_create(struct pool *pool, size_t size)
 {
     struct _pool_chunk *p;
 
-    p = malloc(size + sizeof(struct _pool_chunk));
+    p = malloc(SIZEOF_POOL_CHUNK + size);
     if (unlikely (NULL == p))
 	longjmp (*pool->jmp, _cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -489,10 +497,10 @@ pool_init(struct pool *pool,
 	  size_t embedded_capacity)
 {
     pool->jmp = jmp;
-    pool->current = pool->sentinel;
+    pool->current = (void*) pool->sentinel;
     pool->first_free = NULL;
     pool->default_capacity = default_capacity;
-    _pool_chunk_init(pool->sentinel, NULL, embedded_capacity);
+    _pool_chunk_init(pool->current, NULL, embedded_capacity);
 }
 
 static void
@@ -502,7 +510,7 @@ pool_fini(struct pool *pool)
     do {
 	while (NULL != p) {
 	    struct _pool_chunk *prev = p->prev_chunk;
-	    if (p != pool->sentinel)
+	    if (p != (void *) pool->sentinel)
 		free(p);
 	    p = prev;
 	}
@@ -542,14 +550,14 @@ _pool_alloc_from_new_chunk(
 	chunk = _pool_chunk_create (pool, capacity);
     pool->current = chunk;
 
-    obj = ((unsigned char*)chunk + sizeof(*chunk) + chunk->size);
+    obj = ((unsigned char*)&chunk->data + chunk->size);
     chunk->size += size;
     return obj;
 }
 
 /* Allocate size bytes from the pool.  The first allocated address
- * returned from a pool is aligned to sizeof(void*).  Subsequent
- * addresses will maintain alignment as long as multiples of void* are
+ * returned from a pool is aligned to 8 bytes.  Subsequent
+ * addresses will maintain alignment as long as multiples of 8 are
  * allocated.  Returns the address of a new memory area or %NULL on
  * allocation failures.	 The pool retains ownership of the returned
  * memory. */
@@ -559,7 +567,7 @@ pool_alloc (struct pool *pool, size_t size)
     struct _pool_chunk *chunk = pool->current;
 
     if (size <= chunk->capacity - chunk->size) {
-	void *obj = ((unsigned char*)chunk + sizeof(*chunk) + chunk->size);
+	void *obj = ((unsigned char*)&chunk->data + chunk->size);
 	chunk->size += size;
 	return obj;
     } else {
@@ -573,16 +581,16 @@ pool_reset (struct pool *pool)
 {
     /* Transfer all used chunks to the chunk free list. */
     struct _pool_chunk *chunk = pool->current;
-    if (chunk != pool->sentinel) {
-	while (chunk->prev_chunk != pool->sentinel) {
+    if (chunk != (void *) pool->sentinel) {
+	while (chunk->prev_chunk != (void *) pool->sentinel) {
 	    chunk = chunk->prev_chunk;
 	}
 	chunk->prev_chunk = pool->first_free;
 	pool->first_free = pool->current;
     }
     /* Reset the sentinel as the current chunk. */
-    pool->current = pool->sentinel;
-    pool->sentinel->size = 0;
+    pool->current = (void *) pool->sentinel;
+    pool->current->size = 0;
 }
 
 /* Rewinds the cell list's cursor to the beginning.  After rewinding
@@ -1167,8 +1175,8 @@ can_do_full_row (struct active_list *active)
 
 	if (e->dy) {
 	    struct quorem x = e->x;
-	    x.quo += e->dxdy_full.quo - e->dxdy.quo/2;
-	    x.rem += e->dxdy_full.rem - e->dxdy.rem/2;
+	    x.quo += e->dxdy_full.quo;
+	    x.rem += e->dxdy_full.rem;
 	    if (x.rem < 0) {
 		x.quo--;
 		x.rem += e->dy;

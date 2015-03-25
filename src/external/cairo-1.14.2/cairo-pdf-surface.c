@@ -430,7 +430,8 @@ _cairo_pdf_surface_create_for_stream_internal (cairo_output_stream_t	*output,
     _cairo_pdf_operators_init (&surface->pdf_operators,
 			       surface->output,
 			       &surface->cairo_to_pdf,
-			       surface->font_subsets);
+			       surface->font_subsets,
+			       FALSE);
     _cairo_pdf_operators_set_font_subsets_callback (&surface->pdf_operators,
 						    _cairo_pdf_surface_add_font,
 						    surface);
@@ -2677,7 +2678,7 @@ _cairo_pdf_surface_emit_jbig2_image (cairo_pdf_surface_t              *surface,
     unsigned long global_id_length;
     const unsigned char *global_data;
     unsigned long global_data_length;
-    cairo_pdf_jbig2_global_t *global_entry;
+    cairo_pdf_jbig2_global_t *global_entry = NULL; /* hide compiler warning */
     char smask_buf[30];
     char decode_parms_buf[100];
 
@@ -5677,7 +5678,8 @@ _cairo_pdf_surface_analyze_user_font_subset (cairo_scaled_font_subset_t *font_su
     type3_surface = _cairo_type3_glyph_surface_create (font_subset->scaled_font,
 						       null_stream,
 						       _cairo_pdf_emit_imagemask,
-						       surface->font_subsets);
+						       surface->font_subsets,
+						       FALSE);
     if (unlikely (type3_surface->status)) {
 	status2 = _cairo_output_stream_destroy (null_stream);
 	return type3_surface->status;
@@ -5738,7 +5740,8 @@ _cairo_pdf_surface_emit_type3_font_subset (cairo_pdf_surface_t		*surface,
     type3_surface = _cairo_type3_glyph_surface_create (font_subset->scaled_font,
 						       NULL,
 						       _cairo_pdf_emit_imagemask,
-						       surface->font_subsets);
+						       surface->font_subsets,
+						       FALSE);
     if (unlikely (type3_surface->status)) {
         free (glyphs);
         free (widths);

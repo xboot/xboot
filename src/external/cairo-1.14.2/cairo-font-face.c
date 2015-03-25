@@ -128,7 +128,8 @@ cairo_font_face_reference (cairo_font_face_t *font_face)
 }
 slim_hidden_def (cairo_font_face_reference);
 
-static inline int __put(cairo_reference_count_t *v)
+static inline cairo_bool_t
+__put(cairo_reference_count_t *v)
 {
     int c, old;
 
@@ -136,7 +137,7 @@ static inline int __put(cairo_reference_count_t *v)
     while (c != 1 && (old = _cairo_atomic_int_cmpxchg_return_old(&v->ref_count, c, c - 1)) != c)
 	c = old;
 
-    return c;
+    return c != 1;
 }
 
 cairo_bool_t

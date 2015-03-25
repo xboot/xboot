@@ -2242,10 +2242,10 @@ _fill_xrgb32_lerp_opaque_spans (void *abstract_renderer, int y, int h,
 				     spans[0].x, y, len, 1, r->u.fill.pixel);
 		    } else {
 			uint32_t *d = (uint32_t*)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
-			while (len--)
+			while (len-- > 0)
 			    *d++ = r->u.fill.pixel;
 		    }
-		} else while (len--) {
+		} else while (len-- > 0) {
 		    *d = lerp8x4 (r->u.fill.pixel, a, *d);
 		    d++;
 		}

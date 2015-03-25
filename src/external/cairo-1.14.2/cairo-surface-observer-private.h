@@ -45,8 +45,7 @@
 #include "cairo-surface-backend-private.h"
 #include "cairo-time-private.h"
 
-#undef stat
-struct stat {
+struct stat_cairo_xboot_t {
     double min, max, sum, sum_sq;
     unsigned count;
 };
@@ -58,7 +57,7 @@ struct stat {
 #define NUM_FILL_RULE (CAIRO_FILL_RULE_EVEN_ODD+1)
 
 struct extents {
-    struct stat area;
+    struct stat_cairo_xboot_t area;
     unsigned int bounded, unbounded;
 };
 
@@ -153,7 +152,7 @@ struct _cairo_observation {
 	unsigned int antialias[NUM_ANTIALIAS];
 	struct pattern source;
 	struct path path;
-	struct stat line_width;
+	struct stat_cairo_xboot_t line_width;
 	struct clip clip;
 	unsigned int noop;
 

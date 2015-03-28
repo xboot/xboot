@@ -1,0 +1,3 @@
+WARNING: Image format was not specified for 'C:\Users\Administrator\.xboot\sdcard.img' and probing guessed raw.
+         Automatically detecting the format is dangerous for raw images, write operations on block 0 will be restricted.
+         Specify the 'raw' format explicitly to remove the restrictions.

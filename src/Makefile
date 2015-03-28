@@ -22,12 +22,8 @@ endif
 #
 ifneq (,$(findstring Linux, $(shell uname -s)))
 HOSTOS		:= linux
-endif
-ifneq (,$(findstring windows, $(shell uname -s)))
+else
 HOSTOS		:= windows
-endif
-ifeq ($(strip $(HOSTOS)),)
-$(error unable to determine host operation system from uname)
 endif
 
 #

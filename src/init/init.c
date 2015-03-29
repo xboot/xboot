@@ -54,6 +54,9 @@ void do_system_rootfs(void)
 	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
 		LOG("Failed to create directory '/etc'");
 
+	if(mkdir("/app", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
+		LOG("Failed to create directory '/app'");
+
 	if(mkdir("/tmp", S_IRWXU|S_IRWXG|S_IRWXO) != 0)
 		LOG("Failed to create directory '/tmp'");
 
@@ -124,5 +127,8 @@ void do_system_autoboot(void)
 		printf("\rPress any key to stop autoboot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	} while(delay > 0);
 
-	system(CONFIG_AUTO_BOOT_COMMAND);
+	if(search_block("application") && (mount("application", "/app" , "tarfs", 0) == 0))
+		system("exec /app");
+	else
+		system(CONFIG_AUTO_BOOT_COMMAND);
 }

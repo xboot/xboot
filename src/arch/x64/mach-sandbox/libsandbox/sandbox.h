@@ -6,11 +6,17 @@
 /*
  * Sandbox interface
  */
-struct sandbox_config_t {
-	const char * json;
-	const char * application;
+struct sandbox_t {
+	struct {
+		char * buffer;
+		size_t size;
+	} config;
+	struct {
+		char * buffer;
+		size_t size;
+	} application;
 };
-struct sandbox_config_t * sandbox_get_config(void);
+struct sandbox_t * sandbox_get(void);
 void sandbox_init(int argc, char * argv[]);
 void sandbox_exit(void);
 
@@ -27,7 +33,7 @@ ssize_t sandbox_console_write(void * buf, size_t count);
  */
 int sandbox_file_open(const char * path);
 int sandbox_file_close(int fd);
-int sandbox_sysfs_file_exist(const char * path);
+int sandbox_file_exist(const char * path);
 ssize_t sandbox_file_read(int fd, void * buf, size_t count);
 ssize_t sandbox_file_read_nonblock(int fd, void * buf, size_t count);
 ssize_t sandbox_file_write(int fd, const void * buf, size_t count);

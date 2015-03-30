@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="324px" height="324px" viewBox="0 0 324 324" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.2.2 (9983) - http://www.bohemiancoding.com/sketch -->
+    <title>xboot-icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="xboot-icon" sketch:type="MSLayerGroup">
+            <path d="M42,0 C41.9999908,5.33217644e-07 0,42 0,42 L115,157 L157,157 L157,115 C157,115 42.0000092,-5.33217637e-07 42,0 Z" id="LT" fill="#E93E30" sketch:type="MSShapeGroup"></path>
+            <path d="M209,167 C208.999991,167.000001 167,209 167,209 L282,324 L324,324 L324,282 C324,282 209.000009,166.999999 209,167 Z" id="RB" fill="#52B529" sketch:type="MSShapeGroup" transform="translate(245.500000, 245.500000) scale(-1, -1) translate(-245.500000, -245.500000) "></path>
+            <path d="M42,167 C41.9999908,167.000001 0,209 0,209 L115,324 L157,324 L157,282 C157,282 42.0000092,166.999999 42,167 Z" id="LB" fill="#F8C63D" sketch:type="MSShapeGroup" transform="translate(78.500000, 245.500000) scale(1, -1) translate(-78.500000, -245.500000) "></path>
+            <path d="M209,0 C208.999991,5.33217644e-07 167,42 167,42 L282,157 L324,157 L324,115 C324,115 209.000009,-5.33217637e-07 209,0 Z" id="RT" fill="#377EF0" sketch:type="MSShapeGroup" transform="translate(245.500000, 78.500000) scale(-1, 1) translate(-245.500000, -78.500000) "></path>
+        </g>
+    </g>
+</svg>

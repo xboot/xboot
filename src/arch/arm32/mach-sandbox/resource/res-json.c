@@ -217,8 +217,8 @@ static void json_resource_led(json_value * value)
 
 static __init void resource_json_init(void)
 {
-	struct sandbox_config_t * cfg = sandbox_get_config();
-	json_value * value = json_parse(cfg->json, strlen(cfg->json));
+	struct sandbox_t * sandbox = sandbox_get();
+	json_value * value = json_parse(sandbox->config.buffer, sandbox->config.size);
 	int i;
 
 	if(value && (value->type == json_object))

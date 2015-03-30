@@ -19,7 +19,7 @@ int sandbox_file_close(int fd)
 	return ret < 0 ? 0 : 1;
 }
 
-int sandbox_sysfs_file_exist(const char * path)
+int sandbox_file_exist(const char * path)
 {
 	if(access(path, F_OK) == 0)
 		return 0;

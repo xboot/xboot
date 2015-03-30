@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <sandbox.h>
 
-static const char default_json_config[] =
+static char default_config[] =
 "{"
 	"\"console\": {"
 		"\"in\" : \"stdio\","
@@ -27,56 +27,69 @@ static const char default_json_config[] =
 	"\"led\": [null]"
 "}";
 
-static struct sandbox_config_t __sandbox_config = {
-	.json			= default_json_config,
-	.application	= NULL,
-};
+static struct sandbox_t __sandbox;
 
-static char * json_config_file(const char * filename)
+static size_t read_file_to_memory(const char * filename, char ** buffer)
 {
-	ssize_t len;
+	size_t len;
 	char * buf;
 	int fd;
 
+	if(!filename || !buffer)
+		return 0;
+
+	if(sandbox_file_exist(filename) != 0)
+		return 0;
+
 	fd = sandbox_file_open(filename);
 	if(fd <= 0)
-		return NULL;
+		return 0;
 
 	len = sandbox_file_length(fd);
 	if(len <= 0)
-		return NULL;
+		return 0;
 
 	buf = malloc(len + 1);
 	if(!buf)
-		return NULL;
+		return 0;
 	memset(buf, 0, len + 1);
 
 	sandbox_file_seek(fd, 0);
 	sandbox_file_read(fd, buf, len);
-	return buf;
+	sandbox_file_close(fd);
+
+	*buffer = buf;
+	return len;
 }
 
 static void print_usage(void)
 {
 	printf(
-		"Usage: xboot [OPTIONS] <filename>\n"
+		"Usage: xboot [OPTIONS] <application>\n"
 		"Options:\n"
 		"  --help           Print help information\n"
-		"  --config <json>  Start xboot with a specified config file with json format\n"
+		"  --config <FILE>  Start xboot with a specified config file using json format\n"
 	);
 	exit(0);
 }
 
-struct sandbox_config_t * sandbox_get_config(void)
+struct sandbox_t * sandbox_get(void)
 {
-	return &__sandbox_config;
+	return &__sandbox;
 }
 
 void sandbox_init(int argc, char * argv[])
 {
-	char * jsonfile = "xboot.json";
+	char * cfgfile = "xboot.json";
+	char * appfile = 0;
 	int i, idx = 0;
-	char * json;
+	char * buf;
+	size_t len;
+
+	/*
+	 * Clear to zero for __sandbox
+	 */
+	memset(&__sandbox, 0, sizeof(struct sandbox_t));
 
 	for(i = 1; i < argc; i++)
 	{
@@ -86,15 +99,15 @@ void sandbox_init(int argc, char * argv[])
 		}
 		else if(!strcmp(argv[i], "--config") && (argc > i + 1))
 		{
-			if(sandbox_sysfs_file_exist(argv[++i]) == 0)
-				jsonfile = argv[i];
+			if(sandbox_file_exist(argv[++i]) == 0)
+				cfgfile = argv[i];
 			else
 				print_usage();
 		}
 		else
 		{
-			if((idx == 0) && (sandbox_sysfs_file_exist(argv[i]) == 0))
-				__sandbox_config.application = argv[i];
+			if((idx == 0) && (sandbox_file_exist(argv[i]) == 0))
+				appfile = argv[i];
 			else
 				print_usage();
 			idx++;
@@ -102,11 +115,29 @@ void sandbox_init(int argc, char * argv[])
 	}
 
 	/*
-	 * Read config file with json format
+	 * Read config file
 	 */
-	json = json_config_file(jsonfile);
-	if(json)
-		__sandbox_config.json = json;
+	len = read_file_to_memory(cfgfile, &buf);
+	if(len > 0)
+	{
+		__sandbox.config.buffer = buf;
+		__sandbox.config.size = len;
+	}
+	else
+	{
+		__sandbox.config.buffer = default_config;
+		__sandbox.config.size = strlen(default_config);
+	}
+
+	/*
+	 * Read application file
+	 */
+	len = read_file_to_memory(appfile, &buf);
+	if(len > 0)
+	{
+		__sandbox.application.buffer = buf;
+		__sandbox.application.size = len;
+	}
 
 	/*
 	 * Initial sandbox system
@@ -117,8 +148,11 @@ void sandbox_init(int argc, char * argv[])
 
 void sandbox_exit(void)
 {
-	if(__sandbox_config.json != default_json_config)
-		free((char *)__sandbox_config.json);
+	if((__sandbox.config.size > 0) && (__sandbox.config.buffer != default_config))
+		free(__sandbox.config.buffer);
+
+	if(__sandbox.application.size > 0)
+		free(__sandbox.application.buffer);
 
 	/*
 	 * Deinitial sandbox system

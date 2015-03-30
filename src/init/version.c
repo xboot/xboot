@@ -25,8 +25,8 @@
 #include <xconfigs.h>
 #include <version.h>
 
-#define	XBOOT_MAJOY		1
-#define	XBOOT_MINIOR	6
+#define	XBOOT_MAJOY		2
+#define	XBOOT_MINIOR	0
 #define	XBOOT_PATCH		0
 
 #define VERSION_TO_STRING(major, minor, patch) \

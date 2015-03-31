@@ -60,11 +60,17 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_LEDTRIG:
 		name = "ledtrig";
 		break;
+	case DEVICE_TYPE_BUZZER:
+		name = "buzzer";
+		break;
 	case DEVICE_TYPE_FRAMEBUFFER:
 		name = "framebuffer";
 		break;
 	case DEVICE_TYPE_INPUT:
 		name = "input";
+		break;
+	case DEVICE_TYPE_WATCHDOG:
+		name = "watchdog";
 		break;
 	case DEVICE_TYPE_BLOCK:
 		name = "block";

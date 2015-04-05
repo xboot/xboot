@@ -22,7 +22,6 @@
  *
  */
 
-#include <xboot.h>
 #include <block/block.h>
 
 extern u8_t __romdisk_start[];
@@ -30,70 +29,49 @@ extern u8_t __romdisk_end[];
 
 struct romdisk_t
 {
-	/* The romdisk name */
 	char * name;
-
-	/* The start of romdisk */
 	void * start;
-
-	/* The end of romdisk */
 	void * end;
-
-	/* Busy or not */
-	bool_t busy;
 };
 
-static int romdisk_open(struct block_t * blk)
+static u64_t romdisk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	struct romdisk_t * romdisk = (struct romdisk_t *)(blk->priv);
+	u64_t offset = block_offset(blk, blkno);
+	u64_t length = block_available_length(blk, blkno, blkcnt);
+	u64_t count = block_available_count(blk, blkno, blkcnt);
 
-	if(romdisk->busy == TRUE)
-		return -1;
-
-	romdisk->busy = TRUE;
-	return 0;
+	memcpy((void *)buf, (const void *)((u8_t *)(romdisk->start) + offset), length);
+	return count;
 }
 
-static ssize_t romdisk_read(struct block_t * blk, u8_t * buf, size_t blkno, size_t blkcnt)
-{
-	struct romdisk_t * romdisk = (struct romdisk_t *)(blk->priv);
-	u8_t * p = (u8_t *)(romdisk->start);
-	loff_t offset = get_block_offset(blk, blkno);
-	size_t size = get_block_size(blk) * blkcnt;
-
-	if(offset < 0)
-		return 0;
-
-	if(size < 0)
-		return 0;
-
-	memcpy((void *)buf, (const void *)(p + offset), size);
-	return blkcnt;
-}
-
-static ssize_t romdisk_write(struct block_t * blk, const u8_t * buf, size_t blkno, size_t blkcnt)
+static u64_t romdisk_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	return 0;
 }
 
-static int romdisk_close(struct block_t * blk)
+static void romdisk_sync(struct block_t * blk)
 {
-	struct romdisk_t * romdisk = (struct romdisk_t *)(blk->priv);
+}
 
-	romdisk->busy = FALSE;
-	return 0;
+static void romdisk_suspend(struct block_t * blk)
+{
+}
+
+static void romdisk_resume(struct block_t * blk)
+{
 }
 
 static bool_t register_romdisk(const char * name, void * start, void * end)
 {
 	struct block_t * blk;
 	struct romdisk_t * romdisk;
-	size_t size;
+	u64_t size;
 
 	if(!name)
 		return FALSE;
 
-	size = (size_t)(end - start);
+	size = (u64_t)(end - start);
 	size = (size + SZ_512) / SZ_512;
 	if(size <= 0)
 		return FALSE;
@@ -109,22 +87,23 @@ static bool_t register_romdisk(const char * name, void * start, void * end)
 		return FALSE;
 	}
 
-	romdisk->name = (char *)name;
+	romdisk->name = strdup(name);
 	romdisk->start = start;
 	romdisk->end = end;
-	romdisk->busy = FALSE;
 
 	blk->name	= romdisk->name;
 	blk->blksz	= SZ_512;
 	blk->blkcnt	= size;
-	blk->open 	= romdisk_open;
 	blk->read 	= romdisk_read;
 	blk->write	= romdisk_write;
-	blk->close	= romdisk_close;
+	blk->sync	= romdisk_sync;
+	blk->suspend = romdisk_suspend;
+	blk->resume = romdisk_resume;
 	blk->priv	= romdisk;
 
 	if(!register_block(blk))
 	{
+		free(romdisk->name);
 		free(romdisk);
 		free(blk);
 		return FALSE;
@@ -149,6 +128,7 @@ static bool_t unregister_romdisk(const char * name)
 	if(!unregister_block(blk))
 		return FALSE;
 
+	free(romdisk->name);
 	free(romdisk);
 	free(blk);
 	return TRUE;

@@ -91,8 +91,6 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 	 */
 	if(device != NULL)
 	{
-		if( device->open(device) != 0 )
-			return EINTR;
 	}
 
 	/*
@@ -100,8 +98,6 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 	 */
 	if( !(m = malloc(sizeof(struct mount_t))) )
 	{
-		if(device != NULL)
-			device->close(device);
 		return ENOMEM;
 	}
 
@@ -125,8 +121,6 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 	{
 		if(vfs_namei(dir, &vp_covered) != 0)
 		{
-			if(device != NULL)
-				device->close(device);
 			free(m);
 			return ENOENT;
 		}
@@ -134,8 +128,6 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 		{
 			if(vp_covered)
 				vput(vp_covered);
-			if(device != NULL)
-				device->close(device);
 			free(m);
 			return ENOTDIR;
 		}
@@ -149,8 +141,6 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 	{
 		if(vp_covered)
 			vput(vp_covered);
-		if(device != NULL)
-			device->close(device);
 		free(m);
 		return ENOMEM;
 	}
@@ -169,8 +159,6 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
 		vput(vp);
 		if(vp_covered)
 			vput(vp_covered);
-		if(device != NULL)
-			device->close(device);
 		free(m);
 		return err;
 	}
@@ -227,8 +215,6 @@ s32_t sys_umount(char * path)
 
 			if(m->m_dev)
 			{
-				device = (struct block_t *)(m->m_dev);
-				device->close(device);
 			}
 
 			free(m);

@@ -27,70 +27,49 @@
 
 struct application_t
 {
-	/* The application name */
 	char * name;
-
-	/* The start of application */
 	void * start;
-
-	/* The end of application */
 	void * end;
-
-	/* Busy or not */
-	bool_t busy;
 };
 
-static int application_open(struct block_t * blk)
+static u64_t application_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	struct application_t * app = (struct application_t *)(blk->priv);
+	u64_t offset = block_offset(blk, blkno);
+	u64_t length = block_available_length(blk, blkno, blkcnt);
+	u64_t count = block_available_count(blk, blkno, blkcnt);
 
-	if(app->busy == TRUE)
-		return -1;
-
-	app->busy = TRUE;
-	return 0;
+	memcpy((void *)buf, (const void *)((u8_t *)(app->start) + offset), length);
+	return count;
 }
 
-static ssize_t application_read(struct block_t * blk, u8_t * buf, size_t blkno, size_t blkcnt)
-{
-	struct application_t * app = (struct application_t *)(blk->priv);
-	u8_t * p = (u8_t *)(app->start);
-	loff_t offset = get_block_offset(blk, blkno);
-	size_t size = get_block_size(blk) * blkcnt;
-
-	if(offset < 0)
-		return 0;
-
-	if(size < 0)
-		return 0;
-
-	memcpy((void *)buf, (const void *)(p + offset), size);
-	return blkcnt;
-}
-
-static ssize_t application_write(struct block_t * blk, const u8_t * buf, size_t blkno, size_t blkcnt)
+static u64_t application_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	return 0;
 }
 
-static int application_close(struct block_t * blk)
+static void application_sync(struct block_t * blk)
 {
-	struct application_t * app = (struct application_t *)(blk->priv);
+}
 
-	app->busy = FALSE;
-	return 0;
+static void application_suspend(struct block_t * blk)
+{
+}
+
+static void application_resume(struct block_t * blk)
+{
 }
 
 static bool_t register_application(const char * name, void * start, void * end)
 {
 	struct block_t * blk;
 	struct application_t * app;
-	size_t size;
+	u64_t size;
 
 	if(!name)
 		return FALSE;
 
-	size = (size_t)(end - start);
+	size = (u64_t)(end - start);
 	size = (size + SZ_512) / SZ_512;
 	if(size <= 0)
 		return FALSE;
@@ -106,22 +85,23 @@ static bool_t register_application(const char * name, void * start, void * end)
 		return FALSE;
 	}
 
-	app->name = (char *)name;
+	app->name = strdup(name);
 	app->start = start;
 	app->end = end;
-	app->busy = FALSE;
 
 	blk->name	= app->name;
 	blk->blksz	= SZ_512;
 	blk->blkcnt	= size;
-	blk->open 	= application_open;
 	blk->read 	= application_read;
 	blk->write	= application_write;
-	blk->close	= application_close;
+	blk->sync	= application_sync;
+	blk->suspend = application_suspend;
+	blk->resume = application_resume;
 	blk->priv	= app;
 
 	if(!register_block(blk))
 	{
+		free(app->name);
 		free(app);
 		free(blk);
 		return FALSE;
@@ -146,6 +126,7 @@ static bool_t unregister_application(const char * name)
 	if(!unregister_block(blk))
 		return FALSE;
 
+	free(app->name);
 	free(app);
 	free(blk);
 	return TRUE;

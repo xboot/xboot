@@ -45,24 +45,9 @@ struct disk_block_t
 	/* the offset of sector for this partition */
 	size_t offset;
 
-	/* busy or not */
-	bool_t busy;
-
 	/* point to the disk */
 	struct disk_t * disk;
 };
-
-static int disk_block_open(struct block_t * dev)
-{
-	struct disk_block_t * dblk = (struct disk_block_t *)(dev->priv);
-
-	if(dblk->busy == TRUE)
-		return -1;
-
-	dblk->busy = TRUE;
-
-	return 0;
-}
 
 static ssize_t disk_block_read(struct block_t * dev, u8_t * buf, size_t blkno, size_t blkcnt)
 {
@@ -80,14 +65,6 @@ static ssize_t disk_block_write(struct block_t * dev, const u8_t * buf, size_t b
 	size_t offset = dblk->offset;
 
 	return (disk->write_sectors(dblk->disk, buf, blkno + offset, blkcnt));
-}
-
-static int disk_block_close(struct block_t * dev)
-{
-	struct disk_block_t * dblk = (struct disk_block_t *)(dev->priv);
-
-	dblk->busy = FALSE;
-	return 0;
 }
 
 static struct disk_t * search_disk(const char * name)
@@ -163,16 +140,13 @@ bool_t register_disk(struct disk_t * disk)
 		part->dev = dev;
 		dblk->part = part;
 		dblk->offset = part->sector_from;
-		dblk->busy = FALSE;
 		dblk->disk = disk;
 
 		dev->name	= dblk->name;
 		dev->blksz	= part->sector_size;
 		dev->blkcnt	= part->sector_to - part->sector_from + 1;
-		dev->open 	= disk_block_open;
 		dev->read 	= disk_block_read;
 		dev->write	= disk_block_write;
-		dev->close	= disk_block_close;
 		dev->priv	= dblk;
 
 		if(!register_block(dev))

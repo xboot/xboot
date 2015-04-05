@@ -146,7 +146,7 @@ static s32_t cpiofs_mount(struct mount_t * m, char * dev, s32_t flag)
 	if(!blk)
 		return EACCES;
 
-	if(get_block_total_size(blk) <= sizeof(struct cpio_newc_header))
+	if(block_capacity(blk) <= sizeof(struct cpio_newc_header))
 		return EINTR;
 
 	if(block_read(blk, (u8_t *)(&header), 0, sizeof(struct cpio_newc_header)) != sizeof(struct cpio_newc_header))

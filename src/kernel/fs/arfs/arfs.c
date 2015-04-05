@@ -71,7 +71,7 @@ static s32_t arfs_mount(struct mount_t * m, char * dev, s32_t flag)
 	if(!blk)
 		return EACCES;
 
-	if(get_block_total_size(blk) <= 8)
+	if(block_capacity(blk) <= 8)
 		return EINTR;
 
 	if(block_read(blk, buf, 0, 8) != 8)

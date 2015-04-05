@@ -91,8 +91,8 @@ static int loop_open(struct block_t * blk)
 static ssize_t loop_read(struct block_t * blk, u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct loop_t * loop = (struct loop_t *)(blk->priv);
-	loff_t offset = get_block_offset(blk, blkno);
-	loff_t size = get_block_size(blk) * blkcnt;
+	loff_t offset = block_offset(blk, blkno);
+	loff_t size = block_size(blk) * blkcnt;
 
 	if(offset < 0)
 		return 0;
@@ -112,8 +112,8 @@ static ssize_t loop_read(struct block_t * blk, u8_t * buf, size_t blkno, size_t 
 static ssize_t loop_write(struct block_t * blk, const u8_t * buf, size_t blkno, size_t blkcnt)
 {
 	struct loop_t * loop = (struct loop_t *)(blk->priv);
-	loff_t offset = get_block_offset(blk, blkno);
-	loff_t size = get_block_size(blk) * blkcnt;
+	loff_t offset = block_offset(blk, blkno);
+	loff_t size = block_size(blk) * blkcnt;
 
 	if(loop->read_only == TRUE)
 		return 0;
@@ -229,10 +229,8 @@ bool_t register_loop(const char * file)
 	blk->name		= loop->name;
 	blk->blksz		= SZ_512;
 	blk->blkcnt		= size;
-	blk->open 		= loop_open;
 	blk->read		= loop_read;
 	blk->write		= loop_write;
-	blk->close		= loop_close;
 	blk->priv		= loop;
 
 	list->loop 		= loop;

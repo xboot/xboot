@@ -34,6 +34,12 @@ static void block_suspend(struct device_t * dev)
 	blk = (struct block_t *)(dev->driver);
 	if(!blk)
 		return;
+
+	if(blk->sync)
+		blk->sync(blk);
+
+	if(blk->suspend)
+		blk->suspend(blk);
 }
 
 static void block_resume(struct device_t * dev)
@@ -46,6 +52,27 @@ static void block_resume(struct device_t * dev)
 	blk = (struct block_t *)(dev->driver);
 	if(!blk)
 		return;
+
+	if(blk->resume)
+		blk->resume(blk);
+}
+
+static ssize_t block_read_size(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct block_t * blk = (struct block_t *)kobj->priv;
+	return sprintf(buf, "%lld", block_size(blk));
+}
+
+static ssize_t block_read_count(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct block_t * blk = (struct block_t *)kobj->priv;
+	return sprintf(buf, "%lld", block_count(blk));
+}
+
+static ssize_t block_read_capacity(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct block_t * blk = (struct block_t *)kobj->priv;
+	return sprintf(buf, "%lld", block_capacity(blk));
 }
 
 struct block_t * search_block(const char * name)
@@ -79,6 +106,9 @@ bool_t register_block(struct block_t * blk)
 	dev->resume = block_resume;
 	dev->driver = (void *)blk;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "size", block_read_size, NULL, blk);
+	kobj_add_regular(dev->kobj, "count", block_read_count, NULL, blk);
+	kobj_add_regular(dev->kobj, "capacity", block_read_capacity, NULL, blk);
 
 	if(!register_device(dev))
 	{
@@ -111,49 +141,14 @@ bool_t unregister_block(struct block_t * blk)
 	return TRUE;
 }
 
-loff_t get_block_total_size(struct block_t * blk)
-{
-	if(!blk)
-		return 0;
-
-	return (blk->blksz * blk->blkcnt);
-}
-
-size_t get_block_total_count(struct block_t * blk)
-{
-	if(!blk)
-		return 0;
-
-	return (blk->blkcnt);
-}
-
-size_t get_block_size(struct block_t * blk)
-{
-	if(!blk)
-		return 0;
-
-	return (blk->blksz);
-}
-
-loff_t get_block_offset(struct block_t * blk, size_t blkno)
-{
-	if(!blk)
-		return -1;
-
-	if(blkno > blk->blkcnt)
-		return -1;
-
-	return (blk->blksz * blkno);
-}
-
-loff_t block_read(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count)
+u64_t block_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
 	u8_t * blkbuf;
-	size_t blkno, blksz, blkcnt;
+	u64_t blkno, blksz, blkcnt;
 	u64_t div, rem;
-	size_t len;
-	loff_t tmp;
-	loff_t size = 0;
+	u64_t len;
+	u64_t tmp;
+	u64_t size = 0;
 
 	if(!buf)
 		return 0;
@@ -161,15 +156,15 @@ loff_t block_read(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count)
 	if(!blk)
 		return 0;
 
-	blksz = get_block_size(blk);
+	blksz = block_size(blk);
 	if(blksz <= 0)
 		return 0;
 
-	blkcnt = get_block_total_count(blk);
+	blkcnt = block_count(blk);
 	if(blkcnt <= 0)
 		return 0;
 
-	tmp = get_block_total_size(blk);
+	tmp = block_capacity(blk);
 	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
 		return 0;
 
@@ -243,14 +238,14 @@ loff_t block_read(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count)
 	return size;
 }
 
-loff_t block_write(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count)
+u64_t block_write(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
 	u8_t * blkbuf;
-	size_t blkno, blksz, blkcnt;
+	u64_t blkno, blksz, blkcnt;
 	u64_t div, rem;
-	size_t len;
-	loff_t tmp;
-	loff_t size = 0;
+	u64_t len;
+	u64_t tmp;
+	u64_t size = 0;
 
 	if(!buf)
 		return 0;
@@ -258,15 +253,15 @@ loff_t block_write(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count
 	if(!blk)
 		return 0;
 
-	blksz = get_block_size(blk);
+	blksz = block_size(blk);
 	if(blksz <= 0)
 		return 0;
 
-	blkcnt = get_block_total_count(blk);
+	blkcnt = block_count(blk);
 	if(blkcnt <= 0)
 		return 0;
 
-	tmp = get_block_total_size(blk);
+	tmp = block_capacity(blk);
 	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
 		return 0;
 
@@ -352,4 +347,10 @@ loff_t block_write(struct block_t * blk, u8_t * buf, loff_t offset, loff_t count
 
 	free(blkbuf);
 	return size;
+}
+
+void block_sync(struct block_t * blk)
+{
+	if(blk && blk->sync)
+		blk->sync(blk);
 }

@@ -193,7 +193,7 @@ static s32_t tarfs_mount(struct mount_t * m, char * dev, s32_t flag)
 	if(!blk)
 		return EACCES;
 
-	if(get_block_total_size(blk) <= sizeof(struct tar_header))
+	if(block_capacity(blk) <= sizeof(struct tar_header))
 		return EINTR;
 
 	if(block_read(blk, (u8_t *)(&header), 0, sizeof(struct tar_header)) != sizeof(struct tar_header))

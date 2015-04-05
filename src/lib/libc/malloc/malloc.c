@@ -167,7 +167,7 @@ static int tlsf_fls_sizet(size_t size)
 #define tlsf_fls_sizet	tlsf_fls
 #endif
 
-static size_t block_size(const block_header_t * block)
+static size_t block_get_size(const block_header_t * block)
 {
 	return block->size & ~(block_header_free_bit | block_header_prev_free_bit);
 }
@@ -180,7 +180,7 @@ static void block_set_size(block_header_t * block, size_t size)
 
 static int block_is_last(const block_header_t * block)
 {
-	return (block_size(block) == 0);
+	return (block_get_size(block) == 0);
 }
 
 static int block_is_free(const block_header_t * block)
@@ -235,7 +235,7 @@ static block_header_t * block_prev(const block_header_t * block)
 
 static block_header_t* block_next(const block_header_t* block)
 {
-	block_header_t * next = offset_to_block(block_to_ptr(block), block_size(block) - block_header_overhead);
+	block_header_t * next = offset_to_block(block_to_ptr(block), block_get_size(block) - block_header_overhead);
 	tlsf_assert(!block_is_last(block));
 
 	return next;
@@ -400,7 +400,7 @@ static void block_remove(pool_t * pool, block_header_t * block)
 {
 	int fl, sl;
 
-	mapping_insert(block_size(block), &fl, &sl);
+	mapping_insert(block_get_size(block), &fl, &sl);
 	remove_free_block(pool, block, fl, sl);
 }
 
@@ -408,26 +408,26 @@ static void block_insert(pool_t * pool, block_header_t * block)
 {
 	int fl, sl;
 
-	mapping_insert(block_size(block), &fl, &sl);
+	mapping_insert(block_get_size(block), &fl, &sl);
 	insert_free_block(pool, block, fl, sl);
 }
 
 static int block_can_split(block_header_t * block, size_t size)
 {
-	return block_size(block) >= sizeof(block_header_t) + size;
+	return block_get_size(block) >= sizeof(block_header_t) + size;
 }
 
 static block_header_t* block_split(block_header_t * block, size_t size)
 {
 	block_header_t* remaining = offset_to_block(block_to_ptr(block), size - block_header_overhead);
-	const size_t remain_size = block_size(block) - (size + block_header_overhead);
+	const size_t remain_size = block_get_size(block) - (size + block_header_overhead);
 
 	tlsf_assert(block_to_ptr(remaining) == align_ptr(block_to_ptr(remaining), ALIGN_SIZE)
 		&& "remaining block not aligned properly");
 
-	tlsf_assert(block_size(block) == remain_size + size + block_header_overhead);
+	tlsf_assert(block_get_size(block) == remain_size + size + block_header_overhead);
 	block_set_size(remaining, remain_size);
-	tlsf_assert(block_size(remaining) >= block_size_min && "block split with invalid size");
+	tlsf_assert(block_get_size(remaining) >= block_size_min && "block split with invalid size");
 
 	block_set_size(block, size);
 	block_mark_as_free(remaining);
@@ -438,7 +438,7 @@ static block_header_t* block_split(block_header_t * block, size_t size)
 static block_header_t * block_absorb(block_header_t * prev, block_header_t * block)
 {
 	tlsf_assert(!block_is_last(prev) && "previous block can't be last!");
-	prev->size += block_size(block) + block_header_overhead;
+	prev->size += block_get_size(block) + block_header_overhead;
 	block_link_next(prev);
 
 	return prev;
@@ -527,7 +527,7 @@ static block_header_t * block_locate_free(pool_t * pool, size_t size)
 
 	if(block)
 	{
-		tlsf_assert(block_size(block) >= size);
+		tlsf_assert(block_get_size(block) >= size);
 		remove_free_block(pool, block, fl, sl);
 	}
 
@@ -682,8 +682,8 @@ static void * tlsf_realloc(void * tlsf, void * ptr, size_t size)
 		block_header_t * block = block_from_ptr(ptr);
 		block_header_t * next = block_next(block);
 
-		const size_t cursize = block_size(block);
-		const size_t combined = cursize + block_size(next) + block_header_overhead;
+		const size_t cursize = block_get_size(block);
+		const size_t combined = cursize + block_get_size(next) + block_header_overhead;
 		const size_t adjust = adjust_request_size(size, ALIGN_SIZE);
 
 		if((adjust > cursize) && (!block_is_free(next) || (adjust > combined)))
@@ -749,7 +749,7 @@ static void tlsf_walk_heap(void * pool, tlsf_walker walker, void * user)
 
 	while(block && !block_is_last(block))
 	{
-		walker(block_to_ptr(block), block_size(block), !block_is_free(block), user);
+		walker(block_to_ptr(block), block_get_size(block), !block_is_free(block), user);
 		block = block_next(block);
 	}
 }

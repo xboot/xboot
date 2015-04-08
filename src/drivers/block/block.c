@@ -143,210 +143,182 @@ bool_t unregister_block(struct block_t * blk)
 
 u64_t block_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
-	u8_t * blkbuf;
-	u64_t blkno, blksz, blkcnt;
-	u64_t div, rem;
-	u64_t len;
-	u64_t tmp;
-	u64_t size = 0;
+	u64_t blkno, blksz, blkcnt, capacity;
+	u64_t len, tmp;
+	u64_t ret = 0;
+	u8_t * p;
 
-	if(!buf)
-		return 0;
-
-	if(!blk)
+	if(!blk || !buf || !count)
 		return 0;
 
 	blksz = block_size(blk);
-	if(blksz <= 0)
-		return 0;
-
 	blkcnt = block_count(blk);
-	if(blkcnt <= 0)
+	if(!blksz || !blkcnt)
 		return 0;
 
-	tmp = block_capacity(blk);
-	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
+	capacity = block_capacity(blk);
+	if(offset >= capacity)
 		return 0;
 
-	tmp = tmp - offset;
+	tmp = capacity - offset;
 	if(count > tmp)
 		count = tmp;
 
-	blkbuf = malloc(blksz);
-	if(!blkbuf)
+	p = malloc(blksz);
+	if(!p)
 		return 0;
 
-	div = offset;
-	rem = div % blksz;
-	div = div / blksz;
-	blkno = div;
-
-	if(rem > 0)
+	blkno = offset / blksz;
+	tmp = offset % blksz;
+	if(tmp > 0)
 	{
-		len = blksz - rem;
+		len = blksz - tmp;
 		if(count < len)
 			len = count;
 
-		if(blk->read(blk, blkbuf, blkno, 1) != 1)
+		if(blk->read(blk, p, blkno, 1) != 1)
 		{
-			free(blkbuf);
-			return 0;
+			free(p);
+			return ret;
 		}
 
-		memcpy((void *)buf, (const void *)(&blkbuf[rem]), len);
+		memcpy((void *)buf, (const void *)(&p[tmp]), len);
 		buf += len;
 		count -= len;
-		size += len;
+		ret += len;
 		blkno += 1;
 	}
 
-	div = count;
-	rem = div % blksz;
-	div = div / blksz;
-
-	if(div > 0)
+	tmp = count / blksz;
+	if(tmp > 0)
 	{
-		len = div * blksz;
+		len = tmp * blksz;
 
-		if(blk->read(blk, buf, blkno, div) != div)
+		if(blk->read(blk, buf, blkno, tmp) != tmp)
 		{
-			free(blkbuf);
-			return size;
+			free(p);
+			return ret;
 		}
 
 		buf += len;
 		count -= len;
-		size += len;
-		blkno += div;
+		ret += len;
+		blkno += tmp;
 	}
 
 	if(count > 0)
 	{
 		len = count;
 
-		if(blk->read(blk, blkbuf, blkno, 1) != 1)
+		if(blk->read(blk, p, blkno, 1) != 1)
 		{
-			free(blkbuf);
-			return size;
+			free(p);
+			return ret;
 		}
 
-		memcpy((void *)buf, (const void *)(&blkbuf[0]), len);
-		size += len;
+		memcpy((void *)buf, (const void *)(&p[0]), len);
+		ret += len;
 	}
 
-	free(blkbuf);
-	return size;
+	free(p);
+	return ret;
 }
 
 u64_t block_write(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
-	u8_t * blkbuf;
-	u64_t blkno, blksz, blkcnt;
-	u64_t div, rem;
-	u64_t len;
-	u64_t tmp;
-	u64_t size = 0;
+	u64_t blkno, blksz, blkcnt, capacity;
+	u64_t len, tmp;
+	u64_t ret = 0;
+	u8_t * p;
 
-	if(!buf)
-		return 0;
-
-	if(!blk)
+	if(!blk || !buf || !count)
 		return 0;
 
 	blksz = block_size(blk);
-	if(blksz <= 0)
-		return 0;
-
 	blkcnt = block_count(blk);
-	if(blkcnt <= 0)
+	if(!blksz || !blkcnt)
 		return 0;
 
-	tmp = block_capacity(blk);
-	if( (count <= 0) || (offset < 0) || (offset >= tmp) )
+	capacity = block_capacity(blk);
+	if(offset >= capacity)
 		return 0;
 
-	tmp = tmp - offset;
+	tmp = capacity - offset;
 	if(count > tmp)
 		count = tmp;
 
-	blkbuf = malloc(blksz);
-	if(!blkbuf)
+	p = malloc(blksz);
+	if(!p)
 		return 0;
 
-	div = offset;
-	rem = div % blksz;
-	div = div / blksz;
-	blkno = div;
-
-	if(rem > 0)
+	blkno = offset / blksz;
+	tmp = offset % blksz;
+	if(tmp > 0)
 	{
-		len = blksz - rem;
+		len = blksz - tmp;
 		if(count < len)
 			len = count;
 
-		if(blk->read(blk, blkbuf, blkno, 1) != 1)
+		if(blk->read(blk, p, blkno, 1) != 1)
 		{
-			free(blkbuf);
-			return 0;
+			free(p);
+			return ret;
 		}
 
-		memcpy((void *)(&blkbuf[rem]), (const void *)buf, len);
+		memcpy((void *)(&p[tmp]), (const void *)buf, len);
 
-		if(blk->write(blk, blkbuf, blkno, 1) != 1)
+		if(blk->write(blk, p, blkno, 1) != 1)
 		{
-			free(blkbuf);
-			return 0;
+			free(p);
+			return ret;
 		}
 
 		buf += len;
 		count -= len;
-		size += len;
+		ret += len;
 		blkno += 1;
 	}
 
-	div = count;
-	rem = div % blksz;
-	div = div / blksz;
-
-	if(div > 0)
+	tmp = count / blksz;
+	if(tmp > 0)
 	{
-		len = div * blksz;
+		len = tmp * blksz;
 
-		if(blk->write(blk, buf, blkno, div) != div)
+		if(blk->write(blk, buf, blkno, tmp) != tmp)
 		{
-			free(blkbuf);
-			return size;
+			free(p);
+			return ret;
 		}
 
 		buf += len;
 		count -= len;
-		size += len;
-		blkno += div;
+		ret += len;
+		blkno += tmp;
 	}
 
 	if(count > 0)
 	{
 		len = count;
 
-		if(blk->read(blk, blkbuf, blkno, 1) != 1)
+		if(blk->read(blk, p, blkno, 1) != 1)
 		{
-			free(blkbuf);
-			return size;
+			free(p);
+			return ret;
 		}
 
-		memcpy((void *)(&blkbuf[0]), (const void *)buf, len);
+		memcpy((void *)(&p[0]), (const void *)buf, len);
 
-		if(blk->write(blk, blkbuf, blkno, 1) != 1)
+		if(blk->write(blk, p, blkno, 1) != 1)
 		{
-			free(blkbuf);
-			return size;
+			free(p);
+			return ret;
 		}
 
-		size += len;
+		ret += len;
 	}
 
-	free(blkbuf);
-	return size;
+	free(p);
+	return ret;
 }
 
 void block_sync(struct block_t * blk)

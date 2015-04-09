@@ -280,24 +280,34 @@ static bool_t mmc_card_decode(struct mmc_card_t * card)
 	return TRUE;
 }
 
-static ssize_t mmc_read_sectors(struct disk_t * disk, u8_t * buf, size_t sector, size_t count)
+static u64_t mmc_read(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
 {
 	struct mmc_card_t * card = (struct mmc_card_t *)(disk->priv);
 
 	if(card->host->read_sectors(card, buf, sector, count) != TRUE)
 		return 0;
-
 	return count;
 }
 
-static ssize_t mmc_write_sectors(struct disk_t * disk, const u8_t * buf, size_t sector, size_t count)
+static u64_t mmc_write(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
 {
 	struct mmc_card_t * card = (struct mmc_card_t *)(disk->priv);
 
 	if(card->host->write_sectors(card, buf, sector, count) != TRUE)
 		return 0;
-
 	return count;
+}
+
+static void mmc_sync(struct disk_t * disk)
+{
+}
+
+static void mmc_suspend(struct disk_t * disk)
+{
+}
+
+static void mmc_resume(struct disk_t * disk)
+{
 }
 
 static bool_t register_mmc_card(struct mmc_card_t * card)
@@ -326,10 +336,13 @@ static bool_t register_mmc_card(struct mmc_card_t * card)
 	}
 
 	disk->name = card->name;
-	disk->sector_size = card->info->sector_size;
-	disk->sector_count = card->info->sector_count;
-	disk->read_sectors = mmc_read_sectors;
-	disk->write_sectors = mmc_write_sectors;
+	disk->size = card->info->sector_size;
+	disk->count = card->info->sector_count;
+	disk->read = mmc_read;
+	disk->write = mmc_write;
+	disk->sync = mmc_sync;
+	disk->suspend = mmc_suspend;
+	disk->resume = mmc_resume;
 	disk->priv = (void *)card;
 	card->priv = (void *)disk;
 

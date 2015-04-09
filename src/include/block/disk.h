@@ -6,55 +6,69 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <xboot/list.h>
 #include <block/block.h>
-#include <block/partition.h>
 
-/*
- * forward declare
- */
-struct partition_t;
-
-/*
- * the struct of disk_t
- */
-struct disk_t
+struct partition_t
 {
-	/* the disk name */
-	const char * name;
+	/* Partition name */
+	char name[32 + 1];
 
-	/* partition information */
-	struct partition_t info;
+	/* The sector number of the start */
+	u64_t from;
 
-	/* the size of sector */
-	size_t sector_size;
+	/* The sector number of the end */
+	u64_t to;
 
-	/* the count of sector */
-	size_t sector_count;
+	/* The sector's size in bytes */
+	u64_t size;
 
-	/* read sectors from disk, return the sector counts of reading */
-	ssize_t (*read_sectors)(struct disk_t * disk, u8_t * buf, size_t sector, size_t count);
+	/* Link to this partition's block device */
+	struct block_t * blk;
 
-	/* write sectors to disk, return the sector counts of writing */
-	ssize_t (*write_sectors)(struct disk_t * disk, const u8_t * buf, size_t sector, size_t count);
-
-	/* priv data pointer */
-	void * priv;
-};
-
-/*
- * the list of disk
- */
-struct disk_list_t
-{
-	struct disk_t * disk;
+	/* Link other partition */
 	struct list_head entry;
 };
 
+struct disk_t
+{
+	/* The disk name */
+	const char * name;
+
+	/* The size of sector */
+	u64_t size;
+
+	/* The count of sector */
+	u64_t count;
+
+	/* Partition information */
+	struct partition_t part;
+
+	/* Read disk device, return the sector counts of reading */
+	u64_t (*read)(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count);
+
+	/* Write disk device, return the sector counts of writing */
+	u64_t (*write)(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count);
+
+	/* Sync cache to disk device */
+	void (*sync)(struct disk_t * disk);
+
+	/* Suspend disk */
+	void (*suspend)(struct disk_t * disk);
+
+	/* Resume disk */
+	void (*resume)(struct disk_t * disk);
+
+	/* Private data */
+	void * priv;
+};
+
+struct disk_t * search_disk(const char * name);
 bool_t register_disk(struct disk_t * disk);
 bool_t unregister_disk(struct disk_t * disk);
+
+u64_t disk_read(struct disk_t * disk, u8_t * buf, u64_t offset, u64_t count);
+u64_t disk_write(struct disk_t * disk, u8_t * buf, u64_t offset, u64_t count);
+void disk_sync(struct disk_t * disk);
 
 #ifdef __cplusplus
 }

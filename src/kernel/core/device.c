@@ -75,6 +75,9 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_BLOCK:
 		name = "block";
 		break;
+	case DEVICE_TYPE_DISK:
+		name = "disk";
+		break;
 	default:
 		return NULL;
 	}

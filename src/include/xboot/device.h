@@ -17,6 +17,7 @@ enum device_type_t {
 	DEVICE_TYPE_INPUT,
 	DEVICE_TYPE_WATCHDOG,
 	DEVICE_TYPE_BLOCK,
+	DEVICE_TYPE_DISK,
 };
 
 struct device_t

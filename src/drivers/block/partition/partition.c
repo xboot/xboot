@@ -121,7 +121,7 @@ bool_t partition_map(struct disk_t * disk)
 	if(!part)
 		return FALSE;
 
-	strlcpy(part->name, "all", sizeof(part->name));
+	strlcpy(part->name, "disk", sizeof(part->name));
 	part->from = 0;
 	part->to = disk->count - 1;
 	part->size = disk->size;

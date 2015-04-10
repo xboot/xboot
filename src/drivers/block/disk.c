@@ -90,6 +90,30 @@ static void disk_resume(struct device_t * dev)
 		disk->resume(disk);
 }
 
+static ssize_t partition_read_from(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct partition_t * part = (struct partition_t *)kobj->priv;
+	return sprintf(buf, "%lld", part->from);
+}
+
+static ssize_t partition_read_to(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct partition_t * part = (struct partition_t *)kobj->priv;
+	return sprintf(buf, "%lld", part->to);
+}
+
+static ssize_t partition_read_size(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct partition_t * part = (struct partition_t *)kobj->priv;
+	return sprintf(buf, "%lld", part->size);
+}
+
+static ssize_t partition_read_capacity(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct partition_t * part = (struct partition_t *)kobj->priv;
+	return sprintf(buf, "%lld", (part->to - part->from + 1) * part->size);
+}
+
 struct disk_t * search_disk(const char * name)
 {
 	struct device_t * dev;
@@ -104,6 +128,7 @@ struct disk_t * search_disk(const char * name)
 bool_t register_disk(struct disk_t * disk)
 {
 	struct device_t * dev;
+	struct kobj_t * kobj;
 	struct partition_t * ppos, * pn;
 	struct block_t * blk;
 	struct disk_block_t * dblk;
@@ -131,6 +156,14 @@ bool_t register_disk(struct disk_t * disk)
 	dev->resume = disk_resume;
 	dev->driver = (void *)disk;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
+	{
+		kobj = kobj_search_directory_with_create(dev->kobj, ppos->name);
+		kobj_add_regular(kobj, "from", partition_read_from, NULL, ppos);
+		kobj_add_regular(kobj, "to", partition_read_to, NULL, ppos);
+		kobj_add_regular(kobj, "size", partition_read_size, NULL, ppos);
+		kobj_add_regular(kobj, "capacity", partition_read_capacity, NULL, ppos);
+	}
 
 	if(!register_device(dev))
 	{

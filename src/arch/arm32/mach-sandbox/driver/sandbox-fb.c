@@ -29,7 +29,9 @@ static void fb_init(struct fb_t * fb)
 {
 	struct resource_t * res = (struct resource_t *)fb->priv;
 	struct sandbox_fb_data_t * dat = (struct sandbox_fb_data_t *)res->data;
-	dat->priv = sandbox_sdl_fb_init(dat->width, dat->height, dat->fullscreen);
+	char title[256];
+	sprintf(title, "Xboot Runtime Environment - V%s", xboot_version_string());
+	dat->priv = sandbox_sdl_fb_init(title, dat->width, dat->height, dat->fullscreen);
 	dat->width = sandbox_sdl_fb_get_width(dat->priv);
 	dat->height = sandbox_sdl_fb_get_height(dat->priv);
 }

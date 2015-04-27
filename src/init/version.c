@@ -47,7 +47,7 @@ const char * xboot_version_string(void)
 
 const char * xboot_banner_string(void)
 {
-	return ("xboot version: "XBOOT_VERSION_STRING(XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH)" ("__DATE__" - "__TIME__") for ["__ARCH__"]["__MACH__"]");
+	return ("V"XBOOT_VERSION_STRING(XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH)" - ["__ARCH__"]["__MACH__"]("__TIMESTAMP__")");
 }
 
 /*

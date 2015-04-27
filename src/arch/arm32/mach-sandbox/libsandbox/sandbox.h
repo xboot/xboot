@@ -83,7 +83,7 @@ struct sandbox_fb_surface_t {
 	void * surface;
 };
 
-void * sandbox_sdl_fb_init(int width, int height, int fullscreen);
+void * sandbox_sdl_fb_init(const char * title, int width, int height, int fullscreen);
 void sandbox_sdl_fb_exit(void * handle);
 int sandbox_sdl_fb_get_width(void * handle);
 int sandbox_sdl_fb_get_height(void * handle);

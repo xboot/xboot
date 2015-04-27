@@ -7,11 +7,12 @@
 struct sandbox_fb_t {
 	SDL_Window * window;
 	SDL_Surface * screen;
+	char * title;
 	int width;
 	int height;
 };
 
-void * sandbox_sdl_fb_init(int width, int height, int fullscreen)
+void * sandbox_sdl_fb_init(const char * title, int width, int height, int fullscreen)
 {
 	struct sandbox_fb_t * hdl;
 	Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
@@ -23,9 +24,12 @@ void * sandbox_sdl_fb_init(int width, int height, int fullscreen)
 	if(!hdl)
 		return NULL;
 
-	hdl->window = SDL_CreateWindow("Xboot Runtime Environment", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+	hdl->title = strdup(title ? title : "Xboot Runtime Environment");
+	hdl->window = SDL_CreateWindow(hdl->title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 	if(!hdl->window)
 	{
+		if(hdl->title)
+			free(hdl->title);
 		free(hdl);
 		return NULL;
 	}
@@ -33,6 +37,10 @@ void * sandbox_sdl_fb_init(int width, int height, int fullscreen)
 	hdl->screen = SDL_GetWindowSurface(hdl->window);
 	if(!hdl->screen)
 	{
+		if(hdl->window)
+			SDL_DestroyWindow(hdl->window);
+		if(hdl->title)
+			free(hdl->title);
 		free(hdl);
 		return NULL;
 	}
@@ -51,6 +59,8 @@ void sandbox_sdl_fb_exit(void * handle)
 		SDL_DestroyWindow(hdl->window);
 	if(hdl->screen)
 		SDL_FreeSurface(hdl->screen);
+	if(hdl->title)
+		free(hdl->title);
 	free(hdl);
 }
 

@@ -162,9 +162,9 @@ static bool_t s5p4418_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 	temp = (8 * remainder) / ibaud;
 	fraction = (temp >> 1) + (temp & 1);
 
-	writel(dat->regbase + S5P4418_UART_IBRD, divider);
-	writel(dat->regbase + S5P4418_UART_FBRD, fraction);
-	writel(dat->regbase + S5P4418_UART_LCRH, (1 << 4) | (data_bit_reg<<5 | stop_bit_reg<<3 | parity_reg<<1));
+	write32(dat->regbase + S5P4418_UART_IBRD, divider);
+	write32(dat->regbase + S5P4418_UART_FBRD, fraction);
+	write32(dat->regbase + S5P4418_UART_LCRH, (1 << 4) | (data_bit_reg<<5 | stop_bit_reg<<3 | parity_reg<<1));
 
 	return TRUE;
 }
@@ -177,13 +177,13 @@ static void s5p4418_uart_init(struct uart_t * uart)
 	clk_enable("uclk");
 
 	/* Disable everything */
-	writel(dat->regbase + S5P4418_UART_CR, 0x0);
+	write32(dat->regbase + S5P4418_UART_CR, 0x0);
 
 	/* Configure uart */
 	s5p4418_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
 
 	/* Enable uart */
-	writel(dat->regbase + S5P4418_UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
+	write32(dat->regbase + S5P4418_UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void s5p4418_uart_exit(struct uart_t * uart)
@@ -199,8 +199,8 @@ static ssize_t s5p4418_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		if( !(readb(dat->regbase + S5P4418_UART_FR) & S5P4418_UART_FR_RXFE) )
-			buf[i] = readb(dat->regbase + S5P4418_UART_DATA);
+		if( !(read8(dat->regbase + S5P4418_UART_FR) & S5P4418_UART_FR_RXFE) )
+			buf[i] = read8(dat->regbase + S5P4418_UART_DATA);
 		else
 			break;
 	}
@@ -216,8 +216,8 @@ static ssize_t s5p4418_uart_write(struct uart_t * uart, const u8_t * buf, size_t
 
 	for(i = 0; i < count; i++)
 	{
-		while( (readb(dat->regbase + S5P4418_UART_FR) & S5P4418_UART_FR_TXFF) );
-		writeb(dat->regbase + S5P4418_UART_DATA, buf[i]);
+		while( (read8(dat->regbase + S5P4418_UART_FR) & S5P4418_UART_FR_TXFF) );
+		write8(dat->regbase + S5P4418_UART_DATA, buf[i]);
 	}
 
 	return i;

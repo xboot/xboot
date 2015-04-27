@@ -39,16 +39,16 @@ static void clk_gate_set_enable(struct clk_t * clk, bool_t enable)
 	struct clk_gate_t * gclk = (struct clk_gate_t *)clk->priv;
 
 	if(enable)
-		writel(gclk->reg, (readl(gclk->reg) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x0 : 0x1) << gclk->shift));
+		write32(gclk->reg, (read32(gclk->reg) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x0 : 0x1) << gclk->shift));
 	else
-		writel(gclk->reg, (readl(gclk->reg) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x1 : 0x0) << gclk->shift));
+		write32(gclk->reg, (read32(gclk->reg) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x1 : 0x0) << gclk->shift));
 }
 
 static bool_t clk_gate_get_enable(struct clk_t * clk)
 {
 	struct clk_gate_t * gclk = (struct clk_gate_t *)clk->priv;
 
-	if(readl(gclk->reg) & (0x1 << gclk->shift))
+	if(read32(gclk->reg) & (0x1 << gclk->shift))
 		return gclk->invert ? FALSE : TRUE;
 	return gclk->invert ? TRUE : FALSE;
 }

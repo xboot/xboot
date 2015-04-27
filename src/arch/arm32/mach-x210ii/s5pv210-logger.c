@@ -40,8 +40,8 @@ static ssize_t logger_uart2_output(const char * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		while( !(readl(S5PV210_UART2_BASE + S5PV210_UTRSTAT) & S5PV210_UTRSTAT_TXFE) );
-		writeb(S5PV210_UART2_BASE + S5PV210_UTXH, buf[i]);
+		while( !(read32(S5PV210_UART2_BASE + S5PV210_UTRSTAT) & S5PV210_UTRSTAT_TXFE) );
+		write8(S5PV210_UART2_BASE + S5PV210_UTXH, buf[i]);
 	}
 	return i;
 }

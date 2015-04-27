@@ -165,9 +165,9 @@ static bool_t exynos4412_uart_setup(struct uart_t * uart, enum baud_rate_t baud,
 	baud_div_reg = (u32_t)((rate / (ibaud * 16)) ) - 1;
 	baud_divslot_reg = udivslot_code[( (u32_t)((rate % (ibaud*16)) / ibaud) ) & 0xf];
 
-	writel(dat->regbase + EXYNOS4412_UBRDIV, baud_div_reg);
-	writel(dat->regbase + EXYNOS4412_UFRACVAL, baud_divslot_reg);
-	writel(dat->regbase + EXYNOS4412_ULCON, (data_bit_reg<<0 | stop_bit_reg <<2 | parity_reg<<3));
+	write32(dat->regbase + EXYNOS4412_UBRDIV, baud_div_reg);
+	write32(dat->regbase + EXYNOS4412_UFRACVAL, baud_divslot_reg);
+	write32(dat->regbase + EXYNOS4412_ULCON, (data_bit_reg<<0 | stop_bit_reg <<2 | parity_reg<<3));
 
 	return TRUE;
 }
@@ -188,9 +188,9 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		gpio_set_pull(EXYNOS4412_GPA0(1), GPIO_PULL_UP);
 		gpio_set_pull(EXYNOS4412_GPA0(0), GPIO_PULL_UP);
 
-		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
-		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
+		write32(dat->regbase + EXYNOS4412_UCON, 0x00000005);
+		write32(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
+		write32(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
 		break;
 
 	case 1:
@@ -202,9 +202,9 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		gpio_set_pull(EXYNOS4412_GPA0(5), GPIO_PULL_UP);
 		gpio_set_pull(EXYNOS4412_GPA0(4), GPIO_PULL_UP);
 
-		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
-		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
+		write32(dat->regbase + EXYNOS4412_UCON, 0x00000005);
+		write32(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
+		write32(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
 		break;
 
 	case 2:
@@ -216,9 +216,9 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		gpio_set_pull(EXYNOS4412_GPA1(1), GPIO_PULL_UP);
 		gpio_set_pull(EXYNOS4412_GPA1(0), GPIO_PULL_UP);
 
-		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
-		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
+		write32(dat->regbase + EXYNOS4412_UCON, 0x00000005);
+		write32(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
+		write32(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
 		break;
 
 	case 3:
@@ -230,9 +230,9 @@ static void exynos4412_uart_init(struct uart_t * uart)
 		gpio_set_pull(EXYNOS4412_GPA1(5), GPIO_PULL_UP);
 		gpio_set_pull(EXYNOS4412_GPA1(4), GPIO_PULL_UP);
 
-		writel(dat->regbase + EXYNOS4412_UCON, 0x00000005);
-		writel(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
-		writel(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
+		write32(dat->regbase + EXYNOS4412_UCON, 0x00000005);
+		write32(dat->regbase + EXYNOS4412_UFCON, 0x00000777);
+		write32(dat->regbase + EXYNOS4412_UMCON, 0x00000000);
 		break;
 
 	default:
@@ -273,8 +273,8 @@ static ssize_t exynos4412_uart_read(struct uart_t * uart, u8_t * buf, size_t cou
 
 	for(i = 0; i < count; i++)
 	{
-		if( (readl(dat->regbase + EXYNOS4412_UTRSTAT) & EXYNOS4412_UTRSTAT_RXDR) )
-			buf[i] = readb(dat->regbase + EXYNOS4412_URXH);
+		if( (read32(dat->regbase + EXYNOS4412_UTRSTAT) & EXYNOS4412_UTRSTAT_RXDR) )
+			buf[i] = read8(dat->regbase + EXYNOS4412_URXH);
 		else
 			break;
 	}
@@ -290,8 +290,8 @@ static ssize_t exynos4412_uart_write(struct uart_t * uart, const u8_t * buf, siz
 
 	for(i = 0; i < count; i++)
 	{
-		while( !(readl(dat->regbase + EXYNOS4412_UTRSTAT) & EXYNOS4412_UTRSTAT_TXFE) );
-		writeb(dat->regbase + EXYNOS4412_UTXH, buf[i]);
+		while( !(read32(dat->regbase + EXYNOS4412_UTRSTAT) & EXYNOS4412_UTRSTAT_TXFE) );
+		write8(dat->regbase + EXYNOS4412_UTXH, buf[i]);
 	}
 
 	return i;

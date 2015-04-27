@@ -28,7 +28,7 @@ static bool_t exynos4412_fb_set_output(struct exynos4412_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(dat->regbase + VIDCON0);
+	cfg = read32(dat->regbase + VIDCON0);
 	cfg &= ~VIDCON0_VIDOUT_MASK;
 
 	if(dat->output == EXYNOS4412_FB_OUTPUT_RGB)
@@ -45,11 +45,11 @@ static bool_t exynos4412_fb_set_output(struct exynos4412_fb_data_t * dat)
 		cfg |= VIDCON0_VIDOUT_WB_I80LDI1;
 	else
 		return FALSE;
-	writel(dat->regbase + VIDCON0, cfg);
+	write32(dat->regbase + VIDCON0, cfg);
 
-	cfg = readl(dat->regbase + VIDCON2);
+	cfg = read32(dat->regbase + VIDCON2);
 	cfg |= 0x3 << 14;
-	writel(dat->regbase + VIDCON2, cfg);
+	write32(dat->regbase + VIDCON2, cfg);
 
 	return TRUE;
 }
@@ -58,10 +58,10 @@ static bool_t exynos4412_fb_set_display_mode(struct exynos4412_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(dat->regbase + VIDCON0);
+	cfg = read32(dat->regbase + VIDCON0);
 	cfg &= ~(3 << 17);
 	cfg |= (dat->rgb_mode << 17);
-	writel(dat->regbase + VIDCON0, cfg);
+	write32(dat->regbase + VIDCON0, cfg);
 
 	return TRUE;
 }
@@ -70,9 +70,9 @@ static bool_t exynos4412_fb_display_on(struct exynos4412_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(dat->regbase + VIDCON0);
+	cfg = read32(dat->regbase + VIDCON0);
 	cfg |= 0x3 << 0;
-	writel(dat->regbase + VIDCON0, cfg);
+	write32(dat->regbase + VIDCON0, cfg);
 
 	return TRUE;
 }
@@ -81,12 +81,12 @@ static bool_t exynos4412_fb_display_off(struct exynos4412_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(dat->regbase + VIDCON0);
+	cfg = read32(dat->regbase + VIDCON0);
 	cfg &= ~(1 << 1);
-	writel(dat->regbase + VIDCON0, cfg);
+	write32(dat->regbase + VIDCON0, cfg);
 
 	cfg &= ~(1 << 0);
-	writel(dat->regbase + VIDCON0, cfg);
+	write32(dat->regbase + VIDCON0, cfg);
 
 	return TRUE;
 }
@@ -108,10 +108,10 @@ static bool_t exynos4412_fb_set_clock(struct exynos4412_fb_data_t * dat)
 	if((fimd % pixel_clock) > 0)
 		div++;
 
-	cfg = readl(dat->regbase + VIDCON0);
+	cfg = read32(dat->regbase + VIDCON0);
 	cfg &= ~( (1 << 16) | (1 << 5) );
 	cfg |= VIDCON0_CLKVAL_F(div - 1);
-	writel(dat->regbase + VIDCON0, cfg);
+	write32(dat->regbase + VIDCON0, cfg);
 
 	return TRUE;
 }
@@ -132,7 +132,7 @@ static bool_t exynos4412_fb_set_polarity(struct exynos4412_fb_data_t * dat)
 	if(dat->polarity.inv_vden)
 		cfg |= (1 << 4);
 
-	writel(dat->regbase + VIDCON1, cfg);
+	write32(dat->regbase + VIDCON1, cfg);
 	return TRUE;
 }
 
@@ -145,14 +145,14 @@ static bool_t exynos4412_fb_set_timing(struct exynos4412_fb_data_t * dat)
 	cfg |= VIDTCON0_VBPD(dat->timing.v_bp - 1);
 	cfg |= VIDTCON0_VFPD(dat->timing.v_fp - 1);
 	cfg |= VIDTCON0_VSPW(dat->timing.v_sw - 1);
-	writel(dat->regbase + VIDTCON0, cfg);
+	write32(dat->regbase + VIDTCON0, cfg);
 
 	cfg = 0;
 	cfg |= VIDTCON1_VFPDE(dat->timing.v_fpe - 1);
 	cfg |= VIDTCON1_HBPD(dat->timing.h_bp - 1);
 	cfg |= VIDTCON1_HFPD(dat->timing.h_fp - 1);
 	cfg |= VIDTCON1_HSPW(dat->timing.h_sw - 1);
-	writel(dat->regbase + VIDTCON1, cfg);
+	write32(dat->regbase + VIDTCON1, cfg);
 
 	return TRUE;
 }
@@ -163,7 +163,7 @@ static bool_t exynos4412_fb_set_lcd_size(struct exynos4412_fb_data_t * dat)
 
 	cfg |= VIDTCON2_HOZVAL(dat->width - 1);
 	cfg |= VIDTCON2_LINEVAL(dat->height - 1);
-	writel(dat->regbase + VIDTCON2, cfg);
+	write32(dat->regbase + VIDTCON2, cfg);
 
 	return TRUE;
 }
@@ -176,44 +176,44 @@ static bool_t exynos4412_fb_set_buffer_address(struct exynos4412_fb_data_t * dat
 	start = (u32_t)(vram);
 	end = (u32_t)((start + dat->width * (dat->height * dat->bytes_per_pixel)) & 0x00ffffff);
 
-	shw = readl(dat->regbase + SHADOWCON);
+	shw = read32(dat->regbase + SHADOWCON);
 	shw |= SHADOWCON_PROTECT(id);
-	writel(dat->regbase + SHADOWCON, shw);
+	write32(dat->regbase + SHADOWCON, shw);
 
 	switch(id)
 	{
 	case 0:
-		writel(dat->regbase + VIDW00ADD0B0, start);
-		writel(dat->regbase + VIDW00ADD1B0, end);
+		write32(dat->regbase + VIDW00ADD0B0, start);
+		write32(dat->regbase + VIDW00ADD1B0, end);
 		break;
 
 	case 1:
-		writel(dat->regbase + VIDW01ADD0B0, start);
-		writel(dat->regbase + VIDW01ADD1B0, end);
+		write32(dat->regbase + VIDW01ADD0B0, start);
+		write32(dat->regbase + VIDW01ADD1B0, end);
 		break;
 
 	case 2:
-		writel(dat->regbase + VIDW02ADD0B0, start);
-		writel(dat->regbase + VIDW02ADD1B0, end);
+		write32(dat->regbase + VIDW02ADD0B0, start);
+		write32(dat->regbase + VIDW02ADD1B0, end);
 		break;
 
 	case 3:
-		writel(dat->regbase + VIDW03ADD0B0, start);
-		writel(dat->regbase + VIDW03ADD1B0, end);
+		write32(dat->regbase + VIDW03ADD0B0, start);
+		write32(dat->regbase + VIDW03ADD1B0, end);
 		break;
 
 	case 4:
-		writel(dat->regbase + VIDW04ADD0B0, start);
-		writel(dat->regbase + VIDW04ADD1B0, end);
+		write32(dat->regbase + VIDW04ADD0B0, start);
+		write32(dat->regbase + VIDW04ADD1B0, end);
 		break;
 
 	default:
 		break;
 	}
 
-	shw = readl(dat->regbase + SHADOWCON);
+	shw = read32(dat->regbase + SHADOWCON);
 	shw &= ~(SHADOWCON_PROTECT(id));
-	writel(dat->regbase + SHADOWCON, shw);
+	write32(dat->regbase + SHADOWCON, shw);
 
 	return TRUE;
 }
@@ -228,23 +228,23 @@ static bool_t exynos4412_fb_set_buffer_size(struct exynos4412_fb_data_t * dat, s
 	switch(id)
 	{
 	case 0:
-		writel(dat->regbase + VIDW00ADD2, cfg);
+		write32(dat->regbase + VIDW00ADD2, cfg);
 		break;
 
 	case 1:
-		writel(dat->regbase + VIDW01ADD2, cfg);
+		write32(dat->regbase + VIDW01ADD2, cfg);
 		break;
 
 	case 2:
-		writel(dat->regbase + VIDW02ADD2, cfg);
+		write32(dat->regbase + VIDW02ADD2, cfg);
 		break;
 
 	case 3:
-		writel(dat->regbase + VIDW03ADD2, cfg);
+		write32(dat->regbase + VIDW03ADD2, cfg);
 		break;
 
 	case 4:
-		writel(dat->regbase + VIDW04ADD2, cfg);
+		write32(dat->regbase + VIDW04ADD2, cfg);
 		break;
 
 	default:
@@ -258,54 +258,54 @@ static bool_t exynos4412_fb_set_window_position(struct exynos4412_fb_data_t * da
 {
 	u32_t cfg, shw;
 
-	shw = readl(dat->regbase + SHADOWCON);
+	shw = read32(dat->regbase + SHADOWCON);
 	shw |= SHADOWCON_PROTECT(id);
-	writel(dat->regbase + SHADOWCON, shw);
+	write32(dat->regbase + SHADOWCON, shw);
 
 	switch(id)
 	{
 	case 0:
 		cfg = VIDOSD_LEFT_X(0) | VIDOSD_TOP_Y(0);
-		writel(dat->regbase + VIDOSD0A, cfg);
+		write32(dat->regbase + VIDOSD0A, cfg);
 		cfg = VIDOSD_RIGHT_X(dat->width - 1) | VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(dat->regbase + VIDOSD0B, cfg);
+		write32(dat->regbase + VIDOSD0B, cfg);
 		break;
 
 	case 1:
 		cfg = VIDOSD_LEFT_X(0) | VIDOSD_TOP_Y(0);
-		writel(dat->regbase + VIDOSD1A, cfg);
+		write32(dat->regbase + VIDOSD1A, cfg);
 		cfg = VIDOSD_RIGHT_X(dat->width - 1) | VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(dat->regbase + VIDOSD1B, cfg);
+		write32(dat->regbase + VIDOSD1B, cfg);
 		break;
 
 	case 2:
 		cfg = VIDOSD_LEFT_X(0) | VIDOSD_TOP_Y(0);
-		writel(dat->regbase + VIDOSD2A, cfg);
+		write32(dat->regbase + VIDOSD2A, cfg);
 		cfg = VIDOSD_RIGHT_X(dat->width - 1) | VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(dat->regbase + VIDOSD2B, cfg);
+		write32(dat->regbase + VIDOSD2B, cfg);
 		break;
 
 	case 3:
 		cfg = VIDOSD_LEFT_X(0) | VIDOSD_TOP_Y(0);
-		writel(dat->regbase + VIDOSD3A, cfg);
+		write32(dat->regbase + VIDOSD3A, cfg);
 		cfg = VIDOSD_RIGHT_X(dat->width - 1) | VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(dat->regbase + VIDOSD3B, cfg);
+		write32(dat->regbase + VIDOSD3B, cfg);
 		break;
 
 	case 4:
 		cfg = VIDOSD_LEFT_X(0) | VIDOSD_TOP_Y(0);
-		writel(dat->regbase + VIDOSD4A, cfg);
+		write32(dat->regbase + VIDOSD4A, cfg);
 		cfg = VIDOSD_RIGHT_X(dat->width - 1) | VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(dat->regbase + VIDOSD4B, cfg);
+		write32(dat->regbase + VIDOSD4B, cfg);
 		break;
 
 	default:
 		break;
 	}
 
-	shw = readl(dat->regbase + SHADOWCON);
+	shw = read32(dat->regbase + SHADOWCON);
 	shw &= ~(SHADOWCON_PROTECT(id));
-	writel(dat->regbase + SHADOWCON, shw);
+	write32(dat->regbase + SHADOWCON, shw);
 
 	return TRUE;
 }
@@ -321,15 +321,15 @@ static bool_t exynos4412_fb_set_window_size(struct exynos4412_fb_data_t * dat, s
 	switch(id)
 	{
 	case 0:
-		writel(dat->regbase + VIDOSD0C, cfg);
+		write32(dat->regbase + VIDOSD0C, cfg);
 		break;
 
 	case 1:
-		writel(dat->regbase + VIDOSD1D, cfg);
+		write32(dat->regbase + VIDOSD1D, cfg);
 		break;
 
 	case 2:
-		writel(dat->regbase + VIDOSD2D, cfg);
+		write32(dat->regbase + VIDOSD2D, cfg);
 		break;
 
 	default:
@@ -343,7 +343,7 @@ static bool_t exynos4412_fb_window0_enable(struct exynos4412_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(dat->regbase + WINCON0);
+	cfg = read32(dat->regbase + WINCON0);
 	cfg &= ~((1 << 18) | (1 << 17) |
 			(1 << 16) | (1 << 15) |
 			(3 << 9) | (0xf << 2) |
@@ -367,11 +367,11 @@ static bool_t exynos4412_fb_window0_enable(struct exynos4412_fb_data_t * dat)
 		cfg |= (1 << 18);
 
 	cfg |= (dat->bpp_mode << 2);
-	writel(dat->regbase + WINCON0, cfg);
+	write32(dat->regbase + WINCON0, cfg);
 
-	cfg = readl(dat->regbase + SHADOWCON);
+	cfg = read32(dat->regbase + SHADOWCON);
 	cfg |= 1 << 0;
-	writel(dat->regbase + SHADOWCON, cfg);
+	write32(dat->regbase + SHADOWCON, cfg);
 
 	return TRUE;
 }
@@ -413,34 +413,34 @@ static void fb_init(struct fb_t * fb)
 	/*
 	 * Display path selection
 	 */
-	writel(EXYNOS4412_LCDBLK_CFG, (readl(EXYNOS4412_LCDBLK_CFG) & ~(0x3<<0)) | (0x2<<0));
-	writel(EXYNOS4412_LCDBLK_CFG2, (readl(EXYNOS4412_LCDBLK_CFG2) & ~(0x1<<0)) | (0x1<<0));
+	write32(EXYNOS4412_LCDBLK_CFG, (read32(EXYNOS4412_LCDBLK_CFG) & ~(0x3<<0)) | (0x2<<0));
+	write32(EXYNOS4412_LCDBLK_CFG2, (read32(EXYNOS4412_LCDBLK_CFG2) & ~(0x1<<0)) | (0x1<<0));
 
 	/*
 	 * Turn off all windows
 	 */
-	writel(dat->regbase + WINCON0, (readl(dat->regbase + WINCON0) & ~0x1));
-	writel(dat->regbase + WINCON1, (readl(dat->regbase + WINCON1) & ~0x1));
-	writel(dat->regbase + WINCON2, (readl(dat->regbase + WINCON2) & ~0x1));
-	writel(dat->regbase + WINCON3, (readl(dat->regbase + WINCON3) & ~0x1));
-	writel(dat->regbase + WINCON4, (readl(dat->regbase + WINCON4) & ~0x1));
+	write32(dat->regbase + WINCON0, (read32(dat->regbase + WINCON0) & ~0x1));
+	write32(dat->regbase + WINCON1, (read32(dat->regbase + WINCON1) & ~0x1));
+	write32(dat->regbase + WINCON2, (read32(dat->regbase + WINCON2) & ~0x1));
+	write32(dat->regbase + WINCON3, (read32(dat->regbase + WINCON3) & ~0x1));
+	write32(dat->regbase + WINCON4, (read32(dat->regbase + WINCON4) & ~0x1));
 
 	/*
 	 * Turn off all windows color map
 	 */
-	writel(dat->regbase + WIN0MAP, (readl(dat->regbase + WIN0MAP) & ~(1<<24)));
-	writel(dat->regbase + WIN1MAP, (readl(dat->regbase + WIN1MAP) & ~(1<<24)));
-	writel(dat->regbase + WIN2MAP, (readl(dat->regbase + WIN2MAP) & ~(1<<24)));
-	writel(dat->regbase + WIN3MAP, (readl(dat->regbase + WIN3MAP) & ~(1<<24)));
-	writel(dat->regbase + WIN4MAP, (readl(dat->regbase + WIN4MAP) & ~(1<<24)));
+	write32(dat->regbase + WIN0MAP, (read32(dat->regbase + WIN0MAP) & ~(1<<24)));
+	write32(dat->regbase + WIN1MAP, (read32(dat->regbase + WIN1MAP) & ~(1<<24)));
+	write32(dat->regbase + WIN2MAP, (read32(dat->regbase + WIN2MAP) & ~(1<<24)));
+	write32(dat->regbase + WIN3MAP, (read32(dat->regbase + WIN3MAP) & ~(1<<24)));
+	write32(dat->regbase + WIN4MAP, (read32(dat->regbase + WIN4MAP) & ~(1<<24)));
 
 	/*
 	 * Turn off all windows color key and blending
 	 */
-	writel(dat->regbase + W1KEYCON0, (readl(dat->regbase + W1KEYCON0) & ~(3<<25)));
-	writel(dat->regbase + W2KEYCON0, (readl(dat->regbase + W2KEYCON0) & ~(3<<25)));
-	writel(dat->regbase + W3KEYCON0, (readl(dat->regbase + W3KEYCON0) & ~(3<<25)));
-	writel(dat->regbase + W4KEYCON0, (readl(dat->regbase + W4KEYCON0) & ~(3<<25)));
+	write32(dat->regbase + W1KEYCON0, (read32(dat->regbase + W1KEYCON0) & ~(3<<25)));
+	write32(dat->regbase + W2KEYCON0, (read32(dat->regbase + W2KEYCON0) & ~(3<<25)));
+	write32(dat->regbase + W3KEYCON0, (read32(dat->regbase + W3KEYCON0) & ~(3<<25)));
+	write32(dat->regbase + W4KEYCON0, (read32(dat->regbase + W4KEYCON0) & ~(3<<25)));
 
 	/*
 	 * Initial lcd controller

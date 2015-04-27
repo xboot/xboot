@@ -36,26 +36,26 @@ static bool_t mach_detect(void)
 
 static bool_t mach_powerup(void)
 {
-	writel(S5PV210_PS_HOLD_CONTROL, (readl(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x1<<8) | (0x1<<9)));
+	write32(S5PV210_PS_HOLD_CONTROL, (read32(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x1<<8) | (0x1<<9)));
 	return TRUE;
 }
 
 static bool_t mach_shutdown(void)
 {
-	writel(S5PV210_PS_HOLD_CONTROL, (readl(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x0<<8) | (0x0<<9)));
+	write32(S5PV210_PS_HOLD_CONTROL, (read32(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x0<<8) | (0x0<<9)));
 	return TRUE;
 }
 
 static bool_t mach_reboot(void)
 {
 	/* disable watchdog */
-	writel(S5PV210_WTCON, 0x0000);
+	write32(S5PV210_WTCON, 0x0000);
 
 	/* initialize watchdog timer count register */
-	writel(S5PV210_WTCNT, 0x0001);
+	write32(S5PV210_WTCNT, 0x0001);
 
 	/* enable watchdog timer; assert reset at timer timeout */
-	writel(S5PV210_WTCON, 0x0021);
+	write32(S5PV210_WTCON, 0x0021);
 
 	return TRUE;
 }
@@ -68,10 +68,10 @@ static bool_t mach_sleep(void)
 static bool_t mach_cleanup(void)
 {
 	/* stop timer 0 ~ 4 */
-	writel(S5PV210_TCON, 0x0);
+	write32(S5PV210_TCON, 0x0);
 
 	/* stop system timer */
-	writel(S5PV210_SYSTIMER_TCON, 0x0);
+	write32(S5PV210_SYSTIMER_TCON, 0x0);
 
 	/* disable irq */
 	irq_disable();

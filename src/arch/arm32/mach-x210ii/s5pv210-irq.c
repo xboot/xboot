@@ -59,10 +59,10 @@ void do_irqs(struct pt_regs_t * regs)
 	u32_t offset;
 
 	/* Read vector interrupt controller's irq status */
-	vic0 = readl(S5PV210_VIC0_IRQSTATUS);
-	vic1 = readl(S5PV210_VIC1_IRQSTATUS);
-	vic2 = readl(S5PV210_VIC2_IRQSTATUS);
-	vic3 = readl(S5PV210_VIC3_IRQSTATUS);
+	vic0 = read32(S5PV210_VIC0_IRQSTATUS);
+	vic1 = read32(S5PV210_VIC1_IRQSTATUS);
+	vic2 = read32(S5PV210_VIC2_IRQSTATUS);
+	vic3 = read32(S5PV210_VIC3_IRQSTATUS);
 
 	if(vic0 != 0)
 	{
@@ -73,10 +73,10 @@ void do_irqs(struct pt_regs_t * regs)
 		(s5pv210_irq_handler[offset].func)(s5pv210_irq_handler[offset].data);
 
 		/* Clear software interrupt */
-		writel(S5PV210_VIC0_SOFTINTCLEAR, 0x1<<offset);
+		write32(S5PV210_VIC0_SOFTINTCLEAR, 0x1<<offset);
 
 		/* Set vic address to zero */
-		writel(S5PV210_VIC0_ADDRESS, 0x00000000);
+		write32(S5PV210_VIC0_ADDRESS, 0x00000000);
 	}
 	else if(vic1 != 0)
 	{
@@ -87,10 +87,10 @@ void do_irqs(struct pt_regs_t * regs)
 		(s5pv210_irq_handler[offset + 32].func)(s5pv210_irq_handler[offset + 32].data);
 
 		/* Clear software interrupt */
-		writel(S5PV210_VIC1_SOFTINTCLEAR, 0x1<<(offset-32));
+		write32(S5PV210_VIC1_SOFTINTCLEAR, 0x1<<(offset-32));
 
 		/* Set all vic address to zero */
-		writel(S5PV210_VIC1_ADDRESS, 0x00000000);
+		write32(S5PV210_VIC1_ADDRESS, 0x00000000);
 	}
 	else if(vic2 != 0)
 	{
@@ -101,10 +101,10 @@ void do_irqs(struct pt_regs_t * regs)
 		(s5pv210_irq_handler[offset + 64].func)(s5pv210_irq_handler[offset + 64].data);
 
 		/* Clear software interrupt */
-		writel(S5PV210_VIC2_SOFTINTCLEAR, 0x1<<(offset-32));
+		write32(S5PV210_VIC2_SOFTINTCLEAR, 0x1<<(offset-32));
 
 		/* Set all vic address to zero */
-		writel(S5PV210_VIC2_ADDRESS, 0x00000000);
+		write32(S5PV210_VIC2_ADDRESS, 0x00000000);
 	}
 	else if(vic3 != 0)
 	{
@@ -115,24 +115,24 @@ void do_irqs(struct pt_regs_t * regs)
 		(s5pv210_irq_handler[offset + 96].func)(s5pv210_irq_handler[offset + 96].data);
 
 		/* Clear software interrupt */
-		writel(S5PV210_VIC3_SOFTINTCLEAR, 0x1<<(offset-32));
+		write32(S5PV210_VIC3_SOFTINTCLEAR, 0x1<<(offset-32));
 
 		/* Set all vic address to zero */
-		writel(S5PV210_VIC3_ADDRESS, 0x00000000);
+		write32(S5PV210_VIC3_ADDRESS, 0x00000000);
 	}
 	else
 	{
 		/* Clear all software interrupts */
-		writel(S5PV210_VIC0_SOFTINTCLEAR, 0xffffffff);
-		writel(S5PV210_VIC1_SOFTINTCLEAR, 0xffffffff);
-		writel(S5PV210_VIC2_SOFTINTCLEAR, 0xffffffff);
-		writel(S5PV210_VIC3_SOFTINTCLEAR, 0xffffffff);
+		write32(S5PV210_VIC0_SOFTINTCLEAR, 0xffffffff);
+		write32(S5PV210_VIC1_SOFTINTCLEAR, 0xffffffff);
+		write32(S5PV210_VIC2_SOFTINTCLEAR, 0xffffffff);
+		write32(S5PV210_VIC3_SOFTINTCLEAR, 0xffffffff);
 
 		/* Set vic address to zero */
-		writel(S5PV210_VIC0_ADDRESS, 0x00000000);
-		writel(S5PV210_VIC1_ADDRESS, 0x00000000);
-		writel(S5PV210_VIC2_ADDRESS, 0x00000000);
-		writel(S5PV210_VIC3_ADDRESS, 0x00000000);
+		write32(S5PV210_VIC0_ADDRESS, 0x00000000);
+		write32(S5PV210_VIC1_ADDRESS, 0x00000000);
+		write32(S5PV210_VIC2_ADDRESS, 0x00000000);
+		write32(S5PV210_VIC3_ADDRESS, 0x00000000);
 	}
 }
 
@@ -143,36 +143,36 @@ static void enable_irqs(struct irq_t * irq, bool_t enable)
 	if(irq_no < 32)
 	{
 		if(enable)
-			writel( S5PV210_VIC0_INTENABLE, (readl(S5PV210_VIC0_INTENABLE) | (0x1<<irq_no)) );
+			write32( S5PV210_VIC0_INTENABLE, (read32(S5PV210_VIC0_INTENABLE) | (0x1<<irq_no)) );
 		else
-			writel( S5PV210_VIC0_INTENCLEAR, (readl(S5PV210_VIC0_INTENCLEAR) | (0x1<<irq_no)) );
+			write32( S5PV210_VIC0_INTENCLEAR, (read32(S5PV210_VIC0_INTENCLEAR) | (0x1<<irq_no)) );
 	}
 	else if(irq_no < 64)
 	{
 		irq_no = irq_no - 32;
 
 		if(enable)
-			writel( S5PV210_VIC1_INTENABLE, (readl(S5PV210_VIC1_INTENABLE) | (0x1<<irq_no)) );
+			write32( S5PV210_VIC1_INTENABLE, (read32(S5PV210_VIC1_INTENABLE) | (0x1<<irq_no)) );
 		else
-			writel( S5PV210_VIC1_INTENCLEAR, (readl(S5PV210_VIC1_INTENCLEAR) | (0x1<<irq_no)) );
+			write32( S5PV210_VIC1_INTENCLEAR, (read32(S5PV210_VIC1_INTENCLEAR) | (0x1<<irq_no)) );
 	}
 	else if(irq_no < 96)
 	{
 		irq_no = irq_no - 64;
 
 		if(enable)
-			writel( S5PV210_VIC2_INTENABLE, (readl(S5PV210_VIC2_INTENABLE) | (0x1<<irq_no)) );
+			write32( S5PV210_VIC2_INTENABLE, (read32(S5PV210_VIC2_INTENABLE) | (0x1<<irq_no)) );
 		else
-			writel( S5PV210_VIC2_INTENCLEAR, (readl(S5PV210_VIC2_INTENCLEAR) | (0x1<<irq_no)) );
+			write32( S5PV210_VIC2_INTENCLEAR, (read32(S5PV210_VIC2_INTENCLEAR) | (0x1<<irq_no)) );
 	}
 	else if(irq_no < 128)
 	{
 		irq_no = irq_no - 96;
 
 		if(enable)
-			writel( S5PV210_VIC3_INTENABLE, (readl(S5PV210_VIC3_INTENABLE) | (0x1<<irq_no)) );
+			write32( S5PV210_VIC3_INTENABLE, (read32(S5PV210_VIC3_INTENABLE) | (0x1<<irq_no)) );
 		else
-			writel( S5PV210_VIC3_INTENCLEAR, (readl(S5PV210_VIC3_INTENCLEAR) | (0x1<<irq_no)) );
+			write32( S5PV210_VIC3_INTENCLEAR, (read32(S5PV210_VIC3_INTENCLEAR) | (0x1<<irq_no)) );
 	}
 	else
 	{
@@ -654,61 +654,61 @@ static __init void s5pv210_irq_init(void)
 	int i;
 
 	/* Select irq mode */
-	writel(S5PV210_VIC0_INTSELECT, 0x00000000);
-	writel(S5PV210_VIC1_INTSELECT, 0x00000000);
-	writel(S5PV210_VIC2_INTSELECT, 0x00000000);
-	writel(S5PV210_VIC3_INTSELECT, 0x00000000);
+	write32(S5PV210_VIC0_INTSELECT, 0x00000000);
+	write32(S5PV210_VIC1_INTSELECT, 0x00000000);
+	write32(S5PV210_VIC2_INTSELECT, 0x00000000);
+	write32(S5PV210_VIC3_INTSELECT, 0x00000000);
 
 	/* Disable all interrupts */
-	writel(S5PV210_VIC0_INTENABLE, 0x00000000);
-	writel(S5PV210_VIC1_INTENABLE, 0x00000000);
-	writel(S5PV210_VIC2_INTENABLE, 0x00000000);
-	writel(S5PV210_VIC3_INTENABLE, 0x00000000);
+	write32(S5PV210_VIC0_INTENABLE, 0x00000000);
+	write32(S5PV210_VIC1_INTENABLE, 0x00000000);
+	write32(S5PV210_VIC2_INTENABLE, 0x00000000);
+	write32(S5PV210_VIC3_INTENABLE, 0x00000000);
 
 	/* Clear all interrupts */
-	writel(S5PV210_VIC0_INTENCLEAR, 0xffffffff);
-	writel(S5PV210_VIC1_INTENCLEAR, 0xffffffff);
-	writel(S5PV210_VIC2_INTENCLEAR, 0xffffffff);
-	writel(S5PV210_VIC3_INTENCLEAR, 0xffffffff);
+	write32(S5PV210_VIC0_INTENCLEAR, 0xffffffff);
+	write32(S5PV210_VIC1_INTENCLEAR, 0xffffffff);
+	write32(S5PV210_VIC2_INTENCLEAR, 0xffffffff);
+	write32(S5PV210_VIC3_INTENCLEAR, 0xffffffff);
 
 	/* Clear all irq status */
-	writel(S5PV210_VIC0_IRQSTATUS, 0x00000000);
-	writel(S5PV210_VIC1_IRQSTATUS, 0x00000000);
-	writel(S5PV210_VIC2_IRQSTATUS, 0x00000000);
-	writel(S5PV210_VIC3_IRQSTATUS, 0x00000000);
+	write32(S5PV210_VIC0_IRQSTATUS, 0x00000000);
+	write32(S5PV210_VIC1_IRQSTATUS, 0x00000000);
+	write32(S5PV210_VIC2_IRQSTATUS, 0x00000000);
+	write32(S5PV210_VIC3_IRQSTATUS, 0x00000000);
 
 	/* Clear all fiq status */
-	writel(S5PV210_VIC0_FIQSTATUS, 0x00000000);
-	writel(S5PV210_VIC1_FIQSTATUS, 0x00000000);
-	writel(S5PV210_VIC2_FIQSTATUS, 0x00000000);
-	writel(S5PV210_VIC3_FIQSTATUS, 0x00000000);
+	write32(S5PV210_VIC0_FIQSTATUS, 0x00000000);
+	write32(S5PV210_VIC1_FIQSTATUS, 0x00000000);
+	write32(S5PV210_VIC2_FIQSTATUS, 0x00000000);
+	write32(S5PV210_VIC3_FIQSTATUS, 0x00000000);
 
 	/* Clear all software interrupts */
-	writel(S5PV210_VIC0_SOFTINTCLEAR, 0xffffffff);
-	writel(S5PV210_VIC1_SOFTINTCLEAR, 0xffffffff);
-	writel(S5PV210_VIC2_SOFTINTCLEAR, 0xffffffff);
-	writel(S5PV210_VIC3_SOFTINTCLEAR, 0xffffffff);
+	write32(S5PV210_VIC0_SOFTINTCLEAR, 0xffffffff);
+	write32(S5PV210_VIC1_SOFTINTCLEAR, 0xffffffff);
+	write32(S5PV210_VIC2_SOFTINTCLEAR, 0xffffffff);
+	write32(S5PV210_VIC3_SOFTINTCLEAR, 0xffffffff);
 
 	/* Set vic address to zero */
-	writel(S5PV210_VIC0_ADDRESS, 0x00000000);
-	writel(S5PV210_VIC1_ADDRESS, 0x00000000);
-	writel(S5PV210_VIC2_ADDRESS, 0x00000000);
-	writel(S5PV210_VIC3_ADDRESS, 0x00000000);
+	write32(S5PV210_VIC0_ADDRESS, 0x00000000);
+	write32(S5PV210_VIC1_ADDRESS, 0x00000000);
+	write32(S5PV210_VIC2_ADDRESS, 0x00000000);
+	write32(S5PV210_VIC3_ADDRESS, 0x00000000);
 
 	for(i = 0; i< 32; i++)
 	{
-		writel((S5PV210_VIC0_VECTADDR0 + 4 * i), (u32_t)irq);
-		writel((S5PV210_VIC1_VECTADDR0 + 4 * i), (u32_t)irq);
-		writel((S5PV210_VIC2_VECTADDR0 + 4 * i), (u32_t)irq);
-		writel((S5PV210_VIC3_VECTADDR0 + 4 * i), (u32_t)irq);
+		write32((S5PV210_VIC0_VECTADDR0 + 4 * i), (u32_t)irq);
+		write32((S5PV210_VIC1_VECTADDR0 + 4 * i), (u32_t)irq);
+		write32((S5PV210_VIC2_VECTADDR0 + 4 * i), (u32_t)irq);
+		write32((S5PV210_VIC3_VECTADDR0 + 4 * i), (u32_t)irq);
 	}
 
 	for(i = 0; i< 32; i++)
 	{
-		writel((S5PV210_VIC0_VECPRIORITY0 + 4 * i), 0xf);
-		writel((S5PV210_VIC1_VECPRIORITY0 + 4 * i), 0xf);
-		writel((S5PV210_VIC2_VECPRIORITY0 + 4 * i), 0xf);
-		writel((S5PV210_VIC3_VECPRIORITY0 + 4 * i), 0xf);
+		write32((S5PV210_VIC0_VECPRIORITY0 + 4 * i), 0xf);
+		write32((S5PV210_VIC1_VECPRIORITY0 + 4 * i), 0xf);
+		write32((S5PV210_VIC2_VECPRIORITY0 + 4 * i), 0xf);
+		write32((S5PV210_VIC3_VECPRIORITY0 + 4 * i), 0xf);
 	}
 
 	for(i = 0; i < ARRAY_SIZE(s5pv210_irqs); i++)

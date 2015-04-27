@@ -84,7 +84,7 @@ static u64_t core_pll_clk_get_rate(struct clk_pll_t * pclk, u64_t prate)
 		/*
 		 * FOUT = MDIV * FIN / (PDIV * 2^(SDIV))
 		 */
-		r = readl(EXYNOS4412_APLL_CON0);
+		r = read32(EXYNOS4412_APLL_CON0);
 		m = (r >> 16) & 0x3ff;
 		p = (r >> 8) & 0x3f;
 		s = r & 0x7;
@@ -95,7 +95,7 @@ static u64_t core_pll_clk_get_rate(struct clk_pll_t * pclk, u64_t prate)
 		/*
 		 * FOUT = MDIV * FIN / (PDIV * 2^(SDIV))
 		 */
-		r = readl(EXYNOS4412_MPLL_CON0);
+		r = read32(EXYNOS4412_MPLL_CON0);
 		m = (r >> 16) & 0x3ff;
 		p = (r >> 8) & 0x3f;
 		s = r & 0x7;
@@ -106,8 +106,8 @@ static u64_t core_pll_clk_get_rate(struct clk_pll_t * pclk, u64_t prate)
 		/*
 		 * FOUT = (MDIV + K / 65536) * FIN / (PDIV * 2^SDIV)
 		 */
-		r = readl(EXYNOS4412_EPLL_CON0);
-		k = readl(EXYNOS4412_EPLL_CON1);
+		r = read32(EXYNOS4412_EPLL_CON0);
+		k = read32(EXYNOS4412_EPLL_CON1);
 		m = (r >> 16) & 0x1ff;
 		p = (r >> 8) & 0x3f;
 		s = r & 0x7;
@@ -119,8 +119,8 @@ static u64_t core_pll_clk_get_rate(struct clk_pll_t * pclk, u64_t prate)
 		/*
 		 * FOUT = (MDIV + K / 65535) * FIN / (PDIV * 2^SDIV)
 		 */
-		r = readl(EXYNOS4412_VPLL_CON0);
-		k = readl(EXYNOS4412_VPLL_CON1);
+		r = read32(EXYNOS4412_VPLL_CON0);
+		k = read32(EXYNOS4412_VPLL_CON1);
 		m = (r >> 16) & 0x1ff;
 		p = (r >> 8) & 0x3f;
 		s = r & 0x7;

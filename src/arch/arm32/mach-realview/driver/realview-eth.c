@@ -28,20 +28,20 @@
 #if 0
 static u32_t lan9118_mac_read(u8_t reg)
 {
-	while(readl(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
-	writel(REALVIEW_ETH_MAC_CSR_CMD, (reg & 0xff) | (0x80000000 | 0x40000000));
+	while(read32(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
+	write32(REALVIEW_ETH_MAC_CSR_CMD, (reg & 0xff) | (0x80000000 | 0x40000000));
 
-	while(readl(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
-	return readl(REALVIEW_ETH_MAC_CSR_DATA);
+	while(read32(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
+	return read32(REALVIEW_ETH_MAC_CSR_DATA);
 }
 
 static void lan9118_mac_write(u8_t reg, u32_t val)
 {
-	while(readl(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
-	writel(REALVIEW_ETH_MAC_CSR_DATA, val);
+	while(read32(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
+	write32(REALVIEW_ETH_MAC_CSR_DATA, val);
 
-	writel(REALVIEW_ETH_MAC_CSR_CMD, (reg & 0xff) | (0x80000000));
-	while(readl(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
+	write32(REALVIEW_ETH_MAC_CSR_CMD, (reg & 0xff) | (0x80000000));
+	while(read32(REALVIEW_ETH_MAC_CSR_CMD) & 0x80000000);
 }
 
 static u32_t lan9118_phy_read(u8_t reg)
@@ -64,19 +64,19 @@ static void lan9118_phy_write(u8_t reg, u32_t val)
 
 static void lan9118_reset(void)
 {
-	writel(REALVIEW_ETH_HW_CFG, readl(REALVIEW_ETH_HW_CFG) | (1 << 0));
-    while(readl(REALVIEW_ETH_HW_CFG) & (1 << 0));
+	write32(REALVIEW_ETH_HW_CFG, read32(REALVIEW_ETH_HW_CFG) | (1 << 0));
+    while(read32(REALVIEW_ETH_HW_CFG) & (1 << 0));
 
-    writel(REALVIEW_ETH_PMT_CTRL, readl(REALVIEW_ETH_PMT_CTRL) | (1 << 10));
-    while(readl(REALVIEW_ETH_PMT_CTRL) & (1 << 10));
+    write32(REALVIEW_ETH_PMT_CTRL, read32(REALVIEW_ETH_PMT_CTRL) | (1 << 10));
+    while(read32(REALVIEW_ETH_PMT_CTRL) & (1 << 10));
 }
 
 static bool_t lan9118_verify_chip_id(void)
 {
-	if(readl(REALVIEW_ETH_BYTE_TEST) != 0x87654321)
+	if(read32(REALVIEW_ETH_BYTE_TEST) != 0x87654321)
 		return FALSE;
 
-	if((readl(REALVIEW_ETH_ID_REV) >> 16) != 0x0118)
+	if((read32(REALVIEW_ETH_ID_REV) >> 16) != 0x0118)
 		return FALSE;
 
 	return TRUE;
@@ -155,7 +155,7 @@ static bool_t lan9118_init(void)
 	/*
      * Set the PHY clock config
      */
-	writel(REALVIEW_ETH_HW_CFG, (readl(REALVIEW_ETH_HW_CFG) & ~(0x3 << 5)) | (0 << 5));
+	write32(REALVIEW_ETH_HW_CFG, (read32(REALVIEW_ETH_HW_CFG) & ~(0x3 << 5)) | (0 << 5));
 
 	/*
 	 * Reset the controller
@@ -176,8 +176,8 @@ static bool_t lan9118_init(void)
 	/*
 	 * These came from SMSC's example driver
 	 */
-	writel(REALVIEW_ETH_HW_CFG, (readl(REALVIEW_ETH_HW_CFG) & ~(0xf << 16)) | ((5 & 0xf) << 16));
-	writel(REALVIEW_ETH_AFC_CFG, ((0x6e & 0xff) << 16) | ((0x37 & 0xff) << 8) | ((0x4 & 0xf) << 4));
+	write32(REALVIEW_ETH_HW_CFG, (read32(REALVIEW_ETH_HW_CFG) & ~(0xf << 16)) | ((5 & 0xf) << 16));
+	write32(REALVIEW_ETH_AFC_CFG, ((0x6e & 0xff) << 16) | ((0x37 & 0xff) << 8) | ((0x4 & 0xf) << 4));
 
 	/*
 	 * Configure PHY to advertise all speeds
@@ -192,12 +192,12 @@ static bool_t lan9118_init(void)
 	/*
 	 * Set the controller to buffer entire packets
 	 */
-	writel(REALVIEW_ETH_HW_CFG, readl(REALVIEW_ETH_HW_CFG) | (1 << 20));
+	write32(REALVIEW_ETH_HW_CFG, read32(REALVIEW_ETH_HW_CFG) | (1 << 20));
 
 	/*
 	 * Configure FIFO thresholds
 	 */
-	writel(REALVIEW_ETH_FIFO_INT, 0xff << 24);
+	write32(REALVIEW_ETH_FIFO_INT, 0xff << 24);
 
 	/*
 	 * Enable the MAC
@@ -206,8 +206,8 @@ static bool_t lan9118_init(void)
 	val |= (1<<3) | (1<<2);
 	lan9118_mac_write(0x1, val);
 
-	writel(REALVIEW_ETH_TX_CFG, readl(REALVIEW_ETH_TX_CFG) | (1 << 1));
-	writel(REALVIEW_ETH_RX_CFG, 0);
+	write32(REALVIEW_ETH_TX_CFG, read32(REALVIEW_ETH_TX_CFG) | (1 << 1));
+	write32(REALVIEW_ETH_RX_CFG, 0);
 
 	return TRUE;
 }
@@ -219,20 +219,20 @@ static void lan9118_tx(u8_t * txbuf, size_t len)
 	u32_t val;
 	int i;
 
-	val = readl(REALVIEW_ETH_TX_STATUS_FIFO);
+	val = read32(REALVIEW_ETH_TX_STATUS_FIFO);
 	do {
-		val = readl(REALVIEW_ETH_TX_FIFO_INF) & (0xffff <<  0);
+		val = read32(REALVIEW_ETH_TX_FIFO_INF) & (0xffff <<  0);
 	} while(val < len);
 
 	cmda = ((1 << 13) | (1 << 12) | ((len & 0x7ff) << 0));
 	cmdb = ((len & 0x7ff) << 0);
 
-	writel(REALVIEW_ETH_TX_DATA_FIFO, cmda);
-	writel(REALVIEW_ETH_TX_DATA_FIFO, cmdb);
+	write32(REALVIEW_ETH_TX_DATA_FIFO, cmda);
+	write32(REALVIEW_ETH_TX_DATA_FIFO, cmdb);
 
 	for(i = 0; i < (len / 4); i++)
 	{
-		writel(REALVIEW_ETH_TX_DATA_FIFO, p[i]);
+		write32(REALVIEW_ETH_TX_DATA_FIFO, p[i]);
 	}
 
 	if((len & 0x3) != 0)
@@ -245,7 +245,7 @@ static void lan9118_tx(u8_t * txbuf, size_t len)
 			val |= (txbuf[index + i] << (i * 8));
 		}
 
-		writel(REALVIEW_ETH_TX_DATA_FIFO, val);
+		write32(REALVIEW_ETH_TX_DATA_FIFO, val);
 	}
 }
 
@@ -256,10 +256,10 @@ static size_t lan9118_rx(u8_t * rxbuf)
 	u32_t status;
 	int i;
 
-	if( ((readl(REALVIEW_ETH_RX_FIFO_INF) >> 16) & 0xffff) == 0 )
+	if( ((read32(REALVIEW_ETH_RX_FIFO_INF) >> 16) & 0xffff) == 0 )
 		return 0;
 
-	status = readl(REALVIEW_ETH_RX_STATUS_FIFO);
+	status = read32(REALVIEW_ETH_RX_STATUS_FIFO);
 	size = (status & (0x3fff << 16)) >> 16;
 	if(size == 0)
 		return 0;
@@ -268,7 +268,7 @@ static size_t lan9118_rx(u8_t * rxbuf)
 	{
 		for (i = 0; i < ((size + 3) / 4); i++)
 		{
-			p[i] = readl(REALVIEW_ETH_RX_DATA_FIFO);
+			p[i] = read32(REALVIEW_ETH_RX_DATA_FIFO);
 		}
 
 		return size - 4;
@@ -277,14 +277,14 @@ static size_t lan9118_rx(u8_t * rxbuf)
 	{
 		if (size >= 16)
 		{
-			writel(REALVIEW_ETH_RX_DP_CTRL, (1 << 31));
-			while(readl(REALVIEW_ETH_RX_DP_CTRL) & (1 << 31));
+			write32(REALVIEW_ETH_RX_DP_CTRL, (1 << 31));
+			while(read32(REALVIEW_ETH_RX_DP_CTRL) & (1 << 31));
 		}
 		else
 		{
 			for (i = 0; i < ((size + 3) / 4); i++)
 			{
-				status = readl(REALVIEW_ETH_RX_DATA_FIFO);
+				status = read32(REALVIEW_ETH_RX_DATA_FIFO);
 			}
 		}
 		return 0;

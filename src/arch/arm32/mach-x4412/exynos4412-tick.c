@@ -30,7 +30,7 @@ static void timer_interrupt(void * data)
 	tick_interrupt();
 
 	/* Clear interrupt status bit */
-	writel(EXYNOS4412_TINT_CSTAT, (readl(EXYNOS4412_TINT_CSTAT) & ~(0x1f<<5)) | (0x01<<9));
+	write32(EXYNOS4412_TINT_CSTAT, (read32(EXYNOS4412_TINT_CSTAT) & ~(0x1f<<5)) | (0x01<<9));
 }
 
 static bool_t tick_timer_init(void)
@@ -53,19 +53,19 @@ static bool_t tick_timer_init(void)
 	}
 
 	/* Select mux input for pwm timer4 is 1/1 */
-	writel(EXYNOS4412_TCFG1, (readl(EXYNOS4412_TCFG1) & ~(0xf<<16)) | (0x00<<16));
+	write32(EXYNOS4412_TCFG1, (read32(EXYNOS4412_TCFG1) & ~(0xf<<16)) | (0x00<<16));
 
 	/* Load value for 10 ms timeout */
-	writel(EXYNOS4412_TCNTB4, (u32_t)(clk / 100));
+	write32(EXYNOS4412_TCNTB4, (u32_t)(clk / 100));
 
 	/* Enable timer4 interrupt and clear interrupt status bit */
-	writel(EXYNOS4412_TINT_CSTAT, (readl(EXYNOS4412_TINT_CSTAT) & ~(0x1<<4)) | (0x01<<4) | (0x01<<9));
+	write32(EXYNOS4412_TINT_CSTAT, (read32(EXYNOS4412_TINT_CSTAT) & ~(0x1<<4)) | (0x01<<4) | (0x01<<9));
 
 	/* Auto load, manaual update of timer 4 and stop timer4 */
-	writel(EXYNOS4412_TCON, (readl(EXYNOS4412_TCON) & ~(0x7<<20)) | (0x06<<20));
+	write32(EXYNOS4412_TCON, (read32(EXYNOS4412_TCON) & ~(0x7<<20)) | (0x06<<20));
 
 	/* Start timer4 */
-	writel(EXYNOS4412_TCON, (readl(EXYNOS4412_TCON) & ~(0x7<<20)) | (0x05<<20));
+	write32(EXYNOS4412_TCON, (read32(EXYNOS4412_TCON) & ~(0x7<<20)) | (0x05<<20));
 
 	return TRUE;
 }

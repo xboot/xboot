@@ -42,13 +42,13 @@ void do_irqs(struct pt_regs_t * regs)
 	u32_t irq;
 
 	/* Get irq's offset */
-	irq = readl(EXYNOS4412_GIC_CPU_BASE + GIC_CPU_INTACK) & 0x3ff;
+	irq = read32(EXYNOS4412_GIC_CPU_BASE + GIC_CPU_INTACK) & 0x3ff;
 
 	/* Handle interrupt server function */
 	(exynos4412_irq_handler[irq - 32].func)(exynos4412_irq_handler[irq - 32].data);
 
 	/* Exit interrupt */
-	writel(EXYNOS4412_GIC_CPU_BASE + GIC_CPU_EOI, irq);
+	write32(EXYNOS4412_GIC_CPU_BASE + GIC_CPU_EOI, irq);
 }
 
 static void enable_irqs(struct irq_t * irq, bool_t enable)
@@ -56,9 +56,9 @@ static void enable_irqs(struct irq_t * irq, bool_t enable)
 	u32_t mask = 1 << (irq->irq_no % 32);
 
 	if(enable)
-		writel(EXYNOS4412_GIC_DIST_BASE + GIC_DIST_ENABLE_SET + (irq->irq_no / 32) * 4, mask);
+		write32(EXYNOS4412_GIC_DIST_BASE + GIC_DIST_ENABLE_SET + (irq->irq_no / 32) * 4, mask);
 	else
-		writel(EXYNOS4412_GIC_DIST_BASE + GIC_DIST_ENABLE_CLEAR + (irq->irq_no / 32) * 4, mask);
+		write32(EXYNOS4412_GIC_DIST_BASE + GIC_DIST_ENABLE_CLEAR + (irq->irq_no / 32) * 4, mask);
 }
 
 static struct irq_t exynos4412_irqs[] = {
@@ -696,13 +696,13 @@ static void gic_dist_init(physical_addr_t dist)
 	u32_t cpumask;
 	u32_t i;
 
-	writel(dist + GIC_DIST_CTRL, 0x0);
+	write32(dist + GIC_DIST_CTRL, 0x0);
 
 	/*
 	 * Find out how many interrupts are supported.
 	 * The GIC only supports up to 1020 interrupt sources.
 	 */
-	gic_irqs = readl(dist + GIC_DIST_CTR) & 0x1f;
+	gic_irqs = read32(dist + GIC_DIST_CTR) & 0x1f;
 	gic_irqs = (gic_irqs + 1) * 32;
 	if(gic_irqs > 1020)
 		gic_irqs = 1020;
@@ -711,7 +711,7 @@ static void gic_dist_init(physical_addr_t dist)
 	 * Set all global interrupts to be level triggered, active low.
 	 */
 	for(i = 32; i < gic_irqs; i += 16)
-		writel(dist + GIC_DIST_CONFIG + i * 4 / 16, 0);
+		write32(dist + GIC_DIST_CONFIG + i * 4 / 16, 0);
 
 	/*
 	 * Set all global interrupts to this CPU only.
@@ -721,22 +721,22 @@ static void gic_dist_init(physical_addr_t dist)
 	cpumask |= cpumask << 16;
 
 	for(i = 32; i < gic_irqs; i += 4)
-		writel(dist + GIC_DIST_TARGET + i * 4 / 4, cpumask);
+		write32(dist + GIC_DIST_TARGET + i * 4 / 4, cpumask);
 
 	/*
 	 * Set priority on all global interrupts.
 	 */
 	for(i = 32; i < gic_irqs; i += 4)
-		writel(dist + GIC_DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
+		write32(dist + GIC_DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
 
 	/*
 	 * Disable all interrupts.  Leave the PPI and SGIs alone
 	 * as these enables are banked registers.
 	 */
 	for(i = 32; i < gic_irqs; i += 32)
-		writel(dist + GIC_DIST_ENABLE_CLEAR + i * 4 / 32, 0xffffffff);
+		write32(dist + GIC_DIST_ENABLE_CLEAR + i * 4 / 32, 0xffffffff);
 
-	writel(dist + GIC_DIST_CTRL, 0x1);
+	write32(dist + GIC_DIST_CTRL, 0x1);
 }
 
 static void gic_cpu_init(physical_addr_t dist, physical_addr_t cpu)
@@ -747,17 +747,17 @@ static void gic_cpu_init(physical_addr_t dist, physical_addr_t cpu)
 	 * Deal with the banked PPI and SGI interrupts - disable all
 	 * PPI interrupts, ensure all SGI interrupts are enabled.
 	 */
-	writel(dist + GIC_DIST_ENABLE_CLEAR, 0xffff0000);
-	writel(dist + GIC_DIST_ENABLE_SET, 0x0000ffff);
+	write32(dist + GIC_DIST_ENABLE_CLEAR, 0xffff0000);
+	write32(dist + GIC_DIST_ENABLE_SET, 0x0000ffff);
 
 	/*
 	 * Set priority on PPI and SGI interrupts
 	 */
 	for(i = 0; i < 32; i += 4)
-		writel(dist + GIC_DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
+		write32(dist + GIC_DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
 
-	writel(cpu + GIC_CPU_PRIMASK, 0xf0);
-	writel(cpu + GIC_CPU_CTRL, 0x1);
+	write32(cpu + GIC_CPU_PRIMASK, 0xf0);
+	write32(cpu + GIC_CPU_CTRL, 0x1);
 }
 
 static void combiner_init(physical_addr_t comb)
@@ -765,7 +765,7 @@ static void combiner_init(physical_addr_t comb)
 	int i;
 
 	for(i = 0; i < 5; i++)
-		writel(comb + COMBINER_ENABLE_CLEAR + i * 0x10, 0xffffffff);
+		write32(comb + COMBINER_ENABLE_CLEAR + i * 0x10, 0xffffffff);
 }
 
 static __init void exynos4412_irq_init(void)

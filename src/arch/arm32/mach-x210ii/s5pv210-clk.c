@@ -40,26 +40,26 @@ static u64_t s5pv210_get_pll(u64_t baseclk, enum S5PV210_PLL pll)
 	switch(pll)
 	{
 	case S5PV210_APLL:
-		r = readl(S5PV210_APLL_CON0);
+		r = read32(S5PV210_APLL_CON0);
 		m = (r >> 16) & 0x3ff;
 		p = (r >> 8) & 0x3f;
 		s = r & 0x7;
 		s = s - 1;
 		break;
 	case S5PV210_MPLL:
-		r = readl(S5PV210_MPLL_CON);
+		r = read32(S5PV210_MPLL_CON);
 		m = (r >> 16) & 0x3ff;
 		p = (r >> 8) & 0x3f;
 		s = r & 0x7;
 		break;
 	case S5PV210_EPLL:
-		r = readl(S5PV210_EPLL_CON0);
+		r = read32(S5PV210_EPLL_CON0);
 		m = (r >> 16) & 0x1ff;
 		p = (r >> 8) & 0x3f;
 		s = r & 0x7;
 		break;
 	case S5PV210_VPLL:
-		r = readl(S5PV210_VPLL_CON);
+		r = read32(S5PV210_VPLL_CON);
 		m = (r >> 16) & 0x1ff;
 		p = (r >> 8) & 0x3f;
 		s = r & 0x7;
@@ -85,12 +85,12 @@ static void s5pv210_setup_clocks(u64_t xtal)
 	u32_t muxstat0, muxstat1;
 
 	/* get value of special register */
-	clkdiv0 = readl(S5PV210_CLK_DIV0);
-	clkdiv1 = readl(S5PV210_CLK_DIV1);
-	clksrc0 = readl(S5PV210_CLK_SRC0);
-	clksrc1 = readl(S5PV210_CLK_SRC1);
-	muxstat0 = readl(S5PV210_MUX_STAT0);
-	muxstat1 = readl(S5PV210_MUX_STAT1);
+	clkdiv0 = read32(S5PV210_CLK_DIV0);
+	clkdiv1 = read32(S5PV210_CLK_DIV1);
+	clksrc0 = read32(S5PV210_CLK_SRC0);
+	clksrc1 = read32(S5PV210_CLK_SRC1);
+	muxstat0 = read32(S5PV210_MUX_STAT0);
+	muxstat1 = read32(S5PV210_MUX_STAT1);
 
 	/* use xtal as pll input clock, om[0]=0 */
 	fin = xtal;

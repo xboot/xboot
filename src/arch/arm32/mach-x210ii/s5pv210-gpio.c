@@ -42,10 +42,10 @@ static void s5pv210_gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int c
 		return;
 
 	offset <<= 0x2;
-	val = readl(dat->regbase + S5PV210_GPIO_CON);
+	val = read32(dat->regbase + S5PV210_GPIO_CON);
 	val &= ~(0xf << offset);
 	val |= cfg << offset;
-	writel(dat->regbase + S5PV210_GPIO_CON, val);
+	write32(dat->regbase + S5PV210_GPIO_CON, val);
 }
 
 static int s5pv210_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
@@ -57,7 +57,7 @@ static int s5pv210_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
 		return 0;
 
 	offset <<= 0x2;
-	val = readl(dat->regbase + S5PV210_GPIO_CON);
+	val = read32(dat->regbase + S5PV210_GPIO_CON);
 	return ((val >> offset) & 0xf);
 }
 
@@ -86,10 +86,10 @@ static void s5pv210_gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum
 	}
 
 	offset <<= 0x1;
-	val = readl(dat->regbase + S5PV210_GPIO_PUD);
+	val = read32(dat->regbase + S5PV210_GPIO_PUD);
 	val &= ~(0x3 << offset);
 	val |= p << offset;
-	writel(dat->regbase + S5PV210_GPIO_PUD, val);
+	write32(dat->regbase + S5PV210_GPIO_PUD, val);
 }
 
 static enum gpio_pull_t s5pv210_gpiochip_get_pull(struct gpiochip_t * chip, int offset)
@@ -101,7 +101,7 @@ static enum gpio_pull_t s5pv210_gpiochip_get_pull(struct gpiochip_t * chip, int 
 		return GPIO_PULL_NONE;
 
 	offset <<= 0x1;
-	val = readl(dat->regbase + S5PV210_GPIO_PUD);
+	val = read32(dat->regbase + S5PV210_GPIO_PUD);
 	p = (val >> offset) & 0x3;
 	switch(p)
 	{
@@ -142,10 +142,10 @@ static void s5pv210_gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum 
 	}
 
 	offset <<= 0x1;
-	val = readl(dat->regbase + S5PV210_GPIO_DRV);
+	val = read32(dat->regbase + S5PV210_GPIO_DRV);
 	val &= ~(0x3 << offset);
 	val |= d << offset;
-	writel(dat->regbase + S5PV210_GPIO_DRV, val);
+	write32(dat->regbase + S5PV210_GPIO_DRV, val);
 }
 
 static enum gpio_drv_t s5pv210_gpiochip_get_drv(struct gpiochip_t * chip, int offset)
@@ -157,7 +157,7 @@ static enum gpio_drv_t s5pv210_gpiochip_get_drv(struct gpiochip_t * chip, int of
 		return GPIO_DRV_LOW;
 
 	offset <<= 0x1;
-	val = readl(dat->regbase + S5PV210_GPIO_DRV);
+	val = read32(dat->regbase + S5PV210_GPIO_DRV);
 	d = (val >> offset) & 0x3;
 	switch(d)
 	{
@@ -196,17 +196,17 @@ static void s5pv210_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum 
 	{
 	case GPIO_DIRECTION_INPUT:
 		offset <<= 0x2;
-		val = readl(dat->regbase + S5PV210_GPIO_CON);
+		val = read32(dat->regbase + S5PV210_GPIO_CON);
 		val &= ~(0xf << offset);
-		writel(dat->regbase + S5PV210_GPIO_CON, val);
+		write32(dat->regbase + S5PV210_GPIO_CON, val);
 		break;
 
 	case GPIO_DIRECTION_OUTPUT:
 		offset <<= 0x2;
-		val = readl(dat->regbase + S5PV210_GPIO_CON);
+		val = read32(dat->regbase + S5PV210_GPIO_CON);
 		val &= ~(0xf << offset);
 		val |= 0x1 << offset;
-		writel(dat->regbase + S5PV210_GPIO_CON, val);
+		write32(dat->regbase + S5PV210_GPIO_CON, val);
 		break;
 
 	default:
@@ -223,7 +223,7 @@ static enum gpio_direction_t s5pv210_gpiochip_get_dir(struct gpiochip_t * chip, 
 		return GPIO_DIRECTION_UNKOWN;
 
 	offset <<= 0x2;
-	val = readl(dat->regbase + S5PV210_GPIO_CON);
+	val = read32(dat->regbase + S5PV210_GPIO_CON);
 	d = (val >> offset) & 0x4;
 	switch(d)
 	{
@@ -245,10 +245,10 @@ static void s5pv210_gpiochip_set_value(struct gpiochip_t * chip, int offset, int
 	if(offset >= chip->ngpio)
 		return;
 
-	val = readl(dat->regbase + S5PV210_GPIO_DAT);
+	val = read32(dat->regbase + S5PV210_GPIO_DAT);
 	val &= ~(1 << offset);
 	val |= (!!value) << offset;
-	writel(dat->regbase + S5PV210_GPIO_DAT, val);
+	write32(dat->regbase + S5PV210_GPIO_DAT, val);
 }
 
 static int s5pv210_gpiochip_get_value(struct gpiochip_t * chip, int offset)
@@ -259,7 +259,7 @@ static int s5pv210_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 	if(offset >= chip->ngpio)
 		return 0;
 
-	val = readl(dat->regbase + S5PV210_GPIO_DAT);
+	val = read32(dat->regbase + S5PV210_GPIO_DAT);
 	return !!(val & (1 << offset));
 }
 

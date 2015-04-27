@@ -44,15 +44,15 @@ static bool_t kmi_write(struct realview_mouse_data_t * dat, u8_t value)
 {
 	s32_t timeout = 1000;
 
-	while((readb(dat->regbase + REALVIEW_MOUSE_OFFSET_STAT) & REALVIEW_MOUSE_STAT_TXEMPTY) == 0 && timeout--);
+	while((read8(dat->regbase + REALVIEW_MOUSE_OFFSET_STAT) & REALVIEW_MOUSE_STAT_TXEMPTY) == 0 && timeout--);
 
 	if(timeout)
 	{
-		writeb(dat->regbase + REALVIEW_MOUSE_OFFSET_DATA, value);
+		write8(dat->regbase + REALVIEW_MOUSE_OFFSET_DATA, value);
 
-		while((readb(dat->regbase + REALVIEW_MOUSE_OFFSET_STAT) & REALVIEW_MOUSE_STAT_RXFULL) == 0);
+		while((read8(dat->regbase + REALVIEW_MOUSE_OFFSET_STAT) & REALVIEW_MOUSE_STAT_RXFULL) == 0);
 
-		if( readb(dat->regbase + REALVIEW_MOUSE_OFFSET_DATA) == 0xfa)
+		if( read8(dat->regbase + REALVIEW_MOUSE_OFFSET_DATA) == 0xfa)
 			return TRUE;
 		else
 			return FALSE;
@@ -63,9 +63,9 @@ static bool_t kmi_write(struct realview_mouse_data_t * dat, u8_t value)
 
 static bool_t kmi_read(struct realview_mouse_data_t * dat, u8_t * value)
 {
-	if( (readb(dat->regbase + REALVIEW_MOUSE_OFFSET_STAT) & REALVIEW_MOUSE_STAT_RXFULL) )
+	if( (read8(dat->regbase + REALVIEW_MOUSE_OFFSET_STAT) & REALVIEW_MOUSE_STAT_RXFULL) )
 	{
-		*value = readb(dat->regbase + REALVIEW_MOUSE_OFFSET_DATA);
+		*value = read8(dat->regbase + REALVIEW_MOUSE_OFFSET_DATA);
 		return TRUE;
 	}
 
@@ -81,10 +81,10 @@ static void mouse_interrupt(void * data)
 	u32_t btndown, btnup, btn;
 	u8_t status;
 
-	status = readb(rdat->regbase + REALVIEW_MOUSE_OFFSET_IIR);
+	status = read8(rdat->regbase + REALVIEW_MOUSE_OFFSET_IIR);
 	while(status & REALVIEW_MOUSE_IIR_RXINTR)
 	{
-		dat->packet[dat->index] = readb(rdat->regbase + REALVIEW_MOUSE_OFFSET_DATA);
+		dat->packet[dat->index] = read8(rdat->regbase + REALVIEW_MOUSE_OFFSET_DATA);
 		dat->index = (dat->index + 1) & 0x3;
 
 		if(dat->index == 0)
@@ -166,7 +166,7 @@ static void mouse_interrupt(void * data)
 #endif
 		}
 
-		status = readb(rdat->regbase + REALVIEW_MOUSE_OFFSET_IIR);
+		status = read8(rdat->regbase + REALVIEW_MOUSE_OFFSET_IIR);
 	}
 }
 
@@ -185,10 +185,10 @@ static void input_init(struct input_t * input)
 
 	/* Set mouse's clock divisor */
 	divisor = (u32_t)(kclk /8000000) - 1;
-	writeb(rdat->regbase + REALVIEW_MOUSE_OFFSET_CLKDIV, divisor);
+	write8(rdat->regbase + REALVIEW_MOUSE_OFFSET_CLKDIV, divisor);
 
 	/* Enable mouse controller */
-	writeb(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, REALVIEW_MOUSE_CR_EN);
+	write8(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, REALVIEW_MOUSE_CR_EN);
 
 	/* Reset mouse, and wait ack and pass/fail code */
 	if(! kmi_write(rdat, 0xff) )
@@ -233,12 +233,12 @@ static void input_init(struct input_t * input)
 	if(!request_irq("KMI1", mouse_interrupt, input))
 	{
 		LOG("Can't request irq 'KMI1'");
-		writeb(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, 0);
+		write8(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, 0);
 		return;
 	}
 
 	/* Re-enables mouse */
-	writeb(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, REALVIEW_MOUSE_CR_EN | REALVIEW_MOUSE_CR_RXINTREN);
+	write8(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, REALVIEW_MOUSE_CR_EN | REALVIEW_MOUSE_CR_RXINTREN);
 }
 
 static void input_exit(struct input_t * input)
@@ -249,7 +249,7 @@ static void input_exit(struct input_t * input)
 	clk_disable("kclk");
 	if(!free_irq("KMI1"))
 		LOG("Can't free irq 'KMI1'");
-	writeb(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, 0);
+	write8(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, 0);
 }
 
 static int input_ioctl(struct input_t * input, int cmd, void * arg)

@@ -30,7 +30,7 @@
 static void timer_interrupt(void * data)
 {
 	tick_interrupt();
-	writel(REALVIEW_T3_ICLR, 0x0);
+	write32(REALVIEW_T3_ICLR, 0x0);
 }
 
 static bool_t tick_timer_init(void)
@@ -58,16 +58,16 @@ static bool_t tick_timer_init(void)
 	count = (u32_t)(timclk / 1000);
 
 	/* Using timer3 for tick, 1ms for reload value */
-	writel(REALVIEW_T3_LOAD, count);
+	write32(REALVIEW_T3_LOAD, count);
 
 	/* Setting timer controller */
-	writel(REALVIEW_T3_CTRL, REALVIEW_TC_32BIT | REALVIEW_TC_DIV1 | REALVIEW_TC_IE | REALVIEW_TC_PERIODIC);
+	write32(REALVIEW_T3_CTRL, REALVIEW_TC_32BIT | REALVIEW_TC_DIV1 | REALVIEW_TC_IE | REALVIEW_TC_PERIODIC);
 
 	/* Clear all interrupt */
-	writel(REALVIEW_T3_ICLR, 0x0);
+	write32(REALVIEW_T3_ICLR, 0x0);
 
 	/* Enable timer3 */
-	writel(REALVIEW_T3_CTRL, readl(REALVIEW_T3_CTRL) | REALVIEW_TC_ENABLE);
+	write32(REALVIEW_T3_CTRL, read32(REALVIEW_T3_CTRL) | REALVIEW_TC_ENABLE);
 
 	return TRUE;
 }

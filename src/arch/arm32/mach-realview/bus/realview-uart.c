@@ -162,9 +162,9 @@ static bool_t realview_uart_setup(struct uart_t * uart, enum baud_rate_t baud, e
 	temp = (8 * remainder) / ibaud;
 	fraction = (temp >> 1) + (temp & 1);
 
-	writel(dat->regbase + REALVIEW_UART_OFFSET_IBRD, divider);
-	writel(dat->regbase + REALVIEW_UART_OFFSET_FBRD, fraction);
-	writel(dat->regbase + REALVIEW_UART_OFFSET_LCRH, REALVIEW_UART_LCRH_FEN | (data_bit_reg<<5 | stop_bit_reg<<3 | parity_reg<<1));
+	write32(dat->regbase + REALVIEW_UART_OFFSET_IBRD, divider);
+	write32(dat->regbase + REALVIEW_UART_OFFSET_FBRD, fraction);
+	write32(dat->regbase + REALVIEW_UART_OFFSET_LCRH, REALVIEW_UART_LCRH_FEN | (data_bit_reg<<5 | stop_bit_reg<<3 | parity_reg<<1));
 
 	return TRUE;
 }
@@ -177,13 +177,13 @@ static void realview_uart_init(struct uart_t * uart)
 	clk_enable("uclk");
 
 	/* Disable everything */
-	writel(dat->regbase + REALVIEW_UART_OFFSET_CR, 0x0);
+	write32(dat->regbase + REALVIEW_UART_OFFSET_CR, 0x0);
 
 	/* Configure uart */
 	realview_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
 
 	/* Enable uart */
-	writel(dat->regbase + REALVIEW_UART_OFFSET_CR, REALVIEW_UART_CR_UARTEN | REALVIEW_UART_CR_TXE | REALVIEW_UART_CR_RXE);
+	write32(dat->regbase + REALVIEW_UART_OFFSET_CR, REALVIEW_UART_CR_UARTEN | REALVIEW_UART_CR_TXE | REALVIEW_UART_CR_RXE);
 }
 
 static void realview_uart_exit(struct uart_t * uart)
@@ -199,8 +199,8 @@ static ssize_t realview_uart_read(struct uart_t * uart, u8_t * buf, size_t count
 
 	for(i = 0; i < count; i++)
 	{
-		if( !(readb(dat->regbase + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_RXFE) )
-			buf[i] = readb(dat->regbase + REALVIEW_UART_OFFSET_DATA);
+		if( !(read8(dat->regbase + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_RXFE) )
+			buf[i] = read8(dat->regbase + REALVIEW_UART_OFFSET_DATA);
 		else
 			break;
 	}
@@ -216,8 +216,8 @@ static ssize_t realview_uart_write(struct uart_t * uart, const u8_t * buf, size_
 
 	for(i = 0; i < count; i++)
 	{
-		while( (readb(dat->regbase + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_TXFF) );
-		writeb(dat->regbase + REALVIEW_UART_OFFSET_DATA, buf[i]);
+		while( (read8(dat->regbase + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_TXFF) );
+		write8(dat->regbase + REALVIEW_UART_OFFSET_DATA, buf[i]);
 	}
 
 	return i;

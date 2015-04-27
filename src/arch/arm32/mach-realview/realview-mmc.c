@@ -40,9 +40,9 @@ static bool_t mmc_send_cmd(u32_t cmd, u32_t arg, u32_t * resp, u32_t flags)
 	u32_t status;
 	bool_t ret = TRUE;
 
-	if(readl(REALVIEW_MCI_COMMAND) & REALVIEW_MCI_CMD_ENABLE)
+	if(read32(REALVIEW_MCI_COMMAND) & REALVIEW_MCI_CMD_ENABLE)
 	{
-		writel(REALVIEW_MCI_COMMAND, 0x0);
+		write32(REALVIEW_MCI_COMMAND, 0x0);
 	}
 
 	cmd = (cmd & 0x3f) | REALVIEW_MCI_CMD_ENABLE;
@@ -54,26 +54,26 @@ static bool_t mmc_send_cmd(u32_t cmd, u32_t arg, u32_t * resp, u32_t flags)
 		cmd |= REALVIEW_MCI_CMD_RESPONSE;
 	}
 
-	writel(REALVIEW_MCI_ARGUMENT, arg);
-	writel(REALVIEW_MCI_COMMAND, cmd);
+	write32(REALVIEW_MCI_ARGUMENT, arg);
+	write32(REALVIEW_MCI_COMMAND, cmd);
 
 	/*
 	 * wait for a while
 	 */
 	do {
-		status = readl(REALVIEW_MCI_STATUS);
+		status = read32(REALVIEW_MCI_STATUS);
 	} while(!(status & (REALVIEW_MCI_STAT_CMD_SENT | REALVIEW_MCI_STAT_CMD_RESP_END |
 			REALVIEW_MCI_STAT_CMD_TIME_OUT | REALVIEW_MCI_STAT_CMD_CRC_FAIL)));
 
 	if(flags & REALVIEW_MCI_RSP_PRESENT)
 	{
-		resp[0] = readl(REALVIEW_MCI_RESP0);
+		resp[0] = read32(REALVIEW_MCI_RESP0);
 
 		if(flags & REALVIEW_MCI_RSP_136BIT)
 		{
-			resp[1] = readl(REALVIEW_MCI_RESP1);
-			resp[2] = readl(REALVIEW_MCI_RESP2);
-			resp[3] = readl(REALVIEW_MCI_RESP3);
+			resp[1] = read32(REALVIEW_MCI_RESP1);
+			resp[2] = read32(REALVIEW_MCI_RESP2);
+			resp[3] = read32(REALVIEW_MCI_RESP3);
 		}
 	}
 
@@ -82,7 +82,7 @@ static bool_t mmc_send_cmd(u32_t cmd, u32_t arg, u32_t * resp, u32_t flags)
 	else if ((status & REALVIEW_MCI_STAT_CMD_CRC_FAIL) && (flags & REALVIEW_MCI_RSP_CRC))
 		ret = FALSE;
 
-	writel(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_CMD_SENT | REALVIEW_MCI_CLR_CMD_RESP_END |
+	write32(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_CMD_SENT | REALVIEW_MCI_CLR_CMD_RESP_END |
 			REALVIEW_MCI_CLR_CMD_TIMEOUT | REALVIEW_MCI_CLR_CMD_CRC_FAIL));
 
 	return ret;
@@ -201,25 +201,25 @@ static bool_t mmc_send_op_cond(struct mmc_card_info_t * info)
 static void realview_mmc_init(void)
 {
 	/* power on and rod control */
-	writel(REALVIEW_MCI_POWER, 0x83);
+	write32(REALVIEW_MCI_POWER, 0x83);
 
-	writel(REALVIEW_MCI_MASK0, 0x0);
-	writel(REALVIEW_MCI_MASK1, 0x0);
+	write32(REALVIEW_MCI_MASK0, 0x0);
+	write32(REALVIEW_MCI_MASK1, 0x0);
 
-	writel(REALVIEW_MCI_COMMAND, 0x0);
-	writel(REALVIEW_MCI_DATA_CTRL, 0x0);
+	write32(REALVIEW_MCI_COMMAND, 0x0);
+	write32(REALVIEW_MCI_DATA_CTRL, 0x0);
 }
 
 static void realview_mmc_exit(void)
 {
-	writel(REALVIEW_MCI_MASK0, 0x0);
-	writel(REALVIEW_MCI_MASK1, 0x0);
+	write32(REALVIEW_MCI_MASK0, 0x0);
+	write32(REALVIEW_MCI_MASK1, 0x0);
 
-	writel(REALVIEW_MCI_COMMAND, 0x0);
-	writel(REALVIEW_MCI_DATA_CTRL, 0x0);
+	write32(REALVIEW_MCI_COMMAND, 0x0);
+	write32(REALVIEW_MCI_DATA_CTRL, 0x0);
 
 	/* power off */
-	writel(REALVIEW_MCI_POWER, 0x0);
+	write32(REALVIEW_MCI_POWER, 0x0);
 }
 
 static bool_t realview_mmc_probe(struct mmc_card_info_t * info)
@@ -337,9 +337,9 @@ static bool_t realview_mmc_read_one_sector(struct mmc_card_t * card, u8_t * buf,
 	if(!ret)
 		return FALSE;
 
-	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
-	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
-	writel(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x1<<1) | (blk_bits<<4));
+	write32(REALVIEW_MCI_DATA_TIMER, 0xffff);
+	write32(REALVIEW_MCI_DATA_LENGTH, blk_len);
+	write32(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x1<<1) | (blk_bits<<4));
 
 	if(card->info->type == MMC_CARD_TYPE_SDHC)
 	{
@@ -355,14 +355,14 @@ static bool_t realview_mmc_read_one_sector(struct mmc_card_t * card, u8_t * buf,
 	}
 
 	do {
-		len = remain - (readl(REALVIEW_MCI_FIFO_CNT) << 2);
+		len = remain - (read32(REALVIEW_MCI_FIFO_CNT) << 2);
 
 		if(len <= 0)
 			break;
 
 		for(i = 0; i < (len >> 2); i++)
 		{
-			v = readl(REALVIEW_MCI_FIFO);
+			v = read32(REALVIEW_MCI_FIFO);
 			*(p++) = (v >> 0) & 0xff;
 			*(p++) = (v >> 8) & 0xff;
 			*(p++) = (v >> 16) & 0xff;
@@ -374,10 +374,10 @@ static bool_t realview_mmc_read_one_sector(struct mmc_card_t * card, u8_t * buf,
 		if(remain <= 0)
 			break;
 
-		status = readl(REALVIEW_MCI_STATUS);
+		status = read32(REALVIEW_MCI_STATUS);
 		if((status & REALVIEW_MCI_STAT_DAT_TIME_OUT) || (status & REALVIEW_MCI_STAT_DAT_CRC_FAIL))
 		{
-			writel(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_DAT_TIMEOUT | REALVIEW_MCI_CLR_DAT_CRC_FAIL));
+			write32(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_DAT_TIMEOUT | REALVIEW_MCI_CLR_DAT_CRC_FAIL));
 
 			mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 			return FALSE;
@@ -419,9 +419,9 @@ static bool_t realview_mmc_write_one_sector(struct mmc_card_t * card, const u8_t
 	if(!ret)
 		return FALSE;
 
-	writel(REALVIEW_MCI_DATA_TIMER, 0xffff);
-	writel(REALVIEW_MCI_DATA_LENGTH, blk_len);
-	writel(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x0<<1) | (blk_bits<<4));
+	write32(REALVIEW_MCI_DATA_TIMER, 0xffff);
+	write32(REALVIEW_MCI_DATA_LENGTH, blk_len);
+	write32(REALVIEW_MCI_DATA_CTRL, (0x1<<0) | (0x0<<1) | (blk_bits<<4));
 
 	if(card->info->type == MMC_CARD_TYPE_SDHC)
 	{
@@ -439,7 +439,7 @@ static bool_t realview_mmc_write_one_sector(struct mmc_card_t * card, const u8_t
 	do {
 		for(i=0; i<64; i++)
 		{
-			writeb(REALVIEW_MCI_FIFO, *(p++));
+			write8(REALVIEW_MCI_FIFO, *(p++));
 		}
 
 		remain -= 64;
@@ -447,10 +447,10 @@ static bool_t realview_mmc_write_one_sector(struct mmc_card_t * card, const u8_t
 		if(remain <= 0)
 			break;
 
-		status = readl(REALVIEW_MCI_STATUS);
+		status = read32(REALVIEW_MCI_STATUS);
 		if((status & REALVIEW_MCI_STAT_DAT_TIME_OUT) || (status & REALVIEW_MCI_STAT_DAT_CRC_FAIL))
 		{
-			writel(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_DAT_TIMEOUT | REALVIEW_MCI_CLR_DAT_CRC_FAIL));
+			write32(REALVIEW_MCI_CLEAR, (REALVIEW_MCI_CLR_DAT_TIMEOUT | REALVIEW_MCI_CLR_DAT_CRC_FAIL));
 
 			mmc_send_cmd(MMC_SELECT_CARD, 0, resp, REALVIEW_MCI_RSP_PRESENT | REALVIEW_MCI_RSP_CRC);
 			return FALSE;

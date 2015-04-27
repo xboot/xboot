@@ -29,7 +29,7 @@ static bool_t s5pv210fb_set_output(struct s5pv210_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(S5PV210_VIDCON0);
+	cfg = read32(S5PV210_VIDCON0);
 	cfg &= ~S5PV210_VIDCON0_VIDOUT_MASK;
 
 	if(dat->output == S5PV210FB_OUTPUT_RGB)
@@ -48,10 +48,10 @@ static bool_t s5pv210fb_set_output(struct s5pv210_fb_data_t * dat)
 		cfg |= S5PV210_VIDCON0_VIDOUT_WB_I80LDI1;
 	else
 		return FALSE;
-	writel(S5PV210_VIDCON0, cfg);
+	write32(S5PV210_VIDCON0, cfg);
 
 
-	cfg = readl(S5PV210_VIDCON2);
+	cfg = read32(S5PV210_VIDCON2);
 	cfg &= ~(S5PV210_VIDCON2_WB_MASK | S5PV210_VIDCON2_TVFORMATSEL_MASK | S5PV210_VIDCON2_TVFORMATSEL_YUV_MASK);
 
 	if(dat->output == S5PV210FB_OUTPUT_RGB)
@@ -70,7 +70,7 @@ static bool_t s5pv210fb_set_output(struct s5pv210_fb_data_t * dat)
 		cfg |= (S5PV210_VIDCON2_WB_ENABLE | S5PV210_VIDCON2_TVFORMATSEL_SW | S5PV210_VIDCON2_TVFORMATSEL_YUV444);
 	else
 		return FALSE;
-	writel(S5PV210_VIDCON2, cfg);
+	write32(S5PV210_VIDCON2, cfg);
 
 	return TRUE;
 }
@@ -79,10 +79,10 @@ static bool_t s5pv210fb_set_display_mode(struct s5pv210_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(S5PV210_VIDCON0);
+	cfg = read32(S5PV210_VIDCON0);
 	cfg &= ~S5PV210_VIDCON0_PNRMODE_MASK;
 	cfg |= (dat->rgb_mode << S5PV210_VIDCON0_PNRMODE_SHIFT);
-	writel(S5PV210_VIDCON0, cfg);
+	write32(S5PV210_VIDCON0, cfg);
 
 	return TRUE;
 }
@@ -91,9 +91,9 @@ static bool_t s5pv210fb_display_on(struct s5pv210_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(S5PV210_VIDCON0);
+	cfg = read32(S5PV210_VIDCON0);
 	cfg |= (S5PV210_VIDCON0_ENVID_ENABLE | S5PV210_VIDCON0_ENVID_F_ENABLE);
-	writel(S5PV210_VIDCON0, cfg);
+	write32(S5PV210_VIDCON0, cfg);
 
 	return TRUE;
 }
@@ -102,12 +102,12 @@ static bool_t s5pv210fb_display_off(struct s5pv210_fb_data_t * dat)
 {
 	u32_t cfg;
 
-	cfg = readl(S5PV210_VIDCON0);
+	cfg = read32(S5PV210_VIDCON0);
 	cfg &= ~S5PV210_VIDCON0_ENVID_ENABLE;
-	writel(S5PV210_VIDCON0, cfg);
+	write32(S5PV210_VIDCON0, cfg);
 
 	cfg &= ~S5PV210_VIDCON0_ENVID_F_ENABLE;
-	writel(S5PV210_VIDCON0, cfg);
+	write32(S5PV210_VIDCON0, cfg);
 
 	return TRUE;
 }
@@ -132,12 +132,12 @@ static bool_t s5pv210fb_set_clock(struct s5pv210_fb_data_t * dat)
 	/*
 	 * fixed clock source: hclk
 	 */
-	cfg = readl(S5PV210_VIDCON0);
+	cfg = read32(S5PV210_VIDCON0);
 	cfg &= ~(S5PV210_VIDCON0_CLKSEL_MASK | S5PV210_VIDCON0_CLKVALUP_MASK | S5PV210_VIDCON0_VCLKEN_MASK | S5PV210_VIDCON0_CLKDIR_MASK);
 	cfg |= (S5PV210_VIDCON0_CLKSEL_HCLK | S5PV210_VIDCON0_CLKVALUP_ALWAYS | S5PV210_VIDCON0_VCLKEN_NORMAL | S5PV210_VIDCON0_CLKDIR_DIVIDED);
 	cfg |= S5PV210_VIDCON0_CLKVAL_F(div - 1);
 
-	writel(S5PV210_VIDCON0, cfg);
+	write32(S5PV210_VIDCON0, cfg);
 	return TRUE;
 }
 
@@ -157,7 +157,7 @@ static bool_t s5pv210fb_set_polarity(struct s5pv210_fb_data_t * dat)
 	if(dat->polarity.inv_vden)
 		cfg |= S5PV210_VIDCON1_IVDEN_INVERT;
 
-	writel(S5PV210_VIDCON1, cfg);
+	write32(S5PV210_VIDCON1, cfg);
 
 	return TRUE;
 }
@@ -171,14 +171,14 @@ static bool_t s5pv210fb_set_timing(struct s5pv210_fb_data_t * dat)
 	cfg |= S5PV210_VIDTCON0_VBPD(dat->timing.v_bp - 1);
 	cfg |= S5PV210_VIDTCON0_VFPD(dat->timing.v_fp - 1);
 	cfg |= S5PV210_VIDTCON0_VSPW(dat->timing.v_sw - 1);
-	writel(S5PV210_VIDTCON0, cfg);
+	write32(S5PV210_VIDTCON0, cfg);
 
 	cfg = 0;
 	cfg |= S5PV210_VIDTCON1_VFPDE(dat->timing.v_fpe - 1);
 	cfg |= S5PV210_VIDTCON1_HBPD(dat->timing.h_bp - 1);
 	cfg |= S5PV210_VIDTCON1_HFPD(dat->timing.h_fp - 1);
 	cfg |= S5PV210_VIDTCON1_HSPW(dat->timing.h_sw - 1);
-	writel(S5PV210_VIDTCON1, cfg);
+	write32(S5PV210_VIDTCON1, cfg);
 
 	return TRUE;
 }
@@ -189,7 +189,7 @@ static bool_t s5pv210fb_set_lcd_size(struct s5pv210_fb_data_t * dat)
 
 	cfg |= S5PV210_VIDTCON2_HOZVAL(dat->width - 1);
 	cfg |= S5PV210_VIDTCON2_LINEVAL(dat->height - 1);
-	writel(S5PV210_VIDTCON2, cfg);
+	write32(S5PV210_VIDTCON2, cfg);
 
 	return TRUE;
 }
@@ -202,44 +202,44 @@ static bool_t s5pv210fb_set_buffer_address(struct s5pv210_fb_data_t * dat, s32_t
 	start = (u32_t)(vram);
 	end = (u32_t)((start + dat->width * (dat->height * dat->bytes_per_pixel)) & 0x00ffffff);
 
-	shw = readl(S5PV210_SHADOWCON);
+	shw = read32(S5PV210_SHADOWCON);
 	shw |= S5PV210_SHADOWCON_PROTECT(id);
-	writel(S5PV210_SHADOWCON, shw);
+	write32(S5PV210_SHADOWCON, shw);
 
 	switch(id)
 	{
 	case 0:
-		writel(S5PV210_VIDW00ADD0B0, start);
-		writel(S5PV210_VIDW00ADD1B0, end);
+		write32(S5PV210_VIDW00ADD0B0, start);
+		write32(S5PV210_VIDW00ADD1B0, end);
 		break;
 
 	case 1:
-		writel(S5PV210_VIDW01ADD0B0, start);
-		writel(S5PV210_VIDW01ADD1B0, end);
+		write32(S5PV210_VIDW01ADD0B0, start);
+		write32(S5PV210_VIDW01ADD1B0, end);
 		break;
 
 	case 2:
-		writel(S5PV210_VIDW02ADD0B0, start);
-		writel(S5PV210_VIDW02ADD1B0, end);
+		write32(S5PV210_VIDW02ADD0B0, start);
+		write32(S5PV210_VIDW02ADD1B0, end);
 		break;
 
 	case 3:
-		writel(S5PV210_VIDW03ADD0B0, start);
-		writel(S5PV210_VIDW03ADD1B0, end);
+		write32(S5PV210_VIDW03ADD0B0, start);
+		write32(S5PV210_VIDW03ADD1B0, end);
 		break;
 
 	case 4:
-		writel(S5PV210_VIDW04ADD0B0, start);
-		writel(S5PV210_VIDW04ADD1B0, end);
+		write32(S5PV210_VIDW04ADD0B0, start);
+		write32(S5PV210_VIDW04ADD1B0, end);
 		break;
 
 	default:
 		break;
 	}
 
-	shw = readl(S5PV210_SHADOWCON);
+	shw = read32(S5PV210_SHADOWCON);
 	shw &= ~(S5PV210_SHADOWCON_PROTECT(id));
-	writel(S5PV210_SHADOWCON, shw);
+	write32(S5PV210_SHADOWCON, shw);
 
 	return TRUE;
 }
@@ -254,23 +254,23 @@ static bool_t s5pv210fb_set_buffer_size(struct s5pv210_fb_data_t * dat, s32_t id
 	switch(id)
 	{
 	case 0:
-		writel(S5PV210_VIDW00ADD2, cfg);
+		write32(S5PV210_VIDW00ADD2, cfg);
 		break;
 
 	case 1:
-		writel(S5PV210_VIDW01ADD2, cfg);
+		write32(S5PV210_VIDW01ADD2, cfg);
 		break;
 
 	case 2:
-		writel(S5PV210_VIDW02ADD2, cfg);
+		write32(S5PV210_VIDW02ADD2, cfg);
 		break;
 
 	case 3:
-		writel(S5PV210_VIDW03ADD2, cfg);
+		write32(S5PV210_VIDW03ADD2, cfg);
 		break;
 
 	case 4:
-		writel(S5PV210_VIDW04ADD2, cfg);
+		write32(S5PV210_VIDW04ADD2, cfg);
 		break;
 
 	default:
@@ -284,54 +284,54 @@ static bool_t s5pv210fb_set_window_position(struct s5pv210_fb_data_t * dat, s32_
 {
 	u32_t cfg, shw;
 
-	shw = readl(S5PV210_SHADOWCON);
+	shw = read32(S5PV210_SHADOWCON);
 	shw |= S5PV210_SHADOWCON_PROTECT(id);
-	writel(S5PV210_SHADOWCON, shw);
+	write32(S5PV210_SHADOWCON, shw);
 
 	switch(id)
 	{
 	case 0:
 		cfg = S5PV210_VIDOSD_LEFT_X(0) | S5PV210_VIDOSD_TOP_Y(0);
-		writel(S5PV210_VIDOSD0A, cfg);
+		write32(S5PV210_VIDOSD0A, cfg);
 		cfg = S5PV210_VIDOSD_RIGHT_X(dat->width - 1) | S5PV210_VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(S5PV210_VIDOSD0B, cfg);
+		write32(S5PV210_VIDOSD0B, cfg);
 		break;
 
 	case 1:
 		cfg = S5PV210_VIDOSD_LEFT_X(0) | S5PV210_VIDOSD_TOP_Y(0);
-		writel(S5PV210_VIDOSD1A, cfg);
+		write32(S5PV210_VIDOSD1A, cfg);
 		cfg = S5PV210_VIDOSD_RIGHT_X(dat->width - 1) | S5PV210_VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(S5PV210_VIDOSD1B, cfg);
+		write32(S5PV210_VIDOSD1B, cfg);
 		break;
 
 	case 2:
 		cfg = S5PV210_VIDOSD_LEFT_X(0) | S5PV210_VIDOSD_TOP_Y(0);
-		writel(S5PV210_VIDOSD2A, cfg);
+		write32(S5PV210_VIDOSD2A, cfg);
 		cfg = S5PV210_VIDOSD_RIGHT_X(dat->width - 1) | S5PV210_VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(S5PV210_VIDOSD2B, cfg);
+		write32(S5PV210_VIDOSD2B, cfg);
 		break;
 
 	case 3:
 		cfg = S5PV210_VIDOSD_LEFT_X(0) | S5PV210_VIDOSD_TOP_Y(0);
-		writel(S5PV210_VIDOSD3A, cfg);
+		write32(S5PV210_VIDOSD3A, cfg);
 		cfg = S5PV210_VIDOSD_RIGHT_X(dat->width - 1) | S5PV210_VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(S5PV210_VIDOSD3B, cfg);
+		write32(S5PV210_VIDOSD3B, cfg);
 		break;
 
 	case 4:
 		cfg = S5PV210_VIDOSD_LEFT_X(0) | S5PV210_VIDOSD_TOP_Y(0);
-		writel(S5PV210_VIDOSD4A, cfg);
+		write32(S5PV210_VIDOSD4A, cfg);
 		cfg = S5PV210_VIDOSD_RIGHT_X(dat->width - 1) | S5PV210_VIDOSD_BOTTOM_Y(dat->height - 1);
-		writel(S5PV210_VIDOSD4B, cfg);
+		write32(S5PV210_VIDOSD4B, cfg);
 		break;
 
 	default:
 		break;
 	}
 
-	shw = readl(S5PV210_SHADOWCON);
+	shw = read32(S5PV210_SHADOWCON);
 	shw &= ~(S5PV210_SHADOWCON_PROTECT(id));
-	writel(S5PV210_SHADOWCON, shw);
+	write32(S5PV210_SHADOWCON, shw);
 
 	return TRUE;
 }
@@ -348,15 +348,15 @@ static bool_t s5pv210fb_set_window_size(struct s5pv210_fb_data_t * dat, s32_t id
 	switch(id)
 	{
 	case 0:
-		writel(S5PV210_VIDOSD0C, cfg);
+		write32(S5PV210_VIDOSD0C, cfg);
 		break;
 
 	case 1:
-		writel(S5PV210_VIDOSD1D, cfg);
+		write32(S5PV210_VIDOSD1D, cfg);
 		break;
 
 	case 2:
-		writel(S5PV210_VIDOSD2D, cfg);
+		write32(S5PV210_VIDOSD2D, cfg);
 		break;
 
 	default:
@@ -373,7 +373,7 @@ static bool_t s5pv210fb_window2_enable(struct s5pv210_fb_data_t * dat)
 	/*
 	 * window control
 	 */
-	cfg = readl(S5PV210_WINCON2);
+	cfg = read32(S5PV210_WINCON2);
 
 	cfg &= ~(S5PV210_WINCON_BITSWP_ENABLE | S5PV210_WINCON_BYTESWP_ENABLE |
 				S5PV210_WINCON_HAWSWP_ENABLE | S5PV210_WINCON_WSWP_ENABLE |
@@ -408,14 +408,14 @@ static bool_t s5pv210fb_window2_enable(struct s5pv210_fb_data_t * dat)
 
 	cfg |= (dat->bpp_mode << S5PV210_WINCON_BPPMODE_SHIFT);
 
-	writel(S5PV210_WINCON2, cfg);
+	write32(S5PV210_WINCON2, cfg);
 
 	/*
 	 * hardware version = 0x62
 	 */
-	cfg = readl(S5PV210_SHADOWCON);
+	cfg = read32(S5PV210_SHADOWCON);
 	cfg |= 1 << 2;
-	writel(S5PV210_SHADOWCON, cfg);
+	write32(S5PV210_SHADOWCON, cfg);
 
 	return TRUE;
 }
@@ -433,18 +433,18 @@ static void fb_init(struct fb_t * fb)
 	/*
 	 * Initial lcd port
 	 */
-	writel(S5PV210_GPF0_BASE + S5PV210_GPIO_CON, 0x22222222);
-	writel(S5PV210_GPF0_BASE + S5PV210_GPIO_DRV, 0xffffffff);
-	writel(S5PV210_GPF0_BASE + S5PV210_GPIO_PUD, 0x0);
-	writel(S5PV210_GPF1_BASE + S5PV210_GPIO_CON, 0x22222222);
-	writel(S5PV210_GPF1_BASE + S5PV210_GPIO_DRV, 0xffffffff);
-	writel(S5PV210_GPF1_BASE + S5PV210_GPIO_PUD, 0x0);
-	writel(S5PV210_GPF2_BASE + S5PV210_GPIO_CON, 0x22222222);
-	writel(S5PV210_GPF2_BASE + S5PV210_GPIO_DRV, 0xffffffff);
-	writel(S5PV210_GPF2_BASE + S5PV210_GPIO_PUD, 0x0);
-	writel(S5PV210_GPF3_BASE + S5PV210_GPIO_CON, (readl(S5PV210_GPF3_BASE + S5PV210_GPIO_CON) & ~(0xffff<<0)) | (0x2222<<0));
-	writel(S5PV210_GPF3_BASE + S5PV210_GPIO_DRV, (readl(S5PV210_GPF3_BASE + S5PV210_GPIO_DRV) & ~(0xff<<0)) | (0xff<<0));
-	writel(S5PV210_GPF3_BASE + S5PV210_GPIO_PUD, (readl(S5PV210_GPF3_BASE + S5PV210_GPIO_PUD) & ~(0xff<<0)) | (0x00<<0));
+	write32(S5PV210_GPF0_BASE + S5PV210_GPIO_CON, 0x22222222);
+	write32(S5PV210_GPF0_BASE + S5PV210_GPIO_DRV, 0xffffffff);
+	write32(S5PV210_GPF0_BASE + S5PV210_GPIO_PUD, 0x0);
+	write32(S5PV210_GPF1_BASE + S5PV210_GPIO_CON, 0x22222222);
+	write32(S5PV210_GPF1_BASE + S5PV210_GPIO_DRV, 0xffffffff);
+	write32(S5PV210_GPF1_BASE + S5PV210_GPIO_PUD, 0x0);
+	write32(S5PV210_GPF2_BASE + S5PV210_GPIO_CON, 0x22222222);
+	write32(S5PV210_GPF2_BASE + S5PV210_GPIO_DRV, 0xffffffff);
+	write32(S5PV210_GPF2_BASE + S5PV210_GPIO_PUD, 0x0);
+	write32(S5PV210_GPF3_BASE + S5PV210_GPIO_CON, (read32(S5PV210_GPF3_BASE + S5PV210_GPIO_CON) & ~(0xffff<<0)) | (0x2222<<0));
+	write32(S5PV210_GPF3_BASE + S5PV210_GPIO_DRV, (read32(S5PV210_GPF3_BASE + S5PV210_GPIO_DRV) & ~(0xff<<0)) | (0xff<<0));
+	write32(S5PV210_GPF3_BASE + S5PV210_GPIO_PUD, (read32(S5PV210_GPF3_BASE + S5PV210_GPIO_PUD) & ~(0xff<<0)) | (0x00<<0));
 
 	/*
 	 * Lcd init function
@@ -455,33 +455,33 @@ static void fb_init(struct fb_t * fb)
 	/*
 	 * Display path selection
 	 */
-	writel(S5PV210_DISPLAY_CONTROL, (readl(S5PV210_DISPLAY_CONTROL) & ~(0x3<<0)) | (0x2<<0));
+	write32(S5PV210_DISPLAY_CONTROL, (read32(S5PV210_DISPLAY_CONTROL) & ~(0x3<<0)) | (0x2<<0));
 
 	/*
 	 * Turn off all windows
 	 */
-	writel(S5PV210_WINCON0, (readl(S5PV210_WINCON0) & ~0x1));
-	writel(S5PV210_WINCON1, (readl(S5PV210_WINCON1) & ~0x1));
-	writel(S5PV210_WINCON2, (readl(S5PV210_WINCON2) & ~0x1));
-	writel(S5PV210_WINCON3, (readl(S5PV210_WINCON3) & ~0x1));
-	writel(S5PV210_WINCON4, (readl(S5PV210_WINCON4) & ~0x1));
+	write32(S5PV210_WINCON0, (read32(S5PV210_WINCON0) & ~0x1));
+	write32(S5PV210_WINCON1, (read32(S5PV210_WINCON1) & ~0x1));
+	write32(S5PV210_WINCON2, (read32(S5PV210_WINCON2) & ~0x1));
+	write32(S5PV210_WINCON3, (read32(S5PV210_WINCON3) & ~0x1));
+	write32(S5PV210_WINCON4, (read32(S5PV210_WINCON4) & ~0x1));
 
 	/*
 	 * Turn off all windows color map
 	 */
-	writel(S5PV210_WIN0MAP, (readl(S5PV210_WIN0MAP) & ~(1<<24)));
-	writel(S5PV210_WIN1MAP, (readl(S5PV210_WIN1MAP) & ~(1<<24)));
-	writel(S5PV210_WIN2MAP, (readl(S5PV210_WIN2MAP) & ~(1<<24)));
-	writel(S5PV210_WIN3MAP, (readl(S5PV210_WIN3MAP) & ~(1<<24)));
-	writel(S5PV210_WIN4MAP, (readl(S5PV210_WIN4MAP) & ~(1<<24)));
+	write32(S5PV210_WIN0MAP, (read32(S5PV210_WIN0MAP) & ~(1<<24)));
+	write32(S5PV210_WIN1MAP, (read32(S5PV210_WIN1MAP) & ~(1<<24)));
+	write32(S5PV210_WIN2MAP, (read32(S5PV210_WIN2MAP) & ~(1<<24)));
+	write32(S5PV210_WIN3MAP, (read32(S5PV210_WIN3MAP) & ~(1<<24)));
+	write32(S5PV210_WIN4MAP, (read32(S5PV210_WIN4MAP) & ~(1<<24)));
 
 	/*
 	 * Turn off all windows color key
 	 */
-	writel(S5PV210_W1KEYCON0, (readl(S5PV210_W1KEYCON0) & ~(3<<25)));
-	writel(S5PV210_W2KEYCON0, (readl(S5PV210_W2KEYCON0) & ~(3<<25)));
-	writel(S5PV210_W3KEYCON0, (readl(S5PV210_W3KEYCON0) & ~(3<<25)));
-	writel(S5PV210_W4KEYCON0, (readl(S5PV210_W4KEYCON0) & ~(3<<25)));
+	write32(S5PV210_W1KEYCON0, (read32(S5PV210_W1KEYCON0) & ~(3<<25)));
+	write32(S5PV210_W2KEYCON0, (read32(S5PV210_W2KEYCON0) & ~(3<<25)));
+	write32(S5PV210_W3KEYCON0, (read32(S5PV210_W3KEYCON0) & ~(3<<25)));
+	write32(S5PV210_W4KEYCON0, (read32(S5PV210_W4KEYCON0) & ~(3<<25)));
 
 	/*
 	 * Initial lcd controller

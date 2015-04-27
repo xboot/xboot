@@ -44,8 +44,8 @@ static bool_t mach_shutdown(void)
 
 static bool_t mach_reboot(void)
 {
-	writel(S5P4418_SYS_PWRCONT, (readl(S5P4418_SYS_PWRCONT) & ~(0x1<<3)) | (0x1<<3));
-	writel(S5P4418_SYS_PWRMODE, (readl(S5P4418_SYS_PWRMODE) & ~(0x1<<12)) | (0x1<<12));
+	write32(S5P4418_SYS_PWRCONT, (read32(S5P4418_SYS_PWRCONT) & ~(0x1<<3)) | (0x1<<3));
+	write32(S5P4418_SYS_PWRMODE, (read32(S5P4418_SYS_PWRMODE) & ~(0x1<<12)) | (0x1<<12));
 
 	return TRUE;
 }
@@ -83,8 +83,8 @@ const char * mach_uniqueid(void)
 	static char uniqueid[16 + 1];
 	u32_t ecid0, ecid1;
 
-	ecid0 = readl(S5P4418_ID_ECID0);
-	ecid1 = readl(S5P4418_ID_ECID1);
+	ecid0 = read32(S5P4418_ID_ECID0);
+	ecid1 = read32(S5P4418_ID_ECID1);
 	sprintf(uniqueid, "%02x%02x%02x%02x%02x%02x%02x%02x",
 		(ecid0 >> 24) & 0xff, (ecid0 >> 16) & 0xff, (ecid0 >> 8) & 0xff, (ecid0 >> 0) & 0xff,
 		(ecid1 >> 24) & 0xff, (ecid1 >> 16) & 0xff, (ecid1 >> 8) & 0xff, (ecid1 >> 0) & 0xff);

@@ -28,7 +28,7 @@
 static void timer_interrupt(void * data)
 {
 	tick_interrupt();
-	writel(S5PV210_TINT_CSTAT, (readl(S5PV210_TINT_CSTAT) & ~(0x1f<<5)) | (0x01<<9));
+	write32(S5PV210_TINT_CSTAT, (read32(S5PV210_TINT_CSTAT) & ~(0x1f<<5)) | (0x01<<9));
 }
 
 static bool_t tick_timer_init(void)
@@ -51,22 +51,22 @@ static bool_t tick_timer_init(void)
 	}
 
 	/* Using pwm timer 4, prescaler for timer 4 is 16 */
-	writel(S5PV210_TCFG0, (readl(S5PV210_TCFG0) & ~(0xff<<8)) | (0x0f<<8));
+	write32(S5PV210_TCFG0, (read32(S5PV210_TCFG0) & ~(0xff<<8)) | (0x0f<<8));
 
 	/* Select mux input for pwm timer4 is 1/2 */
-	writel(S5PV210_TCFG1, (readl(S5PV210_TCFG1) & ~(0xf<<16)) | (0x01<<16));
+	write32(S5PV210_TCFG1, (read32(S5PV210_TCFG1) & ~(0xf<<16)) | (0x01<<16));
 
 	/* Load value for 10 ms timeout */
-	writel(S5PV210_TCNTB4, (u32_t)(pclk / (2 * 16 * 100)));
+	write32(S5PV210_TCNTB4, (u32_t)(pclk / (2 * 16 * 100)));
 
 	/* Auto load, manaual update of timer 4 and stop timer4 */
-	writel(S5PV210_TCON, (readl(S5PV210_TCON) & ~(0x7<<20)) | (0x06<<20));
+	write32(S5PV210_TCON, (read32(S5PV210_TCON) & ~(0x7<<20)) | (0x06<<20));
 
 	/* Enable timer4 interrupt and clear interrupt status bit */
-	writel(S5PV210_TINT_CSTAT, (readl(S5PV210_TINT_CSTAT) & ~(0x1<<4)) | (0x01<<4) | (0x01<<9));
+	write32(S5PV210_TINT_CSTAT, (read32(S5PV210_TINT_CSTAT) & ~(0x1<<4)) | (0x01<<4) | (0x01<<9));
 
 	/* Start timer4 */
-	writel(S5PV210_TCON, (readl(S5PV210_TCON) & ~(0x7<<20)) | (0x05<<20));
+	write32(S5PV210_TCON, (read32(S5PV210_TCON) & ~(0x7<<20)) | (0x05<<20));
 
 	return TRUE;
 }

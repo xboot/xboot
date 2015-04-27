@@ -7,61 +7,55 @@ extern "C" {
 
 #include <types.h>
 
-/*
- * read a byte value from address.
- */
-static inline u8_t __readb(ptrdiff_t addr)
+static inline u8_t __read8(ptrdiff_t addr)
 {
 	return( *((volatile u8_t *)(addr)) );
 }
 
-/*
- * read a word value from address.
- */
-static inline u16_t __readw(ptrdiff_t addr)
+static inline u16_t __read16(ptrdiff_t addr)
 {
 	return( *((volatile u16_t *)(addr)) );
 }
 
-/*
- * read a long value from address.
- */
-static inline u32_t __readl(ptrdiff_t addr)
+static inline u32_t __read32(ptrdiff_t addr)
 {
 	return( *((volatile u32_t *)(addr)) );
 }
 
-/*
- * write a byte value to address.
- */
-static inline void __writeb(ptrdiff_t addr, u8_t value)
+static inline u64_t __read64(ptrdiff_t addr)
+{
+	return( *((volatile u64_t *)(addr)) );
+}
+
+static inline void __write8(ptrdiff_t addr, u8_t value)
 {
 	*((volatile u8_t *)(addr)) = value;
 }
 
-/*
- * write a word value to address.
- */
-static inline void __writew(ptrdiff_t addr, u16_t value)
+static inline void __write16(ptrdiff_t addr, u16_t value)
 {
 	*((volatile u16_t *)(addr)) = value;
 }
 
-/*
- * write a long value to address.
- */
-static inline void __writel(ptrdiff_t addr, u32_t value)
+static inline void __write32(ptrdiff_t addr, u32_t value)
 {
 	*((volatile u32_t *)(addr)) = value;
 }
 
-#define readb(a)		__readb(a)
-#define readw(a)		__readw(a)
-#define readl(a)		__readl(a)
+static inline void __write64(ptrdiff_t addr, u64_t value)
+{
+	*((volatile u64_t *)(addr)) = value;
+}
 
-#define writeb(a, v)	__writeb(a, v)
-#define writew(a, v)	__writew(a, v)
-#define writel(a, v)	__writel(a, v)
+#define read8(a)		__read8(a)
+#define read16(a)		__read16(a)
+#define read32(a)		__read32(a)
+#define read64(a)		__read64(a)
+
+#define write8(a, v)	__write8((a), (v))
+#define write16(a, v)	__write16((a), (v))
+#define write32(a, v)	__write32((a), (v))
+#define write64(a, v)	__write64((a), (v))
 
 #ifdef __cplusplus
 }

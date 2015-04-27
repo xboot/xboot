@@ -54,7 +54,7 @@ static void led_gpio_set(struct led_t * led, int brightness)
 
 	if(dat->brightness != brightness)
 	{
-		if(dat->brightness > 0)
+		if(brightness > 0)
 			gpio_direction_output(rdat->gpio, rdat->active_low ? 0 : 1);
 		else
 			gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);

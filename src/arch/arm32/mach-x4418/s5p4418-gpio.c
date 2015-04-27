@@ -40,6 +40,23 @@ static void s5p4418_gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int c
 
 	if(offset >= chip->ngpio)
 		return;
+
+	if(offset < 16)
+	{
+		offset <<= 0x1;
+		val = readl(dat->regbase + S5P4418_GPIO_ALTFN0);
+		val &= ~(0x3 << offset);
+		val |= cfg << offset;
+		writel(dat->regbase + S5P4418_GPIO_ALTFN0, val);
+	}
+	else if(offset < 32)
+	{
+		offset <<= 0x1;
+		val = readl(dat->regbase + S5P4418_GPIO_ALTFN1);
+		val &= ~(0x3 << offset);
+		val |= cfg << offset;
+		writel(dat->regbase + S5P4418_GPIO_ALTFN1, val);
+	}
 }
 
 static int s5p4418_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
@@ -49,12 +66,27 @@ static int s5p4418_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
 
 	if(offset >= chip->ngpio)
 		return 0;
+
+	if(offset < 16)
+	{
+		offset <<= 0x1;
+		val = readl(dat->regbase + S5P4418_GPIO_ALTFN0);
+		return ((val >> offset) & 0x3);
+	}
+	else if(offset < 32)
+	{
+		offset <<= 0x1;
+		val = readl(dat->regbase + S5P4418_GPIO_ALTFN1);
+		return ((val >> offset) & 0x3);
+	}
+
+	return 0;
 }
 
 static void s5p4418_gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
 {
 	struct s5p4418_gpiochip_data_t * dat = (struct s5p4418_gpiochip_data_t *)chip->priv;
-	u32_t val, p;
+	u32_t val;
 
 	if(offset >= chip->ngpio)
 		return;
@@ -62,34 +94,65 @@ static void s5p4418_gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum
 	switch(pull)
 	{
 	case GPIO_PULL_UP:
-		p = 0x2;
+		val = readl(dat->regbase + S5P4418_GPIO_PULLSEL);
+		val |= 1 << offset;
+		writel(dat->regbase + S5P4418_GPIO_PULLSEL, val);
+		val = readl(dat->regbase + S5P4418_GPIO_PULLENB);
+		val |= 1 << offset;
+		writel(dat->regbase + S5P4418_GPIO_PULLENB, val);
 		break;
+
 	case GPIO_PULL_DOWN:
-		p = 0x1;
+		val = readl(dat->regbase + S5P4418_GPIO_PULLSEL);
+		val &= ~(1 << offset);
+		writel(dat->regbase + S5P4418_GPIO_PULLSEL, val);
+		val = readl(dat->regbase + S5P4418_GPIO_PULLENB);
+		val |= 1 << offset;
+		writel(dat->regbase + S5P4418_GPIO_PULLENB, val);
 		break;
+
 	case GPIO_PULL_NONE:
-		p = 0x0;
+		val = readl(dat->regbase + S5P4418_GPIO_PULLENB);
+		val &= ~(1 << offset);
+		writel(dat->regbase + S5P4418_GPIO_PULLENB, val);
 		break;
+
 	default:
-		p = 0x0;
 		break;
 	}
+
+	val = readl(dat->regbase + S5P4418_GPIO_PULLSEL_DISABLE_DEFAULT);
+	val |= 1 << offset;
+	writel(dat->regbase + S5P4418_GPIO_PULLSEL_DISABLE_DEFAULT, val);
+	val = readl(dat->regbase + S5P4418_GPIO_PULLENB_DISABLE_DEFAULT);
+	val |= 1 << offset;
+	writel(dat->regbase + S5P4418_GPIO_PULLENB_DISABLE_DEFAULT, val);
 }
 
 static enum gpio_pull_t s5p4418_gpiochip_get_pull(struct gpiochip_t * chip, int offset)
 {
 	struct s5p4418_gpiochip_data_t * dat = (struct s5p4418_gpiochip_data_t *)chip->priv;
-	u32_t val, p;
+	u32_t val;
 
 	if(offset >= chip->ngpio)
 		return GPIO_PULL_NONE;
+
+	val = readl(dat->regbase + S5P4418_GPIO_PULLENB);
+	if(!((val >> offset) & 0x1))
+	{
+		val = readl(dat->regbase + S5P4418_GPIO_PULLSEL);
+		if((val >> offset) & 0x1)
+			return GPIO_PULL_UP;
+		else
+			return GPIO_PULL_DOWN;
+	}
 	return GPIO_PULL_NONE;
 }
 
 static void s5p4418_gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
 {
 	struct s5p4418_gpiochip_data_t * dat = (struct s5p4418_gpiochip_data_t *)chip->priv;
-	u32_t val, d;
+	u32_t val;
 
 	if(offset >= chip->ngpio)
 		return;
@@ -97,18 +160,42 @@ static void s5p4418_gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum 
 	switch(drv)
 	{
 	case GPIO_DRV_LOW:
-		d = 0x0;
+		val = readl(dat->regbase + S5P4418_GPIO_DRV0);
+		val &= ~(1 << offset);
+		writel(dat->regbase + S5P4418_GPIO_DRV0, val);
+		val = readl(dat->regbase + S5P4418_GPIO_DRV1);
+		val &= ~(1 << offset);
+		writel(dat->regbase + S5P4418_GPIO_DRV1, val);
 		break;
+
 	case GPIO_DRV_MEDIAN:
-		d = 0x2;
+		val = readl(dat->regbase + S5P4418_GPIO_DRV0);
+		val &= ~(1 << offset);
+		writel(dat->regbase + S5P4418_GPIO_DRV0, val);
+		val = readl(dat->regbase + S5P4418_GPIO_DRV1);
+		val |= 1 << offset;
+		writel(dat->regbase + S5P4418_GPIO_DRV1, val);
 		break;
+
 	case GPIO_DRV_HIGH:
-		d = 0x3;
+		val = readl(dat->regbase + S5P4418_GPIO_DRV0);
+		val |= 1 << offset;
+		writel(dat->regbase + S5P4418_GPIO_DRV0, val);
+		val = readl(dat->regbase + S5P4418_GPIO_DRV1);
+		val |= 1 << offset;
+		writel(dat->regbase + S5P4418_GPIO_DRV1, val);
 		break;
+
 	default:
-		d = 0x0;
 		break;
 	}
+
+	val = readl(dat->regbase + S5P4418_GPIO_DRV0_DISABLE_DEFAULT);
+	val |= 1 << offset;
+	writel(dat->regbase + S5P4418_GPIO_DRV0_DISABLE_DEFAULT, val);
+	val = readl(dat->regbase + S5P4418_GPIO_DRV1_DISABLE_DEFAULT);
+	val |= 1 << offset;
+	writel(dat->regbase + S5P4418_GPIO_DRV1_DISABLE_DEFAULT, val);
 }
 
 static enum gpio_drv_t s5p4418_gpiochip_get_drv(struct gpiochip_t * chip, int offset)
@@ -119,6 +206,24 @@ static enum gpio_drv_t s5p4418_gpiochip_get_drv(struct gpiochip_t * chip, int of
 	if(offset >= chip->ngpio)
 		return GPIO_DRV_LOW;
 
+	val = readl(dat->regbase + S5P4418_GPIO_DRV0);
+	d = (val >> offset) & 0x1;
+	val = readl(dat->regbase + S5P4418_GPIO_DRV1);
+	d |= ((val >> offset) & 0x1) << 1;
+
+	switch(d)
+	{
+	case 0x0:
+		return GPIO_DRV_LOW;
+	case 0x1:
+		return GPIO_DRV_MEDIAN;
+	case 0x2:
+		return GPIO_DRV_MEDIAN;
+	case 0x3:
+		return GPIO_DRV_HIGH;
+	default:
+		break;
+	}
 	return GPIO_DRV_LOW;
 }
 
@@ -142,9 +247,15 @@ static void s5p4418_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum 
 	switch(dir)
 	{
 	case GPIO_DIRECTION_INPUT:
+		val = readl(dat->regbase + S5P4418_GPIO_OUTENB);
+		val &= ~(0x1 << offset);
+		writel(dat->regbase + S5P4418_GPIO_OUTENB, val);
 		break;
 
 	case GPIO_DIRECTION_OUTPUT:
+		val = readl(dat->regbase + S5P4418_GPIO_OUTENB);
+		val |= 0x1 << offset;
+		writel(dat->regbase + S5P4418_GPIO_OUTENB, val);
 		break;
 
 	default:
@@ -160,6 +271,17 @@ static enum gpio_direction_t s5p4418_gpiochip_get_dir(struct gpiochip_t * chip, 
 	if(offset >= chip->ngpio)
 		return GPIO_DIRECTION_UNKOWN;
 
+	val = readl(dat->regbase + S5P4418_GPIO_OUTENB);
+	d = (val >> offset) & 0x1;
+	switch(d)
+	{
+	case 0x0:
+		return GPIO_DIRECTION_INPUT;
+	case 0x1:
+		return GPIO_DIRECTION_OUTPUT;
+	default:
+		break;
+	}
 	return GPIO_DIRECTION_UNKOWN;
 }
 
@@ -170,6 +292,11 @@ static void s5p4418_gpiochip_set_value(struct gpiochip_t * chip, int offset, int
 
 	if(offset >= chip->ngpio)
 		return;
+
+	val = readl(dat->regbase + S5P4418_GPIO_OUT);
+	val &= ~(1 << offset);
+	val |= (!!value) << offset;
+	writel(dat->regbase + S5P4418_GPIO_OUT, val);
 }
 
 static int s5p4418_gpiochip_get_value(struct gpiochip_t * chip, int offset)
@@ -179,6 +306,9 @@ static int s5p4418_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 
 	if(offset >= chip->ngpio)
 		return 0;
+
+	val = readl(dat->regbase + S5P4418_GPIO_OUT);
+	return !!(val & (1 << offset));
 }
 
 static struct s5p4418_gpiochip_data_t gpiochip_datas[] = {

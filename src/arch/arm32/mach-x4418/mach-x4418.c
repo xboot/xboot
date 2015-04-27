@@ -25,6 +25,7 @@
 #include <xboot.h>
 #include <cp15.h>
 #include <s5p4418/reg-sys.h>
+#include <s5p4418/reg-id.h>
 
 static bool_t mach_detect(void)
 {
@@ -84,7 +85,15 @@ static bool_t mach_authentication(void)
 
 const char * mach_uniqueid(void)
 {
-	return "0123456789";
+	static char uniqueid[16 + 1];
+	u32_t ecid0, ecid1;
+
+	ecid0 = readl(S5P4418_ID_ECID0);
+	ecid1 = readl(S5P4418_ID_ECID1);
+	sprintf(uniqueid, "%02x%02x%02x%02x%02x%02x%02x%02x",
+		(ecid0 >> 24) & 0xff, (ecid0 >> 16) & 0xff, (ecid0 >> 8) & 0xff, (ecid0 >> 0) & 0xff,
+		(ecid1 >> 24) & 0xff, (ecid1 >> 16) & 0xff, (ecid1 >> 8) & 0xff, (ecid1 >> 0) & 0xff);
+	return uniqueid;
 }
 
 static struct machine_t x4418 = {

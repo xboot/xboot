@@ -100,7 +100,7 @@ bool_t register_buzzer(struct buzzer_t * buzzer)
 	dev->resume = buzzer_resume;
 	dev->driver = buzzer;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "brightness", buzzer_read_frequency, buzzer_write_frequency, buzzer);
+	kobj_add_regular(dev->kobj, "frequency", buzzer_read_frequency, buzzer_write_frequency, buzzer);
 
 	if(!register_device(dev))
 	{

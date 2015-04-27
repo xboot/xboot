@@ -201,9 +201,6 @@ int luaopen_xboot(lua_State * L)
 	lua_pushstring(L, __MACH__);
 	lua_setfield(L, -2, "MACH");
 
-	lua_pushboolean(L, machine_authentication());
-	lua_setfield(L, -2, "AUTHENTICATION");
-
 	lua_pushstring(L, machine_uniqueid());
 	lua_setfield(L, -2, "UNIQUEID");
 

@@ -144,15 +144,6 @@ bool_t machine_cleanup(void)
 	return FALSE;
 }
 
-bool_t machine_authentication(void)
-{
-	struct machine_t * mach = get_machine();
-
-	if(mach && mach->authentication)
-		return mach->authentication();
-	return FALSE;
-}
-
 const char * machine_uniqueid(void)
 {
 	struct machine_t * mach = get_machine();

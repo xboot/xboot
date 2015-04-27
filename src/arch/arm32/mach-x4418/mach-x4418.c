@@ -78,11 +78,6 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-static bool_t mach_authentication(void)
-{
-	return TRUE;
-}
-
 const char * mach_uniqueid(void)
 {
 	static char uniqueid[16 + 1];
@@ -123,7 +118,6 @@ static struct machine_t x4418 = {
 	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
-	.authentication		= mach_authentication,
 	.uniqueid			= mach_uniqueid,
 };
 

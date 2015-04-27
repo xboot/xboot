@@ -22,7 +22,6 @@ struct machine_t {
 	bool_t (*reboot)(void);
 	bool_t (*sleep)(void);
 	bool_t (*cleanup)(void);
-	bool_t (*authentication)(void);
 	const char * (*uniqueid)(void);
 };
 
@@ -34,7 +33,6 @@ bool_t machine_shutdown(void);
 bool_t machine_reboot(void);
 bool_t machine_sleep(void);
 bool_t machine_cleanup(void);
-bool_t machine_authentication(void);
 const char * machine_uniqueid(void);
 
 void subsys_init_machine(void);

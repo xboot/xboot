@@ -73,14 +73,9 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-static bool_t mach_authentication(void)
-{
-	return TRUE;
-}
-
 const char * mach_uniqueid(void)
 {
-	return "0123456789";
+	return NULL;
 }
 
 static struct machine_t realview = {
@@ -105,7 +100,6 @@ static struct machine_t realview = {
 	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
-	.authentication		= mach_authentication,
 	.uniqueid			= mach_uniqueid,
 };
 

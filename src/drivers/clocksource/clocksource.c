@@ -84,26 +84,26 @@ static struct kobj_t * search_class_clocksource_kobj(void)
 	return kobj_search_directory_with_create(kclass, "clocksource");
 }
 
-static ssize_t classsource_read_mult(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t clocksource_read_mult(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	return sprintf(buf, "%u", cs->mult);
 }
 
-static ssize_t classsource_read_shift(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t clocksource_read_shift(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	return sprintf(buf, "%u", cs->shift);
 }
 
-static ssize_t classsource_read_period(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t clocksource_read_period(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t period = ((u64_t)cs->mult) >> cs->shift;
 	return sprintf(buf, "%llu.%06llu", period / 1000000, period % 1000000);
 }
 
-static ssize_t classsource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t clocksource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	cycle_t cycle;
@@ -111,7 +111,7 @@ static ssize_t classsource_read_cycle(struct kobj_t * kobj, void * buf, size_t s
 	return sprintf(buf, "%llu", cycle);
 }
 
-static ssize_t classsource_read_time(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t time = __clocksource_gettime(cs);
@@ -184,11 +184,11 @@ bool_t register_clocksource(struct clocksource_t * cs)
 	cs->last = 0;
 	cs->usec = 0;
 	cs->kobj = kobj_alloc_directory(cs->name);
-	kobj_add_regular(cs->kobj, "mult", classsource_read_mult, NULL, cs);
-	kobj_add_regular(cs->kobj, "shift", classsource_read_shift, NULL, cs);
-	kobj_add_regular(cs->kobj, "period", classsource_read_period, NULL, cs);
-	kobj_add_regular(cs->kobj, "cycle", classsource_read_cycle, NULL, cs);
-	kobj_add_regular(cs->kobj, "time", classsource_read_time, NULL, cs);
+	kobj_add_regular(cs->kobj, "mult", clocksource_read_mult, NULL, cs);
+	kobj_add_regular(cs->kobj, "shift", clocksource_read_shift, NULL, cs);
+	kobj_add_regular(cs->kobj, "period", clocksource_read_period, NULL, cs);
+	kobj_add_regular(cs->kobj, "cycle", clocksource_read_cycle, NULL, cs);
+	kobj_add_regular(cs->kobj, "time", clocksource_read_time, NULL, cs);
 	kobj_add(search_class_clocksource_kobj(), cs->kobj);
 	cl->cs = cs;
 

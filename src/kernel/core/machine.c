@@ -41,6 +41,33 @@ static struct machine_list_t __machine_list = {
 static spinlock_t __machine_list_lock = SPIN_LOCK_INIT();
 static struct machine_t * __machine = NULL;
 
+static const char * __machine_uniqueid(struct machine_t * mach)
+{
+	const char * id = NULL;
+
+	if(mach && mach->uniqueid)
+		id = mach->uniqueid();
+	return id ? id : "0123456789";
+}
+
+static struct kobj_t * search_class_machine_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "machine");
+}
+
+static ssize_t machine_read_description(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct machine_t * mach = (struct machine_t *)kobj->priv;
+	return sprintf(buf, "%s", mach->desc);
+}
+
+static ssize_t machine_read_uniqueid(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct machine_t * mach = (struct machine_t *)kobj->priv;
+	return sprintf(buf, "%s", __machine_uniqueid(mach));
+}
+
 static struct machine_t * search_machine(const char * name)
 {
 	struct machine_list_t * pos, * n;
@@ -57,11 +84,6 @@ static struct machine_t * search_machine(const char * name)
 	return NULL;
 }
 
-struct machine_t * get_machine(void)
-{
-	return __machine;
-}
-
 bool_t register_machine(struct machine_t * mach)
 {
 	struct machine_list_t * ml;
@@ -76,6 +98,10 @@ bool_t register_machine(struct machine_t * mach)
 	if(!ml)
 		return FALSE;
 
+	mach->kobj = kobj_alloc_directory(mach->name);
+	kobj_add_regular(mach->kobj, "description", machine_read_description, NULL, mach);
+	kobj_add_regular(mach->kobj, "uniqueid", machine_read_uniqueid, NULL, mach);
+	kobj_add(search_class_machine_kobj(), mach->kobj);
 	ml->mach = mach;
 
 	spin_lock_irq(&__machine_list_lock);
@@ -100,6 +126,8 @@ bool_t unregister_machine(struct machine_t * mach)
 			list_del(&(pos->entry));
 			spin_unlock_irq(&__machine_list_lock);
 
+			kobj_remove(search_class_machine_kobj(), pos->mach->kobj);
+			kobj_remove_self(mach->kobj);
 			free(pos);
 			return TRUE;
 		}
@@ -108,12 +136,17 @@ bool_t unregister_machine(struct machine_t * mach)
 	return FALSE;
 }
 
-bool_t machine_shutdown(void)
+struct machine_t * get_machine(void)
+{
+	return __machine;
+}
+
+bool_t machine_poweroff(void)
 {
 	struct machine_t * mach = get_machine();
 
-	if(mach && mach->shutdown)
-		return mach->shutdown();
+	if(mach && mach->poweroff)
+		return mach->poweroff();
 	return FALSE;
 }
 
@@ -147,11 +180,7 @@ bool_t machine_cleanup(void)
 const char * machine_uniqueid(void)
 {
 	struct machine_t * mach = get_machine();
-	const char * id = NULL;
-
-	if(mach && mach->uniqueid)
-		id = mach->uniqueid();
-	return id ? id : "0123456789";
+	return __machine_uniqueid(mach);
 }
 
 void subsys_init_machine(void)
@@ -164,8 +193,8 @@ void subsys_init_machine(void)
 		{
 			__machine = pos->mach;
 
-			if(pos->mach->powerup)
-				pos->mach->powerup();
+			if(pos->mach->poweron)
+				pos->mach->poweron();
 
 			extern void mmu_setup(struct machine_t * mach);
 			mmu_setup(pos->mach);

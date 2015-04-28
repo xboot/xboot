@@ -30,12 +30,12 @@ static bool_t mach_detect(void)
 	return TRUE;
 }
 
-static bool_t mach_powerup(void)
+static bool_t mach_poweron(void)
 {
 	return TRUE;
 }
 
-static bool_t mach_shutdown(void)
+static bool_t mach_poweroff(void)
 {
 	return FALSE;
 }
@@ -100,8 +100,8 @@ static struct machine_t x4412 = {
 	},
 
 	.detect 			= mach_detect,
-	.powerup			= mach_powerup,
-	.shutdown			= mach_shutdown,
+	.poweron			= mach_poweron,
+	.poweroff			= mach_poweroff,
 	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,

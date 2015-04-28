@@ -128,6 +128,10 @@ extern "C" {
 #define	CONFIG_COMMAND_MW							(1)
 #endif
 
+#if !defined(CONFIG_COMMAND_POWEROFF)
+#define	CONFIG_COMMAND_POWEROFF						(1)
+#endif
+
 #if !defined(CONFIG_COMMAND_PWD)
 #define	CONFIG_COMMAND_PWD							(1)
 #endif
@@ -142,10 +146,6 @@ extern "C" {
 
 #if !defined(CONFIG_COMMAND_RMDIR)
 #define	CONFIG_COMMAND_RMDIR						(1)
-#endif
-
-#if !defined(CONFIG_COMMAND_SHUTDOWN)
-#define	CONFIG_COMMAND_SHUTDOWN						(1)
 #endif
 
 #if !defined(CONFIG_COMMAND_SLEEP)

@@ -34,13 +34,13 @@ static bool_t mach_detect(void)
 	return TRUE;
 }
 
-static bool_t mach_powerup(void)
+static bool_t mach_poweron(void)
 {
 	write32(S5PV210_PS_HOLD_CONTROL, (read32(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x1<<8) | (0x1<<9)));
 	return TRUE;
 }
 
-static bool_t mach_shutdown(void)
+static bool_t mach_poweroff(void)
 {
 	write32(S5PV210_PS_HOLD_CONTROL, (read32(S5PV210_PS_HOLD_CONTROL) & ~( 0x00000301 )) | ((0x1<<0) | (0x0<<8) | (0x0<<9)));
 	return TRUE;
@@ -121,8 +121,8 @@ static struct machine_t x210ii = {
 	},
 
 	.detect 			= mach_detect,
-	.powerup			= mach_powerup,
-	.shutdown			= mach_shutdown,
+	.poweron			= mach_poweron,
+	.poweroff			= mach_poweroff,
 	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,

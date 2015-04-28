@@ -24,57 +24,50 @@
 
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <version.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
-#include <fs/fileio.h>
 #include <command/command.h>
 
+#if	defined(CONFIG_COMMAND_POWEROFF) && (CONFIG_COMMAND_POWEROFF > 0)
 
-#if	defined(CONFIG_COMMAND_SHUTDOWN) && (CONFIG_COMMAND_SHUTDOWN > 0)
-
-static int do_shutdown(int argc, char ** argv)
+static int do_poweroff(int argc, char ** argv)
 {
 	sync();
 
-	if(machine_shutdown())
+	if(machine_poweroff())
 	{
 		return 0;
 	}
 	else
 	{
-		printf(" The machine does not support 'shutdown'\r\n");
+		printf(" The machine does not support 'poweroff'\r\n");
 		return -1;
 	}
 }
 
-static struct command_t shutdown_cmd = {
-	.name		= "shutdown",
-	.func		= do_shutdown,
-	.desc		= "shutdown the target system\r\n",
-	.usage		= "shutdown\r\n",
-	.help		= "    shutdown ignores any command line parameters that may be present.\r\n"
+static struct command_t poweroff_cmd = {
+	.name		= "poweroff",
+	.func		= do_poweroff,
+	.desc		= "poweroff the target system\r\n",
+	.usage		= "poweroff\r\n",
+	.help		= "    poweroff ignores any command line parameters that may be present.\r\n"
 };
 
-static __init void shutdown_cmd_init(void)
+static __init void poweroff_cmd_init(void)
 {
-	if(command_register(&shutdown_cmd))
-		LOG("Register command 'shutdown'");
+	if(command_register(&poweroff_cmd))
+		LOG("Register command 'poweroff'");
 	else
-		LOG("Failed to register command 'shutdown'");
+		LOG("Failed to register command 'poweroff'");
 }
 
-static __exit void shutdown_cmd_exit(void)
+static __exit void poweroff_cmd_exit(void)
 {
-	if(command_unregister(&shutdown_cmd))
-		LOG("Unegister command 'shutdown'");
+	if(command_unregister(&poweroff_cmd))
+		LOG("Unegister command 'poweroff'");
 	else
-		LOG("Failed to unregister command 'shutdown'");
+		LOG("Failed to unregister command 'poweroff'");
 }
 
-command_initcall(shutdown_cmd_init);
-command_exitcall(shutdown_cmd_exit);
+command_initcall(poweroff_cmd_init);
+command_exitcall(poweroff_cmd_exit);
 
 #endif

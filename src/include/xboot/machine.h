@@ -8,6 +8,7 @@ extern "C" {
 #include <xboot.h>
 
 struct machine_t {
+	struct kobj_t * kobj;
 	const char * name;
 	const char * desc;
 
@@ -17,19 +18,19 @@ struct machine_t {
 	} banks[16 + 1];
 
 	bool_t (*detect)(void);
-	bool_t (*powerup)(void);
-	bool_t (*shutdown)(void);
+	bool_t (*poweron)(void);
+	bool_t (*poweroff)(void);
 	bool_t (*reboot)(void);
 	bool_t (*sleep)(void);
 	bool_t (*cleanup)(void);
 	const char * (*uniqueid)(void);
 };
 
-struct machine_t * get_machine(void);
 bool_t register_machine(struct machine_t * mach);
 bool_t unregister_machine(struct machine_t * mach);
 
-bool_t machine_shutdown(void);
+struct machine_t * get_machine(void);
+bool_t machine_poweroff(void);
 bool_t machine_reboot(void);
 bool_t machine_sleep(void);
 bool_t machine_cleanup(void);

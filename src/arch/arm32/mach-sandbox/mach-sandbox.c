@@ -30,14 +30,14 @@ static bool_t mach_detect(void)
 	return TRUE;
 }
 
-static bool_t mach_powerup(void)
+static bool_t mach_poweron(void)
 {
-	return TRUE;
+	return (sandbox_pm_poweron() == 0) ? TRUE : FALSE;
 }
 
-static bool_t mach_shutdown(void)
+static bool_t mach_poweroff(void)
 {
-	return (sandbox_pm_shutdown() == 0) ? TRUE : FALSE;
+	return (sandbox_pm_poweroff() == 0) ? TRUE : FALSE;
 }
 
 static bool_t mach_reboot(void)
@@ -72,8 +72,8 @@ static struct machine_t sandbox = {
 	},
 
 	.detect 			= mach_detect,
-	.powerup			= mach_powerup,
-	.shutdown			= mach_shutdown,
+	.poweron			= mach_poweron,
+	.poweroff			= mach_poweroff,
 	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,

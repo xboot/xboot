@@ -14,3 +14,16 @@ LIBDIRS		:=
 LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
+
+ifeq ($(strip $(HOSTOS)), linux)
+MK4418		:= arch/$(ARCH)/$(MACH)/tools/linux/mk4418
+endif
+ifeq ($(strip $(HOSTOS)), windows)
+MK4418		:= arch/$(ARCH)/$(MACH)/tools/windows/mk4418
+endif
+NSIH		:= arch/$(ARCH)/$(MACH)/tools/image/nsih.txt
+SECBOOT		:= arch/$(ARCH)/$(MACH)/tools/image/2ndboot
+
+xend:
+	@echo Make header information for irom booting
+	@$(MK4418) $(X_NAME)pak.bin $(NSIH) $(SECBOOT) $(X_NAME).bin

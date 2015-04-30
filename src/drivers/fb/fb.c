@@ -80,7 +80,6 @@ struct fb_t * search_first_framebuffer(void)
 bool_t register_framebuffer(struct fb_t * fb)
 {
 	struct device_t * dev;
-	int brightness = 0;
 
 	if(!fb || !fb->name)
 		return FALSE;
@@ -113,8 +112,8 @@ bool_t register_framebuffer(struct fb_t * fb)
 	if(fb->present)
 		fb->present(fb, fb->alone);
 
-	if(fb->ioctl)
-		fb->ioctl(fb, IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS, &brightness);
+	if(fb->setbl)
+		fb->setbl(fb, 0);
 
 	return TRUE;
 }
@@ -135,8 +134,8 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	driver = (struct fb_t *)(dev->driver);
 	if(driver)
 	{
-		if(fb->ioctl)
-			fb->ioctl(fb, IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS, &brightness);
+		if(fb->setbl)
+			fb->setbl(fb, 0);
 
 		if(driver->exit)
 			(driver->exit)(driver);
@@ -154,21 +153,19 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 
 void framebuffer_set_backlight_brightness(struct fb_t * fb, int brightness)
 {
-	if(fb && fb->ioctl)
+	if(fb && fb->setbl)
 	{
 		if(brightness < 0)
 			brightness = 0;
 		else if(brightness > CONFIG_MAX_BRIGHTNESS)
 			brightness = CONFIG_MAX_BRIGHTNESS;
-		fb->ioctl(fb, IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS, &brightness);
+		fb->setbl(fb, brightness);
 	}
 }
 
 int framebuffer_get_backlight_brightness(struct fb_t * fb)
 {
-	int brightness = 0;
-
-	if(fb && fb->ioctl)
-		fb->ioctl(fb, IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS, &brightness);
-	return brightness;
+	if(fb && fb->getbl)
+		return fb->getbl(fb);
+	return 0;
 }

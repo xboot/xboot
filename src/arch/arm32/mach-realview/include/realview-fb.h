@@ -61,8 +61,8 @@ struct realview_fb_data_t
 
 	/* backlight brightness */
 	int brightness;
-	void (*set_backlight)(struct realview_fb_data_t * dat, int brightness);
-	int (*get_backlight)(struct realview_fb_data_t * dat);
+	void (*setbl)(struct realview_fb_data_t * dat, int brightness);
+	int (*getbl)(struct realview_fb_data_t * dat);
 };
 
 #ifdef __cplusplus

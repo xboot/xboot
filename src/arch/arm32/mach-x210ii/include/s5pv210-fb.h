@@ -138,9 +138,9 @@ struct s5pv210_fb_data_t
 	/* backlight brightness */
 	int brightness;
 	/* set backlight brightness */
-	void (*set_backlight)(struct s5pv210_fb_data_t * dat, int brightness);
+	void (*setbl)(struct s5pv210_fb_data_t * dat, int brightness);
 	/* get backlight brightness */
-	int (*get_backlight)(struct s5pv210_fb_data_t * dat);
+	int (*getbl)(struct s5pv210_fb_data_t * dat);
 };
 
 #endif /* __S5PV210_FB_H__ */

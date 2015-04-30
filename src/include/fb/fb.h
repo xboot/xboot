@@ -12,25 +12,19 @@ extern "C" {
 #include <fb/render.h>
 #include <fb/sw/sw.h>
 
-enum {
-	IOCTL_FB_GET_SCREEN_INFORMATION		= 0x00,
-
-	IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS	= 0x01,
-	IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS	= 0x02,
-};
-
-struct screen_info_t {
-	int width;
-	int height;
-	int xdpi;
-	int ydpi;
-	int bpp;
-};
-
 struct fb_t
 {
 	/* Framebuffer name */
 	char * name;
+
+	/* The width and height in pixel */
+	int width, height;
+
+	/* The dots per inch */
+	int xdpi, ydpi;
+
+	/* The bit per pixel */
+	int bpp;
 
 	/* Initialize the framebuffer */
 	void (*init)(struct fb_t * fb);
@@ -38,8 +32,11 @@ struct fb_t
 	/* Clean up the framebuffer */
 	void (*exit)(struct fb_t * fb);
 
-	/* Ioctl interface */
-	int (*ioctl)(struct fb_t * fb, int cmd, void * arg);
+	/* Set backlight brightness */
+	void (*setbl)(struct fb_t * fb, int brightness);
+
+	/* Get backlight brightness */
+	int (*getbl)(struct fb_t * fb);
 
 	/* Create a render */
 	struct render_t * (*create)(struct fb_t * fb);

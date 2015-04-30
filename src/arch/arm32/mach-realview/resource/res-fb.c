@@ -33,7 +33,7 @@ static void lcd_exit(struct realview_fb_data_t * dat)
 {
 }
 
-static void lcd_set_backlight(struct realview_fb_data_t * dat, int brightness)
+static void lcd_setbl(struct realview_fb_data_t * dat, int brightness)
 {
 	dat->brightness = brightness;
 	if(dat->brightness)
@@ -44,7 +44,7 @@ static void lcd_set_backlight(struct realview_fb_data_t * dat, int brightness)
 	}
 }
 
-static int lcd_get_backlight(struct realview_fb_data_t * dat)
+static int lcd_getbl(struct realview_fb_data_t * dat)
 {
 	return dat->brightness;
 }
@@ -72,8 +72,8 @@ static struct realview_fb_data_t realview_fb_data = {
 	.exit				= lcd_exit,
 
 	.brightness			= 0,
-	.set_backlight		= lcd_set_backlight,
-	.get_backlight		= lcd_get_backlight,
+	.setbl				= lcd_setbl,
+	.getbl				= lcd_getbl,
 };
 
 static struct resource_t res_fb = {

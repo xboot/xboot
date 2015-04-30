@@ -139,9 +139,9 @@ struct exynos4412_fb_data_t
 	/* backlight brightness */
 	int brightness;
 	/* set backlight brightness */
-	void (*set_backlight)(struct exynos4412_fb_data_t * dat, int brightness);
+	void (*setbl)(struct exynos4412_fb_data_t * dat, int brightness);
 	/* get backlight brightness */
-	int (*get_backlight)(struct exynos4412_fb_data_t * dat);
+	int (*getbl)(struct exynos4412_fb_data_t * dat);
 };
 
 #endif /* __EXYNOS4412_FB_H__ */

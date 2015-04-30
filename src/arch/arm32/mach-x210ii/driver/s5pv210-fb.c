@@ -529,41 +529,21 @@ static void fb_exit(struct fb_t * fb)
 	clk_disable("dsys-hclk");
 }
 
-static int fb_ioctl(struct fb_t * fb, int cmd, void * arg)
+static void fb_setbl(struct fb_t * fb, int brightness)
 {
 	struct resource_t * res = (struct resource_t *)fb->priv;
 	struct s5pv210_fb_data_t * dat = (struct s5pv210_fb_data_t *)res->data;
-	struct screen_info_t * info;
-	int * brightness;
+	if(dat->setbl)
+		dat->setbl(dat, brightness);
+}
 
-	switch(cmd)
-	{
-	case IOCTL_FB_GET_SCREEN_INFORMATION:
-		info = (struct screen_info_t *)arg;
-		info->width = dat->width;
-		info->height = dat->height;
-		info->xdpi = dat->xdpi;
-		info->ydpi = dat->ydpi;
-		info->bpp = dat->bits_per_pixel;
-		return 0;
-
-	case IOCTL_FB_SET_BACKLIGHT_BRIGHTNESS:
-		brightness = (int *)arg;
-		if(dat->set_backlight)
-			dat->set_backlight(dat, *brightness);
-		return 0;
-
-	case IOCTL_FB_GET_BACKLIGHT_BRIGHTNESS:
-		brightness = (int *)arg;
-		if(dat->get_backlight)
-			*brightness = dat->get_backlight(dat);
-		return 0;
-
-	default:
-		break;
-	}
-
-	return -1;
+static int fb_getbl(struct fb_t * fb)
+{
+	struct resource_t * res = (struct resource_t *)fb->priv;
+	struct s5pv210_fb_data_t * dat = (struct s5pv210_fb_data_t *)res->data;
+	if(dat->getbl)
+		return dat->getbl(dat);
+	return 0;
 }
 
 struct render_t * fb_create(struct fb_t * fb)
@@ -637,6 +617,7 @@ static void fb_resume(struct fb_t * fb)
 
 static bool_t s5pv210_register_framebuffer(struct resource_t * res)
 {
+	struct s5pv210_fb_data_t * dat = (struct s5pv210_fb_data_t *)res->data;
 	struct fb_t * fb;
 	char name[64];
 
@@ -647,9 +628,15 @@ static bool_t s5pv210_register_framebuffer(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	fb->name = strdup(name);
+	fb->width = dat->width;
+	fb->height = dat->height;
+	fb->xdpi = dat->xdpi;
+	fb->ydpi = dat->ydpi;
+	fb->bpp = dat->bits_per_pixel;
 	fb->init = fb_init,
 	fb->exit = fb_exit,
-	fb->ioctl = fb_ioctl,
+	fb->setbl = fb_setbl,
+	fb->getbl = fb_getbl,
 	fb->create = fb_create,
 	fb->destroy = fb_destroy,
 	fb->present = fb_present,

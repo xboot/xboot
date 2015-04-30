@@ -82,19 +82,16 @@ static int m_display_gc(lua_State * L)
 static int m_display_info(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct screen_info_t info;
-	if(display->fb->ioctl)
-		display->fb->ioctl(display->fb, IOCTL_FB_GET_SCREEN_INFORMATION, &info);
 	lua_newtable(L);
-	lua_pushnumber(L, info.width);
+	lua_pushnumber(L, display->fb->width);
 	lua_setfield(L, -2, "width");
-	lua_pushnumber(L, info.height);
+	lua_pushnumber(L, display->fb->height);
 	lua_setfield(L, -2, "height");
-	lua_pushnumber(L, info.xdpi);
+	lua_pushnumber(L, display->fb->xdpi);
 	lua_setfield(L, -2, "xdpi");
-	lua_pushnumber(L, info.ydpi);
+	lua_pushnumber(L, display->fb->ydpi);
 	lua_setfield(L, -2, "ydpi");
-	lua_pushnumber(L, info.bpp);
+	lua_pushnumber(L, display->fb->bpp);
 	lua_setfield(L, -2, "bpp");
 	return 1;
 }

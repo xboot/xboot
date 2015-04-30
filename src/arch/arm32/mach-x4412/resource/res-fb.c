@@ -60,7 +60,7 @@ static void lcd_exit(struct exynos4412_fb_data_t * dat)
 	gpio_direction_output(EXYNOS4412_GPX3(5), 0);
 }
 
-static void lcd_set_backlight(struct exynos4412_fb_data_t * dat, int brightness)
+static void lcd_setbl(struct exynos4412_fb_data_t * dat, int brightness)
 {
 	dat->brightness = brightness;
 	if(dat->brightness)
@@ -75,7 +75,7 @@ static void lcd_set_backlight(struct exynos4412_fb_data_t * dat, int brightness)
 	}
 }
 
-static int lcd_get_backlight(struct exynos4412_fb_data_t * dat)
+static int lcd_getbl(struct exynos4412_fb_data_t * dat)
 {
 	return dat->brightness;
 }
@@ -121,8 +121,8 @@ static struct exynos4412_fb_data_t exynos4412_fb_data = {
 	.exit				= lcd_exit,
 
 	.brightness			= 0,
-	.set_backlight		= lcd_set_backlight,
-	.get_backlight		= lcd_get_backlight,
+	.setbl				= lcd_setbl,
+	.getbl				= lcd_getbl,
 };
 
 static struct resource_t res_fb = {

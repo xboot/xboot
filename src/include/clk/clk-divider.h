@@ -15,7 +15,7 @@ enum clk_divider_type_t {
 struct clk_divider_t {
 	const char * name;
 	const char * parent;
-	virtual_addr_t reg;
+	physical_addr_t reg;
 	enum clk_divider_type_t type;
 	int shift;
 	int width;

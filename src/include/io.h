@@ -7,42 +7,42 @@ extern "C" {
 
 #include <types.h>
 
-static inline u8_t __read8(ptrdiff_t addr)
+static inline u8_t __read8(physical_addr_t addr)
 {
 	return( *((volatile u8_t *)(addr)) );
 }
 
-static inline u16_t __read16(ptrdiff_t addr)
+static inline u16_t __read16(physical_addr_t addr)
 {
 	return( *((volatile u16_t *)(addr)) );
 }
 
-static inline u32_t __read32(ptrdiff_t addr)
+static inline u32_t __read32(physical_addr_t addr)
 {
 	return( *((volatile u32_t *)(addr)) );
 }
 
-static inline u64_t __read64(ptrdiff_t addr)
+static inline u64_t __read64(physical_addr_t addr)
 {
 	return( *((volatile u64_t *)(addr)) );
 }
 
-static inline void __write8(ptrdiff_t addr, u8_t value)
+static inline void __write8(physical_addr_t addr, u8_t value)
 {
 	*((volatile u8_t *)(addr)) = value;
 }
 
-static inline void __write16(ptrdiff_t addr, u16_t value)
+static inline void __write16(physical_addr_t addr, u16_t value)
 {
 	*((volatile u16_t *)(addr)) = value;
 }
 
-static inline void __write32(ptrdiff_t addr, u32_t value)
+static inline void __write32(physical_addr_t addr, u32_t value)
 {
 	*((volatile u32_t *)(addr)) = value;
 }
 
-static inline void __write64(ptrdiff_t addr, u64_t value)
+static inline void __write64(physical_addr_t addr, u64_t value)
 {
 	*((volatile u64_t *)(addr)) = value;
 }

@@ -10,7 +10,7 @@ extern "C" {
 struct clk_gate_t {
 	const char * name;
 	const char * parent;
-	virtual_addr_t reg;
+	physical_addr_t reg;
 	int shift;
 	int invert;
 };

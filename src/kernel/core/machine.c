@@ -62,6 +62,24 @@ static ssize_t machine_read_description(struct kobj_t * kobj, void * buf, size_t
 	return sprintf(buf, "%s", mach->desc);
 }
 
+static ssize_t machine_read_banks(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct machine_t * mach = (struct machine_t *)kobj->priv;
+	char * p = buf;
+	int i, len = 0;
+	u64_t from, to;
+
+	for(i = 0; i < ARRAY_SIZE(mach->banks); i++)
+	{
+		if( (mach->banks[i].start == 0) && (mach->banks[i].size == 0) )
+			break;
+		from = mach->banks[i].start;
+		to = mach->banks[i].start + mach->banks[i].size - 1;
+		len += sprintf((char *)(p + len), " bank%d: 0x%016Lx - 0x%016Lx\r\n", i, from, to);
+	}
+	return len;
+}
+
 static ssize_t machine_read_uniqueid(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct machine_t * mach = (struct machine_t *)kobj->priv;
@@ -100,6 +118,7 @@ bool_t register_machine(struct machine_t * mach)
 
 	mach->kobj = kobj_alloc_directory(mach->name);
 	kobj_add_regular(mach->kobj, "description", machine_read_description, NULL, mach);
+	kobj_add_regular(mach->kobj, "banks", machine_read_banks, NULL, mach);
 	kobj_add_regular(mach->kobj, "uniqueid", machine_read_uniqueid, NULL, mach);
 	kobj_add(search_class_machine_kobj(), mach->kobj);
 	ml->mach = mach;

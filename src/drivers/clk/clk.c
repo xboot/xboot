@@ -48,28 +48,36 @@ static struct kobj_t * search_class_clk_kobj(void)
 static const char * clk_type_to_string(const char * name)
 {
 	struct clk_t * clk = clk_search(name);
+	char * type = "unkown";
 
 	if(!clk)
-		return "unkown";
+		return type;
 
 	switch(clk->type)
 	{
 	case CLK_TYPE_FIXED:
-		return "fixed";
+		type = "fixed";
+		break;
 	case CLK_TYPE_FIXED_FACTOR:
-		return "fixed-factor";
+		type = "fixed-factor";
+		break;
 	case CLK_TYPE_PLL:
-		return "pll";
+		type = "pll";
+		break;
 	case CLK_TYPE_MUX:
-		return "mux";
+		type = "mux";
+		break;
 	case CLK_TYPE_DIVIDER:
-		return "divider";
+		type = "divider";
+		break;
 	case CLK_TYPE_GATE:
-		return "gate";
+		type = "gate";
+		break;
 	default:
 		break;
 	}
-	return "unkown";
+
+	return type;
 }
 
 static ssize_t clk_read_dump(struct kobj_t * kobj, void * buf, size_t size)

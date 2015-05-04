@@ -1,7 +1,7 @@
 #ifndef __ARM32_CP15_H__
 #define __ARM32_CP15_H__
 
-#include <xboot.h>
+#include <types.h>
 
 #ifdef __cplusplus
 extern "C" {

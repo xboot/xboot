@@ -2,6 +2,9 @@
  * mmu.c
  */
 
+#include <xboot.h>
+#include <cp15.h>
+#include <cache.h>
 #include <mmu.h>
 
 #define PAGE_SIZE			(4096)

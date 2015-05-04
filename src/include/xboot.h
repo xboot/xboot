@@ -11,6 +11,7 @@ extern "C" {
 #include <barrier.h>
 #include <irqflags.h>
 #include <spinlock.h>
+#include <mmu.h>
 #include <types.h>
 #include <sizes.h>
 #include <limits.h>

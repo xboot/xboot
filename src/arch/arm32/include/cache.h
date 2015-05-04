@@ -1,8 +1,6 @@
 #ifndef __ARM32_CACHE_H__
 #define __ARM32_CACHE_H__
 
-#include <xboot.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

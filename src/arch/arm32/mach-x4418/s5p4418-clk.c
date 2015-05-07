@@ -26,6 +26,15 @@
 #include <s5p4418/reg-sys.h>
 
 /*
+ * [CORE CLK]
+ * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-FCLKCPU0 --> DIV-FCLKCPU0 --> DIV-HCLKCPU0
+ * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-BCLK --> DIV-BCLK --> DIV-PCLK
+ * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-MDCLK --> DIV-MDCLK --> DIV-MCLK --> DIV-MBCLK --> DIV-MPCLK
+ * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-GR3DBCLK --> DIV-GR3DBCLK --> DIV-GR3DPCLK
+ * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-MPEGBCLK --> DIV-MPEGBCLK --> DIV-MPEGPCLK
+ */
+
+/*
  * CORE CLK
  */
 static struct clk_fixed_t core_fixed_clks[] = {
@@ -135,12 +144,134 @@ static struct clk_pll_t core_pll_clks[] = {
 	},
 };
 
-static struct clk_mux_t core_mux_clks[] = {
+static struct clk_mux_table_t pll_mux_tables[] = {
+	{ .name = "PLL0",	.val = 0 },
+	{ .name = "PLL1",	.val = 1 },
+	{ .name = "PLL2",	.val = 2 },
+	{ .name = "PLL3",	.val = 3 },
+	{ 0, 0 },
+};
 
+static struct clk_mux_t core_mux_clks[] = {
+	{
+		.name = "MUX-FCLKCPU0",
+		.parent = pll_mux_tables,
+		.reg = S5P4418_SYS_CLKDIVREG0,
+		.shift = 0,
+		.width = 3,
+	}, {
+		.name = "MUX-BCLK",
+		.parent = pll_mux_tables,
+		.reg = S5P4418_SYS_CLKDIVREG1,
+		.shift = 0,
+		.width = 3,
+	}, {
+		.name = "MUX-MDCLK",
+		.parent = pll_mux_tables,
+		.reg = S5P4418_SYS_CLKDIVREG2,
+		.shift = 0,
+		.width = 3,
+	}, {
+		.name = "MUX-GR3DBCLK",
+		.parent = pll_mux_tables,
+		.reg = S5P4418_SYS_CLKDIVREG3,
+		.shift = 0,
+		.width = 3,
+	}, {
+		.name = "MUX-MPEGBCLK",
+		.parent = pll_mux_tables,
+		.reg = S5P4418_SYS_CLKDIVREG4,
+		.shift = 0,
+		.width = 3,
+	}
 };
 
 static struct clk_divider_t core_div_clks[] = {
-
+	{
+		.name = "DIV-FCLKCPU0",
+		.parent = "MUX-FCLKCPU0",
+		.reg = S5P4418_SYS_CLKDIVREG0,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 3,
+		.width = 6,
+	}, {
+		.name = "DIV-HCLKCPU0",
+		.parent = "DIV-FCLKCPU0",
+		.reg = S5P4418_SYS_CLKDIVREG0,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 9,
+		.width = 6,
+	}, {
+		.name = "DIV-BCLK",
+		.parent = "MUX-BCLK",
+		.reg = S5P4418_SYS_CLKDIVREG1,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 3,
+		.width = 6,
+	}, {
+		.name = "DIV-PCLK",
+		.parent = "DIV-BCLK",
+		.reg = S5P4418_SYS_CLKDIVREG1,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 9,
+		.width = 6,
+	}, {
+		.name = "DIV-MDCLK",
+		.parent = "MUX-MDCLK",
+		.reg = S5P4418_SYS_CLKDIVREG2,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 3,
+		.width = 6,
+	}, {
+		.name = "DIV-MCLK",
+		.parent = "DIV-MDCLK",
+		.reg = S5P4418_SYS_CLKDIVREG2,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 9,
+		.width = 6,
+	}, {
+		.name = "DIV-MBCLK",
+		.parent = "DIV-MCLK",
+		.reg = S5P4418_SYS_CLKDIVREG2,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 15,
+		.width = 6,
+	}, {
+		.name = "DIV-MPCLK",
+		.parent = "DIV-MBCLK",
+		.reg = S5P4418_SYS_CLKDIVREG2,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 21,
+		.width = 6,
+	}, {
+		.name = "DIV-GR3DBCLK",
+		.parent = "MUX-GR3DBCLK",
+		.reg = S5P4418_SYS_CLKDIVREG3,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 3,
+		.width = 6,
+	}, {
+		.name = "DIV-GR3DPCLK",
+		.parent = "DIV-GR3DBCLK",
+		.reg = S5P4418_SYS_CLKDIVREG3,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 9,
+		.width = 6,
+	}, {
+		.name = "DIV-MPEGBCLK",
+		.parent = "MUX-MPEGBCLK",
+		.reg = S5P4418_SYS_CLKDIVREG4,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 3,
+		.width = 6,
+	}, {
+		.name = "DIV-MPEGPCLK",
+		.parent = "DIV-MPEGBCLK",
+		.reg = S5P4418_SYS_CLKDIVREG4,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 9,
+		.width = 6,
+	}
 };
 
 static struct clk_gate_t core_gate_clks[] = {

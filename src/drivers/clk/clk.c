@@ -73,6 +73,9 @@ static const char * clk_type_to_string(const char * name)
 	case CLK_TYPE_GATE:
 		type = "gate";
 		break;
+	case CLK_TYPE_LINK:
+		type = "link";
+		break;
 	default:
 		break;
 	}

@@ -12,6 +12,7 @@ extern "C" {
 #include <clk/clk-divider.h>
 #include <clk/clk-mux.h>
 #include <clk/clk-pll.h>
+#include <clk/clk-link.h>
 
 enum clk_type_t {
 	CLK_TYPE_FIXED,
@@ -20,6 +21,7 @@ enum clk_type_t {
 	CLK_TYPE_MUX,
 	CLK_TYPE_DIVIDER,
 	CLK_TYPE_GATE,
+	CLK_TYPE_LINK,
 };
 
 struct clk_t

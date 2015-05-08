@@ -122,7 +122,6 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 {
 	struct device_t * dev;
 	struct fb_t * driver;
-	int brightness = 0;
 
 	if(!fb || !fb->name)
 		return FALSE;

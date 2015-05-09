@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <s5p4418/reg-sys.h>
+#include <s5p4418/reg-clk.h>
 
 /*
  * [CORE CLK]
@@ -32,6 +33,14 @@
  * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-MDCLK --> DIV-MDCLK --> DIV-MCLK --> DIV-MBCLK --> DIV-MPCLK
  * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-GR3DBCLK --> DIV-GR3DBCLK --> DIV-GR3DPCLK
  * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-MPEGBCLK --> DIV-MPEGBCLK --> DIV-MPEGPCLK
+ *
+ * [UART CLK]
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART0 --> DIV-UART0 --> GATE-UART0
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART1 --> DIV-UART1 --> GATE-UART1
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART2 --> DIV-UART2 --> GATE-UART2
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART3 --> DIV-UART3 --> GATE-UART3
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART4 --> DIV-UART4 --> GATE-UART4
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART5 --> DIV-UART5 --> GATE-UART5
  */
 
 /*
@@ -311,19 +320,182 @@ static void clk_unregister_core(void)
 }
 
 /*
- * DEFAULT ON/OFF CLKS
+ * UART CLK
  */
-static const char * default_off_clks[] = {
+static struct clk_mux_table_t uart_mux_tables[] = {
+	{ .name = "PLL0",	.val = 0 },
+	{ .name = "PLL1",	.val = 1 },
+	{ .name = "PLL2",	.val = 2 },
+	{ 0, 0 },
+};
 
+static struct clk_mux_t uart_mux_clks[] = {
+	{
+		.name = "MUX-UART0",
+		.parent = uart_mux_tables,
+		.reg = S5P4418_CLK_UART0CLKGEN0L,
+		.shift = 2,
+		.width = 3,
+	}, {
+		.name = "MUX-UART1",
+		.parent = uart_mux_tables,
+		.reg = S5P4418_CLK_UART1CLKGEN0L,
+		.shift = 2,
+		.width = 3,
+	}, {
+		.name = "MUX-UART2",
+		.parent = uart_mux_tables,
+		.reg = S5P4418_CLK_UART2CLKGEN0L,
+		.shift = 2,
+		.width = 3,
+	}, {
+		.name = "MUX-UART3",
+		.parent = uart_mux_tables,
+		.reg = S5P4418_CLK_UART3CLKGEN0L,
+		.shift = 2,
+		.width = 3,
+	}, {
+		.name = "MUX-UART4",
+		.parent = uart_mux_tables,
+		.reg = S5P4418_CLK_UART4CLKGEN0L,
+		.shift = 2,
+		.width = 3,
+	}, {
+		.name = "MUX-UART5",
+		.parent = uart_mux_tables,
+		.reg = S5P4418_CLK_UART5CLKGEN0L,
+		.shift = 2,
+		.width = 3,
+	}
+};
+
+static struct clk_divider_t uart_div_clks[] = {
+	{
+		.name = "DIV-UART0",
+		.parent = "MUX-UART0",
+		.reg = S5P4418_CLK_UART0CLKGEN0L,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 5,
+		.width = 8,
+	}, {
+		.name = "DIV-UART1",
+		.parent = "MUX-UART1",
+		.reg = S5P4418_CLK_UART1CLKGEN0L,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 5,
+		.width = 8,
+	}, {
+		.name = "DIV-UART2",
+		.parent = "MUX-UART2",
+		.reg = S5P4418_CLK_UART2CLKGEN0L,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 5,
+		.width = 8,
+	}, {
+		.name = "DIV-UART3",
+		.parent = "MUX-UART3",
+		.reg = S5P4418_CLK_UART3CLKGEN0L,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 5,
+		.width = 8,
+	}, {
+		.name = "DIV-UART4",
+		.parent = "MUX-UART4",
+		.reg = S5P4418_CLK_UART4CLKGEN0L,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 5,
+		.width = 8,
+	}, {
+		.name = "DIV-UART5",
+		.parent = "MUX-UART5",
+		.reg = S5P4418_CLK_UART5CLKGEN0L,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 5,
+		.width = 8,
+	}
+};
+
+static struct clk_gate_t uart_gate_clks[] = {
+	{
+		.name = "GATE-UART0",
+		.parent = "DIV-UART0",
+		.reg = S5P4418_CLK_UART0CLKENB,
+		.shift = 1,
+		.invert = 0,
+	}, {
+		.name = "GATE-UART1",
+		.parent = "DIV-UART1",
+		.reg = S5P4418_CLK_UART1CLKENB,
+		.shift = 1,
+		.invert = 0,
+	}, {
+		.name = "GATE-UART2",
+		.parent = "DIV-UART2",
+		.reg = S5P4418_CLK_UART2CLKENB,
+		.shift = 1,
+		.invert = 0,
+	}, {
+		.name = "GATE-UART3",
+		.parent = "DIV-UART3",
+		.reg = S5P4418_CLK_UART3CLKENB,
+		.shift = 1,
+		.invert = 0,
+	}, {
+		.name = "GATE-UART4",
+		.parent = "DIV-UART4",
+		.reg = S5P4418_CLK_UART4CLKENB,
+		.shift = 1,
+		.invert = 0,
+	}, {
+		.name = "GATE-UART5",
+		.parent = "DIV-UART5",
+		.reg = S5P4418_CLK_UART5CLKENB,
+		.shift = 1,
+		.invert = 0,
+	}
+};
+
+static void clk_register_uart(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(uart_mux_clks); i++)
+		clk_mux_register(&uart_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_div_clks); i++)
+		clk_divider_register(&uart_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_gate_clks); i++)
+		clk_gate_register(&uart_gate_clks[i]);
+}
+
+static void clk_unregister_uart(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(uart_mux_clks); i++)
+		clk_mux_unregister(&uart_mux_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_div_clks); i++)
+		clk_divider_unregister(&uart_div_clks[i]);
+	for(i = 0; i < ARRAY_SIZE(uart_gate_clks); i++)
+		clk_gate_unregister(&uart_gate_clks[i]);
+}
+
+static const char * default_off_clks[] = {
 };
 
 static const char * default_on_clks[] = {
-
 };
 
-static void default_clks_init(void)
+static __init void s5p4418_clk_init(void)
 {
 	int i;
+
+	clk_register_core();
+	clk_register_uart();
+
+	clk_set_rate("DIV-UART0", 11 * 1000 * 1000);
+	clk_set_rate("DIV-UART1", 11 * 1000 * 1000);
+	clk_set_rate("DIV-UART2", 11 * 1000 * 1000);
+	clk_set_rate("DIV-UART3", 11 * 1000 * 1000);
 
 	for(i = 0; i < ARRAY_SIZE(default_off_clks); i++)
 		clk_disable(default_off_clks[i]);
@@ -331,15 +503,10 @@ static void default_clks_init(void)
 		clk_enable(default_on_clks[i]);
 }
 
-static __init void s5p4418_clk_init(void)
-{
-	clk_register_core();
-	default_clks_init();
-}
-
 static __exit void s5p4418_clk_exit(void)
 {
 	clk_unregister_core();
+	clk_unregister_uart();
 }
 
 core_initcall(s5p4418_clk_init);

@@ -34,10 +34,6 @@ static bool_t s5p4418_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
 	u64_t uclk;
 
-	uclk = clk_get_rate("uclk");
-	if(!uclk)
-		return FALSE;
-
 	switch(baud)
 	{
 	case B50:
@@ -152,6 +148,24 @@ static bool_t s5p4418_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 		return -1;
 	}
 
+	switch(res->id)
+	{
+	case 0:
+		uclk = clk_get_rate("GATE-UART0");
+		break;
+	case 1:
+		uclk = clk_get_rate("GATE-UART1");
+		break;
+	case 2:
+		uclk = clk_get_rate("GATE-UART2");
+		break;
+	case 3:
+		uclk = clk_get_rate("GATE-UART3");
+		break;
+	default:
+		return FALSE;
+	}
+
 	/*
 	 * IBRD = UART_CLK / (16 * BAUD_RATE)
 	 * FBRD = ROUND((64 * MOD(UART_CLK, (16 * BAUD_RATE))) / (16 * BAUD_RATE))
@@ -174,7 +188,43 @@ static void s5p4418_uart_init(struct uart_t * uart)
 	struct resource_t * res = (struct resource_t *)uart->priv;
 	struct s5p4418_uart_data_t * dat = (struct s5p4418_uart_data_t *)res->data;
 
-	clk_enable("uclk");
+	switch(res->id)
+	{
+	case 0:
+		clk_enable("GATE-UART0");
+		gpio_set_cfg(S5P4418_GPIOD(14), 0x1);
+		gpio_set_cfg(S5P4418_GPIOD(18), 0x1);
+		gpio_set_direction(S5P4418_GPIOD(14), GPIO_DIRECTION_INPUT);
+		gpio_set_direction(S5P4418_GPIOD(18), GPIO_DIRECTION_OUTPUT);
+		break;
+
+	case 1:
+		clk_enable("GATE-UART1");
+		gpio_set_cfg(S5P4418_GPIOD(15), 0x1);
+		gpio_set_cfg(S5P4418_GPIOD(19), 0x1);
+		gpio_set_direction(S5P4418_GPIOD(15), GPIO_DIRECTION_INPUT);
+		gpio_set_direction(S5P4418_GPIOD(19), GPIO_DIRECTION_OUTPUT);
+		break;
+
+	case 2:
+		clk_enable("GATE-UART2");
+		gpio_set_cfg(S5P4418_GPIOD(16), 0x1);
+		gpio_set_cfg(S5P4418_GPIOD(20), 0x1);
+		gpio_set_direction(S5P4418_GPIOD(16), GPIO_DIRECTION_INPUT);
+		gpio_set_direction(S5P4418_GPIOD(20), GPIO_DIRECTION_OUTPUT);
+		break;
+
+	case 3:
+		clk_enable("GATE-UART3");
+		gpio_set_cfg(S5P4418_GPIOD(17), 0x1);
+		gpio_set_cfg(S5P4418_GPIOD(21), 0x1);
+		gpio_set_direction(S5P4418_GPIOD(17), GPIO_DIRECTION_INPUT);
+		gpio_set_direction(S5P4418_GPIOD(21), GPIO_DIRECTION_OUTPUT);
+		break;
+
+	default:
+		break;
+	}
 
 	/* Disable everything */
 	write32(phys_to_virt(dat->regbase + S5P4418_UART_CR), 0x0);
@@ -188,7 +238,25 @@ static void s5p4418_uart_init(struct uart_t * uart)
 
 static void s5p4418_uart_exit(struct uart_t * uart)
 {
-	clk_disable("uclk");
+	struct resource_t * res = (struct resource_t *)uart->priv;
+
+	switch(res->id)
+	{
+	case 0:
+		clk_disable("GATE-UART0");
+		break;
+	case 1:
+		clk_disable("GATE-UART1");
+		break;
+	case 2:
+		clk_disable("GATE-UART2");
+		break;
+	case 3:
+		clk_disable("GATE-UART3");
+		break;
+	default:
+		break;
+	}
 }
 
 static ssize_t s5p4418_uart_read(struct uart_t * uart, u8_t * buf, size_t count)

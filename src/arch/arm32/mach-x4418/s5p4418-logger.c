@@ -40,8 +40,8 @@ static ssize_t logger_uart0_output(const char * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		while( (read8(phys_to_virt(S5P4418_UART0_BASE + S5P4418_UART_FR)) & S5P4418_UART_FR_TXFF) );
-		write8(phys_to_virt(S5P4418_UART0_BASE + S5P4418_UART_DATA), buf[i]);
+		while( (read8(phys_to_virt(S5P4418_UART0_BASE + UART_FR)) & UART_FR_TXFF) );
+		write8(phys_to_virt(S5P4418_UART0_BASE + UART_DATA), buf[i]);
 	}
 	return i;
 }

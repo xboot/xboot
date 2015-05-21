@@ -57,7 +57,7 @@ struct battery_t
 	void * priv;
 };
 
-struct battery_t * search_default_battery_with_name(const char * name);
+struct battery_t * search_battery(const char * name);
 bool_t register_battery(struct battery_t * bat);
 bool_t unregister_battery(struct battery_t * bat);
 bool_t battery_update(struct battery_t * bat, struct battery_info_t * info);

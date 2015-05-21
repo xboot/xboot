@@ -199,19 +199,15 @@ static ssize_t battery_read_level(struct kobj_t * kobj, void * buf, size_t size)
 	return sprintf(buf, "%d", 0);
 }
 
-struct battery_t * search_default_battery_with_name(const char * name)
+struct battery_t * search_battery(const char * name)
 {
 	struct device_t * dev;
 
 	dev = search_device_with_type(name, DEVICE_TYPE_BATTERY);
-	if(dev)
-		return (struct battery_t *)dev->driver;
+	if(!dev)
+		return NULL;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_BATTERY);
-	if(dev)
-		return (struct battery_t *)dev->driver;
-
-	return NULL;
+	return (struct battery_t *)dev->driver;
 }
 
 bool_t register_battery(struct battery_t * bat)

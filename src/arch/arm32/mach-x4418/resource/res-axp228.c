@@ -27,6 +27,26 @@
 static struct axp228_data_t axp228_data = {
 	.i2cbus		= "i2c-gpio.3",
 	.addr		= 0x34,
+
+	.dcdc1		= 3300,
+	.dcdc2		= 1100,
+	.dcdc3		= 1100,
+	.dcdc4		= 1500,
+	.dcdc5		= 1500,
+	.dc5ldo		= 1200,
+
+	.aldo1		= 3300,
+	.aldo2		= 1800,
+	.aldo3		= 1000,
+
+	.dldo1		= 3300,
+	.dldo2		= 1800,
+	.dldo3		= 700,
+	.dldo4		= 700,
+
+	.eldo1		= 1800,
+	.eldo2		= 3300,
+	.eldo3		= 700,
 };
 
 static struct resource_t res_axp228 = {

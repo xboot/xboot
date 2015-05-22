@@ -307,7 +307,7 @@ static int s5p4418_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 	if(offset >= chip->ngpio)
 		return 0;
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_OUT));
+	val = read32(phys_to_virt(dat->regbase + GPIO_PAD));
 	return !!(val & (1 << offset));
 }
 

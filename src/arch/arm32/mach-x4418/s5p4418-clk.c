@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <s5p4418/reg-sys.h>
+#include <s5p4418/reg-timer.h>
 #include <s5p4418/reg-clk.h>
 
 /*
@@ -53,6 +54,9 @@ static struct clk_fixed_t core_fixed_clks[] = {
 	}, {
 		.name = "RTCXTI",
 		.rate = 32768,
+	}, {
+		.name = "PCLK-UNKOWN",
+		.rate = 66 * 1000 * 1000,
 	}
 };
 
@@ -280,7 +284,21 @@ static struct clk_divider_t core_div_clks[] = {
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 9,
 		.width = 6,
-	}
+	}, {
+		.name = "DIV-PRESCALER0",
+		.parent = "PCLK-UNKOWN",
+		.reg = S5P4418_TCFG0,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 0,
+		.width = 8,
+	}, {
+		.name = "DIV-PRESCALER1",
+		.parent = "PCLK-UNKOWN",
+		.reg = S5P4418_TCFG0,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 8,
+		.width = 8,
+	},
 };
 
 static struct clk_gate_t core_gate_clks[] = {
@@ -492,6 +510,8 @@ static __init void s5p4418_clk_init(void)
 	clk_register_core();
 	clk_register_uart();
 
+	clk_set_rate("DIV-PRESCALER0", 50 * 1000 * 1000);
+	clk_set_rate("DIV-PRESCALER1", 50 * 1000 * 1000);
 	clk_set_rate("DIV-UART0", 11 * 1000 * 1000);
 	clk_set_rate("DIV-UART1", 11 * 1000 * 1000);
 	clk_set_rate("DIV-UART2", 11 * 1000 * 1000);

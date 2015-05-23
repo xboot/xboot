@@ -229,11 +229,48 @@ static enum gpio_drv_t s5p4418_gpiochip_get_drv(struct gpiochip_t * chip, int of
 
 static void s5p4418_gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
 {
+	struct s5p4418_gpiochip_data_t * dat = (struct s5p4418_gpiochip_data_t *)chip->priv;
+	u32_t val;
+
+	if(offset >= chip->ngpio)
+		return;
+
+	switch(rate)
+	{
+	case GPIO_RATE_SLOW:
+		val = read32(phys_to_virt(dat->regbase + GPIO_SLEW));
+		val |= 1 << offset;
+		write32(phys_to_virt(dat->regbase + GPIO_SLEW), val);
+		break;
+
+	case GPIO_RATE_FAST:
+		val = read32(phys_to_virt(dat->regbase + GPIO_SLEW));
+		val &= ~(1 << offset);
+		write32(phys_to_virt(dat->regbase + GPIO_SLEW), val);
+		break;
+
+	default:
+		break;
+	}
+
+	val = read32(phys_to_virt(dat->regbase + GPIO_SLEW_DISABLE_DEFAULT));
+	val |= 1 << offset;
+	write32(phys_to_virt(dat->regbase + GPIO_SLEW_DISABLE_DEFAULT), val);
 }
 
 static enum gpio_rate_t s5p4418_gpiochip_get_rate(struct gpiochip_t * chip, int offset)
 {
-	return GPIO_RATE_SLOW;
+	struct s5p4418_gpiochip_data_t * dat = (struct s5p4418_gpiochip_data_t *)chip->priv;
+	u32_t val;
+
+	if(offset >= chip->ngpio)
+		return GPIO_RATE_SLOW;
+
+	val = read32(phys_to_virt(dat->regbase + GPIO_SLEW));
+	if((val >> offset) & 0x1)
+		return GPIO_RATE_SLOW;
+	else
+		return GPIO_RATE_FAST;
 }
 
 static void s5p4418_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)

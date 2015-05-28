@@ -23,9 +23,11 @@
  */
 
 #include <xboot.h>
+#include <s5p4418-rstcon.h>
 #include <s5p4418/reg-sys.h>
-#include <s5p4418/reg-timer.h>
 #include <s5p4418/reg-clk.h>
+#include <s5p4418/reg-timer.h>
+#include <s5p4418/reg-pwm.h>
 
 /*
  * [CORE CLK]
@@ -35,6 +37,12 @@
  * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-GR3DBCLK --> DIV-GR3DBCLK --> DIV-GR3DPCLK
  * PLLXTI --> PLL0 | PLL1 | PLL2 | PLL3 --> MUX-MPEGBCLK --> DIV-MPEGBCLK --> DIV-MPEGPCLK
  *
+ * [TIMER / PWM CLK]
+ * DIV-PCLK --> DIV-TIMER-PRESCALER0
+ * DIV-PCLK --> DIV-TIMER-PRESCALER1
+ * DIV-PCLK --> DIV-PWM-PRESCALER0
+ * DIV-PCLK --> DIV-PWM-PRESCALER1
+ *
  * [UART CLK]
  * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART0 --> DIV-UART0 --> GATE-UART0
  * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART1 --> DIV-UART1 --> GATE-UART1
@@ -42,6 +50,7 @@
  * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART3 --> DIV-UART3 --> GATE-UART3
  * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART4 --> DIV-UART4 --> GATE-UART4
  * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART5 --> DIV-UART5 --> GATE-UART5
+ *
  */
 
 /*
@@ -54,9 +63,6 @@ static struct clk_fixed_t core_fixed_clks[] = {
 	}, {
 		.name = "RTCXTI",
 		.rate = 32768,
-	}, {
-		.name = "PCLK-UNKOWN",
-		.rate = 66 * 1000 * 1000,
 	}
 };
 
@@ -285,16 +291,30 @@ static struct clk_divider_t core_div_clks[] = {
 		.shift = 9,
 		.width = 6,
 	}, {
-		.name = "DIV-PRESCALER0",
-		.parent = "PCLK-UNKOWN",
-		.reg = S5P4418_TCFG0,
+		.name = "DIV-TIMER-PRESCALER0",
+		.parent = "DIV-PCLK",
+		.reg = S5P4418_TIMER_TCFG0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 0,
 		.width = 8,
 	}, {
-		.name = "DIV-PRESCALER1",
-		.parent = "PCLK-UNKOWN",
-		.reg = S5P4418_TCFG0,
+		.name = "DIV-TIMER-PRESCALER1",
+		.parent = "DIV-PCLK",
+		.reg = S5P4418_TIMER_TCFG0,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 8,
+		.width = 8,
+	}, {
+		.name = "DIV-PWM-PRESCALER0",
+		.parent = "DIV-PCLK",
+		.reg = S5P4418_PWM_TCFG0,
+		.type = CLK_DIVIDER_ONE_BASED,
+		.shift = 0,
+		.width = 8,
+	}, {
+		.name = "DIV-PWM-PRESCALER1",
+		.parent = "DIV-PCLK",
+		.reg = S5P4418_PWM_TCFG0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 8,
 		.width = 8,
@@ -507,11 +527,19 @@ static __init void s5p4418_clk_init(void)
 {
 	int i;
 
+	/*
+	 * Reset IP modules, for timer and pwm clock.
+	 */
+	s5p4418_ip_reset(RESET_ID_TIMER, 0);
+	s5p4418_ip_reset(RESET_ID_PWM, 0);
+
 	clk_register_core();
 	clk_register_uart();
 
-	clk_set_rate("DIV-PRESCALER0", 50 * 1000 * 1000);
-	clk_set_rate("DIV-PRESCALER1", 50 * 1000 * 1000);
+	clk_set_rate("DIV-TIMER-PRESCALER0", 50 * 1000 * 1000);
+	clk_set_rate("DIV-TIMER-PRESCALER1", 50 * 1000 * 1000);
+	clk_set_rate("DIV-PWM-PRESCALER0", 50 * 1000 * 1000);
+	clk_set_rate("DIV-PWM-PRESCALER1", 50 * 1000 * 1000);
 	clk_set_rate("DIV-UART0", 11 * 1000 * 1000);
 	clk_set_rate("DIV-UART1", 11 * 1000 * 1000);
 	clk_set_rate("DIV-UART2", 11 * 1000 * 1000);

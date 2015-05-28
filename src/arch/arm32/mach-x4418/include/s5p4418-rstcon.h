@@ -82,7 +82,7 @@ enum {
 	RESET_ID_VIP1			= 68,
 };
 
-void s5p4418_ip_reset(int id);
+void s5p4418_ip_reset(int id, int force);
 
 #ifdef __cplusplus
 }

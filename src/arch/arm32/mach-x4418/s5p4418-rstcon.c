@@ -45,9 +45,30 @@ static void s5p4418_ip_setrst(int id, int reset)
 	write32(phys_to_virt(addr), val);
 }
 
-void s5p4418_ip_reset(int id)
+static int s5p4418_ip_getrst(int id)
 {
-	s5p4418_ip_setrst(id, 0);
-	udelay(10);
-	s5p4418_ip_setrst(id, 1);
+	physical_addr_t addr = S5P4418_SYS_IP_RSTCON0;
+	u32_t val;
+
+	if(id < 32)
+		addr = S5P4418_SYS_IP_RSTCON0;
+	else if(id < 64)
+		addr = S5P4418_SYS_IP_RSTCON1;
+	else if(id < 96)
+		addr = S5P4418_SYS_IP_RSTCON2;
+	else
+		return 1;
+
+	val = read32(phys_to_virt(addr));
+	return (val >> (id & 0x1f)) & 0x1;
+}
+
+void s5p4418_ip_reset(int id, int force)
+{
+	if(force || !s5p4418_ip_getrst(id))
+	{
+		s5p4418_ip_setrst(id, 0);
+		udelay(10);
+		s5p4418_ip_setrst(id, 1);
+	}
 }

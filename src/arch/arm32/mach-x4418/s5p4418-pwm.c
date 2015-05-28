@@ -23,19 +23,22 @@
  */
 
 #include <pwm/pwm.h>
+#include <s5p4418-rstcon.h>
 #include <s5p4418/reg-gpio.h>
-#include <s5p4418/reg-timer.h>
+#include <s5p4418/reg-pwm.h>
 
-#define TCON_START(ch)				(0x1 << (4 * ch + 0))
-#define TCON_MANUALUPDATE(ch)		(0x1 << (4 * ch + 1))
-#define TCON_INVERT(ch)				(0x1 << (4 * ch + 2))
-#define TCON_AUTORELOAD(ch)			(0x1 << (4 * ch + 3))
+#define TCON_CHANNEL(ch)		(ch ? ch * 4 + 4 : 0)
+#define TCON_START(ch)			(0x1 << TCON_CHANNEL(ch))
+#define TCON_MANUALUPDATE(ch)	(0x2 << TCON_CHANNEL(ch))
+#define TCON_INVERT(ch)			(0x4 << TCON_CHANNEL(ch))
+#define TCON_AUTORELOAD(ch)		(0x8 << TCON_CHANNEL(ch))
 
 struct s5p4418_pwm_data_t
 {
 	const char * name;
 	int id;
 	int gpio;
+	int iocfg;
 	physical_addr_t regbase;
 };
 
@@ -44,24 +47,28 @@ static struct s5p4418_pwm_data_t pwm_datas[] = {
 		.name		= "pwm0",
 		.id			= 0,
 		.gpio		= S5P4418_GPIOD(1),
-		.regbase	= S5P4418_TIMER0_BASE,
+		.iocfg		= 0x1,
+		.regbase	= S5P4418_PWM0_BASE,
 	}, {
 		.name		= "pwm1",
 		.id			= 1,
 		.gpio		= S5P4418_GPIOC(13),
-		.regbase	= S5P4418_TIMER1_BASE,
+		.iocfg		= 0x2,
+		.regbase	= S5P4418_PWM1_BASE,
 	},
 	{
 		.name		= "pwm2",
 		.id			= 2,
 		.gpio		= S5P4418_GPIOC(14),
-		.regbase	= S5P4418_TIMER2_BASE,
+		.iocfg		= 0x2,
+		.regbase	= S5P4418_PWM2_BASE,
 	},
 	{
 		.name		= "pwm3",
 		.id			= 3,
 		.gpio		= S5P4418_GPIOD(0),
-		.regbase	= S5P4418_TIMER3_BASE,
+		.iocfg		= 0x2,
+		.regbase	= S5P4418_PWM3_BASE,
 	},
 };
 
@@ -72,9 +79,9 @@ static u64_t s5p4418_pwm_calc_tin(struct pwm_t * pwm, u32_t period)
 	u8_t div, shift;
 
 	if(dat->id < 2)
-		rate = clk_get_rate("DIV-PRESCALER0");
+		rate = clk_get_rate("DIV-PWM-PRESCALER0");
 	else
-		rate = clk_get_rate("DIV-PRESCALER1");
+		rate = clk_get_rate("DIV-PWM-PRESCALER1");
 
 	for(div = 0; div < 4; div++)
 	{
@@ -83,9 +90,9 @@ static u64_t s5p4418_pwm_calc_tin(struct pwm_t * pwm, u32_t period)
 	}
 
 	shift = dat->id * 4;
-	write32(S5P4418_TCFG1, (read32(S5P4418_TCFG1) & ~(0xf<<shift)) | (div<<shift));
+	write32(phys_to_virt(S5P4418_PWM_TCFG1), (read32(phys_to_virt(S5P4418_PWM_TCFG1)) & ~(0xf<<shift)) | (div<<shift));
 
-	return rate >> div;
+	return (rate >> div);
 }
 
 static void s5p4418_pwm_config(struct pwm_t * pwm, u32_t duty, u32_t period, bool_t polarity)
@@ -102,31 +109,31 @@ static void s5p4418_pwm_config(struct pwm_t * pwm, u32_t duty, u32_t period, boo
 		if(pwm->__duty != duty)
 		{
 			tcmp = rate * duty / 1000000000L;
-			write32(dat->regbase + S5P4418_TCMPB, tcmp);
+			write32(phys_to_virt(dat->regbase + PWM_TCMPB), tcmp);
 		}
 
 		if(pwm->__period != period)
 		{
 			tcnt = rate * period / 1000000000L;
-			write32(dat->regbase + S5P4418_TCNTB, tcnt);
+			write32(phys_to_virt(dat->regbase + PWM_TCNTB), tcnt);
 		}
 
-		tcon = read32(S5P4418_TCON);
+		tcon = read32(phys_to_virt(S5P4418_PWM_TCON));
 		tcon |= TCON_MANUALUPDATE(dat->id);
-		write32(S5P4418_TCON, tcon);
+		write32(phys_to_virt(S5P4418_PWM_TCON), tcon);
 
 		tcon &= ~TCON_MANUALUPDATE(dat->id);
-		write32(S5P4418_TCON, tcon);
+		write32(phys_to_virt(S5P4418_PWM_TCON), tcon);
 	}
 
 	if(pwm->__polarity != polarity)
 	{
-		tcon = read32(S5P4418_TCON);
+		tcon = read32(phys_to_virt(S5P4418_PWM_TCON));
 		if(polarity)
 			tcon |= TCON_INVERT(dat->id);
 		else
 			tcon &= ~TCON_INVERT(dat->id);
-		write32(S5P4418_TCON, tcon);
+		write32(phys_to_virt(S5P4418_PWM_TCON), tcon);
 	}
 }
 
@@ -135,25 +142,21 @@ static void s5p4418_pwm_enable(struct pwm_t * pwm)
 	struct s5p4418_pwm_data_t * dat = (struct s5p4418_pwm_data_t *)pwm->priv;
 	u32_t tcon;
 
-	if(dat->id == 0)
-		gpio_set_cfg(dat->gpio, 0x1);
-	else
-		gpio_set_cfg(dat->gpio, 0x2);
-	gpio_set_pull(dat->gpio, GPIO_PULL_UP);
-
+	gpio_set_cfg(dat->gpio, dat->iocfg);
 	if(dat->id < 2)
-		clk_enable("DIV-PRESCALER0");
+		clk_enable("DIV-PWM-PRESCALER0");
 	else
-		clk_enable("DIV-PRESCALER1");
+		clk_enable("DIV-PWM-PRESCALER1");
 
-	tcon = read32(S5P4418_TCON);
-	tcon &= ~TCON_START(dat->id);
+	tcon = read32(phys_to_virt(S5P4418_PWM_TCON));
+	tcon &= ~(TCON_AUTORELOAD(dat->id) | TCON_START(dat->id));
 	tcon |= TCON_MANUALUPDATE(dat->id);
-	write32(S5P4418_TCON, tcon);
+	write32(phys_to_virt(S5P4418_PWM_TCON), tcon);
 
+	tcon = read32(phys_to_virt(S5P4418_PWM_TCON));
 	tcon &= ~TCON_MANUALUPDATE(dat->id);
-	tcon |= TCON_START(dat->id) | TCON_AUTORELOAD(dat->id);
-	write32(S5P4418_TCON, tcon);
+	tcon |= TCON_AUTORELOAD(dat->id) | TCON_START(dat->id);
+	write32(phys_to_virt(S5P4418_PWM_TCON), tcon);
 }
 
 static void s5p4418_pwm_disable(struct pwm_t * pwm)
@@ -161,20 +164,22 @@ static void s5p4418_pwm_disable(struct pwm_t * pwm)
 	struct s5p4418_pwm_data_t * dat = (struct s5p4418_pwm_data_t *)pwm->priv;
 	u32_t tcon;
 
-	tcon = read32(S5P4418_TCON);
-	tcon &= ~TCON_AUTORELOAD(dat->id);
-	write32(S5P4418_TCON, tcon);
+	tcon = read32(phys_to_virt(S5P4418_PWM_TCON));
+	tcon &= ~(TCON_AUTORELOAD(dat->id) | TCON_START(dat->id));
+	write32(phys_to_virt(S5P4418_PWM_TCON), tcon);
 
 	if(dat->id < 2)
-		clk_disable("DIV-PRESCALER0");
+		clk_disable("DIV-PWM-PRESCALER0");
 	else
-		clk_disable("DIV-PRESCALER1");
+		clk_disable("DIV-PWM-PRESCALER1");
 }
 
 static __init void s5p4418_pwm_init(void)
 {
 	struct pwm_t * pwm;
 	int i;
+
+	s5p4418_ip_reset(RESET_ID_PWM, 0);
 
 	for(i = 0; i < ARRAY_SIZE(pwm_datas); i++)
 	{

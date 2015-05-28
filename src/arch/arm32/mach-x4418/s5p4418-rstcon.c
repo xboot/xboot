@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <s5p4418/reg-sys.h>
 #include <s5p4418-rstcon.h>
 
 static void s5p4418_ip_setrst(int id, int reset)

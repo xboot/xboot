@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-#include <s5p4418/reg-sys.h>
-
 enum {
 	RESET_ID_AC97			= 0,
 	RESET_ID_CPU1			= 1,

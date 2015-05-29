@@ -78,7 +78,7 @@ static u64_t exynos4412_pwm_calc_tin(struct pwm_t * pwm, u32_t period)
 
 	for(div = 0; div < 4; div++)
 	{
-		if((rate >> div) < freq)
+		if((rate >> div) <= freq)
 			break;
 	}
 

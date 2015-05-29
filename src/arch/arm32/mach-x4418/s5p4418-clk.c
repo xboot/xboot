@@ -536,10 +536,10 @@ static __init void s5p4418_clk_init(void)
 	clk_register_core();
 	clk_register_uart();
 
-	clk_set_rate("DIV-TIMER-PRESCALER0", 50 * 1000 * 1000);
-	clk_set_rate("DIV-TIMER-PRESCALER1", 50 * 1000 * 1000);
-	clk_set_rate("DIV-PWM-PRESCALER0", 50 * 1000 * 1000);
-	clk_set_rate("DIV-PWM-PRESCALER1", 50 * 1000 * 1000);
+	clk_set_rate("DIV-TIMER-PRESCALER0", 100 * 1000 * 1000);
+	clk_set_rate("DIV-TIMER-PRESCALER1", 100 * 1000 * 1000);
+	clk_set_rate("DIV-PWM-PRESCALER0", 100 * 1000 * 1000);
+	clk_set_rate("DIV-PWM-PRESCALER1", 100 * 1000 * 1000);
 	clk_set_rate("DIV-UART0", 11 * 1000 * 1000);
 	clk_set_rate("DIV-UART1", 11 * 1000 * 1000);
 	clk_set_rate("DIV-UART2", 11 * 1000 * 1000);

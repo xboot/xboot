@@ -1,5 +1,5 @@
 /*
- * s5p4418-cs.c
+ * s5p4418-tick.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,44 +23,47 @@
  */
 
 #include <xboot.h>
-#include <clocksource/clocksource.h>
 #include <s5p4418-timer.h>
 
-#define CS_TIMER_CHANNEL	(1)
+#define TICK_TIMER_CHANNEL		(0)
 
-static void s5p4418_cs_init(struct clocksource_t * cs)
+static void timer_interrupt(void * data)
+{
+	tick_interrupt();
+	s5p4418_timer_irq_clear(TICK_TIMER_CHANNEL);
+}
+
+static bool_t tick_timer_init(void)
 {
 	u64_t rate;
 
 	s5p4418_timer_reset();
 
+	if(!request_irq("TIMER0", timer_interrupt, NULL))
+	{
+		LOG("can't request irq 'TIMER0'");
+		return FALSE;
+	}
+
 	/* 40ns ~ 25MHZ */
-	rate = s5p4418_timer_calc_tin(CS_TIMER_CHANNEL, 40);
-	s5p4418_timer_stop(CS_TIMER_CHANNEL, 0);
-	s5p4418_timer_count(CS_TIMER_CHANNEL, 0xffffffff);
-	s5p4418_timer_start(CS_TIMER_CHANNEL, 0);
-	cs->mult = clocksource_hz2mult(rate, cs->shift);
+	rate = s5p4418_timer_calc_tin(TICK_TIMER_CHANNEL, 40);
+	s5p4418_timer_stop(TICK_TIMER_CHANNEL, 1);
+	s5p4418_timer_count(TICK_TIMER_CHANNEL, rate / 100);
+	s5p4418_timer_start(TICK_TIMER_CHANNEL, 1);
+
+	return TRUE;
 }
 
-static cycle_t s5p4418_cs_read(struct clocksource_t * cs)
-{
-	u32_t val = s5p4418_timer_read(CS_TIMER_CHANNEL);
-	return (cycle_t)(~val);
-}
-
-static struct clocksource_t s5p4418_cs = {
-	.name	= "s5p4418-cs",
-	.shift	= 20,
-	.mask	= CLOCKSOURCE_MASK(32),
-	.init	= s5p4418_cs_init,
-	.read	= s5p4418_cs_read,
+static struct tick_t s5p4418_tick = {
+	.hz		= 100,
+	.init	= tick_timer_init,
 };
 
-static __init void s5p4418_clocksource_init(void)
+static __init void s5p4418_tick_init(void)
 {
-	if(register_clocksource(&s5p4418_cs))
-		LOG("Register clocksource");
+	if(register_tick(&s5p4418_tick))
+		LOG("Register tick");
 	else
-		LOG("Failed to register clocksource");
+		LOG("Failed to register tick");
 }
-core_initcall(s5p4418_clocksource_init);
+core_initcall(s5p4418_tick_init);

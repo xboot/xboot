@@ -88,6 +88,10 @@ extern "C" {
 #define	CONFIG_COMMAND_FILERAM						(1)
 #endif
 
+#if !defined(CONFIG_COMMAND_GETEVENT)
+#define	CONFIG_COMMAND_GETEVENT						(1)
+#endif
+
 #if !defined(CONFIG_COMMAND_GO)
 #define	CONFIG_COMMAND_GO							(1)
 #endif

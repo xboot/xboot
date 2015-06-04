@@ -20,20 +20,6 @@
 #define MLC_INVCOLOR0				(0x034)
 #define MLC_ADDRESS0				(0x038)
 
-/* Just for primary */
-#define MLC_LEFTRIGHT1				(0x040)
-#define MLC_TOPBOTTOM1				(0x044)
-#define MLC_INVALIDLEFTRIGHT1_0		(0x048)
-#define MLC_INVALIDTOPBOTTOM1_0		(0x04c)
-#define MLC_INVALIDLEFTRIGHT1_1		(0x050)
-#define MLC_INVALIDTOPBOTTOM1_1		(0x054)
-#define MLC_CONTROL1				(0x058)
-#define MLC_HSTRIDE1				(0x05c)
-#define MLC_VSTRIDE1				(0x060)
-#define MLC_TPCOLOR1				(0x064)
-#define MLC_INVCOLOR1				(0x068)
-#define MLC_ADDRESS1				(0x06c)
-
 #define MLC_LEFTRIGHT2				(0x074)
 #define MLC_TOPBOTTOM2				(0x078)
 #define MLC_CONTROL2				(0x07c)
@@ -52,10 +38,20 @@
 #define MLC_CHENH1					(0x0b0)
 #define MLC_CHENH2					(0x0b4)
 #define MLC_CHENH3					(0x0b8)
-#define MLC_GAMMACONT				(0x0ec)
-#define MLC_RGAMMATABLEWRITE		(0x0f0)
-#define MLC_GGAMMATABLEWRITE		(0x0f4)
-#define MLC_BGAMMATABLEWRITE		(0x0f8)
 #define MLC_CLKENB					(0x3c0)
+
+/* Just for primary */
+#define MLC_LEFTRIGHT1				(0x040)
+#define MLC_TOPBOTTOM1				(0x044)
+#define MLC_INVALIDLEFTRIGHT1_0		(0x048)
+#define MLC_INVALIDTOPBOTTOM1_0		(0x04c)
+#define MLC_INVALIDLEFTRIGHT1_1		(0x050)
+#define MLC_INVALIDTOPBOTTOM1_1		(0x054)
+#define MLC_CONTROL1				(0x058)
+#define MLC_HSTRIDE1				(0x05c)
+#define MLC_VSTRIDE1				(0x060)
+#define MLC_TPCOLOR1				(0x064)
+#define MLC_INVCOLOR1				(0x068)
+#define MLC_ADDRESS1				(0x06c)
 
 #endif /* __S5P4418_REG_MLC_H__ */

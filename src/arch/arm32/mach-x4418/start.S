@@ -114,6 +114,36 @@ reset:
 	mov r0, #0x40000000
 	fmxr fpexc, r0
 
+	/* Cache init */
+	mrc	p15, 0, r0, c0, c0, 0		/* read main ID register */
+	and	r1, r0, #0x00f00000			/* variant */
+	and	r2, r0, #0x0000000f			/* revision */
+	orr	r2, r2, r1, lsr #20-4		/* combine variant and revision */
+	cmp	r2, #0x30
+	mrceq	p15, 0, r0, c1, c0, 1	/* read ACTLR */
+	orreq	r0, r0, #0x6			/* Enable DP1(2), DP2(1) */
+	mcreq	p15, 0, r0, c1, c0, 1	/* write ACTLR */
+
+	/* Invalidate L1 I/D */
+	mov	r0, #0						/* set up for MCR */
+	mcr	p15, 0, r0, c8, c7, 0		/* invalidate TLBs */
+	mcr	p15, 0, r0, c7, c5, 0		/* invalidate icache */
+
+	/* Disable mmu stuff and caches */
+	mrc	p15, 0, r0, c1, c0, 0
+	bic	r0, r0, #0x00002000			/* clear bits 13 (--v-) */
+	bic	r0, r0, #0x00000007			/* clear bits 2:0 (-cam) */
+	orr	r0, r0, #0x00000002			/* set bit 1 (--a-) align */
+	orr	r0, r0, #0x00000800			/* set bit 12 (z---) btb */
+	mcr	p15, 0, r0, c1, c0, 0
+
+	/* Set Vector Base Address Register */
+	ldr r0, =_start
+	mcr p15, 0, r0, c12, c0, 0
+	mrc p15, 0, r0, c1, c0, 0
+	bic r0, #(1<<13)
+	mcr p15, 0, r0, c1, c0, 0
+
 	/* initialize stacks */
 	bl	init_stacks
 

@@ -420,6 +420,9 @@ static __init void s5p4418_irq_init(void)
 {
 	int i;
 
+	/* VIC to core, pass through GIC */
+	write32(phys_to_virt(0xf0000100), 0);
+
 	/* Select irq mode */
 	write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTSELECT), 0x00000000);
 	write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTSELECT), 0x00000000);
@@ -448,16 +451,16 @@ static __init void s5p4418_irq_init(void)
 	write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_ADDRESS), 0x00000000);
 	write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_ADDRESS), 0x00000000);
 
-	for(i = 0; i< 32; i++)
-	{
-		write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_VECTADDR0 + 4 * i), (u32_t)irq);
-		write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_VECTADDR0 + 4 * i), (u32_t)irq);
-	}
-
-	for(i = 0; i< 32; i++)
+	for(i = 0; i < 32; i++)
 	{
 		write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_VECPRIORITY0 + 4 * i), 0xf);
 		write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_VECPRIORITY0 + 4 * i), 0xf);
+	}
+
+	for(i = 0; i < 32; i++)
+	{
+		write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_VECTADDR0 + 4 * i), (u32_t)irq);
+		write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_VECTADDR0 + 4 * i), (u32_t)irq);
 	}
 
 	for(i = 0; i < ARRAY_SIZE(s5p4418_irqs); i++)

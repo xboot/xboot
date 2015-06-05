@@ -1,0 +1,14 @@
+#ifndef __S5P4418_REG_DPA_H__
+#define __S5P4418_REG_DPA_H__
+
+#define S5P4418_DPA_BASE		(0x00000000)
+
+#define DPA_HDMI_MUXCTRL		(0x1004)
+#define DPA_LVDS_MUXCTRL		(0x100c)
+#define DPA_HDMI_SYNCCTRL0		(0x1014)
+#define DPA_HDMI_SYNCCTRL1		(0x1018)
+#define DPA_HDMI_SYNCCTRL2		(0x101c)
+#define DPA_HDMI_SYNCCTRL3		(0x1020)
+#define DPA_TFT_MUXCTRL			(0x1024)
+
+#endif /* __S5P4418_REG_DPA_H__ */

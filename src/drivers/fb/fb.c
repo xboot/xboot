@@ -55,6 +55,59 @@ static void fb_resume(struct device_t * dev)
 		fb->resume(fb);
 }
 
+static ssize_t fb_read_width(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct fb_t * fb = (struct fb_t *)kobj->priv;
+	return sprintf(buf, "%u", fb->width);
+}
+
+static ssize_t fb_read_height(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct fb_t * fb = (struct fb_t *)kobj->priv;
+	return sprintf(buf, "%u", fb->height);
+}
+
+static ssize_t fb_read_xdpi(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct fb_t * fb = (struct fb_t *)kobj->priv;
+	return sprintf(buf, "%u", fb->xdpi);
+}
+
+static ssize_t fb_read_ydpi(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct fb_t * fb = (struct fb_t *)kobj->priv;
+	return sprintf(buf, "%u", fb->ydpi);
+}
+
+static ssize_t fb_read_bpp(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct fb_t * fb = (struct fb_t *)kobj->priv;
+	return sprintf(buf, "%u", fb->bpp);
+}
+
+static ssize_t fb_read_brightness(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct fb_t * fb = (struct fb_t *)kobj->priv;
+	int brightness;
+
+	brightness = framebuffer_get_backlight_brightness(fb);
+	return sprintf(buf, "%d", brightness);
+}
+
+static ssize_t fb_write_brightness(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct fb_t * fb = (struct fb_t *)kobj->priv;
+	int brightness = strtol(buf, NULL, 0);
+
+	framebuffer_set_backlight_brightness(fb, brightness);
+	return size;
+}
+
+static ssize_t fb_read_max_brightness(struct kobj_t * kobj, void * buf, size_t size)
+{
+	return sprintf(buf, "%u", CONFIG_MAX_BRIGHTNESS);
+}
+
 struct fb_t * search_framebuffer(const char * name)
 {
 	struct device_t * dev;
@@ -94,6 +147,13 @@ bool_t register_framebuffer(struct fb_t * fb)
 	dev->resume = fb_resume;
 	dev->driver = fb;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "width", fb_read_width, NULL, fb);
+	kobj_add_regular(dev->kobj, "height", fb_read_height, NULL, fb);
+	kobj_add_regular(dev->kobj, "xdpi", fb_read_xdpi, NULL, fb);
+	kobj_add_regular(dev->kobj, "ydpi", fb_read_ydpi, NULL, fb);
+	kobj_add_regular(dev->kobj, "bpp", fb_read_bpp, NULL, fb);
+	kobj_add_regular(dev->kobj, "brightness", fb_read_brightness, fb_write_brightness, fb);
+	kobj_add_regular(dev->kobj, "max_brightness", fb_read_max_brightness, NULL, fb);
 
 	if(!register_device(dev))
 	{

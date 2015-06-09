@@ -162,6 +162,9 @@ bool_t free_irq(const char * name)
 	if(!irq)
 		return FALSE;
 
+	if(irq->handler->func == null_interrupt_function)
+		return FALSE;
+
 	irq->handler->func = null_interrupt_function;
 	irq->handler->data = NULL;
 	if(irq->disable)

@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <cp15.h>
+#include <s5p4418/reg-gpio.h>
 #include <s5p4418/reg-vic.h>
 
 /*
@@ -38,6 +39,11 @@ struct pt_regs_t {
 };
 
 static struct irq_handler_t s5p4418_irq_handler[64];
+static struct irq_handler_t s5p4418_irq_handler_gpioa[32];
+static struct irq_handler_t s5p4418_irq_handler_gpiob[32];
+static struct irq_handler_t s5p4418_irq_handler_gpioc[32];
+static struct irq_handler_t s5p4418_irq_handler_gpiod[32];
+static struct irq_handler_t s5p4418_irq_handler_gpioe[32];
 
 static u32_t irq_offset(u32_t x)
 {
@@ -50,6 +56,34 @@ static u32_t irq_offset(u32_t x)
 	index = (index & 0xff) + ((index & 0xff00) >> 8) + ((index & 0xff0000) >> 16) + ((index & 0xff000000) >> 24);
 
 	return (index);
+}
+
+static void s5p4418_irq_handler_func_gpioa(void * data)
+{
+	u32_t det;
+	u32_t offset;
+
+	det = read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DET));
+	if(det != 0)
+	{
+		offset = irq_offset(det);
+		(s5p4418_irq_handler_gpioa[offset].func)(s5p4418_irq_handler_gpioa[offset].data);
+		write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DET), (0x1 << offset));
+	}
+}
+
+static void s5p4418_irq_handler_func_gpiob(void * data)
+{
+	u32_t det;
+	u32_t offset;
+
+	det = read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DET));
+	if(det != 0)
+	{
+		offset = irq_offset(det);
+		(s5p4418_irq_handler_gpiob[offset].func)(s5p4418_irq_handler_gpiob[offset].data);
+		write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DET), (0x1 << offset));
+	}
 }
 
 void do_irqs(struct pt_regs_t * regs)
@@ -70,7 +104,7 @@ void do_irqs(struct pt_regs_t * regs)
 		(s5p4418_irq_handler[offset].func)(s5p4418_irq_handler[offset].data);
 
 		/* Clear software interrupt */
-		write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_SOFTINTCLEAR), 0x1<<offset);
+		write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_SOFTINTCLEAR), 0x1 << offset);
 
 		/* Set vic address to zero */
 		write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_ADDRESS), 0x00000000);
@@ -84,7 +118,7 @@ void do_irqs(struct pt_regs_t * regs)
 		(s5p4418_irq_handler[offset + 32].func)(s5p4418_irq_handler[offset + 32].data);
 
 		/* Clear software interrupt */
-		write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_SOFTINTCLEAR), 0x1<<(offset-32));
+		write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_SOFTINTCLEAR), 0x1 << (offset-32));
 
 		/* Set all vic address to zero */
 		write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_ADDRESS), 0x00000000);
@@ -101,318 +135,558 @@ void do_irqs(struct pt_regs_t * regs)
 	}
 }
 
-static void enable_irqs(struct irq_t * irq, bool_t enable)
+static void s5p4418_irq_enable(struct irq_t * irq)
 {
-	u32_t irq_no = irq->irq_no;
+	u32_t no = irq->no;
 
-	if(irq_no < 32)
+	/* VIC0 */
+	if(no < 32)
 	{
-		if(enable)
-			write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENABLE), (read32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENABLE)) | (0x1<<irq_no)));
-		else
-			write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENCLEAR), (read32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENCLEAR)) | (0x1<<irq_no)));
+		write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENABLE), (read32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENABLE)) | (0x1 << no)));
 	}
-	else if(irq_no < 64)
+	/* VIC1 */
+	else if(no < 64)
 	{
-		irq_no = irq_no - 32;
+		no = no - 32;
+		write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENABLE), (read32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENABLE)) | (0x1 << no)));
+	}
+	/* GPIOA */
+	else if(no < 96)
+	{
+		no = no - 64;
+		write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_INTENB)) | (0x1 << no)));
+	}
+	/* GPIOB */
+	else if(no < 128)
+	{
+		no = no - 96;
+		write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_INTENB)) | (0x1 << no)));
+	}
+	/* GPIOC */
+	else if(no < 160)
+	{
+		no = no - 128;
+		write32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_INTENB)) | (0x1 << no)));
+	}
+	/* GPIOD */
+	else if(no < 192)
+	{
+		no = no - 160;
+		write32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_INTENB)) | (0x1 << no)));
+	}
+	/* GPIOE */
+	else if(no < 224)
+	{
+		no = no - 192;
+		write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_INTENB)) | (0x1 << no)));
+	}
+}
 
-		if(enable)
-			write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENABLE), (read32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENABLE)) | (0x1<<irq_no)));
-		else
-			write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENCLEAR), (read32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENCLEAR)) | (0x1<<irq_no)));
-	}
-	else
+static void s5p4418_irq_disable(struct irq_t * irq)
+{
+	u32_t no = irq->no;
+
+	/* VIC0 */
+	if(no < 32)
 	{
-		/* Not support */
+		write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENCLEAR), (read32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENCLEAR)) | (0x1 << no)));
 	}
+	/* VIC1 */
+	else if(no < 64)
+	{
+		no = no - 32;
+		write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENCLEAR), (read32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENCLEAR)) | (0x1 << no)));
+	}
+	/* GPIOA */
+	else if(no < 96)
+	{
+		no = no - 64;
+		write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_INTENB)) & ~(0x1 << no)));
+	}
+	/* GPIOB */
+	else if(no < 128)
+	{
+		no = no - 96;
+		write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_INTENB)) & ~(0x1 << no)));
+	}
+	/* GPIOC */
+	else if(no < 160)
+	{
+		no = no - 128;
+		write32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_INTENB)) & ~(0x1 << no)));
+	}
+	/* GPIOD */
+	else if(no < 192)
+	{
+		no = no - 160;
+		write32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_INTENB)) & ~(0x1 << no)));
+	}
+	/* GPIOE */
+	else if(no < 224)
+	{
+		no = no - 192;
+		write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_INTENB)) & ~(0x1 << no)));
+	}
+}
+
+static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
+{
+	u32_t no = irq->no;
+
+	/* VIC0 */
+	if(no < 32)
+	{
+	}
+	/* VIC1 */
+	else if(no < 64)
+	{
+		no = no - 32;
+	}
+	/* GPIOA */
+	else if(no < 96)
+	{
+		no = no - 64;
+	}
+	/* GPIOB */
+	else if(no < 128)
+	{
+		no = no - 96;
+	}
+	/* GPIOC */
+	else if(no < 160)
+	{
+		no = no - 128;
+	}
+	/* GPIOD */
+	else if(no < 192)
+	{
+		no = no - 160;
+	}
+	/* GPIOE */
+	else if(no < 224)
+	{
+		no = no - 192;
+	}
+/*
+	switch(type)
+	{
+	case IRQ_TYPE_NONE:
+		break;
+	case IRQ_TYPE_LEVEL_LOW:
+		break;
+	case IRQ_TYPE_LEVEL_HIGH:
+		break;
+	case IRQ_TYPE_EDGE_RISING:
+		break;
+	case IRQ_TYPE_EDGE_FALLING:
+		break;
+	case IRQ_TYPE_EDGE_BOTH:
+		break;
+	default:
+		break;
+	}*/
 }
 
 static struct irq_t s5p4418_irqs[] = {
 	{
 		.name		= "MCUSTOP",
-		.irq_no		= 0,
+		.no			= 0,
 		.handler	= &s5p4418_irq_handler[0],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "DMA0",
-		.irq_no		= 1,
+		.no			= 1,
 		.handler	= &s5p4418_irq_handler[1],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "DMA1",
-		.irq_no		= 2,
+		.no			= 2,
 		.handler	= &s5p4418_irq_handler[2],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "CLKPWR0",
-		.irq_no		= 3,
+		.no			= 3,
 		.handler	= &s5p4418_irq_handler[3],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "CLKPWR1",
-		.irq_no		= 4,
+		.no			= 4,
 		.handler	= &s5p4418_irq_handler[4],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "CLKPWR2",
-		.irq_no		= 5,
+		.no			= 5,
 		.handler	= &s5p4418_irq_handler[5],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "UART1",
-		.irq_no		= 6,
+		.no			= 6,
 		.handler	= &s5p4418_irq_handler[6],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "UART0",
-		.irq_no		= 7,
+		.no			= 7,
 		.handler	= &s5p4418_irq_handler[7],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "UART2",
-		.irq_no		= 8,
+		.no			= 8,
 		.handler	= &s5p4418_irq_handler[8],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "UART3",
-		.irq_no		= 9,
+		.no			= 9,
 		.handler	= &s5p4418_irq_handler[9],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "UART4",
-		.irq_no		= 10,
+		.no			= 10,
 		.handler	= &s5p4418_irq_handler[10],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SSP0",
-		.irq_no		= 12,
+		.no			= 12,
 		.handler	= &s5p4418_irq_handler[12],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SSP1",
-		.irq_no		= 13,
+		.no			= 13,
 		.handler	= &s5p4418_irq_handler[13],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SSP2",
-		.irq_no		= 14,
+		.no			= 14,
 		.handler	= &s5p4418_irq_handler[14],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "I2C0",
-		.irq_no		= 15,
+		.no			= 15,
 		.handler	= &s5p4418_irq_handler[15],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "I2C1",
-		.irq_no		= 16,
+		.no			= 16,
 		.handler	= &s5p4418_irq_handler[16],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "I2C2",
-		.irq_no		= 17,
+		.no			= 17,
 		.handler	= &s5p4418_irq_handler[17],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "DEINTERLACE",
-		.irq_no		= 18,
+		.no			= 18,
 		.handler	= &s5p4418_irq_handler[18],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SCALER",
-		.irq_no		= 19,
+		.no			= 19,
 		.handler	= &s5p4418_irq_handler[19],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "AC97",
-		.irq_no		= 20,
+		.no			= 20,
 		.handler	= &s5p4418_irq_handler[20],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SPDIFRX",
-		.irq_no		= 21,
+		.no			= 21,
 		.handler	= &s5p4418_irq_handler[21],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SPDIFTX",
-		.irq_no		= 22,
+		.no			= 22,
 		.handler	= &s5p4418_irq_handler[22],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "TIMER0",
-		.irq_no		= 23,
+		.no			= 23,
 		.handler	= &s5p4418_irq_handler[23],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "TIMER1",
-		.irq_no		= 24,
+		.no			= 24,
 		.handler	= &s5p4418_irq_handler[24],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "TIMER2",
-		.irq_no		= 25,
+		.no			= 25,
 		.handler	= &s5p4418_irq_handler[25],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "TIMER3",
-		.irq_no		= 26,
+		.no			= 26,
 		.handler	= &s5p4418_irq_handler[26],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "PWM0",
-		.irq_no		= 27,
+		.no			= 27,
 		.handler	= &s5p4418_irq_handler[27],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "PWM1",
-		.irq_no		= 28,
+		.no			= 28,
 		.handler	= &s5p4418_irq_handler[28],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "PWM2",
-		.irq_no		= 29,
+		.no			= 29,
 		.handler	= &s5p4418_irq_handler[29],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "PWM3",
-		.irq_no		= 30,
+		.no			= 30,
 		.handler	= &s5p4418_irq_handler[30],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "WDT",
-		.irq_no		= 31,
+		.no			= 31,
 		.handler	= &s5p4418_irq_handler[31],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "MPEGTSI",
-		.irq_no		= 32,
+		.no			= 32,
 		.handler	= &s5p4418_irq_handler[32],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "DISPLAYTOP0",
-		.irq_no		= 33,
+		.no			= 33,
 		.handler	= &s5p4418_irq_handler[33],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "DISPLAYTOP1",
-		.irq_no		= 34,
+		.no			= 34,
 		.handler	= &s5p4418_irq_handler[34],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "DISPLAYTOP2",
-		.irq_no		= 35,
+		.no			= 35,
 		.handler	= &s5p4418_irq_handler[35],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "DISPLAYTOP3",
-		.irq_no		= 36,
+		.no			= 36,
 		.handler	= &s5p4418_irq_handler[36],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "VIP0",
-		.irq_no		= 37,
+		.no			= 37,
 		.handler	= &s5p4418_irq_handler[37],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "VIP1",
-		.irq_no		= 38,
+		.no			= 38,
 		.handler	= &s5p4418_irq_handler[38],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "MIPI",
-		.irq_no		= 39,
+		.no			= 39,
 		.handler	= &s5p4418_irq_handler[39],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "3DGPU",
-		.irq_no		= 40,
+		.no			= 40,
 		.handler	= &s5p4418_irq_handler[40],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "ADC",
-		.irq_no		= 41,
+		.no			= 41,
 		.handler	= &s5p4418_irq_handler[41],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "PPM",
-		.irq_no		= 42,
+		.no			= 42,
 		.handler	= &s5p4418_irq_handler[42],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SDMMC0",
-		.irq_no		= 43,
+		.no			= 43,
 		.handler	= &s5p4418_irq_handler[43],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SDMMC1",
-		.irq_no		= 44,
+		.no			= 44,
 		.handler	= &s5p4418_irq_handler[44],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "SDMMC2",
-		.irq_no		= 45,
+		.no			= 45,
 		.handler	= &s5p4418_irq_handler[45],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "CODA9600",
-		.irq_no		= 46,
+		.no			= 46,
 		.handler	= &s5p4418_irq_handler[46],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "CODA9601",
-		.irq_no		= 47,
+		.no			= 47,
 		.handler	= &s5p4418_irq_handler[47],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "GMAC",
-		.irq_no		= 48,
+		.no			= 48,
 		.handler	= &s5p4418_irq_handler[48],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "USB20OTG",
-		.irq_no		= 49,
+		.no			= 49,
 		.handler	= &s5p4418_irq_handler[49],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "USB20HOST",
-		.irq_no		= 50,
+		.no			= 50,
 		.handler	= &s5p4418_irq_handler[50],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "GPIOA",
-		.irq_no		= 53,
+		.no			= 53,
 		.handler	= &s5p4418_irq_handler[53],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "GPIOB",
-		.irq_no		= 54,
+		.no			= 54,
 		.handler	= &s5p4418_irq_handler[54],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "GPIOC",
-		.irq_no		= 55,
+		.no			= 55,
 		.handler	= &s5p4418_irq_handler[55],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "GPIOD",
-		.irq_no		= 56,
+		.no			= 56,
 		.handler	= &s5p4418_irq_handler[56],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "GPIOE",
-		.irq_no		= 57,
+		.no			= 57,
 		.handler	= &s5p4418_irq_handler[57],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "CRYPTO",
-		.irq_no		= 58,
+		.no			= 58,
 		.handler	= &s5p4418_irq_handler[58],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}, {
 		.name		= "PDM",
-		.irq_no		= 59,
+		.no			= 59,
 		.handler	= &s5p4418_irq_handler[59],
-		.enable		= enable_irqs,
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
 	}
 };
 

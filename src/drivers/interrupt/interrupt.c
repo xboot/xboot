@@ -52,7 +52,7 @@ static struct kobj_t * search_class_interrupt_kobj(void)
 static ssize_t irq_read_no(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct irq_t * irq = (struct irq_t *)kobj->priv;
-	return sprintf(buf, "%u", irq->irq_no);
+	return sprintf(buf, "%u", irq->no);
 }
 
 static struct irq_t * irq_search(const char * name)
@@ -112,8 +112,8 @@ bool_t irq_unregister(struct irq_t * irq)
 		{
 			irq->handler->func = null_interrupt_function;
 			irq->handler->data = NULL;
-			if(pos->irq->enable)
-				pos->irq->enable(pos->irq, FALSE);
+			if(pos->irq->disable)
+				pos->irq->disable(pos->irq);
 
 			spin_lock_irq(&__irq_list_lock);
 			list_del(&(pos->entry));
@@ -146,7 +146,7 @@ bool_t request_irq(const char * name, void (*func)(void *), void * data)
 	irq->handler->func = func;
 	irq->handler->data = data;
 	if(irq->enable)
-		irq->enable(irq, TRUE);
+		irq->enable(irq);
 
 	return TRUE;
 }
@@ -164,8 +164,32 @@ bool_t free_irq(const char * name)
 
 	irq->handler->func = null_interrupt_function;
 	irq->handler->data = NULL;
-	if(irq->enable)
-		irq->enable(irq, FALSE);
+	if(irq->disable)
+		irq->disable(irq);
 
 	return TRUE;
+}
+
+void enable_irq(const char * name)
+{
+	struct irq_t * irq = irq_search(name);
+
+	if(irq && irq->enable)
+		irq->enable(irq);
+}
+
+void disable_irq(const char * name)
+{
+	struct irq_t * irq = irq_search(name);
+
+	if(irq && irq->disable)
+		irq->disable(irq);
+}
+
+void set_irq_type(const char * name, enum irq_type_t type)
+{
+	struct irq_t * irq = irq_search(name);
+
+	if(irq && irq->set_type)
+		irq->set_type(irq, type);
 }

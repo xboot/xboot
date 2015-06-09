@@ -48,172 +48,240 @@ void do_irqs(struct pt_regs_t * regs)
 	write32(REALVIEW_GIC1_CPU_EOI, irq);
 }
 
-static void enable_irqs(struct irq_t * irq, bool_t enable)
+static void realview_irq_enable(struct irq_t * irq)
 {
-	u32_t mask = 1 << (irq->irq_no % 32);
+	u32_t mask = 1 << (irq->no % 32);
+	write32(REALVIEW_GIC1_DIST_ENABLE_SET + (irq->no / 32) * 4, mask);
+}
 
-	if(enable)
-		write32(REALVIEW_GIC1_DIST_ENABLE_SET + (irq->irq_no / 32) * 4, mask);
-	else
-		write32(REALVIEW_GIC1_DIST_ENABLE_CLEAR + (irq->irq_no / 32) * 4, mask);
+static void realview_irq_disable(struct irq_t * irq)
+{
+	u32_t mask = 1 << (irq->no % 32);
+	write32(REALVIEW_GIC1_DIST_ENABLE_CLEAR + (irq->no / 32) * 4, mask);
+}
+
+static void realview_irq_set_type(struct irq_t * irq, enum irq_type_t type)
+{
 }
 
 static struct irq_t realview_irqs[] = {
 	{
 		.name		= "WDOG",
-		.irq_no		= 32 + 0,
+		.no			= 32 + 0,
 		.handler	= &realview_irq_handler[0],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "SOFT",
-		.irq_no		= 32 + 1,
+		.no			= 32 + 1,
 		.handler	= &realview_irq_handler[1],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "DBGURX",
-		.irq_no		= 32 + 2,
+		.no			= 32 + 2,
 		.handler	= &realview_irq_handler[2],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "DBGUTX",
-		.irq_no		= 32 + 3,
+		.no			= 32 + 3,
 		.handler	= &realview_irq_handler[3],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "TMIER0_1",
-		.irq_no		= 32 + 4,
+		.no			= 32 + 4,
 		.handler	= &realview_irq_handler[4],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "TMIER2_3",
-		.irq_no		= 32 + 5,
+		.no			= 32 + 5,
 		.handler	= &realview_irq_handler[5],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "GPIO0",
-		.irq_no		= 32 + 6,
+		.no			= 32 + 6,
 		.handler	= &realview_irq_handler[6],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "GPIO1",
-		.irq_no		= 32 + 7,
+		.no			= 32 + 7,
 		.handler	= &realview_irq_handler[7],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "GPIO2",
-		.irq_no		= 32 + 8,
+		.no			= 32 + 8,
 		.handler	= &realview_irq_handler[8],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "RTC",
-		.irq_no		= 32 + 10,
+		.no			= 32 + 10,
 		.handler	= &realview_irq_handler[10],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "SSP",
-		.irq_no		= 32 + 11,
+		.no			= 32 + 11,
 		.handler	= &realview_irq_handler[11],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "UART0",
-		.irq_no		= 32 + 12,
+		.no			= 32 + 12,
 		.handler	= &realview_irq_handler[12],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "UART1",
-		.irq_no		= 32 + 13,
+		.no			= 32 + 13,
 		.handler	= &realview_irq_handler[13],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "UART2",
-		.irq_no		= 32 + 14,
+		.no			= 32 + 14,
 		.handler	= &realview_irq_handler[14],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "UART3",
-		.irq_no		= 32 + 15,
+		.no			= 32 + 15,
 		.handler	= &realview_irq_handler[15],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "SCI",
-		.irq_no		= 32 + 16,
+		.no			= 32 + 16,
 		.handler	= &realview_irq_handler[16],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "MMCI0A",
-		.irq_no		= 32 + 17,
+		.no			= 32 + 17,
 		.handler	= &realview_irq_handler[17],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "MMCI0B",
-		.irq_no		= 32 + 18,
+		.no			= 32 + 18,
 		.handler	= &realview_irq_handler[18],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "AACI",
-		.irq_no		= 32 + 19,
+		.no			= 32 + 19,
 		.handler	= &realview_irq_handler[19],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "KMI0",
-		.irq_no		= 32 + 20,
+		.no			= 32 + 20,
 		.handler	= &realview_irq_handler[20],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "KMI1",
-		.irq_no		= 32 + 21,
+		.no			= 32 + 21,
 		.handler	= &realview_irq_handler[21],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "CHARLCD",
-		.irq_no		= 32 + 22,
+		.no			= 32 + 22,
 		.handler	= &realview_irq_handler[22],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "CLCD",
-		.irq_no		= 32 + 23,
+		.no			= 32 + 23,
 		.handler	= &realview_irq_handler[23],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "DMA",
-		.irq_no		= 32 + 24,
+		.no			= 32 + 24,
 		.handler	= &realview_irq_handler[24],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "PWRFAIL",
-		.irq_no		= 32 + 25,
+		.no			= 32 + 25,
 		.handler	= &realview_irq_handler[25],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "PISMO",
-		.irq_no		= 32 + 26,
+		.no			= 32 + 26,
 		.handler	= &realview_irq_handler[26],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "DOC",
-		.irq_no		= 32 + 27,
+		.no			= 32 + 27,
 		.handler	= &realview_irq_handler[27],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "ETH",
-		.irq_no		= 32 + 28,
+		.no			= 32 + 28,
 		.handler	= &realview_irq_handler[28],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "USB",
-		.irq_no		= 32 + 29,
+		.no			= 32 + 29,
 		.handler	= &realview_irq_handler[29],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "TSPEN",
-		.irq_no		= 32 + 30,
+		.no			= 32 + 30,
 		.handler	= &realview_irq_handler[30],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}, {
 		.name		= "TSKPAD",
-		.irq_no		= 32 + 31,
+		.no			= 32 + 31,
 		.handler	= &realview_irq_handler[31],
-		.enable		= enable_irqs,
+		.enable		= realview_irq_enable,
+		.disable	= realview_irq_disable,
+		.set_type	= realview_irq_set_type,
 	}
 };
 

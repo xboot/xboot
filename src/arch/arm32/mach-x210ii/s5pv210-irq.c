@@ -136,516 +136,712 @@ void do_irqs(struct pt_regs_t * regs)
 	}
 }
 
-static void enable_irqs(struct irq_t * irq, bool_t enable)
+static void s5pv210_irq_enable(struct irq_t * irq)
 {
-	u32_t irq_no = irq->irq_no;
+	u32_t no = irq->no;
 
-	if(irq_no < 32)
+	if(no < 32)
 	{
-		if(enable)
-			write32( S5PV210_VIC0_INTENABLE, (read32(S5PV210_VIC0_INTENABLE) | (0x1<<irq_no)) );
-		else
-			write32( S5PV210_VIC0_INTENCLEAR, (read32(S5PV210_VIC0_INTENCLEAR) | (0x1<<irq_no)) );
+		write32( S5PV210_VIC0_INTENABLE, (read32(S5PV210_VIC0_INTENABLE) | (0x1 << no)) );
 	}
-	else if(irq_no < 64)
+	else if(no < 64)
 	{
-		irq_no = irq_no - 32;
+		no = no - 32;
+		write32( S5PV210_VIC1_INTENABLE, (read32(S5PV210_VIC1_INTENABLE) | (0x1 << no)) );
+	}
+	else if(no < 96)
+	{
+		no = no - 64;
+		write32( S5PV210_VIC2_INTENABLE, (read32(S5PV210_VIC2_INTENABLE) | (0x1 << no)) );
+	}
+	else if(no < 128)
+	{
+		no = no - 96;
+		write32( S5PV210_VIC3_INTENABLE, (read32(S5PV210_VIC3_INTENABLE) | (0x1 << no)) );
+	}
+}
 
-		if(enable)
-			write32( S5PV210_VIC1_INTENABLE, (read32(S5PV210_VIC1_INTENABLE) | (0x1<<irq_no)) );
-		else
-			write32( S5PV210_VIC1_INTENCLEAR, (read32(S5PV210_VIC1_INTENCLEAR) | (0x1<<irq_no)) );
-	}
-	else if(irq_no < 96)
-	{
-		irq_no = irq_no - 64;
+static void s5pv210_irq_disable(struct irq_t * irq)
+{
+	u32_t no = irq->no;
 
-		if(enable)
-			write32( S5PV210_VIC2_INTENABLE, (read32(S5PV210_VIC2_INTENABLE) | (0x1<<irq_no)) );
-		else
-			write32( S5PV210_VIC2_INTENCLEAR, (read32(S5PV210_VIC2_INTENCLEAR) | (0x1<<irq_no)) );
-	}
-	else if(irq_no < 128)
+	if(no < 32)
 	{
-		irq_no = irq_no - 96;
+		write32( S5PV210_VIC0_INTENCLEAR, (read32(S5PV210_VIC0_INTENCLEAR) | (0x1 << no)) );
+	}
+	else if(no < 64)
+	{
+		no = no - 32;
+		write32( S5PV210_VIC1_INTENCLEAR, (read32(S5PV210_VIC1_INTENCLEAR) | (0x1 << no)) );
+	}
+	else if(no < 96)
+	{
+		no = no - 64;
+		write32( S5PV210_VIC2_INTENCLEAR, (read32(S5PV210_VIC2_INTENCLEAR) | (0x1 << no)) );
+	}
+	else if(no < 128)
+	{
+		no = no - 96;
+		write32( S5PV210_VIC3_INTENCLEAR, (read32(S5PV210_VIC3_INTENCLEAR) | (0x1 << no)) );
+	}
+}
 
-		if(enable)
-			write32( S5PV210_VIC3_INTENABLE, (read32(S5PV210_VIC3_INTENABLE) | (0x1<<irq_no)) );
-		else
-			write32( S5PV210_VIC3_INTENCLEAR, (read32(S5PV210_VIC3_INTENCLEAR) | (0x1<<irq_no)) );
-	}
-	else
-	{
-		/* Not support */
-	}
+static void s5pv210_irq_set_type(struct irq_t * irq, enum irq_type_t type)
+{
 }
 
 static struct irq_t s5pv210_irqs[] = {
 	{
 		.name		= "EINT0",
-		.irq_no		= 0,
+		.no			= 0,
 		.handler	= &s5pv210_irq_handler[0],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT1",
-		.irq_no		= 1,
+		.no			= 1,
 		.handler	= &s5pv210_irq_handler[1],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT2",
-		.irq_no		= 2,
+		.no			= 2,
 		.handler	= &s5pv210_irq_handler[2],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT3",
-		.irq_no		= 3,
+		.no			= 3,
 		.handler	= &s5pv210_irq_handler[3],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT4",
-		.irq_no		= 4,
+		.no			= 4,
 		.handler	= &s5pv210_irq_handler[4],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT5",
-		.irq_no		= 5,
+		.no			= 5,
 		.handler	= &s5pv210_irq_handler[5],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT6",
-		.irq_no		= 6,
+		.no			= 6,
 		.handler	= &s5pv210_irq_handler[6],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT7",
-		.irq_no		= 7,
+		.no			= 7,
 		.handler	= &s5pv210_irq_handler[7],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT8",
-		.irq_no		= 8,
+		.no			= 8,
 		.handler	= &s5pv210_irq_handler[8],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT9",
-		.irq_no		= 9,
+		.no			= 9,
 		.handler	= &s5pv210_irq_handler[9],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT10",
-		.irq_no		= 10,
+		.no			= 10,
 		.handler	= &s5pv210_irq_handler[10],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT11",
-		.irq_no		= 11,
+		.no			= 11,
 		.handler	= &s5pv210_irq_handler[11],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT12",
-		.irq_no		= 12,
+		.no			= 12,
 		.handler	= &s5pv210_irq_handler[12],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT13",
-		.irq_no		= 13,
+		.no			= 13,
 		.handler	= &s5pv210_irq_handler[13],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT14",
-		.irq_no		= 14,
+		.no			= 14,
 		.handler	= &s5pv210_irq_handler[14],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT15",
-		.irq_no		= 15,
+		.no			= 15,
 		.handler	= &s5pv210_irq_handler[15],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "EINT16_31",
-		.irq_no		= 16,
+		.no			= 16,
 		.handler	= &s5pv210_irq_handler[16],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "MDMA",
-		.irq_no		= 18,
+		.no			= 18,
 		.handler	= &s5pv210_irq_handler[18],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "PDMA0",
-		.irq_no		= 19,
+		.no			= 19,
 		.handler	= &s5pv210_irq_handler[19],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "PDMA1",
-		.irq_no		= 20,
+		.no			= 20,
 		.handler	= &s5pv210_irq_handler[20],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "TIMER0",
-		.irq_no		= 21,
+		.no			= 21,
 		.handler	= &s5pv210_irq_handler[21],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "TIMER1",
-		.irq_no		= 22,
+		.no			= 22,
 		.handler	= &s5pv210_irq_handler[22],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "TIMER2",
-		.irq_no		= 23,
+		.no			= 23,
 		.handler	= &s5pv210_irq_handler[23],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "TIMER3",
-		.irq_no		= 24,
+		.no			= 24,
 		.handler	= &s5pv210_irq_handler[24],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "TIMER4",
-		.irq_no		= 25,
+		.no			= 25,
 		.handler	= &s5pv210_irq_handler[25],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "SYSTEM_TMIER",
-		.irq_no		= 26,
+		.no			= 26,
 		.handler	= &s5pv210_irq_handler[26],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "WDT",
-		.irq_no		= 27,
+		.no			= 27,
 		.handler	= &s5pv210_irq_handler[27],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "RTC_ALARM",
-		.irq_no		= 28,
+		.no			= 28,
 		.handler	= &s5pv210_irq_handler[28],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "RTC_TIC",
-		.irq_no		= 29,
+		.no			= 29,
 		.handler	= &s5pv210_irq_handler[29],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "GPIOINT",
-		.irq_no		= 30,
+		.no			= 30,
 		.handler	= &s5pv210_irq_handler[30],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "FIMC3",
-		.irq_no		= 31,
+		.no			= 31,
 		.handler	= &s5pv210_irq_handler[31],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "CORTEX0",
-		.irq_no		= 32,
+		.no			= 32,
 		.handler	= &s5pv210_irq_handler[32],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "CORTEX1",
-		.irq_no		= 33,
+		.no			= 33,
 		.handler	= &s5pv210_irq_handler[33],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "CORTEX2",
-		.irq_no		= 34,
+		.no			= 34,
 		.handler	= &s5pv210_irq_handler[34],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "CORTEX3",
-		.irq_no		= 35,
+		.no			= 35,
 		.handler	= &s5pv210_irq_handler[35],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "CORTEX4",
-		.irq_no		= 36,
+		.no			= 36,
 		.handler	= &s5pv210_irq_handler[36],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "IEM_APC",
-		.irq_no		= 37,
+		.no			= 37,
 		.handler	= &s5pv210_irq_handler[37],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "IEM_IEC",
-		.irq_no		= 38,
+		.no			= 38,
 		.handler	= &s5pv210_irq_handler[38],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "NFC",
-		.irq_no		= 40,
+		.no			= 40,
 		.handler	= &s5pv210_irq_handler[40],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "CFC",
-		.irq_no		= 41,
+		.no			= 41,
 		.handler	= &s5pv210_irq_handler[41],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "UART0",
-		.irq_no		= 42,
+		.no			= 42,
 		.handler	= &s5pv210_irq_handler[42],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "UART1",
-		.irq_no		= 43,
+		.no			= 43,
 		.handler	= &s5pv210_irq_handler[43],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "UART2",
-		.irq_no		= 44,
+		.no			= 44,
 		.handler	= &s5pv210_irq_handler[44],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "UART3",
-		.irq_no		= 45,
+		.no			= 45,
 		.handler	= &s5pv210_irq_handler[45],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "I2C0",
-		.irq_no		= 46,
+		.no			= 46,
 		.handler	= &s5pv210_irq_handler[46],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "SPI0",
-		.irq_no		= 47,
+		.no			= 47,
 		.handler	= &s5pv210_irq_handler[47],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "SPI1",
-		.irq_no		= 48,
+		.no			= 48,
 		.handler	= &s5pv210_irq_handler[48],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "AUDIO_SS",
-		.irq_no		= 50,
+		.no			= 50,
 		.handler	= &s5pv210_irq_handler[50],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "I2C2",
-		.irq_no		= 51,
+		.no			= 51,
 		.handler	= &s5pv210_irq_handler[51],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "I2C_HDMI_PHY",
-		.irq_no		= 52,
+		.no			= 52,
 		.handler	= &s5pv210_irq_handler[52],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "UHOST",
-		.irq_no		= 55,
+		.no			= 55,
 		.handler	= &s5pv210_irq_handler[55],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "OTG",
-		.irq_no		= 56,
+		.no			= 56,
 		.handler	= &s5pv210_irq_handler[56],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "MODEMIF",
-		.irq_no		= 57,
+		.no			= 57,
 		.handler	= &s5pv210_irq_handler[57],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "HSMMC0",
-		.irq_no		= 58,
+		.no			= 58,
 		.handler	= &s5pv210_irq_handler[58],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "HSMMC1",
-		.irq_no		= 59,
+		.no			= 59,
 		.handler	= &s5pv210_irq_handler[59],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "HSMMC2",
-		.irq_no		= 60,
+		.no			= 60,
 		.handler	= &s5pv210_irq_handler[60],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "MIPI_CSI",
-		.irq_no		= 61,
+		.no			= 61,
 		.handler	= &s5pv210_irq_handler[61],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "MIPI_DSI",
-		.irq_no		= 62,
+		.no			= 62,
 		.handler	= &s5pv210_irq_handler[62],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "ONENAND_AUDI",
-		.irq_no		= 63,
+		.no			= 63,
 		.handler	= &s5pv210_irq_handler[63],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "LCD0",
-		.irq_no		= 64,
+		.no			= 64,
 		.handler	= &s5pv210_irq_handler[64],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "LCD1",
-		.irq_no		= 65,
+		.no			= 65,
 		.handler	= &s5pv210_irq_handler[65],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "LCD2",
-		.irq_no		= 66,
+		.no			= 66,
 		.handler	= &s5pv210_irq_handler[66],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "ROTATOR",
-		.irq_no		= 68,
+		.no			= 68,
 		.handler	= &s5pv210_irq_handler[68],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "FIMC0",
-		.irq_no		= 69,
+		.no			= 69,
 		.handler	= &s5pv210_irq_handler[69],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "FIMC1",
-		.irq_no		= 70,
+		.no			= 70,
 		.handler	= &s5pv210_irq_handler[70],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "FIMC2",
-		.irq_no		= 71,
+		.no			= 71,
 		.handler	= &s5pv210_irq_handler[71],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "JPEG",
-		.irq_no		= 72,
+		.no			= 72,
 		.handler	= &s5pv210_irq_handler[72],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "2D",
-		.irq_no		= 73,
+		.no			= 73,
 		.handler	= &s5pv210_irq_handler[73],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "3D",
-		.irq_no		= 74,
+		.no			= 74,
 		.handler	= &s5pv210_irq_handler[74],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "MIXER",
-		.irq_no		= 75,
+		.no			= 75,
 		.handler	= &s5pv210_irq_handler[75],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "HDMI",
-		.irq_no		= 76,
+		.no			= 76,
 		.handler	= &s5pv210_irq_handler[76],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "I2C_HDMI_DDC",
-		.irq_no		= 77,
+		.no			= 77,
 		.handler	= &s5pv210_irq_handler[77],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "MFC",
-		.irq_no		= 78,
+		.no			= 78,
 		.handler	= &s5pv210_irq_handler[78],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "TVENC",
-		.irq_no		= 79,
+		.no			= 79,
 		.handler	= &s5pv210_irq_handler[79],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "I2S0",
-		.irq_no		= 80,
+		.no			= 80,
 		.handler	= &s5pv210_irq_handler[80],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "I2S1",
-		.irq_no		= 81,
+		.no			= 81,
 		.handler	= &s5pv210_irq_handler[81],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "AC97",
-		.irq_no		= 83,
+		.no			= 83,
 		.handler	= &s5pv210_irq_handler[83],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "PCM0",
-		.irq_no		= 84,
+		.no			= 84,
 		.handler	= &s5pv210_irq_handler[84],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "PCM1",
-		.irq_no		= 85,
+		.no			= 85,
 		.handler	= &s5pv210_irq_handler[85],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "SPDIF",
-		.irq_no		= 86,
+		.no			= 86,
 		.handler	= &s5pv210_irq_handler[86],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "ADC",
-		.irq_no		= 87,
+		.no			= 87,
 		.handler	= &s5pv210_irq_handler[87],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "PENDN",
-		.irq_no		= 88,
+		.no			= 88,
 		.handler	= &s5pv210_irq_handler[88],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "KEYPAD",
-		.irq_no		= 89,
+		.no			= 89,
 		.handler	= &s5pv210_irq_handler[89],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "INTHASH_SSS",
-		.irq_no		= 91,
+		.no			= 91,
 		.handler	= &s5pv210_irq_handler[91],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "INTFEEDCTRL_SSS",
-		.irq_no		= 92,
+		.no			= 92,
 		.handler	= &s5pv210_irq_handler[92],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "PCM2",
-		.irq_no		= 93,
+		.no			= 93,
 		.handler	= &s5pv210_irq_handler[93],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "SDM_IRQ",
-		.irq_no		= 94,
+		.no			= 94,
 		.handler	= &s5pv210_irq_handler[94],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "SDM_FIQ",
-		.irq_no		= 95,
+		.no			= 95,
 		.handler	= &s5pv210_irq_handler[95],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "MMC3",
-		.irq_no		= 98,
+		.no			= 98,
 		.handler	= &s5pv210_irq_handler[98],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "CEC",
-		.irq_no		= 99,
+		.no			= 99,
 		.handler	= &s5pv210_irq_handler[99],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "TSI",
-		.irq_no		= 100,
+		.no			= 100,
 		.handler	= &s5pv210_irq_handler[100],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "ADC1",
-		.irq_no		= 105,
+		.no			= 105,
 		.handler	= &s5pv210_irq_handler[105],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}, {
 		.name		= "PENDN1",
-		.irq_no		= 106,
+		.no			= 106,
 		.handler	= &s5pv210_irq_handler[106],
-		.enable		= enable_irqs,
+		.enable		= s5pv210_irq_enable,
+		.disable	= s5pv210_irq_disable,
+		.set_type	= s5pv210_irq_set_type,
 	}
 };
 

@@ -87,6 +87,10 @@ bool_t irq_register(struct irq_t * irq)
 
 	irq->handler->func = null_interrupt_function;
 	irq->handler->data = NULL;
+	if(irq->disable)
+		irq->disable(irq);
+	if(irq->set_type)
+		irq->set_type(irq, IRQ_TYPE_NONE);
 	irq->kobj = kobj_alloc_directory(irq->name);
 	kobj_add_regular(irq->kobj, "no", irq_read_no, NULL, irq);
 	kobj_add(search_class_interrupt_kobj(), irq->kobj);

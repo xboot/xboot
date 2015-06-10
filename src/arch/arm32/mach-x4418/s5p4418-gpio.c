@@ -43,7 +43,7 @@ static void s5p4418_gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int c
 
 	if(offset < 16)
 	{
-		offset <<= 0x1;
+		offset = offset << 0x1;
 		val = read32(phys_to_virt(dat->regbase + GPIO_ALTFN0));
 		val &= ~(0x3 << offset);
 		val |= cfg << offset;
@@ -51,7 +51,7 @@ static void s5p4418_gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int c
 	}
 	else if(offset < 32)
 	{
-		offset <<= 0x1;
+		offset = (offset - 16) << 0x1;
 		val = read32(phys_to_virt(dat->regbase + GPIO_ALTFN1));
 		val &= ~(0x3 << offset);
 		val |= cfg << offset;
@@ -69,13 +69,13 @@ static int s5p4418_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
 
 	if(offset < 16)
 	{
-		offset <<= 0x1;
+		offset = offset << 0x1;
 		val = read32(phys_to_virt(dat->regbase + GPIO_ALTFN0));
 		return ((val >> offset) & 0x3);
 	}
 	else if(offset < 32)
 	{
-		offset <<= 0x1;
+		offset = (offset - 16) << 0x1;
 		val = read32(phys_to_virt(dat->regbase + GPIO_ALTFN1));
 		return ((val >> offset) & 0x3);
 	}

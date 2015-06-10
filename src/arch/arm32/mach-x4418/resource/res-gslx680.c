@@ -4820,6 +4820,7 @@ static struct gslx680_data_t gslx680_data = {
 	.i2cbus		= "i2c-gpio.1",
 	.addr		= 0x40,
 	.wakepin	= -1,
+	.irq		= "GPIOB29",
 	.firmware	= gslx680_firmware,
 };
 

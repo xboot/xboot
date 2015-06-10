@@ -180,12 +180,33 @@ static bool_t gslx680_load_firmware(struct i2c_client_t * client, const struct g
 	return TRUE;
 }
 
+static void gslx680_interrupt_function(void * data)
+{
+	struct input_t * input = (struct input_t *)data;
+	struct gslx680_private_data_t * dat = (struct gslx680_private_data_t *)input->priv;
+	u8_t buf[4+4];
+
+	disable_irq(dat->rdat->irq);
+
+	if(!gslx680_read(dat->client, 0x80, &buf[0], 8))
+		return;
+
+	printf("f = 0x%02x, 0x%02x, 0x%02x, 0x%02x, \r\n", buf[0], buf[1], buf[2], buf[3]);
+//	printf("t = 0x%02x, 0x%02x, 0x%02x, 0x%02x, \r\n", buf[4], buf[5], buf[6], buf[7]);
+
+	enable_irq(dat->rdat->irq);
+}
+
 static void input_init(struct input_t * input)
 {
+	struct gslx680_private_data_t * dat = (struct gslx680_private_data_t *)input->priv;
+	request_irq(dat->rdat->irq, gslx680_interrupt_function, IRQ_TYPE_EDGE_RISING, input);
 }
 
 static void input_exit(struct input_t * input)
 {
+	struct gslx680_private_data_t * dat = (struct gslx680_private_data_t *)input->priv;
+	free_irq(dat->rdat->irq);
 }
 
 static int input_ioctl(struct input_t * input, int cmd, void * arg)

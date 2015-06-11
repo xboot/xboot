@@ -200,7 +200,7 @@ static void input_init(struct input_t * input)
 	write32(S5PV210_EXT_INT0_CON, (read32(S5PV210_EXT_INT0_CON) & ~(0x7<<28)) | (0x4<<28));
 	write32(S5PV210_EXT_INT0_MASK, (read32(S5PV210_EXT_INT0_MASK) & ~(0x1<<7)) | (0x0<<7));
 
-	if(!request_irq("EINT7", ft5206_interrupt_function, input))
+	if(!request_irq("EINT7", ft5206_interrupt_function, IRQ_TYPE_EDGE_FALLING, input))
 		LOG("Can't request irq 'EINT7'");
 }
 

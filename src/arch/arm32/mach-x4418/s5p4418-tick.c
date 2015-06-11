@@ -39,7 +39,7 @@ static bool_t tick_timer_init(void)
 
 	s5p4418_timer_reset();
 
-	if(!request_irq("TIMER0", timer_interrupt, NULL))
+	if(!request_irq("TIMER0", timer_interrupt, IRQ_TYPE_NONE, NULL))
 	{
 		LOG("can't request irq 'TIMER0'");
 		return FALSE;

@@ -47,7 +47,7 @@ static bool_t tick_timer_init(void)
 		return FALSE;
 	}
 
-	if(!request_irq("TMIER2_3", timer_interrupt, NULL))
+	if(!request_irq("TMIER2_3", timer_interrupt, IRQ_TYPE_NONE, NULL))
 	{
 		LOG("Can't request irq 'TMIER2_3'");
 		clk_disable("timclk");

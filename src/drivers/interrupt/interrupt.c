@@ -87,10 +87,10 @@ bool_t irq_register(struct irq_t * irq)
 
 	irq->handler->func = null_interrupt_function;
 	irq->handler->data = NULL;
-	if(irq->disable)
-		irq->disable(irq);
 	if(irq->set_type)
 		irq->set_type(irq, IRQ_TYPE_NONE);
+	if(irq->disable)
+		irq->disable(irq);
 	irq->kobj = kobj_alloc_directory(irq->name);
 	kobj_add_regular(irq->kobj, "no", irq_read_no, NULL, irq);
 	kobj_add(search_class_interrupt_kobj(), irq->kobj);
@@ -116,6 +116,8 @@ bool_t irq_unregister(struct irq_t * irq)
 		{
 			irq->handler->func = null_interrupt_function;
 			irq->handler->data = NULL;
+			if(pos->irq->set_type)
+				pos->irq->set_type(irq, IRQ_TYPE_NONE);
 			if(pos->irq->disable)
 				pos->irq->disable(pos->irq);
 
@@ -133,7 +135,7 @@ bool_t irq_unregister(struct irq_t * irq)
 	return FALSE;
 }
 
-bool_t request_irq(const char * name, void (*func)(void *), void * data)
+bool_t request_irq(const char * name, void (*func)(void *), enum irq_type_t type, void * data)
 {
 	struct irq_t * irq;
 
@@ -149,6 +151,8 @@ bool_t request_irq(const char * name, void (*func)(void *), void * data)
 
 	irq->handler->func = func;
 	irq->handler->data = data;
+	if(irq->set_type)
+		irq->set_type(irq, type);
 	if(irq->enable)
 		irq->enable(irq);
 
@@ -171,6 +175,8 @@ bool_t free_irq(const char * name)
 
 	irq->handler->func = null_interrupt_function;
 	irq->handler->data = NULL;
+	if(irq->set_type)
+		irq->set_type(irq, IRQ_TYPE_NONE);
 	if(irq->disable)
 		irq->disable(irq);
 
@@ -191,12 +197,4 @@ void disable_irq(const char * name)
 
 	if(irq && irq->disable)
 		irq->disable(irq);
-}
-
-void set_irq_type(const char * name, enum irq_type_t type)
-{
-	struct irq_t * irq = irq_search(name);
-
-	if(irq && irq->set_type)
-		irq->set_type(irq, type);
 }

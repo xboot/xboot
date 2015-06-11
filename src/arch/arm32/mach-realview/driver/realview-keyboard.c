@@ -393,7 +393,7 @@ static void input_init(struct input_t * input)
 	kmi_write(dat, 0xed);
 	kmi_write(dat, 0x02);
 
-	if(!request_irq("KMI0", keyboard_interrupt, input))
+	if(!request_irq("KMI0", keyboard_interrupt, IRQ_TYPE_NONE, input))
 	{
 		LOG("Can't request irq 'KMI0'");
 		write8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, 0);

@@ -230,7 +230,7 @@ static void input_init(struct input_t * input)
 	kmi_read(rdat, &value);
 	kmi_read(rdat, &value);
 
-	if(!request_irq("KMI1", mouse_interrupt, input))
+	if(!request_irq("KMI1", mouse_interrupt, IRQ_TYPE_NONE, input))
 	{
 		LOG("Can't request irq 'KMI1'");
 		write8(rdat->regbase + REALVIEW_MOUSE_OFFSET_CR, 0);

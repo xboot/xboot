@@ -34,11 +34,10 @@ struct irq_t {
 
 bool_t irq_register(struct irq_t * irq);
 bool_t irq_unregister(struct irq_t * irq);
-bool_t request_irq(const char * name, void (*func)(void *), void * data);
+bool_t request_irq(const char * name, void (*func)(void *), enum irq_type_t type, void * data);
 bool_t free_irq(const char * name);
 void enable_irq(const char * name);
 void disable_irq(const char * name);
-void set_irq_type(const char * name, enum irq_type_t type);
 
 #ifdef __cplusplus
 }

@@ -46,7 +46,7 @@ static bool_t tick_timer_init(void)
 		return FALSE;
 	}
 
-	if(!request_irq("TIMER4", timer_interrupt, NULL))
+	if(!request_irq("TIMER4", timer_interrupt, IRQ_TYPE_NONE, NULL))
 	{
 		LOG("can't request irq 'TIMER4'");
 		return FALSE;

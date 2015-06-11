@@ -26,6 +26,11 @@
 #include <gslx680.h>
 
 struct gslx680_private_data_t {
+	struct {
+		int x, y;
+		int press;
+		int valid;
+	} node[10];
 	struct i2c_client_t * client;
 	struct gslx680_data_t * rdat;
 };
@@ -69,7 +74,7 @@ static bool_t gslx680_write(struct i2c_client_t * client, u8_t reg, u8_t * buf, 
     return TRUE;
 }
 
-static bool_t gslx680_wakeup_pin(int pin, int high)
+static bool_t gslx680_shutdown_pin(int pin, int high)
 {
 	if(high)
 		gpio_direction_output(pin, 1);
@@ -184,15 +189,50 @@ static void gslx680_interrupt_function(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
 	struct gslx680_private_data_t * dat = (struct gslx680_private_data_t *)input->priv;
-	u8_t buf[4+4];
+	int fingers = dat->rdat->fingers;
+	u8_t buf[44];
+	int x, y, id;
+	int n, i;
 
 	disable_irq(dat->rdat->irq);
 
-	if(!gslx680_read(dat->client, 0x80, &buf[0], 8))
-		return;
+	if(gslx680_read(dat->client, 0x80, &buf[0], 4 + fingers * 4))
+	{
+		for(i = 0; i < fingers; i++)
+		{
+			dat->node[i].valid = 0;
+		}
 
-	printf("f = 0x%02x, 0x%02x, 0x%02x, 0x%02x, \r\n", buf[0], buf[1], buf[2], buf[3]);
-//	printf("t = 0x%02x, 0x%02x, 0x%02x, 0x%02x, \r\n", buf[4], buf[5], buf[6], buf[7]);
+		n = (buf[0] < fingers ? buf[0] : fingers);
+		for(i = 0; i < n; i++)
+		{
+			x = ((buf[4 + 4 * i + 3] & 0x0f) << 8) | buf[4 + 4 * i + 2];
+			y = ((buf[4 + 4 * i + 1] & 0x0f) << 8) | buf[4 + 4 * i + 0];
+			id = ((buf[4 + 4 * i + 3] & 0xf0) >> 4) - 1;
+
+			if(dat->node[id].press == 0)
+			{
+				push_event_touch_begin(input, x, y, id);
+				dat->node[id].press = 1;
+			}
+			else if(dat->node[id].press == 1)
+			{
+				push_event_touch_move(input, x, y, id);
+			}
+			dat->node[id].x = x;
+			dat->node[id].y = y;
+			dat->node[id].valid = 1;
+		}
+
+		for(i = 0; i < fingers; i++)
+		{
+			if((dat->node[i].press == 1) && (dat->node[i].valid == 0))
+			{
+				push_event_touch_end(input, dat->node[i].x, dat->node[i].y, i);
+				dat->node[i].press = 0;
+			}
+		}
+	}
 
 	enable_irq(dat->rdat->irq);
 }
@@ -234,11 +274,11 @@ static bool_t register_gslx680_touchscreen(struct resource_t * res)
 	if(!client)
 		return FALSE;
 
-	if(rdat->wakepin >= 0)
+	if(rdat->shutdown >= 0)
 	{
-		gslx680_wakeup_pin(rdat->wakepin, 0);
+		gslx680_shutdown_pin(rdat->shutdown, 0);
 		mdelay(20);
-		gslx680_wakeup_pin(rdat->wakepin, 1);
+		gslx680_shutdown_pin(rdat->shutdown, 1);
 		mdelay(20);
 	}
 
@@ -254,7 +294,6 @@ static bool_t register_gslx680_touchscreen(struct resource_t * res)
 	gslx680_startup(client);
 	gslx680_reset(client);
 	gslx680_startup(client);
-	LOG("Found gslx680 chip and load firmware");
 
 	dat = malloc(sizeof(struct gslx680_private_data_t));
 	if(!dat)

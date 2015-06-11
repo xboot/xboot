@@ -19,7 +19,8 @@ struct gslx680_data_t
 {
 	const char * i2cbus;
 	u32_t addr;
-	int wakepin;
+	int fingers;
+	int shutdown;
 	const char * irq;
 	const struct gslx680_firmware_t * firmware;
 };

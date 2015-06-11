@@ -14,7 +14,7 @@ struct tick_t {
 	bool_t (*init)(void);
 };
 
-static inline void tick_interrupt(void)
+static inline __attribute__((always_inline)) void tick_interrupt(void)
 {
 	jiffies++;
 	schedule_timer_task();

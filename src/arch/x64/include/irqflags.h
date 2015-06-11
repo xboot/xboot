@@ -26,7 +26,7 @@ static inline void arch_local_irq_disable(void)
  */
 static inline irq_flags_t arch_local_irq_save(void)
 {
-	irq_flags_t flags;
+	irq_flags_t flags = 0;
 	return flags;
 }
 

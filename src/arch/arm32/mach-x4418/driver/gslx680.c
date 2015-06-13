@@ -210,14 +210,17 @@ static void gslx680_interrupt_function(void * data)
 			y = ((buf[4 + 4 * i + 1] & 0x0f) << 8) | buf[4 + 4 * i + 0];
 			id = ((buf[4 + 4 * i + 3] & 0xf0) >> 4) - 1;
 
-			if(dat->node[id].press == 0)
+			if(dat->node[id].x != x || dat->node[id].y != y)
 			{
-				push_event_touch_begin(input, x, y, id);
-				dat->node[id].press = 1;
-			}
-			else if(dat->node[id].press == 1)
-			{
-				push_event_touch_move(input, x, y, id);
+				if(dat->node[id].press == 0)
+				{
+					push_event_touch_begin(input, x, y, id);
+					dat->node[id].press = 1;
+				}
+				else if(dat->node[id].press == 1)
+				{
+					push_event_touch_move(input, x, y, id);
+				}
 			}
 			dat->node[id].x = x;
 			dat->node[id].y = y;

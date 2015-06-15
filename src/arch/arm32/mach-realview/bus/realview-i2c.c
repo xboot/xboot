@@ -96,11 +96,7 @@ static bool_t realview_register_i2c_bus(struct resource_t * res)
 	if(rdat->udelay > 0)
 		dat->bdat.udelay = rdat->udelay;
 	else
-		dat->bdat.udelay = 50;
-	if(rdat->timeout > 0)
-		dat->bdat.timeout = msecs_to_jiffies(rdat->timeout);
-	else
-		dat->bdat.timeout = msecs_to_jiffies(100);
+		dat->bdat.udelay = 5;
 	dat->bdat.priv = rdat;
 	dat->rdat = rdat;
 

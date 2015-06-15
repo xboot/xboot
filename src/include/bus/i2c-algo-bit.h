@@ -13,8 +13,13 @@ struct i2c_algo_bit_data_t {
 	void (*setscl)(struct i2c_algo_bit_data_t * data, int state);
 	int (*getsda)(struct i2c_algo_bit_data_t * data);
 	int (*getscl)(struct i2c_algo_bit_data_t * data);
+	/*
+	 * Half clock cycle time in us
+	 * minimum 2 us for fast-mode I2C - 400khz
+	 * minimum 5 us for standard-mode I2C and SMBus - 100khz
+	 * maximum 50 us for SMBus - 10khz
+	 */
 	int udelay;
-	int timeout;
 	void * priv;
 };
 

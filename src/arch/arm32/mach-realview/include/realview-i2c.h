@@ -12,7 +12,6 @@ extern "C" {
 
 struct realview_i2c_data_t {
 	int udelay;
-	int timeout;
 	physical_addr_t regbase;
 };
 

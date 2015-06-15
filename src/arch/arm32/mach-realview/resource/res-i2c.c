@@ -28,7 +28,6 @@
 static struct realview_i2c_data_t i2c_datas[] = {
 	{
 		.udelay		= 50,
-		.timeout	= 100,
 		.regbase	= REALVIEW_I2C_BASE,
 	}
 };

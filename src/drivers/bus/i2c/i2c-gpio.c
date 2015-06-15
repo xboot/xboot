@@ -136,21 +136,18 @@ static bool_t i2c_gpio_register_bus(struct resource_t * res)
 		dat->bdat.setscl = i2c_gpio_setscl_dir;
 	}
 
-	if(!rdat->scl_is_output_only)
-		dat->bdat.getscl = i2c_gpio_getscl;
 	dat->bdat.getsda = i2c_gpio_getsda;
+	if(rdat->scl_is_output_only)
+		dat->bdat.getscl = 0;
+	else
+		dat->bdat.getscl = i2c_gpio_getscl;
 
 	if(rdat->udelay > 0)
 		dat->bdat.udelay = rdat->udelay;
 	else if(rdat->scl_is_output_only)
-		dat->bdat.udelay = 50;	/* 10 kHz */
+		dat->bdat.udelay = 50;
 	else
-		dat->bdat.udelay = 5;	/* 100 kHz */
-
-	if(rdat->timeout > 0)
-		dat->bdat.timeout = msecs_to_jiffies(rdat->timeout);
-	else
-		dat->bdat.timeout = msecs_to_jiffies(100);
+		dat->bdat.udelay = 5;
 
 	dat->bdat.priv = rdat;
 	dat->rdat = rdat;

@@ -45,19 +45,6 @@ static struct irq_handler_t s5p4418_irq_handler_gpioc[32];
 static struct irq_handler_t s5p4418_irq_handler_gpiod[32];
 static struct irq_handler_t s5p4418_irq_handler_gpioe[32];
 
-static u32_t irq_offset(u32_t x)
-{
-	u32_t index = x;
-
-	index = (index - 1) & (~index);
-	index = (index & 0x55555555) + ((index >> 1) & 0x55555555);
-	index = (index & 0x33333333) + ((index >> 2) & 0x33333333);
-	index = (index & 0x0f0f0f0f) + ((index >> 4) & 0x0f0f0f0f);
-	index = (index & 0xff) + ((index & 0xff00) >> 8) + ((index & 0xff0000) >> 16) + ((index & 0xff000000) >> 24);
-
-	return (index);
-}
-
 static void s5p4418_irq_handler_func_gpioa(void * data)
 {
 	u32_t det;
@@ -66,7 +53,7 @@ static void s5p4418_irq_handler_func_gpioa(void * data)
 	det = read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DET));
 	if(det != 0)
 	{
-		offset = irq_offset(det);
+		offset = __ffs(det);
 		(s5p4418_irq_handler_gpioa[offset].func)(s5p4418_irq_handler_gpioa[offset].data);
 		write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DET), (0x1 << offset));
 	}
@@ -80,7 +67,7 @@ static void s5p4418_irq_handler_func_gpiob(void * data)
 	det = read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DET));
 	if(det != 0)
 	{
-		offset = irq_offset(det);
+		offset = __ffs(det);
 		(s5p4418_irq_handler_gpiob[offset].func)(s5p4418_irq_handler_gpiob[offset].data);
 		write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DET), (0x1 << offset));
 	}
@@ -94,7 +81,7 @@ static void s5p4418_irq_handler_func_gpioc(void * data)
 	det = read32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DET));
 	if(det != 0)
 	{
-		offset = irq_offset(det);
+		offset = __ffs(det);
 		(s5p4418_irq_handler_gpioc[offset].func)(s5p4418_irq_handler_gpioc[offset].data);
 		write32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DET), (0x1 << offset));
 	}
@@ -108,7 +95,7 @@ static void s5p4418_irq_handler_func_gpiod(void * data)
 	det = read32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DET));
 	if(det != 0)
 	{
-		offset = irq_offset(det);
+		offset = __ffs(det);
 		(s5p4418_irq_handler_gpiod[offset].func)(s5p4418_irq_handler_gpiod[offset].data);
 		write32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DET), (0x1 << offset));
 	}
@@ -122,7 +109,7 @@ static void s5p4418_irq_handler_func_gpioe(void * data)
 	det = read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DET));
 	if(det != 0)
 	{
-		offset = irq_offset(det);
+		offset = __ffs(det);
 		(s5p4418_irq_handler_gpioe[offset].func)(s5p4418_irq_handler_gpioe[offset].data);
 		write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DET), (0x1 << offset));
 	}
@@ -140,7 +127,7 @@ void do_irqs(struct pt_regs_t * regs)
 	if(vic0 != 0)
 	{
 		/* Get interrupt offset */
-		offset = irq_offset(vic0);
+		offset = __ffs(vic0);
 
 		/* Handle interrupt server function */
 		(s5p4418_irq_handler[offset].func)(s5p4418_irq_handler[offset].data);
@@ -154,7 +141,7 @@ void do_irqs(struct pt_regs_t * regs)
 	else if(vic1 != 0)
 	{
 		/* Get interrupt offset */
-		offset = irq_offset(vic1);
+		offset = __ffs(vic1);
 
 		/* Handle interrupt server function */
 		(s5p4418_irq_handler[offset + 32].func)(s5p4418_irq_handler[offset + 32].data);

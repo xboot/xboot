@@ -40,19 +40,6 @@ struct pt_regs_t {
 
 static struct irq_handler_t s5pv210_irq_handler[128];
 
-static u32_t irq_offset(u32_t x)
-{
-	u32_t index = x;
-
-	index = (index - 1) & (~index);
-	index = (index & 0x55555555) + ((index >> 1) & 0x55555555);
-	index = (index & 0x33333333) + ((index >> 2) & 0x33333333);
-	index = (index & 0x0f0f0f0f) + ((index >> 4) & 0x0f0f0f0f);
-	index = (index & 0xff) + ((index & 0xff00) >> 8) + ((index & 0xff0000) >> 16) + ((index & 0xff000000) >> 24);
-
-	return (index);
-}
-
 void do_irqs(struct pt_regs_t * regs)
 {
 	u32_t vic0, vic1, vic2, vic3;
@@ -67,7 +54,7 @@ void do_irqs(struct pt_regs_t * regs)
 	if(vic0 != 0)
 	{
 		/* Get interrupt offset */
-		offset = irq_offset(vic0);
+		offset = __ffs(vic0);
 
 		/* Handle interrupt server function */
 		(s5pv210_irq_handler[offset].func)(s5pv210_irq_handler[offset].data);
@@ -81,7 +68,7 @@ void do_irqs(struct pt_regs_t * regs)
 	else if(vic1 != 0)
 	{
 		/* Get interrupt offset */
-		offset = irq_offset(vic1);
+		offset = __ffs(vic1);
 
 		/* Handle interrupt server function */
 		(s5pv210_irq_handler[offset + 32].func)(s5pv210_irq_handler[offset + 32].data);
@@ -95,7 +82,7 @@ void do_irqs(struct pt_regs_t * regs)
 	else if(vic2 != 0)
 	{
 		/* Get interrupt offset */
-		offset = irq_offset(vic2);
+		offset = __ffs(vic2);
 
 		/* Handle interrupt server function */
 		(s5pv210_irq_handler[offset + 64].func)(s5pv210_irq_handler[offset + 64].data);
@@ -109,7 +96,7 @@ void do_irqs(struct pt_regs_t * regs)
 	else if(vic3 != 0)
 	{
 		/* Get interrupt offset */
-		offset = irq_offset(vic3);
+		offset = __ffs(vic3);
 
 		/* Handle interrupt server function */
 		(s5pv210_irq_handler[offset + 96].func)(s5pv210_irq_handler[offset + 96].data);

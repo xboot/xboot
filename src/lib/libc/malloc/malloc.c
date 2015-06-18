@@ -559,54 +559,6 @@ static void control_construct(control_t * control)
 	}
 }
 
-typedef void (*tlsf_walker)(void * ptr, size_t size, int used, void * user);
-
-struct mpool_stat {
-	size_t used;
-	size_t free;
-};
-
-static void tlfs_stat_walker(void * ptr, size_t size, int used, void * user)
-{
-	struct mpool_stat * stat = user;
-
-	if(used)
-		stat->used += size;
-	else
-		stat->free += size;
-}
-
-static void default_walker(void * ptr, size_t size, int used, void * user)
-{
-	(void)user;
-	printf("\t%p %s size: %x (%p)\r\n", ptr, used ? "used" : "free", (unsigned int)size, block_from_ptr(ptr));
-}
-
-static void tlsf_walk_pool(void * pool, tlsf_walker walker, void * user)
-{
-	tlsf_walker pool_walker = walker ? walker : default_walker;
-	block_header_t * block = offset_to_block(pool, -(int)block_header_overhead);
-
-	while (block && !block_is_last(block))
-	{
-		pool_walker(block_to_ptr(block), block_get_size(block), !block_is_free(block), user);
-		block = block_next(block);
-	}
-}
-
-void memory_pool_stat(void * pool, size_t * used, size_t * free)
-{
-	struct mpool_stat stat;
-
-	stat.used = 0;
-	stat.free = 0;
-
-	tlsf_walk_pool(pool, tlfs_stat_walker, &stat);
-
-	*used = stat.used;
-	*free = stat.free;
-}
-
 static inline void * tlsf_add_pool(void * tlsf, void * mem, size_t bytes)
 {
 	block_header_t * block;
@@ -615,24 +567,10 @@ static inline void * tlsf_add_pool(void * tlsf, void * mem, size_t bytes)
 	const size_t pool_bytes = align_down(bytes - pool_overhead, ALIGN_SIZE);
 
 	if (((ptrdiff_t)mem % ALIGN_SIZE) != 0)
-	{
-		printf("tlsf_add_pool: Memory must be aligned by %u bytes.\n", (unsigned int)ALIGN_SIZE);
 		return 0;
-	}
 
 	if (pool_bytes < block_size_min || pool_bytes > block_size_max)
-	{
-#if defined(TLSF_64BIT)
-		printf("tlsf_add_pool: Memory size must be between 0x%x and 0x%x00 bytes.\n",
-			(unsigned int)(pool_overhead + block_size_min),
-			(unsigned int)((pool_overhead + block_size_max) / 256));
-#else
-		printf("tlsf_add_pool: Memory size must be between %u and %u bytes.\n",
-			(unsigned int)(pool_overhead + block_size_min),
-			(unsigned int)(pool_overhead + block_size_max));
-#endif
 		return 0;
-	}
 
 	block = offset_to_block(mem, -(tlsfptr_t)block_header_overhead);
 	block_set_size(block, pool_bytes);
@@ -665,10 +603,7 @@ static inline void tlsf_remove_pool(void * tlsf, void * pool)
 static inline void * tlsf_create(void * mem)
 {
 	if (((tlsfptr_t)mem % ALIGN_SIZE) != 0)
-	{
-		printf("tlsf_create: Memory must be aligned to %u bytes.\n", (unsigned int)ALIGN_SIZE);
 		return 0;
-	}
 
 	control_construct(tlsf_cast(control_t *, mem));
 	return tlsf_cast(void *, mem);
@@ -818,11 +753,6 @@ void mm_destroy(void * mm)
 	tlsf_destroy(mm);
 }
 
-void * mm_get_pool(void * mm)
-{
-	return tlsf_get_pool(mm);
-}
-
 void * mm_add_pool(void * mm, void * mem, size_t bytes)
 {
 	return tlsf_add_pool(mm, mem, bytes);
@@ -831,6 +761,11 @@ void * mm_add_pool(void * mm, void * mem, size_t bytes)
 void mm_remove_pool(void * mm, void * pool)
 {
 	tlsf_remove_pool(mm, pool);
+}
+
+void * mm_get_pool(void * mm)
+{
+	return tlsf_get_pool(mm);
 }
 
 void * malloc(size_t size)

@@ -32,13 +32,13 @@ static char __heap[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap
 #endif
 static struct runtime_t * __current_runtime = NULL;
 
-static void * default_memory_pool(void)
+static void * default_memory_manager(void)
 {
-	static void * __pool = NULL;
+	static void * __mm = NULL;
 
-	if(!__pool)
-		__pool = memory_pool_create((void *)__heap, sizeof(__heap));
-	return __pool;
+	if(!__mm)
+		__mm = mm_create_with_pool((void *)__heap, sizeof(__heap));
+	return __mm;
 }
 
 struct runtime_t * runtime_get(void)
@@ -56,9 +56,9 @@ void runtime_create_save(struct runtime_t * rt, void * pool, size_t size, const 
 	__current_runtime = rt;
 
 	if(pool && (size > 0))
-		rt->__pool = memory_pool_create(pool, size);
+		rt->__mm = mm_create_with_pool(pool, size);
 	else
-		rt->__pool = default_memory_pool();
+		rt->__mm = default_memory_manager();
 	rt->__errno = 0;
 
 	rt->__seed[0] = 1;

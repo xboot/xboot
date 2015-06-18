@@ -8,9 +8,12 @@ extern "C" {
 #include <xboot/module.h>
 #include <types.h>
 
-void * memory_pool_create(void * pool, size_t size);
-void memory_pool_destroy(void * pool);
-void memory_pool_stat(void * pool, size_t * used, size_t * free);
+void * mm_create(void * mem);
+void * mm_create_with_pool(void * mem, size_t bytes);
+void mm_destroy(void * mm);
+void * mm_get_pool(void * mm);
+void * mm_add_pool(void * mm, void * mem, size_t bytes);
+void mm_remove_pool(void * mm, void * pool);
 
 void * malloc(size_t size);
 void * memalign(size_t align, size_t size);

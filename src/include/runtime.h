@@ -8,8 +8,8 @@ extern "C" {
 #include <xboot.h>
 
 struct runtime_t {
-	/* memory pool */
-	void * __pool;
+	/* memory manager */
+	void * __mm;
 
 	/* error number */
 	int __errno;

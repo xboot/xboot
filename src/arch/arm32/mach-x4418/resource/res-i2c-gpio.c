@@ -28,30 +28,6 @@
 
 static struct i2c_gpio_data_t i2c_gpio_datas[] = {
 	[0] = {
-		.sda_pin			= S5P4418_GPIOD(3),
-		.scl_pin			= S5P4418_GPIOD(2),
-		.udelay				= 5,
-		.sda_is_open_drain	= 0,
-		.scl_is_open_drain	= 0,
-		.scl_is_output_only	= 0,
-	},
-	[1] = {
-		.sda_pin			= S5P4418_GPIOD(5),
-		.scl_pin			= S5P4418_GPIOD(4),
-		.udelay				= 5,
-		.sda_is_open_drain	= 0,
-		.scl_is_open_drain	= 0,
-		.scl_is_output_only	= 0,
-	},
-	[2] = {
-		.sda_pin			= S5P4418_GPIOD(7),
-		.scl_pin			= S5P4418_GPIOD(6),
-		.udelay				= 5,
-		.sda_is_open_drain	= 0,
-		.scl_is_open_drain	= 0,
-		.scl_is_output_only	= 0,
-	},
-	[3] = {
 		.sda_pin			= S5P4418_GPIOC(16),
 		.scl_pin			= S5P4418_GPIOC(15),
 		.udelay				= 5,
@@ -66,18 +42,6 @@ static struct resource_t res_i2c_gpios[] = {
 		.name		= "i2c-gpio",
 		.id			= 0,
 		.data		= &i2c_gpio_datas[0],
-	}, {
-		.name		= "i2c-gpio",
-		.id			= 1,
-		.data		= &i2c_gpio_datas[1],
-	}, {
-		.name		= "i2c-gpio",
-		.id			= 2,
-		.data		= &i2c_gpio_datas[2],
-	}, {
-		.name		= "i2c-gpio",
-		.id			= 3,
-		.data		= &i2c_gpio_datas[3],
 	},
 };
 

@@ -144,6 +144,30 @@ struct s5p4418_fb_data_t
 
 		/* Vertical back porch */
 		int	v_back_porch;
+
+		/* Start veritcal sync offset */
+		int vs_start_offset;
+
+		/* End veritcal sync offset */
+		int vs_end_offset;
+
+		/* Start even veritcal sync offset */
+		int ev_start_offset;
+
+		/* End even veritcal sync offset */
+		int ev_end_offset;
+
+		/* The delay value for RGB/PVD signal */
+		int d_rgb_pvd;
+
+		/* The delay value for HSYNC/CP1 signal */
+		int d_hsync_cp1;
+
+		/* The delay value for VSYNC/FRAM signal */
+		int d_vsync_fram;
+
+		/* The delay value for DE/CP2 signal */
+		int d_de_cp2;
 	} timing;
 
 	struct {
@@ -152,9 +176,6 @@ struct s5p4418_fb_data_t
 
 		/* Vsync polarity flag */
 		int	v_sync_invert;
-
-		/* Outclk polarity flag */
-		int outclk_invert;
 	} polarity;
 
 	/* Init and exit */

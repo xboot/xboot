@@ -25,7 +25,7 @@
 #include <axp228.h>
 
 static struct axp228_data_t axp228_data = {
-	.i2cbus		= "i2c-gpio.0",
+	.i2cbus		= "i2c-gpio.3",
 	.addr		= 0x34,
 
 	.dcdc1		= 3300,

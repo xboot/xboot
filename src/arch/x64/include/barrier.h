@@ -5,16 +5,23 @@
 extern "C" {
 #endif
 
-#define isb()
-#define dsb()
-#define dmb()
+/* Read & Write Memory barrier */
+#define mb()		__asm__ __volatile__ ("mfence\n");
 
-#define mb()		dsb()
-#define rmb()		dsb()
-#define wmb()		dsb()
-#define smp_mb()	dmb()
-#define smp_rmb()	dmb()
-#define smp_wmb()	dmb()
+/* Read Memory barrier */
+#define rmb()		__asm__ __volatile__ ("lfence\n");
+
+/* Write Memory barrier */
+#define wmb()		__asm__ __volatile__ ("sfence\n");
+
+/* SMP Read & Write Memory barrier */
+#define smp_mb()	__asm__ __volatile__ ("mfence":::"memory");
+
+/* SMP Read Memory barrier */
+#define smp_rmb()	__asm__ __volatile__ ("lfence":::"memory");
+
+/* SMP Write Memory barrier */
+#define smp_wmb()	__asm__ __volatile__ ("sfence":::"memory");
 
 #ifdef __cplusplus
 }

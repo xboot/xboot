@@ -19,11 +19,22 @@ extern "C" {
 #define dmb()		__asm__ __volatile__ ("" : : : "memory")
 #endif
 
+/* Read & Write Memory barrier */
 #define mb()		dsb()
+
+/* Read Memory barrier */
 #define rmb()		dsb()
+
+/* Write Memory barrier */
 #define wmb()		dsb()
+
+/* SMP Read & Write Memory barrier */
 #define smp_mb()	dmb()
+
+/* SMP Read Memory barrier */
 #define smp_rmb()	dmb()
+
+/* SMP Write Memory barrier */
 #define smp_wmb()	dmb()
 
 #ifdef __cplusplus

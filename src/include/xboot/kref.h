@@ -23,7 +23,7 @@ static inline void kref_get(struct kref_t * ref)
 
 static inline int kref_sub(struct kref_t * ref, unsigned int count, void (*release)(struct kref_t * ref))
 {
-	if(atomic_sub_and_test((int)count, &ref->count))
+	if(atomic_sub_and_test(&ref->count, (int)count))
 	{
 		if(release)
 			release(ref);

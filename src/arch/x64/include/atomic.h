@@ -9,63 +9,51 @@ extern "C" {
 #include <barrier.h>
 #include <irqflags.h>
 
-static inline void atomic_add(long i, atomic_t * v)
+static inline void atomic_add(atomic_t * a, long v)
 {
-	irq_flags_t flags;
-	long val;
-
-	local_irq_save(flags);
-	val = v->counter;
-	v->counter = val += i;
-	local_irq_restore(flags);
+	__asm__ __volatile__ (
+		"lock;\n"
+		" addl %k1,%k0\n\t"
+		:"+m"(a->counter)
+		:"ir"(v));
 }
 
-static inline long atomic_add_return(long i, atomic_t * v)
+static inline long atomic_add_return(atomic_t * a, long v)
 {
-	irq_flags_t flags;
-	long val;
+	long tmp;
 
-	local_irq_save(flags);
-	val = v->counter;
-	v->counter = val += i;
-	local_irq_restore(flags);
+	__asm__ __volatile__ (
+		"lock;\n"
+		" xaddl %k0,%k1\n\t"
+		:"=r"(oval),"+m"(a->counter)
+		:"0"(v):"cc");
 
-	return val;
+	return v + tmp;
 }
 
-static inline void atomic_sub(long i, atomic_t * v)
+static inline void atomic_sub(atomic_t * a, long v)
 {
-	irq_flags_t flags;
-	long val;
-
-	local_irq_save(flags);
-	val = v->counter;
-	v->counter = val -= i;
-	local_irq_restore(flags);
+	__asm__ __volatile__ (
+		"lock;\n"
+		" subl %k1,%k0\n\t"
+		:"+m"(a->counter)
+		:"ir"(v));
 }
 
-static inline long atomic_sub_return(long i, atomic_t * v)
+static inline long atomic_sub_return(atomic_t * a, long v)
 {
-	irq_flags_t flags;
-	long val;
-
-	local_irq_save(flags);
-	val = v->counter;
-	v->counter = val -= i;
-	local_irq_restore(flags);
-
-	return val;
+	return atomic_add_return(a, -v);
 }
 
-#define atomic_set(v, i)			(((v)->counter) = (i))
-#define atomic_inc(v)				atomic_add(1, v)
-#define atomic_dec(v)				atomic_sub(1, v)
-#define atomic_inc_return(v)		(atomic_add_return(1, v))
-#define atomic_dec_return(v)		(atomic_sub_return(1, v))
-#define atomic_inc_and_test(v)		(atomic_add_return(1, v) == 0)
-#define atomic_dec_and_test(v)		(atomic_sub_return(1, v) == 0)
-#define atomic_add_negative(i,v)	(atomic_add_return(i, v) < 0)
-#define atomic_sub_and_test(i, v)	(atomic_sub_return(i, v) == 0)
+#define atomic_set(a, v)			(((a)->counter) = (v))
+#define atomic_inc(a)				atomic_add(a, 1)
+#define atomic_dec(a)				atomic_sub(a, 1)
+#define atomic_inc_return(a)		(atomic_add_return(a, 1))
+#define atomic_dec_return(a)		(atomic_sub_return(a, 1))
+#define atomic_inc_and_test(a)		(atomic_add_return(a, 1) == 0)
+#define atomic_dec_and_test(a)		(atomic_sub_return(a, 1) == 0)
+#define atomic_add_negative(a, v)	(atomic_add_return(a, 1) < 0)
+#define atomic_sub_and_test(a, v)	(atomic_sub_return(a, 1) == 0)
 
 #ifdef __cplusplus
 }

@@ -24,7 +24,7 @@
 
 #include <s5p4418-fb.h>
 
-static void s5p4418_mlc_pclk_bclk_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
+static inline void s5p4418_mlc_pclk_bclk_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -37,7 +37,7 @@ static void s5p4418_mlc_pclk_bclk_enable(struct s5p4418_fb_data_t * dat, bool_t 
 	write32(phys_to_virt(dat->mlcbase + MLC_CLKENB), cfg);
 }
 
-static void s5p4418_mlc_set_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
+static inline void s5p4418_mlc_set_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -48,7 +48,7 @@ static void s5p4418_mlc_set_enable(struct s5p4418_fb_data_t * dat, bool_t enable
 	write32(phys_to_virt(dat->mlcbase + MLC_CONTROLT), cfg);
 }
 
-static void s5p4418_mlc_set_power_mode(struct s5p4418_fb_data_t * dat, bool_t on)
+static inline void s5p4418_mlc_set_power_mode(struct s5p4418_fb_data_t * dat, bool_t on)
 {
 	u32_t cfg;
 
@@ -59,18 +59,18 @@ static void s5p4418_mlc_set_power_mode(struct s5p4418_fb_data_t * dat, bool_t on
 	write32(phys_to_virt(dat->mlcbase + MLC_CONTROLT), cfg);
 }
 
-static void s5p4418_mlc_set_sleep_mode(struct s5p4418_fb_data_t * dat, bool_t on)
+static inline void s5p4418_mlc_set_sleep_mode(struct s5p4418_fb_data_t * dat, bool_t on)
 {
 	u32_t cfg;
 
 	cfg = read32(phys_to_virt(dat->mlcbase + MLC_CONTROLT));
 	cfg &= ~(0x1 << 10 | 0x1 << 3);
-	if(on)
+	if(!on)
 		cfg |= (0x1 << 10);
 	write32(phys_to_virt(dat->mlcbase + MLC_CONTROLT), cfg);
 }
 
-static void s5p4418_mlc_set_top_dirty_flag(struct s5p4418_fb_data_t * dat)
+static inline void s5p4418_mlc_set_top_dirty_flag(struct s5p4418_fb_data_t * dat)
 {
 	u32_t cfg;
 
@@ -79,7 +79,7 @@ static void s5p4418_mlc_set_top_dirty_flag(struct s5p4418_fb_data_t * dat)
 	write32(phys_to_virt(dat->mlcbase + MLC_CONTROLT), cfg);
 }
 
-static void s5p4418_mlc_set_layer_priority(struct s5p4418_fb_data_t * dat, int priority)
+static inline void s5p4418_mlc_set_layer_priority(struct s5p4418_fb_data_t * dat, int priority)
 {
 	u32_t cfg;
 
@@ -89,7 +89,7 @@ static void s5p4418_mlc_set_layer_priority(struct s5p4418_fb_data_t * dat, int p
 	write32(phys_to_virt(dat->mlcbase + MLC_CONTROLT), cfg);
 }
 
-static void s5p4418_mlc_set_field_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
+static inline void s5p4418_mlc_set_field_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -100,7 +100,7 @@ static void s5p4418_mlc_set_field_enable(struct s5p4418_fb_data_t * dat, bool_t 
 	write32(phys_to_virt(dat->mlcbase + MLC_CONTROLT), cfg);
 }
 
-static void s5p4418_mlc_set_screen_size(struct s5p4418_fb_data_t * dat, u32_t width, u32_t height)
+static inline void s5p4418_mlc_set_screen_size(struct s5p4418_fb_data_t * dat, u32_t width, u32_t height)
 {
 	u32_t cfg;
 
@@ -108,12 +108,12 @@ static void s5p4418_mlc_set_screen_size(struct s5p4418_fb_data_t * dat, u32_t wi
 	write32(phys_to_virt(dat->mlcbase + MLC_SCREENSIZE), cfg);
 }
 
-static void s5p4418_mlc_set_background_color(struct s5p4418_fb_data_t * dat, u32_t color)
+static inline void s5p4418_mlc_set_background_color(struct s5p4418_fb_data_t * dat, u32_t color)
 {
 	write32(phys_to_virt(dat->mlcbase + MLC_BGCOLOR), color);
 }
 
-static void s5p4418_mlc_set_layer_enable(struct s5p4418_fb_data_t * dat, int layer, bool_t enable)
+static inline void s5p4418_mlc_set_layer_enable(struct s5p4418_fb_data_t * dat, int layer, bool_t enable)
 {
 	u32_t cfg;
 
@@ -148,7 +148,7 @@ static void s5p4418_mlc_set_layer_enable(struct s5p4418_fb_data_t * dat, int lay
 	}
 }
 
-static void s5p4418_mlc_set_dirty_flag(struct s5p4418_fb_data_t * dat, int layer)
+static inline void s5p4418_mlc_set_dirty_flag(struct s5p4418_fb_data_t * dat, int layer)
 {
 	u32_t cfg;
 
@@ -177,7 +177,7 @@ static void s5p4418_mlc_set_dirty_flag(struct s5p4418_fb_data_t * dat, int layer
 	}
 }
 
-static bool_t s5p4418_mlc_get_dirty_flag(struct s5p4418_fb_data_t * dat, int layer)
+static inline bool_t s5p4418_mlc_get_dirty_flag(struct s5p4418_fb_data_t * dat, int layer)
 {
 	switch(layer)
 	{
@@ -193,12 +193,12 @@ static bool_t s5p4418_mlc_get_dirty_flag(struct s5p4418_fb_data_t * dat, int lay
 	return FALSE;
 }
 
-static void s5p4418_mlc_wait_vsync(struct s5p4418_fb_data_t * dat, int layer)
+static inline void s5p4418_mlc_wait_vsync(struct s5p4418_fb_data_t * dat, int layer)
 {
 	while(s5p4418_mlc_get_dirty_flag(dat, layer));
 }
 
-static void s5p4418_mlc_set_lock_size(struct s5p4418_fb_data_t * dat, int layer, int size)
+static inline void s5p4418_mlc_set_lock_size(struct s5p4418_fb_data_t * dat, int layer, int size)
 {
 	u32_t cfg;
 
@@ -223,7 +223,7 @@ static void s5p4418_mlc_set_lock_size(struct s5p4418_fb_data_t * dat, int layer,
 	}
 }
 
-static void s5p4418_mlc_set_alpha_blending(struct s5p4418_fb_data_t * dat, int layer, bool_t enable, u32_t alpha)
+static inline void s5p4418_mlc_set_alpha_blending(struct s5p4418_fb_data_t * dat, int layer, bool_t enable, u32_t alpha)
 {
 	u32_t cfg;
 
@@ -270,7 +270,7 @@ static void s5p4418_mlc_set_alpha_blending(struct s5p4418_fb_data_t * dat, int l
 	}
 }
 
-static void s5p4418_mlc_set_transparency(struct s5p4418_fb_data_t * dat, int layer, bool_t enable, u32_t color)
+static inline void s5p4418_mlc_set_transparency(struct s5p4418_fb_data_t * dat, int layer, bool_t enable, u32_t color)
 {
 	u32_t cfg;
 
@@ -317,7 +317,7 @@ static void s5p4418_mlc_set_transparency(struct s5p4418_fb_data_t * dat, int lay
 	}
 }
 
-static void s5p4418_mlc_set_color_inversion(struct s5p4418_fb_data_t * dat, int layer, bool_t enable, u32_t color)
+static inline void s5p4418_mlc_set_color_inversion(struct s5p4418_fb_data_t * dat, int layer, bool_t enable, u32_t color)
 {
 	u32_t cfg;
 
@@ -364,7 +364,7 @@ static void s5p4418_mlc_set_color_inversion(struct s5p4418_fb_data_t * dat, int 
 	}
 }
 
-static void s5p4418_mlc_set_layer_invalid_position(struct s5p4418_fb_data_t * dat, int layer, u32_t region, s32_t sx, s32_t sy, s32_t ex, s32_t ey, bool_t enable)
+static inline void s5p4418_mlc_set_layer_invalid_position(struct s5p4418_fb_data_t * dat, int layer, u32_t region, s32_t sx, s32_t sy, s32_t ex, s32_t ey, bool_t enable)
 {
 	u32_t cfg;
 
@@ -409,7 +409,7 @@ static void s5p4418_mlc_set_layer_invalid_position(struct s5p4418_fb_data_t * da
 	}
 }
 
-static void s5p4418_mlc_set_rgb_format(struct s5p4418_fb_data_t * dat, int layer, enum s5p4418_mlc_rgbfmt_t fmt)
+static inline void s5p4418_mlc_set_rgb_format(struct s5p4418_fb_data_t * dat, int layer, enum s5p4418_mlc_rgbfmt_t fmt)
 {
 	u32_t cfg;
 
@@ -434,7 +434,7 @@ static void s5p4418_mlc_set_rgb_format(struct s5p4418_fb_data_t * dat, int layer
 	}
 }
 
-static void s5p4418_mlc_set_position(struct s5p4418_fb_data_t * dat, int layer, s32_t sx, s32_t sy, s32_t ex, s32_t ey)
+static inline void s5p4418_mlc_set_position(struct s5p4418_fb_data_t * dat, int layer, s32_t sx, s32_t sy, s32_t ex, s32_t ey)
 {
 	u32_t cfg;
 
@@ -466,7 +466,7 @@ static void s5p4418_mlc_set_position(struct s5p4418_fb_data_t * dat, int layer, 
 	}
 }
 
-static void s5p4418_mlc_set_layer_stride(struct s5p4418_fb_data_t * dat, int layer, s32_t hstride, s32_t vstride)
+static inline void s5p4418_mlc_set_layer_stride(struct s5p4418_fb_data_t * dat, int layer, s32_t hstride, s32_t vstride)
 {
 	switch(layer)
 	{
@@ -485,7 +485,7 @@ static void s5p4418_mlc_set_layer_stride(struct s5p4418_fb_data_t * dat, int lay
 	}
 }
 
-static void s5p4418_mlc_set_layer_address(struct s5p4418_fb_data_t * dat, int layer, void * vram)
+static inline void s5p4418_mlc_set_layer_address(struct s5p4418_fb_data_t * dat, int layer, void * vram)
 {
 	switch(layer)
 	{
@@ -503,7 +503,7 @@ static void s5p4418_mlc_set_layer_address(struct s5p4418_fb_data_t * dat, int la
 	}
 }
 
-static void s5p4418_dpc_pclk_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
+static inline void s5p4418_dpc_pclk_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -516,7 +516,7 @@ static void s5p4418_dpc_pclk_enable(struct s5p4418_fb_data_t * dat, bool_t enabl
 	write32(phys_to_virt(dat->dpcbase + DPC_CLKENB), cfg);
 }
 
-static void s5p4418_dpc_set_mode(struct s5p4418_fb_data_t * dat)
+static inline void s5p4418_dpc_set_mode(struct s5p4418_fb_data_t * dat)
 {
 	u32_t cfg;
 
@@ -542,11 +542,11 @@ static void s5p4418_dpc_set_mode(struct s5p4418_fb_data_t * dat)
 	cfg |= ((dat->mode.rdither << 0) | (dat->mode.gdither << 2) | (dat->mode.bdither << 4));
 	write32(phys_to_virt(dat->dpcbase + DPC_CTRL1), cfg);
 
-	cfg = 0x1;
+	cfg = 0x0;
 	write32(phys_to_virt(dat->dpcbase + DPC_CTRL2), cfg);
 }
 
-static void s5p4418_dpc_set_timing(struct s5p4418_fb_data_t * dat)
+static inline void s5p4418_dpc_set_timing(struct s5p4418_fb_data_t * dat)
 {
 	u32_t cfg;
 
@@ -609,7 +609,7 @@ static void s5p4418_dpc_set_timing(struct s5p4418_fb_data_t * dat)
 	write32(phys_to_virt(dat->dpcbase + DPC_DELAY1), cfg);
 }
 
-static void s5p4418_dpc_set_polarity(struct s5p4418_fb_data_t * dat)
+static inline void s5p4418_dpc_set_polarity(struct s5p4418_fb_data_t * dat)
 {
 	u32_t cfg;
 
@@ -622,7 +622,7 @@ static void s5p4418_dpc_set_polarity(struct s5p4418_fb_data_t * dat)
 	write32(phys_to_virt(dat->dpcbase + DPC_CTRL0), cfg);
 }
 
-static void s5p4418_dpc_set_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
+static inline void s5p4418_dpc_set_enable(struct s5p4418_fb_data_t * dat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -633,12 +633,12 @@ static void s5p4418_dpc_set_enable(struct s5p4418_fb_data_t * dat, bool_t enable
 	write32(phys_to_virt(dat->dpcbase + DPC_CTRL0), cfg);
 }
 
-static void s5p4418_dpa_rgb_mux_select(int sel)
+static inline void s5p4418_dpa_rgb_mux_select(int sel)
 {
 	write32(phys_to_virt(S5P4418_DPA_BASE + DPA_TFT_MUXCTRL), (sel & 0x3));
 }
 
-static void s5p4418_fb_cfg_gpios(int base, int nr, int cfg, enum gpio_pull_t pull, enum gpio_drv_t drv)
+static inline void s5p4418_fb_cfg_gpios(int base, int nr, int cfg, enum gpio_pull_t pull, enum gpio_drv_t drv)
 {
 	for(; nr > 0; nr--, base++)
 	{
@@ -722,7 +722,6 @@ static void fb_init(struct fb_t * fb)
 	 * Enable dpc controller
 	 */
 	s5p4418_dpc_set_enable(dat, TRUE);
-	//NX_DPC_SetClockDivisorEnable(module, on);
 
 	/*
 	 * MUX select for primary dpc(TFT)
@@ -814,7 +813,11 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 	void * pixels = render->pixels;
 
 	if(pixels)
+	{
+		s5p4418_mlc_wait_vsync(dat, 0);
 		s5p4418_mlc_set_layer_address(dat, 0, pixels);
+		s5p4418_mlc_set_dirty_flag(dat, 0);
+	}
 }
 
 static void fb_suspend(struct fb_t * fb)

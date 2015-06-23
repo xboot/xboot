@@ -46,12 +46,17 @@ static void lcd_init(struct s5p4418_fb_data_t * dat)
 	bl->period = 1000 * 1000;
 	bl->duty_from = 0;
 	bl->duty_to = 1000 * 1000;
-	bl->polarity = 0;
+	bl->polarity = 1;
 	bl->brightness = 0;
 	dat->priv = bl;
 
 	pwm_config(bl->pwm, bl->duty_from, bl->period, bl->polarity);
 	pwm_enable(bl->pwm);
+
+	/* Enable backlight power */
+	gpio_set_cfg(S5P4418_GPIOC(10), 0x1);
+	gpio_set_pull(S5P4418_GPIOC(10), GPIO_PULL_UP);
+	gpio_direction_output(S5P4418_GPIOC(10), 1);
 }
 
 static void lcd_exit(struct s5p4418_fb_data_t * dat)

@@ -25,7 +25,7 @@ static inline long atomic_add_return(atomic_t * a, long v)
 	__asm__ __volatile__ (
 		"lock;\n"
 		" xaddl %k0,%k1\n\t"
-		:"=r"(oval),"+m"(a->counter)
+		:"=r"(tmp),"+m"(a->counter)
 		:"0"(v):"cc");
 
 	return v + tmp;

@@ -266,7 +266,6 @@ static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 	switch(type)
 	{
 	case IRQ_TYPE_NONE:
-		cfg = 0xf;
 		break;
 	case IRQ_TYPE_LEVEL_LOW:
 		cfg = 0x0;
@@ -300,21 +299,21 @@ static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 	else if(no < 96)
 	{
 		no = no - 64;
-		if(cfg != 0xf)
+		if(type != IRQ_TYPE_NONE)
 		{
 			if(no < 16)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETMODE0));
 				val &= ~(0x3 << (no << 0x1));
 				val |= (cfg & 0x3) << (no << 0x1);
-				write32(S5P4418_GPIOA_BASE + GPIO_DETMODE0, val);
+				write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETMODE0), val);
 			}
 			else if(no < 32)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETMODE1));
 				val &= ~(0x3 << ((no - 16) << 0x1));
 				val |= (cfg & 0x3) << ((no - 16) << 0x1);
-				write32(S5P4418_GPIOA_BASE + GPIO_DETMODE1, val);
+				write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETMODE1), val);
 			}
 
 			val = read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETMODEEX));
@@ -322,38 +321,38 @@ static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 				val |= 0x1 << no;
 			else
 				val &= ~(0x1 << no);
-			write32(S5P4418_GPIOA_BASE + GPIO_DETMODEEX, val);
+			write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETMODEEX), val);
 
-			val = read32(S5P4418_GPIOA_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETENB));
 			val |= 0x1 << no;
-			write32(S5P4418_GPIOA_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETENB), val);
 		}
 		else
 		{
-			val = read32(S5P4418_GPIOA_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETENB));
 			val &= ~(0x1 << no);
-			write32(S5P4418_GPIOA_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOA_BASE + GPIO_DETENB), val);
 		}
 	}
 	/* GPIOB */
 	else if(no < 128)
 	{
 		no = no - 96;
-		if(cfg != 0xf)
+		if(type != IRQ_TYPE_NONE)
 		{
 			if(no < 16)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETMODE0));
 				val &= ~(0x3 << (no << 0x1));
 				val |= (cfg & 0x3) << (no << 0x1);
-				write32(S5P4418_GPIOB_BASE + GPIO_DETMODE0, val);
+				write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETMODE0), val);
 			}
 			else if(no < 32)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETMODE1));
 				val &= ~(0x3 << ((no - 16) << 0x1));
 				val |= (cfg & 0x3) << ((no - 16) << 0x1);
-				write32(S5P4418_GPIOB_BASE + GPIO_DETMODE1, val);
+				write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETMODE1), val);
 			}
 
 			val = read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETMODEEX));
@@ -361,38 +360,38 @@ static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 				val |= 0x1 << no;
 			else
 				val &= ~(0x1 << no);
-			write32(S5P4418_GPIOB_BASE + GPIO_DETMODEEX, val);
+			write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETMODEEX), val);
 
-			val = read32(S5P4418_GPIOB_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETENB));
 			val |= 0x1 << no;
-			write32(S5P4418_GPIOB_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETENB), val);
 		}
 		else
 		{
-			val = read32(S5P4418_GPIOB_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETENB));
 			val &= ~(0x1 << no);
-			write32(S5P4418_GPIOB_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOB_BASE + GPIO_DETENB), val);
 		}
 	}
 	/* GPIOC */
 	else if(no < 160)
 	{
 		no = no - 128;
-		if(cfg != 0xf)
+		if(type != IRQ_TYPE_NONE)
 		{
 			if(no < 16)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETMODE0));
 				val &= ~(0x3 << (no << 0x1));
 				val |= (cfg & 0x3) << (no << 0x1);
-				write32(S5P4418_GPIOC_BASE + GPIO_DETMODE0, val);
+				write32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETMODE0), val);
 			}
 			else if(no < 32)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETMODE1));
 				val &= ~(0x3 << ((no - 16) << 0x1));
 				val |= (cfg & 0x3) << ((no - 16) << 0x1);
-				write32(S5P4418_GPIOC_BASE + GPIO_DETMODE1, val);
+				write32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETMODE1), val);
 			}
 
 			val = read32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETMODEEX));
@@ -400,38 +399,38 @@ static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 				val |= 0x1 << no;
 			else
 				val &= ~(0x1 << no);
-			write32(S5P4418_GPIOC_BASE + GPIO_DETMODEEX, val);
+			write32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETMODEEX), val);
 
-			val = read32(S5P4418_GPIOC_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETENB));
 			val |= 0x1 << no;
-			write32(S5P4418_GPIOC_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETENB), val);
 		}
 		else
 		{
-			val = read32(S5P4418_GPIOC_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETENB));
 			val &= ~(0x1 << no);
-			write32(S5P4418_GPIOC_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOC_BASE + GPIO_DETENB), val);
 		}
 	}
 	/* GPIOD */
 	else if(no < 192)
 	{
 		no = no - 160;
-		if(cfg != 0xf)
+		if(type != IRQ_TYPE_NONE)
 		{
 			if(no < 16)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETMODE0));
 				val &= ~(0x3 << (no << 0x1));
 				val |= (cfg & 0x3) << (no << 0x1);
-				write32(S5P4418_GPIOD_BASE + GPIO_DETMODE0, val);
+				write32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETMODE0), val);
 			}
 			else if(no < 32)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETMODE1));
 				val &= ~(0x3 << ((no - 16) << 0x1));
 				val |= (cfg & 0x3) << ((no - 16) << 0x1);
-				write32(S5P4418_GPIOD_BASE + GPIO_DETMODE1, val);
+				write32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETMODE1), val);
 			}
 
 			val = read32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETMODEEX));
@@ -439,38 +438,38 @@ static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 				val |= 0x1 << no;
 			else
 				val &= ~(0x1 << no);
-			write32(S5P4418_GPIOD_BASE + GPIO_DETMODEEX, val);
+			write32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETMODEEX), val);
 
-			val = read32(S5P4418_GPIOD_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETENB));
 			val |= 0x1 << no;
-			write32(S5P4418_GPIOD_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETENB), val);
 		}
 		else
 		{
-			val = read32(S5P4418_GPIOD_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETENB));
 			val &= ~(0x1 << no);
-			write32(S5P4418_GPIOD_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOD_BASE + GPIO_DETENB), val);
 		}
 	}
 	/* GPIOE */
 	else if(no < 224)
 	{
 		no = no - 192;
-		if(cfg != 0xf)
+		if(type != IRQ_TYPE_NONE)
 		{
 			if(no < 16)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETMODE0));
 				val &= ~(0x3 << (no << 0x1));
 				val |= (cfg & 0x3) << (no << 0x1);
-				write32(S5P4418_GPIOE_BASE + GPIO_DETMODE0, val);
+				write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETMODE0), val);
 			}
 			else if(no < 32)
 			{
 				val = read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETMODE1));
 				val &= ~(0x3 << ((no - 16) << 0x1));
 				val |= (cfg & 0x3) << ((no - 16) << 0x1);
-				write32(S5P4418_GPIOE_BASE + GPIO_DETMODE1, val);
+				write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETMODE1), val);
 			}
 
 			val = read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETMODEEX));
@@ -478,17 +477,17 @@ static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 				val |= 0x1 << no;
 			else
 				val &= ~(0x1 << no);
-			write32(S5P4418_GPIOE_BASE + GPIO_DETMODEEX, val);
+			write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETMODEEX), val);
 
-			val = read32(S5P4418_GPIOE_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETENB));
 			val |= 0x1 << no;
-			write32(S5P4418_GPIOE_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETENB), val);
 		}
 		else
 		{
-			val = read32(S5P4418_GPIOE_BASE + GPIO_DETENB);
+			val = read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETENB));
 			val &= ~(0x1 << no);
-			write32(S5P4418_GPIOE_BASE + GPIO_DETENB, val);
+			write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETENB), val);
 		}
 	}
 }

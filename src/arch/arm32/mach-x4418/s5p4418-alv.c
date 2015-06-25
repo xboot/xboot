@@ -92,9 +92,9 @@ static enum gpio_pull_t s5p4418_gpiochip_alv_get_pull(struct gpiochip_t * chip, 
 
 	val = read32(phys_to_virt(dat->regbase + GPIOALV_PADPULLUPREADREG));
 	if(!((val >> offset) & 0x1))
-		return GPIO_PULL_UP;
-	else
 		return GPIO_PULL_DOWN;
+	else
+		return GPIO_PULL_UP;
 
 	return GPIO_PULL_NONE;
 }
@@ -196,7 +196,7 @@ static int s5p4418_gpiochip_alv_get_value(struct gpiochip_t * chip, int offset)
 	if(offset >= chip->ngpio)
 		return 0;
 
-	val = read32(phys_to_virt(dat->regbase + GPIOALV_PADOUTREADREG));
+	val = read32(phys_to_virt(dat->regbase + GPIOALV_GPIOINPUTVALUE));
 	return !!(val & (1 << offset));
 }
 

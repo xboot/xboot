@@ -5028,7 +5028,7 @@ static struct resource_t res_gslx680 = {
 	.data		= &gslx680_data,
 };
 
-static __init void resource_rtc_init(void)
+static __init void resource_gslx680_init(void)
 {
 	if(register_resource(&res_gslx680))
 		LOG("Register resource '%s:%s.%d'", res_gslx680.mach, res_gslx680.name, res_gslx680.id);
@@ -5036,7 +5036,7 @@ static __init void resource_rtc_init(void)
 		LOG("Failed to register resource '%s:%s.%d'", res_gslx680.mach, res_gslx680.name, res_gslx680.id);
 }
 
-static __exit void resource_rtc_exit(void)
+static __exit void resource_gslx680_exit(void)
 {
 	if(unregister_resource(&res_gslx680))
 		LOG("Unregister resource '%s:%s.%d'", res_gslx680.mach, res_gslx680.name, res_gslx680.id);
@@ -5044,5 +5044,5 @@ static __exit void resource_rtc_exit(void)
 		LOG("Failed to unregister resource '%s:%s.%d'", res_gslx680.mach, res_gslx680.name, res_gslx680.id);
 }
 
-resource_initcall(resource_rtc_init);
-resource_exitcall(resource_rtc_exit);
+resource_initcall(resource_gslx680_init);
+resource_exitcall(resource_gslx680_exit);

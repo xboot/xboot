@@ -201,7 +201,7 @@ static int s5p4418_gpiochip_alv_get_value(struct gpiochip_t * chip, int offset)
 }
 
 static struct s5p4418_gpiochip_alv_data_t gpiochip_alv_data = {
-	.regbase	= S5P4418_GPIOA_BASE,
+	.regbase	= S5P4418_GPIOALV_BASE,
 };
 
 struct gpiochip_t gpiochip_alv = {

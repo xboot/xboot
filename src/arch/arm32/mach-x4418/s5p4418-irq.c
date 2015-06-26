@@ -25,6 +25,7 @@
 #include <xboot.h>
 #include <cp15.h>
 #include <s5p4418/reg-gpio.h>
+#include <s5p4418/reg-alv.h>
 #include <s5p4418/reg-vic.h>
 
 /*
@@ -44,6 +45,7 @@ static struct irq_handler_t s5p4418_irq_handler_gpiob[32];
 static struct irq_handler_t s5p4418_irq_handler_gpioc[32];
 static struct irq_handler_t s5p4418_irq_handler_gpiod[32];
 static struct irq_handler_t s5p4418_irq_handler_gpioe[32];
+static struct irq_handler_t s5p4418_irq_handler_gpioalv[6];
 
 static void s5p4418_irq_handler_func_gpioa(void * data)
 {
@@ -112,6 +114,32 @@ static void s5p4418_irq_handler_func_gpioe(void * data)
 		offset = __ffs(det);
 		(s5p4418_irq_handler_gpioe[offset].func)(s5p4418_irq_handler_gpioe[offset].data);
 		write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DET), (0x1 << offset));
+	}
+}
+
+static inline void s5p4418_gpio_alv_write_enable(void)
+{
+	write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_PWRGATEREG), 0x1);
+}
+
+static inline void s5p4418_gpio_alv_write_disable(void)
+{
+	write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_PWRGATEREG), 0x0);
+}
+
+static void s5p4418_irq_handler_func_gpioalv(void * data)
+{
+	u32_t det;
+	u32_t offset;
+
+	det = read32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTPENDREG));
+	if(det != 0)
+	{
+		offset = __ffs(det);
+		(s5p4418_irq_handler_gpioalv[offset].func)(s5p4418_irq_handler_gpioalv[offset].data);
+		s5p4418_gpio_alv_write_enable();
+		write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTPENDREG), (0x1 << offset));
+		s5p4418_gpio_alv_write_disable();
 	}
 }
 
@@ -209,6 +237,14 @@ static void s5p4418_irq_enable(struct irq_t * irq)
 		no = no - 192;
 		write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_INTENB)) | (0x1 << no)));
 	}
+	/* GPIOALV */
+	else if(no < 256)
+	{
+		no = no - 224;
+		s5p4418_gpio_alv_write_enable();
+		write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_INTENBSETREG), 0x1 << no);
+		s5p4418_gpio_alv_write_disable();
+	}
 }
 
 static void s5p4418_irq_disable(struct irq_t * irq)
@@ -255,6 +291,14 @@ static void s5p4418_irq_disable(struct irq_t * irq)
 	{
 		no = no - 192;
 		write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_INTENB), (read32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_INTENB)) & ~(0x1 << no)));
+	}
+	/* GPIOALV */
+	else if(no < 256)
+	{
+		no = no - 224;
+		s5p4418_gpio_alv_write_enable();
+		write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_INTENBRSTREG), 0x1 << no);
+		s5p4418_gpio_alv_write_disable();
 	}
 }
 
@@ -490,6 +534,56 @@ static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 			write32(phys_to_virt(S5P4418_GPIOE_BASE + GPIO_DETENB), val);
 		}
 	}
+	/* GPIOALV */
+	else if(no < 256)
+	{
+		no = no - 224;
+		if(type != IRQ_TYPE_NONE)
+		{
+			s5p4418_gpio_alv_write_enable();
+			switch(type)
+			{
+			case IRQ_TYPE_LEVEL_LOW:
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG0), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG1), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODESETREG2), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG3), 0x1 << no);
+				break;
+
+			case IRQ_TYPE_LEVEL_HIGH:
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG0), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG1), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG2), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODESETREG3), 0x1 << no);
+				break;
+
+			case IRQ_TYPE_EDGE_FALLING:
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODESETREG0), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG1), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG2), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG3), 0x1 << no);
+				break;
+
+			case IRQ_TYPE_EDGE_RISING:
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG0), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODESETREG1), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG2), 0x1 << no);
+				write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTMODERSTREG3), 0x1 << no);
+				break;
+
+			default:
+				break;
+			}
+			write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTENBSETREG), 0x1 << no);
+			s5p4418_gpio_alv_write_disable();
+		}
+		else
+		{
+			s5p4418_gpio_alv_write_enable();
+			write32(phys_to_virt(S5P4418_GPIOALV_BASE + GPIOALV_DETECTENBRSTREG), 0x1 << no);
+			s5p4418_gpio_alv_write_disable();
+		}
+	}
 }
 
 static struct irq_t s5p4418_irqs[] = {
@@ -519,13 +613,6 @@ static struct irq_t s5p4418_irqs[] = {
 		.name		= "CLKPWR0",
 		.no			= 3,
 		.handler	= &s5p4418_irq_handler[3],
-		.enable		= s5p4418_irq_enable,
-		.disable	= s5p4418_irq_disable,
-		.set_type	= s5p4418_irq_set_type,
-	}, {
-		.name		= "CLKPWR1",
-		.no			= 4,
-		.handler	= &s5p4418_irq_handler[4],
 		.enable		= s5p4418_irq_enable,
 		.disable	= s5p4418_irq_disable,
 		.set_type	= s5p4418_irq_set_type,
@@ -1997,6 +2084,51 @@ static struct irq_t s5p4418_irqs[] = {
 		.disable	= s5p4418_irq_disable,
 		.set_type	= s5p4418_irq_set_type,
 	},
+
+	/* GPIOALV */
+	{
+		.name		= "GPIOALV0",
+		.no			= 224 + 0,
+		.handler	= &s5p4418_irq_handler_gpioalv[0],
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
+	}, {
+		.name		= "GPIOALV1",
+		.no			= 224 + 1,
+		.handler	= &s5p4418_irq_handler_gpioalv[1],
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
+	}, {
+		.name		= "GPIOALV2",
+		.no			= 224 + 2,
+		.handler	= &s5p4418_irq_handler_gpioalv[2],
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
+	}, {
+		.name		= "GPIOALV3",
+		.no			= 224 + 3,
+		.handler	= &s5p4418_irq_handler_gpioalv[3],
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
+	}, {
+		.name		= "GPIOALV4",
+		.no			= 224 + 4,
+		.handler	= &s5p4418_irq_handler_gpioalv[4],
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
+	}, {
+		.name		= "GPIOALV5",
+		.no			= 224 + 5,
+		.handler	= &s5p4418_irq_handler_gpioalv[5],
+		.enable		= s5p4418_irq_enable,
+		.disable	= s5p4418_irq_disable,
+		.set_type	= s5p4418_irq_set_type,
+	},
 };
 
 static __init void s5p4418_irq_init(void)
@@ -2054,11 +2186,13 @@ static __init void s5p4418_irq_init(void)
 	s5p4418_irq_handler[55].func = s5p4418_irq_handler_func_gpioc;
 	s5p4418_irq_handler[56].func = s5p4418_irq_handler_func_gpiod;
 	s5p4418_irq_handler[57].func = s5p4418_irq_handler_func_gpioe;
+	s5p4418_irq_handler[4].func = s5p4418_irq_handler_func_gpioalv;
 
 	/*
-	 * Enable GPIOA, GPIOB, GPIOC, GPIOD, GPIOE vic interrupt.
+	 * Enable GPIOA, GPIOB, GPIOC, GPIOD, GPIOE and CLKPWR1 vic interrupt.
 	 */
 	write32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENABLE), (read32(phys_to_virt(S5P4418_VIC1_BASE + VIC_INTENABLE)) | (0x1f << (53 - 32))));
+	write32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENABLE), (read32(phys_to_virt(S5P4418_VIC0_BASE + VIC_INTENABLE)) | (0x1 << 4)));
 
 	for(i = 0; i < ARRAY_SIZE(s5p4418_irqs); i++)
 	{

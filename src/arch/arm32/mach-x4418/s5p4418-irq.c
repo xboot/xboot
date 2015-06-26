@@ -261,7 +261,7 @@ static void s5p4418_irq_disable(struct irq_t * irq)
 static void s5p4418_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 {
 	int no = irq->no;
-	u32_t val, cfg;
+	u32_t val, cfg = 0x0;
 
 	switch(type)
 	{

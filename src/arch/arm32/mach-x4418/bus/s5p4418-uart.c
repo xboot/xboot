@@ -191,6 +191,7 @@ static void s5p4418_uart_init(struct uart_t * uart)
 	switch(res->id)
 	{
 	case 0:
+		s5p4418_ip_reset(RESET_ID_UART0, 0);
 		clk_enable("GATE-UART0");
 		gpio_set_cfg(S5P4418_GPIOD(14), 0x1);
 		gpio_set_cfg(S5P4418_GPIOD(18), 0x1);
@@ -199,6 +200,7 @@ static void s5p4418_uart_init(struct uart_t * uart)
 		break;
 
 	case 1:
+		s5p4418_ip_reset(RESET_ID_UART1, 0);
 		clk_enable("GATE-UART1");
 		gpio_set_cfg(S5P4418_GPIOD(15), 0x1);
 		gpio_set_cfg(S5P4418_GPIOD(19), 0x1);
@@ -207,6 +209,7 @@ static void s5p4418_uart_init(struct uart_t * uart)
 		break;
 
 	case 2:
+		s5p4418_ip_reset(RESET_ID_UART2, 0);
 		clk_enable("GATE-UART2");
 		gpio_set_cfg(S5P4418_GPIOD(16), 0x1);
 		gpio_set_cfg(S5P4418_GPIOD(20), 0x1);
@@ -215,6 +218,7 @@ static void s5p4418_uart_init(struct uart_t * uart)
 		break;
 
 	case 3:
+		s5p4418_ip_reset(RESET_ID_UART3, 0);
 		clk_enable("GATE-UART3");
 		gpio_set_cfg(S5P4418_GPIOD(17), 0x1);
 		gpio_set_cfg(S5P4418_GPIOD(21), 0x1);

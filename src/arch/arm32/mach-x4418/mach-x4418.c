@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <cp15.h>
+#include <s5p4418-rstcon.h>
 #include <s5p4418/reg-sys.h>
 #include <s5p4418/reg-id.h>
 
@@ -82,6 +83,8 @@ const char * mach_uniqueid(void)
 {
 	static char uniqueid[16 + 1];
 	u32_t ecid0, ecid1;
+
+	s5p4418_ip_reset(RESET_ID_ECID, 0);
 
 	ecid0 = read32(phys_to_virt(S5P4418_ID_ECID0));
 	ecid1 = read32(phys_to_virt(S5P4418_ID_ECID1));

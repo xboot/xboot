@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <input/key-gpio.h>
-#include <s5p4418/reg-gpio.h>
+#include <s5p4418-gpio.h>
 
 static struct gpio_button_t buttons[] = {
 	{

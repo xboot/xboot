@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <led/led-gpio.h>
-#include <s5p4418/reg-gpio.h>
+#include <s5p4418-gpio.h>
 
 static struct led_gpio_data_t led_gpio_datas[] = {
 	[0] = {

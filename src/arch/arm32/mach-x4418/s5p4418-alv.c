@@ -23,8 +23,8 @@
  */
 
 #include <xboot.h>
-#include <s5p4418/reg-gpio.h>
 #include <s5p4418/reg-alv.h>
+#include <s5p4418-gpio.h>
 
 struct s5p4418_gpiochip_alv_data_t
 {

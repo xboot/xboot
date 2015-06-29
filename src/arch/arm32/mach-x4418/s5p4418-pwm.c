@@ -24,7 +24,7 @@
 
 #include <pwm/pwm.h>
 #include <s5p4418-rstcon.h>
-#include <s5p4418/reg-gpio.h>
+#include <s5p4418-gpio.h>
 #include <s5p4418/reg-pwm.h>
 
 #define TCON_CHANNEL(ch)		(ch ? ch * 4 + 4 : 0)

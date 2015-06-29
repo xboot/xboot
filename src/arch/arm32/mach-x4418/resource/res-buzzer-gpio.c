@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <buzzer/buzzer-gpio.h>
-#include <s5p4418/reg-gpio.h>
+#include <s5p4418-gpio.h>
 
 static struct buzzer_gpio_data_t buzzer_gpio_data = {
 	.gpio		= S5P4418_GPIOC(14),

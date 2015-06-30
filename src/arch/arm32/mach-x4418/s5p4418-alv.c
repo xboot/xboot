@@ -200,6 +200,17 @@ static int s5p4418_gpiochip_alv_get_value(struct gpiochip_t * chip, int offset)
 	return !!(val & (1 << offset));
 }
 
+static const char * s5p4418_gpiochip_alv_to_irq(struct gpiochip_t * chip, int offset)
+{
+	static const char * irq_gpio_alv[] = {
+		"GPIOALV0", "GPIOALV1", "GPIOALV2", "GPIOALV3", "GPIOALV4", "GPIOALV5",
+	};
+
+	if(offset >= chip->ngpio)
+		return 0;
+	return irq_gpio_alv[offset];
+}
+
 static struct s5p4418_gpiochip_alv_data_t gpiochip_alv_data = {
 	.regbase	= S5P4418_GPIOALV_BASE,
 };
@@ -220,6 +231,7 @@ struct gpiochip_t gpiochip_alv = {
 	.get_dir	= s5p4418_gpiochip_alv_get_dir,
 	.set_value	= s5p4418_gpiochip_alv_set_value,
 	.get_value	= s5p4418_gpiochip_alv_get_value,
+	.to_irq		= s5p4418_gpiochip_alv_to_irq,
 	.priv		= &gpiochip_alv_data,
 };
 

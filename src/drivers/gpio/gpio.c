@@ -57,13 +57,13 @@ static ssize_t gpiochip_read_ngpio(struct kobj_t * kobj, void * buf, size_t size
 	return sprintf(buf, "%d", chip->ngpio);
 }
 
-static struct gpiochip_t * search_gpiochip_with_no(int no)
+static struct gpiochip_t * search_gpiochip_with_no(int gpio)
 {
 	struct gpiochip_list_t * pos, * n;
 
 	list_for_each_entry_safe(pos, n, &(__gpiochip_list.entry), entry)
 	{
-		if( (no >= pos->chip->base) && (no < (pos->chip->base + pos->chip->ngpio)) )
+		if( (gpio >= pos->chip->base) && (gpio < (pos->chip->base + pos->chip->ngpio)) )
 			return pos->chip;
 	}
 
@@ -138,131 +138,140 @@ bool_t unregister_gpiochip(struct gpiochip_t * chip)
 	return FALSE;
 }
 
-int gpio_is_valid(int no)
+int gpio_is_valid(int gpio)
 {
-	return search_gpiochip_with_no(no) ? 1 : 0;
+	return search_gpiochip_with_no(gpio) ? 1 : 0;
 }
 
-void gpio_set_cfg(int no, int cfg)
+void gpio_set_cfg(int gpio, int cfg)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->set_cfg)
-		chip->set_cfg(chip, no - chip->base, cfg);
+		chip->set_cfg(chip, gpio - chip->base, cfg);
 }
 
-int gpio_get_cfg(int no)
+int gpio_get_cfg(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->get_cfg)
-		return chip->get_cfg(chip, no - chip->base);
+		return chip->get_cfg(chip, gpio - chip->base);
 	return 0;
 }
 
-void gpio_set_pull(int no, enum gpio_pull_t pull)
+void gpio_set_pull(int gpio, enum gpio_pull_t pull)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->set_pull)
-		chip->set_pull(chip, no - chip->base, pull);
+		chip->set_pull(chip, gpio - chip->base, pull);
 }
 
-enum gpio_pull_t gpio_get_pull(int no)
+enum gpio_pull_t gpio_get_pull(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->get_pull)
-		return chip->get_pull(chip, no - chip->base);
+		return chip->get_pull(chip, gpio - chip->base);
 	return GPIO_PULL_NONE;
 }
 
-void gpio_set_drv(int no, enum gpio_drv_t drv)
+void gpio_set_drv(int gpio, enum gpio_drv_t drv)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->set_drv)
-		chip->set_drv(chip, no - chip->base, drv);
+		chip->set_drv(chip, gpio - chip->base, drv);
 }
 
-enum gpio_drv_t gpio_get_drv(int no)
+enum gpio_drv_t gpio_get_drv(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->get_drv)
-		return chip->get_drv(chip, no - chip->base);
+		return chip->get_drv(chip, gpio - chip->base);
 	return GPIO_DRV_LOW;
 }
 
-void gpio_set_rate(int no, enum gpio_rate_t rate)
+void gpio_set_rate(int gpio, enum gpio_rate_t rate)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->set_rate)
-		chip->set_rate(chip, no - chip->base, rate);
+		chip->set_rate(chip, gpio - chip->base, rate);
 }
 
-enum gpio_rate_t gpio_get_rate(int no)
+enum gpio_rate_t gpio_get_rate(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->get_rate)
-		return chip->get_rate(chip, no - chip->base);
+		return chip->get_rate(chip, gpio - chip->base);
 	return GPIO_RATE_SLOW;
 }
 
-void gpio_set_direction(int no, enum gpio_direction_t dir)
+void gpio_set_direction(int gpio, enum gpio_direction_t dir)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->set_dir)
-		chip->set_dir(chip, no - chip->base, dir);
+		chip->set_dir(chip, gpio - chip->base, dir);
 }
 
-enum gpio_direction_t gpio_get_direction(int no)
+enum gpio_direction_t gpio_get_direction(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->get_dir)
-		return chip->get_dir(chip, no - chip->base);
+		return chip->get_dir(chip, gpio - chip->base);
 	return GPIO_DIRECTION_UNKOWN;
 }
 
-void gpio_set_value(int no, int value)
+void gpio_set_value(int gpio, int value)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->set_value)
-		chip->set_value(chip, no - chip->base, value);
+		chip->set_value(chip, gpio - chip->base, value);
 }
 
-int gpio_get_value(int no)
+int gpio_get_value(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->get_value)
-		return chip->get_value(chip, no - chip->base);
+		return chip->get_value(chip, gpio - chip->base);
 	return 0;
 }
 
-void gpio_direction_output(int no, int value)
+void gpio_direction_output(int gpio, int value)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(!chip)
 		return;
 
 	if(chip->set_dir)
-		chip->set_dir(chip, no - chip->base, GPIO_DIRECTION_OUTPUT);
+		chip->set_dir(chip, gpio - chip->base, GPIO_DIRECTION_OUTPUT);
 
 	if(chip->set_value)
-		chip->set_value(chip, no - chip->base, value);
+		chip->set_value(chip, gpio - chip->base, value);
 }
 
-void gpio_direction_input(int no)
+void gpio_direction_input(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(no);
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->set_dir)
-		chip->set_dir(chip, no - chip->base, GPIO_DIRECTION_INPUT);
+		chip->set_dir(chip, gpio - chip->base, GPIO_DIRECTION_INPUT);
+}
+
+const char * gpio_to_irq(int gpio)
+{
+	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+
+	if(chip && chip->to_irq)
+		return chip->to_irq(chip, gpio - chip->base);
+	return NULL;
 }

@@ -49,6 +49,7 @@ struct gpiochip_t
 	enum gpio_direction_t (*get_dir)(struct gpiochip_t * chip, int offset);
 	void (*set_value)(struct gpiochip_t * chip, int offset, int value);
 	int  (*get_value)(struct gpiochip_t * chip, int offset);
+	const char * (*to_irq)(struct gpiochip_t * chip, int offset);
 
 	void * priv;
 };
@@ -57,21 +58,22 @@ struct gpiochip_t * search_gpiochip(const char * name);
 bool_t register_gpiochip(struct gpiochip_t * chip);
 bool_t unregister_gpiochip(struct gpiochip_t * chip);
 
-int gpio_is_valid(int no);
-void gpio_set_cfg(int no, int cfg);
-int gpio_get_cfg(int no);
-void gpio_set_pull(int no, enum gpio_pull_t pull);
-enum gpio_pull_t gpio_get_pull(int no);
-void gpio_set_drv(int no, enum gpio_drv_t drv);
-enum gpio_drv_t gpio_get_drv(int no);
-void gpio_set_rate(int no, enum gpio_rate_t rate);
-enum gpio_rate_t gpio_get_rate(int no);
-void gpio_set_direction(int no, enum gpio_direction_t dir);
-enum gpio_direction_t gpio_get_direction(int no);
-void gpio_set_value(int no, int value);
-int gpio_get_value(int no);
-void gpio_direction_output(int no, int value);
-void gpio_direction_input(int no);
+int gpio_is_valid(int gpio);
+void gpio_set_cfg(int gpio, int cfg);
+int gpio_get_cfg(int gpio);
+void gpio_set_pull(int gpio, enum gpio_pull_t pull);
+enum gpio_pull_t gpio_get_pull(int gpio);
+void gpio_set_drv(int gpio, enum gpio_drv_t drv);
+enum gpio_drv_t gpio_get_drv(int gpio);
+void gpio_set_rate(int gpio, enum gpio_rate_t rate);
+enum gpio_rate_t gpio_get_rate(int gpio);
+void gpio_set_direction(int gpio, enum gpio_direction_t dir);
+enum gpio_direction_t gpio_get_direction(int gpio);
+void gpio_set_value(int gpio, int value);
+int gpio_get_value(int gpio);
+void gpio_direction_output(int gpio, int value);
+void gpio_direction_input(int gpio);
+const char * gpio_to_irq(int gpio);
 
 #ifdef __cplusplus
 }

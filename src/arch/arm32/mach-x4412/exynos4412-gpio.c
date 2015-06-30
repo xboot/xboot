@@ -263,6 +263,11 @@ static int exynos4412_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 	return !!(val & (1 << offset));
 }
 
+static const char * exynos4412_gpiochip_to_irq(struct gpiochip_t * chip, int offset)
+{
+	return 0;
+}
+
 static struct exynos4412_gpiochip_data_t gpiochip_datas[] = {
 	{
 		.name		= "GPA0",
@@ -503,6 +508,7 @@ static __init void exynos4412_gpiochip_init(void)
 		chip->get_dir = exynos4412_gpiochip_get_dir;
 		chip->set_value = exynos4412_gpiochip_set_value;
 		chip->get_value = exynos4412_gpiochip_get_value;
+		chip->to_irq = exynos4412_gpiochip_to_irq;
 		chip->priv = &gpiochip_datas[i];
 
 		if(register_gpiochip(chip))

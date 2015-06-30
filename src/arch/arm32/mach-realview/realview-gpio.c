@@ -122,6 +122,11 @@ static int realview_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 	return !!read8(dat->regbase + (1 << (offset + 2)));
 }
 
+static const char * realview_gpiochip_to_irq(struct gpiochip_t * chip, int offset)
+{
+	return 0;
+}
+
 static struct realview_gpiochip_data_t gpiochip_datas[] = {
 	{
 		.name		= "GPIO0",
@@ -167,6 +172,7 @@ static __init void realview_gpiochip_init(void)
 		chip->get_dir = realview_gpiochip_get_dir;
 		chip->set_value = realview_gpiochip_set_value;
 		chip->get_value = realview_gpiochip_get_value;
+		chip->to_irq = realview_gpiochip_to_irq;
 		chip->priv = &gpiochip_datas[i];
 
 		if(register_gpiochip(chip))

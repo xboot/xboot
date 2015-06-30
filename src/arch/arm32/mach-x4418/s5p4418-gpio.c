@@ -349,6 +349,56 @@ static int s5p4418_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 	return !!(val & (1 << offset));
 }
 
+static const char * s5p4418_gpiochip_to_irq(struct gpiochip_t * chip, int offset)
+{
+	struct s5p4418_gpiochip_data_t * dat = (struct s5p4418_gpiochip_data_t *)chip->priv;
+	static const char * irq_gpioa[] = {
+		"GPIOA0",  "GPIOA1",  "GPIOA2",  "GPIOA3",  "GPIOA4",  "GPIOA5",  "GPIOA6",  "GPIOA7",
+		"GPIOA8",  "GPIOA9",  "GPIOA10", "GPIOA11", "GPIOA12", "GPIOA13", "GPIOA14", "GPIOA15",
+		"GPIOA16", "GPIOA17", "GPIOA18", "GPIOA19", "GPIOA20", "GPIOA21", "GPIOA22", "GPIOA23",
+		"GPIOA24", "GPIOA25", "GPIOA26", "GPIOA27", "GPIOA28", "GPIOA29", "GPIOA30", "GPIOA31",
+	};
+	static const char * irq_gpiob[] = {
+		"GPIOB0",  "GPIOB1",  "GPIOB2",  "GPIOB3",  "GPIOB4",  "GPIOB5",  "GPIOB6",  "GPIOB7",
+		"GPIOB8",  "GPIOB9",  "GPIOB10", "GPIOB11", "GPIOB12", "GPIOB13", "GPIOB14", "GPIOB15",
+		"GPIOB16", "GPIOB17", "GPIOB18", "GPIOB19", "GPIOB20", "GPIOB21", "GPIOB22", "GPIOB23",
+		"GPIOB24", "GPIOB25", "GPIOB26", "GPIOB27", "GPIOB28", "GPIOB29", "GPIOB30", "GPIOB31",
+	};
+	static const char * irq_gpioc[] = {
+		"GPIOC0",  "GPIOC1",  "GPIOC2",  "GPIOC3",  "GPIOC4",  "GPIOC5",  "GPIOC6",  "GPIOC7",
+		"GPIOC8",  "GPIOC9",  "GPIOC10", "GPIOC11", "GPIOC12", "GPIOC13", "GPIOC14", "GPIOC15",
+		"GPIOC16", "GPIOC17", "GPIOC18", "GPIOC19", "GPIOC20", "GPIOC21", "GPIOC22", "GPIOC23",
+		"GPIOC24", "GPIOC25", "GPIOC26", "GPIOC27", "GPIOC28", "GPIOC29", "GPIOC30", "GPIOC31",
+	};
+	static const char * irq_gpiod[] = {
+		"GPIOD0",  "GPIOD1",  "GPIOD2",  "GPIOD3",  "GPIOD4",  "GPIOD5",  "GPIOD6",  "GPIOD7",
+		"GPIOD8",  "GPIOD9",  "GPIOD10", "GPIOD11", "GPIOD12", "GPIOD13", "GPIOD14", "GPIOD15",
+		"GPIOD16", "GPIOD17", "GPIOD18", "GPIOD19", "GPIOD20", "GPIOD21", "GPIOD22", "GPIOD23",
+		"GPIOD24", "GPIOD25", "GPIOD26", "GPIOD27", "GPIOD28", "GPIOD29", "GPIOD30", "GPIOD31",
+	};
+	static const char * irq_gpioe[] = {
+		"GPIOE0",  "GPIOE1",  "GPIOE2",  "GPIOE3",  "GPIOE4",  "GPIOE5",  "GPIOE6",  "GPIOE7",
+		"GPIOE8",  "GPIOE9",  "GPIOE10", "GPIOE11", "GPIOE12", "GPIOE13", "GPIOE14", "GPIOE15",
+		"GPIOE16", "GPIOE17", "GPIOE18", "GPIOE19", "GPIOE20", "GPIOE21", "GPIOE22", "GPIOE23",
+		"GPIOE24", "GPIOE25", "GPIOE26", "GPIOE27", "GPIOE28", "GPIOE29", "GPIOE30", "GPIOE31",
+	};
+
+	if(offset >= chip->ngpio)
+		return 0;
+
+	if(strcmp(dat->name, "GPIOA") == 0)
+		return irq_gpioa[offset];
+	else if(strcmp(dat->name, "GPIOB") == 0)
+		return irq_gpiob[offset];
+	else if(strcmp(dat->name, "GPIOC") == 0)
+		return irq_gpioc[offset];
+	else if(strcmp(dat->name, "GPIOD") == 0)
+		return irq_gpiod[offset];
+	else if(strcmp(dat->name, "GPIOE") == 0)
+		return irq_gpioe[offset];
+	return 0;
+}
+
 static struct s5p4418_gpiochip_data_t gpiochip_datas[] = {
 	{
 		.name		= "GPIOA",
@@ -404,6 +454,7 @@ static __init void s5p4418_gpiochip_init(void)
 		chip->get_dir = s5p4418_gpiochip_get_dir;
 		chip->set_value = s5p4418_gpiochip_set_value;
 		chip->get_value = s5p4418_gpiochip_get_value;
+		chip->to_irq = s5p4418_gpiochip_to_irq;
 		chip->priv = &gpiochip_datas[i];
 
 		if(register_gpiochip(chip))

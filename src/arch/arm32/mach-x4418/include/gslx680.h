@@ -8,7 +8,7 @@ extern "C" {
 #include <xboot.h>
 #include <bus/i2c.h>
 #include <input/input.h>
-#include <s5p4418/reg-gpio.h>
+#include <s5p4418-gpio.h>
 
 struct gslx680_firmware_t {
 	u8_t reg;

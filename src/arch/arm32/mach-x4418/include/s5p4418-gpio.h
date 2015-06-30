@@ -5,10 +5,6 @@
 extern "C" {
 #endif
 
-#include <types.h>
-#include <sizes.h>
-#include <stddef.h>
-
 #define S5P4418_GPIOA(x)			(x)
 #define S5P4418_GPIOB(x)			(x + 32)
 #define S5P4418_GPIOC(x)			(x + 64)
@@ -193,20 +189,8 @@ static const char * __gpio_irq_array[] = {
 static inline const char * gpio_to_irq(int gpio)
 {
 	if(gpio < S5P4418_GPIOA(0) || gpio > S5P4418_GPIOALV(5))
-		return NULL;
+		return 0;
 	return __gpio_irq_array[gpio];
-}
-
-static inline int irq_to_gpio(const char * irq)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(__gpio_irq_array); i++)
-	{
-		if(strcmp(__gpio_irq_array[i], irq) == 0)
-			return i;
-	}
-	return -1;
 }
 
 #ifdef __cplusplus

@@ -13,8 +13,8 @@ int gettimeofday(struct timeval * tv, void * tz)
 		return -1;
 
 	t = clocksource_gettime();
-	tv->tv_sec = t / 1000000;
-	tv->tv_usec = t % 1000000;
+	tv->tv_sec = t / 1000000000L;
+	tv->tv_usec = t % 1000000000L;
 	return 0;
 }
 EXPORT_SYMBOL(gettimeofday);

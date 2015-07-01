@@ -101,7 +101,7 @@ void schedule_poller_yield(void)
 {
 	struct poller_list_t * pl;
 	struct poller_t * poller;
-	u64_t timeus;
+	u64_t ns;
 
 	if(list_empty(&(__poller_list.entry)))
 		return;
@@ -112,10 +112,10 @@ void schedule_poller_yield(void)
 
 	pl = list_entry(__poller_head, struct poller_list_t, entry);
 	poller = pl->poller;
-	timeus = clocksource_gettime();
-	if(timeus >= poller->timeout)
+	ns = clocksource_gettime();
+	if(ns >= poller->timeout)
 	{
-		poller->timeout = timeus + poller->interval;
+		poller->timeout = ns + poller->interval;
 		poller->func(poller, poller->data);
 	}
 }

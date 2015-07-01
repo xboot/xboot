@@ -295,7 +295,7 @@ static int m_display_present(lua_State * L)
 		u64_t stamp = clocksource_gettime();
 		u64_t time = stamp - display->stamp;
 		if(time > 0)
-			display->fps = ((double)1000000.0 / (double)time) * 0.618 + display->fps * 0.382;
+			display->fps = ((double)1000000000.0 / (double)time) * 0.618 + display->fps * 0.382;
 		display->frame++;
 		display->stamp = stamp;
 		cr = display->cr[display->index];

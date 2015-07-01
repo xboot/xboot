@@ -62,7 +62,7 @@ EXPORT_SYMBOL(usecs_to_jiffies);
 
 static void __cs_jiffies_init(struct clocksource_t * cs)
 {
-	clocksource_calc_mult_shift(&cs->mult, &cs->shift, HZ, 1000000L, 10);
+	clocksource_calc_mult_shift(&cs->mult, &cs->shift, HZ, 1000000000L, 10);
 }
 
 static cycle_t __cs_jiffies_read(struct clocksource_t * cs)

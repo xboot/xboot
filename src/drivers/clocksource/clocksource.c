@@ -40,7 +40,7 @@ struct clocksource_list_t __clocksource_list = {
 static spinlock_t __clocksource_list_lock = SPIN_LOCK_INIT();
 
 /*
- * Dummy clocksource
+ * Dummy clocksource, 10us - 100KHZ
  */
 static volatile u64_t __cs_dummy_cycle = 0;
 static u64_t __cs_dummy_read(struct clocksource_t * cs)
@@ -51,25 +51,25 @@ static u64_t __cs_dummy_read(struct clocksource_t * cs)
 
 static struct clocksource_t __cs_dummy = {
 	.name	= "dummy",
-	.mult	= 1000,
-	.shift	= 0,
+	.mult	= 2621440000,
+	.shift	= 18,
 	.mask	= CLOCKSOURCE_MASK(64),
 	.last	= 0,
-	.usec	= 0,
+	.nsec	= 0,
 	.init	= NULL,
 	.read	= __cs_dummy_read,
 };
 static struct clocksource_t * __current_clocksource = &__cs_dummy;
 
-static inline u64_t __clocksource_gettime(struct clocksource_t * cs)
+static inline __attribute__((always_inline)) u64_t __clocksource_gettime(struct clocksource_t * cs)
 {
 	cycle_t now, delta;
 
 	now = cs->read(cs);
 	delta = (now - cs->last) & cs->mask;
 	cs->last = now;
-	cs->usec += ((u64_t)delta * cs->mult) >> cs->shift;
-	return cs->usec;
+	cs->nsec += ((u64_t)delta * cs->mult) >> cs->shift;
+	return cs->nsec;
 }
 
 u64_t clocksource_gettime(void)
@@ -100,7 +100,7 @@ static ssize_t clocksource_read_period(struct kobj_t * kobj, void * buf, size_t 
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t period = ((u64_t)cs->mult) >> cs->shift;
-	return sprintf(buf, "%llu.%06llu", period / 1000000, period % 1000000);
+	return sprintf(buf, "%llu.%09llu", period / 1000000000L, period % 1000000000L);
 }
 
 static ssize_t clocksource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
@@ -115,7 +115,7 @@ static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t si
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t time = __clocksource_gettime(cs);
-	return sprintf(buf, "%llu.%06llu", time / 1000000, time % 1000000);
+	return sprintf(buf, "%llu.%09llu", time / 1000000000L, time % 1000000000L);
 }
 
 static struct clocksource_t * search_clocksource(const char * name)
@@ -134,39 +134,6 @@ static struct clocksource_t * search_clocksource(const char * name)
 	return NULL;
 }
 
-u32_t clocksource_hz2mult(u32_t hz, u32_t shift)
-{
-	u64_t tmp = ((u64_t)1000000) << shift;
-
-	tmp += hz / 2;
-	tmp = tmp / hz;
-	return (u32_t)tmp;
-}
-
-void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_t from, u32_t to, u32_t maxsec)
-{
-	u64_t tmp;
-	u32_t sft, sftacc = 32;
-
-	tmp = ((u64_t)maxsec * from) >> 32;
-	while(tmp)
-	{
-		tmp >>=1;
-		sftacc--;
-	}
-
-	for(sft = 32; sft > 0; sft--)
-	{
-		tmp = (u64_t) to << sft;
-		tmp += from / 2;
-		tmp = tmp / from;
-		if ((tmp >> sftacc) == 0)
-			break;
-	}
-	*mult = tmp;
-	*shift = sft;
-}
-
 bool_t register_clocksource(struct clocksource_t * cs)
 {
 	struct clocksource_list_t * cl;
@@ -182,7 +149,7 @@ bool_t register_clocksource(struct clocksource_t * cs)
 		return FALSE;
 
 	cs->last = 0;
-	cs->usec = 0;
+	cs->nsec = 0;
 	cs->kobj = kobj_alloc_directory(cs->name);
 	kobj_add_regular(cs->kobj, "mult", clocksource_read_mult, NULL, cs);
 	kobj_add_regular(cs->kobj, "shift", clocksource_read_shift, NULL, cs);

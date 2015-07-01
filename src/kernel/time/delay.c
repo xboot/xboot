@@ -27,30 +27,31 @@
 
 bool_t istimeout(u64_t start, u64_t offset)
 {
-	if((int64_t)(start + offset - clocksource_gettime()) < 0)
-		return TRUE;
-	return FALSE;
+	if(clocksource_gettime() < start + offset)
+		return FALSE;
+	return TRUE;
 }
 EXPORT_SYMBOL(istimeout);
 
+void ndelay(u32_t ns)
+{
+	u64_t timeout = clocksource_gettime() + ns;
+	while(clocksource_gettime() < timeout);
+}
+EXPORT_SYMBOL(ndelay);
+
 void udelay(u32_t us)
 {
-	u64_t start = clocksource_gettime();
-	u64_t offset = us;
-
-	do {
-		schedule_poller_yield();
-	} while(!istimeout(start, offset));
+	u64_t timeout = clocksource_gettime() + us * 1000;
+	while(clocksource_gettime() < timeout);
 }
 EXPORT_SYMBOL(udelay);
 
 void mdelay(u32_t ms)
 {
-	u64_t start = clocksource_gettime();
-	u64_t offset = ms * (u64_t)1000;
-
+	u64_t timeout = clocksource_gettime() + ms * 1000000;
 	do {
 		schedule_poller_yield();
-	} while(!istimeout(start, offset));
+	} while(clocksource_gettime() < timeout);
 }
 EXPORT_SYMBOL(mdelay);

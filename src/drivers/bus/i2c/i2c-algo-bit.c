@@ -58,7 +58,7 @@ static int sclhi(struct i2c_algo_bit_data_t * bdat)
 	start = clocksource_gettime();
 	while(!bdat->getscl(bdat))
 	{
-		if(istimeout(start, 100 * 1000))
+		if(istimeout(start, 100 * 1000 * 1000))
 		{
 			if(bdat->getscl(bdat))
 				break;

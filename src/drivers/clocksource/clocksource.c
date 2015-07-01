@@ -103,6 +103,13 @@ static ssize_t clocksource_read_period(struct kobj_t * kobj, void * buf, size_t 
 	return sprintf(buf, "%llu.%09llu", period / 1000000000L, period % 1000000000L);
 }
 
+static ssize_t clocksource_read_deferment(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
+	u64_t max = (cs->mask * cs->mult) >> cs->shift;
+	return sprintf(buf, "%llu.%09llu", max / 1000000000L, max % 1000000000L);
+}
+
 static ssize_t clocksource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
@@ -154,6 +161,7 @@ bool_t register_clocksource(struct clocksource_t * cs)
 	kobj_add_regular(cs->kobj, "mult", clocksource_read_mult, NULL, cs);
 	kobj_add_regular(cs->kobj, "shift", clocksource_read_shift, NULL, cs);
 	kobj_add_regular(cs->kobj, "period", clocksource_read_period, NULL, cs);
+	kobj_add_regular(cs->kobj, "deferment", clocksource_read_deferment, NULL, cs);
 	kobj_add_regular(cs->kobj, "cycle", clocksource_read_cycle, NULL, cs);
 	kobj_add_regular(cs->kobj, "time", clocksource_read_time, NULL, cs);
 	kobj_add(search_class_clocksource_kobj(), cs->kobj);

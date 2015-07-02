@@ -1,5 +1,5 @@
 /*
- * libc/fifo/fifo.c
+ * libx/fifo.c
  */
 
 #include <types.h>

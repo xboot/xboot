@@ -460,6 +460,7 @@ static struct rb_node *rb_left_deepest_node(const struct rb_node *node)
 		else
 			return (struct rb_node *)node;
 	}
+	return 0;
 }
 
 struct rb_node *rb_next_postorder(const struct rb_node *node)

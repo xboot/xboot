@@ -26,7 +26,7 @@
 #include <led/ledtrig.h>
 
 static struct ledtrig_data_t led_trigger_data = {
-	.led	= "led-gpio.0",
+	.led	= "led-gpio.3",
 };
 
 static struct resource_t res_led_trigger = {

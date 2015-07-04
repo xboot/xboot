@@ -55,14 +55,14 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 // CLKPWR registers
 //------------------------------------------------------------------------------
 100D2C02	// 0x05C : PLL0		600MHz	P:3	M:300	S:2
-100D2C01	// 0x060 : PLL1		1200MHz	P:3	M:300	S:1
+100CC801	// 0x060 : PLL1		800MHz	P:3	M:200	S:1
 50086601	// 0x064 : PLL2		614.4MHz	P:2	M:102	S:1	K:26214
 100CC801	// 0x068 : PLL3		800MHz	P:3	M:200	S:1	K:0
 
 66660104	// 0x06C : PLL2 SPREAD
 00000104	// 0x070 : PLL3 SPREAD
 
-00000A01	// 0x074 : CPU		PLL1	/FCLK:1200	/HCLK:200
+00000601	// 0x074 : CPU		PLL1	/FCLK:800	/HCLK:200
 00000208	// 0x078 : BUS		PLL0	/BCLK:300	/PCLK:150
 00208003	// 0x07C : MEM		PLL3	/MDCLK:800	/MCLK:800	/MBCLK:400	/MPCLK:200
 00000208	// 0x080 : GR3D		PLL0	/GR3DBCLK:300
@@ -72,8 +72,8 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 // MCU-D registers
 //------------------------------------------------------------------------------
 // Mem Controller Configuration
-03100301	// 0x088	/Chip Num:1	/Chip Row:15	/Bus Width:16	/Chip Col:10
-004007C0	// 0x08C	256x16x1CS
+03080401	// 0x088	/Chip Num:1	/Chip Row:16	/Bus Width:8	/Chip Col:10	
+00800780	// 0x08C	512x8x1CS
 06000B08	// 0x090	/CWL:8	/CL:11	/MR1_AL:0	/MR0_WR:6
 
 // DDR PHY delay timing Configuration

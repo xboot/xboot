@@ -34,8 +34,8 @@ static void s5p4418_cs_init(struct clocksource_t * cs)
 
 	s5p4418_timer_reset();
 
-	/* 40ns ~ 25MHZ */
-	rate = s5p4418_timer_calc_tin(CS_TIMER_CHANNEL, 40);
+	/* 75MHZ - 13.333...ns */
+	rate = s5p4418_timer_calc_tin(CS_TIMER_CHANNEL, 13);
 	s5p4418_timer_stop(CS_TIMER_CHANNEL, 0);
 	s5p4418_timer_count(CS_TIMER_CHANNEL, 0xffffffff);
 	s5p4418_timer_start(CS_TIMER_CHANNEL, 0);

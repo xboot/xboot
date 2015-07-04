@@ -44,12 +44,12 @@
  * DIV-PCLK --> DIV-PWM-PRESCALER1
  *
  * [UART CLK]
- * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART0 --> DIV-UART0 --> GATE-UART0
- * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART1 --> DIV-UART1 --> GATE-UART1
- * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART2 --> DIV-UART2 --> GATE-UART2
- * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART3 --> DIV-UART3 --> GATE-UART3
- * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART4 --> DIV-UART4 --> GATE-UART4
- * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX->UART5 --> DIV-UART5 --> GATE-UART5
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX-UART0 --> DIV-UART0 --> GATE-UART0
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX-UART1 --> DIV-UART1 --> GATE-UART1
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX-UART2 --> DIV-UART2 --> GATE-UART2
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX-UART3 --> DIV-UART3 --> GATE-UART3
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX-UART4 --> DIV-UART4 --> GATE-UART4
+ * PLLXTI --> PLL0 | PLL1 | PLL2 --> MUX-UART5 --> DIV-UART5 --> GATE-UART5
  *
  */
 
@@ -536,14 +536,14 @@ static __init void s5p4418_clk_init(void)
 	clk_register_core();
 	clk_register_uart();
 
-	clk_set_rate("DIV-TIMER-PRESCALER0", 100 * 1000 * 1000);
-	clk_set_rate("DIV-TIMER-PRESCALER1", 100 * 1000 * 1000);
-	clk_set_rate("DIV-PWM-PRESCALER0", 100 * 1000 * 1000);
-	clk_set_rate("DIV-PWM-PRESCALER1", 100 * 1000 * 1000);
-	clk_set_rate("DIV-UART0", 11 * 1000 * 1000);
-	clk_set_rate("DIV-UART1", 11 * 1000 * 1000);
-	clk_set_rate("DIV-UART2", 11 * 1000 * 1000);
-	clk_set_rate("DIV-UART3", 11 * 1000 * 1000);
+	clk_set_rate("DIV-TIMER-PRESCALER0", 150 * 1000 * 1000);
+	clk_set_rate("DIV-TIMER-PRESCALER1", 150 * 1000 * 1000);
+	clk_set_rate("DIV-PWM-PRESCALER0", 150 * 1000 * 1000);
+	clk_set_rate("DIV-PWM-PRESCALER1", 150 * 1000 * 1000);
+	clk_set_rate("DIV-UART0", 12 * 1000 * 1000);
+	clk_set_rate("DIV-UART1", 12 * 1000 * 1000);
+	clk_set_rate("DIV-UART2", 12 * 1000 * 1000);
+	clk_set_rate("DIV-UART3", 12 * 1000 * 1000);
 
 	for(i = 0; i < ARRAY_SIZE(default_off_clks); i++)
 		clk_disable(default_off_clks[i]);

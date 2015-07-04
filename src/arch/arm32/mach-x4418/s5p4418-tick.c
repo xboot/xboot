@@ -45,8 +45,8 @@ static bool_t tick_timer_init(void)
 		return FALSE;
 	}
 
-	/* 40ns ~ 25MHZ */
-	rate = s5p4418_timer_calc_tin(TICK_TIMER_CHANNEL, 40);
+	/* 75MHZ - 13.333...ns */
+	rate = s5p4418_timer_calc_tin(TICK_TIMER_CHANNEL, 13);
 	s5p4418_timer_stop(TICK_TIMER_CHANNEL, 1);
 	s5p4418_timer_count(TICK_TIMER_CHANNEL, rate / 100);
 	s5p4418_timer_start(TICK_TIMER_CHANNEL, 1);

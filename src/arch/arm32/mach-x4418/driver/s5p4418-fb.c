@@ -516,6 +516,47 @@ static inline void s5p4418_dpc_pclk_enable(struct s5p4418_fb_data_t * dat, bool_
 	write32(phys_to_virt(dat->dpcbase + DPC_CLKENB), cfg);
 }
 
+static inline void s5p4418_dpc_set_clock(struct s5p4418_fb_data_t * dat)
+{
+	u64_t rate;
+	u32_t cfg;
+	int i;
+
+	rate = clk_get_rate("PLL2");
+
+	/* DPC_CLKGEN0L */
+	for(i = 0; i < 256; i++)
+	{
+		if((rate / (i + 1)) <= dat->timing.pixel_clock_hz)
+			break;
+	}
+	rate = rate / (i + 1);
+
+	cfg = read32(phys_to_virt(dat->dpcbase + DPC_CLKGEN0L));
+	cfg &= ~((0x7 << 2) | (0xff << 5));
+	cfg |= 0x2 << 2;
+	cfg |= (i & 0xff) << 5;
+	write32(phys_to_virt(dat->dpcbase + DPC_CLKGEN0L), cfg);
+
+	/* DPC_CLKGEN1L */
+	for(i = 0; i < 256; i++)
+	{
+		if((rate / (i + 1)) <= dat->timing.pixel_clock_hz)
+			break;
+	}
+	rate = rate / (i + 1);
+
+	cfg = read32(phys_to_virt(dat->dpcbase + DPC_CLKGEN1L));
+	cfg &= ~((0x7 << 2) | (0xff << 5));
+	cfg |= 0x7 << 2;
+	cfg |= (i & 0xff) << 5;
+	write32(phys_to_virt(dat->dpcbase + DPC_CLKGEN1L), cfg);
+
+	/* OUTCLKDELAY */
+	write32(phys_to_virt(dat->dpcbase + DPC_CLKGEN0H), 0x00000000);
+	write32(phys_to_virt(dat->dpcbase + DPC_CLKGEN1H), 0x00000000);
+}
+
 static inline void s5p4418_dpc_set_mode(struct s5p4418_fb_data_t * dat)
 {
 	u32_t cfg;
@@ -674,11 +715,7 @@ static void fb_init(struct fb_t * fb)
 	 */
 	s5p4418_mlc_pclk_bclk_enable(dat, TRUE);
 	s5p4418_dpc_pclk_enable(dat, TRUE);
-
-	write32(phys_to_virt(dat->dpcbase + DPC_CLKGEN0L), 0x000001e8);
-	write32(phys_to_virt(dat->dpcbase + DPC_CLKGEN1L), 0x0000001c);
-	write32(phys_to_virt(dat->dpcbase + DPC_CLKGEN0H), 0x00000000);
-	write32(phys_to_virt(dat->dpcbase + DPC_CLKGEN1H), 0x00000000);
+	s5p4418_dpc_set_clock(dat);
 
 	/*
 	 * Initial mlc top layer

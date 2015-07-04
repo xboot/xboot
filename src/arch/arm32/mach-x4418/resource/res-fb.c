@@ -85,6 +85,62 @@ static int lcd_getbl(struct s5p4418_fb_data_t * dat)
 	return 0;
 }
 
+#if	defined(CONFIG_VGA_1024X768)
+static struct s5p4418_fb_data_t s5p4418_fb_data = {
+	.dpcbase				= S5P4418_DPC0_BASE,
+	.mlcbase				= S5P4418_MLC0_BASE,
+
+	.width					= 1024,
+	.height					= 768,
+	.xdpi					= 133,
+	.ydpi					= 133,
+	.bits_per_pixel			= 32,
+	.bytes_per_pixel		= 4,
+
+	.mode = {
+		.rgbmode			= 1,
+		.scanmode			= 0,
+		.enbedsync			= 0,
+		.polfield			= 0,
+		.swaprb				= 0,
+		.format				= S5P4418_DPC_FORMAT_RGB888,
+		.ycorder			= S5P4418_DPC_YCORDER_CBYCRY,
+		.rdither			= S5P4418_DPC_DITHER_BYPASS,
+		.gdither			= S5P4418_DPC_DITHER_BYPASS,
+		.bdither			= S5P4418_DPC_DITHER_BYPASS,
+	},
+
+	.timing = {
+		.pixel_clock_hz		= 65 * 1000 * 1000,
+		.h_front_porch		= 24,
+		.h_sync_width		= 136,
+		.h_back_porch		= 160,
+		.v_front_porch		= 3,
+		.v_sync_width		= 6,
+		.v_back_porch		= 29,
+
+		.vs_start_offset	= 1,
+		.vs_end_offset		= 1,
+		.ev_start_offset	= 1,
+		.ev_end_offset		= 1,
+
+		.d_rgb_pvd			= 0,
+		.d_hsync_cp1		= 7,
+		.d_vsync_fram		= 7,
+		.d_de_cp2			= 7,
+	},
+
+	.polarity = {
+		.h_sync_invert		= 0,
+		.v_sync_invert		= 0,
+	},
+
+	.init					= lcd_init,
+	.exit					= lcd_exit,
+	.setbl					= lcd_setbl,
+	.getbl					= lcd_getbl,
+};
+#else
 static struct s5p4418_fb_data_t s5p4418_fb_data = {
 	.dpcbase				= S5P4418_DPC0_BASE,
 	.mlcbase				= S5P4418_MLC0_BASE,
@@ -110,7 +166,7 @@ static struct s5p4418_fb_data_t s5p4418_fb_data = {
 	},
 
 	.timing = {
-		.pixel_clock_hz		= 800000,
+		.pixel_clock_hz		= 52 * 1000 * 1000,
 		.h_front_porch		= 160,
 		.h_sync_width		= 20,
 		.h_back_porch		= 140,
@@ -139,6 +195,7 @@ static struct s5p4418_fb_data_t s5p4418_fb_data = {
 	.setbl					= lcd_setbl,
 	.getbl					= lcd_getbl,
 };
+#endif
 
 static struct resource_t res_fb = {
 	.name		= "s5p4418-fb",

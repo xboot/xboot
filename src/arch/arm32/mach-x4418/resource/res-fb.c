@@ -85,7 +85,7 @@ static int lcd_getbl(struct s5p4418_fb_data_t * dat)
 	return 0;
 }
 
-#if	defined(CONFIG_VGA_1024X768)
+#if defined(CONFIG_VGA_1024X768)
 static struct s5p4418_fb_data_t s5p4418_fb_data = {
 	.dpcbase				= S5P4418_DPC0_BASE,
 	.mlcbase				= S5P4418_MLC0_BASE,

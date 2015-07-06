@@ -129,7 +129,7 @@ static int do_memtest(int argc, char ** argv)
 
 static struct command_t cmd_memtest = {
 	.name	= "memtest",
-	.desc	= "system memory testing\r\n",
+	.desc	= "system memory testing",
 	.usage	= usage,
 	.exec	= do_memtest,
 };

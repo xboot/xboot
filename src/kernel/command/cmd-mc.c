@@ -59,7 +59,7 @@ static int do_mc(int argc, char ** argv)
 
 static struct command_t cmd_mc = {
 	.name	= "mc",
-	.desc	= "memory copy\r\n",
+	.desc	= "memory copy",
 	.usage	= usage,
 	.exec	= do_mc,
 };

@@ -83,7 +83,7 @@ static int do_mv(int argc, char ** argv)
 
 static struct command_t cmd_mv = {
 	.name	= "mv",
-	.desc	= "move (rename) files\r\n",
+	.desc	= "move (rename) files",
 	.usage	= usage,
 	.exec	= do_mv,
 };

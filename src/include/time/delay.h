@@ -11,6 +11,7 @@ bool_t istimeout(u64_t start, u64_t offset);
 void ndelay(u32_t ns);
 void udelay(u32_t us);
 void mdelay(u32_t ms);
+void msleep(u32_t ms);
 
 #ifdef __cplusplus
 }

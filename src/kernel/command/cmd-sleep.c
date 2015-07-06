@@ -32,28 +32,11 @@ static void usage(void)
 
 static int sleep(int argc, char ** argv)
 {
-	s32_t ms = 1000;
+	u32_t ms = 1000;
 
 	if(argc == 2)
-	{
-		ms = strtoul((const char *)argv[1], NULL, 0);
-	}
-
-	do {
-	    if( ms < 10 )
-	    {
-	    	mdelay(ms);
-	    	ms = 0;
-	    }
-	    else
-	    {
-	    	mdelay(10);
-	    	ms -= 10;
-
-	    	if(ctrlc())
-	    		return -1;
-	    }
-	}while(ms > 0);
+		ms = strtoul(argv[1], NULL, 0);
+	msleep(ms);
 
 	return 0;
 }

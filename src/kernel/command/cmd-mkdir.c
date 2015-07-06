@@ -22,18 +22,13 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fileio.h>
 
-
-#if	defined(CONFIG_COMMAND_MKDIR) && (CONFIG_COMMAND_MKDIR > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    mkdir [-p] DIRECTORY...\r\n\r\n");
+}
 
 static s32_t build(s8_t * path)
 {
@@ -108,31 +103,22 @@ static int do_mkdir(int argc, char ** argv)
 	return ret;
 }
 
-static struct command_t mkdir_cmd = {
-	.name		= "mkdir",
-	.func		= do_mkdir,
-	.desc		= "make directories\r\n",
-	.usage		= "mkdir [-p] DIRECTORY...\r\n",
-	.help		= "    create the DIRECTORY, if they do not already exist.\r\n"
+static struct command_t cmd_mkdir = {
+	.name	= "mkdir",
+	.desc	= "make directories\r\n",
+	.usage	= usage,
+	.exec	= do_mkdir,
 };
 
 static __init void mkdir_cmd_init(void)
 {
-	if(command_register(&mkdir_cmd))
-		LOG("Register command 'mkdir'");
-	else
-		LOG("Failed to register command 'mkdir'");
+	command_register(&cmd_mkdir);
 }
 
 static __exit void mkdir_cmd_exit(void)
 {
-	if(command_unregister(&mkdir_cmd))
-		LOG("Unegister command 'mkdir'");
-	else
-		LOG("Failed to unregister command 'mkdir'");
+	command_unregister(&cmd_mkdir);
 }
 
 command_initcall(mkdir_cmd_init);
 command_exitcall(mkdir_cmd_exit);
-
-#endif

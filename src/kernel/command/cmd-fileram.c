@@ -22,10 +22,7 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
-
-#if	defined(CONFIG_COMMAND_FILERAM) && (CONFIG_COMMAND_FILERAM > 0)
 
 static void usage(void)
 {
@@ -34,7 +31,7 @@ static void usage(void)
 	printf("    fileram -r <addr> <size> <file>\r\n");
 }
 
-static int fileram(int argc, char ** argv)
+static int do_fileram(int argc, char ** argv)
 {
 	char * filename;
 	s32_t fd;
@@ -51,8 +48,7 @@ static int fileram(int argc, char ** argv)
 	{
 		if(argc != 4)
 		{
-			printf("usage:\r\n");
-			printf("    fileram -f <file> <addr>\r\n");
+			usage();
 			return -1;
 		}
 
@@ -82,8 +78,7 @@ static int fileram(int argc, char ** argv)
 	{
 		if(argc != 5)
 		{
-			printf("usage:\r\n");
-			printf("    fileram -r <addr> <size> <file>\r\n");
+			usage();
 			return (-1);
 		}
 
@@ -115,36 +110,22 @@ static int fileram(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t fileram_cmd = {
-	.name		= "fileram",
-	.func		= fileram,
-	.desc		= "copy file to ram or ram to file\r\n",
-	.usage		= "fileram [ -f <file> <addr> ] | [ -r <addr> <size> <file> ]\r\n",
-	.help		= "    copy file to ram or ram to file\r\n"
-				  "    -f      copy file to ram\r\n"
-				  "    -r      copy ram to file\r\n"
-				  "    addr    memory base address.\r\n"
-				  "    size    memory length.\r\n"
-				  "    file    the file name will be operation.\r\n"
+static struct command_t cmd_fileram = {
+	.name	= "fileram",
+	.desc	= "copy file to ram or ram to file",
+	.usage	= usage,
+	.exec	= do_fileram,
 };
 
 static __init void fileram_cmd_init(void)
 {
-	if(command_register(&fileram_cmd))
-		LOG("Register command 'fileram'");
-	else
-		LOG("Failed to register command 'fileram'");
+	command_register(&cmd_fileram);
 }
 
 static __exit void fileram_cmd_exit(void)
 {
-	if(command_unregister(&fileram_cmd))
-		LOG("Unegister command 'fileram'");
-	else
-		LOG("Failed to unregister command 'fileram'");
+	command_unregister(&cmd_fileram);
 }
 
 command_initcall(fileram_cmd_init);
 command_exitcall(fileram_cmd_exit);
-
-#endif

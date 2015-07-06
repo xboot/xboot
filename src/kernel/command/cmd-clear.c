@@ -22,43 +22,36 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_CLEAR) && (CONFIG_COMMAND_CLEAR > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    clear\r\n");
+}
 
-static int clear(int argc, char ** argv)
+static int do_clear(int argc, char ** argv)
 {
 	printf("\033[2J");
 	return 0;
 }
 
-static struct command_t clear_cmd = {
-	.name		= "clear",
-	.func		= clear,
-	.desc		= "clear the terminal screen\r\n",
-	.usage		= "clear\r\n",
-	.help		= "    clear clears your screen if this is possible\r\n"
-				  "    clear ignores any command line parameters that may be present.\r\n"
+static struct command_t cmd_clear = {
+	.name	= "clear",
+	.desc	= "clear the terminal screen",
+	.usage	= usage,
+	.exec	= do_clear,
 };
 
 static __init void clear_cmd_init(void)
 {
-	if(command_register(&clear_cmd))
-		LOG("Register command 'clear'");
-	else
-		LOG("Failed to register command 'clear'");
+	command_register(&cmd_clear);
 }
 
 static __exit void clear_cmd_exit(void)
 {
-	if(command_unregister(&clear_cmd))
-		LOG("Unegister command 'clear'");
-	else
-		LOG("Failed to unregister command 'clear'");
+	command_unregister(&cmd_clear);
 }
 
 command_initcall(clear_cmd_init);
 command_exitcall(clear_cmd_exit);
-
-#endif

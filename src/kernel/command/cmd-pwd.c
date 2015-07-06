@@ -22,18 +22,13 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/vfs/vfs.h>
-#include <fs/fileio.h>
 
-
-#if	defined(CONFIG_COMMAND_PWD) && (CONFIG_COMMAND_PWD > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    pwd\r\n");
+}
 
 static int do_pwd(int argc, char ** argv)
 {
@@ -48,31 +43,22 @@ static int do_pwd(int argc, char ** argv)
 	return -1;
 }
 
-static struct command_t pwd_cmd = {
-	.name		= "pwd",
-	.func		= do_pwd,
-	.desc		= "print the current working directory\r\n",
-	.usage		= "pwd\r\n",
-	.help		= "    print the current working directory.\r\n"
+static struct command_t cmd_pwd = {
+	.name	= "pwd",
+	.desc	= "print the current working directory",
+	.usage	= usage,
+	.exec	= do_pwd,
 };
 
 static __init void pwd_cmd_init(void)
 {
-	if(command_register(&pwd_cmd))
-		LOG("Register command 'pwd'");
-	else
-		LOG("Failed to register command 'pwd'");
+	command_register(&cmd_pwd);
 }
 
 static __exit void pwd_cmd_exit(void)
 {
-	if(command_unregister(&pwd_cmd))
-		LOG("Unegister command 'pwd'");
-	else
-		LOG("Failed to unregister command 'pwd'");
+	command_unregister(&cmd_pwd);
 }
 
 command_initcall(pwd_cmd_init);
 command_exitcall(pwd_cmd_exit);
-
-#endif

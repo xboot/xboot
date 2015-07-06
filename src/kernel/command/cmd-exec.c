@@ -22,11 +22,8 @@
  *
  */
 
-#include <xboot.h>
 #include <framework/vm.h>
 #include <command/command.h>
-
-#if	defined(CONFIG_COMMAND_EXEC) && (CONFIG_COMMAND_EXEC > 0)
 
 static void usage(void)
 {
@@ -34,7 +31,7 @@ static void usage(void)
 	printf("    exec <file> [arg ...]\r\n");
 }
 
-static int exec(int argc, char ** argv)
+static int do_exec(int argc, char ** argv)
 {
 	if(argc < 2)
 	{
@@ -45,31 +42,22 @@ static int exec(int argc, char ** argv)
 	return vm_exec(argv[1], --argc, &argv[1]);
 }
 
-static struct command_t exec_cmd = {
-	.name		= "exec",
-	.func		= exec,
-	.desc		= "execute a file\r\n",
-	.usage		= "exec <file> [arg ...]\r\n",
-	.help		= "    execute a file\r\n"
+static struct command_t cmd_exec = {
+	.name	= "exec",
+	.desc	= "execute a file",
+	.usage	= usage,
+	.exec	= do_exec,
 };
 
 static __init void exec_cmd_init(void)
 {
-	if(command_register(&exec_cmd))
-		LOG("Register command 'exec'");
-	else
-		LOG("Failed to register command 'exec'");
+	command_register(&cmd_exec);
 }
 
 static __exit void exec_cmd_exit(void)
 {
-	if(command_unregister(&exec_cmd))
-		LOG("Unegister command 'exec'");
-	else
-		LOG("Failed to unregister command 'exec'");
+	command_unregister(&cmd_exec);
 }
 
 command_initcall(exec_cmd_init);
 command_exitcall(exec_cmd_exit);
-
-#endif

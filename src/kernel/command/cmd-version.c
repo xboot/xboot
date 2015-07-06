@@ -22,49 +22,36 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <version.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
-#include <console/console.h>
 #include <command/command.h>
 
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    version\r\n");
+}
 
-#if	defined(CONFIG_COMMAND_VERSION) && (CONFIG_COMMAND_VERSION > 0)
-
-static int version(int argc, char ** argv)
+static int do_version(int argc, char ** argv)
 {
 	printf("%s\r\n", xboot_banner_string());
 	return 0;
 }
 
-static struct command_t version_cmd = {
-	.name		= "version",
-	.func		= version,
-	.desc		= "show xboot's version\r\n",
-	.usage		= "version\r\n",
-	.help		= "    version ignores any command line parameters that may be present.\r\n"
+static struct command_t cmd_version = {
+	.name	= "version",
+	.desc	= "show xboot's version",
+	.usage	= usage,
+	.exec	= do_version,
 };
 
 static __init void version_cmd_init(void)
 {
-	if(command_register(&version_cmd))
-		LOG("Register command 'version'");
-	else
-		LOG("Failed to register command 'version'");
+	command_register(&cmd_version);
 }
 
 static __exit void version_cmd_exit(void)
 {
-	if(command_unregister(&version_cmd))
-		LOG("Unegister command 'version'");
-	else
-		LOG("Failed to unregister command 'version'");
+	command_unregister(&cmd_version);
 }
 
 command_initcall(version_cmd_init);
 command_exitcall(version_cmd_exit);
-
-#endif

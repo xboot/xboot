@@ -22,19 +22,7 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <console/console.h>
-#include <fs/fileio.h>
-
-
-#if	defined(CONFIG_COMMAND_LS) && (CONFIG_COMMAND_LS > 0)
 
 /* list flags */
 #define LSFLAG_DOT				(0x01)		/* list files beginning with "." */
@@ -170,9 +158,15 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 	}
 }
 
-static int ls(int argc, char ** argv)
+static void usage(void)
 {
-	s32_t width = 80, height = 24;
+	printf("Usage:\r\n");
+	printf("    ls [-l] [-a] [FILE]...\r\n");
+}
+
+static int do_ls(int argc, char ** argv)
+{
+	s32_t width = 80;
 	u32_t flags = 0;
 	s32_t c = 0;
 	s8_t ** v;
@@ -201,34 +195,22 @@ static int ls(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t ls_cmd = {
-	.name		= "ls",
-	.func		= ls,
-	.desc		= "list directory contents\r\n",
-	.usage		= "ls [-l] [-a] [FILE]...\r\n",
-	.help		= "    list information about the FILE\r\n"
-				  "    the current directory by default.\r\n"
-				  "    -l    use a long listing format\r\n"
-				  "    -a    do not ignore entries starting with .\r\n"
+static struct command_t cmd_ls = {
+	.name	= "ls",
+	.desc	= "list directory contents",
+	.usage	= usage,
+	.exec	= do_ls,
 };
 
 static __init void ls_cmd_init(void)
 {
-	if(command_register(&ls_cmd))
-		LOG("Register command 'ls'");
-	else
-		LOG("Failed to register command 'ls'");
+	command_register(&cmd_ls);
 }
 
 static __exit void ls_cmd_exit(void)
 {
-	if(command_unregister(&ls_cmd))
-		LOG("Unegister command 'ls'");
-	else
-		LOG("Failed to unregister command 'ls'");
+	command_unregister(&cmd_ls);
 }
 
 command_initcall(ls_cmd_init);
 command_exitcall(ls_cmd_exit);
-
-#endif

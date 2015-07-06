@@ -22,12 +22,15 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_ENV) && (CONFIG_COMMAND_ENV > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    env [NAME=VALUE] ...\r\n");
+}
 
-static int env(int argc, char ** argv)
+static int do_env(int argc, char ** argv)
 {
 	struct environ_t * environ = &(runtime_get()->__environ);
 	struct environ_t * p;
@@ -41,7 +44,7 @@ static int env(int argc, char ** argv)
 		}
 		else
 		{
-			printf("usage:\r\n    env [NAME=VALUE] ...\r\n");
+			usage();
 			return -1;
 		}
 	}
@@ -54,31 +57,22 @@ static int env(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t env_cmd = {
-	.name		= "env",
-	.func		= env,
-	.desc		= "display environment variable\r\n",
-	.usage		= "env [NAME=VALUE] ...\r\n",
-	.help		= "    list of all variable.\r\n"
+static struct command_t cmd_env = {
+	.name	= "env",
+	.desc	= "display environment variable",
+	.usage	= usage,
+	.exec	= do_env,
 };
 
 static __init void env_cmd_init(void)
 {
-	if(command_register(&env_cmd))
-		LOG("Register command 'env'");
-	else
-		LOG("Failed to register command 'env'");
+	command_register(&cmd_env);
 }
 
 static __exit void env_cmd_exit(void)
 {
-	if(command_unregister(&env_cmd))
-		LOG("Unegister command 'env'");
-	else
-		LOG("Failed to unregister command 'env'");
+	command_unregister(&cmd_env);
 }
 
 command_initcall(env_cmd_init);
 command_exitcall(env_cmd_exit);
-
-#endif

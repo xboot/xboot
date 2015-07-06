@@ -10,31 +10,22 @@ extern "C" {
 #include <string.h>
 #include <xboot/list.h>
 
-/*
- * defined the struct of command_t
- */
 struct command_t
 {
-	/* the command name */
+	/* The command name */
 	const char * name;
 
-	/* the command function */
-	int (*func)(int argc, char ** argv);
-
-	/* the command description */
+	/* The command description */
 	const char * desc;
 
-	/* usage message, short tips */
-	const char * usage;
+	/* The usage function */
+	void (*usage)(void);
 
-	/* help message, long tips */
-	const char * help;
+	/* The exec function */
+	int (*exec)(int argc, char ** argv);
 };
 
-/*
- * the list of console.
- */
-struct command_list
+struct command_list_t
 {
 	struct command_t * cmd;
 	struct list_head entry;

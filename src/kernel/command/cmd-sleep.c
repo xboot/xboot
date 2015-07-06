@@ -22,18 +22,13 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <version.h>
-#include <stdlib.h>
-#include <shell/ctrlc.h>
-#include <xboot/initcall.h>
-#include <xboot/machine.h>
 #include <command/command.h>
 
-
-#if	defined(CONFIG_COMMAND_SLEEP) && (CONFIG_COMMAND_SLEEP > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    sleep [millisecond]\r\n");
+}
 
 static int sleep(int argc, char ** argv)
 {
@@ -63,32 +58,22 @@ static int sleep(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t sleep_cmd = {
-	.name		= "sleep",
-	.func		= sleep,
-	.desc		= "pause cpu for a specified time\r\n",
-	.usage		= "sleep [millisecond]\r\n",
-	.help		= "    delay for a specified amount of time\r\n"
-				  "    default pause cpu for 1000 millisecond.\r\n"
+static struct command_t cmd_sleep = {
+	.name	= "sleep",
+	.desc	= "pause cpu for a specified time",
+	.usage	= usage,
+	.exec	= sleep,
 };
 
 static __init void sleep_cmd_init(void)
 {
-	if(command_register(&sleep_cmd))
-		LOG("Register command 'sleep'");
-	else
-		LOG("Failed to register command 'sleep'");
+	command_register(&cmd_sleep);
 }
 
 static __exit void sleep_cmd_exit(void)
 {
-	if(command_unregister(&sleep_cmd))
-		LOG("Unegister command 'sleep'");
-	else
-		LOG("Failed to unregister command 'sleep'");
+	command_unregister(&cmd_sleep);
 }
 
 command_initcall(sleep_cmd_init);
 command_exitcall(sleep_cmd_exit);
-
-#endif

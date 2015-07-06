@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/command/cmd-md.c
+ * kernel/command/cmd-md.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,20 +22,16 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <version.h>
-#include <xboot/initcall.h>
 #include <shell/ctrlc.h>
 #include <command/command.h>
 
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    md [-b|-w|-l] address [-c count]\r\n");
+}
 
-#if	defined(CONFIG_COMMAND_MD) && (CONFIG_COMMAND_MD > 0)
-
-static int md(int argc, char ** argv)
+static int do_md(int argc, char ** argv)
 {
 	s32_t base_addr = 0, nbytes = 64;
 	s32_t i, size = 1;
@@ -43,8 +39,8 @@ static int md(int argc, char ** argv)
 
 	if(argc < 2)
 	{
-		printf("usage:\r\n    md [-b|-w|-l] address [-c count]\r\n");
-		return (-1);
+		usage();
+		return -1;
 	}
 
 	for(i=1; i<argc; i++)
@@ -62,9 +58,7 @@ static int md(int argc, char ** argv)
 		}
 		else if(*argv[i] == '-')
 		{
-			printf("md: invalid option '%s'\r\n", argv[i]);
-			printf("usage:\r\n    md [-b|-w|-l] address [-c count]\r\n");
-			printf("try 'help md' for more information.\r\n");
+			usage();
 			return (-1);
 		}
 		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
@@ -134,35 +128,22 @@ static int md(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t md_cmd = {
-	.name		= "md",
-	.func		= md,
-	.desc		= "memory display\r\n",
-	.usage		= "md [-b|-w|-l] address [-n length]\r\n",
-	.help		= "    display memory at address.\r\n"
-				  "    -b    display format with byte mode (default)\r\n"
-				  "    -w    display format with half word mode\r\n"
-				  "    -l    display format with word mode\r\n"
-				  "    -c    the count of display memory (default is 64 bytes)\r\n"
+static struct command_t cmd_md = {
+	.name	= "md",
+	.desc	= "memory display\r\n",
+	.usage	= usage,
+	.exec	= do_md,
 };
 
 static __init void md_cmd_init(void)
 {
-	if(command_register(&md_cmd))
-		LOG("Register command 'md'");
-	else
-		LOG("Failed to register command 'md'");
+	command_register(&cmd_md);
 }
 
 static __exit void md_cmd_exit(void)
 {
-	if(command_unregister(&md_cmd))
-		LOG("Unegister command 'md'");
-	else
-		LOG("Failed to unregister command 'md'");
+	command_unregister(&cmd_md);
 }
 
 command_initcall(md_cmd_init);
 command_exitcall(md_cmd_exit);
-
-#endif

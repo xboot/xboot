@@ -22,24 +22,19 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <block/loop.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fileio.h>
 
-
-#if	defined(CONFIG_COMMAND_UMOUNT) && (CONFIG_COMMAND_UMOUNT > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    umount <dir>\r\n");
+}
 
 static int do_umount(int argc, char ** argv)
 {
 	if(argc != 2)
 	{
-		printf("usage:\r\n    umount <dir>\r\n");
+		usage();
 		return -1;
 	}
 
@@ -52,30 +47,22 @@ static int do_umount(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t umount_cmd = {
-	.name		= "umount",
-	.func		= do_umount,
-	.desc		= "unmount a file system\r\n",
-	.usage		= "umount <dir>\r\n",
-	.help		= "    detache the file system.\r\n"
+static struct command_t cmd_umount = {
+	.name	= "umount",
+	.desc	= "unmount a file system",
+	.usage	= usage,
+	.exec	= do_umount,
 };
 
 static __init void umount_cmd_init(void)
 {
-	if(command_register(&umount_cmd))
-		LOG("Register command 'umount'");
-	else
-		LOG("Failed to register command 'umount'");
+	command_register(&cmd_umount);
 }
 
 static __exit void umount_cmd_exit(void)
 {
-	if(command_unregister(&umount_cmd))
-		LOG("Unegister command 'umount'");
-	else
-		LOG("Failed to unregister command 'umount'");
+	command_unregister(&cmd_umount);
 }
+
 command_initcall(umount_cmd_init);
 command_exitcall(umount_cmd_exit);
-
-#endif

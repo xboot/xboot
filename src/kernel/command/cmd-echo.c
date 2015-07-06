@@ -22,12 +22,16 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_ECHO) && (CONFIG_COMMAND_ECHO > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    echo [OPTION]... [STRING]...\r\n");
+	printf("    -n    do not output the trailing newline\r\n");
+}
 
-static int echo(int argc, char ** argv)
+static int do_echo(int argc, char ** argv)
 {
 	int nflag = 0;
 
@@ -51,32 +55,22 @@ static int echo(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t echo_cmd = {
-	.name		= "echo",
-	.func		= echo,
-	.desc		= "display a line of text\r\n",
-	.usage		= "echo [OPTION]... [STRING]...\r\n",
-	.help		= "    echo the STRING(s) to standard output.\r\n"
-				  "    -n    do not output the trailing newline\r\n"
+static struct command_t cmd_echo = {
+	.name	= "echo",
+	.desc	= "echo the string to standard output",
+	.usage	= usage,
+	.exec	= do_echo,
 };
 
 static __init void echo_cmd_init(void)
 {
-	if(command_register(&echo_cmd))
-		LOG("Register command 'echo'");
-	else
-		LOG("Failed to register command 'echo'");
+	command_register(&cmd_echo);
 }
 
 static __exit void echo_cmd_exit(void)
 {
-	if(command_unregister(&echo_cmd))
-		LOG("Unegister command 'echo'");
-	else
-		LOG("Failed to unregister command 'echo'");
+	command_unregister(&cmd_echo);
 }
 
 command_initcall(echo_cmd_init);
 command_exitcall(echo_cmd_exit);
-
-#endif

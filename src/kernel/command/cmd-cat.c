@@ -22,12 +22,15 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_CAT) && (CONFIG_COMMAND_CAT > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    cat <file> ...\r\n");
+}
 
-static int cat_one_file(const char * filename)
+static int cat_file(const char * filename)
 {
     struct stat st;
 	char buf[BUFSIZ];
@@ -58,6 +61,7 @@ static int cat_one_file(const char * filename)
 		for(i = 0; i < n; i++)
 			putchar(buf[i]);
 	}
+	printf("\r\n");
 
 	close(fd);
 	return 0;
@@ -69,43 +73,34 @@ static int do_cat(int argc, char ** argv)
 
 	if(argc == 1)
 	{
-		printf("usage:\r\n    cat <file> ...\r\n");
+		usage();
 		return -1;
 	}
 
 	for(i = 1; i < argc; i++)
 	{
-		if(cat_one_file(argv[i]) != 0)
+		if(cat_file(argv[i]) != 0)
 			return -1;
 	}
 	return 0;
 }
 
-static struct command_t cat_cmd = {
-	.name		= "cat",
-	.func		= do_cat,
-	.desc		= "show the contents of a file\r\n",
-	.usage		= "cat <file> ...\r\n",
-	.help		= "    show the contents of a file.\r\n"
+static struct command_t cmd_cat = {
+	.name	= "cat",
+	.desc	= "show the contents of a file",
+	.usage	= usage,
+	.exec	= do_cat,
 };
 
 static __init void cat_cmd_init(void)
 {
-	if(command_register(&cat_cmd))
-		LOG("Register command 'cat'");
-	else
-		LOG("Failed to register command 'cat'");
+	command_register(&cmd_cat);
 }
 
 static __exit void cat_cmd_exit(void)
 {
-	if(command_unregister(&cat_cmd))
-		LOG("Unegister command 'cat'");
-	else
-		LOG("Failed to unregister command 'cat'");
+	command_unregister(&cmd_cat);
 }
 
 command_initcall(cat_cmd_init);
 command_exitcall(cat_cmd_exit);
-
-#endif

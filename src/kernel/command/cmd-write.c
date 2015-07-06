@@ -22,10 +22,13 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_WRITE) && (CONFIG_COMMAND_WRITE > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    write <string> <file>\r\n");
+}
 
 static int do_write(int argc, char ** argv)
 {
@@ -34,7 +37,7 @@ static int do_write(int argc, char ** argv)
 
 	if(argc != 3)
 	{
-		printf("usage:\r\n    write <string> <file>\r\n");
+		usage();
 		return -1;
 	}
 
@@ -47,31 +50,22 @@ static int do_write(int argc, char ** argv)
 	return ret < 0 ? -1 : 0;
 }
 
-static struct command_t write_cmd = {
-	.name		= "write",
-	.func		= do_write,
-	.desc		= "write contents to a file\r\n",
-	.usage		= "write <string> <file>\r\n",
-	.help		= "    write contents to a file.\r\n"
+static struct command_t cmd_write = {
+	.name	= "write",
+	.desc	= "write contents to a file\r\n",
+	.usage	= usage,
+	.exec	= do_write,
 };
 
 static __init void write_cmd_init(void)
 {
-	if(command_register(&write_cmd))
-		LOG("Register command 'write'");
-	else
-		LOG("Failed to register command 'write'");
+	command_register(&cmd_write);
 }
 
 static __exit void write_cmd_exit(void)
 {
-	if(command_unregister(&write_cmd))
-		LOG("Unegister command 'write'");
-	else
-		LOG("Failed to unregister command 'write'");
+	command_unregister(&cmd_write);
 }
 
 command_initcall(write_cmd_init);
 command_exitcall(write_cmd_exit);
-
-#endif

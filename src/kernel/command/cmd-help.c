@@ -22,16 +22,19 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_HELP) && (CONFIG_COMMAND_HELP > 0)
+extern struct command_list_t * command_list;
 
-extern struct command_list * command_list;
-
-static int help(int argc, char ** argv)
+static void usage(void)
 {
-	struct command_list * list;
+	printf("Usage:\r\n");
+	printf("    help [COMMAND] ...\r\n");
+}
+
+static int do_help(int argc, char ** argv)
+{
+	struct command_list_t * list;
 	struct list_head * pos;
 	struct command_t ** cmd_array;
 	struct command_t * cmd;
@@ -51,7 +54,7 @@ static int help(int argc, char ** argv)
 
 		for(pos = (&command_list->entry)->next; pos != (&command_list->entry); pos = pos->next)
 		{
-			list = list_entry(pos, struct command_list, entry);
+			list = list_entry(pos, struct command_list_t, entry);
 			cmd_array[i++] = list->cmd;
 			j = strlen(list->cmd->name);
 			if(j > k)	k = j;
@@ -76,7 +79,7 @@ static int help(int argc, char ** argv)
 
 		for(i = 0; i < cmd_num; i++)
 		{
-			printf(" %s%*s - %s",cmd_array[i]->name, k-strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
+			printf(" %s%*s - %s\r\n",cmd_array[i]->name, k-strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
 		}
 		free(cmd_array);
 	}
@@ -86,7 +89,8 @@ static int help(int argc, char ** argv)
 		{
 			if( (cmd = command_search((char*)argv[i])) != NULL )
 			{
-				printf("%s - %s" "usage: %s" "help:\r\n" "%s", cmd->name, cmd->desc, cmd->usage, cmd->help);
+				printf("%s - %s\r\n", cmd->name, cmd->desc);
+				cmd->usage();
 			}
 			else
 			{
@@ -98,33 +102,22 @@ static int help(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t help_cmd = {
-	.name		= "help",
-	.func		= help,
-	.desc		= "display online help\r\n",
-	.usage		= "help [command ...]\r\n",
-	.help		= "    show help information (for 'command')\r\n"
-				  "    'help' display online help for the monitor commands.\r\n"
-				  "    to get detailed help information for specific commands you can type 'help' with one or more command names as arguments.\r\n"
+static struct command_t cmd_help = {
+	.name	= "help",
+	.desc	= "show usage information for command",
+	.usage	= usage,
+	.exec	= do_help,
 };
 
 static __init void help_cmd_init(void)
 {
-	if(command_register(&help_cmd))
-		LOG("Register command 'help'");
-	else
-		LOG("Failed to register command 'help'");
+	command_register(&cmd_help);
 }
 
 static __exit void help_cmd_exit(void)
 {
-	if(command_unregister(&help_cmd))
-		LOG("Unegister command 'help'");
-	else
-		LOG("Failed to unregister command 'help'");
+	command_unregister(&cmd_help);
 }
 
 command_initcall(help_cmd_init);
 command_exitcall(help_cmd_exit);
-
-#endif

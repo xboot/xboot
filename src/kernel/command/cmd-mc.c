@@ -22,27 +22,24 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <version.h>
-#include <xboot/initcall.h>
 #include <shell/ctrlc.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_MC) && (CONFIG_COMMAND_MC > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    mc <src> <dst> <size>\r\n");
+}
 
-static int mc(int argc, char ** argv)
+static int do_mc(int argc, char ** argv)
 {
 	u32_t src, dst, size = 0;
 	u32_t i;
 
 	if(argc != 4)
 	{
-		printf("usage:\r\n    mc <src> <dst> <size>\r\n");
-		return (-1);
+		usage();
+		return -1;
 	}
 
 	src = strtoul((const char *)argv[1], NULL, 0);
@@ -60,33 +57,22 @@ static int mc(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t mc_cmd = {
-	.name		= "mc",
-	.func		= mc,
-	.desc		= "memory copy\r\n",
-	.usage		= "mc <src> <dst> <size>\r\n",
-	.help		= "    the number of bytes specified by <size> are copied from <src> to <dst>.\r\n"
-				  "    both the source and destination can be lomced anywhere in the memory address space.\r\n"
-	    		  "    note that don't operate system memory (code and work ram and environment etc).\n"
+static struct command_t cmd_mc = {
+	.name	= "mc",
+	.desc	= "memory copy\r\n",
+	.usage	= usage,
+	.exec	= do_mc,
 };
 
 static __init void mc_cmd_init(void)
 {
-	if(command_register(&mc_cmd))
-		LOG("Register command 'mc'");
-	else
-		LOG("Failed to register command 'mc'");
+	command_register(&cmd_mc);
 }
 
 static __exit void mc_cmd_exit(void)
 {
-	if(command_unregister(&mc_cmd))
-		LOG("Unegister command 'mc'");
-	else
-		LOG("Failed to unregister command 'mc'");
+	command_unregister(&cmd_mc);
 }
 
 command_initcall(mc_cmd_init);
 command_exitcall(mc_cmd_exit);
-
-#endif

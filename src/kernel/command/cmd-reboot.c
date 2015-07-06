@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/command/cmd-reboot.c
+ * kernel/command/cmd-reboot.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,17 +22,13 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <version.h>
-#include <xboot/machine.h>
-#include <xboot/initcall.h>
-#include <fs/fileio.h>
 #include <command/command.h>
 
-
-#if	defined(CONFIG_COMMAND_REBOOT) && (CONFIG_COMMAND_REBOOT > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    reboot\r\n");
+}
 
 static int reboot(int argc, char ** argv)
 {
@@ -49,31 +45,22 @@ static int reboot(int argc, char ** argv)
 	}
 }
 
-static struct command_t reboot_cmd = {
-	.name		= "reboot",
-	.func		= reboot,
-	.desc		= "reboot the target system\r\n",
-	.usage		= "reboot\r\n",
-	.help		= "    reboot ignores any command line parameters that may be present.\r\n"
+static struct command_t cmd_reboot = {
+	.name	= "reboot",
+	.desc	= "reboot the target system",
+	.usage	= usage,
+	.exec	= reboot,
 };
 
 static __init void reboot_cmd_init(void)
 {
-	if(command_register(&reboot_cmd))
-		LOG("Register command 'reboot'");
-	else
-		LOG("Failed to register command 'reboot'");
+	command_register(&cmd_reboot);
 }
 
 static __exit void reboot_cmd_exit(void)
 {
-	if(command_unregister(&reboot_cmd))
-		LOG("Unegister command 'reboot'");
-	else
-		LOG("Failed to unregister command 'reboot'");
+	command_unregister(&cmd_reboot);
 }
 
 command_initcall(reboot_cmd_init);
 command_exitcall(reboot_cmd_exit);
-
-#endif

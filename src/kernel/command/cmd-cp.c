@@ -22,10 +22,14 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_CP) && (CONFIG_COMMAND_CP > 0)
+#if	0
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    cp ...\r\n");
+}
 
 static int do_cp(int argc, char ** argv)
 {
@@ -77,28 +81,21 @@ static int do_cp(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t cp_cmd = {
-	.name		= "cp",
-	.func		= do_cp,
-	.desc		= "copy file\r\n",
-	.usage		= "cp SOURCE DEST\r\n",
-	.help		= "    copy SOURCE to DEST.\r\n"
+static struct command_t cmd_cp = {
+	.name	= "cp",
+	.desc	= "copy file",
+	.usage	= usage,
+	.exec	= do_cp,
 };
 
 static __init void cp_cmd_init(void)
 {
-	if(command_register(&cp_cmd))
-		LOG("Register command 'cp'");
-	else
-		LOG("Failed to register command 'cp'");
+	command_register(&cmd_cp);
 }
 
 static __exit void cp_cmd_exit(void)
 {
-	if(command_unregister(&cp_cmd))
-		LOG("Unegister command 'cp'");
-	else
-		LOG("Failed to unregister command 'cp'");
+	command_unregister(&cmd_cp);
 }
 
 command_initcall(cp_cmd_init);

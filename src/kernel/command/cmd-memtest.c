@@ -22,21 +22,16 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <version.h>
-#include <xboot/initcall.h>
-#include <xboot/machine.h>
 #include <shell/ctrlc.h>
 #include <command/command.h>
 
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    memtest <address> <size>\r\n");
+}
 
-#if	defined(CONFIG_COMMAND_MEMTEST) && (CONFIG_COMMAND_MEMTEST > 0)
-
-static int memtest(int argc, char ** argv)
+static int do_memtest(int argc, char ** argv)
 {
 	u32_t base, size;
 	u32_t * start, * end;
@@ -59,8 +54,8 @@ static int memtest(int argc, char ** argv)
 	}
 	else
 	{
-		printf("usage:\r\n    memtest <address> <size>\r\n");
-		return (-1);
+		usage();
+		return -1;
 	}
 
 	printf("testing 0x%08lx .. 0x%08lx\r\n", base, base + size);
@@ -132,32 +127,22 @@ static int memtest(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t memtest_cmd = {
-	.name		= "memtest",
-	.func		= memtest,
-	.desc		= "system memory testing\r\n",
-	.usage		= "memtest <address> <size>\r\n",
-	.help		= "    checking system memory\r\n"
-				  "    default for auto checking memory\r\n"
+static struct command_t cmd_memtest = {
+	.name	= "memtest",
+	.desc	= "system memory testing\r\n",
+	.usage	= usage,
+	.exec	= do_memtest,
 };
 
 static __init void memtest_cmd_init(void)
 {
-	if(command_register(&memtest_cmd))
-		LOG("Register command 'memtest'");
-	else
-		LOG("Failed to register command 'memtest'");
+	command_register(&cmd_memtest);
 }
 
 static __exit void memtest_cmd_exit(void)
 {
-	if(command_unregister(&memtest_cmd))
-		LOG("Unegister command 'memtest'");
-	else
-		LOG("Failed to unregister command 'memtest'");
+	command_unregister(&cmd_memtest);
 }
 
 command_initcall(memtest_cmd_init);
 command_exitcall(memtest_cmd_exit);
-
-#endif

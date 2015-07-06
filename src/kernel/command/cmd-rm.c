@@ -22,17 +22,13 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fileio.h>
 
-
-#if	defined(CONFIG_COMMAND_RM) && (CONFIG_COMMAND_RM > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    rm [OPTION] FILE...\r\n");
+}
 
 static int do_rm(int argc, char ** argv)
 {
@@ -42,11 +38,11 @@ static int do_rm(int argc, char ** argv)
 
 	if(argc < 2)
 	{
-		printf("usage:\r\n    rm [OPTION] FILE...\r\n");
-		return (-1);
+		usage();
+		return -1;
 	}
 
-	for(i=1; i<argc; i++)
+	for(i = 1; i < argc; i++)
 	{
 	    if(stat((const char*)argv[i], &st) == 0)
 	    {
@@ -64,32 +60,22 @@ static int do_rm(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t rm_cmd = {
-	.name		= "rm",
-	.func		= do_rm,
-	.desc		= "remove files or directories\r\n",
-	.usage		= " rm [OPTION] FILE...\r\n",
-	.help		= "    rm removes each specified file.  By default,\r\n"
-				  "    it does not remove directories.\r\n"
+static struct command_t cmd_rm = {
+	.name	= "rm",
+	.desc	= "remove files or directories",
+	.usage	= usage,
+	.exec	= do_rm,
 };
 
 static __init void rm_cmd_init(void)
 {
-	if(command_register(&rm_cmd))
-		LOG("Register command 'rm'");
-	else
-		LOG("Failed to register command 'rm'");
+	command_register(&cmd_rm);
 }
 
 static __exit void rm_cmd_exit(void)
 {
-	if(command_unregister(&rm_cmd))
-		LOG("Unegister command 'rm'");
-	else
-		LOG("Failed to unregister command 'rm'");
+	command_unregister(&cmd_rm);
 }
 
 command_initcall(rm_cmd_init);
 command_exitcall(rm_cmd_exit);
-
-#endif

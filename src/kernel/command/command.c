@@ -23,37 +23,28 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
 #include <command/command.h>
 
-/* the list of command */
-static struct command_list __command_list = {
+static struct command_list_t __command_list = {
 	.entry = {
 		.next	= &(__command_list.entry),
 		.prev	= &(__command_list.entry),
 	},
 };
-struct command_list * command_list = &__command_list;
+struct command_list_t * command_list = &__command_list;
 
-/*
- * register a command into command_list
- * return true is successed, otherwise is not.
- */
 bool_t command_register(struct command_t * cmd)
 {
-	struct command_list * list;
+	struct command_list_t * list;
 
-	list = malloc(sizeof(struct command_list));
+	list = malloc(sizeof(struct command_list_t));
 	if(!list || !cmd)
 	{
 		free(list);
 		return FALSE;
 	}
 
-	if(!cmd->name || !cmd->func || command_search(cmd->name))
+	if(!cmd->name || !cmd->exec || command_search(cmd->name))
 	{
 		free(list);
 		return FALSE;
@@ -65,17 +56,14 @@ bool_t command_register(struct command_t * cmd)
 	return TRUE;
 }
 
-/*
- * unregister command from command_list
- */
 bool_t command_unregister(struct command_t * cmd)
 {
-	struct command_list * list;
+	struct command_list_t * list;
 	struct list_head * pos;
 
 	for(pos = (&command_list->entry)->next; pos != (&command_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct command_list, entry);
+		list = list_entry(pos, struct command_list_t, entry);
 		if(list->cmd == cmd)
 		{
 			list_del(pos);
@@ -87,12 +75,9 @@ bool_t command_unregister(struct command_t * cmd)
 	return FALSE;
 }
 
-/*
- * search command.
- */
 struct command_t * command_search(const char * name)
 {
-	struct command_list * list;
+	struct command_list_t * list;
 	struct list_head * pos;
 
 	if(!name)
@@ -100,7 +85,7 @@ struct command_t * command_search(const char * name)
 
 	for(pos = (&command_list->entry)->next; pos != (&command_list->entry); pos = pos->next)
 	{
-		list = list_entry(pos, struct command_list, entry);
+		list = list_entry(pos, struct command_list_t, entry);
 		if(strcmp(list->cmd->name, name) == 0)
 			return list->cmd;
 	}
@@ -108,13 +93,10 @@ struct command_t * command_search(const char * name)
 	return NULL;
 }
 
-/*
- * the number of commands
- */
 int command_number(void)
 {
-	int i = 0;
 	struct list_head * pos = (&command_list->entry)->next;
+	int i = 0;
 
 	while(!list_is_last(pos, (&command_list->entry)->next))
 	{

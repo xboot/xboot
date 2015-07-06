@@ -22,17 +22,13 @@
  *
  */
 
-#include <xboot.h>
 #include <block/loop.h>
 #include <command/command.h>
-#include <fs/fileio.h>
-
-
-#if	defined(CONFIG_COMMAND_MOUNT) && (CONFIG_COMMAND_MOUNT > 0)
 
 static void usage(void)
 {
-	printf("usage:\r\n    mount <-t fstype> [-o option] <dev> <dir>\r\n");
+	printf("usage:\r\n");
+	printf("    mount <-t fstype> [-o option] <dev> <dir>\r\n");
 }
 
 static int do_mount(int argc, char ** argv)
@@ -163,35 +159,22 @@ static int do_mount(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t mount_cmd = {
-	.name		= "mount",
-	.func		= do_mount,
-	.desc		= "mount a file system\r\n",
-	.usage		= "mount <-t fstype> [-o option] <dev> <dir>\r\n",
-	.help		= "    attach the file system found on device.\r\n"
-				  "    -t    used to indicate the filesystem type\r\n"
-				  "    -o    'ro' for mount a read only filesystem\r\n"
-				  "    -o    'rw' for mount a read and write filesystem\r\n"
-				  "    -o    'loop' for mount a loop device\r\n"
+static struct command_t cmd_mount = {
+	.name	= "mount",
+	.desc	= "mount a file system",
+	.usage	= usage,
+	.exec	= do_mount,
 };
 
 static __init void mount_cmd_init(void)
 {
-	if(command_register(&mount_cmd))
-		LOG("Register command 'mount'");
-	else
-		LOG("Failed to register command 'mount'");
+	command_register(&cmd_mount);
 }
 
 static __exit void mount_cmd_exit(void)
 {
-	if(command_unregister(&mount_cmd))
-		LOG("Unegister command 'mount'");
-	else
-		LOG("Failed to unregister command 'mount'");
+	command_unregister(&cmd_mount);
 }
 
 command_initcall(mount_cmd_init);
 command_exitcall(mount_cmd_exit);
-
-#endif

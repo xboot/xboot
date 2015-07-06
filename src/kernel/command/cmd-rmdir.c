@@ -22,17 +22,13 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fileio.h>
 
-
-#if	defined(CONFIG_COMMAND_RMDIR) && (CONFIG_COMMAND_RMDIR > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    rmdir DIRECTORY...\r\n");
+}
 
 static int do_rmdir(int argc, char ** argv)
 {
@@ -41,11 +37,11 @@ static int do_rmdir(int argc, char ** argv)
 
 	if(argc < 2)
 	{
-		printf("usage:\r\n    rmdir DIRECTORY...\r\n");
-		return (-1);
+		usage();
+		return -1;
 	}
 
-	for(i=1; i<argc; i++)
+	for(i = 1; i < argc; i++)
 	{
 		if(rmdir((const char*)argv[i]) != 0)
 		{
@@ -57,31 +53,22 @@ static int do_rmdir(int argc, char ** argv)
 	return ret;
 }
 
-static struct command_t rmdir_cmd = {
-	.name		= "rmdir",
-	.func		= do_rmdir,
-	.desc		= "remove empty directories\r\n",
-	.usage		= "rmdir DIRECTORY...\r\n",
-	.help		= "    remove the DIRECTORY, if they are empty.\r\n"
+static struct command_t cmd_rmdir = {
+	.name	= "rmdir",
+	.desc	= "remove empty directories",
+	.usage	= usage,
+	.exec	= do_rmdir,
 };
 
 static __init void rmdir_cmd_init(void)
 {
-	if(command_register(&rmdir_cmd))
-		LOG("Register command 'rmdir'");
-	else
-		LOG("Failed to register command 'rmdir'");
+	command_register(&cmd_rmdir);
 }
 
 static __exit void rmdir_cmd_exit(void)
 {
-	if(command_unregister(&rmdir_cmd))
-		LOG("Unegister command 'rmdir'");
-	else
-		LOG("Failed to unregister command 'rmdir'");
+	command_unregister(&cmd_rmdir);
 }
 
 command_initcall(rmdir_cmd_init);
 command_exitcall(rmdir_cmd_exit);
-
-#endif

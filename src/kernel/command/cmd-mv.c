@@ -22,17 +22,13 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
-#include <fs/fileio.h>
 
-
-#if	defined(CONFIG_COMMAND_MV) && (CONFIG_COMMAND_MV > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    mv SOURCE DEST\r\n");
+}
 
 static int do_mv(int argc, char ** argv)
 {
@@ -46,7 +42,7 @@ static int do_mv(int argc, char ** argv)
 
 	if(argc != 3)
 	{
-		printf("usage:\r\n    mv SOURCE DEST\r\n");
+		usage();
 		return -1;
 	}
 
@@ -85,31 +81,22 @@ static int do_mv(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t mv_cmd = {
-	.name		= "mv",
-	.func		= do_mv,
-	.desc		= "move (rename) files\r\n",
-	.usage		= "mv SOURCE DEST\r\n",
-	.help		= "    Rename SOURCE to DEST, or move SOURCE(s) to DIRECTORY.\r\n"
+static struct command_t cmd_mv = {
+	.name	= "mv",
+	.desc	= "move (rename) files\r\n",
+	.usage	= usage,
+	.exec	= do_mv,
 };
 
 static __init void mv_cmd_init(void)
 {
-	if(command_register(&mv_cmd))
-		LOG("Register command 'mv'");
-	else
-		LOG("Failed to register command 'mv'");
+	command_register(&cmd_mv);
 }
 
 static __exit void mv_cmd_exit(void)
 {
-	if(command_unregister(&mv_cmd))
-		LOG("Unegister command 'mv'");
-	else
-		LOG("Failed to unregister command 'mv'");
+	command_unregister(&cmd_mv);
 }
 
 command_initcall(mv_cmd_init);
 command_exitcall(mv_cmd_exit);
-
-#endif

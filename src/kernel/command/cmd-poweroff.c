@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/command/cmd-shutdown.c
+ * kernel/command/cmd-shutdown.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,11 +22,13 @@
  *
  */
 
-
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_POWEROFF) && (CONFIG_COMMAND_POWEROFF > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    poweroff\r\n");
+}
 
 static int do_poweroff(int argc, char ** argv)
 {
@@ -43,31 +45,22 @@ static int do_poweroff(int argc, char ** argv)
 	}
 }
 
-static struct command_t poweroff_cmd = {
-	.name		= "poweroff",
-	.func		= do_poweroff,
-	.desc		= "poweroff the target system\r\n",
-	.usage		= "poweroff\r\n",
-	.help		= "    poweroff ignores any command line parameters that may be present.\r\n"
+static struct command_t cmd_poweroff = {
+	.name	= "poweroff",
+	.desc	= "poweroff the target system",
+	.usage	= usage,
+	.exec	= do_poweroff,
 };
 
 static __init void poweroff_cmd_init(void)
 {
-	if(command_register(&poweroff_cmd))
-		LOG("Register command 'poweroff'");
-	else
-		LOG("Failed to register command 'poweroff'");
+	command_register(&cmd_poweroff);
 }
 
 static __exit void poweroff_cmd_exit(void)
 {
-	if(command_unregister(&poweroff_cmd))
-		LOG("Unegister command 'poweroff'");
-	else
-		LOG("Failed to unregister command 'poweroff'");
+	command_unregister(&cmd_poweroff);
 }
 
 command_initcall(poweroff_cmd_init);
 command_exitcall(poweroff_cmd_exit);
-
-#endif

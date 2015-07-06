@@ -22,50 +22,36 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
-#include <fs/fileio.h>
 #include <command/command.h>
 
-
-#if	defined(CONFIG_COMMAND_SYNC) && (CONFIG_COMMAND_SYNC > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    sync\r\n");
+}
 
 static int do_sync(int argc, char ** argv)
 {
 	sync();
-
 	return 0;
 }
 
-static struct command_t sync_cmd = {
-	.name		= "sync",
-	.func		= do_sync,
-	.desc		= "flush file system buffers\r\n",
-	.usage		= "sync\r\n",
-	.help		= "    force changed blocks to disk, update the super block.\r\n"
+static struct command_t cmd_sync = {
+	.name	= "sync",
+	.desc	= "flush file system buffers",
+	.usage	= usage,
+	.exec	= do_sync,
 };
 
 static __init void sync_cmd_init(void)
 {
-	if(command_register(&sync_cmd))
-		LOG("Register command 'sync'");
-	else
-		LOG("Failed to register command 'sync'");
+	command_register(&cmd_sync);
 }
 
 static __exit void sync_cmd_exit(void)
 {
-	if(command_unregister(&sync_cmd))
-		LOG("Unegister command 'sync'");
-	else
-		LOG("Failed to unregister command 'sync'");
+	command_unregister(&cmd_sync);
 }
 
 command_initcall(sync_cmd_init);
 command_exitcall(sync_cmd_exit);
-
-#endif

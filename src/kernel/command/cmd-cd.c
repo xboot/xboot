@@ -22,10 +22,13 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_CD) && (CONFIG_COMMAND_CD > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    cd [DIR]\r\n");
+}
 
 static int do_cd(int argc, char ** argv)
 {
@@ -49,32 +52,22 @@ static int do_cd(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t cd_cmd = {
-	.name		= "cd",
-	.func		= do_cd,
-	.desc		= "change the current working directory\r\n",
-	.usage		= "cd [DIR]\r\n",
-	.help		= "    change the current directory to DIR.\r\n"
-				  "    no DIR will change directory to '/'.\r\n"
+static struct command_t cmd_cd = {
+	.name	= "cd",
+	.desc	= "change the current working directory",
+	.usage	= usage,
+	.exec	= do_cd,
 };
 
 static __init void cd_cmd_init(void)
 {
-	if(command_register(&cd_cmd))
-		LOG("Register command 'cd'");
-	else
-		LOG("Failed to register command 'cd'");
+	command_register(&cmd_cd);
 }
 
 static __exit void cd_cmd_exit(void)
 {
-	if(command_unregister(&cd_cmd))
-		LOG("Unegister command 'cd'");
-	else
-		LOG("Failed to unregister command 'cd'");
+	command_unregister(&cmd_cd);
 }
 
 command_initcall(cd_cmd_init);
 command_exitcall(cd_cmd_exit);
-
-#endif

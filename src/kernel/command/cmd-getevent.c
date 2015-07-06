@@ -22,12 +22,15 @@
  *
  */
 
-#include <xboot.h>
-#include <shell/ctrlc.h>
 #include <input/input.h>
+#include <shell/ctrlc.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_GETEVENT) && (CONFIG_COMMAND_GETEVENT > 0)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    getevent\r\n");
+}
 
 static int do_getevent(int argc, char ** argv)
 {
@@ -94,31 +97,22 @@ static int do_getevent(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t getevent_cmd = {
-	.name		= "getevent",
-	.func		= do_getevent,
-	.desc		= "show the all of events\r\n",
-	.usage		= "getevent\r\n",
-	.help		= "    show the all of events.\r\n"
+static struct command_t cmd_getevent = {
+	.name	= "getevent",
+	.desc	= "show the all of events",
+	.usage	= usage,
+	.exec	= do_getevent,
 };
 
 static __init void getevent_cmd_init(void)
 {
-	if(command_register(&getevent_cmd))
-		LOG("Register command 'getevent'");
-	else
-		LOG("Failed to register command 'getevent'");
+	command_register(&cmd_getevent);
 }
 
 static __exit void getevent_cmd_exit(void)
 {
-	if(command_unregister(&getevent_cmd))
-		LOG("Unegister command 'getevent'");
-	else
-		LOG("Failed to unregister command 'getevent'");
+	command_unregister(&cmd_getevent);
 }
 
 command_initcall(getevent_cmd_init);
 command_exitcall(getevent_cmd_exit);
-
-#endif

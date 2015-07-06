@@ -1,5 +1,5 @@
 /*
- * xboot/kernel/command/cmd-go.c
+ * kernel/command/cmd-go.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,19 +22,22 @@
  *
  */
 
-#include <xboot.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_GO) && (CONFIG_COMMAND_GO > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    go address [arg ...]\r\n");
+}
 
-static int go(int argc, char ** argv)
+static int do_go(int argc, char ** argv)
 {
 	u32_t addr;
 	s32_t ret;
 
 	if(argc < 2)
 	{
-		printf("usage:\r\n    go address [arg ...]\r\n");
+		usage();
 		return (-1);
 	}
 
@@ -49,32 +52,22 @@ static int go(int argc, char ** argv)
 	return ret;
 }
 
-static struct command_t go_cmd = {
-	.name		= "go",
-	.func		= go,
-	.desc		= "start application at address\r\n",
-	.usage		= "go address [arg ...]\r\n",
-	.help		= "    start application at address.\r\n"
-				  "    passing 'arg' as application's arguments.\r\n"
+static struct command_t cmd_go = {
+	.name	= "go",
+	.desc	= "start application at address",
+	.usage	= usage,
+	.exec	= do_go,
 };
 
 static __init void go_cmd_init(void)
 {
-	if(command_register(&go_cmd))
-		LOG("Register command 'go'");
-	else
-		LOG("Failed to register command 'go'");
+	command_register(&cmd_go);
 }
 
 static __exit void go_cmd_exit(void)
 {
-	if(command_unregister(&go_cmd))
-		LOG("Unegister command 'go'");
-	else
-		LOG("Failed to unregister command 'cat'");
+	command_unregister(&cmd_go);
 }
 
 command_initcall(go_cmd_init);
 command_exitcall(go_cmd_exit);
-
-#endif

@@ -1,5 +1,5 @@
 /*
- * arch/arm/lib/cpu/cmd-bootlinux.c
+ * arch/arm32/lib/cpu/cmd-bootlinux.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,11 +22,14 @@
  *
  */
 
-#include <xboot.h>
 #include <xboot/linux.h>
 #include <command/command.h>
 
-#if	defined(CONFIG_COMMAND_BOOTLINUX) && (CONFIG_COMMAND_BOOTLINUX > 0)
+static void usage(void)
+{
+	printf("Usage:\r\n");
+	printf("    bootlinux <KERNEL ADDR> <PARAM ADDR> <MACH TYPE> <COMMAND LINE>\r\n");
+}
 
 /*
  * boot and execute the linux kernel
@@ -34,7 +37,7 @@
  * r1 = architecture type
  * r2 = physical address of tagged list in system ram
  */
-static int bootlinux(int argc, char ** argv)
+static int do_bootlinux(int argc, char ** argv)
 {
 	s32_t ret;
 	s32_t linux_mach_type, linux_kernel, linux_tag_placement;
@@ -45,13 +48,13 @@ static int bootlinux(int argc, char ** argv)
 
 	if(argc != 5)
 	{
-		printf("usage:\r\n    bootlinux <KERNEL ADDR> <PARAM ADDR> <MACH TYPE> <COMMAND LINE>\r\n");
+		usage();
 		return -1;
 	}
 
 	if(!mach)
 	{
-		printf("can not get machine information.\r\n");
+		printf("Can not get machine information.\r\n");
 		return -1;
 	}
 
@@ -98,8 +101,8 @@ static int bootlinux(int argc, char ** argv)
 	params->hdr.size = 0;
 
 	/* now, booting linux */
-	printf("kernel address: 0x%08lx, param address: 0x%08lx, machine type: %d\r\n", linux_kernel, linux_tag_placement, linux_mach_type);
-	printf("now, booting linux......\r\n");
+	printf("Kernel address: 0x%08lx, param address: 0x%08lx, machine type: %d\r\n", linux_kernel, linux_tag_placement, linux_mach_type);
+	printf("Now, booting linux......\r\n");
 
 	/* clean up before run linux */
 	machine_cleanup();
@@ -110,31 +113,22 @@ static int bootlinux(int argc, char ** argv)
 	return ret;
 }
 
-static struct command_t bootlinux_cmd = {
-	.name		= "bootlinux",
-	.func		= bootlinux,
-	.desc		= "boot and execute linux kernel\r\n",
-	.usage		= "bootlinux <KERNEL ADDR> <PARAM ADDR> <MACH TYPE> <COMMAND LINE>\r\n",
-	.help		= "    boot and execute kernel for arm platform\r\n"
+static struct command_t cmd_bootlinux = {
+	.name	= "bootlinux",
+	.desc	= "boot and execute linux kernel",
+	.usage	= usage,
+	.exec	= do_bootlinux,
 };
 
 static __init void bootlinux_cmd_init(void)
 {
-	if(command_register(&bootlinux_cmd))
-		LOG("Register command 'bootlinux'");
-	else
-		LOG("Failed to register command 'bootlinux'");
+	command_register(&cmd_bootlinux);
 }
 
 static __exit void bootlinux_cmd_exit(void)
 {
-	if(command_unregister(&bootlinux_cmd))
-		LOG("Unegister command 'bootlinux'");
-	else
-		LOG("Failed to unregister command 'bootlinux'");
+	command_unregister(&cmd_bootlinux);
 }
 
 command_initcall(bootlinux_cmd_init);
 command_exitcall(bootlinux_cmd_exit);
-
-#endif

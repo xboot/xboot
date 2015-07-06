@@ -5,9 +5,7 @@
 extern "C" {
 #endif
 
-#include <types.h>
-
-bool_t ctrlc(void);
+int ctrlc(void);
 
 #ifdef __cplusplus
 }

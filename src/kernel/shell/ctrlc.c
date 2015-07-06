@@ -24,18 +24,17 @@
 
 #include <xboot.h>
 #include <xboot/module.h>
-#include <console/console.h>
 #include <shell/ctrlc.h>
 
-bool_t ctrlc(void)
+int ctrlc(void)
 {
 	int ch;
 
 	if((ch = getchar()) != EOF)
 	{
 		if(ch == 0x3)
-			return TRUE;
+			return 1;
 	}
-	return FALSE;
+	return 0;
 }
 EXPORT_SYMBOL(ctrlc);

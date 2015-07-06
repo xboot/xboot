@@ -22,28 +22,24 @@
  *
  */
 
-#include <xboot.h>
-#include <types.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <version.h>
 #include <shell/ctrlc.h>
-#include <xboot/initcall.h>
 #include <command/command.h>
 
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    mw [-b|-w|-l] address value [-c count]\r\n");
+}
 
-#if	defined(CONFIG_COMMAND_MW) && (CONFIG_COMMAND_MW > 0)
-
-static int mw(int argc, char ** argv)
+static int do_mw(int argc, char ** argv)
 {
 	u32_t base_addr = 0, value = 0, c = 1;
 	u32_t index = 0, i, size = 1;
 
 	if(argc < 3)
 	{
-		printf("usage:\r\n    mw [-b|-w|-l] address value [-c count]\r\n");
-		return (-1);
+		usage();
+		return -1;
 	}
 
 	for(i=1; i<argc; i++)
@@ -66,10 +62,8 @@ static int mw(int argc, char ** argv)
 		}
 		else if(*argv[i] == '-')
 		{
-			printf("mw: invalid option '%s'\r\n", argv[i]);
-			printf("usage:\r\n    mw [-b|-w|-l] address value [-c count]\r\n");
-			printf("try 'help mw' for more information.\r\n");
-			return (-1);
+			usage();
+			return -1;
 		}
 		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
 		{
@@ -129,34 +123,22 @@ static int mw(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t mw_cmd = {
-	.name		= "mw",
-	.func		= mw,
-	.desc		= "memory write\r\n",
-	.usage		= "mw [-b|-w|-l] address [-n length]\r\n",
-	.help		= "    write value to memory at address.\r\n"
-				  "    -b    write value with byte format (default)\r\n"
-				  "    -w    write value with half word format\r\n"
-				  "    -l    write value with word format\r\n"
-				  "    -c    the count of write value to memory (default is one)\r\n"
+static struct command_t cmd_mw = {
+	.name	= "mw",
+	.desc	= "memory write",
+	.usage	= usage,
+	.exec	= do_mw,
 };
 
 static __init void mw_cmd_init(void)
 {
-	if(command_register(&mw_cmd))
-		LOG("Register command 'mw'");
-	else
-		LOG("Failed to register command 'mw'");
+	command_register(&cmd_mw);
 }
 
 static __exit void mw_cmd_exit(void)
 {
-	if(command_unregister(&mw_cmd))
-		LOG("Unegister command 'mw'");
-	else
-		LOG("Failed to unregister command 'mw'");
+	command_unregister(&cmd_mw);
 }
+
 command_initcall(mw_cmd_init);
 command_exitcall(mw_cmd_exit);
-
-#endif

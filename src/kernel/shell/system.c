@@ -55,7 +55,7 @@ void system(const char * cmdline)
 				cmd = command_search(args[0]);
 				if(cmd)
 				{
-    				ret = cmd->func(n, args);
+    				ret = cmd->exec(n, args);
     				if(ret != 0)
     				{
     					/*

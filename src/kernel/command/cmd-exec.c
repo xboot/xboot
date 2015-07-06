@@ -51,12 +51,12 @@ static struct command_t cmd_exec = {
 
 static __init void exec_cmd_init(void)
 {
-	command_register(&cmd_exec);
+	register_command(&cmd_exec);
 }
 
 static __exit void exec_cmd_exit(void)
 {
-	command_unregister(&cmd_exec);
+	unregister_command(&cmd_exec);
 }
 
 command_initcall(exec_cmd_init);

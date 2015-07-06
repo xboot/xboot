@@ -26,7 +26,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    echo [OPTION]... [STRING]...\r\n");
 	printf("    -n    do not output the trailing newline\r\n");
 }
@@ -64,12 +64,12 @@ static struct command_t cmd_echo = {
 
 static __init void echo_cmd_init(void)
 {
-	command_register(&cmd_echo);
+	register_command(&cmd_echo);
 }
 
 static __exit void echo_cmd_exit(void)
 {
-	command_unregister(&cmd_echo);
+	unregister_command(&cmd_echo);
 }
 
 command_initcall(echo_cmd_init);

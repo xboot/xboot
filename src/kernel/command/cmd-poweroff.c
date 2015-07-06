@@ -54,12 +54,12 @@ static struct command_t cmd_poweroff = {
 
 static __init void poweroff_cmd_init(void)
 {
-	command_register(&cmd_poweroff);
+	register_command(&cmd_poweroff);
 }
 
 static __exit void poweroff_cmd_exit(void)
 {
-	command_unregister(&cmd_poweroff);
+	unregister_command(&cmd_poweroff);
 }
 
 command_initcall(poweroff_cmd_init);

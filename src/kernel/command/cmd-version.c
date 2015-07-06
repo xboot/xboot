@@ -38,19 +38,19 @@ static int do_version(int argc, char ** argv)
 
 static struct command_t cmd_version = {
 	.name	= "version",
-	.desc	= "show xboot's version",
+	.desc	= "show xboot version information",
 	.usage	= usage,
 	.exec	= do_version,
 };
 
 static __init void version_cmd_init(void)
 {
-	command_register(&cmd_version);
+	register_command(&cmd_version);
 }
 
 static __exit void version_cmd_exit(void)
 {
-	command_unregister(&cmd_version);
+	unregister_command(&cmd_version);
 }
 
 command_initcall(version_cmd_init);

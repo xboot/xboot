@@ -62,12 +62,12 @@ static struct command_t cmd_rmdir = {
 
 static __init void rmdir_cmd_init(void)
 {
-	command_register(&cmd_rmdir);
+	register_command(&cmd_rmdir);
 }
 
 static __exit void rmdir_cmd_exit(void)
 {
-	command_unregister(&cmd_rmdir);
+	unregister_command(&cmd_rmdir);
 }
 
 command_initcall(rmdir_cmd_init);

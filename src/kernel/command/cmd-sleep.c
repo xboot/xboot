@@ -30,11 +30,11 @@ static void usage(void)
 	printf("    sleep [millisecond]\r\n");
 }
 
-static int sleep(int argc, char ** argv)
+static int do_sleep(int argc, char ** argv)
 {
 	u32_t ms = 1000;
 
-	if(argc == 2)
+	if(argc > 1)
 		ms = strtoul(argv[1], NULL, 0);
 	msleep(ms);
 
@@ -43,19 +43,19 @@ static int sleep(int argc, char ** argv)
 
 static struct command_t cmd_sleep = {
 	.name	= "sleep",
-	.desc	= "pause cpu for a specified time",
+	.desc	= "delay for a specified time",
 	.usage	= usage,
-	.exec	= sleep,
+	.exec	= do_sleep,
 };
 
 static __init void sleep_cmd_init(void)
 {
-	command_register(&cmd_sleep);
+	register_command(&cmd_sleep);
 }
 
 static __exit void sleep_cmd_exit(void)
 {
-	command_unregister(&cmd_sleep);
+	unregister_command(&cmd_sleep);
 }
 
 command_initcall(sleep_cmd_init);

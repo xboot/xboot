@@ -27,7 +27,7 @@
 #if	0
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    cp ...\r\n");
 }
 
@@ -90,12 +90,12 @@ static struct command_t cmd_cp = {
 
 static __init void cp_cmd_init(void)
 {
-	command_register(&cmd_cp);
+	register_command(&cmd_cp);
 }
 
 static __exit void cp_cmd_exit(void)
 {
-	command_unregister(&cmd_cp);
+	unregister_command(&cmd_cp);
 }
 
 command_initcall(cp_cmd_init);

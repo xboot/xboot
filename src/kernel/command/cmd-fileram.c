@@ -119,12 +119,12 @@ static struct command_t cmd_fileram = {
 
 static __init void fileram_cmd_init(void)
 {
-	command_register(&cmd_fileram);
+	register_command(&cmd_fileram);
 }
 
 static __exit void fileram_cmd_exit(void)
 {
-	command_unregister(&cmd_fileram);
+	unregister_command(&cmd_fileram);
 }
 
 command_initcall(fileram_cmd_init);

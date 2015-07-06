@@ -27,7 +27,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    memtest <address> <size>\r\n");
 }
 
@@ -136,12 +136,12 @@ static struct command_t cmd_memtest = {
 
 static __init void memtest_cmd_init(void)
 {
-	command_register(&cmd_memtest);
+	register_command(&cmd_memtest);
 }
 
 static __exit void memtest_cmd_exit(void)
 {
-	command_unregister(&cmd_memtest);
+	unregister_command(&cmd_memtest);
 }
 
 command_initcall(memtest_cmd_init);

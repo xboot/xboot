@@ -52,12 +52,12 @@ static struct command_t cmd_pwd = {
 
 static __init void pwd_cmd_init(void)
 {
-	command_register(&cmd_pwd);
+	register_command(&cmd_pwd);
 }
 
 static __exit void pwd_cmd_exit(void)
 {
-	command_unregister(&cmd_pwd);
+	unregister_command(&cmd_pwd);
 }
 
 command_initcall(pwd_cmd_init);

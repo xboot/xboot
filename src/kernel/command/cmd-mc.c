@@ -27,7 +27,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    mc <src> <dst> <size>\r\n");
 }
 
@@ -66,12 +66,12 @@ static struct command_t cmd_mc = {
 
 static __init void mc_cmd_init(void)
 {
-	command_register(&cmd_mc);
+	register_command(&cmd_mc);
 }
 
 static __exit void mc_cmd_exit(void)
 {
-	command_unregister(&cmd_mc);
+	unregister_command(&cmd_mc);
 }
 
 command_initcall(mc_cmd_init);

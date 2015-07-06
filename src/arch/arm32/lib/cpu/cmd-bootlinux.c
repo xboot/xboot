@@ -27,7 +27,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    bootlinux <KERNEL ADDR> <PARAM ADDR> <MACH TYPE> <COMMAND LINE>\r\n");
 }
 
@@ -122,12 +122,12 @@ static struct command_t cmd_bootlinux = {
 
 static __init void bootlinux_cmd_init(void)
 {
-	command_register(&cmd_bootlinux);
+	register_command(&cmd_bootlinux);
 }
 
 static __exit void bootlinux_cmd_exit(void)
 {
-	command_unregister(&cmd_bootlinux);
+	unregister_command(&cmd_bootlinux);
 }
 
 command_initcall(bootlinux_cmd_init);

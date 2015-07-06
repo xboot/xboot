@@ -25,49 +25,72 @@
 #include <xboot.h>
 #include <command/command.h>
 
-static struct command_list_t __command_list = {
+struct command_list_t __command_list = {
 	.entry = {
 		.next	= &(__command_list.entry),
 		.prev	= &(__command_list.entry),
 	},
 };
-struct command_list_t * command_list = &__command_list;
+static spinlock_t __command_list_lock = SPIN_LOCK_INIT();
 
-bool_t command_register(struct command_t * cmd)
+struct command_t * search_command(const char * name)
 {
-	struct command_list_t * list;
+	struct command_list_t * pos, * n;
 
-	list = malloc(sizeof(struct command_list_t));
-	if(!list || !cmd)
+	if(!name)
+		return NULL;
+
+	list_for_each_entry_safe(pos, n, &(__command_list.entry), entry)
 	{
-		free(list);
-		return FALSE;
+		if(strcmp(pos->cmd->name, name) == 0)
+			return pos->cmd;
 	}
 
-	if(!cmd->name || !cmd->exec || command_search(cmd->name))
-	{
-		free(list);
-		return FALSE;
-	}
+	return NULL;
+}
 
-	list->cmd = cmd;
-	list_add(&list->entry, &command_list->entry);
+bool_t register_command(struct command_t * cmd)
+{
+	struct command_list_t * cl;
+
+	if(!cmd || !cmd->name)
+		return FALSE;
+
+	if(!cmd->exec)
+		return FALSE;
+
+	if(search_command(cmd->name))
+		return FALSE;
+
+	cl = malloc(sizeof(struct command_list_t));
+	if(!cl)
+		return FALSE;
+
+	cl->cmd = cmd;
+
+	spin_lock_irq(&__command_list_lock);
+	list_add_tail(&cl->entry, &(__command_list.entry));
+	spin_unlock_irq(&__command_list_lock);
 
 	return TRUE;
 }
 
-bool_t command_unregister(struct command_t * cmd)
+bool_t unregister_command(struct command_t * cmd)
 {
-	struct command_list_t * list;
-	struct list_head * pos;
+	struct command_list_t * pos, * n;
 
-	for(pos = (&command_list->entry)->next; pos != (&command_list->entry); pos = pos->next)
+	if(!cmd || !cmd->name)
+		return FALSE;
+
+	list_for_each_entry_safe(pos, n, &(__command_list.entry), entry)
 	{
-		list = list_entry(pos, struct command_list_t, entry);
-		if(list->cmd == cmd)
+		if(pos->cmd == cmd)
 		{
-			list_del(pos);
-			free(list);
+			spin_lock_irq(&__command_list_lock);
+			list_del(&(pos->entry));
+			spin_unlock_irq(&__command_list_lock);
+
+			free(pos);
 			return TRUE;
 		}
 	}
@@ -75,30 +98,12 @@ bool_t command_unregister(struct command_t * cmd)
 	return FALSE;
 }
 
-struct command_t * command_search(const char * name)
+int total_command_number(void)
 {
-	struct command_list_t * list;
-	struct list_head * pos;
-
-	if(!name)
-		return NULL;
-
-	for(pos = (&command_list->entry)->next; pos != (&command_list->entry); pos = pos->next)
-	{
-		list = list_entry(pos, struct command_list_t, entry);
-		if(strcmp(list->cmd->name, name) == 0)
-			return list->cmd;
-	}
-
-	return NULL;
-}
-
-int command_number(void)
-{
-	struct list_head * pos = (&command_list->entry)->next;
+	struct list_head * pos = (&__command_list.entry)->next;
 	int i = 0;
 
-	while(!list_is_last(pos, (&command_list->entry)->next))
+	while(!list_is_last(pos, (&__command_list.entry)->next))
 	{
 		pos = pos->next;
 		i++;

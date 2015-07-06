@@ -90,12 +90,12 @@ static struct command_t cmd_mv = {
 
 static __init void mv_cmd_init(void)
 {
-	command_register(&cmd_mv);
+	register_command(&cmd_mv);
 }
 
 static __exit void mv_cmd_exit(void)
 {
-	command_unregister(&cmd_mv);
+	unregister_command(&cmd_mv);
 }
 
 command_initcall(mv_cmd_init);

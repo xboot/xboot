@@ -38,19 +38,19 @@ static int do_sync(int argc, char ** argv)
 
 static struct command_t cmd_sync = {
 	.name	= "sync",
-	.desc	= "flush file system buffers",
+	.desc	= "flush file system caches",
 	.usage	= usage,
 	.exec	= do_sync,
 };
 
 static __init void sync_cmd_init(void)
 {
-	command_register(&cmd_sync);
+	register_command(&cmd_sync);
 }
 
 static __exit void sync_cmd_exit(void)
 {
-	command_unregister(&cmd_sync);
+	unregister_command(&cmd_sync);
 }
 
 command_initcall(sync_cmd_init);

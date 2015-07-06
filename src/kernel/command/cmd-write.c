@@ -59,12 +59,12 @@ static struct command_t cmd_write = {
 
 static __init void write_cmd_init(void)
 {
-	command_register(&cmd_write);
+	register_command(&cmd_write);
 }
 
 static __exit void write_cmd_exit(void)
 {
-	command_unregister(&cmd_write);
+	unregister_command(&cmd_write);
 }
 
 command_initcall(write_cmd_init);

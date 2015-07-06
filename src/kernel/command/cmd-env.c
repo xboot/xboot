@@ -26,7 +26,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    env [NAME=VALUE] ...\r\n");
 }
 
@@ -66,12 +66,12 @@ static struct command_t cmd_env = {
 
 static __init void env_cmd_init(void)
 {
-	command_register(&cmd_env);
+	register_command(&cmd_env);
 }
 
 static __exit void env_cmd_exit(void)
 {
-	command_unregister(&cmd_env);
+	unregister_command(&cmd_env);
 }
 
 command_initcall(env_cmd_init);

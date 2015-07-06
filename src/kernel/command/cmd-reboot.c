@@ -54,12 +54,12 @@ static struct command_t cmd_reboot = {
 
 static __init void reboot_cmd_init(void)
 {
-	command_register(&cmd_reboot);
+	register_command(&cmd_reboot);
 }
 
 static __exit void reboot_cmd_exit(void)
 {
-	command_unregister(&cmd_reboot);
+	unregister_command(&cmd_reboot);
 }
 
 command_initcall(reboot_cmd_init);

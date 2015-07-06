@@ -26,7 +26,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    cat <file> ...\r\n");
 }
 
@@ -94,12 +94,12 @@ static struct command_t cmd_cat = {
 
 static __init void cat_cmd_init(void)
 {
-	command_register(&cmd_cat);
+	register_command(&cmd_cat);
 }
 
 static __exit void cat_cmd_exit(void)
 {
-	command_unregister(&cmd_cat);
+	unregister_command(&cmd_cat);
 }
 
 command_initcall(cat_cmd_init);

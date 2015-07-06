@@ -160,7 +160,7 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    ls [-l] [-a] [FILE]...\r\n");
 }
 
@@ -204,12 +204,12 @@ static struct command_t cmd_ls = {
 
 static __init void ls_cmd_init(void)
 {
-	command_register(&cmd_ls);
+	register_command(&cmd_ls);
 }
 
 static __exit void ls_cmd_exit(void)
 {
-	command_unregister(&cmd_ls);
+	unregister_command(&cmd_ls);
 }
 
 command_initcall(ls_cmd_init);

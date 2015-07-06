@@ -52,7 +52,7 @@ void system(const char * cmdline)
 		{
 			if(n > 0)
 			{
-				cmd = command_search(args[0]);
+				cmd = search_command(args[0]);
 				if(cmd)
 				{
     				ret = cmd->exec(n, args);

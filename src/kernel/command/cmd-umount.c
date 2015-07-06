@@ -56,12 +56,12 @@ static struct command_t cmd_umount = {
 
 static __init void umount_cmd_init(void)
 {
-	command_register(&cmd_umount);
+	register_command(&cmd_umount);
 }
 
 static __exit void umount_cmd_exit(void)
 {
-	command_unregister(&cmd_umount);
+	unregister_command(&cmd_umount);
 }
 
 command_initcall(umount_cmd_init);

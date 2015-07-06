@@ -26,7 +26,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    clear\r\n");
 }
 
@@ -45,12 +45,12 @@ static struct command_t cmd_clear = {
 
 static __init void clear_cmd_init(void)
 {
-	command_register(&cmd_clear);
+	register_command(&cmd_clear);
 }
 
 static __exit void clear_cmd_exit(void)
 {
-	command_unregister(&cmd_clear);
+	unregister_command(&cmd_clear);
 }
 
 command_initcall(clear_cmd_init);

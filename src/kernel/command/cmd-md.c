@@ -27,7 +27,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    md [-b|-w|-l] address [-c count]\r\n");
 }
 
@@ -137,12 +137,12 @@ static struct command_t cmd_md = {
 
 static __init void md_cmd_init(void)
 {
-	command_register(&cmd_md);
+	register_command(&cmd_md);
 }
 
 static __exit void md_cmd_exit(void)
 {
-	command_unregister(&cmd_md);
+	unregister_command(&cmd_md);
 }
 
 command_initcall(md_cmd_init);

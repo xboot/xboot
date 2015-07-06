@@ -24,12 +24,10 @@
 
 #include <command/command.h>
 
-extern struct command_list_t * command_list;
-
 static void usage(void)
 {
-	printf("Usage:\r\n");
-	printf("    help [COMMAND] ...\r\n");
+	printf("usage:\r\n");
+	printf("    help [command ...]\r\n");
 }
 
 static int do_help(int argc, char ** argv)
@@ -38,21 +36,18 @@ static int do_help(int argc, char ** argv)
 	struct list_head * pos;
 	struct command_t ** cmd_array;
 	struct command_t * cmd;
-	s32_t i = 0, j, k = 0, cmd_num, swaps;
+	int i = 0, j, k = 0, cmd_num, swaps;
 
 	if(argc == 1)
 	{
 		i = 0;
-		cmd_num = command_number();
+		cmd_num = total_command_number();
 		cmd_array = malloc(sizeof(struct command_t *) * cmd_num);
 
 		if(!cmd_array)
-		{
-			printf("malloc command array fail for sort command list\r\n");
 			return -1;
-		}
 
-		for(pos = (&command_list->entry)->next; pos != (&command_list->entry); pos = pos->next)
+		for(pos = (&__command_list.entry)->next; pos != (&__command_list.entry); pos = pos->next)
 		{
 			list = list_entry(pos, struct command_list_t, entry);
 			cmd_array[i++] = list->cmd;
@@ -79,22 +74,24 @@ static int do_help(int argc, char ** argv)
 
 		for(i = 0; i < cmd_num; i++)
 		{
-			printf(" %s%*s - %s\r\n",cmd_array[i]->name, k-strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
+			printf(" %s%*s - %s\r\n",cmd_array[i]->name, k - strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
 		}
 		free(cmd_array);
 	}
 	else
 	{
-		for (i = 1; i < argc; i++)
+		for(i = 1; i < argc; i++)
 		{
-			if( (cmd = command_search((char*)argv[i])) != NULL )
+			cmd = search_command(argv[i]);
+			if(cmd)
 			{
 				printf("%s - %s\r\n", cmd->name, cmd->desc);
-				cmd->usage();
+				if(cmd->usage)
+					cmd->usage();
 			}
 			else
 			{
-				printf("unknown command '%s' - try 'help' without arguments for list of all known commands\r\n", argv[i]);
+				printf("unknown command '%s' - try 'help' for list all of commands\r\n", argv[i]);
 			}
 		}
 	}
@@ -104,19 +101,19 @@ static int do_help(int argc, char ** argv)
 
 static struct command_t cmd_help = {
 	.name	= "help",
-	.desc	= "show usage information for command",
+	.desc	= "show online help about command",
 	.usage	= usage,
 	.exec	= do_help,
 };
 
 static __init void help_cmd_init(void)
 {
-	command_register(&cmd_help);
+	register_command(&cmd_help);
 }
 
 static __exit void help_cmd_exit(void)
 {
-	command_unregister(&cmd_help);
+	unregister_command(&cmd_help);
 }
 
 command_initcall(help_cmd_init);

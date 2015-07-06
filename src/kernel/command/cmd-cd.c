@@ -26,7 +26,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    cd [DIR]\r\n");
 }
 
@@ -61,12 +61,12 @@ static struct command_t cmd_cd = {
 
 static __init void cd_cmd_init(void)
 {
-	command_register(&cmd_cd);
+	register_command(&cmd_cd);
 }
 
 static __exit void cd_cmd_exit(void)
 {
-	command_unregister(&cmd_cd);
+	unregister_command(&cmd_cd);
 }
 
 command_initcall(cd_cmd_init);

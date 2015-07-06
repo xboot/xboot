@@ -132,12 +132,12 @@ static struct command_t cmd_mw = {
 
 static __init void mw_cmd_init(void)
 {
-	command_register(&cmd_mw);
+	register_command(&cmd_mw);
 }
 
 static __exit void mw_cmd_exit(void)
 {
-	command_unregister(&cmd_mw);
+	unregister_command(&cmd_mw);
 }
 
 command_initcall(mw_cmd_init);

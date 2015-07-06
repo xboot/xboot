@@ -26,7 +26,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    go address [arg ...]\r\n");
 }
 
@@ -61,12 +61,12 @@ static struct command_t cmd_go = {
 
 static __init void go_cmd_init(void)
 {
-	command_register(&cmd_go);
+	register_command(&cmd_go);
 }
 
 static __exit void go_cmd_exit(void)
 {
-	command_unregister(&cmd_go);
+	unregister_command(&cmd_go);
 }
 
 command_initcall(go_cmd_init);

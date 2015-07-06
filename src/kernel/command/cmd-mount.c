@@ -168,12 +168,12 @@ static struct command_t cmd_mount = {
 
 static __init void mount_cmd_init(void)
 {
-	command_register(&cmd_mount);
+	register_command(&cmd_mount);
 }
 
 static __exit void mount_cmd_exit(void)
 {
-	command_unregister(&cmd_mount);
+	unregister_command(&cmd_mount);
 }
 
 command_initcall(mount_cmd_init);

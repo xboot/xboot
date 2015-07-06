@@ -106,12 +106,12 @@ static struct command_t cmd_getevent = {
 
 static __init void getevent_cmd_init(void)
 {
-	command_register(&cmd_getevent);
+	register_command(&cmd_getevent);
 }
 
 static __exit void getevent_cmd_exit(void)
 {
-	command_unregister(&cmd_getevent);
+	unregister_command(&cmd_getevent);
 }
 
 command_initcall(getevent_cmd_init);

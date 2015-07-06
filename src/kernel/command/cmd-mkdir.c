@@ -26,7 +26,7 @@
 
 static void usage(void)
 {
-	printf("Usage:\r\n");
+	printf("usage:\r\n");
 	printf("    mkdir [-p] DIRECTORY...\r\n\r\n");
 }
 
@@ -112,12 +112,12 @@ static struct command_t cmd_mkdir = {
 
 static __init void mkdir_cmd_init(void)
 {
-	command_register(&cmd_mkdir);
+	register_command(&cmd_mkdir);
 }
 
 static __exit void mkdir_cmd_exit(void)
 {
-	command_unregister(&cmd_mkdir);
+	unregister_command(&cmd_mkdir);
 }
 
 command_initcall(mkdir_cmd_init);

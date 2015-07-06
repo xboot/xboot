@@ -6,22 +6,19 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <xboot/list.h>
 
 struct command_t
 {
-	/* The command name */
+	/* Command name */
 	const char * name;
 
-	/* The command description */
+	/* Command description */
 	const char * desc;
 
-	/* The usage function */
+	/* Command usage function */
 	void (*usage)(void);
 
-	/* The exec function */
+	/* Command exec function */
 	int (*exec)(int argc, char ** argv);
 };
 
@@ -31,10 +28,12 @@ struct command_list_t
 	struct list_head entry;
 };
 
-bool_t command_register(struct command_t * cmd);
-bool_t command_unregister(struct command_t * cmd);
-struct command_t * command_search(const char * name);
-int command_number(void);
+extern struct command_list_t __command_list;
+
+struct command_t * search_command(const char * name);
+bool_t register_command(struct command_t * cmd);
+bool_t unregister_command(struct command_t * cmd);
+int total_command_number(void);
 
 #ifdef __cplusplus
 }

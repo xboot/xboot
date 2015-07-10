@@ -217,7 +217,7 @@ enum {
 	KEY_LOCK_NUM				= 0x0087,
 	KEY_LOCK_SCROLL				= 0x0088,
 
-	KEY_BACKSPACE				= 0x0090,
+	KEY_DELETE					= 0x0090,
 	KEY_TAB						= 0x0091,
 	KEY_ENTER					= 0x0092,
 	KEY_UP						= 0x0093,

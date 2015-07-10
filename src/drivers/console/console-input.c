@@ -44,7 +44,7 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 		key = event.e.key_down.key;
 		switch(key)
 		{
-		case KEY_BACKSPACE:
+		case KEY_DELETE:
 			sym[0] = 0x7f;
 			len = 1;
 			break;

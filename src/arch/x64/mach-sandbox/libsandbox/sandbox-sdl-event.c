@@ -40,6 +40,93 @@ struct event_callback_t {
 static struct event_callback_t __event_callback = { 0 };
 static SDL_Thread * __event = NULL;
 
+static unsigned int keycode_map(SDL_Keycode code)
+{
+	unsigned int key;
+
+	switch(code)
+	{
+	case SDLK_LCTRL:
+		key = 0x80;
+		break;
+	case SDLK_RCTRL:
+		key = 0x81;
+		break;
+	case SDLK_LALT:
+		key = 0x82;
+		break;
+	case SDLK_RALT:
+		key = 0x83;
+		break;
+	case SDLK_LSHIFT:
+		key = 0x84;
+		break;
+	case SDLK_RSHIFT:
+		key = 0x85;
+		break;
+	case SDLK_CAPSLOCK:
+		key = 0x86;
+		break;
+	case SDLK_NUMLOCKCLEAR:
+		key = 0x87;
+		break;
+	case SDLK_SCROLLLOCK:
+		key = 0x88;
+		break;
+	case SDLK_DELETE:
+		key = 0x90;
+		break;
+	case SDLK_TAB:
+		key = 0x91;
+		break;
+	case SDLK_RETURN:
+		key = 0x92;
+		break;
+	case SDLK_UP:
+		key = 0x93;
+		break;
+	case SDLK_DOWN:
+		key = 0x94;
+		break;
+	case SDLK_LEFT:
+		key = 0x95;
+		break;
+	case SDLK_RIGHT:
+		key = 0x96;
+		break;
+	case SDLK_PAGEUP:
+		key = 0x97;
+		break;
+	case SDLK_PAGEDOWN:
+		key = 0x98;
+		break;
+	case SDLK_HOME:
+		key = 0x99;
+		break;
+	case SDLK_END:
+		key = 0x9a;
+		break;
+	case SDLK_VOLUMEUP:
+		key = 0x9b;
+		break;
+	case SDLK_VOLUMEDOWN:
+		key = 0x9c;
+		break;
+	case SDLK_MENU:
+		key = 0x9d;
+		break;
+	case SDLK_ESCAPE:
+		key = 0x9e;
+		break;
+	case SDLK_POWER:
+		key = 0x9f;
+		break;
+	default:
+		key = code;
+	}
+	return key;
+}
+
 static int handle_event(void * data)
 {
 	struct event_callback_t * cb = (struct event_callback_t *)(data);
@@ -56,12 +143,12 @@ static int handle_event(void * data)
 	        {
 	        case SDL_KEYDOWN:
 	        	if(cb->key.down)
-	        		cb->key.down(cb->key.device, e.key.keysym.sym);
+	        		cb->key.down(cb->key.device, keycode_map(e.key.keysym.sym));
 	        	break;
 
 	        case SDL_KEYUP:
 	        	if(cb->key.up)
-	        		cb->key.up(cb->key.device, e.key.keysym.sym);
+	        		cb->key.up(cb->key.device, keycode_map(e.key.keysym.sym));
 	        	break;
 
 	        case SDL_MOUSEBUTTONDOWN:

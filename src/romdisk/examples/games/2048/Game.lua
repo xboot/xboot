@@ -294,16 +294,17 @@ end
 function M:onKeyDown(e)
 	local changed = false
 	local key = e.info.key
-	e:stopPropagation()
 
-	if key == 97 then
+	if key == 0x61 then
 		changed = self:moveLeft()
-	elseif key == 100 then
+	elseif key == 0x64 then
 		changed = self:moveRight()
-	elseif key == 119 then
+	elseif key == 0x77 then
 		changed = self:moveTop()
-	elseif key == 115 then
+	elseif key == 0x73 then
 		changed = self:moveDown()
+	else
+    return
 	end
 
 	if changed then
@@ -312,6 +313,7 @@ function M:onKeyDown(e)
 			print("game over")
 		end
 	end
+	e:stopPropagation()
 end
 
 return M

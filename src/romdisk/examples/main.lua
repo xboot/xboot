@@ -21,3 +21,15 @@ stage:addChild(prevbtn)
 local nextbtn = Widget.Button.new({x = width - 150, y = height - 100, width = 100, height = 50})
 	:addEventListener("Click", function(d, e) testcases:next() end)
 stage:addChild(nextbtn)
+
+stage:addEventListener(Event.KEY_DOWN, function(d, e)
+  local key = e.info.key
+  if key == 0x93 or key == 0x95 or key == 0x9c then
+    testcases:prev()
+  elseif key == 0x94 or key == 0x96 or key == 0x9b then
+    testcases:next()
+  else
+    return
+  end
+  e:stopPropagation()
+end)

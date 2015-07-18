@@ -11,6 +11,9 @@
         "ydpi": 160,
         "fullscreen": false
     },
+    "audio": {
+        "maxidle": 16
+    },
     "input": [
         "keyboard",
         "mouse",

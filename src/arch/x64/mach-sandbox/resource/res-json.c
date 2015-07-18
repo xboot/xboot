@@ -27,6 +27,7 @@
 #include <sandbox.h>
 #include <console/console.h>
 #include <sandbox-fb.h>
+#include <sandbox-audio.h>
 #include <sandbox-input.h>
 #include <sandbox-led.h>
 
@@ -143,6 +144,37 @@ static void json_resource_framebuffer(json_value * value)
 	}
 }
 
+static void json_resource_audio(json_value * value)
+{
+	struct resource_t * res;
+	struct sandbox_audio_data_t * data;
+	int maxidle = 16;
+	json_value * v;
+	int i;
+
+	if(value->type == json_object)
+	{
+		for(i = 0; i < value->u.object.length; i++)
+		{
+			if(strcmp(value->u.object.values[i].name, "maxidle") == 0)
+			{
+				v = value->u.object.values[i].value;
+				if(v->type == json_integer)
+					maxidle = v->u.integer;
+			}
+		}
+
+		res = malloc(sizeof(struct resource_t));
+		data = malloc(sizeof(struct sandbox_audio_data_t));
+		data->maxidle = maxidle;
+		res->mach = NULL;
+		res->name = "sandbox-audio";
+		res->id = -1;
+		res->data = data;
+		json_resource_register(res);
+	}
+}
+
 static void json_resource_input(json_value * value)
 {
 	struct resource_t * res;
@@ -232,6 +264,10 @@ static __init void resource_json_init(void)
 			else if(strcmp(value->u.object.values[i].name, "framebuffer") == 0)
 			{
 				json_resource_framebuffer(value->u.object.values[i].value);
+			}
+			else if(strcmp(value->u.object.values[i].name, "audio") == 0)
+			{
+				json_resource_audio(value->u.object.values[i].value);
 			}
 			else if(strcmp(value->u.object.values[i].name, "input") == 0)
 			{

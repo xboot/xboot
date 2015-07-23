@@ -10,8 +10,8 @@ STACK_SRV_SIZE 	= 0x8000;
 
 MEMORY
 {
-	rom (rx)	: org = 0x40100000, len = 0x02000000	/* 32 MB */
-	ram (rwx)	: org = 0x42100000, len = 0x0a000000	/* 160 MB */
+	rom (rx)	: org = 0x43c00000, len = 0x02000000	/* 32 MB */
+	ram (rwx)	: org = 0x45100000, len = 0x0a000000	/* 160 MB */
 }
 
 SECTIONS
@@ -20,18 +20,19 @@ SECTIONS
 	{
 		. = ALIGN(8);
 		PROVIDE (__text_start = .);
-/*		.obj/arch/arm32/mach-6818/start.o (.text) */
+		.obj/arch/arm64/mach-x6818/start.o (.text)
 		*(.text)
 		*(.text.*)
 		*(.init.text)
     	*(.exit.text)
+		*(.note.gnu.build-id)
 
     	. = ALIGN(8);
     	PROVIDE (__ksymtab_start = .);
 		KEEP(*(.ksymtab.text))
 		PROVIDE (__ksymtab_end = .);
 
-    	. = ALIGN(8);	
+    	. = ALIGN(8);
 		PROVIDE (__initcall_start = .);
 		KEEP(*(.initcall_0.text))
 		KEEP(*(.initcall_1.text))

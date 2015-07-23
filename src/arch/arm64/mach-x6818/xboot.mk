@@ -2,13 +2,13 @@
 # Machine makefile
 #
 
-DEFINES		+= -D__ARM_ARCH__=7 -D__CORTEX_A9__ -D__ARM_NEON__
+DEFINES		+= -D__ARM_ARCH__=8 -D__CORTEX_A53__ -D__ARM_NEON__
 
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 CXXFLAGS	:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-MCFLAGS		:= -mcpu=cortex-a53 -mtune=cortex-a53 -march=armv8-a -ftree-vectorize
+MCFLAGS		:= -mcpu=cortex-a53 -mtune=cortex-a53 -march=armv8-a
 
 LIBDIRS		:=
 LIBS 		:=

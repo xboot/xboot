@@ -76,7 +76,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/$(MACH)/bus					\
 				arch/$(ARCH)/$(MACH)/driver					\
 				arch/$(ARCH)/$(MACH)/resource				\
-				lib/elf										\
 				lib/libc									\
 				lib/libc/charset							\
 				lib/libc/ctype								\

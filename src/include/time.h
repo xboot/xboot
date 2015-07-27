@@ -6,7 +6,10 @@ extern "C" {
 #endif
 
 #include <xboot/module.h>
-#include <types.h>
+#include <stdint.h>
+
+typedef	uint64_t		clock_t;
+typedef	int64_t			time_t;
 
 #define CLOCKS_PER_SEC	(1000000000ULL)
 

@@ -30,9 +30,6 @@ typedef signed long	long		ssize_t;
 typedef signed long				off_t;
 typedef signed long long		loff_t;
 
-typedef	unsigned int			clock_t;
-typedef	signed int				time_t;
-
 typedef signed int				bool_t;
 
 typedef signed long				register_t;

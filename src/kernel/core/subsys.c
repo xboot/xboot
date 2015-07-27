@@ -28,6 +28,7 @@ static __init void subsys_init(void)
 {
 	subsys_init_machine();
 	subsys_init_jiffies();
+	subsys_init_clockevent();
 	subsys_init_clocksource();
 }
 subsys_initcall(subsys_init);

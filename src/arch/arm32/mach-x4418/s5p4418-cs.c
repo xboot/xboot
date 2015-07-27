@@ -28,29 +28,30 @@
 
 #define CS_TIMER_CHANNEL	(1)
 
-static void s5p4418_cs_init(struct clocksource_t * cs)
+static bool_t s5p4418_cs_init(struct clocksource_t * cs)
 {
 	u64_t rate;
 
 	s5p4418_timer_reset();
 
 	/* 75MHZ - 13.333...ns */
+	s5p4418_timer_enable(CS_TIMER_CHANNEL, 0);
 	rate = s5p4418_timer_calc_tin(CS_TIMER_CHANNEL, 13);
-	s5p4418_timer_stop(CS_TIMER_CHANNEL, 0);
+	clocksource_calc_mult_shift(&cs->mult, &cs->shift, rate, 1000000000ULL, 10);
 	s5p4418_timer_count(CS_TIMER_CHANNEL, 0xffffffff);
 	s5p4418_timer_start(CS_TIMER_CHANNEL, 0);
-	cs->mult = clocksource_hz2mult(rate, cs->shift);
+
+	return TRUE;
 }
 
-static cycle_t s5p4418_cs_read(struct clocksource_t * cs)
+static u64_t s5p4418_cs_read(struct clocksource_t * cs)
 {
 	u32_t val = s5p4418_timer_read(CS_TIMER_CHANNEL);
-	return (cycle_t)(~val);
+	return (u64_t)(~val);
 }
 
 static struct clocksource_t s5p4418_cs = {
 	.name	= "s5p4418-cs",
-	.shift	= 20,
 	.mask	= CLOCKSOURCE_MASK(32),
 	.init	= s5p4418_cs_init,
 	.read	= s5p4418_cs_read,

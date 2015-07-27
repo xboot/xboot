@@ -65,9 +65,9 @@ static void __cs_jiffies_init(struct clocksource_t * cs)
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, HZ, 1000000000L, 10);
 }
 
-static cycle_t __cs_jiffies_read(struct clocksource_t * cs)
+static u64_t __cs_jiffies_read(struct clocksource_t * cs)
 {
-	return (cycle_t)(jiffies);
+	return (u64_t)(jiffies);
 }
 
 static struct clocksource_t __cs_jiffies = {

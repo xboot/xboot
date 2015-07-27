@@ -26,7 +26,7 @@
 #include <clocksource/clocksource.h>
 #include <realview/reg-timer.h>
 
-static void realview_cs_init(struct clocksource_t * cs)
+static bool_t realview_cs_init(struct clocksource_t * cs)
 {
 	u64_t rate;
 
@@ -38,12 +38,14 @@ static void realview_cs_init(struct clocksource_t * cs)
 	write32(REALVIEW_T0_LOAD, 0xffffffff);
 	write32(REALVIEW_T0_VALUE, 0xffffffff);
 	write32(REALVIEW_T0_CTRL, REALVIEW_TC_32BIT | REALVIEW_TC_ENABLE | REALVIEW_TC_PERIODIC);
+
+	return TRUE;
 }
 
-static cycle_t realview_cs_read(struct clocksource_t * cs)
+static u64_t realview_cs_read(struct clocksource_t * cs)
 {
 	u32_t val = read32(REALVIEW_T0_VALUE);
-	return (cycle_t)(~val);
+	return (u64_t)(~val);
 }
 
 static struct clocksource_t realview_cs = {

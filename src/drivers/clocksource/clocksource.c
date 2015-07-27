@@ -63,7 +63,7 @@ static struct clocksource_t * __current_clocksource = &__cs_dummy;
 
 static inline __attribute__((always_inline)) u64_t __clocksource_gettime(struct clocksource_t * cs)
 {
-	cycle_t now, delta;
+	u64_t now, delta;
 
 	now = cs->read(cs);
 	delta = (now - cs->last) & cs->mask;
@@ -100,20 +100,20 @@ static ssize_t clocksource_read_period(struct kobj_t * kobj, void * buf, size_t 
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t period = ((u64_t)cs->mult) >> cs->shift;
-	return sprintf(buf, "%llu.%09llu", period / 1000000000L, period % 1000000000L);
+	return sprintf(buf, "%llu.%09llu", period / 1000000000ULL, period % 1000000000ULL);
 }
 
 static ssize_t clocksource_read_deferment(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t max = (cs->mask * cs->mult) >> cs->shift;
-	return sprintf(buf, "%llu.%09llu", max / 1000000000L, max % 1000000000L);
+	return sprintf(buf, "%llu.%09llu", max / 1000000000ULL, max % 1000000000ULL);
 }
 
 static ssize_t clocksource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	cycle_t cycle;
+	u64_t cycle;
 	cycle = cs->read(cs) & cs->mask;
 	return sprintf(buf, "%llu", cycle);
 }
@@ -122,7 +122,7 @@ static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t si
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t time = __clocksource_gettime(cs);
-	return sprintf(buf, "%llu.%09llu", time / 1000000000L, time % 1000000000L);
+	return sprintf(buf, "%llu.%09llu", time / 1000000000ULL, time % 1000000000ULL);
 }
 
 static struct clocksource_t * search_clocksource(const char * name)
@@ -146,6 +146,9 @@ bool_t register_clocksource(struct clocksource_t * cs)
 	struct clocksource_list_t * cl;
 
 	if(!cs || !cs->name)
+		return FALSE;
+
+	if(!cs->init || !cs->read)
 		return FALSE;
 
 	if(search_clocksource(cs->name))
@@ -203,17 +206,17 @@ void subsys_init_clocksource(void)
 {
 	struct clocksource_list_t * pos, * n;
 	struct clocksource_t * cs;
-	u64_t period = ~0;
+	u64_t period = ~0ULL;
 	u64_t t;
 
 	list_for_each_entry_safe(pos, n, &(__clocksource_list.entry), entry)
 	{
 		cs = pos->cs;
-		if(!cs)
+		if(!cs || !cs->init)
 			continue;
 
-		if(cs->init)
-			cs->init(cs);
+		if(!cs->init(cs))
+			continue;
 
 		t = ((u64_t)cs->mult) >> cs->shift;
 		if(t < period)

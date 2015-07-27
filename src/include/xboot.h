@@ -55,6 +55,7 @@ extern "C" {
 #include <gpio/gpio.h>
 #include <pwm/pwm.h>
 #include <clk/clk.h>
+#include <clockevent/clockevent.h>
 #include <clocksource/clocksource.h>
 #include <interrupt/interrupt.h>
 #include <time/delay.h>

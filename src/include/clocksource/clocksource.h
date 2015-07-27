@@ -8,14 +8,9 @@ extern "C" {
 #include <xboot.h>
 
 /*
- * Base type of clocksource cycle
- */
-typedef u64_t	cycle_t;
-
-/*
  * Simplify initialization of mask field
  */
-#define CLOCKSOURCE_MASK(bits)	(cycle_t)((bits) < 64 ? ((1ULL<<(bits))-1) : -1)
+#define CLOCKSOURCE_MASK(bits)	(u64_t)((bits) < 64 ? ((1ULL<<(bits))-1) : -1)
 
 struct clocksource_t
 {
@@ -23,12 +18,12 @@ struct clocksource_t
 	const char * name;
 	u32_t mult;
 	u32_t shift;
-	cycle_t mask;
-	cycle_t last;
+	u64_t mask;
+	u64_t last;
 	u64_t nsec;
 
-	void (*init)(struct clocksource_t * cs);
-	cycle_t (*read)(struct clocksource_t * cs);
+	bool_t (*init)(struct clocksource_t * cs);
+	u64_t (*read)(struct clocksource_t * cs);
 	void * pirv;
 };
 
@@ -82,7 +77,7 @@ static inline u32_t clocksource_khz2mult(u32_t khz, u32_t shift)
 }
 
 /*
- * clocks_calc_mult_shift - calculate mult/shift factors for scaled math of clocks
+ * clocksource_calc_mult_shift - calculate mult/shift factors for scaled math of clocksource
  * @mult:	pointer to mult variable
  * @shift:	pointer to shift variable
  * @from:	frequency to convert from
@@ -138,7 +133,6 @@ static inline void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_
 u64_t clocksource_gettime(void);
 bool_t register_clocksource(struct clocksource_t * cs);
 bool_t unregister_clocksource(struct clocksource_t * cs);
-
 void subsys_init_clocksource(void);
 
 #ifdef __cplusplus

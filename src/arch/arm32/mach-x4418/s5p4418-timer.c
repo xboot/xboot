@@ -56,7 +56,7 @@ void s5p4418_timer_reset(void)
 	s5p4418_ip_reset(RESET_ID_TIMER, 0);
 }
 
-void s5p4418_timer_start(int ch, int irqon)
+void s5p4418_timer_enable(int ch, int irqon)
 {
 	u32_t val;
 
@@ -69,25 +69,15 @@ void s5p4418_timer_start(int ch, int irqon)
 	val &= ~(0x1f << 5 | 0x1 << ch);
 	val |= (0x1 << (ch + 5)) | ((irqon ? 1 : 0) << ch);
 	write32(phys_to_virt(S5P4418_TIMER_TSTAT), val);
-
-	val = read32(phys_to_virt(S5P4418_TIMER_TCON));
-	val &= ~(TCON_AUTORELOAD(ch) | TCON_START(ch));
-	val |= TCON_MANUALUPDATE(ch);
-	write32(phys_to_virt(S5P4418_TIMER_TCON), val);
-
-	val = read32(phys_to_virt(S5P4418_TIMER_TCON));
-	val &= ~TCON_MANUALUPDATE(ch);
-	val |= TCON_AUTORELOAD(ch) | TCON_START(ch);
-	write32(phys_to_virt(S5P4418_TIMER_TCON), val);
 }
 
-void s5p4418_timer_stop(int ch, int irqon)
+void s5p4418_timer_disable(int ch)
 {
 	u32_t val;
 
 	val = read32(phys_to_virt(S5P4418_TIMER_TSTAT));
 	val &= ~(0x1f << 5 | 0x1 << ch);
-	val |= (0x1 << (ch + 5)) | ((irqon ? 1 : 0) << ch);
+	val |= (0x1 << (ch + 5));
 	write32(phys_to_virt(S5P4418_TIMER_TSTAT), val);
 
 	val = read32(phys_to_virt(S5P4418_TIMER_TCON));
@@ -98,6 +88,34 @@ void s5p4418_timer_stop(int ch, int irqon)
 		clk_disable("DIV-TIMER-PRESCALER0");
 	else
 		clk_disable("DIV-TIMER-PRESCALER1");
+}
+
+void s5p4418_timer_start(int ch, int oneshot)
+{
+	u32_t val;
+
+	val = read32(phys_to_virt(S5P4418_TIMER_TCON));
+	val &= ~(TCON_AUTORELOAD(ch) | TCON_START(ch));
+	if(!oneshot)
+		val |= TCON_AUTORELOAD(ch);
+	val |= TCON_MANUALUPDATE(ch);
+	write32(phys_to_virt(S5P4418_TIMER_TCON), val);
+
+	val = read32(phys_to_virt(S5P4418_TIMER_TCON));
+	val &= ~(TCON_AUTORELOAD(ch) | TCON_MANUALUPDATE(ch));
+	if(!oneshot)
+		val |= TCON_AUTORELOAD(ch);
+	val |= TCON_START(ch);
+	write32(phys_to_virt(S5P4418_TIMER_TCON), val);
+}
+
+void s5p4418_timer_stop(int ch)
+{
+	u32_t val;
+
+	val = read32(phys_to_virt(S5P4418_TIMER_TCON));
+	val &= ~(TCON_START(ch));
+	write32(phys_to_virt(S5P4418_TIMER_TCON), val);
 }
 
 u64_t s5p4418_timer_calc_tin(int ch, u32_t period)

@@ -47,9 +47,9 @@ static bool_t s5p4418_ce_init(struct clockevent_t * ce)
 		return FALSE;
 	}
 
-	/* 75MHZ - 13.333...ns */
+	/* 9.375MHZ - 107ns */
 	s5p4418_timer_enable(CE_TIMER_CHANNEL, 1);
-	rate = s5p4418_timer_calc_tin(CE_TIMER_CHANNEL, 13);
+	rate = s5p4418_timer_calc_tin(CE_TIMER_CHANNEL, 107);
 	clockevent_calc_mult_shift(ce, rate, 10);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);

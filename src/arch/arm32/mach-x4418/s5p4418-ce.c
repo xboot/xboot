@@ -32,7 +32,7 @@ static void s5p4418_ce_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
 	s5p4418_timer_irq_clear(CE_TIMER_CHANNEL);
-	ce->handler(ce);
+	ce->handler(ce, ce->data);
 }
 
 static bool_t s5p4418_ce_init(struct clockevent_t * ce)

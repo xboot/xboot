@@ -40,16 +40,17 @@ struct clockevent_list_t __clockevent_list = {
 static spinlock_t __clockevent_list_lock = SPIN_LOCK_INIT();
 static struct clockevent_t * __current_clockevent = NULL;
 
-static void clockevent_handler_noop(struct clockevent_t * ce)
+static void clockevent_handler_noop(struct clockevent_t * ce, void * data)
 {
 }
 
-bool_t clockevent_set_event_handler(void (*handler)(struct clockevent_t *))
+bool_t clockevent_set_event_handler(void (*handler)(struct clockevent_t *, void *), void * data)
 {
 	struct clockevent_t * ce = __current_clockevent;
 
 	if(!ce)
 		return FALSE;
+	ce->data = data;
 	ce->handler = handler ? handler : clockevent_handler_noop;
 	return TRUE;
 }
@@ -143,6 +144,7 @@ bool_t register_clockevent(struct clockevent_t * ce)
 	if(!cl)
 		return FALSE;
 
+	ce->data = NULL;
 	ce->handler = clockevent_handler_noop;
 	ce->kobj = kobj_alloc_directory(ce->name);
 	kobj_add_regular(ce->kobj, "mult", clockevent_read_mult, NULL, ce);

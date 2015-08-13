@@ -15,7 +15,8 @@ struct clockevent_t
 	u32_t shift;
 	u64_t min_delta_ns;
 	u64_t max_delta_ns;
-	void (*handler)(struct clockevent_t * ce);
+	void * data;
+	void (*handler)(struct clockevent_t * ce, void * data);
 
 	bool_t (*init)(struct clockevent_t * ce);
 	bool_t (*next)(struct clockevent_t * ce, u64_t evt);
@@ -137,7 +138,7 @@ static inline u64_t clockevent_delta2ns(struct clockevent_t * ce, u64_t latch)
 	return clc > 1000 ? clc : 1000;
 }
 
-bool_t clockevent_set_event_handler(void (*handler)(struct clockevent_t *));
+bool_t clockevent_set_event_handler(void (*handler)(struct clockevent_t *, void *), void * data);
 bool_t clockevent_set_event_next(ktime_t now, ktime_t expires);
 bool_t register_clockevent(struct clockevent_t * ce);
 bool_t unregister_clockevent(struct clockevent_t * ce);

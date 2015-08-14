@@ -40,38 +40,8 @@ struct clockevent_list_t __clockevent_list = {
 static spinlock_t __clockevent_list_lock = SPIN_LOCK_INIT();
 static struct clockevent_t * __current_clockevent = NULL;
 
-static void clockevent_handler_noop(struct clockevent_t * ce, void * data)
+static void __clockevent_handler_null(struct clockevent_t * ce, void * data)
 {
-}
-
-bool_t clockevent_set_event_handler(void (*handler)(struct clockevent_t *, void *), void * data)
-{
-	struct clockevent_t * ce = __current_clockevent;
-
-	if(!ce)
-		return FALSE;
-	ce->data = data;
-	ce->handler = handler ? handler : clockevent_handler_noop;
-	return TRUE;
-}
-
-bool_t clockevent_set_event_next(ktime_t now, ktime_t expires)
-{
-	struct clockevent_t * ce = __current_clockevent;
-	u64_t delta;
-
-	if(!ce)
-		return FALSE;
-
-	if(ktime_before(expires, now))
-		return FALSE;
-
-	delta = ktime_to_ns(ktime_sub(expires, now));
-	if(delta > ce->max_delta_ns)
-		delta = ce->max_delta_ns;
-	if(delta < ce->min_delta_ns)
-		delta = ce->min_delta_ns;
-	return ce->next(ce, ((u64_t)delta * ce->mult) >> ce->shift);
 }
 
 static struct kobj_t * search_class_clockevent_kobj(void)
@@ -145,7 +115,7 @@ bool_t register_clockevent(struct clockevent_t * ce)
 		return FALSE;
 
 	ce->data = NULL;
-	ce->handler = clockevent_handler_noop;
+	ce->handler = __clockevent_handler_null;
 	ce->kobj = kobj_alloc_directory(ce->name);
 	kobj_add_regular(ce->kobj, "mult", clockevent_read_mult, NULL, ce);
 	kobj_add_regular(ce->kobj, "shift", clockevent_read_shift, NULL, ce);
@@ -185,6 +155,38 @@ bool_t unregister_clockevent(struct clockevent_t * ce)
 	}
 
 	return FALSE;
+}
+
+struct clockevent_t * clockevent_get_current(void)
+{
+	return __current_clockevent;
+}
+
+bool_t clockevent_set_event_handler(struct clockevent_t * ce, void (*handler)(struct clockevent_t *, void *), void * data)
+{
+	if(!ce)
+		return FALSE;
+	ce->data = data;
+	ce->handler = handler ? handler : __clockevent_handler_null;
+	return TRUE;
+}
+
+bool_t clockevent_set_event_next(struct clockevent_t * ce, ktime_t now, ktime_t expires)
+{
+	u64_t delta;
+
+	if(!ce)
+		return FALSE;
+
+	if(ktime_before(expires, now))
+		return FALSE;
+
+	delta = ktime_to_ns(ktime_sub(expires, now));
+	if(delta > ce->max_delta_ns)
+		delta = ce->max_delta_ns;
+	if(delta < ce->min_delta_ns)
+		delta = ce->min_delta_ns;
+	return ce->next(ce, ((u64_t)delta * ce->mult) >> ce->shift);
 }
 
 void subsys_init_clockevent(void)

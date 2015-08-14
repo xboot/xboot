@@ -138,10 +138,11 @@ static inline u64_t clockevent_delta2ns(struct clockevent_t * ce, u64_t latch)
 	return clc > 1000 ? clc : 1000;
 }
 
-bool_t clockevent_set_event_handler(void (*handler)(struct clockevent_t *, void *), void * data);
-bool_t clockevent_set_event_next(ktime_t now, ktime_t expires);
 bool_t register_clockevent(struct clockevent_t * ce);
 bool_t unregister_clockevent(struct clockevent_t * ce);
+struct clockevent_t * clockevent_get_current(void);
+bool_t clockevent_set_event_handler(struct clockevent_t * ce, void (*handler)(struct clockevent_t *, void *), void * data);
+bool_t clockevent_set_event_next(struct clockevent_t * ce, ktime_t now, ktime_t expires);
 void subsys_init_clockevent(void);
 
 #ifdef __cplusplus

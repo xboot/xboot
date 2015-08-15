@@ -5,30 +5,46 @@
 extern "C" {
 #endif
 
-#include <types.h>
-#include <xboot/list.h>
+#include <xboot.h>
+#include <rbtree_augmented.h>
+#include <rbtree.h>
 
-/*
- * timer_t struct.
- */
-struct timer_t {
-	struct list_head list;
-	u32_t expires;
-	void * data;
-	void (*function)(void *);
+struct timer_base_t;
+struct timer_t;
+
+enum timer_state_t {
+	TIMER_STATE_INACTIVE = 0,
+	TIMER_STATE_ENQUEUED = 1,
+	TIMER_STATE_CALLBACK = 2,
 };
 
-void init_timer(struct timer_t * timer);
-bool_t timer_pending(const struct timer_t * timer);
-void add_timer(struct timer_t * timer);
-bool_t mod_timer(struct timer_t * timer, u32_t expires);
-bool_t del_timer(struct timer_t * timer);
-void setup_timer(struct timer_t * timer, void (*function)(void *), void * data);
+struct timer_base_t {
+	struct rb_root head;
+	struct timer_t * next;
+	struct clockevent_t * ce;
+	spinlock_t lock;
+	ktime_t (*gettime)(void);
+};
 
-void schedule_timer_task(void);
+struct timer_t {
+	struct rb_node node;
+	struct timer_base_t * base;
+	enum timer_state_t state;
+	ktime_t expires;
+	void * data;
+	int (*function)(struct timer_t *, void *);
+};
+
+void timer_init(struct timer_t * timer, int (*function)(struct timer_t *, void *), void * data);
+void timer_start(struct timer_t * timer, ktime_t now, ktime_t interval);
+void timer_start_now(struct timer_t * timer, ktime_t interval);
+void timer_forward(struct timer_t * timer, ktime_t now, ktime_t interval);
+void timer_forward_now(struct timer_t * timer, ktime_t interval);
+void timer_cancel(struct timer_t * timer);
+void subsys_init_timer(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __TIMER_LIST_H__ */
+#endif /* __TIMER_H__ */

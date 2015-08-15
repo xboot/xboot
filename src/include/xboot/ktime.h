@@ -50,7 +50,7 @@ static inline ktime_t ktime_add_safe(const ktime_t a, const ktime_t b)
 {
 	ktime_t kt = ktime_add(a, b);
 
-	if(kt.tv64 < 0 || kt.tv64 < a.tv64 || kt.tv64 < b.tv64)
+	if((kt.tv64 < 0) || (kt.tv64 < a.tv64) || (kt.tv64 < b.tv64))
 		kt = ktime_set(KTIME_SEC_MAX, 0);
 	return kt;
 }

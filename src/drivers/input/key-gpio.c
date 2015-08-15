@@ -31,7 +31,7 @@ struct key_gpio_private_data_t {
 	struct key_gpio_data_t * rdat;
 };
 
-static void key_gpio_timer_function(void * data)
+static int key_gpio_timer_function(struct timer_t * timer, void * data)
 {
 	struct input_t * input = (struct input_t *)(data);
 	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
@@ -57,7 +57,8 @@ static void key_gpio_timer_function(void * data)
 		dat->state[i] = val;
 	}
 
-	mod_timer(&(dat->timer), jiffies + msecs_to_jiffies(100));
+	timer_forward_now(timer, ms_to_ktime(100));
+	return 1;
 }
 
 static void input_init(struct input_t * input)
@@ -80,8 +81,8 @@ static void input_init(struct input_t * input)
 		dat->state[i] = gpio_get_value(rdat->buttons[i].gpio);
 	}
 
-	setup_timer(&dat->timer, key_gpio_timer_function, input);
-	mod_timer(&(dat->timer), jiffies + msecs_to_jiffies(100));
+	timer_init(&dat->timer, key_gpio_timer_function, input);
+	timer_start_now(&dat->timer, ms_to_ktime(100));
 }
 
 static void input_exit(struct input_t * input)
@@ -95,7 +96,7 @@ static void input_exit(struct input_t * input)
 		return;
 
 	free(dat->state);
-	del_timer(&(dat->timer));
+	timer_cancel(&dat->timer);
 }
 
 static int input_ioctl(struct input_t * input, int cmd, void * arg)

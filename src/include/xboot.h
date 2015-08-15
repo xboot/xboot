@@ -59,8 +59,6 @@ extern "C" {
 #include <clocksource/clocksource.h>
 #include <interrupt/interrupt.h>
 #include <time/delay.h>
-#include <time/jiffies.h>
-#include <time/tick.h>
 #include <time/timer.h>
 #include <fs/fileio.h>
 

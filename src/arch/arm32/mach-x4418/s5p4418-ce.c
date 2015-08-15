@@ -26,7 +26,7 @@
 #include <clockevent/clockevent.h>
 #include <s5p4418-timer.h>
 
-#define CE_TIMER_CHANNEL	(2)
+#define CE_TIMER_CHANNEL	(0)
 
 static void s5p4418_ce_interrupt(void * data)
 {
@@ -41,9 +41,9 @@ static bool_t s5p4418_ce_init(struct clockevent_t * ce)
 
 	s5p4418_timer_reset();
 
-	if(!request_irq("TIMER2", s5p4418_ce_interrupt, IRQ_TYPE_NONE, ce))
+	if(!request_irq("TIMER0", s5p4418_ce_interrupt, IRQ_TYPE_NONE, ce))
 	{
-		LOG("can't request irq 'TIMER2'");
+		LOG("can't request irq 'TIMER0'");
 		return FALSE;
 	}
 

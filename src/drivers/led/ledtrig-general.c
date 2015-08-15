@@ -32,7 +32,7 @@ struct ledtrig_general_data_t {
 	struct ledtrig_data_t * rdat;
 };
 
-static void general_timer_function(void * data)
+static int general_timer_function(struct timer_t * timer, void * data)
 {
 	struct ledtrig_t * trigger = (struct ledtrig_t *)(data);
 	struct ledtrig_general_data_t * dat = (struct ledtrig_general_data_t *)trigger->priv;
@@ -42,11 +42,13 @@ static void general_timer_function(void * data)
 	{
 		dat->last_activity = dat->activity;
 		led_set_brightness(led, CONFIG_MAX_BRIGHTNESS);
-		mod_timer(&(dat->timer), jiffies + 1);
+		timer_forward_now(timer, ms_to_ktime(20));
+		return 1;
 	}
 	else
 	{
 		led_set_brightness(led, 0);
+		return 0;
 	}
 }
 
@@ -56,7 +58,7 @@ static void ledtrig_general_init(struct ledtrig_t * trigger)
 
 	if(dat)
 	{
-		setup_timer(&dat->timer, general_timer_function, trigger);
+		timer_init(&dat->timer, general_timer_function, trigger);
 		dat->activity = 0;
 		dat->last_activity = 0;
 	}
@@ -67,7 +69,7 @@ static void ledtrig_general_exit(struct ledtrig_t * trigger)
 	struct ledtrig_general_data_t * dat = (struct ledtrig_general_data_t *)trigger->priv;
 
 	if(dat)
-		del_timer(&(dat->timer));
+		timer_cancel(&dat->timer);
 }
 
 static void ledtrig_general_activity(struct ledtrig_t * trigger)
@@ -75,8 +77,7 @@ static void ledtrig_general_activity(struct ledtrig_t * trigger)
 	struct ledtrig_general_data_t * dat = (struct ledtrig_general_data_t *)trigger->priv;
 
 	dat->activity++;
-	if(!timer_pending(&(dat->timer)))
-		mod_timer(&(dat->timer), jiffies + 1);
+	timer_start_now(&dat->timer, ms_to_ktime(20));
 }
 
 static bool_t ledtrig_register_general(struct resource_t * res)

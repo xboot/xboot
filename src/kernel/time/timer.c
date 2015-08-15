@@ -22,212 +22,177 @@
  *
  */
 
-#include <xboot.h>
 #include <time/timer.h>
 
-#define TVN_BITS 				(6)
-#define TVR_BITS 				(8)
-#define TVN_SIZE 				(1 << TVN_BITS)
-#define TVR_SIZE 				(1 << TVR_BITS)
-#define TVN_MASK 				(TVN_SIZE - 1)
-#define TVR_MASK 				(TVR_SIZE - 1)
+static struct timer_base_t __timer_base;
 
-struct timer_vec {
-	u32_t index;
-	struct list_head vec[TVN_SIZE];
-};
-
-struct timer_vec_root {
-	u32_t index;
-	struct list_head vec[TVR_SIZE];
-};
-
-static u32_t timer_jiffies = 0;
-
-static struct timer_vec tv5;
-static struct timer_vec tv4;
-static struct timer_vec tv3;
-static struct timer_vec tv2;
-static struct timer_vec_root tv1;
-
-static struct timer_vec * const tvecs[] = {
-	(struct timer_vec *)&tv1, &tv2, &tv3, &tv4, &tv5
-};
-
-static inline void internal_add_timer(struct timer_t *timer)
+static inline struct timer_t * next_timer(struct timer_base_t * base)
 {
-	struct list_head * vec;
-	u32_t expires = timer->expires;
-	u32_t idx = expires - timer_jiffies;
-	u32_t i;
+	return base->next;
+}
 
-	if(idx < TVR_SIZE)
+static inline int add_timer(struct timer_base_t * base, struct timer_t * timer)
+{
+	struct rb_node ** p = &base->head.rb_node;
+	struct rb_node * parent = NULL;
+	struct timer_t * ptr;
+
+	if(timer->state != TIMER_STATE_INACTIVE)
+		return 0;
+
+	while(*p)
 	{
-		i = expires & TVR_MASK;
-		vec = tv1.vec + i;
+		parent = *p;
+		ptr = rb_entry(parent, struct timer_t, node);
+		if(timer->expires.tv64 < ptr->expires.tv64)
+			p = &(*p)->rb_left;
+		else
+			p = &(*p)->rb_right;
 	}
-	else if(idx < 1 << (TVR_BITS + TVN_BITS))
+	rb_link_node(&timer->node, parent, p);
+	rb_insert_color(&timer->node, &base->head);
+
+	if(!base->next || timer->expires.tv64 < base->next->expires.tv64)
+		base->next = timer;
+
+	timer->state = TIMER_STATE_ENQUEUED;
+	return (timer == base->next);
+}
+
+static inline int del_timer(struct timer_base_t * base, struct timer_t * timer)
+{
+	int ret = 0;
+
+	if(timer->state != TIMER_STATE_ENQUEUED)
+		return 0;
+
+	if(base->next == timer)
 	{
-		i = (expires >> TVR_BITS) & TVN_MASK;
-		vec = tv2.vec + i;
+		struct rb_node * rbn = rb_next(&timer->node);
+		base->next = rbn ? rb_entry(rbn, struct timer_t, node) : NULL;
+		ret = 1;
 	}
-	else if(idx < 1 << (TVR_BITS + 2 * TVN_BITS))
+	rb_erase(&timer->node, &base->head);
+	RB_CLEAR_NODE(&timer->node);
+
+	timer->state = TIMER_STATE_INACTIVE;
+	return ret;
+}
+
+void timer_init(struct timer_t * timer, int (*function)(struct timer_t *, void *), void * data)
+{
+	if(timer)
 	{
-		i = (expires >> (TVR_BITS + TVN_BITS)) & TVN_MASK;
-		vec = tv3.vec + i;
+		memset(timer, 0, sizeof(struct timer_t));
+		RB_CLEAR_NODE(&timer->node);
+		timer->base = &__timer_base;
+		timer->state = TIMER_STATE_INACTIVE;
+		timer->data = data;
+		timer->function = function;
 	}
-	else if(idx < 1 << (TVR_BITS + 3 * TVN_BITS))
-	{
-		i = (expires >> (TVR_BITS + 2 * TVN_BITS)) & TVN_MASK;
-		vec = tv4.vec + i;
-	}
-	else if((s32_t) idx < 0)
-	{
-		vec = tv1.vec + tv1.index;
-	}
-	else if(idx <= 0xffffffffUL)
-	{
-		i = (expires >> (TVR_BITS + 3 * TVN_BITS)) & TVN_MASK;
-		vec = tv5.vec + i;
-	}
-	else
-	{
-		init_list_head(&timer->list);
+}
+
+void timer_start(struct timer_t * timer, ktime_t now, ktime_t interval)
+{
+	struct timer_base_t * base = timer->base;
+	irq_flags_t flags;
+
+	if(!timer)
 		return;
-	}
 
-	list_add(&timer->list, vec->prev);
-}
-
-static inline bool_t detach_timer(struct timer_t *timer)
-{
-	if (!timer_pending(timer))
-		return FALSE;
-
-	list_del(&timer->list);
-	return TRUE;
-}
-
-static inline void cascade_timers(struct timer_vec *tv)
-{
-	struct list_head *head, *curr, *next;
-	struct timer_t *tmp;
-
-	head = tv->vec + tv->index;
-	curr = head->next;
-
-	while(curr != head)
+	spin_lock_irqsave(&base->lock, flags);
+	if(del_timer(base, timer))
 	{
-		tmp = list_entry(curr, struct timer_t, list);
-		next = curr->next;
-		list_del(curr);
-		internal_add_timer(tmp);
-		curr = next;
+		struct timer_t * next = next_timer(base);
+		if(next)
+			clockevent_set_event_next(base->ce, base->gettime(), next->expires);
 	}
-	init_list_head(head);
-	tv->index = (tv->index + 1) & TVN_MASK;
+	ktime_t expires = ktime_add_safe(now, interval);
+	memcpy(&timer->expires, &expires, sizeof(ktime_t));
+	if(add_timer(base, timer))
+		clockevent_set_event_next(base->ce, base->gettime(), timer->expires);
+	spin_unlock_irqrestore(&base->lock, flags);
 }
 
-void schedule_timer_task(void)
+void timer_start_now(struct timer_t * timer, ktime_t interval)
 {
-	struct list_head *head, *curr;
+	if(timer)
+		timer_start(timer, timer->base->gettime(), interval);
+}
+
+void timer_forward(struct timer_t * timer, ktime_t now, ktime_t interval)
+{
+	if(timer)
+	{
+		ktime_t expires = ktime_add_safe(now, interval);
+		memcpy(&timer->expires, &expires, sizeof(ktime_t));
+	}
+}
+
+void timer_forward_now(struct timer_t * timer, ktime_t interval)
+{
+	if(timer)
+		timer_forward(timer, timer->base->gettime(), interval);
+}
+
+void timer_cancel(struct timer_t * timer)
+{
+	struct timer_base_t * base = timer->base;
+	irq_flags_t flags;
+
+	if(!timer)
+		return;
+
+	spin_lock_irqsave(&base->lock, flags);
+	if(del_timer(base, timer))
+	{
+		struct timer_t * next = next_timer(base);
+		if(next)
+			clockevent_set_event_next(base->ce, base->gettime(), next->expires);
+	}
+	spin_unlock_irqrestore(&base->lock, flags);
+}
+
+static ktime_t ktime_get(void)
+{
+	return ns_to_ktime(clocksource_gettime());
+}
+
+static void timer_event_handler(struct clockevent_t * ce, void * data)
+{
+	struct timer_base_t * base = (struct timer_base_t *)(data);
 	struct timer_t * timer;
-	void (*fn)(void *);
-	void * data;
-	s32_t n = 1;
+	ktime_t now = base->gettime();
+	irq_flags_t flags;
+	int restart;
 
-	while((s32_t)(jiffies - timer_jiffies) >= 0)
+	spin_lock_irqsave(&base->lock, flags);
+	while((timer = next_timer(base)))
 	{
-		if(!tv1.index)
-		{
-			do {
-				cascade_timers(tvecs[n]);
-			} while (tvecs[n]->index == 1 && ++n < (sizeof(tvecs) / sizeof(tvecs[0])));
-		}
-repeat:
-		head = tv1.vec + tv1.index;
-		curr = head->next;
-		if(curr != head)
-		{
-			timer = list_entry(curr, struct timer_t, list);
-			fn = timer->function;
-			data= timer->data;
+		if(now.tv64 < timer->expires.tv64)
+			break;
 
-			detach_timer(timer);
-			timer->list.next = timer->list.prev = NULL;
-			fn(data);
-			goto repeat;
-		}
-		++timer_jiffies;
-		tv1.index = (tv1.index + 1) & TVR_MASK;
+		del_timer(base, timer);
+		timer->state = TIMER_STATE_CALLBACK;
+		restart = timer->function(timer, timer->data);
+		timer->state = TIMER_STATE_INACTIVE;
+		if(restart)
+			add_timer(base, timer);
 	}
+	if((timer = next_timer(base)))
+		clockevent_set_event_next(ce, now, timer->expires);
+	spin_unlock_irqrestore(&base->lock, flags);
 }
 
-void init_timer(struct timer_t * timer)
+void subsys_init_timer(void)
 {
-	timer->list.next = timer->list.prev = NULL;
+	struct clockevent_t * ce = clockevent_get_current();
+
+	memset(&__timer_base, 0, sizeof(struct timer_base_t));
+	spin_lock_init(&__timer_base.lock);
+	__timer_base.head = RB_ROOT;
+	__timer_base.next = NULL;
+	__timer_base.ce = ce;
+	__timer_base.gettime = ktime_get;
+	clockevent_set_event_handler(ce, timer_event_handler, &__timer_base);
 }
-
-bool_t timer_pending(const struct timer_t * timer)
-{
-	return timer->list.next != NULL;
-}
-
-void add_timer(struct timer_t *timer)
-{
-	if(timer_pending(timer))
-		return;
-
-	internal_add_timer(timer);
-}
-
-bool_t mod_timer(struct timer_t *timer, u32_t expires)
-{
-	bool_t ret;
-
-	timer->expires = expires;
-
-	ret = detach_timer(timer);
-	internal_add_timer(timer);
-
-	return ret;
-}
-
-bool_t del_timer(struct timer_t * timer)
-{
-	bool_t ret;
-
-	ret = detach_timer(timer);
-	timer->list.next = timer->list.prev = NULL;
-
-	return ret;
-}
-
-void setup_timer(struct timer_t * timer, void (*function)(void *), void * data)
-{
-	timer->function = function;
-	timer->data = data;
-	init_timer(timer);
-}
-
-static __init void timer_pure_init(void)
-{
-	int i;
-
-	timer_jiffies = 0;
-
-	for(i = 0; i < TVN_SIZE; i++)
-	{
-		init_list_head(&(tv5.vec[i]));
-		init_list_head(&(tv4.vec[i]));
-		init_list_head(&(tv3.vec[i]));
-		init_list_head(&(tv2.vec[i]));
-	}
-
-	for(i = 0; i < TVR_SIZE; i++)
-	{
-		init_list_head(&(tv1.vec[i]));
-	}
-}
-
-pure_initcall(timer_pure_init);

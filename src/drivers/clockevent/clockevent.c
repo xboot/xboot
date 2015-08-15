@@ -213,5 +213,5 @@ void subsys_init_clockevent(void)
 		}
 	}
 
-	LOG("Attach system clockevent [%s]", __current_clockevent->name);
+	LOG("Attach system clockevent [%s]", __current_clockevent ? __current_clockevent->name : "none");
 }

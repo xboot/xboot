@@ -66,9 +66,12 @@ static inline __attribute__((always_inline)) u64_t __clocksource_gettime(struct 
 	u64_t now, delta;
 
 	now = cs->read(cs);
-	delta = (now - cs->last) & cs->mask;
-	cs->last = now;
+	if(cs->last > now)
+		delta = (cs->mask - cs->last + now + 1) & cs->mask;
+	else
+		delta = (now - cs->last) & cs->mask;
 	cs->nsec += ((u64_t)delta * cs->mult) >> cs->shift;
+	cs->last = now;
 	return cs->nsec;
 }
 

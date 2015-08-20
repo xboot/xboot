@@ -204,7 +204,7 @@ struct clocksource_t * get_clocksource(void)
 	return __clocksource;
 }
 
-ktime_t clocksource_get_ktime(struct clocksource_t * cs)
+ktime_t clocksource_ktime_get(struct clocksource_t * cs)
 {
 	if(!cs)
 		return ktime_set(0, 0);

@@ -61,7 +61,7 @@ static struct clocksource_t __cs_dummy = {
 };
 static struct clocksource_t * __clocksource = &__cs_dummy;
 
-static inline __attribute__((always_inline)) u64_t __clocksource_gettime(struct clocksource_t * cs)
+static inline __attribute__((always_inline)) u64_t __clocksource_read_time(struct clocksource_t * cs)
 {
 	u64_t now, delta;
 
@@ -118,7 +118,7 @@ static ssize_t clocksource_read_cycle(struct kobj_t * kobj, void * buf, size_t s
 static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t time = __clocksource_gettime(cs);
+	u64_t time = __clocksource_read_time(cs);
 	return sprintf(buf, "%llu.%09llu", time / 1000000000ULL, time % 1000000000ULL);
 }
 
@@ -206,14 +206,12 @@ struct clocksource_t * get_clocksource(void)
 
 ktime_t clocksource_ktime_get(struct clocksource_t * cs)
 {
-	if(!cs)
-		return ktime_set(0, 0);
-	return ns_to_ktime(__clocksource_gettime(cs));
+	return ns_to_ktime(__clocksource_read_time(cs ? cs : __clocksource));
 }
 
 ktime_t ktime_get(void)
 {
-	return ns_to_ktime(__clocksource_gettime(__clocksource));
+	return ns_to_ktime(__clocksource_read_time(__clocksource));
 }
 
 void subsys_init_clocksource(void)

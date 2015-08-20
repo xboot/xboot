@@ -45,7 +45,6 @@ extern "C" {
 #include <xboot/initcall.h>
 #include <xboot/module.h>
 #include <xboot/notifier.h>
-#include <xboot/poller.h>
 #include <xboot/resource.h>
 #include <xboot/bus.h>
 #include <xboot/device.h>

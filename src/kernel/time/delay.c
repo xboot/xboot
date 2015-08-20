@@ -53,12 +53,3 @@ void mdelay(u32_t ms)
 	while(clocksource_gettime() < timeout);
 }
 EXPORT_SYMBOL(mdelay);
-
-void msleep(u32_t ms)
-{
-	u64_t timeout = clocksource_gettime() + ms * 1000000;
-	do {
-		schedule_poller_yield();
-	} while(clocksource_gettime() < timeout);
-}
-EXPORT_SYMBOL(msleep);

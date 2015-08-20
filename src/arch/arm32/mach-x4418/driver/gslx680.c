@@ -206,8 +206,8 @@ static void gslx680_interrupt_function(void * data)
 		n = (buf[0] < fingers ? buf[0] : fingers);
 		for(i = 0; i < n; i++)
 		{
-			x = ((buf[4 + 4 * i + 3] & 0x0f) << 8) | buf[4 + 4 * i + 2];
-			y = ((buf[4 + 4 * i + 1] & 0x0f) << 8) | buf[4 + 4 * i + 0];
+			x = ((buf[4 + 4 * i + 1] & 0x0f) << 8) | buf[4 + 4 * i + 0];
+			y = ((buf[4 + 4 * i + 3] & 0x0f) << 8) | buf[4 + 4 * i + 2];
 			id = ((buf[4 + 4 * i + 3] & 0xf0) >> 4) - 1;
 
 			if(dat->node[id].x != x || dat->node[id].y != y)

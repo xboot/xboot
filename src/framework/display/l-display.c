@@ -38,7 +38,7 @@ struct ldisplay_t {
 	int showfps;
 	double fps;
 	u64_t frame;
-	u64_t stamp;
+	ktime_t stamp;
 };
 
 static int l_display_new(lua_State * L)
@@ -57,7 +57,7 @@ static int l_display_new(lua_State * L)
 	display->showfps = 0;
 	display->fps = 60;
 	display->frame = 0;
-	display->stamp = clocksource_gettime();
+	display->stamp = ktime_get();
 	luaL_setmetatable(L, MT_NAME_DISPLAY);
 	return 1;
 }
@@ -280,7 +280,7 @@ static int m_display_showfps(lua_State * L)
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
 	int flag = lua_toboolean(L, 2) ? 1 : 0;
 	if(flag && !display->showfps)
-		display->stamp = clocksource_gettime();
+		display->stamp = ktime_get();
 	display->showfps = flag;
 	return 0;
 }
@@ -292,12 +292,12 @@ static int m_display_present(lua_State * L)
 	if(display->showfps)
 	{
 		char buf[32];
-		u64_t stamp = clocksource_gettime();
-		u64_t time = stamp - display->stamp;
-		if(time > 0)
-			display->fps = ((double)1000000000.0 / (double)time) * 0.618 + display->fps * 0.382;
+		ktime_t now = ktime_get();
+		s64_t delta = ktime_ms_delta(now, display->stamp);
+		if(delta > 0)
+			display->fps = ((double)1000.0 / (double)delta) * 0.618 + display->fps * 0.382;
 		display->frame++;
-		display->stamp = stamp;
+		display->stamp = now;
 		cr = display->cr[display->index];
 		cairo_save(cr);
 		cairo_set_font_size(cr, 24);

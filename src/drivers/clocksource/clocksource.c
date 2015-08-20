@@ -59,7 +59,7 @@ static struct clocksource_t __cs_dummy = {
 	.init	= NULL,
 	.read	= __cs_dummy_read,
 };
-static struct clocksource_t * __current_clocksource = &__cs_dummy;
+static struct clocksource_t * __clocksource = &__cs_dummy;
 
 static inline __attribute__((always_inline)) u64_t __clocksource_gettime(struct clocksource_t * cs)
 {
@@ -74,12 +74,6 @@ static inline __attribute__((always_inline)) u64_t __clocksource_gettime(struct 
 	cs->last = now;
 	return cs->nsec;
 }
-
-u64_t clocksource_gettime(void)
-{
-	return __clocksource_gettime(__current_clocksource);
-}
-EXPORT_SYMBOL(clocksource_gettime);
 
 static struct kobj_t * search_class_clocksource_kobj(void)
 {
@@ -128,7 +122,7 @@ static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t si
 	return sprintf(buf, "%llu.%09llu", time / 1000000000ULL, time % 1000000000ULL);
 }
 
-static struct clocksource_t * search_clocksource(const char * name)
+struct clocksource_t * search_clocksource(const char * name)
 {
 	struct clocksource_list_t * pos, * n;
 
@@ -205,6 +199,23 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 	return FALSE;
 }
 
+struct clocksource_t * get_clocksource(void)
+{
+	return __clocksource;
+}
+
+ktime_t clocksource_get_ktime(struct clocksource_t * cs)
+{
+	if(!cs)
+		return ktime_set(0, 0);
+	return ns_to_ktime(__clocksource_gettime(cs));
+}
+
+ktime_t ktime_get(void)
+{
+	return ns_to_ktime(__clocksource_gettime(__clocksource));
+}
+
 void subsys_init_clocksource(void)
 {
 	struct clocksource_list_t * pos, * n;
@@ -224,10 +235,10 @@ void subsys_init_clocksource(void)
 		t = ((u64_t)cs->mult) >> cs->shift;
 		if(t < period)
 		{
-			__current_clocksource = cs;
+			__clocksource = cs;
 			period = t;
 		}
 	}
 
-	LOG("Attach system clocksource [%s]", __current_clocksource->name);
+	LOG("Attach system clocksource [%s]", __clocksource->name);
 }

@@ -57,7 +57,7 @@ enum {
 struct event_t {
 	void * device;
 	enum event_type_t type;
-	u64_t timestamp;
+	ktime_t timestamp;
 
 	union {
 		/* key */

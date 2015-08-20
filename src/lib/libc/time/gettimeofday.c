@@ -7,14 +7,12 @@
 
 int gettimeofday(struct timeval * tv, void * tz)
 {
-	u64_t t;
-
 	if(!tv)
 		return -1;
 
-	t = clocksource_gettime();
-	tv->tv_sec = t / 1000000000L;
-	tv->tv_usec = t % 1000000000L;
+	ktime_t kt = ktime_get();
+	tv->tv_sec = ktime_to_ns(kt) / 1000000000ULL;
+	tv->tv_usec = (ktime_to_ns(kt) % 1000000000ULL) / 1000;
 	return 0;
 }
 EXPORT_SYMBOL(gettimeofday);

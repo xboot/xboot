@@ -38,7 +38,7 @@ struct clockevent_list_t __clockevent_list = {
 	},
 };
 static spinlock_t __clockevent_list_lock = SPIN_LOCK_INIT();
-static struct clockevent_t * __current_clockevent = NULL;
+static struct clockevent_t * __clockevent = NULL;
 
 static void __clockevent_handler_null(struct clockevent_t * ce, void * data)
 {
@@ -81,7 +81,7 @@ static ssize_t clockevent_read_max_delta(struct kobj_t * kobj, void * buf, size_
 	return sprintf(buf, "%llu.%09llu", ce->max_delta_ns / 1000000000ULL, ce->max_delta_ns % 1000000000ULL);
 }
 
-static struct clockevent_t * search_clockevent(const char * name)
+struct clockevent_t * search_clockevent(const char * name)
 {
 	struct clockevent_list_t * pos, * n;
 
@@ -157,9 +157,9 @@ bool_t unregister_clockevent(struct clockevent_t * ce)
 	return FALSE;
 }
 
-struct clockevent_t * clockevent_get_current(void)
+struct clockevent_t * get_clockevent(void)
 {
-	return __current_clockevent;
+	return __clockevent;
 }
 
 bool_t clockevent_set_event_handler(struct clockevent_t * ce, void (*handler)(struct clockevent_t *, void *), void * data)
@@ -208,10 +208,10 @@ void subsys_init_clockevent(void)
 		f = ((u64_t)1000000000ULL * ce->mult) >> ce->shift;
 		if(f > freq)
 		{
-			__current_clockevent = ce;
+			__clockevent = ce;
 			freq = f;
 		}
 	}
 
-	LOG("Attach system clockevent [%s]", __current_clockevent ? __current_clockevent->name : "none");
+	LOG("Attach system clockevent [%s]", __clockevent ? __clockevent->name : "none");
 }

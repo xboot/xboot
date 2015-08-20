@@ -25,31 +25,23 @@
 #include <xboot.h>
 #include <time/delay.h>
 
-bool_t istimeout(u64_t start, u64_t offset)
-{
-	if(clocksource_gettime() < start + offset)
-		return FALSE;
-	return TRUE;
-}
-EXPORT_SYMBOL(istimeout);
-
 void ndelay(u32_t ns)
 {
-	u64_t timeout = clocksource_gettime() + ns;
-	while(clocksource_gettime() < timeout);
+	ktime_t timeout = ktime_add_ns(ktime_get(), ns);
+	while(ktime_before(ktime_get(), timeout));
 }
 EXPORT_SYMBOL(ndelay);
 
 void udelay(u32_t us)
 {
-	u64_t timeout = clocksource_gettime() + us * 1000;
-	while(clocksource_gettime() < timeout);
+	ktime_t timeout = ktime_add_us(ktime_get(), us);
+	while(ktime_before(ktime_get(), timeout));
 }
 EXPORT_SYMBOL(udelay);
 
 void mdelay(u32_t ms)
 {
-	u64_t timeout = clocksource_gettime() + ms * 1000000;
-	while(clocksource_gettime() < timeout);
+	ktime_t timeout = ktime_add_ms(ktime_get(), ms);
+	while(ktime_before(ktime_get(), timeout));
 }
 EXPORT_SYMBOL(mdelay);

@@ -45,8 +45,6 @@ static inline void scllo(struct i2c_algo_bit_data_t * bdat)
 
 static int sclhi(struct i2c_algo_bit_data_t * bdat)
 {
-	u64_t start;
-
 	bdat->setscl(bdat, 1);
 
 	if(!bdat->getscl)
@@ -55,10 +53,10 @@ static int sclhi(struct i2c_algo_bit_data_t * bdat)
 		return 0;
 	}
 
-	start = clocksource_gettime();
+	ktime_t timeout = ktime_add_ms(ktime_get(), 100);
 	while(!bdat->getscl(bdat))
 	{
-		if(istimeout(start, 100 * 1000 * 1000))
+		if(ktime_after(ktime_get(), timeout))
 		{
 			if(bdat->getscl(bdat))
 				break;

@@ -130,9 +130,12 @@ static inline void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_
 	*shift = sft;
 }
 
-u64_t clocksource_gettime(void);
+struct clocksource_t * search_clocksource(const char * name);
 bool_t register_clocksource(struct clocksource_t * cs);
 bool_t unregister_clocksource(struct clocksource_t * cs);
+struct clocksource_t * get_clocksource(void);
+ktime_t clocksource_get_ktime(struct clocksource_t * cs);
+ktime_t ktime_get(void);
 void subsys_init_clocksource(void);
 
 #ifdef __cplusplus

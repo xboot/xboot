@@ -153,11 +153,6 @@ void timer_cancel(struct timer_t * timer)
 	spin_unlock_irqrestore(&base->lock, flags);
 }
 
-static ktime_t ktime_get(void)
-{
-	return ns_to_ktime(clocksource_gettime());
-}
-
 static void timer_event_handler(struct clockevent_t * ce, void * data)
 {
 	struct timer_base_t * base = (struct timer_base_t *)(data);
@@ -186,7 +181,7 @@ static void timer_event_handler(struct clockevent_t * ce, void * data)
 
 void subsys_init_timer(void)
 {
-	struct clockevent_t * ce = clockevent_get_current();
+	struct clockevent_t * ce = get_clockevent();
 
 	memset(&__timer_base, 0, sizeof(struct timer_base_t));
 	spin_lock_init(&__timer_base.lock);

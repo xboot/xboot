@@ -36,7 +36,7 @@ static int do_sleep(int argc, char ** argv)
 
 	if(argc > 1)
 		ms = strtoul(argv[1], NULL, 0);
-	msleep(ms);
+	mdelay(ms);
 
 	return 0;
 }

@@ -643,7 +643,6 @@ char * readline(const char * prompt)
 				break;
 			}
 		}
-		schedule_poller_yield();
 	}
 
 	if(rl->len > 0)

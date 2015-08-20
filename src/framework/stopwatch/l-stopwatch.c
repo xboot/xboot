@@ -30,7 +30,6 @@ struct stopwatch_t {
 
 static double __time_stamp(void)
 {
-	schedule_poller_yield();
 	return ((double)clocksource_gettime() / (double)1000000000.0);
 }
 

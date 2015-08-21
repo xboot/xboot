@@ -42,11 +42,15 @@ static spinlock_t __clocksource_list_lock = SPIN_LOCK_INIT();
 /*
  * Dummy clocksource, 10us - 100KHZ
  */
-static volatile u64_t __cs_dummy_cycle = 0;
+static bool_t __cs_dummy_init(struct clocksource_t * cs)
+{
+	return TRUE;
+}
+
 static u64_t __cs_dummy_read(struct clocksource_t * cs)
 {
-	__cs_dummy_cycle += 1;
-	return __cs_dummy_cycle;
+	static volatile u64_t __cs_dummy_cycle = 0;
+	return __cs_dummy_cycle++;
 }
 
 static struct clocksource_t __cs_dummy = {
@@ -56,7 +60,7 @@ static struct clocksource_t __cs_dummy = {
 	.mask	= CLOCKSOURCE_MASK(64),
 	.last	= 0,
 	.nsec	= 0,
-	.init	= NULL,
+	.init	= __cs_dummy_init,
 	.read	= __cs_dummy_read,
 };
 static struct clocksource_t * __clocksource = &__cs_dummy;

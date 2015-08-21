@@ -38,11 +38,36 @@ struct clockevent_list_t __clockevent_list = {
 	},
 };
 static spinlock_t __clockevent_list_lock = SPIN_LOCK_INIT();
-static struct clockevent_t * __clockevent = NULL;
 
-static void __clockevent_handler_null(struct clockevent_t * ce, void * data)
+/*
+ * Dummy clockevent, 1us - 1MHZ
+ */
+static void __ce_dummy_handler(struct clockevent_t * ce, void * data)
 {
 }
+
+static bool_t __ce_dummy_init(struct clockevent_t * ce)
+{
+	return TRUE;
+}
+
+static bool_t __ce_dummy_next(struct clockevent_t * ce, u64_t evt)
+{
+	return TRUE;
+}
+
+static struct clockevent_t __ce_dummy = {
+	.name			= "dummy",
+	.mult			= 4294967,
+	.shift			= 32,
+	.min_delta_ns	= 1000,
+	.max_delta_ns	= 4294967591000,
+	.data			= NULL,
+	.handler		= __ce_dummy_handler,
+	.init			= __ce_dummy_init,
+	.next			= __ce_dummy_next,
+};
+static struct clockevent_t * __clockevent = &__ce_dummy;
 
 static struct kobj_t * search_class_clockevent_kobj(void)
 {
@@ -115,7 +140,7 @@ bool_t register_clockevent(struct clockevent_t * ce)
 		return FALSE;
 
 	ce->data = NULL;
-	ce->handler = __clockevent_handler_null;
+	ce->handler = __ce_dummy_handler;
 	ce->kobj = kobj_alloc_directory(ce->name);
 	kobj_add_regular(ce->kobj, "mult", clockevent_read_mult, NULL, ce);
 	kobj_add_regular(ce->kobj, "shift", clockevent_read_shift, NULL, ce);
@@ -167,7 +192,7 @@ bool_t clockevent_set_event_handler(struct clockevent_t * ce, void (*handler)(st
 	if(!ce)
 		return FALSE;
 	ce->data = data;
-	ce->handler = handler ? handler : __clockevent_handler_null;
+	ce->handler = handler ? handler : __ce_dummy_handler;
 	return TRUE;
 }
 
@@ -213,5 +238,5 @@ void subsys_init_clockevent(void)
 		}
 	}
 
-	LOG("Attach system clockevent [%s]", __clockevent ? __clockevent->name : "none");
+	LOG("Attach system clockevent [%s]", __clockevent->name);
 }

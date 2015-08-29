@@ -1,5 +1,5 @@
 /*
- * sandbox-tick.c
+ * sandbox-ce.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -25,27 +25,40 @@
 #include <xboot.h>
 #include <sandbox.h>
 
-static void timer_callback(void)
+static void sandbox_ce_callback(void * data)
 {
-	tick_interrupt();
+	struct clockevent_t * ce = (struct clockevent_t *)data;
+	ce->handler(ce, ce->data);
 }
 
-static bool_t tick_timer_init(void)
+static bool_t sandbox_ce_init(struct clockevent_t * ce)
 {
-	sandbox_sdl_timer_init(10, timer_callback);
+	/* 1KHZ - 1ms */
+	clockevent_calc_mult_shift(ce, 1000, 10);
+	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
+	ce->max_delta_ns = clockevent_delta2ns(ce, 0x7fffffff);
+	sandbox_sdl_timer_init();
+
 	return TRUE;
 }
 
-static struct tick_t sandbox_tick = {
-	.hz		= 100,
-	.init	= tick_timer_init,
+static bool_t sandbox_ce_next(struct clockevent_t * ce, u64_t evt)
+{
+	sandbox_sdl_timer_set_next((evt & 0x7fffffff), sandbox_ce_callback, ce);
+	return TRUE;
+}
+
+static struct clockevent_t sandbox_ce = {
+	.name	= "sandbox-ce",
+	.init	= sandbox_ce_init,
+	.next	= sandbox_ce_next,
 };
 
-static __init void sandbox_tick_init(void)
+static __init void sandbox_clockevent_init(void)
 {
-	if(register_tick(&sandbox_tick))
-		LOG("Register tick");
+	if(register_clockevent(&sandbox_ce))
+		LOG("Register clockevent");
 	else
-		LOG("Failed to register tick");
+		LOG("Failed to register clockevent");
 }
-core_initcall(sandbox_tick_init);
+core_initcall(sandbox_clockevent_init);

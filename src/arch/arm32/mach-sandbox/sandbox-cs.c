@@ -1,5 +1,5 @@
 /*
- * sandbox-tick.c
+ * sandbox-cs.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -25,27 +25,29 @@
 #include <xboot.h>
 #include <sandbox.h>
 
-static void timer_callback(void)
+static bool_t sandbox_cs_init(struct clocksource_t * cs)
 {
-	tick_interrupt();
-}
-
-static bool_t tick_timer_init(void)
-{
-	sandbox_sdl_timer_init(10, timer_callback);
+	clocksource_calc_mult_shift(&cs->mult, &cs->shift, sandbox_get_time_frequency(), 1000000000ULL, 10);
 	return TRUE;
 }
 
-static struct tick_t sandbox_tick = {
-	.hz		= 100,
-	.init	= tick_timer_init,
+static u64_t sandbox_cs_read(struct clocksource_t * cs)
+{
+	return sandbox_get_time_counter();
+}
+
+static struct clocksource_t sandbox_cs = {
+	.name	= "sandbox-cs",
+	.mask	= CLOCKSOURCE_MASK(32),
+	.init	= sandbox_cs_init,
+	.read	= sandbox_cs_read,
 };
 
-static __init void sandbox_tick_init(void)
+static __init void sandbox_clocksource_init(void)
 {
-	if(register_tick(&sandbox_tick))
-		LOG("Register tick");
+	if(register_clocksource(&sandbox_cs))
+		LOG("Register clocksource");
 	else
-		LOG("Failed to register tick");
+		LOG("Failed to register clocksource");
 }
-core_initcall(sandbox_tick_init);
+core_initcall(sandbox_clocksource_init);

@@ -49,6 +49,16 @@ int sandbox_pm_reboot(void);
 int sandbox_pm_sleep(void);
 
 /*
+ * Audio interface
+ */
+void sandbox_sdl_audio_init(void);
+void sandbox_sdl_audio_exit(void);
+void sandbox_sdl_audio_open(int fmt, int rate, int ch, int sample, void(*cb)(void *, void *, int), void * data);
+void sandbox_sdl_audio_close(void);
+void sandbox_sdl_audio_start(void);
+void sandbox_sdl_audio_stop(void);
+
+/*
  * Event interface
  */
 void sandbox_sdl_event_init(void);
@@ -97,8 +107,9 @@ int sandbox_sdl_fb_get_backlight(void * handle);
 /*
  * Timer interface
  */
-void sandbox_sdl_timer_init(int delay, void (*cb)(void));
+void sandbox_sdl_timer_init(void);
 void sandbox_sdl_timer_exit(void);
+void sandbox_sdl_timer_set_next(int delay, void (*cb)(void *), void * data);
 uint64_t sandbox_get_time_counter(void);
 uint64_t sandbox_get_time_frequency(void);
 

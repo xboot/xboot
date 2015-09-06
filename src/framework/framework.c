@@ -64,38 +64,7 @@ static const luaL_Reg xboot_prelibs[] = {
 	{ NULL, NULL },
 };
 
-static bool_t register_searcher(lua_State * L, lua_CFunction f, int pos)
-{
-	lua_getglobal(L, "table");
-	lua_getfield(L, -1, "insert");
-	lua_remove(L, -2);
-
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "searchers");
-	lua_remove(L, -2);
-
-	lua_pushvalue(L, -2);
-	lua_pushvalue(L, -2);
-	lua_pushnumber(L, pos);
-	lua_pushcfunction(L, f);
-	lua_call(L, 3, 0);
-
-	lua_pop(L, 2);
-	return TRUE;
-}
-
-static bool_t register_preload(lua_State * L, const char * name, lua_CFunction f)
-{
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "preload");
-	lua_pushcfunction(L, f);
-	lua_setfield(L, -2, name);
-	lua_pop(L, 2);
-
-	return TRUE;
-}
-
-struct __reader_data
+struct __reader_data_t
 {
 	struct xfs_file_t * file;
 	char buffer[LUAL_BUFFERSIZE];
@@ -103,7 +72,7 @@ struct __reader_data
 
 static const char * __reader(lua_State * L, void * data, size_t * size)
 {
-	struct __reader_data * rd = (struct __reader_data *)data;
+	struct __reader_data_t * rd = (struct __reader_data_t *)data;
 	s64_t ret;
 
 	ret = xfs_read(rd->file, rd->buffer, 1, LUAL_BUFFERSIZE);
@@ -120,9 +89,9 @@ static const char * __reader(lua_State * L, void * data, size_t * size)
 static int __loadfile(lua_State * L)
 {
 	const char * filename = luaL_checkstring(L, 1);
-	struct __reader_data * rd;
+	struct __reader_data_t * rd;
 
-	rd = malloc(sizeof(struct __reader_data));
+	rd = malloc(sizeof(struct __reader_data_t));
 	if(!rd)
 		return lua_error(L);
 
@@ -184,9 +153,31 @@ static int searcher_package_lua(lua_State * L)
 	return 1;
 }
 
+static bool_t register_searcher(lua_State * L, lua_CFunction f, int pos)
+{
+	lua_getglobal(L, "table");
+	lua_getfield(L, -1, "insert");
+	lua_remove(L, -2);
+
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "searchers");
+	lua_remove(L, -2);
+
+	lua_pushvalue(L, -2);
+	lua_pushvalue(L, -2);
+	lua_pushnumber(L, pos);
+	lua_pushcfunction(L, f);
+	lua_call(L, 3, 0);
+
+	lua_pop(L, 2);
+	return TRUE;
+}
+
 int luaopen_xboot(lua_State * L)
 {
 	const luaL_Reg * lib;
+
+	register_searcher(L, searcher_package_lua, 2);
 
 	lua_getglobal(L, "xboot");
 	if(!lua_istable(L, -1))
@@ -209,8 +200,6 @@ int luaopen_xboot(lua_State * L)
 	lua_pushstring(L, machine_uniqueid());
 	lua_setfield(L, -2, "UNIQUEID");
 
-	register_searcher(L, searcher_package_lua, 2);
-
 	for(lib = xboot_glblibs; lib->func; lib++)
 	{
 		luaL_requiref(L, lib->name, lib->func, 1);
@@ -219,7 +208,11 @@ int luaopen_xboot(lua_State * L)
 
 	for(lib = xboot_prelibs; lib->func; lib++)
 	{
-		register_preload(L, lib->name, lib->func);
+		lua_getglobal(L, "package");
+		lua_getfield(L, -1, "preload");
+		lua_pushcfunction(L, lib->func);
+		lua_setfield(L, -2, lib->name);
+		lua_pop(L, 2);
 	}
 
 	return 1;

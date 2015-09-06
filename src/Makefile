@@ -138,6 +138,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				framework/event								\
 				framework/logger							\
 				framework/hardware							\
+				framework/lang								\
 				framework/stopwatch
 
 #

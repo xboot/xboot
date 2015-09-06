@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <framework/luahelper.h>
+#include <framework/lang/l-class.h>
 #include <framework/event/l-event.h>
 #include <framework/logger/l-logger.h>
 #include <framework/stopwatch/l-stopwatch.h>

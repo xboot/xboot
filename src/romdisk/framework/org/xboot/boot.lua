@@ -39,11 +39,6 @@ Hardware = {
 }
 
 ---
--- External lang module
---
-Class = require "org.xboot.lang.Class"
-
----
 -- External core module
 --
 Assets = require "org.xboot.core.Assets"

@@ -28,7 +28,12 @@
 extern int luaopen_cjson(lua_State *);
 extern int luaopen_cjson_safe(lua_State *);
 
-static const luaL_Reg xboot_libs[] = {
+static const luaL_Reg xboot_glblibs[] = {
+	{ "Class",						luaopen_class },
+	{ NULL, NULL },
+};
+
+static const luaL_Reg xboot_prelibs[] = {
 	{ "builtin.json",				luaopen_cjson },
 	{ "builtin.json.safe",			luaopen_cjson_safe },
 
@@ -56,19 +61,8 @@ static const luaL_Reg xboot_libs[] = {
 	{ "builtin.hardware.buzzer",	luaopen_hardware_buzzer },
 	{ "builtin.hardware.watchdog",	luaopen_hardware_watchdog },
 
-	{ NULL, NULL }
+	{ NULL, NULL },
 };
-
-static bool_t register_preload(lua_State * L, const char * name, lua_CFunction f)
-{
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "preload");
-	lua_pushcfunction(L, f);
-	lua_setfield(L, -2, name);
-	lua_pop(L, 2);
-
-	return TRUE;
-}
 
 static bool_t register_searcher(lua_State * L, lua_CFunction f, int pos)
 {
@@ -87,6 +81,17 @@ static bool_t register_searcher(lua_State * L, lua_CFunction f, int pos)
 	lua_call(L, 3, 0);
 
 	lua_pop(L, 2);
+	return TRUE;
+}
+
+static bool_t register_preload(lua_State * L, const char * name, lua_CFunction f)
+{
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "preload");
+	lua_pushcfunction(L, f);
+	lua_setfield(L, -2, name);
+	lua_pop(L, 2);
+
 	return TRUE;
 }
 
@@ -181,7 +186,7 @@ static int searcher_package_lua(lua_State * L)
 
 int luaopen_xboot(lua_State * L)
 {
-	int i;
+	const luaL_Reg * lib;
 
 	lua_getglobal(L, "xboot");
 	if(!lua_istable(L, -1))
@@ -205,10 +210,17 @@ int luaopen_xboot(lua_State * L)
 	lua_setfield(L, -2, "UNIQUEID");
 
 	register_searcher(L, searcher_package_lua, 2);
-	register_preload(L, "xboot", luaopen_xboot);
 
-	for(i = 0; xboot_libs[i].name != 0; i++)
-		register_preload(L, xboot_libs[i].name, xboot_libs[i].func);
+	for(lib = xboot_glblibs; lib->func; lib++)
+	{
+		luaL_requiref(L, lib->name, lib->func, 1);
+		lua_pop(L, 1);
+	}
+
+	for(lib = xboot_prelibs; lib->func; lib++)
+	{
+		register_preload(L, lib->name, lib->func);
+	}
 
 	return 1;
 }

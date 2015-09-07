@@ -37,7 +37,6 @@ static const luaL_Reg xboot_prelibs[] = {
 	{ "builtin.json",				luaopen_cjson },
 	{ "builtin.json.safe",			luaopen_cjson_safe },
 
-	{ "builtin.logger",				luaopen_logger },
 	{ "builtin.event",				luaopen_event },
 	{ "builtin.stopwatch",			luaopen_stopwatch },
 	{ "builtin.base64",				luaopen_base64 },
@@ -173,11 +172,41 @@ static bool_t register_searcher(lua_State * L, lua_CFunction f, int pos)
 	return TRUE;
 }
 
+static int l_logger_print(lua_State * L)
+{
+	int n = lua_gettop(L);
+	int i;
+
+	lua_getglobal(L, "tostring");
+	for(i = 1; i <= n; i++)
+	{
+		const char * s;
+		size_t l;
+		lua_pushvalue(L, -1);
+		lua_pushvalue(L, i);
+		lua_call(L, 1, 1);
+		s = lua_tolstring(L, -1, &l);
+		if(s == NULL)
+			return luaL_error(L, "'tostring' must return a string to 'print'");
+		if(i > 1)
+			logger_output("\t", 1);
+		logger_output(s, l);
+		lua_pop(L, 1);
+	}
+	logger_output("\r\n", 2);
+
+	return 0;
+}
+
 int luaopen_xboot(lua_State * L)
 {
 	const luaL_Reg * lib;
 
 	register_searcher(L, searcher_package_lua, 2);
+
+	lua_pushcfunction(L, l_logger_print);
+	lua_pushvalue(L, -1);
+	lua_setglobal(L, "print");
 
 	lua_getglobal(L, "xboot");
 	if(!lua_istable(L, -1))

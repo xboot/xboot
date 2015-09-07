@@ -6,8 +6,8 @@
 #
 # You must pass CROSS_COMPILE and PLATFORM variable.
 #
-CROSS_COMPILE	?= arm-none-eabi-
-PLATFORM		?= arm32-realview
+CROSS_COMPILE	?= 
+PLATFORM		?= x64-sandbox
 
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.
@@ -126,9 +126,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/led									\
 				drivers/logger								\
 				drivers/mmc									\
-				drivers/mtd									\
-				drivers/mtd/nand							\
-				drivers/mtd/nor								\
 				drivers/pwm									\
 				drivers/rtc									\
 				drivers/watchdog							\
@@ -136,7 +133,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				framework/base64							\
 				framework/display							\
 				framework/event								\
-				framework/logger							\
 				framework/hardware							\
 				framework/lang								\
 				framework/stopwatch

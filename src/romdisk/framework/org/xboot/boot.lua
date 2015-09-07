@@ -9,7 +9,6 @@ package.cpath = "./?.so"
 --
 Json = require "builtin.json"
 
-print = require("builtin.logger").print
 pump = require("builtin.event").pump
 
 Stopwatch = require "builtin.stopwatch"

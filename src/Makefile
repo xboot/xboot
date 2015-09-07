@@ -6,8 +6,8 @@
 #
 # You must pass CROSS_COMPILE and PLATFORM variable.
 #
-CROSS_COMPILE	?= 
-PLATFORM		?= x64-sandbox
+CROSS_COMPILE	?=
+PLATFORM		?=
 
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.
@@ -15,6 +15,9 @@ PLATFORM		?= x64-sandbox
 ifeq ($(words $(subst -, , $(PLATFORM))), 2)
 ARCH		:= $(word 1, $(subst -, , $(PLATFORM)))
 MACH		:= mach-$(word 2, $(subst -, , $(PLATFORM)))
+else
+ARCH		:= x64
+MACH		:= mach-sandbox
 endif
 
 #

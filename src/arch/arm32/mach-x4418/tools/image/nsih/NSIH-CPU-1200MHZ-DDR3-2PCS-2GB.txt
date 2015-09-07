@@ -73,7 +73,7 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 //------------------------------------------------------------------------------
 // Mem Controller Configuration
 03100302	// 0x088	/Chip Num:2	/Chip Row:15	/Bus Width:16	/Chip Col:10
-004007C0	// 0x08C	256x16x2CS	/CS1 Base Address:0x60000000
+00800780	// 0x08C	512x16x2CS	/CS1 Base Address:0x80000000
 06000B08	// 0x090	/CWL:8	/CL:11	/MR1_AL:0	/MR0_WR:6
 
 // DDR PHY delay timing Configuration
@@ -83,7 +83,7 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 // DDR AC Timing Configuration
 0000401B	// 0x09C	/tPZQ:128000us
 00000618	// 0x0A0	/Refresh Interval:7.8us
-6836650F	// 0x0A4	/tRFC:260ns(tCK)	/tRRD:7.5ns(tCK)	/tRP:13.75ns(tCK)	/tRCD:13.75ns(tCK)	/tRC:48.75ns(tCK)	/tRAS:35ns(tCK)
+8C36650F	// 0x0A4	/tRFC:350ns(tCK)	/tRRD:7.5ns(tCK)	/tRP:13.75ns(tCK)	/tRCD:13.75ns(tCK)	/tRC:48.75ns(tCK)	/tRAS:35ns(tCK)
 3631880B	// 0x0A8	/tWTR:7.5ns(tCK)	/tWR:15ns(tCK)	/tRTP:7.5ns(tCK)
 41000A26	// 0x0AC	/tFAW:40ns(tCK)	/tXSR:256ns(tCK)	/tXP:24ns(tCK)	/tCKE:5ns(tCK)
 

@@ -22,6 +22,13 @@ enum device_type_t {
 	DEVICE_TYPE_DISK,
 };
 
+enum {
+	NOTIFIER_DEVICE_ADD,
+	NOTIFIER_DEVICE_REMOVE,
+	NOTIFIER_DEVICE_SUSPEND,
+	NOTIFIER_DEVICE_RESUME,
+};
+
 struct device_t
 {
 	/* Kobj binding */
@@ -56,10 +63,12 @@ struct device_t * search_device_with_type(const char * name, enum device_type_t 
 struct device_t * search_first_device_with_type(enum device_type_t type);
 bool_t register_device(struct device_t * dev);
 bool_t unregister_device(struct device_t * dev);
+bool_t register_device_notifier(struct notifier_t * n);
+bool_t unregister_device_notifier(struct notifier_t * n);
 void suspend_device(const char * name);
 void resume_device(const char * name);
-void suspend_all_device(void);
-void resume_all_device(void);
+void suspend_device_all(void);
+void resume_device_all(void);
 
 #ifdef __cplusplus
 }

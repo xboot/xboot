@@ -32,7 +32,8 @@ struct device_list_t __device_list = {
 		.prev	= &(__device_list.entry),
 	},
 };
-static spinlock_t __device_list_lock = SPIN_LOCK_INIT();
+static spinlock_t __device_lock = SPIN_LOCK_INIT();
+static struct notifier_chain_t __device_nc = NOTIFIER_CHAIN_INIT();
 
 static struct kobj_t * search_device_kobj(struct device_t * dev)
 {
@@ -164,9 +165,10 @@ bool_t register_device(struct device_t * dev)
 	kobj_add(search_device_kobj(dev), dev->kobj);
 	dl->device = dev;
 
-	spin_lock_irq(&__device_list_lock);
+	spin_lock_irq(&__device_lock);
 	list_add_tail(&dl->entry, &(__device_list.entry));
-	spin_unlock_irq(&__device_list_lock);
+	spin_unlock_irq(&__device_lock);
+	notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_ADD, dev);
 
 	return TRUE;
 }
@@ -182,9 +184,10 @@ bool_t unregister_device(struct device_t * dev)
 	{
 		if(pos->device == dev)
 		{
-			spin_lock_irq(&__device_list_lock);
+			notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_REMOVE, dev);
+			spin_lock_irq(&__device_lock);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__device_list_lock);
+			spin_unlock_irq(&__device_lock);
 
 			kobj_remove(search_device_kobj(dev), pos->device->kobj);
 			free(pos);
@@ -195,12 +198,25 @@ bool_t unregister_device(struct device_t * dev)
 	return FALSE;
 }
 
+bool_t register_device_notifier(struct notifier_t * n)
+{
+	return notifier_chain_register(&__device_nc, n);
+}
+
+bool_t unregister_device_notifier(struct notifier_t * n)
+{
+	return notifier_chain_unregister(&__device_nc, n);
+}
+
 void suspend_device(const char * name)
 {
 	struct device_t * dev =	search_device(name);
 
 	if(dev)
+	{
+		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_SUSPEND, dev);
 		dev->suspend(dev);
+	}
 }
 
 void resume_device(const char * name)
@@ -208,27 +224,30 @@ void resume_device(const char * name)
 	struct device_t * dev =	search_device(name);
 
 	if(dev)
+	{
 		dev->resume(dev);
+		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, dev);
+	}
 }
 
-void suspend_all_device(void)
+void suspend_device_all(void)
 {
 	struct device_list_t * pos, * n;
 
 	list_for_each_entry_safe_reverse(pos, n, &(__device_list.entry), entry)
 	{
-		LOG("Suspend device '%s'", pos->device->name);
+		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_SUSPEND, pos->device);
 		pos->device->suspend(pos->device);
 	}
 }
 
-void resume_all_device(void)
+void resume_device_all(void)
 {
 	struct device_list_t * pos, * n;
 
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		LOG("Resume device '%s'", pos->device->name);
 		pos->device->resume(pos->device);
+		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, pos->device);
 	}
 }

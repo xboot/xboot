@@ -65,7 +65,7 @@ static bool_t __notifier_call(struct notifier_t ** nl, int cmd, void * arg)
 	{
 		nn = n->next;
 		ret = n->call(n, cmd, arg);
-		if(ret != 0)
+		if(ret < 0)
 			break;
 		n = nn;
 	}

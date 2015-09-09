@@ -10,9 +10,10 @@ extern "C" {
 #include <spinlock.h>
 
 struct notifier_t {
-	int priority;
-	int (*call)(struct notifier_t * n, int cmd, void * arg);
 	struct notifier_t * next;
+	int priority;
+	void * data;
+	int (*call)(struct notifier_t * n, int cmd, void * arg);
 };
 
 struct notifier_chain_t {

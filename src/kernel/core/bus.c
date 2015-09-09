@@ -160,3 +160,13 @@ bool_t unregister_bus(struct bus_t * bus)
 
 	return FALSE;
 }
+
+bool_t register_bus_notifier(struct notifier_t * n)
+{
+	return notifier_chain_register(&__bus_nc, n);
+}
+
+bool_t unregister_bus_notifier(struct notifier_t * n)
+{
+	return notifier_chain_unregister(&__bus_nc, n);
+}

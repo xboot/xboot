@@ -48,6 +48,8 @@ struct bus_t * search_bus(const char * name);
 struct bus_t * search_bus_with_type(const char * name, enum bus_type_t type);
 bool_t register_bus(struct bus_t * bus);
 bool_t unregister_bus(struct bus_t * bus);
+bool_t register_bus_notifier(struct notifier_t * n);
+bool_t unregister_bus_notifier(struct notifier_t * n);
 
 #ifdef __cplusplus
 }

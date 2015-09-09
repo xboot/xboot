@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <spinlock.h>
 #include <xboot/device.h>
 
 struct device_list_t __device_list = {

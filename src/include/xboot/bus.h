@@ -16,6 +16,11 @@ enum bus_type_t {
 	BUS_TYPE_USB,
 };
 
+enum {
+	NOTIFIER_BUS_ADD,
+	NOTIFIER_BUS_REMOVE,
+};
+
 struct bus_t
 {
 	/* Kobj binding */

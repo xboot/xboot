@@ -31,7 +31,8 @@ struct bus_list_t __bus_list = {
 		.prev	= &(__bus_list.entry),
 	},
 };
-static spinlock_t __bus_list_lock = SPIN_LOCK_INIT();
+static spinlock_t __bus_lock = SPIN_LOCK_INIT();
+static struct notifier_chain_t __bus_nc = NOTIFIER_CHAIN_INIT();
 
 static struct kobj_t * search_bus_kobj(struct bus_t * bus)
 {
@@ -127,9 +128,10 @@ bool_t register_bus(struct bus_t * bus)
 	kobj_add(search_bus_kobj(bus), bus->kobj);
 	bl->bus = bus;
 
-	spin_lock_irq(&__bus_list_lock);
+	spin_lock_irq(&__bus_lock);
 	list_add_tail(&bl->entry, &(__bus_list.entry));
-	spin_unlock_irq(&__bus_list_lock);
+	spin_unlock_irq(&__bus_lock);
+	notifier_chain_call(&__bus_nc, NOTIFIER_BUS_ADD, bus);
 
 	return TRUE;
 }
@@ -145,9 +147,10 @@ bool_t unregister_bus(struct bus_t * bus)
 	{
 		if(pos->bus == bus)
 		{
-			spin_lock_irq(&__bus_list_lock);
+			notifier_chain_call(&__bus_nc, NOTIFIER_BUS_REMOVE, bus);
+			spin_lock_irq(&__bus_lock);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__bus_list_lock);
+			spin_unlock_irq(&__bus_lock);
 
 			kobj_remove(search_bus_kobj(bus), pos->bus->kobj);
 			free(pos);

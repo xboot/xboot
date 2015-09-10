@@ -26,38 +26,36 @@
 
 struct buzzer_gpio_private_data_t {
 	int frequency;
-	struct buzzer_gpio_data_t * rdat;
+	int gpio;
+	int active_low;
 };
 
 static void buzzer_gpio_init(struct buzzer_t * buzzer)
 {
 	struct buzzer_gpio_private_data_t * dat = (struct buzzer_gpio_private_data_t *)buzzer->priv;
-	struct buzzer_gpio_data_t * rdat = (struct buzzer_gpio_data_t *)dat->rdat;
 
-	gpio_set_pull(rdat->gpio, rdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+	gpio_set_pull(dat->gpio, dat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+	gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
 }
 
 static void buzzer_gpio_exit(struct buzzer_t * buzzer)
 {
 	struct buzzer_gpio_private_data_t * dat = (struct buzzer_gpio_private_data_t *)buzzer->priv;
-	struct buzzer_gpio_data_t * rdat = (struct buzzer_gpio_data_t *)dat->rdat;
 
 	dat->frequency = 0;
-	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+	gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
 }
 
 static void buzzer_gpio_set(struct buzzer_t * buzzer, int frequency)
 {
 	struct buzzer_gpio_private_data_t * dat = (struct buzzer_gpio_private_data_t *)buzzer->priv;
-	struct buzzer_gpio_data_t * rdat = (struct buzzer_gpio_data_t *)dat->rdat;
 
 	if(dat->frequency != frequency)
 	{
 		if(frequency > 0)
-			gpio_direction_output(rdat->gpio, rdat->active_low ? 0 : 1);
+			gpio_direction_output(dat->gpio, dat->active_low ? 0 : 1);
 		else
-			gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+			gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
 		dat->frequency = frequency;
 	}
 }
@@ -97,7 +95,8 @@ static bool_t buzzer_gpio_register_buzzer(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	dat->frequency = 0;
-	dat->rdat = rdat;
+	dat->gpio = rdat->gpio;
+	dat->active_low = rdat->active_low;
 
 	buzzer->name = strdup(name);
 	buzzer->init = buzzer_gpio_init;

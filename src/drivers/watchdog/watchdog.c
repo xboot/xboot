@@ -107,6 +107,9 @@ bool_t register_watchdog(struct watchdog_t * watchdog)
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "timeout", watchdog_read_timeout, watchdog_write_timeout, watchdog);
 
+	if(watchdog->set)
+		(watchdog->set)(watchdog, 0);
+
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -114,9 +117,6 @@ bool_t register_watchdog(struct watchdog_t * watchdog)
 		free(dev);
 		return FALSE;
 	}
-
-	if(watchdog->set)
-		(watchdog->set)(watchdog, 0);
 
 	return TRUE;
 }
@@ -133,12 +133,12 @@ bool_t unregister_watchdog(struct watchdog_t * watchdog)
 	if(!dev)
 		return FALSE;
 
+	if(!unregister_device(dev))
+		return FALSE;
+
 	driver = (struct watchdog_t *)(dev->driver);
 	if(driver && driver->set)
 		(driver->set)(watchdog, 0);
-
-	if(!unregister_device(dev))
-		return FALSE;
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

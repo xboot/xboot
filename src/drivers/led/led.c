@@ -108,6 +108,9 @@ bool_t register_led(struct led_t * led)
 	kobj_add_regular(dev->kobj, "brightness", led_read_brightness, led_write_brightness, led);
 	kobj_add_regular(dev->kobj, "max_brightness", led_read_max_brightness, NULL, led);
 
+	if(led->init)
+		(led->init)(led);
+
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -115,9 +118,6 @@ bool_t register_led(struct led_t * led)
 		free(dev);
 		return FALSE;
 	}
-
-	if(led->init)
-		(led->init)(led);
 
 	return TRUE;
 }
@@ -134,12 +134,12 @@ bool_t unregister_led(struct led_t * led)
 	if(!dev)
 		return FALSE;
 
+	if(!unregister_device(dev))
+		return FALSE;
+
 	driver = (struct led_t *)(dev->driver);
 	if(driver && driver->exit)
 		(driver->exit)(led);
-
-	if(!unregister_device(dev))
-		return FALSE;
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

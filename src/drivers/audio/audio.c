@@ -83,6 +83,9 @@ bool_t register_audio(struct audio_t * audio)
 	dev->driver = audio;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
+	if(audio->init)
+		(audio->init)(audio);
+
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -90,9 +93,6 @@ bool_t register_audio(struct audio_t * audio)
 		free(dev);
 		return FALSE;
 	}
-
-	if(audio->init)
-		(audio->init)(audio);
 
 	return TRUE;
 }
@@ -109,12 +109,12 @@ bool_t unregister_audio(struct audio_t * audio)
 	if(!dev)
 		return FALSE;
 
+	if(!unregister_device(dev))
+		return FALSE;
+
 	driver = (struct audio_t *)(dev->driver);
 	if(driver && driver->exit)
 		(driver->exit)(audio);
-
-	if(!unregister_device(dev))
-		return FALSE;
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

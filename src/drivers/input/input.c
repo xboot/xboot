@@ -136,6 +136,9 @@ bool_t register_input(struct input_t * input)
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "type", input_read_type, NULL, input);
 
+	if(input->init)
+		(input->init)(input);
+
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -143,9 +146,6 @@ bool_t register_input(struct input_t * input)
 		free(dev);
 		return FALSE;
 	}
-
-	if(input->init)
-		(input->init)(input);
 
 	return TRUE;
 }
@@ -162,12 +162,12 @@ bool_t unregister_input(struct input_t * input)
 	if(!dev)
 		return FALSE;
 
+	if(!unregister_device(dev))
+		return FALSE;
+
 	driver = (struct input_t *)(dev->driver);
 	if(driver && driver->exit)
 		(driver->exit)(input);
-
-	if(!unregister_device(dev))
-		return FALSE;
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

@@ -155,14 +155,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 	kobj_add_regular(dev->kobj, "brightness", fb_read_brightness, fb_write_brightness, fb);
 	kobj_add_regular(dev->kobj, "max_brightness", fb_read_max_brightness, NULL, fb);
 
-	if(!register_device(dev))
-	{
-		kobj_remove_self(dev->kobj);
-		free(dev->name);
-		free(dev);
-		return FALSE;
-	}
-
 	if(fb->init)
 		(fb->init)(fb);
 
@@ -174,6 +166,14 @@ bool_t register_framebuffer(struct fb_t * fb)
 
 	if(fb->setbl)
 		fb->setbl(fb, 0);
+
+	if(!register_device(dev))
+	{
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -190,6 +190,9 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	if(!dev)
 		return FALSE;
 
+	if(!unregister_device(dev))
+		return FALSE;
+
 	driver = (struct fb_t *)(dev->driver);
 	if(driver)
 	{
@@ -199,9 +202,6 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 		if(driver->exit)
 			(driver->exit)(driver);
 	}
-
-	if(!unregister_device(dev))
-		return FALSE;
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

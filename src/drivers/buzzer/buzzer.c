@@ -102,6 +102,9 @@ bool_t register_buzzer(struct buzzer_t * buzzer)
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "frequency", buzzer_read_frequency, buzzer_write_frequency, buzzer);
 
+	if(buzzer->init)
+		(buzzer->init)(buzzer);
+
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -109,9 +112,6 @@ bool_t register_buzzer(struct buzzer_t * buzzer)
 		free(dev);
 		return FALSE;
 	}
-
-	if(buzzer->init)
-		(buzzer->init)(buzzer);
 
 	return TRUE;
 }
@@ -128,12 +128,12 @@ bool_t unregister_buzzer(struct buzzer_t * buzzer)
 	if(!dev)
 		return FALSE;
 
+	if(!unregister_device(dev))
+		return FALSE;
+
 	driver = (struct buzzer_t *)(dev->driver);
 	if(driver && driver->exit)
 		(driver->exit)(buzzer);
-
-	if(!unregister_device(dev))
-		return FALSE;
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

@@ -110,6 +110,9 @@ bool_t register_rtc(struct rtc_t * rtc)
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "time", rtc_time_read, rtc_time_write, rtc);
 
+	if(rtc->init)
+		(rtc->init)(rtc);
+
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -117,9 +120,6 @@ bool_t register_rtc(struct rtc_t * rtc)
 		free(dev);
 		return FALSE;
 	}
-
-	if(rtc->init)
-		(rtc->init)(rtc);
 
 	return TRUE;
 }
@@ -136,12 +136,12 @@ bool_t unregister_rtc(struct rtc_t * rtc)
 	if(!dev)
 		return FALSE;
 
+	if(!unregister_device(dev))
+		return FALSE;
+
 	driver = (struct rtc_t *)(dev->driver);
 	if(driver && driver->exit)
 		(driver->exit)(rtc);
-
-	if(!unregister_device(dev))
-		return FALSE;
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

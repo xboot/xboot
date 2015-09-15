@@ -55,7 +55,7 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 //------------------------------------------------------------------------------							
 // CLKPWR registers							
 //------------------------------------------------------------------------------							
-100D2C02	// 0x05C : PLL0		600MHz	P:3	M:300	S:2	
+100CC801	// 0x05C : PLL0		800MHz	P:3	M:200	S:1	
 100CC801	// 0x060 : PLL1		800MHz	P:3	M:200	S:1	
 100CC301	// 0x064 : PLL2		780MHz	P:3	M:195	S:1	K:0
 100CC801	// 0x068 : PLL3		800MHz	P:3	M:200	S:1	K:0
@@ -64,14 +64,14 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 00000104	// 0x070 : PLL3 SPREAD 						
 							
 00000601	// 0x074 : CPU G0		PLL1	/FCLK:800	/HCLK:200		
-00000208	// 0x078 : BUS		PLL0	/BCLK:300	/PCLK:150		
+00000208	// 0x078 : BUS		PLL0	/BCLK:400	/PCLK:200		
 00208003	// 0x07C : MEM		PLL3	/MDCLK:800	/MCLK:800	/MBCLK:400	/MPCLK:200
-00000208	// 0x080 : GR3D		PLL0	/GR3DBCLK:300			
-00000208	// 0x084 : MPEG		PLL0	/MPEGBCLK:300	/MPEGPCLK:150		
-00000208	// 0x088 : DISP		PLL0	/DISPBCLK:300	/DISPPCLK:150		
-00000028	// 0x08C : HDMI		PLL0	/HDMIPCLK:100			
+00000208	// 0x080 : GR3D		PLL0	/GR3DBCLK:400			
+00000208	// 0x084 : MPEG		PLL0	/MPEGBCLK:400	/MPEGPCLK:200		
+00000208	// 0x088 : DISP		PLL0	/DISPBCLK:400	/DISPPCLK:200		
+00000028	// 0x08C : HDMI		PLL0	/HDMIPCLK:133.333333333333			
 00000601	// 0x090 : CPU G1		PLL1	/FCLK:800	/HCLK:200		
-00000208	// 0x094 : CCI4		PLL0	/CCI4BCLK:300	/CCI4PCLK:150		
+00000208	// 0x094 : CCI4		PLL0	/CCI4BCLK:400	/CCI4PCLK:200		
 							
 //------------------------------------------------------------------------------							
 // MCU-D registers							

@@ -26,13 +26,13 @@
 
 struct led_simple_private_data_t {
 	int brightness;
-	struct led_simple_data_t * rdat;
+	struct led_simple_data_t rdat;
 };
 
 static void led_simple_init(struct led_t * led)
 {
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
-	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
+	struct led_simple_data_t * rdat = &(dat->rdat);
 
 	if(rdat->init)
 		rdat->init(rdat);
@@ -41,7 +41,7 @@ static void led_simple_init(struct led_t * led)
 static void led_simple_exit(struct led_t * led)
 {
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
-	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
+	struct led_simple_data_t * rdat = &(dat->rdat);
 
 	dat->brightness = 0;
 	if(rdat->set)
@@ -51,7 +51,7 @@ static void led_simple_exit(struct led_t * led)
 static void led_simple_set(struct led_t * led, int brightness)
 {
 	struct led_simple_private_data_t * dat = (struct led_simple_private_data_t *)led->priv;
-	struct led_simple_data_t * rdat = (struct led_simple_data_t *)dat->rdat;
+	struct led_simple_data_t * rdat = &(dat->rdat);
 
 	if(dat->brightness != brightness)
 	{
@@ -96,7 +96,7 @@ static bool_t led_simple_register_led(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	dat->brightness = 0;
-	dat->rdat = rdat;
+	memcpy(&(dat->rdat), rdat, sizeof(struct led_simple_data_t));
 
 	led->name = strdup(name);
 	led->init = led_simple_init;

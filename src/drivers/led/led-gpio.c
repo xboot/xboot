@@ -26,38 +26,36 @@
 
 struct led_gpio_private_data_t {
 	int brightness;
-	struct led_gpio_data_t * rdat;
+	int gpio;
+	int active_low;
 };
 
 static void led_gpio_init(struct led_t * led)
 {
 	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
-	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
-	gpio_set_pull(rdat->gpio, rdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+	gpio_set_pull(dat->gpio, dat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+	gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
 }
 
 static void led_gpio_exit(struct led_t * led)
 {
 	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
-	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
 	dat->brightness = 0;
-	gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+	gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
 }
 
 static void led_gpio_set(struct led_t * led, int brightness)
 {
 	struct led_gpio_private_data_t * dat = (struct led_gpio_private_data_t *)led->priv;
-	struct led_gpio_data_t * rdat = (struct led_gpio_data_t *)dat->rdat;
 
 	if(dat->brightness != brightness)
 	{
 		if(brightness > 0)
-			gpio_direction_output(rdat->gpio, rdat->active_low ? 0 : 1);
+			gpio_direction_output(dat->gpio, dat->active_low ? 0 : 1);
 		else
-			gpio_direction_output(rdat->gpio, rdat->active_low ? 1 : 0);
+			gpio_direction_output(dat->gpio, dat->active_low ? 1 : 0);
 		dat->brightness = brightness;
 	}
 }
@@ -97,7 +95,8 @@ static bool_t led_gpio_register_led(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	dat->brightness = 0;
-	dat->rdat = rdat;
+	dat->gpio = rdat->gpio;
+	dat->active_low = rdat->active_low;
 
 	led->name = strdup(name);
 	led->init = led_gpio_init;

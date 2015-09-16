@@ -26,8 +26,8 @@
 
 struct buzzer_pwm_private_data_t {
 	int frequency;
+	bool_t polarity;
 	struct pwm_t * pwm;
-	struct buzzer_pwm_data_t * rdat;
 };
 
 static void buzzer_pwm_init(struct buzzer_t * buzzer)
@@ -49,15 +49,14 @@ static void buzzer_pwm_exit(struct buzzer_t * buzzer)
 static void buzzer_pwm_set(struct buzzer_t * buzzer, int frequency)
 {
 	struct buzzer_pwm_private_data_t * dat = (struct buzzer_pwm_private_data_t *)buzzer->priv;
-	struct buzzer_pwm_data_t * rdat = (struct buzzer_pwm_data_t *)dat->rdat;
 	u32_t period;
 
 	if(dat->frequency != frequency)
 	{
 		if(frequency > 0)
 		{
-			period = 1000000000L / dat->frequency;
-			pwm_config(dat->pwm, period / 2, period, rdat->polarity);
+			period = 1000000000ULL / dat->frequency;
+			pwm_config(dat->pwm, period / 2, period, dat->polarity);
 			pwm_enable(dat->pwm);
 		}
 		else
@@ -108,8 +107,8 @@ static bool_t buzzer_pwm_register_buzzer(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	dat->frequency = 0;
+	dat->polarity = rdat->polarity;
 	dat->pwm = pwm;
-	dat->rdat = rdat;
 
 	buzzer->name = strdup(name);
 	buzzer->init = buzzer_pwm_init;

@@ -27,7 +27,7 @@
 
 struct realview_i2c_private_data_t {
 	struct i2c_algo_bit_data_t bdat;
-	struct realview_i2c_data_t * rdat;
+	struct realview_i2c_data_t rdat;
 };
 
 static void realview_i2c_setsda(struct i2c_algo_bit_data_t * bdat, int state)
@@ -97,8 +97,8 @@ static bool_t realview_register_i2c_bus(struct resource_t * res)
 		dat->bdat.udelay = rdat->udelay;
 	else
 		dat->bdat.udelay = 5;
-	dat->bdat.priv = rdat;
-	dat->rdat = rdat;
+	memcpy(&(dat->rdat), rdat, sizeof(struct realview_i2c_data_t));
+	dat->bdat.priv = &(dat->rdat);
 
 	i2c->name = strdup(name);
 	i2c->init = realview_i2c_init;

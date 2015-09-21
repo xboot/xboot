@@ -32,6 +32,8 @@ extern "C" {
 #include <math.h>
 #include <exit.h>
 #include <io.h>
+#include <fifo.h>
+#include <queue.h>
 #include <ssize.h>
 #include <malloc.h>
 #include <alloca.h>

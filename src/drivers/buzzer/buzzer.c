@@ -157,3 +157,15 @@ int buzzer_get_frequency(struct buzzer_t * buzzer)
 		return buzzer->get(buzzer);
 	return 0;
 }
+
+void buzzer_beep(struct buzzer_t * buzzer, int frequency, int millisecond)
+{
+	if(buzzer && buzzer->beep)
+	{
+		if(frequency < 0)
+			frequency = 0;
+		if(millisecond < 1)
+			frequency = 1;
+		buzzer->beep(buzzer, frequency, millisecond);
+	}
+}

@@ -82,9 +82,21 @@ static int m_buzzer_get_frequency(lua_State * L)
 	return 1;
 }
 
+static int m_buzzer_beep(lua_State * L)
+{
+	struct buzzer_t * buzzer = luaL_checkudata(L, 1, MT_NAME_HARDWARE_BUZZER);
+	int frequency = luaL_checkinteger(L, 2);
+	int millisecond = luaL_checkinteger(L, 3);
+	buzzer_beep(buzzer, frequency, millisecond);
+	lua_pushlightuserdata(L, buzzer);
+	luaL_setmetatable(L, MT_NAME_HARDWARE_BUZZER);
+	return 1;
+}
+
 static const luaL_Reg m_hardware_buzzer[] = {
 	{"setFrequency",	m_buzzer_set_frequency},
 	{"getFrequency",	m_buzzer_get_frequency},
+	{"beep",			m_buzzer_beep},
 	{NULL,	NULL}
 };
 

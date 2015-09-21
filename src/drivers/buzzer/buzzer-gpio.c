@@ -24,7 +24,14 @@
 
 #include <buzzer/buzzer-gpio.h>
 
+struct beep_param_t {
+	int frequency;
+	int millisecond;
+};
+
 struct buzzer_gpio_private_data_t {
+	struct timer_t timer;
+	struct queue_t * beep;
 	int frequency;
 	int gpio;
 	int active_low;
@@ -66,12 +73,46 @@ static int buzzer_gpio_get(struct buzzer_t * buzzer)
 	return dat->frequency;
 }
 
+static void buzzer_gpio_beep(struct buzzer_t * buzzer, int frequency, int millisecond)
+{
+	struct buzzer_gpio_private_data_t * dat = (struct buzzer_gpio_private_data_t *)buzzer->priv;
+	struct beep_param_t * param = malloc(sizeof(struct beep_param_t));
+
+	if(!param)
+		return;
+	param->frequency = frequency;
+	param->millisecond = millisecond;
+	queue_push(dat->beep, param);
+
+	if(queue_peek(dat->beep) == param)
+	{
+		buzzer_gpio_set(buzzer, param->frequency);
+		timer_start_now(&dat->timer, ms_to_ktime(param->millisecond));
+	}
+}
+
 static void buzzer_gpio_suspend(struct buzzer_t * buzzer)
 {
 }
 
 static void buzzer_gpio_resume(struct buzzer_t * buzzer)
 {
+}
+
+static int buzzer_gpio_timer_function(struct timer_t * timer, void * data)
+{
+	struct buzzer_t * buzzer = (struct buzzer_t *)(data);
+	struct buzzer_gpio_private_data_t * dat = (struct buzzer_gpio_private_data_t *)buzzer->priv;
+	struct beep_param_t * param = queue_pop(dat->beep);
+
+	if(!param)
+	{
+		buzzer_gpio_set(buzzer, 0);
+		return 0;
+	}
+	buzzer_gpio_set(buzzer, param->frequency);
+	timer_forward_now(&dat->timer, ms_to_ktime(param->millisecond));
+	return 1;
 }
 
 static bool_t buzzer_gpio_register_buzzer(struct resource_t * res)
@@ -94,6 +135,8 @@ static bool_t buzzer_gpio_register_buzzer(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
+	timer_init(&dat->timer, buzzer_gpio_timer_function, buzzer);
+	dat->beep = queue_alloc();
 	dat->frequency = 0;
 	dat->gpio = rdat->gpio;
 	dat->active_low = rdat->active_low;
@@ -103,6 +146,7 @@ static bool_t buzzer_gpio_register_buzzer(struct resource_t * res)
 	buzzer->exit = buzzer_gpio_exit;
 	buzzer->set = buzzer_gpio_set,
 	buzzer->get = buzzer_gpio_get,
+	buzzer->beep = buzzer_gpio_beep,
 	buzzer->suspend = buzzer_gpio_suspend,
 	buzzer->resume = buzzer_gpio_resume,
 	buzzer->priv = dat;
@@ -118,6 +162,7 @@ static bool_t buzzer_gpio_register_buzzer(struct resource_t * res)
 
 static bool_t buzzer_gpio_unregister_buzzer(struct resource_t * res)
 {
+	struct buzzer_gpio_private_data_t * dat;
 	struct buzzer_t * buzzer;
 	char name[64];
 
@@ -126,10 +171,13 @@ static bool_t buzzer_gpio_unregister_buzzer(struct resource_t * res)
 	buzzer = search_buzzer(name);
 	if(!buzzer)
 		return FALSE;
+	dat = (struct buzzer_gpio_private_data_t *)buzzer->priv;
 
 	if(!unregister_buzzer(buzzer))
 		return FALSE;
 
+	timer_cancel(&dat->timer);
+	queue_free(dat->beep);
 	free(buzzer->priv);
 	free(buzzer->name);
 	free(buzzer);

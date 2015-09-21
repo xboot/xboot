@@ -24,6 +24,9 @@ struct buzzer_t
 	/* Get buzzer's frequency */
 	int (*get)(struct buzzer_t * buzzer);
 
+	/* Buzzer beep in frequency and millisecond with queue */
+	void (*beep)(struct buzzer_t * buzzer, int frequency, int millisecond);
+
 	/* Suspend buzzer */
 	void (*suspend)(struct buzzer_t * buzzer);
 
@@ -39,6 +42,7 @@ bool_t register_buzzer(struct buzzer_t * buzzer);
 bool_t unregister_buzzer(struct buzzer_t * buzzer);
 void buzzer_set_frequency(struct buzzer_t * buzzer, int frequency);
 int buzzer_get_frequency(struct buzzer_t * buzzer);
+void buzzer_beep(struct buzzer_t * buzzer, int frequency, int millisecond);
 
 #ifdef __cplusplus
 }

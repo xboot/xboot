@@ -6,8 +6,8 @@ extern "C" {
 #endif
 
 #include <xboot/module.h>
-#include <xboot/list.h>
 #include <types.h>
+#include <list.h>
 #include <spinlock.h>
 
 struct queue_node_t {

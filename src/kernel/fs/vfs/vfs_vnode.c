@@ -23,10 +23,6 @@
  */
 
 #include <xboot.h>
-#include <errno.h>
-#include <malloc.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <fs/fs.h>
 #include <fs/vfs/fcntl.h>
 #include <fs/vfs/stat.h>

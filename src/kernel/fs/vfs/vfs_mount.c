@@ -23,14 +23,6 @@
  */
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <sizes.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <block/block.h>
-#include <xboot/list.h>
-#include <xboot/initcall.h>
 #include <fs/fs.h>
 #include <fs/vfs/vfs.h>
 

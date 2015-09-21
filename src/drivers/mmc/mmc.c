@@ -24,13 +24,6 @@
 
 
 #include <xboot.h>
-#include <types.h>
-#include <string.h>
-#include <malloc.h>
-#include <xboot/initcall.h>
-#include <xboot/list.h>
-#include <xboot/device.h>
-#include <block/block.h>
 #include <mmc/mmc_host.h>
 #include <mmc/mmc_card.h>
 #include <mmc/mmc.h>

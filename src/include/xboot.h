@@ -32,6 +32,7 @@ extern "C" {
 #include <math.h>
 #include <exit.h>
 #include <io.h>
+#include <list.h>
 #include <fifo.h>
 #include <queue.h>
 #include <ssize.h>
@@ -40,7 +41,6 @@ extern "C" {
 #include <charset.h>
 #include <version.h>
 #include <runtime.h>
-#include <xboot/list.h>
 #include <xboot/kref.h>
 #include <xboot/kobj.h>
 #include <xboot/ktime.h>

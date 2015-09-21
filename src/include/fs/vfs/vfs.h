@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <xboot/list.h>
 #include <block/block.h>
 #include <fs/vfs/stat.h>
 #include <fs/vfs/fcntl.h>

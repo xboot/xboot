@@ -28,7 +28,6 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <xboot/initcall.h>
-#include <xboot/list.h>
 #include <block/block.h>
 #include <block/disk.h>
 #include <block/partition.h>

@@ -6,8 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <string.h>
-#include <xboot/list.h>
 #include <mmc/mmc_host.h>
 
 /*

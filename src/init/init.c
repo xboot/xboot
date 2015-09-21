@@ -73,6 +73,8 @@ void do_system_logo(void)
 	struct fb_t * fb;
 	int x, y;
 
+	return;
+
 	LOG("Display system logo");
 	logo = cairo_image_surface_create_from_png("/romdisk/framework/assets/images/logo.png");
 
@@ -127,6 +129,7 @@ void do_system_autoboot(void)
 		printf("\rPress any key to stop autoboot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	} while(delay > 0);
 
+	return;
 	if(search_block("application") && (mount("application", "/app" , "tarfs", 0) == 0))
 		system("exec /app");
 	else

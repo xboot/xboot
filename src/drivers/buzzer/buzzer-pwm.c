@@ -33,7 +33,7 @@ struct buzzer_pwm_private_data_t {
 	struct timer_t timer;
 	struct queue_t * beep;
 	int frequency;
-	bool_t polarity;
+	int polarity;
 	struct pwm_t * pwm;
 };
 
@@ -62,8 +62,8 @@ static void buzzer_pwm_set(struct buzzer_t * buzzer, int frequency)
 	{
 		if(frequency > 0)
 		{
-			period = 1000000000ULL / dat->frequency;
-			pwm_config(dat->pwm, period / 2, period, dat->polarity);
+			period = 1000000000ULL / frequency;
+			pwm_config(dat->pwm, period / 2, period, dat->polarity ? TRUE : FALSE);
 			pwm_enable(dat->pwm);
 		}
 		else

@@ -12,7 +12,7 @@ extern "C" {
 struct buzzer_pwm_data_t
 {
 	const char * pwm;
-	bool_t polarity;
+	int polarity;
 };
 
 #ifdef __cplusplus

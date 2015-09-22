@@ -50,7 +50,7 @@ static void lcd_init(struct s5p4418_fb_data_t * dat)
 	bl->brightness = 0;
 	dat->priv = bl;
 
-	pwm_config(bl->pwm, bl->duty_from, bl->period, bl->polarity);
+	pwm_config(bl->pwm, bl->duty_from, bl->period, bl->polarity ? TRUE : FALSE);
 	pwm_enable(bl->pwm);
 
 	/* Enable backlight power */

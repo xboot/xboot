@@ -19,21 +19,22 @@ struct queue_t * queue_alloc(void)
 
 	init_list_head(&q->node.entry);
 	spin_lock_init(&q->lock);
+	q->available = 0;
 	return q;
 }
 EXPORT_SYMBOL(queue_alloc);
 
-void queue_free(struct queue_t * q)
+void queue_free(struct queue_t * q, int flag)
 {
 	if(q)
 	{
-		queue_clear(q);
+		queue_clear(q, flag);
 		free(q);
 	}
 }
 EXPORT_SYMBOL(queue_free);
 
-void queue_clear(struct queue_t * q)
+void queue_clear(struct queue_t * q, int flag)
 {
 	struct queue_node_t * pos, * n;
 	irq_flags_t flags;
@@ -45,11 +46,29 @@ void queue_clear(struct queue_t * q)
 	list_for_each_entry_safe(pos, n, &(q->node.entry), entry)
 	{
 		list_del(&(pos->entry));
+		if(flag)
+			free(pos->data);
 		free(pos);
 	}
+	q->available = 0;
 	spin_unlock_irqrestore(&q->lock, flags);
 }
 EXPORT_SYMBOL(queue_clear);
+
+int queue_avail(struct queue_t * q)
+{
+	irq_flags_t flags;
+	int ret = 0;
+
+	if(q)
+	{
+		spin_lock_irqsave(&q->lock, flags);
+		ret = q->available;
+		spin_unlock_irqrestore(&q->lock, flags);
+	}
+	return ret;
+}
+EXPORT_SYMBOL(queue_avail);
 
 void queue_push(struct queue_t * q, void * data)
 {
@@ -66,6 +85,7 @@ void queue_push(struct queue_t * q, void * data)
 	node->data = data;
 	spin_lock_irqsave(&q->lock, flags);
 	list_add_tail(&(node->entry), &(q->node.entry));
+	q->available++;
 	spin_unlock_irqrestore(&q->lock, flags);
 }
 EXPORT_SYMBOL(queue_push);
@@ -86,6 +106,7 @@ void * queue_pop(struct queue_t * q)
 		data = node->data;
 		list_del(pos);
 		free(node);
+		q->available--;
 	}
 	spin_unlock_irqrestore(&q->lock, flags);
 

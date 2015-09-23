@@ -72,11 +72,30 @@ static ssize_t buzzer_write_frequency(struct kobj_t * kobj, void * buf, size_t s
 	return size;
 }
 
+static ssize_t buzzer_write_play(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct buzzer_t * buzzer = (struct buzzer_t *)kobj->priv;
+
+	buzzer_play(buzzer, buf);
+	return size;
+}
+
 struct buzzer_t * search_buzzer(const char * name)
 {
 	struct device_t * dev;
 
 	dev = search_device_with_type(name, DEVICE_TYPE_BUZZER);
+	if(!dev)
+		return NULL;
+
+	return (struct buzzer_t *)dev->driver;
+}
+
+struct buzzer_t * search_first_buzzer(void)
+{
+	struct device_t * dev;
+
+	dev = search_first_device_with_type(DEVICE_TYPE_BUZZER);
 	if(!dev)
 		return NULL;
 
@@ -101,6 +120,7 @@ bool_t register_buzzer(struct buzzer_t * buzzer)
 	dev->driver = buzzer;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "frequency", buzzer_read_frequency, buzzer_write_frequency, buzzer);
+	kobj_add_regular(dev->kobj, "play", NULL, buzzer_write_play, buzzer);
 
 	if(buzzer->init)
 		(buzzer->init)(buzzer);
@@ -337,7 +357,7 @@ void buzzer_play(struct buzzer_t * buzzer, const char * rtttl)
 	int index, scale, duration;
 	int n, t;
 
-	if(!buzzer)
+	if(!buzzer || !rtttl)
 		return;
 	buzzer_beep(buzzer, 0, 0);
 

@@ -83,19 +83,25 @@ static int buzzer_pwm_get(struct buzzer_t * buzzer)
 static void buzzer_pwm_beep(struct buzzer_t * buzzer, int frequency, int millisecond)
 {
 	struct buzzer_pwm_private_data_t * dat = (struct buzzer_pwm_private_data_t *)buzzer->priv;
-	struct beep_param_t * param = malloc(sizeof(struct beep_param_t));
+	struct beep_param_t * param;
 
+	if((frequency == 0) && (millisecond == 0))
+	{
+		timer_cancel(&dat->timer);
+		queue_clear(dat->beep, 1);
+		buzzer_pwm_set(buzzer, 0);
+		return;
+	}
+
+	param = malloc(sizeof(struct beep_param_t));
 	if(!param)
 		return;
 	param->frequency = frequency;
 	param->millisecond = millisecond;
-	queue_push(dat->beep, param);
 
-	if(queue_peek(dat->beep) == param)
-	{
-		buzzer_pwm_set(buzzer, param->frequency);
-		timer_start_now(&dat->timer, ms_to_ktime(param->millisecond));
-	}
+	queue_push(dat->beep, param);
+	if(queue_avail(dat->beep) == 1)
+		timer_start_now(&dat->timer, ms_to_ktime(1));
 }
 
 static void buzzer_pwm_suspend(struct buzzer_t * buzzer)
@@ -119,6 +125,7 @@ static int buzzer_pwm_timer_function(struct timer_t * timer, void * data)
 	}
 	buzzer_pwm_set(buzzer, param->frequency);
 	timer_forward_now(&dat->timer, ms_to_ktime(param->millisecond));
+	free(param);
 	return 1;
 }
 
@@ -189,7 +196,7 @@ static bool_t buzzer_pwm_unregister_buzzer(struct resource_t * res)
 		return FALSE;
 
 	timer_cancel(&dat->timer);
-	queue_free(dat->beep);
+	queue_free(dat->beep, 1);
 	free(buzzer->priv);
 	free(buzzer->name);
 	free(buzzer);

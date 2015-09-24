@@ -37,6 +37,12 @@ struct buzzer_gpio_private_data_t {
 	int active_low;
 };
 
+static void iteration_beep_param(struct queue_node_t * node)
+{
+	if(node)
+		free(node->data);
+}
+
 static void buzzer_gpio_init(struct buzzer_t * buzzer)
 {
 	struct buzzer_gpio_private_data_t * dat = (struct buzzer_gpio_private_data_t *)buzzer->priv;
@@ -81,7 +87,7 @@ static void buzzer_gpio_beep(struct buzzer_t * buzzer, int frequency, int millis
 	if((frequency == 0) && (millisecond == 0))
 	{
 		timer_cancel(&dat->timer);
-		queue_clear(dat->beep, 1);
+		queue_clear(dat->beep, iteration_beep_param);
 		buzzer_gpio_set(buzzer, 0);
 		return;
 	}
@@ -184,7 +190,7 @@ static bool_t buzzer_gpio_unregister_buzzer(struct resource_t * res)
 		return FALSE;
 
 	timer_cancel(&dat->timer);
-	queue_free(dat->beep, 1);
+	queue_free(dat->beep, iteration_beep_param);
 	free(buzzer->priv);
 	free(buzzer->name);
 	free(buzzer);

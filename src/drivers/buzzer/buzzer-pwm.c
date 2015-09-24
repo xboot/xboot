@@ -37,6 +37,12 @@ struct buzzer_pwm_private_data_t {
 	struct pwm_t * pwm;
 };
 
+static void iteration_beep_param(struct queue_node_t * node)
+{
+	if(node)
+		free(node->data);
+}
+
 static void buzzer_pwm_init(struct buzzer_t * buzzer)
 {
 	struct buzzer_pwm_private_data_t * dat = (struct buzzer_pwm_private_data_t *)buzzer->priv;
@@ -88,7 +94,7 @@ static void buzzer_pwm_beep(struct buzzer_t * buzzer, int frequency, int millise
 	if((frequency == 0) && (millisecond == 0))
 	{
 		timer_cancel(&dat->timer);
-		queue_clear(dat->beep, 1);
+		queue_clear(dat->beep, iteration_beep_param);
 		buzzer_pwm_set(buzzer, 0);
 		return;
 	}
@@ -196,7 +202,7 @@ static bool_t buzzer_pwm_unregister_buzzer(struct resource_t * res)
 		return FALSE;
 
 	timer_cancel(&dat->timer);
-	queue_free(dat->beep, 1);
+	queue_free(dat->beep, iteration_beep_param);
 	free(buzzer->priv);
 	free(buzzer->name);
 	free(buzzer);

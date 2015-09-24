@@ -462,6 +462,8 @@ void buzzer_play(struct buzzer_t * buzzer, const char * rtttl)
 			break;
 		case 'b':
 		case 'B':
+		case 'h':
+		case 'H':
 			index = 12;
 			break;
 		case 'p':

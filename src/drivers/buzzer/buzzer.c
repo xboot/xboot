@@ -354,128 +354,163 @@ void buzzer_play(struct buzzer_t * buzzer, const char * rtttl)
 	};
 	char * p = (char *)rtttl;
 	int d = 4, o = 6, b = 63;
-	int index, scale, duration;
+	int duration, scale, index;
 	int n, t;
+	char c;
 
-	if(!buzzer || !rtttl)
-		return;
+	/* stop beep */
 	buzzer_beep(buzzer, 0, 0);
 
-	while(*p != ':')
+	/* skip name */
+	while(*p && *p != ':')
 		p++;
+	if(!*p)
+		return;
 	p++;
 
-	if(*p == 'd')
+	/* parse default */
+	while(*p)
 	{
-		p++;
+		while(*p == ' ')
+			p++;
+		if(!*p)
+			return;
+		if(*p == ':')
+			break;
+
+		c = *p++;
+		if(*p != '=')
+			return;
+
 		p++;
 		n = 0;
-		while(isdigit(*p))
+		while(*p >= '0' && *p <= '9')
+			n = n * 10 + (*p++ - '0');
+
+		switch(c)
 		{
-			n = (n * 10) + (*p++ - '0');
+		case 'd':
+			d = 32 / n;
+			break;
+		case 'o':
+			if(n >= 4 && n <= 7)
+				o = n;
+			break;
+		case 'b':
+			b = n;
+			break;
+		default:
+			break;
 		}
-		if(n > 0)
-			d = n;
-		p++;
-	}
 
-	if(*p == 'o')
-	{
-		p++;
-		p++;
-		n = *p++ - '0';
-		if(n >= 4 && n <= 7)
-			o = n;
-		p++;
+		while(*p == ' ')
+			p++;
+		if(*p == ',')
+			p++;
 	}
-
-	if(*p == 'b')
-	{
-		p++;
-		p++;
-		n = 0;
-		while(isdigit(*p))
-		{
-			n = (n * 10) + (*p++ - '0');
-		}
-		b = n;
-		p++;
-	}
-
-	t = (4 * 60 * 1000) / b;
+	p++;
 
 	while(*p)
 	{
-		n = 0;
-		while(isdigit(*p))
+		duration = d;
+		scale = o;
+		index = 0;
+
+		/* skip whitespace */
+		while(*p == ' ')
+			p++;
+		if(!*p)
+			return;
+
+		/* parse duration */
+		if(*p >= '0' && *p <= '9')
 		{
-			n = (n * 10) + (*p++ - '0');
+			n = 0;
+			while(*p >= '0' && *p <= '9')
+				n = n * 10 + (*p++ - '0');
+			duration = 32 / n;
 		}
 
-		if(n)
-			duration = t / n;
-		else
-			duration = t / d;
-
-		index = 0;
-		switch (*p)
+		/* parse note */
+		switch(*p)
 		{
+		case 0:
+			return;
 		case 'c':
+		case 'C':
 			index = 1;
 			break;
 		case 'd':
+		case 'D':
 			index = 3;
 			break;
 		case 'e':
+		case 'E':
 			index = 5;
 			break;
 		case 'f':
+		case 'F':
 			index = 6;
 			break;
 		case 'g':
+		case 'G':
 			index = 8;
 			break;
 		case 'a':
+		case 'A':
 			index = 10;
 			break;
 		case 'b':
+		case 'B':
 			index = 12;
 			break;
 		case 'p':
+		case 'P':
 		default:
 			index = 0;
+			break;
 		}
 		p++;
-
 		if(*p == '#')
 		{
 			index++;
 			p++;
 		}
 
+		/* parse special duration */
 		if(*p == '.')
 		{
 			duration += duration / 2;
 			p++;
 		}
 
-		if(isdigit(*p))
+		/* parse scale */
+		if(*p >= '0' && *p <= '9')
+			scale = (*p++ - '0');
+
+		/* parse special duration again */
+		if(*p == '.')
 		{
-			scale = *p - '0';
+			duration += duration / 2;
 			p++;
 		}
-		else
-		{
-			scale = o;
-		}
 
+		/* skip delimiter */
+		while(*p == ' ')
+			p++;
 		if(*p == ',')
 			p++;
 
+		/* play note */
+		t = duration * 60000 / (b * 8);
 		if(index != 0)
-			buzzer_beep(buzzer, notes[(scale - 4) * 12 + index], duration);
+		{
+			buzzer_beep(buzzer, notes[(scale - 4) * 12 + index], t * 7 / 8);
+			buzzer_beep(buzzer, 0, t / 8);
+		}
 		else
-			buzzer_beep(buzzer, 0, duration);
-		buzzer_beep(buzzer, 0, 10);
+		{
+			buzzer_beep(buzzer, 0, t);
+		}
 	}
 }

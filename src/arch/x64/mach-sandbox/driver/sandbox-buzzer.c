@@ -46,7 +46,7 @@ static void sandbox_buzzer_init(struct buzzer_t * buzzer)
 	struct sandbox_buzzer_private_data_t * dat = (struct sandbox_buzzer_private_data_t *)buzzer->priv;
 
 	dat->frequency = 0;
-	sandbox_sdl_audio_buzzer_init();
+	sandbox_sdl_buzzer_init();
 }
 
 static void sandbox_buzzer_exit(struct buzzer_t * buzzer)
@@ -54,7 +54,7 @@ static void sandbox_buzzer_exit(struct buzzer_t * buzzer)
 	struct sandbox_buzzer_private_data_t * dat = (struct sandbox_buzzer_private_data_t *)buzzer->priv;
 
 	dat->frequency = 0;
-	sandbox_sdl_audio_buzzer_exit();
+	sandbox_sdl_buzzer_exit();
 }
 
 static void sandbox_buzzer_set(struct buzzer_t * buzzer, int frequency)
@@ -63,7 +63,7 @@ static void sandbox_buzzer_set(struct buzzer_t * buzzer, int frequency)
 
 	if(dat->frequency != frequency)
 	{
-		sandbox_sdl_audio_buzzer_set_frequency(frequency);
+		sandbox_sdl_buzzer_set_frequency(frequency);
 		dat->frequency = frequency;
 	}
 }

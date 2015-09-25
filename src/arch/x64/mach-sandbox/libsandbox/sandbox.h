@@ -61,9 +61,9 @@ void sandbox_sdl_audio_stop(void);
 /*
  * Buzzer interface
  */
-void sandbox_sdl_audio_buzzer_init(void);
-void sandbox_sdl_audio_buzzer_exit(void);
-void sandbox_sdl_audio_buzzer_set_frequency(int frequency);
+void sandbox_sdl_buzzer_init(void);
+void sandbox_sdl_buzzer_exit(void);
+void sandbox_sdl_buzzer_set_frequency(int frequency);
 
 /*
  * Event interface

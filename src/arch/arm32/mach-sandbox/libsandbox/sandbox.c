@@ -27,7 +27,8 @@ static char default_config[] =
 		"\"touchscreen\","
 		"\"joystick\""
 	"],"
-	"\"led\": [null]"
+	"\"led\": [null],"
+	"\"buzzer\": [null]"
 "}";
 
 static struct sandbox_t __sandbox;

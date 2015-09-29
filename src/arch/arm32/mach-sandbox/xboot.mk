@@ -169,7 +169,7 @@ LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 MCFLAGS		:= -mcpu=cortex-a9 -mtune=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -mfloat-abi=softfp
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
-LIBS 		:= -lsandbox -lc -lgcc -lpthread $(SDL_LIBS)
+LIBS 		:= -lsandbox -lc -lm -lgcc -lpthread $(SDL_LIBS)
 INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
 SRCDIRS		:=
 

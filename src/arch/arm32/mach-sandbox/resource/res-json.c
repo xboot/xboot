@@ -30,6 +30,7 @@
 #include <sandbox-audio.h>
 #include <sandbox-input.h>
 #include <sandbox-led.h>
+#include <sandbox-buzzer.h>
 
 static void json_resource_register(struct resource_t * res)
 {
@@ -247,6 +248,36 @@ static void json_resource_led(json_value * value)
 	}
 }
 
+static void json_resource_buzzer(json_value * value)
+{
+	struct resource_t * res;
+	struct sandbox_buzzer_data_t * data;
+	json_value * v;
+	int i;
+
+	if(value->type == json_array)
+	{
+		for(i = 0; i < value->u.array.length; i++)
+		{
+			v = value->u.array.values[i];
+			if(v->type == json_string)
+			{
+				if(sandbox_sysfs_access(v->u.string.ptr, "rw") == 0)
+				{
+					res = malloc(sizeof(struct resource_t));
+					data = malloc(sizeof(struct sandbox_buzzer_data_t));
+					data->path = strdup(v->u.string.ptr);
+					res->mach = NULL;
+					res->name = "sandbox-buzzer";
+					res->id = -1;
+					res->data = data;
+					json_resource_register(res);
+				}
+			}
+		}
+	}
+}
+
 static __init void resource_json_init(void)
 {
 	struct sandbox_t * sandbox = sandbox_get();
@@ -276,6 +307,10 @@ static __init void resource_json_init(void)
 			else if(strcmp(value->u.object.values[i].name, "led") == 0)
 			{
 				json_resource_led(value->u.object.values[i].value);
+			}
+			else if(strcmp(value->u.object.values[i].name, "buzzer") == 0)
+			{
+				json_resource_buzzer(value->u.object.values[i].value);
 			}
 		}
 	}

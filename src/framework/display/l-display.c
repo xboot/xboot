@@ -44,10 +44,12 @@ struct ldisplay_t {
 static int l_display_new(lua_State * L)
 {
 	const char * name = luaL_optstring(L, 1, NULL);
-	struct ldisplay_t * display = lua_newuserdata(L, sizeof(struct ldisplay_t));
-	display->fb = search_framebuffer(name);
-	if(!display->fb)
-		display->fb = search_first_framebuffer();
+	struct ldisplay_t * display;
+	struct fb_t * fb = name ? search_framebuffer(name) : search_first_framebuffer();
+	if(!fb)
+		return 0;
+	display = lua_newuserdata(L, sizeof(struct ldisplay_t));
+	display->fb = fb;
 	display->alone = cairo_xboot_surface_create(display->fb, display->fb->alone);
 	display->cs[0] = cairo_xboot_surface_create(display->fb, NULL);
 	display->cs[1] = cairo_xboot_surface_create(display->fb, NULL);

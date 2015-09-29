@@ -11,7 +11,7 @@ extern "C" {
 
 struct sandbox_buzzer_data_t
 {
-	int reserve;
+	const char * path;
 };
 
 #ifdef __cplusplus

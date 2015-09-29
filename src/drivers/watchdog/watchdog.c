@@ -73,19 +73,26 @@ static ssize_t watchdog_write_timeout(struct kobj_t * kobj, void * buf, size_t s
 	return size;
 }
 
-struct watchdog_t * search_default_watchdog_with_name(const char * name)
+struct watchdog_t * search_watchdog(const char * name)
 {
 	struct device_t * dev;
 
 	dev = search_device_with_type(name, DEVICE_TYPE_WATCHDOG);
-	if(dev)
-		return (struct watchdog_t *)dev->driver;
+	if(!dev)
+		return NULL;
+
+	return (struct watchdog_t *)dev->driver;
+}
+
+struct watchdog_t * search_first_watchdog(void)
+{
+	struct device_t * dev;
 
 	dev = search_first_device_with_type(DEVICE_TYPE_WATCHDOG);
-	if(dev)
-		return (struct watchdog_t *)dev->driver;
+	if(!dev)
+		return NULL;
 
-	return NULL;
+	return (struct watchdog_t *)dev->driver;
 }
 
 bool_t register_watchdog(struct watchdog_t * watchdog)

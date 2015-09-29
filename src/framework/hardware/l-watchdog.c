@@ -27,8 +27,8 @@
 
 static int l_watchdog_new(lua_State * L)
 {
-	const char * name = luaL_checkstring(L, 1);
-	struct watchdog_t * watchdog = search_default_watchdog_with_name(name);
+	const char * name = luaL_optstring(L, 1, NULL);
+	struct watchdog_t * watchdog = name ? search_watchdog(name) : search_first_watchdog();
 	if(!watchdog)
 		return 0;
 	lua_pushlightuserdata(L, watchdog);

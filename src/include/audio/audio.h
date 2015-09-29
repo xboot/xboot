@@ -7,6 +7,8 @@ extern "C" {
 
 #include <xboot.h>
 
+typedef int (*audio_callback_t)(void * data, void * buf, int count);
+
 enum audio_format_t {
 	AUDIO_FORMAT_BIT8	= 8,
 	AUDIO_FORMAT_BIT16	= 16,
@@ -40,17 +42,29 @@ struct audio_t
 	/* Clean up the audio */
 	void (*exit)(struct audio_t * audio);
 
-	/* Audio open with params */
-	void (*open)(struct audio_t * audio, enum audio_format_t fmt, enum audio_rate_t rate, int ch);
+	/* Audio playback open */
+	void (*playback_open)(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data);
 
-	/* Audio close */
-	void (*close)(struct audio_t * audio);
+	/* Audio playback start */
+	void (*playback_start)(struct audio_t * audio);
 
-	/* Audio playback */
-	ssize_t (*playback)(struct audio_t * audio, const u8_t * buf, size_t count);
+	/* Audio playback stop */
+	void (*playback_stop)(struct audio_t * audio);
 
-	/* Audio capture */
-	ssize_t (*capture)(struct audio_t * audio, u8_t * buf, size_t count);
+	/* Audio playback close */
+	void (*playback_close)(struct audio_t * audio);
+
+	/* Audio capture open */
+	void (*capture_open)(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data);
+
+	/* Audio capture start */
+	void (*capture_start)(struct audio_t * audio);
+
+	/* Audio capture stop */
+	void (*capture_stop)(struct audio_t * audio);
+
+	/* Audio capture close */
+	void (*capture_close)(struct audio_t * audio);
 
 	/* Suspend audio */
 	void (*suspend)(struct audio_t * audio);
@@ -63,6 +77,7 @@ struct audio_t
 };
 
 struct audio_t * search_audio(const char * name);
+struct audio_t * search_first_audio(void);
 bool_t register_audio(struct audio_t * audio);
 bool_t unregister_audio(struct audio_t * audio);
 

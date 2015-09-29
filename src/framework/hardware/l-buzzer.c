@@ -27,8 +27,8 @@
 
 static int l_buzzer_new(lua_State * L)
 {
-	const char * name = luaL_checkstring(L, 1);
-	struct buzzer_t * buzzer = search_buzzer(name);
+	const char * name = luaL_optstring(L, 1, NULL);
+	struct buzzer_t * buzzer = name ? search_buzzer(name) : search_first_buzzer();
 	if(!buzzer)
 		return 0;
 	lua_pushlightuserdata(L, buzzer);

@@ -65,6 +65,17 @@ struct audio_t * search_audio(const char * name)
 	return (struct audio_t *)dev->driver;
 }
 
+struct audio_t * search_first_audio(void)
+{
+	struct device_t * dev;
+
+	dev = search_first_device_with_type(DEVICE_TYPE_AUDIO);
+	if(!dev)
+		return NULL;
+
+	return (struct audio_t *)dev->driver;
+}
+
 bool_t register_audio(struct audio_t * audio)
 {
 	struct device_t * dev;

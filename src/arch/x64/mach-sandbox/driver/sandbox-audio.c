@@ -27,16 +27,15 @@
 
 struct sandbox_audio_private_data_t
 {
-	struct fifo_t * playfifo;
-	struct fifo_t * capfifo;
-	struct sandbox_audio_data_t * rdat;
+	audio_callback_t playcb;
 };
 
 static void audio_callback_playback(void * data, void * buf, int count)
 {
 	struct sandbox_audio_private_data_t * dat = (struct sandbox_audio_private_data_t *)data;
-	ssize_t len = fifo_get(dat->playfifo, (u8_t *)buf, count);
-	if(len < count)
+	int len;
+
+	if((len = dat->playcb(dat, buf, count)) < count)
 	{
 		memset((char *)buf + len, 0, count - len);
 		sandbox_sdl_audio_stop();
@@ -53,19 +52,10 @@ static void audio_exit(struct audio_t * audio)
 	sandbox_sdl_audio_exit();
 }
 
-static void audio_open(struct audio_t * audio, enum audio_format_t fmt, enum audio_rate_t rate, int ch)
+static void audio_playback_open(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
 {
 	struct sandbox_audio_private_data_t * dat = (struct sandbox_audio_private_data_t *)audio->priv;
-	struct sandbox_audio_data_t * rdat = (struct sandbox_audio_data_t *)dat->rdat;
-	int bps = fmt * rate * ch;
 	int sample;
-
-	dat->playfifo = fifo_alloc(bps * rdat->maxidle / 8);
-	if(!dat->playfifo)
-		return;
-	dat->capfifo = fifo_alloc(bps * rdat->maxidle / 8);
-	if(!dat->capfifo)
-		return;
 
 	/* 50ms */
 	sample = __fls(rate / 20);
@@ -73,31 +63,35 @@ static void audio_open(struct audio_t * audio, enum audio_format_t fmt, enum aud
 	sandbox_sdl_audio_open(fmt, rate, ch, sample, audio_callback_playback, dat);
 }
 
-static void audio_close(struct audio_t * audio)
+static void audio_playback_start(struct audio_t * audio)
 {
-	struct sandbox_audio_private_data_t * dat = (struct sandbox_audio_private_data_t *)audio->priv;
+	sandbox_sdl_audio_start();
+}
 
+static void audio_playback_stop(struct audio_t * audio)
+{
+	sandbox_sdl_audio_stop();
+}
+
+static void audio_playback_close(struct audio_t * audio)
+{
 	sandbox_sdl_audio_close();
-	if(dat->playfifo)
-		fifo_free(dat->playfifo);
-	if(dat->capfifo)
-		fifo_free(dat->capfifo);
 }
 
-static ssize_t audio_playback(struct audio_t * audio, const u8_t * buf, size_t count)
+static void audio_capture_open(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
 {
-	struct sandbox_audio_private_data_t * dat = (struct sandbox_audio_private_data_t *)audio->priv;
-	ssize_t len = fifo_put(dat->playfifo, (u8_t *)buf, count);
-	sandbox_sdl_audio_start();
-	return len;
 }
 
-static ssize_t audio_capture(struct audio_t * audio, u8_t * buf, size_t count)
+static void audio_capture_start(struct audio_t * audio)
 {
-	struct sandbox_audio_private_data_t * dat = (struct sandbox_audio_private_data_t *)audio->priv;
-	ssize_t len = fifo_get(dat->capfifo, (u8_t *)buf, count);
-	sandbox_sdl_audio_start();
-	return len;
+}
+
+static void audio_capture_stop(struct audio_t * audio)
+{
+}
+
+static void audio_capture_close(struct audio_t * audio)
+{
 }
 
 static void audio_suspend(struct audio_t * audio)
@@ -125,15 +119,17 @@ static bool_t sandbox_register_audio(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->rdat = rdat;
-
 	audio->name = strdup(name);
 	audio->init = audio_init,
 	audio->exit = audio_exit,
-	audio->open = audio_open,
-	audio->close = audio_close,
-	audio->playback = audio_playback,
-	audio->capture = audio_capture,
+	audio->playback_open = audio_playback_open;
+	audio->playback_start = audio_playback_start;
+	audio->playback_stop = audio_playback_stop;
+	audio->playback_close = audio_playback_close;
+	audio->capture_open = audio_capture_open;
+	audio->capture_start = audio_capture_start;
+	audio->capture_stop = audio_capture_stop;
+	audio->capture_close = audio_capture_close;
 	audio->suspend = audio_suspend,
 	audio->resume = audio_resume,
 	audio->priv = dat;

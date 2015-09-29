@@ -20,5 +20,6 @@
         "touchscreen",
         "joystick"
     ],
-    "led": [null]
+    "led": [null],
+    "buzzer: [null]"
 }

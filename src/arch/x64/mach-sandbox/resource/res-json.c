@@ -255,26 +255,26 @@ static void json_resource_buzzer(json_value * value)
 	json_value * v;
 	int i;
 
-	if(value->type == json_object)
+	if(value->type == json_array)
 	{
-		for(i = 0; i < value->u.object.length; i++)
+		for(i = 0; i < value->u.array.length; i++)
 		{
-			if(strcmp(value->u.object.values[i].name, "reserve") == 0)
+			v = value->u.array.values[i];
+			if(v->type == json_string)
 			{
-				v = value->u.object.values[i].value;
-				if(v->type == json_integer)
-					;
+				if(sandbox_sysfs_access(v->u.string.ptr, "w") == 0)
+				{
+					res = malloc(sizeof(struct resource_t));
+					data = malloc(sizeof(struct sandbox_buzzer_data_t));
+					data->path = strdup(v->u.string.ptr);
+					res->mach = NULL;
+					res->name = "sandbox-buzzer";
+					res->id = -1;
+					res->data = data;
+					json_resource_register(res);
+				}
 			}
 		}
-
-		res = malloc(sizeof(struct resource_t));
-		data = malloc(sizeof(struct sandbox_buzzer_data_t));
-		data->reserve = 0;
-		res->mach = NULL;
-		res->name = "sandbox-buzzer";
-		res->id = -1;
-		res->data = data;
-		json_resource_register(res);
 	}
 }
 

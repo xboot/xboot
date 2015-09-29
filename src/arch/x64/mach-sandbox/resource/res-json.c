@@ -262,7 +262,7 @@ static void json_resource_buzzer(json_value * value)
 			v = value->u.array.values[i];
 			if(v->type == json_string)
 			{
-				if(sandbox_sysfs_access(v->u.string.ptr, "w") == 0)
+				if(sandbox_sysfs_access(v->u.string.ptr, "rw") == 0)
 				{
 					res = malloc(sizeof(struct resource_t));
 					data = malloc(sizeof(struct sandbox_buzzer_data_t));

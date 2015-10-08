@@ -28,6 +28,7 @@
 struct sandbox_audio_private_data_t
 {
 	audio_callback_t playcb;
+	void * playcbdata;
 };
 
 static void audio_callback_playback(void * data, void * buf, int count)
@@ -35,7 +36,7 @@ static void audio_callback_playback(void * data, void * buf, int count)
 	struct sandbox_audio_private_data_t * dat = (struct sandbox_audio_private_data_t *)data;
 	int len;
 
-	if((len = dat->playcb(dat, buf, count)) < count)
+	if((len = dat->playcb(dat->playcbdata, buf, count)) < count)
 	{
 		memset((char *)buf + len, 0, count - len);
 		sandbox_sdl_audio_stop();
@@ -56,6 +57,9 @@ static void audio_playback_open(struct audio_t * audio, enum audio_rate_t rate, 
 {
 	struct sandbox_audio_private_data_t * dat = (struct sandbox_audio_private_data_t *)audio->priv;
 	int sample;
+
+	dat->playcb = cb;
+	dat->playcbdata = data;
 
 	/* 50ms */
 	sample = __fls(rate / 20);

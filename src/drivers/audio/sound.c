@@ -24,6 +24,8 @@
 
 #include <audio/sound.h>
 
+extern struct sound_loader_t __sound_loader_wav;
+
 static struct sound_loader_t * __sound_loader[] = {
 	&__sound_loader_wav,
 	NULL,
@@ -84,10 +86,24 @@ struct sound_t * sound_alloc(const char * filename)
 	return NULL;
 }
 
+int sound_length(struct sound_t * sound)
+{
+	if(sound)
+		return sound->length;
+	return 0;
+}
+
 int sound_seek(struct sound_t * sound, int offset)
 {
 	if(sound && sound->seek)
 		return sound->seek(sound, offset);
+	return 0;
+}
+
+int sound_tell(struct sound_t * sound)
+{
+	if(sound)
+		return sound->length;
 	return 0;
 }
 
@@ -101,5 +117,8 @@ int sound_read(struct sound_t * sound, void * buf, int count)
 void sound_free(struct sound_t * sound)
 {
 	if(sound && sound->close)
+	{
 		sound->close(sound);
+		free(sound);
+	}
 }

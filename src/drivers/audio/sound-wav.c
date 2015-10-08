@@ -42,7 +42,6 @@ struct wav_header_t {
 
 struct sound_wav_data_t {
 	int fd;
-	int bytes;
 };
 
 static int sound_wav_seek(struct sound_t * sound, int offset)
@@ -54,7 +53,7 @@ static int sound_wav_seek(struct sound_t * sound, int offset)
 	if(offset > sound->length)
 		offset = sound->length;
 
-	if(lseek(dat->fd, sizeof(struct wav_header_t) + offset * dat->bytes, SEEK_SET) > 0)
+	if(lseek(dat->fd, sizeof(struct wav_header_t) + offset, SEEK_SET) > 0)
 		sound->position = offset;
 	return sound->position;
 }
@@ -64,7 +63,7 @@ static int sound_wav_read(struct sound_t * sound, void * buf, int count)
 	struct sound_wav_data_t * dat = (struct sound_wav_data_t *)sound->priv;
 	int len;
 
-	len = read(dat->fd, buf, count * dat->bytes) / dat->bytes;
+	len = read(dat->fd, buf, count);
 	sound->position += len;
 	return len;
 }
@@ -123,13 +122,12 @@ static bool_t sound_wav_load(struct sound_t * sound, const char * filename)
 	}
 
 	dat->fd = fd;
-	dat->bytes = header.align;
 
-	sound->rate = (enum audio_rate_t)header.samplerate;
-	sound->fmt = (enum audio_format_t)header.bps;
+	sound->rate = (enum pcm_rate_t)header.samplerate;
+	sound->fmt = (enum pcm_format_t)header.bps;
 	sound->channel = header.channel;
 	sound->position = 0;
-	sound->length = header.datasz / dat->bytes;
+	sound->length = header.datasz;
 	sound->seek = sound_wav_seek;
 	sound->read = sound_wav_read;
 	sound->close = sound_wav_close;

@@ -5,29 +5,54 @@
 extern "C" {
 #endif
 
-#include <audio/audio.h>
+#include <xboot.h>
+
+enum pcm_format_t {
+	PCM_FORMAT_BIT8		= 8,
+	PCM_FORMAT_BIT16	= 16,
+	PCM_FORMAT_BIT24	= 24,
+	PCM_FORMAT_BIT32	= 32,
+};
+
+enum pcm_rate_t {
+	PCM_RATE_8000		= 8000,
+	PCM_RATE_11025		= 11025,
+	PCM_RATE_16000		= 16000,
+	PCM_RATE_22050		= 22050,
+	PCM_RATE_32000		= 32000,
+	PCM_RATE_44100		= 44100,
+	PCM_RATE_48000		= 48000,
+	PCM_RATE_64000		= 64000,
+	PCM_RATE_88200		= 88200,
+	PCM_RATE_96000		= 96000,
+	PCM_RATE_176400		= 176400,
+	PCM_RATE_192000		= 192000,
+};
 
 struct sound_t
 {
-	/* Sound rate */
-	enum audio_rate_t rate;
+	/* Sound list */
+	struct list_head entry;
+
+	/* Sound sample rate */
+	enum pcm_rate_t rate;
 
 	/* Sound format */
-	enum audio_format_t fmt;
+	enum pcm_format_t fmt;
 
 	/* Sound channel */
 	int channel;
 
-	/* Sound position in samples */
+	/* Sound position */
 	int position;
 
-	/* Sound length in samples */
+	/* Sound length */
 	int length;
 
-	/* Sound seek in samples */
+	/* Sound seek */
 	int (*seek)(struct sound_t * sound, int offset);
 
-	/* Sound read in samples */
+	/* Sound read */
 	int (*read)(struct sound_t * sound, void * buf, int count);
 
 	/* Sound close */
@@ -43,10 +68,10 @@ struct sound_loader_t
 	bool_t (*load)(struct sound_t * sound, const char * filename);
 };
 
-extern struct sound_loader_t __sound_loader_wav;
-
 struct sound_t * sound_alloc(const char * filename);
+int sound_length(struct sound_t * sound);
 int sound_seek(struct sound_t * sound, int offset);
+int sound_tell(struct sound_t * sound);
 int sound_read(struct sound_t * sound, void * buf, int count);
 void sound_free(struct sound_t * sound);
 

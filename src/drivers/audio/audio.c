@@ -167,7 +167,6 @@ void audio_playback_add_sound(struct audio_t * audio, struct sound_t * sound)
 	state = (struct audio_state_t *)audio->state;
 	spin_lock_irqsave(&state->playback.lock, flags);
 	list_add_tail(&sound->entry, &state->playback.head);
-	sound_set_position(sound, 0);
 	state->playback.sounds++;
 	spin_unlock_irqrestore(&state->playback.lock, flags);
 }
@@ -183,7 +182,6 @@ void audio_playback_del_sound(struct audio_t * audio, struct sound_t * sound)
 	state = (struct audio_state_t *)audio->state;
 	spin_lock_irqsave(&state->playback.lock, flags);
 	list_del(&sound->entry);
-	sound_set_position(sound, 0);
 	state->playback.sounds--;
 	spin_unlock_irqrestore(&state->playback.lock, flags);
 }
@@ -202,7 +200,6 @@ void audio_playback_clr_sound(struct audio_t * audio)
 	list_for_each_entry_safe(pos, n, &(state->playback.head), entry)
 	{
 		list_del(&(pos->entry));
-		sound_set_position(pos, 0);
 	}
 	state->playback.sounds = 0;
 	spin_unlock_irqrestore(&state->playback.lock, flags);
@@ -221,10 +218,18 @@ static int normal_playback_callback(void * data, void * buf, int count)
 	{
 		struct list_head * pos = (&state->playback.head)->next;
 		struct sound_t * snd = list_entry(pos, struct sound_t, entry);
-		if((len = sound_read(snd, buf, count)) < count)
+		if(!sound_get_pause(snd))
 		{
-			if(sound_get_position(snd) >= sound_length(snd))
-				audio_playback_del_sound(audio, snd);
+			do {
+				len += sound_read(snd, (char *)buf + len, count - len);
+				if(sound_get_position(snd) >= sound_length(snd))
+				{
+					if(sound_get_loop(snd))
+						sound_set_position(snd, 0);
+					else
+						audio_playback_del_sound(audio, snd);
+				}
+			} while(sound_get_loop(snd) && (len < count));
 		}
 	}
 

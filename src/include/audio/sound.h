@@ -49,6 +49,12 @@ struct sound_t
 	/* Sound length */
 	int length;
 
+	/* Sound pause */
+	int pause;
+
+	/* Sound loop */
+	int loop;
+
 	/* Sound volume */
 	int volume;
 
@@ -72,6 +78,10 @@ struct sound_loader_t
 };
 
 struct sound_t * sound_alloc(const char * filename);
+void sound_set_pause(struct sound_t * sound, int pause);
+int sound_get_pause(struct sound_t * sound);
+void sound_set_loop(struct sound_t * sound, int loop);
+int sound_get_loop(struct sound_t * sound);
 void sound_set_volume(struct sound_t * sound, int percent);
 int sound_get_volume(struct sound_t * sound);
 void sound_set_position(struct sound_t * sound, int position);

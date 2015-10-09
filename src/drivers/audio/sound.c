@@ -86,6 +86,32 @@ struct sound_t * sound_alloc(const char * filename)
 	return NULL;
 }
 
+void sound_set_pause(struct sound_t * sound, int pause)
+{
+	if(sound)
+		sound->pause = pause ? 1 : 0;
+}
+
+int sound_get_pause(struct sound_t * sound)
+{
+	if(sound)
+		return sound->pause;
+	return 0;
+}
+
+void sound_set_loop(struct sound_t * sound, int loop)
+{
+	if(sound)
+		sound->loop = loop ? 1 : 0;
+}
+
+int sound_get_loop(struct sound_t * sound)
+{
+	if(sound)
+		return sound->loop;
+	return 0;
+}
+
 void sound_set_volume(struct sound_t * sound, int percent)
 {
 	if(sound)

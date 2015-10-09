@@ -128,6 +128,7 @@ static bool_t sound_wav_load(struct sound_t * sound, const char * filename)
 	sound->channel = header.channel;
 	sound->position = 0;
 	sound->length = header.datasz;
+	sound->volume = 100;
 	sound->seek = sound_wav_seek;
 	sound->read = sound_wav_read;
 	sound->close = sound_wav_close;

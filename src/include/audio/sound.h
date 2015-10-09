@@ -49,6 +49,9 @@ struct sound_t
 	/* Sound length */
 	int length;
 
+	/* Sound volume */
+	int volume;
+
 	/* Sound seek */
 	int (*seek)(struct sound_t * sound, int offset);
 
@@ -69,11 +72,16 @@ struct sound_loader_t
 };
 
 struct sound_t * sound_alloc(const char * filename);
+void sound_set_volume(struct sound_t * sound, int percent);
+int sound_get_volume(struct sound_t * sound);
+void sound_set_position(struct sound_t * sound, int position);
+int sound_get_position(struct sound_t * sound);
+int sound_rate(struct sound_t * sound);
+int sound_format(struct sound_t * sound);
+int sound_channel(struct sound_t * sound);
 int sound_length(struct sound_t * sound);
-int sound_seek(struct sound_t * sound, int offset);
-int sound_tell(struct sound_t * sound);
 int sound_read(struct sound_t * sound, void * buf, int count);
-void sound_free(struct sound_t * sound);
+void sound_close(struct sound_t * sound);
 
 #ifdef __cplusplus
 }

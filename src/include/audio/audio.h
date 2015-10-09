@@ -38,12 +38,8 @@ struct audio_t
 	/* Resume audio */
 	void (*resume)(struct audio_t * audio);
 
-	/* Playback state */
-	struct {
-		struct list_head head;
-		spinlock_t lock;
-		int sounds;
-	} playback;
+	/* Audio state */
+	void * state;
 
 	/* Private data */
 	void * priv;
@@ -53,7 +49,10 @@ struct audio_t * search_audio(const char * name);
 struct audio_t * search_first_audio(void);
 bool_t register_audio(struct audio_t * audio);
 bool_t unregister_audio(struct audio_t * audio);
-void audio_playback_play(struct audio_t * audio, const char * filename);
+void audio_playback_add_sound(struct audio_t * audio, struct sound_t * sound);
+void audio_playback_del_sound(struct audio_t * audio, struct sound_t * sound);
+void audio_playback_clr_sound(struct audio_t * audio);
+void audio_playback_start(struct audio_t * audio);
 void audio_playback_stop(struct audio_t * audio);
 
 #ifdef __cplusplus

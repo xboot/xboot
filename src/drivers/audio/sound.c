@@ -86,21 +86,60 @@ struct sound_t * sound_alloc(const char * filename)
 	return NULL;
 }
 
-int sound_length(struct sound_t * sound)
+void sound_set_volume(struct sound_t * sound, int percent)
 {
 	if(sound)
-		return sound->length;
+	{
+		if(percent < 0)
+			percent = 0;
+		if(percent > 100)
+			percent = 100;
+		sound->volume = percent;
+	}
+}
+
+int sound_get_volume(struct sound_t * sound)
+{
+	if(sound)
+		return sound->volume;
 	return 0;
 }
 
-int sound_seek(struct sound_t * sound, int offset)
+void sound_set_position(struct sound_t * sound, int position)
 {
 	if(sound && sound->seek)
-		return sound->seek(sound, offset);
+		sound->seek(sound, position);
+}
+
+int sound_get_position(struct sound_t * sound)
+{
+	if(sound)
+		return sound->position;
 	return 0;
 }
 
-int sound_tell(struct sound_t * sound)
+int sound_rate(struct sound_t * sound)
+{
+	if(sound)
+		return (int)sound->rate;
+	return 0;
+}
+
+int sound_format(struct sound_t * sound)
+{
+	if(sound)
+		return (int)sound->fmt;
+	return 0;
+}
+
+int sound_channel(struct sound_t * sound)
+{
+	if(sound)
+		return sound->channel;
+	return 0;
+}
+
+int sound_length(struct sound_t * sound)
 {
 	if(sound)
 		return sound->length;
@@ -114,11 +153,8 @@ int sound_read(struct sound_t * sound, void * buf, int count)
 	return 0;
 }
 
-void sound_free(struct sound_t * sound)
+void sound_close(struct sound_t * sound)
 {
 	if(sound && sound->close)
-	{
 		sound->close(sound);
-		free(sound);
-	}
 }

@@ -24,6 +24,14 @@
 
 #include <audio/audio.h>
 
+struct audio_state_t {
+	struct {
+		struct list_head head;
+		spinlock_t lock;
+		int sounds;
+	} playback;
+};
+
 static void audio_suspend(struct device_t * dev)
 {
 	struct audio_t * audio;
@@ -79,17 +87,26 @@ struct audio_t * search_first_audio(void)
 bool_t register_audio(struct audio_t * audio)
 {
 	struct device_t * dev;
+	struct audio_state_t * state;
 
 	if(!audio || !audio->name)
 		return FALSE;
 
-	dev = malloc(sizeof(struct device_t));
-	if(!dev)
+	state = malloc(sizeof(struct audio_state_t));
+	if(!state)
 		return FALSE;
 
-	init_list_head(&audio->playback.head);
-	spin_lock_init(&audio->playback.lock);
-	audio->playback.sounds = 0;
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
+	{
+		free(state);
+		return FALSE;
+	}
+
+	init_list_head(&state->playback.head);
+	spin_lock_init(&state->playback.lock);
+	state->playback.sounds = 0;
+	audio->state = state;
 
 	dev->name = strdup(audio->name);
 	dev->type = DEVICE_TYPE_AUDIO;
@@ -104,6 +121,7 @@ bool_t register_audio(struct audio_t * audio)
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
+		free(state);
 		free(dev->name);
 		free(dev);
 		return FALSE;
@@ -132,97 +150,81 @@ bool_t unregister_audio(struct audio_t * audio)
 		(driver->exit)(audio);
 
 	kobj_remove_self(dev->kobj);
+	free(driver->state);
 	free(dev->name);
 	free(dev);
 	return TRUE;
 }
 
-static void audio_playback_add_sound(struct audio_t * audio, struct sound_t * sound)
+void audio_playback_add_sound(struct audio_t * audio, struct sound_t * sound)
 {
+	struct audio_state_t * state;
 	irq_flags_t flags;
 
 	if(!audio || !sound)
 		return;
 
-	spin_lock_irqsave(&audio->playback.lock, flags);
-	list_add_tail(&sound->entry, &audio->playback.head);
-	audio->playback.sounds++;
-	spin_unlock_irqrestore(&audio->playback.lock, flags);
+	state = (struct audio_state_t *)audio->state;
+	spin_lock_irqsave(&state->playback.lock, flags);
+	list_add_tail(&sound->entry, &state->playback.head);
+	sound_set_position(sound, 0);
+	state->playback.sounds++;
+	spin_unlock_irqrestore(&state->playback.lock, flags);
 }
 
-static void audio_playback_del_sound(struct audio_t * audio, struct sound_t * sound)
+void audio_playback_del_sound(struct audio_t * audio, struct sound_t * sound)
 {
+	struct audio_state_t * state;
 	irq_flags_t flags;
 
 	if(!audio || !sound)
 		return;
 
-	spin_lock_irqsave(&audio->playback.lock, flags);
+	state = (struct audio_state_t *)audio->state;
+	spin_lock_irqsave(&state->playback.lock, flags);
 	list_del(&sound->entry);
-	audio->playback.sounds--;
-	spin_unlock_irqrestore(&audio->playback.lock, flags);
+	sound_set_position(sound, 0);
+	state->playback.sounds--;
+	spin_unlock_irqrestore(&state->playback.lock, flags);
 }
 
-void audio_playback_play(struct audio_t * audio, const char * filename)
-{
-	struct sound_t * snd;
-
-	if(!audio || !filename)
-		return;
-
-	snd = sound_alloc(filename);
-	if(!snd)
-		return;
-
-	audio_playback_add_sound(audio, snd);
-}
-
-void audio_playback_stop(struct audio_t * audio)
+void audio_playback_clr_sound(struct audio_t * audio)
 {
 	struct sound_t * pos, * n;
+	struct audio_state_t * state;
 	irq_flags_t flags;
 
 	if(!audio)
 		return;
 
-	spin_lock_irqsave(&audio->playback.lock, flags);
-	list_for_each_entry_safe(pos, n, &(audio->playback.head), entry)
+	state = (struct audio_state_t *)audio->state;
+	spin_lock_irqsave(&state->playback.lock, flags);
+	list_for_each_entry_safe(pos, n, &(state->playback.head), entry)
 	{
 		list_del(&(pos->entry));
-		sound_free(pos);
+		sound_set_position(pos, 0);
 	}
-	audio->playback.sounds = 0;
-	spin_unlock_irqrestore(&audio->playback.lock, flags);
-
-	if(audio->playback_stop)
-		audio->playback_stop(audio);
+	state->playback.sounds = 0;
+	spin_unlock_irqrestore(&state->playback.lock, flags);
 }
 
-#if 0
-static int playback_callback(void * data, void * buf, int count)
+static int normal_playback_callback(void * data, void * buf, int count)
 {
 	struct audio_t * audio = (struct audio_t *)data;
-	int len;
+	struct audio_state_t * state = (struct audio_state_t *)audio->state;
+	int len = 0;
 
-	if(list_empty(&audio->playback.head))
+	if(list_empty(&state->playback.head))
 		return 0;
 
-	if(audio->playback.sounds > 1)
+	if(state->playback.sounds == 1)
 	{
-		/* mixer mode */
-		len = 0;
-	}
-	else
-	{
-		struct list_head * pos = (&audio->playback.head)->next;
+		struct list_head * pos = (&state->playback.head)->next;
 		struct sound_t * snd = list_entry(pos, struct sound_t, entry);
 		if((len = sound_read(snd, buf, count)) < count)
 		{
-			if(sound_tell(snd) > sound_length())
-//			audio->playback_stop(audio);
-			audio_playback_del_sound(audio, snd);
-//			sound_seek(snd, 0);
-//			len = sound_read(snd, buf, count);
+			if(sound_get_position(snd) >= sound_length(snd))
+				audio_playback_del_sound(audio, snd);
 		}
 	}
 
@@ -231,22 +233,42 @@ static int playback_callback(void * data, void * buf, int count)
 
 void audio_playback_start(struct audio_t * audio)
 {
+	struct audio_state_t * state;
+
+	if(!audio)
+		return;
+	state = (struct audio_state_t *)audio->state;
+
+	if(list_empty(&state->playback.head))
+	{
+		if(audio->playback_stop)
+			audio->playback_stop(audio);
+		return;
+	}
+
+	if(state->playback.sounds == 1)
+	{
+		struct list_head * pos = (&state->playback.head)->next;
+		struct sound_t * snd = list_entry(pos, struct sound_t, entry);
+		if(snd)
+		{
+			if(audio->playback_stop)
+				audio->playback_stop(audio);
+			if(audio->playback_start)
+				audio->playback_start(audio, snd->rate, snd->fmt, snd->channel, normal_playback_callback, audio);
+		}
+	}
+	else if(state->playback.sounds > 1)
+	{
+	}
+}
+
+void audio_playback_stop(struct audio_t * audio)
+{
 	if(!audio)
 		return;
 
-	if(list_empty(&audio->playback.head))
-		return;
-
-	if(audio->playback.sounds > 1)
-	{
-		/* mixer mode */
-		audio->playback_start(audio, PCM_RATE_44100, PCM_FORMAT_BIT16, 2, playback_callback, audio);
-	}
-	else
-	{
-		struct list_head * pos = (&audio->playback.head)->next;
-		struct sound_t * snd = list_entry(pos, struct sound_t, entry);
-		audio->playback_start(audio, snd->rate, snd->fmt, snd->channel, playback_callback, audio);
-	}
+	audio_playback_clr_sound(audio);
+	if(audio->playback_stop)
+		audio->playback_stop(audio);
 }
-#endif

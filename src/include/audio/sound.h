@@ -29,69 +29,59 @@ enum pcm_rate_t {
 	PCM_RATE_192000		= 192000,
 };
 
+enum sound_status_t {
+	SOUND_STATUS_STOP	= 0,
+	SOUND_STATUS_PLAY	= 1,
+	SOUND_STATUS_PAUSE	= 2,
+};
+
+struct sound_info_t {
+	char * title;
+	char * singer;
+	enum pcm_rate_t rate;
+	enum pcm_format_t fmt;
+	int channel;
+	int length;
+};
+
 struct sound_t
 {
-	/* Sound list */
-	struct list_head entry;
+	/* Sound information */
+	struct sound_info_t info;
 
-	/* Sound sample rate */
-	enum pcm_rate_t rate;
-
-	/* Sound format */
-	enum pcm_format_t fmt;
-
-	/* Sound channel */
-	int channel;
-
-	/* Sound position */
-	int position;
-
-	/* Sound length */
-	int length;
-
-	/* Sound pause */
-	int pause;
-
-	/* Sound loop */
-	int loop;
+	/* Sound status */
+	enum sound_status_t status;
 
 	/* Sound volume */
 	int volume;
 
+	/* Sound position */
+	int position;
+
 	/* Sound seek */
-	int (*seek)(struct sound_t * sound, int offset);
+	int (*seek)(struct sound_t * snd, int offset);
 
 	/* Sound read */
-	int (*read)(struct sound_t * sound, void * buf, int count);
+	int (*read)(struct sound_t * snd, void * buf, int count);
 
 	/* Sound close */
-	void (*close)(struct sound_t * sound);
+	void (*close)(struct sound_t * snd);
 
 	/* Private data */
 	void * priv;
 };
 
-struct sound_loader_t
-{
-	const char * ext;
-	bool_t (*load)(struct sound_t * sound, const char * filename);
-};
-
 struct sound_t * sound_alloc(const char * filename);
-void sound_set_pause(struct sound_t * sound, int pause);
-int sound_get_pause(struct sound_t * sound);
-void sound_set_loop(struct sound_t * sound, int loop);
-int sound_get_loop(struct sound_t * sound);
-void sound_set_volume(struct sound_t * sound, int percent);
-int sound_get_volume(struct sound_t * sound);
-void sound_set_position(struct sound_t * sound, int position);
-int sound_get_position(struct sound_t * sound);
-int sound_rate(struct sound_t * sound);
-int sound_format(struct sound_t * sound);
-int sound_channel(struct sound_t * sound);
-int sound_length(struct sound_t * sound);
-int sound_read(struct sound_t * sound, void * buf, int count);
-void sound_close(struct sound_t * sound);
+void sound_free(struct sound_t * snd);
+struct sound_info_t * sound_get_info(struct sound_t * snd);
+enum sound_status_t sound_get_status(struct sound_t * snd);
+void sound_set_volume(struct sound_t * snd, int percent);
+int sound_get_volume(struct sound_t * snd);
+void sound_set_position(struct sound_t * snd, int position);
+int sound_get_position(struct sound_t * snd);
+void sound_play(struct sound_t * snd);
+void sound_pause(struct sound_t * snd);
+void sound_stop(struct sound_t * snd);
 
 #ifdef __cplusplus
 }

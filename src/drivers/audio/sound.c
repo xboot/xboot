@@ -22,13 +22,20 @@
  *
  */
 
+#include <audio/pool.h>
 #include <audio/sound.h>
 
-extern struct sound_loader_t __sound_loader_wav;
+extern bool_t sound_load_wav(struct sound_t * snd, const char * filename);
 
-static struct sound_loader_t * __sound_loader[] = {
-	&__sound_loader_wav,
-	NULL,
+struct sound_loader_t
+{
+	const char * ext;
+	bool_t (*load)(struct sound_t * snd, const char * filename);
+};
+
+static struct sound_loader_t __sound_loader[] = {
+	{"wav",	sound_load_wav},
+	{NULL,	NULL},
 };
 
 static const char * fileext(const char * name)
@@ -53,134 +60,126 @@ static const char * fileext(const char * name)
 
 static struct sound_loader_t * search_sound_loader(const char * filename)
 {
-	struct sound_loader_t ** i;
+	struct sound_loader_t * loader = &__sound_loader[0];
 	const char * ext = fileext(filename);
 
 	if(!ext)
 		return NULL;
 
-	for(i = __sound_loader; *i != NULL; i++)
+	while(loader && loader->ext)
 	{
-		if(strcasecmp(ext, (*i)->ext) == 0)
-			return (*i);
+		if(strcasecmp(ext, loader->ext) == 0)
+			return loader;
+		loader++;
 	}
 	return NULL;
 }
 
 struct sound_t * sound_alloc(const char * filename)
 {
-	struct sound_t * sound;
+	struct sound_t * snd;
 	struct sound_loader_t * loader = search_sound_loader(filename);
 
 	if(!loader)
 		return NULL;
 
-	sound = malloc(sizeof(struct sound_t));
-	if(!sound)
+	snd = malloc(sizeof(struct sound_t));
+	if(!snd)
 		return NULL;
 
-	if(loader->load(sound, filename))
-		return sound;
+	if(loader->load(snd, filename))
+		return snd;
 
-	free(sound);
+	free(snd);
 	return NULL;
 }
 
-void sound_set_pause(struct sound_t * sound, int pause)
+void sound_free(struct sound_t * snd)
 {
-	if(sound)
-		sound->pause = pause ? 1 : 0;
+	if(snd)
+	{
+		sound_stop(snd);
+		if(snd->close)
+			snd->close(snd);
+		free(snd);
+	}
 }
 
-int sound_get_pause(struct sound_t * sound)
+struct sound_info_t * sound_get_info(struct sound_t * snd)
 {
-	if(sound)
-		return sound->pause;
-	return 0;
+	if(snd)
+		return &snd->info;
+	return NULL;
 }
 
-void sound_set_loop(struct sound_t * sound, int loop)
+enum sound_status_t sound_get_status(struct sound_t * snd)
 {
-	if(sound)
-		sound->loop = loop ? 1 : 0;
+	if(snd)
+		return snd->status;
+	return SOUND_STATUS_STOP;
 }
 
-int sound_get_loop(struct sound_t * sound)
+void sound_set_volume(struct sound_t * snd, int percent)
 {
-	if(sound)
-		return sound->loop;
-	return 0;
-}
-
-void sound_set_volume(struct sound_t * sound, int percent)
-{
-	if(sound)
+	if(snd)
 	{
 		if(percent < 0)
 			percent = 0;
 		if(percent > 100)
 			percent = 100;
-		sound->volume = percent;
+		snd->volume = percent;
 	}
 }
 
-int sound_get_volume(struct sound_t * sound)
+int sound_get_volume(struct sound_t * snd)
 {
-	if(sound)
-		return sound->volume;
+	if(snd)
+		return snd->volume;
 	return 0;
 }
 
-void sound_set_position(struct sound_t * sound, int position)
+void sound_set_position(struct sound_t * snd, int position)
 {
-	if(sound && sound->seek)
-		sound->seek(sound, position);
+	if(snd && snd->seek)
+	{
+		if(position < 0)
+			position = 0;
+		if(position > snd->info.length)
+			position = snd->info.length;
+		snd->seek(snd, position);
+	}
 }
 
-int sound_get_position(struct sound_t * sound)
+int sound_get_position(struct sound_t * snd)
 {
-	if(sound)
-		return sound->position;
+	if(snd)
+		return snd->position;
 	return 0;
 }
 
-int sound_rate(struct sound_t * sound)
+void sound_play(struct sound_t * snd)
 {
-	if(sound)
-		return (int)sound->rate;
-	return 0;
+	if(snd)
+	{
+		sound_pool_add(snd);
+		snd->status = SOUND_STATUS_PLAY;
+	}
 }
 
-int sound_format(struct sound_t * sound)
+void sound_pause(struct sound_t * snd)
 {
-	if(sound)
-		return (int)sound->fmt;
-	return 0;
+	if(snd)
+	{
+		snd->status = SOUND_STATUS_PAUSE;
+	}
 }
 
-int sound_channel(struct sound_t * sound)
+void sound_stop(struct sound_t * snd)
 {
-	if(sound)
-		return sound->channel;
-	return 0;
-}
-
-int sound_length(struct sound_t * sound)
-{
-	if(sound)
-		return sound->length;
-	return 0;
-}
-
-int sound_read(struct sound_t * sound, void * buf, int count)
-{
-	if(sound && sound->read)
-		return sound->read(sound, buf, count);
-	return 0;
-}
-
-void sound_close(struct sound_t * sound)
-{
-	if(sound && sound->close)
-		sound->close(sound);
+	if(snd)
+	{
+		snd->status = SOUND_STATUS_STOP;
+		sound_pool_del(snd);
+		sound_set_position(snd, 0);
+	}
 }

@@ -161,8 +161,9 @@ void sound_play(struct sound_t * snd)
 {
 	if(snd)
 	{
-		sound_pool_add(snd);
 		snd->status = SOUND_STATUS_PLAY;
+		sound_pool_add(snd);
+		audio_playback();
 	}
 }
 

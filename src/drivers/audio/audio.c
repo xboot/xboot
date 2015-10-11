@@ -25,6 +25,29 @@
 #include <audio/pool.h>
 #include <audio/audio.h>
 
+static struct audio_t * __default_audio = NULL;
+
+struct audio_t * get_default_audio(void)
+{
+	return __default_audio;
+}
+
+void set_default_audio(const char * name)
+{
+	struct audio_t * audio = search_audio(name);
+
+	if(!audio)
+		return;
+
+	if(__default_audio != audio)
+	{
+		if(__default_audio && __default_audio->playback_stop)
+			__default_audio->capture_stop(__default_audio);
+		__default_audio = audio;
+		audio_playback();
+	}
+}
+
 static void audio_suspend(struct device_t * dev)
 {
 	struct audio_t * audio;
@@ -66,17 +89,6 @@ struct audio_t * search_audio(const char * name)
 	return (struct audio_t *)dev->driver;
 }
 
-struct audio_t * search_first_audio(void)
-{
-	struct device_t * dev;
-
-	dev = search_first_device_with_type(DEVICE_TYPE_AUDIO);
-	if(!dev)
-		return NULL;
-
-	return (struct audio_t *)dev->driver;
-}
-
 bool_t register_audio(struct audio_t * audio)
 {
 	struct device_t * dev;
@@ -106,6 +118,8 @@ bool_t register_audio(struct audio_t * audio)
 		return FALSE;
 	}
 
+	if(!get_default_audio())
+		set_default_audio(audio->name);
 	return TRUE;
 }
 
@@ -134,21 +148,19 @@ bool_t unregister_audio(struct audio_t * audio)
 	return TRUE;
 }
 
-static int sound_read(struct sound_t * snd, void * buf, int count)
+static int audio_playback_callback(void * data, void * buf, int count)
 {
-	if(snd && snd->read)
-		return snd->read(snd, buf, count);
-	return 0;
-}
-
-static int playback_callback_one_sound(void * data, void * buf, int count)
-{
-	struct sound_list_t * sp = (struct sound_list_t *)data;
+	struct audio_t * audio = (struct audio_t *)data;
+	struct sound_list_t * sp = &__sound_pool;
 	struct list_head * pos = sp->entry.next;
 	int len = 0;
 
 	if(list_empty_careful(&sp->entry))
+	{
+		if(audio->playback_stop)
+			audio->playback_stop(audio);
 		return 0;
+	}
 
 	if(list_is_last(pos, &sp->entry))
 	{
@@ -156,7 +168,7 @@ static int playback_callback_one_sound(void * data, void * buf, int count)
 		struct sound_t * snd = sl->snd;
 		if(snd && (sound_get_status(snd) == SOUND_STATUS_PLAY))
 		{
-			if((len = sound_read(snd, buf, count)) < count)
+			if((len = snd->read(snd, buf, count)) < count)
 			{
 				if(sound_get_position(snd) >= snd->info.length)
 				{
@@ -169,7 +181,7 @@ static int playback_callback_one_sound(void * data, void * buf, int count)
 	return len;
 }
 
-void audio_playback_start(struct audio_t * audio)
+static void audio_playback_start(struct audio_t * audio)
 {
 	struct sound_list_t * sp = &__sound_pool;
 	struct list_head * pos = sp->entry.next;
@@ -188,7 +200,7 @@ void audio_playback_start(struct audio_t * audio)
 		if(snd)
 		{
 			if(audio->playback_start)
-				audio->playback_start(audio, snd->info.rate, snd->info.fmt, snd->info.channel, playback_callback_one_sound, sp);
+				audio->playback_start(audio, snd->info.rate, snd->info.fmt, snd->info.channel, audio_playback_callback, audio);
 		}
 	}
 	/* More than one sound */
@@ -196,4 +208,9 @@ void audio_playback_start(struct audio_t * audio)
 	{
 
 	}
+}
+
+void audio_playback(void)
+{
+	audio_playback_start(get_default_audio());
 }

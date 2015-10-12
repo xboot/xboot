@@ -63,6 +63,7 @@ static void sandbox_audio_playback_start(struct audio_t * audio, enum pcm_rate_t
 	/* 50ms */
 	sample = __fls(rate / 20);
 	sample = (sample != 0) ? (1 << sample) : 8192;
+	sandbox_sdl_audio_close();
 	sandbox_sdl_audio_open(fmt, rate, ch, sample, sandbox_audio_playback_callback, dat);
 	sandbox_sdl_audio_start();
 }
@@ -70,7 +71,6 @@ static void sandbox_audio_playback_start(struct audio_t * audio, enum pcm_rate_t
 static void sandbox_audio_playback_stop(struct audio_t * audio)
 {
 	sandbox_sdl_audio_stop();
-	sandbox_sdl_audio_close();
 }
 
 static void sandbox_audio_capture_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data)

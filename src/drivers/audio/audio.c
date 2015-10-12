@@ -145,7 +145,73 @@ bool_t unregister_audio(struct audio_t * audio)
 	kobj_remove_self(dev->kobj);
 	free(dev->name);
 	free(dev);
+
+	if(get_default_audio() == audio)
+	{
+		__default_audio = NULL;
+		struct device_t * d = search_first_device_with_type(DEVICE_TYPE_AUDIO);
+		if(d)
+			set_default_audio(d->name);
+	}
 	return TRUE;
+}
+
+static int sound_read(struct sound_t * snd, void * buf, int count)
+{
+	int i, len = 0;
+
+	if(snd && snd->read)
+	{
+		len = snd->read(snd, buf, count);
+
+		if(snd->volume == 100)
+		{
+		}
+		else if(snd->volume == 0)
+		{
+			memset(buf, 0, len);
+		}
+		else
+		{
+			s8_t * p8; s16_t * p16; s32_t * p32;
+			s32_t v;
+			switch(snd->info.fmt)
+			{
+			case PCM_FORMAT_BIT8:
+				p8 = buf;
+				for(i = 0; i < len; i++)
+				{
+					v = ((s32_t)(p8[i])) * snd->volume / 100;
+					p8[i] = (s8_t)v;
+				}
+				break;
+
+			case PCM_FORMAT_BIT16:
+				p16 = buf;
+				for(i = 0; i < len / 2; i++)
+				{
+					v = ((s32_t)be16_to_cpu(p16[i])) * snd->volume / 100;
+					p16[i] = cpu_to_be16((s16_t)v);
+				}
+				break;
+
+			case PCM_FORMAT_BIT24:
+			case PCM_FORMAT_BIT32:
+				p32 = buf;
+				for(i = 0; i < len / 4; i++)
+				{
+					v = ((s32_t)be32_to_cpu(p32[i])) * snd->volume / 100;
+					p32[i] = cpu_to_be32(v);
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+
+	return len;
 }
 
 static int audio_playback_callback(void * data, void * buf, int count)
@@ -168,7 +234,7 @@ static int audio_playback_callback(void * data, void * buf, int count)
 		struct sound_t * snd = sl->snd;
 		if(snd && (sound_get_status(snd) == SOUND_STATUS_PLAY))
 		{
-			if((len = snd->read(snd, buf, count)) < count)
+			if((len = sound_read(snd, buf, count)) < count)
 			{
 				if(sound_get_position(snd) >= snd->info.length)
 				{

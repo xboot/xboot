@@ -71,5 +71,7 @@ static const char * class_lua =
 
 int luaopen_class(lua_State * L)
 {
-	return (luaL_dostring(L, class_lua) == LUA_OK) ? 1 : 0;
+	if(luaL_loadbuffer(L, class_lua, sizeof(class_lua), "class.lua") == 0)
+		lua_call(L, 0, 1);
+	return 1;
 }

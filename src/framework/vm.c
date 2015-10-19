@@ -25,45 +25,51 @@
 #include <framework/framework.h>
 #include <framework/vm.h>
 
-static int luaopen_boot(lua_State * L)
-{
-	return (luaL_dofile(L, "/romdisk/framework/org/xboot/boot.lua") == LUA_OK) ? 1 : 0;
-}
-
 int vm_exec(const char * path, int argc, char * argv[])
 {
 	struct runtime_t rt, *r;
-	lua_State * lua;
+	lua_State * L;
 	int i, ret = -1;
 
 	runtime_create_save(&rt, 0, 0, path, &r);
-	lua = luaL_newstate();
-	luaL_openlibs(lua);
-	luaopen_xboot(lua);
+	L = luaL_newstate();
+
+	luaL_openlibs(L);
+	luahelper_preload(L, "xboot", luaopen_xboot);
 	do {
-		lua_newtable(lua);
+		lua_newtable(L);
 		if(argc > 0)
 		{
-			lua_pushstring(lua, argv[0]);
-			lua_rawseti(lua, -2, -2);
+			lua_pushstring(L, argv[0]);
+			lua_rawseti(L, -2, -2);
 		}
-		lua_pushstring(lua, "embedded boot.lua");
-		lua_rawseti(lua, -2, -1);
+		lua_pushstring(L, "embedded boot.lua");
+		lua_rawseti(L, -2, -1);
 		for(i = 1; i < argc; i++)
 		{
-			lua_pushstring(lua, argv[i]);
-			lua_rawseti(lua, -2, i);
+			lua_pushstring(L, argv[i]);
+			lua_rawseti(L, -2, i);
 		}
-		lua_setglobal(lua, "arg");
+		lua_setglobal(L, "arg");
 	} while(0);
 
-	luaopen_boot(lua);
-	lua_call(lua, 0, 1);
-	if(lua_isnumber(lua, 1))
-		ret = (int)lua_tonumber(lua, 1);
-	lua_pop(lua, 1);
+	/* require xboot */
+	lua_getglobal(L, "require");
+	lua_pushstring(L, "xboot");
+	lua_call(L, 1, 1);
+	lua_pop(L, 1);
 
-	lua_close(lua);
+	/* require xboot.boot */
+	lua_getglobal(L, "require");
+	lua_pushstring(L, "xboot.boot");
+	lua_call(L, 1, 1);
+
+	/* call xboot.boot */
+	lua_call(L, 0, 1);
+	if(lua_isnumber(L, -1))
+		ret = (int)lua_tonumber(L, -1);
+
+	lua_close(L);
 	runtime_destroy_restore(&rt, r);
 	return ret;
 }

@@ -198,6 +198,11 @@ static int l_logger_print(lua_State * L)
 	return 0;
 }
 
+static int luaopen_boot(lua_State * L)
+{
+	return (luaL_dofile(L, "/romdisk/framework/org/xboot/boot.lua") == LUA_OK) ? 1 : 0;
+}
+
 int luaopen_xboot(lua_State * L)
 {
 	const luaL_Reg * lib;
@@ -237,12 +242,9 @@ int luaopen_xboot(lua_State * L)
 
 	for(lib = xboot_prelibs; lib->func; lib++)
 	{
-		lua_getglobal(L, "package");
-		lua_getfield(L, -1, "preload");
-		lua_pushcfunction(L, lib->func);
-		lua_setfield(L, -2, lib->name);
-		lua_pop(L, 2);
+		luahelper_preload(L, lib->name, lib->func);
 	}
 
+	luahelper_preload(L, "xboot.boot", luaopen_boot);
 	return 1;
 }

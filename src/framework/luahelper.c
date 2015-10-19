@@ -75,6 +75,15 @@ void luahelper_set_intfield(lua_State * L, const char * key, lua_Integer value)
 	lua_setfield(L, -2, key);
 }
 
+void luahelper_preload(lua_State * L, const char * name, lua_CFunction f)
+{
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "preload");
+	lua_pushcfunction(L, f);
+	lua_setfield(L, -2, name);
+	lua_pop(L, 2);
+}
+
 void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg * funcs)
 {
 	luaL_newmetatable(L, name);

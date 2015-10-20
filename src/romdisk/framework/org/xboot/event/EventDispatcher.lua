@@ -3,7 +3,7 @@
 -- an event is a listener function and an optional data value.
 -- 
 -- @module EventDispatcher
-local M = Class()
+local M = class()
 
 ---
 -- Creates a new 'EventDispatcher' object.

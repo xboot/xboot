@@ -3,7 +3,7 @@
 -- current application.
 --
 -- @module Application
-local M = Class()
+local M = class()
 
 ---
 -- Creates a new 'Application'.

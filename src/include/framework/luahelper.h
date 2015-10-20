@@ -16,6 +16,9 @@ lua_Integer luahelper_get_intfield(lua_State * L, const char * key, lua_Integer 
 void luahelper_set_strfield(lua_State * L, const char * key, const char * value);
 void luahelper_set_numfield(lua_State * L, const char * key, lua_Number value);
 void luahelper_set_intfield(lua_State * L, const char * key, lua_Integer value);
+void luahelper_package_searcher(lua_State * L, lua_CFunction f, int pos);
+void luahelper_package_path(lua_State * L, const char * path);
+void luahelper_package_cpath(lua_State * L, const char * cpath);
 void luahelper_preload(lua_State * L, const char * name, lua_CFunction f);
 void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg * funcs);
 

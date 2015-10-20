@@ -29,7 +29,7 @@ extern int luaopen_cjson(lua_State *);
 extern int luaopen_cjson_safe(lua_State *);
 
 static const luaL_Reg xboot_glblibs[] = {
-	{ "Class",						luaopen_class },
+	{ "class",						luaopen_class },
 	{ NULL, NULL },
 };
 
@@ -152,66 +152,20 @@ static int searcher_package_lua(lua_State * L)
 	return 1;
 }
 
-static bool_t register_searcher(lua_State * L, lua_CFunction f, int pos)
-{
-	lua_getglobal(L, "table");
-	lua_getfield(L, -1, "insert");
-	lua_remove(L, -2);
-
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "searchers");
-	lua_remove(L, -2);
-
-	lua_pushvalue(L, -2);
-	lua_pushvalue(L, -2);
-	lua_pushnumber(L, pos);
-	lua_pushcfunction(L, f);
-	lua_call(L, 3, 0);
-
-	lua_pop(L, 2);
-	return TRUE;
-}
-
-static int l_logger_print(lua_State * L)
-{
-	int n = lua_gettop(L);
-	int i;
-
-	lua_getglobal(L, "tostring");
-	for(i = 1; i <= n; i++)
-	{
-		const char * s;
-		size_t l;
-		lua_pushvalue(L, -1);
-		lua_pushvalue(L, i);
-		lua_call(L, 1, 1);
-		s = lua_tolstring(L, -1, &l);
-		if(s == NULL)
-			return luaL_error(L, "'tostring' must return a string to 'print'");
-		if(i > 1)
-			logger_output("\t", 1);
-		logger_output(s, l);
-		lua_pop(L, 1);
-	}
-	logger_output("\r\n", 2);
-
-	return 0;
-}
-
 static int luaopen_boot(lua_State * L)
 {
-	return (luaL_dofile(L, "/romdisk/framework/org/xboot/boot.lua") == LUA_OK) ? 1 : 0;
+	if(luaL_loadfile(L, "/romdisk/framework/org/xboot/boot.lua") == LUA_OK)
+		lua_call(L, 0, 1);
+	return 1;
 }
 
 int luaopen_xboot(lua_State * L)
 {
 	const luaL_Reg * lib;
 
-	register_searcher(L, searcher_package_lua, 2);
-
-	lua_pushcfunction(L, l_logger_print);
-	lua_pushvalue(L, -1);
-	lua_setglobal(L, "print");
+	luahelper_package_searcher(L, searcher_package_lua, 2);
+	luahelper_package_path(L, "./?/init.lua;./?.lua");
+	luahelper_package_cpath(L, "./?.so");
 
 	lua_getglobal(L, "xboot");
 	if(!lua_istable(L, -1))

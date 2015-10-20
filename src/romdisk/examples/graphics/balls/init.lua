@@ -1,6 +1,6 @@
 local Ball = require("graphics.balls.Ball")
 
-local M = Class(DisplayObject)
+local M = class(DisplayObject)
 
 function M:init()
 	self.super:init()

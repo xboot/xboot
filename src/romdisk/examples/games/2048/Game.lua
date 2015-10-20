@@ -1,6 +1,6 @@
 local Tile = require("games.2048.Tile")
 local Score = require("games.2048.Score")
-local M = Class(DisplayObject)
+local M = class(DisplayObject)
 
 function M:init()
 	self.super:init()

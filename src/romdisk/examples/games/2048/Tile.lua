@@ -1,4 +1,4 @@
-local M = Class(DisplayObject)
+local M = class(DisplayObject)
 
 function M:init(x, y, n)
 	self.super:init()

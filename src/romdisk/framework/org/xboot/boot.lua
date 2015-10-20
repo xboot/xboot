@@ -1,10 +1,4 @@
 ---
--- Setting package path
---
-package.path = "./?/init.lua;./?.lua"
-package.cpath = "./?.so"
-
----
 -- Builtin module
 --
 Json = require "builtin.json"
@@ -98,7 +92,5 @@ local function handler(msg, layer)
 end
 
 return function()
-	local res, ret = xpcall(loader, handler)
-	if not res then return -1 end
-	return tonumber(ret) or -1
+	return xpcall(loader, handler)
 end

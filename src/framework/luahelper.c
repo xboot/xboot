@@ -75,6 +75,38 @@ void luahelper_set_intfield(lua_State * L, const char * key, lua_Integer value)
 	lua_setfield(L, -2, key);
 }
 
+void luahelper_package_searcher(lua_State * L, lua_CFunction f, int pos)
+{
+	lua_getglobal(L, "table");
+	lua_getfield(L, -1, "insert");
+	lua_remove(L, -2);
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "searchers");
+	lua_remove(L, -2);
+	lua_pushvalue(L, -2);
+	lua_pushvalue(L, -2);
+	lua_pushnumber(L, pos);
+	lua_pushcfunction(L, f);
+	lua_call(L, 3, 0);
+	lua_pop(L, 2);
+}
+
+void luahelper_package_path(lua_State * L, const char * path)
+{
+	lua_getglobal(L, "package");
+	lua_pushstring(L, path);
+	lua_setfield(L, -2, "path");
+	lua_pop(L, 1);
+}
+
+void luahelper_package_cpath(lua_State * L, const char * cpath)
+{
+	lua_getglobal(L, "package");
+	lua_pushstring(L, cpath);
+	lua_setfield(L, -2, "cpath");
+	lua_pop(L, 1);
+}
+
 void luahelper_preload(lua_State * L, const char * name, lua_CFunction f)
 {
 	lua_getglobal(L, "package");

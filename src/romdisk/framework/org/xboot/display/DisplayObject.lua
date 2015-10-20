@@ -3,7 +3,7 @@
 -- be placed on the screen.
 --
 -- @module DisplayObject
-local M = Class(EventDispatcher)
+local M = class(EventDispatcher)
 
 ---
 -- Creates a new display object.

@@ -33,3 +33,4 @@ stage:addEventListener(Event.KEY_DOWN, function(d, e)
   end
   e:stopPropagation()
 end)
+

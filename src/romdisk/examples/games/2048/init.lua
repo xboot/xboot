@@ -1,6 +1,6 @@
 local Game = require("games.2048.Game")
 
-local M = Class(DisplayObject)
+local M = class(DisplayObject)
 
 function M:init()
 	self.super:init()

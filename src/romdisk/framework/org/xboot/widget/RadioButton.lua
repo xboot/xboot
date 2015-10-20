@@ -1,6 +1,6 @@
 ---
 -- @module RadioButton
-local M = Class(DisplayObject)
+local M = class(DisplayObject)
 
 M.STATE_NORMAL = "NORMAL"
 M.STATE_PRESSED = "PRESSED"

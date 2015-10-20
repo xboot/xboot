@@ -2,7 +2,7 @@ local Button = require "org.xboot.widget.Button"
 
 ---
 -- @module Stepper
-local M = Class(DisplayObject)
+local M = class(DisplayObject)
 
 function M:init(option, name)
 	self.super:init()

@@ -6,7 +6,7 @@
 -- http://www.codeandweb.com/texturepacker
 --
 -- @module TexturePacker
-local M = Class()
+local M = class()
 
 ---
 -- Creates a new 'TexturePacker' object.

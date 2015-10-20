@@ -24,7 +24,7 @@
 
 #include <framework/lang/l-class.h>
 
-static const char * class_lua =
+static const char class_lua[] =
 "local function rethack(t, bbak, mbak, ...)"									"\n"
 "	t.base = bbak"																"\n"
 "	setmetatable(t.self, mbak)"													"\n"
@@ -71,7 +71,7 @@ static const char * class_lua =
 
 int luaopen_class(lua_State * L)
 {
-	if(luaL_loadbuffer(L, class_lua, sizeof(class_lua), "class.lua") == 0)
+	if(luaL_loadbuffer(L, class_lua, sizeof(class_lua)-1, "class.lua") == LUA_OK)
 		lua_call(L, 0, 1);
 	return 1;
 }

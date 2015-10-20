@@ -3,7 +3,7 @@
 -- are passed to event listeners when an event occurs.
 -- 
 -- @module Event
-local M = Class()
+local M = class()
 
 ---
 -- @field [parent=#Event] KEY_DOWN KeyDown

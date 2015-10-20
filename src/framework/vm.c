@@ -22,8 +22,106 @@
  *
  */
 
-#include <framework/framework.h>
+#include <xfs/xfs.h>
+#include <framework/luahelper.h>
+#include <framework/lang/l-class.h>
+#include <framework/event/l-event.h>
+#include <framework/stopwatch/l-stopwatch.h>
+#include <framework/base64/l-base64.h>
+#include <framework/display/l-display.h>
+#include <framework/hardware/l-hardware.h>
 #include <framework/vm.h>
+
+extern int luaopen_cjson_safe(lua_State *);
+
+struct __reader_data_t
+{
+	struct xfs_file_t * file;
+	char buffer[LUAL_BUFFERSIZE];
+};
+
+static const char * __reader(lua_State * L, void * data, size_t * size)
+{
+	struct __reader_data_t * rd = (struct __reader_data_t *)data;
+	s64_t ret;
+
+	ret = xfs_read(rd->file, rd->buffer, 1, LUAL_BUFFERSIZE);
+	if(ret < 0)
+	{
+		lua_error(L);
+		return NULL;
+	}
+
+	*size = (size_t)ret;
+	return rd->buffer;
+}
+
+static int __loadfile(lua_State * L)
+{
+	const char * filename = luaL_checkstring(L, 1);
+	struct __reader_data_t * rd;
+
+	rd = malloc(sizeof(struct __reader_data_t));
+	if(!rd)
+		return lua_error(L);
+
+	rd->file = xfs_open_read(filename);
+	if(!rd->file)
+	{
+		free(rd);
+		return lua_error(L);
+	}
+
+	if(lua_load(L, __reader, rd, filename, NULL))
+	{
+		free(rd);
+		return lua_error(L);
+	}
+
+	xfs_close(rd->file);
+	free(rd);
+
+	return 1;
+}
+
+static int searcher_package_lua(lua_State * L)
+{
+	const char * filename = lua_tostring(L, -1);
+	char * buf;
+	size_t len, i;
+
+	len = strlen(filename);
+	buf = malloc(len + 16);
+	if(!buf)
+		return lua_error(L);
+
+	strcpy(buf, filename);
+	for(i = 0; i < len; i++)
+	{
+		if(buf[i] == '.')
+			buf[i] = '/';
+	}
+
+	if(xfs_is_directory(buf))
+		strcat(buf, "/init.lua");
+	else
+		strcat(buf, ".lua");
+
+	if(xfs_exists(buf))
+	{
+		lua_pop(L, 1);
+		lua_pushcfunction(L, __loadfile);
+		lua_pushstring(L, buf);
+		lua_call(L, 1, 1);
+	}
+	else
+	{
+		lua_pushfstring(L, "\n\tno file '%s' in application directories", buf);
+	}
+
+	free(buf);
+	return 1;
+}
 
 static int l_logger_print(lua_State * L)
 {
@@ -51,6 +149,73 @@ static int l_logger_print(lua_State * L)
 	return 0;
 }
 
+static void luaopen_print(lua_State * L)
+{
+	lua_pushcfunction(L, l_logger_print);
+	lua_pushvalue(L, -1);
+	lua_setglobal(L, "print");
+}
+
+static void luaopen_glblibs(lua_State * L)
+{
+	const luaL_Reg glblibs[] = {
+		{ "class",	luaopen_class },
+		{ NULL,		NULL },
+	};
+	const luaL_Reg * p;
+
+	for(p = glblibs; p->func; p++)
+	{
+		luaL_requiref(L, p->name, p->func, 1);
+		lua_pop(L, 1);
+	}
+}
+
+static void luaopen_prelibs(lua_State * L)
+{
+	const luaL_Reg prelibs[] = {
+		{ "builtin.json",				luaopen_cjson_safe },
+
+		{ "builtin.event",				luaopen_event },
+		{ "builtin.stopwatch",			luaopen_stopwatch },
+		{ "builtin.base64",				luaopen_base64 },
+
+		{ "builtin.matrix",				luaopen_matrix },
+		{ "builtin.easing",				luaopen_easing },
+		{ "builtin.object",				luaopen_object },
+		{ "builtin.pattern",			luaopen_pattern },
+		{ "builtin.texture",			luaopen_texture },
+		{ "builtin.ninepatch",			luaopen_ninepatch },
+		{ "builtin.shape",				luaopen_shape },
+		{ "builtin.font",				luaopen_font },
+		{ "builtin.display",			luaopen_display },
+
+		{ "builtin.hardware.uart",		luaopen_hardware_uart },
+		{ "builtin.hardware.i2c",		luaopen_hardware_i2c },
+		{ "builtin.hardware.gpio",		luaopen_hardware_gpio },
+		{ "builtin.hardware.pwm",		luaopen_hardware_pwm },
+		{ "builtin.hardware.led",		luaopen_hardware_led },
+		{ "builtin.hardware.ledtrig",	luaopen_hardware_ledtrig },
+		{ "builtin.hardware.buzzer",	luaopen_hardware_buzzer },
+		{ "builtin.hardware.watchdog",	luaopen_hardware_watchdog },
+
+		{ NULL, NULL },
+	};
+	const luaL_Reg * p;
+
+	for(p = prelibs; p->func; p++)
+	{
+		luahelper_preload(L, p->name, p->func);
+	}
+}
+
+static int luaopen_boot(lua_State * L)
+{
+	if(luaL_loadfile(L, "/romdisk/framework/org/xboot/boot.lua") == LUA_OK)
+		lua_call(L, 0, 1);
+	return 1;
+}
+
 static int pmain(lua_State * L)
 {
 	int argc = (int)lua_tointeger(L, 1);
@@ -60,46 +225,58 @@ static int pmain(lua_State * L)
 	/* open default libs */
 	luaL_openlibs(L);
 
-	/* override print */
-	lua_pushcfunction(L, l_logger_print);
-	lua_pushvalue(L, -1);
-	lua_setglobal(L, "print");
+	/* package search rules */
+	luahelper_package_searcher(L, searcher_package_lua, 2);
+	luahelper_package_path(L, "./?/init.lua;./?.lua");
+	luahelper_package_cpath(L, "./?.so");
 
-	/* create arg table */
+	/* override print */
+	luaopen_print(L);
+
+	/* open global libs */
+	luaopen_glblibs(L);
+
+	/* open preload libs */
+	luaopen_prelibs(L);
+
+	/* global xboot table */
+	lua_getglobal(L, "xboot");
+	if(!lua_istable(L, -1))
+	{
+		lua_pop(L, 1);
+		lua_newtable(L);
+		lua_pushvalue(L, -1);
+		lua_setglobal(L, "xboot");
+	}
+	lua_pushstring(L, xboot_version_string());
+	lua_setfield(L, -2, "VERSION");
+	lua_pushstring(L, __ARCH__);
+	lua_setfield(L, -2, "ARCH");
+	lua_pushstring(L, __MACH__);
+	lua_setfield(L, -2, "MACH");
+	lua_pushstring(L, machine_uniqueid());
+	lua_setfield(L, -2, "UNIQUEID");
 	lua_createtable(L, argc, 0);
 	for(i = 0; i < argc; i++)
 	{
 		lua_pushstring(L, argv[i]);
 		lua_rawseti(L, -2, i);
 	}
-	lua_setglobal(L, "arg");
-
-	/* preload xboot */
-	luahelper_preload(L, "xboot", luaopen_xboot);
-
-	/* require xboot */
-	lua_getglobal(L, "require");
-	lua_pushstring(L, "xboot");
-	lua_call(L, 1, 1);
+	lua_setfield(L, -2, "arg");
 	lua_pop(L, 1);
 
-	/* require xboot.boot */
-	lua_getglobal(L, "require");
-	lua_pushstring(L, "xboot.boot");
-	lua_call(L, 1, 1);
-
-	/* call xboot.boot */
-	lua_call(L, 0, 1);
+	/* open boot */
+	luaopen_boot(L);
 	return 1;
 }
 
-int vm_exec(const char * path, int argc, char ** argv)
+int vmexec(int argc, char ** argv)
 {
 	struct runtime_t rt, *r;
 	lua_State * L;
-	int status = LUA_ERRERR, result;
+	int status = LUA_ERRRUN, result;
 
-	runtime_create_save(&rt, 0, 0, path, &r);
+	runtime_create_save(&rt, 0, 0, argv[0], &r);
 	L = luaL_newstate();
 	if(L)
 	{

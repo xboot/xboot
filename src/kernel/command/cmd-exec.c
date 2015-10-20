@@ -39,7 +39,7 @@ static int do_exec(int argc, char ** argv)
 		return -1;
 	}
 
-	return vm_exec(argv[1], --argc, &argv[1]);
+	return vmexec(--argc, &argv[1]);
 }
 
 static struct command_t cmd_exec = {

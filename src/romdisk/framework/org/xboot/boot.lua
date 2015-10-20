@@ -82,6 +82,7 @@ application = nil
 local function loader()
 	application = Application.new()
 	application:exec()
+	return true
 end
 
 ---
@@ -91,6 +92,9 @@ local function handler(msg, layer)
 	print((debug.traceback("ERROR: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", "")))
 end
 
-return function()
-	return xpcall(loader, handler)
+local status, result = xpcall(loader, handler)
+if not status then
+	return false
+else
+	return result
 end

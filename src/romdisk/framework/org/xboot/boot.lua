@@ -71,30 +71,7 @@ Widget = {
 	Slider = require "org.xboot.widget.Slider",
 }
 
----
--- Global variable
---
-application = nil
+application = Application.new()
+application:exec()
+return true
 
----
--- Loader function
---
-local function loader()
-	application = Application.new()
-	application:exec()
-	return true
-end
-
----
--- Message handler
---
-local function handler(msg, layer)
-	print((debug.traceback("ERROR: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", "")))
-end
-
-local status, result = xpcall(loader, handler)
-if not status then
-	return false
-else
-	return result
-end

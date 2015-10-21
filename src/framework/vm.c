@@ -283,7 +283,7 @@ int vmexec(int argc, char ** argv)
 		lua_pushcfunction(L, &pmain);
 		lua_pushinteger(L, argc);
 		lua_pushlightuserdata(L, argv);
-		status = lua_pcall(L, 2, 1, 0);
+		status = luahelper_pcall(L, 2, 1);
 		result = lua_toboolean(L, -1);
 		if(status != LUA_OK)
 		{

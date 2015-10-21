@@ -125,12 +125,18 @@ void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg
 	lua_pop(L, 1);
 }
 
-static int luahelper_pcall_handler(lua_State * L)
+static int luahelper_pcall_traceback(lua_State *L)
 {
 	const char * msg = lua_tostring(L, 1);
-	if(!msg)
-		return 0;
-	luaL_traceback(L, L, msg, 1);
+	if(msg)
+	{
+		luaL_traceback(L, L, msg, 1);
+	}
+	else if(!lua_isnoneornil(L, 1))
+	{
+		if(!luaL_callmeta(L, 1, "__tostring"))
+			lua_pushliteral(L, "(no error message)");
+	}
 	return 1;
 }
 
@@ -139,7 +145,7 @@ int luahelper_pcall(lua_State * L, int nargs, int nresults)
 	int hpos = lua_gettop(L) - nargs;
 	int ret;
 
-	lua_pushcfunction(L, luahelper_pcall_handler);
+	lua_pushcfunction(L, luahelper_pcall_traceback);
 	lua_insert(L, hpos);
 	ret = lua_pcall(L, nargs, nresults, hpos);
 	lua_remove(L, hpos);

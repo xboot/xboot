@@ -143,7 +143,7 @@ static int l_new(lua_State * L)
 		e->func = m_in_out_bounce;
 	else
 		e->func = m_linear;
-	luaL_setmetatable(L, MT_NAME_EASING);
+	luaL_setmetatable(L, MT_EASING);
 	return 1;
 }
 
@@ -154,13 +154,13 @@ static const luaL_Reg l_easing[] = {
 
 static int m_invoke_easing(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	return e->func(L);
 }
 
 static int m_linear(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r = e->c * t / e->d + e->b;
 	lua_pushnumber(L, r);
@@ -169,7 +169,7 @@ static int m_linear(lua_State * L)
 
 static int m_in_sine(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r = -e->c * cos(t / e->d * M_PI_2) + e->c + e->b;
 	lua_pushnumber(L, r);
@@ -178,7 +178,7 @@ static int m_in_sine(lua_State * L)
 
 static int m_out_sine(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r = e->c * sin(t / e->d * M_PI_2) + e->b;
 	lua_pushnumber(L, r);
@@ -187,7 +187,7 @@ static int m_out_sine(lua_State * L)
 
 static int m_in_out_sine(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r = -e->c / 2 * (cos(M_PI * t / e->d) - 1) + e->b;
 	lua_pushnumber(L, r);
@@ -196,7 +196,7 @@ static int m_in_out_sine(lua_State * L)
 
 static int m_in_quad(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d;
@@ -207,7 +207,7 @@ static int m_in_quad(lua_State * L)
 
 static int m_out_quad(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d;
@@ -218,7 +218,7 @@ static int m_out_quad(lua_State * L)
 
 static int m_in_out_quad(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d * 2;
@@ -232,7 +232,7 @@ static int m_in_out_quad(lua_State * L)
 
 static int m_in_cubic(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d;
@@ -243,7 +243,7 @@ static int m_in_cubic(lua_State * L)
 
 static int m_out_cubic(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d - 1;
@@ -254,7 +254,7 @@ static int m_out_cubic(lua_State * L)
 
 static int m_in_out_cubic(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d * 2;
@@ -271,7 +271,7 @@ static int m_in_out_cubic(lua_State * L)
 
 static int m_in_quart(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d;
@@ -282,7 +282,7 @@ static int m_in_quart(lua_State * L)
 
 static int m_out_quart(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d - 1;
@@ -293,7 +293,7 @@ static int m_out_quart(lua_State * L)
 
 static int m_in_out_quart(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d * 2;
@@ -310,7 +310,7 @@ static int m_in_out_quart(lua_State * L)
 
 static int m_in_quint(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d;
@@ -321,7 +321,7 @@ static int m_in_quint(lua_State * L)
 
 static int m_out_quint(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d - 1;
@@ -332,7 +332,7 @@ static int m_out_quint(lua_State * L)
 
 static int m_in_out_quint(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d * 2;
@@ -349,7 +349,7 @@ static int m_in_out_quint(lua_State * L)
 
 static int m_in_expo(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	if(t == 0)
@@ -362,7 +362,7 @@ static int m_in_expo(lua_State * L)
 
 static int m_out_expo(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	if(t == e->d)
@@ -375,7 +375,7 @@ static int m_out_expo(lua_State * L)
 
 static int m_in_out_expo(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	if(t == 0)
@@ -399,7 +399,7 @@ static int m_in_out_expo(lua_State * L)
 
 static int m_in_circ(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d;
@@ -410,7 +410,7 @@ static int m_in_circ(lua_State * L)
 
 static int m_out_circ(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d - 1;
@@ -421,7 +421,7 @@ static int m_out_circ(lua_State * L)
 
 static int m_in_out_circ(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	t = t / e->d * 2;
@@ -438,7 +438,7 @@ static int m_in_out_circ(lua_State * L)
 
 static int m_in_back(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double s = 1.70158;
 	double r;
@@ -450,7 +450,7 @@ static int m_in_back(lua_State * L)
 
 static int m_out_back(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double s = 1.70158;
 	double r;
@@ -462,7 +462,7 @@ static int m_out_back(lua_State * L)
 
 static int m_in_out_back(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double s = 1.70158;
 	double r;
@@ -481,7 +481,7 @@ static int m_in_out_back(lua_State * L)
 
 static int m_in_elastic(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	if(t == 0)
@@ -506,7 +506,7 @@ static int m_in_elastic(lua_State * L)
 
 static int m_out_elastic(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	if(t == 0)
@@ -530,7 +530,7 @@ static int m_out_elastic(lua_State * L)
 
 static int m_in_out_elastic(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	if(t == 0)
@@ -590,7 +590,7 @@ static double __in_bounce(double t, double b, double c, double d)
 
 static int m_in_bounce(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r = __in_bounce(t, e->b, e->c, e->d);
 	lua_pushnumber(L, r);
@@ -599,7 +599,7 @@ static int m_in_bounce(lua_State * L)
 
 static int m_out_bounce(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r = __out_bounce(t, e->b, e->c, e->d);
 	lua_pushnumber(L, r);
@@ -608,7 +608,7 @@ static int m_out_bounce(lua_State * L)
 
 static int m_in_out_bounce(lua_State * L)
 {
-	struct leasing_t * e = luaL_checkudata(L, 1, MT_NAME_EASING);
+	struct leasing_t * e = luaL_checkudata(L, 1, MT_EASING);
 	double t = luaL_checknumber(L, 2);
 	double r;
 	if (t < e->d / 2)
@@ -658,6 +658,6 @@ static const luaL_Reg m_easing[] = {
 int luaopen_easing(lua_State * L)
 {
 	luaL_newlib(L, l_easing);
-	luahelper_create_metatable(L, MT_NAME_EASING, m_easing);
+	luahelper_create_metatable(L, MT_EASING, m_easing);
 	return 1;
 }

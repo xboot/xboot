@@ -34,29 +34,30 @@ static int l_i2c_new(lua_State * L)
 	const char * name = luaL_checkstring(L, 1);
 	u32_t addr = (u32_t)luaL_checkinteger(L, 2);
 	u32_t flags = (u32_t)luaL_optinteger(L, 3, 0);
-	struct li2c_t * i2c = lua_newuserdata(L, sizeof(struct li2c_t));
-	i2c->client = i2c_client_alloc(name, addr, flags);
-	if(!i2c->client)
+	struct i2c_client_t * client = i2c_client_alloc(name, addr, flags);
+	if(!client)
 		return 0;
-	luaL_setmetatable(L, MT_NAME_HARDWARE_I2C);
+	struct li2c_t * i2c = lua_newuserdata(L, sizeof(struct li2c_t));
+	i2c->client = client;
+	luaL_setmetatable(L, MT_HARDWARE_I2C);
 	return 1;
 }
 
-static const luaL_Reg l_hardware_i2c[] = {
+static const luaL_Reg l_i2c[] = {
 	{"new",	l_i2c_new},
 	{NULL,	NULL}
 };
 
 static int m_i2c_gc(lua_State * L)
 {
-	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_NAME_HARDWARE_I2C);
+	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_HARDWARE_I2C);
 	i2c_client_free(i2c->client);
 	return 0;
 }
 
 static int m_i2c_read(lua_State * L)
 {
-	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_NAME_HARDWARE_I2C);
+	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_HARDWARE_I2C);
 	size_t count = luaL_checkinteger(L, 2);
 	if(count <= 0)
 	{
@@ -84,7 +85,7 @@ static int m_i2c_read(lua_State * L)
 
 static int m_i2c_write(lua_State * L)
 {
-	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_NAME_HARDWARE_I2C);
+	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_HARDWARE_I2C);
 	size_t count;
 	const char * buf = luaL_checklstring(L, 2, &count);
 	if(count > 0)
@@ -94,7 +95,7 @@ static int m_i2c_write(lua_State * L)
 	return 1;
 }
 
-static const luaL_Reg m_hardware_i2c[] = {
+static const luaL_Reg m_i2c[] = {
 	{"__gc",	m_i2c_gc},
 	{"read",	m_i2c_read},
 	{"write",	m_i2c_write},
@@ -103,7 +104,7 @@ static const luaL_Reg m_hardware_i2c[] = {
 
 int luaopen_hardware_i2c(lua_State * L)
 {
-	luaL_newlib(L, l_hardware_i2c);
-	luahelper_create_metatable(L, MT_NAME_HARDWARE_I2C, m_hardware_i2c);
+	luaL_newlib(L, l_i2c);
+	luahelper_create_metatable(L, MT_HARDWARE_I2C, m_i2c);
 	return 1;
 }

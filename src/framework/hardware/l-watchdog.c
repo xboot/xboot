@@ -32,7 +32,7 @@ static int l_watchdog_new(lua_State * L)
 	if(!watchdog)
 		return 0;
 	lua_pushlightuserdata(L, watchdog);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_WATCHDOG);
+	luaL_setmetatable(L, MT_HARDWARE_WATCHDOG);
 	return 1;
 }
 
@@ -49,16 +49,15 @@ static int l_watchdog_list(lua_State * L)
 			watchdog = (struct watchdog_t *)(pos->device->driver);
 			if(!watchdog)
 				continue;
-
 			lua_pushlightuserdata(L, watchdog);
-			luaL_setmetatable(L, MT_NAME_HARDWARE_WATCHDOG);
+			luaL_setmetatable(L, MT_HARDWARE_WATCHDOG);
 			lua_setfield(L, -2, pos->device->name);
 		}
 	}
 	return 1;
 }
 
-static const luaL_Reg l_hardware_watchdog[] = {
+static const luaL_Reg l_watchdog[] = {
 	{"new",		l_watchdog_new},
 	{"list",	l_watchdog_list},
 	{NULL, NULL}
@@ -66,23 +65,22 @@ static const luaL_Reg l_hardware_watchdog[] = {
 
 static int m_watchdog_set_timeout(lua_State * L)
 {
-	struct watchdog_t * watchdog = luaL_checkudata(L, 1, MT_NAME_HARDWARE_WATCHDOG);
+	struct watchdog_t * watchdog = luaL_checkudata(L, 1, MT_HARDWARE_WATCHDOG);
 	int timeout = luaL_checkinteger(L, 2);
 	watchdog_set_timeout(watchdog, timeout);
-	lua_pushlightuserdata(L, watchdog);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_WATCHDOG);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_watchdog_get_timeout(lua_State * L)
 {
-	struct watchdog_t * watchdog = luaL_checkudata(L, 1, MT_NAME_HARDWARE_WATCHDOG);
+	struct watchdog_t * watchdog = luaL_checkudata(L, 1, MT_HARDWARE_WATCHDOG);
 	int timeout = watchdog_get_timeout(watchdog);
 	lua_pushinteger(L, timeout);
 	return 1;
 }
 
-static const luaL_Reg m_hardware_watchdog[] = {
+static const luaL_Reg m_watchdog[] = {
 	{"setTimeout",	m_watchdog_set_timeout},
 	{"getTimeout",	m_watchdog_get_timeout},
 	{NULL, NULL}
@@ -90,7 +88,7 @@ static const luaL_Reg m_hardware_watchdog[] = {
 
 int luaopen_hardware_watchdog(lua_State * L)
 {
-	luaL_newlib(L, l_hardware_watchdog);
-	luahelper_create_metatable(L, MT_NAME_HARDWARE_WATCHDOG, m_hardware_watchdog);
+	luaL_newlib(L, l_watchdog);
+	luahelper_create_metatable(L, MT_HARDWARE_WATCHDOG, m_watchdog);
 	return 1;
 }

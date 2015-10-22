@@ -33,16 +33,16 @@ static int l_pattern_create_color(lua_State * L)
 	double alpha = luaL_optnumber(L, 4, 1);
 	struct lpattern_t * pattern = lua_newuserdata(L, sizeof(struct lpattern_t));
 	pattern->pattern = cairo_pattern_create_rgba(red, green, blue, alpha);
-	luaL_setmetatable(L, MT_NAME_PATTERN);
+	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }
 
 static int l_pattern_create_texture(lua_State * L)
 {
-	struct ltexture_t * texture = luaL_checkudata(L, 1, MT_NAME_TEXTURE);
+	struct ltexture_t * texture = luaL_checkudata(L, 1, MT_TEXTURE);
 	struct lpattern_t * pattern = lua_newuserdata(L, sizeof(struct lpattern_t));
 	pattern->pattern = cairo_pattern_create_for_surface(texture->surface);
-	luaL_setmetatable(L, MT_NAME_PATTERN);
+	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }
 
@@ -54,7 +54,7 @@ static int l_pattern_create_linear(lua_State * L)
 	double y1 = luaL_checknumber(L, 4);
 	struct lpattern_t * pattern = lua_newuserdata(L, sizeof(struct lpattern_t));
 	pattern->pattern = cairo_pattern_create_linear(x0, y0, x1, y1);
-	luaL_setmetatable(L, MT_NAME_PATTERN);
+	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }
 
@@ -68,7 +68,7 @@ static int l_pattern_create_radial(lua_State * L)
 	double radius1 = luaL_checknumber(L, 6);
 	struct lpattern_t * pattern = lua_newuserdata(L, sizeof(struct lpattern_t));
 	pattern->pattern = cairo_pattern_create_radial(cx0, cy0, radius0, cx1, cy1, radius1);
-	luaL_setmetatable(L, MT_NAME_PATTERN);
+	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }
 
@@ -82,22 +82,22 @@ static const luaL_Reg l_pattern[] = {
 
 static int m_pattern_eq(lua_State * L)
 {
-	struct lpattern_t * pattern1 = luaL_checkudata(L, 1, MT_NAME_PATTERN);
-	struct lpattern_t * pattern2 = luaL_checkudata(L, 2, MT_NAME_PATTERN);
+	struct lpattern_t * pattern1 = luaL_checkudata(L, 1, MT_PATTERN);
+	struct lpattern_t * pattern2 = luaL_checkudata(L, 2, MT_PATTERN);
 	lua_pushboolean(L, (pattern1 == pattern2));
 	return 1;
 }
 
 static int m_pattern_gc(lua_State * L)
 {
-	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_NAME_PATTERN);
+	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_PATTERN);
 	cairo_pattern_destroy(pattern->pattern);
 	return 0;
 }
 
 static int m_pattern_add_color_stop(lua_State * L)
 {
-	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_NAME_PATTERN);
+	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_PATTERN);
 	double offset = luaL_checknumber(L, 2);
 	double red = luaL_checknumber(L, 3);
 	double green = luaL_checknumber(L, 4);
@@ -105,37 +105,37 @@ static int m_pattern_add_color_stop(lua_State * L)
 	double alpha = luaL_optnumber(L, 6, 1);
 	cairo_pattern_add_color_stop_rgba(pattern->pattern, offset, red, green, blue, alpha);
 	lua_pushlightuserdata(L, pattern);
-	luaL_setmetatable(L, MT_NAME_PATTERN);
+	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }
 
 static int m_pattern_set_extend(lua_State * L)
 {
-	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_NAME_PATTERN);
+	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_PATTERN);
 	cairo_extend_t extend = (cairo_extend_t)luaL_checkinteger(L, 2);
 	cairo_pattern_set_extend(pattern->pattern, extend);
 	lua_pushlightuserdata(L, pattern);
-	luaL_setmetatable(L, MT_NAME_PATTERN);
+	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }
 
 static int m_pattern_set_filter(lua_State * L)
 {
-	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_NAME_PATTERN);
+	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_PATTERN);
 	cairo_filter_t filter = (cairo_filter_t)luaL_checkinteger(L, 2);
 	cairo_pattern_set_filter(pattern->pattern, filter);
 	lua_pushlightuserdata(L, pattern);
-	luaL_setmetatable(L, MT_NAME_PATTERN);
+	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }
 
 static int m_pattern_set_matrix(lua_State * L)
 {
-	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_NAME_PATTERN);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_NAME_MATRIX);
+	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_PATTERN);
+	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_MATRIX);
 	cairo_pattern_set_matrix(pattern->pattern, matrix);
 	lua_pushlightuserdata(L, pattern);
-	luaL_setmetatable(L, MT_NAME_PATTERN);
+	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }
 
@@ -164,6 +164,6 @@ int luaopen_pattern(lua_State * L)
 	luahelper_set_intfield(L, "FILTER_NEAREST",		CAIRO_FILTER_NEAREST);
 	luahelper_set_intfield(L, "FILTER_BILINEAR",	CAIRO_FILTER_BILINEAR);
 	luahelper_set_intfield(L, "FILTER_GAUSSIAN",	CAIRO_FILTER_GAUSSIAN);
-	luahelper_create_metatable(L, MT_NAME_PATTERN, m_pattern);
+	luahelper_create_metatable(L, MT_PATTERN, m_pattern);
 	return 1;
 }

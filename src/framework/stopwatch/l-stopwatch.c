@@ -37,7 +37,7 @@ static int l_new(lua_State * L)
 {
 	struct stopwatch_t * stopwatch = lua_newuserdata(L, sizeof(struct stopwatch_t));
 	stopwatch->__start_time = __time_stamp();
-	luaL_setmetatable(L, MT_NAME_STOPWATCH);
+	luaL_setmetatable(L, MT_STOPWATCH);
 	return 1;
 }
 
@@ -48,14 +48,14 @@ static const luaL_Reg l_stopwatch[] = {
 
 static int m_elapsed(lua_State * L)
 {
-	struct stopwatch_t * stopwatch = luaL_checkudata(L, 1, MT_NAME_STOPWATCH);
+	struct stopwatch_t * stopwatch = luaL_checkudata(L, 1, MT_STOPWATCH);
 	lua_pushnumber(L, __time_stamp() - stopwatch->__start_time);
 	return 1;
 }
 
 static int m_reset(lua_State * L)
 {
-	struct stopwatch_t * stopwatch = luaL_checkudata(L, 1, MT_NAME_STOPWATCH);
+	struct stopwatch_t * stopwatch = luaL_checkudata(L, 1, MT_STOPWATCH);
 	stopwatch->__start_time = __time_stamp();
 	return 0;
 }
@@ -69,6 +69,6 @@ static const luaL_Reg m_stopwatch[] = {
 int luaopen_stopwatch(lua_State * L)
 {
 	luaL_newlib(L, l_stopwatch);
-	luahelper_create_metatable(L, MT_NAME_STOPWATCH, m_stopwatch);
+	luahelper_create_metatable(L, MT_STOPWATCH, m_stopwatch);
 	return 1;
 }

@@ -119,35 +119,33 @@ void luahelper_preload(lua_State * L, const char * name, lua_CFunction f)
 void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg * funcs)
 {
 	luaL_newmetatable(L, name);
-	luaL_setfuncs(L, funcs, 0);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
+	luaL_setfuncs(L, funcs, 0);
 	lua_pop(L, 1);
 }
 
-static int luahelper_pcall_traceback(lua_State *L)
+static int msghandler(lua_State * L)
 {
 	const char * msg = lua_tostring(L, 1);
-	if(msg)
+	if(msg == NULL)
 	{
-		luaL_traceback(L, L, msg, 1);
+		if(luaL_callmeta(L, 1, "__tostring") && lua_type(L, -1) == LUA_TSTRING)
+			return 1;
+		else
+			msg = lua_pushfstring(L, "(error object is a %s value)", luaL_typename(L, 1));
 	}
-	else if(!lua_isnoneornil(L, 1))
-	{
-		if(!luaL_callmeta(L, 1, "__tostring"))
-			lua_pushliteral(L, "(no error message)");
-	}
+	luaL_traceback(L, L, msg, 1);
 	return 1;
 }
 
-int luahelper_pcall(lua_State * L, int nargs, int nresults)
+int luahelper_pcall(lua_State * L, int narg, int nres)
 {
-	int hpos = lua_gettop(L) - nargs;
-	int ret;
-
-	lua_pushcfunction(L, luahelper_pcall_traceback);
-	lua_insert(L, hpos);
-	ret = lua_pcall(L, nargs, nresults, hpos);
-	lua_remove(L, hpos);
-	return ret;
+	int status;
+	int base = lua_gettop(L) - narg;
+	lua_pushcfunction(L, msghandler);
+	lua_insert(L, base);
+	status = lua_pcall(L, narg, nres, base);
+	lua_remove(L, base);
+	return status;
 }

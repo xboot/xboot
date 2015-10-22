@@ -40,30 +40,29 @@ static int l_gpio_new(lua_State * L)
 		struct lgpio_t * gpio = lua_newuserdata(L, sizeof(struct lgpio_t));
 		gpio->chip = chip;
 		gpio->offset = offset;
-		luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+		luaL_setmetatable(L, MT_HARDWARE_GPIO);
 		return 1;
 	}
 	return 0;
 }
 
-static const luaL_Reg l_hardware_gpio[] = {
+static const luaL_Reg l_gpio[] = {
 	{"new",	l_gpio_new},
 	{NULL,	NULL}
 };
 
 static int m_gpio_set_cfg(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	int cfg = luaL_checkinteger(L, 2);
 	gpio->chip->set_cfg(gpio->chip, gpio->offset, cfg);
-	lua_pushlightuserdata(L, gpio);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_gpio_get_cfg(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	int cfg = gpio->chip->get_cfg(gpio->chip, gpio->offset);
 	lua_pushinteger(L, cfg);
 	return 1;
@@ -71,17 +70,16 @@ static int m_gpio_get_cfg(lua_State * L)
 
 static int m_gpio_set_pull(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	enum gpio_pull_t pull = (enum gpio_pull_t)luaL_checkinteger(L, 2);
 	gpio->chip->set_pull(gpio->chip, gpio->offset, pull);
-	lua_pushlightuserdata(L, gpio);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_gpio_get_pull(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	enum gpio_pull_t pull = gpio->chip->get_pull(gpio->chip, gpio->offset);
 	lua_pushinteger(L, pull);
 	return 1;
@@ -89,17 +87,16 @@ static int m_gpio_get_pull(lua_State * L)
 
 static int m_gpio_set_drv(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	enum gpio_drv_t drv = (enum gpio_pull_t)luaL_checkinteger(L, 2);
 	gpio->chip->set_drv(gpio->chip, gpio->offset, drv);
-	lua_pushlightuserdata(L, gpio);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_gpio_get_drv(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	enum gpio_drv_t drv = gpio->chip->get_drv(gpio->chip, gpio->offset);
 	lua_pushinteger(L, drv);
 	return 1;
@@ -107,17 +104,16 @@ static int m_gpio_get_drv(lua_State * L)
 
 static int m_gpio_set_rate(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	enum gpio_rate_t rate = (enum gpio_pull_t)luaL_checkinteger(L, 2);
 	gpio->chip->set_rate(gpio->chip, gpio->offset, rate);
-	lua_pushlightuserdata(L, gpio);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_gpio_get_rate(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	enum gpio_rate_t rate = gpio->chip->get_rate(gpio->chip, gpio->offset);
 	lua_pushinteger(L, rate);
 	return 1;
@@ -125,17 +121,16 @@ static int m_gpio_get_rate(lua_State * L)
 
 static int m_gpio_set_dir(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	enum gpio_direction_t dir = (enum gpio_pull_t)luaL_checkinteger(L, 2);
 	gpio->chip->set_dir(gpio->chip, gpio->offset, dir);
-	lua_pushlightuserdata(L, gpio);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_gpio_get_dir(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	enum gpio_direction_t dir = gpio->chip->get_dir(gpio->chip, gpio->offset);
 	lua_pushinteger(L, dir);
 	return 1;
@@ -143,23 +138,22 @@ static int m_gpio_get_dir(lua_State * L)
 
 static int m_gpio_set_value(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	int value = luaL_checkinteger(L, 2);
 	gpio->chip->set_value(gpio->chip, gpio->offset, value);
-	lua_pushlightuserdata(L, gpio);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_GPIO);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_gpio_get_value(lua_State * L)
 {
-	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_NAME_HARDWARE_GPIO);
+	struct lgpio_t * gpio = luaL_checkudata(L, 1, MT_HARDWARE_GPIO);
 	int value = gpio->chip->get_value(gpio->chip, gpio->offset);
 	lua_pushinteger(L, value);
 	return 1;
 }
 
-static const luaL_Reg m_hardware_gpio[] = {
+static const luaL_Reg m_gpio[] = {
 	{"setCfg",		m_gpio_set_cfg},
 	{"getCfg",		m_gpio_get_cfg},
 	{"setPull",		m_gpio_set_pull},
@@ -177,22 +171,22 @@ static const luaL_Reg m_hardware_gpio[] = {
 
 int luaopen_hardware_gpio(lua_State * L)
 {
-	luaL_newlib(L, l_hardware_gpio);
+	luaL_newlib(L, l_gpio);
     /* gpio_pull_t */
-	luahelper_set_intfield(L, "GPIO_PULL_UP",			GPIO_PULL_UP);
-	luahelper_set_intfield(L, "GPIO_PULL_DOWN",			GPIO_PULL_DOWN);
-	luahelper_set_intfield(L, "GPIO_PULL_NONE",			GPIO_PULL_NONE);
+	luahelper_set_intfield(L, "PULL_UP",	GPIO_PULL_UP);
+	luahelper_set_intfield(L, "PULL_DOWN",	GPIO_PULL_DOWN);
+	luahelper_set_intfield(L, "PULL_NONE",	GPIO_PULL_NONE);
     /* gpio_drv_t */
-	luahelper_set_intfield(L, "GPIO_DRV_LOW",			GPIO_DRV_LOW);
-	luahelper_set_intfield(L, "GPIO_DRV_MEDIAN",		GPIO_DRV_MEDIAN);
-	luahelper_set_intfield(L, "GPIO_DRV_HIGH",			GPIO_DRV_HIGH);
+	luahelper_set_intfield(L, "DRV_LOW",	GPIO_DRV_LOW);
+	luahelper_set_intfield(L, "DRV_MEDIAN",	GPIO_DRV_MEDIAN);
+	luahelper_set_intfield(L, "DRV_HIGH",	GPIO_DRV_HIGH);
     /* gpio_rate_t */
-	luahelper_set_intfield(L, "GPIO_RATE_FAST",			GPIO_RATE_FAST);
-	luahelper_set_intfield(L, "GPIO_RATE_SLOW",			GPIO_RATE_SLOW);
+	luahelper_set_intfield(L, "RATE_SLOW",	GPIO_RATE_SLOW);
+	luahelper_set_intfield(L, "RATE_FAST",	GPIO_RATE_FAST);
     /* gpio_direction_t */
-	luahelper_set_intfield(L, "GPIO_DIRECTION_INPUT",	GPIO_DIRECTION_INPUT);
-	luahelper_set_intfield(L, "GPIO_DIRECTION_OUTPUT",	GPIO_DIRECTION_OUTPUT);
-	luahelper_set_intfield(L, "GPIO_DIRECTION_UNKOWN",	GPIO_DIRECTION_UNKOWN);
-	luahelper_create_metatable(L, MT_NAME_HARDWARE_GPIO, m_hardware_gpio);
+	luahelper_set_intfield(L, "DIR_INPUT",	GPIO_DIRECTION_INPUT);
+	luahelper_set_intfield(L, "DIR_OUTPUT",	GPIO_DIRECTION_OUTPUT);
+	luahelper_set_intfield(L, "DIR_UNKOWN",	GPIO_DIRECTION_UNKOWN);
+	luahelper_create_metatable(L, MT_HARDWARE_GPIO, m_gpio);
 	return 1;
 }

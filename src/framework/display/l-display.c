@@ -60,7 +60,7 @@ static int l_display_new(lua_State * L)
 	display->fps = 60;
 	display->frame = 0;
 	display->stamp = ktime_get();
-	luaL_setmetatable(L, MT_NAME_DISPLAY);
+	luaL_setmetatable(L, MT_DISPLAY);
 	return 1;
 }
 
@@ -71,7 +71,7 @@ static const luaL_Reg l_display[] = {
 
 static int m_display_gc(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	cairo_xboot_surface_present(display->alone);
 	cairo_surface_destroy(display->alone);
 	cairo_destroy(display->cr[0]);
@@ -83,7 +83,7 @@ static int m_display_gc(lua_State * L)
 
 static int m_display_info(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	lua_newtable(L);
 	lua_pushnumber(L, display->fb->width);
 	lua_setfield(L, -2, "width");
@@ -100,7 +100,7 @@ static int m_display_info(lua_State * L)
 
 static int m_display_get_backlight(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	int brightness = framebuffer_get_backlight_brightness(display->fb);
 	lua_pushnumber(L, brightness / ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1)));
 	return 1;
@@ -108,7 +108,7 @@ static int m_display_get_backlight(lua_State * L)
 
 static int m_display_set_backlight(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	int brightness = luaL_checknumber(L, 2) * ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1));
 	framebuffer_set_backlight_brightness(display->fb, brightness);
 	return 0;
@@ -116,9 +116,9 @@ static int m_display_set_backlight(lua_State * L)
 
 static int m_display_draw_shape(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
-	cairo_t ** shape = luaL_checkudata(L, 3, MT_NAME_SHAPE);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
+	struct lobject_t * object = luaL_checkudata(L, 2, MT_OBJECT);
+	cairo_t ** shape = luaL_checkudata(L, 3, MT_SHAPE);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
@@ -132,11 +132,11 @@ static int m_display_draw_shape(lua_State * L)
 
 static int m_display_draw_text(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	cairo_scaled_font_t * sfont = luaL_checkudata_scaled_font(L, 2, MT_NAME_FONT);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
+	cairo_scaled_font_t * sfont = luaL_checkudata_scaled_font(L, 2, MT_FONT);
 	const char * text = luaL_optstring(L, 3, NULL);
-	struct lpattern_t * pattern = luaL_checkudata(L, 4, MT_NAME_PATTERN);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 5, MT_NAME_MATRIX);
+	struct lpattern_t * pattern = luaL_checkudata(L, 4, MT_PATTERN);
+	cairo_matrix_t * matrix = luaL_checkudata(L, 5, MT_MATRIX);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_scaled_font(cr, sfont);
@@ -150,9 +150,9 @@ static int m_display_draw_text(lua_State * L)
 
 static int m_display_draw_texture(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
-	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_NAME_TEXTURE);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
+	struct lobject_t * object = luaL_checkudata(L, 2, MT_OBJECT);
+	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_TEXTURE);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
@@ -165,10 +165,10 @@ static int m_display_draw_texture(lua_State * L)
 
 static int m_display_draw_texture_mask(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
-	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_NAME_TEXTURE);
-	struct lpattern_t * pattern = luaL_checkudata(L, 4, MT_NAME_PATTERN);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
+	struct lobject_t * object = luaL_checkudata(L, 2, MT_OBJECT);
+	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_TEXTURE);
+	struct lpattern_t * pattern = luaL_checkudata(L, 4, MT_PATTERN);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
@@ -181,9 +181,9 @@ static int m_display_draw_texture_mask(lua_State * L)
 
 static int m_display_draw_ninepatch(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
-	struct lobject_t * object = luaL_checkudata(L, 2, MT_NAME_OBJECT);
-	struct lninepatch_t * ninepatch = luaL_checkudata(L, 3, MT_NAME_NINEPATCH);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
+	struct lobject_t * object = luaL_checkudata(L, 2, MT_OBJECT);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 3, MT_NINEPATCH);
 	cairo_t * cr = display->cr[display->index];
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
@@ -279,7 +279,7 @@ static int m_display_draw_ninepatch(lua_State * L)
 
 static int m_display_showfps(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	int flag = lua_toboolean(L, 2) ? 1 : 0;
 	if(flag && !display->showfps)
 		display->stamp = ktime_get();
@@ -289,7 +289,7 @@ static int m_display_showfps(lua_State * L)
 
 static int m_display_present(lua_State * L)
 {
-	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_NAME_DISPLAY);
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	cairo_t * cr;
 	if(display->showfps)
 	{
@@ -338,6 +338,6 @@ static const luaL_Reg m_display[] = {
 int luaopen_display(lua_State * L)
 {
 	luaL_newlib(L, l_display);
-	luahelper_create_metatable(L, MT_NAME_DISPLAY, m_display);
+	luahelper_create_metatable(L, MT_DISPLAY, m_display);
 	return 1;
 }

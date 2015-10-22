@@ -32,7 +32,7 @@ static int l_led_new(lua_State * L)
 	if(!led)
 		return 0;
 	lua_pushlightuserdata(L, led);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_LED);
+	luaL_setmetatable(L, MT_HARDWARE_LED);
 	return 1;
 }
 
@@ -49,16 +49,15 @@ static int l_led_list(lua_State * L)
 			led = (struct led_t *)(pos->device->driver);
 			if(!led)
 				continue;
-
 			lua_pushlightuserdata(L, led);
-			luaL_setmetatable(L, MT_NAME_HARDWARE_LED);
+			luaL_setmetatable(L, MT_HARDWARE_LED);
 			lua_setfield(L, -2, pos->device->name);
 		}
 	}
 	return 1;
 }
 
-static const luaL_Reg l_hardware_led[] = {
+static const luaL_Reg l_led[] = {
 	{"new",		l_led_new},
 	{"list",	l_led_list},
 	{NULL,	NULL}
@@ -66,23 +65,22 @@ static const luaL_Reg l_hardware_led[] = {
 
 static int m_led_set_brightness(lua_State * L)
 {
-	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
+	struct led_t * led = luaL_checkudata(L, 1, MT_HARDWARE_LED);
 	int brightness = luaL_checknumber(L, 2) * ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1));
 	led_set_brightness(led, brightness);
-	lua_pushlightuserdata(L, led);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_LED);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_led_get_brightness(lua_State * L)
 {
-	struct led_t * led = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LED);
+	struct led_t * led = luaL_checkudata(L, 1, MT_HARDWARE_LED);
 	int brightness = led_get_brightness(led);
 	lua_pushnumber(L, brightness / ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1)));
 	return 1;
 }
 
-static const luaL_Reg m_hardware_led[] = {
+static const luaL_Reg m_led[] = {
 	{"setBrightness",	m_led_set_brightness},
 	{"getBrightness",	m_led_get_brightness},
 	{NULL,	NULL}
@@ -90,7 +88,7 @@ static const luaL_Reg m_hardware_led[] = {
 
 int luaopen_hardware_led(lua_State * L)
 {
-	luaL_newlib(L, l_hardware_led);
-	luahelper_create_metatable(L, MT_NAME_HARDWARE_LED, m_hardware_led);
+	luaL_newlib(L, l_led);
+	luahelper_create_metatable(L, MT_HARDWARE_LED, m_led);
 	return 1;
 }

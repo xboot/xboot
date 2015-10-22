@@ -32,7 +32,7 @@ static int l_ledtrig_new(lua_State * L)
 	if(!trigger)
 		return 0;
 	lua_pushlightuserdata(L, trigger);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_LEDTRIG);
+	luaL_setmetatable(L, MT_HARDWARE_LEDTRIG);
 	return 1;
 }
 
@@ -49,16 +49,15 @@ static int l_ledtrig_list(lua_State * L)
 			trigger = (struct ledtrig_t *)(pos->device->driver);
 			if(!trigger)
 				continue;
-
 			lua_pushlightuserdata(L, trigger);
-			luaL_setmetatable(L, MT_NAME_HARDWARE_LEDTRIG);
+			luaL_setmetatable(L, MT_HARDWARE_LEDTRIG);
 			lua_setfield(L, -2, pos->device->name);
 		}
 	}
 	return 1;
 }
 
-static const luaL_Reg l_hardware_ledtrig[] = {
+static const luaL_Reg l_ledtrig[] = {
 	{"new",		l_ledtrig_new},
 	{"list",	l_ledtrig_list},
 	{NULL, NULL}
@@ -66,21 +65,20 @@ static const luaL_Reg l_hardware_ledtrig[] = {
 
 static int m_ledtrig_activity(lua_State * L)
 {
-	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_NAME_HARDWARE_LEDTRIG);
+	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_HARDWARE_LEDTRIG);
 	ledtrig_activity(trigger);
-	lua_pushlightuserdata(L, trigger);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_LEDTRIG);
+	lua_settop(L, 1);
 	return 1;
 }
 
-static const luaL_Reg m_hardware_ledtrig[] = {
+static const luaL_Reg m_ledtrig[] = {
 	{"activity",	m_ledtrig_activity},
 	{NULL,	NULL}
 };
 
 int luaopen_hardware_ledtrig(lua_State * L)
 {
-	luaL_newlib(L, l_hardware_ledtrig);
-	luahelper_create_metatable(L, MT_NAME_HARDWARE_LEDTRIG, m_hardware_ledtrig);
+	luaL_newlib(L, l_ledtrig);
+	luahelper_create_metatable(L, MT_HARDWARE_LEDTRIG, m_ledtrig);
 	return 1;
 }

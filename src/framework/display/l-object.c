@@ -100,7 +100,7 @@ static int l_object_new(lua_State * L)
 	cairo_matrix_init_identity(&object->__obj_matrix);
 	cairo_matrix_init_identity(&object->__transform_matrix);
 
-	luaL_setmetatable(L, MT_NAME_OBJECT);
+	luaL_setmetatable(L, MT_OBJECT);
 	return 1;
 }
 
@@ -111,7 +111,7 @@ static const luaL_Reg l_object[] = {
 
 static int m_set_size(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double w = luaL_checknumber(L, 2);
 	double h = luaL_checknumber(L, 3);
 	object->width = w;
@@ -121,7 +121,7 @@ static int m_set_size(lua_State * L)
 
 static int m_get_size(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->width);
 	lua_pushnumber(L, object->height);
 	return 2;
@@ -129,7 +129,7 @@ static int m_get_size(lua_State * L)
 
 static int m_set_x(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x = luaL_checknumber(L, 2);
 	object->x = x;
 	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
@@ -139,14 +139,14 @@ static int m_set_x(lua_State * L)
 
 static int m_get_x(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->x);
 	return 1;
 }
 
 static int m_set_y(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double y = luaL_checknumber(L, 2);
 	object->y = y;
 	object->__translate = ((object->x != 0) || (object->y != 0)) ? 1 : 0;
@@ -156,14 +156,14 @@ static int m_set_y(lua_State * L)
 
 static int m_get_y(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->y);
 	return 1;
 }
 
 static int m_set_position(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
 	object->x = x;
@@ -175,7 +175,7 @@ static int m_set_position(lua_State * L)
 
 static int m_get_position(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->x);
 	lua_pushnumber(L, object->y);
 	return 2;
@@ -183,7 +183,7 @@ static int m_get_position(lua_State * L)
 
 static int m_set_rotation(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double rotation = luaL_checknumber(L, 2);
 	object->rotation = rotation * (M_PI / 180.0);
 	while(object->rotation < 0)
@@ -197,14 +197,14 @@ static int m_set_rotation(lua_State * L)
 
 static int m_get_rotation(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->rotation / (M_PI / 180.0));
 	return 1;
 }
 
 static int m_set_scale_x(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x = luaL_checknumber(L, 2);
 	object->scalex = x;
 	object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
@@ -214,14 +214,14 @@ static int m_set_scale_x(lua_State * L)
 
 static int m_get_scale_x(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->scalex);
 	return 1;
 }
 
 static int m_set_scale_y(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double y = luaL_checknumber(L, 2);
 	object->scaley = y;
 	object->__scale = ((object->scalex != 1) || (object->scaley != 1)) ? 1 : 0;
@@ -231,14 +231,14 @@ static int m_set_scale_y(lua_State * L)
 
 static int m_get_scale_y(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->scaley);
 	return 1;
 }
 
 static int m_set_scale(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
 	object->scalex = x;
@@ -250,7 +250,7 @@ static int m_set_scale(lua_State * L)
 
 static int m_get_scale(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->scalex);
 	lua_pushnumber(L, object->scaley);
 	return 2;
@@ -258,7 +258,7 @@ static int m_get_scale(lua_State * L)
 
 static int m_set_archor(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
 	object->anchorx = x;
@@ -270,7 +270,7 @@ static int m_set_archor(lua_State * L)
 
 static int m_get_archor(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->anchorx);
 	lua_pushnumber(L, object->anchory);
 	return 2;
@@ -278,7 +278,7 @@ static int m_get_archor(lua_State * L)
 
 static int m_set_alpha(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double alpha = luaL_checknumber(L, 2);
 	object->alpha = alpha;
 	return 0;
@@ -286,80 +286,80 @@ static int m_set_alpha(lua_State * L)
 
 static int m_get_alpha(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushnumber(L, object->alpha);
 	return 1;
 }
 
 static int m_set_alignment(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	object->alignment = (enum alignment_t)luaL_checkinteger(L, 2);
 	return 0;
 }
 
 static int m_get_alignment(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushinteger(L, object->alignment);
 	return 1;
 }
 
 static int m_set_visible(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	object->visible = lua_toboolean(L, 2) ? 1 : 0;
 	return 0;
 }
 
 static int m_get_visible(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushboolean(L, object->visible);
 	return 1;
 }
 
 static int m_set_touchable(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	object->touchable = lua_toboolean(L, 2) ? 1 : 0;
 	return 0;
 }
 
 static int m_get_touchable(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	lua_pushboolean(L, object->touchable);
 	return 1;
 }
 
 static int m_init_transform_matrix(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	memcpy(&object->__transform_matrix, __get_obj_matrix(object), sizeof(cairo_matrix_t));
 	return 0;
 }
 
 static int m_update_transform_matrix(lua_State * L)
 {
-	struct lobject_t * obj1 = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	struct lobject_t * obj2 = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	struct lobject_t * obj1 = luaL_checkudata(L, 1, MT_OBJECT);
+	struct lobject_t * obj2 = luaL_checkudata(L, 2, MT_OBJECT);
 	cairo_matrix_multiply(&obj1->__transform_matrix, &obj1->__transform_matrix, __get_obj_matrix(obj2));
 	return 0;
 }
 
 static int m_get_transform_matrix(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	cairo_matrix_t * matrix = lua_newuserdata(L, sizeof(cairo_matrix_t));
 	memcpy(matrix, &object->__transform_matrix, sizeof(cairo_matrix_t));
-	luaL_setmetatable(L, MT_NAME_MATRIX);
+	luaL_setmetatable(L, MT_MATRIX);
 	return 1;
 }
 
 static int m_global_to_local(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
 	cairo_matrix_invert(&object->__transform_matrix);
@@ -371,7 +371,7 @@ static int m_global_to_local(lua_State * L)
 
 static int m_local_to_global(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
 	cairo_matrix_transform_point(&object->__transform_matrix, &x, &y);
@@ -382,7 +382,7 @@ static int m_local_to_global(lua_State * L)
 
 static int m_hit_test_point(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
 	cairo_matrix_invert(&object->__transform_matrix);
@@ -393,7 +393,7 @@ static int m_hit_test_point(lua_State * L)
 
 static int m_bounds(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
 	double x1 = 0;
 	double y1 = 0;
 	double x2 = object->width;
@@ -408,8 +408,8 @@ static int m_bounds(lua_State * L)
 
 static int m_layout(lua_State * L)
 {
-	struct lobject_t * object = luaL_checkudata(L, 1, MT_NAME_OBJECT);
-	struct lobject_t * child = luaL_checkudata(L, 2, MT_NAME_OBJECT);
+	struct lobject_t * object = luaL_checkudata(L, 1, MT_OBJECT);
+	struct lobject_t * child = luaL_checkudata(L, 2, MT_OBJECT);
 	double rx1 = luaL_optnumber(L, 3, 0);
 	double ry1 = luaL_optnumber(L, 4, 0);
 	double rx2 = luaL_optnumber(L, 5, object->width);
@@ -622,6 +622,6 @@ int luaopen_object(lua_State * L)
 	luahelper_set_intfield(L, "ALIGN_HORIZONTAL_FILL", 		ALIGN_HORIZONTAL_FILL);
 	luahelper_set_intfield(L, "ALIGN_VERTICAL_FILL", 		ALIGN_VERTICAL_FILL);
 	luahelper_set_intfield(L, "ALIGN_CENTER_FILL", 			ALIGN_CENTER_FILL);
-	luahelper_create_metatable(L, MT_NAME_OBJECT, m_object);
+	luahelper_create_metatable(L, MT_OBJECT, m_object);
 	return 1;
 }

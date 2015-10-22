@@ -8,15 +8,15 @@ extern "C" {
 #include <cairo.h>
 #include <framework/luahelper.h>
 
-#define	MT_NAME_MATRIX		"mt_name_matrix"
-#define MT_NAME_EASING		"mt_name_easing"
-#define	MT_NAME_OBJECT		"mt_name_object"
-#define	MT_NAME_PATTERN		"mt_name_pattern"
-#define	MT_NAME_TEXTURE		"mt_name_texture"
-#define	MT_NAME_NINEPATCH	"mt_name_ninepatch"
-#define MT_NAME_SHAPE		"mt_name_shape"
-#define	MT_NAME_FONT		"mt_name_font"
-#define	MT_NAME_DISPLAY		"mt_name_display"
+#define	MT_MATRIX		"mt_matrix"
+#define MT_EASING		"mt_easing"
+#define	MT_OBJECT		"mt_object"
+#define	MT_PATTERN		"mt_pattern"
+#define	MT_TEXTURE		"mt_texture"
+#define	MT_NINEPATCH	"mt_ninepatch"
+#define MT_SHAPE		"mt_shape"
+#define	MT_FONT			"mt_font"
+#define	MT_DISPLAY		"mt_display"
 
 enum alignment_t {
 	ALIGN_NONE					= 0,

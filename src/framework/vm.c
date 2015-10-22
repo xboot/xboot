@@ -162,11 +162,11 @@ static void luaopen_glblibs(lua_State * L)
 		{ "class",	luaopen_class },
 		{ NULL,		NULL },
 	};
-	const luaL_Reg * p;
+	const luaL_Reg * lib;
 
-	for(p = glblibs; p->func; p++)
+	for(lib = glblibs; lib->func; lib++)
 	{
-		luaL_requiref(L, p->name, p->func, 1);
+		luaL_requiref(L, lib->name, lib->func, 1);
 		lua_pop(L, 1);
 	}
 }
@@ -190,22 +190,22 @@ static void luaopen_prelibs(lua_State * L)
 		{ "builtin.font",				luaopen_font },
 		{ "builtin.display",			luaopen_display },
 
-		{ "builtin.hardware.uart",		luaopen_hardware_uart },
-		{ "builtin.hardware.i2c",		luaopen_hardware_i2c },
-		{ "builtin.hardware.gpio",		luaopen_hardware_gpio },
-		{ "builtin.hardware.pwm",		luaopen_hardware_pwm },
-		{ "builtin.hardware.led",		luaopen_hardware_led },
-		{ "builtin.hardware.ledtrig",	luaopen_hardware_ledtrig },
-		{ "builtin.hardware.buzzer",	luaopen_hardware_buzzer },
-		{ "builtin.hardware.watchdog",	luaopen_hardware_watchdog },
+		{ "xboot.hardware.buzzer",		luaopen_hardware_buzzer },
+		{ "xboot.hardware.gpio",		luaopen_hardware_gpio },
+		{ "xboot.hardware.i2c",			luaopen_hardware_i2c },
+		{ "xboot.hardware.led",			luaopen_hardware_led },
+		{ "xboot.hardware.ledtrig",		luaopen_hardware_ledtrig },
+		{ "xboot.hardware.pwm",			luaopen_hardware_pwm },
+		{ "xboot.hardware.uart",		luaopen_hardware_uart },
+		{ "xboot.hardware.watchdog",	luaopen_hardware_watchdog },
 
 		{ NULL, NULL },
 	};
-	const luaL_Reg * p;
+	const luaL_Reg * lib;
 
-	for(p = prelibs; p->func; p++)
+	for(lib = prelibs; lib->func; lib++)
 	{
-		luahelper_preload(L, p->name, p->func);
+		luahelper_preload(L, lib->name, lib->func);
 	}
 }
 

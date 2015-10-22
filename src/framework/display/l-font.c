@@ -144,7 +144,7 @@ static int l_font_new(lua_State * L)
 		cairo_scaled_font_destroy(font->sfont);
 		return 0;
 	}
-	luaL_setmetatable(L, MT_NAME_FONT);
+	luaL_setmetatable(L, MT_FONT);
 	return 1;
 }
 
@@ -155,7 +155,7 @@ static const luaL_Reg l_font[] = {
 
 static int m_font_gc(lua_State * L)
 {
-	struct lfont_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
+	struct lfont_t * font = luaL_checkudata(L, 1, MT_FONT);
 	FT_Done_Face(font->fface);
 	FT_Done_FreeType(font->library);
 	cairo_font_face_destroy(font->face);
@@ -165,7 +165,7 @@ static int m_font_gc(lua_State * L)
 
 static int m_font_size(lua_State * L)
 {
-	struct lfont_t * font = luaL_checkudata(L, 1, MT_NAME_FONT);
+	struct lfont_t * font = luaL_checkudata(L, 1, MT_FONT);
 	const char * text = luaL_optstring(L, 2, NULL);
 	cairo_text_extents_t extents;
 	cairo_scaled_font_text_extents(font->sfont, text, &extents);
@@ -183,6 +183,6 @@ static const luaL_Reg m_font[] = {
 int luaopen_font(lua_State * L)
 {
 	luaL_newlib(L, l_font);
-	luahelper_create_metatable(L, MT_NAME_FONT, m_font);
+	luahelper_create_metatable(L, MT_FONT, m_font);
 	return 1;
 }

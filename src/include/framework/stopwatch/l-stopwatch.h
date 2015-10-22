@@ -7,7 +7,7 @@ extern "C" {
 
 #include <framework/luahelper.h>
 
-#define	MT_NAME_STOPWATCH		"mt_name_stopwatch"
+#define	MT_STOPWATCH	"mt_stopwatch"
 
 int luaopen_stopwatch(lua_State * L);
 

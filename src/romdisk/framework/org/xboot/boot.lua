@@ -18,20 +18,6 @@ Font = require "builtin.font"
 Display = require "builtin.display"
 
 ---
--- Builtin hardware module
---
-Hardware = {
-	uart = require "builtin.hardware.uart",
-	i2c = require "builtin.hardware.i2c",
-	gpio = require "builtin.hardware.gpio",
-	pwm = require "builtin.hardware.pwm",
-	led = require "builtin.hardware.led",
-	ledtrig = require "builtin.hardware.ledtrig",
-	buzzer = require "builtin.hardware.buzzer",
-	watchdog = require "builtin.hardware.watchdog",
-}
-
----
 -- External core module
 --
 Assets = require "org.xboot.core.Assets"

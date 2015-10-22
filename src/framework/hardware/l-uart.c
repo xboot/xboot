@@ -40,7 +40,7 @@ static int l_uart_new(lua_State * L)
 		uart_setup(uart, baud, data, parity, stop);
 	}
 	lua_pushlightuserdata(L, uart);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_UART);
+	luaL_setmetatable(L, MT_HARDWARE_UART);
 	return 1;
 }
 
@@ -57,16 +57,15 @@ static int l_uart_list(lua_State * L)
 			uart = (struct uart_t *)(pos->bus->driver);
 			if(!uart)
 				continue;
-
 			lua_pushlightuserdata(L, uart);
-			luaL_setmetatable(L, MT_NAME_HARDWARE_UART);
+			luaL_setmetatable(L, MT_HARDWARE_UART);
 			lua_setfield(L, -2, pos->bus->name);
 		}
 	}
 	return 1;
 }
 
-static const luaL_Reg l_hardware_uart[] = {
+static const luaL_Reg l_uart[] = {
 	{"new",		l_uart_new},
 	{"list",	l_uart_list},
 	{NULL,	NULL}
@@ -74,20 +73,19 @@ static const luaL_Reg l_hardware_uart[] = {
 
 static int m_uart_setup(lua_State * L)
 {
-	struct uart_t * uart = luaL_checkudata(L, 1, MT_NAME_HARDWARE_UART);
+	struct uart_t * uart = luaL_checkudata(L, 1, MT_HARDWARE_UART);
 	enum baud_rate_t baud = luaL_optinteger(L, 2, B115200);
 	enum data_bits_t data = luaL_optinteger(L, 3, DATA_BITS_8);
 	enum parity_bits_t parity = luaL_optinteger(L, 4, PARITY_NONE);
 	enum stop_bits_t stop = luaL_optinteger(L, 5, STOP_BITS_1);
 	uart_setup(uart, baud, data, parity, stop);
-	lua_pushlightuserdata(L, uart);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_UART);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_uart_read(lua_State * L)
 {
-	struct uart_t * uart = luaL_checkudata(L, 1, MT_NAME_HARDWARE_UART);
+	struct uart_t * uart = luaL_checkudata(L, 1, MT_HARDWARE_UART);
 	size_t count = luaL_checkinteger(L, 2);
 	if(count <= 0)
 	{
@@ -115,7 +113,7 @@ static int m_uart_read(lua_State * L)
 
 static int m_uart_write(lua_State * L)
 {
-	struct uart_t * uart = luaL_checkudata(L, 1, MT_NAME_HARDWARE_UART);
+	struct uart_t * uart = luaL_checkudata(L, 1, MT_HARDWARE_UART);
 	size_t count;
 	const char * buf = luaL_checklstring(L, 2, &count);
 	if(count > 0)
@@ -125,7 +123,7 @@ static int m_uart_write(lua_State * L)
 	return 1;
 }
 
-static const luaL_Reg m_hardware_uart[] = {
+static const luaL_Reg m_uart[] = {
 	{"setup",	m_uart_setup},
 	{"read",	m_uart_read},
 	{"write",	m_uart_write},
@@ -134,7 +132,7 @@ static const luaL_Reg m_hardware_uart[] = {
 
 int luaopen_hardware_uart(lua_State * L)
 {
-	luaL_newlib(L, l_hardware_uart);
+	luaL_newlib(L, l_uart);
     /* baud_rate_t */
 	luahelper_set_intfield(L, "B50",			B50);
 	luahelper_set_intfield(L, "B75",			B75);
@@ -170,6 +168,6 @@ int luaopen_hardware_uart(lua_State * L)
 	luahelper_set_intfield(L, "STOP_BITS_1",	STOP_BITS_1);
 	luahelper_set_intfield(L, "STOP_BITS_1_5",	STOP_BITS_1_5);
 	luahelper_set_intfield(L, "STOP_BITS_2",	STOP_BITS_2);
-	luahelper_create_metatable(L, MT_NAME_HARDWARE_UART, m_hardware_uart);
+	luahelper_create_metatable(L, MT_HARDWARE_UART, m_uart);
 	return 1;
 }

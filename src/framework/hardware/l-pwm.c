@@ -32,7 +32,7 @@ static int l_pwm_new(lua_State * L)
 	if(!pwm)
 		return 0;
 	lua_pushlightuserdata(L, pwm);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
+	luaL_setmetatable(L, MT_HARDWARE_PWM);
 	return 1;
 }
 
@@ -44,58 +44,55 @@ static int l_pwm_list(lua_State * L)
 	list_for_each_entry_safe(pos, n, &(__pwm_list.entry), entry)
 	{
 		lua_pushlightuserdata(L, pos->pwm);
-		luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
+		luaL_setmetatable(L, MT_HARDWARE_PWM);
 		lua_setfield(L, -2, pos->pwm->name);
 	}
 	return 1;
 }
 
-static const luaL_Reg l_hardware_pwm[] = {
+static const luaL_Reg l_pwm[] = {
 	{"new",		l_pwm_new},
 	{"list",	l_pwm_list},
-	{NULL, NULL}
+	{NULL,	NULL}
 };
 
 static int m_pwm_config(lua_State * L)
 {
-	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_NAME_HARDWARE_PWM);
+	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_HARDWARE_PWM);
 	u32_t duty = luaL_optinteger(L, 2, pwm->__duty);
 	u32_t period = luaL_optinteger(L, 3, pwm->__period);
 	bool_t polarity = lua_toboolean(L, 4) ? TRUE : FALSE;
 	pwm_config(pwm, duty, period, polarity);
-	lua_pushlightuserdata(L, pwm);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_pwm_enable(lua_State * L)
 {
-	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_NAME_HARDWARE_PWM);
+	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_HARDWARE_PWM);
 	pwm_enable(pwm);
-	lua_pushlightuserdata(L, pwm);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_pwm_disable(lua_State * L)
 {
-	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_NAME_HARDWARE_PWM);
+	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_HARDWARE_PWM);
 	pwm_disable(pwm);
-	lua_pushlightuserdata(L, pwm);
-	luaL_setmetatable(L, MT_NAME_HARDWARE_PWM);
+	lua_settop(L, 1);
 	return 1;
 }
 
-static const luaL_Reg m_hardware_pwm[] = {
-	{"config",		m_pwm_config},
-	{"enable",		m_pwm_enable},
-	{"disable",		m_pwm_disable},
-	{NULL, NULL}
+static const luaL_Reg m_pwm[] = {
+	{"config",	m_pwm_config},
+	{"enable",	m_pwm_enable},
+	{"disable",	m_pwm_disable},
+	{NULL,	NULL}
 };
 
 int luaopen_hardware_pwm(lua_State * L)
 {
-	luaL_newlib(L, l_hardware_pwm);
-	luahelper_create_metatable(L, MT_NAME_HARDWARE_PWM, m_hardware_pwm);
+	luaL_newlib(L, l_pwm);
+	luahelper_create_metatable(L, MT_HARDWARE_PWM, m_pwm);
 	return 1;
 }

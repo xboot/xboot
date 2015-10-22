@@ -317,7 +317,7 @@ static int l_ninepatch_new(lua_State * L)
 	cairo_surface_destroy(surface);
 	if(!result)
 		return 0;
-	luaL_setmetatable(L, MT_NAME_NINEPATCH);
+	luaL_setmetatable(L, MT_NINEPATCH);
 	return 1;
 }
 
@@ -328,7 +328,7 @@ static const luaL_Reg l_ninepatch[] = {
 
 static int m_ninepatch_gc(lua_State * L)
 {
-	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NINEPATCH);
 	if(ninepatch->lt)
 		cairo_surface_destroy(ninepatch->lt);
 	if(ninepatch->mt)
@@ -352,7 +352,7 @@ static int m_ninepatch_gc(lua_State * L)
 
 static int m_ninepatch_set_size(lua_State * L)
 {
-	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NINEPATCH);
 	double w = luaL_checknumber(L, 2);
 	double h = luaL_checknumber(L, 3);
 	ninepatch_stretch(ninepatch, w, h);
@@ -361,7 +361,7 @@ static int m_ninepatch_set_size(lua_State * L)
 
 static int m_ninepatch_get_size(lua_State * L)
 {
-	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NAME_NINEPATCH);
+	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NINEPATCH);
 	lua_pushnumber(L, ninepatch->__w);
 	lua_pushnumber(L, ninepatch->__h);
 	return 2;
@@ -377,6 +377,6 @@ static const luaL_Reg m_ninepatch[] = {
 int luaopen_ninepatch(lua_State * L)
 {
 	luaL_newlib(L, l_ninepatch);
-	luahelper_create_metatable(L, MT_NAME_NINEPATCH, m_ninepatch);
+	luahelper_create_metatable(L, MT_NINEPATCH, m_ninepatch);
 	return 1;
 }

@@ -23,12 +23,26 @@
  */
 
 #include <cairo.h>
+#include <cairoint.h>
 #include <framework/display/l-display.h>
 
 static int l_matrix_new(lua_State * L)
 {
-	cairo_matrix_t * matrix = lua_newuserdata(L, sizeof(cairo_matrix_t));
-	cairo_matrix_init_identity(matrix);
+	cairo_matrix_t * m = lua_newuserdata(L, sizeof(cairo_matrix_t));
+
+	if(lua_istable(L, 1) && lua_rawlen(L, 1) == 6)
+	{
+		lua_rawgeti(L, 1, 1); m->xx = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 2); m->yx = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 3); m->xy = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 4); m->yy = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 5); m->x0 = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 6); m->y0 = lua_tonumber(L, -1); lua_pop(L, 1);
+	}
+	else if(luaL_testudata(L, 1, MT_MATRIX))
+		memcpy(m, lua_touserdata(L, 1), sizeof(cairo_matrix_t));
+	else
+		cairo_matrix_init_identity(m);
 	luaL_setmetatable(L, MT_MATRIX);
 	return 1;
 }
@@ -38,94 +52,108 @@ static const luaL_Reg l_matrix[] = {
 	{NULL,	NULL}
 };
 
-static int m_matrix_init(lua_State * L)
+static int m_matrix_tostring(lua_State * L)
 {
-	cairo_matrix_t * matrix = luaL_checkudata(L, 1, MT_MATRIX);
-	double xx = luaL_optnumber(L, 2, 1);
-	double yx = luaL_optnumber(L, 3, 0);
-	double xy = luaL_optnumber(L, 4, 0);
-	double yy = luaL_optnumber(L, 5, 1);
-	double x0 = luaL_optnumber(L, 6, 0);
-	double y0 = luaL_optnumber(L, 7, 0);
-	cairo_matrix_init(matrix, xx, yx, xy, yy, x0, y0);
-	return 0;
+	cairo_matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
+	lua_pushfstring(L, "matrix(%f,%f,%f,%f,%f,%f)", m->xx, m->yx, m->xy, m->yy, m->x0, m->y0);
+	return 1;
 }
 
 static int m_matrix_invert(lua_State * L)
 {
-	cairo_matrix_t * matrix = luaL_checkudata(L, 1, MT_MATRIX);
-	cairo_status_t v = cairo_matrix_invert(matrix);
-	lua_pushinteger(L, v);
+	cairo_matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
+	cairo_matrix_invert(m);
+	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_matrix_multiply(lua_State * L)
 {
-	cairo_matrix_t * result = luaL_checkudata(L, 1, MT_MATRIX);
-	const cairo_matrix_t * a = luaL_checkudata(L, 2, MT_MATRIX);
-	const cairo_matrix_t * b = luaL_checkudata(L, 3, MT_MATRIX);
-	cairo_matrix_multiply(result, a, b);
-	return 0;
+	cairo_matrix_t * m1 = luaL_checkudata(L, 1, MT_MATRIX);
+	cairo_matrix_t * m2 = luaL_checkudata(L, 2, MT_MATRIX);
+	if(!lua_toboolean(L, 3))
+		cairo_matrix_multiply(m1, m1, m2);
+	else
+		cairo_matrix_multiply(m1, m2, m1);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_matrix_translate(lua_State * L)
+{
+	cairo_matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
+	double tx = luaL_checknumber(L, 2);
+	double ty = luaL_checknumber(L, 3);
+	cairo_matrix_translate(m, tx, ty);
+	lua_settop(L, 1);
+	return 1;
 }
 
 static int m_matrix_rotate(lua_State * L)
 {
-	cairo_matrix_t * matrix = luaL_checkudata(L, 1, MT_MATRIX);
+	cairo_matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
 	double radians = luaL_checknumber(L, 2);
-	cairo_matrix_rotate(matrix, radians);
-	return 0;
+	cairo_matrix_rotate(m, radians);
+	lua_settop(L, 1);
+	return 1;
 }
 
 static int m_matrix_scale(lua_State * L)
 {
-	cairo_matrix_t * matrix = luaL_checkudata(L, 1, MT_MATRIX);
+	cairo_matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
 	double sx = luaL_checknumber(L, 2);
 	double sy = luaL_checknumber(L, 3);
-	cairo_matrix_scale(matrix, sx, sy);
-	return 0;
+	cairo_matrix_scale(m, sx, sy);
+	lua_settop(L, 1);
+	return 1;
 }
 
-static int m_matrix_transform_distance(lua_State * L)
+static int m_matrix_distance(lua_State * L)
 {
-	const cairo_matrix_t * matrix = luaL_checkudata(L, 1, MT_MATRIX);
+	const cairo_matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
 	double dx = luaL_checknumber(L, 2);
 	double dy = luaL_checknumber(L, 3);
-	cairo_matrix_transform_distance(matrix, &dx, &dy);
+	cairo_matrix_transform_distance(m, &dx, &dy);
 	lua_pushnumber(L, dx);
 	lua_pushnumber(L, dy);
 	return 2;
 }
 
-static int m_matrix_transform_point(lua_State * L)
+static int m_matrix_point(lua_State * L)
 {
-	const cairo_matrix_t * matrix = luaL_checkudata(L, 1, MT_MATRIX);
+	const cairo_matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
-	cairo_matrix_transform_point(matrix, &x, &y);
+	cairo_matrix_transform_point(m, &x, &y);
 	lua_pushnumber(L, x);
 	lua_pushnumber(L, y);
 	return 2;
 }
 
-static int m_matrix_translate(lua_State * L)
+static int m_matrix_bounds(lua_State * L)
 {
-	cairo_matrix_t * matrix = luaL_checkudata(L, 1, MT_MATRIX);
-	double tx = luaL_checknumber(L, 2);
-	double ty = luaL_checknumber(L, 3);
-	cairo_matrix_translate(matrix, tx, ty);
-	return 0;
+	const cairo_matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
+	double x1, y1;
+	double x2, y2;
+	_cairo_matrix_transform_bounding_box(m, &x1, &y1, &x2, &y2, NULL);
+	lua_pushnumber(L, x1);
+	lua_pushnumber(L, y1);
+	lua_pushnumber(L, x2 - x1);
+	lua_pushnumber(L, y2 - y1);
+	return 4;
 }
 
 static const luaL_Reg m_matrix[] = {
-	{"init",				m_matrix_init},
-	{"invert",				m_matrix_invert},
-	{"multiply",			m_matrix_multiply},
-	{"rotate",				m_matrix_rotate},
-	{"scale",				m_matrix_scale},
-	{"transformDistance",	m_matrix_transform_distance},
-	{"transformPoint",		m_matrix_transform_point},
-	{"translate",			m_matrix_translate},
-	{NULL,					NULL}
+	{"__tostring",	m_matrix_tostring},
+	{"invert",		m_matrix_invert},
+	{"multiply",	m_matrix_multiply},
+	{"translate",	m_matrix_translate},
+	{"rotate",		m_matrix_rotate},
+	{"scale",		m_matrix_scale},
+	{"distance",	m_matrix_distance},
+	{"point",		m_matrix_point},
+	{"bounds",		m_matrix_bounds},
+	{NULL,	NULL}
 };
 
 int luaopen_matrix(lua_State * L)

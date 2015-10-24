@@ -168,6 +168,23 @@ void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg
 	lua_pop(L, 1);
 }
 
+void luahelper_create_class(lua_State * L, const char * parant, const luaL_Reg * funcs)
+{
+	lua_getglobal(L, "class");
+	if(parant)
+	{
+		lua_getglobal(L, "require");
+		lua_pushstring(L, parant);
+		lua_call(L, 1, 1);
+	}
+	else
+	{
+		lua_pushnil(L);
+	}
+	lua_call(L, 1, 1);
+	luaL_setfuncs(L, funcs, 0);
+}
+
 static int msghandler(lua_State * L)
 {
 	const char * msg = lua_tostring(L, 1);

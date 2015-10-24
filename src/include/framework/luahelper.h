@@ -10,6 +10,7 @@ extern "C" {
 #include <lauxlib.h>
 #include <lualib.h>
 
+void luahelper_dump_stack(lua_State * L);
 const char * luahelper_get_strfield(lua_State * L, const char * key, const char * def);
 lua_Number luahelper_get_numfield(lua_State * L, const char * key, lua_Number def);
 lua_Integer luahelper_get_intfield(lua_State * L, const char * key, lua_Integer def);

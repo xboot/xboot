@@ -9,6 +9,8 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
+#define SHA256_DIGEST_SIZE	(32)
+
 struct sha256_ctx {
 	uint64_t count;
 	uint8_t buf[64];

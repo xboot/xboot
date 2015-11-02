@@ -81,7 +81,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/$(MACH)/resource				\
 				lib/libc									\
 				lib/libc/charset							\
-				lib/libc/crypt								\
+				lib/libc/crypto								\
 				lib/libc/ctype								\
 				lib/libc/environ							\
 				lib/libc/errno								\

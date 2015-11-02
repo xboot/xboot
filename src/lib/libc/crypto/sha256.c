@@ -1,5 +1,5 @@
 /*
- * libc/crypt/sha256.c
+ * libc/crypto/sha256.c
  */
 
 #include <sha256.h>
@@ -155,6 +155,6 @@ const uint8_t * sha256_hash(const void * data, int len, uint8_t * digest)
 	struct sha256_ctx ctx;
 	sha256_init(&ctx);
 	sha256_update(&ctx, data, len);
-	memcpy(digest, sha256_final(&ctx), 32);
+	memcpy(digest, sha256_final(&ctx), SHA256_DIGEST_SIZE);
 	return digest;
 }

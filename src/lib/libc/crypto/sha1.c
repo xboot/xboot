@@ -1,5 +1,5 @@
 /*
- * libc/crypt/sha1.c
+ * libc/crypto/sha1.c
  */
 
 #include <sha1.h>
@@ -124,6 +124,6 @@ const uint8_t * sha1_hash(const void * data, int len, uint8_t * digest)
 	struct sha1_ctx ctx;
 	sha1_init(&ctx);
 	sha1_update(&ctx, data, len);
-	memcpy(digest, sha1_final(&ctx), 20);
+	memcpy(digest, sha1_final(&ctx), SHA1_DIGEST_SIZE);
 	return digest;
 }

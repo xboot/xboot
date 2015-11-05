@@ -23,6 +23,7 @@ struct machine_t {
 	bool_t (*reboot)(void);
 	bool_t (*sleep)(void);
 	bool_t (*cleanup)(void);
+	bool_t (*keygen)(const void * msg, int len, void * key);
 	const char * (*uniqueid)(void);
 };
 
@@ -33,6 +34,7 @@ struct machine_t * get_machine(void);
 bool_t machine_poweroff(void);
 bool_t machine_reboot(void);
 bool_t machine_sleep(void);
+bool_t machine_keygen(const void * msg, int len, void * key);
 bool_t machine_cleanup(void);
 const char * machine_uniqueid(void);
 

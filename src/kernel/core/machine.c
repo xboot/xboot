@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <spinlock.h>
+#include <sha256.h>
 #include <xboot/machine.h>
 
 struct machine_list_t
@@ -194,6 +194,16 @@ bool_t machine_cleanup(void)
 	if(mach && mach->cleanup)
 		return mach->cleanup();
 	return FALSE;
+}
+
+bool_t machine_keygen(const void * msg, int len, void * key)
+{
+	struct machine_t * mach = get_machine();
+
+	if(mach && mach->keygen && mach->keygen(msg, len, key))
+		return TRUE;
+	sha256_hash(msg, len, key);
+	return TRUE;
 }
 
 const char * machine_uniqueid(void)

@@ -79,6 +79,11 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
+static bool_t mach_keygen(const void * msg, int len, void * key)
+{
+	return FALSE;
+}
+
 const char * mach_uniqueid(void)
 {
 	static char uniqueid[16 + 1];
@@ -121,6 +126,7 @@ static struct machine_t x4418 = {
 	.reboot				= mach_reboot,
 	.sleep				= mach_sleep,
 	.cleanup			= mach_cleanup,
+	.keygen				= mach_keygen,
 	.uniqueid			= mach_uniqueid,
 };
 

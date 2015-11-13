@@ -25,8 +25,35 @@
 #include <xboot.h>
 #include <s5p6818/reg-uart.h>
 
+extern u8_t	__text_start[];
+extern u8_t __text_end[];
+extern u8_t __data_shadow_start[];
+extern u8_t __data_shadow_end[];
+extern u8_t __data_start[];
+extern u8_t __data_end[];
+extern u8_t __bss_start[];
+extern u8_t __bss_end[];
+extern u8_t __stack_start[];
+extern u8_t __stack_end[];
+
 void debug(char c)
 {
 	while( !(read32(S5P6818_UART0_BASE + UART_UTRSTAT) & UART_UTRSTAT_TXFE) );
 	write8(S5P6818_UART0_BASE + UART_UTXH, c);
+}
+
+void copy_shadow(void)
+{
+	u64_t size;
+
+	size = __data_shadow_end - __data_shadow_start;
+	memcpy(__data_start, __data_shadow_start, size);
+}
+
+void clear_bss(void)
+{
+	u64_t size;
+
+	size = __bss_end - __bss_start;
+	memset(__bss_start, 0, size);
 }

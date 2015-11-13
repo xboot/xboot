@@ -27,30 +27,17 @@ _start:
 	mov x0, #0x61
 	bl debug
 
-	/* Copy shadow of data section */
-copy_shadow_data:
-	ldr	x0, _text_start
-	ldr x1, _text_end
-	sub x0, x1, x0
-	adr	x1, _start
-	add x0, x0 ,x1
-	ldr	x1, _data_start
-	ldr	x2, _data_shadow_start
-	ldr	x3, _data_shadow_end
-	sub	x2, x3, x2
-	add	x2, x0, x2
-	bl	memcpy
-
 	mov x0, #0x62
 	bl debug
 
-	/* Clear bss section */
-clear_bss:
-	ldr	x0, _bss_start
-	ldr	x1, _bss_end
-	sub x1, x1, x0
-	mov x2, #0
-	bl	memset
+	bl copy_shadow
+
+	mov x0, #0x62
+	bl debug
+	mov x0, #0x64
+	bl debug
+
+	bl clear_bss
 
 	mov x0, #0x63
 	bl debug

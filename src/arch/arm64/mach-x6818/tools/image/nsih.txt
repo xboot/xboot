@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------							
+//------------------------------------------------------------------------------							
 //	Copyright (C) 2012 Nexell Co., All Rights Reserved						
 //	Nexell Co. Proprietary < Confidential						
 // 							
@@ -22,23 +22,22 @@
 // Nexell System Infomation Header 							
 //------------------------------------------------------------------------------ 							
 // Vector Code Area 							
-E59FF018	// 0x000 : MOV PC, ResetV 						
-E59FF018	// 0x004 : MOV PC, UndefV 						
-E59FF018	// 0x008 : MOV PC, SWIV 						
-E59FF018	// 0x00C : MOV PC, PAbortV 						
-E59FF018	// 0x010 : MOV PC, DAbortV 						
-E59FF018	// 0x014 : MOV PC, NotUsed 						
-E59FF018	// 0x018 : MOV PC, IRQV 						
-E59FF018	// 0x01C : MOV PC, FIQV 						
-							
-FFFF0200	// 0x020 : SRAMBASE + Header 						
-FFFF0204	// 0x024 : SRAMBASE + Header 						
-FFFF0208	// 0x028 : SRAMBASE + Header 						
-FFFF020C	// 0x02C : SRAMBASE + Header 						
-FFFF0210	// 0x030 : SRAMBASE + Header 						
-FFFF0214	// 0x034 : SRAMBASE + Header 						
-FFFF0218	// 0x038 : SRAMBASE + Header 						
-FFFF021C	// 0x03C : SRAMBASE + Header 						
+E3A00103	// 0x000 : MOV R0, #0xC0000000						
+E3800A11	// 0x004 : ORR R0, R0, #0x11000						
+E590113C	// 0x008 : LDR R1, [R0, #0x13C]		// tieoff reg select AArch mode				
+E3811A0F	// 0x00C : ORR R1, R1, #0xF000		// all group 0 cpu AArch64 mode				
+E580113C	// 0x010 : STR R1, [R0, #0x13C]						
+E3A025FF	// 0x014 : MOV R2, #0x3FC00000						
+E38229FF	// 0x018 : ORR R2, R2, #0x3FC000						
+E3822080	// 0x01C : ORR R2, R2, #0x80		// 0xFFFF0200>>2				
+E5802140	// 0x020 : STR R2, [R0, #0x140]		// Set AArch64 Reset Vector				
+E3A08103	// 0x024 : MOV R8, #0xC0000000						
+E3888801	// 0x028 : ORR R8, R8, #0x10000						
+E59892AC	// 0x02C : LDR R9, [R8, #0x2AC]		// system control reset req				
+E3899001	// 0x030 : ORR R9, R9, #0x1						
+E58892AC	// 0x034 : STR R9, [R8, #0x2AC]						
+E320F003	// 0x038 : WFI		// core 0 will be reset when wfi				
+EAFFFFFE	// 0x03C : B .						
 							
 //------------------------------------------------------------------------------ 							
 // Main Bootloader Load Info 							
@@ -49,7 +48,7 @@ FFFF0000	// 0x048 : Load Address for 2ndboot.
 FFFF0000	// 0x04C : Launch Address for 2ndboot.						
 							
 00000000	// 0x050	[7:0] - Channel number					
-00000000	// 0x054	Boot From SDMMC	[31:24] - 0: USB, 1: SPI, 2: NAND, 3:SDMMC, 4: SDFS				
+03000000	// 0x054	Boot From SDMMC	[31:24] - 0: USB, 1: SPI, 2: NAND, 3:SDMMC, 4: SDFS				
 00000000	// 0x058						
 							
 //------------------------------------------------------------------------------							
@@ -66,7 +65,7 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 00000601	// 0x074 : CPU G0		PLL1	/FCLK:800	/HCLK:200		
 00000208	// 0x078 : BUS		PLL0	/BCLK:300	/PCLK:150		
 00208003	// 0x07C : MEM		PLL3	/MDCLK:800	/MCLK:800	/MBCLK:400	/MPCLK:200
-00000208	// 0x080 : GR3D		PLL0	/GR3DBCLK:300			
+0000020B	// 0x080 : GR3D		PLL3	/GR3DBCLK:400			
 00000208	// 0x084 : MPEG		PLL0	/MPEGBCLK:300	/MPEGPCLK:150		
 00000208	// 0x088 : DISP		PLL0	/DISPBCLK:300	/DISPPCLK:150		
 00000028	// 0x08C : HDMI		PLL0	/HDMIPCLK:100			
@@ -77,8 +76,8 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 // MCU-D registers							
 //------------------------------------------------------------------------------							
 // Mem Controller Configuration 							
-03080401	// 0x098	/Chip Num:1	/Chip Row:16	/Bus Width:8	/Chip Col:10		
-00800780	// 0x09C	512MB x 4ea (8bit) x 1CS					
+03100301	// 0x098	/Chip Num:1	/Chip Row:15	/Bus Width:16	/Chip Col:10		
+004007C0	// 0x09C	/Mem size:(2^15)x(2^10)x(8bank)x4, 4 => (32bit / 8bit)					
 06000B08	// 0x0A0	/CWL:8	/CL:11	/MR1_AL:0	/MR0_WR:6		
 							
 // DDR PHY delay timing Configuration 							
@@ -179,7 +178,7 @@ FFFF0000	// 0x04C : Launch Address for 2ndboot.
 00000000	// 0x1EC						
 00000000	// 0x1F0						
 00000000	// 0x1F4						
-00000000	// 0x1F8						
+68180300	// 0x1F8						
 							
 //------------------------------------------------------------------------------ 							
 // Signature							

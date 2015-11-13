@@ -39,8 +39,8 @@ static ssize_t logger_uart0_output(const char * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		while( (read8(phys_to_virt(S5P6818_UART0_BASE + UART_FR)) & UART_FR_TXFF) );
-		write8(phys_to_virt(S5P6818_UART0_BASE + UART_DATA), buf[i]);
+		while( !(read32(S5P6818_UART0_BASE + UART_UTRSTAT) & UART_UTRSTAT_TXFE) );
+		write8(S5P6818_UART0_BASE + UART_UTXH, buf[i]);
 	}
 	return i;
 }

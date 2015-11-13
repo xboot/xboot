@@ -41,6 +41,9 @@ copy_shadow_data:
 	add	x2, x0, x2
 	bl	memcpy
 
+	mov x0, #0x62
+	bl debug
+
 	/* Clear bss section */
 clear_bss:
 	ldr	x0, _bss_start
@@ -48,6 +51,9 @@ clear_bss:
 	sub x1, x1, x0
 	mov x2, #0
 	bl	memset
+
+	mov x0, #0x63
+	bl debug
 
 	bl	xboot_main
 

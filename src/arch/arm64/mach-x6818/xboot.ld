@@ -1,12 +1,8 @@
-OUTPUT_FORMAT("elf64-littleaarch64", "elf64-bigaarch64", "elf64-littleaarch64")
-OUTPUT_ARCH(aarch64)
+OUTPUT_FORMAT("elf64-littleaarch64", "elf64-littleaarch64", "elf64-littleaarch64")
+OUTPUT_ARCH("aarch64")
 ENTRY(_start)
 
-STACK_FIQ_SIZE 	= 0x0400;
-STACK_IRQ_SIZE 	= 0x0400;
-STACK_ABT_SIZE 	= 0x0400;
-STACK_UND_SIZE 	= 0x0400;
-STACK_SRV_SIZE 	= 0x8000;
+STACK_SIZE	= 0x8000;
 
 MEMORY
 {
@@ -15,24 +11,38 @@ MEMORY
 }
 
 SECTIONS
-{   
+{
+	.image_copy_start :
+	{
+		. = ALIGN(8);
+		PROVIDE(__image_copy_start = .);
+	} > rom
+
 	.text :
 	{
 		. = ALIGN(8);
-		PROVIDE (__text_start = .);
-		.obj/arch/arm64/mach-x6818/start.o (.text)
-		*(.text)
-		*(.text.*)
+		PROVIDE(__text_start = .);
+		.obj/arch/arm64/mach-x6818/start.o (.text*)
+		.obj/arch/arm64/mach-x6818/debug.o (.text*)
+		*(.text*)
 		*(.init.text)
     	*(.exit.text)
-		*(.note.gnu.build-id)
+    	*(.note.gnu.build-id)
+    	*(.iplt)
+		PROVIDE (__text_end = .);
+	} > rom
 
-    	. = ALIGN(8);
+	.ksymtab :
+	{
+	    . = ALIGN(8);
     	PROVIDE (__ksymtab_start = .);
 		KEEP(*(.ksymtab.text))
 		PROVIDE (__ksymtab_end = .);
+	} > rom
 
-    	. = ALIGN(8);
+	.initcall :
+	{
+		. = ALIGN(8);
 		PROVIDE (__initcall_start = .);
 		KEEP(*(.initcall_0.text))
 		KEEP(*(.initcall_1.text))
@@ -45,7 +55,10 @@ SECTIONS
 		KEEP(*(.initcall_8.text))
 		KEEP(*(.initcall_9.text))
 		PROVIDE (__initcall_end = .);
-		
+	} > rom
+
+	.exitcall :
+	{
 		. = ALIGN(8);
 		PROVIDE (__exitcall_start = .);
 		KEEP(*(.exitcall_9.text))
@@ -59,106 +72,77 @@ SECTIONS
 		KEEP(*(.exitcall_1.text))
 		KEEP(*(.exitcall_0.text))
 		PROVIDE (__exitcall_end = .);
+	} > rom
 
+	.romdisk :
+	{
 		. = ALIGN(8);
 		PROVIDE (__romdisk_start = .);
 		KEEP(*(.romdisk))
 		PROVIDE (__romdisk_end = .);
-
-		. = ALIGN(8);
-		*(.rodata);
-		*(.rodata.*);
-
-		. = ALIGN(8);
-		*(.glue_7);
-		*(.glue_7t);
-
-		. = ALIGN(8);
-		PROVIDE (__text_end = .);
 	} > rom
 
-	.data_shadow ALIGN(8) :
+	.rodata :
 	{
+		. = ALIGN(8);
+		PROVIDE (__rodata_start = .);
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
+		PROVIDE (__rodata_end = .);
+	} > rom
+
+	.data_shadow :
+	{
+		. = ALIGN(8);
 		PROVIDE (__data_shadow_start = .);
 		PROVIDE (__data_shadow_end = (. + SIZEOF (.data)) );
 	} > rom
 
-	.data : AT ( ADDR (.data_shadow) )
+	.image_copy_end :
+	{
+		. = ALIGN(8);
+		PROVIDE(__image_copy_end = .);
+	} > rom
+
+	.data : AT(ADDR(.data_shadow))
 	{
 		PROVIDE (__data_start = .);	
-		*(.data)
-		. = ALIGN(8);
-  		PROVIDE (__data_end = .);		
+		*(.data*)
+  		PROVIDE (__data_end = .);
 	} > ram
 
-	.ARM.exidx :
+	.bss (NOLOAD) :
 	{
 		. = ALIGN(8);
-		PROVIDE (__exidx_start = .);
-		*(.ARM.exidx*)
-		PROVIDE (__exidx_end = .);
-	} > ram
-
-	.ARM.extab :
-	{
-		PROVIDE (__extab_start = .);
-		*(.ARM.extab*)
-		PROVIDE (__extab_end = .);
-	} > ram
-
-	.bss ALIGN(8) (NOLOAD) :
-	{
 		PROVIDE (__bss_start = .);
-		*(.bss)
-		*(.bss.*)
+		*(.bss*)
 		*(.sbss)
 		*(COMMON)
+		. = ALIGN(8);
 		PROVIDE (__bss_end = .);
+	} > ram
 
+	.heap (NOLOAD) :
+	{
 		. = ALIGN(8);
 		PROVIDE (__heap_start = .);
-		*(.heap)
+		*(.heap*)
 		. = ALIGN(8);
 		PROVIDE (__heap_end = .);
-
+	} > ram
+	
+	.stack (NOLOAD) :
+	{
 		. = ALIGN(8);
 		PROVIDE (__stack_start = .);
-		PROVIDE (__stack_fiq_start = .);
-		. += STACK_FIQ_SIZE;
-		PROVIDE (__stack_fiq_end = .);
-		. = ALIGN(8);
-		PROVIDE (__stack_irq_start = .);
-		. += STACK_IRQ_SIZE;
-		PROVIDE (__stack_irq_end = .);
-		. = ALIGN(8);
-		PROVIDE (__stack_abt_start = .);
-		. += STACK_ABT_SIZE;
-		PROVIDE (__stack_abt_end = .);
-		. = ALIGN(8);
-		PROVIDE (__stack_und_start = .);
-		. += STACK_UND_SIZE;
-		PROVIDE (__stack_und_end = .);
-		. = ALIGN(8);
-		PROVIDE (__stack_srv_start = .);
-		. += STACK_SRV_SIZE;
-		PROVIDE (__stack_srv_end = .);
+		. += STACK_SIZE;
 		. = ALIGN(8);
 		PROVIDE (__stack_end = .);
 	} > ram
 
-	/*
-	 * Stabs debugging sections.
-	 */
-	.stab 0 : { *(.stab) }
-	.stabstr 0 : { *(.stabstr) }
-	.stab.excl 0 : { *(.stab.excl) }
-	.stab.exclstr 0 : { *(.stab.exclstr) }
-	.stab.index 0 : { *(.stab.index) }
-	.stab.indexstr 0 : { *(.stab.indexstr) }
-	.comment 0 : { *(.comment) }
-	.debug_abbrev 0 : { *(.debug_abbrev) }
-	.debug_info 0 : { *(.debug_info) }
-	.debug_line 0 : { *(.debug_line) }
-	.debug_pubnames 0 : { *(.debug_pubnames) }
-	.debug_aranges 0 : { *(.debug_aranges) }
+	/DISCARD/ : { *(.dynsym) }
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 }

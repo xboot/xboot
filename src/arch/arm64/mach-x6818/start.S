@@ -24,6 +24,11 @@
 
 	.global	_start
 _start:
+	/* disable watchdog */
+	ldr	x0, =0xC0019000
+	mov	x1, #0
+	str	x1, [x0]
+
 	mov x0, #0x61
 	bl debug
 
@@ -49,24 +54,28 @@ _start:
  */
  	.align 8
 _text_start:
-	.long	__text_start
+	.quad	__text_start
 _text_end:
-	.long	__text_end
+	.quad	__text_end
 _romdisk_start:
-	.long	__romdisk_start
+	.quad	__romdisk_start
 _romdisk_end:
-	.long	__romdisk_end
+	.quad	__romdisk_end
 _data_shadow_start:
-	.long	 __data_shadow_start
+	.quad	 __data_shadow_start
 _data_shadow_end:
-	.long	 __data_shadow_end
+	.quad	 __data_shadow_end
 _data_start:
-	.long	__data_start
+	.quad	__data_start
 _data_end:
-	.long	__data_end
+	.quad	__data_end
 _bss_start:
-	.long	__bss_start
+	.quad	__bss_start
 _bss_end:
-	.long	__bss_end
+	.quad	__bss_end
+_stack_start:
+	.quad	__stack_start
+_stack_end:
+	.quad	__stack_end
 
 .end

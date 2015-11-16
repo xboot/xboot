@@ -12,10 +12,10 @@ MEMORY
 
 SECTIONS
 {
-	.image_copy_start :
+	.image_start :
 	{
 		. = ALIGN(8);
-		PROVIDE(__image_copy_start = .);
+		PROVIDE(__image_start = .);
 	} > rom
 
 	.text :
@@ -97,10 +97,10 @@ SECTIONS
 		PROVIDE (__data_shadow_end = (. + SIZEOF (.data)) );
 	} > rom
 
-	.image_copy_end :
+	.image_end :
 	{
 		. = ALIGN(8);
-		PROVIDE(__image_copy_end = .);
+		PROVIDE(__image_end = .);
 	} > rom
 
 	.data : AT(ADDR(.data_shadow))
@@ -115,7 +115,6 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE (__bss_start = .);
 		*(.bss*)
-		*(.sbss)
 		*(COMMON)
 		. = ALIGN(8);
 		PROVIDE (__bss_end = .);

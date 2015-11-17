@@ -6,8 +6,8 @@ STACK_SIZE	= 0x8000;
 
 MEMORY
 {
-	rom (rx)	: org = 0x43c00000, len = 0x02000000	/* 32 MB */
-	ram (rwx)	: org = 0x45100000, len = 0x0a000000	/* 160 MB */
+	rom(rx) : org = 0x43c00000, len = 0x02000000	/* 32 MB */
+	ram(rwx): org = 0x45100000, len = 0x0a000000	/* 160 MB */
 }
 
 SECTIONS
@@ -27,23 +27,23 @@ SECTIONS
 		*(.text*)
 		*(.init.text)
     	*(.exit.text)
-    	*(.note.gnu.build-id)
-    	*(.iplt)
-		PROVIDE (__text_end = .);
+		*(.note.gnu.build-id)
+		*(.iplt)
+		PROVIDE(__text_end = .);
 	} > rom
 
 	.ksymtab :
 	{
 	    . = ALIGN(8);
-    	PROVIDE (__ksymtab_start = .);
+    	PROVIDE(__ksymtab_start = .);
 		KEEP(*(.ksymtab.text))
-		PROVIDE (__ksymtab_end = .);
+		PROVIDE(__ksymtab_end = .);
 	} > rom
 
 	.initcall :
 	{
 		. = ALIGN(8);
-		PROVIDE (__initcall_start = .);
+		PROVIDE(__initcall_start = .);
 		KEEP(*(.initcall_0.text))
 		KEEP(*(.initcall_1.text))
 		KEEP(*(.initcall_2.text))
@@ -54,13 +54,13 @@ SECTIONS
 		KEEP(*(.initcall_7.text))
 		KEEP(*(.initcall_8.text))
 		KEEP(*(.initcall_9.text))
-		PROVIDE (__initcall_end = .);
+		PROVIDE(__initcall_end = .);
 	} > rom
 
 	.exitcall :
 	{
 		. = ALIGN(8);
-		PROVIDE (__exitcall_start = .);
+		PROVIDE(__exitcall_start = .);
 		KEEP(*(.exitcall_9.text))
 		KEEP(*(.exitcall_8.text))
 		KEEP(*(.exitcall_7.text))
@@ -71,30 +71,30 @@ SECTIONS
 		KEEP(*(.exitcall_2.text))
 		KEEP(*(.exitcall_1.text))
 		KEEP(*(.exitcall_0.text))
-		PROVIDE (__exitcall_end = .);
+		PROVIDE(__exitcall_end = .);
 	} > rom
 
 	.romdisk :
 	{
 		. = ALIGN(8);
-		PROVIDE (__romdisk_start = .);
+		PROVIDE(__romdisk_start = .);
 		KEEP(*(.romdisk))
-		PROVIDE (__romdisk_end = .);
+		PROVIDE(__romdisk_end = .);
 	} > rom
 
 	.rodata :
 	{
 		. = ALIGN(8);
-		PROVIDE (__rodata_start = .);
+		PROVIDE(__rodata_start = .);
 		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
-		PROVIDE (__rodata_end = .);
+		PROVIDE(__rodata_end = .);
 	} > rom
 
 	.data_shadow :
 	{
 		. = ALIGN(8);
-		PROVIDE (__data_shadow_start = .);
-		PROVIDE (__data_shadow_end = (. + SIZEOF (.data)) );
+		PROVIDE(__data_shadow_start = .);
+		PROVIDE(__data_shadow_end = (. + SIZEOF (.data)) );
 	} > rom
 
 	.image_end :
@@ -105,37 +105,37 @@ SECTIONS
 
 	.data : AT(ADDR(.data_shadow))
 	{
-		PROVIDE (__data_start = .);	
+		PROVIDE(__data_start = .);	
 		*(.data*)
-  		PROVIDE (__data_end = .);
+  		PROVIDE(__data_end = .);
 	} > ram
 
 	.bss (NOLOAD) :
 	{
 		. = ALIGN(8);
-		PROVIDE (__bss_start = .);
+		PROVIDE(__bss_start = .);
 		*(.bss*)
 		*(COMMON)
 		. = ALIGN(8);
-		PROVIDE (__bss_end = .);
+		PROVIDE(__bss_end = .);
 	} > ram
 
 	.heap (NOLOAD) :
 	{
 		. = ALIGN(8);
-		PROVIDE (__heap_start = .);
+		PROVIDE(__heap_start = .);
 		*(.heap*)
 		. = ALIGN(8);
-		PROVIDE (__heap_end = .);
+		PROVIDE(__heap_end = .);
 	} > ram
 	
 	.stack (NOLOAD) :
 	{
-		. = ALIGN(8);
-		PROVIDE (__stack_start = .);
+		. = ALIGN(16);
+		PROVIDE(__stack_start = .);
 		. += STACK_SIZE;
-		. = ALIGN(8);
-		PROVIDE (__stack_end = .);
+		. = ALIGN(16);
+		PROVIDE(__stack_end = .);
 	} > ram
 
 	/DISCARD/ : { *(.dynsym) }

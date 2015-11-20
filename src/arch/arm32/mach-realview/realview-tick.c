@@ -27,6 +27,7 @@
 #include <xboot.h>
 #include <realview/reg-timer.h>
 
+#if 0
 static void timer_interrupt(void * data)
 {
 	tick_interrupt();
@@ -85,3 +86,4 @@ static __init void realview_tick_init(void)
 		LOG("Failed to register tick");
 }
 core_initcall(realview_tick_init);
+#endif

@@ -27,8 +27,7 @@
 
 static void logger_uart0_init(void)
 {
-	write32(REALVIEW_UART0_BASE + REALVIEW_UART_OFFSET_CR, 0x0);
-	write32(REALVIEW_UART0_BASE + REALVIEW_UART_OFFSET_CR, REALVIEW_UART_CR_UARTEN |	REALVIEW_UART_CR_TXE | REALVIEW_UART_CR_RXE);
+	write32(phys_to_virt(REALVIEW_UART0_BASE + UART_CR), (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void logger_uart0_exit(void)
@@ -41,8 +40,8 @@ static ssize_t logger_uart0_output(const char * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		while( (read8(REALVIEW_UART0_BASE + REALVIEW_UART_OFFSET_FR) & REALVIEW_UART_FR_TXFF) );
-		write8(REALVIEW_UART0_BASE + REALVIEW_UART_OFFSET_DATA, buf[i]);
+		while( (read8(phys_to_virt(REALVIEW_UART0_BASE + UART_FR)) & UART_FR_TXFF) );
+		write8(phys_to_virt(REALVIEW_UART0_BASE + UART_DATA), buf[i]);
 	}
 	return i;
 }

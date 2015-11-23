@@ -54,17 +54,17 @@ _irq:
 _fiq:
 	.long fiq
 
-/*
- * Xboot magics
- */
-/* magic number so we can verify that we only put */
-	.long 0x11223344, 0x11223344, 0x11223344, 0x11223344
-/* where this xboot was linked */
+	.align 4
+/* Magic number(16bytes) - xbootmagicnumber */
+	.byte 0x78, 0x62, 0x6f, 0x6f, 0x74, 0x6d, 0x61, 0x67, 0x69, 0x63, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72
+/* Image start and image end information */
+	.long __image_start, __image_end
+/* Where the image was linked address */
 	.long _start
-/* platform, cpu and machine id */
-	.long 0xdeadbeef
-/* xboot check sum */
-	.byte 0, 0, 0, 0
+/* Image sha256 digest */
+	.long 0, 0, 0, 0
+/* Magic number(16bytes) - xbootmagicnumber */
+	.byte 0x78, 0x62, 0x6f, 0x6f, 0x74, 0x6d, 0x61, 0x67, 0x69, 0x63, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72
 
 /*
  * The actual reset code
@@ -86,104 +86,120 @@ reset:
 	fmxr fpexc, r0
 
 	/* Initialize stacks */
-init_stacks:
 	mrs r0, cpsr
-	bic r0, r0, #0x1f | 0xc0
+	bic r0, r0, #0xdf
 	orr r1, r0, #0x1b
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_und_end
 
-	bic r0, r0, #0x1f | 0xc0
+	bic r0, r0, #0xdf
 	orr r1, r0, #0x17
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_abt_end
 
-	bic r0, r0, #0x1f | 0xc0
+	bic r0, r0, #0xdf
 	orr r1, r0, #0x12
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_irq_end
 
-	bic r0, r0, #0x1f | 0xc0
+	bic r0, r0, #0xdf
 	orr r1, r0, #0x11
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_fiq_end
 
-	bic r0, r0, #0x1f | 0xc0
+	bic r0, r0, #0xdf
 	orr r1, r0, #0x13
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_srv_end
 
-	/* Copy shadow of data section */
-copy_shadow_data:
-	ldr r0, _image_start
+	/* Copy data section */
+	ldr r0, _data_start
+	ldr r3, _image_start
 	ldr r1, _data_shadow_start
-	sub r0, r1, r0
-	adr r1, _start
-	add r0, r0 ,r1
-	ldr r1, _data_start
+	sub r1, r1, r3
+	adr r3, _start
+	add r1, r1 ,r3
 	ldr r2, _data_shadow_start
 	ldr r3, _data_shadow_end
 	sub r2, r3, r2
-	add r2, r0, r2
-	bl mem_copy
+	bl memcpy
 
 	/* Clear bss section */
-clear_bss:
 	ldr r0, _bss_start
-	ldr r1, _bss_end
-	mov r2, #0
-	bl mem_clear
+	ldr r2, _bss_end
+	sub r2, r2, r0
+	mov r1, #0
+	bl _memset
 
-	/* Jump to ram */
-	ldr r1, =on_the_ram
+	/* Call _main */
+	ldr r1, =_main
 	mov pc, r1
-on_the_ram:
+_main:
 	mov r0, #1;
 	mov r1, #0;
 	bl xboot_main
-	b on_the_ram
+	b _main
 
-/*
- * Memory copy
- */
-mem_copy:
-	sub r2, r2, #32
-	cmp r0, r2
-	ble 3f
-1:	ldmia r0!, {r3-r10}
-	stmia r1!, {r3-r10}
-	cmp r0, r2
-	ble 1b
-3:	add r2, r2, #32
-2:	ldr r3, [r0], #4
-	str r3, [r1], #4
-	cmp r0, r2
-	blt 2b
-	mov pc, lr
-
-/*
- * Memory clear to zero
- */
-mem_clear:
-	sub r1, r1, #32
-	cmp r0, r1
-	ble cp
-	mov r3, #0
-	mov r4, #0
-	mov r5, #0
-	mov r6, #0
-	mov r7, #0
-	mov r8, #0
-	mov r9, #0
-	mov r10, #0
-1:	stmia r0!, {r3-r10}
-	cmp r0, r1
-	ble 1b
-cp:	add r1, r1, #32
-2:	str r2, [r0], #4
-	cmp r0, r1
-	blt 2b
-	mov pc, lr
+_memset:
+	/*
+	 * Compute the offset to align the destination
+	 * Offset = (4 - (src & 3)) & 3 = -src & 3
+	 */
+	push {r0, r4-r7, lr}
+	stmfd sp!, {r0, r4-r7, lr}
+	rsb r3, r0, #0
+	ands r3, r3, #3
+	cmp r3, r2
+	movhi r3, r2
+	/* Splat r1 */
+	mov r1, r1, lsl #24
+	orr r1, r1, r1, lsr #8
+	orr r1, r1, r1, lsr #16
+	movs r12, r3, lsl #31
+	strcsb r1, [r0], #1
+	strcsb r1, [r0], #1
+	strmib r1, [r0], #1
+	subs r2, r2, r3
+	ldmlsfd sp!, {r0, r4-r7, lr}
+	bxls lr
+	/* Align the destination to a cache-line */
+	mov r12, r1
+	mov lr, r1
+	mov r4, r1
+	mov r5, r1
+	mov r6, r1
+	mov r7, r1
+	rsb r3, r0, #0
+	ands r3, r3, #0x1C
+	beq 3f
+	cmp r3, r2
+	andhi r3, r2, #0x1C
+	sub r2, r2, r3
+	/* Conditionally writes 0 to 7 words (length in r3) */
+	movs r3, r3, lsl #28
+	stmcsia r0!, {r1, lr}
+	stmcsia r0!, {r1, lr}
+	stmmiia r0!, {r1, lr}
+	movs r3, r3, lsl #2
+	strcs r1, [r0], #4
+3:	subs r2, r2, #32
+	mov r3, r1
+	bmi 2f
+1:	subs r2, r2, #32
+	stmia r0!, {r1,r3,r4,r5,r6,r7,r12,lr}
+	bhs 1b
+2:	add r2, r2, #32
+	/* Conditionally stores 0 to 31 bytes */
+	movs r2, r2, lsl #28
+	stmcsia r0!, {r1,r3,r12,lr}
+	stmmiia r0!, {r1, lr}
+	movs r2, r2, lsl #2
+	strcs r1, [r0], #4
+	strmih r1, [r0], #2
+	movs r2, r2, lsl #2
+	strcsb r1, [r0]
+	ldmfd sp!, {r0, r4-r7, lr}
+	bx lr
 
 /*
  * Exception handlers

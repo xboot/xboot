@@ -112,6 +112,18 @@ reset:
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_srv_end
 
+	/* Copyself to link address */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq 1f
+	ldr r0, _image_start
+	adr r1, _start
+	ldr r2, _image_end
+	sub r2, r2, r0
+	bl memcpy
+1:	nop
+
 	/* Copy data section */
 	ldr r0, _data_start
 	ldr r3, _image_start

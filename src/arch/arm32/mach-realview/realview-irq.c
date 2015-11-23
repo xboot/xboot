@@ -34,7 +34,7 @@ struct pt_regs_t {
 
 static struct irq_handler_t realview_irq_handler[32];
 
-void do_irqs(struct pt_regs_t * regs)
+void do_irq(struct pt_regs_t * regs)
 {
 	u32_t irq;
 

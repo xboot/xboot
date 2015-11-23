@@ -22,6 +22,26 @@
  *
  */
 
+.macro save_regs
+	sub	sp, sp, #72
+	stmia sp, {r0 - r12}
+	add	r8, sp, #60
+	stmdb r8, {sp, lr}^
+	str	lr, [r8, #0]
+	mrs	r6, spsr
+	str	r6, [r8, #4]
+	str	r0, [r8, #8]
+	mov	r0, sp
+.endm
+
+.macro restore_regs
+	ldmia sp, {r0 - lr}^
+	mov	r0, r0
+	ldr	lr, [sp, #60]
+	add	sp, sp, #72
+	subs pc, lr, #4
+.endm
+
 /*
  * Exception vector table
  */
@@ -155,76 +175,39 @@ _main:
 /*
  * Exception handlers
  */
-	.align	5
+	.align 5
 undefined_instruction:
 	b	.
 
-	.align	5
+	.align 5
 software_interrupt:
 	b	.
 
-	.align	5
+	.align 5
 prefetch_abort:
 	b	.
 
-	.align	5
+	.align 5
 data_abort:
 	b	.
 
-	.align	5
+	.align 5
 not_used:
 	b	.
 
-	.align	5
+	.align 5
 irq:
-	/* Get irq's sp */
 	ldr	sp, _stack_irq_end
+	save_regs
+	bl do_irq
+	restore_regs
 
-	/* Save user regs */
-	sub	sp, sp, #72
-	stmia sp, {r0 - r12}			/* calling r0-r12 */
-	add r8, sp, #60
-	stmdb r8, {sp, lr}^				/* calling sp, lr */
-	str lr, [r8, #0]				/* save calling pc */
-	mrs r6, spsr
-	str r6, [r8, #4]				/* save cpsr */
-	str r0, [r8, #8]				/* save old_r0 */
-	mov	r0, sp
-
-	/* Do irqs routlines */
-	bl 	do_irqs
-
-	/* Restore user regs */
-	ldmia sp, {r0 - lr}^			/* calling r0 - lr */
-	mov	r0, r0
-	ldr	lr, [sp, #60]				/* get pc */
-	add	sp, sp, #72
-	subs pc, lr, #4					/* return & move spsr_svc into cpsr */
-
-	.align	5
+	.align 5
 fiq:
-	/* Get fiq's sp */
 	ldr	sp, _stack_fiq_end
-
-	/* Save user regs */
-	sub	sp, sp, #72
-	stmia sp, {r0 - r12}			/* calling r0-r12 */
-	add r8, sp, #60
-	stmdb r8, {sp, lr}^				/* calling sp, lr */
-	str lr, [r8, #0]				/* save calling pc */
-	mrs r6, spsr
-	str r6, [r8, #4]				/* save cpsr */
-	str r0, [r8, #8]				/* save old_r0 */
-	mov	r0, sp
-
-	/* Do firqs routlines */
-
-	/* Restore user regs */
-	ldmia sp, {r0 - lr}^			/* calling r0 - lr */
-	mov	r0, r0
-	ldr	lr, [sp, #60]				/* get pc */
-	add	sp, sp, #72
-	subs pc, lr, #4					/* return & move spsr_svc into cpsr */
+	save_regs
+	bl do_irq
+	restore_regs
 
 /*
  * The location of section

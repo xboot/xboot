@@ -143,7 +143,7 @@ static void s5p4418_irq_handler_func_gpioalv(void * data)
 	}
 }
 
-void do_irqs(struct pt_regs_t * regs)
+void do_irq(struct pt_regs_t * regs)
 {
 	u32_t vic0, vic1;
 	u32_t offset;

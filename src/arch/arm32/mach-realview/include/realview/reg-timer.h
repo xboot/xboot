@@ -1,58 +1,26 @@
 #ifndef __REALVIEW_REG_TIMER_H__
 #define __REALVIEW_REG_TIMER_H__
 
-/*
- * timer 0
- */
-#define REALVIEW_T0_LOAD			(0x10011000 + 0x00)
-#define REALVIEW_T0_VALUE			(0x10011000 + 0x04)
-#define REALVIEW_T0_CTRL			(0x10011000 + 0x08)
-#define REALVIEW_T0_ICLR			(0x10011000 + 0x0c)
-#define REALVIEW_T0_RIS				(0x10011000 + 0x10)
-#define REALVIEW_T0_MIS				(0x10011000 + 0x14)
-#define REALVIEW_T0_BGLOAD			(0x10011000 + 0x18)
+#define REALVIEW_TIMER0_BASE	(0x10011000)
+#define REALVIEW_TIMER1_BASE	(0x10011020)
+#define REALVIEW_TIMER2_BASE	(0x10012000)
+#define REALVIEW_TIMER3_BASE	(0x10012020)
 
-/*
- * timer 1
- */
-#define REALVIEW_T1_LOAD			(0x10011000 + 0x20)
-#define REALVIEW_T1_VALUE			(0x10011000 + 0x24)
-#define REALVIEW_T1_CTRL			(0x10011000 + 0x28)
-#define REALVIEW_T1_ICLR			(0x10011000 + 0x2c)
-#define REALVIEW_T1_RIS				(0x10011000 + 0x30)
-#define REALVIEW_T1_MIS				(0x10011000 + 0x34)
-#define REALVIEW_T1_BGLOAD			(0x10011000 + 0x38)
+#define TIMER_LOAD				(0x00)
+#define TIMER_VALUE				(0x04)
+#define TIMER_CTRL				(0x08)
+#define TIMER_ICLR				(0x0c)
+#define TIMER_RIS				(0x10)
+#define TIMER_MIS				(0x14)
+#define TIMER_BGLOAD			(0x18)
 
-/*
- * timer 2
- */
-#define REALVIEW_T2_LOAD			(0x10012000 + 0x00)
-#define REALVIEW_T2_VALUE			(0x10012000 + 0x04)
-#define REALVIEW_T2_CTRL			(0x10012000 + 0x08)
-#define REALVIEW_T2_ICLR			(0x10012000 + 0x0c)
-#define REALVIEW_T2_RIS				(0x10012000 + 0x10)
-#define REALVIEW_T2_MIS				(0x10012000 + 0x14)
-#define REALVIEW_T2_BGLOAD			(0x10012000 + 0x18)
-
-/*
- * timer 3
- */
-#define REALVIEW_T3_LOAD			(0x10012000 + 0x20)
-#define REALVIEW_T3_VALUE			(0x10012000 + 0x24)
-#define REALVIEW_T3_CTRL			(0x10012000 + 0x28)
-#define REALVIEW_T3_ICLR			(0x10012000 + 0x2c)
-#define REALVIEW_T3_RIS				(0x10012000 + 0x30)
-#define REALVIEW_T3_MIS				(0x10012000 + 0x34)
-#define REALVIEW_T3_BGLOAD			(0x10012000 + 0x38)
-
-
-#define REALVIEW_TC_ONESHOT			(1 << 0)
-#define REALVIEW_TC_32BIT			(1 << 1)
-#define REALVIEW_TC_DIV1			(0 << 2)
-#define REALVIEW_TC_DIV16			(1 << 2)
-#define REALVIEW_TC_DIV256			(2 << 2)
-#define REALVIEW_TC_IE				(1 << 5)
-#define REALVIEW_TC_PERIODIC		(1 << 6)
-#define REALVIEW_TC_ENABLE			(1 << 7)
+#define TC_ONESHOT				(1 << 0)
+#define TC_32BIT				(1 << 1)
+#define TC_DIV1					(0 << 2)
+#define TC_DIV16				(1 << 2)
+#define TC_DIV256				(2 << 2)
+#define TC_IE					(1 << 5)
+#define TC_PERIODIC				(1 << 6)
+#define TC_ENABLE				(1 << 7)
 
 #endif /* __REALVIEW_REG_TIMER_H__ */

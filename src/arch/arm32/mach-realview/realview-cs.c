@@ -34,17 +34,17 @@ static bool_t realview_cs_init(struct clocksource_t * cs)
 	rate = clk_get_rate("timclk");
 	cs->mult = clocksource_hz2mult(rate, cs->shift);
 
-	write32(REALVIEW_T0_CTRL, 0);
-	write32(REALVIEW_T0_LOAD, 0xffffffff);
-	write32(REALVIEW_T0_VALUE, 0xffffffff);
-	write32(REALVIEW_T0_CTRL, REALVIEW_TC_32BIT | REALVIEW_TC_ENABLE | REALVIEW_TC_PERIODIC);
+	write32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_CTRL), 0);
+	write32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_LOAD), 0xffffffff);
+	write32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_VALUE), 0xffffffff);
+	write32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_CTRL), (1 << 1) | (1 << 6) | (1 << 7));
 
 	return TRUE;
 }
 
 static u64_t realview_cs_read(struct clocksource_t * cs)
 {
-	u32_t val = read32(REALVIEW_T0_VALUE);
+	u32_t val = read32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_VALUE));
 	return (u64_t)(~val);
 }
 

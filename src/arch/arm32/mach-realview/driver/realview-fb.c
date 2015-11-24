@@ -35,14 +35,14 @@ static void fb_init(struct fb_t * fb)
 	if(dat->init)
 		dat->init(dat);
 
-	write32(dat->regbase + REALVIEW_CLCD_OFFSET_TIM0, (dat->timing.h_bp<<24) | (dat->timing.h_fp<<16) | (dat->timing.h_sw<<8) | ((dat->width/16-1)<<2));
-	write32(dat->regbase + REALVIEW_CLCD_OFFSET_TIM1, (dat->timing.v_bp<<24) | (dat->timing.v_fp<<16) | (dat->timing.v_sw<<10) | ((dat->height-1)<<0));
-	write32(dat->regbase + REALVIEW_CLCD_OFFSET_TIM2, (1<<26) | ((dat->width/16-1)<<16) | (1<<5) | (1<<0));
-	write32(dat->regbase + REALVIEW_CLCD_OFFSET_TIM3, (0<<0));
+	write32(phys_to_virt(dat->regbase + CLCD_TIM0), (dat->timing.h_bp<<24) | (dat->timing.h_fp<<16) | (dat->timing.h_sw<<8) | ((dat->width/16-1)<<2));
+	write32(phys_to_virt(dat->regbase + CLCD_TIM1), (dat->timing.v_bp<<24) | (dat->timing.v_fp<<16) | (dat->timing.v_sw<<10) | ((dat->height-1)<<0));
+	write32(phys_to_virt(dat->regbase + CLCD_TIM2), (1<<26) | ((dat->width/16-1)<<16) | (1<<5) | (1<<0));
+	write32(phys_to_virt(dat->regbase + CLCD_TIM3), (0<<0));
 
-	write32(dat->regbase + REALVIEW_CLCD_OFFSET_IMSC, 0x0);
-	write32(dat->regbase + REALVIEW_CLCD_OFFSET_CNTL, REALVIEW_CNTL_LCDBPP24 | REALVIEW_CNTL_LCDTFT | REALVIEW_CNTL_BGR);
-	write32(dat->regbase + REALVIEW_CLCD_OFFSET_CNTL, (read32(dat->regbase + REALVIEW_CLCD_OFFSET_CNTL) | REALVIEW_CNTL_LCDEN | REALVIEW_CNTL_LCDPWR));
+	write32(phys_to_virt(dat->regbase + CLCD_IMSC), 0x0);
+	write32(phys_to_virt(dat->regbase + CLCD_CNTL), CNTL_LCDBPP24 | CNTL_LCDTFT | CNTL_BGR);
+	write32(phys_to_virt(dat->regbase + CLCD_CNTL), (read32(phys_to_virt(dat->regbase + CLCD_CNTL)) | CNTL_LCDEN | CNTL_LCDPWR));
 }
 
 static void fb_exit(struct fb_t * fb)
@@ -130,8 +130,8 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 
 	if(pixels)
 	{
-		write32(dat->regbase + REALVIEW_CLCD_OFFSET_UBAS, ((u32_t)pixels));
-		write32(dat->regbase + REALVIEW_CLCD_OFFSET_LBAS, ((u32_t)pixels + dat->width * dat->height * dat->bytes_per_pixel));
+		write32(phys_to_virt(dat->regbase + CLCD_UBAS), ((u32_t)pixels));
+		write32(phys_to_virt(dat->regbase + CLCD_LBAS), ((u32_t)pixels + dat->width * dat->height * dat->bytes_per_pixel));
 	}
 }
 

@@ -39,25 +39,25 @@ void do_irq(struct pt_regs_t * regs)
 	u32_t irq;
 
 	/* Get irq's offset */
-	irq = read32(REALVIEW_GIC1_CPU_INTACK) & 0x3ff;
+	irq = read32(phys_to_virt(REALVIEW_GIC1_CPU_INTACK)) & 0x3ff;
 
 	/* Handle interrupt server function */
 	(realview_irq_handler[irq - 32].func)(realview_irq_handler[irq - 32].data);
 
 	/* Exit interrupt */
-	write32(REALVIEW_GIC1_CPU_EOI, irq);
+	write32(phys_to_virt(REALVIEW_GIC1_CPU_EOI), irq);
 }
 
 static void realview_irq_enable(struct irq_t * irq)
 {
 	u32_t mask = 1 << (irq->no % 32);
-	write32(REALVIEW_GIC1_DIST_ENABLE_SET + (irq->no / 32) * 4, mask);
+	write32(phys_to_virt(REALVIEW_GIC1_DIST_ENABLE_SET + (irq->no / 32) * 4), mask);
 }
 
 static void realview_irq_disable(struct irq_t * irq)
 {
 	u32_t mask = 1 << (irq->no % 32);
-	write32(REALVIEW_GIC1_DIST_ENABLE_CLEAR + (irq->no / 32) * 4, mask);
+	write32(phys_to_virt(REALVIEW_GIC1_DIST_ENABLE_CLEAR + (irq->no / 32) * 4), mask);
 }
 
 static void realview_irq_set_type(struct irq_t * irq, enum irq_type_t type)
@@ -301,13 +301,13 @@ static __init void realview_irq_init(void)
 	/*
 	 * Ignore all peripheral interrupt signals
 	 */
-	write32(REALVIEW_GIC1_DIST_CTRL, 0);
+	write32(phys_to_virt(REALVIEW_GIC1_DIST_CTRL), 0);
 
 	/*
 	 * Find out how many interrupts are supported.
 	 * and the GIC only supports up to 1020 interrupt sources.
 	 */
-	max_irq = read32(REALVIEW_GIC1_DIST_CTR) & 0x1f;
+	max_irq = read32(phys_to_virt(REALVIEW_GIC1_DIST_CTR)) & 0x1f;
 	max_irq = (max_irq + 1) * 32;
 
 	if(max_irq > 1020)
@@ -317,34 +317,34 @@ static __init void realview_irq_init(void)
 	 * Set all global interrupts to be level triggered, active low.
 	 */
 	for(i = 32; i < max_irq; i += 16)
-		write32(REALVIEW_GIC1_DIST_CONFIG + i * 4 / 16, 0);
+		write32(phys_to_virt(REALVIEW_GIC1_DIST_CONFIG + i * 4 / 16), 0);
 
 	/*
 	 * Set all global interrupts to this CPU only.
 	 */
 	for(i = 32; i < max_irq; i += 4)
-		write32(REALVIEW_GIC1_DIST_TARGET + i * 4 / 4, cpumask);
+		write32(phys_to_virt(REALVIEW_GIC1_DIST_TARGET + i * 4 / 4), cpumask);
 
 	/*
 	 * Set priority on all interrupts.
 	 */
 	for(i = 0; i < max_irq; i += 4)
-		write32(REALVIEW_GIC1_DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
+		write32(phys_to_virt(REALVIEW_GIC1_DIST_PRI + i * 4 / 4), 0xa0a0a0a0);
 
 	/*
 	 * Disable all interrupts.
 	 */
 	for(i = 0; i < max_irq; i += 32)
-		write32(REALVIEW_GIC1_DIST_ENABLE_CLEAR + i * 4 / 32, 0xffffffff);
+		write32(phys_to_virt(REALVIEW_GIC1_DIST_ENABLE_CLEAR + i * 4 / 32), 0xffffffff);
 
 	/* Monitor the peripheral interrupt signals */
-	write32(REALVIEW_GIC1_DIST_CTRL, 1);
+	write32(phys_to_virt(REALVIEW_GIC1_DIST_CTRL), 1);
 
 	/* The priority mask level for cpu interface */
-	write32(REALVIEW_GIC1_CPU_PRIMASK, 0xf0);
+	write32(phys_to_virt(REALVIEW_GIC1_CPU_PRIMASK), 0xf0);
 
 	/* Enable signalling of interrupts */
-	write32(REALVIEW_GIC1_CPU_CTRL, 1);
+	write32(phys_to_virt(REALVIEW_GIC1_CPU_CTRL), 1);
 
 	/*
 	 * Register IRQs

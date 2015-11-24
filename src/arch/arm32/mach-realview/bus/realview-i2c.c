@@ -33,25 +33,25 @@ struct realview_i2c_private_data_t {
 static void realview_i2c_setsda(struct i2c_algo_bit_data_t * bdat, int state)
 {
 	struct realview_i2c_data_t * rdat = (struct realview_i2c_data_t *)bdat->priv;
-	write32(rdat->regbase + (state ? REALVIEW_I2C_CTRLS : REALVIEW_I2C_CTRLC), REALVIEW_I2C_FLAG_SDA);
+	write32(phys_to_virt(rdat->regbase + (state ? I2C_CTRLS : I2C_CTRLC)), I2C_FLAG_SDA);
 }
 
 static void realview_i2c_setscl(struct i2c_algo_bit_data_t * bdat, int state)
 {
 	struct realview_i2c_data_t * rdat = (struct realview_i2c_data_t *)bdat->priv;
-	write32(rdat->regbase + (state ? REALVIEW_I2C_CTRLS : REALVIEW_I2C_CTRLC), REALVIEW_I2C_FLAG_SCL);
+	write32(phys_to_virt(rdat->regbase + (state ? I2C_CTRLS : I2C_CTRLC)), I2C_FLAG_SCL);
 }
 
 static int realview_i2c_getsda(struct i2c_algo_bit_data_t * bdat)
 {
 	struct realview_i2c_data_t * rdat = (struct realview_i2c_data_t *)bdat->priv;
-	return !!(read32(rdat->regbase + REALVIEW_I2C_CTRL) & REALVIEW_I2C_FLAG_SDA);
+	return !!(read32(phys_to_virt(rdat->regbase + I2C_CTRL)) & I2C_FLAG_SDA);
 }
 
 static int realview_i2c_getscl(struct i2c_algo_bit_data_t * bdat)
 {
 	struct realview_i2c_data_t * rdat = (struct realview_i2c_data_t *)bdat->priv;
-	return !!(read32(rdat->regbase + REALVIEW_I2C_CTRL) & REALVIEW_I2C_FLAG_SCL);
+	return !!(read32(phys_to_virt(rdat->regbase + I2C_CTRL)) & I2C_FLAG_SCL);
 }
 
 static void realview_i2c_init(struct i2c_t * i2c)

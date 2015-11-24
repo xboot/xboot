@@ -119,7 +119,7 @@ static bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 
 	if(rtc_valid_time(time))
 	{
-		write32(dat->regbase + REALVIEW_RTC_OFFSET_LR, time_to_rtc(time));
+		write32(phys_to_virt(dat->regbase + RTC_LR), time_to_rtc(time));
 		return TRUE;
 	}
 	return FALSE;
@@ -130,7 +130,7 @@ static bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 	struct resource_t * res = (struct resource_t *)rtc->priv;
 	struct realview_rtc_data_t * dat = (struct realview_rtc_data_t *)res->data;
 
-	rtc_to_time(read32(dat->regbase + REALVIEW_RTC_OFFSET_DR), time);
+	rtc_to_time(read32(phys_to_virt(dat->regbase + RTC_DR)), time);
 	return TRUE;
 }
 

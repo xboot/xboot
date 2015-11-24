@@ -153,15 +153,15 @@ static bool_t kmi_write(struct realview_keyboard_data_t * dat, u8_t data)
 {
 	s32_t timeout = 1000;
 
-	while((read8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_STAT) & REALVIEW_KEYBOARD_STAT_TXEMPTY) == 0 && timeout--);
+	while((read8(phys_to_virt(dat->regbase + KEYBOARD_STAT)) & KEYBOARD_STAT_TXEMPTY) == 0 && timeout--);
 
 	if(timeout)
 	{
-		write8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA, data);
+		write8(phys_to_virt(dat->regbase + KEYBOARD_DATA), data);
 
-		while((read8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_STAT) & REALVIEW_KEYBOARD_STAT_RXFULL) == 0);
+		while((read8(phys_to_virt(dat->regbase + KEYBOARD_STAT)) & KEYBOARD_STAT_RXFULL) == 0);
 
-		if( read8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA) == 0xfa)
+		if( read8(phys_to_virt(dat->regbase + KEYBOARD_DATA)) == 0xfa)
 			return TRUE;
 		else
 			return FALSE;
@@ -172,9 +172,9 @@ static bool_t kmi_write(struct realview_keyboard_data_t * dat, u8_t data)
 
 static bool_t kmi_read(struct realview_keyboard_data_t * dat, u8_t * data)
 {
-	if( (read8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_STAT) & REALVIEW_KEYBOARD_STAT_RXFULL) )
+	if( (read8(phys_to_virt(dat->regbase + KEYBOARD_STAT)) & KEYBOARD_STAT_RXFULL) )
 	{
-		*data = read8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA);
+		*data = read8(phys_to_virt(dat->regbase + KEYBOARD_DATA));
 		return TRUE;
 	}
 
@@ -191,11 +191,11 @@ static void keyboard_interrupt(void * data)
 	static u32_t kbd_flag = KBD_NUM_LOCK;
 	u8_t status, value;
 
-	status = read8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_IIR);
+	status = read8(phys_to_virt(dat->regbase + KEYBOARD_IIR));
 
-	while(status & REALVIEW_KEYBOARD_IIR_RXINTR)
+	while(status & KEYBOARD_IIR_RXINTR)
 	{
-		value = read8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_DATA);
+		value = read8(phys_to_virt(dat->regbase + KEYBOARD_DATA));
 
 		switch(ds)
 		{
@@ -342,7 +342,7 @@ static void keyboard_interrupt(void * data)
 			break;
 		}
 
-		status = read8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_IIR);
+		status = read8(phys_to_virt(dat->regbase + KEYBOARD_IIR));
 	}
 }
 
@@ -361,10 +361,10 @@ static void input_init(struct input_t * input)
 
 	/* Set keyboard's clock divisor */
 	divisor = (u32_t)(kclk / 8000000) - 1;
-	write8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CLKDIV, divisor);
+	write8(phys_to_virt(dat->regbase + KEYBOARD_CLKDIV), divisor);
 
 	/* Enable keyboard controller */
-	write8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, REALVIEW_KEYBOARD_CR_EN);
+	write8(phys_to_virt(dat->regbase + KEYBOARD_CR), KEYBOARD_CR_EN);
 
 	/* Clear a receive buffer */
 	kmi_read(dat, &value);
@@ -396,12 +396,12 @@ static void input_init(struct input_t * input)
 	if(!request_irq("KMI0", keyboard_interrupt, IRQ_TYPE_NONE, input))
 	{
 		LOG("Can't request irq 'KMI0'");
-		write8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, 0);
+		write8(phys_to_virt(dat->regbase + KEYBOARD_CR), 0);
 		return;
 	}
 
 	/* Re-enables keyboard */
-	write8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, REALVIEW_KEYBOARD_CR_EN | REALVIEW_KEYBOARD_CR_RXINTREN);
+	write8(phys_to_virt(dat->regbase + KEYBOARD_CR), KEYBOARD_CR_EN | KEYBOARD_CR_RXINTREN);
 }
 
 static void input_exit(struct input_t * input)
@@ -412,7 +412,7 @@ static void input_exit(struct input_t * input)
 	clk_disable("kclk");
 	if(!free_irq("KMI0"))
 		LOG("Can't free irq 'KMI0'");
-	write8(dat->regbase + REALVIEW_KEYBOARD_OFFSET_CR, 0);
+	write8(phys_to_virt(dat->regbase + KEYBOARD_CR), 0);
 }
 
 static int input_ioctl(struct input_t * input, int cmd, void * arg)

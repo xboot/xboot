@@ -1,20 +1,22 @@
 SECTIONS
 {
-	. = ALIGN(8);
-	__init : { KEEP(*(.init.text)) }
-
-	. = ALIGN(8);
-	__exit : { KEEP(*(.exit.text)) }
-
-    . = ALIGN(8);
-    PROVIDE (__ksymtab_start = .);
-	__ksymtab : { KEEP(*(.ksymtab.text)) }
-	PROVIDE (__ksymtab_end = .);
-
-    . = ALIGN(8);	
-	PROVIDE (__initcall_start = .);
-	__initcall :
+	.init ALIGN(8) :
 	{
+		PROVIDE(__init_start = .);
+		KEEP(*(.init.text))
+		PROVIDE(__init_end = .);
+	}
+
+	.exit ALIGN(8) :
+	{
+		PROVIDE(__exit_start = .);
+		KEEP(*(.exit.text))
+		PROVIDE(__exit_end = .);
+	}
+
+	.initcall ALIGN(8) :
+	{
+		PROVIDE(__initcall_start = .);
 		KEEP(*(.initcall_0.text))
 		KEEP(*(.initcall_1.text))
 		KEEP(*(.initcall_2.text))
@@ -25,13 +27,12 @@ SECTIONS
 		KEEP(*(.initcall_7.text))
 		KEEP(*(.initcall_8.text))
 		KEEP(*(.initcall_9.text))
+		PROVIDE(__initcall_end = .);
 	}
-	PROVIDE (__initcall_end = .);
 
-	. = ALIGN(8);
-	PROVIDE (__exitcall_start = .);
-	__exitcall :
+	.exitcall ALIGN(8) :
 	{
+		PROVIDE(__exitcall_start = .);
 		KEEP(*(.exitcall_9.text))
 		KEEP(*(.exitcall_8.text))
 		KEEP(*(.exitcall_7.text))
@@ -42,12 +43,21 @@ SECTIONS
 		KEEP(*(.exitcall_2.text))
 		KEEP(*(.exitcall_1.text))
 		KEEP(*(.exitcall_0.text))
+		PROVIDE(__exitcall_end = .);
 	}
-	PROVIDE (__exitcall_end = .);
 
-	. = ALIGN(8);
-	PROVIDE (__romdisk_start = .);
-	__romdisk : { KEEP(*(.romdisk)) }
-	PROVIDE (__romdisk_end = .);
+	.ksymtab ALIGN(8) :
+	{
+		PROVIDE(__ksymtab_start = .);
+		KEEP(*(.ksymtab.text))
+		PROVIDE(__ksymtab_end = .);
+	}
+
+	.romdisk ALIGN(8) :
+	{
+		PROVIDE(__romdisk_start = .);
+		KEEP(*(.romdisk))
+		PROVIDE(__romdisk_end = .);
+	}
 }
 INSERT BEFORE .rodata;

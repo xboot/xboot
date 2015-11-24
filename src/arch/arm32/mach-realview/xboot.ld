@@ -62,7 +62,7 @@ SECTIONS
 
 	.ksymtab ALIGN(8) :
 	{
-    	PROVIDE(__ksymtab_start = .);
+		PROVIDE(__ksymtab_start = .);
 		KEEP(*(.ksymtab.text))
 		PROVIDE(__ksymtab_end = .);
 	} > rom

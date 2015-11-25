@@ -22,7 +22,7 @@
 #ifdef __ARM_IWMMXT__
 # define USE_ARM_IWMMXT
 #endif
-#ifdef __ARM_NEON__
+#ifdef __ARM32_NEON__
 # define USE_ARM_NEON
 #endif
 #endif

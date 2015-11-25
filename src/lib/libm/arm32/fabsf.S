@@ -1,4 +1,4 @@
-#ifdef __ARM_NEON__
+#ifdef __ARM32_NEON__
 	.text
 	.global fabsf
 	.type   fabsf,%function

@@ -156,7 +156,7 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
 				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
 
-DEFINES		+=	-D__SANDBOX__ -D__ARM_ARCH__=7 -D__CORTEX_A9__ -D__ARM_NEON__
+DEFINES		+=	-D__SANDBOX__ -D__ARM_ARCH__=7 -D__CORTEX_A9__ -D__ARM32_NEON__
 
 SDL_CONFIG	?= sdl2-config
 SDL_FLAGS	:= $(shell $(SDL_CONFIG) --cflags)

@@ -1,0 +1,4 @@
+WARNING: Image format was not specified for 'C:\Users\蒋建军\.xboot\sdcard.img' and probing guessed raw.
+         Automatically detecting the format is dangerous for raw images, write operations on block 0 will be restricted.
+         Specify the 'raw' format explicitly to remove the restrictions.
+Warning: Orphaned drive without device: id=sd0,file=C:\Users\蒋建军\.xboot\sdcard.img,if=sd,bus=0,unit=0

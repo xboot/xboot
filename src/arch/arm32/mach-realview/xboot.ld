@@ -24,7 +24,7 @@ SECTIONS
 		*(.text*)
 		*(.glue*);
 		*(.init.text)
-    	*(.exit.text)
+		*(.exit.text)
 		PROVIDE(__text_end = .);
 	} > rom
 

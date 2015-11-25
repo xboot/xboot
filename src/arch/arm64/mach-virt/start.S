@@ -71,7 +71,7 @@
 	mov	x0, sp
 .endm
 
-	.global	_start
+	.global _start
 _start:
 	b reset
 /*

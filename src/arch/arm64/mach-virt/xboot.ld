@@ -113,7 +113,7 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE(__heap_end = .);
 	} > ram
-	
+
 	.stack ALIGN(16) (NOLOAD) :
 	{
 		PROVIDE(__stack_start = .);

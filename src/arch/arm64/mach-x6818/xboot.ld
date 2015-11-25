@@ -2,7 +2,10 @@ OUTPUT_FORMAT("elf64-littleaarch64", "elf64-littleaarch64", "elf64-littleaarch64
 OUTPUT_ARCH("aarch64")
 ENTRY(_start)
 
-STACK_SIZE	= 0x8000;
+STACK_EL3_SIZE	= 0x10000;	/* 64KB */
+STACK_EL2_SIZE	= 0x10000;	/* 64KB */
+STACK_EL1_SIZE	= 0x100000;	/* 1 MB */
+STACK_EL0_SIZE	= 0x100000;	/* 1 MB */
 
 MEMORY
 {
@@ -12,37 +15,21 @@ MEMORY
 
 SECTIONS
 {
-	.image_start :
-	{
-		. = ALIGN(8);
-		PROVIDE(__image_start = .);
-	} > rom
-
 	.text :
 	{
-		. = ALIGN(8);
+		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm64/mach-x6818/start.o (.text*)
-		.obj/arch/arm64/mach-x6818/debug.o (.text*)
+		.obj/arch/arm64/mach-x6818/start.o (.text)
 		*(.text*)
-		*(.init.text)
-    	*(.exit.text)
 		*(.note.gnu.build-id)
 		*(.iplt)
+		*(.init.text)
+		*(.exit.text)
 		PROVIDE(__text_end = .);
 	} > rom
 
-	.ksymtab :
+	.initcall ALIGN(8) :
 	{
-	    . = ALIGN(8);
-    	PROVIDE(__ksymtab_start = .);
-		KEEP(*(.ksymtab.text))
-		PROVIDE(__ksymtab_end = .);
-	} > rom
-
-	.initcall :
-	{
-		. = ALIGN(8);
 		PROVIDE(__initcall_start = .);
 		KEEP(*(.initcall_0.text))
 		KEEP(*(.initcall_1.text))
@@ -57,9 +44,8 @@ SECTIONS
 		PROVIDE(__initcall_end = .);
 	} > rom
 
-	.exitcall :
+	.exitcall ALIGN(8) :
 	{
-		. = ALIGN(8);
 		PROVIDE(__exitcall_start = .);
 		KEEP(*(.exitcall_9.text))
 		KEEP(*(.exitcall_8.text))
@@ -74,32 +60,31 @@ SECTIONS
 		PROVIDE(__exitcall_end = .);
 	} > rom
 
-	.romdisk :
+	.ksymtab ALIGN(8) :
 	{
-		. = ALIGN(8);
+		PROVIDE(__ksymtab_start = .);
+		KEEP(*(.ksymtab.text))
+		PROVIDE(__ksymtab_end = .);
+	} > rom
+
+	.romdisk ALIGN(8) :
+	{
 		PROVIDE(__romdisk_start = .);
 		KEEP(*(.romdisk))
 		PROVIDE(__romdisk_end = .);
 	} > rom
 
-	.rodata :
+	.rodata ALIGN(8) :
 	{
-		. = ALIGN(8);
 		PROVIDE(__rodata_start = .);
 		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 		PROVIDE(__rodata_end = .);
 	} > rom
 
-	.data_shadow :
+	.data_shadow ALIGN(8) :
 	{
-		. = ALIGN(8);
 		PROVIDE(__data_shadow_start = .);
-		PROVIDE(__data_shadow_end = (. + SIZEOF (.data)) );
-	} > rom
-
-	.image_end :
-	{
-		. = ALIGN(8);
+		PROVIDE(__data_shadow_end = (. + SIZEOF(.data)));
 		PROVIDE(__image_end = .);
 	} > rom
 
@@ -107,33 +92,46 @@ SECTIONS
 	{
 		PROVIDE(__data_start = .);	
 		*(.data*)
+		. = ALIGN(8);
   		PROVIDE(__data_end = .);
 	} > ram
 
-	.bss (NOLOAD) :
+	.bss ALIGN(8) (NOLOAD) :
 	{
-		. = ALIGN(8);
 		PROVIDE(__bss_start = .);
 		*(.bss*)
+		*(.sbss*)
 		*(COMMON)
 		. = ALIGN(8);
 		PROVIDE(__bss_end = .);
 	} > ram
 
-	.heap (NOLOAD) :
+	.heap ALIGN(8) (NOLOAD) :
 	{
-		. = ALIGN(8);
 		PROVIDE(__heap_start = .);
 		*(.heap*)
 		. = ALIGN(8);
 		PROVIDE(__heap_end = .);
 	} > ram
-	
-	.stack (NOLOAD) :
+
+	.stack ALIGN(16) (NOLOAD) :
 	{
-		. = ALIGN(16);
 		PROVIDE(__stack_start = .);
-		. += STACK_SIZE;
+		PROVIDE(__stack_el3_start = .);
+		. += STACK_EL3_SIZE;
+		PROVIDE(__stack_el3_end = .);
+		. = ALIGN(16);
+		PROVIDE(__stack_el2_start = .);
+		. += STACK_EL2_SIZE;
+		PROVIDE(__stack_el2_end = .);
+		. = ALIGN(16);
+		PROVIDE(__stack_el1_start = .);
+		. += STACK_EL1_SIZE;
+		PROVIDE(__stack_el1_end = .);
+		. = ALIGN(16);		
+		PROVIDE(__stack_el0_start = .);
+		. += STACK_EL0_SIZE;
+		PROVIDE(__stack_el0_end = .);
 		. = ALIGN(16);
 		PROVIDE(__stack_end = .);
 	} > ram

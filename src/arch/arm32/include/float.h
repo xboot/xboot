@@ -41,7 +41,6 @@ extern "C" {
 #define LDBL_DECIMAL_DIG	(DECIMAL_DIG)
 
 /* ARM-32 */
-#define FLT_ROUNDS			(1)
 #define FLT_EVAL_METHOD		(0)
 
 #define LDBL_TRUE_MIN		(4.94065645841246544177e-324L)

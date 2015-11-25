@@ -41,7 +41,6 @@ extern "C" {
 #define LDBL_DECIMAL_DIG	(DECIMAL_DIG)
 
 /* X86-64 */
-#define FLT_ROUNDS			(1)
 #define FLT_EVAL_METHOD		(0)
 
 #define LDBL_TRUE_MIN		(3.6451995318824746025e-4951L)

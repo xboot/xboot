@@ -1,8 +1,7 @@
-#ifdef __ARM32_NEON__
+	.syntax unified
 	.text
 	.global fabs
-	.type   fabs,%function
+	.type fabs,%function
 fabs:
 	vabs.f64 d0, d0
 	bx lr
-#endif

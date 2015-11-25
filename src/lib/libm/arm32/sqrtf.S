@@ -1,8 +1,7 @@
-#ifdef __ARM32_NEON__
+	.syntax unified
 	.text
 	.global sqrtf
-	.type   sqrtf,%function
+	.type sqrtf,%function
 sqrtf:
 	vsqrt.f32 s0, s0
 	bx lr
-#endif

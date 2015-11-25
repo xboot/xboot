@@ -1,8 +1,7 @@
-#ifdef __ARM32_NEON__
+	.syntax unified
 	.text
 	.global sqrt
-	.type   sqrt,%function
+	.type sqrt,%function
 sqrt:
 	vsqrt.f64 d0, d0
 	bx lr
-#endif

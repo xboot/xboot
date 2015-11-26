@@ -23,6 +23,9 @@
  */
 
 #include <xboot.h>
+#include <s5p6818-rstcon.h>
+#include <s5p6818/reg-sys.h>
+#include <s5p6818/reg-id.h>
 
 static bool_t mach_detect(void)
 {
@@ -61,7 +64,17 @@ static bool_t mach_keygen(const void * msg, int len, void * key)
 
 const char * mach_uniqueid(void)
 {
-	return NULL;
+	static char uniqueid[16 + 1];
+	u32_t ecid0, ecid1;
+
+	s5p6818_ip_reset(RESET_ID_ECID, 0);
+
+	ecid0 = read32(phys_to_virt(S5P6818_ID_ECID0));
+	ecid1 = read32(phys_to_virt(S5P6818_ID_ECID1));
+	sprintf(uniqueid, "%02x%02x%02x%02x%02x%02x%02x%02x",
+		(ecid0 >> 24) & 0xff, (ecid0 >> 16) & 0xff, (ecid0 >> 8) & 0xff, (ecid0 >> 0) & 0xff,
+		(ecid1 >> 24) & 0xff, (ecid1 >> 16) & 0xff, (ecid1 >> 8) & 0xff, (ecid1 >> 0) & 0xff);
+	return uniqueid;
 }
 
 static struct machine_t x6818 = {

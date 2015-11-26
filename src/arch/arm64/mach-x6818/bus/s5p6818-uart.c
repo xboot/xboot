@@ -246,7 +246,7 @@ static void s5p6818_uart_init(struct uart_t * uart)
 	write32(dat->regbase + UART_UCON, 0x00000005);
 	write32(dat->regbase + UART_UFCON, 0x00000777);
 	write32(dat->regbase + UART_UMCON, 0x00000000);
-	//s5p6818_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
+	s5p6818_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
 }
 
 static void s5p6818_uart_exit(struct uart_t * uart)

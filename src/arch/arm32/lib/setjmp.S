@@ -32,7 +32,7 @@ setjmp:
 	stcl p1, cr14, [ip], #8
 	stcl p1, cr15, [ip], #8
 3:	bx lr
-1:	.size setjmp,.-setjmp
+1:	.word setjmp-1b
 
 	.text
 	.align 4
@@ -69,7 +69,4 @@ longjmp:
 	ldcl p1, cr14, [ip], #8
 	ldcl p1, cr15, [ip], #8
 3:	bx lr
-1:	.size longjmp,.-longjmp
-
-//.hidden __hwcap
-//1:	.word __hwcap-1b
+1:	.word longjmp-1b

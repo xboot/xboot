@@ -145,7 +145,7 @@ static bool_t s5p4418_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 	case STOP_BITS_2:
 		stop_bit_reg = 1;		break;
 	default:
-		return -1;
+		return FALSE;
 	}
 
 	switch(res->id)

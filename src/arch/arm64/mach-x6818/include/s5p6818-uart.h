@@ -7,8 +7,8 @@ extern "C" {
 
 #include <xboot.h>
 #include <bus/uart.h>
-//#include <s5p6818-rstcon.h>
-//#include <s5p6818-gpio.h>
+#include <s5p6818-rstcon.h>
+#include <s5p6818-gpio.h>
 #include <s5p6818/reg-uart.h>
 
 struct s5p6818_uart_data_t

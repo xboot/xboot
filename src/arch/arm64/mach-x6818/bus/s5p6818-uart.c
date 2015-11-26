@@ -35,7 +35,7 @@ static bool_t s5p6818_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 									 0xdddd, 0xdfdd, 0xdfdf, 0xffdf};
 	u32_t ibaud, baud_div_reg, baud_divslot_reg;
 	u8_t data_bit_reg, parity_reg, stop_bit_reg;
-	u64_t rate = 0;
+	u64_t rate;
 
 	switch(baud)
 	{
@@ -158,16 +158,22 @@ static bool_t s5p6818_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 	case 3:
 		rate = clk_get_rate("GATE-UART3");
 		break;
+	case 4:
+		rate = clk_get_rate("GATE-UART4");
+		break;
+	case 5:
+		rate = clk_get_rate("GATE-UART5");
+		break;
 	default:
 		return FALSE;
 	}
 
-	baud_div_reg = (u32_t)((rate / (ibaud * 16)) ) - 1;
+	baud_div_reg = (u32_t)((rate / (ibaud * 16))) - 1;
 	baud_divslot_reg = udivslot_code[( (u32_t)((rate % (ibaud*16)) / ibaud) ) & 0xf];
 
 	write32(dat->regbase + UART_UBRDIV, baud_div_reg);
 	write32(dat->regbase + UART_UFRACVAL, baud_divslot_reg);
-	write32(dat->regbase + UART_ULCON, (data_bit_reg<<0 | stop_bit_reg <<2 | parity_reg<<3));
+	write32(dat->regbase + UART_ULCON, (data_bit_reg<<0 | stop_bit_reg<<2 | parity_reg<<3));
 
 	return TRUE;
 }
@@ -180,66 +186,67 @@ static void s5p6818_uart_init(struct uart_t * uart)
 	switch(res->id)
 	{
 	case 0:
+		s5p6818_ip_reset(RESET_ID_UART0, 0);
 		clk_enable("GATE-UART0");
-
-		/* Configure GPA01, GPA00 for TXD0, RXD0 and pull up */
-/*		gpio_set_cfg(S5P6818_GPA0(1), 0x2);
-		gpio_set_cfg(S5P6818_GPA0(0), 0x2);
-		gpio_set_pull(S5P6818_GPA0(1), GPIO_PULL_UP);
-		gpio_set_pull(S5P6818_GPA0(0), GPIO_PULL_UP);*/
-
-		write32(dat->regbase + UART_UCON, 0x00000005);
-		write32(dat->regbase + UART_UFCON, 0x00000777);
-		write32(dat->regbase + UART_UMCON, 0x00000000);
+		gpio_set_cfg(S5P6818_GPIOD(18), 0x1);
+		gpio_set_cfg(S5P6818_GPIOD(14), 0x1);
+		gpio_set_direction(S5P6818_GPIOD(18), GPIO_DIRECTION_OUTPUT);
+		gpio_set_direction(S5P6818_GPIOD(14), GPIO_DIRECTION_INPUT);
 		break;
 
 	case 1:
+		s5p6818_ip_reset(RESET_ID_UART1, 0);
 		clk_enable("GATE-UART1");
-
-		/* Configure GPA05, GPA04 for TXD1, RXD1 */
-/*		gpio_set_cfg(S5P6818_GPA0(5), 0x2);
-		gpio_set_cfg(S5P6818_GPA0(4), 0x2);
-		gpio_set_pull(S5P6818_GPA0(5), GPIO_PULL_UP);
-		gpio_set_pull(S5P6818_GPA0(4), GPIO_PULL_UP);*/
-
-		write32(dat->regbase + UART_UCON, 0x00000005);
-		write32(dat->regbase + UART_UFCON, 0x00000777);
-		write32(dat->regbase + UART_UMCON, 0x00000000);
+		gpio_set_cfg(S5P6818_GPIOD(19), 0x1);
+		gpio_set_cfg(S5P6818_GPIOD(15), 0x1);
+		gpio_set_direction(S5P6818_GPIOD(19), GPIO_DIRECTION_OUTPUT);
+		gpio_set_direction(S5P6818_GPIOD(15), GPIO_DIRECTION_INPUT);
 		break;
 
 	case 2:
+		s5p6818_ip_reset(RESET_ID_UART2, 0);
 		clk_enable("GATE-UART2");
-
-		/* Configure GPA11, GPA10 for TXD2, RXD2 */
-/*		gpio_set_cfg(S5P6818_GPA1(1), 0x2);
-		gpio_set_cfg(S5P6818_GPA1(0), 0x2);
-		gpio_set_pull(S5P6818_GPA1(1), GPIO_PULL_UP);
-		gpio_set_pull(S5P6818_GPA1(0), GPIO_PULL_UP);*/
-
-		write32(dat->regbase + UART_UCON, 0x00000005);
-		write32(dat->regbase + UART_UFCON, 0x00000777);
-		write32(dat->regbase + UART_UMCON, 0x00000000);
+		gpio_set_cfg(S5P6818_GPIOD(20), 0x1);
+		gpio_set_cfg(S5P6818_GPIOD(16), 0x1);
+		gpio_set_direction(S5P6818_GPIOD(20), GPIO_DIRECTION_OUTPUT);
+		gpio_set_direction(S5P6818_GPIOD(16), GPIO_DIRECTION_INPUT);
 		break;
 
 	case 3:
+		s5p6818_ip_reset(RESET_ID_UART3, 0);
 		clk_enable("GATE-UART3");
+		gpio_set_cfg(S5P6818_GPIOD(21), 0x1);
+		gpio_set_cfg(S5P6818_GPIOD(17), 0x1);
+		gpio_set_direction(S5P6818_GPIOD(21), GPIO_DIRECTION_OUTPUT);
+		gpio_set_direction(S5P6818_GPIOD(17), GPIO_DIRECTION_INPUT);
+		break;
 
-		/* Configure GPA15, GPA14 for TXD3, RXD3 */
-/*		gpio_set_cfg(S5P6818_GPA1(5), 0x2);
-		gpio_set_cfg(S5P6818_GPA1(4), 0x2);
-		gpio_set_pull(S5P6818_GPA1(5), GPIO_PULL_UP);
-		gpio_set_pull(S5P6818_GPA1(4), GPIO_PULL_UP);*/
+	case 4:
+		s5p6818_ip_reset(RESET_ID_UART4, 0);
+		clk_enable("GATE-UART4");
+		gpio_set_cfg(S5P6818_GPIOB(29), 0x3);
+		gpio_set_cfg(S5P6818_GPIOB(28), 0x3);
+		gpio_set_direction(S5P6818_GPIOB(29), GPIO_DIRECTION_OUTPUT);
+		gpio_set_direction(S5P6818_GPIOB(28), GPIO_DIRECTION_INPUT);
+		break;
 
-		write32(dat->regbase + UART_UCON, 0x00000005);
-		write32(dat->regbase + UART_UFCON, 0x00000777);
-		write32(dat->regbase + UART_UMCON, 0x00000000);
+	case 5:
+		s5p6818_ip_reset(RESET_ID_UART5, 0);
+		clk_enable("GATE-UART5");
+		gpio_set_cfg(S5P6818_GPIOB(31), 0x3);
+		gpio_set_cfg(S5P6818_GPIOB(30), 0x3);
+		gpio_set_direction(S5P6818_GPIOB(31), GPIO_DIRECTION_OUTPUT);
+		gpio_set_direction(S5P6818_GPIOB(30), GPIO_DIRECTION_INPUT);
 		break;
 
 	default:
 		return;
 	}
 
-//	s5p6818_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
+	write32(dat->regbase + UART_UCON, 0x00000005);
+	write32(dat->regbase + UART_UFCON, 0x00000777);
+	write32(dat->regbase + UART_UMCON, 0x00000000);
+	//s5p6818_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
 }
 
 static void s5p6818_uart_exit(struct uart_t * uart)
@@ -259,6 +266,12 @@ static void s5p6818_uart_exit(struct uart_t * uart)
 		break;
 	case 3:
 		clk_disable("GATE-UART3");
+		break;
+	case 4:
+		clk_disable("GATE-UART4");
+		break;
+	case 5:
+		clk_disable("GATE-UART5");
 		break;
 	default:
 		break;

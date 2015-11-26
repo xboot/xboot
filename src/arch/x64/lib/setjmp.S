@@ -1,48 +1,38 @@
-/*
- * setjmp/longjmp for the x86-64 architecture
- *
- * The jmp_buf is assumed to contain the following, in order:
- *	%rbx
- *	%rsp (post-return)
- *	%rbp
- *	%r12
- *	%r13
- *	%r14
- *	%r15
- *	<return address>
- */
-
 	.text
 	.align 4
-	.globl setjmp
-	.type setjmp, %function
+	.global setjmp
+	.type setjmp,%function
 setjmp:
-	pop  %rsi
-	xorl %eax,%eax
-	movq %rbx,(%rdi)
-	movq %rsp,8(%rdi)
-	push %rsi
-	movq %rbp,16(%rdi)
-	movq %r12,24(%rdi)
-	movq %r13,32(%rdi)
-	movq %r14,40(%rdi)
-	movq %r15,48(%rdi)
-	movq %rsi,56(%rdi)
+	mov %rbx,(%rdi)
+	mov %rbp,8(%rdi)
+	mov %r12,16(%rdi)
+	mov %r13,24(%rdi)
+	mov %r14,32(%rdi)
+	mov %r15,40(%rdi)
+	lea 8(%rsp),%rdx
+	mov %rdx,48(%rdi)
+	mov (%rsp),%rdx
+	mov %rdx,56(%rdi)
+	xor %rax,%rax
 	ret
-	.size setjmp,.-setjmp
 
 	.text
 	.align 4
-	.globl longjmp
-	.type longjmp, %function
+	.global longjmp
+	.type longjmp,%function
 longjmp:
-	movl %esi,%eax
-	movq (%rdi),%rbx
-	movq 8(%rdi),%rsp
-	movq 16(%rdi),%rbp
-	movq 24(%rdi),%r12
-	movq 32(%rdi),%r13
-	movq 40(%rdi),%r14
-	movq 48(%rdi),%r15
-	jmp *56(%rdi)
-	.size longjmp,.-longjmp
+	mov %rsi,%rax
+	test %rax,%rax
+	jnz 1f
+	inc %rax
+1:
+	mov (%rdi),%rbx
+	mov 8(%rdi),%rbp
+	mov 16(%rdi),%r12
+	mov 24(%rdi),%r13
+	mov 32(%rdi),%r14
+	mov 40(%rdi),%r15
+	mov 48(%rdi),%rdx
+	mov %rdx,%rsp
+	mov 56(%rdi),%rdx
+	jmp *%rdx

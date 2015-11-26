@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 struct __jmp_buf {
-	unsigned int regs[10];
+	unsigned long long __jmp_buf[32];
 };
 
 typedef struct __jmp_buf jmp_buf[1];

@@ -5,7 +5,16 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
+
+struct gdb_cpu_t {
+	const int nregs;
+	int (*read_register)(struct gdb_cpu_t * cpu, char * buf, int reg);
+	int (*write_register)(struct gdb_cpu_t * cpu, char * buf, int reg);
+	int (*set_pc)(struct gdb_cpu_t * cpu, virtual_addr_t pc);
+	int (*mem_access)(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw);
+	void * env;
+};
 
 struct gdb_iterface_t {
 	int (*read)(struct gdb_iterface_t * iface, char * buf, int count);
@@ -14,16 +23,9 @@ struct gdb_iterface_t {
 	void * priv;
 };
 
-struct gdb_cpu_t {
-	int nregs;
-	int (*read_register)(struct gdb_cpu_t * cpu, char * buf, int reg);
-	int (*write_register)(struct gdb_cpu_t * cpu, char * buf, int reg);
-	void * priv;
-};
-
 struct gdb_state_t {
-	struct gdb_iterface_t * iface;
 	struct gdb_cpu_t * cpu;
+	struct gdb_iterface_t * iface;
 };
 
 struct gdb_state_t * gdbserver_init(const char * device);

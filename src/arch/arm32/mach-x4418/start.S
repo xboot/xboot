@@ -207,7 +207,10 @@ _main:
  */
 	.align 5
 undefined_instruction:
-	b	.
+	ldr	sp, _stack_und_end
+	save_regs
+	bl do_undefined_instruction
+	restore_regs
 
 	.align 5
 software_interrupt:

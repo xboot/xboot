@@ -9,10 +9,13 @@ extern "C" {
 
 struct gdb_cpu_t {
 	const int nregs;
-	int (*read_register)(struct gdb_cpu_t * cpu, char * buf, int reg);
-	int (*write_register)(struct gdb_cpu_t * cpu, char * buf, int reg);
+	void (*save_register)(struct gdb_cpu_t * cpu, void * regs);
+	void (*restore_register)(struct gdb_cpu_t * cpu, void * regs);
+	int (*read_register)(struct gdb_cpu_t * cpu, char * buf, int n);
+	int (*write_register)(struct gdb_cpu_t * cpu, char * buf, int n);
 	int (*set_pc)(struct gdb_cpu_t * cpu, virtual_addr_t pc);
 	int (*mem_access)(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw);
+	void (*breakpoint)(struct gdb_cpu_t * cpu);
 	void * env;
 };
 
@@ -24,13 +27,14 @@ struct gdb_iterface_t {
 };
 
 struct gdb_state_t {
+	int idle;
 	struct gdb_cpu_t * cpu;
 	struct gdb_iterface_t * iface;
 };
 
-struct gdb_state_t * gdbserver_init(const char * device);
-void gdbserver_exit(struct gdb_state_t * s);
-void gdbserver_start(struct gdb_state_t * s);
+int gdbserver_start(const char * device);
+void gdbserver_stop(void);
+void gdbserver_handle_exception(void * regs);
 
 #ifdef __cplusplus
 }

@@ -105,39 +105,39 @@ static inline int gdb_cpu_write_register(struct gdb_state_t * s, char * buf, int
 	return s->cpu->write_register(s->cpu, buf, n);
 }
 
-static inline int gdb_cpu_set_pc(struct gdb_state_t * s, virtual_addr_t addr)
+static inline int gdb_cpu_set_program_counter(struct gdb_state_t * s, virtual_addr_t addr)
 {
-	return s->cpu->set_pc(s->cpu, addr);
+	return s->cpu->set_program_counter(s->cpu, addr);
 }
 
-static inline int gdb_cpu_mem_access(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int rw)
+static inline int gdb_cpu_access_memory(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int rw)
 {
-	return s->cpu->mem_access(s->cpu, addr, size, rw);
+	return s->cpu->acess_memory(s->cpu, addr, size, rw);
 }
 
-static void gdb_cpu_breakpoint(struct gdb_state_t * s)
+static inline int gdb_cpu_breakpoint_insert(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int type)
 {
-	return s->cpu->breakpoint(s->cpu);
+	return s->cpu->breakpoint_insert(s->cpu, addr, size, type);
 }
 
-static int gdb_cpu_breakpoint_insert(physical_addr_t addr, physical_size_t len, int type)
+static inline int gdb_cpu_breakpoint_remove(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int type)
 {
-	return -1;
+	return s->cpu->breakpoint_remove(s->cpu, addr, size, type);
 }
 
-static int gdb_cpu_breakpoint_remove(physical_addr_t addr, physical_size_t len, int type)
+static inline int gdb_cpu_breakpoint_remove_all(struct gdb_state_t * s)
 {
-	return -1;
+	return s->cpu->breakpoint_remove_all(s->cpu);
 }
 
-static int gdb_cpu_breakpoint_remove_all(struct gdb_state_t * s)
+static inline void gdb_cpu_breakpoint(struct gdb_state_t * s)
 {
-	return -1;
+	s->cpu->breakpoint(s->cpu);
 }
 
-static int gdb_cpu_single_step(struct gdb_state_t * s)
+static inline void gdb_cpu_single_step(struct gdb_state_t * s)
 {
-	return -1;
+	s->cpu->singlestep(s->cpu);
 }
 
 static inline int gdb_interface_read_byte_wait(struct gdb_state_t * s)
@@ -249,37 +249,6 @@ static int is_query_packet(const char * p, const char * query, char sep)
     return strncmp(p, query, len) == 0 && (p[len] == '\0' || p[len] == sep);
 }
 
-static void monitor_output(struct gdb_state_t * s, const char * msg, int len)
-{
-	char buf[MAX_PACKET_LENGTH];
-
-	buf[0] = 'O';
-	if(len > (MAX_PACKET_LENGTH / 2) - 1)
-		len = (MAX_PACKET_LENGTH / 2) - 1;
-	mem_to_hex(buf + 1, (unsigned char *)msg, len);
-	put_packet(s, buf);
-}
-
-static int gdb_monitor_output(struct gdb_state_t * s, const char * buf, int len)
-{
-	const char * p = buf;
-	int max;
-
-	max = (MAX_PACKET_LENGTH - 2) / 2;
-	for(;;)
-	{
-		if(len <= max)
-		{
-			monitor_output(s, p, len);
-			break;
-		}
-		monitor_output(s, p, max);
-		p += max;
-		len -= max;
-	}
-	return len;
-}
-
 static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 {
 	char packet[MAX_PACKET_LENGTH];
@@ -292,11 +261,18 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 
 	gdb_cpu_save_register(s, regs);
 
+	if(s->connected)
+	{
+		sprintf(buf, "T%02xthread:%02x;", 5, 0);
+		put_packet(s, buf);
+	}
+
 	s->idle = 1;
 	while(s->idle)
 	{
 		p = get_packet(s, packet);
 		c = *p++;
+		s->connected = 1;
 
 		switch(c)
 		{
@@ -363,7 +339,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "E22");
 				break;
 			}
-			if(gdb_cpu_mem_access(s, addr, size, 0) < 0)
+			if(gdb_cpu_access_memory(s, addr, size, 0) < 0)
 			{
 				put_packet(s, "E14");
 			}
@@ -387,7 +363,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "E22");
 				break;
 			}
-			if(gdb_cpu_mem_access(s, addr, size, 1) < 0)
+			if(gdb_cpu_access_memory(s, addr, size, 1) < 0)
 			{
 				put_packet(s, "E14");
 			}
@@ -406,7 +382,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			if(*p == ',')
 				p++;
 			size = strtoull(p, (char **)&p, 16);
-			if(gdb_cpu_breakpoint_remove(addr, size, v) < 0)
+			if(gdb_cpu_breakpoint_remove(s, addr, size, v) < 0)
 				put_packet(s, "");
 			else
 				put_packet(s, "OK");
@@ -420,7 +396,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			if(*p == ',')
 				p++;
 			size = strtoull(p, (char **)&p, 16);
-			if(gdb_cpu_breakpoint_insert(addr, size, v) < 0)
+			if(gdb_cpu_breakpoint_insert(s, addr, size, v) < 0)
 				put_packet(s, "");
 			else
 				put_packet(s, "OK");
@@ -430,7 +406,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			if(*p != '\0')
 			{
 				addr = strtoull(p, (char **)&p, 16);
-				gdb_cpu_set_pc(s, addr);
+				gdb_cpu_set_program_counter(s, addr);
 			}
 			gdb_cpu_continue(s);
 			break;
@@ -439,16 +415,22 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			if(*p != '\0')
 			{
 				addr = strtoull(p, (char **)&p, 16);
-				gdb_cpu_set_pc(s, addr);
+				gdb_cpu_set_program_counter(s, addr);
 			}
 			gdb_cpu_single_step(s);
 			gdb_cpu_continue(s);
 			break;
 
 		case 'k':
+			gdb_cpu_breakpoint_remove_all(s);
+			gdb_cpu_continue(s);
+			s->connected = 0;
+			break;
+
 		case 'D':
 			gdb_cpu_breakpoint_remove_all(s);
 			gdb_cpu_continue(s);
+			s->connected = 0;
 			put_packet(s, "OK");
 			break;
 
@@ -456,17 +438,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 	    case 'Q':
 			if(strcmp(p, "Offsets") == 0)
 			{
-				if(0)
-				{
-					extern u8_t __image_start[];
-					extern u8_t __data_start[];
-					extern u8_t __bss_start[];
-					sprintf(buf,"Text=%08x;Data=%08x;Bss=%08x", __image_start, __data_start, __bss_start);
-				}
-				else
-				{
-					buf[0] = 0;
-				}
+				buf[0] = 0;
 				put_packet(s, buf);
 				break;
 			}
@@ -578,6 +550,7 @@ static struct gdb_state_t * gdbserver_alloc(const char * device)
 	iface->priv = uart;
 
 	s->idle = 0;
+	s->connected = 0;
 	s->cpu = cpu;
 	s->iface = iface;
 	return s;

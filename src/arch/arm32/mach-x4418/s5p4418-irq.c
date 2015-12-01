@@ -33,12 +33,6 @@
  */
 extern void irq(void);
 
-struct pt_regs_t {
-	u32_t	r0,		r1,		r2,		r3, 	r4,		r5;
-	u32_t	r6,		r7,		r8, 	r9, 	r10,	fp;
-	u32_t	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
-};
-
 static struct irq_handler_t s5p4418_irq_handler[64];
 static struct irq_handler_t s5p4418_irq_handler_gpioa[32];
 static struct irq_handler_t s5p4418_irq_handler_gpiob[32];
@@ -143,7 +137,7 @@ static void s5p4418_irq_handler_func_gpioalv(void * data)
 	}
 }
 
-void do_irq(struct pt_regs_t * regs)
+void do_irq(void * regs)
 {
 	u32_t vic0, vic1;
 	u32_t offset;

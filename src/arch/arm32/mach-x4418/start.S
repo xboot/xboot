@@ -209,7 +209,7 @@ _main:
 undefined_instruction:
 	ldr	sp, _stack_und_end
 	save_regs
-	bl do_undefined_instruction
+	bl gdbserver_handle_exception
 	restore_regs
 
 	.align 5
@@ -263,13 +263,13 @@ _bss_start:
 	.long __bss_start
 _bss_end:
 	.long __bss_end
-_stack_fiq_end:
-	.long __stack_fiq_end
-_stack_irq_end:
-	.long __stack_irq_end
-_stack_abt_end:
-	.long __stack_abt_end
 _stack_und_end:
 	.long __stack_und_end
+_stack_abt_end:
+	.long __stack_abt_end
+_stack_irq_end:
+	.long __stack_irq_end
+_stack_fiq_end:
+	.long __stack_fiq_end
 _stack_srv_end:
 	.long __stack_srv_end

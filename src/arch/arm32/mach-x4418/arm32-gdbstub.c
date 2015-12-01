@@ -25,98 +25,74 @@
 #include <xboot.h>
 #include <xboot/gdbstub.h>
 
-struct arm32_state_t {
+struct arm32_env_t {
 	uint32_t r[13];
 	uint32_t sp;
 	uint32_t lr;
 	uint32_t pc;
 	uint32_t cpsr;
 };
+static struct arm32_env_t __arm32_env;
 
-struct pt_regs_t {
-	u32_t	r0,		r1,		r2,		r3, 	r4,		r5;
-	u32_t	r6,		r7,		r8, 	r9, 	r10,	fp;
-	u32_t	ip, 	sp, 	lr, 	pc,		cpsr, 	orig_r0;
+struct arm32_breakpoint_t {
+	virtual_addr_t addr;
+	virtual_size_t size;
+	int type;
+	uint8_t instruction[4];
 };
-
-static inline int cpu_get_reg32(char * buf , uint32_t reg)
+struct arm32_breakpoint_list_t
 {
-	memcpy(buf, &reg, 4);
-	return 4;
-}
-
-static inline int cpu_set_reg32(uint32_t * reg, char * buf)
-{
-	memcpy(reg, buf, 4);
-	return 4;
-}
+	struct arm32_breakpoint_t * bp;
+	struct list_head entry;
+};
+static struct arm32_breakpoint_list_t __arm32_breakpoint_list = {
+	.entry = {
+		.next	= &(__arm32_breakpoint_list.entry),
+		.prev	= &(__arm32_breakpoint_list.entry),
+	},
+};
 
 static void cpu_save_register(struct gdb_cpu_t * cpu, void * regs)
 {
-	struct arm32_state_t * env = (struct arm32_state_t *)cpu->env;
-	struct pt_regs_t * r = (struct pt_regs_t *)regs;
-	env->r[0] = r->r0;
-	env->r[1] = r->r1;
-	env->r[2] = r->r2;
-	env->r[3] = r->r3;
-	env->r[4] = r->r4;
-	env->r[5] = r->r5;
-	env->r[6] = r->r6;
-	env->r[7] = r->r7;
-	env->r[8] = r->r8;
-	env->r[9] = r->r9;
-	env->r[10] = r->r10;
-	env->r[11] = r->fp;
-	env->r[12] = r->ip;
-	env->sp = r->sp;
-	env->lr = r->lr;
-	env->pc = r->pc;
-	env->cpsr = r->cpsr;
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	uint32_t instr = (*(uint32_t *)(env->pc));
+
+	memcpy(env, regs, sizeof(struct arm32_env_t));
+	if(instr == 0xe7ffdeff)
+		env->pc += 4;
+	else if(instr == 0xe7ffdefe)
+		env->pc += 0;
 }
 
 static void cpu_restore_register(struct gdb_cpu_t * cpu, void * regs)
 {
-	struct arm32_state_t * env = (struct arm32_state_t *)cpu->env;
-	struct pt_regs_t * r = (struct pt_regs_t *)regs;
-
-	r->r0 = env->r[0];
-	r->r1 = env->r[1];
-	r->r2 = env->r[2];
-	r->r3 = env->r[3];
-	r->r4 = env->r[4];
-	r->r5 = env->r[5];
-	r->r6 = env->r[6];
-	r->r7 = env->r[7];
-	r->r8 = env->r[8];
-	r->r9 = env->r[9];
-	r->r10 = env->r[10];
-	r->fp = env->r[11];
-	r->ip = env->r[12];
-	r->sp = env->sp;
-	r->lr = env->lr;
-	r->pc = env->pc;
-	r->pc += 4;
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	memcpy(regs, env, sizeof(struct arm32_env_t));
 }
 
 static int cpu_read_register(struct gdb_cpu_t * cpu, char * buf, int n)
 {
-	struct arm32_state_t * env = (struct arm32_state_t *)cpu->env;
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
 
 	if(n < 13)
 	{
-		return cpu_get_reg32(buf, env->r[n]);
+		memcpy(buf, &env->r[n], 4);
+		return 4;
 	}
 	else if(n == 13)
 	{
-		return cpu_get_reg32(buf, env->sp);
+		memcpy(buf, &env->sp, 4);
+		return 4;
 	}
 	else if(n == 14)
 	{
-		return cpu_get_reg32(buf, env->lr);
+		memcpy(buf, &env->lr, 4);
+		return 4;
 	}
 	else if(n == 15)
 	{
-		return cpu_get_reg32(buf, env->pc);
+		memcpy(buf, &env->pc, 4);
+		return 4;
 	}
 	else if(n < 24)		/* f0 - f7 */
 	{
@@ -125,34 +101,40 @@ static int cpu_read_register(struct gdb_cpu_t * cpu, char * buf, int n)
 	}
 	else if(n == 24)	/* fps */
 	{
-		return cpu_get_reg32(buf, 0);
+		memset(buf, 0, 4);
+		return 4;
 	}
 	else if(n == 25)
 	{
-		return cpu_get_reg32(buf, env->cpsr);
+		memcpy(buf, &env->cpsr, 4);
+		return 4;
 	}
 	return 0;
 }
 
 static int cpu_write_register(struct gdb_cpu_t * cpu, char * buf, int n)
 {
-	struct arm32_state_t * env = (struct arm32_state_t *)cpu->env;
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
 
 	if(n < 13)
 	{
-		return cpu_set_reg32(&env->r[n], buf);
+		memcpy(&env->r[n], buf, 4);
+		return 4;
 	}
 	else if(n == 13)
 	{
-		return cpu_set_reg32(&env->sp, buf);
+		memcpy(&env->sp, buf, 4);
+		return 4;
 	}
 	else if(n == 14)
 	{
-		return cpu_set_reg32(&env->lr, buf);
+		memcpy(&env->lr, buf, 4);
+		return 4;
 	}
 	else if(n == 15)
 	{
-		return cpu_set_reg32(&env->pc, buf);
+		memcpy(&env->pc, buf, 4);
+		return 4;
 	}
 	else if(n < 24)		/* f0 - f7 */
 	{
@@ -164,48 +146,172 @@ static int cpu_write_register(struct gdb_cpu_t * cpu, char * buf, int n)
 	}
 	else if(n == 25)
 	{
-		return cpu_set_reg32(&env->cpsr, buf);
+		memcpy(&env->cpsr, buf, 4);
+		return 4;
 	}
 	return 0;
 }
 
-static int cpu_set_pc(struct gdb_cpu_t * cpu, virtual_addr_t addr)
+static int cpu_set_program_counter(struct gdb_cpu_t * cpu, virtual_addr_t addr)
 {
-	struct arm32_state_t * env = (struct arm32_state_t *)cpu->env;
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
 	env->pc = (uint32_t)addr;
 	return 0;
 }
 
-static int cpu_mem_access(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
+static int cpu_acess_memory(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
 {
+	return 0;
+}
+
+
+static struct arm32_breakpoint_t * cpu_breakpoint_search(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int type)
+{
+	struct arm32_breakpoint_list_t * l = (struct arm32_breakpoint_list_t *)cpu->bplist;
+	struct arm32_breakpoint_list_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(l->entry), entry)
+	{
+		if((pos->bp->addr == addr) && (pos->bp->size == size) && (pos->bp->type == type))
+			return pos->bp;
+	}
+	return NULL;
+}
+
+static int cpu_breakpoint_insert(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int type)
+{
+	struct arm32_breakpoint_list_t * l = (struct arm32_breakpoint_list_t *)cpu->bplist;
+	struct arm32_breakpoint_list_t * bl;
+	struct arm32_breakpoint_t * bp;
+	const uint8_t bpinstr[4] = {0xfe, 0xde, 0xff, 0xe7};	/* 0xe7ffdefe */
+
+	switch(type)
+	{
+	case 0:	/* breakpoint software */
+		break;
+	case 1:	/* breakpoint hardware */
+	case 2:	/* watchpoint write */
+	case 3:	/* watchpoint read */
+	case 4:	/* watchpoint access */
+	default:
+		return -1;
+	}
+
+	if(cpu_breakpoint_search(cpu, addr, size, type))
+		return -1;
+
+	bl = malloc(sizeof(struct arm32_breakpoint_list_t));
+	if(!bl)
+		return -1;
+
+	bp = malloc(sizeof(struct arm32_breakpoint_t));
+	if(!bp)
+	{
+		free(bl);
+		return -1;
+	}
+
+	bp->addr = addr;
+	bp->size = size;
+	bp->type = type;
+	switch(type)
+	{
+	case 0:	/* breakpoint software */
+		memcpy(bp->instruction, (void *)(bp->addr), 4);
+		memcpy((void *)(bp->addr), bpinstr, 4);
+		break;
+	case 1:	/* breakpoint hardware */
+	case 2:	/* watchpoint write */
+	case 3:	/* watchpoint read */
+	case 4:	/* watchpoint access */
+	default:
+		break;
+	}
+
+	bl->bp = bp;
+	list_add_tail(&bl->entry, &(l->entry));
+	return 0;
+}
+
+static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int type)
+{
+	struct arm32_breakpoint_list_t * l = (struct arm32_breakpoint_list_t *)cpu->bplist;
+	struct arm32_breakpoint_list_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(l->entry), entry)
+	{
+		if((pos->bp->addr == addr) && (pos->bp->size == size) && (pos->bp->type == type))
+		{
+			switch(type)
+			{
+			case 0:	/* breakpoint software */
+				memcpy((void *)(pos->bp->addr), pos->bp->instruction, 4);
+				break;
+			case 1:	/* breakpoint hardware */
+			case 2:	/* watchpoint write */
+			case 3:	/* watchpoint read */
+			case 4:	/* watchpoint access */
+			default:
+				break;
+			}
+			list_del(&(pos->entry));
+			free(pos->bp);
+			free(pos);
+		}
+	}
+	return 0;
+}
+
+static int cpu_breakpoint_remove_all(struct gdb_cpu_t * cpu)
+{
+	struct arm32_breakpoint_list_t * l = (struct arm32_breakpoint_list_t *)cpu->bplist;
+	struct arm32_breakpoint_list_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(l->entry), entry)
+	{
+		switch(pos->bp->type)
+		{
+		case 0:	/* breakpoint software */
+			memcpy((void *)(pos->bp->addr), pos->bp->instruction, 4);
+			break;
+		case 1:	/* breakpoint hardware */
+		case 2:	/* watchpoint write */
+		case 3:	/* watchpoint read */
+		case 4:	/* watchpoint access */
+		default:
+			break;
+		}
+		list_del(&(pos->entry));
+		free(pos->bp);
+		free(pos);
+	}
 	return 0;
 }
 
 static void cpu_breakpoint(struct gdb_cpu_t * cpu)
 {
-	__asm__ (".word 0xe7ffdeff");
+	__asm__ __volatile__(".word 0xe7ffdeff");
 }
-
-static struct arm32_state_t __arm32_env;
 
 static struct gdb_cpu_t __arm32_gdb_cpu = {
 	.nregs = 26,
+	.env = &__arm32_env,
+	.bplist = &__arm32_breakpoint_list,
 	.save_register = cpu_save_register,
 	.restore_register = cpu_restore_register,
 	.read_register = cpu_read_register,
 	.write_register = cpu_write_register,
-	.set_pc = cpu_set_pc,
-	.mem_access = cpu_mem_access,
+	.set_program_counter = cpu_set_program_counter,
+	.acess_memory = cpu_acess_memory,
+	.breakpoint_insert = cpu_breakpoint_insert,
+	.breakpoint_remove = cpu_breakpoint_remove,
+	.breakpoint_remove_all = cpu_breakpoint_remove_all,
 	.breakpoint = cpu_breakpoint,
-	.env = &__arm32_env,
+	.singlestep = 0,
+	.priv = 0,
 };
 
 struct gdb_cpu_t * arch_gdb_cpu(void)
 {
 	return &__arm32_gdb_cpu;
-}
-
-void do_undefined_instruction(struct pt_regs_t * regs)
-{
-	gdbserver_handle_exception(regs);
 }

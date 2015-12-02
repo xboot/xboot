@@ -2,10 +2,10 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 
-STACK_FIQ_SIZE	= 0x10000;	/* 64KB */
-STACK_IRQ_SIZE	= 0x10000;	/* 64KB */
-STACK_ABT_SIZE	= 0x10000;	/* 64KB */
-STACK_UND_SIZE	= 0x10000;	/* 64KB */
+STACK_UND_SIZE	= 0x40000;	/* 256KB */
+STACK_ABT_SIZE	= 0x40000;	/* 256KB */
+STACK_IRQ_SIZE	= 0x40000;	/* 256KB */
+STACK_FIQ_SIZE	= 0x40000;	/* 256KB */
 STACK_SRV_SIZE	= 0x100000;	/* 1 MB */
 
 MEMORY
@@ -131,21 +131,21 @@ SECTIONS
 	.stack ALIGN(8) (NOLOAD) :
 	{
 		PROVIDE(__stack_start = .);
-		PROVIDE(__stack_fiq_start = .);
-		. += STACK_FIQ_SIZE;
-		PROVIDE(__stack_fiq_end = .);
-		. = ALIGN(8);
-		PROVIDE(__stack_irq_start = .);
-		. += STACK_IRQ_SIZE;
-		PROVIDE(__stack_irq_end = .);
+		PROVIDE(__stack_und_start = .);
+		. += STACK_UND_SIZE;
+		PROVIDE(__stack_und_end = .);
 		. = ALIGN(8);
 		PROVIDE(__stack_abt_start = .);
 		. += STACK_ABT_SIZE;
 		PROVIDE(__stack_abt_end = .);
 		. = ALIGN(8);
-		PROVIDE(__stack_und_start = .);
-		. += STACK_UND_SIZE;
-		PROVIDE(__stack_und_end = .);
+		PROVIDE(__stack_irq_start = .);
+		. += STACK_IRQ_SIZE;
+		PROVIDE(__stack_irq_end = .);
+		. = ALIGN(8);
+		PROVIDE(__stack_fiq_start = .);
+		. += STACK_FIQ_SIZE;
+		PROVIDE(__stack_fiq_end = .);
 		. = ALIGN(8);
 		PROVIDE(__stack_srv_start = .);
 		. += STACK_SRV_SIZE;

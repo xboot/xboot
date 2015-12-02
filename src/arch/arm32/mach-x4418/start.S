@@ -22,7 +22,7 @@
  *
  */
 
-.macro save_regs
+.macro irq_save_regs
 	sub	sp, sp, #72
 	stmia sp, {r0 - r12}
 	add	r8, sp, #60
@@ -34,7 +34,7 @@
 	mov	r0, sp
 .endm
 
-.macro restore_regs
+.macro irq_restore_regs
 	ldmia sp, {r0 - lr}^
 	mov	r0, r0
 	ldr	lr, [sp, #60]
@@ -208,9 +208,22 @@ _main:
 	.align 5
 undefined_instruction:
 	ldr	sp, _stack_und_end
-	save_regs
+	sub	lr, lr, #4
+	sub	sp, sp, #72
+	stmia sp, {r0 - r12}
+	add	r8, sp, #60
+	stmdb r8, {sp, lr}
+	str	lr, [r8, #0]
+	mrs	r6, spsr
+	str	r6, [r8, #4]
+	str	r0, [r8, #8]
+	mov	r0, sp
 	bl gdbserver_handle_exception
-	restore_regs
+	ldmia sp, {r0 - r12}
+	mov	r0, r0
+	ldr	lr, [sp, #60]
+	add	sp, sp, #72
+	movs pc, lr
 
 	.align 5
 software_interrupt:
@@ -232,16 +245,16 @@ not_used:
 	.global irq
 irq:
 	ldr	sp, _stack_irq_end
-	save_regs
+	irq_save_regs
 	bl do_irq
-	restore_regs
+	irq_restore_regs
 
 	.align 5
 fiq:
 	ldr	sp, _stack_fiq_end
-	save_regs
+	irq_save_regs
 	bl do_irq
-	restore_regs
+	irq_restore_regs
 
 /*
  * The location of section

@@ -142,7 +142,7 @@ SECTIONS
 		PROVIDE(__stack_irq_start = .);
 		. += STACK_IRQ_SIZE;
 		PROVIDE(__stack_irq_end = .);
-		. = ALIGN(8);				
+		. = ALIGN(8);
 		PROVIDE(__stack_fiq_start = .);
 		. += STACK_FIQ_SIZE;
 		PROVIDE(__stack_fiq_end = .);

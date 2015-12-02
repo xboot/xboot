@@ -183,21 +183,14 @@ static void cpu_breakpoint(struct gdb_cpu_t * cpu)
 static void cpu_save_register(struct gdb_cpu_t * cpu, void * regs)
 {
 	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-	uint32_t instr;
 	memcpy(env, regs, sizeof(struct arm32_env_t));
-	instr = (*(uint32_t *)(env->pc - 4));
-	if(instr == 0xe7ffdeff)
-		env->pc += 4;
-	else if(instr == 0xe7ffdefe)
-	{
-//		cpu_breakpoint_remove(cpu, env->pc - 4, 4, 0);
-		env->pc += 0;
-	}
 }
 
 static void cpu_restore_register(struct gdb_cpu_t * cpu, void * regs)
 {
 	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	if(*(uint32_t *)(env->pc) == 0xe7ffdeff)
+		env->pc += 4;
 	memcpy(regs, env, sizeof(struct arm32_env_t));
 }
 

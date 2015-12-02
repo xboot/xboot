@@ -541,6 +541,7 @@ static void gdbserver_free(struct gdb_state_t * s)
 {
 	if(!s)
 		return;
+	gdb_cpu_breakpoint_remove_all(s);
 	free(s->iface);
 	free(s);
 }
@@ -550,12 +551,11 @@ static struct gdb_state_t * gs = 0;
 int gdbserver_start(const char * device)
 {
 	if(!arch_gdb_cpu())
-		return -2;
-
+		return -1;
 	gdbserver_stop();
 	gs = gdbserver_alloc(device);
 	if(!gs)
-		return -1;
+		return -2;
 	gdb_cpu_breakpoint(gs);
 	return 0;
 }

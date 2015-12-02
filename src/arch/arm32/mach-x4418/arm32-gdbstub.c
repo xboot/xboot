@@ -52,119 +52,6 @@ static struct arm32_breakpoint_list_t __arm32_breakpoint_list = {
 	},
 };
 
-static void cpu_save_register(struct gdb_cpu_t * cpu, void * regs)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-	uint32_t instr = (*(uint32_t *)(env->pc));
-
-	memcpy(env, regs, sizeof(struct arm32_env_t));
-	if(instr == 0xe7ffdeff)
-		env->pc += 4;
-	else if(instr == 0xe7ffdefe)
-		env->pc += 0;
-}
-
-static void cpu_restore_register(struct gdb_cpu_t * cpu, void * regs)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-	memcpy(regs, env, sizeof(struct arm32_env_t));
-}
-
-static int cpu_read_register(struct gdb_cpu_t * cpu, char * buf, int n)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-
-	if(n < 13)
-	{
-		memcpy(buf, &env->r[n], 4);
-		return 4;
-	}
-	else if(n == 13)
-	{
-		memcpy(buf, &env->sp, 4);
-		return 4;
-	}
-	else if(n == 14)
-	{
-		memcpy(buf, &env->lr, 4);
-		return 4;
-	}
-	else if(n == 15)
-	{
-		memcpy(buf, &env->pc, 4);
-		return 4;
-	}
-	else if(n < 24)		/* f0 - f7 */
-	{
-        memset(buf, 0, 12);
-        return 12;
-	}
-	else if(n == 24)	/* fps */
-	{
-		memset(buf, 0, 4);
-		return 4;
-	}
-	else if(n == 25)
-	{
-		memcpy(buf, &env->cpsr, 4);
-		return 4;
-	}
-	return 0;
-}
-
-static int cpu_write_register(struct gdb_cpu_t * cpu, char * buf, int n)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-
-	if(n < 13)
-	{
-		memcpy(&env->r[n], buf, 4);
-		return 4;
-	}
-	else if(n == 13)
-	{
-		memcpy(&env->sp, buf, 4);
-		return 4;
-	}
-	else if(n == 14)
-	{
-		memcpy(&env->lr, buf, 4);
-		return 4;
-	}
-	else if(n == 15)
-	{
-		memcpy(&env->pc, buf, 4);
-		return 4;
-	}
-	else if(n < 24)		/* f0 - f7 */
-	{
-		return 12;
-	}
-	else if(n == 24)	/* fps */
-	{
-		return 4;
-	}
-	else if(n == 25)
-	{
-		memcpy(&env->cpsr, buf, 4);
-		return 4;
-	}
-	return 0;
-}
-
-static int cpu_set_program_counter(struct gdb_cpu_t * cpu, virtual_addr_t addr)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-	env->pc = (uint32_t)addr;
-	return 0;
-}
-
-static int cpu_acess_memory(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
-{
-	return 0;
-}
-
-
 static struct arm32_breakpoint_t * cpu_breakpoint_search(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int type)
 {
 	struct arm32_breakpoint_list_t * l = (struct arm32_breakpoint_list_t *)cpu->bplist;
@@ -293,6 +180,121 @@ static void cpu_breakpoint(struct gdb_cpu_t * cpu)
 	__asm__ __volatile__(".word 0xe7ffdeff");
 }
 
+static void cpu_save_register(struct gdb_cpu_t * cpu, void * regs)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	uint32_t instr;
+	memcpy(env, regs, sizeof(struct arm32_env_t));
+	instr = (*(uint32_t *)(env->pc - 4));
+	if(instr == 0xe7ffdeff)
+		env->pc += 4;
+	else if(instr == 0xe7ffdefe)
+	{
+//		cpu_breakpoint_remove(cpu, env->pc - 4, 4, 0);
+		env->pc += 0;
+	}
+}
+
+static void cpu_restore_register(struct gdb_cpu_t * cpu, void * regs)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	memcpy(regs, env, sizeof(struct arm32_env_t));
+}
+
+static int cpu_read_register(struct gdb_cpu_t * cpu, char * buf, int n)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+
+	if(n < 13)
+	{
+		memcpy(buf, &env->r[n], 4);
+		return 4;
+	}
+	else if(n == 13)
+	{
+		memcpy(buf, &env->sp, 4);
+		return 4;
+	}
+	else if(n == 14)
+	{
+		memcpy(buf, &env->lr, 4);
+		return 4;
+	}
+	else if(n == 15)
+	{
+		memcpy(buf, &env->pc, 4);
+		return 4;
+	}
+	else if(n < 24)		/* f0 - f7 */
+	{
+        memset(buf, 0, 12);
+        return 12;
+	}
+	else if(n == 24)	/* fps */
+	{
+		memset(buf, 0, 4);
+		return 4;
+	}
+	else if(n == 25)
+	{
+		memcpy(buf, &env->cpsr, 4);
+		return 4;
+	}
+	return 0;
+}
+
+static int cpu_write_register(struct gdb_cpu_t * cpu, char * buf, int n)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+
+	if(n < 13)
+	{
+		memcpy(&env->r[n], buf, 4);
+		return 4;
+	}
+	else if(n == 13)
+	{
+		memcpy(&env->sp, buf, 4);
+		return 4;
+	}
+	else if(n == 14)
+	{
+		memcpy(&env->lr, buf, 4);
+		return 4;
+	}
+	else if(n == 15)
+	{
+		memcpy(&env->pc, buf, 4);
+		return 4;
+	}
+	else if(n < 24)		/* f0 - f7 */
+	{
+		return 12;
+	}
+	else if(n == 24)	/* fps */
+	{
+		return 4;
+	}
+	else if(n == 25)
+	{
+		memcpy(&env->cpsr, buf, 4);
+		return 4;
+	}
+	return 0;
+}
+
+static int cpu_set_program_counter(struct gdb_cpu_t * cpu, virtual_addr_t addr)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	env->pc = (uint32_t)addr;
+	return 0;
+}
+
+static int cpu_acess_memory(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
+{
+	return 0;
+}
+
 static struct gdb_cpu_t __arm32_gdb_cpu = {
 	.nregs = 26,
 	.env = &__arm32_env,
@@ -313,5 +315,6 @@ static struct gdb_cpu_t __arm32_gdb_cpu = {
 
 struct gdb_cpu_t * arch_gdb_cpu(void)
 {
+	cpu_breakpoint_remove_all(&__arm32_gdb_cpu);
 	return &__arm32_gdb_cpu;
 }

@@ -77,7 +77,7 @@ static void hex_to_mem(unsigned char * mem, char * buf, int len)
 
 static inline void gdb_cpu_continue(struct gdb_state_t * s)
 {
-	s->idle = 0;
+	s->trapping = 0;
 }
 
 static inline int gdb_cpu_nregs(struct gdb_state_t * s)
@@ -263,12 +263,12 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 
 	if(s->connected)
 	{
-		sprintf(buf, "T%02xthread:%02x;", 5, 0);
+		sprintf(buf, "S%02x", 5);
 		put_packet(s, buf);
 	}
 
-	s->idle = 1;
-	while(s->idle)
+	s->trapping = 1;
+	while(s->trapping)
 	{
 		p = get_packet(s, packet);
 		c = *p++;
@@ -277,7 +277,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 		switch(c)
 		{
 		case '?':
-			sprintf(buf, "T%02xthread:%02x;", 5, 0);
+			sprintf(buf, "S%02x", 5);
 			put_packet(s, buf);
 			gdb_cpu_breakpoint_remove_all(s);
 			break;
@@ -314,7 +314,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			}
 			else
 			{
-				put_packet(s, "E14");
+				put_packet(s, "E01");
 			}
 			break;
 
@@ -336,12 +336,12 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 
 			if(size > MAX_PACKET_LENGTH / 2)
 			{
-				put_packet(s, "E22");
+				put_packet(s, "E01");
 				break;
 			}
 			if(gdb_cpu_access_memory(s, addr, size, 0) < 0)
 			{
-				put_packet(s, "E14");
+				put_packet(s, "E01");
 			}
 			else
 			{
@@ -360,12 +360,12 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 
 			if(size > strlen(p) / 2)
 			{
-				put_packet(s, "E22");
+				put_packet(s, "E01");
 				break;
 			}
 			if(gdb_cpu_access_memory(s, addr, size, 1) < 0)
 			{
-				put_packet(s, "E14");
+				put_packet(s, "E01");
 			}
 			else
 			{
@@ -436,9 +436,9 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 
 		case 'q':
 	    case 'Q':
-			if(strcmp(p, "Offsets") == 0)
+	    	if(is_query_packet(p, "Supported", ':'))
 			{
-				buf[0] = 0;
+				snprintf(buf, sizeof(buf), "PacketSize=%x", MAX_PACKET_LENGTH);
 				put_packet(s, buf);
 				break;
 			}
@@ -457,35 +457,16 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "OK");
 				break;
 			}
-			if(is_query_packet(p, "Supported", ':'))
+	        else if(strcmp(p, "Offsets") == 0)
 			{
-				snprintf(buf, sizeof(buf), "PacketSize=%x", MAX_PACKET_LENGTH);
+				sprintf(buf, "Text=%016x;Data=%016x;Bss=%016x", 0, 0, 0);
 				put_packet(s, buf);
 				break;
 			}
-			goto emptypacket;
-
-		case 'H':
-			c = *p++;
-			v = strtoull(p, (char **)&p, 16);
-			if(v == -1 || v == 0)
-			{
-				put_packet(s, "OK");
-				break;
-			}
-			switch(c)
-			{
-			case 'c':
-				put_packet(s, "OK");
-				break;
-			case 'g':
-				put_packet(s, "OK");
-				break;
-			default:
-				put_packet(s, "E22");
-				break;
-			}
-			break;
+	        else
+	        {
+	        	goto emptypacket;
+	        }
 
 	    default:
 emptypacket:
@@ -549,7 +530,7 @@ static struct gdb_state_t * gdbserver_alloc(const char * device)
 	iface->flush = gdb_interface_uart_flush;
 	iface->priv = uart;
 
-	s->idle = 0;
+	s->trapping = 0;
 	s->connected = 0;
 	s->cpu = cpu;
 	s->iface = iface;

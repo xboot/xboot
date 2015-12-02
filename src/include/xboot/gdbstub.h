@@ -33,7 +33,7 @@ struct gdb_iterface_t {
 };
 
 struct gdb_state_t {
-	int idle;
+	int trapping;
 	int connected;
 	struct gdb_cpu_t * cpu;
 	struct gdb_iterface_t * iface;

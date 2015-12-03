@@ -85,24 +85,24 @@ static inline int gdb_cpu_nregs(struct gdb_state_t * s)
 	return s->cpu->nregs;
 }
 
-static inline void gdb_cpu_save_register(struct gdb_state_t * s, void * regs)
+static inline void gdb_cpu_register_save(struct gdb_state_t * s, void * regs)
 {
-	s->cpu->save_register(s->cpu, regs);
+	s->cpu->register_save(s->cpu, regs);
 }
 
-static inline void gdb_cpu_restore_register(struct gdb_state_t * s, void * regs)
+static inline void gdb_cpu_register_restore(struct gdb_state_t * s, void * regs)
 {
-	s->cpu->restore_register(s->cpu, regs);
+	s->cpu->register_restore(s->cpu, regs);
 }
 
-static inline int gdb_cpu_read_register(struct gdb_state_t * s, char * buf, int n)
+static inline int gdb_cpu_register_read(struct gdb_state_t * s, char * buf, int n)
 {
-	return s->cpu->read_register(s->cpu, buf, n);
+	return s->cpu->register_read(s->cpu, buf, n);
 }
 
-static inline int gdb_cpu_write_register(struct gdb_state_t * s, char * buf, int n)
+static inline int gdb_cpu_register_write(struct gdb_state_t * s, char * buf, int n)
 {
-	return s->cpu->write_register(s->cpu, buf, n);
+	return s->cpu->register_write(s->cpu, buf, n);
 }
 
 static inline int gdb_cpu_set_program_counter(struct gdb_state_t * s, virtual_addr_t addr)
@@ -115,19 +115,14 @@ static inline int gdb_cpu_access_memory(struct gdb_state_t * s, virtual_addr_t a
 	return s->cpu->acess_memory(s->cpu, addr, size, rw);
 }
 
-static inline int gdb_cpu_breakpoint_insert(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int type)
+static inline int gdb_cpu_breakpoint_insert(struct gdb_state_t * s, struct gdb_breakpoint_t * bp)
 {
-	return s->cpu->breakpoint_insert(s->cpu, addr, size, type);
+	return s->cpu->breakpoint_insert(s->cpu, bp);
 }
 
-static inline int gdb_cpu_breakpoint_remove(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int type)
+static inline int gdb_cpu_breakpoint_remove(struct gdb_state_t * s, struct gdb_breakpoint_t * bp)
 {
-	return s->cpu->breakpoint_remove(s->cpu, addr, size, type);
-}
-
-static inline int gdb_cpu_breakpoint_remove_all(struct gdb_state_t * s)
-{
-	return s->cpu->breakpoint_remove_all(s->cpu);
+	return s->cpu->breakpoint_remove(s->cpu, bp);
 }
 
 static inline void gdb_cpu_breakpoint(struct gdb_state_t * s)
@@ -160,6 +155,74 @@ static inline void gdb_interface_write_byte(struct gdb_state_t * s, char c)
 static inline void gdb_interface_flush(struct gdb_state_t * s)
 {
 	s->iface->flush(s->iface);
+}
+
+static struct gdb_breakpoint_t * gdb_breakpoint_search(struct gdb_state_t * s, virtual_addr_t addr)
+{
+	struct gdb_breakpoint_t * l = (struct gdb_breakpoint_t *)(&s->bp);
+	struct gdb_breakpoint_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(l->entry), entry)
+	{
+		if(pos->addr == addr)
+			return pos;
+	}
+	return NULL;
+}
+
+static int gdb_breakpoint_insert(struct gdb_state_t * s, enum gdb_breakpoint_type_t type, virtual_addr_t addr, virtual_size_t size)
+{
+	struct gdb_breakpoint_t * l = (struct gdb_breakpoint_t *)(&s->bp);
+	struct gdb_breakpoint_t * bp;
+
+	if(gdb_breakpoint_search(s, addr))
+		return -1;
+
+	bp = malloc(sizeof(struct gdb_breakpoint_t));
+	if(!bp)
+		return -1;
+
+	bp->type = type;
+	bp->addr = addr;
+	bp->size = size;
+	if(gdb_cpu_breakpoint_insert(s, bp) < 0)
+	{
+		free(bp);
+		return -1;
+	}
+	list_add_tail(&bp->entry, &(l->entry));
+	return 0;
+}
+
+static int gdb_breakpoint_remove(struct gdb_state_t * s, virtual_addr_t addr)
+{
+	struct gdb_breakpoint_t * l = (struct gdb_breakpoint_t *)(&s->bp);
+	struct gdb_breakpoint_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(l->entry), entry)
+	{
+		if(pos->addr == addr)
+		{
+			gdb_cpu_breakpoint_remove(s, pos);
+			list_del(&(pos->entry));
+			free(pos);
+		}
+	}
+	return 0;
+}
+
+static int gdb_breakpoint_remove_all(struct gdb_state_t * s)
+{
+	struct gdb_breakpoint_t * l = (struct gdb_breakpoint_t *)(&s->bp);
+	struct gdb_breakpoint_t * pos, * n;
+
+	list_for_each_entry_safe(pos, n, &(l->entry), entry)
+	{
+		gdb_cpu_breakpoint_remove(s, pos);
+		list_del(&(pos->entry));
+		free(pos);
+	}
+	return 0;
 }
 
 static char * get_packet(struct gdb_state_t * s, char * buf)
@@ -259,7 +322,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 	char c, * p, * q;
 	int v, n, len;
 
-	gdb_cpu_save_register(s, regs);
+	gdb_cpu_register_save(s, regs);
 
 	if(s->connected)
 	{
@@ -279,13 +342,13 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 		case '?':
 			sprintf(buf, "S%02x", 5);
 			put_packet(s, buf);
-			gdb_cpu_breakpoint_remove_all(s);
+			gdb_breakpoint_remove_all(s);
 			break;
 
 		case 'g':
 			for(len = 0, v = 0; v < gdb_cpu_nregs(s); v++)
 			{
-				n = gdb_cpu_read_register(s, mem + len, v);
+				n = gdb_cpu_register_read(s, mem + len, v);
 				len += n;
 			}
 			mem_to_hex(buf, (unsigned char *)mem, len);
@@ -297,7 +360,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			hex_to_mem((unsigned char *)mem, p, len);
 			for(q = mem, v = 0; (v < gdb_cpu_nregs(s)) && (len > 0); v++)
 			{
-				n = gdb_cpu_write_register(s, q, v);
+				n = gdb_cpu_register_write(s, q, v);
 				len -= n;
 				q += n;
 			}
@@ -306,7 +369,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 
 		case 'p':
 			v = strtoull(p, (char **)&p, 16);
-			n = gdb_cpu_read_register(s, mem, v);
+			n = gdb_cpu_register_read(s, mem, v);
 			if(n > 0)
 			{
 				mem_to_hex(buf, (unsigned char *)mem, n);
@@ -324,7 +387,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				p++;
 			n = strlen(p) / 2;
 			hex_to_mem((unsigned char *)mem, p, n);
-			gdb_cpu_write_register(s, mem, v);
+			gdb_cpu_register_write(s, mem, v);
 			put_packet(s, "OK");
 			break;
 
@@ -382,7 +445,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			if(*p == ',')
 				p++;
 			size = strtoull(p, (char **)&p, 16);
-			if(gdb_cpu_breakpoint_remove(s, addr, size, v) < 0)
+			if(gdb_breakpoint_remove(s, addr) < 0)
 				put_packet(s, "");
 			else
 				put_packet(s, "OK");
@@ -396,7 +459,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			if(*p == ',')
 				p++;
 			size = strtoull(p, (char **)&p, 16);
-			if(gdb_cpu_breakpoint_insert(s, addr, size, v) < 0)
+			if(gdb_breakpoint_insert(s, v, addr, size) < 0)
 				put_packet(s, "");
 			else
 				put_packet(s, "OK");
@@ -422,13 +485,13 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			break;
 
 		case 'k':
-			gdb_cpu_breakpoint_remove_all(s);
+			gdb_breakpoint_remove_all(s);
 			gdb_cpu_continue(s);
 			s->connected = 0;
 			break;
 
 		case 'D':
-			gdb_cpu_breakpoint_remove_all(s);
+			gdb_breakpoint_remove_all(s);
 			gdb_cpu_continue(s);
 			s->connected = 0;
 			put_packet(s, "OK");
@@ -476,7 +539,7 @@ emptypacket:
 		}
 	}
 
-	gdb_cpu_restore_register(s, regs);
+	gdb_cpu_register_restore(s, regs);
 }
 
 static struct gdb_cpu_t * __arch_gdb_cpu(void)
@@ -532,6 +595,7 @@ static struct gdb_state_t * gdbserver_alloc(const char * device)
 
 	s->trapping = 0;
 	s->connected = 0;
+	init_list_head(&s->bp.entry);
 	s->cpu = cpu;
 	s->iface = iface;
 	return s;
@@ -541,7 +605,7 @@ static void gdbserver_free(struct gdb_state_t * s)
 {
 	if(!s)
 		return;
-	gdb_cpu_breakpoint_remove_all(s);
+	gdb_breakpoint_remove_all(s);
 	free(s->iface);
 	free(s);
 }

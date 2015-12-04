@@ -58,6 +58,7 @@ static int do_gdbserver(int argc, char ** argv)
 		return 0;
 	}
 
+	printf("Start gdbserver on device '%s'\r\n", argv[1]);
 	if((s = gdbserver_start(argv[1])) < 0)
 	{
 		if(s == -1)
@@ -78,7 +79,7 @@ static int do_gdbserver(int argc, char ** argv)
 
 static struct command_t cmd_gdbserver = {
 	.name	= "gdbserver",
-	.desc	= "Remote server for the gnu debugger",
+	.desc	= "remote server for the gnu debugger",
 	.usage	= usage,
 	.exec	= do_gdbserver,
 };

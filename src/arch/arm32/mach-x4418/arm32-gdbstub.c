@@ -26,13 +26,129 @@
 #include <xboot/gdbstub.h>
 
 struct arm32_env_t {
-	uint32_t r[13];
-	uint32_t sp;
-	uint32_t lr;
-	uint32_t pc;
-	uint32_t cpsr;
+	struct {
+		uint32_t r[13];
+		uint32_t sp;
+		uint32_t lr;
+		uint32_t pc;
+		uint32_t cpsr;
+	} regs;
+	struct {
+		int enable;
+		uint8_t instruction[4];
+	} step;
 };
 static struct arm32_env_t __arm32_env;
+
+static void cpu_debug_begin(struct gdb_cpu_t * cpu, void * regs)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	memcpy(&env->regs, regs, sizeof(env->regs));
+	if(env->step.enable != 0)
+	{
+		env->step.enable = 0;
+	}
+}
+
+static void cpu_debug_end(struct gdb_cpu_t * cpu, void * regs)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	if(*(uint32_t *)(env->regs.pc) == 0xe7ffdeff)
+		env->regs.pc += 4;
+	memcpy(regs, &env->regs, sizeof(env->regs));
+}
+
+static int cpu_processor_id(struct gdb_cpu_t * cpu)
+{
+	return 0;
+}
+
+static int cpu_register_read(struct gdb_cpu_t * cpu, char * buf, int n)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+
+	if(n < 13)
+	{
+		memcpy(buf, &env->regs.r[n], 4);
+		return 4;
+	}
+	else if(n == 13)
+	{
+		memcpy(buf, &env->regs.sp, 4);
+		return 4;
+	}
+	else if(n == 14)
+	{
+		memcpy(buf, &env->regs.lr, 4);
+		return 4;
+	}
+	else if(n == 15)
+	{
+		memcpy(buf, &env->regs.pc, 4);
+		return 4;
+	}
+	else if(n < 24)		/* f0 - f7 */
+	{
+        memset(buf, 0, 12);
+        return 12;
+	}
+	else if(n == 24)	/* fps */
+	{
+		memset(buf, 0, 4);
+		return 4;
+	}
+	else if(n == 25)
+	{
+		memcpy(buf, &env->regs.cpsr, 4);
+		return 4;
+	}
+	return 0;
+}
+
+static int cpu_register_write(struct gdb_cpu_t * cpu, char * buf, int n)
+{
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+
+	if(n < 13)
+	{
+		memcpy(&env->regs.r[n], buf, 4);
+		return 4;
+	}
+	else if(n == 13)
+	{
+		memcpy(&env->regs.sp, buf, 4);
+		return 4;
+	}
+	else if(n == 14)
+	{
+		memcpy(&env->regs.lr, buf, 4);
+		return 4;
+	}
+	else if(n == 15)
+	{
+		memcpy(&env->regs.pc, buf, 4);
+		return 4;
+	}
+	else if(n < 24)		/* f0 - f7 */
+	{
+		return 12;
+	}
+	else if(n == 24)	/* fps */
+	{
+		return 4;
+	}
+	else if(n == 25)
+	{
+		memcpy(&env->regs.cpsr, buf, 4);
+		return 4;
+	}
+	return 0;
+}
+
+static int cpu_acess_memory(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
+{
+	return 0;
+}
 
 static int cpu_breakpoint_insert(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp)
 {
@@ -48,7 +164,6 @@ static int cpu_breakpoint_insert(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 	case BT_TYPE_WRITE_WATCHPOINT:
 	case BT_TYPE_READ_WATCHPOINT:
 	case BT_TYPE_ACCESS_WATCHPOINT:
-	case BT_TYPE_POKE_WATCHPOINT:
 	default:
 		break;
 	}
@@ -66,7 +181,6 @@ static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 	case BT_TYPE_WRITE_WATCHPOINT:
 	case BT_TYPE_READ_WATCHPOINT:
 	case BT_TYPE_ACCESS_WATCHPOINT:
-	case BT_TYPE_POKE_WATCHPOINT:
 	default:
 		break;
 	}
@@ -78,126 +192,24 @@ static void cpu_breakpoint(struct gdb_cpu_t * cpu)
 	__asm__ __volatile__(".word 0xe7ffdeff");
 }
 
-static void cpu_register_save(struct gdb_cpu_t * cpu, void * regs)
+static void cpu_singlestep(struct gdb_cpu_t * cpu)
 {
 	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-	memcpy(env, regs, sizeof(struct arm32_env_t));
-}
-
-static void cpu_register_restore(struct gdb_cpu_t * cpu, void * regs)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-	if(*(uint32_t *)(env->pc) == 0xe7ffdeff)
-		env->pc += 4;
-	memcpy(regs, env, sizeof(struct arm32_env_t));
-}
-
-static int cpu_register_read(struct gdb_cpu_t * cpu, char * buf, int n)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-
-	if(n < 13)
-	{
-		memcpy(buf, &env->r[n], 4);
-		return 4;
-	}
-	else if(n == 13)
-	{
-		memcpy(buf, &env->sp, 4);
-		return 4;
-	}
-	else if(n == 14)
-	{
-		memcpy(buf, &env->lr, 4);
-		return 4;
-	}
-	else if(n == 15)
-	{
-		memcpy(buf, &env->pc, 4);
-		return 4;
-	}
-	else if(n < 24)		/* f0 - f7 */
-	{
-        memset(buf, 0, 12);
-        return 12;
-	}
-	else if(n == 24)	/* fps */
-	{
-		memset(buf, 0, 4);
-		return 4;
-	}
-	else if(n == 25)
-	{
-		memcpy(buf, &env->cpsr, 4);
-		return 4;
-	}
-	return 0;
-}
-
-static int cpu_register_write(struct gdb_cpu_t * cpu, char * buf, int n)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-
-	if(n < 13)
-	{
-		memcpy(&env->r[n], buf, 4);
-		return 4;
-	}
-	else if(n == 13)
-	{
-		memcpy(&env->sp, buf, 4);
-		return 4;
-	}
-	else if(n == 14)
-	{
-		memcpy(&env->lr, buf, 4);
-		return 4;
-	}
-	else if(n == 15)
-	{
-		memcpy(&env->pc, buf, 4);
-		return 4;
-	}
-	else if(n < 24)		/* f0 - f7 */
-	{
-		return 12;
-	}
-	else if(n == 24)	/* fps */
-	{
-		return 4;
-	}
-	else if(n == 25)
-	{
-		memcpy(&env->cpsr, buf, 4);
-		return 4;
-	}
-	return 0;
-}
-
-static int cpu_set_program_counter(struct gdb_cpu_t * cpu, virtual_addr_t addr)
-{
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-	env->pc = (uint32_t)addr;
-	return 0;
-}
-
-static int cpu_acess_memory(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
-{
-	return 0;
+	env->step.enable = 1;
 }
 
 static struct gdb_cpu_t __arm32_gdb_cpu = {
 	.nregs = 26,
-	.register_save = cpu_register_save,
-	.register_restore = cpu_register_restore,
+	.processor_id = cpu_processor_id,
+	.debug_begin = cpu_debug_begin,
+	.debug_end = cpu_debug_end,
 	.register_read = cpu_register_read,
 	.register_write = cpu_register_write,
-	.set_program_counter = cpu_set_program_counter,
 	.acess_memory = cpu_acess_memory,
 	.breakpoint_insert = cpu_breakpoint_insert,
 	.breakpoint_remove = cpu_breakpoint_remove,
 	.breakpoint = cpu_breakpoint,
-	.singlestep = 0,
+	.singlestep = cpu_singlestep,
 	.env = &__arm32_env,
 };
 

@@ -85,14 +85,19 @@ static inline int gdb_cpu_nregs(struct gdb_state_t * s)
 	return s->cpu->nregs;
 }
 
-static inline void gdb_cpu_register_save(struct gdb_state_t * s, void * regs)
+static inline void gdb_cpu_debug_begin(struct gdb_state_t * s, void * regs)
 {
-	s->cpu->register_save(s->cpu, regs);
+	s->cpu->debug_begin(s->cpu, regs);
 }
 
-static inline void gdb_cpu_register_restore(struct gdb_state_t * s, void * regs)
+static inline void gdb_cpu_debug_end(struct gdb_state_t * s, void * regs)
 {
-	s->cpu->register_restore(s->cpu, regs);
+	s->cpu->debug_end(s->cpu, regs);
+}
+
+static inline int gdb_cpu_processor_id(struct gdb_state_t * s)
+{
+	return s->cpu->processor_id(s->cpu);
 }
 
 static inline int gdb_cpu_register_read(struct gdb_state_t * s, char * buf, int n)
@@ -103,11 +108,6 @@ static inline int gdb_cpu_register_read(struct gdb_state_t * s, char * buf, int 
 static inline int gdb_cpu_register_write(struct gdb_state_t * s, char * buf, int n)
 {
 	return s->cpu->register_write(s->cpu, buf, n);
-}
-
-static inline int gdb_cpu_set_program_counter(struct gdb_state_t * s, virtual_addr_t addr)
-{
-	return s->cpu->set_program_counter(s->cpu, addr);
 }
 
 static inline int gdb_cpu_access_memory(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int rw)
@@ -322,11 +322,11 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 	char c, * p, * q;
 	int v, n, len;
 
-	gdb_cpu_register_save(s, regs);
+	gdb_cpu_debug_begin(s, regs);
 
 	if(s->connected)
 	{
-		sprintf(buf, "S%02x", 5);
+		sprintf(buf, "T%02xthread:%02x;", 5, gdb_cpu_processor_id(s));
 		put_packet(s, buf);
 	}
 
@@ -340,7 +340,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 		switch(c)
 		{
 		case '?':
-			sprintf(buf, "S%02x", 5);
+			sprintf(buf, "T%02xthread:%02x;", 5, gdb_cpu_processor_id(s));
 			put_packet(s, buf);
 			gdb_breakpoint_remove_all(s);
 			break;
@@ -396,7 +396,6 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			if(*p == ',')
 				p++;
 			size = strtoull(p, NULL, 16);
-
 			if(size > MAX_PACKET_LENGTH / 2)
 			{
 				put_packet(s, "E01");
@@ -420,7 +419,6 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			size = strtoull(p, (char **)&p, 16);
 			if(*p == ':')
 				p++;
-
 			if(size > strlen(p) / 2)
 			{
 				put_packet(s, "E01");
@@ -465,24 +463,61 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "OK");
 			break;
 
-		case 'c':
-			if(*p != '\0')
+		case 'v':
+			if(strncmp(p, "Cont", 4) == 0)
 			{
-				addr = strtoull(p, (char **)&p, 16);
-				gdb_cpu_set_program_counter(s, addr);
+				char action = 0;
+				int signal = 0, thread = 0;
+				p += 4;
+				if(*p == '?')
+				{
+					put_packet(s, "vCont;c;C;s;S");
+					break;
+				}
+				while(*p)
+				{
+					if(*p++ != ';')
+						break;
+					c = *p++;
+					if(c == 'C' || c == 'S')
+					{
+						signal = strtoul(p, (char **)&p, 16);
+						if(signal == -1)
+							signal = 0;
+					}
+					else if(c != 'c' && c != 's')
+					{
+						break;
+					}
+					if(*p == ':')
+						thread = strtoull(p + 1, (char **)&p, 16);
+					action = tolower(c);
+				}
+				if(action)
+				{
+					if((thread != -1) && (thread != 0) && (thread != gdb_cpu_processor_id(s)))
+					{
+                        put_packet(s, "E01");
+                        break;
+					}
+					if(action == 'c')
+					{
+						gdb_cpu_continue(s);
+						break;
+					}
+					else if(action == 's')
+					{
+						gdb_cpu_single_step(s);
+						gdb_cpu_continue(s);
+						break;
+					}
+				}
+				break;
 			}
-			gdb_cpu_continue(s);
-			break;
-
-		case 's':
-			if(*p != '\0')
+			else
 			{
-				addr = strtoull(p, (char **)&p, 16);
-				gdb_cpu_set_program_counter(s, addr);
+				goto emptypacket;
 			}
-			gdb_cpu_single_step(s);
-			gdb_cpu_continue(s);
-			break;
 
 		case 'k':
 			gdb_breakpoint_remove_all(s);
@@ -497,11 +532,73 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			put_packet(s, "OK");
 			break;
 
+		case 'H':
+			c = *p++;
+			v = strtoull(p, (char **)&p, 16);
+			if(v == -1 || v == 0)
+			{
+				put_packet(s, "OK");
+				break;
+			}
+			if(v != gdb_cpu_processor_id(s))
+			{
+	            put_packet(s, "E01");
+	            break;
+	        }
+			switch(c)
+			{
+			case 'c':
+				put_packet(s, "OK");
+				break;
+			case 'g':
+				put_packet(s, "OK");
+				break;
+			default:
+				put_packet(s, "E01");
+				break;
+			}
+			break;
+
+		case 'T':
+			v = strtoull(p, (char **)&p, 16);
+			if(v == gdb_cpu_processor_id(s))
+				put_packet(s, "OK");
+			else
+				put_packet(s, "E01");
+			break;
+
 		case 'q':
 	    case 'Q':
-	    	if(is_query_packet(p, "Supported", ':'))
+			if(strcmp(p, "C") == 0)
 			{
-				snprintf(buf, sizeof(buf), "PacketSize=%x", MAX_PACKET_LENGTH);
+				put_packet(s, "QC1");
+				break;
+			}
+			else if(strcmp(p, "fThreadInfo") == 0)
+			{
+				sprintf(buf, "m%x", gdb_cpu_processor_id(s));
+				put_packet(s, buf);
+				break;
+			}
+			else if(strcmp(p, "sThreadInfo") == 0)
+			{
+				put_packet(s, "l");
+				break;
+			}
+			else if(strncmp(p, "ThreadExtraInfo,", 16) == 0)
+			{
+				v = strtoull(p + 16, (char **)&p, 16);
+				if(v == gdb_cpu_processor_id(s))
+				{
+					len = sprintf(mem, "CPU#%d [%s]", v, "running");
+					mem_to_hex(buf, (unsigned char *)mem, len);
+					put_packet(s, buf);
+				}
+				break;
+			}
+	        else if(strcmp(p, "Offsets") == 0)
+			{
+				sprintf(buf, "Text=%016x;Data=%016x;Bss=%016x", 0, 0, 0);
 				put_packet(s, buf);
 				break;
 			}
@@ -520,10 +617,15 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "OK");
 				break;
 			}
-	        else if(strcmp(p, "Offsets") == 0)
+	        else if(is_query_packet(p, "Supported", ':'))
 			{
-				sprintf(buf, "Text=%016x;Data=%016x;Bss=%016x", 0, 0, 0);
+				snprintf(buf, sizeof(buf), "PacketSize=%x", MAX_PACKET_LENGTH);
 				put_packet(s, buf);
+				break;
+			}
+	        else if(is_query_packet(p, "Attached", ':'))
+	        {
+				put_packet(s, "0");
 				break;
 			}
 	        else
@@ -539,7 +641,7 @@ emptypacket:
 		}
 	}
 
-	gdb_cpu_register_restore(s, regs);
+	gdb_cpu_debug_end(s, regs);
 }
 
 static struct gdb_cpu_t * __arch_gdb_cpu(void)

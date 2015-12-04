@@ -13,7 +13,6 @@ enum gdb_breakpoint_type_t {
 	BT_TYPE_WRITE_WATCHPOINT	= 2,
 	BT_TYPE_READ_WATCHPOINT		= 3,
 	BT_TYPE_ACCESS_WATCHPOINT	= 4,
-	BT_TYPE_POKE_WATCHPOINT		= 5,
 };
 
 struct gdb_breakpoint_t {
@@ -26,11 +25,11 @@ struct gdb_breakpoint_t {
 
 struct gdb_cpu_t {
 	const int nregs;
-	void (*register_save)(struct gdb_cpu_t * cpu, void * regs);
-	void (*register_restore)(struct gdb_cpu_t * cpu, void * regs);
+	void (*debug_begin)(struct gdb_cpu_t * cpu, void * regs);
+	void (*debug_end)(struct gdb_cpu_t * cpu, void * regs);
+	int  (*processor_id)(struct gdb_cpu_t * cpu);
 	int  (*register_read)(struct gdb_cpu_t * cpu, char * buf, int n);
 	int  (*register_write)(struct gdb_cpu_t * cpu, char * buf, int n);
-	int  (*set_program_counter)(struct gdb_cpu_t * cpu, virtual_addr_t pc);
 	int  (*acess_memory)(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw);
 	int  (*breakpoint_insert)(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp);
 	int  (*breakpoint_remove)(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp);

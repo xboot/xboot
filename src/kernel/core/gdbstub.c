@@ -85,19 +85,14 @@ static inline int gdb_cpu_nregs(struct gdb_state_t * s)
 	return s->cpu->nregs;
 }
 
-static inline void gdb_cpu_debug_begin(struct gdb_state_t * s, void * regs)
+static inline void gdb_cpu_register_save(struct gdb_state_t * s, void * regs)
 {
-	s->cpu->debug_begin(s->cpu, regs);
+	s->cpu->register_save(s->cpu, regs);
 }
 
-static inline void gdb_cpu_debug_end(struct gdb_state_t * s, void * regs)
+static inline void gdb_cpu_register_restore(struct gdb_state_t * s, void * regs)
 {
-	s->cpu->debug_end(s->cpu, regs);
-}
-
-static inline int gdb_cpu_processor_id(struct gdb_state_t * s)
-{
-	return s->cpu->processor_id(s->cpu);
+	s->cpu->register_restore(s->cpu, regs);
 }
 
 static inline int gdb_cpu_register_read(struct gdb_state_t * s, char * buf, int n)
@@ -110,11 +105,6 @@ static inline int gdb_cpu_register_write(struct gdb_state_t * s, char * buf, int
 	return s->cpu->register_write(s->cpu, buf, n);
 }
 
-static inline int gdb_cpu_access_memory(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int rw)
-{
-	return s->cpu->acess_memory(s->cpu, addr, size, rw);
-}
-
 static inline int gdb_cpu_breakpoint_insert(struct gdb_state_t * s, struct gdb_breakpoint_t * bp)
 {
 	return s->cpu->breakpoint_insert(s->cpu, bp);
@@ -125,14 +115,29 @@ static inline int gdb_cpu_breakpoint_remove(struct gdb_state_t * s, struct gdb_b
 	return s->cpu->breakpoint_remove(s->cpu, bp);
 }
 
+static inline void gdb_cpu_singlestep_active(struct gdb_state_t * s)
+{
+	s->cpu->singlestep_active(s->cpu);
+}
+
+static inline void gdb_cpu_singlestep_finish(struct gdb_state_t * s)
+{
+	s->cpu->singlestep_finish(s->cpu);
+}
+
+static inline int gdb_cpu_memory_access(struct gdb_state_t * s, virtual_addr_t addr, virtual_size_t size, int rw)
+{
+	return s->cpu->memory_acess(s->cpu, addr, size, rw);
+}
+
+static inline int gdb_cpu_processor(struct gdb_state_t * s)
+{
+	return s->cpu->processor(s->cpu);
+}
+
 static inline void gdb_cpu_breakpoint(struct gdb_state_t * s)
 {
 	s->cpu->breakpoint(s->cpu);
-}
-
-static inline void gdb_cpu_single_step(struct gdb_state_t * s)
-{
-	s->cpu->singlestep(s->cpu);
 }
 
 static inline int gdb_interface_read_byte_wait(struct gdb_state_t * s)
@@ -322,11 +327,12 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 	char c, * p, * q;
 	int v, n, len;
 
-	gdb_cpu_debug_begin(s, regs);
+	gdb_cpu_register_save(s, regs);
+	gdb_cpu_singlestep_finish(s);
 
 	if(s->connected)
 	{
-		sprintf(buf, "T%02xthread:%02x;", 5, gdb_cpu_processor_id(s));
+		sprintf(buf, "T%02xthread:%02x;", 5, gdb_cpu_processor(s));
 		put_packet(s, buf);
 	}
 
@@ -340,7 +346,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 		switch(c)
 		{
 		case '?':
-			sprintf(buf, "T%02xthread:%02x;", 5, gdb_cpu_processor_id(s));
+			sprintf(buf, "T%02xthread:%02x;", 5, gdb_cpu_processor(s));
 			put_packet(s, buf);
 			gdb_breakpoint_remove_all(s);
 			break;
@@ -401,7 +407,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "E01");
 				break;
 			}
-			if(gdb_cpu_access_memory(s, addr, size, 0) < 0)
+			if(gdb_cpu_memory_access(s, addr, size, 0) < 0)
 			{
 				put_packet(s, "E01");
 			}
@@ -424,7 +430,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "E01");
 				break;
 			}
-			if(gdb_cpu_access_memory(s, addr, size, 1) < 0)
+			if(gdb_cpu_memory_access(s, addr, size, 1) < 0)
 			{
 				put_packet(s, "E01");
 			}
@@ -495,7 +501,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				}
 				if(action)
 				{
-					if((thread != -1) && (thread != 0) && (thread != gdb_cpu_processor_id(s)))
+					if((thread != -1) && (thread != 0) && (thread != gdb_cpu_processor(s)))
 					{
                         put_packet(s, "E01");
                         break;
@@ -507,7 +513,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 					}
 					else if(action == 's')
 					{
-						gdb_cpu_single_step(s);
+						gdb_cpu_singlestep_active(s);
 						gdb_cpu_continue(s);
 						break;
 					}
@@ -540,7 +546,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "OK");
 				break;
 			}
-			if(v != gdb_cpu_processor_id(s))
+			if(v != gdb_cpu_processor(s))
 			{
 	            put_packet(s, "E01");
 	            break;
@@ -561,7 +567,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 
 		case 'T':
 			v = strtoull(p, (char **)&p, 16);
-			if(v == gdb_cpu_processor_id(s))
+			if(v == gdb_cpu_processor(s))
 				put_packet(s, "OK");
 			else
 				put_packet(s, "E01");
@@ -576,7 +582,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			}
 			else if(strcmp(p, "fThreadInfo") == 0)
 			{
-				sprintf(buf, "m%x", gdb_cpu_processor_id(s));
+				sprintf(buf, "m%x", gdb_cpu_processor(s));
 				put_packet(s, buf);
 				break;
 			}
@@ -588,7 +594,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			else if(strncmp(p, "ThreadExtraInfo,", 16) == 0)
 			{
 				v = strtoull(p + 16, (char **)&p, 16);
-				if(v == gdb_cpu_processor_id(s))
+				if(v == gdb_cpu_processor(s))
 				{
 					len = sprintf(mem, "CPU#%d [%s]", v, "running");
 					mem_to_hex(buf, (unsigned char *)mem, len);
@@ -641,7 +647,7 @@ emptypacket:
 		}
 	}
 
-	gdb_cpu_debug_end(s, regs);
+	gdb_cpu_register_restore(s, regs);
 }
 
 static struct gdb_cpu_t * __arch_gdb_cpu(void)

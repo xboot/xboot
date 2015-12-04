@@ -25,16 +25,17 @@ struct gdb_breakpoint_t {
 
 struct gdb_cpu_t {
 	const int nregs;
-	void (*debug_begin)(struct gdb_cpu_t * cpu, void * regs);
-	void (*debug_end)(struct gdb_cpu_t * cpu, void * regs);
-	int  (*processor_id)(struct gdb_cpu_t * cpu);
+	void (*register_save)(struct gdb_cpu_t * cpu, void * regs);
+	void (*register_restore)(struct gdb_cpu_t * cpu, void * regs);
 	int  (*register_read)(struct gdb_cpu_t * cpu, char * buf, int n);
 	int  (*register_write)(struct gdb_cpu_t * cpu, char * buf, int n);
-	int  (*acess_memory)(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw);
 	int  (*breakpoint_insert)(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp);
 	int  (*breakpoint_remove)(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp);
+	int  (*singlestep_active)(struct gdb_cpu_t * cpu);
+	int  (*singlestep_finish)(struct gdb_cpu_t * cpu);
+	int  (*memory_acess)(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw);
+	int  (*processor)(struct gdb_cpu_t * cpu);
 	void (*breakpoint)(struct gdb_cpu_t * cpu);
-	void (*singlestep)(struct gdb_cpu_t * cpu);
 	void * env;
 };
 

@@ -218,6 +218,7 @@ undefined_instruction:
 	mov r0, r0
 	stmdb r8, {sp, lr}
 	msr cpsr_c, r1
+	sub lr, lr, #4
 	str	lr, [r8, #0]
 	mrs	r6, spsr
 	str	r6, [r8, #4]

@@ -175,25 +175,12 @@ static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 
 static int cpu_singlestep_active(struct gdb_cpu_t * cpu)
 {
-	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
-	return 0;
-#if 0
 	const uint8_t bpinstr[4] = {0xfe, 0xde, 0xff, 0xe7};	/* 0xe7ffdefe */
-
-	if(env->step.enable != 0)
-	{
-		 unsigned long curins;
-        curins = *(unsigned long*)(env->regs.pc);
-        if (ins_will_execute(curins))
-            //Decode instruction to decide what the next pc will be
-            step_addr = target_ins((unsigned long *)env->regs.pc, curins);
-        else
-            step_addr = env->regs.pc + 4;
-
-		memcpy(env->step.instruction, (void *)(step_addr), 4);
-		memcpy((void *)(step_addr), bpinstr, 4);
-	}
-#endif
+	struct arm32_env_t * env = (struct arm32_env_t *)cpu->env;
+	env->step.addr = env->regs.pc + 4;
+	memcpy(env->step.instruction, (void *)(env->step.addr), 4);
+	memcpy((void *)(env->step.addr), bpinstr, 4);
+	return 0;
 }
 
 static int cpu_singlestep_finish(struct gdb_cpu_t * cpu)

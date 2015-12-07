@@ -178,11 +178,17 @@ _main:
 	.align 5
 undefined_instruction:
 	ldr	sp, _stack_und_end
-	sub	lr, lr, #4
 	sub	sp, sp, #72
 	stmia sp, {r0 - r12}
 	add	r8, sp, #60
+	mrs r1, cpsr
+	mrs r2, spsr
+	orr r2, r2, #0xc0
+	msr cpsr_c, r2
+	mov r0, r0
 	stmdb r8, {sp, lr}
+	msr cpsr_c, r1
+	sub lr, lr, #4
 	str	lr, [r8, #0]
 	mrs	r6, spsr
 	str	r6, [r8, #4]

@@ -25,128 +25,181 @@
 #include <xboot.h>
 #include <xboot/gdbstub.h>
 
-struct arm64_state_t {
-	uint64_t x[31];
-	uint64_t sp;
-	uint64_t pc;
-	uint32_t pstate;
+struct arm64_env_t {
+	struct {
+		uint64_t x[31];
+		uint64_t sp;
+		uint64_t pc;
+		uint64_t pstate;
+	} regs;
+	struct {
+		virtual_addr_t addr;
+		uint8_t instruction[4];
+	} step;
 };
+static struct arm64_env_t __arm64_env;
 
-static inline int cpu_get_reg32(char * buf , uint32_t reg)
+static void cpu_register_save(struct gdb_cpu_t * cpu, void * regs)
 {
-	memcpy(buf, &reg, 4);
-	return 4;
+	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
+//	memcpy(&env->regs, regs, sizeof(env->regs));
 }
 
-static inline int cpu_get_reg64(char * buf, uint64_t reg)
+static void cpu_register_restore(struct gdb_cpu_t * cpu, void * regs)
 {
-	memcpy(buf, &reg, 8);
-	return 8;
+	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
+//	memcpy(regs, &env->regs, sizeof(env->regs));
 }
 
-static inline int cpu_set_reg32(uint32_t * reg, char * buf)
+static int cpu_register_read(struct gdb_cpu_t * cpu, char * buf, int n)
 {
-	memcpy(reg, buf, 4);
-	return 4;
-}
+	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
 
-static inline int cpu_set_reg64(uint64_t * reg, char * buf)
-{
-	memcpy(reg, buf, 8);
-	return 8;
-}
-
-static int cpu_read_register(struct gdb_cpu_t * cpu, char * buf, int reg)
-{
-	struct arm64_state_t * env = (struct arm64_state_t *)cpu->env;
-
-	if(reg < 31)
+	if(n < 31)
 	{
-		return cpu_get_reg64(buf, env->x[reg]);
+		memcpy(buf, &env->regs.x[n], 8);
+		return 8;
 	}
-	else if(reg == 31)
+	else if(n == 31)
 	{
-		return cpu_get_reg64(buf, env->sp);
+		memcpy(buf, &env->regs.sp, 8);
+		return 8;
 	}
-	else if(reg == 32)
+	else if(n == 32)
 	{
-		return cpu_get_reg64(buf, env->pc);
+		memcpy(buf, &env->regs.pc, 8);
+		return 8;
 	}
-	else if(reg == 33)
+	else if(n == 33)
 	{
-		return cpu_get_reg32(buf, env->pstate);
+		memcpy(buf, &env->regs.pstate, 8);
+		return 8;
 	}
-	else if(reg < 66)	/* v0 - v31 */
+	else if(n < 66)		/* v0 - v31 */
 	{
 		memcpy(buf, 0, 16);
 		return 16;
 	}
-	else if(reg == 66)	/* fpsr */
+	else if(n == 66)	/* fpsr */
 	{
-		return cpu_get_reg32(buf, 0);
+		memcpy(buf, 0, 4);
+		return 4;
 	}
-	else if(reg == 67)	/* fpcr */
+	else if(n == 67)	/* fpcr */
 	{
-		return cpu_get_reg32(buf, 0);
+		memcpy(buf, 0, 4);
+		return 4;
 	}
 	return 0;
 }
 
-static int cpu_write_register(struct gdb_cpu_t * cpu, char * buf, int reg)
+static int cpu_register_write(struct gdb_cpu_t * cpu, char * buf, int n)
 {
-	struct arm64_state_t * env = (struct arm64_state_t *)cpu->env;
+	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
 
-	if(reg < 31)
+	if(n < 31)
 	{
-		return cpu_set_reg64(&env->x[reg], buf);
+		memcpy(&env->regs.x[n], buf, 8);
+		return 8;
 	}
-	else if(reg == 31)
+	else if(n == 31)
 	{
-		return cpu_set_reg64(&env->sp, buf);
+		memcpy(&env->regs.sp, buf, 8);
+		return 8;
 	}
-	else if(reg == 32)
+	else if(n == 32)
 	{
-		return cpu_set_reg64(&env->pc, buf);
+		memcpy(&env->regs.pc, buf, 8);
+		return 8;
 	}
-	else if(reg == 33)
+	else if(n == 33)
 	{
-		return cpu_set_reg32(&env->pstate, buf);
+		memcpy(&env->regs.pstate, buf, 8);
+		return 8;
 	}
-	else if(reg < 66)	/* v0 - v31 */
+	else if(n < 66)		/* v0 - v31 */
 	{
 		return 16;
 	}
-	else if(reg == 66)	/* fpsr */
+	else if(n == 66)	/* fpsr */
 	{
 		return 4;
 	}
-	else if(reg == 67)	/* fpcr */
+	else if(n == 67)	/* fpcr */
 	{
 		return 4;
 	}
 	return 0;
 }
 
-static int cpu_set_pc(struct gdb_cpu_t * cpu, virtual_addr_t addr)
+static int cpu_breakpoint_insert(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp)
 {
-	struct arm64_state_t * env = (struct arm64_state_t *)cpu->env;
-	env->pc = (uint64_t)addr;
+	switch(bp->type)
+	{
+	case BP_TYPE_SOFTWARE_BREAKPOINT:
+	case BP_TYPE_HARDWARE_BREAKPOINT:
+	case BT_TYPE_WRITE_WATCHPOINT:
+	case BT_TYPE_READ_WATCHPOINT:
+	case BT_TYPE_ACCESS_WATCHPOINT:
+	default:
+		break;
+	}
+	return -1;
+}
+
+static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp)
+{
+	switch(bp->type)
+	{
+	case BP_TYPE_SOFTWARE_BREAKPOINT:
+	case BP_TYPE_HARDWARE_BREAKPOINT:
+	case BT_TYPE_WRITE_WATCHPOINT:
+	case BT_TYPE_READ_WATCHPOINT:
+	case BT_TYPE_ACCESS_WATCHPOINT:
+	default:
+		break;
+	}
+	return -1;
+}
+
+static int cpu_singlestep_active(struct gdb_cpu_t * cpu)
+{
+	return -1;
+}
+
+static int cpu_singlestep_finish(struct gdb_cpu_t * cpu)
+{
+	return -1;
+}
+
+static int cpu_memory_acess(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
+{
 	return 0;
 }
 
-static int cpu_mem_access(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
+static int cpu_processor(struct gdb_cpu_t * cpu)
 {
 	return 0;
 }
 
-static struct arm64_state_t __arm64_env;
+static void cpu_breakpoint(struct gdb_cpu_t * cpu)
+{
+	//__asm__ __volatile__(".word 0xe7ffdeff");
+}
 
 static struct gdb_cpu_t __arm64_gdb_cpu = {
 	.nregs = 68,
-	.read_register = cpu_read_register,
-	.write_register = cpu_write_register,
-	.set_pc = cpu_set_pc,
-	.mem_access = cpu_mem_access,
+	.register_save = cpu_register_save,
+	.register_restore = cpu_register_restore,
+	.register_read = cpu_register_read,
+	.register_write = cpu_register_write,
+	.breakpoint_insert = cpu_breakpoint_insert,
+	.breakpoint_remove = cpu_breakpoint_remove,
+	.singlestep_active = cpu_singlestep_active,
+	.singlestep_finish = cpu_singlestep_finish,
+	.memory_acess = cpu_memory_acess,
+	.processor = cpu_processor,
+	.breakpoint = cpu_breakpoint,
 	.env = &__arm64_env,
 };
 
@@ -154,3 +207,4 @@ struct gdb_cpu_t * arch_gdb_cpu(void)
 {
 	return &__arm64_gdb_cpu;
 }
+

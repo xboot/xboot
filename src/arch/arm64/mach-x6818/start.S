@@ -22,6 +22,31 @@
  *
  */
 
+#include <xconfigs.h>
+#include <linkage.h>
+
+/*
+ * Enable and disable interrupts
+ */
+.macro disable_irq
+	msr daifset, #2
+.endm
+
+.macro enable_irq
+	msr daifclr, #2
+.endm
+
+/*
+ * Enable and disable debug exceptions
+ */
+.macro disable_dbg
+	msr	daifset, #8
+.endm
+
+.macro enable_dbg
+	msr daifclr, #8
+.endm
+
 /*
  * Branch according to exception level
  */
@@ -36,39 +61,96 @@
 .endm
 
 /*
- * Enter Exception.
- * This will save the processor state that is ELR/X0~X30
- * to the stack frame.
+ * Vector entry
  */
-.macro exception_entry
-	stp	x29, x30, [sp, #-16]!
-	stp	x27, x28, [sp, #-16]!
-	stp	x25, x26, [sp, #-16]!
-	stp	x23, x24, [sp, #-16]!
-	stp	x21, x22, [sp, #-16]!
-	stp	x19, x20, [sp, #-16]!
-	stp	x17, x18, [sp, #-16]!
-	stp	x15, x16, [sp, #-16]!
-	stp	x13, x14, [sp, #-16]!
-	stp	x11, x12, [sp, #-16]!
-	stp	x9, x10, [sp, #-16]!
-	stp	x7, x8, [sp, #-16]!
-	stp	x5, x6, [sp, #-16]!
-	stp	x3, x4, [sp, #-16]!
-	stp	x1, x2, [sp, #-16]!
+.macro ventry label
+	.align 7
+	b \label
+.endm
 
-	switch_el x11, 3f, 2f, 1f
-3:	mrs	x1, esr_el3
-	mrs	x2, elr_el3
-	b 0f
-2:	mrs	x1, esr_el2
-	mrs	x2, elr_el2
-	b 0f
-1:	mrs	x1, esr_el1
-	mrs	x2, elr_el1
-0:
-	stp	x2, x0, [sp, #-16]!
-	mov	x0, sp
+/*
+ * Kernel entry
+ */
+.macro kernel_entry, el
+	sub	sp, sp, #8 * 36
+	stp	x0, x1, [sp, #16 * 0]
+	stp	x2, x3, [sp, #16 * 1]
+	stp	x4, x5, [sp, #16 * 2]
+	stp	x6, x7, [sp, #16 * 3]
+	stp	x8, x9, [sp, #16 * 4]
+	stp	x10, x11, [sp, #16 * 5]
+	stp	x12, x13, [sp, #16 * 6]
+	stp	x14, x15, [sp, #16 * 7]
+	stp	x16, x17, [sp, #16 * 8]
+	stp	x18, x19, [sp, #16 * 9]
+	stp	x20, x21, [sp, #16 * 10]
+	stp	x22, x23, [sp, #16 * 11]
+	stp	x24, x25, [sp, #16 * 12]
+	stp	x26, x27, [sp, #16 * 13]
+	stp	x28, x29, [sp, #16 * 14]
+	.if	\el == 0
+		mrs	x21, sp_el0
+		get_thread_info tsk
+		ldr	x19, [tsk, #TI_FLAGS]
+		disable_step_tsk x19, x20
+	.else
+		add	x21, sp, #8 * 36
+	.endif
+	mrs	x22, elr_el1
+	mrs	x23, spsr_el1
+	stp	x30, x21, [sp, #8 * 30]
+	stp	x22, x23, [sp, #8 * 32]
+	.if	\el == 0
+		mvn	x21, xzr
+		str	x21, [sp, #8 * 35]
+	.endif
+.endm
+
+/*
+ * Kernel exit
+ */
+.macro kernel_exit, el, ret = 0
+	ldp	x21, x22, [sp, #8 * 32]
+	.if	\el == 0
+		ct_user_enter
+		ldr	x23, [sp, #8 * 31]
+		msr	sp_el0, x23
+	.endif
+	msr	elr_el1, x21
+	msr	spsr_el1, x22
+	.if	\ret
+		ldr	x1, [sp, #8 * 1]
+	.else
+		ldp	x0, x1, [sp, #16 * 0]
+	.endif
+	ldp	x2, x3, [sp, #16 * 1]
+	ldp	x4, x5, [sp, #16 * 2]
+	ldp	x6, x7, [sp, #16 * 3]
+	ldp	x8, x9, [sp, #16 * 4]
+	ldp	x10, x11, [sp, #16 * 5]
+	ldp	x12, x13, [sp, #16 * 6]
+	ldp	x14, x15, [sp, #16 * 7]
+	ldp	x16, x17, [sp, #16 * 8]
+	ldp	x18, x19, [sp, #16 * 9]
+	ldp	x20, x21, [sp, #16 * 10]
+	ldp	x22, x23, [sp, #16 * 11]
+	ldp	x24, x25, [sp, #16 * 12]
+	ldp	x26, x27, [sp, #16 * 13]
+	ldp	x28, x29, [sp, #16 * 14]
+	ldr	x30, [sp, #8 * 30]
+	add	sp, sp, #8 * 36
+	eret
+.endm
+
+/*
+ * Invalid mode handlers
+ */
+.macro inv_entry, el, reason
+	kernel_entry el
+	mov x0, sp
+	mov x1, #\reason
+	mrs x2, esr_el1
+	b bad_mode
 .endm
 
 	.global _start
@@ -80,47 +162,25 @@ _start:
 	.align 11
 	.globl vectors
 vectors:
-	.align 7
-	b _do_bad_sync
-	.align 7
-	b _do_bad_irq
-	.align 7
-	b _do_bad_fiq
-	.align 7
-	b _do_bad_error
-	.align 7
-	b _do_sync
-	.align 7
-	b _do_irq
-	.align 7
-	b _do_fiq
-	.align 7
-	b _do_error
+	ventry el1_sync_invalid
+	ventry el1_irq_invalid
+	ventry el1_fiq_invalid
+	ventry el1_error_invalid
 
-_do_bad_sync:
-	exception_entry
-//	bl	do_bad_sync
-_do_bad_irq:
-	exception_entry
-//	bl	do_bad_irq
-_do_bad_fiq:
-	exception_entry
-//	bl	do_bad_fiq
-_do_bad_error:
-	exception_entry
-//	bl	do_bad_error
-_do_sync:
-	exception_entry
-//	bl	do_sync
-_do_irq:
-	exception_entry
-//	bl	do_irq
-_do_fiq:
-	exception_entry
-//	bl	do_fiq
-_do_error:
-	exception_entry
-//	bl	do_error
+	ventry el1_sync
+	ventry el1_irq_invalid
+	ventry el1_fiq_invalid
+	ventry el1_error_invalid
+
+	ventry el0_sync_invalid
+	ventry el0_irq_invalid
+	ventry el0_fiq_invalid
+	ventry el0_error_invalid
+
+	ventry el0_sync_invalid
+	ventry el0_irq_invalid
+	ventry el0_fiq_invalid
+	ventry el0_error_invalid
 
 	.align 4
 /* Magic number(16bytes) - xbootmagicnumber */
@@ -213,6 +273,105 @@ _main:
 	mov x1, #0;
 	bl xboot_main
 	b _main
+
+/*
+ * EL1 mode handlers.
+ */
+	.align 6
+el1_sync:
+	kernel_entry 1
+	mrs	x1, esr_el1
+	lsr	x24, x1, #26
+	cmp	x24, #0x25
+	b.eq el1_da
+	cmp	x24, #0x18
+	b.eq el1_undef
+	cmp	x24, #0x26
+	b.eq el1_sp_pc
+	cmp	x24, #0x22
+	b.eq el1_sp_pc
+	cmp	x24, #0x00
+	b.eq el1_undef
+	cmp	x24, #0x31
+	b.ge el1_dbg
+	b el1_inv
+el1_da:
+	/*
+	 * Data abort handling
+	 */
+	mrs	x0, far_el1
+	enable_dbg
+	tbnz x23, #7, 1f
+	enable_irq
+1:	mov x2, sp
+	bl do_mem_abort
+	disable_irq
+	kernel_exit 1
+el1_sp_pc:
+	/*
+	 * Stack or PC alignment exception handling
+	 */
+	mrs	x0, far_el1
+	enable_dbg
+	mov	x2, sp
+	b do_sp_pc_abort
+el1_undef:
+	/*
+	 * Undefined instruction
+	 */
+	enable_dbg
+	mov	x0, sp
+	b do_undefinstr
+el1_dbg:
+	/*
+	 * Debug exception handling
+	 */
+	cmp	x24, #0x3c
+	cinc x24, x24, eq
+	tbz	x24, #0, el1_inv
+	mrs	x0, far_el1
+	mov	x2, sp
+	bl do_debug_exception
+	kernel_exit 1
+el1_inv:
+	enable_dbg
+	mov	x0, sp
+	mov	x1, #0
+	mrs	x2, esr_el1
+	b bad_mode
+ENDPROC(el1_sync)
+
+el1_sync_invalid:
+	inv_entry 1, 0
+ENDPROC(el1_sync_invalid)
+
+el1_irq_invalid:
+	inv_entry 1, 1
+ENDPROC(el1_irq_invalid)
+
+el1_fiq_invalid:
+	inv_entry 1, 2
+ENDPROC(el1_fiq_invalid)
+
+el1_error_invalid:
+	inv_entry 1, 3
+ENDPROC(el1_error_invalid)
+
+el0_sync_invalid:
+	inv_entry 0, 0
+ENDPROC(el0_sync_invalid)
+
+el0_irq_invalid:
+	inv_entry 0, 1
+ENDPROC(el0_irq_invalid)
+
+el0_fiq_invalid:
+	inv_entry 0, 2
+ENDPROC(el0_fiq_invalid)
+
+el0_error_invalid:
+	inv_entry 0, 3
+ENDPROC(el0_error_invalid)
 
 /*
  * The location of section

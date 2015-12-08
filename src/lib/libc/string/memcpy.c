@@ -20,4 +20,3 @@ static void * __memcpy(void * dest, const void * src, size_t len)
  */
 extern __typeof(__memcpy) memcpy __attribute__((weak, alias("__memcpy")));
 EXPORT_SYMBOL(memcpy);
-

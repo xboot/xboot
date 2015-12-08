@@ -19,7 +19,7 @@ struct gdb_breakpoint_t {
 	enum gdb_breakpoint_type_t type;
 	virtual_addr_t addr;
 	virtual_size_t size;
-	uint8_t instruction[16];
+	uint8_t instr[16];
 	struct list_head entry;
 };
 

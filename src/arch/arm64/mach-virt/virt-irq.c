@@ -36,7 +36,7 @@ void do_irq(void * regs)
 	irq = read32(phys_to_virt(VIRT_GIC_CPU_BASE + CPU_INTACK)) & 0x3ff;
 
 	/* Handle interrupt server function */
-	(virt_irq_handler[irq - 32].func)(virt_irq_handler[irq - 32].data);
+	(virt_irq_handler[irq].func)(virt_irq_handler[irq].data);
 
 	/* Exit interrupt */
 	write32(phys_to_virt(VIRT_GIC_CPU_BASE + CPU_EOI), irq);
@@ -44,14 +44,12 @@ void do_irq(void * regs)
 
 static void virt_irq_enable(struct irq_t * irq)
 {
-	u32_t mask = 1 << (irq->no % 32);
-	write32(phys_to_virt(VIRT_GIC_DIST_BASE + DIST_ENABLE_SET + (irq->no / 32) * 4), mask);
+	write32(phys_to_virt(VIRT_GIC_DIST_BASE + DIST_ENABLE_SET + (irq->no / 32) * 4), 1 << (irq->no % 32));
 }
 
 static void virt_irq_disable(struct irq_t * irq)
 {
-	u32_t mask = 1 << (irq->no % 32);
-	write32(phys_to_virt(VIRT_GIC_DIST_BASE + DIST_ENABLE_CLEAR + (irq->no / 32) * 4), mask);
+	write32(phys_to_virt(VIRT_GIC_DIST_BASE + DIST_ENABLE_CLEAR + (irq->no / 32) * 4), 1 << (irq->no % 32));
 }
 
 static void virt_irq_set_type(struct irq_t * irq, enum irq_type_t type)
@@ -60,20 +58,13 @@ static void virt_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 
 static struct irq_t virt_irqs[] = {
 	{
-		.name		= "UART",
-		.no			= 32 + 0,
-		.handler	= &virt_irq_handler[0],
+		.name		= "NSPHYS_TIMER",
+		.no			= 30,
+		.handler	= &virt_irq_handler[30],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
-	}, {
-		.name		= "RTC",
-		.no			= 32 + 1,
-		.handler	= &virt_irq_handler[1],
-		.enable		= virt_irq_enable,
-		.disable	= virt_irq_disable,
-		.set_type	= virt_irq_set_type,
-	}
+	},
 };
 
 static void gic_dist_init(physical_addr_t dist)

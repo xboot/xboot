@@ -1,5 +1,5 @@
 /*
- * virt-cs.c
+ * virt-ce.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,33 +24,46 @@
 
 #include <xboot.h>
 #include <arm64.h>
-#include <clocksource/clocksource.h>
+#include <clockevent/clockevent.h>
 
-static bool_t virt_cs_init(struct clocksource_t * cs)
+static void virt_ce_interrupt(void * data)
+{
+	struct clockevent_t * ce = (struct clockevent_t *)data;
+	ce->handler(ce, ce->data);
+}
+
+static bool_t virt_ce_init(struct clockevent_t * ce)
 {
 	u64_t rate = arm64_timer_frequecy();
-	cs->mult = clocksource_hz2mult(rate, cs->shift);
+
+	if(!request_irq("NSPHYS_TIMER", virt_ce_interrupt, IRQ_TYPE_NONE, ce))
+		return FALSE;
+
+	clockevent_calc_mult_shift(ce, rate, 10);
+	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
+	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
 	arm64_timer_start(0);
+
 	return TRUE;
 }
 
-static u64_t virt_cs_read(struct clocksource_t * cs)
+static bool_t virt_ce_next(struct clockevent_t * ce, u64_t evt)
 {
-	return arm64_timer_read();
+	arm64_timer_compare(evt);
+	return TRUE;
 }
 
-static struct clocksource_t virt_cs = {
-	.name	= "virt-cs",
-	.mask	= CLOCKSOURCE_MASK(64),
-	.init	= virt_cs_init,
-	.read	= virt_cs_read,
+static struct clockevent_t virt_ce = {
+	.name	= "virt-ce",
+	.init	= virt_ce_init,
+	.next	= virt_ce_next,
 };
 
-static __init void virt_clocksource_init(void)
+static __init void virt_clockevent_init(void)
 {
-	if(register_clocksource(&virt_cs))
-		LOG("Register clocksource");
+	if(register_clockevent(&virt_ce))
+		LOG("Register clockevent");
 	else
-		LOG("Failed to register clocksource");
+		LOG("Failed to register clockevent");
 }
-core_initcall(virt_clocksource_init);
+core_initcall(virt_clockevent_init);

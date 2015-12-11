@@ -1,7 +1,5 @@
 /*
- * realview-tick.c
- *
- * realview tick timer, using arm sp804 timer module.
+ * realview-ce.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org

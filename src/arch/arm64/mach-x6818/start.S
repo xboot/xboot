@@ -342,7 +342,7 @@ ENDPROC(el1_sync)
 el1_irq:
 	kernel_entry 1
 	enable_dbg
-	mov	x0, sp
+	mov x0, sp
 	bl do_irq
 	kernel_exit 1
 ENDPROC(el1_irq)

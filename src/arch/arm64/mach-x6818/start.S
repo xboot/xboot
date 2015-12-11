@@ -168,7 +168,7 @@ vectors:
 	ventry el1_error_invalid
 
 	ventry el1_sync
-	ventry el1_irq_invalid
+	ventry el1_irq
 	ventry el1_fiq_invalid
 	ventry el1_error_invalid
 
@@ -274,9 +274,6 @@ _main:
 	bl xboot_main
 	b _main
 
-/*
- * EL1 mode handlers.
- */
 	.align 6
 el1_sync:
 	kernel_entry 1
@@ -340,6 +337,15 @@ el1_inv:
 	mrs	x2, esr_el1
 	b bad_mode
 ENDPROC(el1_sync)
+
+	.align 6
+el1_irq:
+	kernel_entry 1
+	enable_dbg
+	mov	x0, sp
+	bl do_irq
+	kernel_exit 1
+ENDPROC(el1_irq)
 
 el1_sync_invalid:
 	inv_entry 1, 0

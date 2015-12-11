@@ -33,25 +33,25 @@ void do_irq(void * regs)
 	u32_t irq;
 
 	/* Get irq's offset */
-	irq = read32(phys_to_virt(REALVIWE_GIC_CPU_BASE + CPU_INTACK)) & 0x3ff;
+	irq = read32(phys_to_virt(REALVIEW_GIC_CPU_BASE + CPU_INTACK)) & 0x3ff;
 
 	/* Handle interrupt server function */
 	(realview_irq_handler[irq - 32].func)(realview_irq_handler[irq - 32].data);
 
 	/* Exit interrupt */
-	write32(phys_to_virt(REALVIWE_GIC_CPU_BASE + CPU_EOI), irq);
+	write32(phys_to_virt(REALVIEW_GIC_CPU_BASE + CPU_EOI), irq);
 }
 
 static void realview_irq_enable(struct irq_t * irq)
 {
 	u32_t mask = 1 << (irq->no % 32);
-	write32(phys_to_virt(REALVIWE_GIC_DIST_BASE + DIST_ENABLE_SET + (irq->no / 32) * 4), mask);
+	write32(phys_to_virt(REALVIEW_GIC_DIST_BASE + DIST_ENABLE_SET + (irq->no / 32) * 4), mask);
 }
 
 static void realview_irq_disable(struct irq_t * irq)
 {
 	u32_t mask = 1 << (irq->no % 32);
-	write32(phys_to_virt(REALVIWE_GIC_DIST_BASE + DIST_ENABLE_CLEAR + (irq->no / 32) * 4), mask);
+	write32(phys_to_virt(REALVIEW_GIC_DIST_BASE + DIST_ENABLE_CLEAR + (irq->no / 32) * 4), mask);
 }
 
 static void realview_irq_set_type(struct irq_t * irq, enum irq_type_t type)
@@ -352,8 +352,8 @@ static __init void realview_irq_init(void)
 {
 	int i;
 
-	gic_dist_init(REALVIWE_GIC_DIST_BASE);
-	gic_cpu_init(REALVIWE_GIC_DIST_BASE, REALVIWE_GIC_CPU_BASE);
+	gic_dist_init(REALVIEW_GIC_DIST_BASE);
+	gic_cpu_init(REALVIEW_GIC_DIST_BASE, REALVIEW_GIC_CPU_BASE);
 
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
 	{

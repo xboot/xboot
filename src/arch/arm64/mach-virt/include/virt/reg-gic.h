@@ -1,8 +1,8 @@
-#ifndef __REALVIEW_REG_GIC_H__
-#define __REALVIEW_REG_GIC_H__
+#ifndef __VIRT_REG_GIC_H__
+#define __VIRT_REG_GIC_H__
 
-#define REALVIEW_GIC_CPU_BASE	(0x1e000000)
-#define REALVIEW_GIC_DIST_BASE	(0x1e001000)
+#define VIRT_GIC_CPU_BASE		(0x08010000)
+#define VIRT_GIC_DIST_BASE		(0x08000000)
 
 #define CPU_CTRL				(0x00)
 #define CPU_PRIMASK				(0x04)
@@ -24,4 +24,4 @@
 #define DIST_CONFIG				(0xc00)
 #define DIST_SOFTINT			(0xf00)
 
-#endif /* __REALVIEW_REG_GIC_H__ */
+#endif /* __VIRT_REG_GIC_H__ */

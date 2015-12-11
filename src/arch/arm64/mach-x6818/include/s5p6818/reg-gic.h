@@ -1,8 +1,8 @@
-#ifndef __REALVIEW_REG_GIC_H__
-#define __REALVIEW_REG_GIC_H__
+#ifndef __S5P6818_REG_GIC_H__
+#define __S5P6818_REG_GIC_H__
 
-#define REALVIEW_GIC_CPU_BASE	(0x1e000000)
-#define REALVIEW_GIC_DIST_BASE	(0x1e001000)
+#define S5P6818_GIC_CPU_BASE	(0xc000a000)
+#define S5P6818_GIC_DIST_BASE	(0xc0009000)
 
 #define CPU_CTRL				(0x00)
 #define CPU_PRIMASK				(0x04)
@@ -24,4 +24,4 @@
 #define DIST_CONFIG				(0xc00)
 #define DIST_SOFTINT			(0xf00)
 
-#endif /* __REALVIEW_REG_GIC_H__ */
+#endif /* __S5P6818_REG_GIC_H__ */

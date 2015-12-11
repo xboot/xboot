@@ -34,7 +34,7 @@ u32_t ttb_get(void);
 void domain_set(u32_t domain);
 u32_t domain_get(void);
 void tlb_invalidate(void);
-u32_t get_cpuid(void);
+u32_t smp_processor_id(void);
 
 #ifdef __cplusplus
 }

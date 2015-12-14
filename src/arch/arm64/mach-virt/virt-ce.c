@@ -29,27 +29,27 @@
 static void virt_ce_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
+	arm64_timer_interrupt_disable();
 	ce->handler(ce, ce->data);
 }
 
 static bool_t virt_ce_init(struct clockevent_t * ce)
 {
 	u64_t rate = arm64_timer_frequecy();
-
-	if(!request_irq("NSPHYS_TIMER", virt_ce_interrupt, IRQ_TYPE_NONE, ce))
+	if(!request_irq("NSTIMER", virt_ce_interrupt, IRQ_TYPE_NONE, ce))
 		return FALSE;
-
 	clockevent_calc_mult_shift(ce, rate, 10);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
-	arm64_timer_start(0);
-
+	arm64_timer_interrupt_disable();
 	return TRUE;
 }
 
 static bool_t virt_ce_next(struct clockevent_t * ce, u64_t evt)
 {
 	arm64_timer_compare(evt);
+	arm64_timer_interrupt_enable();
+	arm64_timer_start();
 	return TRUE;
 }
 

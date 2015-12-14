@@ -30,7 +30,7 @@ static bool_t virt_cs_init(struct clocksource_t * cs)
 {
 	u64_t rate = arm64_timer_frequecy();
 	cs->mult = clocksource_hz2mult(rate, cs->shift);
-	arm64_timer_start(0);
+	arm64_timer_start();
 	return TRUE;
 }
 

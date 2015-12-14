@@ -8,32 +8,59 @@ extern "C" {
 #define arm64_read_sysreg(reg)			({ u64_t val; __asm__ __volatile__("mrs %0," #reg :"=r"(val)); val; })
 #define arm64_write_sysreg(reg, val)	__asm__ __volatile__("msr " #reg ", %0\n\tdsb sy\n\tisb" ::"r"(val));
 
-static inline void arm64_irq_enable(void)
+static inline void arm64_interrupt_enable(void)
 {
     __asm__ __volatile__("msr daifclr, #3" ::: "memory");
 }
 
-static inline void arm64_irq_disable(void)
+static inline void arm64_interrupt_disable(void)
 {
     __asm__ __volatile__("msr daifset, #3" ::: "memory");
 }
 
-static inline void arm64_timer_start(int irqon)
+static inline int arm64_smp_processor_id(void)
+{
+	return arm64_read_sysreg(tpidrro_el0);
+}
+
+static inline void arm64_timer_start(void)
 {
 	u64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
-	ctrl |= (1 << 0);
-	if(irqon)
-		ctrl &= ~(1 << 1);
-	else
-		ctrl |= (1 << 1);
-	arm64_write_sysreg(cntp_ctl_el0, ctrl);
+	if(!(ctrl & (1 << 0)))
+	{
+		ctrl |= (1 << 0);
+		arm64_write_sysreg(cntp_ctl_el0, ctrl);
+	}
 }
 
 static inline void arm64_timer_stop(void)
 {
 	u64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
-	ctrl &= ~(1 << 0);
-	arm64_write_sysreg(cntp_ctl_el0, ctrl);
+	if((ctrl & (1 << 0)))
+	{
+		ctrl &= ~(1 << 0);
+		arm64_write_sysreg(cntp_ctl_el0, ctrl);
+	}
+}
+
+static inline void arm64_timer_interrupt_enable(void)
+{
+	u64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
+	if(ctrl & (1 << 1))
+	{
+		ctrl &= ~(1 << 1);
+		arm64_write_sysreg(cntp_ctl_el0, ctrl);
+	}
+}
+
+static inline void arm64_timer_interrupt_disable(void)
+{
+	u64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
+	if(!(ctrl & (1 << 1)))
+	{
+		ctrl |= (1 << 1);
+		arm64_write_sysreg(cntp_ctl_el0, ctrl);
+	}
 }
 
 static inline u64_t arm64_timer_frequecy(void)

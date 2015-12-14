@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <arm64.h>
 #include <xboot/gdbstub.h>
 
 struct arm64_env_t {
@@ -186,7 +187,7 @@ static int cpu_memory_acess(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual
 
 static int cpu_processor(struct gdb_cpu_t * cpu)
 {
-	return 0;
+	return arm64_smp_processor_id();
 }
 
 static void cpu_breakpoint(struct gdb_cpu_t * cpu)

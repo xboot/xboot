@@ -26,19 +26,18 @@
 #include <arm64.h>
 #include <virt/reg-gic.h>
 
-static struct irq_handler_t virt_irq_handler[32];
+static struct irq_handler_t virt_sgi_ppi_handler[32];
+static struct irq_handler_t virt_spi_handler[128];
 
 void do_irq(void * regs)
 {
-	u32_t irq;
+	int irq;
 
-	/* Get irq's offset */
 	irq = read32(phys_to_virt(VIRT_GIC_CPU_BASE + CPU_INTACK)) & 0x3ff;
-
-	/* Handle interrupt server function */
-	(virt_irq_handler[irq].func)(virt_irq_handler[irq].data);
-
-	/* Exit interrupt */
+	if(irq < 32)
+		(virt_sgi_ppi_handler[irq].func)(virt_sgi_ppi_handler[irq].data);
+	else if(irq < 64)
+		(virt_spi_handler[irq].func)(virt_spi_handler[irq].data);
 	write32(phys_to_virt(VIRT_GIC_CPU_BASE + CPU_EOI), irq);
 }
 
@@ -58,9 +57,65 @@ static void virt_irq_set_type(struct irq_t * irq, enum irq_type_t type)
 
 static struct irq_t virt_irqs[] = {
 	{
-		.name		= "NSPHYS_TIMER",
+		.name		= "VMI",
+		.no			= 25,
+		.handler	= &virt_sgi_ppi_handler[25],
+		.enable		= virt_irq_enable,
+		.disable	= virt_irq_disable,
+		.set_type	= virt_irq_set_type,
+	}, {
+		.name		= "HYPTIMER",
+		.no			= 26,
+		.handler	= &virt_sgi_ppi_handler[26],
+		.enable		= virt_irq_enable,
+		.disable	= virt_irq_disable,
+		.set_type	= virt_irq_set_type,
+	}, {
+		.name		= "VIRTIMER",
+		.no			= 27,
+		.handler	= &virt_sgi_ppi_handler[27],
+		.enable		= virt_irq_enable,
+		.disable	= virt_irq_disable,
+		.set_type	= virt_irq_set_type,
+	}, {
+		.name		= "LEGACYFIQ",
+		.no			= 28,
+		.handler	= &virt_sgi_ppi_handler[28],
+		.enable		= virt_irq_enable,
+		.disable	= virt_irq_disable,
+		.set_type	= virt_irq_set_type,
+	}, {
+		.name		= "STIMER",
+		.no			= 29,
+		.handler	= &virt_sgi_ppi_handler[29],
+		.enable		= virt_irq_enable,
+		.disable	= virt_irq_disable,
+		.set_type	= virt_irq_set_type,
+	}, {
+		.name		= "NSTIMER",
 		.no			= 30,
-		.handler	= &virt_irq_handler[30],
+		.handler	= &virt_sgi_ppi_handler[30],
+		.enable		= virt_irq_enable,
+		.disable	= virt_irq_disable,
+		.set_type	= virt_irq_set_type,
+	}, {
+		.name		= "LEGACYIRQ",
+		.no			= 31,
+		.handler	= &virt_sgi_ppi_handler[31],
+		.enable		= virt_irq_enable,
+		.disable	= virt_irq_disable,
+		.set_type	= virt_irq_set_type,
+	}, {
+		.name		= "UART",
+		.no			= 32 + 0,
+		.handler	= &virt_spi_handler[32 + 0],
+		.enable		= virt_irq_enable,
+		.disable	= virt_irq_disable,
+		.set_type	= virt_irq_set_type,
+	}, {
+		.name		= "RTC",
+		.no			= 32 + 1,
+		.handler	= &virt_spi_handler[32 + 1],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
@@ -87,8 +142,7 @@ static void gic_dist_init(physical_addr_t dist)
 	/*
 	 * Set all global interrupts to this CPU only.
 	 */
-	//cpumask = 1 << smp_processor_id();
-	cpumask = 1 << 0;
+	cpumask = 1 << arm64_smp_processor_id();
 	cpumask |= cpumask << 8;
 	cpumask |= cpumask << 16;
 	for(i = 32; i < gic_irqs; i += 4)
@@ -152,7 +206,7 @@ static __init void virt_irq_init(void)
 			LOG("Failed to register irq '%s'", virt_irqs[i].name);
 	}
 
-	arm64_irq_enable();
+	arm64_interrupt_enable();
 }
 
 static __exit void virt_irq_exit(void)
@@ -167,7 +221,7 @@ static __exit void virt_irq_exit(void)
 			LOG("Failed to unregister irq '%s'", virt_irqs[i].name);
 	}
 
-	arm64_irq_disable();
+	arm64_interrupt_disable();
 }
 
 core_initcall(virt_irq_init);

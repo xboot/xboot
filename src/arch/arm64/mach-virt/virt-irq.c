@@ -26,18 +26,14 @@
 #include <arm64.h>
 #include <virt/reg-gic.h>
 
-static struct irq_handler_t virt_sgi_ppi_handler[32];
-static struct irq_handler_t virt_spi_handler[128];
+static struct irq_handler_t virt_irq_handler[32 + 128];
 
 void do_irq(void * regs)
 {
 	int irq;
 
 	irq = read32(phys_to_virt(VIRT_GIC_CPU_BASE + CPU_INTACK)) & 0x3ff;
-	if(irq < 32)
-		(virt_sgi_ppi_handler[irq].func)(virt_sgi_ppi_handler[irq].data);
-	else if(irq < 64)
-		(virt_spi_handler[irq].func)(virt_spi_handler[irq].data);
+	(virt_irq_handler[irq].func)(virt_irq_handler[irq].data);
 	write32(phys_to_virt(VIRT_GIC_CPU_BASE + CPU_EOI), irq);
 }
 
@@ -59,63 +55,63 @@ static struct irq_t virt_irqs[] = {
 	{
 		.name		= "VMI",
 		.no			= 25,
-		.handler	= &virt_sgi_ppi_handler[25],
+		.handler	= &virt_irq_handler[25],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
 	}, {
 		.name		= "HYPTIMER",
 		.no			= 26,
-		.handler	= &virt_sgi_ppi_handler[26],
+		.handler	= &virt_irq_handler[26],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
 	}, {
 		.name		= "VIRTIMER",
 		.no			= 27,
-		.handler	= &virt_sgi_ppi_handler[27],
+		.handler	= &virt_irq_handler[27],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
 	}, {
 		.name		= "LEGACYFIQ",
 		.no			= 28,
-		.handler	= &virt_sgi_ppi_handler[28],
+		.handler	= &virt_irq_handler[28],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
 	}, {
 		.name		= "STIMER",
 		.no			= 29,
-		.handler	= &virt_sgi_ppi_handler[29],
+		.handler	= &virt_irq_handler[29],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
 	}, {
 		.name		= "NSTIMER",
 		.no			= 30,
-		.handler	= &virt_sgi_ppi_handler[30],
+		.handler	= &virt_irq_handler[30],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
 	}, {
 		.name		= "LEGACYIRQ",
 		.no			= 31,
-		.handler	= &virt_sgi_ppi_handler[31],
+		.handler	= &virt_irq_handler[31],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
 	}, {
 		.name		= "UART",
 		.no			= 32 + 0,
-		.handler	= &virt_spi_handler[32 + 0],
+		.handler	= &virt_irq_handler[32 + 0],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,
 	}, {
 		.name		= "RTC",
 		.no			= 32 + 1,
-		.handler	= &virt_spi_handler[32 + 1],
+		.handler	= &virt_irq_handler[32 + 1],
 		.enable		= virt_irq_enable,
 		.disable	= virt_irq_disable,
 		.set_type	= virt_irq_set_type,

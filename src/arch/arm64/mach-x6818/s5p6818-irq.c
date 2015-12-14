@@ -2251,7 +2251,7 @@ static __init void s5p6818_irq_init(void)
 			LOG("Failed to register irq '%s'", s5p6818_irqs[i].name);
 	}
 
-	arm64_irq_enable();
+	arm64_interrupt_enable();
 }
 
 static __exit void s5p6818_irq_exit(void)
@@ -2266,7 +2266,7 @@ static __exit void s5p6818_irq_exit(void)
 			LOG("Failed to unregister irq '%s'", s5p6818_irqs[i].name);
 	}
 
-	arm64_irq_disable();
+	arm64_interrupt_disable();
 }
 
 core_initcall(s5p6818_irq_init);

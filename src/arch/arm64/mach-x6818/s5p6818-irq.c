@@ -137,6 +137,7 @@ void do_irq(void * regs)
 	int irq;
 
 	irq = read32(phys_to_virt(S5P6818_GIC_CPU_BASE + CPU_INTACK)) & 0x3ff;
+	LOG("irq = %d\r\n", irq);
 	(s5p6818_irq_handler[irq].func)(s5p6818_irq_handler[irq].data);
 	write32(phys_to_virt(S5P6818_GIC_CPU_BASE + CPU_EOI), irq);
 }
@@ -978,7 +979,6 @@ static struct irq_t s5p6818_irqs[] = {
 		.disable	= s5p6818_irq_disable,
 		.set_type	= s5p6818_irq_set_type,
 	},
-
 	/* GPIOA */
 	{
 		.name		= "GPIOA0",
@@ -1205,7 +1205,6 @@ static struct irq_t s5p6818_irqs[] = {
 		.disable	= s5p6818_irq_disable,
 		.set_type	= s5p6818_irq_set_type,
 	},
-
 	/* GPIOB */
 	{
 		.name		= "GPIOB0",
@@ -1432,7 +1431,6 @@ static struct irq_t s5p6818_irqs[] = {
 		.disable	= s5p6818_irq_disable,
 		.set_type	= s5p6818_irq_set_type,
 	},
-
 	/* GPIOC */
 	{
 		.name		= "GPIOC0",
@@ -1659,7 +1657,6 @@ static struct irq_t s5p6818_irqs[] = {
 		.disable	= s5p6818_irq_disable,
 		.set_type	= s5p6818_irq_set_type,
 	},
-
 	/* GPIOD */
 	{
 		.name		= "GPIOD0",
@@ -1886,7 +1883,6 @@ static struct irq_t s5p6818_irqs[] = {
 		.disable	= s5p6818_irq_disable,
 		.set_type	= s5p6818_irq_set_type,
 	},
-
 	/* GPIOE */
 	{
 		.name		= "GPIOE0",
@@ -2113,7 +2109,6 @@ static struct irq_t s5p6818_irqs[] = {
 		.disable	= s5p6818_irq_disable,
 		.set_type	= s5p6818_irq_set_type,
 	},
-
 	/* GPIOALV */
 	{
 		.name		= "GPIOALV0",
@@ -2180,7 +2175,8 @@ static void gic_dist_init(physical_addr_t dist)
 	/*
 	 * Set all global interrupts to this CPU only.
 	 */
-	cpumask = 1 << arm64_smp_processor_id();
+	//cpumask = 1 << arm64_smp_processor_id();
+	cpumask = 1 << 0;
 	cpumask |= cpumask << 8;
 	cpumask |= cpumask << 16;
 	for(i = 32; i < gic_irqs; i += 4)
@@ -2236,12 +2232,22 @@ static __init void s5p6818_irq_init(void)
 	gic_dist_init(S5P6818_GIC_DIST_BASE);
 	gic_cpu_init(S5P6818_GIC_DIST_BASE, S5P6818_GIC_CPU_BASE);
 
-	s5p6818_irq_handler[53].func = s5p6818_irq_handler_func_gpioa;
-	s5p6818_irq_handler[54].func = s5p6818_irq_handler_func_gpiob;
-	s5p6818_irq_handler[55].func = s5p6818_irq_handler_func_gpioc;
-	s5p6818_irq_handler[56].func = s5p6818_irq_handler_func_gpiod;
-	s5p6818_irq_handler[57].func = s5p6818_irq_handler_func_gpioe;
-	s5p6818_irq_handler[4].func = s5p6818_irq_handler_func_gpioalv;
+	s5p6818_irq_handler[32 + 53].func = s5p6818_irq_handler_func_gpioa;
+	s5p6818_irq_handler[32 + 54].func = s5p6818_irq_handler_func_gpiob;
+	s5p6818_irq_handler[32 + 55].func = s5p6818_irq_handler_func_gpioc;
+	s5p6818_irq_handler[32 + 56].func = s5p6818_irq_handler_func_gpiod;
+	s5p6818_irq_handler[32 + 57].func = s5p6818_irq_handler_func_gpioe;
+	s5p6818_irq_handler[32 + 4].func = s5p6818_irq_handler_func_gpioalv;
+
+	/*
+	 * Enable GPIOA, GPIOB, GPIOC, GPIOD, GPIOE and CLKPWR1 vic interrupt.
+	 */
+	write32(phys_to_virt(S5P6818_GIC_DIST_BASE + DIST_ENABLE_SET + ((32 + 53) / 32) * 4), 1 << ((32 + 53) % 32));
+	write32(phys_to_virt(S5P6818_GIC_DIST_BASE + DIST_ENABLE_SET + ((32 + 54) / 32) * 4), 1 << ((32 + 54) % 32));
+	write32(phys_to_virt(S5P6818_GIC_DIST_BASE + DIST_ENABLE_SET + ((32 + 55) / 32) * 4), 1 << ((32 + 55) % 32));
+	write32(phys_to_virt(S5P6818_GIC_DIST_BASE + DIST_ENABLE_SET + ((32 + 56) / 32) * 4), 1 << ((32 + 56) % 32));
+	write32(phys_to_virt(S5P6818_GIC_DIST_BASE + DIST_ENABLE_SET + ((32 + 57) / 32) * 4), 1 << ((32 + 57) % 32));
+	write32(phys_to_virt(S5P6818_GIC_DIST_BASE + DIST_ENABLE_SET + ((32 + 4) / 32) * 4), 1 << ((32 + 4) % 32));
 
 	for(i = 0; i < ARRAY_SIZE(s5p6818_irqs); i++)
 	{

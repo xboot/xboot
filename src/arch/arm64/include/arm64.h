@@ -10,12 +10,12 @@ extern "C" {
 
 static inline void arm64_interrupt_enable(void)
 {
-    __asm__ __volatile__("msr daifclr, #3" ::: "memory");
+	__asm__ __volatile__("msr daifclr, #2" ::: "memory");
 }
 
 static inline void arm64_interrupt_disable(void)
 {
-    __asm__ __volatile__("msr daifset, #3" ::: "memory");
+	__asm__ __volatile__("msr daifset, #2" ::: "memory");
 }
 
 static inline int arm64_smp_processor_id(void)

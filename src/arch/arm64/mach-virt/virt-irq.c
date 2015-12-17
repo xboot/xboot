@@ -28,7 +28,7 @@
 
 static struct irq_handler_t virt_irq_handler[32 + 128];
 
-void do_irq(void * regs)
+void arm64_irq_exception(void * regs)
 {
 	int irq;
 

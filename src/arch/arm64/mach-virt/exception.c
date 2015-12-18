@@ -106,7 +106,8 @@ void arm64_invalid_exception(struct pt_regs_t * regs, int reason, unsigned int e
 
 void arm64_sync_exception(struct pt_regs_t * regs)
 {
-	uint64_t esr, ec, iss, far;
+	uint64_t esr, far;
+	uint64_t ec, iss;
 
 	esr = arm64_read_sysreg(esr_el1);
 	far = arm64_read_sysreg(far_el1);
@@ -115,6 +116,12 @@ void arm64_sync_exception(struct pt_regs_t * regs)
 
 	switch(ec)
 	{
+	case 0x3c:	/* BRK (AArch64) */
+		if(iss == 0x401)
+			regs->pc += 4;
+		gdbserver_handle_exception(regs);
+		return;
+
 	default:
 		break;
 	}

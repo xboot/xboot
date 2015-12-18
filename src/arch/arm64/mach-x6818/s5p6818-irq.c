@@ -132,12 +132,11 @@ static void s5p6818_irq_handler_func_gpioalv(void * data)
 	}
 }
 
-void do_irq(void * regs)
+void arm64_irq_exception(void * regs)
 {
 	int irq;
 
 	irq = read32(phys_to_virt(S5P6818_GIC_CPU_BASE + CPU_INTACK)) & 0x3ff;
-	LOG("irq = %d\r\n", irq);
 	(s5p6818_irq_handler[irq].func)(s5p6818_irq_handler[irq].data);
 	write32(phys_to_virt(S5P6818_GIC_CPU_BASE + CPU_EOI), irq);
 }

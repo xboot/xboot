@@ -26,19 +26,6 @@
 #include <linkage.h>
 
 /*
- * Branch according to exception level
- */
-.macro switch_el, xreg, el3_label, el2_label, el1_label
-	mrs \xreg, CurrentEL
-	cmp \xreg, 0xc
-	b.eq \el3_label
-	cmp	\xreg, 0x8
-	b.eq \el2_label
-	cmp \xreg, 0x4
-	b.eq \el1_label
-.endm
-
-/*
  * Vector entry
  */
 .macro ventry label
@@ -170,27 +157,53 @@ vectors:
  */
 reset:
 	/*
-	 * Little Endian, MMU Disabled, I/D Cache Disabled
+	 * Initial system with exception level
 	 */
 	adr x0, vectors
-	switch_el x1, 3f, 2f, 1f
-3:	msr vbar_el3, x0
-	mrs x0, scr_el3
-	orr x0, x0, #0xf
-	msr scr_el3, x0
+	mrs x1, CurrentEL
+	cmp x1, 0xc
+	b.eq 3f
+	cmp	x1, 0x8
+	b.eq 2f
+	cmp x1, 0x4
+	b.eq 1f
+3:	msr vbar_el3, x0		/* Set el3 vbar */
+	mrs x2, scr_el3
+	bic x2, x2, #(0xf<<0)	/* Clear ea, fiq, irq and ns bits */
+	orr x2, x2, #(0x1<<10)	/* Set el2 to 64bit */
+	msr scr_el3, x2
 	msr cptr_el3, xzr
-	ldr	x0, =0x01800000
-	msr	cntfrq_el0, x0
-	b 0f
-2:	msr vbar_el2, x0
-	mov x0, #0x33ff
-	msr cptr_el2, x0
-	b 0f
-1:	msr vbar_el1, x0
-	mrs x0, cpacr_el1
-	orr x0, x0, #(0x3 << 20)
-	msr cpacr_el1, x0
-0:	isb
+	ldr x2, =0x01800000		/* Initialize cntfrq */
+	msr	cntfrq_el0, x2
+2:	msr vbar_el2, x0		/* Set el2 vbar */
+	mrs x2, hcr_el2
+	orr x2, x2, #(0x1<<31)	/* Set el1 to 64bit */
+    msr hcr_el2, x2
+	mov x2, #0x33ff			/* Enable fp/simd */
+	msr cptr_el2, x2
+1:	msr vbar_el1, x0		/* Set el1 vbar */
+	mrs x2, cpacr_el1
+	orr x2, x2, #(0x3<<20)	/* Enable fp/simd */
+	msr cpacr_el1, x2
+
+	/*
+	 * Change exception level, to el1
+	 */
+	mrs x1, CurrentEL
+	cmp x1, 0xc
+	b.eq 31f
+	cmp	x1, 0x8
+	b.eq 21f
+	cmp x1, 0x4
+	b.eq 11f
+31:	adr x2, 11f
+	msr elr_el3, x2
+	mov x2, #((0xf<<6)|(0x5<<0))
+	msr spsr_el3, x2
+	isb
+	eret
+21:	b 11f
+11:	isb
 
 	/* Initialize stacks */
 	ldr	x0, _stack_el1_end
@@ -249,6 +262,7 @@ ENDPROC(el1_sync)
 	.align 6
 el1_irq:
 	kernel_entry 1
+	msr daifclr, #8
 	mov x0, sp
 	bl arm64_irq_exception
 	kernel_exit 1

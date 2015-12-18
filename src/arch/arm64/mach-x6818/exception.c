@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <arm64.h>
 #include <xboot/gdbstub.h>
 
 struct pt_regs_t {
@@ -74,17 +75,10 @@ static const char * esr_class_str[] = {
 	[0x3c]	= "BRK (AArch64)",
 };
 
-void bad_mode(struct pt_regs_t * regs, int reason, unsigned int esr)
+static void show_regs(struct pt_regs_t * regs)
 {
-	const char * handler[] = {
-		"Synchronous Abort",
-		"IRQ",
-		"FIQ",
-		"Error"
-	};
 	int i;
 
-	printf("Bad mode in %s handler detected, code 0x%08x -- %s\r\n", handler[reason], esr, esr_class_str[esr >> 26]);
 	printf("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\r\n", regs->pc, regs->regs[30], regs->pstate);
 	printf("sp : %016llx\r\n", regs->sp);
 	for(i = 29; i >= 0; i--)
@@ -94,24 +88,49 @@ void bad_mode(struct pt_regs_t * regs, int reason, unsigned int esr)
 			printf("\r\n");
 	}
 	printf("\r\n");
+	while(1);
 }
 
-void do_undefinstr(struct pt_regs_t * regs)
+void arm64_invalid_exception(struct pt_regs_t * regs, int reason, unsigned int esr)
 {
+	const char * handler[] = {
+		"Synchronous Abort",
+		"IRQ",
+		"FIQ",
+		"Error"
+	};
+
+	printf("Invalid exception in %s handler detected, code 0x%08x -- %s\r\n", handler[reason], esr, esr_class_str[esr >> 26]);
+	show_regs(regs);
 }
 
-void do_mem_abort(unsigned long addr, unsigned int esr, struct pt_regs_t * regs)
+void arm64_sync_exception(struct pt_regs_t * regs)
 {
+	uint64_t esr, far;
+	uint64_t ec, iss;
+
+	esr = arm64_read_sysreg(esr_el1);
+	far = arm64_read_sysreg(far_el1);
+	ec = (esr >> 26) & 0x3f;
+	iss = (esr >> 0) & 0x1ffffff;
+
+	switch(ec)
+	{
+	case 0x3c:	/* BRK (AArch64) */
+		if(iss == 0x401)
+			regs->pc += 4;
+		gdbserver_handle_exception(regs);
+		return;
+
+	default:
+		break;
+	}
+
+	printf("Synchronous exception detected, ec:0x%x iss:0x%x far:0x%x\r\n", ec, iss, far);
+	show_regs(regs);
 }
 
-void do_sp_pc_abort(unsigned long addr, unsigned int esr, struct pt_regs_t * regs)
+static void __arm64_irq_exception(void * regs)
 {
 }
-
-int do_debug_exception(unsigned long addr, unsigned int esr, struct pt_regs_t * regs)
-{
-	if(esr == 0xf2000401)
-		regs->pc += 4;
-	gdbserver_handle_exception(regs);
-	return 1;
-}
+extern __typeof(__arm64_irq_exception) arm64_irq_exception __attribute__((weak, alias("__arm64_irq_exception")));

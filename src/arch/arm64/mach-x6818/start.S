@@ -26,41 +26,6 @@
 #include <linkage.h>
 
 /*
- * Enable and disable interrupts
- */
-.macro disable_irq
-	msr daifset, #2
-.endm
-
-.macro enable_irq
-	msr daifclr, #2
-.endm
-
-/*
- * Enable and disable debug exceptions
- */
-.macro disable_dbg
-	msr	daifset, #8
-.endm
-
-.macro enable_dbg
-	msr daifclr, #8
-.endm
-
-/*
- * Branch according to exception level
- */
-.macro switch_el, xreg, el3_label, el2_label, el1_label
-	mrs \xreg, CurrentEL
-	cmp \xreg, 0xc
-	b.eq \el3_label
-	cmp	\xreg, 0x8
-	b.eq \el2_label
-	cmp \xreg, 0x4
-	b.eq \el1_label
-.endm
-
-/*
  * Vector entry
  */
 .macro ventry label
@@ -90,9 +55,6 @@
 	stp	x28, x29, [sp, #16 * 14]
 	.if	\el == 0
 		mrs	x21, sp_el0
-		get_thread_info tsk
-		ldr	x19, [tsk, #TI_FLAGS]
-		disable_step_tsk x19, x20
 	.else
 		add	x21, sp, #8 * 36
 	.endif
@@ -109,20 +71,15 @@
 /*
  * Kernel exit
  */
-.macro kernel_exit, el, ret = 0
+.macro kernel_exit, el
 	ldp	x21, x22, [sp, #8 * 32]
 	.if	\el == 0
-		ct_user_enter
 		ldr	x23, [sp, #8 * 31]
-		msr	sp_el0, x23
+		msr sp_el0, x23
 	.endif
 	msr	elr_el1, x21
 	msr	spsr_el1, x22
-	.if	\ret
-		ldr	x1, [sp, #8 * 1]
-	.else
-		ldp	x0, x1, [sp, #16 * 0]
-	.endif
+	ldp	x0, x1, [sp, #16 * 0]
 	ldp	x2, x3, [sp, #16 * 1]
 	ldp	x4, x5, [sp, #16 * 2]
 	ldp	x6, x7, [sp, #16 * 3]
@@ -150,7 +107,8 @@
 	mov x0, sp
 	mov x1, #\reason
 	mrs x2, esr_el1
-	b bad_mode
+	bl arm64_invalid_exception
+	kernel_exit el
 .endm
 
 	.global _start
@@ -206,27 +164,53 @@ reset:
 	str x1, [x0]
 
 	/*
-	 * Little Endian, MMU Disabled, I/D Cache Disabled
+	 * Initial system with exception level
 	 */
 	adr x0, vectors
-	switch_el x1, 3f, 2f, 1f
-3:	msr vbar_el3, x0
-	mrs x0, scr_el3
-	orr x0, x0, #0xf
-	msr scr_el3, x0
+	mrs x1, CurrentEL
+	cmp x1, 0xc
+	b.eq 3f
+	cmp	x1, 0x8
+	b.eq 2f
+	cmp x1, 0x4
+	b.eq 1f
+3:	msr vbar_el3, x0		/* Set el3 vbar */
+	mrs x2, scr_el3
+	bic x2, x2, #(0xf<<0)	/* Clear ea, fiq, irq and ns bits */
+	orr x2, x2, #(0x1<<10)	/* Set el2 to 64bit */
+	msr scr_el3, x2
 	msr cptr_el3, xzr
-	ldr	x0, =0x01800000
-	msr	cntfrq_el0, x0
-	b 0f
-2:	msr vbar_el2, x0
-	mov x0, #0x33ff
-	msr cptr_el2, x0
-	b 0f
-1:	msr vbar_el1, x0
-	mrs x0, cpacr_el1
-	orr x0, x0, #(0x3 << 20)
-	msr cpacr_el1, x0
-0:	isb
+	ldr x2, =0x01800000		/* Initialize cntfrq */
+	msr	cntfrq_el0, x2
+2:	msr vbar_el2, x0		/* Set el2 vbar */
+	mrs x2, hcr_el2
+	orr x2, x2, #(0x1<<31)	/* Set el1 to 64bit */
+    msr hcr_el2, x2
+	mov x2, #0x33ff			/* Enable fp/simd */
+	msr cptr_el2, x2
+1:	msr vbar_el1, x0		/* Set el1 vbar */
+	mrs x2, cpacr_el1
+	orr x2, x2, #(0x3<<20)	/* Enable fp/simd */
+	msr cpacr_el1, x2
+
+	/*
+	 * Change exception level, to el1
+	 */
+	mrs x1, CurrentEL
+	cmp x1, 0xc
+	b.eq 31f
+	cmp	x1, 0x8
+	b.eq 21f
+	cmp x1, 0x4
+	b.eq 11f
+31:	adr x2, 11f
+	msr elr_el3, x2
+	mov x2, #((0xf<<6)|(0x5<<0))
+	msr spsr_el3, x2
+	isb
+	eret
+21:	b 11f
+11:	isb
 
 	/* Initialize stacks */
 	ldr	x0, _stack_el1_end
@@ -277,73 +261,17 @@ _main:
 	.align 6
 el1_sync:
 	kernel_entry 1
-	mrs	x1, esr_el1
-	lsr	x24, x1, #26
-	cmp	x24, #0x25
-	b.eq el1_da
-	cmp	x24, #0x18
-	b.eq el1_undef
-	cmp	x24, #0x26
-	b.eq el1_sp_pc
-	cmp	x24, #0x22
-	b.eq el1_sp_pc
-	cmp	x24, #0x00
-	b.eq el1_undef
-	cmp	x24, #0x31
-	b.ge el1_dbg
-	b el1_inv
-el1_da:
-	/*
-	 * Data abort handling
-	 */
-	mrs	x0, far_el1
-	enable_dbg
-	tbnz x23, #7, 1f
-	enable_irq
-1:	mov x2, sp
-	bl do_mem_abort
-	disable_irq
+	mov x0, sp
+	bl arm64_sync_exception
 	kernel_exit 1
-el1_sp_pc:
-	/*
-	 * Stack or PC alignment exception handling
-	 */
-	mrs	x0, far_el1
-	enable_dbg
-	mov	x2, sp
-	b do_sp_pc_abort
-el1_undef:
-	/*
-	 * Undefined instruction
-	 */
-	enable_dbg
-	mov	x0, sp
-	b do_undefinstr
-el1_dbg:
-	/*
-	 * Debug exception handling
-	 */
-	cmp	x24, #0x3c
-	cinc x24, x24, eq
-	tbz	x24, #0, el1_inv
-	mrs	x0, far_el1
-	mov	x2, sp
-	bl do_debug_exception
-	kernel_exit 1
-el1_inv:
-	enable_dbg
-	mov	x0, sp
-	mov	x1, #0
-	mrs	x2, esr_el1
-	b bad_mode
 ENDPROC(el1_sync)
 
 	.align 6
 el1_irq:
 	kernel_entry 1
-	enable_dbg
+	msr daifclr, #8
 	mov x0, sp
-	bl do_irq
+	bl arm64_irq_exception
 	kernel_exit 1
 ENDPROC(el1_irq)
 

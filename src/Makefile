@@ -116,6 +116,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/block/partition						\
 				drivers/block/romdisk						\
 				drivers/bus/i2c								\
+				drivers/bus/spi								\
 				drivers/bus/uart							\
 				drivers/buzzer								\
 				drivers/clk									\

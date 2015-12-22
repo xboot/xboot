@@ -734,15 +734,15 @@ int gdbserver_start(const char * device)
 
 void gdbserver_stop(void)
 {
-	if(!gs)
-		return;
-	gdbserver_free(gs);
-	gs = 0;
+	if(gs)
+	{
+		gdbserver_free(gs);
+		gs = 0;
+	}
 }
 
 void gdbserver_handle_exception(void * regs)
 {
-	if(!gs)
-		return;
-	gdb_handle_exception(gs, regs);
+	if(gs)
+		gdb_handle_exception(gs, regs);
 }

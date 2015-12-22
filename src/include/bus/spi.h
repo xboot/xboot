@@ -12,8 +12,8 @@ struct spi_msg_t {
 	void * rxbuf;
 	int len;
 	int bits;
+	int mode;
 	int speed;
-	int delay;
 };
 
 struct spi_t
@@ -27,8 +27,11 @@ struct spi_t
 	/* Clean up spi */
 	void (*exit)(struct spi_t * spi);
 
-	/* SPI master xfer */
-	int (*xfer)(struct spi_t * spi, struct spi_msg_t * msgs, int num);
+	/* Spi master transfer */
+	int (*transfer)(struct spi_t * spi, struct spi_msg_t * msgs);
+
+	/* Spi Chip select */
+	void (*chipselect)(struct spi_t * spi, int state);
 
 	/* Private data */
 	void * priv;

@@ -9,7 +9,7 @@ extern "C" {
 #include <bus/spi.h>
 
 struct spi_gpio_data_t {
-	int clk_pin;
+	int sclk_pin;
 	int mosi_pin;
 	int miso_pin;
 	int cs_pin;

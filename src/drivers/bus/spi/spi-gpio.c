@@ -23,36 +23,185 @@
  */
 
 #include <xboot.h>
-#include <bus/spi-algo-bit.h>
 #include <bus/spi-gpio.h>
 
 struct spi_gpio_private_data_t {
-	struct spi_algo_bit_data_t bdat;
-	struct spi_gpio_data_t rdat;
+	int sclk_pin;
+	int mosi_pin;
+	int miso_pin;
+	int cs_pin;
 };
 
-static void spi_gpio_setclk(struct spi_algo_bit_data_t * bdat, int state)
+static inline void spi_gpio_setsclk(struct spi_gpio_private_data_t * dat, int state)
 {
-	struct spi_gpio_data_t * rdat = (struct spi_gpio_data_t *)bdat->priv;
-	gpio_set_value(rdat->clk_pin, state);
+	gpio_set_value(dat->sclk_pin, state);
 }
 
-static void spi_gpio_setmosi(struct spi_algo_bit_data_t * bdat, int state)
+static inline void spi_gpio_setmosi(struct spi_gpio_private_data_t * dat, int state)
 {
-	struct spi_gpio_data_t * rdat = (struct spi_gpio_data_t *)bdat->priv;
-	gpio_set_value(rdat->mosi_pin, state);
+	gpio_set_value(dat->mosi_pin, state);
 }
 
-static int spi_gpio_getmiso(struct spi_algo_bit_data_t * bdat)
+static inline int spi_gpio_getmiso(struct spi_gpio_private_data_t * dat)
 {
-	struct spi_gpio_data_t * rdat = (struct spi_algo_bit_data_t *)bdat->priv;
-	return gpio_get_value(rdat->miso_pin);
+	return gpio_get_value(dat->miso_pin);
 }
 
-static void spi_gpio_setcs(struct spi_algo_bit_data_t * bdat, int state)
+/* CPHA = 0, CPOL = 0 */
+static u32_t spi_gpio_bitbang_txrx_mode0(struct spi_gpio_private_data_t * dat, u32_t val, int bits, int ns)
 {
-	struct spi_gpio_data_t * rdat = (struct spi_gpio_data_t *)bdat->priv;
-	gpio_set_value(rdat->cs_pin, state);
+	u32_t oldbit = (!(val & (1 << (bits - 1)))) << 31;
+
+	for(val <<= (32 - bits); bits > 0; bits--)
+	{
+		if((val & (1 << 31)) != oldbit)
+		{
+			spi_gpio_setmosi(dat, val & (1 << 31));
+			oldbit = val & (1 << 31);
+		}
+		ndelay(ns);
+		spi_gpio_setsclk(dat, 1);
+		ndelay(ns);
+		val <<= 1;
+		val |= spi_gpio_getmiso(dat);
+		spi_gpio_setsclk(dat, 0);
+	}
+	return val;
+}
+
+/* CPHA = 1, CPOL = 0 */
+static u32_t spi_gpio_bitbang_txrx_mode1(struct spi_gpio_private_data_t * dat, u32_t val, int bits, int ns)
+{
+	u32_t oldbit = (!(val & (1 << (bits - 1)))) << 31;
+
+	for(val <<= (32 - bits); bits > 0; bits--)
+	{
+		spi_gpio_setsclk(dat, 1);
+		if((val & (1 << 31)) != oldbit)
+		{
+			spi_gpio_setmosi(dat, val & (1 << 31));
+			oldbit = val & (1 << 31);
+		}
+		ndelay(ns);
+		spi_gpio_setsclk(dat, 0);
+		ndelay(ns);
+		val <<= 1;
+		val |= spi_gpio_getmiso(dat);
+	}
+	return val;
+}
+
+/* CPHA = 0, CPOL = 1 */
+static u32_t spi_gpio_bitbang_txrx_mode2(struct spi_gpio_private_data_t * dat, u32_t val, int bits, int ns)
+{
+	u32_t oldbit = (!(val & (1 << (bits - 1)))) << 31;
+
+	for(val <<= (32 - bits); bits > 0; bits--)
+	{
+		if((val & (1 << 31)) != oldbit)
+		{
+			spi_gpio_setmosi(dat, val & (1 << 31));
+			oldbit = val & (1 << 31);
+		}
+		ndelay(ns);
+		spi_gpio_setsclk(dat, 0);
+		ndelay(ns);
+		val <<= 1;
+		val |= spi_gpio_getmiso(dat);
+		spi_gpio_setsclk(dat, 1);
+	}
+	return val;
+}
+
+/* CPHA = 1, CPOL = 1 */
+static u32_t spi_gpio_bitbang_txrx_mode3(struct spi_gpio_private_data_t * dat, u32_t val, int bits, int ns)
+{
+	u32_t oldbit = (!(val & (1 << (bits - 1)))) << 31;
+
+	for(val <<= (32 - bits); bits > 0; bits--)
+	{
+		spi_gpio_setsclk(dat, 0);
+		if((val & (1 << 31)) != oldbit)
+		{
+			spi_gpio_setmosi(dat, val & (1 << 31));
+			oldbit = val & (1 << 31);
+		}
+		ndelay(ns);
+		spi_gpio_setsclk(dat, 1);
+		ndelay(ns);
+		val <<= 1;
+		val |= spi_gpio_getmiso(dat);
+	}
+	return val;
+}
+
+static int spi_gpio_bitbang_xfer_8(struct spi_gpio_private_data_t * dat,
+	u32_t (*txrx)(struct spi_gpio_private_data_t * dat, u32_t val, int bits, int ns),
+	int ns, struct spi_msg_t * msg)
+{
+	int count = msg->len;
+	int bits = msg->bits;
+	u8_t * tx = msg->txbuf;
+	u8_t * rx = msg->rxbuf;
+	u8_t val;
+
+	while(count > 0)
+	{
+		val = 0;
+		if(tx)
+			val = *tx++;
+		val = txrx(dat, val, bits, ns);
+		if(rx)
+			*rx++ = val;
+		count -= 1;
+	}
+	return msg->len - count;
+}
+
+static int spi_gpio_bitbang_xfer_16(struct spi_gpio_private_data_t * dat,
+	u32_t (*txrx)(struct spi_gpio_private_data_t * dat, u32_t val, int bits, int ns),
+	int ns, struct spi_msg_t * msg)
+{
+	int count = msg->len;
+	int bits = msg->bits;
+	u16_t * tx = msg->txbuf;
+	u16_t * rx = msg->rxbuf;
+	u16_t val;
+
+	while(count > 1)
+	{
+		val = 0;
+		if(tx)
+			val = *tx++;
+		val = txrx(dat, val, bits, ns);
+		if(rx)
+			*rx++ = val;
+		count -= 2;
+	}
+	return msg->len - count;
+}
+
+static int spi_gpio_bitbang_xfer_32(struct spi_gpio_private_data_t * dat,
+	u32_t (*txrx)(struct spi_gpio_private_data_t * dat, u32_t val, int bits, int ns),
+	int ns, struct spi_msg_t * msg)
+{
+	int count = msg->len;
+	int bits = msg->bits;
+	u32_t * tx = msg->txbuf;
+	u32_t * rx = msg->rxbuf;
+	u32_t val;
+
+	while(count > 3)
+	{
+		val = 0;
+		if(tx)
+			val = *tx++;
+		val = txrx(dat, val, bits, ns);
+		if(rx)
+			*rx++ = val;
+		count -= 4;
+	}
+	return msg->len - count;
 }
 
 static void spi_gpio_init(struct spi_t * spi)
@@ -63,12 +212,49 @@ static void spi_gpio_exit(struct spi_t * spi)
 {
 }
 
-static int spi_gpio_xfer(struct spi_t * spi, struct spi_msg_t * msgs, int num)
+static int spi_gpio_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 {
 	struct spi_gpio_private_data_t * dat = (struct spi_gpio_private_data_t *)spi->priv;
-	struct spi_algo_bit_data_t * bdat = &(dat->bdat);
+	int (*xfer)(struct spi_gpio_private_data_t * dat,
+		u32_t (*txrx)(struct spi_gpio_private_data_t * dat, u32_t val, int bits, int ns),
+		int ns, struct spi_msg_t * msg);
+	int ns;
 
-	return spi_algo_bit_xfer(bdat, msgs, num);
+	if(msg->bits <= 8)
+		xfer = spi_gpio_bitbang_xfer_8;
+	else if(msg->bits <= 16)
+		xfer = spi_gpio_bitbang_xfer_16;
+	else if(msg->bits <= 32)
+		xfer = spi_gpio_bitbang_xfer_32;
+	else
+		return 0;
+
+	if(msg->speed > 0)
+		ns = (1000000000 / 2) / msg->speed;
+	else
+		ns = 10;
+
+	switch(msg->mode & 0x3)
+	{
+	case 0:
+		return xfer(dat, spi_gpio_bitbang_txrx_mode0, ns, msg);
+	case 1:
+		return xfer(dat, spi_gpio_bitbang_txrx_mode1, ns, msg);
+	case 2:
+		return xfer(dat, spi_gpio_bitbang_txrx_mode2, ns, msg);
+	case 3:
+		return xfer(dat, spi_gpio_bitbang_txrx_mode3, ns, msg);
+	default:
+		break;
+	}
+	return 0;
+}
+
+static void spi_gpio_chipselect(struct spi_t * spi, int state)
+{
+	struct spi_gpio_private_data_t * dat = (struct spi_gpio_private_data_t *)spi->priv;
+	if(dat->cs_pin >= 0)
+		gpio_set_value(dat->cs_pin, state);
 }
 
 static bool_t spi_gpio_register_bus(struct resource_t * res)
@@ -91,13 +277,25 @@ static bool_t spi_gpio_register_bus(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	memcpy(&(dat->rdat), rdat, sizeof(struct spi_gpio_data_t));
-	dat->bdat.priv = &(dat->rdat);
+	dat->sclk_pin = rdat->sclk_pin;
+	dat->mosi_pin = rdat->mosi_pin;
+	dat->miso_pin = rdat->miso_pin;
+	dat->cs_pin = rdat->cs_pin;
+
+	if(dat->sclk_pin)
+		gpio_direction_output(rdat->sclk_pin, 1);
+	if(dat->mosi_pin)
+		gpio_direction_output(rdat->mosi_pin, 1);
+	if(dat->miso_pin)
+		gpio_direction_input(rdat->miso_pin);
+	if(dat->cs_pin)
+		gpio_direction_output(rdat->cs_pin, 1);
 
 	spi->name = strdup(name);
 	spi->init = spi_gpio_init;
 	spi->exit = spi_gpio_exit;
-	spi->xfer = spi_gpio_xfer,
+	spi->transfer = spi_gpio_transfer,
+	spi->chipselect = spi_gpio_chipselect,
 	spi->priv = dat;
 
 	if(register_bus_spi(spi))

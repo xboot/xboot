@@ -283,9 +283,9 @@ static bool_t spi_gpio_register_bus(struct resource_t * res)
 	dat->cs_pin = rdat->cs_pin;
 
 	if(dat->sclk_pin)
-		gpio_direction_output(rdat->sclk_pin, 1);
+		gpio_direction_output(rdat->sclk_pin, 0);
 	if(dat->mosi_pin)
-		gpio_direction_output(rdat->mosi_pin, 1);
+		gpio_direction_output(rdat->mosi_pin, 0);
 	if(dat->miso_pin)
 		gpio_direction_input(rdat->miso_pin);
 	if(dat->cs_pin)

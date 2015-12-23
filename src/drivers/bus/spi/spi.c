@@ -91,3 +91,74 @@ bool_t unregister_bus_spi(struct spi_t * spi)
 
 	return TRUE;
 }
+
+int spi_transfer(struct spi_t * spi, struct spi_msg_t * msg)
+{
+	if(!spi || !msg)
+		return 0;
+	return spi->transfer(spi, msg);
+}
+
+void spi_chipselect(struct spi_t * spi, int state)
+{
+	if(spi && spi->chipselect)
+		spi->chipselect(spi, state);
+}
+
+struct spi_device_t * spi_device_alloc(const char * spibus, int mode, int bits, int speed)
+{
+	struct spi_device_t * dev;
+	struct spi_t * spi;
+
+	spi = search_bus_spi(spibus);
+	if(!spi)
+		return NULL;
+
+	dev = malloc(sizeof(struct spi_device_t));
+	if(!dev)
+		return NULL;
+
+	dev->spi = spi;
+	dev->mode = mode & 0x3;
+	dev->bits = bits;
+	dev->speed = speed;
+	return dev;
+}
+
+void spi_device_free(struct spi_device_t * dev)
+{
+	if(dev)
+		free(dev);
+}
+
+int spi_device_write_then_read(struct spi_device_t * dev, void * txbuf, int txlen, void * rxbuf, int rxlen)
+{
+	struct spi_msg_t msg;
+
+	if(!dev)
+		return -1;
+
+	msg.mode = dev->mode;
+	msg.bits = dev->bits;
+	msg.speed = dev->speed;
+
+	msg.txbuf = txbuf;
+	msg.rxbuf = NULL;
+	msg.len = txlen;
+	if(dev->spi->transfer(dev->spi, &msg) != txlen)
+		return -1;
+
+	msg.txbuf = NULL;
+	msg.rxbuf = rxbuf;
+	msg.len = rxlen;
+	if(dev->spi->transfer(dev->spi, &msg) != rxlen)
+		return -1;
+
+	return 0;
+}
+
+void spi_device_chipselect(struct spi_device_t * dev, int state)
+{
+	if(dev && dev->spi)
+		spi_chipselect(dev->spi, state);
+}

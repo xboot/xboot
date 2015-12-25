@@ -43,7 +43,7 @@
 
 struct spi_flash_id_t {
 	char * name;
-	char id[5];
+	char id[6];
 	char id_len;
 	int sector_size;
 	int sector_count;
@@ -70,6 +70,20 @@ static const struct spi_flash_id_t spi_flash_ids[] = {
 	FLASH_INFO("w25q256", 0xef4019, 0, 64 * 1024, 512, 0),
 };
 
+struct spi_flash_id_t * spi_flash_read_id(struct spi_device_t * dev)
+{
+	char id[6];
+	int i;
+
+	u8			id[SPI_NOR_MAX_ID_LEN];
+
+}
+
+static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+{
+	return 0;
+}
+
 static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	return 0;
@@ -92,13 +106,64 @@ static bool_t spi_flash_register(struct resource_t * res)
 	struct spi_flash_data_t * rdat = (struct spi_flash_data_t *)res->data;
 	struct spi_flash_private_data_t * dat;
 	struct block_t * blk;
+	struct spi_device_t * dev;
 	char name[64];
 
+	dev = spi_device_alloc(rdat->spibus, 0, 8, 0);
+	if(!dev)
+		return FALSE;
+
+	dat = malloc(sizeof(struct spi_flash_private_data_t));
+	if(!dat)
+		return FALSE;
+
+	blk = malloc(sizeof(struct block_t));
+	if(!blk)
+	{
+		free(dat);
+		return FALSE;
+	}
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	dat->rev = 0;
+
+	blk->name = strdup(name);
+	blk->blksz = 512;
+	blk->blkcnt = 1000;
+	blk->read = spi_flash_read;
+	blk->write = spi_flash_write;
+	blk->sync = spi_flash_sync;
+	blk->suspend = spi_flash_suspend;
+	blk->resume = spi_flash_resume;
+	blk->priv = dat;
+
+	if(register_block(blk))
+		return TRUE;
+
+	free(blk->priv);
+	free(blk->name);
+	free(blk);
 	return FALSE;
 }
 
 static bool_t spi_flash_unregister(struct resource_t * res)
 {
+	struct block_t * blk;
+	char name[64];
+
+	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+
+	blk = search_block(name);
+	if(!blk)
+		return FALSE;
+
+	if(!unregister_block(blk))
+		return FALSE;
+
+	free(blk->priv);
+	free(blk->name);
+	free(blk);
 	return TRUE;
 }
 

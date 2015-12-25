@@ -10,7 +10,7 @@ extern "C" {
 struct block_t
 {
 	/* The block name */
-	const char * name;
+	char * name;
 
 	/* The size of block */
 	u64_t blksz;

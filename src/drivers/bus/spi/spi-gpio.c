@@ -250,11 +250,11 @@ static int spi_gpio_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 	return 0;
 }
 
-static void spi_gpio_chipselect(struct spi_t * spi, int state)
+static void spi_gpio_chipselect(struct spi_t * spi, int enable)
 {
 	struct spi_gpio_private_data_t * dat = (struct spi_gpio_private_data_t *)spi->priv;
 	if(dat->cs_pin >= 0)
-		gpio_set_value(dat->cs_pin, state);
+		gpio_set_value(dat->cs_pin, enable ? 0 : 1);
 }
 
 static bool_t spi_gpio_register_bus(struct resource_t * res)

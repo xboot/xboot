@@ -49,12 +49,12 @@ bool_t register_bus_spi(struct spi_t * spi);
 bool_t unregister_bus_spi(struct spi_t * spi);
 
 int spi_transfer(struct spi_t * spi, struct spi_msg_t * msg);
-void spi_chipselect(struct spi_t * spi, int state);
+void spi_chipselect(struct spi_t * spi, int enable);
 
 struct spi_device_t * spi_device_alloc(const char * spibus, int mode, int bits, int speed);
 void spi_device_free(struct spi_device_t * dev);
 int spi_device_write_then_read(struct spi_device_t * dev, void * txbuf, int txlen, void * rxbuf, int rxlen);
-void spi_device_chipselect(struct spi_device_t * dev, int state);
+void spi_device_chipselect(struct spi_device_t * dev, int enable);
 
 #ifdef __cplusplus
 }

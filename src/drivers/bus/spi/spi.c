@@ -99,10 +99,10 @@ int spi_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 	return spi->transfer(spi, msg);
 }
 
-void spi_chipselect(struct spi_t * spi, int state)
+void spi_chipselect(struct spi_t * spi, int enable)
 {
 	if(spi && spi->chipselect)
-		spi->chipselect(spi, state);
+		spi->chipselect(spi, enable);
 }
 
 struct spi_device_t * spi_device_alloc(const char * spibus, int mode, int bits, int speed)
@@ -157,8 +157,8 @@ int spi_device_write_then_read(struct spi_device_t * dev, void * txbuf, int txle
 	return 0;
 }
 
-void spi_device_chipselect(struct spi_device_t * dev, int state)
+void spi_device_chipselect(struct spi_device_t * dev, int enable)
 {
 	if(dev && dev->spi)
-		spi_chipselect(dev->spi, state);
+		spi_chipselect(dev->spi, enable);
 }

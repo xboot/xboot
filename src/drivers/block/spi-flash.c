@@ -25,6 +25,11 @@
 #include <xboot.h>
 #include <block/spi-flash.h>
 
+#define	OPCODE_RDSR			0x05	/* Read status register */
+#define	OPCODE_WRSR			0x01	/* Write status register 1 byte */
+#define	OPCODE_WREN			0x06	/* Write enable */
+#define	OPCODE_WRDI			0x04	/* Write disable */
+
 #define FLASH_INFO(n, jid, eid, sz, cnt, f)				\
 	{													\
 		.name = n,										\
@@ -43,18 +48,19 @@
 
 struct spi_flash_id_t {
 	char * name;
-	char id[6];
-	char id_len;
+	unsigned char id[6];
+	int id_len;
 	int sector_size;
 	int sector_count;
 	int flags;
 };
 
 struct spi_flash_private_data_t {
-	int rev;
+	struct spi_device_t * dev;
+	struct spi_flash_id_t * id;
 };
 
-static const struct spi_flash_id_t spi_flash_ids[] = {
+static struct spi_flash_id_t spi_flash_ids[] = {
 	/* Winbond */
 	FLASH_INFO("w25x05",  0xef3010, 0, 64 * 1024,   1, 0),
 	FLASH_INFO("w25x10",  0xef3011, 0, 64 * 1024,   2, 0),
@@ -72,11 +78,72 @@ static const struct spi_flash_id_t spi_flash_ids[] = {
 
 struct spi_flash_id_t * spi_flash_read_id(struct spi_device_t * dev)
 {
-	char id[6];
-	int i;
+	struct spi_flash_id_t * id;
+	u8_t tx[1];
+	u8_t rx[6];
+	int res, i;
 
-	u8			id[SPI_NOR_MAX_ID_LEN];
+	spi_device_chipselect(dev, 1);
+	tx[0] = 0x9f;
+	res = spi_device_write_then_read(dev, tx, 1, rx, 6);
+	spi_device_chipselect(dev, 0);
 
+	if(res < 0)
+		return NULL;
+
+	for(i = 0; i < ARRAY_SIZE(spi_flash_ids); i++)
+	{
+		id = &spi_flash_ids[i];
+		if((id->id_len > 0) && (memcmp(id->id, rx, id->id_len) == 0))
+			return id;
+	}
+
+	return NULL;
+}
+
+static u8_t spi_flash_read_status_register(struct spi_device_t * dev)
+{
+	u8_t tx[1];
+	u8_t rx[1];
+
+	spi_device_chipselect(dev, 1);
+	tx[0] = OPCODE_RDSR;
+	spi_device_write_then_read(dev, tx, 1, rx, 1);
+	spi_device_chipselect(dev, 0);
+
+	return rx[0];
+}
+
+static void spi_flash_write_status_register(struct spi_device_t * dev, u8_t sr)
+{
+	u8_t tx[1];
+
+	spi_device_chipselect(dev, 1);
+	tx[0] = OPCODE_WRSR;
+	spi_device_write_then_read(dev, tx, 1, 0, 0);
+	tx[0] = sr;
+	spi_device_write_then_read(dev, tx, 1, 0, 0);
+	spi_device_chipselect(dev, 0);
+}
+
+static void spi_flash_write_enable(struct spi_device_t * dev)
+{
+	u8_t tx[1];
+
+	spi_device_chipselect(dev, 1);
+	tx[0] = OPCODE_WREN;
+	spi_device_write_then_read(dev, tx, 1, 0, 0);
+	spi_device_chipselect(dev, 0);
+}
+
+static void spi_flash_write_disable(struct spi_device_t * dev)
+{
+	u8_t tx[1];
+
+	spi_device_chipselect(dev, 1);
+	tx[0] = OPCODE_WRDI;
+	spi_device_write_then_read(dev, tx, 1, 0, 0);
+	spi_device_chipselect(dev, 0);
 }
 
 static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
@@ -105,28 +172,41 @@ static bool_t spi_flash_register(struct resource_t * res)
 {
 	struct spi_flash_data_t * rdat = (struct spi_flash_data_t *)res->data;
 	struct spi_flash_private_data_t * dat;
-	struct block_t * blk;
 	struct spi_device_t * dev;
+	struct spi_flash_id_t * id;
+	struct block_t * blk;
 	char name[64];
 
 	dev = spi_device_alloc(rdat->spibus, 0, 8, 0);
 	if(!dev)
 		return FALSE;
 
+	id = spi_flash_read_id(dev);
+	if(!id)
+	{
+		spi_device_free(dev);
+		return FALSE;
+	}
+
 	dat = malloc(sizeof(struct spi_flash_private_data_t));
 	if(!dat)
+	{
+		spi_device_free(dev);
 		return FALSE;
+	}
 
 	blk = malloc(sizeof(struct block_t));
 	if(!blk)
 	{
+		spi_device_free(dev);
 		free(dat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->rev = 0;
+	dat->dev = dev;
+	dat->id = id;
 
 	blk->name = strdup(name);
 	blk->blksz = 512;
@@ -141,6 +221,7 @@ static bool_t spi_flash_register(struct resource_t * res)
 	if(register_block(blk))
 		return TRUE;
 
+	spi_device_free(dev);
 	free(blk->priv);
 	free(blk->name);
 	free(blk);
@@ -161,6 +242,7 @@ static bool_t spi_flash_unregister(struct resource_t * res)
 	if(!unregister_block(blk))
 		return FALSE;
 
+	spi_device_free(((struct spi_flash_private_data_t *)blk->priv)->dev);
 	free(blk->priv);
 	free(blk->name);
 	free(blk);

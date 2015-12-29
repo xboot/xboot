@@ -12,6 +12,8 @@ extern "C" {
 struct spi_flash_data_t
 {
 	const char * spibus;
+	int mode;
+	int speed;
 };
 
 #ifdef __cplusplus

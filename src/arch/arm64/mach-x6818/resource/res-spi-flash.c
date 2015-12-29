@@ -26,6 +26,8 @@
 
 static struct spi_flash_data_t spi_flash_data = {
 	.spibus		= "spi-gpio.0",
+	.mode		= 0,
+	.speed		= 0,
 };
 
 static struct resource_t res_spi_flash = {

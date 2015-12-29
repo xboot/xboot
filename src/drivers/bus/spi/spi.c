@@ -121,7 +121,7 @@ struct spi_device_t * spi_device_alloc(const char * spibus, int mode, int bits, 
 	dev->spi = spi;
 	dev->mode = mode & 0x3;
 	dev->bits = bits;
-	dev->speed = speed;
+	dev->speed = (speed > 0) ? speed : 0;
 	return dev;
 }
 

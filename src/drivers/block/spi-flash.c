@@ -70,6 +70,18 @@ struct spi_flash_private_data_t {
 };
 
 static struct spi_flash_id_t spi_flash_ids[] = {
+	/* Atmel */
+	FLASH_INFO("at25fs010",   0x1f6601, 0, 32 * 1024,   4, SECTOR_4K),
+	FLASH_INFO("at25fs040",   0x1f6604, 0, 64 * 1024,   8, SECTOR_4K),
+	FLASH_INFO("at25df041a",  0x1f4401, 0, 64 * 1024,   8, SECTOR_4K),
+	FLASH_INFO("at25df321a",  0x1f4701, 0, 64 * 1024,  64, SECTOR_4K),
+	FLASH_INFO("at25df641",   0x1f4800, 0, 64 * 1024, 128, SECTOR_4K),
+	FLASH_INFO("at26f004",    0x1f0400, 0, 64 * 1024,   8, SECTOR_4K),
+	FLASH_INFO("at26df081a",  0x1f4501, 0, 64 * 1024,  16, SECTOR_4K),
+	FLASH_INFO("at26df161a",  0x1f4601, 0, 64 * 1024,  32, SECTOR_4K),
+	FLASH_INFO("at26df321",   0x1f4700, 0, 64 * 1024,  64, SECTOR_4K),
+	FLASH_INFO("at45db081d",  0x1f2500, 0, 64 * 1024,  16, SECTOR_4K),
+
 	/* Winbond */
 	FLASH_INFO("w25x05",  0xef3010, 0, 64 * 1024,   1, SECTOR_4K),
 	FLASH_INFO("w25x10",  0xef3011, 0, 64 * 1024,   2, SECTOR_4K),
@@ -253,11 +265,18 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 	u64_t addr = blkno * blk->blksz;
 	s64_t count = blkcnt * blk->blksz;
 	u8_t * pbuf = buf;
+	u64_t i;
 
 	if(dat->id->flags & SECTOR_4K)
-		spi_flash_sector_erase_4k(dat->dev, addr);
+	{
+		for(i = 0; i < blkcnt; i++)
+			spi_flash_sector_erase_4k(dat->dev, addr + i * blk->blksz);
+	}
 	else
-		spi_flash_sector_erase(dat->dev, addr);
+	{
+		for(i = 0; i < blkcnt; i++)
+			spi_flash_sector_erase(dat->dev, addr + i * blk->blksz);
+	}
 
 	while(count > 0)
 	{

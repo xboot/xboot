@@ -1,0 +1,84 @@
+/*
+ * rpi2-logger.c
+ *
+ * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
+ * Official site: http://xboot.org
+ * Mobile phone: +86-18665388956
+ * QQ: 8192542
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#include <xboot.h>
+#include <bcm2836/reg-uart.h>
+
+#define AUX_MU_LSR_REG  0x3f215054
+#define AUX_MU_IO_REG   0x3f215040
+extern int notmain(void);
+
+static void logger_uart0_init(void)
+{
+	notmain();
+//	write32(phys_to_virt(BCM2836_UART0_BASE + UART_CR), (1 << 0) | (1 << 8) | (1 << 9));
+}
+
+static void logger_uart0_exit(void)
+{
+}
+
+static ssize_t logger_uart0_output(const char * buf, size_t count)
+{
+	ssize_t i;
+
+	for(i = 0; i < count; i++)
+	{
+		//while( (read8(phys_to_virt(BCM2836_UART0_BASE + UART_FR)) & UART_FR_TXFF) );
+		//write8(phys_to_virt(BCM2836_UART0_BASE + UART_DATA), buf[i]);
+        while(1)
+        {
+            if(read32(AUX_MU_LSR_REG) & 0x20)
+            	break;
+        }
+        write32(AUX_MU_IO_REG, buf[i]);
+	}
+	return i;
+}
+
+static struct logger_t rpi2_logger = {
+	.name	= "logger-uart0",
+	.init	= logger_uart0_init,
+	.exit	= logger_uart0_exit,
+	.output	= logger_uart0_output,
+};
+
+static __init void rpi2_logger_init(void)
+{
+	if(register_logger(&rpi2_logger))
+		LOG("Register logger '%s'", rpi2_logger.name);
+	else
+		LOG("Failed to register logger '%s'", rpi2_logger.name);
+}
+
+static __exit void rpi2_logger_exit(void)
+{
+	if(unregister_logger(&rpi2_logger))
+		LOG("Unregister logger '%s'", rpi2_logger.name);
+	else
+		LOG("Failed to unregister logger '%s'", rpi2_logger.name);
+}
+
+pure_initcall(rpi2_logger_init);
+pure_exitcall(rpi2_logger_exit);

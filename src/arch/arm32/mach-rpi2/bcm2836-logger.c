@@ -1,5 +1,5 @@
 /*
- * rpi2-logger.c
+ * bcm2836-logger.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -25,14 +25,9 @@
 #include <xboot.h>
 #include <bcm2836/reg-uart.h>
 
-#define AUX_MU_LSR_REG  0x3f215054
-#define AUX_MU_IO_REG   0x3f215040
-extern int notmain(void);
-
 static void logger_uart0_init(void)
 {
-	notmain();
-//	write32(phys_to_virt(BCM2836_UART0_BASE + UART_CR), (1 << 0) | (1 << 8) | (1 << 9));
+	write32(phys_to_virt(BCM2836_UART0_BASE + UART_CR), (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void logger_uart0_exit(void)
@@ -45,40 +40,34 @@ static ssize_t logger_uart0_output(const char * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		//while( (read8(phys_to_virt(BCM2836_UART0_BASE + UART_FR)) & UART_FR_TXFF) );
-		//write8(phys_to_virt(BCM2836_UART0_BASE + UART_DATA), buf[i]);
-        while(1)
-        {
-            if(read32(AUX_MU_LSR_REG) & 0x20)
-            	break;
-        }
-        write32(AUX_MU_IO_REG, buf[i]);
+		while( (read8(phys_to_virt(BCM2836_UART0_BASE + UART_FR)) & UART_FR_TXFF) );
+		write8(phys_to_virt(BCM2836_UART0_BASE + UART_DATA), buf[i]);
 	}
 	return i;
 }
 
-static struct logger_t rpi2_logger = {
+static struct logger_t bcm2836_logger = {
 	.name	= "logger-uart0",
 	.init	= logger_uart0_init,
 	.exit	= logger_uart0_exit,
 	.output	= logger_uart0_output,
 };
 
-static __init void rpi2_logger_init(void)
+static __init void bcm2836_logger_init(void)
 {
-	if(register_logger(&rpi2_logger))
-		LOG("Register logger '%s'", rpi2_logger.name);
+	if(register_logger(&bcm2836_logger))
+		LOG("Register logger '%s'", bcm2836_logger.name);
 	else
-		LOG("Failed to register logger '%s'", rpi2_logger.name);
+		LOG("Failed to register logger '%s'", bcm2836_logger.name);
 }
 
-static __exit void rpi2_logger_exit(void)
+static __exit void bcm2836_logger_exit(void)
 {
-	if(unregister_logger(&rpi2_logger))
-		LOG("Unregister logger '%s'", rpi2_logger.name);
+	if(unregister_logger(&bcm2836_logger))
+		LOG("Unregister logger '%s'", bcm2836_logger.name);
 	else
-		LOG("Failed to unregister logger '%s'", rpi2_logger.name);
+		LOG("Failed to unregister logger '%s'", bcm2836_logger.name);
 }
 
-pure_initcall(rpi2_logger_init);
-pure_exitcall(rpi2_logger_exit);
+pure_initcall(bcm2836_logger_init);
+pure_exitcall(bcm2836_logger_exit);

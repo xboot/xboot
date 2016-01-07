@@ -1,21 +1,20 @@
-#ifndef __REALVIEW_REG_GPIO_H__
-#define __REALVIEW_REG_GPIO_H__
+#ifndef __BCM2836_REG_GPIO_H__
+#define __BCM2836_REG_GPIO_H__
 
-#define REALVIEW_GPIO0_BASE			(0x10013000)
-#define REALVIEW_GPIO1_BASE			(0x10014000)
-#define REALVIEW_GPIO2_BASE			(0x10015000)
+#define BCM2836_GPIO_BASE	(0x3f200000)
 
-#define REALVIEW_GPIO_DIR			(0x400)
-#define REALVIEW_GPIO_IS			(0x404)
-#define REALVIEW_GPIO_IBE			(0x408)
-#define REALVIEW_GPIO_IEV			(0x40C)
-#define REALVIEW_GPIO_IE			(0x410)
-#define REALVIEW_GPIO_RIS			(0x414)
-#define REALVIEW_GPIO_MIS			(0x418)
-#define REALVIEW_GPIO_IC			(0x41C)
+#define GPIO_FSEL(x)		(0x00 + (x) * 4)
+#define GPIO_SET(x)			(0x1c + (x) * 4)
+#define GPIO_CLR(x)			(0x28 + (x) * 4)
+#define GPIO_LEV(x)			(0x34 + (x) * 4)
+#define GPIO_EDS(x)			(0x40 + (x) * 4)
+#define GPIO_REN(x)			(0x4c + (x) * 4)
+#define GPIO_FEN(x)			(0x58 + (x) * 4)
+#define GPIO_HEN(x)			(0x64 + (x) * 4)
+#define GPIO_LEN(x)			(0x70 + (x) * 4)
+#define GPIO_AREN(x)		(0x7c + (x) * 4)
+#define GPIO_AFEN(x)		(0x88 + (x) * 4)
+#define GPIO_UD(x)			(0x94 + (x) * 4)
+#define GPIO_UDCLK(x)		(0x98 + (x) * 4)
 
-#define REALVIEW_GPIO0(x)			(x)
-#define REALVIEW_GPIO1(x)			(x + 8)
-#define REALVIEW_GPIO2(x)			(x + 16)
-
-#endif /* __REALVIEW_REG_GPIO_H__ */
+#endif /* __BCM2836_REG_GPIO_H__ */

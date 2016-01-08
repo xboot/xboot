@@ -89,6 +89,7 @@ struct gpiochip_t * search_gpiochip(const char * name)
 bool_t register_gpiochip(struct gpiochip_t * chip)
 {
 	struct gpiochip_list_t * gl;
+	irq_flags_t flags;
 
 	if(!chip || !chip->name)
 		return FALSE;
@@ -106,9 +107,9 @@ bool_t register_gpiochip(struct gpiochip_t * chip)
 	kobj_add(search_class_gpiochip_kobj(), chip->kobj);
 	gl->chip = chip;
 
-	spin_lock_irq(&__gpiochip_list_lock);
+	spin_lock_irqsave(&__gpiochip_list_lock, flags);
 	list_add_tail(&gl->entry, &(__gpiochip_list.entry));
-	spin_unlock_irq(&__gpiochip_list_lock);
+	spin_unlock_irqrestore(&__gpiochip_list_lock, flags);
 
 	return TRUE;
 }
@@ -116,6 +117,7 @@ bool_t register_gpiochip(struct gpiochip_t * chip)
 bool_t unregister_gpiochip(struct gpiochip_t * chip)
 {
 	struct gpiochip_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!chip || !chip->name)
 		return FALSE;
@@ -124,9 +126,9 @@ bool_t unregister_gpiochip(struct gpiochip_t * chip)
 	{
 		if(pos->chip == chip)
 		{
-			spin_lock_irq(&__gpiochip_list_lock);
+			spin_lock_irqsave(&__gpiochip_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__gpiochip_list_lock);
+			spin_unlock_irqrestore(&__gpiochip_list_lock, flags);
 
 			kobj_remove(search_class_gpiochip_kobj(), pos->chip->kobj);
 			kobj_remove_self(chip->kobj);

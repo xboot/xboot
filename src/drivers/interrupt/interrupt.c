@@ -74,6 +74,7 @@ static struct irq_t * irq_search(const char * name)
 bool_t irq_register(struct irq_t * irq)
 {
 	struct irq_list_t * il;
+	irq_flags_t flags;
 
 	if(!irq || !irq->name)
 		return FALSE;
@@ -96,9 +97,9 @@ bool_t irq_register(struct irq_t * irq)
 	kobj_add(search_class_interrupt_kobj(), irq->kobj);
 	il->irq = irq;
 
-	spin_lock_irq(&__irq_list_lock);
+	spin_lock_irqsave(&__irq_list_lock, flags);
 	list_add_tail(&il->entry, &(__irq_list.entry));
-	spin_unlock_irq(&__irq_list_lock);
+	spin_unlock_irqrestore(&__irq_list_lock, flags);
 
 	return TRUE;
 }
@@ -106,6 +107,7 @@ bool_t irq_register(struct irq_t * irq)
 bool_t irq_unregister(struct irq_t * irq)
 {
 	struct irq_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!irq || !irq->name)
 		return FALSE;
@@ -121,9 +123,9 @@ bool_t irq_unregister(struct irq_t * irq)
 			if(pos->irq->disable)
 				pos->irq->disable(pos->irq);
 
-			spin_lock_irq(&__irq_list_lock);
+			spin_lock_irqsave(&__irq_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__irq_list_lock);
+			spin_unlock_irqrestore(&__irq_list_lock, flags);
 
 			kobj_remove(search_class_interrupt_kobj(), pos->irq->kobj);
 			kobj_remove_self(irq->kobj);

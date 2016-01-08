@@ -93,6 +93,7 @@ static ssize_t resource_read_id(struct kobj_t * kobj, void * buf, size_t size)
 bool_t register_resource(struct resource_t * res)
 {
 	struct resource_list_t * rl;
+	irq_flags_t flags;
 	char name[64];
 
 	if(!res || !res->name)
@@ -118,9 +119,9 @@ bool_t register_resource(struct resource_t * res)
 	kobj_add(search_resource_kobj(res->mach), res->kobj);
 	rl->res = res;
 
-	spin_lock_irq(&__resource_list_lock);
+	spin_lock_irqsave(&__resource_list_lock, flags);
 	list_add_tail(&rl->entry, &(__resource_list.entry));
-	spin_unlock_irq(&__resource_list_lock);
+	spin_unlock_irqrestore(&__resource_list_lock, flags);
 
 	return TRUE;
 }
@@ -128,6 +129,7 @@ bool_t register_resource(struct resource_t * res)
 bool_t unregister_resource(struct resource_t * res)
 {
 	struct resource_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!res || !res->name)
 		return FALSE;
@@ -136,9 +138,9 @@ bool_t unregister_resource(struct resource_t * res)
 	{
 		if(pos->res == res)
 		{
-			spin_lock_irq(&__resource_list_lock);
+			spin_lock_irqsave(&__resource_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__resource_list_lock);
+			spin_unlock_irqrestore(&__resource_list_lock, flags);
 
 			kobj_remove(search_resource_kobj(pos->res->mach), pos->res->kobj);
 			kobj_remove_self(res->kobj);

@@ -144,6 +144,7 @@ struct device_t * search_first_device_with_type(enum device_type_t type)
 bool_t register_device(struct device_t * dev)
 {
 	struct device_list_t * dl;
+	irq_flags_t flags;
 
 	if(!dev || !dev->name)
 		return FALSE;
@@ -164,9 +165,9 @@ bool_t register_device(struct device_t * dev)
 	kobj_add(search_device_kobj(dev), dev->kobj);
 	dl->device = dev;
 
-	spin_lock_irq(&__device_lock);
+	spin_lock_irqsave(&__device_lock, flags);
 	list_add_tail(&dl->entry, &(__device_list.entry));
-	spin_unlock_irq(&__device_lock);
+	spin_unlock_irqrestore(&__device_lock, flags);
 	notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_ADD, dev);
 
 	return TRUE;
@@ -175,6 +176,7 @@ bool_t register_device(struct device_t * dev)
 bool_t unregister_device(struct device_t * dev)
 {
 	struct device_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!dev || !dev->name)
 		return FALSE;
@@ -184,9 +186,9 @@ bool_t unregister_device(struct device_t * dev)
 		if(pos->device == dev)
 		{
 			notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_REMOVE, dev);
-			spin_lock_irq(&__device_lock);
+			spin_lock_irqsave(&__device_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__device_lock);
+			spin_unlock_irqrestore(&__device_lock, flags);
 
 			kobj_remove(search_device_kobj(dev), pos->device->kobj);
 			free(pos);

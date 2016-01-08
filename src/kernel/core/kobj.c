@@ -135,6 +135,8 @@ bool_t kobj_free(struct kobj_t * kobj)
 
 bool_t kobj_add(struct kobj_t * parent, struct kobj_t * kobj)
 {
+	irq_flags_t pflags, flags;
+
 	if(!parent)
 		return FALSE;
 
@@ -147,14 +149,14 @@ bool_t kobj_add(struct kobj_t * parent, struct kobj_t * kobj)
 	if(kobj_search(parent, kobj->name))
 		return FALSE;
 
-	spin_lock_irq(&parent->lock);
-	spin_lock_irq(&kobj->lock);
+	spin_lock_irqsave(&parent->lock, pflags);
+	spin_lock_irqsave(&kobj->lock, flags);
 
 	kobj->parent = parent;
 	list_add_tail(&kobj->entry, &parent->children);
 
-	spin_unlock_irq(&kobj->lock);
-	spin_unlock_irq(&parent->lock);
+	spin_unlock_irqrestore(&kobj->lock, flags);
+	spin_unlock_irqrestore(&parent->lock, pflags);
 
 	return TRUE;
 }
@@ -162,6 +164,7 @@ bool_t kobj_add(struct kobj_t * parent, struct kobj_t * kobj)
 bool_t kobj_remove(struct kobj_t * parent, struct kobj_t * kobj)
 {
 	struct kobj_t * pos, * n;
+	irq_flags_t pflags, flags;
 
 	if(!parent)
 		return FALSE;
@@ -176,14 +179,14 @@ bool_t kobj_remove(struct kobj_t * parent, struct kobj_t * kobj)
 	{
 		if(pos == kobj)
 		{
-			spin_lock_irq(&parent->lock);
-			spin_lock_irq(&kobj->lock);
+			spin_lock_irqsave(&parent->lock, pflags);
+			spin_lock_irqsave(&kobj->lock, flags);
 
 			pos->parent = pos;
 			list_del(&(pos->entry));
 
-			spin_unlock_irq(&kobj->lock);
-			spin_unlock_irq(&parent->lock);
+			spin_unlock_irqrestore(&kobj->lock, flags);
+			spin_unlock_irqrestore(&parent->lock, pflags);
 
 			return TRUE;
 		}

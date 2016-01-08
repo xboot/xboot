@@ -171,6 +171,7 @@ struct clk_t * clk_search(const char * name)
 bool_t clk_register(struct clk_t * clk)
 {
 	struct clk_list_t * cl;
+	irq_flags_t flags;
 
 	if(!clk || !clk->name)
 		return FALSE;
@@ -191,9 +192,9 @@ bool_t clk_register(struct clk_t * clk)
 	kobj_add(search_class_clk_kobj(), clk->kobj);
 	cl->clk = clk;
 
-	spin_lock_irq(&__clk_list_lock);
+	spin_lock_irqsave(&__clk_list_lock, flags);
 	list_add_tail(&cl->entry, &(__clk_list.entry));
-	spin_unlock_irq(&__clk_list_lock);
+	spin_unlock_irqrestore(&__clk_list_lock, flags);
 
 	return TRUE;
 }
@@ -201,6 +202,7 @@ bool_t clk_register(struct clk_t * clk)
 bool_t clk_unregister(struct clk_t * clk)
 {
 	struct clk_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!clk || !clk->name)
 		return FALSE;
@@ -209,9 +211,9 @@ bool_t clk_unregister(struct clk_t * clk)
 	{
 		if(pos->clk == clk)
 		{
-			spin_lock_irq(&__clk_list_lock);
+			spin_lock_irqsave(&__clk_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__clk_list_lock);
+			spin_unlock_irqrestore(&__clk_list_lock, flags);
 
 			kobj_remove(search_class_clk_kobj(), pos->clk->kobj);
 			kobj_remove_self(clk->kobj);

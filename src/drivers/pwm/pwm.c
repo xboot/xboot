@@ -117,6 +117,7 @@ struct pwm_t * search_pwm(const char * name)
 bool_t register_pwm(struct pwm_t * pwm)
 {
 	struct pwm_list_t * pl;
+	irq_flags_t flags;
 
 	if(!pwm || !pwm->name)
 		return FALSE;
@@ -140,9 +141,9 @@ bool_t register_pwm(struct pwm_t * pwm)
 	kobj_add(search_class_pwm_kobj(), pwm->kobj);
 	pl->pwm = pwm;
 
-	spin_lock_irq(&__pwm_list_lock);
+	spin_lock_irqsave(&__pwm_list_lock, flags);
 	list_add_tail(&pl->entry, &(__pwm_list.entry));
-	spin_unlock_irq(&__pwm_list_lock);
+	spin_unlock_irqrestore(&__pwm_list_lock, flags);
 
 	return TRUE;
 }
@@ -150,6 +151,7 @@ bool_t register_pwm(struct pwm_t * pwm)
 bool_t unregister_pwm(struct pwm_t * pwm)
 {
 	struct pwm_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!pwm || !pwm->name)
 		return FALSE;
@@ -158,9 +160,9 @@ bool_t unregister_pwm(struct pwm_t * pwm)
 	{
 		if(pos->pwm == pwm)
 		{
-			spin_lock_irq(&__pwm_list_lock);
+			spin_lock_irqsave(&__pwm_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__pwm_list_lock);
+			spin_unlock_irqrestore(&__pwm_list_lock, flags);
 
 			kobj_remove(search_class_pwm_kobj(), pos->pwm->kobj);
 			kobj_remove_self(pwm->kobj);

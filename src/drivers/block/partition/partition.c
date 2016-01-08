@@ -59,6 +59,7 @@ static struct partition_map_t * search_partition_map(const char * name)
 bool_t register_partition_map(struct partition_map_t * map)
 {
 	struct partition_map_list_t * pml;
+	irq_flags_t flags;
 
 	if(!map || !map->name || !map->map)
 		return FALSE;
@@ -72,9 +73,9 @@ bool_t register_partition_map(struct partition_map_t * map)
 
 	pml->map = map;
 
-	spin_lock_irq(&__partition_map_list_lock);
+	spin_lock_irqsave(&__partition_map_list_lock, flags);
 	list_add_tail(&pml->entry, &(__partition_map_list.entry));
-	spin_unlock_irq(&__partition_map_list_lock);
+	spin_unlock_irqrestore(&__partition_map_list_lock, flags);
 
 	return TRUE;
 }
@@ -82,6 +83,7 @@ bool_t register_partition_map(struct partition_map_t * map)
 bool_t unregister_partition_map(struct partition_map_t * map)
 {
 	struct partition_map_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!map || !map->name)
 		return FALSE;
@@ -90,9 +92,9 @@ bool_t unregister_partition_map(struct partition_map_t * map)
 	{
 		if(pos->map == map)
 		{
-			spin_lock_irq(&__partition_map_list_lock);
+			spin_lock_irqsave(&__partition_map_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__partition_map_list_lock);
+			spin_unlock_irqrestore(&__partition_map_list_lock, flags);
 
 			free(pos);
 			return TRUE;

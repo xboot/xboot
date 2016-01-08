@@ -52,6 +52,7 @@ struct command_t * search_command(const char * name)
 bool_t register_command(struct command_t * cmd)
 {
 	struct command_list_t * cl;
+	irq_flags_t flags;
 
 	if(!cmd || !cmd->name)
 		return FALSE;
@@ -68,9 +69,9 @@ bool_t register_command(struct command_t * cmd)
 
 	cl->cmd = cmd;
 
-	spin_lock_irq(&__command_list_lock);
+	spin_lock_irqsave(&__command_list_lock, flags);
 	list_add_tail(&cl->entry, &(__command_list.entry));
-	spin_unlock_irq(&__command_list_lock);
+	spin_unlock_irqrestore(&__command_list_lock, flags);
 
 	return TRUE;
 }
@@ -78,6 +79,7 @@ bool_t register_command(struct command_t * cmd)
 bool_t unregister_command(struct command_t * cmd)
 {
 	struct command_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!cmd || !cmd->name)
 		return FALSE;
@@ -86,9 +88,9 @@ bool_t unregister_command(struct command_t * cmd)
 	{
 		if(pos->cmd == cmd)
 		{
-			spin_lock_irq(&__command_list_lock);
+			spin_lock_irqsave(&__command_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__command_list_lock);
+			spin_unlock_irqrestore(&__command_list_lock, flags);
 
 			free(pos);
 			return TRUE;

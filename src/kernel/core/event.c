@@ -37,6 +37,7 @@ static spinlock_t __event_base_lock = SPIN_LOCK_INIT();
 struct event_base_t * __event_base_alloc(void)
 {
 	struct event_base_t * eb;
+	irq_flags_t flags;
 
 	eb = malloc(sizeof(struct event_base_t));
 	if(!eb)
@@ -49,9 +50,9 @@ struct event_base_t * __event_base_alloc(void)
 		return NULL;
 	}
 
-	spin_lock_irq(&__event_base_lock);
+	spin_lock_irqsave(&__event_base_lock, flags);
 	list_add_tail(&eb->entry, &(__event_base.entry));
-	spin_unlock_irq(&__event_base_lock);
+	spin_unlock_irqrestore(&__event_base_lock, flags);
 
 	return eb;
 }
@@ -59,6 +60,7 @@ struct event_base_t * __event_base_alloc(void)
 void __event_base_free(struct event_base_t * eb)
 {
 	struct event_base_t * ebpos, * ebn;
+	irq_flags_t flags;
 
 	if(!eb)
 		return;
@@ -67,9 +69,9 @@ void __event_base_free(struct event_base_t * eb)
 	{
 		if(ebpos == eb)
 		{
-			spin_lock_irq(&__event_base_lock);
+			spin_lock_irqsave(&__event_base_lock, flags);
 			list_del(&(ebpos->entry));
-			spin_unlock_irq(&__event_base_lock);
+			spin_unlock_irqrestore(&__event_base_lock, flags);
 
 			if(ebpos->fifo)
 				fifo_free(ebpos->fifo);
@@ -259,14 +261,15 @@ void push_event_joystick_button_up(void * device, u32_t button)
 
 bool_t pump_event(struct event_base_t * eb, struct event_t * event)
 {
+	irq_flags_t flags;
 	bool_t ret;
 
 	if(!eb || !event)
 		return FALSE;
 
-	spin_lock_irq(&__event_base_lock);
+	spin_lock_irqsave(&__event_base_lock, flags);
 	ret = (fifo_get(eb->fifo, (u8_t *)event, sizeof(struct event_t)) == sizeof(struct event_t));
-	spin_unlock_irq(&__event_base_lock);
+	spin_unlock_irqrestore(&__event_base_lock, flags);
 
 	return ret;
 }

@@ -168,6 +168,7 @@ bool_t register_loop(const char * file)
 	struct block_t * blk;
 	struct loop_t * loop;
 	struct loop_list_t * list;
+	irq_flags_t flags;
 	u64_t size, rem;
 	s32_t i = 0;
 
@@ -243,9 +244,9 @@ bool_t register_loop(const char * file)
 		return FALSE;
 	}
 
-	spin_lock_irq(&__loop_list_lock);
+	spin_lock_irqsave(&__loop_list_lock, flags);
 	list_add_tail(&list->entry, &(__loop_list.entry));
-	spin_unlock_irq(&__loop_list_lock);
+	spin_unlock_irqrestore(&__loop_list_lock, flags);
 
 	return TRUE;
 }
@@ -254,6 +255,7 @@ bool_t unregister_loop(const char * file)
 {
 	struct loop_list_t * pos, * n;
 	struct block_t * blk;
+	irq_flags_t flags;
 	char buf[MAX_PATH];
 
 	if(!file)
@@ -274,9 +276,9 @@ bool_t unregister_loop(const char * file)
 					free(pos->loop);
 					free(blk);
 
-					spin_lock_irq(&__loop_list_lock);
+					spin_lock_irqsave(&__loop_list_lock, flags);
 					list_del(&(pos->entry));
-					spin_unlock_irq(&__loop_list_lock);
+					spin_unlock_irqrestore(&__loop_list_lock, flags);
 					free(pos);
 
 					return TRUE;

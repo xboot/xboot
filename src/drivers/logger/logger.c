@@ -59,6 +59,7 @@ static struct logger_t * search_logger(const char * name)
 bool_t register_logger(struct logger_t * logger)
 {
 	struct logger_list_t * ll;
+	irq_flags_t flags;
 	int i;
 
 	if(!logger || !logger->name)
@@ -87,9 +88,9 @@ bool_t register_logger(struct logger_t * logger)
 
 	ll->logger = logger;
 
-	spin_lock_irq(&__logger_list_lock);
+	spin_lock_irqsave(&__logger_list_lock, flags);
 	list_add_tail(&ll->entry, &(__logger_list.entry));
-	spin_unlock_irq(&__logger_list_lock);
+	spin_unlock_irqrestore(&__logger_list_lock, flags);
 
 	return TRUE;
 }
@@ -97,6 +98,7 @@ bool_t register_logger(struct logger_t * logger)
 bool_t unregister_logger(struct logger_t * logger)
 {
 	struct logger_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!logger || !logger->name)
 		return FALSE;
@@ -108,9 +110,9 @@ bool_t unregister_logger(struct logger_t * logger)
 			if(logger->exit)
 				(logger->exit)();
 
-			spin_lock_irq(&__logger_list_lock);
+			spin_lock_irqsave(&__logger_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__logger_list_lock);
+			spin_unlock_irqrestore(&__logger_list_lock, flags);
 
 			free(pos);
 			return TRUE;

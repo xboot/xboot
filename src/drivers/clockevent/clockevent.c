@@ -125,6 +125,7 @@ struct clockevent_t * search_clockevent(const char * name)
 bool_t register_clockevent(struct clockevent_t * ce)
 {
 	struct clockevent_list_t * cl;
+	irq_flags_t flags;
 
 	if(!ce || !ce->name)
 		return FALSE;
@@ -150,9 +151,9 @@ bool_t register_clockevent(struct clockevent_t * ce)
 	kobj_add(search_class_clockevent_kobj(), ce->kobj);
 	cl->ce = ce;
 
-	spin_lock_irq(&__clockevent_list_lock);
+	spin_lock_irqsave(&__clockevent_list_lock, flags);
 	list_add_tail(&cl->entry, &(__clockevent_list.entry));
-	spin_unlock_irq(&__clockevent_list_lock);
+	spin_unlock_irqrestore(&__clockevent_list_lock, flags);
 
 	return TRUE;
 }
@@ -160,6 +161,7 @@ bool_t register_clockevent(struct clockevent_t * ce)
 bool_t unregister_clockevent(struct clockevent_t * ce)
 {
 	struct clockevent_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!ce || !ce->name)
 		return FALSE;
@@ -168,9 +170,9 @@ bool_t unregister_clockevent(struct clockevent_t * ce)
 	{
 		if(pos->ce == ce)
 		{
-			spin_lock_irq(&__clockevent_list_lock);
+			spin_lock_irqsave(&__clockevent_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__clockevent_list_lock);
+			spin_unlock_irqrestore(&__clockevent_list_lock, flags);
 
 			kobj_remove(search_class_clockevent_kobj(), pos->ce->kobj);
 			kobj_remove_self(ce->kobj);

@@ -123,6 +123,7 @@ EXPORT_SYMBOL(__symbol_get);
 bool_t register_module(struct module_t * module)
 {
 	struct module_list_t * ml;
+	irq_flags_t flags;
 
 	if(!module || !module->name)
 		return FALSE;
@@ -136,9 +137,9 @@ bool_t register_module(struct module_t * module)
 
 	ml->module = module;
 
-	spin_lock_irq(&__module_list_lock);
+	spin_lock_irqsave(&__module_list_lock, flags);
 	list_add_tail(&ml->entry, &(__module_list.entry));
-	spin_unlock_irq(&__module_list_lock);
+	spin_unlock_irqrestore(&__module_list_lock, flags);
 
 	return TRUE;
 }
@@ -147,6 +148,7 @@ EXPORT_SYMBOL(register_module);
 bool_t unregister_module(struct module_t * module)
 {
 	struct module_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!module || !module->name)
 		return FALSE;
@@ -155,9 +157,9 @@ bool_t unregister_module(struct module_t * module)
 	{
 		if(pos->module == module)
 		{
-			spin_lock_irq(&__module_list_lock);
+			spin_lock_irqsave(&__module_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__module_list_lock);
+			spin_unlock_irqrestore(&__module_list_lock, flags);
 
 			free(pos);
 			return TRUE;

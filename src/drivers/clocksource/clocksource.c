@@ -145,6 +145,7 @@ struct clocksource_t * search_clocksource(const char * name)
 bool_t register_clocksource(struct clocksource_t * cs)
 {
 	struct clocksource_list_t * cl;
+	irq_flags_t flags;
 
 	if(!cs || !cs->name)
 		return FALSE;
@@ -171,9 +172,9 @@ bool_t register_clocksource(struct clocksource_t * cs)
 	kobj_add(search_class_clocksource_kobj(), cs->kobj);
 	cl->cs = cs;
 
-	spin_lock_irq(&__clocksource_list_lock);
+	spin_lock_irqsave(&__clocksource_list_lock, flags);
 	list_add_tail(&cl->entry, &(__clocksource_list.entry));
-	spin_unlock_irq(&__clocksource_list_lock);
+	spin_unlock_irqrestore(&__clocksource_list_lock, flags);
 
 	return TRUE;
 }
@@ -181,6 +182,7 @@ bool_t register_clocksource(struct clocksource_t * cs)
 bool_t unregister_clocksource(struct clocksource_t * cs)
 {
 	struct clocksource_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!cs || !cs->name)
 		return FALSE;
@@ -189,9 +191,9 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 	{
 		if(pos->cs == cs)
 		{
-			spin_lock_irq(&__clocksource_list_lock);
+			spin_lock_irqsave(&__clocksource_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__clocksource_list_lock);
+			spin_unlock_irqrestore(&__clocksource_list_lock, flags);
 
 			kobj_remove(search_class_clocksource_kobj(), pos->cs->kobj);
 			kobj_remove_self(cs->kobj);

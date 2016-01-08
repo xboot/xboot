@@ -105,6 +105,7 @@ static struct machine_t * search_machine(const char * name)
 bool_t register_machine(struct machine_t * mach)
 {
 	struct machine_list_t * ml;
+	irq_flags_t flags;
 
 	if(!mach || !mach->name)
 		return FALSE;
@@ -123,9 +124,9 @@ bool_t register_machine(struct machine_t * mach)
 	kobj_add(search_class_machine_kobj(), mach->kobj);
 	ml->mach = mach;
 
-	spin_lock_irq(&__machine_list_lock);
+	spin_lock_irqsave(&__machine_list_lock, flags);
 	list_add_tail(&ml->entry, &(__machine_list.entry));
-	spin_unlock_irq(&__machine_list_lock);
+	spin_unlock_irqrestore(&__machine_list_lock, flags);
 
 	return TRUE;
 }
@@ -133,6 +134,7 @@ bool_t register_machine(struct machine_t * mach)
 bool_t unregister_machine(struct machine_t * mach)
 {
 	struct machine_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!mach || !mach->name)
 		return FALSE;
@@ -141,9 +143,9 @@ bool_t unregister_machine(struct machine_t * mach)
 	{
 		if(pos->mach == mach)
 		{
-			spin_lock_irq(&__machine_list_lock);
+			spin_lock_irqsave(&__machine_list_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__machine_list_lock);
+			spin_unlock_irqrestore(&__machine_list_lock, flags);
 
 			kobj_remove(search_class_machine_kobj(), pos->mach->kobj);
 			kobj_remove_self(mach->kobj);

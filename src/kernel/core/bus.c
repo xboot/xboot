@@ -111,6 +111,7 @@ struct bus_t * search_bus_with_type(const char * name, enum bus_type_t type)
 bool_t register_bus(struct bus_t * bus)
 {
 	struct bus_list_t * bl;
+	irq_flags_t flags;
 
 	if(!bus || !bus->name)
 		return FALSE;
@@ -128,9 +129,9 @@ bool_t register_bus(struct bus_t * bus)
 	kobj_add(search_bus_kobj(bus), bus->kobj);
 	bl->bus = bus;
 
-	spin_lock_irq(&__bus_lock);
+	spin_lock_irqsave(&__bus_lock, flags);
 	list_add_tail(&bl->entry, &(__bus_list.entry));
-	spin_unlock_irq(&__bus_lock);
+	spin_unlock_irqrestore(&__bus_lock, flags);
 	notifier_chain_call(&__bus_nc, NOTIFIER_BUS_ADD, bus);
 
 	return TRUE;
@@ -139,6 +140,7 @@ bool_t register_bus(struct bus_t * bus)
 bool_t unregister_bus(struct bus_t * bus)
 {
 	struct bus_list_t * pos, * n;
+	irq_flags_t flags;
 
 	if(!bus || !bus->name)
 		return FALSE;
@@ -148,9 +150,9 @@ bool_t unregister_bus(struct bus_t * bus)
 		if(pos->bus == bus)
 		{
 			notifier_chain_call(&__bus_nc, NOTIFIER_BUS_REMOVE, bus);
-			spin_lock_irq(&__bus_lock);
+			spin_lock_irqsave(&__bus_lock, flags);
 			list_del(&(pos->entry));
-			spin_unlock_irq(&__bus_lock);
+			spin_unlock_irqrestore(&__bus_lock, flags);
 
 			kobj_remove(search_bus_kobj(bus), pos->bus->kobj);
 			free(pos);

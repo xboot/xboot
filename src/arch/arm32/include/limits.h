@@ -19,38 +19,33 @@ extern "C" {
 /* Maximum value an 'unsigned char' can hold (Minimum is 0) */
 #define UCHAR_MAX		255
 
-
 /* Minimum and maximum values a 'signed short int' can hold */
-#define SHRT_MIN		(-32768)
-#define SHRT_MAX		32767
+#define SHRT_MIN		(-1 - 0x7fff)
+#define SHRT_MAX		0x7fff
 
 /* Maximum value an 'unsigned short int' can hold (Minimum is 0) */
-#define USHRT_MAX		65535
-
+#define USHRT_MAX		0xffff
 
 /* Minimum and maximum values a 'signed int' can hold */
-#define INT_MIN			(-INT_MAX - 1)
-#define INT_MAX			2147483647
+#define INT_MIN			(-1 - 0x7fffffff)
+#define INT_MAX			0x7fffffff
 
 /* Maximum value an 'unsigned int' can hold (Minimum is 0) */
-#define UINT_MAX		4294967295U
-
+#define UINT_MAX		0xffffffffU
 
 /* Minimum and maximum values a 'signed long int' can hold */
-#define LONG_MIN		(-LONG_MAX - 1L)
-#define LONG_MAX		2147483647L
+#define LONG_MIN		(-LONG_MAX - 1)
+#define LONG_MAX		0x7fffffffL
 
 /* Maximum value an 'unsigned long int' can hold (Minimum is 0) */
-#define ULONG_MAX		4294967295UL
-
+#define ULONG_MAX		(2UL * LONG_MAX + 1)
 
 /* Minimum and maximum values a 'signed long long int' can hold */
-#define LLONG_MIN		(-LLONG_MAX - 1LL)
-#define LLONG_MAX		9223372036854775807LL
+#define LLONG_MIN		(-LLONG_MAX - 1)
+#define LLONG_MAX		0x7fffffffffffffffLL
 
 /* Maximum value an 'unsigned long long int' can hold (Minimum is 0) */
-#define ULLONG_MAX		18446744073709551615ULL
-
+#define ULLONG_MAX		(2ULL * LLONG_MAX + 1)
 
 /* Minimum and maximum values a 'max int' can hold */
 #define INTMAX_MIN		LLONG_MIN

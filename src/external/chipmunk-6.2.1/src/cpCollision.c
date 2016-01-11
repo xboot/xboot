@@ -286,7 +286,7 @@ EPARecurse(const struct SupportContext *ctx, const int count, const struct Minko
 	cpFloat area2x = cpvcross(cpvsub(v1.ab, v0.ab), cpvadd(cpvsub(p.ab, v0.ab), cpvsub(p.ab, v1.ab)));
 	if(area2x > 0.0f && iteration < MAX_EPA_ITERATIONS){
 		int count2 = 1;
-		struct MinkowskiPoint *hull2 = (struct MinkowskiPoint *)alloca((count + 1)*sizeof(struct MinkowskiPoint));
+		struct MinkowskiPoint *hull2 = (struct MinkowskiPoint *)__builtin_alloca((count + 1)*sizeof(struct MinkowskiPoint));
 		hull2[0] = p;
 		
 		for(int i=0; i<count; i++){

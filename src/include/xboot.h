@@ -37,7 +37,6 @@ extern "C" {
 #include <queue.h>
 #include <ssize.h>
 #include <malloc.h>
-#include <alloca.h>
 #include <charset.h>
 #include <version.h>
 #include <runtime.h>

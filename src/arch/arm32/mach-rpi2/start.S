@@ -261,17 +261,3 @@ _stack_fiq_end:
 	.long __stack_fiq_end
 _stack_srv_end:
 	.long __stack_srv_end
-
-.globl PUT32
-PUT32:
-    str r1,[r0]
-    bx lr
-
-.globl GET32
-GET32:
-    ldr r0,[r0]
-    bx lr
-
-.globl dummy
-dummy:
-    bx lr

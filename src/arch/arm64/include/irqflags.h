@@ -7,50 +7,42 @@ extern "C" {
 
 #include <types.h>
 
-/*
- * Enable IRQ
- */
 static inline void arch_local_irq_enable(void)
 {
+	__asm__ __volatile__("msr daifclr, #2" ::: "memory");
 }
 
-/*
- * Disable IRQ
- */
 static inline void arch_local_irq_disable(void)
 {
+	__asm__ __volatile__("msr daifset, #2" ::: "memory");
 }
 
-/*
- * Save IRQ flags and disable IRQ
- */
 static inline irq_flags_t arch_local_irq_save(void)
 {
-	irq_flags_t flags = 0;
+	irq_flags_t flags;
+
+	__asm__ __volatile__(
+		"mrs %0, daif\n"
+		"msr daifset, #2"
+		: "=r" (flags)
+		:
+		:"memory", "cc");
 	return flags;
 }
 
-/*
- * Restore IRQ flags
- */
 static inline void arch_local_irq_restore(irq_flags_t flags)
 {
-}
-
-/*
- * Save IRQ flags
- */
-static inline irq_flags_t arch_local_save_flags(void)
-{
-	irq_flags_t flags;
-	return flags;
+	__asm__ __volatile__(
+		"msr daif, %0"
+		:
+		:"r" (flags)
+		:"memory", "cc");
 }
 
 #define local_irq_enable()			do { arch_local_irq_enable(); } while(0)
 #define local_irq_disable()			do { arch_local_irq_disable(); } while(0)
 #define local_irq_save(flags)		do { flags = arch_local_irq_save(); } while(0)
 #define local_irq_restore(flags)	do { arch_local_irq_restore(flags); } while(0)
-#define local_save_flags(flags)		do { flags = arch_local_save_flags(); } while(0)
 
 #ifdef __cplusplus
 }

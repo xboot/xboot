@@ -7,79 +7,7 @@ extern "C" {
 
 #include <types.h>
 
-#if __ARM_ARCH__ >= 6
-/*
- * Enable IRQ
- */
-static inline void arch_local_irq_enable(void)
-{
-	__asm__ __volatile__(
-		"cpsie i"
-		:
-		:
-		: "memory", "cc");
-}
-
-/*
- * Disable IRQ
- */
-static inline void arch_local_irq_disable(void)
-{
-	__asm__ __volatile__(
-		"cpsid i"
-		:
-		:
-		: "memory", "cc");
-}
-
-/*
- * Save IRQ flags and disable IRQ
- */
-static inline irq_flags_t arch_local_irq_save(void)
-{
-	irq_flags_t flags;
-
-	__asm__ __volatile__(
-		"mrs	%0, cpsr\n"
-		"cpsid	i"
-		: "=r" (flags)
-		:
-		: "memory", "cc");
-
-	return flags;
-}
-
-/*
- * Restore IRQ flags
- */
-static inline void arch_local_irq_restore(irq_flags_t flags)
-{
-	__asm__ __volatile__(
-		"msr cpsr_c, %0"
-		:
-		: "r" (flags)
-		: "memory", "cc");
-}
-
-/*
- * Save IRQ flags
- */
-static inline irq_flags_t arch_local_save_flags(void)
-{
-	irq_flags_t flags;
-
-	__asm__ __volatile__(
-		"mrs %0, cpsr"
-		: "=r" (flags)
-	  	:
-		: "memory", "cc");
-
-	return flags;
-}
-#else
-/*
- * Enable IRQ
- */
+#if __ARM_ARCH__ == 5
 static inline void arch_local_irq_enable(void)
 {
 	irq_flags_t temp;
@@ -93,9 +21,6 @@ static inline void arch_local_irq_enable(void)
 		: "memory", "cc");
 }
 
-/*
- * Disable IRQ
- */
 static inline void arch_local_irq_disable(void)
 {
 	irq_flags_t temp;
@@ -109,9 +34,6 @@ static inline void arch_local_irq_disable(void)
 		: "memory", "cc");
 }
 
-/*
- * Save IRQ flags and disable IRQ
- */
 static inline irq_flags_t arch_local_irq_save(void)
 {
 	irq_flags_t flags, temp;
@@ -127,9 +49,6 @@ static inline irq_flags_t arch_local_irq_save(void)
 	return flags;
 }
 
-/*
- * Restore IRQ flags
- */
 static inline void arch_local_irq_restore(irq_flags_t flags)
 {
 	__asm__ __volatile__(
@@ -138,21 +57,37 @@ static inline void arch_local_irq_restore(irq_flags_t flags)
 		: "r" (flags)
 		: "memory", "cc");
 }
+#else
+static inline void arch_local_irq_enable(void)
+{
+	__asm__ __volatile__("cpsie i" ::: "memory", "cc");
+}
 
-/*
- * Save IRQ flags
- */
-static inline irq_flags_t arch_local_save_flags(void)
+static inline void arch_local_irq_disable(void)
+{
+	__asm__ __volatile__("cpsid i" ::: "memory", "cc");
+}
+
+static inline irq_flags_t arch_local_irq_save(void)
 {
 	irq_flags_t flags;
 
 	__asm__ __volatile__(
-		"mrs %0, cpsr"
+		"mrs %0, cpsr\n"
+		"cpsid i"
 		: "=r" (flags)
-	  	:
+		:
 		: "memory", "cc");
-
 	return flags;
+}
+
+static inline void arch_local_irq_restore(irq_flags_t flags)
+{
+	__asm__ __volatile__(
+		"msr cpsr_c, %0"
+		:
+		: "r" (flags)
+		: "memory", "cc");
 }
 #endif
 
@@ -160,7 +95,6 @@ static inline irq_flags_t arch_local_save_flags(void)
 #define local_irq_disable()			do { arch_local_irq_disable(); } while(0)
 #define local_irq_save(flags)		do { flags = arch_local_irq_save(); } while(0)
 #define local_irq_restore(flags)	do { arch_local_irq_restore(flags); } while(0)
-#define local_save_flags(flags)		do { flags = arch_local_save_flags(); } while(0)
 
 #ifdef __cplusplus
 }

@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <types.h>
-#include <barrier.h>
 #include <irqflags.h>
 
 #if __ARM_ARCH__ == 5
@@ -123,7 +122,7 @@ static inline long atomic_sub_return(atomic_t * a, long v)
 }
 #endif
 
-#define atomic_set(a, v)			do { ((a)->counter) = (v); wmb(); } while(0)
+#define atomic_set(a, v)			(((a)->counter) = (v))
 #define atomic_inc(a)				(atomic_add(a, 1))
 #define atomic_dec(a)				(atomic_sub(a, 1))
 #define atomic_inc_return(a)		(atomic_add_return(a, 1))

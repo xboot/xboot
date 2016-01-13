@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <types.h>
-#include <barrier.h>
 #include <irqflags.h>
 
 static inline int arch_spin_trylock(spinlock_t * lock)

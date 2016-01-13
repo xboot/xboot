@@ -8,7 +8,6 @@ extern "C" {
 #include <xconfigs.h>
 #include <endian.h>
 #include <atomic.h>
-#include <barrier.h>
 #include <irqflags.h>
 #include <spinlock.h>
 #include <mmu.h>

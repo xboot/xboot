@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#define LITTLE_ENDIAN	(1234)
-#define BIG_ENDIAN		(4321)
+#define LITTLE_ENDIAN	(0x1234)
+#define BIG_ENDIAN		(0x4321)
 
 #if ( !defined(__LITTLE_ENDIAN) && !defined(__BIG_ENDIAN) )
 #define __LITTLE_ENDIAN

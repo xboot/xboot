@@ -46,8 +46,8 @@ static inline long atomic_sub_return(atomic_t * a, long v)
 }
 
 #define atomic_set(a, v)			(((a)->counter) = (v))
-#define atomic_inc(a)				atomic_add(a, 1)
-#define atomic_dec(a)				atomic_sub(a, 1)
+#define atomic_inc(a)				(atomic_add(a, 1))
+#define atomic_dec(a)				(atomic_sub(a, 1))
 #define atomic_inc_return(a)		(atomic_add_return(a, 1))
 #define atomic_dec_return(a)		(atomic_sub_return(a, 1))
 #define atomic_inc_and_test(a)		(atomic_add_return(a, 1) == 0)

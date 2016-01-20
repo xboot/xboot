@@ -4,6 +4,7 @@
 #include <xboot.h>
 #include <fb/fb.h>
 #include <pwm/pwm.h>
+#include <dma/dma.h>
 #include <s5p6818-rstcon.h>
 #include <s5p6818-gpio.h>
 #include <s5p6818/reg-mlc.h>

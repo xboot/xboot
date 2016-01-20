@@ -25,28 +25,14 @@
 #include <xfs/xfs.h>
 #include <runtime.h>
 
-#ifdef __SANDBOX__
-static char __heap[CONFIG_HEAP_SIZE];
-#else
-static char __heap[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap")));
-#endif
 static struct runtime_t * __current_runtime = NULL;
-
-static void * default_memory_manager(void)
-{
-	static void * __mm = NULL;
-
-	if(!__mm)
-		__mm = mm_create_with_pool((void *)__heap, sizeof(__heap));
-	return __mm;
-}
 
 struct runtime_t * runtime_get(void)
 {
 	return __current_runtime;
 }
 
-void runtime_create_save(struct runtime_t * rt, void * pool, size_t size, const char * path, struct runtime_t ** r)
+void runtime_create_save(struct runtime_t * rt, const char * path, struct runtime_t ** r)
 {
 	if(!rt)
 		return;
@@ -55,10 +41,6 @@ void runtime_create_save(struct runtime_t * rt, void * pool, size_t size, const 
 		*r = __current_runtime;
 	__current_runtime = rt;
 
-	if(pool && (size > 0))
-		rt->__mm = mm_create_with_pool(pool, size);
-	else
-		rt->__mm = default_memory_manager();
 	rt->__errno = 0;
 
 	rt->__seed[0] = 1;

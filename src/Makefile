@@ -123,6 +123,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/clockevent							\
 				drivers/clocksource							\
 				drivers/console								\
+				drivers/dma									\
 				drivers/fb									\
 				drivers/fb/sw								\
 				drivers/gpio								\

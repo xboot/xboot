@@ -9,51 +9,55 @@ extern "C" {
 #include <endian.h>
 
 #if !defined(__ARCH__)
-#define __ARCH__									"arm32"
+#define __ARCH__							"x64"
 #endif
 
 #if !defined(__MACH__)
-#define __MACH__									"realview"
+#define __MACH__							"sandbox"
 #endif
 
 #if !defined(CONFIG_MMU_ON)
-#define	CONFIG_MMU_ON								(0)
+#define CONFIG_MMU_ON						(0)
 #endif
 
 #if !defined(CONFIG_HEAP_SIZE)
-#define	CONFIG_HEAP_SIZE							(SZ_8M)
+#define CONFIG_HEAP_SIZE					(SZ_16M)
+#endif
+
+#if !defined(CONFIG_DMA_SIZE)
+#define CONFIG_DMA_SIZE						(SZ_16M)
 #endif
 
 #if !defined(CONFIG_NO_LOG)
-#define	CONFIG_NO_LOG								(0)
+#define CONFIG_NO_LOG						(0)
 #endif
 
 #if !defined(CONFIG_AUTO_BOOT_DELAY)
-#define	CONFIG_AUTO_BOOT_DELAY						(1)
+#define CONFIG_AUTO_BOOT_DELAY				(1)
 #endif
 
 #if !defined(CONFIG_AUTO_BOOT_COMMAND)
-#define	CONFIG_AUTO_BOOT_COMMAND					"exec /romdisk/examples/"
+#define CONFIG_AUTO_BOOT_COMMAND			"exec /romdisk/examples/"
 #endif
 
 #if !defined(CONFIG_MAX_BRIGHTNESS)
-#define	CONFIG_MAX_BRIGHTNESS						(1023)
+#define CONFIG_MAX_BRIGHTNESS				(1024 - 1)
 #endif
 
 #if !defined(CONFIG_EVENT_FIFO_LENGTH)
-#define	CONFIG_EVENT_FIFO_LENGTH					(256)
+#define CONFIG_EVENT_FIFO_LENGTH			(256)
 #endif
 
 #if !defined(CONFIG_MAX_NUMBER_OF_VFS_BIO)
-#define	CONFIG_MAX_NUMBER_OF_VFS_BIO				(SZ_4K)
+#define CONFIG_MAX_NUMBER_OF_VFS_BIO		(SZ_4K)
 #endif
 
 #if !defined(CONFIG_CMDLINE_LENGTH)
-#define	CONFIG_CMDLINE_LENGTH						(SZ_4K)
+#define CONFIG_CMDLINE_LENGTH				(SZ_4K)
 #endif
 
 #if !defined(CONFIG_VARNAME_LENGTH)
-#define	CONFIG_VARNAME_LENGTH						(256)
+#define CONFIG_VARNAME_LENGTH				(256)
 #endif
 
 #ifdef __cplusplus

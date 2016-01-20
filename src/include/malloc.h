@@ -8,18 +8,23 @@ extern "C" {
 #include <xboot/module.h>
 #include <types.h>
 
-void * mm_create(void * mem);
-void * mm_create_with_pool(void * mem, size_t bytes);
+void * mm_create(void * mem, size_t bytes);
 void mm_destroy(void * mm);
+void * mm_get_pool(void * mm);
 void * mm_add_pool(void * mm, void * mem, size_t bytes);
 void mm_remove_pool(void * mm, void * pool);
-void * mm_get_pool(void * mm);
+void * mm_malloc(void * mm, size_t size);
+void * mm_memalign(void * mm, size_t align, size_t size);
+void * mm_realloc(void * mm, void * ptr, size_t size);
+void mm_free(void * mm, void * ptr);
 
 void * malloc(size_t size);
 void * memalign(size_t align, size_t size);
 void * realloc(void * ptr, size_t size);
 void * calloc(size_t nmemb, size_t size);
 void free(void * ptr);
+
+void do_init_mem_pool(void);
 
 #ifdef __cplusplus
 }

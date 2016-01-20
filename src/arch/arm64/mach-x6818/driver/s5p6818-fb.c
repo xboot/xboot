@@ -801,10 +801,9 @@ struct render_t * fb_create(struct fb_t * fb)
 	size_t pixlen;
 
 	pixlen = dat->width * dat->height * dat->bytes_per_pixel;
-	pixels = dma_alloc_coherent(pixlen);
+	pixels = dma_zalloc(pixlen);
 	if(!pixels)
 		return NULL;
-	memset(pixels, 0, pixlen);
 
 	render = malloc(sizeof(struct render_t));
 	if(!render)
@@ -838,7 +837,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	if(render)
 	{
 		sw_render_destroy_data(render);
-		dma_free_coherent(render->pixels, render->pixlen);
+		dma_free(render->pixels);
 		free(render);
 	}
 }

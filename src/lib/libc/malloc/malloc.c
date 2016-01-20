@@ -2,8 +2,15 @@
  * lib/libc/malloc/malloc.c
  */
 
-#include <runtime.h>
+#include <xboot.h>
 #include <malloc.h>
+
+#ifdef __SANDBOX__
+static char __heap_buf[CONFIG_HEAP_SIZE];
+#else
+static char __heap_buf[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap")));
+#endif
+static void * __heap = NULL;
 
 /*
  * Some macros.
@@ -738,12 +745,7 @@ static inline void * tlsf_realloc(void * tlsf, void * ptr, size_t size)
 	return p;
 }
 
-void * mm_create(void * mem)
-{
-	return tlsf_create(mem);
-}
-
-void * mm_create_with_pool(void * mem, size_t bytes)
+void * mm_create(void * mem, size_t bytes)
 {
 	return tlsf_create_with_pool(mem, bytes);
 }
@@ -751,6 +753,11 @@ void * mm_create_with_pool(void * mem, size_t bytes)
 void mm_destroy(void * mm)
 {
 	tlsf_destroy(mm);
+}
+
+void * mm_get_pool(void * mm)
+{
+	return tlsf_get_pool(mm);
 }
 
 void * mm_add_pool(void * mm, void * mem, size_t bytes)
@@ -763,26 +770,41 @@ void mm_remove_pool(void * mm, void * pool)
 	tlsf_remove_pool(mm, pool);
 }
 
-void * mm_get_pool(void * mm)
+void * mm_malloc(void * mm, size_t size)
 {
-	return tlsf_get_pool(mm);
+	return tlsf_malloc(mm, size);
+}
+
+void * mm_memalign(void * mm, size_t align, size_t size)
+{
+	return tlsf_memalign(mm, align, size);
+}
+
+void * mm_realloc(void * mm, void * ptr, size_t size)
+{
+	return tlsf_realloc(mm, ptr, size);
+}
+
+void mm_free(void * mm, void * ptr)
+{
+	tlsf_free(mm, ptr);
 }
 
 void * malloc(size_t size)
 {
-	return tlsf_malloc(runtime_get()->__mm, size);
+	return tlsf_malloc(__heap, size);
 }
 EXPORT_SYMBOL(malloc);
 
 void * memalign(size_t align, size_t size)
 {
-	return tlsf_memalign(runtime_get()->__mm, align, size);
+	return tlsf_memalign(__heap, align, size);
 }
 EXPORT_SYMBOL(memalign);
 
 void * realloc(void * ptr, size_t size)
 {
-	return tlsf_realloc(runtime_get()->__mm, ptr, size);
+	return tlsf_realloc(__heap, ptr, size);
 }
 EXPORT_SYMBOL(realloc);
 
@@ -799,6 +821,11 @@ EXPORT_SYMBOL(calloc);
 
 void free(void * ptr)
 {
-	tlsf_free(runtime_get()->__mm, ptr);
+	tlsf_free(__heap, ptr);
 }
 EXPORT_SYMBOL(free);
+
+void do_init_mem_pool(void)
+{
+	__heap = tlsf_create_with_pool((void *)__heap_buf, sizeof(__heap_buf));
+}

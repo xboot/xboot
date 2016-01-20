@@ -114,6 +114,14 @@ SECTIONS
 		PROVIDE(__heap_end = .);
 	} > ram
 
+	.dma ALIGN(4096) (NOLOAD) :
+	{
+		PROVIDE(__dma_start = .);
+		*(.dma*)
+		. = ALIGN(8);
+		PROVIDE(__dma_end = .);
+	} > ram
+
 	.stack ALIGN(16) (NOLOAD) :
 	{
 		PROVIDE(__stack_start = .);

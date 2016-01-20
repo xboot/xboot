@@ -1,5 +1,5 @@
 /*
- * init/main.c
+ * driver/dma/dma.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,51 +23,35 @@
  */
 
 #include <xboot.h>
-#include <init.h>
 #include <dma/dma.h>
-#include <shell/shell.h>
 
-int xboot_main(int argc, char * argv[])
+#ifdef __SANDBOX__
+static char __dma_buf[CONFIG_DMA_SIZE];
+#else
+static char __dma_buf[CONFIG_DMA_SIZE] __attribute__((__used__, __section__(".dma")));
+#endif
+static void * __dma = NULL;
+
+void * dma_alloc(size_t size)
 {
-	struct runtime_t rt;
+	return mm_memalign(__dma, 4096, size);
+}
 
-	/* Do initial mem pool */
-	do_init_mem_pool();
+void * dma_zalloc(size_t size)
+{
+	void * ptr = dma_alloc(size);
 
-	/* Do initial dma pool */
-	do_init_dma_pool();
+	if(ptr)
+		memset(ptr, 0, size);
+	return ptr;
+}
 
-	/* Do initial kobj */
-	do_init_kobj();
+void dma_free(void * ptr)
+{
+	mm_free(__dma, ptr);
+}
 
-	/* Do all initial calls */
-	do_initcalls();
-
-	/* Create runtime */
-	runtime_create_save(&rt, 0, 0);
-
-	/* Mount root filesystem */
-	do_system_rootfs();
-
-	/* Display system logo */
-	do_system_logo();
-
-	/* System autoboot */
-	do_system_autoboot();
-
-	/* Run loop */
-	while(1)
-	{
-		/* Run shell */
-		run_shell();
-	}
-
-	/* Destroy runtime */
-	runtime_destroy_restore(&rt, 0);
-
-	/* Do all exit calls */
-	do_exitcalls();
-
-	/* Xboot return */
-	return 0;
+void do_init_dma_pool(void)
+{
+	__dma = mm_create((void *)__dma_buf, sizeof(__dma_buf));
 }

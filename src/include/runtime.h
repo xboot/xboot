@@ -8,9 +8,6 @@ extern "C" {
 #include <xboot.h>
 
 struct runtime_t {
-	/* memory manager */
-	void * __mm;
-
 	/* error number */
 	int __errno;
 
@@ -31,7 +28,7 @@ struct runtime_t {
 };
 
 struct runtime_t * runtime_get(void);
-void runtime_create_save(struct runtime_t * rt, void * pool, size_t size, const char * path, struct runtime_t ** r);
+void runtime_create_save(struct runtime_t * rt, const char * path, struct runtime_t ** r);
 void runtime_destroy_restore(struct runtime_t * rt, struct runtime_t * r);
 
 #ifdef __cplusplus

@@ -7,6 +7,7 @@ extern "C" {
 
 #include <xboot.h>
 #include <mmu.h>
+#include <dma/dma.h>
 #include <fb/fb.h>
 #include <realview/reg-lcd.h>
 

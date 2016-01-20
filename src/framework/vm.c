@@ -276,7 +276,7 @@ int vmexec(int argc, char ** argv)
 	lua_State * L;
 	int status = LUA_ERRRUN, result;
 
-	runtime_create_save(&rt, 0, 0, argv[0], &r);
+	runtime_create_save(&rt, argv[0], &r);
 	L = luaL_newstate();
 	if(L)
 	{

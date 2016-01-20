@@ -227,9 +227,6 @@ void subsys_init_machine(void)
 			if(pos->mach->poweron)
 				pos->mach->poweron();
 
-			extern void mmu_setup(struct machine_t * mach);
-			mmu_setup(pos->mach);
-
 			LOG("Found machine [%s]", get_machine()->name);
 			return;
 		}

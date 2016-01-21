@@ -74,7 +74,7 @@ static int do_bootlinux(int argc, char ** argv)
 	params = tag_next(params);
 
 	/* memory tags */
-	for(i = 0; i < ARRAY_SIZE(mach->banks); i++)
+/*	for(i = 0; i < ARRAY_SIZE(mach->banks); i++)
 	{
 		if( (mach->banks[i].start == 0) && (mach->banks[i].size == 0) )
 			break;
@@ -85,7 +85,7 @@ static int do_bootlinux(int argc, char ** argv)
 		params->u.mem.size = (u32_t)mach->banks[i].size;
 		params = tag_next(params);
 	}
-
+*/
 	/* command line tags */
 	p = (s8_t *)argv[4];
 	if(p && strlen((const char *)p))

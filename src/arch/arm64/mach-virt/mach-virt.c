@@ -24,6 +24,10 @@
 
 #include <xboot.h>
 
+static const struct mmap_t mach_map[] = {
+	{ 0 },
+};
+
 static bool_t mach_detect(void)
 {
 	return TRUE;
@@ -41,7 +45,7 @@ static bool_t mach_poweroff(void)
 
 static bool_t mach_reboot(void)
 {
-	return TRUE;
+	return FALSE;
 }
 
 static bool_t mach_sleep(void)
@@ -54,35 +58,28 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-static bool_t mach_keygen(const void * msg, int len, void * key)
-{
-	return FALSE;
-}
-
-const char * mach_uniqueid(void)
+static const char * mach_uniqueid(void)
 {
 	return NULL;
 }
 
+static int mach_keygen(const char * msg, void * key)
+{
+	return 0;
+}
+
 static struct machine_t virt = {
-	.name 				= "VIRT",
-	.desc 				= "ARM Virtual Machine For Cortex-A57",
-
-	.banks = {
-		[0] = {
-			.start		= 0,
-			.size		= 0,
-		},
-	},
-
-	.detect 			= mach_detect,
-	.poweron			= mach_poweron,
-	.poweroff			= mach_poweroff,
-	.reboot				= mach_reboot,
-	.sleep				= mach_sleep,
-	.cleanup			= mach_cleanup,
-	.keygen				= mach_keygen,
-	.uniqueid			= mach_uniqueid,
+	.name 		= "VIRT",
+	.desc 		= "ARM Virtual Machine For Cortex-A57",
+	.map		= mach_map,
+	.detect 	= mach_detect,
+	.poweron	= mach_poweron,
+	.poweroff	= mach_poweroff,
+	.reboot		= mach_reboot,
+	.sleep		= mach_sleep,
+	.cleanup	= mach_cleanup,
+	.uniqueid	= mach_uniqueid,
+	.keygen		= mach_keygen,
 };
 
 static __init void mach_virt_init(void)

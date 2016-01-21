@@ -152,6 +152,7 @@ void mmu_setup(struct machine_t * mach)
 	mmu_map_l1_section(0x00000000, SZ_2G, 0x00000000, PMD_NCNB);
 	mmu_map_l1_section(0x80000000, SZ_2G, 0x80000000, PMD_NCNB);
 
+#if 0
 	if(mach)
 	{
 		for(i = 0; i < ARRAY_SIZE(mach->banks); i++)
@@ -165,7 +166,7 @@ void mmu_setup(struct machine_t * mach)
 			mmu_map_l2_page(virt, size, phys, PTE_CB);
 		}
 	}
-
+#endif
 	mmu_cache_on();
 	mmu_cache_flush();
 	icache_enable();

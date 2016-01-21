@@ -24,7 +24,7 @@
 
 #include <memory.h>
 
-static void __memory_map(struct mmap_t * map)
+static void __memory_map(void * map)
 {
 }
 extern __typeof(__memory_map) memory_map __attribute__((weak, alias("__memory_map")));

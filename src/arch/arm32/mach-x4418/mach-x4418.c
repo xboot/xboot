@@ -28,6 +28,10 @@
 #include <s5p4418/reg-sys.h>
 #include <s5p4418/reg-id.h>
 
+static const struct mmap_t mach_map[] = {
+	{ 0 },
+};
+
 static bool_t mach_detect(void)
 {
 	return TRUE;
@@ -47,7 +51,6 @@ static bool_t mach_reboot(void)
 {
 	write32(phys_to_virt(S5P4418_SYS_PWRCONT), (read32(phys_to_virt(S5P4418_SYS_PWRCONT)) & ~(0x1<<3)) | (0x1<<3));
 	write32(phys_to_virt(S5P4418_SYS_PWRMODE), (read32(phys_to_virt(S5P4418_SYS_PWRMODE)) & ~(0x1<<12)) | (0x1<<12));
-
 	return TRUE;
 }
 
@@ -79,12 +82,7 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-static bool_t mach_keygen(const void * msg, int len, void * key)
-{
-	return FALSE;
-}
-
-const char * mach_uniqueid(void)
+static const char * mach_uniqueid(void)
 {
 	static char uniqueid[16 + 1];
 	u32_t ecid0, ecid1;
@@ -99,35 +97,23 @@ const char * mach_uniqueid(void)
 	return uniqueid;
 }
 
+static int mach_keygen(const char * msg, void * key)
+{
+	return 0;
+}
+
 static struct machine_t x4418 = {
-	.name 				= "x4418",
-	.desc 				= "x4418 based on s5p4412",
-
-	.banks = {
-		[0] = {
-			.start		= 0x40000000,
-			.size		= SZ_512M,
-		},
-
-		[1] = {
-			.start		= 0x60000000,
-			.size		= SZ_512M,
-		},
-
-		[2] = {
-			.start		= 0,
-			.size		= 0,
-		},
-	},
-
-	.detect 			= mach_detect,
-	.poweron			= mach_poweron,
-	.poweroff			= mach_poweroff,
-	.reboot				= mach_reboot,
-	.sleep				= mach_sleep,
-	.cleanup			= mach_cleanup,
-	.keygen				= mach_keygen,
-	.uniqueid			= mach_uniqueid,
+	.name 		= "x4418",
+	.desc 		= "x4418 based on s5p4412",
+	.map		= mach_map,
+	.detect 	= mach_detect,
+	.poweron	= mach_poweron,
+	.poweroff	= mach_poweroff,
+	.reboot		= mach_reboot,
+	.sleep		= mach_sleep,
+	.cleanup	= mach_cleanup,
+	.uniqueid	= mach_uniqueid,
+	.keygen		= mach_keygen,
 };
 
 static __init void mach_x4418_init(void)

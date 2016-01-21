@@ -7,15 +7,7 @@ extern "C" {
 
 #include <types.h>
 
-struct mmap_t {
-	const char * name;
-	virtual_addr_t virt;
-	physical_addr_t phys;
-	physical_size_t size;
-	int flag;
-};
-
-void memory_map(struct mmap_t * map);
+void memory_map(void * map);
 virtual_addr_t phys_to_virt(physical_addr_t phys);
 physical_addr_t virt_to_phys(virtual_addr_t virt);
 

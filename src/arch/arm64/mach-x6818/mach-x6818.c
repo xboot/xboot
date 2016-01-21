@@ -27,6 +27,10 @@
 #include <s5p6818/reg-sys.h>
 #include <s5p6818/reg-id.h>
 
+static const struct mmap_t mach_map[] = {
+	{ 0 },
+};
+
 static bool_t mach_detect(void)
 {
 	return TRUE;
@@ -57,12 +61,7 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-static bool_t mach_keygen(const void * msg, int len, void * key)
-{
-	return FALSE;
-}
-
-const char * mach_uniqueid(void)
+static const char * mach_uniqueid(void)
 {
 	static char uniqueid[16 + 1];
 	u32_t ecid0, ecid1;
@@ -77,35 +76,23 @@ const char * mach_uniqueid(void)
 	return uniqueid;
 }
 
+static int mach_keygen(const char * msg, void * key)
+{
+	return 0;
+}
+
 static struct machine_t x6818 = {
-	.name 				= "x6818",
-	.desc 				= "x6818 based on s5p6818",
-
-	.banks = {
-		[0] = {
-			.start		= 0x40000000,
-			.size		= SZ_512M,
-		},
-
-		[1] = {
-			.start		= 0x60000000,
-			.size		= SZ_512M,
-		},
-
-		[2] = {
-			.start		= 0,
-			.size		= 0,
-		},
-	},
-
-	.detect 			= mach_detect,
-	.poweron			= mach_poweron,
-	.poweroff			= mach_poweroff,
-	.reboot				= mach_reboot,
-	.sleep				= mach_sleep,
-	.cleanup			= mach_cleanup,
-	.keygen				= mach_keygen,
-	.uniqueid			= mach_uniqueid,
+	.name 		= "x6818",
+	.desc 		= "x6818 based on s5p6818",
+	.map		= mach_map,
+	.detect 	= mach_detect,
+	.poweron	= mach_poweron,
+	.poweroff	= mach_poweroff,
+	.reboot		= mach_reboot,
+	.sleep		= mach_sleep,
+	.cleanup	= mach_cleanup,
+	.uniqueid	= mach_uniqueid,
+	.keygen		= mach_keygen,
 };
 
 static __init void mach_x6818_init(void)

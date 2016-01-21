@@ -25,6 +25,11 @@
 #include <xboot.h>
 #include <cp15.h>
 
+static const struct mmap_t mach_map[] = {
+	{"ddr", 0x70000000, 0x70000000, SZ_256M, MT_MEMORY},
+	{ 0 },
+};
+
 static bool_t mach_detect(void)
 {
 	return TRUE;
@@ -73,40 +78,28 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-static bool_t mach_keygen(const void * msg, int len, void * key)
-{
-	return FALSE;
-}
-
-const char * mach_uniqueid(void)
+static const char * mach_uniqueid(void)
 {
 	return NULL;
 }
 
+static int mach_keygen(const char * msg, void * key)
+{
+	return 0;
+}
+
 static struct machine_t realview = {
-	.name 				= "realview-pb-a8",
-	.desc 				= "ARM RealView Platform Baseboard for Cortex-A8",
-
-	.banks = {
-		[0] = {
-			.start		= 0x70000000,
-			.size		= SZ_256M,
-		},
-
-		[1] = {
-			.start		= 0,
-			.size		= 0,
-		},
-	},
-
-	.detect 			= mach_detect,
-	.poweron			= mach_poweron,
-	.poweroff			= mach_poweroff,
-	.reboot				= mach_reboot,
-	.sleep				= mach_sleep,
-	.cleanup			= mach_cleanup,
-	.keygen				= mach_keygen,
-	.uniqueid			= mach_uniqueid,
+	.name 		= "realview-pb-a8",
+	.desc 		= "ARM RealView Platform Baseboard for Cortex-A8",
+	.map		= mach_map,
+	.detect 	= mach_detect,
+	.poweron	= mach_poweron,
+	.poweroff	= mach_poweroff,
+	.reboot		= mach_reboot,
+	.sleep		= mach_sleep,
+	.cleanup	= mach_cleanup,
+	.uniqueid	= mach_uniqueid,
+	.keygen		= mach_keygen,
 };
 
 static __init void mach_realview_init(void)

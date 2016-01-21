@@ -62,20 +62,17 @@ static ssize_t machine_read_description(struct kobj_t * kobj, void * buf, size_t
 	return sprintf(buf, "%s", mach->desc);
 }
 
-static ssize_t machine_read_banks(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t machine_read_map(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct machine_t * mach = (struct machine_t *)kobj->priv;
+	struct mmap_t * m = (struct mmap_t *)mach->map;
 	char * p = buf;
-	int i, len = 0;
-	u64_t from, to;
+	int len = 0;
 
-	for(i = 0; i < ARRAY_SIZE(mach->banks); i++)
+	while(m->size != 0)
 	{
-		if( (mach->banks[i].start == 0) && (mach->banks[i].size == 0) )
-			break;
-		from = mach->banks[i].start;
-		to = mach->banks[i].start + mach->banks[i].size - 1;
-		len += sprintf((char *)(p + len), " bank%d: 0x%016Lx - 0x%016Lx\r\n", i, from, to);
+		len += sprintf((char *)(p + len), " %s: %p - %p\r\n", m->name, m->virt, m->phys);
+		m++;
 	}
 	return len;
 }
@@ -119,7 +116,7 @@ bool_t register_machine(struct machine_t * mach)
 
 	mach->kobj = kobj_alloc_directory(mach->name);
 	kobj_add_regular(mach->kobj, "description", machine_read_description, NULL, mach);
-	kobj_add_regular(mach->kobj, "banks", machine_read_banks, NULL, mach);
+	kobj_add_regular(mach->kobj, "map", machine_read_map, NULL, mach);
 	kobj_add_regular(mach->kobj, "uniqueid", machine_read_uniqueid, NULL, mach);
 	kobj_add(search_class_machine_kobj(), mach->kobj);
 	ml->mach = mach;
@@ -157,7 +154,7 @@ bool_t unregister_machine(struct machine_t * mach)
 	return FALSE;
 }
 
-struct machine_t * get_machine(void)
+inline __attribute__((always_inline)) struct machine_t * get_machine(void)
 {
 	return __machine;
 }
@@ -198,20 +195,21 @@ bool_t machine_cleanup(void)
 	return FALSE;
 }
 
-bool_t machine_keygen(const void * msg, int len, void * key)
-{
-	struct machine_t * mach = get_machine();
-
-	if(mach && mach->keygen && mach->keygen(msg, len, key))
-		return TRUE;
-	sha256_hash(msg, len, key);
-	return TRUE;
-}
-
 const char * machine_uniqueid(void)
 {
 	struct machine_t * mach = get_machine();
 	return __machine_uniqueid(mach);
+}
+
+int machine_keygen(const char * msg, void * key)
+{
+	struct machine_t * mach = get_machine();
+	int len;
+
+	if(mach && mach->keygen && ((len = mach->keygen(msg, key)) > 0))
+		return len;
+	sha256_hash(msg, strlen(msg), key);
+	return 32;
 }
 
 void subsys_init_machine(void)

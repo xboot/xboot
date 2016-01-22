@@ -5,14 +5,6 @@
 extern "C" {
 #endif
 
-#ifdef CONFIG_THUMB2
-#define ARM(x...)
-#define THUMB(x...)	x
-#else
-#define ARM(x...)	x
-#define THUMB(x...)
-#endif
-
 #define ALIGN		.align 0
 #define ALIGN_STR	".align 0"
 

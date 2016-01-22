@@ -303,14 +303,10 @@ s32_t vn_access(struct vnode_t * vp, u32_t mode)
 	return 0;
 }
 
-/*
- * vnode pure init
- */
-static __init void vnode_pure_init(void)
+void vfs_vnode_init(void)
 {
-	s32_t i;
+	int i;
 
     for( i = 0; i < VNODE_HASH_SIZE; i++ )
     	init_list_head(&vnode_table[i]);
 }
-pure_initcall(vnode_pure_init);

@@ -1001,3 +1001,11 @@ s32_t sys_fchdir(struct file_t * fp, char * cwd)
 
 	return 0;
 }
+
+void do_init_vfs(void)
+{
+	extern void vfs_vnode_init(void);
+	extern void vfs_fd_init(void);
+	vfs_vnode_init();
+	vfs_fd_init();
+}

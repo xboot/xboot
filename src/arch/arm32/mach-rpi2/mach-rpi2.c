@@ -105,4 +105,4 @@ static __init void mach_rpi2_init(void)
 {
 	register_machine(&rpi2);
 }
-pure_initcall(mach_rpi2_init);
+machine_initcall(mach_rpi2_init);

@@ -40,6 +40,9 @@ int xboot_main(int argc, char * argv[])
 	/* Do initial kobj */
 	do_init_kobj();
 
+	/* Do initial vfs */
+	do_init_vfs();
+
 	/* Do all initial calls */
 	do_initcalls();
 

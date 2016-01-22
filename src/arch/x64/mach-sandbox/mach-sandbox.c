@@ -87,4 +87,4 @@ static __init void mach_sandbox_init(void)
 {
 	register_machine(&sandbox);
 }
-pure_initcall(mach_sandbox_init);
+machine_initcall(mach_sandbox_init);

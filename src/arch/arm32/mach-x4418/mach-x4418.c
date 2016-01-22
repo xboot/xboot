@@ -120,4 +120,4 @@ static __init void mach_x4418_init(void)
 {
 	register_machine(&x4418);
 }
-pure_initcall(mach_x4418_init);
+machine_initcall(mach_x4418_init);

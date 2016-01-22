@@ -86,4 +86,4 @@ static __init void mach_virt_init(void)
 {
 	register_machine(&virt);
 }
-pure_initcall(mach_virt_init);
+machine_initcall(mach_virt_init);

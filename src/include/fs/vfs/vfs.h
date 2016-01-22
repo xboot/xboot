@@ -266,6 +266,8 @@ s32_t sys_truncate(char * path, loff_t length);
 s32_t sys_ftruncate(struct file_t * fp, loff_t length);
 s32_t sys_fchdir(struct file_t * fp, char * cwd);
 
+void do_init_vfs(void);
+
 #ifdef __cplusplus
 }
 #endif

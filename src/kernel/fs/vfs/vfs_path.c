@@ -242,10 +242,7 @@ struct file_t * vfs_getcwdfp(void)
 	return cwdfp;
 }
 
-/*
- * fd pure init
- */
-static __init void fd_pure_init(void)
+void vfs_fd_init(void)
 {
 	int i;
 
@@ -255,4 +252,3 @@ static __init void fd_pure_init(void)
     strcpy(cwd, "/");
     cwdfp = NULL;
 }
-pure_initcall(fd_pure_init);

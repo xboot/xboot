@@ -106,4 +106,4 @@ static __init void mach_realview_init(void)
 {
 	register_machine(&realview);
 }
-pure_initcall(mach_realview_init);
+machine_initcall(mach_realview_init);

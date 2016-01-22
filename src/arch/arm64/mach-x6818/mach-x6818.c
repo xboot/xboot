@@ -99,4 +99,4 @@ static __init void mach_x6818_init(void)
 {
 	register_machine(&x6818);
 }
-pure_initcall(mach_x6818_init);
+machine_initcall(mach_x6818_init);

@@ -101,14 +101,9 @@ loop1:
 loop2:
 		mov	r9, r4			@ create working copy of max way size
 loop3:
-ARM(		orr	r11, r12, r9, lsl r5	) @ factor way and cache number into r11
-ARM(		orr	r11, r11, r7, lsl r2	) @ factor index number into r11
-THUMB(		lsl	r6, r9, r5		)
-THUMB(		orr	r11, r12, r6		) @ factor way and cache number into r11
-THUMB(		lsl	r6, r7, r2		)
-THUMB(		orr	r11, r11, r6		) @ factor index number into r11
+		orr	r11, r12, r9, lsl r5 @ factor way and cache number into r11
+		orr	r11, r11, r7, lsl r2 @ factor index number into r11
 		cmp	r8, #0
-THUMB(		ite	eq			)
 		mcreq	p15, 0, r11, c7, c14, 2	@ clean & invalidate by set/way
 		mcrne	p15, 0, r11, c7, c6, 2	@ invalidate by set/way
 		subs	r9, r9, #1		@ decrement the way

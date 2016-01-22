@@ -1,5 +1,5 @@
 /*
- * resource/res-uart.c
+ * resource/res-pl011-uart.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,10 +23,16 @@
  */
 
 #include <xboot.h>
-#include <realview-uart.h>
+#include <pl011-uart.h>
+#include <realview/reg-uart.h>
 
-static struct realview_uart_data_t realview_uart_data[] = {
+static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
+		.clk		= "uclk",
+		.txdpin		= -1,
+		.txdcfg		= -1,
+		.rxdpin		= -1,
+		.rxdcfg		= -1,
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
@@ -34,6 +40,11 @@ static struct realview_uart_data_t realview_uart_data[] = {
 		.regbase	= REALVIEW_UART0_BASE,
 	},
 	[1] = {
+		.clk		= "uclk",
+		.txdpin		= -1,
+		.txdcfg		= -1,
+		.rxdpin		= -1,
+		.rxdcfg		= -1,
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
@@ -41,6 +52,11 @@ static struct realview_uart_data_t realview_uart_data[] = {
 		.regbase	= REALVIEW_UART1_BASE,
 	},
 	[2] = {
+		.clk		= "uclk",
+		.txdpin		= -1,
+		.txdcfg		= -1,
+		.rxdpin		= -1,
+		.rxdcfg		= -1,
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
@@ -48,6 +64,11 @@ static struct realview_uart_data_t realview_uart_data[] = {
 		.regbase	= REALVIEW_UART2_BASE,
 	},
 	[3] = {
+		.clk		= "uclk",
+		.txdpin		= -1,
+		.txdcfg		= -1,
+		.rxdpin		= -1,
+		.rxdcfg		= -1,
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
@@ -58,21 +79,21 @@ static struct realview_uart_data_t realview_uart_data[] = {
 
 static struct resource_t res_uarts[] = {
 	{
-		.name		= "realview-uart",
+		.name		= "pl011-uart",
 		.id			= 0,
-		.data		= &realview_uart_data[0],
+		.data		= &uart_datas[0],
 	}, {
-		.name		= "realview-uart",
+		.name		= "pl011-uart",
 		.id			= 1,
-		.data		= &realview_uart_data[1],
+		.data		= &uart_datas[1],
 	}, {
-		.name		= "realview-uart",
+		.name		= "pl011-uart",
 		.id			= 2,
-		.data		= &realview_uart_data[2],
+		.data		= &uart_datas[2],
 	}, {
-		.name		= "realview-uart",
+		.name		= "pl011-uart",
 		.id			= 3,
-		.data		= &realview_uart_data[3],
+		.data		= &uart_datas[3],
 	}
 };
 

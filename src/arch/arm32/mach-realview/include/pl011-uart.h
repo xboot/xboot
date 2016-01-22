@@ -1,5 +1,5 @@
-#ifndef __REALVIEW_UART_H__
-#define __REALVIEW_UART_H__
+#ifndef __PL011_UART_H__
+#define __PL011_UART_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,15 +7,18 @@ extern "C" {
 
 #include <xboot.h>
 #include <bus/uart.h>
-#include <realview/reg-uart.h>
 
-struct realview_uart_data_t
+struct pl011_uart_data_t
 {
+	char * clk;
+	int txdpin;
+	int txdcfg;
+	int rxdpin;
+	int rxdcfg;
 	enum baud_rate_t baud;
 	enum data_bits_t data;
 	enum parity_bits_t parity;
 	enum stop_bits_t stop;
-
 	physical_addr_t regbase;
 };
 
@@ -23,4 +26,4 @@ struct realview_uart_data_t
 }
 #endif
 
-#endif /* __REALVIEW_UART_H__ */
+#endif /* __PL011_UART_H__ */

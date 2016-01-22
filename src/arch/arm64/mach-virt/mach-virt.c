@@ -84,19 +84,6 @@ static struct machine_t virt = {
 
 static __init void mach_virt_init(void)
 {
-	if(register_machine(&virt))
-		LOG("Register machine '%s'", virt.name);
-	else
-		LOG("Failed to register machine '%s'", virt.name);
+	register_machine(&virt);
 }
-
-static __exit void mach_virt_exit(void)
-{
-	if(unregister_machine(&virt))
-		LOG("Unregister machine '%s'", virt.name);
-	else
-		LOG("Failed to unregister machine '%s'", virt.name);
-}
-
-core_initcall(mach_virt_init);
-core_exitcall(mach_virt_exit);
+pure_initcall(mach_virt_init);

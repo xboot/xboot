@@ -103,19 +103,6 @@ static struct machine_t rpi2 = {
 
 static __init void mach_rpi2_init(void)
 {
-	if(register_machine(&rpi2))
-		LOG("Register machine '%s'", rpi2.name);
-	else
-		LOG("Failed to register machine '%s'", rpi2.name);
+	register_machine(&rpi2);
 }
-
-static __exit void mach_rpi2_exit(void)
-{
-	if(unregister_machine(&rpi2))
-		LOG("Unregister machine '%s'", rpi2.name);
-	else
-		LOG("Failed to unregister machine '%s'", rpi2.name);
-}
-
-core_initcall(mach_rpi2_init);
-core_exitcall(mach_rpi2_exit);
+pure_initcall(mach_rpi2_init);

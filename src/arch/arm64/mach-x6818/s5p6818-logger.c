@@ -68,5 +68,5 @@ static __exit void s5p6818_logger_exit(void)
 		LOG("Failed to unregister logger '%s'", s5p6818_logger.name);
 }
 
-pure_initcall(s5p6818_logger_init);
-pure_exitcall(s5p6818_logger_exit);
+core_initcall(s5p6818_logger_init);
+core_exitcall(s5p6818_logger_exit);

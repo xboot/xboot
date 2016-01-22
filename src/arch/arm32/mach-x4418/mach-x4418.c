@@ -118,19 +118,6 @@ static struct machine_t x4418 = {
 
 static __init void mach_x4418_init(void)
 {
-	if(register_machine(&x4418))
-		LOG("Register machine '%s'", x4418.name);
-	else
-		LOG("Failed to register machine '%s'", x4418.name);
+	register_machine(&x4418);
 }
-
-static __exit void mach_x4418_exit(void)
-{
-	if(unregister_machine(&x4418))
-		LOG("Unregister machine '%s'", x4418.name);
-	else
-		LOG("Failed to unregister machine '%s'", x4418.name);
-}
-
-core_initcall(mach_x4418_init);
-core_exitcall(mach_x4418_exit);
+pure_initcall(mach_x4418_init);

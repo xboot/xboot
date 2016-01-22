@@ -104,7 +104,7 @@ bool_t register_machine(struct machine_t * mach)
 	struct machine_list_t * ml;
 	irq_flags_t flags;
 
-	if(!mach || !mach->name)
+	if(!mach || !mach->name || !mach->detect)
 		return FALSE;
 
 	if(search_machine(mach->name))
@@ -125,6 +125,12 @@ bool_t register_machine(struct machine_t * mach)
 	list_add_tail(&ml->entry, &(__machine_list.entry));
 	spin_unlock_irqrestore(&__machine_list_lock, flags);
 
+	if((__machine == NULL) && mach->detect(mach))
+	{
+		if(mach->memmap)
+			mach->memmap(mach);
+		__machine = mach;
+	}
 	return TRUE;
 }
 
@@ -249,22 +255,3 @@ static physical_addr_t __virt_to_phys(virtual_addr_t virt)
 	return (physical_addr_t)virt;
 }
 extern __typeof(__virt_to_phys) virt_to_phys __attribute__((weak, alias("__virt_to_phys")));
-
-void subsys_init_machine(void)
-{
-	struct machine_list_t * pos, * n;
-
-	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
-	{
-		if(pos->mach->detect && pos->mach->detect(pos->mach))
-		{
-			if(pos->mach->memmap)
-				pos->mach->memmap(pos->mach);
-			__machine = pos->mach;
-			LOG("Found machine [%s]", get_machine()->name);
-			return;
-		}
-	}
-
-	LOG("Not found any machine");
-}

@@ -69,5 +69,5 @@ static __exit void virt_logger_exit(void)
 		LOG("Failed to unregister logger '%s'", virt_logger.name);
 }
 
-pure_initcall(virt_logger_init);
-pure_exitcall(virt_logger_exit);
+core_initcall(virt_logger_init);
+core_exitcall(virt_logger_exit);

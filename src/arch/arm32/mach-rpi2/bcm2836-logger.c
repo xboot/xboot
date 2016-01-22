@@ -70,5 +70,5 @@ static __exit void bcm2836_logger_exit(void)
 		LOG("Failed to unregister logger '%s'", bcm2836_logger.name);
 }
 
-pure_initcall(bcm2836_logger_init);
-pure_exitcall(bcm2836_logger_exit);
+core_initcall(bcm2836_logger_init);
+core_exitcall(bcm2836_logger_exit);

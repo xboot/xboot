@@ -104,19 +104,6 @@ static struct machine_t realview = {
 
 static __init void mach_realview_init(void)
 {
-	if(register_machine(&realview))
-		LOG("Register machine '%s'", realview.name);
-	else
-		LOG("Failed to register machine '%s'", realview.name);
+	register_machine(&realview);
 }
-
-static __exit void mach_realview_exit(void)
-{
-	if(unregister_machine(&realview))
-		LOG("Unregister machine '%s'", realview.name);
-	else
-		LOG("Failed to unregister machine '%s'", realview.name);
-}
-
-core_initcall(mach_realview_init);
-core_exitcall(mach_realview_exit);
+pure_initcall(mach_realview_init);

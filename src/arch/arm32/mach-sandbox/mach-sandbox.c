@@ -85,19 +85,6 @@ static struct machine_t sandbox = {
 
 static __init void mach_sandbox_init(void)
 {
-	if(register_machine(&sandbox))
-		LOG("Register machine '%s'", sandbox.name);
-	else
-		LOG("Failed to register machine '%s'", sandbox.name);
+	register_machine(&sandbox);
 }
-
-static __exit void mach_sandbox_exit(void)
-{
-	if(unregister_machine(&sandbox))
-		LOG("Unregister machine '%s'", sandbox.name);
-	else
-		LOG("Failed to unregister machine '%s'", sandbox.name);
-}
-
-core_initcall(mach_sandbox_init);
-core_exitcall(mach_sandbox_exit);
+pure_initcall(mach_sandbox_init);

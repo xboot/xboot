@@ -45,7 +45,6 @@ bool_t machine_sleep(void);
 bool_t machine_cleanup(void);
 const char * machine_uniqueid(void);
 int machine_keygen(const char * msg, void * key);
-void subsys_init_machine(void);
 
 #ifdef __cplusplus
 }

@@ -61,5 +61,5 @@ static __exit void sandbox_logger_exit(void)
 		LOG("Failed to unregister logger '%s'", sandbox_logger.name);
 }
 
-pure_initcall(sandbox_logger_init);
-pure_exitcall(sandbox_logger_exit);
+core_initcall(sandbox_logger_init);
+core_exitcall(sandbox_logger_exit);

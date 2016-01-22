@@ -69,5 +69,5 @@ static __exit void realview_logger_exit(void)
 		LOG("Failed to unregister logger '%s'", realview_logger.name);
 }
 
-pure_initcall(realview_logger_init);
-pure_exitcall(realview_logger_exit);
+core_initcall(realview_logger_init);
+core_exitcall(realview_logger_exit);

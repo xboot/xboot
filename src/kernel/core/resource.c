@@ -167,9 +167,9 @@ void resource_for_each_with_name(const char * name, bool_t (*fn)(struct resource
 			if((strcmp(pos->res->mach, "public") == 0) || (strcmp(pos->res->mach, mach->name) == 0))
 			{
 				if(fn(pos->res))
-					LOG("Resource iterator with %s:'%s.%d'", pos->res->mach, pos->res->name, pos->res->id);
+					LOG("Iterator resource with %s:'%s.%d'", pos->res->mach, pos->res->name, pos->res->id);
 				else
-					LOG("Fail to resource iterator with %s:'%s.%d'", pos->res->mach, pos->res->name, pos->res->id);
+					LOG("Fail to iterator resource with %s:'%s.%d'", pos->res->mach, pos->res->name, pos->res->id);
 			}
 		}
 	}

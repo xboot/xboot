@@ -43,8 +43,7 @@ uint64_t sandbox_file_length(int fd);
 /*
  * PM interface
  */
-int sandbox_pm_poweron(void);
-int sandbox_pm_poweroff(void);
+int sandbox_pm_shutdown(void);
 int sandbox_pm_reboot(void);
 int sandbox_pm_sleep(void);
 

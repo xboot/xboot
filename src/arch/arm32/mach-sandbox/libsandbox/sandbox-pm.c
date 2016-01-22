@@ -3,12 +3,7 @@
 #include <stdint.h>
 #include <sandbox.h>
 
-int sandbox_pm_poweron(void)
-{
-	return 0;
-}
-
-int sandbox_pm_poweroff(void)
+int sandbox_pm_shutdown(void)
 {
 	sandbox_exit();
 	return 0;

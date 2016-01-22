@@ -26,36 +26,36 @@
 #include <cp15.h>
 
 static const struct mmap_t mach_map[] = {
-	{"ddr", 0x70000000, 0x70000000, SZ_256M, MT_MEMORY},
+	{"memory", 0x70000000, 0x70000000, SZ_256M, MT_MEMORY},
 	{ 0 },
 };
 
-static bool_t mach_detect(void)
+static bool_t mach_detect(struct machine_t * mach)
 {
 	return TRUE;
 }
 
-static bool_t mach_poweron(void)
+static bool_t mach_memmap(struct machine_t * mach)
 {
 	return TRUE;
 }
 
-static bool_t mach_poweroff(void)
+static bool_t mach_shutdown(struct machine_t * mach)
 {
 	return FALSE;
 }
 
-static bool_t mach_reboot(void)
+static bool_t mach_reboot(struct machine_t * mach)
 {
 	return FALSE;
 }
 
-static bool_t mach_sleep(void)
+static bool_t mach_sleep(struct machine_t * mach)
 {
 	return FALSE;
 }
 
-static bool_t mach_cleanup(void)
+static bool_t mach_cleanup(struct machine_t * mach)
 {
 	/* disable irq */
 	irq_disable();
@@ -78,12 +78,12 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-static const char * mach_uniqueid(void)
+static const char * mach_uniqueid(struct machine_t * mach)
 {
 	return NULL;
 }
 
-static int mach_keygen(const char * msg, void * key)
+static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 {
 	return 0;
 }
@@ -93,8 +93,8 @@ static struct machine_t realview = {
 	.desc 		= "ARM RealView Platform Baseboard for Cortex-A8",
 	.map		= mach_map,
 	.detect 	= mach_detect,
-	.poweron	= mach_poweron,
-	.poweroff	= mach_poweroff,
+	.memmap		= mach_memmap,
+	.shutdown	= mach_shutdown,
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,
 	.cleanup	= mach_cleanup,

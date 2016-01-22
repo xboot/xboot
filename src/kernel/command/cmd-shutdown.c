@@ -1,5 +1,5 @@
 /*
- * kernel/core/memory.c
+ * kernel/command/cmd-shutdown.c
  *
  * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,21 +22,45 @@
  *
  */
 
-#include <memory.h>
+#include <command/command.h>
 
-static void __memory_map(void * map)
+static void usage(void)
 {
+	printf("usage:\r\n");
+	printf("    shutdown\r\n");
 }
-extern __typeof(__memory_map) memory_map __attribute__((weak, alias("__memory_map")));
 
-static virtual_addr_t __phys_to_virt(physical_addr_t phys)
+static int do_shutdown(int argc, char ** argv)
 {
-	return (virtual_addr_t)phys;
-}
-extern __typeof(__phys_to_virt) phys_to_virt __attribute__((weak, alias("__phys_to_virt")));
+	sync();
 
-static physical_addr_t __virt_to_phys(virtual_addr_t virt)
-{
-	return (physical_addr_t)virt;
+	if(machine_shutdown())
+	{
+		return 0;
+	}
+	else
+	{
+		printf(" The machine does not support 'shutdown'\r\n");
+		return -1;
+	}
 }
-extern __typeof(__virt_to_phys) virt_to_phys __attribute__((weak, alias("__virt_to_phys")));
+
+static struct command_t cmd_shutdown = {
+	.name	= "shutdown",
+	.desc	= "shutdown the target system",
+	.usage	= usage,
+	.exec	= do_shutdown,
+};
+
+static __init void shutdown_cmd_init(void)
+{
+	register_command(&cmd_shutdown);
+}
+
+static __exit void shutdown_cmd_exit(void)
+{
+	unregister_command(&cmd_shutdown);
+}
+
+command_initcall(shutdown_cmd_init);
+command_exitcall(shutdown_cmd_exit);

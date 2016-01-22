@@ -30,7 +30,6 @@ extern "C" {
 #include <math.h>
 #include <exit.h>
 #include <io.h>
-#include <memory.h>
 #include <list.h>
 #include <fifo.h>
 #include <queue.h>

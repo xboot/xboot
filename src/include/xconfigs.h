@@ -16,10 +16,6 @@ extern "C" {
 #define __MACH__							"sandbox"
 #endif
 
-#if !defined(CONFIG_MMU_ON)
-#define CONFIG_MMU_ON						(0)
-#endif
-
 #if !defined(CONFIG_HEAP_SIZE)
 #define CONFIG_HEAP_SIZE					(SZ_16M)
 #endif

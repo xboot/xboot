@@ -32,34 +32,34 @@ static const struct mmap_t mach_map[] = {
 	{ 0 },
 };
 
-static bool_t mach_detect(void)
+static bool_t mach_detect(struct machine_t * mach)
 {
 	return TRUE;
 }
 
-static bool_t mach_poweron(void)
+static bool_t mach_memmap(struct machine_t * mach)
 {
 	return TRUE;
 }
 
-static bool_t mach_poweroff(void)
+static bool_t mach_shutdown(struct machine_t * mach)
 {
 	return FALSE;
 }
 
-static bool_t mach_reboot(void)
+static bool_t mach_reboot(struct machine_t * mach)
 {
 	write32(phys_to_virt(S5P4418_SYS_PWRCONT), (read32(phys_to_virt(S5P4418_SYS_PWRCONT)) & ~(0x1<<3)) | (0x1<<3));
 	write32(phys_to_virt(S5P4418_SYS_PWRMODE), (read32(phys_to_virt(S5P4418_SYS_PWRMODE)) & ~(0x1<<12)) | (0x1<<12));
 	return TRUE;
 }
 
-static bool_t mach_sleep(void)
+static bool_t mach_sleep(struct machine_t * mach)
 {
 	return FALSE;
 }
 
-static bool_t mach_cleanup(void)
+static bool_t mach_cleanup(struct machine_t * mach)
 {
 	/* disable irq */
 	irq_disable();
@@ -82,7 +82,7 @@ static bool_t mach_cleanup(void)
 	return TRUE;
 }
 
-static const char * mach_uniqueid(void)
+static const char * mach_uniqueid(struct machine_t * mach)
 {
 	static char uniqueid[16 + 1];
 	u32_t ecid0, ecid1;
@@ -97,7 +97,7 @@ static const char * mach_uniqueid(void)
 	return uniqueid;
 }
 
-static int mach_keygen(const char * msg, void * key)
+static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 {
 	return 0;
 }
@@ -107,8 +107,8 @@ static struct machine_t x4418 = {
 	.desc 		= "x4418 based on s5p4412",
 	.map		= mach_map,
 	.detect 	= mach_detect,
-	.poweron	= mach_poweron,
-	.poweroff	= mach_poweroff,
+	.memmap		= mach_memmap,
+	.shutdown	= mach_shutdown,
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,
 	.cleanup	= mach_cleanup,

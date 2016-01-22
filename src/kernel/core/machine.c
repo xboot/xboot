@@ -46,7 +46,7 @@ static const char * __machine_uniqueid(struct machine_t * mach)
 	const char * id = NULL;
 
 	if(mach && mach->uniqueid)
-		id = mach->uniqueid();
+		id = mach->uniqueid(mach);
 	return id ? id : "0123456789";
 }
 
@@ -159,12 +159,12 @@ inline __attribute__((always_inline)) struct machine_t * get_machine(void)
 	return __machine;
 }
 
-bool_t machine_poweroff(void)
+bool_t machine_shutdown(void)
 {
 	struct machine_t * mach = get_machine();
 
-	if(mach && mach->poweroff)
-		return mach->poweroff();
+	if(mach && mach->shutdown)
+		return mach->shutdown(mach);
 	return FALSE;
 }
 
@@ -173,7 +173,7 @@ bool_t machine_reboot(void)
 	struct machine_t * mach = get_machine();
 
 	if(mach && mach->reboot)
-		return mach->reboot();
+		return mach->reboot(mach);
 	return FALSE;
 }
 
@@ -182,7 +182,7 @@ bool_t machine_sleep(void)
 	struct machine_t * mach = get_machine();
 
 	if(mach && mach->sleep)
-		return mach->sleep();
+		return mach->sleep(mach);
 	return FALSE;
 }
 
@@ -191,7 +191,7 @@ bool_t machine_cleanup(void)
 	struct machine_t * mach = get_machine();
 
 	if(mach && mach->cleanup)
-		return mach->cleanup();
+		return mach->cleanup(mach);
 	return FALSE;
 }
 
@@ -206,11 +206,49 @@ int machine_keygen(const char * msg, void * key)
 	struct machine_t * mach = get_machine();
 	int len;
 
-	if(mach && mach->keygen && ((len = mach->keygen(msg, key)) > 0))
+	if(mach && mach->keygen && ((len = mach->keygen(mach, msg, key)) > 0))
 		return len;
 	sha256_hash(msg, strlen(msg), key);
 	return 32;
 }
+
+static virtual_addr_t __phys_to_virt(physical_addr_t phys)
+{
+	struct machine_t * mach = get_machine();
+	struct mmap_t * m;
+
+	if(mach)
+	{
+		m = (struct mmap_t *)mach->map;
+		while(m->size > 0)
+		{
+			if((phys >= m->phys) && (phys <= m->phys + m->size - 1))
+				return (virtual_addr_t)(m->virt + (phys - m->phys));
+			m++;
+		}
+	}
+	return (virtual_addr_t)phys;
+}
+extern __typeof(__phys_to_virt) phys_to_virt __attribute__((weak, alias("__phys_to_virt")));
+
+static physical_addr_t __virt_to_phys(virtual_addr_t virt)
+{
+	struct machine_t * mach = get_machine();
+	struct mmap_t * m;
+
+	if(mach)
+	{
+		m = (struct mmap_t *)mach->map;
+		while(m->size > 0)
+		{
+			if((virt >= m->virt) && (virt <= m->virt + m->size - 1))
+				return (physical_addr_t)(m->phys + (virt - m->virt));
+			m++;
+		}
+	}
+	return (physical_addr_t)virt;
+}
+extern __typeof(__virt_to_phys) virt_to_phys __attribute__((weak, alias("__virt_to_phys")));
 
 void subsys_init_machine(void)
 {
@@ -218,13 +256,11 @@ void subsys_init_machine(void)
 
 	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
 	{
-		if(pos->mach->detect && pos->mach->detect())
+		if(pos->mach->detect && pos->mach->detect(pos->mach))
 		{
+			if(pos->mach->memmap)
+				pos->mach->memmap(pos->mach);
 			__machine = pos->mach;
-
-			if(pos->mach->poweron)
-				pos->mach->poweron();
-
 			LOG("Found machine [%s]", get_machine()->name);
 			return;
 		}

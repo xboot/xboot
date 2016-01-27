@@ -202,7 +202,7 @@ static bool_t pl011_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum
 
 	write32(dat->regbase + UART_IBRD, divider);
 	write32(dat->regbase + UART_FBRD, fraction);
-	write32(dat->regbase + UART_LCRH, (1 << 4) | (dreg<<5 | sreg<<3 | preg<<1));
+	write32(dat->regbase + UART_LCRH, (1 << 4) | ((dreg << 5) | (sreg << 3) | (preg << 1)));
 	return TRUE;
 }
 

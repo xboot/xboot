@@ -43,29 +43,9 @@ static struct resource_t res_led_pwms[] = {
 
 static __init void resource_led_pwm_init(void)
 {
-	u32_t i;
+	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_led_pwms); i++)
-	{
-		if(register_resource(&res_led_pwms[i]))
-			LOG("Register resource %s:'%s.%d'", res_led_pwms[i].mach, res_led_pwms[i].name, res_led_pwms[i].id);
-		else
-			LOG("Failed to register resource %s:'%s.%d'", res_led_pwms[i].mach, res_led_pwms[i].name, res_led_pwms[i].id);
-	}
+		register_resource(&res_led_pwms[i]);
 }
-
-static __exit void resource_led_pwm_exit(void)
-{
-	u32_t i;
-
-	for(i = 0; i < ARRAY_SIZE(res_led_pwms); i++)
-	{
-		if(unregister_resource(&res_led_pwms[i]))
-			LOG("Unregister resource %s:'%s.%d'", res_led_pwms[i].mach, res_led_pwms[i].name, res_led_pwms[i].id);
-		else
-			LOG("Failed to unregister resource %s:'%s.%d'", res_led_pwms[i].mach, res_led_pwms[i].name, res_led_pwms[i].id);
-	}
-}
-
 resource_initcall(resource_led_pwm_init);
-resource_exitcall(resource_led_pwm_exit);

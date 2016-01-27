@@ -44,26 +44,6 @@ static __init void resource_led_trigger_general_init(void)
 	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_led_triggers); i++)
-	{
-		if(register_resource(&res_led_triggers[i]))
-			LOG("Register resource %s:'%s.%d'", res_led_triggers[i].mach, res_led_triggers[i].name, res_led_triggers[i].id);
-		else
-			LOG("Failed to register resource %s:'%s.%d'", res_led_triggers[i].mach, res_led_triggers[i].name, res_led_triggers[i].id);
-	}
+		register_resource(&res_led_triggers[i]);
 }
-
-static __exit void resource_led_trigger_general_exit(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(res_led_triggers); i++)
-	{
-		if(unregister_resource(&res_led_triggers[i]))
-			LOG("Unregister resource %s:'%s.%d'", res_led_triggers[i].mach, res_led_triggers[i].name, res_led_triggers[i].id);
-		else
-			LOG("Failed to unregister resource %s:'%s.%d'", res_led_triggers[i].mach, res_led_triggers[i].name, res_led_triggers[i].id);
-	}
-}
-
 resource_initcall(resource_led_trigger_general_init);
-resource_exitcall(resource_led_trigger_general_exit);

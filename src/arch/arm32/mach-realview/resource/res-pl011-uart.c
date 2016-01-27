@@ -102,26 +102,6 @@ static __init void resource_uart_init(void)
 	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
-	{
-		if(register_resource(&res_uarts[i]))
-			LOG("Register resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-		else
-			LOG("Failed to register resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-	}
+		register_resource(&res_uarts[i]);
 }
-
-static __exit void resource_uart_exit(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
-	{
-		if(unregister_resource(&res_uarts[i]))
-			LOG("Unregister resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-		else
-			LOG("Failed to unregister resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-	}
-}
-
 resource_initcall(resource_uart_init);
-resource_exitcall(resource_uart_exit);

@@ -42,29 +42,9 @@ static struct resource_t res_i2cs[] = {
 
 static __init void resource_realview_i2c_init(void)
 {
-	u32_t i;
+	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_i2cs); i++)
-	{
-		if(register_resource(&res_i2cs[i]))
-			LOG("Register resource %s:'%s.%d'", res_i2cs[i].mach, res_i2cs[i].name, res_i2cs[i].id);
-		else
-			LOG("Failed to register resource %s:'%s.%d'", res_i2cs[i].mach, res_i2cs[i].name, res_i2cs[i].id);
-	}
+		register_resource(&res_i2cs[i]);
 }
-
-static __exit void resource_realview_i2c_exit(void)
-{
-	u32_t i;
-
-	for(i = 0; i < ARRAY_SIZE(res_i2cs); i++)
-	{
-		if(unregister_resource(&res_i2cs[i]))
-			LOG("Unregister resource %s:'%s.%d'", res_i2cs[i].mach, res_i2cs[i].name, res_i2cs[i].id);
-		else
-			LOG("Failed to unregister resource %s:'%s.%d'", res_i2cs[i].mach, res_i2cs[i].name, res_i2cs[i].id);
-	}
-}
-
 resource_initcall(resource_realview_i2c_init);
-resource_exitcall(resource_realview_i2c_exit);

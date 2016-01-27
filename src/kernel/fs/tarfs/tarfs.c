@@ -557,5 +557,5 @@ static __exit void filesystem_tarfs_exit(void)
 		LOG("Failed to unregister filesystem 'tarfs'");
 }
 
-core_initcall(filesystem_tarfs_init);
-core_exitcall(filesystem_tarfs_exit);
+subsys_initcall(filesystem_tarfs_init);
+subsys_exitcall(filesystem_tarfs_exit);

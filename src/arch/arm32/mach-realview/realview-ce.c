@@ -74,9 +74,6 @@ static struct clockevent_t realview_ce = {
 
 static __init void realview_clockevent_init(void)
 {
-	if(register_clockevent(&realview_ce))
-		LOG("Register clockevent");
-	else
-		LOG("Failed to register clockevent");
+	register_clockevent(&realview_ce);
 }
 core_initcall(realview_clockevent_init);

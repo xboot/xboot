@@ -66,29 +66,9 @@ static struct resource_t res_led_simples[] = {
 
 static __init void resource_led_simple_init(void)
 {
-	u32_t i;
+	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_led_simples); i++)
-	{
-		if(register_resource(&res_led_simples[i]))
-			LOG("Register resource %s:'%s.%d'", res_led_simples[i].mach, res_led_simples[i].name, res_led_simples[i].id);
-		else
-			LOG("Failed to register resource %s:'%s.%d'", res_led_simples[i].mach, res_led_simples[i].name, res_led_simples[i].id);
-	}
+		register_resource(&res_led_simples[i]);
 }
-
-static __exit void resource_led_simple_exit(void)
-{
-	u32_t i;
-
-	for(i = 0; i < ARRAY_SIZE(res_led_simples); i++)
-	{
-		if(unregister_resource(&res_led_simples[i]))
-			LOG("Unregister resource %s:'%s.%d'", res_led_simples[i].mach, res_led_simples[i].name, res_led_simples[i].id);
-		else
-			LOG("Failed to unregister resource %s:'%s.%d'", res_led_simples[i].mach, res_led_simples[i].name, res_led_simples[i].id);
-	}
-}
-
 resource_initcall(resource_led_simple_init);
-resource_exitcall(resource_led_simple_exit);

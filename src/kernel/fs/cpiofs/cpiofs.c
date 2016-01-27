@@ -506,5 +506,5 @@ static __exit void filesystem_cpiofs_exit(void)
 		LOG("Failed to unregister filesystem 'cpiofs'");
 }
 
-core_initcall(filesystem_cpiofs_init);
-core_exitcall(filesystem_cpiofs_exit);
+subsys_initcall(filesystem_cpiofs_init);
+subsys_exitcall(filesystem_cpiofs_exit);

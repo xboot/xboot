@@ -157,5 +157,5 @@ static __exit void partition_map_msdos_exit(void)
 		LOG("Fail to unregister partition map 'msdos'");
 }
 
-core_initcall(partition_map_msdos_init);
-core_exitcall(partition_map_msdos_exit);
+subsys_initcall(partition_map_msdos_init);
+subsys_exitcall(partition_map_msdos_exit);

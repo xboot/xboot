@@ -58,9 +58,6 @@ static struct clocksource_t realview_cs = {
 
 static __init void realview_clocksource_init(void)
 {
-	if(register_clocksource(&realview_cs))
-		LOG("Register clocksource");
-	else
-		LOG("Failed to register clocksource");
+	register_clocksource(&realview_cs);
 }
 core_initcall(realview_clocksource_init);

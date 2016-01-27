@@ -175,30 +175,7 @@ static __init void realview_gpiochip_init(void)
 		chip->to_irq = realview_gpiochip_to_irq;
 		chip->priv = &gpiochip_datas[i];
 
-		if(register_gpiochip(chip))
-			LOG("Register gpiochip '%s'", chip->name);
-		else
-			LOG("Failed to register gpiochip '%s'", chip->name);
+		register_gpiochip(chip);
 	}
 }
-
-static __exit void realview_gpiochip_exit(void)
-{
-	struct gpiochip_t * chip;
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(gpiochip_datas); i++)
-	{
-		chip = search_gpiochip(gpiochip_datas[i].name);
-		if(!chip)
-			continue;
-		if(unregister_gpiochip(chip))
-			LOG("Unregister gpiochip '%s'", chip->name);
-		else
-			LOG("Failed to unregister gpiochip '%s'", chip->name);
-		free(chip);
-	}
-}
-
 core_initcall(realview_gpiochip_init);
-core_exitcall(realview_gpiochip_exit);

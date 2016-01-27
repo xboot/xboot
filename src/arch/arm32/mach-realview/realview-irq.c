@@ -356,34 +356,10 @@ static __init void realview_irq_init(void)
 	gic_cpu_init(REALVIEW_GIC_DIST_BASE, REALVIEW_GIC_CPU_BASE);
 
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
-	{
-		if(irq_register(&realview_irqs[i]))
-			LOG("Register irq '%s'", realview_irqs[i].name);
-		else
-			LOG("Failed to register irq '%s'", realview_irqs[i].name);
-	}
+		irq_register(&realview_irqs[i]);
 
 	vic_enable();
 	irq_enable();
 	fiq_enable();
 }
-
-static __exit void realview_irq_exit(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
-	{
-		if(irq_unregister(&realview_irqs[i]))
-			LOG("Unregister irq '%s'", realview_irqs[i].name);
-		else
-			LOG("Failed to unregister irq '%s'", realview_irqs[i].name);
-	}
-
-	vic_disable();
-	irq_disable();
-	fiq_disable();
-}
-
 core_initcall(realview_irq_init);
-core_exitcall(realview_irq_exit);

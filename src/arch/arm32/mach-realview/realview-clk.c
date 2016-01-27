@@ -51,26 +51,6 @@ static __init void realview_clk_init(void)
 	int i;
 
 	for(i = 0; i < ARRAY_SIZE(realview_clks); i++)
-	{
-		if(clk_fixed_register(&realview_clks[i]))
-			LOG("Register clock source '%s' [%LdHZ]", realview_clks[i].name, realview_clks[i].rate);
-		else
-			LOG("Failed to register clock source '%s' [%LdHZ]", realview_clks[i].name, realview_clks[i].rate);
-	}
+		clk_fixed_register(&realview_clks[i]);
 }
-
-static __exit void realview_clk_exit(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(realview_clks); i++)
-	{
-		if(clk_fixed_unregister(&realview_clks[i]))
-			LOG("Unregister clock source '%s' [%LdHZ]", realview_clks[i].name, realview_clks[i].rate);
-		else
-			LOG("Failed to unregister clock '%s' [%LdHZ]", realview_clks[i].name, realview_clks[i].rate);
-	}
-}
-
 core_initcall(realview_clk_init);
-core_exitcall(realview_clk_exit);

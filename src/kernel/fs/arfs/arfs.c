@@ -367,5 +367,5 @@ static __exit void filesystem_arfs_exit(void)
 		LOG("Failed to unregister filesystem 'arfs'");
 }
 
-core_initcall(filesystem_arfs_init);
-core_exitcall(filesystem_arfs_exit);
+subsys_initcall(filesystem_arfs_init);
+subsys_exitcall(filesystem_arfs_exit);

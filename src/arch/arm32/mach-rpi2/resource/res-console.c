@@ -26,9 +26,9 @@
 #include <console/console.h>
 
 static struct console_stdio_data_t console_stdio_data = {
-	.in		= "bcm2836-uart.0",
-	.out	= "bcm2836-uart.0",
-	.err	= "bcm2836-uart.0",
+	.in		= "pl011-uart.0",
+	.out	= "pl011-uart.0",
+	.err	= "pl011-uart.0",
 };
 
 static struct resource_t res_console = {
@@ -39,19 +39,6 @@ static struct resource_t res_console = {
 
 static __init void resource_console_init(void)
 {
-	if(register_resource(&res_console))
-		LOG("Register resource %s:'%s.%d'", res_console.mach, res_console.name, res_console.id);
-	else
-		LOG("Failed to register resource %s:'%s.%d'", res_console.mach, res_console.name, res_console.id);
+	register_resource(&res_console);
 }
-
-static __exit void resource_console_exit(void)
-{
-	if(unregister_resource(&res_console))
-		LOG("Unregister resource %s:'%s.%d'", res_console.mach, res_console.name, res_console.id);
-	else
-		LOG("Failed to unregister resource %s:'%s.%d'", res_console.mach, res_console.name, res_console.id);
-}
-
 resource_initcall(resource_console_init);
-resource_exitcall(resource_console_exit);

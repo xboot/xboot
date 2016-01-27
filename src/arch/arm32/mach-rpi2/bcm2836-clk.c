@@ -36,26 +36,6 @@ static __init void bcm2836_clk_init(void)
 	int i;
 
 	for(i = 0; i < ARRAY_SIZE(bcm2836_clks); i++)
-	{
-		if(clk_fixed_register(&bcm2836_clks[i]))
-			LOG("Register clock source '%s' [%LdHZ]", bcm2836_clks[i].name, bcm2836_clks[i].rate);
-		else
-			LOG("Failed to register clock source '%s' [%LdHZ]", bcm2836_clks[i].name, bcm2836_clks[i].rate);
-	}
+		clk_fixed_register(&bcm2836_clks[i]);
 }
-
-static __exit void bcm2836_clk_exit(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(bcm2836_clks); i++)
-	{
-		if(clk_fixed_unregister(&bcm2836_clks[i]))
-			LOG("Unregister clock source '%s' [%LdHZ]", bcm2836_clks[i].name, bcm2836_clks[i].rate);
-		else
-			LOG("Failed to unregister clock '%s' [%LdHZ]", bcm2836_clks[i].name, bcm2836_clks[i].rate);
-	}
-}
-
 core_initcall(bcm2836_clk_init);
-core_exitcall(bcm2836_clk_exit);

@@ -27,6 +27,8 @@
 
 static void logger_uart0_init(void)
 {
+	virtual_addr_t regbase = phys_to_virt(REALVIEW_UART0_BASE);
+	write32(regbase + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void logger_uart0_exit(void)

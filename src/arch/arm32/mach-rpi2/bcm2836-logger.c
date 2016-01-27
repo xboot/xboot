@@ -23,12 +23,12 @@
  */
 
 #include <xboot.h>
-#include <bcm2836/reg-gpio.h>
 #include <bcm2836/reg-uart.h>
 
 static void logger_uart0_init(void)
 {
-	write32(phys_to_virt(BCM2836_UART0_BASE + UART_CR), (1 << 0) | (1 << 8) | (1 << 9));
+	virtual_addr_t regbase = phys_to_virt(BCM2836_UART0_BASE);
+	write32(regbase + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void logger_uart0_exit(void)
@@ -37,12 +37,13 @@ static void logger_uart0_exit(void)
 
 static ssize_t logger_uart0_output(const char * buf, size_t count)
 {
+	virtual_addr_t regbase = phys_to_virt(BCM2836_UART0_BASE);
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
 	{
-		while( (read8(phys_to_virt(BCM2836_UART0_BASE + UART_FR)) & UART_FR_TXFF) );
-		write8(phys_to_virt(BCM2836_UART0_BASE + UART_DATA), buf[i]);
+		while(read8(regbase + 0x18) & (0x1 << 5));
+		write8(regbase + 0x00, buf[i]);
 	}
 	return i;
 }
@@ -56,19 +57,6 @@ static struct logger_t bcm2836_logger = {
 
 static __init void bcm2836_logger_init(void)
 {
-	if(register_logger(&bcm2836_logger))
-		LOG("Register logger '%s'", bcm2836_logger.name);
-	else
-		LOG("Failed to register logger '%s'", bcm2836_logger.name);
+	register_logger(&bcm2836_logger);
 }
-
-static __exit void bcm2836_logger_exit(void)
-{
-	if(unregister_logger(&bcm2836_logger))
-		LOG("Unregister logger '%s'", bcm2836_logger.name);
-	else
-		LOG("Failed to unregister logger '%s'", bcm2836_logger.name);
-}
-
 core_initcall(bcm2836_logger_init);
-core_exitcall(bcm2836_logger_exit);

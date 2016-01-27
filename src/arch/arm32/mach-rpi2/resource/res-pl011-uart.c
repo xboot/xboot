@@ -1,5 +1,5 @@
 /*
- * resource/res-uart.c
+ * resource/res-pl011-uart.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,10 +23,17 @@
  */
 
 #include <xboot.h>
-#include <bcm2836-uart.h>
+#include <pl011-uart.h>
+#include <bcm2836-gpio.h>
+#include <bcm2836/reg-uart.h>
 
-static struct bcm2836_uart_data_t bcm2836_uart_data[] = {
+static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
+		.clk		= "uart0-clk",
+		.txdpin		= BCM2836_GPIO(14),
+		.txdcfg		= 0,
+		.rxdpin		= BCM2836_GPIO(15),
+		.rxdcfg		= 0,
 		.baud		= B115200,
 		.data		= DATA_BITS_8,
 		.parity		= PARITY_NONE,
@@ -37,9 +44,9 @@ static struct bcm2836_uart_data_t bcm2836_uart_data[] = {
 
 static struct resource_t res_uarts[] = {
 	{
-		.name		= "bcm2836-uart",
+		.name		= "pl011-uart",
 		.id			= 0,
-		.data		= &bcm2836_uart_data[0],
+		.data		= &uart_datas[0],
 	}
 };
 
@@ -48,26 +55,6 @@ static __init void resource_uart_init(void)
 	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
-	{
-		if(register_resource(&res_uarts[i]))
-			LOG("Register resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-		else
-			LOG("Failed to register resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-	}
+		register_resource(&res_uarts[i]);
 }
-
-static __exit void resource_uart_exit(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
-	{
-		if(unregister_resource(&res_uarts[i]))
-			LOG("Unregister resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-		else
-			LOG("Failed to unregister resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-	}
-}
-
 resource_initcall(resource_uart_init);
-resource_exitcall(resource_uart_exit);

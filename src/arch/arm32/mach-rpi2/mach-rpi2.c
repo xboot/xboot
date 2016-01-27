@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <cp15.h>
 
 static const struct mmap_t mach_map[] = {
 	{ 0 },
@@ -56,24 +55,6 @@ static bool_t mach_sleep(struct machine_t * mach)
 
 static bool_t mach_cleanup(struct machine_t * mach)
 {
-	/* disable irq */
-	irq_disable();
-
-	/* disable fiq */
-	fiq_disable();
-
-	/* disable icache */
-	icache_disable();
-
-	/* disable dcache */
-	dcache_disable();
-
-	/* disable mmu */
-	mmu_disable();
-
-	/* disable vic */
-	vic_disable();
-
 	return TRUE;
 }
 

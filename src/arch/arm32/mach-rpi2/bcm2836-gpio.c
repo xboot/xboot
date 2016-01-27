@@ -231,40 +231,27 @@ static struct bcm2836_gpiochip_data_t gpiochip_data = {
 };
 
 struct gpiochip_t gpiochip_alv = {
-	.name		= "GPIO",
-	.base		= BCM2836_GPIO(0),
-	.ngpio		= 54,
-	.set_cfg	= bcm2836_gpiochip_set_cfg,
-	.get_cfg	= bcm2836_gpiochip_get_cfg,
-	.set_pull	= bcm2836_gpiochip_set_pull,
-	.get_pull	= bcm2836_gpiochip_get_pull,
-	.set_drv	= bcm2836_gpiochip_set_drv,
-	.get_drv	= bcm2836_gpiochip_get_drv,
-	.set_rate	= bcm2836_gpiochip_set_rate,
-	.get_rate	= bcm2836_gpiochip_get_rate,
-	.set_dir	= bcm2836_gpiochip_set_dir,
-	.get_dir	= bcm2836_gpiochip_get_dir,
-	.set_value	= bcm2836_gpiochip_set_value,
-	.get_value	= bcm2836_gpiochip_get_value,
-	.to_irq		= bcm2836_gpiochip_to_irq,
-	.priv		= &gpiochip_data,
+	.name = "GPIO",
+	.base = BCM2836_GPIO(0),
+	.ngpio = 54,
+	.set_cfg = bcm2836_gpiochip_set_cfg,
+	.get_cfg = bcm2836_gpiochip_get_cfg,
+	.set_pull = bcm2836_gpiochip_set_pull,
+	.get_pull = bcm2836_gpiochip_get_pull,
+	.set_drv = bcm2836_gpiochip_set_drv,
+	.get_drv = bcm2836_gpiochip_get_drv,
+	.set_rate = bcm2836_gpiochip_set_rate,
+	.get_rate = bcm2836_gpiochip_get_rate,
+	.set_dir = bcm2836_gpiochip_set_dir,
+	.get_dir = bcm2836_gpiochip_get_dir,
+	.set_value = bcm2836_gpiochip_set_value,
+	.get_value = bcm2836_gpiochip_get_value,
+	.to_irq = bcm2836_gpiochip_to_irq,
+	.priv = &gpiochip_data,
 };
 
 static __init void bcm2836_gpiochip_init(void)
 {
-	if(register_gpiochip(&gpiochip_alv))
-		LOG("Register gpiochip '%s'", gpiochip_alv.name);
-	else
-		LOG("Failed to register gpiochip '%s'", gpiochip_alv.name);
+	register_gpiochip(&gpiochip_alv);
 }
-
-static __exit void bcm2836_gpiochip_exit(void)
-{
-	if(unregister_gpiochip(&gpiochip_alv))
-		LOG("Unregister gpiochip '%s'", gpiochip_alv.name);
-	else
-		LOG("Failed to unregister gpiochip '%s'", gpiochip_alv.name);
-}
-
 core_initcall(bcm2836_gpiochip_init);
-core_exitcall(bcm2836_gpiochip_exit);

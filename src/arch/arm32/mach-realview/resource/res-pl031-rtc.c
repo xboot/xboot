@@ -1,5 +1,5 @@
 /*
- * resource/res-rtc.c
+ * resource/res-pl031-rtc.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,16 +23,17 @@
  */
 
 #include <xboot.h>
-#include <realview-rtc.h>
+#include <pl031-rtc.h>
+#include <realview/reg-rtc.h>
 
-static struct realview_rtc_data_t realview_rtc_data = {
+static struct pl031_rtc_data_t rtc_data = {
 	.regbase	= REALVIEW_RTC_BASE,
 };
 
 static struct resource_t res_rtc = {
-	.name		= "realview-rtc",
+	.name		= "pl031-rtc",
 	.id			= -1,
-	.data		= &realview_rtc_data,
+	.data		= &rtc_data,
 };
 
 static __init void resource_rtc_init(void)

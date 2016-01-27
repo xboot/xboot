@@ -1,7 +1,5 @@
 /*
- * driver/realview_rtc.c
- *
- * realview rtc drivers, the primecell pl031 real time clock.
+ * driver/pl031-rtc.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,48 +22,59 @@
  *
  */
 
-#include <xboot.h>
-#include <realview-rtc.h>
+#include <pl031-rtc.h>
 
-#define LEAPS_THRU_END_OF(y)	((y)/4 - (y)/100 + (y)/400)
-#define LEAP_YEAR(year)			((!(year % 4) && (year % 100)) || !(year % 400))
+#define RTC_DR		(0x00)	/* Data read register */
+#define RTC_MR		(0x04)	/* Match register */
+#define RTC_LR		(0x08)	/* Data load register */
+#define RTC_CR		(0x0c)	/* Control register */
+#define RTC_IMSC	(0x10)	/* Interrupt mask and set register */
+#define RTC_RIS		(0x14)	/* Raw interrupt status register */
+#define RTC_MIS		(0x18)	/* Masked interrupt status register */
+#define RTC_ICR		(0x1c)	/* Interrupt clear register */
 
-static const u8_t rtc_days_in_month[13] = {
-	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+struct pl031_rtc_private_data_t {
+	virtual_addr_t regbase;
 };
 
-static u32_t rtc_month_days(u32_t year, u32_t month)
+#define LEAPS_THRU_END(y)	((y)/4 - (y)/100 + (y)/400)
+#define LEAP_YEAR(year)		((!(year % 4) && (year % 100)) || !(year % 400))
+
+static int rtc_month_days(int year, int month)
 {
-	return rtc_days_in_month[month] + (LEAP_YEAR(year) && month == 2);
+	const unsigned char rtc_days_in_month[13] = {
+		0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+	};
+	return rtc_days_in_month[month] + (LEAP_YEAR(year) && (month == 2));
 }
 
 static bool_t rtc_valid_time(struct rtc_time_t * rt)
 {
-	if (rt->year < 1970
-		|| (rt->mon) > 12
-		|| rt->day < 1
-		|| rt->day > rtc_month_days(rt->year, rt->mon)
-		|| (rt->hour) >= 24
-		|| (rt->min) >= 60
-		|| (rt->sec) >= 60)
+	if((rt->year < 1970)
+		|| ((rt->mon) > 12)
+		|| (rt->day < 1)
+		|| (rt->day > rtc_month_days(rt->year, rt->mon))
+		|| ((rt->hour) >= 24)
+		|| ((rt->min) >= 60)
+		|| ((rt->sec) >= 60))
 		return FALSE;
 
 	return TRUE;
 }
 
-static void rtc_to_time(unsigned long time, struct rtc_time_t * rt)
+static void to_rtc_time(u32_t time, struct rtc_time_t * rt)
 {
 	u32_t month, year;
-	s32_t days;
-	s32_t newdays;
+	int days;
+	int newdays;
 
 	days = time / 86400;
-	time -= (u32_t) days * 86400;
+	time -= (u32_t)days * 86400;
 
 	rt->week = (days + 4) % 7;
 
 	year = 1970 + days / 365;
-	days -= (year - 1970) * 365	+ LEAPS_THRU_END_OF(year - 1) - LEAPS_THRU_END_OF(1970 - 1);
+	days -= (year - 1970) * 365	+ LEAPS_THRU_END(year - 1) - LEAPS_THRU_END(1970 - 1);
 
 	if(days < 0)
 	{
@@ -91,9 +100,9 @@ static void rtc_to_time(unsigned long time, struct rtc_time_t * rt)
 	rt->sec = time - rt->min * 60;
 }
 
-static u32_t time_to_rtc(struct rtc_time_t * rt)
+static u32_t from_rtc_time(struct rtc_time_t * rt)
 {
-	u32_t mon = rt->mon, year = rt->year;
+	int mon = rt->mon, year = rt->year;
 
 	if (0 >= (int)(mon -= 2))
 	{
@@ -114,23 +123,19 @@ static void rtc_exit(struct rtc_t * rtc)
 
 static bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	struct resource_t * res = (struct resource_t *)rtc->priv;
-	struct realview_rtc_data_t * dat = (struct realview_rtc_data_t *)res->data;
+	struct pl031_rtc_private_data_t * dat = (struct pl031_rtc_private_data_t *)rtc->priv;
 
-	if(rtc_valid_time(time))
-	{
-		write32(phys_to_virt(dat->regbase + RTC_LR), time_to_rtc(time));
-		return TRUE;
-	}
-	return FALSE;
+	if(!rtc_valid_time(time))
+		return FALSE;
+	write32(dat->regbase + RTC_LR, from_rtc_time(time));
+	return TRUE;
 }
 
 static bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	struct resource_t * res = (struct resource_t *)rtc->priv;
-	struct realview_rtc_data_t * dat = (struct realview_rtc_data_t *)res->data;
+	struct pl031_rtc_private_data_t * dat = (struct pl031_rtc_private_data_t *)rtc->priv;
 
-	rtc_to_time(read32(phys_to_virt(dat->regbase + RTC_DR)), time);
+	to_rtc_time(read32(dat->regbase + RTC_DR), time);
 	return TRUE;
 }
 
@@ -142,17 +147,27 @@ static void rtc_resume(struct rtc_t * rtc)
 {
 }
 
-static bool_t realview_register_rtc(struct resource_t * res)
+static bool_t pl031_register_rtc(struct resource_t * res)
 {
+	struct pl031_rtc_data_t * rdat = (struct pl031_rtc_data_t *)res->data;
+	struct pl031_rtc_private_data_t * dat;
 	struct rtc_t * rtc;
 	char name[64];
 
+	dat = malloc(sizeof(struct pl031_rtc_private_data_t));
+	if(!dat)
+		return FALSE;
+
 	rtc = malloc(sizeof(struct rtc_t));
 	if(!rtc)
+	{
+		free(dat);
 		return FALSE;
+	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
+	dat->regbase = phys_to_virt(rdat->regbase);
 	rtc->name = strdup(name);
 	rtc->init = rtc_init;
 	rtc->exit = rtc_exit;
@@ -160,17 +175,18 @@ static bool_t realview_register_rtc(struct resource_t * res)
 	rtc->gettime = rtc_gettime,
 	rtc->suspend = rtc_suspend,
 	rtc->resume	= rtc_resume,
-	rtc->priv = res;
+	rtc->priv = dat;
 
 	if(register_rtc(rtc))
 		return TRUE;
 
+	free(rtc->priv);
 	free(rtc->name);
 	free(rtc);
 	return FALSE;
 }
 
-static bool_t realview_unregister_rtc(struct resource_t * res)
+static bool_t pl031_unregister_rtc(struct resource_t * res)
 {
 	struct rtc_t * rtc;
 	char name[64];
@@ -184,20 +200,21 @@ static bool_t realview_unregister_rtc(struct resource_t * res)
 	if(!unregister_rtc(rtc))
 		return FALSE;
 
+	free(rtc->priv);
 	free(rtc->name);
 	free(rtc);
 	return TRUE;
 }
 
-static __init void realview_rtc_init(void)
+static __init void pl031_rtc_init(void)
 {
-	resource_for_each_with_name("realview-rtc", realview_register_rtc);
+	resource_for_each_with_name("pl031-rtc", pl031_register_rtc);
 }
 
-static __exit void realview_rtc_exit(void)
+static __exit void pl031_rtc_exit(void)
 {
-	resource_for_each_with_name("realview-rtc", realview_unregister_rtc);
+	resource_for_each_with_name("pl031-rtc", pl031_unregister_rtc);
 }
 
-device_initcall(realview_rtc_init);
-device_exitcall(realview_rtc_exit);
+device_initcall(pl031_rtc_init);
+device_exitcall(pl031_rtc_exit);

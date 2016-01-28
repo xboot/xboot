@@ -40,7 +40,7 @@ static int do_shutdown(int argc, char ** argv)
 	}
 	else
 	{
-		printf(" The machine does not support 'shutdown'\r\n");
+		printf(" This machine doesn't support 'shutdown'\r\n");
 		return -1;
 	}
 }

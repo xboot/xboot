@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <bcm2836/reg-pm.h>
 
 static const struct mmap_t mach_map[] = {
 	{ 0 },
@@ -45,7 +46,15 @@ static bool_t mach_shutdown(struct machine_t * mach)
 
 static bool_t mach_reboot(struct machine_t * mach)
 {
-	return FALSE;
+	virtual_addr_t regbase = phys_to_virt(BCM2836_PM_BASE);
+	u32_t val;
+
+	val = read32(regbase + PM_RSTC);
+	val &= ~0x30;
+	val |= 0x20;
+	write32(regbase + PM_WDOG, (0x5a << 24) | 1);
+	write32(regbase + PM_RSTC, (0x5a << 24) | val);
+	return TRUE;
 }
 
 static bool_t mach_sleep(struct machine_t * mach)

@@ -40,7 +40,7 @@ static int reboot(int argc, char ** argv)
 	}
 	else
 	{
-		printf(" the machine does not support 'reboot'\r\n");
+		printf(" This machine doesn't support 'reboot'\r\n");
 		return -1;
 	}
 }

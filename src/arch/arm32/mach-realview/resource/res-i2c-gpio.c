@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <bus/i2c-gpio.h>
-#include <realview/reg-gpio.h>
+#include <realview-gpio.h>
 
 static struct i2c_gpio_data_t i2c_gpio_datas[] = {
 	[0] = {

@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <input/key-gpio.h>
-#include <realview/reg-gpio.h>
+#include <realview-gpio.h>
 
 static struct gpio_button_t buttons[] = {
 	{

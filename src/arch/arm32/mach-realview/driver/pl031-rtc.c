@@ -33,7 +33,7 @@
 #define RTC_MIS		(0x18)	/* Masked interrupt status register */
 #define RTC_ICR		(0x1c)	/* Interrupt clear register */
 
-struct pl031_rtc_private_data_t {
+struct pl031_rtc_pdata_t {
 	virtual_addr_t regbase;
 };
 
@@ -123,19 +123,19 @@ static void rtc_exit(struct rtc_t * rtc)
 
 static bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	struct pl031_rtc_private_data_t * dat = (struct pl031_rtc_private_data_t *)rtc->priv;
+	struct pl031_rtc_pdata_t * pdat = (struct pl031_rtc_pdata_t *)rtc->priv;
 
 	if(!rtc_valid_time(time))
 		return FALSE;
-	write32(dat->regbase + RTC_LR, from_rtc_time(time));
+	write32(pdat->regbase + RTC_LR, from_rtc_time(time));
 	return TRUE;
 }
 
 static bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	struct pl031_rtc_private_data_t * dat = (struct pl031_rtc_private_data_t *)rtc->priv;
+	struct pl031_rtc_pdata_t * pdat = (struct pl031_rtc_pdata_t *)rtc->priv;
 
-	to_rtc_time(read32(dat->regbase + RTC_DR), time);
+	to_rtc_time(read32(pdat->regbase + RTC_DR), time);
 	return TRUE;
 }
 
@@ -150,24 +150,24 @@ static void rtc_resume(struct rtc_t * rtc)
 static bool_t pl031_register_rtc(struct resource_t * res)
 {
 	struct pl031_rtc_data_t * rdat = (struct pl031_rtc_data_t *)res->data;
-	struct pl031_rtc_private_data_t * dat;
+	struct pl031_rtc_pdata_t * pdat;
 	struct rtc_t * rtc;
 	char name[64];
 
-	dat = malloc(sizeof(struct pl031_rtc_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct pl031_rtc_pdata_t));
+	if(!pdat)
 		return FALSE;
 
 	rtc = malloc(sizeof(struct rtc_t));
 	if(!rtc)
 	{
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->regbase = phys_to_virt(rdat->regbase);
+	pdat->regbase = phys_to_virt(rdat->regbase);
 	rtc->name = strdup(name);
 	rtc->init = rtc_init;
 	rtc->exit = rtc_exit;
@@ -175,7 +175,7 @@ static bool_t pl031_register_rtc(struct resource_t * res)
 	rtc->gettime = rtc_gettime,
 	rtc->suspend = rtc_suspend,
 	rtc->resume	= rtc_resume,
-	rtc->priv = dat;
+	rtc->priv = pdat;
 
 	if(register_rtc(rtc))
 		return TRUE;

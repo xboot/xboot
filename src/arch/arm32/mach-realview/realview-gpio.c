@@ -34,7 +34,7 @@ struct realview_gpiochip_data_t
 	physical_addr_t regbase;
 };
 
-struct realview_gpiochip_private_data_t
+struct realview_gpiochip_pdata_t
 {
 	virtual_addr_t regbase;
 };
@@ -96,7 +96,7 @@ static enum gpio_rate_t realview_gpiochip_get_rate(struct gpiochip_t * chip, int
 
 static void realview_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
 {
-	struct realview_gpiochip_private_data_t * dat = (struct realview_gpiochip_private_data_t *)chip->priv;
+	struct realview_gpiochip_pdata_t * pdat = (struct realview_gpiochip_pdata_t *)chip->priv;
 	u8_t val;
 
 	if(offset >= chip->ngpio)
@@ -105,15 +105,15 @@ static void realview_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum
 	switch(dir)
 	{
 	case GPIO_DIRECTION_INPUT:
-		val = read8(dat->regbase + GPIO_DIR);
+		val = read8(pdat->regbase + GPIO_DIR);
 		val &= ~(1 << offset);
-		write8(dat->regbase + GPIO_DIR, val);
+		write8(pdat->regbase + GPIO_DIR, val);
 		break;
 
 	case GPIO_DIRECTION_OUTPUT:
-		val = read8(dat->regbase + GPIO_DIR);
+		val = read8(pdat->regbase + GPIO_DIR);
 		val |= 1 << offset;
-		write8(dat->regbase + GPIO_DIR, val);
+		write8(pdat->regbase + GPIO_DIR, val);
 		break;
 
 	default:
@@ -123,13 +123,13 @@ static void realview_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum
 
 static enum gpio_direction_t realview_gpiochip_get_dir(struct gpiochip_t * chip, int offset)
 {
-	struct realview_gpiochip_private_data_t * dat = (struct realview_gpiochip_private_data_t *)chip->priv;
+	struct realview_gpiochip_pdata_t * pdat = (struct realview_gpiochip_pdata_t *)chip->priv;
 	u8_t val;
 
 	if(offset >= chip->ngpio)
 		return GPIO_DIRECTION_UNKOWN;
 
-	val = read8(dat->regbase + GPIO_DIR);
+	val = read8(pdat->regbase + GPIO_DIR);
 	if((val & (1 << offset)) == 0)
 		return GPIO_DIRECTION_INPUT;
 	return GPIO_DIRECTION_OUTPUT;
@@ -137,14 +137,14 @@ static enum gpio_direction_t realview_gpiochip_get_dir(struct gpiochip_t * chip,
 
 static void realview_gpiochip_set_value(struct gpiochip_t * chip, int offset, int value)
 {
-	struct realview_gpiochip_private_data_t * dat = (struct realview_gpiochip_private_data_t *)chip->priv;
-	write8(dat->regbase + (1 << (offset + 2)), !!value << offset);
+	struct realview_gpiochip_pdata_t * pdat = (struct realview_gpiochip_pdata_t *)chip->priv;
+	write8(pdat->regbase + (1 << (offset + 2)), !!value << offset);
 }
 
 static int realview_gpiochip_get_value(struct gpiochip_t * chip, int offset)
 {
-	struct realview_gpiochip_private_data_t * dat = (struct realview_gpiochip_private_data_t *)chip->priv;
-	return !!read8(dat->regbase + (1 << (offset + 2)));
+	struct realview_gpiochip_pdata_t * pdat = (struct realview_gpiochip_pdata_t *)chip->priv;
+	return !!read8(pdat->regbase + (1 << (offset + 2)));
 }
 
 static const char * realview_gpiochip_to_irq(struct gpiochip_t * chip, int offset)
@@ -154,24 +154,24 @@ static const char * realview_gpiochip_to_irq(struct gpiochip_t * chip, int offse
 
 static __init void realview_gpiochip_init(void)
 {
-	struct realview_gpiochip_private_data_t * dat;
+	struct realview_gpiochip_pdata_t * pdat;
 	struct gpiochip_t * chip;
 	int i;
 
 	for(i = 0; i < ARRAY_SIZE(gpiochip_datas); i++)
 	{
-		dat = malloc(sizeof(struct realview_gpiochip_private_data_t));
-		if(!dat)
+		pdat = malloc(sizeof(struct realview_gpiochip_pdata_t));
+		if(!pdat)
 			continue;
 
 		chip = malloc(sizeof(struct gpiochip_t));
 		if(!chip)
 		{
-			free(dat);
+			free(pdat);
 			continue;
 		}
 
-		dat->regbase = phys_to_virt(gpiochip_datas[i].regbase);
+		pdat->regbase = phys_to_virt(gpiochip_datas[i].regbase);
 		chip->name = gpiochip_datas[i].name;
 		chip->base = gpiochip_datas[i].base;
 		chip->ngpio = gpiochip_datas[i].ngpio;
@@ -188,7 +188,7 @@ static __init void realview_gpiochip_init(void)
 		chip->set_value = realview_gpiochip_set_value;
 		chip->get_value = realview_gpiochip_get_value;
 		chip->to_irq = realview_gpiochip_to_irq;
-		chip->priv = dat;
+		chip->priv = pdat;
 
 		register_gpiochip(chip);
 	}

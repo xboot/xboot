@@ -121,7 +121,7 @@ enum {
 	AXP228_ADJUST_PARA			= 0xE8,
 };
 
-struct axp228_private_data_t {
+struct axp228_pdata_t {
 	struct i2c_client_t * client;
 	struct axp228_data_t * rdat;
 };
@@ -185,11 +185,11 @@ static u8_t axp228_get_vol_step(int vol, int step, int min, int max)
 
 static bool_t axp228_update(struct battery_t * bat, struct battery_info_t * info)
 {
-	struct axp228_private_data_t * dat = (struct axp228_private_data_t *)bat->priv;
+	struct axp228_pdata_t * pdat = (struct axp228_pdata_t *)bat->priv;
 	u8_t val, hi, lo;
 	u16_t tmp;
 
-	if(axp228_read(dat->client, AXP228_POWER_STATUS, &val))
+	if(axp228_read(pdat->client, AXP228_POWER_STATUS, &val))
 	{
 		if(((val >> 6) & 0x3) == 0x3)
 			info->supply = POWER_SUPPLAY_AC;
@@ -199,7 +199,7 @@ static bool_t axp228_update(struct battery_t * bat, struct battery_info_t * info
 			info->supply = POWER_SUPPLAY_BATTERY;
 	}
 
-	if(axp228_read(dat->client, AXP228_CHARGE_STATUS, &val))
+	if(axp228_read(pdat->client, AXP228_CHARGE_STATUS, &val))
 	{
 		if(val & (0x1 << 6))
 			info->status = BATTERY_STATUS_CHARGING;
@@ -220,28 +220,28 @@ static bool_t axp228_update(struct battery_t * bat, struct battery_info_t * info
 	info->count = 0;
 	info->capacity = 3600;
 
-	if(axp228_read(dat->client, AXP228_VBATH_RES, &hi) &&
-		axp228_read(dat->client, AXP228_VBATL_RES, &lo))
+	if(axp228_read(pdat->client, AXP228_VBATH_RES, &hi) &&
+		axp228_read(pdat->client, AXP228_VBATL_RES, &lo))
 	{
 		tmp = (hi << 8) | lo;
 		info->voltage = ((((tmp >> 8) << 4) | (tmp & 0x000F))) * 1100 / 1000;
 	}
 
-	if(axp228_read(dat->client, AXP228_DISCHGCURRH_RES, &hi) &&
-		axp228_read(dat->client, AXP228_DISCHGCURRL_RES, &lo))
+	if(axp228_read(pdat->client, AXP228_DISCHGCURRH_RES, &hi) &&
+		axp228_read(pdat->client, AXP228_DISCHGCURRL_RES, &lo))
 	{
 		tmp = (hi << 5) | (lo & 0x1f);
 		info->current = tmp;
 	}
 
-	if(axp228_read(dat->client, AXP228_BATTEMPH_RES, &hi) &&
-		axp228_read(dat->client, AXP228_BATTEMPL_RES, &lo))
+	if(axp228_read(pdat->client, AXP228_BATTEMPH_RES, &hi) &&
+		axp228_read(pdat->client, AXP228_BATTEMPL_RES, &lo))
 	{
 		tmp = (hi << 4) | (lo & 0xf);
 		info->current = tmp * 1063 / 10000 - 2667 / 10;
 	}
 
-	if(axp228_read(dat->client, AXP228_CAP, &val))
+	if(axp228_read(pdat->client, AXP228_CAP, &val))
 	{
 		if(val & (0x1 << 7))
 			info->level = val & 0x7f;
@@ -263,7 +263,7 @@ static void axp228_resume(struct battery_t * bat)
 static bool_t register_pmic_axp228(struct resource_t * res)
 {
 	struct axp228_data_t * rdat = (struct axp228_data_t *)res->data;
-	struct axp228_private_data_t * dat;
+	struct axp228_pdata_t * pdat;
 	struct battery_t * bat;
 	struct i2c_client_t * client;
 	char name[64];
@@ -551,8 +551,8 @@ static bool_t register_pmic_axp228(struct resource_t * res)
 		axp228_write(client, AXP228_LDO_DC_EN2, val);
 	}
 
-	dat = malloc(sizeof(struct axp228_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct axp228_pdata_t));
+	if(!pdat)
 	{
 		i2c_client_free(client);
 		return FALSE;
@@ -562,21 +562,21 @@ static bool_t register_pmic_axp228(struct resource_t * res)
 	if(!bat)
 	{
 		i2c_client_free(client);
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	memset(dat, 0xff, sizeof(struct axp228_private_data_t));
-	dat->client = client;
-	dat->rdat = rdat;
+	memset(pdat, 0xff, sizeof(struct axp228_pdata_t));
+	pdat->client = client;
+	pdat->rdat = rdat;
 
 	bat->name = strdup(name);
 	bat->update = axp228_update;
 	bat->suspend = axp228_suspend;
 	bat->resume = axp228_resume;
-	bat->priv = dat;
+	bat->priv = pdat;
 
 	if(register_battery(bat))
 		return TRUE;
@@ -602,7 +602,7 @@ static bool_t unregister_pmic_axp228(struct resource_t * res)
 	if(!unregister_battery(bat))
 		return FALSE;
 
-	i2c_client_free(((struct axp228_private_data_t *)(bat->priv))->client);
+	i2c_client_free(((struct axp228_pdata_t *)(bat->priv))->client);
 	free(bat->priv);
 	free(bat->name);
 	free(bat);

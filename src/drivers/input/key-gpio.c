@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <input/key-gpio.h>
 
-struct key_gpio_private_data_t {
+struct key_gpio_pdata_t {
 	int * state;
 	struct timer_t timer;
 	struct key_gpio_data_t * rdat;
@@ -34,15 +34,15 @@ struct key_gpio_private_data_t {
 static int key_gpio_timer_function(struct timer_t * timer, void * data)
 {
 	struct input_t * input = (struct input_t *)(data);
-	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
-	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
+	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)pdat->rdat;
 	enum event_type_t type;
 	int i, val;
 
 	for(i = 0; i < rdat->nbutton; i++)
 	{
 		val = gpio_get_value(rdat->buttons[i].gpio);
-		if(val != dat->state[i])
+		if(val != pdat->state[i])
 		{
 			if(rdat->buttons[i].active_low)
 				type = val ? EVENT_TYPE_KEY_UP : EVENT_TYPE_KEY_DOWN;
@@ -54,7 +54,7 @@ static int key_gpio_timer_function(struct timer_t * timer, void * data)
 			else if(type == EVENT_TYPE_KEY_UP)
 				push_event_key_up(input, rdat->buttons[i].key);
 		}
-		dat->state[i] = val;
+		pdat->state[i] = val;
 	}
 
 	timer_forward_now(timer, ms_to_ktime(100));
@@ -63,40 +63,40 @@ static int key_gpio_timer_function(struct timer_t * timer, void * data)
 
 static void input_init(struct input_t * input)
 {
-	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
-	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)dat->rdat;
+	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
+	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)pdat->rdat;
 	int i;
 
-	if(!dat)
+	if(!pdat)
 		return;
 
-	dat->state = malloc(rdat->nbutton * sizeof(int));
-	if(!dat->state)
+	pdat->state = malloc(rdat->nbutton * sizeof(int));
+	if(!pdat->state)
 		return;
 
 	for(i = 0; i < rdat->nbutton; i++)
 	{
 		gpio_set_pull(rdat->buttons[i].gpio, rdat->buttons[i].active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
 		gpio_direction_input(rdat->buttons[i].gpio);
-		dat->state[i] = gpio_get_value(rdat->buttons[i].gpio);
+		pdat->state[i] = gpio_get_value(rdat->buttons[i].gpio);
 	}
 
-	timer_init(&dat->timer, key_gpio_timer_function, input);
-	timer_start_now(&dat->timer, ms_to_ktime(100));
+	timer_init(&pdat->timer, key_gpio_timer_function, input);
+	timer_start_now(&pdat->timer, ms_to_ktime(100));
 }
 
 static void input_exit(struct input_t * input)
 {
-	struct key_gpio_private_data_t * dat = (struct key_gpio_private_data_t *)input->priv;
+	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
 
-	if(!dat)
+	if(!pdat)
 		return;
 
-	if(!dat->state)
+	if(!pdat->state)
 		return;
 
-	free(dat->state);
-	timer_cancel(&dat->timer);
+	free(pdat->state);
+	timer_cancel(&pdat->timer);
 }
 
 static int input_ioctl(struct input_t * input, int cmd, void * arg)
@@ -115,7 +115,7 @@ static void input_resume(struct input_t * input)
 static bool_t gpio_register_keyboard(struct resource_t * res)
 {
 	struct key_gpio_data_t * rdat = (struct key_gpio_data_t *)res->data;
-	struct key_gpio_private_data_t * dat;
+	struct key_gpio_pdata_t * pdat;
 	struct input_t * input;
 	char name[64];
 
@@ -125,21 +125,21 @@ static bool_t gpio_register_keyboard(struct resource_t * res)
 	if(rdat->nbutton <= 0)
 		return FALSE;
 
-	dat = malloc(sizeof(struct key_gpio_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct key_gpio_pdata_t));
+	if(!pdat)
 		return FALSE;
 
 	input = malloc(sizeof(struct input_t));
 	if(!input)
 	{
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->state = NULL;
-	dat->rdat = rdat;
+	pdat->state = NULL;
+	pdat->rdat = rdat;
 
 	input->name = strdup(name);
 	input->type = INPUT_TYPE_KEYBOARD;
@@ -148,7 +148,7 @@ static bool_t gpio_register_keyboard(struct resource_t * res)
 	input->ioctl = input_ioctl;
 	input->suspend = input_suspend,
 	input->resume	= input_resume,
-	input->priv = dat;
+	input->priv = pdat;
 
 	if(register_input(input))
 		return TRUE;

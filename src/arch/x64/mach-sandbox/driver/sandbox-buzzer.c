@@ -29,7 +29,7 @@ struct beep_param_t {
 	int millisecond;
 };
 
-struct sandbox_buzzer_private_data_t {
+struct sandbox_buzzer_pdata_t {
 	struct timer_t timer;
 	struct queue_t * beep;
 	int frequency;
@@ -52,30 +52,30 @@ static void sandbox_buzzer_exit(struct buzzer_t * buzzer)
 
 static void sandbox_buzzer_set(struct buzzer_t * buzzer, int frequency)
 {
-	struct sandbox_buzzer_private_data_t * dat = (struct sandbox_buzzer_private_data_t *)buzzer->priv;
+	struct sandbox_buzzer_pdata_t * pdat = (struct sandbox_buzzer_pdata_t *)buzzer->priv;
 
-	if(dat->frequency != frequency)
+	if(pdat->frequency != frequency)
 	{
-		sandbox_sysfs_write_value(dat->path, frequency);
-		dat->frequency = frequency;
+		sandbox_sysfs_write_value(pdat->path, frequency);
+		pdat->frequency = frequency;
 	}
 }
 
 static int sandbox_buzzer_get(struct buzzer_t * buzzer)
 {
-	struct sandbox_buzzer_private_data_t * dat = (struct sandbox_buzzer_private_data_t *)buzzer->priv;
-	return dat->frequency;
+	struct sandbox_buzzer_pdata_t * pdat = (struct sandbox_buzzer_pdata_t *)buzzer->priv;
+	return pdat->frequency;
 }
 
 static void sandbox_buzzer_beep(struct buzzer_t * buzzer, int frequency, int millisecond)
 {
-	struct sandbox_buzzer_private_data_t * dat = (struct sandbox_buzzer_private_data_t *)buzzer->priv;
+	struct sandbox_buzzer_pdata_t * pdat = (struct sandbox_buzzer_pdata_t *)buzzer->priv;
 	struct beep_param_t * param;
 
 	if((frequency == 0) && (millisecond == 0))
 	{
-		timer_cancel(&dat->timer);
-		queue_clear(dat->beep, iteration_beep_param);
+		timer_cancel(&pdat->timer);
+		queue_clear(pdat->beep, iteration_beep_param);
 		sandbox_buzzer_set(buzzer, 0);
 		return;
 	}
@@ -86,9 +86,9 @@ static void sandbox_buzzer_beep(struct buzzer_t * buzzer, int frequency, int mil
 	param->frequency = frequency;
 	param->millisecond = millisecond;
 
-	queue_push(dat->beep, param);
-	if(queue_avail(dat->beep) == 1)
-		timer_start_now(&dat->timer, ms_to_ktime(1));
+	queue_push(pdat->beep, param);
+	if(queue_avail(pdat->beep) == 1)
+		timer_start_now(&pdat->timer, ms_to_ktime(1));
 }
 
 static void sandbox_buzzer_suspend(struct buzzer_t * buzzer)
@@ -102,8 +102,8 @@ static void sandbox_buzzer_resume(struct buzzer_t * buzzer)
 static int sandbox_buzzer_timer_function(struct timer_t * timer, void * data)
 {
 	struct buzzer_t * buzzer = (struct buzzer_t *)(data);
-	struct sandbox_buzzer_private_data_t * dat = (struct sandbox_buzzer_private_data_t *)buzzer->priv;
-	struct beep_param_t * param = queue_pop(dat->beep);
+	struct sandbox_buzzer_pdata_t * pdat = (struct sandbox_buzzer_pdata_t *)buzzer->priv;
+	struct beep_param_t * param = queue_pop(pdat->beep);
 
 	if(!param)
 	{
@@ -111,7 +111,7 @@ static int sandbox_buzzer_timer_function(struct timer_t * timer, void * data)
 		return 0;
 	}
 	sandbox_buzzer_set(buzzer, param->frequency);
-	timer_forward_now(&dat->timer, ms_to_ktime(param->millisecond));
+	timer_forward_now(&pdat->timer, ms_to_ktime(param->millisecond));
 	free(param);
 	return 1;
 }
@@ -119,27 +119,27 @@ static int sandbox_buzzer_timer_function(struct timer_t * timer, void * data)
 static bool_t sandbox_buzzer_register_buzzer(struct resource_t * res)
 {
 	struct sandbox_buzzer_data_t * rdat = (struct sandbox_buzzer_data_t *)res->data;
-	struct sandbox_buzzer_private_data_t * dat;
+	struct sandbox_buzzer_pdata_t * pdat;
 	struct buzzer_t * buzzer;
 	char name[64];
 
-	dat = malloc(sizeof(struct sandbox_buzzer_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct sandbox_buzzer_pdata_t));
+	if(!pdat)
 		return FALSE;
 
 	buzzer = malloc(sizeof(struct buzzer_t));
 	if(!buzzer)
 	{
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	timer_init(&dat->timer, sandbox_buzzer_timer_function, buzzer);
-	dat->beep = queue_alloc();
-	dat->frequency = 0;
-	dat->path = strdup(rdat->path);
+	timer_init(&pdat->timer, sandbox_buzzer_timer_function, buzzer);
+	pdat->beep = queue_alloc();
+	pdat->frequency = 0;
+	pdat->path = strdup(rdat->path);
 
 	buzzer->name = strdup(name);
 	buzzer->init = sandbox_buzzer_init;
@@ -149,7 +149,7 @@ static bool_t sandbox_buzzer_register_buzzer(struct resource_t * res)
 	buzzer->beep = sandbox_buzzer_beep,
 	buzzer->suspend = sandbox_buzzer_suspend,
 	buzzer->resume = sandbox_buzzer_resume,
-	buzzer->priv = dat;
+	buzzer->priv = pdat;
 
 	if(register_buzzer(buzzer))
 		return TRUE;
@@ -162,7 +162,7 @@ static bool_t sandbox_buzzer_register_buzzer(struct resource_t * res)
 
 static bool_t sandbox_buzzer_unregister_buzzer(struct resource_t * res)
 {
-	struct sandbox_buzzer_private_data_t * dat;
+	struct sandbox_buzzer_pdata_t * pdat;
 	struct buzzer_t * buzzer;
 	char name[64];
 
@@ -171,14 +171,14 @@ static bool_t sandbox_buzzer_unregister_buzzer(struct resource_t * res)
 	buzzer = search_buzzer(name);
 	if(!buzzer)
 		return FALSE;
-	dat = (struct sandbox_buzzer_private_data_t *)buzzer->priv;
+	pdat = (struct sandbox_buzzer_pdata_t *)buzzer->priv;
 
 	if(!unregister_buzzer(buzzer))
 		return FALSE;
 
-	timer_cancel(&dat->timer);
-	queue_free(dat->beep, iteration_beep_param);
-	free(dat->path);
+	timer_cancel(&pdat->timer);
+	queue_free(pdat->beep, iteration_beep_param);
+	free(pdat->path);
 	free(buzzer->priv);
 	free(buzzer->name);
 	free(buzzer);

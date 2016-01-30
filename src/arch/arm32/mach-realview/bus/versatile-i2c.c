@@ -30,33 +30,33 @@
 #define SCL				(1 << 0)
 #define SDA				(1 << 1)
 
-struct versatile_i2c_private_data_t {
+struct versatile_i2c_pdata_t {
 	struct i2c_algo_bit_data_t bdat;
 	virtual_addr_t regbase;
 };
 
 static void versatile_i2c_setsda(struct i2c_algo_bit_data_t * bdat, int state)
 {
-	struct versatile_i2c_private_data_t * dat = (struct versatile_i2c_private_data_t *)bdat->priv;
-	write32(dat->regbase + (state ? I2C_CONTROLS : I2C_CONTROLC), SDA);
+	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)bdat->priv;
+	write32(pdat->regbase + (state ? I2C_CONTROLS : I2C_CONTROLC), SDA);
 }
 
 static void versatile_i2c_setscl(struct i2c_algo_bit_data_t * bdat, int state)
 {
-	struct versatile_i2c_private_data_t * dat = (struct versatile_i2c_private_data_t *)bdat->priv;
-	write32(dat->regbase + (state ? I2C_CONTROLS : I2C_CONTROLC), SCL);
+	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)bdat->priv;
+	write32(pdat->regbase + (state ? I2C_CONTROLS : I2C_CONTROLC), SCL);
 }
 
 static int versatile_i2c_getsda(struct i2c_algo_bit_data_t * bdat)
 {
-	struct versatile_i2c_private_data_t * dat = (struct versatile_i2c_private_data_t *)bdat->priv;
-	return !!(read32(dat->regbase + I2C_CONTROL) & SDA);
+	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)bdat->priv;
+	return !!(read32(pdat->regbase + I2C_CONTROL) & SDA);
 }
 
 static int versatile_i2c_getscl(struct i2c_algo_bit_data_t * bdat)
 {
-	struct versatile_i2c_private_data_t * dat = (struct versatile_i2c_private_data_t *)bdat->priv;
-	return !!(read32(dat->regbase + I2C_CONTROL) & SCL);
+	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)bdat->priv;
+	return !!(read32(pdat->regbase + I2C_CONTROL) & SCL);
 }
 
 static void versatile_i2c_init(struct i2c_t * i2c)
@@ -69,47 +69,47 @@ static void versatile_i2c_exit(struct i2c_t * i2c)
 
 static int versatile_i2c_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 {
-	struct versatile_i2c_private_data_t * dat = (struct versatile_i2c_private_data_t *)i2c->priv;
-	struct i2c_algo_bit_data_t * bdat = (struct i2c_algo_bit_data_t *)(&dat->bdat);
+	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)i2c->priv;
+	struct i2c_algo_bit_data_t * bdat = (struct i2c_algo_bit_data_t *)(&pdat->bdat);
 	return i2c_algo_bit_xfer(bdat, msgs, num);
 }
 
 static bool_t versatile_register_i2c_bus(struct resource_t * res)
 {
 	struct versatile_i2c_data_t * rdat = (struct versatile_i2c_data_t *)res->data;
-	struct versatile_i2c_private_data_t * dat;
+	struct versatile_i2c_pdata_t * pdat;
 	struct i2c_t * i2c;
 	char name[64];
 
-	dat = malloc(sizeof(struct versatile_i2c_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct versatile_i2c_pdata_t));
+	if(!pdat)
 		return FALSE;
 
 	i2c = malloc(sizeof(struct i2c_t));
 	if(!i2c)
 	{
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->bdat.setsda = versatile_i2c_setsda;
-	dat->bdat.setscl = versatile_i2c_setscl;
-	dat->bdat.getsda = versatile_i2c_getsda;
-	dat->bdat.getscl = versatile_i2c_getscl;
+	pdat->bdat.setsda = versatile_i2c_setsda;
+	pdat->bdat.setscl = versatile_i2c_setscl;
+	pdat->bdat.getsda = versatile_i2c_getsda;
+	pdat->bdat.getscl = versatile_i2c_getscl;
 	if(rdat->udelay > 0)
-		dat->bdat.udelay = rdat->udelay;
+		pdat->bdat.udelay = rdat->udelay;
 	else
-		dat->bdat.udelay = 5;
-	dat->regbase = phys_to_virt(rdat->regbase);
-	dat->bdat.priv = dat;
+		pdat->bdat.udelay = 5;
+	pdat->regbase = phys_to_virt(rdat->regbase);
+	pdat->bdat.priv = pdat;
 
 	i2c->name = strdup(name);
 	i2c->init = versatile_i2c_init;
 	i2c->exit = versatile_i2c_exit;
 	i2c->xfer = versatile_i2c_xfer,
-	i2c->priv = dat;
+	i2c->priv = pdat;
 
 	if(register_bus_i2c(i2c))
 		return TRUE;

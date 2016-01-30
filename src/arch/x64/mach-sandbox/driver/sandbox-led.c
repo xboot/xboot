@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <sandbox-led.h>
 
-struct sandbox_led_private_data_t
+struct sandbox_led_pdata_t
 {
 	int brightness;
 	char * path;
@@ -41,19 +41,19 @@ static void sandbox_led_exit(struct led_t * led)
 
 static void sandbox_led_set(struct led_t * led, int brightness)
 {
-	struct sandbox_led_private_data_t * dat = (struct sandbox_led_private_data_t *)led->priv;
+	struct sandbox_led_pdata_t * pdat = (struct sandbox_led_pdata_t *)led->priv;
 
-	if(dat->brightness != brightness)
+	if(pdat->brightness != brightness)
 	{
-		sandbox_sysfs_write_value(dat->path, brightness);
-		dat->brightness = brightness;
+		sandbox_sysfs_write_value(pdat->path, brightness);
+		pdat->brightness = brightness;
 	}
 }
 
 static int sandbox_led_get(struct led_t * led)
 {
-	struct sandbox_led_private_data_t * dat = (struct sandbox_led_private_data_t *)led->priv;
-	return dat->brightness;
+	struct sandbox_led_pdata_t * pdat = (struct sandbox_led_pdata_t *)led->priv;
+	return pdat->brightness;
 }
 
 static void sandbox_led_suspend(struct led_t * led)
@@ -67,25 +67,25 @@ static void sandbox_led_resume(struct led_t * led)
 static bool_t sandbox_register_led(struct resource_t * res)
 {
 	struct sandbox_led_data_t * rdat = (struct sandbox_led_data_t *)res->data;
-	struct sandbox_led_private_data_t * dat;
+	struct sandbox_led_pdata_t * pdat;
 	struct led_t * led;
 	char name[64];
 
-	dat = malloc(sizeof(struct sandbox_led_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct sandbox_led_pdata_t));
+	if(!pdat)
 		return FALSE;
 
 	led = malloc(sizeof(struct led_t));
 	if(!led)
 	{
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->brightness = 0;
-	dat->path = strdup(rdat->path);
+	pdat->brightness = 0;
+	pdat->path = strdup(rdat->path);
 
 	led->name = strdup(name);
 	led->init = sandbox_led_init;
@@ -94,7 +94,7 @@ static bool_t sandbox_register_led(struct resource_t * res)
 	led->get = sandbox_led_get,
 	led->suspend = sandbox_led_suspend,
 	led->resume	= sandbox_led_resume,
-	led->priv = dat;
+	led->priv = pdat;
 
 	if(register_led(led))
 		return TRUE;
@@ -107,7 +107,7 @@ static bool_t sandbox_register_led(struct resource_t * res)
 
 static bool_t sandbox_unregister_led(struct resource_t * res)
 {
-	struct sandbox_led_private_data_t * dat;
+	struct sandbox_led_pdata_t * pdat;
 	struct led_t * led;
 	char name[64];
 
@@ -116,12 +116,12 @@ static bool_t sandbox_unregister_led(struct resource_t * res)
 	led = search_led(name);
 	if(!led)
 		return FALSE;
-	dat = (struct sandbox_led_private_data_t *)led->priv;
+	pdat = (struct sandbox_led_pdata_t *)led->priv;
 
 	if(!unregister_led(led))
 		return FALSE;
 
-	free(dat->path);
+	free(pdat->path);
 	free(led->priv);
 	free(led->name);
 	free(led);

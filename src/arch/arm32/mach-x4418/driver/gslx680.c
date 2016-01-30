@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <gslx680.h>
 
-struct gslx680_private_data_t {
+struct gslx680_pdata_t {
 	struct {
 		int x, y;
 		int press;
@@ -188,19 +188,19 @@ static bool_t gslx680_load_firmware(struct i2c_client_t * client, const struct g
 static void gslx680_interrupt_function(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
-	struct gslx680_private_data_t * dat = (struct gslx680_private_data_t *)input->priv;
-	int fingers = dat->rdat->fingers;
+	struct gslx680_pdata_t * pdat = (struct gslx680_pdata_t *)input->priv;
+	int fingers = pdat->rdat->fingers;
 	u8_t buf[44];
 	int x, y, id;
 	int n, i;
 
-	disable_irq(dat->rdat->irq);
+	disable_irq(pdat->rdat->irq);
 
-	if(gslx680_read(dat->client, 0x80, &buf[0], 4 + fingers * 4))
+	if(gslx680_read(pdat->client, 0x80, &buf[0], 4 + fingers * 4))
 	{
 		for(i = 0; i < fingers; i++)
 		{
-			dat->node[i].valid = 0;
+			pdat->node[i].valid = 0;
 		}
 
 		n = (buf[0] < fingers ? buf[0] : fingers);
@@ -210,46 +210,46 @@ static void gslx680_interrupt_function(void * data)
 			y = ((buf[4 + 4 * i + 3] & 0x0f) << 8) | buf[4 + 4 * i + 2];
 			id = ((buf[4 + 4 * i + 3] & 0xf0) >> 4) - 1;
 
-			if(dat->node[id].x != x || dat->node[id].y != y)
+			if(pdat->node[id].x != x || pdat->node[id].y != y)
 			{
-				if(dat->node[id].press == 0)
+				if(pdat->node[id].press == 0)
 				{
 					push_event_touch_begin(input, x, y, id);
-					dat->node[id].press = 1;
+					pdat->node[id].press = 1;
 				}
-				else if(dat->node[id].press == 1)
+				else if(pdat->node[id].press == 1)
 				{
 					push_event_touch_move(input, x, y, id);
 				}
 			}
-			dat->node[id].x = x;
-			dat->node[id].y = y;
-			dat->node[id].valid = 1;
+			pdat->node[id].x = x;
+			pdat->node[id].y = y;
+			pdat->node[id].valid = 1;
 		}
 
 		for(i = 0; i < fingers; i++)
 		{
-			if((dat->node[i].press == 1) && (dat->node[i].valid == 0))
+			if((pdat->node[i].press == 1) && (pdat->node[i].valid == 0))
 			{
-				push_event_touch_end(input, dat->node[i].x, dat->node[i].y, i);
-				dat->node[i].press = 0;
+				push_event_touch_end(input, pdat->node[i].x, pdat->node[i].y, i);
+				pdat->node[i].press = 0;
 			}
 		}
 	}
 
-	enable_irq(dat->rdat->irq);
+	enable_irq(pdat->rdat->irq);
 }
 
 static void input_init(struct input_t * input)
 {
-	struct gslx680_private_data_t * dat = (struct gslx680_private_data_t *)input->priv;
-	request_irq(dat->rdat->irq, gslx680_interrupt_function, IRQ_TYPE_EDGE_RISING, input);
+	struct gslx680_pdata_t * pdat = (struct gslx680_pdata_t *)input->priv;
+	request_irq(pdat->rdat->irq, gslx680_interrupt_function, IRQ_TYPE_EDGE_RISING, input);
 }
 
 static void input_exit(struct input_t * input)
 {
-	struct gslx680_private_data_t * dat = (struct gslx680_private_data_t *)input->priv;
-	free_irq(dat->rdat->irq);
+	struct gslx680_pdata_t * pdat = (struct gslx680_pdata_t *)input->priv;
+	free_irq(pdat->rdat->irq);
 }
 
 static int input_ioctl(struct input_t * input, int cmd, void * arg)
@@ -268,7 +268,7 @@ static void input_resume(struct input_t * input)
 static bool_t register_gslx680_touchscreen(struct resource_t * res)
 {
 	struct gslx680_data_t * rdat = (struct gslx680_data_t *)res->data;
-	struct gslx680_private_data_t * dat;
+	struct gslx680_pdata_t * pdat;
 	struct input_t * input;
 	struct i2c_client_t * client;
 	char name[64];
@@ -298,8 +298,8 @@ static bool_t register_gslx680_touchscreen(struct resource_t * res)
 	gslx680_reset(client);
 	gslx680_startup(client);
 
-	dat = malloc(sizeof(struct gslx680_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct gslx680_pdata_t));
+	if(!pdat)
 	{
 		i2c_client_free(client);
 		return FALSE;
@@ -309,15 +309,15 @@ static bool_t register_gslx680_touchscreen(struct resource_t * res)
 	if(!input)
 	{
 		i2c_client_free(client);
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	memset(dat, 0, sizeof(struct gslx680_private_data_t));
-	dat->client = client;
-	dat->rdat = rdat;
+	memset(pdat, 0, sizeof(struct gslx680_pdata_t));
+	pdat->client = client;
+	pdat->rdat = rdat;
 
 	input->name = strdup(name);
 	input->type = INPUT_TYPE_TOUCHSCREEN;
@@ -326,7 +326,7 @@ static bool_t register_gslx680_touchscreen(struct resource_t * res)
 	input->ioctl = input_ioctl;
 	input->suspend = input_suspend,
 	input->resume = input_resume,
-	input->priv = dat;
+	input->priv = pdat;
 
 	if(register_input(input))
 		return TRUE;
@@ -352,7 +352,7 @@ static bool_t unregister_gslx680_touchscreen(struct resource_t * res)
 	if(!unregister_input(input))
 		return FALSE;
 
-	i2c_client_free(((struct gslx680_private_data_t *)(input->priv))->client);
+	i2c_client_free(((struct gslx680_pdata_t *)(input->priv))->client);
 	free(input->priv);
 	free(input->name);
 	free(input);

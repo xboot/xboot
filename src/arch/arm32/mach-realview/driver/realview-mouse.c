@@ -29,7 +29,7 @@
 
 #define MOUSE_TO_TOUCH_EVENT
 
-struct realview_mouse_private_data_t {
+struct realview_mouse_pdata_t {
 	u8_t packet[4];
 	u8_t index;
 	u8_t btn_old;
@@ -40,19 +40,19 @@ struct realview_mouse_private_data_t {
 	struct realview_mouse_data_t * rdat;
 };
 
-static bool_t kmi_write(struct realview_mouse_data_t * dat, u8_t value)
+static bool_t kmi_write(struct realview_mouse_data_t * pdat, u8_t value)
 {
 	s32_t timeout = 1000;
 
-	while((read8(phys_to_virt(dat->regbase + MOUSE_STAT)) & MOUSE_STAT_TXEMPTY) == 0 && timeout--);
+	while((read8(phys_to_virt(pdat->regbase + MOUSE_STAT)) & MOUSE_STAT_TXEMPTY) == 0 && timeout--);
 
 	if(timeout)
 	{
-		write8(phys_to_virt(dat->regbase + MOUSE_DATA), value);
+		write8(phys_to_virt(pdat->regbase + MOUSE_DATA), value);
 
-		while((read8(phys_to_virt(dat->regbase + MOUSE_STAT)) & MOUSE_STAT_RXFULL) == 0);
+		while((read8(phys_to_virt(pdat->regbase + MOUSE_STAT)) & MOUSE_STAT_RXFULL) == 0);
 
-		if( read8(phys_to_virt(dat->regbase + MOUSE_DATA)) == 0xfa)
+		if( read8(phys_to_virt(pdat->regbase + MOUSE_DATA)) == 0xfa)
 			return TRUE;
 		else
 			return FALSE;
@@ -61,11 +61,11 @@ static bool_t kmi_write(struct realview_mouse_data_t * dat, u8_t value)
 	return FALSE;
 }
 
-static bool_t kmi_read(struct realview_mouse_data_t * dat, u8_t * value)
+static bool_t kmi_read(struct realview_mouse_data_t * pdat, u8_t * value)
 {
-	if( (read8(phys_to_virt(dat->regbase + MOUSE_STAT)) & MOUSE_STAT_RXFULL) )
+	if( (read8(phys_to_virt(pdat->regbase + MOUSE_STAT)) & MOUSE_STAT_RXFULL) )
 	{
-		*value = read8(phys_to_virt(dat->regbase + MOUSE_DATA));
+		*value = read8(phys_to_virt(pdat->regbase + MOUSE_DATA));
 		return TRUE;
 	}
 
@@ -75,8 +75,8 @@ static bool_t kmi_read(struct realview_mouse_data_t * dat, u8_t * value)
 static void mouse_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
-	struct realview_mouse_private_data_t * dat = (struct realview_mouse_private_data_t *)input->priv;
-	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)dat->rdat;
+	struct realview_mouse_pdata_t * pdat = (struct realview_mouse_pdata_t *)input->priv;
+	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)pdat->rdat;
 	s32_t x, y, relx, rely, delta;
 	u32_t btndown, btnup, btn;
 	u8_t status;
@@ -84,49 +84,49 @@ static void mouse_interrupt(void * data)
 	status = read8(phys_to_virt(rdat->regbase + MOUSE_IIR));
 	while(status & MOUSE_IIR_RXINTR)
 	{
-		dat->packet[dat->index] = read8(phys_to_virt(rdat->regbase + MOUSE_DATA));
-		dat->index = (dat->index + 1) & 0x3;
+		pdat->packet[pdat->index] = read8(phys_to_virt(rdat->regbase + MOUSE_DATA));
+		pdat->index = (pdat->index + 1) & 0x3;
 
-		if(dat->index == 0)
+		if(pdat->index == 0)
 		{
-			btn = dat->packet[0] & 0x7;
-			btndown = (btn ^ dat->btn_old) & btn;
-			btnup = (btn ^ dat->btn_old) & dat->btn_old;
-			dat->btn_old = btn;
+			btn = pdat->packet[0] & 0x7;
+			btndown = (btn ^ pdat->btn_old) & btn;
+			btnup = (btn ^ pdat->btn_old) & pdat->btn_old;
+			pdat->btn_old = btn;
 
-			if(dat->packet[0] & 0x10)
-				relx = 0xffffff00 | dat->packet[1];
+			if(pdat->packet[0] & 0x10)
+				relx = 0xffffff00 | pdat->packet[1];
 			else
-				relx = dat->packet[1];
+				relx = pdat->packet[1];
 
-			if(dat->packet[0] & 0x20)
-				rely = 0xffffff00 | dat->packet[2];
+			if(pdat->packet[0] & 0x20)
+				rely = 0xffffff00 | pdat->packet[2];
 			else
-				rely = dat->packet[2];
+				rely = pdat->packet[2];
 			rely = -rely;
 
-			delta = dat->packet[3] & 0xf;
+			delta = pdat->packet[3] & 0xf;
 			if(delta == 0xf)
 				delta = -1;
 
 			if(relx != 0)
 			{
-				dat->xpos = dat->xpos + relx;
-				if(dat->xpos < 0)
-					dat->xpos = 0;
-				if(dat->xpos > dat->width - 1)
-					dat->xpos = dat->width - 1;
+				pdat->xpos = pdat->xpos + relx;
+				if(pdat->xpos < 0)
+					pdat->xpos = 0;
+				if(pdat->xpos > pdat->width - 1)
+					pdat->xpos = pdat->width - 1;
 			}
 			if(rely != 0)
 			{
-				dat->ypos = dat->ypos + rely;
-				if(dat->ypos < 0)
-					dat->ypos = 0;
-				if(dat->ypos > dat->height - 1)
-					dat->ypos = dat->height - 1;
+				pdat->ypos = pdat->ypos + rely;
+				if(pdat->ypos < 0)
+					pdat->ypos = 0;
+				if(pdat->ypos > pdat->height - 1)
+					pdat->ypos = pdat->height - 1;
 			}
-			x = dat->xpos;
-			y = dat->ypos;
+			x = pdat->xpos;
+			y = pdat->ypos;
 
 #ifdef MOUSE_TO_TOUCH_EVENT
 			if((btn & (0x01 << 0)) && ((relx != 0) || (rely != 0)))
@@ -172,8 +172,8 @@ static void mouse_interrupt(void * data)
 
 static void input_init(struct input_t * input)
 {
-	struct realview_mouse_private_data_t * dat = (struct realview_mouse_private_data_t *)input->priv;
-	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)dat->rdat;
+	struct realview_mouse_pdata_t * pdat = (struct realview_mouse_pdata_t *)input->priv;
+	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)pdat->rdat;
 	u32_t divisor;
 	u64_t kclk;
 	u8_t value;
@@ -243,8 +243,8 @@ static void input_init(struct input_t * input)
 
 static void input_exit(struct input_t * input)
 {
-	struct realview_mouse_private_data_t * dat = (struct realview_mouse_private_data_t *)input->priv;
-	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)dat->rdat;
+	struct realview_mouse_pdata_t * pdat = (struct realview_mouse_pdata_t *)input->priv;
+	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)pdat->rdat;
 
 	clk_disable("kclk");
 	if(!free_irq("KMI1"))
@@ -268,34 +268,34 @@ static void input_resume(struct input_t * input)
 static bool_t realview_register_mouse(struct resource_t * res)
 {
 	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)res->data;
-	struct realview_mouse_private_data_t * dat;
+	struct realview_mouse_pdata_t * pdat;
 	struct input_t * input;
 	char name[64];
 
-	dat = malloc(sizeof(struct realview_mouse_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct realview_mouse_pdata_t));
+	if(!pdat)
 		return FALSE;
 
 	input = malloc(sizeof(struct input_t));
 	if(!input)
 	{
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->packet[0] = 0;
-	dat->packet[1] = 0;
-	dat->packet[2] = 0;
-	dat->packet[3] = 0;
-	dat->index = 0;
-	dat->btn_old = 0;
-	dat->xpos = 0;
-	dat->ypos = 0;
-	dat->width = rdat->width;
-	dat->height = rdat->height;
-	dat->rdat = rdat;
+	pdat->packet[0] = 0;
+	pdat->packet[1] = 0;
+	pdat->packet[2] = 0;
+	pdat->packet[3] = 0;
+	pdat->index = 0;
+	pdat->btn_old = 0;
+	pdat->xpos = 0;
+	pdat->ypos = 0;
+	pdat->width = rdat->width;
+	pdat->height = rdat->height;
+	pdat->rdat = rdat;
 
 	input->name = strdup(name);
 	input->type = INPUT_TYPE_MOUSE;
@@ -304,7 +304,7 @@ static bool_t realview_register_mouse(struct resource_t * res)
 	input->ioctl = input_ioctl;
 	input->suspend = input_suspend,
 	input->resume = input_resume,
-	input->priv = dat;
+	input->priv = pdat;
 
 	if(register_input(input))
 		return TRUE;

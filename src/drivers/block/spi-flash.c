@@ -64,7 +64,7 @@ struct spi_flash_id_t {
 	int flags;
 };
 
-struct spi_flash_private_data_t {
+struct spi_flash_pdata_t {
 	struct spi_device_t * dev;
 	struct spi_flash_id_t * id;
 };
@@ -248,39 +248,39 @@ static void spi_flash_write_one_page(struct spi_device_t * dev, u64_t addr, u8_t
 
 static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
-	struct spi_flash_private_data_t * dat = (struct spi_flash_private_data_t *)blk->priv;
+	struct spi_flash_pdata_t * pdat = (struct spi_flash_pdata_t *)blk->priv;
 	u64_t addr = blkno * blk->blksz;
 	u64_t count = blkcnt * blk->blksz;
 
-	if(!(dat->id->flags & NO_FASTREAD))
-		spi_flash_fast_read_bytes(dat->dev, addr, buf, count);
+	if(!(pdat->id->flags & NO_FASTREAD))
+		spi_flash_fast_read_bytes(pdat->dev, addr, buf, count);
 	else
-		spi_flash_normal_read_bytes(dat->dev, addr, buf, count);
+		spi_flash_normal_read_bytes(pdat->dev, addr, buf, count);
 	return blkcnt;
 }
 
 static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
-	struct spi_flash_private_data_t * dat = (struct spi_flash_private_data_t *)blk->priv;
+	struct spi_flash_pdata_t * pdat = (struct spi_flash_pdata_t *)blk->priv;
 	u64_t addr = blkno * blk->blksz;
 	s64_t count = blkcnt * blk->blksz;
 	u8_t * pbuf = buf;
 	u64_t i;
 
-	if(dat->id->flags & SECTOR_4K)
+	if(pdat->id->flags & SECTOR_4K)
 	{
 		for(i = 0; i < blkcnt; i++)
-			spi_flash_sector_erase_4k(dat->dev, addr + i * blk->blksz);
+			spi_flash_sector_erase_4k(pdat->dev, addr + i * blk->blksz);
 	}
 	else
 	{
 		for(i = 0; i < blkcnt; i++)
-			spi_flash_sector_erase(dat->dev, addr + i * blk->blksz);
+			spi_flash_sector_erase(pdat->dev, addr + i * blk->blksz);
 	}
 
 	while(count > 0)
 	{
-		spi_flash_write_one_page(dat->dev, addr, pbuf);
+		spi_flash_write_one_page(pdat->dev, addr, pbuf);
 		addr += 256;
 		pbuf += 256;
 		count -= 256;
@@ -303,7 +303,7 @@ static void spi_flash_resume(struct block_t * blk)
 static bool_t spi_flash_register(struct resource_t * res)
 {
 	struct spi_flash_data_t * rdat = (struct spi_flash_data_t *)res->data;
-	struct spi_flash_private_data_t * dat;
+	struct spi_flash_pdata_t * pdat;
 	struct spi_device_t * dev;
 	struct spi_flash_id_t * id;
 	struct block_t * blk;
@@ -320,8 +320,8 @@ static bool_t spi_flash_register(struct resource_t * res)
 		return FALSE;
 	}
 
-	dat = malloc(sizeof(struct spi_flash_private_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct spi_flash_pdata_t));
+	if(!pdat)
 	{
 		spi_device_free(dev);
 		return FALSE;
@@ -331,13 +331,13 @@ static bool_t spi_flash_register(struct resource_t * res)
 	if(!blk)
 	{
 		spi_device_free(dev);
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-	dat->dev = dev;
-	dat->id = id;
+	pdat->dev = dev;
+	pdat->id = id;
 
 	blk->name = strdup(name);
 	if(id->flags & SECTOR_4K)
@@ -355,7 +355,7 @@ static bool_t spi_flash_register(struct resource_t * res)
 	blk->sync = spi_flash_sync;
 	blk->suspend = spi_flash_suspend;
 	blk->resume = spi_flash_resume;
-	blk->priv = dat;
+	blk->priv = pdat;
 
 	spi_flash_write_enable(dev);
 	spi_flash_write_status_register(dev, 0);
@@ -384,7 +384,7 @@ static bool_t spi_flash_unregister(struct resource_t * res)
 	if(!unregister_block(blk))
 		return FALSE;
 
-	spi_device_free(((struct spi_flash_private_data_t *)blk->priv)->dev);
+	spi_device_free(((struct spi_flash_pdata_t *)blk->priv)->dev);
 	free(blk->priv);
 	free(blk->name);
 	free(blk);

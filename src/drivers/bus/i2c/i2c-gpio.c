@@ -27,55 +27,52 @@
 
 struct i2c_gpio_private_data_t {
 	struct i2c_algo_bit_data_t bdat;
-	struct i2c_gpio_data_t rdat;
+	int sda_pin;
+	int scl_pin;
 };
 
 static void i2c_gpio_setsda_dir(struct i2c_algo_bit_data_t * bdat, int state)
 {
-	struct i2c_gpio_data_t * rdat = (struct i2c_gpio_data_t *)bdat->priv;
+	struct i2c_gpio_private_data_t * dat = (struct i2c_gpio_private_data_t *)bdat->priv;
 
 	if(state)
-		gpio_direction_input(rdat->sda_pin);
+		gpio_direction_input(dat->sda_pin);
 	else
-		gpio_direction_output(rdat->sda_pin, 0);
+		gpio_direction_output(dat->sda_pin, 0);
 }
 
 static void i2c_gpio_setsda_val(struct i2c_algo_bit_data_t * bdat, int state)
 {
-	struct i2c_gpio_data_t * rdat = (struct i2c_gpio_data_t *)bdat->priv;
-
-	gpio_set_value(rdat->sda_pin, state);
+	struct i2c_gpio_private_data_t * dat = (struct i2c_gpio_private_data_t *)bdat->priv;
+	gpio_set_value(dat->sda_pin, state);
 }
 
 static void i2c_gpio_setscl_dir(struct i2c_algo_bit_data_t * bdat, int state)
 {
-	struct i2c_gpio_data_t * rdat = (struct i2c_gpio_data_t *)bdat->priv;
+	struct i2c_gpio_private_data_t * dat = (struct i2c_gpio_private_data_t *)bdat->priv;
 
 	if(state)
-		gpio_direction_input(rdat->scl_pin);
+		gpio_direction_input(dat->scl_pin);
 	else
-		gpio_direction_output(rdat->scl_pin, 0);
+		gpio_direction_output(dat->scl_pin, 0);
 }
 
 static void i2c_gpio_setscl_val(struct i2c_algo_bit_data_t * bdat, int state)
 {
-	struct i2c_gpio_data_t * rdat = (struct i2c_gpio_data_t *)bdat->priv;
-
-	gpio_set_value(rdat->scl_pin, state);
+	struct i2c_gpio_private_data_t * dat = (struct i2c_gpio_private_data_t *)bdat->priv;
+	gpio_set_value(dat->scl_pin, state);
 }
 
 static int i2c_gpio_getsda(struct i2c_algo_bit_data_t * bdat)
 {
-	struct i2c_gpio_data_t * rdat = (struct i2c_gpio_data_t *)bdat->priv;
-
-	return gpio_get_value(rdat->sda_pin);
+	struct i2c_gpio_private_data_t * dat = (struct i2c_gpio_private_data_t *)bdat->priv;
+	return gpio_get_value(dat->sda_pin);
 }
 
 static int i2c_gpio_getscl(struct i2c_algo_bit_data_t * bdat)
 {
-	struct i2c_gpio_data_t * rdat = (struct i2c_gpio_data_t *)bdat->priv;
-
-	return gpio_get_value(rdat->scl_pin);
+	struct i2c_gpio_private_data_t * dat = (struct i2c_gpio_private_data_t *)bdat->priv;
+	return gpio_get_value(dat->scl_pin);
 }
 
 static void i2c_gpio_init(struct i2c_t * i2c)
@@ -89,8 +86,7 @@ static void i2c_gpio_exit(struct i2c_t * i2c)
 static int i2c_gpio_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 {
 	struct i2c_gpio_private_data_t * dat = (struct i2c_gpio_private_data_t *)i2c->priv;
-	struct i2c_algo_bit_data_t * bdat = &(dat->bdat);
-
+	struct i2c_algo_bit_data_t * bdat = (struct i2c_algo_bit_data_t *)&(dat->bdat);
 	return i2c_algo_bit_xfer(bdat, msgs, num);
 }
 
@@ -149,8 +145,9 @@ static bool_t i2c_gpio_register_bus(struct resource_t * res)
 	else
 		dat->bdat.udelay = 5;
 
-	memcpy(&(dat->rdat), rdat, sizeof(struct i2c_gpio_data_t));
-	dat->bdat.priv = &(dat->rdat);
+	dat->sda_pin = rdat->sda_pin;
+	dat->scl_pin = rdat->scl_pin;
+	dat->bdat.priv = dat;
 
 	i2c->name = strdup(name);
 	i2c->init = i2c_gpio_init;

@@ -27,31 +27,31 @@
 
 struct realview_i2c_private_data_t {
 	struct i2c_algo_bit_data_t bdat;
-	struct realview_i2c_data_t rdat;
+	virtual_addr_t regbase;
 };
 
 static void realview_i2c_setsda(struct i2c_algo_bit_data_t * bdat, int state)
 {
-	struct realview_i2c_data_t * rdat = (struct realview_i2c_data_t *)bdat->priv;
-	write32(phys_to_virt(rdat->regbase + (state ? I2C_CTRLS : I2C_CTRLC)), I2C_FLAG_SDA);
+	struct realview_i2c_private_data_t * dat = (struct realview_i2c_private_data_t *)bdat->priv;
+	write32(dat->regbase + (state ? I2C_CTRLS : I2C_CTRLC), I2C_FLAG_SDA);
 }
 
 static void realview_i2c_setscl(struct i2c_algo_bit_data_t * bdat, int state)
 {
-	struct realview_i2c_data_t * rdat = (struct realview_i2c_data_t *)bdat->priv;
-	write32(phys_to_virt(rdat->regbase + (state ? I2C_CTRLS : I2C_CTRLC)), I2C_FLAG_SCL);
+	struct realview_i2c_private_data_t * dat = (struct realview_i2c_private_data_t *)bdat->priv;
+	write32(dat->regbase + (state ? I2C_CTRLS : I2C_CTRLC), I2C_FLAG_SCL);
 }
 
 static int realview_i2c_getsda(struct i2c_algo_bit_data_t * bdat)
 {
-	struct realview_i2c_data_t * rdat = (struct realview_i2c_data_t *)bdat->priv;
-	return !!(read32(phys_to_virt(rdat->regbase + I2C_CTRL)) & I2C_FLAG_SDA);
+	struct realview_i2c_private_data_t * dat = (struct realview_i2c_private_data_t *)bdat->priv;
+	return !!(read32(dat->regbase + I2C_CTRL) & I2C_FLAG_SDA);
 }
 
 static int realview_i2c_getscl(struct i2c_algo_bit_data_t * bdat)
 {
-	struct realview_i2c_data_t * rdat = (struct realview_i2c_data_t *)bdat->priv;
-	return !!(read32(phys_to_virt(rdat->regbase + I2C_CTRL)) & I2C_FLAG_SCL);
+	struct realview_i2c_private_data_t * dat = (struct realview_i2c_private_data_t *)bdat->priv;
+	return !!(read32(dat->regbase + I2C_CTRL) & I2C_FLAG_SCL);
 }
 
 static void realview_i2c_init(struct i2c_t * i2c)
@@ -97,8 +97,8 @@ static bool_t realview_register_i2c_bus(struct resource_t * res)
 		dat->bdat.udelay = rdat->udelay;
 	else
 		dat->bdat.udelay = 5;
-	memcpy(&(dat->rdat), rdat, sizeof(struct realview_i2c_data_t));
-	dat->bdat.priv = &(dat->rdat);
+	dat->regbase = phys_to_virt(rdat->regbase);
+	dat->bdat.priv = dat;
 
 	i2c->name = strdup(name);
 	i2c->init = realview_i2c_init;

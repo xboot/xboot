@@ -24,7 +24,7 @@ struct clocksource_t
 
 	bool_t (*init)(struct clocksource_t * cs);
 	u64_t (*read)(struct clocksource_t * cs);
-	void * pirv;
+	void * priv;
 };
 
 /*

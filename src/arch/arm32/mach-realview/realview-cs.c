@@ -26,38 +26,57 @@
 #include <clocksource/clocksource.h>
 #include <realview/reg-timer.h>
 
+struct realview_clocksource_pdata_t
+{
+	char * clk;
+	virtual_addr_t regbase;
+};
+
 static bool_t realview_cs_init(struct clocksource_t * cs)
 {
-	u64_t rate;
+	struct realview_clocksource_pdata_t * dat = (struct realview_clocksource_pdata_t *)cs->priv;
 
-	clk_enable("timclk");
-	rate = clk_get_rate("timclk");
-	cs->mult = clocksource_hz2mult(rate, cs->shift);
-
-	write32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_CTRL), 0);
-	write32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_LOAD), 0xffffffff);
-	write32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_VALUE), 0xffffffff);
-	write32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_CTRL), (1 << 1) | (1 << 6) | (1 << 7));
-
+	clk_enable(dat->clk);
+	cs->mult = clocksource_hz2mult(clk_get_rate(dat->clk), cs->shift);
+	write32(dat->regbase + TIMER_CTRL, 0);
+	write32(dat->regbase + TIMER_LOAD, 0xffffffff);
+	write32(dat->regbase + TIMER_VALUE, 0xffffffff);
+	write32(dat->regbase + TIMER_CTRL, (1 << 1) | (1 << 6) | (1 << 7));
 	return TRUE;
 }
 
 static u64_t realview_cs_read(struct clocksource_t * cs)
 {
-	u32_t val = read32(phys_to_virt(REALVIEW_TIMER0_BASE + TIMER_VALUE));
+	struct realview_clocksource_pdata_t * dat = (struct realview_clocksource_pdata_t *)cs->priv;
+	u32_t val = read32(dat->regbase + TIMER_VALUE);
 	return (u64_t)(~val);
 }
 
-static struct clocksource_t realview_cs = {
-	.name	= "realview-cs",
-	.shift	= 20,
-	.mask	= CLOCKSOURCE_MASK(32),
-	.init	= realview_cs_init,
-	.read	= realview_cs_read,
-};
-
 static __init void realview_clocksource_init(void)
 {
-	register_clocksource(&realview_cs);
+	struct realview_clocksource_pdata_t * dat;
+	static struct clocksource_t * cs;
+
+	dat = malloc(sizeof(struct realview_clocksource_pdata_t));
+	if(!dat)
+		return;
+
+	cs = malloc(sizeof(struct clocksource_t));
+	if(!cs)
+	{
+		free(dat);
+		return;
+	}
+
+	dat->clk = "timclk";
+	dat->regbase = phys_to_virt(REALVIEW_TIMER0_BASE);
+	cs->name = "realview-cs";
+	cs->shift = 20;
+	cs->mask = CLOCKSOURCE_MASK(32);
+	cs->init = realview_cs_init;
+	cs->read = realview_cs_read;
+	cs->priv = dat;
+
+	register_clocksource(cs);
 }
 core_initcall(realview_clocksource_init);

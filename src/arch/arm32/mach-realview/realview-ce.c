@@ -26,54 +26,75 @@
 #include <clockevent/clockevent.h>
 #include <realview/reg-timer.h>
 
+struct realview_clockevent_pdata_t
+{
+	char * clk;
+	char * irq;
+	virtual_addr_t regbase;
+};
+
 static void realview_ce_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
-	write32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_ICLR), 0x0);
+	struct realview_clockevent_pdata_t * dat = (struct realview_clockevent_pdata_t *)ce->priv;
+	write32(dat->regbase + TIMER_ICLR, 0x0);
 	ce->handler(ce, ce->data);
 }
 
 static bool_t realview_ce_init(struct clockevent_t * ce)
 {
-	u64_t rate;
+	struct realview_clockevent_pdata_t * dat = (struct realview_clockevent_pdata_t *)ce->priv;
 
-	clk_enable("timclk");
-	rate = clk_get_rate("timclk");
-
-	if(!request_irq("TMIER2_3", realview_ce_interrupt, IRQ_TYPE_NONE, ce))
+	clk_enable(dat->clk);
+	clockevent_calc_mult_shift(ce, clk_get_rate(dat->clk), 10);
+	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
+	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
+	if(!request_irq(dat->irq, realview_ce_interrupt, IRQ_TYPE_NONE, ce))
 	{
-		LOG("Can't request irq 'TMIER2_3'");
-		clk_disable("timclk");
+		clk_disable(dat->clk);
 		return FALSE;
 	}
 
-	clockevent_calc_mult_shift(ce, rate, 10);
-	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
-	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
-	write32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_CTRL), 0);
-	write32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_LOAD), 0);
-	write32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_VALUE), 0);
-	write32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_CTRL), (1 << 0) | (1 << 1) | (0 << 2) | (1 << 5) | (0 << 6));
-
+	write32(dat->regbase + TIMER_CTRL, 0);
+	write32(dat->regbase + TIMER_LOAD, 0);
+	write32(dat->regbase + TIMER_VALUE, 0);
+	write32(dat->regbase + TIMER_CTRL, (1 << 0) | (1 << 1) | (0 << 2) | (1 << 5) | (0 << 6));
 	return TRUE;
 }
 
 static bool_t realview_ce_next(struct clockevent_t * ce, u64_t evt)
 {
-	write32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_LOAD), (evt & 0xffffffff));
-	write32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_VALUE), (evt & 0xffffffff));
-	write32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_CTRL), read32(phys_to_virt(REALVIEW_TIMER3_BASE + TIMER_CTRL)) | (1 << 7));
+	struct realview_clockevent_pdata_t * dat = (struct realview_clockevent_pdata_t *)ce->priv;
+	write32(dat->regbase + TIMER_LOAD, (evt & 0xffffffff));
+	write32(dat->regbase + TIMER_VALUE, (evt & 0xffffffff));
+	write32(dat->regbase + TIMER_CTRL, read32(dat->regbase + TIMER_CTRL) | (1 << 7));
 	return TRUE;
 }
 
-static struct clockevent_t realview_ce = {
-	.name	= "realview-ce",
-	.init	= realview_ce_init,
-	.next	= realview_ce_next,
-};
-
 static __init void realview_clockevent_init(void)
 {
-	register_clockevent(&realview_ce);
+	struct realview_clockevent_pdata_t * dat;
+	static struct clockevent_t * ce;
+
+	dat = malloc(sizeof(struct realview_clockevent_pdata_t));
+	if(!dat)
+		return;
+
+	ce = malloc(sizeof(struct clockevent_t));
+	if(!ce)
+	{
+		free(dat);
+		return;
+	}
+
+	dat->clk = "timclk";
+	dat->irq = "TMIER2_3",
+	dat->regbase = phys_to_virt(REALVIEW_TIMER3_BASE);
+	ce->name = "realview-ce";
+	ce->init = realview_ce_init;
+	ce->next = realview_ce_next;
+	ce->priv = dat;
+
+	register_clockevent(ce);
 }
 core_initcall(realview_clockevent_init);

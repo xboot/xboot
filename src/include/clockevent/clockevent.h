@@ -20,7 +20,7 @@ struct clockevent_t
 
 	bool_t (*init)(struct clockevent_t * ce);
 	bool_t (*next)(struct clockevent_t * ce, u64_t evt);
-	void * pirv;
+	void * priv;
 };
 
 /*

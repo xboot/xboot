@@ -1,5 +1,5 @@
 /*
- * resource/res-i2c.c
+ * resource/res-versatile-i2c.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,9 +23,10 @@
  */
 
 #include <xboot.h>
-#include <realview-i2c.h>
+#include <versatile-i2c.h>
+#include <realview/reg-i2c.h>
 
-static struct realview_i2c_data_t i2c_datas[] = {
+static struct versatile_i2c_data_t i2c_datas[] = {
 	{
 		.udelay		= 50,
 		.regbase	= REALVIEW_I2C_BASE,
@@ -34,17 +35,17 @@ static struct realview_i2c_data_t i2c_datas[] = {
 
 static struct resource_t res_i2cs[] = {
 	{
-		.name		= "realview-i2c",
+		.name		= "versatile-i2c",
 		.id			= 0,
 		.data		= &i2c_datas[0],
 	}
 };
 
-static __init void resource_realview_i2c_init(void)
+static __init void resource_versatile_i2c_init(void)
 {
 	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_i2cs); i++)
 		register_resource(&res_i2cs[i]);
 }
-resource_initcall(resource_realview_i2c_init);
+resource_initcall(resource_versatile_i2c_init);

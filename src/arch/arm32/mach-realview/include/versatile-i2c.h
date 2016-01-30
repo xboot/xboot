@@ -1,5 +1,5 @@
-#ifndef __REALVIEW_I2C_H__
-#define __REALVIEW_I2C_H__
+#ifndef __VERSATILE_I2C_H__
+#define __VERSATILE_I2C_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,9 +8,8 @@ extern "C" {
 #include <xboot.h>
 #include <bus/i2c.h>
 #include <bus/i2c-algo-bit.h>
-#include <realview/reg-i2c.h>
 
-struct realview_i2c_data_t {
+struct versatile_i2c_data_t {
 	int udelay;
 	physical_addr_t regbase;
 };
@@ -19,4 +18,4 @@ struct realview_i2c_data_t {
 }
 #endif
 
-#endif /* __REALVIEW_I2C_H__ */
+#endif /* __VERSATILE_I2C_H__ */

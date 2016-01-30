@@ -22,6 +22,7 @@
  *
  */
 
+#if 0
 #include <xboot.h>
 #include <virt-uart.h>
 
@@ -281,3 +282,4 @@ static __exit void virt_bus_uart_exit(void)
 
 bus_initcall(virt_bus_uart_init);
 bus_exitcall(virt_bus_uart_exit);
+#endif

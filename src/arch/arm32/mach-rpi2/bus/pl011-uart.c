@@ -56,101 +56,41 @@ struct pl011_uart_private_data_t {
 	int txdcfg;
 	int rxdpin;
 	int rxdcfg;
-	enum baud_rate_t baud;
-	enum data_bits_t data;
-	enum parity_bits_t parity;
-	enum stop_bits_t stop;
+	int baud;
+	int data;
+	int parity;
+	int stop;
 	virtual_addr_t regbase;
 };
 
-static bool_t pl011_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
+static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
 {
 	struct pl011_uart_private_data_t * dat = (struct pl011_uart_private_data_t *)uart->priv;
-	u32_t ibaud, divider, remainder, fraction;
+	u32_t divider, remainder, fraction;
 	u8_t dreg, preg, sreg;
 	u64_t uclk;
 
-	switch(baud)
-	{
-	case B50:
-		ibaud = 50;
-		break;
-	case B75:
-		ibaud = 75;
-		break;
-	case B110:
-		ibaud = 110;
-		break;
-	case B134:
-		ibaud = 134;
-		break;
-	case B200:
-		ibaud = 200;
-		break;
-	case B300:
-		ibaud = 300;
-		break;
-	case B600:
-		ibaud = 600;
-		break;
-	case B1200:
-		ibaud = 1200;
-		break;
-	case B1800:
-		ibaud = 1800;
-		break;
-	case B2400:
-		ibaud = 2400;
-		break;
-	case B4800:
-		ibaud = 4800;
-		break;
-	case B9600:
-		ibaud = 9600;
-		break;
-	case B19200:
-		ibaud = 19200;
-		break;
-	case B38400:
-		ibaud = 38400;
-		break;
-	case B57600:
-		ibaud = 57600;
-		break;
-	case B76800:
-		ibaud = 76800;
-		break;
-	case B115200:
-		ibaud = 115200;
-		break;
-	case B230400:
-		ibaud = 230400;
-		break;
-	case B380400:
-		ibaud = 380400;
-		break;
-	case B460800:
-		ibaud = 460800;
-		break;
-	case B921600:
-		ibaud = 921600;
-		break;
-	default:
+	if(baud < 0)
 		return FALSE;
-	}
+	if((data < 5) || (data > 8))
+		return FALSE;
+	if((parity < 0) || (parity > 2))
+		return FALSE;
+	if((stop < 0) || (stop > 2))
+		return FALSE;
 
 	switch(data)
 	{
-	case DATA_BITS_5:
+	case 5:	/* Data bits = 5 */
 		dreg = 0x0;
 		break;
-	case DATA_BITS_6:
+	case 6:	/* Data bits = 6 */
 		dreg = 0x1;
 		break;
-	case DATA_BITS_7:
+	case 7:	/* Data bits = 7 */
 		dreg = 0x2;
 		break;
-	case DATA_BITS_8:
+	case 8:	/* Data bits = 8 */
 		dreg = 0x3;
 		break;
 	default:
@@ -159,14 +99,14 @@ static bool_t pl011_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum
 
 	switch(parity)
 	{
-	case PARITY_NONE:
+	case 0:	/* Parity none */
 		preg = 0x0;
 		break;
-	case PARITY_EVEN:
-		preg = 0x3;
-		break;
-	case PARITY_ODD:
+	case 1:	/* Parity odd */
 		preg = 0x1;
+		break;
+	case 2:	/* Parity even */
+		preg = 0x3;
 		break;
 	default:
 		return FALSE;
@@ -174,13 +114,13 @@ static bool_t pl011_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum
 
 	switch(stop)
 	{
-	case STOP_BITS_1:
+	case 1:	/* Stop bits = 1 */
 		sreg = 0;
 		break;
-	case STOP_BITS_2:
+	case 2:	/* Stop bits = 2 */
 		sreg = 1;
 		break;
-	case STOP_BITS_1_5:
+	case 0:	/* Stop bits = 1.5 */
 	default:
 		return FALSE;
 	}
@@ -195,14 +135,29 @@ static bool_t pl011_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum
 	 * FBRD = ROUND((64 * MOD(UART_CLK, (16 * BAUD_RATE))) / (16 * BAUD_RATE))
 	 */
 	uclk = clk_get_rate(dat->clk);
-	divider = uclk / (16 * ibaud);
-	remainder = uclk % (16 * ibaud);
-	fraction = (8 * remainder / ibaud) >> 1;
-	fraction += (8 * remainder / ibaud) & 1;
+	divider = uclk / (16 * baud);
+	remainder = uclk % (16 * baud);
+	fraction = (8 * remainder / baud) >> 1;
+	fraction += (8 * remainder / baud) & 1;
 
 	write32(dat->regbase + UART_IBRD, divider);
 	write32(dat->regbase + UART_FBRD, fraction);
 	write32(dat->regbase + UART_LCRH, (1 << 4) | ((dreg << 5) | (sreg << 3) | (preg << 1)));
+	return TRUE;
+}
+
+static bool_t pl011_uart_get(struct uart_t * uart, int * baud, int * data, int * parity, int * stop)
+{
+	struct pl011_uart_private_data_t * dat = (struct pl011_uart_private_data_t *)uart->priv;
+
+	if(baud)
+		*baud = dat->baud;
+	if(data)
+		*data = dat->data;
+	if(parity)
+		*parity = dat->parity;
+	if(stop)
+		*stop = dat->stop;
 	return TRUE;
 }
 
@@ -221,7 +176,7 @@ static void pl011_uart_init(struct uart_t * uart)
 		gpio_set_cfg(dat->rxdpin, dat->rxdcfg);
 		gpio_set_pull(dat->rxdpin, GPIO_PULL_UP);
 	}
-	pl011_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
+	pl011_uart_set(uart, dat->baud, dat->data, dat->parity, dat->stop);
 	write32(dat->regbase + UART_CR, 0x0);
 	write32(dat->regbase + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
 }
@@ -301,9 +256,10 @@ static bool_t pl011_register_bus_uart(struct resource_t * res)
 	uart->name = strdup(name);
 	uart->init = pl011_uart_init;
 	uart->exit = pl011_uart_exit;
+	uart->set = pl011_uart_set;
+	uart->get = pl011_uart_get;
 	uart->read = pl011_uart_read;
 	uart->write = pl011_uart_write;
-	uart->setup = pl011_uart_setup;
 	uart->priv = dat;
 
 	if(register_bus_uart(uart))

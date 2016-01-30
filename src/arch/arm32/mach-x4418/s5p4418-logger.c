@@ -23,11 +23,12 @@
  */
 
 #include <xboot.h>
-#include <s5p4418/reg-gpio.h>
 #include <s5p4418/reg-uart.h>
 
 static void logger_uart0_init(void)
 {
+	virtual_addr_t regbase = phys_to_virt(S5P4418_UART0_BASE);
+	write32(regbase + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void logger_uart0_exit(void)
@@ -36,12 +37,13 @@ static void logger_uart0_exit(void)
 
 static ssize_t logger_uart0_output(const char * buf, size_t count)
 {
+	virtual_addr_t regbase = phys_to_virt(S5P4418_UART0_BASE);
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
 	{
-		while( (read8(phys_to_virt(S5P4418_UART0_BASE + UART_FR)) & UART_FR_TXFF) );
-		write8(phys_to_virt(S5P4418_UART0_BASE + UART_DATA), buf[i]);
+		while(read8(regbase + 0x18) & (0x1 << 5));
+		write8(regbase + 0x00, buf[i]);
 	}
 	return i;
 }
@@ -55,19 +57,6 @@ static struct logger_t s5p4418_logger = {
 
 static __init void s5p4418_logger_init(void)
 {
-	if(register_logger(&s5p4418_logger))
-		LOG("Register logger '%s'", s5p4418_logger.name);
-	else
-		LOG("Failed to register logger '%s'", s5p4418_logger.name);
+	register_logger(&s5p4418_logger);
 }
-
-static __exit void s5p4418_logger_exit(void)
-{
-	if(unregister_logger(&s5p4418_logger))
-		LOG("Unregister logger '%s'", s5p4418_logger.name);
-	else
-		LOG("Failed to unregister logger '%s'", s5p4418_logger.name);
-}
-
 core_initcall(s5p4418_logger_init);
-core_exitcall(s5p4418_logger_exit);

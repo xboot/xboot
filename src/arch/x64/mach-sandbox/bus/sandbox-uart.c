@@ -26,17 +26,30 @@
 #include <bus/uart.h>
 #include <sandbox.h>
 
-static bool_t sandbox_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
-{
-	return TRUE;
-}
-
 static void sandbox_uart_init(struct uart_t * uart)
 {
 }
 
 static void sandbox_uart_exit(struct uart_t * uart)
 {
+}
+
+static bool_t sandbox_uart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
+{
+	return TRUE;
+}
+
+static bool_t sandbox_uart_get(struct uart_t * uart, int * baud, int * data, int * parity, int * stop)
+{
+	if(baud)
+		*baud = 115200;
+	if(data)
+		*data = 8;
+	if(parity)
+		*parity = 0;
+	if(stop)
+		*stop = 1;
+	return TRUE;
 }
 
 static ssize_t sandbox_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
@@ -63,9 +76,10 @@ static bool_t sandbox_register_bus_uart(struct resource_t * res)
 	uart->name = strdup(name);
 	uart->init = sandbox_uart_init;
 	uart->exit = sandbox_uart_exit;
+	uart->set = sandbox_uart_set;
+	uart->get = sandbox_uart_get;
 	uart->read = sandbox_uart_read;
 	uart->write = sandbox_uart_write;
-	uart->setup = sandbox_uart_setup;
 	uart->priv = res;
 
 	if(register_bus_uart(uart))

@@ -25,6 +25,74 @@
 #include <xboot.h>
 #include <bus/uart.h>
 
+static ssize_t uart_read_baud(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct uart_t * uart = (struct uart_t *)kobj->priv;
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	return sprintf(buf, "%d", baud);
+}
+
+static ssize_t uart_write_baud(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct uart_t * uart = (struct uart_t *)kobj->priv;
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	uart_set(uart, strtol(buf, NULL, 0), data, parity, stop);
+	return size;
+}
+
+static ssize_t uart_read_data(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct uart_t * uart = (struct uart_t *)kobj->priv;
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	return sprintf(buf, "%d", data);
+}
+
+static ssize_t uart_write_data(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct uart_t * uart = (struct uart_t *)kobj->priv;
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	uart_set(uart, baud, strtol(buf, NULL, 0), parity, stop);
+	return size;
+}
+
+static ssize_t uart_read_parity(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct uart_t * uart = (struct uart_t *)kobj->priv;
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	return sprintf(buf, "%d", parity);
+}
+
+static ssize_t uart_write_parity(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct uart_t * uart = (struct uart_t *)kobj->priv;
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	uart_set(uart, baud, data, strtol(buf, NULL, 0), stop);
+	return size;
+}
+
+static ssize_t uart_read_stop(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct uart_t * uart = (struct uart_t *)kobj->priv;
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	return sprintf(buf, "%d", stop);
+}
+
+static ssize_t uart_write_stop(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct uart_t * uart = (struct uart_t *)kobj->priv;
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	uart_set(uart, baud, data, parity, strtol(buf, NULL, 0));
+	return size;
+}
+
 struct uart_t * search_bus_uart(const char * name)
 {
 	struct bus_t * bus;
@@ -51,6 +119,10 @@ bool_t register_bus_uart(struct uart_t * uart)
 	bus->type = BUS_TYPE_UART;
 	bus->driver = uart;
 	bus->kobj = kobj_alloc_directory(bus->name);
+	kobj_add_regular(bus->kobj, "baud", uart_read_baud, uart_write_baud, uart);
+	kobj_add_regular(bus->kobj, "data", uart_read_data, uart_write_data, uart);
+	kobj_add_regular(bus->kobj, "parity", uart_read_parity, uart_write_parity, uart);
+	kobj_add_regular(bus->kobj, "stop", uart_read_stop, uart_write_stop, uart);
 
 	if(!register_bus(bus))
 	{
@@ -92,10 +164,17 @@ bool_t unregister_bus_uart(struct uart_t * uart)
 	return TRUE;
 }
 
-bool_t uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
+bool_t uart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
 {
-	if(uart && uart->setup)
-		return uart->setup(uart, baud, data, parity, stop);
+	if(uart && uart->set)
+		return uart->set(uart, baud, data, parity, stop);
+	return FALSE;
+}
+
+bool_t uart_get(struct uart_t * uart, int * baud, int * data, int * parity, int * stop)
+{
+	if(uart && uart->get)
+		return uart->get(uart, baud, data, parity, stop);
 	return FALSE;
 }
 

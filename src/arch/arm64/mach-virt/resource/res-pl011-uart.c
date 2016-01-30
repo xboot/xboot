@@ -1,5 +1,5 @@
 /*
- * resource/res-uart.c
+ * resource/res-pl011-uart.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,23 +23,29 @@
  */
 
 #include <xboot.h>
-#include <virt-uart.h>
+#include <pl011-uart.h>
+#include <virt/reg-uart.h>
 
-static struct virt_uart_data_t virt_uart_data[] = {
+static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
-		.baud		= B115200,
-		.data		= DATA_BITS_8,
-		.parity		= PARITY_NONE,
-		.stop		= STOP_BITS_1,
+		.clk		= "uclk",
+		.txdpin		= -1,
+		.txdcfg		= -1,
+		.rxdpin		= -1,
+		.rxdcfg		= -1,
+		.baud		= 115200,
+		.data		= 8,
+		.parity		= 0,
+		.stop		= 1,
 		.regbase	= VIRT_UART0_BASE,
 	}
 };
 
 static struct resource_t res_uarts[] = {
 	{
-		.name		= "virt-uart",
+		.name		= "pl011-uart",
 		.id			= 0,
-		.data		= &virt_uart_data[0],
+		.data		= &uart_datas[0],
 	}
 };
 
@@ -48,26 +54,6 @@ static __init void resource_uart_init(void)
 	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
-	{
-		if(register_resource(&res_uarts[i]))
-			LOG("Register resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-		else
-			LOG("Failed to register resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-	}
+		register_resource(&res_uarts[i]);
 }
-
-static __exit void resource_uart_exit(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
-	{
-		if(unregister_resource(&res_uarts[i]))
-			LOG("Unregister resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-		else
-			LOG("Failed to unregister resource %s:'%s.%d'", res_uarts[i].mach, res_uarts[i].name, res_uarts[i].id);
-	}
-}
-
 resource_initcall(resource_uart_init);
-resource_exitcall(resource_uart_exit);

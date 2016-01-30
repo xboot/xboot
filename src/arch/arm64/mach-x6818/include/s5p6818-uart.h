@@ -13,10 +13,10 @@ extern "C" {
 
 struct s5p6818_uart_data_t
 {
-	enum baud_rate_t baud;
-	enum data_bits_t data;
-	enum parity_bits_t parity;
-	enum stop_bits_t stop;
+	int baud;
+	int data;
+	int parity;
+	int stop;
 
 	physical_addr_t regbase;
 };

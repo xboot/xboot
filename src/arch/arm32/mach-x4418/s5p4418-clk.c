@@ -528,10 +528,14 @@ static __init void s5p4418_clk_init(void)
 	int i;
 
 	/*
-	 * Reset IP modules, for timer and pwm clock.
+	 * Reset some IP modules.
 	 */
 	s5p4418_ip_reset(RESET_ID_TIMER, 0);
 	s5p4418_ip_reset(RESET_ID_PWM, 0);
+	s5p4418_ip_reset(RESET_ID_UART0, 0);
+	s5p4418_ip_reset(RESET_ID_UART1, 0);
+	s5p4418_ip_reset(RESET_ID_UART2, 0);
+	s5p4418_ip_reset(RESET_ID_UART3, 0);
 
 	clk_register_core();
 	clk_register_uart();

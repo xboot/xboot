@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <s5p6818-uart.h>
 
-static bool_t s5p6818_uart_setup(struct uart_t * uart, enum baud_rate_t baud, enum data_bits_t data, enum parity_bits_t parity, enum stop_bits_t stop)
+static bool_t s5p6818_uart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
 {
 	struct resource_t * res = (struct resource_t *)uart->priv;
 	struct s5p6818_uart_data_t * dat = (struct s5p6818_uart_data_t *)res->data;
@@ -33,116 +33,69 @@ static bool_t s5p6818_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 									 0x2222, 0x4924, 0x4a52, 0x54aa,
 									 0x5555, 0xd555, 0xd5d5, 0xddd5,
 									 0xdddd, 0xdfdd, 0xdfdf, 0xffdf};
-	u32_t ibaud, baud_div_reg, baud_divslot_reg;
-	u8_t data_bit_reg, parity_reg, stop_bit_reg;
+	u32_t baud_div_reg, baud_divslot_reg;
+	u8_t dreg, preg, sreg;
 	u64_t rate;
 
-	switch(baud)
-	{
-	case B50:
-		ibaud = 50;
-		break;
-	case B75:
-		ibaud = 75;
-		break;
-	case B110:
-		ibaud = 110;
-		break;
-	case B134:
-		ibaud = 134;
-		break;
-	case B200:
-		ibaud = 200;
-		break;
-	case B300:
-		ibaud = 300;
-		break;
-	case B600:
-		ibaud = 600;
-		break;
-	case B1200:
-		ibaud = 1200;
-		break;
-	case B1800:
-		ibaud = 1800;
-		break;
-	case B2400:
-		ibaud = 2400;
-		break;
-	case B4800:
-		ibaud = 4800;
-		break;
-	case B9600:
-		ibaud = 9600;
-		break;
-	case B19200:
-		ibaud = 19200;
-		break;
-	case B38400:
-		ibaud = 38400;
-		break;
-	case B57600:
-		ibaud = 57600;
-		break;
-	case B76800:
-		ibaud = 76800;
-		break;
-	case B115200:
-		ibaud = 115200;
-		break;
-	case B230400:
-		ibaud = 230400;
-		break;
-	case B380400:
-		ibaud = 380400;
-		break;
-	case B460800:
-		ibaud = 460800;
-		break;
-	case B921600:
-		ibaud = 921600;
-		break;
-	default:
+	if(baud < 0)
 		return FALSE;
-	}
+	if((data < 5) || (data > 8))
+		return FALSE;
+	if((parity < 0) || (parity > 2))
+		return FALSE;
+	if((stop < 0) || (stop > 2))
+		return FALSE;
 
 	switch(data)
 	{
-	case DATA_BITS_5:
-		data_bit_reg = 0x0;		break;
-	case DATA_BITS_6:
-		data_bit_reg = 0x1;		break;
-	case DATA_BITS_7:
-		data_bit_reg = 0x2;		break;
-	case DATA_BITS_8:
-		data_bit_reg = 0x3;		break;
+	case 5:	/* Data bits = 5 */
+		dreg = 0x0;
+		break;
+	case 6:	/* Data bits = 6 */
+		dreg = 0x1;
+		break;
+	case 7:	/* Data bits = 7 */
+		dreg = 0x2;
+		break;
+	case 8:	/* Data bits = 8 */
+		dreg = 0x3;
+		break;
 	default:
 		return FALSE;
 	}
 
 	switch(parity)
 	{
-	case PARITY_NONE:
-		parity_reg = 0x0;		break;
-	case PARITY_EVEN:
-		parity_reg = 0x5;		break;
-	case PARITY_ODD:
-		parity_reg = 0x4;		break;
+	case 0:	/* Parity none */
+		preg = 0x0;
+		break;
+	case 1:	/* Parity odd */
+		preg = 0x4;
+		break;
+	case 2:	/* Parity even */
+		preg = 0x5;
+		break;
 	default:
 		return FALSE;
 	}
 
 	switch(stop)
 	{
-	case STOP_BITS_1:
-		stop_bit_reg = 0;		break;
-	case STOP_BITS_1_5:
-		return -1;
-	case STOP_BITS_2:
-		stop_bit_reg = 1;		break;
+	case 1:	/* Stop bits = 1 */
+		sreg = 0;
+		break;
+	case 2:	/* Stop bits = 2 */
+		sreg = 1;
+		break;
+	case 0:	/* Stop bits = 1.5 */
 	default:
 		return FALSE;
 	}
+
+	dat->baud = baud;
+	dat->data = data;
+	dat->parity = parity;
+	dat->stop = stop;
 
 	switch(res->id)
 	{
@@ -168,13 +121,29 @@ static bool_t s5p6818_uart_setup(struct uart_t * uart, enum baud_rate_t baud, en
 		return FALSE;
 	}
 
-	baud_div_reg = (u32_t)((rate / (ibaud * 16))) - 1;
-	baud_divslot_reg = udivslot_code[( (u32_t)((rate % (ibaud*16)) / ibaud) ) & 0xf];
+	baud_div_reg = (u32_t)((rate / (baud * 16))) - 1;
+	baud_divslot_reg = udivslot_code[( (u32_t)((rate % (baud*16)) / baud) ) & 0xf];
 
 	write32(dat->regbase + UART_UBRDIV, baud_div_reg);
 	write32(dat->regbase + UART_UFRACVAL, baud_divslot_reg);
-	write32(dat->regbase + UART_ULCON, (data_bit_reg<<0 | stop_bit_reg<<2 | parity_reg<<3));
+	write32(dat->regbase + UART_ULCON, (dreg<<0 | sreg<<2 | preg<<3));
 
+	return TRUE;
+}
+
+static bool_t s5p6818_uart_get(struct uart_t * uart, int * baud, int * data, int * parity, int * stop)
+{
+	struct resource_t * res = (struct resource_t *)uart->priv;
+	struct s5p6818_uart_data_t * dat = (struct s5p6818_uart_data_t *)res->data;
+
+	if(baud)
+		*baud = dat->baud;
+	if(data)
+		*data = dat->data;
+	if(parity)
+		*parity = dat->parity;
+	if(stop)
+		*stop = dat->stop;
 	return TRUE;
 }
 
@@ -246,7 +215,7 @@ static void s5p6818_uart_init(struct uart_t * uart)
 	write32(dat->regbase + UART_UCON, 0x00000005);
 	write32(dat->regbase + UART_UFCON, 0x00000777);
 	write32(dat->regbase + UART_UMCON, 0x00000000);
-	s5p6818_uart_setup(uart, dat->baud, dat->data, dat->parity, dat->stop);
+	s5p6818_uart_set(uart, dat->baud, dat->data, dat->parity, dat->stop);
 }
 
 static void s5p6818_uart_exit(struct uart_t * uart)
@@ -324,9 +293,10 @@ static bool_t s5p6818_register_bus_uart(struct resource_t * res)
 	uart->name = strdup(name);
 	uart->init = s5p6818_uart_init;
 	uart->exit = s5p6818_uart_exit;
+	uart->set = s5p6818_uart_set;
+	uart->get = s5p6818_uart_get;
 	uart->read = s5p6818_uart_read;
 	uart->write = s5p6818_uart_write;
-	uart->setup = s5p6818_uart_setup;
 	uart->priv = res;
 
 	if(register_bus_uart(uart))

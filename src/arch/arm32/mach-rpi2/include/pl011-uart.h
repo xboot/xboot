@@ -15,10 +15,10 @@ struct pl011_uart_data_t
 	int txdcfg;
 	int rxdpin;
 	int rxdcfg;
-	enum baud_rate_t baud;
-	enum data_bits_t data;
-	enum parity_bits_t parity;
-	enum stop_bits_t stop;
+	int baud;
+	int data;
+	int parity;
+	int stop;
 	physical_addr_t regbase;
 };
 

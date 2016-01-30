@@ -1,5 +1,5 @@
 /*
- * resource/res-console.c
+ * virt-clk.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,22 +23,19 @@
  */
 
 #include <xboot.h>
-#include <console/console.h>
 
-static struct console_stdio_data_t console_stdio_data = {
-	.in		= "pl011-uart.0",
-	.out	= "pl011-uart.0",
-	.err	= "pl011-uart.0",
+static struct clk_fixed_t virt_clks[] = {
+	{
+		.name = "uclk",
+		.rate = 24 * 1000 * 1000,
+	}
 };
 
-static struct resource_t res_console = {
-	.name	= "console",
-	.id		= -1,
-	.data	= &console_stdio_data,
-};
-
-static __init void resource_console_init(void)
+static __init void virt_clk_init(void)
 {
-	register_resource(&res_console);
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(virt_clks); i++)
+		clk_fixed_register(&virt_clks[i]);
 }
-resource_initcall(resource_console_init);
+core_initcall(virt_clk_init);

@@ -24,56 +24,57 @@
 
 #include <xboot.h>
 #include <pl011-uart.h>
-#include <realview/reg-uart.h>
+#include <s5p4418-gpio.h>
+#include <s5p4418/reg-uart.h>
 
 static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
-		.clk		= "uclk",
-		.txdpin		= -1,
-		.txdcfg		= -1,
-		.rxdpin		= -1,
-		.rxdcfg		= -1,
+		.clk		= "GATE-UART0",
+		.txdpin		= S5P4418_GPIOD(18),
+		.txdcfg		= 0x1,
+		.rxdpin		= S5P4418_GPIOD(14),
+		.rxdcfg		= 0x1,
 		.baud		= 115200,
 		.data		= 8,
 		.parity		= 0,
 		.stop		= 1,
-		.regbase	= REALVIEW_UART0_BASE,
+		.regbase	= S5P4418_UART0_BASE,
 	},
 	[1] = {
-		.clk		= "uclk",
-		.txdpin		= -1,
-		.txdcfg		= -1,
-		.rxdpin		= -1,
-		.rxdcfg		= -1,
+		.clk		= "GATE-UART1",
+		.txdpin		= S5P4418_GPIOD(19),
+		.txdcfg		= 0x1,
+		.rxdpin		= S5P4418_GPIOD(15),
+		.rxdcfg		= 0x1,
 		.baud		= 115200,
 		.data		= 8,
 		.parity		= 0,
 		.stop		= 1,
-		.regbase	= REALVIEW_UART1_BASE,
+		.regbase	= S5P4418_UART1_BASE,
 	},
 	[2] = {
-		.clk		= "uclk",
-		.txdpin		= -1,
-		.txdcfg		= -1,
-		.rxdpin		= -1,
-		.rxdcfg		= -1,
+		.clk		= "GATE-UART2",
+		.txdpin		= S5P4418_GPIOD(20),
+		.txdcfg		= 0x1,
+		.rxdpin		= S5P4418_GPIOD(16),
+		.rxdcfg		= 0x1,
 		.baud		= 115200,
 		.data		= 8,
 		.parity		= 0,
 		.stop		= 1,
-		.regbase	= REALVIEW_UART2_BASE,
+		.regbase	= S5P4418_UART2_BASE,
 	},
 	[3] = {
-		.clk		= "uclk",
-		.txdpin		= -1,
-		.txdcfg		= -1,
-		.rxdpin		= -1,
-		.rxdcfg		= -1,
+		.clk		= "GATE-UART3",
+		.txdpin		= S5P4418_GPIOD(21),
+		.txdcfg		= 0x1,
+		.rxdpin		= S5P4418_GPIOD(17),
+		.rxdcfg		= 0x1,
 		.baud		= 115200,
 		.data		= 8,
 		.parity		= 0,
 		.stop		= 1,
-		.regbase	= REALVIEW_UART3_BASE,
+		.regbase	= S5P4418_UART3_BASE,
 	}
 };
 

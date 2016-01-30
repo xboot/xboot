@@ -34,10 +34,10 @@ static struct pl011_uart_data_t uart_datas[] = {
 		.txdcfg		= 0,
 		.rxdpin		= BCM2836_GPIO(15),
 		.rxdcfg		= 0,
-		.baud		= B115200,
-		.data		= DATA_BITS_8,
-		.parity		= PARITY_NONE,
-		.stop		= STOP_BITS_1,
+		.baud		= 115200,
+		.data		= 8,
+		.parity		= 0,
+		.stop		= 1,
 		.regbase	= BCM2836_UART0_BASE,
 	}
 };

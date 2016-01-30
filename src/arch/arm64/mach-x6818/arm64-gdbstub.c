@@ -192,9 +192,7 @@ static int cpu_processor(struct gdb_cpu_t * cpu)
 
 static void cpu_breakpoint(struct gdb_cpu_t * cpu)
 {
-	wmb();
 	__asm__ __volatile__("brk %0" : : "I" (0x401));
-	wmb();
 }
 
 static struct gdb_cpu_t __arm64_gdb_cpu = {

@@ -33,11 +33,11 @@ static int l_uart_new(lua_State * L)
 		return 0;
 	if(lua_gettop(L) > 1)
 	{
-		enum baud_rate_t baud = luaL_optinteger(L, 2, B115200);
-		enum data_bits_t data = luaL_optinteger(L, 3, DATA_BITS_8);
-		enum parity_bits_t parity = luaL_optinteger(L, 4, PARITY_NONE);
-		enum stop_bits_t stop = luaL_optinteger(L, 5, STOP_BITS_1);
-		uart_setup(uart, baud, data, parity, stop);
+		int baud = luaL_optinteger(L, 2, 115200);
+		int data = luaL_optinteger(L, 3, 8);
+		int parity = luaL_optinteger(L, 4, 0);
+		int stop = luaL_optinteger(L, 5, 1);
+		uart_set(uart, baud, data, parity, stop);
 	}
 	lua_pushlightuserdata(L, uart);
 	luaL_setmetatable(L, MT_HARDWARE_UART);
@@ -71,16 +71,28 @@ static const luaL_Reg l_uart[] = {
 	{NULL,	NULL}
 };
 
-static int m_uart_setup(lua_State * L)
+static int m_uart_set(lua_State * L)
 {
 	struct uart_t * uart = luaL_checkudata(L, 1, MT_HARDWARE_UART);
-	enum baud_rate_t baud = luaL_optinteger(L, 2, B115200);
-	enum data_bits_t data = luaL_optinteger(L, 3, DATA_BITS_8);
-	enum parity_bits_t parity = luaL_optinteger(L, 4, PARITY_NONE);
-	enum stop_bits_t stop = luaL_optinteger(L, 5, STOP_BITS_1);
-	uart_setup(uart, baud, data, parity, stop);
+	int baud = luaL_optinteger(L, 2, 115200);
+	int data = luaL_optinteger(L, 3, 8);
+	int parity = luaL_optinteger(L, 4, 0);
+	int stop = luaL_optinteger(L, 5, 1);
+	uart_set(uart, baud, data, parity, stop);
 	lua_settop(L, 1);
 	return 1;
+}
+
+static int m_uart_get(lua_State * L)
+{
+	struct uart_t * uart = luaL_checkudata(L, 1, MT_HARDWARE_UART);
+	int baud, data, parity, stop;
+	uart_get(uart, &baud, &data, &parity, &stop);
+	lua_pushinteger(L, baud);
+	lua_pushinteger(L, data);
+	lua_pushinteger(L, parity);
+	lua_pushinteger(L, stop);
+	return 4;
 }
 
 static int m_uart_read(lua_State * L)
@@ -124,7 +136,8 @@ static int m_uart_write(lua_State * L)
 }
 
 static const luaL_Reg m_uart[] = {
-	{"setup",	m_uart_setup},
+	{"set",		m_uart_set},
+	{"get",		m_uart_get},
 	{"read",	m_uart_read},
 	{"write",	m_uart_write},
 	{NULL,	NULL}
@@ -133,41 +146,6 @@ static const luaL_Reg m_uart[] = {
 int luaopen_hardware_uart(lua_State * L)
 {
 	luaL_newlib(L, l_uart);
-    /* baud_rate_t */
-	luahelper_set_intfield(L, "B50",			B50);
-	luahelper_set_intfield(L, "B75",			B75);
-	luahelper_set_intfield(L, "B110",			B110);
-	luahelper_set_intfield(L, "B134",			B134);
-	luahelper_set_intfield(L, "B200",			B200);
-	luahelper_set_intfield(L, "B300",			B300);
-	luahelper_set_intfield(L, "B600",			B600);
-	luahelper_set_intfield(L, "B1200",			B1200);
-	luahelper_set_intfield(L, "B1800",			B1800);
-	luahelper_set_intfield(L, "B2400",			B2400);
-	luahelper_set_intfield(L, "B4800",			B4800);
-	luahelper_set_intfield(L, "B9600",			B9600);
-	luahelper_set_intfield(L, "B19200",			B19200);
-	luahelper_set_intfield(L, "B38400",			B38400);
-	luahelper_set_intfield(L, "B57600",			B57600);
-	luahelper_set_intfield(L, "B76800",			B76800);
-	luahelper_set_intfield(L, "B115200",		B115200);
-	luahelper_set_intfield(L, "B230400",		B230400);
-	luahelper_set_intfield(L, "B380400",		B380400);
-	luahelper_set_intfield(L, "B460800",		B460800);
-	luahelper_set_intfield(L, "B921600",		B921600);
-	/* data_bits_t */
-	luahelper_set_intfield(L, "DATA_BITS_5",	DATA_BITS_5);
-	luahelper_set_intfield(L, "DATA_BITS_6",	DATA_BITS_6);
-	luahelper_set_intfield(L, "DATA_BITS_7",	DATA_BITS_7);
-	luahelper_set_intfield(L, "DATA_BITS_8",	DATA_BITS_8);
-	/* parity_bits_t */
-	luahelper_set_intfield(L, "PARITY_NONE",	PARITY_NONE);
-	luahelper_set_intfield(L, "PARITY_EVEN",	PARITY_EVEN);
-	luahelper_set_intfield(L, "PARITY_ODD",		PARITY_ODD);
-	/* stop_bits_t */
-	luahelper_set_intfield(L, "STOP_BITS_1",	STOP_BITS_1);
-	luahelper_set_intfield(L, "STOP_BITS_1_5",	STOP_BITS_1_5);
-	luahelper_set_intfield(L, "STOP_BITS_2",	STOP_BITS_2);
 	luahelper_create_metatable(L, MT_HARDWARE_UART, m_uart);
 	return 1;
 }

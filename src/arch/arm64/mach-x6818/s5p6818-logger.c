@@ -25,15 +25,15 @@
 #include <xboot.h>
 #include <s5p6818/reg-uart.h>
 
-static void logger_uart0_init(void)
+static void logger_uart_init(void)
 {
 }
 
-static void logger_uart0_exit(void)
+static void logger_uart_exit(void)
 {
 }
 
-static ssize_t logger_uart0_output(const char * buf, size_t count)
+static ssize_t logger_uart_output(const char * buf, size_t count)
 {
 	ssize_t i;
 
@@ -46,27 +46,14 @@ static ssize_t logger_uart0_output(const char * buf, size_t count)
 }
 
 static struct logger_t s5p6818_logger = {
-	.name	= "logger-uart0",
-	.init	= logger_uart0_init,
-	.exit	= logger_uart0_exit,
-	.output	= logger_uart0_output,
+	.name	= "logger-uart.0",
+	.init	= logger_uart_init,
+	.exit	= logger_uart_exit,
+	.output	= logger_uart_output,
 };
 
 static __init void s5p6818_logger_init(void)
 {
-	if(register_logger(&s5p6818_logger))
-		LOG("Register logger '%s'", s5p6818_logger.name);
-	else
-		LOG("Failed to register logger '%s'", s5p6818_logger.name);
+	register_logger(&s5p6818_logger);
 }
-
-static __exit void s5p6818_logger_exit(void)
-{
-	if(unregister_logger(&s5p6818_logger))
-		LOG("Unregister logger '%s'", s5p6818_logger.name);
-	else
-		LOG("Failed to unregister logger '%s'", s5p6818_logger.name);
-}
-
 core_initcall(s5p6818_logger_init);
-core_exitcall(s5p6818_logger_exit);

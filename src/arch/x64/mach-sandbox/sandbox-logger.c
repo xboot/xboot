@@ -47,19 +47,6 @@ static struct logger_t sandbox_logger = {
 
 static __init void sandbox_logger_init(void)
 {
-	if(register_logger(&sandbox_logger))
-		LOG("Register logger '%s'", sandbox_logger.name);
-	else
-		LOG("Failed to register logger '%s'", sandbox_logger.name);
+	register_logger(&sandbox_logger);
 }
-
-static __exit void sandbox_logger_exit(void)
-{
-	if(unregister_logger(&sandbox_logger))
-		LOG("Unregister logger '%s'", sandbox_logger.name);
-	else
-		LOG("Failed to unregister logger '%s'", sandbox_logger.name);
-}
-
 core_initcall(sandbox_logger_init);
-core_exitcall(sandbox_logger_exit);

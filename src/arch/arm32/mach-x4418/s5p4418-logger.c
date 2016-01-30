@@ -25,17 +25,17 @@
 #include <xboot.h>
 #include <s5p4418/reg-uart.h>
 
-static void logger_uart0_init(void)
+static void logger_uart_init(void)
 {
 	virtual_addr_t regbase = phys_to_virt(S5P4418_UART0_BASE);
 	write32(regbase + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
-static void logger_uart0_exit(void)
+static void logger_uart_exit(void)
 {
 }
 
-static ssize_t logger_uart0_output(const char * buf, size_t count)
+static ssize_t logger_uart_output(const char * buf, size_t count)
 {
 	virtual_addr_t regbase = phys_to_virt(S5P4418_UART0_BASE);
 	ssize_t i;
@@ -49,10 +49,10 @@ static ssize_t logger_uart0_output(const char * buf, size_t count)
 }
 
 static struct logger_t s5p4418_logger = {
-	.name	= "logger-uart0",
-	.init	= logger_uart0_init,
-	.exit	= logger_uart0_exit,
-	.output	= logger_uart0_output,
+	.name	= "logger-uart.0",
+	.init	= logger_uart_init,
+	.exit	= logger_uart_exit,
+	.output	= logger_uart_output,
 };
 
 static __init void s5p4418_logger_init(void)

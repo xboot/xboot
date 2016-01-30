@@ -36,6 +36,9 @@ struct realview_gpiochip_data_t
 
 struct realview_gpiochip_pdata_t
 {
+	const char * name;
+	int base;
+	int ngpio;
 	virtual_addr_t regbase;
 };
 
@@ -171,10 +174,13 @@ static __init void realview_gpiochip_init(void)
 			continue;
 		}
 
+		pdat->name = gpiochip_datas[i].name;
+		pdat->base = gpiochip_datas[i].base;
+		pdat->ngpio = gpiochip_datas[i].ngpio;
 		pdat->regbase = phys_to_virt(gpiochip_datas[i].regbase);
-		chip->name = gpiochip_datas[i].name;
-		chip->base = gpiochip_datas[i].base;
-		chip->ngpio = gpiochip_datas[i].ngpio;
+		chip->name = pdat->name;
+		chip->base = pdat->base;
+		chip->ngpio = pdat->ngpio;
 		chip->set_cfg = realview_gpiochip_set_cfg;
 		chip->get_cfg = realview_gpiochip_get_cfg;
 		chip->set_pull = realview_gpiochip_set_pull;

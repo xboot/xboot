@@ -27,31 +27,26 @@
 #include <realview/reg-gic.h>
 
 static struct irq_handler_t realview_irq_handler[32];
+static virtual_addr_t dist_base;
+static virtual_addr_t cpu_base;
 
 void do_irq(void * regs)
 {
-	u32_t irq;
-
-	/* Get irq's offset */
-	irq = read32(phys_to_virt(REALVIEW_GIC_CPU_BASE + CPU_INTACK)) & 0x3ff;
-
-	/* Handle interrupt server function */
+	u32_t irq = read32(cpu_base + CPU_INTACK) & 0x3ff;
 	(realview_irq_handler[irq - 32].func)(realview_irq_handler[irq - 32].data);
-
-	/* Exit interrupt */
-	write32(phys_to_virt(REALVIEW_GIC_CPU_BASE + CPU_EOI), irq);
+	write32(cpu_base + CPU_EOI, irq);
 }
 
 static void realview_irq_enable(struct irq_t * irq)
 {
 	u32_t mask = 1 << (irq->no % 32);
-	write32(phys_to_virt(REALVIEW_GIC_DIST_BASE + DIST_ENABLE_SET + (irq->no / 32) * 4), mask);
+	write32(dist_base + DIST_ENABLE_SET + (irq->no / 32) * 4, mask);
 }
 
 static void realview_irq_disable(struct irq_t * irq)
 {
 	u32_t mask = 1 << (irq->no % 32);
-	write32(phys_to_virt(REALVIEW_GIC_DIST_BASE + DIST_ENABLE_CLEAR + (irq->no / 32) * 4), mask);
+	write32(dist_base + DIST_ENABLE_CLEAR + (irq->no / 32) * 4, mask);
 }
 
 static void realview_irq_set_type(struct irq_t * irq, enum irq_type_t type)
@@ -279,19 +274,19 @@ static struct irq_t realview_irqs[] = {
 	}
 };
 
-static void gic_dist_init(physical_addr_t dist)
+static void gic_dist_init(virtual_addr_t dist)
 {
 	u32_t gic_irqs;
 	u32_t cpumask;
 	int i;
 
-	write32(phys_to_virt(dist + DIST_CTRL), 0x0);
+	write32(dist + DIST_CTRL, 0x0);
 
 	/*
 	 * Find out how many interrupts are supported.
 	 * The GIC only supports up to 1020 interrupt sources.
 	 */
-	gic_irqs = read32(phys_to_virt(dist + DIST_CTR)) & 0x1f;
+	gic_irqs = read32(dist + DIST_CTR) & 0x1f;
 	gic_irqs = (gic_irqs + 1) * 32;
 	if(gic_irqs > 1020)
 		gic_irqs = 1020;
@@ -303,31 +298,31 @@ static void gic_dist_init(physical_addr_t dist)
 	cpumask |= cpumask << 8;
 	cpumask |= cpumask << 16;
 	for(i = 32; i < gic_irqs; i += 4)
-		write32(phys_to_virt(dist + DIST_TARGET + i * 4 / 4), cpumask);
+		write32(dist + DIST_TARGET + i * 4 / 4, cpumask);
 
 	/*
 	 * Set all global interrupts to be level triggered, active low.
 	 */
 	for(i = 32; i < gic_irqs; i += 16)
-		write32(phys_to_virt(dist + DIST_CONFIG + i * 4 / 16), 0);
+		write32(dist + DIST_CONFIG + i * 4 / 16, 0);
 
 	/*
 	 * Set priority on all global interrupts.
 	 */
 	for(i = 32; i < gic_irqs; i += 4)
-		write32(phys_to_virt(dist + DIST_PRI + i * 4 / 4), 0xa0a0a0a0);
+		write32(dist + DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
 
 	/*
 	 * Disable all interrupts.  Leave the PPI and SGIs alone
 	 * as these enables are banked registers.
 	 */
 	for(i = 32; i < gic_irqs; i += 32)
-		write32(phys_to_virt(dist + DIST_ENABLE_CLEAR + i * 4 / 32), 0xffffffff);
+		write32(dist + DIST_ENABLE_CLEAR + i * 4 / 32, 0xffffffff);
 
-	write32(phys_to_virt(dist + DIST_CTRL), 0x1);
+	write32(dist + DIST_CTRL, 0x1);
 }
 
-static void gic_cpu_init(physical_addr_t dist, physical_addr_t cpu)
+static void gic_cpu_init(virtual_addr_t dist, virtual_addr_t cpu)
 {
 	int i;
 
@@ -335,26 +330,28 @@ static void gic_cpu_init(physical_addr_t dist, physical_addr_t cpu)
 	 * Deal with the banked PPI and SGI interrupts - disable all
 	 * PPI interrupts, ensure all SGI interrupts are enabled.
 	 */
-	write32(phys_to_virt(dist + DIST_ENABLE_CLEAR), 0xffff0000);
-	write32(phys_to_virt(dist + DIST_ENABLE_SET), 0x0000ffff);
+	write32(dist + DIST_ENABLE_CLEAR, 0xffff0000);
+	write32(dist + DIST_ENABLE_SET, 0x0000ffff);
 
 	/*
 	 * Set priority on PPI and SGI interrupts
 	 */
 	for(i = 0; i < 32; i += 4)
-		write32(phys_to_virt(dist + DIST_PRI + i * 4 / 4), 0xa0a0a0a0);
+		write32(dist + DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
 
-	write32(phys_to_virt(cpu + CPU_PRIMASK), 0xf0);
-	write32(phys_to_virt(cpu + CPU_CTRL), 0x1);
+	write32(cpu + CPU_PRIMASK, 0xf0);
+	write32(cpu + CPU_CTRL, 0x1);
 }
 
 static __init void realview_irq_init(void)
 {
 	int i;
 
-	gic_dist_init(REALVIEW_GIC_DIST_BASE);
-	gic_cpu_init(REALVIEW_GIC_DIST_BASE, REALVIEW_GIC_CPU_BASE);
+	dist_base = phys_to_virt(REALVIEW_GIC_DIST_BASE);
+	cpu_base = phys_to_virt(REALVIEW_GIC_CPU_BASE);
 
+	gic_dist_init(dist_base);
+	gic_cpu_init(dist_base, cpu_base);
 	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
 		irq_register(&realview_irqs[i]);
 

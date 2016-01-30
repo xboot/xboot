@@ -36,7 +36,7 @@ static struct led_pwm_data_t led_pwm_datas[] = {
 static struct resource_t res_led_pwms[] = {
 	{
 		.name		= "led-pwm",
-		.id			= -1,
+		.id			= 0,
 		.data		= &led_pwm_datas[0],
 	},
 };

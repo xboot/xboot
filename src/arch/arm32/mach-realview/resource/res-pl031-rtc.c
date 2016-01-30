@@ -26,18 +26,25 @@
 #include <pl031-rtc.h>
 #include <realview/reg-rtc.h>
 
-static struct pl031_rtc_data_t rtc_data = {
-	.regbase	= REALVIEW_RTC_BASE,
+static struct pl031_rtc_data_t rtc_datas[] = {
+	{
+		.regbase	= REALVIEW_RTC0_BASE,
+	}
 };
 
-static struct resource_t res_rtc = {
-	.name		= "pl031-rtc",
-	.id			= -1,
-	.data		= &rtc_data,
+static struct resource_t res_rtcs[] = {
+	{
+		.name		= "pl031-rtc",
+		.id			= 0,
+		.data		= &rtc_datas[0],
+	}
 };
 
-static __init void resource_rtc_init(void)
+static __init void resource_pl031_rtc_init(void)
 {
-	register_resource(&res_rtc);
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(res_rtcs); i++)
+		register_resource(&res_rtcs[i]);
 }
-resource_initcall(resource_rtc_init);
+resource_initcall(resource_pl031_rtc_init);

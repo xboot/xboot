@@ -71,7 +71,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t realview = {
 	.name 		= "realview-pb-a8",
-	.desc 		= "ARM RealView Platform Baseboard for Cortex-A8",
+	.desc 		= "ARM RealView Platform Baseboard For Cortex-A8",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,

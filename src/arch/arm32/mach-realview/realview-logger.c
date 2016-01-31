@@ -25,38 +25,41 @@
 #include <xboot.h>
 #include <realview/reg-uart.h>
 
-static void logger_uart_init(void)
+struct logger_pdata_t {
+	virtual_addr_t regbase;
+};
+
+static void logger_init(struct logger_t * logger)
 {
-	virtual_addr_t regbase = phys_to_virt(REALVIEW_UART0_BASE);
-	write32(regbase + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
+	struct logger_pdata_t * pdat = (struct logger_pdata_t *)logger->priv;
+	write32(pdat->regbase + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
-static void logger_uart_exit(void)
+static void logger_output(struct logger_t * logger, const char * buf, int count)
 {
-}
-
-static ssize_t logger_uart_output(const char * buf, size_t count)
-{
-	virtual_addr_t regbase = phys_to_virt(REALVIEW_UART0_BASE);
-	ssize_t i;
+	struct logger_pdata_t * pdat = (struct logger_pdata_t *)logger->priv;
+	int i;
 
 	for(i = 0; i < count; i++)
 	{
-		while(read8(regbase + 0x18) & (0x1 << 5));
-		write8(regbase + 0x00, buf[i]);
+		while(read8(pdat->regbase + 0x18) & (0x1 << 5));
+		write8(pdat->regbase + 0x00, buf[i]);
 	}
-	return i;
 }
 
-static struct logger_t realview_logger = {
-	.name	= "logger-uart.0",
-	.init	= logger_uart_init,
-	.exit	= logger_uart_exit,
-	.output	= logger_uart_output,
+static struct logger_pdata_t pdata = {
+};
+
+static struct logger_t logger = {
+	.name	= "logger-pl011-uart.0",
+	.init	= logger_init,
+	.output	= logger_output,
+	.priv	= &pdata,
 };
 
 static __init void realview_logger_init(void)
 {
-	register_logger(&realview_logger);
+	pdata.regbase = phys_to_virt(REALVIEW_UART0_BASE);
+	register_logger(&logger);
 }
 core_initcall(realview_logger_init);

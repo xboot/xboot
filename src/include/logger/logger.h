@@ -9,22 +9,14 @@ extern "C" {
 
 struct logger_t
 {
-	/* The logger name */
 	const char * name;
-
-	/* Logger initial function */
-	void (*init)(void);
-
-	/* Logger clean up function */
-	void (*exit)(void);
-
-	/* Logger output function */
-	ssize_t (*output)(const char * buf, size_t count);
+	void (*init)(struct logger_t * logger);
+	void (*output)(struct logger_t * logger, const char * buf, int count);
+	void * priv;
 };
 
 bool_t register_logger(struct logger_t * logger);
 bool_t unregister_logger(struct logger_t * logger);
-void logger_output(const char * buf, size_t count);
 int logger_print(const char * fmt, ...);
 
 #if	defined(CONFIG_NO_LOG) && (CONFIG_NO_LOG > 0)

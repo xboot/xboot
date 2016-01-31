@@ -73,17 +73,17 @@ bool_t register_logger(struct logger_t * logger)
 		return FALSE;
 
 	if(logger->init)
-		(logger->init)();
+		(logger->init)(logger);
 
 	if(logger->output)
 	{
 		for(i = 0; i < 5; i++)
 		{
-			logger->output(xboot_character_logo_string(i), strlen(xboot_character_logo_string(i)));
-			logger->output("\r\n", 2);
+			logger->output(logger, xboot_character_logo_string(i), strlen(xboot_character_logo_string(i)));
+			logger->output(logger, "\r\n", 2);
 		}
-		logger->output(xboot_banner_string(), strlen(xboot_banner_string()));
-		logger->output("\r\n", 2);
+		logger->output(logger, xboot_banner_string(), strlen(xboot_banner_string()));
+		logger->output(logger, "\r\n", 2);
 	}
 
 	ll->logger = logger;
@@ -107,9 +107,6 @@ bool_t unregister_logger(struct logger_t * logger)
 	{
 		if(pos->logger == logger)
 		{
-			if(logger->exit)
-				(logger->exit)();
-
 			spin_lock_irqsave(&__logger_list_lock, flags);
 			list_del(&(pos->entry));
 			spin_unlock_irqrestore(&__logger_list_lock, flags);
@@ -122,20 +119,9 @@ bool_t unregister_logger(struct logger_t * logger)
 	return FALSE;
 }
 
-void logger_output(const char * buf, size_t count)
-{
-	struct logger_list_t * pos, * n;
-
-	list_for_each_entry_safe(pos, n, &(__logger_list.entry), entry)
-	{
-		if(pos->logger->output)
-			pos->logger->output(buf, count);
-	}
-}
-EXPORT_SYMBOL(logger_output);
-
 int logger_print(const char * fmt, ...)
 {
+	struct logger_list_t * pos, * n;
 	va_list ap;
 	struct timeval tv;
 	char buf[SZ_4K];
@@ -147,7 +133,11 @@ int logger_print(const char * fmt, ...)
 	len += vsnprintf((char *)(buf + len), (SZ_4K - len), fmt, ap);
 	va_end(ap);
 
-	logger_output((const char *)buf, len);
+	list_for_each_entry_safe(pos, n, &(__logger_list.entry), entry)
+	{
+		if(pos->logger->output)
+			pos->logger->output(pos->logger, (const char *)buf, len);
+	}
 	return len;
 }
 EXPORT_SYMBOL(logger_print);

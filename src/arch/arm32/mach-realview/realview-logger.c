@@ -26,13 +26,14 @@
 #include <realview/reg-uart.h>
 
 struct logger_pdata_t {
-	virtual_addr_t regbase;
+	physical_addr_t phys;
+	virtual_addr_t  virt;
 };
 
 static void logger_init(struct logger_t * logger)
 {
 	struct logger_pdata_t * pdat = (struct logger_pdata_t *)logger->priv;
-	write32(pdat->regbase + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
+	write32(pdat->virt + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void logger_output(struct logger_t * logger, const char * buf, int count)
@@ -42,16 +43,17 @@ static void logger_output(struct logger_t * logger, const char * buf, int count)
 
 	for(i = 0; i < count; i++)
 	{
-		while(read8(pdat->regbase + 0x18) & (0x1 << 5));
-		write8(pdat->regbase + 0x00, buf[i]);
+		while(read8(pdat->virt + 0x18) & (0x1 << 5));
+		write8(pdat->virt + 0x00, buf[i]);
 	}
 }
 
 static struct logger_pdata_t pdata = {
+	.phys	= REALVIEW_UART0_BASE,
 };
 
 static struct logger_t logger = {
-	.name	= "logger-pl011-uart.0",
+	.name	= "logger-pl110-uart.0",
 	.init	= logger_init,
 	.output	= logger_output,
 	.priv	= &pdata,
@@ -59,7 +61,7 @@ static struct logger_t logger = {
 
 static __init void realview_logger_init(void)
 {
-	pdata.regbase = phys_to_virt(REALVIEW_UART0_BASE);
+	pdata.virt = phys_to_virt(pdata.phys);
 	register_logger(&logger);
 }
 core_initcall(realview_logger_init);

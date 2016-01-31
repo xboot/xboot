@@ -25,28 +25,24 @@
 #include <xboot.h>
 #include <sandbox.h>
 
-static void logger_sandbox_init(void)
+static void logger_init(struct logger_t * logger)
 {
 }
 
-static void logger_sandbox_exit(void)
+static void logger_output(struct logger_t * logger, const char * buf, int count)
 {
+	sandbox_console_write((void *)buf, count);
 }
 
-static ssize_t logger_sandbox_output(const char * buf, size_t count)
-{
-	return sandbox_console_write((void *)buf, count);
-}
-
-static struct logger_t sandbox_logger = {
-	.name	= "logger-sandbox",
-	.init	= logger_sandbox_init,
-	.exit	= logger_sandbox_exit,
-	.output	= logger_sandbox_output,
+static struct logger_t logger = {
+	.name	= "logger-sandbox.0",
+	.init	= logger_init,
+	.output	= logger_output,
+	.priv	= &pdata,
 };
 
 static __init void sandbox_logger_init(void)
 {
-	register_logger(&sandbox_logger);
+	register_logger(&logger);
 }
 core_initcall(sandbox_logger_init);

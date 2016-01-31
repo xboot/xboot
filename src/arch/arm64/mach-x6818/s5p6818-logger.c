@@ -25,35 +25,41 @@
 #include <xboot.h>
 #include <s5p6818/reg-uart.h>
 
-static void logger_uart_init(void)
+struct logger_pdata_t {
+	physical_addr_t phys;
+	virtual_addr_t  virt;
+};
+
+static void logger_init(struct logger_t * logger)
 {
 }
 
-static void logger_uart_exit(void)
+static void logger_output(struct logger_t * logger, const char * buf, int count)
 {
-}
-
-static ssize_t logger_uart_output(const char * buf, size_t count)
-{
-	ssize_t i;
+	struct logger_pdata_t * pdat = (struct logger_pdata_t *)logger->priv;
+	int i;
 
 	for(i = 0; i < count; i++)
 	{
-		while( !(read32(S5P6818_UART0_BASE + UART_UTRSTAT) & UART_UTRSTAT_TXFE) );
-		write8(S5P6818_UART0_BASE + UART_UTXH, buf[i]);
+		while( !(read32(pdat->virt + UART_UTRSTAT) & UART_UTRSTAT_TXFE) );
+		write8(pdat->virt + UART_UTXH, buf[i]);
 	}
-	return i;
 }
 
-static struct logger_t s5p6818_logger = {
-	.name	= "logger-uart.0",
-	.init	= logger_uart_init,
-	.exit	= logger_uart_exit,
-	.output	= logger_uart_output,
+static struct logger_pdata_t pdata = {
+	.phys	= S5P6818_UART0_BASE,
+};
+
+static struct logger_t logger = {
+	.name	= "logger-samsung-uart.0",
+	.init	= logger_init,
+	.output	= logger_output,
+	.priv	= &pdata,
 };
 
 static __init void s5p6818_logger_init(void)
 {
-	register_logger(&s5p6818_logger);
+	pdata.virt = phys_to_virt(pdata.phys);
+	register_logger(&logger);
 }
 core_initcall(s5p6818_logger_init);

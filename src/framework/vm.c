@@ -123,39 +123,6 @@ static int searcher_package_lua(lua_State * L)
 	return 1;
 }
 
-static int l_logger_print(lua_State * L)
-{
-	int n = lua_gettop(L);
-	int i;
-
-	lua_getglobal(L, "tostring");
-	for(i = 1; i <= n; i++)
-	{
-		const char * s;
-		size_t l;
-		lua_pushvalue(L, -1);
-		lua_pushvalue(L, i);
-		lua_call(L, 1, 1);
-		s = lua_tolstring(L, -1, &l);
-		if(s == NULL)
-			return luaL_error(L, "'tostring' must return a string to 'print'");
-		if(i > 1)
-			logger_output("\t", 1);
-		logger_output(s, l);
-		lua_pop(L, 1);
-	}
-	logger_output("\r\n", 2);
-
-	return 0;
-}
-
-static void luaopen_print(lua_State * L)
-{
-	lua_pushcfunction(L, l_logger_print);
-	lua_pushvalue(L, -1);
-	lua_setglobal(L, "print");
-}
-
 static void luaopen_glblibs(lua_State * L)
 {
 	const luaL_Reg glblibs[] = {
@@ -229,9 +196,6 @@ static int pmain(lua_State * L)
 	luahelper_package_searcher(L, searcher_package_lua, 2);
 	luahelper_package_path(L, "./?/init.lua;./?.lua");
 	luahelper_package_cpath(L, "./?.so");
-
-	/* override print */
-	luaopen_print(L);
 
 	/* open global libs */
 	luaopen_glblibs(L);

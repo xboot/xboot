@@ -24,14 +24,14 @@ enum pixel_format_t
  */
 struct gimage_t
 {
-	/* the width of image */
+	/* The width of image */
 	u32_t width;
 
-	/* the height of image */
+	/* The height of image */
 	u32_t height;
 
 	/*
-	 * bytes per pixel
+	 * Bytes per pixel
 	 *
 	 * 3:RGB  - PIXEL_FORMAT_RGB24
 	 * 4:RGBA - PIXEL_FORMAT_ARGB32
@@ -43,48 +43,48 @@ struct gimage_t
 };
 
 struct texture_t {
-	/* the width of render */
+	/* The width of render */
 	u32_t width;
 
-	/* the height of render */
+	/* The height of render */
 	u32_t height;
 
-	/* pitch of one scan line */
+	/* The pitch of one scan line */
 	u32_t pitch;
 
-	/* pixel format */
+	/* Pixel format */
 	enum pixel_format_t format;
 
-	/* pixel data */
+	/* Pixel data */
 	void * pixels;
 
-	/* private data */
+	/* Private data */
 	void * priv;
 };
 
 struct render_t {
-	/* the width of render */
+	/* The width of render */
 	u32_t width;
 
-	/* the height of render */
+	/* The height of render */
 	u32_t height;
 
-	/* pitch of one scan line */
+	/* The pitch of one scan line */
 	u32_t pitch;
 
-	/* pixel format */
+	/* Pixel format */
 	enum pixel_format_t format;
 
-	/* pixel data */
+	/* Pixel data */
 	void * pixels;
 
-	/* pixel data length */
+	/* Pixel data length */
 	size_t pixlen;
 
-	/* private data */
+	/* Private data */
 	void * priv;
 
-	/* low level functions, just for console */
+	/* Low level functions, just for console */
 	void (*clear)(struct render_t * render, struct rect_t * r, struct color_t * c);
 	struct texture_t * (*snapshot)(struct render_t * render);
 	struct texture_t * (*alloc_texture)(struct render_t * render, void * pixels, u32_t w, u32_t h, enum pixel_format_t format);

@@ -26,76 +26,69 @@
 #include <clockevent/clockevent.h>
 #include <realview/reg-timer.h>
 
-struct realview_clockevent_pdata_t
+struct clockevent_pdata_t
 {
-	char * clk;
-	char * irq;
-	virtual_addr_t regbase;
+	const char * clk;
+	const char * irq;
+	physical_addr_t phys;
+	virtual_addr_t virt;
 };
 
-static void realview_ce_interrupt(void * data)
+static void ce_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
-	struct realview_clockevent_pdata_t * pdat = (struct realview_clockevent_pdata_t *)ce->priv;
-
-	write32(pdat->regbase + TIMER_ICLR, 0x0);
+	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
+	write32(pdat->virt + TIMER_ICLR, 0x0);
 	ce->handler(ce, ce->data);
 }
 
-static bool_t realview_ce_init(struct clockevent_t * ce)
+static bool_t ce_init(struct clockevent_t * ce)
 {
-	struct realview_clockevent_pdata_t * pdat = (struct realview_clockevent_pdata_t *)ce->priv;
+	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
 
 	clk_enable(pdat->clk);
 	clockevent_calc_mult_shift(ce, clk_get_rate(pdat->clk), 10);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
-	if(!request_irq(pdat->irq, realview_ce_interrupt, IRQ_TYPE_NONE, ce))
+
+	if(!request_irq(pdat->irq, ce_interrupt, IRQ_TYPE_NONE, ce))
 	{
 		clk_disable(pdat->clk);
 		return FALSE;
 	}
-
-	write32(pdat->regbase + TIMER_CTRL, 0);
-	write32(pdat->regbase + TIMER_LOAD, 0);
-	write32(pdat->regbase + TIMER_VALUE, 0);
-	write32(pdat->regbase + TIMER_CTRL, (1 << 0) | (1 << 1) | (0 << 2) | (1 << 5) | (0 << 6));
+	write32(pdat->virt + TIMER_CTRL, 0);
+	write32(pdat->virt + TIMER_LOAD, 0);
+	write32(pdat->virt + TIMER_VALUE, 0);
+	write32(pdat->virt + TIMER_CTRL, (1 << 0) | (1 << 1) | (0 << 2) | (1 << 5) | (0 << 6));
 	return TRUE;
 }
 
-static bool_t realview_ce_next(struct clockevent_t * ce, u64_t evt)
+static bool_t ce_next(struct clockevent_t * ce, u64_t evt)
 {
-	struct realview_clockevent_pdata_t * pdat = (struct realview_clockevent_pdata_t *)ce->priv;
+	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
 
-	write32(pdat->regbase + TIMER_LOAD, (evt & 0xffffffff));
-	write32(pdat->regbase + TIMER_VALUE, (evt & 0xffffffff));
-	write32(pdat->regbase + TIMER_CTRL, read32(pdat->regbase + TIMER_CTRL) | (1 << 7));
+	write32(pdat->virt + TIMER_LOAD, (evt & 0xffffffff));
+	write32(pdat->virt + TIMER_VALUE, (evt & 0xffffffff));
+	write32(pdat->virt + TIMER_CTRL, read32(pdat->virt + TIMER_CTRL) | (1 << 7));
 	return TRUE;
 }
+
+static struct clockevent_pdata_t pdata = {
+	.clk	= "timclk",
+	.irq 	= "TMIER2_3",
+	.phys	= REALVIEW_TIMER2_BASE,
+};
+
+static struct clockevent_t ce = {
+	.name	= "realview-ce",
+	.init	= ce_init,
+	.next	= ce_next,
+	.priv	= &pdata,
+};
 
 static __init void realview_clockevent_init(void)
 {
-	struct realview_clockevent_pdata_t * pdat;
-	static struct clockevent_t * ce;
-
-	pdat = malloc(sizeof(struct realview_clockevent_pdata_t));
-	if(!pdat)
-		return;
-
-	ce = malloc(sizeof(struct clockevent_t));
-	if(!ce)
-	{
-		free(pdat);
-		return;
-	}
-
-	pdat->clk = "timclk";
-	pdat->irq = "TMIER2_3",
-	pdat->regbase = phys_to_virt(REALVIEW_TIMER2_BASE);
-	ce->name = "realview-ce";
-	ce->init = realview_ce_init;
-	ce->next = realview_ce_next;
-	ce->priv = pdat;
-	register_clockevent(ce);
+	pdata.virt = phys_to_virt(pdata.phys);
+	register_clockevent(&ce);
 }
 core_initcall(realview_clockevent_init);

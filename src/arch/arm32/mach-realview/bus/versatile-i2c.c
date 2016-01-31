@@ -32,31 +32,31 @@
 
 struct versatile_i2c_pdata_t {
 	struct i2c_algo_bit_data_t bdat;
-	virtual_addr_t regbase;
+	virtual_addr_t virt;
 };
 
 static void versatile_i2c_setsda(struct i2c_algo_bit_data_t * bdat, int state)
 {
 	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)bdat->priv;
-	write32(pdat->regbase + (state ? I2C_CONTROLS : I2C_CONTROLC), SDA);
+	write32(pdat->virt + (state ? I2C_CONTROLS : I2C_CONTROLC), SDA);
 }
 
 static void versatile_i2c_setscl(struct i2c_algo_bit_data_t * bdat, int state)
 {
 	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)bdat->priv;
-	write32(pdat->regbase + (state ? I2C_CONTROLS : I2C_CONTROLC), SCL);
+	write32(pdat->virt + (state ? I2C_CONTROLS : I2C_CONTROLC), SCL);
 }
 
 static int versatile_i2c_getsda(struct i2c_algo_bit_data_t * bdat)
 {
 	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)bdat->priv;
-	return !!(read32(pdat->regbase + I2C_CONTROL) & SDA);
+	return !!(read32(pdat->virt + I2C_CONTROL) & SDA);
 }
 
 static int versatile_i2c_getscl(struct i2c_algo_bit_data_t * bdat)
 {
 	struct versatile_i2c_pdata_t * pdat = (struct versatile_i2c_pdata_t *)bdat->priv;
-	return !!(read32(pdat->regbase + I2C_CONTROL) & SCL);
+	return !!(read32(pdat->virt + I2C_CONTROL) & SCL);
 }
 
 static void versatile_i2c_init(struct i2c_t * i2c)
@@ -102,7 +102,7 @@ static bool_t versatile_register_i2c_bus(struct resource_t * res)
 		pdat->bdat.udelay = rdat->udelay;
 	else
 		pdat->bdat.udelay = 5;
-	pdat->regbase = phys_to_virt(rdat->regbase);
+	pdat->virt = phys_to_virt(rdat->phys);
 	pdat->bdat.priv = pdat;
 
 	i2c->name = strdup(name);

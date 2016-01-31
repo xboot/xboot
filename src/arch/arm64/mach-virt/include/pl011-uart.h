@@ -19,7 +19,7 @@ struct pl011_uart_data_t
 	int data;
 	int parity;
 	int stop;
-	physical_addr_t regbase;
+	physical_addr_t phys;
 };
 
 #ifdef __cplusplus

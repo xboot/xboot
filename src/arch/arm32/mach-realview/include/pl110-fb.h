@@ -24,7 +24,7 @@ struct pl110_fb_data_t
 	int v_bp;
 	int v_sw;
 	char * backlight;
-	physical_addr_t regbase;
+	physical_addr_t phys;
 };
 
 #ifdef __cplusplus

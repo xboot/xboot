@@ -28,16 +28,16 @@
 
 static struct versatile_i2c_data_t i2c_datas[] = {
 	{
-		.udelay		= 50,
-		.regbase	= REALVIEW_I2C_BASE,
+		.udelay	= 50,
+		.phys	= REALVIEW_I2C_BASE,
 	}
 };
 
 static struct resource_t res_i2cs[] = {
 	{
-		.name		= "versatile-i2c",
-		.id			= 0,
-		.data		= &i2c_datas[0],
+		.name	= "versatile-i2c",
+		.id		= 0,
+		.data	= &i2c_datas[0],
 	}
 };
 

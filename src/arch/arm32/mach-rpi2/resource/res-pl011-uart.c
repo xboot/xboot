@@ -29,24 +29,24 @@
 
 static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
-		.clk		= "uart0-clk",
-		.txdpin		= BCM2836_GPIO(14),
-		.txdcfg		= 0,
-		.rxdpin		= BCM2836_GPIO(15),
-		.rxdcfg		= 0,
-		.baud		= 115200,
-		.data		= 8,
-		.parity		= 0,
-		.stop		= 1,
-		.regbase	= BCM2836_UART0_BASE,
+		.clk	= "uart0-clk",
+		.txdpin	= BCM2836_GPIO(14),
+		.txdcfg	= 0,
+		.rxdpin	= BCM2836_GPIO(15),
+		.rxdcfg	= 0,
+		.baud	= 115200,
+		.data	= 8,
+		.parity	= 0,
+		.stop	= 1,
+		.phys	= BCM2836_UART0_BASE,
 	}
 };
 
 static struct resource_t res_uarts[] = {
 	{
-		.name		= "pl011-uart",
-		.id			= 0,
-		.data		= &uart_datas[0],
+		.name	= "pl011-uart",
+		.id		= 0,
+		.data	= &uart_datas[0],
 	}
 };
 

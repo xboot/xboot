@@ -10,7 +10,7 @@ extern "C" {
 
 struct pl031_rtc_data_t
 {
-	physical_addr_t regbase;
+	physical_addr_t phys;
 };
 
 #ifdef __cplusplus

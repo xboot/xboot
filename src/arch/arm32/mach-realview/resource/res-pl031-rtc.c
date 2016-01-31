@@ -28,15 +28,15 @@
 
 static struct pl031_rtc_data_t rtc_datas[] = {
 	{
-		.regbase	= REALVIEW_RTC0_BASE,
+		.phys	= REALVIEW_RTC0_BASE,
 	}
 };
 
 static struct resource_t res_rtcs[] = {
 	{
-		.name		= "pl031-rtc",
-		.id			= 0,
-		.data		= &rtc_datas[0],
+		.name	= "pl031-rtc",
+		.id		= 0,
+		.data	= &rtc_datas[0],
 	}
 };
 

@@ -28,24 +28,24 @@
 
 static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
-		.clk		= "uclk",
-		.txdpin		= -1,
-		.txdcfg		= -1,
-		.rxdpin		= -1,
-		.rxdcfg		= -1,
-		.baud		= 115200,
-		.data		= 8,
-		.parity		= 0,
-		.stop		= 1,
-		.regbase	= VIRT_UART0_BASE,
+		.clk	= "uclk",
+		.txdpin	= -1,
+		.txdcfg	= -1,
+		.rxdpin	= -1,
+		.rxdcfg	= -1,
+		.baud	= 115200,
+		.data	= 8,
+		.parity	= 0,
+		.stop	= 1,
+		.phys	= VIRT_UART0_BASE,
 	}
 };
 
 static struct resource_t res_uarts[] = {
 	{
-		.name		= "pl011-uart",
-		.id			= 0,
-		.data		= &uart_datas[0],
+		.name	= "pl011-uart",
+		.id		= 0,
+		.data	= &uart_datas[0],
 	}
 };
 

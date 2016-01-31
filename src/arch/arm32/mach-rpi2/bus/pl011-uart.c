@@ -60,7 +60,7 @@ struct pl011_uart_pdata_t {
 	int data;
 	int parity;
 	int stop;
-	virtual_addr_t regbase;
+	virtual_addr_t virt;
 };
 
 static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
@@ -140,9 +140,9 @@ static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parit
 	fraction = (8 * remainder / baud) >> 1;
 	fraction += (8 * remainder / baud) & 1;
 
-	write32(pdat->regbase + UART_IBRD, divider);
-	write32(pdat->regbase + UART_FBRD, fraction);
-	write32(pdat->regbase + UART_LCRH, (1 << 4) | ((dreg << 5) | (sreg << 3) | (preg << 1)));
+	write32(pdat->virt + UART_IBRD, divider);
+	write32(pdat->virt + UART_FBRD, fraction);
+	write32(pdat->virt + UART_LCRH, (1 << 4) | ((dreg << 5) | (sreg << 3) | (preg << 1)));
 	return TRUE;
 }
 
@@ -177,15 +177,15 @@ static void pl011_uart_init(struct uart_t * uart)
 		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
 	}
 	pl011_uart_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
-	write32(pdat->regbase + UART_CR, 0x0);
-	write32(pdat->regbase + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
+	write32(pdat->virt + UART_CR, 0x0);
+	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void pl011_uart_exit(struct uart_t * uart)
 {
 	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
 
-	write32(pdat->regbase + UART_CR, 0x0);
+	write32(pdat->virt + UART_CR, 0x0);
 	clk_disable(pdat->clk);
 }
 
@@ -196,8 +196,8 @@ static ssize_t pl011_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
 
 	for(i = 0; i < count; i++)
 	{
-		if( !(read8(pdat->regbase + UART_FR) & UART_FR_RXFE) )
-			buf[i] = read8(pdat->regbase + UART_DATA);
+		if( !(read8(pdat->virt + UART_FR) & UART_FR_RXFE) )
+			buf[i] = read8(pdat->virt + UART_DATA);
 		else
 			break;
 	}
@@ -212,8 +212,8 @@ static ssize_t pl011_uart_write(struct uart_t * uart, const u8_t * buf, size_t c
 
 	for(i = 0; i < count; i++)
 	{
-		while( (read8(pdat->regbase + UART_FR) & UART_FR_TXFF) );
-		write8(pdat->regbase + UART_DATA, buf[i]);
+		while( (read8(pdat->virt + UART_FR) & UART_FR_TXFF) );
+		write8(pdat->virt + UART_DATA, buf[i]);
 	}
 
 	return i;
@@ -251,7 +251,7 @@ static bool_t pl011_register_bus_uart(struct resource_t * res)
 	pdat->data = rdat->data;
 	pdat->parity = rdat->parity;
 	pdat->stop = rdat->stop;
-	pdat->regbase = phys_to_virt(rdat->regbase);
+	pdat->virt = phys_to_virt(rdat->phys);
 
 	uart->name = strdup(name);
 	uart->init = pl011_uart_init;

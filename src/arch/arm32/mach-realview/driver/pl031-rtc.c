@@ -34,7 +34,7 @@
 #define RTC_ICR		(0x1c)	/* Interrupt clear register */
 
 struct pl031_rtc_pdata_t {
-	virtual_addr_t regbase;
+	virtual_addr_t virt;
 };
 
 #define LEAPS_THRU_END(y)	((y)/4 - (y)/100 + (y)/400)
@@ -127,7 +127,7 @@ static bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 
 	if(!rtc_valid_time(time))
 		return FALSE;
-	write32(pdat->regbase + RTC_LR, from_rtc_time(time));
+	write32(pdat->virt + RTC_LR, from_rtc_time(time));
 	return TRUE;
 }
 
@@ -135,7 +135,7 @@ static bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
 	struct pl031_rtc_pdata_t * pdat = (struct pl031_rtc_pdata_t *)rtc->priv;
 
-	to_rtc_time(read32(pdat->regbase + RTC_DR), time);
+	to_rtc_time(read32(pdat->virt + RTC_DR), time);
 	return TRUE;
 }
 
@@ -167,7 +167,7 @@ static bool_t pl031_register_rtc(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	pdat->regbase = phys_to_virt(rdat->regbase);
+	pdat->virt = phys_to_virt(rdat->phys);
 	rtc->name = strdup(name);
 	rtc->init = rtc_init;
 	rtc->exit = rtc_exit;

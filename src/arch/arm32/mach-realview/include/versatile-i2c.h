@@ -11,7 +11,7 @@ extern "C" {
 
 struct versatile_i2c_data_t {
 	int udelay;
-	physical_addr_t regbase;
+	physical_addr_t phys;
 };
 
 #ifdef __cplusplus

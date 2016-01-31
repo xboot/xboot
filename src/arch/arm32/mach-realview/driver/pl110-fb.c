@@ -68,20 +68,20 @@ struct pl110_fb_pdata_t {
 	int v_bp;
 	int v_sw;
 	struct led_t * backlight;
-	virtual_addr_t regbase;
+	virtual_addr_t virt;
 };
 
 static void fb_init(struct fb_t * fb)
 {
 	struct pl110_fb_pdata_t * pdat = (struct pl110_fb_pdata_t *)fb->priv;
 
-	write32(pdat->regbase + CLCD_TIM0, (pdat->h_bp<<24) | (pdat->h_fp<<16) | (pdat->h_sw<<8) | ((pdat->width/16-1)<<2));
-	write32(pdat->regbase + CLCD_TIM1, (pdat->v_bp<<24) | (pdat->v_fp<<16) | (pdat->v_sw<<10) | ((pdat->height-1)<<0));
-	write32(pdat->regbase + CLCD_TIM2, (1<<26) | ((pdat->width/16-1)<<16) | (1<<5) | (1<<0));
-	write32(pdat->regbase + CLCD_TIM3, (0<<0));
-	write32(pdat->regbase + CLCD_IMSC, 0x0);
-	write32(pdat->regbase + CLCD_CNTL, CNTL_LCDBPP24 | CNTL_LCDTFT | CNTL_BGR);
-	write32(pdat->regbase + CLCD_CNTL, (read32(pdat->regbase + CLCD_CNTL) | CNTL_LCDEN | CNTL_LCDPWR));
+	write32(pdat->virt + CLCD_TIM0, (pdat->h_bp<<24) | (pdat->h_fp<<16) | (pdat->h_sw<<8) | ((pdat->width/16-1)<<2));
+	write32(pdat->virt + CLCD_TIM1, (pdat->v_bp<<24) | (pdat->v_fp<<16) | (pdat->v_sw<<10) | ((pdat->height-1)<<0));
+	write32(pdat->virt + CLCD_TIM2, (1<<26) | ((pdat->width/16-1)<<16) | (1<<5) | (1<<0));
+	write32(pdat->virt + CLCD_TIM3, (0<<0));
+	write32(pdat->virt + CLCD_IMSC, 0x0);
+	write32(pdat->virt + CLCD_CNTL, CNTL_LCDBPP24 | CNTL_LCDTFT | CNTL_BGR);
+	write32(pdat->virt + CLCD_CNTL, (read32(pdat->virt + CLCD_CNTL) | CNTL_LCDEN | CNTL_LCDPWR));
 }
 
 static void fb_exit(struct fb_t * fb)
@@ -155,8 +155,8 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 
 	if(render && render->pixels)
 	{
-		write32(pdat->regbase + CLCD_UBAS, ((u32_t)render->pixels));
-		write32(pdat->regbase + CLCD_LBAS, ((u32_t)render->pixels + pdat->width * pdat->height * (pdat->bpp / 8)));
+		write32(pdat->virt + CLCD_UBAS, ((u32_t)render->pixels));
+		write32(pdat->virt + CLCD_LBAS, ((u32_t)render->pixels + pdat->width * pdat->height * (pdat->bpp / 8)));
 	}
 }
 
@@ -200,7 +200,7 @@ static bool_t pl110_register_framebuffer(struct resource_t * res)
 	pdat->v_bp = rdat->v_bp;
 	pdat->v_sw = rdat->v_sw;
 	pdat->backlight = search_led(rdat->backlight);
-	pdat->regbase = phys_to_virt(rdat->regbase);
+	pdat->virt = phys_to_virt(rdat->phys);
 
 	fb->name = strdup(name);
 	fb->width = pdat->width;

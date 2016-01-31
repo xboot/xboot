@@ -27,7 +27,7 @@
 
 struct logger_pdata_t {
 	physical_addr_t phys;
-	virtual_addr_t  virt;
+	virtual_addr_t virt;
 };
 
 static void logger_init(struct logger_t * logger)

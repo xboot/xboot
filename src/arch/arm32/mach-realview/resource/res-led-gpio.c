@@ -30,11 +30,7 @@ static struct led_gpio_data_t led_gpio_datas[] = {
 	[0] = {
 		.gpio		= REALVIEW_GPIO0(0),
 		.active_low	= 1,
-	},
-	[1] = {
-		.gpio		= REALVIEW_GPIO0(1),
-		.active_low	= 1,
-	},
+	}
 };
 
 static struct resource_t res_led_gpios[] = {
@@ -42,11 +38,7 @@ static struct resource_t res_led_gpios[] = {
 		.name		= "led-gpio",
 		.id			= 0,
 		.data		= &led_gpio_datas[0],
-	}, {
-		.name		= "led-gpio",
-		.id			= 1,
-		.data		= &led_gpio_datas[1],
-	},
+	}
 };
 
 static __init void resource_led_gpio_init(void)

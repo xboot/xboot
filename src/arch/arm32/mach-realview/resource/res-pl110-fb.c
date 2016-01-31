@@ -39,7 +39,7 @@ static struct pl110_fb_data_t fb_datas[] = {
 		.v_fp		= 6,
 		.v_bp		= 6,
 		.v_sw		= 6,
-		.backlight	= "led-pwm.0",
+		.backlight	= NULL,
 		.regbase	= REALVIEW_LCD_BASE,
 	}
 };

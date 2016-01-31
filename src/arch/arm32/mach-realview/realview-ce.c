@@ -37,6 +37,7 @@ static void realview_ce_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
 	struct realview_clockevent_pdata_t * pdat = (struct realview_clockevent_pdata_t *)ce->priv;
+
 	write32(pdat->regbase + TIMER_ICLR, 0x0);
 	ce->handler(ce, ce->data);
 }
@@ -65,6 +66,7 @@ static bool_t realview_ce_init(struct clockevent_t * ce)
 static bool_t realview_ce_next(struct clockevent_t * ce, u64_t evt)
 {
 	struct realview_clockevent_pdata_t * pdat = (struct realview_clockevent_pdata_t *)ce->priv;
+
 	write32(pdat->regbase + TIMER_LOAD, (evt & 0xffffffff));
 	write32(pdat->regbase + TIMER_VALUE, (evt & 0xffffffff));
 	write32(pdat->regbase + TIMER_CTRL, read32(pdat->regbase + TIMER_CTRL) | (1 << 7));
@@ -94,7 +96,6 @@ static __init void realview_clockevent_init(void)
 	ce->init = realview_ce_init;
 	ce->next = realview_ce_next;
 	ce->priv = pdat;
-
 	register_clockevent(ce);
 }
 core_initcall(realview_clockevent_init);

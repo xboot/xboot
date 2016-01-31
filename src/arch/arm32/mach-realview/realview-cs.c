@@ -48,8 +48,7 @@ static bool_t realview_cs_init(struct clocksource_t * cs)
 static u64_t realview_cs_read(struct clocksource_t * cs)
 {
 	struct realview_clocksource_pdata_t * pdat = (struct realview_clocksource_pdata_t *)cs->priv;
-	u32_t val = read32(pdat->regbase + TIMER_VALUE);
-	return (u64_t)(~val);
+	return (u64_t)(0xffffffff - read32(pdat->regbase + TIMER_VALUE));
 }
 
 static __init void realview_clocksource_init(void)
@@ -76,7 +75,6 @@ static __init void realview_clocksource_init(void)
 	cs->init = realview_cs_init;
 	cs->read = realview_cs_read;
 	cs->priv = pdat;
-
 	register_clocksource(cs);
 }
 core_initcall(realview_clocksource_init);

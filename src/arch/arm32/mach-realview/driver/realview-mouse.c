@@ -230,9 +230,8 @@ static void input_init(struct input_t * input)
 	kmi_read(rdat, &value);
 	kmi_read(rdat, &value);
 
-	if(!request_irq("KMI1", mouse_interrupt, IRQ_TYPE_NONE, input))
+	if(!request_irq(REALVIEW_IRQ_KMI1, mouse_interrupt, IRQ_TYPE_NONE, input))
 	{
-		LOG("Can't request irq 'KMI1'");
 		write8(phys_to_virt(rdat->regbase + MOUSE_CR), 0);
 		return;
 	}
@@ -247,8 +246,7 @@ static void input_exit(struct input_t * input)
 	struct realview_mouse_data_t * rdat = (struct realview_mouse_data_t *)pdat->rdat;
 
 	clk_disable("kclk");
-	if(!free_irq("KMI1"))
-		LOG("Can't free irq 'KMI1'");
+	free_irq(REALVIEW_IRQ_KMI1);
 	write8(phys_to_virt(rdat->regbase + MOUSE_CR), 0);
 }
 

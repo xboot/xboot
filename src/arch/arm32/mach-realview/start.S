@@ -209,15 +209,12 @@ not_used:
 irq:
 	ldr	sp, _stack_irq_end
 	irq_save_regs
-	bl do_irq
+	bl interrupt_handle_exception
 	irq_restore_regs
 
 	.align 5
 fiq:
-	ldr	sp, _stack_fiq_end
-	irq_save_regs
-	bl do_irq
-	irq_restore_regs
+	b	.
 
 /*
  * The location of section

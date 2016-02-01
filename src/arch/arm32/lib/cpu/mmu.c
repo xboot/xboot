@@ -3,7 +3,6 @@
  */
 
 #include <xboot.h>
-#include <cp15.h>
 #include <cache.h>
 
 #if	CONFIG_MMU_ON > 0

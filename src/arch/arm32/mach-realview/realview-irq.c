@@ -23,256 +23,65 @@
  */
 
 #include <xboot.h>
-#include <cp15.h>
+#include <arm32.h>
+#include <realview-irq.h>
 #include <realview/reg-gic.h>
 
-static struct irq_handler_t realview_irq_handler[32];
-static virtual_addr_t dist_base;
-static virtual_addr_t cpu_base;
-
-void do_irq(void * regs)
+struct irqchip_data_t
 {
-	u32_t irq = read32(cpu_base + CPU_INTACK) & 0x3ff;
-	(realview_irq_handler[irq - 32].func)(realview_irq_handler[irq - 32].data);
-	write32(cpu_base + CPU_EOI, irq);
-}
+	const char * name;
+	int base;
+	int nirq;
+	physical_addr_t physdist;
+	physical_addr_t physcpu;
+};
 
-static void realview_irq_enable(struct irq_t * irq)
+struct irqchip_pdata_t
 {
-	u32_t mask = 1 << (irq->no % 32);
-	write32(dist_base + DIST_ENABLE_SET + (irq->no / 32) * 4, mask);
-}
+	const char * name;
+	int base;
+	int nirq;
+	virtual_addr_t virtdist;
+	virtual_addr_t virtcpu;
+};
 
-static void realview_irq_disable(struct irq_t * irq)
-{
-	u32_t mask = 1 << (irq->no % 32);
-	write32(dist_base + DIST_ENABLE_CLEAR + (irq->no / 32) * 4, mask);
-}
-
-static void realview_irq_set_type(struct irq_t * irq, enum irq_type_t type)
-{
-}
-
-static struct irq_t realview_irqs[] = {
+static struct irqchip_data_t datas[] = {
 	{
-		.name		= "WDOG",
-		.no			= 32 + 0,
-		.handler	= &realview_irq_handler[0],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "SOFT",
-		.no			= 32 + 1,
-		.handler	= &realview_irq_handler[1],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "DBGURX",
-		.no			= 32 + 2,
-		.handler	= &realview_irq_handler[2],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "DBGUTX",
-		.no			= 32 + 3,
-		.handler	= &realview_irq_handler[3],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "TMIER0_1",
-		.no			= 32 + 4,
-		.handler	= &realview_irq_handler[4],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "TMIER2_3",
-		.no			= 32 + 5,
-		.handler	= &realview_irq_handler[5],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "GPIO0",
-		.no			= 32 + 6,
-		.handler	= &realview_irq_handler[6],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "GPIO1",
-		.no			= 32 + 7,
-		.handler	= &realview_irq_handler[7],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "GPIO2",
-		.no			= 32 + 8,
-		.handler	= &realview_irq_handler[8],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "RTC",
-		.no			= 32 + 10,
-		.handler	= &realview_irq_handler[10],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "SSP",
-		.no			= 32 + 11,
-		.handler	= &realview_irq_handler[11],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "UART0",
-		.no			= 32 + 12,
-		.handler	= &realview_irq_handler[12],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "UART1",
-		.no			= 32 + 13,
-		.handler	= &realview_irq_handler[13],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "UART2",
-		.no			= 32 + 14,
-		.handler	= &realview_irq_handler[14],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "UART3",
-		.no			= 32 + 15,
-		.handler	= &realview_irq_handler[15],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "SCI",
-		.no			= 32 + 16,
-		.handler	= &realview_irq_handler[16],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "MMCI0A",
-		.no			= 32 + 17,
-		.handler	= &realview_irq_handler[17],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "MMCI0B",
-		.no			= 32 + 18,
-		.handler	= &realview_irq_handler[18],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "AACI",
-		.no			= 32 + 19,
-		.handler	= &realview_irq_handler[19],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "KMI0",
-		.no			= 32 + 20,
-		.handler	= &realview_irq_handler[20],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "KMI1",
-		.no			= 32 + 21,
-		.handler	= &realview_irq_handler[21],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "CHARLCD",
-		.no			= 32 + 22,
-		.handler	= &realview_irq_handler[22],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "CLCD",
-		.no			= 32 + 23,
-		.handler	= &realview_irq_handler[23],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "DMA",
-		.no			= 32 + 24,
-		.handler	= &realview_irq_handler[24],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "PWRFAIL",
-		.no			= 32 + 25,
-		.handler	= &realview_irq_handler[25],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "PISMO",
-		.no			= 32 + 26,
-		.handler	= &realview_irq_handler[26],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "DOC",
-		.no			= 32 + 27,
-		.handler	= &realview_irq_handler[27],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "ETH",
-		.no			= 32 + 28,
-		.handler	= &realview_irq_handler[28],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "USB",
-		.no			= 32 + 29,
-		.handler	= &realview_irq_handler[29],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "TSPEN",
-		.no			= 32 + 30,
-		.handler	= &realview_irq_handler[30],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
-	}, {
-		.name		= "TSKPAD",
-		.no			= 32 + 31,
-		.handler	= &realview_irq_handler[31],
-		.enable		= realview_irq_enable,
-		.disable	= realview_irq_disable,
-		.set_type	= realview_irq_set_type,
+		.name		= "gic0",
+		.base		= 32,
+		.nirq		= 32,
+		.physdist	= REALVIEW_GIC_DIST_BASE,
+		.physcpu	= REALVIEW_GIC_CPU_BASE,
 	}
 };
+
+static void irqchip_enable(struct irqchip_t * chip, int offset)
+{
+	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
+	write32(pdat->virtdist + DIST_ENABLE_SET + ((chip->base + offset) / 32) * 4, 1 << offset);
+}
+
+static void irqchip_disable(struct irqchip_t * chip, int offset)
+{
+	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
+	write32(pdat->virtdist + DIST_ENABLE_CLEAR + ((chip->base + offset) / 32) * 4, 1 << offset);
+}
+
+static void irqchip_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
+{
+}
+
+static void irqchip_call(struct irqchip_t * chip)
+{
+	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
+	int irq = read32(pdat->virtcpu + CPU_INTACK) & 0x3ff;
+	int offset = irq - chip->base;
+	if(offset < chip->nirq)
+	{
+		(chip->handler[offset].func)(chip->handler[offset].data);
+		write32(pdat->virtcpu + CPU_EOI, irq);
+	}
+}
 
 static void gic_dist_init(virtual_addr_t dist)
 {
@@ -294,7 +103,7 @@ static void gic_dist_init(virtual_addr_t dist)
 	/*
 	 * Set all global interrupts to this CPU only.
 	 */
-	cpumask = 1 << smp_processor_id();
+	cpumask = 1 << arm32_smp_processor_id();
 	cpumask |= cpumask << 8;
 	cpumask |= cpumask << 16;
 	for(i = 32; i < gic_irqs; i += 4)
@@ -343,20 +152,45 @@ static void gic_cpu_init(virtual_addr_t dist, virtual_addr_t cpu)
 	write32(cpu + CPU_CTRL, 0x1);
 }
 
-static __init void realview_irq_init(void)
+static __init void realview_irqchip_init(void)
 {
+	struct irqchip_pdata_t * pdat;
+	struct irqchip_t * chip;
 	int i;
 
-	dist_base = phys_to_virt(REALVIEW_GIC_DIST_BASE);
-	cpu_base = phys_to_virt(REALVIEW_GIC_CPU_BASE);
+	for(i = 0; i < ARRAY_SIZE(datas); i++)
+	{
+		pdat = malloc(sizeof(struct irqchip_pdata_t));
+		if(!pdat)
+			continue;
 
-	gic_dist_init(dist_base);
-	gic_cpu_init(dist_base, cpu_base);
-	for(i = 0; i < ARRAY_SIZE(realview_irqs); i++)
-		irq_register(&realview_irqs[i]);
+		chip = malloc(sizeof(struct irqchip_t));
+		if(!chip)
+		{
+			free(pdat);
+			continue;
+		}
 
-	vic_enable();
-	irq_enable();
-	fiq_enable();
+		pdat->name = datas[i].name;
+		pdat->base = datas[i].base;
+		pdat->nirq = datas[i].nirq;
+		pdat->virtdist = phys_to_virt(datas[i].physdist);
+		pdat->virtcpu = phys_to_virt(datas[i].physcpu);
+
+		chip->name = pdat->name;
+		chip->base = pdat->base;
+		chip->nirq = pdat->nirq;
+		chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);
+		chip->enable = irqchip_enable;
+		chip->disable = irqchip_disable;
+		chip->settype = irqchip_settype;
+		chip->call = irqchip_call;
+		chip->priv = pdat;
+
+		gic_dist_init(pdat->virtdist);
+		gic_cpu_init(pdat->virtdist, pdat->virtcpu);
+		register_irqchip(chip);
+	}
+	arm32_interrupt_enable();
 }
-core_initcall(realview_irq_init);
+core_initcall(realview_irqchip_init);

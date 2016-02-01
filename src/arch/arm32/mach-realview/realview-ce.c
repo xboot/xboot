@@ -24,12 +24,13 @@
 
 #include <xboot.h>
 #include <clockevent/clockevent.h>
+#include <realview-irq.h>
 #include <realview/reg-timer.h>
 
 struct clockevent_pdata_t
 {
 	const char * clk;
-	const char * irq;
+	int irq;
 	physical_addr_t phys;
 	virtual_addr_t virt;
 };
@@ -75,7 +76,7 @@ static bool_t ce_next(struct clockevent_t * ce, u64_t evt)
 
 static struct clockevent_pdata_t pdata = {
 	.clk	= "timclk",
-	.irq 	= "TMIER2_3",
+	.irq 	= REALVIEW_IRQ_TMIER2_3,
 	.phys	= REALVIEW_TIMER2_BASE,
 };
 

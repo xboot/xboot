@@ -49,7 +49,7 @@ struct gpiochip_t
 	enum gpio_direction_t (*get_dir)(struct gpiochip_t * chip, int offset);
 	void (*set_value)(struct gpiochip_t * chip, int offset, int value);
 	int  (*get_value)(struct gpiochip_t * chip, int offset);
-	const char * (*to_irq)(struct gpiochip_t * chip, int offset);
+	int  (*to_irq)(struct gpiochip_t * chip, int offset);
 
 	void * priv;
 };
@@ -73,7 +73,7 @@ void gpio_set_value(int gpio, int value);
 int gpio_get_value(int gpio);
 void gpio_direction_output(int gpio, int value);
 void gpio_direction_input(int gpio);
-const char * gpio_to_irq(int gpio);
+int gpio_to_irq(int gpio);
 
 #ifdef __cplusplus
 }

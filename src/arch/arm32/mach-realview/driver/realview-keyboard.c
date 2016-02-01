@@ -393,9 +393,8 @@ static void input_init(struct input_t * input)
 	kmi_write(dat, 0xed);
 	kmi_write(dat, 0x02);
 
-	if(!request_irq("KMI0", keyboard_interrupt, IRQ_TYPE_NONE, input))
+	if(!request_irq(REALVIEW_IRQ_KMI0, keyboard_interrupt, IRQ_TYPE_NONE, input))
 	{
-		LOG("Can't request irq 'KMI0'");
 		write8(phys_to_virt(dat->regbase + KEYBOARD_CR), 0);
 		return;
 	}
@@ -410,8 +409,7 @@ static void input_exit(struct input_t * input)
 	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
 
 	clk_disable("kclk");
-	if(!free_irq("KMI0"))
-		LOG("Can't free irq 'KMI0'");
+	free_irq(REALVIEW_IRQ_KMI0);
 	write8(phys_to_virt(dat->regbase + KEYBOARD_CR), 0);
 }
 

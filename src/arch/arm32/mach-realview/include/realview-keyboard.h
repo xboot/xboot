@@ -8,6 +8,7 @@ extern "C" {
 #include <xboot.h>
 #include <input/input.h>
 #include <input/keyboard.h>
+#include <realview-irq.h>
 #include <realview/reg-keyboard.h>
 
 struct realview_keyboard_data_t

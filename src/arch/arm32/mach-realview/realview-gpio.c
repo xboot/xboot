@@ -150,9 +150,9 @@ static int gpiochip_get_value(struct gpiochip_t * chip, int offset)
 	return !!read8(pdat->virt + (1 << (offset + 2)));
 }
 
-static const char * gpiochip_to_irq(struct gpiochip_t * chip, int offset)
+static int gpiochip_to_irq(struct gpiochip_t * chip, int offset)
 {
-	return 0;
+	return -1;
 }
 
 static __init void realview_gpiochip_init(void)

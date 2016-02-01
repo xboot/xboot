@@ -269,11 +269,11 @@ void gpio_direction_input(int gpio)
 		chip->set_dir(chip, gpio - chip->base, GPIO_DIRECTION_INPUT);
 }
 
-const char * gpio_to_irq(int gpio)
+int gpio_to_irq(int gpio)
 {
 	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
 
 	if(chip && chip->to_irq)
 		return chip->to_irq(chip, gpio - chip->base);
-	return NULL;
+	return -1;
 }

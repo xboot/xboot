@@ -7,6 +7,7 @@ extern "C" {
 
 #include <xboot.h>
 #include <input/input.h>
+#include <realview-irq.h>
 #include <realview/reg-mouse.h>
 
 struct realview_mouse_data_t

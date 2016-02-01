@@ -21,23 +21,27 @@ struct irq_handler_t {
 	void * data;
 };
 
-struct irq_t {
+struct irqchip_t
+{
 	struct kobj_t * kobj;
 	const char * name;
-	const int no;
+	int base;
+	int nirq;
 	struct irq_handler_t * handler;
-
-	void (*enable)(struct irq_t * irq);
-	void (*disable)(struct irq_t * irq);
-	void (*set_type)(struct irq_t * irq, enum irq_type_t type);
+	void (*enable)(struct irqchip_t * chip, int offset);
+	void (*disable)(struct irqchip_t * chip, int offset);
+	void (*settype)(struct irqchip_t * chip, int offset, enum irq_type_t type);
+	void (*call)(struct irqchip_t * chip);
+	void * priv;
 };
 
-bool_t irq_register(struct irq_t * irq);
-bool_t irq_unregister(struct irq_t * irq);
-bool_t request_irq(const char * name, void (*func)(void *), enum irq_type_t type, void * data);
-bool_t free_irq(const char * name);
-void enable_irq(const char * name);
-void disable_irq(const char * name);
+bool_t register_irqchip(struct irqchip_t * chip);
+bool_t unregister_irqchip(struct irqchip_t * chip);
+bool_t request_irq(int irq, void (*func)(void *), enum irq_type_t type, void * data);
+bool_t free_irq(int irq);
+void enable_irq(int irq);
+void disable_irq(int irq);
+void interrupt_handle_exception(void * regs);
 
 #ifdef __cplusplus
 }

@@ -74,29 +74,17 @@ _irq:
 _fiq:
 	.long fiq
 
-	.align 4
-/* Magic number(16bytes) - xbootmagicnumber */
-	.byte 0x78, 0x62, 0x6f, 0x6f, 0x74, 0x6d, 0x61, 0x67, 0x69, 0x63, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72
-/* Image start and image end information */
-	.long __image_start, __image_end
-/* Where the image was linked address */
-	.long _start
-/* Image sha256 digest */
-	.long 0, 0, 0, 0
-/* Magic number(16bytes) - xbootmagicnumber */
-	.byte 0x78, 0x62, 0x6f, 0x6f, 0x74, 0x6d, 0x61, 0x67, 0x69, 0x63, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72
-
 /*
  * The actual reset code
  */
 reset:
-	/* Set the cpu to svc32 mode */
+	/* Set cpu to svc32 mode */
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
-	orr r0, r0, #0xd3
+	orr r0, r0, #0x13
 	msr cpsr, r0
 
-	/* Enable NEON/VFP unit */
+	/* Enable neon/vfp unit */
 	mrc p15, #0, r1, c1, c0, #2
 	orr r1, r1, #(0xf << 20)
 	mcr p15, #0, r1, c1, c0, #2
@@ -107,27 +95,27 @@ reset:
 
 	/* Initialize stacks */
 	mrs r0, cpsr
-	bic r0, r0, #0xdf
+	bic r0, r0, #0x1f
 	orr r1, r0, #0x1b
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_und_end
 
-	bic r0, r0, #0xdf
+	bic r0, r0, #0x1f
 	orr r1, r0, #0x17
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_abt_end
 
-	bic r0, r0, #0xdf
+	bic r0, r0, #0x1f
 	orr r1, r0, #0x12
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_irq_end
 
-	bic r0, r0, #0xdf
+	bic r0, r0, #0x1f
 	orr r1, r0, #0x11
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_fiq_end
 
-	bic r0, r0, #0xdf
+	bic r0, r0, #0x1f
 	orr r1, r0, #0x13
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_srv_end
@@ -221,15 +209,12 @@ not_used:
 irq:
 	ldr	sp, _stack_irq_end
 	irq_save_regs
-@	bl do_irq
+	bl interrupt_handle_exception
 	irq_restore_regs
 
 	.align 5
 fiq:
-	ldr	sp, _stack_fiq_end
-	irq_save_regs
-@	bl do_irq
-	irq_restore_regs
+	b	.
 
 /*
  * The location of section

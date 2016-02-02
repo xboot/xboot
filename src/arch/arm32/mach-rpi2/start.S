@@ -78,6 +78,14 @@ _fiq:
  * The actual reset code
  */
 reset:
+	/* Copy vector to zero address */
+	adr r0, _start
+	mov r1, #0
+	ldmia r0!,{r2, r3, r4, r5, r6, r7, r8, r9}
+	stmia r1!,{r2, r3, r4, r5, r6, r7, r8, r9}
+	ldmia r0!,{r2, r3, r4, r5, r6, r7, r8, r9}
+	stmia r1!,{r2, r3, r4, r5, r6, r7, r8, r9}
+
 	/* Set cpu to svc32 mode */
 	mrs r0, cpsr
 	bic r0, r0, #0x1f

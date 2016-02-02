@@ -236,6 +236,7 @@ void interrupt_handle_exception(void * regs)
 
 	list_for_each_entry_safe(pos, n, &(__irqchip_list.entry), entry)
 	{
-		pos->chip->call(pos->chip);
+		if(pos->chip->process(pos->chip) > 0)
+			return;
 	}
 }

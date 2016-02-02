@@ -26,31 +26,27 @@
 #include <arm64.h>
 #include <clocksource/clocksource.h>
 
-static bool_t virt_cs_init(struct clocksource_t * cs)
+static bool_t cs_init(struct clocksource_t * cs)
 {
-	u64_t rate = arm64_timer_frequecy();
-	cs->mult = clocksource_hz2mult(rate, cs->shift);
+	clocksource_calc_mult_shift(&cs->mult, &cs->shift, arm64_timer_frequecy(), 1000000000ULL, 10);
 	arm64_timer_start();
 	return TRUE;
 }
 
-static u64_t virt_cs_read(struct clocksource_t * cs)
+static u64_t cs_read(struct clocksource_t * cs)
 {
 	return arm64_timer_read();
 }
 
-static struct clocksource_t virt_cs = {
+static struct clocksource_t cs = {
 	.name	= "virt-cs",
 	.mask	= CLOCKSOURCE_MASK(64),
-	.init	= virt_cs_init,
-	.read	= virt_cs_read,
+	.init	= cs_init,
+	.read	= cs_read,
 };
 
 static __init void virt_clocksource_init(void)
 {
-	if(register_clocksource(&virt_cs))
-		LOG("Register clocksource");
-	else
-		LOG("Failed to register clocksource");
+	register_clocksource(&cs);
 }
 core_initcall(virt_clocksource_init);

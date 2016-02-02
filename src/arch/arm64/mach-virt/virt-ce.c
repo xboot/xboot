@@ -25,27 +25,35 @@
 #include <xboot.h>
 #include <arm64.h>
 #include <clockevent/clockevent.h>
+#include <virt-irq.h>
 
-static void virt_ce_interrupt(void * data)
+struct clockevent_pdata_t
+{
+	int irq;
+};
+
+static void ce_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
 	arm64_timer_interrupt_disable();
 	ce->handler(ce, ce->data);
 }
 
-static bool_t virt_ce_init(struct clockevent_t * ce)
+static bool_t ce_init(struct clockevent_t * ce)
 {
-	u64_t rate = arm64_timer_frequecy();
-	if(!request_irq("NSTIMER", virt_ce_interrupt, IRQ_TYPE_NONE, ce))
-		return FALSE;
-	clockevent_calc_mult_shift(ce, rate, 10);
+	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
+
+	clockevent_calc_mult_shift(ce, arm64_timer_frequecy(), 10);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
+
+	if(!request_irq(pdat->irq, ce_interrupt, IRQ_TYPE_NONE, ce))
+		return FALSE;
 	arm64_timer_interrupt_disable();
 	return TRUE;
 }
 
-static bool_t virt_ce_next(struct clockevent_t * ce, u64_t evt)
+static bool_t ce_next(struct clockevent_t * ce, u64_t evt)
 {
 	arm64_timer_compare(evt);
 	arm64_timer_interrupt_enable();
@@ -53,17 +61,19 @@ static bool_t virt_ce_next(struct clockevent_t * ce, u64_t evt)
 	return TRUE;
 }
 
-static struct clockevent_t virt_ce = {
+static struct clockevent_pdata_t pdata = {
+	.irq 	= VIRT_IRQ_PPI_NSTIMER,
+};
+
+static struct clockevent_t ce = {
 	.name	= "virt-ce",
-	.init	= virt_ce_init,
-	.next	= virt_ce_next,
+	.init	= ce_init,
+	.next	= ce_next,
+	.priv	= &pdata,
 };
 
 static __init void virt_clockevent_init(void)
 {
-	if(register_clockevent(&virt_ce))
-		LOG("Register clockevent");
-	else
-		LOG("Failed to register clockevent");
+	register_clockevent(&ce);
 }
 core_initcall(virt_clockevent_init);

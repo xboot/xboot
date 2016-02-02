@@ -47,7 +47,7 @@ struct irqchip_pdata_t
 
 static struct irqchip_data_t datas[] = {
 	{
-		.name		= "gic0",
+		.name		= "SPI",
 		.base		= 32,
 		.nirq		= 32,
 		.physdist	= REALVIEW_GIC_DIST_BASE,
@@ -58,29 +58,31 @@ static struct irqchip_data_t datas[] = {
 static void irqchip_enable(struct irqchip_t * chip, int offset)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
-	write32(pdat->virtdist + DIST_ENABLE_SET + ((chip->base + offset) / 32) * 4, 1 << offset);
+	int irq = chip->base + offset;
+	write32(pdat->virtdist + DIST_ENABLE_SET + (irq / 32) * 4, 1 << (irq % 32));
 }
 
 static void irqchip_disable(struct irqchip_t * chip, int offset)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
-	write32(pdat->virtdist + DIST_ENABLE_CLEAR + ((chip->base + offset) / 32) * 4, 1 << offset);
+	int irq = chip->base + offset;
+	write32(pdat->virtdist + DIST_ENABLE_CLEAR + (irq / 32) * 4, 1 << (irq % 32));
 }
 
 static void irqchip_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
 {
 }
 
-static void irqchip_call(struct irqchip_t * chip)
+static int irqchip_process(struct irqchip_t * chip)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
 	int irq = read32(pdat->virtcpu + CPU_INTACK) & 0x3ff;
 	int offset = irq - chip->base;
-	if(offset < chip->nirq)
-	{
-		(chip->handler[offset].func)(chip->handler[offset].data);
-		write32(pdat->virtcpu + CPU_EOI, irq);
-	}
+	if((offset < 0) || (offset >= chip->nirq))
+		return 0;
+	(chip->handler[offset].func)(chip->handler[offset].data);
+	write32(pdat->virtcpu + CPU_EOI, irq);
+	return 1;
 }
 
 static void gic_dist_init(virtual_addr_t dist)
@@ -122,7 +124,7 @@ static void gic_dist_init(virtual_addr_t dist)
 		write32(dist + DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
 
 	/*
-	 * Disable all interrupts.  Leave the PPI and SGIs alone
+	 * Disable all interrupts, leave the SGI and PPI alone
 	 * as these enables are banked registers.
 	 */
 	for(i = 32; i < gic_irqs; i += 32)
@@ -136,14 +138,14 @@ static void gic_cpu_init(virtual_addr_t dist, virtual_addr_t cpu)
 	int i;
 
 	/*
-	 * Deal with the banked PPI and SGI interrupts - disable all
-	 * PPI interrupts, ensure all SGI interrupts are enabled.
+	 * Deal with the banked SGI and PPI interrupts - enable all
+	 * SGI interrupts, ensure all PPI interrupts are disabled.
 	 */
 	write32(dist + DIST_ENABLE_CLEAR, 0xffff0000);
 	write32(dist + DIST_ENABLE_SET, 0x0000ffff);
 
 	/*
-	 * Set priority on PPI and SGI interrupts
+	 * Set priority on SGI and PPI interrupts
 	 */
 	for(i = 0; i < 32; i += 4)
 		write32(dist + DIST_PRI + i * 4 / 4, 0xa0a0a0a0);
@@ -184,7 +186,7 @@ static __init void realview_irqchip_init(void)
 		chip->enable = irqchip_enable;
 		chip->disable = irqchip_disable;
 		chip->settype = irqchip_settype;
-		chip->call = irqchip_call;
+		chip->process = irqchip_process;
 		chip->priv = pdat;
 
 		gic_dist_init(pdat->virtdist);

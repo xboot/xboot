@@ -26,6 +26,9 @@
 
 static struct clk_fixed_t bcm2836_clks[] = {
 	{
+		.name = "systimer-clk",
+		.rate = 1 * 1000 * 1000,
+	}, {
 		.name = "uart0-clk",
 		.rate = 3 * 1000 * 1000,
 	}

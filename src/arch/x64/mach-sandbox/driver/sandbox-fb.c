@@ -197,5 +197,5 @@ static __exit void sandbox_fb_exit(void)
 	resource_for_each_with_name("sandbox-fb", sandbox_unregister_framebuffer);
 }
 
-device_initcall(sandbox_fb_init);
-device_exitcall(sandbox_fb_exit);
+postdevice_initcall(sandbox_fb_init);
+postdevice_exitcall(sandbox_fb_exit);

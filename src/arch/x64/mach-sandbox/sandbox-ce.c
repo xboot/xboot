@@ -25,13 +25,13 @@
 #include <xboot.h>
 #include <sandbox.h>
 
-static void sandbox_ce_callback(void * data)
+static void ce_callback(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
 	ce->handler(ce, ce->data);
 }
 
-static bool_t sandbox_ce_init(struct clockevent_t * ce)
+static bool_t ce_init(struct clockevent_t * ce)
 {
 	/* 1KHZ - 1ms */
 	clockevent_calc_mult_shift(ce, 1000, 10);
@@ -42,23 +42,20 @@ static bool_t sandbox_ce_init(struct clockevent_t * ce)
 	return TRUE;
 }
 
-static bool_t sandbox_ce_next(struct clockevent_t * ce, u64_t evt)
+static bool_t ce_next(struct clockevent_t * ce, u64_t evt)
 {
-	sandbox_sdl_timer_set_next((evt & 0x7fffffff), sandbox_ce_callback, ce);
+	sandbox_sdl_timer_set_next((evt & 0x7fffffff), ce_callback, ce);
 	return TRUE;
 }
 
-static struct clockevent_t sandbox_ce = {
+static struct clockevent_t ce = {
 	.name	= "sandbox-ce",
-	.init	= sandbox_ce_init,
-	.next	= sandbox_ce_next,
+	.init	= ce_init,
+	.next	= ce_next,
 };
 
 static __init void sandbox_clockevent_init(void)
 {
-	if(register_clockevent(&sandbox_ce))
-		LOG("Register clockevent");
-	else
-		LOG("Failed to register clockevent");
+	register_clockevent(&ce);
 }
 core_initcall(sandbox_clockevent_init);

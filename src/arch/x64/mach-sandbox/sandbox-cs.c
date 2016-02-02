@@ -25,29 +25,26 @@
 #include <xboot.h>
 #include <sandbox.h>
 
-static bool_t sandbox_cs_init(struct clocksource_t * cs)
+static bool_t cs_init(struct clocksource_t * cs)
 {
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, sandbox_get_time_frequency(), 1000000000ULL, 10);
 	return TRUE;
 }
 
-static u64_t sandbox_cs_read(struct clocksource_t * cs)
+static u64_t cs_read(struct clocksource_t * cs)
 {
 	return sandbox_get_time_counter();
 }
 
-static struct clocksource_t sandbox_cs = {
+static struct clocksource_t cs = {
 	.name	= "sandbox-cs",
 	.mask	= CLOCKSOURCE_MASK(32),
-	.init	= sandbox_cs_init,
-	.read	= sandbox_cs_read,
+	.init	= cs_init,
+	.read	= cs_read,
 };
 
 static __init void sandbox_clocksource_init(void)
 {
-	if(register_clocksource(&sandbox_cs))
-		LOG("Register clocksource");
-	else
-		LOG("Failed to register clocksource");
+	register_clocksource(&cs);
 }
 core_initcall(sandbox_clocksource_init);

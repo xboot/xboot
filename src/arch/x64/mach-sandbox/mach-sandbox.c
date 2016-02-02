@@ -71,7 +71,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t sandbox = {
 	.name 		= "sandbox",
-	.desc 		= "xboot sandbox runtime enverionment",
+	.desc 		= "Xboot Sandbox Runtime Enverionment",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,

@@ -38,7 +38,6 @@ static struct logger_t logger = {
 	.name	= "logger-sandbox.0",
 	.init	= logger_init,
 	.output	= logger_output,
-	.priv	= &pdata,
 };
 
 static __init void sandbox_logger_init(void)

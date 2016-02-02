@@ -32,14 +32,6 @@
 #include <sandbox-led.h>
 #include <sandbox-buzzer.h>
 
-static void json_resource_register(struct resource_t * res)
-{
-	if(register_resource(res))
-		LOG("Register resource %s:'%s.%d'", res->mach, res->name, res->id);
-	else
-		LOG("Failed to register resource %s:'%s.%d'", res->mach, res->name, res->id);
-}
-
 static void json_resource_console(json_value * value)
 {
 	struct resource_t * res;
@@ -81,7 +73,7 @@ static void json_resource_console(json_value * value)
 		res->name = "console";
 		res->id = -1;
 		res->data = data;
-		json_resource_register(res);
+		register_resource(res);
 	}
 }
 
@@ -141,7 +133,7 @@ static void json_resource_framebuffer(json_value * value)
 		res->name = "sandbox-fb";
 		res->id = -1;
 		res->data = data;
-		json_resource_register(res);
+		register_resource(res);
 	}
 }
 
@@ -172,7 +164,7 @@ static void json_resource_audio(json_value * value)
 		res->name = "sandbox-audio";
 		res->id = -1;
 		res->data = data;
-		json_resource_register(res);
+		register_resource(res);
 	}
 }
 
@@ -211,7 +203,7 @@ static void json_resource_input(json_value * value)
 					res->name = "sandbox-input";
 					res->id = -1;
 					res->data = data;
-					json_resource_register(res);
+					register_resource(res);
 				}
 			}
 		}
@@ -241,7 +233,7 @@ static void json_resource_led(json_value * value)
 					res->name = "sandbox-led";
 					res->id = -1;
 					res->data = data;
-					json_resource_register(res);
+					register_resource(res);
 				}
 			}
 		}
@@ -271,7 +263,7 @@ static void json_resource_buzzer(json_value * value)
 					res->name = "sandbox-buzzer";
 					res->id = -1;
 					res->data = data;
-					json_resource_register(res);
+					register_resource(res);
 				}
 			}
 		}
@@ -316,10 +308,4 @@ static __init void resource_json_init(void)
 	}
 	json_value_free(value);
 }
-
-static __exit void resource_json_exit(void)
-{
-}
-
 resource_initcall(resource_json_init);
-resource_exitcall(resource_json_exit);

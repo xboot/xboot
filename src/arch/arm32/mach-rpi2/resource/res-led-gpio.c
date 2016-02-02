@@ -28,6 +28,10 @@
 
 static struct led_gpio_data_t led_gpio_datas[] = {
 	[0] = {
+		.gpio		= BCM2836_GPIO(35),
+		.active_low	= 0,
+	},
+	[1] = {
 		.gpio		= BCM2836_GPIO(47),
 		.active_low	= 0,
 	}
@@ -38,6 +42,10 @@ static struct resource_t res_led_gpios[] = {
 		.name		= "led-gpio",
 		.id			= 0,
 		.data		= &led_gpio_datas[0],
+	}, {
+		.name		= "led-gpio",
+		.id			= 1,
+		.data		= &led_gpio_datas[1],
 	}
 };
 

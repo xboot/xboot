@@ -103,7 +103,15 @@ static int m_uart_read(lua_State * L)
 	{
 		lua_pushnil(L);
 	}
-	else if(count > SZ_4K)
+	else if(count <= SZ_4K)
+	{
+		char buf[SZ_4K];
+		if(uart_read(uart, (u8_t *)buf, count) == count)
+			lua_pushlstring(L, buf, count);
+		else
+			lua_pushnil(L);
+	}
+	else
 	{
 		char * p = malloc(count);
 		if(p && uart_read(uart, (u8_t *)p, count) == count)
@@ -111,14 +119,6 @@ static int m_uart_read(lua_State * L)
 		else
 			lua_pushnil(L);
 		free(p);
-	}
-	else
-	{
-		char buf[SZ_4K];
-		if(uart_read(uart, (u8_t *)buf, count) == count)
-			lua_pushlstring(L, buf, count);
-		else
-			lua_pushnil(L);
 	}
 	return 1;
 }

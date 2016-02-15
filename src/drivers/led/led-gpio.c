@@ -25,21 +25,26 @@
 #include <led/led-gpio.h>
 
 struct led_gpio_pdata_t {
-	int brightness;
 	int gpio;
 	int active_low;
+	int brightness;
 };
 
 static void led_gpio_init(struct led_t * led)
 {
 	struct led_gpio_pdata_t * pdat = (struct led_gpio_pdata_t *)led->priv;
+
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+	if(pdat->brightness > 0)
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
+	else
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 }
 
 static void led_gpio_exit(struct led_t * led)
 {
 	struct led_gpio_pdata_t * pdat = (struct led_gpio_pdata_t *)led->priv;
+
 	pdat->brightness = 0;
 	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 }
@@ -92,9 +97,9 @@ static bool_t led_gpio_register_led(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	pdat->brightness = 0;
 	pdat->gpio = rdat->gpio;
 	pdat->active_low = rdat->active_low;
+	pdat->brightness = 0;
 
 	led->name = strdup(name);
 	led->init = led_gpio_init;

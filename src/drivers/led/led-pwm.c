@@ -25,17 +25,26 @@
 #include <led/led-pwm.h>
 
 struct led_pwm_pdata_t {
-	int brightness;
 	u32_t period;
 	bool_t polarity;
 	struct pwm_t * pwm;
+	int brightness;
 };
 
 static void led_pwm_init(struct led_t * led)
 {
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
-	pdat->brightness = 0;
-	pwm_disable(pdat->pwm);
+
+	if(pdat->brightness > 0)
+	{
+		u32_t duty = pdat->brightness * pdat->period / (CONFIG_MAX_BRIGHTNESS + 1);
+		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
+		pwm_enable(pdat->pwm);
+	}
+	else
+	{
+		pwm_disable(pdat->pwm);
+	}
 }
 
 static void led_pwm_exit(struct led_t * led)
@@ -48,13 +57,12 @@ static void led_pwm_exit(struct led_t * led)
 static void led_pwm_set(struct led_t * led, int brightness)
 {
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
-	u32_t duty;
 
 	if(pdat->brightness != brightness)
 	{
 		if(brightness > 0)
 		{
-			duty = pdat->brightness * pdat->period / (CONFIG_MAX_BRIGHTNESS + 1);
+			u32_t duty = pdat->brightness * pdat->period / (CONFIG_MAX_BRIGHTNESS + 1);
 			pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 			pwm_enable(pdat->pwm);
 		}
@@ -105,10 +113,10 @@ static bool_t led_pwm_register_led(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	pdat->brightness = 0;
 	pdat->period = rdat->period;
 	pdat->polarity = rdat->polarity;
 	pdat->pwm = pwm;
+	pdat->brightness = 0;
 
 	led->name = strdup(name);
 	led->init = led_pwm_init;

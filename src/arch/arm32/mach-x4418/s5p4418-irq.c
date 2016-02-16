@@ -23,11 +23,11 @@
  */
 
 #include <xboot.h>
-#include <cp15.h>
 #include <s5p4418/reg-gpio.h>
 #include <s5p4418/reg-alv.h>
 #include <s5p4418/reg-vic.h>
 
+#if 0
 /*
  * Exception handlers for irq from Start.s
  */
@@ -2226,3 +2226,4 @@ static __exit void s5p4418_irq_exit(void)
 
 core_initcall(s5p4418_irq_init);
 core_exitcall(s5p4418_irq_exit);
+#endif

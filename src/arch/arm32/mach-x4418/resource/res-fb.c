@@ -205,19 +205,6 @@ static struct resource_t res_fb = {
 
 static __init void resource_fb_init(void)
 {
-	if(register_resource(&res_fb))
-		LOG("Register resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
-	else
-		LOG("Failed to register resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
+	register_resource(&res_fb);
 }
-
-static __exit void resource_fb_exit(void)
-{
-	if(unregister_resource(&res_fb))
-		LOG("Unregister resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
-	else
-		LOG("Failed to unregister resource %s:'%s.%d'", res_fb.mach, res_fb.name, res_fb.id);
-}
-
 resource_initcall(resource_fb_init);
-resource_exitcall(resource_fb_exit);

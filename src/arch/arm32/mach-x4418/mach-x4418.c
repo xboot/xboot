@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <cp15.h>
 #include <s5p4418-rstcon.h>
 #include <s5p4418/reg-sys.h>
 #include <s5p4418/reg-id.h>
@@ -61,36 +60,19 @@ static bool_t mach_sleep(struct machine_t * mach)
 
 static bool_t mach_cleanup(struct machine_t * mach)
 {
-	/* disable irq */
-	irq_disable();
-
-	/* disable fiq */
-	fiq_disable();
-
-	/* disable icache */
-	icache_disable();
-
-	/* disable dcache */
-	dcache_disable();
-
-	/* disable mmu */
-	mmu_disable();
-
-	/* disable vic */
-	vic_disable();
-
 	return TRUE;
 }
 
 static const char * mach_uniqueid(struct machine_t * mach)
 {
-	static char uniqueid[16 + 1];
+	static char uniqueid[16 + 1] = { 0 };
+	virtual_addr_t virt = phys_to_virt(S5P4418_ID_BASE);
 	u32_t ecid0, ecid1;
 
 	s5p4418_ip_reset(RESET_ID_ECID, 0);
 
-	ecid0 = read32(phys_to_virt(S5P4418_ID_ECID0));
-	ecid1 = read32(phys_to_virt(S5P4418_ID_ECID1));
+	ecid0 = read32(virt + ID_ECID0);
+	ecid1 = read32(virt + ID_ECID1);
 	sprintf(uniqueid, "%02x%02x%02x%02x%02x%02x%02x%02x",
 		(ecid0 >> 24) & 0xff, (ecid0 >> 16) & 0xff, (ecid0 >> 8) & 0xff, (ecid0 >> 0) & 0xff,
 		(ecid1 >> 24) & 0xff, (ecid1 >> 16) & 0xff, (ecid1 >> 8) & 0xff, (ecid1 >> 0) & 0xff);
@@ -104,7 +86,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t x4418 = {
 	.name 		= "x4418",
-	.desc 		= "x4418 based on s5p4412",
+	.desc 		= "X4418 Based On S5P4412",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,

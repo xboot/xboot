@@ -24,49 +24,47 @@
 
 #include <led/ledtrig.h>
 
-struct ledtrig_heartbeat_data_t {
+struct ledtrig_heartbeat_pdata_t {
 	struct timer_t timer;
-	u32_t phase;
-	u32_t period;
-
-	struct ledtrig_data_t * rdat;
+	int phase;
+	int period;
 };
 
 static int heartbeat_timer_function(struct timer_t * timer, void * data)
 {
 	struct ledtrig_t * trigger = (struct ledtrig_t *)(data);
-	struct ledtrig_heartbeat_data_t * dat = (struct ledtrig_heartbeat_data_t *)trigger->priv;
+	struct ledtrig_heartbeat_pdata_t * pdat = (struct ledtrig_heartbeat_pdata_t *)trigger->priv;
 	struct led_t * led = (struct led_t *)(trigger->led);
 	int brightness = 0;
-	u32_t delay = 0;
+	int delay = 0;
 
 	/*
 	 * Acts like an actual heart beat -- thump-thump-pause ...
 	 */
-	switch(dat->phase)
+	switch(pdat->phase)
 	{
 	case 0:
-		dat->period = 1260;
+		pdat->period = 1260;
 		delay = 70;
-		dat->phase++;
+		pdat->phase++;
 		brightness = CONFIG_MAX_BRIGHTNESS;
 		break;
 
 	case 1:
-		delay = dat->period / 4 - 70;
-		dat->phase++;
+		delay = pdat->period / 4 - 70;
+		pdat->phase++;
 		brightness = 0;
 		break;
 
 	case 2:
 		delay = 70;
-		dat->phase++;
+		pdat->phase++;
 		brightness = CONFIG_MAX_BRIGHTNESS;
 		break;
 
 	default:
-		delay = dat->period - dat->period / 4 - 70;
-		dat->phase = 0;
+		delay = pdat->period - pdat->period / 4 - 70;
+		pdat->phase = 0;
 		brightness = 0;
 		break;
 	}
@@ -78,22 +76,22 @@ static int heartbeat_timer_function(struct timer_t * timer, void * data)
 
 static void ledtrig_heartbeat_init(struct ledtrig_t * trigger)
 {
-	struct ledtrig_heartbeat_data_t * dat = (struct ledtrig_heartbeat_data_t *)trigger->priv;
+	struct ledtrig_heartbeat_pdata_t * pdat = (struct ledtrig_heartbeat_pdata_t *)trigger->priv;
 
-	if(dat)
+	if(pdat)
 	{
-		dat->phase = 0;
-		timer_init(&dat->timer, heartbeat_timer_function, trigger);
-		timer_start_now(&dat->timer, ms_to_ktime(10));
+		pdat->phase = 0;
+		timer_init(&pdat->timer, heartbeat_timer_function, trigger);
+		timer_start_now(&pdat->timer, ms_to_ktime(10));
 	}
 }
 
 static void ledtrig_heartbeat_exit(struct ledtrig_t * trigger)
 {
-	struct ledtrig_heartbeat_data_t * dat = (struct ledtrig_heartbeat_data_t *)trigger->priv;
+	struct ledtrig_heartbeat_pdata_t * pdat = (struct ledtrig_heartbeat_pdata_t *)trigger->priv;
 
-	if(dat)
-		timer_cancel(&dat->timer);
+	if(pdat)
+		timer_cancel(&pdat->timer);
 }
 
 static void ledtrig_heartbeat_activity(struct ledtrig_t * trigger)
@@ -103,7 +101,7 @@ static void ledtrig_heartbeat_activity(struct ledtrig_t * trigger)
 static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 {
 	struct ledtrig_data_t * rdat = (struct ledtrig_data_t *)res->data;
-	struct ledtrig_heartbeat_data_t * dat;
+	struct ledtrig_heartbeat_pdata_t * pdat;
 	struct ledtrig_t * trigger;
 	struct led_t * led;
 	char name[64];
@@ -112,29 +110,28 @@ static bool_t ledtrig_register_heartbeat(struct resource_t * res)
 	if(!led)
 		return FALSE;
 
-	dat = malloc(sizeof(struct ledtrig_heartbeat_data_t));
-	if(!dat)
+	pdat = malloc(sizeof(struct ledtrig_heartbeat_pdata_t));
+	if(!pdat)
 		return FALSE;
 
 	trigger = malloc(sizeof(struct ledtrig_t));
 	if(!trigger)
 	{
-		free(dat);
+		free(pdat);
 		return FALSE;
 	}
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	dat->phase = 0;
-	dat->period = 0;
-	dat->rdat = rdat;
+	pdat->phase = 0;
+	pdat->period = 0;
 
 	trigger->name = strdup(name);
 	trigger->init = ledtrig_heartbeat_init;
 	trigger->exit = ledtrig_heartbeat_exit;
 	trigger->activity = ledtrig_heartbeat_activity;
 	trigger->led = led;
-	trigger->priv = dat;
+	trigger->priv = pdat;
 
 	if(register_ledtrig(trigger))
 		return TRUE;

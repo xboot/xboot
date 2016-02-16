@@ -25,31 +25,25 @@
 #include <xboot.h>
 #include <led/ledtrig.h>
 
-static struct ledtrig_data_t led_trigger_data = {
-	.led	= "led-gpio.3",
+static struct ledtrig_data_t led_trigger_datas[] = {
+	{
+		.led	= "led-gpio.3",
+	}
 };
 
-static struct resource_t res_led_trigger = {
-	.name	= "ledtrig-heartbeat",
-	.id		= -1,
-	.data	= &led_trigger_data,
+static struct resource_t res_led_triggers[] = {
+	{
+		.name	= "ledtrig-heartbeat",
+		.id		= -1,
+		.data	= &led_trigger_datas[0],
+	}
 };
 
 static __init void resource_led_trigger_heartbeat_init(void)
 {
-	if(register_resource(&res_led_trigger))
-		LOG("Register resource %s:'%s.%d'", res_led_trigger.mach, res_led_trigger.name, res_led_trigger.id);
-	else
-		LOG("Failed to register resource %s:'%s.%d'", res_led_trigger.mach, res_led_trigger.name, res_led_trigger.id);
-}
+	int i;
 
-static __exit void resource_led_trigger_heartbeat_exit(void)
-{
-	if(unregister_resource(&res_led_trigger))
-		LOG("Unregister resource %s:'%s.%d'", res_led_trigger.mach, res_led_trigger.name, res_led_trigger.id);
-	else
-		LOG("Failed to unregister resource %s:'%s.%d'", res_led_trigger.mach, res_led_trigger.name, res_led_trigger.id);
+	for(i = 0; i < ARRAY_SIZE(res_led_triggers); i++)
+		register_resource(&res_led_triggers[i]);
 }
-
 resource_initcall(resource_led_trigger_heartbeat_init);
-resource_exitcall(resource_led_trigger_heartbeat_exit);

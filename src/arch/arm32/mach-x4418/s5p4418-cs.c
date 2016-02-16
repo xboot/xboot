@@ -28,40 +28,51 @@
 
 #define CS_TIMER_CHANNEL	(1)
 
-static bool_t s5p4418_cs_init(struct clocksource_t * cs)
+struct clocksource_pdata_t
 {
+	physical_addr_t phys;
+	virtual_addr_t virt;
+};
+
+static bool_t cs_init(struct clocksource_t * cs)
+{
+	struct clocksource_pdata_t * pdat = (struct clocksource_pdata_t *)cs->priv;
 	u64_t rate;
 
 	s5p4418_timer_reset();
 
 	/* 75MHZ - 13.333...ns */
-	s5p4418_timer_enable(CS_TIMER_CHANNEL, 0);
-	rate = s5p4418_timer_calc_tin(CS_TIMER_CHANNEL, 13);
+	s5p4418_timer_enable(pdat->virt, CS_TIMER_CHANNEL, 0);
+	rate = s5p4418_timer_calc_tin(pdat->virt, CS_TIMER_CHANNEL, 13);
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, rate, 1000000000ULL, 10);
-	s5p4418_timer_count(CS_TIMER_CHANNEL, 0xffffffff);
-	s5p4418_timer_start(CS_TIMER_CHANNEL, 0);
+	s5p4418_timer_count(pdat->virt, CS_TIMER_CHANNEL, 0xffffffff);
+	s5p4418_timer_start(pdat->virt, CS_TIMER_CHANNEL, 0);
 
 	return TRUE;
 }
 
-static u64_t s5p4418_cs_read(struct clocksource_t * cs)
+static u64_t cs_read(struct clocksource_t * cs)
 {
-	u32_t val = s5p4418_timer_read(CS_TIMER_CHANNEL);
-	return (u64_t)(~val);
+	struct clocksource_pdata_t * pdat = (struct clocksource_pdata_t *)cs->priv;
+	return (u64_t)(0xffffffff - s5p4418_timer_read(pdat->virt, CS_TIMER_CHANNEL));
 }
 
-static struct clocksource_t s5p4418_cs = {
+static struct clocksource_pdata_t pdata = {
+	.phys	= S5P4418_TIMER_BASE,
+};
+
+static struct clocksource_t cs = {
 	.name	= "s5p4418-cs",
+	.shift	= 20,
 	.mask	= CLOCKSOURCE_MASK(32),
-	.init	= s5p4418_cs_init,
-	.read	= s5p4418_cs_read,
+	.init	= cs_init,
+	.read	= cs_read,
+	.priv	= &pdata,
 };
 
 static __init void s5p4418_clocksource_init(void)
 {
-	if(register_clocksource(&s5p4418_cs))
-		LOG("Register clocksource");
-	else
-		LOG("Failed to register clocksource");
+	pdata.virt = phys_to_virt(pdata.phys);
+	register_clocksource(&cs);
 }
 core_initcall(s5p4418_clocksource_init);

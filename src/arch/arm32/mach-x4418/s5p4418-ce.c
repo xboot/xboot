@@ -28,55 +28,67 @@
 
 #define CE_TIMER_CHANNEL	(0)
 
-static void s5p4418_ce_interrupt(void * data)
+struct clockevent_pdata_t
+{
+	int irq;
+	physical_addr_t phys;
+	virtual_addr_t virt;
+};
+
+static void ce_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
-	s5p4418_timer_irq_clear(CE_TIMER_CHANNEL);
+	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
+	s5p4418_timer_irq_clear(pdat->virt, CE_TIMER_CHANNEL);
 	ce->handler(ce, ce->data);
 }
 
-static bool_t s5p4418_ce_init(struct clockevent_t * ce)
+static bool_t ce_init(struct clockevent_t * ce)
 {
+	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
 	u64_t rate;
 
 	s5p4418_timer_reset();
 
-	if(!request_irq("TIMER0", s5p4418_ce_interrupt, IRQ_TYPE_NONE, ce))
-	{
-		LOG("can't request irq 'TIMER0'");
+	if(!request_irq(pdat->irq, ce_interrupt, IRQ_TYPE_NONE, ce))
 		return FALSE;
-	}
 
 	/* 9.375MHZ - 107ns */
-	s5p4418_timer_enable(CE_TIMER_CHANNEL, 1);
-	rate = s5p4418_timer_calc_tin(CE_TIMER_CHANNEL, 107);
+	s5p4418_timer_enable(pdat->virt, CE_TIMER_CHANNEL, 1);
+	rate = s5p4418_timer_calc_tin(pdat->virt, CE_TIMER_CHANNEL, 107);
 	clockevent_calc_mult_shift(ce, rate, 10);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
-	s5p4418_timer_count(CE_TIMER_CHANNEL, 0);
-	s5p4418_timer_stop(CE_TIMER_CHANNEL);
+	s5p4418_timer_count(pdat->virt, CE_TIMER_CHANNEL, 0);
+	s5p4418_timer_stop(pdat->virt, CE_TIMER_CHANNEL);
 
 	return TRUE;
 }
 
-static bool_t s5p4418_ce_next(struct clockevent_t * ce, u64_t evt)
+static bool_t ce_next(struct clockevent_t * ce, u64_t evt)
 {
-	s5p4418_timer_count(CE_TIMER_CHANNEL, (evt & 0xffffffff));
-	s5p4418_timer_start(CE_TIMER_CHANNEL, 1);
+	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
+
+	s5p4418_timer_count(pdat->virt, CE_TIMER_CHANNEL, (evt & 0xffffffff));
+	s5p4418_timer_start(pdat->virt, CE_TIMER_CHANNEL, 1);
 	return TRUE;
 }
 
-static struct clockevent_t s5p4418_ce = {
+static struct clockevent_pdata_t pdata = {
+	.irq 	= -1,
+	.phys	= S5P4418_TIMER_BASE,
+};
+
+static struct clockevent_t ce = {
 	.name	= "s5p4418-ce",
-	.init	= s5p4418_ce_init,
-	.next	= s5p4418_ce_next,
+	.init	= ce_init,
+	.next	= ce_next,
+	.priv	= &pdata,
 };
 
 static __init void s5p4418_clockevent_init(void)
 {
-	if(register_clockevent(&s5p4418_ce))
-		LOG("Register clockevent");
-	else
-		LOG("Failed to register clockevent");
+	pdata.virt = phys_to_virt(pdata.phys);
+	register_clockevent(&ce);
 }
 core_initcall(s5p4418_clockevent_init);

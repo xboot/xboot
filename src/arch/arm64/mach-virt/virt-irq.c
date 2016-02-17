@@ -79,18 +79,17 @@ static void irqchip_settype(struct irqchip_t * chip, int offset, enum irq_type_t
 {
 }
 
-static int irqchip_process(struct irqchip_t * chip)
+static void irqchip_process(struct irqchip_t * chip)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
 	int irq = read32(pdat->virtcpu + CPU_INTACK) & 0x3ff;
 	int offset = irq - chip->base;
 
-	if((offset < 0) || (offset >= chip->nirq))
-		return 0;
-
-	(chip->handler[offset].func)(chip->handler[offset].data);
-	write32(pdat->virtcpu + CPU_EOI, irq);
-	return 1;
+	if((offset >= 0) && (offset < chip->nirq))
+	{
+		(chip->handler[offset].func)(chip->handler[offset].data);
+		write32(pdat->virtcpu + CPU_EOI, irq);
+	}
 }
 
 static void gic_dist_init(virtual_addr_t dist)

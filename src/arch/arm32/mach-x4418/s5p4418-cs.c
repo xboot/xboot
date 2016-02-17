@@ -47,7 +47,6 @@ static bool_t cs_init(struct clocksource_t * cs)
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, rate, 1000000000ULL, 10);
 	s5p4418_timer_count(pdat->virt, CS_TIMER_CHANNEL, 0xffffffff);
 	s5p4418_timer_start(pdat->virt, CS_TIMER_CHANNEL, 0);
-
 	return TRUE;
 }
 
@@ -63,7 +62,6 @@ static struct clocksource_pdata_t pdata = {
 
 static struct clocksource_t cs = {
 	.name	= "s5p4418-cs",
-	.shift	= 20,
 	.mask	= CLOCKSOURCE_MASK(32),
 	.init	= cs_init,
 	.read	= cs_read,

@@ -32,8 +32,8 @@ struct li2c_t {
 static int l_i2c_new(lua_State * L)
 {
 	const char * name = luaL_checkstring(L, 1);
-	u32_t addr = (u32_t)luaL_checkinteger(L, 2);
-	u32_t flags = (u32_t)luaL_optinteger(L, 3, 0);
+	int addr = luaL_checkinteger(L, 2);
+	int flags = luaL_optinteger(L, 3, 0);
 	struct i2c_client_t * client = i2c_client_alloc(name, addr, flags);
 	if(!client)
 		return 0;
@@ -58,7 +58,7 @@ static int m_i2c_gc(lua_State * L)
 static int m_i2c_read(lua_State * L)
 {
 	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_HARDWARE_I2C);
-	size_t count = luaL_checkinteger(L, 2);
+	int count = luaL_checkinteger(L, 2);
 	if(count <= 0)
 	{
 		lua_pushnil(L);
@@ -86,10 +86,10 @@ static int m_i2c_read(lua_State * L)
 static int m_i2c_write(lua_State * L)
 {
 	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_HARDWARE_I2C);
-	size_t count;
-	const char * buf = luaL_checklstring(L, 2, &count);
+	int count;
+	const char * buf = luaL_checklstring(L, 2, (size_t *)&count);
 	if(count > 0)
-		lua_pushboolean(L, (i2c_master_send(i2c->client, buf, count) == count));
+		lua_pushboolean(L, (i2c_master_send(i2c->client, (void *)buf, count) == count));
 	else
 		lua_pushboolean(L, 0);
 	return 1;

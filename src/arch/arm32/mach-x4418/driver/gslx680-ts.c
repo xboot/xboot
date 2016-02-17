@@ -1,5 +1,5 @@
 /*
- * driver/gslx680.c
+ * driver/gslx680-ts.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,20 +22,21 @@
  *
  */
 
-#include <xboot.h>
-#include <gslx680.h>
+#include <gslx680-ts.h>
 
-struct gslx680_pdata_t {
+struct gslx680_ts_pdata_t {
+	struct i2c_client_t * client;
+	int irq;
+	int shutdown;
+	int fingers;
 	struct {
 		int x, y;
 		int press;
 		int valid;
 	} node[10];
-	struct i2c_client_t * client;
-	struct gslx680_data_t * rdat;
 };
 
-static bool_t gslx680_read(struct i2c_client_t * client, u8_t reg, u8_t * buf, u32_t len)
+static bool_t gslx680_ts_read(struct i2c_client_t * client, u8_t reg, u8_t * buf, int len)
 {
 	struct i2c_msg_t msgs[2];
 
@@ -54,7 +55,7 @@ static bool_t gslx680_read(struct i2c_client_t * client, u8_t reg, u8_t * buf, u
     return TRUE;
 }
 
-static bool_t gslx680_write(struct i2c_client_t * client, u8_t reg, u8_t * buf, u32_t len)
+static bool_t gslx680_ts_write(struct i2c_client_t * client, u8_t reg, u8_t * buf, int len)
 {
 	struct i2c_msg_t msg;
 	u8_t mbuf[256];
@@ -74,7 +75,7 @@ static bool_t gslx680_write(struct i2c_client_t * client, u8_t reg, u8_t * buf, 
     return TRUE;
 }
 
-static bool_t gslx680_shutdown_pin(int pin, int high)
+static bool_t gslx680_ts_shutdown_pin(int pin, int high)
 {
 	if(high)
 		gpio_direction_output(pin, 1);
@@ -83,16 +84,16 @@ static bool_t gslx680_shutdown_pin(int pin, int high)
 	return TRUE;
 }
 
-static bool_t gslx680_check(struct i2c_client_t * client)
+static bool_t gslx680_ts_check(struct i2c_client_t * client)
 {
 	u8_t buf;
 
 	buf = 0x12;
-	if(!gslx680_write(client, 0xf0, &buf, 1))
+	if(!gslx680_ts_write(client, 0xf0, &buf, 1))
 		return FALSE;
 
 	buf = 0x00;
-	if(!gslx680_read(client, 0xf0, &buf, 1))
+	if(!gslx680_ts_read(client, 0xf0, &buf, 1))
 		return FALSE;
 
 	if(buf == 0x12)
@@ -100,71 +101,71 @@ static bool_t gslx680_check(struct i2c_client_t * client)
 	return FALSE;
 }
 
-static void gslx680_clear(struct i2c_client_t * client)
+static void gslx680_ts_clear(struct i2c_client_t * client)
 {
 	u8_t buf;
 
 	buf = 0x88;
-	gslx680_write(client, 0xe0, &buf, 1);
+	gslx680_ts_write(client, 0xe0, &buf, 1);
 	mdelay(20);
 
 	buf = 0x03;
-	gslx680_write(client, 0x80, &buf, 1);
+	gslx680_ts_write(client, 0x80, &buf, 1);
 	mdelay(5);
 
 	buf = 0x04;
-	gslx680_write(client, 0xe4, &buf, 1);
+	gslx680_ts_write(client, 0xe4, &buf, 1);
 	mdelay(5);
 
 	buf = 0x00;
-	gslx680_write(client, 0xe0, &buf, 1);
+	gslx680_ts_write(client, 0xe0, &buf, 1);
 	mdelay(20);
 }
 
-static bool_t gslx680_reset(struct i2c_client_t * client)
+static bool_t gslx680_ts_reset(struct i2c_client_t * client)
 {
 	u8_t buf;
 
 	buf = 0x88;
-	gslx680_write(client, 0xe0, &buf, 1);
+	gslx680_ts_write(client, 0xe0, &buf, 1);
 	mdelay(20);
 
 	buf = 0x04;
-	gslx680_write(client, 0xe4, &buf, 1);
+	gslx680_ts_write(client, 0xe4, &buf, 1);
 	mdelay(10);
 
 	buf = 0x00;
-	gslx680_write(client, 0xbc, &buf, 1);
+	gslx680_ts_write(client, 0xbc, &buf, 1);
 	mdelay(10);
 
 	buf = 0x00;
-	gslx680_write(client, 0xbd, &buf, 1);
+	gslx680_ts_write(client, 0xbd, &buf, 1);
 	mdelay(10);
 
 	buf = 0x00;
-	gslx680_write(client, 0xbe, &buf, 1);
+	gslx680_ts_write(client, 0xbe, &buf, 1);
 	mdelay(10);
 
 	buf = 0x00;
-	gslx680_write(client, 0xbf, &buf, 1);
+	gslx680_ts_write(client, 0xbf, &buf, 1);
 	mdelay(10);
 
 	return TRUE;
 }
 
-static bool_t gslx680_startup(struct i2c_client_t * client)
+static bool_t gslx680_ts_startup(struct i2c_client_t * client)
 {
 	u8_t buf;
 
 	buf = 0x00;
-	gslx680_write(client, 0xe0, &buf, 1);
+	gslx680_ts_write(client, 0xe0, &buf, 1);
 	mdelay(10);
 	return TRUE;
 }
 
-static bool_t gslx680_load_firmware(struct i2c_client_t * client, const struct gslx680_firmware_t * fw)
+static bool_t gslx680_ts_load_firmware(struct i2c_client_t * client, const struct gslx680_ts_firmware_t * fw)
 {
-	struct gslx680_firmware_t * next = (struct gslx680_firmware_t *)fw;
+	struct gslx680_ts_firmware_t * next = (struct gslx680_ts_firmware_t *)fw;
 	u8_t buf[4];
 
 	if(!next)
@@ -177,7 +178,7 @@ static bool_t gslx680_load_firmware(struct i2c_client_t * client, const struct g
 		buf[2] = ((next->val) >> 16) & 0xff;
 		buf[3] = ((next->val) >> 24) & 0xff;
 
-		if(!gslx680_write(client, next->reg, buf, 4))
+		if(!gslx680_ts_write(client, next->reg, buf, 4))
 			return FALSE;
 		next++;
 	}
@@ -185,18 +186,18 @@ static bool_t gslx680_load_firmware(struct i2c_client_t * client, const struct g
 	return TRUE;
 }
 
-static void gslx680_interrupt_function(void * data)
+static void gslx680_ts_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
-	struct gslx680_pdata_t * pdat = (struct gslx680_pdata_t *)input->priv;
-	int fingers = pdat->rdat->fingers;
+	struct gslx680_ts_pdata_t * pdat = (struct gslx680_ts_pdata_t *)input->priv;
+	int fingers = pdat->fingers;
 	u8_t buf[44];
 	int x, y, id;
 	int n, i;
 
-	disable_irq(pdat->rdat->irq);
+	disable_irq(pdat->irq);
 
-	if(gslx680_read(pdat->client, 0x80, &buf[0], 4 + fingers * 4))
+	if(gslx680_ts_read(pdat->client, 0x80, &buf[0], 4 + fingers * 4))
 	{
 		for(i = 0; i < fingers; i++)
 		{
@@ -237,19 +238,19 @@ static void gslx680_interrupt_function(void * data)
 		}
 	}
 
-	enable_irq(pdat->rdat->irq);
+	enable_irq(pdat->irq);
 }
 
 static void input_init(struct input_t * input)
 {
-	struct gslx680_pdata_t * pdat = (struct gslx680_pdata_t *)input->priv;
-	request_irq(pdat->rdat->irq, gslx680_interrupt_function, IRQ_TYPE_EDGE_RISING, input);
+	struct gslx680_ts_pdata_t * pdat = (struct gslx680_ts_pdata_t *)input->priv;
+	request_irq(pdat->irq, gslx680_ts_interrupt, IRQ_TYPE_EDGE_RISING, input);
 }
 
 static void input_exit(struct input_t * input)
 {
-	struct gslx680_pdata_t * pdat = (struct gslx680_pdata_t *)input->priv;
-	free_irq(pdat->rdat->irq);
+	struct gslx680_ts_pdata_t * pdat = (struct gslx680_ts_pdata_t *)input->priv;
+	free_irq(pdat->irq);
 }
 
 static int input_ioctl(struct input_t * input, int cmd, void * arg)
@@ -267,8 +268,8 @@ static void input_resume(struct input_t * input)
 
 static bool_t register_gslx680_touchscreen(struct resource_t * res)
 {
-	struct gslx680_data_t * rdat = (struct gslx680_data_t *)res->data;
-	struct gslx680_pdata_t * pdat;
+	struct gslx680_ts_data_t * rdat = (struct gslx680_ts_data_t *)res->data;
+	struct gslx680_ts_pdata_t * pdat;
 	struct input_t * input;
 	struct i2c_client_t * client;
 	char name[64];
@@ -279,26 +280,26 @@ static bool_t register_gslx680_touchscreen(struct resource_t * res)
 
 	if(rdat->shutdown >= 0)
 	{
-		gslx680_shutdown_pin(rdat->shutdown, 0);
+		gslx680_ts_shutdown_pin(rdat->shutdown, 0);
 		mdelay(20);
-		gslx680_shutdown_pin(rdat->shutdown, 1);
+		gslx680_ts_shutdown_pin(rdat->shutdown, 1);
 		mdelay(20);
 	}
 
-	if(!gslx680_check(client))
+	if(!gslx680_ts_check(client))
 	{
 		i2c_client_free(client);
 		return FALSE;
 	}
 
-	gslx680_clear(client);
-	gslx680_reset(client);
-	gslx680_load_firmware(client, rdat->firmware);
-	gslx680_startup(client);
-	gslx680_reset(client);
-	gslx680_startup(client);
+	gslx680_ts_clear(client);
+	gslx680_ts_reset(client);
+	gslx680_ts_load_firmware(client, rdat->firmware);
+	gslx680_ts_startup(client);
+	gslx680_ts_reset(client);
+	gslx680_ts_startup(client);
 
-	pdat = malloc(sizeof(struct gslx680_pdata_t));
+	pdat = malloc(sizeof(struct gslx680_ts_pdata_t));
 	if(!pdat)
 	{
 		i2c_client_free(client);
@@ -315,9 +316,11 @@ static bool_t register_gslx680_touchscreen(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	memset(pdat, 0, sizeof(struct gslx680_pdata_t));
+	memset(pdat, 0, sizeof(struct gslx680_ts_pdata_t));
 	pdat->client = client;
-	pdat->rdat = rdat;
+	pdat->irq = rdat->irq;
+	pdat->shutdown = rdat->shutdown;
+	pdat->fingers = rdat->fingers;
 
 	input->name = strdup(name);
 	input->type = INPUT_TYPE_TOUCHSCREEN;
@@ -352,22 +355,22 @@ static bool_t unregister_gslx680_touchscreen(struct resource_t * res)
 	if(!unregister_input(input))
 		return FALSE;
 
-	i2c_client_free(((struct gslx680_pdata_t *)(input->priv))->client);
+	i2c_client_free(((struct gslx680_ts_pdata_t *)(input->priv))->client);
 	free(input->priv);
 	free(input->name);
 	free(input);
 	return TRUE;
 }
 
-static __init void gslx680_device_init(void)
+static __init void gslx680_ts_init(void)
 {
-	resource_for_each_with_name("gslx680", register_gslx680_touchscreen);
+	resource_for_each_with_name("gslx680-ts", register_gslx680_touchscreen);
 }
 
-static __exit void gslx680_device_exit(void)
+static __exit void gslx680_ts_exit(void)
 {
-	resource_for_each_with_name("gslx680", unregister_gslx680_touchscreen);
+	resource_for_each_with_name("gslx680-ts", unregister_gslx680_touchscreen);
 }
 
-device_initcall(gslx680_device_init);
-device_exitcall(gslx680_device_exit);
+device_initcall(gslx680_ts_init);
+device_exitcall(gslx680_ts_exit);

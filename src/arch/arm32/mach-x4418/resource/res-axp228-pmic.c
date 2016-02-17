@@ -55,8 +55,8 @@ static struct resource_t res_axp228_pmic = {
 	.data		= &axp228_pmic_data,
 };
 
-static __init void resource_pmic_init(void)
+static __init void resource_axp228_pmic_init(void)
 {
 	register_resource(&res_axp228_pmic);
 }
-resource_initcall(resource_pmic_init);
+resource_initcall(resource_axp228_pmic_init);

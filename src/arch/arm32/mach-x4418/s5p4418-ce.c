@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <clockevent/clockevent.h>
+#include <s5p4418-irq.h>
 #include <s5p4418-timer.h>
 
 #define CE_TIMER_CHANNEL	(0)
@@ -75,7 +76,7 @@ static bool_t ce_next(struct clockevent_t * ce, u64_t evt)
 }
 
 static struct clockevent_pdata_t pdata = {
-	.irq 	= -1,
+	.irq 	= S5P4418_IRQ_TIMER0,
 	.phys	= S5P4418_TIMER_BASE,
 };
 

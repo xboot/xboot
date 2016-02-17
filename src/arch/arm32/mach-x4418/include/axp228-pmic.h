@@ -12,7 +12,7 @@ extern "C" {
 struct axp228_pmic_data_t
 {
 	const char * i2cbus;
-	u32_t addr;
+	int addr;
 
 	int dcdc1;
 	int dcdc2;

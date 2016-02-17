@@ -1,5 +1,5 @@
 /*
- * resource/res-gslx680.c
+ * resource/res-gslx680-ts.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,10 +22,11 @@
  *
  */
 
-#include <xboot.h>
-#include <gslx680.h>
+#include <gslx680-ts.h>
+#include <s5p4418-gpio.h>
+#include <s5p4418-irq.h>
 
-static const struct gslx680_firmware_t gslx680_firmware[] = {
+static const struct gslx680_ts_firmware_t gslx680_ts_firmware[] = {
 	{0xf0,0x2},
 	{0x00,0x00000000},
 	{0x04,0x00000000},
@@ -5013,23 +5014,23 @@ static const struct gslx680_firmware_t gslx680_firmware[] = {
 	{0xFF, 0xFFFFFFFF},
 };
 
-static struct gslx680_data_t gslx680_data = {
+static struct gslx680_ts_data_t gslx680_ts_data = {
 	.i2cbus		= "i2c-gpio.1",
 	.addr		= 0x40,
-	.fingers	= 5,
+	.irq		= S5P4418_IRQ_GPIOB29,
 	.shutdown	= -1,
-	.irq		= "GPIOB29",
-	.firmware	= gslx680_firmware,
+	.fingers	= 5,
+	.firmware	= gslx680_ts_firmware,
 };
 
-static struct resource_t res_gslx680 = {
-	.name		= "gslx680",
+static struct resource_t res_gslx680_ts = {
+	.name		= "gslx680-ts",
 	.id			= -1,
-	.data		= &gslx680_data,
+	.data		= &gslx680_ts_data,
 };
 
-static __init void resource_gslx680_init(void)
+static __init void resource_gslx680_ts_init(void)
 {
-	register_resource(&res_gslx680);
+	register_resource(&res_gslx680_ts);
 }
-resource_initcall(resource_gslx680_init);
+resource_initcall(resource_gslx680_ts_init);

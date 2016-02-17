@@ -165,6 +165,32 @@ bool_t unregister_irqchip(struct irqchip_t * chip)
 	return FALSE;
 }
 
+bool_t register_sub_irqchip(int parent, struct irqchip_t * chip)
+{
+	if(!chip || !chip->name)
+		return FALSE;
+
+	if(search_irqchip(chip->name))
+		return FALSE;
+
+	if(!request_irq(parent, (void (*)(void *))(chip->process), IRQ_TYPE_NONE, chip))
+		return FALSE;
+
+	chip->process = NULL;
+	return register_irqchip(chip);
+}
+
+bool_t unregister_sub_irqchip(int parent, struct irqchip_t * chip)
+{
+	if(!chip || !chip->name)
+		return FALSE;
+
+	if(!free_irq(parent))
+		return FALSE;
+
+	return unregister_irqchip(chip);
+}
+
 bool_t request_irq(int irq, void (*func)(void *), enum irq_type_t type, void * data)
 {
 	struct irqchip_t * chip;
@@ -236,7 +262,7 @@ void interrupt_handle_exception(void * regs)
 
 	list_for_each_entry_safe(pos, n, &(__irqchip_list.entry), entry)
 	{
-		if(pos->chip->process(pos->chip) > 0)
-			return;
+		if(pos->chip->process)
+			pos->chip->process(pos->chip);
 	}
 }

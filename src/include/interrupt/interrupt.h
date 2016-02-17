@@ -31,12 +31,14 @@ struct irqchip_t
 	void (*enable)(struct irqchip_t * chip, int offset);
 	void (*disable)(struct irqchip_t * chip, int offset);
 	void (*settype)(struct irqchip_t * chip, int offset, enum irq_type_t type);
-	int  (*process)(struct irqchip_t * chip);
+	void (*process)(struct irqchip_t * chip);
 	void * priv;
 };
 
 bool_t register_irqchip(struct irqchip_t * chip);
 bool_t unregister_irqchip(struct irqchip_t * chip);
+bool_t register_sub_irqchip(int parent, struct irqchip_t * chip);
+bool_t unregister_sub_irqchip(int parent, struct irqchip_t * chip);
 bool_t request_irq(int irq, void (*func)(void *), enum irq_type_t type, void * data);
 bool_t free_irq(int irq);
 void enable_irq(int irq);

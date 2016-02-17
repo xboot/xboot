@@ -92,7 +92,7 @@ bool_t unregister_bus_i2c(struct i2c_t * i2c)
 	return TRUE;
 }
 
-struct i2c_client_t * i2c_client_alloc(const char * i2cbus, u32_t addr, u32_t flags)
+struct i2c_client_t * i2c_client_alloc(const char * i2cbus, int addr, int flags)
 {
 	struct i2c_client_t * client;
 	struct i2c_t * i2c;
@@ -159,7 +159,7 @@ int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 	return ret;
 }
 
-int i2c_master_send(const struct i2c_client_t * client, const char * buf, int count)
+int i2c_master_send(const struct i2c_client_t * client, void * buf, int count)
 {
 	struct i2c_msg_t msg;
 	int ret;
@@ -167,13 +167,13 @@ int i2c_master_send(const struct i2c_client_t * client, const char * buf, int co
 	msg.addr = client->addr;
 	msg.flags = client->flags & I2C_M_TEN;
 	msg.len = count;
-	msg.buf = (u8_t *)buf;
+	msg.buf = buf;
 
 	ret = i2c_transfer(client->i2c, &msg, 1);
 	return (ret == 1) ? count : ret;
 }
 
-int i2c_master_recv(const struct i2c_client_t * client, char * buf, int count)
+int i2c_master_recv(const struct i2c_client_t * client, void * buf, int count)
 {
 	struct i2c_msg_t msg;
 	int ret;
@@ -182,7 +182,7 @@ int i2c_master_recv(const struct i2c_client_t * client, char * buf, int count)
 	msg.flags = client->flags & I2C_M_TEN;
 	msg.flags |= I2C_M_RD;
 	msg.len = count;
-	msg.buf = (u8_t *)buf;
+	msg.buf = buf;
 
 	ret = i2c_transfer(client->i2c, &msg, 1);
 	return (ret == 1) ? count : ret;

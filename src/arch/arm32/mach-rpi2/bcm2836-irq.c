@@ -90,14 +90,17 @@ static void irqchip_settype(struct irqchip_t * chip, int offset, enum irq_type_t
 {
 }
 
-static int irqchip_process(struct irqchip_t * chip)
+static void irqchip_process(struct irqchip_t * chip)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
-	int offset = __ffs(read32(pdat->virtpend));
-	if((offset < 0) || (offset >= chip->nirq))
-		return 0;
-	(chip->handler[offset].func)(chip->handler[offset].data);
-	return 1;
+	u32_t pend = read32(pdat->virtpend);
+
+	if(pend != 0)
+	{
+		int offset = __ffs(pend);
+		if((offset >= 0) && (offset < chip->nirq))
+			(chip->handler[offset].func)(chip->handler[offset].data);
+	}
 }
 
 static __init void bcm2836_irqchip_init(void)

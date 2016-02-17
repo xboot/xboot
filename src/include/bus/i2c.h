@@ -19,10 +19,10 @@ enum {
 };
 
 struct i2c_msg_t {
-	u32_t addr;
-	u32_t flags;
-	u32_t len;
-	u8_t * buf;
+	int addr;
+	int flags;
+	int len;
+	void * buf;
 };
 
 struct i2c_t
@@ -45,20 +45,20 @@ struct i2c_t
 
 struct i2c_client_t {
 	struct i2c_t * i2c;
-	u32_t addr;
-	u32_t flags;
+	int addr;
+	int flags;
 };
 
 struct i2c_t * search_bus_i2c(const char * name);
 bool_t register_bus_i2c(struct i2c_t * i2c);
 bool_t unregister_bus_i2c(struct i2c_t * i2c);
 
-struct i2c_client_t * i2c_client_alloc(const char * i2cbus, u32_t addr, u32_t flags);
+struct i2c_client_t * i2c_client_alloc(const char * i2cbus, int addr, int flags);
 void i2c_client_free(struct i2c_client_t * client);
 
 int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num);
-int i2c_master_send(const struct i2c_client_t * client, const char * buf, int count);
-int i2c_master_recv(const struct i2c_client_t * client, char * buf, int count);
+int i2c_master_send(const struct i2c_client_t * client, void * buf, int count);
+int i2c_master_recv(const struct i2c_client_t * client, void * buf, int count);
 
 #ifdef __cplusplus
 }

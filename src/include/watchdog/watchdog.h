@@ -12,6 +12,12 @@ struct watchdog_t
 	/* The watchdog name */
 	char * name;
 
+	/* Initialize the watchdog */
+	void (*init)(struct watchdog_t * watchdog);
+
+	/* Clean up the watchdog */
+	void (*exit)(struct watchdog_t * watchdog);
+
 	/* Set watchdog's timeout in seconds, zero means stop */
 	void (*set)(struct watchdog_t * watchdog, int timeout);
 

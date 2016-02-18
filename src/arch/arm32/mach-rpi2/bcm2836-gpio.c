@@ -23,8 +23,8 @@
  */
 
 #include <xboot.h>
-#include <bcm2836/reg-gpio.h>
 #include <bcm2836-gpio.h>
+#include <bcm2836/reg-gpio.h>
 
 enum {
 	ALT_FUNC0 = 0x4,

@@ -41,19 +41,29 @@ static bool_t mach_memmap(struct machine_t * mach)
 
 static bool_t mach_shutdown(struct machine_t * mach)
 {
-	return FALSE;
+	virtual_addr_t virt = phys_to_virt(BCM2836_PM_BASE);
+	u32_t val;
+
+	val = read32(virt + PM_RSTS);
+	val |= PM_PASSWORD | PM_RSTS_RASPBERRYPI_HALT;
+	write32(virt + PM_RSTS, val);
+
+	write32(virt + PM_WDOG, PM_PASSWORD | (10 & PM_WDOG_TIME_SET));
+	val = read32(virt + PM_RSTC);
+	write32(virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
+
+	return TRUE;
 }
 
 static bool_t mach_reboot(struct machine_t * mach)
 {
-	virtual_addr_t regbase = phys_to_virt(BCM2836_PM_BASE);
+	virtual_addr_t virt = phys_to_virt(BCM2836_PM_BASE);
 	u32_t val;
 
-	val = read32(regbase + PM_RSTC);
-	val &= ~0x30;
-	val |= 0x20;
-	write32(regbase + PM_WDOG, (0x5a << 24) | 1);
-	write32(regbase + PM_RSTC, (0x5a << 24) | val);
+	write32(virt + PM_WDOG, PM_PASSWORD | (10 & PM_WDOG_TIME_SET));
+	val = read32(virt + PM_RSTC);
+	write32(virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
+
 	return TRUE;
 }
 

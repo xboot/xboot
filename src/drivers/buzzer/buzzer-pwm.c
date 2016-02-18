@@ -208,12 +208,12 @@ static bool_t buzzer_pwm_unregister_buzzer(struct resource_t * res)
 
 static __init void buzzer_pwm_device_init(void)
 {
-	resource_for_each_with_name("buzzer-pwm", buzzer_pwm_register_buzzer);
+	resource_for_each("buzzer-pwm", buzzer_pwm_register_buzzer);
 }
 
 static __exit void buzzer_pwm_device_exit(void)
 {
-	resource_for_each_with_name("buzzer-pwm", buzzer_pwm_unregister_buzzer);
+	resource_for_each("buzzer-pwm", buzzer_pwm_unregister_buzzer);
 }
 
 device_initcall(buzzer_pwm_device_init);

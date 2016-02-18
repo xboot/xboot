@@ -189,12 +189,12 @@ static bool_t sandbox_unregister_framebuffer(struct resource_t * res)
 
 static __init void sandbox_fb_init(void)
 {
-	resource_for_each_with_name("sandbox-fb", sandbox_register_framebuffer);
+	resource_for_each("sandbox-fb", sandbox_register_framebuffer);
 }
 
 static __exit void sandbox_fb_exit(void)
 {
-	resource_for_each_with_name("sandbox-fb", sandbox_unregister_framebuffer);
+	resource_for_each("sandbox-fb", sandbox_unregister_framebuffer);
 }
 
 postdevice_initcall(sandbox_fb_init);

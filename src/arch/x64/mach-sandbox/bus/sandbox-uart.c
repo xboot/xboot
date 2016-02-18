@@ -111,12 +111,12 @@ static bool_t sandbox_unregister_bus_uart(struct resource_t * res)
 
 static __init void sandbox_bus_uart_init(void)
 {
-	resource_for_each_with_name("sandbox-uart", sandbox_register_bus_uart);
+	resource_for_each("sandbox-uart", sandbox_register_bus_uart);
 }
 
 static __exit void sandbox_bus_uart_exit(void)
 {
-	resource_for_each_with_name("sandbox-uart", sandbox_unregister_bus_uart);
+	resource_for_each("sandbox-uart", sandbox_unregister_bus_uart);
 }
 
 bus_initcall(sandbox_bus_uart_init);

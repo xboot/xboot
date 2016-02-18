@@ -197,12 +197,12 @@ static bool_t buzzer_gpio_unregister_buzzer(struct resource_t * res)
 
 static __init void buzzer_gpio_device_init(void)
 {
-	resource_for_each_with_name("buzzer-gpio", buzzer_gpio_register_buzzer);
+	resource_for_each("buzzer-gpio", buzzer_gpio_register_buzzer);
 }
 
 static __exit void buzzer_gpio_device_exit(void)
 {
-	resource_for_each_with_name("buzzer-gpio", buzzer_gpio_unregister_buzzer);
+	resource_for_each("buzzer-gpio", buzzer_gpio_unregister_buzzer);
 }
 
 device_initcall(buzzer_gpio_device_init);

@@ -922,12 +922,12 @@ static bool_t s5p6818_unregister_framebuffer(struct resource_t * res)
 
 static __init void s5p6818_fb_init(void)
 {
-	resource_for_each_with_name("s5p6818-fb", s5p6818_register_framebuffer);
+	resource_for_each("s5p6818-fb", s5p6818_register_framebuffer);
 }
 
 static __exit void s5p6818_fb_exit(void)
 {
-	resource_for_each_with_name("s5p6818-fb", s5p6818_unregister_framebuffer);
+	resource_for_each("s5p6818-fb", s5p6818_unregister_framebuffer);
 }
 
 device_initcall(s5p6818_fb_init);

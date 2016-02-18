@@ -27,7 +27,7 @@ struct resource_t
 
 bool_t register_resource(struct resource_t * res);
 bool_t unregister_resource(struct resource_t * res);
-void resource_for_each_with_name(const char * name, bool_t (*fn)(struct resource_t *));
+void resource_for_each(const char * name, bool_t (*fn)(struct resource_t *));
 
 #ifdef __cplusplus
 }

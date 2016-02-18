@@ -164,12 +164,12 @@ static bool_t ledtrig_unregister_heartbeat(struct resource_t * res)
 
 static __init void ledtrig_heartbeat_device_init(void)
 {
-	resource_for_each_with_name("ledtrig-heartbeat", ledtrig_register_heartbeat);
+	resource_for_each("ledtrig-heartbeat", ledtrig_register_heartbeat);
 }
 
 static __exit void ledtrig_heartbeat_device_exit(void)
 {
-	resource_for_each_with_name("ledtrig-heartbeat", ledtrig_unregister_heartbeat);
+	resource_for_each("ledtrig-heartbeat", ledtrig_unregister_heartbeat);
 }
 
 postdevice_initcall(ledtrig_heartbeat_device_init);

@@ -1002,12 +1002,12 @@ static bool_t s5p4418_unregister_framebuffer(struct resource_t * res)
 
 static __init void s5p4418_fb_init(void)
 {
-	resource_for_each_with_name("s5p4418-fb", s5p4418_register_framebuffer);
+	resource_for_each("s5p4418-fb", s5p4418_register_framebuffer);
 }
 
 static __exit void s5p4418_fb_exit(void)
 {
-	resource_for_each_with_name("s5p4418-fb", s5p4418_unregister_framebuffer);
+	resource_for_each("s5p4418-fb", s5p4418_unregister_framebuffer);
 }
 
 postdevice_initcall(s5p4418_fb_init);

@@ -329,12 +329,12 @@ static bool_t spi_gpio_unregister_bus(struct resource_t * res)
 
 static __init void spi_gpio_bus_init(void)
 {
-	resource_for_each_with_name("spi-gpio", spi_gpio_register_bus);
+	resource_for_each("spi-gpio", spi_gpio_register_bus);
 }
 
 static __exit void spi_gpio_bus_exit(void)
 {
-	resource_for_each_with_name("spi-gpio", spi_gpio_unregister_bus);
+	resource_for_each("spi-gpio", spi_gpio_unregister_bus);
 }
 
 bus_initcall(spi_gpio_bus_init);

@@ -227,12 +227,12 @@ static bool_t console_stdio_unregister(struct resource_t * res)
 
 static __init void console_stdio_device_init(void)
 {
-	resource_for_each_with_name("console", console_stdio_register);
+	resource_for_each("console", console_stdio_register);
 }
 
 static __exit void console_stdio_device_exit(void)
 {
-	resource_for_each_with_name("console", console_stdio_unregister);
+	resource_for_each("console", console_stdio_unregister);
 }
 
 postdevice_initcall(console_stdio_device_init);

@@ -611,12 +611,12 @@ static bool_t unregister_pmic_axp228(struct resource_t * res)
 
 static __init void pmic_axp228_init(void)
 {
-	resource_for_each_with_name("axp228", register_pmic_axp228);
+	resource_for_each("axp228", register_pmic_axp228);
 }
 
 static __exit void pmic_axp228_exit(void)
 {
-	resource_for_each_with_name("axp228", unregister_pmic_axp228);
+	resource_for_each("axp228", unregister_pmic_axp228);
 }
 
 device_initcall(pmic_axp228_init);

@@ -297,12 +297,12 @@ static bool_t pl011_unregister_bus_uart(struct resource_t * res)
 
 static __init void pl011_bus_uart_init(void)
 {
-	resource_for_each_with_name("pl011-uart", pl011_register_bus_uart);
+	resource_for_each("pl011-uart", pl011_register_bus_uart);
 }
 
 static __exit void pl011_bus_uart_exit(void)
 {
-	resource_for_each_with_name("pl011-uart", pl011_unregister_bus_uart);
+	resource_for_each("pl011-uart", pl011_unregister_bus_uart);
 }
 
 bus_initcall(pl011_bus_uart_init);

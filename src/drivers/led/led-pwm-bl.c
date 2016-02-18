@@ -172,12 +172,12 @@ static bool_t led_pwm_bl_unregister_led(struct resource_t * res)
 
 static __init void led_pwm_bl_device_init(void)
 {
-	resource_for_each_with_name("led-pwm-bl", led_pwm_bl_register_led);
+	resource_for_each("led-pwm-bl", led_pwm_bl_register_led);
 }
 
 static __exit void led_pwm_bl_device_exit(void)
 {
-	resource_for_each_with_name("led-pwm-bl", led_pwm_bl_unregister_led);
+	resource_for_each("led-pwm-bl", led_pwm_bl_unregister_led);
 }
 
 device_initcall(led_pwm_bl_device_init);

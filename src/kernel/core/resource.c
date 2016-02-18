@@ -152,7 +152,7 @@ bool_t unregister_resource(struct resource_t * res)
 	return FALSE;
 }
 
-void resource_for_each_with_name(const char * name, bool_t (*fn)(struct resource_t *))
+void resource_for_each(const char * name, bool_t (*fn)(struct resource_t *))
 {
 	struct machine_t * mach = get_machine();
 	struct resource_list_t * pos, * n;

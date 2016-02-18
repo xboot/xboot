@@ -147,12 +147,12 @@ static bool_t sandbox_unregister_audio(struct resource_t * res)
 
 static __init void sandbox_audio_device_init(void)
 {
-	resource_for_each_with_name("sandbox-audio", sandbox_register_audio);
+	resource_for_each("sandbox-audio", sandbox_register_audio);
 }
 
 static __exit void sandbox_audio_device_exit(void)
 {
-	resource_for_each_with_name("sandbox-audio", sandbox_unregister_audio);
+	resource_for_each("sandbox-audio", sandbox_unregister_audio);
 }
 
 device_initcall(sandbox_audio_device_init);

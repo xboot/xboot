@@ -475,12 +475,12 @@ static bool_t realview_unregister_keyboard(struct resource_t * res)
 
 static __init void realview_keyboard_device_init(void)
 {
-	resource_for_each_with_name("realview-keyboard", realview_register_keyboard);
+	resource_for_each("realview-keyboard", realview_register_keyboard);
 }
 
 static __exit void realview_keyboard_device_exit(void)
 {
-	resource_for_each_with_name("realview-keyboard", realview_unregister_keyboard);
+	resource_for_each("realview-keyboard", realview_unregister_keyboard);
 }
 
 device_initcall(realview_keyboard_device_init);

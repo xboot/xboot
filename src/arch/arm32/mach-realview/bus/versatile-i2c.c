@@ -142,12 +142,12 @@ static bool_t versatile_unregister_i2c_bus(struct resource_t * res)
 
 static __init void versatile_i2c_bus_init(void)
 {
-	resource_for_each_with_name("versatile-i2c", versatile_register_i2c_bus);
+	resource_for_each("versatile-i2c", versatile_register_i2c_bus);
 }
 
 static __exit void versatile_i2c_bus_exit(void)
 {
-	resource_for_each_with_name("versatile-i2c", versatile_unregister_i2c_bus);
+	resource_for_each("versatile-i2c", versatile_unregister_i2c_bus);
 }
 
 bus_initcall(versatile_i2c_bus_init);

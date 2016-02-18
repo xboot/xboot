@@ -208,12 +208,12 @@ static bool_t pl031_unregister_rtc(struct resource_t * res)
 
 static __init void pl031_rtc_init(void)
 {
-	resource_for_each_with_name("pl031-rtc", pl031_register_rtc);
+	resource_for_each("pl031-rtc", pl031_register_rtc);
 }
 
 static __exit void pl031_rtc_exit(void)
 {
-	resource_for_each_with_name("pl031-rtc", pl031_unregister_rtc);
+	resource_for_each("pl031-rtc", pl031_unregister_rtc);
 }
 
 device_initcall(pl031_rtc_init);

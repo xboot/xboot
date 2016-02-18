@@ -130,12 +130,12 @@ static bool_t sandbox_unregister_led(struct resource_t * res)
 
 static __init void sandbox_led_device_init(void)
 {
-	resource_for_each_with_name("sandbox-led", sandbox_register_led);
+	resource_for_each("sandbox-led", sandbox_register_led);
 }
 
 static __exit void sandbox_led_device_exit(void)
 {
-	resource_for_each_with_name("sandbox-led", sandbox_unregister_led);
+	resource_for_each("sandbox-led", sandbox_unregister_led);
 }
 
 device_initcall(sandbox_led_device_init);

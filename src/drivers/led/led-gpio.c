@@ -141,12 +141,12 @@ static bool_t led_gpio_unregister_led(struct resource_t * res)
 
 static __init void led_gpio_device_init(void)
 {
-	resource_for_each_with_name("led-gpio", led_gpio_register_led);
+	resource_for_each("led-gpio", led_gpio_register_led);
 }
 
 static __exit void led_gpio_device_exit(void)
 {
-	resource_for_each_with_name("led-gpio", led_gpio_unregister_led);
+	resource_for_each("led-gpio", led_gpio_unregister_led);
 }
 
 device_initcall(led_gpio_device_init);

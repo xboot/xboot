@@ -250,12 +250,12 @@ static bool_t pl110_unregister_framebuffer(struct resource_t * res)
 
 static __init void pl110_fb_init(void)
 {
-	resource_for_each_with_name("pl110-fb", pl110_register_framebuffer);
+	resource_for_each("pl110-fb", pl110_register_framebuffer);
 }
 
 static __exit void pl110_fb_exit(void)
 {
-	resource_for_each_with_name("pl110-fb", pl110_unregister_framebuffer);
+	resource_for_each("pl110-fb", pl110_unregister_framebuffer);
 }
 
 postdevice_initcall(pl110_fb_init);

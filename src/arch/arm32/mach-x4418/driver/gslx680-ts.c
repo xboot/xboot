@@ -364,12 +364,12 @@ static bool_t unregister_gslx680_touchscreen(struct resource_t * res)
 
 static __init void gslx680_ts_init(void)
 {
-	resource_for_each_with_name("gslx680-ts", register_gslx680_touchscreen);
+	resource_for_each("gslx680-ts", register_gslx680_touchscreen);
 }
 
 static __exit void gslx680_ts_exit(void)
 {
-	resource_for_each_with_name("gslx680-ts", unregister_gslx680_touchscreen);
+	resource_for_each("gslx680-ts", unregister_gslx680_touchscreen);
 }
 
 device_initcall(gslx680_ts_init);

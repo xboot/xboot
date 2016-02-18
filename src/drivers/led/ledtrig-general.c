@@ -144,12 +144,12 @@ static bool_t ledtrig_unregister_general(struct resource_t * res)
 
 static __init void ledtrig_general_device_init(void)
 {
-	resource_for_each_with_name("ledtrig-general", ledtrig_register_general);
+	resource_for_each("ledtrig-general", ledtrig_register_general);
 }
 
 static __exit void ledtrig_general_device_exit(void)
 {
-	resource_for_each_with_name("ledtrig-general", ledtrig_unregister_general);
+	resource_for_each("ledtrig-general", ledtrig_unregister_general);
 }
 
 postdevice_initcall(ledtrig_general_device_init);

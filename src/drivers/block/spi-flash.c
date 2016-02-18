@@ -393,12 +393,12 @@ static bool_t spi_flash_unregister(struct resource_t * res)
 
 static __init void spi_flash_device_init(void)
 {
-	resource_for_each_with_name("spi-flash", spi_flash_register);
+	resource_for_each("spi-flash", spi_flash_register);
 }
 
 static __exit void spi_flash_device_exit(void)
 {
-	resource_for_each_with_name("spi-flash", spi_flash_unregister);
+	resource_for_each("spi-flash", spi_flash_unregister);
 }
 
 device_initcall(spi_flash_device_init);

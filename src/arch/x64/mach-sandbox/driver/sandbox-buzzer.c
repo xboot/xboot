@@ -187,12 +187,12 @@ static bool_t sandbox_buzzer_unregister_buzzer(struct resource_t * res)
 
 static __init void sandbox_buzzer_device_init(void)
 {
-	resource_for_each_with_name("sandbox-buzzer", sandbox_buzzer_register_buzzer);
+	resource_for_each("sandbox-buzzer", sandbox_buzzer_register_buzzer);
 }
 
 static __exit void sandbox_buzzer_device_exit(void)
 {
-	resource_for_each_with_name("sandbox-buzzer", sandbox_buzzer_unregister_buzzer);
+	resource_for_each("sandbox-buzzer", sandbox_buzzer_unregister_buzzer);
 }
 
 device_initcall(sandbox_buzzer_device_init);

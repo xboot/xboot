@@ -26,6 +26,7 @@
 
 struct bcm2836_wdog_pdata_t {
 	virtual_addr_t virt;
+	int start;
 };
 
 static void wdog_init(struct watchdog_t * watchdog)
@@ -41,22 +42,29 @@ static void wdog_set(struct watchdog_t * watchdog, int timeout)
 	struct bcm2836_wdog_pdata_t * pdat = (struct bcm2836_wdog_pdata_t *)watchdog->priv;
 	u32_t val;
 
+	if(timeout < 0)
+		timeout = 0;
+	else if(timeout > 15)
+		timeout = 15;
+
 	if(timeout > 0)
 	{
 		write32(pdat->virt + PM_WDOG, PM_PASSWORD | ((timeout << 16) & PM_WDOG_TIME_SET));
 		val = read32(pdat->virt + PM_RSTC);
 		write32(pdat->virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
+		pdat->start = 1;
 	}
 	else
 	{
 		write32(pdat->virt + PM_RSTC, PM_PASSWORD | PM_RSTC_RESET);
+		pdat->start = 0;
 	}
 }
 
 static int wdog_get(struct watchdog_t * watchdog)
 {
 	struct bcm2836_wdog_pdata_t * pdat = (struct bcm2836_wdog_pdata_t *)watchdog->priv;
-	return ((read32(pdat->virt + PM_WDOG) & PM_WDOG_TIME_SET) >> 16);
+	return (pdat->start != 0) ? ((read32(pdat->virt + PM_WDOG) & PM_WDOG_TIME_SET) >> 16) : 0;
 }
 
 static void wdog_suspend(struct watchdog_t * watchdog)
@@ -88,6 +96,7 @@ static bool_t bcm2836_register_wdog(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	pdat->virt = phys_to_virt(rdat->phys);
+	pdat->start = 0;
 	wdog->name = strdup(name);
 	wdog->init = wdog_init;
 	wdog->exit = wdog_exit;

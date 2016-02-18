@@ -51,7 +51,6 @@ static bool_t mach_shutdown(struct machine_t * mach)
 	write32(virt + PM_WDOG, PM_PASSWORD | (10 & PM_WDOG_TIME_SET));
 	val = read32(virt + PM_RSTC);
 	write32(virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
-
 	return TRUE;
 }
 
@@ -63,7 +62,6 @@ static bool_t mach_reboot(struct machine_t * mach)
 	write32(virt + PM_WDOG, PM_PASSWORD | (10 & PM_WDOG_TIME_SET));
 	val = read32(virt + PM_RSTC);
 	write32(virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
-
 	return TRUE;
 }
 

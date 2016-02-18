@@ -75,8 +75,8 @@ enum s5p4418_dpc_dither_t
 struct s5p4418_fb_data_t
 {
 	/* Register base address */
-	physical_addr_t mlcbase;
-	physical_addr_t dpcbase;
+	physical_addr_t physmlc;
+	physical_addr_t physdpc;
 
 	/* Horizontal resolution */
 	int width;
@@ -169,25 +169,16 @@ struct s5p4418_fb_data_t
 
 		/* The delay value for DE/CP2 signal */
 		int d_de_cp2;
-	} timing;
 
-	struct {
 		/* Hsync polarity flag */
 		int	h_sync_invert;
 
 		/* Vsync polarity flag */
 		int	v_sync_invert;
-	} polarity;
+	} timing;
 
-	/* Init and exit */
-	void (*init)(struct s5p4418_fb_data_t * dat);
-	void (*exit)(struct s5p4418_fb_data_t * dat);
-	/* Set and get backlight brightness */
-	void (*setbl)(struct s5p4418_fb_data_t * dat, int brightness);
-	int (*getbl)(struct s5p4418_fb_data_t * dat);
-
-	/* Private data */
-	void * priv;
+	/* Backlight led */
+	char * backlight;
 };
 
 #endif /* __S5P4418_FB_H__ */

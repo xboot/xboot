@@ -5,6 +5,9 @@
 extern "C" {
 #endif
 
+#include <xboot.h>
+#include <bcm2836/reg-mbox.h>
+
 enum {
 	MBOX_CH_POWER_MANAGEMENT	= 0,
 	MBOX_CH_FRAMEBUFFER			= 1,
@@ -18,8 +21,8 @@ enum {
 	MBOX_CH_TAGS_VC_TO_ARM		= 9,
 };
 
-void bcm2836_mbox_write(int channel, int value);
-int bcm2836_mbox_read(int channel);
+void bcm2836_mbox_write(int channel, uint32_t data);
+uint32_t bcm2836_mbox_read(int channel);
 
 #ifdef __cplusplus
 }

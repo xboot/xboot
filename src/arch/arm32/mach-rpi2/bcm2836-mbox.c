@@ -22,29 +22,25 @@
  *
  */
 
-#include <xboot.h>
-#include <bcm2836/reg-mbox.h>
 #include <bcm2836-mbox.h>
 
-void bcm2836_mbox_write(int channel, int value)
+void bcm2836_mbox_write(int channel, uint32_t data)
 {
 	virtual_addr_t virt = phys_to_virt(BCM2836_MBOX_BASE);
 
-    value = (value & ~0xf) | (channel & 0xf);
 	while((read32(virt + MBOX_STATUS) & (1 << 31)) != 0);
-	write32(virt + MBOX_WRITE, value);
+	write32(virt + MBOX_WRITE, (data & ~0xf) | (channel & 0xf));
 }
 
-int bcm2836_mbox_read(int channel)
+uint32_t bcm2836_mbox_read(int channel)
 {
 	virtual_addr_t virt = phys_to_virt(BCM2836_MBOX_BASE);
-    int value;
+	uint32_t data;
 
-    channel &= 0xf;
     do {
     	while((read32(virt + MBOX_STATUS) & (1 << 30)) != 0);
-    	value = read32(virt + MBOX_READ);
-    } while ((value & 0xf) != channel);
+    	data = read32(virt + MBOX_READ);
+    } while ((data & 0xf) != channel);
 
-    return value >> 4;
+    return (data & ~0xf);
 }

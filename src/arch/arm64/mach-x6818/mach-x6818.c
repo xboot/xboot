@@ -63,13 +63,14 @@ static bool_t mach_cleanup(struct machine_t * mach)
 
 static const char * mach_uniqueid(struct machine_t * mach)
 {
-	static char uniqueid[16 + 1];
+	static char uniqueid[16 + 1] = { 0 };
+	virtual_addr_t virt = phys_to_virt(S5P6818_ID_BASE);
 	u32_t ecid0, ecid1;
 
 	s5p6818_ip_reset(RESET_ID_ECID, 0);
 
-	ecid0 = read32(phys_to_virt(S5P6818_ID_ECID0));
-	ecid1 = read32(phys_to_virt(S5P6818_ID_ECID1));
+	ecid0 = read32(virt + ID_ECID0);
+	ecid1 = read32(virt + ID_ECID1);
 	sprintf(uniqueid, "%02x%02x%02x%02x%02x%02x%02x%02x",
 		(ecid0 >> 24) & 0xff, (ecid0 >> 16) & 0xff, (ecid0 >> 8) & 0xff, (ecid0 >> 0) & 0xff,
 		(ecid1 >> 24) & 0xff, (ecid1 >> 16) & 0xff, (ecid1 >> 8) & 0xff, (ecid1 >> 0) & 0xff);
@@ -83,7 +84,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t x6818 = {
 	.name 		= "x6818",
-	.desc 		= "x6818 based on s5p6818",
+	.desc 		= "X6818 Based On S5P6818",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,

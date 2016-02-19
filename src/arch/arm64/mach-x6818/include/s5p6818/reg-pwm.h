@@ -1,20 +1,14 @@
 #ifndef __S5P6818_REG_PWM_H__
 #define __S5P6818_REG_PWM_H__
 
-#define S5P6818_PWM_BASE		(0xC0018000)
+#define S5P6818_PWM_BASE	(0xC0018000)
 
-#define S5P6818_PWM_TCFG0	  	(S5P6818_PWM_BASE + 0x0000)
-#define S5P6818_PWM_TCFG1	  	(S5P6818_PWM_BASE + 0x0004)
-#define S5P6818_PWM_TCON	  	(S5P6818_PWM_BASE + 0x0008)
-#define S5P6818_PWM_TSTAT	  	(S5P6818_PWM_BASE + 0x0044)
-
-#define S5P6818_PWM0_BASE		(S5P6818_PWM_BASE + 0x000C)
-#define S5P6818_PWM1_BASE		(S5P6818_PWM_BASE + 0x0018)
-#define S5P6818_PWM2_BASE		(S5P6818_PWM_BASE + 0x0024)
-#define S5P6818_PWM3_BASE		(S5P6818_PWM_BASE + 0x0030)
-
-#define PWM_TCNTB				(0x00)
-#define PWM_TCMPB				(0x04)
-#define PWM_TCNTO				(0x08)
+#define PWM_TCFG0			(0x00)
+#define PWM_TCFG1			(0x04)
+#define PWM_TCON			(0x08)
+#define PWM_TSTAT			(0x44)
+#define PWM_TCNTB(ch)		((ch + 1) * 0xC + 0x00)
+#define PWM_TCMPB(ch)		((ch + 1) * 0xC + 0x04)
+#define PWM_TCNTO(ch)		((ch + 1) * 0xC + 0x08)
 
 #endif /* __S5P6818_REG_PWM_H__ */

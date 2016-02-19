@@ -25,32 +25,26 @@
 #include <xboot.h>
 #include <buzzer/buzzer-pwm.h>
 
-static struct buzzer_pwm_data_t buzzer_pwm_data = {
-	.pwm		= "pwm2",
-	.polarity	= 1,
+static struct buzzer_pwm_data_t buzzer_pwm_datas[] = {
+	{
+		.pwm		= "pwm2",
+		.polarity	= 1,
+	}
 };
 
-static struct resource_t res_buzzer_pwm = {
-	.name		= "buzzer-pwm",
-	.id			= -1,
-	.data		= &buzzer_pwm_data,
+static struct resource_t res_buzzer_pwms[] = {
+	{
+		.name	= "buzzer-pwm",
+		.id		= -1,
+		.data	= &buzzer_pwm_datas[0],
+	}
 };
 
 static __init void resource_buzzer_pwm_init(void)
 {
-	if(register_resource(&res_buzzer_pwm))
-		LOG("Register resource %s:'%s.%d'", res_buzzer_pwm.mach, res_buzzer_pwm.name, res_buzzer_pwm.id);
-	else
-		LOG("Failed to register resource %s:'%s.%d'", res_buzzer_pwm.mach, res_buzzer_pwm.name, res_buzzer_pwm.id);
-}
+	int i;
 
-static __exit void resource_buzzer_pwm_exit(void)
-{
-	if(unregister_resource(&res_buzzer_pwm))
-		LOG("Unregister resource %s:'%s.%d'", res_buzzer_pwm.mach, res_buzzer_pwm.name, res_buzzer_pwm.id);
-	else
-		LOG("Failed to unregister resource %s:'%s.%d'", res_buzzer_pwm.mach, res_buzzer_pwm.name, res_buzzer_pwm.id);
+	for(i = 0; i < ARRAY_SIZE(res_buzzer_pwms); i++)
+		register_resource(&res_buzzer_pwms[i]);
 }
-
 resource_initcall(resource_buzzer_pwm_init);
-resource_exitcall(resource_buzzer_pwm_exit);

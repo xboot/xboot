@@ -1,5 +1,5 @@
-#ifndef __AXP228_H__
-#define __AXP228_H__
+#ifndef __AXP228_PMIC_H__
+#define __AXP228_PMIC_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,10 +9,10 @@ extern "C" {
 #include <bus/i2c.h>
 #include <battery/battery.h>
 
-struct axp228_data_t
+struct axp228_pmic_data_t
 {
 	const char * i2cbus;
-	u32_t addr;
+	int addr;
 
 	int dcdc1;
 	int dcdc2;
@@ -39,4 +39,4 @@ struct axp228_data_t
 }
 #endif
 
-#endif /* __AXP228_H__ */
+#endif /* __AXP228_PMIC_H__ */

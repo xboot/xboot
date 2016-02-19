@@ -26,17 +26,54 @@
 #include <s5p6818/reg-gpio.h>
 #include <s5p6818-gpio.h>
 
-struct s5p6818_gpiochip_data_t
+struct gpiochip_data_t
 {
 	const char * name;
 	int base;
 	int ngpio;
-	physical_addr_t regbase;
+	physical_addr_t phys;
 };
 
-static void s5p6818_gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
+struct gpiochip_pdata_t
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	const char * name;
+	int base;
+	int ngpio;
+	virtual_addr_t virt;
+};
+
+static struct gpiochip_data_t datas[] = {
+	{
+		.name	= "GPIOA",
+		.base	= S5P6818_GPIOA(0),
+		.ngpio	= 32,
+		.phys	= S5P6818_GPIOA_BASE,
+	}, {
+		.name	= "GPIOB",
+		.base	= S5P6818_GPIOB(0),
+		.ngpio	= 32,
+		.phys	= S5P6818_GPIOB_BASE,
+	}, {
+		.name	= "GPIOC",
+		.base	= S5P6818_GPIOC(0),
+		.ngpio	= 32,
+		.phys	= S5P6818_GPIOC_BASE,
+	}, {
+		.name	= "GPIOD",
+		.base	= S5P6818_GPIOD(0),
+		.ngpio	= 32,
+		.phys	= S5P6818_GPIOD_BASE,
+	}, {
+		.name	= "GPIOE",
+		.base	= S5P6818_GPIOE(0),
+		.ngpio	= 32,
+		.phys	= S5P6818_GPIOE_BASE,
+	}
+};
+
+static void gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
+{
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -45,24 +82,24 @@ static void s5p6818_gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int c
 	if(offset < 16)
 	{
 		offset = offset << 0x1;
-		val = read32(phys_to_virt(dat->regbase + GPIO_ALTFN0));
+		val = read32(pdat->virt + GPIO_ALTFN0);
 		val &= ~(0x3 << offset);
 		val |= cfg << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_ALTFN0), val);
+		write32(pdat->virt + GPIO_ALTFN0, val);
 	}
 	else if(offset < 32)
 	{
 		offset = (offset - 16) << 0x1;
-		val = read32(phys_to_virt(dat->regbase + GPIO_ALTFN1));
+		val = read32(pdat->virt + GPIO_ALTFN1);
 		val &= ~(0x3 << offset);
 		val |= cfg << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_ALTFN1), val);
+		write32(pdat->virt + GPIO_ALTFN1, val);
 	}
 }
 
-static int s5p6818_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
+static int gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -71,22 +108,22 @@ static int s5p6818_gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
 	if(offset < 16)
 	{
 		offset = offset << 0x1;
-		val = read32(phys_to_virt(dat->regbase + GPIO_ALTFN0));
+		val = read32(pdat->virt + GPIO_ALTFN0);
 		return ((val >> offset) & 0x3);
 	}
 	else if(offset < 32)
 	{
 		offset = (offset - 16) << 0x1;
-		val = read32(phys_to_virt(dat->regbase + GPIO_ALTFN1));
+		val = read32(pdat->virt + GPIO_ALTFN1);
 		return ((val >> offset) & 0x3);
 	}
 
 	return 0;
 }
 
-static void s5p6818_gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
+static void gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -95,53 +132,53 @@ static void s5p6818_gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum
 	switch(pull)
 	{
 	case GPIO_PULL_UP:
-		val = read32(phys_to_virt(dat->regbase + GPIO_PULLSEL));
+		val = read32(pdat->virt + GPIO_PULLSEL);
 		val |= 1 << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_PULLSEL), val);
-		val = read32(phys_to_virt(dat->regbase + GPIO_PULLENB));
+		write32(pdat->virt + GPIO_PULLSEL, val);
+		val = read32(pdat->virt + GPIO_PULLENB);
 		val |= 1 << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_PULLENB), val);
+		write32(pdat->virt + GPIO_PULLENB, val);
 		break;
 
 	case GPIO_PULL_DOWN:
-		val = read32(phys_to_virt(dat->regbase + GPIO_PULLSEL));
+		val = read32(pdat->virt + GPIO_PULLSEL);
 		val &= ~(1 << offset);
-		write32(phys_to_virt(dat->regbase + GPIO_PULLSEL), val);
-		val = read32(phys_to_virt(dat->regbase + GPIO_PULLENB));
+		write32(pdat->virt + GPIO_PULLSEL, val);
+		val = read32(pdat->virt + GPIO_PULLENB);
 		val |= 1 << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_PULLENB), val);
+		write32(pdat->virt + GPIO_PULLENB, val);
 		break;
 
 	case GPIO_PULL_NONE:
-		val = read32(phys_to_virt(dat->regbase + GPIO_PULLENB));
+		val = read32(pdat->virt + GPIO_PULLENB);
 		val &= ~(1 << offset);
-		write32(phys_to_virt(dat->regbase + GPIO_PULLENB), val);
+		write32(pdat->virt + GPIO_PULLENB, val);
 		break;
 
 	default:
 		break;
 	}
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_PULLSEL_DISABLE_DEFAULT));
+	val = read32(pdat->virt + GPIO_PULLSEL_DISABLE_DEFAULT);
 	val |= 1 << offset;
-	write32(phys_to_virt(dat->regbase + GPIO_PULLSEL_DISABLE_DEFAULT), val);
-	val = read32(phys_to_virt(dat->regbase + GPIO_PULLENB_DISABLE_DEFAULT));
+	write32(pdat->virt + GPIO_PULLSEL_DISABLE_DEFAULT, val);
+	val = read32(pdat->virt + GPIO_PULLENB_DISABLE_DEFAULT);
 	val |= 1 << offset;
-	write32(phys_to_virt(dat->regbase + GPIO_PULLENB_DISABLE_DEFAULT), val);
+	write32(pdat->virt + GPIO_PULLENB_DISABLE_DEFAULT, val);
 }
 
-static enum gpio_pull_t s5p6818_gpiochip_get_pull(struct gpiochip_t * chip, int offset)
+static enum gpio_pull_t gpiochip_get_pull(struct gpiochip_t * chip, int offset)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
 		return GPIO_PULL_NONE;
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_PULLENB));
+	val = read32(pdat->virt + GPIO_PULLENB);
 	if(!((val >> offset) & 0x1))
 	{
-		val = read32(phys_to_virt(dat->regbase + GPIO_PULLSEL));
+		val = read32(pdat->virt + GPIO_PULLSEL);
 		if((val >> offset) & 0x1)
 			return GPIO_PULL_UP;
 		else
@@ -150,9 +187,9 @@ static enum gpio_pull_t s5p6818_gpiochip_get_pull(struct gpiochip_t * chip, int 
 	return GPIO_PULL_NONE;
 }
 
-static void s5p6818_gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
+static void gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -161,55 +198,55 @@ static void s5p6818_gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum 
 	switch(drv)
 	{
 	case GPIO_DRV_LOW:
-		val = read32(phys_to_virt(dat->regbase + GPIO_DRV0));
+		val = read32(pdat->virt + GPIO_DRV0);
 		val &= ~(1 << offset);
-		write32(phys_to_virt(dat->regbase + GPIO_DRV0), val);
-		val = read32(phys_to_virt(dat->regbase + GPIO_DRV1));
+		write32(pdat->virt + GPIO_DRV0, val);
+		val = read32(pdat->virt + GPIO_DRV1);
 		val &= ~(1 << offset);
-		write32(phys_to_virt(dat->regbase + GPIO_DRV1), val);
+		write32(pdat->virt + GPIO_DRV1, val);
 		break;
 
 	case GPIO_DRV_MEDIAN:
-		val = read32(phys_to_virt(dat->regbase + GPIO_DRV0));
+		val = read32(pdat->virt + GPIO_DRV0);
 		val &= ~(1 << offset);
-		write32(phys_to_virt(dat->regbase + GPIO_DRV0), val);
-		val = read32(phys_to_virt(dat->regbase + GPIO_DRV1));
+		write32(pdat->virt + GPIO_DRV0, val);
+		val = read32(pdat->virt + GPIO_DRV1);
 		val |= 1 << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_DRV1), val);
+		write32(pdat->virt + GPIO_DRV1, val);
 		break;
 
 	case GPIO_DRV_HIGH:
-		val = read32(phys_to_virt(dat->regbase + GPIO_DRV0));
+		val = read32(pdat->virt + GPIO_DRV0);
 		val |= 1 << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_DRV0), val);
-		val = read32(phys_to_virt(dat->regbase + GPIO_DRV1));
+		write32(pdat->virt + GPIO_DRV0, val);
+		val = read32(pdat->virt + GPIO_DRV1);
 		val |= 1 << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_DRV1), val);
+		write32(pdat->virt + GPIO_DRV1, val);
 		break;
 
 	default:
 		break;
 	}
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_DRV0_DISABLE_DEFAULT));
+	val = read32(pdat->virt + GPIO_DRV0_DISABLE_DEFAULT);
 	val |= 1 << offset;
-	write32(phys_to_virt(dat->regbase + GPIO_DRV0_DISABLE_DEFAULT), val);
-	val = read32(phys_to_virt(dat->regbase + GPIO_DRV1_DISABLE_DEFAULT));
+	write32(pdat->virt + GPIO_DRV0_DISABLE_DEFAULT, val);
+	val = read32(pdat->virt + GPIO_DRV1_DISABLE_DEFAULT);
 	val |= 1 << offset;
-	write32(phys_to_virt(dat->regbase + GPIO_DRV1_DISABLE_DEFAULT), val);
+	write32(pdat->virt + GPIO_DRV1_DISABLE_DEFAULT, val);
 }
 
-static enum gpio_drv_t s5p6818_gpiochip_get_drv(struct gpiochip_t * chip, int offset)
+static enum gpio_drv_t gpiochip_get_drv(struct gpiochip_t * chip, int offset)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val, d;
 
 	if(offset >= chip->ngpio)
 		return GPIO_DRV_LOW;
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_DRV0));
+	val = read32(pdat->virt + GPIO_DRV0);
 	d = (val >> offset) & 0x1;
-	val = read32(phys_to_virt(dat->regbase + GPIO_DRV1));
+	val = read32(pdat->virt + GPIO_DRV1);
 	d |= ((val >> offset) & 0x1) << 1;
 
 	switch(d)
@@ -228,9 +265,9 @@ static enum gpio_drv_t s5p6818_gpiochip_get_drv(struct gpiochip_t * chip, int of
 	return GPIO_DRV_LOW;
 }
 
-static void s5p6818_gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
+static void gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -239,44 +276,44 @@ static void s5p6818_gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum
 	switch(rate)
 	{
 	case GPIO_RATE_SLOW:
-		val = read32(phys_to_virt(dat->regbase + GPIO_SLEW));
+		val = read32(pdat->virt + GPIO_SLEW);
 		val |= 1 << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_SLEW), val);
+		write32(pdat->virt + GPIO_SLEW, val);
 		break;
 
 	case GPIO_RATE_FAST:
-		val = read32(phys_to_virt(dat->regbase + GPIO_SLEW));
+		val = read32(pdat->virt + GPIO_SLEW);
 		val &= ~(1 << offset);
-		write32(phys_to_virt(dat->regbase + GPIO_SLEW), val);
+		write32(pdat->virt + GPIO_SLEW, val);
 		break;
 
 	default:
 		break;
 	}
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_SLEW_DISABLE_DEFAULT));
+	val = read32(pdat->virt + GPIO_SLEW_DISABLE_DEFAULT);
 	val |= 1 << offset;
-	write32(phys_to_virt(dat->regbase + GPIO_SLEW_DISABLE_DEFAULT), val);
+	write32(pdat->virt + GPIO_SLEW_DISABLE_DEFAULT, val);
 }
 
-static enum gpio_rate_t s5p6818_gpiochip_get_rate(struct gpiochip_t * chip, int offset)
+static enum gpio_rate_t gpiochip_get_rate(struct gpiochip_t * chip, int offset)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
 		return GPIO_RATE_SLOW;
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_SLEW));
+	val = read32(pdat->virt + GPIO_SLEW);
 	if((val >> offset) & 0x1)
 		return GPIO_RATE_SLOW;
 	else
 		return GPIO_RATE_FAST;
 }
 
-static void s5p6818_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
+static void gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -285,15 +322,15 @@ static void s5p6818_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum 
 	switch(dir)
 	{
 	case GPIO_DIRECTION_INPUT:
-		val = read32(phys_to_virt(dat->regbase + GPIO_OUTENB));
+		val = read32(pdat->virt + GPIO_OUTENB);
 		val &= ~(0x1 << offset);
-		write32(phys_to_virt(dat->regbase + GPIO_OUTENB), val);
+		write32(pdat->virt + GPIO_OUTENB, val);
 		break;
 
 	case GPIO_DIRECTION_OUTPUT:
-		val = read32(phys_to_virt(dat->regbase + GPIO_OUTENB));
+		val = read32(pdat->virt + GPIO_OUTENB);
 		val |= 0x1 << offset;
-		write32(phys_to_virt(dat->regbase + GPIO_OUTENB), val);
+		write32(pdat->virt + GPIO_OUTENB, val);
 		break;
 
 	default:
@@ -301,15 +338,15 @@ static void s5p6818_gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum 
 	}
 }
 
-static enum gpio_direction_t s5p6818_gpiochip_get_dir(struct gpiochip_t * chip, int offset)
+static enum gpio_direction_t gpiochip_get_dir(struct gpiochip_t * chip, int offset)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val, d;
 
 	if(offset >= chip->ngpio)
 		return GPIO_DIRECTION_UNKOWN;
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_OUTENB));
+	val = read32(pdat->virt + GPIO_OUTENB);
 	d = (val >> offset) & 0x1;
 	switch(d)
 	{
@@ -323,164 +360,80 @@ static enum gpio_direction_t s5p6818_gpiochip_get_dir(struct gpiochip_t * chip, 
 	return GPIO_DIRECTION_UNKOWN;
 }
 
-static void s5p6818_gpiochip_set_value(struct gpiochip_t * chip, int offset, int value)
+static void gpiochip_set_value(struct gpiochip_t * chip, int offset, int value)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
 		return;
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_OUT));
+	val = read32(pdat->virt + GPIO_OUT);
 	val &= ~(1 << offset);
 	val |= (!!value) << offset;
-	write32(phys_to_virt(dat->regbase + GPIO_OUT), val);
+	write32(pdat->virt + GPIO_OUT, val);
 }
 
-static int s5p6818_gpiochip_get_value(struct gpiochip_t * chip, int offset)
+static int gpiochip_get_value(struct gpiochip_t * chip, int offset)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
 		return 0;
 
-	val = read32(phys_to_virt(dat->regbase + GPIO_PAD));
+	val = read32(pdat->virt + GPIO_PAD);
 	return !!(val & (1 << offset));
 }
 
-static const char * s5p6818_gpiochip_to_irq(struct gpiochip_t * chip, int offset)
+static int gpiochip_to_irq(struct gpiochip_t * chip, int offset)
 {
-	struct s5p6818_gpiochip_data_t * dat = (struct s5p6818_gpiochip_data_t *)chip->priv;
-	static const char * irq_gpioa[] = {
-		"GPIOA0",  "GPIOA1",  "GPIOA2",  "GPIOA3",  "GPIOA4",  "GPIOA5",  "GPIOA6",  "GPIOA7",
-		"GPIOA8",  "GPIOA9",  "GPIOA10", "GPIOA11", "GPIOA12", "GPIOA13", "GPIOA14", "GPIOA15",
-		"GPIOA16", "GPIOA17", "GPIOA18", "GPIOA19", "GPIOA20", "GPIOA21", "GPIOA22", "GPIOA23",
-		"GPIOA24", "GPIOA25", "GPIOA26", "GPIOA27", "GPIOA28", "GPIOA29", "GPIOA30", "GPIOA31",
-	};
-	static const char * irq_gpiob[] = {
-		"GPIOB0",  "GPIOB1",  "GPIOB2",  "GPIOB3",  "GPIOB4",  "GPIOB5",  "GPIOB6",  "GPIOB7",
-		"GPIOB8",  "GPIOB9",  "GPIOB10", "GPIOB11", "GPIOB12", "GPIOB13", "GPIOB14", "GPIOB15",
-		"GPIOB16", "GPIOB17", "GPIOB18", "GPIOB19", "GPIOB20", "GPIOB21", "GPIOB22", "GPIOB23",
-		"GPIOB24", "GPIOB25", "GPIOB26", "GPIOB27", "GPIOB28", "GPIOB29", "GPIOB30", "GPIOB31",
-	};
-	static const char * irq_gpioc[] = {
-		"GPIOC0",  "GPIOC1",  "GPIOC2",  "GPIOC3",  "GPIOC4",  "GPIOC5",  "GPIOC6",  "GPIOC7",
-		"GPIOC8",  "GPIOC9",  "GPIOC10", "GPIOC11", "GPIOC12", "GPIOC13", "GPIOC14", "GPIOC15",
-		"GPIOC16", "GPIOC17", "GPIOC18", "GPIOC19", "GPIOC20", "GPIOC21", "GPIOC22", "GPIOC23",
-		"GPIOC24", "GPIOC25", "GPIOC26", "GPIOC27", "GPIOC28", "GPIOC29", "GPIOC30", "GPIOC31",
-	};
-	static const char * irq_gpiod[] = {
-		"GPIOD0",  "GPIOD1",  "GPIOD2",  "GPIOD3",  "GPIOD4",  "GPIOD5",  "GPIOD6",  "GPIOD7",
-		"GPIOD8",  "GPIOD9",  "GPIOD10", "GPIOD11", "GPIOD12", "GPIOD13", "GPIOD14", "GPIOD15",
-		"GPIOD16", "GPIOD17", "GPIOD18", "GPIOD19", "GPIOD20", "GPIOD21", "GPIOD22", "GPIOD23",
-		"GPIOD24", "GPIOD25", "GPIOD26", "GPIOD27", "GPIOD28", "GPIOD29", "GPIOD30", "GPIOD31",
-	};
-	static const char * irq_gpioe[] = {
-		"GPIOE0",  "GPIOE1",  "GPIOE2",  "GPIOE3",  "GPIOE4",  "GPIOE5",  "GPIOE6",  "GPIOE7",
-		"GPIOE8",  "GPIOE9",  "GPIOE10", "GPIOE11", "GPIOE12", "GPIOE13", "GPIOE14", "GPIOE15",
-		"GPIOE16", "GPIOE17", "GPIOE18", "GPIOE19", "GPIOE20", "GPIOE21", "GPIOE22", "GPIOE23",
-		"GPIOE24", "GPIOE25", "GPIOE26", "GPIOE27", "GPIOE28", "GPIOE29", "GPIOE30", "GPIOE31",
-	};
-
-	if(offset >= chip->ngpio)
-		return 0;
-
-	if(strcmp(dat->name, "GPIOA") == 0)
-		return irq_gpioa[offset];
-	else if(strcmp(dat->name, "GPIOB") == 0)
-		return irq_gpiob[offset];
-	else if(strcmp(dat->name, "GPIOC") == 0)
-		return irq_gpioc[offset];
-	else if(strcmp(dat->name, "GPIOD") == 0)
-		return irq_gpiod[offset];
-	else if(strcmp(dat->name, "GPIOE") == 0)
-		return irq_gpioe[offset];
-	return 0;
+	return -1;
 }
-
-static struct s5p6818_gpiochip_data_t gpiochip_datas[] = {
-	{
-		.name		= "GPIOA",
-		.base		= S5P6818_GPIOA(0),
-		.ngpio		= 32,
-		.regbase	= S5P6818_GPIOA_BASE,
-	}, {
-		.name		= "GPIOB",
-		.base		= S5P6818_GPIOB(0),
-		.ngpio		= 32,
-		.regbase	= S5P6818_GPIOB_BASE,
-	}, {
-		.name		= "GPIOC",
-		.base		= S5P6818_GPIOC(0),
-		.ngpio		= 32,
-		.regbase	= S5P6818_GPIOC_BASE,
-	}, {
-		.name		= "GPIOD",
-		.base		= S5P6818_GPIOD(0),
-		.ngpio		= 32,
-		.regbase	= S5P6818_GPIOD_BASE,
-	}, {
-		.name		= "GPIOE",
-		.base		= S5P6818_GPIOE(0),
-		.ngpio		= 32,
-		.regbase	= S5P6818_GPIOE_BASE,
-	}
-};
 
 static __init void s5p6818_gpiochip_init(void)
 {
+	struct gpiochip_pdata_t * pdat;
 	struct gpiochip_t * chip;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(gpiochip_datas); i++)
+	for(i = 0; i < ARRAY_SIZE(datas); i++)
 	{
+		pdat = malloc(sizeof(struct gpiochip_pdata_t));
+		if(!pdat)
+			continue;
+
 		chip = malloc(sizeof(struct gpiochip_t));
 		if(!chip)
+		{
+			free(pdat);
 			continue;
+		}
 
-		chip->name = gpiochip_datas[i].name;
-		chip->base = gpiochip_datas[i].base;
-		chip->ngpio = gpiochip_datas[i].ngpio;
-		chip->set_cfg = s5p6818_gpiochip_set_cfg;
-		chip->get_cfg = s5p6818_gpiochip_get_cfg;
-		chip->set_pull = s5p6818_gpiochip_set_pull;
-		chip->get_pull = s5p6818_gpiochip_get_pull;
-		chip->set_drv = s5p6818_gpiochip_set_drv;
-		chip->get_drv = s5p6818_gpiochip_get_drv;
-		chip->set_rate = s5p6818_gpiochip_set_rate;
-		chip->get_rate = s5p6818_gpiochip_get_rate;
-		chip->set_dir = s5p6818_gpiochip_set_dir;
-		chip->get_dir = s5p6818_gpiochip_get_dir;
-		chip->set_value = s5p6818_gpiochip_set_value;
-		chip->get_value = s5p6818_gpiochip_get_value;
-		chip->to_irq = s5p6818_gpiochip_to_irq;
-		chip->priv = &gpiochip_datas[i];
+		pdat->name = datas[i].name;
+		pdat->base = datas[i].base;
+		pdat->ngpio = datas[i].ngpio;
+		pdat->virt = phys_to_virt(datas[i].phys);
 
-		if(register_gpiochip(chip))
-			LOG("Register gpiochip '%s'", chip->name);
-		else
-			LOG("Failed to register gpiochip '%s'", chip->name);
+		chip->name = pdat->name;
+		chip->base = pdat->base;
+		chip->ngpio = pdat->ngpio;
+		chip->set_cfg = gpiochip_set_cfg;
+		chip->get_cfg = gpiochip_get_cfg;
+		chip->set_pull = gpiochip_set_pull;
+		chip->get_pull = gpiochip_get_pull;
+		chip->set_drv = gpiochip_set_drv;
+		chip->get_drv = gpiochip_get_drv;
+		chip->set_rate = gpiochip_set_rate;
+		chip->get_rate = gpiochip_get_rate;
+		chip->set_dir = gpiochip_set_dir;
+		chip->get_dir = gpiochip_get_dir;
+		chip->set_value = gpiochip_set_value;
+		chip->get_value = gpiochip_get_value;
+		chip->to_irq = gpiochip_to_irq;
+		chip->priv = pdat;
+
+		register_gpiochip(chip);
 	}
 }
-
-static __exit void s5p6818_gpiochip_exit(void)
-{
-	struct gpiochip_t * chip;
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(gpiochip_datas); i++)
-	{
-		chip = search_gpiochip(gpiochip_datas[i].name);
-		if(!chip)
-			continue;
-		if(unregister_gpiochip(chip))
-			LOG("Unregister gpiochip '%s'", chip->name);
-		else
-			LOG("Failed to unregister gpiochip '%s'", chip->name);
-		free(chip);
-	}
-}
-
 core_initcall(s5p6818_gpiochip_init);
-core_exitcall(s5p6818_gpiochip_exit);

@@ -25,32 +25,19 @@
 #include <block/spi-flash.h>
 
 static struct spi_flash_data_t spi_flash_data = {
-	.spibus		= "spi-gpio.0",
-	.mode		= 0,
-	.speed		= 0,
+	.spibus	= "spi-gpio.0",
+	.mode	= 0,
+	.speed	= 0,
 };
 
 static struct resource_t res_spi_flash = {
-	.name		= "spi-flash",
-	.id			= -1,
-	.data		= &spi_flash_data,
+	.name	= "spi-flash",
+	.id		= -1,
+	.data	= &spi_flash_data,
 };
 
 static __init void resource_spi_flash_init(void)
 {
-	if(register_resource(&res_spi_flash))
-		LOG("Register resource '%s:%s.%d'", res_spi_flash.mach, res_spi_flash.name, res_spi_flash.id);
-	else
-		LOG("Failed to register resource '%s:%s.%d'", res_spi_flash.mach, res_spi_flash.name, res_spi_flash.id);
+	register_resource(&res_spi_flash);
 }
-
-static __exit void resource_spi_flash_exit(void)
-{
-	if(unregister_resource(&res_spi_flash))
-		LOG("Unregister resource '%s:%s.%d'", res_spi_flash.mach, res_spi_flash.name, res_spi_flash.id);
-	else
-		LOG("Failed to unregister resource '%s:%s.%d'", res_spi_flash.mach, res_spi_flash.name, res_spi_flash.id);
-}
-
 resource_initcall(resource_spi_flash_init);
-resource_exitcall(resource_spi_flash_exit);

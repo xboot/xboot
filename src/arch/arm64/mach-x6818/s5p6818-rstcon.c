@@ -28,39 +28,39 @@
 
 static void s5p6818_ip_setrst(int id, int reset)
 {
-	physical_addr_t addr = S5P6818_SYS_IP_RSTCON0;
+	virtual_addr_t virt = phys_to_virt(S5P6818_SYS_IP_RSTCON0);
 	u32_t val;
 
 	if(id < 32)
-		addr = S5P6818_SYS_IP_RSTCON0;
+		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON0);
 	else if(id < 64)
-		addr = S5P6818_SYS_IP_RSTCON1;
+		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON1);
 	else if(id < 96)
-		addr = S5P6818_SYS_IP_RSTCON2;
+		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON2);
 	else
 		return;
 
-	val = read32(phys_to_virt(addr));
+	val = read32(virt);
 	val &= ~(0x1 << (id & 0x1f));
 	val |= (reset ? 1 : 0) << (id & 0x1f);
-	write32(phys_to_virt(addr), val);
+	write32(virt, val);
 }
 
 static int s5p6818_ip_getrst(int id)
 {
-	physical_addr_t addr = S5P6818_SYS_IP_RSTCON0;
+	virtual_addr_t virt = phys_to_virt(S5P6818_SYS_IP_RSTCON0);
 	u32_t val;
 
 	if(id < 32)
-		addr = S5P6818_SYS_IP_RSTCON0;
+		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON0);
 	else if(id < 64)
-		addr = S5P6818_SYS_IP_RSTCON1;
+		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON1);
 	else if(id < 96)
-		addr = S5P6818_SYS_IP_RSTCON2;
+		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON2);
 	else
 		return 1;
 
-	val = read32(phys_to_virt(addr));
+	val = read32(virt);
 	return (val >> (id & 0x1f)) & 0x1;
 }
 

@@ -22,9 +22,6 @@
  *
  */
 
-#include <xboot.h>
-#include <s5p6818-rstcon.h>
-#include <s5p6818/reg-timer.h>
 #include <s5p6818-timer.h>
 
 #define TCON_CHANNEL(ch)		(ch ? ch * 4 + 4 : 0)
@@ -33,30 +30,12 @@
 #define TCON_INVERT(ch)			(0x4 << TCON_CHANNEL(ch))
 #define TCON_AUTORELOAD(ch)		(0x8 << TCON_CHANNEL(ch))
 
-static inline physical_addr_t s5p6818_timer_base(int ch)
-{
-	switch(ch)
-	{
-	case 0:
-		return S5P6818_TIMER0_BASE;
-	case 1:
-		return S5P6818_TIMER1_BASE;
-	case 2:
-		return S5P6818_TIMER2_BASE;
-	case 3:
-		return S5P6818_TIMER3_BASE;
-	default:
-		break;
-	}
-	return S5P6818_TIMER0_BASE;
-}
-
 void s5p6818_timer_reset(void)
 {
 	s5p6818_ip_reset(RESET_ID_TIMER, 0);
 }
 
-void s5p6818_timer_enable(int ch, int irqon)
+void s5p6818_timer_enable(virtual_addr_t virt, int ch, int irqon)
 {
 	u32_t val;
 
@@ -65,24 +44,24 @@ void s5p6818_timer_enable(int ch, int irqon)
 	else
 		clk_enable("DIV-TIMER-PRESCALER1");
 
-	val = read32(phys_to_virt(S5P6818_TIMER_TSTAT));
+	val = read32(virt + TIMER_TSTAT);
 	val &= ~(0x1f << 5 | 0x1 << ch);
 	val |= (0x1 << (ch + 5)) | ((irqon ? 1 : 0) << ch);
-	write32(phys_to_virt(S5P6818_TIMER_TSTAT), val);
+	write32(virt + TIMER_TSTAT, val);
 }
 
-void s5p6818_timer_disable(int ch)
+void s5p6818_timer_disable(virtual_addr_t virt, int ch)
 {
 	u32_t val;
 
-	val = read32(phys_to_virt(S5P6818_TIMER_TSTAT));
+	val = read32(virt + TIMER_TSTAT);
 	val &= ~(0x1f << 5 | 0x1 << ch);
 	val |= (0x1 << (ch + 5));
-	write32(phys_to_virt(S5P6818_TIMER_TSTAT), val);
+	write32(virt + TIMER_TSTAT, val);
 
-	val = read32(phys_to_virt(S5P6818_TIMER_TCON));
+	val = read32(virt + TIMER_TCON);
 	val &= ~(TCON_START(ch));
-	write32(phys_to_virt(S5P6818_TIMER_TCON), val);
+	write32(virt + TIMER_TCON, val);
 
 	if(ch< 2)
 		clk_disable("DIV-TIMER-PRESCALER0");
@@ -90,35 +69,35 @@ void s5p6818_timer_disable(int ch)
 		clk_disable("DIV-TIMER-PRESCALER1");
 }
 
-void s5p6818_timer_start(int ch, int oneshot)
+void s5p6818_timer_start(virtual_addr_t virt, int ch, int oneshot)
 {
 	u32_t val;
 
-	val = read32(phys_to_virt(S5P6818_TIMER_TCON));
+	val = read32(virt + TIMER_TCON);
 	val &= ~(TCON_AUTORELOAD(ch) | TCON_START(ch));
 	if(!oneshot)
 		val |= TCON_AUTORELOAD(ch);
 	val |= TCON_MANUALUPDATE(ch);
-	write32(phys_to_virt(S5P6818_TIMER_TCON), val);
+	write32(virt + TIMER_TCON, val);
 
-	val = read32(phys_to_virt(S5P6818_TIMER_TCON));
+	val = read32(virt + TIMER_TCON);
 	val &= ~(TCON_AUTORELOAD(ch) | TCON_MANUALUPDATE(ch));
 	if(!oneshot)
 		val |= TCON_AUTORELOAD(ch);
 	val |= TCON_START(ch);
-	write32(phys_to_virt(S5P6818_TIMER_TCON), val);
+	write32(virt + TIMER_TCON, val);
 }
 
-void s5p6818_timer_stop(int ch)
+void s5p6818_timer_stop(virtual_addr_t virt, int ch)
 {
 	u32_t val;
 
-	val = read32(phys_to_virt(S5P6818_TIMER_TCON));
+	val = read32(virt + TIMER_TCON);
 	val &= ~(TCON_START(ch));
-	write32(phys_to_virt(S5P6818_TIMER_TCON), val);
+	write32(virt + TIMER_TCON, val);
 }
 
-u64_t s5p6818_timer_calc_tin(int ch, u32_t period)
+u64_t s5p6818_timer_calc_tin(virtual_addr_t virt, int ch, u32_t period)
 {
 	u64_t rate, freq = 1000000000L / period;
 	u8_t div, shift;
@@ -135,31 +114,28 @@ u64_t s5p6818_timer_calc_tin(int ch, u32_t period)
 	}
 
 	shift = ch * 4;
-	write32(phys_to_virt(S5P6818_TIMER_TCFG1), (read32(phys_to_virt(S5P6818_TIMER_TCFG1)) & ~(0xf<<shift)) | (div<<shift));
+	write32(virt + TIMER_TCFG1, (read32(virt + TIMER_TCFG1) & ~(0xf<<shift)) | (div<<shift));
 
 	return (rate >> div);
 }
 
-void s5p6818_timer_count(int ch, u32_t cnt)
+void s5p6818_timer_count(virtual_addr_t virt, int ch, u32_t cnt)
 {
-	physical_addr_t base = s5p6818_timer_base(ch);
-
-	write32(phys_to_virt(base + TIMER_TCNTB), cnt);
-	write32(phys_to_virt(base + TIMER_TCMPB), cnt);
+	write32(virt + TIMER_TCNTB(ch), cnt);
+	write32(virt + TIMER_TCMPB(ch), cnt);
 }
 
-u32_t s5p6818_timer_read(int ch)
+u32_t s5p6818_timer_read(virtual_addr_t virt, int ch)
 {
-	physical_addr_t base = s5p6818_timer_base(ch);
-	return read32(phys_to_virt(base + TIMER_TCNTO));
+	return read32(virt + TIMER_TCNTO(ch));
 }
 
-void s5p6818_timer_irq_clear(int ch)
+void s5p6818_timer_irq_clear(virtual_addr_t virt, int ch)
 {
 	u32_t val;
 
-	val = read32(phys_to_virt(S5P6818_TIMER_TSTAT));
+	val = read32(virt + TIMER_TSTAT);
 	val &= ~(0x1f << 5);
 	val |= (0x1 << (ch + 5));
-	write32(phys_to_virt(S5P6818_TIMER_TSTAT), val);
+	write32(virt + TIMER_TSTAT, val);
 }

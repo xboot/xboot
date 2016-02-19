@@ -28,6 +28,7 @@
 #include <s5p6818/reg-alv.h>
 #include <s5p6818/reg-gic.h>
 
+#if 0
 static struct irq_handler_t s5p6818_irq_handler[32 + 64];
 static struct irq_handler_t s5p6818_irq_handler_gpioa[32];
 static struct irq_handler_t s5p6818_irq_handler_gpiob[32];
@@ -2276,3 +2277,4 @@ static __exit void s5p6818_irq_exit(void)
 
 core_initcall(s5p6818_irq_init);
 core_exitcall(s5p6818_irq_exit);
+#endif

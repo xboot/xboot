@@ -1,5 +1,5 @@
 /*
- * resource/res-console.c
+ * resource/res-led-gpio.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,22 +23,34 @@
  */
 
 #include <xboot.h>
-#include <console/console.h>
+#include <led/led-pwm-bl.h>
+#include <s5p6818-gpio.h>
 
-static struct console_stdio_data_t console_stdio_data = {
-	.in		= "s5p6818-uart.0",
-	.out	= "s5p6818-uart.0",
-	.err	= "s5p6818-uart.0",
+static struct led_pwm_bl_data_t led_pwm_bl_datas[] = {
+	[0] = {
+		.pwm				= "pwm0",
+		.period				= 1000 * 1000,
+		.from				= 6,
+		.to					= 100,
+		.polarity			= 1,
+		.power				= S5P6818_GPIOC(10),
+		.power_active_low	= 0,
+	}
 };
 
-static struct resource_t res_console = {
-	.name	= "console",
-	.id		= -1,
-	.data	= &console_stdio_data,
+static struct resource_t res_led_pwm_bls[] = {
+	{
+		.name	= "led-pwm-bl",
+		.id		= 0,
+		.data	= &led_pwm_bl_datas[0],
+	}
 };
 
-static __init void resource_console_init(void)
+static __init void resource_led_pwm_bl_init(void)
 {
-	register_resource(&res_console);
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(res_led_pwm_bls); i++)
+		register_resource(&res_led_pwm_bls[i]);
 }
-resource_initcall(resource_console_init);
+resource_initcall(resource_led_pwm_bl_init);

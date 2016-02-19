@@ -1,5 +1,5 @@
 /*
- * driver/axp228.c
+ * driver/axp228-pmic.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,7 +22,7 @@
  *
  */
 
-#include <axp228.h>
+#include <axp228-pmic.h>
 
 enum {
 	AXP228_POWER_STATUS			= 0x00,
@@ -121,12 +121,11 @@ enum {
 	AXP228_ADJUST_PARA			= 0xE8,
 };
 
-struct axp228_pdata_t {
+struct axp228_pmic_pdata_t {
 	struct i2c_client_t * client;
-	struct axp228_data_t * rdat;
 };
 
-static bool_t axp228_read(struct i2c_client_t * client, u8_t reg, u8_t * val)
+static bool_t axp228_pmic_read(struct i2c_client_t * client, u8_t reg, u8_t * val)
 {
 	struct i2c_msg_t msgs[2];
     u8_t buf;
@@ -149,7 +148,7 @@ static bool_t axp228_read(struct i2c_client_t * client, u8_t reg, u8_t * val)
     return TRUE;
 }
 
-static bool_t axp228_write(struct i2c_client_t * client, u8_t reg, u8_t val)
+static bool_t axp228_pmic_write(struct i2c_client_t * client, u8_t reg, u8_t val)
 {
 	struct i2c_msg_t msg;
 	u8_t buf[2];
@@ -166,7 +165,7 @@ static bool_t axp228_write(struct i2c_client_t * client, u8_t reg, u8_t val)
     return TRUE;
 }
 
-static u8_t axp228_get_vol_step(int vol, int step, int min, int max)
+static u8_t axp228_pmic_get_vol_step(int vol, int step, int min, int max)
 {
 	u32_t v = 0;
 
@@ -183,13 +182,13 @@ static u8_t axp228_get_vol_step(int vol, int step, int min, int max)
 	return (u8_t)(v & 0xff);
 }
 
-static bool_t axp228_update(struct battery_t * bat, struct battery_info_t * info)
+static bool_t axp228_pmic_update(struct battery_t * bat, struct battery_info_t * info)
 {
-	struct axp228_pdata_t * pdat = (struct axp228_pdata_t *)bat->priv;
+	struct axp228_pmic_pdata_t * pdat = (struct axp228_pmic_pdata_t *)bat->priv;
 	u8_t val, hi, lo;
 	u16_t tmp;
 
-	if(axp228_read(pdat->client, AXP228_POWER_STATUS, &val))
+	if(axp228_pmic_read(pdat->client, AXP228_POWER_STATUS, &val))
 	{
 		if(((val >> 6) & 0x3) == 0x3)
 			info->supply = POWER_SUPPLAY_AC;
@@ -199,7 +198,7 @@ static bool_t axp228_update(struct battery_t * bat, struct battery_info_t * info
 			info->supply = POWER_SUPPLAY_BATTERY;
 	}
 
-	if(axp228_read(pdat->client, AXP228_CHARGE_STATUS, &val))
+	if(axp228_pmic_read(pdat->client, AXP228_CHARGE_STATUS, &val))
 	{
 		if(val & (0x1 << 6))
 			info->status = BATTERY_STATUS_CHARGING;
@@ -220,28 +219,28 @@ static bool_t axp228_update(struct battery_t * bat, struct battery_info_t * info
 	info->count = 0;
 	info->capacity = 3600;
 
-	if(axp228_read(pdat->client, AXP228_VBATH_RES, &hi) &&
-		axp228_read(pdat->client, AXP228_VBATL_RES, &lo))
+	if(axp228_pmic_read(pdat->client, AXP228_VBATH_RES, &hi) &&
+		axp228_pmic_read(pdat->client, AXP228_VBATL_RES, &lo))
 	{
 		tmp = (hi << 8) | lo;
 		info->voltage = ((((tmp >> 8) << 4) | (tmp & 0x000F))) * 1100 / 1000;
 	}
 
-	if(axp228_read(pdat->client, AXP228_DISCHGCURRH_RES, &hi) &&
-		axp228_read(pdat->client, AXP228_DISCHGCURRL_RES, &lo))
+	if(axp228_pmic_read(pdat->client, AXP228_DISCHGCURRH_RES, &hi) &&
+		axp228_pmic_read(pdat->client, AXP228_DISCHGCURRL_RES, &lo))
 	{
 		tmp = (hi << 5) | (lo & 0x1f);
 		info->current = tmp;
 	}
 
-	if(axp228_read(pdat->client, AXP228_BATTEMPH_RES, &hi) &&
-		axp228_read(pdat->client, AXP228_BATTEMPL_RES, &lo))
+	if(axp228_pmic_read(pdat->client, AXP228_BATTEMPH_RES, &hi) &&
+		axp228_pmic_read(pdat->client, AXP228_BATTEMPL_RES, &lo))
 	{
 		tmp = (hi << 4) | (lo & 0xf);
 		info->current = tmp * 1063 / 10000 - 2667 / 10;
 	}
 
-	if(axp228_read(pdat->client, AXP228_CAP, &val))
+	if(axp228_pmic_read(pdat->client, AXP228_CAP, &val))
 	{
 		if(val & (0x1 << 7))
 			info->level = val & 0x7f;
@@ -252,18 +251,18 @@ static bool_t axp228_update(struct battery_t * bat, struct battery_info_t * info
 	return TRUE;
 }
 
-static void axp228_suspend(struct battery_t * bat)
+static void axp228_pmic_suspend(struct battery_t * bat)
 {
 }
 
-static void axp228_resume(struct battery_t * bat)
+static void axp228_pmic_resume(struct battery_t * bat)
 {
 }
 
-static bool_t register_pmic_axp228(struct resource_t * res)
+static bool_t register_axp228_pmic(struct resource_t * res)
 {
-	struct axp228_data_t * rdat = (struct axp228_data_t *)res->data;
-	struct axp228_pdata_t * pdat;
+	struct axp228_pmic_data_t * rdat = (struct axp228_pmic_data_t *)res->data;
+	struct axp228_pmic_pdata_t * pdat;
 	struct battery_t * bat;
 	struct i2c_client_t * client;
 	char name[64];
@@ -273,7 +272,7 @@ static bool_t register_pmic_axp228(struct resource_t * res)
 	if(!client)
 		return FALSE;
 
-	if(!axp228_read(client, AXP228_CHIP_ID, &val) || (val != 0x06))
+	if(!axp228_pmic_read(client, AXP228_CHIP_ID, &val) || (val != 0x06))
 	{
 		i2c_client_free(client);
 		return FALSE;
@@ -282,276 +281,276 @@ static bool_t register_pmic_axp228(struct resource_t * res)
 	/* DCDC1 - 1.6V ~ 3.4V, 100mV/step, 1.4A */
 	if(rdat->dcdc1 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dcdc1, 100, 1600, 3400);
-		axp228_write(client, AXP228_DC1OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dcdc1, 100, 1600, 3400);
+		axp228_pmic_write(client, AXP228_DC1OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val |= 0x1 << 1;
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val &= ~(0x1 << 1);
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 
 	/* DCDC2 - 0.6V ~ 1.54V, 20mV/step, 2.5A */
 	if(rdat->dcdc2 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dcdc2, 20, 600, 1540);
-		axp228_write(client, AXP228_DC2OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dcdc2, 20, 600, 1540);
+		axp228_pmic_write(client, AXP228_DC2OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val |= 0x1 << 2;
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val &= ~(0x1 << 2);
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 
 	/* DCDC3 - 0.6V ~ 1.86V, 20mV/step, 2.5A */
 	if(rdat->dcdc3 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dcdc3, 20, 600, 1860);
-		axp228_write(client, AXP228_DC3OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dcdc3, 20, 600, 1860);
+		axp228_pmic_write(client, AXP228_DC3OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val |= 0x1 << 3;
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val &= ~(0x1 << 3);
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 
 	/* DCDC4 - 0.6V ~ 1.54V, 20mV/step, 0.6A */
 	if(rdat->dcdc4 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dcdc4, 20, 600, 1540);
-		axp228_write(client, AXP228_DC4OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dcdc4, 20, 600, 1540);
+		axp228_pmic_write(client, AXP228_DC4OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val |= 0x1 << 4;
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val &= ~(0x1 << 4);
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 
 	/* DCDC5 - 1.0V ~ 2.55V, 50mV/step, 2A */
 	if(rdat->dcdc5 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dcdc5, 50, 1000, 2550);
-		axp228_write(client, AXP228_DC5OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dcdc5, 50, 1000, 2550);
+		axp228_pmic_write(client, AXP228_DC5OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val |= 0x1 << 5;
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val &= ~(0x1 << 5);
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 
 	/* DC5LDO - 0.7V ~ 1.4V, 100mV/step, 200mA */
 	if(rdat->dc5ldo > 0)
 	{
-		val = axp228_get_vol_step(rdat->dc5ldo, 100, 700, 1400);
-		axp228_write(client, AXP228_DC5LDOOUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dc5ldo, 100, 700, 1400);
+		axp228_pmic_write(client, AXP228_DC5LDOOUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val |= 0x1 << 0;
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val &= ~(0x1 << 0);
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 
 	/* ALDO1 - 0.7V ~ 3.3V, 100mV/step, 300mA */
 	if(rdat->aldo1 > 0)
 	{
-		val = axp228_get_vol_step(rdat->aldo1, 100, 700, 3300);
-		axp228_write(client, AXP228_ALDO1OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->aldo1, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_ALDO1OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val |= 0x1 << 6;
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val &= ~(0x1 << 6);
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 
 	/* ALDO2 - 0.7V ~ 3.3V, 100mV/step, 300mA */
 	if(rdat->aldo2 > 0)
 	{
-		val = axp228_get_vol_step(rdat->aldo2, 100, 700, 3300);
-		axp228_write(client, AXP228_ALDO2OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->aldo2, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_ALDO2OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val |= 0x1 << 7;
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN1, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN1, &val);
 		val &= ~(0x1 << 7);
-		axp228_write(client, AXP228_LDO_DC_EN1, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN1, val);
 	}
 
 	/* ALDO3 - 0.7V ~ 3.3V, 100mV/step, 200mA */
 	if(rdat->aldo3 > 0)
 	{
-		val = axp228_get_vol_step(rdat->aldo3, 100, 700, 3300);
-		axp228_write(client, AXP228_ALDO3OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->aldo3, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_ALDO3OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN3, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN3, &val);
 		val |= 0x1 << 7;
-		axp228_write(client, AXP228_LDO_DC_EN3, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN3, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN3, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN3, &val);
 		val &= ~(0x1 << 7);
-		axp228_write(client, AXP228_LDO_DC_EN3, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN3, val);
 	}
 
 	/* DLDO1 - 0.7V ~ 3.3V, 100mV/step, 400mA */
 	if(rdat->dldo1 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dldo1, 100, 700, 3300);
-		axp228_write(client, AXP228_DLDO1OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dldo1, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_DLDO1OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val |= 0x1 << 3;
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val &= ~(0x1 << 3);
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 
 	/* DLDO2 - 0.7V ~ 3.3V, 100mV/step, 200mA */
 	if(rdat->dldo2 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dldo2, 100, 700, 3300);
-		axp228_write(client, AXP228_DLDO2OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dldo2, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_DLDO2OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val |= 0x1 << 4;
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val &= ~(0x1 << 4);
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 
 	/* DLDO3 - 0.7V ~ 3.3V, 100mV/step, 200mA */
 	if(rdat->dldo3 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dldo3, 100, 700, 3300);
-		axp228_write(client, AXP228_DLDO3OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dldo3, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_DLDO3OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val |= 0x1 << 5;
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val &= ~(0x1 << 5);
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 
 	/* DLDO4 - 0.7V ~ 3.3V, 100mV/step, 100mA */
 	if(rdat->dldo4 > 0)
 	{
-		val = axp228_get_vol_step(rdat->dldo4, 100, 700, 3300);
-		axp228_write(client, AXP228_DLDO4OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->dldo4, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_DLDO4OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val |= 0x1 << 6;
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val &= ~(0x1 << 6);
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 
 	/* ELDO1 - 0.7V ~ 3.3V, 100mV/step, 400mA */
 	if(rdat->eldo1 > 0)
 	{
-		val = axp228_get_vol_step(rdat->eldo1, 100, 700, 3300);
-		axp228_write(client, AXP228_ELDO1OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->eldo1, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_ELDO1OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val |= 0x1 << 0;
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val &= ~(0x1 << 0);
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 
 	/* ELDO2 - 0.7V ~ 3.3V, 100mV/step, 200mA */
 	if(rdat->eldo2 > 0)
 	{
-		val = axp228_get_vol_step(rdat->eldo2, 100, 700, 3300);
-		axp228_write(client, AXP228_ELDO2OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->eldo2, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_ELDO2OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val |= 0x1 << 1;
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val &= ~(0x1 << 1);
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 
 	/* ELDO3 - 0.7V ~ 3.3V, 100mV/step, 200mA */
 	if(rdat->eldo3 > 0)
 	{
-		val = axp228_get_vol_step(rdat->eldo3, 100, 700, 3300);
-		axp228_write(client, AXP228_ELDO3OUT_VOL, val);
+		val = axp228_pmic_get_vol_step(rdat->eldo3, 100, 700, 3300);
+		axp228_pmic_write(client, AXP228_ELDO3OUT_VOL, val);
 
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val |= 0x1 << 2;
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 	else
 	{
-		axp228_read(client, AXP228_LDO_DC_EN2, &val);
+		axp228_pmic_read(client, AXP228_LDO_DC_EN2, &val);
 		val &= ~(0x1 << 2);
-		axp228_write(client, AXP228_LDO_DC_EN2, val);
+		axp228_pmic_write(client, AXP228_LDO_DC_EN2, val);
 	}
 
-	pdat = malloc(sizeof(struct axp228_pdata_t));
+	pdat = malloc(sizeof(struct axp228_pmic_pdata_t));
 	if(!pdat)
 	{
 		i2c_client_free(client);
@@ -568,14 +567,13 @@ static bool_t register_pmic_axp228(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	memset(pdat, 0xff, sizeof(struct axp228_pdata_t));
+	memset(pdat, 0xff, sizeof(struct axp228_pmic_pdata_t));
 	pdat->client = client;
-	pdat->rdat = rdat;
 
 	bat->name = strdup(name);
-	bat->update = axp228_update;
-	bat->suspend = axp228_suspend;
-	bat->resume = axp228_resume;
+	bat->update = axp228_pmic_update;
+	bat->suspend = axp228_pmic_suspend;
+	bat->resume = axp228_pmic_resume;
 	bat->priv = pdat;
 
 	if(register_battery(bat))
@@ -588,7 +586,7 @@ static bool_t register_pmic_axp228(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t unregister_pmic_axp228(struct resource_t * res)
+static bool_t unregister_axp228_pmic(struct resource_t * res)
 {
 	struct battery_t * bat;
 	char name[64];
@@ -602,22 +600,22 @@ static bool_t unregister_pmic_axp228(struct resource_t * res)
 	if(!unregister_battery(bat))
 		return FALSE;
 
-	i2c_client_free(((struct axp228_pdata_t *)(bat->priv))->client);
+	i2c_client_free(((struct axp228_pmic_pdata_t *)(bat->priv))->client);
 	free(bat->priv);
 	free(bat->name);
 	free(bat);
 	return TRUE;
 }
 
-static __init void pmic_axp228_init(void)
+static __init void axp228_pmic_init(void)
 {
-	resource_for_each("axp228", register_pmic_axp228);
+	resource_for_each("axp228-pmic", register_axp228_pmic);
 }
 
-static __exit void pmic_axp228_exit(void)
+static __exit void axp228_pmic_exit(void)
 {
-	resource_for_each("axp228", unregister_pmic_axp228);
+	resource_for_each("axp228-pmic", unregister_axp228_pmic);
 }
 
-device_initcall(pmic_axp228_init);
-device_exitcall(pmic_axp228_exit);
+device_initcall(axp228_pmic_init);
+device_exitcall(axp228_pmic_exit);

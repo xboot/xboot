@@ -293,28 +293,28 @@ static struct clk_divider_t core_div_clks[] = {
 	}, {
 		.name = "DIV-TIMER-PRESCALER0",
 		.parent = "DIV-PCLK",
-		.reg = S5P6818_TIMER_TCFG0,
+		.reg = S5P6818_TIMER_BASE + TIMER_TCFG0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 0,
 		.width = 8,
 	}, {
 		.name = "DIV-TIMER-PRESCALER1",
 		.parent = "DIV-PCLK",
-		.reg = S5P6818_TIMER_TCFG0,
+		.reg = S5P6818_TIMER_BASE + TIMER_TCFG0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 8,
 		.width = 8,
 	}, {
 		.name = "DIV-PWM-PRESCALER0",
 		.parent = "DIV-PCLK",
-		.reg = S5P6818_PWM_TCFG0,
+		.reg = S5P6818_PWM_BASE + PWM_TCFG0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 0,
 		.width = 8,
 	}, {
 		.name = "DIV-PWM-PRESCALER1",
 		.parent = "DIV-PCLK",
-		.reg = S5P6818_PWM_TCFG0,
+		.reg = S5P6818_PWM_BASE + PWM_TCFG0,
 		.type = CLK_DIVIDER_ONE_BASED,
 		.shift = 8,
 		.width = 8,
@@ -339,22 +339,6 @@ static void clk_register_core(void)
 		clk_divider_register(&core_div_clks[i]);
 	for(i = 0; i < ARRAY_SIZE(core_gate_clks); i++)
 		clk_gate_register(&core_gate_clks[i]);
-}
-
-static void clk_unregister_core(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(core_fixed_clks); i++)
-		clk_fixed_unregister(&core_fixed_clks[i]);
-	for(i = 0; i< ARRAY_SIZE(core_pll_clks); i++)
-		clk_pll_unregister(&core_pll_clks[i]);
-	for(i = 0; i < ARRAY_SIZE(core_mux_clks); i++)
-		clk_mux_unregister(&core_mux_clks[i]);
-	for(i = 0; i < ARRAY_SIZE(core_div_clks); i++)
-		clk_divider_unregister(&core_div_clks[i]);
-	for(i = 0; i < ARRAY_SIZE(core_gate_clks); i++)
-		clk_gate_unregister(&core_gate_clks[i]);
 }
 
 /*
@@ -505,33 +489,19 @@ static void clk_register_uart(void)
 		clk_gate_register(&uart_gate_clks[i]);
 }
 
-static void clk_unregister_uart(void)
-{
-	int i;
-
-	for(i = 0; i < ARRAY_SIZE(uart_mux_clks); i++)
-		clk_mux_unregister(&uart_mux_clks[i]);
-	for(i = 0; i < ARRAY_SIZE(uart_div_clks); i++)
-		clk_divider_unregister(&uart_div_clks[i]);
-	for(i = 0; i < ARRAY_SIZE(uart_gate_clks); i++)
-		clk_gate_unregister(&uart_gate_clks[i]);
-}
-
-static const char * default_off_clks[] = {
-};
-
-static const char * default_on_clks[] = {
-};
-
 static __init void s5p6818_clk_init(void)
 {
-	int i;
-
 	/*
-	 * Reset IP modules, for timer and pwm clock.
+	 * Reset some IP modules.
 	 */
 	s5p6818_ip_reset(RESET_ID_TIMER, 0);
 	s5p6818_ip_reset(RESET_ID_PWM, 0);
+	s5p6818_ip_reset(RESET_ID_UART0, 0);
+	s5p6818_ip_reset(RESET_ID_UART1, 0);
+	s5p6818_ip_reset(RESET_ID_UART2, 0);
+	s5p6818_ip_reset(RESET_ID_UART3, 0);
+	s5p6818_ip_reset(RESET_ID_UART4, 0);
+	s5p6818_ip_reset(RESET_ID_UART5, 0);
 
 	clk_register_core();
 	clk_register_uart();
@@ -540,25 +510,11 @@ static __init void s5p6818_clk_init(void)
 	clk_set_rate("DIV-TIMER-PRESCALER1", 150 * 1000 * 1000);
 	clk_set_rate("DIV-PWM-PRESCALER0", 150 * 1000 * 1000);
 	clk_set_rate("DIV-PWM-PRESCALER1", 150 * 1000 * 1000);
-
 	clk_set_rate("DIV-UART0", 375 * 100 * 1000);
 	clk_set_rate("DIV-UART1", 375 * 100 * 1000);
 	clk_set_rate("DIV-UART2", 375 * 100 * 1000);
 	clk_set_rate("DIV-UART3", 375 * 100 * 1000);
 	clk_set_rate("DIV-UART4", 375 * 100 * 1000);
 	clk_set_rate("DIV-UART5", 375 * 100 * 1000);
-
-	for(i = 0; i < ARRAY_SIZE(default_off_clks); i++)
-		clk_disable(default_off_clks[i]);
-	for(i = 0; i < ARRAY_SIZE(default_on_clks); i++)
-		clk_enable(default_on_clks[i]);
 }
-
-static __exit void s5p6818_clk_exit(void)
-{
-	clk_unregister_core();
-	clk_unregister_uart();
-}
-
 core_initcall(s5p6818_clk_init);
-core_exitcall(s5p6818_clk_exit);

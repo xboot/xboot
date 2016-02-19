@@ -45,29 +45,9 @@ static struct resource_t res_spi_gpios[] = {
 
 static __init void resource_spi_gpio_init(void)
 {
-	u32_t i;
+	int i;
 
 	for(i = 0; i < ARRAY_SIZE(res_spi_gpios); i++)
-	{
-		if(register_resource(&res_spi_gpios[i]))
-			LOG("Register resource %s:'%s.%d'", res_spi_gpios[i].mach, res_spi_gpios[i].name, res_spi_gpios[i].id);
-		else
-			LOG("Failed to register resource %s:'%s.%d'", res_spi_gpios[i].mach, res_spi_gpios[i].name, res_spi_gpios[i].id);
-	}
+		register_resource(&res_spi_gpios[i]);
 }
-
-static __exit void resource_spi_gpio_exit(void)
-{
-	u32_t i;
-
-	for(i = 0; i < ARRAY_SIZE(res_spi_gpios); i++)
-	{
-		if(unregister_resource(&res_spi_gpios[i]))
-			LOG("Unregister resource %s:'%s.%d'", res_spi_gpios[i].mach, res_spi_gpios[i].name, res_spi_gpios[i].id);
-		else
-			LOG("Failed to unregister resource %s:'%s.%d'", res_spi_gpios[i].mach, res_spi_gpios[i].name, res_spi_gpios[i].id);
-	}
-}
-
 resource_initcall(resource_spi_gpio_init);
-resource_exitcall(resource_spi_gpio_exit);

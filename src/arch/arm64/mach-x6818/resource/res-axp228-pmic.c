@@ -1,5 +1,5 @@
 /*
- * resource/res-axp228.c
+ * resource/res-axp228-pmic.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,9 +22,9 @@
  *
  */
 
-#include <axp228.h>
+#include <axp228-pmic.h>
 
-static struct axp228_data_t axp228_data = {
+static struct axp228_pmic_data_t axp228_pmic_data = {
 	.i2cbus		= "i2c-gpio.3",
 	.addr		= 0x34,
 
@@ -49,27 +49,14 @@ static struct axp228_data_t axp228_data = {
 	.eldo3		= 700,
 };
 
-static struct resource_t res_axp228 = {
-	.name		= "axp228",
+static struct resource_t res_axp228_pmic = {
+	.name		= "axp228-pmic",
 	.id			= -1,
-	.data		= &axp228_data,
+	.data		= &axp228_pmic_data,
 };
 
-static __init void resource_pmic_init(void)
+static __init void resource_axp228_pmic_init(void)
 {
-	if(register_resource(&res_axp228))
-		LOG("Register resource '%s:%s.%d'", res_axp228.mach, res_axp228.name, res_axp228.id);
-	else
-		LOG("Failed to register resource '%s:%s.%d'", res_axp228.mach, res_axp228.name, res_axp228.id);
+	register_resource(&res_axp228_pmic);
 }
-
-static __exit void resource_pmic_exit(void)
-{
-	if(unregister_resource(&res_axp228))
-		LOG("Unregister resource '%s:%s.%d'", res_axp228.mach, res_axp228.name, res_axp228.id);
-	else
-		LOG("Failed to unregister resource '%s:%s.%d'", res_axp228.mach, res_axp228.name, res_axp228.id);
-}
-
-resource_initcall(resource_pmic_init);
-resource_exitcall(resource_pmic_exit);
+resource_initcall(resource_axp228_pmic_init);

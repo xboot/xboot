@@ -167,7 +167,7 @@ bool_t unregister_input(struct input_t * input)
 
 	driver = (struct input_t *)(dev->driver);
 	if(driver && driver->exit)
-		(driver->exit)(input);
+		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

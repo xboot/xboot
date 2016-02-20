@@ -139,7 +139,7 @@ bool_t unregister_led(struct led_t * led)
 
 	driver = (struct led_t *)(dev->driver);
 	if(driver && driver->exit)
-		(driver->exit)(led);
+		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

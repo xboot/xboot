@@ -153,7 +153,7 @@ bool_t unregister_buzzer(struct buzzer_t * buzzer)
 
 	driver = (struct buzzer_t *)(dev->driver);
 	if(driver && driver->exit)
-		(driver->exit)(buzzer);
+		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

@@ -18,7 +18,7 @@ struct rng_t
 	/* Clean up the rng */
 	void (*exit)(struct rng_t * rng);
 
-	/* Read to max bytes */
+	/* Read rng data */
 	int (*read)(struct rng_t * rng, void * buf, int max, int wait);
 
 	/* Suspend rng */
@@ -35,7 +35,7 @@ struct rng_t * search_rng(const char * name);
 struct rng_t * search_first_rng(void);
 bool_t register_rng(struct rng_t * rng);
 bool_t unregister_rng(struct rng_t * rng);
-int rng_read(struct rng_t * rng, void * buf, int max, int wait);
+int rng_read_data(struct rng_t * rng, void * buf, int max, int wait);
 
 #ifdef __cplusplus
 }

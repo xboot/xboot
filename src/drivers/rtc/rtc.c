@@ -141,7 +141,7 @@ bool_t unregister_rtc(struct rtc_t * rtc)
 
 	driver = (struct rtc_t *)(dev->driver);
 	if(driver && driver->exit)
-		(driver->exit)(rtc);
+		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

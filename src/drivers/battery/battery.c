@@ -237,6 +237,9 @@ bool_t register_battery(struct battery_t * bat)
 	kobj_add_regular(dev->kobj, "temperature", battery_read_temperature, NULL, bat);
 	kobj_add_regular(dev->kobj, "level", battery_read_level, NULL, bat);
 
+	if(bat->init)
+		(bat->init)(bat);
+
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -251,6 +254,7 @@ bool_t register_battery(struct battery_t * bat)
 bool_t unregister_battery(struct battery_t * bat)
 {
 	struct device_t * dev;
+	struct battery_t * driver;
 
 	if(!bat || !bat->name)
 		return FALSE;
@@ -261,6 +265,10 @@ bool_t unregister_battery(struct battery_t * bat)
 
 	if(!unregister_device(dev))
 		return FALSE;
+
+	driver = (struct battery_t *)(dev->driver);
+	if(driver && driver->exit)
+		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

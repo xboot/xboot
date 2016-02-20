@@ -196,8 +196,8 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	driver = (struct fb_t *)(dev->driver);
 	if(driver)
 	{
-		if(fb->setbl)
-			fb->setbl(fb, 0);
+		if(driver->setbl)
+			driver->setbl(driver, 0);
 
 		if(driver->exit)
 			(driver->exit)(driver);

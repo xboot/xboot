@@ -140,7 +140,7 @@ bool_t unregister_audio(struct audio_t * audio)
 
 	driver = (struct audio_t *)(dev->driver);
 	if(driver && driver->exit)
-		(driver->exit)(audio);
+		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

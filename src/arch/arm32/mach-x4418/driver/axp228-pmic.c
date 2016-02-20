@@ -182,6 +182,15 @@ static u8_t axp228_pmic_get_vol_step(int vol, int step, int min, int max)
 	return (u8_t)(v & 0xff);
 }
 
+static void axp228_pmic_init(struct battery_t * bat)
+{
+}
+
+static void axp228_pmic_exit(struct battery_t * bat)
+{
+
+}
+
 static bool_t axp228_pmic_update(struct battery_t * bat, struct battery_info_t * info)
 {
 	struct axp228_pmic_pdata_t * pdat = (struct axp228_pmic_pdata_t *)bat->priv;
@@ -571,6 +580,8 @@ static bool_t register_axp228_pmic(struct resource_t * res)
 	pdat->client = client;
 
 	bat->name = strdup(name);
+	bat->init = axp228_pmic_init;
+	bat->exit = axp228_pmic_exit;
 	bat->update = axp228_pmic_update;
 	bat->suspend = axp228_pmic_suspend;
 	bat->resume = axp228_pmic_resume;
@@ -607,15 +618,15 @@ static bool_t unregister_axp228_pmic(struct resource_t * res)
 	return TRUE;
 }
 
-static __init void axp228_pmic_init(void)
+static __init void axp228_pmic_device_init(void)
 {
 	resource_for_each("axp228-pmic", register_axp228_pmic);
 }
 
-static __exit void axp228_pmic_exit(void)
+static __exit void axp228_pmic_device_exit(void)
 {
 	resource_for_each("axp228-pmic", unregister_axp228_pmic);
 }
 
-device_initcall(axp228_pmic_init);
-device_exitcall(axp228_pmic_exit);
+device_initcall(axp228_pmic_device_init);
+device_exitcall(axp228_pmic_device_exit);

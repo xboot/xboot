@@ -55,17 +55,13 @@ static void rng_resume(struct device_t * dev)
 		rng->resume(rng);
 }
 
-static ssize_t rng_read_data(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t rng_read_random(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct rng_t * rng = (struct rng_t *)kobj->priv;
-	char data[16];
-	char * p = buf;
-	int n = rng_read(rng, (void *)data, sizeof(data), 1);
-	int i, len;
+	unsigned char dat;
 
-	for(i = 0, len = 0; i < n; i++)
-		len += sprintf((char *)(p + len), "%02x", data[i]);
-	return len;
+	rng_read_data(rng, &dat, 1, 1);
+	return sprintf(buf, "%02x", dat);
 }
 
 struct rng_t * search_rng(const char * name)
@@ -107,7 +103,10 @@ bool_t register_rng(struct rng_t * rng)
 	dev->resume = rng_resume;
 	dev->driver = rng;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "data", rng_read_data, NULL, rng);
+	kobj_add_regular(dev->kobj, "random", rng_read_random, NULL, rng);
+
+	if(rng->init)
+		(rng->init)(rng);
 
 	if(!register_device(dev))
 	{
@@ -123,6 +122,7 @@ bool_t register_rng(struct rng_t * rng)
 bool_t unregister_rng(struct rng_t * rng)
 {
 	struct device_t * dev;
+	struct rng_t * driver;
 
 	if(!rng || !rng->name)
 		return FALSE;
@@ -134,13 +134,17 @@ bool_t unregister_rng(struct rng_t * rng)
 	if(!unregister_device(dev))
 		return FALSE;
 
+	driver = (struct rng_t *)(dev->driver);
+	if(driver && driver->exit)
+		(driver->exit)(driver);
+
 	kobj_remove_self(dev->kobj);
 	free(dev->name);
 	free(dev);
 	return TRUE;
 }
 
-int rng_read(struct rng_t * rng, void * buf, int max, int wait)
+int rng_read_data(struct rng_t * rng, void * buf, int max, int wait)
 {
 	if(rng && rng->read)
 		return rng->read(rng, buf, max, wait);

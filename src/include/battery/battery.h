@@ -44,6 +44,12 @@ struct battery_t
 	/* The battery name */
 	char * name;
 
+	/* Initialize the battery */
+	void (*init)(struct battery_t * bat);
+
+	/* Clean up the battery */
+	void (*exit)(struct battery_t * bat);
+
 	/*  Battery update ... */
 	bool_t (*update)(struct battery_t * bat, struct battery_info_t * info);
 

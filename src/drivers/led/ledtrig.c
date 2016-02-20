@@ -108,7 +108,7 @@ bool_t unregister_ledtrig(struct ledtrig_t * trigger)
 
 	driver = (struct ledtrig_t *)(dev->driver);
 	if(driver && driver->exit)
-		(driver->exit)(trigger);
+		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

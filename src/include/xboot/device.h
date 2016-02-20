@@ -9,6 +9,7 @@ extern "C" {
 
 enum device_type_t {
 	DEVICE_TYPE_CONSOLE,
+	DEVICE_TYPE_RNG,
 	DEVICE_TYPE_RTC,
 	DEVICE_TYPE_LED,
 	DEVICE_TYPE_LEDTRIG,

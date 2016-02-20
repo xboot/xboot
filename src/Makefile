@@ -133,6 +133,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/logger								\
 				drivers/mmc									\
 				drivers/pwm									\
+				drivers/rng									\
 				drivers/rtc									\
 				drivers/watchdog							\
 				framework									\

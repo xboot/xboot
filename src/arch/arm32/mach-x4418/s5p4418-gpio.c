@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <s5p4418/reg-gpio.h>
+#include <s5p4418-irq.h>
 #include <s5p4418-gpio.h>
 
 struct gpiochip_data_t
@@ -388,6 +389,21 @@ static int gpiochip_get_value(struct gpiochip_t * chip, int offset)
 
 static int gpiochip_to_irq(struct gpiochip_t * chip, int offset)
 {
+	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+
+	if(offset >= chip->ngpio)
+		return -1;
+
+	if(strcmp(pdat->name, "GPIOA") == 0)
+		return S5P4418_IRQ_GPIOA0 + offset;
+	else if(strcmp(pdat->name, "GPIOB") == 0)
+		return S5P4418_IRQ_GPIOB0 + offset;
+	else if(strcmp(pdat->name, "GPIOC") == 0)
+		return S5P4418_IRQ_GPIOC0 + offset;
+	else if(strcmp(pdat->name, "GPIOD") == 0)
+		return S5P4418_IRQ_GPIOD0 + offset;
+	else if(strcmp(pdat->name, "GPIOE") == 0)
+		return S5P4418_IRQ_GPIOE0 + offset;
 	return -1;
 }
 

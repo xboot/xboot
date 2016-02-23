@@ -29,6 +29,9 @@ static struct clk_fixed_t bcm2836_clks[] = {
 		.name = "osc",
 		.rate = 19200000,
 	}, {
+		.name = "sys-pclk",
+		.rate = 250 * 1000 * 1000,
+	}, {
 		.name = "apb-pclk",
 		.rate = 126 * 1000 * 1000,
 	}, {

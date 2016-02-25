@@ -33,23 +33,23 @@ enum {
 	CAN	= 0x18,
 };
 
-enum xm_state_t {
-	XM_STATE_CONNECTING	= 0,
-	XM_STATE_START		= 1,
-	XM_STATE_PKNUM0		= 2,
-	XM_STATE_PKNUM1		= 3,
-	XM_STATE_BODY		= 4,
-	XM_STATE_CRC0		= 5,
-	XM_STATE_CRC1		= 6,
-};
-
 enum crc_mode_t {
-	CRC_MODE_ADD8		= 0,
-	CRC_MODE_CRC16		= 1,
+	CRC_MODE_ADD8	= 0,
+	CRC_MODE_CRC16	= 1,
 };
 
-struct xm_ctx_t {
-	enum xm_state_t state;
+enum xm_recv_state_t {
+	XM_RECV_STATE_CONNECTING	= 0,
+	XM_RECV_STATE_START			= 1,
+	XM_RECV_STATE_PKNUM0		= 2,
+	XM_RECV_STATE_PKNUM1		= 3,
+	XM_RECV_STATE_BODY			= 4,
+	XM_RECV_STATE_CRC0			= 5,
+	XM_RECV_STATE_CRC1			= 6,
+};
+
+struct xm_recv_ctx_t {
+	enum xm_recv_state_t state;
 	enum crc_mode_t mode;
 	int fileid;
 	int filelen;
@@ -64,50 +64,70 @@ struct xm_ctx_t {
 	uint8_t crc1;
 };
 
-static const uint16_t crc_ccitt_table[256] = {
-	0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
-	0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
-	0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
-	0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876,
-	0x2102, 0x308b, 0x0210, 0x1399, 0x6726, 0x76af, 0x4434, 0x55bd,
-	0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
-	0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c,
-	0xbdcb, 0xac42, 0x9ed9, 0x8f50, 0xfbef, 0xea66, 0xd8fd, 0xc974,
-	0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
-	0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3,
-	0x5285, 0x430c, 0x7197, 0x601e, 0x14a1, 0x0528, 0x37b3, 0x263a,
-	0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
-	0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9,
-	0xef4e, 0xfec7, 0xcc5c, 0xddd5, 0xa96a, 0xb8e3, 0x8a78, 0x9bf1,
-	0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
-	0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70,
-	0x8408, 0x9581, 0xa71a, 0xb693, 0xc22c, 0xd3a5, 0xe13e, 0xf0b7,
-	0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
-	0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036,
-	0x18c1, 0x0948, 0x3bd3, 0x2a5a, 0x5ee5, 0x4f6c, 0x7df7, 0x6c7e,
-	0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
-	0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd,
-	0xb58b, 0xa402, 0x9699, 0x8710, 0xf3af, 0xe226, 0xd0bd, 0xc134,
-	0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
-	0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3,
-	0x4a44, 0x5bcd, 0x6956, 0x78df, 0x0c60, 0x1de9, 0x2f72, 0x3efb,
-	0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
-	0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a,
-	0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
-	0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
-	0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
-	0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
+enum xm_send_state_t {
+	XM_SEND_STATE_CONNECTING	= 0,
+	XM_SEND_STATE_TRANSMIT		= 1,
+	XM_SEND_STATE_WAIT_ACK		= 2,
+	XM_SEND_STATE_WAIT_EOT		= 3,
 };
 
-static inline uint16_t crc_ccitt_byte(uint16_t crc, const uint8_t c)
-{
-	return (crc >> 8) ^ crc_ccitt_table[(crc ^ c) & 0xff];
-}
+struct xm_send_ctx_t {
+	enum xm_send_state_t state;
+	enum crc_mode_t mode;
+	int fileid;
+	int retry;
+	int pksz;
+	int pknum;
+	int eot;
+	uint8_t start;
+	uint8_t pknum0;
+	uint8_t pknum1;
+	uint8_t buf[1024];
+	uint8_t crc0;
+	uint8_t crc1;
+};
 
-static uint16_t crc_ccitt(uint16_t crc, const uint8_t * buf, size_t len)
+static const uint16_t crc16_table[256] = {
+	0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
+	0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
+	0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
+	0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de,
+	0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485,
+	0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
+	0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4,
+	0xb75b, 0xa77a, 0x9719, 0x8738, 0xf7df, 0xe7fe, 0xd79d, 0xc7bc,
+	0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
+	0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b,
+	0x5af5, 0x4ad4, 0x7ab7, 0x6a96, 0x1a71, 0x0a50, 0x3a33, 0x2a12,
+	0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
+	0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41,
+	0xedae, 0xfd8f, 0xcdec, 0xddcd, 0xad2a, 0xbd0b, 0x8d68, 0x9d49,
+	0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
+	0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78,
+	0x9188, 0x81a9, 0xb1ca, 0xa1eb, 0xd10c, 0xc12d, 0xf14e, 0xe16f,
+	0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
+	0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e,
+	0x02b1, 0x1290, 0x22f3, 0x32d2, 0x4235, 0x5214, 0x6277, 0x7256,
+	0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
+	0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405,
+	0xa7db, 0xb7fa, 0x8799, 0x97b8, 0xe75f, 0xf77e, 0xc71d, 0xd73c,
+	0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
+	0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab,
+	0x5844, 0x4865, 0x7806, 0x6827, 0x18c0, 0x08e1, 0x3882, 0x28a3,
+	0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
+	0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92,
+	0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
+	0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
+	0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
+	0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
+};
+
+static uint16_t xm_crc16(uint16_t crc, const uint8_t * buf, int len)
 {
-	while(len--)
-		crc = crc_ccitt_byte(crc, *buf++);
+	int i;
+
+	for(i = 0; i < len; i++)
+		crc = crc16_table[((crc >> 8) ^ *buf++) & 0xff] ^ (crc << 8);
 	return crc;
 }
 
@@ -130,17 +150,18 @@ static void xm_putch(int ch)
 	fflush(stdout);
 }
 
-static int xm_check_packet(struct xm_ctx_t * ctx)
+static int xm_recv_verify(struct xm_recv_ctx_t * ctx)
 {
 	uint8_t crc8 = 0;
 	uint16_t crc16 = 0;
 	int i;
 
-	return 0;
-
-/*	if(ctx->pknum0 != ~ctx->pknum1)
+	if(ctx->pknum0 != (255 - ctx->pknum1))
 		return -1;
-*/
+
+	if((ctx->pknum0 != (ctx->pknum & 0xff)) && (ctx->pknum0 != ((ctx->pknum + 1) & 0xff)))
+		return -1;
+
 	switch(ctx->mode)
 	{
 	case CRC_MODE_ADD8:
@@ -150,7 +171,7 @@ static int xm_check_packet(struct xm_ctx_t * ctx)
 
 	case CRC_MODE_CRC16:
 		crc16 = ((uint16_t)ctx->crc0 << 8) | (uint16_t)ctx->crc1;
-		return (crc_ccitt(0, ctx->buf, ctx->bufsz) == crc16) ? 0 : -1;
+		return (xm_crc16(0, ctx->buf, ctx->bufsz) == crc16) ? 0 : -1;
 
 	default:
 		break;
@@ -159,42 +180,62 @@ static int xm_check_packet(struct xm_ctx_t * ctx)
 	return -1;
 }
 
-static int xm_receive(struct xm_ctx_t * ctx)
+static int xm_recv(struct xm_recv_ctx_t * ctx)
 {
 	int c;
 
 	while(1)
 	{
-		if(ctx->state == XM_STATE_CONNECTING)
+		if((c = xm_getch_timeout(1000)) < 0)
 		{
-			if(++ctx->retry > 10)
+			if(ctx->state == XM_RECV_STATE_CONNECTING)
 			{
-				xm_putch(NAK);
-				ctx->mode = CRC_MODE_ADD8;
+				++ctx->retry;
+				if(ctx->retry < 15)
+				{
+					xm_putch('C');
+					ctx->mode = CRC_MODE_CRC16;
+				}
+				else if(ctx->retry < 30)
+				{
+					xm_putch(NAK);
+					ctx->mode = CRC_MODE_ADD8;
+				}
+				else
+				{
+					return -1;
+				}
 			}
 			else
 			{
-				xm_putch('C');
-				ctx->mode = CRC_MODE_CRC16;
+				if(++ctx->retry > 30)
+				{
+					xm_putch(CAN);
+					xm_putch(CAN);
+					xm_putch(CAN);
+					return -1;
+				}
 			}
-		}
-		if((c = xm_getch_timeout(1000)) < 0)
+
 			continue;
+		}
 
 		switch(ctx->state)
 		{
-		case XM_STATE_CONNECTING:
-		case XM_STATE_START:
+		case XM_RECV_STATE_CONNECTING:
+		case XM_RECV_STATE_START:
 			switch(c)
 			{
 			case SOH:
+				ctx->retry = 0;
 				ctx->pksz = 128;
-				ctx->state = XM_STATE_PKNUM0;
+				ctx->state = XM_RECV_STATE_PKNUM0;
 				break;
 
 			case STX:
+				ctx->retry = 0;
 				ctx->pksz = 1024;
-				ctx->state = XM_STATE_PKNUM0;
+				ctx->state = XM_RECV_STATE_PKNUM0;
 				break;
 
 			case EOT:
@@ -210,63 +251,203 @@ static int xm_receive(struct xm_ctx_t * ctx)
 			}
 			break;
 
-		case XM_STATE_PKNUM0:
+		case XM_RECV_STATE_PKNUM0:
 			ctx->pknum0 = c;
-			ctx->state = XM_STATE_PKNUM1;
+			ctx->state = XM_RECV_STATE_PKNUM1;
 			break;
 
-		case XM_STATE_PKNUM1:
+		case XM_RECV_STATE_PKNUM1:
 			ctx->pknum1 = c;
 			ctx->bufsz = 0;
-			ctx->state = XM_STATE_BODY;
+			ctx->state = XM_RECV_STATE_BODY;
 			break;
 
-		case XM_STATE_BODY:
+		case XM_RECV_STATE_BODY:
 			ctx->buf[ctx->bufsz++] = c;
 			if(ctx->bufsz >= ctx->pksz)
-				ctx->state = XM_STATE_CRC0;
+				ctx->state = XM_RECV_STATE_CRC0;
 			break;
 
-		case XM_STATE_CRC0:
+		case XM_RECV_STATE_CRC0:
 			ctx->crc0 = c;
 			if(ctx->mode == CRC_MODE_ADD8)
 			{
-				if(xm_check_packet(ctx) < 0)
+				if(xm_recv_verify(ctx) >= 0)
 				{
-					xm_putch(NAK);
+					if(ctx->pknum0 == ((ctx->pknum + 1) & 0xff))
+					{
+						ctx->filelen += write(ctx->fileid, ctx->buf, ctx->bufsz);
+						ctx->pknum = (ctx->pknum + 1) & 0xff;
+					}
+					xm_putch(ACK);
 				}
 				else
 				{
-					ctx->pknum++;
-					ctx->filelen += write(ctx->fileid, ctx->buf, ctx->bufsz);
-					xm_putch(ACK);
+					xm_putch(NAK);
 				}
-				ctx->state = XM_STATE_START;
+				ctx->state = XM_RECV_STATE_START;
 			}
 			else if(ctx->mode == CRC_MODE_CRC16)
 			{
-				ctx->state = XM_STATE_CRC1;
+				ctx->state = XM_RECV_STATE_CRC1;
 			}
 			break;
 
-		case XM_STATE_CRC1:
+		case XM_RECV_STATE_CRC1:
 			ctx->crc1 = c;
-			if(xm_check_packet(ctx) < 0)
+			if(xm_recv_verify(ctx) >= 0)
 			{
-				xm_putch(NAK);
+				if(ctx->pknum0 == ((ctx->pknum + 1) & 0xff))
+				{
+					ctx->filelen += write(ctx->fileid, ctx->buf, ctx->bufsz);
+					ctx->pknum = (ctx->pknum + 1) & 0xff;
+				}
+				xm_putch(ACK);
 			}
 			else
 			{
-				ctx->pknum++;
-				ctx->filelen += write(ctx->fileid, ctx->buf, ctx->bufsz);
-				xm_putch(ACK);
+				xm_putch(NAK);
 			}
-			ctx->state = XM_STATE_START;
+			ctx->state = XM_RECV_STATE_START;
 			break;
 
 		default:
-			ctx->state = XM_STATE_START;
+			ctx->state = XM_RECV_STATE_START;
 			break;
+		}
+	}
+}
+
+static void xm_send_fill(struct xm_send_ctx_t * ctx)
+{
+	int i;
+
+	ctx->start = SOH;
+	ctx->pksz = 128;
+	ctx->pknum0 = ctx->pknum;
+	ctx->pknum1 = 255 - ctx->pknum;
+	memset(ctx->buf, 0x1a, ctx->pksz);
+	if(read(ctx->fileid, (void *)ctx->buf, ctx->pksz) > 0)
+	{
+		ctx->eot = 0;
+		if(ctx->mode == CRC_MODE_ADD8)
+		{
+			for(ctx->crc0 = 0, i = 0; i < ctx->pksz; i++)
+				ctx->crc0 += ctx->buf[i];
+		}
+		else if(ctx->mode == CRC_MODE_CRC16)
+		{
+			uint16_t crc16 = xm_crc16(0, ctx->buf, ctx->pksz);
+			ctx->crc0 = (crc16 >> 8) & 0xff;
+			ctx->crc1 = crc16 & 0xff;
+		}
+	}
+	else
+	{
+		ctx->eot = 1;
+	}
+}
+
+static int xm_send(struct xm_send_ctx_t * ctx)
+{
+	int c, i;
+
+	while(1)
+	{
+		if((c = xm_getch_timeout(1000)) < 0)
+		{
+			continue;
+		}
+
+		switch(ctx->state)
+		{
+		case XM_SEND_STATE_CONNECTING:
+			switch(c)
+			{
+			case 'C':
+				ctx->mode = CRC_MODE_CRC16;
+				ctx->pknum = 1;
+				xm_send_fill(ctx);
+				ctx->state = XM_SEND_STATE_TRANSMIT;
+				break;
+
+			case NAK:
+				ctx->mode = CRC_MODE_ADD8;
+				ctx->pknum = 1;
+				xm_send_fill(ctx);
+				ctx->state = XM_SEND_STATE_TRANSMIT;
+				break;
+
+			case CAN:
+				return -1;
+
+			default:
+				break;
+			}
+			break;
+
+		case XM_SEND_STATE_WAIT_ACK:
+			switch(c)
+			{
+			case ACK:
+				ctx->pknum = (ctx->pknum + 1) & 0xff;
+				xm_send_fill(ctx);
+				ctx->state = XM_SEND_STATE_TRANSMIT;
+				break;
+
+			case NAK:
+				ctx->state = XM_SEND_STATE_TRANSMIT;
+				break;
+
+			case CAN:
+				return -1;
+
+			default:
+				break;
+			}
+			break;
+
+		case XM_SEND_STATE_WAIT_EOT:
+			switch(c)
+			{
+			case ACK:
+				return 0;
+
+			case NAK:
+				ctx->state = XM_SEND_STATE_TRANSMIT;
+				break;
+
+			case CAN:
+				return -1;
+
+			default:
+				break;
+			}
+			break;
+
+		default:
+			break;
+		}
+
+		if(ctx->state == XM_SEND_STATE_TRANSMIT)
+		{
+			if(ctx->eot)
+			{
+				xm_putch(EOT);
+				ctx->state = XM_SEND_STATE_WAIT_EOT;
+			}
+			else
+			{
+				xm_putch(ctx->start);
+				xm_putch(ctx->pknum0);
+				xm_putch(ctx->pknum1);
+				for(i = 0; i < ctx->pksz; i++)
+					xm_putch(ctx->buf[i]);
+				xm_putch(ctx->crc0);
+				if(ctx->mode == CRC_MODE_CRC16)
+					xm_putch(ctx->crc1);
+				ctx->state = XM_SEND_STATE_WAIT_ACK;
+			}
 		}
 	}
 }
@@ -279,7 +460,7 @@ static void rx_usage(void)
 
 static int rx(int argc, char ** argv)
 {
-	struct xm_ctx_t ctx;
+	struct xm_recv_ctx_t ctx;
 	int fd;
 
 	if(argc != 2)
@@ -295,7 +476,7 @@ static int rx(int argc, char ** argv)
 		return -1;
 	}
 
-	ctx.state = XM_STATE_CONNECTING;
+	ctx.state = XM_RECV_STATE_CONNECTING;
 	ctx.mode = CRC_MODE_CRC16;
 	ctx.fileid = fd;
 	ctx.filelen = 0;
@@ -304,7 +485,7 @@ static int rx(int argc, char ** argv)
 	ctx.pknum = 0;
 	ctx.bufsz = 0;
 
-	if(xm_receive(&ctx) < 0)
+	if(xm_recv(&ctx) < 0)
 	{
 		printf("Receive fail\r\n");
 		return -1;
@@ -319,6 +500,53 @@ static int rx(int argc, char ** argv)
 	return 0;
 }
 
+static void sx_usage(void)
+{
+	printf("usage:\r\n");
+	printf("    sx <filename>\r\n");
+}
+
+static int sx(int argc, char ** argv)
+{
+	struct xm_send_ctx_t ctx;
+	int fd;
+
+	if(argc != 2)
+	{
+		sx_usage();
+		return -1;
+	}
+
+	fd = open(argv[1], O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	if(fd < 0)
+	{
+		printf("Can not to open file '%s'\r\n", argv[1]);
+		return -1;
+	}
+
+	ctx.state = XM_SEND_STATE_CONNECTING;
+	ctx.mode = CRC_MODE_CRC16;
+	ctx.fileid = fd;
+	ctx.retry = 0;
+	ctx.pksz = 1024;
+	ctx.pknum = 0;
+	ctx.eot = 0;
+
+	if(xm_send(&ctx) < 0)
+	{
+		printf("Send fail\r\n");
+		return -1;
+	}
+	else
+	{
+		printf("Send complete\r\n");
+		return 0;
+	}
+
+	close(fd);
+	return 0;
+}
+
 static struct command_t cmd_rx = {
 	.name	= "rx",
 	.desc	= "receive file using xmodem",
@@ -326,14 +554,23 @@ static struct command_t cmd_rx = {
 	.exec	= rx,
 };
 
+static struct command_t cmd_sx = {
+	.name	= "sx",
+	.desc	= "send file using xmodem",
+	.usage	= sx_usage,
+	.exec	= sx,
+};
+
 static __init void xm_cmd_init(void)
 {
 	register_command(&cmd_rx);
+	register_command(&cmd_sx);
 }
 
 static __exit void xm_cmd_exit(void)
 {
 	unregister_command(&cmd_rx);
+	unregister_command(&cmd_sx);
 }
 
 command_initcall(xm_cmd_init);

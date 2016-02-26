@@ -38,6 +38,13 @@ enum crc_mode_t {
 	CRC_MODE_CRC16	= 1,
 };
 
+enum xm_send_state_t {
+	XM_SEND_STATE_CONNECTING	= 0,
+	XM_SEND_STATE_TRANSMIT		= 1,
+	XM_SEND_STATE_WAIT_ACK		= 2,
+	XM_SEND_STATE_WAIT_EOT		= 3,
+};
+
 enum xm_recv_state_t {
 	XM_RECV_STATE_CONNECTING	= 0,
 	XM_RECV_STATE_START			= 1,
@@ -48,40 +55,33 @@ enum xm_recv_state_t {
 	XM_RECV_STATE_CRC1			= 6,
 };
 
-struct xm_recv_ctx_t {
-	enum xm_recv_state_t state;
+struct xm_send_ctx_t {
+	enum xm_send_state_t state;
 	enum crc_mode_t mode;
-	int fileid;
-	int filelen;
+	int fd;
 	int retry;
+	int index;
 	int pksz;
-	int pknum;
-	int bufsz;
-	uint8_t pknum0;
-	uint8_t pknum1;
+	int eot;
+	uint8_t start;
+	uint8_t num0;
+	uint8_t num1;
 	uint8_t buf[1024];
 	uint8_t crc0;
 	uint8_t crc1;
 };
 
-enum xm_send_state_t {
-	XM_SEND_STATE_CONNECTING	= 0,
-	XM_SEND_STATE_TRANSMIT		= 1,
-	XM_SEND_STATE_WAIT_ACK		= 2,
-	XM_SEND_STATE_WAIT_EOT		= 3,
-};
-
-struct xm_send_ctx_t {
-	enum xm_send_state_t state;
+struct xm_recv_ctx_t {
+	enum xm_recv_state_t state;
 	enum crc_mode_t mode;
-	int fileid;
+	int fd;
 	int retry;
+	int timeout;
+	int index;
 	int pksz;
-	int pknum;
-	int eot;
-	uint8_t start;
-	uint8_t pknum0;
-	uint8_t pknum1;
+	int bufsz;
+	uint8_t num0;
+	uint8_t num1;
 	uint8_t buf[1024];
 	uint8_t crc0;
 	uint8_t crc1;
@@ -131,7 +131,7 @@ static uint16_t xm_crc16(uint16_t crc, const uint8_t * buf, int len)
 	return crc;
 }
 
-static int xm_getch_timeout(int ms)
+static int xm_getch(int ms)
 {
 	ktime_t timeout = ktime_add_ms(ktime_get(), ms);
 	int ch;
@@ -150,184 +150,16 @@ static void xm_putch(int ch)
 	fflush(stdout);
 }
 
-static int xm_recv_verify(struct xm_recv_ctx_t * ctx)
-{
-	uint8_t crc8 = 0;
-	uint16_t crc16 = 0;
-	int i;
-
-	if(ctx->pknum0 != (255 - ctx->pknum1))
-		return -1;
-
-	if((ctx->pknum0 != (ctx->pknum & 0xff)) && (ctx->pknum0 != ((ctx->pknum + 1) & 0xff)))
-		return -1;
-
-	switch(ctx->mode)
-	{
-	case CRC_MODE_ADD8:
-		for(i = 0; i < ctx->bufsz; i++)
-			crc8 += ctx->buf[i];
-		return (crc8 == ctx->crc0) ? 0 : -1;
-
-	case CRC_MODE_CRC16:
-		crc16 = ((uint16_t)ctx->crc0 << 8) | (uint16_t)ctx->crc1;
-		return (xm_crc16(0, ctx->buf, ctx->bufsz) == crc16) ? 0 : -1;
-
-	default:
-		break;
-	}
-
-	return -1;
-}
-
-static int xm_recv(struct xm_recv_ctx_t * ctx)
-{
-	int c;
-
-	while(1)
-	{
-		if((c = xm_getch_timeout(1000)) < 0)
-		{
-			if(ctx->state == XM_RECV_STATE_CONNECTING)
-			{
-				++ctx->retry;
-				if(ctx->retry < 15)
-				{
-					xm_putch('C');
-					ctx->mode = CRC_MODE_CRC16;
-				}
-				else if(ctx->retry < 30)
-				{
-					xm_putch(NAK);
-					ctx->mode = CRC_MODE_ADD8;
-				}
-				else
-				{
-					return -1;
-				}
-			}
-			else
-			{
-				if(++ctx->retry > 30)
-				{
-					xm_putch(CAN);
-					xm_putch(CAN);
-					xm_putch(CAN);
-					return -1;
-				}
-			}
-
-			continue;
-		}
-
-		switch(ctx->state)
-		{
-		case XM_RECV_STATE_CONNECTING:
-		case XM_RECV_STATE_START:
-			switch(c)
-			{
-			case SOH:
-				ctx->retry = 0;
-				ctx->pksz = 128;
-				ctx->state = XM_RECV_STATE_PKNUM0;
-				break;
-
-			case STX:
-				ctx->retry = 0;
-				ctx->pksz = 1024;
-				ctx->state = XM_RECV_STATE_PKNUM0;
-				break;
-
-			case EOT:
-				xm_putch(ACK);
-				return 0;
-
-			case CAN:
-				xm_putch(ACK);
-				return -1;
-
-			default:
-				break;
-			}
-			break;
-
-		case XM_RECV_STATE_PKNUM0:
-			ctx->pknum0 = c;
-			ctx->state = XM_RECV_STATE_PKNUM1;
-			break;
-
-		case XM_RECV_STATE_PKNUM1:
-			ctx->pknum1 = c;
-			ctx->bufsz = 0;
-			ctx->state = XM_RECV_STATE_BODY;
-			break;
-
-		case XM_RECV_STATE_BODY:
-			ctx->buf[ctx->bufsz++] = c;
-			if(ctx->bufsz >= ctx->pksz)
-				ctx->state = XM_RECV_STATE_CRC0;
-			break;
-
-		case XM_RECV_STATE_CRC0:
-			ctx->crc0 = c;
-			if(ctx->mode == CRC_MODE_ADD8)
-			{
-				if(xm_recv_verify(ctx) >= 0)
-				{
-					if(ctx->pknum0 == ((ctx->pknum + 1) & 0xff))
-					{
-						ctx->filelen += write(ctx->fileid, ctx->buf, ctx->bufsz);
-						ctx->pknum = (ctx->pknum + 1) & 0xff;
-					}
-					xm_putch(ACK);
-				}
-				else
-				{
-					xm_putch(NAK);
-				}
-				ctx->state = XM_RECV_STATE_START;
-			}
-			else if(ctx->mode == CRC_MODE_CRC16)
-			{
-				ctx->state = XM_RECV_STATE_CRC1;
-			}
-			break;
-
-		case XM_RECV_STATE_CRC1:
-			ctx->crc1 = c;
-			if(xm_recv_verify(ctx) >= 0)
-			{
-				if(ctx->pknum0 == ((ctx->pknum + 1) & 0xff))
-				{
-					ctx->filelen += write(ctx->fileid, ctx->buf, ctx->bufsz);
-					ctx->pknum = (ctx->pknum + 1) & 0xff;
-				}
-				xm_putch(ACK);
-			}
-			else
-			{
-				xm_putch(NAK);
-			}
-			ctx->state = XM_RECV_STATE_START;
-			break;
-
-		default:
-			ctx->state = XM_RECV_STATE_START;
-			break;
-		}
-	}
-}
-
-static void xm_send_fill(struct xm_send_ctx_t * ctx)
+static void xm_send_fill_packet(struct xm_send_ctx_t * ctx)
 {
 	int i;
 
 	ctx->start = SOH;
 	ctx->pksz = 128;
-	ctx->pknum0 = ctx->pknum;
-	ctx->pknum1 = 255 - ctx->pknum;
+	ctx->num0 = ctx->index;
+	ctx->num1 = 255 - ctx->index;
 	memset(ctx->buf, 0x1a, ctx->pksz);
-	if(read(ctx->fileid, (void *)ctx->buf, ctx->pksz) > 0)
+	if(read(ctx->fd, (void *)ctx->buf, ctx->pksz) > 0)
 	{
 		ctx->eot = 0;
 		if(ctx->mode == CRC_MODE_ADD8)
@@ -348,13 +180,43 @@ static void xm_send_fill(struct xm_send_ctx_t * ctx)
 	}
 }
 
+static int xm_recv_verify_packet(struct xm_recv_ctx_t * ctx)
+{
+	uint8_t crc8 = 0;
+	uint16_t crc16 = 0;
+	int i;
+
+	if(ctx->num0 != (255 - ctx->num1))
+		return -1;
+
+	if((ctx->num0 != (ctx->index & 0xff)) && (ctx->num0 != ((ctx->index - 1) & 0xff)))
+		return -1;
+
+	switch(ctx->mode)
+	{
+	case CRC_MODE_ADD8:
+		for(i = 0; i < ctx->bufsz; i++)
+			crc8 += ctx->buf[i];
+		return (crc8 == ctx->crc0) ? 0 : -1;
+
+	case CRC_MODE_CRC16:
+		crc16 = ((uint16_t)ctx->crc0 << 8) | (uint16_t)ctx->crc1;
+		return (xm_crc16(0, ctx->buf, ctx->bufsz) == crc16) ? 0 : -1;
+
+	default:
+		break;
+	}
+
+	return -1;
+}
+
 static int xm_send(struct xm_send_ctx_t * ctx)
 {
 	int c, i;
 
 	while(1)
 	{
-		if((c = xm_getch_timeout(1000)) < 0)
+		if((c = xm_getch(1000)) < 0)
 		{
 			continue;
 		}
@@ -366,15 +228,15 @@ static int xm_send(struct xm_send_ctx_t * ctx)
 			{
 			case 'C':
 				ctx->mode = CRC_MODE_CRC16;
-				ctx->pknum = 1;
-				xm_send_fill(ctx);
+				ctx->index = 1;
+				xm_send_fill_packet(ctx);
 				ctx->state = XM_SEND_STATE_TRANSMIT;
 				break;
 
 			case NAK:
 				ctx->mode = CRC_MODE_ADD8;
-				ctx->pknum = 1;
-				xm_send_fill(ctx);
+				ctx->index = 1;
+				xm_send_fill_packet(ctx);
 				ctx->state = XM_SEND_STATE_TRANSMIT;
 				break;
 
@@ -390,8 +252,8 @@ static int xm_send(struct xm_send_ctx_t * ctx)
 			switch(c)
 			{
 			case ACK:
-				ctx->pknum = (ctx->pknum + 1) & 0xff;
-				xm_send_fill(ctx);
+				ctx->index = (ctx->index + 1) & 0xff;
+				xm_send_fill_packet(ctx);
 				ctx->state = XM_SEND_STATE_TRANSMIT;
 				break;
 
@@ -439,8 +301,8 @@ static int xm_send(struct xm_send_ctx_t * ctx)
 			else
 			{
 				xm_putch(ctx->start);
-				xm_putch(ctx->pknum0);
-				xm_putch(ctx->pknum1);
+				xm_putch(ctx->num0);
+				xm_putch(ctx->num1);
 				for(i = 0; i < ctx->pksz; i++)
 					xm_putch(ctx->buf[i]);
 				xm_putch(ctx->crc0);
@@ -452,58 +314,151 @@ static int xm_send(struct xm_send_ctx_t * ctx)
 	}
 }
 
-static void rx_usage(void)
+static int xm_recv(struct xm_recv_ctx_t * ctx)
 {
-	printf("usage:\r\n");
-	printf("    rx <filename>\r\n");
-}
+	int c;
 
-static int rx(int argc, char ** argv)
-{
-	struct xm_recv_ctx_t ctx;
-	int fd;
-
-	if(argc != 2)
+	while(1)
 	{
-		rx_usage();
-		return -1;
-	}
+		if((c = xm_getch(ctx->timeout)) < 0)
+		{
+			if(ctx->state == XM_RECV_STATE_CONNECTING)
+			{
+				if(++ctx->retry < 20)
+				{
+					xm_putch('C');
+					ctx->mode = CRC_MODE_CRC16;
+				}
+				else
+				{
+					xm_putch(NAK);
+					ctx->mode = CRC_MODE_ADD8;
+				}
+			}
+			else
+			{
+				if(++ctx->retry > 30)
+				{
+					xm_putch(CAN);
+					xm_putch(CAN);
+					xm_putch(CAN);
+					return -1;
+				}
+			}
 
-	fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-	if(fd < 0)
-	{
-		printf("Can not to open file '%s'\r\n", argv[1]);
-		return -1;
-	}
+			continue;
+		}
 
-	ctx.state = XM_RECV_STATE_CONNECTING;
-	ctx.mode = CRC_MODE_CRC16;
-	ctx.fileid = fd;
-	ctx.filelen = 0;
-	ctx.retry = 0;
-	ctx.pksz = 1024;
-	ctx.pknum = 0;
-	ctx.bufsz = 0;
+		switch(ctx->state)
+		{
+		case XM_RECV_STATE_CONNECTING:
+		case XM_RECV_STATE_START:
+			switch(c)
+			{
+			case SOH:
+				ctx->retry = 0;
+				ctx->pksz = 128;
+				ctx->state = XM_RECV_STATE_PKNUM0;
+				break;
 
-	if(xm_recv(&ctx) < 0)
-	{
-		printf("Receive fail\r\n");
-		return -1;
-	}
-	else
-	{
-		printf("Receive complete, size is %ld bytes\r\n", ctx.filelen);
-		return 0;
-	}
+			case STX:
+				ctx->retry = 0;
+				ctx->pksz = 1024;
+				ctx->state = XM_RECV_STATE_PKNUM0;
+				break;
 
-	close(fd);
-	return 0;
+			case EOT:
+				xm_putch(ACK);
+				return 0;
+
+			case CAN:
+				xm_putch(ACK);
+				return -1;
+
+			default:
+				if((ctx->state == XM_RECV_STATE_CONNECTING) && (c == 0x3))
+					return -1;
+				break;
+			}
+			break;
+
+		case XM_RECV_STATE_PKNUM0:
+			ctx->num0 = c;
+			ctx->state = XM_RECV_STATE_PKNUM1;
+			break;
+
+		case XM_RECV_STATE_PKNUM1:
+			ctx->num1 = c;
+			ctx->bufsz = 0;
+			ctx->state = XM_RECV_STATE_BODY;
+			break;
+
+		case XM_RECV_STATE_BODY:
+			ctx->buf[ctx->bufsz++] = c;
+			if(ctx->bufsz >= ctx->pksz)
+				ctx->state = XM_RECV_STATE_CRC0;
+			break;
+
+		case XM_RECV_STATE_CRC0:
+			ctx->crc0 = c;
+			if(ctx->mode == CRC_MODE_ADD8)
+			{
+				if(xm_recv_verify_packet(ctx) >= 0)
+				{
+					if(ctx->num0 == (ctx->index & 0xff))
+					{
+						write(ctx->fd, ctx->buf, ctx->bufsz);
+						ctx->index = (ctx->index + 1) & 0xff;
+					}
+					xm_putch(ACK);
+				}
+				else
+				{
+					xm_putch(NAK);
+				}
+				ctx->state = XM_RECV_STATE_START;
+			}
+			else if(ctx->mode == CRC_MODE_CRC16)
+			{
+				ctx->state = XM_RECV_STATE_CRC1;
+			}
+			break;
+
+		case XM_RECV_STATE_CRC1:
+			ctx->crc1 = c;
+			if(xm_recv_verify_packet(ctx) >= 0)
+			{
+				if(ctx->num0 == (ctx->index & 0xff))
+				{
+					write(ctx->fd, ctx->buf, ctx->bufsz);
+					ctx->index = (ctx->index + 1) & 0xff;
+				}
+				xm_putch(ACK);
+			}
+			else
+			{
+				xm_putch(NAK);
+			}
+			ctx->state = XM_RECV_STATE_START;
+			break;
+
+		default:
+			ctx->state = XM_RECV_STATE_START;
+			break;
+		}
+	}
 }
 
 static void sx_usage(void)
 {
 	printf("usage:\r\n");
 	printf("    sx <filename>\r\n");
+}
+
+static void rx_usage(void)
+{
+	printf("usage:\r\n");
+	printf("    rx <filename>\r\n");
 }
 
 static int sx(int argc, char ** argv)
@@ -526,10 +481,10 @@ static int sx(int argc, char ** argv)
 
 	ctx.state = XM_SEND_STATE_CONNECTING;
 	ctx.mode = CRC_MODE_CRC16;
-	ctx.fileid = fd;
+	ctx.fd = fd;
 	ctx.retry = 0;
+	ctx.index = 0;
 	ctx.pksz = 1024;
-	ctx.pknum = 0;
 	ctx.eot = 0;
 
 	if(xm_send(&ctx) < 0)
@@ -547,12 +502,44 @@ static int sx(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t cmd_rx = {
-	.name	= "rx",
-	.desc	= "receive file using xmodem",
-	.usage	= rx_usage,
-	.exec	= rx,
-};
+static int rx(int argc, char ** argv)
+{
+	struct xm_recv_ctx_t ctx;
+	int fd;
+
+	if(argc != 2)
+	{
+		rx_usage();
+		return -1;
+	}
+
+	fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(fd < 0)
+	{
+		printf("Can not to open file '%s'\r\n", argv[1]);
+		return -1;
+	}
+
+	ctx.state = XM_RECV_STATE_CONNECTING;
+	ctx.fd = fd;
+	ctx.retry = 0;
+	ctx.timeout = 1000;
+	ctx.index = 1;
+
+	if(xm_recv(&ctx) < 0)
+	{
+		printf("Receive fail\r\n");
+		return -1;
+	}
+	else
+	{
+		printf("Receive complete\r\n");
+		return 0;
+	}
+
+	close(fd);
+	return 0;
+}
 
 static struct command_t cmd_sx = {
 	.name	= "sx",
@@ -561,16 +548,23 @@ static struct command_t cmd_sx = {
 	.exec	= sx,
 };
 
+static struct command_t cmd_rx = {
+	.name	= "rx",
+	.desc	= "receive file using xmodem",
+	.usage	= rx_usage,
+	.exec	= rx,
+};
+
 static __init void xm_cmd_init(void)
 {
-	register_command(&cmd_rx);
 	register_command(&cmd_sx);
+	register_command(&cmd_rx);
 }
 
 static __exit void xm_cmd_exit(void)
 {
-	unregister_command(&cmd_rx);
 	unregister_command(&cmd_sx);
+	unregister_command(&cmd_rx);
 }
 
 command_initcall(xm_cmd_init);

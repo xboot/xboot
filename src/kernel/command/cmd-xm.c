@@ -320,11 +320,11 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 
 	while(1)
 	{
-		if((c = xm_getch(ctx->timeout)) < 0)
+		if((c = xm_getch(1000)) < 0)
 		{
 			if(ctx->state == XM_RECV_STATE_CONNECTING)
 			{
-				if(++ctx->retry < 15)
+				if(++ctx->retry < 10)
 				{
 					xm_putch('C');
 					ctx->mode = CRC_MODE_CRC16;
@@ -337,7 +337,7 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 			}
 			else
 			{
-				if(++ctx->retry > 10)
+				if(++ctx->timeout > 3)
 				{
 					xm_putch(CAN);
 					xm_putch(CAN);
@@ -345,25 +345,47 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 					return -1;
 				}
 			}
-
 			continue;
 		}
 
 		switch(ctx->state)
 		{
 		case XM_RECV_STATE_CONNECTING:
-		case XM_RECV_STATE_START:
 			switch(c)
 			{
 			case SOH:
 				ctx->retry = 0;
+				ctx->timeout = 0;
 				ctx->pksz = 128;
+				ctx->bufsz = 0;
 				ctx->state = XM_RECV_STATE_PKNUM0;
 				break;
 
 			case STX:
 				ctx->retry = 0;
+				ctx->timeout = 0;
 				ctx->pksz = 1024;
+				ctx->bufsz = 0;
+				ctx->state = XM_RECV_STATE_PKNUM0;
+				break;
+
+			case CAN:
+				xm_putch(ACK);
+				return -1;
+
+			case 0x3:
+				return -1;
+
+			default:
+				break;
+			}
+			break;
+
+		case XM_RECV_STATE_START:
+			switch(c)
+			{
+			case SOH:
+			case STX:
 				ctx->state = XM_RECV_STATE_PKNUM0;
 				break;
 
@@ -376,8 +398,6 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 				return -1;
 
 			default:
-				if((ctx->state == XM_RECV_STATE_CONNECTING) && (c == 0x3))
-					return -1;
 				break;
 			}
 			break;
@@ -389,7 +409,6 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 
 		case XM_RECV_STATE_PKNUM1:
 			ctx->num1 = c;
-			ctx->bufsz = 0;
 			ctx->state = XM_RECV_STATE_BODY;
 			break;
 
@@ -410,11 +429,25 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 						write(ctx->fd, ctx->buf, ctx->bufsz);
 						ctx->index = (ctx->index + 1) & 0xff;
 					}
+					ctx->retry = 0;
+					ctx->timeout = 0;
+					ctx->bufsz = 0;
 					xm_putch(ACK);
 				}
 				else
 				{
-					xm_putch(NAK);
+					if(++ctx->retry < 10)
+					{
+						ctx->bufsz = 0;
+						xm_putch(NAK);
+					}
+					else
+					{
+						xm_putch(CAN);
+						xm_putch(CAN);
+						xm_putch(CAN);
+						return -1;
+					}
 				}
 				ctx->state = XM_RECV_STATE_START;
 			}
@@ -433,11 +466,25 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 					write(ctx->fd, ctx->buf, ctx->bufsz);
 					ctx->index = (ctx->index + 1) & 0xff;
 				}
+				ctx->retry = 0;
+				ctx->timeout = 0;
+				ctx->bufsz = 0;
 				xm_putch(ACK);
 			}
 			else
 			{
-				xm_putch(NAK);
+				if(++ctx->retry < 10)
+				{
+					ctx->bufsz = 0;
+					xm_putch(NAK);
+				}
+				else
+				{
+					xm_putch(CAN);
+					xm_putch(CAN);
+					xm_putch(CAN);
+					return -1;
+				}
 			}
 			ctx->state = XM_RECV_STATE_START;
 			break;
@@ -464,7 +511,7 @@ static void rx_usage(void)
 static int sx(int argc, char ** argv)
 {
 	struct xm_send_ctx_t ctx;
-	int fd;
+	int fd, ret;
 
 	if(argc != 2)
 	{
@@ -487,25 +534,15 @@ static int sx(int argc, char ** argv)
 	ctx.pksz = 1024;
 	ctx.eot = 0;
 
-	if(xm_send(&ctx) < 0)
-	{
-		printf("Send fail\r\n");
-		return -1;
-	}
-	else
-	{
-		printf("Send complete\r\n");
-		return 0;
-	}
-
+	ret = xm_send(&ctx);
 	close(fd);
-	return 0;
+	return ret;
 }
 
 static int rx(int argc, char ** argv)
 {
 	struct xm_recv_ctx_t ctx;
-	int fd;
+	int fd, ret;
 
 	if(argc != 2)
 	{
@@ -523,18 +560,15 @@ static int rx(int argc, char ** argv)
 	ctx.state = XM_RECV_STATE_CONNECTING;
 	ctx.fd = fd;
 	ctx.retry = 0;
-	ctx.timeout = 1000;
+	ctx.timeout = 0;
+	ctx.bufsz = 0;
 	ctx.index = 1;
 
-	if(xm_recv(&ctx) < 0)
-	{
-		close(fd);
-		unlink(argv[1]);
-		return -1;
-	}
-
+	ret = xm_recv(&ctx);
 	close(fd);
-	return 0;
+	if(ret < 0)
+		unlink(argv[1]);
+	return ret;
 }
 
 static struct command_t cmd_sx = {

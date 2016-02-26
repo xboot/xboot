@@ -324,7 +324,7 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 		{
 			if(ctx->state == XM_RECV_STATE_CONNECTING)
 			{
-				if(++ctx->retry < 20)
+				if(++ctx->retry < 15)
 				{
 					xm_putch('C');
 					ctx->mode = CRC_MODE_CRC16;
@@ -337,7 +337,7 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 			}
 			else
 			{
-				if(++ctx->retry > 30)
+				if(++ctx->retry > 10)
 				{
 					xm_putch(CAN);
 					xm_putch(CAN);
@@ -528,13 +528,9 @@ static int rx(int argc, char ** argv)
 
 	if(xm_recv(&ctx) < 0)
 	{
-		printf("Receive fail\r\n");
+		close(fd);
+		unlink(argv[1]);
 		return -1;
-	}
-	else
-	{
-		printf("Receive complete\r\n");
-		return 0;
 	}
 
 	close(fd);

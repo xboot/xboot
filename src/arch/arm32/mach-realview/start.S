@@ -78,10 +78,10 @@ _fiq:
  * The actual reset code
  */
 reset:
-	/* Set cpu to svc32 mode */
+	/* Set cpu to svc32 mode and disable interrupt */
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
-	orr r0, r0, #0x13
+	orr r0, r0, #0xd3
 	msr cpsr, r0
 
 	/* Enable neon/vfp unit */

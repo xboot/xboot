@@ -78,6 +78,12 @@ _fiq:
  * The actual reset code
  */
 reset:
+	/* Set cpu to svc32 mode and disable interrupt */
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r0, r0, #0xd3
+	msr cpsr, r0
+
 	/* Copy vector to zero address */
 	adr r0, _start
 	mov r1, #0
@@ -85,12 +91,6 @@ reset:
 	stmia r1!,{r2, r3, r4, r5, r6, r7, r8, r9}
 	ldmia r0!,{r2, r3, r4, r5, r6, r7, r8, r9}
 	stmia r1!,{r2, r3, r4, r5, r6, r7, r8, r9}
-
-	/* Set cpu to svc32 mode */
-	mrs r0, cpsr
-	bic r0, r0, #0x1f
-	orr r0, r0, #0x13
-	msr cpsr, r0
 
 	/* Enable neon/vfp unit */
 	mrc p15, #0, r1, c1, c0, #2

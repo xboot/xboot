@@ -59,7 +59,7 @@ struct xm_send_ctx_t {
 	enum xm_send_state_t state;
 	enum crc_mode_t mode;
 	int fd;
-	int retry;
+	int timeout;
 	int index;
 	int pksz;
 	int eot;
@@ -154,8 +154,10 @@ static void xm_send_fill_packet(struct xm_send_ctx_t * ctx)
 {
 	int i;
 
-	ctx->start = SOH;
-	ctx->pksz = 128;
+	if(ctx->pksz == 128)
+		ctx->start = SOH;
+	else if(ctx->pksz == 1024)
+		ctx->start = STX;
 	ctx->num0 = ctx->index;
 	ctx->num1 = 255 - ctx->index;
 	memset(ctx->buf, 0x1a, ctx->pksz);
@@ -218,6 +220,16 @@ static int xm_send(struct xm_send_ctx_t * ctx)
 	{
 		if((c = xm_getch(1000)) < 0)
 		{
+			if((ctx->state == XM_SEND_STATE_WAIT_ACK) || (ctx->state == XM_SEND_STATE_WAIT_EOT))
+			{
+				if(++ctx->timeout > 3)
+				{
+					xm_putch(CAN);
+					xm_putch(CAN);
+					xm_putch(CAN);
+					return -1;
+				}
+			}
 			continue;
 		}
 
@@ -228,19 +240,20 @@ static int xm_send(struct xm_send_ctx_t * ctx)
 			{
 			case 'C':
 				ctx->mode = CRC_MODE_CRC16;
-				ctx->index = 1;
 				xm_send_fill_packet(ctx);
 				ctx->state = XM_SEND_STATE_TRANSMIT;
 				break;
 
 			case NAK:
 				ctx->mode = CRC_MODE_ADD8;
-				ctx->index = 1;
 				xm_send_fill_packet(ctx);
 				ctx->state = XM_SEND_STATE_TRANSMIT;
 				break;
 
 			case CAN:
+				return -1;
+
+			case 0x3:
 				return -1;
 
 			default:
@@ -296,6 +309,7 @@ static int xm_send(struct xm_send_ctx_t * ctx)
 			if(ctx->eot)
 			{
 				xm_putch(EOT);
+				ctx->timeout = 0;
 				ctx->state = XM_SEND_STATE_WAIT_EOT;
 			}
 			else
@@ -308,6 +322,7 @@ static int xm_send(struct xm_send_ctx_t * ctx)
 				xm_putch(ctx->crc0);
 				if(ctx->mode == CRC_MODE_CRC16)
 					xm_putch(ctx->crc1);
+				ctx->timeout = 0;
 				ctx->state = XM_SEND_STATE_WAIT_ACK;
 			}
 		}
@@ -385,7 +400,12 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 			switch(c)
 			{
 			case SOH:
+				ctx->pksz = 128;
+				ctx->state = XM_RECV_STATE_PKNUM0;
+				break;
+
 			case STX:
+				ctx->pksz = 1024;
 				ctx->state = XM_RECV_STATE_PKNUM0;
 				break;
 
@@ -499,7 +519,7 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 static void sx_usage(void)
 {
 	printf("usage:\r\n");
-	printf("    sx <filename>\r\n");
+	printf("    sx [-k] <filename>\r\n");
 }
 
 static void rx_usage(void)
@@ -511,15 +531,25 @@ static void rx_usage(void)
 static int sx(int argc, char ** argv)
 {
 	struct xm_send_ctx_t ctx;
+	char * filename = "";
+	int i, k = 0;
 	int fd, ret;
 
-	if(argc != 2)
+	if(argc < 2 || argc > 3)
 	{
 		sx_usage();
 		return -1;
 	}
 
-	fd = open(argv[1], O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	for(i = 1; i < argc; i++)
+	{
+		if(!strcmp(argv[i], "-k"))
+			k = 1;
+		else
+			filename = argv[i];
+	}
+
+	fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 	if(fd < 0)
 	{
 		printf("Can not to open file '%s'\r\n", argv[1]);
@@ -527,12 +557,10 @@ static int sx(int argc, char ** argv)
 	}
 
 	ctx.state = XM_SEND_STATE_CONNECTING;
-	ctx.mode = CRC_MODE_CRC16;
 	ctx.fd = fd;
-	ctx.retry = 0;
-	ctx.index = 0;
-	ctx.pksz = 1024;
-	ctx.eot = 0;
+	ctx.timeout = 0;
+	ctx.index = 1;
+	ctx.pksz = (k == 0) ? 128 : 1024;
 
 	ret = xm_send(&ctx);
 	close(fd);

@@ -22,6 +22,9 @@
  *
  */
 
+.arch_extension sec
+.arch_extension virt
+
 .macro irq_save_regs
 	sub	sp, sp, #72
 	stmia sp, {r0 - r12}
@@ -84,13 +87,9 @@ reset:
 	orr r0, r0, #0xd3
 	msr cpsr, r0
 
-	/* Copy vector to zero address */
-	adr r0, _start
-	mov r1, #0
-	ldmia r0!,{r2, r3, r4, r5, r6, r7, r8, r9}
-	stmia r1!,{r2, r3, r4, r5, r6, r7, r8, r9}
-	ldmia r0!,{r2, r3, r4, r5, r6, r7, r8, r9}
-	stmia r1!,{r2, r3, r4, r5, r6, r7, r8, r9}
+	/* Set hyp vector base address register */
+	ldr r0, =_start
+	mcr p15, 4, r0, c12, c0, 0
 
 	/* Enable neon/vfp unit */
 	mrc p15, #0, r1, c1, c0, #2
@@ -216,9 +215,10 @@ not_used:
 	.align 5
 irq:
 	ldr	sp, _stack_irq_end
-	irq_save_regs
-	bl interrupt_handle_exception
-	irq_restore_regs
+    push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
+    bl interrupt_handle_exception
+    pop  {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
+    eret
 
 	.align 5
 fiq:

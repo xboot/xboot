@@ -143,4 +143,4 @@ static __init void bcm2836_irqchip_init(void)
 	}
 	arm32_interrupt_enable();
 }
-//core_initcall(bcm2836_irqchip_init);
+core_initcall(bcm2836_irqchip_init);

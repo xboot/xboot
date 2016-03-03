@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 #include <clocksource/clocksource.h>
-#include <bcm2836/reg-systimer.h>
+#include <bcm2836/reg-sys-timer.h>
 
 struct clocksource_pdata_t
 {
@@ -44,12 +44,12 @@ static bool_t cs_init(struct clocksource_t * cs)
 static u64_t cs_read(struct clocksource_t * cs)
 {
 	struct clocksource_pdata_t * pdat = (struct clocksource_pdata_t *)cs->priv;
-	return (u64_t)(((u64_t)read32(pdat->virt + SYSTIMER_CHI) << 32) | read32(pdat->virt + SYSTIMER_CLO));
+	return (u64_t)(((u64_t)read32(pdat->virt + SYS_TIMER_CHI) << 32) | read32(pdat->virt + SYS_TIMER_CLO));
 }
 
 static struct clocksource_pdata_t pdata = {
-	.clk	= "systimer-clk",
-	.phys	= BCM2836_SYSTIMER_BASE,
+	.clk	= "sys-timer-clk",
+	.phys	= BCM2836_SYS_TIMER_BASE,
 };
 
 static struct clocksource_t cs = {

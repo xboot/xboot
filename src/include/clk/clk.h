@@ -22,6 +22,7 @@ enum clk_type_t {
 	CLK_TYPE_DIVIDER,
 	CLK_TYPE_GATE,
 	CLK_TYPE_LINK,
+	CLK_TYPE_OTHER,
 };
 
 struct clk_t

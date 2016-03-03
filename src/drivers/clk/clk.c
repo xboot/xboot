@@ -76,6 +76,9 @@ static const char * clk_type_to_string(const char * name)
 	case CLK_TYPE_LINK:
 		type = "link";
 		break;
+	case CLK_TYPE_OTHER:
+		type = "other";
+		break;
 	default:
 		break;
 	}

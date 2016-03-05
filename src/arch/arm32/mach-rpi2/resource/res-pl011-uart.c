@@ -29,7 +29,7 @@
 
 static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
-		.clk	= "uart0-pclk",
+		.clk	= "uart-clk",
 		.txdpin	= BCM2836_GPIO(14),
 		.txdcfg	= 0,
 		.rxdpin	= BCM2836_GPIO(15),

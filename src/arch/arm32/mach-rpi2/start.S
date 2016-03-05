@@ -22,9 +22,6 @@
  *
  */
 
-.arch_extension sec
-.arch_extension virt
-
 .macro irq_save_regs
 	sub	sp, sp, #72
 	stmia sp, {r0 - r12}
@@ -81,24 +78,35 @@ _fiq:
  * The actual reset code
  */
 reset:
-	/* Set cpu to svc32 mode and disable interrupt */
-	mrs r0, cpsr
-	bic r0, r0, #0x1f
-	orr r0, r0, #0xd3
-	msr cpsr, r0
+	/* Enter svc mode cleanly and mask interrupts */
+	mrs	r0, cpsr
+	eor	r0, r0, #0x1a
+	tst	r0, #0x1f
+	bic	r0, r0, #0x1f
+	orr	r0, r0, #0xd3
+	bne	1f
+	orr	r0, r0, #0x100
+	adr lr, 2f
+	msr spsr_cxsf, r0
+	.word 0xe12ef30e /* msr elr_hyp, lr */
+	.word 0xe160006e /* eret */
+1:	msr cpsr_c, r0
+2:	nop
 
-	/* Set hyp vector base address register */
+	/* Set vector base address register */
 	ldr r0, =_start
-	mcr p15, 4, r0, c12, c0, 0
+	mcr p15, 0, r0, c12, c0, 0
+	mrc p15, 0, r0, c1, c0, 0
+	bic r0, #(1<<13)
+	mcr p15, 0, r0, c1, c0, 0
 
 	/* Enable neon/vfp unit */
-	mrc p15, #0, r1, c1, c0, #2
-	orr r1, r1, #(0xf << 20)
-	mcr p15, #0, r1, c1, c0, #2
-	mov r1, #0
-	mcr p15, #0, r1, c7, c5, #4
+	mrc p15, 0, r0, c1, c0, 2
+	orr r0, r0, #(0xf << 20)
+	mcr p15, 0, r0, c1, c0, 2
+	isb
 	mov r0, #0x40000000
-	fmxr fpexc, r0
+	vmsr fpexc, r0
 
 	/* Initialize stacks */
 	mrs r0, cpsr
@@ -215,10 +223,9 @@ not_used:
 	.align 5
 irq:
 	ldr	sp, _stack_irq_end
-    push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
-    bl interrupt_handle_exception
-    pop  {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
-    eret
+	irq_save_regs
+	bl interrupt_handle_exception
+	irq_restore_regs
 
 	.align 5
 fiq:

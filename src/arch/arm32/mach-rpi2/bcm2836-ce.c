@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <clockevent/clockevent.h>
 #include <bcm2836-irq.h>
-#include <bcm2836/reg-armtimer.h>
+#include <bcm2836/reg-arm-timer.h>
 
 struct clockevent_pdata_t
 {
@@ -39,7 +39,8 @@ static void ce_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
 	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
-	write32(pdat->virt + ARMTIMER_CLI, 0x0);
+	write32(pdat->virt + ARM_TIMER_CLI, 0);
+	write32(pdat->virt + ARM_TIMER_CTL, 0);
 	ce->handler(ce, ce->data);
 }
 
@@ -57,10 +58,11 @@ static bool_t ce_init(struct clockevent_t * ce)
 		clk_disable(pdat->clk);
 		return FALSE;
 	}
-	write32(pdat->virt + ARMTIMER_CTL, 0);
-	write32(pdat->virt + ARMTIMER_LOD, 0);
-	write32(pdat->virt + ARMTIMER_DIV, 249);
-	write32(pdat->virt + ARMTIMER_CTL, (1 << 1) | (0 << 2) | (1 << 5) | (1 << 8) | (1 << 9) | (249 << 16));
+	write32(pdat->virt + ARM_TIMER_DIV, (250 - 1));
+	write32(pdat->virt + ARM_TIMER_RLD, 0);
+	write32(pdat->virt + ARM_TIMER_LOD, 0);
+	write32(pdat->virt + ARM_TIMER_CLI, 0);
+	write32(pdat->virt + ARM_TIMER_CTL, 0);
 	return TRUE;
 }
 
@@ -68,15 +70,16 @@ static bool_t ce_next(struct clockevent_t * ce, u64_t evt)
 {
 	struct clockevent_pdata_t * pdat = (struct clockevent_pdata_t *)ce->priv;
 
-	write32(pdat->virt + ARMTIMER_LOD, (evt & 0xffffffff));
-	write32(pdat->virt + ARMTIMER_CTL, read32(pdat->virt + ARMTIMER_CTL) | (1 << 7));
+	write32(pdat->virt + ARM_TIMER_RLD, (evt & 0xffffffff));
+	write32(pdat->virt + ARM_TIMER_LOD, (evt & 0xffffffff));
+	write32(pdat->virt + ARM_TIMER_CTL, (1 << 1) | (1 << 5) | (1 << 7));
 	return TRUE;
 }
 
 static struct clockevent_pdata_t pdata = {
-	.clk	= "armtimer-clk",
+	.clk	= "arm-timer-clk",
 	.irq 	= BCM2836_IRQ_ARM_TIMER,
-	.phys	= BCM2836_ARMTIMER_BASE,
+	.phys	= BCM2836_ARM_TIMER_BASE,
 };
 
 static struct clockevent_t ce = {
@@ -91,4 +94,4 @@ static __init void bcm2836_clockevent_init(void)
 	pdata.virt = phys_to_virt(pdata.phys);
 	register_clockevent(&ce);
 }
-//core_initcall(bcm2836_clockevent_init);
+core_initcall(bcm2836_clockevent_init);

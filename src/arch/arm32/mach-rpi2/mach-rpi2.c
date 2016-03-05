@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <bcm2836-mbox.h>
 #include <bcm2836/reg-pm.h>
 
 static const struct mmap_t mach_map[] = {
@@ -77,7 +78,15 @@ static bool_t mach_cleanup(struct machine_t * mach)
 
 static const char * mach_uniqueid(struct machine_t * mach)
 {
-	return NULL;
+	static char uniqueid[16 + 1] = { 0 };
+	uint64_t sn;
+
+	if(bcm2836_mbox_hardware_get_serial(&sn) < 0)
+		return NULL;
+	sprintf(uniqueid, "%02x%02x%02x%02x%02x%02x%02x%02x",
+		(sn >> 56) & 0xff, (sn >> 48) & 0xff, (sn >> 40) & 0xff, (sn >> 32) & 0xff,
+		(sn >> 24) & 0xff, (sn >> 16) & 0xff, (sn >> 8) & 0xff, (sn >> 0) & 0xff);
+	return uniqueid;
 }
 
 static int mach_keygen(struct machine_t * mach, const char * msg, void * key)

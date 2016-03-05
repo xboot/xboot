@@ -419,6 +419,36 @@ enum {
 	MBOX_TAG_VC_GET_FIRMWARE_REV	= 0x00000001,
 };
 
+struct mbox_vc_msg_t {
+	uint32_t buf_size;
+	uint32_t code;
+	struct {
+		uint32_t tag;
+		uint32_t val_buf_size;
+		uint32_t val_len;
+		uint32_t val;
+	} tag;
+	uint32_t end_tag;
+};
+
+int bcm2836_mbox_vc_get_firmware_revison(void)
+{
+	struct mbox_vc_msg_t msg __attribute__((aligned(16)));
+
+	msg.buf_size = sizeof(struct mbox_vc_msg_t);
+	msg.code = 0;
+	msg.tag.tag = MBOX_TAG_VC_GET_FIRMWARE_REV;
+	msg.tag.val_buf_size = 4;
+	msg.tag.val_len = 0;
+	msg.tag.val = 0;
+	msg.end_tag = 0;
+
+	bcm2835_mbox_call_tag(&msg);
+	if(msg.code != 0x80000000)
+		return -1;
+	return msg.tag.val;
+}
+
 /*
  * Mbox hardware
  */
@@ -431,6 +461,176 @@ enum {
 	MBOX_TAG_HARDWARE_GET_VC_MEMORY 	= 0x00010006,
 	MBOX_TAG_HARDWARE_GET_CLOCKS 		= 0x00010007,
 };
+
+struct mbox_hardware_msg_t {
+	uint32_t buf_size;
+	uint32_t code;
+	struct {
+		uint32_t tag;
+		uint32_t val_buf_size;
+		uint32_t val_len;
+		uint32_t val;
+	} tag;
+	uint32_t end_tag;
+};
+
+struct mbox_hardware_mac_msg_t {
+	uint32_t buf_size;
+	uint32_t code;
+	struct {
+		uint32_t tag;
+		uint32_t val_buf_size;
+		uint32_t val_len;
+		uint8_t val[6];
+	} tag;
+	uint32_t end_tag;
+};
+
+struct mbox_hardware_serial_msg_t {
+	uint32_t buf_size;
+	uint32_t code;
+	struct {
+		uint32_t tag;
+		uint32_t val_buf_size;
+		uint32_t val_len;
+		uint64_t val;
+	} tag;
+	uint32_t end_tag;
+};
+
+struct mbox_hardware_memory_msg_t {
+	uint32_t buf_size;
+	uint32_t code;
+	struct {
+		uint32_t tag;
+		uint32_t val_buf_size;
+		uint32_t val_len;
+		uint32_t base;
+		uint32_t size;
+	} tag;
+	uint32_t end_tag;
+};
+
+int bcm2836_mbox_hardware_get_model(void)
+{
+	struct mbox_hardware_msg_t msg __attribute__((aligned(16)));
+
+	msg.buf_size = sizeof(struct mbox_hardware_msg_t);
+	msg.code = 0;
+	msg.tag.tag = MBOX_TAG_HARDWARE_GET_MODEL;
+	msg.tag.val_buf_size = 4;
+	msg.tag.val_len = 0;
+	msg.tag.val = 0;
+	msg.end_tag = 0;
+
+	bcm2835_mbox_call_tag(&msg);
+	if(msg.code != 0x80000000)
+		return -1;
+	return msg.tag.val;
+}
+
+int bcm2836_mbox_hardware_get_revison(void)
+{
+	struct mbox_hardware_msg_t msg __attribute__((aligned(16)));
+
+	msg.buf_size = sizeof(struct mbox_hardware_msg_t);
+	msg.code = 0;
+	msg.tag.tag = MBOX_TAG_HARDWARE_GET_REV;
+	msg.tag.val_buf_size = 4;
+	msg.tag.val_len = 0;
+	msg.tag.val = 0;
+	msg.end_tag = 0;
+
+	bcm2835_mbox_call_tag(&msg);
+	if(msg.code != 0x80000000)
+		return -1;
+	return msg.tag.val;
+}
+
+int bcm2836_mbox_hardware_get_mac_address(uint8_t * mac)
+{
+	struct mbox_hardware_mac_msg_t msg __attribute__((aligned(16)));
+
+	msg.buf_size = sizeof(struct mbox_hardware_mac_msg_t);
+	msg.code = 0;
+	msg.tag.tag = MBOX_TAG_HARDWARE_GET_MAC_ADDRESS;
+	msg.tag.val_buf_size = 6;
+	msg.tag.val_len = 0;
+	msg.tag.val[0] = 0;
+	msg.end_tag = 0;
+
+	bcm2835_mbox_call_tag(&msg);
+	if(msg.code != 0x80000000)
+		return -1;
+	mac[0] = msg.tag.val[0];
+	mac[1] = msg.tag.val[1];
+	mac[2] = msg.tag.val[2];
+	mac[3] = msg.tag.val[3];
+	mac[4] = msg.tag.val[4];
+	mac[5] = msg.tag.val[5];
+	return 0;
+}
+
+int bcm2836_mbox_hardware_get_serial(uint64_t * sn)
+{
+	struct mbox_hardware_serial_msg_t msg __attribute__((aligned(16)));
+
+	msg.buf_size = sizeof(struct mbox_hardware_serial_msg_t);
+	msg.code = 0;
+	msg.tag.tag = MBOX_TAG_HARDWARE_GET_SERIAL;
+	msg.tag.val_buf_size = 8;
+	msg.tag.val_len = 0;
+	msg.tag.val = 0;
+	msg.end_tag = 0;
+
+	bcm2835_mbox_call_tag(&msg);
+	if(msg.code != 0x80000000)
+		return -1;
+	*sn = msg.tag.val;
+	return 0;
+}
+
+int bcm2836_mbox_hardware_get_arm_memory(uint32_t * base, uint32_t * size)
+{
+	struct mbox_hardware_memory_msg_t msg __attribute__((aligned(16)));
+
+	msg.buf_size = sizeof(struct mbox_hardware_memory_msg_t);
+	msg.code = 0;
+	msg.tag.tag = MBOX_TAG_HARDWARE_GET_ARM_MEMORY;
+	msg.tag.val_buf_size = 8;
+	msg.tag.val_len = 0;
+	msg.tag.base = 0;
+	msg.tag.size = 0;
+	msg.end_tag = 0;
+
+	bcm2835_mbox_call_tag(&msg);
+	if(msg.code != 0x80000000)
+		return -1;
+	*base = msg.tag.base;
+	*size = msg.tag.size;
+	return 0;
+}
+
+int bcm2836_mbox_hardware_get_vc_memory(uint32_t * base, uint32_t * size)
+{
+	struct mbox_hardware_memory_msg_t msg __attribute__((aligned(16)));
+
+	msg.buf_size = sizeof(struct mbox_hardware_memory_msg_t);
+	msg.code = 0;
+	msg.tag.tag = MBOX_TAG_HARDWARE_GET_VC_MEMORY;
+	msg.tag.val_buf_size = 8;
+	msg.tag.val_len = 0;
+	msg.tag.base = 0;
+	msg.tag.size = 0;
+	msg.end_tag = 0;
+
+	bcm2835_mbox_call_tag(&msg);
+	if(msg.code != 0x80000000)
+		return -1;
+	*base = msg.tag.base;
+	*size = msg.tag.size;
+	return 0;
+}
 
 /*
  * Mbox framebuffer

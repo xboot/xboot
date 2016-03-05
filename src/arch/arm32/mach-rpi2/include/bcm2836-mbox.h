@@ -46,6 +46,15 @@ int bcm2836_mbox_clock_set_rate(int id, int rate);
 int bcm2836_mbox_clock_get_max_rate(int id);
 int bcm2836_mbox_clock_get_min_rate(int id);
 
+int bcm2836_mbox_vc_get_firmware_revison(void);
+
+int bcm2836_mbox_hardware_get_model(void);
+int bcm2836_mbox_hardware_get_revison(void);
+int bcm2836_mbox_hardware_get_mac_address(uint8_t * mac);
+int bcm2836_mbox_hardware_get_serial(uint64_t * sn);
+int bcm2836_mbox_hardware_get_arm_memory(uint32_t * base, uint32_t * size);
+int bcm2836_mbox_hardware_get_vc_memory(uint32_t * base, uint32_t * size);
+
 #ifdef __cplusplus
 }
 #endif

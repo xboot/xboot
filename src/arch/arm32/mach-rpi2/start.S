@@ -79,13 +79,13 @@ _fiq:
  */
 reset:
 	/* Enter svc mode cleanly and mask interrupts */
-	mrs	r0, cpsr
-	eor	r0, r0, #0x1a
-	tst	r0, #0x1f
-	bic	r0, r0, #0x1f
-	orr	r0, r0, #0xd3
-	bne	1f
-	orr	r0, r0, #0x100
+	mrs r0, cpsr
+	eor r0, r0, #0x1a
+	tst r0, #0x1f
+	bic r0, r0, #0x1f
+	orr r0, r0, #0xd3
+	bne 1f
+	orr r0, r0, #0x100
 	adr lr, 2f
 	msr spsr_cxsf, r0
 	.word 0xe12ef30e /* msr elr_hyp, lr */
@@ -222,7 +222,7 @@ not_used:
 
 	.align 5
 irq:
-	ldr	sp, _stack_irq_end
+	ldr sp, _stack_irq_end
 	irq_save_regs
 	bl interrupt_handle_exception
 	irq_restore_regs

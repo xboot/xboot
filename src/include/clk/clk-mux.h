@@ -15,9 +15,10 @@ struct clk_mux_table_t {
 struct clk_mux_t {
 	const char * name;
 	struct clk_mux_table_t * parent;
-	physical_addr_t reg;
 	int shift;
 	int width;
+	physical_addr_t phys;
+	virtual_addr_t virt;
 };
 
 bool_t clk_mux_register(struct clk_mux_t * mclk);

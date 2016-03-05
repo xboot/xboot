@@ -34,10 +34,10 @@ static void clk_mux_set_parent(struct clk_t * clk, const char * pname)
 	{
 		if(strcmp(table->name, pname) == 0)
 		{
-			val = read32(phys_to_virt(mclk->reg));
+			val = read32(mclk->virt);
 			val &= ~(((1 << mclk->width) - 1) << mclk->shift);
 			val |= table->val << mclk->shift;
-			write32(phys_to_virt(mclk->reg), val);
+			write32(mclk->virt, val);
 			return;
 		}
 	}
@@ -47,7 +47,7 @@ static const char * clk_mux_get_parent(struct clk_t * clk)
 {
 	struct clk_mux_t * mclk = (struct clk_mux_t *)clk->priv;
 	struct clk_mux_table_t * table = mclk->parent;
-	int val = read32(phys_to_virt(mclk->reg)) >> mclk->shift & ((1 << mclk->width) - 1);
+	int val = read32(mclk->virt) >> mclk->shift & ((1 << mclk->width) - 1);
 
 	for(table = mclk->parent; table && table->name; table++)
 	{
@@ -89,6 +89,7 @@ bool_t clk_mux_register(struct clk_mux_t * mclk)
 	if(!clk)
 		return FALSE;
 
+	mclk->virt = phys_to_virt(mclk->phys);
 	clk->name = mclk->name;
 	clk->type = CLK_TYPE_MUX;
 	clk->count = 0;

@@ -57,10 +57,10 @@ static void clk_divider_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 	if(div > div_mask(dclk))
 		div = div_mask(dclk);
 
-	val = read32(phys_to_virt(dclk->reg));
+	val = read32(dclk->virt);
 	val &= ~(div_mask(dclk) << dclk->shift);
 	val |= div << dclk->shift;
-	write32(phys_to_virt(dclk->reg), val);
+	write32(dclk->virt, val);
 }
 
 static u64_t clk_divider_get_rate(struct clk_t * clk, u64_t prate)
@@ -68,7 +68,7 @@ static u64_t clk_divider_get_rate(struct clk_t * clk, u64_t prate)
 	struct clk_divider_t * dclk = (struct clk_divider_t *)clk->priv;
 	u32_t div;
 
-	div = read32(phys_to_virt(dclk->reg)) >> dclk->shift;
+	div = read32(dclk->virt) >> dclk->shift;
 	div &= div_mask(dclk);
 
 	if(dclk->type == CLK_DIVIDER_ONE_BASED)
@@ -91,6 +91,7 @@ bool_t clk_divider_register(struct clk_divider_t * dclk)
 	if(!clk)
 		return FALSE;
 
+	dclk->virt = phys_to_virt(dclk->phys);
 	clk->name = dclk->name;
 	clk->type = CLK_TYPE_DIVIDER;
 	clk->count = 0;

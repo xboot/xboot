@@ -39,16 +39,16 @@ static void clk_gate_set_enable(struct clk_t * clk, bool_t enable)
 	struct clk_gate_t * gclk = (struct clk_gate_t *)clk->priv;
 
 	if(enable)
-		write32(phys_to_virt(gclk->reg), (read32(phys_to_virt(gclk->reg)) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x0 : 0x1) << gclk->shift));
+		write32(gclk->virt, (read32(gclk->virt) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x0 : 0x1) << gclk->shift));
 	else
-		write32(phys_to_virt(gclk->reg), (read32(phys_to_virt(gclk->reg)) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x1 : 0x0) << gclk->shift));
+		write32(gclk->virt, (read32(gclk->virt) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x1 : 0x0) << gclk->shift));
 }
 
 static bool_t clk_gate_get_enable(struct clk_t * clk)
 {
 	struct clk_gate_t * gclk = (struct clk_gate_t *)clk->priv;
 
-	if(read32(phys_to_virt(gclk->reg)) & (0x1 << gclk->shift))
+	if(read32(gclk->virt) & (0x1 << gclk->shift))
 		return gclk->invert ? FALSE : TRUE;
 	return gclk->invert ? TRUE : FALSE;
 }
@@ -76,6 +76,7 @@ bool_t clk_gate_register(struct clk_gate_t * gclk)
 	if(!clk)
 		return FALSE;
 
+	gclk->virt = phys_to_virt(gclk->phys);
 	clk->name = gclk->name;
 	clk->type = CLK_TYPE_GATE;
 	clk->count = 0;

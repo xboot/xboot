@@ -31,7 +31,7 @@ struct irqchip_t
 	void (*enable)(struct irqchip_t * chip, int offset);
 	void (*disable)(struct irqchip_t * chip, int offset);
 	void (*settype)(struct irqchip_t * chip, int offset, enum irq_type_t type);
-	void (*process)(struct irqchip_t * chip);
+	void (*dispatch)(struct irqchip_t * chip);
 	void * priv;
 };
 

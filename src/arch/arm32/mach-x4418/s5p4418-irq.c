@@ -84,7 +84,7 @@ static void irqchip_settype(struct irqchip_t * chip, int offset, enum irq_type_t
 {
 }
 
-static void irqchip_process(struct irqchip_t * chip)
+static void irqchip_dispatch(struct irqchip_t * chip)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
 	u32_t vic = read32(pdat->virt + VIC_IRQSTATUS);
@@ -210,7 +210,7 @@ static void gpio_irqchip_settype(struct irqchip_t * chip, int offset, enum irq_t
 	}
 }
 
-static void gpio_irqchip_process(struct irqchip_t * chip)
+static void gpio_irqchip_dispatch(struct irqchip_t * chip)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
 	u32_t det = read32(pdat->virt + GPIO_DET);
@@ -313,7 +313,7 @@ static void gpioalv_irqchip_settype(struct irqchip_t * chip, int offset, enum ir
 	}
 }
 
-static void gpioalv_irqchip_process(struct irqchip_t * chip)
+static void gpioalv_irqchip_dispatch(struct irqchip_t * chip)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
 	u32_t det = read32(pdat->virt + GPIOALV_DETECTPENDREG);
@@ -411,7 +411,7 @@ static __init void s5p4418_irqchip_init(void)
 		chip->enable = irqchip_enable;
 		chip->disable = irqchip_disable;
 		chip->settype = irqchip_settype;
-		chip->process = irqchip_process;
+		chip->dispatch = irqchip_dispatch;
 		chip->priv = pdat;
 
 		vic_controller_init(pdat->virt);
@@ -447,7 +447,7 @@ static __init void s5p4418_irqchip_init(void)
 		chip->enable = gpio_irqchip_enable;
 		chip->disable = gpio_irqchip_disable;
 		chip->settype = gpio_irqchip_settype;
-		chip->process = gpio_irqchip_process;
+		chip->dispatch = gpio_irqchip_dispatch;
 		chip->priv = pdat;
 
 		register_sub_irqchip(pdat->parent, chip);
@@ -482,7 +482,7 @@ static __init void s5p4418_irqchip_init(void)
 		chip->enable = gpioalv_irqchip_enable;
 		chip->disable = gpioalv_irqchip_disable;
 		chip->settype = gpioalv_irqchip_settype;
-		chip->process = gpioalv_irqchip_process;
+		chip->dispatch = gpioalv_irqchip_dispatch;
 		chip->priv = pdat;
 
 		register_sub_irqchip(pdat->parent, chip);

@@ -79,7 +79,7 @@ static void irqchip_settype(struct irqchip_t * chip, int offset, enum irq_type_t
 {
 }
 
-static void irqchip_process(struct irqchip_t * chip)
+static void irqchip_dispatch(struct irqchip_t * chip)
 {
 	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
 	int irq = read32(pdat->virtcpu + CPU_INTACK) & 0x3ff;
@@ -193,7 +193,7 @@ static __init void virt_irqchip_init(void)
 		chip->enable = irqchip_enable;
 		chip->disable = irqchip_disable;
 		chip->settype = irqchip_settype;
-		chip->process = irqchip_process;
+		chip->dispatch = irqchip_dispatch;
 		chip->priv = pdat;
 
 		gic_dist_init(pdat->virtdist);

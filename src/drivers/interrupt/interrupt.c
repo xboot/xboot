@@ -173,10 +173,10 @@ bool_t register_sub_irqchip(int parent, struct irqchip_t * chip)
 	if(search_irqchip(chip->name))
 		return FALSE;
 
-	if(!request_irq(parent, (void (*)(void *))(chip->process), IRQ_TYPE_NONE, chip))
+	if(!request_irq(parent, (void (*)(void *))(chip->dispatch), IRQ_TYPE_NONE, chip))
 		return FALSE;
 
-	chip->process = NULL;
+	chip->dispatch = NULL;
 	return register_irqchip(chip);
 }
 
@@ -262,7 +262,7 @@ void interrupt_handle_exception(void * regs)
 
 	list_for_each_entry_safe(pos, n, &(__irqchip_list.entry), entry)
 	{
-		if(pos->chip->process)
-			pos->chip->process(pos->chip);
+		if(pos->chip->dispatch)
+			pos->chip->dispatch(pos->chip);
 	}
 }

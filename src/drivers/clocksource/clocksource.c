@@ -38,6 +38,7 @@ struct clocksource_list_t __clocksource_list = {
 	},
 };
 static spinlock_t __clocksource_list_lock = SPIN_LOCK_INIT();
+static spinlock_t __clocksource_read_time_lock = SPIN_LOCK_INIT();
 
 /*
  * Dummy clocksource, 10us - 100KHZ
@@ -65,10 +66,12 @@ static struct clocksource_t __cs_dummy = {
 };
 static struct clocksource_t * __clocksource = &__cs_dummy;
 
-static inline __attribute__((always_inline)) u64_t __clocksource_read_time(struct clocksource_t * cs)
+static inline u64_t __clocksource_read_time(struct clocksource_t * cs)
 {
+	irq_flags_t flags;
 	u64_t now, delta;
 
+	spin_lock_irqsave(&__clocksource_read_time_lock, flags);
 	now = cs->read(cs);
 	if(cs->last > now)
 		delta = (cs->mask - cs->last + now + 1) & cs->mask;
@@ -76,6 +79,7 @@ static inline __attribute__((always_inline)) u64_t __clocksource_read_time(struc
 		delta = (now - cs->last) & cs->mask;
 	cs->nsec += ((u64_t)delta * cs->mult) >> cs->shift;
 	cs->last = now;
+	spin_unlock_irqrestore(&__clocksource_read_time_lock, flags);
 	return cs->nsec;
 }
 

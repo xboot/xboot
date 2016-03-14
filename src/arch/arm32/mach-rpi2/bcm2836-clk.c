@@ -159,5 +159,8 @@ static __init void bcm2836_clk_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(bcm2836_fixed_clks); i++)
 		clk_fixed_register(&bcm2836_fixed_clks[i]);
+
+	clk_enable("pwm-clk");
+	clk_set_rate("pwm-clk", 500 * 1000 * 1000);
 }
 core_initcall(bcm2836_clk_init);

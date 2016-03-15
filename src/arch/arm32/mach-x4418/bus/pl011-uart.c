@@ -52,6 +52,8 @@
 
 struct pl011_uart_pdata_t {
 	char * clk;
+	int irq;
+	int fifosz;
 	int txdpin;
 	int txdcfg;
 	int rxdpin;
@@ -61,12 +63,13 @@ struct pl011_uart_pdata_t {
 	int parity;
 	int stop;
 	virtual_addr_t virt;
+	struct fifo_t * rxfifo;
 };
 
 static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
 {
 	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
-	u32_t divider, remainder, fraction;
+	u32_t divider, remainder, fraction, val;
 	u8_t dreg, preg, sreg;
 	u64_t uclk;
 
@@ -142,7 +145,11 @@ static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parit
 
 	write32(pdat->virt + UART_IBRD, divider);
 	write32(pdat->virt + UART_FBRD, fraction);
-	write32(pdat->virt + UART_LCRH, (1 << 4) | ((dreg << 5) | (sreg << 3) | (preg << 1)));
+	val = read32(pdat->virt + UART_LCRH);
+	val &= ~(0x3f << 1);
+	val |= (dreg << 5) | (sreg << 3) | (preg << 1);
+	write32(pdat->virt + UART_LCRH, val);
+
 	return TRUE;
 }
 
@@ -161,9 +168,29 @@ static bool_t pl011_uart_get(struct uart_t * uart, int * baud, int * data, int *
 	return TRUE;
 }
 
+static void pl011_uart_interrupt(void * data)
+{
+	struct uart_t * uart = (struct uart_t *)data;
+	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
+	u32_t val;
+	u8_t c;
+
+	val = read32(pdat->virt + UART_MIS);
+	if(val & (0x1 << 4))
+	{
+		while(!(read8(pdat->virt + UART_FR) & UART_FR_RXFE))
+		{
+			c = read8(pdat->virt + UART_DATA);
+			fifo_put(pdat->rxfifo, &c, 1);
+		}
+	}
+	write32(pdat->virt + UART_ICR, val);
+}
+
 static void pl011_uart_init(struct uart_t * uart)
 {
 	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
+	u32_t val;
 
 	clk_enable(pdat->clk);
 	if(pdat->txdpin >= 0)
@@ -176,6 +203,25 @@ static void pl011_uart_init(struct uart_t * uart)
 		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
 		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
 	}
+	if(request_irq(pdat->irq, pl011_uart_interrupt, IRQ_TYPE_NONE, uart))
+	{
+		/* Create rx fifo and enable rx interrupt */
+		pdat->rxfifo = fifo_alloc(pdat->fifosz);
+		write32(pdat->virt + UART_IMSC, 0x1 << 4);
+	}
+
+	/* Ensure rx fifo not empty triggered when becomes 1/8 full */
+	val = read32(pdat->virt + UART_IFLS);
+	val &= ~(0x7 << 3);
+	val |= 0x0 << 3;
+	write32(pdat->virt + UART_IFLS, 0x0);
+
+	/* Enable fifo */
+	val = read32(pdat->virt + UART_LCRH);
+	val |= 0x1 << 4;
+	write32(pdat->virt + UART_LCRH, val);
+
+	/* Set param and enable uart */
 	pl011_uart_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
 	write32(pdat->virt + UART_CR, 0x0);
 	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
@@ -186,6 +232,7 @@ static void pl011_uart_exit(struct uart_t * uart)
 	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
 
 	write32(pdat->virt + UART_CR, 0x0);
+	fifo_free(pdat->rxfifo);
 	clk_disable(pdat->clk);
 }
 
@@ -194,15 +241,18 @@ static ssize_t pl011_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
 	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
 	ssize_t i;
 
-	for(i = 0; i < count; i++)
+	if(!pdat->rxfifo)
 	{
-		if( !(read8(pdat->virt + UART_FR) & UART_FR_RXFE) )
-			buf[i] = read8(pdat->virt + UART_DATA);
-		else
-			break;
+		for(i = 0; i < count; i++)
+		{
+			if(!(read8(pdat->virt + UART_FR) & UART_FR_RXFE))
+				buf[i] = read8(pdat->virt + UART_DATA);
+			else
+				break;
+		}
+		return i;
 	}
-
-	return i;
+	return fifo_get(pdat->rxfifo, buf, count);
 }
 
 static ssize_t pl011_uart_write(struct uart_t * uart, const u8_t * buf, size_t count)
@@ -243,6 +293,8 @@ static bool_t pl011_register_bus_uart(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	pdat->clk = strdup(rdat->clk);
+	pdat->irq = rdat->irq;
+	pdat->fifosz = (rdat->fifosz < 16) ? 16 : rdat->fifosz;
 	pdat->txdpin = rdat->txdpin;
 	pdat->txdcfg = rdat->txdcfg;
 	pdat->rxdpin = rdat->rxdpin;
@@ -252,6 +304,7 @@ static bool_t pl011_register_bus_uart(struct resource_t * res)
 	pdat->parity = rdat->parity;
 	pdat->stop = rdat->stop;
 	pdat->virt = phys_to_virt(rdat->phys);
+	pdat->rxfifo = NULL;
 
 	uart->name = strdup(name);
 	uart->init = pl011_uart_init;

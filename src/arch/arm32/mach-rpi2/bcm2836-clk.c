@@ -54,13 +54,7 @@ static bool_t clk_mbox_get_enable(struct clk_t * clk)
 static void clk_mbox_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
 	struct clk_mbox_t * mclk = (struct clk_mbox_t *)clk->priv;
-	int max = bcm2836_mbox_clock_get_max_rate(mclk->id);
-	int min = bcm2836_mbox_clock_get_min_rate(mclk->id);
-	if(prate < min)
-		prate = min;
-	else if(prate > max)
-		prate = max;
-	bcm2836_mbox_clock_set_rate(mclk->id, prate);
+	bcm2836_mbox_clock_set_rate(mclk->id, rate);
 }
 
 static u64_t clk_mbox_get_rate(struct clk_t * clk, u64_t prate)
@@ -154,13 +148,13 @@ static __init void bcm2836_clk_init(void)
 {
 	int i;
 
+	bcm2836_mbox_clock_set_rate(MBOX_CLOCK_ID_PWM, 9200000);
+	bcm2836_mbox_clock_set_rate(MBOX_CLOCK_ID_UART, 24 * 1000 * 1000);
+
 	for(i = 0; i < ARRAY_SIZE(bcm2836_mbox_clks); i++)
 		clk_mbox_register(&bcm2836_mbox_clks[i]);
 
 	for(i = 0; i < ARRAY_SIZE(bcm2836_fixed_clks); i++)
 		clk_fixed_register(&bcm2836_fixed_clks[i]);
-
-	clk_enable("pwm-clk");
-	clk_set_rate("pwm-clk", 500 * 1000 * 1000);
 }
 core_initcall(bcm2836_clk_init);

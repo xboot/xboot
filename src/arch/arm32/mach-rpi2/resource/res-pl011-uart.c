@@ -25,11 +25,14 @@
 #include <xboot.h>
 #include <pl011-uart.h>
 #include <bcm2836-gpio.h>
+#include <bcm2836-irq.h>
 #include <bcm2836/reg-uart.h>
 
 static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
 		.clk	= "uart-clk",
+		.irq	= BCM2836_IRQ_GPU_UART,
+		.fifosz	= 1024,
 		.txdpin	= BCM2836_GPIO(14),
 		.txdcfg	= 0,
 		.rxdpin	= BCM2836_GPIO(15),

@@ -34,7 +34,7 @@ struct keeper_t {
 };
 static struct keeper_t __keeper;
 
-static int timer_keeper_function(struct timer_t * timer, void * data)
+static int keeper_timer_function(struct timer_t * timer, void * data)
 {
 	struct keeper_t * keeper = (struct keeper_t *)(data);
 	struct clocksource_t * cs = keeper->cs;
@@ -80,6 +80,6 @@ void subsys_init_keeper(void)
 	keeper->delta = delta;
 	keeper->last = clocksource_read(cs);
 	keeper->nsec = 0;
-	timer_init(&keeper->timer, timer_keeper_function, keeper);
+	timer_init(&keeper->timer, keeper_timer_function, keeper);
 	timer_start_now(&keeper->timer, ns_to_ktime(keeper->delta));
 }

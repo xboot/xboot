@@ -100,7 +100,7 @@ bool_t register_resource(struct resource_t * res)
 		return FALSE;
 
 	if(!res->mach)
-		res->mach = "public";
+		res->mach = "@";
 
 	if(res->id < 0)
 		res->id = resource_alloc_free_id(res->mach, res->name);
@@ -164,7 +164,7 @@ void resource_for_each(const char * name, bool_t (*fn)(struct resource_t *))
 	{
 		if(strcmp(pos->res->name, name) == 0)
 		{
-			if((strcmp(pos->res->mach, "public") == 0) || (strcmp(pos->res->mach, mach->name) == 0))
+			if((strcmp(pos->res->mach, "@") == 0) || (strcmp(pos->res->mach, mach->name) == 0))
 			{
 				if(fn(pos->res))
 					LOG("Iterator resource with %s:'%s.%d'", pos->res->mach, pos->res->name, pos->res->id);

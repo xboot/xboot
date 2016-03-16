@@ -67,7 +67,6 @@ static struct clockevent_t __ce_dummy = {
 	.init			= __ce_dummy_init,
 	.next			= __ce_dummy_next,
 };
-static struct clockevent_t * __clockevent = &__ce_dummy;
 
 static struct kobj_t * search_class_clockevent_kobj(void)
 {
@@ -184,9 +183,30 @@ bool_t unregister_clockevent(struct clockevent_t * ce)
 	return FALSE;
 }
 
-struct clockevent_t * get_clockevent(void)
+struct clockevent_t * clockevent_get_best(void)
 {
-	return __clockevent;
+	struct clockevent_t * ce, * best = &__ce_dummy;
+	struct clockevent_list_t * pos, * n;
+	u64_t freq = 0;
+	u64_t f;
+
+	list_for_each_entry_safe(pos, n, &(__clockevent_list.entry), entry)
+	{
+		ce = pos->ce;
+		if(!ce || !ce->init)
+			continue;
+
+		if(!ce->init(ce))
+			continue;
+
+		f = ((u64_t)1000000000ULL * ce->mult) >> ce->shift;
+		if(f > freq)
+		{
+			best = ce;
+			freq = f;
+		}
+	}
+	return best;
 }
 
 bool_t clockevent_set_event_handler(struct clockevent_t * ce, void (*handler)(struct clockevent_t *, void *), void * data)
@@ -214,31 +234,4 @@ bool_t clockevent_set_event_next(struct clockevent_t * ce, ktime_t now, ktime_t 
 	if(delta < ce->min_delta_ns)
 		delta = ce->min_delta_ns;
 	return ce->next(ce, ((u64_t)delta * ce->mult) >> ce->shift);
-}
-
-void subsys_init_clockevent(void)
-{
-	struct clockevent_list_t * pos, * n;
-	struct clockevent_t * ce;
-	u64_t freq = 0;
-	u64_t f;
-
-	list_for_each_entry_safe(pos, n, &(__clockevent_list.entry), entry)
-	{
-		ce = pos->ce;
-		if(!ce || !ce->init)
-			continue;
-
-		if(!ce->init(ce))
-			continue;
-
-		f = ((u64_t)1000000000ULL * ce->mult) >> ce->shift;
-		if(f > freq)
-		{
-			__clockevent = ce;
-			freq = f;
-		}
-	}
-
-	LOG("Attach system clockevent [%s]", __clockevent->name);
 }

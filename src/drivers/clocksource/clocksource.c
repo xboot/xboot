@@ -38,7 +38,6 @@ struct clocksource_list_t __clocksource_list = {
 	},
 };
 static spinlock_t __clocksource_list_lock = SPIN_LOCK_INIT();
-static spinlock_t __clocksource_read_time_lock = SPIN_LOCK_INIT();
 
 /*
  * Dummy clocksource, 10us - 100KHZ
@@ -59,29 +58,9 @@ static struct clocksource_t __cs_dummy = {
 	.mult	= 2621440000,
 	.shift	= 18,
 	.mask	= CLOCKSOURCE_MASK(64),
-	.last	= 0,
-	.nsec	= 0,
 	.init	= __cs_dummy_init,
 	.read	= __cs_dummy_read,
 };
-static struct clocksource_t * __clocksource = &__cs_dummy;
-
-static inline u64_t __clocksource_read_time(struct clocksource_t * cs)
-{
-	irq_flags_t flags;
-	u64_t now, delta;
-
-	spin_lock_irqsave(&__clocksource_read_time_lock, flags);
-	now = cs->read(cs);
-	if(cs->last > now)
-		delta = (cs->mask - cs->last + now + 1) & cs->mask;
-	else
-		delta = (now - cs->last) & cs->mask;
-	cs->nsec += ((u64_t)delta * cs->mult) >> cs->shift;
-	cs->last = now;
-	spin_unlock_irqrestore(&__clocksource_read_time_lock, flags);
-	return cs->nsec;
-}
 
 static struct kobj_t * search_class_clocksource_kobj(void)
 {
@@ -118,15 +97,14 @@ static ssize_t clocksource_read_deferment(struct kobj_t * kobj, void * buf, size
 static ssize_t clocksource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t cycle;
-	cycle = cs->read(cs) & cs->mask;
-	return sprintf(buf, "%llu", cycle);
+	return sprintf(buf, "%llu", clocksource_read(cs));
 }
 
 static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t time = __clocksource_read_time(cs);
+	u64_t cycle = clocksource_read(cs);
+	u64_t time = (cycle * cs->mult) >> cs->shift;
 	return sprintf(buf, "%llu.%09llu", time / 1000000000ULL, time % 1000000000ULL);
 }
 
@@ -164,8 +142,6 @@ bool_t register_clocksource(struct clocksource_t * cs)
 	if(!cl)
 		return FALSE;
 
-	cs->last = 0;
-	cs->nsec = 0;
 	cs->kobj = kobj_alloc_directory(cs->name);
 	kobj_add_regular(cs->kobj, "mult", clocksource_read_mult, NULL, cs);
 	kobj_add_regular(cs->kobj, "shift", clocksource_read_shift, NULL, cs);
@@ -209,25 +185,10 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 	return FALSE;
 }
 
-struct clocksource_t * get_clocksource(void)
+struct clocksource_t * clocksource_get_best(void)
 {
-	return __clocksource;
-}
-
-ktime_t clocksource_ktime_get(struct clocksource_t * cs)
-{
-	return ns_to_ktime(__clocksource_read_time(cs ? cs : __clocksource));
-}
-
-ktime_t ktime_get(void)
-{
-	return ns_to_ktime(__clocksource_read_time(__clocksource));
-}
-
-void subsys_init_clocksource(void)
-{
+	struct clocksource_t * cs, * best = &__cs_dummy;
 	struct clocksource_list_t * pos, * n;
-	struct clocksource_t * cs;
 	u64_t period = ~0ULL;
 	u64_t t;
 
@@ -243,10 +204,16 @@ void subsys_init_clocksource(void)
 		t = ((u64_t)cs->mult) >> cs->shift;
 		if(t < period)
 		{
-			__clocksource = cs;
+			best = cs;
 			period = t;
 		}
 	}
+	return best;
+}
 
-	LOG("Attach system clocksource [%s]", __clocksource->name);
+u64_t clocksource_read(struct clocksource_t * cs)
+{
+	if(cs && cs->read)
+		return cs->read(cs) & cs->mask;
+	return 0;
 }

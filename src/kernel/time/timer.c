@@ -22,6 +22,7 @@
  *
  */
 
+#include <clockevent/clockevent.h>
 #include <time/timer.h>
 
 static struct timer_base_t __timer_base;
@@ -181,13 +182,11 @@ static void timer_event_handler(struct clockevent_t * ce, void * data)
 
 void subsys_init_timer(void)
 {
-	struct clockevent_t * ce = get_clockevent();
-
 	memset(&__timer_base, 0, sizeof(struct timer_base_t));
 	spin_lock_init(&__timer_base.lock);
 	__timer_base.head = RB_ROOT;
 	__timer_base.next = NULL;
-	__timer_base.ce = ce;
+	__timer_base.ce = clockevent_get_best();
 	__timer_base.gettime = ktime_get;
-	clockevent_set_event_handler(ce, timer_event_handler, &__timer_base);
+	clockevent_set_event_handler(__timer_base.ce, timer_event_handler, &__timer_base);
 }

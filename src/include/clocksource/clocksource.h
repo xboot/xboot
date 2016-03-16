@@ -19,8 +19,6 @@ struct clocksource_t
 	u32_t mult;
 	u32_t shift;
 	u64_t mask;
-	u64_t last;
-	u64_t nsec;
 
 	bool_t (*init)(struct clocksource_t * cs);
 	u64_t (*read)(struct clocksource_t * cs);
@@ -133,10 +131,8 @@ static inline void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_
 struct clocksource_t * search_clocksource(const char * name);
 bool_t register_clocksource(struct clocksource_t * cs);
 bool_t unregister_clocksource(struct clocksource_t * cs);
-struct clocksource_t * get_clocksource(void);
-ktime_t clocksource_ktime_get(struct clocksource_t * cs);
-ktime_t ktime_get(void);
-void subsys_init_clocksource(void);
+struct clocksource_t * clocksource_get_best(void);
+u64_t clocksource_read(struct clocksource_t * cs);
 
 #ifdef __cplusplus
 }

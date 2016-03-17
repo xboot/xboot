@@ -28,6 +28,7 @@
 struct keeper_t {
 	struct clocksource_t * cs;
 	struct timer_t timer;
+	seqlock_t lock;
 	u64_t delta;
 	u64_t last;
 	u64_t nsec;
@@ -38,9 +39,11 @@ static int keeper_timer_function(struct timer_t * timer, void * data)
 {
 	struct keeper_t * keeper = (struct keeper_t *)(data);
 	struct clocksource_t * cs = keeper->cs;
+	irq_flags_t flags;
 	u64_t now, delta;
 	u64_t offset;
 
+	write_seqlock_irqsave(&keeper->lock, flags);
 	now = clocksource_read(cs);
 	if(keeper->last > now)
 		delta = (cs->mask - keeper->last + now + 1) & cs->mask;
@@ -49,6 +52,7 @@ static int keeper_timer_function(struct timer_t * timer, void * data)
 	offset = ((u64_t)delta * cs->mult) >> cs->shift;
 	keeper->nsec += offset;
 	keeper->last = now;
+	write_sequnlock_irqrestore(&keeper->lock, flags);
 
 	timer_forward_now(timer, ns_to_ktime(keeper->delta));
 	return 1;
@@ -58,15 +62,20 @@ ktime_t ktime_get(void)
 {
 	struct keeper_t * keeper = &__keeper;
 	struct clocksource_t * cs = keeper->cs;
+	unsigned int seq;
 	u64_t now, delta;
 	u64_t offset;
 
-	now = clocksource_read(cs);
-	if(keeper->last > now)
-		delta = (cs->mask - keeper->last + now + 1) & cs->mask;
-	else
-		delta = (now - keeper->last) & cs->mask;
-	offset = ((u64_t)delta * cs->mult) >> cs->shift;
+	do {
+		seq = read_seqbegin(&keeper->lock);
+		now = clocksource_read(cs);
+		if(keeper->last > now)
+			delta = (cs->mask - keeper->last + now + 1) & cs->mask;
+		else
+			delta = (now - keeper->last) & cs->mask;
+		offset = ((u64_t)delta * cs->mult) >> cs->shift;
+	} while(read_seqretry(&keeper->lock, seq));
+
 	return ns_to_ktime(keeper->nsec + offset);
 }
 
@@ -80,6 +89,7 @@ void subsys_init_keeper(void)
 	keeper->delta = delta;
 	keeper->last = clocksource_read(cs);
 	keeper->nsec = 0;
+	seqlock_init(&keeper->lock);
 	timer_init(&keeper->timer, keeper_timer_function, keeper);
 	timer_start_now(&keeper->timer, ns_to_ktime(keeper->delta));
 }

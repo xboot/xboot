@@ -9,7 +9,7 @@ extern "C" {
 #include <spinlock.h>
 
 typedef struct {
-	unsigned sequence;
+	unsigned int sequence;
 	spinlock_t lock;
 } seqlock_t;
 
@@ -19,7 +19,7 @@ static inline void seqlock_init(seqlock_t * sl)
 	spin_lock_init(&sl->lock);
 }
 
-static inline unsigned read_seqbegin(const seqlock_t * sl)
+static inline unsigned int read_seqbegin(const seqlock_t * sl)
 {
 	unsigned ret;
 
@@ -31,7 +31,7 @@ repeat:
 	return ret;
 }
 
-static inline unsigned read_seqretry(const seqlock_t * sl, unsigned start)
+static inline unsigned int read_seqretry(const seqlock_t * sl, unsigned int start)
 {
 	smp_rmb();
 	return (sl->sequence != start);

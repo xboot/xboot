@@ -148,8 +148,8 @@ static __init void bcm2836_clk_init(void)
 {
 	int i;
 
+	bcm2836_mbox_clock_set_rate(MBOX_CLOCK_ID_UART, 3000000);
 	bcm2836_mbox_clock_set_rate(MBOX_CLOCK_ID_PWM, 9200000);
-	bcm2836_mbox_clock_set_rate(MBOX_CLOCK_ID_UART, 24 * 1000 * 1000);
 
 	for(i = 0; i < ARRAY_SIZE(bcm2836_mbox_clks); i++)
 		clk_mbox_register(&bcm2836_mbox_clks[i]);

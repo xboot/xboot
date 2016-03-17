@@ -41,6 +41,7 @@ extern "C" {
 #include <xboot/kref.h>
 #include <xboot/kobj.h>
 #include <xboot/ktime.h>
+#include <xboot/seqlock.h>
 #include <xboot/initcall.h>
 #include <xboot/module.h>
 #include <xboot/notifier.h>

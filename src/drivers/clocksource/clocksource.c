@@ -90,21 +90,21 @@ static ssize_t clocksource_read_period(struct kobj_t * kobj, void * buf, size_t 
 static ssize_t clocksource_read_deferment(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t max = (cs->mask * cs->mult) >> cs->shift;
+	u64_t max = clocksource_deferment(cs);
 	return sprintf(buf, "%llu.%09llu", max / 1000000000ULL, max % 1000000000ULL);
 }
 
 static ssize_t clocksource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	return sprintf(buf, "%llu", clocksource_read(cs));
+	return sprintf(buf, "%llu", clocksource_cycle(cs));
 }
 
 static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	u64_t cycle = clocksource_read(cs);
-	u64_t time = (cycle * cs->mult) >> cs->shift;
+	u64_t cycle = clocksource_cycle(cs);
+	u64_t time = clocksource_delta2ns(cs, cycle);
 	return sprintf(buf, "%llu.%09llu", time / 1000000000ULL, time % 1000000000ULL);
 }
 
@@ -185,7 +185,7 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 	return FALSE;
 }
 
-struct clocksource_t * clocksource_get_best(void)
+struct clocksource_t * clocksource_best(void)
 {
 	struct clocksource_t * cs, * best = &__cs_dummy;
 	struct clocksource_list_t * pos, * n;
@@ -195,7 +195,7 @@ struct clocksource_t * clocksource_get_best(void)
 	list_for_each_entry_safe(pos, n, &(__clocksource_list.entry), entry)
 	{
 		cs = pos->cs;
-		if(!cs || !cs->init)
+		if(!cs || !cs->init || !cs->read)
 			continue;
 
 		if(!cs->init(cs))
@@ -209,11 +209,4 @@ struct clocksource_t * clocksource_get_best(void)
 		}
 	}
 	return best;
-}
-
-u64_t clocksource_read(struct clocksource_t * cs)
-{
-	if(cs && cs->read)
-		return cs->read(cs) & cs->mask;
-	return 0;
 }

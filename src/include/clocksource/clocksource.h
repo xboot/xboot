@@ -128,11 +128,32 @@ static inline void clocksource_calc_mult_shift(u32_t * mult, u32_t * shift, u32_
 	*shift = sft;
 }
 
+static inline u64_t clocksource_deferment(struct clocksource_t * cs)
+{
+	return ((u64_t)cs->mask * cs->mult) >> cs->shift;
+}
+
+static inline u64_t clocksource_cycle(struct clocksource_t * cs)
+{
+	return cs->read(cs) & cs->mask;
+}
+
+static inline u64_t clocksource_delta(struct clocksource_t * cs, u64_t last, u64_t now)
+{
+	if(last < now)
+		return (now - last) & cs->mask;
+	return (cs->mask + 1 - last + now) & cs->mask;
+}
+
+static inline u64_t clocksource_delta2ns(struct clocksource_t * cs, u64_t delta)
+{
+	return (delta * cs->mult) >> cs->shift;
+}
+
 struct clocksource_t * search_clocksource(const char * name);
 bool_t register_clocksource(struct clocksource_t * cs);
 bool_t unregister_clocksource(struct clocksource_t * cs);
-struct clocksource_t * clocksource_get_best(void);
-u64_t clocksource_read(struct clocksource_t * cs);
+struct clocksource_t * clocksource_best(void);
 
 #ifdef __cplusplus
 }

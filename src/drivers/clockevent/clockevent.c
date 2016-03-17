@@ -183,7 +183,7 @@ bool_t unregister_clockevent(struct clockevent_t * ce)
 	return FALSE;
 }
 
-struct clockevent_t * clockevent_get_best(void)
+struct clockevent_t * clockevent_best(void)
 {
 	struct clockevent_t * ce, * best = &__ce_dummy;
 	struct clockevent_list_t * pos, * n;

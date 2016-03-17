@@ -186,7 +186,7 @@ void subsys_init_timer(void)
 	spin_lock_init(&__timer_base.lock);
 	__timer_base.head = RB_ROOT;
 	__timer_base.next = NULL;
-	__timer_base.ce = clockevent_get_best();
+	__timer_base.ce = clockevent_best();
 	__timer_base.gettime = ktime_get;
 	clockevent_set_event_handler(__timer_base.ce, timer_event_handler, &__timer_base);
 }

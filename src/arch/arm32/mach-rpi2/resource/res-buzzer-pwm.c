@@ -29,14 +29,21 @@ static struct buzzer_pwm_data_t buzzer_pwm_datas[] = {
 	{
 		.pwm		= "pwm0",
 		.polarity	= 1,
+	}, {
+		.pwm		= "pwm1",
+		.polarity	= 1,
 	}
 };
 
 static struct resource_t res_buzzer_pwms[] = {
 	{
 		.name	= "buzzer-pwm",
-		.id		= -1,
+		.id		= 0,
 		.data	= &buzzer_pwm_datas[0],
+	}, {
+		.name	= "buzzer-pwm",
+		.id		= 1,
+		.data	= &buzzer_pwm_datas[1],
 	}
 };
 

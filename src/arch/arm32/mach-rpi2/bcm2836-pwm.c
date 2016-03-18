@@ -29,7 +29,6 @@
 struct bcm2836_pwm_data_t
 {
 	const char * name;
-	char * clk;
 	int ch;
 	int pin;
 	int pincfg;
@@ -39,7 +38,6 @@ struct bcm2836_pwm_data_t
 struct bcm2836_pwm_pdata_t
 {
 	const char * name;
-	char * clk;
 	int ch;
 	int pin;
 	int pincfg;
@@ -50,14 +48,12 @@ struct bcm2836_pwm_pdata_t
 static struct bcm2836_pwm_data_t datas[] = {
 	{
 		.name	= "pwm0",
-		.clk	= "pwm-clk",
 		.ch		= 0,
 		.pin	= BCM2836_GPIO(12),
 		.pincfg	= 0x0,
 		.phys	= BCM2836_PWM_BASE,
 	}, {
 		.name	= "pwm1",
-		.clk	= "pwm-clk",
 		.ch		= 1,
 		.pin	= BCM2836_GPIO(13),
 		.pincfg	= 0x0,
@@ -97,9 +93,6 @@ static void bcm2836_pwm_enable(struct pwm_t * pwm)
 	u32_t ctrl;
 
 	gpio_set_cfg(pdat->pin, pdat->pincfg);
-	clk_enable(pdat->clk);
-	pdat->scaler = 1000000000ULL / clk_get_rate(pdat->clk);
-
 	ctrl = read32(pdat->virt + PWM_CTRL);
 	ctrl &= ~(PWM_CTRL_MASK << PWM_CTRL_SHIFT(pdat->ch));
 	ctrl |= (0x81 << PWM_CTRL_SHIFT(pdat->ch));
@@ -115,8 +108,6 @@ static void bcm2836_pwm_disable(struct pwm_t * pwm)
 	ctrl &= ~(PWM_CTRL_MASK << PWM_CTRL_SHIFT(pdat->ch));
 	ctrl |= (0x00 << PWM_CTRL_SHIFT(pdat->ch));
 	write32(pdat->virt + PWM_CTRL, ctrl);
-
-	clk_disable(pdat->clk);
 }
 
 static __init void bcm2836_pwm_init(void)
@@ -139,11 +130,12 @@ static __init void bcm2836_pwm_init(void)
 		}
 
 		pdat->name = datas[i].name;
-		pdat->clk = datas[i].clk;
 		pdat->ch = datas[i].ch;
 		pdat->pin = datas[i].pin;
 		pdat->pincfg = datas[i].pincfg;
 		pdat->virt = phys_to_virt(datas[i].phys);
+		clk_enable("pwm-clk");
+		pdat->scaler = (unsigned long)(1000000000ULL / clk_get_rate("pwm-clk"));
 
 		pwm->name = pdat->name;
 		pwm->config = bcm2836_pwm_config;
@@ -154,4 +146,4 @@ static __init void bcm2836_pwm_init(void)
 		register_pwm(pwm);
 	}
 }
-core_initcall(bcm2836_pwm_init);
+postcore_initcall(bcm2836_pwm_init);

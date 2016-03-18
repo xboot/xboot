@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <bcm2836/reg-cm.h>
 #include <bcm2836-mbox.h>
 
 struct clk_mbox_t {
@@ -122,12 +123,6 @@ static struct clk_mbox_t bcm2836_mbox_clks[] = {
 	}, {
 		.name = "sdram-clk",
 		.id = MBOX_CLOCK_ID_SDRAM,
-	}, {
-		.name = "pixel-clk",
-		.id = MBOX_CLOCK_ID_PIXEL,
-	}, {
-		.name = "pwm-clk",
-		.id = MBOX_CLOCK_ID_PWM,
 	}
 };
 
@@ -141,6 +136,9 @@ static struct clk_fixed_t bcm2836_fixed_clks[] = {
 	}, {
 		.name = "arm-timer-clk",
 		.rate = 250 * 1000 * 1000,
+	}, {
+		.name = "pwm-clk",
+		.rate = 9200000,
 	}
 };
 
@@ -149,12 +147,15 @@ static __init void bcm2836_clk_init(void)
 	int i;
 
 	bcm2836_mbox_clock_set_rate(MBOX_CLOCK_ID_UART, 3000000);
-	bcm2836_mbox_clock_set_rate(MBOX_CLOCK_ID_PWM, 9200000);
 
 	for(i = 0; i < ARRAY_SIZE(bcm2836_mbox_clks); i++)
 		clk_mbox_register(&bcm2836_mbox_clks[i]);
 
 	for(i = 0; i < ARRAY_SIZE(bcm2836_fixed_clks); i++)
 		clk_fixed_register(&bcm2836_fixed_clks[i]);
+
+	/* Change pwm-clk freq to 9200000 */
+	write32(BCM2836_CM_BASE + CM_PWMDIV, 0x5A000000 | 0x2000);
+	write32(BCM2836_CM_BASE + CM_PWMCTL, 0x5A000000 | CM_ENAB | CM_SRC_OSCILLATOR);
 }
 core_initcall(bcm2836_clk_init);

@@ -76,7 +76,11 @@ static ssize_t buzzer_write_play(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct buzzer_t * buzzer = (struct buzzer_t *)kobj->priv;
 
-	buzzer_play(buzzer, buf);
+	if (strcmp(buf, "default") == 0)
+		buzzer_play(buzzer, "AuldLangSyne:d=4,o=5,b=100:g,c.6,8c6,c6,e6,d.6,8c6,d6,8e6,"
+			"8d6,c.6,8c6,e6,g6,2a.6,a6,g.6,8e6,e6,c6,d.6,8c6,d6,8e6,8d6,c.6,8a,a,g,2c.6");
+	else
+		buzzer_play(buzzer, buf);
 	return size;
 }
 

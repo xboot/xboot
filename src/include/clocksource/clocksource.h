@@ -153,6 +153,7 @@ static inline u64_t clocksource_delta2ns(struct clocksource_t * cs, u64_t delta)
 struct clocksource_t * search_clocksource(const char * name);
 bool_t register_clocksource(struct clocksource_t * cs);
 bool_t unregister_clocksource(struct clocksource_t * cs);
+struct clocksource_t * clocksource_dummy(void);
 struct clocksource_t * clocksource_best(void);
 
 #ifdef __cplusplus

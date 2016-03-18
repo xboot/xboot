@@ -33,7 +33,7 @@ struct keeper_t {
 	u64_t last;
 	u64_t nsec;
 };
-static struct keeper_t __keeper;
+static struct keeper_t __keeper = { 0 };
 
 static int keeper_timer_function(struct timer_t * timer, void * data)
 {
@@ -57,7 +57,7 @@ static int keeper_timer_function(struct timer_t * timer, void * data)
 ktime_t ktime_get(void)
 {
 	struct keeper_t * keeper = &__keeper;
-	struct clocksource_t * cs = keeper->cs;
+	struct clocksource_t * cs = keeper->cs ? keeper->cs : clocksource_dummy();
 	u64_t now, delta, offset;
 	unsigned int seq;
 

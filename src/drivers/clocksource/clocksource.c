@@ -185,6 +185,11 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 	return FALSE;
 }
 
+inline __attribute__((always_inline)) struct clocksource_t * clocksource_dummy(void)
+{
+	return &__cs_dummy;
+}
+
 struct clocksource_t * clocksource_best(void)
 {
 	struct clocksource_t * cs, * best = &__cs_dummy;

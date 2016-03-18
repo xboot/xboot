@@ -93,6 +93,11 @@ reset:
 1:	msr cpsr_c, r0
 2:	nop
 
+	/* Suspend the other cpu cores */
+	mrc p15, 0, r0, c0, c0, 5
+	ands r0, #3
+	bne _halt
+
 	/* Set vector base address register */
 	ldr r0, =_start
 	mcr p15, 0, r0, c12, c0, 0
@@ -174,6 +179,10 @@ _main:
 	mov r1, #0;
 	bl xboot_main
 	b _main
+
+_halt:
+	wfi
+	b _halt
 
 /*
  * Exception handlers

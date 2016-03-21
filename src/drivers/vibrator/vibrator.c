@@ -67,6 +67,13 @@ static ssize_t vibrator_write_state(struct kobj_t * kobj, void * buf, size_t siz
 	return size;
 }
 
+static ssize_t vibrator_write_play(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct vibrator_t * vib = (struct vibrator_t *)kobj->priv;
+	vibrator_play(vib, buf);
+	return size;
+}
+
 struct vibrator_t * search_vibrator(const char * name)
 {
 	struct device_t * dev;
@@ -107,6 +114,7 @@ bool_t register_vibrator(struct vibrator_t * vib)
 	dev->driver = vib;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "state", vibrator_read_state, vibrator_write_state, vib);
+	kobj_add_regular(dev->kobj, "play", NULL, vibrator_write_play, vib);
 
 	if(vib->init)
 		(vib->init)(vib);

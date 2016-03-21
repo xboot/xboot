@@ -135,6 +135,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/pwm									\
 				drivers/rng									\
 				drivers/rtc									\
+				drivers/vibrator							\
 				drivers/watchdog							\
 				framework									\
 				framework/base64							\

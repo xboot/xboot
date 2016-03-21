@@ -164,6 +164,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "xboot.hardware.ledtrig",		luaopen_hardware_ledtrig },
 		{ "xboot.hardware.pwm",			luaopen_hardware_pwm },
 		{ "xboot.hardware.uart",		luaopen_hardware_uart },
+		{ "xboot.hardware.vibrator",	luaopen_hardware_vibrator },
 		{ "xboot.hardware.watchdog",	luaopen_hardware_watchdog },
 
 		{ NULL, NULL },

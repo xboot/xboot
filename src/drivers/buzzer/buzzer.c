@@ -363,6 +363,8 @@ void buzzer_play(struct buzzer_t * buzzer, const char * rtttl)
 	char c;
 
 	buzzer_beep(buzzer, 0, 0);
+	if(!p)
+		return;
 
 	while(*p && *p != ':')
 		p++;

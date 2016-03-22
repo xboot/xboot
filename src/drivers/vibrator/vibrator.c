@@ -325,11 +325,14 @@ static const char * morse_code(char c)
 
 void vibrator_play(struct vibrator_t * vib, const char * morse)
 {
-	char * p, * q;
+	char * p = (char *)morse;
+	char * q;
 
 	vibrator_vibrate(vib, 0, 0);
+	if(!p)
+		return;
 
-	for(p = (char *)morse; *p != '\0'; p++)
+	while(*p)
 	{
 		if(isspace(*p))
 		{
@@ -344,10 +347,12 @@ void vibrator_play(struct vibrator_t * vib, const char * morse)
 				vibrator_vibrate(vib, 1, 100 * 1);
 			else if(*q == '-')
 				vibrator_vibrate(vib, 1, 100 * 3);
+
 			vibrator_vibrate(vib, 0, 100);
 			q++;
 		}
 
 		vibrator_vibrate(vib, 0, 100 * 3);
+		p++;
 	}
 }

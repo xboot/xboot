@@ -18,13 +18,13 @@ struct buzzer_t
 	/* Clean up the buzzer */
 	void (*exit)(struct buzzer_t * buzzer);
 
-	/* Set buzzer's frequency, minus and zero means stop */
+	/* Set buzzer's frequency */
 	void (*set)(struct buzzer_t * buzzer, int frequency);
 
 	/* Get buzzer's frequency */
 	int (*get)(struct buzzer_t * buzzer);
 
-	/* Buzzer beep in frequency and millisecond with queue */
+	/* Buzzer beep in with queue, all zero means clear and stop */
 	void (*beep)(struct buzzer_t * buzzer, int frequency, int millisecond);
 
 	/* Suspend buzzer */

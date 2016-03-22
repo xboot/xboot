@@ -24,7 +24,7 @@ struct vibrator_t
 	/* Get vibrator's state */
 	int (*get)(struct vibrator_t * vib);
 
-	/* Vibrator vibrate in state and millisecond with queue */
+	/* Vibrator vibrate with queue, all zero means clear and stop */
 	void (*vibrate)(struct vibrator_t * vib, int state, int ms);
 
 	/* Suspend vibrator */

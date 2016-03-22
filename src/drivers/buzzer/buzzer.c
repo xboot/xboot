@@ -362,17 +362,14 @@ void buzzer_play(struct buzzer_t * buzzer, const char * rtttl)
 	int n, t;
 	char c;
 
-	/* stop beep */
 	buzzer_beep(buzzer, 0, 0);
 
-	/* skip name */
 	while(*p && *p != ':')
 		p++;
 	if(!*p)
 		return;
 	p++;
 
-	/* parse default */
 	while(*p)
 	{
 		while(*p == ' ')
@@ -420,13 +417,11 @@ void buzzer_play(struct buzzer_t * buzzer, const char * rtttl)
 		scale = o;
 		index = 0;
 
-		/* skip whitespace */
 		while(*p == ' ')
 			p++;
 		if(!*p)
 			return;
 
-		/* parse duration */
 		if(*p >= '0' && *p <= '9')
 		{
 			n = 0;
@@ -435,7 +430,6 @@ void buzzer_play(struct buzzer_t * buzzer, const char * rtttl)
 			duration = 32 / n;
 		}
 
-		/* parse note */
 		switch(*p)
 		{
 		case 0:
@@ -483,31 +477,26 @@ void buzzer_play(struct buzzer_t * buzzer, const char * rtttl)
 			p++;
 		}
 
-		/* parse special duration */
 		if(*p == '.')
 		{
 			duration += duration / 2;
 			p++;
 		}
 
-		/* parse scale */
 		if(*p >= '0' && *p <= '9')
 			scale = (*p++ - '0');
 
-		/* parse special duration again */
 		if(*p == '.')
 		{
 			duration += duration / 2;
 			p++;
 		}
 
-		/* skip delimiter */
 		while(*p == ' ')
 			p++;
 		if(*p == ',')
 			p++;
 
-		/* play note */
 		t = duration * 60000 / (b * 8);
 		if(index != 0)
 		{

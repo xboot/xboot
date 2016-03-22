@@ -176,8 +176,178 @@ void vibrator_vibrate(struct vibrator_t * vib, int state, int ms)
 	}
 }
 
-void vibrator_play(struct vibrator_t * vib, const char * morse)
+static const char * morse_code(char c)
 {
+	switch(c)
+	{
+	case '0':
+		return "-----";
+	case '1':
+		return ".----";
+	case '2':
+		return "..---";
+	case '3':
+		return "...--";
+	case '4':
+		return "....-";
+	case '5':
+		return ".....";
+	case '6':
+		return "-....";
+	case '7':
+		return "--...";
+	case '8':
+		return "---..";
+	case '9':
+		return "----.";
 
+	case 'a':
+	case 'A':
+		return ".-";
+	case 'b':
+	case 'B':
+		return "-...";
+	case 'c':
+	case 'C':
+		return "-.-.";
+	case 'd':
+	case 'D':
+		return "-..";
+	case 'e':
+	case 'E':
+		return ".";
+	case 'f':
+	case 'F':
+		return "..-.";
+	case 'g':
+	case 'G':
+		return "--.";
+	case 'h':
+	case 'H':
+		return "....";
+	case 'i':
+	case 'I':
+		return "..";
+	case 'j':
+	case 'J':
+		return ".---";
+	case 'k':
+	case 'K':
+		return "-.-";
+	case 'l':
+	case 'L':
+		return ".-..";
+	case 'm':
+	case 'M':
+		return "--";
+	case 'n':
+	case 'N':
+		return "-.";
+	case 'o':
+	case 'O':
+		return "---";
+	case 'p':
+	case 'P':
+		return ".--.";
+	case 'q':
+	case 'Q':
+		return "--.-";
+	case 'r':
+	case 'R':
+		return ".-.";
+	case 's':
+	case 'S':
+		return "...";
+	case 't':
+	case 'T':
+		return "-";
+	case 'u':
+	case 'U':
+		return "..-";
+	case 'v':
+	case 'V':
+		return "...-";
+	case 'w':
+	case 'W':
+		return ".--";
+	case 'x':
+	case 'X':
+		return "-..-";
+	case 'y':
+	case 'Y':
+		return "-.--";
+	case 'z':
+	case 'Z':
+		return "--..";
+
+	case '.':
+		return ".-.-.-";
+	case ',':
+		return "--..--";
+	case '?':
+		return "..--..";
+	case '\'':
+		return ".----.";
+	case '!':
+		return "-.-.--";
+	case '/':
+		return "-..-.";
+	case '(':
+		return "-.--.-";
+	case ')':
+		return "-.--.-";
+	case '&':
+		return ".-...";
+	case ':':
+		return "---...";
+	case ';':
+		return "-.-.-.";
+	case '=':
+		return "-...-";
+	case '+':
+		return ".-.-.";
+	case '-':
+		return "-....-";
+	case '_':
+		return "..--.-";
+	case '\"':
+		return ".-..-.";
+	case '$':
+		return "...-..-";
+	case '@':
+		return ".--.-.";
+
+	default:
+		break;
+	}
+	return "";
 }
 
+void vibrator_play(struct vibrator_t * vib, const char * morse)
+{
+	char * p, * q;
+
+	vibrator_vibrate(vib, 0, 0);
+
+	for(p = (char *)morse; *p != '\0'; p++)
+	{
+		if(isspace(*p))
+		{
+			vibrator_vibrate(vib, 0, 100 * 7);
+			continue;
+		}
+
+		q = (char *)morse_code(*p);
+		while(*q)
+		{
+			if(*q == '.')
+				vibrator_vibrate(vib, 1, 100 * 1);
+			else if(*q == '-')
+				vibrator_vibrate(vib, 1, 100 * 3);
+			vibrator_vibrate(vib, 0, 100);
+			q++;
+		}
+
+		vibrator_vibrate(vib, 0, 100 * 3);
+	}
+}

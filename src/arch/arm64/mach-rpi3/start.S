@@ -140,28 +140,24 @@ vectors:
 	ventry el0_fiq_invalid
 	ventry el0_error_invalid
 
-	.align 4
-/* Magic number(16bytes) - xbootmagicnumber */
-	.byte 0x78, 0x62, 0x6f, 0x6f, 0x74, 0x6d, 0x61, 0x67, 0x69, 0x63, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72
-/* Image start and image end information */
-	.long __image_start, __image_end
-/* Where the image was linked address */
-	.long _start
-/* Image sha256 digest */
-	.long 0, 0, 0, 0
-/* Magic number(16bytes) - xbootmagicnumber */
-	.byte 0x78, 0x62, 0x6f, 0x6f, 0x74, 0x6d, 0x61, 0x67, 0x69, 0x63, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72
-
 /*
  * The actual reset code
  */
 reset:
 	/*
-	 * Disable watchdog
+	 * Choose master processor
 	 */
-	ldr x0, =0xC0019000
-	mov x1, #0
-	str x1, [x0]
+	mrs x0, mpidr_el1
+	lsr x1, x0, #32
+	lsl x0, x0, #40
+	lsr x0, x0, #40
+	orr x0, x0, x1
+	cbz x0, _master
+_slave:
+	wfe
+	b _slave
+_master:
+	nop
 
 	/*
 	 * Initial system with exception level

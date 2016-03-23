@@ -181,7 +181,7 @@ _main:
 	b _main
 
 _halt:
-	wfi
+	wfe
 	b _halt
 
 /*

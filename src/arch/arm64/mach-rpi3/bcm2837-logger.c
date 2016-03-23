@@ -64,4 +64,4 @@ static __init void bcm2837_logger_init(void)
 	pdata.virt = phys_to_virt(pdata.phys);
 	register_logger(&logger);
 }
-core_initcall(bcm2837_logger_init);
+//core_initcall(bcm2837_logger_init);

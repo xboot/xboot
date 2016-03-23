@@ -26,7 +26,6 @@
 #include <clocksource/clocksource.h>
 #include <bcm2837/reg-sys-timer.h>
 
-#if 0
 struct clocksource_pdata_t
 {
 	const char * clk;
@@ -67,4 +66,3 @@ static __init void bcm2837_clocksource_init(void)
 	register_clocksource(&cs);
 }
 core_initcall(bcm2837_clocksource_init);
-#endif

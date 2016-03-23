@@ -1,0 +1,3 @@
+core_freq=250
+kernel_old=1
+arm_control=0x200

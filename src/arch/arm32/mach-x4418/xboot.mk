@@ -21,8 +21,8 @@ endif
 ifeq ($(strip $(HOSTOS)), windows)
 MK4418		:= arch/$(ARCH)/$(MACH)/tools/windows/mk4418
 endif
-NSIH		:= arch/$(ARCH)/$(MACH)/tools/image/nsih.txt
-SECBOOT		:= arch/$(ARCH)/$(MACH)/tools/image/2ndboot
+NSIH		:= arch/$(ARCH)/$(MACH)/tools/images/nsih.txt
+SECBOOT		:= arch/$(ARCH)/$(MACH)/tools/images/2ndboot
 
 xend:
 	@echo Make header information for irom booting

@@ -85,7 +85,7 @@ static uint32_t bcm2837_mbox_read(int channel)
 
 static void bcm2835_mbox_call_tag(void * msg)
 {
-	uint32_t data = 0xC0000000 + virt_to_phys((uint32_t)msg);
+	uint32_t data = 0xC0000000 + virt_to_phys((uint64_t)msg);
 
 	bcm2837_mbox_write(MBOX_CH_TAGS_ARM_TO_VC, data);
 	bcm2837_mbox_read(MBOX_CH_TAGS_ARM_TO_VC);

@@ -1,5 +1,5 @@
-#ifndef __BCM2837_MBOXOX_H__
-#define __BCM2837_MBOXOX_H__
+#ifndef __BCM2837_MBOX_H__
+#define __BCM2837_MBOX_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,4 +59,4 @@ int bcm2837_mbox_hardware_get_vc_memory(uint32_t * base, uint32_t * size);
 }
 #endif
 
-#endif /* __BCM2837_MBOXOX_H__ */
+#endif /* __BCM2837_MBOX_H__ */

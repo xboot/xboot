@@ -23,17 +23,45 @@
  */
 
 #include <xboot.h>
-#include <bcm2836/reg-uart.h>
+#include <bcm2836-gpio.h>
+#include <bcm2836/reg-aux.h>
 
 struct logger_pdata_t {
-	physical_addr_t phys;
-	virtual_addr_t virt;
+	char * clk;
+	int txdpin;
+	int txdcfg;
+	int rxdpin;
+	int rxdcfg;
+	physical_addr_t physaux;
+	physical_addr_t physmu;
+	virtual_addr_t virtaux;
+	virtual_addr_t virtmu;
 };
 
 static void logger_init(struct logger_t * logger)
 {
 	struct logger_pdata_t * pdat = (struct logger_pdata_t *)logger->priv;
-	write32(pdat->virt + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
+
+	clk_enable(pdat->clk);
+	if(pdat->txdpin >= 0)
+	{
+		gpio_set_cfg(pdat->txdpin, pdat->txdcfg);
+		gpio_set_pull(pdat->txdpin, GPIO_PULL_UP);
+	}
+	if(pdat->rxdpin >= 0)
+	{
+		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
+		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
+	}
+
+	write32(pdat->virtaux + AUX_ENB, read32(pdat->virtaux + AUX_ENB) | (1 << 0));
+	write32(pdat->virtmu + AUX_MU_CNTL, 0);
+	write32(pdat->virtmu + AUX_MU_IER, 0);
+	write32(pdat->virtmu + AUX_MU_IIR, 0xc6);
+	write32(pdat->virtmu + AUX_MU_LCR, 3);
+	write32(pdat->virtmu + AUX_MU_MCR, 0);
+	write32(pdat->virtmu + AUX_MU_BAUD, (clk_get_rate("core-clk") / (8 * 115200) - 1));
+	write32(pdat->virtmu + AUX_MU_CNTL, 0x3);
 }
 
 static void logger_output(struct logger_t * logger, const char * buf, int count)
@@ -43,17 +71,23 @@ static void logger_output(struct logger_t * logger, const char * buf, int count)
 
 	for(i = 0; i < count; i++)
 	{
-		while(read8(pdat->virt + 0x18) & (0x1 << 5));
-		write8(pdat->virt + 0x00, buf[i]);
+		while(!(read8(pdat->virtmu + AUX_MU_LSR) & 0x20));
+		write8(pdat->virtmu + AUX_MU_IO, buf[i]);
 	}
 }
 
 static struct logger_pdata_t pdata = {
-	.phys	= BCM2836_UART0_BASE,
+	.clk		= "core-clk",
+	.txdpin		= BCM2836_GPIO(14),
+	.txdcfg		= 5,
+	.rxdpin		= BCM2836_GPIO(15),
+	.rxdcfg		= 5,
+	.physaux	= BCM2836_AUX_BASE,
+	.physmu		= BCM2836_AUX_MU_BASE,
 };
 
 static struct logger_t logger = {
-	.name	= "logger-pl110-uart.0",
+	.name	= "logger-bcm2836-muart.0",
 	.init	= logger_init,
 	.output	= logger_output,
 	.priv	= &pdata,
@@ -61,7 +95,8 @@ static struct logger_t logger = {
 
 static __init void bcm2836_logger_init(void)
 {
-	pdata.virt = phys_to_virt(pdata.phys);
+	pdata.virtaux = phys_to_virt(pdata.physaux);
+	pdata.virtmu = phys_to_virt(pdata.physmu);
 	register_logger(&logger);
 }
-core_initcall(bcm2836_logger_init);
+postcore_initcall(bcm2836_logger_init);

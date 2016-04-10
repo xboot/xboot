@@ -1,5 +1,5 @@
 /*
- * resource/res-pl011-uart.c
+ * resource/res-muart.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,31 +23,30 @@
  */
 
 #include <xboot.h>
-#include <pl011-uart.h>
+#include <bcm2837-muart.h>
 #include <bcm2837-gpio.h>
 #include <bcm2837-irq.h>
-#include <bcm2837/reg-uart.h>
+#include <bcm2837/reg-aux.h>
 
-static struct pl011_uart_data_t uart_datas[] = {
+static struct bcm2837_muart_data_t uart_datas[] = {
 	[0] = {
-		.clk	= "uart-clk",
-		.irq	= BCM2837_IRQ_GPU_UART,
-		.fifosz	= 1024,
-		.txdpin	= BCM2837_GPIO(32),
-		.txdcfg	= 3,
-		.rxdpin	= BCM2837_GPIO(33),
-		.rxdcfg	= 3,
-		.baud	= 115200,
-		.data	= 8,
-		.parity	= 0,
-		.stop	= 1,
-		.phys	= BCM2837_UART0_BASE,
+		.clk		= "core-clk",
+		.txdpin		= BCM2837_GPIO(14),
+		.txdcfg		= 5,
+		.rxdpin		= BCM2837_GPIO(15),
+		.rxdcfg		= 5,
+		.baud		= 115200,
+		.data		= 8,
+		.parity		= 0,
+		.stop		= 1,
+		.physaux	= BCM2837_AUX_BASE,
+		.physmu		= BCM2837_AUX_MU_BASE,
 	}
 };
 
 static struct resource_t res_uarts[] = {
 	{
-		.name	= "pl011-uart",
+		.name	= "bcm2837-muart",
 		.id		= 0,
 		.data	= &uart_datas[0],
 	}

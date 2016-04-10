@@ -41,9 +41,9 @@ struct bcm2837_muart_pdata_t {
 static bool_t bcm2837_muart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
 {
 	struct bcm2837_muart_pdata_t * pdat = (struct bcm2837_muart_pdata_t *)uart->priv;
-	u32_t divider, remainder, fraction, val;
-	u8_t dreg, preg, sreg;
 	u64_t uclk;
+	u32_t divider;
+	u8_t dreg;
 
 	if(baud < 0)
 		return FALSE;
@@ -56,18 +56,14 @@ static bool_t bcm2837_muart_set(struct uart_t * uart, int baud, int data, int pa
 
 	switch(data)
 	{
-	case 5:	/* Data bits = 5 */
-		dreg = 0x0;
-		break;
-	case 6:	/* Data bits = 6 */
-		dreg = 0x1;
-		break;
 	case 7:	/* Data bits = 7 */
 		dreg = 0x2;
 		break;
 	case 8:	/* Data bits = 8 */
 		dreg = 0x3;
 		break;
+	case 5:	/* Data bits = 5 */
+	case 6:	/* Data bits = 6 */
 	default:
 		return FALSE;
 	}
@@ -75,14 +71,9 @@ static bool_t bcm2837_muart_set(struct uart_t * uart, int baud, int data, int pa
 	switch(parity)
 	{
 	case 0:	/* Parity none */
-		preg = 0x0;
 		break;
 	case 1:	/* Parity odd */
-		preg = 0x1;
-		break;
 	case 2:	/* Parity even */
-		preg = 0x3;
-		break;
 	default:
 		return FALSE;
 	}
@@ -90,11 +81,8 @@ static bool_t bcm2837_muart_set(struct uart_t * uart, int baud, int data, int pa
 	switch(stop)
 	{
 	case 1:	/* Stop bits = 1 */
-		sreg = 0;
 		break;
 	case 2:	/* Stop bits = 2 */
-		sreg = 1;
-		break;
 	case 0:	/* Stop bits = 1.5 */
 	default:
 		return FALSE;
@@ -105,15 +93,10 @@ static bool_t bcm2837_muart_set(struct uart_t * uart, int baud, int data, int pa
 	pdat->parity = parity;
 	pdat->stop = stop;
 
-	/*
-	 * IBRD = UART_CLK / (16 * BAUD_RATE)
-	 * FBRD = ROUND((64 * MOD(UART_CLK, (16 * BAUD_RATE))) / (16 * BAUD_RATE))
-	 */
 	uclk = clk_get_rate(pdat->clk);
-	divider = uclk / (16 * baud);
-	remainder = uclk % (16 * baud);
-	fraction = (8 * remainder / baud) >> 1;
-	fraction += (8 * remainder / baud) & 1;
+	divider = uclk / (8 * baud) - 1;
+	write32(pdat->virtmu + AUX_MU_LCR, (read32(pdat->virtaux + AUX_MU_LCR) & ~(0x3 << 0)) | (dreg << 0));
+	write32(pdat->virtmu + AUX_MU_BAUD, divider);
 
 	return TRUE;
 }
@@ -148,12 +131,21 @@ static void bcm2837_muart_init(struct uart_t * uart)
 		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
 		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
 	}
+
+	write32(pdat->virtaux + AUX_ENB, read32(pdat->virtaux + AUX_ENB) | (1 << 0));
+	write32(pdat->virtmu + AUX_MU_CNTL, 0);
+	write32(pdat->virtmu + AUX_MU_IER, 0);
+	write32(pdat->virtmu + AUX_MU_IIR, 0xc6);
+	write32(pdat->virtmu + AUX_MU_LCR, 3);
+	write32(pdat->virtmu + AUX_MU_MCR, 0);
+	write32(pdat->virtmu + AUX_MU_CNTL, 0x3);
 	bcm2837_muart_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
 }
 
 static void bcm2837_muart_exit(struct uart_t * uart)
 {
 	struct bcm2837_muart_pdata_t * pdat = (struct bcm2837_muart_pdata_t *)uart->priv;
+	write32(pdat->virtaux + AUX_ENB, read32(pdat->virtaux + AUX_ENB) & ~(1 << 0));
 	clk_disable(pdat->clk);
 }
 

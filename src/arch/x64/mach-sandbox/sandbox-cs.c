@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <clocksource/clocksource.h>
 #include <sandbox.h>
 
 static bool_t cs_init(struct clocksource_t * cs)

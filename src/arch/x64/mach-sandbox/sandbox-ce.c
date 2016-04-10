@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <clockevent/clockevent.h>
 #include <sandbox.h>
 
 static void ce_callback(void * data)

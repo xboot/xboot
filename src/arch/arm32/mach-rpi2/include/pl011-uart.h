@@ -11,8 +11,6 @@ extern "C" {
 struct pl011_uart_data_t
 {
 	char * clk;
-	int irq;
-	int fifosz;
 	int txdpin;
 	int txdcfg;
 	int rxdpin;

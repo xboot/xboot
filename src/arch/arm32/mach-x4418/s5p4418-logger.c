@@ -23,9 +23,30 @@
  */
 
 #include <xboot.h>
+#include <s5p4418-gpio.h>
 #include <s5p4418/reg-uart.h>
 
+#define UART_DATA	(0x00)
+#define UART_RSR	(0x04)
+#define UART_FR		(0x18)
+#define UART_ILPR	(0x20)
+#define UART_IBRD	(0x24)
+#define UART_FBRD	(0x28)
+#define UART_LCRH	(0x2c)
+#define UART_CR		(0x30)
+#define UART_IFLS	(0x34)
+#define UART_IMSC	(0x38)
+#define UART_RIS	(0x3c)
+#define UART_MIS	(0x40)
+#define UART_ICR	(0x44)
+#define UART_DMACR	(0x48)
+
 struct logger_pdata_t {
+	char * clk;
+	int txdpin;
+	int txdcfg;
+	int rxdpin;
+	int rxdcfg;
 	physical_addr_t phys;
 	virtual_addr_t virt;
 };
@@ -33,7 +54,29 @@ struct logger_pdata_t {
 static void logger_init(struct logger_t * logger)
 {
 	struct logger_pdata_t * pdat = (struct logger_pdata_t *)logger->priv;
-	write32(pdat->virt + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
+	u32_t div, rem, frac;
+
+	clk_enable(pdat->clk);
+	if(pdat->txdpin >= 0)
+	{
+		gpio_set_cfg(pdat->txdpin, pdat->txdcfg);
+		gpio_set_pull(pdat->txdpin, GPIO_PULL_UP);
+	}
+	if(pdat->rxdpin >= 0)
+	{
+		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
+		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
+	}
+
+	div = clk_get_rate(pdat->clk) / (16 * 115200);
+	rem = clk_get_rate(pdat->clk) % (16 * 115200);
+	frac = (8 * rem / 115200) >> 1;
+	frac += (8 * rem / 115200) & 1;
+
+	write32(pdat->virt + UART_IBRD, div);
+	write32(pdat->virt + UART_FBRD, frac);
+	write32(pdat->virt + UART_LCRH, (0x3 << 5) | (0x0 << 3) | (0x0 << 1) | (0x1 << 4));
+	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
 static void logger_output(struct logger_t * logger, const char * buf, int count)
@@ -43,12 +86,17 @@ static void logger_output(struct logger_t * logger, const char * buf, int count)
 
 	for(i = 0; i < count; i++)
 	{
-		while(read8(pdat->virt + 0x18) & (0x1 << 5));
-		write8(pdat->virt + 0x00, buf[i]);
+		while((read8(pdat->virt + UART_FR) & (0x1 << 5)));
+		write8(pdat->virt + UART_DATA, buf[i]);
 	}
 }
 
 static struct logger_pdata_t pdata = {
+	.clk	= "GATE-UART0",
+	.txdpin	= S5P4418_GPIOD(18),
+	.txdcfg	= 0x1,
+	.rxdpin	= S5P4418_GPIOD(14),
+	.rxdcfg	= 0x1,
 	.phys	= S5P4418_UART0_BASE,
 };
 
@@ -64,4 +112,4 @@ static __init void s5p4418_logger_init(void)
 	pdata.virt = phys_to_virt(pdata.phys);
 	register_logger(&logger);
 }
-core_initcall(s5p4418_logger_init);
+postcore_initcall(s5p4418_logger_init);

@@ -31,8 +31,6 @@
 static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
 		.clk	= "uart-clk",
-		.irq	= BCM2837_IRQ_GPU_UART,
-		.fifosz	= 1024,
 		.txdpin	= BCM2837_GPIO(32),
 		.txdcfg	= 3,
 		.rxdpin	= BCM2837_GPIO(33),

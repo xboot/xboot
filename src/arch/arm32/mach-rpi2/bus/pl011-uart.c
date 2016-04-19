@@ -24,36 +24,23 @@
 
 #include <pl011-uart.h>
 
-#define UART_DATA		(0x00)
-#define UART_RSR		(0x04)
-#define UART_FR			(0x18)
-#define UART_ILPR		(0x20)
-#define UART_IBRD		(0x24)
-#define UART_FBRD		(0x28)
-#define UART_LCRH		(0x2c)
-#define UART_CR			(0x30)
-#define UART_IFLS		(0x34)
-#define UART_IMSC		(0x38)
-#define UART_RIS		(0x3c)
-#define UART_MIS		(0x40)
-#define UART_ICR		(0x44)
-#define UART_DMACR		(0x48)
-
-#define UART_RSR_OE		(0x1 << 3)
-#define UART_RSR_BE		(0x1 << 2)
-#define UART_RSR_PE		(0x1 << 1)
-#define UART_RSR_FE		(0x1 << 0)
-
-#define UART_FR_TXFE	(0x1 << 7)
-#define UART_FR_RXFF	(0x1 << 6)
-#define UART_FR_TXFF	(0x1 << 5)
-#define UART_FR_RXFE	(0x1 << 4)
-#define UART_FR_BUSY	(0x1 << 3)
+#define UART_DATA	(0x00)
+#define UART_RSR	(0x04)
+#define UART_FR		(0x18)
+#define UART_ILPR	(0x20)
+#define UART_IBRD	(0x24)
+#define UART_FBRD	(0x28)
+#define UART_LCRH	(0x2c)
+#define UART_CR		(0x30)
+#define UART_IFLS	(0x34)
+#define UART_IMSC	(0x38)
+#define UART_RIS	(0x3c)
+#define UART_MIS	(0x40)
+#define UART_ICR	(0x44)
+#define UART_DMACR	(0x48)
 
 struct pl011_uart_pdata_t {
 	char * clk;
-	int irq;
-	int fifosz;
 	int txdpin;
 	int txdcfg;
 	int rxdpin;
@@ -63,7 +50,6 @@ struct pl011_uart_pdata_t {
 	int parity;
 	int stop;
 	virtual_addr_t virt;
-	struct fifo_t * rxfifo;
 };
 
 static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
@@ -146,7 +132,7 @@ static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parit
 	write32(pdat->virt + UART_IBRD, divider);
 	write32(pdat->virt + UART_FBRD, fraction);
 	val = read32(pdat->virt + UART_LCRH);
-	val &= ~(0x3f << 1);
+	val &= ~0x6e;
 	val |= (dreg << 5) | (sreg << 3) | (preg << 1);
 	write32(pdat->virt + UART_LCRH, val);
 
@@ -168,29 +154,9 @@ static bool_t pl011_uart_get(struct uart_t * uart, int * baud, int * data, int *
 	return TRUE;
 }
 
-static void pl011_uart_interrupt(void * data)
-{
-	struct uart_t * uart = (struct uart_t *)data;
-	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
-	u32_t val;
-	u8_t c;
-
-	val = read32(pdat->virt + UART_MIS);
-	if(val & (0x1 << 4))
-	{
-		while(!(read8(pdat->virt + UART_FR) & UART_FR_RXFE))
-		{
-			c = read8(pdat->virt + UART_DATA);
-			fifo_put(pdat->rxfifo, &c, 1);
-		}
-	}
-	write32(pdat->virt + UART_ICR, val);
-}
-
 static void pl011_uart_init(struct uart_t * uart)
 {
 	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
-	u32_t val;
 
 	clk_enable(pdat->clk);
 	if(pdat->txdpin >= 0)
@@ -203,28 +169,10 @@ static void pl011_uart_init(struct uart_t * uart)
 		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
 		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
 	}
-	if(request_irq(pdat->irq, pl011_uart_interrupt, IRQ_TYPE_NONE, uart))
-	{
-		/* Create rx fifo and enable rx interrupt */
-		pdat->rxfifo = fifo_alloc(pdat->fifosz);
-		write32(pdat->virt + UART_IMSC, 0x1 << 4);
-	}
 
-	/* Ensure rx fifo not empty triggered when becomes 1/8 full */
-	val = read32(pdat->virt + UART_IFLS);
-	val &= ~(0x7 << 3);
-	val |= 0x0 << 3;
-	write32(pdat->virt + UART_IFLS, 0x0);
-
-	/* Enable fifo */
-	val = read32(pdat->virt + UART_LCRH);
-	val |= 0x1 << 4;
-	write32(pdat->virt + UART_LCRH, val);
-
-	/* Set param and enable uart */
-	pl011_uart_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
-	write32(pdat->virt + UART_CR, 0x0);
+	write32(pdat->virt + UART_LCRH, read32(pdat->virt + UART_LCRH) | (1 << 4));
 	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
+	pl011_uart_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
 }
 
 static void pl011_uart_exit(struct uart_t * uart)
@@ -232,7 +180,6 @@ static void pl011_uart_exit(struct uart_t * uart)
 	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
 
 	write32(pdat->virt + UART_CR, 0x0);
-	fifo_free(pdat->rxfifo);
 	clk_disable(pdat->clk);
 }
 
@@ -241,18 +188,14 @@ static ssize_t pl011_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
 	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
 	ssize_t i;
 
-	if(!pdat->rxfifo)
+	for(i = 0; i < count; i++)
 	{
-		for(i = 0; i < count; i++)
-		{
-			if(!(read8(pdat->virt + UART_FR) & UART_FR_RXFE))
-				buf[i] = read8(pdat->virt + UART_DATA);
-			else
-				break;
-		}
-		return i;
+		if(!(read8(pdat->virt + UART_FR) & (0x1 << 4)))
+			buf[i] = read8(pdat->virt + UART_DATA);
+		else
+			break;
 	}
-	return fifo_get(pdat->rxfifo, buf, count);
+	return i;
 }
 
 static ssize_t pl011_uart_write(struct uart_t * uart, const u8_t * buf, size_t count)
@@ -262,7 +205,7 @@ static ssize_t pl011_uart_write(struct uart_t * uart, const u8_t * buf, size_t c
 
 	for(i = 0; i < count; i++)
 	{
-		while( (read8(pdat->virt + UART_FR) & UART_FR_TXFF) );
+		while((read8(pdat->virt + UART_FR) & (0x1 << 5)));
 		write8(pdat->virt + UART_DATA, buf[i]);
 	}
 
@@ -293,8 +236,6 @@ static bool_t pl011_register_bus_uart(struct resource_t * res)
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	pdat->clk = strdup(rdat->clk);
-	pdat->irq = rdat->irq;
-	pdat->fifosz = (rdat->fifosz < 16) ? 16 : rdat->fifosz;
 	pdat->txdpin = rdat->txdpin;
 	pdat->txdcfg = rdat->txdcfg;
 	pdat->rxdpin = rdat->rxdpin;
@@ -304,7 +245,6 @@ static bool_t pl011_register_bus_uart(struct resource_t * res)
 	pdat->parity = rdat->parity;
 	pdat->stop = rdat->stop;
 	pdat->virt = phys_to_virt(rdat->phys);
-	pdat->rxfifo = NULL;
 
 	uart->name = strdup(name);
 	uart->init = pl011_uart_init;

@@ -30,8 +30,6 @@
 static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
 		.clk	= "uclk",
-		.irq	= REALVIEW_IRQ_UART0,
-		.fifosz	= 256,
 		.txdpin	= -1,
 		.txdcfg	= -1,
 		.rxdpin	= -1,
@@ -44,8 +42,6 @@ static struct pl011_uart_data_t uart_datas[] = {
 	},
 	[1] = {
 		.clk	= "uclk",
-		.irq	= REALVIEW_IRQ_UART1,
-		.fifosz	= 256,
 		.txdpin	= -1,
 		.txdcfg	= -1,
 		.rxdpin	= -1,
@@ -58,8 +54,6 @@ static struct pl011_uart_data_t uart_datas[] = {
 	},
 	[2] = {
 		.clk	= "uclk",
-		.irq	= REALVIEW_IRQ_UART2,
-		.fifosz	= 256,
 		.txdpin	= -1,
 		.txdcfg	= -1,
 		.rxdpin	= -1,
@@ -72,8 +66,6 @@ static struct pl011_uart_data_t uart_datas[] = {
 	},
 	[3] = {
 		.clk	= "uclk",
-		.irq	= REALVIEW_IRQ_UART3,
-		.fifosz	= 256,
 		.txdpin	= -1,
 		.txdcfg	= -1,
 		.rxdpin	= -1,

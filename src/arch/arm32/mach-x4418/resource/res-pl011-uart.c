@@ -31,8 +31,6 @@
 static struct pl011_uart_data_t uart_datas[] = {
 	[0] = {
 		.clk	= "GATE-UART0",
-		.irq	= S5P4418_IRQ_UART0,
-		.fifosz	= 1024,
 		.txdpin	= S5P4418_GPIOD(18),
 		.txdcfg	= 0x1,
 		.rxdpin	= S5P4418_GPIOD(14),
@@ -45,8 +43,6 @@ static struct pl011_uart_data_t uart_datas[] = {
 	},
 	[1] = {
 		.clk	= "GATE-UART1",
-		.irq	= S5P4418_IRQ_UART1,
-		.fifosz	= 1024,
 		.txdpin	= S5P4418_GPIOD(19),
 		.txdcfg	= 0x1,
 		.rxdpin	= S5P4418_GPIOD(15),
@@ -59,8 +55,6 @@ static struct pl011_uart_data_t uart_datas[] = {
 	},
 	[2] = {
 		.clk	= "GATE-UART2",
-		.irq	= S5P4418_IRQ_UART2,
-		.fifosz	= 1024,
 		.txdpin	= S5P4418_GPIOD(20),
 		.txdcfg	= 0x1,
 		.rxdpin	= S5P4418_GPIOD(16),
@@ -73,8 +67,6 @@ static struct pl011_uart_data_t uart_datas[] = {
 	},
 	[3] = {
 		.clk	= "GATE-UART3",
-		.irq	= S5P4418_IRQ_UART3,
-		.fifosz	= 1024,
 		.txdpin	= S5P4418_GPIOD(21),
 		.txdcfg	= 0x1,
 		.rxdpin	= S5P4418_GPIOD(17),

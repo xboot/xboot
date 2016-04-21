@@ -96,7 +96,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t rpi2 = {
 	.name 		= "raspberry-pi-2-b",
-	.desc 		= "Raspberry Pi 2 Module B",
+	.desc 		= "Raspberry Pi 2 Model B",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,

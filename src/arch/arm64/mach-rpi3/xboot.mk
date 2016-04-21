@@ -16,5 +16,5 @@ INCDIRS		:=
 SRCDIRS		:=
 
 xend:
-	@echo Make kernel8.img for raspberry-pi v3
+	@echo Generate kernel8.img For Raspberry Pi 3 Model B
 	@$(CP) $(X_NAME).bin $(X_OUT)/kernel8.img

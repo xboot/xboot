@@ -1,5 +1,5 @@
 /*
- * resource/res-led-gpio.c
+ * resource/res-ledtrig-heartbeat.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,29 +23,27 @@
  */
 
 #include <xboot.h>
-#include <led/led-gpio.h>
-#include <bcm2836-gpio.h>
+#include <led/ledtrig.h>
 
-static struct led_gpio_data_t led_gpio_datas[] = {
-	[0] = {
-		.gpio		= BCM2836_GPIO(35),
-		.active_low	= 0,
-	},
-};
-
-static struct resource_t res_led_gpios[] = {
+static struct ledtrig_data_t led_trigger_datas[] = {
 	{
-		.name		= "led-gpio",
-		.id			= 0,
-		.data		= &led_gpio_datas[0],
-	},
+		.led	= "led-gpio.0",
+	}
 };
 
-static __init void resource_led_gpio_init(void)
+static struct resource_t res_led_triggers[] = {
+	{
+		.name	= "ledtrig-heartbeat",
+		.id		= -1,
+		.data	= &led_trigger_datas[0],
+	}
+};
+
+static __init void resource_led_trigger_heartbeat_init(void)
 {
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(res_led_gpios); i++)
-		register_resource(&res_led_gpios[i]);
+	for(i = 0; i < ARRAY_SIZE(res_led_triggers); i++)
+		register_resource(&res_led_triggers[i]);
 }
-resource_initcall(resource_led_gpio_init);
+resource_initcall(resource_led_trigger_heartbeat_init);

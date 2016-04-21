@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #define BCM2837_GPIO(x)		(x)
+#define BCM2837_GPIOVIRT(x)	(64 + x)
 
 #ifdef __cplusplus
 }

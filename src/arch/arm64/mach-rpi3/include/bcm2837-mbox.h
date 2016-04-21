@@ -8,23 +8,18 @@ extern "C" {
 #include <xboot.h>
 #include <bcm2837/reg-mbox.h>
 
-int bcm2837_mbox_temp_get(void);
-int bcm2837_mbox_temp_get_max(void);
+/* Mbox videocore */
+int bcm2837_mbox_vc_get_firmware_revison(void);
 
-enum {
-	MBOX_POWER_ID_SDCARD	= 0,
-	MBOX_POWER_ID_UART0		= 1,
-	MBOX_POWER_ID_UART1		= 2,
-	MBOX_POWER_ID_USBHCD	= 3,
-	MBOX_POWER_ID_I2C0		= 4,
-	MBOX_POWER_ID_I2C1		= 5,
-	MBOX_POWER_ID_I2C2		= 6,
-	MBOX_POWER_ID_SPI		= 7,
-	MBOX_POWER_ID_CCP2TX	= 8,
-};
-int bcm2837_mbox_power_get_state(int id);
-int bcm2837_mbox_power_set_state(int id, int state);
+/* Mbox hardware */
+int bcm2837_mbox_hardware_get_model(void);
+int bcm2837_mbox_hardware_get_revison(void);
+int bcm2837_mbox_hardware_get_mac_address(uint8_t * mac);
+int bcm2837_mbox_hardware_get_serial(uint64_t * sn);
+int bcm2837_mbox_hardware_get_arm_memory(uint32_t * base, uint32_t * size);
+int bcm2837_mbox_hardware_get_vc_memory(uint32_t * base, uint32_t * size);
 
+/* Mbox clock */
 enum {
 	MBOX_CLOCK_ID_EMMC 		= 1,
 	MBOX_CLOCK_ID_UART 		= 2,
@@ -46,14 +41,27 @@ int bcm2837_mbox_clock_set_rate(int id, int rate);
 int bcm2837_mbox_clock_get_max_rate(int id);
 int bcm2837_mbox_clock_get_min_rate(int id);
 
-int bcm2837_mbox_vc_get_firmware_revison(void);
+/* Mbox power */
+enum {
+	MBOX_POWER_ID_SDCARD	= 0,
+	MBOX_POWER_ID_UART0		= 1,
+	MBOX_POWER_ID_UART1		= 2,
+	MBOX_POWER_ID_USBHCD	= 3,
+	MBOX_POWER_ID_I2C0		= 4,
+	MBOX_POWER_ID_I2C1		= 5,
+	MBOX_POWER_ID_I2C2		= 6,
+	MBOX_POWER_ID_SPI		= 7,
+	MBOX_POWER_ID_CCP2TX	= 8,
+};
+int bcm2837_mbox_power_get_state(int id);
+int bcm2837_mbox_power_set_state(int id, int state);
 
-int bcm2837_mbox_hardware_get_model(void);
-int bcm2837_mbox_hardware_get_revison(void);
-int bcm2837_mbox_hardware_get_mac_address(uint8_t * mac);
-int bcm2837_mbox_hardware_get_serial(uint64_t * sn);
-int bcm2837_mbox_hardware_get_arm_memory(uint32_t * base, uint32_t * size);
-int bcm2837_mbox_hardware_get_vc_memory(uint32_t * base, uint32_t * size);
+/* Mbox temperature */
+int bcm2837_mbox_temp_get(void);
+int bcm2837_mbox_temp_get_max(void);
+
+/* Mbox framebuffer */
+uint32_t bcm2837_mbox_fb_get_gpiovirt(void);
 
 #ifdef __cplusplus
 }

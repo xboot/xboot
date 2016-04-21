@@ -24,11 +24,11 @@
 
 #include <xboot.h>
 #include <led/led-gpio.h>
-#include <bcm2836-gpio.h>
+#include <bcm2837-gpio.h>
 
 static struct led_gpio_data_t led_gpio_datas[] = {
 	[0] = {
-		.gpio		= BCM2836_GPIO(35),
+		.gpio		= BCM2837_GPIOVIRT(0),
 		.active_low	= 0,
 	},
 };

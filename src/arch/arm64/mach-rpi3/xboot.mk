@@ -15,3 +15,6 @@ LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
 
+xend:
+	@echo Make kernel8.img for raspberry-pi v3
+	@$(CP) $(X_NAME).bin $(X_OUT)/kernel8.img

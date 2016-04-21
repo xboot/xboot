@@ -14,3 +14,7 @@ LIBDIRS		:=
 LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
+
+xend:
+	@echo Make kernel7.img for raspberry-pi v2
+	@$(CP) $(X_NAME).bin $(X_OUT)/kernel7.img

@@ -145,21 +145,6 @@ vectors:
  */
 reset:
 	/*
-	 * Choose master processor
-	 */
-	mrs x0, mpidr_el1
-	lsr x1, x0, #32
-	lsl x0, x0, #40
-	lsr x0, x0, #40
-	orr x0, x0, x1
-	cbz x0, _master
-_slave:
-	wfi
-	b _slave
-_master:
-	nop
-
-	/*
 	 * Initial system with exception level
 	 */
 	adr x0, vectors

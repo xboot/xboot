@@ -9,8 +9,8 @@ STACK_EL0_SIZE	= 0x100000;	/* 1 MB */
 
 MEMORY
 {
-	rom(rx) : org = 0x00000000, len = 0x04000000	/* 64 MB */
-	ram(rwx): org = 0x04000000, len = 0x0c000000	/* 192 MB */
+	rom(rx) : org = 0x00080000, len = 0x04000000	/* 64 MB */
+	ram(rwx): org = 0x04080000, len = 0x0c000000	/* 192 MB */
 }
 
 SECTIONS

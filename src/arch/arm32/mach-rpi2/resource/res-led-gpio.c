@@ -28,7 +28,7 @@
 
 static struct led_gpio_data_t led_gpio_datas[] = {
 	[0] = {
-		.gpio		= BCM2836_GPIO(47),
+		.gpio		= BCM2836_GPIOVIRT(0),
 		.active_low	= 0,
 	},
 };

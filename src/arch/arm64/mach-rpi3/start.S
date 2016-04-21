@@ -154,7 +154,7 @@ reset:
 	orr x0, x0, x1
 	cbz x0, _master
 _slave:
-	wfe
+	wfi
 	b _slave
 _master:
 	nop
@@ -207,6 +207,11 @@ _master:
 	eret
 21:	b 11f
 11:	isb
+
+	/* Enable instruction cache */
+	mrs x0, sctlr_el1
+	orr x0, x0, #(1 << 12)
+	msr sctlr_el1, x0
 
 	/* Initialize stacks */
 	ldr	x0, _stack_el1_end

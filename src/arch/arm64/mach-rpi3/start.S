@@ -120,8 +120,8 @@ _start:
 	.align 11
 	.globl vectors
 vectors:
-	ventry el1_sync
-	ventry el1_irq
+	ventry el1_sync_invalid
+	ventry el1_irq_invalid
 	ventry el1_fiq_invalid
 	ventry el1_error_invalid
 

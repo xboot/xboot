@@ -27,7 +27,6 @@
 #include <bcm2837-irq.h>
 #include <bcm2837/reg-arm-timer.h>
 
-#if 0
 struct clockevent_pdata_t
 {
 	const char * clk;
@@ -96,4 +95,3 @@ static __init void bcm2837_clockevent_init(void)
 	register_clockevent(&ce);
 }
 core_initcall(bcm2837_clockevent_init);
-#endif

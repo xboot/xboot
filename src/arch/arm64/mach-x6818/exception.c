@@ -130,7 +130,7 @@ void arm64_sync_exception(struct pt_regs_t * regs)
 	show_regs(regs);
 }
 
-static void __arm64_irq_exception(void * regs)
+void arm64_irq_exception(struct pt_regs_t * regs)
 {
+	interrupt_handle_exception(regs);
 }
-extern __typeof(__arm64_irq_exception) arm64_irq_exception __attribute__((weak, alias("__arm64_irq_exception")));

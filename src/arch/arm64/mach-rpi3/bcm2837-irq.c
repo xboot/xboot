@@ -27,7 +27,6 @@
 #include <bcm2837-irq.h>
 #include <bcm2837/reg-irq.h>
 
-#if 0
 struct irqchip_data_t
 {
 	const char * name;
@@ -142,7 +141,6 @@ static __init void bcm2837_irqchip_init(void)
 
 		register_irqchip(chip);
 	}
-	arm32_interrupt_enable();
+	arm64_interrupt_enable();
 }
 core_initcall(bcm2837_irqchip_init);
-#endif

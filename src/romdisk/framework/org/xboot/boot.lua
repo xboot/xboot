@@ -2,9 +2,7 @@
 -- Builtin module
 --
 Json = require "builtin.json"
-
 pump = require("builtin.event").pump
-
 Stopwatch = require "builtin.stopwatch"
 Base64 = require "builtin.base64"
 Matrix = require "builtin.matrix"
@@ -16,19 +14,6 @@ Ninepatch = require "builtin.ninepatch"
 Shape = require "builtin.shape"
 Font = require "builtin.font"
 Display = require "builtin.display"
-
----
--- External core module
---
-Assets = require "org.xboot.core.Assets"
-TexturePacker = require "org.xboot.core.TexturePacker"
-Application = require "org.xboot.core.Application"
-
----
--- External timer module
---
-Timer = require "org.xboot.timer.Timer"
-TimerManager = require "org.xboot.timer.TimerManager"
 
 ---
 -- External event module
@@ -47,6 +32,20 @@ DisplayShape = require "org.xboot.display.DisplayShape"
 DisplayText = require "org.xboot.display.DisplayText"
 
 ---
+-- External core module
+--
+Assets = require "org.xboot.core.Assets"
+TexturePacker = require "org.xboot.core.TexturePacker"
+Application = require "org.xboot.core.Application"
+Stage = require "org.xboot.core.Stage"
+
+---
+-- External timer module
+--
+Timer = require "org.xboot.timer.Timer"
+TimerManager = require "org.xboot.timer.TimerManager"
+
+---
 -- External widget module
 --
 Widget = {
@@ -58,6 +57,7 @@ Widget = {
 }
 
 application = Application.new()
-application:exec()
+
+require("main")
 return true
 

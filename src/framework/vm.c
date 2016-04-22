@@ -34,95 +34,6 @@
 
 extern int luaopen_cjson_safe(lua_State *);
 
-struct __reader_data_t
-{
-	struct xfs_file_t * file;
-	char buffer[LUAL_BUFFERSIZE];
-};
-
-static const char * __reader(lua_State * L, void * data, size_t * size)
-{
-	struct __reader_data_t * rd = (struct __reader_data_t *)data;
-	s64_t ret;
-
-	ret = xfs_read(rd->file, rd->buffer, 1, LUAL_BUFFERSIZE);
-	if(ret < 0)
-	{
-		lua_error(L);
-		return NULL;
-	}
-
-	*size = (size_t)ret;
-	return rd->buffer;
-}
-
-static int __loadfile(lua_State * L)
-{
-	const char * filename = luaL_checkstring(L, 1);
-	struct __reader_data_t * rd;
-
-	rd = malloc(sizeof(struct __reader_data_t));
-	if(!rd)
-		return lua_error(L);
-
-	rd->file = xfs_open_read(filename);
-	if(!rd->file)
-	{
-		free(rd);
-		return lua_error(L);
-	}
-
-	if(lua_load(L, __reader, rd, filename, NULL))
-	{
-		free(rd);
-		return lua_error(L);
-	}
-
-	xfs_close(rd->file);
-	free(rd);
-
-	return 1;
-}
-
-static int searcher_package_lua(lua_State * L)
-{
-	const char * filename = lua_tostring(L, -1);
-	char * buf;
-	size_t len, i;
-
-	len = strlen(filename);
-	buf = malloc(len + 16);
-	if(!buf)
-		return lua_error(L);
-
-	strcpy(buf, filename);
-	for(i = 0; i < len; i++)
-	{
-		if(buf[i] == '.')
-			buf[i] = '/';
-	}
-
-	if(xfs_is_directory(buf))
-		strcat(buf, "/init.lua");
-	else
-		strcat(buf, ".lua");
-
-	if(xfs_exists(buf))
-	{
-		lua_pop(L, 1);
-		lua_pushcfunction(L, __loadfile);
-		lua_pushstring(L, buf);
-		lua_call(L, 1, 1);
-	}
-	else
-	{
-		lua_pushfstring(L, "\n\tno file '%s' in application directories", buf);
-	}
-
-	free(buf);
-	return 1;
-}
-
 static void luaopen_glblibs(lua_State * L)
 {
 	const luaL_Reg glblibs[] = {
@@ -184,27 +95,133 @@ static int luaopen_boot(lua_State * L)
 	return 1;
 }
 
+struct __reader_data_t
+{
+	struct xfs_file_t * file;
+	char buffer[LUAL_BUFFERSIZE];
+};
+
+static const char * __reader(lua_State * L, void * data, size_t * size)
+{
+	struct __reader_data_t * rd = (struct __reader_data_t *)data;
+	s64_t ret;
+
+	ret = xfs_read(rd->file, rd->buffer, 1, LUAL_BUFFERSIZE);
+	if(ret < 0)
+	{
+		lua_error(L);
+		return NULL;
+	}
+
+	*size = (size_t)ret;
+	return rd->buffer;
+}
+
+static int __loadfile(lua_State * L)
+{
+	const char * filename = luaL_checkstring(L, 1);
+	struct __reader_data_t * rd;
+
+	rd = malloc(sizeof(struct __reader_data_t));
+	if(!rd)
+		return lua_error(L);
+
+	rd->file = xfs_open_read(filename);
+	if(!rd->file)
+	{
+		free(rd);
+		return lua_error(L);
+	}
+
+	if(lua_load(L, __reader, rd, filename, NULL))
+	{
+		free(rd);
+		return lua_error(L);
+	}
+
+	xfs_close(rd->file);
+	free(rd);
+
+	return 1;
+}
+
+static int l_search_package_lua(lua_State * L)
+{
+	const char * filename = lua_tostring(L, -1);
+	char * buf;
+	size_t len, i;
+
+	len = strlen(filename);
+	buf = malloc(len + 16);
+	if(!buf)
+		return lua_error(L);
+
+	strcpy(buf, filename);
+	for(i = 0; i < len; i++)
+	{
+		if(buf[i] == '.')
+			buf[i] = '/';
+	}
+
+	if(xfs_is_directory(buf))
+		strcat(buf, "/init.lua");
+	else
+		strcat(buf, ".lua");
+
+	if(xfs_exists(buf))
+	{
+		lua_pop(L, 1);
+		lua_pushcfunction(L, __loadfile);
+		lua_pushstring(L, buf);
+		lua_call(L, 1, 1);
+	}
+	else
+	{
+		lua_pushfstring(L, "\n\tno file '%s' in application directories", buf);
+	}
+
+	free(buf);
+	return 1;
+}
+
+static int l_xboot_version(lua_State * L)
+{
+	lua_pushstring(L, xboot_version_string());
+	return 1;
+}
+
+static int l_xboot_arch(lua_State * L)
+{
+	lua_pushstring(L, __ARCH__);
+	return 1;
+}
+
+static int l_xboot_mach(lua_State * L)
+{
+	lua_pushstring(L, __MACH__);
+	return 1;
+}
+
+static int l_xboot_uniqueid(lua_State * L)
+{
+	lua_pushstring(L, machine_uniqueid());
+	return 1;
+}
+
 static int pmain(lua_State * L)
 {
 	int argc = (int)lua_tointeger(L, 1);
 	char ** argv = (char **)lua_touserdata(L, 2);
 	int i;
 
-	/* open default libs */
 	luaL_openlibs(L);
+	luaopen_glblibs(L);
+	luaopen_prelibs(L);
 
-	/* package search rules */
-	luahelper_package_searcher(L, searcher_package_lua, 2);
+	luahelper_package_searcher(L, l_search_package_lua, 2);
 	luahelper_package_path(L, "./?/init.lua;./?.lua");
 	luahelper_package_cpath(L, "./?.so");
 
-	/* open global libs */
-	luaopen_glblibs(L);
-
-	/* open preload libs */
-	luaopen_prelibs(L);
-
-	/* global xboot table */
 	lua_getglobal(L, "xboot");
 	if(!lua_istable(L, -1))
 	{
@@ -213,14 +230,14 @@ static int pmain(lua_State * L)
 		lua_pushvalue(L, -1);
 		lua_setglobal(L, "xboot");
 	}
-	lua_pushstring(L, xboot_version_string());
-	lua_setfield(L, -2, "VERSION");
-	lua_pushstring(L, __ARCH__);
-	lua_setfield(L, -2, "ARCH");
-	lua_pushstring(L, __MACH__);
-	lua_setfield(L, -2, "MACH");
-	lua_pushstring(L, machine_uniqueid());
-	lua_setfield(L, -2, "UNIQUEID");
+	lua_pushcfunction(L, l_xboot_version);
+	lua_setfield(L, -2, "version");
+	lua_pushcfunction(L, l_xboot_arch);
+	lua_setfield(L, -2, "arch");
+	lua_pushcfunction(L, l_xboot_mach);
+	lua_setfield(L, -2, "mach");
+	lua_pushcfunction(L, l_xboot_uniqueid);
+	lua_setfield(L, -2, "uniqueid");
 	lua_createtable(L, argc, 0);
 	for(i = 0; i < argc; i++)
 	{
@@ -230,7 +247,6 @@ static int pmain(lua_State * L)
 	lua_setfield(L, -2, "arg");
 	lua_pop(L, 1);
 
-	/* open boot */
 	luaopen_boot(L);
 	return 1;
 }

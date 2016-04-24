@@ -104,7 +104,7 @@ end
 -- @param self
 -- @param event (Event) The 'event' object to be dispatched.
 function M:dispatchEvent(event)
-	if event.stop == true then
+	if event.stop then
 		return self
 	end
 

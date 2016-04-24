@@ -10,7 +10,7 @@ function M:init(w, h)
 		:paint())
 
 	local checkbox = Widget.CheckBox.new({x = 100, y = 100})
-		:addEventListener("Change", function(d, e) print("CheckBox changed:", e.ext.checked) end)
+		:addEventListener("Change", function(d, e) print("CheckBox changed:", e.checked) end)
 	self:addChild(checkbox)
 end
 

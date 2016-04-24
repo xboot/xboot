@@ -10,7 +10,7 @@ function M:init(w, h)
 		:paint())
 
 	local radiobutton = Widget.RadioButton.new({x = 100, y = 100})
-		:addEventListener("Change", function(d, e) print("RadioButton changed:", e.ext.checked) end)
+		:addEventListener("Change", function(d, e) print("RadioButton changed:", e.checked) end)
 	self:addChild(radiobutton)
 end
 

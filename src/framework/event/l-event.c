@@ -22,42 +22,47 @@
  *
  */
 
+#include <input/input.h>
 #include <framework/event/l-event.h>
 
-#define __TYPE_KEY_DOWN					"KeyDown"
-#define __TYPE_KEY_UP					"KeyUp"
-#define __TYPE_MOUSE_DOWN				"MouseDown"
-#define __TYPE_MOUSE_MOVE				"MouseMove"
-#define __TYPE_MOUSE_UP					"MouseUp"
-#define __TYPE_MOUSE_WHEEL				"MouseWheel"
-#define __TYPE_TOUCH_BEGIN				"TouchBegin"
-#define __TYPE_TOUCH_MOVE				"TouchMove"
-#define __TYPE_TOUCH_END				"TouchEnd"
-#define __TYPE_JOYSTICK_LEFTSTICK		"JoystickLeftStick"
-#define __TYPE_JOYSTICK_RIGHTSTICK		"JoystickRightStick"
-#define __TYPE_JOYSTICK_LEFTTRIGGER		"JoystickLeftTrigger"
-#define __TYPE_JOYSTICK_RIGHTTRIGGER	"JoystickRightTrigger"
-#define __TYPE_JOYSTICK_BUTTONDOWN		"JoystickButtonDown"
-#define __TYPE_JOYSTICK_BUTTONUP		"JoystickButtonUp"
-#define __TYPE_ENTER_FRAME				"EnterFrame"
-#define __TYPE_ANIMATE_COMPLETE			"AnimateComplete"
+#define STR_KEY_DOWN				"KeyDown"
+#define STR_KEY_UP					"KeyUp"
+#define STR_MOUSE_DOWN				"MouseDown"
+#define STR_MOUSE_MOVE				"MouseMove"
+#define STR_MOUSE_UP				"MouseUp"
+#define STR_MOUSE_WHEEL				"MouseWheel"
+#define STR_TOUCH_BEGIN				"TouchBegin"
+#define STR_TOUCH_MOVE				"TouchMove"
+#define STR_TOUCH_END				"TouchEnd"
+#define STR_JOYSTICK_LEFTSTICK		"JoystickLeftStick"
+#define STR_JOYSTICK_RIGHTSTICK		"JoystickRightStick"
+#define STR_JOYSTICK_LEFTTRIGGER	"JoystickLeftTrigger"
+#define STR_JOYSTICK_RIGHTTRIGGER	"JoystickRightTrigger"
+#define STR_JOYSTICK_BUTTONDOWN		"JoystickButtonDown"
+#define STR_JOYSTICK_BUTTONUP		"JoystickButtonUp"
+#define STR_ENTER_FRAME				"EnterFrame"
+#define STR_ANIMATE_COMPLETE		"AnimateComplete"
 
 static int l_event_new(lua_State * L)
 {
 	const char * type = luaL_checkstring(L, 1);
 	if(!type)
 		return 0;
-	lua_newtable(L);
-	lua_pushstring(L, type);
-	lua_setfield(L, -2, "type");
 	if(lua_type(L, 2) == LUA_TTABLE)
 	{
 		lua_pushvalue(L, 2);
 		luahelper_deepcopy_table(L);
-		lua_setfield(L, -2, "ext");
 	}
-	lua_pushboolean(L, 0);
-	lua_setfield(L, -2, "stop");
+	else
+	{
+		lua_newtable(L);
+	}
+	lua_pushstring(L, "virtual");
+	lua_setfield(L, -2, "device");
+	lua_pushstring(L, type);
+	lua_setfield(L, -2, "type");
+	lua_pushnumber(L, ktime_to_ns(ktime_get()));
+	lua_setfield(L, -2, "time");
 	return 1;
 }
 
@@ -70,35 +75,35 @@ static int l_event_pump(lua_State * L)
 
 	switch(event.type)
 	{
-	/* key */
 	case EVENT_TYPE_KEY_DOWN:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_KEY_DOWN);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_KEY_DOWN);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
 		lua_pushinteger(L, event.e.key_down.key);
 		lua_setfield(L, -2, "key");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_KEY_UP:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_KEY_UP);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_KEY_UP);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
 		lua_pushinteger(L, event.e.key_up.key);
 		lua_setfield(L, -2, "key");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
-	/* mouse */
 	case EVENT_TYPE_MOUSE_DOWN:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_MOUSE_DOWN);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_MOUSE_DOWN);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -108,13 +113,13 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "y");
 		lua_pushinteger(L, event.e.mouse_down.button);
 		lua_setfield(L, -2, "button");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_MOUSE_MOVE:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_MOUSE_MOVE);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_MOUSE_MOVE);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -122,13 +127,13 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "x");
 		lua_pushinteger(L, event.e.mouse_move.y);
 		lua_setfield(L, -2, "y");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_MOUSE_UP:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_MOUSE_UP);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_MOUSE_UP);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -138,13 +143,13 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "y");
 		lua_pushinteger(L, event.e.mouse_up.button);
 		lua_setfield(L, -2, "button");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_MOUSE_WHEEL:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_MOUSE_WHEEL);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_MOUSE_WHEEL);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -152,14 +157,13 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "dx");
 		lua_pushinteger(L, event.e.mouse_wheel.dy);
 		lua_setfield(L, -2, "dy");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
-	/* touch */
 	case EVENT_TYPE_TOUCH_BEGIN:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_TOUCH_BEGIN);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_TOUCH_BEGIN);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -169,13 +173,13 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "y");
 		lua_pushinteger(L, event.e.touch_begin.id);
 		lua_setfield(L, -2, "id");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_TOUCH_MOVE:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_TOUCH_MOVE);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_TOUCH_MOVE);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -185,13 +189,13 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "y");
 		lua_pushinteger(L, event.e.touch_move.id);
 		lua_setfield(L, -2, "id");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_TOUCH_END:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_TOUCH_END);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_TOUCH_END);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -201,13 +205,13 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "y");
 		lua_pushinteger(L, event.e.touch_end.id);
 		lua_setfield(L, -2, "id");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_LEFTSTICK:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_JOYSTICK_LEFTSTICK);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_JOYSTICK_LEFTSTICK);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -215,13 +219,13 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "x");
 		lua_pushinteger(L, event.e.joystick_left_stick.y);
 		lua_setfield(L, -2, "y");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_RIGHTSTICK:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_JOYSTICK_RIGHTSTICK);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_JOYSTICK_RIGHTSTICK);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
@@ -229,56 +233,54 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "x");
 		lua_pushinteger(L, event.e.joystick_right_stick.y);
 		lua_setfield(L, -2, "y");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_LEFTTRIGGER:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_JOYSTICK_LEFTTRIGGER);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_JOYSTICK_LEFTTRIGGER);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
 		lua_pushinteger(L, event.e.joystick_left_trigger.v);
 		lua_setfield(L, -2, "v");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_RIGHTTRIGGER:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_JOYSTICK_RIGHTTRIGGER);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_JOYSTICK_RIGHTTRIGGER);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
 		lua_pushinteger(L, event.e.joystick_right_trigger.v);
 		lua_setfield(L, -2, "v");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_BUTTONDOWN:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_JOYSTICK_BUTTONDOWN);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_JOYSTICK_BUTTONDOWN);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
 		lua_pushinteger(L, event.e.joystick_button_down.button);
 		lua_setfield(L, -2, "button");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_BUTTONUP:
 		lua_newtable(L);
-		lua_pushstring(L, __TYPE_JOYSTICK_BUTTONUP);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_JOYSTICK_BUTTONUP);
 		lua_setfield(L, -2, "type");
 		lua_pushnumber(L, ktime_to_ns(event.timestamp));
 		lua_setfield(L, -2, "time");
 		lua_pushinteger(L, event.e.joystick_button_up.button);
 		lua_setfield(L, -2, "button");
-		lua_pushboolean(L, 0);
-		lua_setfield(L, -2, "stop");
 		return 1;
 
 	default:
@@ -297,22 +299,22 @@ static const luaL_Reg l_event[] = {
 int luaopen_event(lua_State * L)
 {
 	luaL_newlib(L, l_event);
-	luahelper_set_strfield(L, "KEY_DOWN",				__TYPE_KEY_DOWN);
-	luahelper_set_strfield(L, "KEY_UP",					__TYPE_KEY_UP);
-	luahelper_set_strfield(L, "MOUSE_DOWN",				__TYPE_MOUSE_DOWN);
-	luahelper_set_strfield(L, "MOUSE_MOVE",				__TYPE_MOUSE_MOVE);
-	luahelper_set_strfield(L, "MOUSE_UP",				__TYPE_MOUSE_UP);
-	luahelper_set_strfield(L, "MOUSE_WHEEL",			__TYPE_MOUSE_WHEEL);
-	luahelper_set_strfield(L, "TOUCH_BEGIN",			__TYPE_TOUCH_BEGIN);
-	luahelper_set_strfield(L, "TOUCH_MOVE",				__TYPE_TOUCH_MOVE);
-	luahelper_set_strfield(L, "TOUCH_END",				__TYPE_TOUCH_END);
-	luahelper_set_strfield(L, "JOYSTICK_LEFTSTICK",		__TYPE_JOYSTICK_LEFTSTICK);
-	luahelper_set_strfield(L, "JOYSTICK_RIGHTSTICK",	__TYPE_JOYSTICK_RIGHTSTICK);
-	luahelper_set_strfield(L, "JOYSTICK_LEFTTRIGGER",	__TYPE_JOYSTICK_LEFTTRIGGER);
-	luahelper_set_strfield(L, "JOYSTICK_RIGHTTRIGGER",	__TYPE_JOYSTICK_RIGHTTRIGGER);
-	luahelper_set_strfield(L, "JOYSTICK_BUTTONDOWN",	__TYPE_JOYSTICK_BUTTONDOWN);
-	luahelper_set_strfield(L, "JOYSTICK_BUTTONUP",		__TYPE_JOYSTICK_BUTTONUP);
-	luahelper_set_strfield(L, "ENTER_FRAME",			__TYPE_ENTER_FRAME);
-	luahelper_set_strfield(L, "ANIMATE_COMPLETE",		__TYPE_ANIMATE_COMPLETE);
+	luahelper_set_strfield(L, "KEY_DOWN",				STR_KEY_DOWN);
+	luahelper_set_strfield(L, "KEY_UP",					STR_KEY_UP);
+	luahelper_set_strfield(L, "MOUSE_DOWN",				STR_MOUSE_DOWN);
+	luahelper_set_strfield(L, "MOUSE_MOVE",				STR_MOUSE_MOVE);
+	luahelper_set_strfield(L, "MOUSE_UP",				STR_MOUSE_UP);
+	luahelper_set_strfield(L, "MOUSE_WHEEL",			STR_MOUSE_WHEEL);
+	luahelper_set_strfield(L, "TOUCH_BEGIN",			STR_TOUCH_BEGIN);
+	luahelper_set_strfield(L, "TOUCH_MOVE",				STR_TOUCH_MOVE);
+	luahelper_set_strfield(L, "TOUCH_END",				STR_TOUCH_END);
+	luahelper_set_strfield(L, "JOYSTICK_LEFTSTICK",		STR_JOYSTICK_LEFTSTICK);
+	luahelper_set_strfield(L, "JOYSTICK_RIGHTSTICK",	STR_JOYSTICK_RIGHTSTICK);
+	luahelper_set_strfield(L, "JOYSTICK_LEFTTRIGGER",	STR_JOYSTICK_LEFTTRIGGER);
+	luahelper_set_strfield(L, "JOYSTICK_RIGHTTRIGGER",	STR_JOYSTICK_RIGHTTRIGGER);
+	luahelper_set_strfield(L, "JOYSTICK_BUTTONDOWN",	STR_JOYSTICK_BUTTONDOWN);
+	luahelper_set_strfield(L, "JOYSTICK_BUTTONUP",		STR_JOYSTICK_BUTTONUP);
+	luahelper_set_strfield(L, "ENTER_FRAME",			STR_ENTER_FRAME);
+	luahelper_set_strfield(L, "ANIMATE_COMPLETE",		STR_ANIMATE_COMPLETE);
 	return 1;
 }

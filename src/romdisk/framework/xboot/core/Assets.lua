@@ -3,7 +3,7 @@
 -- type of resources.
 --
 -- @module Assets
-local M = class()
+local M = Class()
 
 ---
 -- Creates a new 'Assets' for cache different type of resources.

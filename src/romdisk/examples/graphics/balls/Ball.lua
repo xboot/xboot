@@ -1,10 +1,9 @@
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
-function M:init(image)
+function M:init(image, w, h)
 	self.super:init()
 
-	local w, h = application:getScreenSize()
-	local assets = application:getAssets()
+	local assets = assets
 
 	self.maxWidth = w
 	self.maxHeight = h

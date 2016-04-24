@@ -1,10 +1,9 @@
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
-function M:init()
+function M:init(w, h)
 	self.super:init()
 
-	local w, h = application:getScreenSize()
-	local assets = application:getAssets()
+	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
 		:setSource(Pattern.texture(assets:loadTexture("graphics/dragme/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
@@ -32,58 +31,58 @@ function M:init()
 end
 
 function M:onMouseDown(e)
-	if self:hitTestPoint(e.info.x, e.info.y) then
+	if self:hitTestPoint(e.x, e.y) then
 		self.touchid = -1
-		self.x0 = e.info.x
-		self.y0 = e.info.y
-		e:stopPropagation()
+		self.x0 = e.x
+		self.y0 = e.y
+		e.stop = true
 	end
 end
 
 function M:onMouseMove(e)
 	if self.touchid == -1 then	
-		local dx = e.info.x - self.x0
-		local dy = e.info.y - self.y0
+		local dx = e.x - self.x0
+		local dy = e.y - self.y0
 		self:setX(self:getX() + dx)
 		self:setY(self:getY() + dy)
-		self.x0 = e.info.x
-		self.y0 = e.info.y
-		e:stopPropagation()
+		self.x0 = e.x
+		self.y0 = e.y
+		e.stop = true
 	end
 end
 
 function M:onMouseUp(e)
 	if self.touchid == -1 then
 		self.touchid = nil
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchBegin(e)
-	if self:hitTestPoint(e.info.x, e.info.y) then
-		self.touchid = e.info.id
-		self.x0 = e.info.x
-		self.y0 = e.info.y
-		e:stopPropagation()
+	if self:hitTestPoint(e.x, e.y) then
+		self.touchid = e.id
+		self.x0 = e.x
+		self.y0 = e.y
+		e.stop = true
 	end
 end
 
 function M:onTouchMove(e)
-	if self.touchid == e.info.id then
-		local dx = e.info.x - self.x0
-		local dy = e.info.y - self.y0
+	if self.touchid == e.id then
+		local dx = e.x - self.x0
+		local dy = e.y - self.y0
 		self:setX(self:getX() + dx)
 		self:setY(self:getY() + dy)
-		self.x0 = e.info.x
-		self.y0 = e.info.y
-		e:stopPropagation()
+		self.x0 = e.x
+		self.y0 = e.y
+		e.stop = true
 	end
 end
 
 function M:onTouchEnd(e)
-	if self.touchid == e.info.id then
+	if self.touchid == e.id then
 		self.touchid = nil
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 

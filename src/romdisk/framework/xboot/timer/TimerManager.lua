@@ -2,7 +2,7 @@
 -- The 'TimerManager' class is used to manager timer.
 -- 
 -- @module TimerManager
-local M = class()
+local M = Class()
 
 ---
 -- Creates a new 'TimerManager' object.

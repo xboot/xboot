@@ -3,7 +3,7 @@
 -- be placed on the screen.
 --
 -- @module DisplayImageMask
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
 ---
 -- Creates a new object of display image.

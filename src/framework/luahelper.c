@@ -67,6 +67,25 @@ void luahelper_dump_stack(lua_State * L)
 	}
 }
 
+int luahelper_deepcopy_table(lua_State * L)
+{
+	if(lua_type(L, -1) == LUA_TTABLE)
+	{
+		lua_createtable(L, 0, 0);
+		lua_pushnil(L);
+		while(lua_next(L, -3) != 0)
+		{
+			luahelper_deepcopy_table(L);
+			lua_pushvalue(L, -2);
+			lua_pushvalue(L, -2);
+			lua_rawset(L, -5);
+			lua_pop(L, 1);
+		}
+		lua_replace(L, -2);
+	}
+	return 1;
+}
+
 const char * luahelper_get_strfield(lua_State * L, const char * key, const char * def)
 {
 	const char * value;
@@ -170,7 +189,7 @@ void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg
 
 void luahelper_create_class(lua_State * L, const char * parant, const luaL_Reg * funcs)
 {
-	lua_getglobal(L, "class");
+	lua_getglobal(L, "Class");
 	if(parant)
 	{
 		lua_getglobal(L, "require");

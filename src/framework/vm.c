@@ -37,7 +37,8 @@ extern int luaopen_cjson_safe(lua_State *);
 static void luaopen_glblibs(lua_State * L)
 {
 	const luaL_Reg glblibs[] = {
-		{ "class",	luaopen_class },
+		{ "Class",	luaopen_class },
+		{ "Event",	luaopen_event },
 		{ NULL,		NULL },
 	};
 	const luaL_Reg * lib;
@@ -90,7 +91,7 @@ static void luaopen_prelibs(lua_State * L)
 
 static int luaopen_boot(lua_State * L)
 {
-	if(luaL_loadfile(L, "/romdisk/framework/org/xboot/boot.lua") == LUA_OK)
+	if(luaL_loadfile(L, "/romdisk/framework/xboot/boot.lua") == LUA_OK)
 		lua_call(L, 0, 1);
 	return 1;
 }

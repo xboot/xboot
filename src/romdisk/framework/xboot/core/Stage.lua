@@ -1,21 +1,14 @@
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
 function M:init(fb)
-	self.super:init()
+  self.timermanager = TimerManager.new()
 	self.display = Display.new(fb)
-	self.timermanager = TimerManager.new()
-	self.looping = false
-	self.super:init(self:getScreenSize())
-end
-
-function M:getScreenSize()
-	local info = self.display:info()
-	return info.width, info.height
-end
-
-function M:getScreenDensity()
-	local info = self.display:info()
-	return info.xdpi, info.ydpi
+  self.exiting = false
+  if not self.display then
+    self.super:init()
+  else
+    self.super:init(self.display:getSize())
+  end
 end
 
 function M:getTimerManager()
@@ -27,12 +20,13 @@ function M:showfps(value)
 	return self
 end
 
-function M:quit()
-	self.looping = false
+function M:exit()
+	self.exiting = true
 	return self
 end
 
 function M:loop()
+  local Event = Event
 	local display = self.display
 	local timermanager = self.timermanager
 	local stopwatch = Stopwatch.new()
@@ -42,11 +36,9 @@ function M:loop()
 		display:present()
 	end))
 
-	self.looping = true
-	while self.looping do
-		local info = pump()
-		if info ~= nil then
-			local e = Event.new(info.type, info)
+	while not self.exiting do
+    local e = Event.pump()
+		if e ~= nil then
 			self:dispatch(e)
 		end
 

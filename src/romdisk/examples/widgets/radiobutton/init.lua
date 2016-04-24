@@ -1,17 +1,16 @@
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
-function M:init()
+function M:init(w, h)
 	self.super:init()
 
-	local w, h = application:getScreenSize()
-	local assets = application:getAssets()
+	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
 		:setSource(Pattern.texture(assets:loadTexture("widgets/radiobutton/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 
 	local radiobutton = Widget.RadioButton.new({x = 100, y = 100})
-		:addEventListener("Change", function(d, e) print("RadioButton changed:", e.info.checked) end)
+		:addEventListener("Change", function(d, e) print("RadioButton changed:", e.ext.checked) end)
 	self:addChild(radiobutton)
 end
 

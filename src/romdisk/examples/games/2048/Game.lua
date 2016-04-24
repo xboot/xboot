@@ -1,12 +1,11 @@
 local Tile = require("games.2048.Tile")
 local Score = require("games.2048.Score")
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
-function M:init()
+function M:init(w, h)
 	self.super:init()
 	
-	local w, h = application:getScreenSize()
-	local assets = application:getAssets()
+	local assets = assets
 	local bg = assets:loadDisplay("games/2048/images/gamebg.png")
 	local width, height = bg:getSize()
 	self:setSize(width, height)
@@ -293,7 +292,7 @@ end
 
 function M:onKeyDown(e)
 	local changed = false
-	local key = e.info.key
+	local key = e.key
 
 	if key == 0x61 then
 		changed = self:moveLeft()
@@ -313,7 +312,7 @@ function M:onKeyDown(e)
 			print("game over")
 		end
 	end
-	e:stopPropagation()
+	e.stop = true
 end
 
 return M

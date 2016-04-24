@@ -1,6 +1,4 @@
----
--- @module RadioButton
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
 M.STATE_NORMAL = "NORMAL"
 M.STATE_PRESSED = "PRESSED"
@@ -9,7 +7,7 @@ M.STATE_DISABLED = "DISABLED"
 function M:init(option, name)
 	self.super:init()
 
-	local assets = application:getAssets()
+	local assets = assets
 	local option = option or {}
 	local theme = assets:loadTheme(name)
 
@@ -21,43 +19,37 @@ function M:init(option, name)
 	self.opt.visible = option.visible or true
 	self.opt.touchable = option.touchable or true
 	self.opt.enable = option.enable or true
-	self.opt.checked = option.checked or false
 
-	self.opt.imageOnNormal = assert(option.imageOnNormal or theme.radiobutton.imageOnNormal)
-	self.opt.imageOnPressed = assert(option.imageOnPressed or theme.radiobutton.imageOnPressed)
-	self.opt.imageOnDisabled = assert(option.imageOnDisabled or theme.radiobutton.imageOnDisabled)
-	self.opt.imageOffNormal = assert(option.imageOffNormal or theme.radiobutton.imageOffNormal)
-	self.opt.imageOffPressed = assert(option.imageOffPressed or theme.radiobutton.imageOffPressed)
-	self.opt.imageOffDisabled = assert(option.imageOffDisabled or theme.radiobutton.imageOffDisabled)
+	self.opt.imageTrack = assert(option.imageTrack or theme.slider.imageTrack)
+	self.opt.imageBackground = assert(option.imageBackground or theme.slider.imageBackground)
+	self.opt.imageThumbNormal = assert(option.imageThumbNormal or theme.slider.imageThumbNormal)
+	self.opt.imageThumbPressed = assert(option.imageThumbPressed or theme.slider.imageThumbPressed)
+	self.opt.imageThumbDisabled = assert(option.imageThumbDisabled or theme.slider.imageThumbDisabled)
 
-	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal)
-	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed)
-	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled)
-	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal)
-	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed)
-	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled)
+	self.frameimageTrack = assets:loadDisplay(self.opt.imageimageTrack)
+	self.frameBackground = assets:loadDisplay(self.opt.imageBackground)
+	self.frameThumbNormal = assets:loadDisplay(self.opt.imageThumbNormal)
+	self.frameThumbPressed = assets:loadDisplay(self.opt.imageThumbPressed)
+	self.frameThumbDisabled = assets:loadDisplay(self.opt.imageThumbDisabled)
 
-	self.frameOnNormal:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOnPressed:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOnDisabled:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOffNormal:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOffPressed:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOffDisabled:setAlignment(Object.ALIGN_CENTER_FILL)
+	self.frameimageTrack:setAlignment(Object.ALIGN_NONE)
+	self.frameBackground:setAlignment(Object.ALIGN_CENTER_FILL)
+	self.frameThumbNormal:setAlignment(Object.ALIGN_NONE)
+	self.frameThumbPressed:setAlignment(Object.ALIGN_NONE)
+	self.frameThumbDisabled:setAlignment(Object.ALIGN_NONE)
 
-	local width, height = self.frameOnNormal:getSize()
+	local width, height = self.frameBackground:getSize()
 	self.opt.width = self.opt.width or width
 	self.opt.height = self.opt.height or height
 
 	self.touchid = nil
 	self.state = M.STATE_NORMAL
-	self.checked = self.opt.checked
 
 	self:setPosition(self.opt.x, self.opt.y)
 	self:setSize(self.opt.width, self.opt.height)
 	self:setVisible(self.opt.visible)
 	self:setTouchable(self.opt.touchable)
 	self:setEnable(self.opt.enable)
-	self:setChecked(self.opt.checked)
 	self:updateVisualState()
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
@@ -92,16 +84,6 @@ function M:getEnable()
 	return false
 end
 
-function M:setChecked(checked)
-	self.checked = checked
-	self:updateVisualState()
-	return self
-end
-
-function M:getChecked()
-	return self.checked
-end
-
 function M:enable()
 	return self:setEnable(true)
 end
@@ -110,31 +92,23 @@ function M:disable()
 	return self:setEnable(false)
 end
 
-function M:checked()
-	return self:setChecked(true)
-end
-
-function M:unchecked()
-	return self:setChecked(false)
-end
-
 function M:onMouseDown(e)
-	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
+	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.x, e.y) then
 		self.touchid = -1
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onMouseMove(e)
 	if self.state ~= self.STATE_DISABLED and self.touchid == -1 then
-		if not self:hitTestPoint(e.info.x, e.info.y) then
+		if not self:hitTestPoint(e.x, e.y) then
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
 		end
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
@@ -142,41 +116,41 @@ function M:onMouseUp(e)
 	if self.state ~= self.STATE_DISABLED and self.touchid == -1 then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
-		self.checked = true
+		self.checked = not self.checked
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Change", {checked = self.checked}))
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchBegin(e)
-	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
-		self.touchid = e.info.id
+	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.x, e.y) then
+		self.touchid = e.id
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchMove(e)
-	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
-		if not self:hitTestPoint(e.info.x, e.info.y) then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.id then
+		if not self:hitTestPoint(e.x, e.y) then
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
 		end
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchEnd(e)
-	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.id then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
-		self.checked = true
+		self.checked = not self.checked
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Change", {checked = self.checked}))
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 

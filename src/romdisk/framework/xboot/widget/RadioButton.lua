@@ -1,6 +1,4 @@
----
--- @module CheckBox
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
 M.STATE_NORMAL = "NORMAL"
 M.STATE_PRESSED = "PRESSED"
@@ -9,7 +7,7 @@ M.STATE_DISABLED = "DISABLED"
 function M:init(option, name)
 	self.super:init()
 
-	local assets = application:getAssets()
+	local assets = assets
 	local option = option or {}
 	local theme = assets:loadTheme(name)
 
@@ -23,12 +21,12 @@ function M:init(option, name)
 	self.opt.enable = option.enable or true
 	self.opt.checked = option.checked or false
 
-	self.opt.imageOnNormal = assert(option.imageOnNormal or theme.checkbox.imageOnNormal)
-	self.opt.imageOnPressed = assert(option.imageOnPressed or theme.checkbox.imageOnPressed)
-	self.opt.imageOnDisabled = assert(option.imageOnDisabled or theme.checkbox.imageOnDisabled)
-	self.opt.imageOffNormal = assert(option.imageOffNormal or theme.checkbox.imageOffNormal)
-	self.opt.imageOffPressed = assert(option.imageOffPressed or theme.checkbox.imageOffPressed)
-	self.opt.imageOffDisabled = assert(option.imageOffDisabled or theme.checkbox.imageOffDisabled)
+	self.opt.imageOnNormal = assert(option.imageOnNormal or theme.radiobutton.imageOnNormal)
+	self.opt.imageOnPressed = assert(option.imageOnPressed or theme.radiobutton.imageOnPressed)
+	self.opt.imageOnDisabled = assert(option.imageOnDisabled or theme.radiobutton.imageOnDisabled)
+	self.opt.imageOffNormal = assert(option.imageOffNormal or theme.radiobutton.imageOffNormal)
+	self.opt.imageOffPressed = assert(option.imageOffPressed or theme.radiobutton.imageOffPressed)
+	self.opt.imageOffDisabled = assert(option.imageOffDisabled or theme.radiobutton.imageOffDisabled)
 
 	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal)
 	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed)
@@ -119,22 +117,22 @@ function M:unchecked()
 end
 
 function M:onMouseDown(e)
-	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
+	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.x, e.y) then
 		self.touchid = -1
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onMouseMove(e)
 	if self.state ~= self.STATE_DISABLED and self.touchid == -1 then
-		if not self:hitTestPoint(e.info.x, e.info.y) then
+		if not self:hitTestPoint(e.x, e.y) then
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
 		end
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
@@ -142,41 +140,41 @@ function M:onMouseUp(e)
 	if self.state ~= self.STATE_DISABLED and self.touchid == -1 then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
-		self.checked = not self.checked
+		self.checked = true
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Change", {checked = self.checked}))
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchBegin(e)
-	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
-		self.touchid = e.info.id
+	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.x, e.y) then
+		self.touchid = e.id
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchMove(e)
-	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
-		if not self:hitTestPoint(e.info.x, e.info.y) then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.id then
+		if not self:hitTestPoint(e.x, e.y) then
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
 		end
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchEnd(e)
-	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.id then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
-		self.checked = not self.checked
+		self.checked = true
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Change", {checked = self.checked}))
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 

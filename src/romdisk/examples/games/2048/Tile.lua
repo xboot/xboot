@@ -1,9 +1,9 @@
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
 function M:init(x, y, n)
 	self.super:init()
 
-	local assets = application:getAssets()
+	local assets = assets
 	self.gx = x
 	self.gy = y
 	self.n = n

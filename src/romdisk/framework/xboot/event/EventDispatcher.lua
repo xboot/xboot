@@ -3,7 +3,7 @@
 -- an event is a listener function and an optional data value.
 -- 
 -- @module EventDispatcher
-local M = class()
+local M = Class()
 
 ---
 -- Creates a new 'EventDispatcher' object.
@@ -79,6 +79,7 @@ end
 -- @param data The data parameter that is used while registering the event.
 -- @return A value of 'true' or 'false'.
 function M:removeEventListener(type, listener, data)
+  local table = table
 	local data = data or self
 	local els = self.eventListenersMap[type]
 
@@ -101,9 +102,9 @@ end
 -- 
 -- @function [parent=#EventDispatcher] dispatchEvent
 -- @param self
--- @param event (event) The 'event' object to be dispatched.
+-- @param event (Event) The 'event' object to be dispatched.
 function M:dispatchEvent(event)
-	if event.stoped == true then
+	if event.stop == true then
 		return self
 	end
 

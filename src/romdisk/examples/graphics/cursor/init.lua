@@ -1,25 +1,21 @@
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
-function M:init()
+function M:init(w, h)
 	self.super:init()
 
-	local w, h = application:getScreenSize()
-	local assets = application:getAssets()
-
-	local w, h = application:getScreenSize()
-	local assets = application:getAssets()
+	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
 		:setSource(Pattern.texture(assets:loadTexture("graphics/cursor/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 
 	local cursor = assets:loadDisplay("graphics/cursor/cursor.png")
-		:addEventListener(Event.MOUSE_DOWN, function(d, e) d:setPosition(e.info.x, e.info.y) end)
-		:addEventListener(Event.MOUSE_MOVE, function(d, e) d:setPosition(e.info.x, e.info.y) end)
-		:addEventListener(Event.MOUSE_UP, function(d, e) d:setPosition(e.info.x, e.info.y) end)
-		:addEventListener(Event.TOUCH_BEGIN, function(d, e) d:setPosition(e.info.x, e.info.y) end)
-		:addEventListener(Event.TOUCH_MOVE, function(d, e) d:setPosition(e.info.x, e.info.y) end)
-		:addEventListener(Event.TOUCH_END, function(d, e) d:setPosition(e.info.x, e.info.y) end)
+		:addEventListener(Event.MOUSE_DOWN, function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener(Event.MOUSE_MOVE, function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener(Event.MOUSE_UP, function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener(Event.TOUCH_BEGIN, function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener(Event.TOUCH_MOVE, function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener(Event.TOUCH_END, function(d, e) d:setPosition(e.x, e.y) end)
 	self:addChild(cursor)
 end
 

@@ -1,6 +1,4 @@
----
--- @module Button
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
 M.STATE_NORMAL = "NORMAL"
 M.STATE_PRESSED = "PRESSED"
@@ -9,7 +7,7 @@ M.STATE_DISABLED = "DISABLED"
 function M:init(option, name)
 	self.super:init()
 
-	local assets = application:getAssets()
+	local assets = assets
 	local option = option or {}
 	local theme = assets:loadTheme(name)
 
@@ -91,24 +89,24 @@ function M:disable()
 end
 
 function M:onMouseDown(e)
-	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
+	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.x, e.y) then
 		self.touchid = -1
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Press"))
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onMouseMove(e)
 	if self.state ~= self.STATE_DISABLED and self.touchid == -1 then
-		if not self:hitTestPoint(e.info.x, e.info.y) then
+		if not self:hitTestPoint(e.x, e.y) then
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
 			self:dispatchEvent(Event.new("Release"))
 		end
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
@@ -119,40 +117,40 @@ function M:onMouseUp(e)
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Release"))
 		self:dispatchEvent(Event.new("Click"))
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchBegin(e)
-	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.info.x, e.info.y) then
-		self.touchid = e.info.id
+	if self.state ~= self.STATE_DISABLED and self:hitTestPoint(e.x, e.y) then
+		self.touchid = e.id
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Press"))
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchMove(e)
-	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
-		if not self:hitTestPoint(e.info.x, e.info.y) then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.id then
+		if not self:hitTestPoint(e.x, e.y) then
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
 			self:dispatchEvent(Event.new("Release"))
 		end
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 
 function M:onTouchEnd(e)
-	if self.state ~= self.STATE_DISABLED and self.touchid == e.info.id then
+	if self.state ~= self.STATE_DISABLED and self.touchid == e.id then
 		self.touchid = nil
 		self.state = self.STATE_NORMAL
 		self:updateVisualState()
 		self:dispatchEvent(Event.new("Release"))
 		self:dispatchEvent(Event.new("Click"))
-		e:stopPropagation()
+		e.stop = true
 	end
 end
 

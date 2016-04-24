@@ -1,15 +1,14 @@
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
 function M:init(cases, width, height)
 	self.super:init()
 
-	local w, h = application:getScreenSize()
-	self.width = width or w
-	self.height = height or h
+	self.width = width or 640
+	self.height = height or 480
 	self.cases = cases or {}
 	self.index = 1
 	if #self.cases > 0 then
-		self.case1 = self.cases[self.index].new()
+		self.case1 = self.cases[self.index].new(self.width, self.height)
 		self.case2 = nil
 		self:addChild(self.case1)
 	end
@@ -57,11 +56,11 @@ function M:select(index, duration, transition, ease)
 	self.index = index
 	
 	if self.case1 == nil then
-		self.case1 = self.cases[self.index].new()
+		self.case1 = self.cases[self.index].new(self.width, self.height)
 		self:addChild(self.case)
 		return
 	end
-	self.case2 = self.cases[self.index].new()
+	self.case2 = self.cases[self.index].new(self.width, self.height)
 	self:addChild(self.case2)
 
 	self.duration = duration or 1

@@ -1,17 +1,16 @@
 local Game = require("games.2048.Game")
 
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
-function M:init()
+function M:init(w, h)
 	self.super:init()
 	
-	local w, h = application:getScreenSize()
-	local assets = application:getAssets()
+	local assets = assets
 	self:addChild(DisplayShape.new(w, h)
 		:setSource(Pattern.texture(assets:loadTexture("games/2048/images/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 	self:setSize(w, h)
-	self:addChild(Game.new():setAlignment(Object.ALIGN_CENTER))
+	self:addChild(Game.new(w, h):setAlignment(Object.ALIGN_CENTER))
 	self:layout()
 end
 

@@ -1,10 +1,9 @@
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
-function M:init()
+function M:init(w, h)
 	self.super:init()
 
-	local w, h = application:getScreenSize()
-	local assets = application:getAssets()
+	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
 		:setSource(Pattern.texture(assets:loadTexture("widgets/button/bg.png")):setExtend(Pattern.EXTEND_REPEAT))

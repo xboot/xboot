@@ -2,7 +2,7 @@
 -- The 'Timer' class is used to execute a code at specified intervals.
 -- 
 -- @module Timer
-local M = class()
+local M = Class()
 
 ---
 -- Creates a new 'Timer' object with the specified delay and iteration.

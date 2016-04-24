@@ -1,13 +1,11 @@
-local Button = require "org.xboot.widget.Button"
+local Button = require "xboot.widget.Button"
 
----
--- @module Stepper
-local M = class(DisplayObject)
+local M = Class(DisplayObject)
 
 function M:init(option, name)
 	self.super:init()
 
-	local assets = application:getAssets()
+	local assets = assets
 	local option = option or {}
 	local theme = assets:loadTheme(name)
 

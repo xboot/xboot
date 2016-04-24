@@ -81,20 +81,26 @@ static int m_display_gc(lua_State * L)
 	return 0;
 }
 
-static int m_display_info(lua_State * L)
+static int m_display_get_size(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
-	lua_newtable(L);
 	lua_pushnumber(L, display->fb->width);
-	lua_setfield(L, -2, "width");
 	lua_pushnumber(L, display->fb->height);
-	lua_setfield(L, -2, "height");
+	return 2;
+}
+
+static int m_display_get_density(lua_State * L)
+{
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	lua_pushnumber(L, display->fb->xdpi);
-	lua_setfield(L, -2, "xdpi");
-	lua_pushnumber(L, display->fb->ydpi);
-	lua_setfield(L, -2, "ydpi");
+	lua_pushnumber(L, display->fb->xdpi);
+	return 2;
+}
+
+static int m_display_get_bpp(lua_State * L)
+{
+	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	lua_pushnumber(L, display->fb->bpp);
-	lua_setfield(L, -2, "bpp");
 	return 1;
 }
 
@@ -322,7 +328,9 @@ static int m_display_present(lua_State * L)
 
 static const luaL_Reg m_display[] = {
 	{"__gc",				m_display_gc},
-	{"info",				m_display_info},
+	{"getSize",				m_display_get_size},
+	{"getDensity",			m_display_get_density},
+	{"getBpp",				m_display_get_bpp},
 	{"getBacklight",		m_display_get_backlight},
 	{"setBacklight",		m_display_set_backlight},
 	{"drawShape",			m_display_draw_shape},

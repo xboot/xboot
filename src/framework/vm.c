@@ -23,6 +23,7 @@
  */
 
 #include <xfs/xfs.h>
+#include <shell/readline.h>
 #include <framework/luahelper.h>
 #include <framework/lang/l-class.h>
 #include <framework/event/l-event.h>
@@ -39,7 +40,7 @@ static void luaopen_glblibs(lua_State * L)
 	const luaL_Reg glblibs[] = {
 		{ "Class",	luaopen_class },
 		{ "Event",	luaopen_event },
-		{ NULL,		NULL },
+		{ NULL,	NULL },
 	};
 	const luaL_Reg * lib;
 
@@ -209,6 +210,14 @@ static int l_xboot_uniqueid(lua_State * L)
 	return 1;
 }
 
+static int l_xboot_readline(lua_State * L)
+{
+	char * p = readline(luaL_optstring(L, 1, NULL));
+	lua_pushstring(L, p);
+	free(p);
+	return 1;
+}
+
 static int pmain(lua_State * L)
 {
 	int argc = (int)lua_tointeger(L, 1);
@@ -239,6 +248,8 @@ static int pmain(lua_State * L)
 	lua_setfield(L, -2, "mach");
 	lua_pushcfunction(L, l_xboot_uniqueid);
 	lua_setfield(L, -2, "uniqueid");
+	lua_pushcfunction(L, l_xboot_readline);
+	lua_setfield(L, -2, "readline");
 	lua_createtable(L, argc, 0);
 	for(i = 0; i < argc; i++)
 	{

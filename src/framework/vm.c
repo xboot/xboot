@@ -26,6 +26,7 @@
 #include <shell/readline.h>
 #include <framework/luahelper.h>
 #include <framework/lang/l-class.h>
+#include <framework/lang/l-debugger.h>
 #include <framework/event/l-event.h>
 #include <framework/stopwatch/l-stopwatch.h>
 #include <framework/base64/l-base64.h>
@@ -38,8 +39,9 @@ extern int luaopen_cjson_safe(lua_State *);
 static void luaopen_glblibs(lua_State * L)
 {
 	const luaL_Reg glblibs[] = {
-		{ "Class",	luaopen_class },
-		{ "Event",	luaopen_event },
+		{ "Class",		luaopen_class },
+		{ "Debugger",	luaopen_debugger },
+		{ "Event",		luaopen_event },
 		{ NULL,	NULL },
 	};
 	const luaL_Reg * lib;

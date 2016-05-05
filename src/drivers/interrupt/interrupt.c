@@ -191,6 +191,11 @@ bool_t unregister_sub_irqchip(int parent, struct irqchip_t * chip)
 	return unregister_irqchip(chip);
 }
 
+bool_t irq_is_valid(int irq)
+{
+	return search_irqchip_with_no(irq) ? TRUE : FALSE;
+}
+
 bool_t request_irq(int irq, void (*func)(void *), enum irq_type_t type, void * data)
 {
 	struct irqchip_t * chip;

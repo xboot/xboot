@@ -76,7 +76,7 @@ static void input_init(struct input_t * input)
 
 	for(i = 0; i < rdat->nbutton; i++)
 	{
-		gpio_set_pull(rdat->buttons[i].gpio, rdat->buttons[i].active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+		gpio_set_pull(rdat->buttons[i].gpio, rdat->buttons[i].active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
 		gpio_direction_input(rdat->buttons[i].gpio);
 		pdat->state[i] = gpio_get_value(rdat->buttons[i].gpio);
 	}

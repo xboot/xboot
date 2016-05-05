@@ -278,7 +278,7 @@ static bool_t register_gslx680_touchscreen(struct resource_t * res)
 	if(!client)
 		return FALSE;
 
-	if(rdat->shutdown >= 0)
+	if(gpio_is_valid(rdat->shutdown))
 	{
 		gslx680_ts_shutdown_pin(rdat->shutdown, 0);
 		mdelay(20);

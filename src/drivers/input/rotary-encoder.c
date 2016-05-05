@@ -196,7 +196,7 @@ static void input_init(struct input_t * input)
 		break;
 	}
 
-	if(pdat->gpio_c >= 0 && pdat->irq_c >= 0)
+	if(gpio_is_valid(pdat->gpio_c) && irq_is_valid(pdat->irq_c))
 	{
 		gpio_set_pull(pdat->gpio_c, pdat->inverted_c ? GPIO_PULL_DOWN : GPIO_PULL_UP);
 		gpio_direction_input(pdat->gpio_c);
@@ -213,7 +213,7 @@ static void input_exit(struct input_t * input)
 		free_irq(pdat->irq_a);
 		free_irq(pdat->irq_b);
 
-		if(pdat->gpio_c >= 0 && pdat->irq_c >= 0)
+		if(gpio_is_valid(pdat->gpio_c) && irq_is_valid(pdat->irq_c))
 			free_irq(pdat->irq_c);
 	}
 }
@@ -238,7 +238,9 @@ static bool_t rotary_encoder_register_keyboard(struct resource_t * res)
 	struct input_t * input;
 	char name[64];
 
-	if(rdat->gpio_a < 0 || rdat->gpio_b < 0 || gpio_to_irq(rdat->gpio_a) < 0 || gpio_to_irq(rdat->gpio_b) < 0)
+	if(!gpio_is_valid(rdat->gpio_a) || !gpio_is_valid(rdat->gpio_b)
+			|| !irq_is_valid(gpio_to_irq(rdat->gpio_a))
+			|| !irq_is_valid(gpio_to_irq(rdat->gpio_b)))
 		return FALSE;
 
 	pdat = malloc(sizeof(struct rotary_encoder_pdata_t));

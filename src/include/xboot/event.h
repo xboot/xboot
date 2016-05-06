@@ -11,21 +11,24 @@ enum event_type_t {
 	EVENT_TYPE_KEY_DOWN					= 0x0100,
 	EVENT_TYPE_KEY_UP					= 0x0101,
 
-	EVENT_TYPE_MOUSE_DOWN				= 0x0200,
-	EVENT_TYPE_MOUSE_MOVE				= 0x0201,
-	EVENT_TYPE_MOUSE_UP					= 0x0202,
-	EVENT_TYPE_MOUSE_WHEEL				= 0x0203,
+	EVENT_TYPE_ROTARY_TURN				= 0x0200,
+	EVENT_TYPE_ROTARY_SWITCH			= 0x0201,
 
-	EVENT_TYPE_TOUCH_BEGIN				= 0x0300,
-	EVENT_TYPE_TOUCH_MOVE				= 0x0301,
-	EVENT_TYPE_TOUCH_END				= 0x0302,
+	EVENT_TYPE_MOUSE_DOWN				= 0x0300,
+	EVENT_TYPE_MOUSE_MOVE				= 0x0301,
+	EVENT_TYPE_MOUSE_UP					= 0x0302,
+	EVENT_TYPE_MOUSE_WHEEL				= 0x0303,
 
-	EVENT_TYPE_JOYSTICK_LEFTSTICK		= 0x0400,
-	EVENT_TYPE_JOYSTICK_RIGHTSTICK		= 0x0401,
-	EVENT_TYPE_JOYSTICK_LEFTTRIGGER		= 0x0402,
-	EVENT_TYPE_JOYSTICK_RIGHTTRIGGER	= 0x0403,
-	EVENT_TYPE_JOYSTICK_BUTTONDOWN		= 0x0404,
-	EVENT_TYPE_JOYSTICK_BUTTONUP		= 0x0405,
+	EVENT_TYPE_TOUCH_BEGIN				= 0x0400,
+	EVENT_TYPE_TOUCH_MOVE				= 0x0401,
+	EVENT_TYPE_TOUCH_END				= 0x0402,
+
+	EVENT_TYPE_JOYSTICK_LEFTSTICK		= 0x0500,
+	EVENT_TYPE_JOYSTICK_RIGHTSTICK		= 0x0501,
+	EVENT_TYPE_JOYSTICK_LEFTTRIGGER		= 0x0502,
+	EVENT_TYPE_JOYSTICK_RIGHTTRIGGER	= 0x0503,
+	EVENT_TYPE_JOYSTICK_BUTTONDOWN		= 0x0504,
+	EVENT_TYPE_JOYSTICK_BUTTONUP		= 0x0505,
 };
 
 enum {
@@ -60,7 +63,7 @@ struct event_t {
 	ktime_t timestamp;
 
 	union {
-		/* key */
+		/* Key */
 		struct {
 			u32_t key;
 		} key_down;
@@ -69,7 +72,16 @@ struct event_t {
 			u32_t key;
 		} key_up;
 
-		/* mouse */
+		/* Rotary */
+		struct {
+			s32_t v;
+		} rotary_turn;
+
+		struct {
+			u32_t v;
+		} rotary_switch;
+
+		/* Mouse */
 		struct {
 			s32_t x, y;
 			u32_t button;
@@ -88,7 +100,7 @@ struct event_t {
 			s32_t dx, dy;
 		} mouse_wheel;
 
-		/* touch */
+		/* Touch */
 		struct {
 			s32_t x, y;
 			u32_t id;
@@ -104,7 +116,7 @@ struct event_t {
 			u32_t id;
 		} touch_end;
 
-		/* joystick */
+		/* Joystick */
 		struct {
 			s32_t x, y;
 		} joystick_left_stick;
@@ -142,6 +154,8 @@ void __event_base_free(struct event_base_t * eb);
 void push_event(struct event_t * event);
 void push_event_key_down(void * device, u32_t key);
 void push_event_key_up(void * device, u32_t key);
+void push_event_rotary_turn(void * device, s32_t v);
+void push_event_rotary_switch(void * device, s32_t v);
 void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t button);
 void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t button);
 void push_event_mouse_move(void * device, s32_t x, s32_t y);

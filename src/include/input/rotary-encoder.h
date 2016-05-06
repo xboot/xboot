@@ -17,7 +17,7 @@ struct rotary_encoder_data_t
 	int inverted_a;
 	int inverted_b;
 	int inverted_c;
-	int step;
+	int steps;
 };
 
 #ifdef __cplusplus

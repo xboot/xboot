@@ -27,6 +27,8 @@
 
 #define STR_KEY_DOWN				"KeyDown"
 #define STR_KEY_UP					"KeyUp"
+#define STR_ROTARY_TURN				"RotaryTurn"
+#define STR_ROTARY_SWITCH			"RotarySwitch"
 #define STR_MOUSE_DOWN				"MouseDown"
 #define STR_MOUSE_MOVE				"MouseMove"
 #define STR_MOUSE_UP				"MouseUp"
@@ -97,6 +99,30 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "time");
 		lua_pushinteger(L, event.e.key_up.key);
 		lua_setfield(L, -2, "key");
+		return 1;
+
+	case EVENT_TYPE_ROTARY_TURN:
+		lua_newtable(L);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_ROTARY_TURN);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_setfield(L, -2, "time");
+		lua_pushinteger(L, event.e.rotary_turn.v);
+		lua_setfield(L, -2, "v");
+		return 1;
+
+	case EVENT_TYPE_ROTARY_SWITCH:
+		lua_newtable(L);
+		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, STR_ROTARY_SWITCH);
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_setfield(L, -2, "time");
+		lua_pushinteger(L, event.e.rotary_switch.v);
+		lua_setfield(L, -2, "v");
 		return 1;
 
 	case EVENT_TYPE_MOUSE_DOWN:
@@ -301,6 +327,8 @@ int luaopen_event(lua_State * L)
 	luaL_newlib(L, l_event);
 	luahelper_set_strfield(L, "KEY_DOWN",				STR_KEY_DOWN);
 	luahelper_set_strfield(L, "KEY_UP",					STR_KEY_UP);
+	luahelper_set_strfield(L, "ROTARY_TURN",			STR_ROTARY_TURN);
+	luahelper_set_strfield(L, "ROTARY_SWITCH",			STR_ROTARY_SWITCH);
 	luahelper_set_strfield(L, "MOUSE_DOWN",				STR_MOUSE_DOWN);
 	luahelper_set_strfield(L, "MOUSE_MOVE",				STR_MOUSE_MOVE);
 	luahelper_set_strfield(L, "MOUSE_UP",				STR_MOUSE_UP);

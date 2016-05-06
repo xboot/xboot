@@ -65,6 +65,9 @@ static ssize_t input_read_type(struct kobj_t * kobj, void * buf, size_t size)
 	case INPUT_TYPE_KEYBOARD:
 		name = "keyboard";
 		break;
+	case INPUT_TYPE_ROTARY:
+		name = "rotary";
+		break;
 	case INPUT_TYPE_MOUSE:
 		name = "mouse";
 		break;
@@ -73,30 +76,6 @@ static ssize_t input_read_type(struct kobj_t * kobj, void * buf, size_t size)
 		break;
 	case INPUT_TYPE_JOYSTICK:
 		name = "joystick";
-		break;
-	case INPUT_TYPE_ACCELEROMETER:
-		name = "accelerometer";
-		break;
-	case INPUT_TYPE_GYROSCOPE:
-		name = "gyroscope";
-		break;
-	case INPUT_TYPE_LIGHT:
-		name = "light";
-		break;
-	case INPUT_TYPE_MAGNETIC:
-		name = "magnetic";
-		break;
-	case INPUT_TYPE_ORIENTATION:
-		name = "orientation";
-		break;
-	case INPUT_TYPE_PRESSURE:
-		name = "pressure";
-		break;
-	case INPUT_TYPE_PROXIMITY:
-		name = "proximity";
-		break;
-	case INPUT_TYPE_TEMPERATURE:
-		name = "temperature";
 		break;
 	default:
 		name = "unknown";

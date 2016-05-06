@@ -1,5 +1,5 @@
 /*
- * kernel/command/cmd-getevent.c
+ * kernel/command/cmd-event.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -29,10 +29,10 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    getevent\r\n");
+	printf("    event\r\n");
 }
 
-static int do_getevent(int argc, char ** argv)
+static int do_event(int argc, char ** argv)
 {
 	struct input_t * input;
 	struct event_t e;
@@ -46,13 +46,20 @@ static int do_getevent(int argc, char ** argv)
 			switch(e.type)
 			{
 			case EVENT_TYPE_KEY_DOWN:
-				printf("[%s]: [KeyDown]	[0x%x]\r\n", input->name, e.e.key_down.key);
+				printf("[%s]: [KeyDown] [0x%x]\r\n", input->name, e.e.key_down.key);
 				break;
 
 			case EVENT_TYPE_KEY_UP:
 				printf("[%s]: [KeyUp] [0x%x]\r\n", input->name, e.e.key_up.key);
 				break;
 
+			case EVENT_TYPE_ROTARY_TURN:
+				printf("[%s]: [RotaryTurn] [%d]\r\n", input->name, e.e.rotary_turn.v);
+				break;
+
+			case EVENT_TYPE_ROTARY_SWITCH:
+				printf("[%s]: [RotarySwitch] [%d]\r\n", input->name, e.e.rotary_switch.v);
+				break;
 
 			case EVENT_TYPE_MOUSE_DOWN:
 				printf("[%s]: [MouseDown] [%d][%d][0x%x]\r\n", input->name, e.e.mouse_down.x, e.e.mouse_down.y, e.e.mouse_down.button);
@@ -70,7 +77,6 @@ static int do_getevent(int argc, char ** argv)
 				printf("[%s]: [MouseWheel] [%d][%d]\r\n", input->name, e.e.mouse_wheel.dx, e.e.mouse_wheel.dy);
 				break;
 
-
 			case EVENT_TYPE_TOUCH_BEGIN:
 				printf("[%s]: [TouchBegin] [%d][%d][%d]\r\n", input->name, e.e.touch_begin.x, e.e.touch_begin.y, e.e.touch_begin.id);
 				break;
@@ -82,7 +88,6 @@ static int do_getevent(int argc, char ** argv)
 			case EVENT_TYPE_TOUCH_END:
 				printf("[%s]: [TouchEnd] [%d][%d][%d]\r\n", input->name, e.e.touch_end.x, e.e.touch_end.y, e.e.touch_end.id);
 				break;
-
 
 			default:
 				printf("[%s]: [Unkown]\r\n", input->name);
@@ -97,22 +102,22 @@ static int do_getevent(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t cmd_getevent = {
-	.name	= "getevent",
+static struct command_t cmd_event = {
+	.name	= "event",
 	.desc	= "show the all of events",
 	.usage	= usage,
-	.exec	= do_getevent,
+	.exec	= do_event,
 };
 
-static __init void getevent_cmd_init(void)
+static __init void event_cmd_init(void)
 {
-	register_command(&cmd_getevent);
+	register_command(&cmd_event);
 }
 
-static __exit void getevent_cmd_exit(void)
+static __exit void event_cmd_exit(void)
 {
-	unregister_command(&cmd_getevent);
+	unregister_command(&cmd_event);
 }
 
-command_initcall(getevent_cmd_init);
-command_exitcall(getevent_cmd_exit);
+command_initcall(event_cmd_init);
+command_exitcall(event_cmd_exit);

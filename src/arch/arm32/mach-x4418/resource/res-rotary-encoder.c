@@ -34,7 +34,7 @@ static struct rotary_encoder_data_t rotary_encoder_datas[] = {
 		.inverted_a	= 0,
 		.inverted_b	= 0,
 		.inverted_c	= 0,
-		.step		= 1,
+		.steps		= 1,
 	},
 };
 

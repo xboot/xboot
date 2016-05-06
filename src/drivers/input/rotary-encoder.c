@@ -32,7 +32,7 @@ struct rotary_encoder_pdata_t {
 	int inverted_a;
 	int inverted_b;
 	int inverted_c;
-	int step;
+	int steps;
 	int irq_a;
 	int irq_b;
 	int irq_c;
@@ -51,11 +51,6 @@ static int rotary_encoder_get_state(struct rotary_encoder_pdata_t * pdat)
 	return ((a << 1) | b);
 }
 
-static void rotary_encoder_report_event(struct rotary_encoder_pdata_t * pdat)
-{
-	printf("dir = %d\r\n", pdat->dir);
-}
-
 static void rotary_encoder_irq(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
@@ -67,7 +62,7 @@ static void rotary_encoder_irq(void * data)
 	case 0x0:
 		if(pdat->state)
 		{
-			rotary_encoder_report_event(pdat);
+			push_event_rotary_turn(input, pdat->dir ? 1 : -1);
 			pdat->state = 0;
 		}
 		break;
@@ -99,7 +94,7 @@ static void rotary_encoder_half_period_irq(void * data)
 	case 0x03:
 		if(state != pdat->state)
 		{
-			rotary_encoder_report_event(pdat);
+			push_event_rotary_turn(input, pdat->dir ? 1 : -1);
 			pdat->state = state;
 		}
 		break;
@@ -141,22 +136,24 @@ static void rotary_encoder_quarter_period_irq(void * data)
 	default:
 		return;
 	}
-	rotary_encoder_report_event(pdat);
+	push_event_rotary_turn(input, pdat->dir ? 1 : -1);
 }
 
 static void rotary_encoder_gpio_c_irq(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
 	struct rotary_encoder_pdata_t * pdat = (struct rotary_encoder_pdata_t *)input->priv;
-	int c = !!gpio_get_value(pdat->gpio_c);
-	enum event_type_t type;
+	int c1, c2, c3;
 
-	if(pdat->inverted_c)
-		type = c ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
-	else
-		type = c ? EVENT_TYPE_KEY_UP : EVENT_TYPE_KEY_DOWN;
+	do {
+		c1 = !!gpio_get_value(pdat->gpio_c);
+		mdelay(1);
+		c2 = !!gpio_get_value(pdat->gpio_c);
+		mdelay(1);
+		c3 = !!gpio_get_value(pdat->gpio_c);
+	} while((c1 != c2) || (c1 != c3));
 
-	printf("type = %d\r\n", type);
+	push_event_rotary_switch(input, (c1 ^ pdat->inverted_c) ? 0 : 1);
 }
 
 static void input_init(struct input_t * input)
@@ -172,7 +169,7 @@ static void input_init(struct input_t * input)
 	gpio_set_pull(pdat->gpio_b, pdat->inverted_b ? GPIO_PULL_DOWN : GPIO_PULL_UP);
 	gpio_direction_input(pdat->gpio_b);
 
-	switch(pdat->step)
+	switch(pdat->steps)
 	{
 	case 4:
 		request_irq(pdat->irq_a, rotary_encoder_quarter_period_irq, IRQ_TYPE_EDGE_BOTH, input);
@@ -231,7 +228,7 @@ static void input_resume(struct input_t * input)
 {
 }
 
-static bool_t rotary_encoder_register_keyboard(struct resource_t * res)
+static bool_t rotary_encoder_register_rotary(struct resource_t * res)
 {
 	struct rotary_encoder_data_t * rdat = (struct rotary_encoder_data_t *)res->data;
 	struct rotary_encoder_pdata_t * pdat;
@@ -262,15 +259,15 @@ static bool_t rotary_encoder_register_keyboard(struct resource_t * res)
 	pdat->inverted_a = rdat->inverted_a ? 1 : 0;
 	pdat->inverted_b = rdat->inverted_b ? 1 : 0;
 	pdat->inverted_c = rdat->inverted_c ? 1 : 0;
-	switch(rdat->step)
+	switch(rdat->steps)
 	{
 	case 4:
 	case 2:
 	case 1:
-		pdat->step = rdat->step;
+		pdat->steps = rdat->steps;
 		break;
 	default:
-		pdat->step = 1;
+		pdat->steps = 1;
 		break;
 	}
 	pdat->irq_a = gpio_to_irq(rdat->gpio_a);
@@ -278,7 +275,7 @@ static bool_t rotary_encoder_register_keyboard(struct resource_t * res)
 	pdat->irq_c = gpio_to_irq(rdat->gpio_c);
 
 	input->name = strdup(name);
-	input->type = INPUT_TYPE_KEYBOARD;
+	input->type = INPUT_TYPE_ROTARY;
 	input->init = input_init;
 	input->exit = input_exit;
 	input->ioctl = input_ioctl;
@@ -295,7 +292,7 @@ static bool_t rotary_encoder_register_keyboard(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t rotary_encoder_unregister_keyboard(struct resource_t * res)
+static bool_t rotary_encoder_unregister_rotary(struct resource_t * res)
 {
 	struct input_t * input;
 	char name[64];
@@ -317,12 +314,12 @@ static bool_t rotary_encoder_unregister_keyboard(struct resource_t * res)
 
 static __init void rotary_encoder_device_init(void)
 {
-	resource_for_each("rotary-encoder", rotary_encoder_register_keyboard);
+	resource_for_each("rotary-encoder", rotary_encoder_register_rotary);
 }
 
 static __exit void rotary_encoder_device_exit(void)
 {
-	resource_for_each("rotary-encoder", rotary_encoder_unregister_keyboard);
+	resource_for_each("rotary-encoder", rotary_encoder_unregister_rotary);
 }
 
 device_initcall(rotary_encoder_device_init);

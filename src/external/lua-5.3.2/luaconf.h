@@ -759,10 +759,6 @@
 ** Local configuration. You can use this space to add your redefinitions
 ** without modifying the main part of the file.
 */
-
-
-
-
+#define lua_writeline()		(lua_writestring("\r\n", 2), fflush(stdout))
 
 #endif
-

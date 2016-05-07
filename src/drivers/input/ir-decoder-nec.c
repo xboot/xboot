@@ -1,5 +1,5 @@
 /*
- * driver/input/ir-decoder.c
+ * driver/input/ir-decoder-nec.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,19 +23,21 @@
  */
 
 #include <xboot.h>
-#include <input/ir-decoder.h>
+#include <input/ir-decoder-nec.h>
 
-#define NEC_UNIT			560 //562500  /* us */
-#define NEC_HEADER_PULSE	(16 * NEC_UNIT)
-#define NEC_HEADER_SPACE	(8  * NEC_UNIT)
-#define NEC_REPEAT_SPACE	(4  * NEC_UNIT)
-#define NEC_BIT_PULSE		(1  * NEC_UNIT)
-#define NEC_BIT_0_SPACE		(1  * NEC_UNIT)
-#define NEC_BIT_1_SPACE		(3  * NEC_UNIT)
-#define	NEC_TRAILER_PULSE	(1  * NEC_UNIT)
-#define	NEC_TRAILER_SPACE	(10 * NEC_UNIT)
+enum {
+	NEC_UNIT			= 560,
+	NEC_HEADER_PULSE	= 16 * 560,
+	NEC_HEADER_SPACE	= 8 * 560,
+	NEC_REPEAT_SPACE	= 4 * 560,
+	NEC_BIT_PULSE		= 1 * 560,
+	NEC_BIT_0_SPACE		= 1 * 560,
+	NEC_BIT_1_SPACE		= 3 * 560,
+	NEC_TRAILER_PULSE	= 1 * 560,
+	NEC_TRAILER_SPACE	= 10 * 560,
+};
 
-static const uint8_t byte_rev_table[256] = {
+static const unsigned char byte_rev_table[256] = {
 	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
 	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
 	0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8,
@@ -70,53 +72,65 @@ static const uint8_t byte_rev_table[256] = {
 	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
 
-static inline uint8_t bitrev8(uint8_t byte)
+static inline unsigned char bitrev8(unsigned char byte)
 {
 	return byte_rev_table[byte];
 }
 
-void ir_event_decoder_handle(struct ir_decoder_t * decoder, int pulse, int duration)
+static inline int eq_margin(int d1, int d2, int margin)
 {
-	uint8_t addr, naddr, cmd, ncmd;
-	uint32_t scancode;
+	return ((d1 > (d2 - margin)) && (d1 < (d2 + margin))) ? 1 : 0;
+}
+
+static inline int geq_margin(int d1, int d2, int margin)
+{
+	return (d1 > (d2 - margin)) ? 1 : 0;
+}
+
+uint32_t ir_nec_decoder_handle(struct ir_nec_decoder_t * decoder, int pulse, int duration)
+{
+	uint8_t addr, raddr, cmd, rcmd;
+	uint32_t code = 0;
 
 	switch(decoder->state)
 	{
-	case STATE_INACTIVE:
+	case IR_NEC_STATE_INACTIVE:
 		if(!pulse)
 			break;
 		if(!eq_margin(duration, NEC_HEADER_PULSE, NEC_UNIT * 2))
 			break;
 		decoder->count = 0;
-		decoder->state = STATE_HEADER_SPACE;
+		decoder->state = IR_NEC_STATE_HEADER_SPACE;
 		break;
 
-	case STATE_HEADER_SPACE:
+	case IR_NEC_STATE_HEADER_SPACE:
 		if(pulse)
 			break;
 		if(eq_margin(duration, NEC_HEADER_SPACE, NEC_UNIT))
 		{
 			decoder->repeat = 0;
-			decoder->state = STATE_BIT_PULSE;
+			decoder->state = IR_NEC_STATE_BIT_PULSE;
 		}
 		else if(eq_margin(duration, NEC_REPEAT_SPACE, NEC_UNIT / 2))
 		{
 			decoder->repeat++;
-			decoder->state = STATE_TRAILER_PULSE;
+			decoder->state = IR_NEC_STATE_TRAILER_PULSE;
 		}
 		else
-			decoder->state = STATE_INACTIVE;
+		{
+			decoder->state = IR_NEC_STATE_INACTIVE;
+		}
 		break;
 
-	case STATE_BIT_PULSE:
+	case IR_NEC_STATE_BIT_PULSE:
 		if(!pulse)
 			break;
 		if(!eq_margin(duration, NEC_BIT_PULSE, NEC_UNIT / 2))
 			break;
-		decoder->state = STATE_BIT_SPACE;
+		decoder->state = IR_NEC_STATE_BIT_SPACE;
 		break;
 
-	case STATE_BIT_SPACE:
+	case IR_NEC_STATE_BIT_SPACE:
 		if(pulse)
 			break;
 		decoder->bits <<= 1;
@@ -125,40 +139,44 @@ void ir_event_decoder_handle(struct ir_decoder_t * decoder, int pulse, int durat
 		else if(!eq_margin(duration, NEC_BIT_0_SPACE, NEC_UNIT / 2))
 			break;
 		if(++decoder->count == 32)
-			decoder->state = STATE_TRAILER_PULSE;
+			decoder->state = IR_NEC_STATE_TRAILER_PULSE;
 		else
-			decoder->state = STATE_BIT_PULSE;
+			decoder->state = IR_NEC_STATE_BIT_PULSE;
 		break;
 
-	case STATE_TRAILER_PULSE:
+	case IR_NEC_STATE_TRAILER_PULSE:
 		if(!pulse)
 			break;
 		if(!eq_margin(duration, NEC_TRAILER_PULSE, NEC_UNIT / 2))
 			break;
-		decoder->state = STATE_TRAILER_SPACE;
+		decoder->state = IR_NEC_STATE_TRAILER_SPACE;
 		break;
 
-	case STATE_TRAILER_SPACE:
+	case IR_NEC_STATE_TRAILER_SPACE:
 		if(pulse)
 			break;
 		if(!geq_margin(duration, NEC_TRAILER_SPACE, NEC_UNIT / 2))
 			break;
-		addr = bitrev8((decoder->bits >> 24) & 0xff);
-		naddr = bitrev8((decoder->bits >> 16) & 0xff);
-		cmd = bitrev8((decoder->bits >> 8) & 0xff);
-		ncmd = bitrev8((decoder->bits >> 0) & 0xff);
-		if((cmd ^ ncmd) != 0xff)
-			scancode = decoder->bits;
-		else if((addr ^ naddr) != 0xff)
-			scancode = addr << 16 | naddr <<  8 | cmd;
-		else
-			scancode = addr << 8 | cmd;
-		decoder->state = STATE_INACTIVE;
-		if(decoder->repeat == 0 || decoder->repeat >= 3)
-			printf("0x%08x\r\n", scancode);
+		if(decoder->repeat == 0 || decoder->repeat >= 5)
+		{
+			addr = bitrev8((decoder->bits >> 24) & 0xff);
+			raddr = bitrev8((decoder->bits >> 16) & 0xff);
+			cmd = bitrev8((decoder->bits >> 8) & 0xff);
+			rcmd = bitrev8((decoder->bits >> 0) & 0xff);
+			if((cmd ^ rcmd) != 0xff)
+				code = decoder->bits;
+			else if((addr ^ raddr) != 0xff)
+				code = addr << 16 | raddr << 8 | cmd;
+			else
+				code = addr << 8 | cmd;
+		}
+		decoder->state = IR_NEC_STATE_INACTIVE;
 		break;
 
 	default:
+		decoder->state = IR_NEC_STATE_INACTIVE;
 		break;
 	}
+
+	return code;
 }

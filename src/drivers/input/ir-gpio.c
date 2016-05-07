@@ -23,54 +23,35 @@
  */
 
 #include <xboot.h>
+#include <input/ir-decoder-nec.h>
 #include <input/ir-gpio.h>
-#include <input/ir-decoder.h>
 
 struct ir_gpio_pdata_t {
 	int gpio;
 	int active_low;
 	int irq;
 	ktime_t last;
+	struct ir_nec_decoder_t nec;
 };
-
-struct ir_raw_event_t {
-	int pluse;
-	int duration;
-};
-struct fifo_t * fifo = NULL;
-struct ir_decoder_t decoder;
 
 static void input_irq(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
 	struct ir_gpio_pdata_t * pdat = (struct ir_gpio_pdata_t *)input->priv;
-	struct ir_raw_event_t e;
-	ktime_t now;
-	int pulse;
+	ktime_t now = ktime_get();
+	int pulse, duration;
+	uint32_t code;
 
-	now = ktime_get();
 	pulse = (gpio_get_value(pdat->gpio) != 0) ? 0 : 1;
 	if(pdat->active_low)
 		pulse = !pulse;
-	ir_event_decoder_handle(&decoder, pulse, ktime_us_delta(now, pdat->last));
-
-	e.pluse = pulse;
-	e.duration = ktime_us_delta(now, pdat->last);
-	fifo_put(fifo, (u8_t *)&e, sizeof(struct ir_raw_event_t));
-
+	duration = ktime_us_delta(now, pdat->last);
 	pdat->last = now;
-}
 
-void irtest(void)
-{
-	struct ir_raw_event_t e;
-
-	while(fifo_get(fifo, (u8_t *)&e, sizeof(struct ir_raw_event_t)) == sizeof(struct ir_raw_event_t))
+	if((code = ir_nec_decoder_handle(&pdat->nec, pulse, duration)) != 0)
 	{
-		printf("pluse = %d, duration = %d\r\n", e.pluse, e.duration);
-		printf("state: %d -> ", decoder.state);
-		ir_event_decoder_handle(&decoder, e.pluse, e.duration);
-		printf("%d\r\n", decoder.state);
+		push_event_key_down(input, code);
+		push_event_key_up(input, code);
 	}
 }
 
@@ -80,17 +61,16 @@ static void input_init(struct input_t * input)
 
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
 	gpio_direction_input(pdat->gpio);
-
-	fifo = fifo_alloc(sizeof(struct ir_raw_event_t) * 1024);
-
 	request_irq(pdat->irq, input_irq, IRQ_TYPE_EDGE_BOTH, input);
-
-	decoder.state = STATE_INACTIVE;
 }
 
 static void input_exit(struct input_t * input)
 {
 	struct ir_gpio_pdata_t * pdat = (struct ir_gpio_pdata_t *)input->priv;
+
+	if(!pdat)
+		return;
+	free_irq(pdat->irq);
 }
 
 static int input_ioctl(struct input_t * input, int cmd, void * arg)
@@ -133,6 +113,7 @@ static bool_t register_ir_gpio(struct resource_t * res)
 	pdat->active_low = rdat->active_low;
 	pdat->irq = gpio_to_irq(rdat->gpio);
 	pdat->last = ktime_get();
+	pdat->nec.state = IR_NEC_STATE_INACTIVE;
 
 	input->name = strdup(name);
 	input->type = INPUT_TYPE_KEYBOARD;

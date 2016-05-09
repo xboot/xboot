@@ -1,5 +1,5 @@
 /*
- * driver/input/ir-decoder-nec.c
+ * driver/input/rc-decoder-nec.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <input/ir-decoder-nec.h>
+#include <input/rc/rc-decoder-nec.h>
 
 enum {
 	NEC_UNIT			= 560,
@@ -87,50 +87,50 @@ static inline int geq_margin(int d1, int d2, int margin)
 	return (d1 > (d2 - margin)) ? 1 : 0;
 }
 
-uint32_t ir_nec_decoder_handle(struct ir_nec_decoder_t * decoder, int pulse, int duration)
+uint32_t rc_nec_decoder_handle(struct rc_decoder_nec_t * decoder, int pulse, int duration)
 {
 	uint8_t addr, raddr, cmd, rcmd;
 	uint32_t code = 0;
 
 	switch(decoder->state)
 	{
-	case IR_NEC_STATE_INACTIVE:
+	case RC_STATE_NEC_INACTIVE:
 		if(!pulse)
 			break;
 		if(!eq_margin(duration, NEC_HEADER_PULSE, NEC_UNIT * 2))
 			break;
 		decoder->count = 0;
-		decoder->state = IR_NEC_STATE_HEADER_SPACE;
+		decoder->state = RC_STATE_NEC_HEADER_SPACE;
 		break;
 
-	case IR_NEC_STATE_HEADER_SPACE:
+	case RC_STATE_NEC_HEADER_SPACE:
 		if(pulse)
 			break;
 		if(eq_margin(duration, NEC_HEADER_SPACE, NEC_UNIT))
 		{
 			decoder->repeat = 0;
-			decoder->state = IR_NEC_STATE_BIT_PULSE;
+			decoder->state = RC_STATE_NEC_BIT_PULSE;
 		}
 		else if(eq_margin(duration, NEC_REPEAT_SPACE, NEC_UNIT / 2))
 		{
 			decoder->repeat++;
-			decoder->state = IR_NEC_STATE_TRAILER_PULSE;
+			decoder->state = RC_STATE_NEC_TRAILER_PULSE;
 		}
 		else
 		{
-			decoder->state = IR_NEC_STATE_INACTIVE;
+			decoder->state = RC_STATE_NEC_INACTIVE;
 		}
 		break;
 
-	case IR_NEC_STATE_BIT_PULSE:
+	case RC_STATE_NEC_BIT_PULSE:
 		if(!pulse)
 			break;
 		if(!eq_margin(duration, NEC_BIT_PULSE, NEC_UNIT / 2))
 			break;
-		decoder->state = IR_NEC_STATE_BIT_SPACE;
+		decoder->state = RC_STATE_NEC_BIT_SPACE;
 		break;
 
-	case IR_NEC_STATE_BIT_SPACE:
+	case RC_STATE_NEC_BIT_SPACE:
 		if(pulse)
 			break;
 		decoder->bits <<= 1;
@@ -139,20 +139,20 @@ uint32_t ir_nec_decoder_handle(struct ir_nec_decoder_t * decoder, int pulse, int
 		else if(!eq_margin(duration, NEC_BIT_0_SPACE, NEC_UNIT / 2))
 			break;
 		if(++decoder->count == 32)
-			decoder->state = IR_NEC_STATE_TRAILER_PULSE;
+			decoder->state = RC_STATE_NEC_TRAILER_PULSE;
 		else
-			decoder->state = IR_NEC_STATE_BIT_PULSE;
+			decoder->state = RC_STATE_NEC_BIT_PULSE;
 		break;
 
-	case IR_NEC_STATE_TRAILER_PULSE:
+	case RC_STATE_NEC_TRAILER_PULSE:
 		if(!pulse)
 			break;
 		if(!eq_margin(duration, NEC_TRAILER_PULSE, NEC_UNIT / 2))
 			break;
-		decoder->state = IR_NEC_STATE_TRAILER_SPACE;
+		decoder->state = RC_STATE_NEC_TRAILER_SPACE;
 		break;
 
-	case IR_NEC_STATE_TRAILER_SPACE:
+	case RC_STATE_NEC_TRAILER_SPACE:
 		if(pulse)
 			break;
 		if(!geq_margin(duration, NEC_TRAILER_SPACE, NEC_UNIT / 2))
@@ -170,11 +170,11 @@ uint32_t ir_nec_decoder_handle(struct ir_nec_decoder_t * decoder, int pulse, int
 			else
 				code = addr << 8 | cmd;
 		}
-		decoder->state = IR_NEC_STATE_INACTIVE;
+		decoder->state = RC_STATE_NEC_INACTIVE;
 		break;
 
 	default:
-		decoder->state = IR_NEC_STATE_INACTIVE;
+		decoder->state = RC_STATE_NEC_INACTIVE;
 		break;
 	}
 

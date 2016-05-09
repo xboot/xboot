@@ -128,6 +128,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/fb/sw								\
 				drivers/gpio								\
 				drivers/input								\
+				drivers/input/rc							\
 				drivers/interrupt							\
 				drivers/led									\
 				drivers/logger								\

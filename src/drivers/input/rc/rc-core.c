@@ -1,5 +1,5 @@
 /*
- * resource/res-ir-gpio.c
+ * driver/input/rc/rc-core.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,29 +23,21 @@
  */
 
 #include <xboot.h>
-#include <input/ir-gpio.h>
-#include <s5p4418-gpio.h>
+#include <input/rc/rc-core.h>
 
-static struct ir_gpio_data_t ir_gpio_datas[] = {
-	[0] = {
-		.gpio		= S5P4418_GPIOD(8),
-		.active_low	= 1,
-	}
-};
-
-static struct resource_t res_ir_gpios[] = {
-	{
-		.name		= "ir-gpio",
-		.id			= 0,
-		.data		= &ir_gpio_datas[0],
-	}
-};
-
-static __init void resource_ir_gpio_init(void)
+uint32_t rc_decoder_handle(struct rc_decoder_t * decoder, int pulse, int duration)
 {
+	uint32_t code;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(res_ir_gpios); i++)
-		register_resource(&res_ir_gpios[i]);
+	if((code = rc_nec_decoder_handle(&decoder->nec, pulse, duration)) != 0)
+	{
+	}
+
+	for(i = 0; i < decoder->size; i++)
+	{
+		if(decoder->map[i].scan == code)
+			return decoder->map[i].key;
+	}
+	return code;
 }
-resource_initcall(resource_ir_gpio_init);

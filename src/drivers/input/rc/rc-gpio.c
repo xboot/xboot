@@ -117,6 +117,7 @@ static bool_t register_rc_gpio(struct resource_t * res)
 	if(rdat->map && rdat->size > 0)
 	{
 		pdat->decoder.map = malloc(sizeof(struct rc_map_t) * rdat->size);
+		memcpy(pdat->decoder.map, rdat->map, sizeof(struct rc_map_t) * rdat->size);
 		pdat->decoder.size = rdat->size;
 	}
 

@@ -13,7 +13,6 @@ struct protocal_frame_t {
 	uint8_t length[2];
 	uint8_t command;
 	uint8_t data[4096];
-	size_t size;
 	uint8_t crc;
 };
 

@@ -1,8 +1,5 @@
 #include <protocol.h>
 
-/*
- * CRC table for the CRC-8. (x^8 + x^5 + x^4 + x^0)
- */
 static const uint8_t crc8_table[256] = {
 	0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83,
 	0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41,
@@ -56,31 +53,34 @@ static uint8_t protocal_frame_mkcrc(struct protocal_frame_t * frame)
 
 	if(frame)
 	{
+		uint16_t length = ((frame->length[0] << 8) | (frame->length[1] << 0));
 		crc = crc8(crc, &(frame->header1), 1);
 		crc = crc8(crc, &(frame->header2), 1);
 		crc = crc8(crc, &(frame->length[0]), 2);
 		crc = crc8(crc, &(frame->command), 1);
-		crc = crc8(crc, &(frame->data[0]), frame->size);
+		crc = crc8(crc, &(frame->data[0]), length - 2);
 	}
 	return crc;
 }
 
 static int protocal_frame_init(struct protocal_frame_t * frame, uint8_t command, uint8_t * data, size_t size)
 {
+	uint16_t length;
+
 	if(!frame)
 		return -1;
 
 	if(!data)
 		size = 0;
+	length = size + 2;
 
 	frame->header1 = 0x58;
 	frame->header2 = 0x78;
-	frame->length[0] = ((size + 2) >> 8) & 0xff;
-	frame->length[1] = ((size + 2) >> 0) & 0xff;
+	frame->length[0] = (length >> 8) & 0xff;
+	frame->length[1] = (length >> 0) & 0xff;
 	frame->command = command;
-	if(size > 0)
-		memcpy(&(frame->data[0]), data, size);
-	frame->size = size;
+	if(length > 2)
+		memcpy(&(frame->data[0]), data, length - 2);
 	frame->crc = protocal_frame_mkcrc(frame);
 
 	return 0;
@@ -96,12 +96,12 @@ enum protocal_frame_state_t {
 	PROTOCAL_FRAME_STATE_CRC,
 };
 
-static int protocal_frame_receive_one_byte(struct protocal_frame_t * frame, uint8_t c)
+static int protocal_frame_push_byte(struct protocal_frame_t * frame, uint8_t c)
 {
 	static enum protocal_frame_state_t state = PROTOCAL_FRAME_STATE_HEADER1;
 	static uint8_t buffer[2 + 2 + 1 + 4096 + 1];
 	static size_t index = 0;
-	size_t length;
+	uint16_t length;
 
 	buffer[index++] = c;
 
@@ -142,13 +142,13 @@ static int protocal_frame_receive_one_byte(struct protocal_frame_t * frame, uint
 	case PROTOCAL_FRAME_STATE_COMMAND:
 		state = PROTOCAL_FRAME_STATE_DATA;
 		length = (buffer[2] << 8) | (buffer[3] << 0);
-		if(index > length + 1)
+		if(index >= length + 3)
 			state = PROTOCAL_FRAME_STATE_CRC;
 		break;
 
 	case PROTOCAL_FRAME_STATE_DATA:
 		length = (buffer[2] << 8) | (buffer[3] << 0);
-		if(index > length + 1)
+		if(index >= length + 3)
 			state = PROTOCAL_FRAME_STATE_CRC;
 		break;
 
@@ -156,7 +156,7 @@ static int protocal_frame_receive_one_byte(struct protocal_frame_t * frame, uint
 		length = (buffer[2] << 8) | (buffer[3] << 0);
 		index = 0;
 		state = PROTOCAL_FRAME_STATE_HEADER1;
-		if(protocal_frame_init(frame, buffer[4], &buffer[5], (size_t)(length - 4)) == 0)
+		if(protocal_frame_init(frame, buffer[4], &buffer[5], (size_t)(length - 2)) == 0)
 		{
 			if(frame->crc == c)
 			{
@@ -183,24 +183,27 @@ static int protocal_frame_get(struct interface_t * iface, struct protocal_frame_
 	end = interface_time(iface) + timeout;
 	do {
 		if(interface_read(iface, &c, 1) == 1)
-			ret = protocal_frame_receive_one_byte(frame, c);
+			ret = protocal_frame_push_byte(frame, c);
 		time = interface_time(iface);
-	} while((ret != 0) && (time <= end));
+	} while((ret < 0) && (time <= end));
 
 	return ret;
 }
 
 static int protocal_frame_put(struct interface_t * iface, struct protocal_frame_t * frame)
 {
+	uint16_t length;
+
 	if(!frame)
 		return -1;
 
+	length = ((frame->length[0] << 8) | (frame->length[1] << 0));
 	interface_write(iface, &(frame->header1), 1);
 	interface_write(iface, &(frame->header2), 1);
 	interface_write(iface, &(frame->length), 2);
 	interface_write(iface, &(frame->command), 1);
-	if(frame->size > 0)
-		interface_write(iface, &(frame->data[0]), frame->size);
+	if(length > 2)
+		interface_write(iface, &(frame->data[0]), length - 2);
 	interface_write(iface, &(frame->crc), 1);
 
 	return 0;

@@ -5,17 +5,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
 #include <sys/time.h>
 
 struct interface_t {
-	uint64_t (*time)(void);
-	ssize_t (*read)(void * buf, size_t len);
-	ssize_t (*write)(void * buf, size_t len);
-	void * pirv;
+	uint64_t (*time)(struct interface_t * iface);
+	ssize_t (*read)(struct interface_t * iface, void * buf, size_t len);
+	ssize_t (*write)(struct interface_t * iface, void * buf, size_t len);
+	void * priv;
 };
 
 uint64_t interface_time(struct interface_t * iface);
 ssize_t interface_read(struct interface_t * iface, void * buf, size_t len);
 ssize_t interface_write(struct interface_t * iface, void * buf, size_t len);
+
+struct interface_t * interface_serial_alloc(const char * device, int baud);
+void interface_serial_free(struct interface_t * iface);
 
 #endif /* __INTERFACE_H__ */

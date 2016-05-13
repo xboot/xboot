@@ -63,7 +63,7 @@ static uint8_t protocal_frame_mkcrc(struct protocal_frame_t * frame)
 	return crc;
 }
 
-static int protocal_frame_init(struct protocal_frame_t * frame, uint8_t command, uint8_t * data, size_t size)
+int protocal_frame_init(struct protocal_frame_t * frame, uint8_t command, uint8_t * data, size_t size)
 {
 	uint16_t length;
 

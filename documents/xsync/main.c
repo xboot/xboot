@@ -8,6 +8,7 @@ static void usage(void)
 
 int main(int argc, char * argv[])
 {
+	struct protocal_frame_t request, response;
 	struct interface_t * iface;
 	char * path = ".";
 	char * device = "/dev/ttyUSB0";
@@ -37,6 +38,12 @@ int main(int argc, char * argv[])
 	{
 		usage();
 		return -1;
+	}
+
+	protocal_frame_init(&request, 0x77, "123", 3);
+	if(protocal_frame_transform(iface, &request, &response, 3000) == 0)
+	{
+		printf("response\r\n");
 	}
 
 	interface_serial_free(iface);

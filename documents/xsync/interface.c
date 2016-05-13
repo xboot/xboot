@@ -27,7 +27,10 @@ struct serial_ctx_t {
 
 static uint64_t serial_time(struct interface_t * iface)
 {
-	return 0;
+	struct timeval time;
+
+	gettimeofday(&time, 0);
+	return (uint64_t)(time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
 static ssize_t serial_read(struct interface_t * iface, void * buf, size_t len)
@@ -153,6 +156,7 @@ struct interface_t * interface_serial_alloc(const char * device, int baud)
 		return 0;
 	}
 
+	ctx->fd = fd;
 	iface->time = serial_time;
 	iface->read = serial_read;
 	iface->write = serial_write;

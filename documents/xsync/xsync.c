@@ -1,4 +1,4 @@
-#include <protocol.h>
+#include <xsync.h>
 
 static void usage(void)
 {
@@ -8,7 +8,7 @@ static void usage(void)
 
 int main(int argc, char * argv[])
 {
-	struct protocal_frame_t request, response;
+	struct packet_t request, response;
 	struct interface_t * iface;
 	char * path = ".";
 	char * device = "/dev/ttyUSB0";
@@ -40,8 +40,8 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
-	protocal_frame_init(&request, 0x77, "123", 3);
-	if(protocal_frame_transform(iface, &request, &response, 3000) == 0)
+	packet_init(&request, XSYNC_COMMAND_ALIVE, (uint8_t *)"123", 3);
+	if(packet_transform(iface, &request, &response, 3000) == 0)
 	{
 		printf("response\r\n");
 	}

@@ -444,7 +444,7 @@ static inline void xor_block(uint8_t * r, uint8_t * a, uint8_t * b, int len)
 		*r++ = *a++ ^ *b++;
 }
 
-static void aes128_encrypt(struct aes128_ctx * ctx, uint8_t * in, uint8_t * out)
+static void aes128_encrypt(struct aes128_ctx_t * ctx, uint8_t * in, uint8_t * out)
 {
 	uint8_t state[16];
 	int i;
@@ -462,7 +462,7 @@ static void aes128_encrypt(struct aes128_ctx * ctx, uint8_t * in, uint8_t * out)
 	memcpy(out, state, sizeof(state));
 }
 
-static void aes128_decrypt(struct aes128_ctx * ctx, uint8_t * in, uint8_t * out)
+static void aes128_decrypt(struct aes128_ctx_t * ctx, uint8_t * in, uint8_t * out)
 {
 	uint8_t state[16];
 	int i;
@@ -479,7 +479,7 @@ static void aes128_decrypt(struct aes128_ctx * ctx, uint8_t * in, uint8_t * out)
 	memcpy(out, state, sizeof(state));
 }
 
-void aes128_set_key(struct aes128_ctx * ctx, uint8_t * key)
+void aes128_set_key(struct aes128_ctx_t * ctx, uint8_t * key)
 {
 	static const uint8_t rcon[11] = { 0x00, 0x01, 0x02, 0x04, 0x08,
 		0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 };
@@ -510,7 +510,7 @@ void aes128_set_key(struct aes128_ctx * ctx, uint8_t * key)
 	}
 }
 
-void aes128_ecb_encrypt(struct aes128_ctx * ctx, uint8_t * in, uint8_t * out, int blks)
+void aes128_ecb_encrypt(struct aes128_ctx_t * ctx, uint8_t * in, uint8_t * out, int blks)
 {
 	int i;
 
@@ -522,7 +522,7 @@ void aes128_ecb_encrypt(struct aes128_ctx * ctx, uint8_t * in, uint8_t * out, in
 	}
 }
 
-void aes128_ecb_decrypt(struct aes128_ctx * ctx, uint8_t * in, uint8_t * out, int blks)
+void aes128_ecb_decrypt(struct aes128_ctx_t * ctx, uint8_t * in, uint8_t * out, int blks)
 {
 	int i;
 
@@ -534,7 +534,7 @@ void aes128_ecb_decrypt(struct aes128_ctx * ctx, uint8_t * in, uint8_t * out, in
 	}
 }
 
-void aes128_cbc_encrypt(struct aes128_ctx * ctx, uint8_t * iv, uint8_t * in, uint8_t * out, int blks)
+void aes128_cbc_encrypt(struct aes128_ctx_t * ctx, uint8_t * iv, uint8_t * in, uint8_t * out, int blks)
 {
 	uint8_t chain[16];
 	uint8_t tmp[16];
@@ -551,7 +551,7 @@ void aes128_cbc_encrypt(struct aes128_ctx * ctx, uint8_t * iv, uint8_t * in, uin
 	}
 }
 
-void aes128_cbc_decrypt(struct aes128_ctx * ctx, uint8_t * iv, uint8_t * in, uint8_t * out, int blks)
+void aes128_cbc_decrypt(struct aes128_ctx_t * ctx, uint8_t * iv, uint8_t * in, uint8_t * out, int blks)
 {
 	uint8_t chain[16];
 	uint8_t block[16];
@@ -582,7 +582,7 @@ static inline void add_counter(uint8_t * counter)
 	}
 }
 
-void aes128_ctr_encrypt(struct aes128_ctx * ctx, uint64_t offset, uint8_t * in, uint8_t * out, int bytes)
+void aes128_ctr_encrypt(struct aes128_ctx_t * ctx, uint64_t offset, uint8_t * in, uint8_t * out, int bytes)
 {
 	uint8_t counter[16];
 	uint8_t tmp[16];
@@ -622,7 +622,7 @@ void aes128_ctr_encrypt(struct aes128_ctx * ctx, uint64_t offset, uint8_t * in, 
 	}
 }
 
-void aes128_ctr_decrypt(struct aes128_ctx * ctx, uint64_t offset, uint8_t * in, uint8_t * out, int bytes)
+void aes128_ctr_decrypt(struct aes128_ctx_t * ctx, uint64_t offset, uint8_t * in, uint8_t * out, int bytes)
 {
 	aes128_ctr_encrypt(ctx, offset, in, out, bytes);
 }

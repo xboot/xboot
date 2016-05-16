@@ -27,7 +27,7 @@ static const uint32_t K[64] =
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-static void sha256_transform(struct sha256_ctx * ctx)
+static void sha256_transform(struct sha256_ctx_t * ctx)
 {
 	uint32_t W[64];
 	uint32_t A, B, C, D, E, F, G, H;
@@ -88,7 +88,7 @@ static void sha256_transform(struct sha256_ctx * ctx)
 	ctx->state[7] += H;
 }
 
-void sha256_init(struct sha256_ctx * ctx)
+void sha256_init(struct sha256_ctx_t * ctx)
 {
     ctx->state[0] = 0x6a09e667;
     ctx->state[1] = 0xbb67ae85;
@@ -101,7 +101,7 @@ void sha256_init(struct sha256_ctx * ctx)
     ctx->count = 0;
 }
 
-void sha256_update(struct sha256_ctx * ctx, const void * data, int len)
+void sha256_update(struct sha256_ctx_t * ctx, const void * data, int len)
 {
 	int i = (int)(ctx->count & 63);
 	const uint8_t * p = (const uint8_t *)data;
@@ -118,7 +118,7 @@ void sha256_update(struct sha256_ctx * ctx, const void * data, int len)
 	}
 }
 
-const uint8_t * sha256_final(struct sha256_ctx * ctx)
+const uint8_t * sha256_final(struct sha256_ctx_t * ctx)
 {
 	uint8_t * p = ctx->buf;
 	uint64_t cnt = ctx->count * 8;
@@ -152,7 +152,7 @@ const uint8_t * sha256_final(struct sha256_ctx * ctx)
  */
 const uint8_t * sha256_hash(const void * data, int len, uint8_t * digest)
 {
-	struct sha256_ctx ctx;
+	struct sha256_ctx_t ctx;
 	sha256_init(&ctx);
 	sha256_update(&ctx, data, len);
 	memcpy(digest, sha256_final(&ctx), SHA256_DIGEST_SIZE);

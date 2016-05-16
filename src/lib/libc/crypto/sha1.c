@@ -6,7 +6,7 @@
 
 #define rol(bits, value)	(((value) << (bits)) | ((value) >> (32 - (bits))))
 
-static void sha1_transform(struct sha1_ctx * ctx)
+static void sha1_transform(struct sha1_ctx_t * ctx)
 {
 	uint32_t W[80];
 	uint32_t A, B, C, D, E;
@@ -60,7 +60,7 @@ static void sha1_transform(struct sha1_ctx * ctx)
 	ctx->state[4] += E;
 }
 
-void sha1_init(struct sha1_ctx * ctx)
+void sha1_init(struct sha1_ctx_t * ctx)
 {
 	ctx->state[0] = 0x67452301;
 	ctx->state[1] = 0xEFCDAB89;
@@ -70,7 +70,7 @@ void sha1_init(struct sha1_ctx * ctx)
 	ctx->count = 0;
 }
 
-void sha1_update(struct sha1_ctx * ctx, const void * data, int len)
+void sha1_update(struct sha1_ctx_t * ctx, const void * data, int len)
 {
 	int i = (int)(ctx->count & 63);
 	const uint8_t * p = (const uint8_t *)data;
@@ -87,7 +87,7 @@ void sha1_update(struct sha1_ctx * ctx, const void * data, int len)
 	}
 }
 
-const uint8_t * sha1_final(struct sha1_ctx * ctx)
+const uint8_t * sha1_final(struct sha1_ctx_t * ctx)
 {
 	uint8_t * p = ctx->buf;
 	uint64_t cnt = ctx->count * 8;
@@ -121,7 +121,7 @@ const uint8_t * sha1_final(struct sha1_ctx * ctx)
  */
 const uint8_t * sha1_hash(const void * data, int len, uint8_t * digest)
 {
-	struct sha1_ctx ctx;
+	struct sha1_ctx_t ctx;
 	sha1_init(&ctx);
 	sha1_update(&ctx, data, len);
 	memcpy(digest, sha1_final(&ctx), SHA1_DIGEST_SIZE);

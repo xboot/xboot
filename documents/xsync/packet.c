@@ -8,7 +8,10 @@ enum packet_state_t {
 	PACKET_STATE_LENGTH1,
 	PACKET_STATE_COMMAND,
 	PACKET_STATE_DATA,
-	PACKET_STATE_CRC,
+	PACKET_STATE_CRC0,
+	PACKET_STATE_CRC1,
+	PACKET_STATE_CRC2,
+	PACKET_STATE_CRC3,
 };
 
 struct packet_get_ctx_t {
@@ -33,8 +36,7 @@ static inline uint32_t packet_crc(struct packet_t * packet)
 
 	if(packet)
 	{
-		crc = crc32(crc, &(packet->header0), 1);
-		crc = crc32(crc, &(packet->header1), 1);
+		crc = crc32(crc, &(packet->header[0]), 2);
 		crc = crc32(crc, &(packet->length[0]), 2);
 		crc = crc32(crc, &(packet->command), 1);
 		crc = crc32(crc, &(packet->data[0]), packet_dsize(packet));
@@ -46,8 +48,7 @@ static void packet_put(struct interface_t * iface, struct packet_t * packet)
 {
 	uint16_t dsize = packet_dsize(packet);
 
-	interface_write(iface, &(packet->header0), 1);
-	interface_write(iface, &(packet->header1), 1);
+	interface_write(iface, &(packet->header), 2);
 	interface_write(iface, &(packet->length), 2);
 	interface_write(iface, &(packet->command), 1);
 	if(dsize)
@@ -101,44 +102,40 @@ static int packet_get_byte(struct packet_get_ctx_t * ctx, uint8_t c)
 		ctx->state = PACKET_STATE_DATA;
 		length = (p[2] << 8) | (p[3] << 0);
 		if(ctx->index >= length)
-			ctx->state = PACKET_STATE_CRC;
+			ctx->state = PACKET_STATE_CRC0;
 		break;
 
 	case PACKET_STATE_DATA:
 		length = (p[2] << 8) | (p[3] << 0);
 		if(ctx->index >= length)
-			ctx->state = PACKET_STATE_CRC;
+			ctx->state = PACKET_STATE_CRC0;
 		break;
 
-	case PACKET_STATE_CRC:
-		length = (p[2] << 8) | (p[3] << 0);
-		switch(ctx->index - length - 1)
-		{
-		case 0:
-			ctx->packet->crc[0] = c;
-			break;
-		case 1:
-			ctx->packet->crc[1] = c;
-			break;
-		case 2:
-			ctx->packet->crc[2] = c;
-			break;
-		case 3:
-			ctx->packet->crc[3] = c;
-			ctx->index = 0;
-			ctx->state = PACKET_STATE_HEADER0;
-			crc  = (ctx->packet->crc[0] << 24) & 0xff000000;
-			crc |= (ctx->packet->crc[1] << 16) & 0x00ff0000;
-			crc |= (ctx->packet->crc[2] <<  8) & 0x0000ff00;
-			crc |= (ctx->packet->crc[3] <<  0) & 0x000000ff;
-			if(packet_crc(ctx->packet) == crc)
-				return 0;
-			break;
-		default:
-			ctx->index = 0;
-			ctx->state = PACKET_STATE_HEADER0;
-			break;
-		}
+	case PACKET_STATE_CRC0:
+		ctx->packet->crc[0] = c;
+		ctx->state = PACKET_STATE_CRC1;
+		break;
+
+	case PACKET_STATE_CRC1:
+		ctx->packet->crc[1] = c;
+		ctx->state = PACKET_STATE_CRC2;
+		break;
+
+	case PACKET_STATE_CRC2:
+		ctx->packet->crc[2] = c;
+		ctx->state = PACKET_STATE_CRC3;
+		break;
+
+	case PACKET_STATE_CRC3:
+		ctx->packet->crc[3] = c;
+		ctx->index = 0;
+		ctx->state = PACKET_STATE_HEADER0;
+		crc  = (ctx->packet->crc[0] << 24) & 0xff000000;
+		crc |= (ctx->packet->crc[1] << 16) & 0x00ff0000;
+		crc |= (ctx->packet->crc[2] <<  8) & 0x0000ff00;
+		crc |= (ctx->packet->crc[3] <<  0) & 0x000000ff;
+		if(packet_crc(ctx->packet) == crc)
+			return 0;
 		break;
 
 	default:
@@ -177,8 +174,8 @@ void packet_init(struct packet_t * packet, uint8_t command, uint8_t * data, size
 
 	if(!data)
 		size = 0;
-	packet->header0 = 'X';
-	packet->header1 = 'x';
+	packet->header[0] = 'X';
+	packet->header[1] = 'x';
 	packet->length[0] = ((size + 5) >> 8) & 0xff;
 	packet->length[1] = ((size + 5) >> 0) & 0xff;
 	packet->command = command;

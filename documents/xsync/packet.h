@@ -6,8 +6,7 @@
 #include <interface.h>
 
 struct packet_t {
-	uint8_t header0;
-	uint8_t header1;
+	uint8_t header[2];
 	uint8_t length[2];
 	uint8_t command;
 	uint8_t data[4096];

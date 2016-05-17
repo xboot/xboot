@@ -54,16 +54,16 @@ static void send_file(const char * filename)
 	char * buf;
 	int size;
 	uint32_t crc;
-	uint8_t digest[SHA1_DIGEST_SIZE];
+	uint8_t digest[SHA256_DIGEST_SIZE];
 
 	buf = load_file(filename, &size);
 	crc = crc32(0, buf, size);
-	sha1_hash(buf, size, &digest[0]);
+	sha256_hash(buf, size, &digest[0]);
 
 	printf("crc = 0x%08x\r\n", crc);
 
 	int i;
-	for(i = 0; i < SHA1_DIGEST_SIZE; i++)
+	for(i = 0; i < SHA256_DIGEST_SIZE; i++)
 		printf("0x%02x ", digest[i]);
 
 	free(buf);
@@ -104,6 +104,7 @@ int main(int argc, char * argv[])
 	}
 
 	send_file(path);
+	return 0;
 
 	packet_init(&request, XSYNC_COMMAND_ALIVE, (uint8_t *)"123", 3);
 	if(packet_transform(iface, &request, &response, 3000) == 0)

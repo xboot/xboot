@@ -2,7 +2,7 @@
 #define __XSYNC_H__
 
 #include <crc32.h>
-#include <sha256.h>
+#include <sha1.h>
 #include <interface.h>
 #include <packet.h>
 

@@ -6,6 +6,69 @@ static void usage(void)
 	printf("    xsync [-d device] [-b baud] <path>\r\n");
 }
 
+static char * load_file(const char * filename, int * size)
+{
+    char * buf;
+    int sz;
+    int fd;
+
+    fd = open(filename, O_RDONLY);
+    if(fd < 0)
+    	return 0;
+
+    sz = lseek(fd, 0, SEEK_END);
+    if(sz < 0)
+    {
+        close(fd);
+        return 0;
+    }
+
+    if(lseek(fd, 0, SEEK_SET) != 0)
+    {
+        close(fd);
+        return 0;
+    }
+
+    buf = (char *)malloc(sz);
+    if(!buf)
+    {
+        close(fd);
+        return 0;
+    }
+
+    if(read(fd, buf, sz) != sz)
+    {
+    	free(buf);
+        close(fd);
+        return 0;
+    }
+
+    close(fd);
+    if(size)
+    	*size = sz;
+    return buf;
+}
+
+static void send_file(const char * filename)
+{
+	char * buf;
+	int size;
+	uint32_t crc;
+	uint8_t digest[SHA1_DIGEST_SIZE];
+
+	buf = load_file(filename, &size);
+	crc = crc32(0, buf, size);
+	sha1_hash(buf, size, &digest[0]);
+
+	printf("crc = 0x%08x\r\n", crc);
+
+	int i;
+	for(i = 0; i < SHA1_DIGEST_SIZE; i++)
+		printf("0x%02x ", digest[i]);
+
+	free(buf);
+}
+
 int main(int argc, char * argv[])
 {
 	struct packet_t request, response;
@@ -39,6 +102,8 @@ int main(int argc, char * argv[])
 		usage();
 		return -1;
 	}
+
+	send_file(path);
 
 	packet_init(&request, XSYNC_COMMAND_ALIVE, (uint8_t *)"123", 3);
 	if(packet_transform(iface, &request, &response, 3000) == 0)

@@ -52,7 +52,7 @@ static int do_write(int argc, char ** argv)
 
 static struct command_t cmd_write = {
 	.name	= "write",
-	.desc	= "write contents to a file\r\n",
+	.desc	= "write contents to a file",
 	.usage	= usage,
 	.exec	= do_write,
 };

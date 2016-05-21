@@ -59,6 +59,7 @@ struct xsync_ctx_t {
 	struct packet_t packet;
 	enum packet_state_t state;
 	int index;
+	int fd;
 };
 
 static const uint32_t crc32_table[256] = {
@@ -324,19 +325,63 @@ static int xsync_get(struct xsync_ctx_t * ctx, uint8_t c)
 	return -1;
 }
 
+static int xsync_handle_start(struct xsync_ctx_t * ctx)
+{
+	char path[MAX_PATH];
+	char buf[BUFSIZ];
+	uint32_t crc1, crc2 = 0;
+	ssize_t n;
+
+	crc1  = (ctx->packet.data[0] << 24) & 0xff000000;
+	crc1 |= (ctx->packet.data[1] << 16) & 0x00ff0000;
+	crc1 |= (ctx->packet.data[2] <<  8) & 0x0000ff00;
+	crc1 |= (ctx->packet.data[3] <<  0) & 0x000000ff;
+	strlcpy(path, (const char *)(&ctx->packet.data[4]), packet_dsize(&ctx->packet) - 4);
+
+	ctx->fd = open(path, O_RDWR | O_CREAT, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(ctx->fd < 0)
+		return -1;
+
+	while((n = read(ctx->fd, buf, sizeof(buf))) > 0)
+	{
+		crc2 = crc32(crc2, (const uint8_t *)buf, n);
+	}
+
+	if((lseek(ctx->fd, 0, SEEK_SET) != 0) || (crc1 == crc2))
+	{
+		close(ctx->fd);
+		return -1;
+	}
+
+	return 0;
+}
+
 static void xsync_handle(struct xsync_ctx_t * ctx)
 {
-	uint8_t buf[4096];
+	uint8_t buf[BUFSIZ];
+	size_t size;
 
 	switch(ctx->packet.command)
 	{
 	case XSYNC_COMMAND_ALIVE:
-		xsync_put(XSYNC_COMMAND_ALIVE, 0, 0);
+		size = sprintf((char *)buf, "%s", machine_uniqueid());
+		xsync_put(XSYNC_COMMAND_ALIVE, buf, size);
 		break;
 
 	case XSYNC_COMMAND_START:
+		buf[0] = (xsync_handle_start(ctx) < 0) ? 0 : 1;
+		xsync_put(XSYNC_COMMAND_START, buf, 1);
+		break;
+
 	case XSYNC_COMMAND_TRANSFER:
+		write(ctx->fd, (void *)ctx->packet.data, packet_dsize(&ctx->packet));
+		xsync_put(XSYNC_COMMAND_TRANSFER, 0, 0);
+		break;
+
 	case XSYNC_COMMAND_STOP:
+		if(ctx->fd > 2)
+			close(ctx->fd);
+		xsync_put(XSYNC_COMMAND_STOP, 0, 0);
 		break;
 
 	case XSYNC_COMMAND_RUN:

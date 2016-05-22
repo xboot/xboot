@@ -11,13 +11,11 @@
 #include <sys/time.h>
 
 struct interface_t {
-	uint64_t (*time)(struct interface_t * iface);
 	ssize_t (*read)(struct interface_t * iface, void * buf, size_t len);
 	ssize_t (*write)(struct interface_t * iface, void * buf, size_t len);
 	void * priv;
 };
 
-uint64_t interface_time(struct interface_t * iface);
 ssize_t interface_read(struct interface_t * iface, void * buf, size_t len);
 ssize_t interface_write(struct interface_t * iface, void * buf, size_t len);
 

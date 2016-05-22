@@ -20,6 +20,13 @@ struct packet_get_ctx_t {
 	int index;
 };
 
+static inline uint64_t time_now(void)
+{
+	struct timeval time;
+	gettimeofday(&time, 0);
+	return (uint64_t)(time.tv_sec * 1000 + time.tv_usec / 1000);
+}
+
 static inline uint16_t packet_length(struct packet_t * packet)
 {
 	return ((packet->length[0] << 8) | (packet->length[1] << 0));
@@ -158,11 +165,11 @@ static int packet_get(struct interface_t * iface, struct packet_t * packet, int 
 	ctx.state = PACKET_STATE_HEADER0;
 	ctx.index = 0;
 
-	end = interface_time(iface) + timeout;
+	end = time_now() + timeout;
 	do {
 		if(interface_read(iface, &c, 1) == 1)
 			ret = packet_get_byte(&ctx, c);
-		time = interface_time(iface);
+		time = time_now();
 	} while((ret < 0) && (time <= end));
 
 	return ret;
@@ -188,7 +195,7 @@ void packet_init(struct packet_t * packet, uint8_t command, uint8_t * data, size
 	packet->crc[3] = (crc >>  0) & 0xff;
 }
 
-int packet_transform(struct interface_t * iface, struct packet_t * request, struct packet_t * response, int timeout)
+int packet_transfer(struct interface_t * iface, struct packet_t * request, struct packet_t * response, int timeout)
 {
 	packet_put(iface, request);
 	return packet_get(iface, response, timeout);

@@ -25,12 +25,14 @@
 #include <shell/system.h>
 #include <command/command.h>
 
+#define PACKET_DATA_MAX		(1024)
+
 enum xsync_command_t {
 	XSYNC_COMMAND_ALIVE		= 0x00,
 	XSYNC_COMMAND_START		= 0x01,
 	XSYNC_COMMAND_TRANSFER	= 0x02,
 	XSYNC_COMMAND_STOP		= 0x03,
-	XSYNC_COMMAND_RUN		= 0x04,
+	XSYNC_COMMAND_SYSTEM	= 0x04,
 	XSYNC_COMMAND_UNKOWN	= 0xff,
 };
 
@@ -60,6 +62,7 @@ struct xsync_ctx_t {
 	enum packet_state_t state;
 	int index;
 	int fd;
+	int quit;
 };
 
 static const uint32_t crc32_table[256] = {
@@ -210,14 +213,11 @@ static void packet_put(struct packet_t * packet)
 	putchar(packet->length[0]);
 	putchar(packet->length[1]);
 	putchar(packet->command);
+	fflush(stdout);
 	for(i = 0; i < dsize; i++)
 	{
 		putchar(packet->data[i]);
-		if((i & 0x7) == 0)
-		{
-			udelay(100);
-			fflush(stdout);
-		}
+		fflush(stdout);
 	}
 	putchar(packet->crc[0]);
 	putchar(packet->crc[1]);
@@ -325,10 +325,10 @@ static int xsync_get(struct xsync_ctx_t * ctx, uint8_t c)
 	return -1;
 }
 
-static int xsync_handle_start(struct xsync_ctx_t * ctx)
+static uint8_t xsync_handle_start(struct xsync_ctx_t * ctx)
 {
-	char path[MAX_PATH];
-	char buf[BUFSIZ];
+	char path[PACKET_DATA_MAX];
+	char buf[PACKET_DATA_MAX];
 	uint32_t crc1, crc2 = 0;
 	ssize_t n;
 
@@ -336,29 +336,32 @@ static int xsync_handle_start(struct xsync_ctx_t * ctx)
 	crc1 |= (ctx->packet.data[1] << 16) & 0x00ff0000;
 	crc1 |= (ctx->packet.data[2] <<  8) & 0x0000ff00;
 	crc1 |= (ctx->packet.data[3] <<  0) & 0x000000ff;
-	strlcpy(path, (const char *)(&ctx->packet.data[4]), packet_dsize(&ctx->packet) - 4);
+	memset(path, 0, sizeof(path));
+	memcpy(path, &ctx->packet.data[4], packet_dsize(&ctx->packet) - 4);
 
-	ctx->fd = open(path, O_RDWR | O_CREAT, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
-	if(ctx->fd < 0)
-		return -1;
-
-	while((n = read(ctx->fd, buf, sizeof(buf))) > 0)
+	ctx->fd = open(path, O_RDONLY, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(ctx->fd > 0)
 	{
-		crc2 = crc32(crc2, (const uint8_t *)buf, n);
-	}
-
-	if((lseek(ctx->fd, 0, SEEK_SET) != 0) || (crc1 == crc2))
-	{
+		while((n = read(ctx->fd, buf, sizeof(buf))) > 0)
+		{
+			crc2 = crc32(crc2, (const uint8_t *)buf, n);
+		}
 		close(ctx->fd);
-		return -1;
+		ctx->fd = -1;
+
+		if((crc1 == crc2) && (crc2 != 0))
+			return 1;
 	}
 
-	return 0;
+	ctx->fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(ctx->fd < 0)
+		return 0;
+	return 2;
 }
 
 static void xsync_handle(struct xsync_ctx_t * ctx)
 {
-	uint8_t buf[BUFSIZ];
+	uint8_t buf[PACKET_DATA_MAX];
 	size_t size;
 
 	switch(ctx->packet.command)
@@ -369,7 +372,7 @@ static void xsync_handle(struct xsync_ctx_t * ctx)
 		break;
 
 	case XSYNC_COMMAND_START:
-		buf[0] = (xsync_handle_start(ctx) < 0) ? 0 : 1;
+		buf[0] = xsync_handle_start(ctx);
 		xsync_put(XSYNC_COMMAND_START, buf, 1);
 		break;
 
@@ -379,14 +382,24 @@ static void xsync_handle(struct xsync_ctx_t * ctx)
 		break;
 
 	case XSYNC_COMMAND_STOP:
-		if(ctx->fd > 2)
+		if(ctx->fd > 0)
+		{
 			close(ctx->fd);
+			ctx->fd = -1;
+		}
 		xsync_put(XSYNC_COMMAND_STOP, 0, 0);
 		break;
 
-	case XSYNC_COMMAND_RUN:
-		xsync_put(XSYNC_COMMAND_RUN, 0, 0);
-		strlcpy((char *)buf, (const char *)ctx->packet.data, packet_dsize(&ctx->packet));
+	case XSYNC_COMMAND_SYSTEM:
+		xsync_put(XSYNC_COMMAND_SYSTEM, 0, 0);
+		ctx->quit = 1;
+		if(ctx->fd > 0)
+		{
+			close(ctx->fd);
+			ctx->fd = -1;
+		}
+		memset(buf, 0, sizeof(buf));
+		memcpy(buf, &ctx->packet.data[0], packet_dsize(&ctx->packet));
 		system((const char *)buf);
 		break;
 
@@ -405,18 +418,35 @@ static void usage(void)
 static int do_xsync(int argc, char ** argv)
 {
 	struct xsync_ctx_t ctx;
+	ktime_t timeout = ktime_add_ms(ktime_get(), 3000);
 	int c;
 
 	ctx.state = PACKET_STATE_HEADER0;
 	ctx.index = 0;
+	ctx.fd = -1;
+	ctx.quit = 0;
 
-	while(1)
+	while(ctx.quit == 0)
 	{
 		if((c = getchar()) < 0)
+		{
+			if(ktime_after(ktime_get(), timeout))
+			{
+				ctx.quit = 1;
+				if(ctx.fd > 0)
+				{
+					close(ctx.fd);
+					ctx.fd = -1;
+				}
+			}
 			continue;
+		}
+
 		if(xsync_get(&ctx, c) < 0)
 			continue;
+
 		xsync_handle(&ctx);
+		timeout = ktime_add_ms(ktime_get(), 3000);
 	}
 	return 0;
 }

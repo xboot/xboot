@@ -1,12 +1,5 @@
 #include <interface.h>
 
-uint64_t interface_time(struct interface_t * iface)
-{
-	if(iface && iface->time)
-		return iface->time(iface);
-	return 0;
-}
-
 ssize_t interface_read(struct interface_t * iface, void * buf, size_t len)
 {
 	if(iface && iface->read)
@@ -24,14 +17,6 @@ ssize_t interface_write(struct interface_t * iface, void * buf, size_t len)
 struct serial_ctx_t {
 	int fd;
 };
-
-static uint64_t serial_time(struct interface_t * iface)
-{
-	struct timeval time;
-
-	gettimeofday(&time, 0);
-	return (uint64_t)(time.tv_sec * 1000 + time.tv_usec / 1000);
-}
 
 static ssize_t serial_read(struct interface_t * iface, void * buf, size_t len)
 {
@@ -157,7 +142,6 @@ struct interface_t * interface_serial_alloc(const char * device, int baud)
 	}
 
 	ctx->fd = fd;
-	iface->time = serial_time;
 	iface->read = serial_read;
 	iface->write = serial_write;
 	iface->priv = ctx;

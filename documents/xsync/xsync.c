@@ -6,67 +6,128 @@ static void usage(void)
 	printf("    xsync [-d device] [-b baud] <path>\r\n");
 }
 
-static char * load_file(const char * filename, int * size)
+static void xsync_show_progress(const char * filename, int percent)
 {
-    char * buf;
-    int sz;
-    int fd;
+	int l = 50;
+	int a = l * percent / 100;
+	int b = l - a;
+	int i;
+
+	printf("\r[%3d%%][", percent);
+    for(i = 0; i < a; i++)
+    {
+    	if((b > 0) && (i == a - 1))
+    		printf("%c", '>');
+    	else
+    		printf("%c", '=');
+    }
+    for(i = 0; i < b; i++)
+    	printf("%c", '.');
+	printf("] - %s", filename);
+	fflush(stdout);
+}
+
+static void xsync_transfer_file(struct interface_t * iface, const char * filename)
+{
+	struct packet_t request, response;
+	char buf[PACKET_DATA_MAX];
+	uint32_t crc = 0;
+	int filesize, len = 0;
+	int fd;
+	int n;
+	int result, retry;
+
+	xsync_show_progress(filename, 0);
 
     fd = open(filename, O_RDONLY);
     if(fd < 0)
-    	return 0;
+    	return;
 
-    sz = lseek(fd, 0, SEEK_END);
-    if(sz < 0)
+    filesize = lseek(fd, 0, SEEK_END);
+    if(filesize < 0)
     {
         close(fd);
-        return 0;
+        return;
     }
 
     if(lseek(fd, 0, SEEK_SET) != 0)
     {
         close(fd);
-        return 0;
+        return;
     }
 
-    buf = (char *)malloc(sz);
-    if(!buf)
+	while((n = read(fd, buf, sizeof(buf))) > 0)
+	{
+		crc = crc32(crc, (const uint8_t *)buf, n);
+	}
+
+    if(lseek(fd, 0, SEEK_SET) != 0)
     {
         close(fd);
-        return 0;
+        return;
     }
 
-    if(read(fd, buf, sz) != sz)
-    {
-    	free(buf);
+	buf[0] = (crc >> 24) & 0xff;
+	buf[1] = (crc >> 16) & 0xff;
+	buf[2] = (crc >>  8) & 0xff;
+	buf[3] = (crc >>  0) & 0xff;
+	n = sprintf(&buf[4], "%s", filename) + 4;
+	retry = 0;
+	packet_init(&request, XSYNC_COMMAND_START, (uint8_t *)buf, n);
+	do {
+		result = packet_transfer(iface, &request, &response, 1000);
+    } while((result < 0) && (++retry < 3));
+	if(result < 0)
+	{
         close(fd);
-        return 0;
-    }
+        return;
+	}
+	else if(response.data[0] == 0)
+	{
+	    close(fd);
+	    return;
+	}
+	else if(response.data[0] == 1)
+	{
+	    close(fd);
+	    xsync_show_progress(filename, 100);
+	    return;
+	}
+
+	result = 0;
+	while(((n = read(fd, buf, sizeof(buf))) > 0) && !(result < 0))
+	{
+		retry = 0;
+		packet_init(&request, XSYNC_COMMAND_TRANSFER, (uint8_t *)buf, n);
+		do {
+			result = packet_transfer(iface, &request, &response, 1000);
+	    } while((result < 0) && (++retry < 3));
+		if(!(result < 0))
+		{
+			len += n;
+			xsync_show_progress(filename, len * 100 / filesize);
+		}
+	}
+	if(result < 0)
+	{
+        close(fd);
+        return;
+	}
+
+	retry = 0;
+	packet_init(&request, XSYNC_COMMAND_STOP, 0, 0);
+	do {
+		result = packet_transfer(iface, &request, &response, 1000);
+    } while((result < 0) && (++retry < 3));
+	if(result < 0)
+	{
+        close(fd);
+        return;
+	}
 
     close(fd);
-    if(size)
-    	*size = sz;
-    return buf;
-}
-
-static void send_file(const char * filename)
-{
-	char * buf;
-	int size;
-	uint32_t crc;
-	uint8_t digest[SHA256_DIGEST_SIZE];
-
-	buf = load_file(filename, &size);
-	crc = crc32(0, buf, size);
-	sha256_hash(buf, size, &digest[0]);
-
-	printf("crc = 0x%08x\r\n", crc);
-
-	int i;
-	for(i = 0; i < SHA256_DIGEST_SIZE; i++)
-		printf("0x%02x ", digest[i]);
-
-	free(buf);
+    xsync_show_progress(filename, 100);
+    return;
 }
 
 int main(int argc, char * argv[])
@@ -76,6 +137,7 @@ int main(int argc, char * argv[])
 	char * path = ".";
 	char * device = "/dev/ttyUSB0";
 	int baud = 115200;
+	int result, retry;
 	int i;
 
 	for(i = 1; i < argc; i++)
@@ -103,14 +165,26 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
-	send_file(path);
-	return 0;
-
-	packet_init(&request, XSYNC_COMMAND_ALIVE, (uint8_t *)"123", 3);
-	if(packet_transform(iface, &request, &response, 3000) == 0)
+	retry = 0;
+	packet_init(&request, XSYNC_COMMAND_ALIVE, 0, 0);
+	do {
+		interface_write(iface, "xsync\n", 6);
+		result = packet_transfer(iface, &request, &response, 1000);
+    } while((result < 0) && (++retry < 3));
+	if(result < 0)
 	{
-		printf("response\r\n");
+		printf("Can't connect device with serial port [%s, %d]\r\n", device, baud);
+		return -1;
 	}
+
+	xsync_transfer_file(iface, path);
+	printf("\r\n");
+
+	retry = 0;
+	packet_init(&request, XSYNC_COMMAND_SYSTEM, (uint8_t *)"exec ./", 7);
+	do {
+		result = packet_transfer(iface, &request, &response, 1000);
+    } while((result < 0) && (++retry < 3));
 
 	interface_serial_free(iface);
 	return 0;

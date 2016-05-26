@@ -7,17 +7,12 @@ extern "C" {
 
 #include <xboot.h>
 
-enum map_type_t {
-	MT_DEVICE	= 0,
-	MT_MEMORY	= 1,
-};
-
 struct mmap_t {
 	const char * name;
 	virtual_addr_t virt;
 	physical_addr_t phys;
 	physical_size_t size;
-	enum map_type_t type;
+	int type;
 };
 
 struct machine_t {

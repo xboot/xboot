@@ -25,7 +25,6 @@
 #include <xboot.h>
 
 static const struct mmap_t mach_map[] = {
-	{"memory", 0x70000000, 0x70000000, SZ_256M, MT_MEMORY},
 	{ 0 },
 };
 

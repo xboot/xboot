@@ -223,9 +223,8 @@ static virtual_addr_t __phys_to_virt(physical_addr_t phys)
 	struct machine_t * mach = get_machine();
 	struct mmap_t * m;
 
-	if(mach)
+	if(mach && (m = (struct mmap_t *)mach->map))
 	{
-		m = (struct mmap_t *)mach->map;
 		while(m->size > 0)
 		{
 			if((phys >= m->phys) && (phys <= m->phys + m->size - 1))
@@ -242,9 +241,8 @@ static physical_addr_t __virt_to_phys(virtual_addr_t virt)
 	struct machine_t * mach = get_machine();
 	struct mmap_t * m;
 
-	if(mach)
+	if(mach && (m = (struct mmap_t *)mach->map))
 	{
-		m = (struct mmap_t *)mach->map;
 		while(m->size > 0)
 		{
 			if((virt >= m->virt) && (virt <= m->virt + m->size - 1))

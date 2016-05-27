@@ -10,8 +10,9 @@ STACK_SRV_SIZE	= 0x100000;	/* 1 MB */
 
 MEMORY
 {
-	rom(rx) : org = 0x00008000, len = 0x04000000	/* 64 MB */
-	ram(rwx): org = 0x04008000, len = 0x0c000000	/* 192 MB */
+	ram  : org = 0x00008000, len = 128M - 32K
+	dma  : org = 0x08000000, len = 128M
+	heap : org = 0x10000000, len = 256M
 }
 
 SECTIONS
@@ -26,7 +27,7 @@ SECTIONS
 		*(.init.text)
 		*(.exit.text)
 		PROVIDE(__text_end = .);
-	} > rom
+	} > ram
 
 	.initcall ALIGN(8) :
 	{
@@ -42,7 +43,7 @@ SECTIONS
 		KEEP(*(.initcall_8.text))
 		KEEP(*(.initcall_9.text))
 		PROVIDE(__initcall_end = .);
-	} > rom
+	} > ram
 
 	.exitcall ALIGN(8) :
 	{
@@ -58,35 +59,35 @@ SECTIONS
 		KEEP(*(.exitcall_1.text))
 		KEEP(*(.exitcall_0.text))
 		PROVIDE(__exitcall_end = .);
-	} > rom
+	} > ram
 
 	.ksymtab ALIGN(8) :
 	{
 		PROVIDE(__ksymtab_start = .);
 		KEEP(*(.ksymtab.text))
 		PROVIDE(__ksymtab_end = .);
-	} > rom
+	} > ram
 
 	.romdisk ALIGN(8) :
 	{
 		PROVIDE(__romdisk_start = .);
 		KEEP(*(.romdisk))
 		PROVIDE(__romdisk_end = .);
-	} > rom
+	} > ram
 
 	.rodata ALIGN(8) :
 	{
 		PROVIDE(__rodata_start = .);
 		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 		PROVIDE(__rodata_end = .);
-	} > rom
+	} > ram
 
 	.data_shadow ALIGN(8) :
 	{
 		PROVIDE(__data_shadow_start = .);
 		PROVIDE(__data_shadow_end = (. + SIZEOF(.data)));
 		PROVIDE(__image_end = .);
-	} > rom
+	} > ram
 
 	.data : AT(ADDR(.data_shadow))
 	{
@@ -120,22 +121,6 @@ SECTIONS
 		PROVIDE(__bss_end = .);
 	} > ram
 
-	.heap ALIGN(8) (NOLOAD) :
-	{
-		PROVIDE(__heap_start = .);
-		*(.heap*)
-		. = ALIGN(8);
-		PROVIDE(__heap_end = .);
-	} > ram
-
-	.dma ALIGN(4096) (NOLOAD) :
-	{
-		PROVIDE(__dma_start = .);
-		*(.dma*)
-		. = ALIGN(8);
-		PROVIDE(__dma_end = .);
-	} > ram
-
 	.stack ALIGN(8) (NOLOAD) :
 	{
 		PROVIDE(__stack_start = .);
@@ -161,6 +146,18 @@ SECTIONS
 		. = ALIGN(8);
 		PROVIDE(__stack_end = .);
 	} > ram
+
+	.dma ALIGN(8) (NOLOAD) :
+	{
+		PROVIDE(__dma_start = ORIGIN(dma));
+		PROVIDE(__dma_end = ORIGIN(dma) + LENGTH(dma));
+	} > dma
+
+	.heap ALIGN(8) (NOLOAD) :
+	{
+		PROVIDE(__heap_start = ORIGIN(heap));
+		PROVIDE(__heap_end = ORIGIN(heap) + LENGTH(heap));
+	} > heap
 
 	/*
 	 * Stabs debugging sections.

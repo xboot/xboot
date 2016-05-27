@@ -25,16 +25,13 @@
 #include <xboot.h>
 #include <dma/dma.h>
 
-#ifdef __SANDBOX__
-static char __dma_buf[CONFIG_DMA_SIZE];
-#else
-static char __dma_buf[CONFIG_DMA_SIZE] __attribute__((__used__, __section__(".dma")));
-#endif
-static void * __dma = NULL;
+extern u8_t __dma_start[];
+extern u8_t __dma_end[];
+static void * __dma_pool = NULL;
 
 void * dma_alloc(size_t size)
 {
-	return mm_memalign(__dma, 4096, size);
+	return mm_memalign(__dma_pool, 4096, size);
 }
 
 void * dma_zalloc(size_t size)
@@ -48,10 +45,10 @@ void * dma_zalloc(size_t size)
 
 void dma_free(void * ptr)
 {
-	mm_free(__dma, ptr);
+	mm_free(__dma_pool, ptr);
 }
 
 void do_init_dma_pool(void)
 {
-	__dma = mm_create((void *)__dma_buf, sizeof(__dma_buf));
+	__dma_pool = mm_create((void *)__dma_start, (size_t)(__dma_end - __dma_start));
 }

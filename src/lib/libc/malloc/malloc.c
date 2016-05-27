@@ -5,12 +5,9 @@
 #include <xboot.h>
 #include <malloc.h>
 
-#ifdef __SANDBOX__
-static char __heap_buf[CONFIG_HEAP_SIZE];
-#else
-static char __heap_buf[CONFIG_HEAP_SIZE] __attribute__((__used__, __section__(".heap")));
-#endif
-static void * __heap = NULL;
+extern u8_t __heap_start[];
+extern u8_t __heap_end[];
+static void * __heap_pool = NULL;
 
 /*
  * Some macros.
@@ -792,19 +789,19 @@ void mm_free(void * mm, void * ptr)
 
 void * malloc(size_t size)
 {
-	return tlsf_malloc(__heap, size);
+	return tlsf_malloc(__heap_pool, size);
 }
 EXPORT_SYMBOL(malloc);
 
 void * memalign(size_t align, size_t size)
 {
-	return tlsf_memalign(__heap, align, size);
+	return tlsf_memalign(__heap_pool, align, size);
 }
 EXPORT_SYMBOL(memalign);
 
 void * realloc(void * ptr, size_t size)
 {
-	return tlsf_realloc(__heap, ptr, size);
+	return tlsf_realloc(__heap_pool, ptr, size);
 }
 EXPORT_SYMBOL(realloc);
 
@@ -821,11 +818,11 @@ EXPORT_SYMBOL(calloc);
 
 void free(void * ptr)
 {
-	tlsf_free(__heap, ptr);
+	tlsf_free(__heap_pool, ptr);
 }
 EXPORT_SYMBOL(free);
 
 void do_init_mem_pool(void)
 {
-	__heap = tlsf_create_with_pool((void *)__heap_buf, sizeof(__heap_buf));
+	__heap_pool = tlsf_create_with_pool((void *)__heap_start, (size_t)(__heap_end - __heap_start));
 }

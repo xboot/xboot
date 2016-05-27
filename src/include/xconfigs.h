@@ -16,14 +16,6 @@ extern "C" {
 #define __MACH__							"sandbox"
 #endif
 
-#if !defined(CONFIG_HEAP_SIZE)
-#define CONFIG_HEAP_SIZE					(SZ_16M)
-#endif
-
-#if !defined(CONFIG_DMA_SIZE)
-#define CONFIG_DMA_SIZE						(SZ_16M)
-#endif
-
 #if !defined(CONFIG_NO_LOG)
 #define CONFIG_NO_LOG						(0)
 #endif

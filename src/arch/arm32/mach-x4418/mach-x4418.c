@@ -23,11 +23,15 @@
  */
 
 #include <xboot.h>
+#include <mmu.h>
 #include <s5p4418-rstcon.h>
 #include <s5p4418/reg-sys.h>
 #include <s5p4418/reg-id.h>
 
 static const struct mmap_t mach_map[] = {
+	{"sys",  0x40000000, 0x40000000, SZ_128M, MAP_TYPE_CB},
+	{"dma",  0x48000000, 0x48000000, SZ_128M, MAP_TYPE_NCNB},
+	{"heap", 0x50000000, 0x50000000, SZ_256M, MAP_TYPE_CB},
 	{ 0 },
 };
 

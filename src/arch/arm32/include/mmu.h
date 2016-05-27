@@ -15,7 +15,7 @@ enum {
 	MAP_TYPE_CB		= 0x3,
 };
 
-void mmu_map(const struct mmap_t * m);
+void mmu_setup(const struct mmap_t * map);
 
 #ifdef __cplusplus
 }

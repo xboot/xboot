@@ -22,8 +22,10 @@ static void map_l1_section(virtual_addr_t virt, physical_addr_t phys, physical_s
 		__mmu_ttb[virt] = (phys << 20) | (0x3 << 10) | (0xf << 5) | (type << 2) | (0x2 << 0);
 }
 
-void mmu_map(const struct mmap_t * m)
+void mmu_setup(const struct mmap_t * map)
 {
+	struct mmap_t * m = (struct mmap_t *)map;
+
 	if(m)
 	{
 		map_l1_section(0x00000000, 0x00000000, SZ_2G, 0);

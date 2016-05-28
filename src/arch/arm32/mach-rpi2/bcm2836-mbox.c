@@ -698,6 +698,52 @@ struct mbox_fb_gpiovirt_msg_t {
 	uint32_t end;
 };
 
+struct mbox_fb_info_msg_t {
+	uint32_t size;
+	uint32_t code;
+	struct {
+		uint32_t tag;
+		uint32_t size;
+		uint32_t len;
+		uint32_t width;
+		uint32_t height;
+	} phys;
+	struct {
+		uint32_t tag;
+		uint32_t size;
+		uint32_t len;
+		uint32_t width;
+		uint32_t height;
+	} virt;
+	struct {
+		uint32_t tag;
+		uint32_t size;
+		uint32_t len;
+		uint32_t bpp;
+	} depth;
+	struct {
+		uint32_t tag;
+		uint32_t size;
+		uint32_t len;
+		uint32_t vaddr;
+		uint32_t vsize;
+	} allocate;
+	uint32_t end;
+};
+
+struct mbox_fb_offset_msg_t {
+	uint32_t size;
+	uint32_t code;
+	struct {
+		uint32_t tag;
+		uint32_t size;
+		uint32_t len;
+		uint32_t xoffset;
+		uint32_t yoffset;
+	} tag;
+	uint32_t end;
+};
+
 uint32_t bcm2836_mbox_fb_get_gpiovirt(void)
 {
 	struct mbox_fb_gpiovirt_msg_t msg __attribute__((aligned(16)));
@@ -715,4 +761,58 @@ uint32_t bcm2836_mbox_fb_get_gpiovirt(void)
 	if(p->code != 0x80000000)
 		return -1;
 	return p->tag.val & 0x3fffffff;
+}
+
+void * bcm2836_mbox_fb_alloc(int width, int height, int bpp)
+{
+	struct mbox_fb_info_msg_t msg __attribute__((aligned(16)));
+	struct mbox_fb_info_msg_t * p = &msg;
+
+	p->size = sizeof(struct mbox_fb_info_msg_t);
+	p->code = 0;
+	p->phys.tag = MBOX_TAG_FB_SET_PHYS_WH;
+	p->phys.size = 8;
+	p->phys.len = 8;
+	p->phys.width = width;
+	p->phys.height = height;
+	p->virt.tag = MBOX_TAG_FB_SET_VIRT_WH;
+	p->virt.size = 8;
+	p->virt.len = 8;
+	p->virt.width = width;
+	p->virt.height = height * 3;
+	p->depth.tag = MBOX_TAG_FB_SET_DEPTH;
+	p->depth.size = 4;
+	p->depth.len = 4;
+	p->depth.bpp = bpp;
+	p->allocate.tag = MBOX_TAG_FB_ALLOCATE_BUFFER;
+	p->allocate.size = 8;
+	p->allocate.len = 4;
+	p->allocate.vaddr = 16;
+	p->allocate.vsize = 0;
+	p->end = 0;
+
+	bcm2836_mbox_call(p);
+	if(p->code != 0x80000000)
+		return 0;
+	return (void *)(p->allocate.vaddr & 0x3fffffff);
+}
+
+int bcm2836_mbox_fb_present(int xoffset, int yoffset)
+{
+	struct mbox_fb_offset_msg_t msg __attribute__((aligned(16)));
+	struct mbox_fb_offset_msg_t * p = &msg;
+
+	p->size = sizeof(struct mbox_fb_offset_msg_t);
+	p->code = 0;
+	p->tag.tag = MBOX_TAG_FB_SET_VIRT_OFFSET;
+	p->tag.size = 8;
+	p->tag.len = 8;
+	p->tag.xoffset = xoffset;
+	p->tag.yoffset = yoffset;
+	p->end = 0;
+
+	bcm2836_mbox_call(p);
+	if(p->code != 0x80000000)
+		return -1;
+	return 0;
 }

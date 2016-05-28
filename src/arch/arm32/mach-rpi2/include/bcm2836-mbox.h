@@ -62,6 +62,8 @@ int bcm2836_mbox_temp_get_max(void);
 
 /* Mbox framebuffer */
 uint32_t bcm2836_mbox_fb_get_gpiovirt(void);
+void * bcm2836_mbox_fb_alloc(int width, int height, int bpp);
+int bcm2836_mbox_fb_present(int xoffset, int yoffset);
 
 #ifdef __cplusplus
 }

@@ -164,10 +164,10 @@ static bool_t bcm2836_register_framebuffer(struct resource_t * res)
 	pdat->xdpi = rdat->xdpi;
 	pdat->ydpi = rdat->ydpi;
 	pdat->bpp = rdat->bpp;
-	pdat->nrender = 3;
+	pdat->nrender = 8;
 	pdat->count = 0;
 	pdat->brightness = 0;
-	pdat->vram = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp);
+	pdat->vram = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, pdat->nrender);
 
 	fb->name = strdup(name);
 	fb->width = pdat->width;

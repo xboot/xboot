@@ -763,7 +763,7 @@ uint32_t bcm2836_mbox_fb_get_gpiovirt(void)
 	return p->tag.val & 0x3fffffff;
 }
 
-void * bcm2836_mbox_fb_alloc(int width, int height, int bpp)
+void * bcm2836_mbox_fb_alloc(int width, int height, int bpp, int nrender)
 {
 	struct mbox_fb_info_msg_t msg __attribute__((aligned(16)));
 	struct mbox_fb_info_msg_t * p = &msg;
@@ -779,7 +779,7 @@ void * bcm2836_mbox_fb_alloc(int width, int height, int bpp)
 	p->virt.size = 8;
 	p->virt.len = 8;
 	p->virt.width = width;
-	p->virt.height = height * 3;
+	p->virt.height = height * nrender;
 	p->depth.tag = MBOX_TAG_FB_SET_DEPTH;
 	p->depth.size = 4;
 	p->depth.len = 4;

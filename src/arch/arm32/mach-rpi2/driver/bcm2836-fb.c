@@ -30,14 +30,9 @@ struct bcm2836_fb_pdata_t {
 	int xdpi;
 	int ydpi;
 	int bpp;
-	int nrender;
-	int count;
 	int brightness;
-	void * vram;
-};
-
-struct bcm2836_fb_surface_t {
-	int offset;
+	int index;
+	void * vram[2];
 };
 
 static void fb_init(struct fb_t * fb)
@@ -63,31 +58,18 @@ static int fb_getbl(struct fb_t * fb)
 struct render_t * fb_create(struct fb_t * fb)
 {
 	struct bcm2836_fb_pdata_t * pdat = (struct bcm2836_fb_pdata_t *)fb->priv;
-	struct bcm2836_fb_surface_t * surface;
 	struct render_t * render;
 	void * pixels;
 	size_t pixlen;
 
-	if(pdat->count >= pdat->nrender)
-		return NULL;
-
 	pixlen = pdat->width * pdat->height * (pdat->bpp / 8);
-	pixels = pdat->vram + pixlen * pdat->count;
+	pixels = memalign(4, pixlen);
 	if(!pixels)
-		return NULL;
-
-	surface = malloc(sizeof(struct bcm2836_fb_surface_t));
-	if(!surface)
 		return NULL;
 
 	render = malloc(sizeof(struct render_t));
 	if(!render)
-	{
-		free(surface);
 		return NULL;
-	}
-
-	surface->offset = pdat->height * pdat->count++;
 
 	render->width = pdat->width;
 	render->height = pdat->height;
@@ -95,7 +77,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 	render->pixlen = pixlen;
-	render->priv = surface;
+	render->priv = NULL;
 
 	render->clear = sw_render_clear;
 	render->snapshot = sw_render_snapshot;
@@ -111,24 +93,24 @@ struct render_t * fb_create(struct fb_t * fb)
 
 void fb_destroy(struct fb_t * fb, struct render_t * render)
 {
-	struct bcm2836_fb_pdata_t * pdat = (struct bcm2836_fb_pdata_t *)fb->priv;
-
 	if(render)
 	{
-		if(pdat->count > 0)
-			pdat->count--;
 		sw_render_destroy_data(render);
-		free(render->priv);
+		free(render->pixels);
 		free(render);
 	}
 }
 
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
-	struct bcm2836_fb_surface_t * surface = (struct bcm2836_fb_surface_t *)render->priv;
+	struct bcm2836_fb_pdata_t * pdat = (struct bcm2836_fb_pdata_t *)fb->priv;
 
 	if(render && render->pixels)
-		bcm2836_mbox_fb_present(0, surface->offset);
+	{
+		pdat->index = (pdat->index + 1) & 0x1;
+		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
+		bcm2836_mbox_fb_present(0, pdat->index ? pdat->height : 0);
+	}
 }
 
 static void fb_suspend(struct fb_t * fb)
@@ -164,10 +146,10 @@ static bool_t bcm2836_register_framebuffer(struct resource_t * res)
 	pdat->xdpi = rdat->xdpi;
 	pdat->ydpi = rdat->ydpi;
 	pdat->bpp = rdat->bpp;
-	pdat->nrender = 8;
-	pdat->count = 0;
 	pdat->brightness = 0;
-	pdat->vram = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, pdat->nrender);
+	pdat->index = 0;
+	pdat->vram[0] = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, 2);
+	pdat->vram[1] = pdat->vram[0] + (pdat->width * pdat->height * (pdat->bpp / 8));
 
 	fb->name = strdup(name);
 	fb->width = pdat->width;

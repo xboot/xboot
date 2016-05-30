@@ -35,6 +35,8 @@ struct s5p4418_fb_pdata_t
 	int ydpi;
 	int bits_per_pixel;
 	int bytes_per_pixel;
+	int index;
+	void * vram[2];
 
 	struct {
 		int rgbmode;
@@ -780,6 +782,7 @@ static void fb_init(struct fb_t * fb)
 	s5p4418_mlc_set_position(pdat, 0, 0, 0, pdat->width - 1, pdat->height - 1);
 	s5p4418_mlc_set_layer_stride(pdat, 0, pdat->bytes_per_pixel, pdat->bytes_per_pixel * pdat->width);
 	s5p4418_mlc_set_screen_size(pdat, pdat->width, pdat->height);
+	s5p4418_mlc_set_layer_address(pdat, 0, pdat->vram[0]);
 
 	/*
 	 * Enable mlc controller
@@ -831,7 +834,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	size_t pixlen;
 
 	pixlen = pdat->width * pdat->height * pdat->bytes_per_pixel;
-	pixels = dma_zalloc(pixlen);
+	pixels = memalign(4, pixlen);
 	if(!pixels)
 		return NULL;
 
@@ -867,7 +870,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	if(render)
 	{
 		sw_render_destroy_data(render);
-		dma_free(render->pixels);
+		free(render->pixels);
 		free(render);
 	}
 }
@@ -875,12 +878,13 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
 	struct s5p4418_fb_pdata_t * pdat = (struct s5p4418_fb_pdata_t *)fb->priv;
-	void * pixels = render->pixels;
 
-	if(pixels)
+	if(render && render->pixels)
 	{
+		pdat->index = (pdat->index + 1) & 0x1;
+		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
 		s5p4418_mlc_wait_vsync(pdat, 0);
-		s5p4418_mlc_set_layer_address(pdat, 0, pixels);
+		s5p4418_mlc_set_layer_address(pdat, 0, pdat->vram[pdat->index]);
 		s5p4418_mlc_set_dirty_flag(pdat, 0);
 	}
 }
@@ -922,6 +926,9 @@ static bool_t s5p4418_register_framebuffer(struct resource_t * res)
 	pdat->ydpi = rdat->ydpi;
 	pdat->bits_per_pixel = rdat->bits_per_pixel;
 	pdat->bytes_per_pixel = rdat->bytes_per_pixel;
+	pdat->index = 0;
+	pdat->vram[0] = dma_zalloc(pdat->width * pdat->height * pdat->bytes_per_pixel);
+	pdat->vram[1] = dma_zalloc(pdat->width * pdat->height * pdat->bytes_per_pixel);
 
 	pdat->mode.rgbmode = rdat->mode.rgbmode;
 	pdat->mode.scanmode = rdat->mode.scanmode;
@@ -982,6 +989,7 @@ static bool_t s5p4418_register_framebuffer(struct resource_t * res)
 
 static bool_t s5p4418_unregister_framebuffer(struct resource_t * res)
 {
+	struct s5p4418_fb_pdata_t * pdat;
 	struct fb_t * fb;
 	char name[64];
 
@@ -990,10 +998,13 @@ static bool_t s5p4418_unregister_framebuffer(struct resource_t * res)
 	fb = search_framebuffer(name);
 	if(!fb)
 		return FALSE;
+	pdat = (struct s5p4418_fb_pdata_t *)fb->priv;
 
 	if(!unregister_framebuffer(fb))
 		return FALSE;
 
+	dma_free(pdat->vram[0]);
+	dma_free(pdat->vram[1]);
 	free(fb->priv);
 	free(fb->name);
 	free(fb);

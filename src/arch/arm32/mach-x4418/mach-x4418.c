@@ -29,7 +29,7 @@
 #include <s5p4418/reg-id.h>
 
 static const struct mmap_t mach_map[] = {
-	{"sys",  0x40000000, 0x40000000, SZ_128M, MAP_TYPE_CB},
+	{"ram",  0x40000000, 0x40000000, SZ_128M, MAP_TYPE_CB},
 	{"dma",  0x48000000, 0x48000000, SZ_128M, MAP_TYPE_NCNB},
 	{"heap", 0x50000000, 0x50000000, SZ_256M, MAP_TYPE_CB},
 	{ 0 },
@@ -42,6 +42,7 @@ static bool_t mach_detect(struct machine_t * mach)
 
 static bool_t mach_memmap(struct machine_t * mach)
 {
+	mmu_setup(mach->map);
 	return TRUE;
 }
 

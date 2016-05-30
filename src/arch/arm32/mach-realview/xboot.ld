@@ -25,7 +25,7 @@ SECTIONS
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)
-		*(.glue*);
+		*(.glue*)
 		*(.note.gnu.build-id)
 		PROVIDE(__text_end = .);
 	} > ram

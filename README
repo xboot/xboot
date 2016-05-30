@@ -45,7 +45,7 @@ TO COMPILE XBOOT
 	using xboot's IDE directly.
 	
 	make clean
-	make CROSS_COMPILE=/path/to/arm-none-eabi- PLATFORM=arm32-realview
+	make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
 
 	"CROSS_COMPILE" for your cross compiler
 	"PLATFORM" for your hardware machine which will be compiled

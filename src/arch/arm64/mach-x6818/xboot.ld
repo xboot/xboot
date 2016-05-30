@@ -22,10 +22,10 @@ SECTIONS
 		PROVIDE(__text_start = .);
 		.obj/arch/arm64/mach-x6818/start.o (.text)
 		*(.text*)
-		*(.note.gnu.build-id)
-		*(.iplt)
 		*(.init.text)
 		*(.exit.text)
+		*(.iplt)
+		*(.note.gnu.build-id)
 		PROVIDE(__text_end = .);
 	} > ram
 

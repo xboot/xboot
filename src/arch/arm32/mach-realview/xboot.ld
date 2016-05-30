@@ -23,9 +23,10 @@ SECTIONS
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-realview/start.o (.text)
 		*(.text*)
-		*(.glue*);
 		*(.init.text)
 		*(.exit.text)
+		*(.glue*);
+		*(.note.gnu.build-id)
 		PROVIDE(__text_end = .);
 	} > ram
 

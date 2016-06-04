@@ -24,8 +24,8 @@
 
 #include <block/block.h>
 
-extern u8_t __romdisk_start[];
-extern u8_t __romdisk_end[];
+extern unsigned char __romdisk_start[];
+extern unsigned char __romdisk_end[];
 
 struct romdisk_t
 {

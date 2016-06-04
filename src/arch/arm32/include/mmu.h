@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <arm32.h>
 
 enum {
 	MAP_TYPE_NCNB	= 0x0,

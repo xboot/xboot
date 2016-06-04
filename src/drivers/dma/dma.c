@@ -25,28 +25,34 @@
 #include <xboot.h>
 #include <dma/dma.h>
 
-extern u8_t __dma_start[];
-extern u8_t __dma_end[];
+extern unsigned char __dma_start[];
+extern unsigned char __dma_end[];
 static void * __dma_pool = NULL;
 
-void * dma_alloc(size_t size)
+void * dma_alloc_coherent(unsigned long size)
 {
-	return mm_memalign(__dma_pool, 4096, size);
+	return mm_memalign(__dma_pool, SZ_4K, size);
 }
 
-void * dma_zalloc(size_t size)
+void dma_free_coherent(void * addr)
 {
-	void * ptr = dma_alloc(size);
-
-	if(ptr)
-		memset(ptr, 0, size);
-	return ptr;
+	mm_free(__dma_pool, addr);
 }
 
-void dma_free(void * ptr)
+void * dma_alloc_noncoherent(unsigned long size)
 {
-	mm_free(__dma_pool, ptr);
+	return memalign(SZ_4K, size);
 }
+
+void dma_free_noncoherent(void * addr)
+{
+	free(addr);
+}
+
+static void __dma_cache_sync(void * addr, unsigned long size, int dir)
+{
+}
+extern __typeof(__dma_cache_sync) dma_cache_sync __attribute__((weak, alias("__dma_cache_sync")));
 
 void do_init_dma_pool(void)
 {

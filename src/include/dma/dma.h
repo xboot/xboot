@@ -5,11 +5,17 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+enum {
+	DMA_BIDIRECTIONAL	= 0,
+	DMA_TO_DEVICE		= 1,
+	DMA_FROM_DEVICE		= 2,
+};
 
-void * dma_alloc(size_t size);
-void * dma_zalloc(size_t size);
-void dma_free(void * ptr);
+void * dma_alloc_coherent(unsigned long size);
+void dma_free_coherent(void * addr);
+void * dma_alloc_noncoherent(unsigned long size);
+void dma_free_noncoherent(void * addr);
+void dma_cache_sync(void * addr, unsigned long size, int dir);
 
 void do_init_dma_pool(void);
 

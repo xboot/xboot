@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
-#define arm64_read_sysreg(reg)			({ u64_t val; __asm__ __volatile__("mrs %0," #reg :"=r"(val)); val; })
+#include <stdint.h>
+
+#define arm64_read_sysreg(reg)			({ uint64_t val; __asm__ __volatile__("mrs %0," #reg :"=r"(val)); val; })
 #define arm64_write_sysreg(reg, val)	__asm__ __volatile__("msr " #reg ", %0\n\tdsb sy\n\tisb" ::"r"(val));
 
 static inline void arm64_interrupt_enable(void)
@@ -25,7 +27,7 @@ static inline int arm64_smp_processor_id(void)
 
 static inline void arm64_timer_start(void)
 {
-	u64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
+	uint64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
 	if(!(ctrl & (1 << 0)))
 	{
 		ctrl |= (1 << 0);
@@ -35,7 +37,7 @@ static inline void arm64_timer_start(void)
 
 static inline void arm64_timer_stop(void)
 {
-	u64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
+	uint64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
 	if((ctrl & (1 << 0)))
 	{
 		ctrl &= ~(1 << 0);
@@ -45,7 +47,7 @@ static inline void arm64_timer_stop(void)
 
 static inline void arm64_timer_interrupt_enable(void)
 {
-	u64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
+	uint64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
 	if(ctrl & (1 << 1))
 	{
 		ctrl &= ~(1 << 1);
@@ -55,7 +57,7 @@ static inline void arm64_timer_interrupt_enable(void)
 
 static inline void arm64_timer_interrupt_disable(void)
 {
-	u64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
+	uint64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);
 	if(!(ctrl & (1 << 1)))
 	{
 		ctrl |= (1 << 1);
@@ -63,20 +65,20 @@ static inline void arm64_timer_interrupt_disable(void)
 	}
 }
 
-static inline u64_t arm64_timer_frequecy(void)
+static inline uint64_t arm64_timer_frequecy(void)
 {
-	u64_t rate = arm64_read_sysreg(cntfrq_el0);
+	uint64_t rate = arm64_read_sysreg(cntfrq_el0);
 	return (rate != 0) ? rate : 1000000;
 }
 
-static inline u64_t arm64_timer_read(void)
+static inline uint64_t arm64_timer_read(void)
 {
 	return arm64_read_sysreg(cntpct_el0);
 }
 
-static inline void arm64_timer_compare(u64_t interval)
+static inline void arm64_timer_compare(uint64_t interval)
 {
-	u64_t last = arm64_read_sysreg(cntpct_el0) + interval;
+	uint64_t last = arm64_read_sysreg(cntpct_el0) + interval;
 	arm64_write_sysreg(cntp_cval_el0, last);
 }
 

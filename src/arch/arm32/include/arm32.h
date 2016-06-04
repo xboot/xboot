@@ -5,9 +5,11 @@
 extern "C" {
 #endif
 
-static inline u32_t arm32_read_p15_c1(void)
+#include <stdint.h>
+
+static inline uint32_t arm32_read_p15_c1(void)
 {
-	u32_t value;
+	uint32_t value;
 
 	__asm__ __volatile__(
 		"mrc p15, 0, %0, c1, c0, 0"
@@ -18,7 +20,7 @@ static inline u32_t arm32_read_p15_c1(void)
 	return value;
 }
 
-static inline void arm32_write_p15_c1(u32_t value)
+static inline void arm32_write_p15_c1(uint32_t value)
 {
 	__asm__ __volatile__(
 		"mcr p15, 0, %0, c1, c0, 0"
@@ -30,7 +32,7 @@ static inline void arm32_write_p15_c1(u32_t value)
 
 static inline void arm32_interrupt_enable(void)
 {
-	u32_t tmp;
+	uint32_t tmp;
 
 	__asm__ __volatile__(
 		"mrs %0, cpsr\n"
@@ -43,7 +45,7 @@ static inline void arm32_interrupt_enable(void)
 
 static inline void arm32_interrupt_disable(void)
 {
-	u32_t tmp;
+	uint32_t tmp;
 
 	__asm__ __volatile__(
 		"mrs %0, cpsr\n"
@@ -56,43 +58,43 @@ static inline void arm32_interrupt_disable(void)
 
 static inline void arm32_mmu_enable(void)
 {
-	u32_t value = arm32_read_p15_c1();
+	uint32_t value = arm32_read_p15_c1();
 	arm32_write_p15_c1(value | (1 << 0));
 }
 
 static inline void arm32_mmu_disable(void)
 {
-	u32_t value = arm32_read_p15_c1();
+	uint32_t value = arm32_read_p15_c1();
 	arm32_write_p15_c1(value & ~(1 << 0));
 }
 
 static inline void arm32_dcache_enable(void)
 {
-	u32_t value = arm32_read_p15_c1();
+	uint32_t value = arm32_read_p15_c1();
 	arm32_write_p15_c1(value | (1 << 2));
 }
 
 static inline void arm32_dcache_disable(void)
 {
-	u32_t value = arm32_read_p15_c1();
+	uint32_t value = arm32_read_p15_c1();
 	arm32_write_p15_c1(value & ~(1 << 2));
 }
 
 static inline void arm32_icache_enable(void)
 {
-	u32_t value = arm32_read_p15_c1();
+	uint32_t value = arm32_read_p15_c1();
 	arm32_write_p15_c1(value | (1 << 12));
 }
 
 static inline void arm32_icache_disable(void)
 {
-	u32_t value = arm32_read_p15_c1();
+	uint32_t value = arm32_read_p15_c1();
 	arm32_write_p15_c1(value & ~(1 << 12));
 }
 
-static inline u32_t arm32_smp_processor_id(void)
+static inline uint32_t arm32_smp_processor_id(void)
 {
-	u32_t tmp;
+	uint32_t tmp;
 
 	__asm__ __volatile__(
 		"mrc p15,0,%0,c0,c0,5\n"
@@ -103,7 +105,7 @@ static inline u32_t arm32_smp_processor_id(void)
 	return tmp;
 }
 
-static inline void arm32_ttb_set(u32_t base)
+static inline void arm32_ttb_set(uint32_t base)
 {
 	__asm__ __volatile__(
 		"mcr p15, 0, %0, c2, c0, 0"
@@ -112,7 +114,7 @@ static inline void arm32_ttb_set(u32_t base)
 		: "memory");
 }
 
-static inline void arm32_domain_set(u32_t domain)
+static inline void arm32_domain_set(uint32_t domain)
 {
 	__asm__ __volatile__(
 		"mcr p15, 0, %0, c3, c0, 0"

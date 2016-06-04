@@ -2,6 +2,7 @@
  * mmu.c
  */
 
+#include <arm32.h>
 #include <mmu.h>
 
 /*
@@ -19,7 +20,7 @@ static void map_l1_section(virtual_addr_t virt, physical_addr_t phys, physical_s
 	type &= 0x3;
 
 	for(i = size; i > 0; i--, virt++, phys++)
-		__mmu_ttb[virt] = (phys << 20) | (0x3 << 10) | (0xf << 5) | (type << 2) | (0x2 << 0);
+		__mmu_ttb[virt] = (phys << 20) | (0x3 << 10) | (0x0 << 5) | (type << 2) | (0x2 << 0);
 }
 
 void mmu_setup(const struct mmap_t * map)
@@ -39,7 +40,7 @@ void mmu_setup(const struct mmap_t * map)
 
 		arm32_ttb_set((u32_t)(__mmu_ttb));
 		arm32_tlb_invalidate();
-		arm32_domain_set(0xffffffff);
+		arm32_domain_set(0x3);
 		arm32_mmu_enable();
 		arm32_icache_enable();
 		arm32_dcache_enable();

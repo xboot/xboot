@@ -751,7 +751,7 @@ static void fb_init(struct fb_t * fb)
 	/*
 	 * Initial digital rgb lcd port
 	 */
-	s5p4418_fb_cfg_gpios(S5P4418_GPIOA(0), 28, 0x1, GPIO_PULL_NONE, GPIO_DRV_HIGH);
+	s5p4418_fb_cfg_gpios(S5P4418_GPIOA(0), 28, 0x1, GPIO_PULL_NONE, GPIO_DRV_MEDIAN);
 
 	/*
 	 * Enable some clocks
@@ -883,6 +883,7 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 	{
 		pdat->index = (pdat->index + 1) & 0x1;
 		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
+		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
 		s5p4418_mlc_wait_vsync(pdat, 0);
 		s5p4418_mlc_set_layer_address(pdat, 0, pdat->vram[pdat->index]);
 		s5p4418_mlc_set_dirty_flag(pdat, 0);
@@ -927,8 +928,8 @@ static bool_t s5p4418_register_framebuffer(struct resource_t * res)
 	pdat->bits_per_pixel = rdat->bits_per_pixel;
 	pdat->bytes_per_pixel = rdat->bytes_per_pixel;
 	pdat->index = 0;
-	pdat->vram[0] = dma_zalloc(pdat->width * pdat->height * pdat->bytes_per_pixel);
-	pdat->vram[1] = dma_zalloc(pdat->width * pdat->height * pdat->bytes_per_pixel);
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes_per_pixel);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes_per_pixel);
 
 	pdat->mode.rgbmode = rdat->mode.rgbmode;
 	pdat->mode.scanmode = rdat->mode.scanmode;
@@ -1003,8 +1004,8 @@ static bool_t s5p4418_unregister_framebuffer(struct resource_t * res)
 	if(!unregister_framebuffer(fb))
 		return FALSE;
 
-	dma_free(pdat->vram[0]);
-	dma_free(pdat->vram[1]);
+	dma_free_noncoherent(pdat->vram[0]);
+	dma_free_noncoherent(pdat->vram[1]);
 	free(fb->priv);
 	free(fb->name);
 	free(fb);

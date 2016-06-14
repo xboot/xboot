@@ -1,6 +1,13 @@
-# [XBOOT](http://xboot.github.io)
+# [XBOOT](xboot-homepage)
 
-![xboot-icon](documents/logo/xboot-icon.svg)
+```
+       _                   _                     
+ _  _ | |___ _____ _____ _| |_                   
+\ \/ /|  _  |  _  |  _  |_   _|  (C) 2007-2016   
+ )  ( | |_| | |_| | |_| | | |____JIANJUN.JIANG__ 
+/_/\_\|_____|_____|_____| |_____________________|
+```
+![](xboot-logo)
 
 操作一个GPIO，需要仔细对照芯片手册，好繁琐；每换一个主控芯片，所有工作从头来过；想开发个现代点支持各种动效的UI，发现几乎是不可能的事情；各种协议栈有如天书一样，阅读都困难，何谈编写；虚拟机技术很流行，功能强大，想自己移植个，可是...；还是放开自己吧，让XBOOT来替你解决这些问题。xboot不仅仅是一款功能强大、可移植性强、代码复用率高的嵌入式系统bootloader，而且还是一款SOC片上系统应用软件执行引擎，无需复杂的操作系统，APP上电直接执行。一次编写，到处运行，不仅仅是个口号，而是还是xboot之所以存在的唯一原因。一些基本特性，简单列举如下：
 
@@ -31,3 +38,7 @@ make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
 ```
 ## 运行xboot
 各种平台运行方式不太一样，具体查看各种板级支持包里面的说明文件，对于x64平台上的sandbox双击即可，realview模拟器可以执行tools目录下的脚本即可。
+
+--------------------------------
+[xboot-homepage]:http://xboot.github.io "xboot's homepage"
+[xboot-logo]:https://raw.githubusercontent.com/xboot/xboot/master/documents/logo/xboot-logo.svg "xboot's logo"

@@ -25,8 +25,6 @@
 #include <xboot.h>
 #include <dma/dma.h>
 
-extern unsigned char __dma_start[];
-extern unsigned char __dma_end[];
 static void * __dma_pool = NULL;
 
 void * dma_alloc_coherent(unsigned long size)
@@ -56,5 +54,12 @@ extern __typeof(__dma_cache_sync) dma_cache_sync __attribute__((weak, alias("__d
 
 void do_init_dma_pool(void)
 {
+#ifndef __SANDBOX__
+	extern unsigned char __dma_start[];
+	extern unsigned char __dma_end[];
 	__dma_pool = mm_create((void *)__dma_start, (size_t)(__dma_end - __dma_start));
+#else
+	static char __dma_buf[SZ_64M];
+	__dma_pool = mm_create((void *)__dma_buf, (size_t)(sizeof(__dma_buf)));
+#endif
 }

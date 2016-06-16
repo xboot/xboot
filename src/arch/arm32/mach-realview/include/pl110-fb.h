@@ -12,6 +12,7 @@ extern "C" {
 
 struct pl110_fb_data_t
 {
+	physical_addr_t phys;
 	int width;
 	int height;
 	int xdpi;
@@ -24,7 +25,6 @@ struct pl110_fb_data_t
 	int v_bp;
 	int v_sw;
 	char * backlight;
-	physical_addr_t phys;
 };
 
 #ifdef __cplusplus

@@ -27,12 +27,13 @@
 
 ## 编译
 Makefile中有两个变量在编译时需要传递，一个是交叉工具链，另一个是具体的硬件平台
+
 |变量|说明|
 |---|---
 |"CROSS_COMPILE"|指定交叉工具链
 |"PLATFORM"|指定硬件平台
 
-### qemu中的realview模拟器
+### Realview平台，qemu-system-arm模拟器
 ```bash
 make clean
 make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
@@ -51,7 +52,7 @@ make CROSS_COMPILE=/path/to/aarch64-none-elf- PLATFORM=arm64-rpi3
 ```
 
 ### X86_64位linux系统下的sandbox
-sanbox依赖与SDL2，在编译前需要安装，以ubuntu系统为例:
+sanbox依赖与SDL2库，在编译前需要安装libsdl2-dev，以ubuntu系统为例:
 ```bash
 sudo apt-get install libsdl2-dev
 ```
@@ -61,7 +62,7 @@ make CROSS_COMPILE="" PLATFORM=x64-sandbox
 ```
 
 ## 运行
-各种平台运行方式不太一样，具体查看各种板级支持包里面的说明文件，对于沙盒平台，直接双击即可，realview平台可以执行tools目录下的相关脚本即可，如果缺少相应软件则需要安装。
+各种平台运行方式不太一样，具体查看板级支持包里面的相关说明文件，Realview平台直接执行tools目录下的相关执行脚本，linux系统下的sandbox平台，直接双击生成的目标文件即可。
 
 --------------------
 [xboot-homepage]:http://xboot.github.io "xboot's homepage"

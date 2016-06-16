@@ -56,6 +56,7 @@
 #define CNTL_LCDPWR		(1 << 11)
 
 struct pl110_fb_pdata_t {
+	virtual_addr_t virt;
 	int width;
 	int height;
 	int xdpi;
@@ -67,8 +68,9 @@ struct pl110_fb_pdata_t {
 	int v_fp;
 	int v_bp;
 	int v_sw;
+	int index;
+	void * vram[2];
 	struct led_t * backlight;
-	virtual_addr_t virt;
 };
 
 static void fb_init(struct fb_t * fb)
@@ -108,7 +110,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	size_t pixlen;
 
 	pixlen = pdat->width * pdat->height * (pdat->bpp / 8);
-	pixels = dma_zalloc(pixlen);
+	pixels = memalign(4, pixlen);
 	if(!pixels)
 		return NULL;
 
@@ -144,7 +146,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	if(render)
 	{
 		sw_render_destroy_data(render);
-		dma_free(render->pixels);
+		free(render->pixels);
 		free(render);
 	}
 }
@@ -155,8 +157,11 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 
 	if(render && render->pixels)
 	{
-		write32(pdat->virt + CLCD_UBAS, ((u32_t)render->pixels));
-		write32(pdat->virt + CLCD_LBAS, ((u32_t)render->pixels + pdat->width * pdat->height * (pdat->bpp / 8)));
+		pdat->index = (pdat->index + 1) & 0x1;
+		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
+		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
+		write32(pdat->virt + CLCD_UBAS, ((u32_t)pdat->vram[pdat->index]));
+		write32(pdat->virt + CLCD_LBAS, ((u32_t)pdat->vram[pdat->index] + pdat->width * pdat->height * (pdat->bpp / 8)));
 	}
 }
 
@@ -188,6 +193,7 @@ static bool_t pl110_register_framebuffer(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
+	pdat->virt = phys_to_virt(rdat->phys);
 	pdat->width = rdat->width;
 	pdat->height = rdat->height;
 	pdat->xdpi = rdat->xdpi;
@@ -199,8 +205,10 @@ static bool_t pl110_register_framebuffer(struct resource_t * res)
 	pdat->v_fp = rdat->v_fp;
 	pdat->v_bp = rdat->v_bp;
 	pdat->v_sw = rdat->v_sw;
+	pdat->index = 0;
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bpp / 8);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bpp / 8);
 	pdat->backlight = search_led(rdat->backlight);
-	pdat->virt = phys_to_virt(rdat->phys);
 
 	fb->name = strdup(name);
 	fb->width = pdat->width;
@@ -230,6 +238,7 @@ static bool_t pl110_register_framebuffer(struct resource_t * res)
 
 static bool_t pl110_unregister_framebuffer(struct resource_t * res)
 {
+	struct pl110_fb_pdata_t * pdat;
 	struct fb_t * fb;
 	char name[64];
 
@@ -238,10 +247,13 @@ static bool_t pl110_unregister_framebuffer(struct resource_t * res)
 	fb = search_framebuffer(name);
 	if(!fb)
 		return FALSE;
+	pdat = (struct pl110_fb_pdata_t *)fb->priv;
 
 	if(!unregister_framebuffer(fb))
 		return FALSE;
 
+	dma_free_noncoherent(pdat->vram[0]);
+	dma_free_noncoherent(pdat->vram[1]);
 	free(fb->priv);
 	free(fb->name);
 	free(fb);

@@ -23,7 +23,7 @@ void luahelper_package_path(lua_State * L, const char * path);
 void luahelper_package_cpath(lua_State * L, const char * cpath);
 void luahelper_preload(lua_State * L, const char * name, lua_CFunction f);
 void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg * funcs);
-void luahelper_create_class(lua_State * L, const char * parant, const luaL_Reg * funcs);
+void luahelper_create_class(lua_State * L, const char * parent, const luaL_Reg * funcs);
 int luahelper_pcall(lua_State * L, int narg, int nres);
 
 #ifdef __cplusplus

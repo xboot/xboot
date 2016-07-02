@@ -187,13 +187,13 @@ void luahelper_create_metatable(lua_State * L, const char * name, const luaL_Reg
 	lua_pop(L, 1);
 }
 
-void luahelper_create_class(lua_State * L, const char * parant, const luaL_Reg * funcs)
+void luahelper_create_class(lua_State * L, const char * parent, const luaL_Reg * funcs)
 {
 	lua_getglobal(L, "Class");
-	if(parant)
+	if(parent)
 	{
 		lua_getglobal(L, "require");
-		lua_pushstring(L, parant);
+		lua_pushstring(L, parent);
 		lua_call(L, 1, 1);
 	}
 	else

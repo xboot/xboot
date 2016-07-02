@@ -25,9 +25,10 @@
 #include <xfs/xfs.h>
 #include <shell/readline.h>
 #include <framework/luahelper.h>
-#include <framework/lang/l-class.h>
 #include <framework/lang/l-debugger.h>
+#include <framework/lang/l-class.h>
 #include <framework/event/l-event.h>
+#include <framework/event/l-event-dispatcher.h>
 #include <framework/stopwatch/l-stopwatch.h>
 #include <framework/base64/l-base64.h>
 #include <framework/display/l-display.h>
@@ -39,9 +40,10 @@ extern int luaopen_cjson_safe(lua_State *);
 static void luaopen_glblibs(lua_State * L)
 {
 	const luaL_Reg glblibs[] = {
-		{ "Class",		luaopen_class },
-		{ "Debugger",	luaopen_debugger },
-		{ "Event",		luaopen_event },
+		{ "Debugger",			luaopen_debugger },
+		{ "Class",				luaopen_class },
+		{ "Event",				luaopen_event },
+		{ "EventDispatcher",	luaopen_event_dispatcher },
 		{ NULL,	NULL },
 	};
 	const luaL_Reg * lib;
@@ -56,31 +58,29 @@ static void luaopen_glblibs(lua_State * L)
 static void luaopen_prelibs(lua_State * L)
 {
 	const luaL_Reg prelibs[] = {
-		{ "builtin.json",				luaopen_cjson_safe },
+		{ "builtin.json",		luaopen_cjson_safe },
+		{ "builtin.base64",		luaopen_base64 },
 
-		{ "builtin.event",				luaopen_event },
-		{ "builtin.stopwatch",			luaopen_stopwatch },
-		{ "builtin.base64",				luaopen_base64 },
+		{ "builtin.stopwatch",	luaopen_stopwatch },
+		{ "builtin.matrix",		luaopen_matrix },
+		{ "builtin.easing",		luaopen_easing },
+		{ "builtin.object",		luaopen_object },
+		{ "builtin.pattern",	luaopen_pattern },
+		{ "builtin.texture",	luaopen_texture },
+		{ "builtin.ninepatch",	luaopen_ninepatch },
+		{ "builtin.shape",		luaopen_shape },
+		{ "builtin.font",		luaopen_font },
+		{ "builtin.display",	luaopen_display },
 
-		{ "builtin.matrix",				luaopen_matrix },
-		{ "builtin.easing",				luaopen_easing },
-		{ "builtin.object",				luaopen_object },
-		{ "builtin.pattern",			luaopen_pattern },
-		{ "builtin.texture",			luaopen_texture },
-		{ "builtin.ninepatch",			luaopen_ninepatch },
-		{ "builtin.shape",				luaopen_shape },
-		{ "builtin.font",				luaopen_font },
-		{ "builtin.display",			luaopen_display },
-
-		{ "xboot.hardware.buzzer",		luaopen_hardware_buzzer },
-		{ "xboot.hardware.gpio",		luaopen_hardware_gpio },
-		{ "xboot.hardware.i2c",			luaopen_hardware_i2c },
-		{ "xboot.hardware.led",			luaopen_hardware_led },
-		{ "xboot.hardware.ledtrig",		luaopen_hardware_ledtrig },
-		{ "xboot.hardware.pwm",			luaopen_hardware_pwm },
-		{ "xboot.hardware.uart",		luaopen_hardware_uart },
-		{ "xboot.hardware.vibrator",	luaopen_hardware_vibrator },
-		{ "xboot.hardware.watchdog",	luaopen_hardware_watchdog },
+		{ "hardware.buzzer",	luaopen_hardware_buzzer },
+		{ "hardware.gpio",		luaopen_hardware_gpio },
+		{ "hardware.i2c",		luaopen_hardware_i2c },
+		{ "hardware.led",		luaopen_hardware_led },
+		{ "hardware.ledtrig",	luaopen_hardware_ledtrig },
+		{ "hardware.pwm",		luaopen_hardware_pwm },
+		{ "hardware.uart",		luaopen_hardware_uart },
+		{ "hardware.vibrator",	luaopen_hardware_vibrator },
+		{ "hardware.watchdog",	luaopen_hardware_watchdog },
 
 		{ NULL, NULL },
 	};

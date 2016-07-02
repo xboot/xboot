@@ -1,4 +1,4 @@
-local I2C = require("xboot.hardware.i2c")
+local I2C = require("hardware.i2c")
 local M = Class()
 
 local REG_SECOND = 0x0

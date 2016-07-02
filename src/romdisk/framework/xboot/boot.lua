@@ -15,11 +15,6 @@ Font = require "builtin.font"
 Display = require "builtin.display"
 
 ---
--- External event module
---
-EventDispatcher = require "xboot.event.EventDispatcher"
-
----
 -- External display module
 --
 DisplayObject = require "xboot.display.DisplayObject"
@@ -56,4 +51,3 @@ Widget = {
 assets = Assets.new()
 require("main")
 return true
-

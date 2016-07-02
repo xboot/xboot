@@ -1,4 +1,4 @@
-local Gpio = require("xboot.hardware.gpio")
+local Gpio = require("hardware.gpio")
 local M = Class()
 
 function M:init(cin, din)

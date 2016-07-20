@@ -2,26 +2,19 @@
  * libc/filter/ewma.c
  */
 
-#include <sha1.h>
+#include <ewma.h>
 
-/*
- * Exponentially weighted moving average (EWMA)
- */
-struct ewma_filter_t {
-	int factor;
-	int weight;
-	int internal;
-};
-
-void ewma_init(struct ewma_filter_t * filter, int factor, int weight)
+void ewma_init(struct ewma_filter_t * filter, float weight)
 {
-	filter->factor = factor;
 	filter->weight = weight;
-	filter->internal = 0;
+	filter->last = NAN;
 }
 
-int ewma_filter(struct ewma_filter_t * filter, int value)
+float ewma_update(struct ewma_filter_t * filter, float value)
 {
-	filter->internal = filter->internal ? (((filter->internal * (filter->weight - 1)) + (value * filter->factor)) / filter->weight) : (value * filter->factor);
-	return filter->internal / filter->factor;
+	if(isnan(filter->last))
+		filter->last = value;
+	else
+		filter->last = filter->weight * value + (1 - filter->weight) * filter->last;
+	return filter->last;
 }

@@ -25,36 +25,6 @@
 #include <xboot.h>
 #include <fb/fb.h>
 
-static void fb_suspend(struct device_t * dev)
-{
-	struct fb_t * fb;
-
-	if(!dev || dev->type != DEVICE_TYPE_FRAMEBUFFER)
-		return;
-
-	fb = (struct fb_t *)(dev->driver);
-	if(!fb)
-		return;
-
-	if(fb->suspend)
-		fb->suspend(fb);
-}
-
-static void fb_resume(struct device_t * dev)
-{
-	struct fb_t * fb;
-
-	if(!dev || dev->type != DEVICE_TYPE_FRAMEBUFFER)
-		return;
-
-	fb = (struct fb_t *)(dev->driver);
-	if(!fb)
-		return;
-
-	if(fb->resume)
-		fb->resume(fb);
-}
-
 static ssize_t fb_read_width(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct fb_t * fb = (struct fb_t *)kobj->priv;
@@ -127,10 +97,10 @@ struct fb_t * search_first_framebuffer(void)
 	if(!dev)
 		return NULL;
 
-	return (struct fb_t *)dev->driver;
+	return (struct fb_t *)dev->priv;
 }
 
-bool_t register_framebuffer(struct fb_t * fb)
+bool_t register_framebuffer(struct device_t ** device, struct fb_t * fb)
 {
 	struct device_t * dev;
 
@@ -143,9 +113,7 @@ bool_t register_framebuffer(struct fb_t * fb)
 
 	dev->name = strdup(fb->name);
 	dev->type = DEVICE_TYPE_FRAMEBUFFER;
-	dev->suspend = fb_suspend;
-	dev->resume = fb_resume;
-	dev->driver = fb;
+	dev->priv = fb;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "width", fb_read_width, NULL, fb);
 	kobj_add_regular(dev->kobj, "height", fb_read_height, NULL, fb);
@@ -154,9 +122,6 @@ bool_t register_framebuffer(struct fb_t * fb)
 	kobj_add_regular(dev->kobj, "bpp", fb_read_bpp, NULL, fb);
 	kobj_add_regular(dev->kobj, "brightness", fb_read_brightness, fb_write_brightness, fb);
 	kobj_add_regular(dev->kobj, "max_brightness", fb_read_max_brightness, NULL, fb);
-
-	if(fb->init)
-		(fb->init)(fb);
 
 	if(fb->create)
 		fb->alone = (fb->create)(fb);
@@ -175,6 +140,8 @@ bool_t register_framebuffer(struct fb_t * fb)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
@@ -198,9 +165,6 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	{
 		if(driver->setbl)
 			driver->setbl(driver, 0);
-
-		if(driver->exit)
-			(driver->exit)(driver);
 	}
 
 	kobj_remove_self(dev->kobj);

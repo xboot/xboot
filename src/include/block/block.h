@@ -27,12 +27,6 @@ struct block_t
 	/* Sync cache to block device */
 	void (*sync)(struct block_t * blk);
 
-	/* Suspend block */
-	void (*suspend)(struct block_t * blk);
-
-	/* Resume block */
-	void (*resume)(struct block_t * blk);
-
 	/* Private data */
 	void * priv;
 };
@@ -76,7 +70,7 @@ static inline u64_t block_available_length(struct block_t * blk, u64_t blkno, u6
 }
 
 struct block_t * search_block(const char * name);
-bool_t register_block(struct block_t * blk);
+bool_t register_block(struct device_t ** device, struct block_t * blk);
 bool_t unregister_block(struct block_t * blk);
 
 u64_t block_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count);

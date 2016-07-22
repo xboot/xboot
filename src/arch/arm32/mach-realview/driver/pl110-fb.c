@@ -216,8 +216,8 @@ static bool_t pl110_register_framebuffer(struct resource_t * res)
 	fb->xdpi = pdat->xdpi;
 	fb->ydpi = pdat->ydpi;
 	fb->bpp = pdat->bpp;
-	fb->init = fb_init,
-	fb->exit = fb_exit,
+//	fb->init = fb_init,
+//	fb->exit = fb_exit,
 	fb->setbl = fb_setbl,
 	fb->getbl = fb_getbl,
 	fb->create = fb_create,
@@ -227,7 +227,7 @@ static bool_t pl110_register_framebuffer(struct resource_t * res)
 	fb->resume = fb_resume,
 	fb->priv = pdat;
 
-	if(register_framebuffer(fb))
+	if(register_framebuffer(NULL, fb))
 		return TRUE;
 
 	free(fb->priv);

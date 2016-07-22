@@ -78,7 +78,8 @@ bool_t register_driver(struct driver_t * drv)
 	if(!dl)
 		return FALSE;
 
-	drv->kobj = kobj_alloc_directory(drv->name);
+	if(!drv->kobj)
+		drv->kobj = kobj_alloc_directory(drv->name);
 	kobj_add(search_class_driver_kobj(), drv->kobj);
 	dl->driver = drv;
 

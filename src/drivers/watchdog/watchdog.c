@@ -25,36 +25,6 @@
 #include <xboot.h>
 #include <watchdog/watchdog.h>
 
-static void watchdog_suspend(struct device_t * dev)
-{
-	struct watchdog_t * watchdog;
-
-	if(!dev || dev->type != DEVICE_TYPE_WATCHDOG)
-		return;
-
-	watchdog = (struct watchdog_t *)(dev->driver);
-	if(!watchdog)
-		return;
-
-	if(watchdog->suspend)
-		watchdog->suspend(watchdog);
-}
-
-static void watchdog_resume(struct device_t * dev)
-{
-	struct watchdog_t * watchdog;
-
-	if(!dev || dev->type != DEVICE_TYPE_WATCHDOG)
-		return;
-
-	watchdog = (struct watchdog_t *)(dev->driver);
-	if(!watchdog)
-		return;
-
-	if(watchdog->resume)
-		watchdog->resume(watchdog);
-}
-
 static ssize_t watchdog_read_timeout(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct watchdog_t * watchdog = (struct watchdog_t *)kobj->priv;
@@ -92,10 +62,10 @@ struct watchdog_t * search_first_watchdog(void)
 	if(!dev)
 		return NULL;
 
-	return (struct watchdog_t *)dev->driver;
+	return (struct watchdog_t *)dev->priv;
 }
 
-bool_t register_watchdog(struct watchdog_t * watchdog)
+bool_t register_watchdog(struct device_t ** device,struct watchdog_t * watchdog)
 {
 	struct device_t * dev;
 
@@ -108,9 +78,7 @@ bool_t register_watchdog(struct watchdog_t * watchdog)
 
 	dev->name = strdup(watchdog->name);
 	dev->type = DEVICE_TYPE_WATCHDOG;
-	dev->suspend = watchdog_suspend;
-	dev->resume = watchdog_resume;
-	dev->driver = watchdog;
+	dev->priv = watchdog;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "timeout", watchdog_read_timeout, watchdog_write_timeout, watchdog);
 
@@ -128,6 +96,8 @@ bool_t register_watchdog(struct watchdog_t * watchdog)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

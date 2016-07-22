@@ -49,47 +49,6 @@ static void disk_block_sync(struct block_t * blk)
 {
 }
 
-static void disk_block_suspend(struct block_t * blk)
-{
-}
-
-static void disk_block_resume(struct block_t * blk)
-{
-}
-
-static void disk_suspend(struct device_t * dev)
-{
-	struct disk_t * disk;
-
-	if(!dev || dev->type != DEVICE_TYPE_DISK)
-		return;
-
-	disk = (struct disk_t *)(dev->driver);
-	if(!disk)
-		return;
-
-	if(disk->sync)
-		disk->sync(disk);
-
-	if(disk->suspend)
-		disk->suspend(disk);
-}
-
-static void disk_resume(struct device_t * dev)
-{
-	struct disk_t * disk;
-
-	if(!dev || dev->type != DEVICE_TYPE_DISK)
-		return;
-
-	disk = (struct disk_t *)(dev->driver);
-	if(!disk)
-		return;
-
-	if(disk->resume)
-		disk->resume(disk);
-}
-
 static ssize_t partition_read_from(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct partition_t * part = (struct partition_t *)kobj->priv;
@@ -122,10 +81,10 @@ struct disk_t * search_disk(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct disk_t *)dev->driver;
+	return (struct disk_t *)dev->priv;
 }
 
-bool_t register_disk(struct disk_t * disk)
+bool_t register_disk(struct device_t ** device, struct disk_t * disk)
 {
 	struct device_t * dev;
 	struct kobj_t * kobj;
@@ -152,9 +111,7 @@ bool_t register_disk(struct disk_t * disk)
 
 	dev->name = strdup(disk->name);
 	dev->type = DEVICE_TYPE_DISK;
-	dev->suspend = disk_suspend;
-	dev->resume = disk_resume;
-	dev->driver = (void *)disk;
+	dev->priv = (void *)disk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
 	{
@@ -197,11 +154,9 @@ bool_t register_disk(struct disk_t * disk)
 		blk->read = disk_block_read;
 		blk->write = disk_block_write;
 		blk->sync = disk_block_sync;
-		blk->suspend = disk_block_suspend;
-		blk->resume = disk_block_resume;
 		blk->priv	= dblk;
 
-		if(!register_block(blk))
+		if(!register_block(NULL, blk))
 		{
 			free(blk);
 			free(dblk);
@@ -211,6 +166,8 @@ bool_t register_disk(struct disk_t * disk)
 		}
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

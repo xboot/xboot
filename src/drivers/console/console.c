@@ -60,36 +60,6 @@ ssize_t console_stderr_write(const unsigned char * buf, size_t count)
 	return console_write(__console_stderr, buf, count);
 }
 
-static void console_suspend(struct device_t * dev)
-{
-	struct console_t * console;
-
-	if(!dev || dev->type != DEVICE_TYPE_CONSOLE)
-		return;
-
-	console = (struct console_t *)(dev->driver);
-	if(!console)
-		return;
-
-	if(console->suspend)
-		console->suspend(console);
-}
-
-static void console_resume(struct device_t * dev)
-{
-	struct console_t * console;
-
-	if(!dev || dev->type != DEVICE_TYPE_CONSOLE)
-		return;
-
-	console = (struct console_t *)(dev->driver);
-	if(!console)
-		return;
-
-	if(console->resume)
-		console->resume(console);
-}
-
 struct console_t * search_console(const char * name)
 {
 	struct device_t * dev;
@@ -100,7 +70,7 @@ struct console_t * search_console(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct console_t *)dev->driver;
+	return (struct console_t *)dev->priv;
 }
 
 bool_t register_console(struct console_t * console)
@@ -118,9 +88,8 @@ bool_t register_console(struct console_t * console)
 	snprintf(dname, sizeof(dname), "console.%s", console->name);
 	dev->name = strdup(dname);
 	dev->type = DEVICE_TYPE_CONSOLE;
-	dev->suspend = console_suspend;
-	dev->resume = console_resume;
 	dev->driver = console;
+	dev->priv = console;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))

@@ -24,36 +24,6 @@
 
 #include <buzzer/buzzer.h>
 
-static void buzzer_suspend(struct device_t * dev)
-{
-	struct buzzer_t * buzzer;
-
-	if(!dev || dev->type != DEVICE_TYPE_BUZZER)
-		return;
-
-	buzzer = (struct buzzer_t *)(dev->driver);
-	if(!buzzer)
-		return;
-
-	if(buzzer->suspend)
-		buzzer->suspend(buzzer);
-}
-
-static void buzzer_resume(struct device_t * dev)
-{
-	struct buzzer_t * buzzer;
-
-	if(!dev || dev->type != DEVICE_TYPE_BUZZER)
-		return;
-
-	buzzer = (struct buzzer_t *)(dev->driver);
-	if(!buzzer)
-		return;
-
-	if(buzzer->resume)
-		buzzer->resume(buzzer);
-}
-
 static ssize_t buzzer_read_frequency(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct buzzer_t * buzzer = (struct buzzer_t *)kobj->priv;
@@ -103,10 +73,10 @@ struct buzzer_t * search_first_buzzer(void)
 	if(!dev)
 		return NULL;
 
-	return (struct buzzer_t *)dev->driver;
+	return (struct buzzer_t *)dev->priv;
 }
 
-bool_t register_buzzer(struct buzzer_t * buzzer)
+bool_t register_buzzer(struct device_t ** device, struct buzzer_t * buzzer)
 {
 	struct device_t * dev;
 
@@ -119,15 +89,10 @@ bool_t register_buzzer(struct buzzer_t * buzzer)
 
 	dev->name = strdup(buzzer->name);
 	dev->type = DEVICE_TYPE_BUZZER;
-	dev->suspend = buzzer_suspend;
-	dev->resume = buzzer_resume;
-	dev->driver = buzzer;
+	dev->priv = buzzer;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "frequency", buzzer_read_frequency, buzzer_write_frequency, buzzer);
 	kobj_add_regular(dev->kobj, "play", NULL, buzzer_write_play, buzzer);
-
-	if(buzzer->init)
-		(buzzer->init)(buzzer);
 
 	if(!register_device(dev))
 	{
@@ -137,13 +102,14 @@ bool_t register_buzzer(struct buzzer_t * buzzer)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
 bool_t unregister_buzzer(struct buzzer_t * buzzer)
 {
 	struct device_t * dev;
-	struct buzzer_t * driver;
 
 	if(!buzzer || !buzzer->name)
 		return FALSE;
@@ -154,10 +120,6 @@ bool_t unregister_buzzer(struct buzzer_t * buzzer)
 
 	if(!unregister_device(dev))
 		return FALSE;
-
-	driver = (struct buzzer_t *)(dev->driver);
-	if(driver && driver->exit)
-		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

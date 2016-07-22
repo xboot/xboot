@@ -162,7 +162,7 @@ static bool_t vibrator_gpio_register_vibrator(struct resource_t * res)
 	vib->resume = vibrator_gpio_resume,
 	vib->priv = pdat;
 
-	if(register_vibrator(vib))
+	if(register_vibrator(NULL, vib))
 		return TRUE;
 
 	free(vib->priv);

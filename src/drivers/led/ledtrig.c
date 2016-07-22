@@ -24,14 +24,6 @@
 
 #include <led/ledtrig.h>
 
-static void ledtrig_suspend(struct device_t * dev)
-{
-}
-
-static void ledtrig_resume(struct device_t * dev)
-{
-}
-
 static ssize_t ledtrig_read_bind_led_name(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct ledtrig_t * trigger = (struct ledtrig_t *)kobj->priv;
@@ -54,10 +46,10 @@ struct ledtrig_t * search_ledtrig(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct ledtrig_t *)dev->driver;
+	return (struct ledtrig_t *)dev->priv;
 }
 
-bool_t register_ledtrig(struct ledtrig_t * trigger)
+bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * trigger)
 {
 	struct device_t * dev;
 
@@ -70,9 +62,7 @@ bool_t register_ledtrig(struct ledtrig_t * trigger)
 
 	dev->name = strdup(trigger->name);
 	dev->type = DEVICE_TYPE_LEDTRIG;
-	dev->suspend = ledtrig_suspend;
-	dev->resume = ledtrig_resume;
-	dev->driver = trigger;
+	dev->priv = trigger;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "led", ledtrig_read_bind_led_name, NULL, trigger);
 	kobj_add_regular(dev->kobj, "activity", NULL, ledtrig_write_activity, trigger);
@@ -88,6 +78,8 @@ bool_t register_ledtrig(struct ledtrig_t * trigger)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

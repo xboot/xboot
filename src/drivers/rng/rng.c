@@ -25,36 +25,6 @@
 #include <xboot.h>
 #include <rng/rng.h>
 
-static void rng_suspend(struct device_t * dev)
-{
-	struct rng_t * rng;
-
-	if(!dev || dev->type != DEVICE_TYPE_RNG)
-		return;
-
-	rng = (struct rng_t *)(dev->driver);
-	if(!rng)
-		return;
-
-	if(rng->suspend)
-		rng->suspend(rng);
-}
-
-static void rng_resume(struct device_t * dev)
-{
-	struct rng_t * rng;
-
-	if(!dev || dev->type != DEVICE_TYPE_RNG)
-		return;
-
-	rng = (struct rng_t *)(dev->driver);
-	if(!rng)
-		return;
-
-	if(rng->resume)
-		rng->resume(rng);
-}
-
 static ssize_t rng_read_random(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct rng_t * rng = (struct rng_t *)kobj->priv;
@@ -86,7 +56,7 @@ struct rng_t * search_first_rng(void)
 	return (struct rng_t *)dev->driver;
 }
 
-bool_t register_rng(struct rng_t * rng)
+bool_t register_rng(struct device_t ** device, struct rng_t * rng)
 {
 	struct device_t * dev;
 
@@ -99,9 +69,7 @@ bool_t register_rng(struct rng_t * rng)
 
 	dev->name = strdup(rng->name);
 	dev->type = DEVICE_TYPE_RNG;
-	dev->suspend = rng_suspend;
-	dev->resume = rng_resume;
-	dev->driver = rng;
+	dev->priv = rng;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "random", rng_read_random, NULL, rng);
 
@@ -116,6 +84,8 @@ bool_t register_rng(struct rng_t * rng)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

@@ -24,36 +24,6 @@
 
 #include <led/led.h>
 
-static void led_suspend(struct device_t * dev)
-{
-	struct led_t * led;
-
-	if(!dev || dev->type != DEVICE_TYPE_LED)
-		return;
-
-	led = (struct led_t *)(dev->driver);
-	if(!led)
-		return;
-
-	if(led->suspend)
-		led->suspend(led);
-}
-
-static void led_resume(struct device_t * dev)
-{
-	struct led_t * led;
-
-	if(!dev || dev->type != DEVICE_TYPE_LED)
-		return;
-
-	led = (struct led_t *)(dev->driver);
-	if(!led)
-		return;
-
-	if(led->resume)
-		led->resume(led);
-}
-
 static ssize_t led_read_brightness(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct led_t * led = (struct led_t *)kobj->priv;
@@ -85,10 +55,10 @@ struct led_t * search_led(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct led_t *)dev->driver;
+	return (struct led_t *)dev->priv;
 }
 
-bool_t register_led(struct led_t * led)
+bool_t register_led(struct device_t ** device, struct led_t * led)
 {
 	struct device_t * dev;
 
@@ -101,9 +71,7 @@ bool_t register_led(struct led_t * led)
 
 	dev->name = strdup(led->name);
 	dev->type = DEVICE_TYPE_LED;
-	dev->suspend = led_suspend;
-	dev->resume = led_resume;
-	dev->driver = led;
+	dev->priv = led;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "brightness", led_read_brightness, led_write_brightness, led);
 	kobj_add_regular(dev->kobj, "max_brightness", led_read_max_brightness, NULL, led);
@@ -119,6 +87,8 @@ bool_t register_led(struct led_t * led)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

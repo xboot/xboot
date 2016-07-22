@@ -178,7 +178,6 @@ s32_t sys_mount(char * dev, char * dir, char * fsname, u32_t flags)
  */
 s32_t sys_umount(char * path)
 {
-	struct block_t * device;
 	struct list_head * pos;
 	struct mount_t * m;
 	s32_t err;

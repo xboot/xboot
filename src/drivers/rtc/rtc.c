@@ -25,36 +25,6 @@
 #include <xboot.h>
 #include <rtc/rtc.h>
 
-static void rtc_suspend(struct device_t * dev)
-{
-	struct rtc_t * rtc;
-
-	if(!dev || dev->type != DEVICE_TYPE_RTC)
-		return;
-
-	rtc = (struct rtc_t *)(dev->driver);
-	if(!rtc)
-		return;
-
-	if(rtc->suspend)
-		rtc->suspend(rtc);
-}
-
-static void rtc_resume(struct device_t * dev)
-{
-	struct rtc_t * rtc;
-
-	if(!dev || dev->type != DEVICE_TYPE_RTC)
-		return;
-
-	rtc = (struct rtc_t *)(dev->driver);
-	if(!rtc)
-		return;
-
-	if(rtc->resume)
-		rtc->resume(rtc);
-}
-
 static ssize_t rtc_time_read(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct rtc_t * rtc = (struct rtc_t *)kobj->priv;
@@ -88,10 +58,10 @@ struct rtc_t * search_rtc(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct rtc_t *)dev->driver;
+	return (struct rtc_t *)dev->priv;
 }
 
-bool_t register_rtc(struct rtc_t * rtc)
+bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc)
 {
 	struct device_t * dev;
 
@@ -104,9 +74,7 @@ bool_t register_rtc(struct rtc_t * rtc)
 
 	dev->name = strdup(rtc->name);
 	dev->type = DEVICE_TYPE_RTC;
-	dev->suspend = rtc_suspend;
-	dev->resume = rtc_resume;
-	dev->driver = rtc;
+	dev->priv = rtc;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "time", rtc_time_read, rtc_time_write, rtc);
 
@@ -121,6 +89,8 @@ bool_t register_rtc(struct rtc_t * rtc)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

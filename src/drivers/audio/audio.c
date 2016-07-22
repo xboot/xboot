@@ -48,36 +48,6 @@ void set_default_audio(const char * name)
 	}
 }
 
-static void audio_suspend(struct device_t * dev)
-{
-	struct audio_t * audio;
-
-	if(!dev || dev->type != DEVICE_TYPE_AUDIO)
-		return;
-
-	audio = (struct audio_t *)(dev->driver);
-	if(!audio)
-		return;
-
-	if(audio->suspend)
-		audio->suspend(audio);
-}
-
-static void audio_resume(struct device_t * dev)
-{
-	struct audio_t * audio;
-
-	if(!dev || dev->type != DEVICE_TYPE_AUDIO)
-		return;
-
-	audio = (struct audio_t *)(dev->driver);
-	if(!audio)
-		return;
-
-	if(audio->resume)
-		audio->resume(audio);
-}
-
 struct audio_t * search_audio(const char * name)
 {
 	struct device_t * dev;
@@ -86,10 +56,10 @@ struct audio_t * search_audio(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct audio_t *)dev->driver;
+	return (struct audio_t *)dev->priv;
 }
 
-bool_t register_audio(struct audio_t * audio)
+bool_t register_audio(struct device_t ** device, struct audio_t * audio)
 {
 	struct device_t * dev;
 
@@ -102,13 +72,8 @@ bool_t register_audio(struct audio_t * audio)
 
 	dev->name = strdup(audio->name);
 	dev->type = DEVICE_TYPE_AUDIO;
-	dev->suspend = audio_suspend;
-	dev->resume = audio_resume;
-	dev->driver = audio;
+	dev->priv = audio;
 	dev->kobj = kobj_alloc_directory(dev->name);
-
-	if(audio->init)
-		(audio->init)(audio);
 
 	if(!register_device(dev))
 	{
@@ -120,13 +85,15 @@ bool_t register_audio(struct audio_t * audio)
 
 	if(!get_default_audio())
 		set_default_audio(audio->name);
+
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
 bool_t unregister_audio(struct audio_t * audio)
 {
 	struct device_t * dev;
-	struct audio_t * driver;
 
 	if(!audio || !audio->name)
 		return FALSE;
@@ -137,10 +104,6 @@ bool_t unregister_audio(struct audio_t * audio)
 
 	if(!unregister_device(dev))
 		return FALSE;
-
-	driver = (struct audio_t *)(dev->driver);
-	if(driver && driver->exit)
-		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

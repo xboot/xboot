@@ -25,36 +25,6 @@
 #include <xboot.h>
 #include <input/input.h>
 
-static void input_suspend(struct device_t * dev)
-{
-	struct input_t * input;
-
-	if(!dev || dev->type != DEVICE_TYPE_INPUT)
-		return;
-
-	input = (struct input_t *)(dev->driver);
-	if(!input)
-		return;
-
-	if(input->suspend)
-		input->suspend(input);
-}
-
-static void input_resume(struct device_t * dev)
-{
-	struct input_t * input;
-
-	if(!dev || dev->type != DEVICE_TYPE_INPUT)
-		return;
-
-	input = (struct input_t *)(dev->driver);
-	if(!input)
-		return;
-
-	if(input->resume)
-		input->resume(input);
-}
-
 static ssize_t input_read_type(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct input_t * input = (struct input_t *)kobj->priv;
@@ -96,7 +66,7 @@ struct input_t * search_input(const char * name)
 	return (struct input_t *)dev->driver;
 }
 
-bool_t register_input(struct input_t * input)
+bool_t register_input(struct device_t ** device, struct input_t * input)
 {
 	struct device_t * dev;
 
@@ -109,14 +79,9 @@ bool_t register_input(struct input_t * input)
 
 	dev->name = strdup(input->name);
 	dev->type = DEVICE_TYPE_INPUT;
-	dev->suspend = input_suspend;
-	dev->resume = input_resume;
-	dev->driver = input;
+	dev->priv = input;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "type", input_read_type, NULL, input);
-
-	if(input->init)
-		(input->init)(input);
 
 	if(!register_device(dev))
 	{
@@ -126,13 +91,14 @@ bool_t register_input(struct input_t * input)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
 bool_t unregister_input(struct input_t * input)
 {
 	struct device_t * dev;
-	struct input_t * driver;
 
 	if(!input || !input->name)
 		return FALSE;
@@ -143,10 +109,6 @@ bool_t unregister_input(struct input_t * input)
 
 	if(!unregister_device(dev))
 		return FALSE;
-
-	driver = (struct input_t *)(dev->driver);
-	if(driver && driver->exit)
-		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

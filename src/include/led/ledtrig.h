@@ -35,7 +35,7 @@ struct ledtrig_t
 };
 
 struct ledtrig_t * search_ledtrig(const char * name);
-bool_t register_ledtrig(struct ledtrig_t * trigger);
+bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * trigger);
 bool_t unregister_ledtrig(struct ledtrig_t * trigger);
 void ledtrig_activity(struct ledtrig_t * trigger);
 

@@ -24,36 +24,6 @@
 
 #include <vibrator/vibrator.h>
 
-static void vibrator_suspend(struct device_t * dev)
-{
-	struct vibrator_t * vib;
-
-	if(!dev || dev->type != DEVICE_TYPE_VIBRATOR)
-		return;
-
-	vib = (struct vibrator_t *)(dev->driver);
-	if(!vib)
-		return;
-
-	if(vib->suspend)
-		vib->suspend(vib);
-}
-
-static void vibrator_resume(struct device_t * dev)
-{
-	struct vibrator_t * vib;
-
-	if(!dev || dev->type != DEVICE_TYPE_VIBRATOR)
-		return;
-
-	vib = (struct vibrator_t *)(dev->driver);
-	if(!vib)
-		return;
-
-	if(vib->resume)
-		vib->resume(vib);
-}
-
 static ssize_t vibrator_read_state(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct vibrator_t * vib = (struct vibrator_t *)kobj->priv;
@@ -93,10 +63,10 @@ struct vibrator_t * search_first_vibrator(void)
 	if(!dev)
 		return NULL;
 
-	return (struct vibrator_t *)dev->driver;
+	return (struct vibrator_t *)dev->priv;
 }
 
-bool_t register_vibrator(struct vibrator_t * vib)
+bool_t register_vibrator(struct device_t ** device, struct vibrator_t * vib)
 {
 	struct device_t * dev;
 
@@ -109,9 +79,7 @@ bool_t register_vibrator(struct vibrator_t * vib)
 
 	dev->name = strdup(vib->name);
 	dev->type = DEVICE_TYPE_VIBRATOR;
-	dev->suspend = vibrator_suspend;
-	dev->resume = vibrator_resume;
-	dev->driver = vib;
+	dev->priv = vib;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "state", vibrator_read_state, vibrator_write_state, vib);
 	kobj_add_regular(dev->kobj, "play", NULL, vibrator_write_play, vib);
@@ -127,6 +95,8 @@ bool_t register_vibrator(struct vibrator_t * vib)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

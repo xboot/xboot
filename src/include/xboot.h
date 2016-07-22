@@ -47,8 +47,10 @@ extern "C" {
 #include <xboot/module.h>
 #include <xboot/notifier.h>
 #include <xboot/resource.h>
-#include <xboot/bus.h>
+#include <xboot/dt.h>
 #include <xboot/device.h>
+#include <xboot/driver.h>
+#include <xboot/bus.h>
 #include <xboot/machine.h>
 #include <xboot/event.h>
 #include <logger/logger.h>

@@ -292,14 +292,6 @@ static void spi_flash_sync(struct block_t * blk)
 {
 }
 
-static void spi_flash_suspend(struct block_t * blk)
-{
-}
-
-static void spi_flash_resume(struct block_t * blk)
-{
-}
-
 static bool_t spi_flash_register(struct resource_t * res)
 {
 	struct spi_flash_data_t * rdat = (struct spi_flash_data_t *)res->data;
@@ -353,14 +345,12 @@ static bool_t spi_flash_register(struct resource_t * res)
 	blk->read = spi_flash_read;
 	blk->write = spi_flash_write;
 	blk->sync = spi_flash_sync;
-	blk->suspend = spi_flash_suspend;
-	blk->resume = spi_flash_resume;
 	blk->priv = pdat;
 
 	spi_flash_write_enable(dev);
 	spi_flash_write_status_register(dev, 0);
 
-	if(register_block(blk))
+	if(register_block(NULL, blk))
 		return TRUE;
 
 	spi_device_free(dev);

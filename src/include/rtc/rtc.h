@@ -45,7 +45,7 @@ struct rtc_t
 };
 
 struct rtc_t * search_rtc(const char * name);
-bool_t register_rtc(struct rtc_t * rtc);
+bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc);
 bool_t unregister_rtc(struct rtc_t * rtc);
 
 #ifdef __cplusplus

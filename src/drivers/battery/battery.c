@@ -22,38 +22,7 @@
  *
  */
 
-#include <xboot.h>
 #include <battery/battery.h>
-
-static void battery_suspend(struct device_t * dev)
-{
-	struct battery_t * bat;
-
-	if(!dev || dev->type != DEVICE_TYPE_BATTERY)
-		return;
-
-	bat = (struct battery_t *)(dev->driver);
-	if(!bat)
-		return;
-
-	if(bat->suspend)
-		bat->suspend(bat);
-}
-
-static void battery_resume(struct device_t * dev)
-{
-	struct battery_t * bat;
-
-	if(!dev || dev->type != DEVICE_TYPE_BATTERY)
-		return;
-
-	bat = (struct battery_t *)(dev->driver);
-	if(!bat)
-		return;
-
-	if(bat->resume)
-		bat->resume(bat);
-}
 
 static ssize_t battery_read_supply(struct kobj_t * kobj, void * buf, size_t size)
 {
@@ -207,14 +176,12 @@ struct battery_t * search_battery(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct battery_t *)dev->driver;
+	return (struct battery_t *)dev->priv;
 }
 
-bool_t register_battery(struct battery_t * bat)
+bool_t register_battery(struct device_t * dev, struct battery_t * bat)
 {
-	struct device_t * dev;
-
-	if(!bat || !bat->name)
+	if(!dev || !bat || !bat->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
@@ -223,9 +190,7 @@ bool_t register_battery(struct battery_t * bat)
 
 	dev->name = strdup(bat->name);
 	dev->type = DEVICE_TYPE_BATTERY;
-	dev->suspend = battery_suspend;
-	dev->resume = battery_resume;
-	dev->driver = bat;
+	dev->priv = bat;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "supply", battery_read_supply, NULL, bat);
 	kobj_add_regular(dev->kobj, "status", battery_read_status, NULL, bat);
@@ -236,9 +201,6 @@ bool_t register_battery(struct battery_t * bat)
 	kobj_add_regular(dev->kobj, "current", battery_read_current, NULL, bat);
 	kobj_add_regular(dev->kobj, "temperature", battery_read_temperature, NULL, bat);
 	kobj_add_regular(dev->kobj, "level", battery_read_level, NULL, bat);
-
-	if(bat->init)
-		(bat->init)(bat);
 
 	if(!register_device(dev))
 	{
@@ -254,7 +216,6 @@ bool_t register_battery(struct battery_t * bat)
 bool_t unregister_battery(struct battery_t * bat)
 {
 	struct device_t * dev;
-	struct battery_t * driver;
 
 	if(!bat || !bat->name)
 		return FALSE;
@@ -265,10 +226,6 @@ bool_t unregister_battery(struct battery_t * bat)
 
 	if(!unregister_device(dev))
 		return FALSE;
-
-	driver = (struct battery_t *)(dev->driver);
-	if(driver && driver->exit)
-		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

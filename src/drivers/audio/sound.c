@@ -23,6 +23,7 @@
  */
 
 #include <audio/pool.h>
+#include <audio/audio.h>
 #include <audio/sound.h>
 
 extern bool_t sound_load_wav(struct sound_t * snd, const char * filename);

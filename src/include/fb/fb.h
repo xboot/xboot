@@ -26,12 +26,6 @@ struct fb_t
 	/* The bit per pixel */
 	int bpp;
 
-	/* Initialize the framebuffer */
-	void (*init)(struct fb_t * fb);
-
-	/* Clean up the framebuffer */
-	void (*exit)(struct fb_t * fb);
-
 	/* Set backlight brightness */
 	void (*setbl)(struct fb_t * fb, int brightness);
 
@@ -62,7 +56,7 @@ struct fb_t
 
 struct fb_t * search_framebuffer(const char * name);
 struct fb_t * search_first_framebuffer(void);
-bool_t register_framebuffer(struct fb_t * fb);
+bool_t register_framebuffer(struct device_t ** device, struct fb_t * fb);
 bool_t unregister_framebuffer(struct fb_t * fb);
 void framebuffer_set_backlight_brightness(struct fb_t * fb, int brightness);
 int framebuffer_get_backlight_brightness(struct fb_t * fb);

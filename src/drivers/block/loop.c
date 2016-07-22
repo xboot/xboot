@@ -236,7 +236,7 @@ bool_t register_loop(const char * file)
 
 	list->loop 		= loop;
 
-	if(!register_block(blk))
+	if(!register_block(NULL, blk))
 	{
 		free(loop);
 		free(blk);

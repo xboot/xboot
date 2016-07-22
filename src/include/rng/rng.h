@@ -33,7 +33,7 @@ struct rng_t
 
 struct rng_t * search_rng(const char * name);
 struct rng_t * search_first_rng(void);
-bool_t register_rng(struct rng_t * rng);
+bool_t register_rng(struct device_t ** device, struct rng_t * rng);
 bool_t unregister_rng(struct rng_t * rng);
 int rng_read_data(struct rng_t * rng, void * buf, int max, int wait);
 

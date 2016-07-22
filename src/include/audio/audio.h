@@ -14,12 +14,6 @@ struct audio_t
 	/* The audio name */
 	char * name;
 
-	/* Initialize the audio */
-	void (*init)(struct audio_t * audio);
-
-	/* Clean up the audio */
-	void (*exit)(struct audio_t * audio);
-
 	/* Audio playback start */
 	void (*playback_start)(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
 
@@ -32,12 +26,6 @@ struct audio_t
 	/* Audio capture stop */
 	void (*capture_stop)(struct audio_t * audio);
 
-	/* Suspend audio */
-	void (*suspend)(struct audio_t * audio);
-
-	/* Resume audio */
-	void (*resume)(struct audio_t * audio);
-
 	/* Private data */
 	void * priv;
 };
@@ -46,8 +34,9 @@ struct audio_t * get_default_audio(void);
 void set_default_audio(const char * name);
 
 struct audio_t * search_audio(const char * name);
-bool_t register_audio(struct audio_t * audio);
+bool_t register_audio(struct device_t ** device, struct audio_t * audio);
 bool_t unregister_audio(struct audio_t * audio);
+
 void audio_playback(void);
 
 #ifdef __cplusplus

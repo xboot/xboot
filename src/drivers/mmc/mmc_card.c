@@ -345,7 +345,7 @@ static bool_t register_mmc_card(struct mmc_card_t * card)
 	disk->priv = (void *)card;
 	card->priv = (void *)disk;
 
-	if(!register_disk(disk))
+	if(!register_disk(NULL, disk))
 	{
 		free(list);
 		free(disk);

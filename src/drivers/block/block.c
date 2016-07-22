@@ -24,39 +24,6 @@
 
 #include <block/block.h>
 
-static void block_suspend(struct device_t * dev)
-{
-	struct block_t * blk;
-
-	if(!dev || dev->type != DEVICE_TYPE_BLOCK)
-		return;
-
-	blk = (struct block_t *)(dev->driver);
-	if(!blk)
-		return;
-
-	if(blk->sync)
-		blk->sync(blk);
-
-	if(blk->suspend)
-		blk->suspend(blk);
-}
-
-static void block_resume(struct device_t * dev)
-{
-	struct block_t * blk;
-
-	if(!dev || dev->type != DEVICE_TYPE_BLOCK)
-		return;
-
-	blk = (struct block_t *)(dev->driver);
-	if(!blk)
-		return;
-
-	if(blk->resume)
-		blk->resume(blk);
-}
-
 static ssize_t block_read_size(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct block_t * blk = (struct block_t *)kobj->priv;
@@ -83,15 +50,12 @@ struct block_t * search_block(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct block_t *)dev->driver;
+	return (struct block_t *)dev->priv;
 }
 
-bool_t register_block(struct block_t * blk)
+bool_t register_block(struct device_t ** device, struct block_t * blk)
 {
 	struct device_t * dev;
-
-	if(!blk)
-		return FALSE;
 
 	if(!blk->name || search_device(blk->name))
 		return FALSE;
@@ -102,9 +66,7 @@ bool_t register_block(struct block_t * blk)
 
 	dev->name = strdup(blk->name);
 	dev->type = DEVICE_TYPE_BLOCK;
-	dev->suspend = block_suspend;
-	dev->resume = block_resume;
-	dev->driver = (void *)blk;
+	dev->priv = blk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "size", block_read_size, NULL, blk);
 	kobj_add_regular(dev->kobj, "count", block_read_count, NULL, blk);
@@ -118,6 +80,8 @@ bool_t register_block(struct block_t * blk)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

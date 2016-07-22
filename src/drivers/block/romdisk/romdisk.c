@@ -54,14 +54,6 @@ static void romdisk_sync(struct block_t * blk)
 {
 }
 
-static void romdisk_suspend(struct block_t * blk)
-{
-}
-
-static void romdisk_resume(struct block_t * blk)
-{
-}
-
 static bool_t register_romdisk(const char * name, void * start, void * end)
 {
 	struct block_t * blk;
@@ -97,11 +89,9 @@ static bool_t register_romdisk(const char * name, void * start, void * end)
 	blk->read 	= romdisk_read;
 	blk->write	= romdisk_write;
 	blk->sync	= romdisk_sync;
-	blk->suspend = romdisk_suspend;
-	blk->resume = romdisk_resume;
 	blk->priv	= romdisk;
 
-	if(!register_block(blk))
+	if(!register_block(NULL, blk))
 	{
 		free(romdisk->name);
 		free(romdisk);

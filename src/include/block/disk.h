@@ -63,7 +63,7 @@ struct disk_t
 };
 
 struct disk_t * search_disk(const char * name);
-bool_t register_disk(struct disk_t * disk);
+bool_t register_disk(struct device_t ** device, struct disk_t * disk);
 bool_t unregister_disk(struct disk_t * disk);
 
 u64_t disk_read(struct disk_t * disk, u8_t * buf, u64_t offset, u64_t count);

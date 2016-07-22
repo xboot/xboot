@@ -177,7 +177,7 @@ static bool_t pl031_register_rtc(struct resource_t * res)
 	rtc->resume	= rtc_resume,
 	rtc->priv = pdat;
 
-	if(register_rtc(rtc))
+	if(register_rtc(NULL, rtc))
 		return TRUE;
 
 	free(rtc->priv);

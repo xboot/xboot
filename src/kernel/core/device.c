@@ -155,9 +155,6 @@ bool_t register_device(struct device_t * dev)
 	if(!dev || !dev->name)
 		return FALSE;
 
-	if(!dev->suspend || !dev->resume)
-		return FALSE;
-
 	if(!dev->driver)
 		return FALSE;
 
@@ -168,6 +165,8 @@ bool_t register_device(struct device_t * dev)
 	if(!dl)
 		return FALSE;
 
+	if(!dev->kobj)
+		dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add(search_device_kobj(dev), dev->kobj);
 	dl->device = dev;
 
@@ -222,17 +221,18 @@ void suspend_device(const char * name)
 	if(dev)
 	{
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_SUSPEND, dev);
-		dev->suspend(dev);
+		dev->driver->suspend(dev);
 	}
 }
 
 void resume_device(const char * name)
 {
 	struct device_t * dev =	search_device(name);
+	struct driver_t * drv;
 
 	if(dev)
 	{
-		dev->resume(dev);
+		dev->driver->resume(dev);
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, dev);
 	}
 }
@@ -244,7 +244,7 @@ void suspend_device_all(void)
 	list_for_each_entry_safe_reverse(pos, n, &(__device_list.entry), entry)
 	{
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_SUSPEND, pos->device);
-		pos->device->suspend(pos->device);
+		pos->device->driver->suspend(pos->device);
 	}
 }
 
@@ -254,7 +254,7 @@ void resume_device_all(void)
 
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		pos->device->resume(pos->device);
+		pos->device->driver->resume(pos->device);
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, pos->device);
 	}
 }

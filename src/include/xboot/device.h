@@ -31,25 +31,16 @@ enum {
 	NOTIFIER_DEVICE_RESUME,
 };
 
+struct driver_t;
+
 struct device_t
 {
-	/* Kobj binding */
 	struct kobj_t * kobj;
-
-	/* Device name */
 	char * name;
 
-	/* Device type */
 	enum device_type_t type;
-
-	/* Suspend device */
-	void (*suspend)(struct device_t * dev);
-
-	/* Resume device */
-	void (*resume)(struct device_t * dev);
-
-	/* Device driver */
-	void * driver;
+	struct driver_t * driver;
+	void * priv;
 };
 
 struct device_list_t
@@ -69,8 +60,6 @@ bool_t register_device_notifier(struct notifier_t * n);
 bool_t unregister_device_notifier(struct notifier_t * n);
 void suspend_device(const char * name);
 void resume_device(const char * name);
-void suspend_device_all(void);
-void resume_device_all(void);
 
 #ifdef __cplusplus
 }

@@ -179,9 +179,11 @@ struct battery_t * search_battery(const char * name)
 	return (struct battery_t *)dev->priv;
 }
 
-bool_t register_battery(struct device_t * dev, struct battery_t * bat)
+bool_t register_battery(struct device_t ** device, struct battery_t * bat)
 {
-	if(!dev || !bat || !bat->name)
+	struct device_t * dev;
+
+	if(!bat || !bat->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
@@ -210,6 +212,8 @@ bool_t register_battery(struct device_t * dev, struct battery_t * bat)
 		return FALSE;
 	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 

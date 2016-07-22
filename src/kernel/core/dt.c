@@ -109,7 +109,7 @@ u64_t dt_read_u64(void * dt, const char * name, u64_t def)
 	return def;
 }
 
-bool_t dt_read_boolean(void * dt, const char * name, bool_t def)
+int dt_read_bool(void * dt, const char * name, int def)
 {
 	json_value * o = (json_value *)dt;
 	json_value * v;
@@ -123,7 +123,28 @@ bool_t dt_read_boolean(void * dt, const char * name, bool_t def)
 			{
 				v = o->u.object.values[i].value;
 				if(v && (v->type == json_boolean))
-					return v->u.boolean ? TRUE : FALSE;
+					return v->u.boolean ? 1 : 0;
+			}
+		}
+	}
+	return def ? 1 : 0;
+}
+
+int dt_read_int(void * dt, const char * name, int def)
+{
+	json_value * o = (json_value *)dt;
+	json_value * v;
+	int i;
+
+	if(o && o->type == json_object)
+	{
+		for(i = 0; i < o->u.object.length; i++)
+		{
+			if(strcmp(o->u.object.values[i].name, name) != 0)
+			{
+				v = o->u.object.values[i].value;
+				if(v && v->type == json_integer)
+					return (int)v->u.integer;
 			}
 		}
 	}

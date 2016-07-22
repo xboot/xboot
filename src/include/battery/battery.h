@@ -44,27 +44,15 @@ struct battery_t
 	/* The battery name */
 	char * name;
 
-	/* Initialize the battery */
-	void (*init)(struct battery_t * bat);
-
-	/* Clean up the battery */
-	void (*exit)(struct battery_t * bat);
-
 	/*  Battery update ... */
 	bool_t (*update)(struct battery_t * bat, struct battery_info_t * info);
-
-	/* Suspend battery */
-	void (*suspend)(struct battery_t * bat);
-
-	/* Resume battery */
-	void (*resume)(struct battery_t * bat);
 
 	/* Private data */
 	void * priv;
 };
 
 struct battery_t * search_battery(const char * name);
-bool_t register_battery(struct device_t * dev, struct battery_t * bat);
+bool_t register_battery(struct device_t ** device, struct battery_t * bat);
 bool_t unregister_battery(struct battery_t * bat);
 bool_t battery_update(struct battery_t * bat, struct battery_info_t * info);
 

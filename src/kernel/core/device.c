@@ -97,6 +97,17 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	return kobj_search_directory_with_create(kdevice, (const char *)name);
 }
 
+char * dynamic_device_name(const char * name, int id)
+{
+	char buf[128];
+
+	do {
+		snprintf(buf, sizeof(buf), "%s.%d", name, id++);
+	} while(search_device(buf));
+
+	return strdup(buf);
+}
+
 struct device_t * search_device(const char * name)
 {
 	struct device_list_t * pos, * n;
@@ -228,7 +239,6 @@ void suspend_device(const char * name)
 void resume_device(const char * name)
 {
 	struct device_t * dev =	search_device(name);
-	struct driver_t * drv;
 
 	if(dev)
 	{

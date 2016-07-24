@@ -22,7 +22,9 @@
  *
  */
 
-#include <led/led-gpio.h>
+#include <xboot.h>
+#include <gpio/gpio.h>
+#include <led/led.h>
 
 struct led_gpio_pdata_t {
 	int gpio;
@@ -50,14 +52,13 @@ static int led_gpio_get(struct led_t * led)
 	return pdat->brightness;
 }
 
-static struct device_t * led_gpio_probe(struct driver_t * drv, void * dt)
+static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct led_gpio_pdata_t * pdat;
 	struct led_t * led;
 	struct device_t * dev;
-	char name[64];
 
-	if(!gpio_is_valid(dt_read_int(dt, "gpio", -1)))
+	if(!gpio_is_valid(dt_read_int(n, "gpio", -1)))
 		return NULL;
 
 	pdat = malloc(sizeof(struct led_gpio_pdata_t));
@@ -71,12 +72,11 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, void * dt)
 		return NULL;
 	}
 
-	pdat->gpio = dt_read_int(dt, "gpio", -1);
-	pdat->active_low = dt_read_bool(dt, "active-low", 0);
-	pdat->brightness = dt_read_int(dt, "default-brightness", 0);
+	pdat->gpio = dt_read_int(n, "gpio", -1);
+	pdat->active_low = dt_read_bool(n, "active-low", 0);
+	pdat->brightness = dt_read_int(n, "default-brightness", 0);
 
-	snprintf(name, sizeof(name), "%s.%d", drv->name, 0);
-	led->name = strdup(name);
+	led->name = dynamic_device_name(dt_read_name(n), dt_read_id(n));
 	led->set = led_gpio_set,
 	led->get = led_gpio_get,
 	led->priv = pdat;

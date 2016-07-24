@@ -12,7 +12,7 @@ struct driver_t
 	struct kobj_t * kobj;
 	char * name;
 
-	struct device_t * (*probe)(struct driver_t * drv, void * dt);
+	struct device_t * (*probe)(struct driver_t * drv, struct dtnode_t * dt);
 	void (*remove)(struct device_t * dev);
 	void (*suspend)(struct device_t * dev);
 	void (*resume)(struct device_t * dev);

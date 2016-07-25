@@ -22,28 +22,22 @@
  *
  */
 
-#include <json.h>
+#include <xboot.h>
 #include <xboot/dt.h>
 
 const char * dt_read_name(struct dtnode_t * n)
 {
-	if(n && n->name)
-		return n->name;
-	return NULL;
+	return n ? n->name : NULL;
 }
 
 int dt_read_id(struct dtnode_t * n)
 {
-	if(n && n->name)
-		return 0;
-	return 0;
+	return n ? (int)n->addr : 0;
 }
 
 physical_addr_t dt_read_address(struct dtnode_t * n)
 {
-	if(n && n->name)
-		return 0;
-	return 0;
+	return n ? n->addr : 0;
 }
 
 struct dtnode_t * dt_read_object(struct dtnode_t * n, const char * name)
@@ -231,3 +225,47 @@ u64_t dt_read_u64(struct dtnode_t * n, const char * name, u64_t def)
 	return def;
 }
 
+void dt_for_each(const char * path)
+{
+	struct dtnode_t n;
+	json_value * v;
+	size_t size = 0;
+	char * json, * p;
+	int fd, l, i;
+
+	json = malloc(SZ_1M);
+	if(!json)
+		return;
+
+	fd = open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH));
+	if(fd > 0)
+	{
+	    for(;;)
+	    {
+	        l = read(fd, (void *)(json + size), SZ_512K);
+	        if(l <= 0)
+	        	break;
+			size += l;
+	    }
+	    close(fd);
+
+	    if(size > 0)
+	    {
+	    	v = json_parse(json, size);
+	    	if(v && (v->type == json_object))
+	    	{
+	    		for(i = 0; i < v->u.object.length; i++)
+	    		{
+	    			p = (char *)(v->u.object.values[i].name);
+	    			n.name = strsep(&p, "@");
+	    			n.addr = p ? strtoull(p, NULL, 0) : 0;
+	    			n.value = (json_value *)(v->u.object.values[i].value);
+
+	    		}
+	    	}
+	    	json_value_free(v);
+	    }
+	}
+
+	free(json);
+}

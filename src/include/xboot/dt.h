@@ -12,6 +12,7 @@ extern "C" {
 
 struct dtnode_t {
 	const char * name;
+	physical_addr_t addr;
 	json_value * value;
 };
 
@@ -27,6 +28,7 @@ u8_t dt_read_u8(struct dtnode_t * n, const char * name, u8_t def);
 u16_t dt_read_u16(struct dtnode_t * n, const char * name, u16_t def);
 u32_t dt_read_u32(struct dtnode_t * n, const char * name, u32_t def);
 u64_t dt_read_u64(struct dtnode_t * n, const char * name, u64_t def);
+void dt_for_each(const char * path);
 
 #ifdef __cplusplus
 }

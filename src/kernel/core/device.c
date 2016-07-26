@@ -246,25 +246,3 @@ void resume_device(const char * name)
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, dev);
 	}
 }
-
-void suspend_device_all(void)
-{
-	struct device_list_t * pos, * n;
-
-	list_for_each_entry_safe_reverse(pos, n, &(__device_list.entry), entry)
-	{
-		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_SUSPEND, pos->device);
-		pos->device->driver->suspend(pos->device);
-	}
-}
-
-void resume_device_all(void)
-{
-	struct device_list_t * pos, * n;
-
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
-	{
-		pos->device->driver->resume(pos->device);
-		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, pos->device);
-	}
-}

@@ -166,9 +166,6 @@ bool_t register_device(struct device_t * dev)
 	if(!dev || !dev->name)
 		return FALSE;
 
-	if(!dev->driver)
-		return FALSE;
-
 	if(search_device(dev->name))
 		return FALSE;
 
@@ -225,24 +222,26 @@ bool_t unregister_device_notifier(struct notifier_t * n)
 	return notifier_chain_unregister(&__device_nc, n);
 }
 
-void suspend_device(const char * name)
+void suspend_device(struct device_t * dev)
 {
-	struct device_t * dev =	search_device(name);
-
-	if(dev)
+	if(dev && dev->driver && dev->driver->suspend)
 	{
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_SUSPEND, dev);
 		dev->driver->suspend(dev);
 	}
 }
 
-void resume_device(const char * name)
+void resume_device(struct device_t * dev)
 {
-	struct device_t * dev =	search_device(name);
-
-	if(dev)
+	if(dev && dev->driver && dev->driver->resume)
 	{
 		dev->driver->resume(dev);
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, dev);
 	}
+}
+
+void remove_device(struct device_t * dev)
+{
+	if(dev && dev->driver && dev->driver->remove)
+		dev->driver->remove(dev);
 }

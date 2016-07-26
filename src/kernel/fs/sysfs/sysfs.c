@@ -304,5 +304,5 @@ static __exit void filesystem_sysfs_exit(void)
 		LOG("Failed to unregister filesystem 'sysfs'");
 }
 
-subsys_initcall(filesystem_sysfs_init);
-subsys_exitcall(filesystem_sysfs_exit);
+core_initcall(filesystem_sysfs_init);
+core_exitcall(filesystem_sysfs_exit);

@@ -21,6 +21,7 @@ struct driver_t
 struct driver_t * search_driver(const char * name);
 bool_t register_driver(struct driver_t * drv);
 bool_t unregister_driver(struct driver_t * drv);
+struct device_t * probe_device(struct driver_t * drv, struct dtnode_t * dt);
 
 #ifdef __cplusplus
 }

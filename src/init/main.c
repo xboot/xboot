@@ -43,14 +43,11 @@ int xboot_main(int argc, char * argv[])
 	/* Do initial vfs */
 	do_init_vfs();
 
-	/* Do all initial calls */
-	do_initcalls();
-
 	/* Create runtime */
 	runtime_create_save(&rt, 0, 0);
 
-	/* Mount root filesystem */
-	do_system_rootfs();
+	/* Do all initial calls */
+	do_initcalls();
 
 	/* Display system logo */
 	do_system_logo();
@@ -65,11 +62,11 @@ int xboot_main(int argc, char * argv[])
 		run_shell();
 	}
 
-	/* Destroy runtime */
-	runtime_destroy_restore(&rt, 0);
-
 	/* Do all exit calls */
 	do_exitcalls();
+
+	/* Destroy runtime */
+	runtime_destroy_restore(&rt, 0);
 
 	/* Xboot return */
 	return 0;

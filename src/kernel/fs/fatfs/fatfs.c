@@ -954,7 +954,7 @@ static __exit void filesystem_fatfs_exit(void)
 		LOG("Failed to unregister filesystem 'fatfs'");
 }
 
-subsys_initcall(filesystem_fatfs_init);
-subsys_exitcall(filesystem_fatfs_exit);
+core_initcall(filesystem_fatfs_init);
+core_exitcall(filesystem_fatfs_exit);
 
 #endif

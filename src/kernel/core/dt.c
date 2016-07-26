@@ -225,11 +225,14 @@ u64_t dt_read_u64(struct dtnode_t * n, const char * name, u64_t def)
 	return def;
 }
 
-void dt_for_each(const char * path)
+void subsys_init_dt(void)
 {
+	struct driver_t * drv;
+	struct device_t * dev;
 	struct dtnode_t n;
 	json_value * v;
 	size_t size = 0;
+	char path[64];
 	char * json, * p;
 	int fd, l, i;
 
@@ -237,8 +240,8 @@ void dt_for_each(const char * path)
 	if(!json)
 		return;
 
-	fd = open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH));
-	if(fd > 0)
+	sprintf(path, "/romdisk/%s.json", get_machine()->name);
+	if((fd = open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH))) > 0)
 	{
 	    for(;;)
 	    {
@@ -261,6 +264,12 @@ void dt_for_each(const char * path)
 	    			n.addr = p ? strtoull(p, NULL, 0) : 0;
 	    			n.value = (json_value *)(v->u.object.values[i].value);
 
+	    			drv = search_driver(n.name);
+	    			dev = probe_device(drv, &n);
+					if(dev)
+						LOG("Probe device '%s' with %s", dev->name, drv->name);
+					else
+						LOG("Fail to probe device witch %s", drv->name);
 	    		}
 	    	}
 	    	json_value_free(v);

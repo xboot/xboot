@@ -71,6 +71,9 @@ bool_t register_driver(struct driver_t * drv)
 	if(!drv->probe || !drv->remove)
 		return FALSE;
 
+	if(!drv->suspend || !drv->resume)
+		return FALSE;
+
 	if(search_driver(drv->name))
 		return FALSE;
 
@@ -113,4 +116,11 @@ bool_t unregister_driver(struct driver_t * drv)
 	}
 
 	return FALSE;
+}
+
+struct device_t * probe_device(struct driver_t * drv, struct dtnode_t * dt)
+{
+	if(drv && drv->probe)
+		return drv->probe(drv, dt);
+	return NULL;
 }

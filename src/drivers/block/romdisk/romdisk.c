@@ -134,5 +134,5 @@ static __exit void romdisk_exit(void)
 	unregister_romdisk("romdisk");
 }
 
-device_initcall(romdisk_init);
-device_exitcall(romdisk_exit);
+core_initcall(romdisk_init);
+core_exitcall(romdisk_exit);

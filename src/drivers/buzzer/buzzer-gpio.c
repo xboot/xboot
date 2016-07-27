@@ -22,7 +22,9 @@
  *
  */
 
-#include <buzzer/buzzer-gpio.h>
+#include <xboot.h>
+#include <gpio/gpio.h>
+#include <buzzer/buzzer.h>
 
 struct beep_param_t {
 	int frequency;
@@ -32,29 +34,15 @@ struct beep_param_t {
 struct buzzer_gpio_pdata_t {
 	struct timer_t timer;
 	struct queue_t * beep;
-	int frequency;
 	int gpio;
 	int active_low;
+	int frequency;
 };
 
-static void iter_beep_param(struct queue_node_t * node)
+static void iter_queue_node(struct queue_node_t * node)
 {
-	if(node)
+	if(node && node->data)
 		free(node->data);
-}
-
-static void buzzer_gpio_init(struct buzzer_t * buzzer)
-{
-	struct buzzer_gpio_pdata_t * pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
-	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
-}
-
-static void buzzer_gpio_exit(struct buzzer_t * buzzer)
-{
-	struct buzzer_gpio_pdata_t * pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
-	pdat->frequency = 0;
-	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 }
 
 static void buzzer_gpio_set(struct buzzer_t * buzzer, int frequency)
@@ -85,7 +73,7 @@ static void buzzer_gpio_beep(struct buzzer_t * buzzer, int frequency, int millis
 	if((frequency == 0) && (millisecond == 0))
 	{
 		timer_cancel(&pdat->timer);
-		queue_clear(pdat->beep, iter_beep_param);
+		queue_clear(pdat->beep, iter_queue_node);
 		buzzer_gpio_set(buzzer, 0);
 		return;
 	}
@@ -99,14 +87,6 @@ static void buzzer_gpio_beep(struct buzzer_t * buzzer, int frequency, int millis
 	queue_push(pdat->beep, param);
 	if(queue_avail(pdat->beep) == 1)
 		timer_start_now(&pdat->timer, ms_to_ktime(1));
-}
-
-static void buzzer_gpio_suspend(struct buzzer_t * buzzer)
-{
-}
-
-static void buzzer_gpio_resume(struct buzzer_t * buzzer)
-{
 }
 
 static int buzzer_gpio_timer_function(struct timer_t * timer, void * data)
@@ -126,84 +106,109 @@ static int buzzer_gpio_timer_function(struct timer_t * timer, void * data)
 	return 1;
 }
 
-static bool_t buzzer_gpio_register_buzzer(struct resource_t * res)
+static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct buzzer_gpio_data_t * rdat = (struct buzzer_gpio_data_t *)res->data;
 	struct buzzer_gpio_pdata_t * pdat;
 	struct buzzer_t * buzzer;
-	char name[64];
+	struct device_t * dev;
+
+	if(!gpio_is_valid(dt_read_int(n, "gpio", -1)))
+		return NULL;
 
 	pdat = malloc(sizeof(struct buzzer_gpio_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	buzzer = malloc(sizeof(struct buzzer_t));
 	if(!buzzer)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
-
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	timer_init(&pdat->timer, buzzer_gpio_timer_function, buzzer);
 	pdat->beep = queue_alloc();
+	pdat->gpio = dt_read_int(n, "gpio", -1);
+	pdat->active_low = dt_read_bool(n, "active-low", 0);
 	pdat->frequency = 0;
-	pdat->gpio = rdat->gpio;
-	pdat->active_low = rdat->active_low;
 
-	buzzer->name = strdup(name);
-	buzzer->init = buzzer_gpio_init;
-	buzzer->exit = buzzer_gpio_exit;
+	buzzer->name = dynamic_device_name(dt_read_name(n), dt_read_id(n));
 	buzzer->set = buzzer_gpio_set,
 	buzzer->get = buzzer_gpio_get,
 	buzzer->beep = buzzer_gpio_beep,
-	buzzer->suspend = buzzer_gpio_suspend,
-	buzzer->resume = buzzer_gpio_resume,
 	buzzer->priv = pdat;
 
-	if(register_buzzer(buzzer))
-		return TRUE;
+	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 
-	free(buzzer->priv);
-	free(buzzer->name);
-	free(buzzer);
-	return FALSE;
+	if(!register_buzzer(&dev, buzzer))
+	{
+		timer_cancel(&pdat->timer);
+		queue_free(pdat->beep, iter_queue_node);
+		free(buzzer->priv);
+		free(buzzer->name);
+		free(buzzer);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static bool_t buzzer_gpio_unregister_buzzer(struct resource_t * res)
+static void buzzer_gpio_remove(struct device_t * dev)
 {
-	struct buzzer_gpio_pdata_t * pdat;
-	struct buzzer_t * buzzer;
-	char name[64];
+	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
+	struct buzzer_gpio_pdata_t * pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(buzzer && unregister_buzzer(buzzer))
+	{
+		pdat->frequency = 0;
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 
-	buzzer = search_buzzer(name);
-	if(!buzzer)
-		return FALSE;
-	pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
-
-	if(!unregister_buzzer(buzzer))
-		return FALSE;
-
-	timer_cancel(&pdat->timer);
-	queue_free(pdat->beep, iter_beep_param);
-	free(buzzer->priv);
-	free(buzzer->name);
-	free(buzzer);
-	return TRUE;
+		timer_cancel(&pdat->timer);
+		queue_free(pdat->beep, iter_queue_node);
+		free(buzzer->priv);
+		free(buzzer->name);
+		free(buzzer);
+	}
 }
 
-static __init void buzzer_gpio_device_init(void)
+static void buzzer_gpio_suspend(struct device_t * dev)
 {
-	resource_for_each("buzzer-gpio", buzzer_gpio_register_buzzer);
+	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
+	struct buzzer_gpio_pdata_t * pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
+
+	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 }
 
-static __exit void buzzer_gpio_device_exit(void)
+static void buzzer_gpio_resume(struct device_t * dev)
 {
-	resource_for_each("buzzer-gpio", buzzer_gpio_unregister_buzzer);
+	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
+	struct buzzer_gpio_pdata_t * pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
+
+	if(pdat->frequency > 0)
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
+	else
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 }
 
-device_initcall(buzzer_gpio_device_init);
-device_exitcall(buzzer_gpio_device_exit);
+struct driver_t buzzer_gpio = {
+	.name		= "buzzer-gpio",
+	.probe		= buzzer_gpio_probe,
+	.remove		= buzzer_gpio_remove,
+	.suspend	= buzzer_gpio_suspend,
+	.resume		= buzzer_gpio_resume,
+};
+
+static __init void buzzer_gpio_driver_init(void)
+{
+	register_driver(&buzzer_gpio);
+}
+
+static __exit void buzzer_gpio_driver_exit(void)
+{
+	unregister_driver(&buzzer_gpio);
+}
+
+driver_initcall(buzzer_gpio_driver_init);
+driver_exitcall(buzzer_gpio_driver_exit);

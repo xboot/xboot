@@ -62,7 +62,7 @@ struct buzzer_t * search_buzzer(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct buzzer_t *)dev->driver;
+	return (struct buzzer_t *)dev->priv;
 }
 
 struct buzzer_t * search_first_buzzer(void)

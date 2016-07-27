@@ -22,7 +22,9 @@
  *
  */
 
-#include <buzzer/buzzer-pwm.h>
+#include <xboot.h>
+#include <pwm/pwm.h>
+#include <buzzer/buzzer.h>
 
 struct beep_param_t {
 	int frequency;
@@ -32,42 +34,28 @@ struct beep_param_t {
 struct buzzer_pwm_pdata_t {
 	struct timer_t timer;
 	struct queue_t * beep;
-	int frequency;
-	int polarity;
 	struct pwm_t * pwm;
+	int polarity;
+	int frequency;
 };
 
-static void iter_beep_param(struct queue_node_t * node)
+static void iter_queue_node(struct queue_node_t * node)
 {
-	if(node)
+	if(node && node->data)
 		free(node->data);
-}
-
-static void buzzer_pwm_init(struct buzzer_t * buzzer)
-{
-	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
-	pdat->frequency = 0;
-	pwm_disable(pdat->pwm);
-}
-
-static void buzzer_pwm_exit(struct buzzer_t * buzzer)
-{
-	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
-	pdat->frequency = 0;
-	pwm_disable(pdat->pwm);
 }
 
 static void buzzer_pwm_set(struct buzzer_t * buzzer, int frequency)
 {
 	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
-	u32_t period;
+	int period;
 
 	if(pdat->frequency != frequency)
 	{
 		if(frequency > 0)
 		{
 			period = 1000000000ULL / frequency;
-			pwm_config(pdat->pwm, period / 2, period, pdat->polarity ? TRUE : FALSE);
+			pwm_config(pdat->pwm, period / 2, period, pdat->polarity);
 			pwm_enable(pdat->pwm);
 		}
 		else
@@ -92,7 +80,7 @@ static void buzzer_pwm_beep(struct buzzer_t * buzzer, int frequency, int millise
 	if((frequency == 0) && (millisecond == 0))
 	{
 		timer_cancel(&pdat->timer);
-		queue_clear(pdat->beep, iter_beep_param);
+		queue_clear(pdat->beep, iter_queue_node);
 		buzzer_pwm_set(buzzer, 0);
 		return;
 	}
@@ -108,19 +96,12 @@ static void buzzer_pwm_beep(struct buzzer_t * buzzer, int frequency, int millise
 		timer_start_now(&pdat->timer, ms_to_ktime(1));
 }
 
-static void buzzer_pwm_suspend(struct buzzer_t * buzzer)
-{
-}
-
-static void buzzer_pwm_resume(struct buzzer_t * buzzer)
-{
-}
-
 static int buzzer_pwm_timer_function(struct timer_t * timer, void * data)
 {
 	struct buzzer_t * buzzer = (struct buzzer_t *)(data);
 	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
 	struct beep_param_t * param = queue_pop(pdat->beep);
+
 	if(!param)
 	{
 		buzzer_pwm_set(buzzer, 0);
@@ -132,89 +113,109 @@ static int buzzer_pwm_timer_function(struct timer_t * timer, void * data)
 	return 1;
 }
 
-static bool_t buzzer_pwm_register_buzzer(struct resource_t * res)
+static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct buzzer_pwm_data_t * rdat = (struct buzzer_pwm_data_t *)res->data;
 	struct buzzer_pwm_pdata_t * pdat;
-	struct buzzer_t * buzzer;
 	struct pwm_t * pwm;
-	char name[64];
+	struct buzzer_t * buzzer;
+	struct device_t * dev;
 
-	pwm = search_pwm(rdat->pwm);
-	if(!pwm)
-		return FALSE;
+	if(!(pwm = search_pwm(dt_read_string(n, "pwm", ""))))
+		return NULL;
 
 	pdat = malloc(sizeof(struct buzzer_pwm_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	buzzer = malloc(sizeof(struct buzzer_t));
 	if(!buzzer)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
-
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
 	timer_init(&pdat->timer, buzzer_pwm_timer_function, buzzer);
 	pdat->beep = queue_alloc();
-	pdat->frequency = 0;
-	pdat->polarity = rdat->polarity;
 	pdat->pwm = pwm;
+	pdat->polarity = dt_read_bool(n, "polarity", 0);
+	pdat->frequency = 0;
 
-	buzzer->name = strdup(name);
-	buzzer->init = buzzer_pwm_init;
-	buzzer->exit = buzzer_pwm_exit;
+	buzzer->name = dynamic_device_name(dt_read_name(n), dt_read_id(n));
 	buzzer->set = buzzer_pwm_set,
 	buzzer->get = buzzer_pwm_get,
 	buzzer->beep = buzzer_pwm_beep,
-	buzzer->suspend = buzzer_pwm_suspend,
-	buzzer->resume = buzzer_pwm_resume,
 	buzzer->priv = pdat;
 
-	if(register_buzzer(buzzer))
-		return TRUE;
+	pwm_disable(pdat->pwm);
 
-	free(buzzer->priv);
-	free(buzzer->name);
-	free(buzzer);
-	return FALSE;
+	if(!register_buzzer(&dev, buzzer))
+	{
+		timer_cancel(&pdat->timer);
+		queue_free(pdat->beep, iter_queue_node);
+		free(buzzer->priv);
+		free(buzzer->name);
+		free(buzzer);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static bool_t buzzer_pwm_unregister_buzzer(struct resource_t * res)
+static void buzzer_pwm_remove(struct device_t * dev)
 {
-	struct buzzer_pwm_pdata_t * pdat;
-	struct buzzer_t * buzzer;
-	char name[64];
+	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
+	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(buzzer && unregister_buzzer(buzzer))
+	{
+		pdat->frequency = 0;
+		pwm_disable(pdat->pwm);
 
-	buzzer = search_buzzer(name);
-	if(!buzzer)
-		return FALSE;
-	pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
-
-	if(!unregister_buzzer(buzzer))
-		return FALSE;
-
-	timer_cancel(&pdat->timer);
-	queue_free(pdat->beep, iter_beep_param);
-	free(buzzer->priv);
-	free(buzzer->name);
-	free(buzzer);
-	return TRUE;
+		timer_cancel(&pdat->timer);
+		queue_free(pdat->beep, iter_queue_node);
+		free(buzzer->priv);
+		free(buzzer->name);
+		free(buzzer);
+	}
 }
 
-static __init void buzzer_pwm_device_init(void)
+static void buzzer_pwm_suspend(struct device_t * dev)
 {
-	resource_for_each("buzzer-pwm", buzzer_pwm_register_buzzer);
+	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
+	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
+
+	pwm_disable(pdat->pwm);
 }
 
-static __exit void buzzer_pwm_device_exit(void)
+static void buzzer_pwm_resume(struct device_t * dev)
 {
-	resource_for_each("buzzer-pwm", buzzer_pwm_unregister_buzzer);
+	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
+	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
+
+	if(pdat->frequency > 0)
+		pwm_enable(pdat->pwm);
+	else
+		pwm_disable(pdat->pwm);
 }
 
-device_initcall(buzzer_pwm_device_init);
-device_exitcall(buzzer_pwm_device_exit);
+struct driver_t buzzer_pwm = {
+	.name		= "buzzer-pwm",
+	.probe		= buzzer_pwm_probe,
+	.remove		= buzzer_pwm_remove,
+	.suspend	= buzzer_pwm_suspend,
+	.resume		= buzzer_pwm_resume,
+};
+
+static __init void buzzer_pwm_driver_init(void)
+{
+	register_driver(&buzzer_pwm);
+}
+
+static __exit void buzzer_pwm_driver_exit(void)
+{
+	unregister_driver(&buzzer_pwm);
+}
+
+driver_initcall(buzzer_pwm_driver_init);
+driver_exitcall(buzzer_pwm_driver_exit);

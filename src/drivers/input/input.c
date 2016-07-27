@@ -22,7 +22,6 @@
  *
  */
 
-#include <xboot.h>
 #include <input/input.h>
 
 static ssize_t input_read_type(struct kobj_t * kobj, void * buf, size_t size)
@@ -63,7 +62,7 @@ struct input_t * search_input(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct input_t *)dev->driver;
+	return (struct input_t *)dev->priv;
 }
 
 bool_t register_input(struct device_t ** device, struct input_t * input)

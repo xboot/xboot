@@ -22,7 +22,6 @@
  *
  */
 
-#include <xboot.h>
 #include <rng/rng.h>
 
 static ssize_t rng_read_random(struct kobj_t * kobj, void * buf, size_t size)
@@ -42,7 +41,7 @@ struct rng_t * search_rng(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct rng_t *)dev->driver;
+	return (struct rng_t *)dev->priv;
 }
 
 struct rng_t * search_first_rng(void)
@@ -53,7 +52,7 @@ struct rng_t * search_first_rng(void)
 	if(!dev)
 		return NULL;
 
-	return (struct rng_t *)dev->driver;
+	return (struct rng_t *)dev->priv;
 }
 
 bool_t register_rng(struct device_t ** device, struct rng_t * rng)
@@ -73,9 +72,6 @@ bool_t register_rng(struct device_t ** device, struct rng_t * rng)
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "random", rng_read_random, NULL, rng);
 
-	if(rng->init)
-		(rng->init)(rng);
-
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -92,7 +88,6 @@ bool_t register_rng(struct device_t ** device, struct rng_t * rng)
 bool_t unregister_rng(struct rng_t * rng)
 {
 	struct device_t * dev;
-	struct rng_t * driver;
 
 	if(!rng || !rng->name)
 		return FALSE;
@@ -103,10 +98,6 @@ bool_t unregister_rng(struct rng_t * rng)
 
 	if(!unregister_device(dev))
 		return FALSE;
-
-	driver = (struct rng_t *)(dev->driver);
-	if(driver && driver->exit)
-		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

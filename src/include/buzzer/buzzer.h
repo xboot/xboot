@@ -29,6 +29,7 @@ struct buzzer_t * search_buzzer(const char * name);
 struct buzzer_t * search_first_buzzer(void);
 bool_t register_buzzer(struct device_t ** device, struct buzzer_t * buzzer);
 bool_t unregister_buzzer(struct buzzer_t * buzzer);
+
 void buzzer_set_frequency(struct buzzer_t * buzzer, int frequency);
 int buzzer_get_frequency(struct buzzer_t * buzzer);
 void buzzer_beep(struct buzzer_t * buzzer, int frequency, int millisecond);

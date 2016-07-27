@@ -33,7 +33,7 @@ struct beep_param_t {
 
 struct buzzer_gpio_pdata_t {
 	struct timer_t timer;
-	struct queue_t * beep;
+	struct queue_t * queue;
 	int gpio;
 	int active_low;
 	int frequency;
@@ -73,7 +73,7 @@ static void buzzer_gpio_beep(struct buzzer_t * buzzer, int frequency, int millis
 	if((frequency == 0) && (millisecond == 0))
 	{
 		timer_cancel(&pdat->timer);
-		queue_clear(pdat->beep, iter_queue_node);
+		queue_clear(pdat->queue, iter_queue_node);
 		buzzer_gpio_set(buzzer, 0);
 		return;
 	}
@@ -84,8 +84,8 @@ static void buzzer_gpio_beep(struct buzzer_t * buzzer, int frequency, int millis
 	param->frequency = frequency;
 	param->millisecond = millisecond;
 
-	queue_push(pdat->beep, param);
-	if(queue_avail(pdat->beep) == 1)
+	queue_push(pdat->queue, param);
+	if(queue_avail(pdat->queue) == 1)
 		timer_start_now(&pdat->timer, ms_to_ktime(1));
 }
 
@@ -93,7 +93,7 @@ static int buzzer_gpio_timer_function(struct timer_t * timer, void * data)
 {
 	struct buzzer_t * buzzer = (struct buzzer_t *)(data);
 	struct buzzer_gpio_pdata_t * pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
-	struct beep_param_t * param = queue_pop(pdat->beep);
+	struct beep_param_t * param = queue_pop(pdat->queue);
 
 	if(!param)
 	{
@@ -127,7 +127,7 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	}
 
 	timer_init(&pdat->timer, buzzer_gpio_timer_function, buzzer);
-	pdat->beep = queue_alloc();
+	pdat->queue = queue_alloc();
 	pdat->gpio = dt_read_int(n, "gpio", -1);
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 	pdat->frequency = 0;
@@ -144,7 +144,7 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	if(!register_buzzer(&dev, buzzer))
 	{
 		timer_cancel(&pdat->timer);
-		queue_free(pdat->beep, iter_queue_node);
+		queue_free(pdat->queue, iter_queue_node);
 		free(buzzer->priv);
 		free(buzzer->name);
 		free(buzzer);
@@ -166,7 +166,7 @@ static void buzzer_gpio_remove(struct device_t * dev)
 		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 
 		timer_cancel(&pdat->timer);
-		queue_free(pdat->beep, iter_queue_node);
+		queue_free(pdat->queue, iter_queue_node);
 		free(buzzer->priv);
 		free(buzzer->name);
 		free(buzzer);

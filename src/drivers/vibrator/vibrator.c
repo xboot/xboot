@@ -52,7 +52,7 @@ struct vibrator_t * search_vibrator(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct vibrator_t *)dev->driver;
+	return (struct vibrator_t *)dev->priv;
 }
 
 struct vibrator_t * search_first_vibrator(void)
@@ -84,9 +84,6 @@ bool_t register_vibrator(struct device_t ** device, struct vibrator_t * vib)
 	kobj_add_regular(dev->kobj, "state", vibrator_read_state, vibrator_write_state, vib);
 	kobj_add_regular(dev->kobj, "play", NULL, vibrator_write_play, vib);
 
-	if(vib->init)
-		(vib->init)(vib);
-
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -103,7 +100,6 @@ bool_t register_vibrator(struct device_t ** device, struct vibrator_t * vib)
 bool_t unregister_vibrator(struct vibrator_t * vib)
 {
 	struct device_t * dev;
-	struct vibrator_t * driver;
 
 	if(!vib || !vib->name)
 		return FALSE;
@@ -114,10 +110,6 @@ bool_t unregister_vibrator(struct vibrator_t * vib)
 
 	if(!unregister_device(dev))
 		return FALSE;
-
-	driver = (struct vibrator_t *)(dev->driver);
-	if(driver && driver->exit)
-		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);
@@ -138,12 +130,10 @@ int vibrator_get_state(struct vibrator_t * vib)
 	return 0;
 }
 
-void vibrator_vibrate(struct vibrator_t * vib, int state, int ms)
+void vibrator_vibrate(struct vibrator_t * vib, int state, int millisecond)
 {
 	if(vib && vib->vibrate)
-	{
-		vib->vibrate(vib, (state > 0) ? 1 : 0, (ms > 0) ? ms : 0);
-	}
+		vib->vibrate(vib, (state > 0) ? 1 : 0, (millisecond > 0) ? millisecond : 0);
 }
 
 static const char * morse_code(char c)

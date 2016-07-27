@@ -86,7 +86,7 @@ struct fb_t * search_framebuffer(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct fb_t *)dev->driver;
+	return (struct fb_t *)dev->priv;
 }
 
 struct fb_t * search_first_framebuffer(void)

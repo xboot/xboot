@@ -33,7 +33,7 @@ struct beep_param_t {
 
 struct buzzer_pwm_pdata_t {
 	struct timer_t timer;
-	struct queue_t * beep;
+	struct queue_t * queue;
 	struct pwm_t * pwm;
 	int polarity;
 	int frequency;
@@ -80,7 +80,7 @@ static void buzzer_pwm_beep(struct buzzer_t * buzzer, int frequency, int millise
 	if((frequency == 0) && (millisecond == 0))
 	{
 		timer_cancel(&pdat->timer);
-		queue_clear(pdat->beep, iter_queue_node);
+		queue_clear(pdat->queue, iter_queue_node);
 		buzzer_pwm_set(buzzer, 0);
 		return;
 	}
@@ -91,8 +91,8 @@ static void buzzer_pwm_beep(struct buzzer_t * buzzer, int frequency, int millise
 	param->frequency = frequency;
 	param->millisecond = millisecond;
 
-	queue_push(pdat->beep, param);
-	if(queue_avail(pdat->beep) == 1)
+	queue_push(pdat->queue, param);
+	if(queue_avail(pdat->queue) == 1)
 		timer_start_now(&pdat->timer, ms_to_ktime(1));
 }
 
@@ -100,7 +100,7 @@ static int buzzer_pwm_timer_function(struct timer_t * timer, void * data)
 {
 	struct buzzer_t * buzzer = (struct buzzer_t *)(data);
 	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
-	struct beep_param_t * param = queue_pop(pdat->beep);
+	struct beep_param_t * param = queue_pop(pdat->queue);
 
 	if(!param)
 	{
@@ -135,7 +135,7 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	}
 
 	timer_init(&pdat->timer, buzzer_pwm_timer_function, buzzer);
-	pdat->beep = queue_alloc();
+	pdat->queue = queue_alloc();
 	pdat->pwm = pwm;
 	pdat->polarity = dt_read_bool(n, "polarity", 0);
 	pdat->frequency = 0;
@@ -151,7 +151,7 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	if(!register_buzzer(&dev, buzzer))
 	{
 		timer_cancel(&pdat->timer);
-		queue_free(pdat->beep, iter_queue_node);
+		queue_free(pdat->queue, iter_queue_node);
 		free(buzzer->priv);
 		free(buzzer->name);
 		free(buzzer);
@@ -173,7 +173,7 @@ static void buzzer_pwm_remove(struct device_t * dev)
 		pwm_disable(pdat->pwm);
 
 		timer_cancel(&pdat->timer);
-		queue_free(pdat->beep, iter_queue_node);
+		queue_free(pdat->queue, iter_queue_node);
 		free(buzzer->priv);
 		free(buzzer->name);
 		free(buzzer);

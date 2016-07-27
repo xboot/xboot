@@ -24,6 +24,7 @@
 
 #include <pl031-rtc.h>
 
+#if 0
 #define RTC_DR		(0x00)	/* Data read register */
 #define RTC_MR		(0x04)	/* Match register */
 #define RTC_LR		(0x08)	/* Data load register */
@@ -218,3 +219,5 @@ static __exit void pl031_rtc_exit(void)
 
 device_initcall(pl031_rtc_init);
 device_exitcall(pl031_rtc_exit);
+
+#endif

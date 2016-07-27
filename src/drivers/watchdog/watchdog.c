@@ -22,7 +22,6 @@
  *
  */
 
-#include <xboot.h>
 #include <watchdog/watchdog.h>
 
 static ssize_t watchdog_read_timeout(struct kobj_t * kobj, void * buf, size_t size)
@@ -51,7 +50,7 @@ struct watchdog_t * search_watchdog(const char * name)
 	if(!dev)
 		return NULL;
 
-	return (struct watchdog_t *)dev->driver;
+	return (struct watchdog_t *)dev->priv;
 }
 
 struct watchdog_t * search_first_watchdog(void)
@@ -82,12 +81,6 @@ bool_t register_watchdog(struct device_t ** device,struct watchdog_t * watchdog)
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "timeout", watchdog_read_timeout, watchdog_write_timeout, watchdog);
 
-	if(watchdog->init)
-		(watchdog->init)(watchdog);
-
-	if(watchdog->set)
-		(watchdog->set)(watchdog, 0);
-
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -104,7 +97,6 @@ bool_t register_watchdog(struct device_t ** device,struct watchdog_t * watchdog)
 bool_t unregister_watchdog(struct watchdog_t * watchdog)
 {
 	struct device_t * dev;
-	struct watchdog_t * driver;
 
 	if(!watchdog || !watchdog->name)
 		return FALSE;
@@ -115,16 +107,6 @@ bool_t unregister_watchdog(struct watchdog_t * watchdog)
 
 	if(!unregister_device(dev))
 		return FALSE;
-
-	driver = (struct watchdog_t *)(dev->driver);
-	if(driver)
-	{
-		if(driver->set)
-			(driver->set)(driver, 0);
-
-		if(driver->exit)
-			(driver->exit)(driver);
-	}
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

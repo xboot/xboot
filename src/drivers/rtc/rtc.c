@@ -22,7 +22,6 @@
  *
  */
 
-#include <xboot.h>
 #include <rtc/rtc.h>
 
 static ssize_t rtc_time_read(struct kobj_t * kobj, void * buf, size_t size)
@@ -61,6 +60,17 @@ struct rtc_t * search_rtc(const char * name)
 	return (struct rtc_t *)dev->priv;
 }
 
+struct rtc_t * search_first_rtc(void)
+{
+	struct device_t * dev;
+
+	dev = search_first_device_with_type(DEVICE_TYPE_RTC);
+	if(!dev)
+		return NULL;
+
+	return (struct rtc_t *)dev->priv;
+}
+
 bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc)
 {
 	struct device_t * dev;
@@ -78,9 +88,6 @@ bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc)
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "time", rtc_time_read, rtc_time_write, rtc);
 
-	if(rtc->init)
-		(rtc->init)(rtc);
-
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -97,7 +104,6 @@ bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc)
 bool_t unregister_rtc(struct rtc_t * rtc)
 {
 	struct device_t * dev;
-	struct rtc_t * driver;
 
 	if(!rtc || !rtc->name)
 		return FALSE;
@@ -109,12 +115,22 @@ bool_t unregister_rtc(struct rtc_t * rtc)
 	if(!unregister_device(dev))
 		return FALSE;
 
-	driver = (struct rtc_t *)(dev->driver);
-	if(driver && driver->exit)
-		(driver->exit)(driver);
-
 	kobj_remove_self(dev->kobj);
 	free(dev->name);
 	free(dev);
 	return TRUE;
+}
+
+bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
+{
+	if(rtc && rtc->settime)
+		return rtc->settime(rtc, time);
+	return FALSE;
+}
+
+bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
+{
+	if(rtc && rtc->gettime)
+		return rtc->gettime(rtc, time);
+	return FALSE;
 }

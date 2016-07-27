@@ -67,9 +67,6 @@ bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * trigger)
 	kobj_add_regular(dev->kobj, "led", ledtrig_read_bind_led_name, NULL, trigger);
 	kobj_add_regular(dev->kobj, "activity", NULL, ledtrig_write_activity, trigger);
 
-	if(trigger->init)
-		(trigger->init)(trigger);
-
 	if(!register_device(dev))
 	{
 		kobj_remove_self(dev->kobj);
@@ -86,7 +83,6 @@ bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * trigger)
 bool_t unregister_ledtrig(struct ledtrig_t * trigger)
 {
 	struct device_t * dev;
-	struct ledtrig_t * driver;
 
 	if(!trigger || !trigger->name)
 		return FALSE;
@@ -97,10 +93,6 @@ bool_t unregister_ledtrig(struct ledtrig_t * trigger)
 
 	if(!unregister_device(dev))
 		return FALSE;
-
-	driver = (struct ledtrig_t *)(dev->driver);
-	if(driver && driver->exit)
-		(driver->exit)(driver);
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);

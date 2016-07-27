@@ -22,31 +22,23 @@ struct rtc_t
 	/* The rtc name */
 	char * name;
 
-	/* Initialize the rtc */
-	void (*init)(struct rtc_t * rtc);
-
-	/* Clean up the rtc */
-	void (*exit)(struct rtc_t * rtc);
-
 	/* Set rtc time */
 	bool_t (*settime)(struct rtc_t * rtc, struct rtc_time_t * time);
 
 	/* Get rtc time */
 	bool_t (*gettime)(struct rtc_t * rtc, struct rtc_time_t * time);
 
-	/* Suspend rtc */
-	void (*suspend)(struct rtc_t * rtc);
-
-	/* Resume rtc */
-	void (*resume)(struct rtc_t * rtc);
-
 	/* Private data */
 	void * priv;
 };
 
 struct rtc_t * search_rtc(const char * name);
+struct rtc_t * search_first_rtc(void);
 bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc);
 bool_t unregister_rtc(struct rtc_t * rtc);
+
+bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time);
+bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time);
 
 #ifdef __cplusplus
 }

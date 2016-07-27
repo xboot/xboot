@@ -12,20 +12,8 @@ struct rng_t
 	/* The rng name */
 	char * name;
 
-	/* Initialize the rng */
-	void (*init)(struct rng_t * rng);
-
-	/* Clean up the rng */
-	void (*exit)(struct rng_t * rng);
-
 	/* Read rng data */
 	int (*read)(struct rng_t * rng, void * buf, int max, int wait);
-
-	/* Suspend rng */
-	void (*suspend)(struct rng_t * rng);
-
-	/* Resume rng */
-	void (*resume)(struct rng_t * rng);
 
 	/* Private data */
 	void * priv;

@@ -119,6 +119,9 @@ static int new_value (json_state * state,
       {
          case json_array:
 
+            if (value->u.array.length == 0)
+               break;
+
             if (! (value->u.array.values = (json_value **) json_alloc
                (state, value->u.array.length * sizeof (json_value *), 0)) )
             {
@@ -130,9 +133,12 @@ static int new_value (json_state * state,
 
          case json_object:
 
+            if (value->u.object.length == 0)
+               break;
+
             values_size = sizeof (*value->u.object.values) * value->u.object.length;
 
-            if (! ((*(void **) &value->u.object.values) = json_alloc
+            if (! (value->u.object.values = (json_object_entry *) json_alloc
                   (state, values_size + ((unsigned long) value->u.object.values), 0)) )
             {
                return 0;

@@ -50,7 +50,7 @@ struct dtnode_t * dt_read_object(struct dtnode_t * n, const char * name)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_object))
@@ -74,7 +74,7 @@ int dt_read_bool(struct dtnode_t * n, const char * name, int def)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_boolean))
@@ -94,7 +94,7 @@ int dt_read_int(struct dtnode_t * n, const char * name, int def)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_integer))
@@ -114,7 +114,7 @@ double dt_read_double(struct dtnode_t * n, const char * name, double def)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_double))
@@ -134,7 +134,7 @@ char * dt_read_string(struct dtnode_t * n, const char * name, char * def)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_string))
@@ -154,7 +154,7 @@ u8_t dt_read_u8(struct dtnode_t * n, const char * name, u8_t def)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_integer))
@@ -174,7 +174,7 @@ u16_t dt_read_u16(struct dtnode_t * n, const char * name, u16_t def)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_integer))
@@ -194,7 +194,7 @@ u32_t dt_read_u32(struct dtnode_t * n, const char * name, u32_t def)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_integer))
@@ -214,7 +214,7 @@ u64_t dt_read_u64(struct dtnode_t * n, const char * name, u64_t def)
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
-			if(strcmp(n->value->u.object.values[i].name, name) != 0)
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_integer))

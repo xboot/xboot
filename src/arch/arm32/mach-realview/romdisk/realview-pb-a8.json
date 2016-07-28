@@ -5,6 +5,22 @@
 		"default-brightness": 0
 	},
 
+	"led-gpio@1": {
+		"gpio": 1,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"buzzer-gpio": {
+		"gpio": 2,
+		"active-low": true
+	},
+
+	"vibrator-gpio": {
+		"gpio": 3,
+		"active-low": true
+	},
+
 	"rtc-pl031@0x10017000": {
 	}
 }

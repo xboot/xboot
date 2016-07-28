@@ -1,8 +1,9 @@
 {
 	"led-gpio@0": {
-		"label": "red",
 		"gpio": 0,
 		"active-low": true,
 		"default-brightness": 0
-	}
+	},
+
+	"rtc-pl031@0x10017000": null
 }

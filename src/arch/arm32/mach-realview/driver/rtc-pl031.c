@@ -1,5 +1,5 @@
 /*
- * driver/pl031-rtc.c
+ * driver/rtc-pl031.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,9 +22,9 @@
  *
  */
 
-#include <pl031-rtc.h>
+#include <xboot.h>
+#include <rtc/rtc.h>
 
-#if 0
 #define RTC_DR		(0x00)	/* Data read register */
 #define RTC_MR		(0x04)	/* Match register */
 #define RTC_LR		(0x08)	/* Data load register */
@@ -34,12 +34,21 @@
 #define RTC_MIS		(0x18)	/* Masked interrupt status register */
 #define RTC_ICR		(0x1c)	/* Interrupt clear register */
 
-struct pl031_rtc_pdata_t {
-	virtual_addr_t virt;
-};
+#define RTC_DID0	(0xfe0)	/* Device ID0 */
+#define RTC_DID1	(0xfe4)	/* Device ID1 */
+#define RTC_DID2	(0xfe8)	/* Device ID2 */
+#define RTC_DID3	(0xfec)	/* Device ID3 */
+#define RTC_CID0	(0xff0)	/* Cell ID0 */
+#define RTC_CID1	(0xff4)	/* Cell ID1 */
+#define RTC_CID2	(0xff8)	/* Cell ID2 */
+#define RTC_CID3	(0xffc)	/* Cell ID3 */
 
 #define LEAPS_THRU_END(y)	((y)/4 - (y)/100 + (y)/400)
 #define LEAP_YEAR(year)		((!(year % 4) && (year % 100)) || !(year % 400))
+
+struct rtc_pl031_pdata_t {
+	virtual_addr_t virt;
+};
 
 static int rtc_month_days(int year, int month)
 {
@@ -114,17 +123,9 @@ static u32_t from_rtc_time(struct rtc_time_t * rt)
 	return ((((u32_t)(year/4 - year/100 + year/400 + 367*mon/12 + rt->day) + year*365 - 719499)*24 + rt->hour)*60 + rt->min)*60 + rt->sec;
 }
 
-static void rtc_init(struct rtc_t * rtc)
+static bool_t rtc_pl031_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-}
-
-static void rtc_exit(struct rtc_t * rtc)
-{
-}
-
-static bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
-{
-	struct pl031_rtc_pdata_t * pdat = (struct pl031_rtc_pdata_t *)rtc->priv;
+	struct rtc_pl031_pdata_t * pdat = (struct rtc_pl031_pdata_t *)rtc->priv;
 
 	if(!rtc_valid_time(time))
 		return FALSE;
@@ -132,92 +133,101 @@ static bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 	return TRUE;
 }
 
-static bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
+static bool_t rtc_pl031_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	struct pl031_rtc_pdata_t * pdat = (struct pl031_rtc_pdata_t *)rtc->priv;
+	struct rtc_pl031_pdata_t * pdat = (struct rtc_pl031_pdata_t *)rtc->priv;
 
 	to_rtc_time(read32(pdat->virt + RTC_DR), time);
 	return TRUE;
 }
 
-static void rtc_suspend(struct rtc_t * rtc)
+static struct device_t * rtc_pl031_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-}
-
-static void rtc_resume(struct rtc_t * rtc)
-{
-}
-
-static bool_t pl031_register_rtc(struct resource_t * res)
-{
-	struct pl031_rtc_data_t * rdat = (struct pl031_rtc_data_t *)res->data;
-	struct pl031_rtc_pdata_t * pdat;
+	struct rtc_pl031_pdata_t * pdat;
 	struct rtc_t * rtc;
-	char name[64];
+	struct device_t * dev;
+	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 
-	pdat = malloc(sizeof(struct pl031_rtc_pdata_t));
+	if( (read32(virt + RTC_DID0) != 0x31) &&
+		(read32(virt + RTC_DID1) != 0x10) &&
+		((read32(virt + RTC_DID2) & 0x0f) != 0x04) )
+		return NULL;
+
+	pdat = malloc(sizeof(struct rtc_pl031_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	rtc = malloc(sizeof(struct rtc_t));
 	if(!rtc)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	pdat->virt = virt;
 
-	pdat->virt = phys_to_virt(rdat->phys);
-	rtc->name = strdup(name);
-	rtc->init = rtc_init;
-	rtc->exit = rtc_exit;
-	rtc->settime = rtc_settime,
-	rtc->gettime = rtc_gettime,
-	rtc->suspend = rtc_suspend,
-	rtc->resume	= rtc_resume,
+	rtc->name = dynamic_device_name(dt_read_name(n), 0);
+	rtc->settime = rtc_pl031_settime,
+	rtc->gettime = rtc_pl031_gettime,
 	rtc->priv = pdat;
 
-	if(register_rtc(NULL, rtc))
-		return TRUE;
+	write32(pdat->virt + RTC_IMSC, 1);
+	write32(pdat->virt + RTC_ICR, 1);
+	write32(pdat->virt + RTC_CR, 1);
 
-	free(rtc->priv);
-	free(rtc->name);
-	free(rtc);
-	return FALSE;
+	if(!register_rtc(&dev, rtc))
+	{
+		free(rtc->priv);
+		free(rtc->name);
+		free(rtc);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static bool_t pl031_unregister_rtc(struct resource_t * res)
+static void rtc_pl031_remove(struct device_t * dev)
 {
-	struct rtc_t * rtc;
-	char name[64];
+	struct rtc_t * rtc = (struct rtc_t *)dev->priv;
+	struct rtc_pl031_pdata_t * pdat = (struct rtc_pl031_pdata_t *)rtc->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(rtc && unregister_rtc(rtc))
+	{
+		write32(pdat->virt + RTC_IMSC, 1);
+		write32(pdat->virt + RTC_ICR, 1);
 
-	rtc = search_rtc(name);
-	if(!rtc)
-		return FALSE;
-
-	if(!unregister_rtc(rtc))
-		return FALSE;
-
-	free(rtc->priv);
-	free(rtc->name);
-	free(rtc);
-	return TRUE;
+		free(rtc->priv);
+		free(rtc->name);
+		free(rtc);
+	}
 }
 
-static __init void pl031_rtc_init(void)
+static void rtc_pl031_suspend(struct device_t * dev)
 {
-	resource_for_each("pl031-rtc", pl031_register_rtc);
 }
 
-static __exit void pl031_rtc_exit(void)
+static void rtc_pl031_resume(struct device_t * dev)
 {
-	resource_for_each("pl031-rtc", pl031_unregister_rtc);
 }
 
-device_initcall(pl031_rtc_init);
-device_exitcall(pl031_rtc_exit);
+struct driver_t rtc_pl031 = {
+	.name		= "rtc-pl031",
+	.probe		= rtc_pl031_probe,
+	.remove		= rtc_pl031_remove,
+	.suspend	= rtc_pl031_suspend,
+	.resume		= rtc_pl031_resume,
+};
 
-#endif
+static __init void rtc_pl031_driver_init(void)
+{
+	register_driver(&rtc_pl031);
+}
+
+static __exit void rtc_pl031_driver_exit(void)
+{
+	unregister_driver(&rtc_pl031);
+}
+
+driver_initcall(rtc_pl031_driver_init);
+driver_exitcall(rtc_pl031_driver_exit);

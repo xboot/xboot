@@ -97,15 +97,23 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	return kobj_search_directory_with_create(kdevice, (const char *)name);
 }
 
-char * dynamic_device_name(const char * name, int id)
+char * alloc_device_name(const char * name, int id)
 {
 	char buf[128];
 
+	if(id < 0)
+		id = 0;
 	do {
 		snprintf(buf, sizeof(buf), "%s.%d", name, id++);
 	} while(search_device(buf));
 
 	return strdup(buf);
+}
+
+void free_device_name(char * name)
+{
+	if(name)
+		free(name);
 }
 
 struct device_t * search_device(const char * name)

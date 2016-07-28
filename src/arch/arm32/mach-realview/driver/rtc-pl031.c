@@ -166,7 +166,7 @@ static struct device_t * rtc_pl031_probe(struct driver_t * drv, struct dtnode_t 
 
 	pdat->virt = virt;
 
-	rtc->name = dynamic_device_name(dt_read_name(n), 0);
+	rtc->name = alloc_device_name(dt_read_name(n), -1);
 	rtc->settime = rtc_pl031_settime,
 	rtc->gettime = rtc_pl031_gettime,
 	rtc->priv = pdat;
@@ -177,8 +177,8 @@ static struct device_t * rtc_pl031_probe(struct driver_t * drv, struct dtnode_t 
 
 	if(!register_rtc(&dev, rtc))
 	{
+		free_device_name(rtc->name);
 		free(rtc->priv);
-		free(rtc->name);
 		free(rtc);
 		return NULL;
 	}
@@ -197,8 +197,8 @@ static void rtc_pl031_remove(struct device_t * dev)
 		write32(pdat->virt + RTC_IMSC, 1);
 		write32(pdat->virt + RTC_ICR, 1);
 
+		free_device_name(rtc->name);
 		free(rtc->priv);
-		free(rtc->name);
 		free(rtc);
 	}
 }

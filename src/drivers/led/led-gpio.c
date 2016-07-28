@@ -76,7 +76,7 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 	pdat->brightness = dt_read_int(n, "default-brightness", 0);
 
-	led->name = dynamic_device_name(dt_read_name(n), dt_read_id(n));
+	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	led->set = led_gpio_set,
 	led->get = led_gpio_get,
 	led->priv = pdat;
@@ -89,8 +89,8 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 
 	if(!register_led(&dev, led))
 	{
+		free_device_name(led->name);
 		free(led->priv);
-		free(led->name);
 		free(led);
 		return NULL;
 	}
@@ -109,8 +109,8 @@ static void led_gpio_remove(struct device_t * dev)
 		pdat->brightness = 0;
 		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 
+		free_device_name(led->name);
 		free(led->priv);
-		free(led->name);
 		free(led);
 	}
 }

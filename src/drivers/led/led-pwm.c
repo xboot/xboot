@@ -85,7 +85,7 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	pdat->polarity = dt_read_bool(n, "polarity", 0);
 	pdat->brightness = dt_read_int(n, "default-brightness", 0);
 
-	led->name = dynamic_device_name(dt_read_name(n), dt_read_id(n));
+	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	led->set = led_pwm_set,
 	led->get = led_pwm_get,
 	led->priv = pdat;
@@ -103,8 +103,8 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 
 	if(!register_led(&dev, led))
 	{
+		free_device_name(led->name);
 		free(led->priv);
-		free(led->name);
 		free(led);
 		return NULL;
 	}
@@ -123,8 +123,8 @@ static void led_pwm_remove(struct device_t * dev)
 		pdat->brightness = 0;
 		pwm_disable(pdat->pwm);
 
+		free_device_name(led->name);
 		free(led->priv);
-		free(led->name);
 		free(led);
 	}
 }

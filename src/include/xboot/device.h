@@ -51,7 +51,8 @@ struct device_list_t
 
 extern struct device_list_t __device_list;
 
-char * dynamic_device_name(const char * name, int id);
+char * alloc_device_name(const char * name, int id);
+void free_device_name(char * name);
 struct device_t * search_device(const char * name);
 struct device_t * search_device_with_type(const char * name, enum device_type_t type);
 struct device_t * search_first_device_with_type(enum device_type_t type);

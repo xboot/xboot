@@ -140,7 +140,7 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	pdat->polarity = dt_read_bool(n, "polarity", 0);
 	pdat->frequency = 0;
 
-	buzzer->name = dynamic_device_name(dt_read_name(n), dt_read_id(n));
+	buzzer->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	buzzer->set = buzzer_pwm_set,
 	buzzer->get = buzzer_pwm_get,
 	buzzer->beep = buzzer_pwm_beep,
@@ -152,8 +152,8 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	{
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+		free_device_name(buzzer->name);
 		free(buzzer->priv);
-		free(buzzer->name);
 		free(buzzer);
 		return NULL;
 	}
@@ -174,8 +174,8 @@ static void buzzer_pwm_remove(struct device_t * dev)
 
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+		free_device_name(buzzer->name);
 		free(buzzer->priv);
-		free(buzzer->name);
 		free(buzzer);
 	}
 }

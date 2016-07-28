@@ -132,7 +132,7 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 	pdat->frequency = 0;
 
-	buzzer->name = dynamic_device_name(dt_read_name(n), dt_read_id(n));
+	buzzer->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	buzzer->set = buzzer_gpio_set,
 	buzzer->get = buzzer_gpio_get,
 	buzzer->beep = buzzer_gpio_beep,
@@ -145,8 +145,8 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	{
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+		free_device_name(buzzer->name);
 		free(buzzer->priv);
-		free(buzzer->name);
 		free(buzzer);
 		return NULL;
 	}
@@ -167,8 +167,8 @@ static void buzzer_gpio_remove(struct device_t * dev)
 
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+		free_device_name(buzzer->name);
 		free(buzzer->priv);
-		free(buzzer->name);
 		free(buzzer);
 	}
 }

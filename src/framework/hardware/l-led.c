@@ -66,7 +66,7 @@ static const luaL_Reg l_led[] = {
 static int m_led_set_brightness(lua_State * L)
 {
 	struct led_t * led = luaL_checkudata(L, 1, MT_HARDWARE_LED);
-	int brightness = luaL_checknumber(L, 2) * ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1));
+	int brightness = luaL_checknumber(L, 2) * (lua_Number)(CONFIG_MAX_BRIGHTNESS);
 	led_set_brightness(led, brightness);
 	lua_settop(L, 1);
 	return 1;
@@ -76,7 +76,7 @@ static int m_led_get_brightness(lua_State * L)
 {
 	struct led_t * led = luaL_checkudata(L, 1, MT_HARDWARE_LED);
 	int brightness = led_get_brightness(led);
-	lua_pushnumber(L, brightness / ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1)));
+	lua_pushnumber(L, brightness / (lua_Number)(CONFIG_MAX_BRIGHTNESS));
 	return 1;
 }
 

@@ -125,14 +125,14 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 	*argc = 0;
 	*pos = 0;
 
-	bp = buffer = malloc(CONFIG_CMDLINE_LENGTH);
+	bp = buffer = malloc(SZ_4K);
 	if(!buffer)
 	{
 		*argc = 0;
 		return FALSE;
 	}
 
-	vp = varname = malloc(CONFIG_VARNAME_LENGTH);
+	vp = varname = malloc(SZ_256);
 	if(!varname)
 	{
 		*argc = 0;

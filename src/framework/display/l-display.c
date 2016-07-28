@@ -108,14 +108,14 @@ static int m_display_get_backlight(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	int brightness = framebuffer_get_backlight_brightness(display->fb);
-	lua_pushnumber(L, brightness / ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1)));
+	lua_pushnumber(L, brightness / (lua_Number)(CONFIG_MAX_BRIGHTNESS));
 	return 1;
 }
 
 static int m_display_set_backlight(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
-	int brightness = luaL_checknumber(L, 2) * ((lua_Number)(CONFIG_MAX_BRIGHTNESS + 1));
+	int brightness = luaL_checknumber(L, 2) * (lua_Number)(CONFIG_MAX_BRIGHTNESS);
 	framebuffer_set_backlight_brightness(display->fb, brightness);
 	return 0;
 }

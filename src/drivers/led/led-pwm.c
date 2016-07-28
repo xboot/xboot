@@ -41,7 +41,7 @@ static void led_pwm_set(struct led_t * led, int brightness)
 	{
 		if(brightness > 0)
 		{
-			int duty = brightness * pdat->period / (CONFIG_MAX_BRIGHTNESS + 1);
+			int duty = brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
 			pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 			pwm_enable(pdat->pwm);
 		}
@@ -92,7 +92,7 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 
 	if(pdat->brightness > 0)
 	{
-		int duty = pdat->brightness * pdat->period / (CONFIG_MAX_BRIGHTNESS + 1);
+		int duty = pdat->brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
 		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 		pwm_enable(pdat->pwm);
 	}
@@ -144,7 +144,7 @@ static void led_pwm_resume(struct device_t * dev)
 
 	if(pdat->brightness > 0)
 	{
-		int duty = pdat->brightness * pdat->period / (CONFIG_MAX_BRIGHTNESS + 1);
+		int duty = pdat->brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
 		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 		pwm_enable(pdat->pwm);
 	}

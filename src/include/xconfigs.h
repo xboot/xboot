@@ -36,18 +36,6 @@ extern "C" {
 #define CONFIG_EVENT_FIFO_LENGTH			(256)
 #endif
 
-#if !defined(CONFIG_MAX_NUMBER_OF_VFS_BIO)
-#define CONFIG_MAX_NUMBER_OF_VFS_BIO		(SZ_4K)
-#endif
-
-#if !defined(CONFIG_CMDLINE_LENGTH)
-#define CONFIG_CMDLINE_LENGTH				(SZ_4K)
-#endif
-
-#if !defined(CONFIG_VARNAME_LENGTH)
-#define CONFIG_VARNAME_LENGTH				(256)
-#endif
-
 #ifdef __cplusplus
 }
 #endif

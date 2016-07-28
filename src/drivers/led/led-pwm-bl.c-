@@ -42,7 +42,7 @@ static void led_pwm_bl_init(struct led_t * led)
 	gpio_set_pull(pdat->power, pdat->power_active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
 	if(pdat->brightness > 0)
 	{
-		u32_t duty = pdat->dutyfrom + (pdat->dutyto - pdat->dutyfrom) * pdat->brightness / (CONFIG_MAX_BRIGHTNESS + 1);
+		u32_t duty = pdat->dutyfrom + (pdat->dutyto - pdat->dutyfrom) * pdat->brightness / CONFIG_MAX_BRIGHTNESS;
 		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 		pwm_enable(pdat->pwm);
 		gpio_direction_output(pdat->power, pdat->power_active_low ? 0 : 1);
@@ -70,7 +70,7 @@ static void led_pwm_bl_set(struct led_t * led, int brightness)
 	{
 		if(brightness > 0)
 		{
-			u32_t duty = pdat->dutyfrom + (pdat->dutyto - pdat->dutyfrom) * brightness / (CONFIG_MAX_BRIGHTNESS + 1);
+			u32_t duty = pdat->dutyfrom + (pdat->dutyto - pdat->dutyfrom) * brightness / CONFIG_MAX_BRIGHTNESS;
 			pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 			pwm_enable(pdat->pwm);
 			gpio_direction_output(pdat->power, pdat->power_active_low ? 0 : 1);

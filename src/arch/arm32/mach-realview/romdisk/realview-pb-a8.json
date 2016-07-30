@@ -11,13 +11,33 @@
 		"default-brightness": 0
 	},
 
+	"rotary-encoder@0": {
+		"gpio-a": 2,
+		"gpio-b": 3,
+		"gpio-c": 4,
+		"inverted-a": false,
+		"inverted-b": false,
+		"inverted-c": false,
+		"step-per-period": 1
+	},
+
+	"rotary-encoder@1": {
+		"gpio-a": 5,
+		"gpio-b": 6,
+		"gpio-c": 7,
+		"inverted-a": false,
+		"inverted-b": false,
+		"inverted-c": false,
+		"step-per-period": 1
+	},
+
 	"buzzer-gpio": {
-		"gpio": 2,
+		"gpio": 8,
 		"active-low": true
 	},
 
 	"vibrator-gpio": {
-		"gpio": 3,
+		"gpio": 9,
 		"active-low": true
 	},
 

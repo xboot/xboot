@@ -1,5 +1,25 @@
 /*
  * driver/input/rotary-encoder.c
+ *                   _____       _____       _____
+ *                  |     |     |     |     |     |
+ *   Channel A  ____|     |_____|     |_____|     |____
+ *
+ *                  :  :  :  :  :  :  :  :  :  :  :  :
+ *             __       _____       _____       _____
+ *               |     |     |     |     |     |     |
+ *   Channel B   |_____|     |_____|     |_____|     |__
+ *
+ *                  :  :  :  :  :  :  :  :  :  :  :  :
+ *   Event          a  b  c  d  a  b  c  d  a  b  c  d
+ *
+ *                 |<-------->|
+ * 	          one step
+ *
+ *                 |<-->|
+ * 	          one step (half-period mode)
+ *
+ *                 |<>|
+ * 	          one step (quarter-period mode)
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,19 +43,19 @@
  */
 
 #include <xboot.h>
-#include <input/rotary-encoder.h>
+#include <input/input.h>
+#include <input/keyboard.h>
 
 struct rotary_encoder_pdata_t {
 	int gpio_a;
 	int gpio_b;
 	int gpio_c;
-	int inverted_a;
-	int inverted_b;
-	int inverted_c;
-	int steps;
 	int irq_a;
 	int irq_b;
 	int irq_c;
+	int inverted_a;
+	int inverted_b;
+	int inverted_c;
 	int state;
 	int dir;
 };
@@ -156,20 +176,58 @@ static void rotary_encoder_gpio_c_irq(void * data)
 	push_event_rotary_switch(input, (c1 ^ pdat->inverted_c) ? 0 : 1);
 }
 
-static void input_init(struct input_t * input)
+static int rotary_encoder_ioctl(struct input_t * input, int cmd, void * arg)
 {
-	struct rotary_encoder_pdata_t * pdat = (struct rotary_encoder_pdata_t *)input->priv;
+	return -1;
+}
 
+static struct device_t * rotary_encoder_probe(struct driver_t * drv, struct dtnode_t * n)
+{
+	struct rotary_encoder_pdata_t * pdat;
+	struct input_t * input;
+	struct device_t * dev;
+	int gpio_a, gpio_b;
+
+	gpio_a = dt_read_int(n, "gpio-a", -1);
+	gpio_b = dt_read_int(n, "gpio-b", -1);
+
+	if(!gpio_is_valid(gpio_a) || !gpio_is_valid(gpio_b)
+			|| !irq_is_valid(gpio_to_irq(gpio_a))
+			|| !irq_is_valid(gpio_to_irq(gpio_b)))
+		return NULL;
+
+	pdat = malloc(sizeof(struct rotary_encoder_pdata_t));
 	if(!pdat)
-		return;
+		return NULL;
+
+	input = malloc(sizeof(struct input_t));
+	if(!input)
+	{
+		free(pdat);
+		return NULL;
+	}
+
+	pdat->gpio_a = gpio_a;
+	pdat->gpio_b = gpio_b;
+	pdat->gpio_c = dt_read_int(n, "gpio-c", -1);
+	pdat->irq_a = gpio_to_irq(pdat->gpio_a);
+	pdat->irq_b = gpio_to_irq(pdat->gpio_b);
+	pdat->irq_c = gpio_to_irq(pdat->gpio_c);
+	pdat->inverted_a = dt_read_bool(n, "inverted-a", 0);
+	pdat->inverted_b = dt_read_bool(n, "inverted-b", 0);
+	pdat->inverted_c = dt_read_bool(n, "inverted-c", 0);
+
+	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
+	input->type = INPUT_TYPE_ROTARY;
+	input->ioctl = rotary_encoder_ioctl;
+	input->priv = pdat;
 
 	gpio_set_pull(pdat->gpio_a, pdat->inverted_a ? GPIO_PULL_DOWN : GPIO_PULL_UP);
 	gpio_direction_input(pdat->gpio_a);
-
 	gpio_set_pull(pdat->gpio_b, pdat->inverted_b ? GPIO_PULL_DOWN : GPIO_PULL_UP);
 	gpio_direction_input(pdat->gpio_b);
 
-	switch(pdat->steps)
+	switch(dt_read_int(n, "step-per-period", 1))
 	{
 	case 4:
 		request_irq(pdat->irq_a, rotary_encoder_quarter_period_irq, IRQ_TYPE_EDGE_BOTH, input);
@@ -190,6 +248,9 @@ static void input_init(struct input_t * input)
 		break;
 
 	default:
+		request_irq(pdat->irq_a, rotary_encoder_irq, IRQ_TYPE_EDGE_BOTH, input);
+		request_irq(pdat->irq_b, rotary_encoder_irq, IRQ_TYPE_EDGE_BOTH, input);
+		pdat->state = 0;
 		break;
 	}
 
@@ -199,128 +260,76 @@ static void input_init(struct input_t * input)
 		gpio_direction_input(pdat->gpio_c);
 		request_irq(pdat->irq_c, rotary_encoder_gpio_c_irq, IRQ_TYPE_EDGE_BOTH, input);
 	}
+
+	if(!register_input(&dev, input))
+	{
+		free_device_name(input->name);
+		free(input->priv);
+		free(input);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static void input_exit(struct input_t * input)
+static void rotary_encoder_remove(struct device_t * dev)
 {
+	struct input_t * input = (struct input_t *)dev->priv;
 	struct rotary_encoder_pdata_t * pdat = (struct rotary_encoder_pdata_t *)input->priv;
 
-	if(pdat)
+	if(input && unregister_input(input))
 	{
 		free_irq(pdat->irq_a);
 		free_irq(pdat->irq_b);
-
 		if(gpio_is_valid(pdat->gpio_c) && irq_is_valid(pdat->irq_c))
 			free_irq(pdat->irq_c);
+
+		free_device_name(input->name);
+		free(input->priv);
+		free(input);
 	}
 }
 
-static int input_ioctl(struct input_t * input, int cmd, void * arg)
+static void rotary_encoder_suspend(struct device_t * dev)
 {
-	return -1;
+	struct input_t * input = (struct input_t *)dev->priv;
+	struct rotary_encoder_pdata_t * pdat = (struct rotary_encoder_pdata_t *)input->priv;
+
+	disable_irq(pdat->irq_a);
+	disable_irq(pdat->irq_b);
+	if(irq_is_valid(pdat->irq_c))
+		disable_irq(pdat->irq_c);
 }
 
-static void input_suspend(struct input_t * input)
+static void rotary_encoder_resume(struct device_t * dev)
 {
+	struct input_t * input = (struct input_t *)dev->priv;
+	struct rotary_encoder_pdata_t * pdat = (struct rotary_encoder_pdata_t *)input->priv;
+
+	enable_irq(pdat->irq_a);
+	enable_irq(pdat->irq_b);
+	if(irq_is_valid(pdat->irq_c))
+		enable_irq(pdat->irq_c);
 }
 
-static void input_resume(struct input_t * input)
+struct driver_t rotary_encoder = {
+	.name		= "rotary-encoder",
+	.probe		= rotary_encoder_probe,
+	.remove		= rotary_encoder_remove,
+	.suspend	= rotary_encoder_suspend,
+	.resume		= rotary_encoder_resume,
+};
+
+static __init void rotary_encoder_driver_init(void)
 {
+	register_driver(&rotary_encoder);
 }
 
-static bool_t rotary_encoder_register_rotary(struct resource_t * res)
+static __exit void rotary_encoder_driver_exit(void)
 {
-	struct rotary_encoder_data_t * rdat = (struct rotary_encoder_data_t *)res->data;
-	struct rotary_encoder_pdata_t * pdat;
-	struct input_t * input;
-	char name[64];
-
-	if(!gpio_is_valid(rdat->gpio_a) || !gpio_is_valid(rdat->gpio_b)
-			|| !irq_is_valid(gpio_to_irq(rdat->gpio_a))
-			|| !irq_is_valid(gpio_to_irq(rdat->gpio_b)))
-		return FALSE;
-
-	pdat = malloc(sizeof(struct rotary_encoder_pdata_t));
-	if(!pdat)
-		return FALSE;
-
-	input = malloc(sizeof(struct input_t));
-	if(!input)
-	{
-		free(pdat);
-		return FALSE;
-	}
-
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-
-	pdat->gpio_a = rdat->gpio_a;
-	pdat->gpio_b = rdat->gpio_b;
-	pdat->gpio_c = rdat->gpio_c;
-	pdat->inverted_a = rdat->inverted_a ? 1 : 0;
-	pdat->inverted_b = rdat->inverted_b ? 1 : 0;
-	pdat->inverted_c = rdat->inverted_c ? 1 : 0;
-	switch(rdat->steps)
-	{
-	case 4:
-	case 2:
-	case 1:
-		pdat->steps = rdat->steps;
-		break;
-	default:
-		pdat->steps = 1;
-		break;
-	}
-	pdat->irq_a = gpio_to_irq(rdat->gpio_a);
-	pdat->irq_b = gpio_to_irq(rdat->gpio_b);
-	pdat->irq_c = gpio_to_irq(rdat->gpio_c);
-
-	input->name = strdup(name);
-	input->type = INPUT_TYPE_ROTARY;
-	input->init = input_init;
-	input->exit = input_exit;
-	input->ioctl = input_ioctl;
-	input->suspend = input_suspend,
-	input->resume = input_resume,
-	input->priv = pdat;
-
-	if(register_input(input))
-		return TRUE;
-
-	free(input->priv);
-	free(input->name);
-	free(input);
-	return FALSE;
+	unregister_driver(&rotary_encoder);
 }
 
-static bool_t rotary_encoder_unregister_rotary(struct resource_t * res)
-{
-	struct input_t * input;
-	char name[64];
-
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-
-	input = search_input(name);
-	if(!input)
-		return FALSE;
-
-	if(!unregister_input(input))
-		return FALSE;
-
-	free(input->priv);
-	free(input->name);
-	free(input);
-	return TRUE;
-}
-
-static __init void rotary_encoder_device_init(void)
-{
-	resource_for_each("rotary-encoder", rotary_encoder_register_rotary);
-}
-
-static __exit void rotary_encoder_device_exit(void)
-{
-	resource_for_each("rotary-encoder", rotary_encoder_unregister_rotary);
-}
-
-device_initcall(rotary_encoder_device_init);
-device_exitcall(rotary_encoder_device_exit);
+driver_initcall(rotary_encoder_driver_init);
+driver_exitcall(rotary_encoder_driver_exit);

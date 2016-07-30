@@ -11,7 +11,7 @@
 		"default-brightness": 0
 	},
 
-	"rotary-encoder@0": {
+	"rotary-encoder": {
 		"gpio-a": 2,
 		"gpio-b": 3,
 		"gpio-c": 4,
@@ -21,23 +21,22 @@
 		"step-per-period": 1
 	},
 
-	"rotary-encoder@1": {
-		"gpio-a": 5,
-		"gpio-b": 6,
-		"gpio-c": 7,
-		"inverted-a": false,
-		"inverted-b": false,
-		"inverted-c": false,
-		"step-per-period": 1
+	"rc-gpio": {
+		"gpio": 5,
+		"active-low": true,
+		"maps": [
+			{ "scan-code": 123, "key-code": 56 },
+			{ "scan-code": 124, "key-code": 88 }
+		]
 	},
 
 	"buzzer-gpio": {
-		"gpio": 8,
+		"gpio": 6,
 		"active-low": true
 	},
 
 	"vibrator-gpio": {
-		"gpio": 9,
+		"gpio": 7,
 		"active-low": true
 	},
 

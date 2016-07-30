@@ -40,31 +40,6 @@ physical_addr_t dt_read_address(struct dtnode_t * n)
 	return n ? n->addr : 0;
 }
 
-struct dtnode_t * dt_read_object(struct dtnode_t * n, const char * name)
-{
-	struct dtnode_t child;
-	json_value * v;
-	int i;
-
-	if(n && n->value && (n->value->type == json_object))
-	{
-		for(i = 0; i < n->value->u.object.length; i++)
-		{
-			if(strcmp(n->value->u.object.values[i].name, name) == 0)
-			{
-				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_object))
-				{
-					child.name = name;
-					child.value = v->u.object.values;
-					return &child;
-				}
-			}
-		}
-	}
-	return NULL;
-}
-
 int dt_read_bool(struct dtnode_t * n, const char * name, int def)
 {
 	json_value * v;
@@ -118,7 +93,7 @@ double dt_read_double(struct dtnode_t * n, const char * name, double def)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_double))
-					return v->u.dbl;
+					return (double)v->u.dbl;
 			}
 		}
 	}
@@ -138,7 +113,7 @@ char * dt_read_string(struct dtnode_t * n, const char * name, char * def)
 			{
 				v = n->value->u.object.values[i].value;
 				if(v && (v->type == json_string))
-					return v->u.string.ptr;
+					return (char *)v->u.string.ptr;
 			}
 		}
 	}
@@ -223,6 +198,299 @@ u64_t dt_read_u64(struct dtnode_t * n, const char * name, u64_t def)
 		}
 	}
 	return def;
+}
+
+struct dtnode_t * dt_read_object(struct dtnode_t * n, const char * name, struct dtnode_t * o)
+{
+	json_value * v;
+	int i;
+
+	if(o && n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_object))
+				{
+					o->name = name;
+					o->addr = 0;
+					o->value = v;
+					return o;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+int dt_read_array_length(struct dtnode_t * n, const char * name)
+{
+	json_value * v;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+					return v->u.array.length;
+			}
+		}
+	}
+	return 0;
+}
+
+int dt_read_array_bool(struct dtnode_t * n, const char * name, int idx, int def)
+{
+	json_value * v, * e;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_boolean))
+							return e->u.boolean ? 1 : 0;
+					}
+				}
+			}
+		}
+	}
+	return def ? 1 : 0;
+}
+
+int dt_read_array_int(struct dtnode_t * n, const char * name, int idx, int def)
+{
+	json_value * v, * e;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_integer))
+							return (int)e->u.integer;
+					}
+				}
+			}
+		}
+	}
+	return def;
+}
+
+double dt_read_array_double(struct dtnode_t * n, const char * name, int idx, double def)
+{
+	json_value * v, * e;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_double))
+							return (double)e->u.dbl;
+					}
+				}
+			}
+		}
+	}
+	return def;
+}
+
+char * dt_read_array_string(struct dtnode_t * n, const char * name, int idx, char * def)
+{
+	json_value * v, * e;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_string))
+							return (char *)e->u.string.ptr;
+					}
+				}
+			}
+		}
+	}
+	return def;
+}
+
+u8_t dt_read_array_u8(struct dtnode_t * n, const char * name, int idx, u8_t def)
+{
+	json_value * v, * e;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_integer))
+							return (u8_t)e->u.integer;
+					}
+				}
+			}
+		}
+	}
+	return def;
+}
+
+u16_t dt_read_array_u16(struct dtnode_t * n, const char * name, int idx, u16_t def)
+{
+	json_value * v, * e;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_integer))
+							return (u16_t)e->u.integer;
+					}
+				}
+			}
+		}
+	}
+	return def;
+}
+
+u32_t dt_read_array_u32(struct dtnode_t * n, const char * name, int idx, u32_t def)
+{
+	json_value * v, * e;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_integer))
+							return (u32_t)e->u.integer;
+					}
+				}
+			}
+		}
+	}
+	return def;
+}
+
+u64_t dt_read_array_u64(struct dtnode_t * n, const char * name, int idx, u64_t def)
+{
+	json_value * v, * e;
+	int i;
+
+	if(n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_integer))
+							return (u64_t)e->u.integer;
+					}
+				}
+			}
+		}
+	}
+	return def;
+}
+
+struct dtnode_t * dt_read_array_object(struct dtnode_t * n, const char * name, int idx, struct dtnode_t * o)
+{
+	json_value * v, * e;
+	int i;
+
+	if(o && n && n->value && (n->value->type == json_object))
+	{
+		for(i = 0; i < n->value->u.object.length; i++)
+		{
+			if(strcmp(n->value->u.object.values[i].name, name) == 0)
+			{
+				v = n->value->u.object.values[i].value;
+				if(v && (v->type == json_array))
+				{
+					if(idx >= 0 && (idx < v->u.array.length))
+					{
+						e = v->u.array.values[idx];
+						if(e && (e->type == json_object))
+						{
+							o->name = 0;
+							o->addr = 0;
+							o->value = e;
+							return o;
+						}
+					}
+				}
+			}
+		}
+	}
+	return NULL;
 }
 
 void subsys_init_dt(void)

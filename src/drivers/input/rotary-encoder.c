@@ -263,6 +263,11 @@ static struct device_t * rotary_encoder_probe(struct driver_t * drv, struct dtno
 
 	if(!register_input(&dev, input))
 	{
+		free_irq(pdat->irq_a);
+		free_irq(pdat->irq_b);
+		if(gpio_is_valid(pdat->gpio_c) && irq_is_valid(pdat->irq_c))
+			free_irq(pdat->irq_c);
+
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
@@ -298,7 +303,7 @@ static void rotary_encoder_suspend(struct device_t * dev)
 
 	disable_irq(pdat->irq_a);
 	disable_irq(pdat->irq_b);
-	if(irq_is_valid(pdat->irq_c))
+	if(gpio_is_valid(pdat->gpio_c) && irq_is_valid(pdat->irq_c))
 		disable_irq(pdat->irq_c);
 }
 
@@ -309,7 +314,7 @@ static void rotary_encoder_resume(struct device_t * dev)
 
 	enable_irq(pdat->irq_a);
 	enable_irq(pdat->irq_b);
-	if(irq_is_valid(pdat->irq_c))
+	if(gpio_is_valid(pdat->gpio_c) && irq_is_valid(pdat->irq_c))
 		enable_irq(pdat->irq_c);
 }
 

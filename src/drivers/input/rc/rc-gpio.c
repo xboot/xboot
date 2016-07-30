@@ -34,7 +34,7 @@ struct rc_gpio_pdata_t {
 	int active_low;
 };
 
-static void rc_gpio_irq(void * data)
+static void rc_gpio_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
 	struct rc_gpio_pdata_t * pdat = (struct rc_gpio_pdata_t *)input->priv;
@@ -66,8 +66,10 @@ static struct device_t * rc_gpio_probe(struct driver_t * drv, struct dtnode_t * 
 	struct rc_gpio_pdata_t * pdat;
 	struct input_t * input;
 	struct device_t * dev;
+	struct dtnode_t o;
 	int gpio = dt_read_int(n, "gpio", -1);
 	int irq = gpio_to_irq(gpio);
+	int i;
 
 	if(!gpio_is_valid(gpio) || !irq_is_valid(irq))
 		return NULL;
@@ -83,14 +85,19 @@ static struct device_t * rc_gpio_probe(struct driver_t * drv, struct dtnode_t * 
 		return NULL;
 	}
 
-	/*	if(rdat->map && rdat->size > 0)
+	memset(&pdat->decoder, 0, sizeof(struct rc_decoder_t));
+	if((pdat->decoder.size = dt_read_array_length(n, "maps")) > 0)
+	{
+		pdat->decoder.map = malloc(sizeof(struct rc_map_t) * pdat->decoder.size);
+		for(i = 0; i < pdat->decoder.size; i++)
 		{
-			pdat->decoder.map = malloc(sizeof(struct rc_map_t) * rdat->size);
-			memcpy(pdat->decoder.map, rdat->map, sizeof(struct rc_map_t) * rdat->size);
-			pdat->decoder.size = rdat->size;
-		}*/
+			dt_read_array_object(n, "maps", i, &o);
+			pdat->decoder.map[i].scancode = dt_read_int(&o, "scan-code", 0);
+			pdat->decoder.map[i].keycode = dt_read_int(&o, "key-code", 0);
+		}
+	}
 	pdat->last = ktime_get();
-	pdat->gpio = dt_read_int(n, "gpio", -1);
+	pdat->gpio = gpio;
 	pdat->irq = irq;
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 
@@ -101,10 +108,14 @@ static struct device_t * rc_gpio_probe(struct driver_t * drv, struct dtnode_t * 
 
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
 	gpio_direction_input(pdat->gpio);
-	request_irq(pdat->irq, rc_gpio_irq, IRQ_TYPE_EDGE_BOTH, input);
+	request_irq(pdat->irq, rc_gpio_interrupt, IRQ_TYPE_EDGE_BOTH, input);
 
 	if(!register_input(&dev, input))
 	{
+		free_irq(pdat->irq);
+		if(pdat->decoder.size > 0)
+			free(pdat->decoder.map);
+
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

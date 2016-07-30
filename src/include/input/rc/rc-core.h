@@ -11,8 +11,8 @@ extern "C" {
 #include <input/rc/rc-decoder-nec.h>
 
 struct rc_map_t {
-	uint32_t scan;
-	uint32_t key;
+	uint32_t scancode;
+	uint32_t keycode;
 };
 
 struct rc_decoder_t {

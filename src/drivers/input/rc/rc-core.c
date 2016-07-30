@@ -36,8 +36,8 @@ uint32_t rc_decoder_handle(struct rc_decoder_t * decoder, int pulse, int duratio
 
 	for(i = 0; i < decoder->size; i++)
 	{
-		if(decoder->map[i].scan == code)
-			return decoder->map[i].key;
+		if(decoder->map[i].scancode == code)
+			return decoder->map[i].keycode;
 	}
 	return code;
 }

@@ -33,22 +33,27 @@ struct led_pwm_pdata_t {
 	int brightness;
 };
 
+static void led_pwm_set_brightness(struct led_pwm_pdata_t * pdat, int brightness)
+{
+	if(brightness > 0)
+	{
+		int duty = brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
+		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
+		pwm_enable(pdat->pwm);
+	}
+	else
+	{
+		pwm_disable(pdat->pwm);
+	}
+}
+
 static void led_pwm_set(struct led_t * led, int brightness)
 {
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
 
 	if(pdat->brightness != brightness)
 	{
-		if(brightness > 0)
-		{
-			int duty = brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
-			pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
-			pwm_enable(pdat->pwm);
-		}
-		else
-		{
-			pwm_disable(pdat->pwm);
-		}
+		led_pwm_set_brightness(pdat, brightness);
 		pdat->brightness = brightness;
 	}
 }
@@ -90,19 +95,12 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	led->get = led_pwm_get,
 	led->priv = pdat;
 
-	if(pdat->brightness > 0)
-	{
-		int duty = pdat->brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
-		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
-		pwm_enable(pdat->pwm);
-	}
-	else
-	{
-		pwm_disable(pdat->pwm);
-	}
+	led_pwm_set_brightness(pdat, pdat->brightness);
 
 	if(!register_led(&dev, led))
 	{
+		led_pwm_set_brightness(pdat, 0);
+
 		free_device_name(led->name);
 		free(led->priv);
 		free(led);
@@ -120,8 +118,7 @@ static void led_pwm_remove(struct device_t * dev)
 
 	if(led && unregister_led(led))
 	{
-		pdat->brightness = 0;
-		pwm_disable(pdat->pwm);
+		led_pwm_set_brightness(pdat, 0);
 
 		free_device_name(led->name);
 		free(led->priv);
@@ -134,7 +131,7 @@ static void led_pwm_suspend(struct device_t * dev)
 	struct led_t * led = (struct led_t *)dev->priv;
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
 
-	pwm_disable(pdat->pwm);
+	led_pwm_set_brightness(pdat, 0);
 }
 
 static void led_pwm_resume(struct device_t * dev)
@@ -142,16 +139,7 @@ static void led_pwm_resume(struct device_t * dev)
 	struct led_t * led = (struct led_t *)dev->priv;
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
 
-	if(pdat->brightness > 0)
-	{
-		int duty = pdat->brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
-		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
-		pwm_enable(pdat->pwm);
-	}
-	else
-	{
-		pwm_disable(pdat->pwm);
-	}
+	led_pwm_set_brightness(pdat, pdat->brightness);
 }
 
 struct driver_t led_pwm = {

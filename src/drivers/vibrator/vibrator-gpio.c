@@ -39,6 +39,14 @@ struct vibrator_gpio_pdata_t {
 	int state;
 };
 
+static void vibrator_gpio_set_state(struct vibrator_gpio_pdata_t * pdat, int state)
+{
+	if(state > 0)
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
+	else
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+}
+
 static void iter_queue_node(struct queue_node_t * node)
 {
 	if(node && node->data)
@@ -51,10 +59,7 @@ static void vibrator_gpio_set(struct vibrator_t * vib, int state)
 
 	if(pdat->state != state)
 	{
-		if(state > 0)
-			gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
-		else
-			gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+		vibrator_gpio_set_state(pdat, state);
 		pdat->state = state;
 	}
 }
@@ -139,12 +144,14 @@ static struct device_t * vibrator_gpio_probe(struct driver_t * drv, struct dtnod
 	vib->priv = pdat;
 
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+	vibrator_gpio_set_state(pdat, 0);
 
 	if(!register_vibrator(&dev, vib))
 	{
+		vibrator_gpio_set_state(pdat, 0);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+
 		free_device_name(vib->name);
 		free(vib->priv);
 		free(vib);
@@ -162,11 +169,10 @@ static void vibrator_gpio_remove(struct device_t * dev)
 
 	if(vib && unregister_vibrator(vib))
 	{
-		pdat->state = 0;
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
-
+		vibrator_gpio_set_state(pdat, 0);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+
 		free_device_name(vib->name);
 		free(vib->priv);
 		free(vib);
@@ -178,7 +184,7 @@ static void vibrator_gpio_suspend(struct device_t * dev)
 	struct vibrator_t * vib = (struct vibrator_t *)dev->priv;
 	struct vibrator_gpio_pdata_t * pdat = (struct vibrator_gpio_pdata_t *)vib->priv;
 
-	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+	vibrator_gpio_set_state(pdat, 0);
 }
 
 static void vibrator_gpio_resume(struct device_t * dev)
@@ -186,10 +192,7 @@ static void vibrator_gpio_resume(struct device_t * dev)
 	struct vibrator_t * vib = (struct vibrator_t *)dev->priv;
 	struct vibrator_gpio_pdata_t * pdat = (struct vibrator_gpio_pdata_t *)vib->priv;
 
-	if(pdat->state > 0)
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
-	else
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+	vibrator_gpio_set_state(pdat, pdat->state);
 }
 
 struct driver_t vibrator_gpio = {

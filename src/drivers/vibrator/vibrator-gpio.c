@@ -144,7 +144,7 @@ static struct device_t * vibrator_gpio_probe(struct driver_t * drv, struct dtnod
 	vib->priv = pdat;
 
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	vibrator_gpio_set_state(pdat, 0);
+	vibrator_gpio_set_state(pdat, pdat->state);
 
 	if(!register_vibrator(&dev, vib))
 	{

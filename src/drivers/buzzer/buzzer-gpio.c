@@ -39,6 +39,14 @@ struct buzzer_gpio_pdata_t {
 	int frequency;
 };
 
+static void buzzer_gpio_set_frequency(struct buzzer_gpio_pdata_t * pdat, int frequency)
+{
+	if(frequency > 0)
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
+	else
+		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+}
+
 static void iter_queue_node(struct queue_node_t * node)
 {
 	if(node && node->data)
@@ -51,10 +59,7 @@ static void buzzer_gpio_set(struct buzzer_t * buzzer, int frequency)
 
 	if(pdat->frequency != frequency)
 	{
-		if(frequency > 0)
-			gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
-		else
-			gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+		buzzer_gpio_set_frequency(pdat, frequency);
 		pdat->frequency = frequency;
 	}
 }
@@ -139,12 +144,14 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	buzzer->priv = pdat;
 
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+	buzzer_gpio_set_frequency(pdat, pdat->frequency);
 
 	if(!register_buzzer(&dev, buzzer))
 	{
+		buzzer_gpio_set_frequency(pdat, 0);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+
 		free_device_name(buzzer->name);
 		free(buzzer->priv);
 		free(buzzer);
@@ -162,11 +169,10 @@ static void buzzer_gpio_remove(struct device_t * dev)
 
 	if(buzzer && unregister_buzzer(buzzer))
 	{
-		pdat->frequency = 0;
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
-
+		buzzer_gpio_set_frequency(pdat, 0);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+
 		free_device_name(buzzer->name);
 		free(buzzer->priv);
 		free(buzzer);
@@ -178,7 +184,7 @@ static void buzzer_gpio_suspend(struct device_t * dev)
 	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
 	struct buzzer_gpio_pdata_t * pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
 
-	gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+	buzzer_gpio_set_frequency(pdat, 0);
 }
 
 static void buzzer_gpio_resume(struct device_t * dev)
@@ -186,10 +192,7 @@ static void buzzer_gpio_resume(struct device_t * dev)
 	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
 	struct buzzer_gpio_pdata_t * pdat = (struct buzzer_gpio_pdata_t *)buzzer->priv;
 
-	if(pdat->frequency > 0)
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
-	else
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+	buzzer_gpio_set_frequency(pdat, pdat->frequency);
 }
 
 struct driver_t buzzer_gpio = {

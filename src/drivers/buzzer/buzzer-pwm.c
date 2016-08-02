@@ -39,6 +39,20 @@ struct buzzer_pwm_pdata_t {
 	int frequency;
 };
 
+static void buzzer_pwm_set_frequency(struct buzzer_pwm_pdata_t * pdat, int frequency)
+{
+	if(frequency > 0)
+	{
+		int period = 1000000000ULL / frequency;
+		pwm_config(pdat->pwm, period / 2, period, pdat->polarity);
+		pwm_enable(pdat->pwm);
+	}
+	else
+	{
+		pwm_disable(pdat->pwm);
+	}
+}
+
 static void iter_queue_node(struct queue_node_t * node)
 {
 	if(node && node->data)
@@ -48,20 +62,10 @@ static void iter_queue_node(struct queue_node_t * node)
 static void buzzer_pwm_set(struct buzzer_t * buzzer, int frequency)
 {
 	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
-	int period;
 
 	if(pdat->frequency != frequency)
 	{
-		if(frequency > 0)
-		{
-			period = 1000000000ULL / frequency;
-			pwm_config(pdat->pwm, period / 2, period, pdat->polarity);
-			pwm_enable(pdat->pwm);
-		}
-		else
-		{
-			pwm_disable(pdat->pwm);
-		}
+		buzzer_pwm_set_frequency(pdat, frequency);
 		pdat->frequency = frequency;
 	}
 }
@@ -120,7 +124,7 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	struct buzzer_t * buzzer;
 	struct device_t * dev;
 
-	if(!(pwm = search_pwm(dt_read_string(n, "pwm", ""))))
+	if(!(pwm = search_pwm(dt_read_string(n, "pwm", NULL))))
 		return NULL;
 
 	pdat = malloc(sizeof(struct buzzer_pwm_pdata_t));
@@ -146,12 +150,14 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	buzzer->beep = buzzer_pwm_beep,
 	buzzer->priv = pdat;
 
-	pwm_disable(pdat->pwm);
+	buzzer_pwm_set_frequency(pdat, pdat->frequency);
 
 	if(!register_buzzer(&dev, buzzer))
 	{
+		buzzer_pwm_set_frequency(pdat, 0);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+
 		free_device_name(buzzer->name);
 		free(buzzer->priv);
 		free(buzzer);
@@ -169,11 +175,10 @@ static void buzzer_pwm_remove(struct device_t * dev)
 
 	if(buzzer && unregister_buzzer(buzzer))
 	{
-		pdat->frequency = 0;
-		pwm_disable(pdat->pwm);
-
+		buzzer_pwm_set_frequency(pdat, 0);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
+
 		free_device_name(buzzer->name);
 		free(buzzer->priv);
 		free(buzzer);
@@ -185,7 +190,7 @@ static void buzzer_pwm_suspend(struct device_t * dev)
 	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
 	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
 
-	pwm_disable(pdat->pwm);
+	buzzer_pwm_set_frequency(pdat, 0);
 }
 
 static void buzzer_pwm_resume(struct device_t * dev)
@@ -193,10 +198,7 @@ static void buzzer_pwm_resume(struct device_t * dev)
 	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
 	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
 
-	if(pdat->frequency > 0)
-		pwm_enable(pdat->pwm);
-	else
-		pwm_disable(pdat->pwm);
+	buzzer_pwm_set_frequency(pdat, pdat->frequency);
 }
 
 struct driver_t buzzer_pwm = {

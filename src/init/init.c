@@ -81,7 +81,7 @@ void do_system_logo(void)
 		if(pos->device->type != DEVICE_TYPE_FB)
 			continue;
 
-		fb = (struct fb_t *)(pos->device->driver);
+		fb = (struct fb_t *)(pos->device->priv);
 		if(fb)
 		{
 			cs = cairo_xboot_surface_create(fb, fb->alone);

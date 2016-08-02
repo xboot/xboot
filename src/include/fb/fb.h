@@ -41,12 +41,6 @@ struct fb_t
 	/* Present a render */
 	void (*present)(struct fb_t * fb, struct render_t * render);
 
-	/* Suspend framebuffer */
-	void (*suspend)(struct fb_t * fb);
-
-	/* Resume framebuffer */
-	void (*resume)(struct fb_t * fb);
-
 	/* Alone render - create by register */
 	struct render_t * alone;
 

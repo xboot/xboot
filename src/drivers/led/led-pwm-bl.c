@@ -1,5 +1,5 @@
 /*
- * driver/led/led-pwm.c
+ * driver/led/led-pwm-bl.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -26,42 +26,48 @@
 #include <pwm/pwm.h>
 #include <led/led.h>
 
-struct led_pwm_pdata_t {
+struct led_pwm_bl_pdata_t {
 	struct pwm_t * pwm;
 	int period;
+	int from;
+	int to;
 	int polarity;
 	int brightness;
+	int power;
+	int power_active_low;
 };
 
-static void led_pwm_set(struct led_t * led, int brightness)
+static void led_pwm_bl_set(struct led_t * led, int brightness)
 {
-	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
+	struct led_pwm_bl_pdata_t * pdat = (struct led_pwm_bl_pdata_t *)led->priv;
 
 	if(pdat->brightness != brightness)
 	{
 		if(brightness > 0)
 		{
-			int duty = brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
+			int duty = pdat->from + (pdat->to - pdat->from) * brightness / CONFIG_MAX_BRIGHTNESS;
 			pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 			pwm_enable(pdat->pwm);
+			gpio_direction_output(pdat->power, pdat->power_active_low ? 0 : 1);
 		}
 		else
 		{
 			pwm_disable(pdat->pwm);
+			gpio_direction_output(pdat->power, pdat->power_active_low ? 1 : 0);
 		}
 		pdat->brightness = brightness;
 	}
 }
 
-static int led_pwm_get(struct led_t * led)
+static int led_pwm_bl_get(struct led_t * led)
 {
-	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
+	struct led_pwm_bl_pdata_t * pdat = (struct led_pwm_bl_pdata_t *)led->priv;
 	return pdat->brightness;
 }
 
-static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * led_pwm_bl_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct led_pwm_pdata_t * pdat;
+	struct led_pwm_bl_pdata_t * pdat;
 	struct pwm_t * pwm;
 	struct led_t * led;
 	struct device_t * dev;
@@ -69,7 +75,7 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	if(!(pwm = search_pwm(dt_read_string(n, "pwm", NULL))))
 		return NULL;
 
-	pdat = malloc(sizeof(struct led_pwm_pdata_t));
+	pdat = malloc(sizeof(struct led_pwm_bl_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -82,23 +88,30 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 
 	pdat->pwm = pwm;
 	pdat->period = dt_read_int(n, "period", 1000 * 1000);
+	pdat->from = dt_read_int(n, "from", 0) * pdat->period / 100;
+	pdat->to = dt_read_int(n, "to", 100) * pdat->period / 100;
 	pdat->polarity = dt_read_bool(n, "polarity", 0);
 	pdat->brightness = dt_read_int(n, "default-brightness", 0);
+	pdat->power = dt_read_int(n, "power", -1);
+	pdat->power_active_low = dt_read_bool(n, "power-active-low", 0);
 
 	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	led->set = led_pwm_set,
-	led->get = led_pwm_get,
+	led->set = led_pwm_bl_set,
+	led->get = led_pwm_bl_get,
 	led->priv = pdat;
 
+	gpio_set_pull(pdat->power, pdat->power_active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
 	if(pdat->brightness > 0)
 	{
-		int duty = pdat->brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
+		int duty = pdat->from + (pdat->to - pdat->from) * pdat->brightness / CONFIG_MAX_BRIGHTNESS;
 		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 		pwm_enable(pdat->pwm);
+		gpio_direction_output(pdat->power, pdat->power_active_low ? 0 : 1);
 	}
 	else
 	{
 		pwm_disable(pdat->pwm);
+		gpio_direction_output(pdat->power, pdat->power_active_low ? 1 : 0);
 	}
 
 	if(!register_led(&dev, led))
@@ -113,15 +126,16 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	return dev;
 }
 
-static void led_pwm_remove(struct device_t * dev)
+static void led_pwm_bl_remove(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
-	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
+	struct led_pwm_bl_pdata_t * pdat = (struct led_pwm_bl_pdata_t *)led->priv;
 
 	if(led && unregister_led(led))
 	{
 		pdat->brightness = 0;
 		pwm_disable(pdat->pwm);
+		gpio_direction_output(pdat->power, pdat->power_active_low ? 1 : 0);
 
 		free_device_name(led->name);
 		free(led->priv);
@@ -129,48 +143,51 @@ static void led_pwm_remove(struct device_t * dev)
 	}
 }
 
-static void led_pwm_suspend(struct device_t * dev)
+static void led_pwm_bl_suspend(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
-	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
+	struct led_pwm_bl_pdata_t * pdat = (struct led_pwm_bl_pdata_t *)led->priv;
 
 	pwm_disable(pdat->pwm);
+	gpio_direction_output(pdat->power, pdat->power_active_low ? 1 : 0);
 }
 
-static void led_pwm_resume(struct device_t * dev)
+static void led_pwm_bl_resume(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
-	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
+	struct led_pwm_bl_pdata_t * pdat = (struct led_pwm_bl_pdata_t *)led->priv;
 
 	if(pdat->brightness > 0)
 	{
-		int duty = pdat->brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
+		int duty = pdat->from + (pdat->to - pdat->from) * pdat->brightness / CONFIG_MAX_BRIGHTNESS;
 		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 		pwm_enable(pdat->pwm);
+		gpio_direction_output(pdat->power, pdat->power_active_low ? 0 : 1);
 	}
 	else
 	{
 		pwm_disable(pdat->pwm);
+		gpio_direction_output(pdat->power, pdat->power_active_low ? 1 : 0);
 	}
 }
 
-struct driver_t led_pwm = {
-	.name		= "led-pwm",
-	.probe		= led_pwm_probe,
-	.remove		= led_pwm_remove,
-	.suspend	= led_pwm_suspend,
-	.resume		= led_pwm_resume,
+struct driver_t led_pwm_bl = {
+	.name		= "led-pwm-bl",
+	.probe		= led_pwm_bl_probe,
+	.remove		= led_pwm_bl_remove,
+	.suspend	= led_pwm_bl_suspend,
+	.resume		= led_pwm_bl_resume,
 };
 
-static __init void led_pwm_driver_init(void)
+static __init void led_pwm_bl_driver_init(void)
 {
-	register_driver(&led_pwm);
+	register_driver(&led_pwm_bl);
 }
 
-static __exit void led_pwm_driver_exit(void)
+static __exit void led_pwm_bl_driver_exit(void)
 {
-	unregister_driver(&led_pwm);
+	unregister_driver(&led_pwm_bl);
 }
 
-driver_initcall(led_pwm_driver_init);
-driver_exitcall(led_pwm_driver_exit);
+driver_initcall(led_pwm_bl_driver_init);
+driver_exitcall(led_pwm_bl_driver_exit);

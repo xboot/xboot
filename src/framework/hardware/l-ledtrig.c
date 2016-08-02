@@ -46,7 +46,7 @@ static int l_ledtrig_list(lua_State * L)
 	{
 		if(pos->device->type == DEVICE_TYPE_LEDTRIG)
 		{
-			trigger = (struct ledtrig_t *)(pos->device->driver);
+			trigger = (struct ledtrig_t *)(pos->device->priv);
 			if(!trigger)
 				continue;
 			lua_pushlightuserdata(L, trigger);

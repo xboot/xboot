@@ -46,7 +46,7 @@ static int l_buzzer_list(lua_State * L)
 	{
 		if(pos->device->type == DEVICE_TYPE_BUZZER)
 		{
-			buzzer = (struct buzzer_t *)(pos->device->driver);
+			buzzer = (struct buzzer_t *)(pos->device->priv);
 			if(!buzzer)
 				continue;
 			lua_pushlightuserdata(L, buzzer);

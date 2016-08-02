@@ -46,7 +46,7 @@ static int l_led_list(lua_State * L)
 	{
 		if(pos->device->type == DEVICE_TYPE_LED)
 		{
-			led = (struct led_t *)(pos->device->driver);
+			led = (struct led_t *)(pos->device->priv);
 			if(!led)
 				continue;
 			lua_pushlightuserdata(L, led);

@@ -46,7 +46,7 @@ static int l_vibrator_list(lua_State * L)
 	{
 		if(pos->device->type == DEVICE_TYPE_BUZZER)
 		{
-			vib = (struct vibrator_t *)(pos->device->driver);
+			vib = (struct vibrator_t *)(pos->device->priv);
 			if(!vib)
 				continue;
 			lua_pushlightuserdata(L, vib);

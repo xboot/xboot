@@ -38,14 +38,21 @@ static int l_pwm_new(lua_State * L)
 
 static int l_pwm_list(lua_State * L)
 {
-	struct pwm_list_t * pos, * n;
+	struct device_list_t * pos, * n;
+	struct pwm_t * pwm;
 
 	lua_newtable(L);
-	list_for_each_entry_safe(pos, n, &(__pwm_list.entry), entry)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		lua_pushlightuserdata(L, pos->pwm);
-		luaL_setmetatable(L, MT_HARDWARE_PWM);
-		lua_setfield(L, -2, pos->pwm->name);
+		if(pos->device->type == DEVICE_TYPE_PWM)
+		{
+			pwm = (struct pwm_t *)(pos->device->priv);
+			if(!pwm)
+				continue;
+			lua_pushlightuserdata(L, pwm);
+			luaL_setmetatable(L, MT_HARDWARE_PWM);
+			lua_setfield(L, -2, pos->device->name);
+		}
 	}
 	return 1;
 }

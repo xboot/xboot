@@ -46,7 +46,7 @@ static int l_watchdog_list(lua_State * L)
 	{
 		if(pos->device->type == DEVICE_TYPE_WATCHDOG)
 		{
-			watchdog = (struct watchdog_t *)(pos->device->driver);
+			watchdog = (struct watchdog_t *)(pos->device->priv);
 			if(!watchdog)
 				continue;
 			lua_pushlightuserdata(L, watchdog);

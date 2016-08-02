@@ -60,7 +60,7 @@ static ssize_t fb_read_brightness(struct kobj_t * kobj, void * buf, size_t size)
 	struct fb_t * fb = (struct fb_t *)kobj->priv;
 	int brightness;
 
-	brightness = framebuffer_get_backlight_brightness(fb);
+	brightness = fb_get_backlight(fb);
 	return sprintf(buf, "%d", brightness);
 }
 
@@ -69,7 +69,7 @@ static ssize_t fb_write_brightness(struct kobj_t * kobj, void * buf, size_t size
 	struct fb_t * fb = (struct fb_t *)kobj->priv;
 	int brightness = strtol(buf, NULL, 0);
 
-	framebuffer_set_backlight_brightness(fb, brightness);
+	fb_set_backlight(fb, brightness);
 	return size;
 }
 
@@ -78,29 +78,29 @@ static ssize_t fb_read_max_brightness(struct kobj_t * kobj, void * buf, size_t s
 	return sprintf(buf, "%u", CONFIG_MAX_BRIGHTNESS);
 }
 
-struct fb_t * search_framebuffer(const char * name)
+struct fb_t * search_fb(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_FRAMEBUFFER);
+	dev = search_device_with_type(name, DEVICE_TYPE_FB);
 	if(!dev)
 		return NULL;
 
 	return (struct fb_t *)dev->priv;
 }
 
-struct fb_t * search_first_framebuffer(void)
+struct fb_t * search_first_fb(void)
 {
 	struct device_t * dev;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_FRAMEBUFFER);
+	dev = search_first_device_with_type(DEVICE_TYPE_FB);
 	if(!dev)
 		return NULL;
 
 	return (struct fb_t *)dev->priv;
 }
 
-bool_t register_framebuffer(struct device_t ** device, struct fb_t * fb)
+bool_t register_fb(struct device_t ** device, struct fb_t * fb)
 {
 	struct device_t * dev;
 
@@ -112,7 +112,7 @@ bool_t register_framebuffer(struct device_t ** device, struct fb_t * fb)
 		return FALSE;
 
 	dev->name = strdup(fb->name);
-	dev->type = DEVICE_TYPE_FRAMEBUFFER;
+	dev->type = DEVICE_TYPE_FB;
 	dev->priv = fb;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "width", fb_read_width, NULL, fb);
@@ -145,7 +145,7 @@ bool_t register_framebuffer(struct device_t ** device, struct fb_t * fb)
 	return TRUE;
 }
 
-bool_t unregister_framebuffer(struct fb_t * fb)
+bool_t unregister_fb(struct fb_t * fb)
 {
 	struct device_t * dev;
 	struct fb_t * driver;
@@ -153,7 +153,7 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	if(!fb || !fb->name)
 		return FALSE;
 
-	dev = search_device_with_type(fb->name, DEVICE_TYPE_FRAMEBUFFER);
+	dev = search_device_with_type(fb->name, DEVICE_TYPE_FB);
 	if(!dev)
 		return FALSE;
 
@@ -174,7 +174,7 @@ bool_t unregister_framebuffer(struct fb_t * fb)
 	return TRUE;
 }
 
-void framebuffer_set_backlight_brightness(struct fb_t * fb, int brightness)
+void fb_set_backlight(struct fb_t * fb, int brightness)
 {
 	if(fb && fb->setbl)
 	{
@@ -186,7 +186,7 @@ void framebuffer_set_backlight_brightness(struct fb_t * fb, int brightness)
 	}
 }
 
-int framebuffer_get_backlight_brightness(struct fb_t * fb)
+int fb_get_backlight(struct fb_t * fb)
 {
 	if(fb && fb->getbl)
 		return fb->getbl(fb);

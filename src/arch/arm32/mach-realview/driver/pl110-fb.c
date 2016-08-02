@@ -227,7 +227,7 @@ static bool_t pl110_register_framebuffer(struct resource_t * res)
 	fb->resume = fb_resume,
 	fb->priv = pdat;
 
-	if(register_framebuffer(NULL, fb))
+	if(register_fb(NULL, fb))
 		return TRUE;
 
 	free(fb->priv);
@@ -244,12 +244,12 @@ static bool_t pl110_unregister_framebuffer(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	fb = search_framebuffer(name);
+	fb = search_fb(name);
 	if(!fb)
 		return FALSE;
 	pdat = (struct pl110_fb_pdata_t *)fb->priv;
 
-	if(!unregister_framebuffer(fb))
+	if(!unregister_fb(fb))
 		return FALSE;
 
 	dma_free_noncoherent(pdat->vram[0]);

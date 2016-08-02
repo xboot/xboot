@@ -54,12 +54,13 @@ struct fb_t
 	void * priv;
 };
 
-struct fb_t * search_framebuffer(const char * name);
-struct fb_t * search_first_framebuffer(void);
-bool_t register_framebuffer(struct device_t ** device, struct fb_t * fb);
-bool_t unregister_framebuffer(struct fb_t * fb);
-void framebuffer_set_backlight_brightness(struct fb_t * fb, int brightness);
-int framebuffer_get_backlight_brightness(struct fb_t * fb);
+struct fb_t * search_fb(const char * name);
+struct fb_t * search_first_fb(void);
+bool_t register_fb(struct device_t ** device, struct fb_t * fb);
+bool_t unregister_fb(struct fb_t * fb);
+
+void fb_set_backlight(struct fb_t * fb, int brightness);
+int fb_get_backlight(struct fb_t * fb);
 
 #ifdef __cplusplus
 }

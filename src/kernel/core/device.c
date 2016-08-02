@@ -66,8 +66,8 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_DISK:
 		name = "disk";
 		break;
-	case DEVICE_TYPE_FRAMEBUFFER:
-		name = "framebuffer";
+	case DEVICE_TYPE_FB:
+		name = "fb";
 		break;
 	case DEVICE_TYPE_INPUT:
 		name = "input";
@@ -102,7 +102,7 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 
 char * alloc_device_name(const char * name, int id)
 {
-	char buf[128];
+	char buf[256];
 
 	if(id < 0)
 		id = 0;

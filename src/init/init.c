@@ -78,7 +78,7 @@ void do_system_logo(void)
 
 	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		if(pos->device->type != DEVICE_TYPE_FRAMEBUFFER)
+		if(pos->device->type != DEVICE_TYPE_FB)
 			continue;
 
 		fb = (struct fb_t *)(pos->device->driver);
@@ -101,7 +101,7 @@ void do_system_logo(void)
 			cairo_xboot_surface_present(cs);
 			cairo_surface_destroy(cs);
 
-			framebuffer_set_backlight_brightness(fb, CONFIG_MAX_BRIGHTNESS);
+			fb_set_backlight(fb, CONFIG_MAX_BRIGHTNESS);
 		}
 	}
 

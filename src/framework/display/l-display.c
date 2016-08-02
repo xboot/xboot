@@ -45,7 +45,7 @@ static int l_display_new(lua_State * L)
 {
 	const char * name = luaL_optstring(L, 1, NULL);
 	struct ldisplay_t * display;
-	struct fb_t * fb = name ? search_framebuffer(name) : search_first_framebuffer();
+	struct fb_t * fb = name ? search_fb(name) : search_first_fb();
 	if(!fb)
 		return 0;
 	display = lua_newuserdata(L, sizeof(struct ldisplay_t));
@@ -107,7 +107,7 @@ static int m_display_get_bpp(lua_State * L)
 static int m_display_get_backlight(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
-	int brightness = framebuffer_get_backlight_brightness(display->fb);
+	int brightness = fb_get_backlight(display->fb);
 	lua_pushnumber(L, brightness / (lua_Number)(CONFIG_MAX_BRIGHTNESS));
 	return 1;
 }
@@ -116,7 +116,7 @@ static int m_display_set_backlight(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	int brightness = luaL_checknumber(L, 2) * (lua_Number)(CONFIG_MAX_BRIGHTNESS);
-	framebuffer_set_backlight_brightness(display->fb, brightness);
+	fb_set_backlight(display->fb, brightness);
 	return 0;
 }
 

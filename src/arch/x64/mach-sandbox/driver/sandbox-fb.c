@@ -160,7 +160,7 @@ static bool_t sandbox_register_framebuffer(struct resource_t * res)
 	fb->resume = fb_resume,
 	fb->priv = res;
 
-	if(register_framebuffer(fb))
+	if(register_fb(fb))
 		return TRUE;
 
 	free(fb->name);
@@ -175,11 +175,11 @@ static bool_t sandbox_unregister_framebuffer(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	fb = search_framebuffer(name);
+	fb = search_fb(name);
 	if(!fb)
 		return FALSE;
 
-	if(!unregister_framebuffer(fb))
+	if(!unregister_fb(fb))
 		return FALSE;
 
 	free(fb->name);

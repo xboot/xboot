@@ -971,7 +971,7 @@ static bool_t s5p6818_register_framebuffer(struct resource_t * res)
 	fb->resume = fb_resume,
 	fb->priv = pdat;
 
-	if(register_framebuffer(fb))
+	if(register_fb(fb))
 		return TRUE;
 
 	free(fb->priv);
@@ -987,11 +987,11 @@ static bool_t s5p6818_unregister_framebuffer(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	fb = search_framebuffer(name);
+	fb = search_fb(name);
 	if(!fb)
 		return FALSE;
 
-	if(!unregister_framebuffer(fb))
+	if(!unregister_fb(fb))
 		return FALSE;
 
 	free(fb->priv);

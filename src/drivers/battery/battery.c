@@ -28,84 +28,30 @@ static ssize_t battery_read_supply(struct kobj_t * kobj, void * buf, size_t size
 {
 	struct battery_t * bat = (struct battery_t *)kobj->priv;
 	struct battery_info_t info;
-	char * supply = "unknown";
 
 	if(battery_update(bat, &info))
-	{
-		switch(info.supply)
-		{
-		case POWER_SUPPLAY_BATTERY:
-			supply = "battery";
-			break;
-		case POWER_SUPPLAY_AC:
-			supply = "ac";
-			break;
-		case POWER_SUPPLAY_USB:
-			supply = "usb";
-			break;
-		case POWER_SUPPLAY_WIRELESS:
-			supply = "wireless";
-			break;
-		default:
-			break;
-		}
-	}
-	return sprintf(buf, "%s", supply);
+		return sprintf(buf, "%s", power_supply_string(info.supply));
+	return sprintf(buf, "unknown");
 }
 
 static ssize_t battery_read_status(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct battery_t * bat = (struct battery_t *)kobj->priv;
 	struct battery_info_t info;
-	char * status = "unknown";
 
 	if(battery_update(bat, &info))
-	{
-		switch(info.status)
-		{
-		case BATTERY_STATUS_DISCHARGING:
-			status = "discharging";
-			break;
-		case BATTERY_STATUS_CHARGING:
-			status = "charging";
-			break;
-		case BATTERY_STATUS_FULL:
-			status = "full";
-			break;
-		default:
-			break;
-		}
-	}
-	return sprintf(buf, "%s", status);
+		return sprintf(buf, "%s", battery_status_string(info.status));
+	return sprintf(buf, "unknown");
 }
 
 static ssize_t battery_read_health(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct battery_t * bat = (struct battery_t *)kobj->priv;
 	struct battery_info_t info;
-	char * health = "unknown";
 
 	if(battery_update(bat, &info))
-	{
-		switch(info.health)
-		{
-		case BATTERY_HEALTH_GOOD:
-			health = "good";
-			break;
-		case BATTERY_HEALTH_DEAD:
-			health = "dead";
-			break;
-		case BATTERY_HEALTH_OVERHEAT:
-			health = "overheat";
-			break;
-		case BATTERY_HEALTH_OVERVOLTAGE:
-			health = "overvoltage";
-			break;
-		default:
-			break;
-		}
-	}
-	return sprintf(buf, "%s", health);
+		return sprintf(buf, "%s", battery_health_string(info.health));
+	return sprintf(buf, "unknown");
 }
 
 static ssize_t battery_read_count(struct kobj_t * kobj, void * buf, size_t size)
@@ -179,6 +125,17 @@ struct battery_t * search_battery(const char * name)
 	return (struct battery_t *)dev->priv;
 }
 
+struct battery_t * search_first_battery(void)
+{
+	struct device_t * dev;
+
+	dev = search_first_device_with_type(DEVICE_TYPE_BATTERY);
+	if(!dev)
+		return NULL;
+
+	return (struct battery_t *)dev->priv;
+}
+
 bool_t register_battery(struct device_t ** device, struct battery_t * bat)
 {
 	struct device_t * dev;
@@ -235,6 +192,60 @@ bool_t unregister_battery(struct battery_t * bat)
 	free(dev->name);
 	free(dev);
 	return TRUE;
+}
+
+char * power_supply_string(enum power_supply_t supply)
+{
+	switch(supply)
+	{
+	case POWER_SUPPLAY_BATTERY:
+		return "battery";
+	case POWER_SUPPLAY_AC:
+		return "ac";
+	case POWER_SUPPLAY_USB:
+		return "usb";
+	case POWER_SUPPLAY_WIRELESS:
+		return "wireless";
+	default:
+		break;
+	}
+	return "unknown";
+}
+
+char * battery_status_string(enum battery_status_t status)
+{
+	switch(status)
+	{
+	case BATTERY_STATUS_DISCHARGING:
+		return "discharging";
+	case BATTERY_STATUS_CHARGING:
+		return "charging";
+	case BATTERY_STATUS_EMPTY:
+		return "empty";
+	case BATTERY_STATUS_FULL:
+		return "full";
+	default:
+		break;
+	}
+	return "unknown";
+}
+
+char * battery_health_string(enum battery_health_t health)
+{
+	switch(health)
+	{
+	case BATTERY_HEALTH_GOOD:
+		return "good";
+	case BATTERY_HEALTH_DEAD:
+		return "dead";
+	case BATTERY_HEALTH_OVERHEAT:
+		return "overheat";
+	case BATTERY_HEALTH_OVERVOLTAGE:
+		return "overvoltage";
+	default:
+		break;
+	}
+	return "unknown";
 }
 
 bool_t battery_update(struct battery_t * bat, struct battery_info_t * info)

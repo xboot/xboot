@@ -17,7 +17,8 @@ enum power_supply_t {
 enum battery_status_t {
 	BATTERY_STATUS_DISCHARGING	= 0,
 	BATTERY_STATUS_CHARGING		= 1,
-	BATTERY_STATUS_FULL			= 2,
+	BATTERY_STATUS_EMPTY		= 2,
+	BATTERY_STATUS_FULL			= 3,
 };
 
 enum battery_health_t {
@@ -31,7 +32,7 @@ struct battery_info_t {
 	enum power_supply_t supply;
 	enum battery_status_t status;
 	enum battery_health_t health;
-	int count;			/* Charge count */
+	int count;			/* cycle count */
 	int capacity;		/* mAh */
 	int voltage;		/* mV */
 	int current;		/* mA */
@@ -52,8 +53,13 @@ struct battery_t
 };
 
 struct battery_t * search_battery(const char * name);
+struct battery_t * search_first_battery(void);
 bool_t register_battery(struct device_t ** device, struct battery_t * bat);
 bool_t unregister_battery(struct battery_t * bat);
+
+char * power_supply_string(enum power_supply_t supply);
+char * battery_status_string(enum battery_status_t status);
+char * battery_health_string(enum battery_health_t health);
 bool_t battery_update(struct battery_t * bat, struct battery_info_t * info);
 
 #ifdef __cplusplus

@@ -72,6 +72,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "builtin.font",		luaopen_font },
 		{ "builtin.display",	luaopen_display },
 
+		{ "hardware.battery",	luaopen_hardware_battery },
 		{ "hardware.buzzer",	luaopen_hardware_buzzer },
 		{ "hardware.gpio",		luaopen_hardware_gpio },
 		{ "hardware.i2c",		luaopen_hardware_i2c },

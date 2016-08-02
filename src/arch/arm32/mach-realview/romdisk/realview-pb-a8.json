@@ -11,6 +11,14 @@
 		"default-brightness": 0
 	},
 
+	"ledtrig-heartbeat": {
+		"led": "led-gpio.0",
+	},
+
+	"ledtrig-general": {
+		"led": "led-gpio.1",
+	},
+
 	"rotary-encoder": {
 		"gpio-a": 2,
 		"gpio-b": 3,

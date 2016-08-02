@@ -24,17 +24,11 @@
 
 #include <led/ledtrig.h>
 
-static ssize_t ledtrig_read_bind_led_name(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct ledtrig_t * trigger = (struct ledtrig_t *)kobj->priv;
-	return sprintf(buf, "%s", trigger->led->name);
-}
-
 static ssize_t ledtrig_write_activity(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct ledtrig_t * trigger = (struct ledtrig_t *)kobj->priv;
+	struct ledtrig_t * ledtrig = (struct ledtrig_t *)kobj->priv;
 
-	ledtrig_activity(trigger);
+	ledtrig_activity(ledtrig);
 	return size;
 }
 
@@ -49,23 +43,22 @@ struct ledtrig_t * search_ledtrig(const char * name)
 	return (struct ledtrig_t *)dev->priv;
 }
 
-bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * trigger)
+bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * ledtrig)
 {
 	struct device_t * dev;
 
-	if(!trigger || !trigger->name)
+	if(!ledtrig || !ledtrig->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name = strdup(trigger->name);
+	dev->name = strdup(ledtrig->name);
 	dev->type = DEVICE_TYPE_LEDTRIG;
-	dev->priv = trigger;
+	dev->priv = ledtrig;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "led", ledtrig_read_bind_led_name, NULL, trigger);
-	kobj_add_regular(dev->kobj, "activity", NULL, ledtrig_write_activity, trigger);
+	kobj_add_regular(dev->kobj, "activity", NULL, ledtrig_write_activity, ledtrig);
 
 	if(!register_device(dev))
 	{
@@ -80,14 +73,14 @@ bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * trigger)
 	return TRUE;
 }
 
-bool_t unregister_ledtrig(struct ledtrig_t * trigger)
+bool_t unregister_ledtrig(struct ledtrig_t * ledtrig)
 {
 	struct device_t * dev;
 
-	if(!trigger || !trigger->name)
+	if(!ledtrig || !ledtrig->name)
 		return FALSE;
 
-	dev = search_device_with_type(trigger->name, DEVICE_TYPE_LEDTRIG);
+	dev = search_device_with_type(ledtrig->name, DEVICE_TYPE_LEDTRIG);
 	if(!dev)
 		return FALSE;
 
@@ -100,8 +93,8 @@ bool_t unregister_ledtrig(struct ledtrig_t * trigger)
 	return TRUE;
 }
 
-void ledtrig_activity(struct ledtrig_t * trigger)
+void ledtrig_activity(struct ledtrig_t * ledtrig)
 {
-	if(trigger && trigger->activity)
-		trigger->activity(trigger);
+	if(ledtrig && ledtrig->activity)
+		ledtrig->activity(ledtrig);
 }

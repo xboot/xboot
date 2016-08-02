@@ -21,9 +21,6 @@ struct ledtrig_t
 	/* Activity led trigger */
 	void (*activity)(struct ledtrig_t * trigger);
 
-	/* Bind to led device */
-	struct led_t * led;
-
 	/* Private data */
 	void * priv;
 };

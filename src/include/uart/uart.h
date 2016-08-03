@@ -12,12 +12,6 @@ struct uart_t
 	/* The uart name */
 	char * name;
 
-	/* Initialize uart */
-	void (*init)(struct uart_t * uart);
-
-	/* Clean up uart */
-	void (*exit)(struct uart_t * uart);
-
 	/* Set uart param */
 	bool_t (*set)(struct uart_t * uart, int baud, int data, int parity, int stop);
 
@@ -34,9 +28,10 @@ struct uart_t
 	void * priv;
 };
 
-struct uart_t * search_bus_uart(const char * name);
-bool_t register_bus_uart(struct uart_t * uart);
-bool_t unregister_bus_uart(struct uart_t * uart);
+struct uart_t * search_uart(const char * name);
+bool_t register_uart(struct device_t ** device, struct uart_t * uart);
+bool_t unregister_uart(struct uart_t * uart);
+
 bool_t uart_set(struct uart_t * uart, int baud, int data, int parity, int stop);
 bool_t uart_get(struct uart_t * uart, int * baud, int * data, int * parity, int * stop);
 ssize_t uart_read(struct uart_t * uart, u8_t * buf, size_t count);

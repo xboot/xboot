@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <bus/i2c.h>
+#include <i2c/i2c.h>
 
 struct i2c_algo_bit_data_t {
 	void (*setsda)(struct i2c_algo_bit_data_t * data, int state);

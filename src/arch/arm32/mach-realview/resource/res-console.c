@@ -26,9 +26,9 @@
 #include <console/console.h>
 
 static struct console_stdio_data_t console_stdio_data = {
-	.in		= "pl011-uart.0",
-	.out	= "pl011-uart.0",
-	.err	= "pl011-uart.0",
+	.in		= "uart-pl011.0",
+	.out	= "uart-pl011.0",
+	.err	= "uart-pl011.0",
 };
 
 static struct resource_t res_console = {

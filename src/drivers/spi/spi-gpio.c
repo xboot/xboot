@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <bus/spi-gpio.h>
+#include <spi/spi-gpio.h>
 
 struct spi_gpio_pdata_t {
 	int sclk_pin;

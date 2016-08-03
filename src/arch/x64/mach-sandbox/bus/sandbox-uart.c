@@ -62,7 +62,7 @@ static ssize_t sandbox_uart_write(struct uart_t * uart, const u8_t * buf, size_t
 	return sandbox_console_write((void *)buf, count);
 }
 
-static bool_t sandbox_register_bus_uart(struct resource_t * res)
+static bool_t sandbox_register_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
 	char name[64];
@@ -82,7 +82,7 @@ static bool_t sandbox_register_bus_uart(struct resource_t * res)
 	uart->write = sandbox_uart_write;
 	uart->priv = res;
 
-	if(register_bus_uart(uart))
+	if(register_uart(uart))
 		return TRUE;
 
 	free(uart->name);
@@ -90,18 +90,18 @@ static bool_t sandbox_register_bus_uart(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t sandbox_unregister_bus_uart(struct resource_t * res)
+static bool_t sandbox_unregister_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
 	char name[64];
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	uart = search_bus_uart(name);
+	uart = search_uart(name);
 	if(!uart)
 		return FALSE;
 
-	if(!unregister_bus_uart(uart))
+	if(!unregister_uart(uart))
 		return FALSE;
 
 	free(uart->name);
@@ -111,12 +111,12 @@ static bool_t sandbox_unregister_bus_uart(struct resource_t * res)
 
 static __init void sandbox_bus_uart_init(void)
 {
-	resource_for_each("sandbox-uart", sandbox_register_bus_uart);
+	resource_for_each("sandbox-uart", sandbox_register_uart);
 }
 
 static __exit void sandbox_bus_uart_exit(void)
 {
-	resource_for_each("sandbox-uart", sandbox_unregister_bus_uart);
+	resource_for_each("sandbox-uart", sandbox_unregister_uart);
 }
 
 bus_initcall(sandbox_bus_uart_init);

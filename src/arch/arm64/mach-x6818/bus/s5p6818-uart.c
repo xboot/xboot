@@ -279,7 +279,7 @@ static ssize_t s5p6818_uart_write(struct uart_t * uart, const u8_t * buf, size_t
 	return i;
 }
 
-static bool_t s5p6818_register_bus_uart(struct resource_t * res)
+static bool_t s5p6818_register_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
 	char name[64];
@@ -299,7 +299,7 @@ static bool_t s5p6818_register_bus_uart(struct resource_t * res)
 	uart->write = s5p6818_uart_write;
 	uart->priv = res;
 
-	if(register_bus_uart(uart))
+	if(register_uart(uart))
 		return TRUE;
 
 	free(uart->name);
@@ -307,18 +307,18 @@ static bool_t s5p6818_register_bus_uart(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t s5p6818_unregister_bus_uart(struct resource_t * res)
+static bool_t s5p6818_unregister_uart(struct resource_t * res)
 {
 	struct uart_t * uart;
 	char name[64];
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	uart = search_bus_uart(name);
+	uart = search_uart(name);
 	if(!uart)
 		return FALSE;
 
-	if(!unregister_bus_uart(uart))
+	if(!unregister_uart(uart))
 		return FALSE;
 
 	free(uart->name);
@@ -328,12 +328,12 @@ static bool_t s5p6818_unregister_bus_uart(struct resource_t * res)
 
 static __init void s5p6818_bus_uart_init(void)
 {
-	resource_for_each("s5p6818-uart", s5p6818_register_bus_uart);
+	resource_for_each("s5p6818-uart", s5p6818_register_uart);
 }
 
 static __exit void s5p6818_bus_uart_exit(void)
 {
-	resource_for_each("s5p6818-uart", s5p6818_unregister_bus_uart);
+	resource_for_each("s5p6818-uart", s5p6818_unregister_uart);
 }
 
 bus_initcall(s5p6818_bus_uart_init);

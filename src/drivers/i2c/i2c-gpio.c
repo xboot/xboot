@@ -1,5 +1,5 @@
 /*
- * drivers/bus/i2c/i2c-gpio.c
+ * drivers/i2c/i2c-gpio.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,13 +22,18 @@
  *
  */
 
-#include <xboot.h>
-#include <bus/i2c-gpio.h>
+#include <gpio/gpio.h>
+#include <i2c/i2c.h>
+#include <i2c/i2c-algo-bit.h>
 
 struct i2c_gpio_pdata_t {
 	struct i2c_algo_bit_data_t bdat;
 	int sda_pin;
 	int scl_pin;
+	int sda_is_open_drain;
+	int scl_is_open_drain;
+	int scl_is_output_only;
+	int udelay;
 };
 
 static void i2c_gpio_setsda_dir(struct i2c_algo_bit_data_t * bdat, int state)
@@ -73,14 +78,6 @@ static int i2c_gpio_getscl(struct i2c_algo_bit_data_t * bdat)
 	return gpio_get_value(pdat->scl_pin);
 }
 
-static void i2c_gpio_init(struct i2c_t * i2c)
-{
-}
-
-static void i2c_gpio_exit(struct i2c_t * i2c)
-{
-}
-
 static int i2c_gpio_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 {
 	struct i2c_gpio_pdata_t * pdat = (struct i2c_gpio_pdata_t *)i2c->priv;
@@ -88,12 +85,17 @@ static int i2c_gpio_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 	return i2c_algo_bit_xfer(bdat, msgs, num);
 }
 
-static bool_t i2c_gpio_register_bus(struct resource_t * res)
+static struct device_t * i2c_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct i2c_gpio_data_t * rdat = (struct i2c_gpio_data_t *)res->data;
 	struct i2c_gpio_pdata_t * pdat;
 	struct i2c_t * i2c;
-	char name[64];
+	struct device_t * dev;
+
+	if(!gpio_is_valid(dt_read_int(n, "sda-pin", -1)))
+		return NULL;
+
+	if(!gpio_is_valid(dt_read_int(n, "scl-pin", -1)))
+		return NULL;
 
 	pdat = malloc(sizeof(struct i2c_gpio_pdata_t));
 	if(!pdat)
@@ -106,91 +108,102 @@ static bool_t i2c_gpio_register_bus(struct resource_t * res)
 		return FALSE;
 	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	pdat->sda_pin = dt_read_int(n, "sda-pin", -1);
+	pdat->scl_pin = dt_read_int(n, "scl-pin", -1);
+	pdat->sda_is_open_drain = dt_read_bool(n, "sda-is-open-drain", 0);
+	pdat->scl_is_open_drain = dt_read_bool(n, "scl-is-open-drain", 0);
+	pdat->scl_is_output_only = dt_read_bool(n, "sda-is-output-only", 0);
+	pdat->udelay = dt_read_int(n, "delay-us", -1);
+	pdat->bdat.priv = pdat;
 
-	if(rdat->sda_is_open_drain)
+	if(pdat->sda_is_open_drain)
 	{
-		gpio_direction_output(rdat->sda_pin, 1);
+		gpio_direction_output(pdat->sda_pin, 1);
 		pdat->bdat.setsda = i2c_gpio_setsda_val;
 	}
 	else
 	{
-		gpio_direction_input(rdat->sda_pin);
+		gpio_direction_input(pdat->sda_pin);
 		pdat->bdat.setsda = i2c_gpio_setsda_dir;
 	}
 
-	if(rdat->scl_is_open_drain || rdat->scl_is_output_only)
+	if(pdat->scl_is_open_drain || pdat->scl_is_output_only)
 	{
-		gpio_direction_output(rdat->scl_pin, 1);
+		gpio_direction_output(pdat->scl_pin, 1);
 		pdat->bdat.setscl = i2c_gpio_setscl_val;
 	}
 	else
 	{
-		gpio_direction_input(rdat->scl_pin);
+		gpio_direction_input(pdat->scl_pin);
 		pdat->bdat.setscl = i2c_gpio_setscl_dir;
 	}
 
 	pdat->bdat.getsda = i2c_gpio_getsda;
-	if(rdat->scl_is_output_only)
+	if(pdat->scl_is_output_only)
 		pdat->bdat.getscl = 0;
 	else
 		pdat->bdat.getscl = i2c_gpio_getscl;
 
-	if(rdat->udelay > 0)
-		pdat->bdat.udelay = rdat->udelay;
-	else if(rdat->scl_is_output_only)
+	if(pdat->udelay > 0)
+		pdat->bdat.udelay = pdat->udelay;
+	else if(pdat->scl_is_output_only)
 		pdat->bdat.udelay = 50;
 	else
 		pdat->bdat.udelay = 5;
 
-	pdat->sda_pin = rdat->sda_pin;
-	pdat->scl_pin = rdat->scl_pin;
-	pdat->bdat.priv = pdat;
-
-	i2c->name = strdup(name);
-	i2c->init = i2c_gpio_init;
-	i2c->exit = i2c_gpio_exit;
+	i2c->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	i2c->xfer = i2c_gpio_xfer,
 	i2c->priv = pdat;
 
-	if(register_bus_i2c(i2c))
-		return TRUE;
+	if(!register_i2c(&dev, i2c))
+	{
+		free_device_name(i2c->name);
+		free(i2c->priv);
+		free(i2c);
+		return NULL;
+	}
+	dev->driver = drv;
 
-	free(i2c->priv);
-	free(i2c->name);
-	free(i2c);
-	return FALSE;
+	return dev;
 }
 
-static bool_t i2c_gpio_unregister_bus(struct resource_t * res)
+static void i2c_gpio_remove(struct device_t * dev)
 {
-	struct i2c_t * i2c;
-	char name[64];
+	struct i2c_t * i2c = (struct i2c_t *)dev->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-
-	i2c = search_bus_i2c(name);
-	if(!i2c)
-		return FALSE;
-
-	if(!unregister_bus_i2c(i2c))
-		return FALSE;
-
-	free(i2c->priv);
-	free(i2c->name);
-	free(i2c);
-	return TRUE;
+	if(i2c && unregister_i2c(i2c))
+	{
+		free_device_name(i2c->name);
+		free(i2c->priv);
+		free(i2c);
+	}
 }
 
-static __init void i2c_gpio_bus_init(void)
+static void i2c_gpio_suspend(struct device_t * dev)
 {
-	resource_for_each("i2c-gpio", i2c_gpio_register_bus);
 }
 
-static __exit void i2c_gpio_bus_exit(void)
+static void i2c_gpio_resume(struct device_t * dev)
 {
-	resource_for_each("i2c-gpio", i2c_gpio_unregister_bus);
 }
 
-bus_initcall(i2c_gpio_bus_init);
-bus_exitcall(i2c_gpio_bus_exit);
+struct driver_t i2c_gpio = {
+	.name		= "i2c-gpio",
+	.probe		= i2c_gpio_probe,
+	.remove		= i2c_gpio_remove,
+	.suspend	= i2c_gpio_suspend,
+	.resume		= i2c_gpio_resume,
+};
+
+static __init void i2c_gpio_driver_init(void)
+{
+	register_driver(&i2c_gpio);
+}
+
+static __exit void i2c_gpio_driver_exit(void)
+{
+	unregister_driver(&i2c_gpio);
+}
+
+driver_initcall(i2c_gpio_driver_init);
+driver_exitcall(i2c_gpio_driver_exit);

@@ -22,7 +22,7 @@
  *
  */
 
-#include <bus/uart.h>
+#include <uart/uart.h>
 #include <shell/system.h>
 #include <xboot/gdbstub.h>
 
@@ -682,7 +682,7 @@ static struct gdb_state_t * gdbserver_alloc(const char * device)
 	if(!cpu)
 		return NULL;
 
-	uart = search_bus_uart(device);
+	uart = search_uart(device);
 	if(!uart)
 		return NULL;
 

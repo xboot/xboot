@@ -22,7 +22,7 @@
  *
  */
 
-#include <bus/uart.h>
+#include <uart/uart.h>
 #include <xboot/gdbstub.h>
 #include <command/command.h>
 

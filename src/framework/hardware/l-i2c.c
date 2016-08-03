@@ -22,7 +22,7 @@
  *
  */
 
-#include <bus/i2c.h>
+#include <i2c/i2c.h>
 #include <framework/hardware/l-hardware.h>
 
 struct li2c_t {

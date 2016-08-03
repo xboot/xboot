@@ -22,13 +22,13 @@
  *
  */
 
-#include <bus/uart.h>
+#include <uart/uart.h>
 #include <framework/hardware/l-hardware.h>
 
 static int l_uart_new(lua_State * L)
 {
 	const char * name = luaL_checkstring(L, 1);
-	struct uart_t * uart = search_bus_uart(name);
+	struct uart_t * uart = search_uart(name);
 	if(!uart)
 		return 0;
 	if(lua_gettop(L) > 1)

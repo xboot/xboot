@@ -1,5 +1,5 @@
 /*
- * drivers/bus/i2c/i2c.c
+ * drivers/i2c/i2c.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,73 +22,65 @@
  *
  */
 
-#include <xboot.h>
-#include <bus/i2c.h>
+#include <i2c/i2c.h>
 
-struct i2c_t * search_bus_i2c(const char * name)
+struct i2c_t * search_i2c(const char * name)
 {
-	struct bus_t * bus;
+	struct device_t * dev;
 
-	bus = search_bus_with_type(name, BUS_TYPE_I2C);
-	if(!bus)
+	dev = search_device_with_type(name, DEVICE_TYPE_I2C);
+	if(!dev)
 		return NULL;
 
-	return (struct i2c_t *)bus->driver;
+	return (struct i2c_t *)dev->priv;
 }
 
-bool_t register_bus_i2c(struct i2c_t * i2c)
+bool_t register_i2c(struct device_t ** device, struct i2c_t * i2c)
 {
-	struct bus_t * bus;
+	struct device_t * dev;
 
 	if(!i2c || !i2c->name)
 		return FALSE;
 
-	bus = malloc(sizeof(struct bus_t));
-	if(!bus)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
-	bus->name = strdup(i2c->name);
-	bus->type = BUS_TYPE_I2C;
-	bus->driver = i2c;
-	bus->kobj = kobj_alloc_directory(bus->name);
+	dev->name = strdup(i2c->name);
+	dev->type = DEVICE_TYPE_I2C;
+	dev->priv = i2c;
+	dev->kobj = kobj_alloc_directory(dev->name);
 
-	if(!register_bus(bus))
+	if(!register_device(dev))
 	{
-		kobj_remove_self(bus->kobj);
-		free(bus->name);
-		free(bus);
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
 		return FALSE;
 	}
 
-	if(i2c->init)
-		(i2c->init)(i2c);
-
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
-bool_t unregister_bus_i2c(struct i2c_t * i2c)
+bool_t unregister_i2c(struct i2c_t * i2c)
 {
-	struct bus_t * bus;
-	struct i2c_t * driver;
+	struct device_t * dev;
 
 	if(!i2c || !i2c->name)
 		return FALSE;
 
-	bus = search_bus_with_type(i2c->name, BUS_TYPE_I2C);
-	if(!bus)
+	dev = search_device_with_type(i2c->name, DEVICE_TYPE_I2C);
+	if(!dev)
 		return FALSE;
 
-	driver = (struct i2c_t *)(bus->driver);
-	if(driver && driver->exit)
-		(driver->exit)(i2c);
-
-	if(!unregister_bus(bus))
+	if(!unregister_device(dev))
 		return FALSE;
 
-	kobj_remove_self(bus->kobj);
-	free(bus->name);
-	free(bus);
-
+	kobj_remove_self(dev->kobj);
+	free(dev->name);
+	free(dev);
 	return TRUE;
 }
 
@@ -97,7 +89,7 @@ struct i2c_client_t * i2c_client_alloc(const char * i2cbus, int addr, int flags)
 	struct i2c_client_t * client;
 	struct i2c_t * i2c;
 
-	i2c = search_bus_i2c(i2cbus);
+	i2c = search_i2c(i2cbus);
 	if(!i2c)
 		return NULL;
 

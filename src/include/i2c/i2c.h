@@ -30,12 +30,6 @@ struct i2c_t
 	/* The i2c bus name */
 	char * name;
 
-	/* Initialize i2c */
-	void (*init)(struct i2c_t * i2c);
-
-	/* Clean up i2c */
-	void (*exit)(struct i2c_t * i2c);
-
 	/* I2C master xfer */
 	int (*xfer)(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num);
 
@@ -49,13 +43,12 @@ struct i2c_client_t {
 	int flags;
 };
 
-struct i2c_t * search_bus_i2c(const char * name);
-bool_t register_bus_i2c(struct i2c_t * i2c);
-bool_t unregister_bus_i2c(struct i2c_t * i2c);
+struct i2c_t * search_i2c(const char * name);
+bool_t register_i2c(struct device_t ** device, struct i2c_t * i2c);
+bool_t unregister_i2c(struct i2c_t * i2c);
 
 struct i2c_client_t * i2c_client_alloc(const char * i2cbus, int addr, int flags);
 void i2c_client_free(struct i2c_client_t * client);
-
 int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num);
 int i2c_master_send(const struct i2c_client_t * client, void * buf, int count);
 int i2c_master_recv(const struct i2c_client_t * client, void * buf, int count);

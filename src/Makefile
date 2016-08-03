@@ -76,7 +76,6 @@ INCDIRS		+=	include										\
 SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/lib							\
 				arch/$(ARCH)/$(MACH)						\
-				arch/$(ARCH)/$(MACH)/bus					\
 				arch/$(ARCH)/$(MACH)/driver					\
 				arch/$(ARCH)/$(MACH)/resource				\
 				lib/libc									\
@@ -116,9 +115,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/block								\
 				drivers/block/partition						\
 				drivers/block/romdisk						\
-				drivers/bus/i2c								\
-				drivers/bus/spi								\
-				drivers/bus/uart							\
 				drivers/buzzer								\
 				drivers/clk									\
 				drivers/clockevent							\
@@ -128,6 +124,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/fb									\
 				drivers/fb/sw								\
 				drivers/gpio								\
+				drivers/i2c									\
 				drivers/input								\
 				drivers/input/rc							\
 				drivers/interrupt							\
@@ -137,6 +134,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				drivers/pwm									\
 				drivers/rng									\
 				drivers/rtc									\
+				drivers/spi									\
+				drivers/uart								\
 				drivers/vibrator							\
 				drivers/watchdog							\
 				framework									\

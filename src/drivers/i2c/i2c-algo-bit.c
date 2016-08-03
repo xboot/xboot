@@ -1,5 +1,5 @@
 /*
- * drivers/bus/i2c/i2c-algo-bit.c
+ * drivers/i2c/i2c-algo-bit.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,8 +22,7 @@
  *
  */
 
-#include <xboot.h>
-#include <bus/i2c-algo-bit.h>
+#include <i2c/i2c-algo-bit.h>
 
 static inline void sdalo(struct i2c_algo_bit_data_t * bdat)
 {

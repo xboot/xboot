@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <bus/spi.h>
+#include <spi/spi.h>
 
 struct spi_t * search_bus_spi(const char * name)
 {

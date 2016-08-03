@@ -177,7 +177,7 @@ static ssize_t bcm2837_muart_write(struct uart_t * uart, const u8_t * buf, size_
 	return i;
 }
 
-static bool_t bcm2837_register_bus_uart(struct resource_t * res)
+static bool_t bcm2837_register_uart(struct resource_t * res)
 {
 	struct bcm2837_muart_data_t * rdat = (struct bcm2837_muart_data_t *)res->data;
 	struct bcm2837_muart_pdata_t * pdat;
@@ -221,7 +221,7 @@ static bool_t bcm2837_register_bus_uart(struct resource_t * res)
 	uart->write = bcm2837_muart_write;
 	uart->priv = pdat;
 
-	if(register_bus_uart(uart))
+	if(register_uart(uart))
 		return TRUE;
 
 	free(pdat->clk);
@@ -231,7 +231,7 @@ static bool_t bcm2837_register_bus_uart(struct resource_t * res)
 	return FALSE;
 }
 
-static bool_t bcm2837_unregister_bus_uart(struct resource_t * res)
+static bool_t bcm2837_unregister_uart(struct resource_t * res)
 {
 	struct bcm2837_muart_pdata_t * pdat;
 	struct uart_t * uart;
@@ -239,12 +239,12 @@ static bool_t bcm2837_unregister_bus_uart(struct resource_t * res)
 
 	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
 
-	uart = search_bus_uart(name);
+	uart = search_uart(name);
 	if(!uart)
 		return FALSE;
 	pdat = (struct bcm2837_muart_pdata_t *)uart->priv;
 
-	if(!unregister_bus_uart(uart))
+	if(!unregister_uart(uart))
 		return FALSE;
 
 	free(pdat->clk);
@@ -256,12 +256,12 @@ static bool_t bcm2837_unregister_bus_uart(struct resource_t * res)
 
 static __init void bcm2837_bus_uart_init(void)
 {
-	resource_for_each("bcm2837-muart", bcm2837_register_bus_uart);
+	resource_for_each("bcm2837-muart", bcm2837_register_uart);
 }
 
 static __exit void bcm2837_bus_uart_exit(void)
 {
-	resource_for_each("bcm2837-muart", bcm2837_unregister_bus_uart);
+	resource_for_each("bcm2837-muart", bcm2837_unregister_uart);
 }
 
 bus_initcall(bcm2837_bus_uart_init);

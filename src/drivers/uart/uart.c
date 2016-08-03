@@ -1,5 +1,5 @@
 /*
- * drivers/bus/uart/uart.c
+ * drivers/uart/uart.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,8 +22,7 @@
  *
  */
 
-#include <xboot.h>
-#include <bus/uart.h>
+#include <uart/uart.h>
 
 static ssize_t uart_read_baud(struct kobj_t * kobj, void * buf, size_t size)
 {
@@ -93,74 +92,67 @@ static ssize_t uart_write_stop(struct kobj_t * kobj, void * buf, size_t size)
 	return size;
 }
 
-struct uart_t * search_bus_uart(const char * name)
+struct uart_t * search_uart(const char * name)
 {
-	struct bus_t * bus;
+	struct device_t * dev;
 
-	bus = search_bus_with_type(name, BUS_TYPE_UART);
-	if(!bus)
+	dev = search_device_with_type(name, DEVICE_TYPE_UART);
+	if(!dev)
 		return NULL;
 
-	return (struct uart_t *)bus->driver;
+	return (struct uart_t *)dev->priv;
 }
 
-bool_t register_bus_uart(struct uart_t * uart)
+bool_t register_uart(struct device_t ** device, struct uart_t * uart)
 {
-	struct bus_t * bus;
+	struct device_t * dev;
 
 	if(!uart || !uart->name)
 		return FALSE;
 
-	bus = malloc(sizeof(struct bus_t));
-	if(!bus)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
-	bus->name = strdup(uart->name);
-	bus->type = BUS_TYPE_UART;
-	bus->driver = uart;
-	bus->kobj = kobj_alloc_directory(bus->name);
-	kobj_add_regular(bus->kobj, "baud", uart_read_baud, uart_write_baud, uart);
-	kobj_add_regular(bus->kobj, "data", uart_read_data, uart_write_data, uart);
-	kobj_add_regular(bus->kobj, "parity", uart_read_parity, uart_write_parity, uart);
-	kobj_add_regular(bus->kobj, "stop", uart_read_stop, uart_write_stop, uart);
+	dev->name = strdup(uart->name);
+	dev->type = DEVICE_TYPE_UART;
+	dev->priv = uart;
+	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "baud", uart_read_baud, uart_write_baud, uart);
+	kobj_add_regular(dev->kobj, "data", uart_read_data, uart_write_data, uart);
+	kobj_add_regular(dev->kobj, "parity", uart_read_parity, uart_write_parity, uart);
+	kobj_add_regular(dev->kobj, "stop", uart_read_stop, uart_write_stop, uart);
 
-	if(!register_bus(bus))
+	if(!register_device(dev))
 	{
-		kobj_remove_self(bus->kobj);
-		free(bus->name);
-		free(bus);
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
 		return FALSE;
 	}
 
-	if(uart->init)
-		(uart->init)(uart);
-
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
-bool_t unregister_bus_uart(struct uart_t * uart)
+bool_t unregister_uart(struct uart_t * uart)
 {
-	struct bus_t * bus;
-	struct uart_t * driver;
+	struct device_t * dev;
 
 	if(!uart || !uart->name)
 		return FALSE;
 
-	bus = search_bus_with_type(uart->name, BUS_TYPE_UART);
-	if(!bus)
+	dev = search_device_with_type(uart->name, DEVICE_TYPE_UART);
+	if(!dev)
 		return FALSE;
 
-	driver = (struct uart_t *)(bus->driver);
-	if(driver && driver->exit)
-		(driver->exit)(uart);
-
-	if(!unregister_bus(bus))
+	if(!unregister_device(dev))
 		return FALSE;
 
-	kobj_remove_self(bus->kobj);
-	free(bus->name);
-	free(bus);
-
+	kobj_remove_self(dev->kobj);
+	free(dev->name);
+	free(dev);
 	return TRUE;
 }
 

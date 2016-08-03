@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <bus/spi.h>
+#include <spi/spi.h>
 #include <block/block.h>
 
 struct spi_flash_data_t

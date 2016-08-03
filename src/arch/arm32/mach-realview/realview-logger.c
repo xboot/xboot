@@ -23,7 +23,6 @@
  */
 
 #include <xboot.h>
-#include <realview/reg-uart.h>
 
 #define UART_DATA	(0x00)
 #define UART_RSR	(0x04)
@@ -91,12 +90,12 @@ static void logger_output(struct logger_t * logger, const char * buf, int count)
 }
 
 static struct logger_pdata_t pdata = {
-	.clk	= "GATE-UART0",
+	.clk	= "uclk",
 	.txdpin	= -1,
 	.txdcfg	= -1,
 	.rxdpin	= -1,
 	.rxdcfg	= -1,
-	.phys	= REALVIEW_UART0_BASE,
+	.phys	= 0x10009000,
 };
 
 static struct logger_t logger = {

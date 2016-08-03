@@ -1,5 +1,5 @@
 /*
- * bus/pl011-uart.c
+ * driver/uart-pl011.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,7 +22,8 @@
  *
  */
 
-#include <pl011-uart.h>
+#include <gpio/gpio.h>
+#include <uart/uart.h>
 
 #define UART_DATA	(0x00)
 #define UART_RSR	(0x04)
@@ -39,7 +40,8 @@
 #define UART_ICR	(0x44)
 #define UART_DMACR	(0x48)
 
-struct pl011_uart_pdata_t {
+struct uart_pl011_pdata_t {
+	virtual_addr_t virt;
 	char * clk;
 	int txdpin;
 	int txdcfg;
@@ -49,12 +51,11 @@ struct pl011_uart_pdata_t {
 	int data;
 	int parity;
 	int stop;
-	virtual_addr_t virt;
 };
 
-static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parity, int stop)
+static bool_t uart_pl011_set(struct uart_t * uart, int baud, int data, int parity, int stop)
 {
-	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
+	struct uart_pl011_pdata_t * pdat = (struct uart_pl011_pdata_t *)uart->priv;
 	u32_t divider, remainder, fraction, val;
 	u8_t dreg, preg, sreg;
 	u64_t uclk;
@@ -139,9 +140,9 @@ static bool_t pl011_uart_set(struct uart_t * uart, int baud, int data, int parit
 	return TRUE;
 }
 
-static bool_t pl011_uart_get(struct uart_t * uart, int * baud, int * data, int * parity, int * stop)
+static bool_t uart_pl011_get(struct uart_t * uart, int * baud, int * data, int * parity, int * stop)
 {
-	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
+	struct uart_pl011_pdata_t * pdat = (struct uart_pl011_pdata_t *)uart->priv;
 
 	if(baud)
 		*baud = pdat->baud;
@@ -154,38 +155,9 @@ static bool_t pl011_uart_get(struct uart_t * uart, int * baud, int * data, int *
 	return TRUE;
 }
 
-static void pl011_uart_init(struct uart_t * uart)
+static ssize_t uart_pl011_read(struct uart_t * uart, u8_t * buf, size_t count)
 {
-	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
-
-	clk_enable(pdat->clk);
-	if(pdat->txdpin >= 0)
-	{
-		gpio_set_cfg(pdat->txdpin, pdat->txdcfg);
-		gpio_set_pull(pdat->txdpin, GPIO_PULL_UP);
-	}
-	if(pdat->rxdpin >= 0)
-	{
-		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
-		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
-	}
-
-	write32(pdat->virt + UART_LCRH, read32(pdat->virt + UART_LCRH) | (1 << 4));
-	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
-	pl011_uart_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
-}
-
-static void pl011_uart_exit(struct uart_t * uart)
-{
-	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
-
-	write32(pdat->virt + UART_CR, 0x0);
-	clk_disable(pdat->clk);
-}
-
-static ssize_t pl011_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
-{
-	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
+	struct uart_pl011_pdata_t * pdat = (struct uart_pl011_pdata_t *)uart->priv;
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
@@ -198,9 +170,9 @@ static ssize_t pl011_uart_read(struct uart_t * uart, u8_t * buf, size_t count)
 	return i;
 }
 
-static ssize_t pl011_uart_write(struct uart_t * uart, const u8_t * buf, size_t count)
+static ssize_t uart_pl011_write(struct uart_t * uart, const u8_t * buf, size_t count)
 {
-	struct pl011_uart_pdata_t * pdat = (struct pl011_uart_pdata_t *)uart->priv;
+	struct uart_pl011_pdata_t * pdat = (struct uart_pl011_pdata_t *)uart->priv;
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
@@ -212,91 +184,118 @@ static ssize_t pl011_uart_write(struct uart_t * uart, const u8_t * buf, size_t c
 	return i;
 }
 
-static bool_t pl011_register_bus_uart(struct resource_t * res)
+static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct pl011_uart_data_t * rdat = (struct pl011_uart_data_t *)res->data;
-	struct pl011_uart_pdata_t * pdat;
+	struct uart_pl011_pdata_t * pdat;
 	struct uart_t * uart;
-	char name[64];
+	struct device_t * dev;
+	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 
-	if(!clk_search(rdat->clk))
-		return FALSE;
+	if(!clk_search(dt_read_string(n, "clk", NULL)))
+		return NULL;
 
-	pdat = malloc(sizeof(struct pl011_uart_pdata_t));
+	pdat = malloc(sizeof(struct uart_pl011_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	uart = malloc(sizeof(struct uart_t));
 	if(!uart)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	pdat->clk = strdup(dt_read_string(n, "clk", NULL));
+	pdat->txdpin = dt_read_int(n, "txdpin", -1);
+	pdat->txdcfg = dt_read_int(n, "txdcfg", -1);
+	pdat->rxdpin = dt_read_int(n, "rxdpin", -1);
+	pdat->rxdcfg = dt_read_int(n, "rxdcfg", -1);
+	pdat->baud = dt_read_int(n, "baud", 115200);
+	pdat->data = dt_read_int(n, "data", 8);
+	pdat->parity = dt_read_int(n, "parity", 0);
+	pdat->stop = dt_read_int(n, "stop", 1);
+	pdat->virt = virt;
 
-	pdat->clk = strdup(rdat->clk);
-	pdat->txdpin = rdat->txdpin;
-	pdat->txdcfg = rdat->txdcfg;
-	pdat->rxdpin = rdat->rxdpin;
-	pdat->rxdcfg = rdat->rxdcfg;
-	pdat->baud = rdat->baud;
-	pdat->data = rdat->data;
-	pdat->parity = rdat->parity;
-	pdat->stop = rdat->stop;
-	pdat->virt = phys_to_virt(rdat->phys);
-
-	uart->name = strdup(name);
-	uart->init = pl011_uart_init;
-	uart->exit = pl011_uart_exit;
-	uart->set = pl011_uart_set;
-	uart->get = pl011_uart_get;
-	uart->read = pl011_uart_read;
-	uart->write = pl011_uart_write;
+	uart->name = alloc_device_name(dt_read_name(n), -1);
+	uart->set = uart_pl011_set;
+	uart->get = uart_pl011_get;
+	uart->read = uart_pl011_read;
+	uart->write = uart_pl011_write;
 	uart->priv = pdat;
 
-	if(register_bus_uart(uart))
-		return TRUE;
+	clk_enable(pdat->clk);
+	if(pdat->txdpin >= 0)
+	{
+		gpio_set_cfg(pdat->txdpin, pdat->txdcfg);
+		gpio_set_pull(pdat->txdpin, GPIO_PULL_UP);
+	}
+	if(pdat->rxdpin >= 0)
+	{
+		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
+		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
+	}
+	write32(pdat->virt + UART_LCRH, read32(pdat->virt + UART_LCRH) | (1 << 4));
+	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
+	uart_pl011_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
 
-	free(pdat->clk);
-	free(uart->priv);
-	free(uart->name);
-	free(uart);
-	return FALSE;
+	if(!register_uart(&dev, uart))
+	{
+		write32(pdat->virt + UART_CR, 0x0);
+		clk_disable(pdat->clk);
+		free(pdat->clk);
+
+		free_device_name(uart->name);
+		free(uart->priv);
+		free(uart);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static bool_t pl011_unregister_bus_uart(struct resource_t * res)
+static void uart_pl011_remove(struct device_t * dev)
 {
-	struct pl011_uart_pdata_t * pdat;
-	struct uart_t * uart;
-	char name[64];
+	struct uart_t * uart = (struct uart_t *)dev->priv;
+	struct uart_pl011_pdata_t * pdat = (struct uart_pl011_pdata_t *)uart->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(uart && unregister_uart(uart))
+	{
+		write32(pdat->virt + UART_CR, 0x0);
+		clk_disable(pdat->clk);
+		free(pdat->clk);
 
-	uart = search_bus_uart(name);
-	if(!uart)
-		return FALSE;
-	pdat = (struct pl011_uart_pdata_t *)uart->priv;
-
-	if(!unregister_bus_uart(uart))
-		return FALSE;
-
-	free(pdat->clk);
-	free(uart->priv);
-	free(uart->name);
-	free(uart);
-	return TRUE;
+		free_device_name(uart->name);
+		free(uart->priv);
+		free(uart);
+	}
 }
 
-static __init void pl011_bus_uart_init(void)
+static void uart_pl011_suspend(struct device_t * dev)
 {
-	resource_for_each("pl011-uart", pl011_register_bus_uart);
 }
 
-static __exit void pl011_bus_uart_exit(void)
+static void uart_pl011_resume(struct device_t * dev)
 {
-	resource_for_each("pl011-uart", pl011_unregister_bus_uart);
 }
 
-bus_initcall(pl011_bus_uart_init);
-bus_exitcall(pl011_bus_uart_exit);
+struct driver_t uart_pl011 = {
+	.name		= "uart-pl011",
+	.probe		= uart_pl011_probe,
+	.remove		= uart_pl011_remove,
+	.suspend	= uart_pl011_suspend,
+	.resume		= uart_pl011_resume,
+};
+
+static __init void uart_pl011_driver_init(void)
+{
+	register_driver(&uart_pl011);
+}
+
+static __exit void uart_pl011_driver_exit(void)
+{
+	unregister_driver(&uart_pl011);
+}
+
+driver_initcall(uart_pl011_driver_init);
+driver_exitcall(uart_pl011_driver_exit);

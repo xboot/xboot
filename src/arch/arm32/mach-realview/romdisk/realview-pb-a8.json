@@ -1,4 +1,56 @@
 {
+	"uart-pl011@0x10009000": {
+		"clk": "uclk",
+		"txdpin": -1,
+		"txdcfg": -1,
+		"rxdpin": -1,
+		"rxdcfg": -1,
+		"baud": 115200,
+		"data": 8,
+		"parity": 0,
+		"stop": 1
+	},
+
+	"uart-pl011@0x1000a000": {
+		"clk": "uclk",
+		"txdpin": -1,
+		"txdcfg": -1,
+		"rxdpin": -1,
+		"rxdcfg": -1,
+		"baud": 115200,
+		"data": 8,
+		"parity": 0,
+		"stop": 1
+	},
+	
+	"uart-pl011@0x1000b000": {
+		"clk": "uclk",
+		"txdpin": -1,
+		"txdcfg": -1,
+		"rxdpin": -1,
+		"rxdcfg": -1,
+		"baud": 115200,
+		"data": 8,
+		"parity": 0,
+		"stop": 1
+	},
+	
+	"uart-pl011@0x1000c000": {
+		"clk": "uclk",
+		"txdpin": -1,
+		"txdcfg": -1,
+		"rxdpin": -1,
+		"rxdcfg": -1,
+		"baud": 115200,
+		"data": 8,
+		"parity": 0,
+		"stop": 1
+	},
+	
+	"i2c-versatile@0x10002000": {
+		"delay-us": 50
+	},
+
 	"led-gpio@0": {
 		"gpio": 0,
 		"active-low": true,

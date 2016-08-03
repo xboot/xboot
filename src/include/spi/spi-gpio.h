@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <bus/spi.h>
+#include <spi/spi.h>
 
 struct spi_gpio_data_t {
 	int sclk_pin;

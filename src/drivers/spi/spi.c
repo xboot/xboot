@@ -1,5 +1,5 @@
 /*
- * drivers/bus/spi/spi.c
+ * drivers/spi/spi.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,73 +22,65 @@
  *
  */
 
-#include <xboot.h>
 #include <spi/spi.h>
 
-struct spi_t * search_bus_spi(const char * name)
+struct spi_t * search_spi(const char * name)
 {
-	struct bus_t * bus;
+	struct device_t * dev;
 
-	bus = search_bus_with_type(name, BUS_TYPE_SPI);
-	if(!bus)
+	dev = search_device_with_type(name, DEVICE_TYPE_SPI);
+	if(!dev)
 		return NULL;
 
-	return (struct spi_t *)bus->driver;
+	return (struct spi_t *)dev->priv;
 }
 
-bool_t register_bus_spi(struct spi_t * spi)
+bool_t register_spi(struct device_t ** device, struct spi_t * spi)
 {
-	struct bus_t * bus;
+	struct device_t * dev;
 
 	if(!spi || !spi->name)
 		return FALSE;
 
-	bus = malloc(sizeof(struct bus_t));
-	if(!bus)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
-	bus->name = strdup(spi->name);
-	bus->type = BUS_TYPE_SPI;
-	bus->driver = spi;
-	bus->kobj = kobj_alloc_directory(bus->name);
+	dev->name = strdup(spi->name);
+	dev->type = DEVICE_TYPE_SPI;
+	dev->priv = spi;
+	dev->kobj = kobj_alloc_directory(dev->name);
 
-	if(!register_bus(bus))
+	if(!register_device(dev))
 	{
-		kobj_remove_self(bus->kobj);
-		free(bus->name);
-		free(bus);
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
 		return FALSE;
 	}
 
-	if(spi->init)
-		(spi->init)(spi);
-
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
-bool_t unregister_bus_spi(struct spi_t * spi)
+bool_t unregister_spi(struct spi_t * spi)
 {
-	struct bus_t * bus;
-	struct spi_t * driver;
+	struct device_t * dev;
 
 	if(!spi || !spi->name)
 		return FALSE;
 
-	bus = search_bus_with_type(spi->name, BUS_TYPE_SPI);
-	if(!bus)
+	dev = search_device_with_type(spi->name, DEVICE_TYPE_SPI);
+	if(!dev)
 		return FALSE;
 
-	driver = (struct spi_t *)(bus->driver);
-	if(driver && driver->exit)
-		(driver->exit)(spi);
-
-	if(!unregister_bus(bus))
+	if(!unregister_device(dev))
 		return FALSE;
 
-	kobj_remove_self(bus->kobj);
-	free(bus->name);
-	free(bus);
-
+	kobj_remove_self(dev->kobj);
+	free(dev->name);
+	free(dev);
 	return TRUE;
 }
 
@@ -110,7 +102,7 @@ struct spi_device_t * spi_device_alloc(const char * spibus, int mode, int bits, 
 	struct spi_device_t * dev;
 	struct spi_t * spi;
 
-	spi = search_bus_spi(spibus);
+	spi = search_spi(spibus);
 	if(!spi)
 		return NULL;
 

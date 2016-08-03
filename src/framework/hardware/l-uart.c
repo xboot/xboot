@@ -46,20 +46,20 @@ static int l_uart_new(lua_State * L)
 
 static int l_uart_list(lua_State * L)
 {
-	struct bus_list_t * pos, * n;
+	struct device_list_t * pos, * n;
 	struct uart_t * uart;
 
 	lua_newtable(L);
-	list_for_each_entry_safe(pos, n, &(__bus_list.entry), entry)
+	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
 	{
-		if(pos->bus->type == BUS_TYPE_UART)
+		if(pos->device->type == DEVICE_TYPE_UART)
 		{
-			uart = (struct uart_t *)(pos->bus->driver);
+			uart = (struct uart_t *)(pos->device->priv);
 			if(!uart)
 				continue;
 			lua_pushlightuserdata(L, uart);
 			luaL_setmetatable(L, MT_HARDWARE_UART);
-			lua_setfield(L, -2, pos->bus->name);
+			lua_setfield(L, -2, pos->device->name);
 		}
 	}
 	return 1;

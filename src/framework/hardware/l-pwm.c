@@ -66,9 +66,9 @@ static const luaL_Reg l_pwm[] = {
 static int m_pwm_config(lua_State * L)
 {
 	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_HARDWARE_PWM);
-	u32_t duty = luaL_optinteger(L, 2, pwm->__duty);
-	u32_t period = luaL_optinteger(L, 3, pwm->__period);
-	bool_t polarity = lua_toboolean(L, 4) ? TRUE : FALSE;
+	int duty = luaL_optinteger(L, 2, pwm->__duty);
+	int period = luaL_optinteger(L, 3, pwm->__period);
+	int polarity = lua_toboolean(L, 4) ? 1 : 0;
 	pwm_config(pwm, duty, period, polarity);
 	lua_settop(L, 1);
 	return 1;

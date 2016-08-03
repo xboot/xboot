@@ -1,5 +1,5 @@
 /*
- * drivers/bus/spi/spi-gpio.c
+ * drivers/spi/spi-gpio.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,8 +22,8 @@
  *
  */
 
-#include <xboot.h>
-#include <spi/spi-gpio.h>
+#include <gpio/gpio.h>
+#include <spi/spi.h>
 
 struct spi_gpio_pdata_t {
 	int sclk_pin;
@@ -47,7 +47,10 @@ static inline int spi_gpio_getmiso(struct spi_gpio_pdata_t * pdat)
 	return gpio_get_value(pdat->miso_pin);
 }
 
-/* CPHA = 0, CPOL = 0 */
+/*
+ * CPHA = 0
+ * CPOL = 0
+ */
 static u32_t spi_gpio_bitbang_txrx_mode0(struct spi_gpio_pdata_t * pdat, u32_t val, int bits, int ns)
 {
 	u32_t oldbit = (!(val & (1 << (bits - 1)))) << 31;
@@ -69,7 +72,10 @@ static u32_t spi_gpio_bitbang_txrx_mode0(struct spi_gpio_pdata_t * pdat, u32_t v
 	return val;
 }
 
-/* CPHA = 1, CPOL = 0 */
+/*
+ * CPHA = 1
+ * CPOL = 0
+ */
 static u32_t spi_gpio_bitbang_txrx_mode1(struct spi_gpio_pdata_t * pdat, u32_t val, int bits, int ns)
 {
 	u32_t oldbit = (!(val & (1 << (bits - 1)))) << 31;
@@ -91,7 +97,10 @@ static u32_t spi_gpio_bitbang_txrx_mode1(struct spi_gpio_pdata_t * pdat, u32_t v
 	return val;
 }
 
-/* CPHA = 0, CPOL = 1 */
+/*
+ * CPHA = 0
+ * CPOL = 1
+ */
 static u32_t spi_gpio_bitbang_txrx_mode2(struct spi_gpio_pdata_t * pdat, u32_t val, int bits, int ns)
 {
 	u32_t oldbit = (!(val & (1 << (bits - 1)))) << 31;
@@ -113,7 +122,10 @@ static u32_t spi_gpio_bitbang_txrx_mode2(struct spi_gpio_pdata_t * pdat, u32_t v
 	return val;
 }
 
-/* CPHA = 1, CPOL = 1 */
+/*
+ * CPHA = 1
+ * CPOL = 1
+ */
 static u32_t spi_gpio_bitbang_txrx_mode3(struct spi_gpio_pdata_t * pdat, u32_t val, int bits, int ns)
 {
 	u32_t oldbit = (!(val & (1 << (bits - 1)))) << 31;
@@ -204,14 +216,6 @@ static int spi_gpio_bitbang_xfer_32(struct spi_gpio_pdata_t * pdat,
 	return msg->len - count;
 }
 
-static void spi_gpio_init(struct spi_t * spi)
-{
-}
-
-static void spi_gpio_exit(struct spi_t * spi)
-{
-}
-
 static int spi_gpio_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 {
 	struct spi_gpio_pdata_t * pdat = (struct spi_gpio_pdata_t *)spi->priv;
@@ -257,12 +261,23 @@ static void spi_gpio_chipselect(struct spi_t * spi, int enable)
 		gpio_set_value(pdat->cs_pin, enable ? 0 : 1);
 }
 
-static bool_t spi_gpio_register_bus(struct resource_t * res)
+static struct device_t * spi_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct spi_gpio_data_t * rdat = (struct spi_gpio_data_t *)res->data;
 	struct spi_gpio_pdata_t * pdat;
 	struct spi_t * spi;
-	char name[64];
+	struct device_t * dev;
+
+	if(!gpio_is_valid(dt_read_int(n, "sclk-pin", -1)))
+		return NULL;
+
+	if(!gpio_is_valid(dt_read_int(n, "mosi-pin", -1)))
+		return NULL;
+
+	if(!gpio_is_valid(dt_read_int(n, "miso-pin", -1)))
+		return NULL;
+
+	if(!gpio_is_valid(dt_read_int(n, "cs-pin", -1)))
+		return NULL;
 
 	pdat = malloc(sizeof(struct spi_gpio_pdata_t));
 	if(!pdat)
@@ -275,67 +290,74 @@ static bool_t spi_gpio_register_bus(struct resource_t * res)
 		return FALSE;
 	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-
-	pdat->sclk_pin = rdat->sclk_pin;
-	pdat->mosi_pin = rdat->mosi_pin;
-	pdat->miso_pin = rdat->miso_pin;
-	pdat->cs_pin = rdat->cs_pin;
+	pdat->sclk_pin = dt_read_int(n, "sclk-pin", -1);
+	pdat->mosi_pin = dt_read_int(n, "mosi-pin", -1);
+	pdat->miso_pin = dt_read_int(n, "miso-pin", -1);
+	pdat->cs_pin = dt_read_int(n, "cs-pin", -1);
 
 	if(pdat->sclk_pin)
-		gpio_direction_output(rdat->sclk_pin, 0);
+		gpio_direction_output(pdat->sclk_pin, 0);
 	if(pdat->mosi_pin)
-		gpio_direction_output(rdat->mosi_pin, 0);
+		gpio_direction_output(pdat->mosi_pin, 0);
 	if(pdat->miso_pin)
-		gpio_direction_input(rdat->miso_pin);
+		gpio_direction_input(pdat->miso_pin);
 	if(pdat->cs_pin)
-		gpio_direction_output(rdat->cs_pin, 1);
+		gpio_direction_output(pdat->cs_pin, 1);
 
-	spi->name = strdup(name);
-	spi->init = spi_gpio_init;
-	spi->exit = spi_gpio_exit;
+	spi->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	spi->transfer = spi_gpio_transfer,
 	spi->chipselect = spi_gpio_chipselect,
 	spi->priv = pdat;
 
-	if(register_bus_spi(spi))
-		return TRUE;
+	if(!register_spi(&dev, spi))
+	{
+		free_device_name(spi->name);
+		free(spi->priv);
+		free(spi);
+		return NULL;
+	}
+	dev->driver = drv;
 
-	free(spi->priv);
-	free(spi->name);
-	free(spi);
-	return FALSE;
+	return dev;
 }
 
-static bool_t spi_gpio_unregister_bus(struct resource_t * res)
+static void spi_gpio_remove(struct device_t * dev)
 {
-	struct spi_t * spi;
-	char name[64];
+	struct spi_t * spi = (struct spi_t *)dev->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-
-	spi = search_bus_spi(name);
-	if(!spi)
-		return FALSE;
-
-	if(!unregister_bus_spi(spi))
-		return FALSE;
-
-	free(spi->priv);
-	free(spi->name);
-	free(spi);
-	return TRUE;
+	if(spi && unregister_spi(spi))
+	{
+		free_device_name(spi->name);
+		free(spi->priv);
+		free(spi);
+	}
 }
 
-static __init void spi_gpio_bus_init(void)
+static void spi_gpio_suspend(struct device_t * dev)
 {
-	resource_for_each("spi-gpio", spi_gpio_register_bus);
 }
 
-static __exit void spi_gpio_bus_exit(void)
+static void spi_gpio_resume(struct device_t * dev)
 {
-	resource_for_each("spi-gpio", spi_gpio_unregister_bus);
 }
 
-bus_initcall(spi_gpio_bus_init);
-bus_exitcall(spi_gpio_bus_exit);
+struct driver_t spi_gpio = {
+	.name		= "spi-gpio",
+	.probe		= spi_gpio_probe,
+	.remove		= spi_gpio_remove,
+	.suspend	= spi_gpio_suspend,
+	.resume		= spi_gpio_resume,
+};
+
+static __init void spi_gpio_driver_init(void)
+{
+	register_driver(&spi_gpio);
+}
+
+static __exit void spi_gpio_driver_exit(void)
+{
+	unregister_driver(&spi_gpio);
+}
+
+driver_initcall(spi_gpio_driver_init);
+driver_exitcall(spi_gpio_driver_exit);

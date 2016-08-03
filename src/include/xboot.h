@@ -50,7 +50,6 @@ extern "C" {
 #include <xboot/dt.h>
 #include <xboot/device.h>
 #include <xboot/driver.h>
-#include <xboot/bus.h>
 #include <xboot/machine.h>
 #include <xboot/event.h>
 #include <logger/logger.h>

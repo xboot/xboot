@@ -21,12 +21,6 @@ struct spi_t
 	/* The spi bus name */
 	char * name;
 
-	/* Initialize spi */
-	void (*init)(struct spi_t * spi);
-
-	/* Clean up spi */
-	void (*exit)(struct spi_t * spi);
-
 	/* Master transfer */
 	int (*transfer)(struct spi_t * spi, struct spi_msg_t * msgs);
 
@@ -44,13 +38,12 @@ struct spi_device_t {
 	int speed;
 };
 
-struct spi_t * search_bus_spi(const char * name);
-bool_t register_bus_spi(struct spi_t * spi);
-bool_t unregister_bus_spi(struct spi_t * spi);
+struct spi_t * search_spi(const char * name);
+bool_t register_spi(struct device_t ** device, struct spi_t * spi);
+bool_t unregister_spi(struct spi_t * spi);
 
 int spi_transfer(struct spi_t * spi, struct spi_msg_t * msg);
 void spi_chipselect(struct spi_t * spi, int enable);
-
 struct spi_device_t * spi_device_alloc(const char * spibus, int mode, int bits, int speed);
 void spi_device_free(struct spi_device_t * dev);
 int spi_device_write_then_read(struct spi_device_t * dev, void * txbuf, int txlen, void * rxbuf, int rxlen);

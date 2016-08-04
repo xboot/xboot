@@ -1,50 +1,50 @@
 {
 	"uart-pl011@0x10009000": {
-		"clk": "uclk",
-		"txdpin": -1,
-		"txdcfg": -1,
-		"rxdpin": -1,
-		"rxdcfg": -1,
-		"baud": 115200,
-		"data": 8,
-		"parity": 0,
-		"stop": 1
+		"clock": "uclk",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rate": 115200,
+		"data-bit": 8,
+		"parity-bit": 0,
+		"stop-bit": 1
 	},
 
 	"uart-pl011@0x1000a000": {
-		"clk": "uclk",
-		"txdpin": -1,
-		"txdcfg": -1,
-		"rxdpin": -1,
-		"rxdcfg": -1,
-		"baud": 115200,
-		"data": 8,
-		"parity": 0,
-		"stop": 1
+		"clock": "uclk",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rate": 115200,
+		"data-bit": 8,
+		"parity-bit": 0,
+		"stop-bit": 1
 	},
 	
 	"uart-pl011@0x1000b000": {
-		"clk": "uclk",
-		"txdpin": -1,
-		"txdcfg": -1,
-		"rxdpin": -1,
-		"rxdcfg": -1,
-		"baud": 115200,
-		"data": 8,
-		"parity": 0,
-		"stop": 1
+		"clock": "uclk",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rate": 115200,
+		"data-bit": 8,
+		"parity-bit": 0,
+		"stop-bit": 1
 	},
 	
 	"uart-pl011@0x1000c000": {
-		"clk": "uclk",
-		"txdpin": -1,
-		"txdcfg": -1,
-		"rxdpin": -1,
-		"rxdcfg": -1,
-		"baud": 115200,
-		"data": 8,
-		"parity": 0,
-		"stop": 1
+		"clock": "uclk",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rate": 115200,
+		"data-bit": 8,
+		"parity-bit": 0,
+		"stop-bit": 1
 	},
 	
 	"i2c-versatile@0x10002000": {

@@ -122,10 +122,10 @@ enum {
 };
 
 struct axp228_pmic_pdata_t {
-	struct i2c_client_t * client;
+	struct i2c_device_t * client;
 };
 
-static bool_t axp228_pmic_read(struct i2c_client_t * client, u8_t reg, u8_t * val)
+static bool_t axp228_pmic_read(struct i2c_device_t * client, u8_t reg, u8_t * val)
 {
 	struct i2c_msg_t msgs[2];
     u8_t buf;
@@ -148,7 +148,7 @@ static bool_t axp228_pmic_read(struct i2c_client_t * client, u8_t reg, u8_t * va
     return TRUE;
 }
 
-static bool_t axp228_pmic_write(struct i2c_client_t * client, u8_t reg, u8_t val)
+static bool_t axp228_pmic_write(struct i2c_device_t * client, u8_t reg, u8_t val)
 {
 	struct i2c_msg_t msg;
 	u8_t buf[2];
@@ -273,17 +273,17 @@ static bool_t register_axp228_pmic(struct resource_t * res)
 	struct axp228_pmic_data_t * rdat = (struct axp228_pmic_data_t *)res->data;
 	struct axp228_pmic_pdata_t * pdat;
 	struct battery_t * bat;
-	struct i2c_client_t * client;
+	struct i2c_device_t * client;
 	char name[64];
 	u8_t val = 0;
 
-	client = i2c_client_alloc(rdat->i2cbus, rdat->addr, 0);
+	client = i2c_device_alloc(rdat->i2cbus, rdat->addr, 0);
 	if(!client)
 		return FALSE;
 
 	if(!axp228_pmic_read(client, AXP228_CHIP_ID, &val) || (val != 0x06))
 	{
-		i2c_client_free(client);
+		i2c_device_free(client);
 		return FALSE;
 	}
 
@@ -562,14 +562,14 @@ static bool_t register_axp228_pmic(struct resource_t * res)
 	pdat = malloc(sizeof(struct axp228_pmic_pdata_t));
 	if(!pdat)
 	{
-		i2c_client_free(client);
+		i2c_device_free(client);
 		return FALSE;
 	}
 
 	bat = malloc(sizeof(struct battery_t));
 	if(!bat)
 	{
-		i2c_client_free(client);
+		i2c_device_free(client);
 		free(pdat);
 		return FALSE;
 	}
@@ -590,7 +590,7 @@ static bool_t register_axp228_pmic(struct resource_t * res)
 	if(register_battery(bat))
 		return TRUE;
 
-	i2c_client_free(client);
+	i2c_device_free(client);
 	free(bat->priv);
 	free(bat->name);
 	free(bat);
@@ -611,7 +611,7 @@ static bool_t unregister_axp228_pmic(struct resource_t * res)
 	if(!unregister_battery(bat))
 		return FALSE;
 
-	i2c_client_free(((struct axp228_pmic_pdata_t *)(bat->priv))->client);
+	i2c_device_free(((struct axp228_pmic_pdata_t *)(bat->priv))->client);
 	free(bat->priv);
 	free(bat->name);
 	free(bat);

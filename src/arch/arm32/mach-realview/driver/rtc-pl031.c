@@ -25,23 +25,33 @@
 #include <xboot.h>
 #include <rtc/rtc.h>
 
-#define RTC_DR		(0x00)	/* Data read register */
-#define RTC_MR		(0x04)	/* Match register */
-#define RTC_LR		(0x08)	/* Data load register */
-#define RTC_CR		(0x0c)	/* Control register */
-#define RTC_IMSC	(0x10)	/* Interrupt mask and set register */
-#define RTC_RIS		(0x14)	/* Raw interrupt status register */
-#define RTC_MIS		(0x18)	/* Masked interrupt status register */
-#define RTC_ICR		(0x1c)	/* Interrupt clear register */
+/*
+ * PrimeCell PL031 - Real-Time Clock Interface For ARM AMBA
+ *
+ * Example:
+ *   "rtc-pl031@0x10017000": {
+ *   }
+ */
 
-#define RTC_DID0	(0xfe0)	/* Device ID0 */
-#define RTC_DID1	(0xfe4)	/* Device ID1 */
-#define RTC_DID2	(0xfe8)	/* Device ID2 */
-#define RTC_DID3	(0xfec)	/* Device ID3 */
-#define RTC_CID0	(0xff0)	/* Cell ID0 */
-#define RTC_CID1	(0xff4)	/* Cell ID1 */
-#define RTC_CID2	(0xff8)	/* Cell ID2 */
-#define RTC_CID3	(0xffc)	/* Cell ID3 */
+enum {
+	RTC_DR		= 0x00,		/* Data read register */
+	RTC_MR		= 0x04,		/* Match register */
+	RTC_LR		= 0x08,		/* Data load register */
+	RTC_CR		= 0x0c,		/* Control register */
+	RTC_IMSC	= 0x10,		/* Interrupt mask and set register */
+	RTC_RIS		= 0x14,		/* Raw interrupt status register */
+	RTC_MIS		= 0x18,		/* Masked interrupt status register */
+	RTC_ICR		= 0x1c,		/* Interrupt clear register */
+
+	RTC_DID0	= 0xfe0,	/* Device ID0 */
+	RTC_DID1	= 0xfe4,	/* Device ID1 */
+	RTC_DID2	= 0xfe8,	/* Device ID2 */
+	RTC_DID3	= 0xfec,	/* Device ID3 */
+	RTC_CID0	= 0xff0,	/* Cell ID0 */
+	RTC_CID1	= 0xff4,	/* Cell ID1 */
+	RTC_CID2	= 0xff8,	/* Cell ID2 */
+	RTC_CID3	= 0xffc,	/* Cell ID3 */
+};
 
 #define LEAPS_THRU_END(y)	((y)/4 - (y)/100 + (y)/400)
 #define LEAP_YEAR(year)		((!(year % 4) && (year % 100)) || !(year % 400))
@@ -56,20 +66,6 @@ static int rtc_month_days(int year, int month)
 		0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	};
 	return rtc_days_in_month[month] + (LEAP_YEAR(year) && (month == 2));
-}
-
-static bool_t rtc_valid_time(struct rtc_time_t * rt)
-{
-	if((rt->year < 1970)
-		|| ((rt->mon) > 12)
-		|| (rt->day < 1)
-		|| (rt->day > rtc_month_days(rt->year, rt->mon))
-		|| ((rt->hour) >= 24)
-		|| ((rt->min) >= 60)
-		|| ((rt->sec) >= 60))
-		return FALSE;
-
-	return TRUE;
 }
 
 static void to_rtc_time(u32_t time, struct rtc_time_t * rt)
@@ -101,34 +97,32 @@ static void to_rtc_time(u32_t time, struct rtc_time_t * rt)
 			break;
 		days = newdays;
 	}
-	rt->mon = month;
+	rt->month = month;
 	rt->day = days + 1;
 
 	rt->hour = time / 3600;
 	time -= rt->hour * 3600;
-	rt->min = time / 60;
-	rt->sec = time - rt->min * 60;
+	rt->minute = time / 60;
+	rt->second = time - rt->minute * 60;
 }
 
 static u32_t from_rtc_time(struct rtc_time_t * rt)
 {
-	int mon = rt->mon, year = rt->year;
+	int month = rt->month, year = rt->year;
 
-	if (0 >= (int)(mon -= 2))
+	if (0 >= (int)(month -= 2))
 	{
-		mon += 12;
+		month += 12;
 		year -= 1;
 	}
 
-	return ((((u32_t)(year/4 - year/100 + year/400 + 367*mon/12 + rt->day) + year*365 - 719499)*24 + rt->hour)*60 + rt->min)*60 + rt->sec;
+	return ((((u32_t)(year/4 - year/100 + year/400 + 367*month/12 + rt->day) + year*365 - 719499)*24 + rt->hour)*60 + rt->minute)*60 + rt->second;
 }
 
 static bool_t rtc_pl031_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
 	struct rtc_pl031_pdata_t * pdat = (struct rtc_pl031_pdata_t *)rtc->priv;
 
-	if(!rtc_valid_time(time))
-		return FALSE;
 	write32(pdat->virt + RTC_LR, from_rtc_time(time));
 	return TRUE;
 }

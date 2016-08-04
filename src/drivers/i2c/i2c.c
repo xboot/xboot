@@ -84,9 +84,9 @@ bool_t unregister_i2c(struct i2c_t * i2c)
 	return TRUE;
 }
 
-struct i2c_client_t * i2c_client_alloc(const char * i2cbus, int addr, int flags)
+struct i2c_device_t * i2c_device_alloc(const char * i2cbus, int addr, int flags)
 {
-	struct i2c_client_t * client;
+	struct i2c_device_t * dev;
 	struct i2c_t * i2c;
 
 	i2c = search_i2c(i2cbus);
@@ -117,21 +117,21 @@ struct i2c_client_t * i2c_client_alloc(const char * i2cbus, int addr, int flags)
 			return NULL;
 	}
 
-	client = malloc(sizeof(struct i2c_client_t));
-	if(!client)
+	dev = malloc(sizeof(struct i2c_device_t));
+	if(!dev)
 		return NULL;
 
-	client->i2c = i2c;
-	client->addr = addr;
-	client->flags = flags;
+	dev->i2c = i2c;
+	dev->addr = addr;
+	dev->flags = flags;
 
-	return client;
+	return dev;
 }
 
-void i2c_client_free(struct i2c_client_t * client)
+void i2c_device_free(struct i2c_device_t * dev)
 {
-	if(client)
-		free(client);
+	if(dev)
+		free(dev);
 }
 
 int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
@@ -151,31 +151,31 @@ int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 	return ret;
 }
 
-int i2c_master_send(const struct i2c_client_t * client, void * buf, int count)
+int i2c_master_send(const struct i2c_device_t * dev, void * buf, int count)
 {
 	struct i2c_msg_t msg;
 	int ret;
 
-	msg.addr = client->addr;
-	msg.flags = client->flags & I2C_M_TEN;
+	msg.addr = dev->addr;
+	msg.flags = dev->flags & I2C_M_TEN;
 	msg.len = count;
 	msg.buf = buf;
 
-	ret = i2c_transfer(client->i2c, &msg, 1);
+	ret = i2c_transfer(dev->i2c, &msg, 1);
 	return (ret == 1) ? count : ret;
 }
 
-int i2c_master_recv(const struct i2c_client_t * client, void * buf, int count)
+int i2c_master_recv(const struct i2c_device_t * dev, void * buf, int count)
 {
 	struct i2c_msg_t msg;
 	int ret;
 
-	msg.addr = client->addr;
-	msg.flags = client->flags & I2C_M_TEN;
+	msg.addr = dev->addr;
+	msg.flags = dev->flags & I2C_M_TEN;
 	msg.flags |= I2C_M_RD;
 	msg.len = count;
 	msg.buf = buf;
 
-	ret = i2c_transfer(client->i2c, &msg, 1);
+	ret = i2c_transfer(dev->i2c, &msg, 1);
 	return (ret == 1) ? count : ret;
 }

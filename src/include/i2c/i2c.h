@@ -30,14 +30,14 @@ struct i2c_t
 	/* The i2c bus name */
 	char * name;
 
-	/* I2C master xfer */
+	/* Master xfer */
 	int (*xfer)(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num);
 
 	/* Private data */
 	void * priv;
 };
 
-struct i2c_client_t {
+struct i2c_device_t {
 	struct i2c_t * i2c;
 	int addr;
 	int flags;
@@ -47,11 +47,11 @@ struct i2c_t * search_i2c(const char * name);
 bool_t register_i2c(struct device_t ** device, struct i2c_t * i2c);
 bool_t unregister_i2c(struct i2c_t * i2c);
 
-struct i2c_client_t * i2c_client_alloc(const char * i2cbus, int addr, int flags);
-void i2c_client_free(struct i2c_client_t * client);
+struct i2c_device_t * i2c_device_alloc(const char * i2cbus, int addr, int flags);
+void i2c_device_free(struct i2c_device_t * client);
 int i2c_transfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num);
-int i2c_master_send(const struct i2c_client_t * client, void * buf, int count);
-int i2c_master_recv(const struct i2c_client_t * client, void * buf, int count);
+int i2c_master_send(const struct i2c_device_t * dev, void * buf, int count);
+int i2c_master_recv(const struct i2c_device_t * dev, void * buf, int count);
 
 #ifdef __cplusplus
 }

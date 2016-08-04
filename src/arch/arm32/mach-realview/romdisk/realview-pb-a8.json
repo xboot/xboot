@@ -48,7 +48,7 @@
 	},
 	
 	"i2c-versatile@0x10002000": {
-		"delay-us": 50
+		"delay-us": 5
 	},
 
 	"led-gpio@0": {
@@ -133,6 +133,11 @@
 	},
 
 	"rtc-pl031@0x10017000": {
+	},
+
+	"rtc-ds1338": {
+		"i2c-bus": "i2c-versatile.0",
+		"square-wave": 0
 	},
 
 	"fb-pl110@0x10020000": {

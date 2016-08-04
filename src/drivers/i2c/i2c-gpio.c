@@ -22,17 +22,45 @@
  *
  */
 
+#include <xboot.h>
 #include <gpio/gpio.h>
 #include <i2c/i2c.h>
 #include <i2c/i2c-algo-bit.h>
 
+/*
+ * GPIO I2C - I2C Master Driver Using Generic Bitbanged GPIO
+ *
+ * Required properties:
+ * - sda-gpio: i2c data pin
+ * - scl-gpio: i2c clock pin
+ *
+ * Optional properties:
+ * - sda-open-drain: sda as open drain
+ * - scl-open-drain: scl as open drain
+ * - scl-output-only: scl as output only
+ * - delay-us: delay between GPIO operations (half clock cycle time in us)
+ *      2 : fast-mode i2c - 400khz
+ *      5 : standard-mode i2c and smbus - 100khz
+ *     50 : slow-mode for smbus - 10khz
+ *
+ * Example:
+ *   "i2c-gpio": {
+ *       "sda-gpio": 11,
+ *       "scl-gpio": 12,
+ *       "sda-open-drain": false,
+ *       "scl-open-drain": false,
+ *       "scl-output-only": false,
+ *       "delay-us": 5
+ *   }
+ */
+
 struct i2c_gpio_pdata_t {
 	struct i2c_algo_bit_data_t bdat;
-	int sda_pin;
-	int scl_pin;
-	int sda_is_open_drain;
-	int scl_is_open_drain;
-	int scl_is_output_only;
+	int sda;
+	int scl;
+	int sda_open_drain;
+	int scl_open_drain;
+	int scl_output_only;
 	int udelay;
 };
 
@@ -40,42 +68,42 @@ static void i2c_gpio_setsda_dir(struct i2c_algo_bit_data_t * bdat, int state)
 {
 	struct i2c_gpio_pdata_t * pdat = (struct i2c_gpio_pdata_t *)bdat->priv;
 	if(state)
-		gpio_direction_input(pdat->sda_pin);
+		gpio_direction_input(pdat->sda);
 	else
-		gpio_direction_output(pdat->sda_pin, 0);
+		gpio_direction_output(pdat->sda, 0);
 }
 
 static void i2c_gpio_setsda_val(struct i2c_algo_bit_data_t * bdat, int state)
 {
 	struct i2c_gpio_pdata_t * pdat = (struct i2c_gpio_pdata_t *)bdat->priv;
-	gpio_set_value(pdat->sda_pin, state);
+	gpio_set_value(pdat->sda, state);
 }
 
 static void i2c_gpio_setscl_dir(struct i2c_algo_bit_data_t * bdat, int state)
 {
 	struct i2c_gpio_pdata_t * pdat = (struct i2c_gpio_pdata_t *)bdat->priv;
 	if(state)
-		gpio_direction_input(pdat->scl_pin);
+		gpio_direction_input(pdat->scl);
 	else
-		gpio_direction_output(pdat->scl_pin, 0);
+		gpio_direction_output(pdat->scl, 0);
 }
 
 static void i2c_gpio_setscl_val(struct i2c_algo_bit_data_t * bdat, int state)
 {
 	struct i2c_gpio_pdata_t * pdat = (struct i2c_gpio_pdata_t *)bdat->priv;
-	gpio_set_value(pdat->scl_pin, state);
+	gpio_set_value(pdat->scl, state);
 }
 
 static int i2c_gpio_getsda(struct i2c_algo_bit_data_t * bdat)
 {
 	struct i2c_gpio_pdata_t * pdat = (struct i2c_gpio_pdata_t *)bdat->priv;
-	return gpio_get_value(pdat->sda_pin);
+	return gpio_get_value(pdat->sda);
 }
 
 static int i2c_gpio_getscl(struct i2c_algo_bit_data_t * bdat)
 {
 	struct i2c_gpio_pdata_t * pdat = (struct i2c_gpio_pdata_t *)bdat->priv;
-	return gpio_get_value(pdat->scl_pin);
+	return gpio_get_value(pdat->scl);
 }
 
 static int i2c_gpio_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
@@ -90,11 +118,10 @@ static struct device_t * i2c_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	struct i2c_gpio_pdata_t * pdat;
 	struct i2c_t * i2c;
 	struct device_t * dev;
+	int sda = dt_read_int(n, "sda-gpio", -1);
+	int scl = dt_read_int(n, "scl-gpio", -1);
 
-	if(!gpio_is_valid(dt_read_int(n, "sda-pin", -1)))
-		return NULL;
-
-	if(!gpio_is_valid(dt_read_int(n, "scl-pin", -1)))
+	if(!gpio_is_valid(sda) || !gpio_is_valid(scl))
 		return NULL;
 
 	pdat = malloc(sizeof(struct i2c_gpio_pdata_t));
@@ -108,45 +135,45 @@ static struct device_t * i2c_gpio_probe(struct driver_t * drv, struct dtnode_t *
 		return FALSE;
 	}
 
-	pdat->sda_pin = dt_read_int(n, "sda-pin", -1);
-	pdat->scl_pin = dt_read_int(n, "scl-pin", -1);
-	pdat->sda_is_open_drain = dt_read_bool(n, "sda-is-open-drain", 0);
-	pdat->scl_is_open_drain = dt_read_bool(n, "scl-is-open-drain", 0);
-	pdat->scl_is_output_only = dt_read_bool(n, "sda-is-output-only", 0);
-	pdat->udelay = dt_read_int(n, "delay-us", -1);
+	pdat->sda = sda;
+	pdat->scl = scl;
+	pdat->sda_open_drain = dt_read_bool(n, "sda-open-drain", 0);
+	pdat->scl_open_drain = dt_read_bool(n, "scl-open-drain", 0);
+	pdat->scl_output_only = dt_read_bool(n, "sda-output-only", 0);
+	pdat->udelay = dt_read_int(n, "delay-us", 5);
 	pdat->bdat.priv = pdat;
 
-	if(pdat->sda_is_open_drain)
+	if(pdat->sda_open_drain)
 	{
-		gpio_direction_output(pdat->sda_pin, 1);
+		gpio_direction_output(pdat->sda, 1);
 		pdat->bdat.setsda = i2c_gpio_setsda_val;
 	}
 	else
 	{
-		gpio_direction_input(pdat->sda_pin);
+		gpio_direction_input(pdat->sda);
 		pdat->bdat.setsda = i2c_gpio_setsda_dir;
 	}
 
-	if(pdat->scl_is_open_drain || pdat->scl_is_output_only)
+	if(pdat->scl_open_drain || pdat->scl_output_only)
 	{
-		gpio_direction_output(pdat->scl_pin, 1);
+		gpio_direction_output(pdat->scl, 1);
 		pdat->bdat.setscl = i2c_gpio_setscl_val;
 	}
 	else
 	{
-		gpio_direction_input(pdat->scl_pin);
+		gpio_direction_input(pdat->scl);
 		pdat->bdat.setscl = i2c_gpio_setscl_dir;
 	}
 
 	pdat->bdat.getsda = i2c_gpio_getsda;
-	if(pdat->scl_is_output_only)
+	if(pdat->scl_output_only)
 		pdat->bdat.getscl = 0;
 	else
 		pdat->bdat.getscl = i2c_gpio_getscl;
 
 	if(pdat->udelay > 0)
 		pdat->bdat.udelay = pdat->udelay;
-	else if(pdat->scl_is_output_only)
+	else if(pdat->scl_output_only)
 		pdat->bdat.udelay = 50;
 	else
 		pdat->bdat.udelay = 5;

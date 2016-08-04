@@ -26,7 +26,7 @@
 #include <framework/hardware/l-hardware.h>
 
 struct li2c_t {
-	struct i2c_client_t * client;
+	struct i2c_device_t * dev;
 };
 
 static int l_i2c_new(lua_State * L)
@@ -34,11 +34,11 @@ static int l_i2c_new(lua_State * L)
 	const char * name = luaL_checkstring(L, 1);
 	int addr = luaL_checkinteger(L, 2);
 	int flags = luaL_optinteger(L, 3, 0);
-	struct i2c_client_t * client = i2c_client_alloc(name, addr, flags);
-	if(!client)
+	struct i2c_device_t * dev = i2c_device_alloc(name, addr, flags);
+	if(!dev)
 		return 0;
 	struct li2c_t * i2c = lua_newuserdata(L, sizeof(struct li2c_t));
-	i2c->client = client;
+	i2c->dev = dev;
 	luaL_setmetatable(L, MT_HARDWARE_I2C);
 	return 1;
 }
@@ -51,7 +51,7 @@ static const luaL_Reg l_i2c[] = {
 static int m_i2c_gc(lua_State * L)
 {
 	struct li2c_t * i2c = luaL_checkudata(L, 1, MT_HARDWARE_I2C);
-	i2c_client_free(i2c->client);
+	i2c_device_free(i2c->dev);
 	return 0;
 }
 
@@ -66,7 +66,7 @@ static int m_i2c_read(lua_State * L)
 	else if(count <= SZ_4K)
 	{
 		char buf[SZ_4K];
-		if(i2c_master_recv(i2c->client, buf, count) == count)
+		if(i2c_master_recv(i2c->dev, buf, count) == count)
 			lua_pushlstring(L, buf, count);
 		else
 			lua_pushnil(L);
@@ -74,7 +74,7 @@ static int m_i2c_read(lua_State * L)
 	else
 	{
 		char * p = malloc(count);
-		if(p && i2c_master_recv(i2c->client, p, count) == count)
+		if(p && i2c_master_recv(i2c->dev, p, count) == count)
 			lua_pushlstring(L, p, count);
 		else
 			lua_pushnil(L);
@@ -89,7 +89,7 @@ static int m_i2c_write(lua_State * L)
 	int count;
 	const char * buf = luaL_checklstring(L, 2, (size_t *)&count);
 	if(count > 0)
-		lua_pushboolean(L, (i2c_master_send(i2c->client, (void *)buf, count) == count));
+		lua_pushboolean(L, (i2c_master_send(i2c->dev, (void *)buf, count) == count));
 	else
 		lua_pushboolean(L, 0);
 	return 1;

@@ -22,8 +22,24 @@
  *
  */
 
+#include <xboot.h>
 #include <i2c/i2c.h>
 #include <i2c/i2c-algo-bit.h>
+
+/*
+ * Versatile i2c - I2C Controller On ARM Versatile Platform
+ *
+ * Optional properties:
+ * - delay-us: half clock cycle time in us
+ *      2 : fast-mode i2c - 400khz
+ *      5 : standard-mode i2c and smbus - 100khz
+ *     50 : slow-mode for smbus - 10khz
+ *
+ * Example:
+ *   "i2c-versatile@0x10002000": {
+ *       "delay-us": 5
+ *   }
+ */
 
 #define I2C_CONTROL		(0x00)
 #define I2C_CONTROLS	(0x00)
@@ -96,6 +112,9 @@ static struct device_t * i2c_versatile_probe(struct driver_t * drv, struct dtnod
 	i2c->name = alloc_device_name(dt_read_name(n), -1);
 	i2c->xfer = i2c_versatile_xfer,
 	i2c->priv = pdat;
+
+	i2c_versatile_setsda(&pdat->bdat, 1);
+	i2c_versatile_setscl(&pdat->bdat, 1);
 
 	if(!register_i2c(&dev, i2c))
 	{

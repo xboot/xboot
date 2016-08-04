@@ -22,23 +22,56 @@
  *
  */
 
+#include <xboot.h>
 #include <gpio/gpio.h>
 #include <uart/uart.h>
 
-#define UART_DATA	(0x00)
-#define UART_RSR	(0x04)
-#define UART_FR		(0x18)
-#define UART_ILPR	(0x20)
-#define UART_IBRD	(0x24)
-#define UART_FBRD	(0x28)
-#define UART_LCRH	(0x2c)
-#define UART_CR		(0x30)
-#define UART_IFLS	(0x34)
-#define UART_IMSC	(0x38)
-#define UART_RIS	(0x3c)
-#define UART_MIS	(0x40)
-#define UART_ICR	(0x44)
-#define UART_DMACR	(0x48)
+/*
+ * PrimeCell PL011 - Universal Asynchronous Receiver Transmitter
+ *
+ * Required properties:
+ * - clock: uart parant clock name
+ *
+ * Optional properties:
+ * - txd-gpio: uart txd pin
+ * - txd-gpio-config: uart txd pin config
+ * - rxd-gpio: uart rxd pin
+ * - rxd-gpio-config: uart rxd pin config
+ * - baud-rate: uart baud rate
+ * - data-bit: uart data bit
+ * - parity-bit: uart parity bit
+ * - stop-bit: uart stop bit
+ *
+ * Example:
+ *   "uart-pl011@0x10009000": {
+ *       "clock": "uclk",
+ *       "txd-gpio": -1,
+ *       "txd-gpio-config": -1,
+ *       "rxd-gpio": -1,
+ *       "rxd-gpio-config": -1,
+ *       "baud-rate": 115200,
+ *       "data-bit": 8,
+ *       "parity-bit": 0,
+ *       "stop-bit": 1
+ *   }
+ */
+
+enum {
+	UART_DATA	= 0x00,
+	UART_RSR	= 0x04,
+	UART_FR		= 0x18,
+	UART_ILPR	= 0x20,
+	UART_IBRD	= 0x24,
+	UART_FBRD	= 0x28,
+	UART_LCRH	= 0x2c,
+	UART_CR		= 0x30,
+	UART_IFLS	= 0x34,
+	UART_IMSC	= 0x38,
+	UART_RIS	= 0x3c,
+	UART_MIS	= 0x40,
+	UART_ICR	= 0x44,
+	UART_DMACR	= 0x48,
+};
 
 struct uart_pl011_pdata_t {
 	virtual_addr_t virt;
@@ -205,15 +238,15 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
-	pdat->clk = strdup(dt_read_string(n, "clk", NULL));
-	pdat->txdpin = dt_read_int(n, "txdpin", -1);
-	pdat->txdcfg = dt_read_int(n, "txdcfg", -1);
-	pdat->rxdpin = dt_read_int(n, "rxdpin", -1);
-	pdat->rxdcfg = dt_read_int(n, "rxdcfg", -1);
-	pdat->baud = dt_read_int(n, "baud", 115200);
-	pdat->data = dt_read_int(n, "data", 8);
-	pdat->parity = dt_read_int(n, "parity", 0);
-	pdat->stop = dt_read_int(n, "stop", 1);
+	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
+	pdat->txdpin = dt_read_int(n, "txd-gpio", -1);
+	pdat->txdcfg = dt_read_int(n, "txd-gpio-config", -1);
+	pdat->rxdpin = dt_read_int(n, "rxd-gpio", -1);
+	pdat->rxdcfg = dt_read_int(n, "rxd-gpio-config", -1);
+	pdat->baud = dt_read_int(n, "baud-rate", 115200);
+	pdat->data = dt_read_int(n, "data-bit", 8);
+	pdat->parity = dt_read_int(n, "parity-bit", 0);
+	pdat->stop = dt_read_int(n, "stop-bit", 1);
 	pdat->virt = virt;
 
 	uart->name = alloc_device_name(dt_read_name(n), -1);

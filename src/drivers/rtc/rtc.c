@@ -32,7 +32,7 @@ static ssize_t rtc_time_read(struct kobj_t * kobj, void * buf, size_t size)
 	if(rtc && rtc->gettime)
 		rtc->gettime(rtc, &time);
 
-	return sprintf(buf, "%04u-%02u-%02u %01u %02u:%02u:%02u", (u32_t)time.year, (u32_t)time.mon, (u32_t)time.day, (u32_t)time.week, (u32_t)time.hour, (u32_t)time.min, (u32_t)time.sec);
+	return sprintf(buf, "%04u-%02u-%02u %01u %02u:%02u:%02u", (u32_t)time.year, (u32_t)time.month, (u32_t)time.day, (u32_t)time.week, (u32_t)time.hour, (u32_t)time.minute, (u32_t)time.second);
 }
 
 static ssize_t rtc_time_write(struct kobj_t * kobj, void * buf, size_t size)
@@ -40,7 +40,7 @@ static ssize_t rtc_time_write(struct kobj_t * kobj, void * buf, size_t size)
 	struct rtc_t * rtc = (struct rtc_t *)kobj->priv;
 	struct rtc_time_t time;
 
-	if(sscanf(buf, "%04u-%02u-%02u %01u %02u:%02u:%02u", &time.year, &time.mon, &time.day, &time.week, &time.hour, &time.min, &time.sec) == 7)
+	if(sscanf(buf, "%04u-%02u-%02u %01u %02u:%02u:%02u", &time.year, &time.month, &time.day, &time.week, &time.hour, &time.minute, &time.second) == 7)
 	{
 		if(rtc && rtc->settime)
 			rtc->settime(rtc, &time);
@@ -121,9 +121,30 @@ bool_t unregister_rtc(struct rtc_t * rtc)
 	return TRUE;
 }
 
+static int rtc_month_days(int year, int month)
+{
+	const unsigned char rtc_days_in_month[13] = {
+		0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+	};
+	return rtc_days_in_month[month] + (((!(year % 4) && (year % 100)) || !(year % 400)) && (month == 2));
+}
+
+static int rtc_time_is_valid(struct rtc_time_t * time)
+{
+	if((!time) || (time->year < 1970)
+		|| ((time->month) > 12)
+		|| (time->day < 1)
+		|| (time->day > rtc_month_days(time->year, time->month))
+		|| ((time->hour) >= 24)
+		|| ((time->minute) >= 60)
+		|| ((time->second) >= 60))
+		return 0;
+	return 1;
+}
+
 bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	if(rtc && rtc->settime)
+	if(rtc && rtc->settime && rtc_time_is_valid(time))
 		return rtc->settime(rtc, time);
 	return FALSE;
 }

@@ -259,13 +259,15 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	clk_enable(pdat->clk);
 	if(pdat->txdpin >= 0)
 	{
-		gpio_set_cfg(pdat->txdpin, pdat->txdcfg);
 		gpio_set_pull(pdat->txdpin, GPIO_PULL_UP);
+		if(pdat->txdcfg >= 0)
+			gpio_set_cfg(pdat->txdpin, pdat->txdcfg);
 	}
 	if(pdat->rxdpin >= 0)
 	{
-		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
 		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
+		if(pdat->rxdcfg >= 0)
+			gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
 	}
 	write32(pdat->virt + UART_LCRH, read32(pdat->virt + UART_LCRH) | (1 << 4));
 	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));

@@ -37,10 +37,10 @@
  * - txd-gpio-config: uart txd pin config
  * - rxd-gpio: uart rxd pin
  * - rxd-gpio-config: uart rxd pin config
- * - baud-rate: uart baud rate
- * - data-bit: uart data bit
- * - parity-bit: uart parity bit
- * - stop-bit: uart stop bit
+ * - baud-rates: uart baud rates, default is 115200
+ * - data-bits: uart data bits, default is 8
+ * - parity-bits: uart parity bits, default is 0
+ * - stop-bits: uart stop bits, default is 1
  *
  * Example:
  *   "uart-pl011@0x10009000": {
@@ -49,10 +49,10 @@
  *       "txd-gpio-config": -1,
  *       "rxd-gpio": -1,
  *       "rxd-gpio-config": -1,
- *       "baud-rate": 115200,
- *       "data-bit": 8,
- *       "parity-bit": 0,
- *       "stop-bit": 1
+ *       "baud-rates": 115200,
+ *       "data-bits": 8,
+ *       "parity-bits": 0,
+ *       "stop-bits": 1
  *   }
  */
 
@@ -224,7 +224,7 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 
-	if(!clk_search(dt_read_string(n, "clk", NULL)))
+	if(!clk_search(dt_read_string(n, "clock", NULL)))
 		return NULL;
 
 	pdat = malloc(sizeof(struct uart_pl011_pdata_t));
@@ -238,16 +238,16 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
+	pdat->virt = virt;
 	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
 	pdat->txdpin = dt_read_int(n, "txd-gpio", -1);
 	pdat->txdcfg = dt_read_int(n, "txd-gpio-config", -1);
 	pdat->rxdpin = dt_read_int(n, "rxd-gpio", -1);
 	pdat->rxdcfg = dt_read_int(n, "rxd-gpio-config", -1);
-	pdat->baud = dt_read_int(n, "baud-rate", 115200);
-	pdat->data = dt_read_int(n, "data-bit", 8);
-	pdat->parity = dt_read_int(n, "parity-bit", 0);
-	pdat->stop = dt_read_int(n, "stop-bit", 1);
-	pdat->virt = virt;
+	pdat->baud = dt_read_int(n, "baud-rates", 115200);
+	pdat->data = dt_read_int(n, "data-bits", 8);
+	pdat->parity = dt_read_int(n, "parity-bits", 0);
+	pdat->stop = dt_read_int(n, "stop-bits", 1);
 
 	uart->name = alloc_device_name(dt_read_name(n), -1);
 	uart->set = uart_pl011_set;

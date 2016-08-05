@@ -26,6 +26,24 @@
 #include <gpio/gpio.h>
 #include <led/led.h>
 
+/*
+ * GPIO LED - LED Driver Using Generic Purpose Input Output
+ *
+ * Required properties:
+ * - gpio: led attached pin
+ *
+ * Optional properties:
+ * - active-low: low level for active led
+ * - default-brightness: led default brightness
+ *
+ * Example:
+ *   "led-gpio@0": {
+ *       "gpio": 0,
+ *       "active-low": true,
+ *       "default-brightness": 0
+ *   }
+ */
+
 struct led_gpio_pdata_t {
 	int gpio;
 	int active_low;

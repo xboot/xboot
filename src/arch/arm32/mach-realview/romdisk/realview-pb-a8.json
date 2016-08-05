@@ -5,10 +5,10 @@
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
 		"rxd-gpio-config": -1,
-		"baud-rate": 115200,
-		"data-bit": 8,
-		"parity-bit": 0,
-		"stop-bit": 1
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
 	},
 
 	"uart-pl011@0x1000a000": {
@@ -17,10 +17,10 @@
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
 		"rxd-gpio-config": -1,
-		"baud-rate": 115200,
-		"data-bit": 8,
-		"parity-bit": 0,
-		"stop-bit": 1
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
 	},
 	
 	"uart-pl011@0x1000b000": {
@@ -29,10 +29,10 @@
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
 		"rxd-gpio-config": -1,
-		"baud-rate": 115200,
-		"data-bit": 8,
-		"parity-bit": 0,
-		"stop-bit": 1
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
 	},
 	
 	"uart-pl011@0x1000c000": {
@@ -41,10 +41,10 @@
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
 		"rxd-gpio-config": -1,
-		"baud-rate": 115200,
-		"data-bit": 8,
-		"parity-bit": 0,
-		"stop-bit": 1
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
 	},
 	
 	"i2c-versatile@0x10002000": {
@@ -137,7 +137,7 @@
 
 	"rtc-ds1338": {
 		"i2c-bus": "i2c-versatile.0",
-		"square-wave": 0
+		"square-wave-output": 0
 	},
 
 	"fb-pl110@0x10020000": {

@@ -33,7 +33,7 @@
  * - i2c-bus: i2c bus name which device attched
  *
  * Optional properties:
- * - square-wave: the frequency of square wave on SQW/OUT pin
+ * - square-wave-output: the frequency of square wave on SQW/OUT pin
  *     values usable for ds1338 are:
  *        -1 : high level
  *         0 : low level
@@ -45,7 +45,7 @@
  * Example:
  *   "rtc-ds1338": {
  *       "i2c-bus": "i2c-versatile.0",
- *       "square-wave": 0
+ *       "square-wave-output": 0
  *   }
  */
 
@@ -164,7 +164,7 @@ static struct device_t * rtc_ds1338_probe(struct driver_t * drv, struct dtnode_t
 			buf[5] = bin2bcd(1) & 0x1f;
 			buf[6] = bin2bcd(2016 - 2000) & 0xff;
 
-			switch(dt_read_int(n, "square-wave", 0))
+			switch(dt_read_int(n, "square-wave-output", 0))
 			{
 			case -1:	/* high level */
 				buf[7] = 0x80;

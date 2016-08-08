@@ -43,7 +43,6 @@ enum {
 	CLCD_LCUR	= 0x030,
 };
 
-
 struct fb_pl111_pdata_t {
 	virtual_addr_t virt;
 	int width;
@@ -166,8 +165,8 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virt = virt;
 	pdat->width = dt_read_int(n, "width", 640);
 	pdat->height = dt_read_int(n, "height", 480);
-	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
-	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
+	pdat->xdpi = dt_read_int(n, "x-dots-per-inch", 160);
+	pdat->ydpi = dt_read_int(n, "y-dots-per-inch", 160);
 	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
 	pdat->hfp = dt_read_int(n, "hfront-porch", 1);
 	pdat->hbp = dt_read_int(n, "hback-porch", 1);

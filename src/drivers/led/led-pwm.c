@@ -26,6 +26,26 @@
 #include <pwm/pwm.h>
 #include <led/led.h>
 
+/*
+ * PWM LED - LED Driver Using Pulse Width Modulation
+ *
+ * Required properties:
+ * - pwm: led attached pwm
+ *
+ * Optional properties:
+ * - period-ns: pwm period in ns
+ * - polarity: pwm polarity
+ * - default-brightness: led default brightness
+ *
+ * Example:
+ *   "led-pwm@0": {
+ *       "pwm": "pwm.0",
+ *       "period-ns": 10000000,
+ *       "polarity": false,
+ *       "default-brightness": 0
+ *   }
+ */
+
 struct led_pwm_pdata_t {
 	struct pwm_t * pwm;
 	int period;
@@ -86,7 +106,7 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	}
 
 	pdat->pwm = pwm;
-	pdat->period = dt_read_int(n, "period", 1000 * 1000);
+	pdat->period = dt_read_int(n, "period-ns", 1000 * 1000);
 	pdat->polarity = dt_read_bool(n, "polarity", 0);
 	pdat->brightness = dt_read_int(n, "default-brightness", 0);
 

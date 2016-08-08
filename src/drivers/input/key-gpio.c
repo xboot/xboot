@@ -120,7 +120,7 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	timer_init(&pdat->timer, key_gpio_timer_function, input);
 	pdat->keys = keys;
 	pdat->nkeys = nkeys;
-	pdat->interval = dt_read_int(&o, "poll-interval", 100);
+	pdat->interval = dt_read_int(&o, "poll-interval-ms", 100);
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->type = INPUT_TYPE_KEYBOARD;

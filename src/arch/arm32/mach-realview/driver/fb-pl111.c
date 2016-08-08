@@ -1,5 +1,5 @@
 /*
- * driver/fb-pl110.c
+ * driver/fb-pl111.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,70 +27,57 @@
 #include <led/led.h>
 #include <fb/fb.h>
 
-#define CLCD_TIM0		(0x000)
-#define CLCD_TIM1		(0x004)
-#define CLCD_TIM2		(0x008)
-#define CLCD_TIM3		(0x00c)
-#define CLCD_UBAS		(0x010)
-#define CLCD_LBAS		(0x014)
-#define CLCD_CNTL		(0x018)
-#define CLCD_IMSC		(0x01c)
-#define CLCD_RIS		(0x020)
-#define CLCD_MIS		(0x024)
-#define CLCD_ICR		(0x028)
-#define CLCD_UCUR		(0x02c)
-#define CLCD_LCUR		(0x030)
-#define CLCD_PALETTE	(0x200)
+enum {
+	CLCD_TIM0	= 0x000,
+	CLCD_TIM1	= 0x004,
+	CLCD_TIM2	= 0x008,
+	CLCD_TIM3	= 0x00c,
+	CLCD_UBAS	= 0x010,
+	CLCD_LBAS	= 0x014,
+	CLCD_CNTL	= 0x018,
+	CLCD_IMSC	= 0x01c,
+	CLCD_RIS	= 0x020,
+	CLCD_MIS	= 0x024,
+	CLCD_ICR	= 0x028,
+	CLCD_UCUR	= 0x02c,
+	CLCD_LCUR	= 0x030,
+};
 
-#define CNTL_LCDEN		(1 << 0)
-#define CNTL_LCDBPP1	(0 << 1)
-#define CNTL_LCDBPP2	(1 << 1)
-#define CNTL_LCDBPP4	(2 << 1)
-#define CNTL_LCDBPP8	(3 << 1)
-#define CNTL_LCDBPP16	(4 << 1)
-#define CNTL_LCDBPP24	(5 << 1)
-#define CNTL_LCDBW		(1 << 4)
-#define CNTL_LCDTFT		(1 << 5)
-#define CNTL_LCDMONO8	(1 << 6)
-#define CNTL_LCDDUAL	(1 << 7)
-#define CNTL_BGR		(1 << 8)
-#define CNTL_BEBO		(1 << 9)
-#define CNTL_BEPO		(1 << 10)
-#define CNTL_LCDPWR		(1 << 11)
 
-struct fb_pl110_pdata_t {
+struct fb_pl111_pdata_t {
 	virtual_addr_t virt;
 	int width;
 	int height;
 	int xdpi;
 	int ydpi;
 	int bpp;
-	int h_fp;
-	int h_bp;
-	int h_sw;
-	int v_fp;
-	int v_bp;
-	int v_sw;
+	int hfp;
+	int hbp;
+	int hsl;
+	int vfp;
+	int vbp;
+	int vsl;
 	int index;
 	void * vram[2];
 	struct led_t * backlight;
+	int brightness;
 };
 
 static void fb_setbl(struct fb_t * fb, int brightness)
 {
-	struct fb_pl110_pdata_t * pdat = (struct fb_pl110_pdata_t *)fb->priv;
+	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
 	led_set_brightness(pdat->backlight, brightness);
 }
 
 static int fb_getbl(struct fb_t * fb)
 {
-	struct fb_pl110_pdata_t * pdat = (struct fb_pl110_pdata_t *)fb->priv;
+	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
 	return led_get_brightness(pdat->backlight);
 }
 
 struct render_t * fb_create(struct fb_t * fb)
 {
-	struct fb_pl110_pdata_t * pdat = (struct fb_pl110_pdata_t *)fb->priv;
+	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
 	struct render_t * render;
 	void * pixels;
 	size_t pixlen;
@@ -139,7 +126,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
-	struct fb_pl110_pdata_t * pdat = (struct fb_pl110_pdata_t *)fb->priv;
+	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
 
 	if(render && render->pixels)
 	{
@@ -151,14 +138,21 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-static struct device_t * fb_pl110_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct fb_pl110_pdata_t * pdat;
+	struct fb_pl111_pdata_t * pdat;
 	struct fb_t * fb;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	u32_t id = ((read8(virt + 0xfec) << 24) |
+				(read8(virt + 0xfe8) << 16) |
+				(read8(virt + 0xfe4) <<  8) |
+				(read8(virt + 0xfe0) <<  0));
 
-	pdat = malloc(sizeof(struct fb_pl110_pdata_t));
+	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x111)
+		return NULL;
+
+	pdat = malloc(sizeof(struct fb_pl111_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -172,15 +166,15 @@ static struct device_t * fb_pl110_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virt = virt;
 	pdat->width = dt_read_int(n, "width", 640);
 	pdat->height = dt_read_int(n, "height", 480);
-	pdat->xdpi = dt_read_int(n, "xdpi", 133);
-	pdat->ydpi = dt_read_int(n, "ydpi", 133);
-	pdat->bpp = dt_read_int(n, "bpp", 32);
-	pdat->h_fp = dt_read_int(n, "hfp", 1);
-	pdat->h_bp = dt_read_int(n, "hbp", 1);
-	pdat->h_sw = dt_read_int(n, "hsw", 1);
-	pdat->v_fp = dt_read_int(n, "vfp", 1);
-	pdat->v_bp = dt_read_int(n, "vbp", 1);
-	pdat->v_sw = dt_read_int(n, "vsw", 1);
+	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
+	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
+	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
+	pdat->hfp = dt_read_int(n, "hfront-porch", 1);
+	pdat->hbp = dt_read_int(n, "hback-porch", 1);
+	pdat->hsl = dt_read_int(n, "hsync-len", 1);
+	pdat->vfp = dt_read_int(n, "vfront-porch", 1);
+	pdat->vbp = dt_read_int(n, "vback-porch", 1);
+	pdat->vsl = dt_read_int(n, "vsync-len", 1);
 	pdat->index = 0;
 	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bpp / 8);
 	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bpp / 8);
@@ -199,13 +193,13 @@ static struct device_t * fb_pl110_probe(struct driver_t * drv, struct dtnode_t *
 	fb->present = fb_present,
 	fb->priv = pdat;
 
-	write32(pdat->virt + CLCD_TIM0, (pdat->h_bp<<24) | (pdat->h_fp<<16) | (pdat->h_sw<<8) | ((pdat->width/16-1)<<2));
-	write32(pdat->virt + CLCD_TIM1, (pdat->v_bp<<24) | (pdat->v_fp<<16) | (pdat->v_sw<<10) | ((pdat->height-1)<<0));
+	write32(pdat->virt + CLCD_TIM0, (pdat->hbp<<24) | (pdat->hfp<<16) | (pdat->hsl<<8) | ((pdat->width/16-1)<<2));
+	write32(pdat->virt + CLCD_TIM1, (pdat->vbp<<24) | (pdat->vfp<<16) | (pdat->vsl<<10) | ((pdat->height-1)<<0));
 	write32(pdat->virt + CLCD_TIM2, (1<<26) | ((pdat->width/16-1)<<16) | (1<<5) | (1<<0));
 	write32(pdat->virt + CLCD_TIM3, (0<<0));
 	write32(pdat->virt + CLCD_IMSC, 0x0);
-	write32(pdat->virt + CLCD_CNTL, CNTL_LCDBPP24 | CNTL_LCDTFT | CNTL_BGR);
-	write32(pdat->virt + CLCD_CNTL, (read32(pdat->virt + CLCD_CNTL) | CNTL_LCDEN | CNTL_LCDPWR));
+	write32(pdat->virt + CLCD_CNTL, (5 << 1) | (1 << 5) | (1 << 8));
+	write32(pdat->virt + CLCD_CNTL, (read32(pdat->virt + CLCD_CNTL) | (1 << 0) | (1 << 11)));
 
 	if(!register_fb(&dev, fb))
 	{
@@ -222,10 +216,10 @@ static struct device_t * fb_pl110_probe(struct driver_t * drv, struct dtnode_t *
 	return dev;
 }
 
-static void fb_pl110_remove(struct device_t * dev)
+static void fb_pl111_remove(struct device_t * dev)
 {
 	struct fb_t * fb = (struct fb_t *)dev->priv;
-	struct fb_pl110_pdata_t * pdat = (struct fb_pl110_pdata_t *)fb->priv;
+	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
 
 	if(fb && unregister_fb(fb))
 	{
@@ -238,35 +232,40 @@ static void fb_pl110_remove(struct device_t * dev)
 	}
 }
 
-static void fb_pl110_suspend(struct device_t * dev)
+static void fb_pl111_suspend(struct device_t * dev)
 {
 	struct fb_t * fb = (struct fb_t *)dev->priv;
-	struct fb_pl110_pdata_t * pdat = (struct fb_pl110_pdata_t *)fb->priv;
+	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
+
+	pdat->brightness = led_get_brightness(pdat->backlight);
+	led_set_brightness(pdat->backlight, 0);
 }
 
-static void fb_pl110_resume(struct device_t * dev)
+static void fb_pl111_resume(struct device_t * dev)
 {
 	struct fb_t * fb = (struct fb_t *)dev->priv;
-	struct fb_pl110_pdata_t * pdat = (struct fb_pl110_pdata_t *)fb->priv;
+	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
+
+	led_set_brightness(pdat->backlight, pdat->brightness);
 }
 
-struct driver_t fb_pl110 = {
-	.name		= "fb-pl110",
-	.probe		= fb_pl110_probe,
-	.remove		= fb_pl110_remove,
-	.suspend	= fb_pl110_suspend,
-	.resume		= fb_pl110_resume,
+struct driver_t fb_pl111 = {
+	.name		= "fb-pl111",
+	.probe		= fb_pl111_probe,
+	.remove		= fb_pl111_remove,
+	.suspend	= fb_pl111_suspend,
+	.resume		= fb_pl111_resume,
 };
 
-static __init void fb_pl110_driver_init(void)
+static __init void fb_pl111_driver_init(void)
 {
-	register_driver(&fb_pl110);
+	register_driver(&fb_pl111);
 }
 
-static __exit void fb_pl110_driver_exit(void)
+static __exit void fb_pl111_driver_exit(void)
 {
-	unregister_driver(&fb_pl110);
+	unregister_driver(&fb_pl111);
 }
 
-driver_initcall(fb_pl110_driver_init);
-driver_exitcall(fb_pl110_driver_exit);
+driver_initcall(fb_pl111_driver_init);
+driver_exitcall(fb_pl111_driver_exit);

@@ -140,11 +140,22 @@
 		"square-wave-output": 0
 	},
 
-	"fb-pl110@0x10020000": {
+	"fb-pl111@0x10020000": {
 		"width": 640,
 		"height": 480,
-		"xdpi": 133,
-		"xdpi": 133,
-		"bpp": 32
+		"dots-per-inch-x": 160,
+		"dots-per-inch-y": 160,
+		"bits-per-pixel": 32,
+		"clock-frequency": 50000000,
+		"hfront-porch": 1,
+		"hback-porch": 1,
+		"hsync-len": 1,
+		"vfront-porch": 1,
+		"vback-porch": 1,
+		"vsync-len": 1,
+		"hsync-active": false,
+		"vsync-active": false,
+		"de-active":false,
+		"pixelclk-active":false
 	}
 }

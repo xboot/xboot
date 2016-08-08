@@ -42,15 +42,6 @@ enum {
 	RTC_RIS		= 0x14,		/* Raw interrupt status register */
 	RTC_MIS		= 0x18,		/* Masked interrupt status register */
 	RTC_ICR		= 0x1c,		/* Interrupt clear register */
-
-	RTC_DID0	= 0xfe0,	/* Device ID0 */
-	RTC_DID1	= 0xfe4,	/* Device ID1 */
-	RTC_DID2	= 0xfe8,	/* Device ID2 */
-	RTC_DID3	= 0xfec,	/* Device ID3 */
-	RTC_CID0	= 0xff0,	/* Cell ID0 */
-	RTC_CID1	= 0xff4,	/* Cell ID1 */
-	RTC_CID2	= 0xff8,	/* Cell ID2 */
-	RTC_CID3	= 0xffc,	/* Cell ID3 */
 };
 
 #define LEAPS_THRU_END(y)	((y)/4 - (y)/100 + (y)/400)
@@ -141,10 +132,12 @@ static struct device_t * rtc_pl031_probe(struct driver_t * drv, struct dtnode_t 
 	struct rtc_t * rtc;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	u32_t id = ((read8(virt + 0xfec) << 24) |
+				(read8(virt + 0xfe8) << 16) |
+				(read8(virt + 0xfe4) <<  8) |
+				(read8(virt + 0xfe0) <<  0));
 
-	if( (read32(virt + RTC_DID0) != 0x31) &&
-		(read32(virt + RTC_DID1) != 0x10) &&
-		((read32(virt + RTC_DID2) & 0x0f) != 0x04) )
+	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x031)
 		return NULL;
 
 	pdat = malloc(sizeof(struct rtc_pl031_pdata_t));

@@ -33,10 +33,10 @@
  * - clock: uart parant clock name
  *
  * Optional properties:
- * - txd-gpio: uart txd pin
- * - txd-gpio-config: uart txd pin config
- * - rxd-gpio: uart rxd pin
- * - rxd-gpio-config: uart rxd pin config
+ * - txd-gpio: uart txd gpio
+ * - txd-gpio-config: uart txd gpio config
+ * - rxd-gpio: uart rxd gpio
+ * - rxd-gpio-config: uart rxd gpio config
  * - baud-rates: uart baud rates, default is 115200
  * - data-bits: uart data bits, default is 8
  * - parity-bits: uart parity bits, default is 0
@@ -76,9 +76,9 @@ enum {
 struct uart_pl011_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
-	int txdpin;
+	int txd;
 	int txdcfg;
-	int rxdpin;
+	int rxd;
 	int rxdcfg;
 	int baud;
 	int data;
@@ -223,6 +223,13 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	struct uart_t * uart;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	u32_t id = ((read8(virt + 0xfec) << 24) |
+				(read8(virt + 0xfe8) << 16) |
+				(read8(virt + 0xfe4) <<  8) |
+				(read8(virt + 0xfe0) <<  0));
+
+	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x011)
+		return NULL;
 
 	if(!clk_search(dt_read_string(n, "clock", NULL)))
 		return NULL;
@@ -240,9 +247,9 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 
 	pdat->virt = virt;
 	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
-	pdat->txdpin = dt_read_int(n, "txd-gpio", -1);
+	pdat->txd = dt_read_int(n, "txd-gpio", -1);
 	pdat->txdcfg = dt_read_int(n, "txd-gpio-config", -1);
-	pdat->rxdpin = dt_read_int(n, "rxd-gpio", -1);
+	pdat->rxd = dt_read_int(n, "rxd-gpio", -1);
 	pdat->rxdcfg = dt_read_int(n, "rxd-gpio-config", -1);
 	pdat->baud = dt_read_int(n, "baud-rates", 115200);
 	pdat->data = dt_read_int(n, "data-bits", 8);
@@ -257,15 +264,15 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	uart->priv = pdat;
 
 	clk_enable(pdat->clk);
-	if(pdat->txdpin >= 0)
+	if(pdat->txd >= 0)
 	{
-		gpio_set_cfg(pdat->txdpin, pdat->txdcfg);
-		gpio_set_pull(pdat->txdpin, GPIO_PULL_UP);
+		gpio_set_cfg(pdat->txd, pdat->txdcfg);
+		gpio_set_pull(pdat->txd, GPIO_PULL_UP);
 	}
-	if(pdat->rxdpin >= 0)
+	if(pdat->rxd >= 0)
 	{
-		gpio_set_cfg(pdat->rxdpin, pdat->rxdcfg);
-		gpio_set_pull(pdat->rxdpin, GPIO_PULL_UP);
+		gpio_set_cfg(pdat->rxd, pdat->rxdcfg);
+		gpio_set_pull(pdat->rxd, GPIO_PULL_UP);
 	}
 	write32(pdat->virt + UART_LCRH, read32(pdat->virt + UART_LCRH) | (1 << 4));
 	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));

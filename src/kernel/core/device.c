@@ -109,6 +109,33 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	return kobj_search_directory_with_create(kdevice, (const char *)name);
 }
 
+static ssize_t device_write_suspend(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct device_t * dev = (struct device_t *)kobj->priv;
+
+	if(strncmp(buf, dev->name, size) == 0)
+		suspend_device(dev);
+	return size;
+}
+
+static ssize_t device_write_resume(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct device_t * dev = (struct device_t *)kobj->priv;
+
+	if(strncmp(buf, dev->name, size) == 0)
+		resume_device(dev);
+	return size;
+}
+
+static ssize_t device_write_remove(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct device_t * dev = (struct device_t *)kobj->priv;
+
+	if(strncmp(buf, dev->name, size) == 0)
+		remove_device(dev);
+	return size;
+}
+
 char * alloc_device_name(const char * name, int id)
 {
 	char buf[256];
@@ -195,6 +222,9 @@ bool_t register_device(struct device_t * dev)
 
 	if(!dev->kobj)
 		dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "suspend", NULL, device_write_suspend, dev);
+	kobj_add_regular(dev->kobj, "resume", NULL, device_write_resume, dev);
+	kobj_add_regular(dev->kobj, "remove", NULL, device_write_remove, dev);
 	kobj_add(search_device_kobj(dev), dev->kobj);
 	dl->device = dev;
 

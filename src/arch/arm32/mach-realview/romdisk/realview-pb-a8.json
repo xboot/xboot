@@ -140,14 +140,19 @@
 		"square-wave-output": 0
 	},
 
+	"keyboard-pl050@0x10006000": {
+		"clock": "kclk",
+		"interrupt": 52
+	},
+
 	"mouse-pl050@0x10007000": {
 		"clock": "kclk",
 		"interrupt": 53,
-		"xmax": 640,
-		"ymax": 480,
-		"to-touch-event": false
+		"x-pos-max": 640,
+		"y-pos-max": 480,
+		"simulate-touch-event": false
 	},
-	
+
 	"fb-pl111@0x10020000": {
 		"width": 640,
 		"height": 480,

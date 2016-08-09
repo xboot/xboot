@@ -1,7 +1,5 @@
 /*
- * driver/realview_keyboard.c
- *
- * realview keyboard drivers, the primecell pl050 ps2 controller.
+ * driver/keyboard-pl050.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -25,15 +23,23 @@
  */
 
 #include <xboot.h>
-#include <realview-keyboard.h>
+#include <input/input.h>
+#include <input/keyboard.h>
 
-#define	KBD_LEFT_SHIFT		(0x00000001)
-#define	KBD_RIGHT_SHIFT		(0x00000002)
-#define	KBD_LEFT_CTRL		(0x00000004)
-#define	KBD_RIGHT_CTRL		(0x00000008)
-#define	KBD_CAPS_LOCK		(0x00000040)
-#define	KBD_NUM_LOCK		(0x00000080)
-#define	KBD_SCROLL_LOCK		(0x00000100)
+enum{
+	KEYBOARD_CR		= 0x00,
+	KEYBOARD_STAT	= 0x04,
+	KEYBOARD_DATA	= 0x08,
+	KEYBOARD_CLKDIV	= 0x0c,
+	KEYBOARD_IIR	= 0x10,
+};
+
+struct keyboard_pl050_pdata_t
+{
+	virtual_addr_t virt;
+	char * clk;
+	int irq;
+};
 
 enum decode_state {
 	DECODE_STATE_MAKE_CODE,
@@ -52,6 +58,16 @@ struct keymap {
 enum key_value_t {
 	KEY_BUTTON_UP,
 	KEY_BUTTON_DOWN,
+};
+
+enum {
+	KBD_LEFT_SHIFT 	= (0x1 << 0),
+	KBD_RIGHT_SHIFT = (0x1 << 1),
+	KBD_LEFT_CTRL 	= (0x1 << 2),
+	KBD_RIGHT_CTRL	= (0x1 << 3),
+	KBD_CAPS_LOCK 	= (0x1 << 6),
+	KBD_NUM_LOCK 	= (0x1 << 7),
+	KBD_SCROLL_LOCK	= (0x1 << 8),
 };
 
 static const struct keymap map[] = {
@@ -149,53 +165,47 @@ static void keyboard_report_event(void * device, u32_t flag, u8_t data, enum key
 	}
 }
 
-static bool_t kmi_write(struct realview_keyboard_data_t * dat, u8_t data)
+static bool_t kmi_write(struct keyboard_pl050_pdata_t * pdat, u8_t value)
 {
-	s32_t timeout = 1000;
+	int timeout = 1000;
 
-	while((read8(phys_to_virt(dat->regbase + KEYBOARD_STAT)) & KEYBOARD_STAT_TXEMPTY) == 0 && timeout--);
+	while((read8(pdat->virt + KEYBOARD_STAT) & (1 << 6)) == 0 && timeout--);
 
 	if(timeout)
 	{
-		write8(phys_to_virt(dat->regbase + KEYBOARD_DATA), data);
+		write8(pdat->virt + KEYBOARD_DATA, value);
+		while((read8(pdat->virt + KEYBOARD_STAT) & (1 << 4)) == 0);
 
-		while((read8(phys_to_virt(dat->regbase + KEYBOARD_STAT)) & KEYBOARD_STAT_RXFULL) == 0);
-
-		if( read8(phys_to_virt(dat->regbase + KEYBOARD_DATA)) == 0xfa)
+		if(read8(pdat->virt + KEYBOARD_DATA) == 0xfa)
 			return TRUE;
-		else
-			return FALSE;
 	}
-
 	return FALSE;
 }
 
-static bool_t kmi_read(struct realview_keyboard_data_t * dat, u8_t * data)
+static bool_t kmi_read(struct keyboard_pl050_pdata_t * pdat, u8_t * value)
 {
-	if( (read8(phys_to_virt(dat->regbase + KEYBOARD_STAT)) & KEYBOARD_STAT_RXFULL) )
+	if((read8(pdat->virt + KEYBOARD_STAT) & (1 << 4)))
 	{
-		*data = read8(phys_to_virt(dat->regbase + KEYBOARD_DATA));
+		*value = read8(pdat->virt + KEYBOARD_DATA);
 		return TRUE;
 	}
-
 	return FALSE;
 }
 
-static void keyboard_interrupt(void * data)
+static void keyboard_pl050_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
-	struct resource_t * res = (struct resource_t *)input->priv;
-	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
+	struct keyboard_pl050_pdata_t * pdat = (struct keyboard_pl050_pdata_t *)input->priv;
 
 	static enum decode_state ds = DECODE_STATE_MAKE_CODE;
 	static u32_t kbd_flag = KBD_NUM_LOCK;
 	u8_t status, value;
 
-	status = read8(phys_to_virt(dat->regbase + KEYBOARD_IIR));
+	status = read8(pdat->virt + KEYBOARD_IIR);
 
-	while(status & KEYBOARD_IIR_RXINTR)
+	while(status & (1 << 0))
 	{
-		value = read8(phys_to_virt(dat->regbase + KEYBOARD_DATA));
+		value = read8(pdat->virt + KEYBOARD_DATA);
 
 		switch(ds)
 		{
@@ -342,146 +352,134 @@ static void keyboard_interrupt(void * data)
 			break;
 		}
 
-		status = read8(phys_to_virt(dat->regbase + KEYBOARD_IIR));
+		status = read8(pdat->virt + KEYBOARD_IIR);
 	}
 }
 
-static void input_init(struct input_t * input)
-{
-	struct resource_t * res = (struct resource_t *)input->priv;
-	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
-	u32_t divisor;
-	u64_t kclk;
-	u8_t value;
-
-	clk_enable("kclk");
-	kclk = clk_get_rate("kclk");
-	if(!kclk)
-		return;
-
-	/* Set keyboard's clock divisor */
-	divisor = (u32_t)(kclk / 8000000) - 1;
-	write8(phys_to_virt(dat->regbase + KEYBOARD_CLKDIV), divisor);
-
-	/* Enable keyboard controller */
-	write8(phys_to_virt(dat->regbase + KEYBOARD_CR), KEYBOARD_CR_EN);
-
-	/* Clear a receive buffer */
-	kmi_read(dat, &value);
-
-	/* Reset keyboard, and wait ack and pass/fail code */
-	if(! kmi_write(dat, 0xff) )
-		return;
-	if(! kmi_read(dat, &value))
-		return;
-	if(value != 0xaa)
-		return;
-
-	/* Set keyboard's typematic rate/delay */
-	kmi_write(dat, 0xf3);
-	/* 10.9pcs, 500ms */
-	kmi_write(dat, 0x2b);
-
-	/* Scan code set 2 */
-	kmi_write(dat, 0xf0);
-	kmi_write(dat, 0x02);
-
-	/* Set all keys typematic/make/break */
-	kmi_write(dat, 0xfa);
-
-	/* Set keyboard's number lock, caps lock, and scroll lock */
-	kmi_write(dat, 0xed);
-	kmi_write(dat, 0x02);
-
-	if(!request_irq(REALVIEW_IRQ_KMI0, keyboard_interrupt, IRQ_TYPE_NONE, input))
-	{
-		write8(phys_to_virt(dat->regbase + KEYBOARD_CR), 0);
-		return;
-	}
-
-	/* Re-enables keyboard */
-	write8(phys_to_virt(dat->regbase + KEYBOARD_CR), KEYBOARD_CR_EN | KEYBOARD_CR_RXINTREN);
-}
-
-static void input_exit(struct input_t * input)
-{
-	struct resource_t * res = (struct resource_t *)input->priv;
-	struct realview_keyboard_data_t * dat = (struct realview_keyboard_data_t *)res->data;
-
-	clk_disable("kclk");
-	free_irq(REALVIEW_IRQ_KMI0);
-	write8(phys_to_virt(dat->regbase + KEYBOARD_CR), 0);
-}
-
-static int input_ioctl(struct input_t * input, int cmd, void * arg)
+static int keyboard_pl050_ioctl(struct input_t * input, int cmd, void * arg)
 {
 	return -1;
 }
 
-static void input_suspend(struct input_t * input)
+static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-}
-
-static void input_resume(struct input_t * input)
-{
-}
-
-static bool_t realview_register_keyboard(struct resource_t * res)
-{
+	struct keyboard_pl050_pdata_t * pdat;
 	struct input_t * input;
-	char name[64];
+	struct device_t * dev;
+	u64_t clk;
+	u8_t value;
+	virtual_addr_t virt = (dt_read_address(n));
+	u32_t id = ((read8(virt + 0xfec) << 24) |
+				(read8(virt + 0xfe8) << 16) |
+				(read8(virt + 0xfe4) <<  8) |
+				(read8(virt + 0xfe0) <<  0));
+
+	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x050)
+		return NULL;
+
+	if(!clk_search(dt_read_string(n, "clock", NULL)))
+		return NULL;
+
+	if(!irq_is_valid(dt_read_int(n, "interrupt", -1)))
+		return NULL;
+
+	pdat = malloc(sizeof(struct keyboard_pl050_pdata_t));
+	if(!pdat)
+		return NULL;
 
 	input = malloc(sizeof(struct input_t));
 	if(!input)
-		return FALSE;
+	{
+		free(pdat);
+		return NULL;
+	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	pdat->virt = virt;
+	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
+	pdat->irq = dt_read_int(n, "interrupt", -1);
 
-	input->name = strdup(name);
+	input->name = alloc_device_name(dt_read_name(n), -1);
 	input->type = INPUT_TYPE_KEYBOARD;
-	input->init = input_init;
-	input->exit = input_exit;
-	input->ioctl = input_ioctl;
-	input->suspend = input_suspend,
-	input->resume	= input_resume,
-	input->priv = res;
+	input->ioctl = keyboard_pl050_ioctl;
+	input->priv = pdat;
 
-	if(register_input(input))
-		return TRUE;
+	request_irq(pdat->irq, keyboard_pl050_interrupt, IRQ_TYPE_NONE, input);
+	clk_enable(pdat->clk);
+	clk = clk_get_rate(pdat->clk);
+	write8(pdat->virt + KEYBOARD_CLKDIV, (u32_t)(clk / 8000000) - 1);
+	write8(pdat->virt + KEYBOARD_CR, (1 << 2));
+	kmi_read(pdat, &value);
+	kmi_write(pdat, 0xff);
+	kmi_read(pdat, &value);
+	kmi_write(pdat, 0xf3);
+	kmi_write(pdat, 0x2b);
+	kmi_write(pdat, 0xf0);
+	kmi_write(pdat, 0x02);
+	kmi_write(pdat, 0xfa);
+	kmi_write(pdat, 0xed);
+	kmi_write(pdat, 0x02);
+	write8(pdat->virt + KEYBOARD_CR, (1 << 2) | (1 << 4));
 
-	free(input->name);
-	free(input);
-	return FALSE;
+	if(!register_input(&dev, input))
+	{
+		write8(pdat->virt + KEYBOARD_CR, 0);
+		clk_disable(pdat->clk);
+		free_irq(pdat->irq);
+		free(pdat->clk);
+
+		free_device_name(input->name);
+		free(input->priv);
+		free(input);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static bool_t realview_unregister_keyboard(struct resource_t * res)
+static void keyboard_pl050_remove(struct device_t * dev)
 {
-	struct input_t * input;
-	char name[64];
+	struct input_t * input = (struct input_t *)dev->priv;
+	struct keyboard_pl050_pdata_t * pdat = (struct keyboard_pl050_pdata_t *)input->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(input && unregister_input(input))
+	{
+		write8(pdat->virt + KEYBOARD_CR, 0);
+		clk_disable(pdat->clk);
+		free_irq(pdat->irq);
+		free(pdat->clk);
 
-	input = search_input(name);
-	if(!input)
-		return FALSE;
-
-	if(!unregister_input(input))
-		return FALSE;
-
-	free(input->name);
-	free(input);
-	return TRUE;
+		free_device_name(input->name);
+		free(input->priv);
+		free(input);
+	}
 }
 
-static __init void realview_keyboard_device_init(void)
+static void keyboard_pl050_suspend(struct device_t * dev)
 {
-	resource_for_each("realview-keyboard", realview_register_keyboard);
 }
 
-static __exit void realview_keyboard_device_exit(void)
+static void keyboard_pl050_resume(struct device_t * dev)
 {
-	resource_for_each("realview-keyboard", realview_unregister_keyboard);
 }
 
-device_initcall(realview_keyboard_device_init);
-device_exitcall(realview_keyboard_device_exit);
+struct driver_t keyboard_pl050 = {
+	.name		= "keyboard-pl050",
+	.probe		= keyboard_pl050_probe,
+	.remove		= keyboard_pl050_remove,
+	.suspend	= keyboard_pl050_suspend,
+	.resume		= keyboard_pl050_resume,
+};
+
+static __init void keyboard_pl050_driver_init(void)
+{
+	register_driver(&keyboard_pl050);
+}
+
+static __exit void keyboard_pl050_driver_exit(void)
+{
+	unregister_driver(&keyboard_pl050);
+}
+
+driver_initcall(keyboard_pl050_driver_init);
+driver_exitcall(keyboard_pl050_driver_exit);

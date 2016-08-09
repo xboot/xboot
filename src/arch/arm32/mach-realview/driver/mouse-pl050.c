@@ -25,29 +25,13 @@
 #include <xboot.h>
 #include <input/input.h>
 
-#define MOUSE_CR	 		(0x00)
-#define MOUSE_STAT	 		(0x04)
-#define MOUSE_DATA	 		(0x08)
-#define MOUSE_CLKDIV 		(0x0c)
-#define MOUSE_IIR	 		(0x10)
-
-#define MOUSE_CR_TYPE	 	(1 << 5)
-#define MOUSE_CR_RXINTREN	(1 << 4)
-#define MOUSE_CR_TXINTREN	(1 << 3)
-#define MOUSE_CR_EN			(1 << 2)
-#define MOUSE_CR_FD			(1 << 1)
-#define MOUSE_CR_FC			(1 << 0)
-
-#define MOUSE_STAT_TXEMPTY	(1 << 6)
-#define MOUSE_STAT_TXBUSY	(1 << 5)
-#define MOUSE_STAT_RXFULL	(1 << 4)
-#define MOUSE_STAT_RXBUSY	(1 << 3)
-#define MOUSE_STAT_RXPARITY	(1 << 2)
-#define MOUSE_STAT_IC		(1 << 1)
-#define MOUSE_STAT_ID		(1 << 0)
-
-#define MOUSE_IIR_TXINTR	(1 << 1)
-#define MOUSE_IIR_RXINTR	(1 << 0)
+enum {
+	MOUSE_CR		= 0x00,
+	MOUSE_STAT		= 0x04,
+	MOUSE_DATA 		= 0x08,
+	MOUSE_CLKDIV	= 0x0c,
+	MOUSE_IIR		= 0x10,
+};
 
 struct mouse_pl050_pdata_t {
 	virtual_addr_t virt;
@@ -55,23 +39,23 @@ struct mouse_pl050_pdata_t {
 	int irq;
 	int xmax, ymax;
 	int xpos, ypos;
-	int totouch;
-	u8_t packet[4];
-	u8_t index;
-	u8_t btnold;
+	int touchevent;
+	unsigned char packet[4];
+	int index;
+	int obtn;
 };
 
 static bool_t kmi_write(struct mouse_pl050_pdata_t * pdat, u8_t value)
 {
 	int timeout = 1000;
 
-	while((read8(pdat->virt + MOUSE_STAT) & MOUSE_STAT_TXEMPTY) == 0 && timeout--);
+	while((read8(pdat->virt + MOUSE_STAT) & (1 << 6)) == 0 && timeout--);
 
 	if(timeout)
 	{
 		write8(pdat->virt + MOUSE_DATA, value);
+		while((read8(pdat->virt + MOUSE_STAT) & (1 << 4)) == 0);
 
-		while((read8(pdat->virt + MOUSE_STAT) & MOUSE_STAT_RXFULL) == 0);
 		if(read8(pdat->virt + MOUSE_DATA) == 0xfa)
 			return TRUE;
 	}
@@ -80,7 +64,7 @@ static bool_t kmi_write(struct mouse_pl050_pdata_t * pdat, u8_t value)
 
 static bool_t kmi_read(struct mouse_pl050_pdata_t * pdat, u8_t * value)
 {
-	if((read8(pdat->virt + MOUSE_STAT) & MOUSE_STAT_RXFULL))
+	if((read8(pdat->virt + MOUSE_STAT) & (1 << 4)))
 	{
 		*value = read8(pdat->virt + MOUSE_DATA);
 		return TRUE;
@@ -93,11 +77,11 @@ static void mouse_pl050_interrupt(void * data)
 	struct input_t * input = (struct input_t *)data;
 	struct mouse_pl050_pdata_t * pdat = (struct mouse_pl050_pdata_t *)input->priv;
 	int x, y, relx, rely, delta;
-	u32_t btndown, btnup, btn;
-	u8_t status;
+	int btndown, btnup, btn;
+	int status;
 
 	status = read8(pdat->virt + MOUSE_IIR);
-	while(status & MOUSE_IIR_RXINTR)
+	while(status & (1 << 0))
 	{
 		pdat->packet[pdat->index] = read8(pdat->virt + MOUSE_DATA);
 		pdat->index = (pdat->index + 1) & 0x3;
@@ -105,9 +89,9 @@ static void mouse_pl050_interrupt(void * data)
 		if(pdat->index == 0)
 		{
 			btn = pdat->packet[0] & 0x7;
-			btndown = (btn ^ pdat->btnold) & btn;
-			btnup = (btn ^ pdat->btnold) & pdat->btnold;
-			pdat->btnold = btn;
+			btndown = (btn ^ pdat->obtn) & btn;
+			btnup = (btn ^ pdat->obtn) & pdat->obtn;
+			pdat->obtn = btn;
 
 			if(pdat->packet[0] & 0x10)
 				relx = 0xffffff00 | pdat->packet[1];
@@ -143,7 +127,7 @@ static void mouse_pl050_interrupt(void * data)
 			x = pdat->xpos;
 			y = pdat->ypos;
 
-			if(pdat->totouch)
+			if(pdat->touchevent)
 			{
 				if((btn & (0x01 << 0)) && ((relx != 0) || (rely != 0)))
 					push_event_touch_move(input, x, y, 0);
@@ -229,9 +213,9 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
 	pdat->irq = dt_read_int(n, "interrupt", -1);
-	pdat->xmax = dt_read_int(n, "xmax", 640);
-	pdat->ymax = dt_read_int(n, "ymax", 480);
-	pdat->totouch = dt_read_bool(n, "to-touch-event", 0);
+	pdat->xmax = dt_read_int(n, "x-pos-max", 640);
+	pdat->ymax = dt_read_int(n, "y-pos-max", 480);
+	pdat->touchevent = dt_read_bool(n, "simulate-touch-event", 0);
 	pdat->xpos = pdat->xmax / 2;
 	pdat->ypos = pdat->ymax / 2;
 	pdat->packet[0] = 0;
@@ -239,10 +223,13 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	pdat->packet[2] = 0;
 	pdat->packet[3] = 0;
 	pdat->index = 0;
-	pdat->btnold = 0;
+	pdat->obtn = 0;
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
-	input->type = INPUT_TYPE_KEYBOARD;
+	if(pdat->touchevent)
+		input->type = INPUT_TYPE_TOUCHSCREEN;
+	else
+		input->type = INPUT_TYPE_MOUSE;
 	input->ioctl = mouse_pl050_ioctl;
 	input->priv = pdat;
 
@@ -250,7 +237,7 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	clk_enable(pdat->clk);
 	clk = clk_get_rate(pdat->clk);
 	write8(pdat->virt + MOUSE_CLKDIV, (u32_t)(clk / 8000000) - 1);
-	write8(pdat->virt + MOUSE_CR, MOUSE_CR_EN);
+	write8(pdat->virt + MOUSE_CR, (1 << 2));
 	kmi_write(pdat, 0xff);
 	kmi_read(pdat, &value);
 	kmi_write(pdat, 0xf3);
@@ -272,7 +259,7 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	kmi_read(pdat, &value);
 	kmi_read(pdat, &value);
 	kmi_read(pdat, &value);
-	write8(pdat->virt + MOUSE_CR, MOUSE_CR_EN | MOUSE_CR_RXINTREN);
+	write8(pdat->virt + MOUSE_CR, (1 << 2) | (1 << 4));
 
 	if(!register_input(&dev, input))
 	{

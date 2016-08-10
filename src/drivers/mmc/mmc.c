@@ -50,5 +50,5 @@ static __exit void mmc_card_exit(void)
 	mmc_card_remove();
 }
 
-device_initcall(mmc_card_init);
-device_exitcall(mmc_card_exit);
+//device_initcall(mmc_card_init);
+//device_exitcall(mmc_card_exit);

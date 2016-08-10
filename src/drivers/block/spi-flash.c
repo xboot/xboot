@@ -292,46 +292,44 @@ static void spi_flash_sync(struct block_t * blk)
 {
 }
 
-static bool_t spi_flash_register(struct resource_t * res)
+static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct spi_flash_data_t * rdat = (struct spi_flash_data_t *)res->data;
 	struct spi_flash_pdata_t * pdat;
-	struct spi_device_t * dev;
-	struct spi_flash_id_t * id;
 	struct block_t * blk;
-	char name[64];
+	struct device_t * dev;
+	struct spi_device_t * spidev;
+	struct spi_flash_id_t * id;
 
-	dev = spi_device_alloc(rdat->spibus, rdat->mode, 8, rdat->speed);
-	if(!dev)
-		return FALSE;
+	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
+	if(!spidev)
+		return NULL;
 
-	id = spi_flash_read_id(dev);
+	id = spi_flash_read_id(spidev);
 	if(!id)
 	{
-		spi_device_free(dev);
-		return FALSE;
+		spi_device_free(spidev);
+		return NULL;
 	}
 
 	pdat = malloc(sizeof(struct spi_flash_pdata_t));
 	if(!pdat)
 	{
-		spi_device_free(dev);
-		return FALSE;
+		spi_device_free(spidev);
+		return NULL;
 	}
 
 	blk = malloc(sizeof(struct block_t));
 	if(!blk)
 	{
-		spi_device_free(dev);
+		spi_device_free(spidev);
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-	pdat->dev = dev;
+	pdat->dev = spidev;
 	pdat->id = id;
 
-	blk->name = strdup(name);
+	blk->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	if(id->flags & SECTOR_4K)
 	{
 		blk->blksz = 4096;
@@ -347,49 +345,64 @@ static bool_t spi_flash_register(struct resource_t * res)
 	blk->sync = spi_flash_sync;
 	blk->priv = pdat;
 
-	spi_flash_write_enable(dev);
-	spi_flash_write_status_register(dev, 0);
+	spi_flash_write_disable(pdat->dev);
+	spi_flash_write_enable(pdat->dev);
+	spi_flash_write_status_register(pdat->dev, 0);
 
-	if(register_block(NULL, blk))
-		return TRUE;
+	if(!register_block(&dev, blk))
+	{
+		spi_device_free(pdat->dev);
 
-	spi_device_free(dev);
-	free(blk->priv);
-	free(blk->name);
-	free(blk);
-	return FALSE;
+		free_device_name(blk->name);
+		free(blk->priv);
+		free(blk);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static bool_t spi_flash_unregister(struct resource_t * res)
+static void spi_flash_remove(struct device_t * dev)
 {
-	struct block_t * blk;
-	char name[64];
+	struct block_t * blk = (struct block_t *)dev->priv;
+	struct spi_flash_pdata_t * pdat = (struct spi_flash_pdata_t *)blk->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(blk && unregister_block(blk))
+	{
+		spi_device_free(pdat->dev);
 
-	blk = search_block(name);
-	if(!blk)
-		return FALSE;
-
-	if(!unregister_block(blk))
-		return FALSE;
-
-	spi_device_free(((struct spi_flash_pdata_t *)blk->priv)->dev);
-	free(blk->priv);
-	free(blk->name);
-	free(blk);
-	return TRUE;
+		free_device_name(blk->name);
+		free(blk->priv);
+		free(blk);
+	}
 }
 
-static __init void spi_flash_device_init(void)
+static void spi_flash_suspend(struct device_t * dev)
 {
-	resource_for_each("spi-flash", spi_flash_register);
 }
 
-static __exit void spi_flash_device_exit(void)
+static void spi_flash_resume(struct device_t * dev)
 {
-	resource_for_each("spi-flash", spi_flash_unregister);
 }
 
-device_initcall(spi_flash_device_init);
-device_exitcall(spi_flash_device_exit);
+struct driver_t spi_flash = {
+	.name		= "spi-flash",
+	.probe		= spi_flash_probe,
+	.remove		= spi_flash_remove,
+	.suspend	= spi_flash_suspend,
+	.resume		= spi_flash_resume,
+};
+
+static __init void spi_flash_driver_init(void)
+{
+	register_driver(&spi_flash);
+}
+
+static __exit void spi_flash_driver_exit(void)
+{
+	unregister_driver(&spi_flash);
+}
+
+driver_initcall(spi_flash_driver_init);
+driver_exitcall(spi_flash_driver_exit);

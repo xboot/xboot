@@ -19,31 +19,29 @@ typedef void (*exitcall_t)(void);
 	static const exitcall_t __exitcall_##fn##id \
 	__attribute__((__used__, __section__(".exitcall_" level ".text"))) = fn
 
-#define machine_initcall(fn)		__define_initcall("0", fn, 0)
-#define core_initcall(fn)			__define_initcall("1", fn, 1)
-#define postcore_initcall(fn)		__define_initcall("2", fn, 2)
-#define driver_initcall(fn)			__define_initcall("2", fn, 2)
-#define subsys_initcall(fn)			__define_initcall("3", fn, 3)
-//todo
-#define resource_initcall(fn)		__define_initcall("4", fn, 4)
-#define bus_initcall(fn)			__define_initcall("5", fn, 5)
-#define device_initcall(fn)			__define_initcall("6", fn, 6)
-#define postdevice_initcall(fn)		__define_initcall("7", fn, 7)
-#define command_initcall(fn)		__define_initcall("8", fn, 8)
-#define late_initcall(fn)			__define_initcall("9", fn, 9)
+#define pure_initcall(fn)		__define_initcall("0", fn, 0)
+#define machine_initcall(fn)	__define_initcall("1", fn, 0)
+#define core_initcall(fn)		__define_initcall("2", fn, 1)
+#define postcore_initcall(fn)	__define_initcall("3", fn, 2)
+#define driver_initcall(fn)		__define_initcall("4", fn, 2)
+#define subsys_initcall(fn)		__define_initcall("5", fn, 3)
+#define resource_initcall(fn)	__define_initcall("6", fn, 4)
+#define device_initcall(fn)		__define_initcall("6", fn, 6)
+#define postdevice_initcall(fn)	__define_initcall("7", fn, 7)
+#define command_initcall(fn)	__define_initcall("8", fn, 8)
+#define late_initcall(fn)		__define_initcall("9", fn, 9)
 
-#define machine_exitcall(fn)		__define_exitcall("0", fn, 0)
-#define core_exitcall(fn)			__define_exitcall("1", fn, 1)
-#define postcore_exitcall(fn)		__define_exitcall("2", fn, 2)
-#define driver_exitcall(fn)			__define_exitcall("2", fn, 2)
-#define subsys_exitcall(fn)			__define_exitcall("3", fn, 3)
-//todo
-#define resource_exitcall(fn)		__define_exitcall("4", fn, 4)
-#define bus_exitcall(fn)			__define_exitcall("5", fn, 5)
-#define device_exitcall(fn)			__define_exitcall("6", fn, 6)
-#define postdevice_exitcall(fn)		__define_exitcall("7", fn, 7)
-#define command_exitcall(fn)		__define_exitcall("8", fn, 8)
-#define late_exitcall(fn)			__define_exitcall("9", fn, 9)
+#define pure_exitcall(fn)		__define_exitcall("0", fn, 0)
+#define machine_exitcall(fn)	__define_exitcall("1", fn, 0)
+#define core_exitcall(fn)		__define_exitcall("2", fn, 1)
+#define postcore_exitcall(fn)	__define_exitcall("3", fn, 2)
+#define driver_exitcall(fn)		__define_exitcall("4", fn, 2)
+#define subsys_exitcall(fn)		__define_exitcall("5", fn, 3)
+#define resource_exitcall(fn)	__define_exitcall("6", fn, 4)
+#define device_exitcall(fn)		__define_exitcall("6", fn, 6)
+#define postdevice_exitcall(fn)	__define_exitcall("7", fn, 7)
+#define command_exitcall(fn)	__define_exitcall("8", fn, 8)
+#define late_exitcall(fn)		__define_exitcall("9", fn, 9)
 
 void do_initcalls(void);
 void do_exitcalls(void);

@@ -77,7 +77,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/lib							\
 				arch/$(ARCH)/$(MACH)						\
 				arch/$(ARCH)/$(MACH)/driver					\
-				arch/$(ARCH)/$(MACH)/resource				\
 				lib/libc									\
 				lib/libc/charset							\
 				lib/libc/crypto								\

@@ -604,14 +604,6 @@ static ssize_t console_fb_write(struct console_t * console, const unsigned char 
 	return count;
 }
 
-static void console_fb_suspend(struct console_t * console)
-{
-}
-
-static void console_fb_resume(struct console_t * console)
-{
-}
-
 bool_t register_console_framebuffer(struct fb_t * fb)
 {
 	struct console_fb_data_t * dat;
@@ -666,11 +658,9 @@ bool_t register_console_framebuffer(struct fb_t * fb)
 	console->name = strdup(fb->name);
 	console->read = NULL,
 	console->write = console_fb_write,
-	console->suspend = console_fb_suspend,
-	console->resume	= console_fb_resume,
 	console->priv = dat;
 
-	if(register_console(console))
+	if(register_console(NULL, console))
 		return TRUE;
 
 	free(dat->cell);

@@ -22,61 +22,39 @@
  *
  */
 
-#include <console/console-uart.h>
-#include <console/console-fb.h>
-#include <console/console-input.h>
 #include <console/console.h>
 
-static struct console_t * __console_stdin = NULL;
-static struct console_t * __console_stdout = NULL;
-static struct console_t * __console_stderr = NULL;
-
-static inline ssize_t console_read(struct console_t * console, unsigned char * buf, size_t count)
+static ssize_t __console_dummy_read(struct console_t * console, unsigned char * buf, size_t count)
 {
-	if(console && console->read)
-		return console->read(console, buf, count);
 	return 0;
 }
 
-static inline ssize_t console_write(struct console_t * console, const unsigned char * buf, size_t count)
+static ssize_t __console_dummy_write(struct console_t * console, const unsigned char * buf, size_t count)
 {
-	if(console && console->write)
-		return console->write(console, buf, count);
 	return 0;
 }
 
-ssize_t console_stdin_read(unsigned char * buf, size_t count)
-{
-	return console_read(__console_stdin, buf, count);
-}
-
-ssize_t console_stdout_write(const unsigned char * buf, size_t count)
-{
-	return console_write(__console_stdout, buf, count);
-}
-
-ssize_t console_stderr_write(const unsigned char * buf, size_t count)
-{
-	return console_write(__console_stderr, buf, count);
-}
+static struct console_t __console_dummy = {
+	.name	= "dummy",
+	.read	= __console_dummy_read,
+	.write	= __console_dummy_write,
+};
+static struct console_t * __console = &__console_dummy;
 
 struct console_t * search_console(const char * name)
 {
 	struct device_t * dev;
-	char dname[64];
 
-	snprintf(dname, sizeof(dname), "console.%s", name);
-	dev = search_device_with_type(dname, DEVICE_TYPE_CONSOLE);
+	dev = search_device_with_type(name, DEVICE_TYPE_CONSOLE);
 	if(!dev)
 		return NULL;
 
 	return (struct console_t *)dev->priv;
 }
 
-bool_t register_console(struct console_t * console)
+bool_t register_console(struct device_t ** device, struct console_t * console)
 {
 	struct device_t * dev;
-	char dname[64];
 
 	if(!console || !console->name)
 		return FALSE;
@@ -85,10 +63,8 @@ bool_t register_console(struct console_t * console)
 	if(!dev)
 		return FALSE;
 
-	snprintf(dname, sizeof(dname), "console.%s", console->name);
-	dev->name = strdup(dname);
+	dev->name = strdup(console->name);
 	dev->type = DEVICE_TYPE_CONSOLE;
-	dev->driver = console;
 	dev->priv = console;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
@@ -100,24 +76,30 @@ bool_t register_console(struct console_t * console)
 		return FALSE;
 	}
 
+	if(__console == &__console_dummy)
+		__console = console;
+
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
 bool_t unregister_console(struct console_t * console)
 {
 	struct device_t * dev;
-	char dname[64];
 
 	if(!console || !console->name)
 		return FALSE;
 
-	snprintf(dname, sizeof(dname), "console.%s", console->name);
-	dev = search_device_with_type(dname, DEVICE_TYPE_CONSOLE);
+	dev = search_device_with_type(console->name, DEVICE_TYPE_CONSOLE);
 	if(!dev)
 		return FALSE;
 
 	if(!unregister_device(dev))
 		return FALSE;
+
+	if(__console == console)
+		__console = &__console_dummy;
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);
@@ -125,84 +107,23 @@ bool_t unregister_console(struct console_t * console)
 	return TRUE;
 }
 
-static bool_t console_stdio_register(struct resource_t * res)
+ssize_t console_stdin_read(unsigned char * buf, size_t count)
 {
-	struct console_stdio_data_t * dat = (struct console_stdio_data_t *)res->data;
-	struct console_t * c;
-
-	if(!search_console(dat->in))
-	{
-		if(register_console_uart(search_uart(dat->in)))	{ }
-		else if (register_console_framebuffer(search_fb(dat->in))) { }
-		else if (register_console_input(search_input(dat->in))) { }
-	}
-
-	if(!search_console(dat->out))
-	{
-		if(register_console_uart(search_uart(dat->out))) { }
-		else if (register_console_framebuffer(search_fb(dat->out))) { }
-		else if (register_console_input(search_input(dat->out))) { }
-	}
-
-	if(!search_console(dat->err))
-	{
-		if(register_console_uart(search_uart(dat->err))) { }
-		else if (register_console_framebuffer(search_fb(dat->err))) { }
-		else if (register_console_input(search_input(dat->err))) { }
-	}
-
-	c = search_console(dat->in);
-	if(c && c->read)
-		__console_stdin = c;
-
-	c = search_console(dat->out);
-	if(c && c->write)
-		__console_stdout = c;
-
-	c = search_console(dat->err);
-	if(c && c->write)
-		__console_stderr = c;
-
-	LOG("Console stdio: [%s] [%s] [%s]",
-			__console_stdin  ? __console_stdin->name  : "N/A",
-			__console_stdout ? __console_stdout->name : "N/A",
-			__console_stderr ? __console_stderr->name : "N/A");
-	return TRUE;
+	if(__console && __console->read)
+		return __console->read(__console, buf, count);
+	return 0;
 }
 
-static bool_t console_stdio_unregister(struct resource_t * res)
+ssize_t console_stdout_write(const unsigned char * buf, size_t count)
 {
-	struct console_stdio_data_t * dat = (struct console_stdio_data_t *)res->data;
-	struct console_t * c;
-
-	c = search_console(dat->in);
-	if(c)
-		unregister_console(c);
-
-	c = search_console(dat->out);
-	if(c)
-		unregister_console(c);
-
-	c = search_console(dat->err);
-	if(c)
-		unregister_console(c);
-
-	__console_stdin = NULL;
-	__console_stdout = NULL;
-	__console_stderr = NULL;
-
-	return TRUE;
+	if(__console && __console->write)
+		return __console->write(__console, buf, count);
+	return 0;
 }
 
-static __init void console_stdio_device_init(void)
+ssize_t console_stderr_write(const unsigned char * buf, size_t count)
 {
-	resource_for_each("console", console_stdio_register);
+	if(__console && __console->write)
+		return __console->write(__console, buf, count);
+	return 0;
 }
-
-static __exit void console_stdio_device_exit(void)
-{
-	resource_for_each("console", console_stdio_unregister);
-}
-
-postdevice_initcall(console_stdio_device_init);
-postdevice_exitcall(console_stdio_device_exit);

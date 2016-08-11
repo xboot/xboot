@@ -22,85 +22,104 @@
  *
  */
 
+#include <xboot.h>
+#include <uart/uart.h>
 #include <console/console.h>
-#include <console/console-uart.h>
 
-struct console_uart_data_t {
+struct console_uart_pdata_t {
 	struct uart_t * uart;
 };
 
 static ssize_t console_uart_read(struct console_t * console, unsigned char * buf, size_t count)
 {
-	struct console_uart_data_t * dat = (struct console_uart_data_t *)console->priv;
-	return dat->uart->read(dat->uart, (u8_t *)buf, count);
+	struct console_uart_pdata_t * pdat = (struct console_uart_pdata_t *)console->priv;
+	return pdat->uart->read(pdat->uart, (u8_t *)buf, count);
 }
 
 static ssize_t console_uart_write(struct console_t * console, const unsigned char * buf, size_t count)
 {
-	struct console_uart_data_t * dat = (struct console_uart_data_t *)console->priv;
-	return dat->uart->write(dat->uart, (const u8_t *)buf, count);
+	struct console_uart_pdata_t * pdat = (struct console_uart_pdata_t *)console->priv;
+	return pdat->uart->write(pdat->uart, (const u8_t *)buf, count);
 }
 
-static void console_uart_suspend(struct console_t * console)
+static struct device_t * console_uart_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-}
-
-static void console_uart_resume(struct console_t * console)
-{
-}
-
-bool_t register_console_uart(struct uart_t * uart)
-{
-	struct console_uart_data_t * dat;
+	struct console_uart_pdata_t * pdat;
 	struct console_t * console;
+	struct device_t * dev;
+	struct uart_t * uart = search_uart(dt_read_string(n, "uart", NULL));
 
-	if(!uart || !uart->name)
-		return FALSE;
+	if(!uart)
+		return NULL;
 
-	if(!uart->read || !uart->write)
-		return FALSE;
-
-	dat = malloc(sizeof(struct console_uart_data_t));
-	if(!dat)
-		return FALSE;
+	pdat = malloc(sizeof(struct console_uart_pdata_t));
+	if(!pdat)
+		return NULL;
 
 	console = malloc(sizeof(struct console_t));
 	if(!console)
 	{
-		free(dat);
-		return FALSE;
+		free(pdat);
+		return NULL;
 	}
 
-	dat->uart = uart;
-	console->name = strdup(uart->name);
+	pdat->uart = uart;
+
+	console->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	console->read = console_uart_read,
 	console->write = console_uart_write,
-	console->suspend = console_uart_suspend,
-	console->resume	= console_uart_resume,
-	console->priv = dat;
+	console->priv = pdat;
 
-	if(register_console(console))
-		return TRUE;
+	if(!register_console(&dev, console))
+	{
+		free_device_name(console->name);
+		free(console->priv);
+		free(console);
+		return NULL;
+	}
+	dev->driver = drv;
 
-	free(console->priv);
-	free(console->name);
-	free(console);
-	return FALSE;
+	return dev;
 }
 
-bool_t unregister_console_uart(struct uart_t * uart)
+static void console_uart_remove(struct device_t * dev)
 {
-	struct console_t * console;
+	struct console_t * console = (struct console_t *)dev->priv;
+	struct console_uart_pdata_t * pdat = (struct console_uart_pdata_t *)console->priv;
 
-	console = search_console(uart->name);
-	if(!console)
-		return FALSE;
-
-	if(!unregister_console(console))
-		return FALSE;
-
-	free(console->priv);
-	free(console->name);
-	free(console);
-	return TRUE;
+	if(console && unregister_console(console))
+	{
+		free_device_name(console->name);
+		free(console->priv);
+		free(console);
+	}
 }
+
+static void console_uart_suspend(struct device_t * dev)
+{
+}
+
+static void console_uart_resume(struct device_t * dev)
+{
+}
+
+struct driver_t console_uart = {
+	.name		= "console-uart",
+	.probe		= console_uart_probe,
+	.remove		= console_uart_remove,
+	.suspend	= console_uart_suspend,
+	.resume		= console_uart_resume,
+};
+
+static __init void console_uart_driver_init(void)
+{
+	register_driver(&console_uart);
+}
+
+static __exit void console_uart_driver_exit(void)
+{
+	unregister_driver(&console_uart);
+}
+
+driver_initcall(console_uart_driver_init);
+driver_exitcall(console_uart_driver_exit);

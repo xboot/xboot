@@ -47,6 +47,22 @@
 		"stop-bits": 1
 	},
 	
+	"console-uart@0": {
+		"uart": "uart-pl011.0"
+	},
+
+	"console-uart@1": {
+		"uart": "uart-pl011.1"
+	},
+
+	"console-uart@2": {
+		"uart": "uart-pl011.2"
+	},
+
+	"console-uart@3": {
+		"uart": "uart-pl011.3"
+	},
+
 	"i2c-versatile@0x10002000": {
 		"delay-us": 5
 	},

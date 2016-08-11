@@ -138,14 +138,6 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 	return fifo_get(dat->fifo, buf, count);
 }
 
-static void console_input_suspend(struct console_t * console)
-{
-}
-
-static void console_input_resume(struct console_t * console)
-{
-}
-
 bool_t register_console_input(struct input_t * input)
 {
 	struct console_input_data_t * dat;
@@ -170,11 +162,9 @@ bool_t register_console_input(struct input_t * input)
 	console->name = strdup(input->name);
 	console->read = console_input_read,
 	console->write = NULL,
-	console->suspend = console_input_suspend,
-	console->resume	= console_input_resume,
 	console->priv = dat;
 
-	if(register_console(console))
+	if(register_console(NULL, console))
 		return TRUE;
 
 	free(console->priv);

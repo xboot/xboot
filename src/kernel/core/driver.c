@@ -118,9 +118,34 @@ bool_t unregister_driver(struct driver_t * drv)
 	return FALSE;
 }
 
-struct device_t * probe_device(struct driver_t * drv, struct dtnode_t * dt)
+void probe_device(const char * json, int length)
 {
-	if(drv && drv->probe)
-		return drv->probe(drv, dt);
-	return NULL;
+	struct driver_t * drv;
+	struct device_t * dev;
+	struct dtnode_t n;
+	json_value * v;
+	char * p;
+	int i;
+
+	if(json && (length > 0))
+	{
+		v = json_parse(json, length);
+		if(v && (v->type == json_object))
+		{
+			for(i = 0; i < v->u.object.length; i++)
+			{
+				p = (char *)(v->u.object.values[i].name);
+				n.name = strsep(&p, "@");
+				n.addr = p ? strtoull(p, NULL, 0) : 0;
+				n.value = (json_value *)(v->u.object.values[i].value);
+
+				drv = search_driver(n.name);
+				if(drv && drv->probe && (dev = drv->probe(drv, &n)))
+					LOG("Probe device '%s' with %s", dev->name, drv->name);
+				else
+					LOG("Fail to probe device witch %s", n.name);
+			}
+		}
+		json_value_free(v);
+	}
 }

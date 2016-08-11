@@ -495,14 +495,9 @@ struct dtnode_t * dt_read_array_object(struct dtnode_t * n, const char * name, i
 
 void subsys_init_dt(void)
 {
-	struct driver_t * drv;
-	struct device_t * dev;
-	struct dtnode_t n;
-	json_value * v;
-	size_t size = 0;
 	char path[64];
-	char * json, * p;
-	int fd, l, i;
+	char * json;
+	int fd, n, len = 0;
 
 	json = malloc(SZ_1M);
 	if(!json)
@@ -513,35 +508,13 @@ void subsys_init_dt(void)
 	{
 	    for(;;)
 	    {
-	        l = read(fd, (void *)(json + size), SZ_512K);
-	        if(l <= 0)
+	        n = read(fd, (void *)(json + len), SZ_512K);
+	        if(n <= 0)
 	        	break;
-			size += l;
+			len += n;
 	    }
 	    close(fd);
-
-	    if(size > 0)
-	    {
-	    	v = json_parse(json, size);
-	    	if(v && (v->type == json_object))
-	    	{
-	    		for(i = 0; i < v->u.object.length; i++)
-	    		{
-	    			p = (char *)(v->u.object.values[i].name);
-	    			n.name = strsep(&p, "@");
-	    			n.addr = p ? strtoull(p, NULL, 0) : 0;
-	    			n.value = (json_value *)(v->u.object.values[i].value);
-
-	    			drv = search_driver(n.name);
-	    			dev = probe_device(drv, &n);
-					if(dev)
-						LOG("Probe device '%s' with %s", dev->name, drv->name);
-					else
-						LOG("Fail to probe device witch %s", drv->name);
-	    		}
-	    	}
-	    	json_value_free(v);
-	    }
+	    probe_device(json, len);
 	}
 
 	free(json);

@@ -29,41 +29,6 @@
 #include <fb/fb.h>
 #include <init.h>
 
-void do_system_rootfs(void)
-{
-	LOG("Mount root filesystem");
-
-	if(mount(NULL, "/" , "ramfs", 0) != 0)
-		LOG("Failed to mount root filesystem");
-
-	if(chdir("/") != 0)
-		LOG("Can't change directory to '/'");
-
-	if(mkdir("/sys", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("Failed to create directory '/sys'");
-
-	if(mount(NULL, "/sys" , "sysfs", 0) != 0)
-		LOG("Failed to mount sys filesystem");
-
-	if(mkdir("/romdisk", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("Failed to create directory '/romdisk'");
-
-	if(mount("romdisk", "/romdisk" , "cpiofs", 0) != 0)
-		LOG("Failed to mount romdisk");
-
-	if(mkdir("/etc", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("Failed to create directory '/etc'");
-
-	if(mkdir("/app", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("Failed to create directory '/app'");
-
-	if(mkdir("/tmp", S_IRWXU|S_IRWXG|S_IRWXO) != 0)
-		LOG("Failed to create directory '/tmp'");
-
-	if(mkdir("/mnt", S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0)
-		LOG("Failed to create directory '/mnt'");
-}
-
 void do_system_logo(void)
 {
 	struct device_list_t * pos, * n;

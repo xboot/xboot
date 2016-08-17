@@ -24,11 +24,42 @@
 
 #include <xboot.h>
 
+extern unsigned char __romdisk_start[];
+extern unsigned char __romdisk_end[];
+
+static void subsys_init_romdisk(void)
+{
+	char json[256];
+	int length;
+
+	length = sprintf(json,
+			"{\"romdisk@0\":{\"address\":\"%lld\",\"size\":\"%lld\"}}",
+			(unsigned long long)(__romdisk_start),
+			(unsigned long long)(__romdisk_end - __romdisk_start));
+	probe_device(json, length);
+}
+
+static void subsys_init_rootfs(void)
+{
+	mount(NULL, "/" , "ramfs", 0);
+
+	chdir("/");
+	mkdir("/sys", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir("/mnt", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir("/app", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir("/romdisk", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+
+	mount(NULL, "/sys", "sysfs", 0);
+	mount("romdisk.0", "/romdisk", "cpiofs", 0);
+}
+
 static __init void subsys_init(void)
 {
 	subsys_init_timer();
 	subsys_init_keeper();
-	do_system_rootfs();
+	subsys_init_romdisk();
+	subsys_init_rootfs();
 	subsys_init_dt();
 }
+
 subsys_initcall(subsys_init);

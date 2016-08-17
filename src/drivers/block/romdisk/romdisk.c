@@ -22,26 +22,23 @@
  *
  */
 
+#include <xboot.h>
 #include <block/block.h>
 
-extern unsigned char __romdisk_start[];
-extern unsigned char __romdisk_end[];
-
-struct romdisk_t
+struct romdisk_pdata_t
 {
-	char * name;
-	void * start;
-	void * end;
+	virtual_addr_t addr;
+	virtual_size_t size;
 };
 
 static u64_t romdisk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
-	struct romdisk_t * romdisk = (struct romdisk_t *)(blk->priv);
-	u64_t offset = block_offset(blk, blkno);
-	u64_t length = block_available_length(blk, blkno, blkcnt);
+	struct romdisk_pdata_t * pdat = (struct romdisk_pdata_t *)(blk->priv);
+	virtual_addr_t offset = pdat->addr + block_offset(blk, blkno);
 	u64_t count = block_available_count(blk, blkno, blkcnt);
+	u64_t length = block_available_length(blk, blkno, blkcnt);
 
-	memcpy((void *)buf, (const void *)((u8_t *)(romdisk->start) + offset), length);
+	memcpy((void *)buf, (const void *)(offset), length);
 	return count;
 }
 
@@ -54,85 +51,89 @@ static void romdisk_sync(struct block_t * blk)
 {
 }
 
-static bool_t register_romdisk(const char * name, void * start, void * end)
+static struct device_t * romdisk_probe(struct driver_t * drv, struct dtnode_t * n)
 {
+	struct romdisk_pdata_t * pdat;
 	struct block_t * blk;
-	struct romdisk_t * romdisk;
-	u64_t size;
+	struct device_t * dev;
+	virtual_addr_t addr = strtoull(dt_read_string(n, "address", "0"), NULL, 0);
+	virtual_size_t size = strtoull(dt_read_string(n, "size", "0"), NULL, 0);
 
-	if(!name)
-		return FALSE;
-
-	size = (u64_t)(end - start);
-	size = (size + SZ_512) / SZ_512;
 	if(size <= 0)
-		return FALSE;
+		return NULL;
+	size = (size + SZ_512) / SZ_512;
+
+	pdat = malloc(sizeof(struct romdisk_pdata_t));
+	if(!pdat)
+		return NULL;
 
 	blk = malloc(sizeof(struct block_t));
 	if(!blk)
-		return FALSE;
-
-	romdisk = malloc(sizeof(struct romdisk_t));
-	if(!romdisk)
 	{
-		free(blk);
-		return FALSE;
+		free(pdat);
+		return NULL;
 	}
 
-	romdisk->name = strdup(name);
-	romdisk->start = start;
-	romdisk->end = end;
+	pdat->addr = addr;
+	pdat->size = size;
 
-	blk->name	= romdisk->name;
+	blk->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	blk->blksz	= SZ_512;
-	blk->blkcnt	= size;
-	blk->read 	= romdisk_read;
-	blk->write	= romdisk_write;
-	blk->sync	= romdisk_sync;
-	blk->priv	= romdisk;
+	blk->blkcnt	= (u64_t)size;
+	blk->read = romdisk_read;
+	blk->write = romdisk_write;
+	blk->sync = romdisk_sync;
+	blk->priv = pdat;
 
-	if(!register_block(NULL, blk))
+	if(!register_block(&dev, blk))
 	{
-		free(romdisk->name);
-		free(romdisk);
+		free_device_name(blk->name);
+		free(blk->priv);
 		free(blk);
-		return FALSE;
+		return NULL;
 	}
+	dev->driver = drv;
 
-	return TRUE;
+	return dev;
 }
 
-static bool_t unregister_romdisk(const char * name)
+static void romdisk_remove(struct device_t * dev)
 {
-	struct block_t * blk;
-	struct romdisk_t * romdisk;
+	struct block_t * blk = (struct block_t *)dev->priv;
 
-	if(!name)
-		return FALSE;
-
-	blk = search_block(name);
-	if(!blk)
-		return FALSE;
-
-	romdisk = (struct romdisk_t *)(blk->priv);
-	if(!unregister_block(blk))
-		return FALSE;
-
-	free(romdisk->name);
-	free(romdisk);
-	free(blk);
-	return TRUE;
+	if(blk && unregister_block(blk))
+	{
+		free_device_name(blk->name);
+		free(blk->priv);
+		free(blk);
+	}
 }
 
-static __init void romdisk_init(void)
+static void romdisk_suspend(struct device_t * dev)
 {
-	register_romdisk("romdisk", __romdisk_start, __romdisk_end);
 }
 
-static __exit void romdisk_exit(void)
+static void romdisk_resume(struct device_t * dev)
 {
-	unregister_romdisk("romdisk");
 }
 
-core_initcall(romdisk_init);
-core_exitcall(romdisk_exit);
+struct driver_t romdisk = {
+	.name		= "romdisk",
+	.probe		= romdisk_probe,
+	.remove		= romdisk_remove,
+	.suspend	= romdisk_suspend,
+	.resume		= romdisk_resume,
+};
+
+static __init void romdisk_driver_init(void)
+{
+	register_driver(&romdisk);
+}
+
+static __exit void romdisk_driver_exit(void)
+{
+	unregister_driver(&romdisk);
+}
+
+driver_initcall(romdisk_driver_init);
+driver_exitcall(romdisk_driver_exit);

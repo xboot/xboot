@@ -320,7 +320,7 @@ struct hlist_node {
 	struct hlist_node *next, **pprev;
 };
 
-#define HLIST_HEAD(name) 	struct hlist_head name = {  .first = NULL }
+#define HLIST_HEAD(name) 	struct hlist_head name = { .first = NULL }
 
 static inline void init_hlist_head(struct hlist_head *hlist)
 {

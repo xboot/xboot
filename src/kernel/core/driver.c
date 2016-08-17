@@ -27,16 +27,24 @@
 struct driver_list_t
 {
 	struct driver_t * driver;
-	struct list_head entry;
+	struct hlist_node node;
 };
 
-static struct driver_list_t __driver_list = {
-	.entry = {
-		.next	= &(__driver_list.entry),
-		.prev	= &(__driver_list.entry),
-	},
-};
+static struct hlist_head __driver_hash[97];
 static spinlock_t __driver_lock = SPIN_LOCK_INIT();
+
+static struct hlist_head * hash(const char * name)
+{
+	unsigned char * p = (unsigned char *)name;
+	unsigned int seed = 131;
+	unsigned int idx = 0;
+
+	while(*p)
+	{
+		idx = idx * seed + (*p++);
+	}
+	return &__driver_hash[(idx & 0x7fffffff) % ARRAY_SIZE(__driver_hash)];
+}
 
 static struct kobj_t * search_class_driver_kobj(void)
 {
@@ -46,17 +54,17 @@ static struct kobj_t * search_class_driver_kobj(void)
 
 struct driver_t * search_driver(const char * name)
 {
-	struct driver_list_t * pos, * n;
+	struct driver_list_t * dl;
+	struct hlist_node * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	list_for_each_entry_safe(pos, n, &(__driver_list.entry), entry)
+	hlist_for_each_entry_safe(dl, pos, n, hash(name), node)
 	{
-		if(strcmp(pos->driver->name, name) == 0)
-			return pos->driver;
+		if(strcmp(dl->driver->name, name) == 0)
+			return dl->driver;
 	}
-
 	return NULL;
 }
 
@@ -87,7 +95,7 @@ bool_t register_driver(struct driver_t * drv)
 	dl->driver = drv;
 
 	spin_lock_irqsave(&__driver_lock, flags);
-	list_add_tail(&dl->entry, &(__driver_list.entry));
+	hlist_add_head(&dl->node, hash(drv->name));
 	spin_unlock_irqrestore(&__driver_lock, flags);
 
 	return TRUE;
@@ -95,22 +103,23 @@ bool_t register_driver(struct driver_t * drv)
 
 bool_t unregister_driver(struct driver_t * drv)
 {
-	struct driver_list_t * pos, * n;
+	struct driver_list_t * dl;
+	struct hlist_node * pos, * n;
 	irq_flags_t flags;
 
 	if(!drv || !drv->name)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__driver_list.entry), entry)
+	hlist_for_each_entry_safe(dl, pos, n, hash(drv->name), node)
 	{
-		if(pos->driver == drv)
+		if(dl->driver == drv)
 		{
 			spin_lock_irqsave(&__driver_lock, flags);
-			list_del(&(pos->entry));
+			hlist_del(&dl->node);
 			spin_unlock_irqrestore(&__driver_lock, flags);
 
-			kobj_remove(search_class_driver_kobj(), pos->driver->kobj);
-			free(pos);
+			kobj_remove(search_class_driver_kobj(), dl->driver->kobj);
+			free(dl);
 			return TRUE;
 		}
 	}
@@ -149,3 +158,12 @@ void probe_device(const char * json, int length)
 		json_value_free(v);
 	}
 }
+
+static __init void driver_pure_init(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(__driver_hash); i++)
+		init_hlist_head(&__driver_hash[i]);
+}
+pure_initcall(driver_pure_init);

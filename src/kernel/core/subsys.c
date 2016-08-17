@@ -33,9 +33,8 @@ static void subsys_init_romdisk(void)
 	int length;
 
 	length = sprintf(json,
-			"{\"romdisk@0\":{\"address\":\"%lld\",\"size\":\"%lld\"}}",
-			(unsigned long long)(__romdisk_start),
-			(unsigned long long)(__romdisk_end - __romdisk_start));
+		"{\"romdisk@0\":{\"address\":\"%lld\",\"size\":\"%lld\"}}",
+		__romdisk_start, __romdisk_end - __romdisk_start);
 	probe_device(json, length);
 }
 
@@ -55,11 +54,11 @@ static void subsys_init_rootfs(void)
 
 static __init void subsys_init(void)
 {
-	subsys_init_timer();
-	subsys_init_keeper();
 	subsys_init_romdisk();
 	subsys_init_rootfs();
+
+	subsys_init_timer();
+	subsys_init_keeper();
 	subsys_init_dt();
 }
-
 subsys_initcall(subsys_init);

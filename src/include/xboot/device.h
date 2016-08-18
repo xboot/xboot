@@ -8,24 +8,26 @@ extern "C" {
 #include <xboot.h>
 
 enum device_type_t {
-	DEVICE_TYPE_AUDIO,
-	DEVICE_TYPE_BATTERY,
-	DEVICE_TYPE_BLOCK,
-	DEVICE_TYPE_BUZZER,
-	DEVICE_TYPE_CONSOLE,
-	DEVICE_TYPE_DISK,
-	DEVICE_TYPE_FB,
-	DEVICE_TYPE_I2C,
-	DEVICE_TYPE_INPUT,
-	DEVICE_TYPE_LED,
-	DEVICE_TYPE_LEDTRIG,
-	DEVICE_TYPE_PWM,
-	DEVICE_TYPE_RNG,
-	DEVICE_TYPE_RTC,
-	DEVICE_TYPE_SPI,
-	DEVICE_TYPE_UART,
-	DEVICE_TYPE_VIBRATOR,
-	DEVICE_TYPE_WATCHDOG,
+	DEVICE_TYPE_AUDIO		= 0,
+	DEVICE_TYPE_BATTERY		= 1,
+	DEVICE_TYPE_BLOCK		= 2,
+	DEVICE_TYPE_BUZZER		= 3,
+	DEVICE_TYPE_CONSOLE		= 4,
+	DEVICE_TYPE_DISK		= 5,
+	DEVICE_TYPE_FB			= 6,
+	DEVICE_TYPE_I2C			= 7,
+	DEVICE_TYPE_INPUT		= 8,
+	DEVICE_TYPE_LED			= 9,
+	DEVICE_TYPE_LEDTRIG		= 10,
+	DEVICE_TYPE_PWM			= 11,
+	DEVICE_TYPE_RNG			= 12,
+	DEVICE_TYPE_RTC			= 13,
+	DEVICE_TYPE_SPI			= 14,
+	DEVICE_TYPE_UART		= 15,
+	DEVICE_TYPE_VIBRATOR	= 16,
+	DEVICE_TYPE_WATCHDOG	= 17,
+
+	DEVICE_TYPE_MAX_COUNT	= 18,
 };
 
 enum {
@@ -41,7 +43,6 @@ struct device_t
 {
 	struct kobj_t * kobj;
 	char * name;
-
 	enum device_type_t type;
 	struct driver_t * driver;
 	void * priv;
@@ -50,16 +51,14 @@ struct device_t
 struct device_list_t
 {
 	struct device_t * device;
-	struct list_head entry;
+	struct hlist_node node;
 };
-
-extern struct device_list_t __device_list;
+extern struct hlist_head __device_hash[DEVICE_TYPE_MAX_COUNT];
 
 char * alloc_device_name(const char * name, int id);
 void free_device_name(char * name);
-struct device_t * search_device(const char * name);
-struct device_t * search_device_with_type(const char * name, enum device_type_t type);
-struct device_t * search_first_device_with_type(enum device_type_t type);
+struct device_t * search_device(const char * name, enum device_type_t type);
+struct device_t * search_first_device(enum device_type_t type);
 bool_t register_device(struct device_t * dev);
 bool_t unregister_device(struct device_t * dev);
 bool_t register_device_notifier(struct notifier_t * n);

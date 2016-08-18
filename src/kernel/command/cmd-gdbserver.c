@@ -28,17 +28,17 @@
 
 static void usage(void)
 {
-	struct device_list_t * pos, * n;
+	struct device_list_t * dl;
+	struct hlist_node * pos, * n;
 
 	printf("usage:\r\n");
 	printf("    gdbserver <device>\r\n");
 	printf("    gdbserver --kill\r\n");
 
 	printf("supported device list:\r\n");
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	hlist_for_each_entry_safe(dl, pos, n, &__device_hash[DEVICE_TYPE_UART], node)
 	{
-		if(pos->device->type == DEVICE_TYPE_UART)
-			printf("    %s\r\n", pos->device->name);
+		printf("    %s\r\n", dl->device->name);
 	}
 }
 

@@ -53,7 +53,7 @@ struct rtc_t * search_rtc(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_RTC);
+	dev = search_device(name, DEVICE_TYPE_RTC);
 	if(!dev)
 		return NULL;
 
@@ -64,7 +64,7 @@ struct rtc_t * search_first_rtc(void)
 {
 	struct device_t * dev;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_RTC);
+	dev = search_first_device(DEVICE_TYPE_RTC);
 	if(!dev)
 		return NULL;
 
@@ -108,7 +108,7 @@ bool_t unregister_rtc(struct rtc_t * rtc)
 	if(!rtc || !rtc->name)
 		return FALSE;
 
-	dev = search_device_with_type(rtc->name, DEVICE_TYPE_RTC);
+	dev = search_device(rtc->name, DEVICE_TYPE_RTC);
 	if(!dev)
 		return FALSE;
 

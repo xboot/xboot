@@ -52,7 +52,7 @@ struct audio_t * search_audio(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_AUDIO);
+	dev = search_device(name, DEVICE_TYPE_AUDIO);
 	if(!dev)
 		return NULL;
 
@@ -98,7 +98,7 @@ bool_t unregister_audio(struct audio_t * audio)
 	if(!audio || !audio->name)
 		return FALSE;
 
-	dev = search_device_with_type(audio->name, DEVICE_TYPE_AUDIO);
+	dev = search_device(audio->name, DEVICE_TYPE_AUDIO);
 	if(!dev)
 		return FALSE;
 
@@ -112,7 +112,7 @@ bool_t unregister_audio(struct audio_t * audio)
 	if(get_default_audio() == audio)
 	{
 		__default_audio = NULL;
-		struct device_t * d = search_first_device_with_type(DEVICE_TYPE_AUDIO);
+		struct device_t * d = search_first_device(DEVICE_TYPE_AUDIO);
 		if(d)
 			set_default_audio(d->name);
 	}

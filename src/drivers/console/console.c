@@ -45,7 +45,7 @@ struct console_t * search_console(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_CONSOLE);
+	dev = search_device(name, DEVICE_TYPE_CONSOLE);
 	if(!dev)
 		return NULL;
 
@@ -91,7 +91,7 @@ bool_t unregister_console(struct console_t * console)
 	if(!console || !console->name)
 		return FALSE;
 
-	dev = search_device_with_type(console->name, DEVICE_TYPE_CONSOLE);
+	dev = search_device(console->name, DEVICE_TYPE_CONSOLE);
 	if(!dev)
 		return FALSE;
 

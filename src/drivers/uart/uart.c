@@ -96,7 +96,7 @@ struct uart_t * search_uart(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_UART);
+	dev = search_device(name, DEVICE_TYPE_UART);
 	if(!dev)
 		return NULL;
 
@@ -143,7 +143,7 @@ bool_t unregister_uart(struct uart_t * uart)
 	if(!uart || !uart->name)
 		return FALSE;
 
-	dev = search_device_with_type(uart->name, DEVICE_TYPE_UART);
+	dev = search_device(uart->name, DEVICE_TYPE_UART);
 	if(!dev)
 		return FALSE;
 

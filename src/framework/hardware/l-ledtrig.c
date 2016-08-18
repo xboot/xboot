@@ -38,21 +38,19 @@ static int l_ledtrig_new(lua_State * L)
 
 static int l_ledtrig_list(lua_State * L)
 {
-	struct device_list_t * pos, * n;
+	struct device_list_t * dl;
+	struct hlist_node * pos, * n;
 	struct ledtrig_t * trigger;
 
 	lua_newtable(L);
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	hlist_for_each_entry_safe(dl, pos, n, &__device_hash[DEVICE_TYPE_LEDTRIG], node)
 	{
-		if(pos->device->type == DEVICE_TYPE_LEDTRIG)
-		{
-			trigger = (struct ledtrig_t *)(pos->device->priv);
-			if(!trigger)
-				continue;
-			lua_pushlightuserdata(L, trigger);
-			luaL_setmetatable(L, MT_HARDWARE_LEDTRIG);
-			lua_setfield(L, -2, pos->device->name);
-		}
+		trigger = (struct ledtrig_t *)(dl->device->priv);
+		if(!trigger)
+			continue;
+		lua_pushlightuserdata(L, trigger);
+		luaL_setmetatable(L, MT_HARDWARE_LEDTRIG);
+		lua_setfield(L, -2, dl->device->name);
 	}
 	return 1;
 }

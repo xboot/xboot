@@ -37,7 +37,7 @@ struct rng_t * search_rng(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_RNG);
+	dev = search_device(name, DEVICE_TYPE_RNG);
 	if(!dev)
 		return NULL;
 
@@ -48,7 +48,7 @@ struct rng_t * search_first_rng(void)
 {
 	struct device_t * dev;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_RNG);
+	dev = search_first_device(DEVICE_TYPE_RNG);
 	if(!dev)
 		return NULL;
 
@@ -92,7 +92,7 @@ bool_t unregister_rng(struct rng_t * rng)
 	if(!rng || !rng->name)
 		return FALSE;
 
-	dev = search_device_with_type(rng->name, DEVICE_TYPE_RNG);
+	dev = search_device(rng->name, DEVICE_TYPE_RNG);
 	if(!dev)
 		return FALSE;
 

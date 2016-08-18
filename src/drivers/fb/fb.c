@@ -82,7 +82,7 @@ struct fb_t * search_fb(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_FB);
+	dev = search_device(name, DEVICE_TYPE_FB);
 	if(!dev)
 		return NULL;
 
@@ -93,7 +93,7 @@ struct fb_t * search_first_fb(void)
 {
 	struct device_t * dev;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_FB);
+	dev = search_first_device(DEVICE_TYPE_FB);
 	if(!dev)
 		return NULL;
 
@@ -153,7 +153,7 @@ bool_t unregister_fb(struct fb_t * fb)
 	if(!fb || !fb->name)
 		return FALSE;
 
-	dev = search_device_with_type(fb->name, DEVICE_TYPE_FB);
+	dev = search_device(fb->name, DEVICE_TYPE_FB);
 	if(!dev)
 		return FALSE;
 

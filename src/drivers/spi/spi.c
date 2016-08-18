@@ -28,7 +28,7 @@ struct spi_t * search_spi(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_SPI);
+	dev = search_device(name, DEVICE_TYPE_SPI);
 	if(!dev)
 		return NULL;
 
@@ -71,7 +71,7 @@ bool_t unregister_spi(struct spi_t * spi)
 	if(!spi || !spi->name)
 		return FALSE;
 
-	dev = search_device_with_type(spi->name, DEVICE_TYPE_SPI);
+	dev = search_device(spi->name, DEVICE_TYPE_SPI);
 	if(!dev)
 		return FALSE;
 

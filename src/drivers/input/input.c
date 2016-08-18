@@ -58,7 +58,7 @@ struct input_t * search_input(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_INPUT);
+	dev = search_device(name, DEVICE_TYPE_INPUT);
 	if(!dev)
 		return NULL;
 
@@ -102,7 +102,7 @@ bool_t unregister_input(struct input_t * input)
 	if(!input || !input->name)
 		return FALSE;
 
-	dev = search_device_with_type(input->name, DEVICE_TYPE_INPUT);
+	dev = search_device(input->name, DEVICE_TYPE_INPUT);
 	if(!dev)
 		return FALSE;
 

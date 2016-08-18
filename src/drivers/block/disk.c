@@ -77,7 +77,7 @@ struct disk_t * search_disk(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_DISK);
+	dev = search_device(name, DEVICE_TYPE_DISK);
 	if(!dev)
 		return NULL;
 
@@ -192,7 +192,7 @@ bool_t unregister_disk(struct disk_t * disk)
 		free(ppos);
 	}
 
-	dev = search_device_with_type(disk->name, DEVICE_TYPE_DISK);
+	dev = search_device(disk->name, DEVICE_TYPE_DISK);
 	if(!dev)
 		return FALSE;
 

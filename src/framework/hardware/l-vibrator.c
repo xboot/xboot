@@ -38,21 +38,19 @@ static int l_vibrator_new(lua_State * L)
 
 static int l_vibrator_list(lua_State * L)
 {
-	struct device_list_t * pos, * n;
+	struct device_list_t * dl;
+	struct hlist_node * pos, * n;
 	struct vibrator_t * vib;
 
 	lua_newtable(L);
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	hlist_for_each_entry_safe(dl, pos, n, &__device_hash[DEVICE_TYPE_VIBRATOR], node)
 	{
-		if(pos->device->type == DEVICE_TYPE_BUZZER)
-		{
-			vib = (struct vibrator_t *)(pos->device->priv);
-			if(!vib)
-				continue;
-			lua_pushlightuserdata(L, vib);
-			luaL_setmetatable(L, MT_HARDWARE_VIBRATOR);
-			lua_setfield(L, -2, pos->device->name);
-		}
+		vib = (struct vibrator_t *)(dl->device->priv);
+		if(!vib)
+			continue;
+		lua_pushlightuserdata(L, vib);
+		luaL_setmetatable(L, MT_HARDWARE_VIBRATOR);
+		lua_setfield(L, -2, dl->device->name);
 	}
 	return 1;
 }

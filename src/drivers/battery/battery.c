@@ -118,7 +118,7 @@ struct battery_t * search_battery(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_BATTERY);
+	dev = search_device(name, DEVICE_TYPE_BATTERY);
 	if(!dev)
 		return NULL;
 
@@ -129,7 +129,7 @@ struct battery_t * search_first_battery(void)
 {
 	struct device_t * dev;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_BATTERY);
+	dev = search_first_device(DEVICE_TYPE_BATTERY);
 	if(!dev)
 		return NULL;
 
@@ -181,7 +181,7 @@ bool_t unregister_battery(struct battery_t * bat)
 	if(!bat || !bat->name)
 		return FALSE;
 
-	dev = search_device_with_type(bat->name, DEVICE_TYPE_BATTERY);
+	dev = search_device(bat->name, DEVICE_TYPE_BATTERY);
 	if(!dev)
 		return FALSE;
 

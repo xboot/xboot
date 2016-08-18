@@ -28,7 +28,7 @@ struct i2c_t * search_i2c(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_I2C);
+	dev = search_device(name, DEVICE_TYPE_I2C);
 	if(!dev)
 		return NULL;
 
@@ -71,7 +71,7 @@ bool_t unregister_i2c(struct i2c_t * i2c)
 	if(!i2c || !i2c->name)
 		return FALSE;
 
-	dev = search_device_with_type(i2c->name, DEVICE_TYPE_I2C);
+	dev = search_device(i2c->name, DEVICE_TYPE_I2C);
 	if(!dev)
 		return FALSE;
 

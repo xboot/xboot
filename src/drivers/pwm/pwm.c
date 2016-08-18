@@ -87,7 +87,7 @@ struct pwm_t * search_pwm(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_PWM);
+	dev = search_device(name, DEVICE_TYPE_PWM);
 	if(!dev)
 		return NULL;
 
@@ -139,7 +139,7 @@ bool_t unregister_pwm(struct pwm_t * pwm)
 	if(!pwm || !pwm->name)
 		return FALSE;
 
-	dev = search_device_with_type(pwm->name, DEVICE_TYPE_PWM);
+	dev = search_device(pwm->name, DEVICE_TYPE_PWM);
 	if(!dev)
 		return FALSE;
 

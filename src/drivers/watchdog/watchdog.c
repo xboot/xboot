@@ -46,7 +46,7 @@ struct watchdog_t * search_watchdog(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_WATCHDOG);
+	dev = search_device(name, DEVICE_TYPE_WATCHDOG);
 	if(!dev)
 		return NULL;
 
@@ -57,7 +57,7 @@ struct watchdog_t * search_first_watchdog(void)
 {
 	struct device_t * dev;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_WATCHDOG);
+	dev = search_first_device(DEVICE_TYPE_WATCHDOG);
 	if(!dev)
 		return NULL;
 
@@ -101,7 +101,7 @@ bool_t unregister_watchdog(struct watchdog_t * watchdog)
 	if(!watchdog || !watchdog->name)
 		return FALSE;
 
-	dev = search_device_with_type(watchdog->name, DEVICE_TYPE_WATCHDOG);
+	dev = search_device(watchdog->name, DEVICE_TYPE_WATCHDOG);
 	if(!dev)
 		return FALSE;
 

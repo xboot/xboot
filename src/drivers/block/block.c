@@ -46,7 +46,7 @@ struct block_t * search_block(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_BLOCK);
+	dev = search_device(name, DEVICE_TYPE_BLOCK);
 	if(!dev)
 		return NULL;
 
@@ -92,7 +92,7 @@ bool_t unregister_block(struct block_t * blk)
 	if(!blk || !blk->name)
 		return FALSE;
 
-	dev = search_device_with_type(blk->name, DEVICE_TYPE_BLOCK);
+	dev = search_device(blk->name, DEVICE_TYPE_BLOCK);
 	if(!dev)
 		return FALSE;
 

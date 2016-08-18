@@ -51,7 +51,7 @@ struct led_t * search_led(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_LED);
+	dev = search_device(name, DEVICE_TYPE_LED);
 	if(!dev)
 		return NULL;
 
@@ -96,7 +96,7 @@ bool_t unregister_led(struct led_t * led)
 	if(!led || !led->name)
 		return FALSE;
 
-	dev = search_device_with_type(led->name, DEVICE_TYPE_LED);
+	dev = search_device(led->name, DEVICE_TYPE_LED);
 	if(!dev)
 		return FALSE;
 

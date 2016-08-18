@@ -25,12 +25,7 @@
 #include <xboot.h>
 #include <xboot/device.h>
 
-struct device_list_t __device_list = {
-	.entry = {
-		.next	= &(__device_list.entry),
-		.prev	= &(__device_list.entry),
-	},
-};
+struct hlist_head __device_hash[DEVICE_TYPE_MAX_COUNT];
 static spinlock_t __device_lock = SPIN_LOCK_INIT();
 static struct notifier_chain_t __device_nc = NOTIFIER_CHAIN_INIT();
 
@@ -136,6 +131,26 @@ static ssize_t device_write_remove(struct kobj_t * kobj, void * buf, size_t size
 	return size;
 }
 
+static struct device_t * find_device(const char * name)
+{
+	struct device_list_t * dl;
+	struct hlist_node * pos, * n;
+	int i;
+
+	if(!name)
+		return NULL;
+
+	for(i = 0; i < ARRAY_SIZE(__device_hash); i++)
+	{
+		hlist_for_each_entry_safe(dl, pos, n, &__device_hash[i], node)
+		{
+			if(strcmp(dl->device->name, name) == 0)
+				return dl->device;
+		}
+	}
+	return NULL;
+}
+
 char * alloc_device_name(const char * name, int id)
 {
 	char buf[256];
@@ -144,7 +159,7 @@ char * alloc_device_name(const char * name, int id)
 		id = 0;
 	do {
 		snprintf(buf, sizeof(buf), "%s.%d", name, id++);
-	} while(search_device(buf));
+	} while(find_device(buf));
 
 	return strdup(buf);
 }
@@ -155,53 +170,37 @@ void free_device_name(char * name)
 		free(name);
 }
 
-struct device_t * search_device(const char * name)
+struct device_t * search_device(const char * name, enum device_type_t type)
 {
-	struct device_list_t * pos, * n;
+	struct device_list_t * dl;
+	struct hlist_node * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
-	{
-		if(strcmp(pos->device->name, name) == 0)
-			return pos->device;
-	}
-
-	return NULL;
-}
-
-struct device_t * search_device_with_type(const char * name, enum device_type_t type)
-{
-	struct device_list_t * pos, * n;
-
-	if(!name)
+	if((type < 0) || (type >= ARRAY_SIZE(__device_hash)))
 		return NULL;
 
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	hlist_for_each_entry_safe(dl, pos, n, &__device_hash[type], node)
 	{
-		if(pos->device->type == type)
-		{
-			if(strcmp(pos->device->name, name) == 0)
-				return pos->device;
-		}
+		if(strcmp(dl->device->name, name) == 0)
+			return dl->device;
 	}
-
 	return NULL;
 }
 
-struct device_t * search_first_device_with_type(enum device_type_t type)
+struct device_t * search_first_device(enum device_type_t type)
 {
-	struct device_list_t * pos, * n;
+	struct device_list_t * dl;
+	struct hlist_node * pos, * n;
 
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	if((type < 0) || (type >= ARRAY_SIZE(__device_hash)))
+		return NULL;
+
+	hlist_for_each_entry_safe(dl, pos, n, &__device_hash[type], node)
 	{
-		if(pos->device->type == type)
-		{
-			return pos->device;
-		}
+		return dl->device;
 	}
-
 	return NULL;
 }
 
@@ -213,7 +212,10 @@ bool_t register_device(struct device_t * dev)
 	if(!dev || !dev->name)
 		return FALSE;
 
-	if(search_device(dev->name))
+	if((dev->type < 0) || (dev->type >= ARRAY_SIZE(__device_hash)))
+		return FALSE;
+
+	if(search_device(dev->name, dev->type))
 		return FALSE;
 
 	dl = malloc(sizeof(struct device_list_t));
@@ -229,7 +231,7 @@ bool_t register_device(struct device_t * dev)
 	dl->device = dev;
 
 	spin_lock_irqsave(&__device_lock, flags);
-	list_add_tail(&dl->entry, &(__device_list.entry));
+	hlist_add_head(&dl->node, &__device_hash[dev->type]);
 	spin_unlock_irqrestore(&__device_lock, flags);
 	notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_ADD, dev);
 
@@ -238,23 +240,27 @@ bool_t register_device(struct device_t * dev)
 
 bool_t unregister_device(struct device_t * dev)
 {
-	struct device_list_t * pos, * n;
+	struct device_list_t * dl;
+	struct hlist_node * pos, * n;
 	irq_flags_t flags;
 
 	if(!dev || !dev->name)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	if((dev->type < 0) || (dev->type >= ARRAY_SIZE(__device_hash)))
+		return FALSE;
+
+	hlist_for_each_entry_safe(dl, pos, n, &__device_hash[dev->type], node)
 	{
-		if(pos->device == dev)
+		if(dl->device == dev)
 		{
 			notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_REMOVE, dev);
 			spin_lock_irqsave(&__device_lock, flags);
-			list_del(&(pos->entry));
+			hlist_del(&dl->node);
 			spin_unlock_irqrestore(&__device_lock, flags);
 
-			kobj_remove(search_device_kobj(dev), pos->device->kobj);
-			free(pos);
+			kobj_remove(search_device_kobj(dev), dl->device->kobj);
+			free(dl);
 			return TRUE;
 		}
 	}
@@ -295,3 +301,12 @@ void remove_device(struct device_t * dev)
 	if(dev && dev->driver && dev->driver->remove)
 		dev->driver->remove(dev);
 }
+
+static __init void device_pure_init(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(__device_hash); i++)
+		init_hlist_head(&__device_hash[i]);
+}
+pure_initcall(device_pure_init);

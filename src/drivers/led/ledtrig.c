@@ -36,7 +36,7 @@ struct ledtrig_t * search_ledtrig(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_LEDTRIG);
+	dev = search_device(name, DEVICE_TYPE_LEDTRIG);
 	if(!dev)
 		return NULL;
 
@@ -80,7 +80,7 @@ bool_t unregister_ledtrig(struct ledtrig_t * ledtrig)
 	if(!ledtrig || !ledtrig->name)
 		return FALSE;
 
-	dev = search_device_with_type(ledtrig->name, DEVICE_TYPE_LEDTRIG);
+	dev = search_device(ledtrig->name, DEVICE_TYPE_LEDTRIG);
 	if(!dev)
 		return FALSE;
 

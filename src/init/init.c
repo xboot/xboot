@@ -31,7 +31,8 @@
 
 void do_system_logo(void)
 {
-	struct device_list_t * pos, * n;
+	struct device_list_t * dl;
+	struct hlist_node * pos, * n;
 	cairo_surface_t * logo;
 	cairo_surface_t * cs;
 	cairo_t * cr;
@@ -41,13 +42,9 @@ void do_system_logo(void)
 	LOG("Display system logo");
 	logo = cairo_image_surface_create_from_png("/romdisk/framework/assets/images/logo.png");
 
-	list_for_each_entry_safe(pos, n, &(__device_list.entry), entry)
+	hlist_for_each_entry_safe(dl, pos, n, &__device_hash[DEVICE_TYPE_FB], node)
 	{
-		if(pos->device->type != DEVICE_TYPE_FB)
-			continue;
-
-		fb = (struct fb_t *)(pos->device->priv);
-		if(fb)
+		if((fb = (struct fb_t *)(dl->device->priv)))
 		{
 			cs = cairo_xboot_surface_create(fb, fb->alone);
 			cr = cairo_create(cs);

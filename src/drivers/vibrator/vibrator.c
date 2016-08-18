@@ -48,7 +48,7 @@ struct vibrator_t * search_vibrator(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_VIBRATOR);
+	dev = search_device(name, DEVICE_TYPE_VIBRATOR);
 	if(!dev)
 		return NULL;
 
@@ -59,7 +59,7 @@ struct vibrator_t * search_first_vibrator(void)
 {
 	struct device_t * dev;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_VIBRATOR);
+	dev = search_first_device(DEVICE_TYPE_VIBRATOR);
 	if(!dev)
 		return NULL;
 
@@ -104,7 +104,7 @@ bool_t unregister_vibrator(struct vibrator_t * vib)
 	if(!vib || !vib->name)
 		return FALSE;
 
-	dev = search_device_with_type(vib->name, DEVICE_TYPE_VIBRATOR);
+	dev = search_device(vib->name, DEVICE_TYPE_VIBRATOR);
 	if(!dev)
 		return FALSE;
 

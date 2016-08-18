@@ -58,7 +58,7 @@ struct buzzer_t * search_buzzer(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device_with_type(name, DEVICE_TYPE_BUZZER);
+	dev = search_device(name, DEVICE_TYPE_BUZZER);
 	if(!dev)
 		return NULL;
 
@@ -69,7 +69,7 @@ struct buzzer_t * search_first_buzzer(void)
 {
 	struct device_t * dev;
 
-	dev = search_first_device_with_type(DEVICE_TYPE_BUZZER);
+	dev = search_first_device(DEVICE_TYPE_BUZZER);
 	if(!dev)
 		return NULL;
 
@@ -114,7 +114,7 @@ bool_t unregister_buzzer(struct buzzer_t * buzzer)
 	if(!buzzer || !buzzer->name)
 		return FALSE;
 
-	dev = search_device_with_type(buzzer->name, DEVICE_TYPE_BUZZER);
+	dev = search_device(buzzer->name, DEVICE_TYPE_BUZZER);
 	if(!dev)
 		return FALSE;
 

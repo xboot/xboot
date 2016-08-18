@@ -96,7 +96,7 @@ bool_t register_disk(struct device_t ** device, struct disk_t * disk)
 	if(!disk)
 		return FALSE;
 
-	if(!disk->name || search_device(disk->name))
+	if(!disk || !disk->name)
 		return FALSE;
 
 	if(!partition_map(disk))

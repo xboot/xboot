@@ -57,7 +57,7 @@ bool_t register_block(struct device_t ** device, struct block_t * blk)
 {
 	struct device_t * dev;
 
-	if(!blk->name || search_device(blk->name))
+	if(!blk || !blk->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));

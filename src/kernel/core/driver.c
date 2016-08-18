@@ -33,17 +33,17 @@ struct driver_list_t
 static struct hlist_head __driver_hash[97];
 static spinlock_t __driver_lock = SPIN_LOCK_INIT();
 
-static struct hlist_head * hash(const char * name)
+static struct hlist_head * driver_hash(const char * name)
 {
 	unsigned char * p = (unsigned char *)name;
 	unsigned int seed = 131;
-	unsigned int idx = 0;
+	unsigned int hash = 0;
 
 	while(*p)
 	{
-		idx = idx * seed + (*p++);
+		hash = hash * seed + (*p++);
 	}
-	return &__driver_hash[(idx & 0x7fffffff) % ARRAY_SIZE(__driver_hash)];
+	return &__driver_hash[hash % ARRAY_SIZE(__driver_hash)];
 }
 
 static struct kobj_t * search_class_driver_kobj(void)
@@ -60,7 +60,7 @@ struct driver_t * search_driver(const char * name)
 	if(!name)
 		return NULL;
 
-	hlist_for_each_entry_safe(dl, pos, n, hash(name), node)
+	hlist_for_each_entry_safe(dl, pos, n, driver_hash(name), node)
 	{
 		if(strcmp(dl->driver->name, name) == 0)
 			return dl->driver;
@@ -95,7 +95,7 @@ bool_t register_driver(struct driver_t * drv)
 	dl->driver = drv;
 
 	spin_lock_irqsave(&__driver_lock, flags);
-	hlist_add_head(&dl->node, hash(drv->name));
+	hlist_add_head(&dl->node, driver_hash(drv->name));
 	spin_unlock_irqrestore(&__driver_lock, flags);
 
 	return TRUE;
@@ -110,7 +110,7 @@ bool_t unregister_driver(struct driver_t * drv)
 	if(!drv || !drv->name)
 		return FALSE;
 
-	hlist_for_each_entry_safe(dl, pos, n, hash(drv->name), node)
+	hlist_for_each_entry_safe(dl, pos, n, driver_hash(drv->name), node)
 	{
 		if(dl->driver == drv)
 		{

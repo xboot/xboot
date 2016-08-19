@@ -42,19 +42,15 @@ struct driver_t;
 struct device_t
 {
 	struct kobj_t * kobj;
+	struct hlist_node node;
+
 	char * name;
 	enum device_type_t type;
 	struct driver_t * driver;
 	void * priv;
 };
 
-struct device_list_t
-{
-	struct device_t * device;
-	struct hlist_node node;
-};
 extern struct hlist_head __device_hash[DEVICE_TYPE_MAX_COUNT];
-
 char * alloc_device_name(const char * name, int id);
 void free_device_name(char * name);
 struct device_t * search_device(const char * name, enum device_type_t type);

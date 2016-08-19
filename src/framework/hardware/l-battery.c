@@ -38,19 +38,19 @@ static int l_battery_new(lua_State * L)
 
 static int l_battery_list(lua_State * L)
 {
-	struct device_list_t * pos;
+	struct device_t * pos;
 	struct hlist_node * n;
 	struct battery_t * bat;
 
 	lua_newtable(L);
 	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_BATTERY], node)
 	{
-		bat = (struct battery_t *)(pos->device->priv);
+		bat = (struct battery_t *)(pos->priv);
 		if(!bat)
 			continue;
 		lua_pushlightuserdata(L, bat);
 		luaL_setmetatable(L, MT_HARDWARE_BATTERY);
-		lua_setfield(L, -2, pos->device->name);
+		lua_setfield(L, -2, pos->name);
 	}
 	return 1;
 }

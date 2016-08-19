@@ -31,7 +31,7 @@
 
 void do_system_logo(void)
 {
-	struct device_list_t * pos;
+	struct device_t * pos;
 	struct hlist_node * n;
 	cairo_surface_t * logo;
 	cairo_surface_t * cs;
@@ -44,7 +44,7 @@ void do_system_logo(void)
 
 	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_FB], node)
 	{
-		if((fb = (struct fb_t *)(pos->device->priv)))
+		if((fb = (struct fb_t *)(pos->priv)))
 		{
 			cs = cairo_xboot_surface_create(fb, fb->alone);
 			cr = cairo_create(cs);

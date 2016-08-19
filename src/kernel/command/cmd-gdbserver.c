@@ -28,7 +28,7 @@
 
 static void usage(void)
 {
-	struct device_list_t * pos;
+	struct device_t * pos;
 	struct hlist_node * n;
 
 	printf("usage:\r\n");
@@ -38,7 +38,7 @@ static void usage(void)
 	printf("supported device list:\r\n");
 	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_UART], node)
 	{
-		printf("    %s\r\n", pos->device->name);
+		printf("    %s\r\n", pos->name);
 	}
 }
 

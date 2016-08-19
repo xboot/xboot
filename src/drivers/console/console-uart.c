@@ -85,7 +85,6 @@ static struct device_t * console_uart_probe(struct driver_t * drv, struct dtnode
 static void console_uart_remove(struct device_t * dev)
 {
 	struct console_t * console = (struct console_t *)dev->priv;
-	struct console_uart_pdata_t * pdat = (struct console_uart_pdata_t *)console->priv;
 
 	if(console && unregister_console(console))
 	{

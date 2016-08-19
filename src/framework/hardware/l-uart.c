@@ -46,19 +46,19 @@ static int l_uart_new(lua_State * L)
 
 static int l_uart_list(lua_State * L)
 {
-	struct device_list_t * pos;
+	struct device_t * pos;
 	struct hlist_node * n;
 	struct uart_t * uart;
 
 	lua_newtable(L);
 	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_UART], node)
 	{
-		uart = (struct uart_t *)(pos->device->priv);
+		uart = (struct uart_t *)(pos->priv);
 		if(!uart)
 			continue;
 		lua_pushlightuserdata(L, uart);
 		luaL_setmetatable(L, MT_HARDWARE_UART);
-		lua_setfield(L, -2, pos->device->name);
+		lua_setfield(L, -2, pos->name);
 	}
 	return 1;
 }

@@ -24,13 +24,7 @@
 
 #include <xboot/driver.h>
 
-struct driver_list_t
-{
-	struct driver_t * driver;
-	struct hlist_node node;
-};
-
-static struct hlist_head __driver_hash[97];
+static struct hlist_head __driver_hash[257];
 static spinlock_t __driver_lock = SPIN_LOCK_INIT();
 
 static struct hlist_head * driver_hash(const char * name)
@@ -52,25 +46,53 @@ static struct kobj_t * search_class_driver_kobj(void)
 	return kobj_search_directory_with_create(kclass, "driver");
 }
 
+static ssize_t driver_write_probe(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct driver_t * drv = (struct driver_t *)kobj->priv;
+	struct dtnode_t n;
+	json_value * v;
+	char * p;
+	int i;
+
+	if(buf && (size > 0))
+	{
+		v = json_parse(buf, size);
+		if(v && (v->type == json_object))
+		{
+			for(i = 0; i < v->u.object.length; i++)
+			{
+				p = (char *)(v->u.object.values[i].name);
+				n.name = strsep(&p, "@");
+				n.addr = p ? strtoull(p, NULL, 0) : 0;
+				n.value = (json_value *)(v->u.object.values[i].value);
+
+				if(strcmp(drv->name, n.name) == 0)
+					drv->probe(drv, &n);
+			}
+		}
+		json_value_free(v);
+	}
+	return size;
+}
+
 struct driver_t * search_driver(const char * name)
 {
-	struct driver_list_t * dl;
-	struct hlist_node * pos, * n;
+	struct driver_t * pos;
+	struct hlist_node * n;
 
 	if(!name)
 		return NULL;
 
-	hlist_for_each_entry_safe(dl, pos, n, driver_hash(name), node)
+	hlist_for_each_entry_safe(pos, n, driver_hash(name), node)
 	{
-		if(strcmp(dl->driver->name, name) == 0)
-			return dl->driver;
+		if(strcmp(pos->name, name) == 0)
+			return pos;
 	}
 	return NULL;
 }
 
 bool_t register_driver(struct driver_t * drv)
 {
-	struct driver_list_t * dl;
 	irq_flags_t flags;
 
 	if(!drv || !drv->name)
@@ -85,17 +107,13 @@ bool_t register_driver(struct driver_t * drv)
 	if(search_driver(drv->name))
 		return FALSE;
 
-	dl = malloc(sizeof(struct driver_list_t));
-	if(!dl)
-		return FALSE;
-
-	if(!drv->kobj)
-		drv->kobj = kobj_alloc_directory(drv->name);
+	drv->kobj = kobj_alloc_directory(drv->name);
+	kobj_add_regular(drv->kobj, "probe", NULL, driver_write_probe, drv);
 	kobj_add(search_class_driver_kobj(), drv->kobj);
-	dl->driver = drv;
 
 	spin_lock_irqsave(&__driver_lock, flags);
-	hlist_add_head(&dl->node, driver_hash(drv->name));
+	init_hlist_node(&drv->node);
+	hlist_add_head(&drv->node, driver_hash(drv->name));
 	spin_unlock_irqrestore(&__driver_lock, flags);
 
 	return TRUE;
@@ -103,28 +121,20 @@ bool_t register_driver(struct driver_t * drv)
 
 bool_t unregister_driver(struct driver_t * drv)
 {
-	struct driver_list_t * dl;
-	struct hlist_node * pos, * n;
 	irq_flags_t flags;
 
 	if(!drv || !drv->name)
 		return FALSE;
 
-	hlist_for_each_entry_safe(dl, pos, n, driver_hash(drv->name), node)
-	{
-		if(dl->driver == drv)
-		{
-			spin_lock_irqsave(&__driver_lock, flags);
-			hlist_del(&dl->node);
-			spin_unlock_irqrestore(&__driver_lock, flags);
+	if(hlist_unhashed(&drv->node))
+		return FALSE;
 
-			kobj_remove(search_class_driver_kobj(), dl->driver->kobj);
-			free(dl);
-			return TRUE;
-		}
-	}
+	spin_lock_irqsave(&__driver_lock, flags);
+	hlist_del(&drv->node);
+	spin_unlock_irqrestore(&__driver_lock, flags);
+	kobj_remove_self(drv->kobj);
 
-	return FALSE;
+	return TRUE;
 }
 
 void probe_device(const char * json, int length)
@@ -149,7 +159,7 @@ void probe_device(const char * json, int length)
 				n.value = (json_value *)(v->u.object.values[i].value);
 
 				drv = search_driver(n.name);
-				if(drv && drv->probe && (dev = drv->probe(drv, &n)))
+				if(drv && (dev = drv->probe(drv, &n)))
 					LOG("Probe device '%s' with %s", dev->name, drv->name);
 				else
 					LOG("Fail to probe device witch %s", n.name);

@@ -38,19 +38,19 @@ static int l_led_new(lua_State * L)
 
 static int l_led_list(lua_State * L)
 {
-	struct device_list_t * dl;
-	struct hlist_node * pos, * n;
+	struct device_list_t * pos;
+	struct hlist_node * n;
 	struct led_t * led;
 
 	lua_newtable(L);
-	hlist_for_each_entry_safe(dl, pos, n, &__device_hash[DEVICE_TYPE_LED], node)
+	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_LED], node)
 	{
-		led = (struct led_t *)(dl->device->priv);
+		led = (struct led_t *)(pos->device->priv);
 		if(!led)
 			continue;
 		lua_pushlightuserdata(L, led);
 		luaL_setmetatable(L, MT_HARDWARE_LED);
-		lua_setfield(L, -2, dl->device->name);
+		lua_setfield(L, -2, pos->device->name);
 	}
 	return 1;
 }

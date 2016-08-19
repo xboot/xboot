@@ -32,9 +32,8 @@ struct lgpio_t {
 
 static int l_gpio_new(lua_State * L)
 {
-	const char * name = luaL_checkstring(L, 1);
-	int offset = luaL_checkinteger(L, 2);
-	struct gpiochip_t * chip = search_gpiochip(name);
+	int offset = luaL_checkinteger(L, 1);
+	struct gpiochip_t * chip = search_gpiochip(offset);
 	if(chip && (offset >= 0) && (offset < chip->ngpio))
 	{
 		struct lgpio_t * gpio = lua_newuserdata(L, sizeof(struct lgpio_t));
@@ -173,20 +172,20 @@ int luaopen_hardware_gpio(lua_State * L)
 {
 	luaL_newlib(L, l_gpio);
     /* gpio_pull_t */
-	luahelper_set_intfield(L, "PULL_UP",	GPIO_PULL_UP);
-	luahelper_set_intfield(L, "PULL_DOWN",	GPIO_PULL_DOWN);
-	luahelper_set_intfield(L, "PULL_NONE",	GPIO_PULL_NONE);
+	luahelper_set_intfield(L, "PULL_UP",		GPIO_PULL_UP);
+	luahelper_set_intfield(L, "PULL_DOWN",		GPIO_PULL_DOWN);
+	luahelper_set_intfield(L, "PULL_NONE",		GPIO_PULL_NONE);
     /* gpio_drv_t */
-	luahelper_set_intfield(L, "DRV_LOW",	GPIO_DRV_LOW);
-	luahelper_set_intfield(L, "DRV_MEDIAN",	GPIO_DRV_MEDIAN);
-	luahelper_set_intfield(L, "DRV_HIGH",	GPIO_DRV_HIGH);
+	luahelper_set_intfield(L, "DRV_WEAK)",		GPIO_DRV_WEAK);
+	luahelper_set_intfield(L, "DRV_WEAKER)",	GPIO_DRV_WEAKER);
+	luahelper_set_intfield(L, "DRV_STRONGER)",	GPIO_DRV_STRONGER);
+	luahelper_set_intfield(L, "DRV_STRONG)",	GPIO_DRV_STRONG);
     /* gpio_rate_t */
-	luahelper_set_intfield(L, "RATE_SLOW",	GPIO_RATE_SLOW);
-	luahelper_set_intfield(L, "RATE_FAST",	GPIO_RATE_FAST);
+	luahelper_set_intfield(L, "RATE_SLOW",		GPIO_RATE_SLOW);
+	luahelper_set_intfield(L, "RATE_FAST",		GPIO_RATE_FAST);
     /* gpio_direction_t */
-	luahelper_set_intfield(L, "DIR_INPUT",	GPIO_DIRECTION_INPUT);
-	luahelper_set_intfield(L, "DIR_OUTPUT",	GPIO_DIRECTION_OUTPUT);
-	luahelper_set_intfield(L, "DIR_UNKOWN",	GPIO_DIRECTION_UNKOWN);
+	luahelper_set_intfield(L, "DIR_INPUT",		GPIO_DIRECTION_INPUT);
+	luahelper_set_intfield(L, "DIR_OUTPUT",		GPIO_DIRECTION_OUTPUT);
 	luahelper_create_metatable(L, MT_HARDWARE_GPIO, m_gpio);
 	return 1;
 }

@@ -1,4 +1,19 @@
 {
+	"gpio-pl061@0x10013000": {
+		"base": 0,
+		"ngpio": 8
+	},
+
+	"gpio-pl061@0x10014000": {
+		"base": 8,
+		"ngpio": 8
+	},
+
+	"gpio-pl061@0x10015000": {
+		"base": 16,
+		"ngpio": 8
+	},
+
 	"uart-pl011@0x10009000": {
 		"clock": "uclk",
 		"txd-gpio": -1,

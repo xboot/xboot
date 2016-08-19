@@ -1,5 +1,5 @@
 /*
- * driver/gpio/gpio.c
+ * drivers/gpio/gpio.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,28 +22,7 @@
  *
  */
 
-#include <xboot.h>
 #include <gpio/gpio.h>
-
-struct gpiochip_list_t
-{
-	struct gpiochip_t * chip;
-	struct list_head entry;
-};
-
-struct gpiochip_list_t __gpiochip_list = {
-	.entry = {
-		.next	= &(__gpiochip_list.entry),
-		.prev	= &(__gpiochip_list.entry),
-	},
-};
-static spinlock_t __gpiochip_list_lock = SPIN_LOCK_INIT();
-
-static struct kobj_t * search_class_gpiochip_kobj(void)
-{
-	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
-	return kobj_search_directory_with_create(kclass, "gpiochip");
-}
 
 static ssize_t gpiochip_read_base(struct kobj_t * kobj, void * buf, size_t size)
 {
@@ -57,97 +36,86 @@ static ssize_t gpiochip_read_ngpio(struct kobj_t * kobj, void * buf, size_t size
 	return sprintf(buf, "%d", chip->ngpio);
 }
 
-static struct gpiochip_t * search_gpiochip_with_no(int gpio)
+struct gpiochip_t * search_gpiochip(int gpio)
 {
-	struct gpiochip_list_t * pos, * n;
+	struct device_t * pos;
+	struct hlist_node * n;
+	struct gpiochip_t * chip;
 
-	list_for_each_entry_safe(pos, n, &(__gpiochip_list.entry), entry)
+	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_GPIOCHIP], node)
 	{
-		if( (gpio >= pos->chip->base) && (gpio < (pos->chip->base + pos->chip->ngpio)) )
-			return pos->chip;
+		chip = (struct gpiochip_t *)(pos->priv);
+		if((gpio >= chip->base) && (gpio < (chip->base + chip->ngpio)))
+			return chip;
 	}
-
 	return NULL;
 }
 
-struct gpiochip_t * search_gpiochip(const char * name)
+bool_t register_gpiochip(struct device_t ** device, struct gpiochip_t * chip)
 {
-	struct gpiochip_list_t * pos, * n;
-
-	if(!name)
-		return NULL;
-
-	list_for_each_entry_safe(pos, n, &(__gpiochip_list.entry), entry)
-	{
-		if(strcmp(pos->chip->name, name) == 0)
-			return pos->chip;
-	}
-
-	return NULL;
-}
-
-bool_t register_gpiochip(struct gpiochip_t * chip)
-{
-	struct gpiochip_list_t * gl;
-	irq_flags_t flags;
+	struct device_t * dev;
 
 	if(!chip || !chip->name)
 		return FALSE;
 
-	if(search_gpiochip(chip->name))
+	if(chip->base < 0 || chip->ngpio <= 0)
 		return FALSE;
 
-	gl = malloc(sizeof(struct gpiochip_list_t));
-	if(!gl)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
-	chip->kobj = kobj_alloc_directory(chip->name);
-	kobj_add_regular(chip->kobj, "base", gpiochip_read_base, NULL, chip);
-	kobj_add_regular(chip->kobj, "ngpio", gpiochip_read_ngpio, NULL, chip);
-	kobj_add(search_class_gpiochip_kobj(), chip->kobj);
-	gl->chip = chip;
+	dev->name = strdup(chip->name);
+	dev->type = DEVICE_TYPE_GPIOCHIP;
+	dev->priv = chip;
+	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "base", gpiochip_read_base, NULL, chip);
+	kobj_add_regular(dev->kobj, "ngpio", gpiochip_read_ngpio, NULL, chip);
 
-	spin_lock_irqsave(&__gpiochip_list_lock, flags);
-	list_add_tail(&gl->entry, &(__gpiochip_list.entry));
-	spin_unlock_irqrestore(&__gpiochip_list_lock, flags);
+	if(!register_device(dev))
+	{
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
+		return FALSE;
+	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
 bool_t unregister_gpiochip(struct gpiochip_t * chip)
 {
-	struct gpiochip_list_t * pos, * n;
-	irq_flags_t flags;
+	struct device_t * dev;
 
 	if(!chip || !chip->name)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__gpiochip_list.entry), entry)
-	{
-		if(pos->chip == chip)
-		{
-			spin_lock_irqsave(&__gpiochip_list_lock, flags);
-			list_del(&(pos->entry));
-			spin_unlock_irqrestore(&__gpiochip_list_lock, flags);
+	if(chip->base < 0 || chip->ngpio <= 0)
+		return FALSE;
 
-			kobj_remove(search_class_gpiochip_kobj(), pos->chip->kobj);
-			kobj_remove_self(chip->kobj);
-			free(pos);
-			return TRUE;
-		}
-	}
+	dev = search_device(chip->name, DEVICE_TYPE_GPIOCHIP);
+	if(!dev)
+		return FALSE;
 
-	return FALSE;
+	if(!unregister_device(dev))
+		return FALSE;
+
+	kobj_remove_self(dev->kobj);
+	free(dev->name);
+	free(dev);
+	return TRUE;
 }
 
 int gpio_is_valid(int gpio)
 {
-	return search_gpiochip_with_no(gpio) ? 1 : 0;
+	return search_gpiochip(gpio) ? 1 : 0;
 }
 
 void gpio_set_cfg(int gpio, int cfg)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->set_cfg)
 		chip->set_cfg(chip, gpio - chip->base, cfg);
@@ -155,7 +123,7 @@ void gpio_set_cfg(int gpio, int cfg)
 
 int gpio_get_cfg(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->get_cfg)
 		return chip->get_cfg(chip, gpio - chip->base);
@@ -164,7 +132,7 @@ int gpio_get_cfg(int gpio)
 
 void gpio_set_pull(int gpio, enum gpio_pull_t pull)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->set_pull)
 		chip->set_pull(chip, gpio - chip->base, pull);
@@ -172,7 +140,7 @@ void gpio_set_pull(int gpio, enum gpio_pull_t pull)
 
 enum gpio_pull_t gpio_get_pull(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->get_pull)
 		return chip->get_pull(chip, gpio - chip->base);
@@ -181,7 +149,7 @@ enum gpio_pull_t gpio_get_pull(int gpio)
 
 void gpio_set_drv(int gpio, enum gpio_drv_t drv)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->set_drv)
 		chip->set_drv(chip, gpio - chip->base, drv);
@@ -189,16 +157,16 @@ void gpio_set_drv(int gpio, enum gpio_drv_t drv)
 
 enum gpio_drv_t gpio_get_drv(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->get_drv)
 		return chip->get_drv(chip, gpio - chip->base);
-	return GPIO_DRV_LOW;
+	return GPIO_DRV_WEAK;
 }
 
 void gpio_set_rate(int gpio, enum gpio_rate_t rate)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->set_rate)
 		chip->set_rate(chip, gpio - chip->base, rate);
@@ -206,7 +174,7 @@ void gpio_set_rate(int gpio, enum gpio_rate_t rate)
 
 enum gpio_rate_t gpio_get_rate(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->get_rate)
 		return chip->get_rate(chip, gpio - chip->base);
@@ -215,7 +183,7 @@ enum gpio_rate_t gpio_get_rate(int gpio)
 
 void gpio_set_direction(int gpio, enum gpio_direction_t dir)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->set_dir)
 		chip->set_dir(chip, gpio - chip->base, dir);
@@ -223,16 +191,16 @@ void gpio_set_direction(int gpio, enum gpio_direction_t dir)
 
 enum gpio_direction_t gpio_get_direction(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->get_dir)
 		return chip->get_dir(chip, gpio - chip->base);
-	return GPIO_DIRECTION_UNKOWN;
+	return GPIO_DIRECTION_INPUT;
 }
 
 void gpio_set_value(int gpio, int value)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->set_value)
 		chip->set_value(chip, gpio - chip->base, value);
@@ -240,7 +208,7 @@ void gpio_set_value(int gpio, int value)
 
 int gpio_get_value(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->get_value)
 		return chip->get_value(chip, gpio - chip->base);
@@ -249,7 +217,7 @@ int gpio_get_value(int gpio)
 
 void gpio_direction_output(int gpio, int value)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(!chip)
 		return;
@@ -263,7 +231,7 @@ void gpio_direction_output(int gpio, int value)
 
 void gpio_direction_input(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->set_dir)
 		chip->set_dir(chip, gpio - chip->base, GPIO_DIRECTION_INPUT);
@@ -271,7 +239,7 @@ void gpio_direction_input(int gpio)
 
 int gpio_to_irq(int gpio)
 {
-	struct gpiochip_t * chip = search_gpiochip_with_no(gpio);
+	struct gpiochip_t * chip = search_gpiochip(gpio);
 
 	if(chip && chip->to_irq)
 		return chip->to_irq(chip, gpio - chip->base);

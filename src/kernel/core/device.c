@@ -64,11 +64,17 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_FB:
 		name = "fb";
 		break;
+	case DEVICE_TYPE_GPIOCHIP:
+		name = "gpiochip";
+		break;
 	case DEVICE_TYPE_I2C:
 		name = "i2c";
 		break;
 	case DEVICE_TYPE_INPUT:
 		name = "input";
+		break;
+	case DEVICE_TYPE_IRQCHIP:
+		name = "irqchip";
 		break;
 	case DEVICE_TYPE_LED:
 		name = "led";

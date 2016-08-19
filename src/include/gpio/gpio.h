@@ -14,9 +14,10 @@ enum gpio_pull_t {
 };
 
 enum gpio_drv_t {
-	GPIO_DRV_LOW			= 0,
-	GPIO_DRV_MEDIAN			= 1,
-	GPIO_DRV_HIGH			= 2,
+	GPIO_DRV_WEAK			= 0,
+	GPIO_DRV_WEAKER			= 1,
+	GPIO_DRV_STRONGER		= 2,
+	GPIO_DRV_STRONG			= 3,
 };
 
 enum gpio_rate_t {
@@ -27,13 +28,11 @@ enum gpio_rate_t {
 enum gpio_direction_t {
 	GPIO_DIRECTION_INPUT	= 0,
 	GPIO_DIRECTION_OUTPUT	= 1,
-	GPIO_DIRECTION_UNKOWN	= 2,
 };
 
 struct gpiochip_t
 {
-	struct kobj_t * kobj;
-	const char * name;
+	char * name;
 	int base;
 	int ngpio;
 
@@ -54,8 +53,8 @@ struct gpiochip_t
 	void * priv;
 };
 
-struct gpiochip_t * search_gpiochip(const char * name);
-bool_t register_gpiochip(struct gpiochip_t * chip);
+struct gpiochip_t * search_gpiochip(int gpio);
+bool_t register_gpiochip(struct device_t ** device, struct gpiochip_t * chip);
 bool_t unregister_gpiochip(struct gpiochip_t * chip);
 
 int gpio_is_valid(int gpio);

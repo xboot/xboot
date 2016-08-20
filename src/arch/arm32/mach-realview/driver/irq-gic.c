@@ -48,34 +48,34 @@ enum {
 	DIST_SOFTINT		= 0x1f00,
 };
 
-struct irqchip_pdata_t
+struct irq_gic_pdata_t
 {
 	virtual_addr_t virt;
 	int base;
 	int nirq;
 };
 
-static void irqchip_enable(struct irqchip_t * chip, int offset)
+static void irq_gic_enable(struct irqchip_t * chip, int offset)
 {
-	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
+	struct irq_gic_pdata_t * pdat = (struct irq_gic_pdata_t *)chip->priv;
 	int irq = chip->base + offset;
 	write32(pdat->virt + DIST_ENABLE_SET + (irq / 32) * 4, 1 << (irq % 32));
 }
 
-static void irqchip_disable(struct irqchip_t * chip, int offset)
+static void irq_gic_disable(struct irqchip_t * chip, int offset)
 {
-	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
+	struct irq_gic_pdata_t * pdat = (struct irq_gic_pdata_t *)chip->priv;
 	int irq = chip->base + offset;
 	write32(pdat->virt + DIST_ENABLE_CLEAR + (irq / 32) * 4, 1 << (irq % 32));
 }
 
-static void irqchip_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
+static void irq_gic_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
 {
 }
 
-static void irqchip_dispatch(struct irqchip_t * chip)
+static void irq_gic_dispatch(struct irqchip_t * chip)
 {
-	struct irqchip_pdata_t * pdat = (struct irqchip_pdata_t *)chip->priv;
+	struct irq_gic_pdata_t * pdat = (struct irq_gic_pdata_t *)chip->priv;
 	int irq = read32(pdat->virt + CPU_INTACK) & 0x3ff;
 	int offset = irq - chip->base;
 
@@ -155,9 +155,9 @@ static void gic_cpu_init(virtual_addr_t virt)
 	write32(virt + CPU_CTRL, 0x1);
 }
 
-static struct device_t * irqchip_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * irq_gic_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct irqchip_pdata_t * pdat;
+	struct irq_gic_pdata_t * pdat;
 	struct irqchip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -167,7 +167,7 @@ static struct device_t * irqchip_probe(struct driver_t * drv, struct dtnode_t * 
 	if((base < 0) || (nirq <= 0))
 		return NULL;
 
-	pdat = malloc(sizeof(struct irqchip_pdata_t));
+	pdat = malloc(sizeof(struct irq_gic_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -187,10 +187,10 @@ static struct device_t * irqchip_probe(struct driver_t * drv, struct dtnode_t * 
 	chip->nirq = pdat->nirq;
 
 	chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);
-	chip->enable = irqchip_enable;
-	chip->disable = irqchip_disable;
-	chip->settype = irqchip_settype;
-	chip->dispatch = irqchip_dispatch;
+	chip->enable = irq_gic_enable;
+	chip->disable = irq_gic_disable;
+	chip->settype = irq_gic_settype;
+	chip->dispatch = irq_gic_dispatch;
 	chip->priv = pdat;
 
 	gic_dist_init(pdat->virt);
@@ -210,7 +210,7 @@ static struct device_t * irqchip_probe(struct driver_t * drv, struct dtnode_t * 
 	return dev;
 }
 
-static void irqchip_remove(struct device_t * dev)
+static void irq_gic_remove(struct device_t * dev)
 {
 	struct irqchip_t * chip = (struct irqchip_t *)dev->priv;
 
@@ -223,30 +223,30 @@ static void irqchip_remove(struct device_t * dev)
 	}
 }
 
-static void irqchip_suspend(struct device_t * dev)
+static void irq_gic_suspend(struct device_t * dev)
 {
 }
 
-static void irqchip_resume(struct device_t * dev)
+static void irq_gic_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t irqchip = {
+static struct driver_t irq_gic = {
 	.name		= "irq-gic",
-	.probe		= irqchip_probe,
-	.remove		= irqchip_remove,
-	.suspend	= irqchip_suspend,
-	.resume		= irqchip_resume,
+	.probe		= irq_gic_probe,
+	.remove		= irq_gic_remove,
+	.suspend	= irq_gic_suspend,
+	.resume		= irq_gic_resume,
 };
 
 static __init void irq_gic_driver_init(void)
 {
-	register_driver(&irqchip);
+	register_driver(&irq_gic);
 }
 
 static __exit void irq_gic_driver_exit(void)
 {
-	unregister_driver(&irqchip);
+	unregister_driver(&irq_gic);
 }
 
 driver_initcall(irq_gic_driver_init);

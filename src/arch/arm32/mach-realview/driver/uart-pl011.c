@@ -321,7 +321,7 @@ static void uart_pl011_resume(struct device_t * dev)
 {
 }
 
-struct driver_t uart_pl011 = {
+static struct driver_t uart_pl011 = {
 	.name		= "uart-pl011",
 	.probe		= uart_pl011_probe,
 	.remove		= uart_pl011_remove,

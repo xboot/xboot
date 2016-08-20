@@ -463,7 +463,7 @@ static void keyboard_pl050_resume(struct device_t * dev)
 {
 }
 
-struct driver_t keyboard_pl050 = {
+static struct driver_t keyboard_pl050 = {
 	.name		= "keyboard-pl050",
 	.probe		= keyboard_pl050_probe,
 	.remove		= keyboard_pl050_remove,

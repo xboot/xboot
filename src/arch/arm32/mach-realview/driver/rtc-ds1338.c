@@ -252,7 +252,7 @@ static void rtc_ds1338_resume(struct device_t * dev)
 {
 }
 
-struct driver_t rtc_ds1338 = {
+static struct driver_t rtc_ds1338 = {
 	.name		= "rtc-ds1338",
 	.probe		= rtc_ds1338_probe,
 	.remove		= rtc_ds1338_remove,

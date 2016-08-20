@@ -248,7 +248,7 @@ static void fb_pl111_resume(struct device_t * dev)
 	led_set_brightness(pdat->backlight, pdat->brightness);
 }
 
-struct driver_t fb_pl111 = {
+static struct driver_t fb_pl111 = {
 	.name		= "fb-pl111",
 	.probe		= fb_pl111_probe,
 	.remove		= fb_pl111_remove,

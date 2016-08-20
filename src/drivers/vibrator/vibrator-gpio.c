@@ -195,7 +195,7 @@ static void vibrator_gpio_resume(struct device_t * dev)
 	vibrator_gpio_set_state(pdat, pdat->state);
 }
 
-struct driver_t vibrator_gpio = {
+static struct driver_t vibrator_gpio = {
 	.name		= "vibrator-gpio",
 	.probe		= vibrator_gpio_probe,
 	.remove		= vibrator_gpio_remove,

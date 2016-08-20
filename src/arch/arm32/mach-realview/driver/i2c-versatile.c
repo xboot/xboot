@@ -148,7 +148,7 @@ static void i2c_versatile_resume(struct device_t * dev)
 {
 }
 
-struct driver_t i2c_versatile = {
+static struct driver_t i2c_versatile = {
 	.name		= "i2c-versatile",
 	.probe		= i2c_versatile_probe,
 	.remove		= i2c_versatile_remove,

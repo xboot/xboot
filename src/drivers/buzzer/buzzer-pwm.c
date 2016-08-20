@@ -201,7 +201,7 @@ static void buzzer_pwm_resume(struct device_t * dev)
 	buzzer_pwm_set_frequency(pdat, pdat->frequency);
 }
 
-struct driver_t buzzer_pwm = {
+static struct driver_t buzzer_pwm = {
 	.name		= "buzzer-pwm",
 	.probe		= buzzer_pwm_probe,
 	.remove		= buzzer_pwm_remove,

@@ -134,7 +134,7 @@ static void ledtrig_general_resume(struct device_t * dev)
 	timer_cancel(&pdat->timer);
 }
 
-struct driver_t ledtrig_general = {
+static struct driver_t ledtrig_general = {
 	.name		= "ledtrig-general",
 	.probe		= ledtrig_general_probe,
 	.remove		= ledtrig_general_remove,

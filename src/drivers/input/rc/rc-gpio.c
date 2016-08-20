@@ -159,7 +159,7 @@ static void rc_gpio_resume(struct device_t * dev)
 	enable_irq(pdat->irq);
 }
 
-struct driver_t rc_gpio = {
+static struct driver_t rc_gpio = {
 	.name		= "rc-gpio",
 	.probe		= rc_gpio_probe,
 	.remove		= rc_gpio_remove,

@@ -221,7 +221,7 @@ static void gpio_pl061_resume(struct device_t * dev)
 {
 }
 
-struct driver_t gpio_pl061 = {
+static struct driver_t gpio_pl061 = {
 	.name		= "gpio-pl061",
 	.probe		= gpio_pl061_probe,
 	.remove		= gpio_pl061_remove,

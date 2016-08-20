@@ -1,5 +1,5 @@
 /*
- * drivers/block/spi-flash.c
+ * driver/block/spi-flash.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -386,7 +386,7 @@ static void spi_flash_resume(struct device_t * dev)
 {
 }
 
-struct driver_t spi_flash = {
+static struct driver_t spi_flash = {
 	.name		= "spi-flash",
 	.probe		= spi_flash_probe,
 	.remove		= spi_flash_remove,

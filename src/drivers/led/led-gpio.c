@@ -152,7 +152,7 @@ static void led_gpio_resume(struct device_t * dev)
 	led_gpio_set_brightness(pdat, pdat->brightness);
 }
 
-struct driver_t led_gpio = {
+static struct driver_t led_gpio = {
 	.name		= "led-gpio",
 	.probe		= led_gpio_probe,
 	.remove		= led_gpio_remove,

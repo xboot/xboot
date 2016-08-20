@@ -198,7 +198,7 @@ static void rtc_pl031_resume(struct device_t * dev)
 {
 }
 
-struct driver_t rtc_pl031 = {
+static struct driver_t rtc_pl031 = {
 	.name		= "rtc-pl031",
 	.probe		= rtc_pl031_probe,
 	.remove		= rtc_pl031_remove,

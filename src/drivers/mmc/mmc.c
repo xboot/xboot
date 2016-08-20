@@ -1,5 +1,5 @@
 /*
- * drivers/mmc/mmc.c
+ * driver/mmc/mmc.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -21,7 +21,6 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 
 #include <xboot.h>
 #include <mmc/mmc_host.h>

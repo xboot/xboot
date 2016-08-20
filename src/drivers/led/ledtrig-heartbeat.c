@@ -155,7 +155,7 @@ static void ledtrig_heartbeat_resume(struct device_t * dev)
 	timer_start_now(&pdat->timer, ms_to_ktime(50));
 }
 
-struct driver_t ledtrig_heartbeat = {
+static struct driver_t ledtrig_heartbeat = {
 	.name		= "ledtrig-heartbeat",
 	.probe		= ledtrig_heartbeat_probe,
 	.remove		= ledtrig_heartbeat_remove,

@@ -195,7 +195,7 @@ static void buzzer_gpio_resume(struct device_t * dev)
 	buzzer_gpio_set_frequency(pdat, pdat->frequency);
 }
 
-struct driver_t buzzer_gpio = {
+static struct driver_t buzzer_gpio = {
 	.name		= "buzzer-gpio",
 	.probe		= buzzer_gpio_probe,
 	.remove		= buzzer_gpio_remove,

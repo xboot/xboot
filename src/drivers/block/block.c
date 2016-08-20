@@ -1,5 +1,5 @@
 /*
- * drivers/block/block.c
+ * driver/block/block.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org

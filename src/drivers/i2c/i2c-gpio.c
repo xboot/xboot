@@ -1,5 +1,5 @@
 /*
- * drivers/i2c/i2c-gpio.c
+ * driver/i2c/i2c-gpio.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -214,7 +214,7 @@ static void i2c_gpio_resume(struct device_t * dev)
 {
 }
 
-struct driver_t i2c_gpio = {
+static struct driver_t i2c_gpio = {
 	.name		= "i2c-gpio",
 	.probe		= i2c_gpio_probe,
 	.remove		= i2c_gpio_remove,

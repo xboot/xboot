@@ -304,7 +304,7 @@ static void mouse_pl050_resume(struct device_t * dev)
 {
 }
 
-struct driver_t mouse_pl050 = {
+static struct driver_t mouse_pl050 = {
 	.name		= "mouse-pl050",
 	.probe		= mouse_pl050_probe,
 	.remove		= mouse_pl050_remove,

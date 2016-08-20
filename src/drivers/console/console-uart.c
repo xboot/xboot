@@ -102,7 +102,7 @@ static void console_uart_resume(struct device_t * dev)
 {
 }
 
-struct driver_t console_uart = {
+static struct driver_t console_uart = {
 	.name		= "console-uart",
 	.probe		= console_uart_probe,
 	.remove		= console_uart_remove,

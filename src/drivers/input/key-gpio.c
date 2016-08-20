@@ -176,7 +176,7 @@ static void key_gpio_resume(struct device_t * dev)
 	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
 }
 
-struct driver_t key_gpio = {
+static struct driver_t key_gpio = {
 	.name		= "key-gpio",
 	.probe		= key_gpio_probe,
 	.remove		= key_gpio_remove,

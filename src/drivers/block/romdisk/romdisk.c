@@ -1,5 +1,5 @@
 /*
- * drivers/block/romdisk/romdisk.c
+ * driver/block/romdisk/romdisk.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -117,7 +117,7 @@ static void romdisk_resume(struct device_t * dev)
 {
 }
 
-struct driver_t romdisk = {
+static struct driver_t romdisk = {
 	.name		= "romdisk",
 	.probe		= romdisk_probe,
 	.remove		= romdisk_remove,

@@ -318,7 +318,7 @@ static void rotary_encoder_resume(struct device_t * dev)
 		enable_irq(pdat->irq_c);
 }
 
-struct driver_t rotary_encoder = {
+static struct driver_t rotary_encoder = {
 	.name		= "rotary-encoder",
 	.probe		= rotary_encoder_probe,
 	.remove		= rotary_encoder_remove,

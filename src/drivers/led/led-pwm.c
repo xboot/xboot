@@ -162,7 +162,7 @@ static void led_pwm_resume(struct device_t * dev)
 	led_pwm_set_brightness(pdat, pdat->brightness);
 }
 
-struct driver_t led_pwm = {
+static struct driver_t led_pwm = {
 	.name		= "led-pwm",
 	.probe		= led_pwm_probe,
 	.remove		= led_pwm_remove,

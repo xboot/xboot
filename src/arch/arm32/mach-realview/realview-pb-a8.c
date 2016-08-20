@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <mmu.h>
+#include <realview/reg-sysctl.h>
 
 static const struct mmap_t mach_map[] = {
 	{"ram",  0x40000000, 0x40000000, SZ_64M, MAP_TYPE_CB},
@@ -34,6 +35,10 @@ static const struct mmap_t mach_map[] = {
 
 static int mach_detect(struct machine_t * mach)
 {
+	virtual_addr_t virt = phys_to_virt(REALVIEW_SYSCTL_BASE);
+
+	if(((read32(virt + SYSCTL_ID) >> 16) & 0xfff) == 0x178)
+		return 1;
 	return 0;
 }
 
@@ -48,6 +53,10 @@ static void mach_shutdown(struct machine_t * mach)
 
 static void mach_reboot(struct machine_t * mach)
 {
+	virtual_addr_t virt = phys_to_virt(REALVIEW_SYSCTL_BASE);
+
+	write32(virt + SYSCTL_LOCK, 0xa05f);
+	write32(virt + SYSCTL_RESET, read32(virt + SYSCTL_RESET) | (1 << 2));
 }
 
 static void mach_sleep(struct machine_t * mach)
@@ -60,8 +69,8 @@ static void mach_cleanup(struct machine_t * mach)
 
 static void mach_logger(struct machine_t * mach, const char * buf, int count)
 {
-	static int initial = 0;
 	virtual_addr_t virt = phys_to_virt(0x10009000);
+	static int initial = 0;
 	int i;
 
 	if(!initial)

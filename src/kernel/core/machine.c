@@ -112,7 +112,7 @@ bool_t register_machine(struct machine_t * mach)
 	list_add_tail(&mach->list, &__machine_list);
 	spin_unlock_irqrestore(&__machine_lock, flags);
 
-	if(!__machine && !(mach->detect(mach) < 0))
+	if(!__machine && (mach->detect(mach) > 0))
 	{
 		if(mach->memmap)
 		{

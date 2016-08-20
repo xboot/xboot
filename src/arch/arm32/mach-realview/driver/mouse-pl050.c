@@ -23,6 +23,8 @@
  */
 
 #include <xboot.h>
+#include <clk/clk.h>
+#include <interrupt/interrupt.h>
 #include <input/input.h>
 
 enum {

@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <clk/clk.h>
 #include <clocksource/clocksource.h>
 #include <realview/reg-timer.h>
 
@@ -72,4 +73,4 @@ static __init void realview_clocksource_init(void)
 	pdata.virt = phys_to_virt(pdata.phys);
 	register_clocksource(&cs);
 }
-core_initcall(realview_clocksource_init);
+//core_initcall(realview_clocksource_init);

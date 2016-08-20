@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <gpio/gpio.h>
 #include <pwm/pwm.h>
 #include <led/led.h>
 

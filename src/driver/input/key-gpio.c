@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <gpio/gpio.h>
 #include <input/input.h>
 #include <input/keyboard.h>
 

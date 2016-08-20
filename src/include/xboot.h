@@ -53,10 +53,6 @@ extern "C" {
 #include <xboot/machine.h>
 #include <xboot/event.h>
 #include <logger/logger.h>
-#include <gpio/gpio.h>
-#include <pwm/pwm.h>
-#include <clk/clk.h>
-#include <interrupt/interrupt.h>
 #include <time/delay.h>
 #include <time/timer.h>
 #include <time/keeper.h>

@@ -43,6 +43,8 @@
  */
 
 #include <xboot.h>
+#include <gpio/gpio.h>
+#include <interrupt/interrupt.h>
 #include <input/input.h>
 #include <input/keyboard.h>
 

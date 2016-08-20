@@ -23,6 +23,8 @@
  */
 
 #include <xboot.h>
+#include <clk/clk.h>
+#include <interrupt/interrupt.h>
 #include <clockevent/clockevent.h>
 #include <realview-irq.h>
 #include <realview/reg-timer.h>
@@ -92,4 +94,4 @@ static __init void realview_clockevent_init(void)
 	pdata.virt = phys_to_virt(pdata.phys);
 	register_clockevent(&ce);
 }
-core_initcall(realview_clockevent_init);
+//core_initcall(realview_clockevent_init);

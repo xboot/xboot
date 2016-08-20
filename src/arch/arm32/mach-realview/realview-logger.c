@@ -23,6 +23,8 @@
  */
 
 #include <xboot.h>
+#include <clk/clk.h>
+#include <gpio/gpio.h>
 
 #define UART_DATA	(0x00)
 #define UART_RSR	(0x04)

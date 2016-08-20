@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <gpio/gpio.h>
+#include <interrupt/interrupt.h>
 #include <input/rc/rc-core.h>
 
 struct rc_gpio_pdata_t {

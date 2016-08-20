@@ -33,16 +33,8 @@ static void usage(void)
 static int reboot(int argc, char ** argv)
 {
 	sync();
-
-	if(machine_reboot())
-	{
-		return 0;
-	}
-	else
-	{
-		printf(" This machine doesn't support 'reboot'\r\n");
-		return -1;
-	}
+	machine_reboot();
+	return 0;
 }
 
 static struct command_t cmd_reboot = {

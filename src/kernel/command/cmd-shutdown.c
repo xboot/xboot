@@ -33,16 +33,8 @@ static void usage(void)
 static int do_shutdown(int argc, char ** argv)
 {
 	sync();
-
-	if(machine_shutdown())
-	{
-		return 0;
-	}
-	else
-	{
-		printf(" This machine doesn't support 'shutdown'\r\n");
-		return -1;
-	}
+	machine_shutdown();
+	return 0;
 }
 
 static struct command_t cmd_shutdown = {

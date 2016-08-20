@@ -52,7 +52,6 @@ extern "C" {
 #include <xboot/driver.h>
 #include <xboot/machine.h>
 #include <xboot/event.h>
-#include <logger/logger.h>
 #include <time/delay.h>
 #include <time/timer.h>
 #include <time/keeper.h>

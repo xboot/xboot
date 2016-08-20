@@ -1,5 +1,5 @@
 /*
- * mach-realview.c
+ * realview-pb-a8.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -32,35 +32,59 @@ static const struct mmap_t mach_map[] = {
 	{ 0 },
 };
 
-static bool_t mach_detect(struct machine_t * mach)
+static int mach_detect(struct machine_t * mach)
 {
-	return TRUE;
+	return 0;
 }
 
-static bool_t mach_memmap(struct machine_t * mach)
+static void mach_memmap(struct machine_t * mach)
 {
 	mmu_setup(mach->map);
-	return TRUE;
 }
 
-static bool_t mach_shutdown(struct machine_t * mach)
+static void mach_shutdown(struct machine_t * mach)
 {
-	return FALSE;
 }
 
-static bool_t mach_reboot(struct machine_t * mach)
+static void mach_reboot(struct machine_t * mach)
 {
-	return FALSE;
 }
 
-static bool_t mach_sleep(struct machine_t * mach)
+static void mach_sleep(struct machine_t * mach)
 {
-	return FALSE;
 }
 
-static bool_t mach_cleanup(struct machine_t * mach)
+static void mach_cleanup(struct machine_t * mach)
 {
-	return TRUE;
+}
+
+static void mach_logger(struct machine_t * mach, const char * buf, int count)
+{
+	static int initial = 0;
+	virtual_addr_t virt = phys_to_virt(0x10009000);
+	int i;
+
+	if(!initial)
+	{
+		u64_t clk = 24 * 000 * 000;
+		u32_t div, rem, frac;
+
+		div = clk / (16 * 115200);
+		rem = clk % (16 * 115200);
+		frac = (8 * rem / 115200) >> 1;
+		frac += (8 * rem / 115200) & 1;
+
+		write32(virt + 0x24, div);
+		write32(virt + 0x28, frac);
+		write32(virt + 0x2c, (0x3 << 5) | (0x0 << 3) | (0x0 << 1) | (0x1 << 4));
+		write32(virt + 0x30, (1 << 0) | (1 << 8) | (1 << 9));
+	}
+
+	for(i = 0; i < count; i++)
+	{
+		while((read8(virt + 0x18) & (0x1 << 5)));
+		write8(virt + 0x00, buf[i]);
+	}
 }
 
 static const char * mach_uniqueid(struct machine_t * mach)
@@ -73,7 +97,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
-static struct machine_t realview = {
+static struct machine_t realview_pb_a8 = {
 	.name 		= "realview-pb-a8",
 	.desc 		= "ARM RealView Platform Baseboard For Cortex-A8",
 	.map		= mach_map,
@@ -83,12 +107,20 @@ static struct machine_t realview = {
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,
 	.cleanup	= mach_cleanup,
+	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
 };
 
-static __init void mach_realview_init(void)
+static __init void realview_pb_a8_machine_init(void)
 {
-	register_machine(&realview);
+	register_machine(&realview_pb_a8);
 }
-machine_initcall(mach_realview_init);
+
+static __exit void realview_pb_a8_machine_exit(void)
+{
+	unregister_machine(&realview_pb_a8);
+}
+
+machine_initcall(realview_pb_a8_machine_init);
+machine_exitcall(realview_pb_a8_machine_exit);

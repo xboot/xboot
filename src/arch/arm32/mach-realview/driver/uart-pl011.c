@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <clk/clk.h>
 #include <gpio/gpio.h>
 #include <uart/uart.h>
 

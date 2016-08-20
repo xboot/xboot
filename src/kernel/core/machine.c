@@ -26,19 +26,11 @@
 #include <sha256.h>
 #include <xboot/machine.h>
 
-struct machine_list_t
-{
-	struct machine_t * mach;
-	struct list_head entry;
+static struct list_head __machine_list = {
+	.next = &__machine_list,
+	.prev = &__machine_list,
 };
-
-static struct machine_list_t __machine_list = {
-	.entry = {
-		.next	= &(__machine_list.entry),
-		.prev	= &(__machine_list.entry),
-	},
-};
-static spinlock_t __machine_list_lock = SPIN_LOCK_INIT();
+static spinlock_t __machine_lock = SPIN_LOCK_INIT();
 static struct machine_t * __machine = NULL;
 
 static const char * __machine_uniqueid(struct machine_t * mach)
@@ -85,24 +77,23 @@ static ssize_t machine_read_uniqueid(struct kobj_t * kobj, void * buf, size_t si
 
 static struct machine_t * search_machine(const char * name)
 {
-	struct machine_list_t * pos, * n;
+	struct machine_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
+	list_for_each_entry_safe(pos, n, &__machine_list, list)
 	{
-		if(strcmp(pos->mach->name, name) == 0)
-			return pos->mach;
+		if(strcmp(pos->name, name) == 0)
+			return pos;
 	}
-
 	return NULL;
 }
 
 bool_t register_machine(struct machine_t * mach)
 {
-	struct machine_list_t * ml;
 	irq_flags_t flags;
+	int i;
 
 	if(!mach || !mach->name || !mach->detect)
 		return FALSE;
@@ -110,25 +101,33 @@ bool_t register_machine(struct machine_t * mach)
 	if(search_machine(mach->name))
 		return FALSE;
 
-	ml = malloc(sizeof(struct machine_list_t));
-	if(!ml)
-		return FALSE;
-
 	mach->kobj = kobj_alloc_directory(mach->name);
 	kobj_add_regular(mach->kobj, "description", machine_read_description, NULL, mach);
 	kobj_add_regular(mach->kobj, "map", machine_read_map, NULL, mach);
 	kobj_add_regular(mach->kobj, "uniqueid", machine_read_uniqueid, NULL, mach);
 	kobj_add(search_class_machine_kobj(), mach->kobj);
-	ml->mach = mach;
 
-	spin_lock_irqsave(&__machine_list_lock, flags);
-	list_add_tail(&ml->entry, &(__machine_list.entry));
-	spin_unlock_irqrestore(&__machine_list_lock, flags);
+	spin_lock_irqsave(&__machine_lock, flags);
+	init_list_head(&mach->list);
+	list_add_tail(&mach->list, &__machine_list);
+	spin_unlock_irqrestore(&__machine_lock, flags);
 
-	if((__machine == NULL) && mach->detect(mach))
+	if(!__machine && !(mach->detect(mach) < 0))
 	{
 		if(mach->memmap)
+		{
 			mach->memmap(mach);
+		}
+		if(mach->logger)
+		{
+			for(i = 0; i < 5; i++)
+			{
+				mach->logger(mach, xboot_character_logo_string(i), strlen(xboot_character_logo_string(i)));
+				mach->logger(mach, "\r\n", 2);
+			}
+			mach->logger(mach, xboot_banner_string(), strlen(xboot_banner_string()));
+			mach->logger(mach, "\r\n", 2);
+		}
 		__machine = mach;
 	}
 	return TRUE;
@@ -136,28 +135,18 @@ bool_t register_machine(struct machine_t * mach)
 
 bool_t unregister_machine(struct machine_t * mach)
 {
-	struct machine_list_t * pos, * n;
 	irq_flags_t flags;
 
 	if(!mach || !mach->name)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__machine_list.entry), entry)
-	{
-		if(pos->mach == mach)
-		{
-			spin_lock_irqsave(&__machine_list_lock, flags);
-			list_del(&(pos->entry));
-			spin_unlock_irqrestore(&__machine_list_lock, flags);
+	spin_lock_irqsave(&__machine_lock, flags);
+	list_del(&mach->list);
+	spin_unlock_irqrestore(&__machine_lock, flags);
+	kobj_remove(search_class_machine_kobj(), mach->kobj);
+	kobj_remove_self(mach->kobj);
 
-			kobj_remove(search_class_machine_kobj(), pos->mach->kobj);
-			kobj_remove_self(mach->kobj);
-			free(pos);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
+	return TRUE;
 }
 
 inline __attribute__((always_inline)) struct machine_t * get_machine(void)
@@ -165,40 +154,56 @@ inline __attribute__((always_inline)) struct machine_t * get_machine(void)
 	return __machine;
 }
 
-bool_t machine_shutdown(void)
+void machine_shutdown(void)
 {
 	struct machine_t * mach = get_machine();
 
 	if(mach && mach->shutdown)
-		return mach->shutdown(mach);
-	return FALSE;
+		mach->shutdown(mach);
 }
 
-bool_t machine_reboot(void)
+void machine_reboot(void)
 {
 	struct machine_t * mach = get_machine();
 
 	if(mach && mach->reboot)
-		return mach->reboot(mach);
-	return FALSE;
+		mach->reboot(mach);
 }
 
-bool_t machine_sleep(void)
+void machine_sleep(void)
 {
 	struct machine_t * mach = get_machine();
 
 	if(mach && mach->sleep)
-		return mach->sleep(mach);
-	return FALSE;
+		mach->sleep(mach);
 }
 
-bool_t machine_cleanup(void)
+void machine_cleanup(void)
 {
 	struct machine_t * mach = get_machine();
 
 	if(mach && mach->cleanup)
-		return mach->cleanup(mach);
-	return FALSE;
+		mach->cleanup(mach);
+}
+
+int machine_logger(const char * fmt, ...)
+{
+	struct machine_t * mach = get_machine();
+	struct timeval tv;
+	char buf[SZ_4K];
+	int len = 0;
+	va_list ap;
+
+	if(mach && mach->logger)
+	{
+		va_start(ap, fmt);
+		gettimeofday(&tv, 0);
+		len += sprintf((char *)(buf + len), "[%5u.%06u]", tv.tv_sec, tv.tv_usec);
+		len += vsnprintf((char *)(buf + len), (SZ_4K - len), fmt, ap);
+		va_end(ap);
+		mach->logger(mach, (const char *)buf, len);
+	}
+	return len;
 }
 
 const char * machine_uniqueid(void)

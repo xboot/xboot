@@ -17,16 +17,19 @@ struct mmap_t {
 
 struct machine_t {
 	struct kobj_t * kobj;
+	struct list_head list;
+
 	const char * name;
 	const char * desc;
 	const struct mmap_t * map;
 
-	bool_t (*detect)(struct machine_t * mach);
-	bool_t (*memmap)(struct machine_t * mach);
-	bool_t (*shutdown)(struct machine_t * mach);
-	bool_t (*reboot)(struct machine_t * mach);
-	bool_t (*sleep)(struct machine_t * mach);
-	bool_t (*cleanup)(struct machine_t * mach);
+	int (*detect)(struct machine_t * mach);
+	void (*memmap)(struct machine_t * mach);
+	void (*shutdown)(struct machine_t * mach);
+	void (*reboot)(struct machine_t * mach);
+	void (*sleep)(struct machine_t * mach);
+	void (*cleanup)(struct machine_t * mach);
+	void (*logger)(struct machine_t * mach, const char * buf, int count);
 	const char * (*uniqueid)(struct machine_t * mach);
 	int (*keygen)(struct machine_t * mach, const char * msg, void * key);
 };
@@ -34,12 +37,19 @@ struct machine_t {
 bool_t register_machine(struct machine_t * mach);
 bool_t unregister_machine(struct machine_t * mach);
 struct machine_t * get_machine(void);
-bool_t machine_shutdown(void);
-bool_t machine_reboot(void);
-bool_t machine_sleep(void);
-bool_t machine_cleanup(void);
+void machine_shutdown(void);
+void machine_reboot(void);
+void machine_sleep(void);
+void machine_cleanup(void);
+int machine_logger(const char * fmt, ...);
 const char * machine_uniqueid(void);
 int machine_keygen(const char * msg, void * key);
+
+#if	defined(CONFIG_NO_LOG) && (CONFIG_NO_LOG > 0)
+#define LOG(fmt, arg...)	do { } while(0)
+#else
+#define LOG(fmt, arg...)	do { machine_logger(" " fmt "\r\n", ##arg); } while(0)
+#endif
 
 #ifdef __cplusplus
 }

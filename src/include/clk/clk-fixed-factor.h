@@ -8,8 +8,8 @@ extern "C" {
 #include <xboot.h>
 
 struct clk_fixed_factor_t {
-	const char * name;
-	const char * parent;
+	char * name;
+	char * parent;
 	int mult;
 	int div;
 };

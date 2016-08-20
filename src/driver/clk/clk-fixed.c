@@ -52,14 +52,14 @@ static u64_t clk_fixed_get_rate(struct clk_t * clk, u64_t prate)
 	return fclk->rate;
 }
 
-bool_t clk_fixed_register(struct clk_fixed_t * fclk)
+bool_t register_clk_fixed(struct device_t ** device, struct clk_fixed_t * fclk)
 {
 	struct clk_t * clk;
 
 	if(!fclk || !fclk->name)
 		return FALSE;
 
-	if(clk_search(fclk->name))
+	if(search_clk(fclk->name))
 		return FALSE;
 
 	clk = malloc(sizeof(struct clk_t));
@@ -77,31 +77,98 @@ bool_t clk_fixed_register(struct clk_fixed_t * fclk)
 	clk->get_rate = clk_fixed_get_rate;
 	clk->priv = fclk;
 
-	if(!clk_register(clk))
+	if(!register_clk(device, clk))
 	{
 		free(clk);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
-bool_t clk_fixed_unregister(struct clk_fixed_t * fclk)
+bool_t unregister_clk_fixed(struct clk_fixed_t * fclk)
 {
 	struct clk_t * clk;
 
 	if(!fclk || !fclk->name)
 		return FALSE;
 
-	clk = clk_search(fclk->name);
+	clk = search_clk(fclk->name);
 	if(!clk)
 		return FALSE;
 
-	if(clk_unregister(clk))
+	if(unregister_clk(clk))
 	{
 		free(clk);
 		return TRUE;
 	}
-
 	return FALSE;
 }
+
+static struct device_t * clk_fixed_probe(struct driver_t * drv, struct dtnode_t * n)
+{
+	struct clk_fixed_t * fclk;
+	struct device_t * dev;
+	char * name = dt_read_string(n, "name", NULL);
+	u64_t rate = dt_read_u64(n, "rate", 0);
+
+	if(!name || rate <= 0)
+		return NULL;
+
+	fclk = malloc(sizeof(struct clk_fixed_t));
+	if(!fclk)
+		return NULL;
+
+	fclk->name = strdup(name);
+	fclk->rate = rate;
+
+	if(!register_clk_fixed(&dev, fclk))
+	{
+		free(fclk->name);
+		free(fclk);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
+}
+
+static void clk_fixed_remove(struct device_t * dev)
+{
+	struct clk_t * clk = (struct clk_t *)dev->priv;
+	struct clk_fixed_t * fclk = (struct clk_fixed_t *)clk->priv;
+
+	if(fclk && unregister_clk_fixed(fclk))
+	{
+		free(fclk->name);
+		free(fclk);
+	}
+}
+
+static void clk_fixed_suspend(struct device_t * dev)
+{
+}
+
+static void clk_fixed_resume(struct device_t * dev)
+{
+}
+
+static struct driver_t clk_fixed = {
+	.name		= "clk-fixed",
+	.probe		= clk_fixed_probe,
+	.remove		= clk_fixed_remove,
+	.suspend	= clk_fixed_suspend,
+	.resume		= clk_fixed_resume,
+};
+
+static __init void clk_fixed_driver_init(void)
+{
+	register_driver(&clk_fixed);
+}
+
+static __exit void clk_fixed_driver_exit(void)
+{
+	unregister_driver(&clk_fixed);
+}
+
+driver_initcall(clk_fixed_driver_init);
+driver_exitcall(clk_fixed_driver_exit);

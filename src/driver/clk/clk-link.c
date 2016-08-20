@@ -52,14 +52,14 @@ static u64_t clk_link_get_rate(struct clk_t * clk, u64_t prate)
 	return prate;
 }
 
-bool_t clk_link_register(struct clk_link_t * lclk)
+bool_t register_clk_link(struct device_t ** device, struct clk_link_t * lclk)
 {
 	struct clk_t * clk;
 
 	if(!lclk || !lclk->name)
 		return FALSE;
 
-	if(clk_search(lclk->name))
+	if(search_clk(lclk->name))
 		return FALSE;
 
 	clk = malloc(sizeof(struct clk_t));
@@ -77,31 +77,100 @@ bool_t clk_link_register(struct clk_link_t * lclk)
 	clk->get_rate = clk_link_get_rate;
 	clk->priv = lclk;
 
-	if(!clk_register(clk))
+	if(!register_clk(device, clk))
 	{
 		free(clk);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
-bool_t clk_link_unregister(struct clk_link_t * lclk)
+bool_t unregister_clk_link(struct clk_link_t * lclk)
 {
 	struct clk_t * clk;
 
 	if(!lclk || !lclk->name)
 		return FALSE;
 
-	clk = clk_search(lclk->name);
+	clk = search_clk(lclk->name);
 	if(!clk)
 		return FALSE;
 
-	if(clk_unregister(clk))
+	if(unregister_clk(clk))
 	{
 		free(clk);
 		return TRUE;
 	}
-
 	return FALSE;
 }
+
+static struct device_t * clk_link_probe(struct driver_t * drv, struct dtnode_t * n)
+{
+	struct clk_link_t * fclk;
+	struct device_t * dev;
+	char * name = dt_read_string(n, "name", NULL);
+	char * parent = dt_read_string(n, "parent", NULL);
+
+	if(!name || !parent)
+		return NULL;
+
+	fclk = malloc(sizeof(struct clk_fixed_t));
+	if(!fclk)
+		return NULL;
+
+	fclk->name = strdup(name);
+	fclk->parent = strdup(parent);
+
+	if(!register_clk_link(&dev, fclk))
+	{
+		free(fclk->name);
+		free(fclk->parent);
+		free(fclk);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
+}
+
+static void clk_link_remove(struct device_t * dev)
+{
+	struct clk_t * clk = (struct clk_t *)dev->priv;
+	struct clk_link_t * fclk = (struct clk_link_t *)clk->priv;
+
+	if(fclk && unregister_clk_link(fclk))
+	{
+		free(fclk->name);
+		free(fclk->parent);
+		free(fclk);
+	}
+}
+
+static void clk_link_suspend(struct device_t * dev)
+{
+}
+
+static void clk_link_resume(struct device_t * dev)
+{
+}
+
+static struct driver_t clk_link = {
+	.name		= "clk-link",
+	.probe		= clk_link_probe,
+	.remove		= clk_link_remove,
+	.suspend	= clk_link_suspend,
+	.resume		= clk_link_resume,
+};
+
+static __init void clk_link_driver_init(void)
+{
+	register_driver(&clk_link);
+}
+
+static __exit void clk_link_driver_exit(void)
+{
+	unregister_driver(&clk_link);
+}
+
+driver_initcall(clk_link_driver_init);
+driver_exitcall(clk_link_driver_exit);

@@ -193,7 +193,7 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x050)
 		return NULL;
 
-	if(!clk_search(dt_read_string(n, "clock", NULL)))
+	if(!search_clk(dt_read_string(n, "clock", NULL)))
 		return NULL;
 
 	if(!irq_is_valid(dt_read_int(n, "interrupt", -1)))

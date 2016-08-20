@@ -58,14 +58,14 @@ static u64_t clk_pll_get_rate(struct clk_t * clk, u64_t prate)
 	return 0;
 }
 
-bool_t clk_pll_register(struct clk_pll_t * pclk)
+bool_t register_clk_pll(struct device_t ** device, struct clk_pll_t * pclk)
 {
 	struct clk_t * clk;
 
 	if(!pclk || !pclk->name)
 		return FALSE;
 
-	if(clk_search(pclk->name))
+	if(search_clk(pclk->name))
 		return FALSE;
 
 	clk = malloc(sizeof(struct clk_t));
@@ -83,31 +83,29 @@ bool_t clk_pll_register(struct clk_pll_t * pclk)
 	clk->get_rate = clk_pll_get_rate;
 	clk->priv = pclk;
 
-	if(!clk_register(clk))
+	if(!register_clk(device, clk))
 	{
 		free(clk);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
-bool_t clk_pll_unregister(struct clk_pll_t * pclk)
+bool_t unregister_clk_pll(struct clk_pll_t * pclk)
 {
 	struct clk_t * clk;
 
 	if(!pclk || !pclk->name)
 		return FALSE;
 
-	clk = clk_search(pclk->name);
+	clk = search_clk(pclk->name);
 	if(!clk)
 		return FALSE;
 
-	if(clk_unregister(clk))
+	if(unregister_clk(clk))
 	{
 		free(clk);
 		return TRUE;
 	}
-
 	return FALSE;
 }

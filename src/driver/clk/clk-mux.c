@@ -75,21 +75,20 @@ static u64_t clk_mux_get_rate(struct clk_t * clk, u64_t prate)
 	return prate;
 }
 
-bool_t clk_mux_register(struct clk_mux_t * mclk)
+bool_t register_clk_mux(struct device_t ** device, struct clk_mux_t * mclk)
 {
 	struct clk_t * clk;
 
 	if(!mclk || !mclk->name)
 		return FALSE;
 
-	if(clk_search(mclk->name))
+	if(search_clk(mclk->name))
 		return FALSE;
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
 		return FALSE;
 
-	mclk->virt = phys_to_virt(mclk->phys);
 	clk->name = mclk->name;
 	clk->type = CLK_TYPE_MUX;
 	clk->count = 0;
@@ -101,31 +100,29 @@ bool_t clk_mux_register(struct clk_mux_t * mclk)
 	clk->get_rate = clk_mux_get_rate;
 	clk->priv = mclk;
 
-	if(!clk_register(clk))
+	if(!register_clk(device, clk))
 	{
 		free(clk);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
-bool_t clk_mux_unregister(struct clk_mux_t * mclk)
+bool_t unregister_clk_mux(struct clk_mux_t * mclk)
 {
 	struct clk_t * clk;
 
 	if(!mclk || !mclk->name)
 		return FALSE;
 
-	clk = clk_search(mclk->name);
+	clk = search_clk(mclk->name);
 	if(!clk)
 		return FALSE;
 
-	if(clk_unregister(clk))
+	if(unregister_clk(clk))
 	{
 		free(clk);
 		return TRUE;
 	}
-
 	return FALSE;
 }

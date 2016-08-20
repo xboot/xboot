@@ -27,8 +27,7 @@ enum clk_type_t {
 
 struct clk_t
 {
-	struct kobj_t * kobj;
-	const char * name;
+	char * name;
 	enum clk_type_t type;
 	int count;
 
@@ -42,9 +41,9 @@ struct clk_t
 	void * priv;
 };
 
-struct clk_t * clk_search(const char * name);
-bool_t clk_register(struct clk_t * clk);
-bool_t clk_unregister(struct clk_t * clk);
+struct clk_t * search_clk(const char * name);
+bool_t register_clk(struct device_t ** device, struct clk_t * clk);
+bool_t unregister_clk(struct clk_t * clk);
 
 void clk_set_parent(const char * name, const char * pname);
 const char * clk_get_parent(const char * name);

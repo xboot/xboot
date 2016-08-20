@@ -8,21 +8,20 @@ extern "C" {
 #include <xboot.h>
 
 struct clk_mux_table_t {
-	const char * name;
+	char * name;
 	int val;
 };
 
 struct clk_mux_t {
-	const char * name;
+	char * name;
 	struct clk_mux_table_t * parent;
 	int shift;
 	int width;
-	physical_addr_t phys;
 	virtual_addr_t virt;
 };
 
-bool_t clk_mux_register(struct clk_mux_t * mclk);
-bool_t clk_mux_unregister(struct clk_mux_t * mclk);
+bool_t register_clk_mux(struct device_t ** device, struct clk_mux_t * mclk);
+bool_t unregister_clk_mux(struct clk_mux_t * mclk);
 
 #ifdef __cplusplus
 }

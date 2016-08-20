@@ -231,7 +231,7 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x011)
 		return NULL;
 
-	if(!clk_search(dt_read_string(n, "clock", NULL)))
+	if(!search_clk(dt_read_string(n, "clock", NULL)))
 		return NULL;
 
 	pdat = malloc(sizeof(struct uart_pl011_pdata_t));

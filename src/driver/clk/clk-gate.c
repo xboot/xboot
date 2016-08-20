@@ -62,21 +62,20 @@ static u64_t clk_gate_get_rate(struct clk_t * clk, u64_t prate)
 	return prate;
 }
 
-bool_t clk_gate_register(struct clk_gate_t * gclk)
+bool_t register_clk_gate(struct device_t ** device, struct clk_gate_t * gclk)
 {
 	struct clk_t * clk;
 
 	if(!gclk || !gclk->name)
 		return FALSE;
 
-	if(clk_search(gclk->name))
+	if(search_clk(gclk->name))
 		return FALSE;
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
 		return FALSE;
 
-	gclk->virt = phys_to_virt(gclk->phys);
 	clk->name = gclk->name;
 	clk->type = CLK_TYPE_GATE;
 	clk->count = 0;
@@ -88,31 +87,29 @@ bool_t clk_gate_register(struct clk_gate_t * gclk)
 	clk->get_rate = clk_gate_get_rate;
 	clk->priv = gclk;
 
-	if(!clk_register(clk))
+	if(!register_clk(device, clk))
 	{
 		free(clk);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
-bool_t clk_gate_unregister(struct clk_gate_t * gclk)
+bool_t unregister_clk_gate(struct clk_gate_t * gclk)
 {
 	struct clk_t * clk;
 
 	if(!gclk || !gclk->name)
 		return FALSE;
 
-	clk = clk_search(gclk->name);
+	clk = search_clk(gclk->name);
 	if(!clk)
 		return FALSE;
 
-	if(clk_unregister(clk))
+	if(unregister_clk(clk))
 	{
 		free(clk);
 		return TRUE;
 	}
-
 	return FALSE;
 }

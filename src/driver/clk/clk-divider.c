@@ -77,21 +77,20 @@ static u64_t clk_divider_get_rate(struct clk_t * clk, u64_t prate)
 	return prate / div;
 }
 
-bool_t clk_divider_register(struct clk_divider_t * dclk)
+bool_t register_clk_divider(struct device_t ** device, struct clk_divider_t * dclk)
 {
 	struct clk_t * clk;
 
 	if(!dclk || !dclk->name)
 		return FALSE;
 
-	if(clk_search(dclk->name))
+	if(search_clk(dclk->name))
 		return FALSE;
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
 		return FALSE;
 
-	dclk->virt = phys_to_virt(dclk->phys);
 	clk->name = dclk->name;
 	clk->type = CLK_TYPE_DIVIDER;
 	clk->count = 0;
@@ -103,31 +102,29 @@ bool_t clk_divider_register(struct clk_divider_t * dclk)
 	clk->get_rate = clk_divider_get_rate;
 	clk->priv = dclk;
 
-	if(!clk_register(clk))
+	if(!register_clk(device, clk))
 	{
 		free(clk);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
-bool_t clk_divider_unregister(struct clk_divider_t * dclk)
+bool_t unregister_clk_divider(struct clk_divider_t * dclk)
 {
 	struct clk_t * clk;
 
 	if(!dclk || !dclk->name)
 		return FALSE;
 
-	clk = clk_search(dclk->name);
+	clk = search_clk(dclk->name);
 	if(!clk)
 		return FALSE;
 
-	if(clk_unregister(clk))
+	if(unregister_clk(clk))
 	{
 		free(clk);
 		return TRUE;
 	}
-
 	return FALSE;
 }

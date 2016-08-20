@@ -13,17 +13,16 @@ enum clk_divider_type_t {
 };
 
 struct clk_divider_t {
-	const char * name;
-	const char * parent;
+	char * name;
+	char * parent;
 	enum clk_divider_type_t type;
 	int shift;
 	int width;
-	physical_addr_t phys;
 	virtual_addr_t virt;
 };
 
-bool_t clk_divider_register(struct clk_divider_t * dclk);
-bool_t clk_divider_unregister(struct clk_divider_t * dclk);
+bool_t register_clk_divider(struct device_t ** device, struct clk_divider_t * dclk);
+bool_t unregister_clk_divider(struct clk_divider_t * dclk);
 
 #ifdef __cplusplus
 }

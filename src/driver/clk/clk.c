@@ -22,67 +22,45 @@
  *
  */
 
-#include <xboot.h>
 #include <clk/clk.h>
-
-struct clk_list_t
-{
-	struct clk_t * clk;
-	struct list_head entry;
-};
-
-static struct clk_list_t __clk_list = {
-	.entry = {
-		.next	= &(__clk_list.entry),
-		.prev	= &(__clk_list.entry),
-	},
-};
-static spinlock_t __clk_list_lock = SPIN_LOCK_INIT();
-
-static struct kobj_t * search_class_clk_kobj(void)
-{
-	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
-	return kobj_search_directory_with_create(kclass, "clk");
-}
 
 static const char * clk_type_to_string(const char * name)
 {
-	struct clk_t * clk = clk_search(name);
+	struct clk_t * clk = search_clk(name);
 	char * type = "unkown";
 
-	if(!clk)
-		return type;
-
-	switch(clk->type)
+	if(clk)
 	{
-	case CLK_TYPE_FIXED:
-		type = "fixed";
-		break;
-	case CLK_TYPE_FIXED_FACTOR:
-		type = "fixed-factor";
-		break;
-	case CLK_TYPE_PLL:
-		type = "pll";
-		break;
-	case CLK_TYPE_MUX:
-		type = "mux";
-		break;
-	case CLK_TYPE_DIVIDER:
-		type = "divider";
-		break;
-	case CLK_TYPE_GATE:
-		type = "gate";
-		break;
-	case CLK_TYPE_LINK:
-		type = "link";
-		break;
-	case CLK_TYPE_OTHER:
-		type = "other";
-		break;
-	default:
-		break;
+		switch(clk->type)
+		{
+		case CLK_TYPE_FIXED:
+			type = "fixed";
+			break;
+		case CLK_TYPE_FIXED_FACTOR:
+			type = "fixed-factor";
+			break;
+		case CLK_TYPE_PLL:
+			type = "pll";
+			break;
+		case CLK_TYPE_MUX:
+			type = "mux";
+			break;
+		case CLK_TYPE_DIVIDER:
+			type = "divider";
+			break;
+		case CLK_TYPE_GATE:
+			type = "gate";
+			break;
+		case CLK_TYPE_LINK:
+			type = "link";
+			break;
+		case CLK_TYPE_OTHER:
+			type = "other";
+			break;
+		default:
+			break;
+		}
 	}
-
 	return type;
 }
 
@@ -155,83 +133,78 @@ static ssize_t clk_write_parent(struct kobj_t * kobj, void * buf, size_t size)
 	return size;
 }
 
-struct clk_t * clk_search(const char * name)
+struct clk_t * search_clk(const char * name)
 {
-	struct clk_list_t * pos, * n;
+	struct device_t * dev;
 
-	if(!name)
+	dev = search_device(name, DEVICE_TYPE_CLK);
+	if(!dev)
 		return NULL;
 
-	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
-	{
-		if(strcmp(pos->clk->name, name) == 0)
-			return pos->clk;
-	}
-
-	return NULL;
+	return (struct clk_t *)dev->priv;
 }
 
-bool_t clk_register(struct clk_t * clk)
+bool_t register_clk(struct device_t ** device, struct clk_t * clk)
 {
-	struct clk_list_t * cl;
-	irq_flags_t flags;
+	struct device_t * dev;
 
 	if(!clk || !clk->name)
 		return FALSE;
 
-	if(clk_search(clk->name))
+	if(search_clk(clk->name))
 		return FALSE;
 
-	cl = malloc(sizeof(struct clk_list_t));
-	if(!cl)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
-	clk->kobj = kobj_alloc_directory(clk->name);
-	kobj_add_regular(clk->kobj, "dump", clk_read_dump, NULL, clk);
-	kobj_add_regular(clk->kobj, "type", clk_read_type, NULL, clk);
-	kobj_add_regular(clk->kobj, "enable", clk_read_enable, clk_write_enable, clk);
-	kobj_add_regular(clk->kobj, "rate", clk_read_rate, clk_write_rate, clk);
-	kobj_add_regular(clk->kobj, "parent", clk_read_parent, clk_write_parent, clk);
-	kobj_add(search_class_clk_kobj(), clk->kobj);
-	cl->clk = clk;
+	dev->name = strdup(clk->name);
+	dev->type = DEVICE_TYPE_CLK;
+	dev->priv = clk;
+	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "dump", clk_read_dump, NULL, clk);
+	kobj_add_regular(dev->kobj, "type", clk_read_type, NULL, clk);
+	kobj_add_regular(dev->kobj, "enable", clk_read_enable, clk_write_enable, clk);
+	kobj_add_regular(dev->kobj, "rate", clk_read_rate, clk_write_rate, clk);
+	kobj_add_regular(dev->kobj, "parent", clk_read_parent, clk_write_parent, clk);
 
-	spin_lock_irqsave(&__clk_list_lock, flags);
-	list_add_tail(&cl->entry, &(__clk_list.entry));
-	spin_unlock_irqrestore(&__clk_list_lock, flags);
+	if(!register_device(dev))
+	{
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
+		return FALSE;
+	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
-bool_t clk_unregister(struct clk_t * clk)
+bool_t unregister_clk(struct clk_t * clk)
 {
-	struct clk_list_t * pos, * n;
-	irq_flags_t flags;
+	struct device_t * dev;
 
 	if(!clk || !clk->name)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__clk_list.entry), entry)
-	{
-		if(pos->clk == clk)
-		{
-			spin_lock_irqsave(&__clk_list_lock, flags);
-			list_del(&(pos->entry));
-			spin_unlock_irqrestore(&__clk_list_lock, flags);
+	dev = search_device(clk->name, DEVICE_TYPE_CLK);
+	if(!dev)
+		return FALSE;
 
-			kobj_remove(search_class_clk_kobj(), pos->clk->kobj);
-			kobj_remove_self(clk->kobj);
-			free(pos);
-			return TRUE;
-		}
-	}
+	if(!unregister_device(dev))
+		return FALSE;
 
-	return FALSE;
+	kobj_remove_self(dev->kobj);
+	free(dev->name);
+	free(dev);
+	return TRUE;
 }
 
 void clk_set_parent(const char * name, const char * pname)
 {
-	struct clk_t * clk = clk_search(name);
-	struct clk_t * pclk = clk_search(pname);
+	struct clk_t * clk = search_clk(name);
+	struct clk_t * pclk = search_clk(pname);
 
 	if(pclk && clk && clk->set_parent)
 		clk->set_parent(clk, pname);
@@ -239,7 +212,7 @@ void clk_set_parent(const char * name, const char * pname)
 
 const char * clk_get_parent(const char * name)
 {
-	struct clk_t * clk = clk_search(name);
+	struct clk_t * clk = search_clk(name);
 
 	if(clk && clk->get_parent)
 		return clk->get_parent(clk);
@@ -248,7 +221,7 @@ const char * clk_get_parent(const char * name)
 
 void clk_enable(const char * name)
 {
-	struct clk_t * clk = clk_search(name);
+	struct clk_t * clk = search_clk(name);
 
 	if(!clk)
 		return;
@@ -264,7 +237,7 @@ void clk_enable(const char * name)
 
 void clk_disable(const char * name)
 {
-	struct clk_t * clk = clk_search(name);
+	struct clk_t * clk = search_clk(name);
 
 	if(!clk)
 		return;
@@ -284,7 +257,7 @@ void clk_disable(const char * name)
 
 bool_t clk_status(const char * name)
 {
-	struct clk_t * clk = clk_search(name);
+	struct clk_t * clk = search_clk(name);
 
 	if(!clk)
 		return FALSE;
@@ -300,7 +273,7 @@ bool_t clk_status(const char * name)
 
 void clk_set_rate(const char * name, u64_t rate)
 {
-	struct clk_t * clk = clk_search(name);
+	struct clk_t * clk = search_clk(name);
 	u64_t prate;
 
 	if(!clk)
@@ -317,7 +290,7 @@ void clk_set_rate(const char * name, u64_t rate)
 
 u64_t clk_get_rate(const char * name)
 {
-	struct clk_t * clk = clk_search(name);
+	struct clk_t * clk = search_clk(name);
 	u64_t prate;
 
 	if(!clk)

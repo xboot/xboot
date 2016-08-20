@@ -8,16 +8,15 @@ extern "C" {
 #include <xboot.h>
 
 struct clk_gate_t {
-	const char * name;
-	const char * parent;
+	char * name;
+	char * parent;
 	int shift;
 	int invert;
-	physical_addr_t phys;
 	virtual_addr_t virt;
 };
 
-bool_t clk_gate_register(struct clk_gate_t * gclk);
-bool_t clk_gate_unregister(struct clk_gate_t * gclk);
+bool_t register_clk_gate(struct device_t ** device, struct clk_gate_t * gclk);
+bool_t unregister_clk_gate(struct clk_gate_t * gclk);
 
 #ifdef __cplusplus
 }

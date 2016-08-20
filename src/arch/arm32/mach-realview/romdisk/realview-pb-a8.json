@@ -1,4 +1,9 @@
 {
+	"irq-gic@0x1e000000": {
+		"base": 32,
+		"nirq": 32
+	},
+
 	"gpio-pl061@0x10013000": {
 		"base": 0,
 		"ngpio": 8

@@ -1,5 +1,5 @@
 /*
- * driver/interrupt/interrupt.c
+ * drivers/interrupt/interrupt.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,31 +22,10 @@
  *
  */
 
-#include <xboot.h>
 #include <interrupt/interrupt.h>
-
-struct irqchip_list_t
-{
-	struct irqchip_t * chip;
-	struct list_head entry;
-};
-
-struct irqchip_list_t __irqchip_list = {
-	.entry = {
-		.next	= &(__irqchip_list.entry),
-		.prev	= &(__irqchip_list.entry),
-	},
-};
-static spinlock_t __irqchip_list_lock = SPIN_LOCK_INIT();
 
 static void null_interrupt_function(void * data)
 {
-}
-
-static struct kobj_t * search_class_irqchip_kobj(void)
-{
-	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
-	return kobj_search_directory_with_create(kclass, "irqchip");
 }
 
 static ssize_t irqchip_read_base(struct kobj_t * kobj, void * buf, size_t size)
@@ -61,49 +40,34 @@ static ssize_t irqchip_read_nirq(struct kobj_t * kobj, void * buf, size_t size)
 	return sprintf(buf, "%d", chip->nirq);
 }
 
-static struct irqchip_t * search_irqchip_with_no(int irq)
+static struct irqchip_t * search_irqchip(int irq)
 {
-	struct irqchip_list_t * pos, * n;
+	struct device_t * pos;
+	struct hlist_node * n;
+	struct irqchip_t * chip;
 
-	list_for_each_entry_safe(pos, n, &(__irqchip_list.entry), entry)
+	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_IRQCHIP], node)
 	{
-		if( (irq >= pos->chip->base) && (irq < (pos->chip->base + pos->chip->nirq)) )
-			return pos->chip;
+		chip = (struct irqchip_t *)(pos->priv);
+		if((irq >= chip->base) && (irq < (chip->base + chip->nirq)))
+			return chip;
 	}
-
 	return NULL;
 }
 
-static struct irqchip_t * search_irqchip(const char * name)
+bool_t register_irqchip(struct device_t ** device, struct irqchip_t * chip)
 {
-	struct irqchip_list_t * pos, * n;
-
-	if(!name)
-		return NULL;
-
-	list_for_each_entry_safe(pos, n, &(__irqchip_list.entry), entry)
-	{
-		if(strcmp(pos->chip->name, name) == 0)
-			return pos->chip;
-	}
-
-	return NULL;
-}
-
-bool_t register_irqchip(struct irqchip_t * chip)
-{
-	struct irqchip_list_t * il;
-	irq_flags_t flags;
+	struct device_t * dev;
 	int i;
 
 	if(!chip || !chip->name)
 		return FALSE;
 
-	if(search_irqchip(chip->name))
+	if(chip->base < 0 || chip->nirq <= 0)
 		return FALSE;
 
-	il = malloc(sizeof(struct irqchip_list_t));
-	if(!il)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
 	for(i = 0; i < chip->nirq; i++)
@@ -115,74 +79,81 @@ bool_t register_irqchip(struct irqchip_t * chip)
 		if(chip->disable)
 			chip->disable(chip, i);
 	}
-	chip->kobj = kobj_alloc_directory(chip->name);
-	kobj_add_regular(chip->kobj, "base", irqchip_read_base, NULL, chip);
-	kobj_add_regular(chip->kobj, "nirq", irqchip_read_nirq, NULL, chip);
-	kobj_add(search_class_irqchip_kobj(), chip->kobj);
-	il->chip = chip;
+	dev->name = strdup(chip->name);
+	dev->type = DEVICE_TYPE_IRQCHIP;
+	dev->priv = chip;
+	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "base", irqchip_read_base, NULL, chip);
+	kobj_add_regular(dev->kobj, "nirq", irqchip_read_nirq, NULL, chip);
 
-	spin_lock_irqsave(&__irqchip_list_lock, flags);
-	list_add_tail(&il->entry, &(__irqchip_list.entry));
-	spin_unlock_irqrestore(&__irqchip_list_lock, flags);
+	if(!register_device(dev))
+	{
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
+		return FALSE;
+	}
 
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
 bool_t unregister_irqchip(struct irqchip_t * chip)
 {
-	struct irqchip_list_t * pos, * n;
-	irq_flags_t flags;
+	struct device_t * dev;
 	int i;
 
 	if(!chip || !chip->name)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__irqchip_list.entry), entry)
+	if(chip->base < 0 || chip->nirq <= 0)
+		return FALSE;
+
+	dev = search_device(chip->name, DEVICE_TYPE_IRQCHIP);
+	if(!dev)
+		return FALSE;
+
+	if(!unregister_device(dev))
+		return FALSE;
+
+	for(i = 0; i < chip->nirq; i++)
 	{
-		if(pos->chip == chip)
-		{
-			for(i = 0; i < chip->nirq; i++)
-			{
-				chip->handler[i].func = null_interrupt_function;
-				chip->handler[i].data = NULL;
-				if(chip->settype)
-					chip->settype(chip, i, IRQ_TYPE_NONE);
-				if(chip->disable)
-					chip->disable(chip, i);
-			}
-
-			spin_lock_irqsave(&__irqchip_list_lock, flags);
-			list_del(&(pos->entry));
-			spin_unlock_irqrestore(&__irqchip_list_lock, flags);
-
-			kobj_remove(search_class_irqchip_kobj(), pos->chip->kobj);
-			kobj_remove_self(chip->kobj);
-			free(pos);
-			return TRUE;
-		}
+		chip->handler[i].func = null_interrupt_function;
+		chip->handler[i].data = NULL;
+		if(chip->settype)
+			chip->settype(chip, i, IRQ_TYPE_NONE);
+		if(chip->disable)
+			chip->disable(chip, i);
 	}
 
-	return FALSE;
+	kobj_remove_self(dev->kobj);
+	free(dev->name);
+	free(dev);
+	return TRUE;
 }
 
-bool_t register_sub_irqchip(int parent, struct irqchip_t * chip)
+bool_t register_sub_irqchip(struct device_t ** device, int parent, struct irqchip_t * chip)
 {
 	if(!chip || !chip->name)
 		return FALSE;
 
-	if(search_irqchip(chip->name))
+	if(chip->base < 0 || chip->nirq <= 0)
 		return FALSE;
 
 	if(!request_irq(parent, (void (*)(void *))(chip->dispatch), IRQ_TYPE_NONE, chip))
 		return FALSE;
 
 	chip->dispatch = NULL;
-	return register_irqchip(chip);
+	return register_irqchip(device, chip);
 }
 
 bool_t unregister_sub_irqchip(int parent, struct irqchip_t * chip)
 {
 	if(!chip || !chip->name)
+		return FALSE;
+
+	if(chip->base < 0 || chip->nirq <= 0)
 		return FALSE;
 
 	if(!free_irq(parent))
@@ -193,7 +164,7 @@ bool_t unregister_sub_irqchip(int parent, struct irqchip_t * chip)
 
 bool_t irq_is_valid(int irq)
 {
-	return search_irqchip_with_no(irq) ? TRUE : FALSE;
+	return search_irqchip(irq) ? TRUE : FALSE;
 }
 
 bool_t request_irq(int irq, void (*func)(void *), enum irq_type_t type, void * data)
@@ -204,7 +175,7 @@ bool_t request_irq(int irq, void (*func)(void *), enum irq_type_t type, void * d
 	if(!func)
 		return FALSE;
 
-	chip = search_irqchip_with_no(irq);
+	chip = search_irqchip(irq);
 	if(!chip)
 		return FALSE;
 
@@ -227,7 +198,7 @@ bool_t free_irq(int irq)
 	struct irqchip_t * chip;
 	int offset;
 
-	chip = search_irqchip_with_no(irq);
+	chip = search_irqchip(irq);
 	if(!chip)
 		return FALSE;
 
@@ -247,7 +218,7 @@ bool_t free_irq(int irq)
 
 void enable_irq(int irq)
 {
-	struct irqchip_t * chip = search_irqchip_with_no(irq);
+	struct irqchip_t * chip = search_irqchip(irq);
 
 	if(chip && chip->enable)
 		chip->enable(chip, irq - chip->base);
@@ -255,7 +226,7 @@ void enable_irq(int irq)
 
 void disable_irq(int irq)
 {
-	struct irqchip_t * chip = search_irqchip_with_no(irq);
+	struct irqchip_t * chip = search_irqchip(irq);
 
 	if(chip && chip->disable)
 		chip->disable(chip, irq - chip->base);
@@ -263,11 +234,14 @@ void disable_irq(int irq)
 
 void interrupt_handle_exception(void * regs)
 {
-	struct irqchip_list_t * pos, * n;
+	struct device_t * pos;
+	struct hlist_node * n;
+	struct irqchip_t * chip;
 
-	list_for_each_entry_safe(pos, n, &(__irqchip_list.entry), entry)
+	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_IRQCHIP], node)
 	{
-		if(pos->chip->dispatch)
-			pos->chip->dispatch(pos->chip);
+		chip = (struct irqchip_t *)(pos->priv);
+		if(chip->dispatch)
+			chip->dispatch(chip);
 	}
 }

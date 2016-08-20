@@ -109,34 +109,34 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/tarfs								\
 				kernel/fs/cpiofs							\
 				kernel/fs/fatfs								\
-				drivers/audio								\
-				drivers/battery								\
-				drivers/block								\
-				drivers/block/partition						\
-				drivers/block/romdisk						\
-				drivers/buzzer								\
-				drivers/clk									\
-				drivers/clockevent							\
-				drivers/clocksource							\
-				drivers/console								\
-				drivers/dma									\
-				drivers/fb									\
-				drivers/fb/sw								\
-				drivers/gpio								\
-				drivers/i2c									\
-				drivers/input								\
-				drivers/input/rc							\
-				drivers/interrupt							\
-				drivers/led									\
-				drivers/logger								\
-				drivers/mmc									\
-				drivers/pwm									\
-				drivers/rng									\
-				drivers/rtc									\
-				drivers/spi									\
-				drivers/uart								\
-				drivers/vibrator							\
-				drivers/watchdog							\
+				driver/audio								\
+				driver/battery								\
+				driver/block								\
+				driver/block/partition						\
+				driver/block/romdisk						\
+				driver/buzzer								\
+				driver/clk									\
+				driver/clockevent							\
+				driver/clocksource							\
+				driver/console								\
+				driver/dma									\
+				driver/fb									\
+				driver/fb/sw								\
+				driver/gpio									\
+				driver/i2c									\
+				driver/input								\
+				driver/input/rc								\
+				driver/interrupt							\
+				driver/led									\
+				driver/logger								\
+				driver/mmc									\
+				driver/pwm									\
+				driver/rng									\
+				driver/rtc									\
+				driver/spi									\
+				driver/uart									\
+				driver/vibrator								\
+				driver/watchdog								\
 				framework									\
 				framework/base64							\
 				framework/display							\
@@ -363,7 +363,7 @@ sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
 			&& $(RM) .obj/romdisk									\
 			&& $(RM) .obj/romdisk.cpio								\
 			&& $(RM) .obj/init/version.o							\
-			&& $(RM) .obj/drivers/block/romdisk/data.o				\
+			&& $(RM) .obj/driver/block/romdisk/data.o				\
 			&& $(CP) romdisk .obj									\
 			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj				\
 			&& $(CD) .obj/romdisk									\

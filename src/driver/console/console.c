@@ -35,11 +35,31 @@ static ssize_t __console_dummy_write(struct console_t * console, const unsigned 
 }
 
 static struct console_t __console_dummy = {
-	.name	= "dummy",
+	.name	= "console-dummy",
 	.read	= __console_dummy_read,
 	.write	= __console_dummy_write,
 };
 static struct console_t * __console = &__console_dummy;
+static spinlock_t __console_lock = SPIN_LOCK_INIT();
+
+static ssize_t console_read_active(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct console_t * console = (struct console_t *)kobj->priv;
+
+	return sprintf(buf, "%d", (__console == console) ? 1 : 0);
+}
+
+static ssize_t console_write_active(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct console_t * console = (struct console_t *)kobj->priv;
+	irq_flags_t flags;
+
+	spin_lock_irqsave(&__console_lock, flags);
+	__console = console;
+	spin_unlock_irqrestore(&__console_lock, flags);
+
+	return size;
+}
 
 struct console_t * search_console(const char * name)
 {
@@ -52,9 +72,21 @@ struct console_t * search_console(const char * name)
 	return (struct console_t *)dev->priv;
 }
 
+struct console_t * search_first_console(void)
+{
+	struct device_t * dev;
+
+	dev = search_first_device(DEVICE_TYPE_CONSOLE);
+	if(!dev)
+		return NULL;
+
+	return (struct console_t *)dev->priv;
+}
+
 bool_t register_console(struct device_t ** device, struct console_t * console)
 {
 	struct device_t * dev;
+	irq_flags_t flags;
 
 	if(!console || !console->name)
 		return FALSE;
@@ -67,6 +99,7 @@ bool_t register_console(struct device_t ** device, struct console_t * console)
 	dev->type = DEVICE_TYPE_CONSOLE;
 	dev->priv = console;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "active", console_read_active, console_write_active, console);
 
 	if(!register_device(dev))
 	{
@@ -77,7 +110,11 @@ bool_t register_console(struct device_t ** device, struct console_t * console)
 	}
 
 	if(__console == &__console_dummy)
+	{
+		spin_lock_irqsave(&__console_lock, flags);
 		__console = console;
+		spin_unlock_irqrestore(&__console_lock, flags);
+	}
 
 	if(device)
 		*device = dev;
@@ -87,6 +124,8 @@ bool_t register_console(struct device_t ** device, struct console_t * console)
 bool_t unregister_console(struct console_t * console)
 {
 	struct device_t * dev;
+	struct console_t * c;
+	irq_flags_t flags;
 
 	if(!console || !console->name)
 		return FALSE;
@@ -99,12 +138,39 @@ bool_t unregister_console(struct console_t * console)
 		return FALSE;
 
 	if(__console == console)
-		__console = &__console_dummy;
+	{
+		if(!(c = search_first_console()))
+			c = &__console_dummy;
+
+		spin_lock_irqsave(&__console_lock, flags);
+		__console = c;
+		spin_unlock_irqrestore(&__console_lock, flags);
+	}
 
 	kobj_remove_self(dev->kobj);
 	free(dev->name);
 	free(dev);
 	return TRUE;
+}
+
+struct console_t * console_get(void)
+{
+	return __console;
+}
+
+bool_t console_set(const char * name)
+{
+	struct console_t * c = search_console(name);
+	irq_flags_t flags;
+
+	if(c)
+	{
+		spin_lock_irqsave(&__console_lock, flags);
+		__console = c;
+		spin_unlock_irqrestore(&__console_lock, flags);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 ssize_t console_stdin_read(unsigned char * buf, size_t count)

@@ -492,30 +492,3 @@ struct dtnode_t * dt_read_array_object(struct dtnode_t * n, const char * name, i
 	}
 	return NULL;
 }
-
-void subsys_init_dt(void)
-{
-	char path[64];
-	char * json;
-	int fd, n, len = 0;
-
-	json = malloc(SZ_1M);
-	if(!json)
-		return;
-
-	sprintf(path, "/romdisk/%s.json", get_machine()->name);
-	if((fd = open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH))) > 0)
-	{
-	    for(;;)
-	    {
-	        n = read(fd, (void *)(json + len), SZ_512K);
-	        if(n <= 0)
-	        	break;
-			len += n;
-	    }
-	    close(fd);
-	    probe_device(json, len);
-	}
-
-	free(json);
-}

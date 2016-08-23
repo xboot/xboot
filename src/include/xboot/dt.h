@@ -39,8 +39,6 @@ u32_t dt_read_array_u32(struct dtnode_t * n, const char * name, int idx, u32_t d
 u64_t dt_read_array_u64(struct dtnode_t * n, const char * name, int idx, u64_t def);
 struct dtnode_t * dt_read_array_object(struct dtnode_t * n, const char * name, int idx, struct dtnode_t * o);
 
-void subsys_init_dt(void);
-
 #ifdef __cplusplus
 }
 #endif

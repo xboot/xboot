@@ -31,6 +31,26 @@
 		"uart": "uart-pl011.0"
 	},
 
+	"led-gpio@0": {
+		"gpio": 35,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@1": {
+		"gpio": 47,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat": {
+		"led": "led-gpio.0",
+	},
+
+	"ledtrig-general": {
+		"led": "led-gpio.1",
+	},
+
 	"rng-bcm2836@0x3f104000": {
 	},
 	

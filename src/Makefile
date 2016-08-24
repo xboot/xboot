@@ -61,7 +61,6 @@ ifeq ($(strip $(ARCH)), x64)
 DEFINES		+=	-D__X64__
 endif
 
-DEFINES		+=	-D__ARCH__=\"$(ARCH)\" -D__MACH__=\"$(MACH)\"
 ASFLAGS		+= 	-ffreestanding -std=gnu99 $(DEFINES)
 CFLAGS		+=	-ffreestanding -std=gnu99 $(DEFINES)
 CXXFLAGS	+=	-ffreestanding -std=gnu99 $(DEFINES)

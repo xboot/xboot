@@ -195,18 +195,6 @@ static int l_xboot_version(lua_State * L)
 	return 1;
 }
 
-static int l_xboot_arch(lua_State * L)
-{
-	lua_pushstring(L, __ARCH__);
-	return 1;
-}
-
-static int l_xboot_mach(lua_State * L)
-{
-	lua_pushstring(L, __MACH__);
-	return 1;
-}
-
 static int l_xboot_uniqueid(lua_State * L)
 {
 	lua_pushstring(L, machine_uniqueid());
@@ -245,10 +233,6 @@ static int pmain(lua_State * L)
 	}
 	lua_pushcfunction(L, l_xboot_version);
 	lua_setfield(L, -2, "version");
-	lua_pushcfunction(L, l_xboot_arch);
-	lua_setfield(L, -2, "arch");
-	lua_pushcfunction(L, l_xboot_mach);
-	lua_setfield(L, -2, "mach");
 	lua_pushcfunction(L, l_xboot_uniqueid);
 	lua_setfield(L, -2, "uniqueid");
 	lua_pushcfunction(L, l_xboot_readline);

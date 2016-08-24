@@ -127,7 +127,11 @@ bool_t register_machine(struct machine_t * mach)
 				mach->logger(mach, "\r\n", 2);
 			}
 			mach->logger(mach, xboot_banner_string(), strlen(xboot_banner_string()));
-			mach->logger(mach, "\r\n", 2);
+			mach->logger(mach, " - [", 4);
+			mach->logger(mach, mach->name, strlen(mach->name));
+			mach->logger(mach, "][", 2);
+			mach->logger(mach, mach->desc, strlen(mach->desc));
+			mach->logger(mach, "]\r\n", 3);
 		}
 		__machine = mach;
 	}

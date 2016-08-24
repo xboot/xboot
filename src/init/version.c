@@ -37,7 +37,7 @@
 
 int xboot_version(void)
 {
-	return (XBOOT_MAJOY * 10000) + (XBOOT_MINIOR * 100) + (XBOOT_PATCH * 1);
+	return (XBOOT_MAJOY * 100) + (XBOOT_MINIOR * 10) + (XBOOT_PATCH * 1);
 }
 
 const char * xboot_version_string(void)
@@ -47,7 +47,7 @@ const char * xboot_version_string(void)
 
 const char * xboot_banner_string(void)
 {
-	return ("V"XBOOT_VERSION_STRING(XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH)" - ["__ARCH__"]["__MACH__"]("__DATE__" - "__TIME__")");
+	return ("V"XBOOT_VERSION_STRING(XBOOT_MAJOY, XBOOT_MINIOR, XBOOT_PATCH)" ("__DATE__" - "__TIME__")");
 }
 
 /*

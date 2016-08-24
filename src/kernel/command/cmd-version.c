@@ -32,7 +32,9 @@ static void usage(void)
 
 static int do_version(int argc, char ** argv)
 {
-	printf("%s\r\n", xboot_banner_string());
+	struct machine_t * mach = get_machine();
+
+	printf("%s - [%s][%s]\r\n", xboot_banner_string(), mach ? mach->name : "unknown", mach ? mach->desc : "none");
 	return 0;
 }
 

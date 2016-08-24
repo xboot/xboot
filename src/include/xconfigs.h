@@ -8,14 +8,6 @@ extern "C" {
 #include <configs.h>
 #include <endian.h>
 
-#if !defined(__ARCH__)
-#define __ARCH__							"x64"
-#endif
-
-#if !defined(__MACH__)
-#define __MACH__							"sandbox"
-#endif
-
 #if !defined(CONFIG_NO_LOG)
 #define CONFIG_NO_LOG						(0)
 #endif
@@ -29,7 +21,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_MAX_BRIGHTNESS)
-#define CONFIG_MAX_BRIGHTNESS				(1024 - 1)
+#define CONFIG_MAX_BRIGHTNESS				(1023)
 #endif
 
 #if !defined(CONFIG_EVENT_FIFO_LENGTH)

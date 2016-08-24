@@ -5,6 +5,11 @@
 	"clk-fixed": { "name": "pwm-clk", "rate": 9200000 },
 	"clk-fixed": { "name": "uart-clk", "rate": 3000000 },
 
+	"gpio-bcm2836@0x3f200000": {
+		"base": 0,
+		"ngpio": 54
+	},
+
 	"uart-pl011@0x3f201000": {
 		"clock": "uart-clk",
 		"txd-gpio": 32,

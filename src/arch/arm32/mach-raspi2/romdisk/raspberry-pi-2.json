@@ -44,11 +44,11 @@
 	},
 
 	"ledtrig-heartbeat": {
-		"led": "led-gpio.0",
+		"led": "led-gpio.0"
 	},
 
 	"ledtrig-general": {
-		"led": "led-gpio.1",
+		"led": "led-gpio.1"
 	},
 
 	"rng-bcm2836@0x3f104000": {

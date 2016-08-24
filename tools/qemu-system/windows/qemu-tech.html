@@ -1,0 +1,787 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>QEMU Internals</title>
+
+<meta name="description" content="QEMU Internals">
+<meta name="keywords" content="QEMU Internals">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="#Top" rel="start" title="Top">
+<link href="#Index" rel="index" title="Index">
+<link href="#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="dir.html#Top" rel="up" title="(dir)">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<h1 class="settitle" align="center">QEMU Internals</h1>
+
+
+
+
+
+<a name="Top"></a>
+<a name="SEC_Top"></a>
+
+
+<a name="SEC_Contents"></a>
+<h2 class="contents-heading">Table of Contents</h2>
+
+<div class="contents">
+
+<ul class="no-bullet">
+  <li><a name="toc-Introduction-1" href="#Introduction">1 Introduction</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Features" href="#intro_005ffeatures">1.1 Features</a></li>
+    <li><a name="toc-x86-and-x86_002d64-emulation" href="#intro_005fx86_005femulation">1.2 x86 and x86-64 emulation</a></li>
+    <li><a name="toc-ARM-emulation" href="#intro_005farm_005femulation">1.3 ARM emulation</a></li>
+    <li><a name="toc-MIPS-emulation" href="#intro_005fmips_005femulation">1.4 MIPS emulation</a></li>
+    <li><a name="toc-PowerPC-emulation" href="#intro_005fppc_005femulation">1.5 PowerPC emulation</a></li>
+    <li><a name="toc-Sparc32-and-Sparc64-emulation" href="#intro_005fsparc_005femulation">1.6 Sparc32 and Sparc64 emulation</a></li>
+    <li><a name="toc-Xtensa-emulation" href="#intro_005fxtensa_005femulation">1.7 Xtensa emulation</a></li>
+    <li><a name="toc-Other-CPU-emulation" href="#intro_005fother_005femulation">1.8 Other CPU emulation</a></li>
+  </ul></li>
+  <li><a name="toc-QEMU-Internals-1" href="#QEMU-Internals">2 QEMU Internals</a>
+  <ul class="no-bullet">
+    <li><a name="toc-QEMU-compared-to-other-emulators-1" href="#QEMU-compared-to-other-emulators">2.1 QEMU compared to other emulators</a></li>
+    <li><a name="toc-Portable-dynamic-translation-1" href="#Portable-dynamic-translation">2.2 Portable dynamic translation</a></li>
+    <li><a name="toc-Condition-code-optimisations-1" href="#Condition-code-optimisations">2.3 Condition code optimisations</a></li>
+    <li><a name="toc-CPU-state-optimisations-1" href="#CPU-state-optimisations">2.4 CPU state optimisations</a></li>
+    <li><a name="toc-Translation-cache-1" href="#Translation-cache">2.5 Translation cache</a></li>
+    <li><a name="toc-Direct-block-chaining-1" href="#Direct-block-chaining">2.6 Direct block chaining</a></li>
+    <li><a name="toc-Self_002dmodifying-code-and-translated-code-invalidation-1" href="#Self_002dmodifying-code-and-translated-code-invalidation">2.7 Self-modifying code and translated code invalidation</a></li>
+    <li><a name="toc-Exception-support-1" href="#Exception-support">2.8 Exception support</a></li>
+    <li><a name="toc-MMU-emulation-1" href="#MMU-emulation">2.9 MMU emulation</a></li>
+    <li><a name="toc-Device-emulation-1" href="#Device-emulation">2.10 Device emulation</a></li>
+    <li><a name="toc-Hardware-interrupts-1" href="#Hardware-interrupts">2.11 Hardware interrupts</a></li>
+    <li><a name="toc-User-emulation-specific-details-1" href="#User-emulation-specific-details">2.12 User emulation specific details</a>
+    <ul class="no-bullet">
+      <li><a name="toc-Linux-system-call-translation" href="#Linux-system-call-translation">2.12.1 Linux system call translation</a></li>
+      <li><a name="toc-Linux-signals" href="#Linux-signals">2.12.2 Linux signals</a></li>
+      <li><a name="toc-clone_0028_0029-system-call-and-threads" href="#clone_0028_0029-system-call-and-threads">2.12.3 clone() system call and threads</a></li>
+      <li><a name="toc-Self_002dvirtualization" href="#Self_002dvirtualization">2.12.4 Self-virtualization</a></li>
+    </ul></li>
+    <li><a name="toc-Bibliography-1" href="#Bibliography">2.13 Bibliography</a></li>
+  </ul></li>
+  <li><a name="toc-Regression-Tests-1" href="#Regression-Tests">3 Regression Tests</a>
+  <ul class="no-bullet">
+    <li><a name="toc-test_002di386-1" href="#test_002di386">3.1 <samp>test-i386</samp></a></li>
+    <li><a name="toc-linux_002dtest-1" href="#linux_002dtest">3.2 <samp>linux-test</samp></a></li>
+  </ul></li>
+  <li><a name="toc-Index-1" href="#Index">4 Index</a></li>
+</ul>
+</div>
+
+
+<hr>
+<a name="Introduction"></a>
+<a name="Introduction-1"></a>
+<h2 class="chapter">1 Introduction</h2>
+
+
+<hr>
+<a name="intro_005ffeatures"></a>
+<a name="Features"></a>
+<h3 class="section">1.1 Features</h3>
+
+<p>QEMU is a FAST! processor emulator using a portable dynamic
+translator.
+</p>
+<p>QEMU has two operating modes:
+</p>
+<ul class="no-bullet">
+<li>- Full system emulation. In this mode (full platform virtualization),
+QEMU emulates a full system (usually a PC), including a processor and
+various peripherals. It can be used to launch several different
+Operating Systems at once without rebooting the host machine or to
+debug system code.
+
+</li><li>- User mode emulation. In this mode (application level virtualization),
+QEMU can launch processes compiled for one CPU on another CPU, however
+the Operating Systems must match. This can be used for example to ease
+cross-compilation and cross-debugging.
+</li></ul>
+
+<p>As QEMU requires no host kernel driver to run, it is very safe and
+easy to use.
+</p>
+<p>QEMU generic features:
+</p>
+<ul>
+<li> User space only or full system emulation.
+
+</li><li> Using dynamic translation to native code for reasonable speed.
+
+</li><li> Working on x86, x86_64 and PowerPC32/64 hosts. Being tested on ARM,
+HPPA, Sparc32 and Sparc64. Previous versions had some support for
+Alpha and S390 hosts, but TCG (see below) doesn&rsquo;t support those yet.
+
+</li><li> Self-modifying code support.
+
+</li><li> Precise exceptions support.
+
+</li><li> Floating point library supporting both full software emulation and
+native host FPU instructions.
+
+</li></ul>
+
+<p>QEMU user mode emulation features:
+</p><ul>
+<li> Generic Linux system call converter, including most ioctls.
+
+</li><li> clone() emulation using native CPU clone() to use Linux scheduler for threads.
+
+</li><li> Accurate signal handling by remapping host signals to target signals.
+</li></ul>
+
+<p>Linux user emulator (Linux host only) can be used to launch the Wine
+Windows API emulator (<a href="http://www.winehq.org">http://www.winehq.org</a>). A BSD user emulator for BSD
+hosts is under development. It would also be possible to develop a
+similar user emulator for Solaris.
+</p>
+<p>QEMU full system emulation features:
+</p><ul>
+<li> QEMU uses a full software MMU for maximum portability.
+
+</li><li> QEMU can optionally use an in-kernel accelerator, like kvm. The accelerators 
+execute some of the guest code natively, while
+continuing to emulate the rest of the machine.
+
+</li><li> Various hardware devices can be emulated and in some cases, host
+devices (e.g. serial and parallel ports, USB, drives) can be used
+transparently by the guest Operating System. Host device passthrough
+can be used for talking to external physical peripherals (e.g. a
+webcam, modem or tape drive).
+
+</li><li> Symmetric multiprocessing (SMP) even on a host with a single CPU. On a
+SMP host system, QEMU can use only one CPU fully due to difficulty in
+implementing atomic memory accesses efficiently.
+
+</li></ul>
+
+<hr>
+<a name="intro_005fx86_005femulation"></a>
+<a name="x86-and-x86_002d64-emulation"></a>
+<h3 class="section">1.2 x86 and x86-64 emulation</h3>
+
+<p>QEMU x86 target features:
+</p>
+<ul>
+<li> The virtual x86 CPU supports 16 bit and 32 bit addressing with segmentation.
+LDT/GDT and IDT are emulated. VM86 mode is also supported to run
+DOSEMU. There is some support for MMX/3DNow!, SSE, SSE2, SSE3, SSSE3,
+and SSE4 as well as x86-64 SVM.
+
+</li><li> Support of host page sizes bigger than 4KB in user mode emulation.
+
+</li><li> QEMU can emulate itself on x86.
+
+</li><li> An extensive Linux x86 CPU test program is included <samp>tests/test-i386</samp>.
+It can be used to test other x86 virtual CPUs.
+
+</li></ul>
+
+<p>Current QEMU limitations:
+</p>
+<ul>
+<li> Limited x86-64 support.
+
+</li><li> IPC syscalls are missing.
+
+</li><li> The x86 segment limits and access rights are not tested at every
+memory access (yet). Hopefully, very few OSes seem to rely on that for
+normal use.
+
+</li></ul>
+
+<hr>
+<a name="intro_005farm_005femulation"></a>
+<a name="ARM-emulation"></a>
+<h3 class="section">1.3 ARM emulation</h3>
+
+<ul>
+<li> Full ARM 7 user emulation.
+
+</li><li> NWFPE FPU support included in user Linux emulation.
+
+</li><li> Can run most ARM Linux binaries.
+
+</li></ul>
+
+<hr>
+<a name="intro_005fmips_005femulation"></a>
+<a name="MIPS-emulation"></a>
+<h3 class="section">1.4 MIPS emulation</h3>
+
+<ul>
+<li> The system emulation allows full MIPS32/MIPS64 Release 2 emulation,
+including privileged instructions, FPU and MMU, in both little and big
+endian modes.
+
+</li><li> The Linux userland emulation can run many 32 bit MIPS Linux binaries.
+
+</li></ul>
+
+<p>Current QEMU limitations:
+</p>
+<ul>
+<li> Self-modifying code is not always handled correctly.
+
+</li><li> 64 bit userland emulation is not implemented.
+
+</li><li> The system emulation is not complete enough to run real firmware.
+
+</li><li> The watchpoint debug facility is not implemented.
+
+</li></ul>
+
+<hr>
+<a name="intro_005fppc_005femulation"></a>
+<a name="PowerPC-emulation"></a>
+<h3 class="section">1.5 PowerPC emulation</h3>
+
+<ul>
+<li> Full PowerPC 32 bit emulation, including privileged instructions,
+FPU and MMU.
+
+</li><li> Can run most PowerPC Linux binaries.
+
+</li></ul>
+
+<hr>
+<a name="intro_005fsparc_005femulation"></a>
+<a name="Sparc32-and-Sparc64-emulation"></a>
+<h3 class="section">1.6 Sparc32 and Sparc64 emulation</h3>
+
+<ul>
+<li> Full SPARC V8 emulation, including privileged
+instructions, FPU and MMU. SPARC V9 emulation includes most privileged
+and VIS instructions, FPU and I/D MMU. Alignment is fully enforced.
+
+</li><li> Can run most 32-bit SPARC Linux binaries, SPARC32PLUS Linux binaries and
+some 64-bit SPARC Linux binaries.
+
+</li></ul>
+
+<p>Current QEMU limitations:
+</p>
+<ul>
+<li> IPC syscalls are missing.
+
+</li><li> Floating point exception support is buggy.
+
+</li><li> Atomic instructions are not correctly implemented.
+
+</li><li> There are still some problems with Sparc64 emulators.
+
+</li></ul>
+
+<hr>
+<a name="intro_005fxtensa_005femulation"></a>
+<a name="Xtensa-emulation"></a>
+<h3 class="section">1.7 Xtensa emulation</h3>
+
+<ul>
+<li> Core Xtensa ISA emulation, including most options: code density,
+loop, extended L32R, 16- and 32-bit multiplication, 32-bit division,
+MAC16, miscellaneous operations, boolean, FP coprocessor, coprocessor
+context, debug, multiprocessor synchronization,
+conditional store, exceptions, relocatable vectors, unaligned exception,
+interrupts (including high priority and timer), hardware alignment,
+region protection, region translation, MMU, windowed registers, thread
+pointer, processor ID.
+
+</li><li> Not implemented options: data/instruction cache (including cache
+prefetch and locking), XLMI, processor interface. Also options not
+covered by the core ISA (e.g. FLIX, wide branches) are not implemented.
+
+</li><li> Can run most Xtensa Linux binaries.
+
+</li><li> New core configuration that requires no additional instructions
+may be created from overlay with minimal amount of hand-written code.
+
+</li></ul>
+
+<hr>
+<a name="intro_005fother_005femulation"></a>
+<a name="Other-CPU-emulation"></a>
+<h3 class="section">1.8 Other CPU emulation</h3>
+
+<p>In addition to the above, QEMU supports emulation of other CPUs with
+varying levels of success. These are:
+</p>
+<ul>
+<li> Alpha
+</li><li> CRIS
+</li><li> M68k
+</li><li> SH4
+</li></ul>
+
+<hr>
+<a name="QEMU-Internals"></a>
+<a name="QEMU-Internals-1"></a>
+<h2 class="chapter">2 QEMU Internals</h2>
+
+
+<hr>
+<a name="QEMU-compared-to-other-emulators"></a>
+<a name="QEMU-compared-to-other-emulators-1"></a>
+<h3 class="section">2.1 QEMU compared to other emulators</h3>
+
+<p>Like bochs [1], QEMU emulates an x86 CPU. But QEMU is much faster than
+bochs as it uses dynamic compilation. Bochs is closely tied to x86 PC
+emulation while QEMU can emulate several processors.
+</p>
+<p>Like Valgrind [2], QEMU does user space emulation and dynamic
+translation. Valgrind is mainly a memory debugger while QEMU has no
+support for it (QEMU could be used to detect out of bound memory
+accesses as Valgrind, but it has no support to track uninitialised data
+as Valgrind does). The Valgrind dynamic translator generates better code
+than QEMU (in particular it does register allocation) but it is closely
+tied to an x86 host and target and has no support for precise exceptions
+and system emulation.
+</p>
+<p>EM86 [3] is the closest project to user space QEMU (and QEMU still uses
+some of its code, in particular the ELF file loader). EM86 was limited
+to an alpha host and used a proprietary and slow interpreter (the
+interpreter part of the FX!32 Digital Win32 code translator [4]).
+</p>
+<p>TWIN from Willows Software was a Windows API emulator like Wine. It is less
+accurate than Wine but includes a protected mode x86 interpreter to launch
+x86 Windows executables. Such an approach has greater potential because most
+of the Windows API is executed natively but it is far more difficult to
+develop because all the data structures and function parameters exchanged
+between the API and the x86 code must be converted.
+</p>
+<p>User mode Linux [5] was the only solution before QEMU to launch a
+Linux kernel as a process while not needing any host kernel
+patches. However, user mode Linux requires heavy kernel patches while
+QEMU accepts unpatched Linux kernels. The price to pay is that QEMU is
+slower.
+</p>
+<p>The Plex86 [6] PC virtualizer is done in the same spirit as the now
+obsolete qemu-fast system emulator. It requires a patched Linux kernel
+to work (you cannot launch the same kernel on your PC), but the
+patches are really small. As it is a PC virtualizer (no emulation is
+done except for some privileged instructions), it has the potential of
+being faster than QEMU. The downside is that a complicated (and
+potentially unsafe) host kernel patch is needed.
+</p>
+<p>The commercial PC Virtualizers (VMWare [7], VirtualPC [8]) are faster
+than QEMU (without virtualization), but they all need specific, proprietary
+and potentially unsafe host drivers. Moreover, they are unable to
+provide cycle exact simulation as an emulator can.
+</p>
+<p>VirtualBox [9], Xen [10] and KVM [11] are based on QEMU. QEMU-SystemC
+[12] uses QEMU to simulate a system where some hardware devices are
+developed in SystemC.
+</p>
+<hr>
+<a name="Portable-dynamic-translation"></a>
+<a name="Portable-dynamic-translation-1"></a>
+<h3 class="section">2.2 Portable dynamic translation</h3>
+
+<p>QEMU is a dynamic translator. When it first encounters a piece of code,
+it converts it to the host instruction set. Usually dynamic translators
+are very complicated and highly CPU dependent. QEMU uses some tricks
+which make it relatively easily portable and simple while achieving good
+performances.
+</p>
+<p>After the release of version 0.9.1, QEMU switched to a new method of
+generating code, Tiny Code Generator or TCG. TCG relaxes the
+dependency on the exact version of the compiler used. The basic idea
+is to split every target instruction into a couple of RISC-like TCG
+ops (see <code>target-i386/translate.c</code>). Some optimizations can be
+performed at this stage, including liveness analysis and trivial
+constant expression evaluation. TCG ops are then implemented in the
+host CPU back end, also known as TCG target (see
+<code>tcg/i386/tcg-target.inc.c</code>). For more information, please take a
+look at <code>tcg/README</code>.
+</p>
+<hr>
+<a name="Condition-code-optimisations"></a>
+<a name="Condition-code-optimisations-1"></a>
+<h3 class="section">2.3 Condition code optimisations</h3>
+
+<p>Lazy evaluation of CPU condition codes (<code>EFLAGS</code> register on x86)
+is important for CPUs where every instruction sets the condition
+codes. It tends to be less important on conventional RISC systems
+where condition codes are only updated when explicitly requested. On
+Sparc64, costly update of both 32 and 64 bit condition codes can be
+avoided with lazy evaluation.
+</p>
+<p>Instead of computing the condition codes after each x86 instruction,
+QEMU just stores one operand (called <code>CC_SRC</code>), the result
+(called <code>CC_DST</code>) and the type of operation (called
+<code>CC_OP</code>). When the condition codes are needed, the condition
+codes can be calculated using this information. In addition, an
+optimized calculation can be performed for some instruction types like
+conditional branches.
+</p>
+<p><code>CC_OP</code> is almost never explicitly set in the generated code
+because it is known at translation time.
+</p>
+<p>The lazy condition code evaluation is used on x86, m68k, cris and
+Sparc. ARM uses a simplified variant for the N and Z flags.
+</p>
+<hr>
+<a name="CPU-state-optimisations"></a>
+<a name="CPU-state-optimisations-1"></a>
+<h3 class="section">2.4 CPU state optimisations</h3>
+
+<p>The target CPUs have many internal states which change the way it
+evaluates instructions. In order to achieve a good speed, the
+translation phase considers that some state information of the virtual
+CPU cannot change in it. The state is recorded in the Translation
+Block (TB). If the state changes (e.g. privilege level), a new TB will
+be generated and the previous TB won&rsquo;t be used anymore until the state
+matches the state recorded in the previous TB. For example, if the SS,
+DS and ES segments have a zero base, then the translator does not even
+generate an addition for the segment base.
+</p>
+<p>[The FPU stack pointer register is not handled that way yet].
+</p>
+<hr>
+<a name="Translation-cache"></a>
+<a name="Translation-cache-1"></a>
+<h3 class="section">2.5 Translation cache</h3>
+
+<p>A 32 MByte cache holds the most recently used translations. For
+simplicity, it is completely flushed when it is full. A translation unit
+contains just a single basic block (a block of x86 instructions
+terminated by a jump or by a virtual CPU state change which the
+translator cannot deduce statically).
+</p>
+<hr>
+<a name="Direct-block-chaining"></a>
+<a name="Direct-block-chaining-1"></a>
+<h3 class="section">2.6 Direct block chaining</h3>
+
+<p>After each translated basic block is executed, QEMU uses the simulated
+Program Counter (PC) and other cpu state information (such as the CS
+segment base value) to find the next basic block.
+</p>
+<p>In order to accelerate the most common cases where the new simulated PC
+is known, QEMU can patch a basic block so that it jumps directly to the
+next one.
+</p>
+<p>The most portable code uses an indirect jump. An indirect jump makes
+it easier to make the jump target modification atomic. On some host
+architectures (such as x86 or PowerPC), the <code>JUMP</code> opcode is
+directly patched so that the block chaining has no overhead.
+</p>
+<hr>
+<a name="Self_002dmodifying-code-and-translated-code-invalidation"></a>
+<a name="Self_002dmodifying-code-and-translated-code-invalidation-1"></a>
+<h3 class="section">2.7 Self-modifying code and translated code invalidation</h3>
+
+<p>Self-modifying code is a special challenge in x86 emulation because no
+instruction cache invalidation is signaled by the application when code
+is modified.
+</p>
+<p>When translated code is generated for a basic block, the corresponding
+host page is write protected if it is not already read-only. Then, if
+a write access is done to the page, Linux raises a SEGV signal. QEMU
+then invalidates all the translated code in the page and enables write
+accesses to the page.
+</p>
+<p>Correct translated code invalidation is done efficiently by maintaining
+a linked list of every translated block contained in a given page. Other
+linked lists are also maintained to undo direct block chaining.
+</p>
+<p>On RISC targets, correctly written software uses memory barriers and
+cache flushes, so some of the protection above would not be
+necessary. However, QEMU still requires that the generated code always
+matches the target instructions in memory in order to handle
+exceptions correctly.
+</p>
+<hr>
+<a name="Exception-support"></a>
+<a name="Exception-support-1"></a>
+<h3 class="section">2.8 Exception support</h3>
+
+<p>longjmp() is used when an exception such as division by zero is
+encountered.
+</p>
+<p>The host SIGSEGV and SIGBUS signal handlers are used to get invalid
+memory accesses. The simulated program counter is found by
+retranslating the corresponding basic block and by looking where the
+host program counter was at the exception point.
+</p>
+<p>The virtual CPU cannot retrieve the exact <code>EFLAGS</code> register because
+in some cases it is not computed because of condition code
+optimisations. It is not a big concern because the emulated code can
+still be restarted in any cases.
+</p>
+<hr>
+<a name="MMU-emulation"></a>
+<a name="MMU-emulation-1"></a>
+<h3 class="section">2.9 MMU emulation</h3>
+
+<p>For system emulation QEMU supports a soft MMU. In that mode, the MMU
+virtual to physical address translation is done at every memory
+access. QEMU uses an address translation cache to speed up the
+translation.
+</p>
+<p>In order to avoid flushing the translated code each time the MMU
+mappings change, QEMU uses a physically indexed translation cache. It
+means that each basic block is indexed with its physical address.
+</p>
+<p>When MMU mappings change, only the chaining of the basic blocks is
+reset (i.e. a basic block can no longer jump directly to another one).
+</p>
+<hr>
+<a name="Device-emulation"></a>
+<a name="Device-emulation-1"></a>
+<h3 class="section">2.10 Device emulation</h3>
+
+<p>Systems emulated by QEMU are organized by boards. At initialization
+phase, each board instantiates a number of CPUs, devices, RAM and
+ROM. Each device in turn can assign I/O ports or memory areas (for
+MMIO) to its handlers. When the emulation starts, an access to the
+ports or MMIO memory areas assigned to the device causes the
+corresponding handler to be called.
+</p>
+<p>RAM and ROM are handled more optimally, only the offset to the host
+memory needs to be added to the guest address.
+</p>
+<p>The video RAM of VGA and other display cards is special: it can be
+read or written directly like RAM, but write accesses cause the memory
+to be marked with VGA_DIRTY flag as well.
+</p>
+<p>QEMU supports some device classes like serial and parallel ports, USB,
+drives and network devices, by providing APIs for easier connection to
+the generic, higher level implementations. The API hides the
+implementation details from the devices, like native device use or
+advanced block device formats like QCOW.
+</p>
+<p>Usually the devices implement a reset method and register support for
+saving and loading of the device state. The devices can also use
+timers, especially together with the use of bottom halves (BHs).
+</p>
+<hr>
+<a name="Hardware-interrupts"></a>
+<a name="Hardware-interrupts-1"></a>
+<h3 class="section">2.11 Hardware interrupts</h3>
+
+<p>In order to be faster, QEMU does not check at every basic block if a
+hardware interrupt is pending. Instead, the user must asynchronously
+call a specific function to tell that an interrupt is pending. This
+function resets the chaining of the currently executing basic
+block. It ensures that the execution will return soon in the main loop
+of the CPU emulator. Then the main loop can test if the interrupt is
+pending and handle it.
+</p>
+<hr>
+<a name="User-emulation-specific-details"></a>
+<a name="User-emulation-specific-details-1"></a>
+<h3 class="section">2.12 User emulation specific details</h3>
+
+<a name="Linux-system-call-translation"></a>
+<h4 class="subsection">2.12.1 Linux system call translation</h4>
+
+<p>QEMU includes a generic system call translator for Linux. It means that
+the parameters of the system calls can be converted to fix the
+endianness and 32/64 bit issues. The IOCTLs are converted with a generic
+type description system (see <samp>ioctls.h</samp> and <samp>thunk.c</samp>).
+</p>
+<p>QEMU supports host CPUs which have pages bigger than 4KB. It records all
+the mappings the process does and try to emulated the <code>mmap()</code>
+system calls in cases where the host <code>mmap()</code> call would fail
+because of bad page alignment.
+</p>
+<a name="Linux-signals"></a>
+<h4 class="subsection">2.12.2 Linux signals</h4>
+
+<p>Normal and real-time signals are queued along with their information
+(<code>siginfo_t</code>) as it is done in the Linux kernel. Then an interrupt
+request is done to the virtual CPU. When it is interrupted, one queued
+signal is handled by generating a stack frame in the virtual CPU as the
+Linux kernel does. The <code>sigreturn()</code> system call is emulated to return
+from the virtual signal handler.
+</p>
+<p>Some signals (such as SIGALRM) directly come from the host. Other
+signals are synthesized from the virtual CPU exceptions such as SIGFPE
+when a division by zero is done (see <code>main.c:cpu_loop()</code>).
+</p>
+<p>The blocked signal mask is still handled by the host Linux kernel so
+that most signal system calls can be redirected directly to the host
+Linux kernel. Only the <code>sigaction()</code> and <code>sigreturn()</code> system
+calls need to be fully emulated (see <samp>signal.c</samp>).
+</p>
+<a name="clone_0028_0029-system-call-and-threads"></a>
+<h4 class="subsection">2.12.3 clone() system call and threads</h4>
+
+<p>The Linux clone() system call is usually used to create a thread. QEMU
+uses the host clone() system call so that real host threads are created
+for each emulated thread. One virtual CPU instance is created for each
+thread.
+</p>
+<p>The virtual x86 CPU atomic operations are emulated with a global lock so
+that their semantic is preserved.
+</p>
+<p>Note that currently there are still some locking issues in QEMU. In
+particular, the translated cache flush is not protected yet against
+reentrancy.
+</p>
+<a name="Self_002dvirtualization"></a>
+<h4 class="subsection">2.12.4 Self-virtualization</h4>
+
+<p>QEMU was conceived so that ultimately it can emulate itself. Although
+it is not very useful, it is an important test to show the power of the
+emulator.
+</p>
+<p>Achieving self-virtualization is not easy because there may be address
+space conflicts. QEMU user emulators solve this problem by being an
+executable ELF shared object as the ld-linux.so ELF interpreter. That
+way, it can be relocated at load time.
+</p>
+<hr>
+<a name="Bibliography"></a>
+<a name="Bibliography-1"></a>
+<h3 class="section">2.13 Bibliography</h3>
+
+<dl compact="compact">
+<dt>[1]</dt>
+<dd><p><a href="http://bochs.sourceforge.net/">http://bochs.sourceforge.net/</a>, the Bochs IA-32 Emulator Project,
+by Kevin Lawton et al.
+</p>
+</dd>
+<dt>[2]</dt>
+<dd><p><a href="http://www.valgrind.org/">http://www.valgrind.org/</a>, Valgrind, an open-source memory debugger
+for GNU/Linux.
+</p>
+</dd>
+<dt>[3]</dt>
+<dd><p><a href="http://ftp.dreamtime.org/pub/linux/Linux-Alpha/em86/v0.2/docs/em86.html">http://ftp.dreamtime.org/pub/linux/Linux-Alpha/em86/v0.2/docs/em86.html</a>,
+the EM86 x86 emulator on Alpha-Linux.
+</p>
+</dd>
+<dt>[4]</dt>
+<dd><p><a href="http://www.usenix.org/publications/library/proceedings/usenix-nt97/full_papers/chernoff/chernoff.pdf">http://www.usenix.org/publications/library/proceedings/usenix-nt97/full_papers/chernoff/chernoff.pdf</a>,
+DIGITAL FX!32: Running 32-Bit x86 Applications on Alpha NT, by Anton
+Chernoff and Ray Hookway.
+</p>
+</dd>
+<dt>[5]</dt>
+<dd><p><a href="http://user-mode-linux.sourceforge.net/">http://user-mode-linux.sourceforge.net/</a>,
+The User-mode Linux Kernel.
+</p>
+</dd>
+<dt>[6]</dt>
+<dd><p><a href="http://www.plex86.org/">http://www.plex86.org/</a>,
+The new Plex86 project.
+</p>
+</dd>
+<dt>[7]</dt>
+<dd><p><a href="http://www.vmware.com/">http://www.vmware.com/</a>,
+The VMWare PC virtualizer.
+</p>
+</dd>
+<dt>[8]</dt>
+<dd><p><a href="https://www.microsoft.com/download/details.aspx?id=3702">https://www.microsoft.com/download/details.aspx?id=3702</a>,
+The VirtualPC PC virtualizer.
+</p>
+</dd>
+<dt>[9]</dt>
+<dd><p><a href="http://virtualbox.org/">http://virtualbox.org/</a>,
+The VirtualBox PC virtualizer.
+</p>
+</dd>
+<dt>[10]</dt>
+<dd><p><a href="http://www.xen.org/">http://www.xen.org/</a>,
+The Xen hypervisor.
+</p>
+</dd>
+<dt>[11]</dt>
+<dd><p><a href="http://www.linux-kvm.org/">http://www.linux-kvm.org/</a>,
+Kernel Based Virtual Machine (KVM).
+</p>
+</dd>
+<dt>[12]</dt>
+<dd><p><a href="http://www.greensocs.com/projects/QEMUSystemC">http://www.greensocs.com/projects/QEMUSystemC</a>,
+QEMU-SystemC, a hardware co-simulator.
+</p>
+</dd>
+</dl>
+
+<hr>
+<a name="Regression-Tests"></a>
+<a name="Regression-Tests-1"></a>
+<h2 class="chapter">3 Regression Tests</h2>
+
+<p>In the directory <samp>tests/</samp>, various interesting testing programs
+are available. They are used for regression testing.
+</p>
+
+<hr>
+<a name="test_002di386"></a>
+<a name="test_002di386-1"></a>
+<h3 class="section">3.1 <samp>test-i386</samp></h3>
+
+<p>This program executes most of the 16 bit and 32 bit x86 instructions and
+generates a text output. It can be compared with the output obtained with
+a real CPU or another emulator. The target <code>make test</code> runs this
+program and a <code>diff</code> on the generated output.
+</p>
+<p>The Linux system call <code>modify_ldt()</code> is used to create x86 selectors
+to test some 16 bit addressing and 32 bit with segmentation cases.
+</p>
+<p>The Linux system call <code>vm86()</code> is used to test vm86 emulation.
+</p>
+<p>Various exceptions are raised to test most of the x86 user space
+exception reporting.
+</p>
+<hr>
+<a name="linux_002dtest"></a>
+<a name="linux_002dtest-1"></a>
+<h3 class="section">3.2 <samp>linux-test</samp></h3>
+
+<p>This program tests various Linux system calls. It is used to verify
+that the system call parameters are correctly converted between target
+and host CPUs.
+</p>
+<hr>
+<a name="Index"></a>
+<a name="Index-1"></a>
+<h2 class="chapter">4 Index</h2>
+
+<hr>
+
+
+
+</body>
+</html>

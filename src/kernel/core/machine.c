@@ -187,6 +187,7 @@ void machine_cleanup(void)
 {
 	struct machine_t * mach = get_machine();
 
+	sync();
 	if(mach && mach->cleanup)
 		mach->cleanup(mach);
 }

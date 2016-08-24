@@ -25,7 +25,6 @@
 #include <xboot.h>
 #include <mmu.h>
 #include <bcm2836-mbox.h>
-#include <bcm2836/reg-pm.h>
 
 static const struct mmap_t mach_map[] = {
 	{"ram",  0x00000000, 0x00000000, SZ_128M, MAP_TYPE_CB},

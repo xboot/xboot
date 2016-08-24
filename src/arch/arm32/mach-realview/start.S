@@ -207,7 +207,7 @@ not_used:
 
 	.align 5
 irq:
-	ldr	sp, _stack_irq_end
+	ldr sp, _stack_irq_end
 	irq_save_regs
 	bl interrupt_handle_exception
 	irq_restore_regs

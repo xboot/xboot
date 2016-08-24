@@ -43,11 +43,11 @@
 		"default-brightness": 0
 	},
 
-	"ledtrig-heartbeat": {
+	"ledtrig-heartbeat@0": {
 		"led": "led-gpio.0"
 	},
 
-	"ledtrig-general": {
+	"ledtrig-general@0": {
 		"led": "led-gpio.1"
 	},
 

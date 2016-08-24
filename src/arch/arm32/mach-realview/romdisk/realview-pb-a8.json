@@ -106,15 +106,15 @@
 		"default-brightness": 0
 	},
 
-	"ledtrig-heartbeat": {
+	"ledtrig-heartbeat@0": {
 		"led": "led-gpio.0"
 	},
 
-	"ledtrig-general": {
+	"ledtrig-general@0": {
 		"led": "led-gpio.1"
 	},
 
-	"rotary-encoder": {
+	"rotary-encoder@0": {
 		"gpio-a": 2,
 		"gpio-b": 3,
 		"gpio-c": 4,
@@ -124,7 +124,7 @@
 		"step-per-period": 1
 	},
 
-	"key-gpio": {
+	"key-gpio@0": {
 		"keys": [
 			{ "gpio": 5, "active-low": true, "key-code": 146 },
 			{ "gpio": 6, "active-low": true, "key-code": 159 }
@@ -132,7 +132,7 @@
 		"poll-interval-ms": 100
 	},
 
-	"rc-gpio": {
+	"rc-gpio@0": {
 		"gpio": 7,
 		"active-low": true,
 		"maps": [
@@ -165,12 +165,12 @@
 		]
 	},
 
-	"buzzer-gpio": {
+	"buzzer-gpio@0": {
 		"gpio": 8,
 		"active-low": true
 	},
 
-	"vibrator-gpio": {
+	"vibrator-gpio@0": {
 		"gpio": 9,
 		"active-low": true
 	},
@@ -178,7 +178,7 @@
 	"rtc-pl031@0x10017000": {
 	},
 
-	"rtc-ds1338": {
+	"rtc-ds1338@0": {
 		"i2c-bus": "i2c-versatile.0",
 		"square-wave-output": 0
 	},

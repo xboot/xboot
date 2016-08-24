@@ -10,6 +10,11 @@
 		"ngpio": 54
 	},
 
+	"gpio-bcm2836-virt": {
+		"base": 64,
+		"ngpio": 2
+	},
+
 	"uart-pl011@0x3f201000": {
 		"clock": "uart-clk",
 		"txd-gpio": 32,

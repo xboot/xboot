@@ -27,8 +27,24 @@
 		"stop-bits": 1
 	},
 
+	"uart-bcm2836-aux@0x3f215040": {
+		"clock": "core-clk",
+		"txd-gpio": 14,
+		"txd-gpio-config": 5,
+		"rxd-gpio": 15,
+		"rxd-gpio-config": 5,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
 	"console-uart@0": {
 		"uart": "uart-pl011.0"
+	},
+
+	"console-uart@1": {
+		"uart": "uart-bcm2836-aux.0"
 	},
 
 	"led-gpio@0": {

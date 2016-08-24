@@ -1,5 +1,5 @@
 /*
- * resource/res-muart.c
+ * bcm2836-aux.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,41 +22,32 @@
  *
  */
 
-#include <xboot.h>
-#include <bcm2836-muart.h>
-#include <bcm2836-gpio.h>
-#include <bcm2836-irq.h>
-#include <bcm2836/reg-aux.h>
+#include <bcm2836-aux.h>
 
-static struct bcm2836_muart_data_t uart_datas[] = {
-	[0] = {
-		.clk		= "core-clk",
-		.txdpin		= BCM2836_GPIO(14),
-		.txdcfg		= 5,
-		.rxdpin		= BCM2836_GPIO(15),
-		.rxdcfg		= 5,
-		.baud		= 115200,
-		.data		= 8,
-		.parity		= 0,
-		.stop		= 1,
-		.physaux	= BCM2836_AUX_BASE,
-		.physmu		= BCM2836_AUX_MU_BASE,
-	}
-};
-
-static struct resource_t res_uarts[] = {
-	{
-		.name	= "bcm2836-muart",
-		.id		= 0,
-		.data	= &uart_datas[0],
-	}
-};
-
-static __init void resource_uart_init(void)
+void bcm2836_aux_enable(int id)
 {
-	int i;
+	virtual_addr_t virt = phys_to_virt(BCM2836_AUX_BASE);
+	u32_t val;
 
-	for(i = 0; i < ARRAY_SIZE(res_uarts); i++)
-		register_resource(&res_uarts[i]);
+	val = read32(virt + AUX_ENB);
+	val &= ~(0x1 << id);
+	val |= 1 << id;
+	write32(virt + AUX_ENB, val);
 }
-resource_initcall(resource_uart_init);
+
+void bcm2836_aux_disable(int id)
+{
+	virtual_addr_t virt = phys_to_virt(BCM2836_AUX_BASE);
+	u32_t val;
+
+	val = read32(virt + AUX_ENB);
+	val &= ~(0x1 << id);
+	val |= 0 << id;
+	write32(virt + AUX_ENB, val);
+}
+
+int bcm2836_aux_irq_status(int id)
+{
+	virtual_addr_t virt = phys_to_virt(BCM2836_AUX_BASE);
+	return (read32(virt + AUX_IRQ) & (0x1 << id)) ? 1 : 0;
+}

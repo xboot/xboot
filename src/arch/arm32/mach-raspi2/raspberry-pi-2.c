@@ -83,7 +83,7 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 
 	if(!initial)
 	{
-		u64_t clk = 24 * 000 * 000;
+		u64_t clk = 3 * 1000 * 1000;
 		u32_t div, rem, frac;
 
 		div = clk / (16 * 115200);
@@ -142,10 +142,10 @@ static __init void raspberry_pi_2_machine_init(void)
 	register_machine(&raspberry_pi_2);
 }
 
-static __exit void realview_pb_a8_machine_exit(void)
+static __exit void raspberry_pi_2_machine_exit(void)
 {
 	unregister_machine(&raspberry_pi_2);
 }
 
 machine_initcall(raspberry_pi_2_machine_init);
-machine_exitcall(realview_pb_a8_machine_exit);
+machine_exitcall(raspberry_pi_2_machine_exit);

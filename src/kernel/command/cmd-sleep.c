@@ -27,23 +27,18 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    sleep [millisecond]\r\n");
+	printf("    sleep\r\n");
 }
 
 static int do_sleep(int argc, char ** argv)
 {
-	u32_t ms = 1000;
-
-	if(argc > 1)
-		ms = strtoul(argv[1], NULL, 0);
-	mdelay(ms);
-
+	machine_sleep();
 	return 0;
 }
 
 static struct command_t cmd_sleep = {
 	.name	= "sleep",
-	.desc	= "delay for a specified time",
+	.desc	= "sleep the target system",
 	.usage	= usage,
 	.exec	= do_sleep,
 };

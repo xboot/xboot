@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <sha256.h>
+#include <watchdog/watchdog.h>
 #include <xboot/machine.h>
 
 static struct list_head __machine_list = {
@@ -158,6 +159,7 @@ void machine_shutdown(void)
 {
 	struct machine_t * mach = get_machine();
 
+	sync();
 	if(mach && mach->shutdown)
 		mach->shutdown(mach);
 }
@@ -166,14 +168,17 @@ void machine_reboot(void)
 {
 	struct machine_t * mach = get_machine();
 
+	sync();
 	if(mach && mach->reboot)
 		mach->reboot(mach);
+	watchdog_set_timeout(search_first_watchdog(), 1);
 }
 
 void machine_sleep(void)
 {
 	struct machine_t * mach = get_machine();
 
+	sync();
 	if(mach && mach->sleep)
 		mach->sleep(mach);
 }

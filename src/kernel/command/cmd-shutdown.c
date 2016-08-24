@@ -32,7 +32,6 @@ static void usage(void)
 
 static int do_shutdown(int argc, char ** argv)
 {
-	sync();
 	machine_shutdown();
 	return 0;
 }

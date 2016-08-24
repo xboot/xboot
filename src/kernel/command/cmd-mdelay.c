@@ -1,5 +1,5 @@
 /*
- * kernel/command/cmd-reboot.c
+ * kernel/command/cmd-mdelay.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,31 +27,36 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    reboot\r\n");
+	printf("    mdelay [millisecond]\r\n");
 }
 
-static int reboot(int argc, char ** argv)
+static int do_mdelay(int argc, char ** argv)
 {
-	machine_reboot();
+	u32_t ms = 1000;
+
+	if(argc > 1)
+		ms = strtoul(argv[1], NULL, 0);
+	mdelay(ms);
+
 	return 0;
 }
 
-static struct command_t cmd_reboot = {
-	.name	= "reboot",
-	.desc	= "reboot the target system",
+static struct command_t cmd_mdelay = {
+	.name	= "mdelay",
+	.desc	= "delay for a specified time",
 	.usage	= usage,
-	.exec	= reboot,
+	.exec	= do_mdelay,
 };
 
-static __init void reboot_cmd_init(void)
+static __init void mdelay_cmd_init(void)
 {
-	register_command(&cmd_reboot);
+	register_command(&cmd_mdelay);
 }
 
-static __exit void reboot_cmd_exit(void)
+static __exit void mdelay_cmd_exit(void)
 {
-	unregister_command(&cmd_reboot);
+	unregister_command(&cmd_mdelay);
 }
 
-command_initcall(reboot_cmd_init);
-command_exitcall(reboot_cmd_exit);
+command_initcall(mdelay_cmd_init);
+command_exitcall(mdelay_cmd_exit);

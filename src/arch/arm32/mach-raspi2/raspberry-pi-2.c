@@ -45,26 +45,10 @@ static void mach_memmap(struct machine_t * mach)
 
 static void mach_shutdown(struct machine_t * mach)
 {
-	virtual_addr_t virt = phys_to_virt(BCM2836_PM_BASE);
-	u32_t val;
-
-	val = read32(virt + PM_RSTS);
-	val |= PM_PASSWORD | PM_RSTS_RASPBERRYPI_HALT;
-	write32(virt + PM_RSTS, val);
-
-	write32(virt + PM_WDOG, PM_PASSWORD | (10 & PM_WDOG_TIME_SET));
-	val = read32(virt + PM_RSTC);
-	write32(virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
 }
 
 static void mach_reboot(struct machine_t * mach)
 {
-	virtual_addr_t virt = phys_to_virt(BCM2836_PM_BASE);
-	u32_t val;
-
-	write32(virt + PM_WDOG, PM_PASSWORD | (10 & PM_WDOG_TIME_SET));
-	val = read32(virt + PM_RSTC);
-	write32(virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
 }
 
 static void mach_sleep(struct machine_t * mach)

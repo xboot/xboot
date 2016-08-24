@@ -42,13 +42,13 @@ make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
 ### Raspberry PI 2代
 ```bash
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-rpi2
+make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-raspi2
 ```
 
 ### Raspberry PI 3代
 ```bash
 make clean
-make CROSS_COMPILE=/path/to/aarch64-none-elf- PLATFORM=arm64-rpi3
+make CROSS_COMPILE=/path/to/aarch64-none-elf- PLATFORM=arm64-raspi3
 ```
 
 ### X86_64位linux系统下的sandbox

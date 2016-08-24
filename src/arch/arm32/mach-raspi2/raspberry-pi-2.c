@@ -1,5 +1,5 @@
 /*
- * mach-rpi2.c
+ * raspberry-pi-2.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -34,17 +34,16 @@ static const struct mmap_t mach_map[] = {
 	{ 0 },
 };
 
-static bool_t mach_detect(struct machine_t * mach)
+static int mach_detect(struct machine_t * mach)
 {
-	return TRUE;
+	return 1;
 }
 
-static bool_t mach_memmap(struct machine_t * mach)
+static void mach_memmap(struct machine_t * mach)
 {
-	return TRUE;
 }
 
-static bool_t mach_shutdown(struct machine_t * mach)
+static void mach_shutdown(struct machine_t * mach)
 {
 	virtual_addr_t virt = phys_to_virt(BCM2836_PM_BASE);
 	u32_t val;
@@ -56,10 +55,9 @@ static bool_t mach_shutdown(struct machine_t * mach)
 	write32(virt + PM_WDOG, PM_PASSWORD | (10 & PM_WDOG_TIME_SET));
 	val = read32(virt + PM_RSTC);
 	write32(virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
-	return TRUE;
 }
 
-static bool_t mach_reboot(struct machine_t * mach)
+static void mach_reboot(struct machine_t * mach)
 {
 	virtual_addr_t virt = phys_to_virt(BCM2836_PM_BASE);
 	u32_t val;
@@ -67,17 +65,18 @@ static bool_t mach_reboot(struct machine_t * mach)
 	write32(virt + PM_WDOG, PM_PASSWORD | (10 & PM_WDOG_TIME_SET));
 	val = read32(virt + PM_RSTC);
 	write32(virt + PM_RSTC, PM_PASSWORD | (val & PM_RSTC_WRCFG_CLR) | PM_RSTC_WRCFG_FULL_RESET);
-	return TRUE;
 }
 
-static bool_t mach_sleep(struct machine_t * mach)
+static void mach_sleep(struct machine_t * mach)
 {
-	return FALSE;
 }
 
-static bool_t mach_cleanup(struct machine_t * mach)
+static void mach_cleanup(struct machine_t * mach)
 {
-	return TRUE;
+}
+
+static void mach_logger(struct machine_t * mach, const char * buf, int count)
+{
 }
 
 static const char * mach_uniqueid(struct machine_t * mach)
@@ -98,8 +97,8 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
-static struct machine_t rpi2 = {
-	.name 		= "raspberry-pi-2-b",
+static struct machine_t raspberry_pi_2 = {
+	.name 		= "raspberry-pi-2",
 	.desc 		= "Raspberry Pi 2 Model B",
 	.map		= mach_map,
 	.detect 	= mach_detect,
@@ -108,12 +107,20 @@ static struct machine_t rpi2 = {
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,
 	.cleanup	= mach_cleanup,
+	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
 };
 
-static __init void mach_rpi2_init(void)
+static __init void raspberry_pi_2_machine_init(void)
 {
-	register_machine(&rpi2);
+	register_machine(&raspberry_pi_2);
 }
-machine_initcall(mach_rpi2_init);
+
+static __exit void realview_pb_a8_machine_exit(void)
+{
+	unregister_machine(&raspberry_pi_2);
+}
+
+machine_initcall(raspberry_pi_2_machine_init);
+machine_exitcall(realview_pb_a8_machine_exit);

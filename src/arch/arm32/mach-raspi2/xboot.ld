@@ -21,7 +21,7 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm32/mach-rpi2/start.o (.text)
+		.obj/arch/arm32/mach-raspi2/start.o (.text)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

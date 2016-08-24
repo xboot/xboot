@@ -27,9 +27,9 @@
 static ssize_t rng_read_random(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct rng_t * rng = (struct rng_t *)kobj->priv;
-	unsigned char dat;
+	unsigned char dat = 0;
 
-	rng_read_data(rng, &dat, 1, 1);
+	rng_read_data(rng, &dat, 1, 0);
 	return sprintf(buf, "%02x", dat);
 }
 

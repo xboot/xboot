@@ -1,0 +1,29 @@
+{
+	"clk-fixed": { "name": "osc-clk", "rate": 19200000 },
+	"clk-fixed": { "name": "sys-timer-clk", "rate": 1000000 },
+	"clk-fixed": { "name": "arm-timer-clk", "rate": 250000000 },
+	"clk-fixed": { "name": "pwm-clk", "rate": 9200000 },
+	"clk-fixed": { "name": "uart-clk", "rate": 3000000 },
+
+	"uart-pl011@0x3f201000": {
+		"clock": "uart-clk",
+		"txd-gpio": 32,
+		"txd-gpio-config": 3,
+		"rxd-gpio": 33,
+		"rxd-gpio-config": 3,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"console-uart@0": {
+		"uart": "uart-pl011.0"
+	},
+
+	"rng-bcm2836@0x3f104000": {
+	},
+	
+	"wdog-bcm2836@0x3f100000": {
+	}
+}

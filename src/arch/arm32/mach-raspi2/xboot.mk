@@ -16,5 +16,5 @@ INCDIRS		:=
 SRCDIRS		:=
 
 xend:
-	@echo Generate kernel7.img For Raspberry Pi 2 Model B
+	@echo Generate kernel7.img For Raspberry Pi 2
 	@$(CP) $(X_NAME).bin $(X_OUT)/kernel7.img

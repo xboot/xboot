@@ -15,6 +15,20 @@
 		"ngpio": 2
 	},
 
+	"pwm-bcm2836@0x3f20c000": {
+		"clock": "pwm-clk",
+		"channel": 0,
+		"pwm-gpio": 12,
+		"pwm-gpio-config": 0
+	},
+
+	"pwm-bcm2836@0x3f20c000": {
+		"clock": "pwm-clk",
+		"channel": 1,
+		"pwm-gpio": 13,
+		"pwm-gpio-config": 0
+	},
+
 	"uart-pl011@0x3f201000": {
 		"clock": "uart-clk",
 		"txd-gpio": 32,
@@ -65,6 +79,16 @@
 
 	"ledtrig-general@0": {
 		"led": "led-gpio.1"
+	},
+
+	"buzzer-pwm@0": {
+		"pwm": "pwm-bcm2836.0",
+		"polarity": true
+	},
+	
+	"buzzer-pwm@1": {
+		"pwm": "pwm-bcm2836.1",
+		"polarity": true
 	},
 
 	"rng-bcm2836@0x3f104000": {

@@ -65,7 +65,7 @@ static struct device_t * ledtrig_general_probe(struct driver_t * drv, struct dtn
 	struct device_t * dev;
 	struct led_t * led;
 
-	led = search_led(dt_read_string(n, "led", NULL));
+	led = search_led(dt_read_string(n, "led-name", NULL));
 	if(!led)
 		return NULL;
 

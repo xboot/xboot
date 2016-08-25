@@ -106,7 +106,7 @@ static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_
 	if(channel < 0 || channel > 1)
 		return NULL;
 
-	if(!search_clk(dt_read_string(n, "clock", NULL)))
+	if(!search_clk(dt_read_string(n, "clock-name", NULL)))
 		return NULL;
 
 	pdat = malloc(sizeof(struct pwm_bcm2836_pdata_t));
@@ -121,7 +121,7 @@ static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_
 	}
 
 	pdat->virt = virt;
-	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
+	pdat->clk = strdup(dt_read_string(n, "clock-name", NULL));
 	pdat->channel = channel;
 	pdat->pwm = dt_read_int(n, "pwm-gpio", -1);
 	pdat->pwmcfg = dt_read_int(n, "pwm-gpio-config", -1);

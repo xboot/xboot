@@ -84,7 +84,7 @@ static struct device_t * ledtrig_heartbeat_probe(struct driver_t * drv, struct d
 	struct device_t * dev;
 	struct led_t * led;
 
-	led = search_led(dt_read_string(n, "led", NULL));
+	led = search_led(dt_read_string(n, "led-name", NULL));
 	if(!led)
 		return NULL;
 
@@ -101,7 +101,7 @@ static struct device_t * ledtrig_heartbeat_probe(struct driver_t * drv, struct d
 
 	timer_init(&pdat->timer, ledtrig_heartbeat_timer_function, ledtrig);
 	pdat->led = led;
-	pdat->period = dt_read_int(n, "period", 1260);
+	pdat->period = dt_read_int(n, "heartbeat-period-ms", 1260);
 	pdat->phase = 0;
 
 	ledtrig->name = alloc_device_name(dt_read_name(n), dt_read_id(n));

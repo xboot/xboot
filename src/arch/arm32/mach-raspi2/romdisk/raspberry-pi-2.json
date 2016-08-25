@@ -16,21 +16,21 @@
 	},
 
 	"pwm-bcm2836@0x3f20c000": {
-		"clock": "pwm-clk",
+		"clock-name": "pwm-clk",
 		"channel": 0,
 		"pwm-gpio": 12,
 		"pwm-gpio-config": 0
 	},
 
 	"pwm-bcm2836@0x3f20c000": {
-		"clock": "pwm-clk",
+		"clock-name": "pwm-clk",
 		"channel": 1,
 		"pwm-gpio": 13,
 		"pwm-gpio-config": 0
 	},
 
 	"uart-pl011@0x3f201000": {
-		"clock": "uart-clk",
+		"clock-name": "uart-clk",
 		"txd-gpio": 32,
 		"txd-gpio-config": 3,
 		"rxd-gpio": 33,
@@ -42,7 +42,7 @@
 	},
 
 	"uart-bcm2836-aux@0x3f215040": {
-		"clock": "core-clk",
+		"clock-name": "core-clk",
 		"txd-gpio": 14,
 		"txd-gpio-config": 5,
 		"rxd-gpio": 15,
@@ -54,11 +54,11 @@
 	},
 
 	"console-uart@0": {
-		"uart": "uart-pl011.0"
+		"uart-bus": "uart-pl011.0"
 	},
 
 	"console-uart@1": {
-		"uart": "uart-bcm2836-aux.0"
+		"uart-bus": "uart-bcm2836-aux.0"
 	},
 
 	"led-gpio@0": {
@@ -74,21 +74,22 @@
 	},
 
 	"ledtrig-heartbeat@0": {
-		"led": "led-gpio.0"
+		"led-name": "led-gpio.0",
+		"heartbeat-period-ms": 1260
 	},
 
 	"ledtrig-general@0": {
-		"led": "led-gpio.1"
+		"led-name": "led-gpio.1"
 	},
 
 	"buzzer-pwm@0": {
-		"pwm": "pwm-bcm2836.0",
-		"polarity": true
+		"pwm-name": "pwm-bcm2836.0",
+		"pwm-polarity": true
 	},
-	
+
 	"buzzer-pwm@1": {
-		"pwm": "pwm-bcm2836.1",
-		"polarity": true
+		"pwm-name": "pwm-bcm2836.1",
+		"pwm-polarity": true
 	},
 
 	"rng-bcm2836@0x3f104000": {

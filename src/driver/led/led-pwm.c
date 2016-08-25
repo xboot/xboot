@@ -30,18 +30,18 @@
  * PWM LED - LED Driver Using Pulse Width Modulation
  *
  * Required properties:
- * - pwm: led attached pwm
+ * - pwm-name: led attached pwm
  *
  * Optional properties:
- * - period-ns: pwm period in ns
- * - polarity: pwm polarity
+ * - pwm-period-ns: pwm period in ns
+ * - pwm-polarity: pwm polarity
  * - default-brightness: led default brightness
  *
  * Example:
  *   "led-pwm@0": {
- *       "pwm": "pwm.0",
- *       "period-ns": 10000000,
- *       "polarity": false,
+ *       "pwm-name": "pwm.0",
+ *       "pwm-period-ns": 10000000,
+ *       "pwm-polarity": false,
  *       "default-brightness": 0
  *   }
  */
@@ -91,7 +91,7 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	struct led_t * led;
 	struct device_t * dev;
 
-	if(!(pwm = search_pwm(dt_read_string(n, "pwm", NULL))))
+	if(!(pwm = search_pwm(dt_read_string(n, "pwm-name", NULL))))
 		return NULL;
 
 	pdat = malloc(sizeof(struct led_pwm_pdata_t));
@@ -106,8 +106,8 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	}
 
 	pdat->pwm = pwm;
-	pdat->period = dt_read_int(n, "period-ns", 1000 * 1000);
-	pdat->polarity = dt_read_bool(n, "polarity", 0);
+	pdat->period = dt_read_int(n, "pwm-period-ns", 1000 * 1000);
+	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
 	pdat->brightness = dt_read_int(n, "default-brightness", 0);
 
 	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));

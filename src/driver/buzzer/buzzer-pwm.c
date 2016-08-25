@@ -124,7 +124,7 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	struct buzzer_t * buzzer;
 	struct device_t * dev;
 
-	if(!(pwm = search_pwm(dt_read_string(n, "pwm", NULL))))
+	if(!(pwm = search_pwm(dt_read_string(n, "pwm-name", NULL))))
 		return NULL;
 
 	pdat = malloc(sizeof(struct buzzer_pwm_pdata_t));
@@ -141,7 +141,7 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	timer_init(&pdat->timer, buzzer_pwm_timer_function, buzzer);
 	pdat->queue = queue_alloc();
 	pdat->pwm = pwm;
-	pdat->polarity = dt_read_bool(n, "polarity", 0);
+	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
 	pdat->frequency = 0;
 
 	buzzer->name = alloc_device_name(dt_read_name(n), dt_read_id(n));

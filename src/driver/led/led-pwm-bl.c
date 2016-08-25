@@ -30,9 +30,9 @@
 struct led_pwm_bl_pdata_t {
 	struct pwm_t * pwm;
 	int period;
+	int polarity;
 	int from;
 	int to;
-	int polarity;
 	int brightness;
 	int power;
 	int power_active_low;
@@ -78,7 +78,7 @@ static struct device_t * led_pwm_bl_probe(struct driver_t * drv, struct dtnode_t
 	struct led_t * led;
 	struct device_t * dev;
 
-	if(!(pwm = search_pwm(dt_read_string(n, "pwm", NULL))))
+	if(!(pwm = search_pwm(dt_read_string(n, "pwm-name", NULL))))
 		return NULL;
 
 	pdat = malloc(sizeof(struct led_pwm_bl_pdata_t));
@@ -93,10 +93,10 @@ static struct device_t * led_pwm_bl_probe(struct driver_t * drv, struct dtnode_t
 	}
 
 	pdat->pwm = pwm;
-	pdat->period = dt_read_int(n, "period", 1000 * 1000);
+	pdat->period = dt_read_int(n, "pwm-period-ns", 1000 * 1000);
+	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
 	pdat->from = dt_read_int(n, "from", 0) * pdat->period / 100;
 	pdat->to = dt_read_int(n, "to", 100) * pdat->period / 100;
-	pdat->polarity = dt_read_bool(n, "polarity", 0);
 	pdat->brightness = dt_read_int(n, "default-brightness", 0);
 	pdat->power = dt_read_int(n, "power", -1);
 	pdat->power_active_low = dt_read_bool(n, "power-active-low", 0);

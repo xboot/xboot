@@ -31,7 +31,7 @@
  * PrimeCell PL011 - Universal Asynchronous Receiver Transmitter
  *
  * Required properties:
- * - clock: uart parant clock name
+ * - clock-name: uart parant clock name
  *
  * Optional properties:
  * - txd-gpio: uart txd gpio
@@ -45,7 +45,7 @@
  *
  * Example:
  *   "uart-pl011@0x10009000": {
- *       "clock": "uclk",
+ *       "clock-name": "uclk",
  *       "txd-gpio": -1,
  *       "txd-gpio-config": -1,
  *       "rxd-gpio": -1,
@@ -232,7 +232,7 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x011)
 		return NULL;
 
-	if(!search_clk(dt_read_string(n, "clock", NULL)))
+	if(!search_clk(dt_read_string(n, "clock-name", NULL)))
 		return NULL;
 
 	pdat = malloc(sizeof(struct uart_pl011_pdata_t));
@@ -247,7 +247,7 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	}
 
 	pdat->virt = virt;
-	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
+	pdat->clk = strdup(dt_read_string(n, "clock-name", NULL));
 	pdat->txd = dt_read_int(n, "txd-gpio", -1);
 	pdat->txdcfg = dt_read_int(n, "txd-gpio-config", -1);
 	pdat->rxd = dt_read_int(n, "rxd-gpio", -1);

@@ -379,7 +379,7 @@ static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtno
 	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x050)
 		return NULL;
 
-	if(!search_clk(dt_read_string(n, "clock", NULL)))
+	if(!search_clk(dt_read_string(n, "clock-name", NULL)))
 		return NULL;
 
 	if(!irq_is_valid(dt_read_int(n, "interrupt", -1)))
@@ -397,7 +397,7 @@ static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtno
 	}
 
 	pdat->virt = virt;
-	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
+	pdat->clk = strdup(dt_read_string(n, "clock-name", NULL));
 	pdat->irq = dt_read_int(n, "interrupt", -1);
 
 	input->name = alloc_device_name(dt_read_name(n), -1);

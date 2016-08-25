@@ -47,7 +47,7 @@ static struct device_t * console_uart_probe(struct driver_t * drv, struct dtnode
 	struct console_uart_pdata_t * pdat;
 	struct console_t * console;
 	struct device_t * dev;
-	struct uart_t * uart = search_uart(dt_read_string(n, "uart", NULL));
+	struct uart_t * uart = search_uart(dt_read_string(n, "uart-bus", NULL));
 
 	if(!uart)
 		return NULL;

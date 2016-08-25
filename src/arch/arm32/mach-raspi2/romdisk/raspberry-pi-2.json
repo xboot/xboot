@@ -36,10 +36,10 @@
 
 	"uart-pl011@0x3f201000": {
 		"clock-name": "uart-clk",
-		"txd-gpio": 32,
-		"txd-gpio-config": 3,
-		"rxd-gpio": 33,
-		"rxd-gpio-config": 3,
+		"txd-gpio": 14,
+		"txd-gpio-config": 0,
+		"rxd-gpio": 15,
+		"rxd-gpio-config": 0,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,
@@ -48,9 +48,9 @@
 
 	"uart-bcm2836-aux@0x3f215040": {
 		"clock-name": "core-clk",
-		"txd-gpio": 14,
+		"txd-gpio": 32,
 		"txd-gpio-config": 5,
-		"rxd-gpio": 15,
+		"rxd-gpio": 33,
 		"rxd-gpio-config": 5,
 		"baud-rates": 115200,
 		"data-bits": 8,

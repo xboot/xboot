@@ -53,14 +53,6 @@
 		"stop-bits": 1
 	},
 
-	"console-uart@0": {
-		"uart-bus": "uart-pl011.0"
-	},
-
-	"console-uart@1": {
-		"uart-bus": "uart-bcm2836-aux.0"
-	},
-
 	"led-gpio@0": {
 		"gpio": 35,
 		"active-low": true,
@@ -96,5 +88,13 @@
 	},
 	
 	"wdog-bcm2836@0x3f100000": {
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-pl011.0"
+	},
+
+	"console-uart@1": {
+		"uart-bus": "uart-bcm2836-aux.0"
 	}
 }

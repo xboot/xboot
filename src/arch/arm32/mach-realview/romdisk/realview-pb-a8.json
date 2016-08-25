@@ -73,22 +73,6 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
-	"console-uart@0": {
-		"uart-bus": "uart-pl011.0"
-	},
-
-	"console-uart@1": {
-		"uart-bus": "uart-pl011.1"
-	},
-
-	"console-uart@2": {
-		"uart-bus": "uart-pl011.2"
-	},
-
-	"console-uart@3": {
-		"uart-bus": "uart-pl011.3"
-	},
 
 	"i2c-versatile@0x10002000": {
 		"delay-us": 5
@@ -214,5 +198,21 @@
 		"vsync-active": false,
 		"de-active":false,
 		"pixelclk-active":false
+	},
+	
+	"console-uart@0": {
+		"uart-bus": "uart-pl011.0"
+	},
+
+	"console-uart@1": {
+		"uart-bus": "uart-pl011.1"
+	},
+
+	"console-uart@2": {
+		"uart-bus": "uart-pl011.2"
+	},
+
+	"console-uart@3": {
+		"uart-bus": "uart-pl011.3"
 	}
 }

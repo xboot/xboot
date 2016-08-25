@@ -5,6 +5,11 @@
 	"clk-fixed": { "name": "pwm-clk", "rate": 9200000 },
 	"clk-fixed": { "name": "uart-clk", "rate": 3000000 },
 
+	"irq-bcm2836@0x3f00b200": {
+		"base": 0,
+		"nirq": 72
+	},
+
 	"gpio-bcm2836@0x3f200000": {
 		"base": 0,
 		"ngpio": 54

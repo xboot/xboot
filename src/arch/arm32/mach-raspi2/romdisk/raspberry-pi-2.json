@@ -1,9 +1,18 @@
 {
-	"clk-fixed": { "name": "osc-clk", "rate": 19200000 },
-	"clk-fixed": { "name": "sys-timer-clk", "rate": 1000000 },
-	"clk-fixed": { "name": "arm-timer-clk", "rate": 250000000 },
-	"clk-fixed": { "name": "pwm-clk", "rate": 9200000 },
-	"clk-fixed": { "name": "uart-clk", "rate": 3000000 },
+	"clk-fixed@0": { "name": "osc-clk", "rate": 19200000 },
+	"clk-fixed@1": { "name": "sys-timer-clk", "rate": 1000000 },
+	"clk-fixed@2": { "name": "arm-timer-clk", "rate": 250000000 },
+	
+	"clk-mbox@0": { "name": "emmc-clk", "clock-id": 1 },
+	"clk-mbox@1": { "name": "uart-clk", "clock-id": 2 },
+	"clk-mbox@2": { "name": "arm-clk", "clock-id": 3 },
+	"clk-mbox@3": { "name": "core-clk", "clock-id": 4 },
+	"clk-mbox@4": { "name": "v3d-clk", "clock-id": 5 },
+	"clk-mbox@5": { "name": "h264-clk", "clock-id": 6 },
+	"clk-mbox@6": { "name": "isp-clk", "clock-id": 7 },
+	"clk-mbox@7": { "name": "sdram-clk", "clock-id": 8 },
+	"clk-mbox@8": { "name": "pixel-clk", "clock-id": 9 },
+	"clk-mbox@9": { "name": "pwm-clk", "clock-id": 10 },
 
 	"irq-bcm2836@0x3f00b200": {
 		"base": 0,

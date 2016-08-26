@@ -66,7 +66,7 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 
 	if(!initial)
 	{
-		u64_t clk = 3 * 1000 * 1000;
+		u64_t clk = bcm2836_mbox_clock_get_rate(MBOX_CLOCK_ID_UART);
 		u32_t div, rem, frac;
 
 		div = clk / (16 * 115200);

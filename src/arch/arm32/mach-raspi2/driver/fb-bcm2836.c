@@ -1,5 +1,5 @@
 /*
- * driver/bcm2836-fb.c
+ * driver/fb-bcm2836.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,42 +22,36 @@
  *
  */
 
-#include <bcm2836-fb.h>
+#include <xboot.h>
+#include <fb/fb.h>
+#include <bcm2836-mbox.h>
 
-struct bcm2836_fb_pdata_t {
+struct fb_bcm2836_pdata_t {
 	int width;
 	int height;
 	int xdpi;
 	int ydpi;
 	int bpp;
-	int brightness;
 	int index;
 	void * vram[2];
+	int brightness;
 };
-
-static void fb_init(struct fb_t * fb)
-{
-}
-
-static void fb_exit(struct fb_t * fb)
-{
-}
 
 static void fb_setbl(struct fb_t * fb, int brightness)
 {
-	struct bcm2836_fb_pdata_t * pdat = (struct bcm2836_fb_pdata_t *)fb->priv;
+	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 	pdat->brightness = brightness;
 }
 
 static int fb_getbl(struct fb_t * fb)
 {
-	struct bcm2836_fb_pdata_t * pdat = (struct bcm2836_fb_pdata_t *)fb->priv;
+	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 	return pdat->brightness;
 }
 
 struct render_t * fb_create(struct fb_t * fb)
 {
-	struct bcm2836_fb_pdata_t * pdat = (struct bcm2836_fb_pdata_t *)fb->priv;
+	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 	struct render_t * render;
 	void * pixels;
 	size_t pixlen;
@@ -69,7 +63,10 @@ struct render_t * fb_create(struct fb_t * fb)
 
 	render = malloc(sizeof(struct render_t));
 	if(!render)
+	{
+		free(pixels);
 		return NULL;
+	}
 
 	render->width = pdat->width;
 	render->height = pdat->height;
@@ -103,7 +100,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
-	struct bcm2836_fb_pdata_t * pdat = (struct bcm2836_fb_pdata_t *)fb->priv;
+	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 
 	if(render && render->pixels)
 	{
@@ -113,99 +110,95 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-static void fb_suspend(struct fb_t * fb)
+static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-}
-
-static void fb_resume(struct fb_t * fb)
-{
-}
-
-static bool_t bcm2836_register_framebuffer(struct resource_t * res)
-{
-	struct bcm2836_fb_data_t * rdat = (struct bcm2836_fb_data_t *)res->data;
-	struct bcm2836_fb_pdata_t * pdat;
+	struct fb_bcm2836_pdata_t * pdat;
 	struct fb_t * fb;
-	char name[64];
+	struct device_t * dev;
 
-	pdat = malloc(sizeof(struct bcm2836_fb_pdata_t));
+	pdat = malloc(sizeof(struct fb_bcm2836_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	fb = malloc(sizeof(struct fb_t));
 	if(!fb)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-
-	pdat->width = rdat->width;
-	pdat->height = rdat->height;
-	pdat->xdpi = rdat->xdpi;
-	pdat->ydpi = rdat->ydpi;
-	pdat->bpp = rdat->bpp;
-	pdat->brightness = 0;
+	pdat->width = dt_read_int(n, "width", 640);
+	pdat->height = dt_read_int(n, "height", 480);
+	pdat->xdpi = dt_read_int(n, "x-dots-per-inch", 160);
+	pdat->ydpi = dt_read_int(n, "y-dots-per-inch", 160);
+	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
 	pdat->index = 0;
 	pdat->vram[0] = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, 2);
 	pdat->vram[1] = pdat->vram[0] + (pdat->width * pdat->height * (pdat->bpp / 8));
+	pdat->brightness = 0;
 
-	fb->name = strdup(name);
+	fb->name = alloc_device_name(dt_read_name(n), -1);
 	fb->width = pdat->width;
 	fb->height = pdat->height;
 	fb->xdpi = pdat->xdpi;
 	fb->ydpi = pdat->ydpi;
 	fb->bpp = pdat->bpp;
-	fb->init = fb_init,
-	fb->exit = fb_exit,
 	fb->setbl = fb_setbl,
 	fb->getbl = fb_getbl,
 	fb->create = fb_create,
 	fb->destroy = fb_destroy,
 	fb->present = fb_present,
-	fb->suspend = fb_suspend,
-	fb->resume = fb_resume,
 	fb->priv = pdat;
 
-	if(register_fb(fb))
-		return TRUE;
+	if(!register_fb(&dev, fb))
+	{
+		free_device_name(fb->name);
+		free(fb->priv);
+		free(fb);
+		return NULL;
+	}
+	dev->driver = drv;
 
-	free(fb->priv);
-	free(fb->name);
-	free(fb);
-	return FALSE;
+	return dev;
 }
 
-static bool_t bcm2836_unregister_framebuffer(struct resource_t * res)
+static void fb_bcm2836_remove(struct device_t * dev)
 {
-	struct fb_t * fb;
-	char name[64];
+	struct fb_t * fb = (struct fb_t *)dev->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
-
-	fb = search_fb(name);
-	if(!fb)
-		return FALSE;
-
-	if(!unregister_fb(fb))
-		return FALSE;
-
-	free(fb->priv);
-	free(fb->name);
-	free(fb);
-	return TRUE;
+	if(fb && unregister_fb(fb))
+	{
+		free_device_name(fb->name);
+		free(fb->priv);
+		free(fb);
+	}
 }
 
-static __init void bcm2836_fb_init(void)
+static void fb_bcm2836_suspend(struct device_t * dev)
 {
-	resource_for_each("bcm2836-fb", bcm2836_register_framebuffer);
 }
 
-static __exit void bcm2836_fb_exit(void)
+static void fb_bcm2836_resume(struct device_t * dev)
 {
-	resource_for_each("bcm2836-fb", bcm2836_unregister_framebuffer);
 }
 
-postdevice_initcall(bcm2836_fb_init);
-postdevice_exitcall(bcm2836_fb_exit);
+static struct driver_t fb_bcm2836 = {
+	.name		= "fb-bcm2836",
+	.probe		= fb_bcm2836_probe,
+	.remove		= fb_bcm2836_remove,
+	.suspend	= fb_bcm2836_suspend,
+	.resume		= fb_bcm2836_resume,
+};
+
+static __init void fb_bcm2836_driver_init(void)
+{
+	register_driver(&fb_bcm2836);
+}
+
+static __exit void fb_bcm2836_driver_exit(void)
+{
+	unregister_driver(&fb_bcm2836);
+}
+
+driver_initcall(fb_bcm2836_driver_init);
+driver_exitcall(fb_bcm2836_driver_exit);

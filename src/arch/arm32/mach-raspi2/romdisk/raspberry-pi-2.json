@@ -104,6 +104,14 @@
 	"wdog-bcm2836@0x3f100000": {
 	},
 
+	"fb-bcm2836@0": {
+		"width": 640,
+		"height": 480,
+		"x-dots-per-inch": 160,
+		"y-dots-per-inch": 160,
+		"bits-per-pixel": 32
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-pl011.0"
 	},

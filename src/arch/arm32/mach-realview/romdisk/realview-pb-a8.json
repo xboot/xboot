@@ -1,10 +1,10 @@
 {
-	"clk-fixed": { "name": "xtal", "rate": 12000000 },
-	"clk-fixed": { "name": "uclk", "rate": 24000000 },
-	"clk-fixed": { "name": "kclk", "rate": 24000000 },
-	"clk-fixed": { "name": "mclk", "rate": 24000000 },
-	"clk-fixed": { "name": "timclk", "rate": 1000000 },
-	"clk-fixed": { "name": "refclk", "rate": 32768 },
+	"clk-fixed@0": { "name": "xtal", "rate": 12000000 },
+	"clk-fixed@1": { "name": "uclk", "rate": 24000000 },
+	"clk-fixed@2": { "name": "kclk", "rate": 24000000 },
+	"clk-fixed@3": { "name": "mclk", "rate": 24000000 },
+	"clk-fixed@4": { "name": "timclk", "rate": 1000000 },
+	"clk-fixed@5": { "name": "refclk", "rate": 32768 },
 
 	"irq-gic@0x1e000000": {
 		"base": 32,

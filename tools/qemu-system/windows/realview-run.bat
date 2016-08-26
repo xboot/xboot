@@ -1,4 +1,5 @@
 @echo off
+@set SDL_STDIO_REDIRECT=0
 
 if exist "%USERPROFILE%\.xboot\sdcard.img" goto RunQemu
     mkdir "%USERPROFILE%\.xboot"

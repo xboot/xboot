@@ -126,6 +126,7 @@ static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_
 	pdat->pwm = dt_read_int(n, "pwm-gpio", -1);
 	pdat->pwmcfg = dt_read_int(n, "pwm-gpio-config", -1);
 	clk_enable(pdat->clk);
+	clk_set_rate(pdat->clk, 9200000);
 	pdat->scaler = (unsigned long)(1000000000ULL / clk_get_rate(pdat->clk));
 
 	pwm->name = alloc_device_name(dt_read_name(n), -1);

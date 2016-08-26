@@ -120,7 +120,7 @@ static struct device_t * clk_mbox_probe(struct driver_t * drv, struct dtnode_t *
 	struct clk_mbox_t * mclk;
 	struct device_t * dev;
 	char * name = dt_read_string(n, "name", NULL);
-	int id = dt_read_u64(n, "clock-id", -1);
+	int id = dt_read_u64(n, "mbox-clock-id", -1);
 
 	if(!name || id < 1 || id > 10)
 		return NULL;

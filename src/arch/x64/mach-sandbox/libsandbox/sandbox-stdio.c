@@ -6,7 +6,7 @@
 
 static struct termios __term_config;
 
-void sandbox_console_init(void)
+void sandbox_stdio_init(void)
 {
 	struct termios termvi;
 
@@ -20,18 +20,18 @@ void sandbox_console_init(void)
 	tcsetattr(0, TCSANOW, &termvi);
 }
 
-void sandbox_console_exit(void)
+void sandbox_stdio_exit(void)
 {
 	fflush(stdout);
 	tcsetattr(0, TCSANOW, &__term_config);
 }
 
-ssize_t sandbox_console_read(void * buf, size_t count)
+ssize_t sandbox_stdio_read(void * buf, size_t count)
 {
 	return sandbox_file_read_nonblock(fileno(stdin), buf, count);
 }
 
-ssize_t sandbox_console_write(void * buf, size_t count)
+ssize_t sandbox_stdio_write(void * buf, size_t count)
 {
 	return sandbox_file_write(fileno(stdout), buf, count);
 }

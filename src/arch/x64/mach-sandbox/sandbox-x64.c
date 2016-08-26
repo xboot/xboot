@@ -1,5 +1,5 @@
 /*
- * mach-sandbox.c
+ * sandbox-x64.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -29,34 +29,37 @@ static const struct mmap_t mach_map[] = {
 	{ 0 },
 };
 
-static bool_t mach_detect(struct machine_t * mach)
+static int mach_detect(struct machine_t * mach)
 {
-	return TRUE;
+	return 1;
 }
 
-static bool_t mach_memmap(struct machine_t * mach)
+static void mach_memmap(struct machine_t * mach)
 {
-	return TRUE;
 }
 
-static bool_t mach_shutdown(struct machine_t * mach)
+static void mach_shutdown(struct machine_t * mach)
 {
-	return (sandbox_pm_shutdown() == 0) ? TRUE : FALSE;
+	sandbox_pm_shutdown();
 }
 
-static bool_t mach_reboot(struct machine_t * mach)
+static void mach_reboot(struct machine_t * mach)
 {
-	return (sandbox_pm_reboot() == 0) ? TRUE : FALSE;
+	sandbox_pm_reboot();
 }
 
-static bool_t mach_sleep(struct machine_t * mach)
+static void mach_sleep(struct machine_t * mach)
 {
-	return (sandbox_pm_sleep() == 0) ? TRUE : FALSE;
+	sandbox_pm_sleep();
 }
 
-static bool_t mach_cleanup(struct machine_t * mach)
+static void mach_cleanup(struct machine_t * mach)
 {
-	return TRUE;
+}
+
+static void mach_logger(struct machine_t * mach, const char * buf, int count)
+{
+	sandbox_stdio_write((void *)buf, count);
 }
 
 static const char * mach_uniqueid(struct machine_t * mach)
@@ -69,8 +72,8 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
-static struct machine_t sandbox = {
-	.name 		= "sandbox",
+static struct machine_t sandbox_x64 = {
+	.name 		= "sandbox-x64",
 	.desc 		= "Xboot Sandbox Runtime Enverionment",
 	.map		= mach_map,
 	.detect 	= mach_detect,
@@ -79,12 +82,20 @@ static struct machine_t sandbox = {
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,
 	.cleanup	= mach_cleanup,
+	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
 };
 
-static __init void mach_sandbox_init(void)
+static __init void sandbox_x64_machine_init(void)
 {
-	register_machine(&sandbox);
+	register_machine(&sandbox_x64);
 }
-machine_initcall(mach_sandbox_init);
+
+static __exit void sandbox_x64_machine_exit(void)
+{
+	unregister_machine(&sandbox_x64);
+}
+
+machine_initcall(sandbox_x64_machine_init);
+machine_exitcall(sandbox_x64_machine_exit);

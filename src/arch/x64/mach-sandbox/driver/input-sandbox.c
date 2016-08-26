@@ -1,5 +1,5 @@
 /*
- * driver/sandbox-input.c
+ * driver/input-sandbox.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,28 +23,8 @@
  */
 
 #include <xboot.h>
-#include <sandbox-input.h>
-
-static void input_init(struct input_t * input)
-{
-}
-
-static void input_exit(struct input_t * input)
-{
-}
-
-static int input_ioctl(struct input_t * input, int cmd, void * arg)
-{
-	return -1;
-}
-
-static void input_suspend(struct input_t * input)
-{
-}
-
-static void input_resume(struct input_t * input)
-{
-}
+#include <input/input.h>
+#include <sandbox.h>
 
 static void cb_key_down(void * device, unsigned int key)
 {
@@ -210,24 +190,45 @@ static void cb_joystick_button_up(void * device, unsigned int button)
 	push_event(&event);
 }
 
-static bool_t sandbox_register_input(struct resource_t * res)
+static int input_sandbox_ioctl(struct input_t * input, int cmd, void * arg)
 {
-	struct sandbox_input_data_t * rdat = (struct sandbox_input_data_t *)res->data;
+	return -1;
+}
+
+static struct device_t * input_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
+{
 	struct input_t * input;
-	char name[64];
+	struct device_t * dev;
+	enum input_type_t type;
+	char * t = dt_read_string(n, "type", NULL);
+
+	if(strcmp(t, "keyboard") == 0)
+		type = INPUT_TYPE_KEYBOARD;
+	else if(strcmp(t, "mouse") == 0)
+		type = INPUT_TYPE_MOUSE;
+	else if(strcmp(t, "touchscreen") == 0)
+		type = INPUT_TYPE_TOUCHSCREEN;
+	else if(strcmp(t, "joystick") == 0)
+		type = INPUT_TYPE_JOYSTICK;
+	else
+		return NULL;
 
 	input = malloc(sizeof(struct input_t));
 	if(!input)
-		return FALSE;
+		return NULL;
 
-	switch(rdat->type)
+	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
+	input->type = type;
+	input->ioctl = input_sandbox_ioctl;
+	input->priv = NULL;
+
+	switch(input->type)
 	{
 	case INPUT_TYPE_KEYBOARD:
 		sandbox_sdl_event_set_key_callback(input,
 				cb_key_down,
 				cb_key_up);
 		break;
-
 	case INPUT_TYPE_MOUSE:
 		sandbox_sdl_event_set_mouse_callback(input,
 				cb_mouse_down,
@@ -235,14 +236,12 @@ static bool_t sandbox_register_input(struct resource_t * res)
 				cb_mouse_up,
 				cb_mouse_wheel);
 		break;
-
 	case INPUT_TYPE_TOUCHSCREEN:
 		sandbox_sdl_event_set_touch_callback(input,
 				cb_touch_begin,
 				cb_touch_move,
 				cb_touch_end);
 		break;
-
 	case INPUT_TYPE_JOYSTICK:
 		sandbox_sdl_event_set_joystick_callback(input,
 				cb_joystick_left_stick,
@@ -252,61 +251,93 @@ static bool_t sandbox_register_input(struct resource_t * res)
 				cb_joystick_button_down,
 				cb_joystick_button_up);
 		break;
-
 	default:
-		free(input);
-		return FALSE;
+		break;
 	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(!register_input(&dev, input))
+	{
+		switch(input->type)
+		{
+		case INPUT_TYPE_KEYBOARD:
+			sandbox_sdl_event_set_key_callback(0, 0, 0);
+			break;
+		case INPUT_TYPE_MOUSE:
+			sandbox_sdl_event_set_mouse_callback(0, 0, 0, 0, 0);
+			break;
+		case INPUT_TYPE_TOUCHSCREEN:
+			sandbox_sdl_event_set_touch_callback(0, 0, 0, 0);
+			break;
+		case INPUT_TYPE_JOYSTICK:
+			sandbox_sdl_event_set_joystick_callback(0, 0, 0, 0, 0, 0, 0);
+			break;
+		default:
+			break;
+		}
 
-	input->name = strdup(name);
-	input->type = rdat->type;
-	input->init = input_init;
-	input->exit = input_exit;
-	input->ioctl = input_ioctl;
-	input->suspend = input_suspend,
-	input->resume = input_resume,
-	input->priv = res;
+		free_device_name(input->name);
+		free(input);
+		return NULL;
+	}
+	dev->driver = drv;
 
-	if(register_input(input))
-		return TRUE;
-
-	free(input->name);
-	free(input);
-	return FALSE;
+	return dev;
 }
 
-static bool_t sandbox_unregister_input(struct resource_t * res)
+static void input_sandbox_remove(struct device_t * dev)
 {
-	struct input_t * input;
-	char name[64];
+	struct input_t * input = (struct input_t *)dev->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(input && unregister_input(input))
+	{
+		switch(input->type)
+		{
+		case INPUT_TYPE_KEYBOARD:
+			sandbox_sdl_event_set_key_callback(0, 0, 0);
+			break;
+		case INPUT_TYPE_MOUSE:
+			sandbox_sdl_event_set_mouse_callback(0, 0, 0, 0, 0);
+			break;
+		case INPUT_TYPE_TOUCHSCREEN:
+			sandbox_sdl_event_set_touch_callback(0, 0, 0, 0);
+			break;
+		case INPUT_TYPE_JOYSTICK:
+			sandbox_sdl_event_set_joystick_callback(0, 0, 0, 0, 0, 0, 0);
+			break;
+		default:
+			break;
+		}
 
-	input = search_input(name);
-	if(!input)
-		return FALSE;
-
-	if(!unregister_input(input))
-		return FALSE;
-
-	free(input->name);
-	free(input);
-	return TRUE;
+		free_device_name(input->name);
+		free(input);
+	}
 }
 
-static __init void sandbox_input_init(void)
+static void input_sandbox_suspend(struct device_t * dev)
 {
-	sandbox_sdl_event_init();
-	resource_for_each("sandbox-input", sandbox_register_input);
 }
 
-static __exit void sandbox_input_exit(void)
+static void input_sandbox_resume(struct device_t * dev)
 {
-	sandbox_sdl_event_exit();
-	resource_for_each("sandbox-input", sandbox_unregister_input);
 }
 
-device_initcall(sandbox_input_init);
-device_exitcall(sandbox_input_exit);
+static struct driver_t input_sandbox = {
+	.name		= "input-sandbox",
+	.probe		= input_sandbox_probe,
+	.remove		= input_sandbox_remove,
+	.suspend	= input_sandbox_suspend,
+	.resume		= input_sandbox_resume,
+};
+
+static __init void input_sandbox_driver_init(void)
+{
+	register_driver(&input_sandbox);
+}
+
+static __exit void input_sandbox_driver_exit(void)
+{
+	unregister_driver(&input_sandbox);
+}
+
+driver_initcall(input_sandbox_driver_init);
+driver_exitcall(input_sandbox_driver_exit);

@@ -1,5 +1,5 @@
 /*
- * driver/fb-bcm2836.c
+ * driver/fb-sandbox.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,57 +24,63 @@
 
 #include <xboot.h>
 #include <fb/fb.h>
-#include <bcm2836-mbox.h>
+#include <sandbox.h>
 
-struct fb_bcm2836_pdata_t {
+struct fb_sandbox_pdata_t
+{
+	char * title;
 	int width;
 	int height;
 	int xdpi;
 	int ydpi;
 	int bpp;
-	int index;
-	void * vram[2];
-	int brightness;
+	int fullscreen;
+	void * priv;
 };
 
 static void fb_setbl(struct fb_t * fb, int brightness)
 {
-	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
-	pdat->brightness = brightness;
+	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
+	sandbox_sdl_fb_set_backlight(pdat->priv, brightness);
 }
 
 static int fb_getbl(struct fb_t * fb)
 {
-	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
-	return pdat->brightness;
+	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
+	return sandbox_sdl_fb_get_backlight(pdat->priv);
 }
 
 struct render_t * fb_create(struct fb_t * fb)
 {
-	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
+	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
+	struct sandbox_fb_surface_t * surface;
 	struct render_t * render;
-	void * pixels;
-	size_t pixlen;
 
-	pixlen = pdat->width * pdat->height * (pdat->bpp / 8);
-	pixels = memalign(4, pixlen);
-	if(!pixels)
+	surface = malloc(sizeof(struct sandbox_fb_surface_t));
+	if(!surface)
 		return NULL;
+
+	if(sandbox_sdl_fb_surface_create(pdat->priv, surface) != 0)
+	{
+		free(surface);
+		return NULL;
+	}
 
 	render = malloc(sizeof(struct render_t));
 	if(!render)
 	{
-		free(pixels);
+		sandbox_sdl_fb_surface_destroy(pdat->priv, surface);
+		free(surface);
 		return NULL;
 	}
 
-	render->width = pdat->width;
-	render->height = pdat->height;
-	render->pitch = (pdat->width * (pdat->bpp / 8) + 0x3) & ~0x3;
+	render->width = surface->width;
+	render->height = surface->height;
+	render->pitch = surface->pitch;
 	render->format = PIXEL_FORMAT_ARGB32;
-	render->pixels = pixels;
-	render->pixlen = pixlen;
-	render->priv = NULL;
+	render->pixels = surface->pixels;
+	render->pixlen = surface->height * surface->pitch;
+	render->priv = surface;
 
 	render->clear = sw_render_clear;
 	render->snapshot = sw_render_snapshot;
@@ -90,33 +96,29 @@ struct render_t * fb_create(struct fb_t * fb)
 
 void fb_destroy(struct fb_t * fb, struct render_t * render)
 {
+	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
+
 	if(render)
 	{
-		sw_render_destroy_data(render);
-		free(render->pixels);
+		sandbox_sdl_fb_surface_destroy(pdat->priv, render->priv);
+		free(render->priv);
 		free(render);
 	}
 }
 
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
-	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
-
-	if(render && render->pixels)
-	{
-		pdat->index = (pdat->index + 1) & 0x1;
-		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
-		bcm2836_mbox_fb_present(0, pdat->index ? pdat->height : 0);
-	}
+	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
+	sandbox_sdl_fb_surface_present(pdat->priv, render->priv);
 }
 
-static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct fb_bcm2836_pdata_t * pdat;
+	struct fb_sandbox_pdata_t * pdat;
 	struct fb_t * fb;
 	struct device_t * dev;
 
-	pdat = malloc(sizeof(struct fb_bcm2836_pdata_t));
+	pdat = malloc(sizeof(struct fb_sandbox_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -127,15 +129,16 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
+	pdat->title = strdup(dt_read_string(n, "title", "Xboot Runtime Environment"));
 	pdat->width = dt_read_int(n, "width", 640);
 	pdat->height = dt_read_int(n, "height", 480);
 	pdat->xdpi = dt_read_int(n, "x-dots-per-inch", 160);
 	pdat->ydpi = dt_read_int(n, "y-dots-per-inch", 160);
 	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
-	pdat->index = 0;
-	pdat->vram[0] = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, 2);
-	pdat->vram[1] = pdat->vram[0] + (pdat->width * pdat->height * (pdat->bpp / 8));
-	pdat->brightness = 0;
+	pdat->fullscreen = dt_read_bool(n, "fullscreen", 0);
+	pdat->priv = sandbox_sdl_fb_init(pdat->title, pdat->width, pdat->height, pdat->fullscreen);
+	pdat->width = sandbox_sdl_fb_get_width(pdat->priv);
+	pdat->height = sandbox_sdl_fb_get_height(pdat->priv);
 
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	fb->width = pdat->width;
@@ -152,6 +155,9 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 
 	if(!register_fb(&dev, fb))
 	{
+		sandbox_sdl_fb_exit(pdat->priv);
+		free(pdat->title);
+
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
@@ -162,43 +168,47 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 	return dev;
 }
 
-static void fb_bcm2836_remove(struct device_t * dev)
+static void fb_sandbox_remove(struct device_t * dev)
 {
 	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 
 	if(fb && unregister_fb(fb))
 	{
+		sandbox_sdl_fb_exit(pdat->priv);
+		free(pdat->title);
+
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
 	}
 }
 
-static void fb_bcm2836_suspend(struct device_t * dev)
+static void fb_sandbox_suspend(struct device_t * dev)
 {
 }
 
-static void fb_bcm2836_resume(struct device_t * dev)
+static void fb_sandbox_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t fb_bcm2836 = {
-	.name		= "fb-bcm2836",
-	.probe		= fb_bcm2836_probe,
-	.remove		= fb_bcm2836_remove,
-	.suspend	= fb_bcm2836_suspend,
-	.resume		= fb_bcm2836_resume,
+static struct driver_t fb_sandbox = {
+	.name		= "fb-sandbox",
+	.probe		= fb_sandbox_probe,
+	.remove		= fb_sandbox_remove,
+	.suspend	= fb_sandbox_suspend,
+	.resume		= fb_sandbox_resume,
 };
 
-static __init void fb_bcm2836_driver_init(void)
+static __init void fb_sandbox_driver_init(void)
 {
-	register_driver(&fb_bcm2836);
+	register_driver(&fb_sandbox);
 }
 
-static __exit void fb_bcm2836_driver_exit(void)
+static __exit void fb_sandbox_driver_exit(void)
 {
-	unregister_driver(&fb_bcm2836);
+	unregister_driver(&fb_sandbox);
 }
 
-driver_initcall(fb_bcm2836_driver_init);
-driver_exitcall(fb_bcm2836_driver_exit);
+driver_initcall(fb_sandbox_driver_init);
+driver_exitcall(fb_sandbox_driver_exit);

@@ -118,11 +118,11 @@ int sandbox_sdl_fb_surface_present(void * handle, struct sandbox_fb_surface_t * 
 void sandbox_sdl_fb_set_backlight(void * handle, int brightness)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	SDL_SetWindowBrightness(hdl->window, brightness / 1024.0);
+	SDL_SetWindowBrightness(hdl->window, brightness / 1023.0);
 }
 
 int sandbox_sdl_fb_get_backlight(void * handle)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	return (int)(SDL_GetWindowBrightness(hdl->window) * 1024);
+	return (int)(SDL_GetWindowBrightness(hdl->window) * 1023);
 }

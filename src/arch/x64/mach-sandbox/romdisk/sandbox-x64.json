@@ -1,0 +1,30 @@
+{
+	"input-sandbox@0": {
+		"type": "keyboard"
+	},
+
+	"input-sandbox@1": {
+		"type": "mouse"
+	},
+	
+	"input-sandbox@2": {
+		"type": "touchscreen"
+	},
+	
+	"input-sandbox@3": {
+		"type": "joystick"
+	},
+	
+	"fb-sandbox@0": {
+		"title": "Xboot Runtime Environment",
+		"width": 640,
+		"height": 480,
+		"x-dots-per-inch": 160,
+		"y-dots-per-inch": 160,
+		"bits-per-pixel": 32,
+		"fullscreen": false
+	},
+
+	"console-sandbox@0": {
+	}
+}

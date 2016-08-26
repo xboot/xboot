@@ -10,10 +10,6 @@ struct sandbox_t {
 	struct {
 		char * buffer;
 		size_t size;
-	} config;
-	struct {
-		char * buffer;
-		size_t size;
 	} application;
 };
 struct sandbox_t * sandbox_get(void);
@@ -21,12 +17,12 @@ void sandbox_init(int argc, char * argv[]);
 void sandbox_exit(void);
 
 /*
- * Console interface
+ * Stdio interface
  */
-void sandbox_console_init(void);
-void sandbox_console_exit(void);
-ssize_t sandbox_console_read(void * buf, size_t count);
-ssize_t sandbox_console_write(void * buf, size_t count);
+void sandbox_stdio_init(void);
+void sandbox_stdio_exit(void);
+ssize_t sandbox_stdio_read(void * buf, size_t count);
+ssize_t sandbox_stdio_write(void * buf, size_t count);
 
 /*
  * File interface
@@ -43,9 +39,9 @@ uint64_t sandbox_file_length(int fd);
 /*
  * PM interface
  */
-int sandbox_pm_shutdown(void);
-int sandbox_pm_reboot(void);
-int sandbox_pm_sleep(void);
+void sandbox_pm_shutdown(void);
+void sandbox_pm_reboot(void);
+void sandbox_pm_sleep(void);
 
 /*
  * Audio interface

@@ -2,7 +2,7 @@
 	"clk-fixed@0": { "name": "osc-clk", "rate": 19200000 },
 	"clk-fixed@1": { "name": "sys-timer-clk", "rate": 1000000 },
 	"clk-fixed@2": { "name": "arm-timer-clk", "rate": 250000000 },
-	
+
 	"clk-mbox@0": { "name": "emmc-clk", "clock-id": 1 },
 	"clk-mbox@1": { "name": "uart-clk", "clock-id": 2 },
 	"clk-mbox@2": { "name": "arm-clk", "clock-id": 3 },

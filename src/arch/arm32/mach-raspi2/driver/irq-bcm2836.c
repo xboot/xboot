@@ -70,17 +70,26 @@ static void irq_bcm2836_settype(struct irqchip_t * chip, int offset, enum irq_ty
 static void irq_bcm2836_dispatch(struct irqchip_t * chip)
 {
 	struct irq_bcm2836_pdata_t * pdat = (struct irq_bcm2836_pdata_t *)chip->priv;
-	u32_t pending;
-	int offset;
+	u32_t basic, pending;
+	int offset = -1;
 
-	if((pending = read32(pdat->virt + IRQ_PEND1)) != 0)
-		offset = __ffs(pending) + 0;
-	else if((pending = read32(pdat->virt + IRQ_PEND2)) != 0)
-		offset = __ffs(pending) + 32;
-	else if((pending = read32(pdat->virt + IRQ_PEND_BASIC)) != 0)
-		offset = __ffs(pending) + 64;
-	else
-		return;
+	if((basic = read32(pdat->virt + IRQ_PEND_BASIC) & 0x3ff) != 0)
+	{
+		if(basic & (1 << 8))
+		{
+			if((pending = read32(pdat->virt + IRQ_PEND1)) != 0)
+				offset = __ffs(pending) + 0;
+		}
+		else if(basic & (1 << 9))
+		{
+			if((pending = read32(pdat->virt + IRQ_PEND2)) != 0)
+				offset = __ffs(pending) + 32;
+		}
+		else if(basic & 0xff)
+		{
+			offset = __ffs(basic & 0xff) + 64;
+		}
+	}
 
 	if((offset >= 0) && (offset < chip->nirq))
 		(chip->handler[offset].func)(chip->handler[offset].data);

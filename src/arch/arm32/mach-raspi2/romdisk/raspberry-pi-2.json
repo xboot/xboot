@@ -69,13 +69,13 @@
 
 	"led-gpio@0": {
 		"gpio": 35,
-		"active-low": true,
+		"active-low": false,
 		"default-brightness": 0
 	},
 
 	"led-gpio@1": {
 		"gpio": 47,
-		"active-low": true,
+		"active-low": false,
 		"default-brightness": 0
 	},
 

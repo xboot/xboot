@@ -185,7 +185,7 @@ void machine_sleep(void)
 
 	sync();
 
-	list_for_each_entry_safe(pos, n, &__device_list, list)
+	list_for_each_entry_safe_reverse(pos, n, &__device_list, list)
 	{
 		suspend_device(pos);
 	}
@@ -195,7 +195,7 @@ void machine_sleep(void)
 		mach->sleep(mach);
 	}
 
-	list_for_each_entry_safe_reverse(pos, n, &__device_list, list)
+	list_for_each_entry_safe(pos, n, &__device_list, list)
 	{
 		resume_device(pos);
 	}

@@ -6,15 +6,15 @@
 	"input-sandbox@1": {
 		"type": "mouse"
 	},
-	
+
 	"input-sandbox@2": {
 		"type": "touchscreen"
 	},
-	
+
 	"input-sandbox@3": {
 		"type": "joystick"
 	},
-	
+
 	"fb-sandbox@0": {
 		"title": "Xboot Runtime Environment",
 		"width": 640,

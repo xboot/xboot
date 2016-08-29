@@ -46,6 +46,7 @@ struct device_t
 {
 	struct kobj_t * kobj;
 	struct hlist_node node;
+	struct list_head list;
 
 	char * name;
 	enum device_type_t type;
@@ -54,6 +55,8 @@ struct device_t
 };
 
 extern struct hlist_head __device_hash[DEVICE_TYPE_MAX_COUNT];
+extern struct list_head __device_list;
+
 char * alloc_device_name(const char * name, int id);
 void free_device_name(char * name);
 struct device_t * search_device(const char * name, enum device_type_t type);

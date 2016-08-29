@@ -181,10 +181,24 @@ void machine_reboot(void)
 void machine_sleep(void)
 {
 	struct machine_t * mach = get_machine();
+	struct device_t * pos, * n;
 
 	sync();
+
+	list_for_each_entry_safe(pos, n, &__device_list, list)
+	{
+		suspend_device(pos);
+	}
+
 	if(mach && mach->sleep)
+	{
 		mach->sleep(mach);
+	}
+
+	list_for_each_entry_safe_reverse(pos, n, &__device_list, list)
+	{
+		resume_device(pos);
+	}
 }
 
 void machine_cleanup(void)

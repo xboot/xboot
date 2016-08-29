@@ -26,6 +26,10 @@
 #include <xboot/device.h>
 
 struct hlist_head __device_hash[DEVICE_TYPE_MAX_COUNT];
+struct list_head __device_list = {
+	.next = &__device_list,
+	.prev = &__device_list,
+};
 static spinlock_t __device_lock = SPIN_LOCK_INIT();
 static struct notifier_chain_t __device_nc = NOTIFIER_CHAIN_INIT();
 
@@ -133,20 +137,15 @@ static ssize_t device_write_resume(struct kobj_t * kobj, void * buf, size_t size
 
 static struct device_t * find_device(const char * name)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
-	int i;
+	struct device_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	for(i = 0; i < ARRAY_SIZE(__device_hash); i++)
+	list_for_each_entry_safe(pos, n, &__device_list, list)
 	{
-		hlist_for_each_entry_safe(pos, n, &__device_hash[i], node)
-		{
-			if(strcmp(pos->name, name) == 0)
-				return pos;
-		}
+		if(strcmp(pos->name, name) == 0)
+			return pos;
 	}
 	return NULL;
 }
@@ -220,6 +219,8 @@ bool_t register_device(struct device_t * dev)
 	spin_lock_irqsave(&__device_lock, flags);
 	init_hlist_node(&dev->node);
 	hlist_add_head(&dev->node, &__device_hash[dev->type]);
+	init_list_head(&dev->list);
+	list_add_tail(&dev->list, &__device_list);
 	spin_unlock_irqrestore(&__device_lock, flags);
 	notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_ADD, dev);
 
@@ -242,6 +243,7 @@ bool_t unregister_device(struct device_t * dev)
 	notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_REMOVE, dev);
 	spin_lock_irqsave(&__device_lock, flags);
 	hlist_del(&dev->node);
+	list_del(&dev->list);
 	spin_unlock_irqrestore(&__device_lock, flags);
 	kobj_remove(search_device_kobj(dev), dev->kobj);
 
@@ -288,5 +290,6 @@ static __init void device_pure_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(__device_hash); i++)
 		init_hlist_head(&__device_hash[i]);
+	init_list_head(&__device_list);
 }
 pure_initcall(device_pure_init);

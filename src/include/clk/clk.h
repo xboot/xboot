@@ -29,7 +29,7 @@ struct clk_t
 {
 	char * name;
 	enum clk_type_t type;
-	int count;
+	struct kref_t count;
 
 	void (*set_parent)(struct clk_t * clk, const char * pname);
 	const char * (*get_parent)(struct clk_t * clk);

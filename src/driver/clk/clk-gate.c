@@ -78,7 +78,7 @@ bool_t register_clk_gate(struct device_t ** device, struct clk_gate_t * gclk)
 
 	clk->name = gclk->name;
 	clk->type = CLK_TYPE_GATE;
-	clk->count = 0;
+	kref_init(&clk->count);
 	clk->set_parent = clk_gate_set_parent;
 	clk->get_parent = clk_gate_get_parent;
 	clk->set_enable = clk_gate_set_enable;

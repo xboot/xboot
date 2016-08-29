@@ -68,7 +68,7 @@ bool_t register_clk_link(struct device_t ** device, struct clk_link_t * lclk)
 
 	clk->name = lclk->name;
 	clk->type = CLK_TYPE_LINK;
-	clk->count = 0;
+	kref_init(&clk->count);
 	clk->set_parent = clk_link_set_parent;
 	clk->get_parent = clk_link_get_parent;
 	clk->set_enable = clk_link_set_enable;

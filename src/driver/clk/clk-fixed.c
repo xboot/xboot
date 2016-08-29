@@ -68,7 +68,7 @@ bool_t register_clk_fixed(struct device_t ** device, struct clk_fixed_t * fclk)
 
 	clk->name = fclk->name;
 	clk->type = CLK_TYPE_FIXED;
-	clk->count = 0;
+	kref_init(&clk->count);
 	clk->set_parent = clk_fixed_set_parent;
 	clk->get_parent = clk_fixed_get_parent;
 	clk->set_enable = clk_fixed_set_enable;

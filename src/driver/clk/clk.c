@@ -232,7 +232,18 @@ void clk_enable(const char * name)
 	if(clk->set_enable)
 		clk->set_enable(clk, TRUE);
 
-	clk->count++;
+	kref_get(&clk->count);
+}
+
+static void __clk_disable(struct kref_t * kref)
+{
+	struct clk_t * clk = container_of(kref, struct clk_t, count);
+
+	if(clk->get_parent)
+		clk_disable(clk->get_parent(clk));
+
+	if(clk->set_enable)
+		clk->set_enable(clk, FALSE);
 }
 
 void clk_disable(const char * name)
@@ -242,17 +253,7 @@ void clk_disable(const char * name)
 	if(!clk)
 		return;
 
-	if(clk->count > 0)
-		clk->count--;
-
-	if(clk->count == 0)
-	{
-		if(clk->get_parent)
-			clk_disable(clk->get_parent(clk));
-
-		if(clk->set_enable)
-			clk->set_enable(clk, FALSE);
-	}
+	kref_put(&clk->count, __clk_disable);
 }
 
 bool_t clk_status(const char * name)

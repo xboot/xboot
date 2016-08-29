@@ -91,7 +91,7 @@ bool_t register_clk_mux(struct device_t ** device, struct clk_mux_t * mclk)
 
 	clk->name = mclk->name;
 	clk->type = CLK_TYPE_MUX;
-	clk->count = 0;
+	kref_init(&clk->count);
 	clk->set_parent = clk_mux_set_parent;
 	clk->get_parent = clk_mux_get_parent;
 	clk->set_enable = clk_mux_set_enable;

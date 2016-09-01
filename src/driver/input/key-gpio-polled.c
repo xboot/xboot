@@ -1,5 +1,5 @@
 /*
- * driver/input/key-gpio.c
+ * driver/input/key-gpio-polled.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -34,17 +34,17 @@ struct gpio_key_t {
 	int state;
 };
 
-struct key_gpio_pdata_t {
+struct key_gpio_polled_pdata_t {
 	struct timer_t timer;
 	struct gpio_key_t * keys;
 	int nkeys;
 	int interval;
 };
 
-static int key_gpio_timer_function(struct timer_t * timer, void * data)
+static int key_gpio_polled_timer_function(struct timer_t * timer, void * data)
 {
 	struct input_t * input = (struct input_t *)(data);
-	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
+	struct key_gpio_polled_pdata_t * pdat = (struct key_gpio_polled_pdata_t *)input->priv;
 	enum event_type_t type;
 	int i, val;
 
@@ -70,14 +70,14 @@ static int key_gpio_timer_function(struct timer_t * timer, void * data)
 	return 1;
 }
 
-static int key_gpio_ioctl(struct input_t * input, int cmd, void * arg)
+static int key_gpio_polled_ioctl(struct input_t * input, int cmd, void * arg)
 {
 	return -1;
 }
 
-static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * key_gpio_polled_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct key_gpio_pdata_t * pdat;
+	struct key_gpio_polled_pdata_t * pdat;
 	struct gpio_key_t * keys;
 	struct input_t * input;
 	struct device_t * dev;
@@ -87,7 +87,7 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	if((nkeys = dt_read_array_length(n, "keys")) <= 0)
 		return NULL;
 
-	pdat = malloc(sizeof(struct key_gpio_pdata_t));
+	pdat = malloc(sizeof(struct key_gpio_polled_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -118,14 +118,14 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 		keys[i].state = gpio_get_value(keys[i].gpio);
 	}
 
-	timer_init(&pdat->timer, key_gpio_timer_function, input);
+	timer_init(&pdat->timer, key_gpio_polled_timer_function, input);
 	pdat->keys = keys;
 	pdat->nkeys = nkeys;
-	pdat->interval = dt_read_int(&o, "poll-interval-ms", 100);
+	pdat->interval = dt_read_int(&o, "poll-interval-millisecond", 100);
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->type = INPUT_TYPE_KEYBOARD;
-	input->ioctl = key_gpio_ioctl;
+	input->ioctl = key_gpio_polled_ioctl;
 	input->priv = pdat;
 
 	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
@@ -145,10 +145,10 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	return dev;
 }
 
-static void key_gpio_remove(struct device_t * dev)
+static void key_gpio_polled_remove(struct device_t * dev)
 {
 	struct input_t * input = (struct input_t *)dev->priv;
-	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
+	struct key_gpio_polled_pdata_t * pdat = (struct key_gpio_polled_pdata_t *)input->priv;
 
 	if(input && unregister_input(input))
 	{
@@ -161,39 +161,39 @@ static void key_gpio_remove(struct device_t * dev)
 	}
 }
 
-static void key_gpio_suspend(struct device_t * dev)
+static void key_gpio_polled_suspend(struct device_t * dev)
 {
 	struct input_t * input = (struct input_t *)dev->priv;
-	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
+	struct key_gpio_polled_pdata_t * pdat = (struct key_gpio_polled_pdata_t *)input->priv;
 
 	timer_cancel(&pdat->timer);
 }
 
-static void key_gpio_resume(struct device_t * dev)
+static void key_gpio_polled_resume(struct device_t * dev)
 {
 	struct input_t * input = (struct input_t *)dev->priv;
-	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
+	struct key_gpio_polled_pdata_t * pdat = (struct key_gpio_polled_pdata_t *)input->priv;
 
 	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
 }
 
-static struct driver_t key_gpio = {
-	.name		= "key-gpio",
-	.probe		= key_gpio_probe,
-	.remove		= key_gpio_remove,
-	.suspend	= key_gpio_suspend,
-	.resume		= key_gpio_resume,
+static struct driver_t key_gpio_polled = {
+	.name		= "key-gpio-polled",
+	.probe		= key_gpio_polled_probe,
+	.remove		= key_gpio_polled_remove,
+	.suspend	= key_gpio_polled_suspend,
+	.resume		= key_gpio_polled_resume,
 };
 
-static __init void key_gpio_driver_init(void)
+static __init void key_gpio_polled_driver_init(void)
 {
-	register_driver(&key_gpio);
+	register_driver(&key_gpio_polled);
 }
 
-static __exit void key_gpio_driver_exit(void)
+static __exit void key_gpio_polled_driver_exit(void)
 {
-	unregister_driver(&key_gpio);
+	unregister_driver(&key_gpio_polled);
 }
 
-driver_initcall(key_gpio_driver_init);
-driver_exitcall(key_gpio_driver_exit);
+driver_initcall(key_gpio_polled_driver_init);
+driver_exitcall(key_gpio_polled_driver_exit);

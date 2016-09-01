@@ -109,12 +109,12 @@
 		"step-per-period": 1
 	},
 
-	"key-gpio@0": {
+	"key-gpio-polled@0": {
 		"keys": [
 			{ "gpio": 5, "active-low": true, "key-code": 146 },
 			{ "gpio": 6, "active-low": true, "key-code": 159 }
 		],
-		"poll-interval-ms": 100
+		"poll-interval-millisecond": 100
 	},
 
 	"rc-gpio@0": {

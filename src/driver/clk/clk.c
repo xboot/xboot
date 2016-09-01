@@ -188,7 +188,7 @@ bool_t unregister_clk(struct clk_t * clk)
 	if(!clk || !clk->name)
 		return FALSE;
 
-	dev = search_device(clk->name, DEVICE_TYPE_CLK);
+	dev = search_clk(clk->name);
 	if(!dev)
 		return FALSE;
 

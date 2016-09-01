@@ -114,7 +114,7 @@
 			{ "gpio": 5, "active-low": true, "key-code": 146 },
 			{ "gpio": 6, "active-low": true, "key-code": 159 }
 		],
-		"poll-interval-millisecond": 100
+		"poll-interval-ms": 100
 	},
 
 	"rc-gpio@0": {

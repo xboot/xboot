@@ -37,7 +37,7 @@ static const char * clk_type_to_string(const char * name)
 			type = "fixed";
 			break;
 		case CLK_TYPE_FIXED_FACTOR:
-			type = "fixed-factor";
+			type = "factor";
 			break;
 		case CLK_TYPE_PLL:
 			type = "pll";
@@ -64,7 +64,7 @@ static const char * clk_type_to_string(const char * name)
 	return type;
 }
 
-static ssize_t clk_read_dump(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t clk_read_summary(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clk_t * clk = (struct clk_t *)kobj->priv;
 	const char * name = clk->name;
@@ -72,13 +72,28 @@ static ssize_t clk_read_dump(struct kobj_t * kobj, void * buf, size_t size)
 	int len = 0;
 	u64_t rate;
 
+	len += sprintf((char *)(p + len), "%-16s %8s %16s %8s\r\n", "name", "type", "rate", "enable");
 	while(name)
 	{
 		rate = clk_get_rate(name);
-		len += sprintf((char *)(p + len), " %s(%s): %Ld.%06LdMHZ %s\r\n", name, clk_type_to_string(name), rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000), clk_status(name) ? "enable" : "disable");
+		len += sprintf((char *)(p + len), "%-16s %8s %6Ld.%06LdMHZ %8d\r\n", name, clk_type_to_string(name), rate / (u64_t)(1000 * 1000), rate % (u64_t)(1000 * 1000), clk_status(name) ? 1 : 0);
 		name = clk_get_parent(name);
 	}
 	return len;
+}
+
+static ssize_t clk_read_parent(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	const char * parent = clk_get_parent(clk->name);
+	return sprintf(buf, "%s", parent ? parent : "NONE");
+}
+
+static ssize_t clk_write_parent(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct clk_t * clk = (struct clk_t *)kobj->priv;
+	clk_set_parent(clk->name, buf);
+	return size;
 }
 
 static ssize_t clk_read_type(struct kobj_t * kobj, void * buf, size_t size)
@@ -119,20 +134,6 @@ static ssize_t clk_write_rate(struct kobj_t * kobj, void * buf, size_t size)
 	return size;
 }
 
-static ssize_t clk_read_parent(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct clk_t * clk = (struct clk_t *)kobj->priv;
-	const char * parent = clk_get_parent(clk->name);
-	return sprintf(buf, "%s", parent ? parent : "NONE");
-}
-
-static ssize_t clk_write_parent(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct clk_t * clk = (struct clk_t *)kobj->priv;
-	clk_set_parent(clk->name, buf);
-	return size;
-}
-
 struct clk_t * search_clk(const char * name)
 {
 	struct device_t * dev;
@@ -162,11 +163,11 @@ bool_t register_clk(struct device_t ** device, struct clk_t * clk)
 	dev->type = DEVICE_TYPE_CLK;
 	dev->priv = clk;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "dump", clk_read_dump, NULL, clk);
+	kobj_add_regular(dev->kobj, "summary", clk_read_summary, NULL, clk);
+	kobj_add_regular(dev->kobj, "parent", clk_read_parent, clk_write_parent, clk);
 	kobj_add_regular(dev->kobj, "type", clk_read_type, NULL, clk);
 	kobj_add_regular(dev->kobj, "enable", clk_read_enable, clk_write_enable, clk);
 	kobj_add_regular(dev->kobj, "rate", clk_read_rate, clk_write_rate, clk);
-	kobj_add_regular(dev->kobj, "parent", clk_read_parent, clk_write_parent, clk);
 
 	if(!register_device(dev))
 	{
@@ -188,7 +189,7 @@ bool_t unregister_clk(struct clk_t * clk)
 	if(!clk || !clk->name)
 		return FALSE;
 
-	dev = search_clk(clk->name);
+	dev = search_device(clk->name, DEVICE_TYPE_CLK);
 	if(!dev)
 		return FALSE;
 

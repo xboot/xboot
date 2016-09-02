@@ -137,8 +137,8 @@ static struct device_t * irq_pl192_probe(struct driver_t * drv, struct dtnode_t 
 				((read32(virt + 0xfe8) & 0xff) << 16) |
 				((read32(virt + 0xfe4) & 0xff) <<  8) |
 				((read32(virt + 0xfe0) & 0xff) <<  0));
-	int base = dt_read_int(n, "base", -1);
-	int nirq = dt_read_int(n, "nirq", -1);
+	int base = dt_read_int(n, "interrupt-base", -1);
+	int nirq = dt_read_int(n, "interrupt-count", -1);
 
 	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x192)
 		return NULL;

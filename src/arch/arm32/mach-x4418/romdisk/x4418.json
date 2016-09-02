@@ -5,85 +5,85 @@
 	"clk-fixed@3": { "name": "GATE-UART3", "rate": 11000000 },
 
 	"irq-pl192@0xc0002000": {
-		"base": 0,
-		"nirq": 32
+		"interrupt-base": 0,
+		"interrupt-count": 32
 	},
 
 	"irq-pl192@0xc0003000": {
-		"base": 32,
-		"nirq": 32
+		"interrupt-base": 32,
+		"interrupt-count": 32
 	},
 
 	"irq-s5p4418-gpio@0xc001a000": {
-		"base": 64,
-		"nirq": 32,
-		"parent": 53
+		"interrupt-base": 64,
+		"interrupt-count": 32,
+		"interrupt-parent": 53
 	},
 
 	"irq-s5p4418-gpio@0xc001b000": {
-		"base": 96,
-		"nirq": 32,
-		"parent": 54
+		"interrupt-base": 96,
+		"interrupt-count": 32,
+		"interrupt-parent": 54
 	},
 
 	"irq-s5p4418-gpio@0xc001c000": {
-		"base": 128,
-		"nirq": 32,
-		"parent": 55
+		"interrupt-base": 128,
+		"interrupt-count": 32,
+		"interrupt-parent": 55
 	},
 
 	"irq-s5p4418-gpio@0xc001d000": {
-		"base": 160,
-		"nirq": 32,
-		"parent": 56
+		"interrupt-base": 160,
+		"interrupt-count": 32,
+		"interrupt-parent": 56
 	},
 
 	"irq-s5p4418-gpio@0xc001e000": {
-		"base": 192,
-		"nirq": 32,
-		"parent": 57
+		"interrupt-base": 192,
+		"interrupt-count": 32,
+		"interrupt-parent": 57
 	},
 
 	"irq-s5p4418-gpioalv@0xc0010000": {
-		"base": 224,
-		"nirq": 6,
-		"parent": 4
+		"interrupt-base": 224,
+		"interrupt-count": 6,
+		"interrupt-parent": 4
 	},
 
 	"gpio-s5p4418@0xc001a000": {
-		"base": 0,
-		"ngpio": 32,
-		"irqbase": 64
+		"gpio-base": 0,
+		"gpio-count": 32,
+		"interrupt-offset": 64
 	},
 
 	"gpio-s5p4418@0xc001b000": {
-		"base": 32,
-		"ngpio": 32,
-		"irqbase": 96
+		"gpio-base": 32,
+		"gpio-count": 32,
+		"interrupt-offset": 96
 	},
 
 	"gpio-s5p4418@0xc001c000": {
-		"base": 64,
-		"ngpio": 32,
-		"irqbase": 128
+		"gpio-base": 64,
+		"gpio-count": 32,
+		"interrupt-offset": 128
 	},
 
 	"gpio-s5p4418@0xc001d000": {
-		"base": 96,
-		"ngpio": 32,
-		"irqbase": 160
+		"gpio-base": 96,
+		"gpio-count": 32,
+		"interrupt-offset": 160
 	},
 
 	"gpio-s5p4418@0xc001e000": {
-		"base": 128,
-		"ngpio": 32,
-		"irqbase": 192
+		"gpio-base": 128,
+		"gpio-count": 32,
+		"interrupt-offset": 192
 	},
 
 	"gpio-s5p4418-alv@0xc0010000": {
-		"base": 160,
-		"ngpio": 6,
-		"irqbase": 224
+		"gpio-base": 160,
+		"gpio-count": 6,
+		"interrupt-offset": 224
 	},
 
 	"uart-pl011@0xc00a1000": {

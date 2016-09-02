@@ -30,6 +30,7 @@ struct gpio_bcm2836_virt_pdata_t
 {
 	int base;
 	int ngpio;
+	int oirq;
 	uint32_t virtbuf;
 	uint32_t * status;
 };
@@ -109,7 +110,11 @@ static int gpio_bcm2836_virt_get_value(struct gpiochip_t * chip, int offset)
 
 static int gpio_bcm2836_virt_to_irq(struct gpiochip_t * chip, int offset)
 {
-	return -1;
+	struct gpio_bcm2836_virt_pdata_t * pdat = (struct gpio_bcm2836_virt_pdata_t *)chip->priv;
+
+	if((offset >= chip->ngpio) || (pdat->oirq < 0))
+		return -1;
+	return pdat->oirq + offset;
 }
 
 static struct device_t * gpio_bcm2836_virt_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -136,6 +141,7 @@ static struct device_t * gpio_bcm2836_virt_probe(struct driver_t * drv, struct d
 
 	pdat->base = base;
 	pdat->ngpio = ngpio;
+	pdat->oirq = dt_read_int(n, "interrupt-offset", -1);
 	pdat->virtbuf = bcm2836_mbox_fb_get_gpiovirt();
 	pdat->status = malloc(sizeof(uint32_t) * pdat->ngpio);
 	memset(pdat->status, 0, sizeof(uint32_t) * pdat->ngpio);

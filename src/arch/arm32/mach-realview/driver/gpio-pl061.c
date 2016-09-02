@@ -41,6 +41,7 @@ struct gpio_pl061_pdata_t
 	virtual_addr_t virt;
 	int base;
 	int ngpio;
+	int oirq;
 };
 
 static void gpio_pl061_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
@@ -134,7 +135,11 @@ static int gpio_pl061_get_value(struct gpiochip_t * chip, int offset)
 
 static int gpio_pl061_to_irq(struct gpiochip_t * chip, int offset)
 {
-	return -1;
+	struct gpio_pl061_pdata_t * pdat = (struct gpio_pl061_pdata_t *)chip->priv;
+
+	if((offset >= chip->ngpio) || (pdat->oirq < 0))
+		return -1;
+	return pdat->oirq + offset;
 }
 
 static struct device_t * gpio_pl061_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -147,8 +152,8 @@ static struct device_t * gpio_pl061_probe(struct driver_t * drv, struct dtnode_t
 				((read32(virt + 0xfe8) & 0xff) << 16) |
 				((read32(virt + 0xfe4) & 0xff) <<  8) |
 				((read32(virt + 0xfe0) & 0xff) <<  0));
-	int base = dt_read_int(n, "base", -1);
-	int ngpio = dt_read_int(n, "ngpio", -1);
+	int base = dt_read_int(n, "gpio-base", -1);
+	int ngpio = dt_read_int(n, "gpio-count", -1);
 
 	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x061)
 		return NULL;
@@ -170,6 +175,7 @@ static struct device_t * gpio_pl061_probe(struct driver_t * drv, struct dtnode_t
 	pdat->virt = virt;
 	pdat->base = base;
 	pdat->ngpio = ngpio;
+	pdat->oirq = dt_read_int(n, "interrupt-offset", -1);
 
 	chip->name = alloc_device_name(dt_read_name(n), -1);
 	chip->base = pdat->base;

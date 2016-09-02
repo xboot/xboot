@@ -101,8 +101,8 @@ static struct device_t * irq_bcm2836_probe(struct driver_t * drv, struct dtnode_
 	struct irqchip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	int base = dt_read_int(n, "base", -1);
-	int nirq = dt_read_int(n, "nirq", -1);
+	int base = dt_read_int(n, "interrupt-base", -1);
+	int nirq = dt_read_int(n, "interrupt-count", -1);
 
 	if((base < 0) || (nirq <= 0))
 		return NULL;
@@ -125,7 +125,6 @@ static struct device_t * irq_bcm2836_probe(struct driver_t * drv, struct dtnode_
 	chip->name = alloc_device_name(dt_read_name(n), -1);
 	chip->base = pdat->base;
 	chip->nirq = pdat->nirq;
-
 	chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);
 	chip->enable = irq_bcm2836_enable;
 	chip->disable = irq_bcm2836_disable;

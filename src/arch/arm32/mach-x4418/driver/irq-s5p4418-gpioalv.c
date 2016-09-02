@@ -213,11 +213,11 @@ static struct device_t * irq_s5p4418_gpioalv_probe(struct driver_t * drv, struct
 	struct irqchip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	int base = dt_read_int(n, "base", -1);
-	int nirq = dt_read_int(n, "nirq", -1);
-	int parent = dt_read_int(n, "parent", -1);
+	int base = dt_read_int(n, "interrupt-base", -1);
+	int nirq = dt_read_int(n, "interrupt-count", -1);
+	int parent = dt_read_int(n, "interrupt-parent", -1);
 
-	if((base < 0) || (nirq <= 0) || (parent < 0))
+	if((base < 0) || (nirq <= 0) || !irq_is_valid(parent))
 		return NULL;
 
 	pdat = malloc(sizeof(struct irq_s5p4418_gpioalv_pdata_t));

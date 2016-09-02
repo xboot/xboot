@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
-/* GPU interrupts */
+/*
+ * GPU interrupts
+ */
 #define BCM2836_IRQ_TIMER0			(0)
 #define BCM2836_IRQ_TIMER1			(1)
 #define BCM2836_IRQ_TIMER2			(2)
@@ -71,7 +73,9 @@ extern "C" {
 #define BCM2836_IRQ_ARASANSDIO		(62)
 #define BCM2836_IRQ_AVSPMON			(63)
 
-/* ARM interrupts */
+/*
+ * ARM interrupts
+ */
 #define BCM2836_IRQ_ARM_TIMER		(64)
 #define BCM2836_IRQ_ARM_MAILBOX		(65)
 #define BCM2836_IRQ_ARM_DOORBELL_0	(66)

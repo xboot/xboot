@@ -109,7 +109,7 @@ struct gpio_s5p4418_alv_pdata_t
 	virtual_addr_t virt;
 	int base;
 	int ngpio;
-	int irqbase;
+	int oirq;
 };
 
 static inline void gpiochip_write_enable(struct gpiochip_t * chip)
@@ -285,9 +285,9 @@ static int gpio_s5p4418_alv_to_irq(struct gpiochip_t * chip, int offset)
 {
 	struct gpio_s5p4418_alv_pdata_t * pdat = (struct gpio_s5p4418_alv_pdata_t *)chip->priv;
 
-	if((offset >= chip->ngpio) || (pdat->irqbase < 0))
+	if((offset >= chip->ngpio) || (pdat->oirq < 0))
 		return -1;
-	return pdat->irqbase + offset;
+	return pdat->oirq + offset;
 }
 
 static struct device_t * gpio_s5p4418_alv_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -296,8 +296,8 @@ static struct device_t * gpio_s5p4418_alv_probe(struct driver_t * drv, struct dt
 	struct gpiochip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	int base = dt_read_int(n, "base", -1);
-	int ngpio = dt_read_int(n, "ngpio", -1);
+	int base = dt_read_int(n, "gpio-base", -1);
+	int ngpio = dt_read_int(n, "gpio-count", -1);
 
 	if((base < 0) || (ngpio <= 0))
 		return NULL;
@@ -316,7 +316,7 @@ static struct device_t * gpio_s5p4418_alv_probe(struct driver_t * drv, struct dt
 	pdat->virt = virt;
 	pdat->base = base;
 	pdat->ngpio = ngpio;
-	pdat->irqbase = dt_read_int(n, "irqbase", -1);
+	pdat->oirq = dt_read_int(n, "interrupt-offset", -1);
 
 	chip->name = alloc_device_name(dt_read_name(n), -1);
 	chip->base = pdat->base;

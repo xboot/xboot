@@ -15,18 +15,20 @@
 	"clk-mbox@9": { "name": "pwm-clk", "mbox-clock-id": 10 },
 
 	"irq-bcm2836@0x3f00b200": {
-		"base": 0,
-		"nirq": 72
+		"interrupt-base": 0,
+		"interrupt-count": 72
 	},
 
 	"gpio-bcm2836@0x3f200000": {
-		"base": 0,
-		"ngpio": 54
+		"gpio-base": 0,
+		"gpio-count": 54,
+		"interrupt-offset": -1
 	},
 
 	"gpio-bcm2836-virt": {
-		"base": 64,
-		"ngpio": 2
+		"gpio-base": 64,
+		"gpio-count": 2,
+		"interrupt-offset": -1
 	},
 
 	"pwm-bcm2836@0x3f20c000": {

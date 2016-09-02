@@ -55,6 +55,7 @@ struct gpio_bcm2836_pdata_t
 	virtual_addr_t virt;
 	int base;
 	int ngpio;
+	int oirq;
 };
 
 static void gpio_bcm2836_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
@@ -237,7 +238,11 @@ static int gpio_bcm2836_get_value(struct gpiochip_t * chip, int offset)
 
 static int gpio_bcm2836_to_irq(struct gpiochip_t * chip, int offset)
 {
-	return -1;
+	struct gpio_bcm2836_pdata_t * pdat = (struct gpio_bcm2836_pdata_t *)chip->priv;
+
+	if((offset >= chip->ngpio) || (pdat->oirq < 0))
+		return -1;
+	return pdat->oirq + offset;
 }
 
 static struct device_t * gpio_bcm2836_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -266,6 +271,7 @@ static struct device_t * gpio_bcm2836_probe(struct driver_t * drv, struct dtnode
 	pdat->virt = virt;
 	pdat->base = base;
 	pdat->ngpio = ngpio;
+	pdat->oirq = dt_read_int(n, "interrupt-offset", -1);
 
 	chip->name = alloc_device_name(dt_read_name(n), -1);
 	chip->base = pdat->base;

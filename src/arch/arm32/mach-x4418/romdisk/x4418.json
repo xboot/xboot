@@ -1,0 +1,273 @@
+{
+	"clk-fixed@0": { "name": "GATE-UART0", "rate": 11000000 },
+	"clk-fixed@1": { "name": "GATE-UART1", "rate": 11000000 },
+	"clk-fixed@2": { "name": "GATE-UART2", "rate": 11000000 },
+	"clk-fixed@3": { "name": "GATE-UART3", "rate": 11000000 },
+
+	"irq-pl192@0xc0002000": {
+		"base": 0,
+		"nirq": 32
+	},
+
+	"irq-pl192@0xc0003000": {
+		"base": 32,
+		"nirq": 32
+	},
+
+	"irq-s5p4418-gpio@0xc001a000": {
+		"base": 64,
+		"nirq": 32,
+		"parent": 53
+	},
+
+	"irq-s5p4418-gpio@0xc001b000": {
+		"base": 96,
+		"nirq": 32,
+		"parent": 54
+	},
+
+	"irq-s5p4418-gpio@0xc001c000": {
+		"base": 128,
+		"nirq": 32,
+		"parent": 55
+	},
+
+	"irq-s5p4418-gpio@0xc001d000": {
+		"base": 160,
+		"nirq": 32,
+		"parent": 56
+	},
+
+	"irq-s5p4418-gpio@0xc001e000": {
+		"base": 192,
+		"nirq": 32,
+		"parent": 57
+	},
+
+	"irq-s5p4418-gpioalv@0xc0010000": {
+		"base": 224,
+		"nirq": 6,
+		"parent": 4
+	},
+
+	"gpio-s5p4418@0xc001a000": {
+		"base": 0,
+		"ngpio": 32,
+		"irqbase": 64
+	},
+
+	"gpio-s5p4418@0xc001b000": {
+		"base": 32,
+		"ngpio": 32,
+		"irqbase": 96
+	},
+
+	"gpio-s5p4418@0xc001c000": {
+		"base": 64,
+		"ngpio": 32,
+		"irqbase": 128
+	},
+
+	"gpio-s5p4418@0xc001d000": {
+		"base": 96,
+		"ngpio": 32,
+		"irqbase": 160
+	},
+
+	"gpio-s5p4418@0xc001e000": {
+		"base": 128,
+		"ngpio": 32,
+		"irqbase": 192
+	},
+
+	"gpio-s5p4418-alv@0xc0010000": {
+		"base": 160,
+		"ngpio": 6,
+		"irqbase": 224
+	},
+
+	"uart-pl011@0xc00a1000": {
+		"clock-name": "GATE-UART0",
+		"txd-gpio": 114,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 110,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-pl011@0xc00a0000": {
+		"clock-name": "GATE-UART1",
+		"txd-gpio": 115,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 111,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-pl011@0xc00a2000": {
+		"clock-name": "GATE-UART2",
+		"txd-gpio": 116,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 112,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-pl011@0xc00a3000": {
+		"clock-name": "GATE-UART3",
+		"txd-gpio": 117,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 113,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"i2c-gpio@0": {
+		"sda-gpio": 99,
+		"scl-gpio": 98,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@1": {
+		"sda-gpio": 101,
+		"scl-gpio": 100,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+	
+	"i2c-gpio@2": {
+		"sda-gpio": 103,
+		"scl-gpio": 102,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+	
+	"i2c-gpio@3": {
+		"sda-gpio": 80,
+		"scl-gpio": 79,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"led-gpio@0": {
+		"gpio": 60,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@1": {
+		"gpio": 75,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@2": {
+		"gpio": 71,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@3": {
+		"gpio": 76,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.3",
+		"heartbeat-period-ms": 1260
+	},
+
+	"ledtrig-general@0": {
+		"led-name": "led-gpio.0"
+	},
+
+	"ledtrig-general@1": {
+		"led-name": "led-gpio.1"
+	},
+
+	"ledtrig-general@2": {
+		"led-name": "led-gpio.2"
+	},
+
+	"key-gpio-polled@0": {
+		"keys": [
+			{ "gpio": 41, "active-low": true, "key-code": 157 },
+			{ "gpio": 63, "active-low": true, "key-code": 147 },
+			{ "gpio": 62, "active-low": true, "key-code": 148 },
+			{ "gpio": 28, "active-low": true, "key-code": 146 },
+			{ "gpio": 160, "active-low": true, "key-code": 159 }
+		],
+		"poll-interval-ms": 100
+	},
+
+	"rc-gpio@0": {
+		"gpio": 104,
+		"active-low": true,
+		"maps": [
+			{ "scan-code": 4259585, "key-code": 49 },
+			{ "scan-code": 4259586, "key-code": 50 },
+			{ "scan-code": 4259587, "key-code": 51 },
+			{ "scan-code": 4259588, "key-code": 52 },
+			{ "scan-code": 4259589, "key-code": 53 },
+			{ "scan-code": 4259590, "key-code": 54 },
+			{ "scan-code": 4259591, "key-code": 55 },
+			{ "scan-code": 4259592, "key-code": 56 },
+			{ "scan-code": 4259593, "key-code": 57 },
+			{ "scan-code": 4259584, "key-code": 48 },
+			{ "scan-code": 4259602, "key-code": 144 },
+			{ "scan-code": 4259661, "key-code": 159 },
+			{ "scan-code": 4259595, "key-code": 147 },
+			{ "scan-code": 4259598, "key-code": 148 },
+			{ "scan-code": 4259600, "key-code": 149 },
+			{ "scan-code": 4259601, "key-code": 150 },
+			{ "scan-code": 4259597, "key-code": 146 },
+			{ "scan-code": 4259610, "key-code": 153 },
+			{ "scan-code": 4259653, "key-code": 157 },
+			{ "scan-code": 4259650, "key-code": 158 },
+			{ "scan-code": 4259651, "key-code": 145 },
+			{ "scan-code": 4259605, "key-code": 155 },
+			{ "scan-code": 4259612, "key-code": 156 },
+			{ "scan-code": 4259664, "key-code": 154 },
+			{ "scan-code": 4259654, "key-code": 151 },
+			{ "scan-code": 4259700, "key-code": 152 }
+		]
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-pl011.0"
+	},
+
+	"console-uart@1": {
+		"uart-bus": "uart-pl011.1"
+	},
+
+	"console-uart@2": {
+		"uart-bus": "uart-pl011.2"
+	},
+
+	"console-uart@3": {
+		"uart-bus": "uart-pl011.3"
+	}
+}

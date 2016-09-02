@@ -185,7 +185,6 @@ static struct device_t * irq_gic_probe(struct driver_t * drv, struct dtnode_t * 
 	chip->name = alloc_device_name(dt_read_name(n), -1);
 	chip->base = pdat->base;
 	chip->nirq = pdat->nirq;
-
 	chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);
 	chip->enable = irq_gic_enable;
 	chip->disable = irq_gic_disable;

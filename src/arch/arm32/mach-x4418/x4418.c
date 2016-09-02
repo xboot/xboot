@@ -1,5 +1,5 @@
 /*
- * mach-x4418.c
+ * x4418.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -35,37 +35,36 @@ static const struct mmap_t mach_map[] = {
 	{ 0 },
 };
 
-static bool_t mach_detect(struct machine_t * mach)
+static int mach_detect(struct machine_t * mach)
 {
-	return TRUE;
+	return 1;
 }
 
-static bool_t mach_memmap(struct machine_t * mach)
+static void mach_memmap(struct machine_t * mach)
 {
 	mmu_setup(mach->map);
-	return TRUE;
 }
 
-static bool_t mach_shutdown(struct machine_t * mach)
+static void mach_shutdown(struct machine_t * mach)
 {
-	return FALSE;
 }
 
-static bool_t mach_reboot(struct machine_t * mach)
+static void mach_reboot(struct machine_t * mach)
 {
 	write32(phys_to_virt(S5P4418_SYS_PWRCONT), (read32(phys_to_virt(S5P4418_SYS_PWRCONT)) & ~(0x1<<3)) | (0x1<<3));
 	write32(phys_to_virt(S5P4418_SYS_PWRMODE), (read32(phys_to_virt(S5P4418_SYS_PWRMODE)) & ~(0x1<<12)) | (0x1<<12));
-	return TRUE;
 }
 
-static bool_t mach_sleep(struct machine_t * mach)
+static void mach_sleep(struct machine_t * mach)
 {
-	return FALSE;
 }
 
-static bool_t mach_cleanup(struct machine_t * mach)
+static void mach_cleanup(struct machine_t * mach)
 {
-	return TRUE;
+}
+
+static void mach_logger(struct machine_t * mach, const char * buf, int count)
+{
 }
 
 static const char * mach_uniqueid(struct machine_t * mach)
@@ -99,12 +98,20 @@ static struct machine_t x4418 = {
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,
 	.cleanup	= mach_cleanup,
+	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
 };
 
-static __init void mach_x4418_init(void)
+static __init void x4418_machine_init(void)
 {
 	register_machine(&x4418);
 }
-machine_initcall(mach_x4418_init);
+
+static __exit void x4418_machine_exit(void)
+{
+	unregister_machine(&x4418);
+}
+
+machine_initcall(x4418_machine_init);
+machine_exitcall(x4418_machine_exit);

@@ -143,10 +143,10 @@ static struct device_t * gpio_pl061_probe(struct driver_t * drv, struct dtnode_t
 	struct gpiochip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	u32_t id = ((read8(virt + 0xfec) << 24) |
-				(read8(virt + 0xfe8) << 16) |
-				(read8(virt + 0xfe4) <<  8) |
-				(read8(virt + 0xfe0) <<  0));
+	u32_t id = (((read32(virt + 0xfec) & 0xff) << 24) |
+				((read32(virt + 0xfe8) & 0xff) << 16) |
+				((read32(virt + 0xfe4) & 0xff) <<  8) |
+				((read32(virt + 0xfe0) & 0xff) <<  0));
 	int base = dt_read_int(n, "base", -1);
 	int ngpio = dt_read_int(n, "ngpio", -1);
 

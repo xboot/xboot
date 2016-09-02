@@ -22,6 +22,8 @@
  *
  */
 
+#include <xboot.h>
+#include <clk/clk.h>
 #include <s5p4418-timer.h>
 
 #define TCON_CHANNEL(ch)		(ch ? ch * 4 + 4 : 0)

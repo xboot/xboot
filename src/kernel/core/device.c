@@ -62,6 +62,12 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_CLK:
 		name = "clk";
 		break;
+	case DEVICE_TYPE_CLOCKEVENT:
+		name = "clockevent";
+		break;
+	case DEVICE_TYPE_CLOCKSOURCE:
+		name = "clocksource";
+		break;
 	case DEVICE_TYPE_CONSOLE:
 		name = "console";
 		break;

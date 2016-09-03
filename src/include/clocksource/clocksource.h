@@ -14,13 +14,18 @@ extern "C" {
 
 struct clocksource_t
 {
-	struct kobj_t * kobj;
-	const char * name;
+	struct {
+		u64_t interval;
+		u64_t last;
+		u64_t nsec;
+		seqlock_t lock;
+		struct timer_t timer;
+	} keeper;
+
+	char * name;
+	u64_t mask;
 	u32_t mult;
 	u32_t shift;
-	u64_t mask;
-
-	bool_t (*init)(struct clocksource_t * cs);
 	u64_t (*read)(struct clocksource_t * cs);
 	void * priv;
 };
@@ -151,10 +156,12 @@ static inline u64_t clocksource_delta2ns(struct clocksource_t * cs, u64_t delta)
 }
 
 struct clocksource_t * search_clocksource(const char * name);
-bool_t register_clocksource(struct clocksource_t * cs);
+struct clocksource_t * search_first_clocksource(void);
+bool_t register_clocksource(struct device_t ** device, struct clocksource_t * cs);
 bool_t unregister_clocksource(struct clocksource_t * cs);
-struct clocksource_t * clocksource_dummy(void);
-struct clocksource_t * clocksource_best(void);
+
+ktime_t clocksource_ktime_get(struct clocksource_t * cs);
+ktime_t ktime_get(void);
 
 #ifdef __cplusplus
 }

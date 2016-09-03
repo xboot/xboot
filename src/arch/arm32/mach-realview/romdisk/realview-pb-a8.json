@@ -81,6 +81,11 @@
 		"delay-us": 5
 	},
 
+	"cs-sp804@0x10011000": {
+		"clock-name": "timclk",
+		"timer-channel": 0
+	},
+
 	"led-gpio@0": {
 		"gpio": 0,
 		"active-low": true,

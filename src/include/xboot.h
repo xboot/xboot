@@ -54,7 +54,7 @@ extern "C" {
 #include <xboot/event.h>
 #include <time/delay.h>
 #include <time/timer.h>
-#include <time/keeper.h>
+#include <clocksource/clocksource.h>
 #include <fs/fileio.h>
 
 #ifdef __cplusplus

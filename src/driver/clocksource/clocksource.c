@@ -22,30 +22,7 @@
  *
  */
 
-#include <xboot.h>
 #include <clocksource/clocksource.h>
-
-struct clocksource_list_t
-{
-	struct clocksource_t * cs;
-	struct list_head entry;
-};
-
-struct clocksource_list_t __clocksource_list = {
-	.entry = {
-		.next	= &(__clocksource_list.entry),
-		.prev	= &(__clocksource_list.entry),
-	},
-};
-static spinlock_t __clocksource_list_lock = SPIN_LOCK_INIT();
-
-/*
- * Dummy clocksource, 10us - 100KHZ
- */
-static bool_t __cs_dummy_init(struct clocksource_t * cs)
-{
-	return TRUE;
-}
 
 static u64_t __cs_dummy_read(struct clocksource_t * cs)
 {
@@ -54,19 +31,20 @@ static u64_t __cs_dummy_read(struct clocksource_t * cs)
 }
 
 static struct clocksource_t __cs_dummy = {
-	.name	= "dummy",
-	.mult	= 2621440000,
-	.shift	= 18,
-	.mask	= CLOCKSOURCE_MASK(64),
-	.init	= __cs_dummy_init,
-	.read	= __cs_dummy_read,
+	.keeper = {
+		.interval = 35184372083832,
+		.last = 0,
+		.nsec = 0,
+		.lock = { 0 },
+	},
+	.name = "cs-dummy",
+	.mask = CLOCKSOURCE_MASK(64),
+	.mult = 2621440000,
+	.shift = 18,
+	.read = __cs_dummy_read,
 };
-
-static struct kobj_t * search_class_clocksource_kobj(void)
-{
-	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
-	return kobj_search_directory_with_create(kclass, "clocksource");
-}
+static struct clocksource_t * __clocksource = &__cs_dummy;
+static spinlock_t __clocksource_lock = SPIN_LOCK_INIT();
 
 static ssize_t clocksource_read_mult(struct kobj_t * kobj, void * buf, size_t size)
 {
@@ -108,110 +86,159 @@ static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t si
 	return sprintf(buf, "%llu.%09llu", time / 1000000000ULL, time % 1000000000ULL);
 }
 
-struct clocksource_t * search_clocksource(const char * name)
+static int keeper_timer_function(struct timer_t * timer, void * data)
 {
-	struct clocksource_list_t * pos, * n;
-
-	if(!name)
-		return NULL;
-
-	list_for_each_entry_safe(pos, n, &(__clocksource_list.entry), entry)
-	{
-		if(strcmp(pos->cs->name, name) == 0)
-			return pos->cs;
-	}
-
-	return NULL;
-}
-
-bool_t register_clocksource(struct clocksource_t * cs)
-{
-	struct clocksource_list_t * cl;
+	struct clocksource_t * cs = (struct clocksource_t *)(data);
+	u64_t now, delta, offset;
 	irq_flags_t flags;
 
-	if(!cs || !cs->name)
+	write_seqlock_irqsave(&cs->keeper.lock, flags);
+	now = clocksource_cycle(cs);
+	delta = clocksource_delta(cs, cs->keeper.last, now);
+	offset = clocksource_delta2ns(cs, delta);
+	cs->keeper.nsec += offset;
+	cs->keeper.last = now;
+	write_sequnlock_irqrestore(&cs->keeper.lock, flags);
+
+	timer_forward_now(timer, ns_to_ktime(cs->keeper.interval));
+	return 1;
+}
+
+struct clocksource_t * search_clocksource(const char * name)
+{
+	struct device_t * dev;
+
+	dev = search_device(name, DEVICE_TYPE_CLOCKSOURCE);
+	if(!dev)
+		return NULL;
+
+	return (struct clocksource_t *)dev->priv;
+}
+
+struct clocksource_t * search_first_clocksource(void)
+{
+	struct device_t * dev;
+
+	dev = search_first_device(DEVICE_TYPE_CLOCKSOURCE);
+	if(!dev)
+		return NULL;
+
+	return (struct clocksource_t *)dev->priv;
+}
+
+bool_t register_clocksource(struct device_t ** device, struct clocksource_t * cs)
+{
+	struct device_t * dev;
+	irq_flags_t flags;
+
+	if(!cs || !cs->name || !cs->read)
 		return FALSE;
 
-	if(!cs->init || !cs->read)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
-	if(search_clocksource(cs->name))
+	cs->keeper.interval = clocksource_deferment(cs) >> 1;
+	cs->keeper.last = clocksource_cycle(cs);
+	cs->keeper.nsec = 0;
+	seqlock_init(&cs->keeper.lock);
+	timer_init(&cs->keeper.timer, keeper_timer_function, cs);
+
+	dev->name = strdup(cs->name);
+	dev->type = DEVICE_TYPE_CLOCKSOURCE;
+	dev->priv = cs;
+	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "mult", clocksource_read_mult, NULL, cs);
+	kobj_add_regular(dev->kobj, "shift", clocksource_read_shift, NULL, cs);
+	kobj_add_regular(dev->kobj, "period", clocksource_read_period, NULL, cs);
+	kobj_add_regular(dev->kobj, "deferment", clocksource_read_deferment, NULL, cs);
+	kobj_add_regular(dev->kobj, "cycle", clocksource_read_cycle, NULL, cs);
+	kobj_add_regular(dev->kobj, "time", clocksource_read_time, NULL, cs);
+
+	if(!register_device(dev))
+	{
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
 		return FALSE;
+	}
 
-	cl = malloc(sizeof(struct clocksource_list_t));
-	if(!cl)
-		return FALSE;
+	if(__clocksource == &__cs_dummy)
+	{
+		spin_lock_irqsave(&__clocksource_lock, flags);
+		__clocksource = cs;
+		spin_unlock_irqrestore(&__clocksource_lock, flags);
+	}
+	timer_start_now(&cs->keeper.timer, ns_to_ktime(cs->keeper.interval));
 
-	cs->kobj = kobj_alloc_directory(cs->name);
-	kobj_add_regular(cs->kobj, "mult", clocksource_read_mult, NULL, cs);
-	kobj_add_regular(cs->kobj, "shift", clocksource_read_shift, NULL, cs);
-	kobj_add_regular(cs->kobj, "period", clocksource_read_period, NULL, cs);
-	kobj_add_regular(cs->kobj, "deferment", clocksource_read_deferment, NULL, cs);
-	kobj_add_regular(cs->kobj, "cycle", clocksource_read_cycle, NULL, cs);
-	kobj_add_regular(cs->kobj, "time", clocksource_read_time, NULL, cs);
-	kobj_add(search_class_clocksource_kobj(), cs->kobj);
-	cl->cs = cs;
-
-	spin_lock_irqsave(&__clocksource_list_lock, flags);
-	list_add_tail(&cl->entry, &(__clocksource_list.entry));
-	spin_unlock_irqrestore(&__clocksource_list_lock, flags);
-
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
 bool_t unregister_clocksource(struct clocksource_t * cs)
 {
-	struct clocksource_list_t * pos, * n;
+	struct device_t * dev;
+	struct clocksource_t * c;
 	irq_flags_t flags;
 
-	if(!cs || !cs->name)
+	if(!cs || !cs->name || !cs->read)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__clocksource_list.entry), entry)
-	{
-		if(pos->cs == cs)
-		{
-			spin_lock_irqsave(&__clocksource_list_lock, flags);
-			list_del(&(pos->entry));
-			spin_unlock_irqrestore(&__clocksource_list_lock, flags);
+	dev = search_device(cs->name, DEVICE_TYPE_CLOCKSOURCE);
+	if(!dev)
+		return FALSE;
 
-			kobj_remove(search_class_clocksource_kobj(), pos->cs->kobj);
-			kobj_remove_self(cs->kobj);
-			free(pos);
-			return TRUE;
-		}
+	if(!unregister_device(dev))
+		return FALSE;
+
+	timer_cancel(&cs->keeper.timer);
+	if(__clocksource == cs)
+	{
+		if(!(c = search_first_clocksource()))
+			c = &__cs_dummy;
+
+		spin_lock_irqsave(&__clocksource_lock, flags);
+		__clocksource = c;
+		spin_unlock_irqrestore(&__clocksource_lock, flags);
 	}
 
-	return FALSE;
+	kobj_remove_self(dev->kobj);
+	free(dev->name);
+	free(dev);
+	return TRUE;
 }
 
-inline __attribute__((always_inline)) struct clocksource_t * clocksource_dummy(void)
+ktime_t clocksource_ktime_get(struct clocksource_t * cs)
 {
-	return &__cs_dummy;
+	u64_t now, delta, offset;
+	unsigned int seq;
+
+	if(!cs)
+		return ns_to_ktime(0);
+
+	do {
+		seq = read_seqbegin(&cs->keeper.lock);
+		now = clocksource_cycle(cs);
+		delta = clocksource_delta(cs, cs->keeper.last, now);
+		offset = clocksource_delta2ns(cs, delta);
+	} while(read_seqretry(&cs->keeper.lock, seq));
+
+	return ns_to_ktime(cs->keeper.nsec + offset);
 }
 
-struct clocksource_t * clocksource_best(void)
+ktime_t ktime_get(void)
 {
-	struct clocksource_t * cs, * best = &__cs_dummy;
-	struct clocksource_list_t * pos, * n;
-	u64_t period = ~0ULL;
-	u64_t t;
+	struct clocksource_t * cs = __clocksource;
+	u64_t now, delta, offset;
+	unsigned int seq;
 
-	list_for_each_entry_safe(pos, n, &(__clocksource_list.entry), entry)
-	{
-		cs = pos->cs;
-		if(!cs || !cs->init || !cs->read)
-			continue;
+	do {
+		seq = read_seqbegin(&cs->keeper.lock);
+		now = clocksource_cycle(cs);
+		delta = clocksource_delta(cs, cs->keeper.last, now);
+		offset = clocksource_delta2ns(cs, delta);
+	} while(read_seqretry(&cs->keeper.lock, seq));
 
-		if(!cs->init(cs))
-			continue;
-
-		t = ((u64_t)cs->mult) >> cs->shift;
-		if(t < period)
-		{
-			best = cs;
-			period = t;
-		}
-	}
-	return best;
+	return ns_to_ktime(cs->keeper.nsec + offset);
 }

@@ -143,18 +143,12 @@ static struct partition_map_t msdos = {
 
 static __init void partition_map_msdos_init(void)
 {
-	if(register_partition_map(&msdos))
-		LOG("Register partition map 'msdos'");
-	else
-		LOG("Fail to register partition map 'msdos'");
+	register_partition_map(&msdos);
 }
 
 static __exit void partition_map_msdos_exit(void)
 {
-	if(unregister_partition_map(&msdos))
-		LOG("Unregister partition map 'msdos'");
-	else
-		LOG("Fail to unregister partition map 'msdos'");
+	unregister_partition_map(&msdos);
 }
 
 core_initcall(partition_map_msdos_init);

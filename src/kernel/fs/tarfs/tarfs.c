@@ -543,18 +543,12 @@ static struct filesystem_t tarfs = {
 
 static __init void filesystem_tarfs_init(void)
 {
-	if(filesystem_register(&tarfs))
-		LOG("Register filesystem 'tarfs'");
-	else
-		LOG("Failed to register filesystem 'tarfs'");
+	filesystem_register(&tarfs);
 }
 
 static __exit void filesystem_tarfs_exit(void)
 {
-	if(filesystem_unregister(&tarfs))
-		LOG("Unregister filesystem 'tarfs'");
-	else
-		LOG("Failed to unregister filesystem 'tarfs'");
+	filesystem_unregister(&tarfs);
 }
 
 core_initcall(filesystem_tarfs_init);

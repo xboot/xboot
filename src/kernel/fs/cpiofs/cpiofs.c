@@ -492,18 +492,12 @@ static struct filesystem_t cpiofs = {
 
 static __init void filesystem_cpiofs_init(void)
 {
-	if(filesystem_register(&cpiofs))
-		LOG("Register filesystem 'cpiofs'");
-	else
-		LOG("Failed to register filesystem 'cpiofs'");
+	filesystem_register(&cpiofs);
 }
 
 static __exit void filesystem_cpiofs_exit(void)
 {
-	if(filesystem_unregister(&cpiofs))
-		LOG("Unregister filesystem 'cpiofs'");
-	else
-		LOG("Failed to unregister filesystem 'cpiofs'");
+	filesystem_unregister(&cpiofs);
 }
 
 core_initcall(filesystem_cpiofs_init);

@@ -940,18 +940,12 @@ static struct filesystem_t fatfs = {
 
 static __init void filesystem_fatfs_init(void)
 {
-	if(filesystem_register(&fatfs))
-		LOG("Register filesystem 'fatfs'");
-	else
-		LOG("Failed to register filesystem 'fatfs'");
+	filesystem_register(&fatfs);
 }
 
 static __exit void filesystem_fatfs_exit(void)
 {
-	if(filesystem_unregister(&fatfs))
-		LOG("Unregister filesystem 'fatfs'");
-	else
-		LOG("Failed to unregister filesystem 'fatfs'");
+	filesystem_unregister(&fatfs);
 }
 
 core_initcall(filesystem_fatfs_init);

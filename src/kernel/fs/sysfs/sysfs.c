@@ -290,18 +290,12 @@ static struct filesystem_t sysfs = {
 
 static __init void filesystem_sysfs_init(void)
 {
-	if(filesystem_register(&sysfs))
-		LOG("Register filesystem 'sysfs'");
-	else
-		LOG("Failed to register filesystem 'sysfs'");
+	filesystem_register(&sysfs);
 }
 
 static __exit void filesystem_sysfs_exit(void)
 {
-	if(filesystem_unregister(&sysfs))
-		LOG("Unregister filesystem 'sysfs'");
-	else
-		LOG("Failed to unregister filesystem 'sysfs'");
+	filesystem_unregister(&sysfs);
 }
 
 core_initcall(filesystem_sysfs_init);

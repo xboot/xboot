@@ -569,18 +569,12 @@ static struct filesystem_t ramfs = {
 
 static __init void filesystem_ramfs_init(void)
 {
-	if(filesystem_register(&ramfs))
-		LOG("Register filesystem 'ramfs'");
-	else
-		LOG("Failed to register filesystem 'ramfs'");
+	filesystem_register(&ramfs);
 }
 
 static __exit void filesystem_ramfs_exit(void)
 {
-	if(filesystem_unregister(&ramfs))
-		LOG("Unregister filesystem 'ramfs'");
-	else
-		LOG("Failed to unregister filesystem 'ramfs'");
+	filesystem_unregister(&ramfs);
 }
 
 core_initcall(filesystem_ramfs_init);

@@ -22,22 +22,7 @@
  *
  */
 
-#include <xboot.h>
 #include <clockevent/clockevent.h>
-
-struct clockevent_list_t
-{
-	struct clockevent_t * ce;
-	struct list_head entry;
-};
-
-struct clockevent_list_t __clockevent_list = {
-	.entry = {
-		.next	= &(__clockevent_list.entry),
-		.prev	= &(__clockevent_list.entry),
-	},
-};
-static spinlock_t __clockevent_list_lock = SPIN_LOCK_INIT();
 
 /*
  * Dummy clockevent, 1us - 1MHZ
@@ -46,33 +31,23 @@ static void __ce_dummy_handler(struct clockevent_t * ce, void * data)
 {
 }
 
-static bool_t __ce_dummy_init(struct clockevent_t * ce)
-{
-	return TRUE;
-}
-
 static bool_t __ce_dummy_next(struct clockevent_t * ce, u64_t evt)
 {
 	return TRUE;
 }
 
 static struct clockevent_t __ce_dummy = {
-	.name			= "dummy",
-	.mult			= 4294967,
-	.shift			= 32,
-	.min_delta_ns	= 1000,
-	.max_delta_ns	= 4294967591000,
-	.data			= NULL,
-	.handler		= __ce_dummy_handler,
-	.init			= __ce_dummy_init,
-	.next			= __ce_dummy_next,
+	.name = "ce-dummy",
+	.mult = 4294967,
+	.shift = 32,
+	.min_delta_ns = 1000,
+	.max_delta_ns = 4294967591000,
+	.data = NULL,
+	.handler = __ce_dummy_handler,
+	.next = __ce_dummy_next,
 };
-
-static struct kobj_t * search_class_clockevent_kobj(void)
-{
-	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
-	return kobj_search_directory_with_create(kclass, "clockevent");
-}
+static struct clockevent_t * __clockevent = &__ce_dummy;
+static spinlock_t __clockevent_lock = SPIN_LOCK_INIT();
 
 static ssize_t clockevent_read_mult(struct kobj_t * kobj, void * buf, size_t size)
 {
@@ -107,106 +82,103 @@ static ssize_t clockevent_read_max_delta(struct kobj_t * kobj, void * buf, size_
 
 struct clockevent_t * search_clockevent(const char * name)
 {
-	struct clockevent_list_t * pos, * n;
+	struct device_t * dev;
 
-	if(!name)
+	dev = search_device(name, DEVICE_TYPE_CLOCKEVENT);
+	if(!dev)
 		return NULL;
 
-	list_for_each_entry_safe(pos, n, &(__clockevent_list.entry), entry)
-	{
-		if(strcmp(pos->ce->name, name) == 0)
-			return pos->ce;
-	}
-
-	return NULL;
+	return (struct clockevent_t *)dev->priv;
 }
 
-bool_t register_clockevent(struct clockevent_t * ce)
+struct clockevent_t * search_first_clockevent(void)
 {
-	struct clockevent_list_t * cl;
+	struct device_t * dev;
+
+	dev = search_first_device(DEVICE_TYPE_CLOCKEVENT);
+	if(!dev)
+		return NULL;
+
+	return (struct clockevent_t *)dev->priv;
+}
+
+bool_t register_clockevent(struct device_t ** device, struct clockevent_t * ce)
+{
+	struct device_t * dev;
 	irq_flags_t flags;
 
-	if(!ce || !ce->name)
+	if(!ce || !ce->name || !ce->next)
 		return FALSE;
 
-	if(!ce->init || !ce->next)
-		return FALSE;
-
-	if(search_clockevent(ce->name))
-		return FALSE;
-
-	cl = malloc(sizeof(struct clockevent_list_t));
-	if(!cl)
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
 		return FALSE;
 
 	ce->data = NULL;
 	ce->handler = __ce_dummy_handler;
-	ce->kobj = kobj_alloc_directory(ce->name);
-	kobj_add_regular(ce->kobj, "mult", clockevent_read_mult, NULL, ce);
-	kobj_add_regular(ce->kobj, "shift", clockevent_read_shift, NULL, ce);
-	kobj_add_regular(ce->kobj, "frequency", clockevent_read_frequency, NULL, ce);
-	kobj_add_regular(ce->kobj, "min_delta", clockevent_read_min_delta, NULL, ce);
-	kobj_add_regular(ce->kobj, "max_delta", clockevent_read_max_delta, NULL, ce);
-	kobj_add(search_class_clockevent_kobj(), ce->kobj);
-	cl->ce = ce;
 
-	spin_lock_irqsave(&__clockevent_list_lock, flags);
-	list_add_tail(&cl->entry, &(__clockevent_list.entry));
-	spin_unlock_irqrestore(&__clockevent_list_lock, flags);
+	dev->name = strdup(ce->name);
+	dev->type = DEVICE_TYPE_CLOCKEVENT;
+	dev->priv = ce;
+	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "mult", clockevent_read_mult, NULL, ce);
+	kobj_add_regular(dev->kobj, "shift", clockevent_read_shift, NULL, ce);
+	kobj_add_regular(dev->kobj, "frequency", clockevent_read_frequency, NULL, ce);
+	kobj_add_regular(dev->kobj, "min_delta", clockevent_read_min_delta, NULL, ce);
+	kobj_add_regular(dev->kobj, "max_delta", clockevent_read_max_delta, NULL, ce);
 
+	if(!register_device(dev))
+	{
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
+		return FALSE;
+	}
+
+	if(__clockevent == &__ce_dummy)
+	{
+		spin_lock_irqsave(&__clockevent_lock, flags);
+		__clockevent = ce;
+		timer_bind_clockevent(__clockevent);
+		spin_unlock_irqrestore(&__clockevent_lock, flags);
+	}
+
+	if(device)
+		*device = dev;
 	return TRUE;
 }
 
 bool_t unregister_clockevent(struct clockevent_t * ce)
 {
-	struct clockevent_list_t * pos, * n;
+	struct device_t * dev;
+	struct clockevent_t * c;
 	irq_flags_t flags;
 
-	if(!ce || !ce->name)
+	if(!ce || !ce->name || !ce->next)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__clockevent_list.entry), entry)
-	{
-		if(pos->ce == ce)
-		{
-			spin_lock_irqsave(&__clockevent_list_lock, flags);
-			list_del(&(pos->entry));
-			spin_unlock_irqrestore(&__clockevent_list_lock, flags);
+	dev = search_device(ce->name, DEVICE_TYPE_CLOCKEVENT);
+	if(!dev)
+		return FALSE;
 
-			kobj_remove(search_class_clockevent_kobj(), pos->ce->kobj);
-			kobj_remove_self(ce->kobj);
-			free(pos);
-			return TRUE;
-		}
+	if(!unregister_device(dev))
+		return FALSE;
+
+	if(__clockevent == ce)
+	{
+		if(!(c = search_first_clockevent()))
+			c = &__ce_dummy;
+
+		spin_lock_irqsave(&__clockevent_lock, flags);
+		__clockevent = c;
+		timer_bind_clockevent(__clockevent);
+		spin_unlock_irqrestore(&__clockevent_lock, flags);
 	}
 
-	return FALSE;
-}
-
-struct clockevent_t * clockevent_best(void)
-{
-	struct clockevent_t * ce, * best = &__ce_dummy;
-	struct clockevent_list_t * pos, * n;
-	u64_t freq = 0;
-	u64_t f;
-
-	list_for_each_entry_safe(pos, n, &(__clockevent_list.entry), entry)
-	{
-		ce = pos->ce;
-		if(!ce || !ce->init)
-			continue;
-
-		if(!ce->init(ce))
-			continue;
-
-		f = ((u64_t)1000000000ULL * ce->mult) >> ce->shift;
-		if(f > freq)
-		{
-			best = ce;
-			freq = f;
-		}
-	}
-	return best;
+	kobj_remove_self(dev->kobj);
+	free(dev->name);
+	free(dev);
+	return TRUE;
 }
 
 bool_t clockevent_set_event_handler(struct clockevent_t * ce, void (*handler)(struct clockevent_t *, void *), void * data)

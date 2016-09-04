@@ -29,6 +29,17 @@
 		"interrupt-offset": -1
 	},
 
+	"ce-sp804@0x10011000": {
+		"clock-name": "timclk",
+		"interrupt": 36,
+		"timer-channel": 0
+	},
+
+	"cs-sp804@0x10012000": {
+		"clock-name": "timclk",
+		"timer-channel": 0
+	},
+
 	"uart-pl011@0x10009000": {
 		"clock-name": "uclk",
 		"txd-gpio": -1,
@@ -81,11 +92,6 @@
 		"delay-us": 5
 	},
 
-	"cs-sp804@0x10011000": {
-		"clock-name": "timclk",
-		"timer-channel": 0
-	},
-
 	"led-gpio@0": {
 		"gpio": 0,
 		"active-low": true,
@@ -107,14 +113,14 @@
 		"led-name": "led-gpio.1"
 	},
 
-	"rotary-encoder@0": {
-		"gpio-a": 2,
-		"gpio-b": 3,
-		"gpio-c": 4,
-		"inverted-a": false,
-		"inverted-b": false,
-		"inverted-c": false,
-		"step-per-period": 1
+	"buzzer-gpio@0": {
+		"gpio": 8,
+		"active-low": true
+	},
+
+	"vibrator-gpio@0": {
+		"gpio": 9,
+		"active-low": true
 	},
 
 	"key-gpio-polled@0": {
@@ -158,22 +164,14 @@
 		]
 	},
 
-	"buzzer-gpio@0": {
-		"gpio": 8,
-		"active-low": true
-	},
-
-	"vibrator-gpio@0": {
-		"gpio": 9,
-		"active-low": true
-	},
-
-	"rtc-pl031@0x10017000": {
-	},
-
-	"rtc-ds1338@0": {
-		"i2c-bus": "i2c-versatile.0",
-		"square-wave-output": 0
+	"rotary-encoder@0": {
+		"gpio-a": 2,
+		"gpio-b": 3,
+		"gpio-c": 4,
+		"inverted-a": false,
+		"inverted-b": false,
+		"inverted-c": false,
+		"step-per-period": 1
 	},
 
 	"keyboard-pl050@0x10006000": {
@@ -187,6 +185,14 @@
 		"x-pos-max": 640,
 		"y-pos-max": 480,
 		"simulate-touch-event": false
+	},
+
+	"rtc-pl031@0x10017000": {
+	},
+
+	"rtc-ds1338@0": {
+		"i2c-bus": "i2c-versatile.0",
+		"square-wave-output": 0
 	},
 
 	"fb-pl111@0x10020000": {

@@ -24,6 +24,9 @@
 
 #include <clocksource/clocksource.h>
 
+/*
+ * Dummy clocksource, 10us - 100KHZ
+ */
 static u64_t __cs_dummy_read(struct clocksource_t * cs)
 {
 	static volatile u64_t __cs_dummy_cycle = 0;
@@ -86,7 +89,7 @@ static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t si
 	return sprintf(buf, "%llu.%09llu", time / 1000000000ULL, time % 1000000000ULL);
 }
 
-static int keeper_timer_function(struct timer_t * timer, void * data)
+static int clocksource_keeper_timer_function(struct timer_t * timer, void * data)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)(data);
 	u64_t now, delta, offset;
@@ -142,7 +145,7 @@ bool_t register_clocksource(struct device_t ** device, struct clocksource_t * cs
 	cs->keeper.last = clocksource_cycle(cs);
 	cs->keeper.nsec = 0;
 	seqlock_init(&cs->keeper.lock);
-	timer_init(&cs->keeper.timer, keeper_timer_function, cs);
+	timer_init(&cs->keeper.timer, clocksource_keeper_timer_function, cs);
 
 	dev->name = strdup(cs->name);
 	dev->type = DEVICE_TYPE_CLOCKSOURCE;
@@ -211,34 +214,12 @@ bool_t unregister_clocksource(struct clocksource_t * cs)
 
 ktime_t clocksource_ktime_get(struct clocksource_t * cs)
 {
-	u64_t now, delta, offset;
-	unsigned int seq;
-
-	if(!cs)
-		return ns_to_ktime(0);
-
-	do {
-		seq = read_seqbegin(&cs->keeper.lock);
-		now = clocksource_cycle(cs);
-		delta = clocksource_delta(cs, cs->keeper.last, now);
-		offset = clocksource_delta2ns(cs, delta);
-	} while(read_seqretry(&cs->keeper.lock, seq));
-
-	return ns_to_ktime(cs->keeper.nsec + offset);
+	if(cs)
+		return clocksource_keeper_read(cs);
+	return ns_to_ktime(0);
 }
 
 ktime_t ktime_get(void)
 {
-	struct clocksource_t * cs = __clocksource;
-	u64_t now, delta, offset;
-	unsigned int seq;
-
-	do {
-		seq = read_seqbegin(&cs->keeper.lock);
-		now = clocksource_cycle(cs);
-		delta = clocksource_delta(cs, cs->keeper.last, now);
-		offset = clocksource_delta2ns(cs, delta);
-	} while(read_seqretry(&cs->keeper.lock, seq));
-
-	return ns_to_ktime(cs->keeper.nsec + offset);
+	return clocksource_keeper_read(__clocksource);
 }

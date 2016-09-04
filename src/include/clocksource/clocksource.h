@@ -155,6 +155,20 @@ static inline u64_t clocksource_delta2ns(struct clocksource_t * cs, u64_t delta)
 	return (delta * cs->mult) >> cs->shift;
 }
 
+static inline ktime_t clocksource_keeper_read(struct clocksource_t * cs)
+{
+	u64_t now, delta, offset;
+	unsigned int seq;
+
+	do {
+		seq = read_seqbegin(&cs->keeper.lock);
+		now = clocksource_cycle(cs);
+		delta = clocksource_delta(cs, cs->keeper.last, now);
+		offset = clocksource_delta2ns(cs, delta);
+	} while(read_seqretry(&cs->keeper.lock, seq));
+	return ns_to_ktime(cs->keeper.nsec + offset);
+}
+
 struct clocksource_t * search_clocksource(const char * name);
 struct clocksource_t * search_first_clocksource(void);
 bool_t register_clocksource(struct device_t ** device, struct clocksource_t * cs);

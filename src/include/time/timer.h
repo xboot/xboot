@@ -6,8 +6,8 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <rbtree_augmented.h>
 #include <rbtree.h>
+#include <rbtree_augmented.h>
 
 struct timer_base_t;
 struct timer_t;
@@ -23,7 +23,6 @@ struct timer_base_t {
 	struct timer_t * next;
 	struct clockevent_t * ce;
 	spinlock_t lock;
-	ktime_t (*gettime)(void);
 };
 
 struct timer_t {
@@ -41,7 +40,8 @@ void timer_start_now(struct timer_t * timer, ktime_t interval);
 void timer_forward(struct timer_t * timer, ktime_t now, ktime_t interval);
 void timer_forward_now(struct timer_t * timer, ktime_t interval);
 void timer_cancel(struct timer_t * timer);
-void subsys_init_timer(void);
+
+void timer_bind_clockevent(struct clockevent_t * ce);
 
 #ifdef __cplusplus
 }

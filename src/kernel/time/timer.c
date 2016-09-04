@@ -23,9 +23,15 @@
  */
 
 #include <clockevent/clockevent.h>
+#include <clocksource/clocksource.h>
 #include <time/timer.h>
 
-static struct timer_base_t __timer_base;
+static struct timer_base_t __timer_base = {
+	.head = RB_ROOT,
+	.next = NULL,
+	.ce = NULL,
+	.lock = SPIN_LOCK_INIT(),
+};
 
 static inline struct timer_t * next_timer(struct timer_base_t * base)
 {
@@ -106,19 +112,19 @@ void timer_start(struct timer_t * timer, ktime_t now, ktime_t interval)
 	{
 		struct timer_t * next = next_timer(base);
 		if(next)
-			clockevent_set_event_next(base->ce, base->gettime(), next->expires);
+			clockevent_set_event_next(base->ce, ktime_get(), next->expires);
 	}
 	ktime_t expires = ktime_add_safe(now, interval);
 	memcpy(&timer->expires, &expires, sizeof(ktime_t));
 	if(add_timer(base, timer))
-		clockevent_set_event_next(base->ce, base->gettime(), timer->expires);
+		clockevent_set_event_next(base->ce, ktime_get(), timer->expires);
 	spin_unlock_irqrestore(&base->lock, flags);
 }
 
 void timer_start_now(struct timer_t * timer, ktime_t interval)
 {
 	if(timer)
-		timer_start(timer, timer->base->gettime(), interval);
+		timer_start(timer, ktime_get(), interval);
 }
 
 void timer_forward(struct timer_t * timer, ktime_t now, ktime_t interval)
@@ -133,7 +139,7 @@ void timer_forward(struct timer_t * timer, ktime_t now, ktime_t interval)
 void timer_forward_now(struct timer_t * timer, ktime_t interval)
 {
 	if(timer)
-		timer_forward(timer, timer->base->gettime(), interval);
+		timer_forward(timer, ktime_get(), interval);
 }
 
 void timer_cancel(struct timer_t * timer)
@@ -149,7 +155,7 @@ void timer_cancel(struct timer_t * timer)
 	{
 		struct timer_t * next = next_timer(base);
 		if(next)
-			clockevent_set_event_next(base->ce, base->gettime(), next->expires);
+			clockevent_set_event_next(base->ce, ktime_get(), next->expires);
 	}
 	spin_unlock_irqrestore(&base->lock, flags);
 }
@@ -158,7 +164,7 @@ static void timer_event_handler(struct clockevent_t * ce, void * data)
 {
 	struct timer_base_t * base = (struct timer_base_t *)(data);
 	struct timer_t * timer;
-	ktime_t now = base->gettime();
+	ktime_t now = ktime_get();
 	irq_flags_t flags;
 	int restart;
 
@@ -180,13 +186,17 @@ static void timer_event_handler(struct clockevent_t * ce, void * data)
 	spin_unlock_irqrestore(&base->lock, flags);
 }
 
-void subsys_init_timer(void)
+void timer_bind_clockevent(struct clockevent_t * ce)
 {
-	memset(&__timer_base, 0, sizeof(struct timer_base_t));
-	spin_lock_init(&__timer_base.lock);
-	__timer_base.head = RB_ROOT;
-	__timer_base.next = NULL;
-	__timer_base.ce = clockevent_best();
-	__timer_base.gettime = ktime_get;
-	clockevent_set_event_handler(__timer_base.ce, timer_event_handler, &__timer_base);
+	irq_flags_t flags;
+
+	if(ce)
+	{
+		spin_lock_irqsave(&__timer_base.lock, flags);
+		__timer_base.head = RB_ROOT;
+		__timer_base.next = NULL;
+		__timer_base.ce = ce;
+		clockevent_set_event_handler(__timer_base.ce, timer_event_handler, &__timer_base);
+		spin_unlock_irqrestore(&__timer_base.lock, flags);
+	}
 }

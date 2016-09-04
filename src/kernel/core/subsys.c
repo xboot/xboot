@@ -84,8 +84,6 @@ static __init void subsys_init(void)
 {
 	subsys_init_romdisk();
 	subsys_init_rootfs();
-
-	subsys_init_timer();
 	subsys_init_dt();
 }
 subsys_initcall(subsys_init);

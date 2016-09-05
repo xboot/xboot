@@ -170,47 +170,6 @@
 		"delay-us": 5
 	},
 
-	"led-gpio@0": {
-		"gpio": 60,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"led-gpio@1": {
-		"gpio": 75,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"led-gpio@2": {
-		"gpio": 71,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"led-gpio@3": {
-		"gpio": 76,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"ledtrig-heartbeat@0": {
-		"led-name": "led-gpio.3",
-		"heartbeat-period-ms": 1260
-	},
-
-	"ledtrig-general@0": {
-		"led-name": "led-gpio.0"
-	},
-
-	"ledtrig-general@1": {
-		"led-name": "led-gpio.1"
-	},
-
-	"ledtrig-general@2": {
-		"led-name": "led-gpio.2"
-	},
-
 	"key-gpio-polled@0": {
 		"keys": [
 			{ "gpio": 41, "active-low": true, "key-code": 157 },
@@ -253,6 +212,47 @@
 			{ "scan-code": 4259654, "key-code": 151 },
 			{ "scan-code": 4259700, "key-code": 152 }
 		]
+	},
+
+	"led-gpio@0": {
+		"gpio": 60,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@1": {
+		"gpio": 75,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@2": {
+		"gpio": 71,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@3": {
+		"gpio": 76,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.3",
+		"heartbeat-period-ms": 1260
+	},
+
+	"ledtrig-general@0": {
+		"led-name": "led-gpio.0"
+	},
+
+	"ledtrig-general@1": {
+		"led-name": "led-gpio.1"
+	},
+
+	"ledtrig-general@2": {
+		"led-name": "led-gpio.2"
 	},
 
 	"console-uart@0": {

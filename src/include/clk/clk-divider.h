@@ -19,6 +19,7 @@ struct clk_divider_t {
 	int shift;
 	int width;
 	virtual_addr_t virt;
+	void * priv;
 };
 
 bool_t register_clk_divider(struct device_t ** device, struct clk_divider_t * dclk);

@@ -24,14 +24,18 @@
 
 #include <clk/clk.h>
 
+struct clk_link_pdata_t {
+	char * parent;
+};
+
 static void clk_link_set_parent(struct clk_t * clk, const char * pname)
 {
 }
 
 static const char * clk_link_get_parent(struct clk_t * clk)
 {
-	struct clk_link_t * lclk = (struct clk_link_t *)clk->priv;
-	return lclk->parent;
+	struct clk_link_pdata_t * pdat = (struct clk_link_pdata_t *)clk->priv;
+	return pdat->parent;
 }
 
 static void clk_link_set_enable(struct clk_t * clk, bool_t enable)
@@ -52,61 +56,10 @@ static u64_t clk_link_get_rate(struct clk_t * clk, u64_t prate)
 	return prate;
 }
 
-bool_t register_clk_link(struct device_t ** device, struct clk_link_t * lclk)
-{
-	struct clk_t * clk;
-
-	if(!lclk || !lclk->name)
-		return FALSE;
-
-	if(search_clk(lclk->name))
-		return FALSE;
-
-	clk = malloc(sizeof(struct clk_t));
-	if(!clk)
-		return FALSE;
-
-	clk->name = lclk->name;
-	clk->type = CLK_TYPE_LINK;
-	kref_init(&clk->count);
-	clk->set_parent = clk_link_set_parent;
-	clk->get_parent = clk_link_get_parent;
-	clk->set_enable = clk_link_set_enable;
-	clk->get_enable = clk_link_get_enable;
-	clk->set_rate = clk_link_set_rate;
-	clk->get_rate = clk_link_get_rate;
-	clk->priv = lclk;
-
-	if(!register_clk(device, clk))
-	{
-		free(clk);
-		return FALSE;
-	}
-	return TRUE;
-}
-
-bool_t unregister_clk_link(struct clk_link_t * lclk)
-{
-	struct clk_t * clk;
-
-	if(!lclk || !lclk->name)
-		return FALSE;
-
-	clk = search_clk(lclk->name);
-	if(!clk)
-		return FALSE;
-
-	if(unregister_clk(clk))
-	{
-		free(clk);
-		return TRUE;
-	}
-	return FALSE;
-}
-
 static struct device_t * clk_link_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct clk_link_t * fclk;
+	struct clk_link_pdata_t * pdat;
+	struct clk_t * clk;
 	struct device_t * dev;
 	char * name = dt_read_string(n, "name", NULL);
 	char * parent = dt_read_string(n, "parent", NULL);
@@ -114,18 +67,39 @@ static struct device_t * clk_link_probe(struct driver_t * drv, struct dtnode_t *
 	if(!name || !parent)
 		return NULL;
 
-	fclk = malloc(sizeof(struct clk_fixed_t));
-	if(!fclk)
+	if(search_clk(name) || !search_clk(parent))
 		return NULL;
 
-	fclk->name = strdup(name);
-	fclk->parent = strdup(parent);
+	pdat = malloc(sizeof(struct clk_link_pdata_t));
+	if(!pdat)
+		return NULL;
 
-	if(!register_clk_link(&dev, fclk))
+	clk = malloc(sizeof(struct clk_t));
+	if(!clk)
 	{
-		free(fclk->name);
-		free(fclk->parent);
-		free(fclk);
+		free(pdat);
+		return NULL;
+	}
+
+	pdat->parent = strdup(parent);
+
+	clk->name = strdup(name);
+	kref_init(&clk->count);
+	clk->set_parent = clk_link_set_parent;
+	clk->get_parent = clk_link_get_parent;
+	clk->set_enable = clk_link_set_enable;
+	clk->get_enable = clk_link_get_enable;
+	clk->set_rate = clk_link_set_rate;
+	clk->get_rate = clk_link_get_rate;
+	clk->priv = pdat;
+
+	if(!register_clk(&dev, clk))
+	{
+		free(pdat->parent);
+
+		free(clk->name);
+		free(clk->priv);
+		free(clk);
 		return NULL;
 	}
 	dev->driver = drv;
@@ -136,13 +110,15 @@ static struct device_t * clk_link_probe(struct driver_t * drv, struct dtnode_t *
 static void clk_link_remove(struct device_t * dev)
 {
 	struct clk_t * clk = (struct clk_t *)dev->priv;
-	struct clk_link_t * fclk = (struct clk_link_t *)clk->priv;
+	struct clk_link_pdata_t * pdat = (struct clk_link_pdata_t *)clk->priv;
 
-	if(fclk && unregister_clk_link(fclk))
+	if(clk && unregister_clk(clk))
 	{
-		free(fclk->name);
-		free(fclk->parent);
-		free(fclk);
+		free(pdat->parent);
+
+		free(clk->name);
+		free(clk->priv);
+		free(clk);
 	}
 }
 

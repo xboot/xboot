@@ -25,8 +25,7 @@
 #include <clk/clk.h>
 #include <bcm2836-mbox.h>
 
-struct clk_mbox_t {
-	char * name;
+struct clk_mbox_pdata_t {
 	int id;
 };
 
@@ -41,101 +40,70 @@ static const char * clk_mbox_get_parent(struct clk_t * clk)
 
 static void clk_mbox_set_enable(struct clk_t * clk, bool_t enable)
 {
-	struct clk_mbox_t * mclk = (struct clk_mbox_t *)clk->priv;
-	bcm2836_mbox_clock_set_state(mclk->id, enable ? 0x1 : 0x0);
+	struct clk_mbox_pdata_t * pdat = (struct clk_mbox_pdata_t *)clk->priv;
+	bcm2836_mbox_clock_set_state(pdat->id, enable ? 0x1 : 0x0);
 }
 
 static bool_t clk_mbox_get_enable(struct clk_t * clk)
 {
-	struct clk_mbox_t * mclk = (struct clk_mbox_t *)clk->priv;
-	return (bcm2836_mbox_clock_get_state(mclk->id) == 0x1) ? TRUE : FALSE;
+	struct clk_mbox_pdata_t * pdat = (struct clk_mbox_pdata_t *)clk->priv;
+	return (bcm2836_mbox_clock_get_state(pdat->id) == 0x1) ? TRUE : FALSE;
 }
 
 static void clk_mbox_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
-	struct clk_mbox_t * mclk = (struct clk_mbox_t *)clk->priv;
-	bcm2836_mbox_clock_set_rate(mclk->id, rate);
+	struct clk_mbox_pdata_t * pdat = (struct clk_mbox_pdata_t *)clk->priv;
+	bcm2836_mbox_clock_set_rate(pdat->id, rate);
 }
 
 static u64_t clk_mbox_get_rate(struct clk_t * clk, u64_t prate)
 {
-	struct clk_mbox_t * mclk = (struct clk_mbox_t *)clk->priv;
-	return bcm2836_mbox_clock_get_rate(mclk->id);
+	struct clk_mbox_pdata_t * pdat = (struct clk_mbox_pdata_t *)clk->priv;
+	return bcm2836_mbox_clock_get_rate(pdat->id);
 }
 
-static bool_t register_clk_mbox(struct device_t ** device, struct clk_mbox_t * mclk)
+static struct device_t * clk_mbox_probe(struct driver_t * drv, struct dtnode_t * n)
 {
+	struct clk_mbox_pdata_t * pdat;
 	struct clk_t * clk;
+	struct device_t * dev;
+	char * name = dt_read_string(n, "name", NULL);
+	int id = dt_read_int(n, "mbox-clock-id", -1);
 
-	if(!mclk || !mclk->name)
-		return FALSE;
+	if(!name || id < 1 || id > 10)
+		return NULL;
 
-	if(search_clk(mclk->name))
-		return FALSE;
+	if(search_clk(name))
+		return NULL;
+
+	pdat = malloc(sizeof(struct clk_mbox_pdata_t));
+	if(!pdat)
+		return NULL;
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
-		return FALSE;
+	{
+		free(pdat);
+		return NULL;
+	}
 
-	clk->name = mclk->name;
-	clk->type = CLK_TYPE_OTHER;
-	clk->count = 0;
+	pdat->id = id;
+
+	clk->name = strdup(name);
+	kref_init(&clk->count);
 	clk->set_parent = clk_mbox_set_parent;
 	clk->get_parent = clk_mbox_get_parent;
 	clk->set_enable = clk_mbox_set_enable;
 	clk->get_enable = clk_mbox_get_enable;
 	clk->set_rate = clk_mbox_set_rate;
 	clk->get_rate = clk_mbox_get_rate;
-	clk->priv = mclk;
+	clk->priv = pdat;
 
-	if(!register_clk(device, clk))
+	if(!register_clk(&dev, clk))
 	{
+		free(clk->name);
+		free(clk->priv);
 		free(clk);
-		return FALSE;
-	}
-	return TRUE;
-}
-
-static bool_t unregister_clk_mbox(struct clk_mbox_t * mclk)
-{
-	struct clk_t * clk;
-
-	if(!mclk || !mclk->name)
-		return FALSE;
-
-	clk = search_clk(mclk->name);
-	if(!clk)
-		return FALSE;
-
-	if(unregister_clk(clk))
-	{
-		free(clk);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-static struct device_t * clk_mbox_probe(struct driver_t * drv, struct dtnode_t * n)
-{
-	struct clk_mbox_t * mclk;
-	struct device_t * dev;
-	char * name = dt_read_string(n, "name", NULL);
-	int id = dt_read_u64(n, "mbox-clock-id", -1);
-
-	if(!name || id < 1 || id > 10)
-		return NULL;
-
-	mclk = malloc(sizeof(struct clk_mbox_t));
-	if(!mclk)
-		return NULL;
-
-	mclk->name = strdup(name);
-	mclk->id = id;
-
-	if(!register_clk_mbox(&dev, mclk))
-	{
-		free(mclk->name);
-		free(mclk);
 		return NULL;
 	}
 	dev->driver = drv;
@@ -146,12 +114,12 @@ static struct device_t * clk_mbox_probe(struct driver_t * drv, struct dtnode_t *
 static void clk_mbox_remove(struct device_t * dev)
 {
 	struct clk_t * clk = (struct clk_t *)dev->priv;
-	struct clk_mbox_t * mclk = (struct clk_mbox_t *)clk->priv;
 
-	if(mclk && unregister_clk_mbox(mclk))
+	if(clk && unregister_clk(clk))
 	{
-		free(mclk->name);
-		free(mclk);
+		free(clk->name);
+		free(clk->priv);
+		free(clk);
 	}
 }
 

@@ -13,6 +13,7 @@ struct clk_gate_t {
 	int shift;
 	int invert;
 	virtual_addr_t virt;
+	void * priv;
 };
 
 bool_t register_clk_gate(struct device_t ** device, struct clk_gate_t * gclk);

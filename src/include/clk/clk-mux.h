@@ -18,6 +18,7 @@ struct clk_mux_t {
 	int shift;
 	int width;
 	virtual_addr_t virt;
+	void * priv;
 };
 
 bool_t register_clk_mux(struct device_t ** device, struct clk_mux_t * mclk);

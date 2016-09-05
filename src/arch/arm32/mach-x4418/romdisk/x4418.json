@@ -1,8 +1,19 @@
 {
-	"clk-fixed@0": { "name": "GATE-UART0", "rate": 11000000 },
-	"clk-fixed@1": { "name": "GATE-UART1", "rate": 11000000 },
-	"clk-fixed@2": { "name": "GATE-UART2", "rate": 11000000 },
-	"clk-fixed@3": { "name": "GATE-UART3", "rate": 11000000 },
+	"clk-fixed@0": { "name": "xtal-pll", "rate": 24000000 },
+	"clk-fixed@1": { "name": "xtal-rtc", "rate": 32768 },
+
+	"clk-s5p4418-pll@0xc0010008": { "name": "pll0", "parent": "xtal-pll" },
+	"clk-s5p4418-pll@0xc001000c": { "name": "pll1", "parent": "xtal-pll" },
+	"clk-s5p4418-pll@0xc0010010": { "name": "pll2", "parent": "xtal-pll" },
+	"clk-s5p4418-pll@0xc0010014": { "name": "pll3", "parent": "xtal-pll" },
+
+
+
+	
+	"clk-fixed@2": { "name": "GATE-UART0", "rate": 11000000 },
+	"clk-fixed@3": { "name": "GATE-UART1", "rate": 11000000 },
+	"clk-fixed@4": { "name": "GATE-UART2", "rate": 11000000 },
+	"clk-fixed@5": { "name": "GATE-UART3", "rate": 11000000 },
 
 	"irq-pl192@0xc0002000": {
 		"interrupt-base": 0,

@@ -24,6 +24,10 @@
 
 #include <clk/clk.h>
 
+struct clk_fixed_pdata_t {
+	u64_t rate;
+};
+
 static void clk_fixed_set_parent(struct clk_t * clk, const char * pname)
 {
 }
@@ -48,26 +52,38 @@ static void clk_fixed_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 
 static u64_t clk_fixed_get_rate(struct clk_t * clk, u64_t prate)
 {
-	struct clk_fixed_t * fclk = (struct clk_fixed_t *)clk->priv;
-	return fclk->rate;
+	struct clk_fixed_pdata_t * pdat = (struct clk_fixed_pdata_t *)clk->priv;
+	return pdat->rate;
 }
 
-bool_t register_clk_fixed(struct device_t ** device, struct clk_fixed_t * fclk)
+static struct device_t * clk_fixed_probe(struct driver_t * drv, struct dtnode_t * n)
 {
+	struct clk_fixed_pdata_t * pdat;
 	struct clk_t * clk;
+	struct device_t * dev;
+	char * name = dt_read_string(n, "name", NULL);
+	u64_t rate = (u64_t)dt_read_long(n, "rate", 0);
 
-	if(!fclk || !fclk->name)
-		return FALSE;
+	if(!name || rate <= 0)
+		return NULL;
 
-	if(search_clk(fclk->name))
-		return FALSE;
+	if(search_clk(name))
+		return NULL;
+
+	pdat = malloc(sizeof(struct clk_fixed_pdata_t));
+	if(!pdat)
+		return NULL;
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
-		return FALSE;
+	{
+		free(pdat);
+		return NULL;
+	}
 
-	clk->name = fclk->name;
-	clk->type = CLK_TYPE_FIXED;
+	pdat->rate = rate;
+
+	clk->name = strdup(name);
 	kref_init(&clk->count);
 	clk->set_parent = clk_fixed_set_parent;
 	clk->get_parent = clk_fixed_get_parent;
@@ -75,56 +91,13 @@ bool_t register_clk_fixed(struct device_t ** device, struct clk_fixed_t * fclk)
 	clk->get_enable = clk_fixed_get_enable;
 	clk->set_rate = clk_fixed_set_rate;
 	clk->get_rate = clk_fixed_get_rate;
-	clk->priv = fclk;
+	clk->priv = pdat;
 
-	if(!register_clk(device, clk))
+	if(!register_clk(&dev, clk))
 	{
+		free(clk->name);
+		free(clk->priv);
 		free(clk);
-		return FALSE;
-	}
-	return TRUE;
-}
-
-bool_t unregister_clk_fixed(struct clk_fixed_t * fclk)
-{
-	struct clk_t * clk;
-
-	if(!fclk || !fclk->name)
-		return FALSE;
-
-	clk = search_clk(fclk->name);
-	if(!clk)
-		return FALSE;
-
-	if(unregister_clk(clk))
-	{
-		free(clk);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-static struct device_t * clk_fixed_probe(struct driver_t * drv, struct dtnode_t * n)
-{
-	struct clk_fixed_t * fclk;
-	struct device_t * dev;
-	char * name = dt_read_string(n, "name", NULL);
-	u64_t rate = dt_read_u64(n, "rate", 0);
-
-	if(!name || rate <= 0)
-		return NULL;
-
-	fclk = malloc(sizeof(struct clk_fixed_t));
-	if(!fclk)
-		return NULL;
-
-	fclk->name = strdup(name);
-	fclk->rate = rate;
-
-	if(!register_clk_fixed(&dev, fclk))
-	{
-		free(fclk->name);
-		free(fclk);
 		return NULL;
 	}
 	dev->driver = drv;
@@ -135,12 +108,12 @@ static struct device_t * clk_fixed_probe(struct driver_t * drv, struct dtnode_t 
 static void clk_fixed_remove(struct device_t * dev)
 {
 	struct clk_t * clk = (struct clk_t *)dev->priv;
-	struct clk_fixed_t * fclk = (struct clk_fixed_t *)clk->priv;
 
-	if(fclk && unregister_clk_fixed(fclk))
+	if(clk && unregister_clk(clk))
 	{
-		free(fclk->name);
-		free(fclk);
+		free(clk->name);
+		free(clk->priv);
+		free(clk);
 	}
 }
 

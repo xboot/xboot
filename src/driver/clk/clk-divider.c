@@ -92,7 +92,6 @@ bool_t register_clk_divider(struct device_t ** device, struct clk_divider_t * dc
 		return FALSE;
 
 	clk->name = dclk->name;
-	clk->type = CLK_TYPE_DIVIDER;
 	kref_init(&clk->count);
 	clk->set_parent = clk_divider_set_parent;
 	clk->get_parent = clk_divider_get_parent;

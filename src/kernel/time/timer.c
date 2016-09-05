@@ -27,7 +27,7 @@
 #include <time/timer.h>
 
 static struct timer_base_t __timer_base = {
-	.head = RB_ROOT,
+	.head = { NULL },
 	.next = NULL,
 	.ce = NULL,
 	.lock = SPIN_LOCK_INIT(),

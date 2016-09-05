@@ -83,7 +83,6 @@ static struct device_t * clk_s5p4418_pll_probe(struct driver_t * drv, struct dtn
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 	char * name = dt_read_string(n, "name", NULL);
 	char * parent = dt_read_string(n, "parent", NULL);
-	u64_t rate = (u64_t)dt_read_long(n, "rate", 0);
 
 	if(!name || !parent)
 		return NULL;
@@ -125,8 +124,6 @@ static struct device_t * clk_s5p4418_pll_probe(struct driver_t * drv, struct dtn
 		return NULL;
 	}
 	dev->driver = drv;
-	if(rate > 0)
-		clk_set_rate(dev->name, rate);
 
 	return dev;
 }

@@ -24,33 +24,40 @@
 
 #include <clk/clk.h>
 
+struct clk_gate_pdata_t {
+	virtual_addr_t virt;
+	char * parent;
+	int shift;
+	int invert;
+};
+
 static void clk_gate_set_parent(struct clk_t * clk, const char * pname)
 {
 }
 
 static const char * clk_gate_get_parent(struct clk_t * clk)
 {
-	struct clk_gate_t * gclk = (struct clk_gate_t *)clk->priv;
-	return gclk->parent;
+	struct clk_gate_pdata_t * pdat = (struct clk_gate_pdata_t *)clk->priv;
+	return pdat->parent;
 }
 
 static void clk_gate_set_enable(struct clk_t * clk, bool_t enable)
 {
-	struct clk_gate_t * gclk = (struct clk_gate_t *)clk->priv;
+	struct clk_gate_pdata_t * pdat = (struct clk_gate_pdata_t *)clk->priv;
 
 	if(enable)
-		write32(gclk->virt, (read32(gclk->virt) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x0 : 0x1) << gclk->shift));
+		write32(pdat->virt, (read32(pdat->virt) & ~(0x1 << pdat->shift)) | ((pdat->invert ? 0x0 : 0x1) << pdat->shift));
 	else
-		write32(gclk->virt, (read32(gclk->virt) & ~(0x1 << gclk->shift)) | ((gclk->invert ? 0x1 : 0x0) << gclk->shift));
+		write32(pdat->virt, (read32(pdat->virt) & ~(0x1 << pdat->shift)) | ((pdat->invert ? 0x1 : 0x0) << pdat->shift));
 }
 
 static bool_t clk_gate_get_enable(struct clk_t * clk)
 {
-	struct clk_gate_t * gclk = (struct clk_gate_t *)clk->priv;
+	struct clk_gate_pdata_t * pdat = (struct clk_gate_pdata_t *)clk->priv;
 
-	if(read32(gclk->virt) & (0x1 << gclk->shift))
-		return gclk->invert ? FALSE : TRUE;
-	return gclk->invert ? TRUE : FALSE;
+	if(read32(pdat->virt) & (0x1 << pdat->shift))
+		return pdat->invert ? FALSE : TRUE;
+	return pdat->invert ? TRUE : FALSE;
 }
 
 static void clk_gate_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
@@ -62,21 +69,39 @@ static u64_t clk_gate_get_rate(struct clk_t * clk, u64_t prate)
 	return prate;
 }
 
-bool_t register_clk_gate(struct device_t ** device, struct clk_gate_t * gclk)
+static struct device_t * clk_gate_probe(struct driver_t * drv, struct dtnode_t * n)
 {
+	struct clk_gate_pdata_t * pdat;
 	struct clk_t * clk;
+	struct device_t * dev;
+	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	char * name = dt_read_string(n, "name", NULL);
+	char * parent = dt_read_string(n, "parent", NULL);
+	int shift = dt_read_int(n, "shift", -1);
 
-	if(!gclk || !gclk->name)
-		return FALSE;
+	if(!name || !parent || (shift < 0))
+		return NULL;
 
-	if(search_clk(gclk->name))
-		return FALSE;
+	if(search_clk(name) || !search_clk(parent))
+		return NULL;
+
+	pdat = malloc(sizeof(struct clk_gate_pdata_t));
+	if(!pdat)
+		return NULL;
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
-		return FALSE;
+	{
+		free(pdat);
+		return NULL;
+	}
 
-	clk->name = gclk->name;
+	pdat->virt = virt;
+	pdat->parent = strdup(parent);
+	pdat->shift = shift;
+	pdat->invert = dt_read_bool(n, "invert", 0);
+
+	clk->name = strdup(name);
 	kref_init(&clk->count);
 	clk->set_parent = clk_gate_set_parent;
 	clk->get_parent = clk_gate_get_parent;
@@ -84,31 +109,62 @@ bool_t register_clk_gate(struct device_t ** device, struct clk_gate_t * gclk)
 	clk->get_enable = clk_gate_get_enable;
 	clk->set_rate = clk_gate_set_rate;
 	clk->get_rate = clk_gate_get_rate;
-	clk->priv = gclk;
+	clk->priv = pdat;
 
-	if(!register_clk(device, clk))
+	if(!register_clk(&dev, clk))
 	{
+		free(pdat->parent);
+
+		free(clk->name);
+		free(clk->priv);
 		free(clk);
-		return FALSE;
+		return NULL;
 	}
-	return TRUE;
+	dev->driver = drv;
+
+	return dev;
 }
 
-bool_t unregister_clk_gate(struct clk_gate_t * gclk)
+static void clk_gate_remove(struct device_t * dev)
 {
-	struct clk_t * clk;
+	struct clk_t * clk = (struct clk_t *)dev->priv;
+	struct clk_gate_pdata_t * pdat = (struct clk_gate_pdata_t *)clk->priv;
 
-	if(!gclk || !gclk->name)
-		return FALSE;
-
-	clk = search_clk(gclk->name);
-	if(!clk)
-		return FALSE;
-
-	if(unregister_clk(clk))
+	if(clk && unregister_clk(clk))
 	{
+		free(pdat->parent);
+
+		free(clk->name);
+		free(clk->priv);
 		free(clk);
-		return TRUE;
 	}
-	return FALSE;
 }
+
+static void clk_gate_suspend(struct device_t * dev)
+{
+}
+
+static void clk_gate_resume(struct device_t * dev)
+{
+}
+
+static struct driver_t clk_gate = {
+	.name		= "clk-gate",
+	.probe		= clk_gate_probe,
+	.remove		= clk_gate_remove,
+	.suspend	= clk_gate_suspend,
+	.resume		= clk_gate_resume,
+};
+
+static __init void clk_gate_driver_init(void)
+{
+	register_driver(&clk_gate);
+}
+
+static __exit void clk_gate_driver_exit(void)
+{
+	unregister_driver(&clk_gate);
+}
+
+driver_initcall(clk_gate_driver_init);
+driver_exitcall(clk_gate_driver_exit);

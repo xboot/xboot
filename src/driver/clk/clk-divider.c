@@ -24,7 +24,13 @@
 
 #include <clk/clk.h>
 
-#define div_mask(d)		((1 << (d->width)) - 1)
+struct clk_divider_pdata_t {
+	virtual_addr_t virt;
+	char * parent;
+	int shift;
+	int width;
+	int onebased;
+};
 
 static void clk_divider_set_parent(struct clk_t * clk, const char * pname)
 {
@@ -32,8 +38,8 @@ static void clk_divider_set_parent(struct clk_t * clk, const char * pname)
 
 static const char * clk_divider_get_parent(struct clk_t * clk)
 {
-	struct clk_divider_t * dclk = (struct clk_divider_t *)clk->priv;
-	return dclk->parent;
+	struct clk_divider_pdata_t * pdat = (struct clk_divider_pdata_t *)clk->priv;
+	return pdat->parent;
 }
 
 static void clk_divider_set_enable(struct clk_t * clk, bool_t enable)
@@ -47,51 +53,77 @@ static bool_t clk_divider_get_enable(struct clk_t * clk)
 
 static void clk_divider_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
-	struct clk_divider_t * dclk = (struct clk_divider_t *)clk->priv;
-	u32_t div = prate / rate;
+	struct clk_divider_pdata_t * pdat = (struct clk_divider_pdata_t *)clk->priv;
+	u32_t mask = ((1 << (pdat->width)) - 1);
+	u32_t div;
 	u32_t val;
 
-	if(dclk->type == CLK_DIVIDER_ONE_BASED)
+	if(rate == 0)
+		rate = prate;
+
+	div = prate / rate;
+	if(pdat->onebased)
 		div--;
+	if(div > mask)
+		div = mask;
 
-	if(div > div_mask(dclk))
-		div = div_mask(dclk);
-
-	val = read32(dclk->virt);
-	val &= ~(div_mask(dclk) << dclk->shift);
-	val |= div << dclk->shift;
-	write32(dclk->virt, val);
+	val = read32(pdat->virt);
+	val &= ~(mask << pdat->shift);
+	val |= div << pdat->shift;
+	write32(pdat->virt, val);
 }
 
 static u64_t clk_divider_get_rate(struct clk_t * clk, u64_t prate)
 {
-	struct clk_divider_t * dclk = (struct clk_divider_t *)clk->priv;
+	struct clk_divider_pdata_t * pdat = (struct clk_divider_pdata_t *)clk->priv;
+	u32_t mask = ((1 << (pdat->width)) - 1);
 	u32_t div;
 
-	div = read32(dclk->virt) >> dclk->shift;
-	div &= div_mask(dclk);
+	div = read32(pdat->virt) >> pdat->shift;
+	div &= mask;
 
-	if(dclk->type == CLK_DIVIDER_ONE_BASED)
+	if(pdat->onebased)
 		div++;
-
+	if(div == 0)
+		div = 1;
 	return prate / div;
 }
 
-bool_t register_clk_divider(struct device_t ** device, struct clk_divider_t * dclk)
+static struct device_t * clk_divider_probe(struct driver_t * drv, struct dtnode_t * n)
 {
+	struct clk_divider_pdata_t * pdat;
 	struct clk_t * clk;
+	struct device_t * dev;
+	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	char * name = dt_read_string(n, "name", NULL);
+	char * parent = dt_read_string(n, "parent", NULL);
+	int shift = dt_read_int(n, "shift", -1);
+	int width = dt_read_int(n, "width", -1);
 
-	if(!dclk || !dclk->name)
-		return FALSE;
+	if(!name || !parent || (shift < 0) || (width <= 0))
+		return NULL;
 
-	if(search_clk(dclk->name))
-		return FALSE;
+	if(search_clk(name) || !search_clk(parent))
+		return NULL;
+
+	pdat = malloc(sizeof(struct clk_divider_pdata_t));
+	if(!pdat)
+		return NULL;
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
-		return FALSE;
+	{
+		free(pdat);
+		return NULL;
+	}
 
-	clk->name = dclk->name;
+	pdat->virt = virt;
+	pdat->parent = strdup(parent);
+	pdat->shift = shift;
+	pdat->width = width;
+	pdat->onebased = dt_read_bool(n, "divider-one-based", 0);
+
+	clk->name = strdup(name);
 	kref_init(&clk->count);
 	clk->set_parent = clk_divider_set_parent;
 	clk->get_parent = clk_divider_get_parent;
@@ -99,31 +131,62 @@ bool_t register_clk_divider(struct device_t ** device, struct clk_divider_t * dc
 	clk->get_enable = clk_divider_get_enable;
 	clk->set_rate = clk_divider_set_rate;
 	clk->get_rate = clk_divider_get_rate;
-	clk->priv = dclk;
+	clk->priv = pdat;
 
-	if(!register_clk(device, clk))
+	if(!register_clk(&dev, clk))
 	{
+		free(pdat->parent);
+
+		free(clk->name);
+		free(clk->priv);
 		free(clk);
-		return FALSE;
+		return NULL;
 	}
-	return TRUE;
+	dev->driver = drv;
+
+	return dev;
 }
 
-bool_t unregister_clk_divider(struct clk_divider_t * dclk)
+static void clk_divider_remove(struct device_t * dev)
 {
-	struct clk_t * clk;
+	struct clk_t * clk = (struct clk_t *)dev->priv;
+	struct clk_divider_pdata_t * pdat = (struct clk_divider_pdata_t *)clk->priv;
 
-	if(!dclk || !dclk->name)
-		return FALSE;
-
-	clk = search_clk(dclk->name);
-	if(!clk)
-		return FALSE;
-
-	if(unregister_clk(clk))
+	if(clk && unregister_clk(clk))
 	{
+		free(pdat->parent);
+
+		free(clk->name);
+		free(clk->priv);
 		free(clk);
-		return TRUE;
 	}
-	return FALSE;
 }
+
+static void clk_divider_suspend(struct device_t * dev)
+{
+}
+
+static void clk_divider_resume(struct device_t * dev)
+{
+}
+
+static struct driver_t clk_divider = {
+	.name		= "clk-divider",
+	.probe		= clk_divider_probe,
+	.remove		= clk_divider_remove,
+	.suspend	= clk_divider_suspend,
+	.resume		= clk_divider_resume,
+};
+
+static __init void clk_divider_driver_init(void)
+{
+	register_driver(&clk_divider);
+}
+
+static __exit void clk_divider_driver_exit(void)
+{
+	unregister_driver(&clk_divider);
+}
+
+driver_initcall(clk_divider_driver_init);
+driver_exitcall(clk_divider_driver_exit);

@@ -6,9 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <clk/clk-gate.h>
-#include <clk/clk-divider.h>
-#include <clk/clk-mux.h>
 
 struct clk_t
 {

@@ -24,35 +24,48 @@
 
 #include <clk/clk.h>
 
+struct clk_mux_parent_t {
+	char * name;
+	int value;
+};
+
+struct clk_mux_pdata_t {
+	virtual_addr_t virt;
+	struct clk_mux_parent_t * parent;
+	int nparent;
+	int shift;
+	int width;
+};
+
 static void clk_mux_set_parent(struct clk_t * clk, const char * pname)
 {
-	struct clk_mux_t * mclk = (struct clk_mux_t *)clk->priv;
-	struct clk_mux_table_t * table = mclk->parent;
+	struct clk_mux_pdata_t * pdat = (struct clk_mux_pdata_t *)clk->priv;
 	u32_t val;
+	int i;
 
-	for(table = mclk->parent; table && table->name; table++)
+	for(i = 0; i < pdat->nparent; i++)
 	{
-		if(strcmp(table->name, pname) == 0)
+		if(strcmp(pdat->parent[i].name, pname) == 0)
 		{
-			val = read32(mclk->virt);
-			val &= ~(((1 << mclk->width) - 1) << mclk->shift);
-			val |= table->val << mclk->shift;
-			write32(mclk->virt, val);
-			return;
+			val = read32(pdat->virt);
+			val &= ~(((1 << pdat->width) - 1) << pdat->shift);
+			val |= pdat->parent[i].value << pdat->shift;
+			write32(pdat->virt, val);
+			break;
 		}
 	}
 }
 
 static const char * clk_mux_get_parent(struct clk_t * clk)
 {
-	struct clk_mux_t * mclk = (struct clk_mux_t *)clk->priv;
-	struct clk_mux_table_t * table = mclk->parent;
-	int val = read32(mclk->virt) >> mclk->shift & ((1 << mclk->width) - 1);
+	struct clk_mux_pdata_t * pdat = (struct clk_mux_pdata_t *)clk->priv;
+	int val = (read32(pdat->virt) >> pdat->shift) & ((1 << pdat->width) - 1);
+	int i;
 
-	for(table = mclk->parent; table && table->name; table++)
+	for(i = 0; i < pdat->nparent; i++)
 	{
-		if(table->val == val)
-			return table->name;
+		if(pdat->parent[i].value == val)
+			return pdat->parent[i].name;
 	}
 	return NULL;
 }
@@ -75,21 +88,60 @@ static u64_t clk_mux_get_rate(struct clk_t * clk, u64_t prate)
 	return prate;
 }
 
-bool_t register_clk_mux(struct device_t ** device, struct clk_mux_t * mclk)
+
+static struct device_t * clk_mux_probe(struct driver_t * drv, struct dtnode_t * n)
 {
+	struct clk_mux_pdata_t * pdat;
+	struct clk_mux_parent_t * parent;
+	struct dtnode_t o;
 	struct clk_t * clk;
+	struct device_t * dev;
+	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	char * name = dt_read_string(n, "name", NULL);
+	int nparent = dt_read_array_length(n, "parent");
+	int shift = dt_read_int(n, "shift", -1);
+	int width = dt_read_int(n, "width", -1);
+	int i;
 
-	if(!mclk || !mclk->name)
-		return FALSE;
+	if(!name || (nparent <= 0) || (shift < 0) || (width <= 0))
+		return NULL;
 
-	if(search_clk(mclk->name))
-		return FALSE;
+	if(search_clk(name))
+		return NULL;
+
+	pdat = malloc(sizeof(struct clk_mux_pdata_t));
+	if(!pdat)
+		return NULL;
+
+	parent = malloc(sizeof(struct clk_mux_parent_t) * nparent);
+	if(!parent)
+	{
+		free(pdat);
+		return NULL;
+	}
 
 	clk = malloc(sizeof(struct clk_t));
 	if(!clk)
-		return FALSE;
+	{
+		free(pdat);
+		free(parent);
+		return NULL;
+	}
 
-	clk->name = mclk->name;
+	for(i = 0; i < nparent; i++)
+	{
+		dt_read_array_object(n, "parent", i, &o);
+		parent[i].name = strdup(dt_read_string(&o, "name", NULL));
+		parent[i].value = dt_read_int(&o, "value", 0);
+	}
+
+	pdat->virt = virt;
+	pdat->parent = parent;
+	pdat->nparent = nparent;
+	pdat->shift = shift;
+	pdat->width = width;
+
+	clk->name = strdup(name);
 	kref_init(&clk->count);
 	clk->set_parent = clk_mux_set_parent;
 	clk->get_parent = clk_mux_get_parent;
@@ -97,31 +149,67 @@ bool_t register_clk_mux(struct device_t ** device, struct clk_mux_t * mclk)
 	clk->get_enable = clk_mux_get_enable;
 	clk->set_rate = clk_mux_set_rate;
 	clk->get_rate = clk_mux_get_rate;
-	clk->priv = mclk;
+	clk->priv = pdat;
 
-	if(!register_clk(device, clk))
+	if(!register_clk(&dev, clk))
 	{
+		for(i = 0; i < pdat->nparent; i++)
+			free(pdat->parent[i].name);
+		free(pdat->parent);
+
+		free(clk->name);
+		free(clk->priv);
 		free(clk);
-		return FALSE;
+		return NULL;
 	}
-	return TRUE;
+	dev->driver = drv;
+
+	return dev;
 }
 
-bool_t unregister_clk_mux(struct clk_mux_t * mclk)
+static void clk_mux_remove(struct device_t * dev)
 {
-	struct clk_t * clk;
+	struct clk_t * clk = (struct clk_t *)dev->priv;
+	struct clk_mux_pdata_t * pdat = (struct clk_mux_pdata_t *)clk->priv;
+	int i;
 
-	if(!mclk || !mclk->name)
-		return FALSE;
-
-	clk = search_clk(mclk->name);
-	if(!clk)
-		return FALSE;
-
-	if(unregister_clk(clk))
+	if(clk && unregister_clk(clk))
 	{
+		for(i = 0; i < pdat->nparent; i++)
+			free(pdat->parent[i].name);
+		free(pdat->parent);
+
+		free(clk->name);
+		free(clk->priv);
 		free(clk);
-		return TRUE;
 	}
-	return FALSE;
 }
+
+static void clk_mux_suspend(struct device_t * dev)
+{
+}
+
+static void clk_mux_resume(struct device_t * dev)
+{
+}
+
+static struct driver_t clk_mux = {
+	.name		= "clk-mux",
+	.probe		= clk_mux_probe,
+	.remove		= clk_mux_remove,
+	.suspend	= clk_mux_suspend,
+	.resume		= clk_mux_resume,
+};
+
+static __init void clk_mux_driver_init(void)
+{
+	register_driver(&clk_mux);
+}
+
+static __exit void clk_mux_driver_exit(void)
+{
+	unregister_driver(&clk_mux);
+}
+
+driver_initcall(clk_mux_driver_init);
+driver_exitcall(clk_mux_driver_exit);

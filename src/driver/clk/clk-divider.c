@@ -95,15 +95,15 @@ static struct device_t * clk_divider_probe(struct driver_t * drv, struct dtnode_
 	struct clk_t * clk;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	char * name = dt_read_string(n, "name", NULL);
 	char * parent = dt_read_string(n, "parent", NULL);
+	char * name = dt_read_string(n, "name", NULL);
 	int shift = dt_read_int(n, "shift", -1);
 	int width = dt_read_int(n, "width", -1);
 
-	if(!name || !parent || (shift < 0) || (width <= 0))
+	if(!parent || !name || (shift < 0) || (width <= 0))
 		return NULL;
 
-	if(search_clk(name) || !search_clk(parent))
+	if(!search_clk(parent) || search_clk(name))
 		return NULL;
 
 	pdat = malloc(sizeof(struct clk_divider_pdata_t));
@@ -121,7 +121,7 @@ static struct device_t * clk_divider_probe(struct driver_t * drv, struct dtnode_
 	pdat->parent = strdup(parent);
 	pdat->shift = shift;
 	pdat->width = width;
-	pdat->onebased = dt_read_bool(n, "divider-one-based", 0);
+	pdat->onebased = dt_read_bool(n, "divider-one-based", 1);
 
 	clk->name = strdup(name);
 	kref_init(&clk->count);

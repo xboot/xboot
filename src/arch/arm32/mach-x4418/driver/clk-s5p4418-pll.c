@@ -81,13 +81,13 @@ static struct device_t * clk_s5p4418_pll_probe(struct driver_t * drv, struct dtn
 	struct clk_t * clk;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	char * name = dt_read_string(n, "name", NULL);
 	char * parent = dt_read_string(n, "parent", NULL);
+	char * name = dt_read_string(n, "name", NULL);
 
-	if(!name || !parent)
+	if(!parent || !name)
 		return NULL;
 
-	if(search_clk(name) || !search_clk(parent))
+	if(!search_clk(parent) || search_clk(name))
 		return NULL;
 
 	pdat = malloc(sizeof(struct clk_s5p4418_pll_pdata_t));

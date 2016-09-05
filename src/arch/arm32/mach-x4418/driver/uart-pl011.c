@@ -279,7 +279,7 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	}
 	write32(pdat->virt + UART_LCRH, read32(pdat->virt + UART_LCRH) | (1 << 4));
 	write32(pdat->virt + UART_CR, (1 << 0) | (1 << 8) | (1 << 9));
-//	uart_pl011_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
+	uart_pl011_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
 
 	if(!register_uart(&dev, uart))
 	{

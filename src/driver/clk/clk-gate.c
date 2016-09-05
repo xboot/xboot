@@ -75,14 +75,14 @@ static struct device_t * clk_gate_probe(struct driver_t * drv, struct dtnode_t *
 	struct clk_t * clk;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	char * name = dt_read_string(n, "name", NULL);
 	char * parent = dt_read_string(n, "parent", NULL);
+	char * name = dt_read_string(n, "name", NULL);
 	int shift = dt_read_int(n, "shift", -1);
 
-	if(!name || !parent || (shift < 0))
+	if(!parent || !name || (shift < 0))
 		return NULL;
 
-	if(search_clk(name) || !search_clk(parent))
+	if(!search_clk(parent) || search_clk(name))
 		return NULL;
 
 	pdat = malloc(sizeof(struct clk_gate_pdata_t));

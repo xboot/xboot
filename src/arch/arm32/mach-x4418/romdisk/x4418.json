@@ -1,19 +1,370 @@
 {
 	"clk-fixed@0": { "name": "xtal-pll", "rate": 24000000 },
 	"clk-fixed@1": { "name": "xtal-rtc", "rate": 32768 },
+	"clk-s5p4418-pll@0xc0010008": { "parent": "xtal-pll", "name": "pll0" },
+	"clk-s5p4418-pll@0xc001000c": { "parent": "xtal-pll", "name": "pll1" },
+	"clk-s5p4418-pll@0xc0010010": { "parent": "xtal-pll", "name": "pll2" },
+	"clk-s5p4418-pll@0xc0010014": { "parent": "xtal-pll", "name": "pll3" },
 
-	"clk-s5p4418-pll@0xc0010008": { "name": "pll0", "parent": "xtal-pll" },
-	"clk-s5p4418-pll@0xc001000c": { "name": "pll1", "parent": "xtal-pll" },
-	"clk-s5p4418-pll@0xc0010010": { "name": "pll2", "parent": "xtal-pll" },
-	"clk-s5p4418-pll@0xc0010014": { "name": "pll3", "parent": "xtal-pll" },
+	"clk-mux@0xc0010020": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-fclkcpu0",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc0010020": {
+		"parent": "mux-fclkcpu0",
+		"name": "div-fclkcpu0",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010020": {
+		"parent": "div-fclkcpu0",
+		"name": "div-hclkcpu0",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
+	 
+	"clk-mux@0xc0010024": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-bclk",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc0010024": {
+		"parent": "mux-bclk",
+		"name": "div-bclk",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010024": {
+		"parent": "div-bclk",
+		"name": "div-pclk",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
 
+	"clk-mux@0xc0010028": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-mdclk",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc0010028": {
+		"parent": "mux-mdclk",
+		"name": "div-mdclk",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010028": {
+		"parent": "div-mdclk",
+		"name": "div-mclk",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010028": {
+		"parent": "div-mclk",
+		"name": "div-mbclk",
+		"shift": 15,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010028": {
+		"parent": "div-mbclk",
+		"name": "div-mpclk",
+		"shift": 21,
+		"width": 6,
+		"divider-one-based": true
+	},
 
+	"clk-mux@0xc001002c": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-gr3dbclk",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc001002c": {
+		"parent": "mux-gr3dbclk",
+		"name": "div-gr3dbclk",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc001002c": {
+		"parent": "div-gr3dbclk",
+		"name": "div-gr3dpclk",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
 
+	"clk-mux@0xc0010030": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-mpegbclk",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc0010030": {
+		"parent": "mux-mpegbclk",
+		"name": "div-mpegbclk",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010030": {
+		"parent": "div-mpegbclk",
+		"name": "div-mpegpclk",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
+
+	"clk-divider@0xc0017000": {
+		"parent": "div-pclk",
+		"name": "div-timer-prescaler0",
+		"shift": 0,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-timer-prescaler0",
+		"name": "link-timer0"
+	},
+
+	"clk-divider@0xc0017000": {
+		"parent": "div-pclk",
+		"name": "div-timer-prescaler1",
+		"shift": 8,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-timer-prescaler1",
+		"name": "link-timer1"
+	},
 	
-	"clk-fixed@2": { "name": "GATE-UART0", "rate": 11000000 },
-	"clk-fixed@3": { "name": "GATE-UART1", "rate": 11000000 },
-	"clk-fixed@4": { "name": "GATE-UART2", "rate": 11000000 },
-	"clk-fixed@5": { "name": "GATE-UART3", "rate": 11000000 },
+	"clk-divider@0xc0018000": {
+		"parent": "div-pclk",
+		"name": "div-pwm-prescaler0",
+		"shift": 0,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-pwm-prescaler0",
+		"name": "link-pwm0"
+	},
+	
+	"clk-divider@0xc0018000": {
+		"parent": "div-pclk",
+		"name": "div-pwm-prescaler1",
+		"shift": 8,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-pwm-prescaler1",
+		"name": "link-pwm1"
+	},
+	
+	"clk-mux@0xc00a9004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart0",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc00a9004": {
+		"parent": "mux-uart0",
+		"name": "div-uart0",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc00a9000": {
+		"parent": "div-uart0",
+		"name": "gate-uart0",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart0",
+		"name": "link-uart0"
+	},
+
+	"clk-mux@0xc00a8004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart1",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc00a8004": {
+		"parent": "mux-uart1",
+		"name": "div-uart1",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc00a8000": {
+		"parent": "div-uart1",
+		"name": "gate-uart1",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart1",
+		"name": "link-uart1"
+	},
+	
+	"clk-mux@0xc00aa004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart2",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc00aa004": {
+		"parent": "mux-uart2",
+		"name": "div-uart2",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc00aa000": {
+		"parent": "div-uart2",
+		"name": "gate-uart2",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart2",
+		"name": "link-uart2"
+	},
+	
+	"clk-mux@0xc00ab004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart3",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc00ab004": {
+		"parent": "mux-uart3",
+		"name": "div-uart3",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc00ab000": {
+		"parent": "div-uart3",
+		"name": "gate-uart3",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart3",
+		"name": "link-uart3"
+	},
+	
+	"clk-mux@0xc006e004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart4",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc006e004": {
+		"parent": "mux-uart4",
+		"name": "div-uart4",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc006e000": {
+		"parent": "div-uart4",
+		"name": "gate-uart4",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart4",
+		"name": "link-uart4"
+	},
+
+	"clk-mux@0xc0084004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart5",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc0084004": {
+		"parent": "mux-uart5",
+		"name": "div-uart5",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc0064000": {
+		"parent": "div-uart5",
+		"name": "gate-uart5",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart5",
+		"name": "link-uart5"
+	},
 
 	"irq-pl192@0xc0002000": {
 		"interrupt-base": 0,
@@ -98,7 +449,7 @@
 	},
 
 	"uart-pl011@0xc00a1000": {
-		"clock-name": "GATE-UART0",
+		"clock-name": "link-uart0",
 		"txd-gpio": 114,
 		"txd-gpio-config": 1,
 		"rxd-gpio": 110,
@@ -110,7 +461,7 @@
 	},
 
 	"uart-pl011@0xc00a0000": {
-		"clock-name": "GATE-UART1",
+		"clock-name": "link-uart1",
 		"txd-gpio": 115,
 		"txd-gpio-config": 1,
 		"rxd-gpio": 111,
@@ -122,7 +473,7 @@
 	},
 	
 	"uart-pl011@0xc00a2000": {
-		"clock-name": "GATE-UART2",
+		"clock-name": "link-uart2",
 		"txd-gpio": 116,
 		"txd-gpio-config": 1,
 		"rxd-gpio": 112,
@@ -134,7 +485,7 @@
 	},
 	
 	"uart-pl011@0xc00a3000": {
-		"clock-name": "GATE-UART3",
+		"clock-name": "link-uart3",
 		"txd-gpio": 117,
 		"txd-gpio-config": 1,
 		"rxd-gpio": 113,

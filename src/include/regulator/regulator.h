@@ -10,7 +10,7 @@ extern "C" {
 struct regulator_t
 {
 	char * name;
-	struct kref_t count;
+	int count;
 
 	void (*set_parent)(struct regulator_t * supply, const char * pname);
 	const char * (*get_parent)(struct regulator_t * supply);

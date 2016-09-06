@@ -186,18 +186,7 @@ void regulator_enable(const char * name)
 	if(supply->set_enable)
 		supply->set_enable(supply, TRUE);
 
-	kref_get(&supply->count);
-}
-
-static void __regulator_disable(struct kref_t * kref)
-{
-	struct regulator_t * supply = container_of(kref, struct regulator_t, count);
-
-	if(supply->get_parent)
-		regulator_disable(supply->get_parent(supply));
-
-	if(supply->set_enable)
-		supply->set_enable(supply, FALSE);
+	supply->count++;
 }
 
 void regulator_disable(const char * name)
@@ -207,7 +196,17 @@ void regulator_disable(const char * name)
 	if(!supply)
 		return;
 
-	kref_put(&supply->count, __regulator_disable);
+	if(supply->count > 0)
+		supply->count--;
+
+	if(supply->count == 0)
+	{
+		if(supply->get_parent)
+			regulator_disable(supply->get_parent(supply));
+
+		if(supply->set_enable)
+			supply->set_enable(supply, FALSE);
+	}
 }
 
 bool_t regulator_status(const char * name)

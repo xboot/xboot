@@ -1,5 +1,5 @@
 /*
- * s5p4418-timer.c
+ * samsung-timer.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,37 +22,32 @@
  *
  */
 
-#include <xboot.h>
-#include <clk/clk.h>
-#include <s5p4418-timer.h>
+#include <samsung-timer.h>
 
-#define TCON_CHANNEL(ch)		(ch ? ch * 4 + 4 : 0)
-#define TCON_START(ch)			(0x1 << TCON_CHANNEL(ch))
-#define TCON_MANUALUPDATE(ch)	(0x2 << TCON_CHANNEL(ch))
-#define TCON_INVERT(ch)			(0x4 << TCON_CHANNEL(ch))
-#define TCON_AUTORELOAD(ch)		(0x8 << TCON_CHANNEL(ch))
+#define TIMER_TCFG0				(0x00)
+#define TIMER_TCFG1				(0x04)
+#define TIMER_TCON				(0x08)
+#define TIMER_TSTAT				(0x44)
+#define TIMER_TCNTB(x)			((x + 1) * 0xc + 0x00)
+#define TIMER_TCMPB(x)			((x + 1) * 0xc + 0x04)
+#define TIMER_TCNTO(x)			((x + 1) * 0xc + 0x08)
+#define TCON_START(x)			(0x1 << (x ? x * 4 + 4 : 0))
+#define TCON_MANUALUPDATE(x)	(0x2 << (x ? x * 4 + 4 : 0))
+#define TCON_INVERT(x)			(0x4 << (x ? x * 4 + 4 : 0))
+#define TCON_AUTORELOAD(x)		(0x8 << (x ? x * 4 + 4 : 0))
 
-void s5p4418_timer_reset(void)
-{
-	s5p4418_ip_reset(RESET_ID_TIMER, 0);
-}
-
-void s5p4418_timer_enable(virtual_addr_t virt, int ch, int irqon)
+void samsung_timer_enable(virtual_addr_t virt, const char * clk, int ch, int irqon)
 {
 	u32_t val;
 
-	if(ch < 2)
-		clk_enable("DIV-TIMER-PRESCALER0");
-	else
-		clk_enable("DIV-TIMER-PRESCALER1");
-
+	clk_enable(clk);
 	val = read32(virt + TIMER_TSTAT);
 	val &= ~(0x1f << 5 | 0x1 << ch);
 	val |= (0x1 << (ch + 5)) | ((irqon ? 1 : 0) << ch);
 	write32(virt + TIMER_TSTAT, val);
 }
 
-void s5p4418_timer_disable(virtual_addr_t virt, int ch)
+void samsung_timer_disable(virtual_addr_t virt, const char * clk, int ch)
 {
 	u32_t val;
 
@@ -64,14 +59,10 @@ void s5p4418_timer_disable(virtual_addr_t virt, int ch)
 	val = read32(virt + TIMER_TCON);
 	val &= ~(TCON_START(ch));
 	write32(virt + TIMER_TCON, val);
-
-	if(ch< 2)
-		clk_disable("DIV-TIMER-PRESCALER0");
-	else
-		clk_disable("DIV-TIMER-PRESCALER1");
+	clk_disable(clk);
 }
 
-void s5p4418_timer_start(virtual_addr_t virt, int ch, int oneshot)
+void samsung_timer_start(virtual_addr_t virt, int ch, int oneshot)
 {
 	u32_t val;
 
@@ -90,7 +81,7 @@ void s5p4418_timer_start(virtual_addr_t virt, int ch, int oneshot)
 	write32(virt + TIMER_TCON, val);
 }
 
-void s5p4418_timer_stop(virtual_addr_t virt, int ch)
+void samsung_timer_stop(virtual_addr_t virt, int ch)
 {
 	u32_t val;
 
@@ -99,16 +90,12 @@ void s5p4418_timer_stop(virtual_addr_t virt, int ch)
 	write32(virt + TIMER_TCON, val);
 }
 
-u64_t s5p4418_timer_calc_tin(virtual_addr_t virt, int ch, u32_t period)
+u64_t samsung_timer_calc_tin(virtual_addr_t virt, const char * clk, int ch, u32_t period)
 {
 	u64_t rate, freq = 1000000000L / period;
 	u8_t div, shift;
 
-	if(ch < 2)
-		rate = clk_get_rate("DIV-TIMER-PRESCALER0");
-	else
-		rate = clk_get_rate("DIV-TIMER-PRESCALER1");
-
+	rate = clk_get_rate(clk);
 	for(div = 0; div < 4; div++)
 	{
 		if((rate >> div) <= freq)
@@ -121,18 +108,18 @@ u64_t s5p4418_timer_calc_tin(virtual_addr_t virt, int ch, u32_t period)
 	return (rate >> div);
 }
 
-void s5p4418_timer_count(virtual_addr_t virt, int ch, u32_t cnt)
+void samsung_timer_count(virtual_addr_t virt, int ch, u32_t cnt)
 {
 	write32(virt + TIMER_TCNTB(ch), cnt);
 	write32(virt + TIMER_TCMPB(ch), cnt);
 }
 
-u32_t s5p4418_timer_read(virtual_addr_t virt, int ch)
+u32_t samsung_timer_read(virtual_addr_t virt, int ch)
 {
 	return read32(virt + TIMER_TCNTO(ch));
 }
 
-void s5p4418_timer_irq_clear(virtual_addr_t virt, int ch)
+void samsung_timer_irq_clear(virtual_addr_t virt, int ch)
 {
 	u32_t val;
 

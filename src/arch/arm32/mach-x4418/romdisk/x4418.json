@@ -463,6 +463,17 @@
 		"interrupt-offset": 224
 	},
 
+	"ce-samsung-timer@0xc0017000": {
+		"clock-name": "link-timer0",
+		"interrupt": 23,
+		"timer-channel": 0
+	},
+
+	"cs-samsung-timer@0xc0017000": {
+		"clock-name": "link-timer0",
+		"timer-channel": 1
+	},
+
 	"uart-pl011@0xc00a1000": {
 		"clock-name": "link-uart0",
 		"txd-gpio": 114,

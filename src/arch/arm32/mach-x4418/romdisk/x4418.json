@@ -366,6 +366,21 @@
 		"name": "link-uart5"
 	},
 
+	"clk-setting": {
+		"clocks": [
+			{ "name": "div-timer-prescaler0", "rate": 150000000 },
+			{ "name": "div-timer-prescaler1", "rate": 150000000 },
+			{ "name": "div-pwm-prescaler0", "rate": 150000000 },
+			{ "name": "div-pwm-prescaler1", "rate": 150000000 },
+			{ "name": "div-uart0", "rate": 50000000 },
+			{ "name": "div-uart1", "rate": 50000000 },
+			{ "name": "div-uart2", "rate": 50000000 },
+			{ "name": "div-uart3", "rate": 50000000 },
+			{ "name": "div-uart4", "rate": 50000000 },
+			{ "name": "div-uart5", "rate": 50000000 },
+		]
+	},
+
 	"irq-pl192@0xc0002000": {
 		"interrupt-base": 0,
 		"interrupt-count": 32

@@ -173,7 +173,7 @@
 		"parent": "div-timer-prescaler1",
 		"name": "link-timer1"
 	},
-	
+
 	"clk-divider@0xc0018000": {
 		"parent": "div-pclk",
 		"name": "div-pwm-prescaler0",
@@ -185,7 +185,7 @@
 		"parent": "div-pwm-prescaler0",
 		"name": "link-pwm0"
 	},
-	
+
 	"clk-divider@0xc0018000": {
 		"parent": "div-pclk",
 		"name": "div-pwm-prescaler1",
@@ -197,7 +197,7 @@
 		"parent": "div-pwm-prescaler1",
 		"name": "link-pwm1"
 	},
-	
+
 	"clk-mux@0xc00a9004": {
 		"parent": [
 			{ "name": "pll0", "value": 0 },
@@ -253,7 +253,7 @@
 		"parent": "gate-uart1",
 		"name": "link-uart1"
 	},
-	
+
 	"clk-mux@0xc00aa004": {
 		"parent": [
 			{ "name": "pll0", "value": 0 },
@@ -281,7 +281,7 @@
 		"parent": "gate-uart2",
 		"name": "link-uart2"
 	},
-	
+
 	"clk-mux@0xc00ab004": {
 		"parent": [
 			{ "name": "pll0", "value": 0 },
@@ -309,7 +309,7 @@
 		"parent": "gate-uart3",
 		"name": "link-uart3"
 	},
-	
+
 	"clk-mux@0xc006e004": {
 		"parent": [
 			{ "name": "pll0", "value": 0 },

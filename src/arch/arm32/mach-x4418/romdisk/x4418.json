@@ -463,6 +463,34 @@
 		"interrupt-offset": 224
 	},
 
+	"pwm-samsung@0xc0018000": {
+		"clock-name": "link-pwm0",
+		"channel": 0,
+		"pwm-gpio": 97,
+		"pwm-gpio-config": 1
+	},
+
+	"pwm-samsung@0xc0018000": {
+		"clock-name": "link-pwm0",
+		"channel": 1,
+		"pwm-gpio": 77,
+		"pwm-gpio-config": 2
+	},
+
+	"pwm-samsung@0xc0018000": {
+		"clock-name": "link-pwm1",
+		"channel": 2,
+		"pwm-gpio": 78,
+		"pwm-gpio-config": 2
+	},
+
+	"pwm-samsung@0xc0018000": {
+		"clock-name": "link-pwm1",
+		"channel": 3,
+		"pwm-gpio": 96,
+		"pwm-gpio-config": 2
+	},
+
 	"ce-samsung-timer@0xc0017000": {
 		"clock-name": "link-timer0",
 		"interrupt": 23,
@@ -641,6 +669,11 @@
 
 	"ledtrig-general@2": {
 		"led-name": "led-gpio.2"
+	},
+
+	"buzzer-pwm@0": {
+		"pwm-name": "pwm-samsung.2",
+		"pwm-polarity": true
 	},
 
 	"console-uart@0": {

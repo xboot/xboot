@@ -10,7 +10,7 @@ extern "C" {
 struct clk_t
 {
 	char * name;
-	struct kref_t count;
+	int count;
 
 	void (*set_parent)(struct clk_t * clk, const char * pname);
 	const char * (*get_parent)(struct clk_t * clk);

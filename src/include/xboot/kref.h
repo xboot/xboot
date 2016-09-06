@@ -13,7 +13,7 @@ struct kref_t {
 
 static inline void kref_init(struct kref_t * kref)
 {
-	atomic_set(&kref->count, 0);
+	atomic_set(&kref->count, 1);
 }
 
 static inline void kref_get(struct kref_t * kref)

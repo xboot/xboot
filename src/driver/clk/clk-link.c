@@ -84,7 +84,7 @@ static struct device_t * clk_link_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->parent = strdup(parent);
 
 	clk->name = strdup(name);
-	kref_init(&clk->count);
+	clk->count = 0;
 	clk->set_parent = clk_link_set_parent;
 	clk->get_parent = clk_link_get_parent;
 	clk->set_enable = clk_link_set_enable;

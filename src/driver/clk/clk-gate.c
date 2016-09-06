@@ -102,7 +102,7 @@ static struct device_t * clk_gate_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->invert = dt_read_bool(n, "invert", 0);
 
 	clk->name = strdup(name);
-	kref_init(&clk->count);
+	clk->count = 0;
 	clk->set_parent = clk_gate_set_parent;
 	clk->get_parent = clk_gate_get_parent;
 	clk->set_enable = clk_gate_set_enable;

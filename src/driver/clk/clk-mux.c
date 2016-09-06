@@ -142,7 +142,7 @@ static struct device_t * clk_mux_probe(struct driver_t * drv, struct dtnode_t * 
 	pdat->width = width;
 
 	clk->name = strdup(name);
-	kref_init(&clk->count);
+	clk->count = 0;
 	clk->set_parent = clk_mux_set_parent;
 	clk->get_parent = clk_mux_get_parent;
 	clk->set_enable = clk_mux_set_enable;

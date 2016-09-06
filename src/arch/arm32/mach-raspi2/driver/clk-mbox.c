@@ -90,7 +90,7 @@ static struct device_t * clk_mbox_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->id = id;
 
 	clk->name = strdup(name);
-	kref_init(&clk->count);
+	clk->count = 0;
 	clk->set_parent = clk_mbox_set_parent;
 	clk->get_parent = clk_mbox_get_parent;
 	clk->set_enable = clk_mbox_set_enable;

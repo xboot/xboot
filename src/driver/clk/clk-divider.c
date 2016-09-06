@@ -124,7 +124,7 @@ static struct device_t * clk_divider_probe(struct driver_t * drv, struct dtnode_
 	pdat->onebased = dt_read_bool(n, "divider-one-based", 1);
 
 	clk->name = strdup(name);
-	kref_init(&clk->count);
+	clk->count = 0;
 	clk->set_parent = clk_divider_set_parent;
 	clk->get_parent = clk_divider_get_parent;
 	clk->set_enable = clk_divider_set_enable;

@@ -37,6 +37,23 @@ static const struct mmap_t mach_map[] = {
 
 static int mach_detect(struct machine_t * mach)
 {
+	/*
+	 * VIC to core, pass through GIC.
+	 */
+	write32(phys_to_virt(0xf0000100), 0);
+
+	/*
+	 * Reset some IP modules.
+	 */
+	s5p4418_ip_reset(RESET_ID_TIMER, 0);
+	s5p4418_ip_reset(RESET_ID_PWM, 0);
+	s5p4418_ip_reset(RESET_ID_UART0, 0);
+	s5p4418_ip_reset(RESET_ID_UART1, 0);
+	s5p4418_ip_reset(RESET_ID_UART2, 0);
+	s5p4418_ip_reset(RESET_ID_UART3, 0);
+	s5p4418_ip_reset(RESET_ID_UART4, 0);
+	s5p4418_ip_reset(RESET_ID_UART5, 0);
+
 	return 1;
 }
 

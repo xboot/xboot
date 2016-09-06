@@ -88,10 +88,6 @@ static void pl192_ctrl_init(virtual_addr_t virt)
 	int i;
 
 	/*
-	 * VIC to core, pass through GIC, Just for S5P4418
-	 */
-	write32(phys_to_virt(0xf0000100), 0);
-	/*
 	 * Select irq mode
 	 */
 	write32(virt + VIC_INTSELECT, 0x00000000);

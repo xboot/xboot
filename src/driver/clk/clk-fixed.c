@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <clk/clk.h>
 
 struct clk_fixed_pdata_t {

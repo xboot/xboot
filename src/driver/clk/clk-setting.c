@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <clk/clk.h>
 
 static void clk_setting_set_parent(struct clk_t * clk, const char * pname)

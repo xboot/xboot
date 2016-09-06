@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <gpio/gpio.h>
 #include <spi/spi.h>
 

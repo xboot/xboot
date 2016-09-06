@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <block/disk.h>
 #include <block/partition.h>
 

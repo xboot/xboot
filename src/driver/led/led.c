@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <led/led.h>
 
 static ssize_t led_read_brightness(struct kobj_t * kobj, void * buf, size_t size)

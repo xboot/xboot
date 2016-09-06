@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <battery/battery.h>
 
 static ssize_t battery_read_supply(struct kobj_t * kobj, void * buf, size_t size)

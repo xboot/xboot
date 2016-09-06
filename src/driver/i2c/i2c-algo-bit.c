@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <i2c/i2c-algo-bit.h>
 
 static inline void sdalo(struct i2c_algo_bit_data_t * bdat)

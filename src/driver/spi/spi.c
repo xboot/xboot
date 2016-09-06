@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <spi/spi.h>
 
 struct spi_t * search_spi(const char * name)

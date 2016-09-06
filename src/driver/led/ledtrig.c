@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <led/ledtrig.h>
 
 static ssize_t ledtrig_write_activity(struct kobj_t * kobj, void * buf, size_t size)

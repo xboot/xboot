@@ -586,6 +586,15 @@
 		"delay-us": 5
 	},
 
+ 	"regulator-gpio@0": {
+		"parent": null,
+		"name": "power-bl",
+		"voltage": 12000000,
+		"gpio": 74,
+		"active-low": false,
+		"default-enable": false
+	},
+
 	"key-gpio-polled@0": {
 		"keys": [
 			{ "gpio": 41, "active-low": true, "key-code": 157 },

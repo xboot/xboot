@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <rng/rng.h>
 
 static ssize_t rng_read_random(struct kobj_t * kobj, void * buf, size_t size)

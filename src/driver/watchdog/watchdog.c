@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <watchdog/watchdog.h>
 
 static ssize_t watchdog_read_timeout(struct kobj_t * kobj, void * buf, size_t size)

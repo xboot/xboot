@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <clockevent/clockevent.h>
 
 /*

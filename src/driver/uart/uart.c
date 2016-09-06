@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <uart/uart.h>
 
 static ssize_t uart_read_baud(struct kobj_t * kobj, void * buf, size_t size)

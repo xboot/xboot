@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <clk/clk.h>
 
 struct clk_divider_pdata_t {

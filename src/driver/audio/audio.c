@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <audio/pool.h>
 #include <audio/audio.h>
 

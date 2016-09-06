@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <regulator/regulator.h>
 
 static ssize_t regulator_read_summary(struct kobj_t * kobj, void * buf, size_t size)

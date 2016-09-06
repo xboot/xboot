@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <clk/clk.h>
 
 static ssize_t clk_read_summary(struct kobj_t * kobj, void * buf, size_t size)

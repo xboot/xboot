@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <input/input.h>
 
 static ssize_t input_read_type(struct kobj_t * kobj, void * buf, size_t size)

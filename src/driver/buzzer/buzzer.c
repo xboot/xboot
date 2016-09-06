@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <buzzer/buzzer.h>
 
 static ssize_t buzzer_read_frequency(struct kobj_t * kobj, void * buf, size_t size)

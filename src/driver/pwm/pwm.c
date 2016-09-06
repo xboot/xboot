@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <pwm/pwm.h>
 
 static ssize_t pwm_read_enable(struct kobj_t * kobj, void * buf, size_t size)

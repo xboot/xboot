@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <i2c/i2c.h>
 
 struct i2c_t * search_i2c(const char * name)

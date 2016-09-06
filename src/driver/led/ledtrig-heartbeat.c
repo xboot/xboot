@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <led/ledtrig.h>
 
 struct ledtrig_heartbeat_pdata_t {

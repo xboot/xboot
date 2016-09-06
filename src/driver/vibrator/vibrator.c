@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <vibrator/vibrator.h>
 
 static ssize_t vibrator_read_state(struct kobj_t * kobj, void * buf, size_t size)

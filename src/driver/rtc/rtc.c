@@ -22,6 +22,7 @@
  *
  */
 
+#include <xboot.h>
 #include <rtc/rtc.h>
 
 static ssize_t rtc_time_read(struct kobj_t * kobj, void * buf, size_t size)

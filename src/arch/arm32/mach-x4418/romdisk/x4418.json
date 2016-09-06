@@ -377,7 +377,7 @@
 			{ "name": "div-uart2", "rate": 12000000 },
 			{ "name": "div-uart3", "rate": 12000000 },
 			{ "name": "div-uart4", "rate": 12000000 },
-			{ "name": "div-uart5", "rate": 12000000 },
+			{ "name": "div-uart5", "rate": 12000000 }
 		]
 	},
 

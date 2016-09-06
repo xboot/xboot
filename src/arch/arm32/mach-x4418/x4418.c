@@ -115,7 +115,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t x4418 = {
 	.name 		= "x4418",
-	.desc 		= "X4418 Based On S5P4412",
+	.desc 		= "X4418 Based On S5P4418 SOC",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,

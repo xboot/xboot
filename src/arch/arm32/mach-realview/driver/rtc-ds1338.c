@@ -69,19 +69,19 @@ static bool_t ds1338_read(struct i2c_device_t * dev, u8_t reg, u8_t * buf, int l
 {
 	struct i2c_msg_t msgs[2];
 
-    msgs[0].addr = dev->addr;
-    msgs[0].flags = 0;
-    msgs[0].len = 1;
-    msgs[0].buf = &reg;
+	msgs[0].addr = dev->addr;
+	msgs[0].flags = 0;
+	msgs[0].len = 1;
+	msgs[0].buf = &reg;
 
-    msgs[1].addr = dev->addr;
-    msgs[1].flags = I2C_M_RD;
-    msgs[1].len = len;
-    msgs[1].buf = buf;
+	msgs[1].addr = dev->addr;
+	msgs[1].flags = I2C_M_RD;
+	msgs[1].len = len;
+	msgs[1].buf = buf;
 
-    if(i2c_transfer(dev->i2c, msgs, 2) != 2)
-    	return FALSE;
-    return TRUE;
+	if(i2c_transfer(dev->i2c, msgs, 2) != 2)
+		return FALSE;
+	return TRUE;
 }
 
 static bool_t ds1338_write(struct i2c_device_t * dev, u8_t reg, u8_t * buf, int len)
@@ -94,14 +94,14 @@ static bool_t ds1338_write(struct i2c_device_t * dev, u8_t reg, u8_t * buf, int 
 	mbuf[0] = reg;
 	memcpy(&mbuf[1], buf, len);
 
-    msg.addr = dev->addr;
-    msg.flags = 0;
-    msg.len = len + 1;
-    msg.buf = &mbuf[0];
+	msg.addr = dev->addr;
+	msg.flags = 0;
+	msg.len = len + 1;
+	msg.buf = &mbuf[0];
 
-    if(i2c_transfer(dev->i2c, &msg, 1) != 1)
-    	return FALSE;
-    return TRUE;
+	if(i2c_transfer(dev->i2c, &msg, 1) != 1)
+		return FALSE;
+	return TRUE;
 }
 
 static bool_t rtc_ds1338_settime(struct rtc_t * rtc, struct rtc_time_t * time)
@@ -199,11 +199,15 @@ static struct device_t * rtc_ds1338_probe(struct driver_t * drv, struct dtnode_t
 
 	pdat = malloc(sizeof(struct rtc_ds1338_pdata_t));
 	if(!pdat)
+	{
+		i2c_device_free(i2cdev);
 		return NULL;
+	}
 
 	rtc = malloc(sizeof(struct rtc_t));
 	if(!rtc)
 	{
+		i2c_device_free(i2cdev);
 		free(pdat);
 		return NULL;
 	}

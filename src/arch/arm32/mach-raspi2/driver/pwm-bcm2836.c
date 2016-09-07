@@ -43,22 +43,22 @@ struct pwm_bcm2836_pdata_t
 	int channel;
 	int pwm;
 	int pwmcfg;
-	unsigned long scaler;
 };
 
 static void pwm_bcm2836_config(struct pwm_t * pwm, int duty, int period, int polarity)
 {
 	struct pwm_bcm2836_pdata_t * pdat = (struct pwm_bcm2836_pdata_t *)pwm->priv;
+	unsigned long scaler = (unsigned long)(1000000000ULL / clk_get_rate(pdat->clk));
 	u32_t ctrl;
 
 	if(pwm->__duty != duty)
 	{
-		write32(pdat->virt + PWM_DUTY(pdat->channel), duty / pdat->scaler);
+		write32(pdat->virt + PWM_DUTY(pdat->channel), duty / scaler);
 	}
 
 	if(pwm->__period != period)
 	{
-		write32(pdat->virt + PWM_PERIOD(pdat->channel), period / pdat->scaler);
+		write32(pdat->virt + PWM_PERIOD(pdat->channel), period /scaler);
 	}
 
 	if(pwm->__polarity != polarity)
@@ -78,6 +78,8 @@ static void pwm_bcm2836_enable(struct pwm_t * pwm)
 	u32_t ctrl;
 
 	gpio_set_cfg(pdat->pwm, pdat->pwmcfg);
+	clk_enable(pdat->clk);
+
 	ctrl = read32(pdat->virt + PWM_CTRL);
 	ctrl &= ~(PWM_CTRL_MASK << PWM_CTRL_SHIFT(pdat->channel));
 	ctrl |= (0x81 << PWM_CTRL_SHIFT(pdat->channel));
@@ -93,6 +95,7 @@ static void pwm_bcm2836_disable(struct pwm_t * pwm)
 	ctrl &= ~(PWM_CTRL_MASK << PWM_CTRL_SHIFT(pdat->channel));
 	ctrl |= (0x00 << PWM_CTRL_SHIFT(pdat->channel));
 	write32(pdat->virt + PWM_CTRL, ctrl);
+	clk_disable(pdat->clk);
 }
 
 static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -121,9 +124,6 @@ static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_
 		return NULL;
 	}
 
-	clk_enable(pdat->clk);
-	clk_set_rate(pdat->clk, 9200000);
-	pdat->scaler = (unsigned long)(1000000000ULL / clk_get_rate(pdat->clk));
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 	pdat->channel = channel;
@@ -138,7 +138,6 @@ static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_
 
 	if(!register_pwm(&dev, pwm))
 	{
-		clk_disable(pdat->clk);
 		free(pdat->clk);
 
 		free_device_name(pwm->name);
@@ -158,7 +157,6 @@ static void pwm_bcm2836_remove(struct device_t * dev)
 
 	if(pwm && unregister_pwm(pwm))
 	{
-		clk_disable(pdat->clk);
 		free(pdat->clk);
 
 		free_device_name(pwm->name);

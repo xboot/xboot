@@ -55,24 +55,24 @@ static ssize_t battery_read_health(struct kobj_t * kobj, void * buf, size_t size
 	return sprintf(buf, "unknown");
 }
 
-static ssize_t battery_read_count(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t battery_read_design_capacity(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct battery_t * bat = (struct battery_t *)kobj->priv;
 	struct battery_info_t info;
 
 	if(battery_update(bat, &info))
-		return sprintf(buf, "%d", info.count);
-	return sprintf(buf, "%d", 0);
+		return sprintf(buf, "%dmAh", info.design_capacity);
+	return sprintf(buf, "%dmAh", 0);
 }
 
-static ssize_t battery_read_capacity(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t battery_read_design_voltage(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct battery_t * bat = (struct battery_t *)kobj->priv;
 	struct battery_info_t info;
 
 	if(battery_update(bat, &info))
-		return sprintf(buf, "%d", info.capacity);
-	return sprintf(buf, "%d", 0);
+		return sprintf(buf, "%dmV", info.design_voltage);
+	return sprintf(buf, "%dmV", 0);
 }
 
 static ssize_t battery_read_voltage(struct kobj_t * kobj, void * buf, size_t size)
@@ -81,8 +81,8 @@ static ssize_t battery_read_voltage(struct kobj_t * kobj, void * buf, size_t siz
 	struct battery_info_t info;
 
 	if(battery_update(bat, &info))
-		return sprintf(buf, "%d", info.voltage);
-	return sprintf(buf, "%d", 0);
+		return sprintf(buf, "%dmV", info.voltage);
+	return sprintf(buf, "%dmV", 0);
 }
 
 static ssize_t battery_read_current(struct kobj_t * kobj, void * buf, size_t size)
@@ -91,8 +91,28 @@ static ssize_t battery_read_current(struct kobj_t * kobj, void * buf, size_t siz
 	struct battery_info_t info;
 
 	if(battery_update(bat, &info))
-		return sprintf(buf, "%d", info.current);
-	return sprintf(buf, "%d", 0);
+		return sprintf(buf, "%dmA", info.current);
+	return sprintf(buf, "%dmA", 0);
+}
+
+static ssize_t battery_read_charging_voltage(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct battery_t * bat = (struct battery_t *)kobj->priv;
+	struct battery_info_t info;
+
+	if(battery_update(bat, &info))
+		return sprintf(buf, "%dmV", info.charging_voltage);
+	return sprintf(buf, "%dmV", 0);
+}
+
+static ssize_t battery_read_charging_current(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct battery_t * bat = (struct battery_t *)kobj->priv;
+	struct battery_info_t info;
+
+	if(battery_update(bat, &info))
+		return sprintf(buf, "%dmA", info.charging_current);
+	return sprintf(buf, "%dmA", 0);
 }
 
 static ssize_t battery_read_temperature(struct kobj_t * kobj, void * buf, size_t size)
@@ -101,7 +121,17 @@ static ssize_t battery_read_temperature(struct kobj_t * kobj, void * buf, size_t
 	struct battery_info_t info;
 
 	if(battery_update(bat, &info))
-		return sprintf(buf, "%d", info.temperature);
+		return sprintf(buf, "%d.%dC", info.temperature / 10, abs(info.temperature % 10));
+	return sprintf(buf, "%d.%dC", 0, 0);
+}
+
+static ssize_t battery_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct battery_t * bat = (struct battery_t *)kobj->priv;
+	struct battery_info_t info;
+
+	if(battery_update(bat, &info))
+		return sprintf(buf, "%d", info.cycle);
 	return sprintf(buf, "%d", 0);
 }
 
@@ -111,8 +141,8 @@ static ssize_t battery_read_level(struct kobj_t * kobj, void * buf, size_t size)
 	struct battery_info_t info;
 
 	if(battery_update(bat, &info))
-		return sprintf(buf, "%d", info.level);
-	return sprintf(buf, "%d", 0);
+		return sprintf(buf, "%d%%", info.level);
+	return sprintf(buf, "%d%%", 0);
 }
 
 struct battery_t * search_battery(const char * name)
@@ -155,11 +185,14 @@ bool_t register_battery(struct device_t ** device, struct battery_t * bat)
 	kobj_add_regular(dev->kobj, "supply", battery_read_supply, NULL, bat);
 	kobj_add_regular(dev->kobj, "status", battery_read_status, NULL, bat);
 	kobj_add_regular(dev->kobj, "health", battery_read_health, NULL, bat);
-	kobj_add_regular(dev->kobj, "count", battery_read_count, NULL, bat);
-	kobj_add_regular(dev->kobj, "capacity", battery_read_capacity, NULL, bat);
+	kobj_add_regular(dev->kobj, "design-capacity", battery_read_design_capacity, NULL, bat);
+	kobj_add_regular(dev->kobj, "design-voltage", battery_read_design_voltage, NULL, bat);
 	kobj_add_regular(dev->kobj, "voltage", battery_read_voltage, NULL, bat);
 	kobj_add_regular(dev->kobj, "current", battery_read_current, NULL, bat);
+	kobj_add_regular(dev->kobj, "charging-voltage", battery_read_charging_voltage, NULL, bat);
+	kobj_add_regular(dev->kobj, "charging-current", battery_read_charging_current, NULL, bat);
 	kobj_add_regular(dev->kobj, "temperature", battery_read_temperature, NULL, bat);
+	kobj_add_regular(dev->kobj, "cycle", battery_read_cycle, NULL, bat);
 	kobj_add_regular(dev->kobj, "level", battery_read_level, NULL, bat);
 
 	if(!register_device(dev))

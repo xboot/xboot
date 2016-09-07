@@ -1,6 +1,6 @@
 {
-	"clk-fixed@0": { "name": "xtal-pll", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xtal-rtc", "rate": 32768 },
+	"clk-fixed": { "name": "xtal-pll", "rate": 24000000 },
+	"clk-fixed": { "name": "xtal-rtc", "rate": 32768 },
 	"clk-s5p4418-pll@0xc0010008": { "parent": "xtal-pll", "name": "pll0" },
 	"clk-s5p4418-pll@0xc001000c": { "parent": "xtal-pll", "name": "pll1" },
 	"clk-s5p4418-pll@0xc0010010": { "parent": "xtal-pll", "name": "pll2" },
@@ -683,6 +683,13 @@
 	"buzzer-pwm@0": {
 		"pwm-name": "pwm-samsung.2",
 		"pwm-polarity": true
+	},
+
+	"bat-axp228@0": {
+		"i2c-bus": "i2c-gpio.3",
+		"design-capacity": 5000,
+		"design_voltage": 4200,
+		"charge-current-limit": 1500
 	},
 
 	"console-uart@0": {

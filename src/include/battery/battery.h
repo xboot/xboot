@@ -32,12 +32,15 @@ struct battery_info_t {
 	enum power_supply_t supply;
 	enum battery_status_t status;
 	enum battery_health_t health;
-	int count;			/* cycle count */
-	int capacity;		/* mAh */
-	int voltage;		/* mV */
-	int current;		/* mA */
-	int temperature;	/* 0.1 Centigrade */
-	int level;			/* Percentage */
+	int design_capacity;	/* mAh */
+	int design_voltage;		/* mV */
+	int voltage;			/* mV */
+	int current;			/* mA */
+	int charging_voltage;	/* mV */
+	int charging_current;	/* mA */
+	int temperature;		/* 0.1 Centigrade */
+	int cycle;				/* cycle count */
+	int level;				/* Percentage */
 };
 
 struct battery_t

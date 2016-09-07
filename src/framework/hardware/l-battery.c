@@ -75,16 +75,22 @@ static int m_battery_update(lua_State * L)
 		lua_setfield(L, -2, "status");
 		lua_pushstring(L, battery_health_string(info.health));
 		lua_setfield(L, -2, "health");
-		lua_pushinteger(L, info.count);
-		lua_setfield(L, -2, "count");
-		lua_pushinteger(L, info.capacity);
-		lua_setfield(L, -2, "capacity");
+		lua_pushinteger(L, info.design_capacity);
+		lua_setfield(L, -2, "designCapacity");
+		lua_pushinteger(L, info.design_voltage);
+		lua_setfield(L, -2, "designVoltage");
 		lua_pushinteger(L, info.voltage);
 		lua_setfield(L, -2, "voltage");
 		lua_pushinteger(L, info.current);
 		lua_setfield(L, -2, "current");
+		lua_pushinteger(L, info.charging_voltage);
+		lua_setfield(L, -2, "chargingVoltage");
+		lua_pushinteger(L, info.charging_current);
+		lua_setfield(L, -2, "chargingCurrent");
 		lua_pushinteger(L, info.temperature);
 		lua_setfield(L, -2, "temperature");
+		lua_pushinteger(L, info.cycle);
+		lua_setfield(L, -2, "cycle");
 		lua_pushinteger(L, info.level);
 		lua_setfield(L, -2, "level");
 	}

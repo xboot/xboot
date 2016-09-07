@@ -45,6 +45,11 @@
 		"pwm-gpio-config": 0
 	},
 
+	"ce-bcm2836-armtimer@0x3f00b400": {
+		"clock-name": "arm-timer-clk",
+		"interrupt": 64
+	},
+
 	"cs-bcm2836-systimer@0x3f003000": {
 		"clock-name": "sys-timer-clk"
 	},

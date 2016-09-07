@@ -95,34 +95,14 @@ static ssize_t battery_read_current(struct kobj_t * kobj, void * buf, size_t siz
 	return sprintf(buf, "%dmA", 0);
 }
 
-static ssize_t battery_read_charging_voltage(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct battery_t * bat = (struct battery_t *)kobj->priv;
-	struct battery_info_t info;
-
-	if(battery_update(bat, &info))
-		return sprintf(buf, "%dmV", info.charging_voltage);
-	return sprintf(buf, "%dmV", 0);
-}
-
-static ssize_t battery_read_charging_current(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct battery_t * bat = (struct battery_t *)kobj->priv;
-	struct battery_info_t info;
-
-	if(battery_update(bat, &info))
-		return sprintf(buf, "%dmA", info.charging_current);
-	return sprintf(buf, "%dmA", 0);
-}
-
 static ssize_t battery_read_temperature(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct battery_t * bat = (struct battery_t *)kobj->priv;
 	struct battery_info_t info;
 
 	if(battery_update(bat, &info))
-		return sprintf(buf, "%d.%dC", info.temperature / 10, abs(info.temperature % 10));
-	return sprintf(buf, "%d.%dC", 0, 0);
+		return sprintf(buf, "%d.%d°C", info.temperature / 10, abs(info.temperature % 10));
+	return sprintf(buf, "%d.%d°C", 0, 0);
 }
 
 static ssize_t battery_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
@@ -189,8 +169,6 @@ bool_t register_battery(struct device_t ** device, struct battery_t * bat)
 	kobj_add_regular(dev->kobj, "design-voltage", battery_read_design_voltage, NULL, bat);
 	kobj_add_regular(dev->kobj, "voltage", battery_read_voltage, NULL, bat);
 	kobj_add_regular(dev->kobj, "current", battery_read_current, NULL, bat);
-	kobj_add_regular(dev->kobj, "charging-voltage", battery_read_charging_voltage, NULL, bat);
-	kobj_add_regular(dev->kobj, "charging-current", battery_read_charging_current, NULL, bat);
 	kobj_add_regular(dev->kobj, "temperature", battery_read_temperature, NULL, bat);
 	kobj_add_regular(dev->kobj, "cycle", battery_read_cycle, NULL, bat);
 	kobj_add_regular(dev->kobj, "level", battery_read_level, NULL, bat);

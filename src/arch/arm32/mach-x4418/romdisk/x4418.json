@@ -685,7 +685,7 @@
 		"pwm-polarity": true
 	},
 
-	"bat-axp228@0": {
+	"battery-axp228@0": {
 		"i2c-bus": "i2c-gpio.3",
 		"design-capacity": 5000,
 		"design_voltage": 4200,

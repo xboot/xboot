@@ -83,10 +83,6 @@ static int m_battery_update(lua_State * L)
 		lua_setfield(L, -2, "voltage");
 		lua_pushinteger(L, info.current);
 		lua_setfield(L, -2, "current");
-		lua_pushinteger(L, info.charging_voltage);
-		lua_setfield(L, -2, "chargingVoltage");
-		lua_pushinteger(L, info.charging_current);
-		lua_setfield(L, -2, "chargingCurrent");
 		lua_pushinteger(L, info.temperature);
 		lua_setfield(L, -2, "temperature");
 		lua_pushinteger(L, info.cycle);

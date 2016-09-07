@@ -1,5 +1,5 @@
 /*
- * driver/bat-axp228.c
+ * driver/battery-axp228.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -123,7 +123,7 @@ enum {
 	AXP228_ADJUST_PARA			= 0xE8,
 };
 
-struct bat_axp228_pdata_t {
+struct battery_axp228_pdata_t {
 	struct i2c_device_t * dev;
 	int design_capacity;
 	int design_voltage;
@@ -170,13 +170,12 @@ static bool_t axp228_write(struct i2c_device_t * dev, u8_t reg, u8_t val)
     return TRUE;
 }
 
-static bool_t bat_axp228_update(struct battery_t * bat, struct battery_info_t * info)
+static bool_t battery_axp228_update(struct battery_t * bat, struct battery_info_t * info)
 {
-	struct bat_axp228_pdata_t * pdat = (struct bat_axp228_pdata_t *)bat->priv;
+	struct battery_axp228_pdata_t * pdat = (struct battery_axp228_pdata_t *)bat->priv;
 	u8_t val, hi, lo;
 	u16_t tmp;
 
-	/* power supply */
 	if(!axp228_read(pdat->dev, AXP228_POWER_STATUS, &val))
 		return FALSE;
 	if(((val >> 6) & 0x3) == 0x3)
@@ -186,7 +185,6 @@ static bool_t bat_axp228_update(struct battery_t * bat, struct battery_info_t * 
 	else
 		info->supply = POWER_SUPPLAY_BATTERY;
 
-	/* battery status */
 	if(!axp228_read(pdat->dev, AXP228_CHARGE_STATUS, &val))
 		return FALSE;
 	if(val & (0x1 << 6))
@@ -198,64 +196,48 @@ static bool_t bat_axp228_update(struct battery_t * bat, struct battery_info_t * 
 		else
 			info->status = BATTERY_STATUS_DISCHARGING;
 	}
+
 	if(val & (0x1 << 7))
 		info->health = BATTERY_HEALTH_OVERHEAT;
 	else
 		info->health = BATTERY_HEALTH_GOOD;
 
-	/* design capacity */
 	info->design_capacity = pdat->design_capacity;
-	/* design voltage */
 	info->design_voltage = pdat->design_voltage;
 
-	/* voltage */
 	if(!axp228_read(pdat->dev, AXP228_VBATH_RES, &hi) ||
 		!axp228_read(pdat->dev, AXP228_VBATL_RES, &lo))
 		return FALSE;
 	tmp = (hi << 8) | lo;
 	info->voltage = ((((tmp >> 8) << 4) | (tmp & 0x000F))) * 1100 / 1000;
 
-	/* current */
 	if(!axp228_read(pdat->dev, AXP228_DISCHGCURRH_RES, &hi) ||
 		!axp228_read(pdat->dev, AXP228_DISCHGCURRL_RES, &lo))
+		return FALSE;
 	tmp = (hi << 5) | (lo & 0x1f);
 	info->current = tmp;
 
-	/* charging voltage */
-	info->charging_voltage = 0;
+	if(!axp228_read(pdat->dev, AXP228_BATTEMPH_RES, &hi) ||
+		!axp228_read(pdat->dev, AXP228_BATTEMPL_RES, &lo))
+		return FALSE;
+	tmp = (hi << 4) | (lo & 0xf);
+	info->temperature = tmp * 1063 / 10000 - 2667 / 10;
 
-	/* charging current */
-	if(!axp228_read(pdat->dev, AXP228_CHGCURRH_RES, &hi) ||
-		!axp228_read(pdat->dev, AXP228_CHGCURRL_RES, &lo))
-	tmp = (hi << 5) | (lo & 0x1f);
-	info->charging_current = tmp;
-
-	/* temperature */
-	if(axp228_read(pdat->dev, AXP228_BATTEMPH_RES, &hi) &&
-		axp228_read(pdat->dev, AXP228_BATTEMPL_RES, &lo))
-	{
-		tmp = (hi << 4) | (lo & 0xf);
-		info->temperature = tmp * 1063 / 10000 - 2667 / 10;
-	}
-
-	/* cycle count */
 	info->cycle = 0;
 
-	/* battery level */
-	if(axp228_read(pdat->dev, AXP228_CAP, &val))
-	{
-		if(val & (0x1 << 7))
-			info->level = val & 0x7f;
-		else
-			info->level = 0;
-	}
+	if(!axp228_read(pdat->dev, AXP228_CAP, &val))
+		return FALSE;
+	if(val & (0x1 << 7))
+		info->level = val & 0x7f;
+	else
+		info->level = 0;
 
 	return TRUE;
 }
 
-static struct device_t * bat_axp228_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * battery_axp228_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct bat_axp228_pdata_t * pdat;
+	struct battery_axp228_pdata_t * pdat;
 	struct battery_t * bat;
 	struct device_t * dev;
 	struct i2c_device_t * i2cdev;
@@ -279,7 +261,7 @@ static struct device_t * bat_axp228_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
-	pdat = malloc(sizeof(struct bat_axp228_pdata_t));
+	pdat = malloc(sizeof(struct battery_axp228_pdata_t));
 	if(!pdat)
 	{
 		i2c_device_free(i2cdev);
@@ -300,7 +282,7 @@ static struct device_t * bat_axp228_probe(struct driver_t * drv, struct dtnode_t
 	pdat->charge_current_limit = charge_current_limit;
 
 	bat->name = alloc_device_name(dt_read_name(n), -1);
-	bat->update = bat_axp228_update,
+	bat->update = battery_axp228_update,
 	bat->priv = pdat;
 
 	if(!register_battery(&dev, bat))
@@ -317,10 +299,10 @@ static struct device_t * bat_axp228_probe(struct driver_t * drv, struct dtnode_t
 	return dev;
 }
 
-static void bat_axp228_remove(struct device_t * dev)
+static void battery_axp228_remove(struct device_t * dev)
 {
 	struct battery_t * bat = (struct battery_t *)dev->priv;
-	struct bat_axp228_pdata_t * pdat = (struct bat_axp228_pdata_t *)bat->priv;
+	struct battery_axp228_pdata_t * pdat = (struct battery_axp228_pdata_t *)bat->priv;
 
 	if(bat && unregister_battery(bat))
 	{
@@ -332,31 +314,31 @@ static void bat_axp228_remove(struct device_t * dev)
 	}
 }
 
-static void bat_axp228_suspend(struct device_t * dev)
+static void battery_axp228_suspend(struct device_t * dev)
 {
 }
 
-static void bat_axp228_resume(struct device_t * dev)
+static void battery_axp228_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t bat_axp228 = {
-	.name		= "bat-axp228",
-	.probe		= bat_axp228_probe,
-	.remove		= bat_axp228_remove,
-	.suspend	= bat_axp228_suspend,
-	.resume		= bat_axp228_resume,
+static struct driver_t battery_axp228 = {
+	.name		= "battery-axp228",
+	.probe		= battery_axp228_probe,
+	.remove		= battery_axp228_remove,
+	.suspend	= battery_axp228_suspend,
+	.resume		= battery_axp228_resume,
 };
 
-static __init void bat_axp228_driver_init(void)
+static __init void battery_axp228_driver_init(void)
 {
-	register_driver(&bat_axp228);
+	register_driver(&battery_axp228);
 }
 
-static __exit void bat_axp228_driver_exit(void)
+static __exit void battery_axp228_driver_exit(void)
 {
-	unregister_driver(&bat_axp228);
+	unregister_driver(&battery_axp228);
 }
 
-driver_initcall(bat_axp228_driver_init);
-driver_exitcall(bat_axp228_driver_exit);
+driver_initcall(battery_axp228_driver_init);
+driver_exitcall(battery_axp228_driver_exit);

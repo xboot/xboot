@@ -251,8 +251,8 @@ static struct device_t * gpio_bcm2836_probe(struct driver_t * drv, struct dtnode
 	struct gpiochip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	int base = dt_read_int(n, "base", -1);
-	int ngpio = dt_read_int(n, "ngpio", -1);
+	int base = dt_read_int(n, "gpio-base", -1);
+	int ngpio = dt_read_int(n, "gpio-count", -1);
 
 	if((base < 0) || (ngpio <= 0))
 		return NULL;

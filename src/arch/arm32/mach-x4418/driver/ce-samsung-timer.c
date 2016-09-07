@@ -89,19 +89,25 @@ static struct device_t * ce_samsung_timer_probe(struct driver_t * drv, struct dt
 	pdat->irq = irq;
 	pdat->channel = channel;
 
+	clk_enable(pdat->clk);
+	rate = samsung_timer_calc_tin(pdat->virt, pdat->clk, pdat->channel, 107);
+	clockevent_calc_mult_shift(ce, rate, 10);
 	ce->name = alloc_device_name(dt_read_name(n), -1);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
 	ce->next = ce_samsung_timer_next,
 	ce->priv = pdat;
 
-	/* 9.375MHZ - 107ns */
-	request_irq(pdat->irq, ce_samsung_timer_interrupt, IRQ_TYPE_NONE, ce);
-	samsung_timer_enable(pdat->virt, pdat->clk, pdat->channel, 1);
-	rate = samsung_timer_calc_tin(pdat->virt, pdat->clk, pdat->channel, 107);
-	clockevent_calc_mult_shift(ce, rate, 10);
-	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
-	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
+	if(!request_irq(pdat->irq, ce_samsung_timer_interrupt, IRQ_TYPE_NONE, ce))
+	{
+		clk_disable(pdat->clk);
+		free(pdat->clk);
+
+		free(ce->priv);
+		free(ce);
+		return NULL;
+	}
+	samsung_timer_enable(pdat->virt, pdat->channel, 1);
 	samsung_timer_count(pdat->virt, pdat->channel, 0);
 	samsung_timer_stop(pdat->virt, pdat->channel);
 
@@ -109,7 +115,8 @@ static struct device_t * ce_samsung_timer_probe(struct driver_t * drv, struct dt
 	{
 		samsung_timer_irq_clear(pdat->virt, pdat->channel);
 		samsung_timer_stop(pdat->virt, pdat->channel);
-		samsung_timer_disable(pdat->virt, pdat->clk, pdat->channel);
+		samsung_timer_disable(pdat->virt, pdat->channel);
+		clk_disable(pdat->clk);
 		free_irq(pdat->irq);
 		free(pdat->clk);
 
@@ -132,7 +139,8 @@ static void ce_samsung_timer_remove(struct device_t * dev)
 	{
 		samsung_timer_irq_clear(pdat->virt, pdat->channel);
 		samsung_timer_stop(pdat->virt, pdat->channel);
-		samsung_timer_disable(pdat->virt, pdat->clk, pdat->channel);
+		samsung_timer_disable(pdat->virt, pdat->channel);
+		clk_disable(pdat->clk);
 		free_irq(pdat->irq);
 		free(pdat->clk);
 

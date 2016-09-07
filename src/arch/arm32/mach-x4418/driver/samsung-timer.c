@@ -37,18 +37,17 @@
 #define TCON_INVERT(x)			(0x4 << (x ? x * 4 + 4 : 0))
 #define TCON_AUTORELOAD(x)		(0x8 << (x ? x * 4 + 4 : 0))
 
-void samsung_timer_enable(virtual_addr_t virt, const char * clk, int ch, int irqon)
+void samsung_timer_enable(virtual_addr_t virt, int ch, int irqon)
 {
 	u32_t val;
 
-	clk_enable(clk);
 	val = read32(virt + TIMER_TSTAT);
 	val &= ~(0x1f << 5 | 0x1 << ch);
 	val |= (0x1 << (ch + 5)) | ((irqon ? 1 : 0) << ch);
 	write32(virt + TIMER_TSTAT, val);
 }
 
-void samsung_timer_disable(virtual_addr_t virt, const char * clk, int ch)
+void samsung_timer_disable(virtual_addr_t virt, int ch)
 {
 	u32_t val;
 
@@ -60,7 +59,6 @@ void samsung_timer_disable(virtual_addr_t virt, const char * clk, int ch)
 	val = read32(virt + TIMER_TCON);
 	val &= ~(TCON_START(ch));
 	write32(virt + TIMER_TCON, val);
-	clk_disable(clk);
 }
 
 void samsung_timer_start(virtual_addr_t virt, int ch, int oneshot)

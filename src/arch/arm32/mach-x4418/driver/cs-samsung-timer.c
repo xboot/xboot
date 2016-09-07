@@ -71,22 +71,23 @@ static struct device_t * cs_samsung_timer_probe(struct driver_t * drv, struct dt
 	pdat->clk = strdup(clk);
 	pdat->channel = channel;
 
+	clk_enable(pdat->clk);
+	rate = samsung_timer_calc_tin(pdat->virt, pdat->clk, pdat->channel, 13);
+	clocksource_calc_mult_shift(&cs->mult, &cs->shift, rate, 1000000000ULL, 10);
 	cs->name = alloc_device_name(dt_read_name(n), -1);
 	cs->mask = CLOCKSOURCE_MASK(32),
 	cs->read = cs_samsung_timer_read,
 	cs->priv = pdat;
 
-	/* 75MHZ - 13.333...ns */
-	samsung_timer_enable(pdat->virt, pdat->clk, pdat->channel, 0);
-	rate = samsung_timer_calc_tin(pdat->virt, pdat->clk, pdat->channel, 13);
-	clocksource_calc_mult_shift(&cs->mult, &cs->shift, rate, 1000000000ULL, 10);
+	samsung_timer_enable(pdat->virt, pdat->channel, 0);
 	samsung_timer_count(pdat->virt, pdat->channel, 0xffffffff);
 	samsung_timer_start(pdat->virt, pdat->channel, 0);
 
 	if(!register_clocksource(&dev, cs))
 	{
 		samsung_timer_stop(pdat->virt, pdat->channel);
-		samsung_timer_disable(pdat->virt, pdat->clk, pdat->channel);
+		samsung_timer_disable(pdat->virt, pdat->channel);
+		clk_disable(pdat->clk);
 		free(pdat->clk);
 
 		free_device_name(cs->name);
@@ -107,7 +108,8 @@ static void cs_samsung_timer_remove(struct device_t * dev)
 	if(cs && unregister_clocksource(cs))
 	{
 		samsung_timer_stop(pdat->virt, pdat->channel);
-		samsung_timer_disable(pdat->virt, pdat->clk, pdat->channel);
+		samsung_timer_disable(pdat->virt, pdat->channel);
+		clk_disable(pdat->clk);
 		free(pdat->clk);
 
 		free_device_name(cs->name);

@@ -197,8 +197,9 @@ static struct device_t * uart_bcm2836_aux_probe(struct driver_t * drv, struct dt
 	struct uart_t * uart;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	char * clk = dt_read_string(n, "clock-name", NULL);
 
-	if(!search_clk(dt_read_string(n, "clock", NULL)))
+	if(!search_clk(clk))
 		return NULL;
 
 	pdat = malloc(sizeof(struct uart_bcm2836_aux_pdata_t));
@@ -213,7 +214,7 @@ static struct device_t * uart_bcm2836_aux_probe(struct driver_t * drv, struct dt
 	}
 
 	pdat->virt = virt;
-	pdat->clk = strdup(dt_read_string(n, "clock", NULL));
+	pdat->clk = strdup(clk);
 	pdat->txd = dt_read_int(n, "txd-gpio", -1);
 	pdat->txdcfg = dt_read_int(n, "txd-gpio-config", -1);
 	pdat->rxd = dt_read_int(n, "rxd-gpio", -1);

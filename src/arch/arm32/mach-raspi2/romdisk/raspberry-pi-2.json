@@ -53,7 +53,7 @@
 	"cs-bcm2836-systimer@0x3f003000": {
 		"clock-name": "sys-timer-clk"
 	},
-	
+
 	"uart-pl011@0x3f201000": {
 		"clock-name": "uart-clk",
 		"txd-gpio": 14,

@@ -27,13 +27,13 @@
 #include <battery/battery.h>
 
 /*
- * SBS Battery - Smart Battery System
+ * SBS - Smart Battery System
  *
  * Required properties:
  * - i2c-bus: i2c bus name which device attched
  *
  * Optional properties:
- * - slave-address: sbs battery slave address, default is 0x0b
+ * - slave-address: sbs battery slave address
  *
  * Example:
  *   "battery-sbs": {

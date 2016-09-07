@@ -228,11 +228,12 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 				((read32(virt + 0xfe8) & 0xff) << 16) |
 				((read32(virt + 0xfe4) & 0xff) <<  8) |
 				((read32(virt + 0xfe0) & 0xff) <<  0));
+	char * clk = dt_read_string(n, "clock-name", NULL);
 
 	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x011)
 		return NULL;
 
-	if(!search_clk(dt_read_string(n, "clock-name", NULL)))
+	if(!search_clk(clk))
 		return NULL;
 
 	pdat = malloc(sizeof(struct uart_pl011_pdata_t));
@@ -247,7 +248,7 @@ static struct device_t * uart_pl011_probe(struct driver_t * drv, struct dtnode_t
 	}
 
 	pdat->virt = virt;
-	pdat->clk = strdup(dt_read_string(n, "clock-name", NULL));
+	pdat->clk = strdup(clk);
 	pdat->txd = dt_read_int(n, "txd-gpio", -1);
 	pdat->txdcfg = dt_read_int(n, "txd-gpio-config", -1);
 	pdat->rxd = dt_read_int(n, "rxd-gpio", -1);

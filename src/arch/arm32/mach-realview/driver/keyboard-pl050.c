@@ -368,21 +368,23 @@ static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtno
 	struct keyboard_pl050_pdata_t * pdat;
 	struct input_t * input;
 	struct device_t * dev;
-	u64_t clk;
-	u8_t value;
 	virtual_addr_t virt = (dt_read_address(n));
+	char * clk = dt_read_string(n, "clock-name", NULL);
+	int irq = dt_read_int(n, "interrupt", -1);
 	u32_t id = (((read32(virt + 0xfec) & 0xff) << 24) |
 				((read32(virt + 0xfe8) & 0xff) << 16) |
 				((read32(virt + 0xfe4) & 0xff) <<  8) |
 				((read32(virt + 0xfe0) & 0xff) <<  0));
+	u64_t rate;
+	u8_t value;
 
 	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x050)
 		return NULL;
 
-	if(!search_clk(dt_read_string(n, "clock-name", NULL)))
+	if(!search_clk(clk))
 		return NULL;
 
-	if(!irq_is_valid(dt_read_int(n, "interrupt", -1)))
+	if(!irq_is_valid(irq))
 		return NULL;
 
 	pdat = malloc(sizeof(struct keyboard_pl050_pdata_t));
@@ -397,8 +399,8 @@ static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtno
 	}
 
 	pdat->virt = virt;
-	pdat->clk = strdup(dt_read_string(n, "clock-name", NULL));
-	pdat->irq = dt_read_int(n, "interrupt", -1);
+	pdat->clk = strdup(clk);
+	pdat->irq = irq;
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
 	input->type = INPUT_TYPE_KEYBOARD;
@@ -407,8 +409,8 @@ static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtno
 
 	request_irq(pdat->irq, keyboard_pl050_interrupt, IRQ_TYPE_NONE, input);
 	clk_enable(pdat->clk);
-	clk = clk_get_rate(pdat->clk);
-	write8(pdat->virt + KEYBOARD_CLKDIV, (u32_t)(clk / 8000000) - 1);
+	rate = clk_get_rate(pdat->clk);
+	write8(pdat->virt + KEYBOARD_CLKDIV, (u32_t)(rate / 8000000) - 1);
 	write8(pdat->virt + KEYBOARD_CR, (1 << 2));
 	kmi_read(pdat, &value);
 	kmi_write(pdat, 0xff);

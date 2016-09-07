@@ -146,12 +146,13 @@ static struct device_t * pwm_samsung_probe(struct driver_t * drv, struct dtnode_
 	struct pwm_t * pwm;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	char * clk = dt_read_string(n, "clock-name", NULL);
 	int channel = dt_read_int(n, "channel", -1);
 
 	if(channel < 0 || channel > 3)
 		return NULL;
 
-	if(!search_clk(dt_read_string(n, "clock-name", NULL)))
+	if(!search_clk(clk))
 		return NULL;
 
 	pdat = malloc(sizeof(struct pwm_samsung_pdata_t));
@@ -166,7 +167,7 @@ static struct device_t * pwm_samsung_probe(struct driver_t * drv, struct dtnode_
 	}
 
 	pdat->virt = virt;
-	pdat->clk = strdup(dt_read_string(n, "clock-name", NULL));
+	pdat->clk = strdup(clk);
 	pdat->channel = channel;
 	pdat->pwm = dt_read_int(n, "pwm-gpio", -1);
 	pdat->pwmcfg = dt_read_int(n, "pwm-gpio-config", -1);

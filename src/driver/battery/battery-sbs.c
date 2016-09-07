@@ -26,6 +26,21 @@
 #include <i2c/i2c.h>
 #include <battery/battery.h>
 
+/*
+ * SBS Battery - Smart Battery System
+ *
+ * Required properties:
+ * - i2c-bus: i2c bus name which device attched
+ *
+ * Optional properties:
+ * - slave-address: sbs battery slave address, default is 0x0b
+ *
+ * Example:
+ *   "battery-sbs": {
+ *       "i2c-bus": "i2c-gpio.0"
+ *   }
+ */
+
 enum {
 	SBS_TEMPERATURE 		= 0x08,
 	SBS_VOLTAGE				= 0x09,

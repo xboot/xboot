@@ -1,5 +1,5 @@
 /*
- * samsung-timer.c
+ * driver/samsung-timer.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,6 +22,7 @@
  *
  */
 
+#include <clk/clk.h>
 #include <samsung-timer.h>
 
 #define TIMER_TCFG0				(0x00)

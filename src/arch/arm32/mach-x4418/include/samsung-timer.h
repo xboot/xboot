@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <clk/clk.h>
 
 void samsung_timer_enable(virtual_addr_t virt, const char * clk, int ch, int irqon);
 void samsung_timer_disable(virtual_addr_t virt, const char * clk, int ch);

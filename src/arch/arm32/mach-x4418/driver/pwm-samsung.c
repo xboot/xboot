@@ -180,7 +180,6 @@ static struct device_t * pwm_samsung_probe(struct driver_t * drv, struct dtnode_
 
 	if(!register_pwm(&dev, pwm))
 	{
-		clk_disable(pdat->clk);
 		free(pdat->clk);
 
 		free_device_name(pwm->name);
@@ -200,7 +199,6 @@ static void pwm_samsung_remove(struct device_t * dev)
 
 	if(pwm && unregister_pwm(pwm))
 	{
-		clk_disable(pdat->clk);
 		free(pdat->clk);
 
 		free_device_name(pwm->name);

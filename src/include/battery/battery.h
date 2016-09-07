@@ -36,7 +36,7 @@ struct battery_info_t {
 	int design_voltage;		/* mV */
 	int voltage;			/* mV */
 	int current;			/* mA */
-	int temperature;		/* 0.1 Centigrade */
+	int temperature;		/* 0.1°C */
 	int cycle;				/* cycle count */
 	int level;				/* Percentage */
 };

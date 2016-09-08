@@ -586,10 +586,90 @@
 		"delay-us": 5
 	},
 
+	"regulator-axp228@0": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dc5ldo",
+		"channel": 0
+	},
+	"regulator-axp228@1": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc1",
+		"channel": 1
+	},
+	"regulator-axp228@2": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc2",
+		"channel": 2
+	},
+	"regulator-axp228@3": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc3",
+		"channel": 3
+	},
+	"regulator-axp228@4": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc4",
+		"channel": 4
+	},
+	"regulator-axp228@5": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc5",
+		"channel": 5
+	},
+	"regulator-axp228@6": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "aldo1",
+		"channel": 6
+	},
+	"regulator-axp228@7": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "aldo2",
+		"channel": 7
+	},
+	"regulator-axp228@8": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "eldo1",
+		"channel": 8
+	},
+	"regulator-axp228@9": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "eldo2",
+		"channel": 9
+	},
+	"regulator-axp228@10": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "eldo3",
+		"channel": 10
+	},
+	"regulator-axp228@11": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dldo1",
+		"channel": 11
+	},
+	"regulator-axp228@12": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dldo2",
+		"channel": 12
+	},
+	"regulator-axp228@13": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dldo3",
+		"channel": 13
+	},
+	"regulator-axp228@14": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dldo4",
+		"channel": 14
+	},
+	"regulator-axp228@15": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "aldo3",
+		"channel": 15
+	},
  	"regulator-gpio@0": {
 		"parent": null,
-		"name": "power-bl",
-		"voltage": 12000000,
+		"name": "lcd-bl-power",
+		"voltage": 3300000,
 		"gpio": 74,
 		"active-low": false,
 		"default-enable": false
@@ -691,7 +771,7 @@
 		"design_voltage": 4200,
 		"charge-current-limit": 1500
 	},
-
+	
 	"console-uart@0": {
 		"uart-bus": "uart-pl011.0"
 	},

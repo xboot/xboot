@@ -63,7 +63,7 @@ static void subsys_init_dt(void)
 	if(!json)
 		return;
 
-	sprintf(path, "/romdisk/%s.json", get_machine()->name);
+	sprintf(path, "/romdisk/boot/%s.json", get_machine()->name);
 	if((fd = open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH))) > 0)
 	{
 	    for(;;)

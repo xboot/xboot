@@ -1,4 +1,10 @@
 {
+	"ce-sandbox@0": {
+	},
+
+	"cs-sandbox@0": {
+	},
+
 	"input-sandbox@0": {
 		"type": "keyboard"
 	},
@@ -16,7 +22,6 @@
 	},
 
 	"fb-sandbox@0": {
-		"title": "Xboot Runtime Environment",
 		"width": 640,
 		"height": 480,
 		"x-dots-per-inch": 160,

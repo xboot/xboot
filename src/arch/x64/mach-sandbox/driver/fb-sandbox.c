@@ -28,7 +28,6 @@
 
 struct fb_sandbox_pdata_t
 {
-	char * title;
 	int width;
 	int height;
 	int xdpi;
@@ -117,6 +116,7 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	struct fb_sandbox_pdata_t * pdat;
 	struct fb_t * fb;
 	struct device_t * dev;
+	char title[64];
 
 	pdat = malloc(sizeof(struct fb_sandbox_pdata_t));
 	if(!pdat)
@@ -129,14 +129,14 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
-	pdat->title = strdup(dt_read_string(n, "title", "Xboot Runtime Environment"));
+	sprintf(title, "Xboot Runtime Environment - V%s", xboot_version_string());
 	pdat->width = dt_read_int(n, "width", 640);
 	pdat->height = dt_read_int(n, "height", 480);
 	pdat->xdpi = dt_read_int(n, "x-dots-per-inch", 160);
 	pdat->ydpi = dt_read_int(n, "y-dots-per-inch", 160);
 	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
 	pdat->fullscreen = dt_read_bool(n, "fullscreen", 0);
-	pdat->priv = sandbox_sdl_fb_init(pdat->title, pdat->width, pdat->height, pdat->fullscreen);
+	pdat->priv = sandbox_sdl_fb_init(title, pdat->width, pdat->height, pdat->fullscreen);
 	pdat->width = sandbox_sdl_fb_get_width(pdat->priv);
 	pdat->height = sandbox_sdl_fb_get_height(pdat->priv);
 
@@ -156,7 +156,6 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	if(!register_fb(&dev, fb))
 	{
 		sandbox_sdl_fb_exit(pdat->priv);
-		free(pdat->title);
 
 		free_device_name(fb->name);
 		free(fb->priv);
@@ -176,7 +175,6 @@ static void fb_sandbox_remove(struct device_t * dev)
 	if(fb && unregister_fb(fb))
 	{
 		sandbox_sdl_fb_exit(pdat->priv);
-		free(pdat->title);
 
 		free_device_name(fb->name);
 		free(fb->priv);

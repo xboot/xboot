@@ -1,5 +1,5 @@
 /*
- * sandbox-x64.c
+ * sandbox.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -72,8 +72,8 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
-static struct machine_t sandbox_x64 = {
-	.name 		= "sandbox-x64",
+static struct machine_t sandbox = {
+	.name 		= "sandbox",
 	.desc 		= "Xboot Sandbox Runtime Enverionment",
 	.map		= mach_map,
 	.detect 	= mach_detect,
@@ -87,15 +87,15 @@ static struct machine_t sandbox_x64 = {
 	.keygen		= mach_keygen,
 };
 
-static __init void sandbox_x64_machine_init(void)
+static __init void sandbox_machine_init(void)
 {
-	register_machine(&sandbox_x64);
+	register_machine(&sandbox);
 }
 
-static __exit void sandbox_x64_machine_exit(void)
+static __exit void sandbox_machine_exit(void)
 {
-	unregister_machine(&sandbox_x64);
+	unregister_machine(&sandbox);
 }
 
-machine_initcall(sandbox_x64_machine_init);
-machine_exitcall(sandbox_x64_machine_exit);
+machine_initcall(sandbox_machine_init);
+machine_exitcall(sandbox_machine_exit);

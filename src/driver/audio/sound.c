@@ -164,7 +164,7 @@ void sound_play(struct sound_t * snd)
 	{
 		snd->status = SOUND_STATUS_PLAY;
 		sound_pool_add(snd);
-		audio_playback();
+		audio_playback(search_first_audio());
 	}
 }
 

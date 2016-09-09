@@ -30,14 +30,12 @@ struct audio_t
 	void * priv;
 };
 
-struct audio_t * get_default_audio(void);
-void set_default_audio(const char * name);
-
 struct audio_t * search_audio(const char * name);
+struct audio_t * search_first_audio(void);
 bool_t register_audio(struct device_t ** device, struct audio_t * audio);
 bool_t unregister_audio(struct audio_t * audio);
 
-void audio_playback(void);
+void audio_playback(struct audio_t * audio);
 
 #ifdef __cplusplus
 }

@@ -26,34 +26,22 @@
 #include <audio/pool.h>
 #include <audio/audio.h>
 
-static struct audio_t * __default_audio = NULL;
-
-struct audio_t * get_default_audio(void)
-{
-	return __default_audio;
-}
-
-void set_default_audio(const char * name)
-{
-	struct audio_t * audio = search_audio(name);
-
-	if(!audio)
-		return;
-
-	if(__default_audio != audio)
-	{
-		if(__default_audio && __default_audio->playback_stop)
-			__default_audio->capture_stop(__default_audio);
-		__default_audio = audio;
-		audio_playback();
-	}
-}
-
 struct audio_t * search_audio(const char * name)
 {
 	struct device_t * dev;
 
 	dev = search_device(name, DEVICE_TYPE_AUDIO);
+	if(!dev)
+		return NULL;
+
+	return (struct audio_t *)dev->priv;
+}
+
+struct audio_t * search_first_audio(void)
+{
+	struct device_t * dev;
+
+	dev = search_first_device(DEVICE_TYPE_AUDIO);
 	if(!dev)
 		return NULL;
 
@@ -84,9 +72,6 @@ bool_t register_audio(struct device_t ** device, struct audio_t * audio)
 		return FALSE;
 	}
 
-	if(!get_default_audio())
-		set_default_audio(audio->name);
-
 	if(device)
 		*device = dev;
 	return TRUE;
@@ -109,14 +94,6 @@ bool_t unregister_audio(struct audio_t * audio)
 	kobj_remove_self(dev->kobj);
 	free(dev->name);
 	free(dev);
-
-	if(get_default_audio() == audio)
-	{
-		__default_audio = NULL;
-		struct device_t * d = search_first_device(DEVICE_TYPE_AUDIO);
-		if(d)
-			set_default_audio(d->name);
-	}
 	return TRUE;
 }
 
@@ -211,7 +188,7 @@ static int audio_playback_callback(void * data, void * buf, int count)
 	return len;
 }
 
-static void audio_playback_start(struct audio_t * audio)
+void audio_playback(struct audio_t * audio)
 {
 	struct sound_list_t * sp = &__sound_pool;
 	struct list_head * pos = sp->entry.next;
@@ -238,9 +215,4 @@ static void audio_playback_start(struct audio_t * audio)
 	{
 
 	}
-}
-
-void audio_playback(void)
-{
-	audio_playback_start(get_default_audio());
 }

@@ -21,6 +21,9 @@
 		"type": "joystick"
 	},
 
+	"audio-sandbox@0": {
+	},
+
 	"fb-sandbox@0": {
 		"width": 640,
 		"height": 480,

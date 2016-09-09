@@ -1,5 +1,5 @@
 /*
- * driver/sandbox-audio.c
+ * driver/audio-sandbox.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,9 +23,10 @@
  */
 
 #include <xboot.h>
-#include <sandbox-audio.h>
+#include <audio/audio.h>
+#include <sandbox.h>
 
-struct sandbox_audio_pdata_t
+struct audio_sandbox_pdata_t
 {
 	audio_callback_t playcb;
 	void * playcbdata;
@@ -33,7 +34,8 @@ struct sandbox_audio_pdata_t
 
 static void sandbox_audio_playback_callback(void * data, void * buf, int count)
 {
-	struct sandbox_audio_pdata_t * pdat = (struct sandbox_audio_pdata_t *)data;
+	struct audio_t * audio = (struct audio_t *)data;
+	struct audio_sandbox_pdata_t * pdat = (struct audio_sandbox_pdata_t *)audio->priv;
 	int len;
 
 	if((len = pdat->playcb(pdat->playcbdata, buf, count)) < count)
@@ -42,19 +44,9 @@ static void sandbox_audio_playback_callback(void * data, void * buf, int count)
 	}
 }
 
-static void sandbox_audio_init(struct audio_t * audio)
-{
-	sandbox_sdl_audio_init();
-}
-
-static void sandbox_audio_exit(struct audio_t * audio)
-{
-	sandbox_sdl_audio_exit();
-}
-
 static void sandbox_audio_playback_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data)
 {
-	struct sandbox_audio_pdata_t * pdat = (struct sandbox_audio_pdata_t *)audio->priv;
+	struct audio_sandbox_pdata_t * pdat = (struct audio_sandbox_pdata_t *)audio->priv;
 	int sample;
 
 	pdat->playcb = cb;
@@ -64,7 +56,7 @@ static void sandbox_audio_playback_start(struct audio_t * audio, enum pcm_rate_t
 	sample = __fls(rate / 20);
 	sample = (sample != 0) ? (1 << sample) : 8192;
 	sandbox_sdl_audio_close();
-	sandbox_sdl_audio_open(fmt, rate, ch, sample, sandbox_audio_playback_callback, pdat);
+	sandbox_sdl_audio_open(fmt, rate, ch, sample, sandbox_audio_playback_callback, audio);
 	sandbox_sdl_audio_start();
 }
 
@@ -81,79 +73,87 @@ static void sandbox_audio_capture_stop(struct audio_t * audio)
 {
 }
 
-static void sandbox_audio_suspend(struct audio_t * audio)
+static struct device_t * audio_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-}
-
-static void sandbox_audio_resume(struct audio_t * audio)
-{
-}
-
-static bool_t sandbox_register_audio(struct resource_t * res)
-{
-	struct sandbox_audio_data_t * rdat = (struct sandbox_audio_data_t *)res->data;
-	struct sandbox_audio_pdata_t * pdat;
+	struct audio_sandbox_pdata_t * pdat;
 	struct audio_t * audio;
-	char name[64];
+	struct device_t * dev;
 
-	pdat = malloc(sizeof(struct sandbox_audio_pdata_t));
+	pdat = malloc(sizeof(struct audio_sandbox_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	audio = malloc(sizeof(struct audio_t));
 	if(!audio)
-		return FALSE;
+	{
+		free(pdat);
+		return NULL;
+	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	pdat->playcb = NULL;
+	pdat->playcbdata = NULL;
 
-	audio->name = strdup(name);
-	audio->init = sandbox_audio_init,
-	audio->exit = sandbox_audio_exit,
+	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = sandbox_audio_playback_start;
 	audio->playback_stop = sandbox_audio_playback_stop;
 	audio->capture_start = sandbox_audio_capture_start;
 	audio->capture_stop = sandbox_audio_capture_stop;
-	audio->suspend = sandbox_audio_suspend,
-	audio->resume = sandbox_audio_resume,
 	audio->priv = pdat;
+	sandbox_sdl_audio_init();
 
-	if(register_audio(audio))
-		return TRUE;
+	if(!register_audio(&dev, audio))
+	{
+		sandbox_sdl_audio_exit();
 
-	free(audio->name);
-	free(audio);
-	return FALSE;
+		free_device_name(audio->name);
+		free(audio->priv);
+		free(audio);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static bool_t sandbox_unregister_audio(struct resource_t * res)
+static void audio_sandbox_remove(struct device_t * dev)
 {
-	struct audio_t * audio;
-	char name[64];
+	struct audio_t * audio = (struct audio_t *)dev->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(audio && unregister_audio(audio))
+	{
+		sandbox_sdl_audio_exit();
 
-	audio = search_audio(name);
-	if(!audio)
-		return FALSE;
-
-	if(!unregister_audio(audio))
-		return FALSE;
-
-	free(audio->priv);
-	free(audio->name);
-	free(audio);
-	return TRUE;
+		free_device_name(audio->name);
+		free(audio->priv);
+		free(audio);
+	}
 }
 
-static __init void sandbox_audio_device_init(void)
+static void audio_sandbox_suspend(struct device_t * dev)
 {
-	resource_for_each("sandbox-audio", sandbox_register_audio);
 }
 
-static __exit void sandbox_audio_device_exit(void)
+static void audio_sandbox_resume(struct device_t * dev)
 {
-	resource_for_each("sandbox-audio", sandbox_unregister_audio);
 }
 
-device_initcall(sandbox_audio_device_init);
-device_exitcall(sandbox_audio_device_exit);
+static struct driver_t audio_sandbox = {
+	.name		= "audio-sandbox",
+	.probe		= audio_sandbox_probe,
+	.remove		= audio_sandbox_remove,
+	.suspend	= audio_sandbox_suspend,
+	.resume		= audio_sandbox_resume,
+};
+
+static __init void audio_sandbox_driver_init(void)
+{
+	register_driver(&audio_sandbox);
+}
+
+static __exit void audio_sandbox_driver_exit(void)
+{
+	unregister_driver(&audio_sandbox);
+}
+
+driver_initcall(audio_sandbox_driver_init);
+driver_exitcall(audio_sandbox_driver_exit);

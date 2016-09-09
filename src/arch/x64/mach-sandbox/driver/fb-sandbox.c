@@ -132,8 +132,8 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	sprintf(title, "Xboot Runtime Environment - V%s", xboot_version_string());
 	pdat->width = dt_read_int(n, "width", 640);
 	pdat->height = dt_read_int(n, "height", 480);
-	pdat->xdpi = dt_read_int(n, "x-dots-per-inch", 160);
-	pdat->ydpi = dt_read_int(n, "y-dots-per-inch", 160);
+	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
+	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
 	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
 	pdat->fullscreen = dt_read_bool(n, "fullscreen", 0);
 	pdat->priv = sandbox_sdl_fb_init(title, pdat->width, pdat->height, pdat->fullscreen);

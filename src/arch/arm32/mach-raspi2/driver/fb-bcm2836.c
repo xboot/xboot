@@ -129,8 +129,8 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 
 	pdat->width = dt_read_int(n, "width", 640);
 	pdat->height = dt_read_int(n, "height", 480);
-	pdat->xdpi = dt_read_int(n, "x-dots-per-inch", 160);
-	pdat->ydpi = dt_read_int(n, "y-dots-per-inch", 160);
+	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
+	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
 	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
 	pdat->index = 0;
 	pdat->vram[0] = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, 2);

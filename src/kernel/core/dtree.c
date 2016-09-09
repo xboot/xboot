@@ -1,5 +1,5 @@
 /*
- * kernel/core/dt.c
+ * kernel/core/dtree.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,7 +23,7 @@
  */
 
 #include <xboot.h>
-#include <xboot/dt.h>
+#include <xboot/dtree.h>
 
 const char * dt_read_name(struct dtnode_t * n)
 {

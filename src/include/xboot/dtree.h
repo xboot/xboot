@@ -1,5 +1,5 @@
-#ifndef __DT_H__
-#define __DT_H__
+#ifndef __DTREE_H__
+#define __DTREE_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,4 +45,4 @@ struct dtnode_t * dt_read_array_object(struct dtnode_t * n, const char * name, i
 }
 #endif
 
-#endif /* __DT_H__ */
+#endif /* __DTREE_H__ */

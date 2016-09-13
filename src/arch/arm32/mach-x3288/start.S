@@ -78,50 +78,35 @@ _fiq:
  * The actual reset code
  */
 reset:
-	/* Set cpu to svc32 mode and disable interrupt */
+	/* Enter svc mode cleanly and mask interrupts */
 	mrs r0, cpsr
+	eor r0, r0, #0x1a
+	tst r0, #0x1f
 	bic r0, r0, #0x1f
 	orr r0, r0, #0xd3
-	msr cpsr, r0
+	bne 1f
+	orr r0, r0, #0x100
+	adr lr, 2f
+	msr spsr_cxsf, r0
+	.word 0xe12ef30e /* msr elr_hyp, lr */
+	.word 0xe160006e /* eret */
+1:	msr cpsr_c, r0
+2:	nop
 
-	/* Enable neon/vfp unit */
-	mrc p15, #0, r1, c1, c0, #2
-	orr r1, r1, #(0xf << 20)
-	mcr p15, #0, r1, c1, c0, #2
-	mov r1, #0
-	mcr p15, #0, r1, c7, c5, #4
-	mov r0, #0x40000000
-	fmxr fpexc, r0
-
-	/* Cache init */
-	mrc	p15, 0, r0, c0, c0, 0
-	and	r1, r0, #0x00f00000
-	and	r2, r0, #0x0000000f
-	orr r2, r2, r1, lsr #20-4
-	cmp r2, #0x30
-	mrceq p15, 0, r0, c1, c0, 1
-	orreq r0, r0, #0x6
-	mcreq p15, 0, r0, c1, c0, 1
-
-	/* Invalidate L1 I/D */
-	mov r0, #0
-	mcr	p15, 0, r0, c8, c7, 0
-	mcr	p15, 0, r0, c7, c5, 0
-
-	/* Disable mmu stuff and caches */
-	mrc p15, 0, r0, c1, c0, 0
-	bic r0, r0, #0x00002000
-	bic r0, r0, #0x00000007
-	orr r0, r0, #0x00000002
-	orr r0, r0, #0x00000800
-	mcr p15, 0, r0, c1, c0, 0
-
-	/* Set Vector Base Address Register */
+	/* Set vector base address register */
 	ldr r0, =_start
 	mcr p15, 0, r0, c12, c0, 0
 	mrc p15, 0, r0, c1, c0, 0
 	bic r0, #(1<<13)
 	mcr p15, 0, r0, c1, c0, 0
+
+	/* Enable neon/vfp unit */
+	mrc p15, 0, r0, c1, c0, 2
+	orr r0, r0, #(0xf << 20)
+	mcr p15, 0, r0, c1, c0, 2
+	isb
+	mov r0, #0x40000000
+	vmsr fpexc, r0
 
 	/* Initialize stacks */
 	mrs r0, cpsr
@@ -238,7 +223,7 @@ not_used:
 	.align 5
 	.global irq
 irq:
-	ldr	sp, _stack_irq_end
+	ldr sp, _stack_irq_end
 	irq_save_regs
 	bl interrupt_handle_exception
 	irq_restore_regs

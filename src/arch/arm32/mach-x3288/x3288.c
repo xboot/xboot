@@ -55,6 +55,14 @@ static void mach_cleanup(struct machine_t * mach)
 
 static void mach_logger(struct machine_t * mach, const char * buf, int count)
 {
+	virtual_addr_t virt = phys_to_virt(0xff690000);
+	int i;
+
+	for(i = 0; i < count; i++)
+	{
+		while((read32(virt + 0x7c) & (0x1 << 1)) == 0);
+		write32(virt + 0x00, buf[i]);
+	}
 }
 
 static const char * mach_uniqueid(struct machine_t * mach)

@@ -2,6 +2,60 @@
 	"clk-fixed@0": { "name": "xtal", "rate": 24000000 },
 	"clk-fixed@1": { "name": "rtc", "rate": 32768 },
 
+	"gpio-rk3288@0xff750000": {
+		"gpio-base": 0,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3288@0xff780000": {
+		"gpio-base": 32,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3288@0xff790000": {
+		"gpio-base": 64,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3288@0xff7a0000": {
+		"gpio-base": 96,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3288@0xff7b0000": {
+		"gpio-base": 128,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3288@0xff7c0000": {
+		"gpio-base": 160,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3288@0xff7d0000": {
+		"gpio-base": 192,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3288@0xff7e0000": {
+		"gpio-base": 224,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3288@0xff7f0000": {
+		"gpio-base": 256,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
 	"uart-8250@0xff180000": {
 		"clock-name": "xtal",
 		"txd-gpio": -1,
@@ -60,6 +114,12 @@
 		"data-bits": 8,
 		"parity-bits": 0,
 		"stop-bits": 1
+	},
+
+	"led-gpio@0": {
+		"gpio": 258,
+		"active-low": true,
+		"default-brightness": 0
 	},
 
 	"console-uart@0": {

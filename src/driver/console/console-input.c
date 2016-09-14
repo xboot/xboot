@@ -44,21 +44,6 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 		key = event.e.key_down.key;
 		switch(key)
 		{
-		case KEY_DELETE:
-			sym[0] = 0x7f;
-			len = 1;
-			break;
-
-		case KEY_TAB:
-			sym[0] = 0x9;
-			len = 1;
-			break;
-
-		case KEY_ENTER:
-			sym[0] = 0xd;
-			len = 1;
-			break;
-
 		case KEY_UP:
 			sym[0] = '\e';
 			sym[1] = '[';
@@ -87,42 +72,30 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 			len = 3;
 			break;
 
-		case KEY_PAGE_UP:
-			sym[0] = '\e';
-			sym[1] = '[';
-			sym[2] = '5';
-			sym[3] = '~';
-			len = 4;
-			break;
-
-		case KEY_PAGE_DOWN:
-			sym[0] = '\e';
-			sym[1] = '[';
-			sym[2] = '6';
-			sym[3] = '~';
-			len = 4;
-			break;
-
-		case KEY_HOME:
-			sym[0] = '\e';
-			sym[1] = '[';
-			sym[2] = '1';
-			sym[3] = '~';
-			len = 4;
-			break;
-
-		case KEY_END:
-			sym[0] = '\e';
-			sym[1] = '[';
-			sym[2] = '4';
-			sym[3] = '~';
-			len = 4;
-			break;
-
 		case KEY_VOLUME_UP:
 		case KEY_VOLUME_DOWN:
-		case KEY_MENU:
-		case KEY_BACK:
+			len = 0;
+			break;
+
+		case KEY_ESC:
+			len = 0;
+			break;
+
+		case KEY_TAB:
+			sym[0] = 0x9;
+			len = 1;
+			break;
+
+		case KEY_DELETE:
+			sym[0] = 0x7f;
+			len = 1;
+			break;
+
+		case KEY_ENTER:
+			sym[0] = 0xd;
+			len = 1;
+			break;
+
 		case KEY_POWER:
 			len = 0;
 			break;

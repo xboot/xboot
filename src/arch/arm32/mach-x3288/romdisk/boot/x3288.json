@@ -4,19 +4,19 @@
 
 	"gpio-rk3288@0xff750000": {
 		"gpio-base": 0,
-		"gpio-count": 32,
+		"gpio-count": 19,
 		"interrupt-offset": -1
 	},
 
 	"gpio-rk3288@0xff780000": {
-		"gpio-base": 32,
-		"gpio-count": 32,
+		"gpio-base": 56,
+		"gpio-count": 4,
 		"interrupt-offset": -1
 	},
 
 	"gpio-rk3288@0xff790000": {
 		"gpio-base": 64,
-		"gpio-count": 32,
+		"gpio-count": 18,
 		"interrupt-offset": -1
 	},
 
@@ -33,14 +33,14 @@
 	},
 
 	"gpio-rk3288@0xff7c0000": {
-		"gpio-base": 160,
-		"gpio-count": 32,
+		"gpio-base": 168,
+		"gpio-count": 12,
 		"interrupt-offset": -1
 	},
 
 	"gpio-rk3288@0xff7d0000": {
 		"gpio-base": 192,
-		"gpio-count": 32,
+		"gpio-count": 23,
 		"interrupt-offset": -1
 	},
 
@@ -52,7 +52,7 @@
 
 	"gpio-rk3288@0xff7f0000": {
 		"gpio-base": 256,
-		"gpio-count": 32,
+		"gpio-count": 10,
 		"interrupt-offset": -1
 	},
 

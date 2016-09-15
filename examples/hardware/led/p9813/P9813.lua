@@ -5,7 +5,6 @@ function M:init(cpin, dpin, n)
 	self.clk = GPIO.new(cpin)
 	self.dat = GPIO.new(dpin)
 	self.num = n or 1
-
 	self.buf = {}
 	for i = 1, self.num, 1 do
 		self.buf[i] = {r = 0, g = 0, b = 0}

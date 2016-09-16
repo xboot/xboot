@@ -14,6 +14,7 @@ extern "C" {
 #define	MT_HARDWARE_LED			"mt_hardware_led"
 #define	MT_HARDWARE_LEDTRIG		"mt_hardware_ledtrig"
 #define	MT_HARDWARE_PWM			"mt_hardware_pwm"
+#define	MT_HARDWARE_SPI			"mt_hardware_spi"
 #define	MT_HARDWARE_UART		"mt_hardware_uart"
 #define	MT_HARDWARE_VIBRATOR	"mt_hardware_vibrator"
 #define	MT_HARDWARE_WATCHDOG	"mt_hardware_watchdog"
@@ -25,6 +26,7 @@ int luaopen_hardware_i2c(lua_State * L);
 int luaopen_hardware_led(lua_State * L);
 int luaopen_hardware_ledtrig(lua_State * L);
 int luaopen_hardware_pwm(lua_State * L);
+int luaopen_hardware_spi(lua_State * L);
 int luaopen_hardware_uart(lua_State * L);
 int luaopen_hardware_vibrator(lua_State * L);
 int luaopen_hardware_watchdog(lua_State * L);

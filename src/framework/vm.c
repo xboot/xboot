@@ -79,6 +79,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "hardware.led",		luaopen_hardware_led },
 		{ "hardware.ledtrig",	luaopen_hardware_ledtrig },
 		{ "hardware.pwm",		luaopen_hardware_pwm },
+		{ "hardware.spi",		luaopen_hardware_spi },
 		{ "hardware.uart",		luaopen_hardware_uart },
 		{ "hardware.vibrator",	luaopen_hardware_vibrator },
 		{ "hardware.watchdog",	luaopen_hardware_watchdog },

@@ -270,7 +270,7 @@ int vmexec(int argc, char ** argv)
 		{
 			const char * msg = lua_tostring(L, -1);
 			lua_writestringerror("%s: ", argv[0]);
-			lua_writestringerror("%s\n", msg);
+			lua_writestringerror("%s\r\n", msg);
 			lua_pop(L, 1);
 		}
 		lua_close(L);

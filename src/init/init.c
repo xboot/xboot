@@ -39,7 +39,6 @@ void do_system_logo(void)
 	struct fb_t * fb;
 	int x, y;
 
-	LOG("Display system logo");
 	logo = cairo_image_surface_create_from_png("/romdisk/framework/assets/images/logo.png");
 
 	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_FB], node)
@@ -74,7 +73,6 @@ void do_system_autoboot(void)
 {
 	int delay = CONFIG_AUTO_BOOT_DELAY * 1000;
 
-	LOG("System autoboot ...");
 	do {
 		if(getchar() != EOF)
 		{
@@ -89,8 +87,5 @@ void do_system_autoboot(void)
 		printf("\rPress any key to stop autoboot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	} while(delay > 0);
 
-	if(search_block("application") && (mount("application", "/app" , "tarfs", 0) == 0))
-		system("exec /app");
-	else
-		system(CONFIG_AUTO_BOOT_COMMAND);
+	system(CONFIG_AUTO_BOOT_COMMAND);
 }

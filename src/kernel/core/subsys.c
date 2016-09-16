@@ -45,9 +45,9 @@ static void subsys_init_rootfs(void)
 
 	chdir("/");
 	mkdir("/sys", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-	mkdir("/mnt", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-	mkdir("/app", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 	mkdir("/romdisk", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir("/userdata", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir("/storage", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 
 	mount(NULL, "/sys", "sysfs", 0);
 	mount("romdisk.0", "/romdisk", "cpiofs", 0);

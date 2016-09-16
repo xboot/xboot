@@ -25,6 +25,7 @@
 #include <xboot.h>
 #include <shell/parser.h>
 #include <shell/system.h>
+#include <framework/vm.h>
 #include <command/command.h>
 
 void system(const char * cmdline)
@@ -52,41 +53,18 @@ void system(const char * cmdline)
 		{
 			if(n > 0)
 			{
-				cmd = search_command(args[0]);
-				if(cmd)
+				if((cmd = search_command(args[0])))
+					ret = cmd->exec(n, args);
+				else
+					ret = vmexec(n, args);
+				if((ret < 0) && pos)
 				{
-    				ret = cmd->exec(n, args);
-    				if(ret != 0)
-    				{
-    					/*
-    					 * if having other command which waitting be exec, abort.
-    					 */
-    			    	if(pos)
-    			    	{
-    			    		printf(" when exec \'%s\' command return an error code (%ld).\r\n", args[0], ret);
-    			    		free(args[0]);
-    			    		free(args);
-    			    		break;
-    			    	}
-    				}
-    			}
-    			else
-    			{
-    				printf(" could not found \'%s\' command \r\n", args[0]);
-    				printf(" if you want to kown available commands, type 'help'.\r\n");
-
-					/*
-					 * if having other command which waitting be exec, abort.
-					 */
-			    	if(pos)
-			    	{
-			    		free(args[0]);
-			    		free(args);
-			    		break;
-			    	}
-    			}
+			    	printf(" when exec \'%s\' return an error code (%ld).\r\n", args[0], ret);
+			    	free(args[0]);
+			    	free(args);
+			    	break;
+				}
     		}
-
 			free(args[0]);
 			free(args);
     	}
@@ -96,7 +74,6 @@ void system(const char * cmdline)
 		else
 			p = pos;
     }
-
 	free(buf);
 }
 EXPORT_SYMBOL(system);

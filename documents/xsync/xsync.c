@@ -181,7 +181,7 @@ int main(int argc, char * argv[])
 	printf("\r\n");
 
 	retry = 0;
-	packet_init(&request, XSYNC_COMMAND_SYSTEM, (uint8_t *)"exec ./", 7);
+	packet_init(&request, XSYNC_COMMAND_SYSTEM, (uint8_t *)"./", 7);
 	do {
 		result = packet_transfer(iface, &request, &response, 1000);
     } while((result < 0) && (++retry < 3));

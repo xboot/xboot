@@ -788,19 +788,27 @@
 		"charge-current-limit": 1500
 	},
 	
+	"fb-s5p4418@0": {
+		"clock-name": "pll2",
+		"width": 1024,
+		"height": 600,
+		"dots-per-inch-x": 160,
+		"dots-per-inch-y": 160,
+		"bits-per-pixel": 32,
+		"bytes-per-pixel": 4,
+		"clock-frequency": 52000000,
+		"hfront-porch": 160,
+		"hback-porch": 140,
+		"hsync-len": 20,
+		"vfront-porch": 12,
+		"vback-porch": 20,
+		"vsync-len": 3,
+		"hsync-active": true,
+		"vsync-active": true,
+		"backlight": "led-pwm-bl.0"
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-pl011.0"
-	},
-
-	"console-uart@1": {
-		"uart-bus": "uart-pl011.1"
-	},
-
-	"console-uart@2": {
-		"uart-bus": "uart-pl011.2"
-	},
-
-	"console-uart@3": {
-		"uart-bus": "uart-pl011.3"
 	}
 }

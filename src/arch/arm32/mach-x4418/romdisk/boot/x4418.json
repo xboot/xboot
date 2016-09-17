@@ -749,6 +749,16 @@
 		"default-brightness": 0
 	},
 
+	"led-pwm-bl@0": {
+		"pwm-name": "pwm-samsung.0",
+		"regulator-name": "lcd-bl-power",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": true,
+		"pwm-percent-from": 6,
+		"pwm-percent-to": 100,
+		"default-brightness": 0
+	},
+
 	"ledtrig-heartbeat@0": {
 		"led-name": "led-gpio.3",
 		"heartbeat-period-ms": 1260

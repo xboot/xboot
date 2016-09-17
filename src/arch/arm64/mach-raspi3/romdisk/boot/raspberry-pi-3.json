@@ -20,43 +20,43 @@
 		]
 	},
 
-	"irq-bcm2836@0x3f00b200": {
+	"irq-bcm2837@0x3f00b200": {
 		"interrupt-base": 0,
 		"interrupt-count": 72
 	},
 
-	"gpio-bcm2836@0x3f200000": {
+	"gpio-bcm2837@0x3f200000": {
 		"gpio-base": 0,
 		"gpio-count": 54,
 		"interrupt-offset": -1
 	},
 
-	"gpio-bcm2836-virt": {
+	"gpio-bcm2837-virt": {
 		"gpio-base": 64,
 		"gpio-count": 2,
 		"interrupt-offset": -1
 	},
 
-	"pwm-bcm2836@0x3f20c000": {
+	"pwm-bcm2837@0x3f20c000": {
 		"clock-name": "pwm-clk",
 		"channel": 0,
 		"pwm-gpio": 12,
 		"pwm-gpio-config": 0
 	},
 
-	"pwm-bcm2836@0x3f20c000": {
+	"pwm-bcm2837@0x3f20c000": {
 		"clock-name": "pwm-clk",
 		"channel": 1,
 		"pwm-gpio": 13,
 		"pwm-gpio-config": 0
 	},
 
-	"ce-bcm2836-armtimer@0x3f00b400": {
+	"ce-bcm2837-armtimer@0x3f00b400": {
 		"clock-name": "arm-timer-clk",
 		"interrupt": 64
 	},
 
-	"cs-bcm2836-systimer@0x3f003000": {
+	"cs-bcm2837-systimer@0x3f003000": {
 		"clock-name": "sys-timer-clk"
 	},
 
@@ -72,7 +72,7 @@
 		"stop-bits": 1
 	},
 
-	"uart-bcm2836-aux@0x3f215040": {
+	"uart-bcm2837-aux@0x3f215040": {
 		"clock-name": "core-clk",
 		"txd-gpio": 32,
 		"txd-gpio-config": 5,
@@ -85,13 +85,13 @@
 	},
 
 	"led-gpio@0": {
-		"gpio": 35,
+		"gpio": 64,
 		"active-low": false,
 		"default-brightness": 0
 	},
 
 	"led-gpio@1": {
-		"gpio": 47,
+		"gpio": 65,
 		"active-low": false,
 		"default-brightness": 0
 	},
@@ -106,22 +106,22 @@
 	},
 
 	"buzzer-pwm@0": {
-		"pwm-name": "pwm-bcm2836.0",
+		"pwm-name": "pwm-bcm2837.0",
 		"pwm-polarity": true
 	},
 
 	"buzzer-pwm@1": {
-		"pwm-name": "pwm-bcm2836.1",
+		"pwm-name": "pwm-bcm2837.1",
 		"pwm-polarity": true
 	},
 
-	"rng-bcm2836@0x3f104000": {
+	"rng-bcm2837@0x3f104000": {
 	},
 	
-	"wdog-bcm2836@0x3f100000": {
+	"wdog-bcm2837@0x3f100000": {
 	},
 
-	"fb-bcm2836@0": {
+	"fb-bcm2837@0": {
 		"width": 640,
 		"height": 480,
 		"dots-per-inch-x": 160,

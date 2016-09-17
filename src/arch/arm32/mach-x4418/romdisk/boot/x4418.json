@@ -719,6 +719,12 @@
 		]
 	},
 
+	"ts-gslx680@0": {
+		"i2c-bus": "i2c-gpio.1",
+		"interrupt-gpio": 61,
+		"maximum-fingers": 10
+	},
+
 	"led-gpio@0": {
 		"gpio": 60,
 		"active-low": true,

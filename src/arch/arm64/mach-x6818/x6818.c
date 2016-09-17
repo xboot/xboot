@@ -1,5 +1,5 @@
 /*
- * mach-x6818.c
+ * x6818.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -31,34 +31,60 @@ static const struct mmap_t mach_map[] = {
 	{ 0 },
 };
 
-static bool_t mach_detect(struct machine_t * mach)
+static int mach_detect(struct machine_t * mach)
 {
-	return TRUE;
+	/*
+	 * VIC to core, pass through GIC.
+	 */
+	write32(phys_to_virt(0xf0000100), 0);
+
+	/*
+	 * Reset some IP modules.
+	 */
+	s5p6818_ip_reset(RESET_ID_TIMER, 0);
+	s5p6818_ip_reset(RESET_ID_PWM, 0);
+	s5p6818_ip_reset(RESET_ID_UART0, 0);
+	s5p6818_ip_reset(RESET_ID_UART1, 0);
+	s5p6818_ip_reset(RESET_ID_UART2, 0);
+	s5p6818_ip_reset(RESET_ID_UART3, 0);
+	s5p6818_ip_reset(RESET_ID_UART4, 0);
+	s5p6818_ip_reset(RESET_ID_UART5, 0);
+
+	return 1;
 }
 
-static bool_t mach_memmap(struct machine_t * mach)
+static void mach_memmap(struct machine_t * mach)
 {
-	return TRUE;
 }
 
-static bool_t mach_shutdown(struct machine_t * mach)
+static void mach_shutdown(struct machine_t * mach)
 {
-	return FALSE;
 }
 
-static bool_t mach_reboot(struct machine_t * mach)
+static void mach_reboot(struct machine_t * mach)
 {
-	return FALSE;
+	write32(phys_to_virt(S5P6818_SYS_PWRCONT), (read32(phys_to_virt(S5P6818_SYS_PWRCONT)) & ~(0x1<<3)) | (0x1<<3));
+	write32(phys_to_virt(S5P6818_SYS_PWRMODE), (read32(phys_to_virt(S5P6818_SYS_PWRMODE)) & ~(0x1<<12)) | (0x1<<12));
 }
 
-static bool_t mach_sleep(struct machine_t * mach)
+static void mach_sleep(struct machine_t * mach)
 {
-	return FALSE;
 }
 
-static bool_t mach_cleanup(struct machine_t * mach)
+static void mach_cleanup(struct machine_t * mach)
 {
-	return TRUE;
+}
+
+static void mach_logger(struct machine_t * mach, const char * buf, int count)
+{
+	virtual_addr_t virt = phys_to_virt(0xc00a1000);
+	int i;
+
+	for(i = 0; i < count; i++)
+	{
+		while((read8(virt + 0x18) & (0x1 << 5)));
+		write8(virt + 0x00, buf[i]);
+	}
 }
 
 static const char * mach_uniqueid(struct machine_t * mach)
@@ -84,7 +110,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t x6818 = {
 	.name 		= "x6818",
-	.desc 		= "X6818 Based On S5P6818",
+	.desc 		= "X6818 Based On S5P6818 SOC",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
@@ -92,12 +118,20 @@ static struct machine_t x6818 = {
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,
 	.cleanup	= mach_cleanup,
+	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
 };
 
-static __init void mach_x6818_init(void)
+static __init void x6818_machine_init(void)
 {
 	register_machine(&x6818);
 }
-machine_initcall(mach_x6818_init);
+
+static __exit void x6818_machine_exit(void)
+{
+	unregister_machine(&x6818);
+}
+
+machine_initcall(x6818_machine_init);
+machine_exitcall(x6818_machine_exit);

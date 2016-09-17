@@ -23,20 +23,20 @@
  */
 
 #include <xboot.h>
-#include <s5p6818/reg-sys.h>
+#include <s5p6818/reg-rstcon.h>
 #include <s5p6818-rstcon.h>
 
 static void s5p6818_ip_setrst(int id, int reset)
 {
-	virtual_addr_t virt = phys_to_virt(S5P6818_SYS_IP_RSTCON0);
+	virtual_addr_t virt = phys_to_virt(S5P6818_IP_RSTCON_BASE);
 	u32_t val;
 
 	if(id < 32)
-		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON0);
+		virt += IP_RSTCON0;
 	else if(id < 64)
-		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON1);
+		virt += IP_RSTCON1;
 	else if(id < 96)
-		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON2);
+		virt += IP_RSTCON2;
 	else
 		return;
 
@@ -48,15 +48,15 @@ static void s5p6818_ip_setrst(int id, int reset)
 
 static int s5p6818_ip_getrst(int id)
 {
-	virtual_addr_t virt = phys_to_virt(S5P6818_SYS_IP_RSTCON0);
+	virtual_addr_t virt = phys_to_virt(S5P6818_IP_RSTCON_BASE);
 	u32_t val;
 
 	if(id < 32)
-		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON0);
+		virt += IP_RSTCON0;
 	else if(id < 64)
-		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON1);
+		virt += IP_RSTCON1;
 	else if(id < 96)
-		virt = phys_to_virt(S5P6818_SYS_IP_RSTCON2);
+		virt += IP_RSTCON2;
 	else
 		return 1;
 

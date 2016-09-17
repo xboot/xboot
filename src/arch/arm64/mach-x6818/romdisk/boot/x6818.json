@@ -1,0 +1,838 @@
+{
+	"clk-fixed": { "name": "xtal-pll", "rate": 24000000 },
+	"clk-fixed": { "name": "xtal-rtc", "rate": 32768 },
+	"clk-s5p6818-pll@0xc0010008": { "parent": "xtal-pll", "name": "pll0" },
+	"clk-s5p6818-pll@0xc001000c": { "parent": "xtal-pll", "name": "pll1" },
+	"clk-s5p6818-pll@0xc0010010": { "parent": "xtal-pll", "name": "pll2" },
+	"clk-s5p6818-pll@0xc0010014": { "parent": "xtal-pll", "name": "pll3" },
+
+	"clk-mux@0xc0010020": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-fclkcpu0",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc0010020": {
+		"parent": "mux-fclkcpu0",
+		"name": "div-fclkcpu0",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010020": {
+		"parent": "div-fclkcpu0",
+		"name": "div-hclkcpu0",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
+	 
+	"clk-mux@0xc0010024": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-bclk",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc0010024": {
+		"parent": "mux-bclk",
+		"name": "div-bclk",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010024": {
+		"parent": "div-bclk",
+		"name": "div-pclk",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
+
+	"clk-mux@0xc0010028": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-mdclk",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc0010028": {
+		"parent": "mux-mdclk",
+		"name": "div-mdclk",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010028": {
+		"parent": "div-mdclk",
+		"name": "div-mclk",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010028": {
+		"parent": "div-mclk",
+		"name": "div-mbclk",
+		"shift": 15,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010028": {
+		"parent": "div-mbclk",
+		"name": "div-mpclk",
+		"shift": 21,
+		"width": 6,
+		"divider-one-based": true
+	},
+
+	"clk-mux@0xc001002c": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-gr3dbclk",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc001002c": {
+		"parent": "mux-gr3dbclk",
+		"name": "div-gr3dbclk",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc001002c": {
+		"parent": "div-gr3dbclk",
+		"name": "div-gr3dpclk",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
+
+	"clk-mux@0xc0010030": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 },
+			{ "name": "pll3", "value": 3 }
+		],
+		"name": "mux-mpegbclk",
+		"shift": 0,
+		"width": 3
+	},
+	"clk-divider@0xc0010030": {
+		"parent": "mux-mpegbclk",
+		"name": "div-mpegbclk",
+		"shift": 3,
+		"width": 6,
+		"divider-one-based": true
+	},
+	"clk-divider@0xc0010030": {
+		"parent": "div-mpegbclk",
+		"name": "div-mpegpclk",
+		"shift": 9,
+		"width": 6,
+		"divider-one-based": true
+	},
+
+	"clk-divider@0xc0017000": {
+		"parent": "div-pclk",
+		"name": "div-timer-prescaler0",
+		"shift": 0,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-timer-prescaler0",
+		"name": "link-timer0"
+	},
+
+	"clk-divider@0xc0017000": {
+		"parent": "div-pclk",
+		"name": "div-timer-prescaler1",
+		"shift": 8,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-timer-prescaler1",
+		"name": "link-timer1"
+	},
+
+	"clk-divider@0xc0018000": {
+		"parent": "div-pclk",
+		"name": "div-pwm-prescaler0",
+		"shift": 0,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-pwm-prescaler0",
+		"name": "link-pwm0"
+	},
+
+	"clk-divider@0xc0018000": {
+		"parent": "div-pclk",
+		"name": "div-pwm-prescaler1",
+		"shift": 8,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-pwm-prescaler1",
+		"name": "link-pwm1"
+	},
+
+	"clk-mux@0xc00a9004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart0",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc00a9004": {
+		"parent": "mux-uart0",
+		"name": "div-uart0",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc00a9000": {
+		"parent": "div-uart0",
+		"name": "gate-uart0",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart0",
+		"name": "link-uart0"
+	},
+
+	"clk-mux@0xc00a8004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart1",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc00a8004": {
+		"parent": "mux-uart1",
+		"name": "div-uart1",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc00a8000": {
+		"parent": "div-uart1",
+		"name": "gate-uart1",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart1",
+		"name": "link-uart1"
+	},
+
+	"clk-mux@0xc00aa004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart2",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc00aa004": {
+		"parent": "mux-uart2",
+		"name": "div-uart2",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc00aa000": {
+		"parent": "div-uart2",
+		"name": "gate-uart2",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart2",
+		"name": "link-uart2"
+	},
+
+	"clk-mux@0xc00ab004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart3",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc00ab004": {
+		"parent": "mux-uart3",
+		"name": "div-uart3",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc00ab000": {
+		"parent": "div-uart3",
+		"name": "gate-uart3",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart3",
+		"name": "link-uart3"
+	},
+
+	"clk-mux@0xc006e004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart4",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc006e004": {
+		"parent": "mux-uart4",
+		"name": "div-uart4",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc006e000": {
+		"parent": "div-uart4",
+		"name": "gate-uart4",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart4",
+		"name": "link-uart4"
+	},
+
+	"clk-mux@0xc0084004": {
+		"parent": [
+			{ "name": "pll0", "value": 0 },
+			{ "name": "pll1", "value": 1 },
+			{ "name": "pll2", "value": 2 }
+		],
+		"name": "mux-uart5",
+		"shift": 2,
+		"width": 3
+	},
+	"clk-divider@0xc0084004": {
+		"parent": "mux-uart5",
+		"name": "div-uart5",
+		"shift": 5,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-gate@0xc0064000": {
+		"parent": "div-uart5",
+		"name": "gate-uart5",
+		"shift": 1,
+		"invert": false
+	},
+	"clk-link": {
+		"parent": "gate-uart5",
+		"name": "link-uart5"
+	},
+
+	"clk-setting": {
+		"clocks": [
+			{ "name": "div-timer-prescaler0", "rate": 150000000 },
+			{ "name": "div-timer-prescaler1", "rate": 150000000 },
+			{ "name": "div-pwm-prescaler0", "rate": 150000000 },
+			{ "name": "div-pwm-prescaler1", "rate": 150000000 },
+			{ "name": "div-uart0", "rate": 12000000 },
+			{ "name": "div-uart1", "rate": 12000000 },
+			{ "name": "div-uart2", "rate": 12000000 },
+			{ "name": "div-uart3", "rate": 12000000 },
+			{ "name": "div-uart4", "rate": 12000000 },
+			{ "name": "div-uart5", "rate": 12000000 }
+		]
+	},
+
+	"irq-pl192@0xc0002000": {
+		"interrupt-base": 0,
+		"interrupt-count": 32
+	},
+
+	"irq-pl192@0xc0003000": {
+		"interrupt-base": 32,
+		"interrupt-count": 32
+	},
+
+	"irq-s5p6818-gpio@0xc001a000": {
+		"interrupt-base": 64,
+		"interrupt-count": 32,
+		"interrupt-parent": 53
+	},
+
+	"irq-s5p6818-gpio@0xc001b000": {
+		"interrupt-base": 96,
+		"interrupt-count": 32,
+		"interrupt-parent": 54
+	},
+
+	"irq-s5p6818-gpio@0xc001c000": {
+		"interrupt-base": 128,
+		"interrupt-count": 32,
+		"interrupt-parent": 55
+	},
+
+	"irq-s5p6818-gpio@0xc001d000": {
+		"interrupt-base": 160,
+		"interrupt-count": 32,
+		"interrupt-parent": 56
+	},
+
+	"irq-s5p6818-gpio@0xc001e000": {
+		"interrupt-base": 192,
+		"interrupt-count": 32,
+		"interrupt-parent": 57
+	},
+
+	"irq-s5p6818-gpioalv@0xc0010000": {
+		"interrupt-base": 224,
+		"interrupt-count": 6,
+		"interrupt-parent": 4
+	},
+
+	"gpio-s5p6818@0xc001a000": {
+		"gpio-base": 0,
+		"gpio-count": 32,
+		"interrupt-offset": 64
+	},
+
+	"gpio-s5p6818@0xc001b000": {
+		"gpio-base": 32,
+		"gpio-count": 32,
+		"interrupt-offset": 96
+	},
+
+	"gpio-s5p6818@0xc001c000": {
+		"gpio-base": 64,
+		"gpio-count": 32,
+		"interrupt-offset": 128
+	},
+
+	"gpio-s5p6818@0xc001d000": {
+		"gpio-base": 96,
+		"gpio-count": 32,
+		"interrupt-offset": 160
+	},
+
+	"gpio-s5p6818@0xc001e000": {
+		"gpio-base": 128,
+		"gpio-count": 32,
+		"interrupt-offset": 192
+	},
+
+	"gpio-s5p6818-alv@0xc0010000": {
+		"gpio-base": 160,
+		"gpio-count": 6,
+		"interrupt-offset": 224
+	},
+
+	"pwm-samsung@0xc0018000": {
+		"clock-name": "link-pwm0",
+		"channel": 0,
+		"pwm-gpio": 97,
+		"pwm-gpio-config": 1
+	},
+
+	"pwm-samsung@0xc0018000": {
+		"clock-name": "link-pwm0",
+		"channel": 1,
+		"pwm-gpio": 77,
+		"pwm-gpio-config": 2
+	},
+
+	"pwm-samsung@0xc0018000": {
+		"clock-name": "link-pwm1",
+		"channel": 2,
+		"pwm-gpio": 78,
+		"pwm-gpio-config": 2
+	},
+
+	"pwm-samsung@0xc0018000": {
+		"clock-name": "link-pwm1",
+		"channel": 3,
+		"pwm-gpio": 96,
+		"pwm-gpio-config": 2
+	},
+
+	"ce-samsung-timer@0xc0017000": {
+		"clock-name": "link-timer0",
+		"interrupt": 23,
+		"timer-channel": 0
+	},
+
+	"cs-samsung-timer@0xc0017000": {
+		"clock-name": "link-timer0",
+		"timer-channel": 1
+	},
+
+	"uart-samsung@0xc00a1000": {
+		"clock-name": "link-uart0",
+		"txd-gpio": 114,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 110,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-samsung@0xc00a0000": {
+		"clock-name": "link-uart1",
+		"txd-gpio": 115,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 111,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-pl011@0xc00a2000": {
+		"clock-name": "link-uart2",
+		"txd-gpio": 116,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 112,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-samsung@0xc00a3000": {
+		"clock-name": "link-uart3",
+		"txd-gpio": 117,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 113,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-samsung@0xc006d000": {
+		"clock-name": "link-uart4",
+		"txd-gpio": 61,
+		"txd-gpio-config": 3,
+		"rxd-gpio": 60,
+		"rxd-gpio-config": 3,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-samsung@0xc006f000": {
+		"clock-name": "link-uart5",
+		"txd-gpio": 63,
+		"txd-gpio-config": 3,
+		"rxd-gpio": 62,
+		"rxd-gpio-config": 3,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"i2c-gpio@0": {
+		"sda-gpio": 99,
+		"scl-gpio": 98,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@1": {
+		"sda-gpio": 101,
+		"scl-gpio": 100,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+	
+	"i2c-gpio@2": {
+		"sda-gpio": 103,
+		"scl-gpio": 102,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+	
+	"i2c-gpio@3": {
+		"sda-gpio": 80,
+		"scl-gpio": 79,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"regulator-axp228@0": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dc5ldo",
+		"channel": 0
+	},
+	"regulator-axp228@1": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc1",
+		"channel": 1
+	},
+	"regulator-axp228@2": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc2",
+		"channel": 2
+	},
+	"regulator-axp228@3": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc3",
+		"channel": 3
+	},
+	"regulator-axp228@4": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc4",
+		"channel": 4
+	},
+	"regulator-axp228@5": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dcdc5",
+		"channel": 5
+	},
+	"regulator-axp228@6": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "aldo1",
+		"channel": 6
+	},
+	"regulator-axp228@7": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "aldo2",
+		"channel": 7
+	},
+	"regulator-axp228@8": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "eldo1",
+		"channel": 8
+	},
+	"regulator-axp228@9": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "eldo2",
+		"channel": 9
+	},
+	"regulator-axp228@10": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "eldo3",
+		"channel": 10
+	},
+	"regulator-axp228@11": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dldo1",
+		"channel": 11
+	},
+	"regulator-axp228@12": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dldo2",
+		"channel": 12
+	},
+	"regulator-axp228@13": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dldo3",
+		"channel": 13
+	},
+	"regulator-axp228@14": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "dldo4",
+		"channel": 14
+	},
+	"regulator-axp228@15": {
+		"i2c-bus": "i2c-gpio.3",
+		"name": "aldo3",
+		"channel": 15
+	},
+ 	"regulator-gpio@0": {
+		"parent": null,
+		"name": "lcd-bl-power",
+		"voltage": 3300000,
+		"gpio": 74,
+		"active-low": false,
+		"default-enable": false
+	},
+
+	"key-gpio-polled@0": {
+		"keys": [
+			{ "gpio": 41, "active-low": true, "key-code": 157 },
+			{ "gpio": 63, "active-low": true, "key-code": 147 },
+			{ "gpio": 62, "active-low": true, "key-code": 148 },
+			{ "gpio": 28, "active-low": true, "key-code": 146 },
+			{ "gpio": 160, "active-low": true, "key-code": 159 }
+		],
+		"poll-interval-ms": 100
+	},
+
+	"rc-gpio@0": {
+		"gpio": 104,
+		"active-low": true,
+		"maps": [
+			{ "scan-code": 4259584, "key-code": 48 },
+			{ "scan-code": 4259585, "key-code": 49 },
+			{ "scan-code": 4259586, "key-code": 50 },
+			{ "scan-code": 4259587, "key-code": 51 },
+			{ "scan-code": 4259588, "key-code": 52 },
+			{ "scan-code": 4259589, "key-code": 53 },
+			{ "scan-code": 4259590, "key-code": 54 },
+			{ "scan-code": 4259591, "key-code": 55 },
+			{ "scan-code": 4259592, "key-code": 56 },
+			{ "scan-code": 4259593, "key-code": 57 },
+			{ "scan-code": 4259661, "key-code": 1 },
+			{ "scan-code": 4259595, "key-code": 2 },
+			{ "scan-code": 4259598, "key-code": 3 },
+			{ "scan-code": 4259600, "key-code": 4 },
+			{ "scan-code": 4259601, "key-code": 5 },
+			{ "scan-code": 4259612, "key-code": 6 },
+			{ "scan-code": 4259605, "key-code": 7 },
+			{ "scan-code": 4259650, "key-code": 8 },
+			{ "scan-code": 4259651, "key-code": 9 },
+			{ "scan-code": 4259602, "key-code": 10 },
+			{ "scan-code": 4259597, "key-code": 11 },
+			{ "scan-code": 4259610, "key-code": 20 },
+			{ "scan-code": 4259653, "key-code": 21 },
+			{ "scan-code": 4259664, "key-code": 22 },
+			{ "scan-code": 4259654, "key-code": 23 },
+			{ "scan-code": 4259700, "key-code": 24 }
+		]
+	},
+
+	"ts-gslx680@0": {
+		"i2c-bus": "i2c-gpio.1",
+		"interrupt-gpio": 61,
+		"maximum-fingers": 10
+	},
+
+	"led-gpio@0": {
+		"gpio": 60,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@1": {
+		"gpio": 75,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@2": {
+		"gpio": 71,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@3": {
+		"gpio": 76,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-pwm-bl@0": {
+		"pwm-name": "pwm-samsung.0",
+		"regulator-name": "lcd-bl-power",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": true,
+		"pwm-percent-from": 6,
+		"pwm-percent-to": 100,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.3",
+		"heartbeat-period-ms": 1260
+	},
+
+	"ledtrig-general@0": {
+		"led-name": "led-gpio.0"
+	},
+
+	"ledtrig-general@1": {
+		"led-name": "led-gpio.1"
+	},
+
+	"ledtrig-general@2": {
+		"led-name": "led-gpio.2"
+	},
+
+	"buzzer-pwm@0": {
+		"pwm-name": "pwm-samsung.2",
+		"pwm-polarity": true
+	},
+
+	"battery-axp228@0": {
+		"i2c-bus": "i2c-gpio.3",
+		"design-capacity": 5000,
+		"design_voltage": 4200,
+		"charge-current-limit": 1500
+	},
+	
+	"fb-s5p6818@0": {
+		"clock-name": "pll2",
+		"width": 1024,
+		"height": 600,
+		"dots-per-inch-x": 160,
+		"dots-per-inch-y": 160,
+		"bits-per-pixel": 32,
+		"bytes-per-pixel": 4,
+		"clock-frequency": 52000000,
+		"hfront-porch": 160,
+		"hback-porch": 140,
+		"hsync-len": 20,
+		"vfront-porch": 12,
+		"vback-porch": 20,
+		"vsync-len": 3,
+		"hsync-active": true,
+		"vsync-active": true,
+		"backlight": "led-pwm-bl.0"
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-samsung.0"
+	}
+}

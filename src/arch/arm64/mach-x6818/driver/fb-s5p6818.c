@@ -1,5 +1,5 @@
 /*
- * driver/s5p6818-fb.c
+ * driver/fb-s5p6818.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -22,19 +22,92 @@
  *
  */
 
-#include <s5p6818-fb.h>
+#include <xboot.h>
+#include <fb/fb.h>
+#include <dma/dma.h>
+#include <clk/clk.h>
+#include <gpio/gpio.h>
+#include <led/led.h>
+#include <s5p6818-rstcon.h>
+#include <s5p6818/reg-mlc.h>
+#include <s5p6818/reg-dpc.h>
+#include <s5p6818/reg-dpa.h>
 
-struct s5p6818_fb_pdata_t
+enum s5p6818_mlc_rgbfmt_t
+{
+	S5P6818_MLC_RGBFMT_R5G6B5		= 0x4432,
+	S5P6818_MLC_RGBFMT_B5G6R5		= 0xC432,
+
+	S5P6818_MLC_RGBFMT_X1R5G5B5		= 0x4342,
+	S5P6818_MLC_RGBFMT_X1B5G5R5		= 0xC342,
+	S5P6818_MLC_RGBFMT_X4R4G4B4		= 0x4211,
+	S5P6818_MLC_RGBFMT_X4B4G4R4		= 0xC211,
+	S5P6818_MLC_RGBFMT_X8R3G3B2		= 0x4120,
+	S5P6818_MLC_RGBFMT_X8B3G3R2		= 0xC120,
+
+	S5P6818_MLC_RGBFMT_A1R5G5B5		= 0x3342,
+	S5P6818_MLC_RGBFMT_A1B5G5R5		= 0xB342,
+	S5P6818_MLC_RGBFMT_A4R4G4B4		= 0x2211,
+	S5P6818_MLC_RGBFMT_A4B4G4R4		= 0xA211,
+	S5P6818_MLC_RGBFMT_A8R3G3B2		= 0x1120,
+	S5P6818_MLC_RGBFMT_A8B3G3R2		= 0x9120,
+
+	S5P6818_MLC_RGBFMT_R8G8B8		= 0x4653,
+	S5P6818_MLC_RGBFMT_B8G8R8		= 0xC653,
+
+	S5P6818_MLC_RGBFMT_X8R8G8B8		= 0x4653,
+	S5P6818_MLC_RGBFMT_X8B8G8R8		= 0xC653,
+	S5P6818_MLC_RGBFMT_A8R8G8B8		= 0x0653,
+	S5P6818_MLC_RGBFMT_A8B8G8R8		= 0x8653,
+};
+
+enum s5p6818_dpc_format_t
+{
+	S5P6818_DPC_FORMAT_RGB555		= 0x0,
+	S5P6818_DPC_FORMAT_RGB565		= 0x1,
+	S5P6818_DPC_FORMAT_RGB666		= 0x2,
+	S5P6818_DPC_FORMAT_RGB888		= 0x3,
+	S5P6818_DPC_FORMAT_MRGB555A		= 0x4,
+	S5P6818_DPC_FORMAT_MRGB555B		= 0x5,
+	S5P6818_DPC_FORMAT_MRGB565		= 0x6,
+	S5P6818_DPC_FORMAT_MRGB666		= 0x7,
+	S5P6818_DPC_FORMAT_MRGB888A		= 0x8,
+	S5P6818_DPC_FORMAT_MRGB888B		= 0x9,
+	S5P6818_DPC_FORMAT_CCIR656		= 0xa,
+	S5P6818_DPC_FORMAT_CCIR601A		= 0xc,
+	S5P6818_DPC_FORMAT_CCIR601B		= 0xd,
+};
+
+enum s5p6818_dpc_ycorder_t
+{
+	S5P6818_DPC_YCORDER_CBYCRY		= 0x0,
+	S5P6818_DPC_YCORDER_CRYCBY		= 0x1,
+	S5P6818_DPC_YCORDER_YCBYCR		= 0x2,
+	S5P6818_DPC_YCORDER_YCRYCB		= 0x3,
+};
+
+enum s5p6818_dpc_dither_t
+{
+	S5P6818_DPC_DITHER_BYPASS		= 0x0,
+	S5P6818_DPC_DITHER_4BIT			= 0x1,
+	S5P6818_DPC_DITHER_5BIT			= 0x2,
+	S5P6818_DPC_DITHER_6BIT			= 0x3,
+};
+
+struct fb_s5p6818_pdata_t
 {
 	virtual_addr_t virtmlc;
 	virtual_addr_t virtdpc;
 
+	char * clk;
 	int width;
 	int height;
 	int xdpi;
 	int ydpi;
 	int bits_per_pixel;
 	int bytes_per_pixel;
+	int index;
+	void * vram[2];
 
 	struct {
 		int rgbmode;
@@ -52,11 +125,11 @@ struct s5p6818_fb_pdata_t
 	struct {
 		int pixel_clock_hz;
 		int	h_front_porch;
-		int	h_sync_width;
 		int	h_back_porch;
+		int	h_sync_len;
 		int	v_front_porch;
-		int	v_sync_width;
 		int	v_back_porch;
+		int	v_sync_len;
 		int vs_start_offset;
 		int vs_end_offset;
 		int ev_start_offset;
@@ -65,14 +138,15 @@ struct s5p6818_fb_pdata_t
 		int d_hsync_cp1;
 		int d_vsync_fram;
 		int d_de_cp2;
-		int	h_sync_invert;
-		int	v_sync_invert;
+		int	h_sync_active;
+		int	v_sync_active;
 	} timing;
 
 	struct led_t * backlight;
+	int brightness;
 };
 
-static inline void s5p6818_mlc_pclk_bclk_enable(struct s5p6818_fb_pdata_t * pdat, bool_t enable)
+static inline void s5p6818_mlc_pclk_bclk_enable(struct fb_s5p6818_pdata_t * pdat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -85,7 +159,7 @@ static inline void s5p6818_mlc_pclk_bclk_enable(struct s5p6818_fb_pdata_t * pdat
 	write32(pdat->virtmlc + MLC_CLKENB, cfg);
 }
 
-static inline void s5p6818_mlc_set_enable(struct s5p6818_fb_pdata_t * pdat, bool_t enable)
+static inline void s5p6818_mlc_set_enable(struct fb_s5p6818_pdata_t * pdat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -96,7 +170,7 @@ static inline void s5p6818_mlc_set_enable(struct s5p6818_fb_pdata_t * pdat, bool
 	write32(pdat->virtmlc + MLC_CONTROLT, cfg);
 }
 
-static inline void s5p6818_mlc_set_power_mode(struct s5p6818_fb_pdata_t * pdat, bool_t on)
+static inline void s5p6818_mlc_set_power_mode(struct fb_s5p6818_pdata_t * pdat, bool_t on)
 {
 	u32_t cfg;
 
@@ -107,7 +181,7 @@ static inline void s5p6818_mlc_set_power_mode(struct s5p6818_fb_pdata_t * pdat, 
 	write32(pdat->virtmlc + MLC_CONTROLT, cfg);
 }
 
-static inline void s5p6818_mlc_set_sleep_mode(struct s5p6818_fb_pdata_t * pdat, bool_t on)
+static inline void s5p6818_mlc_set_sleep_mode(struct fb_s5p6818_pdata_t * pdat, bool_t on)
 {
 	u32_t cfg;
 
@@ -118,7 +192,7 @@ static inline void s5p6818_mlc_set_sleep_mode(struct s5p6818_fb_pdata_t * pdat, 
 	write32(pdat->virtmlc + MLC_CONTROLT, cfg);
 }
 
-static inline void s5p6818_mlc_set_top_dirty_flag(struct s5p6818_fb_pdata_t * pdat)
+static inline void s5p6818_mlc_set_top_dirty_flag(struct fb_s5p6818_pdata_t * pdat)
 {
 	u32_t cfg;
 
@@ -127,7 +201,7 @@ static inline void s5p6818_mlc_set_top_dirty_flag(struct s5p6818_fb_pdata_t * pd
 	write32(pdat->virtmlc + MLC_CONTROLT, cfg);
 }
 
-static inline void s5p6818_mlc_set_layer_priority(struct s5p6818_fb_pdata_t * pdat, int priority)
+static inline void s5p6818_mlc_set_layer_priority(struct fb_s5p6818_pdata_t * pdat, int priority)
 {
 	u32_t cfg;
 
@@ -137,7 +211,7 @@ static inline void s5p6818_mlc_set_layer_priority(struct s5p6818_fb_pdata_t * pd
 	write32(pdat->virtmlc + MLC_CONTROLT, cfg);
 }
 
-static inline void s5p6818_mlc_set_field_enable(struct s5p6818_fb_pdata_t * pdat, bool_t enable)
+static inline void s5p6818_mlc_set_field_enable(struct fb_s5p6818_pdata_t * pdat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -148,7 +222,7 @@ static inline void s5p6818_mlc_set_field_enable(struct s5p6818_fb_pdata_t * pdat
 	write32(pdat->virtmlc + MLC_CONTROLT, cfg);
 }
 
-static inline void s5p6818_mlc_set_screen_size(struct s5p6818_fb_pdata_t * pdat, u32_t width, u32_t height)
+static inline void s5p6818_mlc_set_screen_size(struct fb_s5p6818_pdata_t * pdat, u32_t width, u32_t height)
 {
 	u32_t cfg;
 
@@ -156,12 +230,12 @@ static inline void s5p6818_mlc_set_screen_size(struct s5p6818_fb_pdata_t * pdat,
 	write32(pdat->virtmlc + MLC_SCREENSIZE, cfg);
 }
 
-static inline void s5p6818_mlc_set_background_color(struct s5p6818_fb_pdata_t * pdat, u32_t color)
+static inline void s5p6818_mlc_set_background_color(struct fb_s5p6818_pdata_t * pdat, u32_t color)
 {
 	write32(pdat->virtmlc + MLC_BGCOLOR, color);
 }
 
-static inline void s5p6818_mlc_set_layer_enable(struct s5p6818_fb_pdata_t * pdat, int layer, bool_t enable)
+static inline void s5p6818_mlc_set_layer_enable(struct fb_s5p6818_pdata_t * pdat, int layer, bool_t enable)
 {
 	u32_t cfg;
 
@@ -196,7 +270,7 @@ static inline void s5p6818_mlc_set_layer_enable(struct s5p6818_fb_pdata_t * pdat
 	}
 }
 
-static inline void s5p6818_mlc_set_dirty_flag(struct s5p6818_fb_pdata_t * pdat, int layer)
+static inline void s5p6818_mlc_set_dirty_flag(struct fb_s5p6818_pdata_t * pdat, int layer)
 {
 	u32_t cfg;
 
@@ -225,7 +299,7 @@ static inline void s5p6818_mlc_set_dirty_flag(struct s5p6818_fb_pdata_t * pdat, 
 	}
 }
 
-static inline bool_t s5p6818_mlc_get_dirty_flag(struct s5p6818_fb_pdata_t * pdat, int layer)
+static inline bool_t s5p6818_mlc_get_dirty_flag(struct fb_s5p6818_pdata_t * pdat, int layer)
 {
 	switch(layer)
 	{
@@ -241,12 +315,12 @@ static inline bool_t s5p6818_mlc_get_dirty_flag(struct s5p6818_fb_pdata_t * pdat
 	return FALSE;
 }
 
-static inline void s5p6818_mlc_wait_vsync(struct s5p6818_fb_pdata_t * pdat, int layer)
+static inline void s5p6818_mlc_wait_vsync(struct fb_s5p6818_pdata_t * pdat, int layer)
 {
 	while(s5p6818_mlc_get_dirty_flag(pdat, layer));
 }
 
-static inline void s5p6818_mlc_set_lock_size(struct s5p6818_fb_pdata_t * pdat, int layer, int size)
+static inline void s5p6818_mlc_set_lock_size(struct fb_s5p6818_pdata_t * pdat, int layer, int size)
 {
 	u32_t cfg;
 
@@ -271,7 +345,7 @@ static inline void s5p6818_mlc_set_lock_size(struct s5p6818_fb_pdata_t * pdat, i
 	}
 }
 
-static inline void s5p6818_mlc_set_alpha_blending(struct s5p6818_fb_pdata_t * pdat, int layer, bool_t enable, u32_t alpha)
+static inline void s5p6818_mlc_set_alpha_blending(struct fb_s5p6818_pdata_t * pdat, int layer, bool_t enable, u32_t alpha)
 {
 	u32_t cfg;
 
@@ -318,7 +392,7 @@ static inline void s5p6818_mlc_set_alpha_blending(struct s5p6818_fb_pdata_t * pd
 	}
 }
 
-static inline void s5p6818_mlc_set_transparency(struct s5p6818_fb_pdata_t * pdat, int layer, bool_t enable, u32_t color)
+static inline void s5p6818_mlc_set_transparency(struct fb_s5p6818_pdata_t * pdat, int layer, bool_t enable, u32_t color)
 {
 	u32_t cfg;
 
@@ -365,7 +439,7 @@ static inline void s5p6818_mlc_set_transparency(struct s5p6818_fb_pdata_t * pdat
 	}
 }
 
-static inline void s5p6818_mlc_set_color_inversion(struct s5p6818_fb_pdata_t * pdat, int layer, bool_t enable, u32_t color)
+static inline void s5p6818_mlc_set_color_inversion(struct fb_s5p6818_pdata_t * pdat, int layer, bool_t enable, u32_t color)
 {
 	u32_t cfg;
 
@@ -412,7 +486,7 @@ static inline void s5p6818_mlc_set_color_inversion(struct s5p6818_fb_pdata_t * p
 	}
 }
 
-static inline void s5p6818_mlc_set_layer_invalid_position(struct s5p6818_fb_pdata_t * pdat, int layer, u32_t region, s32_t sx, s32_t sy, s32_t ex, s32_t ey, bool_t enable)
+static inline void s5p6818_mlc_set_layer_invalid_position(struct fb_s5p6818_pdata_t * pdat, int layer, u32_t region, s32_t sx, s32_t sy, s32_t ex, s32_t ey, bool_t enable)
 {
 	u32_t cfg;
 
@@ -457,7 +531,7 @@ static inline void s5p6818_mlc_set_layer_invalid_position(struct s5p6818_fb_pdat
 	}
 }
 
-static inline void s5p6818_mlc_set_rgb_format(struct s5p6818_fb_pdata_t * pdat, int layer, enum s5p6818_mlc_rgbfmt_t fmt)
+static inline void s5p6818_mlc_set_rgb_format(struct fb_s5p6818_pdata_t * pdat, int layer, enum s5p6818_mlc_rgbfmt_t fmt)
 {
 	u32_t cfg;
 
@@ -482,7 +556,7 @@ static inline void s5p6818_mlc_set_rgb_format(struct s5p6818_fb_pdata_t * pdat, 
 	}
 }
 
-static inline void s5p6818_mlc_set_position(struct s5p6818_fb_pdata_t * pdat, int layer, s32_t sx, s32_t sy, s32_t ex, s32_t ey)
+static inline void s5p6818_mlc_set_position(struct fb_s5p6818_pdata_t * pdat, int layer, s32_t sx, s32_t sy, s32_t ex, s32_t ey)
 {
 	u32_t cfg;
 
@@ -514,7 +588,7 @@ static inline void s5p6818_mlc_set_position(struct s5p6818_fb_pdata_t * pdat, in
 	}
 }
 
-static inline void s5p6818_mlc_set_layer_stride(struct s5p6818_fb_pdata_t * pdat, int layer, s32_t hstride, s32_t vstride)
+static inline void s5p6818_mlc_set_layer_stride(struct fb_s5p6818_pdata_t * pdat, int layer, s32_t hstride, s32_t vstride)
 {
 	switch(layer)
 	{
@@ -533,25 +607,25 @@ static inline void s5p6818_mlc_set_layer_stride(struct s5p6818_fb_pdata_t * pdat
 	}
 }
 
-static inline void s5p6818_mlc_set_layer_address(struct s5p6818_fb_pdata_t * pdat, int layer, void * vram)
+static inline void s5p6818_mlc_set_layer_address(struct fb_s5p6818_pdata_t * pdat, int layer, void * vram)
 {
 	switch(layer)
 	{
 	case 0:
-		write32(pdat->virtmlc + MLC_ADDRESS0, (u32_t)((u64_t)vram));
+		write32(pdat->virtmlc + MLC_ADDRESS0, (u32_t)vram);
 		break;
 	case 1:
-		write32(pdat->virtmlc + MLC_ADDRESS1, (u32_t)((u64_t)vram));
+		write32(pdat->virtmlc + MLC_ADDRESS1, (u32_t)vram);
 		break;
 	case 2:
-		write32(pdat->virtmlc + MLC_ADDRESS2, (u32_t)((u64_t)vram));
+		write32(pdat->virtmlc + MLC_ADDRESS2, (u32_t)vram);
 		break;
 	default:
 		break;
 	}
 }
 
-static inline void s5p6818_dpc_pclk_enable(struct s5p6818_fb_pdata_t * pdat, bool_t enable)
+static inline void s5p6818_dpc_pclk_enable(struct fb_s5p6818_pdata_t * pdat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -564,13 +638,13 @@ static inline void s5p6818_dpc_pclk_enable(struct s5p6818_fb_pdata_t * pdat, boo
 	write32(pdat->virtdpc + DPC_CLKENB, cfg);
 }
 
-static inline void s5p6818_dpc_set_clock(struct s5p6818_fb_pdata_t * pdat)
+static inline void s5p6818_dpc_set_clock(struct fb_s5p6818_pdata_t * pdat)
 {
 	u64_t rate;
 	u32_t cfg;
 	int i;
 
-	rate = clk_get_rate("PLL2");
+	rate = clk_get_rate(pdat->clk);
 
 	/* DPC_CLKGEN0L */
 	for(i = 0; i < 256; i++)
@@ -605,7 +679,7 @@ static inline void s5p6818_dpc_set_clock(struct s5p6818_fb_pdata_t * pdat)
 	write32(pdat->virtdpc + DPC_CLKGEN1H, 0x00000000);
 }
 
-static inline void s5p6818_dpc_set_mode(struct s5p6818_fb_pdata_t * pdat)
+static inline void s5p6818_dpc_set_mode(struct fb_s5p6818_pdata_t * pdat)
 {
 	u32_t cfg;
 
@@ -635,47 +709,47 @@ static inline void s5p6818_dpc_set_mode(struct s5p6818_fb_pdata_t * pdat)
 	write32(pdat->virtdpc + DPC_CTRL2, cfg);
 }
 
-static inline void s5p6818_dpc_set_timing(struct s5p6818_fb_pdata_t * pdat)
+static inline void s5p6818_dpc_set_timing(struct fb_s5p6818_pdata_t * pdat)
 {
 	u32_t cfg;
 
 	/* horizontal */
-	cfg = pdat->width + pdat->timing.h_front_porch + pdat->timing.h_sync_width + pdat->timing.h_back_porch - 1;
+	cfg = pdat->width + pdat->timing.h_front_porch + pdat->timing.h_sync_len + pdat->timing.h_back_porch - 1;
 	write32(pdat->virtdpc + DPC_HTOTAL, cfg);
 
-	cfg = pdat->timing.h_sync_width - 1;
+	cfg = pdat->timing.h_sync_len - 1;
 	write32(pdat->virtdpc + DPC_HSWIDTH, cfg);
 
-	cfg = pdat->timing.h_sync_width + pdat->timing.h_back_porch - 1;
+	cfg = pdat->timing.h_sync_len + pdat->timing.h_back_porch - 1;
 	write32(pdat->virtdpc + DPC_HASTART, cfg);
 
-	cfg = pdat->width + pdat->timing.h_sync_width + pdat->timing.h_back_porch - 1;
+	cfg = pdat->width + pdat->timing.h_sync_len + pdat->timing.h_back_porch - 1;
 	write32(pdat->virtdpc + DPC_HAEND, cfg);
 
 	/* vertical - progressive */
-	cfg = pdat->height + pdat->timing.v_front_porch + pdat->timing.v_sync_width + pdat->timing.v_back_porch - 1;
+	cfg = pdat->height + pdat->timing.v_front_porch + pdat->timing.v_sync_len + pdat->timing.v_back_porch - 1;
 	write32(pdat->virtdpc + DPC_VTOTAL, cfg);
 
-	cfg = pdat->timing.v_sync_width - 1;
+	cfg = pdat->timing.v_sync_len - 1;
 	write32(pdat->virtdpc + DPC_VSWIDTH, cfg);
 
-	cfg = pdat->timing.v_sync_width + pdat->timing.v_back_porch - 1;
+	cfg = pdat->timing.v_sync_len + pdat->timing.v_back_porch - 1;
 	write32(pdat->virtdpc + DPC_VASTART, cfg);
 
-	cfg = pdat->height + pdat->timing.v_sync_width + pdat->timing.v_back_porch - 1;
+	cfg = pdat->height + pdat->timing.v_sync_len + pdat->timing.v_back_porch - 1;
 	write32(pdat->virtdpc + DPC_VAEND, cfg);
 
 	/* vertical - interlaced */
-	cfg = pdat->height + pdat->timing.v_front_porch + pdat->timing.v_sync_width + pdat->timing.v_back_porch - 1;
+	cfg = pdat->height + pdat->timing.v_front_porch + pdat->timing.v_sync_len + pdat->timing.v_back_porch - 1;
 	write32(pdat->virtdpc + DPC_EVTOTAL, cfg);
 
-	cfg = pdat->timing.v_sync_width - 1;
+	cfg = pdat->timing.v_sync_len - 1;
 	write32(pdat->virtdpc + DPC_EVSWIDTH, cfg);
 
-	cfg = pdat->timing.v_sync_width + pdat->timing.v_back_porch - 1;
+	cfg = pdat->timing.v_sync_len + pdat->timing.v_back_porch - 1;
 	write32(pdat->virtdpc + DPC_EVASTART, cfg);
 
-	cfg = pdat->height + pdat->timing.v_sync_width + pdat->timing.v_back_porch - 1;
+	cfg = pdat->height + pdat->timing.v_sync_len + pdat->timing.v_back_porch - 1;
 	write32(pdat->virtdpc + DPC_EVAEND, cfg);
 
 	/* Sync offset */
@@ -698,20 +772,20 @@ static inline void s5p6818_dpc_set_timing(struct s5p6818_fb_pdata_t * pdat)
 	write32(pdat->virtdpc + DPC_DELAY1, cfg);
 }
 
-static inline void s5p6818_dpc_set_polarity(struct s5p6818_fb_pdata_t * pdat)
+static inline void s5p6818_dpc_set_polarity(struct fb_s5p6818_pdata_t * pdat)
 {
 	u32_t cfg;
 
 	cfg = read32(pdat->virtdpc + DPC_CTRL0);
 	cfg &= ~(0x1 << 10 | 0x1 << 1 | 0x1 << 0);
-	if(pdat->timing.h_sync_invert)
+	if(pdat->timing.h_sync_active)
 		cfg |= (0x1 << 0);
-	if(pdat->timing.v_sync_invert)
+	if(pdat->timing.v_sync_active)
 		cfg |= (0x1 << 1);
 	write32(pdat->virtdpc + DPC_CTRL0, cfg);
 }
 
-static inline void s5p6818_dpc_set_enable(struct s5p6818_fb_pdata_t * pdat, bool_t enable)
+static inline void s5p6818_dpc_set_enable(struct fb_s5p6818_pdata_t * pdat, bool_t enable)
 {
 	u32_t cfg;
 
@@ -737,10 +811,8 @@ static inline void s5p6818_fb_cfg_gpios(int base, int nr, int cfg, enum gpio_pul
 	}
 }
 
-static void fb_init(struct fb_t * fb)
+static void s5p6818_fb_init(struct fb_s5p6818_pdata_t * pdat)
 {
-	struct s5p6818_fb_pdata_t * pdat = (struct s5p6818_fb_pdata_t *)fb->priv;
-
 	s5p6818_ip_reset(RESET_ID_DISP_TOP, 0);
 	s5p6818_ip_reset(RESET_ID_DISPLAY, 0);
 	s5p6818_ip_reset(RESET_ID_LCDIF, 0);
@@ -749,7 +821,7 @@ static void fb_init(struct fb_t * fb)
 	/*
 	 * Initial digital rgb lcd port
 	 */
-	s5p6818_fb_cfg_gpios(S5P6818_GPIOA(0), 28, 0x1, GPIO_PULL_NONE, GPIO_DRV_HIGH);
+	s5p6818_fb_cfg_gpios(0, 28, 0x1, GPIO_PULL_NONE, GPIO_DRV_STRONGER);
 
 	/*
 	 * Enable some clocks
@@ -780,6 +852,7 @@ static void fb_init(struct fb_t * fb)
 	s5p6818_mlc_set_position(pdat, 0, 0, 0, pdat->width - 1, pdat->height - 1);
 	s5p6818_mlc_set_layer_stride(pdat, 0, pdat->bytes_per_pixel, pdat->bytes_per_pixel * pdat->width);
 	s5p6818_mlc_set_screen_size(pdat, pdat->width, pdat->height);
+	s5p6818_mlc_set_layer_address(pdat, 0, pdat->vram[0]);
 
 	/*
 	 * Enable mlc controller
@@ -807,31 +880,27 @@ static void fb_init(struct fb_t * fb)
 	s5p6818_dpa_rgb_mux_select(0);
 }
 
-static void fb_exit(struct fb_t * fb)
-{
-}
-
 static void fb_setbl(struct fb_t * fb, int brightness)
 {
-	struct s5p6818_fb_pdata_t * pdat = (struct s5p6818_fb_pdata_t *)fb->priv;
+	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 	led_set_brightness(pdat->backlight, brightness);
 }
 
 static int fb_getbl(struct fb_t * fb)
 {
-	struct s5p6818_fb_pdata_t * pdat = (struct s5p6818_fb_pdata_t *)fb->priv;
+	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 	return led_get_brightness(pdat->backlight);
 }
 
 struct render_t * fb_create(struct fb_t * fb)
 {
-	struct s5p6818_fb_pdata_t * pdat = (struct s5p6818_fb_pdata_t *)fb->priv;
+	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 	struct render_t * render;
 	void * pixels;
 	size_t pixlen;
 
 	pixlen = pdat->width * pdat->height * pdat->bytes_per_pixel;
-	pixels = dma_zalloc(pixlen);
+	pixels = memalign(4, pixlen);
 	if(!pixels)
 		return NULL;
 
@@ -867,148 +936,175 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	if(render)
 	{
 		sw_render_destroy_data(render);
-		dma_free(render->pixels);
+		free(render->pixels);
 		free(render);
 	}
 }
 
 void fb_present(struct fb_t * fb, struct render_t * render)
 {
-	struct s5p6818_fb_pdata_t * pdat = (struct s5p6818_fb_pdata_t *)fb->priv;
-	void * pixels = render->pixels;
+	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 
-	if(pixels)
+	if(render && render->pixels)
 	{
+		pdat->index = (pdat->index + 1) & 0x1;
+		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
+		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
 		s5p6818_mlc_wait_vsync(pdat, 0);
-		s5p6818_mlc_set_layer_address(pdat, 0, pixels);
+		s5p6818_mlc_set_layer_address(pdat, 0, pdat->vram[pdat->index]);
 		s5p6818_mlc_set_dirty_flag(pdat, 0);
 	}
 }
 
-static void fb_suspend(struct fb_t * fb)
+static struct device_t * fb_s5p6818_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-}
-
-static void fb_resume(struct fb_t * fb)
-{
-}
-
-static bool_t s5p6818_register_framebuffer(struct resource_t * res)
-{
-	struct s5p6818_fb_data_t * rdat = (struct s5p6818_fb_data_t *)res->data;
-	struct s5p6818_fb_pdata_t * pdat;
+	struct fb_s5p6818_pdata_t * pdat;
 	struct fb_t * fb;
-	char name[64];
+	struct device_t * dev;
+	char * clk = dt_read_string(n, "clock-name", NULL);
 
-	pdat = malloc(sizeof(struct s5p6818_fb_pdata_t));
+	if(!search_clk(clk))
+		return NULL;
+
+	pdat = malloc(sizeof(struct fb_s5p6818_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	fb = malloc(sizeof(struct fb_t));
 	if(!fb)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	pdat->virtmlc = phys_to_virt(S5P6818_MLC0_BASE);
+	pdat->virtdpc = phys_to_virt(S5P6818_DPC0_BASE);
+	pdat->clk = strdup(clk);
+	pdat->width = dt_read_int(n, "width", 1024);
+	pdat->height = dt_read_int(n, "height", 600);
+	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
+	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
+	pdat->bits_per_pixel = dt_read_int(n, "bits-per-pixel", 32);
+	pdat->bytes_per_pixel = dt_read_int(n, "bytes-per-pixel", 4);
+	pdat->index = 0;
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes_per_pixel);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes_per_pixel);
 
-	pdat->virtmlc = phys_to_virt(rdat->physmlc);
-	pdat->virtdpc = phys_to_virt(rdat->physdpc);
+	pdat->mode.rgbmode = 1;
+	pdat->mode.scanmode = 0;
+	pdat->mode.enbedsync = 0;
+	pdat->mode.polfield = 0;
+	pdat->mode.swaprb = 0;
+	pdat->mode.format = S5P6818_DPC_FORMAT_RGB888;
+	pdat->mode.ycorder = S5P6818_DPC_YCORDER_CBYCRY;
+	pdat->mode.rdither = S5P6818_DPC_DITHER_BYPASS;
+	pdat->mode.gdither = S5P6818_DPC_DITHER_BYPASS;
+	pdat->mode.bdither = S5P6818_DPC_DITHER_BYPASS;
 
-	pdat->width = rdat->width;
-	pdat->height = rdat->height;
-	pdat->xdpi = rdat->xdpi;
-	pdat->ydpi = rdat->ydpi;
-	pdat->bits_per_pixel = rdat->bits_per_pixel;
-	pdat->bytes_per_pixel = rdat->bytes_per_pixel;
+	pdat->timing.pixel_clock_hz = dt_read_long(n, "clock-frequency", 52000000);
+	pdat->timing.h_front_porch = dt_read_int(n, "hfront-porch", 1);
+	pdat->timing.h_back_porch = dt_read_int(n, "hback-porch", 1);
+	pdat->timing.h_sync_len = dt_read_int(n, "hsync-len", 1);
+	pdat->timing.v_front_porch = dt_read_int(n, "vfront-porch", 1);
+	pdat->timing.v_back_porch = dt_read_int(n, "vback-porch", 1);
+	pdat->timing.v_sync_len = dt_read_int(n, "vsync-len", 1);
+	pdat->timing.vs_start_offset = 1;
+	pdat->timing.vs_end_offset = 1;
+	pdat->timing.ev_start_offset = 1;
+	pdat->timing.ev_end_offset = 1;
+	pdat->timing.d_rgb_pvd = 0;
+	pdat->timing.d_hsync_cp1 = 7;
+	pdat->timing.d_vsync_fram = 7;
+	pdat->timing.d_de_cp2 = 7;
+	pdat->timing.h_sync_active = dt_read_bool(n, "hsync-active", 0);
+	pdat->timing.v_sync_active = dt_read_bool(n, "vsync-active", 0);
+	pdat->backlight = search_led(dt_read_string(n, "backlight", NULL));
 
-	pdat->mode.rgbmode = rdat->mode.rgbmode;
-	pdat->mode.scanmode = rdat->mode.scanmode;
-	pdat->mode.enbedsync = rdat->mode.enbedsync;
-	pdat->mode.polfield = rdat->mode.polfield;
-	pdat->mode.swaprb = rdat->mode.swaprb;
-	pdat->mode.format = rdat->mode.format;
-	pdat->mode.ycorder = rdat->mode.ycorder;
-	pdat->mode.rdither = rdat->mode.rdither;
-	pdat->mode.gdither = rdat->mode.gdither;
-	pdat->mode.bdither = rdat->mode.bdither;
-
-	pdat->timing.pixel_clock_hz = rdat->timing.pixel_clock_hz;
-	pdat->timing.h_front_porch = rdat->timing.h_front_porch;
-	pdat->timing.h_sync_width = rdat->timing.h_sync_width;
-	pdat->timing.h_back_porch = rdat->timing.h_back_porch;
-	pdat->timing.v_front_porch = rdat->timing.v_front_porch;
-	pdat->timing.v_sync_width = rdat->timing.v_sync_width;
-	pdat->timing.v_back_porch = rdat->timing.v_back_porch;
-	pdat->timing.vs_start_offset = rdat->timing.vs_start_offset;
-	pdat->timing.vs_end_offset = rdat->timing.vs_end_offset;
-	pdat->timing.ev_start_offset = rdat->timing.ev_start_offset;
-	pdat->timing.ev_end_offset = rdat->timing.ev_end_offset;
-	pdat->timing.d_rgb_pvd = rdat->timing.d_rgb_pvd;
-	pdat->timing.d_hsync_cp1 = rdat->timing.d_hsync_cp1;
-	pdat->timing.d_vsync_fram = rdat->timing.d_vsync_fram;
-	pdat->timing.d_de_cp2 = rdat->timing.d_de_cp2;
-	pdat->timing.h_sync_invert = rdat->timing.h_sync_invert;
-	pdat->timing.v_sync_invert = rdat->timing.v_sync_invert;
-
-	pdat->backlight = search_led(rdat->backlight);
-
-	fb->name = strdup(name);
+	fb->name = alloc_device_name(dt_read_name(n), -1);
 	fb->width = pdat->width;
 	fb->height = pdat->height;
 	fb->xdpi = pdat->xdpi;
 	fb->ydpi = pdat->ydpi;
 	fb->bpp = pdat->bits_per_pixel;
-	fb->init = fb_init,
-	fb->exit = fb_exit,
 	fb->setbl = fb_setbl,
 	fb->getbl = fb_getbl,
 	fb->create = fb_create,
 	fb->destroy = fb_destroy,
 	fb->present = fb_present,
-	fb->suspend = fb_suspend,
-	fb->resume = fb_resume,
 	fb->priv = pdat;
 
-	if(register_fb(fb))
-		return TRUE;
+	clk_enable(pdat->clk);
+	s5p6818_fb_init(pdat);
 
-	free(fb->priv);
-	free(fb->name);
-	free(fb);
-	return FALSE;
+	if(!register_fb(&dev, fb))
+	{
+		clk_disable(pdat->clk);
+		free(pdat->clk);
+		dma_free_noncoherent(pdat->vram[0]);
+		dma_free_noncoherent(pdat->vram[1]);
+
+		free_device_name(fb->name);
+		free(fb->priv);
+		free(fb);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
 }
 
-static bool_t s5p6818_unregister_framebuffer(struct resource_t * res)
+static void fb_s5p6818_remove(struct device_t * dev)
 {
-	struct fb_t * fb;
-	char name[64];
+	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 
-	snprintf(name, sizeof(name), "%s.%d", res->name, res->id);
+	if(fb && unregister_fb(fb))
+	{
+		clk_disable(pdat->clk);
+		free(pdat->clk);
+		dma_free_noncoherent(pdat->vram[0]);
+		dma_free_noncoherent(pdat->vram[1]);
 
-	fb = search_fb(name);
-	if(!fb)
-		return FALSE;
-
-	if(!unregister_fb(fb))
-		return FALSE;
-
-	free(fb->priv);
-	free(fb->name);
-	free(fb);
-	return TRUE;
+		free_device_name(fb->name);
+		free(fb->priv);
+		free(fb);
+	}
 }
 
-static __init void s5p6818_fb_init(void)
+static void fb_s5p6818_suspend(struct device_t * dev)
 {
-	resource_for_each("s5p6818-fb", s5p6818_register_framebuffer);
+	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
+
+	pdat->brightness = led_get_brightness(pdat->backlight);
+	led_set_brightness(pdat->backlight, 0);
 }
 
-static __exit void s5p6818_fb_exit(void)
+static void fb_s5p6818_resume(struct device_t * dev)
 {
-	resource_for_each("s5p6818-fb", s5p6818_unregister_framebuffer);
+	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
+
+	led_set_brightness(pdat->backlight, pdat->brightness);
 }
 
-postdevice_initcall(s5p6818_fb_init);
-postdevice_exitcall(s5p6818_fb_exit);
+static struct driver_t fb_s5p6818 = {
+	.name		= "fb-s5p6818",
+	.probe		= fb_s5p6818_probe,
+	.remove		= fb_s5p6818_remove,
+	.suspend	= fb_s5p6818_suspend,
+	.resume		= fb_s5p6818_resume,
+};
+
+static __init void fb_s5p6818_driver_init(void)
+{
+	register_driver(&fb_s5p6818);
+}
+
+static __exit void fb_s5p6818_driver_exit(void)
+{
+	unregister_driver(&fb_s5p6818);
+}
+
+driver_initcall(fb_s5p6818_driver_init);
+driver_exitcall(fb_s5p6818_driver_exit);

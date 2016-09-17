@@ -1,5 +1,5 @@
 /*
- * s5p6818-gpio.c
+ * driver/gpio-s5p6818.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,57 +23,43 @@
  */
 
 #include <xboot.h>
-#include <s5p6818/reg-gpio.h>
-#include <s5p6818-gpio.h>
+#include <gpio/gpio.h>
 
-struct gpiochip_data_t
-{
-	const char * name;
-	int base;
-	int ngpio;
-	physical_addr_t phys;
+enum {
+	GPIO_OUT						= 0x00,
+	GPIO_OUTENB						= 0x04,
+	GPIO_DETMODE0					= 0x08,
+	GPIO_DETMODE1					= 0x0C,
+	GPIO_INTENB						= 0x10,
+	GPIO_DET						= 0x14,
+	GPIO_PAD						= 0x18,
+	GPIO_ALTFN0						= 0x20,
+	GPIO_ALTFN1						= 0x24,
+	GPIO_DETMODEEX					= 0x28,
+	GPIO_DETENB						= 0x3C,
+	GPIO_SLEW						= 0x40,
+	GPIO_SLEW_DISABLE_DEFAULT		= 0x44,
+	GPIO_DRV1						= 0x48,
+	GPIO_DRV1_DISABLE_DEFAULT		= 0x4C,
+	GPIO_DRV0						= 0x50,
+	GPIO_DRV0_DISABLE_DEFAULT		= 0x54,
+	GPIO_PULLSEL					= 0x58,
+	GPIO_PULLSEL_DISABLE_DEFAULT	= 0x5C,
+	GPIO_PULLENB					= 0x60,
+	GPIO_PULLENB_DISABLE_DEFAULT	= 0x64,
 };
 
-struct gpiochip_pdata_t
+struct gpio_s5p6818_pdata_t
 {
-	const char * name;
-	int base;
-	int ngpio;
 	virtual_addr_t virt;
+	int base;
+	int ngpio;
+	int oirq;
 };
 
-static struct gpiochip_data_t datas[] = {
-	{
-		.name	= "GPIOA",
-		.base	= S5P6818_GPIOA(0),
-		.ngpio	= 32,
-		.phys	= S5P6818_GPIOA_BASE,
-	}, {
-		.name	= "GPIOB",
-		.base	= S5P6818_GPIOB(0),
-		.ngpio	= 32,
-		.phys	= S5P6818_GPIOB_BASE,
-	}, {
-		.name	= "GPIOC",
-		.base	= S5P6818_GPIOC(0),
-		.ngpio	= 32,
-		.phys	= S5P6818_GPIOC_BASE,
-	}, {
-		.name	= "GPIOD",
-		.base	= S5P6818_GPIOD(0),
-		.ngpio	= 32,
-		.phys	= S5P6818_GPIOD_BASE,
-	}, {
-		.name	= "GPIOE",
-		.base	= S5P6818_GPIOE(0),
-		.ngpio	= 32,
-		.phys	= S5P6818_GPIOE_BASE,
-	}
-};
-
-static void gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
+static void gpio_s5p6818_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -97,9 +83,9 @@ static void gpiochip_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 	}
 }
 
-static int gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
+static int gpio_s5p6818_get_cfg(struct gpiochip_t * chip, int offset)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -121,9 +107,9 @@ static int gpiochip_get_cfg(struct gpiochip_t * chip, int offset)
 	return 0;
 }
 
-static void gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
+static void gpio_s5p6818_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -167,9 +153,9 @@ static void gpiochip_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pu
 	write32(pdat->virt + GPIO_PULLENB_DISABLE_DEFAULT, val);
 }
 
-static enum gpio_pull_t gpiochip_get_pull(struct gpiochip_t * chip, int offset)
+static enum gpio_pull_t gpio_s5p6818_get_pull(struct gpiochip_t * chip, int offset)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -187,9 +173,9 @@ static enum gpio_pull_t gpiochip_get_pull(struct gpiochip_t * chip, int offset)
 	return GPIO_PULL_NONE;
 }
 
-static void gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
+static void gpio_s5p6818_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -197,7 +183,7 @@ static void gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv
 
 	switch(drv)
 	{
-	case GPIO_DRV_LOW:
+	case GPIO_DRV_WEAK:
 		val = read32(pdat->virt + GPIO_DRV0);
 		val &= ~(1 << offset);
 		write32(pdat->virt + GPIO_DRV0, val);
@@ -206,7 +192,7 @@ static void gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv
 		write32(pdat->virt + GPIO_DRV1, val);
 		break;
 
-	case GPIO_DRV_MEDIAN:
+	case GPIO_DRV_WEAKER:
 		val = read32(pdat->virt + GPIO_DRV0);
 		val &= ~(1 << offset);
 		write32(pdat->virt + GPIO_DRV0, val);
@@ -215,7 +201,16 @@ static void gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv
 		write32(pdat->virt + GPIO_DRV1, val);
 		break;
 
-	case GPIO_DRV_HIGH:
+	case GPIO_DRV_STRONGER:
+		val = read32(pdat->virt + GPIO_DRV0);
+		val |= 1 << offset;
+		write32(pdat->virt + GPIO_DRV0, val);
+		val = read32(pdat->virt + GPIO_DRV1);
+		val &= ~(1 << offset);
+		write32(pdat->virt + GPIO_DRV1, val);
+		break;
+
+	case GPIO_DRV_STRONG:
 		val = read32(pdat->virt + GPIO_DRV0);
 		val |= 1 << offset;
 		write32(pdat->virt + GPIO_DRV0, val);
@@ -236,13 +231,13 @@ static void gpiochip_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv
 	write32(pdat->virt + GPIO_DRV1_DISABLE_DEFAULT, val);
 }
 
-static enum gpio_drv_t gpiochip_get_drv(struct gpiochip_t * chip, int offset)
+static enum gpio_drv_t gpio_s5p6818_get_drv(struct gpiochip_t * chip, int offset)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val, d;
 
 	if(offset >= chip->ngpio)
-		return GPIO_DRV_LOW;
+		return GPIO_DRV_WEAK;
 
 	val = read32(pdat->virt + GPIO_DRV0);
 	d = (val >> offset) & 0x1;
@@ -252,22 +247,22 @@ static enum gpio_drv_t gpiochip_get_drv(struct gpiochip_t * chip, int offset)
 	switch(d)
 	{
 	case 0x0:
-		return GPIO_DRV_LOW;
+		return GPIO_DRV_WEAK;
 	case 0x1:
-		return GPIO_DRV_MEDIAN;
+		return GPIO_DRV_WEAKER;
 	case 0x2:
-		return GPIO_DRV_MEDIAN;
+		return GPIO_DRV_STRONGER;
 	case 0x3:
-		return GPIO_DRV_HIGH;
+		return GPIO_DRV_STRONG;
 	default:
 		break;
 	}
-	return GPIO_DRV_LOW;
+	return GPIO_DRV_WEAK;
 }
 
-static void gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
+static void gpio_s5p6818_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -296,9 +291,9 @@ static void gpiochip_set_rate(struct gpiochip_t * chip, int offset, enum gpio_ra
 	write32(pdat->virt + GPIO_SLEW_DISABLE_DEFAULT, val);
 }
 
-static enum gpio_rate_t gpiochip_get_rate(struct gpiochip_t * chip, int offset)
+static enum gpio_rate_t gpio_s5p6818_get_rate(struct gpiochip_t * chip, int offset)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -311,9 +306,9 @@ static enum gpio_rate_t gpiochip_get_rate(struct gpiochip_t * chip, int offset)
 		return GPIO_RATE_FAST;
 }
 
-static void gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
+static void gpio_s5p6818_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -338,13 +333,13 @@ static void gpiochip_set_dir(struct gpiochip_t * chip, int offset, enum gpio_dir
 	}
 }
 
-static enum gpio_direction_t gpiochip_get_dir(struct gpiochip_t * chip, int offset)
+static enum gpio_direction_t gpio_s5p6818_get_dir(struct gpiochip_t * chip, int offset)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val, d;
 
 	if(offset >= chip->ngpio)
-		return GPIO_DIRECTION_UNKOWN;
+		return GPIO_DIRECTION_INPUT;
 
 	val = read32(pdat->virt + GPIO_OUTENB);
 	d = (val >> offset) & 0x1;
@@ -357,12 +352,12 @@ static enum gpio_direction_t gpiochip_get_dir(struct gpiochip_t * chip, int offs
 	default:
 		break;
 	}
-	return GPIO_DIRECTION_UNKOWN;
+	return GPIO_DIRECTION_INPUT;
 }
 
-static void gpiochip_set_value(struct gpiochip_t * chip, int offset, int value)
+static void gpio_s5p6818_set_value(struct gpiochip_t * chip, int offset, int value)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -374,9 +369,9 @@ static void gpiochip_set_value(struct gpiochip_t * chip, int offset, int value)
 	write32(pdat->virt + GPIO_OUT, val);
 }
 
-static int gpiochip_get_value(struct gpiochip_t * chip, int offset)
+static int gpio_s5p6818_get_value(struct gpiochip_t * chip, int offset)
 {
-	struct gpiochip_pdata_t * pdat = (struct gpiochip_pdata_t *)chip->priv;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -386,54 +381,110 @@ static int gpiochip_get_value(struct gpiochip_t * chip, int offset)
 	return !!(val & (1 << offset));
 }
 
-static int gpiochip_to_irq(struct gpiochip_t * chip, int offset)
+static int gpio_s5p6818_to_irq(struct gpiochip_t * chip, int offset)
 {
-	return -1;
+	struct gpio_s5p6818_pdata_t * pdat = (struct gpio_s5p6818_pdata_t *)chip->priv;
+
+	if((offset >= chip->ngpio) || (pdat->oirq < 0))
+		return -1;
+	return pdat->oirq + offset;
 }
 
-static __init void s5p6818_gpiochip_init(void)
+static struct device_t * gpio_s5p6818_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct gpiochip_pdata_t * pdat;
+	struct gpio_s5p6818_pdata_t * pdat;
 	struct gpiochip_t * chip;
-	int i;
+	struct device_t * dev;
+	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	int base = dt_read_int(n, "gpio-base", -1);
+	int ngpio = dt_read_int(n, "gpio-count", -1);
 
-	for(i = 0; i < ARRAY_SIZE(datas); i++)
+	if((base < 0) || (ngpio <= 0))
+		return NULL;
+
+	pdat = malloc(sizeof(struct gpio_s5p6818_pdata_t));
+	if(!pdat)
+		return NULL;
+
+	chip = malloc(sizeof(struct gpiochip_t));
+	if(!chip)
 	{
-		pdat = malloc(sizeof(struct gpiochip_pdata_t));
-		if(!pdat)
-			continue;
+		free(pdat);
+		return NULL;
+	}
 
-		chip = malloc(sizeof(struct gpiochip_t));
-		if(!chip)
-		{
-			free(pdat);
-			continue;
-		}
+	pdat->virt = virt;
+	pdat->base = base;
+	pdat->ngpio = ngpio;
+	pdat->oirq = dt_read_int(n, "interrupt-offset", -1);
 
-		pdat->name = datas[i].name;
-		pdat->base = datas[i].base;
-		pdat->ngpio = datas[i].ngpio;
-		pdat->virt = phys_to_virt(datas[i].phys);
+	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->base = pdat->base;
+	chip->ngpio = pdat->ngpio;
+	chip->set_cfg = gpio_s5p6818_set_cfg;
+	chip->get_cfg = gpio_s5p6818_get_cfg;
+	chip->set_pull = gpio_s5p6818_set_pull;
+	chip->get_pull = gpio_s5p6818_get_pull;
+	chip->set_drv = gpio_s5p6818_set_drv;
+	chip->get_drv = gpio_s5p6818_get_drv;
+	chip->set_rate = gpio_s5p6818_set_rate;
+	chip->get_rate = gpio_s5p6818_get_rate;
+	chip->set_dir = gpio_s5p6818_set_dir;
+	chip->get_dir = gpio_s5p6818_get_dir;
+	chip->set_value = gpio_s5p6818_set_value;
+	chip->get_value = gpio_s5p6818_get_value;
+	chip->to_irq = gpio_s5p6818_to_irq;
+	chip->priv = pdat;
 
-		chip->name = pdat->name;
-		chip->base = pdat->base;
-		chip->ngpio = pdat->ngpio;
-		chip->set_cfg = gpiochip_set_cfg;
-		chip->get_cfg = gpiochip_get_cfg;
-		chip->set_pull = gpiochip_set_pull;
-		chip->get_pull = gpiochip_get_pull;
-		chip->set_drv = gpiochip_set_drv;
-		chip->get_drv = gpiochip_get_drv;
-		chip->set_rate = gpiochip_set_rate;
-		chip->get_rate = gpiochip_get_rate;
-		chip->set_dir = gpiochip_set_dir;
-		chip->get_dir = gpiochip_get_dir;
-		chip->set_value = gpiochip_set_value;
-		chip->get_value = gpiochip_get_value;
-		chip->to_irq = gpiochip_to_irq;
-		chip->priv = pdat;
+	if(!register_gpiochip(&dev, chip))
+	{
+		free_device_name(chip->name);
+		free(chip->priv);
+		free(chip);
+		return NULL;
+	}
+	dev->driver = drv;
 
-		register_gpiochip(chip);
+	return dev;
+}
+
+static void gpio_s5p6818_remove(struct device_t * dev)
+{
+	struct gpiochip_t * chip = (struct gpiochip_t *)dev->priv;
+
+	if(chip && unregister_gpiochip(chip))
+	{
+		free_device_name(chip->name);
+		free(chip->priv);
+		free(chip);
 	}
 }
-core_initcall(s5p6818_gpiochip_init);
+
+static void gpio_s5p6818_suspend(struct device_t * dev)
+{
+}
+
+static void gpio_s5p6818_resume(struct device_t * dev)
+{
+}
+
+static struct driver_t gpio_s5p6818 = {
+	.name		= "gpio-s5p6818",
+	.probe		= gpio_s5p6818_probe,
+	.remove		= gpio_s5p6818_remove,
+	.suspend	= gpio_s5p6818_suspend,
+	.resume		= gpio_s5p6818_resume,
+};
+
+static __init void gpio_s5p6818_driver_init(void)
+{
+	register_driver(&gpio_s5p6818);
+}
+
+static __exit void gpio_s5p6818_driver_exit(void)
+{
+	unregister_driver(&gpio_s5p6818);
+}
+
+driver_initcall(gpio_s5p6818_driver_init);
+driver_exitcall(gpio_s5p6818_driver_exit);

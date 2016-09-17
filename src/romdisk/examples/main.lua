@@ -23,15 +23,15 @@ local nextbtn = Widget.Button.new({x = sw - 150, y = sh - 100, width = 100, heig
 stage:addChild(nextbtn)
 
 stage:addEventListener(Event.KEY_DOWN, function(d, e)
-  local key = e.key
-  if key == 0x93 or key == 0x95 or key == 0x9c then
-    testcases:prev()
-  elseif key == 0x94 or key == 0x96 or key == 0x9b then
-    testcases:next()
-  else
-    return
-  end
-  e.stop = true
+	local key = e.key
+	if key == 2 or key == 4 or key == 6 then
+		testcases:prev()
+	elseif key == 3 or key == 5 or key == 7 then
+		testcases:next()
+	else
+		return
+	end
+	e.stop = true
 end)
 
 stage:showfps(true)

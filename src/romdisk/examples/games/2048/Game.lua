@@ -294,16 +294,16 @@ function M:onKeyDown(e)
 	local changed = false
 	local key = e.key
 
-	if key == 0x61 then
-		changed = self:moveLeft()
-	elseif key == 0x64 then
-		changed = self:moveRight()
-	elseif key == 0x77 then
+	if key == 2 then
 		changed = self:moveTop()
-	elseif key == 0x73 then
+	elseif key == 3 then
 		changed = self:moveDown()
+	elseif key == 4 then
+		changed = self:moveLeft()
+	elseif key == 5 then
+		changed = self:moveRight()
 	else
-    return
+		return
 	end
 
 	if changed then

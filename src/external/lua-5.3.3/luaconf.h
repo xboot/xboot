@@ -760,5 +760,6 @@
 ** without modifying the main part of the file.
 */
 #define lua_writeline()		(lua_writestring("\r\n", 2), fflush(stdout))
+#define l_signalT			int
 
 #endif

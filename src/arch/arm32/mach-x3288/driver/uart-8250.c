@@ -44,8 +44,8 @@
  * - stop-bits: uart stop bits, default is 1
  *
  * Example:
- *   "uart-8250@0x10009000": {
- *       "clock-name": "uclk",
+ *   "uart-8250@0xff690000": {
+ *       "clock-name": "link-uart2",
  *       "txd-gpio": -1,
  *       "txd-gpio-config": -1,
  *       "rxd-gpio": -1,

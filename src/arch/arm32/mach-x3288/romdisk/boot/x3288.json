@@ -19,6 +19,204 @@
 		"shift": 13,
 		"width": 2
 	},
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "mux-uart0-src",
+		"name": "gate-uart0-src",
+		"shift": 8,
+		"invert": false
+	},
+	"clk-rk3288-divider@0xff760094": {
+		"parent": "gate-uart0-src",
+		"name": "div-uart0-src",
+		"shift": 0,
+		"width": 7,
+		"divider-one-based": true
+	},
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "div-uart0-src",
+		"name": "gate-uart0-frac",
+		"shift": 9,
+		"invert": false
+	},
+	"clk-rk3288-factor@0xff7600a4": {
+		"parent": "gate-uart0-frac",
+		"name": "factor-uart0-frac"
+	},
+	"clk-rk3288-mux@0xff760094": {
+		"parent": [
+			{ "name": "div-uart0-src", "value": 0 },
+			{ "name": "factor-uart0-frac", "value": 1 },
+			{ "name": "xtal", "value": 2 }
+		],
+		"name": "mux-uart0",
+		"shift": 8,
+		"width": 2
+	},
+	"clk-link": {
+		"parent": "mux-uart0",
+		"name": "link-uart0"
+	},
+
+	"clk-rk3288-mux@0xff760094": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 }
+		],
+		"name": "mux-uart1234-src",
+		"shift": 15,
+		"width": 1
+	},
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "mux-uart1234-src",
+		"name": "gate-uart1-src",
+		"shift": 10,
+		"invert": false
+	},
+	"clk-rk3288-divider@0xff760098": {
+		"parent": "gate-uart1-src",
+		"name": "div-uart1-src",
+		"shift": 0,
+		"width": 7,
+		"divider-one-based": true
+	},
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "div-uart1-src",
+		"name": "gate-uart1-frac",
+		"shift": 11,
+		"invert": false
+	},
+	"clk-rk3288-factor@0xff7600a8": {
+		"parent": "gate-uart1-frac",
+		"name": "factor-uart1-frac"
+	},
+	"clk-rk3288-mux@0xff760098": {
+		"parent": [
+			{ "name": "div-uart1-src", "value": 0 },
+			{ "name": "factor-uart1-frac", "value": 1 },
+			{ "name": "xtal", "value": 2 }
+		],
+		"name": "mux-uart1",
+		"shift": 8,
+		"width": 2
+	},
+	"clk-link": {
+		"parent": "mux-uart1",
+		"name": "link-uart1"
+	},
+
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "mux-uart1234-src",
+		"name": "gate-uart2-src",
+		"shift": 12,
+		"invert": false
+	},
+	"clk-rk3288-divider@0xff76009c": {
+		"parent": "gate-uart2-src",
+		"name": "div-uart2-src",
+		"shift": 0,
+		"width": 7,
+		"divider-one-based": true
+	},
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "div-uart2-src",
+		"name": "gate-uart2-frac",
+		"shift": 13,
+		"invert": false
+	},
+	"clk-rk3288-factor@0xff7600ac": {
+		"parent": "gate-uart2-frac",
+		"name": "factor-uart2-frac"
+	},
+	"clk-rk3288-mux@0xff76009c": {
+		"parent": [
+			{ "name": "div-uart2-src", "value": 0 },
+			{ "name": "factor-uart2-frac", "value": 1 },
+			{ "name": "xtal", "value": 2 }
+		],
+		"name": "mux-uart2",
+		"shift": 8,
+		"width": 2
+	},
+	"clk-link": {
+		"parent": "mux-uart2",
+		"name": "link-uart2"
+	},
+
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "mux-uart1234-src",
+		"name": "gate-uart3-src",
+		"shift": 14,
+		"invert": false
+	},
+	"clk-rk3288-divider@0xff7600a0": {
+		"parent": "gate-uart3-src",
+		"name": "div-uart3-src",
+		"shift": 0,
+		"width": 7,
+		"divider-one-based": true
+	},
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "div-uart3-src",
+		"name": "gate-uart3-frac",
+		"shift": 15,
+		"invert": false
+	},
+	"clk-rk3288-factor@0xff7600b0": {
+		"parent": "gate-uart3-frac",
+		"name": "factor-uart3-frac"
+	},
+	"clk-rk3288-mux@0xff7600a0": {
+		"parent": [
+			{ "name": "div-uart3-src", "value": 0 },
+			{ "name": "factor-uart3-frac", "value": 1 },
+			{ "name": "xtal", "value": 2 }
+		],
+		"name": "mux-uart3",
+		"shift": 8,
+		"width": 2
+	},
+	"clk-link": {
+		"parent": "mux-uart3",
+		"name": "link-uart3"
+	},
+
+	"clk-rk3288-gate@0xff760168": {
+		"parent": "mux-uart1234-src",
+		"name": "gate-uart4-src",
+		"shift": 12,
+		"invert": false
+	},
+	"clk-rk3288-divider@0xff76006c": {
+		"parent": "gate-uart4-src",
+		"name": "div-uart4-src",
+		"shift": 0,
+		"width": 7,
+		"divider-one-based": true
+	},
+	"clk-rk3288-gate@0xff760168": {
+		"parent": "div-uart4-src",
+		"name": "gate-uart4-frac",
+		"shift": 13,
+		"invert": false
+	},
+	"clk-rk3288-factor@0xff76007c": {
+		"parent": "gate-uart4-frac",
+		"name": "factor-uart4-frac"
+	},
+	"clk-rk3288-mux@0xff76006c": {
+		"parent": [
+			{ "name": "div-uart4-src", "value": 0 },
+			{ "name": "factor-uart4-frac", "value": 1 },
+			{ "name": "xtal", "value": 2 }
+		],
+		"name": "mux-uart4",
+		"shift": 8,
+		"width": 2
+	},
+	"clk-link": {
+		"parent": "mux-uart4",
+		"name": "link-uart4"
+	},
 
 	"gpio-rk3288@0xff750000": {
 		"gpio-base": 0,
@@ -75,7 +273,7 @@
 	},
 
 	"uart-8250@0xff180000": {
-		"clock-name": "xtal",
+		"clock-name": "link-uart0",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -87,7 +285,7 @@
 	},
 
 	"uart-8250@0xff190000": {
-		"clock-name": "xtal",
+		"clock-name": "link-uart1",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -99,7 +297,7 @@
 	},
 
 	"uart-8250@0xff690000": {
-		"clock-name": "xtal",
+		"clock-name": "link-uart2",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -111,7 +309,7 @@
 	},
 
 	"uart-8250@0xff1b0000": {
-		"clock-name": "xtal",
+		"clock-name": "link-uart3",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -123,7 +321,7 @@
 	},
 
 	"uart-8250@0xff1c0000": {
-		"clock-name": "xtal",
+		"clock-name": "link-uart4",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,

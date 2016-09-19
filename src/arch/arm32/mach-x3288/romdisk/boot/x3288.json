@@ -1,6 +1,24 @@
 {
-	"clk-fixed@0": { "name": "xtal", "rate": 24000000 },
-	"clk-fixed@1": { "name": "rtc", "rate": 32768 },
+	"clk-fixed@0": { "name": "usbphy", "rate": 480000000 },
+	"clk-fixed@1": { "name": "xtal", "rate": 24000000 },
+	"clk-fixed@2": { "name": "rtc", "rate": 32768 },
+	"clk-rk3288-pll@0": { "parent": "xtal", "name": "apll", "channel": 0 },
+	"clk-rk3288-pll@1": { "parent": "xtal", "name": "dpll", "channel": 1 },
+	"clk-rk3288-pll@2": { "parent": "xtal", "name": "cpll", "channel": 2 },
+	"clk-rk3288-pll@3": { "parent": "xtal", "name": "gpll", "channel": 3 },
+	"clk-rk3288-pll@4": { "parent": "xtal", "name": "npll", "channel": 4 },
+
+	"clk-rk3288-mux@0xff760094": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "usbphy", "value": 2 },
+			{ "name": "npll", "value": 3 }
+		],
+		"name": "mux-uart0-src",
+		"shift": 13,
+		"width": 2
+	},
 
 	"gpio-rk3288@0xff750000": {
 		"gpio-base": 0,

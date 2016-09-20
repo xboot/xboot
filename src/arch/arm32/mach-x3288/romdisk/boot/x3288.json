@@ -8,6 +8,72 @@
 	"clk-rk3288-pll@3": { "parent": "xtal", "name": "gpll", "channel": 3 },
 	"clk-rk3288-pll@4": { "parent": "xtal", "name": "npll", "channel": 4 },
 
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "xtal",
+		"name": "gate-timer0",
+		"shift": 0,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-timer0",
+		"name": "link-timer0"
+	},
+
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "xtal",
+		"name": "gate-timer1",
+		"shift": 1,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-timer1",
+		"name": "link-timer1"
+	},
+	
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "xtal",
+		"name": "gate-timer2",
+		"shift": 2,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-timer2",
+		"name": "link-timer2"
+	},
+	
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "xtal",
+		"name": "gate-timer3",
+		"shift": 3,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-timer3",
+		"name": "link-timer3"
+	},
+	
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "xtal",
+		"name": "gate-timer4",
+		"shift": 4,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-timer4",
+		"name": "link-timer4"
+	},
+	
+	"clk-rk3288-gate@0xff760164": {
+		"parent": "xtal",
+		"name": "gate-timer5",
+		"shift": 5,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-timer5",
+		"name": "link-timer5"
+	},
+	
 	"clk-rk3288-mux@0xff760094": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
@@ -23,7 +89,7 @@
 		"parent": "mux-uart0-src",
 		"name": "gate-uart0-src",
 		"shift": 8,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-divider@0xff760094": {
 		"parent": "gate-uart0-src",
@@ -36,7 +102,7 @@
 		"parent": "div-uart0-src",
 		"name": "gate-uart0-frac",
 		"shift": 9,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-factor@0xff7600a4": {
 		"parent": "gate-uart0-frac",
@@ -70,7 +136,7 @@
 		"parent": "mux-uart1234-src",
 		"name": "gate-uart1-src",
 		"shift": 10,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-divider@0xff760098": {
 		"parent": "gate-uart1-src",
@@ -83,7 +149,7 @@
 		"parent": "div-uart1-src",
 		"name": "gate-uart1-frac",
 		"shift": 11,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-factor@0xff7600a8": {
 		"parent": "gate-uart1-frac",
@@ -108,7 +174,7 @@
 		"parent": "mux-uart1234-src",
 		"name": "gate-uart2-src",
 		"shift": 12,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-divider@0xff76009c": {
 		"parent": "gate-uart2-src",
@@ -121,7 +187,7 @@
 		"parent": "div-uart2-src",
 		"name": "gate-uart2-frac",
 		"shift": 13,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-factor@0xff7600ac": {
 		"parent": "gate-uart2-frac",
@@ -146,7 +212,7 @@
 		"parent": "mux-uart1234-src",
 		"name": "gate-uart3-src",
 		"shift": 14,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-divider@0xff7600a0": {
 		"parent": "gate-uart3-src",
@@ -159,7 +225,7 @@
 		"parent": "div-uart3-src",
 		"name": "gate-uart3-frac",
 		"shift": 15,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-factor@0xff7600b0": {
 		"parent": "gate-uart3-frac",
@@ -184,7 +250,7 @@
 		"parent": "mux-uart1234-src",
 		"name": "gate-uart4-src",
 		"shift": 12,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-divider@0xff76006c": {
 		"parent": "gate-uart4-src",
@@ -197,7 +263,7 @@
 		"parent": "div-uart4-src",
 		"name": "gate-uart4-frac",
 		"shift": 13,
-		"invert": false
+		"invert": true
 	},
 	"clk-rk3288-factor@0xff76007c": {
 		"parent": "gate-uart4-frac",
@@ -270,6 +336,10 @@
 		"gpio-base": 256,
 		"gpio-count": 10,
 		"interrupt-offset": -1
+	},
+
+	"cs-rockchip-timer@0xff6b0000": {
+		"clock-name": "link-timer0"
 	},
 
 	"uart-8250@0xff180000": {

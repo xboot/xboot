@@ -46,10 +46,10 @@
  * Example:
  *   "uart-8250@0xff690000": {
  *       "clock-name": "link-uart2",
- *       "txd-gpio": -1,
- *       "txd-gpio-config": -1,
- *       "rxd-gpio": -1,
- *       "rxd-gpio-config": -1,
+ *       "txd-gpio": 247,
+ *       "txd-gpio-config": 1,
+ *       "rxd-gpio": 246,
+ *       "rxd-gpio-config": 1,
  *       "baud-rates": 115200,
  *       "data-bits": 8,
  *       "parity-bits": 0,

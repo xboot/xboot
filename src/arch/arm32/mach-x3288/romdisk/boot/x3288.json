@@ -284,6 +284,11 @@
 		"name": "link-uart4"
 	},
 
+	"irq-gic400@0xffc00000": {
+		"interrupt-base": 32,
+		"interrupt-count": 160
+	},
+
 	"gpio-rk3288@0xff750000": {
 		"gpio-base": 0,
 		"gpio-count": 19,
@@ -338,8 +343,13 @@
 		"interrupt-offset": -1
 	},
 
-	"cs-rockchip-timer@0xff6b0000": {
-		"clock-name": "link-timer0"
+	"ce-rockchip-timer@0xff6b0000": {
+		"clock-name": "link-timer0",
+		"interrupt": 98
+	},
+
+	"cs-rockchip-timer@0xff6b0020": {
+		"clock-name": "link-timer1"
 	},
 
 	"uart-8250@0xff180000": {
@@ -406,6 +416,11 @@
 		"gpio": 258,
 		"active-low": true,
 		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.0",
+		"heartbeat-period-ms": 1260
 	},
 
 	"console-uart@0": {

@@ -71,8 +71,8 @@ static struct device_t * cs_rockchip_timer_probe(struct driver_t * drv, struct d
 	cs->read = cs_rockchip_timer_read,
 	cs->priv = pdat;
 
-	rockchip_timer_stop(pdat->virt);
 	rockchip_timer_irq_clear(pdat->virt);
+	rockchip_timer_stop(pdat->virt);
 	rockchip_timer_count(pdat->virt, 0xffffffff);
 	rockchip_timer_start(pdat->virt, 0, 0);
 

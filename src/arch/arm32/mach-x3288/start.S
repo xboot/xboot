@@ -221,7 +221,6 @@ not_used:
 	b	.
 
 	.align 5
-	.global irq
 irq:
 	ldr sp, _stack_irq_end
 	irq_save_regs

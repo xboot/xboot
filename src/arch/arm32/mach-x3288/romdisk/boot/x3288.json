@@ -8,6 +8,36 @@
 	"clk-rk3288-pll@3": { "parent": "xtal", "name": "gpll", "channel": 3 },
 	"clk-rk3288-pll@4": { "parent": "xtal", "name": "npll", "channel": 4 },
 
+	"clk-rk3288-divider@0xff7600e4": {
+		"parent": "gpll",
+		"name": "div-pclk-pd-alive",
+		"shift": 8,
+		"width": 5,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-pclk-pd-alive",
+		"name": "pclk-pd-alive"
+	},
+
+	"clk-rk3288-gate@0xff760174": {
+		"parent": "xtal",
+		"name": "gate-pclk-pd-pmu",
+		"shift": 8,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff7600e4": {
+		"parent": "gate-pclk-pd-pmu",
+		"name": "div-pclk-pd-pmu",
+		"shift": 0,
+		"width": 5,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-pclk-pd-pmu",
+		"name": "pclk-pd-pmu"
+	},
+
 	"clk-rk3288-gate@0xff760164": {
 		"parent": "xtal",
 		"name": "gate-timer0",
@@ -497,6 +527,21 @@
 			{ "scan-code": 4259654, "key-code": 23 },
 			{ "scan-code": 4259700, "key-code": 24 }
 		]
+	},
+
+	"led-gpio@0": {
+		"gpio": 258,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.0",
+		"heartbeat-period-ms": 1260
+	},
+
+	"wdog-rk3288@0xff800000": {
+		"clock-name": "pclk-pd-alive"
 	},
 
 	"console-uart@0": {

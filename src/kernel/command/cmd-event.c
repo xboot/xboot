@@ -46,11 +46,11 @@ static int do_event(int argc, char ** argv)
 			switch(e.type)
 			{
 			case EVENT_TYPE_KEY_DOWN:
-				printf("[%s]: [KeyDown] [0x%x]\r\n", input->name, e.e.key_down.key);
+				printf("[%s]: [KeyDown] [%d]\r\n", input->name, e.e.key_down.key);
 				break;
 
 			case EVENT_TYPE_KEY_UP:
-				printf("[%s]: [KeyUp] [0x%x]\r\n", input->name, e.e.key_up.key);
+				printf("[%s]: [KeyUp] [%d]\r\n", input->name, e.e.key_up.key);
 				break;
 
 			case EVENT_TYPE_ROTARY_TURN:

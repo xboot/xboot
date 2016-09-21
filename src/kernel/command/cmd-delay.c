@@ -1,5 +1,5 @@
 /*
- * kernel/command/cmd-mdelay.c
+ * kernel/command/cmd-delay.c
  *
  * Copyright(c) 2007-2016 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,10 +27,10 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    mdelay [millisecond]\r\n");
+	printf("    delay [millisecond]\r\n");
 }
 
-static int do_mdelay(int argc, char ** argv)
+static int do_delay(int argc, char ** argv)
 {
 	u32_t ms = 1000;
 
@@ -41,22 +41,22 @@ static int do_mdelay(int argc, char ** argv)
 	return 0;
 }
 
-static struct command_t cmd_mdelay = {
-	.name	= "mdelay",
+static struct command_t cmd_delay = {
+	.name	= "delay",
 	.desc	= "delay for a specified time",
 	.usage	= usage,
-	.exec	= do_mdelay,
+	.exec	= do_delay,
 };
 
-static __init void mdelay_cmd_init(void)
+static __init void delay_cmd_init(void)
 {
-	register_command(&cmd_mdelay);
+	register_command(&cmd_delay);
 }
 
-static __exit void mdelay_cmd_exit(void)
+static __exit void delay_cmd_exit(void)
 {
-	unregister_command(&cmd_mdelay);
+	unregister_command(&cmd_delay);
 }
 
-command_initcall(mdelay_cmd_init);
-command_exitcall(mdelay_cmd_exit);
+command_initcall(delay_cmd_init);
+command_exitcall(delay_cmd_exit);

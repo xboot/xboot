@@ -540,6 +540,11 @@
 		"heartbeat-period-ms": 1260
 	},
 
+	"buzzer-gpio@0": {
+		"gpio": 227,
+		"active-low": false
+	},
+
 	"wdog-rk3288@0xff800000": {
 		"clock-name": "pclk-pd-alive"
 	},

@@ -135,12 +135,23 @@ bool_t unregister_irqchip(struct irqchip_t * chip)
 
 bool_t register_sub_irqchip(struct device_t ** device, int parent, struct irqchip_t * chip)
 {
+	int i;
+
 	if(!chip || !chip->name)
 		return FALSE;
 
 	if(chip->base < 0 || chip->nirq <= 0)
 		return FALSE;
 
+	for(i = 0; i < chip->nirq; i++)
+	{
+		chip->handler[i].func = null_interrupt_function;
+		chip->handler[i].data = NULL;
+		if(chip->settype)
+			chip->settype(chip, i, IRQ_TYPE_NONE);
+		if(chip->disable)
+			chip->disable(chip, i);
+	}
 	if(!request_irq(parent, (void (*)(void *))(chip->dispatch), IRQ_TYPE_NONE, chip))
 		return FALSE;
 

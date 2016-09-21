@@ -466,6 +466,39 @@
 		"stop-bits": 1
 	},
 
+	"rc-gpio@0": {
+		"gpio": 224,
+		"active-low": true,
+		"maps": [
+			{ "scan-code": 4259584, "key-code": 48 },
+			{ "scan-code": 4259585, "key-code": 49 },
+			{ "scan-code": 4259586, "key-code": 50 },
+			{ "scan-code": 4259587, "key-code": 51 },
+			{ "scan-code": 4259588, "key-code": 52 },
+			{ "scan-code": 4259589, "key-code": 53 },
+			{ "scan-code": 4259590, "key-code": 54 },
+			{ "scan-code": 4259591, "key-code": 55 },
+			{ "scan-code": 4259592, "key-code": 56 },
+			{ "scan-code": 4259593, "key-code": 57 },
+			{ "scan-code": 4259661, "key-code": 1 },
+			{ "scan-code": 4259595, "key-code": 2 },
+			{ "scan-code": 4259598, "key-code": 3 },
+			{ "scan-code": 4259600, "key-code": 4 },
+			{ "scan-code": 4259601, "key-code": 5 },
+			{ "scan-code": 4259612, "key-code": 6 },
+			{ "scan-code": 4259605, "key-code": 7 },
+			{ "scan-code": 4259650, "key-code": 8 },
+			{ "scan-code": 4259651, "key-code": 9 },
+			{ "scan-code": 4259602, "key-code": 10 },
+			{ "scan-code": 4259597, "key-code": 11 },
+			{ "scan-code": 4259610, "key-code": 20 },
+			{ "scan-code": 4259653, "key-code": 21 },
+			{ "scan-code": 4259664, "key-code": 22 },
+			{ "scan-code": 4259654, "key-code": 23 },
+			{ "scan-code": 4259700, "key-code": 24 }
+		]
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-8250.2"
 	}

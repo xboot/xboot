@@ -8,6 +8,86 @@
 	"clk-rk3288-pll@3": { "parent": "xtal", "name": "gpll", "channel": 3 },
 	"clk-rk3288-pll@4": { "parent": "xtal", "name": "npll", "channel": 4 },
 
+	"clk-rk3288-gate@0xff760160": {
+		"parent": "gpll",
+		"name": "gate-gpll",
+		"shift": 10,
+		"invert": true
+	},
+	"clk-rk3288-gate@0xff760160": {
+		"parent": "cpll",
+		"name": "gate-cpll",
+		"shift": 11,
+		"invert": true
+	},
+	"clk-rk3288-mux@0xff760064": {
+		"parent": [
+			{ "name": "gate-cpll", "value": 0 },
+			{ "name": "gate-gpll", "value": 1 }
+		],
+		"name": "mux-pd-bus-src",
+		"shift": 15,
+		"width": 1
+	},
+	"clk-rk3288-divider@0xff760064": {
+		"parent": "mux-pd-bus-src",
+		"name": "div-pd-bus-src",
+		"shift": 3,
+		"width": 5,
+		"divider-one-based": true
+	},
+	"clk-rk3288-divider@0xff760064": {
+		"parent": "div-pd-bus-src",
+		"name": "div-pd-bus",
+		"shift": 0,
+		"width": 3,
+		"divider-one-based": true
+	},
+	"clk-rk3288-gate@0xff760160": {
+		"parent": "div-pd-bus",
+		"name": "gate-aclk-bus",
+		"shift": 3,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-aclk-bus",
+		"name": "aclk-bus-pre"
+	},
+	"clk-rk3288-gate@0xff760160": {
+		"parent": "div-pd-bus",
+		"name": "gate-cpu-pclk",
+		"shift": 5,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff760064": {
+		"parent": "gate-cpu-pclk",
+		"name": "div-cpu-pclk",
+		"shift": 12,
+		"width": 3,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-cpu-pclk",
+		"name": "pclk-bus-pre"
+	},
+	"clk-rk3288-gate@0xff760160": {
+		"parent": "div-pd-bus",
+		"name": "gate-cpu-hclk",
+		"shift": 4,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff760064": {
+		"parent": "gate-cpu-hclk",
+		"name": "div-cpu-hclk",
+		"shift": 8,
+		"width": 2,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-cpu-hclk",
+		"name": "hclk-bus-pre"
+	},
+
 	"clk-rk3288-divider@0xff7600e4": {
 		"parent": "gpll",
 		"name": "div-pclk-pd-alive",
@@ -36,6 +116,17 @@
 	"clk-link": {
 		"parent": "div-pclk-pd-pmu",
 		"name": "pclk-pd-pmu"
+	},
+
+	"clk-rk3288-gate@0xff76018c": {
+		"parent": "pclk-bus-pre",
+		"name": "gate-pclk-rkpwm",
+		"shift": 11,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-pclk-rkpwm",
+		"name": "link-pclk-rkpwm"
 	},
 
 	"clk-rk3288-gate@0xff760164": {
@@ -314,6 +405,13 @@
 		"name": "link-uart4"
 	},
 
+	"clk-setting": {
+		"clocks": [
+			{ "name": "pclk-bus-pre", "enable": true },
+			{ "name": "hclk-bus-pre", "enable": true }
+		]
+	},
+
 	"irq-gic400@0xffc00000": {
 		"interrupt-base": 32,
 		"interrupt-count": 160
@@ -425,6 +523,34 @@
 		"gpio-base": 256,
 		"gpio-count": 10,
 		"interrupt-offset": 448
+	},
+
+	"pwm-rk3288@0xff680000": {
+		"clock-name": "link-pclk-rkpwm",
+		"channel": 0,
+		"pwm-gpio": 224,
+		"pwm-gpio-config": 1
+	},
+
+	"pwm-rk3288@0xff680000": {
+		"clock-name": "link-pclk-rkpwm",
+		"channel": 1,
+		"pwm-gpio": 225,
+		"pwm-gpio-config": 1
+	},
+
+	"pwm-rk3288@0xff680000": {
+		"clock-name": "link-pclk-rkpwm",
+		"channel": 2,
+		"pwm-gpio": 246,
+		"pwm-gpio-config": 3
+	},
+
+	"pwm-rk3288@0xff680000": {
+		"clock-name": "link-pclk-rkpwm",
+		"channel": 3,
+		"pwm-gpio": 247,
+		"pwm-gpio-config": 3
 	},
 
 	"ce-rockchip-timer@0xff6b0000": {
@@ -543,6 +669,11 @@
 	"buzzer-gpio@0": {
 		"gpio": 227,
 		"active-low": false
+	},
+
+	"buzzer-pwm@0": {
+		"pwm-name": "pwm-rk3288.1",
+		"pwm-polarity": true
 	},
 
 	"wdog-rk3288@0xff800000": {

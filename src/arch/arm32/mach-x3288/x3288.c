@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <mmu.h>
+#include <rk3288/reg-grf.h>
 
 static const struct mmap_t mach_map[] = {
 	{"ram",  0x60000000, 0x60000000, SZ_128M, MAP_TYPE_CB},
@@ -34,6 +35,15 @@ static const struct mmap_t mach_map[] = {
 
 static int mach_detect(struct machine_t * mach)
 {
+	u32_t val;
+
+	/*
+	 * Select pwm solution, using rk_pwm.
+	 */
+	val = read32(phys_to_virt(RK3288_GRF_BASE + GRF_SOC_CON2));
+	val |= (0x1 << (0 + 16)) | (0x1 << 0);
+	write32(phys_to_virt(RK3288_GRF_BASE + GRF_SOC_CON2), val);
+
 	return 1;
 }
 

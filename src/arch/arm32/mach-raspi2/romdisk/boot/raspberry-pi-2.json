@@ -25,10 +25,16 @@
 		"interrupt-count": 72
 	},
 
+	"irq-bcm2836-gpio@0x3f200000": {
+		"interrupt-base": 96,
+		"interrupt-count": 54,
+		"interrupt-parent": 49
+	},
+
 	"gpio-bcm2836@0x3f200000": {
 		"gpio-base": 0,
 		"gpio-count": 54,
-		"interrupt-offset": -1
+		"interrupt-offset": 96
 	},
 
 	"gpio-bcm2836-virt": {

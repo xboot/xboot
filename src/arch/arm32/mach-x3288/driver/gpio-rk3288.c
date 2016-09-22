@@ -66,7 +66,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		addr = pdat->pmu + PMU_GPIO0A_IOMUX + ((offset >> 3) << 2);
 		val = read32(addr);
 		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 64)
@@ -74,7 +74,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		addr = pdat->grf + (GRF_GPIO1D_IOMUX - 0xc) + ((offset >> 3) << 2);
 		val = read32(addr);
 		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 96)
@@ -82,7 +82,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		addr = pdat->grf + (GRF_GPIO2A_IOMUX) + ((offset >> 3) << 2);
 		val = read32(addr);
 		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 128)
@@ -92,7 +92,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 			addr = pdat->grf + (GRF_GPIO3A_IOMUX) + ((offset >> 3) << 2);
 			val = read32(addr);
 			val &= ~(0x00030003 << ((offset & 0x7) << 1));
-			val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+			val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 			write32(addr, val);
 		}
 		else if(offset < 32)
@@ -100,7 +100,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 			addr = pdat->grf + (GRF_GPIO3DL_IOMUX) + (((offset & 0x7) >> 2) << 2);
 			val = read32(addr);
 			val &= ~(0x000f000f << ((offset & 0x3) << 2));
-			val |= ((cfg & 0xf) << ((offset & 0x3) << 2));
+			val |= (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
 			write32(addr, val);
 		}
 	}
@@ -111,7 +111,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 			addr = pdat->grf + (GRF_GPIO4AL_IOMUX) + (((offset & 0x7) >> 2) << 2);
 			val = read32(addr);
 			val &= ~(0x000f000f << ((offset & 0x3) << 2));
-			val |= ((cfg & 0xf) << ((offset & 0x3) << 2));
+			val |= (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
 			write32(addr, val);
 		}
 		else if(offset < 32)
@@ -119,7 +119,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 			addr = pdat->grf + (GRF_GPIO4C_IOMUX) + ((offset >> 3) << 2);
 			val = read32(addr);
 			val &= ~(0x00030003 << ((offset & 0x7) << 1));
-			val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+			val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 			write32(addr, val);
 		}
 	}
@@ -128,7 +128,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		addr = pdat->grf + (GRF_GPIO5B_IOMUX - 0x4) + ((offset >> 3) << 2);
 		val = read32(addr);
 		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 224)
@@ -136,7 +136,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		addr = pdat->grf + GRF_GPIO6A_IOMUX + ((offset >> 3) << 2);
 		val = read32(addr);
 		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 256)
@@ -146,7 +146,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 			addr = pdat->grf + GRF_GPIO7A_IOMUX + ((offset >> 3) << 2);
 			val = read32(addr);
 			val &= ~(0x00030003 << ((offset & 0x7) << 1));
-			val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+			val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 			write32(addr, val);
 		}
 		else if(offset < 32)
@@ -154,7 +154,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 			addr = pdat->grf + (GRF_GPIO7CL_IOMUX) + (((offset & 0x7) >> 2) << 2);
 			val = read32(addr);
 			val &= ~(0x000f000f << ((offset & 0x3) << 2));
-			val |= ((cfg & 0xf) << ((offset & 0x3) << 2));
+			val |= (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
 			write32(addr, val);
 		}
 	}
@@ -163,7 +163,7 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		addr = pdat->grf + GRF_GPIO8A_IOMUX + ((offset >> 3) << 2);
 		val = read32(addr);
 		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= ((cfg & 0x3) << ((offset & 0x7) << 1));
+		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 }

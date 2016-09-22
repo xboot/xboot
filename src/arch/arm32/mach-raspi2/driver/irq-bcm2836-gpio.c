@@ -25,19 +25,21 @@
 #include <xboot.h>
 #include <interrupt/interrupt.h>
 
-#define GPIO_FSEL(x)	(0x00 + (x) * 4)
-#define GPIO_SET(x)		(0x1c + (x) * 4)
-#define GPIO_CLR(x)		(0x28 + (x) * 4)
-#define GPIO_LEV(x)		(0x34 + (x) * 4)
-#define GPIO_EDS(x)		(0x40 + (x) * 4)
-#define GPIO_REN(x)		(0x4c + (x) * 4)
-#define GPIO_FEN(x)		(0x58 + (x) * 4)
-#define GPIO_HEN(x)		(0x64 + (x) * 4)
-#define GPIO_LEN(x)		(0x70 + (x) * 4)
-#define GPIO_AREN(x)	(0x7c + (x) * 4)
-#define GPIO_AFEN(x)	(0x88 + (x) * 4)
-#define GPIO_UD(x)		(0x94 + (x) * 4)
-#define GPIO_UDCLK(x)	(0x98 + (x) * 4)
+enum {
+	GPIO_FSEL	= 0x00,
+	GPIO_SET	= 0x1c,
+	GPIO_CLR	= 0x28,
+	GPIO_LEV	= 0x34,
+	GPIO_EDS	= 0x40,
+	GPIO_REN	= 0x4c,
+	GPIO_FEN	= 0x58,
+	GPIO_HEN	= 0x64,
+	GPIO_LEN	= 0x70,
+	GPIO_ARE	= 0x7c,
+	GPIO_AFE	= 0x88,
+	GPIO_UD		= 0x94,
+	GPIO_UDCLK	= 0x98,
+};
 
 struct irq_bcm2836_gpio_pdata_t
 {
@@ -54,63 +56,73 @@ static void irq_bcm2836_gpio_enable(struct irqchip_t * chip, int offset)
 static void irq_bcm2836_gpio_disable(struct irqchip_t * chip, int offset)
 {
 	struct irq_bcm2836_gpio_pdata_t * pdat = (struct irq_bcm2836_gpio_pdata_t *)chip->priv;
-	int bank = offset / 32;
-	int field = (offset - 32 * bank);
 
-	write32(pdat->virt + GPIO_REN(bank), read32(pdat->virt + GPIO_REN(bank)) & ~(1 << field));
-	write32(pdat->virt + GPIO_FEN(bank), read32(pdat->virt + GPIO_FEN(bank)) & ~(1 << field));
-	write32(pdat->virt + GPIO_HEN(bank), read32(pdat->virt + GPIO_HEN(bank)) & ~(1 << field));
-	write32(pdat->virt + GPIO_LEN(bank), read32(pdat->virt + GPIO_LEN(bank)) & ~(1 << field));
+	write32(pdat->virt + GPIO_REN, read32(pdat->virt + GPIO_REN) & ~(1 << offset));
+	write32(pdat->virt + GPIO_FEN, read32(pdat->virt + GPIO_FEN) & ~(1 << offset));
+	write32(pdat->virt + GPIO_HEN, read32(pdat->virt + GPIO_HEN) & ~(1 << offset));
+	write32(pdat->virt + GPIO_LEN, read32(pdat->virt + GPIO_LEN) & ~(1 << offset));
+	write32(pdat->virt + GPIO_ARE, read32(pdat->virt + GPIO_ARE) & ~(1 << offset));
+	write32(pdat->virt + GPIO_AFE, read32(pdat->virt + GPIO_AFE) & ~(1 << offset));
 }
 
 static void irq_bcm2836_gpio_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
 {
 	struct irq_bcm2836_gpio_pdata_t * pdat = (struct irq_bcm2836_gpio_pdata_t *)chip->priv;
-	int bank = offset / 32;
-	int field = (offset - 32 * bank);
 
 	switch(type)
 	{
 	case IRQ_TYPE_NONE:
-		write32(pdat->virt + GPIO_REN(bank), read32(pdat->virt + GPIO_REN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_FEN(bank), read32(pdat->virt + GPIO_FEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_HEN(bank), read32(pdat->virt + GPIO_HEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_LEN(bank), read32(pdat->virt + GPIO_LEN(bank)) & ~(1 << field));
+		write32(pdat->virt + GPIO_REN, read32(pdat->virt + GPIO_REN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_FEN, read32(pdat->virt + GPIO_FEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_HEN, read32(pdat->virt + GPIO_HEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_LEN, read32(pdat->virt + GPIO_LEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_ARE, read32(pdat->virt + GPIO_ARE) & ~(1 << offset));
+		write32(pdat->virt + GPIO_AFE, read32(pdat->virt + GPIO_AFE) & ~(1 << offset));
 		break;
 
 	case IRQ_TYPE_LEVEL_LOW:
-		write32(pdat->virt + GPIO_REN(bank), read32(pdat->virt + GPIO_REN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_FEN(bank), read32(pdat->virt + GPIO_FEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_HEN(bank), read32(pdat->virt + GPIO_HEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_LEN(bank), read32(pdat->virt + GPIO_LEN(bank)) |  (1 << field));
+		write32(pdat->virt + GPIO_REN, read32(pdat->virt + GPIO_REN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_FEN, read32(pdat->virt + GPIO_FEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_HEN, read32(pdat->virt + GPIO_HEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_LEN, read32(pdat->virt + GPIO_LEN) |  (1 << offset));
+		write32(pdat->virt + GPIO_ARE, read32(pdat->virt + GPIO_ARE) & ~(1 << offset));
+		write32(pdat->virt + GPIO_AFE, read32(pdat->virt + GPIO_AFE) & ~(1 << offset));
 		break;
 
 	case IRQ_TYPE_LEVEL_HIGH:
-		write32(pdat->virt + GPIO_REN(bank), read32(pdat->virt + GPIO_REN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_FEN(bank), read32(pdat->virt + GPIO_FEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_HEN(bank), read32(pdat->virt + GPIO_HEN(bank)) |  (1 << field));
-		write32(pdat->virt + GPIO_LEN(bank), read32(pdat->virt + GPIO_LEN(bank)) & ~(1 << field));
+		write32(pdat->virt + GPIO_REN, read32(pdat->virt + GPIO_REN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_FEN, read32(pdat->virt + GPIO_FEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_HEN, read32(pdat->virt + GPIO_HEN) |  (1 << offset));
+		write32(pdat->virt + GPIO_LEN, read32(pdat->virt + GPIO_LEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_ARE, read32(pdat->virt + GPIO_ARE) & ~(1 << offset));
+		write32(pdat->virt + GPIO_AFE, read32(pdat->virt + GPIO_AFE) & ~(1 << offset));
 		break;
 
 	case IRQ_TYPE_EDGE_FALLING:
-		write32(pdat->virt + GPIO_REN(bank), read32(pdat->virt + GPIO_REN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_FEN(bank), read32(pdat->virt + GPIO_FEN(bank)) |  (1 << field));
-		write32(pdat->virt + GPIO_HEN(bank), read32(pdat->virt + GPIO_HEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_LEN(bank), read32(pdat->virt + GPIO_LEN(bank)) & ~(1 << field));
+		write32(pdat->virt + GPIO_REN, read32(pdat->virt + GPIO_REN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_FEN, read32(pdat->virt + GPIO_FEN) |  (1 << offset));
+		write32(pdat->virt + GPIO_HEN, read32(pdat->virt + GPIO_HEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_LEN, read32(pdat->virt + GPIO_LEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_ARE, read32(pdat->virt + GPIO_ARE) & ~(1 << offset));
+		write32(pdat->virt + GPIO_AFE, read32(pdat->virt + GPIO_AFE) & ~(1 << offset));
 		break;
 
 	case IRQ_TYPE_EDGE_RISING:
-		write32(pdat->virt + GPIO_REN(bank), read32(pdat->virt + GPIO_REN(bank)) |  (1 << field));
-		write32(pdat->virt + GPIO_FEN(bank), read32(pdat->virt + GPIO_FEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_HEN(bank), read32(pdat->virt + GPIO_HEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_LEN(bank), read32(pdat->virt + GPIO_LEN(bank)) & ~(1 << field));
+		write32(pdat->virt + GPIO_REN, read32(pdat->virt + GPIO_REN) |  (1 << offset));
+		write32(pdat->virt + GPIO_FEN, read32(pdat->virt + GPIO_FEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_HEN, read32(pdat->virt + GPIO_HEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_LEN, read32(pdat->virt + GPIO_LEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_ARE, read32(pdat->virt + GPIO_ARE) & ~(1 << offset));
+		write32(pdat->virt + GPIO_AFE, read32(pdat->virt + GPIO_AFE) & ~(1 << offset));
 		break;
 
 	case IRQ_TYPE_EDGE_BOTH:
-		write32(pdat->virt + GPIO_REN(bank), read32(pdat->virt + GPIO_REN(bank)) |  (1 << field));
-		write32(pdat->virt + GPIO_FEN(bank), read32(pdat->virt + GPIO_FEN(bank)) |  (1 << field));
-		write32(pdat->virt + GPIO_HEN(bank), read32(pdat->virt + GPIO_HEN(bank)) & ~(1 << field));
-		write32(pdat->virt + GPIO_LEN(bank), read32(pdat->virt + GPIO_LEN(bank)) & ~(1 << field));
+		write32(pdat->virt + GPIO_REN, read32(pdat->virt + GPIO_REN) |  (1 << offset));
+		write32(pdat->virt + GPIO_FEN, read32(pdat->virt + GPIO_FEN) |  (1 << offset));
+		write32(pdat->virt + GPIO_HEN, read32(pdat->virt + GPIO_HEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_LEN, read32(pdat->virt + GPIO_LEN) & ~(1 << offset));
+		write32(pdat->virt + GPIO_ARE, read32(pdat->virt + GPIO_ARE) & ~(1 << offset));
+		write32(pdat->virt + GPIO_AFE, read32(pdat->virt + GPIO_AFE) & ~(1 << offset));
 		break;
 
 	default:
@@ -121,26 +133,15 @@ static void irq_bcm2836_gpio_settype(struct irqchip_t * chip, int offset, enum i
 static void irq_bcm2836_gpio_dispatch(struct irqchip_t * chip)
 {
 	struct irq_bcm2836_gpio_pdata_t * pdat = (struct irq_bcm2836_gpio_pdata_t *)chip->priv;
-	u32_t pend0 = read32(pdat->virt + GPIO_EDS(0));
-	u32_t pend1 = read32(pdat->virt + GPIO_EDS(1));
-	u32_t offset;
+	u32_t pend = read32(pdat->virt + GPIO_EDS);
 
-	if(pend0 != 0)
+	if(pend != 0)
 	{
-		offset = __ffs(pend0);
-		if((offset >= 0) && (offset < 32))
+		u32_t offset = __ffs(pend);
+		if((offset >= 0) && (offset < chip->nirq))
 		{
 			(chip->handler[offset].func)(chip->handler[offset].data);
-			write32(pdat->virt + GPIO_EDS(0), (0x1 << offset));
-		}
-	}
-	else if(pend1 != 0)
-	{
-		offset = __ffs(pend1);
-		if((offset >= 0) && (offset < chip->nirq - 32))
-		{
-			(chip->handler[offset + 32].func)(chip->handler[offset + 32].data);
-			write32(pdat->virt + GPIO_EDS(1), (0x1 << offset));
+			write32(pdat->virt + GPIO_EDS, (0x1 << offset));
 		}
 	}
 }
@@ -183,9 +184,6 @@ static struct device_t * irq_bcm2836_gpio_probe(struct driver_t * drv, struct dt
 	chip->settype = irq_bcm2836_gpio_settype;
 	chip->dispatch = irq_bcm2836_gpio_dispatch;
 	chip->priv = pdat;
-
-	write32(pdat->virt + GPIO_AREN(0), 0);
-	write32(pdat->virt + GPIO_AFEN(1), 0);
 
 	if(!register_sub_irqchip(&dev, pdat->parent, chip))
 	{

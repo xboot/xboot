@@ -40,6 +40,7 @@ extern "C" {
 #define BCM2837_IRQ_AUX				(29)
 #define BCM2837_IRQ_ARM				(30)
 #define BCM2837_IRQ_VPUDMA			(31)
+
 #define BCM2837_IRQ_HOSTPORT		(32)
 #define BCM2837_IRQ_VIDEOSCALER		(33)
 #define BCM2837_IRQ_CCP2TX			(34)
@@ -120,6 +121,7 @@ extern "C" {
 #define BCM2837_IRQ_GPIO29			(125)
 #define BCM2837_IRQ_GPIO30			(126)
 #define BCM2837_IRQ_GPIO31			(127)
+
 #define BCM2837_IRQ_GPIO32			(128)
 #define BCM2837_IRQ_GPIO33			(129)
 #define BCM2837_IRQ_GPIO34			(130)

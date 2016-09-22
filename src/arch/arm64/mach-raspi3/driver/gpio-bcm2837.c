@@ -34,8 +34,8 @@
 #define GPIO_FEN(x)		(0x58 + (x) * 4)
 #define GPIO_HEN(x)		(0x64 + (x) * 4)
 #define GPIO_LEN(x)		(0x70 + (x) * 4)
-#define GPIO_AREN(x)	(0x7c + (x) * 4)
-#define GPIO_AFEN(x)	(0x88 + (x) * 4)
+#define GPIO_ARE(x)		(0x7c + (x) * 4)
+#define GPIO_AFE(x)		(0x88 + (x) * 4)
 #define GPIO_UD(x)		(0x94 + (x) * 4)
 #define GPIO_UDCLK(x)	(0x98 + (x) * 4)
 

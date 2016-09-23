@@ -155,7 +155,7 @@ static int regulator_syr82x_get_voltage(struct regulator_t * supply)
 
 	/* DCDC - 0.7125V ~ 1.5000V, 0.0125V/step, 6A */
 	syr82x_read(pdat->dev, SYR82X_VSEL0, &val);
-	return syr82x_get_vol_with_reg(val, 12500, 712500, 1500000);
+	return syr82x_get_vol_with_reg(val & 0x3f, 12500, 712500, 1500000);
 }
 
 static struct device_t * regulator_syr82x_probe(struct driver_t * drv, struct dtnode_t * n)

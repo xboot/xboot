@@ -408,7 +408,8 @@
 	"clk-setting": {
 		"clocks": [
 			{ "name": "pclk-bus-pre", "enable": true },
-			{ "name": "hclk-bus-pre", "enable": true }
+			{ "name": "hclk-bus-pre", "enable": true },
+			{ "name": "link-pclk-rkpwm", "enable": true }
 		]
 	},
 

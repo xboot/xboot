@@ -623,6 +623,74 @@
 		"stop-bits": 1
 	},
 
+	"i2c-gpio@0": {
+		"sda-gpio": 15,
+		"scl-gpio": 16,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@1": {
+		"sda-gpio": 260,
+		"scl-gpio": 261,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@2": {
+		"sda-gpio": 201,
+		"scl-gpio": 202,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@3": {
+		"sda-gpio": 80,
+		"scl-gpio": 81,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@4": {
+		"sda-gpio": 241,
+		"scl-gpio": 242,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@5": {
+		"sda-gpio": 243,
+		"scl-gpio": 244,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"regulator-syr82x@0": {
+		"parent": null,
+		"name": "syr827-cpu",
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 64
+	},
+
+	"regulator-syr82x@1": {
+		"parent": null,
+		"name": "syr828-gpu",
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 65
+	},
+
 	"rc-gpio@0": {
 		"gpio": 224,
 		"active-low": true,
@@ -675,6 +743,11 @@
 	"buzzer-pwm@0": {
 		"pwm-name": "pwm-rk3288.1",
 		"pwm-polarity": true
+	},
+
+	"vibrator-gpio@0": {
+		"gpio": 227,
+		"active-low": false
 	},
 
 	"wdog-rk3288@0xff800000": {

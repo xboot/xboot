@@ -101,6 +101,13 @@ static void regulator_syr82x_set_enable(struct regulator_t * supply, bool_t enab
 	else
 		val &= ~(0x1 << 7);
 	syr82x_write(pdat->dev, SYR82X_VSEL0, val);
+
+	syr82x_read(pdat->dev, SYR82X_VSEL1, &val);
+	if(enable)
+		val |= (0x1 << 7);
+	else
+		val &= ~(0x1 << 7);
+	syr82x_write(pdat->dev, SYR82X_VSEL1, val);
 }
 
 static bool_t regulator_syr82x_get_enable(struct regulator_t * supply)
@@ -112,7 +119,7 @@ static bool_t regulator_syr82x_get_enable(struct regulator_t * supply)
 	return (val & 0x80) ? TRUE : FALSE;
 }
 
-static u8_t syr82x_get_reg_with_vol(int vol, int step, int min, int max)
+static u8_t syr82x_vol_to_reg(int vol, int step, int min, int max)
 {
 	int reg;
 
@@ -125,7 +132,7 @@ static u8_t syr82x_get_reg_with_vol(int vol, int step, int min, int max)
 	return (u8_t)(reg & 0xff);
 }
 
-static int syr82x_get_vol_with_reg(u8_t reg, int step, int min, int max)
+static int syr82x_reg_to_vol(u8_t reg, int step, int min, int max)
 {
 	int vol = (int)reg * step + min;
 
@@ -141,11 +148,18 @@ static void regulator_syr82x_set_voltage(struct regulator_t * supply, int voltag
 	struct regulator_syr82x_pdata_t * pdat = (struct regulator_syr82x_pdata_t *)supply->priv;
 	u8_t val = 0;
 
-	/* DCDC - 0.7125V ~ 1.5000V, 0.0125V/step, 6A */
+	/*
+	 * DCDC - 0.7125V ~ 1.5000V, 0.0125V/step, 6A
+	 */
 	syr82x_read(pdat->dev, SYR82X_VSEL0, &val);
 	val &= ~(0x3f << 0);
-	val |= ((syr82x_get_reg_with_vol(voltage, 12500, 712500, 1500000) & 0x3f) << 0);
+	val |= ((syr82x_vol_to_reg(voltage, 12500, 712500, 1500000) & 0x3f) << 0);
 	syr82x_write(pdat->dev, SYR82X_VSEL0, val);
+
+	syr82x_read(pdat->dev, SYR82X_VSEL1, &val);
+	val &= ~(0x3f << 0);
+	val |= ((syr82x_vol_to_reg(voltage, 12500, 712500, 1500000) & 0x3f) << 0);
+	syr82x_write(pdat->dev, SYR82X_VSEL1, val);
 }
 
 static int regulator_syr82x_get_voltage(struct regulator_t * supply)
@@ -153,9 +167,11 @@ static int regulator_syr82x_get_voltage(struct regulator_t * supply)
 	struct regulator_syr82x_pdata_t * pdat = (struct regulator_syr82x_pdata_t *)supply->priv;
 	u8_t val = 0;
 
-	/* DCDC - 0.7125V ~ 1.5000V, 0.0125V/step, 6A */
+	/*
+	 * DCDC - 0.7125V ~ 1.5000V, 0.0125V/step, 6A
+	 */
 	syr82x_read(pdat->dev, SYR82X_VSEL0, &val);
-	return syr82x_get_vol_with_reg(val & 0x3f, 12500, 712500, 1500000);
+	return syr82x_reg_to_vol(val & 0x3f, 12500, 712500, 1500000);
 }
 
 static struct device_t * regulator_syr82x_probe(struct driver_t * drv, struct dtnode_t * n)

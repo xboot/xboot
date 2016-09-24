@@ -130,13 +130,13 @@ static bool_t rtc_ds1338_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 	if(!ds1338_read(pdat->dev, DS1338_SECOND, buf, 7))
 		return FALSE;
 
-	time->second = bcd2bin(buf[0]) & 0x7f;
-	time->minute = bcd2bin(buf[1]) & 0x7f;
-	time->hour = bcd2bin(buf[2]) & 0x3f;
-	time->week = (bcd2bin(buf[3]) & 0x07) - 1;
-	time->day = bcd2bin(buf[4]) & 0x3f;
-	time->month = bcd2bin(buf[5]) & 0x1f;
-	time->year = (bcd2bin(buf[6]) & 0xff) + 2000;
+	time->second = bcd2bin(buf[0] & 0x7f);
+	time->minute = bcd2bin(buf[1] & 0x7f);
+	time->hour = bcd2bin(buf[2] & 0x3f);
+	time->week = bcd2bin(buf[3] & 0x07) - 1;
+	time->day = bcd2bin(buf[4] & 0x3f);
+	time->month = bcd2bin(buf[5] & 0x1f);
+	time->year = bcd2bin(buf[6] & 0xff) + 2000;
 	return TRUE;
 }
 

@@ -749,6 +749,11 @@
 		"gpio": 227,
 		"active-low": false
 	},
+	
+	"rtc-rc5t620@0": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 50
+	},
 
 	"wdog-rk3288@0xff800000": {
 		"clock-name": "pclk-pd-alive"

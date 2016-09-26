@@ -548,7 +548,7 @@ static struct device_t * regulator_rc5t620_probe(struct driver_t * drv, struct d
 	if(!name || search_regulator(name))
 		return NULL;
 
-	if(channel < 0 || channel > 17)
+	if(channel < 0 || channel > 16)
 		return NULL;
 
 	i2cdev = i2c_device_alloc(dt_read_string(n, "i2c-bus", NULL), dt_read_int(n, "slave-address", 0x32), 0);

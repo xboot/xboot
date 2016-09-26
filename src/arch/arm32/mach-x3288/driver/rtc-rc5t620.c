@@ -55,7 +55,6 @@ struct rtc_rc5t620_pdata_t {
 	struct i2c_device_t * dev;
 };
 
-
 static bool_t rc5t620_read(struct i2c_device_t * dev, u8_t reg, u8_t * val)
 {
 	struct i2c_msg_t msgs[2];

@@ -793,6 +793,12 @@
 		"slave-address": 65
 	},
 
+	"key-rc5t620@0": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 50,
+		"interrupt-gpio": 4
+	},
+	
 	"rc-gpio@0": {
 		"gpio": 224,
 		"active-low": true,

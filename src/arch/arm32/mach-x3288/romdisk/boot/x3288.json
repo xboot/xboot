@@ -195,6 +195,30 @@
 		"name": "link-timer5"
 	},
 	
+	"clk-rk3288-gate@0xff760168": {
+		"parent": "xtal",
+		"name": "gate-saradc",
+		"shift": 8,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff7600c0": {
+		"parent": "gate-saradc",
+		"name": "div-saradc",
+		"shift": 8,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-rk3288-gate@0xff76017c": {
+		"parent": "div-saradc",
+		"name": "gate-pclk-saradc",
+		"shift": 1,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-pclk-saradc",
+		"name": "link-pclk-saradc"
+	},
+
 	"clk-rk3288-mux@0xff760094": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },

@@ -49,7 +49,7 @@ static bool_t clk_rk3288_factor_get_enable(struct clk_t * clk)
 	return TRUE;
 }
 
-static u64_t largest_common_divisor(u64_t a, u64_t b)
+static u64_t clk_rk3288_gcd(u64_t a, u64_t b)
 {
 	u64_t c;
 
@@ -71,7 +71,7 @@ static void clk_rk3288_factor_set_rate(struct clk_t * clk, u64_t prate, u64_t ra
 	if(rate == 0)
 		rate = prate;
 
-	cdiv = largest_common_divisor(prate, rate);
+	cdiv = clk_rk3288_gcd(prate, rate);
 	div = (prate / cdiv) & 0xffff;
 	mult = (rate / cdiv) & 0xffff;
 	write32(pdat->virt, (mult << 16) | (div << 0));

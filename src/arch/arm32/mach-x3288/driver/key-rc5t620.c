@@ -163,6 +163,7 @@ static struct device_t * key_rc5t620_probe(struct driver_t * drv, struct dtnode_
 
 	if(rc5t620_read(i2cdev, RC5T620_LSIVER, &val) && (val == 0x03))
 	{
+		rc5t620_write(i2cdev, RC5T620_PWRIRQ, 0x00);
 		rc5t620_write(i2cdev, RC5T620_PWRIRSEL, 0x01);
 		rc5t620_write(i2cdev, RC5T620_INTEN, 0x01);
 		rc5t620_write(i2cdev, RC5T620_PWRIREN, 0x01);
@@ -198,7 +199,7 @@ static struct device_t * key_rc5t620_probe(struct driver_t * drv, struct dtnode_
 
 	gpio_set_pull(gpio, GPIO_PULL_UP);
 	gpio_direction_input(gpio);
-	request_irq(pdat->irq, key_rc5t620_interrupt, IRQ_TYPE_EDGE_BOTH, input);
+	request_irq(pdat->irq, key_rc5t620_interrupt, IRQ_TYPE_EDGE_FALLING, input);
 
 	if(!register_input(&dev, input))
 	{

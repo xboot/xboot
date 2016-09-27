@@ -798,7 +798,7 @@
 		"slave-address": 50,
 		"interrupt-gpio": 4
 	},
-	
+
 	"rc-gpio@0": {
 		"gpio": 224,
 		"active-low": true,

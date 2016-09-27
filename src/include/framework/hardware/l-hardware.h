@@ -7,8 +7,10 @@ extern "C" {
 
 #include <framework/luahelper.h>
 
+#define	MT_HARDWARE_ADC			"mt_hardware_adc"
 #define	MT_HARDWARE_BATTERY		"mt_hardware_battery"
 #define	MT_HARDWARE_BUZZER		"mt_hardware_buzzer"
+#define	MT_HARDWARE_DAC			"mt_hardware_dac"
 #define	MT_HARDWARE_GPIO		"mt_hardware_gpio"
 #define	MT_HARDWARE_I2C			"mt_hardware_i2c"
 #define	MT_HARDWARE_LED			"mt_hardware_led"
@@ -19,8 +21,10 @@ extern "C" {
 #define	MT_HARDWARE_VIBRATOR	"mt_hardware_vibrator"
 #define	MT_HARDWARE_WATCHDOG	"mt_hardware_watchdog"
 
+int luaopen_hardware_adc(lua_State * L);
 int luaopen_hardware_battery(lua_State * L);
 int luaopen_hardware_buzzer(lua_State * L);
+int luaopen_hardware_dac(lua_State * L);
 int luaopen_hardware_gpio(lua_State * L);
 int luaopen_hardware_i2c(lua_State * L);
 int luaopen_hardware_led(lua_State * L);

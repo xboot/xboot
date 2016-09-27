@@ -108,6 +108,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/tarfs								\
 				kernel/fs/cpiofs							\
 				kernel/fs/fatfs								\
+				driver/adc									\
 				driver/audio								\
 				driver/battery								\
 				driver/block								\
@@ -118,6 +119,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/clockevent							\
 				driver/clocksource							\
 				driver/console								\
+				driver/dac									\
 				driver/dma									\
 				driver/fb									\
 				driver/fb/sw								\

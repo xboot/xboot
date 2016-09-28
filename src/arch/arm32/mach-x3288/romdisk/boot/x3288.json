@@ -958,6 +958,15 @@
 		"slave-address": 65
 	},
 
+ 	"regulator-gpio@0": {
+		"parent": null,
+		"name": "lcd-bl-power",
+		"voltage": 3300000,
+		"gpio": 226,
+		"active-low": false,
+		"default-enable": false
+	},
+
 	"key-rc5t620@0": {
 		"i2c-bus": "i2c-gpio.0",
 		"slave-address": 50,
@@ -1023,21 +1032,21 @@
 		"heartbeat-period-ms": 1260
 	},
 
+	"led-pwm-bl@0": {
+		"pwm-name": "pwm-rk3288.1",
+		"regulator-name": "lcd-bl-power",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": true,
+		"pwm-percent-from": 6,
+		"pwm-percent-to": 100,
+		"default-brightness": 0
+	},
+
 	"buzzer-gpio@0": {
 		"gpio": 227,
 		"active-low": false
 	},
 
-	"buzzer-pwm@0": {
-		"pwm-name": "pwm-rk3288.1",
-		"pwm-polarity": true
-	},
-
-	"vibrator-gpio@0": {
-		"gpio": 227,
-		"active-low": false
-	},
-	
 	"rtc-rc5t620@0": {
 		"i2c-bus": "i2c-gpio.0",
 		"slave-address": 50

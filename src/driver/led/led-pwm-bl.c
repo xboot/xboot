@@ -58,6 +58,10 @@ static void led_pwm_bl_set(struct led_t * led, int brightness)
 
 	if(pdat->brightness != brightness)
 	{
+		if(brightness == 0)
+			regulator_disable(pdat->regulator);
+		else if(pdat->brightness == 0)
+			regulator_enable(pdat->regulator);
 		led_pwm_bl_set_brightness(pdat, brightness);
 		pdat->brightness = brightness;
 	}
@@ -103,7 +107,10 @@ static struct device_t * led_pwm_bl_probe(struct driver_t * drv, struct dtnode_t
 	led->get = led_pwm_bl_get,
 	led->priv = pdat;
 
-	regulator_enable(pdat->regulator);
+	if(pdat->brightness > 0)
+		regulator_enable(pdat->regulator);
+	else
+		regulator_disable(pdat->regulator);
 	led_pwm_bl_set_brightness(pdat, pdat->brightness);
 
 	if(!register_led(&dev, led))
@@ -143,20 +150,10 @@ static void led_pwm_bl_remove(struct device_t * dev)
 
 static void led_pwm_bl_suspend(struct device_t * dev)
 {
-	struct led_t * led = (struct led_t *)dev->priv;
-	struct led_pwm_bl_pdata_t * pdat = (struct led_pwm_bl_pdata_t *)led->priv;
-
-	regulator_disable(pdat->regulator);
-	led_pwm_bl_set_brightness(pdat, 0);
 }
 
 static void led_pwm_bl_resume(struct device_t * dev)
 {
-	struct led_t * led = (struct led_t *)dev->priv;
-	struct led_pwm_bl_pdata_t * pdat = (struct led_pwm_bl_pdata_t *)led->priv;
-
-	regulator_enable(pdat->regulator);
-	led_pwm_bl_set_brightness(pdat, pdat->brightness);
 }
 
 static struct driver_t led_pwm_bl = {

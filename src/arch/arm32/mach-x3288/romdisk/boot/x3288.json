@@ -714,6 +714,11 @@
 		"pwm-gpio-config": 3
 	},
 
+	"adc-rk3288@0xff100000": {
+		"clock-name": "link-pclk-saradc",
+		"reference-voltage": 1800000
+	},
+
 	"ce-rockchip-timer@0xff6b0000": {
 		"clock-name": "link-timer0",
 		"interrupt": 98

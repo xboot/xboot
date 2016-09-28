@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_EVENT_FIFO_LENGTH)
-#define CONFIG_EVENT_FIFO_LENGTH			(256)
+#define CONFIG_EVENT_FIFO_LENGTH			(32)
 #endif
 
 #ifdef __cplusplus

@@ -93,6 +93,9 @@ bool_t register_adc(struct device_t ** device, struct adc_t * adc)
 	{
 		sprintf(buf, "raw%d", i);
 		kobj_add_regular(dev->kobj, buf, adc_read_raw_channel, NULL, adc);
+	}
+	for(i = 0; i< adc->nchannel; i++)
+	{
 		sprintf(buf, "voltage%d", i);
 		kobj_add_regular(dev->kobj, buf, adc_read_voltage_channel, NULL, adc);
 	}

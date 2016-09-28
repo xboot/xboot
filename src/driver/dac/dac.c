@@ -96,6 +96,9 @@ bool_t register_dac(struct device_t ** device, struct dac_t * dac)
 	{
 		sprintf(buf, "raw%d", i);
 		kobj_add_regular(dev->kobj, buf, NULL, dac_write_raw_channel, dac);
+	}
+	for(i = 0; i< dac->nchannel; i++)
+	{
 		sprintf(buf, "voltage%d", i);
 		kobj_add_regular(dev->kobj, buf, NULL, dac_write_voltage_channel, dac);
 	}

@@ -790,7 +790,7 @@
 
 	"i2c-rk3288@0xff650000": {
 		"clock-name": "link-pclk-i2c0",
-		"clock-frequency": 50000,
+		"clock-frequency": 400000,
 		"sda-gpio": 15,
 		"sda-gpio-config": 1,
 		"scl-gpio": 16,

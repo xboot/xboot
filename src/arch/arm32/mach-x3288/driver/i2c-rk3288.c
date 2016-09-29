@@ -73,15 +73,14 @@ static void rk3288_i2c_start(struct i2c_rk3288_pdata_t * pdat)
 	write32(pdat->virt + I2C_IPD, 0x7f);
 	write32(pdat->virt + I2C_CON, (1 << 0) | (1 << 3));
 
-	ktime_t timeout = ktime_add_ms(ktime_get(), 100);
-	while(ktime_before(ktime_get(), timeout))
-	{
+	ktime_t timeout = ktime_add_us(ktime_get(), 10);
+	do {
 		if(read32(pdat->virt + I2C_IPD) & (1 << 4))
 		{
 			write32(pdat->virt + I2C_IPD, (1 << 4));
 			break;
 		}
-	}
+	} while(ktime_before(ktime_get(), timeout));
 }
 
 static void rk3288_i2c_stop(struct i2c_rk3288_pdata_t * pdat)
@@ -89,15 +88,14 @@ static void rk3288_i2c_stop(struct i2c_rk3288_pdata_t * pdat)
 	write32(pdat->virt + I2C_IPD, 0x7f);
 	write32(pdat->virt + I2C_CON, (1 << 0) | (1 << 4));
 
-	ktime_t timeout = ktime_add_ms(ktime_get(), 100);
-	while(ktime_before(ktime_get(), timeout))
-	{
+	ktime_t timeout = ktime_add_us(ktime_get(), 10);
+	do {
 		if(read32(pdat->virt + I2C_IPD) & (1 << 5))
 		{
 			write32(pdat->virt + I2C_IPD, (1 << 5));
 			break;
 		}
-	}
+	} while(ktime_before(ktime_get(), timeout));
 	write32(pdat->virt + I2C_CON, 0);
 }
 
@@ -229,18 +227,23 @@ static int i2c_rk3288_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 	struct i2c_msg_t * pmsg = msgs;
 	int i, res;
 
+	if(!msgs || num <= 0)
+		return 0;
+
+	rk3288_i2c_start(pdat);
 	for(i = 0; i < num; i++, pmsg++)
 	{
-		rk3288_i2c_start(pdat);
+		if(i != 0)
+			rk3288_i2c_start(pdat);
 		if(pmsg->flags & I2C_M_RD)
 			res = rk3288_i2c_read(pdat, pmsg);
 		else
 			res = rk3288_i2c_write(pdat, pmsg);
-		rk3288_i2c_stop(pdat);
-
 		if(res < 0)
 			break;
 	}
+	rk3288_i2c_stop(pdat);
+
 	return i;
 }
 

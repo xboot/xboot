@@ -788,158 +788,158 @@
 		"stop-bits": 1
 	},
 
-	"i2c-gpio@0": {
+	"i2c-rk3288@0xff650000": {
+		"clock-name": "link-pclk-i2c0",
+		"clock-frequency": 50000,
 		"sda-gpio": 15,
+		"sda-gpio-config": 1,
 		"scl-gpio": 16,
-		"sda-open-drain": false,
-		"scl-open-drain": false,
-		"sda-output-only": false,
-		"delay-us": 5
+		"scl-gpio-config": 1
 	},
 
-	"i2c-gpio@1": {
+	"i2c-rk3288@0xff660000": {
+		"clock-name": "link-pclk-i2c1",
+		"clock-frequency": 400000,
 		"sda-gpio": 260,
+		"sda-gpio-config": 1,
 		"scl-gpio": 261,
-		"sda-open-drain": false,
-		"scl-open-drain": false,
-		"sda-output-only": false,
-		"delay-us": 5
+		"scl-gpio-config": 1
 	},
 
-	"i2c-gpio@2": {
+	"i2c-rk3288@0xff140000": {
+		"clock-name": "link-pclk-i2c2",
+		"clock-frequency": 400000,
 		"sda-gpio": 201,
+		"sda-gpio-config": 1,
 		"scl-gpio": 202,
-		"sda-open-drain": false,
-		"scl-open-drain": false,
-		"sda-output-only": false,
-		"delay-us": 5
+		"scl-gpio-config": 1
 	},
 
-	"i2c-gpio@3": {
+	"i2c-rk3288@0xff150000": {
+		"clock-name": "link-pclk-i2c3",
+		"clock-frequency": 400000,
 		"sda-gpio": 80,
+		"sda-gpio-config": 1,
 		"scl-gpio": 81,
-		"sda-open-drain": false,
-		"scl-open-drain": false,
-		"sda-output-only": false,
-		"delay-us": 5
+		"scl-gpio-config": 1
 	},
 
-	"i2c-gpio@4": {
+	"i2c-rk3288@0xff160000": {
+		"clock-name": "link-pclk-i2c4",
+		"clock-frequency": 400000,
 		"sda-gpio": 241,
+		"sda-gpio-config": 1,
 		"scl-gpio": 242,
-		"sda-open-drain": false,
-		"scl-open-drain": false,
-		"sda-output-only": false,
-		"delay-us": 5
+		"scl-gpio-config": 1
 	},
 
-	"i2c-gpio@5": {
+	"i2c-rk3288@0xff170000": {
+		"clock-name": "link-pclk-i2c5",
+		"clock-frequency": 400000,
 		"sda-gpio": 243,
+		"sda-gpio-config": 1,
 		"scl-gpio": 244,
-		"sda-open-drain": false,
-		"scl-open-drain": false,
-		"sda-output-only": false,
-		"delay-us": 5
+		"scl-gpio-config": 1
 	},
 
 	"regulator-rc5t620@0": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "dc1",
 		"channel": 0
 	},
 	"regulator-rc5t620@1": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "dc2",
 		"channel": 1
 	},
 	"regulator-rc5t620@2": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "dc3",
 		"channel": 2
 	},
 	"regulator-rc5t620@3": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "dc4",
 		"channel": 3
 	},
 	"regulator-rc5t620@4": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "dc5",
 		"channel": 4
 	},
 	"regulator-rc5t620@5": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo1",
 		"channel": 5
 	},
 	"regulator-rc5t620@6": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo2",
 		"channel": 6
 	},
 	"regulator-rc5t620@7": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo3",
 		"channel": 7
 	},
 	"regulator-rc5t620@8": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo4",
 		"channel": 8
 	},
 	"regulator-rc5t620@9": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo5",
 		"channel": 9
 	},
 	"regulator-rc5t620@10": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo6",
 		"channel": 10
 	},
 	"regulator-rc5t620@11": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo7",
 		"channel": 11
 	},
 	"regulator-rc5t620@12": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo8",
 		"channel": 12
 	},
 	"regulator-rc5t620@13": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo9",
 		"channel": 13
 	},
 	"regulator-rc5t620@14": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldo10",
 		"channel": 14
 	},
 	"regulator-rc5t620@15": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldortc1",
 		"channel": 15
 	},
 	"regulator-rc5t620@16": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"name": "ldortc2",
 		"channel": 16
@@ -948,13 +948,13 @@
 	"regulator-syr82x@0": {
 		"parent": null,
 		"name": "syr827-cpu",
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 64
 	},
 	"regulator-syr82x@1": {
 		"parent": null,
 		"name": "syr828-gpu",
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 65
 	},
 
@@ -968,7 +968,7 @@
 	},
 
 	"key-rc5t620@0": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"interrupt-gpio": 4
 	},
@@ -1016,7 +1016,7 @@
 	},
 
 	"ts-gslx680@0": {
-		"i2c-bus": "i2c-gpio.4",
+		"i2c-bus": "i2c-rk3288.4",
 		"interrupt-gpio": 230,
 		"maximum-fingers": 10
 	},
@@ -1048,7 +1048,7 @@
 	},
 
 	"rtc-rc5t620@0": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50
 	},
 

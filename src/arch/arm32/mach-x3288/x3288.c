@@ -40,9 +40,14 @@ static int mach_detect(struct machine_t * mach)
 	/*
 	 * Select pwm solution, using rk_pwm.
 	 */
-	val = read32(phys_to_virt(RK3288_GRF_BASE + GRF_SOC_CON2));
-	val |= (0x1 << (0 + 16)) | (0x1 << 0);
+	val = (1 << (16 + 0)) | (1 << 0);
 	write32(phys_to_virt(RK3288_GRF_BASE + GRF_SOC_CON2), val);
+
+	/*
+	 * Select voltage lcdc(vop) iodomain 3.3V.
+	 */
+	val = (1 << (16 + 0)) | (0 << 0);
+	write32(phys_to_virt(RK3288_GRF_BASE + GRF_IO_VSEL), val);
 
 	return 1;
 }

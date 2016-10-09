@@ -185,6 +185,130 @@
 		"name": "aclk-peri-pre"
 	},
 
+	"clk-rk3288-mux@0xff7600e0": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "usbphy", "value": 2 }
+		],
+		"name": "mux-aclk-vio0",
+		"shift": 6,
+		"width": 2
+	},
+	"clk-rk3288-gate@0xff76016c": {
+		"parent": "mux-aclk-vio0",
+		"name": "gate-aclk-vio0",
+		"shift": 0,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff7600dc": {
+		"parent": "gate-aclk-vio0",
+		"name": "div-aclk-vio0",
+		"shift": 0,
+		"width": 5,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-aclk-vio0",
+		"name": "aclk-vio0-pre"
+	},
+
+	"clk-rk3288-divider@0xff7600d0": {
+		"parent": "div-aclk-vio0",
+		"name": "div-hclk-vio",
+		"shift": 8,
+		"width": 5,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-hclk-vio",
+		"name": "hclk-vio-pre"
+	},
+
+	"clk-rk3288-mux@0xff7600e0": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "usbphy", "value": 2 }
+		],
+		"name": "mux-aclk-vio1",
+		"shift": 14,
+		"width": 2
+	},
+	"clk-rk3288-gate@0xff76016c": {
+		"parent": "mux-aclk-vio1",
+		"name": "gate-aclk-vio1",
+		"shift": 2,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff7600dc": {
+		"parent": "gate-aclk-vio1",
+		"name": "div-aclk-vio1",
+		"shift": 8,
+		"width": 5,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-aclk-vio1",
+		"name": "aclk-vio1-pre"
+	},
+
+	"clk-rk3288-mux@0xff7600d8": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "usbphy", "value": 2 }
+		],
+		"name": "mux-aclk-rga",
+		"shift": 6,
+		"width": 2
+	},
+	"clk-rk3288-gate@0xff76016c": {
+		"parent": "mux-aclk-rga",
+		"name": "gate-aclk-rga",
+		"shift": 5,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff7600d8": {
+		"parent": "gate-aclk-rga",
+		"name": "div-aclk-rga",
+		"shift": 0,
+		"width": 5,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-aclk-rga",
+		"name": "aclk-rga-pre"
+	},
+
+	"clk-rk3288-mux@0xff7600d8": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "usbphy", "value": 2 }
+		],
+		"name": "mux-clk-rga",
+		"shift": 14,
+		"width": 2
+	},
+	"clk-rk3288-gate@0xff76016c": {
+		"parent": "mux-clk-rga",
+		"name": "gate-clk-rga",
+		"shift": 4,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff7600d8": {
+		"parent": "gate-clk-rga",
+		"name": "div-clk-rga",
+		"shift": 8,
+		"width": 5,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-clk-rga",
+		"name": "clk-rga"
+	},
+
 	"clk-rk3288-gate@0xff76018c": {
 		"parent": "pclk-bus-pre",
 		"name": "gate-pclk-rkpwm",
@@ -569,6 +693,11 @@
 			{ "name": "pclk-peri-pre", "enable": true },
 			{ "name": "hclk-peri-pre", "enable": true },
 			{ "name": "aclk-peri-pre", "enable": true },
+			{ "name": "aclk-vio0-pre", "enable": true },
+			{ "name": "hclk-vio-pre", "enable": true },
+			{ "name": "aclk-vio1-pre", "enable": true },
+			{ "name": "aclk-rga-pre", "enable": true },
+			{ "name": "clk-rga", "enable": true },
 			{ "name": "link-pclk-rkpwm", "enable": true }
 		]
 	},

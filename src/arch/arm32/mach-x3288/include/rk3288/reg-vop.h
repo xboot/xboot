@@ -1,8 +1,8 @@
 #ifndef __RK3288_REG_VOP_H__
 #define __RK3288_REG_VOP_H__
 
-#define RK3288_VOP_BIG_BASE			(0xff940000)
-#define RK3288_VOP_LIT_BASE			(0xff950000)
+#define RK3288_VOP_BIG_BASE			(0xff930000)
+#define RK3288_VOP_LIT_BASE			(0xff940000)
 
 #define VOP_REG_CFG_DONE			(0x0000)
 #define VOP_VERSION_INFO			(0x0004)

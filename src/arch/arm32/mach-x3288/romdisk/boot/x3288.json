@@ -686,6 +686,104 @@
 		"name": "link-pclk-i2c5"
 	},
 
+	"clk-rk3288-mux@0xff7600cc": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "npll", "value": 2 }
+		],
+		"name": "mux-dclk-vop0",
+		"shift": 0,
+		"width": 2
+	},
+	"clk-rk3288-gate@0xff76016c": {
+		"parent": "mux-dclk-vop0",
+		"name": "gate-dclk-vop0",
+		"shift": 1,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff7600cc": {
+		"parent": "gate-dclk-vop0",
+		"name": "div-dclk-vop0",
+		"shift": 8,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-dclk-vop0",
+		"name": "dclk-vop0"
+	},
+
+	"clk-rk3288-mux@0xff7600d4": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "npll", "value": 2 }
+		],
+		"name": "mux-dclk-vop1",
+		"shift": 6,
+		"width": 2
+	},
+	"clk-rk3288-gate@0xff76016c": {
+		"parent": "mux-dclk-vop1",
+		"name": "gate-dclk-vop1",
+		"shift": 1,
+		"invert": true
+	},
+	"clk-rk3288-divider@0xff7600d4": {
+		"parent": "gate-dclk-vop1",
+		"name": "div-dclk-vop1",
+		"shift": 8,
+		"width": 8,
+		"divider-one-based": true
+	},
+	"clk-link": {
+		"parent": "div-dclk-vop1",
+		"name": "dclk-vop1"
+	},
+	
+	"clk-rk3288-gate@0xff76019c": {
+		"parent": "aclk-vio0-pre",
+		"name": "gate-aclk-vop0",
+		"shift": 5,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-aclk-vop0",
+		"name": "link-aclk-vop0"
+	},
+	"clk-rk3288-gate@0xff76019c": {
+		"parent": "hclk-vio-pre",
+		"name": "gate-hclk-vop0",
+		"shift": 6,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-hclk-vop0",
+		"name": "link-hclk-vop0"
+	},
+
+	"clk-rk3288-gate@0xff76019c": {
+		"parent": "aclk-vio1-pre",
+		"name": "gate-aclk-vop1",
+		"shift": 7,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-aclk-vop1",
+		"name": "link-aclk-vop1"
+	},
+	"clk-rk3288-gate@0xff76019c": {
+		"parent": "hclk-vio-pre",
+		"name": "gate-hclk-vop1",
+		"shift": 8,
+		"invert": true
+	},
+	"clk-link": {
+		"parent": "gate-hclk-vop1",
+		"name": "link-hclk-vop1"
+	},
+
 	"clk-setting": {
 		"clocks": [
 			{ "name": "pclk-bus-pre", "enable": true },
@@ -694,11 +792,23 @@
 			{ "name": "hclk-peri-pre", "enable": true },
 			{ "name": "aclk-peri-pre", "enable": true },
 			{ "name": "aclk-vio0-pre", "enable": true },
-			{ "name": "hclk-vio-pre", "enable": true },
 			{ "name": "aclk-vio1-pre", "enable": true },
+			{ "name": "hclk-vio-pre", "enable": true },
 			{ "name": "aclk-rga-pre", "enable": true },
 			{ "name": "clk-rga", "enable": true },
-			{ "name": "link-pclk-rkpwm", "enable": true }
+			{ "name": "link-pclk-rkpwm", "enable": true },
+			
+			{ "name": "mux-aclk-vio0", "parent": "gpll", "enable": true },
+			{ "name": "mux-dclk-vop0", "parent": "gpll", "enable": true },
+			{ "name": "div-dclk-vop0", "rate": 45000000, "enable": true },
+			{ "name": "link-aclk-vop0", "enable": true },
+			{ "name": "link-hclk-vop0", "enable": true },
+			
+			{ "name": "mux-aclk-vio1", "parent": "gpll", "enable": true },
+			{ "name": "mux-dclk-vop1", "parent": "gpll", "enable": true },
+			{ "name": "div-dclk-vop1", "rate": 45000000, "enable": true },
+			{ "name": "link-aclk-vop1", "enable": true },
+			{ "name": "link-hclk-vop1", "enable": true }
 		]
 	},
 
@@ -1183,6 +1293,31 @@
 
 	"wdog-rk3288@0xff800000": {
 		"clock-name": "pclk-pd-alive"
+	},
+
+	"fb-rk3288@0xff930000": {
+		"regulator-lcd-avdd-3v3": "ldo3",
+		"regulator-lcd-avdd-1v8": "ldo6",
+		"regulator-lcd-avdd-1v0": "ldo7",
+		"clock-name": "dclk-vop0",
+		"width": 1024,
+		"height": 600,
+		"dots-per-inch-x": 160,
+		"dots-per-inch-y": 160,
+		"bits-per-pixel": 32,
+		"bytes-per-pixel": 4,
+		"clock-frequency": 52000000,
+		"hfront-porch": 160,
+		"hback-porch": 140,
+		"hsync-len": 20,
+		"vfront-porch": 12,
+		"vback-porch": 20,
+		"vsync-len": 3,
+		"hsync-active": false,
+		"vsync-active": false,
+		"den-active": false,
+		"clk-active": false,
+		"backlight": "led-pwm-bl.0"
 	},
 
 	"console-uart@0": {

@@ -27,7 +27,7 @@
 #include <gpio/gpio.h>
 #include <i2c/i2c.h>
 
-enum{
+enum {
 	I2C_CON			= 0x000,
 	I2C_CLKDIV		= 0x004,
 	I2C_MRXADDR 	= 0x008,

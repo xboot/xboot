@@ -46,80 +46,56 @@ static unsigned int keycode_map(SDL_Keycode code)
 
 	switch(code)
 	{
-	case SDLK_LCTRL:
-		key = 0x80;
-		break;
-	case SDLK_RCTRL:
-		key = 0x81;
-		break;
-	case SDLK_LALT:
-		key = 0x82;
-		break;
-	case SDLK_RALT:
-		key = 0x83;
-		break;
-	case SDLK_LSHIFT:
-		key = 0x84;
-		break;
-	case SDLK_RSHIFT:
-		key = 0x85;
-		break;
-	case SDLK_CAPSLOCK:
-		key = 0x86;
-		break;
-	case SDLK_NUMLOCKCLEAR:
-		key = 0x87;
-		break;
-	case SDLK_SCROLLLOCK:
-		key = 0x88;
-		break;
-	case SDLK_DELETE:
-		key = 0x90;
-		break;
-	case SDLK_TAB:
-		key = 0x91;
-		break;
-	case SDLK_RETURN:
-		key = 0x92;
+	case SDLK_POWER:
+		key = 1;
 		break;
 	case SDLK_UP:
-		key = 0x93;
+		key = 2;
 		break;
 	case SDLK_DOWN:
-		key = 0x94;
+		key = 3;
 		break;
 	case SDLK_LEFT:
-		key = 0x95;
+		key = 4;
 		break;
 	case SDLK_RIGHT:
-		key = 0x96;
-		break;
-	case SDLK_PAGEUP:
-		key = 0x97;
-		break;
-	case SDLK_PAGEDOWN:
-		key = 0x98;
-		break;
-	case SDLK_HOME:
-		key = 0x99;
-		break;
-	case SDLK_END:
-		key = 0x9a;
-		break;
-	case SDLK_VOLUMEUP:
-		key = 0x9b;
+		key = 5;
 		break;
 	case SDLK_VOLUMEDOWN:
-		key = 0x9c;
+		key = 6;
 		break;
-	case SDLK_MENU:
-		key = 0x9d;
+	case SDLK_VOLUMEUP:
+		key = 7;
 		break;
 	case SDLK_ESCAPE:
-		key = 0x9e;
+		key = 8;
 		break;
-	case SDLK_POWER:
-		key = 0x9f;
+	case SDLK_TAB:
+		key = 9;
+		break;
+	case SDLK_DELETE:
+		key = 10;
+		break;
+	case SDLK_RETURN:
+		key = 11;
+		break;
+	case SDLK_LCTRL:
+		key = 12;
+		break;
+	case SDLK_RCTRL:
+		key = 13;
+		break;
+	case SDLK_LALT:
+		key = 14;
+		break;
+	case SDLK_RALT:
+		key = 15;
+		break;
+	case SDLK_LSHIFT:
+		key = 16;
+		break;
+	case SDLK_RSHIFT:
+		key = 17;
 		break;
 	default:
 		key = code;

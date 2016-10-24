@@ -1,0 +1,236 @@
+{
+	"clk-fixed@0": { "name": "usbphy", "rate": 480000000 },
+	"clk-fixed@1": { "name": "xtal", "rate": 24000000 },
+	"clk-fixed@2": { "name": "rtc", "rate": 32768 },
+	"clk-rk3399-pll@0": { "parent": "xtal", "name": "aplll", "channel": 0 },
+	"clk-rk3399-pll@1": { "parent": "xtal", "name": "apllb", "channel": 1 },
+	"clk-rk3399-pll@2": { "parent": "xtal", "name": "dpll", "channel": 2 },
+	"clk-rk3399-pll@3": { "parent": "xtal", "name": "cpll", "channel": 3 },
+	"clk-rk3399-pll@4": { "parent": "xtal", "name": "gpll", "channel": 4 },
+	"clk-rk3399-pll@5": { "parent": "xtal", "name": "npll", "channel": 5 },
+	"clk-rk3399-pll@6": { "parent": "xtal", "name": "vpll", "channel": 6 },
+	"clk-rk3399-pll@7": { "parent": "xtal", "name": "ppll", "channel": 7 },
+
+	"clk-fixed": { "name": "link-uart0", "rate": 24000000 },
+	"clk-fixed": { "name": "link-uart1", "rate": 24000000 },
+	"clk-fixed": { "name": "link-uart2", "rate": 24000000 },
+	"clk-fixed": { "name": "link-uart3", "rate": 24000000 },
+	"clk-fixed": { "name": "link-uart4", "rate": 24000000 },
+
+	"clk-fixed": { "name": "link-timer0", "rate": 24000000 },
+	"clk-fixed": { "name": "link-timer1", "rate": 24000000 },
+	"clk-fixed": { "name": "link-timer2", "rate": 24000000 },
+	"clk-fixed": { "name": "link-timer3", "rate": 24000000 },
+	"clk-fixed": { "name": "link-timer4", "rate": 24000000 },
+	"clk-fixed": { "name": "link-timer5", "rate": 24000000 },
+
+	"gpio-rk3399@0xff720000": {
+		"gpio-base": 0,
+		"gpio-count": 14,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3399@0xff730000": {
+		"gpio-base": 32,
+		"gpio-count": 25,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3399@0xff780000": {
+		"gpio-base": 64,
+		"gpio-count": 29,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3399@0xff788000": {
+		"gpio-base": 96,
+		"gpio-count": 32,
+		"interrupt-offset": -1
+	},
+
+	"gpio-rk3399@0xff790000": {
+		"gpio-base": 128,
+		"gpio-count": 31,
+		"interrupt-offset": -1
+	},
+
+	"cs-rockchip-timer@0xff850000": {
+		"clock-name": "link-timer0"
+	},
+
+	"uart-8250@0xff180000": {
+		"clock-name": "link-uart0",
+		"txd-gpio": 81,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 80,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-8250@0xff190000": {
+		"clock-name": "link-uart1",
+		"txd-gpio": 109,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 108,
+		"rxd-gpio-config": 2,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-8250@0xff1a0000": {
+		"clock-name": "link-uart2",
+		"txd-gpio": 148,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 147,
+		"rxd-gpio-config": 1,
+		"baud-rates": 1500000,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0xff1b0000": {
+		"clock-name": "link-uart3",
+		"txd-gpio": 111,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 110,
+		"rxd-gpio-config": 2,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-8250@0xff3c0000": {
+		"clock-name": "link-uart4",
+		"txd-gpio": 40,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 39,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"i2c-gpio@0": {
+		"sda-gpio": 47,
+		"scl-gpio": 48,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"regulator-rk808@0": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "dcdc1",
+		"channel": 0
+	},
+	"regulator-rk808@1": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "dcdc2",
+		"channel": 1
+	},
+	"regulator-rk808@2": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "dcdc3",
+		"channel": 2
+	},
+	"regulator-rk808@3": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "dcdc4",
+		"channel": 3
+	},
+	"regulator-rk808@4": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "ldo1",
+		"channel": 4
+	},
+	"regulator-rk808@5": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "ldo2",
+		"channel": 5
+	},
+	"regulator-rk808@6": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "ldo3",
+		"channel": 6
+	},
+	"regulator-rk808@7": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "ldo4",
+		"channel": 7
+	},
+	"regulator-rk808@8": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "ldo5",
+		"channel": 8
+	},
+	"regulator-rk808@9": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "ldo6",
+		"channel": 9
+	},
+	"regulator-rk808@10": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "ldo7",
+		"channel": 10
+	},
+	"regulator-rk808@11": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "ldo8",
+		"channel": 11
+	},
+	"regulator-rk808@12": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "swout1",
+		"channel": 12
+	},
+	"regulator-rk808@13": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27,
+		"name": "swout2",
+		"channel": 13
+	},
+
+	"regulator-syr83x@0": {
+		"parent": null,
+		"name": "syr837-cpu",
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 64
+	},
+	"regulator-syr83x@1": {
+		"parent": null,
+		"name": "syr838-gpu",
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 65
+	},
+
+	"rtc-rk808@0": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 27
+	},
+	
+	"console-uart@0": {
+		"uart-bus": "uart-8250.2"
+	}
+}

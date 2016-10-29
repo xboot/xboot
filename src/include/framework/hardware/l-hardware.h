@@ -12,6 +12,7 @@ extern "C" {
 #define	MT_HARDWARE_BUZZER		"mt_hardware_buzzer"
 #define	MT_HARDWARE_DAC			"mt_hardware_dac"
 #define	MT_HARDWARE_GPIO		"mt_hardware_gpio"
+#define	MT_HARDWARE_HYGROMETER	"mt_hardware_hygrometer"
 #define	MT_HARDWARE_I2C			"mt_hardware_i2c"
 #define	MT_HARDWARE_LED			"mt_hardware_led"
 #define	MT_HARDWARE_LEDTRIG		"mt_hardware_ledtrig"
@@ -28,6 +29,7 @@ int luaopen_hardware_battery(lua_State * L);
 int luaopen_hardware_buzzer(lua_State * L);
 int luaopen_hardware_dac(lua_State * L);
 int luaopen_hardware_gpio(lua_State * L);
+int luaopen_hardware_hygrometer(lua_State * L);
 int luaopen_hardware_i2c(lua_State * L);
 int luaopen_hardware_led(lua_State * L);
 int luaopen_hardware_ledtrig(lua_State * L);

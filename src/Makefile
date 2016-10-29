@@ -124,6 +124,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/fb									\
 				driver/fb/sw								\
 				driver/gpio									\
+				driver/hygrometer							\
 				driver/i2c									\
 				driver/input								\
 				driver/input/rc								\

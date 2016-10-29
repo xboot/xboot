@@ -136,6 +136,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/rng									\
 				driver/rtc									\
 				driver/spi									\
+				driver/thermometer							\
 				driver/uart									\
 				driver/vibrator								\
 				driver/watchdog								\

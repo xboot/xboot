@@ -43,13 +43,9 @@ struct battery_info_t {
 
 struct battery_t
 {
-	/* The battery name */
 	char * name;
 
-	/*  Battery update ... */
 	bool_t (*update)(struct battery_t * bat, struct battery_info_t * info);
-
-	/* Private data */
 	void * priv;
 };
 

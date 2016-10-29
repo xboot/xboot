@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <arm64.h>
+#include <interrupt/interrupt.h>
 #include <xboot/gdbstub.h>
 
 struct pt_regs_t {

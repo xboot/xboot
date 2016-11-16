@@ -42,7 +42,7 @@ static int do_go(int argc, char ** argv)
 	}
 
 	addr = strtoul(argv[1], NULL, 0);
-	printf("Starting application at 0x%08lx ...\r\n", addr);
+	printf("Starting application at %p ...\r\n", addr);
 	ret = ((int(*)(int, char **))((void *)addr))(--argc, &argv[1]);
 	printf("Application terminated, (ret = %d)\r\n", ret);
 

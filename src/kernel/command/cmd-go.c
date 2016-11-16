@@ -32,7 +32,7 @@ static void usage(void)
 
 static int do_go(int argc, char ** argv)
 {
-	virtual_addr_t addr;
+	void * addr;
 	int ret;
 
 	if(argc < 2)
@@ -41,8 +41,8 @@ static int do_go(int argc, char ** argv)
 		return -1;
 	}
 
-	addr = strtoul(argv[1], NULL, 0);
-	printf("Starting application at 0x%08lx ...\r\n", addr);
+	addr = (void *)strtoul(argv[1], NULL, 0);
+	printf("Starting application at %p ...\r\n", addr);
 	ret = ((int(*)(int, char **))((void *)addr))(--argc, &argv[1]);
 	printf("Application terminated, (ret = %d)\r\n", ret);
 

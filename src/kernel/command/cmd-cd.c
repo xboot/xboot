@@ -27,7 +27,7 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    cd [DIR]\r\n");
+	printf("    cd [dir]\r\n");
 }
 
 static int do_cd(int argc, char ** argv)

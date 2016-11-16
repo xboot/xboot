@@ -27,7 +27,7 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    env [NAME=VALUE] ...\r\n");
+	printf("    env [name=value] ...\r\n");
 }
 
 static int do_env(int argc, char ** argv)
@@ -51,7 +51,7 @@ static int do_env(int argc, char ** argv)
 
 	for(p = environ->next; p != environ; p = p->next)
 	{
-		printf(" %s\n", p->content);
+		printf(" %s\r\n", p->content);
 	}
 
 	return 0;

@@ -32,11 +32,11 @@ static void usage(void)
 
 static int do_pwd(int argc, char ** argv)
 {
-	s8_t cwd[MAX_PATH];
+	char cwd[MAX_PATH];
 
-	if(getcwd((char *)cwd, sizeof(cwd)))
+	if(getcwd(cwd, sizeof(cwd)))
 	{
-		printf("%s\r\n", (char *)cwd);
+		printf("%s\r\n", cwd);
 		return 0;
 	}
 

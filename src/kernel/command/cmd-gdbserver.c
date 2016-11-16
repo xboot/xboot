@@ -79,7 +79,7 @@ static int do_gdbserver(int argc, char ** argv)
 
 static struct command_t cmd_gdbserver = {
 	.name	= "gdbserver",
-	.desc	= "remote server for the gnu debugger",
+	.desc	= "remote server for gnu debugger",
 	.usage	= usage,
 	.exec	= do_gdbserver,
 };

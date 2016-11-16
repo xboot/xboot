@@ -27,7 +27,7 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    go address [arg ...]\r\n");
+	printf("    go address [args ...]\r\n");
 }
 
 static int do_go(int argc, char ** argv)

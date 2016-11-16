@@ -38,7 +38,7 @@ static int do_umount(int argc, char ** argv)
 		return -1;
 	}
 
-	if(umount((const char *)argv[1]) != 0)
+	if(umount(argv[1]) != 0)
 	{
 		printf("umount '%s' fail\r\n", argv[1]);
 		return -1;

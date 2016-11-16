@@ -104,7 +104,7 @@ static int do_event(int argc, char ** argv)
 
 static struct command_t cmd_event = {
 	.name	= "event",
-	.desc	= "show the all of events",
+	.desc	= "show all of input events",
 	.usage	= usage,
 	.exec	= do_event,
 };

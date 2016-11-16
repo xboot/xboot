@@ -34,37 +34,38 @@ static int do_help(int argc, char ** argv)
 {
 	struct command_list_t * list;
 	struct list_head * pos;
-	struct command_t ** cmd_array;
-	struct command_t * cmd;
-	int i = 0, j, k = 0, cmd_num, swaps;
+	struct command_t ** cmds;
+	struct command_t * c;
+	int i = 0, j = 0, k = 0, n, swaps;
 
 	if(argc == 1)
 	{
 		i = 0;
-		cmd_num = total_command_number();
-		cmd_array = malloc(sizeof(struct command_t *) * cmd_num);
+		n = total_command_number();
+		cmds = malloc(sizeof(struct command_t *) * n);
 
-		if(!cmd_array)
+		if(!cmds)
 			return -1;
 
 		for(pos = (&__command_list.entry)->next; pos != (&__command_list.entry); pos = pos->next)
 		{
 			list = list_entry(pos, struct command_list_t, entry);
-			cmd_array[i++] = list->cmd;
+			cmds[i++] = list->cmd;
 			j = strlen(list->cmd->name);
-			if(j > k)	k = j;
+			if(j > k)
+				k = j;
 		}
 
-		for(i = cmd_num - 1; i > 0; --i)
+		for(i = n - 1; i > 0; --i)
 		{
 			swaps = 0;
-			for(j=0; j<i; ++j)
+			for(j = 0; j < i; ++j)
 			{
-				if (strcmp(cmd_array[j]->name, cmd_array[j + 1]->name) > 0)
+				if (strcmp(cmds[j]->name, cmds[j + 1]->name) > 0)
 				{
-					cmd = cmd_array[j];
-					cmd_array[j] = cmd_array[j + 1];
-					cmd_array[j + 1] = cmd;
+					c = cmds[j];
+					cmds[j] = cmds[j + 1];
+					cmds[j + 1] = c;
 					++swaps;
 				}
 			}
@@ -72,22 +73,22 @@ static int do_help(int argc, char ** argv)
 				break;
 		}
 
-		for(i = 0; i < cmd_num; i++)
+		for(i = 0; i < n; i++)
 		{
-			printf(" %s%*s - %s\r\n",cmd_array[i]->name, k - strlen(cmd_array[i]->name), "", cmd_array[i]->desc);
+			printf(" %s%*s - %s\r\n",cmds[i]->name, k - strlen(cmds[i]->name), "", cmds[i]->desc);
 		}
-		free(cmd_array);
+		free(cmds);
 	}
 	else
 	{
 		for(i = 1; i < argc; i++)
 		{
-			cmd = search_command(argv[i]);
-			if(cmd)
+			c = search_command(argv[i]);
+			if(c)
 			{
-				printf("%s - %s\r\n", cmd->name, cmd->desc);
-				if(cmd->usage)
-					cmd->usage();
+				printf("%s - %s\r\n", c->name, c->desc);
+				if(c->usage)
+					c->usage();
 			}
 			else
 			{

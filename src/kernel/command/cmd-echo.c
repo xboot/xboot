@@ -27,7 +27,7 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    echo [OPTION]... [STRING]...\r\n");
+	printf("    echo [option] [string]...\r\n");
 	printf("    -n    do not output the trailing newline\r\n");
 }
 

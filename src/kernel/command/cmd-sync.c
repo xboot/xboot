@@ -38,7 +38,7 @@ static int do_sync(int argc, char ** argv)
 
 static struct command_t cmd_sync = {
 	.name	= "sync",
-	.desc	= "flush file system caches",
+	.desc	= "synchronize cached writes to storage",
 	.usage	= usage,
 	.exec	= do_sync,
 };

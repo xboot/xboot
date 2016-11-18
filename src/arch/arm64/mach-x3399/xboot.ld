@@ -9,7 +9,7 @@ STACK_EL0_SIZE = 0x100000;
 
 MEMORY
 {
-	ram  : org = 0x00000000, len = 128M
+	ram  : org = 0x00200000, len = 128M - 2M
 	dma  : org = 0x08000000, len = 128M
 	heap : org = 0x10000000, len = 256M
 }

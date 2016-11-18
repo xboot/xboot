@@ -21,8 +21,7 @@ endif
 ifeq ($(strip $(HOSTOS)), windows)
 MK3399		:= arch/$(ARCH)/$(MACH)/tools/windows/mk3399
 endif
-LOADER		:= arch/$(ARCH)/$(MACH)/tools/images/loader
 
 xend:
-	@echo Make header information for irom booting
-	@$(MK3399) $(X_NAME)pak.bin $(LOADER) $(X_NAME).bin
+	@echo Make image header for second loader header
+	@$(MK3399) $(X_NAME).bin $(X_NAME).img

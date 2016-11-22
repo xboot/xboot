@@ -57,13 +57,80 @@
 	"clk-link": { "parent": "gate-timer10", "name": "link-timer10" },
 	"clk-link": { "parent": "gate-timer11", "name": "link-timer11" },
 
+	"clk-rk3399-mux@0xff7601f4": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 }
+		],
+		"name": "mux-i2c1", "shift": 7, "width": 1
+	},
+	"clk-rk3399-mux@0xff7601f8": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 }
+		],
+		"name": "mux-i2c2", "shift": 7, "width": 1
+	},
+	"clk-rk3399-mux@0xff7601fc": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 }
+		],
+		"name": "mux-i2c3", "shift": 7, "width": 1
+	},
+	"clk-rk3399-mux@0xff7601f4": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 }
+		],
+		"name": "mux-i2c5", "shift": 15, "width": 1
+	},
+	"clk-rk3399-mux@0xff7601f8": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 }
+		],
+		"name": "mux-i2c6", "shift": 15, "width": 1
+	},
+	"clk-rk3399-mux@0xff7601fc": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 }
+		],
+		"name": "mux-i2c7", "shift": 15, "width": 1
+	},
+	"clk-rk3399-gate@0xff760328": { "parent": "mux-i2c1", "name": "gate-i2c1", "shift": 0, "invert": true },
+	"clk-rk3399-gate@0xff760328": { "parent": "mux-i2c2", "name": "gate-i2c2", "shift": 2, "invert": true },
+	"clk-rk3399-gate@0xff760328": { "parent": "mux-i2c3", "name": "gate-i2c3", "shift": 4, "invert": true },
+	"clk-rk3399-gate@0xff760328": { "parent": "mux-i2c5", "name": "gate-i2c5", "shift": 1, "invert": true },
+	"clk-rk3399-gate@0xff760328": { "parent": "mux-i2c6", "name": "gate-i2c6", "shift": 3, "invert": true },
+	"clk-rk3399-gate@0xff760328": { "parent": "mux-i2c7", "name": "gate-i2c7", "shift": 5, "invert": true },
+	"clk-rk3399-divider@0xff7601f4": { "parent": "gate-i2c1", "name": "div-i2c1", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff7601f8": { "parent": "gate-i2c2", "name": "div-i2c2", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff7601fc": { "parent": "gate-i2c3", "name": "div-i2c3", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff7601f4": { "parent": "gate-i2c5", "name": "div-i2c5", "shift": 8, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff7601f8": { "parent": "gate-i2c6", "name": "div-i2c6", "shift": 8, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff7601fc": { "parent": "gate-i2c7", "name": "div-i2c7", "shift": 8, "width": 7, "divider-one-based": true },
+	"clk-link": { "parent": "div-i2c1", "name": "link-i2c1" },
+	"clk-link": { "parent": "div-i2c2", "name": "link-i2c2" },
+	"clk-link": { "parent": "div-i2c3", "name": "link-i2c3" },
+	"clk-link": { "parent": "div-i2c5", "name": "link-i2c5" },
+	"clk-link": { "parent": "div-i2c6", "name": "link-i2c6" },
+	"clk-link": { "parent": "div-i2c7", "name": "link-i2c7" },
+
+	"clk-rk3399-gate@0xff750100": { "parent": "ppll", "name": "gate-i2c0-pmu", "shift": 9, "invert": true },
+	"clk-rk3399-gate@0xff750100": { "parent": "ppll", "name": "gate-i2c4-pmu", "shift": 10, "invert": true },
+	"clk-rk3399-gate@0xff750100": { "parent": "ppll", "name": "gate-i2c8-pmu", "shift": 11, "invert": true },
+	"clk-rk3399-divider@0xff750088": { "parent": "gate-i2c0-pmu", "name": "div-i2c0-pmu", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff75008c": { "parent": "gate-i2c4-pmu", "name": "div-i2c4-pmu", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff750088": { "parent": "gate-i2c8-pmu", "name": "div-i2c8-pmu", "shift": 8, "width": 7, "divider-one-based": true },
+	"clk-link": { "parent": "div-i2c0-pmu", "name": "link-i2c0-pmu" },
+	"clk-link": { "parent": "div-i2c4-pmu", "name": "link-i2c4-pmu" },
+	"clk-link": { "parent": "div-i2c8-pmu", "name": "link-i2c8-pmu" },
+
 	"clk-rk3399-gate@0xff760324": { "parent": "xin24m", "name": "gate-saradc", "shift": 11, "invert": true },
 	"clk-rk3399-divider@0xff760168": { "parent": "gate-saradc", "name": "div-saradc", "shift": 8, "width": 8, "divider-one-based": true },
 	"clk-link": { "parent": "div-saradc", "name": "link-saradc" },
-	
-	"clk-rk3399-gate@0xff750100": { "parent": "ppll", "name": "gate-i2c0-pmu", "shift": 9, "invert": true },
-	"clk-rk3399-divider@0xff750088": { "parent": "gate-i2c0-pmu", "name": "div-i2c0-pmu", "shift": 0, "width": 7, "divider-one-based": true },
-	"clk-link": { "parent": "div-i2c0-pmu", "name": "link-i2c0-pmu" },
 
 	"clk-rk3399-mux@0xff760184": {
 		"parent": [
@@ -269,6 +336,78 @@
 		"sda-gpio-config": 2,
 		"scl-gpio": 48,
 		"scl-gpio-config": 2
+	},
+
+	"i2c-rk3399@0xff110000": {
+		"clock-name": "link-i2c1",
+		"clock-frequency": 400000,
+		"sda-gpio": 129,
+		"sda-gpio-config": 1,
+		"scl-gpio": 130,
+		"scl-gpio-config": 1
+	},
+
+	"i2c-rk3399@0xff120000": {
+		"clock-name": "link-i2c2",
+		"clock-frequency": 400000,
+		"sda-gpio": 64,
+		"sda-gpio-config": 3,
+		"scl-gpio": 65,
+		"scl-gpio-config": 3
+	},
+
+	"i2c-rk3399@0xff130000": {
+		"clock-name": "link-i2c3",
+		"clock-frequency": 400000,
+		"sda-gpio": 144,
+		"sda-gpio-config": 1,
+		"scl-gpio": 145,
+		"scl-gpio-config": 1
+	},
+	
+	"i2c-rk3399@0xff3d0000": {
+		"clock-name": "link-i2c4-pmu",
+		"clock-frequency": 400000,
+		"sda-gpio": 43,
+		"sda-gpio-config": 1,
+		"scl-gpio": 44,
+		"scl-gpio-config": 1
+	},
+
+	"i2c-rk3399@0xff140000": {
+		"clock-name": "link-i2c5",
+		"clock-frequency": 400000,
+		"sda-gpio": 106,
+		"sda-gpio-config": 2,
+		"scl-gpio": 107,
+		"scl-gpio-config": 2
+	},
+
+	"i2c-rk3399@0xff150000": {
+		"clock-name": "link-i2c6",
+		"clock-frequency": 400000,
+		"sda-gpio": 73,
+		"sda-gpio-config": 3,
+		"scl-gpio": 74,
+		"scl-gpio-config": 3
+	},
+
+	"i2c-rk3399@0xff160000": {
+		"clock-name": "link-i2c7",
+		"clock-frequency": 400000,
+		"sda-gpio": 71,
+		"sda-gpio-config": 3,
+		"scl-gpio": 72,
+		"scl-gpio-config": 3
+	},
+
+	"i2c-rk3399@0xff3e0000": {
+		"clock-name": "link-i2c8-pmu",
+		"clock-frequency": 400000,
+		"sda-gpio": 52,
+		"sda-gpio-config": 1,
+		"scl-gpio": 53,
+		"scl-gpio-config": 1
 	},
 
 	"regulator-rk808@0": {

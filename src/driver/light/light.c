@@ -29,7 +29,7 @@ static ssize_t light_read_illuminance(struct kobj_t * kobj, void * buf, size_t s
 {
 	struct light_t * light = (struct light_t *)kobj->priv;
 	int lux = light_get_illuminance(light);
-	return sprintf(buf, "%dLX", lux);
+	return sprintf(buf, "%dlx", lux);
 }
 
 struct light_t * search_light(const char * name)

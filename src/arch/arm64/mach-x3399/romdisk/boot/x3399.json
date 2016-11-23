@@ -367,7 +367,7 @@
 	
 	"i2c-rk3399@0xff3d0000": {
 		"clock-name": "link-i2c4-pmu",
-		"clock-frequency": 400000,
+		"clock-frequency": 100000,
 		"sda-gpio": 43,
 		"sda-gpio-config": 1,
 		"scl-gpio": 44,
@@ -513,6 +513,11 @@
 		"slave-address": 27
 	},
 	
+	"light-cm32181@0": {
+		"i2c-bus": "i2c-rk3399.4",
+		"slave-address": 16
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-8250.2"
 	}

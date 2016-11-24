@@ -140,10 +140,40 @@
 		],
 		"name": "mux-uart0-src", "shift": 12, "width": 2
 	},
+	"clk-rk3399-mux@0xff760184": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 }
+		],
+		"name": "mux-uart123-src", "shift": 15, "width": 1
+	},
+	"clk-rk3399-mux@0xff750094": {
+		"parent": [
+			{ "name": "xin24m", "value": 0 },
+			{ "name": "ppll", "value": 1 }
+		],
+		"name": "mux-uart4-src", "shift": 10, "width": 1
+	},
 	"clk-rk3399-gate@0xff760324": { "parent": "mux-uart0-src", "name": "gate-uart0-src", "shift": 0, "invert": true },
+	"clk-rk3399-gate@0xff760324": { "parent": "mux-uart123-src", "name": "gate-uart1-src", "shift": 2, "invert": true },
+	"clk-rk3399-gate@0xff760324": { "parent": "mux-uart123-src", "name": "gate-uart2-src", "shift": 4, "invert": true },
+	"clk-rk3399-gate@0xff760324": { "parent": "mux-uart123-src", "name": "gate-uart3-src", "shift": 6, "invert": true },
+	"clk-rk3399-gate@0xff750100": { "parent": "mux-uart4-src", "name": "gate-uart4-src", "shift": 5, "invert": true },
 	"clk-rk3399-divider@0xff760184": { "parent": "gate-uart0-src", "name": "div-uart0-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff760188": { "parent": "gate-uart1-src", "name": "div-uart1-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff76018c": { "parent": "gate-uart2-src", "name": "div-uart2-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff760190": { "parent": "gate-uart3-src", "name": "div-uart3-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3399-divider@0xff750094": { "parent": "gate-uart4-src", "name": "div-uart4-src", "shift": 0, "width": 7, "divider-one-based": true },
 	"clk-rk3399-gate@0xff760324": {"parent": "div-uart0-src", "name": "gate-uart0-frac", "shift": 1, "invert": true },
+	"clk-rk3399-gate@0xff760324": { "parent": "div-uart1-src", "name": "gate-uart1-frac", "shift": 3, "invert": true },
+	"clk-rk3399-gate@0xff760324": { "parent": "div-uart2-src", "name": "gate-uart2-frac", "shift": 5, "invert": true },
+	"clk-rk3399-gate@0xff760324": { "parent": "div-uart3-src", "name": "gate-uart3-frac", "shift": 7, "invert": true },
+	"clk-rk3399-gate@0xff750100": { "parent": "div-uart4-src", "name": "gate-uart4-frac", "shift": 6, "invert": true },
 	"clk-rk3399-factor@0xff760290": { "parent": "gate-uart0-frac", "name": "factor-uart0-frac" },
+	"clk-rk3399-factor@0xff760294": { "parent": "gate-uart1-frac", "name": "factor-uart1-frac" },
+	"clk-rk3399-factor@0xff760298": { "parent": "gate-uart2-frac", "name": "factor-uart2-frac" },
+	"clk-rk3399-factor@0xff76029c": { "parent": "gate-uart3-frac", "name": "factor-uart3-frac" },
+	"clk-rk3399-factor@0xff750098": { "parent": "gate-uart4-frac", "name": "factor-uart4-frac" },
 	"clk-rk3399-mux@0xff760184": {
 		"parent": [
 			{ "name": "div-uart0-src", "value": 0 },
@@ -152,19 +182,6 @@
 		],
 		"name": "mux-uart0", "shift": 8, "width": 2
 	},
-	"clk-link": { "parent": "mux-uart0", "name": "link-uart0" },
-
-	"clk-rk3399-mux@0xff760184": {
-		"parent": [
-			{ "name": "cpll", "value": 0 },
-			{ "name": "gpll", "value": 1 }
-		],
-		"name": "mux-uart123-src", "shift": 15, "width": 1
-	},
-	"clk-rk3399-gate@0xff760324": { "parent": "mux-uart123-src", "name": "gate-uart1-src", "shift": 2, "invert": true },
-	"clk-rk3399-divider@0xff760188": { "parent": "gate-uart1-src", "name": "div-uart1-src", "shift": 0, "width": 7, "divider-one-based": true },
-	"clk-rk3399-gate@0xff760324": { "parent": "div-uart1-src", "name": "gate-uart1-frac", "shift": 3, "invert": true },
-	"clk-rk3399-factor@0xff760294": { "parent": "gate-uart1-frac", "name": "factor-uart1-frac" },
 	"clk-rk3399-mux@0xff760188": {
 		"parent": [
 			{ "name": "div-uart1-src", "value": 0 },
@@ -173,12 +190,6 @@
 		],
 		"name": "mux-uart1", "shift": 8, "width": 2
 	},
-	"clk-link": { "parent": "mux-uart1", "name": "link-uart1" },
-
-	"clk-rk3399-gate@0xff760324": { "parent": "mux-uart123-src", "name": "gate-uart2-src", "shift": 4, "invert": true },
-	"clk-rk3399-divider@0xff76018c": { "parent": "gate-uart2-src", "name": "div-uart2-src", "shift": 0, "width": 7, "divider-one-based": true },
-	"clk-rk3399-gate@0xff760324": { "parent": "div-uart2-src", "name": "gate-uart2-frac", "shift": 5, "invert": true },
-	"clk-rk3399-factor@0xff760298": { "parent": "gate-uart2-frac", "name": "factor-uart2-frac" },
 	"clk-rk3399-mux@0xff76018c": {
 		"parent": [
 			{ "name": "div-uart2-src", "value": 0 },
@@ -187,12 +198,6 @@
 		],
 		"name": "mux-uart2", "shift": 8, "width": 2
 	},
-	"clk-link": { "parent": "mux-uart2", "name": "link-uart2" },
-	
-	"clk-rk3399-gate@0xff760324": { "parent": "mux-uart123-src", "name": "gate-uart3-src", "shift": 6, "invert": true },
-	"clk-rk3399-divider@0xff760190": { "parent": "gate-uart3-src", "name": "div-uart3-src", "shift": 0, "width": 7, "divider-one-based": true },
-	"clk-rk3399-gate@0xff760324": { "parent": "div-uart3-src", "name": "gate-uart3-frac", "shift": 7, "invert": true },
-	"clk-rk3399-factor@0xff76029c": { "parent": "gate-uart3-frac", "name": "factor-uart3-frac" },
 	"clk-rk3399-mux@0xff760190": {
 		"parent": [
 			{ "name": "div-uart3-src", "value": 0 },
@@ -201,19 +206,6 @@
 		],
 		"name": "mux-uart3", "shift": 8, "width": 2
 	},
-	"clk-link": { "parent": "mux-uart3", "name": "link-uart3" },
-
-	"clk-rk3399-mux@0xff750094": {
-		"parent": [
-			{ "name": "xin24m", "value": 0 },
-			{ "name": "ppll", "value": 1 }
-		],
-		"name": "mux-uart4-src", "shift": 10, "width": 1
-	},
-	"clk-rk3399-gate@0xff750100": { "parent": "mux-uart4-src", "name": "gate-uart4-src", "shift": 5, "invert": true },
-	"clk-rk3399-divider@0xff750094": { "parent": "gate-uart4-src", "name": "div-uart4-src", "shift": 0, "width": 7, "divider-one-based": true },
-	"clk-rk3399-gate@0xff750100": { "parent": "div-uart4-src", "name": "gate-uart4-frac", "shift": 6, "invert": true },
-	"clk-rk3399-factor@0xff750098": { "parent": "gate-uart4-frac", "name": "factor-uart4-frac" },
 	"clk-rk3399-mux@0xff750094": {
 		"parent": [
 			{ "name": "div-uart4-src", "value": 0 },
@@ -222,6 +214,10 @@
 		],
 		"name": "mux-uart4", "shift": 8, "width": 2
 	},
+	"clk-link": { "parent": "mux-uart0", "name": "link-uart0" },
+	"clk-link": { "parent": "mux-uart1", "name": "link-uart1" },
+	"clk-link": { "parent": "mux-uart2", "name": "link-uart2" },
+	"clk-link": { "parent": "mux-uart3", "name": "link-uart3" },
 	"clk-link": { "parent": "mux-uart4", "name": "link-uart4" },
 
 	"clk-setting": {

@@ -57,7 +57,7 @@ int dt_read_bool(struct dtnode_t * n, const char * name, int def)
 			}
 		}
 	}
-	return def ? 1 : 0;
+	return def;
 }
 
 int dt_read_int(struct dtnode_t * n, const char * name, int def)
@@ -289,7 +289,7 @@ int dt_read_array_bool(struct dtnode_t * n, const char * name, int idx, int def)
 			}
 		}
 	}
-	return def ? 1 : 0;
+	return def;
 }
 
 int dt_read_array_int(struct dtnode_t * n, const char * name, int idx, int def)

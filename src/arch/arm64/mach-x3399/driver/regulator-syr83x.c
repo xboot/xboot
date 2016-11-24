@@ -180,6 +180,7 @@ static struct device_t * regulator_syr83x_probe(struct driver_t * drv, struct dt
 	struct regulator_t * supply;
 	struct device_t * dev;
 	struct i2c_device_t * i2cdev;
+	struct dtnode_t o;
 	char * parent = dt_read_string(n, "parent", NULL);
 	char * name = dt_read_string(n, "name", NULL);
 	u8_t val;
@@ -246,6 +247,25 @@ static struct device_t * regulator_syr83x_probe(struct driver_t * drv, struct dt
 	}
 	dev->driver = drv;
 
+	if(dt_read_object(n, "default", &o))
+	{
+		char * s = supply->name;
+		char * p;
+		int v;
+		int e;
+
+		if((p = dt_read_string(&o, "parent", NULL)) && search_regulator(p))
+			regulator_set_parent(s, p);
+		if((v = dt_read_int(&o, "voltage", -1)) >= 0)
+			regulator_set_voltage(s, v);
+		if((e = dt_read_bool(&o, "enable", -1)) != -1)
+		{
+			if(e > 0)
+				regulator_enable(s);
+			else
+				regulator_disable(s);
+		}
+	}
 	return dev;
 }
 

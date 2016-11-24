@@ -74,9 +74,15 @@ static void regulator_gpio_set_enable(struct regulator_t * supply, bool_t enable
 	if(pdat->enable != enable)
 	{
 		if(enable)
+		{
+			gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_DOWN: GPIO_PULL_UP);
 			gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
+		}
 		else
+		{
+			gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
 			gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+		}
 		pdat->enable = enable;
 	}
 }
@@ -102,6 +108,7 @@ static struct device_t * regulator_gpio_probe(struct driver_t * drv, struct dtno
 	struct regulator_gpio_pdata_t * pdat;
 	struct regulator_t * supply;
 	struct device_t * dev;
+	struct dtnode_t o;
 	char * name = dt_read_string(n, "name", NULL);
 
 	if(!gpio_is_valid(dt_read_int(n, "gpio", -1)))
@@ -125,7 +132,7 @@ static struct device_t * regulator_gpio_probe(struct driver_t * drv, struct dtno
 	pdat->voltage = dt_read_int(n, "voltage", 0);
 	pdat->gpio = dt_read_int(n, "gpio", -1);
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
-	pdat->enable = dt_read_int(n, "default-enable", 0);
+	pdat->enable = -1;
 
 	supply->name = strdup(name);
 	supply->count = 0;
@@ -136,12 +143,6 @@ static struct device_t * regulator_gpio_probe(struct driver_t * drv, struct dtno
 	supply->set_voltage = regulator_gpio_set_voltage;
 	supply->get_voltage = regulator_gpio_get_voltage;
 	supply->priv = pdat;
-
-	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	if(pdat->enable)
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
-	else
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
 
 	if(!register_regulator(&dev, supply))
 	{
@@ -155,6 +156,25 @@ static struct device_t * regulator_gpio_probe(struct driver_t * drv, struct dtno
 	}
 	dev->driver = drv;
 
+	if(dt_read_object(n, "default", &o))
+	{
+		char * s = supply->name;
+		char * p;
+		int v;
+		int e;
+
+		if((p = dt_read_string(&o, "parent", NULL)) && search_regulator(p))
+			regulator_set_parent(s, p);
+		if((v = dt_read_int(&o, "voltage", -1)) >= 0)
+			regulator_set_voltage(s, v);
+		if((e = dt_read_bool(&o, "enable", -1)) != -1)
+		{
+			if(e > 0)
+				regulator_enable(s);
+			else
+				regulator_disable(s);
+		}
+	}
 	return dev;
 }
 

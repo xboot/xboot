@@ -1203,7 +1203,9 @@
 		"voltage": 3300000,
 		"gpio": 226,
 		"active-low": false,
-		"default-enable": false
+		"default": {
+			"enable": false
+		}
 	},
 
 	"key-rc5t620@0": {

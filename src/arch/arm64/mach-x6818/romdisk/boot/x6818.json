@@ -696,7 +696,9 @@
 		"voltage": 3300000,
 		"gpio": 74,
 		"active-low": false,
-		"default-enable": false
+		"default": {
+			"enable": false
+		}
 	},
 
 	"key-gpio-polled@0": {

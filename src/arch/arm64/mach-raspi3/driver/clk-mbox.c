@@ -67,6 +67,7 @@ static struct device_t * clk_mbox_probe(struct driver_t * drv, struct dtnode_t *
 	struct clk_mbox_pdata_t * pdat;
 	struct clk_t * clk;
 	struct device_t * dev;
+	struct dtnode_t o;
 	char * name = dt_read_string(n, "name", NULL);
 	int id = dt_read_int(n, "mbox-clock-id", -1);
 
@@ -108,6 +109,25 @@ static struct device_t * clk_mbox_probe(struct driver_t * drv, struct dtnode_t *
 	}
 	dev->driver = drv;
 
+	if(dt_read_object(n, "default", &o))
+	{
+		char * c = clk->name;
+		char * p;
+		u64_t r;
+		int e;
+
+		if((p = dt_read_string(&o, "parent", NULL)) && search_clk(p))
+			clk_set_parent(c, p);
+		if((r = (u64_t)dt_read_long(&o, "rate", 0)) > 0)
+			clk_set_rate(c, r);
+		if((e = dt_read_bool(&o, "enable", -1)) != -1)
+		{
+			if(e > 0)
+				clk_enable(c);
+			else
+				clk_disable(c);
+		}
+	}
 	return dev;
 }
 

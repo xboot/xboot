@@ -80,6 +80,7 @@ static struct device_t * clk_rk3399_gate_probe(struct driver_t * drv, struct dtn
 	struct clk_rk3399_gate_pdata_t * pdat;
 	struct clk_t * clk;
 	struct device_t * dev;
+	struct dtnode_t o;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 	char * parent = dt_read_string(n, "parent", NULL);
 	char * name = dt_read_string(n, "name", NULL);
@@ -128,6 +129,25 @@ static struct device_t * clk_rk3399_gate_probe(struct driver_t * drv, struct dtn
 	}
 	dev->driver = drv;
 
+	if(dt_read_object(n, "default", &o))
+	{
+		char * c = clk->name;
+		char * p;
+		u64_t r;
+		int e;
+
+		if((p = dt_read_string(&o, "parent", NULL)) && search_clk(p))
+			clk_set_parent(c, p);
+		if((r = (u64_t)dt_read_long(&o, "rate", 0)) > 0)
+			clk_set_rate(c, r);
+		if((e = dt_read_bool(&o, "enable", -1)) != -1)
+		{
+			if(e > 0)
+				clk_enable(c);
+			else
+				clk_disable(c);
+		}
+	}
 	return dev;
 }
 

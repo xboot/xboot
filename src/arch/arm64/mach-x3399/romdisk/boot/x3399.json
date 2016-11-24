@@ -129,7 +129,7 @@
 	"clk-link": { "parent": "div-i2c8-pmu", "name": "link-i2c8-pmu" },
 
 	"clk-rk3399-gate@0xff760324": { "parent": "xin24m", "name": "gate-saradc", "shift": 11, "invert": true },
-	"clk-rk3399-divider@0xff760168": { "parent": "gate-saradc", "name": "div-saradc", "shift": 8, "width": 8, "divider-one-based": true },
+	"clk-rk3399-divider@0xff760168": { "parent": "gate-saradc", "name": "div-saradc", "shift": 8, "width": 8, "divider-one-based": true, "default": { "rate": 1000000 } },
 	"clk-link": { "parent": "div-saradc", "name": "link-saradc" },
 
 	"clk-rk3399-mux@0xff760184": {
@@ -219,12 +219,6 @@
 	"clk-link": { "parent": "mux-uart2", "name": "link-uart2" },
 	"clk-link": { "parent": "mux-uart3", "name": "link-uart3" },
 	"clk-link": { "parent": "mux-uart4", "name": "link-uart4" },
-
-	"clk-setting": {
-		"clocks": [
-			{ "name": "div-saradc", "rate": 1000000, "enable": true }
-		]
-	},
 
 	"gpio-rk3399@0xff720000": {
 		"gpio-base": 0,

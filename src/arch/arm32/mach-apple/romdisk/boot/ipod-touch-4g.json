@@ -7,6 +7,12 @@
 	"clk-s5l8930-pll@0xbf100010": { "parent": "xin48m", "name": "epll" },
 	"clk-s5l8930-pll@0xbf100020": { "parent": "xin48m", "name": "vpll" },
 
+	"gpio-s5l8930@0xbfa00000": {
+		"gpio-base": 0,
+		"gpio-count": 176,
+		"interrupt-offset": -1
+	},
+
 	"uart-samsung@0x82500000": {
 		"clock-name": "uart24m",
 		"txd-gpio": -1,

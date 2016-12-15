@@ -94,9 +94,9 @@ reset:
 	fmxr fpexc, r0
 
 	/* Cache init */
-	mrc	p15, 0, r0, c0, c0, 0
-	and	r1, r0, #0x00f00000
-	and	r2, r0, #0x0000000f
+	mrc p15, 0, r0, c0, c0, 0
+	and r1, r0, #0x00f00000
+	and r2, r0, #0x0000000f
 	orr r2, r2, r1, lsr #20-4
 	cmp r2, #0x30
 	mrceq p15, 0, r0, c1, c0, 1
@@ -105,8 +105,8 @@ reset:
 
 	/* Invalidate L1 I/D */
 	mov r0, #0
-	mcr	p15, 0, r0, c8, c7, 0
-	mcr	p15, 0, r0, c7, c5, 0
+	mcr p15, 0, r0, c8, c7, 0
+	mcr p15, 0, r0, c7, c5, 0
 
 	/* Disable mmu stuff and caches */
 	mrc p15, 0, r0, c1, c0, 0
@@ -238,7 +238,7 @@ not_used:
 	.align 5
 	.global irq
 irq:
-	ldr	sp, _stack_irq_end
+	ldr sp, _stack_irq_end
 	irq_save_regs
 	bl interrupt_handle_exception
 	irq_restore_regs

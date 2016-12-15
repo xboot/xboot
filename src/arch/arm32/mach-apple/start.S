@@ -93,6 +93,13 @@ reset:
 	mov r0, #0x40000000
 	fmxr fpexc, r0
 
+	/* Set Vector Base Address Register */
+	ldr r0, =_start
+	mcr p15, 0, r0, c12, c0, 0
+	mrc p15, 0, r0, c1, c0, 0
+	bic r0, #(1<<13)
+	mcr p15, 0, r0, c1, c0, 0
+
 	/* Initialize stacks */
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
@@ -206,6 +213,7 @@ not_used:
 	b	.
 
 	.align 5
+	.global irq
 irq:
 	ldr sp, _stack_irq_end
 	irq_save_regs

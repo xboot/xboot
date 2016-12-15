@@ -7,6 +7,26 @@
 	"clk-s5l8930-pll@0xbf100010": { "parent": "xin48m", "name": "epll" },
 	"clk-s5l8930-pll@0xbf100020": { "parent": "xin48m", "name": "vpll" },
 
+	"irq-pl192@0xbf200000": {
+		"interrupt-base": 0,
+		"interrupt-count": 32
+	},
+
+	"irq-pl192@0xbf210000": {
+		"interrupt-base": 32,
+		"interrupt-count": 32
+	},
+
+	"irq-pl192@0xbf220000": {
+		"interrupt-base": 64,
+		"interrupt-count": 32
+	},
+
+	"irq-pl192@0xbf230000": {
+		"interrupt-base": 96,
+		"interrupt-count": 32
+	},
+
 	"gpio-s5l8930@0xbfa00000": {
 		"gpio-base": 0,
 		"gpio-count": 176,

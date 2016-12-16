@@ -1,7 +1,8 @@
 {
-	"clk-fixed@0": { "name": "xin48m", "rate": 48000000 },
-	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
-	"clk-fixed@2": { "name": "uart24m", "rate": 24000000 },
+	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed@1": { "name": "xin48m", "rate": 48000000 },
+	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
+	
 	"clk-s5l8930-pll@0xbf100000": { "parent": "xin48m", "name": "apll" },
 	"clk-s5l8930-pll@0xbf100008": { "parent": "xin48m", "name": "mpll" },
 	"clk-s5l8930-pll@0xbf100010": { "parent": "xin48m", "name": "epll" },
@@ -33,8 +34,12 @@
 		"interrupt-offset": -1
 	},
 
+	"cs-s5l8930-timer@0xbf102000": {
+		"clock-name": "xin24m"
+	},
+
 	"uart-samsung@0x82500000": {
-		"clock-name": "uart24m",
+		"clock-name": "xin24m",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -46,7 +51,7 @@
 	},
 
 	"uart-samsung@0x82600000": {
-		"clock-name": "uart24m",
+		"clock-name": "xin24m",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -58,7 +63,7 @@
 	},
 
 	"uart-samsung@0x82700000": {
-		"clock-name": "uart24m",
+		"clock-name": "xin24m",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -70,7 +75,7 @@
 	},
 
 	"uart-samsung@0x82800000": {
-		"clock-name": "uart24m",
+		"clock-name": "xin24m",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -82,7 +87,7 @@
 	},
 
 	"uart-samsung@0x82900000": {
-		"clock-name": "uart24m",
+		"clock-name": "xin24m",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -94,7 +99,7 @@
 	},
 
 	"uart-samsung@0x82a00000": {
-		"clock-name": "uart24m",
+		"clock-name": "xin24m",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -106,7 +111,7 @@
 	},
 
 	"uart-samsung@0x82b00000": {
-		"clock-name": "uart24m",
+		"clock-name": "xin24m",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,

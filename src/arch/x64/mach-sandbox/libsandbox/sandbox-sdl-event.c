@@ -61,19 +61,19 @@ static unsigned int keycode_map(SDL_Keycode code)
 	case SDLK_RIGHT:
 		key = 5;
 		break;
-	case SDLK_VOLUMEDOWN:
+	case SDLK_VOLUMEUP:
 		key = 6;
 		break;
-	case SDLK_VOLUMEUP:
+	case SDLK_VOLUMEDOWN:
 		key = 7;
 		break;
-	case SDLK_ESCAPE:
+	case SDLK_MUTE:
 		key = 8;
 		break;
 	case SDLK_TAB:
 		key = 9;
 		break;
-	case SDLK_DELETE:
+	case SDLK_ESCAPE:
 		key = 10;
 		break;
 	case SDLK_RETURN:

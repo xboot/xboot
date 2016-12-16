@@ -11,11 +11,11 @@ enum {
 	KEY_DOWN					= 3,
 	KEY_LEFT					= 4,
 	KEY_RIGHT					= 5,
-	KEY_VOLUME_DOWN				= 6,
-	KEY_VOLUME_UP				= 7,
-	KEY_ESC						= 8,
+	KEY_VOLUME_UP				= 6,
+	KEY_VOLUME_DOWN				= 7,
+	KEY_VOLUME_MUTE				= 8,
 	KEY_TAB						= 9,
-	KEY_DELETE					= 10,
+	KEY_ESC						= 10,
 	KEY_ENTER					= 11,
 
 	KEY_L_CTRL					= 12,
@@ -141,6 +141,7 @@ enum {
 	KEY_VERTICAL_LINE			= 124,	/* | */
 	KEY_CURLY_BRACKET_RIGHT		= 125,	/* } */
 	KEY_TILDE					= 126,	/* ~ */
+	KEY_DELETE					= 127,
 
 	/* Latin 1 extensions */
 	KEY_NO_BREAK_SPACE			= 160,	/*   */

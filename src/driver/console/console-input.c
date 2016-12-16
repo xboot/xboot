@@ -44,6 +44,10 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 		key = event.e.key_down.key;
 		switch(key)
 		{
+		case KEY_POWER:
+			len = 0;
+			break;
+
 		case KEY_UP:
 			sym[0] = '\e';
 			sym[1] = '[';
@@ -74,10 +78,7 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 
 		case KEY_VOLUME_UP:
 		case KEY_VOLUME_DOWN:
-			len = 0;
-			break;
-
-		case KEY_ESC:
+		case KEY_VOLUME_MUTE:
 			len = 0;
 			break;
 
@@ -86,18 +87,13 @@ static ssize_t console_input_read(struct console_t * console, unsigned char * bu
 			len = 1;
 			break;
 
-		case KEY_DELETE:
-			sym[0] = 0x7f;
-			len = 1;
+		case KEY_ESC:
+			len = 0;
 			break;
 
 		case KEY_ENTER:
 			sym[0] = 0xd;
 			len = 1;
-			break;
-
-		case KEY_POWER:
-			len = 0;
 			break;
 
 		default:

@@ -133,6 +133,20 @@
 		"poll-interval-ms": 100
 	},
 
+	"fb-s5l8930@0x89004000": {
+		"width": 640,
+		"height": 960,
+		"dots-per-inch-x": 326,
+		"dots-per-inch-y": 326,
+		"bits-per-pixel": 32,
+		"hfront-porch": 1,
+		"hback-porch": 1,
+		"hsync-len": 1,
+		"vfront-porch": 1,
+		"vback-porch": 1,
+		"vsync-len": 1,
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-samsung.0"
 	}

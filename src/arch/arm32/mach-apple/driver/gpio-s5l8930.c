@@ -25,17 +25,6 @@
 #include <xboot.h>
 #include <gpio/gpio.h>
 
-enum {
-	GPIO_DIR	= 0x400,
-	GPIO_IS		= 0x404,
-	GPIO_IBE	= 0x408,
-	GPIO_IEV	= 0x40C,
-	GPIO_IE		= 0x410,
-	GPIO_RIS	= 0x414,
-	GPIO_MIS	= 0x418,
-	GPIO_IC		= 0x41C,
-};
-
 struct gpio_s5l8930_pdata_t
 {
 	virtual_addr_t virt;

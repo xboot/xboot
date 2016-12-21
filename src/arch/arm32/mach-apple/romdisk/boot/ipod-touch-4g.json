@@ -28,10 +28,16 @@
 		"interrupt-count": 32
 	},
 
+	"irq-s5l8930-gpio@0xbfa00000": {
+		"interrupt-base": 128,
+		"interrupt-count": 176,
+		"interrupt-parent": 116
+	},
+
 	"gpio-s5l8930@0xbfa00000": {
 		"gpio-base": 0,
 		"gpio-count": 176,
-		"interrupt-offset": -1
+		"interrupt-offset": 128
 	},
 
 	"cs-s5l8930-timer@0xbf102000": {

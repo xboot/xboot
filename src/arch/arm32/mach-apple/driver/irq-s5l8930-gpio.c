@@ -30,21 +30,6 @@
 #define GPIO_INTEN(x)	(0x840 + (x) * 4)
 #define GPIO_INTSTS(x)	(0x880 + (x) * 4)
 
-/*
-enum {
-	GPIO_INTLEVEL 	= 0x080,
-	GPIO_INTSTAT 	= 0x0a0,
-	GPIO_INTEN 		= 0x0c0,
-	GPIO_INTTYPE 	= 0x0e0,
-	GPIO_FSEL 		= 0x320,
-
-	GPIO_DISABLE 	= 0x800,
-	GPIO_ENABLE 	= 0x840,
-	GPIO_INTSTS 	= 0x880,
-	GPIO_INT 		= 0xc00,
-};
-*/
-
 struct irq_s5l8930_gpio_pdata_t
 {
 	virtual_addr_t virt;
@@ -72,34 +57,32 @@ static void irq_s5l8930_gpio_disable(struct irqchip_t * chip, int offset)
 static void irq_s5l8930_gpio_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
 {
 	struct irq_s5l8930_gpio_pdata_t * pdat = (struct irq_s5l8930_gpio_pdata_t *)chip->priv;
-	u32_t val, cfg = 0x4;
+	u32_t val, cfg = 0x0;
 
 	switch(type)
 	{
 	case IRQ_TYPE_NONE:
 		break;
 	case IRQ_TYPE_LEVEL_LOW:
-		cfg = 0x8;
+		cfg = 0x4;
 		break;
 	case IRQ_TYPE_LEVEL_HIGH:
-		cfg = 0xa;
+		cfg = 0x5;
 		break;
 	case IRQ_TYPE_EDGE_FALLING:
-		cfg = 0x6;
+		cfg = 0x3;
 		break;
 	case IRQ_TYPE_EDGE_RISING:
-		cfg = 0x4;
+		cfg = 0x2;
 		break;
 	case IRQ_TYPE_EDGE_BOTH:
-		cfg = 0x4;
+		cfg = 0x6;
 		break;
 	default:
 		return;
 	}
 	val = read32(pdat->virt + offset * 4);
-	val &=~ 0xe;
-	val |= 0x200 | cfg;
-	write32(pdat->virt + offset * 4, val);
+	write32(pdat->virt + offset * 4, (val & ~(0x7 << 1)) | (cfg << 1) | (0x1 << 9));
 }
 
 static void irq_s5l8930_gpio_dispatch(struct irqchip_t * chip)

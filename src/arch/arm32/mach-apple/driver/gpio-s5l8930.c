@@ -133,13 +133,13 @@ static void gpio_s5l8930_set_pull(struct gpiochip_t * chip, int offset, enum gpi
 	switch(pull)
 	{
 	case GPIO_PULL_UP:
-		val = 3;
+		val = 0x3;
 		break;
 	case GPIO_PULL_DOWN:
-		val = 1;
+		val = 0x1;
 		break;
 	case GPIO_PULL_NONE:
-		val = 0;
+		val = 0x0;
 		break;
 	default:
 		return;
@@ -158,6 +158,8 @@ static enum gpio_pull_t gpio_s5l8930_get_pull(struct gpiochip_t * chip, int offs
 	val = read32(pdat->virt + offset * 4);
 	switch((val >> 7) & 0x3)
 	{
+	case 0x0:
+		return GPIO_PULL_NONE;
 	case 0x1:
 		return GPIO_PULL_DOWN;
 	case 0x3:
@@ -202,7 +204,7 @@ static void gpio_s5l8930_set_value(struct gpiochip_t * chip, int offset, int val
 
 	if(offset >= chip->ngpio)
 		return;
-	write32(pdat->virt + offset * 4, (read32(pdat->virt + offset * 4) & ~0x1) | (value ? 1 : 0));
+	write32(pdat->virt + offset * 4, (read32(pdat->virt + offset * 4) & ~(0x1 << 0)) | (value ? (1 << 0) : (0 << 0)));
 }
 
 static int gpio_s5l8930_get_value(struct gpiochip_t * chip, int offset)
@@ -211,7 +213,7 @@ static int gpio_s5l8930_get_value(struct gpiochip_t * chip, int offset)
 
 	if(offset >= chip->ngpio)
 		return 0;
-	return (read32(pdat->virt + offset * 4) & 0x1) ? 1 : 0;
+	return (read32(pdat->virt + offset * 4) & (0x1 << 0)) ? 1 : 0;
 }
 
 static int gpio_s5l8930_to_irq(struct gpiochip_t * chip, int offset)

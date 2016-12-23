@@ -150,7 +150,7 @@
 		"hsync-len": 1,
 		"vfront-porch": 1,
 		"vback-porch": 1,
-		"vsync-len": 1,
+		"vsync-len": 1
 	},
 
 	"console-uart@0": {

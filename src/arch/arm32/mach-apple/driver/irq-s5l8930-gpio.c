@@ -62,18 +62,18 @@ static void irq_s5l8930_gpio_settype(struct irqchip_t * chip, int offset, enum i
 	switch(type)
 	{
 	case IRQ_TYPE_NONE:
-		break;
+		return;
 	case IRQ_TYPE_LEVEL_LOW:
-		cfg = 0x4;
-		break;
-	case IRQ_TYPE_LEVEL_HIGH:
-		cfg = 0x5;
-		break;
-	case IRQ_TYPE_EDGE_FALLING:
 		cfg = 0x3;
 		break;
-	case IRQ_TYPE_EDGE_RISING:
+	case IRQ_TYPE_LEVEL_HIGH:
 		cfg = 0x2;
+		break;
+	case IRQ_TYPE_EDGE_FALLING:
+		cfg = 0x5;
+		break;
+	case IRQ_TYPE_EDGE_RISING:
+		cfg = 0x4;
 		break;
 	case IRQ_TYPE_EDGE_BOTH:
 		cfg = 0x6;
@@ -82,32 +82,28 @@ static void irq_s5l8930_gpio_settype(struct irqchip_t * chip, int offset, enum i
 		return;
 	}
 	val = read32(pdat->virt + offset * 4);
-	write32(pdat->virt + offset * 4, (val & ~(0x7 << 1)) | (cfg << 1) | (0x1 << 9));
+	val |= (0x1 << 9);
+	write32(pdat->virt + offset * 4, (val & ~(0x7 << 1)) | (cfg << 1));
 }
 
 static void irq_s5l8930_gpio_dispatch(struct irqchip_t * chip)
 {
 	struct irq_s5l8930_gpio_pdata_t * pdat = (struct irq_s5l8930_gpio_pdata_t *)chip->priv;
-	u32_t gsts, sts;
 	int bank, field, offset;
+	u32_t blk, sts;
 
-	while(1)
+	if((blk = read32(pdat->virt + GPIO_INTBLK)) == 0)
+		return;
+
+	bank = __ffs(blk);
+	if((sts = read32(pdat->virt + GPIO_INTSTS(bank))) != 0)
 	{
-		gsts = read32(pdat->virt + GPIO_INTBLK);
-		if(!gsts)
-			break;
-
-		bank = fls(gsts) - 1;
-		sts = read32(pdat->virt + GPIO_INTSTS(bank));
-		if(sts)
+		field = __ffs(sts);
+		offset = (bank * 32) + field;
+		if((offset >= 0) && (offset < chip->nirq))
 		{
-			field = fls(sts) - 1;
-			offset = (bank * 32) + field;
-			if((offset >= 0) && (offset < chip->nirq))
-			{
-				(chip->handler[offset].func)(chip->handler[offset].data);
-				write32(pdat->virt + GPIO_INTSTS(bank), 1 << field);
-			}
+			(chip->handler[offset].func)(chip->handler[offset].data);
+			write32(pdat->virt + GPIO_INTSTS(bank), 1 << field);
 		}
 	}
 }

@@ -180,6 +180,11 @@
 		"vsync-len": 1
 	},
 
+	"gmeter-lis331dlh@0": {
+		"i2c-bus": "i2c-gpio.2",
+		"slave-address": 25
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-samsung.0"
 	}

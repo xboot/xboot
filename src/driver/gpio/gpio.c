@@ -224,17 +224,22 @@ void gpio_direction_output(int gpio, int value)
 
 	if(chip->set_dir)
 		chip->set_dir(chip, gpio - chip->base, GPIO_DIRECTION_OUTPUT);
-
 	if(chip->set_value)
 		chip->set_value(chip, gpio - chip->base, value);
 }
 
-void gpio_direction_input(int gpio)
+int gpio_direction_input(int gpio)
 {
 	struct gpiochip_t * chip = search_gpiochip(gpio);
 
-	if(chip && chip->set_dir)
-		chip->set_dir(chip, gpio - chip->base, GPIO_DIRECTION_INPUT);
+	if(chip)
+	{
+		if(chip->set_dir)
+			chip->set_dir(chip, gpio - chip->base, GPIO_DIRECTION_INPUT);
+		if(chip->get_value)
+			return chip->get_value(chip, gpio - chip->base);
+	}
+	return 0;
 }
 
 int gpio_to_irq(int gpio)

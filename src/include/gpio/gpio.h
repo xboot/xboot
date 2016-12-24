@@ -71,7 +71,7 @@ enum gpio_direction_t gpio_get_direction(int gpio);
 void gpio_set_value(int gpio, int value);
 int gpio_get_value(int gpio);
 void gpio_direction_output(int gpio, int value);
-void gpio_direction_input(int gpio);
+int gpio_direction_input(int gpio);
 int gpio_to_irq(int gpio);
 
 #ifdef __cplusplus

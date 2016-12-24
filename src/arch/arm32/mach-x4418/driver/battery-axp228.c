@@ -221,7 +221,7 @@ static bool_t battery_axp228_update(struct battery_t * bat, struct battery_info_
 		!axp228_read(pdat->dev, AXP228_BATTEMPL_RES, &lo))
 		return FALSE;
 	tmp = (hi << 4) | (lo & 0xf);
-	info->temperature = tmp * 1063 / 10000 - 2667 / 10;
+	info->temperature = (tmp * 1063 / 10000 - 2667 / 10) * 100;
 
 	info->cycle = 0;
 

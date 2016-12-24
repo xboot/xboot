@@ -154,7 +154,7 @@ static bool_t battery_sbs_update(struct battery_t * bat, struct battery_info_t *
 
 	if(!sbs_read_word(pdat->dev, SBS_TEMPERATURE, &val))
 		return FALSE;
-	info->temperature = val - 2732;
+	info->temperature = (val - 2732) * 100;
 
 	if(!sbs_read_word(pdat->dev, SBS_CYCLE_COUNT, &val))
 		return FALSE;

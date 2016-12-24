@@ -64,8 +64,8 @@ static const luaL_Reg l_hygrometer[] = {
 static int m_hygrometer_get_humidity(lua_State * L)
 {
 	struct hygrometer_t * hygrometer = luaL_checkudata(L, 1, MT_HARDWARE_HYGROMETER);
-	int temp = hygrometer_get_humidity(hygrometer);
-	lua_pushinteger(L, temp);
+	int humidity = hygrometer_get_humidity(hygrometer);
+	lua_pushnumber(L, (lua_Number)humidity / 100);
 	return 1;
 }
 

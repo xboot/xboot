@@ -65,7 +65,7 @@ static int m_thermometer_get_temperature(lua_State * L)
 {
 	struct thermometer_t * thermometer = luaL_checkudata(L, 1, MT_HARDWARE_THERMOMETER);
 	int temp = thermometer_get_temperature(thermometer);
-	lua_pushinteger(L, temp);
+	lua_pushnumber(L, (lua_Number)temp / 1000);
 	return 1;
 }
 

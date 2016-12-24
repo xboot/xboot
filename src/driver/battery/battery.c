@@ -101,8 +101,8 @@ static ssize_t battery_read_temperature(struct kobj_t * kobj, void * buf, size_t
 	struct battery_info_t info;
 
 	if(battery_update(bat, &info))
-		return sprintf(buf, "%d.%dC", info.temperature / 10, abs(info.temperature % 10));
-	return sprintf(buf, "%d.%dC", 0, 0);
+		return sprintf(buf, "%d.%03dC", info.temperature / 1000, abs(info.temperature % 1000));
+	return sprintf(buf, "%d.%03dC", 0, 0);
 }
 
 static ssize_t battery_read_cycle(struct kobj_t * kobj, void * buf, size_t size)

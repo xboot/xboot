@@ -29,7 +29,7 @@ static ssize_t thermometer_read_temperature(struct kobj_t * kobj, void * buf, si
 {
 	struct thermometer_t * thermometer = (struct thermometer_t *)kobj->priv;
 	int temperature = thermometer_get_temperature(thermometer);
-	return sprintf(buf, "%d.%dC", temperature / 10, abs(temperature % 10));
+	return sprintf(buf, "%d.%03dC", temperature / 1000, abs(temperature % 1000));
 }
 
 struct thermometer_t * search_thermometer(const char * name)

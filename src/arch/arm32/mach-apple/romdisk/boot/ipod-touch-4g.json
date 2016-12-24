@@ -128,6 +128,33 @@
 		"stop-bits": 1
 	},
 
+	"i2c-gpio@0": {
+		"sda-gpio": 75,
+		"scl-gpio": 76,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@1": {
+		"sda-gpio": 78,
+		"scl-gpio": 77,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
+	"i2c-gpio@2": {
+		"sda-gpio": 79,
+		"scl-gpio": 80,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
 	"key-gpio-polled@0": {
 		"keys": [
 			{ "gpio": 0, "active-low": true, "key-code": 11 },

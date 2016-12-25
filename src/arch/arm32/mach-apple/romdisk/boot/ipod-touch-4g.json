@@ -166,6 +166,10 @@
 		"poll-interval-ms": 100
 	},
 
+	"wdog-s5l8930@0xbf102020": {
+		"clock-name": "xin24m"
+	},
+
 	"fb-s5l8930@0x89004000": {
 		"width": 640,
 		"height": 960,

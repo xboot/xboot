@@ -65,15 +65,14 @@ static int m_gmeter_get_acceleration(lua_State * L)
 {
 	struct gmeter_t * gmeter = luaL_checkudata(L, 1, MT_HARDWARE_GMETER);
 	int x, y, z;
-	if(!gmeter_get_acceleration(gmeter, &x, &y, &z))
+	if(gmeter_get_acceleration(gmeter, &x, &y, &z))
 	{
-		lua_pushnil(L);
-		return 1;
+		lua_pushnumber(L, (lua_Number)x / 1000000);
+		lua_pushnumber(L, (lua_Number)y / 1000000);
+		lua_pushnumber(L, (lua_Number)z / 1000000);
+		return 3;
 	}
-	lua_pushnumber(L, (lua_Number)x);
-	lua_pushnumber(L, (lua_Number)y);
-	lua_pushnumber(L, (lua_Number)z);
-	return 3;
+	return 0;
 }
 
 static const luaL_Reg m_gmeter[] = {

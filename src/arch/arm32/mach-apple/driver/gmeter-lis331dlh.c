@@ -98,21 +98,29 @@ static bool_t lis331dlh_write(struct i2c_device_t * dev, u8_t reg, u8_t val)
 static bool_t gmeter_lis331dlh_get(struct gmeter_t * gmeter, int * x, int * y, int * z)
 {
 	struct gmeter_lis331dlh_pdata_t * pdat = (struct gmeter_lis331dlh_pdata_t *)gmeter->priv;
-	u8_t l = 0, h = 0;
+	u8_t s, l = 0, h = 0;
+	s16_t tx, ty, tz;
 
-	lis331dlh_read(pdat->dev, REG_OUTX_L, &l);
-	lis331dlh_read(pdat->dev, REG_OUTX_H, &h);
-	*x = (h << 8) | (l << 0);
+	if(lis331dlh_read(pdat->dev, REG_STATUS, &s) && (s & (1 << 3)))
+	{
+		lis331dlh_read(pdat->dev, REG_OUTX_L, &l);
+		lis331dlh_read(pdat->dev, REG_OUTX_H, &h);
+		tx = (h << 8) | (l << 0);
 
-	lis331dlh_read(pdat->dev, REG_OUTY_L, &l);
-	lis331dlh_read(pdat->dev, REG_OUTY_H, &h);
-	*y = (h << 8) | (l << 0);
+		lis331dlh_read(pdat->dev, REG_OUTY_L, &l);
+		lis331dlh_read(pdat->dev, REG_OUTY_H, &h);
+		ty = (h << 8) | (l << 0);
 
-	lis331dlh_read(pdat->dev, REG_OUTZ_L, &l);
-	lis331dlh_read(pdat->dev, REG_OUTZ_H, &h);
-	*z = (h << 8) | (l << 0);
+		lis331dlh_read(pdat->dev, REG_OUTZ_L, &l);
+		lis331dlh_read(pdat->dev, REG_OUTZ_H, &h);
+		tz = (h << 8) | (l << 0);
 
-	return TRUE;
+		*x = (s64_t)tx * 2 * 9806650 / 32768;
+		*y = (s64_t)ty * 2 * 9806650 / 32768;
+		*z = (s64_t)tz * 2 * 9806650 / 32768;
+		return TRUE;
+	}
+	return FALSE;
 }
 
 static struct device_t * gmeter_lis331dlh_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -123,14 +131,15 @@ static struct device_t * gmeter_lis331dlh_probe(struct driver_t * drv, struct dt
 	struct i2c_device_t * i2cdev;
 	u8_t val;
 
-	i2cdev = i2c_device_alloc(dt_read_string(n, "i2c-bus", NULL), dt_read_int(n, "slave-address", 0x19), 0);
+	i2cdev = i2c_device_alloc(dt_read_string(n, "i2c-bus", NULL), dt_read_int(n, "slave-address", 0x18), 0);
 	if(!i2cdev)
 		return NULL;
 
 	if(lis331dlh_read(i2cdev, REG_WHOAMI, &val) && (val == 0x32))
 	{
 		lis331dlh_write(i2cdev, REG_CTRL2, (1 << 7));
-		lis331dlh_write(i2cdev, REG_CTRL1, (1 << 5) | (1 << 0) | (1 << 1) | (1 << 2));
+		lis331dlh_write(i2cdev, REG_CTRL1, (1 << 5) | (1 << 3) | (1 << 2) | (1 << 1) | (1 << 0));
+		lis331dlh_write(i2cdev, REG_CTRL2, (0 << 7));
 	}
 	else
 	{

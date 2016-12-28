@@ -30,7 +30,7 @@ static ssize_t gmeter_read_acceleration(struct kobj_t * kobj, void * buf, size_t
 	struct gmeter_t * gmeter = (struct gmeter_t *)kobj->priv;
 	int x = 0, y = 0, z = 0;
 	gmeter_get_acceleration(gmeter, &x, &y, &z);
-	return sprintf(buf, "[%d %d %d] m/s^2", x, y, z);
+	return sprintf(buf, "[%d.%06d %d.%06d %d.%06d] m/s^2", x / 1000000, abs(x % 1000000), y / 1000000, abs(y % 1000000), z / 1000000, abs(z % 1000000));
 }
 
 struct gmeter_t * search_gmeter(const char * name)

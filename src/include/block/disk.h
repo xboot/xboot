@@ -52,12 +52,6 @@ struct disk_t
 	/* Sync cache to disk device */
 	void (*sync)(struct disk_t * disk);
 
-	/* Suspend disk */
-	void (*suspend)(struct disk_t * disk);
-
-	/* Resume disk */
-	void (*resume)(struct disk_t * disk);
-
 	/* Private data */
 	void * priv;
 };

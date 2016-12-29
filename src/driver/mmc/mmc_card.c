@@ -301,14 +301,6 @@ static void mmc_sync(struct disk_t * disk)
 {
 }
 
-static void mmc_suspend(struct disk_t * disk)
-{
-}
-
-static void mmc_resume(struct disk_t * disk)
-{
-}
-
 static bool_t register_mmc_card(struct mmc_card_t * card)
 {
 	struct mmc_card_list * list;
@@ -340,8 +332,6 @@ static bool_t register_mmc_card(struct mmc_card_t * card)
 	disk->read = mmc_read;
 	disk->write = mmc_write;
 	disk->sync = mmc_sync;
-	disk->suspend = mmc_suspend;
-	disk->resume = mmc_resume;
 	disk->priv = (void *)card;
 	card->priv = (void *)disk;
 

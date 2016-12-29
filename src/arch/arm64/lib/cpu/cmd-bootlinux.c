@@ -26,7 +26,7 @@ static int do_bootlinux(int argc, char ** argv)
 	dtb = (void *)strtoull(argv[2], NULL, 0);
 
 	/* Now, booting linux */
-	printf("Kernel address: 0x%08lx, dtb address: 0x%08lx\r\n", (uint32_t)kernel, (uint32_t)dtb);
+	printf("Kernel address: 0x%016llx, dtb address: 0x%016llx\r\n", (uint64_t)kernel, (uint64_t)dtb);
 	printf("Now, booting linux ......\r\n");
 
 	machine_cleanup();
@@ -37,7 +37,7 @@ static int do_bootlinux(int argc, char ** argv)
 
 static struct command_t cmd_bootlinux = {
 	.name	= "bootlinux",
-	.desc	= "boot aarch32 linux kernel",
+	.desc	= "boot aarch64 linux kernel",
 	.usage	= usage,
 	.exec	= do_bootlinux,
 };

@@ -156,8 +156,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 INCDIRS		+= 	external/json-parser-1.1.0
 SRCDIRS		+=	external/json-parser-1.1.0
 
-INCDIRS		+= 	external/libfdt
-SRCDIRS		+=	external/libfdt
+INCDIRS		+= 	external/libfdt-1.4.2
+SRCDIRS		+=	external/libfdt-1.4.2
 
 INCDIRS		+= 	external/zlib-1.2.8
 SRCDIRS		+=	external/zlib-1.2.8

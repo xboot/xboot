@@ -261,6 +261,10 @@
 		"clock-name": "link-timer0"
 	},
 
+	"cs-rockchip-timer@0xff8680a0": {
+		"clock-name": "link-timer10"
+	},
+
 	"uart-8250@0xff180000": {
 		"clock-name": "link-uart0",
 		"txd-gpio": 81,

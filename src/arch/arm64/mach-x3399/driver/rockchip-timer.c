@@ -26,12 +26,14 @@
 #include <rockchip-timer.h>
 
 enum {
-	TIMER_LOAD_COUNT0		= 0x00,
-	TIMER_LOAD_COUNT1		= 0x04,
-	TIMER_CURRENT_VALUE0	= 0x08,
-	TIMER_CURRENT_VALUE1	= 0x0c,
-	TIMER_CONTROL_REG		= 0x10,
-	TIMER_INT_STATUS		= 0x18,
+	TIMER_LOAD_COUNT0	= 0x00,
+	TIMER_LOAD_COUNT1	= 0x04,
+	TIMER_CURR_VALUE0	= 0x08,
+	TIMER_CURR_VALUE1	= 0x0c,
+	TIMER_LOAD_COUNT2	= 0x10,
+	TIMER_LOAD_COUNT3	= 0x14,
+	TIMER_INT_STATUS	= 0x18,
+	TIMER_CONTROL_REG	= 0x10,
 };
 
 void rockchip_timer_start(virtual_addr_t virt, int irqon, int oneshot)
@@ -56,7 +58,7 @@ void rockchip_timer_count(virtual_addr_t virt, u64_t cnt)
 
 u32_t rockchip_timer_read32(virtual_addr_t virt)
 {
-	return read32(virt + TIMER_CURRENT_VALUE0);
+	return read32(virt + TIMER_CURR_VALUE0);
 }
 
 u64_t rockchip_timer_read64(virtual_addr_t virt)
@@ -64,9 +66,9 @@ u64_t rockchip_timer_read64(virtual_addr_t virt)
 	u32_t upper, lower;
 
 	do {
-		upper = read32(virt + TIMER_CURRENT_VALUE1);
-		lower = read32(virt + TIMER_CURRENT_VALUE0);
-	} while (upper != read32(virt + TIMER_CURRENT_VALUE1));
+		upper = read32(virt + TIMER_CURR_VALUE1);
+		lower = read32(virt + TIMER_CURR_VALUE0);
+	} while (upper != read32(virt + TIMER_CURR_VALUE1));
 
 	return ((u64_t)upper << 32) | lower;
 }

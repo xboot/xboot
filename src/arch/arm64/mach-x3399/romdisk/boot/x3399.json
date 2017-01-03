@@ -32,6 +32,8 @@
 		"name": "upll", "shift": 15, "width": 1
 	},
 
+	"clk-rk3399-divider@0xff7601e4": { "parent": "gpll", "name": "pclk-alive", "shift": 0, "width": 5, "divider-one-based": true },
+
 	"clk-rk3399-gate@0xff760368": { "parent": "xin24m", "name": "gate-timer0", "shift": 0, "invert": true },
 	"clk-rk3399-gate@0xff760368": { "parent": "xin24m", "name": "gate-timer1", "shift": 1, "invert": true },
 	"clk-rk3399-gate@0xff760368": { "parent": "xin24m", "name": "gate-timer2", "shift": 2, "invert": true },
@@ -506,6 +508,10 @@
 	"light-cm32181@0": {
 		"i2c-bus": "i2c-rk3399.4",
 		"slave-address": 16
+	},
+
+	"wdog-rk3399@0xff848000": {
+		"clock-name": "pclk-alive"
 	},
 
 	"console-uart@0": {

@@ -257,12 +257,8 @@
 		"reference-voltage": 1800000
 	},
 
-	"cs-rockchip-timer@0xff850000": {
-		"clock-name": "link-timer0"
-	},
-
-	"cs-rockchip-timer@0xff8680a0": {
-		"clock-name": "link-timer10"
+	"cs-armv8-timer": {
+		"clock-frequency": -1
 	},
 
 	"uart-8250@0xff180000": {

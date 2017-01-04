@@ -2,6 +2,11 @@
 	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
 
+	"irq-gic400@0x08000000": {
+		"interrupt-base": 0,
+		"interrupt-count": 176
+	},
+
 	"gpio-pl061@0x09030000": {
 		"gpio-base": 0,
 		"gpio-count": 8,

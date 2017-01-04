@@ -222,6 +222,11 @@
 	"clk-link": { "parent": "mux-uart3", "name": "link-uart3" },
 	"clk-link": { "parent": "mux-uart4", "name": "link-uart4" },
 
+	"irq-gic500@0xfee00000": {
+		"interrupt-base": 32,
+		"interrupt-count": 192
+	},
+
 	"gpio-rk3399@0xff720000": {
 		"gpio-base": 0,
 		"gpio-count": 14,

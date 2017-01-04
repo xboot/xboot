@@ -18,6 +18,9 @@
 		"stop-bits": 1
 	},
 
+	"rtc-pl031@0x09010000": {
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-pl011.0"
 	}

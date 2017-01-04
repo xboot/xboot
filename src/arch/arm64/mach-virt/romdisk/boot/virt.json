@@ -2,6 +2,10 @@
 	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
 
+	"cs-armv8-timer": {
+		"clock-frequency": -1
+	},
+
 	"uart-pl011@0x09000000": {
 		"clock-name": "xin24m",
 		"txd-gpio": -1,

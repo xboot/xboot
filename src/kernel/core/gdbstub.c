@@ -441,7 +441,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			}
 			break;
 
-	    case 'z':
+		case 'z':
 			v = strtoul(p, (char **)&p, 16);
 			if(*p == ',')
 				p++;
@@ -455,7 +455,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 				put_packet(s, "OK");
 			break;
 
-	    case 'Z':
+		case 'Z':
 			v = strtoul(p, (char **)&p, 16);
 			if(*p == ',')
 				p++;
@@ -574,7 +574,7 @@ static void gdb_handle_exception(struct gdb_state_t * s, void * regs)
 			break;
 
 		case 'q':
-	    case 'Q':
+		case 'Q':
 			if(strcmp(p, "C") == 0)
 			{
 				put_packet(s, "QC1");

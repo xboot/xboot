@@ -3,7 +3,6 @@
  */
 
 #include <dma/dma.h>
-#include <cache.h>
 
 static inline void cache_inv_range(unsigned long start, unsigned long end)
 {

@@ -144,9 +144,9 @@ static int cpu_breakpoint_insert(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 		memcpy((void *)(bp->addr), bpinstr, 4);
 		return 0;
 	case BP_TYPE_HARDWARE_BREAKPOINT:
-	case BT_TYPE_WRITE_WATCHPOINT:
-	case BT_TYPE_READ_WATCHPOINT:
-	case BT_TYPE_ACCESS_WATCHPOINT:
+	case BP_TYPE_WRITE_WATCHPOINT:
+	case BP_TYPE_READ_WATCHPOINT:
+	case BP_TYPE_ACCESS_WATCHPOINT:
 	default:
 		break;
 	}
@@ -161,9 +161,9 @@ static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 		memcpy((void *)(bp->addr), bp->instr, 4);
 		return 0;
 	case BP_TYPE_HARDWARE_BREAKPOINT:
-	case BT_TYPE_WRITE_WATCHPOINT:
-	case BT_TYPE_READ_WATCHPOINT:
-	case BT_TYPE_ACCESS_WATCHPOINT:
+	case BP_TYPE_WRITE_WATCHPOINT:
+	case BP_TYPE_READ_WATCHPOINT:
+	case BP_TYPE_ACCESS_WATCHPOINT:
 	default:
 		break;
 	}

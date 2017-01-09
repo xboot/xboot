@@ -102,7 +102,7 @@
 /*
  * Invalid mode handlers
  */
-.macro inv_entry, el, reason
+.macro invalid_exception, el, reason
 	kernel_entry el
 	mov x0, sp
 	mov x1, #\reason
@@ -120,25 +120,25 @@ _start:
 	.align 11
 	.globl vectors
 vectors:
-	ventry el1_sync_invalid
-	ventry el1_irq_invalid
-	ventry el1_fiq_invalid
-	ventry el1_error_invalid
+	ventry el1_sync_sp0
+	ventry el1_irq_sp0
+	ventry el1_fiq_sp0
+	ventry el1_error_sp0
 
-	ventry el1_sync
-	ventry el1_irq
-	ventry el1_fiq_invalid
-	ventry el1_error_invalid
+	ventry el1_sync_sp1
+	ventry el1_irq_sp1
+	ventry el1_fiq_sp1
+	ventry el1_error_sp1
 
-	ventry el0_sync_invalid
-	ventry el0_irq_invalid
-	ventry el0_fiq_invalid
-	ventry el0_error_invalid
+	ventry el0_sync_64
+	ventry el0_irq_64
+	ventry el0_fiq_64
+	ventry el0_error_64
 
-	ventry el0_sync_invalid
-	ventry el0_irq_invalid
-	ventry el0_fiq_invalid
-	ventry el0_error_invalid
+	ventry el0_sync_32
+	ventry el0_irq_32
+	ventry el0_fiq_32
+	ventry el0_error_32
 
 /*
  * The actual reset code
@@ -194,10 +194,10 @@ reset:
 11:	isb
 
 	/* Initialize stacks */
-	ldr	x0, _stack_el1_end
+	ldr x0, _stack_el1_end
 	mov sp, x0
-	ldr	x0, _stack_el0_end
-	msr	sp_el0, x0
+	ldr x0, _stack_el0_end
+	msr sp_el0, x0
 
 	/* Copyself to link address */
 	adr x0, _start
@@ -239,54 +239,48 @@ _main:
 	bl xboot_main
 	b _main
 
-	.align 6
-el1_sync:
+el1_sync_sp0:
+	invalid_exception 1, 0x00
+el1_irq_sp0:
+	invalid_exception 1, 0x01
+el1_fiq_sp0:
+	invalid_exception 1, 0x02
+el1_error_sp0:
+	invalid_exception 1, 0x03
+
+el1_sync_sp1:
 	kernel_entry 1
 	mov x0, sp
 	bl arm64_sync_exception
 	kernel_exit 1
-ENDPROC(el1_sync)
-
-	.align 6
-el1_irq:
+el1_irq_sp1:
 	kernel_entry 1
 	msr daifclr, #8
 	mov x0, sp
 	bl arm64_irq_exception
 	kernel_exit 1
-ENDPROC(el1_irq)
+el1_fiq_sp1:
+	invalid_exception 1, 0x12
+el1_error_sp1:
+	invalid_exception 1, 0x13
 
-el1_sync_invalid:
-	inv_entry 1, 0
-ENDPROC(el1_sync_invalid)
+el0_sync_64:
+	invalid_exception 0, 0x20
+el0_irq_64:
+	invalid_exception 0, 0x21
+el0_fiq_64:
+	invalid_exception 0, 0x22
+el0_error_64:
+	invalid_exception 0, 0x23
 
-el1_irq_invalid:
-	inv_entry 1, 1
-ENDPROC(el1_irq_invalid)
-
-el1_fiq_invalid:
-	inv_entry 1, 2
-ENDPROC(el1_fiq_invalid)
-
-el1_error_invalid:
-	inv_entry 1, 3
-ENDPROC(el1_error_invalid)
-
-el0_sync_invalid:
-	inv_entry 0, 0
-ENDPROC(el0_sync_invalid)
-
-el0_irq_invalid:
-	inv_entry 0, 1
-ENDPROC(el0_irq_invalid)
-
-el0_fiq_invalid:
-	inv_entry 0, 2
-ENDPROC(el0_fiq_invalid)
-
-el0_error_invalid:
-	inv_entry 0, 3
-ENDPROC(el0_error_invalid)
+el0_sync_32:
+	invalid_exception 0, 0x30
+el0_irq_32:
+	invalid_exception 0, 0x31
+el0_fiq_32:
+	invalid_exception 0, 0x32
+el0_error_32:
+	invalid_exception 0, 0x33
 
 /*
  * The location of section

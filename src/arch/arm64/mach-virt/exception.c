@@ -25,9 +25,11 @@
 #include <xboot.h>
 #include <arm64.h>
 #include <xboot/gdbstub.h>
+#include <interrupt/interrupt.h>
 
-struct pt_regs_t {
-	uint64_t regs[31];
+struct arm64_regs_t {
+	uint64_t x[30];
+	uint64_t lr;
 	uint64_t sp;
 	uint64_t pc;
 	uint64_t pstate;
@@ -75,15 +77,15 @@ static const char * esr_class_str[] = {
 	[0x3c]	= "BRK (AArch64)",
 };
 
-static void show_regs(struct pt_regs_t * regs)
+static void show_regs(struct arm64_regs_t * regs)
 {
 	int i;
 
-	printf("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\r\n", regs->pc, regs->regs[30], regs->pstate);
+	printf("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\r\n", regs->pc, regs->lr, regs->pstate);
 	printf("sp : %016llx\r\n", regs->sp);
 	for(i = 29; i >= 0; i--)
 	{
-		printf("x%-2d: %016llx ", i, regs->regs[i]);
+		printf("x%-2d: %016llx ", i, regs->x[i]);
 		if(i % 2 == 0)
 			printf("\r\n");
 	}
@@ -91,7 +93,7 @@ static void show_regs(struct pt_regs_t * regs)
 	while(1);
 }
 
-void arm64_invalid_exception(struct pt_regs_t * regs, int reason, unsigned int esr)
+void arm64_invalid_exception(struct arm64_regs_t * regs, int reason, int esr)
 {
 	const char * handler[] = {
 		"Synchronous Abort",
@@ -100,11 +102,11 @@ void arm64_invalid_exception(struct pt_regs_t * regs, int reason, unsigned int e
 		"Error"
 	};
 
-	printf("Invalid exception in %s handler detected, code 0x%08x -- %s\r\n", handler[reason], esr, esr_class_str[esr >> 26]);
+	printf("Invalid exception in %s handler detected(%02x), code 0x%08x -- %s\r\n", handler[reason & 0x3], reason, esr, esr_class_str[esr >> 26]);
 	show_regs(regs);
 }
 
-void arm64_sync_exception(struct pt_regs_t * regs)
+void arm64_sync_exception(struct arm64_regs_t * regs)
 {
 	uint64_t esr, far;
 	uint64_t ec, iss;
@@ -130,7 +132,7 @@ void arm64_sync_exception(struct pt_regs_t * regs)
 	show_regs(regs);
 }
 
-void arm64_irq_exception(struct pt_regs_t * regs)
+void arm64_irq_exception(struct arm64_regs_t * regs)
 {
 	interrupt_handle_exception(regs);
 }

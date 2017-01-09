@@ -8,7 +8,7 @@ ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 CXXFLAGS	:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-MCFLAGS		:= -march=armv7-a -mtune=cortex-a17 -mfpu=vfpv3-d16 -mfloat-abi=hard
+MCFLAGS		:= -march=armv7-a -mtune=cortex-a17 -mfpu=vfpv3-d16 -mfloat-abi=hard -marm -mno-thumb-interwork
 
 LIBDIRS		:=
 LIBS 		:=

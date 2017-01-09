@@ -22,24 +22,37 @@
  *
  */
 
-.macro irq_save_regs
-	sub	sp, sp, #72
-	stmia sp, {r0 - r12}
-	add	r8, sp, #60
-	stmdb r8, {sp, lr}^
-	str	lr, [r8, #0]
-	mrs	r6, spsr
-	str	r6, [r8, #4]
-	str	r0, [r8, #8]
-	mov	r0, sp
+.macro save_regs
+	sub	sp, sp, #68
+	stmia sp, {r0-r12}
+	ldr	r0, [sp, #72]
+	str	r0, [sp, #60]
+	ldr	r0, [sp, #76]
+	mov	r3, r0
+	orr	r0, r0, #0xc0
+	msr	cpsr_c, r0
+	mov	r1, sp
+	mov	r2, lr
+	cps #0x13
+	str	r1, [sp, #52]
+	str	r2, [sp, #56]
+	str	r3, [sp, #64]
+	mov r0, sp
 .endm
 
-.macro irq_restore_regs
-	ldmia sp, {r0 - lr}^
-	mov	r0, r0
-	ldr	lr, [sp, #60]
-	add	sp, sp, #72
-	subs pc, lr, #4
+.macro restore_regs
+	ldr	r1, [sp, #52]
+	ldr	r2, [sp, #56]
+	ldr	r0, [sp, #64]
+	orr	r0, r0, #0xc0
+	msr	cpsr_c, r0
+	mov	sp, r1
+	mov	lr, r2
+	cps #0x13
+	ldr	r0, [sp, #60]
+	str	r0, [sp, #72]
+	ldmia sp, {r0-r12}
+	add	sp, #68
 .endm
 
 /*
@@ -60,19 +73,19 @@ _start:
 	ldr pc, _fiq
 
 _undefined_instruction:
-	.long undefined_instruction
+	.word undefined_instruction
 _software_interrupt:
-	.long software_interrupt
+	.word software_interrupt
 _prefetch_abort:
-	.long prefetch_abort
+	.word prefetch_abort
 _data_abort:
-	.long data_abort
+	.word data_abort
 _not_used:
-	.long not_used
+	.word not_used
 _irq:
-	.long irq
+	.word irq
 _fiq:
-	.long fiq
+	.word fiq
 
 /*
  * The actual reset code
@@ -180,56 +193,91 @@ _main:
  */
 	.align 5
 undefined_instruction:
-	ldr	sp, _stack_und_end
-	sub	sp, sp, #72
-	stmia sp, {r0 - r12}
-	add	r8, sp, #60
-	mrs r1, cpsr
-	mrs r2, spsr
-	orr r2, r2, #0xc0
-	msr cpsr_c, r2
-	mov r0, r0
-	stmdb r8, {sp, lr}
-	msr cpsr_c, r1
 	sub lr, lr, #4
-	str	lr, [r8, #0]
-	mrs	r6, spsr
-	str	r6, [r8, #4]
-	str	r0, [r8, #8]
-	mov	r0, sp
-	bl gdbserver_handle_exception
-	ldmia sp, {r0 - r12}
-	mov	r0, r0
-	ldr	lr, [sp, #60]
-	add	sp, sp, #72
-	movs pc, lr
+	srsdb sp!, #0x13
+	cps #0x13
+	cpsid if
+	push {lr}
+	save_regs
+	bl arm32_do_undefined_instruction
+	restore_regs
+	pop {lr}
+	cpsie if
+	rfeia sp!
 
 	.align 5
 software_interrupt:
-	b	.
+	sub lr, lr, #4
+	srsdb sp!, #0x13
+	cps #0x13
+	cpsid if
+	push {lr}
+	save_regs
+	bl arm32_do_software_interrupt
+	restore_regs
+	pop {lr}
+	cpsie if
+	rfeia sp!
 
 	.align 5
 prefetch_abort:
-	b	.
+	sub lr, lr, #4
+	srsdb sp!, #0x13
+	cps #0x13
+	cpsid if
+	push {lr}
+	save_regs
+	bl arm32_do_prefetch_abort
+	restore_regs
+	pop {lr}
+	cpsie if
+	rfeia sp!
 
 	.align 5
 data_abort:
-	b	.
+	sub lr, lr, #4
+	srsdb sp!, #0x13
+	cps #0x13
+	cpsid if
+	push {lr}
+	save_regs
+	bl arm32_do_data_abort
+	restore_regs
+	pop {lr}
+	cpsie if
+	rfeia sp!
 
 	.align 5
 not_used:
-	b	.
+	b .
 
 	.align 5
 irq:
-	ldr sp, _stack_irq_end
-	irq_save_regs
-	bl interrupt_handle_exception
-	irq_restore_regs
+	sub lr, lr, #4
+	srsdb sp!, #0x13
+	cps #0x13
+	cpsid if
+	push {lr}
+	save_regs
+	bl arm32_do_irq
+	restore_regs
+	pop {lr}
+	cpsie if
+	rfeia sp!
 
 	.align 5
 fiq:
-	b	.
+	sub lr, lr, #4
+	srsdb sp!, #0x13
+	cps #0x13
+	cpsid if
+	push {lr}
+	save_regs
+	bl arm32_do_fiq
+	restore_regs
+	pop {lr}
+	cpsie if
+	rfeia sp!
 
 /*
  * The location of section

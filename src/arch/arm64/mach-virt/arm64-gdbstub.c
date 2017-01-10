@@ -33,7 +33,7 @@ struct arm64_env_t {
 		uint64_t lr;
 		uint64_t sp;
 		uint64_t pc;
-		uint64_t pstate;
+		uint64_t cpsr;
 	} regs;
 	struct {
 		virtual_addr_t addr;
@@ -86,7 +86,7 @@ static int cpu_register_read(struct gdb_cpu_t * cpu, char * buf, int n)
 	}
 	else if(n == 33)
 	{
-		memcpy(buf, &env->regs.pstate, 8);
+		memcpy(buf, &env->regs.cpsr, 8);
 		return 8;
 	}
 	else if(n < 66)		/* v0 - v31 */
@@ -133,7 +133,7 @@ static int cpu_register_write(struct gdb_cpu_t * cpu, char * buf, int n)
 	}
 	else if(n == 33)
 	{
-		memcpy(&env->regs.pstate, buf, 8);
+		memcpy(&env->regs.cpsr, buf, 8);
 		return 8;
 	}
 	else if(n < 66)		/* v0 - v31 */

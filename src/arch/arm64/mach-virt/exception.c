@@ -32,9 +32,7 @@ struct arm64_regs_t {
 	uint64_t lr;
 	uint64_t sp;
 	uint64_t pc;
-	uint64_t pstate;
-	uint64_t orig_x0;
-	uint64_t syscallno;
+	uint64_t cpsr;
 };
 
 static const char * esr_class_str[] = {
@@ -81,7 +79,7 @@ static void show_regs(struct arm64_regs_t * regs)
 {
 	int i;
 
-	printf("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\r\n", regs->pc, regs->lr, regs->pstate);
+	printf("pc : [<%016llx>] lr : [<%016llx>] cpsr: %08llx\r\n", regs->pc, regs->lr, regs->cpsr);
 	printf("sp : %016llx\r\n", regs->sp);
 	for(i = 29; i >= 0; i--)
 	{

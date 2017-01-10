@@ -113,37 +113,6 @@
 
 	.global _start
 _start:
-	b reset
-/*
- * Exception vectors.
- */
-	.align 11
-	.globl vectors
-vectors:
-	ventry el1_sync_sp0
-	ventry el1_irq_sp0
-	ventry el1_fiq_sp0
-	ventry el1_error_sp0
-
-	ventry el1_sync_sp1
-	ventry el1_irq_sp1
-	ventry el1_fiq_sp1
-	ventry el1_error_sp1
-
-	ventry el0_sync_64
-	ventry el0_irq_64
-	ventry el0_fiq_64
-	ventry el0_error_64
-
-	ventry el0_sync_32
-	ventry el0_irq_32
-	ventry el0_fiq_32
-	ventry el0_error_32
-
-/*
- * The actual reset code
- */
-reset:
 	/*
 	 * Initial system with exception level
 	 */
@@ -239,47 +208,77 @@ _main:
 	bl xboot_main
 	b _main
 
-el1_sync_sp0:
+/*
+ * Exception vectors.
+ */
+	.align 11
+	.globl vectors
+vectors:
+	/* Current el with sp_el0 : 0x000 - 0x200 */
+	ventry cel_sync_sp_el0
+	ventry cel_irq_sp_el0
+	ventry cel_fiq_sp_el0
+	ventry cel_error_sp_el0
+
+	/* Current el with sp_elx : 0x200 - 0x400 */
+	ventry cel_sync_sp_elx
+	ventry cel_irq_sp_elx
+	ventry cel_fiq_sp_elx
+	ventry cel_error_sp_elx
+
+	/* Lower el using aarch64 : 0x400 - 0x600 */
+	ventry lel_sync_aarch64
+	ventry lel_irq_aarch64
+	ventry lel_fiq_aarch64
+	ventry lel_error_aarch64
+
+	/* Lower el using aarch32 : 0x600 - 0x800 */
+	ventry lel_sync_aarch32
+	ventry lel_irq_aarch32
+	ventry lel_fiq_aarch32
+	ventry lel_error_aarch32
+
+cel_sync_sp_el0:
 	invalid_exception 1, 0x00
-el1_irq_sp0:
+cel_irq_sp_el0:
 	invalid_exception 1, 0x01
-el1_fiq_sp0:
+cel_fiq_sp_el0:
 	invalid_exception 1, 0x02
-el1_error_sp0:
+cel_error_sp_el0:
 	invalid_exception 1, 0x03
 
-el1_sync_sp1:
+cel_sync_sp_elx:
 	kernel_entry 1
 	mov x0, sp
 	bl arm64_sync_exception
 	kernel_exit 1
-el1_irq_sp1:
+cel_irq_sp_elx:
 	kernel_entry 1
 	msr daifclr, #8
 	mov x0, sp
 	bl arm64_irq_exception
 	kernel_exit 1
-el1_fiq_sp1:
+cel_fiq_sp_elx:
 	invalid_exception 1, 0x12
-el1_error_sp1:
+cel_error_sp_elx:
 	invalid_exception 1, 0x13
 
-el0_sync_64:
+lel_sync_aarch64:
 	invalid_exception 0, 0x20
-el0_irq_64:
+lel_irq_aarch64:
 	invalid_exception 0, 0x21
-el0_fiq_64:
+lel_fiq_aarch64:
 	invalid_exception 0, 0x22
-el0_error_64:
+lel_error_aarch64:
 	invalid_exception 0, 0x23
 
-el0_sync_32:
+lel_sync_aarch32:
 	invalid_exception 0, 0x30
-el0_irq_32:
+lel_irq_aarch32:
 	invalid_exception 0, 0x31
-el0_fiq_32:
+lel_fiq_aarch32:
 	invalid_exception 0, 0x32
-el0_error_32:
+lel_error_aarch32:
 	invalid_exception 0, 0x33
 
 /*

@@ -31,7 +31,7 @@
 .endm
 
 .macro save_regs
-	sub sp, sp, #48
+	sub sp, sp, #0x20
 	stp x28, x29, [sp, #-16]!
 	stp x26, x27, [sp, #-16]!
 	stp x24, x25, [sp, #-16]!
@@ -47,46 +47,48 @@
 	stp x4, x5, [sp, #-16]!
 	stp x2, x3, [sp, #-16]!
 	stp x0, x1, [sp, #-16]!
-	add x1, sp, #288
-	mrs x2, elr_el1
-	mrs x3, spsr_el1
-	stp x30, x1, [sp, #240]
-	stp x2, x3, [sp, #256]
+	add	x21, sp, #0x110
+	mrs	x22, elr_el1
+	mrs	x23, spsr_el1
+	stp	x30, x21, [sp, #0xf0]
+	stp	x22, x23, [sp, #0x100]
 .endm
 
 .macro restore_regs
-	ldp x21, x22, [sp, #256]
-	ldp x0, x1, [sp], #16
-	ldp x2, x3, [sp], #16
-	ldp x4, x5, [sp], #16
-	ldp x6, x7, [sp], #16
-	ldp x8, x9, [sp], #16
-	msr elr_el1, x21
-	msr spsr_el1, x22
-	ldp x10, x11, [sp], #16
-	ldp x12, x13, [sp], #16
-	ldp x14, x15, [sp], #16
-	ldp x16, x17, [sp], #16
-	ldp x18, x19, [sp], #16
-	ldp x20, x21, [sp], #16
-	ldp x22, x23, [sp], #16
-	ldp x24, x25, [sp], #16
-	ldp x26, x27, [sp], #16
-	ldp x28, x29, [sp], #16
-	ldr x30, [sp], #48
+	ldp x22, x23, [sp, #0x100]
+	ldp x30, x28, [sp, #0xf0]
+	msr elr_el1, x22
+	msr	spsr_el1, x23
+	mov x29, sp
+	mov sp, x28
+	ldp	x0, x1, [x29], #16
+	ldp	x2, x3, [x29], #16
+	ldp	x4, x5, [x29], #16
+	ldp	x6, x7, [x29], #16
+	ldp	x8, x9, [x29], #16
+	ldp	x10, x11, [x29], #16
+	ldp	x12, x13, [x29], #16
+	ldp	x14, x15, [x29], #16
+	ldp	x16, x17, [x29], #16
+	ldp	x18, x19, [x29], #16
+	ldp	x20, x21, [x29], #16
+	ldp	x22, x23, [x29], #16
+	ldp	x24, x25, [x29], #16
+	ldp	x26, x27, [x29], #16
+	ldr	x28, [x29], #8
+	ldr	x29, [x29]
+	eret
 .endm
 
 /*
  * Invalid mode handlers
  */
-.macro invalid_exception, el, reason
+.macro invalid_exception, reason
 	save_regs
 	mov x0, sp
 	mov x1, #\reason
-	mrs x2, esr_el1
 	bl arm64_invalid_exception
 	restore_regs
-	eret
 .endm
 
 	.global _start
@@ -217,49 +219,46 @@ vectors:
 	ventry lel_error_aarch32
 
 cel_sync_sp_el0:
-	invalid_exception 1, 0x00
+	invalid_exception 0x00
 cel_irq_sp_el0:
-	invalid_exception 1, 0x01
+	invalid_exception 0x01
 cel_fiq_sp_el0:
-	invalid_exception 1, 0x02
+	invalid_exception 0x02
 cel_error_sp_el0:
-	invalid_exception 1, 0x03
+	invalid_exception 0x03
 
 cel_sync_sp_elx:
 	save_regs
 	mov x0, sp
 	bl arm64_sync_exception
 	restore_regs
-	eret
 cel_irq_sp_elx:
 	save_regs
-	msr daifclr, #8
 	mov x0, sp
 	bl arm64_irq_exception
 	restore_regs
-	eret
 cel_fiq_sp_elx:
-	invalid_exception 1, 0x12
+	invalid_exception 0x12
 cel_error_sp_elx:
-	invalid_exception 1, 0x13
+	invalid_exception 0x13
 
 lel_sync_aarch64:
-	invalid_exception 0, 0x20
+	invalid_exception 0x20
 lel_irq_aarch64:
-	invalid_exception 0, 0x21
+	invalid_exception 0x21
 lel_fiq_aarch64:
-	invalid_exception 0, 0x22
+	invalid_exception 0x22
 lel_error_aarch64:
-	invalid_exception 0, 0x23
+	invalid_exception 0x23
 
 lel_sync_aarch32:
-	invalid_exception 0, 0x30
+	invalid_exception 0x30
 lel_irq_aarch32:
-	invalid_exception 0, 0x31
+	invalid_exception 0x31
 lel_fiq_aarch32:
-	invalid_exception 0, 0x32
+	invalid_exception 0x32
 lel_error_aarch32:
-	invalid_exception 0, 0x33
+	invalid_exception 0x33
 
 /*
  * The location of section

@@ -32,54 +32,14 @@ struct arm64_regs_t {
 	uint64_t lr;
 	uint64_t sp;
 	uint64_t pc;
-	uint64_t cpsr;
-};
-
-static const char * esr_class_str[] = {
-	[0 ... 0x3f] = "UNRECOGNIZED EC",
-	[0x00]	= "Unknown/Uncategorized",
-	[0x01]	= "WFI/WFE",
-	[0x03]	= "CP15 MCR/MRC",
-	[0x04]	= "CP15 MCRR/MRRC",
-	[0x05]	= "CP14 MCR/MRC",
-	[0x06]	= "CP14 LDC/STC",
-	[0x07]	= "ASIMD",
-	[0x08]	= "CP10 MRC/VMRS",
-	[0x0c]	= "CP14 MCRR/MRRC",
-	[0x0e]	= "PSTATE.IL",
-	[0x11]	= "SVC (AArch32)",
-	[0x12]	= "HVC (AArch32)",
-	[0x13]	= "SMC (AArch32)",
-	[0x15]	= "SVC (AArch64)",
-	[0x16]	= "HVC (AArch64)",
-	[0x17]	= "SMC (AArch64)",
-	[0x18]	= "MSR/MRS (AArch64)",
-	[0x1f]	= "EL3 IMP DEF",
-	[0x20]	= "IABT (lower EL)",
-	[0x21]	= "IABT (current EL)",
-	[0x22]	= "PC Alignment",
-	[0x24]	= "DABT (lower EL)",
-	[0x25]	= "DABT (current EL)",
-	[0x26]	= "SP Alignment",
-	[0x28]	= "FP (AArch32)",
-	[0x2c]	= "FP (AArch64)",
-	[0x2f]	= "SError",
-	[0x30]	= "Breakpoint (lower EL)",
-	[0x31]	= "Breakpoint (current EL)",
-	[0x32]	= "Software Step (lower EL)",
-	[0x33]	= "Software Step (current EL)",
-	[0x34]	= "Watchpoint (lower EL)",
-	[0x35]	= "Watchpoint (current EL)",
-	[0x38]	= "BKPT (AArch32)",
-	[0x3a]	= "Vector catch (AArch32)",
-	[0x3c]	= "BRK (AArch64)",
+	uint64_t pstate;
 };
 
 static void show_regs(struct arm64_regs_t * regs)
 {
 	int i;
 
-	printf("pc : [<%016llx>] lr : [<%016llx>] cpsr: %08llx\r\n", regs->pc, regs->lr, regs->cpsr);
+	printf("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\r\n", regs->pc, regs->lr, regs->pstate);
 	printf("sp : %016llx\r\n", regs->sp);
 	for(i = 29; i >= 0; i--)
 	{
@@ -91,7 +51,7 @@ static void show_regs(struct arm64_regs_t * regs)
 	while(1);
 }
 
-void arm64_invalid_exception(struct arm64_regs_t * regs, int reason, int esr)
+void arm64_invalid_exception(struct arm64_regs_t * regs, int reason)
 {
 	const char * handler[] = {
 		"Synchronous Abort",
@@ -100,7 +60,7 @@ void arm64_invalid_exception(struct arm64_regs_t * regs, int reason, int esr)
 		"Error"
 	};
 
-	printf("Invalid exception in %s handler detected(%02x), code 0x%08x -- %s\r\n", handler[reason & 0x3], reason, esr, esr_class_str[esr >> 26]);
+	printf("Invalid exception in %s handler detected, code 0x%02x\r\n", handler[reason & 0x3], reason);
 	show_regs(regs);
 }
 

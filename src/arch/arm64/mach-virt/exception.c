@@ -24,8 +24,8 @@
 
 #include <xboot.h>
 #include <arm64.h>
-#include <xboot/gdbstub.h>
 #include <interrupt/interrupt.h>
+#include <xboot/gdbstub.h>
 
 struct arm64_regs_t {
 	uint64_t x[30];

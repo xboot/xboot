@@ -153,7 +153,7 @@ static int cpu_register_write(struct gdb_cpu_t * cpu, char * buf, int n)
 
 static int cpu_breakpoint_insert(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp)
 {
-	const uint8_t bpinstr[4] = {0x00, 0x04, 0x00, 0xf2};	/* 0xf2000400 */
+	const uint8_t bpinstr[4] = {0x00, 0x80, 0x20, 0xd4};	/* 0xd4208000 */
 
 	switch(bp->type)
 	{
@@ -192,7 +192,7 @@ static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 
 static int cpu_singlestep_active(struct gdb_cpu_t * cpu)
 {
-	const uint8_t bpinstr[4] = {0x00, 0x04, 0x00, 0xf2};	/* 0xf2000400 */
+	const uint8_t bpinstr[4] = {0x00, 0x80, 0x20, 0xd4};	/* 0xd4208000 */
 	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
 	env->step.addr = env->regs.pc + 4;
 	memcpy(env->step.instr, (void *)(env->step.addr), 4);

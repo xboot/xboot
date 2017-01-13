@@ -21,6 +21,7 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm64/mach-virt/start.o (.text)
+		.obj/arch/arm64/mach-virt/transition.o (.text)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

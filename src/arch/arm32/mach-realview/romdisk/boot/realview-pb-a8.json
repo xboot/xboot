@@ -92,6 +92,9 @@
 		"delay-us": 5
 	},
 
+	"mmc-pl181@0x10005000": {
+	},
+
 	"key-gpio-polled@0": {
 		"keys": [
 			{ "gpio": 5, "active-low": true, "key-code": 146 },

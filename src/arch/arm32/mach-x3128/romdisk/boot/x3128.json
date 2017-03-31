@@ -1,0 +1,164 @@
+{
+	"clk-fixed@0": { "name": "usbphy480m", "rate": 480000000 },
+	"clk-fixed@1": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
+
+	"clk-rk3128-pll@0": { "parent": "xin24m", "name": "apll", "channel": 0 },
+	"clk-rk3128-pll@1": { "parent": "xin24m", "name": "dpll", "channel": 1 },
+	"clk-rk3128-pll@2": { "parent": "xin24m", "name": "cpll", "channel": 2 },
+	"clk-rk3128-pll@3": { "parent": "xin24m", "name": "gpll", "channel": 3 },
+
+	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer0", "shift": 3, "invert": true },
+	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer1", "shift": 4, "invert": true },
+	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer2", "shift": 5, "invert": true },
+	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer3", "shift": 6, "invert": true },
+	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer4", "shift": 7, "invert": true },
+	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer5", "shift": 8, "invert": true },
+	"clk-link": { "parent": "gate-timer0", "name": "link-timer0" },
+	"clk-link": { "parent": "gate-timer1", "name": "link-timer1" },
+	"clk-link": { "parent": "gate-timer2", "name": "link-timer2" },
+	"clk-link": { "parent": "gate-timer3", "name": "link-timer3" },
+	"clk-link": { "parent": "gate-timer4", "name": "link-timer4" },
+	"clk-link": { "parent": "gate-timer5", "name": "link-timer5" },
+
+	"clk-rk3128-gate@0x200000d8": { "parent": "xin24m", "name": "gate-saradc", "shift": 8, "invert": true },
+	"clk-rk3128-divider@0x200000a0": { "parent": "gate-saradc", "name": "div-saradc", "shift": 8, "width": 8, "divider-one-based": true, "default": { "rate": 1000000 } },
+	"clk-link": { "parent": "div-saradc", "name": "link-saradc" },
+
+	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart1" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart2" },
+
+	"irq-gic400@0x10138000": {
+		"interrupt-base": 32,
+		"interrupt-count": 96
+	},
+
+	"irq-rk3128-gpio@0x2007c000": {
+		"interrupt-base": 128,
+		"interrupt-count": 32,
+		"interrupt-parent": 68
+	},
+	
+	"irq-rk3128-gpio@0x20080000": {
+		"interrupt-base": 160,
+		"interrupt-count": 32,
+		"interrupt-parent": 69
+	},
+	
+	"irq-rk3128-gpio@0x20084000": {
+		"interrupt-base": 192,
+		"interrupt-count": 32,
+		"interrupt-parent": 70
+	},
+	
+	"irq-rk3128-gpio@0x20088000": {
+		"interrupt-base": 224,
+		"interrupt-count": 32,
+		"interrupt-parent": 71
+	},
+
+	"gpio-rk3128@0x2007c000": {
+		"gpio-base": 0,
+		"gpio-count": 32,
+		"interrupt-offset": 128
+	},
+
+	"gpio-rk3128@0x20080000": {
+		"gpio-base": 32,
+		"gpio-count": 32,
+		"interrupt-offset": 160
+	},
+
+	"gpio-rk3128@0x20084000": {
+		"gpio-base": 64,
+		"gpio-count": 32,
+		"interrupt-offset": 192
+	},
+
+	"gpio-rk3128@0x20088000": {
+		"gpio-base": 96,
+		"gpio-count": 32,
+		"interrupt-offset": 224
+	},
+
+	"adc-rk3128@0x2006c000": {
+		"clock-name": "link-saradc",
+		"reference-voltage": 1800000
+	},
+
+	"ce-rockchip-timer@0x20044000": {
+		"clock-name": "link-timer0",
+		"interrupt": 60
+	},
+
+	"cs-rockchip-timer@0x20044020": {
+		"clock-name": "link-timer1"
+	},
+
+	"uart-8250@0x20060000": {
+		"clock-name": "link-uart0",
+		"txd-gpio": 90,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 91,
+		"rxd-gpio-config": 2,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0x20064000": {
+		"clock-name": "link-uart1",
+		"txd-gpio": 41,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 42,
+		"rxd-gpio-config": 2,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0x20068000": {
+		"clock-name": "link-uart2",
+		"txd-gpio": 50,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 51,
+		"rxd-gpio-config": 2,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"key-adc@0": {
+		"adc-name": "adc-rk3128.0",
+		"adc-channel": 1,
+		"poll-interval-ms": 100,
+		"keys": [
+			{ "min-voltage": 0, "max-voltage": 1000000, "key-code": 8 }
+		]
+	},
+
+	"led-gpio@0": {
+		"gpio": 55,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@1": {
+		"gpio": 67,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.0",
+		"heartbeat-period-ms": 1260
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-8250.2"
+	}
+}

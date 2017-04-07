@@ -81,15 +81,6 @@ struct render_t * fb_create(struct fb_t * fb)
 	render->pixlen = surface->height * surface->pitch;
 	render->priv = surface;
 
-	render->clear = sw_render_clear;
-	render->snapshot = sw_render_snapshot;
-	render->alloc_texture = sw_render_alloc_texture;
-	render->alloc_texture_similar = sw_render_alloc_texture_similar;
-	render->free_texture = sw_render_free_texture;
-	render->fill_texture = sw_render_fill_texture;
-	render->blit_texture = sw_render_blit_texture;
-	sw_render_create_data(render);
-
 	return render;
 }
 

@@ -6,8 +6,8 @@
 #
 # You must pass CROSS_COMPILE and PLATFORM variable.
 #
-CROSS_COMPILE	?= arm-linux-gnueabihf-
-PLATFORM		?= arm32-x3128
+CROSS_COMPILE	?=
+PLATFORM		?=
 
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.
@@ -122,7 +122,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/dac									\
 				driver/dma									\
 				driver/fb									\
-				driver/fb/sw								\
 				driver/gmeter								\
 				driver/gpio									\
 				driver/hygrometer							\

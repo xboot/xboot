@@ -6,11 +6,39 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <fb/color.h>
-#include <fb/rect.h>
-#include <fb/matrix.h>
-#include <fb/render.h>
-#include <fb/sw/sw.h>
+
+enum pixel_format_t
+{
+	PIXEL_FORMAT_ARGB32		= 0,
+	PIXEL_FORMAT_RGB24		= 1,
+	PIXEL_FORMAT_A8			= 2,
+	PIXEL_FORMAT_A1			= 3,
+	PIXEL_FORMAT_RGB16_565	= 4,
+	PIXEL_FORMAT_RGB30		= 5,
+};
+
+struct render_t {
+	/* The width of render */
+	u32_t width;
+
+	/* The height of render */
+	u32_t height;
+
+	/* The pitch of one scan line */
+	u32_t pitch;
+
+	/* Pixel format */
+	enum pixel_format_t format;
+
+	/* Pixel data */
+	void * pixels;
+
+	/* Pixel data length */
+	size_t pixlen;
+
+	/* Private data */
+	void * priv;
+};
 
 struct fb_t
 {

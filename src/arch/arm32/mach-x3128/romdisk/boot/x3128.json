@@ -8,6 +8,35 @@
 	"clk-rk3128-pll@2": { "parent": "xin24m", "name": "cpll", "channel": 2 },
 	"clk-rk3128-pll@3": { "parent": "xin24m", "name": "gpll", "channel": 3 },
 
+	"clk-fixed-factor@0": { "parent": "gpll", "name": "gpll-d2", "mult": 1, "div": 2 },
+	"clk-fixed-factor@1": { "parent": "gpll", "name": "gpll-d3", "mult": 1, "div": 3 },
+
+	"clk-rk3128-mux@0x20000044": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 },
+			{ "name": "gpll-d3", "value": 3 }
+		],
+		"name": "mux-cpu-aclk", "shift": 13, "width": 2
+	},
+	"clk-rk3128-divider@0x20000044": { "parent": "mux-cpu-aclk", "name": "cpu-aclk", "shift": 8, "width": 5, "divider-one-based": true },
+	"clk-rk3128-divider@0x20000048": { "parent": "cpu-aclk", "name": "cpu-hclk", "shift": 8, "width": 2, "divider-one-based": true },
+	"clk-rk3128-divider@0x20000048": { "parent": "cpu-aclk", "name": "cpu-pclk", "shift": 12, "width": 3, "divider-one-based": true },
+
+	"clk-rk3128-mux@0x2000006c": {
+		"parent": [
+			{ "name": "gpll", "value": 0 },
+			{ "name": "cpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 },
+			{ "name": "gpll-d3", "value": 3 }
+		],
+		"name": "mux-periph-aclk", "shift": 14, "width": 2
+	},
+	"clk-rk3128-divider@0x2000006c": { "parent": "mux-periph-aclk", "name": "periph-aclk", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-rk3128-ratio@0x2000006c": { "parent": "periph-aclk", "name": "periph-hclk", "shift": 8, "width": 2 },
+	"clk-rk3128-ratio@0x2000006c": { "parent": "periph-aclk", "name": "periph-pclk", "shift": 12, "width": 2 },
+
 	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer0", "shift": 3, "invert": true },
 	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer1", "shift": 4, "invert": true },
 	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer2", "shift": 5, "invert": true },
@@ -25,9 +54,63 @@
 	"clk-rk3128-divider@0x200000a0": { "parent": "gate-saradc", "name": "div-saradc", "shift": 8, "width": 8, "divider-one-based": true, "default": { "rate": 1000000 } },
 	"clk-link": { "parent": "div-saradc", "name": "link-saradc" },
 
-	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
-	"clk-link": { "parent": "xin24m", "name": "link-uart1" },
-	"clk-link": { "parent": "xin24m", "name": "link-uart2" },
+	"clk-rk3128-mux@0x20000078": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 },
+			{ "name": "usbphy480m", "value": 3 }
+		],
+		"name": "mux-uart0-src", "shift": 12, "width": 2
+	},
+	"clk-rk3128-gate@0x200000d4": {"parent": "mux-uart0-src", "name": "gate-uart0-src", "shift": 8, "invert": true },
+	"clk-rk3128-divider@0x20000078": { "parent": "gate-uart0-src", "name": "div-uart0-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3128-gate@0x200000d4": {"parent": "div-uart0-src", "name": "gate-uart0-frac", "shift": 9, "invert": true },
+	"clk-rk3128-factor@0x20000088": { "parent": "gate-uart0-frac", "name": "factor-uart0-frac" },
+	"clk-rk3128-mux@0x20000078": {
+		"parent": [
+			{ "name": "gate-uart0-src", "value": 0 },
+			{ "name": "factor-uart0-frac", "value": 1 },
+			{ "name": "xin24m", "value": 2 }
+		],
+		"name": "mux-uart0", "shift": 8, "width": 2
+	},
+	"clk-link": { "parent": "mux-uart0", "name": "link-uart0" },
+
+	"clk-rk3128-mux@0x20000078": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 }
+		],
+		"name": "mux-uart12-src", "shift": 14, "width": 2
+	},
+	"clk-rk3128-gate@0x200000d4": {"parent": "mux-uart12-src", "name": "gate-uart1-src", "shift": 10, "invert": true },
+	"clk-rk3128-gate@0x200000d4": {"parent": "mux-uart12-src", "name": "gate-uart2-src", "shift": 12, "invert": true },
+	"clk-rk3128-divider@0x2000007c": { "parent": "gate-uart1-src", "name": "div-uart1-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3128-divider@0x20000080": { "parent": "gate-uart2-src", "name": "div-uart2-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3128-gate@0x200000d4": {"parent": "div-uart1-src", "name": "gate-uart1-frac", "shift": 11, "invert": true },
+	"clk-rk3128-gate@0x200000d4": {"parent": "div-uart2-src", "name": "gate-uart2-frac", "shift": 13, "invert": true },
+	"clk-rk3128-factor@0x2000008c": { "parent": "gate-uart1-frac", "name": "factor-uart1-frac" },
+	"clk-rk3128-factor@0x20000090": { "parent": "gate-uart2-frac", "name": "factor-uart2-frac" },
+	"clk-rk3128-mux@0x2000007c": {
+		"parent": [
+			{ "name": "gate-uart1-src", "value": 0 },
+			{ "name": "factor-uart1-frac", "value": 1 },
+			{ "name": "xin24m", "value": 2 }
+		],
+		"name": "mux-uart1", "shift": 8, "width": 2
+	},
+	"clk-rk3128-mux@0x20000080": {
+		"parent": [
+			{ "name": "gate-uart2-src", "value": 0 },
+			{ "name": "factor-uart2-frac", "value": 1 },
+			{ "name": "xin24m", "value": 2 }
+		],
+		"name": "mux-uart2", "shift": 8, "width": 2
+	},
+	"clk-link": { "parent": "mux-uart1", "name": "link-uart1" },
+	"clk-link": { "parent": "mux-uart2", "name": "link-uart2" },
 
 	"irq-gic400@0x10138000": {
 		"interrupt-base": 32,

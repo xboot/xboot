@@ -132,10 +132,47 @@ static int gpio_rk3128_get_cfg(struct gpiochip_t * chip, int offset)
 
 static void gpio_rk3128_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
 {
+	struct gpio_rk3128_pdata_t * pdat = (struct gpio_rk3128_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t val, v;
+
+	if(offset >= chip->ngpio)
+		return;
+
+	switch(pull)
+	{
+	case GPIO_PULL_UP:
+	case GPIO_PULL_DOWN:
+		v = 0x00010000;
+		break;
+
+	case GPIO_PULL_NONE:
+	default:
+		v = 0x00010001;
+		break;
+	}
+
+	addr = pdat->grf + GRF_GPIO0L_PULL + ((pdat->base >> 5) * 0x08) + ((offset >> 4) << 2);
+	val = read32(addr);
+	val &= ~(0x00010001 << (offset & 0xf));
+	val |= (v << (offset & 0xf));
+	write32(addr, val);
 }
 
 static enum gpio_pull_t gpio_rk3128_get_pull(struct gpiochip_t * chip, int offset)
 {
+	struct gpio_rk3128_pdata_t * pdat = (struct gpio_rk3128_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t v = 0;
+
+	if(offset >= chip->ngpio)
+		return GPIO_PULL_NONE;
+
+	addr = pdat->grf + GRF_GPIO0L_PULL + ((pdat->base >> 5) * 0x08) + ((offset >> 4) << 2);
+	v = (read32(addr) >> (offset & 0xf)) & 0x1;
+
+	if(v == 0x0)
+		return GPIO_PULL_UP;
 	return GPIO_PULL_NONE;
 }
 

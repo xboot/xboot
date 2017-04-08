@@ -183,6 +183,34 @@
 		"interrupt-offset": 224
 	},
 
+	"pwm-rk3128@0x20050000": {
+		"clock-name": "link-pwm0",
+		"channel": 0,
+		"pwm-gpio": 26,
+		"pwm-gpio-config": 1
+	},
+
+	"pwm-rk3128@0x20050000": {
+		"clock-name": "link-pwm1",
+		"channel": 1,
+		"pwm-gpio": 27,
+		"pwm-gpio-config": 1
+	},
+
+	"pwm-rk3128@0x20050000": {
+		"clock-name": "link-pwm2",
+		"channel": 2,
+		"pwm-gpio": 28,
+		"pwm-gpio-config": 1
+	},
+
+	"pwm-rk3128@0x20050000": {
+		"clock-name": "link-pwm3",
+		"channel": 3,
+		"pwm-gpio": 122,
+		"pwm-gpio-config": 1
+	},
+
 	"adc-rk3128@0x2006c000": {
 		"clock-name": "link-saradc",
 		"reference-voltage": 1800000
@@ -231,6 +259,10 @@
 		"data-bits": 8,
 		"parity-bits": 0,
 		"stop-bits": 1
+	},
+
+	"wdog-rk3128@0x2004c000": {
+		"clock-name": "link-wdt"
 	},
 
 	"key-adc@0": {
@@ -286,10 +318,11 @@
 		"heartbeat-period-ms": 1260
 	},
 
-	"wdog-rk3128@0x2004c000": {
-		"clock-name": "link-wdt"
+	"buzzer-pwm@0": {
+		"pwm-name": "pwm-rk3128.0",
+		"pwm-polarity": true
 	},
-	
+
 	"console-uart@0": {
 		"uart-bus": "uart-8250.2"
 	}

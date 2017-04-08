@@ -50,6 +50,24 @@
 	"clk-link": { "parent": "gate-timer4", "name": "link-timer4" },
 	"clk-link": { "parent": "gate-timer5", "name": "link-timer5" },
 
+	"clk-rk3128-gate@0x200000f0": { "parent": "periph-pclk", "name": "gate-i2c0", "shift": 4, "invert": true },
+	"clk-rk3128-gate@0x200000f0": { "parent": "periph-pclk", "name": "gate-i2c1", "shift": 5, "invert": true },
+	"clk-rk3128-gate@0x200000f0": { "parent": "periph-pclk", "name": "gate-i2c2", "shift": 6, "invert": true },
+	"clk-rk3128-gate@0x200000f0": { "parent": "periph-pclk", "name": "gate-i2c3", "shift": 7, "invert": true },
+	"clk-link": { "parent": "gate-i2c0", "name": "link-i2c0" },
+	"clk-link": { "parent": "gate-i2c1", "name": "link-i2c1" },
+	"clk-link": { "parent": "gate-i2c2", "name": "link-i2c2" },
+	"clk-link": { "parent": "gate-i2c3", "name": "link-i2c3" },
+
+	"clk-rk3128-gate@0x200000ec": { "parent": "periph-pclk", "name": "gate-pwm", "shift": 10, "invert": true },
+	"clk-link": { "parent": "gate-pwm", "name": "link-pwm0" },
+	"clk-link": { "parent": "gate-pwm", "name": "link-pwm1" },
+	"clk-link": { "parent": "gate-pwm", "name": "link-pwm2" },
+	"clk-link": { "parent": "gate-pwm", "name": "link-pwm3" },
+
+	"clk-rk3128-gate@0x200000ec": { "parent": "periph-pclk", "name": "gate-wdt", "shift": 15, "invert": true },
+	"clk-link": { "parent": "gate-wdt", "name": "link-wdt" },
+	
 	"clk-rk3128-gate@0x200000d8": { "parent": "xin24m", "name": "gate-saradc", "shift": 8, "invert": true },
 	"clk-rk3128-divider@0x200000a0": { "parent": "gate-saradc", "name": "div-saradc", "shift": 8, "width": 8, "divider-one-based": true, "default": { "rate": 1000000 } },
 	"clk-link": { "parent": "div-saradc", "name": "link-saradc" },
@@ -268,6 +286,10 @@
 		"heartbeat-period-ms": 1260
 	},
 
+	"wdog-rk3128@0x2004c000": {
+		"clock-name": "link-wdt"
+	},
+	
 	"console-uart@0": {
 		"uart-bus": "uart-8250.2"
 	}

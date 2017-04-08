@@ -297,6 +297,10 @@
 		"scl-gpio-config": 1
 	},
 
+	"rtc-pcf8563": {
+		"i2c-bus": "i2c-rk3128.0"
+	},
+ 
 	"wdog-rk3128@0x2004c000": {
 		"clock-name": "link-wdt"
 	},

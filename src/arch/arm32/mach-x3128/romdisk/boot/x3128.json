@@ -261,6 +261,42 @@
 		"stop-bits": 1
 	},
 
+	"i2c-rk3128@0x20072000": {
+		"clock-name": "link-i2c0",
+		"clock-frequency": 400000,
+		"sda-gpio": 1,
+		"sda-gpio-config": 1,
+		"scl-gpio": 0,
+		"scl-gpio-config": 1
+	},
+
+	"i2c-rk3128@0x20056000": {
+		"clock-name": "link-i2c1",
+		"clock-frequency": 400000,
+		"sda-gpio": 3,
+		"sda-gpio-config": 1,
+		"scl-gpio": 2,
+		"scl-gpio-config": 1
+	},
+
+	"i2c-rk3128@0x2005a000": {
+		"clock-name": "link-i2c2",
+		"clock-frequency": 400000,
+		"sda-gpio": 84,
+		"sda-gpio-config": 3,
+		"scl-gpio": 85,
+		"scl-gpio-config": 3
+	},
+
+	"i2c-rk3128@0x2005e000": {
+		"clock-name": "link-i2c3",
+		"clock-frequency": 400000,
+		"sda-gpio": 7,
+		"sda-gpio-config": 1,
+		"scl-gpio": 6,
+		"scl-gpio-config": 1
+	},
+
 	"wdog-rk3128@0x2004c000": {
 		"clock-name": "link-wdt"
 	},

@@ -27,9 +27,9 @@
 #include <rk3128/reg-cru.h>
 
 static const struct mmap_t mach_map[] = {
-//	{"ram",  0x60000000, 0x60000000, SZ_128M, MAP_TYPE_CB},
-//	{"dma",  0x68000000, 0x68000000, SZ_128M, MAP_TYPE_NCNB},
-//	{"heap", 0x70000000, 0x70000000, SZ_256M, MAP_TYPE_CB},
+	{"ram",  0x60000000, 0x60000000, SZ_128M, MAP_TYPE_CB},
+	{"dma",  0x68000000, 0x68000000, SZ_128M, MAP_TYPE_NCNB},
+	{"heap", 0x70000000, 0x70000000, SZ_256M, MAP_TYPE_CB},
 	{ 0 },
 };
 
@@ -40,7 +40,7 @@ static int mach_detect(struct machine_t * mach)
 
 static void mach_memmap(struct machine_t * mach)
 {
-//	mmu_setup(mach->map);
+	mmu_setup(mach->map);
 }
 
 static void mach_shutdown(struct machine_t * mach)

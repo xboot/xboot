@@ -59,7 +59,7 @@
 	"clk-link": { "parent": "gate-i2c2", "name": "link-i2c2" },
 	"clk-link": { "parent": "gate-i2c3", "name": "link-i2c3" },
 
-	"clk-rk3128-gate@0x200000ec": { "parent": "periph-pclk", "name": "gate-pwm", "shift": 10, "invert": true },
+	"clk-rk3128-gate@0x200000ec": { "parent": "periph-pclk", "name": "gate-pwm", "shift": 10, "invert": true, "default": { "enable": true } },
 	"clk-link": { "parent": "gate-pwm", "name": "link-pwm0" },
 	"clk-link": { "parent": "gate-pwm", "name": "link-pwm1" },
 	"clk-link": { "parent": "gate-pwm", "name": "link-pwm2" },

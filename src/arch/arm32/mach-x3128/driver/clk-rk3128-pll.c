@@ -31,6 +31,40 @@ struct clk_rk3128_pll_pdata_t {
 	int channel;
 };
 
+struct pll_clk_set_t {
+	u64_t rate;
+	u32_t pllcon0;
+	u32_t pllcon1;
+	u32_t pllcon2;
+};
+
+#define PLL_SET_REFDIV(val)		((0x3f << (0 + 16)) | ((val & 0x3f) << 0))
+#define PLL_SET_FBDIV(val)		((0xfff << (0 + 16)) | ((val & 0xfff) << 0))
+#define PLL_SET_POSTDIV1(val)	((0x7 << (12 + 16)) | ((val & 0x7) << 12))
+#define PLL_SET_POSTDIV2(val)	((0x7 << (6 + 16)) | ((val & 0x7) << 6))
+#define PLL_SET_FRAC(val)		((val & 0xffffff) << 0)
+#define PLL_SET_DSMPD(val)		((0x1 << (12 + 16)) | ((val & 0x1) << 12))
+
+#define PLL_SET_CLKS(_mhz, _refdiv, _fbdiv, _postdiv1, _postdiv2, _dsmpd, _frac) \
+{ \
+	.rate = _mhz, \
+	.pllcon0 = PLL_SET_POSTDIV1(_postdiv1) | PLL_SET_FBDIV(_fbdiv), \
+	.pllcon1 = PLL_SET_DSMPD(_dsmpd) | PLL_SET_POSTDIV2(_postdiv2) | PLL_SET_REFDIV(_refdiv), \
+	.pllcon2 = PLL_SET_FRAC(_frac), \
+}
+
+static struct pll_clk_set_t pll_table[] = {
+	PLL_SET_CLKS(1000000000, 3, 125, 1,  1, 1, 0),
+	PLL_SET_CLKS(816000000, 1, 68, 2, 1, 1, 0),
+	PLL_SET_CLKS(800000000, 1, 100, 3, 1, 1, 0),
+	PLL_SET_CLKS(600000000, 1, 75, 3, 1, 1, 0),
+	PLL_SET_CLKS(594000000, 2, 99, 2, 1, 1, 0),
+	PLL_SET_CLKS(500000000, 1, 125, 3, 2, 1, 0),
+	PLL_SET_CLKS(416000000, 1, 104, 3, 2, 1, 0),
+	PLL_SET_CLKS(400000000, 3, 200, 2, 2, 1, 0),
+	PLL_SET_CLKS(300000000, 1, 75, 3, 2, 1, 0),
+};
+
 static void clk_rk3128_pll_set_parent(struct clk_t * clk, const char * pname)
 {
 }
@@ -52,6 +86,27 @@ static bool_t clk_rk3128_pll_get_enable(struct clk_t * clk)
 
 static void clk_rk3128_pll_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
+	struct clk_rk3128_pll_pdata_t * pdat = (struct clk_rk3128_pll_pdata_t *)clk->priv;
+	struct pll_clk_set_t * set = NULL;
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(pll_table); i++)
+	{
+		if(pll_table[i].rate <= rate)
+		{
+			set = &pll_table[i];
+			break;
+		}
+	}
+	if(set == NULL)
+		return;
+
+	write32(pdat->virt + CRU_MODE_CON, (0x00010000 << (pdat->channel * 4)));
+	write32(pdat->virt + CRU_PLL_CON(pdat->channel, 0), set->pllcon0);
+	write32(pdat->virt + CRU_PLL_CON(pdat->channel, 1), set->pllcon1);
+	write32(pdat->virt + CRU_PLL_CON(pdat->channel, 2), set->pllcon2);
+	while(((read32(pdat->virt + CRU_PLL_CON(pdat->channel, 1)) >> 10) & 0x1) != 0x1);
+	write32(pdat->virt + CRU_MODE_CON, (0x00010001 << (pdat->channel * 4)));
 }
 
 static u64_t clk_rk3128_pll_get_rate(struct clk_t * clk, u64_t prate)

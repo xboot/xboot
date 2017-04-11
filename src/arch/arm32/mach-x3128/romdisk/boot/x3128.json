@@ -85,6 +85,51 @@
 	"clk-rk3128-gate@0x200000ec": { "parent": "div-spi-src", "name": "gate-spi", "shift": 12, "invert": true },
 	"clk-link": { "parent": "gate-spi", "name": "link-spi" },
 
+	"clk-rk3128-mux@0x20000074": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 },
+			{ "name": "xin24m", "value": 3 }
+		],
+		"name": "mux-emmc-src", "shift": 14, "width": 2,
+		"default": { "parent": "gpll" }
+	},
+	"clk-rk3128-gate@0x200000d8": {"parent": "mux-emmc-src", "name": "gate-emmc-src", "shift": 14, "invert": true },
+	"clk-rk3128-divider@0x20000074": { "parent": "gate-emmc-src", "name": "div-emmc-src", "shift": 8, "width": 6, "divider-one-based": true },
+	"clk-rk3128-gate@0x200000ec": { "parent": "div-emmc-src", "name": "gate-emmc", "shift": 0, "invert": true },
+	"clk-link": { "parent": "gate-emmc", "name": "link-emmc" },
+
+	"clk-rk3128-mux@0x20000070": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 },
+			{ "name": "xin24m", "value": 3 }
+		],
+		"name": "mux-sdmmc-src", "shift": 6, "width": 2,
+		"default": { "parent": "gpll" }
+	},
+	"clk-rk3128-gate@0x200000d8": {"parent": "mux-sdmmc-src", "name": "gate-sdmmc-src", "shift": 11, "invert": true },
+	"clk-rk3128-divider@0x20000070": { "parent": "gate-sdmmc-src", "name": "div-sdmmc-src", "shift": 0, "width": 6, "divider-one-based": true },
+	"clk-rk3128-gate@0x200000ec": { "parent": "div-sdmmc-src", "name": "gate-sdmmc", "shift": 10, "invert": true },
+	"clk-link": { "parent": "gate-sdmmc", "name": "link-sdmmc" },
+
+	"clk-rk3128-mux@0x20000074": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 },
+			{ "name": "xin24m", "value": 3 }
+		],
+		"name": "mux-sdio-src", "shift": 6, "width": 2,
+		"default": { "parent": "gpll" }
+	},
+	"clk-rk3128-gate@0x200000d8": {"parent": "mux-sdio-src", "name": "gate-sdio-src", "shift": 13, "invert": true },
+	"clk-rk3128-divider@0x20000074": { "parent": "gate-sdio-src", "name": "div-sdio-src", "shift": 0, "width": 6, "divider-one-based": true },
+	"clk-rk3128-gate@0x200000ec": { "parent": "div-sdio-src", "name": "gate-sdio", "shift": 11, "invert": true },
+	"clk-link": { "parent": "gate-sdio", "name": "link-sdio" },
+
 	"clk-rk3128-mux@0x20000078": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },

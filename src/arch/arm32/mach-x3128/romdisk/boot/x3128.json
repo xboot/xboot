@@ -72,6 +72,19 @@
 	"clk-rk3128-divider@0x200000a0": { "parent": "gate-saradc", "name": "div-saradc", "shift": 8, "width": 8, "divider-one-based": true, "default": { "rate": 1000000 } },
 	"clk-link": { "parent": "div-saradc", "name": "link-saradc" },
 
+	"clk-rk3128-mux@0x200000a8": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 }
+		],
+		"name": "mux-spi-src", "shift": 8, "width": 2
+	},
+	"clk-rk3128-gate@0x200000d8": {"parent": "mux-spi-src", "name": "gate-spi-src", "shift": 9, "invert": true },
+	"clk-rk3128-divider@0x200000a8": { "parent": "gate-spi-src", "name": "div-spi-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3128-gate@0x200000ec": { "parent": "div-spi-src", "name": "gate-spi", "shift": 12, "invert": true },
+	"clk-link": { "parent": "gate-spi", "name": "link-spi" },
+
 	"clk-rk3128-mux@0x20000078": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },

@@ -1,5 +1,5 @@
 /*
- * driver/mmc/mmc.c
+ * driver/mmc/sdio.c
  *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,33 +23,33 @@
  */
 
 #include <xboot.h>
-#include <mmc/mmc.h>
+#include <mmc/sdio.h>
 
-struct mmc_t * search_mmc(const char * name)
+struct sdio_t * search_sdio(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device(name, DEVICE_TYPE_MMC);
+	dev = search_device(name, DEVICE_TYPE_SDIO);
 	if(!dev)
 		return NULL;
 
-	return (struct mmc_t *)dev->priv;
+	return (struct sdio_t *)dev->priv;
 }
 
-bool_t register_mmc(struct device_t ** device, struct mmc_t * mmc)
+bool_t register_sdio(struct device_t ** device, struct sdio_t * sdio)
 {
 	struct device_t * dev;
 
-	if(!mmc || !mmc->name)
+	if(!sdio || !sdio->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name = strdup(mmc->name);
-	dev->type = DEVICE_TYPE_MMC;
-	dev->priv = mmc;
+	dev->name = strdup(sdio->name);
+	dev->type = DEVICE_TYPE_SDIO;
+	dev->priv = sdio;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))
@@ -65,14 +65,14 @@ bool_t register_mmc(struct device_t ** device, struct mmc_t * mmc)
 	return TRUE;
 }
 
-bool_t unregister_mmc(struct mmc_t * mmc)
+bool_t unregister_sdio(struct sdio_t * sdio)
 {
 	struct device_t * dev;
 
-	if(!mmc || !mmc->name)
+	if(!sdio || !sdio->name)
 		return FALSE;
 
-	dev = search_device(mmc->name, DEVICE_TYPE_MMC);
+	dev = search_device(sdio->name, DEVICE_TYPE_SDIO);
 	if(!dev)
 		return FALSE;
 

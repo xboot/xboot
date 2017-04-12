@@ -119,9 +119,6 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_MAGNETOMETER:
 		name = "magnetometer";
 		break;
-	case DEVICE_TYPE_MMC:
-		name = "mmc";
-		break;
 	case DEVICE_TYPE_ORIENTATION:
 		name = "orientation";
 		break;
@@ -142,6 +139,9 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 		break;
 	case DEVICE_TYPE_RTC:
 		name = "rtc";
+		break;
+	case DEVICE_TYPE_SDIO:
+		name = "sdio";
 		break;
 	case DEVICE_TYPE_SPI:
 		name = "spi";

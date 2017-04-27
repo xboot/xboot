@@ -1,5 +1,5 @@
-#ifndef __BUS_SDIO_H__
-#define __BUS_SDIO_H__
+#ifndef __BUS_SDHCI_H__
+#define __BUS_SDHCI_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,14 +96,14 @@ extern "C" {
 #define MMC_VDD_34_35				0x00400000	/* vdd voltage 3.4 ~ 3.5 */
 #define MMC_VDD_35_36				0x00800000	/* vdd voltage 3.5 ~ 3.6 */
 
-struct sdio_cmd_t {
+struct sdhci_cmd_t {
 	u32_t cmdidx;
 	u32_t cmdarg;
 	u32_t resptype;
 	u32_t response[4];
 };
 
-struct sdio_data_t {
+struct sdhci_data_t {
 	union {
 		u8_t * dest;
 		const u8_t * src;
@@ -113,30 +113,30 @@ struct sdio_data_t {
 	u32_t blocksize;
 };
 
-struct sdio_ios_t {
+struct sdhci_ios_t {
 	u32_t buswidth;
 	u32_t clock;
 	u32_t timing;
 };
 
-struct sdio_t
+struct sdhci_t
 {
 	char * name;
 
-	void (*reset)(struct sdio_t * sdio);
-	bool_t (*getcd)(struct sdio_t * sdio);
-	bool_t (*getwp)(struct sdio_t * sdio);
-	bool_t (*setios)(struct sdio_t * sdio, struct sdio_ios_t * ios);
-	bool_t (*request)(struct sdio_t * sdio, struct sdio_cmd_t * cmd, struct sdio_data_t * dat);
+	void (*reset)(struct sdhci_t * sdhci);
+	bool_t (*getcd)(struct sdhci_t * sdhci);
+	bool_t (*getwp)(struct sdhci_t * sdhci);
+	bool_t (*setios)(struct sdhci_t * sdhci, struct sdhci_ios_t * ios);
+	bool_t (*request)(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat);
 	void * priv;
 };
 
-struct sdio_t * search_sdio(const char * name);
-bool_t register_sdio(struct device_t ** device, struct sdio_t * sdio);
-bool_t unregister_sdio(struct sdio_t * sdio);
+struct sdhci_t * search_sdhci(const char * name);
+bool_t register_sdhci(struct device_t ** device, struct sdhci_t * sdhci);
+bool_t unregister_sdhci(struct sdhci_t * sdhci);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __BUS_SDIO_H__ */
+#endif /* __BUS_SDHCI_H__ */

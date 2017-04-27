@@ -140,8 +140,8 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_RTC:
 		name = "rtc";
 		break;
-	case DEVICE_TYPE_SDIO:
-		name = "sdio";
+	case DEVICE_TYPE_SDHCI:
+		name = "sdhci";
 		break;
 	case DEVICE_TYPE_SPI:
 		name = "spi";

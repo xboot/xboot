@@ -92,7 +92,7 @@
 		"delay-us": 5
 	},
 
-	"sdio-pl180@0x10005000": {
+	"sdhci-pl180@0x10005000": {
 	},
 
 	"key-gpio-polled@0": {

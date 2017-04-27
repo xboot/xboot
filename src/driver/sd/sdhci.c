@@ -1,5 +1,5 @@
 /*
- * driver/mmc/sdhci.c
+ * driver/sd/sdhci.c
  *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -83,4 +83,38 @@ bool_t unregister_sdhci(struct sdhci_t * sdhci)
 	free(dev->name);
 	free(dev);
 	return TRUE;
+}
+
+void sdhci_reset(struct sdhci_t * sdhci)
+{
+	if(sdhci && sdhci->reset)
+		sdhci->reset(sdhci);
+}
+
+bool_t sdhci_getcd(struct sdhci_t * sdhci)
+{
+	if(sdhci && sdhci->getcd)
+		return sdhci->getcd(sdhci);
+	return FALSE;
+}
+
+bool_t sdhci_getwp(struct sdhci_t * sdhci)
+{
+	if(sdhci && sdhci->getwp)
+		return sdhci->getwp(sdhci);
+	return FALSE;
+}
+
+bool_t sdhci_setios(struct sdhci_t * sdhci, struct sdhci_ios_t * ios)
+{
+	if(sdhci && sdhci->setios)
+		return sdhci->setios(sdhci, ios);
+	return FALSE;
+}
+
+bool_t sdhci_request(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
+{
+	if(sdhci && sdhci->request)
+		return sdhci->request(sdhci, cmd, dat);
+	return FALSE;
 }

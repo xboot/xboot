@@ -94,7 +94,7 @@ struct sdhci_pl180_pdata_t {
 	virtual_addr_t virt;
 };
 
-static bool_t mmci_command(struct sdhci_pl180_pdata_t * pdat, struct sdhci_cmd_t * cmd)
+static bool_t pl180_send_command(struct sdhci_pl180_pdata_t * pdat, struct sdhci_cmd_t * cmd)
 {
 	u32_t cmdidx;
 	u32_t status;
@@ -138,7 +138,7 @@ static bool_t mmci_command(struct sdhci_pl180_pdata_t * pdat, struct sdhci_cmd_t
 	return ret;
 }
 
-static bool_t mmci_transfer(struct sdhci_pl180_pdata_t * pdat, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
+static bool_t pl180_transfer_data(struct sdhci_pl180_pdata_t * pdat, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
 {
 	bool_t ret = TRUE;
 	return ret;
@@ -168,13 +168,10 @@ static bool_t sdhci_pl180_setios(struct sdhci_t * sdhci, struct sdhci_ios_t * io
 static bool_t sdhci_pl180_request(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
 {
 	struct sdhci_pl180_pdata_t * pdat = (struct sdhci_pl180_pdata_t *)sdhci->priv;
-	bool_t ret;
 
-	if(dat)
-		ret = mmci_transfer(pdat, cmd, dat);
-	else
-		ret = mmci_command(pdat, cmd);
-	return ret;
+	if(!dat)
+		return pl180_send_command(pdat, cmd);
+	return pl180_transfer_data(pdat, cmd, dat);
 }
 
 static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_t * n)

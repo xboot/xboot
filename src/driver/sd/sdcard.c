@@ -34,10 +34,32 @@ static bool_t mmc_go_idle(struct sdhci_t * sdhci)
 	cmd.cmdarg = 0;
 	cmd.resptype = MMC_RSP_NONE;
 
-	if(sdhci_request(sdhci, &cmd, NULL))
+	if(sdhci_transfer(sdhci, &cmd, NULL))
 		return TRUE;
 	udelay(2000);
-	return sdhci_request(sdhci, &cmd, NULL);
+	return sdhci_transfer(sdhci, &cmd, NULL);
+}
+
+static bool_t sd_send_if_cond(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
+{
+	struct sdhci_cmd_t cmd;
+
+	cmd.cmdidx = SD_CMD_SEND_IF_COND;
+	cmd.cmdarg = 0xaa;
+	cmd.resptype = MMC_RSP_R7;
+ 	if(!sdhci_transfer(sdhci, &cmd, NULL))
+ 		return FALSE;
+
+ 	if((cmd.response[0] & 0xff) != 0xaa)
+ 		return FALSE;
+
+ 	sdcard->version = SD_VERSION_2;
+ 	return TRUE;
+}
+
+static bool_t sd_send_op_cond(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
+{
+	return TRUE;
 }
 
 static bool_t mmc_send_op_cond(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
@@ -51,7 +73,7 @@ static bool_t mmc_send_op_cond(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
  	cmd.cmdidx = MMC_SEND_OP_COND;
  	cmd.cmdarg = 0;
  	cmd.resptype = MMC_RSP_R3;
- 	if(!sdhci_request(sdhci, &cmd, NULL))
+ 	if(!sdhci_transfer(sdhci, &cmd, NULL))
  		return FALSE;
 
 	do {
@@ -61,7 +83,7 @@ static bool_t mmc_send_op_cond(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 		cmd.cmdarg = MMC_VDD_33_34;
 		cmd.resptype = MMC_RSP_R3;
 		cmd.response[0] = 0;
-	 	if(!sdhci_request(sdhci, &cmd, NULL))
+	 	if(!sdhci_transfer(sdhci, &cmd, NULL))
 	 		return FALSE;
 	} while (!(cmd.response[0] & 0x80000000) && timeout--);
 
@@ -74,27 +96,35 @@ static bool_t mmc_send_op_cond(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 	return TRUE;
 }
 
-static bool_t mmc_send_if_cond(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
+static bool_t sdcard_probe(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 {
-	struct sdhci_cmd_t cmd;
+	bool_t ret;
 
-	cmd.cmdidx = SD_CMD_SEND_IF_COND;
-	cmd.cmdarg = MMC_VDD_33_34;
-	cmd.resptype = MMC_RSP_R7;
-	cmd.response[0] = 0;
- 	if(!sdhci_request(sdhci, &cmd, NULL))
- 		return FALSE;
+	if(!sdhci_detect(sdhci))
+		return FALSE;
 
- 	if((cmd.response[0] & 0xff) == 0xaa)
-		sdcard->version = SD_VERSION_2;
+	sdhci_reset(sdhci);
+	sdhci_set_width(sdhci, MMC_BUS_WIDTH_1);
+	sdhci_set_clock(sdhci, 400000);
+
+	if(!mmc_go_idle(sdhci))
+		return FALSE;
+
+	ret = sd_send_if_cond(sdhci, sdcard);
+	ret = sd_send_op_cond(sdhci, sdcard);
+	if(!ret)
+		ret = mmc_send_op_cond(sdhci, sdcard);
+
+	if(!ret)
+		return FALSE;
+
 	return TRUE;
 }
 
 void sdcard_test(void)
 {
 	struct sdhci_t * sdhci = search_sdhci("sdhci-pl180.0");
-	bool_t ret;
+	struct sdcard_t sdcard;
 
-	ret = mmc_go_idle(sdhci);
-	printf("r = %d\r\n", ret);
+	printf("r = %d\r\n", sdcard_probe(sdhci, &sdcard));
 }

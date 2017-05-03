@@ -94,7 +94,7 @@ struct sdhci_pl180_pdata_t {
 	virtual_addr_t virt;
 };
 
-static bool_t pl180_send_command(struct sdhci_pl180_pdata_t * pdat, struct sdhci_cmd_t * cmd)
+static bool_t pl180_transfer_command(struct sdhci_pl180_pdata_t * pdat, struct sdhci_cmd_t * cmd)
 {
 	u32_t cmdidx;
 	u32_t status;
@@ -150,27 +150,27 @@ static void sdhci_pl180_reset(struct sdhci_t * sdhci)
 	write32(pdat->virt + PL180_POWER, 0xbf);
 }
 
-static bool_t sdhci_pl180_getcd(struct sdhci_t * sdhci)
+static bool_t sdhci_pl180_detect(struct sdhci_t * sdhci)
 {
 	return TRUE;
 }
 
-static bool_t sdhci_pl180_getwp(struct sdhci_t * sdhci)
-{
-	return FALSE;
-}
-
-static bool_t sdhci_pl180_setios(struct sdhci_t * sdhci, struct sdhci_ios_t * ios)
+static bool_t sdhci_pl180_setwidth(struct sdhci_t * sdhci, int width)
 {
 	return TRUE;
 }
 
-static bool_t sdhci_pl180_request(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
+static bool_t sdhci_pl180_setclock(struct sdhci_t * sdhci, int clock)
+{
+	return TRUE;
+}
+
+static bool_t sdhci_pl180_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
 {
 	struct sdhci_pl180_pdata_t * pdat = (struct sdhci_pl180_pdata_t *)sdhci->priv;
 
 	if(!dat)
-		return pl180_send_command(pdat, cmd);
+		return pl180_transfer_command(pdat, cmd);
 	return pl180_transfer_data(pdat, cmd, dat);
 }
 
@@ -203,10 +203,10 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
 	sdhci->reset = sdhci_pl180_reset;
-	sdhci->getcd = sdhci_pl180_getcd;
-	sdhci->getwp = sdhci_pl180_getwp;
-	sdhci->setios = sdhci_pl180_setios;
-	sdhci->request = sdhci_pl180_request;
+	sdhci->detect = sdhci_pl180_detect;
+	sdhci->setwidth = sdhci_pl180_setwidth;
+	sdhci->setclock = sdhci_pl180_setclock;
+	sdhci->transfer = sdhci_pl180_transfer;
 	sdhci->priv = pdat;
 
 	if(!register_sdhci(&dev, sdhci))

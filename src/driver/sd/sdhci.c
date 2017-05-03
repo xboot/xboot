@@ -91,30 +91,30 @@ void sdhci_reset(struct sdhci_t * sdhci)
 		sdhci->reset(sdhci);
 }
 
-bool_t sdhci_getcd(struct sdhci_t * sdhci)
+bool_t sdhci_detect(struct sdhci_t * sdhci)
 {
-	if(sdhci && sdhci->getcd)
-		return sdhci->getcd(sdhci);
+	if(sdhci && sdhci->detect)
+		return sdhci->detect(sdhci);
 	return FALSE;
 }
 
-bool_t sdhci_getwp(struct sdhci_t * sdhci)
+bool_t sdhci_set_width(struct sdhci_t * sdhci, int width)
 {
-	if(sdhci && sdhci->getwp)
-		return sdhci->getwp(sdhci);
+	if(sdhci && sdhci->setwidth)
+		return sdhci->setwidth(sdhci, width);
 	return FALSE;
 }
 
-bool_t sdhci_setios(struct sdhci_t * sdhci, struct sdhci_ios_t * ios)
+bool_t sdhci_set_clock(struct sdhci_t * sdhci, int clock)
 {
-	if(sdhci && sdhci->setios)
-		return sdhci->setios(sdhci, ios);
+	if(sdhci && sdhci->setclock)
+		return sdhci->setclock(sdhci, clock);
 	return FALSE;
 }
 
-bool_t sdhci_request(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
+bool_t sdhci_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
 {
-	if(sdhci && sdhci->request)
-		return sdhci->request(sdhci, cmd, dat);
+	if(sdhci && sdhci->transfer)
+		return sdhci->transfer(sdhci, cmd, dat);
 	return FALSE;
 }

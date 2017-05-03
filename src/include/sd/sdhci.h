@@ -25,21 +25,15 @@ struct sdhci_data_t {
 	u32_t blocksize;
 };
 
-struct sdhci_ios_t {
-	u32_t buswidth;
-	u32_t clock;
-	u32_t timing;
-};
-
 struct sdhci_t
 {
 	char * name;
 
 	void (*reset)(struct sdhci_t * sdhci);
-	bool_t (*getcd)(struct sdhci_t * sdhci);
-	bool_t (*getwp)(struct sdhci_t * sdhci);
-	bool_t (*setios)(struct sdhci_t * sdhci, struct sdhci_ios_t * ios);
-	bool_t (*request)(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat);
+	bool_t (*detect)(struct sdhci_t * sdhci);
+	bool_t (*setwidth)(struct sdhci_t * sdhci, int width);
+	bool_t (*setclock)(struct sdhci_t * sdhci, int clock);
+	bool_t (*transfer)(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat);
 	void * priv;
 };
 
@@ -48,10 +42,10 @@ bool_t register_sdhci(struct device_t ** device, struct sdhci_t * sdhci);
 bool_t unregister_sdhci(struct sdhci_t * sdhci);
 
 void sdhci_reset(struct sdhci_t * sdhci);
-bool_t sdhci_getcd(struct sdhci_t * sdhci);
-bool_t sdhci_getwp(struct sdhci_t * sdhci);
-bool_t sdhci_setios(struct sdhci_t * sdhci, struct sdhci_ios_t * ios);
-bool_t sdhci_request(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat);
+bool_t sdhci_detect(struct sdhci_t * sdhci);
+bool_t sdhci_set_width(struct sdhci_t * sdhci, int width);
+bool_t sdhci_set_clock(struct sdhci_t * sdhci, int width);
+bool_t sdhci_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat);
 
 #ifdef __cplusplus
 }

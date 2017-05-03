@@ -202,6 +202,7 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
+	sdhci->voltages = MMC_VDD_33_34;
 	sdhci->reset = sdhci_pl180_reset;
 	sdhci->detect = sdhci_pl180_detect;
 	sdhci->setwidth = sdhci_pl180_setwidth;

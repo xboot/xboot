@@ -12,6 +12,8 @@ struct sdcard_t
 	uint32_t version;
 	uint32_t ocr;
 	uint32_t rca;
+	uint32_t cid[4];
+	uint32_t csd[4];
 };
 
 #ifdef __cplusplus

@@ -93,6 +93,13 @@ enum {
 };
 
 enum {
+	OCR_BUSY 		= 0x80000000,
+	OCR_HCS 		= 0x40000000,
+	OCR_VOLTAGE_MASK= 0x00ffff80,
+	OCR_ACCESS_MODE	= 0x60000000,
+};
+
+enum {
 	MMC_BUS_WIDTH_1 = 1,
 	MMC_BUS_WIDTH_4 = 4,
 	MMC_BUS_WIDTH_8 = 8,
@@ -148,7 +155,11 @@ enum {
 	MMC_VERSION_4_3 	= (MMC_VERSION_MMC | 0x403),
 	MMC_VERSION_4_41 	= (MMC_VERSION_MMC | 0x429),
 	MMC_VERSION_4_5 	= (MMC_VERSION_MMC | 0x405),
+	MMC_VERSION_5_0 	= (MMC_VERSION_MMC | 0x500),
+	MMC_VERSION_5_1 	= (MMC_VERSION_MMC | 0x501),
 };
+#define IS_SD(x)		((x)->version & SD_VERSION_SD)
+#define IS_MMC(x)		((x)->version & MMC_VERSION_MMC)
 
 #ifdef __cplusplus
 }

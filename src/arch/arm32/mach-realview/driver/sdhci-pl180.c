@@ -155,12 +155,12 @@ static bool_t sdhci_pl180_detect(struct sdhci_t * sdhci)
 	return TRUE;
 }
 
-static bool_t sdhci_pl180_setwidth(struct sdhci_t * sdhci, int width)
+static bool_t sdhci_pl180_setwidth(struct sdhci_t * sdhci, u32_t width)
 {
 	return TRUE;
 }
 
-static bool_t sdhci_pl180_setclock(struct sdhci_t * sdhci, int clock)
+static bool_t sdhci_pl180_setclock(struct sdhci_t * sdhci, u32_t clock)
 {
 	return TRUE;
 }
@@ -203,6 +203,9 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
 	sdhci->voltages = MMC_VDD_33_34;
+	sdhci->width = MMC_BUS_WIDTH_4;
+	sdhci->clock = 52 * 1000 * 1000;
+	sdhci->removeable = TRUE;
 	sdhci->reset = sdhci_pl180_reset;
 	sdhci->detect = sdhci_pl180_detect;
 	sdhci->setwidth = sdhci_pl180_setwidth;

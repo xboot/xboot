@@ -98,17 +98,17 @@ bool_t sdhci_detect(struct sdhci_t * sdhci)
 	return FALSE;
 }
 
-bool_t sdhci_set_width(struct sdhci_t * sdhci, int width)
+bool_t sdhci_set_width(struct sdhci_t * sdhci, u32_t width)
 {
 	if(sdhci && sdhci->setwidth)
 		return sdhci->setwidth(sdhci, width);
 	return FALSE;
 }
 
-bool_t sdhci_set_clock(struct sdhci_t * sdhci, int clock)
+bool_t sdhci_set_clock(struct sdhci_t * sdhci, u32_t clock)
 {
 	if(sdhci && sdhci->setclock)
-		return sdhci->setclock(sdhci, clock);
+		return sdhci->setclock(sdhci, (clock <= sdhci->clock) ? clock : sdhci->clock);
 	return FALSE;
 }
 

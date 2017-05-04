@@ -100,6 +100,11 @@ enum {
 };
 
 enum {
+	MMC_DATA_READ	= 1,
+	MMC_DATA_WRITE	= 2,
+};
+
+enum {
 	MMC_BUS_WIDTH_1 = 1,
 	MMC_BUS_WIDTH_4 = 4,
 	MMC_BUS_WIDTH_8 = 8,

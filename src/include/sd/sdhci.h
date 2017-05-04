@@ -16,24 +16,24 @@ struct sdhci_cmd_t {
 };
 
 struct sdhci_data_t {
-	union {
-		u8_t * dest;
-		const u8_t * src;
-	};
+	u8_t * buf;
 	u32_t flag;
-	u32_t blocks;
-	u32_t blocksize;
+	u32_t blksz;
+	u32_t blkcnt;
 };
 
 struct sdhci_t
 {
 	char * name;
 	u32_t voltages;
+	u32_t width;
+	u32_t clock;
+	bool_t removeable;
 
 	void (*reset)(struct sdhci_t * sdhci);
 	bool_t (*detect)(struct sdhci_t * sdhci);
-	bool_t (*setwidth)(struct sdhci_t * sdhci, int width);
-	bool_t (*setclock)(struct sdhci_t * sdhci, int clock);
+	bool_t (*setwidth)(struct sdhci_t * sdhci, u32_t width);
+	bool_t (*setclock)(struct sdhci_t * sdhci, u32_t clock);
 	bool_t (*transfer)(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat);
 	void * priv;
 };
@@ -44,8 +44,8 @@ bool_t unregister_sdhci(struct sdhci_t * sdhci);
 
 void sdhci_reset(struct sdhci_t * sdhci);
 bool_t sdhci_detect(struct sdhci_t * sdhci);
-bool_t sdhci_set_width(struct sdhci_t * sdhci, int width);
-bool_t sdhci_set_clock(struct sdhci_t * sdhci, int clock);
+bool_t sdhci_set_width(struct sdhci_t * sdhci, u32_t width);
+bool_t sdhci_set_clock(struct sdhci_t * sdhci, u32_t clock);
 bool_t sdhci_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat);
 
 #ifdef __cplusplus

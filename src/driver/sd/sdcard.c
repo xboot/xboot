@@ -23,8 +23,35 @@
  */
 
 #include <xboot.h>
+#include <block/disk.h>
 #include <sd/sdhci.h>
 #include <sd/sdcard.h>
+
+struct sdcard_t
+{
+	u32_t version;
+	u32_t ocr;
+	u32_t rca;
+	u32_t cid[4];
+	u32_t csd[4];
+	u8_t extcsd[512];
+
+	u32_t high_capacity;
+	u32_t tran_speed;
+	u32_t dsr_imp;
+	u32_t read_bl_len;
+	u32_t write_bl_len;
+	u64_t capacity;
+};
+
+struct sdcard_pdata_t
+{
+	struct disk_t disk;
+	struct sdcard_t sdcard;
+	struct timer_t timer;
+	struct sdhci_t * sdhci;
+	bool_t online;
+};
 
 #define UNSTUFF_BITS(resp, start, size)								\
 	({																\
@@ -177,7 +204,6 @@ static bool_t sdcard_detect(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 	if(!sdhci_detect(sdhci))
 		return FALSE;
 
-	sdhci_reset(sdhci);
 	sdhci_set_width(sdhci, MMC_BUS_WIDTH_1);
 	sdhci_set_clock(sdhci, 400000);
 
@@ -354,96 +380,84 @@ static bool_t sdcard_detect(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 	return TRUE;
 }
 
-struct sdcard_pdata_t
-{
-	struct sdcard_t sdcard;
-	struct timer_t timer;
-};
-
-static u64_t disk_sdcard_read(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
+static u64_t sdcard_disk_read(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
 {
 	return 0;
 }
 
-static u64_t disk_sdcard_write(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
+static u64_t sdcard_disk_write(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
 {
 	return 0;
 }
 
-static void disk_sdcard_sync(struct disk_t * disk)
+static void sdcard_disk_sync(struct disk_t * disk)
 {
 }
 
-void sdcard_auto_probe(struct sdhci_t * sdhci)
+static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 {
-	struct sdcard_pdata_t * pdat;
-	struct disk_t * disk;
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(data);
+	bool_t plugin;
 
-	pdat = malloc(sizeof(struct sdcard_pdata_t));
-	if(!pdat)
-		return;
+	if(!pdat->sdhci->removeable)
+		return 0;
 
-	if(sdcard_detect(sdhci, &pdat->sdcard))
+	plugin = sdhci_detect(pdat->sdhci);
+	if(pdat->online && !plugin)
 	{
-		disk = malloc(sizeof(struct disk_t));
-		if(disk)
+		if(unregister_disk(&pdat->disk))
 		{
-			disk->name = alloc_device_name(sdhci->name, -1);
-			disk->size = pdat->sdcard.read_bl_len;
-			disk->count = pdat->sdcard.capacity / pdat->sdcard.read_bl_len;
-			disk->read = disk_sdcard_read;
-			disk->write = disk_sdcard_write;
-			disk->sync = disk_sdcard_sync;
-			disk->priv = pdat;
-
-			if(!register_disk(&dev, disk))
-			{
-				free_device_name(disk->name);
-				free(blk->priv);
-				free(disk);
-			}
-
+			free_device_name(pdat->disk.name);
+			pdat->online = FALSE;
 		}
 	}
-
-	if(sdhci->removeable)
+	else if(!pdat->online && plugin)
 	{
-
+		if(sdcard_detect(pdat->sdhci, &pdat->sdcard))
+		{
+			pdat->disk.name = alloc_device_name(pdat->sdhci->name, -1);
+			pdat->disk.size = pdat->sdcard.read_bl_len;
+			pdat->disk.count = pdat->sdcard.capacity / pdat->sdcard.read_bl_len;
+			pdat->disk.read = sdcard_disk_read;
+			pdat->disk.write = sdcard_disk_write;
+			pdat->disk.sync = sdcard_disk_sync;
+			pdat->disk.priv = pdat;
+			if(!register_disk(NULL, &pdat->disk))
+				free_device_name(pdat->disk.name);
+			else
+				pdat->online = TRUE;
+		}
 	}
-
-//	memset(&sdcard, 0, sizeof(struct sdcard_t));
-
-}
-
-void sdcard_test(void)
-{
-	struct sdhci_t * sdhci = search_sdhci("sdhci-pl180.0");
-	struct sdcard_t sdcard;
-
-	memset(&sdcard, 0, sizeof(struct sdcard_t));
-	printf("r = %d\r\n", sdcard_detect(sdhci, &sdcard));
-}
-
-#if 0
-static struct timer_t sdcard_timer;
-
-static int sdcard_detect_timer_function(struct timer_t * timer, void * data)
-{
 	timer_forward_now(timer, ms_to_ktime(2000));
 	return 1;
 }
 
-static __init void sdcard_server_init(void)
+void * sdcard_probe(struct sdhci_t * sdhci)
 {
-	timer_init(&sdcard_timer, sdcard_detect_timer_function, NULL);
-	timer_start_now(&sdcard_timer, ms_to_ktime(2000));
+	struct sdcard_pdata_t * pdat;
+
+	pdat = malloc(sizeof(struct sdcard_pdata_t));
+	if(!pdat)
+		return NULL;
+	memset(pdat, 0, sizeof(struct sdcard_pdata_t));
+
+	pdat->sdhci = sdhci;
+	pdat->online = FALSE;
+	timer_init(&pdat->timer, sdcard_disk_timer_function, pdat);
+	timer_start_now(&pdat->timer, ms_to_ktime(100));
+
+	return pdat;
 }
 
-static __exit void sdcard_server_exit(void)
+void sdcard_remove(void * sdcard)
 {
-	timer_cancel(&sdcard_timer);
-}
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)sdcard;
 
-server_initcall(sdcard_server_init);
-server_exitcall(sdcard_server_exit);
-#endif
+	if(pdat)
+	{
+		timer_cancel(&pdat->timer);
+		if(pdat->online && unregister_disk(&pdat->disk))
+			free_device_name(pdat->disk.name);
+		free(pdat);
+	}
+}

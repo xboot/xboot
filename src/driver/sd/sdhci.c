@@ -23,7 +23,9 @@
  */
 
 #include <xboot.h>
+#include <sd/sdcard.h>
 #include <sd/sdhci.h>
+
 
 struct sdhci_t * search_sdhci(const char * name)
 {
@@ -59,6 +61,7 @@ bool_t register_sdhci(struct device_t ** device, struct sdhci_t * sdhci)
 		free(dev);
 		return FALSE;
 	}
+	sdhci->sdcard = sdcard_probe(sdhci);
 
 	if(device)
 		*device = dev;
@@ -75,6 +78,7 @@ bool_t unregister_sdhci(struct sdhci_t * sdhci)
 	dev = search_device(sdhci->name, DEVICE_TYPE_SDHCI);
 	if(!dev)
 		return FALSE;
+	sdcard_remove(sdhci->sdcard);
 
 	if(!unregister_device(dev))
 		return FALSE;
@@ -83,12 +87,6 @@ bool_t unregister_sdhci(struct sdhci_t * sdhci)
 	free(dev->name);
 	free(dev);
 	return TRUE;
-}
-
-void sdhci_reset(struct sdhci_t * sdhci)
-{
-	if(sdhci && sdhci->reset)
-		sdhci->reset(sdhci);
 }
 
 bool_t sdhci_detect(struct sdhci_t * sdhci)

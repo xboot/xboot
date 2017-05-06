@@ -6,23 +6,10 @@ extern "C" {
 #endif
 
 #include <xboot.h>
+#include <sd/sdhci.h>
 
-struct sdcard_t
-{
-	u32_t version;
-	u32_t ocr;
-	u32_t rca;
-	u32_t cid[4];
-	u32_t csd[4];
-	u8_t extcsd[512];
-
-	u32_t high_capacity;
-	u32_t tran_speed;
-	u32_t dsr_imp;
-	u32_t read_bl_len;
-	u32_t write_bl_len;
-	u64_t capacity;
-};
+void * sdcard_probe(struct sdhci_t * sdhci);
+void sdcard_remove(void * sdcard);
 
 #ifdef __cplusplus
 }

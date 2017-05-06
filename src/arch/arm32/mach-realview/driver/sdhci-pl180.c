@@ -144,12 +144,6 @@ static bool_t pl180_transfer_data(struct sdhci_pl180_pdata_t * pdat, struct sdhc
 	return ret;
 }
 
-static void sdhci_pl180_reset(struct sdhci_t * sdhci)
-{
-	struct sdhci_pl180_pdata_t * pdat = (struct sdhci_pl180_pdata_t *)sdhci->priv;
-	write32(pdat->virt + PL180_POWER, 0xbf);
-}
-
 static bool_t sdhci_pl180_detect(struct sdhci_t * sdhci)
 {
 	return TRUE;
@@ -206,12 +200,12 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 	sdhci->width = MMC_BUS_WIDTH_4;
 	sdhci->clock = 52 * 1000 * 1000;
 	sdhci->removeable = TRUE;
-	sdhci->reset = sdhci_pl180_reset;
 	sdhci->detect = sdhci_pl180_detect;
 	sdhci->setwidth = sdhci_pl180_setwidth;
 	sdhci->setclock = sdhci_pl180_setclock;
 	sdhci->transfer = sdhci_pl180_transfer;
 	sdhci->priv = pdat;
+	write32(pdat->virt + PL180_POWER, 0xbf);
 
 	if(!register_sdhci(&dev, sdhci))
 	{

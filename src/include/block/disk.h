@@ -32,7 +32,7 @@ struct partition_t
 struct disk_t
 {
 	/* The disk name */
-	const char * name;
+	char * name;
 
 	/* The size of sector */
 	u64_t size;

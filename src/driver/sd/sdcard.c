@@ -193,6 +193,72 @@ static bool_t mmc_send_op_cond(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 	return TRUE;
 }
 
+static u64_t mmc_read_blocks(struct sdhci_t * sdhci, struct sdcard_t * sdcard, u8_t * buf, u64_t start, u64_t blkcnt)
+{
+	struct sdhci_cmd_t cmd;
+	struct sdhci_data_t dat;
+
+	if(blkcnt > 1)
+		cmd.cmdidx = MMC_READ_MULTIPLE_BLOCK;
+	else
+		cmd.cmdidx = MMC_READ_SINGLE_BLOCK;
+	if(sdcard->high_capacity)
+		cmd.cmdarg = start;
+	else
+		cmd.cmdarg = start * sdcard->read_bl_len;
+	cmd.resptype = MMC_RSP_R1;
+	dat.buf = buf;
+	dat.flag = MMC_DATA_READ;
+	dat.blksz = sdcard->read_bl_len;
+	dat.blkcnt = blkcnt;
+	if(!sdhci_transfer(sdhci, &cmd, &dat))
+		return 0;
+
+	if(blkcnt > 1)
+	{
+		cmd.cmdidx = MMC_STOP_TRANSMISSION;
+		cmd.cmdarg = 0;
+		cmd.resptype = MMC_RSP_R1B;
+		if(!sdhci_transfer(sdhci, &cmd, NULL))
+			return 0;
+	}
+	return blkcnt;
+}
+
+static u64_t mmc_write_blocks(struct sdhci_t * sdhci, struct sdcard_t * sdcard, u8_t * buf, u64_t start, u64_t blkcnt)
+{
+	struct sdhci_cmd_t cmd;
+	struct sdhci_data_t dat;
+
+	if(blkcnt == 0)
+		return 0;
+	else if(blkcnt == 1)
+		cmd.cmdidx = MMC_WRITE_SINGLE_BLOCK;
+	else
+		cmd.cmdidx = MMC_WRITE_MULTIPLE_BLOCK;
+	if(sdcard->high_capacity)
+		cmd.cmdarg = start;
+	else
+		cmd.cmdarg = start * sdcard->write_bl_len;
+	cmd.resptype = MMC_RSP_R1;
+	dat.buf = buf;
+	dat.flag = MMC_DATA_WRITE;
+	dat.blksz = sdcard->write_bl_len;
+	dat.blkcnt = blkcnt;
+	if(!sdhci_transfer(sdhci, &cmd, &dat))
+		return 0;
+
+	if(blkcnt > 1)
+	{
+		cmd.cmdidx = MMC_STOP_TRANSMISSION;
+		cmd.cmdarg = 0;
+		cmd.resptype = MMC_RSP_R1B;
+		if(!sdhci_transfer(sdhci, &cmd, NULL))
+			return 0;
+	}
+	return blkcnt;
+}
+
 static bool_t sdcard_detect(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 {
 	struct sdhci_cmd_t cmd;
@@ -368,8 +434,7 @@ static bool_t sdcard_detect(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 	else
 		ret = mci_startup_mmc(sdcard);
 	if(!ret)
-		return FALSE;
-*/
+		return FALSE; */
 
 	cmd.cmdidx = MMC_SET_BLOCKLEN;
 	cmd.cmdarg = sdcard->read_bl_len;
@@ -382,12 +447,57 @@ static bool_t sdcard_detect(struct sdhci_t * sdhci, struct sdcard_t * sdcard)
 
 static u64_t sdcard_disk_read(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
 {
-	return 0;
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(disk->priv);
+	struct sdhci_t * sdhci = pdat->sdhci;
+	struct sdcard_t * sdcard = &pdat->sdcard;
+	struct sdhci_cmd_t cmd;
+	u64_t cnt, blks = count;
+
+	if(count == 0)
+		return 0;
+
+	cmd.cmdidx = MMC_SET_BLOCKLEN;
+	cmd.cmdarg = sdcard->read_bl_len;
+	cmd.resptype = MMC_RSP_R1;
+	if(!sdhci_transfer(sdhci, &cmd, NULL))
+		return 0;
+
+	do {
+		cnt = (blks > 65535) ?  65535 : blks;
+		if(mmc_read_blocks(sdhci, sdcard, buf, sector, cnt) != cnt)
+			return 0;
+		blks -= cnt;
+		sector += cnt;
+		buf += cnt * sdcard->read_bl_len;
+	} while(blks > 0);
+
+	return count;
 }
 
 static u64_t sdcard_disk_write(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
 {
-	return 0;
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(disk->priv);
+	struct sdhci_t * sdhci = pdat->sdhci;
+	struct sdcard_t * sdcard = &pdat->sdcard;
+	struct sdhci_cmd_t cmd;
+	u64_t cnt, blks = count;
+
+	cmd.cmdidx = MMC_SET_BLOCKLEN;
+	cmd.cmdarg = sdcard->write_bl_len;
+	cmd.resptype = MMC_RSP_R1;
+	if(!sdhci_transfer(sdhci, &cmd, NULL))
+		return 0;
+
+	do {
+		cnt = (blks > 65535) ?  65535 : blks;
+		if(mmc_write_blocks(sdhci, sdcard, buf, sector, cnt) != cnt)
+			return 0;
+		blks -= cnt;
+		sector += cnt;
+		buf += cnt * sdcard->write_bl_len;
+	} while (blks > 0);
+
+	return count;
 }
 
 static void sdcard_disk_sync(struct disk_t * disk)

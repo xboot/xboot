@@ -138,9 +138,123 @@ static bool_t pl180_transfer_command(struct sdhci_pl180_pdata_t * pdat, struct s
 	return ret;
 }
 
+static bool_t read_bytes(struct sdhci_pl180_pdata_t * pdat, u32_t * buf, u32_t blkcount, u32_t blksize)
+{
+	u32_t * tmp = buf;
+	u64_t count = blkcount * blksize;
+	u32_t status, err;
+
+	status = read32(pdat->virt + PL180_STATUS);
+	err = status & (PL180_STAT_DAT_CRC_FAIL | PL180_STAT_DAT_TIME_OUT | PL180_STAT_RX_OVERRUN);
+	while((!err) && (count >= sizeof(u32_t)))
+	{
+		if(status & PL180_STAT_RX_FIFO_AVL)
+		{
+			*(tmp) = read32(pdat->virt + PL180_FIFO);
+			tmp++;
+			count -= sizeof(u32_t);
+		}
+		status = read32(pdat->virt + PL180_STATUS);
+		err = status & (PL180_STAT_DAT_CRC_FAIL | PL180_STAT_DAT_TIME_OUT | PL180_STAT_RX_OVERRUN);
+	}
+
+	err = status & (PL180_STAT_DAT_CRC_FAIL | PL180_STAT_DAT_TIME_OUT | PL180_STAT_DAT_BLK_END | PL180_STAT_RX_OVERRUN);
+	while(!err)
+	{
+		status = read32(pdat->virt + PL180_STATUS);
+		err = status & (PL180_STAT_DAT_CRC_FAIL | PL180_STAT_DAT_TIME_OUT | PL180_STAT_DAT_BLK_END | PL180_STAT_RX_OVERRUN);
+	}
+
+	if(status & PL180_STAT_DAT_TIME_OUT)
+		return FALSE;
+	else if (status & PL180_STAT_DAT_CRC_FAIL)
+		return FALSE;
+	else if (status & PL180_STAT_RX_OVERRUN)
+		return FALSE;
+	write32(pdat->virt + PL180_CLEAR, 0x1DC007FF);
+
+	if(count)
+		return FALSE;
+	return TRUE;
+}
+
+static bool_t write_bytes(struct sdhci_pl180_pdata_t * pdat, u32_t * buf, u32_t blkcount, u32_t blksize)
+{
+	u32_t * tmp = buf;
+	u64_t count = blkcount * blksize;
+	u32_t status, err;
+	int i;
+
+	status = read32(pdat->virt + PL180_STATUS);
+	err = status & (PL180_STAT_DAT_CRC_FAIL | PL180_STAT_DAT_TIME_OUT);
+	while(!err && count)
+	{
+		if(status & PL180_STAT_TX_FIFO_HALF)
+		{
+			if(count >= 8 * sizeof(u32_t))
+			{
+				for(i = 0; i < 8; i++)
+					write32(pdat->virt + PL180_FIFO, *(tmp + i));
+				tmp += 8;
+				count -= 8 * sizeof(u32_t);
+			}
+			else
+			{
+				while(count >= sizeof(u32_t))
+				{
+					write32(pdat->virt + PL180_FIFO, *tmp);
+					tmp++;
+					count -= sizeof(u32_t);
+				}
+			}
+		}
+		status = read32(pdat->virt + PL180_STATUS);
+		err = status & (PL180_STAT_DAT_CRC_FAIL | PL180_STAT_DAT_TIME_OUT);
+	}
+
+	err = status & (PL180_STAT_DAT_CRC_FAIL | PL180_STAT_DAT_TIME_OUT | PL180_STAT_DAT_BLK_END);
+	while(!err)
+	{
+		status = read32(pdat->virt + PL180_STATUS);
+		err = status & (PL180_STAT_DAT_CRC_FAIL | PL180_STAT_DAT_TIME_OUT | PL180_STAT_DAT_BLK_END);
+	}
+
+	if(status & PL180_STAT_DAT_TIME_OUT)
+		return FALSE;
+	else if (status & PL180_STAT_DAT_CRC_FAIL)
+		return FALSE;
+	write32(pdat->virt + PL180_CLEAR, 0x1DC007FF);
+
+	if(count)
+		return FALSE;
+	return TRUE;
+}
+
 static bool_t pl180_transfer_data(struct sdhci_pl180_pdata_t * pdat, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
 {
-	bool_t ret = TRUE;
+	u32_t dlen = (u32_t)(dat->blkcnt * dat->blksz);
+	u32_t blksz_bits = ffs(dat->blksz) - 1;
+	u32_t dctrl = (blksz_bits << 4) | (0x1 << 0) | (0x1 << 14);
+	bool_t ret = FALSE;
+
+	write32(pdat->virt + PL180_DATA_TIMER, 0xffff);
+	write32(pdat->virt + PL180_DATA_LENGTH, dlen);
+
+	if(dat->flag & MMC_DATA_READ)
+	{
+		dctrl |= (0x1 << 1);
+		write32(pdat->virt + PL180_DATA_CTRL, dctrl);
+		if(!pl180_transfer_command(pdat, cmd))
+			return FALSE;
+		ret = read_bytes(pdat, (u32_t *)dat->buf, dat->blkcnt, dat->blksz);
+	}
+	else if(dat->flag & MMC_DATA_WRITE)
+	{
+		if(!pl180_transfer_command(pdat, cmd))
+			return FALSE;
+		write32(pdat->virt + PL180_DATA_CTRL, dctrl);
+		ret = write_bytes(pdat, (u32_t *)dat->buf, dat->blkcnt, dat->blksz);
+	}
 	return ret;
 }
 
@@ -198,7 +312,7 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
 	sdhci->voltages = MMC_VDD_33_34;
 	sdhci->width = MMC_BUS_WIDTH_4;
-	sdhci->clock = 52 * 1000 * 1000;
+	sdhci->clock = 26 * 1000 * 1000;
 	sdhci->removeable = TRUE;
 	sdhci->detect = sdhci_pl180_detect;
 	sdhci->setwidth = sdhci_pl180_setwidth;

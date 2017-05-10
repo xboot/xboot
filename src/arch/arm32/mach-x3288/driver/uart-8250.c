@@ -273,15 +273,15 @@ static struct device_t * uart_8250_probe(struct driver_t * drv, struct dtnode_t 
 	clk_enable(pdat->clk);
 	if(pdat->txd >= 0)
 	{
-		gpio_set_pull(pdat->txd, GPIO_PULL_UP);
 		if(pdat->txdcfg >= 0)
 			gpio_set_cfg(pdat->txd, pdat->txdcfg);
+		gpio_set_pull(pdat->txd, GPIO_PULL_UP);
 	}
 	if(pdat->rxd >= 0)
 	{
-		gpio_set_pull(pdat->rxd, GPIO_PULL_UP);
 		if(pdat->rxdcfg >= 0)
 			gpio_set_cfg(pdat->rxd, pdat->rxdcfg);
+		gpio_set_pull(pdat->rxd, GPIO_PULL_UP);
 	}
 
 	write32(pdat->virt + UART_SRR, (1 << 0) | (1 << 1) | (1 << 2));

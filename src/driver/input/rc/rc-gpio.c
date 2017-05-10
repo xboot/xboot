@@ -31,6 +31,7 @@ struct rc_gpio_pdata_t {
 	struct rc_decoder_t decoder;
 	ktime_t last;
 	int gpio;
+	int gpiocfg;
 	int irq;
 	int active_low;
 };
@@ -99,6 +100,7 @@ static struct device_t * rc_gpio_probe(struct driver_t * drv, struct dtnode_t * 
 	}
 	pdat->last = ktime_get();
 	pdat->gpio = gpio;
+	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->irq = irq;
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 
@@ -107,6 +109,8 @@ static struct device_t * rc_gpio_probe(struct driver_t * drv, struct dtnode_t * 
 	input->ioctl = rc_gpio_ioctl;
 	input->priv = pdat;
 
+	if(pdat->gpiocfg >= 0)
+		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
 	gpio_direction_input(pdat->gpio);
 	request_irq(pdat->irq, rc_gpio_interrupt, IRQ_TYPE_EDGE_BOTH, input);

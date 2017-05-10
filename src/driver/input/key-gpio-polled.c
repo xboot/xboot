@@ -29,6 +29,7 @@
 
 struct gpio_key_t {
 	int gpio;
+	int gpiocfg;
 	int active_low;
 	int keycode;
 	int state;
@@ -110,9 +111,12 @@ static struct device_t * key_gpio_polled_probe(struct driver_t * drv, struct dtn
 	{
 		dt_read_array_object(n, "keys", i, &o);
 		keys[i].gpio = dt_read_int(&o, "gpio", -1);
+		keys[i].gpiocfg = dt_read_int(&o, "gpio-config", -1);
 		keys[i].active_low = dt_read_bool(&o, "active-low", 0);
 		keys[i].keycode = dt_read_int(&o, "key-code", 0);
 
+		if(keys[i].gpiocfg >= 0)
+			gpio_set_cfg(keys[i].gpio, keys[i].gpiocfg);
 		gpio_set_pull(keys[i].gpio, keys[i].active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
 		gpio_direction_input(keys[i].gpio);
 		keys[i].state = gpio_get_value(keys[i].gpio);

@@ -46,7 +46,9 @@
  * Example:
  *   "i2c-gpio": {
  *       "sda-gpio": 11,
+ *       "sda-gpio-config": -1,
  *       "scl-gpio": 12,
+ *       "scl-gpio-config": -1,
  *       "sda-open-drain": false,
  *       "scl-open-drain": false,
  *       "scl-output-only": false,
@@ -57,7 +59,9 @@
 struct i2c_gpio_pdata_t {
 	struct i2c_algo_bit_data_t bdat;
 	int sda;
+	int sdacfg;
 	int scl;
+	int sclcfg;
 	int sda_open_drain;
 	int scl_open_drain;
 	int scl_output_only;
@@ -136,13 +140,17 @@ static struct device_t * i2c_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	}
 
 	pdat->sda = sda;
+	pdat->sdacfg = dt_read_int(n, "sda-gpio-config", -1);
 	pdat->scl = scl;
+	pdat->sclcfg = dt_read_int(n, "scl-gpio-config", -1);
 	pdat->sda_open_drain = dt_read_bool(n, "sda-open-drain", 0);
 	pdat->scl_open_drain = dt_read_bool(n, "scl-open-drain", 0);
 	pdat->scl_output_only = dt_read_bool(n, "sda-output-only", 0);
 	pdat->udelay = dt_read_int(n, "delay-us", 5);
 	pdat->bdat.priv = pdat;
 
+	if(pdat->sdacfg >= 0)
+		gpio_set_cfg(pdat->sda, pdat->sdacfg);
 	if(pdat->sda_open_drain)
 	{
 		gpio_direction_output(pdat->sda, 1);
@@ -154,6 +162,8 @@ static struct device_t * i2c_gpio_probe(struct driver_t * drv, struct dtnode_t *
 		pdat->bdat.setsda = i2c_gpio_setsda_dir;
 	}
 
+	if(pdat->sclcfg >= 0)
+		gpio_set_cfg(pdat->scl, pdat->sclcfg);
 	if(pdat->scl_open_drain || pdat->scl_output_only)
 	{
 		gpio_direction_output(pdat->scl, 1);

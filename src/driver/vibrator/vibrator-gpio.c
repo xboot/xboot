@@ -35,6 +35,7 @@ struct vibrator_gpio_pdata_t {
 	struct timer_t timer;
 	struct queue_t * queue;
 	int gpio;
+	int gpiocfg;
 	int active_low;
 	int state;
 };
@@ -134,6 +135,7 @@ static struct device_t * vibrator_gpio_probe(struct driver_t * drv, struct dtnod
 	timer_init(&pdat->timer, vibrator_gpio_timer_function, vib);
 	pdat->queue = queue_alloc();
 	pdat->gpio = dt_read_int(n, "gpio", -1);
+	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 	pdat->state = 0;
 
@@ -143,6 +145,8 @@ static struct device_t * vibrator_gpio_probe(struct driver_t * drv, struct dtnod
 	vib->vibrate = vibrator_gpio_vibrate,
 	vib->priv = pdat;
 
+	if(pdat->gpiocfg >= 0)
+		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
 	vibrator_gpio_set_state(pdat, pdat->state);
 

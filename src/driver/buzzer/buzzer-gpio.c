@@ -35,6 +35,7 @@ struct buzzer_gpio_pdata_t {
 	struct timer_t timer;
 	struct queue_t * queue;
 	int gpio;
+	int gpiocfg;
 	int active_low;
 	int frequency;
 };
@@ -134,6 +135,7 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	timer_init(&pdat->timer, buzzer_gpio_timer_function, buzzer);
 	pdat->queue = queue_alloc();
 	pdat->gpio = dt_read_int(n, "gpio", -1);
+	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 	pdat->frequency = 0;
 
@@ -143,6 +145,8 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	buzzer->beep = buzzer_gpio_beep,
 	buzzer->priv = pdat;
 
+	if(pdat->gpiocfg >= 0)
+		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
 	buzzer_gpio_set_frequency(pdat, pdat->frequency);
 

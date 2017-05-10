@@ -39,6 +39,7 @@
  * Example:
  *   "led-gpio@0": {
  *       "gpio": 0,
+ *       "gpio-config": -1,
  *       "active-low": true,
  *       "default-brightness": 0
  *   }
@@ -46,6 +47,7 @@
 
 struct led_gpio_pdata_t {
 	int gpio;
+	int gpiocfg;
 	int active_low;
 	int brightness;
 };
@@ -96,6 +98,7 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	}
 
 	pdat->gpio = dt_read_int(n, "gpio", -1);
+	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 	pdat->brightness = dt_read_int(n, "default-brightness", 0);
 
@@ -104,6 +107,8 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	led->get = led_gpio_get,
 	led->priv = pdat;
 
+	if(pdat->gpiocfg >= 0)
+		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
 	led_gpio_set_brightness(pdat, pdat->brightness);
 

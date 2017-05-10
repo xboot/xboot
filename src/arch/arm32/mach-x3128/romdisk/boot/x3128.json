@@ -388,12 +388,16 @@
 		"adc-channel": 1,
 		"poll-interval-ms": 100,
 		"keys": [
-			{ "min-voltage": 0, "max-voltage": 1000000, "key-code": 8 }
+			{ "min-voltage": 0, "max-voltage": 100000, "key-code": 11 },
+			{ "min-voltage": 200000, "max-voltage": 400000, "key-code": 10 },
+			{ "min-voltage": 500000, "max-voltage": 700000, "key-code": 7 },
+			{ "min-voltage": 900000, "max-voltage": 1100000, "key-code": 6 }
 		]
 	},
 
 	"rc-gpio@0": {
 		"gpio": 122,
+		"gpio-config": 0,
 		"active-low": true,
 		"maps": [
 			{ "scan-code": 4259584, "key-code": 48 },
@@ -424,9 +428,31 @@
 			{ "scan-code": 4259700, "key-code": 24 }
 		]
 	},
-	
+
 	"led-gpio@0": {
-		"gpio": 55,
+		"gpio": 64,
+		"gpio-config": 0,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@1": {
+		"gpio": 65,
+		"gpio-config": 0,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@2": {
+		"gpio": 66,
+		"gpio-config": 0,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@3": {
+		"gpio": 67,
+		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
@@ -436,8 +462,18 @@
 		"heartbeat-period-ms": 1260
 	},
 
+	"buzzer-gpio@0": {
+		"gpio": 55,
+		"active-low": false
+	},
+
 	"buzzer-pwm@0": {
-		"pwm-name": "pwm-rk3128.0",
+		"pwm-name": "pwm-rk3128.1",
+		"pwm-polarity": true
+	},
+
+	"vibrator-pwm@0": {
+		"pwm-name": "pwm-rk3128.2",
 		"pwm-polarity": true
 	},
 

@@ -355,28 +355,20 @@
 		"scl-gpio-config": 1
 	},
 
-	"regulator-rk818@0": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "dcdc1", "channel": 0 },
-	"regulator-rk818@1": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "dcdc2", "channel": 1 },
-	"regulator-rk818@2": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "dcdc3", "channel": 2 },
-	"regulator-rk818@3": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "dcdc4", "channel": 3 },
-	"regulator-rk818@4": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo1", "channel": 4 },
-	"regulator-rk818@5": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo2", "channel": 5 },
-	"regulator-rk818@6": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo3", "channel": 6 },
-	"regulator-rk818@7": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo4", "channel": 7 },
-	"regulator-rk818@8": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo5", "channel": 8 },
-	"regulator-rk818@9": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo6", "channel": 9 },
-	"regulator-rk818@10": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo7", "channel": 10 },
-	"regulator-rk818@11": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo8", "channel": 11 },
-	"regulator-rk818@12": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "ldo9", "channel": 12 },
-	"regulator-rk818@13": { "i2c-bus": "i2c-rk3128.0", "slave-address": 28, "name": "swout", "channel": 13 },
+	"regulator-rk816@0": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc1", "channel": 0 },
+	"regulator-rk816@1": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc2", "channel": 1 },
+	"regulator-rk816@2": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc3", "channel": 2 },
+	"regulator-rk816@3": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc4", "channel": 3 },
+	"regulator-rk816@4": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo1", "channel": 4 },
+	"regulator-rk816@5": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo2", "channel": 5 },
+	"regulator-rk816@6": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo3", "channel": 6 },
+	"regulator-rk816@7": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo4", "channel": 7 },
+	"regulator-rk816@8": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo5", "channel": 8 },
+	"regulator-rk816@9": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo6", "channel": 9 },
 
-	"rtc-rk818@0": {
+	"rtc-rk816@0": {
 		"i2c-bus": "i2c-rk3128.0",
-		"slave-address": 28
-	},
-
-	"rtc-pcf8563@0": {
-		"i2c-bus": "i2c-rk3128.0"
+		"slave-address": 26
 	},
 
 	"wdog-rk3128@0x2004c000": {

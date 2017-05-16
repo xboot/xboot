@@ -375,6 +375,12 @@
 		"clock-name": "link-wdt"
 	},
 
+	"key-rk816@0": {
+		"i2c-bus": "i2c-rk3128.0",
+		"slave-address": 26,
+		"interrupt-gpio": 8
+	},
+
 	"key-adc@0": {
 		"adc-name": "adc-rk3128.0",
 		"adc-channel": 1,

@@ -362,9 +362,9 @@
 	"regulator-rk816@4": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo1", "channel": 4 },
 	"regulator-rk816@5": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo2", "channel": 5 },
 	"regulator-rk816@6": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo3", "channel": 6 },
-	"regulator-rk816@7": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo4", "channel": 7 },
+	"regulator-rk816@7": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo4", "channel": 7, "default": { "voltage": 1100000, "enable": true } },
 	"regulator-rk816@8": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo5", "channel": 8 },
-	"regulator-rk816@9": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo6", "channel": 9 },
+	"regulator-rk816@9": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo6", "channel": 9, "default": { "voltage": 3300000, "enable": true } },
 
 	"rtc-rk816@0": {
 		"i2c-bus": "i2c-rk3128.0",

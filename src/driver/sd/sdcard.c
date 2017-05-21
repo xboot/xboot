@@ -507,6 +507,7 @@ static void sdcard_disk_sync(struct disk_t * disk)
 static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 {
 	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(data);
+	char buf[64];
 	bool_t plugin;
 
 	if(!pdat->sdhci->removeable)
@@ -525,7 +526,8 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 	{
 		if(sdcard_detect(pdat->sdhci, &pdat->sdcard))
 		{
-			pdat->disk.name = alloc_device_name(pdat->sdhci->name, -1);
+			snprintf(buf, sizeof(buf), "sdcard.%s", pdat->sdhci->name);
+			pdat->disk.name = strdup(buf);
 			pdat->disk.size = pdat->sdcard.read_bl_len;
 			pdat->disk.count = pdat->sdcard.capacity / pdat->sdcard.read_bl_len;
 			pdat->disk.read = sdcard_disk_read;

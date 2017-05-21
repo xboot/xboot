@@ -108,7 +108,6 @@ bool_t partition_map(struct disk_t * disk)
 {
 	struct partition_map_list_t * pos, * n;
 	struct partition_t * ppos, * pn;
-	struct partition_t * part;
 	int i = 0;
 
 	if(!disk || !disk->name)
@@ -118,18 +117,6 @@ bool_t partition_map(struct disk_t * disk)
 		return FALSE;
 
 	init_list_head(&(disk->part.entry));
-
-	part = malloc(sizeof(struct partition_t));
-	if(!part)
-		return FALSE;
-
-	strlcpy(part->name, "disk", sizeof(part->name));
-	part->from = 0;
-	part->to = disk->count - 1;
-	part->size = disk->size;
-	part->blk = NULL;
-	list_add_tail(&part->entry, &(disk->part.entry));
-
 	list_for_each_entry_safe(pos, n, &(__partition_map_list.entry), entry)
 	{
 		if(pos->map->map)

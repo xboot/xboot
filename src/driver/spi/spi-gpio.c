@@ -27,25 +27,29 @@
 #include <spi/spi.h>
 
 struct spi_gpio_pdata_t {
-	int sclk_pin;
-	int mosi_pin;
-	int miso_pin;
-	int cs_pin;
+	int sclk;
+	int sclkcfg;
+	int mosi;
+	int mosicfg;
+	int miso;
+	int misocfg;
+	int cs;
+	int cscfg;
 };
 
 static inline void spi_gpio_setsclk(struct spi_gpio_pdata_t * pdat, int state)
 {
-	gpio_set_value(pdat->sclk_pin, state);
+	gpio_set_value(pdat->sclk, state);
 }
 
 static inline void spi_gpio_setmosi(struct spi_gpio_pdata_t * pdat, int state)
 {
-	gpio_set_value(pdat->mosi_pin, state);
+	gpio_set_value(pdat->mosi, state);
 }
 
 static inline int spi_gpio_getmiso(struct spi_gpio_pdata_t * pdat)
 {
-	return gpio_get_value(pdat->miso_pin);
+	return gpio_get_value(pdat->miso);
 }
 
 /*
@@ -258,8 +262,8 @@ static int spi_gpio_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 static void spi_gpio_chipselect(struct spi_t * spi, int enable)
 {
 	struct spi_gpio_pdata_t * pdat = (struct spi_gpio_pdata_t *)spi->priv;
-	if(pdat->cs_pin >= 0)
-		gpio_set_value(pdat->cs_pin, enable ? 0 : 1);
+	if(pdat->cs >= 0)
+		gpio_set_value(pdat->cs, enable ? 0 : 1);
 }
 
 static struct device_t * spi_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -267,17 +271,11 @@ static struct device_t * spi_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	struct spi_gpio_pdata_t * pdat;
 	struct spi_t * spi;
 	struct device_t * dev;
+	int sclk = dt_read_int(n, "sclk-gpio", -1);
+	int mosi = dt_read_int(n, "mosi-gpio", -1);
+	int miso = dt_read_int(n, "miso-gpio", -1);
 
-	if(!gpio_is_valid(dt_read_int(n, "sclk-pin", -1)))
-		return NULL;
-
-	if(!gpio_is_valid(dt_read_int(n, "mosi-pin", -1)))
-		return NULL;
-
-	if(!gpio_is_valid(dt_read_int(n, "miso-pin", -1)))
-		return NULL;
-
-	if(!gpio_is_valid(dt_read_int(n, "cs-pin", -1)))
+	if(!gpio_is_valid(sclk) || !gpio_is_valid(mosi) || !gpio_is_valid(miso))
 		return NULL;
 
 	pdat = malloc(sizeof(struct spi_gpio_pdata_t));
@@ -291,19 +289,43 @@ static struct device_t * spi_gpio_probe(struct driver_t * drv, struct dtnode_t *
 		return FALSE;
 	}
 
-	pdat->sclk_pin = dt_read_int(n, "sclk-pin", -1);
-	pdat->mosi_pin = dt_read_int(n, "mosi-pin", -1);
-	pdat->miso_pin = dt_read_int(n, "miso-pin", -1);
-	pdat->cs_pin = dt_read_int(n, "cs-pin", -1);
+	pdat->sclk = sclk;
+	pdat->sclkcfg = dt_read_int(n, "sclk-gpio-config", -1);
+	pdat->mosi = mosi;
+	pdat->mosicfg = dt_read_int(n, "mosi-gpio-config", -1);
+	pdat->miso = miso;
+	pdat->misocfg = dt_read_int(n, "miso-gpio-config", -1);
+	pdat->cs = dt_read_int(n, "cs-gpio", -1);
+	pdat->cscfg = dt_read_int(n, "cs-gpio-config", -1);
 
-	if(pdat->sclk_pin)
-		gpio_direction_output(pdat->sclk_pin, 0);
-	if(pdat->mosi_pin)
-		gpio_direction_output(pdat->mosi_pin, 0);
-	if(pdat->miso_pin)
-		gpio_direction_input(pdat->miso_pin);
-	if(pdat->cs_pin)
-		gpio_direction_output(pdat->cs_pin, 1);
+	if(pdat->sclk >= 0)
+	{
+		if(pdat->sclkcfg >= 0)
+			gpio_set_cfg(pdat->sclk, pdat->sclkcfg);
+		gpio_set_pull(pdat->sclk, GPIO_PULL_UP);
+		gpio_direction_output(pdat->sclk, 0);
+	}
+	if(pdat->mosi >= 0)
+	{
+		if(pdat->mosicfg >= 0)
+			gpio_set_cfg(pdat->mosi, pdat->mosicfg);
+		gpio_set_pull(pdat->mosi, GPIO_PULL_UP);
+		gpio_direction_output(pdat->mosi, 0);
+	}
+	if(pdat->miso >= 0)
+	{
+		if(pdat->misocfg >= 0)
+			gpio_set_cfg(pdat->miso, pdat->misocfg);
+		gpio_set_pull(pdat->miso, GPIO_PULL_UP);
+		gpio_direction_input(pdat->miso);
+	}
+	if(pdat->cs >= 0)
+	{
+		if(pdat->cscfg >= 0)
+			gpio_set_cfg(pdat->cs, pdat->cscfg);
+		gpio_set_pull(pdat->cs, GPIO_PULL_UP);
+		gpio_direction_output(pdat->cs, 1);
+	}
 
 	spi->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	spi->transfer = spi_gpio_transfer,

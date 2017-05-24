@@ -6,7 +6,9 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <stddef.h>
 #include <math.h>
+#include <malloc.h>
 
 struct kalman_filter_t {
 	float a, h;
@@ -15,7 +17,8 @@ struct kalman_filter_t {
 	float k, a2, h2;
 };
 
-void kalman_init(struct kalman_filter_t * filter, float a, float h, float q, float r);
+struct kalman_filter_t * kalman_alloc(float a, float h, float q, float r);
+void kalman_free(struct kalman_filter_t * filter);
 float kalman_update(struct kalman_filter_t * filter, float value);
 
 #ifdef __cplusplus

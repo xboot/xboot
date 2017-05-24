@@ -6,7 +6,9 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <stddef.h>
 #include <math.h>
+#include <malloc.h>
 
 /*
  * Exponentially weighted moving average (EWMA)
@@ -16,7 +18,8 @@ struct ewma_filter_t {
 	float last;
 };
 
-void ewma_init(struct ewma_filter_t * filter, float weight);
+struct ewma_filter_t * ewma_alloc(float weight);
+void ewma_free(struct ewma_filter_t * filter);
 float ewma_update(struct ewma_filter_t * filter, float value);
 
 #ifdef __cplusplus

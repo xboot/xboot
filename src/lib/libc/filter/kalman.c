@@ -4,8 +4,14 @@
 
 #include <kalman.h>
 
-void kalman_init(struct kalman_filter_t * filter, float a, float h, float q, float r)
+struct kalman_filter_t * kalman_alloc(float a, float h, float q, float r)
 {
+	struct kalman_filter_t * filter;
+
+	filter = malloc(sizeof(struct kalman_filter_t));
+	if(!filter)
+		return NULL;
+
 	filter->a = a;
 	filter->h = h;
 	filter->q = q;
@@ -15,6 +21,14 @@ void kalman_init(struct kalman_filter_t * filter, float a, float h, float q, flo
 	filter->k = 1;
 	filter->a2 = a * a;
 	filter->h2 = h * h;
+
+	return filter;
+}
+
+void kalman_free(struct kalman_filter_t * filter)
+{
+	if(filter)
+		free(filter);
 }
 
 float kalman_update(struct kalman_filter_t * filter, float value)

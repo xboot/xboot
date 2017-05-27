@@ -53,8 +53,7 @@ static inline int spi_gpio_getmiso(struct spi_gpio_pdata_t * pdat)
 }
 
 /*
- * CPHA = 0
- * CPOL = 0
+ * CPOL = 0, CPHA = 0
  */
 static u32_t spi_gpio_bitbang_txrx_mode0(struct spi_gpio_pdata_t * pdat, u32_t val, int bits, int ns)
 {
@@ -78,8 +77,7 @@ static u32_t spi_gpio_bitbang_txrx_mode0(struct spi_gpio_pdata_t * pdat, u32_t v
 }
 
 /*
- * CPHA = 1
- * CPOL = 0
+ * CPOL = 0, CPHA = 1
  */
 static u32_t spi_gpio_bitbang_txrx_mode1(struct spi_gpio_pdata_t * pdat, u32_t val, int bits, int ns)
 {
@@ -103,8 +101,7 @@ static u32_t spi_gpio_bitbang_txrx_mode1(struct spi_gpio_pdata_t * pdat, u32_t v
 }
 
 /*
- * CPHA = 0
- * CPOL = 1
+ * CPOL = 1, CPHA = 0
  */
 static u32_t spi_gpio_bitbang_txrx_mode2(struct spi_gpio_pdata_t * pdat, u32_t val, int bits, int ns)
 {
@@ -128,8 +125,7 @@ static u32_t spi_gpio_bitbang_txrx_mode2(struct spi_gpio_pdata_t * pdat, u32_t v
 }
 
 /*
- * CPHA = 1
- * CPOL = 1
+ * CPOL = 1, CPHA = 1
  */
 static u32_t spi_gpio_bitbang_txrx_mode3(struct spi_gpio_pdata_t * pdat, u32_t val, int bits, int ns)
 {

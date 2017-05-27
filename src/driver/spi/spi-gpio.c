@@ -364,7 +364,7 @@ static void spi_gpio_resume(struct device_t * dev)
 {
 }
 
-struct driver_t spi_gpio = {
+static struct driver_t spi_gpio = {
 	.name		= "spi-gpio",
 	.probe		= spi_gpio_probe,
 	.remove		= spi_gpio_remove,

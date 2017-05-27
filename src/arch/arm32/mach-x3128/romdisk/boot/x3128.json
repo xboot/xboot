@@ -355,6 +355,18 @@
 		"scl-gpio-config": 1
 	},
 
+	"spi-rk3128@0x20074000": {
+		"clock-name": "link-spi",
+		"sclk-gpio": 9,
+		"sclk-gpio-config": 2,
+		"mosi-gpio": 11,
+		"mosi-gpio-config": 2,
+		"miso-gpio": 13,
+		"miso-gpio-config": 2,
+		"cs-gpio": 14,
+		"cs-gpio-config": 2
+	},
+
 	"regulator-rk816@0": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc1", "channel": 0 },
 	"regulator-rk816@1": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc2", "channel": 1 },
 	"regulator-rk816@2": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc3", "channel": 2 },
@@ -373,6 +385,12 @@
 
 	"wdog-rk3128@0x2004c000": {
 		"clock-name": "link-wdt"
+	},
+
+	"spi-flash@0": {
+		"spi-bus": "spi-rk3128.0",
+		"mode": 0,
+		"speed": 0
 	},
 
 	"key-rk816@0": {

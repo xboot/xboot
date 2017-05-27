@@ -281,15 +281,15 @@ static struct device_t * i2c_rk3128_probe(struct driver_t * drv, struct dtnode_t
 	rk3128_i2c_set_rate(pdat, (u64_t)dt_read_long(n, "clock-frequency", 400000));
 	if(pdat->sda >= 0)
 	{
-		gpio_set_pull(pdat->sda, GPIO_PULL_UP);
 		if(pdat->sdacfg >= 0)
 			gpio_set_cfg(pdat->sda, pdat->sdacfg);
+		gpio_set_pull(pdat->sda, GPIO_PULL_UP);
 	}
 	if(pdat->scl >= 0)
 	{
-		gpio_set_pull(pdat->scl, GPIO_PULL_UP);
 		if(pdat->sclcfg >= 0)
 			gpio_set_cfg(pdat->scl, pdat->sclcfg);
+		gpio_set_pull(pdat->scl, GPIO_PULL_UP);
 	}
 
 	if(!register_i2c(&dev, i2c))

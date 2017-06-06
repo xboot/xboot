@@ -387,6 +387,11 @@
 		"clock-name": "link-wdt"
 	},
 
+	"gmeter-mma8452@0": {
+		"i2c-bus": "i2c-rk3128.1",
+		"slave-address": 29
+	},
+
 	"spi-flash@0": {
 		"spi-bus": "spi-rk3128.0",
 		"mode": 0,

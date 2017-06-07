@@ -378,6 +378,17 @@
 	"regulator-rk816@8": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo5", "channel": 8 },
 	"regulator-rk816@9": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo6", "channel": 9, "default": { "voltage": 3300000, "enable": true } },
 
+	"regulator-gpio@0": {
+		"parent": null,
+		"name": "lcd-power-5v",
+		"voltage": 5000000,
+		"gpio": 70,
+		"active-low": false,
+		"default": {
+			"enable": false
+		}
+	},
+
 	"rtc-rk816@0": {
 		"i2c-bus": "i2c-rk3128.0",
 		"slave-address": 26
@@ -481,6 +492,16 @@
 	"ledtrig-heartbeat@0": {
 		"led-name": "led-gpio.0",
 		"heartbeat-period-ms": 1260
+	},
+
+	"led-pwm-bl@0": {
+		"pwm-name": "pwm-rk3128.0",
+		"regulator-name": "lcd-power-5v",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": false,
+		"pwm-percent-from": 6,
+		"pwm-percent-to": 100,
+		"default-brightness": 0
 	},
 
 	"buzzer-gpio@0": {

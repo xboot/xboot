@@ -136,6 +136,7 @@ static struct device_t * pwm_rk3288_probe(struct driver_t * drv, struct dtnode_t
 	pwm->priv = pdat;
 
 	write32(pdat->virt + PWM_INT_EN, (read32(pdat->virt + PWM_INT_EN) & ~(0x1 << pdat->channel)));
+	write32(pdat->virt + PWM_CTRL(pdat->channel), (read32(pdat->virt + PWM_CTRL(pdat->channel)) | (0x3 << 3)));
 	write32(pdat->virt + PWM_CTRL(pdat->channel), (read32(pdat->virt + PWM_CTRL(pdat->channel)) & ~(0x1 << 0)));
 
 	if(!register_pwm(&dev, pwm))

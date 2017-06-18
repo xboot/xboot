@@ -33,11 +33,11 @@ extern "C" {
 #define BCM2837_GPIO25		(25)
 #define BCM2837_GPIO26		(26)
 #define BCM2837_GPIO27		(27)
+
 #define BCM2837_GPIO28		(28)
 #define BCM2837_GPIO29		(29)
 #define BCM2837_GPIO30		(30)
 #define BCM2837_GPIO31		(31)
-
 #define BCM2837_GPIO32		(32)
 #define BCM2837_GPIO33		(33)
 #define BCM2837_GPIO34		(34)
@@ -52,6 +52,7 @@ extern "C" {
 #define BCM2837_GPIO43		(43)
 #define BCM2837_GPIO44		(44)
 #define BCM2837_GPIO45		(45)
+
 #define BCM2837_GPIO46		(46)
 #define BCM2837_GPIO47		(47)
 #define BCM2837_GPIO48		(48)

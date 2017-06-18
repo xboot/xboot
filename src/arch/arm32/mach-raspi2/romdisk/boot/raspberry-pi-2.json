@@ -12,13 +12,7 @@
 	"clk-mbox@6": { "name": "isp-clk", "mbox-clock-id": 7 },
 	"clk-mbox@7": { "name": "sdram-clk", "mbox-clock-id": 8 },
 	"clk-mbox@8": { "name": "pixel-clk", "mbox-clock-id": 9 },
-	"clk-mbox@9": { "name": "pwm-clk", "mbox-clock-id": 10 },
-
-	"clk-setting": {
-		"clocks": [
-			{ "name": "pwm-clk", "rate": 9200000, "enable": true }
-		]
-	},
+	"clk-mbox@9": { "name": "pwm-clk", "mbox-clock-id": 10, "default": { "rate": 9200000, "enable": true } },
 
 	"irq-bcm2836@0x3f00b200": {
 		"interrupt-base": 0,

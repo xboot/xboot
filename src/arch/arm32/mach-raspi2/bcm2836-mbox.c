@@ -62,12 +62,22 @@ enum {
 	MBOX_CH_TAGS_VC_TO_ARM		= 9,
 };
 
+static void bcm2836_mbox_flush(void)
+{
+	virtual_addr_t virt = phys_to_virt(BCM2836_MBOX_BASE);
+
+	while((read32(virt + MBOX0_STATUS) & (1 << 30)) == 0)
+	{
+		read32(virt + MBOX0_READ);
+	}
+}
+
 static void bcm2836_mbox_write(int channel, uint32_t data)
 {
 	virtual_addr_t virt = phys_to_virt(BCM2836_MBOX_BASE);
 
-	while((read32(virt + MBOX_STATUS) & (1 << 31)) != 0);
-	write32(virt + MBOX_WRITE, (data & ~0xf) | (channel & 0xf));
+	while((read32(virt + MBOX1_STATUS) & (1 << 31)) != 0);
+	write32(virt + MBOX1_WRITE, (data & ~0xf) | (channel & 0xf));
 }
 
 static uint32_t bcm2836_mbox_read(int channel)
@@ -76,8 +86,8 @@ static uint32_t bcm2836_mbox_read(int channel)
 	uint32_t data;
 
     do {
-    	while((read32(virt + MBOX_STATUS) & (1 << 30)) != 0);
-    	data = read32(virt + MBOX_READ);
+    	while((read32(virt + MBOX0_STATUS) & (1 << 30)) != 0);
+    	data = read32(virt + MBOX0_READ);
     } while ((data & 0xf) != channel);
 
     return (data & ~0xf);
@@ -87,8 +97,11 @@ static void bcm2836_mbox_call(void * msg)
 {
 	uint32_t data = 0xC0000000 + virt_to_phys((uint32_t)msg);
 
+	mb();
+	bcm2836_mbox_flush();
 	bcm2836_mbox_write(MBOX_CH_TAGS_ARM_TO_VC, data);
 	bcm2836_mbox_read(MBOX_CH_TAGS_ARM_TO_VC);
+	mb();
 }
 
 /*

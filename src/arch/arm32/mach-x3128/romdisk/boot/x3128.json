@@ -37,6 +37,32 @@
 	"clk-rk3128-ratio@0x2000006c": { "parent": "periph-aclk", "name": "periph-hclk", "shift": 8, "width": 2 },
 	"clk-rk3128-ratio@0x2000006c": { "parent": "periph-aclk", "name": "periph-pclk", "shift": 12, "width": 2 },
 
+	"clk-rk3128-mux@0x200000b0": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 },
+			{ "name": "gpll-d3", "value": 3 }
+		],
+		"name": "mux-dclk-lcd", "shift": 0, "width": 2
+	},
+	"clk-rk3128-gate@0x200000dc": {"parent": "mux-dclk-lcd", "name": "gate-dclk-lcd", "shift": 1, "invert": true },
+	"clk-rk3128-divider@0x200000b0": { "parent": "gate-dclk-lcd", "name": "div-dclk-lcd", "shift": 8, "width": 8, "divider-one-based": true },
+	"clk-link": { "parent": "div-dclk-lcd", "name": "link-dclk-lcd" },
+
+	"clk-rk3128-mux@0x200000b4": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll-d2", "value": 2 },
+			{ "name": "gpll-d3", "value": 3 }
+		],
+		"name": "mux-sclk-lcd", "shift": 0, "width": 2
+	},
+	"clk-rk3128-gate@0x200000dc": {"parent": "mux-sclk-lcd", "name": "gate-sclk-lcd", "shift": 2, "invert": true },
+	"clk-rk3128-divider@0x200000b4": { "parent": "gate-sclk-lcd", "name": "div-sclk-lcd", "shift": 8, "width": 8, "divider-one-based": true },
+	"clk-link": { "parent": "div-sclk-lcd", "name": "link-sclk-lcd" },
+
 	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer0", "shift": 3, "invert": true },
 	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer1", "shift": 4, "invert": true },
 	"clk-rk3128-gate@0x200000f8": { "parent": "xin24m", "name": "gate-timer2", "shift": 5, "invert": true },
@@ -401,12 +427,6 @@
 	"gmeter-mma8452@0": {
 		"i2c-bus": "i2c-rk3128.1",
 		"slave-address": 29
-	},
-
-	"spi-flash@0": {
-		"spi-bus": "spi-rk3128.0",
-		"mode": 0,
-		"speed": 0
 	},
 
 	"key-rk816@0": {

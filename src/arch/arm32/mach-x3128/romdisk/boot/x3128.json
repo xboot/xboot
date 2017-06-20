@@ -539,6 +539,33 @@
 		"pwm-polarity": true
 	},
 
+	"fb-rk3128@0x1010e000": {
+		"regulator-name": "lcd-power-5v",
+		"clock-name": "link-dclk-lcd",
+		"lcd-reset-gpio": 68,
+		"lcd-reset-gpio-config": 0,
+		"lcd-enable-gpio": 70,
+		"lcd-enable-gpio-config": 0,
+		"width": 1024,
+		"height": 600,
+		"dots-per-inch-x": 160,
+		"dots-per-inch-y": 160,
+		"bits-per-pixel": 32,
+		"bytes-per-pixel": 4,
+		"clock-frequency": 48000000,
+		"hfront-porch": 80,
+		"hback-porch": 80,
+		"hsync-len": 2,
+		"vfront-porch": 12,
+		"vback-porch": 20,
+		"vsync-len": 3,
+		"hsync-active": false,
+		"vsync-active": false,
+		"den-active": false,
+		"clk-active": false,
+		"backlight": "led-pwm-bl.0"
+	},
+	
 	"console-uart@0": {
 		"uart-bus": "uart-8250.2"
 	}

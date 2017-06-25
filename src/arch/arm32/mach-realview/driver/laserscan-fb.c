@@ -30,6 +30,10 @@ struct laserscan_fb_pdata_t {
 	u8_t r, g, b, a;
 	u32_t color;
 	float x, y;
+	float tx, ty;
+	float a11, a12, a13;
+	float a21, a22, a23;
+	float a31, a32, a33;
 
 	struct fb_t * fb;
 	void * pixels;
@@ -37,6 +41,21 @@ struct laserscan_fb_pdata_t {
 	int w2, h2;
 	int bytes_per_pixel;
 };
+
+static inline void fb_projective_transformation(struct laserscan_fb_pdata_t * pdat, float x, float y, float * tx, float * ty)
+{
+	float w = pdat->a13 * x + pdat->a23 * y + pdat->a33;
+	*tx = (pdat->a11 * x + pdat->a21 * y + pdat->a31) / w;
+	*ty = (pdat->a12 * x + pdat->a22 * y + pdat->a32) / w;
+	if(*tx < -1)
+		*tx = -1;
+	else if(*tx > 1)
+		*tx = 1;
+	if(*ty < -1)
+		*ty = -1;
+	else if(*ty > 1)
+		*ty = 1;
+}
 
 static inline void fb_set_pixel(struct laserscan_fb_pdata_t * pdat, int x, int y)
 {
@@ -96,6 +115,38 @@ static inline void fb_line(struct laserscan_fb_pdata_t * pdat, int x1, int y1, i
 	}
 }
 
+static void laserscan_fb_perspective(struct laserscan_t * l, float x, float y)
+{
+	struct laserscan_fb_pdata_t * pdat = (struct laserscan_fb_pdata_t *)l->priv;
+	pdat->a13 = x;
+	pdat->a23 = y;
+	fb_projective_transformation(pdat, pdat->x, pdat->y, &pdat->tx, &pdat->ty);
+}
+
+static void laserscan_fb_translate(struct laserscan_t * l, float x, float y)
+{
+	struct laserscan_fb_pdata_t * pdat = (struct laserscan_fb_pdata_t *)l->priv;
+	pdat->a31 = x;
+	pdat->a32 = y;
+	fb_projective_transformation(pdat, pdat->x, pdat->y, &pdat->tx, &pdat->ty);
+}
+
+static void laserscan_fb_scale(struct laserscan_t * l, float x, float y)
+{
+	struct laserscan_fb_pdata_t * pdat = (struct laserscan_fb_pdata_t *)l->priv;
+	pdat->a11 = x;
+	pdat->a22 = y;
+	fb_projective_transformation(pdat, pdat->x, pdat->y, &pdat->tx, &pdat->ty);
+}
+
+static void laserscan_fb_shear(struct laserscan_t * l, float x, float y)
+{
+	struct laserscan_fb_pdata_t * pdat = (struct laserscan_fb_pdata_t *)l->priv;
+	pdat->a21 = x;
+	pdat->a12 = y;
+	fb_projective_transformation(pdat, pdat->x, pdat->y, &pdat->tx, &pdat->ty);
+}
+
 static void laserscan_fb_set_color(struct laserscan_t * l, u8_t r, u8_t g, u8_t b, u8_t a)
 {
 	struct laserscan_fb_pdata_t * pdat = (struct laserscan_fb_pdata_t *)l->priv;
@@ -104,7 +155,6 @@ static void laserscan_fb_set_color(struct laserscan_t * l, u8_t r, u8_t g, u8_t 
 	pdat->g = g;
 	pdat->b = b;
 	pdat->a = a;
-
 	if(a == 0)
 		pdat->color = 0xff000000;
 	else
@@ -128,12 +178,17 @@ static void laserscan_fb_get_color(struct laserscan_t * l, u8_t * r, u8_t * g, u
 static void laserscan_fb_move_to(struct laserscan_t * l, float x, float y)
 {
 	struct laserscan_fb_pdata_t * pdat = (struct laserscan_fb_pdata_t *)l->priv;
-	int x0 = x * pdat->w2 + pdat->w2;
-	int y0 = -y * pdat->h2 + pdat->h2;
+	float tx, ty;
+	int x0, y0;
 
+	fb_projective_transformation(pdat, x, y, &tx, &ty);
+	x0 = tx * pdat->w2 + pdat->w2;
+	y0 = -ty * pdat->h2 + pdat->h2;
 	fb_set_pixel(pdat, x0, y0);
 	pdat->x = x;
 	pdat->y = y;
+	pdat->tx = tx;
+	pdat->ty = ty;
 }
 
 static void laserscan_fb_rel_move_to(struct laserscan_t * l, float dx, float dy)
@@ -145,14 +200,20 @@ static void laserscan_fb_rel_move_to(struct laserscan_t * l, float dx, float dy)
 static void laserscan_fb_line_to(struct laserscan_t * l, float x, float y)
 {
 	struct laserscan_fb_pdata_t * pdat = (struct laserscan_fb_pdata_t *)l->priv;
-	int x1 = pdat->x * pdat->w2 + pdat->w2;
-	int y1 = -pdat->y * pdat->h2 + pdat->h2;
-	int x2 = x * pdat->w2 + pdat->w2;
-	int y2 = -y * pdat->h2 + pdat->h2;
+	float tx, ty;
+	int x1, y1;
+	int x2, y2;
 
+	fb_projective_transformation(pdat, x, y, &tx, &ty);
+	x1 = pdat->tx * pdat->w2 + pdat->w2;
+	y1 = -pdat->ty * pdat->h2 + pdat->h2;
+	x2 = tx * pdat->w2 + pdat->w2;
+	y2 = -ty * pdat->h2 + pdat->h2;
 	fb_line(pdat, x1, y1, x2, y2);
 	pdat->x = x;
 	pdat->y = y;
+	pdat->tx = tx;
+	pdat->ty = ty;
 }
 
 static void laserscan_fb_rel_line_to(struct laserscan_t * l, float dx, float dy)
@@ -177,13 +238,10 @@ static void laserscan_fb_arc_negative(struct laserscan_t * l, float xc, float yc
 {
 }
 
-static void laserscan_fb_rectangle(struct laserscan_t * l, float x, float y, float w, float h)
-{
-}
-
 static void laserscan_fb_clear(struct laserscan_t * l)
 {
 	struct laserscan_fb_pdata_t * pdat = (struct laserscan_fb_pdata_t *)l->priv;
+	mdelay(100);
 	memset(pdat->pixels, 0, pdat->width * pdat->height * pdat->bytes_per_pixel);
 }
 
@@ -208,12 +266,18 @@ static struct device_t * laserscan_fb_probe(struct driver_t * drv, struct dtnode
 		return NULL;
 	}
 
-	pdat->x = 0;
-	pdat->y = 0;
 	pdat->r = 0;
 	pdat->g = 0;
 	pdat->b = 0;
 	pdat->a = 0;
+	pdat->color = 0xff000000;
+	pdat->x = 0;
+	pdat->y = 0;
+	pdat->tx = 0;
+	pdat->ty = 0;
+	pdat->a11 = 1; pdat->a12 = 0; pdat->a13 = 0;
+	pdat->a21 = 0; pdat->a22 = 1; pdat->a23 = 0;
+	pdat->a31 = 0; pdat->a32 = 0; pdat->a33 = 1;
 	pdat->fb = fb;
 	pdat->pixels = fb->alone->pixels;
 	pdat->width = fb->width;
@@ -223,17 +287,20 @@ static struct device_t * laserscan_fb_probe(struct driver_t * drv, struct dtnode
 	pdat->bytes_per_pixel = fb->bpp / 8;
 
 	l->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	l->set_color = laserscan_fb_set_color,
-	l->get_color = laserscan_fb_get_color,
-	l->move_to = laserscan_fb_move_to,
-	l->rel_move_to = laserscan_fb_rel_move_to,
-	l->line_to = laserscan_fb_line_to,
-	l->rel_line_to = laserscan_fb_rel_line_to,
-	l->curve_to = laserscan_fb_curve_to,
-	l->rel_curve_to = laserscan_fb_rel_curve_to,
-	l->arc = laserscan_fb_arc,
-	l->arc_negative = laserscan_fb_arc_negative,
-	l->rectangle = laserscan_fb_rectangle,
+	l->perspective = laserscan_fb_perspective;
+	l->translate = laserscan_fb_translate;
+	l->scale = laserscan_fb_scale;
+	l->shear = laserscan_fb_shear;
+	l->set_color = laserscan_fb_set_color;
+	l->get_color = laserscan_fb_get_color;
+	l->move_to = laserscan_fb_move_to;
+	l->rel_move_to = laserscan_fb_rel_move_to;
+	l->line_to = laserscan_fb_line_to;
+	l->rel_line_to = laserscan_fb_rel_line_to;
+	l->curve_to = laserscan_fb_curve_to;
+	l->rel_curve_to = laserscan_fb_rel_curve_to;
+	l->arc = laserscan_fb_arc;
+	l->arc_negative = laserscan_fb_arc_negative;
 	l->clear = laserscan_fb_clear,
 	l->priv = pdat;
 

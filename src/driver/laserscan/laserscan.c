@@ -117,6 +117,31 @@ bool_t unregister_laserscan(struct laserscan_t * l)
 	return TRUE;
 }
 
+
+void laserscan_perspective(struct laserscan_t * l, float x, float y)
+{
+	if(l && l->perspective)
+		l->perspective(l, x, y);
+}
+
+void laserscan_translate(struct laserscan_t * l, float x, float y)
+{
+	if(l && l->translate)
+		l->translate(l, x, y);
+}
+
+void laserscan_scale(struct laserscan_t * l, float x, float y)
+{
+	if(l && l->scale)
+		l->scale(l, x, y);
+}
+
+void laserscan_shear(struct laserscan_t * l, float x, float y)
+{
+	if(l && l->shear)
+		l->shear(l, x, y);
+}
+
 void laserscan_set_color(struct laserscan_t * l, u8_t r, u8_t g, u8_t b, u8_t a)
 {
 	if(l && l->set_color)
@@ -175,12 +200,6 @@ void laserscan_arc_negative(struct laserscan_t * l, float xc, float yc, float r,
 {
 	if(l && l->arc_negative)
 		l->arc_negative(l, xc, yc, r, a1, a2);
-}
-
-void laserscan_rectangle(struct laserscan_t * l, float x, float y, float w, float h)
-{
-	if(l && l->rectangle)
-		l->rectangle(l, x, y, w, h);
 }
 
 void laserscan_clear(struct laserscan_t * l)

@@ -47,19 +47,12 @@ static inline void fb_projective_transformation(struct laserscan_fb_pdata_t * pd
 	float w = pdat->a13 * x + pdat->a23 * y + pdat->a33;
 	*tx = (pdat->a11 * x + pdat->a21 * y + pdat->a31) / w;
 	*ty = (pdat->a12 * x + pdat->a22 * y + pdat->a32) / w;
-	if(*tx < -1)
-		*tx = -1;
-	else if(*tx > 1)
-		*tx = 1;
-	if(*ty < -1)
-		*ty = -1;
-	else if(*ty > 1)
-		*ty = 1;
 }
 
 static inline void fb_set_pixel(struct laserscan_fb_pdata_t * pdat, int x, int y)
 {
-	*((u32_t *)((u8_t *)pdat->pixels + (y * pdat->width + x) * pdat->bytes_per_pixel)) = pdat->color;
+	if((x >= 0) && (x < pdat->width) && (y >= 0) && (y < pdat->height))
+		*((u32_t *)((u8_t *)pdat->pixels + (y * pdat->width + x) * pdat->bytes_per_pixel)) = pdat->color;
 }
 
 static inline void fb_line(struct laserscan_fb_pdata_t * pdat, int x1, int y1, int x2, int y2)

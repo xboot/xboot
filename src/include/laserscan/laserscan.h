@@ -51,6 +51,9 @@ void laserscan_curve_to(struct laserscan_t * l, float x1, float y1, float x2, fl
 void laserscan_rel_curve_to(struct laserscan_t * l, float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
 void laserscan_arc(struct laserscan_t * l, float xc, float yc, float r, float a1, float a2);
 void laserscan_arc_negative(struct laserscan_t * l, float xc, float yc, float r, float a1, float a2);
+void laserscan_rectangle(struct laserscan_t * l, float x, float y, float w, float h);
+void laserscan_seekbar(struct laserscan_t * l, float x, float y, float w, float h, float v);
+
 void laserscan_clear(struct laserscan_t * l);
 void laserscan_load_ilda(struct laserscan_t * l, const char * file);
 

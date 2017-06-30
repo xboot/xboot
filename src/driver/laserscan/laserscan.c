@@ -202,6 +202,73 @@ void laserscan_arc_negative(struct laserscan_t * l, float xc, float yc, float r,
 		l->arc_negative(l, xc, yc, r, a1, a2);
 }
 
+void laserscan_rectangle(struct laserscan_t * l, float x, float y, float w, float h)
+{
+	float tx = x + w;
+	float ty = y + h;
+
+	laserscan_move_to(l, x, y);
+	laserscan_line_to(l, tx, y);
+	laserscan_line_to(l, tx, ty);
+	laserscan_line_to(l, x, ty);
+	laserscan_line_to(l, x, y);
+}
+
+void laserscan_seekbar(struct laserscan_t * l, float x, float y, float w, float h, float v)
+{
+	float tx = x + w;
+	float ty = y + h;
+	float tx1, tx2, ty1, ty2;
+
+	if(v < 0)
+		v = 0;
+	else if(v > 1)
+		v = 1;
+
+	if(h < w)
+	{
+		tx1 = x + (w - h) * v;
+		tx2 = x + (w - h) * v + h;
+		ty1 = y - h;
+		ty2 = y + h + h;
+
+		laserscan_move_to(l, x, y);
+		laserscan_line_to(l, tx1, y);
+		laserscan_line_to(l, tx1, ty1);
+		laserscan_line_to(l, tx2, ty1);
+		laserscan_line_to(l, tx2, y);
+		laserscan_line_to(l, tx, y);
+		laserscan_line_to(l, tx, ty);
+		laserscan_line_to(l, tx2, ty);
+		laserscan_line_to(l, tx2, ty2);
+		laserscan_line_to(l, tx1, ty2);
+		laserscan_line_to(l, tx1, ty);
+		laserscan_line_to(l, x, ty);
+		laserscan_line_to(l, x, y);
+	}
+	else
+	{
+		tx1 = x - w;
+		tx2 = x + w + w;
+		ty1 = y + (h - w) * v;
+		ty2 = y + (h - w) * v + w;
+
+		laserscan_move_to(l, x, y);
+		laserscan_line_to(l, tx, y);
+		laserscan_line_to(l, tx, ty1);
+		laserscan_line_to(l, tx2, ty1);
+		laserscan_line_to(l, tx2, ty2);
+		laserscan_line_to(l, tx, ty2);
+		laserscan_line_to(l, tx, ty);
+		laserscan_line_to(l, x, ty);
+		laserscan_line_to(l, x, ty2);
+		laserscan_line_to(l, tx1, ty2);
+		laserscan_line_to(l, tx1, ty1);
+		laserscan_line_to(l, x, ty1);
+		laserscan_line_to(l, x, y);
+	}
+}
+
 void laserscan_clear(struct laserscan_t * l)
 {
 	if(l && l->clear)

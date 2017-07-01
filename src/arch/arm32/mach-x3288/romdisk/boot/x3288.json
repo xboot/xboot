@@ -231,6 +231,42 @@
 	"clk-link": { "parent": "gate-pclk-i2c4", "name": "link-pclk-i2c4" },
 	"clk-link": { "parent": "gate-pclk-i2c5", "name": "link-pclk-i2c5" },
 
+	"clk-rk3288-mux@0xff7600c4": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+		],
+		"name": "mux-spi0", "shift": 7, "width": 1,
+		"default": { "parent": "gpll" }
+	},
+	"clk-rk3288-gate@0xff760168": { "parent": "mux-spi0", "name": "gate-spi0", "shift": 9, "invert": true },
+	"clk-rk3288-divider@0xff7600c4": { "parent": "gate-spi0", "name": "div-spi0", "shift": 0, "width": 7, "divider-one-based": true, "default": { "rate": 99000000 } },
+	"clk-link": { "parent": "div-spi0", "name": "link-spi0" },
+
+	"clk-rk3288-mux@0xff7600c4": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+		],
+		"name": "mux-spi1", "shift": 15, "width": 1,
+		"default": { "parent": "gpll" }
+	},
+	"clk-rk3288-gate@0xff760168": { "parent": "mux-spi1", "name": "gate-spi1", "shift": 10, "invert": true },
+	"clk-rk3288-divider@0xff7600c4": { "parent": "gate-spi1", "name": "div-spi1", "shift": 8, "width": 7, "divider-one-based": true, "default": { "rate": 99000000 } },
+	"clk-link": { "parent": "div-spi1", "name": "link-spi1" },
+
+	"clk-rk3288-mux@0xff7600fc": {
+		"parent": [
+			{ "name": "cpll", "value": 0 },
+			{ "name": "gpll", "value": 1 },
+		],
+		"name": "mux-spi2", "shift": 7, "width": 1,
+		"default": { "parent": "gpll" }
+	},
+	"clk-rk3288-gate@0xff760168": { "parent": "mux-spi2", "name": "gate-spi2", "shift": 11, "invert": true },
+	"clk-rk3288-divider@0xff7600fc": { "parent": "gate-spi2", "name": "div-spi2", "shift": 0, "width": 7, "divider-one-based": true, "default": { "rate": 99000000 } },
+	"clk-link": { "parent": "div-spi2", "name": "link-spi2" },
+
 	"clk-rk3288-mux@0xff7600cc": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },

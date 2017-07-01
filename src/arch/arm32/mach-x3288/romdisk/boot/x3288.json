@@ -115,21 +115,16 @@
 	"clk-link": { "parent": "gate-pclk-rkpwm", "name": "link-pclk-rkpwm" },
 
 	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer0", "shift": 0, "invert": true },
-	"clk-link": { "parent": "gate-timer0", "name": "link-timer0" },
-
 	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer1", "shift": 1, "invert": true },
-	"clk-link": { "parent": "gate-timer1", "name": "link-timer1" },
-
 	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer2", "shift": 2, "invert": true },
-	"clk-link": { "parent": "gate-timer2", "name": "link-timer2" },
-
 	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer3", "shift": 3, "invert": true },
-	"clk-link": { "parent": "gate-timer3", "name": "link-timer3" },
-
 	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer4", "shift": 4, "invert": true },
-	"clk-link": { "parent": "gate-timer4", "name": "link-timer4" },
-
 	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer5", "shift": 5, "invert": true },
+	"clk-link": { "parent": "gate-timer0", "name": "link-timer0" },
+	"clk-link": { "parent": "gate-timer1", "name": "link-timer1" },
+	"clk-link": { "parent": "gate-timer2", "name": "link-timer2" },
+	"clk-link": { "parent": "gate-timer3", "name": "link-timer3" },
+	"clk-link": { "parent": "gate-timer4", "name": "link-timer4" },
 	"clk-link": { "parent": "gate-timer5", "name": "link-timer5" },
 
 	"clk-rk3288-gate@0xff760168": { "parent": "xin24m", "name": "gate-saradc", "shift": 8, "invert": true },
@@ -224,21 +219,16 @@
 	"clk-link": { "parent": "mux-uart4", "name": "link-uart4" },
 
 	"clk-rk3288-gate@0xff760188": { "parent": "pclk-bus-pre", "name": "gate-pclk-i2c0", "shift": 2, "invert": true },
-	"clk-link": { "parent": "gate-pclk-i2c0", "name": "link-pclk-i2c0" },
-
 	"clk-rk3288-gate@0xff760188": { "parent": "pclk-bus-pre", "name": "gate-pclk-i2c1", "shift": 3, "invert": true },
-	"clk-link": { "parent": "gate-pclk-i2c1", "name": "link-pclk-i2c1" },
-
 	"clk-rk3288-gate@0xff760178": { "parent": "pclk-peri-pre", "name": "gate-pclk-i2c2", "shift": 13, "invert": true },
-	"clk-link": { "parent": "gate-pclk-i2c2", "name": "link-pclk-i2c2" },
-
 	"clk-rk3288-gate@0xff760178": { "parent": "pclk-peri-pre", "name": "gate-pclk-i2c3", "shift": 14, "invert": true },
-	"clk-link": { "parent": "gate-pclk-i2c3", "name": "link-pclk-i2c3" },
-
 	"clk-rk3288-gate@0xff760178": { "parent": "pclk-peri-pre", "name": "gate-pclk-i2c4", "shift": 15, "invert": true },
-	"clk-link": { "parent": "gate-pclk-i2c4", "name": "link-pclk-i2c4" },
-
 	"clk-rk3288-gate@0xff76017c": { "parent": "pclk-peri-pre", "name": "gate-pclk-i2c5", "shift": 0, "invert": true },
+	"clk-link": { "parent": "gate-pclk-i2c0", "name": "link-pclk-i2c0" },
+	"clk-link": { "parent": "gate-pclk-i2c1", "name": "link-pclk-i2c1" },
+	"clk-link": { "parent": "gate-pclk-i2c2", "name": "link-pclk-i2c2" },
+	"clk-link": { "parent": "gate-pclk-i2c3", "name": "link-pclk-i2c3" },
+	"clk-link": { "parent": "gate-pclk-i2c4", "name": "link-pclk-i2c4" },
 	"clk-link": { "parent": "gate-pclk-i2c5", "name": "link-pclk-i2c5" },
 
 	"clk-rk3288-mux@0xff7600cc": {

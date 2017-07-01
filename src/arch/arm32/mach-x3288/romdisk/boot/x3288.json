@@ -1,690 +1,245 @@
 {
-	"clk-fixed@0": { "name": "usbphy", "rate": 480000000 },
-	"clk-fixed@1": { "name": "xtal", "rate": 24000000 },
-	"clk-fixed@2": { "name": "rtc", "rate": 32768 },
-	"clk-rk3288-pll@0": { "parent": "xtal", "name": "apll", "channel": 0 },
-	"clk-rk3288-pll@1": { "parent": "xtal", "name": "dpll", "channel": 1 },
-	"clk-rk3288-pll@2": { "parent": "xtal", "name": "cpll", "channel": 2 },
-	"clk-rk3288-pll@3": { "parent": "xtal", "name": "gpll", "channel": 3 },
-	"clk-rk3288-pll@4": { "parent": "xtal", "name": "npll", "channel": 4 },
+	"clk-fixed@0": { "name": "usbphy480m", "rate": 480000000 },
+	"clk-fixed@1": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
 
-	"clk-rk3288-gate@0xff760160": {
-		"parent": "gpll",
-		"name": "gate-gpll",
-		"shift": 10,
-		"invert": true
-	},
-	"clk-rk3288-gate@0xff760160": {
-		"parent": "cpll",
-		"name": "gate-cpll",
-		"shift": 11,
-		"invert": true
-	},
+	"clk-rk3288-pll@0": { "parent": "xin24m", "name": "apll", "channel": 0 },
+	"clk-rk3288-pll@1": { "parent": "xin24m", "name": "dpll", "channel": 1 },
+	"clk-rk3288-pll@2": { "parent": "xin24m", "name": "cpll", "channel": 2 },
+	"clk-rk3288-pll@3": { "parent": "xin24m", "name": "gpll", "channel": 3 },
+	"clk-rk3288-pll@4": { "parent": "xin24m", "name": "npll", "channel": 4 },
+
+	"clk-rk3288-gate@0xff760160": { "parent": "gpll", "name": "gate-gpll", "shift": 10, "invert": true },
+	"clk-rk3288-gate@0xff760160": { "parent": "cpll", "name": "gate-cpll", "shift": 11, "invert": true },
 	"clk-rk3288-mux@0xff760064": {
 		"parent": [
 			{ "name": "gate-cpll", "value": 0 },
 			{ "name": "gate-gpll", "value": 1 }
 		],
-		"name": "mux-pd-bus-src",
-		"shift": 15,
-		"width": 1
+		"name": "mux-pd-bus-src", "shift": 15, "width": 1
 	},
-	"clk-rk3288-divider@0xff760064": {
-		"parent": "mux-pd-bus-src",
-		"name": "div-pd-bus-src",
-		"shift": 3,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-rk3288-divider@0xff760064": {
-		"parent": "div-pd-bus-src",
-		"name": "div-pd-bus",
-		"shift": 0,
-		"width": 3,
-		"divider-one-based": true
-	},
-	"clk-rk3288-gate@0xff760160": {
-		"parent": "div-pd-bus",
-		"name": "gate-aclk-bus",
-		"shift": 3,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-aclk-bus",
-		"name": "aclk-bus-pre"
-	},
-	"clk-rk3288-gate@0xff760160": {
-		"parent": "div-pd-bus",
-		"name": "gate-cpu-pclk",
-		"shift": 5,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff760064": {
-		"parent": "gate-cpu-pclk",
-		"name": "div-cpu-pclk",
-		"shift": 12,
-		"width": 3,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-cpu-pclk",
-		"name": "pclk-bus-pre"
-	},
-	"clk-rk3288-gate@0xff760160": {
-		"parent": "div-pd-bus",
-		"name": "gate-cpu-hclk",
-		"shift": 4,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff760064": {
-		"parent": "gate-cpu-hclk",
-		"name": "div-cpu-hclk",
-		"shift": 8,
-		"width": 2,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-cpu-hclk",
-		"name": "hclk-bus-pre"
-	},
+	"clk-rk3288-divider@0xff760064": { "parent": "mux-pd-bus-src", "name": "div-pd-bus-src", "shift": 3, "width": 5, "divider-one-based": true },
+	"clk-rk3288-divider@0xff760064": { "parent": "div-pd-bus-src", "name": "div-pd-bus", "shift": 0, "width": 3, "divider-one-based": true },
+	"clk-rk3288-gate@0xff760160": { "parent": "div-pd-bus", "name": "gate-aclk-bus", "shift": 3, "invert": true },
+	"clk-link": { "parent": "gate-aclk-bus", "name": "aclk-bus-pre" },
+	
+	"clk-rk3288-gate@0xff760160": { "parent": "div-pd-bus", "name": "gate-cpu-pclk", "shift": 5, "invert": true, "default": { "enable": true } },
+	"clk-rk3288-divider@0xff760064": { "parent": "gate-cpu-pclk", "name": "div-cpu-pclk", "shift": 12, "width": 3, "divider-one-based": true },
+	"clk-link": { "parent": "div-cpu-pclk", "name": "pclk-bus-pre" },
+	
+	"clk-rk3288-gate@0xff760160": { "parent": "div-pd-bus", "name": "gate-cpu-hclk", "shift": 4, "invert": true, "default": { "enable": true } },
+	"clk-rk3288-divider@0xff760064": { "parent": "gate-cpu-hclk", "name": "div-cpu-hclk", "shift": 8, "width": 2, "divider-one-based": true },
+	"clk-link": { "parent": "div-cpu-hclk", "name": "hclk-bus-pre" },
 
-	"clk-rk3288-divider@0xff7600e4": {
-		"parent": "gpll",
-		"name": "div-pclk-pd-alive",
-		"shift": 8,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-pclk-pd-alive",
-		"name": "pclk-pd-alive"
-	},
+	"clk-rk3288-divider@0xff7600e4": { "parent": "gpll", "name": "div-pclk-pd-alive", "shift": 8, "width": 5, "divider-one-based": true },
+	"clk-link": { "parent": "div-pclk-pd-alive", "name": "pclk-pd-alive" },
 
-	"clk-rk3288-gate@0xff760174": {
-		"parent": "xtal",
-		"name": "gate-pclk-pd-pmu",
-		"shift": 8,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600e4": {
-		"parent": "gate-pclk-pd-pmu",
-		"name": "div-pclk-pd-pmu",
-		"shift": 0,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-pclk-pd-pmu",
-		"name": "pclk-pd-pmu"
-	},
+	"clk-rk3288-gate@0xff760174": { "parent": "xin24m", "name": "gate-pclk-pd-pmu", "shift": 8, "invert": true },
+	"clk-rk3288-divider@0xff7600e4": { "parent": "gate-pclk-pd-pmu", "name": "div-pclk-pd-pmu", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-link": { "parent": "div-pclk-pd-pmu", "name": "pclk-pd-pmu" },
 
 	"clk-rk3288-mux@0xff760088": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
 			{ "name": "gpll", "value": 1 }
 		],
-		"name": "mux-clk-peri",
-		"shift": 15,
-		"width": 1
+		"name": "mux-clk-peri", "shift": 15, "width": 1
 	},
-	"clk-rk3288-gate@0xff760168": {
-		"parent": "mux-clk-peri",
-		"name": "gate-clk-peri",
-		"shift": 0,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff760088": {
-		"parent": "gate-clk-peri",
-		"name": "div-clk-peri",
-		"shift": 0,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-rk3288-ratio@0xff760088": {
-		"parent": "div-clk-peri",
-		"name": "ratio-pclk-peri",
-		"shift": 12,
-		"width": 2
-	},
-	"clk-rk3288-gate@0xff760168": {
-		"parent": "ratio-pclk-peri",
-		"name": "gate-pclk-peri-pre",
-		"shift": 3,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-peri-pre",
-		"name": "pclk-peri-pre"
-	},
+	"clk-rk3288-gate@0xff760168": { "parent": "mux-clk-peri", "name": "gate-clk-peri", "shift": 0, "invert": true },
+	"clk-rk3288-divider@0xff760088": { "parent": "gate-clk-peri", "name": "div-clk-peri", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-rk3288-ratio@0xff760088": { "parent": "div-clk-peri", "name": "ratio-pclk-peri", "shift": 12, "width": 2 },
+	"clk-rk3288-gate@0xff760168": { "parent": "ratio-pclk-peri", "name": "gate-pclk-peri-pre", "shift": 3, "invert": true, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-pclk-peri-pre", "name": "pclk-peri-pre" },
 
-	"clk-rk3288-ratio@0xff760088": {
-		"parent": "div-clk-peri",
-		"name": "ratio-hclk-peri",
-		"shift": 8,
-		"width": 2
-	},
-	"clk-rk3288-gate@0xff760168": {
-		"parent": "ratio-hclk-peri",
-		"name": "gate-hclk-peri-pre",
-		"shift": 2,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-hclk-peri-pre",
-		"name": "hclk-peri-pre"
-	},
+	"clk-rk3288-ratio@0xff760088": { "parent": "div-clk-peri", "name": "ratio-hclk-peri", "shift": 8, "width": 2 },
+	"clk-rk3288-gate@0xff760168": { "parent": "ratio-hclk-peri", "name": "gate-hclk-peri-pre", "shift": 2, "invert": true, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-hclk-peri-pre", "name": "hclk-peri-pre" },
 
-	"clk-rk3288-gate@0xff760168": {
-		"parent": "div-clk-peri",
-		"name": "gate-aclk-peri-pre",
-		"shift": 1,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-aclk-peri-pre",
-		"name": "aclk-peri-pre"
-	},
+	"clk-rk3288-gate@0xff760168": { "parent": "div-clk-peri", "name": "gate-aclk-peri-pre", "shift": 1, "invert": true, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-aclk-peri-pre", "name": "aclk-peri-pre" },
 
 	"clk-rk3288-mux@0xff7600e0": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
 			{ "name": "gpll", "value": 1 },
-			{ "name": "usbphy", "value": 2 }
+			{ "name": "usbphy480m", "value": 2 }
 		],
-		"name": "mux-aclk-vio0",
-		"shift": 6,
-		"width": 2
+		"name": "mux-aclk-vio0", "shift": 6, "width": 2,
+		"default": { "parent": "gpll" }
 	},
-	"clk-rk3288-gate@0xff76016c": {
-		"parent": "mux-aclk-vio0",
-		"name": "gate-aclk-vio0",
-		"shift": 0,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600dc": {
-		"parent": "gate-aclk-vio0",
-		"name": "div-aclk-vio0",
-		"shift": 0,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-aclk-vio0",
-		"name": "aclk-vio0-pre"
-	},
+	"clk-rk3288-gate@0xff76016c": { "parent": "mux-aclk-vio0", "name": "gate-aclk-vio0", "shift": 0, "invert": true, "default": { "enable": true } },
+	"clk-rk3288-divider@0xff7600dc": { "parent": "gate-aclk-vio0", "name": "div-aclk-vio0", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-link": { "parent": "div-aclk-vio0", "name": "aclk-vio0-pre" },
 
-	"clk-rk3288-divider@0xff7600d0": {
-		"parent": "div-aclk-vio0",
-		"name": "div-hclk-vio",
-		"shift": 8,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-hclk-vio",
-		"name": "hclk-vio-pre"
-	},
+	"clk-rk3288-divider@0xff7600d0": { "parent": "div-aclk-vio0", "name": "div-hclk-vio", "shift": 8, "width": 5, "divider-one-based": true },
+	"clk-link": { "parent": "div-hclk-vio", "name": "hclk-vio-pre" },
 
 	"clk-rk3288-mux@0xff7600e0": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
 			{ "name": "gpll", "value": 1 },
-			{ "name": "usbphy", "value": 2 }
+			{ "name": "usbphy480m", "value": 2 }
 		],
-		"name": "mux-aclk-vio1",
-		"shift": 14,
-		"width": 2
+		"name": "mux-aclk-vio1", "shift": 14, "width": 2,
+		"default": { "parent": "gpll" }
 	},
-	"clk-rk3288-gate@0xff76016c": {
-		"parent": "mux-aclk-vio1",
-		"name": "gate-aclk-vio1",
-		"shift": 2,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600dc": {
-		"parent": "gate-aclk-vio1",
-		"name": "div-aclk-vio1",
-		"shift": 8,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-aclk-vio1",
-		"name": "aclk-vio1-pre"
-	},
+	"clk-rk3288-gate@0xff76016c": { "parent": "mux-aclk-vio1", "name": "gate-aclk-vio1", "shift": 2, "invert": true, "default": { "enable": true } },
+	"clk-rk3288-divider@0xff7600dc": { "parent": "gate-aclk-vio1", "name": "div-aclk-vio1", "shift": 8, "width": 5, "divider-one-based": true },
+	"clk-link": { "parent": "div-aclk-vio1", "name": "aclk-vio1-pre" },
 
 	"clk-rk3288-mux@0xff7600d8": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
 			{ "name": "gpll", "value": 1 },
-			{ "name": "usbphy", "value": 2 }
+			{ "name": "usbphy480m", "value": 2 }
 		],
-		"name": "mux-aclk-rga",
-		"shift": 6,
-		"width": 2
+		"name": "mux-aclk-rga", "shift": 6, "width": 2
 	},
-	"clk-rk3288-gate@0xff76016c": {
-		"parent": "mux-aclk-rga",
-		"name": "gate-aclk-rga",
-		"shift": 5,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600d8": {
-		"parent": "gate-aclk-rga",
-		"name": "div-aclk-rga",
-		"shift": 0,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-aclk-rga",
-		"name": "aclk-rga-pre"
-	},
+	"clk-rk3288-gate@0xff76016c": { "parent": "mux-aclk-rga", "name": "gate-aclk-rga", "shift": 5, "invert": true, "default": { "enable": true } },
+	"clk-rk3288-divider@0xff7600d8": { "parent": "gate-aclk-rga", "name": "div-aclk-rga", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-link": { "parent": "div-aclk-rga", "name": "aclk-rga-pre" },
 
 	"clk-rk3288-mux@0xff7600d8": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
 			{ "name": "gpll", "value": 1 },
-			{ "name": "usbphy", "value": 2 }
+			{ "name": "usbphy480m", "value": 2 }
 		],
-		"name": "mux-clk-rga",
-		"shift": 14,
-		"width": 2
+		"name": "mux-clk-rga", "shift": 14, "width": 2
 	},
-	"clk-rk3288-gate@0xff76016c": {
-		"parent": "mux-clk-rga",
-		"name": "gate-clk-rga",
-		"shift": 4,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600d8": {
-		"parent": "gate-clk-rga",
-		"name": "div-clk-rga",
-		"shift": 8,
-		"width": 5,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-clk-rga",
-		"name": "clk-rga"
-	},
+	"clk-rk3288-gate@0xff76016c": { "parent": "mux-clk-rga", "name": "gate-clk-rga", "shift": 4, "invert": true, "default": { "enable": true } },
+	"clk-rk3288-divider@0xff7600d8": { "parent": "gate-clk-rga", "name": "div-clk-rga", "shift": 8, "width": 5, "divider-one-based": true },
+	"clk-link": { "parent": "div-clk-rga", "name": "clk-rga" },
 
-	"clk-rk3288-gate@0xff76018c": {
-		"parent": "pclk-bus-pre",
-		"name": "gate-pclk-rkpwm",
-		"shift": 11,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-rkpwm",
-		"name": "link-pclk-rkpwm"
-	},
+	"clk-rk3288-gate@0xff76018c": { "parent": "pclk-bus-pre", "name": "gate-pclk-rkpwm", "shift": 11, "invert": true, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-pclk-rkpwm", "name": "link-pclk-rkpwm" },
 
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "xtal",
-		"name": "gate-timer0",
-		"shift": 0,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-timer0",
-		"name": "link-timer0"
-	},
+	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer0", "shift": 0, "invert": true },
+	"clk-link": { "parent": "gate-timer0", "name": "link-timer0" },
 
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "xtal",
-		"name": "gate-timer1",
-		"shift": 1,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-timer1",
-		"name": "link-timer1"
-	},
-	
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "xtal",
-		"name": "gate-timer2",
-		"shift": 2,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-timer2",
-		"name": "link-timer2"
-	},
-	
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "xtal",
-		"name": "gate-timer3",
-		"shift": 3,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-timer3",
-		"name": "link-timer3"
-	},
-	
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "xtal",
-		"name": "gate-timer4",
-		"shift": 4,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-timer4",
-		"name": "link-timer4"
-	},
-	
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "xtal",
-		"name": "gate-timer5",
-		"shift": 5,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-timer5",
-		"name": "link-timer5"
-	},
-	
-	"clk-rk3288-gate@0xff760168": {
-		"parent": "xtal",
-		"name": "gate-saradc",
-		"shift": 8,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600c0": {
-		"parent": "gate-saradc",
-		"name": "div-saradc",
-		"shift": 8,
-		"width": 8,
-		"divider-one-based": true
-	},
-	"clk-rk3288-gate@0xff76017c": {
-		"parent": "div-saradc",
-		"name": "gate-pclk-saradc",
-		"shift": 1,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-saradc",
-		"name": "link-pclk-saradc"
-	},
+	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer1", "shift": 1, "invert": true },
+	"clk-link": { "parent": "gate-timer1", "name": "link-timer1" },
+
+	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer2", "shift": 2, "invert": true },
+	"clk-link": { "parent": "gate-timer2", "name": "link-timer2" },
+
+	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer3", "shift": 3, "invert": true },
+	"clk-link": { "parent": "gate-timer3", "name": "link-timer3" },
+
+	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer4", "shift": 4, "invert": true },
+	"clk-link": { "parent": "gate-timer4", "name": "link-timer4" },
+
+	"clk-rk3288-gate@0xff760164": { "parent": "xin24m", "name": "gate-timer5", "shift": 5, "invert": true },
+	"clk-link": { "parent": "gate-timer5", "name": "link-timer5" },
+
+	"clk-rk3288-gate@0xff760168": { "parent": "xin24m", "name": "gate-saradc", "shift": 8, "invert": true },
+	"clk-rk3288-divider@0xff7600c0": { "parent": "gate-saradc", "name": "div-saradc", "shift": 8, "width": 8, "divider-one-based": true },
+	"clk-rk3288-gate@0xff76017c": { "parent": "div-saradc", "name": "gate-pclk-saradc", "shift": 1, "invert": true },
+	"clk-link": { "parent": "gate-pclk-saradc", "name": "link-pclk-saradc" },
 
 	"clk-rk3288-mux@0xff760094": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
 			{ "name": "gpll", "value": 1 },
-			{ "name": "usbphy", "value": 2 },
+			{ "name": "usbphy480m", "value": 2 },
 			{ "name": "npll", "value": 3 }
 		],
-		"name": "mux-uart0-src",
-		"shift": 13,
-		"width": 2
+		"name": "mux-uart0-src", "shift": 13, "width": 2
 	},
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "mux-uart0-src",
-		"name": "gate-uart0-src",
-		"shift": 8,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff760094": {
-		"parent": "gate-uart0-src",
-		"name": "div-uart0-src",
-		"shift": 0,
-		"width": 7,
-		"divider-one-based": true
-	},
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "div-uart0-src",
-		"name": "gate-uart0-frac",
-		"shift": 9,
-		"invert": true
-	},
-	"clk-rk3288-factor@0xff7600a4": {
-		"parent": "gate-uart0-frac",
-		"name": "factor-uart0-frac"
-	},
+	"clk-rk3288-gate@0xff760164": { "parent": "mux-uart0-src", "name": "gate-uart0-src", "shift": 8, "invert": true },
+	"clk-rk3288-divider@0xff760094": { "parent": "gate-uart0-src", "name": "div-uart0-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3288-gate@0xff760164": { "parent": "div-uart0-src", "name": "gate-uart0-frac", "shift": 9, "invert": true },
+	"clk-rk3288-factor@0xff7600a4": { "parent": "gate-uart0-frac", "name": "factor-uart0-frac" },
 	"clk-rk3288-mux@0xff760094": {
 		"parent": [
 			{ "name": "div-uart0-src", "value": 0 },
 			{ "name": "factor-uart0-frac", "value": 1 },
-			{ "name": "xtal", "value": 2 }
+			{ "name": "xin24m", "value": 2 }
 		],
-		"name": "mux-uart0",
-		"shift": 8,
-		"width": 2
+		"name": "mux-uart0", "shift": 8, "width": 2
 	},
-	"clk-link": {
-		"parent": "mux-uart0",
-		"name": "link-uart0"
-	},
+	"clk-link": { "parent": "mux-uart0", "name": "link-uart0" },
 
 	"clk-rk3288-mux@0xff760094": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
 			{ "name": "gpll", "value": 1 }
 		],
-		"name": "mux-uart1234-src",
-		"shift": 15,
-		"width": 1
+		"name": "mux-uart1234-src", "shift": 15, "width": 1
 	},
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "mux-uart1234-src",
-		"name": "gate-uart1-src",
-		"shift": 10,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff760098": {
-		"parent": "gate-uart1-src",
-		"name": "div-uart1-src",
-		"shift": 0,
-		"width": 7,
-		"divider-one-based": true
-	},
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "div-uart1-src",
-		"name": "gate-uart1-frac",
-		"shift": 11,
-		"invert": true
-	},
-	"clk-rk3288-factor@0xff7600a8": {
-		"parent": "gate-uart1-frac",
-		"name": "factor-uart1-frac"
-	},
+	"clk-rk3288-gate@0xff760164": { "parent": "mux-uart1234-src", "name": "gate-uart1-src", "shift": 10, "invert": true },
+	"clk-rk3288-divider@0xff760098": { "parent": "gate-uart1-src", "name": "div-uart1-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3288-gate@0xff760164": { "parent": "div-uart1-src", "name": "gate-uart1-frac", "shift": 11, "invert": true },
+	"clk-rk3288-factor@0xff7600a8": { "parent": "gate-uart1-frac", "name": "factor-uart1-frac" },
 	"clk-rk3288-mux@0xff760098": {
 		"parent": [
 			{ "name": "div-uart1-src", "value": 0 },
 			{ "name": "factor-uart1-frac", "value": 1 },
-			{ "name": "xtal", "value": 2 }
+			{ "name": "xin24m", "value": 2 }
 		],
-		"name": "mux-uart1",
-		"shift": 8,
-		"width": 2
+		"name": "mux-uart1", "shift": 8, "width": 2
 	},
-	"clk-link": {
-		"parent": "mux-uart1",
-		"name": "link-uart1"
-	},
+	"clk-link": { "parent": "mux-uart1", "name": "link-uart1" },
 
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "mux-uart1234-src",
-		"name": "gate-uart2-src",
-		"shift": 12,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff76009c": {
-		"parent": "gate-uart2-src",
-		"name": "div-uart2-src",
-		"shift": 0,
-		"width": 7,
-		"divider-one-based": true
-	},
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "div-uart2-src",
-		"name": "gate-uart2-frac",
-		"shift": 13,
-		"invert": true
-	},
-	"clk-rk3288-factor@0xff7600ac": {
-		"parent": "gate-uart2-frac",
-		"name": "factor-uart2-frac"
-	},
+	"clk-rk3288-gate@0xff760164": { "parent": "mux-uart1234-src", "name": "gate-uart2-src", "shift": 12, "invert": true },
+	"clk-rk3288-divider@0xff76009c": { "parent": "gate-uart2-src", "name": "div-uart2-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3288-gate@0xff760164": { "parent": "div-uart2-src", "name": "gate-uart2-frac", "shift": 13, "invert": true },
+	"clk-rk3288-factor@0xff7600ac": { "parent": "gate-uart2-frac", "name": "factor-uart2-frac" },
 	"clk-rk3288-mux@0xff76009c": {
 		"parent": [
 			{ "name": "div-uart2-src", "value": 0 },
 			{ "name": "factor-uart2-frac", "value": 1 },
-			{ "name": "xtal", "value": 2 }
+			{ "name": "xin24m", "value": 2 }
 		],
-		"name": "mux-uart2",
-		"shift": 8,
-		"width": 2
+		"name": "mux-uart2", "shift": 8, "width": 2
 	},
-	"clk-link": {
-		"parent": "mux-uart2",
-		"name": "link-uart2"
-	},
+	"clk-link": { "parent": "mux-uart2", "name": "link-uart2" },
 
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "mux-uart1234-src",
-		"name": "gate-uart3-src",
-		"shift": 14,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600a0": {
-		"parent": "gate-uart3-src",
-		"name": "div-uart3-src",
-		"shift": 0,
-		"width": 7,
-		"divider-one-based": true
-	},
-	"clk-rk3288-gate@0xff760164": {
-		"parent": "div-uart3-src",
-		"name": "gate-uart3-frac",
-		"shift": 15,
-		"invert": true
-	},
-	"clk-rk3288-factor@0xff7600b0": {
-		"parent": "gate-uart3-frac",
-		"name": "factor-uart3-frac"
-	},
+	"clk-rk3288-gate@0xff760164": { "parent": "mux-uart1234-src", "name": "gate-uart3-src", "shift": 14, "invert": true },
+	"clk-rk3288-divider@0xff7600a0": { "parent": "gate-uart3-src", "name": "div-uart3-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3288-gate@0xff760164": { "parent": "div-uart3-src", "name": "gate-uart3-frac", "shift": 15, "invert": true },
+	"clk-rk3288-factor@0xff7600b0": { "parent": "gate-uart3-frac", "name": "factor-uart3-frac" },
 	"clk-rk3288-mux@0xff7600a0": {
 		"parent": [
 			{ "name": "div-uart3-src", "value": 0 },
 			{ "name": "factor-uart3-frac", "value": 1 },
-			{ "name": "xtal", "value": 2 }
+			{ "name": "xin24m", "value": 2 }
 		],
-		"name": "mux-uart3",
-		"shift": 8,
-		"width": 2
+		"name": "mux-uart3", "shift": 8, "width": 2
 	},
-	"clk-link": {
-		"parent": "mux-uart3",
-		"name": "link-uart3"
-	},
+	"clk-link": { "parent": "mux-uart3", "name": "link-uart3" },
 
-	"clk-rk3288-gate@0xff760168": {
-		"parent": "mux-uart1234-src",
-		"name": "gate-uart4-src",
-		"shift": 12,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff76006c": {
-		"parent": "gate-uart4-src",
-		"name": "div-uart4-src",
-		"shift": 0,
-		"width": 7,
-		"divider-one-based": true
-	},
-	"clk-rk3288-gate@0xff760168": {
-		"parent": "div-uart4-src",
-		"name": "gate-uart4-frac",
-		"shift": 13,
-		"invert": true
-	},
-	"clk-rk3288-factor@0xff76007c": {
-		"parent": "gate-uart4-frac",
-		"name": "factor-uart4-frac"
-	},
+	"clk-rk3288-gate@0xff760168": { "parent": "mux-uart1234-src", "name": "gate-uart4-src", "shift": 12, "invert": true },
+	"clk-rk3288-divider@0xff76006c": { "parent": "gate-uart4-src", "name": "div-uart4-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3288-gate@0xff760168": { "parent": "div-uart4-src", "name": "gate-uart4-frac", "shift": 13, "invert": true },
+	"clk-rk3288-factor@0xff76007c": { "parent": "gate-uart4-frac", "name": "factor-uart4-frac" },
 	"clk-rk3288-mux@0xff76006c": {
 		"parent": [
 			{ "name": "div-uart4-src", "value": 0 },
 			{ "name": "factor-uart4-frac", "value": 1 },
-			{ "name": "xtal", "value": 2 }
+			{ "name": "xin24m", "value": 2 }
 		],
-		"name": "mux-uart4",
-		"shift": 8,
-		"width": 2
+		"name": "mux-uart4", "shift": 8, "width": 2
 	},
-	"clk-link": {
-		"parent": "mux-uart4",
-		"name": "link-uart4"
-	},
+	"clk-link": { "parent": "mux-uart4", "name": "link-uart4" },
 
-	"clk-rk3288-gate@0xff760188": {
-		"parent": "pclk-bus-pre",
-		"name": "gate-pclk-i2c0",
-		"shift": 2,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-i2c0",
-		"name": "link-pclk-i2c0"
-	},
+	"clk-rk3288-gate@0xff760188": { "parent": "pclk-bus-pre", "name": "gate-pclk-i2c0", "shift": 2, "invert": true },
+	"clk-link": { "parent": "gate-pclk-i2c0", "name": "link-pclk-i2c0" },
 
-	"clk-rk3288-gate@0xff760188": {
-		"parent": "pclk-bus-pre",
-		"name": "gate-pclk-i2c1",
-		"shift": 3,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-i2c1",
-		"name": "link-pclk-i2c1"
-	},
+	"clk-rk3288-gate@0xff760188": { "parent": "pclk-bus-pre", "name": "gate-pclk-i2c1", "shift": 3, "invert": true },
+	"clk-link": { "parent": "gate-pclk-i2c1", "name": "link-pclk-i2c1" },
 
-	"clk-rk3288-gate@0xff760178": {
-		"parent": "pclk-peri-pre",
-		"name": "gate-pclk-i2c2",
-		"shift": 13,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-i2c2",
-		"name": "link-pclk-i2c2"
-	},
+	"clk-rk3288-gate@0xff760178": { "parent": "pclk-peri-pre", "name": "gate-pclk-i2c2", "shift": 13, "invert": true },
+	"clk-link": { "parent": "gate-pclk-i2c2", "name": "link-pclk-i2c2" },
 
-	"clk-rk3288-gate@0xff760178": {
-		"parent": "pclk-peri-pre",
-		"name": "gate-pclk-i2c3",
-		"shift": 14,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-i2c3",
-		"name": "link-pclk-i2c3"
-	},
+	"clk-rk3288-gate@0xff760178": { "parent": "pclk-peri-pre", "name": "gate-pclk-i2c3", "shift": 14, "invert": true },
+	"clk-link": { "parent": "gate-pclk-i2c3", "name": "link-pclk-i2c3" },
 
-	"clk-rk3288-gate@0xff760178": {
-		"parent": "pclk-peri-pre",
-		"name": "gate-pclk-i2c4",
-		"shift": 15,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-i2c4",
-		"name": "link-pclk-i2c4"
-	},
+	"clk-rk3288-gate@0xff760178": { "parent": "pclk-peri-pre", "name": "gate-pclk-i2c4", "shift": 15, "invert": true },
+	"clk-link": { "parent": "gate-pclk-i2c4", "name": "link-pclk-i2c4" },
 
-	"clk-rk3288-gate@0xff76017c": {
-		"parent": "pclk-peri-pre",
-		"name": "gate-pclk-i2c5",
-		"shift": 0,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-pclk-i2c5",
-		"name": "link-pclk-i2c5"
-	},
+	"clk-rk3288-gate@0xff76017c": { "parent": "pclk-peri-pre", "name": "gate-pclk-i2c5", "shift": 0, "invert": true },
+	"clk-link": { "parent": "gate-pclk-i2c5", "name": "link-pclk-i2c5" },
 
 	"clk-rk3288-mux@0xff7600cc": {
 		"parent": [
@@ -692,27 +247,12 @@
 			{ "name": "gpll", "value": 1 },
 			{ "name": "npll", "value": 2 }
 		],
-		"name": "mux-dclk-vop0",
-		"shift": 0,
-		"width": 2
+		"name": "mux-dclk-vop0", "shift": 0, "width": 2,
+		"default": { "parent": "gpll" }
 	},
-	"clk-rk3288-gate@0xff76016c": {
-		"parent": "mux-dclk-vop0",
-		"name": "gate-dclk-vop0",
-		"shift": 1,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600cc": {
-		"parent": "gate-dclk-vop0",
-		"name": "div-dclk-vop0",
-		"shift": 8,
-		"width": 8,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-dclk-vop0",
-		"name": "dclk-vop0"
-	},
+	"clk-rk3288-gate@0xff76016c": { "parent": "mux-dclk-vop0", "name": "gate-dclk-vop0", "shift": 1, "invert": true, "default": { "enable": true } },
+	"clk-rk3288-divider@0xff7600cc": { "parent": "gate-dclk-vop0", "name": "div-dclk-vop0", "shift": 8, "width": 8, "divider-one-based": true, "default": { "rate": 45000000 } },
+	"clk-link": { "parent": "div-dclk-vop0", "name": "dclk-vop0" },
 
 	"clk-rk3288-mux@0xff7600d4": {
 		"parent": [
@@ -720,97 +260,22 @@
 			{ "name": "gpll", "value": 1 },
 			{ "name": "npll", "value": 2 }
 		],
-		"name": "mux-dclk-vop1",
-		"shift": 6,
-		"width": 2
+		"name": "mux-dclk-vop1", "shift": 6, "width": 2,
+		"default": { "parent": "gpll" }
 	},
-	"clk-rk3288-gate@0xff76016c": {
-		"parent": "mux-dclk-vop1",
-		"name": "gate-dclk-vop1",
-		"shift": 1,
-		"invert": true
-	},
-	"clk-rk3288-divider@0xff7600d4": {
-		"parent": "gate-dclk-vop1",
-		"name": "div-dclk-vop1",
-		"shift": 8,
-		"width": 8,
-		"divider-one-based": true
-	},
-	"clk-link": {
-		"parent": "div-dclk-vop1",
-		"name": "dclk-vop1"
-	},
+	"clk-rk3288-gate@0xff76016c": { "parent": "mux-dclk-vop1", "name": "gate-dclk-vop1", "shift": 1, "invert": true, "default": { "enable": true } },
+	"clk-rk3288-divider@0xff7600d4": { "parent": "gate-dclk-vop1", "name": "div-dclk-vop1", "shift": 8, "width": 8, "divider-one-based": true, "default": { "rate": 45000000 } },
+	"clk-link": { "parent": "div-dclk-vop1", "name": "dclk-vop1" },
 	
-	"clk-rk3288-gate@0xff76019c": {
-		"parent": "aclk-vio0-pre",
-		"name": "gate-aclk-vop0",
-		"shift": 5,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-aclk-vop0",
-		"name": "link-aclk-vop0"
-	},
-	"clk-rk3288-gate@0xff76019c": {
-		"parent": "hclk-vio-pre",
-		"name": "gate-hclk-vop0",
-		"shift": 6,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-hclk-vop0",
-		"name": "link-hclk-vop0"
-	},
+	"clk-rk3288-gate@0xff76019c": { "parent": "aclk-vio0-pre", "name": "gate-aclk-vop0", "shift": 5, "invert": true, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-aclk-vop0", "name": "link-aclk-vop0" },
+	"clk-rk3288-gate@0xff76019c": { "parent": "hclk-vio-pre", "name": "gate-hclk-vop0", "shift": 6, "invert": true, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-hclk-vop0", "name": "link-hclk-vop0" },
 
-	"clk-rk3288-gate@0xff76019c": {
-		"parent": "aclk-vio1-pre",
-		"name": "gate-aclk-vop1",
-		"shift": 7,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-aclk-vop1",
-		"name": "link-aclk-vop1"
-	},
-	"clk-rk3288-gate@0xff76019c": {
-		"parent": "hclk-vio-pre",
-		"name": "gate-hclk-vop1",
-		"shift": 8,
-		"invert": true
-	},
-	"clk-link": {
-		"parent": "gate-hclk-vop1",
-		"name": "link-hclk-vop1"
-	},
-
-	"clk-setting": {
-		"clocks": [
-			{ "name": "pclk-bus-pre", "enable": true },
-			{ "name": "hclk-bus-pre", "enable": true },
-			{ "name": "pclk-peri-pre", "enable": true },
-			{ "name": "hclk-peri-pre", "enable": true },
-			{ "name": "aclk-peri-pre", "enable": true },
-			{ "name": "aclk-vio0-pre", "enable": true },
-			{ "name": "aclk-vio1-pre", "enable": true },
-			{ "name": "hclk-vio-pre", "enable": true },
-			{ "name": "aclk-rga-pre", "enable": true },
-			{ "name": "clk-rga", "enable": true },
-			{ "name": "link-pclk-rkpwm", "enable": true },
-			
-			{ "name": "mux-aclk-vio0", "parent": "gpll", "enable": true },
-			{ "name": "mux-dclk-vop0", "parent": "gpll", "enable": true },
-			{ "name": "div-dclk-vop0", "rate": 45000000, "enable": true },
-			{ "name": "link-aclk-vop0", "enable": true },
-			{ "name": "link-hclk-vop0", "enable": true },
-			
-			{ "name": "mux-aclk-vio1", "parent": "gpll", "enable": true },
-			{ "name": "mux-dclk-vop1", "parent": "gpll", "enable": true },
-			{ "name": "div-dclk-vop1", "rate": 45000000, "enable": true },
-			{ "name": "link-aclk-vop1", "enable": true },
-			{ "name": "link-hclk-vop1", "enable": true }
-		]
-	},
+	"clk-rk3288-gate@0xff76019c": { "parent": "aclk-vio1-pre", "name": "gate-aclk-vop1", "shift": 7, "invert": true, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-aclk-vop1", "name": "link-aclk-vop1" },
+	"clk-rk3288-gate@0xff76019c": { "parent": "hclk-vio-pre", "name": "gate-hclk-vop1", "shift": 8, "invert": true, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-hclk-vop1", "name": "link-hclk-vop1" },
 
 	"irq-gic400@0xffc00000": {
 		"interrupt-base": 32,

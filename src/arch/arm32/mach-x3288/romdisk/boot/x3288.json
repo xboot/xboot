@@ -572,6 +572,42 @@
 		"scl-gpio-config": 1
 	},
 
+	"spi-rk3288@0xff110000": {
+		"clock-name": "link-spi0",
+		"sclk-gpio": 172,
+		"sclk-gpio-config": 0,
+		"mosi-gpio": 174,
+		"mosi-gpio-config": 0,
+		"miso-gpio": 175,
+		"miso-gpio-config": 0,
+		"cs-gpio": 173,
+		"cs-gpio-config": 0
+	},
+
+	"spi-rk3288@0xff120000": {
+		"clock-name": "link-spi1",
+		"sclk-gpio": 236,
+		"sclk-gpio-config": 1,
+		"mosi-gpio": 239,
+		"mosi-gpio-config": 1,
+		"miso-gpio": 238,
+		"miso-gpio-config": 1,
+		"cs-gpio": 237,
+		"cs-gpio-config": 1
+	},
+
+	"spi-rk3288@0xff130000": {
+		"clock-name": "link-spi2",
+		"sclk-gpio": 262,
+		"sclk-gpio-config": 0,
+		"mosi-gpio": 265,
+		"mosi-gpio-config": 0,
+		"miso-gpio": 264,
+		"miso-gpio-config": 0,
+		"cs-gpio": 263,
+		"cs-gpio-config": 0
+	},
+
 	"regulator-rc5t620@0": {
 		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,

@@ -107,7 +107,7 @@
 		"name": "mux-spi-src", "shift": 8, "width": 2
 	},
 	"clk-rk3128-gate@0x200000d8": {"parent": "mux-spi-src", "name": "gate-spi-src", "shift": 9, "invert": true },
-	"clk-rk3128-divider@0x200000a8": { "parent": "gate-spi-src", "name": "div-spi-src", "shift": 0, "width": 7, "divider-one-based": true },
+	"clk-rk3128-divider@0x200000a8": { "parent": "gate-spi-src", "name": "div-spi-src", "shift": 0, "width": 7, "divider-one-based": true, "default": { "rate": 92000000 } },
 	"clk-rk3128-gate@0x200000ec": { "parent": "div-spi-src", "name": "gate-spi", "shift": 12, "invert": true },
 	"clk-link": { "parent": "gate-spi", "name": "link-spi" },
 
@@ -413,6 +413,13 @@
 		"default": {
 			"enable": false
 		}
+	},
+
+	"dac-dac8563@0": {
+		"spi-bus": "spi-rk3128.0",
+		"mode": 0,
+		"speed": 1000000,
+		"reference-voltage": 5000000
 	},
 
 	"rtc-rk816@0": {

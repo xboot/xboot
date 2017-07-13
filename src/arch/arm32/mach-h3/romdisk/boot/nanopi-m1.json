@@ -1,0 +1,133 @@
+{
+	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+
+	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart1" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart2" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart3" },
+
+	"clk-link": { "parent": "xin24m", "name": "link-wdt" },
+	"clk-link": { "parent": "xin24m", "name": "link-timer" },
+
+	"gpio-h3@0x01c20800": {
+		"gpio-base": 0,
+		"gpio-count": 22,
+		"interrupt-offset": -1
+	},
+
+	"gpio-h3@0x01c20848": {
+		"gpio-base": 64,
+		"gpio-count": 17,
+		"interrupt-offset": -1
+	},
+
+	"gpio-h3@0x01c2086c": {
+		"gpio-base": 96,
+		"gpio-count": 18,
+		"interrupt-offset": -1
+	},
+
+	"gpio-h3@0x01c20890": {
+		"gpio-base": 128,
+		"gpio-count": 16,
+		"interrupt-offset": -1
+	},
+
+	"gpio-h3@0x01c208b4": {
+		"gpio-base": 160,
+		"gpio-count": 7,
+		"interrupt-offset": -1
+	},
+
+	"gpio-h3@0x01c208d8": {
+		"gpio-base": 192,
+		"gpio-count": 14,
+		"interrupt-offset": -1
+	},
+
+	"gpio-h3@0x01f02c00": {
+		"gpio-base": 224,
+		"gpio-count": 12,
+		"interrupt-offset": -1
+	},
+
+	"cs-h3-timer@0x01c20c00": {
+		"clock-name": "link-timer"
+	},
+
+	"uart-8250@0x01c28000": {
+		"clock-name": "link-uart0",
+		"txd-gpio": 4,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 5,
+		"rxd-gpio-config": 2,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-8250@0x01c28400": {
+		"clock-name": "link-uart1",
+		"txd-gpio": 198,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 199,
+		"rxd-gpio-config": 2,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-8250@0x01c28800": {
+		"clock-name": "link-uart2",
+		"txd-gpio": 0,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 1,
+		"rxd-gpio-config": 2,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-8250@0x01c28c00": {
+		"clock-name": "link-uart3",
+		"txd-gpio": 13,
+		"txd-gpio-config": 3,
+		"rxd-gpio": 14,
+		"rxd-gpio-config": 3,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"wdog-h3@0x01c20ca0": {
+		"clock-name": "link-wdt"
+	},
+
+	"led-gpio@0": {
+		"gpio": 10,
+		"gpio-config": 1,
+		"active-low": false,
+		"default-brightness": 0
+	},
+
+	"led-gpio@1": {
+		"gpio": 234,
+		"gpio-config": 1,
+		"active-low": false,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.0",
+		"heartbeat-period-ms": 1260
+	},
+	
+	"console-uart@0": {
+		"uart-bus": "uart-8250.0"
+	}
+}

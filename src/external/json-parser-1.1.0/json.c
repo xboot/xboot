@@ -950,6 +950,7 @@ e_failed:
 json_value * json_parse (const json_char * json, size_t length)
 {
    json_settings settings = { 0 };
+   settings.settings |= json_enable_comments;
    return json_parse_ex (&settings, json, length, 0);
 }
 

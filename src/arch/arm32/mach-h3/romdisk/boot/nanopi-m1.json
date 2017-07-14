@@ -1,14 +1,67 @@
 {
-	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed@0": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
+	"clk-fixed@2": { "name": "iosc", "rate": 16000000 },
 
-	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
-	"clk-link": { "parent": "xin24m", "name": "link-uart1" },
-	"clk-link": { "parent": "xin24m", "name": "link-uart2" },
-	"clk-link": { "parent": "xin24m", "name": "link-uart3" },
+	"clk-h3-pll@0": { "parent": "osc24m", "name": "pll-cpux", "channel": 0 },
+	"clk-h3-pll@1": { "parent": "osc24m", "name": "pll-audio", "channel": 1 },
+	"clk-h3-pll@2": { "parent": "osc24m", "name": "pll-video", "channel": 2 },
+	"clk-h3-pll@3": { "parent": "osc24m", "name": "pll-ve", "channel": 3 },
+	"clk-h3-pll@4": { "parent": "osc24m", "name": "pll-ddr", "channel": 4 },
+	"clk-h3-pll@5": { "parent": "osc24m", "name": "pll-periph0", "channel": 5 },
+	"clk-h3-pll@6": { "parent": "osc24m", "name": "pll-gpu", "channel": 6 },
+	"clk-h3-pll@7": { "parent": "osc24m", "name": "pll-periph1", "channel": 7 },
+	"clk-h3-pll@8": { "parent": "osc24m", "name": "pll-de", "channel": 8 },
 
-	"clk-link": { "parent": "xin24m", "name": "link-wdt" },
-	"clk-link": { "parent": "xin24m", "name": "link-timer" },
+	"clk-fixed-factor@0": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
+	"clk-fixed-factor@1": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
+
+	"clk-mux@0x01c20050": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 },
+			{ "name": "pll-cpux", "value": 2 }
+		],
+		"name": "cpux", "shift": 16, "width": 2
+	},
+	"clk-divider@0x01c20050": { "parent": "cpux", "name": "axi", "shift": 0, "width": 2, "divider-one-based": true },
+	"clk-divider@0x01c20054": { "parent": "pll-periph0", "name": "ahb1-pre-div", "shift": 6, "width": 2, "divider-one-based": true },
+	"clk-mux@0x01c20054": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 },
+			{ "name": "axi", "value": 2 },
+			{ "name": "ahb1-pre-div", "value": 3 }
+		],
+		"name": "mux-ahb1", "shift": 12, "width": 2
+	},
+	"clk-h3-ratio@0x01c20054": { "parent": "mux-ahb1", "name": "ahb1", "shift": 4, "width": 2 },
+	"clk-h3-ratio@0x01c20054": { "parent": "ahb1", "name": "apb1", "shift": 8, "width": 2 },
+	"clk-mux@0x01c20058": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 },
+			{ "name": "pll-periph0", "value": 2 }
+		],
+		"name": "mux-apb2", "shift": 24, "width": 2
+	},
+	"clk-h3-ratio@0x01c20058": { "parent": "mux-apb2", "name": "ratio-apb2", "shift": 16, "width": 2 },
+	"clk-divider@0x01c20058": { "parent": "ratio-apb2", "name": "apb2", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-mux@0x01c2005c": {
+		"parent": [
+			{ "name": "ahb1", "value": 0 },
+			{ "name": "pll-periph0-2", "value": 1 }
+		],
+		"name": "ahb2", "shift": 0, "width": 1
+	},
+
+	"clk-link": { "parent": "osc24m", "name": "link-uart0" },
+	"clk-link": { "parent": "osc24m", "name": "link-uart1" },
+	"clk-link": { "parent": "osc24m", "name": "link-uart2" },
+	"clk-link": { "parent": "osc24m", "name": "link-uart3" },
+
+	"clk-link": { "parent": "osc24m", "name": "link-wdt" },
+	"clk-link": { "parent": "osc24m", "name": "link-timer" },
 
 	"gpio-h3@0x01c20800": {
 		"gpio-base": 0,

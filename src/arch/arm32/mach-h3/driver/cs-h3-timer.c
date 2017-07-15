@@ -41,7 +41,7 @@ struct cs_h3_timer_pdata_t
 static u64_t cs_h3_timer_read(struct clocksource_t * cs)
 {
 	struct cs_h3_timer_pdata_t * pdat = (struct cs_h3_timer_pdata_t *)cs->priv;
-	return (u64_t)(0xffffffff - read32(pdat->virt + TIMER_CUR(0)));
+	return (u64_t)(0xffffffff - read32(pdat->virt + TIMER_CUR(1)));
 }
 
 static struct device_t * cs_h3_timer_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -77,13 +77,13 @@ static struct device_t * cs_h3_timer_probe(struct driver_t * drv, struct dtnode_
 	cs->read = cs_h3_timer_read;
 	cs->priv = pdat;
 
-	write32(pdat->virt + TIMER_IRQ_EN, read32(pdat->virt + TIMER_IRQ_EN) & ~(1 << 0));
-	write32(pdat->virt + TIMER_IRQ_STA, 1 << 0);
-	write32(pdat->virt + TIMER_INTV(0), 0xffffffff);
-	val = read32(pdat->virt + TIMER_CTRL(0));
+	write32(pdat->virt + TIMER_IRQ_EN, read32(pdat->virt + TIMER_IRQ_EN) & ~(1 << 1));
+	write32(pdat->virt + TIMER_IRQ_STA, 1 << 1);
+	write32(pdat->virt + TIMER_INTV(1), 0xffffffff);
+	val = read32(pdat->virt + TIMER_CTRL(1));
 	val &= ~((0x1 << 7) | (0x3 << 0));
 	val |= (0x0 << 7) | (0x1 << 0);
-	write32(pdat->virt + TIMER_CTRL(0), val);
+	write32(pdat->virt + TIMER_CTRL(1), val);
 
 	if(!register_clocksource(&dev, cs))
 	{

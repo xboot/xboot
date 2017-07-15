@@ -157,6 +157,11 @@
 
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
+	"irq-gic400@0x01c80000": {
+		"interrupt-base": 32,
+		"interrupt-count": 128
+	},
+
 	"gpio-h3@0x01c20800": {
 		"gpio-base": 0,
 		"gpio-count": 22,
@@ -199,8 +204,13 @@
 		"interrupt-offset": -1
 	},
 
+	"ce-h3-timer@0x01c20c00": {
+		"clock-name": "link-timer0",
+		"interrupt": 50
+	},
+
 	"cs-h3-timer@0x01c20c00": {
-		"clock-name": "link-timer0"
+		"clock-name": "link-timer1"
 	},
 
 	"uart-8250@0x01c28000": {

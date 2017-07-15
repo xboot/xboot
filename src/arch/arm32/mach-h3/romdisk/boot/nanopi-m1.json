@@ -14,7 +14,8 @@
 	"clk-h3-pll@8": { "parent": "osc24m", "name": "pll-de", "channel": 8 },
 
 	"clk-fixed-factor@0": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
-	"clk-fixed-factor@1": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor@1": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+	"clk-fixed-factor@2": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
 
 	"clk-mux@0x01c20050": {
 		"parent": [
@@ -52,16 +53,109 @@
 			{ "name": "ahb1", "value": 0 },
 			{ "name": "pll-periph0-2", "value": 1 }
 		],
-		"name": "ahb2", "shift": 0, "width": 1
+		"name": "ahb2", "shift": 0, "width": 2
 	},
+	
+	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart0", "shift": 16, "invert": false },
+	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart1", "shift": 17, "invert": false },
+	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart2", "shift": 18, "invert": false },
+	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart3", "shift": 19, "invert": false },
+	"clk-link": { "parent": "gate-bus-uart0", "name": "link-uart0" },
+	"clk-link": { "parent": "gate-bus-uart1", "name": "link-uart1" },
+	"clk-link": { "parent": "gate-bus-uart2", "name": "link-uart2" },
+	"clk-link": { "parent": "gate-bus-uart3", "name": "link-uart3" },
 
-	"clk-link": { "parent": "osc24m", "name": "link-uart0" },
-	"clk-link": { "parent": "osc24m", "name": "link-uart1" },
-	"clk-link": { "parent": "osc24m", "name": "link-uart2" },
-	"clk-link": { "parent": "osc24m", "name": "link-uart3" },
+	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-i2c0", "shift": 0, "invert": false },
+	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-i2c1", "shift": 1, "invert": false },
+	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-i2c2", "shift": 2, "invert": false },
+	"clk-link": { "parent": "gate-bus-i2c0", "name": "link-i2c0" },
+	"clk-link": { "parent": "gate-bus-i2c1", "name": "link-i2c1" },
+	"clk-link": { "parent": "gate-bus-i2c2", "name": "link-i2c2" },
 
-	"clk-link": { "parent": "osc24m", "name": "link-wdt" },
-	"clk-link": { "parent": "osc24m", "name": "link-timer" },
+	"clk-gate@0x01c200cc": {"parent": "ahb1", "name": "gate-bus-usbphy0", "shift": 8, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy0", "name": "gate-bus-usb-otg-device", "shift": 23, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy0", "name": "gate-bus-usb-otg-ehci0", "shift": 24, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy0", "name": "gate-bus-usb-otg-ohci0", "shift": 28, "invert": false },
+	"clk-gate@0x01c200cc": {"parent": "gate-bus-usb-otg-ohci0", "name": "gate-usb-otg-ohci0", "shift": 16, "invert": false },
+	"clk-link": { "parent": "gate-bus-usb-otg-device", "name": "link-usb-otg-device" },
+	"clk-link": { "parent": "gate-bus-usb-otg-ehci0", "name": "link-usb-otg-ehci0" },
+	"clk-link": { "parent": "gate-usb-otg-ohci0", "name": "link-usb-otg-ohci0" },
+
+	"clk-gate@0x01c200cc": {"parent": "ahb1", "name": "gate-bus-usbphy1", "shift": 9, "invert": false },
+	"clk-gate@0x01c200cc": {"parent": "ahb1", "name": "gate-bus-usbphy2", "shift": 10, "invert": false },
+	"clk-gate@0x01c200cc": {"parent": "ahb1", "name": "gate-bus-usbphy3", "shift": 11, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy1", "name": "gate-bus-usb-ehci1", "shift": 25, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy2", "name": "gate-bus-usb-ehci2", "shift": 26, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy3", "name": "gate-bus-usb-ehci3", "shift": 27, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy1", "name": "gate-bus-usb-ohci1", "shift": 29, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy2", "name": "gate-bus-usb-ohci2", "shift": 30, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-usbphy3", "name": "gate-bus-usb-ohci3", "shift": 31, "invert": false },
+	"clk-gate@0x01c200cc": {"parent": "gate-bus-usb-ohci1", "name": "gate-usb-ohci1", "shift": 17, "invert": false },
+	"clk-gate@0x01c200cc": {"parent": "gate-bus-usb-ohci2", "name": "gate-usb-ohci2", "shift": 18, "invert": false },
+	"clk-gate@0x01c200cc": {"parent": "gate-bus-usb-ohci3", "name": "gate-usb-ohci3", "shift": 19, "invert": false },
+	"clk-link": { "parent": "gate-bus-usb-ehci1", "name": "link-usb-echi1" },
+	"clk-link": { "parent": "gate-bus-usb-ehci2", "name": "link-usb-echi2" },
+	"clk-link": { "parent": "gate-bus-usb-ehci3", "name": "link-usb-echi3" },
+	"clk-link": { "parent": "gate-usb-ohci1", "name": "link-usb-ohci1" },
+	"clk-link": { "parent": "gate-usb-ohci2", "name": "link-usb-ohci2" },
+	"clk-link": { "parent": "gate-usb-ohci3", "name": "link-usb-ohci3" },
+
+	"clk-gate@0x01c20060": {"parent": "ahb1", "name": "gate-bus-hstimer", "shift": 19, "invert": false },
+	"clk-link": { "parent": "gate-bus-hstimer", "name": "link-hstimer" },
+	
+	"clk-gate@0x01c20070": {"parent": "ahb2", "name": "gate-bus-ephy", "shift": 0, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-bus-ephy", "name": "gate-bus-emac", "shift": 17, "invert": false },
+	"clk-link": { "parent": "gate-bus-emac", "name": "link-emac" },
+
+	"clk-mux@0x01c200a0": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph1", "value": 2 }
+		],
+		"name": "mux-spi0", "shift": 24, "width": 2
+	},
+	"clk-h3-ratio@0x01c200a0": { "parent": "mux-spi0", "name": "ratio-spi0", "shift": 16, "width": 2 },
+	"clk-divider@0x01c200a0": { "parent": "ratio-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-gate@0x01c200a0": {"parent": "div-spi0", "name": "gate-spi0", "shift": 31, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-spi0", "name": "gate-bus-spi0", "shift": 20, "invert": false },
+	"clk-link": { "parent": "gate-bus-spi0", "name": "link-spi0" },
+
+	"clk-mux@0x01c200a4": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph1", "value": 2 }
+		],
+		"name": "mux-spi1", "shift": 24, "width": 2
+	},
+	"clk-h3-ratio@0x01c200a4": { "parent": "mux-spi1", "name": "ratio-spi1", "shift": 16, "width": 2 },
+	"clk-divider@0x01c200a4": { "parent": "ratio-spi1", "name": "div-spi1", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-gate@0x01c200a4": {"parent": "div-spi1", "name": "gate-spi1", "shift": 31, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-spi1", "name": "gate-bus-spi1", "shift": 21, "invert": false },
+	"clk-link": { "parent": "gate-bus-spi1", "name": "link-spi1" },
+
+	"clk-mux@0x01c20c10": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer0", "shift": 2, "width": 2
+	},
+	"clk-h3-ratio@0x01c20c10": { "parent": "mux-timer0", "name": "ratio-timer0", "shift": 4, "width": 3 },
+	"clk-link": { "parent": "ratio-timer0", "name": "link-timer0" },
+
+	"clk-mux@0x01c20c20": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer1", "shift": 2, "width": 2
+	},
+	"clk-h3-ratio@0x01c20c20": { "parent": "mux-timer1", "name": "ratio-timer1", "shift": 4, "width": 3 },
+	"clk-link": { "parent": "ratio-timer1", "name": "link-timer1" },
+
+	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
 	"gpio-h3@0x01c20800": {
 		"gpio-base": 0,
@@ -106,7 +200,7 @@
 	},
 
 	"cs-h3-timer@0x01c20c00": {
-		"clock-name": "link-timer"
+		"clock-name": "link-timer0"
 	},
 
 	"uart-8250@0x01c28000": {

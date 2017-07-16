@@ -26,12 +26,48 @@
 #include <mmu.h>
 
 static const struct mmap_t mach_map[] = {
+	{"ram",  0x40000000, 0x40000000, SZ_128M, MAP_TYPE_CB},
+	{"dma",  0x48000000, 0x48000000, SZ_128M, MAP_TYPE_NCNB},
+	{"heap", 0x50000000, 0x50000000, SZ_256M, MAP_TYPE_CB},
 	{ 0 },
 };
 
+static u32_t sram_read_id(virtual_addr_t virt)
+{
+	u32_t id;
+
+	write32(virt, read32(virt) | (1 << 15));
+	id = read32(virt) >> 16;
+	write32(virt, read32(virt) & ~(1 << 15));
+	return id;
+}
+
+static u32_t sid_read_key(virtual_addr_t virt, int offset)
+{
+	u32_t key;
+
+	write32(virt + 0x40, ((offset & 0x1ff) << 16) | (0xac << 8) | (1 << 1));
+	while(read32(virt + 0x40) & (1 << 1));
+	key = read32(virt + 0x60);
+	write32(virt + 0x40, 0);
+	return key;
+}
+
 static int mach_detect(struct machine_t * mach)
 {
-	return 1;
+	u32_t id;
+	u32_t key;
+
+	id = sram_read_id(phys_to_virt(0x01c00024));
+	if(id == 0x1680)
+	{
+		key = sid_read_key(phys_to_virt(0x01c14000), 0) & 0xff;
+		if(key == 0x00 || key == 0x81 || key == 0x58)
+		{
+			return 1;
+		}
+	}
+	return 0;
 }
 
 static void mach_memmap(struct machine_t * mach)
@@ -68,7 +104,16 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 
 static const char * mach_uniqueid(struct machine_t * mach)
 {
-	return NULL;
+	static char uniqueid[32 + 3 + 1] = { 0 };
+	virtual_addr_t virt = phys_to_virt(0x01c14000);
+	u32_t sid0, sid1, sid2, sid3;
+
+	sid0 = sid_read_key(virt, 0);
+	sid1 = sid_read_key(virt, 1);
+	sid2 = sid_read_key(virt, 2);
+	sid3 = sid_read_key(virt, 3);
+	snprintf(uniqueid, sizeof(uniqueid), "%08x:%08x:%08x:%08x",sid0, sid1, sid2, sid3);
+	return uniqueid;
 }
 
 static int mach_keygen(struct machine_t * mach, const char * msg, void * key)

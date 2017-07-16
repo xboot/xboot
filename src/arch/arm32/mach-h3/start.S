@@ -63,6 +63,16 @@
 
 	.global	_start
 _start:
+	/* Boot head information for BROM */
+	.long 0xea000016
+	.byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'
+	.long 0, 0
+	.byte 'S', 'P', 'L', 2
+	.long 0, 0
+	.long 0, 0, 0, 0, 0, 0, 0, 0
+	.long 0, 0, 0, 0, 0, 0, 0, 0
+
+_vector:
 	b reset
 	ldr pc, _undefined_instruction
 	ldr pc, _software_interrupt
@@ -107,7 +117,7 @@ reset:
 2:	nop
 
 	/* Set vector base address register */
-	ldr r0, =_start
+	ldr r0, =_vector
 	mcr p15, 0, r0, c12, c0, 0
 	mrc p15, 0, r0, c1, c0, 0
 	bic r0, #(1<<13)

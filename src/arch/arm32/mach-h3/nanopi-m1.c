@@ -44,13 +44,22 @@ static u32_t sram_read_id(virtual_addr_t virt)
 
 static u32_t sid_read_key(virtual_addr_t virt, int offset)
 {
-	u32_t key;
+	u32_t val;
 
-	write32(virt + 0x40, ((offset & 0x1ff) << 16) | (0xac << 8) | (1 << 1));
+	val = read32(virt + 0x40);
+	val &= ~(((0x1ff) << 16) | 0x3);
+	val |= (offset << 16);
+	write32(virt + 0x40, val);
+
+	val &= ~(((0xff) << 8) | 0x3);
+	val |= (0xac << 8) | 0x2;
+	write32(virt + 0x40, val);
+
 	while(read32(virt + 0x40) & (1 << 1));
-	key = read32(virt + 0x60);
-	write32(virt + 0x40, 0);
-	return key;
+	val &= ~(((0x1ff) << 16) | ((0xff) << 8) | 0x3);
+	write32(virt + 0x40, val);
+
+	return read32(virt + 0x60);
 }
 
 static int mach_detect(struct machine_t * mach)
@@ -61,7 +70,7 @@ static int mach_detect(struct machine_t * mach)
 	id = sram_read_id(phys_to_virt(0x01c00024));
 	if(id == 0x1680)
 	{
-		key = sid_read_key(phys_to_virt(0x01c14000), 0) & 0xff;
+		key = sid_read_key(phys_to_virt(0x01c14000), 0 * 4) & 0xff;
 		if(key == 0x00 || key == 0x81 || key == 0x58)
 		{
 			return 1;
@@ -108,10 +117,10 @@ static const char * mach_uniqueid(struct machine_t * mach)
 	virtual_addr_t virt = phys_to_virt(0x01c14000);
 	u32_t sid0, sid1, sid2, sid3;
 
-	sid0 = sid_read_key(virt, 0);
-	sid1 = sid_read_key(virt, 1);
-	sid2 = sid_read_key(virt, 2);
-	sid3 = sid_read_key(virt, 3);
+	sid0 = sid_read_key(virt, 0 * 4);
+	sid1 = sid_read_key(virt, 1 * 4);
+	sid2 = sid_read_key(virt, 2 * 4);
+	sid3 = sid_read_key(virt, 3 * 4);
 	snprintf(uniqueid, sizeof(uniqueid), "%08x:%08x:%08x:%08x",sid0, sid1, sid2, sid3);
 	return uniqueid;
 }

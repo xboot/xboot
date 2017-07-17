@@ -15,3 +15,13 @@ LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
 
+ifeq ($(strip $(HOSTOS)), linux)
+MKSUNXI		:= arch/$(ARCH)/$(MACH)/tools/linux/mksunxi
+endif
+ifeq ($(strip $(HOSTOS)), windows)
+MKSUNXI		:= arch/$(ARCH)/$(MACH)/tools/windows/mksunxi
+endif
+
+xend:
+	@echo Make header information for brom booting
+	@$(MKSUNXI) $(X_NAME).bin

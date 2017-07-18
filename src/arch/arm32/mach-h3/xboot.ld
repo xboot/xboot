@@ -22,6 +22,8 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-h3/start.o (.text)
+		.obj/arch/arm32/mach-h3/brom-copyself.o (.text)
+		.obj/arch/arm32/mach-h3/uartdebug.o (.text)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

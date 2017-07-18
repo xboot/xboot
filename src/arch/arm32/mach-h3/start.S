@@ -66,7 +66,7 @@ _start:
 	/* Boot head information for BROM */
 	.long 0xea000016
 	.byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'
-	.long 0, 0x2000
+	.long 0, 0x8000
 	.byte 'S', 'P', 'L', 2
 	.long 0, 0
 	.long 0, 0, 0, 0, 0, 0, 0, 0
@@ -101,6 +101,19 @@ _fiq:
  * The actual reset code
  */
 reset:
+	/* Save boot params to 0x00000040 */
+	ldr	r0, =0x00000040
+	str	sp, [r0, #0]
+	str	lr, [r0, #4]
+	mrs	lr, cpsr
+	str	lr, [r0, #8]
+	mrc	p15, 0, lr, c1, c0, 0
+	str	lr, [r0, #12]
+	mrc	p15, 0, lr, c12, c0, 0
+	str	lr, [r0, #16]
+	mrc	p15, 0, lr, c1, c0, 0
+	str	lr, [r0, #20]
+
 	/* Enter svc mode cleanly and mask interrupts */
 	mrs r0, cpsr
 	eor r0, r0, #0x1a
@@ -142,6 +155,14 @@ reset:
 	ldr r1, =0x7f
 	str r1, [r0]
 
+	/* Copyself to link address */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq 1f
+	bl brom_copyself
+1:	nop
+
 	/* Initialize stacks */
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
@@ -168,18 +189,6 @@ reset:
 	orr r1, r0, #0x13
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_srv_end
-
-	/* Copyself to link address */
-	adr r0, _start
-	ldr r1, =_start
-	cmp r0, r1
-	beq 1f
-	ldr r0, _image_start
-	adr r1, _start
-	ldr r2, _image_end
-	sub r2, r2, r0
-	bl memcpy
-1:	nop
 
 	/* Copy data section */
 	ldr r0, _data_start
@@ -208,6 +217,21 @@ _main:
 	mov r1, #0;
 	bl xboot_main
 	b _main
+
+	.global return_to_fel
+return_to_fel:
+	ldr	r0, =0x00000040
+	ldr	sp, [r0, #0]
+	ldr	lr, [r0, #4]
+	ldr	r1, [r0, #20]
+	mcr	p15, 0, r1, c1, c0, 0
+	ldr	r1, [r0, #16]
+	mcr	p15, 0, r1, c12, c0, 0
+	ldr	r1, [r0, #12]
+	mcr	p15, 0, r1, c1, c0, 0
+	ldr	r1, [r0, #8]
+	msr	cpsr, r1
+	bx	lr
 
 /*
  * Exception handlers

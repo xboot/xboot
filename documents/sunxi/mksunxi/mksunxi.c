@@ -3,15 +3,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#if 0
 static inline uint32_t __swab32(uint32_t x)
 {
 	return ( (x<<24) | (x>>24) | \
 		((x & (uint32_t)0x0000ff00UL)<<8) | \
 		((x & (uint32_t)0x00ff0000UL)>>8) );
 }
-
 #define cpu_to_le32(x)	(__swab32((uint32_t)(x)))
 #define le32_to_cpu(x)	(__swab32((uint32_t)(x)))
+#else
+#define cpu_to_le32(x)	(x)
+#define le32_to_cpu(x)	(x)
+#endif
 
 struct boot_head_t {
 	uint32_t instruction;
@@ -93,4 +97,3 @@ int main (int argc, char *argv[])
 	printf("The bootloader head has been fixed\n");
 	return 0;
 }
-

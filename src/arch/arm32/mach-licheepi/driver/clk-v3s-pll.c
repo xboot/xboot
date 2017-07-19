@@ -1,5 +1,5 @@
 /*
- * driver/clk-h3-pll.c
+ * driver/clk-v3s-pll.c
  *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,47 +23,47 @@
  */
 
 #include <clk/clk.h>
-#include <h3/reg-ccu.h>
+#include <v3s/reg-ccu.h>
 
-struct clk_h3_pll_pdata_t {
+struct clk_v3s_pll_pdata_t {
 	virtual_addr_t virt;
 	char * parent;
 	int channel;
 };
 
-static void clk_h3_pll_set_parent(struct clk_t * clk, const char * pname)
+static void clk_v3s_pll_set_parent(struct clk_t * clk, const char * pname)
 {
 }
 
-static const char * clk_h3_pll_get_parent(struct clk_t * clk)
+static const char * clk_v3s_pll_get_parent(struct clk_t * clk)
 {
-	struct clk_h3_pll_pdata_t * pdat = (struct clk_h3_pll_pdata_t *)clk->priv;
+	struct clk_v3s_pll_pdata_t * pdat = (struct clk_v3s_pll_pdata_t *)clk->priv;
 	return pdat->parent;
 }
 
-static void clk_h3_pll_set_enable(struct clk_t * clk, bool_t enable)
+static void clk_v3s_pll_set_enable(struct clk_t * clk, bool_t enable)
 {
 }
 
-static bool_t clk_h3_pll_get_enable(struct clk_t * clk)
+static bool_t clk_v3s_pll_get_enable(struct clk_t * clk)
 {
 	return TRUE;
 }
 
-static void clk_h3_pll_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
+static void clk_v3s_pll_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
 }
 
-static u64_t clk_h3_pll_get_rate(struct clk_t * clk, u64_t prate)
+static u64_t clk_v3s_pll_get_rate(struct clk_t * clk, u64_t prate)
 {
-	struct clk_h3_pll_pdata_t * pdat = (struct clk_h3_pll_pdata_t *)clk->priv;
+	struct clk_v3s_pll_pdata_t * pdat = (struct clk_v3s_pll_pdata_t *)clk->priv;
 	u32_t r, n, k, m, p;
 	u64_t rate = 0;
 
 	switch(pdat->channel)
 	{
 	case 0:
-		r = read32(pdat->virt + CCU_PLL_CPUX_CTRL);
+		r = read32(pdat->virt + CCU_PLL_CPU_CTRL);
 		n = ((r >> 8) & 0x1f) + 1;
 		k = ((r >> 4) & 0x3) + 1;
 		m = ((r >> 0) & 0x3) + 1;
@@ -117,7 +117,7 @@ static u64_t clk_h3_pll_get_rate(struct clk_t * clk, u64_t prate)
 		break;
 
 	case 4:
-		r = read32(pdat->virt + CCU_PLL_DDR_CTRL);
+		r = read32(pdat->virt + CCU_PLL_DDR0_CTRL);
 		n = ((r >> 8) & 0x1f) + 1;
 		k = ((r >> 4) & 0x3) + 1;
 		m = ((r >> 0) & 0x3) + 1;
@@ -138,7 +138,7 @@ static u64_t clk_h3_pll_get_rate(struct clk_t * clk, u64_t prate)
 		break;
 
 	case 6:
-		r = read32(pdat->virt + CCU_PLL_GPU_CTRL);
+		r = read32(pdat->virt + CCU_PLL_ISP_CTRL);
 		if(r & (1 << 24))
 		{
 			n = ((r >> 8) & 0x7f) + 1;
@@ -168,20 +168,10 @@ static u64_t clk_h3_pll_get_rate(struct clk_t * clk, u64_t prate)
 		break;
 
 	case 8:
-		r = read32(pdat->virt + CCU_PLL_DE_CTRL);
-		if(r & (1 << 24))
-		{
-			n = ((r >> 8) & 0x7f) + 1;
-			m = ((r >> 0) & 0xf) + 1;
-			rate = (u64_t)((prate * n) / m);
-		}
-		else
-		{
-			if(r & (1 << 25))
-				rate = 297 * 1000 * 1000;
-			else
-				rate = 270 * 1000 * 1000;
-		}
+		r = read32(pdat->virt + CCU_PLL_DDR1_CTRL);
+		n = ((r >> 8) & 0x7f) + 1;
+		m = ((r >> 0) & 0x3) + 1;
+		rate = (u64_t)((prate * n) / m);
 		break;
 
 	default:
@@ -191,9 +181,9 @@ static u64_t clk_h3_pll_get_rate(struct clk_t * clk, u64_t prate)
 	return rate;
 }
 
-static struct device_t * clk_h3_pll_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * clk_v3s_pll_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct clk_h3_pll_pdata_t * pdat;
+	struct clk_v3s_pll_pdata_t * pdat;
 	struct clk_t * clk;
 	struct device_t * dev;
 	struct dtnode_t o;
@@ -210,7 +200,7 @@ static struct device_t * clk_h3_pll_probe(struct driver_t * drv, struct dtnode_t
 	if(!search_clk(parent) || search_clk(name))
 		return NULL;
 
-	pdat = malloc(sizeof(struct clk_h3_pll_pdata_t));
+	pdat = malloc(sizeof(struct clk_v3s_pll_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -221,18 +211,18 @@ static struct device_t * clk_h3_pll_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
-	pdat->virt = phys_to_virt(H3_CCU_BASE);
+	pdat->virt = phys_to_virt(V3S_CCU_BASE);
 	pdat->parent = strdup(parent);
 	pdat->channel = channel;
 
 	clk->name = strdup(name);
 	clk->count = 0;
-	clk->set_parent = clk_h3_pll_set_parent;
-	clk->get_parent = clk_h3_pll_get_parent;
-	clk->set_enable = clk_h3_pll_set_enable;
-	clk->get_enable = clk_h3_pll_get_enable;
-	clk->set_rate = clk_h3_pll_set_rate;
-	clk->get_rate = clk_h3_pll_get_rate;
+	clk->set_parent = clk_v3s_pll_set_parent;
+	clk->get_parent = clk_v3s_pll_get_parent;
+	clk->set_enable = clk_v3s_pll_set_enable;
+	clk->get_enable = clk_v3s_pll_get_enable;
+	clk->set_rate = clk_v3s_pll_set_rate;
+	clk->get_rate = clk_v3s_pll_get_rate;
 	clk->priv = pdat;
 
 	if(!register_clk(&dev, clk))
@@ -268,10 +258,10 @@ static struct device_t * clk_h3_pll_probe(struct driver_t * drv, struct dtnode_t
 	return dev;
 }
 
-static void clk_h3_pll_remove(struct device_t * dev)
+static void clk_v3s_pll_remove(struct device_t * dev)
 {
 	struct clk_t * clk = (struct clk_t *)dev->priv;
-	struct clk_h3_pll_pdata_t * pdat = (struct clk_h3_pll_pdata_t *)clk->priv;
+	struct clk_v3s_pll_pdata_t * pdat = (struct clk_v3s_pll_pdata_t *)clk->priv;
 
 	if(clk && unregister_clk(clk))
 	{
@@ -283,32 +273,31 @@ static void clk_h3_pll_remove(struct device_t * dev)
 	}
 }
 
-static void clk_h3_pll_suspend(struct device_t * dev)
+static void clk_v3s_pll_suspend(struct device_t * dev)
 {
 }
 
-static void clk_h3_pll_resume(struct device_t * dev)
+static void clk_v3s_pll_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t clk_h3_pll = {
-	.name		= "clk-h3-pll",
-	.probe		= clk_h3_pll_probe,
-	.remove		= clk_h3_pll_remove,
-	.suspend	= clk_h3_pll_suspend,
-	.resume		= clk_h3_pll_resume,
+static struct driver_t clk_v3s_pll = {
+	.name		= "clk-v3s-pll",
+	.probe		= clk_v3s_pll_probe,
+	.remove		= clk_v3s_pll_remove,
+	.suspend	= clk_v3s_pll_suspend,
+	.resume		= clk_v3s_pll_resume,
 };
 
-static __init void clk_h3_pll_driver_init(void)
+static __init void clk_v3s_pll_driver_init(void)
 {
-	register_driver(&clk_h3_pll);
+	register_driver(&clk_v3s_pll);
 }
 
-static __exit void clk_h3_pll_driver_exit(void)
+static __exit void clk_v3s_pll_driver_exit(void)
 {
-	unregister_driver(&clk_h3_pll);
+	unregister_driver(&clk_v3s_pll);
 }
 
-driver_initcall(clk_h3_pll_driver_init);
-driver_exitcall(clk_h3_pll_driver_exit);
-
+driver_initcall(clk_v3s_pll_driver_init);
+driver_exitcall(clk_v3s_pll_driver_exit);

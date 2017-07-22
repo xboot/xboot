@@ -137,6 +137,9 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_REGULATOR:
 		name = "regulator";
 		break;
+	case DEVICE_TYPE_RESETCHIP:
+		name = "resetchip";
+		break;
 	case DEVICE_TYPE_RNG:
 		name = "rng";
 		break;

@@ -134,6 +134,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/light								\
 				driver/pwm									\
 				driver/regulator							\
+				driver/reset								\
 				driver/rng									\
 				driver/rtc									\
 				driver/sd									\

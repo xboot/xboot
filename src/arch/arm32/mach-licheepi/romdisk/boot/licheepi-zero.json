@@ -174,7 +174,7 @@
 		"clock-name": "link-timer1"
 	},
 
-	"uart-8250@0x01c28000": {
+	"uart-16550@0x01c28000": {
 		"clock-name": "link-uart0",
 		"txd-gpio": 40,
 		"txd-gpio-config": 3,
@@ -186,24 +186,24 @@
 		"stop-bits": 1
 	},
 
-	"uart-8250@0x01c28400": {
+	"uart-16550@0x01c28400": {
 		"clock-name": "link-uart1",
-		"txd-gpio": -1,
-		"txd-gpio-config": -1,
-		"rxd-gpio": -1,
-		"rxd-gpio-config": -1,
+		"txd-gpio": 149,
+		"txd-gpio-config": 4,
+		"rxd-gpio": 150,
+		"rxd-gpio-config": 4,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
 
-	"uart-8250@0x01c28800": {
+	"uart-16550@0x01c28800": {
 		"clock-name": "link-uart2",
-		"txd-gpio": -1,
-		"txd-gpio-config": -1,
-		"rxd-gpio": -1,
-		"rxd-gpio-config": -1,
+		"txd-gpio": 32,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 33,
+		"rxd-gpio-config": 2,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,
@@ -241,6 +241,6 @@
 	},
 	
 	"console-uart@0": {
-		"uart-bus": "uart-8250.0"
+		"uart-bus": "uart-16550.0"
 	}
 }

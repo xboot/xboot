@@ -144,16 +144,8 @@ reset:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
-	/* Enable non-secure access to all peripherals */
-	ldr r0, =0x01c23408
-	ldr r1, =0xbe
-	str r1, [r0]
-	ldr r0, =0x01c23414
-	ldr r1, =0xff
-	str r1, [r0]
-	ldr r0, =0x01c23420
-	ldr r1, =0x7f
-	str r1, [r0]
+	/* Initial uart and clock and ddr */
+	bl uart_debug_init
 
 	/* Copyself to link address */
 	adr r0, _start

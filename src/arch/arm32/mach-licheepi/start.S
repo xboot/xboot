@@ -144,15 +144,17 @@ reset:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
-	/* Initial uart and clock and ddr */
-	bl uart_debug_init
+	/* Initial system uart, clock and ddr */
+	bl sys_uart_init
+	bl sys_clock_init
+	bl sys_dram_init
 
 	/* Copyself to link address */
 	adr r0, _start
 	ldr r1, =_start
 	cmp r0, r1
 	beq 1f
-	bl brom_copyself
+	bl sys_copyself
 1:	nop
 
 	/* Initialize stacks */

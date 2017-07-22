@@ -22,8 +22,10 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-licheepi/start.o (.text)
-		.obj/arch/arm32/mach-licheepi/uart-debug.o (.text)
-		.obj/arch/arm32/mach-licheepi/brom-copyself.o (.text)
+		.obj/arch/arm32/mach-licheepi/sys-uart.o (.text)
+		.obj/arch/arm32/mach-licheepi/sys-clock.o (.text)
+		.obj/arch/arm32/mach-licheepi/sys-dram.o (.text)
+		.obj/arch/arm32/mach-licheepi/sys-copyself.o (.text)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

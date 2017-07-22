@@ -1,5 +1,5 @@
 /*
- * brom-copyself.c
+ * sys-copyself.c
  *
  * This file used by start.s assembler code, and the linker script
  * must make sure this file is linked within the first 32kB. DO NOT
@@ -60,7 +60,7 @@ static int get_boot_device(void)
 	return BOOT_DEVICE_FEL;
 }
 
-void brom_copyself(void)
+void sys_copyself(void)
 {
 	int d = get_boot_device();
 

@@ -1,5 +1,5 @@
 /*
- * uart-debug.c
+ * sys-uart.c
  *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -24,7 +24,7 @@
 
 #include <xboot.h>
 
-void uart_debug_init(void)
+void sys_uart_init(void)
 {
 	virtual_addr_t addr;
 	u32_t val;
@@ -72,7 +72,7 @@ void uart_debug_init(void)
 	write32(addr + 0x0c, val);
 }
 
-void uart_debug_putc(char c)
+void sys_uart_putc(char c)
 {
 	virtual_addr_t addr = 0x01c28000;
 

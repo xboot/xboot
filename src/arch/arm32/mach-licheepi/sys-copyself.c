@@ -1,19 +1,6 @@
 /*
  * sys-copyself.c
  *
- * This file used by start.s assembler code, and the linker script
- * must make sure this file is linked within the first 32kB. DO NOT
- * use any .bss segment and .data segment, Just use brom's small
- * stack. It's just a small c routline.
- *
- * NOTE:
- *     Please do not use 'switch, case' instead of 'if, else if',
- *     Because switch statement may be compiled as a jump table,
- *     Which belong to .data segment, If it has many cases.
- *
- *     To make sure this file is linked within the first 32KB, please
- *     look at the file of xboot.map.
- *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
  * Mobile phone: +86-18665388956
@@ -37,8 +24,19 @@
 
 #include <xboot.h>
 
-extern void return_to_fel(void);
+extern unsigned char __image_start;
+extern unsigned char __image_end;
 extern void sys_uart_putc(char c);
+extern void return_to_fel(void);
+
+#define spi_nor_flash_init() \
+		(((int(*)())(*((u32_t *)(0xffff5878))))())
+
+#define spi_nor_flash_exit() \
+		(((int(*)())(*((u32_t *)(0xffff5908))))())
+
+#define spi_nor_flash_read_page(page, unused, count, buffer) \
+		(((int(*)(int, int, int, char *))(*((u32_t *)(0xffff5b60))))(page, unused, count, buffer))
 
 enum {
 	BOOT_DEVICE_FEL	= 0,
@@ -64,6 +62,8 @@ static int get_boot_device(void)
 void sys_copyself(void)
 {
 	int d = get_boot_device();
+	void * mem;
+	u32_t size;
 
 	if(d == BOOT_DEVICE_FEL)
 	{
@@ -74,10 +74,6 @@ void sys_copyself(void)
 		sys_uart_putc(' ');
 		sys_uart_putc('t');
 		sys_uart_putc('o');
-		sys_uart_putc(' ');
-		sys_uart_putc('t');
-		sys_uart_putc('h');
-		sys_uart_putc('e');
 		sys_uart_putc(' ');
 		sys_uart_putc('F');
 		sys_uart_putc('E');
@@ -93,10 +89,16 @@ void sys_copyself(void)
 	}
 	else if(d == BOOT_DEVICE_MMC)
 	{
-		sys_uart_putc('m');
+		mem = (void *)&__image_start;
+		size = (&__image_end - &__image_start + 512) >> 9;
 	}
 	else if(d == BOOT_DEVICE_SPI)
 	{
-		sys_uart_putc('s');
+		mem = (void *)&__image_start;
+		size = (&__image_end - &__image_start + 256) >> 8;
+
+		spi_nor_flash_init();
+		spi_nor_flash_read_page(0, 0, size, mem);
+		spi_nor_flash_exit();
 	}
 }

@@ -38,6 +38,7 @@
 #include <xboot.h>
 
 extern void return_to_fel(void);
+extern void sys_uart_putc(char c);
 
 enum {
 	BOOT_DEVICE_FEL	= 0,
@@ -66,12 +67,36 @@ void sys_copyself(void)
 
 	if(d == BOOT_DEVICE_FEL)
 	{
+		sys_uart_putc('B');
+		sys_uart_putc('o');
+		sys_uart_putc('o');
+		sys_uart_putc('t');
+		sys_uart_putc(' ');
+		sys_uart_putc('t');
+		sys_uart_putc('o');
+		sys_uart_putc(' ');
+		sys_uart_putc('t');
+		sys_uart_putc('h');
+		sys_uart_putc('e');
+		sys_uart_putc(' ');
+		sys_uart_putc('F');
+		sys_uart_putc('E');
+		sys_uart_putc('L');
+		sys_uart_putc(' ');
+		sys_uart_putc('m');
+		sys_uart_putc('o');
+		sys_uart_putc('d');
+		sys_uart_putc('e');
+		sys_uart_putc('\r');
+		sys_uart_putc('\n');
 		return_to_fel();
 	}
 	else if(d == BOOT_DEVICE_MMC)
 	{
+		sys_uart_putc('m');
 	}
 	else if(d == BOOT_DEVICE_SPI)
 	{
+		sys_uart_putc('s');
 	}
 }

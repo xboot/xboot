@@ -69,8 +69,8 @@ _start:
 	.long 0, 0x8000
 	.byte 'S', 'P', 'L', 2
 	.long 0, 0
-	.long 0, 0, 0, 0, 0, 0, 0, 0
-	.long 0, 0, 0, 0, 0, 0, 0, 0
+	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x20 - dram size */
+	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x40 - boot params */
 
 _vector:
 	b reset

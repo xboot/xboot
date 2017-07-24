@@ -581,7 +581,7 @@ static void mctl_sys_init(struct dram_para_t * para)
 	write32(V3S_CCU_BASE + CCU_DRAM_CFG, val);
 	sdelay(10);
 
-	ctl->clken = 0xc00e;
+	write32((virtual_addr_t)&ctl->clken, 0xc00e);
 	sdelay(500);
 }
 

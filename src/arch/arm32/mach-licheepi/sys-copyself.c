@@ -39,20 +39,23 @@ extern void return_to_fel(void);
 		(((int(*)(int, int, int, char *))(*((u32_t *)(0xffff5b60))))(page, unused, count, buffer))
 
 enum {
-	BOOT_DEVICE_FEL	= 0,
-	BOOT_DEVICE_MMC	= 1,
-	BOOT_DEVICE_SPI	= 2,
+	BOOT_DEVICE_FEL		= 0,
+	BOOT_DEVICE_MMC0	= 1,
+	BOOT_DEVICE_MMC2	= 2,
+	BOOT_DEVICE_SPI		= 3,
 };
 
 static int get_boot_device(void)
 {
 	u32_t * sig = (void *)0x4;
-	u32_t d = sig[9] & 0xff;
+	u32_t d = sig[9] & 0xf;
 
 	if((sig[0] == 0x4e4f4765) && (sig[1] == 0x3054422e))
 	{
 		if(d == 0)
-			return BOOT_DEVICE_MMC;
+			return BOOT_DEVICE_MMC0;
+		else if(d == 2)
+			return BOOT_DEVICE_MMC2;
 		else if(d == 3)
 			return BOOT_DEVICE_SPI;
 	}
@@ -87,7 +90,12 @@ void sys_copyself(void)
 		sys_uart_putc('\n');
 		return_to_fel();
 	}
-	else if(d == BOOT_DEVICE_MMC)
+	else if(d == BOOT_DEVICE_MMC0)
+	{
+		mem = (void *)&__image_start;
+		size = (&__image_end - &__image_start + 512) >> 9;
+	}
+	else if(d == BOOT_DEVICE_MMC2)
 	{
 		mem = (void *)&__image_start;
 		size = (&__image_end - &__image_start + 512) >> 9;

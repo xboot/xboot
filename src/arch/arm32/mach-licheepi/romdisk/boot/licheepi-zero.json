@@ -210,6 +210,23 @@
 		"stop-bits": 1
 	},
 
+	"spi-gpio@0": {
+		"sclk-gpio": 65,
+		"sclk-gpio-config": 1,
+		"mosi-gpio": 67,
+		"mosi-gpio-config": 1,
+		"miso-gpio": 64,
+		"miso-gpio-config": 0,
+		"cs-gpio": 66,
+		"cs-gpio-config": 1
+	},
+
+	"spi-flash@0": {
+		"spi-bus": "spi-gpio.0",
+		"mode": 0,
+		"speed": 0
+	},
+
 	"wdog-v3s@0x01c20ca0": {
 		"clock-name": "link-wdt"
 	},

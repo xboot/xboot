@@ -113,14 +113,6 @@ int reset_is_valid(int reset)
 	return search_resetchip(reset) ? 1 : 0;
 }
 
-void reset_reset(int rst)
-{
-	struct resetchip_t * chip = search_resetchip(rst);
-
-	if(chip && chip->reset)
-		chip->reset(chip, rst - chip->base);
-}
-
 void reset_assert(int rst)
 {
 	struct resetchip_t * chip = search_resetchip(rst);
@@ -136,13 +128,4 @@ void reset_deassert(int rst)
 
 	if(chip && chip->deassert)
 		chip->deassert(chip, rst - chip->base);
-}
-
-int reset_status(int rst)
-{
-	struct resetchip_t * chip = search_resetchip(rst);
-
-	if(chip && chip->status)
-		return chip->status(chip, rst - chip->base);
-	return 0;
 }

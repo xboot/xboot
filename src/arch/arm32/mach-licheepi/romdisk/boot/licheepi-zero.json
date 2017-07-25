@@ -130,6 +130,31 @@
 
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
+	"reset-v3s@0x01c202c0": {
+		"reset-base": 0,
+		"reset-count": 32
+	},
+
+	"reset-v3s@0x01c202c4": {
+		"reset-base": 32,
+		"reset-count": 32
+	},
+
+	"reset-v3s@0x01c202c8": {
+		"reset-base": 64,
+		"reset-count": 32
+	},
+
+	"reset-v3s@0x01c202d0": {
+		"reset-base": 96,
+		"reset-count": 32
+	},
+
+	"reset-v3s@0x01c202d8": {
+		"reset-base": 128,
+		"reset-count": 32
+	},
+
 	"irq-gic400@0x01c80000": {
 		"interrupt-base": 32,
 		"interrupt-count": 128

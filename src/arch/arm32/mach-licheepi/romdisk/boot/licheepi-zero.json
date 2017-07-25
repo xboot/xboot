@@ -36,8 +36,8 @@
 		],
 		"name": "mux-ahb1", "shift": 12, "width": 2
 	},
-	"clk-v3s-ratio@0x01c20054": { "parent": "mux-ahb1", "name": "ahb1", "shift": 4, "width": 2 },
-	"clk-v3s-ratio@0x01c20054": { "parent": "ahb1", "name": "apb1", "shift": 8, "width": 2 },
+	"clk-ratio@0x01c20054": { "parent": "mux-ahb1", "name": "ahb1", "shift": 4, "width": 2 },
+	"clk-ratio@0x01c20054": { "parent": "ahb1", "name": "apb1", "shift": 8, "width": 2 },
 	"clk-mux@0x01c20058": {
 		"parent": [
 			{ "name": "losc", "value": 0 },
@@ -46,7 +46,7 @@
 		],
 		"name": "mux-apb2", "shift": 24, "width": 2
 	},
-	"clk-v3s-ratio@0x01c20058": { "parent": "mux-apb2", "name": "ratio-apb2", "shift": 16, "width": 2 },
+	"clk-ratio@0x01c20058": { "parent": "mux-apb2", "name": "ratio-apb2", "shift": 16, "width": 2 },
 	"clk-divider@0x01c20058": { "parent": "ratio-apb2", "name": "apb2", "shift": 0, "width": 4, "divider-one-based": true },
 	"clk-mux@0x01c2005c": {
 		"parent": [
@@ -92,7 +92,7 @@
 		],
 		"name": "mux-spi0", "shift": 24, "width": 2
 	},
-	"clk-v3s-ratio@0x01c200a0": { "parent": "mux-spi0", "name": "ratio-spi0", "shift": 16, "width": 2 },
+	"clk-ratio@0x01c200a0": { "parent": "mux-spi0", "name": "ratio-spi0", "shift": 16, "width": 2 },
 	"clk-divider@0x01c200a0": { "parent": "ratio-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true },
 	"clk-gate@0x01c200a0": {"parent": "div-spi0", "name": "gate-spi0", "shift": 31, "invert": false },
 	"clk-gate@0x01c20060": {"parent": "gate-spi0", "name": "gate-bus-spi0", "shift": 20, "invert": false },
@@ -105,7 +105,7 @@
 		],
 		"name": "mux-timer0", "shift": 2, "width": 2
 	},
-	"clk-v3s-ratio@0x01c20c10": { "parent": "mux-timer0", "name": "ratio-timer0", "shift": 4, "width": 3 },
+	"clk-ratio@0x01c20c10": { "parent": "mux-timer0", "name": "ratio-timer0", "shift": 4, "width": 3 },
 	"clk-link": { "parent": "ratio-timer0", "name": "link-timer0" },
 
 	"clk-mux@0x01c20c20": {
@@ -115,7 +115,7 @@
 		],
 		"name": "mux-timer1", "shift": 2, "width": 2
 	},
-	"clk-v3s-ratio@0x01c20c20": { "parent": "mux-timer1", "name": "ratio-timer1", "shift": 4, "width": 3 },
+	"clk-ratio@0x01c20c20": { "parent": "mux-timer1", "name": "ratio-timer1", "shift": 4, "width": 3 },
 	"clk-link": { "parent": "ratio-timer1", "name": "link-timer1" },
 
 	"clk-mux@0x01c20c30": {
@@ -125,7 +125,7 @@
 		],
 		"name": "mux-timer2", "shift": 2, "width": 2
 	},
-	"clk-v3s-ratio@0x01c20c30": { "parent": "mux-timer2", "name": "ratio-timer2", "shift": 4, "width": 3 },
+	"clk-ratio@0x01c20c30": { "parent": "mux-timer2", "name": "ratio-timer2", "shift": 4, "width": 3 },
 	"clk-link": { "parent": "ratio-timer2", "name": "link-timer2" },
 
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },

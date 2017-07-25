@@ -175,7 +175,7 @@
 	"gpio-v3s@0x01c20824": {
 		"gpio-base": 32,
 		"gpio-count": 10,
-		"interrupt-offset": -1
+		"interrupt-offset": 160
 	},
 
 	"gpio-v3s@0x01c20848": {
@@ -199,7 +199,7 @@
 	"gpio-v3s@0x01c208d8": {
 		"gpio-base": 192,
 		"gpio-count": 6,
-		"interrupt-offset": -1
+		"interrupt-offset": 192
 	},
 
 	"ce-v3s-timer@0x01c20c00": {

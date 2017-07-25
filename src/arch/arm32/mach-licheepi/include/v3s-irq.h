@@ -59,6 +59,24 @@ extern "C" {
 #define V3S_IRQ_GPU_PMU3		(155)
 #define V3S_IRQ_GPU_AXI			(156)
 
+#define V3S_IRQ_GPIOB0			(160)
+#define V3S_IRQ_GPIOB1			(161)
+#define V3S_IRQ_GPIOB2			(162)
+#define V3S_IRQ_GPIOB3			(163)
+#define V3S_IRQ_GPIOB4			(164)
+#define V3S_IRQ_GPIOB5			(165)
+#define V3S_IRQ_GPIOB6			(166)
+#define V3S_IRQ_GPIOB7			(167)
+#define V3S_IRQ_GPIOB8			(168)
+#define V3S_IRQ_GPIOB9			(169)
+
+#define V3S_IRQ_GPIOG0			(192)
+#define V3S_IRQ_GPIOG1			(193)
+#define V3S_IRQ_GPIOG2			(194)
+#define V3S_IRQ_GPIOG3			(195)
+#define V3S_IRQ_GPIOG4			(196)
+#define V3S_IRQ_GPIOG5			(197)
+
 #ifdef __cplusplus
 }
 #endif

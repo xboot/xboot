@@ -160,6 +160,18 @@
 		"interrupt-count": 128
 	},
 
+	"irq-v3s-gpio@0x01c20a20": {
+		"interrupt-base": 160,
+		"interrupt-count": 10,
+		"interrupt-parent": 47
+	},
+
+	"irq-v3s-gpio@0x01c20a40": {
+		"interrupt-base": 192,
+		"interrupt-count": 6,
+		"interrupt-parent": 49
+	},
+
 	"gpio-v3s@0x01c20824": {
 		"gpio-base": 32,
 		"gpio-count": 10,

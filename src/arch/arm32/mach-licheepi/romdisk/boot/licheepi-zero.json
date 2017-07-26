@@ -128,6 +128,7 @@
 	"clk-ratio@0x01c20c30": { "parent": "mux-timer2", "name": "ratio-timer2", "shift": 4, "width": 3 },
 	"clk-link": { "parent": "ratio-timer2", "name": "link-timer2" },
 
+	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
 	"reset-v3s@0x01c202c0": {
@@ -200,6 +201,20 @@
 		"gpio-base": 192,
 		"gpio-count": 6,
 		"interrupt-offset": 192
+	},
+
+	"pwm-v3s@0x01c21400": {
+		"clock-name": "link-pwm",
+		"channel": 0,
+		"pwm-gpio": 36,
+		"pwm-gpio-config": 2
+	},
+
+	"pwm-v3s@0x01c21400": {
+		"clock-name": "link-pwm",
+		"channel": 1,
+		"pwm-gpio": 37,
+		"pwm-gpio-config": 2
 	},
 
 	"ce-v3s-timer@0x01c20c00": {
@@ -293,7 +308,17 @@
 		"led-name": "led-gpio.0",
 		"heartbeat-period-ms": 1260
 	},
-	
+
+	"buzzer-pwm@0": {
+		"pwm-name": "pwm-v3s.0",
+		"pwm-polarity": true
+	},
+
+	"vibrator-pwm@0": {
+		"pwm-name": "pwm-v3s.1",
+		"pwm-polarity": true
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-16550.0"
 	}

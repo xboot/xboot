@@ -52,7 +52,7 @@ static int key_adc_get_keycode(struct key_adc_pdata_t * pdat)
 	voltage = adc_read_voltage(pdat->adc, pdat->channel);
 	for(i = 0; i < pdat->nkeys; i++)
 	{
-		if((voltage >= pdat->keys[i].min) && (voltage <= pdat->keys[i].max))
+		if((voltage >= pdat->keys[i].min) && (voltage < pdat->keys[i].max))
 			return pdat->keys[i].keycode;
 	}
 	return 0;

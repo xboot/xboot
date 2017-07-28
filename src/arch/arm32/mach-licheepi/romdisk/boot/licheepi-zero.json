@@ -275,6 +275,7 @@
 
 	"spi-flash@0": {
 		"spi-bus": "spi-gpio.0",
+		"chip-select": 0,
 		"mode": 0,
 		"speed": 0
 	},

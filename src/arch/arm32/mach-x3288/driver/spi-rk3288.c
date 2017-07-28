@@ -230,10 +230,16 @@ static int spi_rk3288_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 	return ret;
 }
 
-static void spi_rk3288_chipselect(struct spi_t * spi, int enable)
+static void spi_rk3288_select(struct spi_t * spi, int cs)
 {
 	struct spi_rk3288_pdata_t * pdat = (struct spi_rk3288_pdata_t *)spi->priv;
-	write32(pdat->virt + SPI_SER, enable ? (1 << 0) : 0);
+	write32(pdat->virt + SPI_SER, 1 << cs);
+}
+
+static void spi_rk3288_deselect(struct spi_t * spi, int cs)
+{
+	struct spi_rk3288_pdata_t * pdat = (struct spi_rk3288_pdata_t *)spi->priv;
+	write32(pdat->virt + SPI_SER, 0);
 }
 
 static struct device_t * spi_rk3288_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -268,7 +274,8 @@ static struct device_t * spi_rk3288_probe(struct driver_t * drv, struct dtnode_t
 
 	spi->name = alloc_device_name(dt_read_name(n), -1);
 	spi->transfer = spi_rk3288_transfer,
-	spi->chipselect = spi_rk3288_chipselect,
+	spi->select = spi_rk3288_select,
+	spi->deselect = spi_rk3288_deselect,
 	spi->priv = pdat;
 
 	clk_enable(pdat->clk);

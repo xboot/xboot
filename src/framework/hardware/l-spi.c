@@ -32,10 +32,11 @@ struct lspi_t {
 static int l_spi_new(lua_State * L)
 {
 	const char * name = luaL_checkstring(L, 1);
-	int mode = luaL_optinteger(L, 2, 0);
-	int bits = luaL_optinteger(L, 3, 8);
-	int speed = luaL_optinteger(L, 4, 0);
-	struct spi_device_t * dev = spi_device_alloc(name, mode, bits, speed);
+	int cs = luaL_optinteger(L, 2, 0);
+	int mode = luaL_optinteger(L, 3, 0);
+	int bits = luaL_optinteger(L, 4, 8);
+	int speed = luaL_optinteger(L, 5, 0);
+	struct spi_device_t * dev = spi_device_alloc(name, cs, mode, bits, speed);
 	if(!dev)
 		return 0;
 	struct lspi_t * spi = lua_newuserdata(L, sizeof(struct lspi_t));
@@ -96,10 +97,18 @@ static int m_spi_write(lua_State * L)
 	return 1;
 }
 
-static int m_spi_chipselect(lua_State * L)
+static int m_spi_select(lua_State * L)
 {
 	struct lspi_t * spi = luaL_checkudata(L, 1, MT_HARDWARE_SPI);
-	spi_device_chipselect(spi->dev, lua_toboolean(L, 2) ? 1 : 0);
+	spi_device_select(spi->dev);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_spi_deselect(lua_State * L)
+{
+	struct lspi_t * spi = luaL_checkudata(L, 1, MT_HARDWARE_SPI);
+	spi_device_deselect(spi->dev);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -108,7 +117,8 @@ static const luaL_Reg m_spi[] = {
 	{"__gc",		m_spi_gc},
 	{"read",		m_spi_read},
 	{"write",		m_spi_write},
-	{"chipselect",	m_spi_chipselect},
+	{"select",		m_spi_select},
+	{"deselect",	m_spi_deselect},
 	{NULL,	NULL}
 };
 

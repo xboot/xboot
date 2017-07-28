@@ -105,10 +105,10 @@ struct spi_flash_id_t * spi_flash_read_id(struct spi_device_t * dev)
 	u8_t rx[6];
 	int res, i;
 
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_RDID;
 	res = spi_device_write_then_read(dev, tx, 1, rx, 6);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 
 	if(res < 0)
 		return NULL;
@@ -128,10 +128,10 @@ static u8_t spi_flash_read_status_register(struct spi_device_t * dev)
 	u8_t tx[1];
 	u8_t rx[1];
 
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_RDSR;
 	spi_device_write_then_read(dev, tx, 1, rx, 1);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 
 	return rx[0];
 }
@@ -140,31 +140,31 @@ static void spi_flash_write_status_register(struct spi_device_t * dev, u8_t sr)
 {
 	u8_t tx[2];
 
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_WRSR;
 	tx[1] = sr;
 	spi_device_write_then_read(dev, tx, 2, 0, 0);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 }
 
 static void spi_flash_write_enable(struct spi_device_t * dev)
 {
 	u8_t tx[1];
 
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_WREN;
 	spi_device_write_then_read(dev, tx, 1, 0, 0);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 }
 
 static void spi_flash_write_disable(struct spi_device_t * dev)
 {
 	u8_t tx[1];
 
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_WRDI;
 	spi_device_write_then_read(dev, tx, 1, 0, 0);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 }
 
 static void spi_flash_wait_for_busy(struct spi_device_t * dev)
@@ -176,27 +176,27 @@ static void spi_flash_normal_read_bytes(struct spi_device_t * dev, u64_t addr, u
 {
 	u8_t tx[4];
 
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_NREAD;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	spi_device_write_then_read(dev, tx, 4, buf, count);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 }
 
 static void spi_flash_fast_read_bytes(struct spi_device_t * dev, u64_t addr, u8_t * buf, u32_t count)
 {
 	u8_t tx[5];
 
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_FREAD;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	tx[4] = 0;
 	spi_device_write_then_read(dev, tx, 5, buf, count);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 }
 
 static void spi_flash_sector_erase(struct spi_device_t * dev, u64_t addr)
@@ -205,13 +205,13 @@ static void spi_flash_sector_erase(struct spi_device_t * dev, u64_t addr)
 
 	spi_flash_write_enable(dev);
 	spi_flash_wait_for_busy(dev);
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_SE;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	spi_device_write_then_read(dev, tx, 4, 0, 0);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 	spi_flash_wait_for_busy(dev);
 }
 
@@ -221,13 +221,13 @@ static void spi_flash_sector_erase_4k(struct spi_device_t * dev, u64_t addr)
 
 	spi_flash_write_enable(dev);
 	spi_flash_wait_for_busy(dev);
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_BE_4K;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	spi_device_write_then_read(dev, tx, 4, 0, 0);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 	spi_flash_wait_for_busy(dev);
 }
 
@@ -236,14 +236,14 @@ static void spi_flash_write_one_page(struct spi_device_t * dev, u64_t addr, u8_t
 	u8_t tx[4];
 
 	spi_flash_write_enable(dev);
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = OPCODE_PP;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	spi_device_write_then_read(dev, tx, 4, 0, 0);
 	spi_device_write_then_read(dev, buf, 256, 0, 0);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 	spi_flash_wait_for_busy(dev);
 }
 
@@ -301,7 +301,7 @@ static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t 
 	struct spi_device_t * spidev;
 	struct spi_flash_id_t * id;
 
-	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
+	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
 	if(!spidev)
 		return NULL;
 

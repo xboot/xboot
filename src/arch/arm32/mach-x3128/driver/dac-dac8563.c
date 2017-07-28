@@ -35,12 +35,12 @@ static inline void dac8563_write(struct spi_device_t * dev, u8_t cmd, u16_t dat)
 {
 	u8_t tx[3];
 
-	spi_device_chipselect(dev, 1);
+	spi_device_select(dev);
 	tx[0] = cmd;
 	tx[1] = (dat >> 8) & 0xff;
 	tx[2] = (dat >> 0) & 0xff;
 	spi_device_write_then_read(dev, tx, 3, 0, 0);
-	spi_device_chipselect(dev, 0);
+	spi_device_deselect(dev);
 }
 
 static void dac_dac8563_write(struct dac_t * dac, int channel, u32_t value)
@@ -56,7 +56,7 @@ static struct device_t * dac_dac8563_probe(struct driver_t * drv, struct dtnode_
 	struct device_t * dev;
 	struct spi_device_t * spidev;
 
-	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
+	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
 	if(!spidev)
 		return NULL;
 

@@ -92,13 +92,19 @@ int spi_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 	return spi->transfer(spi, msg);
 }
 
-void spi_chipselect(struct spi_t * spi, int enable)
+void spi_select(struct spi_t * spi, int cs)
 {
-	if(spi && spi->chipselect)
-		spi->chipselect(spi, enable);
+	if(spi && spi->select)
+		spi->select(spi, cs);
 }
 
-struct spi_device_t * spi_device_alloc(const char * spibus, int mode, int bits, int speed)
+void spi_deselect(struct spi_t * spi, int cs)
+{
+	if(spi && spi->deselect)
+		spi->deselect(spi, cs);
+}
+
+struct spi_device_t * spi_device_alloc(const char * spibus, int cs, int mode, int bits, int speed)
 {
 	struct spi_device_t * dev;
 	struct spi_t * spi;
@@ -112,6 +118,7 @@ struct spi_device_t * spi_device_alloc(const char * spibus, int mode, int bits, 
 		return NULL;
 
 	dev->spi = spi;
+	dev->cs = (cs > 0) ? cs : 0;
 	dev->mode = mode & 0x3;
 	dev->bits = bits;
 	dev->speed = (speed > 0) ? speed : 0;
@@ -150,8 +157,14 @@ int spi_device_write_then_read(struct spi_device_t * dev, void * txbuf, int txle
 	return 0;
 }
 
-void spi_device_chipselect(struct spi_device_t * dev, int enable)
+void spi_device_select(struct spi_device_t * dev)
 {
-	if(dev && dev->spi)
-		spi_chipselect(dev->spi, enable);
+	if(dev && dev->spi && dev->spi->select)
+		dev->spi->select(dev->spi, dev->cs);
+}
+
+void spi_device_deselect(struct spi_device_t * dev)
+{
+	if(dev && dev->spi && dev->spi->deselect)
+		dev->spi->deselect(dev->spi, dev->cs);
 }

@@ -53,6 +53,7 @@ static int mach_detect(struct machine_t * mach)
 
 static void mach_memmap(struct machine_t * mach)
 {
+	mmu_setup(mach->map);
 }
 
 static void mach_shutdown(struct machine_t * mach)

@@ -68,7 +68,7 @@ static void clock_set_pll_cpu(u32_t clk)
 
 void sys_clock_init(void)
 {
-	clock_set_pll_cpu(408000000);
+	clock_set_pll_cpu(1008000000);
 
 	/* pll periph0 - 600MHZ */
 	write32(V3S_CCU_BASE + CCU_PLL_PERIPH0_CTRL, 0x90041811);

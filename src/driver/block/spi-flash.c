@@ -128,11 +128,8 @@ static u8_t spi_flash_read_status_register(struct spi_device_t * dev)
 	u8_t tx[1];
 	u8_t rx[1];
 
-	spi_device_select(dev);
 	tx[0] = OPCODE_RDSR;
 	spi_device_write_then_read(dev, tx, 1, rx, 1);
-	spi_device_deselect(dev);
-
 	return rx[0];
 }
 
@@ -140,31 +137,25 @@ static void spi_flash_write_status_register(struct spi_device_t * dev, u8_t sr)
 {
 	u8_t tx[2];
 
-	spi_device_select(dev);
 	tx[0] = OPCODE_WRSR;
 	tx[1] = sr;
 	spi_device_write_then_read(dev, tx, 2, 0, 0);
-	spi_device_deselect(dev);
 }
 
 static void spi_flash_write_enable(struct spi_device_t * dev)
 {
 	u8_t tx[1];
 
-	spi_device_select(dev);
 	tx[0] = OPCODE_WREN;
 	spi_device_write_then_read(dev, tx, 1, 0, 0);
-	spi_device_deselect(dev);
 }
 
 static void spi_flash_write_disable(struct spi_device_t * dev)
 {
 	u8_t tx[1];
 
-	spi_device_select(dev);
 	tx[0] = OPCODE_WRDI;
 	spi_device_write_then_read(dev, tx, 1, 0, 0);
-	spi_device_deselect(dev);
 }
 
 static void spi_flash_wait_for_busy(struct spi_device_t * dev)
@@ -176,27 +167,23 @@ static void spi_flash_normal_read_bytes(struct spi_device_t * dev, u64_t addr, u
 {
 	u8_t tx[4];
 
-	spi_device_select(dev);
 	tx[0] = OPCODE_NREAD;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	spi_device_write_then_read(dev, tx, 4, buf, count);
-	spi_device_deselect(dev);
 }
 
 static void spi_flash_fast_read_bytes(struct spi_device_t * dev, u64_t addr, u8_t * buf, u32_t count)
 {
 	u8_t tx[5];
 
-	spi_device_select(dev);
 	tx[0] = OPCODE_FREAD;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	tx[4] = 0;
 	spi_device_write_then_read(dev, tx, 5, buf, count);
-	spi_device_deselect(dev);
 }
 
 static void spi_flash_sector_erase(struct spi_device_t * dev, u64_t addr)
@@ -205,13 +192,11 @@ static void spi_flash_sector_erase(struct spi_device_t * dev, u64_t addr)
 
 	spi_flash_write_enable(dev);
 	spi_flash_wait_for_busy(dev);
-	spi_device_select(dev);
 	tx[0] = OPCODE_SE;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	spi_device_write_then_read(dev, tx, 4, 0, 0);
-	spi_device_deselect(dev);
 	spi_flash_wait_for_busy(dev);
 }
 
@@ -221,13 +206,11 @@ static void spi_flash_sector_erase_4k(struct spi_device_t * dev, u64_t addr)
 
 	spi_flash_write_enable(dev);
 	spi_flash_wait_for_busy(dev);
-	spi_device_select(dev);
 	tx[0] = OPCODE_BE_4K;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	spi_device_write_then_read(dev, tx, 4, 0, 0);
-	spi_device_deselect(dev);
 	spi_flash_wait_for_busy(dev);
 }
 
@@ -236,14 +219,12 @@ static void spi_flash_write_one_page(struct spi_device_t * dev, u64_t addr, u8_t
 	u8_t tx[4];
 
 	spi_flash_write_enable(dev);
-	spi_device_select(dev);
 	tx[0] = OPCODE_PP;
 	tx[1] = (u8_t)(addr >> 16);
 	tx[2] = (u8_t)(addr >> 8);
 	tx[3] = (u8_t)(addr >> 0);
 	spi_device_write_then_read(dev, tx, 4, 0, 0);
 	spi_device_write_then_read(dev, buf, 256, 0, 0);
-	spi_device_deselect(dev);
 	spi_flash_wait_for_busy(dev);
 }
 
@@ -253,10 +234,12 @@ static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t
 	u64_t addr = blkno * blk->blksz;
 	u64_t count = blkcnt * blk->blksz;
 
+	spi_device_select(pdat->dev);
 	if(!(pdat->id->flags & NO_FASTREAD))
 		spi_flash_fast_read_bytes(pdat->dev, addr, buf, count);
 	else
 		spi_flash_normal_read_bytes(pdat->dev, addr, buf, count);
+	spi_device_deselect(pdat->dev);
 	return blkcnt;
 }
 
@@ -268,6 +251,7 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 	u8_t * pbuf = buf;
 	u64_t i;
 
+	spi_device_select(pdat->dev);
 	if(pdat->id->flags & SECTOR_4K)
 	{
 		for(i = 0; i < blkcnt; i++)
@@ -278,7 +262,6 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 		for(i = 0; i < blkcnt; i++)
 			spi_flash_sector_erase(pdat->dev, addr + i * blk->blksz);
 	}
-
 	while(count > 0)
 	{
 		spi_flash_write_one_page(pdat->dev, addr, pbuf);
@@ -286,6 +269,8 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 		pbuf += 256;
 		count -= 256;
 	}
+	spi_device_deselect(pdat->dev);
+
 	return blkcnt;
 }
 
@@ -346,9 +331,11 @@ static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t 
 	blk->sync = spi_flash_sync;
 	blk->priv = pdat;
 
+	spi_device_select(pdat->dev);
 	spi_flash_write_disable(pdat->dev);
 	spi_flash_write_enable(pdat->dev);
 	spi_flash_write_status_register(pdat->dev, 0);
+	spi_device_deselect(pdat->dev);
 
 	if(!register_block(&dev, blk))
 	{

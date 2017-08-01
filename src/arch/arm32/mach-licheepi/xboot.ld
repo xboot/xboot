@@ -25,6 +25,7 @@ SECTIONS
 		.obj/arch/arm32/mach-licheepi/sys-uart.o (.text)
 		.obj/arch/arm32/mach-licheepi/sys-clock.o (.text)
 		.obj/arch/arm32/mach-licheepi/sys-dram.o (.text)
+		.obj/arch/arm32/mach-licheepi/sys-spi-flash.o (.text)
 		.obj/arch/arm32/mach-licheepi/sys-copyself.o (.text)
 		*(.text*)
 		*(.init.text)

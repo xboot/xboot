@@ -26,17 +26,11 @@
 
 extern unsigned char __image_start;
 extern unsigned char __image_end;
-extern void sys_uart_putc(char c);
 extern void return_to_fel(void);
-
-#define spi_nor_flash_init() \
-		(((int(*)())(*((u32_t *)(0xffff5878))))())
-
-#define spi_nor_flash_exit() \
-		(((int(*)())(*((u32_t *)(0xffff5908))))())
-
-#define spi_nor_flash_read_page(page, unused, count, buffer) \
-		(((int(*)(int, int, int, char *))(*((u32_t *)(0xffff5b60))))(page, unused, count, buffer))
+extern void sys_uart_putc(char c);
+extern void sys_spi_flash_init(void);
+extern void sys_spi_flash_exit(void);
+extern void sys_spi_flash_read(int addr, void * buf, int count);
 
 enum {
 	BOOT_DEVICE_FEL		= 0,
@@ -103,10 +97,14 @@ void sys_copyself(void)
 	else if(d == BOOT_DEVICE_SPI)
 	{
 		mem = (void *)&__image_start;
-		size = (&__image_end - &__image_start + 256) >> 8;
+		size = (&__image_end - &__image_start + 0xff) & 0xffffff00;
 
-		spi_nor_flash_init();
-		spi_nor_flash_read_page(0, 0, size, mem);
-		spi_nor_flash_exit();
+		sys_uart_putc('S');
+		sys_spi_flash_init();
+		sys_uart_putc('P');
+		sys_spi_flash_read(0, mem, size);
+		sys_uart_putc('I');
+		sys_spi_flash_exit();
+		sys_uart_putc('K');
 	}
 }

@@ -178,7 +178,7 @@ static int do_dcp(int argc, char ** argv)
 			n = read(ifd, buf, n);
 			break;
 		case DEVTYPE_MEM:
-			memcpy(buf, (void *)(ioff + l), n);
+			memcpy(buf, (void *)((virtual_addr_t)(ioff + l)), n);
 			break;
 		default:
 			break;
@@ -193,7 +193,7 @@ static int do_dcp(int argc, char ** argv)
 			write(ofd, buf, n);
 			break;
 		case DEVTYPE_MEM:
-			memcpy((void *)(ooff + l), buf, n);
+			memcpy((void *)((virtual_addr_t)(ooff + l)), buf, n);
 			break;
 		default:
 			break;
@@ -210,7 +210,7 @@ static int do_dcp(int argc, char ** argv)
 		block_sync(oblk);
 	free(buf);
 
-	printf("copyed %s@%p:%p -> %s@%p:%p\r\n", iname ? iname : "", ioff, s, oname ? oname : "", ooff, s);
+	printf("copyed %s@0x%llx:0x%llx -> %s@0x%llx:0x%llx\r\n", iname ? iname : "", ioff, s, oname ? oname : "", ooff, s);
 	return 0;
 }
 

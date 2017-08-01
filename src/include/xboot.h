@@ -27,6 +27,7 @@ extern "C" {
 #include <stdio.h>
 #include <assert.h>
 #include <locale.h>
+#include <log2.h>
 #include <time.h>
 #include <math.h>
 #include <exit.h>

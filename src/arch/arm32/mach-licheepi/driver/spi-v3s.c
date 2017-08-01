@@ -58,31 +58,22 @@ struct spi_v3s_pdata_t {
 	int cscfg;
 };
 
-static void v3s_spi_enable_chip(struct spi_v3s_pdata_t * pdat, int enable)
+static void v3s_spi_enable_chip(struct spi_v3s_pdata_t * pdat)
 {
 	u32_t val;
 
-	if(enable)
-	{
-		val = read32(pdat->virt + SPI_GCR);
-		val |= (1 << 31) | (1 << 7) | (1 << 1) | (1 << 0);
-		write32(pdat->virt + SPI_GCR, val);
-		while(read32(pdat->virt + SPI_GCR) & (1 << 31));
+	val = read32(pdat->virt + SPI_GCR);
+	val |= (1 << 31) | (1 << 7) | (1 << 1) | (1 << 0);
+	write32(pdat->virt + SPI_GCR, val);
+	while(read32(pdat->virt + SPI_GCR) & (1 << 31));
 
-		val = read32(pdat->virt + SPI_TCR);
-		val |= (1 << 6) | (1 << 2);
-		write32(pdat->virt + SPI_TCR, val);
+	val = read32(pdat->virt + SPI_TCR);
+	val |= (1 << 6) | (1 << 2);
+	write32(pdat->virt + SPI_TCR, val);
 
-		val = read32(pdat->virt + SPI_FCR);
-		val |= (1 << 31) | (1 << 15);
-		write32(pdat->virt + SPI_FCR, val);
-	}
-	else
-	{
-		val = read32(pdat->virt + SPI_GCR);
-		val &= ~((1 << 1) | (1 << 0));
-		write32(pdat->virt + SPI_GCR, val);
-	}
+	val = read32(pdat->virt + SPI_FCR);
+	val |= (1 << 31) | (1 << 15);
+	write32(pdat->virt + SPI_FCR, val);
 }
 
 static void v3s_spi_set_rate(struct spi_v3s_pdata_t * pdat, u64_t rate)
@@ -138,12 +129,12 @@ static int v3s_spi_xfer(struct spi_v3s_pdata_t * pdat, struct spi_msg_t * msg)
 
 	while(count > 0)
 	{
-		n = (count < 63) ? count : 63;
+		n = (count <= 64) ? count : 64;
 		write32(pdat->virt + SPI_MBC, n & 0xffffff);
 		v3s_spi_write_txbuf(pdat, tx, n);
 		write32(pdat->virt + SPI_TCR, read32(pdat->virt + SPI_TCR) | (1 << 31));
 
-		while((read32(pdat->virt + SPI_FSR) & 0x7f) < n);
+		while((read32(pdat->virt + SPI_FSR) & 0xff) < n);
 		for(i = 0; i < n; i++)
 		{
 			val = read8(pdat->virt + SPI_RXD);
@@ -161,16 +152,10 @@ static int v3s_spi_xfer(struct spi_v3s_pdata_t * pdat, struct spi_msg_t * msg)
 static int spi_v3s_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 {
 	struct spi_v3s_pdata_t * pdat = (struct spi_v3s_pdata_t *)spi->priv;
-	int ret = 0;
 
 	v3s_spi_set_mode(pdat, msg->mode);
 	v3s_spi_set_rate(pdat, (msg->speed > 0) ? msg->speed : 1000000);
-
-	v3s_spi_enable_chip(pdat, 1);
-	ret = v3s_spi_xfer(pdat, msg);
-	v3s_spi_enable_chip(pdat, 0);
-
-	return ret;
+	return v3s_spi_xfer(pdat, msg);
 }
 
 static void spi_v3s_select(struct spi_t * spi, int cs)
@@ -236,9 +221,9 @@ static struct device_t * spi_v3s_probe(struct driver_t * drv, struct dtnode_t * 
 	if(pdat->reset >= 0)
 	{
 		reset_assert(pdat->reset);
-		udelay(10);
+		udelay(1);
 		reset_deassert(pdat->reset);
-		udelay(10);
+		udelay(1);
 	}
 	if(pdat->sclk >= 0)
 	{
@@ -264,7 +249,7 @@ static struct device_t * spi_v3s_probe(struct driver_t * drv, struct dtnode_t * 
 			gpio_set_cfg(pdat->cs, pdat->cscfg);
 		gpio_set_pull(pdat->cs, GPIO_PULL_NONE);
 	}
-	v3s_spi_enable_chip(pdat, 0);
+	v3s_spi_enable_chip(pdat);
 
 	if(!register_spi(&dev, spi))
 	{

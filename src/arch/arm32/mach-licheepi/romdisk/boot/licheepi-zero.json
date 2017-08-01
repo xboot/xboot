@@ -90,10 +90,11 @@
 			{ "name": "pll-periph0", "value": 1 },
 			{ "name": "pll-periph1", "value": 2 }
 		],
-		"name": "mux-spi0", "shift": 24, "width": 2
+		"name": "mux-spi0", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
 	},
 	"clk-ratio@0x01c200a0": { "parent": "mux-spi0", "name": "ratio-spi0", "shift": 16, "width": 2 },
-	"clk-divider@0x01c200a0": { "parent": "ratio-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-divider@0x01c200a0": { "parent": "ratio-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 100000000 } },
 	"clk-gate@0x01c200a0": {"parent": "div-spi0", "name": "gate-spi0", "shift": 31, "invert": false },
 	"clk-gate@0x01c20060": {"parent": "gate-spi0", "name": "gate-bus-spi0", "shift": 20, "invert": false },
 	"clk-link": { "parent": "gate-bus-spi0", "name": "link-spi0" },
@@ -279,7 +280,7 @@
 		"spi-bus": "spi-v3s.0",
 		"chip-select": 0,
 		"mode": 0,
-		"speed": 1000000
+		"speed": 25000000
 	},
 
 	"wdog-v3s@0x01c20ca0": {

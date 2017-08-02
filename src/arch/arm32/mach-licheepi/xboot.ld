@@ -22,6 +22,8 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-licheepi/start.o (.text)
+		.obj/arch/arm32/lib/memcpy.o (.text)
+		.obj/arch/arm32/lib/memset.o (.text)
 		.obj/arch/arm32/mach-licheepi/sys-uart.o (.text)
 		.obj/arch/arm32/mach-licheepi/sys-clock.o (.text)
 		.obj/arch/arm32/mach-licheepi/sys-dram.o (.text)

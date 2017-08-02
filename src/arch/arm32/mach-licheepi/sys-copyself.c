@@ -97,14 +97,10 @@ void sys_copyself(void)
 	else if(d == BOOT_DEVICE_SPI)
 	{
 		mem = (void *)&__image_start;
-		size = (&__image_end - &__image_start + 0xff) & 0xffffff00;
+		size = &__image_end - &__image_start;
 
-		sys_uart_putc('S');
 		sys_spi_flash_init();
-		sys_uart_putc('P');
 		sys_spi_flash_read(0, mem, size);
-		sys_uart_putc('I');
 		sys_spi_flash_exit();
-		sys_uart_putc('K');
 	}
 }

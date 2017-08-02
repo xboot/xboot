@@ -280,7 +280,7 @@
 		"spi-bus": "spi-v3s.0",
 		"chip-select": 0,
 		"mode": 0,
-		"speed": 25000000
+		"speed": 50000000
 	},
 
 	"wdog-v3s@0x01c20ca0": {

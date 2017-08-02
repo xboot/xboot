@@ -85,9 +85,30 @@ void sys_spi_flash_init(void)
 	val |= (1 << 20);
 	write32(addr, val);
 
-	/* Divide by 4 */
+	/* Select pll-periph0 for spi0 clk */
+	addr = 0x01c200a0;
+	val = read32(addr);
+	val &= ~(0x3 << 24);
+	val |= 0x1 << 24;
+	write32(addr, val);
+
+	/* Set clock pre divide ratio, divided by 1 */
+	addr = 0x01c200a0;
+	val = read32(addr);
+	val &= ~(0x3 << 16);
+	val |= 0x0 << 16;
+	write32(addr, val);
+
+	/* Set clock divide ratio, divided by 6 */
+	addr = 0x01c200a0;
+	val = read32(addr);
+	val &= ~(0xf << 0);
+	val |= (6 - 1) << 0;
+	write32(addr, val);
+
+	/* Set spi clock rate control register, divided by 2 */
 	addr = 0x01c68000;
-	write32(addr + SPI_CCR, 0x1001);
+	write32(addr + SPI_CCR, 0x1000);
 
 	/* Enable spi0 and do a soft reset */
 	addr = 0x01c68000;

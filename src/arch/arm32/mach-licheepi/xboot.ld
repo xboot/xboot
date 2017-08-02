@@ -92,7 +92,7 @@ SECTIONS
 	{
 		PROVIDE(__data_shadow_start = .);
 		PROVIDE(__data_shadow_end = (. + SIZEOF(.data)));
-		PROVIDE(__image_end = .);
+		PROVIDE(__image_end = __data_shadow_end);
 	} > ram
 
 	.data : AT(ADDR(.data_shadow))

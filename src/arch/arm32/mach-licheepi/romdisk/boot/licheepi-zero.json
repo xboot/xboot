@@ -309,6 +309,12 @@
 		]
 	},
 	
+	"ts-ns2009@0": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 72,
+		"poll-interval-ms": 10
+	},
+
 	"led-gpio@0": {
 		"gpio": 194,
 		"gpio-config": 1,

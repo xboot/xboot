@@ -15,7 +15,7 @@ struct median_filter_t * median_alloc(int length)
 	if(!filter)
 		return NULL;
 
-	filter->buffer = malloc(sizeof(float) * length);
+	filter->buffer = malloc(sizeof(int) * length);
 	filter->index = malloc(sizeof(int) * length);
 	if(!filter->buffer || !filter->index)
 	{
@@ -45,15 +45,15 @@ void median_free(struct median_filter_t * filter)
 	}
 }
 
-float median_update(struct median_filter_t * filter, float value)
+int median_update(struct median_filter_t * filter, int value)
 {
 	int pos = filter->position;
 	int cnt = filter->count;
 	int * idx;
 	int cidx;
 	int oidx;
-	float oval;
-	float result;
+	int oval;
+	int result;
 
 	if(cnt > 0)
 	{
@@ -68,7 +68,7 @@ float median_update(struct median_filter_t * filter, float value)
 		{
 			filter->index[pos] = pos;
 			oidx = pos;
-			oval = HUGE_VALF;
+			oval = INT_MAX;
 		}
 
 		filter->buffer[pos] = value;

@@ -16,7 +16,7 @@ struct mean_filter_t * mean_alloc(int length)
 	if(!filter)
 		return NULL;
 
-	filter->buffer = malloc(sizeof(float) * length);
+	filter->buffer = malloc(sizeof(int) * length);
 	if(!filter->buffer)
 	{
 		free(filter);
@@ -42,7 +42,7 @@ void mean_free(struct mean_filter_t * filter)
 	}
 }
 
-float mean_update(struct mean_filter_t * filter, float value)
+int mean_update(struct mean_filter_t * filter, int value)
 {
 	filter->sum -= filter->buffer[filter->index];
 	filter->sum += value;

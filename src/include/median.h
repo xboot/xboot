@@ -11,7 +11,7 @@ extern "C" {
 #include <malloc.h>
 
 struct median_filter_t {
-	float * buffer;
+	int * buffer;
 	int * index;
 	int length;
 	int position;
@@ -20,7 +20,7 @@ struct median_filter_t {
 
 struct median_filter_t * median_alloc(int length);
 void median_free(struct median_filter_t * filter);
-float median_update(struct median_filter_t * filter, float value);
+int median_update(struct median_filter_t * filter, int value);
 void median_clear(struct median_filter_t * filter);
 
 #ifdef __cplusplus

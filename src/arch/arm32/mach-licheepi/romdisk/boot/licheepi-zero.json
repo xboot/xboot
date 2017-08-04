@@ -312,6 +312,9 @@
 	"ts-ns2009@0": {
 		"i2c-bus": "i2c-gpio.0",
 		"slave-address": 72,
+		"median-filter-length": 5,
+		"mean-filter-length": 5,
+		"calibration": [1, 0, 0, 0, 1, 0, 1],
 		"poll-interval-ms": 10
 	},
 

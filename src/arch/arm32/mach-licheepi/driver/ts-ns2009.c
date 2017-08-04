@@ -27,6 +27,7 @@
 #include <gpio/gpio.h>
 #include <interrupt/interrupt.h>
 #include <input/input.h>
+#include <tsfilter.h>
 
 enum {
 	NS2009_LOW_POWER_READ_X		= 0xc0,
@@ -38,6 +39,7 @@ enum {
 struct ts_ns2009_pdata_t {
 	struct timer_t timer;
 	struct i2c_device_t * dev;
+	struct tsfilter_t * filter;
 	int interval;
 	int x, y;
 	int press;
@@ -77,6 +79,7 @@ static int ns2009_timer_function(struct timer_t * timer, void * data)
 		{
 			ns2009_read(pdat->dev, NS2009_LOW_POWER_READ_X, &x);
 			ns2009_read(pdat->dev, NS2009_LOW_POWER_READ_Y, &y);
+			tsfilter_update(pdat->filter, &x, &y);
 
 			if(!pdat->press)
 			{
@@ -95,6 +98,7 @@ static int ns2009_timer_function(struct timer_t * timer, void * data)
 		{
 			if(pdat->press)
 			{
+				tsfilter_clear(pdat->filter);
 				push_event_touch_end(input, pdat->x, pdat->y, 0);
 				pdat->press = 0;
 			}
@@ -116,6 +120,8 @@ static struct device_t * ts_ns2009_probe(struct driver_t * drv, struct dtnode_t 
 	struct input_t * input;
 	struct device_t * dev;
 	struct i2c_device_t * i2cdev;
+	int cal[7] = {1, 0, 0, 0, 1, 0, 1};
+	int i;
 
 	i2cdev = i2c_device_alloc(dt_read_string(n, "i2c-bus", NULL), dt_read_int(n, "slave-address", 0x48), 0);
 	if(!i2cdev)
@@ -144,6 +150,13 @@ static struct device_t * ts_ns2009_probe(struct driver_t * drv, struct dtnode_t 
 
 	timer_init(&pdat->timer, ns2009_timer_function, input);
 	pdat->dev = i2cdev;
+	pdat->filter = tsfilter_alloc(dt_read_int(n, "median-filter-length", 5), dt_read_int(n, "mean-filter-length", 5));
+	if(dt_read_array_length(n, "calibration") == 7)
+	{
+		for(i = 0; i < 7; i++)
+			cal[i] = dt_read_array_int(n, "calibration", i, cal[i]);
+		tsfilter_setcal(pdat->filter, &cal[0]);
+	}
 	pdat->interval = dt_read_int(n, "poll-interval-ms", 10);
 	pdat->x = 0;
 	pdat->y = 0;
@@ -157,6 +170,7 @@ static struct device_t * ts_ns2009_probe(struct driver_t * drv, struct dtnode_t 
 
 	if(!register_input(&dev, input))
 	{
+		tsfilter_free(pdat->filter);
 		timer_cancel(&pdat->timer);
 		i2c_device_free(pdat->dev);
 
@@ -177,6 +191,7 @@ static void ts_ns2009_remove(struct device_t * dev)
 
 	if(input && unregister_input(input))
 	{
+		tsfilter_free(pdat->filter);
 		timer_cancel(&pdat->timer);
 		i2c_device_free(pdat->dev);
 

@@ -341,14 +341,40 @@
 		"heartbeat-period-ms": 1260
 	},
 
-	"buzzer-pwm@0": {
+	"led-pwm-bl@0": {
 		"pwm-name": "pwm-v3s.0",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": true,
+		"pwm-percent-from": 6,
+		"pwm-percent-to": 100,
+		"default-brightness": 0
+	},
+
+	"buzzer-pwm@0": {
+		"pwm-name": "pwm-v3s.1",
 		"pwm-polarity": true
 	},
 
-	"vibrator-pwm@0": {
-		"pwm-name": "pwm-v3s.1",
-		"pwm-polarity": true
+	"fb-v3s@0x01e60000": {
+		"clock-name": "osc24m",
+		"width": 800,
+		"height": 480,
+		"dots-per-inch-x": 160,
+		"dots-per-inch-y": 160,
+		"bits-per-pixel": 32,
+		"bytes-per-pixel": 4,
+		"clock-frequency": 33000000,
+		"hfront-porch": 87,
+		"hback-porch": 40,
+		"hsync-len": 1,
+		"vfront-porch": 31,
+		"vback-porch": 13,
+		"vsync-len": 1,
+		"hsync-active": false,
+		"vsync-active": false,
+		"den-active": false,
+		"clk-active": false,
+		"backlight": "led-pwm-bl.0"
 	},
 
 	"console-uart@0": {

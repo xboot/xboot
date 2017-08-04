@@ -43,3 +43,9 @@ float kalman_update(struct kalman_filter_t * filter, float value)
 
 	return filter->h * filter->x;
 }
+
+void kalman_clear(struct kalman_filter_t * filter)
+{
+	if(filter)
+		filter->x = NAN;
+}

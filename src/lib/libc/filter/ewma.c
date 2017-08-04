@@ -32,3 +32,9 @@ float ewma_update(struct ewma_filter_t * filter, float value)
 		filter->last = filter->weight * value + (1 - filter->weight) * filter->last;
 	return filter->last;
 }
+
+void ewma_clear(struct ewma_filter_t * filter)
+{
+	if(filter)
+		filter->last = NAN;
+}

@@ -123,3 +123,12 @@ float median_update(struct median_filter_t * filter, float value)
 
 	return result;
 }
+
+void median_clear(struct median_filter_t * filter)
+{
+	if(filter)
+	{
+		filter->position = 0;
+		filter->count = 0;
+	}
+}

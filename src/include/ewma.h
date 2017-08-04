@@ -21,6 +21,7 @@ struct ewma_filter_t {
 struct ewma_filter_t * ewma_alloc(float weight);
 void ewma_free(struct ewma_filter_t * filter);
 float ewma_update(struct ewma_filter_t * filter, float value);
+void ewma_clear(struct ewma_filter_t * filter);
 
 #ifdef __cplusplus
 }

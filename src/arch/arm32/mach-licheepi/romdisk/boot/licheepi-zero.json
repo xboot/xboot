@@ -340,7 +340,7 @@
 		"slave-address": 72,
 		"median-filter-length": 5,
 		"mean-filter-length": 5,
-		"calibration": [1, 0, 0, 0, 1, 0, 1],
+		"calibration": [14052, 21, -2411064, -67, 8461, -1219628, 65536],
 		"poll-interval-ms": 10
 	},
 

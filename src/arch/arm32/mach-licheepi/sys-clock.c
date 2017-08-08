@@ -70,6 +70,9 @@ void sys_clock_init(void)
 {
 	clock_set_pll_cpu(1008000000);
 
+	/* pll video - 396MHZ */
+	write32(V3S_CCU_BASE + CCU_PLL_VIDEO_CTRL, 0x91004107);
+
 	/* pll periph0 - 600MHZ */
 	write32(V3S_CCU_BASE + CCU_PLL_PERIPH0_CTRL, 0x90041811);
 	while(!(read32(V3S_CCU_BASE + CCU_PLL_PERIPH0_CTRL) & (1 << 28)));

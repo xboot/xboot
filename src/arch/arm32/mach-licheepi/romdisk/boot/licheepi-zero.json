@@ -132,6 +132,32 @@
 	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
+	"clk-mux@0x01c20104": {
+		"parent": [
+			{ "name": "pll-video", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 }
+		],
+		"name": "mux-de", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video" }
+	},
+	"clk-divider@0x01c20104": { "parent": "mux-de", "name": "div-de", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 396000000 } },
+	"clk-gate@0x01c20104": {"parent": "div-de", "name": "gate-de", "shift": 31, "invert": false },
+	"clk-gate@0x01c20064": {"parent": "gate-de", "name": "gate-bus-de", "shift": 12, "invert": false },
+	"clk-link": { "parent": "gate-bus-de", "name": "link-de" },
+
+	"clk-mux@0x01c20118": {
+		"parent": [
+			{ "name": "pll-video", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 }
+		],
+		"name": "mux-tcon", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video" }
+	},
+	"clk-divider@0x01c20118": { "parent": "mux-tcon", "name": "div-tcon", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 396000000 } },
+	"clk-gate@0x01c20118": {"parent": "div-tcon", "name": "gate-tcon", "shift": 31, "invert": false },
+	"clk-gate@0x01c20064": {"parent": "gate-tcon", "name": "gate-bus-tcon", "shift": 4, "invert": false },
+	"clk-link": { "parent": "gate-bus-tcon", "name": "link-tcon" },
+
 	"reset-v3s@0x01c202c0": {
 		"reset-base": 0,
 		"reset-count": 32
@@ -358,20 +384,23 @@
 		"pwm-polarity": true
 	},
 
-	"fb-v3s@0x01e60000": {
-		"clock-name": "osc24m",
+	"fb-v3s@0x01000000": {
+		"clock-name-de": "link-de",
+		"clock-name-tcon": "link-tcon",
+		"reset-de": 44,
+		"reset-tcon": 36,
 		"width": 800,
 		"height": 480,
 		"dots-per-inch-x": 160,
 		"dots-per-inch-y": 160,
-		"bits-per-pixel": 32,
+		"bits-per-pixel": 18,
 		"bytes-per-pixel": 4,
 		"clock-frequency": 33000000,
-		"hfront-porch": 87,
-		"hback-porch": 40,
+		"hfront-porch": 40,
+		"hback-porch": 87,
 		"hsync-len": 1,
-		"vfront-porch": 31,
-		"vback-porch": 13,
+		"vfront-porch": 13,
+		"vback-porch": 31,
 		"vsync-len": 1,
 		"hsync-active": false,
 		"vsync-active": false,

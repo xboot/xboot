@@ -78,9 +78,9 @@ static int perform_calibration(struct tscal_t * cal)
 		zy += (float)(cal->xfb[j] * cal->y[j]);
 	}
 
-	cal->a[0] = (int)((a * z + b * zx + c * zy) * (scaling));
-	cal->a[1] = (int)((b * z + e * zx + f * zy) * (scaling));
-	cal->a[2] = (int)((c * z + f * zx + i * zy) * (scaling));
+	cal->a[0] = (int)((b * z + e * zx + f * zy) * (scaling));
+	cal->a[1] = (int)((c * z + f * zx + i * zy) * (scaling));
+	cal->a[2] = (int)((a * z + b * zx + c * zy) * (scaling));
 
 	z = zx = zy = 0;
 	for(j = 0; j < 5; j++)
@@ -90,9 +90,9 @@ static int perform_calibration(struct tscal_t * cal)
 		zy += (float)(cal->yfb[j] * cal->y[j]);
 	}
 
-	cal->a[3] = (int)((a * z + b * zx + c * zy) * (scaling));
-	cal->a[4] = (int)((b * z + e * zx + f * zy) * (scaling));
-	cal->a[5] = (int)((c * z + f * zx + i * zy) * (scaling));
+	cal->a[3] = (int)((b * z + e * zx + f * zy) * (scaling));
+	cal->a[4] = (int)((c * z + f * zx + i * zy) * (scaling));
+	cal->a[5] = (int)((a * z + b * zx + c * zy) * (scaling));
 
 	cal->a[6] = (int)scaling;
 	return 1;
@@ -212,15 +212,8 @@ static int do_tscal(int argc, char ** argv)
 				{
 					if(perform_calibration(&cal))
 					{
-						sprintf(buffer, "[%d, %d, %d, %d, %d, %d, %d]", cal.a[1], cal.a[2], cal.a[0], cal.a[4], cal.a[5], cal.a[3], cal.a[6]);
-						c[0] = cal.a[1];
-						c[1] = cal.a[2];
-						c[2] = cal.a[0];
-						c[3] = cal.a[4];
-						c[4] = cal.a[5];
-						c[5] = cal.a[3];
-						c[6] = cal.a[6];
-						input_ioctl(input, INPUT_IOCTL_TOUCHSCEEN_SET_CALIBRATION, c);
+						input_ioctl(input, INPUT_IOCTL_TOUCHSCEEN_SET_CALIBRATION, &cal.a[0]);
+						sprintf(buffer, "[%d, %d, %d, %d, %d, %d, %d]", cal.a[0], cal.a[1], cal.a[2], cal.a[3], cal.a[4], cal.a[5], cal.a[6]);
 					}
 					else
 					{

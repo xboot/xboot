@@ -53,14 +53,14 @@ struct fb_v3s_pdata_t
 
 	struct {
 		int pixel_clock_hz;
-		int	h_front_porch;
-		int	h_back_porch;
-		int	h_sync_len;
-		int	v_front_porch;
-		int	v_back_porch;
-		int	v_sync_len;
-		int	h_sync_active;
-		int	v_sync_active;
+		int h_front_porch;
+		int h_back_porch;
+		int h_sync_len;
+		int v_front_porch;
+		int v_back_porch;
+		int v_sync_len;
+		int h_sync_active;
+		int v_sync_active;
 		int den_active;
 		int clk_active;
 	} timing;
@@ -69,19 +69,19 @@ struct fb_v3s_pdata_t
 	int brightness;
 };
 
-static void inline v3s_fb_de_enable(struct fb_v3s_pdata_t * pdat)
+static void inline v3s_de_enable(struct fb_v3s_pdata_t * pdat)
 {
 	struct de_glb_t * glb = (struct de_glb_t *)(pdat->virtde + V3S_DE_MUX_GLB);
 	write32((virtual_addr_t)&glb->dbuff, 1);
 }
 
-static inline void v3s_fb_de_set_address(struct fb_v3s_pdata_t * pdat, void * vram)
+static inline void v3s_de_set_address(struct fb_v3s_pdata_t * pdat, void * vram)
 {
 	struct de_ui_t * ui = (struct de_ui_t *)(pdat->virtde + V3S_DE_MUX_CHAN + 0x1000 * 2);
 	write32((virtual_addr_t)&ui->cfg[0].top_laddr, (u32_t)vram);
 }
 
-static inline void v3s_fb_de_set_mode(struct fb_v3s_pdata_t * pdat)
+static inline void v3s_de_set_mode(struct fb_v3s_pdata_t * pdat)
 {
 	struct de_clk_t * clk = (struct de_clk_t *)(pdat->virtde);
 	struct de_glb_t * glb = (struct de_glb_t *)(pdat->virtde + V3S_DE_MUX_GLB);
@@ -154,7 +154,7 @@ static inline void v3s_fb_de_set_mode(struct fb_v3s_pdata_t * pdat)
 	write32((virtual_addr_t)&ui->ovl_size, size);
 }
 
-static inline void v3s_fb_tcon_enable(struct fb_v3s_pdata_t * pdat)
+static inline void v3s_tcon_enable(struct fb_v3s_pdata_t * pdat)
 {
 	struct v3s_tcon_reg_t * tcon = (struct v3s_tcon_reg_t *)pdat->virttcon;
 	u32_t val;
@@ -164,7 +164,7 @@ static inline void v3s_fb_tcon_enable(struct fb_v3s_pdata_t * pdat)
 	write32((virtual_addr_t)&tcon->ctrl, val);
 }
 
-static inline void v3s_fb_tcon_disable(struct fb_v3s_pdata_t * pdat)
+static inline void v3s_tcon_disable(struct fb_v3s_pdata_t * pdat)
 {
 	struct v3s_tcon_reg_t * tcon = (struct v3s_tcon_reg_t *)pdat->virttcon;
 	u32_t val;
@@ -180,7 +180,7 @@ static inline void v3s_fb_tcon_disable(struct fb_v3s_pdata_t * pdat)
 	write32((virtual_addr_t)&tcon->tcon1_io_tristate, 0xffffffff);
 }
 
-static inline void v3s_fb_tcon_set_mode(struct fb_v3s_pdata_t * pdat)
+static inline void v3s_tcon_set_mode(struct fb_v3s_pdata_t * pdat)
 {
 	struct v3s_tcon_reg_t * tcon = (struct v3s_tcon_reg_t *)pdat->virttcon;
 	int bp, total;
@@ -231,7 +231,7 @@ static inline void v3s_fb_tcon_set_mode(struct fb_v3s_pdata_t * pdat)
 	write32((virtual_addr_t)&tcon->tcon0_io_tristate, 0);
 }
 
-static inline void v3s_fb_cfg_gpios(int base, int n, int cfg, enum gpio_pull_t pull, enum gpio_drv_t drv)
+static inline void fb_v3s_cfg_gpios(int base, int n, int cfg, enum gpio_pull_t pull, enum gpio_drv_t drv)
 {
 	for(; n > 0; n--, base++)
 	{
@@ -241,16 +241,16 @@ static inline void v3s_fb_cfg_gpios(int base, int n, int cfg, enum gpio_pull_t p
 	}
 }
 
-static inline void v3s_fb_init(struct fb_v3s_pdata_t * pdat)
+static inline void fb_v3s_init(struct fb_v3s_pdata_t * pdat)
 {
-	v3s_fb_cfg_gpios(V3S_GPIOE0, 20, 0x3, GPIO_PULL_NONE, GPIO_DRV_STRONG);
-	v3s_fb_cfg_gpios(V3S_GPIOE23, 2, 0x3, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_v3s_cfg_gpios(V3S_GPIOE0, 20, 0x3, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_v3s_cfg_gpios(V3S_GPIOE23, 2, 0x3, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 
-	v3s_fb_tcon_disable(pdat);
-	v3s_fb_de_set_mode(pdat);
-	v3s_fb_de_enable(pdat);
-	v3s_fb_tcon_set_mode(pdat);
-	v3s_fb_tcon_enable(pdat);
+	v3s_tcon_disable(pdat);
+	v3s_de_set_mode(pdat);
+	v3s_de_enable(pdat);
+	v3s_tcon_set_mode(pdat);
+	v3s_tcon_enable(pdat);
 }
 
 static void fb_setbl(struct fb_t * fb, int brightness)
@@ -313,8 +313,8 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 		pdat->index = (pdat->index + 1) & 0x1;
 		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
 		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
-		v3s_fb_de_set_address(pdat, pdat->vram[pdat->index]);
-		v3s_fb_de_enable(pdat);
+		v3s_de_set_address(pdat, pdat->vram[pdat->index]);
+		v3s_de_enable(pdat);
 	}
 }
 
@@ -389,7 +389,7 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 		reset_deassert(pdat->rstde);
 	if(pdat->rsttcon >= 0)
 		reset_deassert(pdat->rsttcon);
-	v3s_fb_init(pdat);
+	fb_v3s_init(pdat);
 
 	if(!register_fb(&dev, fb))
 	{

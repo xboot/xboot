@@ -15,6 +15,10 @@ enum input_type_t {
 	INPUT_TYPE_JOYSTICK		= 5,
 };
 
+enum {
+	INPUT_IOCTL_TOUCHSCEEN_SET_CALIBRATION	= 0x00000001,
+};
+
 struct input_t
 {
 	/* The input name */
@@ -33,6 +37,7 @@ struct input_t
 struct input_t * search_input(const char * name);
 bool_t register_input(struct device_t ** device, struct input_t * input);
 bool_t unregister_input(struct input_t * input);
+int input_ioctl(struct input_t * input, int cmd, void * arg);
 
 #ifdef __cplusplus
 }

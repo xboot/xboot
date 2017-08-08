@@ -115,3 +115,10 @@ bool_t unregister_input(struct input_t * input)
 	free(dev);
 	return TRUE;
 }
+
+int input_ioctl(struct input_t * input, int cmd, void * arg)
+{
+	if(input && input->ioctl)
+		return input->ioctl(input, cmd, arg);
+	return -1;
+}

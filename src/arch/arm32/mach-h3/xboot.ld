@@ -22,8 +22,12 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-h3/start.o (.text)
-		.obj/arch/arm32/mach-h3/brom-copyself.o (.text)
-		.obj/arch/arm32/mach-h3/uartdebug.o (.text)
+		.obj/arch/arm32/lib/memcpy.o (.text)
+		.obj/arch/arm32/lib/memset.o (.text)
+		.obj/arch/arm32/mach-h3/sys-uart.o (.text)
+		.obj/arch/arm32/mach-h3/sys-clock.o (.text)
+		.obj/arch/arm32/mach-h3/sys-dram.o (.text)
+		.obj/arch/arm32/mach-h3/sys-copyself.o (.text)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

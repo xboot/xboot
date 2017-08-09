@@ -23,36 +23,36 @@
  */
 
 .macro save_regs
-	sub	sp, sp, #68
+	sub sp, sp, #68
 	stmia sp, {r0-r12}
-	ldr	r0, [sp, #72]
-	str	r0, [sp, #60]
-	ldr	r0, [sp, #76]
-	mov	r3, r0
-	orr	r0, r0, #0xc0
-	msr	cpsr_c, r0
-	mov	r1, sp
-	mov	r2, lr
+	ldr r0, [sp, #72]
+	str r0, [sp, #60]
+	ldr r0, [sp, #76]
+	mov r3, r0
+	orr r0, r0, #0xc0
+	msr cpsr_c, r0
+	mov r1, sp
+	mov r2, lr
 	cps #0x13
-	str	r1, [sp, #52]
-	str	r2, [sp, #56]
-	str	r3, [sp, #64]
+	str r1, [sp, #52]
+	str r2, [sp, #56]
+	str r3, [sp, #64]
 	mov r0, sp
 .endm
 
 .macro restore_regs
-	ldr	r1, [sp, #52]
-	ldr	r2, [sp, #56]
-	ldr	r0, [sp, #64]
-	orr	r0, r0, #0xc0
-	msr	cpsr_c, r0
-	mov	sp, r1
-	mov	lr, r2
+	ldr r1, [sp, #52]
+	ldr r2, [sp, #56]
+	ldr r0, [sp, #64]
+	orr r0, r0, #0xc0
+	msr cpsr_c, r0
+	mov sp, r1
+	mov lr, r2
 	cps #0x13
-	ldr	r0, [sp, #60]
-	str	r0, [sp, #72]
+	ldr r0, [sp, #60]
+	str r0, [sp, #72]
 	ldmia sp, {r0-r12}
-	add	sp, #68
+	add sp, #68
 .endm
 
 /*
@@ -69,8 +69,8 @@ _start:
 	.long 0, 0x8000
 	.byte 'S', 'P', 'L', 2
 	.long 0, 0
-	.long 0, 0, 0, 0, 0, 0, 0, 0
-	.long 0, 0, 0, 0, 0, 0, 0, 0
+	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x20 - dram size, 0x28 - boot type */
+	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x40 - boot params */
 
 _vector:
 	b reset
@@ -102,17 +102,17 @@ _fiq:
  */
 reset:
 	/* Save boot params to 0x00000040 */
-	ldr	r0, =0x00000040
-	str	sp, [r0, #0]
-	str	lr, [r0, #4]
-	mrs	lr, cpsr
-	str	lr, [r0, #8]
-	mrc	p15, 0, lr, c1, c0, 0
-	str	lr, [r0, #12]
-	mrc	p15, 0, lr, c12, c0, 0
-	str	lr, [r0, #16]
-	mrc	p15, 0, lr, c1, c0, 0
-	str	lr, [r0, #20]
+	ldr r0, =0x00000040
+	str sp, [r0, #0]
+	str lr, [r0, #4]
+	mrs lr, cpsr
+	str lr, [r0, #8]
+	mrc p15, 0, lr, c1, c0, 0
+	str lr, [r0, #12]
+	mrc p15, 0, lr, c12, c0, 0
+	str lr, [r0, #16]
+	mrc p15, 0, lr, c1, c0, 0
+	str lr, [r0, #20]
 
 	/* Enter svc mode cleanly and mask interrupts */
 	mrs r0, cpsr
@@ -155,12 +155,17 @@ reset:
 	ldr r1, =0x7f
 	str r1, [r0]
 
+	/* Initial system uart, clock and ddr */
+	bl sys_uart_init
+	bl sys_clock_init
+	bl sys_dram_init
+
 	/* Copyself to link address */
 	adr r0, _start
 	ldr r1, =_start
 	cmp r0, r1
 	beq 1f
-	bl brom_copyself
+	bl sys_copyself
 1:	nop
 
 	/* Initialize stacks */
@@ -192,14 +197,9 @@ reset:
 
 	/* Copy data section */
 	ldr r0, _data_start
-	ldr r3, _image_start
 	ldr r1, _data_shadow_start
-	sub r1, r1, r3
-	adr r3, _start
-	add r1, r1 ,r3
-	ldr r2, _data_shadow_start
-	ldr r3, _data_shadow_end
-	sub r2, r3, r2
+	ldr r2, _data_shadow_end
+	sub r2, r2, r1
 	bl memcpy
 
 	/* Clear bss section */
@@ -220,18 +220,18 @@ _main:
 
 	.global return_to_fel
 return_to_fel:
-	ldr	r0, =0x00000040
-	ldr	sp, [r0, #0]
-	ldr	lr, [r0, #4]
-	ldr	r1, [r0, #20]
-	mcr	p15, 0, r1, c1, c0, 0
-	ldr	r1, [r0, #16]
-	mcr	p15, 0, r1, c12, c0, 0
-	ldr	r1, [r0, #12]
-	mcr	p15, 0, r1, c1, c0, 0
-	ldr	r1, [r0, #8]
-	msr	cpsr, r1
-	bx	lr
+	ldr r0, =0x00000040
+	ldr sp, [r0, #0]
+	ldr lr, [r0, #4]
+	ldr r1, [r0, #20]
+	mcr p15, 0, r1, c1, c0, 0
+	ldr r1, [r0, #16]
+	mcr p15, 0, r1, c12, c0, 0
+	ldr r1, [r0, #12]
+	mcr p15, 0, r1, c1, c0, 0
+	ldr r1, [r0, #8]
+	msr cpsr, r1
+	bx lr
 
 /*
  * Exception handlers

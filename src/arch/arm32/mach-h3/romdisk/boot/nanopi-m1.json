@@ -13,9 +13,9 @@
 	"clk-h3-pll@7": { "parent": "osc24m", "name": "pll-periph1", "channel": 7 },
 	"clk-h3-pll@8": { "parent": "osc24m", "name": "pll-de", "channel": 8 },
 
-	"clk-fixed-factor@0": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
-	"clk-fixed-factor@1": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
-	"clk-fixed-factor@2": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor@0": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+	"clk-fixed-factor@1": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor@2": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
 
 	"clk-mux@0x01c20050": {
 		"parent": [
@@ -55,7 +55,7 @@
 		],
 		"name": "ahb2", "shift": 0, "width": 2
 	},
-	
+
 	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart0", "shift": 16, "invert": false },
 	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart1", "shift": 17, "invert": false },
 	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart2", "shift": 18, "invert": false },
@@ -102,7 +102,7 @@
 
 	"clk-gate@0x01c20060": {"parent": "ahb1", "name": "gate-bus-hstimer", "shift": 19, "invert": false },
 	"clk-link": { "parent": "gate-bus-hstimer", "name": "link-hstimer" },
-	
+
 	"clk-gate@0x01c20070": {"parent": "ahb2", "name": "gate-bus-ephy", "shift": 0, "invert": false },
 	"clk-gate@0x01c20060": {"parent": "gate-bus-ephy", "name": "gate-bus-emac", "shift": 17, "invert": false },
 	"clk-link": { "parent": "gate-bus-emac", "name": "link-emac" },
@@ -113,10 +113,11 @@
 			{ "name": "pll-periph0", "value": 1 },
 			{ "name": "pll-periph1", "value": 2 }
 		],
-		"name": "mux-spi0", "shift": 24, "width": 2
+		"name": "mux-spi0", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
 	},
 	"clk-ratio@0x01c200a0": { "parent": "mux-spi0", "name": "ratio-spi0", "shift": 16, "width": 2 },
-	"clk-divider@0x01c200a0": { "parent": "ratio-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-divider@0x01c200a0": { "parent": "ratio-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 100000000 } },
 	"clk-gate@0x01c200a0": {"parent": "div-spi0", "name": "gate-spi0", "shift": 31, "invert": false },
 	"clk-gate@0x01c20060": {"parent": "gate-spi0", "name": "gate-bus-spi0", "shift": 20, "invert": false },
 	"clk-link": { "parent": "gate-bus-spi0", "name": "link-spi0" },
@@ -127,10 +128,11 @@
 			{ "name": "pll-periph0", "value": 1 },
 			{ "name": "pll-periph1", "value": 2 }
 		],
-		"name": "mux-spi1", "shift": 24, "width": 2
+		"name": "mux-spi1", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
 	},
 	"clk-ratio@0x01c200a4": { "parent": "mux-spi1", "name": "ratio-spi1", "shift": 16, "width": 2 },
-	"clk-divider@0x01c200a4": { "parent": "ratio-spi1", "name": "div-spi1", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-divider@0x01c200a4": { "parent": "ratio-spi1", "name": "div-spi1", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 100000000 } },
 	"clk-gate@0x01c200a4": {"parent": "div-spi1", "name": "gate-spi1", "shift": 31, "invert": false },
 	"clk-gate@0x01c20060": {"parent": "gate-spi1", "name": "gate-bus-spi1", "shift": 21, "invert": false },
 	"clk-link": { "parent": "gate-bus-spi1", "name": "link-spi1" },
@@ -155,6 +157,7 @@
 	"clk-ratio@0x01c20c20": { "parent": "mux-timer1", "name": "ratio-timer1", "shift": 4, "width": 3 },
 	"clk-link": { "parent": "ratio-timer1", "name": "link-timer1" },
 
+	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
 	"irq-gic400@0x01c80000": {
@@ -213,7 +216,7 @@
 		"clock-name": "link-timer1"
 	},
 
-	"uart-8250@0x01c28000": {
+	"uart-16550@0x01c28000": {
 		"clock-name": "link-uart0",
 		"txd-gpio": 4,
 		"txd-gpio-config": 2,
@@ -224,8 +227,8 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
-	"uart-8250@0x01c28400": {
+
+	"uart-16550@0x01c28400": {
 		"clock-name": "link-uart1",
 		"txd-gpio": 198,
 		"txd-gpio-config": 2,
@@ -236,8 +239,8 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
-	"uart-8250@0x01c28800": {
+
+	"uart-16550@0x01c28800": {
 		"clock-name": "link-uart2",
 		"txd-gpio": 0,
 		"txd-gpio-config": 2,
@@ -248,8 +251,8 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
-	"uart-8250@0x01c28c00": {
+
+	"uart-16550@0x01c28c00": {
 		"clock-name": "link-uart3",
 		"txd-gpio": 13,
 		"txd-gpio-config": 3,
@@ -283,8 +286,8 @@
 		"led-name": "led-gpio.0",
 		"heartbeat-period-ms": 1260
 	},
-	
+
 	"console-uart@0": {
-		"uart-bus": "uart-8250.0"
+		"uart-bus": "uart-16550.0"
 	}
 }

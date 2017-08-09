@@ -1,18 +1,5 @@
 /*
- * brom-copyself.c
- *
- * This file used by start.s assembler code, and the linker script
- * must make sure this file is linked within the first 32kB. DO NOT
- * use any .bss segment and .data segment, Just use brom's small
- * stack. It's just a small c routline.
- *
- * NOTE:
- *     Please do not use 'switch, case' instead of 'if, else if',
- *     Because switch statement may be compiled as a jump table,
- *     Which belong to .data segment, If it has many cases.
- *
- *     To make sure this file is linked within the first 32KB, please
- *     look at the file of xboot.map.
+ * sys-copyself.c
  *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -37,41 +24,76 @@
 
 #include <xboot.h>
 
+extern unsigned char __image_start;
+extern unsigned char __image_end;
 extern void return_to_fel(void);
+extern void sys_uart_putc(char c);
 
 enum {
-	BOOT_DEVICE_FEL	= 0,
-	BOOT_DEVICE_MMC	= 1,
-	BOOT_DEVICE_SPI	= 2,
+	BOOT_DEVICE_FEL		= 0,
+	BOOT_DEVICE_MMC0	= 1,
+	BOOT_DEVICE_MMC2	= 2,
+	BOOT_DEVICE_SPI		= 3,
 };
 
 static int get_boot_device(void)
 {
 	u32_t * sig = (void *)0x4;
-	u32_t d = sig[9] & 0xff;
+	u32_t d = sig[9] & 0xf;
 
 	if((sig[0] == 0x4e4f4765) && (sig[1] == 0x3054422e))
 	{
 		if(d == 0)
-			return BOOT_DEVICE_MMC;
+			return BOOT_DEVICE_MMC0;
+		else if(d == 2)
+			return BOOT_DEVICE_MMC2;
 		else if(d == 3)
 			return BOOT_DEVICE_SPI;
 	}
 	return BOOT_DEVICE_FEL;
 }
 
-void brom_copyself(void)
+void sys_copyself(void)
 {
 	int d = get_boot_device();
+	void * mem;
+	u32_t size;
 
 	if(d == BOOT_DEVICE_FEL)
 	{
+		sys_uart_putc('B');
+		sys_uart_putc('o');
+		sys_uart_putc('o');
+		sys_uart_putc('t');
+		sys_uart_putc(' ');
+		sys_uart_putc('t');
+		sys_uart_putc('o');
+		sys_uart_putc(' ');
+		sys_uart_putc('F');
+		sys_uart_putc('E');
+		sys_uart_putc('L');
+		sys_uart_putc(' ');
+		sys_uart_putc('m');
+		sys_uart_putc('o');
+		sys_uart_putc('d');
+		sys_uart_putc('e');
+		sys_uart_putc('\r');
+		sys_uart_putc('\n');
 		return_to_fel();
 	}
-	else if(d == BOOT_DEVICE_MMC)
+	else if(d == BOOT_DEVICE_MMC0)
 	{
+		mem = (void *)&__image_start;
+		size = (&__image_end - &__image_start + 512) >> 9;
+	}
+	else if(d == BOOT_DEVICE_MMC2)
+	{
+		mem = (void *)&__image_start;
+		size = (&__image_end - &__image_start + 512) >> 9;
 	}
 	else if(d == BOOT_DEVICE_SPI)
 	{
+		mem = (void *)&__image_start;
+		size = &__image_end - &__image_start;
 	}
 }

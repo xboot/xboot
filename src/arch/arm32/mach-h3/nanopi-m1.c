@@ -106,7 +106,7 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 
 	for(i = 0; i < count; i++)
 	{
-		while((read32(virt + 0x7c) & (0x1 << 1)) == 0);
+		while((read32(virt + 0x14) & (0x1 << 6)) == 0);
 		write32(virt + 0x00, buf[i]);
 	}
 }

@@ -160,6 +160,31 @@
 	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
+	"reset-h3@0x01c202c0": {
+		"reset-base": 0,
+		"reset-count": 32
+	},
+
+	"reset-h3@0x01c202c4": {
+		"reset-base": 32,
+		"reset-count": 32
+	},
+
+	"reset-h3@0x01c202c8": {
+		"reset-base": 64,
+		"reset-count": 32
+	},
+
+	"reset-h3@0x01c202d0": {
+		"reset-base": 96,
+		"reset-count": 32
+	},
+
+	"reset-h3@0x01c202d8": {
+		"reset-base": 128,
+		"reset-count": 32
+	},
+
 	"irq-gic400@0x01c80000": {
 		"interrupt-base": 32,
 		"interrupt-count": 128
@@ -218,7 +243,7 @@
 
 	"uart-16550@0x01c28000": {
 		"clock-name": "link-uart0",
-		"reset": -1,
+		"reset": 144,
 		"txd-gpio": 4,
 		"txd-gpio-config": 2,
 		"rxd-gpio": 5,
@@ -231,7 +256,7 @@
 
 	"uart-16550@0x01c28400": {
 		"clock-name": "link-uart1",
-		"reset": -1,
+		"reset": 145,
 		"txd-gpio": 198,
 		"txd-gpio-config": 2,
 		"rxd-gpio": 199,
@@ -244,7 +269,7 @@
 
 	"uart-16550@0x01c28800": {
 		"clock-name": "link-uart2",
-		"reset": -1,
+		"reset": 146,
 		"txd-gpio": 0,
 		"txd-gpio-config": 2,
 		"rxd-gpio": 1,
@@ -257,7 +282,7 @@
 
 	"uart-16550@0x01c28c00": {
 		"clock-name": "link-uart3",
-		"reset": -1,
+		"reset": 147,
 		"txd-gpio": 13,
 		"txd-gpio-config": 3,
 		"rxd-gpio": 14,

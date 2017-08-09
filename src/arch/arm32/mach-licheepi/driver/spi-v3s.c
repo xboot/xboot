@@ -219,12 +219,7 @@ static struct device_t * spi_v3s_probe(struct driver_t * drv, struct dtnode_t * 
 
 	clk_enable(pdat->clk);
 	if(pdat->reset >= 0)
-	{
-		reset_assert(pdat->reset);
-		udelay(1);
 		reset_deassert(pdat->reset);
-		udelay(1);
-	}
 	if(pdat->sclk >= 0)
 	{
 		if(pdat->sclkcfg >= 0)

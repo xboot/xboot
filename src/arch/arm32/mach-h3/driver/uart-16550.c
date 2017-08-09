@@ -24,6 +24,7 @@
 
 #include <xboot.h>
 #include <clk/clk.h>
+#include <reset/reset.h>
 #include <gpio/gpio.h>
 #include <uart/uart.h>
 
@@ -77,6 +78,7 @@
 struct uart_16550_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
+	int reset;
 	int txd;
 	int txdcfg;
 	int rxd;
@@ -240,6 +242,7 @@ static struct device_t * uart_16550_probe(struct driver_t * drv, struct dtnode_t
 
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
+	pdat->reset = dt_read_int(n, "reset", -1);
 	pdat->txd = dt_read_int(n, "txd-gpio", -1);
 	pdat->txdcfg = dt_read_int(n, "txd-gpio-config", -1);
 	pdat->rxd = dt_read_int(n, "rxd-gpio", -1);
@@ -257,6 +260,8 @@ static struct device_t * uart_16550_probe(struct driver_t * drv, struct dtnode_t
 	uart->priv = pdat;
 
 	clk_enable(pdat->clk);
+	if(pdat->reset >= 0)
+		reset_deassert(pdat->reset);
 	if(pdat->txd >= 0)
 	{
 		if(pdat->txdcfg >= 0)

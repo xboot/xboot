@@ -23,7 +23,7 @@
  */
 
 .macro save_regs
-	sub	sp, sp, #68
+	sub sp, sp, #68
 	stmia sp, {r0-r12}
 	ldr r0, [sp, #72]
 	str r0, [sp, #60]

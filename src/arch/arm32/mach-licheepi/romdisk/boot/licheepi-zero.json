@@ -323,6 +323,14 @@
 		"speed": 50000000
 	},
 
+	"dac-8563@0": {
+		"spi-bus": "spi-v3s.0",
+		"chip-select": 0,
+		"mode": 0,
+		"speed": 50000000,
+		"reference-voltage": 5000000
+	},
+
 	"wdog-v3s@0x01c20ca0": {
 		"clock-name": "link-wdt"
 	},

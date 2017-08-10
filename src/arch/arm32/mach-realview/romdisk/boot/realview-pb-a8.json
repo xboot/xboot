@@ -216,10 +216,6 @@
 		"de-active":false,
 		"pixelclk-active":false
 	},
-	
-	"laserscan-fb@0": {
-		"fb-name": "fb-pl111.0"
-	},
 
 	"console-uart@0": {
 		"uart-bus": "uart-pl011.0"

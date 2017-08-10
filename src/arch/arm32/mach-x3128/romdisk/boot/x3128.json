@@ -415,13 +415,6 @@
 		}
 	},
 
-	"dac-dac8563@0": {
-		"spi-bus": "spi-rk3128.0",
-		"mode": 0,
-		"speed": 1000000,
-		"reference-voltage": 5000000
-	},
-
 	"rtc-rk816@0": {
 		"i2c-bus": "i2c-rk3128.0",
 		"slave-address": 26

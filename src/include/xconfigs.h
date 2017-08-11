@@ -24,6 +24,10 @@ extern "C" {
 #define CONFIG_MAX_BRIGHTNESS				(1023)
 #endif
 
+#if !defined(CONFIG_PROFILER_HASH_SIZE)
+#define CONFIG_PROFILER_HASH_SIZE			(257)
+#endif
+
 #if !defined(CONFIG_EVENT_FIFO_LENGTH)
 #define CONFIG_EVENT_FIFO_LENGTH			(8)
 #endif

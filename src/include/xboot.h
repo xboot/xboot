@@ -46,6 +46,7 @@ extern "C" {
 #include <xboot/ktime.h>
 #include <xboot/seqlock.h>
 #include <xboot/event.h>
+#include <xboot/profiler.h>
 #include <xboot/notifier.h>
 #include <xboot/initcall.h>
 #include <xboot/module.h>

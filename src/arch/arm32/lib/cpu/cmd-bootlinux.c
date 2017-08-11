@@ -22,8 +22,8 @@ static int do_bootlinux(int argc, char ** argv)
 		return -1;
 	}
 
-	kernel = (void (*)(void *, void *, void *, void *))strtoull(argv[1], NULL, 0);
-	dtb = (void *)strtoull(argv[2], NULL, 0);
+	kernel = (void (*)(void *, void *, void *, void *))strtoul(argv[1], NULL, 0);
+	dtb = (void *)strtoul(argv[2], NULL, 0);
 
 	/* Now, booting linux */
 	printf("Kernel address: 0x%08lx, dtb address: 0x%08lx\r\n", (uint32_t)kernel, (uint32_t)dtb);

@@ -226,6 +226,9 @@ INCDIRS		+=	external/chipmunk-6.2.1/include/chipmunk \
 SRCDIRS		+=	external/chipmunk-6.2.1/src \
 			 	external/chipmunk-6.2.1/src/constraints
 
+INCDIRS		+= 	external/benchmark
+SRCDIRS		+=	external/benchmark
+
 #
 # You shouldn't need to change anything below this point.
 #

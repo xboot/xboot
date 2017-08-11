@@ -346,13 +346,38 @@
 		]
 	},
 	
-	"ts-ns2009@0": {
-		"i2c-bus": "i2c-gpio.0",
-		"slave-address": 72,
-		"median-filter-length": 5,
-		"mean-filter-length": 5,
-		"calibration": [14052, 21, -2411064, -67, 8461, -1219628, 65536],
-		"poll-interval-ms": 10
+	"rc-gpio@0": {
+		"gpio": 197,
+		"gpio-config": 6,
+		"active-low": true,
+		"maps": [
+			{ "scan-code": 4259584, "key-code": 48 },
+			{ "scan-code": 4259585, "key-code": 49 },
+			{ "scan-code": 4259586, "key-code": 50 },
+			{ "scan-code": 4259587, "key-code": 51 },
+			{ "scan-code": 4259588, "key-code": 52 },
+			{ "scan-code": 4259589, "key-code": 53 },
+			{ "scan-code": 4259590, "key-code": 54 },
+			{ "scan-code": 4259591, "key-code": 55 },
+			{ "scan-code": 4259592, "key-code": 56 },
+			{ "scan-code": 4259593, "key-code": 57 },
+			{ "scan-code": 4259661, "key-code": 1 },
+			{ "scan-code": 4259595, "key-code": 2 },
+			{ "scan-code": 4259598, "key-code": 3 },
+			{ "scan-code": 4259600, "key-code": 4 },
+			{ "scan-code": 4259601, "key-code": 5 },
+			{ "scan-code": 4259612, "key-code": 6 },
+			{ "scan-code": 4259605, "key-code": 7 },
+			{ "scan-code": 4259650, "key-code": 8 },
+			{ "scan-code": 4259651, "key-code": 9 },
+			{ "scan-code": 4259602, "key-code": 10 },
+			{ "scan-code": 4259597, "key-code": 11 },
+			{ "scan-code": 4259610, "key-code": 20 },
+			{ "scan-code": 4259653, "key-code": 21 },
+			{ "scan-code": 4259664, "key-code": 22 },
+			{ "scan-code": 4259654, "key-code": 23 },
+			{ "scan-code": 4259700, "key-code": 24 }
+		]
 	},
 
 	"led-gpio@0": {
@@ -393,6 +418,16 @@
 	"buzzer-pwm@0": {
 		"pwm-name": "pwm-v3s.1",
 		"pwm-polarity": true
+	},
+
+	"laserscan-dac@0": {
+		"points-per-second": 30000,
+		"dac-name": "dac-8563.0",
+		"dac-channel-x": 0,
+		"dac-channel-y": 1,
+		"gpio": 196,
+		"gpio-config": 1,
+		"active-low": false
 	},
 
 	"fb-v3s@0x01000000": {

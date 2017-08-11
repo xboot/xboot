@@ -142,18 +142,22 @@ int spi_device_write_then_read(struct spi_device_t * dev, void * txbuf, int txle
 	msg.bits = dev->bits;
 	msg.speed = dev->speed;
 
-	msg.txbuf = txbuf;
-	msg.rxbuf = NULL;
-	msg.len = txlen;
-	if(dev->spi->transfer(dev->spi, &msg) != txlen)
-		return -1;
-
-	msg.txbuf = NULL;
-	msg.rxbuf = rxbuf;
-	msg.len = rxlen;
-	if(dev->spi->transfer(dev->spi, &msg) != rxlen)
-		return -1;
-
+	if(txlen > 0)
+	{
+		msg.txbuf = txbuf;
+		msg.rxbuf = NULL;
+		msg.len = txlen;
+		if(dev->spi->transfer(dev->spi, &msg) != txlen)
+			return -1;
+	}
+	if(rxlen > 0)
+	{
+		msg.txbuf = NULL;
+		msg.rxbuf = rxbuf;
+		msg.len = rxlen;
+		if(dev->spi->transfer(dev->spi, &msg) != rxlen)
+			return -1;
+	}
 	return 0;
 }
 

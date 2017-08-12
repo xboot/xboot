@@ -23,36 +23,36 @@
  */
 
 .macro save_regs
-	sub	sp, sp, #68
+	sub sp, sp, #68
 	stmia sp, {r0-r12}
-	ldr	r0, [sp, #72]
-	str	r0, [sp, #60]
-	ldr	r0, [sp, #76]
-	mov	r3, r0
-	orr	r0, r0, #0xc0
-	msr	cpsr_c, r0
-	mov	r1, sp
-	mov	r2, lr
+	ldr r0, [sp, #72]
+	str r0, [sp, #60]
+	ldr r0, [sp, #76]
+	mov r3, r0
+	orr r0, r0, #0xc0
+	msr cpsr_c, r0
+	mov r1, sp
+	mov r2, lr
 	cps #0x13
-	str	r1, [sp, #52]
-	str	r2, [sp, #56]
-	str	r3, [sp, #64]
+	str r1, [sp, #52]
+	str r2, [sp, #56]
+	str r3, [sp, #64]
 	mov r0, sp
 .endm
 
 .macro restore_regs
-	ldr	r1, [sp, #52]
-	ldr	r2, [sp, #56]
-	ldr	r0, [sp, #64]
-	orr	r0, r0, #0xc0
-	msr	cpsr_c, r0
-	mov	sp, r1
-	mov	lr, r2
+	ldr r1, [sp, #52]
+	ldr r2, [sp, #56]
+	ldr r0, [sp, #64]
+	orr r0, r0, #0xc0
+	msr cpsr_c, r0
+	mov sp, r1
+	mov lr, r2
 	cps #0x13
-	ldr	r0, [sp, #60]
-	str	r0, [sp, #72]
+	ldr r0, [sp, #60]
+	str r0, [sp, #72]
 	ldmia sp, {r0-r12}
-	add	sp, #68
+	add sp, #68
 .endm
 
 /*
@@ -118,6 +118,11 @@ reset:
 	bic r0, #(1<<13)
 	mcr p15, 0, r0, c1, c0, 0
 
+	/* Enable SMP mode for dcache, by setting bit 6 of auxiliary ctl reg */
+	mrc p15, 0, r0, c1, c0, 1
+	orr r0, r0, #(1 << 6)
+	mcr p15, 0, r0, c1, c0, 1
+
 	/* Enable neon/vfp unit */
 	mrc p15, 0, r0, c1, c0, 2
 	orr r0, r0, #(0xf << 20)
@@ -167,14 +172,9 @@ reset:
 
 	/* Copy data section */
 	ldr r0, _data_start
-	ldr r3, _image_start
 	ldr r1, _data_shadow_start
-	sub r1, r1, r3
-	adr r3, _start
-	add r1, r1 ,r3
-	ldr r2, _data_shadow_start
-	ldr r3, _data_shadow_end
-	sub r2, r3, r2
+	ldr r2, _data_shadow_end
+	sub r2, r2, r1
 	bl memcpy
 
 	/* Clear bss section */

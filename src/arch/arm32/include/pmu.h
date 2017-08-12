@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <types.h>
 #include <stdint.h>
 
 enum {

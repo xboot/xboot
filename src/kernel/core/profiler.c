@@ -28,21 +28,26 @@
 static struct hlist_head __profiler_hash[CONFIG_PROFILER_HASH_SIZE];
 static spinlock_t __profiler_lock = SPIN_LOCK_INIT();
 
-static void __profiler_start(int event, int data)
+static void __cpu_profiler_start(int event, int data)
 {
 }
-extern __typeof(__profiler_start) profiler_start __attribute__((weak, alias("__profiler_start")));
+extern __typeof(__cpu_profiler_start) cpu_profiler_start __attribute__((weak, alias("__cpu_profiler_start")));
 
-static void __profiler_stop(int event, int data)
+static void __cpu_profiler_stop(int event, int data)
 {
 }
-extern __typeof(__profiler_stop) profiler_stop __attribute__((weak, alias("__profiler_stop")));
+extern __typeof(__cpu_profiler_stop) cpu_profiler_stop __attribute__((weak, alias("__cpu_profiler_stop")));
 
-static uint64_t __profiler_read(int event, int data)
+static uint64_t __cpu_profiler_read(int event, int data)
 {
 	return 0;
 }
-extern __typeof(__profiler_read) profiler_read __attribute__((weak, alias("__profiler_read")));
+extern __typeof(__cpu_profiler_read) cpu_profiler_read __attribute__((weak, alias("__cpu_profiler_read")));
+
+static void __cpu_profiler_reset(void)
+{
+}
+extern __typeof(__cpu_profiler_reset) cpu_profiler_reset __attribute__((weak, alias("__cpu_profiler_reset")));
 
 static inline uint32_t string_hash(const char * s)
 {
@@ -86,7 +91,7 @@ void profiler_snap(const char * name, int event, int data)
 		}
 		else
 		{
-			p->end = profiler_read(p->event, p->data);
+			p->end = cpu_profiler_read(p->event, p->data);
 		}
 		p->count++;
 	}
@@ -107,8 +112,8 @@ void profiler_snap(const char * name, int event, int data)
 		}
 		else
 		{
-			profiler_start(p->event, p->data);
-			p->end = p->begin = profiler_read(p->event, p->data);
+			cpu_profiler_start(p->event, p->data);
+			p->end = p->begin = cpu_profiler_read(p->event, p->data);
 		}
 		p->count = 1;
 		spin_lock_irqsave(&__profiler_lock, flags);
@@ -154,12 +159,13 @@ void profiler_reset(void)
 			spin_lock_irqsave(&__profiler_lock, flags);
 			hlist_del(&p->node);
 			if(p->event != 0)
-				profiler_stop(p->event, p->data);
+				cpu_profiler_stop(p->event, p->data);
 			free(p->name);
 			free(p);
 			spin_unlock_irqrestore(&__profiler_lock, flags);
 		}
 	}
+	cpu_profiler_reset();
 }
 
 static __init void profiler_pure_init(void)
@@ -168,5 +174,6 @@ static __init void profiler_pure_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(__profiler_hash); i++)
 		init_hlist_head(&__profiler_hash[i]);
+	cpu_profiler_reset();
 }
 pure_initcall(profiler_pure_init);

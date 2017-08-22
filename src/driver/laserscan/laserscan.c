@@ -117,7 +117,6 @@ bool_t unregister_laserscan(struct laserscan_t * l)
 	return TRUE;
 }
 
-
 void laserscan_perspective(struct laserscan_t * l, float x, float y)
 {
 	if(l && l->perspective)
@@ -267,12 +266,6 @@ void laserscan_seekbar(struct laserscan_t * l, float x, float y, float w, float 
 		laserscan_line_to(l, x, ty1);
 		laserscan_line_to(l, x, y);
 	}
-}
-
-void laserscan_clear(struct laserscan_t * l)
-{
-	if(l && l->clear)
-		l->clear(l);
 }
 
 enum ilda_state_t {
@@ -682,7 +675,6 @@ static inline void ilda_push_byte(struct ilda_ctx_t * ctx, struct laserscan_t * 
 			ctx->state = ILDA_STATE_MAGIC;
 			ctx->index = 0;
 		}
-		laserscan_clear(l);
 		break;
 
 	case ILDA_STATE_RECORD:
@@ -702,10 +694,8 @@ static inline void ilda_push_byte(struct ilda_ctx_t * ctx, struct laserscan_t * 
 				point.a = (ctx->buf[6] && (1 << 6)) ? 0 : 0xff;
 
 				laserscan_set_color(l, point.r, point.g, point.b, point.a);
-				if(ctx->record++ == 0)
-					laserscan_move_to(l, point.x, point.y);
-				else
-					laserscan_line_to(l, point.x, point.y);
+				laserscan_move_to(l, point.x, point.y);
+				ctx->record++;
 				ctx->state = ILDA_STATE_RECORD;
 				ctx->index = 0;
 			}
@@ -724,10 +714,8 @@ static inline void ilda_push_byte(struct ilda_ctx_t * ctx, struct laserscan_t * 
 				point.a = (ctx->buf[4] && (1 << 6)) ? 0 : 0xff;
 
 				laserscan_set_color(l, point.r, point.g, point.b, point.a);
-				if(ctx->record++ == 0)
-					laserscan_move_to(l, point.x, point.y);
-				else
-					laserscan_line_to(l, point.x, point.y);
+				laserscan_move_to(l, point.x, point.y);
+				ctx->record++;
 				ctx->state = ILDA_STATE_RECORD;
 				ctx->index = 0;
 			}
@@ -750,10 +738,8 @@ static inline void ilda_push_byte(struct ilda_ctx_t * ctx, struct laserscan_t * 
 				point.a = (ctx->buf[6] && (1 << 6)) ? 0 : 0xff;
 
 				laserscan_set_color(l, point.r, point.g, point.b, point.a);
-				if(ctx->record++ == 0)
-					laserscan_move_to(l, point.x, point.y);
-				else
-					laserscan_line_to(l, point.x, point.y);
+				laserscan_move_to(l, point.x, point.y);
+				ctx->record++;
 				ctx->state = ILDA_STATE_RECORD;
 				ctx->index = 0;
 			}
@@ -771,10 +757,8 @@ static inline void ilda_push_byte(struct ilda_ctx_t * ctx, struct laserscan_t * 
 				point.a = (ctx->buf[4] && (1 << 6)) ? 0 : 0xff;
 
 				laserscan_set_color(l, point.r, point.g, point.b, point.a);
-				if(ctx->record++ == 0)
-					laserscan_move_to(l, point.x, point.y);
-				else
-					laserscan_line_to(l, point.x, point.y);
+				laserscan_move_to(l, point.x, point.y);
+				ctx->record++;
 				ctx->state = ILDA_STATE_RECORD;
 				ctx->index = 0;
 			}
@@ -801,7 +785,7 @@ static inline void ilda_push_byte(struct ilda_ctx_t * ctx, struct laserscan_t * 
 void laserscan_load_ilda(struct laserscan_t * l, const char * file)
 {
 	struct ilda_ctx_t ctx;
-	char buf[512];
+	char buf[4096];
 	int fd, n, i;
 
 	if(!l || !file)

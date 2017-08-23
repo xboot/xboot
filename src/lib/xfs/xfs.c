@@ -43,11 +43,12 @@ static char * normal_path(const char * path)
 	return buf;
 }
 
-bool_t xfs_mount(struct xfs_context_t * ctx, const char * path)
+bool_t xfs_mount(struct xfs_context_t * ctx, const char * path, int writable)
 {
 	struct xfs_path_t * pos, * n;
 	struct xfs_path_t * p;
 	irq_flags_t flags;
+	int w;
 
 	if(!ctx || !path)
 		return FALSE;
@@ -62,13 +63,14 @@ bool_t xfs_mount(struct xfs_context_t * ctx, const char * path)
 	if(!p)
 		return FALSE;
 
-	p->mhandle = mount_archiver(path, &p->archiver);
+	p->mhandle = mount_archiver(path, &p->archiver, &w);
 	if(!p->mhandle)
 	{
 		free(p);
 		return FALSE;
 	}
 	p->path = strdup(path);
+	p->writable = (writable && w) ? 1 : 0;
 
 	spin_lock_irqsave(&ctx->lock, flags);
 	init_list_head(&p->list);
@@ -120,25 +122,6 @@ void xfs_walk(struct xfs_context_t * ctx, const char * name, xfs_walk_callback_t
 	free(path);
 }
 
-bool_t xfs_exist(struct xfs_context_t * ctx, const char * name)
-{
-	struct xfs_path_t * pos, * n;
-	char * path;
-
-	path = normal_path(name);
-	if(!path)
-		return FALSE;
-
-	list_for_each_entry_safe_reverse(pos, n, &ctx->mounts.list, list)
-	{
-		if(pos->archiver->exist(pos->mhandle, path))
-			return TRUE;
-	}
-
-	free(path);
-	return FALSE;
-}
-
 bool_t xfs_isdir(struct xfs_context_t * ctx, const char * name)
 {
 	struct xfs_path_t * pos, * n;
@@ -153,19 +136,70 @@ bool_t xfs_isdir(struct xfs_context_t * ctx, const char * name)
 		if(pos->archiver->isdir(pos->mhandle, path))
 			return TRUE;
 	}
+	free(path);
+	return FALSE;
+}
 
+bool_t xfs_isfile(struct xfs_context_t * ctx, const char * name)
+{
+	struct xfs_path_t * pos, * n;
+	char * path;
+
+	path = normal_path(name);
+	if(!path)
+		return FALSE;
+
+	list_for_each_entry_safe_reverse(pos, n, &ctx->mounts.list, list)
+	{
+		if(pos->archiver->isfile(pos->mhandle, path))
+			return TRUE;
+	}
 	free(path);
 	return FALSE;
 }
 
 bool_t xfs_mkdir(struct xfs_context_t * ctx, const char * name)
 {
-	return FALSE;
+	struct xfs_path_t * pos, * n;
+	char * path;
+	int ret = FALSE;
+
+	path = normal_path(name);
+	if(!path)
+		return FALSE;
+
+	list_for_each_entry_safe_reverse(pos, n, &ctx->mounts.list, list)
+	{
+		if(pos->writable)
+		{
+			ret = pos->archiver->mkdir(pos->mhandle, path);
+			break;
+		}
+	}
+	free(path);
+	return ret;
 }
 
 bool_t xfs_remove(struct xfs_context_t * ctx, const char * name)
 {
-	return FALSE;
+	struct xfs_path_t * pos, * n;
+	char * path;
+	int ret = FALSE;
+
+	path = normal_path(name);
+	if(!path)
+		return FALSE;
+
+	list_for_each_entry_safe_reverse(pos, n, &ctx->mounts.list, list)
+	{
+		if(pos->writable)
+		{
+			ret = pos->archiver->remove(pos->mhandle, path);
+			break;
+		}
+	}
+	free(path);
+	return ret;
 }
 
 struct xfs_file_t * xfs_open_read(struct xfs_context_t * ctx, const char * name)
@@ -191,19 +225,68 @@ struct xfs_file_t * xfs_open_read(struct xfs_context_t * ctx, const char * name)
 			break;
 		}
 	}
-
 	free(path);
 	return file;
 }
 
 struct xfs_file_t * xfs_open_write(struct xfs_context_t * ctx, const char * name)
 {
-	return NULL;
+	struct xfs_path_t * pos, * n;
+	struct xfs_file_t * file = NULL;
+	char * path;
+	void * f;
+
+	path = normal_path(name);
+	if(!path)
+		return NULL;
+
+	list_for_each_entry_safe_reverse(pos, n, &ctx->mounts.list, list)
+	{
+		if(pos->writable)
+		{
+			f = pos->archiver->open(pos->mhandle, name, XFS_OPEN_MODE_WRITE);
+			if(f)
+			{
+				file = malloc(sizeof(struct xfs_file_t));
+				file->ctx = ctx;
+				file->path = pos;
+				file->fhandle = f;
+				break;
+			}
+		}
+	}
+	free(path);
+	return file;
 }
 
 struct xfs_file_t * xfs_open_append(struct xfs_context_t * ctx, const char * name)
 {
-	return NULL;
+	struct xfs_path_t * pos, * n;
+	struct xfs_file_t * file = NULL;
+	char * path;
+	void * f;
+
+	path = normal_path(name);
+	if(!path)
+		return NULL;
+
+	list_for_each_entry_safe_reverse(pos, n, &ctx->mounts.list, list)
+	{
+		if(pos->writable)
+		{
+			f = pos->archiver->open(pos->mhandle, name, XFS_OPEN_MODE_APPEND);
+			if(f)
+			{
+				file = malloc(sizeof(struct xfs_file_t));
+				file->ctx = ctx;
+				file->path = pos;
+				file->fhandle = f;
+				break;
+			}
+		}
+	}
+	free(path);
+	return file;
 }
 
 s64_t xfs_read(struct xfs_file_t * file, void * buf, s64_t size)
@@ -215,7 +298,7 @@ s64_t xfs_read(struct xfs_file_t * file, void * buf, s64_t size)
 
 s64_t xfs_write(struct xfs_file_t * file, void * buf, s64_t size)
 {
-	if(file)
+	if(file && file->path->writable)
 		return file->path->archiver->write(file->fhandle, buf, size);
 	return 0;
 }
@@ -243,7 +326,18 @@ void xfs_close(struct xfs_file_t * file)
 	}
 }
 
-struct xfs_context_t * __xfs_alloc(void)
+static void xfs_init(struct xfs_context_t * ctx, const char * path)
+{
+	char buf[MAX_PATH];
+
+	if(path && vfs_path_conv(path, buf) >= 0)
+	{
+		xfs_mount(ctx, "/framework", 0);
+		xfs_mount(ctx, buf, 0);
+	}
+}
+
+struct xfs_context_t * __xfs_alloc(const char * path)
 {
 	struct xfs_context_t * ctx;
 
@@ -254,40 +348,28 @@ struct xfs_context_t * __xfs_alloc(void)
 
 	init_list_head(&ctx->mounts.list);
 	spin_lock_init(&ctx->lock);
+	xfs_init(ctx, path);
+
 	return ctx;
 }
 
 void __xfs_free(struct xfs_context_t * ctx)
 {
-	struct xfs_context_t * pctx = (struct xfs_context_t *)ctx;
+	struct xfs_path_t * pos, * n;
+	irq_flags_t flags;
 
-	if(pctx)
+	if(!ctx)
+		return;
+
+	list_for_each_entry_safe(pos, n, &ctx->mounts.list, list)
 	{
-		free(pctx);
+		spin_lock_irqsave(&ctx->lock, flags);
+		list_del(&pos->list);
+		spin_unlock_irqrestore(&ctx->lock, flags);
+
+		pos->archiver->umount(pos->mhandle);
+		free(pos->path);
+		free(pos);
 	}
-}
-
-static char * __xfs_platform_absolute_path(const char * path)
-{
-	char buf[MAX_PATH];
-	char * ret;
-
-	if(vfs_path_conv(path, buf) == 0)
-		ret = strdup(buf);
-	else
-		ret = strdup("/");
-	return ret;
-}
-
-void __xfs_init(struct xfs_context_t * ctx, const char * path)
-{
-	char * p;
-
-	if(path)
-	{
-		p = __xfs_platform_absolute_path(path);
-		xfs_mount(ctx, "/romdisk/framework");
-		xfs_mount(ctx, p);
-		free(p);
-	}
+	free(ctx);
 }

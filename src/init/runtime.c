@@ -56,8 +56,7 @@ void runtime_create_save(struct runtime_t * rt, const char * path, struct runtim
 	rt->__stderr = __file_alloc(2);
 
 	rt->__event_base = __event_base_alloc();
-	rt->__xfs_ctx = __xfs_alloc();
-	xfs_init(path);
+	rt->__xfs_ctx = __xfs_alloc(path);
 }
 
 void runtime_destroy_restore(struct runtime_t * rt, struct runtime_t * r)

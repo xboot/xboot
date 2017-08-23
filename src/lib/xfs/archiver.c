@@ -59,7 +59,7 @@ static const char * fileext(const char * filename)
 	return ret;
 }
 
-void * mount_archiver(const char * path, struct xfs_archiver_t ** archiver)
+void * mount_archiver(const char * path, struct xfs_archiver_t ** archiver, int * writable)
 {
 	const char * ext = fileext(path);
 	struct xfs_archiver_t * pos, * n;
@@ -71,7 +71,7 @@ void * mount_archiver(const char * path, struct xfs_archiver_t ** archiver)
 		{
 			if(strcasecmp(pos->name, ext) == 0)
 			{
-				m = pos->mount(path);
+				m = pos->mount(path, writable);
 				if(m)
 				{
 					if(archiver)
@@ -84,7 +84,7 @@ void * mount_archiver(const char * path, struct xfs_archiver_t ** archiver)
 
 	list_for_each_entry_safe(pos, n, &__archiver_list, list)
 	{
-		m = pos->mount(path);
+		m = pos->mount(path, writable);
 		if(m)
 		{
 			if(archiver)

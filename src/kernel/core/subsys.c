@@ -41,16 +41,12 @@ static void subsys_init_romdisk(void)
 
 static void subsys_init_rootfs(void)
 {
-	mount(NULL, "/" , "ramfs", 0);
-
-	chdir("/");
-	mkdir("/sys", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-	mkdir("/romdisk", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-	mkdir("/userdata", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-	mkdir("/storage", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-
+	mount("romdisk.0", "/", "cpiofs", 0); chdir("/");
 	mount(NULL, "/sys", "sysfs", 0);
-	mount("romdisk.0", "/romdisk", "cpiofs", 0);
+	mount(NULL, "/storage" , "ramfs", 0);
+	mount(NULL, "/userdata" , "ramfs", 0);
+	mkdir("/userdata/application", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir("/userdata/cache", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 static void subsys_init_dt(void)
@@ -63,7 +59,7 @@ static void subsys_init_dt(void)
 	if(!json)
 		return;
 
-	sprintf(path, "/romdisk/boot/%s.json", get_machine()->name);
+	sprintf(path, "/boot/%s.json", get_machine()->name);
 	if((fd = open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH))) > 0)
 	{
 	    for(;;)

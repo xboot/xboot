@@ -39,7 +39,7 @@ void do_system_logo(void)
 	struct fb_t * fb;
 	int x, y;
 
-	logo = cairo_image_surface_create_from_png("/romdisk/framework/assets/images/logo.png");
+	logo = cairo_image_surface_create_from_png("/framework/assets/images/logo.png");
 
 	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_FB], node)
 	{

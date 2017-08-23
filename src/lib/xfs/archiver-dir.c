@@ -36,37 +36,19 @@ static char * concat(const char * str, ...)
 	return res;
 }
 
-static int is_file_exist(const char * path)
-{
-	if(!path)
-		return 0;
-//	if(access(path, F_OK) == 0)
-//		return 1;
-	return 1;
-}
-
-static int is_dir_exist(const char * path)
-{
-	void * d;
-
-	if(!path)
-		return 0;
-	if(!(d = opendir(path)))
-		return 0;
-	closedir(d);
-	return 1;
-}
-
-static void * dir_mount(const char * path)
+static void * dir_mount(const char * path, int * writable)
 {
 	struct mhandle_dir_t * m;
+	struct stat st;
 
-	if(!is_dir_exist(path))
+	if((stat(path, &st) != 0) || !S_ISDIR(st.st_mode))
 		return NULL;
 	m = malloc(sizeof(struct mhandle_dir_t));
 	if(!m)
 		return NULL;
 	m->path = strdup(path);
+	if(writable)
+		*writable = (access(path, W_OK) == 0) ? 1 : 0;
 	return m;
 }
 
@@ -84,12 +66,15 @@ static void dir_umount(void * m)
 static void dir_walk(void * m, const char * name, xfs_walk_callback_t cb, void * data)
 {
 	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
-	char * path = concat(mh->path, "/", name, NULL);
 	struct dirent_t * entry;
+	char * path = concat(mh->path, "/", name, NULL);
 	void * dir;
 
 	if((dir = opendir(path)) == NULL)
+	{
+		free(path);
 		return;
+	}
 	while((entry = readdir(dir)) != NULL)
 	{
 		if(strcmp(entry->d_name, ".") == 0)
@@ -102,72 +87,136 @@ static void dir_walk(void * m, const char * name, xfs_walk_callback_t cb, void *
 	free(path);
 }
 
-static bool_t dir_exist(void * m, const char * name)
-{
-	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
-	char * path = concat(mh->path, "/", name, NULL);
-	return is_file_exist(path);
-}
-
 static bool_t dir_isdir(void * m, const char * name)
 {
 	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	struct stat st;
 	char * path = concat(mh->path, "/", name, NULL);
-	return is_dir_exist(path);
+	bool_t ret = FALSE;
+
+	if((stat(path, &st) == 0) && S_ISDIR(st.st_mode))
+		ret = TRUE;
+	free(path);
+	return ret;
+}
+
+static bool_t dir_isfile(void * m, const char * name)
+{
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	struct stat st;
+	char * path = concat(mh->path, "/", name, NULL);
+	bool_t ret = FALSE;
+
+	if((stat(path, &st) == 0) && S_ISREG(st.st_mode))
+		ret = TRUE;
+	free(path);
+	return ret;
 }
 
 static bool_t dir_mkdir(void * m, const char * name)
 {
-	return FALSE;
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	char * path = concat(mh->path, "/", name, NULL);
+	bool_t ret = FALSE;
+
+	if(mkdir(path, (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) == 0)
+		ret = TRUE;
+	free(path);
+	return ret;
 }
 
 static bool_t dir_remove(void * m, const char * name)
 {
-	return FALSE;
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	struct stat st;
+	char * path = concat(mh->path, "/", name, NULL);
+	bool_t ret = FALSE;
+
+	if(stat(path, &st) == 0)
+	{
+		if(S_ISDIR(st.st_mode))
+			ret = (rmdir(path) == 0) ? TRUE : FALSE;
+		else if(S_ISREG(st.st_mode))
+			ret = (unlink(path) == 0) ? TRUE : FALSE;
+	}
+	free(path);
+	return ret;
 }
 
 static void * dir_open(void * m, const char * name, int mode)
 {
 	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	struct fhandle_dir_t * fh;
 	char * path = concat(mh->path, "/", name, NULL);
-	FILE * fh = NULL;
+	int fd, flags;
 
-	fh = fopen(path, "r");
+	switch(mode)
+	{
+	case XFS_OPEN_MODE_READ:
+		flags = O_RDONLY;
+		break;
+	case XFS_OPEN_MODE_WRITE:
+		flags = O_WRONLY | O_CREAT | O_TRUNC;
+		break;
+	case XFS_OPEN_MODE_APPEND:
+		flags = O_WRONLY | O_CREAT | O_APPEND;
+		break;
+	default:
+		flags = O_RDONLY;
+		break;
+	}
+	fd = open(path, flags, (S_IRUSR|S_IRGRP|S_IROTH));
+	if(fd < 0)
+	{
+		free(path);
+		return NULL;
+	}
+
+	fh = malloc(sizeof(struct fhandle_dir_t));
+	if(!fh)
+	{
+		close(fd);
+		free(path);
+		return NULL;
+	}
+	fh->fd = fd;
 	free(path);
 	return ((void *)fh);
 }
 
 static s64_t dir_read(void * f, void * buf, s64_t size)
 {
-	FILE * fh = (FILE *)f;
-	return fread(buf, size, 1, fh);
+	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
+	return read(fh->fd, buf, size);
 }
 
 static s64_t dir_write(void * f, void * buf, s64_t size)
 {
-	FILE * fh = (FILE *)f;
-	return fwrite(buf, size, 1, fh);
+	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
+	return write(fh->fd, buf, size);
 }
 
 static s64_t dir_seek(void * f, s64_t offset)
 {
-	FILE * fh = (FILE *)f;
-
-	fseek(fh, offset, SEEK_SET);
-	return ((s64_t)ftell(fh));
+	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
+	s64_t pos;
+	pos = lseek(fh->fd, offset, SEEK_SET);
+	return (pos >= 0) ? pos : 0;
 }
 
 static s64_t dir_length(void * f)
 {
+	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
+	struct stat st;
+	if(fstat(fh->fd, &st) == 0)
+		return st.st_size;
 	return 0;
 }
 
 static void dir_close(void * f)
 {
-	FILE * fh = (FILE *)f;
-
-	if(fh)
-		fclose(fh);
+	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
+	close(fh->fd);
 }
 
 struct xfs_archiver_t archiver_dir = {
@@ -175,8 +224,8 @@ struct xfs_archiver_t archiver_dir = {
 	.mount		= dir_mount,
 	.umount 	= dir_umount,
 	.walk		= dir_walk,
-	.exist		= dir_exist,
 	.isdir		= dir_isdir,
+	.isfile		= dir_isfile,
 	.mkdir		= dir_mkdir,
 	.remove		= dir_remove,
 	.open		= dir_open,

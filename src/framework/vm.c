@@ -102,7 +102,7 @@ static void luaopen_prelibs(lua_State * L)
 
 static int luaopen_boot(lua_State * L)
 {
-	if(luaL_loadfile(L, "/romdisk/framework/xboot/boot.lua") == LUA_OK)
+	if(luaL_loadfile(L, "/framework/xboot/boot.lua") == LUA_OK)
 		lua_call(L, 0, 1);
 	return 1;
 }
@@ -118,7 +118,7 @@ static const char * __reader(lua_State * L, void * data, size_t * size)
 	struct __reader_data_t * rd = (struct __reader_data_t *)data;
 	s64_t ret;
 
-	ret = xfs_read(rd->file, rd->buffer, 1, LUAL_BUFFERSIZE);
+	ret = xfs_read(rd->file, rd->buffer, LUAL_BUFFERSIZE);
 	if(ret < 0)
 	{
 		lua_error(L);
@@ -131,6 +131,7 @@ static const char * __reader(lua_State * L, void * data, size_t * size)
 
 static int __loadfile(lua_State * L)
 {
+	struct xfs_context_t * ctx = luahelper_runtime(L)->__xfs_ctx;
 	const char * filename = luaL_checkstring(L, 1);
 	struct __reader_data_t * rd;
 
@@ -138,7 +139,7 @@ static int __loadfile(lua_State * L)
 	if(!rd)
 		return lua_error(L);
 
-	rd->file = xfs_open_read(filename);
+	rd->file = xfs_open_read(ctx, filename);
 	if(!rd->file)
 	{
 		free(rd);
@@ -159,6 +160,7 @@ static int __loadfile(lua_State * L)
 
 static int l_search_package_lua(lua_State * L)
 {
+	struct xfs_context_t * ctx = luahelper_runtime(L)->__xfs_ctx;
 	const char * filename = lua_tostring(L, -1);
 	char * buf;
 	size_t len, i;
@@ -175,12 +177,12 @@ static int l_search_package_lua(lua_State * L)
 			buf[i] = '/';
 	}
 
-	if(xfs_is_directory(buf))
+	if(xfs_isdir(ctx, buf))
 		strcat(buf, "/init.lua");
 	else
 		strcat(buf, ".lua");
 
-	if(xfs_exists(buf))
+	if(xfs_isfile(ctx, buf))
 	{
 		lua_pop(L, 1);
 		lua_pushcfunction(L, __loadfile);
@@ -189,7 +191,7 @@ static int l_search_package_lua(lua_State * L)
 	}
 	else
 	{
-		lua_pushfstring(L, "\n\tno file '%s' in application directories", buf);
+		lua_pushfstring(L, "\r\n\tno file '%s' in application directories", buf);
 	}
 
 	free(buf);
@@ -257,6 +259,33 @@ static int pmain(lua_State * L)
 	return 1;
 }
 
+static void * l_alloc(void * ud, void * ptr, size_t osize, size_t nsize)
+{
+	if(nsize == 0)
+	{
+		free(ptr);
+		return NULL;
+	}
+	else
+	{
+		return realloc(ptr, nsize);
+	}
+}
+
+static int l_panic(lua_State *L)
+{
+	lua_writestringerror("PANIC: unprotected error in call to Lua API (%s)\r\n", lua_tostring(L, -1));
+	return 0;
+}
+
+static lua_State * l_newstate(void * ud)
+{
+	lua_State * L = lua_newstate(l_alloc, ud);
+	if(L)
+		lua_atpanic(L, &l_panic);
+	return L;
+}
+
 int vmexec(int argc, char ** argv)
 {
 	struct runtime_t rt, *r;
@@ -264,7 +293,7 @@ int vmexec(int argc, char ** argv)
 	int status = LUA_ERRRUN, result;
 
 	runtime_create_save(&rt, argv[0], &r);
-	L = luaL_newstate();
+	L = l_newstate(&rt);
 	if(L)
 	{
 		lua_pushcfunction(L, &pmain);

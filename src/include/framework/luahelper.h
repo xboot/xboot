@@ -7,8 +7,14 @@ extern "C" {
 
 #include <xboot.h>
 #include <lua.h>
+#include <lapi.h>
 #include <lauxlib.h>
 #include <lualib.h>
+
+static inline struct runtime_t * luahelper_runtime(lua_State * L)
+{
+	return (struct runtime_t *)(G(L)->ud);
+}
 
 void luahelper_dump_stack(lua_State * L);
 int luahelper_deepcopy_table(lua_State * L);

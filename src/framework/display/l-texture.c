@@ -30,25 +30,29 @@
 static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsigned int size)
 {
 	struct xfs_file_t * file = closure;
-	size_t ret;
+	size_t len = 0, n;
 
-    while(size)
-    {
-    	ret = xfs_read(file, data, 1, size);
-    	size -= ret;
-    	data += ret;
-    	if(size && xfs_eof(file))
-    		return _cairo_error(CAIRO_STATUS_READ_ERROR);
-    }
-    return CAIRO_STATUS_SUCCESS;
+	while(size > 0)
+	{
+		n = xfs_read(file, data, size);
+		if(n <= 0)
+			break;
+		size -= n;
+		len += n;
+		data += n;
+	}
+	if(len > 0)
+		return CAIRO_STATUS_SUCCESS;
+	return _cairo_error(CAIRO_STATUS_READ_ERROR);
 }
 
-static cairo_surface_t * cairo_image_surface_create_from_png_xfs(const char * filename)
+static cairo_surface_t * cairo_image_surface_create_from_png_xfs(lua_State * L, const char * filename)
 {
+	struct xfs_context_t * ctx = luahelper_runtime(L)->__xfs_ctx;
 	struct xfs_file_t * file;
 	cairo_surface_t * surface;
 
-	file = xfs_open_read(filename);
+	file = xfs_open_read(ctx, filename);
 	if(!file)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_FILE_NOT_FOUND));
 	surface = cairo_image_surface_create_from_png_stream(xfs_read_func, file);
@@ -60,7 +64,7 @@ static int l_texture_new(lua_State * L)
 {
 	const char * filename = luaL_checkstring(L, 1);
 	struct ltexture_t * texture = lua_newuserdata(L, sizeof(struct ltexture_t));
-	texture->surface = cairo_image_surface_create_from_png_xfs(filename);
+	texture->surface = cairo_image_surface_create_from_png_xfs(L, filename);
 	if(cairo_surface_status(texture->surface) != CAIRO_STATUS_SUCCESS)
 		return 0;
 	luaL_setmetatable(L, MT_TEXTURE);

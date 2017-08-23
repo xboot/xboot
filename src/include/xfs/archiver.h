@@ -20,11 +20,11 @@ struct xfs_archiver_t
 	char * name;
 	struct list_head list;
 
-	void * (*mount)(const char * path);
+	void * (*mount)(const char * path, int * writable);
 	void (*umount)(void * m);
 	void (*walk)(void * m, const char * name, xfs_walk_callback_t cb, void * data);
-	bool_t (*exist)(void * m, const char * name);
 	bool_t (*isdir)(void * m, const char * name);
+	bool_t (*isfile)(void * m, const char * name);
 	bool_t (*mkdir)(void * m, const char * name);
 	bool_t (*remove)(void * m, const char * name);
 	void * (*open)(void * m, const char * name, int mode);
@@ -37,7 +37,7 @@ struct xfs_archiver_t
 
 bool_t register_archiver(struct xfs_archiver_t * archiver);
 bool_t unregister_archiver(struct xfs_archiver_t * archiver);
-void * mount_archiver(const char * path, struct xfs_archiver_t ** archiver);
+void * mount_archiver(const char * path, struct xfs_archiver_t ** archiver, int * writable);
 
 #ifdef __cplusplus
 }

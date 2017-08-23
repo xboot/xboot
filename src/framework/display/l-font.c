@@ -51,7 +51,7 @@ static unsigned long ft_xfs_stream_io(FT_Stream stream, unsigned long offset, un
 	if(stream->pos != offset)
 		xfs_seek(file, offset);
 
-	return (unsigned long)xfs_read(file, buffer, 1, count);
+	return (unsigned long)xfs_read(file, buffer, count);
 }
 
 static void ft_xfs_stream_close(FT_Stream stream)
@@ -65,8 +65,9 @@ static void ft_xfs_stream_close(FT_Stream stream)
 	free(stream);
 }
 
-static FT_Stream FT_New_Xfs_Stream(const char * pathname)
+static FT_Stream FT_New_Xfs_Stream(lua_State * L, const char * pathname)
 {
+	struct xfs_context_t * ctx = luahelper_runtime(L)->__xfs_ctx;
 	FT_Stream stream = NULL;
 	struct xfs_file_t * file;
 
@@ -74,14 +75,14 @@ static FT_Stream FT_New_Xfs_Stream(const char * pathname)
 	if(!stream)
 		return NULL;
 
-	file = xfs_open_read(pathname);
+	file = xfs_open_read(ctx, pathname);
 	if(!file)
 	{
 		free(stream);
 		return NULL;
 	}
 
-	stream->size = xfs_filelength(file);
+	stream->size = xfs_length(file);
 	if(!stream->size)
 	{
 		xfs_close(file);
@@ -98,7 +99,7 @@ static FT_Stream FT_New_Xfs_Stream(const char * pathname)
     return stream;
 }
 
-static FT_Error FT_New_Xfs_Face(FT_Library library, const char * pathname, FT_Long face_index, FT_Face * aface)
+static FT_Error FT_New_Xfs_Face(lua_State * L, FT_Library library, const char * pathname, FT_Long face_index, FT_Face * aface)
 {
 	FT_Open_Args args;
 
@@ -107,7 +108,7 @@ static FT_Error FT_New_Xfs_Face(FT_Library library, const char * pathname, FT_Lo
 
 	args.flags = FT_OPEN_STREAM;
 	args.pathname = (char *)pathname;
-	args.stream = FT_New_Xfs_Stream(pathname);
+	args.stream = FT_New_Xfs_Stream(L, pathname);
 
 	return FT_Open_Face(library, &args, face_index, aface);
 }
@@ -118,7 +119,7 @@ static int l_font_new(lua_State * L)
 	struct lfont_t * font = lua_newuserdata(L, sizeof(struct lfont_t));
 	if(FT_Init_FreeType(&font->library))
 		return 0;
-	if(FT_New_Xfs_Face(font->library, family, 0, &font->fface))
+	if(FT_New_Xfs_Face(L, font->library, family, 0, &font->fface))
 	{
 		FT_Done_FreeType(font->library);
 		return 0;

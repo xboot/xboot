@@ -2,228 +2,200 @@
  * xfs/archiver-dir.c
  */
 
-#include <xfs/platform.h>
 #include <xfs/archiver.h>
 
-static s64_t direct_read(void * handle, void * buf, u32_t size, u32_t count)
-{
-	s64_t ret;
-	ret = __xfs_platform_read(handle, buf, size, count);
-	return ret;
-}
-
-static s64_t direct_write(void *handle, const void * buf, u32_t size, u32_t count)
-{
-	s64_t ret;
-	ret = __xfs_platform_write(handle, buf, size, count);
-	return ret;
-}
-
-static bool_t direct_eof(void * handle)
-{
-	return (__xfs_platform_eof(handle));
-}
-
-static s64_t direct_tell(void * handle)
-{
-	return (__xfs_platform_tell(handle));
-}
-
-static bool_t direct_seek(void * handle, u64_t pos)
-{
-	return (__xfs_platform_seek(handle, pos));
-}
-
-static s64_t direct_length(void * handle)
-{
-	return (__xfs_platform_filelength(handle));
-}
-
-static bool_t direct_file_close(void * handle)
-{
-	if(!__xfs_platform_flush(handle))
-		return FALSE;
-	if(!__xfs_platform_close(handle))
-		return FALSE;
-	return TRUE;
-}
-
-static bool_t direct_is_archive(const char * name, int forWriting)
-{
-	return (__xfs_platform_is_directory(name));
-}
-
-static void * direct_open_archive(const char * name, int forWriting)
-{
-	const char * dirsep = __xfs_platform_directory_separator();
-	char * ret = NULL;
-	size_t namelen = strlen(name);
-	size_t seplen = strlen(dirsep);
-
-	if(!direct_is_archive(name, forWriting))
-		return NULL;
-	ret = malloc(namelen + seplen + 1);
-	if(!ret)
-		return NULL;
-	strcpy(ret, name);
-	if (strcmp((name + namelen) - seplen, dirsep) != 0)
-		strcat(ret, dirsep);
-	return (ret);
-}
-
-static void direct_enumerate(void * handle, const char * dname, xfs_enumfiles_callback_t cb, const char * odir, void * cbdata)
-{
-	char * d = __xfs_platform_cvt_to_dependent((char *)handle, dname, NULL);
-
-	if(d != NULL)
-	{
-		__xfs_platform_enumerate(d, cb, odir, cbdata);
-		free(d);
-	}
-}
-
-static bool_t direct_exists(void * handle, const char * name)
-{
-	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
-	bool_t ret;
-
-	if(!f)
-		return FALSE;
-	ret = __xfs_platform_exists(f);
-	free(f);
-	return ret;
-}
-
-static bool_t direct_is_directory(void * handle, const char * name, int * fileExists)
-{
-	char * d = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
-	bool_t ret = FALSE;
-
-	if(!d)
-		return FALSE;
-	*fileExists = __xfs_platform_exists(d);
-	if (*fileExists)
-		ret = __xfs_platform_is_directory(d);
-	free(d);
-	return ret;
-}
-
-static bool_t direct_is_symlink(void * handle, const char * name, int * fileExists)
-{
-	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
-	bool_t ret = FALSE;
-
-	if(!f)
-		return FALSE;
-	*fileExists = __xfs_platform_exists(f);
-	if (*fileExists)
-		ret = __xfs_platform_is_link(f);
-	free(f);
-	return ret;
-}
-
-static s64_t direct_get_last_modtime(void * handle, const char * name, int * fileExists)
-{
-	char * d = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
-	s64_t ret = -1;
-
-	if(!d)
-		return ret;
-	*fileExists = __xfs_platform_exists(d);
-	if (*fileExists)
-		ret = __xfs_platform_get_last_modtime(d);
-	free(d);
-	return ret;
-}
-
-static void * direct_open(void * handle, const char * name, void *(*func)(const char * name), int * fileExists)
-{
-	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
-	void * rc = NULL;
-
-	if(!f)
-		return NULL;
-
-	if (fileExists != NULL )
-	{
-		*fileExists = __xfs_platform_exists(f);
-		if (!(*fileExists))
-		{
-			free(f);
-			return (NULL );
-		}
-	}
-	rc = func(f);
-	free(f);
-	return ((void *) rc);
-}
-
-static void * direct_open_read(void * handle, const char * name, int * fileExists)
-{
-	return (direct_open(handle, name, __xfs_platform_open_read, fileExists));
-}
-
-static void * direct_open_write(void * handle, const char * name)
-{
-	return (direct_open(handle, name, __xfs_platform_open_write, NULL));
-}
-
-static void * direct_open_append(void * handle, const char * name)
-{
-	return (direct_open(handle, name, __xfs_platform_open_append, NULL));
-}
-
-static bool_t direct_remove(void * handle, const char * name)
-{
-	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
-	bool_t ret;
-
-	if(!f)
-		return FALSE;
-	ret = __xfs_platform_delete(f);
-	free(f);
-	return ret;
-}
-
-static bool_t direct_mkdir(void * handle, const char * name)
-{
-	char * f = __xfs_platform_cvt_to_dependent((char *)handle, name, NULL);
-	bool_t ret;
-
-	if(!f)
-		return FALSE;
-	ret = __xfs_platform_mkdir(f);
-	free(f);
-	return ret;
-}
-
-static void direct_close_archive(void * handle)
-{
-	free(handle);
-}
-
-struct xfs_archiver_t __xfs_archiver_direct = {
-	.extension			= "",
-	.description		= "Non-archive, direct I/O",
-
-	.is_archive			= direct_is_archive,
-	.open_archive		= direct_open_archive,
-	.enumerate			= direct_enumerate,
-	.exists				= direct_exists,
-	.is_directory		= direct_is_directory,
-	.is_symlink			= direct_is_symlink,
-	.get_last_modtime	= direct_get_last_modtime,
-	.open_read			= direct_open_read,
-	.open_write			= direct_open_write,
-	.open_append		= direct_open_append,
-	.remove				= direct_remove,
-	.mkdir				= direct_mkdir,
-	.close_archive		= direct_close_archive,
-	.read				= direct_read,
-	.write				= direct_write,
-	.eof				= direct_eof,
-	.tell				= direct_tell,
-	.seek				= direct_seek,
-	.length				= direct_length,
-	.file_close			= direct_file_close,
+struct mhandle_dir_t {
+	char * path;
 };
+
+struct fhandle_dir_t {
+	int fd;
+};
+
+static char * concat(const char * str, ...)
+{
+	va_list args;
+	const char *s;
+	int len = strlen(str);
+	va_start(args, str);
+	while((s = va_arg(args, char *)))
+	{
+		len += strlen(s);
+	}
+	va_end(args);
+	char * res = malloc(len + 1);
+	if(!res)
+		return NULL;
+	strcpy(res, str);
+	va_start(args, str);
+	while((s = va_arg(args, char *)))
+	{
+		strcat(res, s);
+	}
+	va_end(args);
+	return res;
+}
+
+static int is_file_exist(const char * path)
+{
+	if(!path)
+		return 0;
+//	if(access(path, F_OK) == 0)
+//		return 1;
+	return 1;
+}
+
+static int is_dir_exist(const char * path)
+{
+	void * d;
+
+	if(!path)
+		return 0;
+	if(!(d = opendir(path)))
+		return 0;
+	closedir(d);
+	return 1;
+}
+
+static void * dir_mount(const char * path)
+{
+	struct mhandle_dir_t * m;
+
+	if(!is_dir_exist(path))
+		return NULL;
+	m = malloc(sizeof(struct mhandle_dir_t));
+	if(!m)
+		return NULL;
+	m->path = strdup(path);
+	return m;
+}
+
+static void dir_umount(void * m)
+{
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+
+	if(mh)
+	{
+		free(mh->path);
+		free(mh);
+	}
+}
+
+static void dir_walk(void * m, const char * name, xfs_walk_callback_t cb, void * data)
+{
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	char * path = concat(mh->path, "/", name, NULL);
+	struct dirent_t * entry;
+	void * dir;
+
+	if((dir = opendir(path)) == NULL)
+		return;
+	while((entry = readdir(dir)) != NULL)
+	{
+		if(strcmp(entry->d_name, ".") == 0)
+			continue;
+		else if(strcmp(entry->d_name, "..") == 0)
+			continue;
+		cb(name, entry->d_name, data);
+	}
+	closedir(dir);
+	free(path);
+}
+
+static bool_t dir_exist(void * m, const char * name)
+{
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	char * path = concat(mh->path, "/", name, NULL);
+	return is_file_exist(path);
+}
+
+static bool_t dir_isdir(void * m, const char * name)
+{
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	char * path = concat(mh->path, "/", name, NULL);
+	return is_dir_exist(path);
+}
+
+static bool_t dir_mkdir(void * m, const char * name)
+{
+	return FALSE;
+}
+
+static bool_t dir_remove(void * m, const char * name)
+{
+	return FALSE;
+}
+
+static void * dir_open(void * m, const char * name, int mode)
+{
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	char * path = concat(mh->path, "/", name, NULL);
+	FILE * fh = NULL;
+
+	fh = fopen(path, "r");
+	free(path);
+	return ((void *)fh);
+}
+
+static s64_t dir_read(void * f, void * buf, s64_t size)
+{
+	FILE * fh = (FILE *)f;
+	return fread(buf, size, 1, fh);
+}
+
+static s64_t dir_write(void * f, void * buf, s64_t size)
+{
+	FILE * fh = (FILE *)f;
+	return fwrite(buf, size, 1, fh);
+}
+
+static s64_t dir_seek(void * f, s64_t offset)
+{
+	FILE * fh = (FILE *)f;
+
+	fseek(fh, offset, SEEK_SET);
+	return ((s64_t)ftell(fh));
+}
+
+static s64_t dir_length(void * f)
+{
+	return 0;
+}
+
+static void dir_close(void * f)
+{
+	FILE * fh = (FILE *)f;
+
+	if(fh)
+		fclose(fh);
+}
+
+struct xfs_archiver_t archiver_dir = {
+	.name		= "",
+	.mount		= dir_mount,
+	.umount 	= dir_umount,
+	.walk		= dir_walk,
+	.exist		= dir_exist,
+	.isdir		= dir_isdir,
+	.mkdir		= dir_mkdir,
+	.remove		= dir_remove,
+	.open		= dir_open,
+	.read		= dir_read,
+	.write		= dir_write,
+	.seek		= dir_seek,
+	.length		= dir_length,
+	.close		= dir_close,
+};
+
+static __init void archiver_dir_init(void)
+{
+	register_archiver(&archiver_dir);
+}
+
+static __exit void archiver_dir_exit(void)
+{
+	unregister_archiver(&archiver_dir);
+}
+
+core_initcall(archiver_dir_init);
+core_exitcall(archiver_dir_exit);

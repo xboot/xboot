@@ -5,38 +5,39 @@
 extern "C" {
 #endif
 
-#include <xfs/xfs.h>
+#include <xboot.h>
+
+typedef void (*xfs_walk_callback_t)(const char * dir, const char * name, void * data);
+
+enum {
+	XFS_OPEN_MODE_READ		= 0,
+	XFS_OPEN_MODE_WRITE		= 1,
+	XFS_OPEN_MODE_APPEND	= 2,
+};
 
 struct xfs_archiver_t
 {
-	const char * extension;
-	const char * description;
+	char * name;
+	struct list_head list;
 
-	bool_t (*is_archive)(const char * name, int forWriting);
-	void * (*open_archive)(const char * name, int forWriting);
-	void (*enumerate)(void * handle, const char * dname, xfs_enumfiles_callback_t cb, const char * odir, void * cbdata);
-	bool_t (*exists)(void * handle, const char * name);
-	bool_t (*is_directory)(void * handle, const char * name, int * fileExists);
-	bool_t (*is_symlink)(void * handle, const char * name, int * fileExists);
-	s64_t (*get_last_modtime)(void * handle, const char * name, int * fileExists);
-	void * (*open_read)(void * handle, const char * name, int * fileExists);
-	void * (*open_write)(void * handle, const char * name);
-	void * (*open_append)(void * handle, const char * name);
-	bool_t (*remove)(void * handle, const char * name);
-	bool_t (*mkdir)(void * handle, const char * name);
-	void (*close_archive)(void * handle);
-
-    s64_t (*read)(void * handle, void * buf, u32_t size, u32_t count);
-    s64_t (*write)(void * handle, const void * buf, u32_t size, u32_t count);
-    bool_t (*eof)(void * handle);
-    s64_t (*tell)(void * handle);
-    bool_t (*seek)(void * handle, u64_t pos);
-    s64_t (*length)(void * handle);
-    bool_t (*file_close)(void * handle);
+	void * (*mount)(const char * path);
+	void (*umount)(void * m);
+	void (*walk)(void * m, const char * name, xfs_walk_callback_t cb, void * data);
+	bool_t (*exist)(void * m, const char * name);
+	bool_t (*isdir)(void * m, const char * name);
+	bool_t (*mkdir)(void * m, const char * name);
+	bool_t (*remove)(void * m, const char * name);
+	void * (*open)(void * m, const char * name, int mode);
+	s64_t (*read)(void * f, void * buf, s64_t size);
+	s64_t (*write)(void * f, void * buf, s64_t size);
+	s64_t (*seek)(void * f, s64_t offset);
+	s64_t (*length)(void * f);
+	void (*close)(void * f);
 };
 
-extern struct xfs_archiver_t __xfs_archiver_direct;
-extern struct xfs_archiver_t __xfs_archiver_zip;
+bool_t register_archiver(struct xfs_archiver_t * archiver);
+bool_t unregister_archiver(struct xfs_archiver_t * archiver);
+void * mount_archiver(const char * path, struct xfs_archiver_t ** archiver);
 
 #ifdef __cplusplus
 }

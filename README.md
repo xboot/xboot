@@ -70,6 +70,9 @@ make CROSS_COMPILE="" PLATFORM=x64-sandbox
 ## 运行
 各种平台运行方式不太一样，具体查看板级支持包里面的相关说明文件，Realview平台直接执行tools目录下的相关执行脚本，linux系统下的sandbox平台，直接双击生成的目标文件即可。
 
+## 讨论组
+XBOOT官方QQ群：658250248 (2000人)
+
 --------------------
 [xboot-homepage]:http://xboot.github.io "xboot's homepage"
 [xboot-logo]:https://raw.githubusercontent.com/xboot/xboot/master/documents/logo/xboot-logo.png "xboot's logo"

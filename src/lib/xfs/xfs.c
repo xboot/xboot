@@ -2,6 +2,7 @@
  * xfs/xfs.c
  */
 
+#include <sha1.h>
 #include <xfs/xfs.h>
 
 static char * normal_path(const char * path)
@@ -326,30 +327,32 @@ void xfs_close(struct xfs_file_t * file)
 	}
 }
 
-static void xfs_init(struct xfs_context_t * ctx, const char * path)
-{
-	char buf[MAX_PATH];
-
-	if(path && vfs_path_conv(path, buf) >= 0)
-	{
-		xfs_mount(ctx, "/framework", 0);
-		xfs_mount(ctx, buf, 0);
-	}
-}
-
 struct xfs_context_t * __xfs_alloc(const char * path)
 {
 	struct xfs_context_t * ctx;
+	struct stat st;
+	char fpath[MAX_PATH];
+	char cache[256];
+	uint8_t digest[20];
 
 	ctx = malloc(sizeof(struct xfs_context_t));
 	if(!ctx)
 		return NULL;
 	memset(ctx, 0, sizeof(struct xfs_context_t));
-
 	init_list_head(&ctx->mounts.list);
 	spin_lock_init(&ctx->lock);
-	xfs_init(ctx, path);
 
+	if(path && vfs_path_conv(path, fpath) >= 0)
+	{
+		xfs_mount(ctx, "/framework", 0);
+		xfs_mount(ctx, fpath, 0);
+		sha1_hash(fpath, strlen(fpath), digest);
+		sprintf(cache, "/userdata/cache/%s-%02x%02x%02x%02x%02x%02x%02x%02x", basename(fpath),
+			digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7]);
+		if(stat(cache, &st) != 0)
+			mkdir(cache, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		xfs_mount(ctx, cache, 1);
+	}
 	return ctx;
 }
 

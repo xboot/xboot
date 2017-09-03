@@ -1,14 +1,14 @@
 local M = Class(DisplayObject)
 
 function M:init(fb)
-  self.timermanager = TimerManager.new()
+	self.timermanager = TimerManager.new()
 	self.display = Display.new(fb)
-  self.exiting = false
-  if not self.display then
-    self.super:init()
-  else
-    self.super:init(self.display:getSize())
-  end
+	self.exiting = false
+	if not self.display then
+		self.super:init()
+	else
+		self.super:init(self.display:getSize())
+	end
 end
 
 function M:getTimerManager()
@@ -26,7 +26,7 @@ function M:exit()
 end
 
 function M:loop()
-  local Event = Event
+	local Event = Event
 	local display = self.display
 	local timermanager = self.timermanager
 	local stopwatch = Stopwatch.new()
@@ -36,8 +36,12 @@ function M:loop()
 		display:present()
 	end))
 
+	self:addEventListener(Event.KEY_DOWN, function(d, e)
+		if e.key == 10 then self:exit() end
+	end)
+
 	while not self.exiting do
-    local e = Event.pump()
+		local e = Event.pump()
 		if e ~= nil then
 			self:dispatch(e)
 		end

@@ -15,7 +15,7 @@ enum {
 	KEY_VOLUME_DOWN				= 7,
 	KEY_VOLUME_MUTE				= 8,
 	KEY_TAB						= 9,
-	KEY_ESC						= 10,
+	KEY_EXIT					= 10,
 	KEY_ENTER					= 11,
 
 	KEY_L_CTRL					= 12,

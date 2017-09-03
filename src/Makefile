@@ -86,6 +86,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				lib/libc/filter								\
 				lib/libc/locale								\
 				lib/libc/malloc								\
+				lib/libc/path								\
 				lib/libc/stdio								\
 				lib/libc/stdlib								\
 				lib/libc/string								\

@@ -94,7 +94,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				lib/libm/$(ARCH)							\
 				lib/libm									\
 				lib/libx									\
-				lib/xfs										\
 				init										\
 				kernel										\
 				kernel/core									\
@@ -109,6 +108,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/tarfs								\
 				kernel/fs/cpiofs							\
 				kernel/fs/fatfs								\
+				kernel/xfs									\
 				driver/adc									\
 				driver/audio								\
 				driver/battery								\

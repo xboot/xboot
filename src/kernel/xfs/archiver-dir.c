@@ -239,7 +239,7 @@ static void dir_close(void * f)
 	close(fh->fd);
 }
 
-struct xfs_archiver_t archiver_dir = {
+static struct xfs_archiver_t archiver_dir = {
 	.name		= "",
 	.mount		= dir_mount,
 	.umount 	= dir_umount,

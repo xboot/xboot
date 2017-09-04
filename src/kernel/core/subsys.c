@@ -44,9 +44,9 @@ static void subsys_init_rootfs(void)
 	mount("romdisk.0", "/", "cpiofs", 0); chdir("/");
 	mount(NULL, "/sys", "sysfs", 0);
 	mount(NULL, "/storage" , "ramfs", 0);
-	mount(NULL, "/userdata" , "ramfs", 0);
-	mkdir("/userdata/application", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-	mkdir("/userdata/cache", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mount(NULL, "/private" , "ramfs", 0);
+	mkdir("/private/application", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir("/private/userdata", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 static void subsys_init_dt(void)

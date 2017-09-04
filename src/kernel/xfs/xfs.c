@@ -352,7 +352,7 @@ struct xfs_context_t * __xfs_alloc(const char * path)
 	struct xfs_context_t * ctx;
 	struct stat st;
 	char fpath[MAX_PATH];
-	char cache[256];
+	char userdata[256];
 	uint8_t digest[20];
 
 	ctx = malloc(sizeof(struct xfs_context_t));
@@ -367,11 +367,11 @@ struct xfs_context_t * __xfs_alloc(const char * path)
 		xfs_mount(ctx, "/framework", 0);
 		xfs_mount(ctx, fpath, 0);
 		sha1_hash(fpath, strlen(fpath), digest);
-		sprintf(cache, "/userdata/cache/%s-%02x%02x%02x%02x%02x%02x%02x%02x", basename(fpath),
+		sprintf(userdata, "/private/userdata/%s-%02x%02x%02x%02x%02x%02x%02x%02x", basename(fpath),
 			digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7]);
-		if(stat(cache, &st) != 0)
-			mkdir(cache, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		xfs_mount(ctx, cache, 1);
+		if(stat(userdata, &st) != 0)
+			mkdir(userdata, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		xfs_mount(ctx, userdata, 1);
 	}
 	return ctx;
 }

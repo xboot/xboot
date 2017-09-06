@@ -14,7 +14,7 @@ void sandbox_init(int argc, char * argv[])
 {
 	gfxInitDefault();
 	consoleInit(GFX_TOP, NULL);
-	printf("XBOOT 3DS O3 test World!");
+	printf("Xboot Runtime Environment For Nintendo 3DS");
 
 	while (aptMainLoop())
 	{

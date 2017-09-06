@@ -160,9 +160,9 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 
 DEFINES		+=	-D__ARM_ARCH__=6 -D__SANDBOX__
 
-ASFLAGS		:= -g -ggdb -Wall -O2
-CFLAGS		:= -g -ggdb -Wall -O2
-CXXFLAGS	:= -g -ggdb -Wall -O2 -fno-rtti -fno-exceptions
+ASFLAGS		:= -g -ggdb -Wall -O3
+CFLAGS		:= -g -ggdb -Wall -O3
+CXXFLAGS	:= -g -ggdb -Wall -O3 -fno-rtti -fno-exceptions
 MCFLAGS		:= -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -mword-relocations -fomit-frame-pointer -ffunction-sections
 LDFLAGS		:= -specs=arch/$(ARCH)/$(MACH)/xboot.specs $(MCFLAGS)
 

@@ -59,7 +59,7 @@ void do_init_dma_pool(void)
 	extern unsigned char __dma_end;
 	__dma_pool = mm_create((void *)&__dma_start, (size_t)(&__dma_end - &__dma_start));
 #else
-	static char __dma_buf[SZ_64M];
+	static char __dma_buf[SZ_8M];
 	__dma_pool = mm_create((void *)__dma_buf, (size_t)(sizeof(__dma_buf)));
 #endif
 }

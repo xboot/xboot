@@ -14,7 +14,7 @@ void sandbox_init(int argc, char * argv[])
 {
 	gfxInitDefault();
 	consoleInit(GFX_TOP, NULL);
-	printf("Hello XBOOT 3DS World!");
+	printf("XBOOT 3DS O3 test World!");
 
 	while (aptMainLoop())
 	{

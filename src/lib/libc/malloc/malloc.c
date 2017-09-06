@@ -827,7 +827,7 @@ void do_init_mem_pool(void)
 	extern unsigned char __heap_end;
 	__heap_pool = tlsf_create_with_pool((void *)&__heap_start, (size_t)(&__heap_end - &__heap_start));
 #else
-	static char __heap_buf[SZ_256M];
+	static char __heap_buf[SZ_16M];
 	__heap_pool = tlsf_create_with_pool((void *)__heap_buf, (size_t)(sizeof(__heap_buf)));
 #endif
 }

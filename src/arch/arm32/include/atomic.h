@@ -8,7 +8,7 @@ extern "C" {
 #include <types.h>
 #include <irqflags.h>
 
-#if __ARM_ARCH__ == 5
+#if __ARM32_ARCH__ == 5
 static inline void atomic_add(atomic_t * a, long v)
 {
 	irq_flags_t flags;

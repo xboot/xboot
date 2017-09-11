@@ -158,7 +158,7 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
 				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
 
-DEFINES		+=	-D__ARM_ARCH__=6 -D__SANDBOX__
+DEFINES		+=	-D__ARM32_ARCH__=6 -D__SANDBOX__
 
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3

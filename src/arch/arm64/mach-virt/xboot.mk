@@ -2,7 +2,7 @@
 # Machine makefile
 #
 
-DEFINES		+= -D__ARM_ARCH__=8 -D__CORTEX_A57__
+DEFINES		+= -D__ARM64_ARCH__=8 -D__CORTEX_A57__ -D__ARM64_NEON__
 
 ASFLAGS		:= -g -ggdb -Wall -O0
 CFLAGS		:= -g -ggdb -Wall -O0

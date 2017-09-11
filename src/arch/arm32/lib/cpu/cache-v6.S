@@ -1,7 +1,7 @@
 #include <xconfigs.h>
 #include <linkage.h>
 
-#if __ARM_ARCH__ == 6
+#if __ARM32_ARCH__ == 6
 
 ENTRY(v6_cache_inv_range)
 	tst	r0, #32 - 1

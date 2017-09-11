@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-#if __ARM_ARCH__ == 5
+#if __ARM32_ARCH__ == 5
 #define isb()		__asm__ __volatile__ ("" : : : "memory")
 #define dsb()		__asm__ __volatile__ ("mcr p15, 0, %0, c7, c10,  4" : : "r" (0) : "memory")
 #define dmb()		__asm__ __volatile__ ("" : : : "memory")
-#elif __ARM_ARCH__ == 6
+#elif __ARM32_ARCH__ == 6
 #define isb()		__asm__ __volatile__ ("mcr p15, 0, %0, c7, c5,  4" : : "r" (0) : "memory")
 #define dsb()		__asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0) : "memory")
 #define dmb()		__asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory")

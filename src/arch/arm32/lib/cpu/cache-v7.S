@@ -1,7 +1,7 @@
 #include <xconfigs.h>
 #include <linkage.h>
 
-#if __ARM_ARCH__ == 7
+#if __ARM32_ARCH__ == 7
 
 .macro dcache_line_size, reg, tmp
 	mrc	p15, 1, \tmp, c0, c0, 0		@ read CSIDR

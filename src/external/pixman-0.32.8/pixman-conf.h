@@ -16,10 +16,10 @@
 #endif
 
 #ifdef __ARM32__
-#if __ARM_ARCH__ >= 6
+#if __ARM32_ARCH__ >= 6
 # define USE_ARM_SIMD
 #endif
-#ifdef __ARM_IWMMXT__
+#ifdef __ARM32_IWMMXT__
 # define USE_ARM_IWMMXT
 #endif
 #ifdef __ARM32_NEON__

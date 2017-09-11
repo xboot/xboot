@@ -1,4 +1,4 @@
-#if __ARM_ARCH__ >= 7
+#if __ARM32_ARCH__ >= 7
 	.text
 	.global fabsf
 	.type fabsf,%function

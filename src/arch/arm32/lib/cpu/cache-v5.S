@@ -1,7 +1,7 @@
 #include <xconfigs.h>
 #include <linkage.h>
 
-#if __ARM_ARCH__ == 5
+#if __ARM32_ARCH__ == 5
 
 ENTRY(v5_cache_inv_range)
 	tst	r0, #32 - 1

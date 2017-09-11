@@ -7,7 +7,7 @@ extern "C" {
 
 #include <types.h>
 
-#if __ARM_ARCH__ == 5
+#if __ARM32_ARCH__ == 5
 static inline void arch_local_irq_enable(void)
 {
 	irq_flags_t temp;

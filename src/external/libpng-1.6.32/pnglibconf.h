@@ -201,5 +201,6 @@
 #define PNG_Z_DEFAULT_STRATEGY 1
 #define PNG_sCAL_PRECISION 5
 #define PNG_sRGB_PROFILE_CHECKS 2
+#define PNG_ARM_NEON_OPT 0
 /* end of settings */
 #endif /* PNGLCONF_H */

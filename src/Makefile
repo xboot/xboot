@@ -173,9 +173,6 @@ SRCDIRS		+=	external/lua-5.3.4
 INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 
-INCDIRS		+= 	external/expat-2.1.0
-SRCDIRS		+=	external/expat-2.1.0
-
 INCDIRS		+= 	external/pixman-0.32.8 \
 				external/pixman-0.32.8/$(ARCH)
 SRCDIRS		+=	external/pixman-0.32.8 \

@@ -57,6 +57,12 @@ endif
 ifeq ($(strip $(ARCH)), arm64)
 DEFINES		+=	-D__ARM64__
 endif
+ifeq ($(strip $(ARCH)), mips)
+DEFINES		+=	-D__MIPS__
+endif
+ifeq ($(strip $(ARCH)), ppc)
+DEFINES		+=	-D__PPC__
+endif
 ifeq ($(strip $(ARCH)), x64)
 DEFINES		+=	-D__X64__
 endif
@@ -173,10 +179,10 @@ SRCDIRS		+=	external/lua-5.3.4
 INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 
-INCDIRS		+= 	external/pixman-0.32.8 \
-				external/pixman-0.32.8/$(ARCH)
-SRCDIRS		+=	external/pixman-0.32.8 \
-				external/pixman-0.32.8/$(ARCH)
+INCDIRS		+= 	external/pixman-0.34.0 \
+				external/pixman-0.34.0/$(ARCH)
+SRCDIRS		+=	external/pixman-0.34.0 \
+				external/pixman-0.34.0/$(ARCH)
 
 INCDIRS		+= 	external/cairo-1.14.2
 SRCDIRS		+=	external/cairo-1.14.2

@@ -34,35 +34,35 @@ Makefile中有两个变量在编译时需要传递，一个是交叉工具链，
 |"PLATFORM"|指定硬件平台
 
 ### Realview平台，qemu-system-arm模拟器
-```bash
+```shell
 make clean
 make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
 ```
 
 ### 全志V3S，荔枝派(lichee-pi zero)
-```bash
+```shell
 make clean
 make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-licheepi
 ```
 
 ### Raspberry PI 2代
-```bash
+```shell
 make clean
 make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-raspi2
 ```
 
 ### Raspberry PI 3代
-```bash
+```shell
 make clean
 make CROSS_COMPILE=/path/to/aarch64-none-elf- PLATFORM=arm64-raspi3
 ```
 
 ### X86_64位linux系统下的sandbox
 sanbox依赖与SDL2库，在编译前需要安装libsdl2-dev，以ubuntu系统为例:
-```bash
+```shell
 sudo apt-get install libsdl2-dev
 ```
-```bash
+```shell
 make clean
 make CROSS_COMPILE="" PLATFORM=x64-sandbox
 ```

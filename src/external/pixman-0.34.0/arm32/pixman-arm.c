@@ -26,7 +26,7 @@
 #include "pixman-private.h"
 
 pixman_implementation_t *
-_pixman_arm_get_implementations (pixman_implementation_t *imp)
+_pixman_arm32_get_implementations (pixman_implementation_t *imp)
 {
 #ifdef USE_ARM_SIMD
 	imp = _pixman_implementation_create_arm_simd (imp);

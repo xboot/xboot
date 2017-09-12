@@ -57,12 +57,6 @@ endif
 ifeq ($(strip $(ARCH)), arm64)
 DEFINES		+=	-D__ARM64__
 endif
-ifeq ($(strip $(ARCH)), mips)
-DEFINES		+=	-D__MIPS__
-endif
-ifeq ($(strip $(ARCH)), ppc)
-DEFINES		+=	-D__PPC__
-endif
 ifeq ($(strip $(ARCH)), x64)
 DEFINES		+=	-D__X64__
 endif

@@ -29,14 +29,6 @@
 # undef USE_ARM_NEON
 #endif
 
-#ifdef __MIPS__
-# define USE_MIPS_DSPR2
-#endif
-
-#ifdef __PPC__
-# define USE_VMX
-#endif
-
 #ifdef __X64__
 # define USE_X86_MMX
 # define USE_SSE2

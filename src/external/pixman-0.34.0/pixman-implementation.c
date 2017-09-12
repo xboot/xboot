@@ -385,6 +385,14 @@ static const pixman_fast_path_t empty_fast_path[] =
     { PIXMAN_OP_NONE }
 };
 
+static pixman_implementation_t * __pixman_default_imp(pixman_implementation_t * imp)
+{
+    return imp;
+}
+extern __typeof(__pixman_default_imp) _pixman_x64_get_implementations __attribute__((weak, alias("__pixman_default_imp")));
+extern __typeof(__pixman_default_imp) _pixman_arm32_get_implementations __attribute__((weak, alias("__pixman_default_imp")));
+extern __typeof(__pixman_default_imp) _pixman_arm64_get_implementations __attribute__((weak, alias("__pixman_default_imp")));
+
 pixman_implementation_t *
 _pixman_choose_implementation (void)
 {
@@ -395,23 +403,11 @@ _pixman_choose_implementation (void)
     if (!_pixman_disabled ("fast"))
 	imp = _pixman_implementation_create_fast_path (imp);
 
-#ifdef __X64__
-    imp = _pixman_x86_get_implementations (imp);
-#endif
-#ifdef __ARM32__
-    imp = _pixman_arm_get_implementations (imp);
-#endif
-#ifdef __ARM64__
-    imp = _pixman_arm_get_implementations (imp);
-#endif
-#ifdef __PPC__
-    imp = _pixman_ppc_get_implementations (imp);
-#endif
-#ifdef __MIPS__
-    imp = _pixman_mips_get_implementations (imp);
-#endif
+	imp = _pixman_x64_get_implementations (imp);
+	imp = _pixman_arm32_get_implementations (imp);
+	imp = _pixman_arm64_get_implementations (imp);
 
-    imp = _pixman_implementation_create_noop (imp);
+	imp = _pixman_implementation_create_noop (imp);
 
     if (_pixman_disabled ("wholeops"))
     {

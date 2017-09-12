@@ -26,7 +26,7 @@
 #include "pixman-private.h"
 
 pixman_implementation_t *
-_pixman_x86_get_implementations (pixman_implementation_t *imp)
+_pixman_x64_get_implementations (pixman_implementation_t *imp)
 {
 #ifdef USE_X86_MMX
 	imp = _pixman_implementation_create_mmx (imp);

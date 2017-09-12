@@ -3,7 +3,7 @@
 #define EPS DBL_EPSILON
 static const double_t toint = 1/EPS;
 
-double round(double x)
+static double __round(double x)
 {
 	union {double f; uint64_t i;} u = {x};
 	int e = u.i >> 52 & 0x7ff;
@@ -29,4 +29,6 @@ double round(double x)
 		y = -y;
 	return y;
 }
+
+extern __typeof(__round) round __attribute__((weak, alias("__round")));
 EXPORT_SYMBOL(round);

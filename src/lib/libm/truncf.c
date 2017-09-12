@@ -1,6 +1,6 @@
 #include <math.h>
 
-float truncf(float x)
+static float __truncf(float x)
 {
 	union {float f; uint32_t i;} u = {x};
 	int e = (int)(u.i >> 23 & 0xff) - 0x7f + 9;
@@ -17,4 +17,6 @@ float truncf(float x)
 	u.i &= ~m;
 	return u.f;
 }
+
+extern __typeof(__truncf) truncf __attribute__((weak, alias("__truncf")));
 EXPORT_SYMBOL(truncf);

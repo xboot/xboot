@@ -3,7 +3,7 @@
 #define EPS DBL_EPSILON
 static const double_t toint = 1/EPS;
 
-double ceil(double x)
+static double __ceil(double x)
 {
 	union {double f; uint64_t i;} u = {x};
 	int e = u.i >> 52 & 0x7ff;
@@ -25,4 +25,6 @@ double ceil(double x)
 		return x + y + 1;
 	return x + y;
 }
+
+extern __typeof(__ceil) ceil __attribute__((weak, alias("__ceil")));
 EXPORT_SYMBOL(ceil);

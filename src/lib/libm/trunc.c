@@ -1,6 +1,6 @@
 #include <math.h>
 
-double trunc(double x)
+static double __trunc(double x)
 {
 	union {double f; uint64_t i;} u = {x};
 	int e = (int)(u.i >> 52 & 0x7ff) - 0x3ff + 12;
@@ -17,4 +17,6 @@ double trunc(double x)
 	u.i &= ~m;
 	return u.f;
 }
+
+extern __typeof(__trunc) trunc __attribute__((weak, alias("__trunc")));
 EXPORT_SYMBOL(trunc);

@@ -3,7 +3,7 @@
 #define EPS DBL_EPSILON
 static const double_t toint = 1/EPS;
 
-double rint(double x)
+static double __rint(double x)
 {
 	union {double f; uint64_t i;} u = {x};
 	int e = u.i>>52 & 0x7ff;
@@ -20,4 +20,6 @@ double rint(double x)
 		return s ? -0.0 : 0;
 	return y;
 }
+
+extern __typeof(__rint) rint __attribute__((weak, alias("__rint")));
 EXPORT_SYMBOL(rint);

@@ -1,6 +1,6 @@
 #include <math.h>
 
-float ceilf(float x)
+static float __ceilf(float x)
 {
 	union {float f; uint32_t i;} u = {x};
 	int e = (int)(u.i >> 23 & 0xff) - 0x7f;
@@ -25,4 +25,6 @@ float ceilf(float x)
 	}
 	return u.f;
 }
+
+extern __typeof(__ceilf) ceilf __attribute__((weak, alias("__ceilf")));
 EXPORT_SYMBOL(ceilf);

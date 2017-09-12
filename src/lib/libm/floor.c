@@ -3,7 +3,7 @@
 #define EPS DBL_EPSILON
 static const double_t toint = 1/EPS;
 
-double floor(double x)
+static double __floor(double x)
 {
 	union {double f; uint64_t i;} u = {x};
 	int e = u.i >> 52 & 0x7ff;
@@ -25,4 +25,6 @@ double floor(double x)
 		return x + y - 1;
 	return x + y;
 }
+
+extern __typeof(__floor) floor __attribute__((weak, alias("__floor")));
 EXPORT_SYMBOL(floor);

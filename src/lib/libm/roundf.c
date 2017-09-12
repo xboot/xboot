@@ -3,7 +3,7 @@
 #define EPS FLT_EPSILON
 static const float_t toint = 1/EPS;
 
-float roundf(float x)
+static float __roundf(float x)
 {
 	union {float f; uint32_t i;} u = {x};
 	int e = u.i >> 23 & 0xff;
@@ -28,4 +28,6 @@ float roundf(float x)
 		y = -y;
 	return y;
 }
+
+extern __typeof(__roundf) roundf __attribute__((weak, alias("__roundf")));
 EXPORT_SYMBOL(roundf);

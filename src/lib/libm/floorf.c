@@ -1,6 +1,6 @@
 #include <math.h>
 
-float floorf(float x)
+static float __floorf(float x)
 {
 	union {float f; uint32_t i;} u = {x};
 	int e = (int)(u.i >> 23 & 0xff) - 0x7f;
@@ -25,4 +25,6 @@ float floorf(float x)
 	}
 	return u.f;
 }
+
+extern __typeof(__floorf) floorf __attribute__((weak, alias("__floorf")));
 EXPORT_SYMBOL(floorf);

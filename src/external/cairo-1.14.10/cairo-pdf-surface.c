@@ -136,7 +136,7 @@
  * %CAIRO_MIME_TYPE_JBIG2, %CAIRO_MIME_TYPE_JBIG2_GLOBAL,
  * %CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID.
  *
- * JBIG2 data in PDF must be in the embedded format as descibed in
+ * JBIG2 data in PDF must be in the embedded format as described in
  * ISO/IEC 11544. Image specific JBIG2 data must be in
  * %CAIRO_MIME_TYPE_JBIG2.  Any global segments in the JBIG2 data
  * (segments with page association field set to 0) must be in
@@ -4757,8 +4757,12 @@ _cairo_pdf_surface_emit_unicode_for_glyph (cairo_pdf_surface_t	*surface,
 
     if (utf8 && *utf8) {
 	status = _cairo_utf8_to_utf16 (utf8, -1, &utf16, &utf16_len);
-	if (unlikely (status))
+	if (unlikely (status == CAIRO_INT_STATUS_INVALID_STRING)) {
+	    utf16 = NULL;
+	    utf16_len = 0;
+	} else if (unlikely (status)) {
 	    return status;
+	}
     }
 
     _cairo_output_stream_printf (surface->output, "<");
@@ -5034,13 +5038,14 @@ _cairo_pdf_surface_emit_cff_font (cairo_pdf_surface_t		*surface,
 	char *pdf_str;
 
 	status = _utf8_to_pdf_string (subset->family_name_utf8, &pdf_str);
-	if (unlikely (status))
+	if (likely (status == CAIRO_INT_STATUS_SUCCESS)) {
+	    _cairo_output_stream_printf (surface->output,
+					 "   /FontFamily %s\n",
+					 pdf_str);
+	    free (pdf_str);
+	} else if (status != CAIRO_INT_STATUS_INVALID_STRING) {
 	    return status;
-
-	_cairo_output_stream_printf (surface->output,
-				     "   /FontFamily %s\n",
-				     pdf_str);
-	free (pdf_str);
+	}
     }
 
     _cairo_output_stream_printf (surface->output,
@@ -5479,13 +5484,14 @@ _cairo_pdf_surface_emit_truetype_font_subset (cairo_pdf_surface_t		*surface,
 	char *pdf_str;
 
 	status = _utf8_to_pdf_string (subset.family_name_utf8, &pdf_str);
-	if (unlikely (status))
+	if (likely (status == CAIRO_INT_STATUS_SUCCESS)) {
+	    _cairo_output_stream_printf (surface->output,
+					 "   /FontFamily %s\n",
+					 pdf_str);
+	    free (pdf_str);
+	} else if (status != CAIRO_INT_STATUS_INVALID_STRING) {
 	    return status;
-
-	_cairo_output_stream_printf (surface->output,
-				     "   /FontFamily %s\n",
-				     pdf_str);
-	free (pdf_str);
+	}
     }
 
     _cairo_output_stream_printf (surface->output,

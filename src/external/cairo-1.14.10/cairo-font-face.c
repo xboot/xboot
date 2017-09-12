@@ -67,6 +67,13 @@ const cairo_font_face_t _cairo_font_face_nil = {
     { 0, 0, 0, NULL },			/* user_data */
     NULL
 };
+const cairo_font_face_t _cairo_font_face_nil_file_not_found = {
+    { 0 },				/* hash_entry */
+    CAIRO_STATUS_FILE_NOT_FOUND,	/* status */
+    CAIRO_REFERENCE_COUNT_INVALID,	/* ref_count */
+    { 0, 0, 0, NULL },			/* user_data */
+    NULL
+};
 
 cairo_status_t
 _cairo_font_face_set_error (cairo_font_face_t *font_face,

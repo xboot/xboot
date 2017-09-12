@@ -62,7 +62,7 @@ struct extents {
 };
 
 struct pattern {
-    unsigned int type[7]; /* native/record/other surface/gradients */
+    unsigned int type[8]; /* native/record/other surface/gradients */
 };
 
 struct path {

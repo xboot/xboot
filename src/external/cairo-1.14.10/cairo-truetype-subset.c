@@ -653,16 +653,34 @@ cairo_truetype_font_write_glyf_table (cairo_truetype_font_t *font,
 	if (unlikely (status))
 	    goto FAIL;
 
-        if (size != 0) {
-            status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+	if (size > 1) {
+	    tt_glyph_data_t *glyph_data;
+	    int num_contours;
+
+	    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
 							 TT_TAG_glyf, begin, buffer, &size);
 	    if (unlikely (status))
 		goto FAIL;
 
-            status = cairo_truetype_font_remap_composite_glyph (font, buffer, size);
-	    if (unlikely (status))
-		goto FAIL;
-        }
+	    glyph_data = (tt_glyph_data_t *) buffer;
+	    num_contours = (int16_t)be16_to_cpu (glyph_data->num_contours);
+	    if (num_contours < 0) {
+		status = cairo_truetype_font_remap_composite_glyph (font, buffer, size);
+		if (unlikely (status))
+		    goto FAIL;
+	    } else if (num_contours == 0) {
+		/* num_contours == 0 is undefined in the Opentype
+		 * spec. There are some embedded fonts that have a
+		 * space glyph with num_contours = 0 that fails on
+		 * some printers. The spec requires glyphs without
+		 * contours to have a 0 size glyph entry in the loca
+		 * table.
+		 *
+		 * If num_contours == 0, truncate the glyph to 0 size.
+		 */
+		_cairo_array_truncate (&font->output, _cairo_array_num_elements (&font->output) - size);
+	    }
+	}
     }
 
     status = cairo_truetype_font_align_output (font, &next);
@@ -1292,11 +1310,14 @@ _cairo_truetype_reverse_cmap (cairo_scaled_font_t *scaled_font,
 
     /* search for glyph in segments with rangeOffset=0 */
     for (i = 0; i < num_segments; i++) {
+	uint16_t start = be16_to_cpu (start_code[i]);
+	uint16_t end = be16_to_cpu (end_code[i]);
+
+	if (start == 0xffff && end == 0xffff)
+	    break;
+
 	c = index - be16_to_cpu (delta[i]);
-	if (range_offset[i] == 0 &&
-	    c >= be16_to_cpu (start_code[i]) &&
-	    c <= be16_to_cpu (end_code[i]))
-	{
+	if (range_offset[i] == 0 && c >= start && c <= end) {
 	    *ucs4 = c;
 	    goto found;
 	}
@@ -1304,9 +1325,15 @@ _cairo_truetype_reverse_cmap (cairo_scaled_font_t *scaled_font,
 
     /* search for glyph in segments with rangeOffset=1 */
     for (i = 0; i < num_segments; i++) {
+	uint16_t start = be16_to_cpu (start_code[i]);
+	uint16_t end = be16_to_cpu (end_code[i]);
+
+	if (start == 0xffff && end == 0xffff)
+	    break;
+
 	if (range_offset[i] != 0) {
 	    uint16_t *glyph_ids = &range_offset[i] + be16_to_cpu (range_offset[i])/2;
-	    int range_size = be16_to_cpu (end_code[i]) - be16_to_cpu (start_code[i]) + 1;
+	    int range_size = end - start + 1;
 	    uint16_t g_id_be = cpu_to_be16 (index);
 	    int j;
 
@@ -1316,7 +1343,7 @@ _cairo_truetype_reverse_cmap (cairo_scaled_font_t *scaled_font,
 
 		for (j = 0; j < range_size; j++) {
 		    if (glyph_ids[j] == g_id_be) {
-			*ucs4 = be16_to_cpu (start_code[i]) + j;
+			*ucs4 = start + j;
 			goto found;
 		    }
 		}

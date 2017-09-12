@@ -485,6 +485,9 @@ _cairo_user_data_array_set_data (cairo_user_data_array_t     *array,
 	return CAIRO_STATUS_SUCCESS;
     }
 
+    if (user_data == NULL)
+	return CAIRO_STATUS_SUCCESS;
+
     status = _cairo_array_append (array, &new_slot);
     if (unlikely (status))
 	return status;

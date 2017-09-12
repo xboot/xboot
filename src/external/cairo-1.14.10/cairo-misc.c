@@ -774,7 +774,7 @@ cairo_get_locale_decimal_point (void)
 const char *
 cairo_get_locale_decimal_point (void)
 {
-    return '.';
+    return ".";
 }
 #endif
 

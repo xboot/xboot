@@ -216,6 +216,17 @@ _cairo_ft_resolve_pattern (FcPattern		      *pattern,
 
 #endif
 
+static cairo_status_t
+_ft_to_cairo_error (FT_Error error)
+{
+  /* Currently we don't get many (any?) useful statuses here.
+   * Populate as needed. */
+  switch (error)
+  {
+  default:		return CAIRO_STATUS_NO_MEMORY;
+  }
+}
+
 /*
  * We maintain a hash table to map file/id => #cairo_ft_unscaled_font_t.
  * The hash table itself isn't limited in size. However, we limit the
@@ -645,6 +656,7 @@ _cairo_ft_unscaled_font_lock_face (cairo_ft_unscaled_font_t *unscaled)
 {
     cairo_ft_unscaled_font_map_t *font_map;
     FT_Face face = NULL;
+    FT_Error error;
 
     CAIRO_MUTEX_LOCK (unscaled->mutex);
     unscaled->lock_count++;
@@ -674,14 +686,15 @@ _cairo_ft_unscaled_font_lock_face (cairo_ft_unscaled_font_t *unscaled)
     }
     _cairo_ft_unscaled_font_map_unlock ();
 
-    if (FT_New_Face (font_map->ft_library,
-		     unscaled->filename,
-		     unscaled->id,
-		     &face) != FT_Err_Ok)
+    error = FT_New_Face (font_map->ft_library,
+			 unscaled->filename,
+			 unscaled->id,
+			 &face);
+    if (error)
     {
 	unscaled->lock_count--;
 	CAIRO_MUTEX_UNLOCK (unscaled->mutex);
-	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
+	_cairo_error_throw (_ft_to_cairo_error (error));
 	return NULL;
     }
 
@@ -835,7 +848,7 @@ _cairo_ft_unscaled_font_set_scale (cairo_ft_unscaled_font_t *unscaled,
 			      sf.y_scale * 64.0 + .5,
 			      0, 0);
     if (error)
-      return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+      return _cairo_error (_ft_to_cairo_error (error));
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -1240,6 +1253,7 @@ _get_bitmap_surface (FT_Bitmap		     *bitmap,
 
 	    FT_Bitmap  tmp;
 	    FT_Int     align;
+	    FT_Error   error;
 
 	    format = CAIRO_FORMAT_A8;
 
@@ -1247,8 +1261,9 @@ _get_bitmap_surface (FT_Bitmap		     *bitmap,
 
 	    FT_Bitmap_New( &tmp );
 
-	    if (FT_Bitmap_Convert( library, bitmap, &tmp, align ))
-		return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	    error = FT_Bitmap_Convert( library, bitmap, &tmp, align );
+	    if (error)
+		return _cairo_error (_ft_to_cairo_error (error));
 
 	    FT_Bitmap_Done( library, bitmap );
 	    *bitmap = tmp;
@@ -1277,7 +1292,7 @@ _get_bitmap_surface (FT_Bitmap		     *bitmap,
     default:
 	if (own_buffer)
 	    free (bitmap->buffer);
-	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	return _cairo_error (CAIRO_STATUS_INVALID_FORMAT);
     }
 
     /* XXX */
@@ -1328,7 +1343,7 @@ _render_glyph_outline (FT_Face                    face,
     FT_BBox cbox;
     unsigned int width, height;
     cairo_status_t status;
-    FT_Error fterror;
+    FT_Error error;
     FT_Library library = glyphslot->library;
     FT_Render_Mode render_mode = FT_RENDER_MODE_NORMAL;
 
@@ -1441,20 +1456,20 @@ _render_glyph_outline (FT_Face                    face,
 	FT_Library_SetLcdFilter (library, lcd_filter);
 #endif
 
-	fterror = FT_Render_Glyph (face->glyph, render_mode);
+	error = FT_Render_Glyph (face->glyph, render_mode);
 
 #if HAVE_FT_LIBRARY_SETLCDFILTER
 	FT_Library_SetLcdFilter (library, FT_LCD_FILTER_NONE);
 #endif
 
-	if (fterror != 0)
-		return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	if (error)
+	    return _cairo_error (_ft_to_cairo_error (error));
 
 	bitmap_size = _compute_xrender_bitmap_size (&bitmap,
 						    face->glyph,
 						    render_mode);
 	if (bitmap_size < 0)
-	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	    return _cairo_error (CAIRO_STATUS_INVALID_FORMAT);
 
 	bitmap.buffer = calloc (1, bitmap_size);
 	if (bitmap.buffer == NULL)
@@ -2191,6 +2206,55 @@ _cairo_ft_scaled_glyph_vertical_layout_bearing_fix (void        *abstract_font,
 }
 
 static cairo_int_status_t
+_cairo_ft_scaled_glyph_load_glyph (cairo_ft_scaled_font_t *scaled_font,
+				   cairo_scaled_glyph_t   *scaled_glyph,
+				   FT_Face                 face,
+				   int                     load_flags,
+				   cairo_bool_t            use_em_size,
+				   cairo_bool_t            vertical_layout)
+{
+    FT_Error error;
+    cairo_status_t status;
+
+    if (use_em_size) {
+	cairo_matrix_t em_size;
+	cairo_matrix_init_scale (&em_size, face->units_per_EM, face->units_per_EM);
+	status = _cairo_ft_unscaled_font_set_scale (scaled_font->unscaled, &em_size);
+    } else {
+	status = _cairo_ft_unscaled_font_set_scale (scaled_font->unscaled,
+						    &scaled_font->base.scale);
+    }
+    if (unlikely (status))
+	return status;
+
+    error = FT_Load_Glyph (face,
+			   _cairo_scaled_glyph_index(scaled_glyph),
+			   load_flags);
+    /* XXX ignoring all other errors for now.  They are not fatal, typically
+     * just a glyph-not-found. */
+    if (error == FT_Err_Out_Of_Memory)
+	return  _cairo_error (CAIRO_STATUS_NO_MEMORY);
+
+    /*
+     * synthesize glyphs if requested
+     */
+#if HAVE_FT_GLYPHSLOT_EMBOLDEN
+    if (scaled_font->ft_options.synth_flags & CAIRO_FT_SYNTHESIZE_BOLD)
+	FT_GlyphSlot_Embolden (face->glyph);
+#endif
+
+#if HAVE_FT_GLYPHSLOT_OBLIQUE
+    if (scaled_font->ft_options.synth_flags & CAIRO_FT_SYNTHESIZE_OBLIQUE)
+	FT_GlyphSlot_Oblique (face->glyph);
+#endif
+
+    if (vertical_layout)
+	_cairo_ft_scaled_glyph_vertical_layout_bearing_fix (scaled_font, face->glyph);
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
+static cairo_int_status_t
 _cairo_ft_scaled_glyph_init (void			*abstract_font,
 			     cairo_scaled_glyph_t	*scaled_glyph,
 			     cairo_scaled_glyph_info_t	 info)
@@ -2200,21 +2264,16 @@ _cairo_ft_scaled_glyph_init (void			*abstract_font,
     cairo_ft_unscaled_font_t *unscaled = scaled_font->unscaled;
     FT_GlyphSlot glyph;
     FT_Face face;
-    FT_Error error;
     int load_flags = scaled_font->ft_options.load_flags;
     FT_Glyph_Metrics *metrics;
     double x_factor, y_factor;
     cairo_bool_t vertical_layout = FALSE;
-    cairo_status_t status;
+    cairo_status_t status = CAIRO_STATUS_SUCCESS;
+    cairo_bool_t scaled_glyph_loaded = FALSE;
 
     face = _cairo_ft_unscaled_font_lock_face (unscaled);
     if (!face)
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
-
-    status = _cairo_ft_unscaled_font_set_scale (scaled_font->unscaled,
-				                &scaled_font->base.scale);
-    if (unlikely (status))
-	goto FAIL;
 
     /* Ignore global advance unconditionally */
     load_flags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
@@ -2246,37 +2305,23 @@ _cairo_ft_scaled_glyph_init (void			*abstract_font,
     /* load_flags |= FT_LOAD_COLOR; */
 #endif
 
-    error = FT_Load_Glyph (face,
-			   _cairo_scaled_glyph_index(scaled_glyph),
-			   load_flags);
-    /* XXX ignoring all other errors for now.  They are not fatal, typically
-     * just a glyph-not-found. */
-    if (error == FT_Err_Out_Of_Memory) {
-	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
-	goto FAIL;
-    }
-
-    glyph = face->glyph;
-
-    /*
-     * synthesize glyphs if requested
-     */
-#if HAVE_FT_GLYPHSLOT_EMBOLDEN
-    if (scaled_font->ft_options.synth_flags & CAIRO_FT_SYNTHESIZE_BOLD)
-	FT_GlyphSlot_Embolden (glyph);
-#endif
-
-#if HAVE_FT_GLYPHSLOT_OBLIQUE
-    if (scaled_font->ft_options.synth_flags & CAIRO_FT_SYNTHESIZE_OBLIQUE)
-	FT_GlyphSlot_Oblique (glyph);
-#endif
-
-    if (vertical_layout)
-	_cairo_ft_scaled_glyph_vertical_layout_bearing_fix (scaled_font, glyph);
 
     if (info & CAIRO_SCALED_GLYPH_INFO_METRICS) {
 
 	cairo_bool_t hint_metrics = scaled_font->base.options.hint_metrics != CAIRO_HINT_METRICS_OFF;
+
+	status = _cairo_ft_scaled_glyph_load_glyph (scaled_font,
+						    scaled_glyph,
+						    face,
+						    load_flags,
+						    !hint_metrics,
+						    vertical_layout);
+	if (unlikely (status))
+	    goto FAIL;
+
+	glyph = face->glyph;
+	scaled_glyph_loaded = hint_metrics;
+
 	/*
 	 * Compute font-space metrics
 	 */
@@ -2374,6 +2419,20 @@ _cairo_ft_scaled_glyph_init (void			*abstract_font,
     if ((info & CAIRO_SCALED_GLYPH_INFO_SURFACE) != 0) {
 	cairo_image_surface_t	*surface;
 
+	if (!scaled_glyph_loaded) {
+	    status = _cairo_ft_scaled_glyph_load_glyph (scaled_font,
+							scaled_glyph,
+							face,
+							load_flags,
+							FALSE,
+							vertical_layout);
+	    if (unlikely (status))
+		goto FAIL;
+
+	    glyph = face->glyph;
+	    scaled_glyph_loaded = TRUE;
+	}
+
 	if (glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
 	    status = _render_glyph_outline (face, &scaled_font->ft_options.base,
 					    &surface);
@@ -2405,27 +2464,23 @@ _cairo_ft_scaled_glyph_init (void			*abstract_font,
 	 * so reload it. This will probably never occur though
 	 */
 	if ((info & CAIRO_SCALED_GLYPH_INFO_SURFACE) != 0) {
-	    error = FT_Load_Glyph (face,
-				   _cairo_scaled_glyph_index(scaled_glyph),
-				   load_flags | FT_LOAD_NO_BITMAP);
-	    /* XXX ignoring all other errors for now.  They are not fatal, typically
-	     * just a glyph-not-found. */
-	    if (error == FT_Err_Out_Of_Memory) {
-		status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
-		goto FAIL;
-	    }
-#if HAVE_FT_GLYPHSLOT_EMBOLDEN
-	    if (scaled_font->ft_options.synth_flags & CAIRO_FT_SYNTHESIZE_BOLD)
-		FT_GlyphSlot_Embolden (glyph);
-#endif
-#if HAVE_FT_GLYPHSLOT_OBLIQUE
-	    if (scaled_font->ft_options.synth_flags & CAIRO_FT_SYNTHESIZE_OBLIQUE)
-		FT_GlyphSlot_Oblique (glyph);
-#endif
-	    if (vertical_layout)
-		_cairo_ft_scaled_glyph_vertical_layout_bearing_fix (scaled_font, glyph);
-
+	    scaled_glyph_loaded = FALSE;
+	    load_flags |= FT_LOAD_NO_BITMAP;
 	}
+
+	if (!scaled_glyph_loaded) {
+	    status = _cairo_ft_scaled_glyph_load_glyph (scaled_font,
+							scaled_glyph,
+							face,
+							load_flags,
+							FALSE,
+							vertical_layout);
+	    if (unlikely (status))
+		goto FAIL;
+
+	    glyph = face->glyph;
+	}
+
 	if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
 	    status = _decompose_glyph_outline (face, &scaled_font->ft_options.base,
 					       &path);
@@ -3284,8 +3339,12 @@ cairo_ft_font_face_create_for_pattern (FcPattern *pattern)
     cairo_status_t status;
 
     status = _cairo_ft_unscaled_font_create_for_pattern (pattern, &unscaled);
-    if (unlikely (status))
+    if (unlikely (status)) {
+      if (status == CAIRO_STATUS_FILE_NOT_FOUND)
+	return (cairo_font_face_t *) &_cairo_font_face_nil_file_not_found;
+      else
 	return (cairo_font_face_t *) &_cairo_font_face_nil;
+    }
     if (unlikely (unscaled == NULL)) {
 	/* Store the pattern.  We will resolve it and create unscaled
 	 * font when creating scaled fonts */

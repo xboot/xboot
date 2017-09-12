@@ -1165,7 +1165,7 @@ _cairo_recording_surface_copy__mask (cairo_recording_surface_t *surface,
 	goto err_command;
 
     status = _cairo_pattern_init_copy (&command->mask.base,
-				       &src->mask.source.base);
+				       &src->mask.mask.base);
     if (unlikely (status))
 	goto err_source;
 

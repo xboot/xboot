@@ -463,10 +463,11 @@ _cairo_surface_copy_similar_properties (cairo_surface_t *surface,
  *
  * Create a new surface that is as compatible as possible with an
  * existing surface. For example the new surface will have the same
- * fallback resolution and font options as @other. Generally, the new
- * surface will also use the same backend as @other, unless that is
- * not possible for some reason. The type of the returned surface may
- * be examined with cairo_surface_get_type().
+ * device scale, fallback resolution and font options as
+ * @other. Generally, the new surface will also use the same backend
+ * as @other, unless that is not possible for some reason. The type of
+ * the returned surface may be examined with
+ * cairo_surface_get_type().
  *
  * Initially the surface contents are all 0 (transparent if contents
  * have transparency, black otherwise.)
@@ -548,12 +549,14 @@ cairo_surface_create_similar (cairo_surface_t  *other,
  * cairo_surface_create_similar_image:
  * @other: an existing surface used to select the preference of the new surface
  * @format: the format for the new surface
- * @width: width of the new surface, (in device-space units)
- * @height: height of the new surface (in device-space units)
+ * @width: width of the new surface, (in pixels)
+ * @height: height of the new surface (in pixels)
  *
  * Create a new image surface that is as compatible as possible for uploading
  * to and the use in conjunction with an existing surface. However, this surface
- * can still be used like any normal image surface.
+ * can still be used like any normal image surface. Unlike
+ * cairo_surface_create_similar() the new image surface won't inherit
+ * the device scale from @other.
  *
  * Initially the surface contents are all 0 (transparent if contents
  * have transparency, black otherwise.)
@@ -1554,12 +1557,12 @@ _cairo_surface_flush (cairo_surface_t *surface, unsigned flags)
  * cairo_surface_flush:
  * @surface: a #cairo_surface_t
  *
- * Do any pending drawing for the surface and also restore any
- * temporary modifications cairo has made to the surface's
- * state. This function must be called before switching from
- * drawing on the surface with cairo to drawing on it directly
- * with native APIs. If the surface doesn't support direct access,
- * then this function does nothing.
+ * Do any pending drawing for the surface and also restore any temporary
+ * modifications cairo has made to the surface's state. This function
+ * must be called before switching from drawing on the surface with
+ * cairo to drawing on it directly with native APIs, or accessing its
+ * memory outside of Cairo. If the surface doesn't support direct
+ * access, then this function does nothing.
  *
  * Since: 1.0
  **/

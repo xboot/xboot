@@ -219,10 +219,8 @@ SRCDIRS		+=	external/freetype-2.8/src/autofit \
 				external/freetype-2.8/src/type42 \
 				external/freetype-2.8/src/winfonts
 
-INCDIRS		+=	external/chipmunk-6.2.1/include/chipmunk \
-				external/chipmunk-6.2.1/include/chipmunk/constraints
-SRCDIRS		+=	external/chipmunk-6.2.1/src \
-			 	external/chipmunk-6.2.1/src/constraints
+INCDIRS		+=	external/chipmunk-7.0.2/include
+SRCDIRS		+=	external/chipmunk-7.0.2/src
 
 #
 # You shouldn't need to change anything below this point.

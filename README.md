@@ -75,4 +75,4 @@ XBOOT官方QQ群：658250248 (2000人)
 
 --------------------
 [xboot-homepage]:http://xboot.github.io "xboot's homepage"
-[xboot-logo]:https://raw.githubusercontent.com/xboot/xboot/master/documents/logo/xboot-logo.png "xboot's logo"
+[xboot-logo]:https://raw.githubusercontent.com/xboot/xboot/master/developments/logo/xboot-logo.png "xboot's logo"

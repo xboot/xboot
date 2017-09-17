@@ -38,12 +38,11 @@ static int l_thermometer_new(lua_State * L)
 
 static int l_thermometer_list(lua_State * L)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct thermometer_t * thermometer;
 
 	lua_newtable(L);
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_THERMOMETER], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_THERMOMETER], head)
 	{
 		thermometer = (struct thermometer_t *)(pos->priv);
 		if(!thermometer)

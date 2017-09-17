@@ -31,8 +31,7 @@
 
 void do_system_logo(void)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	cairo_surface_t * logo;
 	cairo_surface_t * cs;
 	cairo_t * cr;
@@ -41,7 +40,7 @@ void do_system_logo(void)
 
 	logo = cairo_image_surface_create_from_png("/framework/assets/images/logo.png");
 
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_FB], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_FB], head)
 	{
 		if((fb = (struct fb_t *)(pos->priv)))
 		{

@@ -38,11 +38,10 @@ static ssize_t resetchip_read_nreset(struct kobj_t * kobj, void * buf, size_t si
 
 struct resetchip_t * search_resetchip(int reset)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct resetchip_t * chip;
 
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_RESETCHIP], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_RESETCHIP], head)
 	{
 		chip = (struct resetchip_t *)(pos->priv);
 		if((reset >= chip->base) && (reset < (chip->base + chip->nreset)))

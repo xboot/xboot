@@ -38,12 +38,11 @@ static int l_vibrator_new(lua_State * L)
 
 static int l_vibrator_list(lua_State * L)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct vibrator_t * vib;
 
 	lua_newtable(L);
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_VIBRATOR], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_VIBRATOR], head)
 	{
 		vib = (struct vibrator_t *)(pos->priv);
 		if(!vib)

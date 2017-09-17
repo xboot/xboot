@@ -46,12 +46,11 @@ static int l_uart_new(lua_State * L)
 
 static int l_uart_list(lua_State * L)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct uart_t * uart;
 
 	lua_newtable(L);
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_UART], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_UART], head)
 	{
 		uart = (struct uart_t *)(pos->priv);
 		if(!uart)

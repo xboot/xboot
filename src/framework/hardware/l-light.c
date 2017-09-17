@@ -38,12 +38,11 @@ static int l_light_new(lua_State * L)
 
 static int l_light_list(lua_State * L)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct light_t * light;
 
 	lua_newtable(L);
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_LIGHT], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_LIGHT], head)
 	{
 		light = (struct light_t *)(pos->priv);
 		if(!light)

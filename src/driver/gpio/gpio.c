@@ -38,11 +38,10 @@ static ssize_t gpiochip_read_ngpio(struct kobj_t * kobj, void * buf, size_t size
 
 struct gpiochip_t * search_gpiochip(int gpio)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct gpiochip_t * chip;
 
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_GPIOCHIP], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_GPIOCHIP], head)
 	{
 		chip = (struct gpiochip_t *)(pos->priv);
 		if((gpio >= chip->base) && (gpio < (chip->base + chip->ngpio)))

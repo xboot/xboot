@@ -28,15 +28,14 @@
 
 static void usage(void)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 
 	printf("usage:\r\n");
 	printf("    gdbserver <device>\r\n");
 	printf("    gdbserver --kill\r\n");
 
 	printf("supported device list:\r\n");
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_UART], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_UART], head)
 	{
 		printf("    %s\r\n", pos->name);
 	}

@@ -25,30 +25,29 @@ enum device_type_t {
 	DEVICE_TYPE_GYROSCOPE		= 14,
 	DEVICE_TYPE_HYGROMETER		= 15,
 	DEVICE_TYPE_I2C				= 16,
-	DEVICE_TYPE_IMU				= 17,
-	DEVICE_TYPE_INPUT			= 18,
-	DEVICE_TYPE_IRQCHIP			= 19,
-	DEVICE_TYPE_LASERSCAN		= 20,
-	DEVICE_TYPE_LED				= 21,
-	DEVICE_TYPE_LEDTRIG			= 22,
-	DEVICE_TYPE_LIGHT			= 23,
-	DEVICE_TYPE_MAGNETOMETER	= 24,
-	DEVICE_TYPE_ORIENTATION		= 25,
-	DEVICE_TYPE_PRESSURE		= 26,
-	DEVICE_TYPE_PROXIMITY		= 27,
-	DEVICE_TYPE_PWM				= 28,
-	DEVICE_TYPE_REGULATOR		= 29,
-	DEVICE_TYPE_RESETCHIP		= 30,
-	DEVICE_TYPE_RNG				= 31,
-	DEVICE_TYPE_RTC				= 32,
-	DEVICE_TYPE_SDHCI			= 33,
-	DEVICE_TYPE_SPI				= 34,
-	DEVICE_TYPE_THERMOMETER		= 35,
-	DEVICE_TYPE_UART			= 36,
-	DEVICE_TYPE_VIBRATOR		= 37,
-	DEVICE_TYPE_WATCHDOG		= 38,
+	DEVICE_TYPE_INPUT			= 17,
+	DEVICE_TYPE_IRQCHIP			= 18,
+	DEVICE_TYPE_LASERSCAN		= 19,
+	DEVICE_TYPE_LED				= 20,
+	DEVICE_TYPE_LEDTRIG			= 21,
+	DEVICE_TYPE_LIGHT			= 22,
+	DEVICE_TYPE_MAGNETOMETER	= 23,
+	DEVICE_TYPE_ORIENTATION		= 24,
+	DEVICE_TYPE_PRESSURE		= 25,
+	DEVICE_TYPE_PROXIMITY		= 26,
+	DEVICE_TYPE_PWM				= 27,
+	DEVICE_TYPE_REGULATOR		= 28,
+	DEVICE_TYPE_RESETCHIP		= 29,
+	DEVICE_TYPE_RNG				= 30,
+	DEVICE_TYPE_RTC				= 31,
+	DEVICE_TYPE_SDHCI			= 32,
+	DEVICE_TYPE_SPI				= 33,
+	DEVICE_TYPE_THERMOMETER		= 34,
+	DEVICE_TYPE_UART			= 35,
+	DEVICE_TYPE_VIBRATOR		= 36,
+	DEVICE_TYPE_WATCHDOG		= 37,
 
-	DEVICE_TYPE_MAX_COUNT		= 39,
+	DEVICE_TYPE_MAX_COUNT		= 38,
 };
 
 enum {
@@ -63,8 +62,9 @@ struct driver_t;
 struct device_t
 {
 	struct kobj_t * kobj;
-	struct hlist_node node;
 	struct list_head list;
+	struct list_head head;
+	struct hlist_node node;
 
 	char * name;
 	enum device_type_t type;
@@ -72,8 +72,8 @@ struct device_t
 	void * priv;
 };
 
-extern struct hlist_head __device_hash[DEVICE_TYPE_MAX_COUNT];
 extern struct list_head __device_list;
+extern struct list_head __device_head[DEVICE_TYPE_MAX_COUNT];
 
 char * alloc_device_name(const char * name, int id);
 void free_device_name(char * name);

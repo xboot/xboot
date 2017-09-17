@@ -42,11 +42,10 @@ static ssize_t irqchip_read_nirq(struct kobj_t * kobj, void * buf, size_t size)
 
 static struct irqchip_t * search_irqchip(int irq)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct irqchip_t * chip;
 
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_IRQCHIP], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_IRQCHIP], head)
 	{
 		chip = (struct irqchip_t *)(pos->priv);
 		if((irq >= chip->base) && (irq < (chip->base + chip->nirq)))
@@ -245,11 +244,10 @@ void disable_irq(int irq)
 
 void interrupt_handle_exception(void * regs)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct irqchip_t * chip;
 
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_IRQCHIP], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_IRQCHIP], head)
 	{
 		chip = (struct irqchip_t *)(pos->priv);
 		if(chip->dispatch)

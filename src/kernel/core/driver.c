@@ -24,7 +24,7 @@
 
 #include <xboot/driver.h>
 
-static struct hlist_head __driver_hash[257];
+static struct hlist_head __driver_hash[CONFIG_DRIVER_HASH_SIZE];
 static spinlock_t __driver_lock = SPIN_LOCK_INIT();
 
 static struct hlist_head * driver_hash(const char * name)

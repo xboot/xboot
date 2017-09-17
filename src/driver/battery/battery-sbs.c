@@ -30,7 +30,7 @@
  * SBS - Smart Battery System
  *
  * Required properties:
- * - i2c-bus: i2c bus name which device attched
+ * - i2c-bus: i2c bus name which device attached
  *
  * Optional properties:
  * - slave-address: sbs battery slave address

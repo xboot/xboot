@@ -38,12 +38,11 @@ static int l_hygrometer_new(lua_State * L)
 
 static int l_hygrometer_list(lua_State * L)
 {
-	struct device_t * pos;
-	struct hlist_node * n;
+	struct device_t * pos, * n;
 	struct hygrometer_t * hygrometer;
 
 	lua_newtable(L);
-	hlist_for_each_entry_safe(pos, n, &__device_hash[DEVICE_TYPE_HYGROMETER], node)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_HYGROMETER], head)
 	{
 		hygrometer = (struct hygrometer_t *)(pos->priv);
 		if(!hygrometer)

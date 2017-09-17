@@ -13,19 +13,27 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_AUTO_BOOT_DELAY)
-#define CONFIG_AUTO_BOOT_DELAY				(3)
+#define CONFIG_AUTO_BOOT_DELAY				(1)
 #endif
 
 #if !defined(CONFIG_AUTO_BOOT_COMMAND)
 #define CONFIG_AUTO_BOOT_COMMAND			""
 #endif
 
-#if !defined(CONFIG_MAX_BRIGHTNESS)
-#define CONFIG_MAX_BRIGHTNESS				(1023)
+#if !defined(CONFIG_DRIVER_HASH_SIZE)
+#define CONFIG_DRIVER_HASH_SIZE				(257)
+#endif
+
+#if !defined(CONFIG_DEVICE_HASH_SIZE)
+#define CONFIG_DEVICE_HASH_SIZE				(257)
 #endif
 
 #if !defined(CONFIG_PROFILER_HASH_SIZE)
 #define CONFIG_PROFILER_HASH_SIZE			(257)
+#endif
+
+#if !defined(CONFIG_MAX_BRIGHTNESS)
+#define CONFIG_MAX_BRIGHTNESS				(1023)
 #endif
 
 #if !defined(CONFIG_EVENT_FIFO_LENGTH)

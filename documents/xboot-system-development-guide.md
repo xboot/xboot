@@ -506,6 +506,47 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 
 ## ADC驱动
 
+ADC缩写`Analog to Digital Converter`，即模数转换器 ，能够将连续变化的模拟信号转换为离散的数字信号。真实世界中的模拟信号，例如温度、压力、声音或者图像等，都需要通过ADC变换后，才能够处理及存储。
+
+### ADC驱动结构体定义
+
+ADC驱动结构体，包含如下定义：
+
+- 驱动名字
+- 参考电压
+- 转换精度
+- 转换通道数
+- 转换方法
+- 私有数据
+
+```c
+struct adc_t
+{
+	char * name;
+	int vreference;
+	int resolution;
+	int nchannel;
+
+	u32_t (*read)(struct adc_t * adc, int channel);
+	void * priv;
+};
+```
+
+### ADC设备搜索、注册及卸载
+
+```c
+struct adc_t * search_adc(const char * name);
+bool_t register_adc(struct device_t ** device, struct adc_t * adc);
+bool_t unregister_adc(struct adc_t * adc);
+```
+
+### ADC设备C操作API
+
+```c
+u32_t adc_read_raw(struct adc_t * adc, int channel);
+int adc_read_voltage(struct adc_t * adc, int channel);
+```
+
 ## 音频驱动
 
 ## 电池电量驱动

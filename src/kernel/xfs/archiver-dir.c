@@ -237,6 +237,7 @@ static void dir_close(void * f)
 {
 	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
 	close(fh->fd);
+	free(fh);
 }
 
 static struct xfs_archiver_t archiver_dir = {

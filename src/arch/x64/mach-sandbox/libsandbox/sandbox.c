@@ -18,7 +18,7 @@ static size_t read_file_to_memory(const char * filename, char ** buffer)
 	if(sandbox_file_exist(filename) != 0)
 		return 0;
 
-	fd = sandbox_file_open(filename);
+	fd = sandbox_file_open(filename, "r");
 	if(fd <= 0)
 		return 0;
 

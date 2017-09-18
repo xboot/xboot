@@ -27,7 +27,7 @@ ssize_t sandbox_stdio_write(void * buf, size_t count);
 /*
  * File interface
  */
-int sandbox_file_open(const char * path);
+int sandbox_file_open(const char * path, const char * mode);
 int sandbox_file_close(int fd);
 int sandbox_file_exist(const char * path);
 ssize_t sandbox_file_read(int fd, void * buf, size_t count);

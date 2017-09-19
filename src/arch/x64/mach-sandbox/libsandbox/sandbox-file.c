@@ -5,6 +5,9 @@
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sandbox.h>
 
 int sandbox_file_open(const char * path, const char * mode)
@@ -44,11 +47,92 @@ int sandbox_file_close(int fd)
 	return ret < 0 ? 0 : 1;
 }
 
-int sandbox_file_exist(const char * path)
+int sandbox_file_isdir(const char * path)
 {
-	if(access(path, F_OK) == 0)
-		return 0;
-	return -1;
+	struct stat st;
+	int ret = 0;
+
+	if((stat(path, &st) == 0) && S_ISDIR(st.st_mode))
+		ret = 1;
+	return ret;
+}
+
+int sandbox_file_isfile(const char * path)
+{
+	struct stat st;
+	int ret = 0;
+
+	if((stat(path, &st) == 0) && S_ISREG(st.st_mode))
+		ret = 1;
+	return ret;
+}
+
+int sandbox_file_mkdir(const char * path)
+{
+	int ret = 0;
+
+	if(mkdir(path, (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) == 0)
+		ret = 1;
+	return ret;
+}
+
+int sandbox_file_remove(const char * path)
+{
+	struct stat st;
+	int ret = 0;
+
+	if(stat(path, &st) == 0)
+	{
+		if(S_ISDIR(st.st_mode))
+			ret = (rmdir(path) == 0) ? 1 : 0;
+		else if(S_ISREG(st.st_mode))
+			ret = (unlink(path) == 0) ? 1 : 0;
+	}
+	return ret;
+}
+
+int sandbox_file_access(const char * path, const char * mode)
+{
+	int m = F_OK;
+
+	while(*mode)
+	{
+		switch(*mode++)
+		{
+		case 'r':
+			m |= R_OK;
+			break;
+		case 'w':
+			m |= W_OK;
+			break;
+		case 'x':
+			m |= X_OK;
+			break;
+		default:
+			break;
+		}
+	}
+	if(access(path, m) == 0)
+		return 1;
+	return 0;
+}
+
+void sandbox_file_walk(const char * path, void (*cb)(const char * dir, const char * name, void * data), void * data)
+{
+	struct dirent * entry;
+	void * dir;
+
+	if((dir = opendir(path)) == NULL)
+		return;
+	while((entry = readdir(dir)) != NULL)
+	{
+		if(strcmp(entry->d_name, ".") == 0)
+			continue;
+		else if(strcmp(entry->d_name, "..") == 0)
+			continue;
+		cb(path, entry->d_name, data);
+	}
+	closedir(dir);
 }
 
 ssize_t sandbox_file_read(int fd, void * buf, size_t count)

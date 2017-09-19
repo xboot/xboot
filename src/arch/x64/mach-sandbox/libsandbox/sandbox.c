@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <limits.h>
 #include <SDL.h>
 #include <sandbox.h>
 
@@ -15,7 +16,7 @@ static size_t read_file_to_memory(const char * filename, char ** buffer)
 	if(!filename || !buffer)
 		return 0;
 
-	if(sandbox_file_exist(filename) != 0)
+	if(sandbox_file_isfile(filename) != 0)
 		return 0;
 
 	fd = sandbox_file_open(filename, "r");
@@ -45,6 +46,7 @@ static void print_usage(void)
 		"Usage: xboot [OPTIONS] <application>\n"
 		"Options:\n"
 		"  --help  Print help information\n"
+		"  --json <FILE>  Start xboot with a specified file of device tree using json format\n"
 	);
 	exit(0);
 }
@@ -56,14 +58,11 @@ struct sandbox_t * sandbox_get(void)
 
 void sandbox_init(int argc, char * argv[])
 {
-	char * appfile = 0;
+	char path[PATH_MAX];
 	int i, idx = 0;
 	char * buf;
 	size_t len;
 
-	/*
-	 * Clear to zero for __sandbox
-	 */
 	memset(&__sandbox, 0, sizeof(struct sandbox_t));
 
 	for(i = 1; i < argc; i++)
@@ -72,29 +71,34 @@ void sandbox_init(int argc, char * argv[])
 		{
 			print_usage();
 		}
+		else if(!strcmp(argv[i], "--json") && (argc > i + 1))
+		{
+			if(sandbox_file_isfile(argv[++i]) == 0)
+			{
+				if((len = read_file_to_memory(argv[i], &buf)) > 0)
+				{
+					__sandbox.json.buffer = buf;
+					__sandbox.json.size = len;
+				}
+			}
+			else
+			{
+				print_usage();
+			}
+		}
 		else
 		{
-			if((idx == 0) && (sandbox_file_exist(argv[i]) == 0))
-				appfile = argv[i];
+			if(idx == 0)
+			{
+				if((sandbox_file_isdir(argv[i]) == 0) || (sandbox_file_isfile(argv[i]) == 0))
+					__sandbox.app = strdup(realpath(argv[i], path));
+			}
 			else
 				print_usage();
 			idx++;
 		}
 	}
 
-	/*
-	 * Read application file
-	 */
-	len = read_file_to_memory(appfile, &buf);
-	if(len > 0)
-	{
-		__sandbox.application.buffer = buf;
-		__sandbox.application.size = len;
-	}
-
-	/*
-	 * Initial sandbox system
-	 */
 	SDL_Init(SDL_INIT_EVERYTHING);
 	sandbox_stdio_init();
 	sandbox_sdl_event_init();
@@ -102,12 +106,11 @@ void sandbox_init(int argc, char * argv[])
 
 void sandbox_exit(void)
 {
-	if(__sandbox.application.size > 0)
-		free(__sandbox.application.buffer);
+	if(__sandbox.json.buffer && (__sandbox.json.size > 0))
+		free(__sandbox.json.buffer);
+	if(__sandbox.app)
+		free(__sandbox.app);
 
-	/*
-	 * Deinitial sandbox system
-	 */
 	sandbox_sdl_timer_exit();
 	sandbox_sdl_event_exit();
 	sandbox_stdio_exit();

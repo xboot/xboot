@@ -10,7 +10,9 @@ struct sandbox_t {
 	struct {
 		char * buffer;
 		size_t size;
-	} application;
+	} json;
+
+	char * app;
 };
 struct sandbox_t * sandbox_get(void);
 void sandbox_init(int argc, char * argv[]);
@@ -29,7 +31,12 @@ ssize_t sandbox_stdio_write(void * buf, size_t count);
  */
 int sandbox_file_open(const char * path, const char * mode);
 int sandbox_file_close(int fd);
-int sandbox_file_exist(const char * path);
+int sandbox_file_isdir(const char * path);
+int sandbox_file_isfile(const char * path);
+int sandbox_file_mkdir(const char * path);
+int sandbox_file_remove(const char * path);
+int sandbox_file_access(const char * path, const char * mode);
+void sandbox_file_walk(const char * path, void (*cb)(const char * dir, const char * name, void * data), void * data);
 ssize_t sandbox_file_read(int fd, void * buf, size_t count);
 ssize_t sandbox_file_read_nonblock(int fd, void * buf, size_t count);
 ssize_t sandbox_file_write(int fd, const void * buf, size_t count);

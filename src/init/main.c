@@ -49,11 +49,11 @@ int xboot_main(int argc, char * argv[])
 	/* Do all initial calls */
 	do_initcalls();
 
-	/* Display system logo */
-	do_system_logo();
+	/* Do show logo */
+	do_show_logo();
 
-	/* System autoboot */
-	do_system_autoboot();
+	/* Do run auto boot command */
+	do_auto_boot();
 
 	/* Run loop */
 	while(1)

@@ -236,7 +236,7 @@ struct xfs_file_t * xfs_open_read(struct xfs_context_t * ctx, const char * name)
 
 	list_for_each_entry_safe_reverse(pos, n, &ctx->mounts.list, list)
 	{
-		f = pos->archiver->open(pos->mhandle, name, XFS_OPEN_MODE_READ);
+		f = pos->archiver->open(pos->mhandle, path, XFS_OPEN_MODE_READ);
 		if(f)
 		{
 			file = malloc(sizeof(struct xfs_file_t));
@@ -265,7 +265,7 @@ struct xfs_file_t * xfs_open_write(struct xfs_context_t * ctx, const char * name
 	{
 		if(pos->writable)
 		{
-			f = pos->archiver->open(pos->mhandle, name, XFS_OPEN_MODE_WRITE);
+			f = pos->archiver->open(pos->mhandle, path, XFS_OPEN_MODE_WRITE);
 			if(f)
 			{
 				file = malloc(sizeof(struct xfs_file_t));
@@ -295,7 +295,7 @@ struct xfs_file_t * xfs_open_append(struct xfs_context_t * ctx, const char * nam
 	{
 		if(pos->writable)
 		{
-			f = pos->archiver->open(pos->mhandle, name, XFS_OPEN_MODE_APPEND);
+			f = pos->archiver->open(pos->mhandle, path, XFS_OPEN_MODE_APPEND);
 			if(f)
 			{
 				file = malloc(sizeof(struct xfs_file_t));

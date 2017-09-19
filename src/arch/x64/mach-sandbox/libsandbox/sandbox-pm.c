@@ -5,7 +5,6 @@
 
 void sandbox_pm_shutdown(void)
 {
-	sandbox_exit();
 }
 
 void sandbox_pm_reboot(void)

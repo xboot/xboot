@@ -37,16 +37,16 @@ static ssize_t fb_read_height(struct kobj_t * kobj, void * buf, size_t size)
 	return sprintf(buf, "%u", fb->height);
 }
 
-static ssize_t fb_read_xdpi(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t fb_read_pwidth(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct fb_t * fb = (struct fb_t *)kobj->priv;
-	return sprintf(buf, "%u", fb->xdpi);
+	return sprintf(buf, "%u", fb->pwidth);
 }
 
-static ssize_t fb_read_ydpi(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t fb_read_pheight(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct fb_t * fb = (struct fb_t *)kobj->priv;
-	return sprintf(buf, "%u", fb->ydpi);
+	return sprintf(buf, "%u", fb->pheight);
 }
 
 static ssize_t fb_read_bpp(struct kobj_t * kobj, void * buf, size_t size)
@@ -117,8 +117,8 @@ bool_t register_fb(struct device_t ** device, struct fb_t * fb)
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "width", fb_read_width, NULL, fb);
 	kobj_add_regular(dev->kobj, "height", fb_read_height, NULL, fb);
-	kobj_add_regular(dev->kobj, "xdpi", fb_read_xdpi, NULL, fb);
-	kobj_add_regular(dev->kobj, "ydpi", fb_read_ydpi, NULL, fb);
+	kobj_add_regular(dev->kobj, "pwidth", fb_read_pwidth, NULL, fb);
+	kobj_add_regular(dev->kobj, "pheight", fb_read_pheight, NULL, fb);
 	kobj_add_regular(dev->kobj, "bpp", fb_read_bpp, NULL, fb);
 	kobj_add_regular(dev->kobj, "brightness", fb_read_brightness, fb_write_brightness, fb);
 	kobj_add_regular(dev->kobj, "max_brightness", fb_read_max_brightness, NULL, fb);

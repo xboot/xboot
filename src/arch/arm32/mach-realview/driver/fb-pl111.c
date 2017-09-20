@@ -47,8 +47,8 @@ struct fb_pl111_pdata_t {
 	virtual_addr_t virt;
 	int width;
 	int height;
-	int xdpi;
-	int ydpi;
+	int pwidth;
+	int pheight;
 	int bpp;
 	int hfp;
 	int hbp;
@@ -155,8 +155,8 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virt = virt;
 	pdat->width = dt_read_int(n, "width", 640);
 	pdat->height = dt_read_int(n, "height", 480);
-	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
-	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
+	pdat->pwidth = dt_read_int(n, "physical-width", 216);
+	pdat->pheight = dt_read_int(n, "physical-height", 135);
 	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
 	pdat->hfp = dt_read_int(n, "hfront-porch", 1);
 	pdat->hbp = dt_read_int(n, "hback-porch", 1);
@@ -172,8 +172,8 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	fb->name = alloc_device_name(dt_read_name(n), -1);
 	fb->width = pdat->width;
 	fb->height = pdat->height;
-	fb->xdpi = pdat->xdpi;
-	fb->ydpi = pdat->ydpi;
+	fb->pwidth = pdat->pwidth;
+	fb->pheight = pdat->pheight;
 	fb->bpp = pdat->bpp;
 	fb->setbl = fb_setbl,
 	fb->getbl = fb_getbl,

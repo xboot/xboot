@@ -44,8 +44,8 @@ struct fb_v3s_pdata_t
 	int rsttcon;
 	int width;
 	int height;
-	int xdpi;
-	int ydpi;
+	int pwidth;
+	int pheight;
 	int bits_per_pixel;
 	int bytes_per_pixel;
 	int index;
@@ -349,8 +349,8 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->rsttcon = dt_read_int(n, "reset-tcon", -1);
 	pdat->width = dt_read_int(n, "width", 800);
 	pdat->height = dt_read_int(n, "height", 400);
-	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
-	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
+	pdat->pwidth = dt_read_int(n, "physical-width", 216);
+	pdat->pheight = dt_read_int(n, "physical-height", 135);
 	pdat->bits_per_pixel = dt_read_int(n, "bits-per-pixel", 18);
 	pdat->bytes_per_pixel = dt_read_int(n, "bytes-per-pixel", 4);
 	pdat->index = 0;
@@ -373,8 +373,8 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 	fb->name = alloc_device_name(dt_read_name(n), -1);
 	fb->width = pdat->width;
 	fb->height = pdat->height;
-	fb->xdpi = pdat->xdpi;
-	fb->ydpi = pdat->ydpi;
+	fb->pwidth = pdat->pwidth;
+	fb->pheight = pdat->pheight;
 	fb->bpp = pdat->bytes_per_pixel * 8;
 	fb->setbl = fb_setbl,
 	fb->getbl = fb_getbl,

@@ -48,8 +48,8 @@ struct fb_t
 	/* The width and height in pixel */
 	int width, height;
 
-	/* The dots per inch */
-	int xdpi, ydpi;
+	/* The physical size in millimeter */
+	int pwidth, pheight;
 
 	/* The bit per pixel */
 	int bpp;

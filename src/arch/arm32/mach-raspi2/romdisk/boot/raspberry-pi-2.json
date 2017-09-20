@@ -120,8 +120,8 @@
 	"fb-bcm2836@0": {
 		"width": 640,
 		"height": 480,
-		"dots-per-inch-x": 160,
-		"dots-per-inch-y": 160,
+		"physical-width": 216,
+		"physical-height": 135,
 		"bits-per-pixel": 32
 	},
 

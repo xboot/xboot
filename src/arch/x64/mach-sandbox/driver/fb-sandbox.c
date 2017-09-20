@@ -30,8 +30,8 @@ struct fb_sandbox_pdata_t
 {
 	int width;
 	int height;
-	int xdpi;
-	int ydpi;
+	int pwidth;
+	int pheight;
 	int bpp;
 	int fullscreen;
 	void * priv;
@@ -123,8 +123,8 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	sprintf(title, "Xboot Runtime Environment - V%s", xboot_version_string());
 	pdat->width = dt_read_int(n, "width", 640);
 	pdat->height = dt_read_int(n, "height", 480);
-	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
-	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
+	pdat->pwidth = dt_read_int(n, "physical-width", 216);
+	pdat->pheight = dt_read_int(n, "physical-height", 135);
 	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
 	pdat->fullscreen = dt_read_bool(n, "fullscreen", 0);
 	pdat->priv = sandbox_sdl_fb_init(title, pdat->width, pdat->height, pdat->fullscreen);
@@ -134,8 +134,8 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	fb->width = pdat->width;
 	fb->height = pdat->height;
-	fb->xdpi = pdat->xdpi;
-	fb->ydpi = pdat->ydpi;
+	fb->pwidth = pdat->pwidth;
+	fb->pheight = pdat->pheight;
 	fb->bpp = pdat->bpp;
 	fb->setbl = fb_setbl,
 	fb->getbl = fb_getbl,

@@ -89,11 +89,11 @@ static int m_display_get_size(lua_State * L)
 	return 2;
 }
 
-static int m_display_get_density(lua_State * L)
+static int m_display_get_physical_size(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
-	lua_pushnumber(L, display->fb->xdpi);
-	lua_pushnumber(L, display->fb->xdpi);
+	lua_pushnumber(L, display->fb->pwidth);
+	lua_pushnumber(L, display->fb->pheight);
 	return 2;
 }
 
@@ -329,7 +329,7 @@ static int m_display_present(lua_State * L)
 static const luaL_Reg m_display[] = {
 	{"__gc",				m_display_gc},
 	{"getSize",				m_display_get_size},
-	{"getDensity",			m_display_get_density},
+	{"getPhysicalSize",		m_display_get_physical_size},
 	{"getBpp",				m_display_get_bpp},
 	{"getBacklight",		m_display_get_backlight},
 	{"setBacklight",		m_display_set_backlight},

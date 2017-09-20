@@ -102,8 +102,8 @@ struct fb_s5p6818_pdata_t
 	char * clk;
 	int width;
 	int height;
-	int xdpi;
-	int ydpi;
+	int pwidth;
+	int pheight;
 	int bits_per_pixel;
 	int bytes_per_pixel;
 	int index;
@@ -972,8 +972,8 @@ static struct device_t * fb_s5p6818_probe(struct driver_t * drv, struct dtnode_t
 	pdat->clk = strdup(clk);
 	pdat->width = dt_read_int(n, "width", 1024);
 	pdat->height = dt_read_int(n, "height", 600);
-	pdat->xdpi = dt_read_int(n, "dots-per-inch-x", 160);
-	pdat->ydpi = dt_read_int(n, "dots-per-inch-y", 160);
+	pdat->pwidth = dt_read_int(n, "physical-width", 216);
+	pdat->pheight = dt_read_int(n, "physical-height", 135);
 	pdat->bits_per_pixel = dt_read_int(n, "bits-per-pixel", 32);
 	pdat->bytes_per_pixel = dt_read_int(n, "bytes-per-pixel", 4);
 	pdat->index = 0;

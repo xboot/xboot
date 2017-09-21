@@ -1,7 +1,6 @@
 local M = Class(DisplayObject)
 
 function M:init(fb)
-	self.timermanager = TimerManager.new()
 	self.display = Display.new(fb)
 	self.exiting = false
 	if not self.display then
@@ -9,10 +8,6 @@ function M:init(fb)
 	else
 		self.super:init(self.display:getSize())
 	end
-end
-
-function M:getTimerManager()
-	return self.timermanager
 end
 
 function M:showfps(value)
@@ -26,9 +21,9 @@ function M:exit()
 end
 
 function M:loop()
+  local timermanager = timermanager
 	local Event = Event
 	local display = self.display
-	local timermanager = self.timermanager
 	local stopwatch = Stopwatch.new()
 
 	timermanager:addTimer(Timer.new(1 / 60, 0, function(t, i)

@@ -49,5 +49,6 @@ Widget = {
 }
 
 assets = Assets.new()
+timermanager = TimerManager.new()
 require("main")
 return true

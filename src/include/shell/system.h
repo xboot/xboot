@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void system(const char * cmdline);
+int system(const char * cmdline);
 
 #ifdef __cplusplus
 }

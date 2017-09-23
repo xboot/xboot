@@ -28,7 +28,7 @@
 #include <framework/vm.h>
 #include <command/command.h>
 
-void system(const char * cmdline)
+int system(const char * cmdline)
 {
 	struct command_t * cmd;
 	char **args;
@@ -37,12 +37,12 @@ void system(const char * cmdline)
 	int n, ret;
 
 	if(!cmdline)
-		return;
+		return 0;
 
 	len = strlen(cmdline);
 	buf = malloc(len + 2);
 	if(!buf)
-		return;
+		return 0;
 	memcpy(buf, cmdline, len);
 	memcpy(buf + len, " ", 2);
 
@@ -74,6 +74,8 @@ void system(const char * cmdline)
 		else
 			p = pos;
     }
+
 	free(buf);
+	return 1;
 }
 EXPORT_SYMBOL(system);

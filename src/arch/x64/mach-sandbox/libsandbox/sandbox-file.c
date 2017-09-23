@@ -118,22 +118,22 @@ int sandbox_file_access(const char * path, const char * mode)
 	return 0;
 }
 
-void sandbox_file_walk(const char * path, void (*cb)(const char * dir, const char * name, void * data), void * data)
+void sandbox_file_walk(const char * path, void (*cb)(const char * dir, const char * name, void * data), const char * dir, void * data)
 {
 	struct dirent * entry;
-	void * dir;
+	void * d;
 
-	if((dir = opendir(path)) == NULL)
+	if((d = opendir(path)) == NULL)
 		return;
-	while((entry = readdir(dir)) != NULL)
+	while((entry = readdir(d)) != NULL)
 	{
 		if(strcmp(entry->d_name, ".") == 0)
 			continue;
 		else if(strcmp(entry->d_name, "..") == 0)
 			continue;
-		cb(path, entry->d_name, data);
+		cb(dir, entry->d_name, data);
 	}
-	closedir(dir);
+	closedir(d);
 }
 
 ssize_t sandbox_file_read(int fd, void * buf, size_t count)

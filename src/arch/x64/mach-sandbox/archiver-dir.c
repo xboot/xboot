@@ -87,7 +87,7 @@ static void dir_walk(void * m, const char * name, xfs_walk_callback_t cb, void *
 {
 	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
 	char * path = concat(mh->path, "/", name, NULL);
-	sandbox_file_walk(path, cb, data);
+	sandbox_file_walk(path, cb, name, data);
 	free(path);
 }
 

@@ -36,7 +36,7 @@ int sandbox_file_isfile(const char * path);
 int sandbox_file_mkdir(const char * path);
 int sandbox_file_remove(const char * path);
 int sandbox_file_access(const char * path, const char * mode);
-void sandbox_file_walk(const char * path, void (*cb)(const char * dir, const char * name, void * data), void * data);
+void sandbox_file_walk(const char * path, void (*cb)(const char * dir, const char * name, void * data), const char * dir, void * data);
 ssize_t sandbox_file_read(int fd, void * buf, size_t count);
 ssize_t sandbox_file_read_nonblock(int fd, void * buf, size_t count);
 ssize_t sandbox_file_write(int fd, const void * buf, size_t count);

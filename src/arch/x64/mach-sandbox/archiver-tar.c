@@ -1,5 +1,5 @@
 /*
- * kernel/xfs/archiver-tar.c
+ * archiver-tar.c
  *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -23,6 +23,7 @@
  */
 
 #include <xfs/archiver.h>
+#include <sandbox.h>
 
 enum {
 	FILE_TYPE_NORMAL		= '0',
@@ -151,8 +152,8 @@ static struct mhandle_tar_t * alloc_mhandle(int fd)
 	off = 0;
 	while(1)
 	{
-		lseek(fd, off, SEEK_SET);
-		if(read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
+		sandbox_file_seek(fd, off);
+		if(sandbox_file_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
 			break;
 		if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
 			break;
@@ -191,8 +192,8 @@ static struct mhandle_tar_t * alloc_mhandle(int fd)
 	off = 0;
 	while(1)
 	{
-		lseek(fd, off, SEEK_SET);
-		if(read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
+		sandbox_file_seek(fd, off);
+		if(sandbox_file_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
 			break;
 		if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
 			break;
@@ -255,26 +256,25 @@ static void * tar_mount(const char * path, int * writable)
 {
 	struct mhandle_tar_t * m;
 	struct tar_header_t header;
-	struct stat st;
 	int fd;
 
-	if((stat(path, &st) != 0) || !S_ISREG(st.st_mode))
+	if(!sandbox_file_isfile(path))
 		return NULL;
 
-	fd = open(path, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = sandbox_file_open(path, "r");
 	if(fd < 0)
 		return NULL;
 
-	if((read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t)) || (strncmp((const char *)(header.magic), "ustar", 5) != 0))
+	if((sandbox_file_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t)) || (strncmp((const char *)(header.magic), "ustar", 5) != 0))
 	{
-		close(fd);
+		sandbox_file_close(fd);
 		return NULL;
 	}
 
 	m = alloc_mhandle(fd);
 	if(!m)
 	{
-		close(fd);
+		sandbox_file_close(fd);
 		return NULL;
 	}
 
@@ -289,7 +289,7 @@ static void tar_umount(void * m)
 
 	if(mh)
 	{
-		close(mh->fd);
+		sandbox_file_close(mh->fd);
 		free_mhandle(mh);
 	}
 }
@@ -375,8 +375,8 @@ static s64_t tar_read(void * f, void * buf, s64_t size)
 	s64_t len;
 	if(size > fh->size - fh->offset)
 		size = fh->size - fh->offset;
-	lseek(fh->fd, fh->start + fh->offset, SEEK_SET);
-	len = read(fh->fd, buf, size);
+	sandbox_file_seek(fh->fd, fh->start + fh->offset);
+	len = sandbox_file_read(fh->fd, buf, size);
 	fh->offset += len;
 	return len;
 }
@@ -393,7 +393,7 @@ static s64_t tar_seek(void * f, s64_t offset)
 		fh->offset = 0;
 	else if(offset > fh->size)
 		fh->offset = fh->size;
-	lseek(fh->fd, fh->start + fh->offset, SEEK_SET);
+	sandbox_file_seek(fh->fd, fh->start + fh->offset);
 	return fh->offset;
 }
 

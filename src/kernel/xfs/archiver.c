@@ -76,7 +76,7 @@ static const char * fileext(const char * filename)
 		if(ret != NULL)
 			ret++;
 	}
-	return ret;
+	return (ret && (strcasecmp(ret, "x") == 0)) ? "tar" : ret;
 }
 
 void * mount_archiver(const char * path, struct xfs_archiver_t ** archiver, int * writable)

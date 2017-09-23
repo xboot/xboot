@@ -50,10 +50,10 @@ int xboot_main(int argc, char * argv[])
 	do_initcalls();
 
 	/* Do show logo */
-	do_show_logo();
+	do_showlogo();
 
-	/* Do run auto boot command */
-	do_auto_boot();
+	/* Do auto boot */
+	do_autoboot();
 
 	/* Run loop */
 	while(1)

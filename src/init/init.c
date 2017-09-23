@@ -29,7 +29,7 @@
 #include <fb/fb.h>
 #include <init.h>
 
-void do_show_logo(void)
+void do_showlogo(void)
 {
 	struct device_t * pos, * n;
 	cairo_surface_t * logo;
@@ -68,13 +68,7 @@ void do_show_logo(void)
 	cairo_surface_destroy(logo);
 }
 
-static const char * __auto_boot_command(void)
-{
-	return CONFIG_AUTO_BOOT_COMMAND;
-}
-extern __typeof(__auto_boot_command) auto_boot_command __attribute__((weak, alias("__auto_boot_command")));
-
-void do_auto_boot(void)
+static void __do_autoboot(void)
 {
 	int delay = CONFIG_AUTO_BOOT_DELAY * 1000;
 
@@ -84,7 +78,6 @@ void do_auto_boot(void)
 			printf("\r\n");
 			return;
 		}
-
 		mdelay(10);
 		delay -= 10;
 		if(delay < 0)
@@ -92,5 +85,6 @@ void do_auto_boot(void)
 		printf("\rPress any key to stop autoboot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	} while(delay > 0);
 
-	system(auto_boot_command());
+	system(CONFIG_AUTO_BOOT_COMMAND);
 }
+extern __typeof(__do_autoboot) do_autoboot __attribute__((weak, alias("__do_autoboot")));

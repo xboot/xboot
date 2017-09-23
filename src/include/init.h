@@ -7,8 +7,8 @@ extern "C" {
 
 #include <xboot.h>
 
-void do_show_logo(void);
-void do_auto_boot(void);
+void do_showlogo(void);
+void do_autoboot(void);
 
 #ifdef __cplusplus
 }

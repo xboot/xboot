@@ -24,35 +24,325 @@
 
 #include <xfs/archiver.h>
 
-struct mhandle_tar_t {
-	char * path;
+enum {
+	FILE_TYPE_NORMAL		= '0',
+	FILE_TYPE_HARD_LINK		= '1',
+	FILE_TYPE_SYMBOLIC_LINK = '2',
+	FILE_TYPE_CHAR_DEVICE	= '3',
+	FILE_TYPE_BLOCK_DEVICE	= '4',
+	FILE_TYPE_DIRECTORY		= '5',
+	FILE_TYPE_FIFO			= '6',
+	FILE_TYPE_CONTIGOUS		= '7',
 };
 
-struct fhandle_tar_t {
+struct tar_header_t
+{
+	/* File name */
+	int8_t name[100];
+
+	/* File mode */
+	int8_t mode[8];
+
+	/* User id */
+	int8_t uid[8];
+
+	/* Group id */
+	int8_t gid[8];
+
+	/* File size in bytes */
+	int8_t size[12];
+
+	/* Last modification time */
+	int8_t mtime[12];
+
+	/* Checksum for header block */
+	int8_t chksum[8];
+
+	/* File type */
+	int8_t filetype;
+
+	/* Link filename */
+	int8_t linkname[100];
+
+	/* Magic indicator "ustar" */
+	int8_t magic[6];
+
+	/* Version */
+	int8_t version[2];
+
+	/* User name */
+	int8_t uname[32];
+
+	/* Group name */
+	int8_t gname[32];
+
+	/* Device major number */
+	int8_t devmajor[8];
+
+	/* Device minor number */
+	int8_t devminor[8];
+
+	/* Filename prefix */
+	int8_t prefix[155];
+
+	/* Reserver */
+	int8_t reserver[12];
+} __attribute__ ((packed));
+
+struct mhandle_tar_t {
+	struct list_head list;
+	struct hlist_head * hash;
+	int hsize;
 	int fd;
 };
 
+struct fhandle_tar_t
+{
+	struct list_head head;
+	struct hlist_node node;
+	char * name;
+	int64_t start;
+	int64_t size;
+	int64_t offset;
+	int isdir;
+	int fd;
+};
+
+static struct hlist_head * fhandle_hash(struct mhandle_tar_t * m, const char * name)
+{
+	unsigned char * p = (unsigned char *)name;
+	unsigned int seed = 131;
+	unsigned int hash = 0;
+
+	while(*p)
+	{
+		hash = hash * seed + (*p++);
+	}
+	return &m->hash[hash % m->hsize];
+}
+
+struct fhandle_tar_t * search_fhandle(struct mhandle_tar_t * m, const char * name)
+{
+	struct fhandle_tar_t * pos;
+	struct hlist_node * n;
+
+	if(!name)
+		return NULL;
+
+	hlist_for_each_entry_safe(pos, n, fhandle_hash(m, name), node)
+	{
+		if((strcmp(pos->name, name) == 0))
+			return pos;
+	}
+	return NULL;
+}
+
+static struct mhandle_tar_t * alloc_mhandle(int fd)
+{
+	struct mhandle_tar_t * m;
+	struct fhandle_tar_t * f;
+	struct tar_header_t header;
+	int64_t off;
+	int64_t size;
+	int hsize = 0;
+	int i, l;
+	char * p;
+
+	off = 0;
+	while(1)
+	{
+		lseek(fd, off, SEEK_SET);
+		if(read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
+			break;
+		if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
+			break;
+
+		size = strtoll((const char *)(header.size), NULL, 0);
+		if(size < 0)
+			break;
+
+		if((header.filetype == FILE_TYPE_NORMAL) || (header.filetype == FILE_TYPE_DIRECTORY))
+			hsize++;
+
+		if(size == 0)
+			off += sizeof(struct tar_header_t);
+		else
+			off += sizeof(struct tar_header_t) + (((size + 512) >> 9) << 9);
+	}
+	if(hsize == 0)
+		return NULL;
+
+	m = malloc(sizeof(struct mhandle_tar_t));
+	if(!m)
+		return NULL;
+
+	m->hsize = hsize * 2;
+	m->fd = fd;
+	m->hash = malloc(sizeof(struct hlist_head) * m->hsize);
+	if(!m->hash)
+	{
+		free(m);
+		return NULL;
+	}
+	init_list_head(&m->list);
+	for(i = 0; i < m->hsize; i++)
+		init_hlist_head(&m->hash[i]);
+
+	off = 0;
+	while(1)
+	{
+		lseek(fd, off, SEEK_SET);
+		if(read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
+			break;
+		if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
+			break;
+
+		size = strtoll((const char *)(header.size), NULL, 0);
+		if(size < 0)
+			break;
+
+		if((header.filetype == FILE_TYPE_NORMAL) || (header.filetype == FILE_TYPE_DIRECTORY))
+		{
+			f = malloc(sizeof(struct fhandle_tar_t));
+			if(!f)
+				break;
+
+			p = (char *)header.name;
+			l = strlen(p);
+			if(l > 0 && p[l - 1] == '/')
+				p[l - 1] = '\0';
+
+			f->name = strdup(p);
+			f->start = off + sizeof(struct tar_header_t);
+			f->size = size;
+			f->offset = 0;
+			f->isdir = (header.filetype == FILE_TYPE_DIRECTORY) ? TRUE : FALSE;
+			f->fd = fd;
+			init_list_head(&f->head);
+			list_add_tail(&f->head, &m->list);
+			init_hlist_node(&f->node);
+			hlist_add_head(&f->node, fhandle_hash(m, f->name));
+		}
+
+		if(size == 0)
+			off += sizeof(struct tar_header_t);
+		else
+			off += sizeof(struct tar_header_t) + (((size + 512) >> 9) << 9);
+	}
+
+	return m;
+}
+
+static void free_mhandle(struct mhandle_tar_t * m)
+{
+	struct fhandle_tar_t * pos, * n;
+
+	if(m)
+	{
+		list_for_each_entry_safe(pos, n, &m->list, head)
+		{
+			list_del(&pos->head);
+			hlist_del(&pos->node);
+			free(pos->name);
+			free(pos);
+		}
+		free(m->hash);
+		free(m);
+	}
+}
+
 static void * tar_mount(const char * path, int * writable)
 {
-	return NULL;
+	struct mhandle_tar_t * m;
+	struct tar_header_t header;
+	struct stat st;
+	int fd;
+
+	if((stat(path, &st) != 0) || !S_ISREG(st.st_mode))
+		return NULL;
+
+	fd = open(path, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	if(fd < 0)
+		return NULL;
+
+	if((read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t)) || (strncmp((const char *)(header.magic), "ustar", 5) != 0))
+	{
+		close(fd);
+		return NULL;
+	}
+
+	m = alloc_mhandle(fd);
+	if(!m)
+	{
+		close(fd);
+		return NULL;
+	}
+
+	if(writable)
+		*writable = 0;
+	return m;
 }
 
 static void tar_umount(void * m)
 {
+	struct mhandle_tar_t * mh = (struct mhandle_tar_t *)m;
+
+	if(mh)
+	{
+		close(mh->fd);
+		free_mhandle(mh);
+	}
 }
 
 static void tar_walk(void * m, const char * name, xfs_walk_callback_t cb, void * data)
 {
+	struct mhandle_tar_t * mh = (struct mhandle_tar_t *)m;
+	struct fhandle_tar_t * fh = search_fhandle(mh, name);
+	struct fhandle_tar_t * pos, * n;
+	char * p;
+	int l = strlen(name);
+
+	if((l == 0) && name)
+	{
+		list_for_each_entry_safe(pos, n, &mh->list, head)
+		{
+			if(strncmp(name, pos->name, l) == 0)
+			{
+				p = &pos->name[l];
+				if(p && !strchr(p, '/'))
+					cb(name, p, data);
+			}
+		}
+	}
+	else if(fh && fh->isdir)
+	{
+		list_for_each_entry_safe(pos, n, &mh->list, head)
+		{
+			if(strncmp(name, pos->name, l) == 0)
+			{
+				p = &pos->name[l];
+				if(*p++ == '/')
+				{
+					if(p && !strchr(p, '/'))
+						cb(name, p, data);
+				}
+			}
+		}
+	}
 }
 
 static bool_t tar_isdir(void * m, const char * name)
 {
-	return FALSE;
+	struct mhandle_tar_t * mh = (struct mhandle_tar_t *)m;
+	struct fhandle_tar_t * fh = search_fhandle(mh, name);
+	return (fh && fh->isdir) ? TRUE : FALSE;
 }
 
 static bool_t tar_isfile(void * m, const char * name)
 {
-	return FALSE;
+	struct mhandle_tar_t * mh = (struct mhandle_tar_t *)m;
+	struct fhandle_tar_t * fh = search_fhandle(mh, name);
+	return (fh && !fh->isdir) ? TRUE : FALSE;
 }
 
 static bool_t tar_mkdir(void * m, const char * name)
@@ -67,12 +357,28 @@ static bool_t tar_remove(void * m, const char * name)
 
 static void * tar_open(void * m, const char * name, int mode)
 {
-	return NULL;
+	struct mhandle_tar_t * mh = (struct mhandle_tar_t *)m;
+	struct fhandle_tar_t * fh;
+
+	if(mode != XFS_OPEN_MODE_READ)
+		return NULL;
+	fh = search_fhandle(mh, name);
+	if(!fh || fh->isdir)
+		return NULL;
+	fh->offset = 0;
+	return ((void *)fh);
 }
 
 static s64_t tar_read(void * f, void * buf, s64_t size)
 {
-	return 0;
+	struct fhandle_tar_t * fh = (struct fhandle_tar_t *)f;
+	s64_t len;
+	if(size > fh->size - fh->offset)
+		size = fh->size - fh->offset;
+	lseek(fh->fd, fh->start + fh->offset, SEEK_SET);
+	len = read(fh->fd, buf, size);
+	fh->offset += len;
+	return len;
 }
 
 static s64_t tar_write(void * f, void * buf, s64_t size)
@@ -82,16 +388,25 @@ static s64_t tar_write(void * f, void * buf, s64_t size)
 
 static s64_t tar_seek(void * f, s64_t offset)
 {
-	return 0;
+	struct fhandle_tar_t * fh = (struct fhandle_tar_t *)f;
+	if(offset < 0)
+		fh->offset = 0;
+	else if(offset > fh->size)
+		fh->offset = fh->size;
+	lseek(fh->fd, fh->start + fh->offset, SEEK_SET);
+	return fh->offset;
 }
 
 static s64_t tar_length(void * f)
 {
-	return 0;
+	struct fhandle_tar_t * fh = (struct fhandle_tar_t *)f;
+	return fh->size;
 }
 
 static void tar_close(void * f)
 {
+	struct fhandle_tar_t * fh = (struct fhandle_tar_t *)f;
+	fh->offset = 0;
 }
 
 static struct xfs_archiver_t archiver_tar = {

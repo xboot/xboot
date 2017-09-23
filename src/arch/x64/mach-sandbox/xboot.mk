@@ -31,6 +31,8 @@ NS_MALLOC	:=	-Dmalloc=xboot_malloc -Dmemalign=xboot_memalign \
 				-Drealloc=xboot_realloc -Dcalloc=xboot_calloc \
 				-Dfree=xboot_free
 
+NS_PATH		:=	-Dbasename=xboot_basename -Ddirname=xboot_dirname
+
 NS_STDIO	:=	-Dclearerr=xboot_clearerr -Dfclose=xboot_fclose \
 				-Dfeof=xboot_feof -Dferror=xboot_ferror \
 				-Dfflush=xboot_fflush -Dfgetc=xboot_fgetc \
@@ -152,7 +154,7 @@ NS_TEMP		:=	-Dmktime=xboot_mktime -Dctrlc=xboot_ctrlc \
 				-Dreadline=xboot_readline
 
 DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
-				$(NS_EXIT) $(NS_LOCALE) $(NS_MALLOC) \
+				$(NS_EXIT) $(NS_LOCALE) $(NS_MALLOC) $(NS_PATH) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
 				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
 

@@ -60,6 +60,13 @@ static const luaL_Reg l_pwm[] = {
 	{NULL,	NULL}
 };
 
+static int m_pwm_tostring(lua_State * L)
+{
+	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_HARDWARE_PWM);
+	lua_pushstring(L, pwm->name);
+	return 1;
+}
+
 static int m_pwm_config(lua_State * L)
 {
 	struct pwm_t * pwm = luaL_checkudata(L, 1, MT_HARDWARE_PWM);
@@ -88,9 +95,10 @@ static int m_pwm_disable(lua_State * L)
 }
 
 static const luaL_Reg m_pwm[] = {
-	{"config",	m_pwm_config},
-	{"enable",	m_pwm_enable},
-	{"disable",	m_pwm_disable},
+	{"__tostring",	m_pwm_tostring},
+	{"config",		m_pwm_config},
+	{"enable",		m_pwm_enable},
+	{"disable",		m_pwm_disable},
 	{NULL,	NULL}
 };
 

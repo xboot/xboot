@@ -60,6 +60,13 @@ static const luaL_Reg l_led[] = {
 	{NULL,	NULL}
 };
 
+static int m_led_tostring(lua_State * L)
+{
+	struct led_t * led = luaL_checkudata(L, 1, MT_HARDWARE_LED);
+	lua_pushstring(L, led->name);
+	return 1;
+}
+
 static int m_led_set_brightness(lua_State * L)
 {
 	struct led_t * led = luaL_checkudata(L, 1, MT_HARDWARE_LED);
@@ -78,6 +85,7 @@ static int m_led_get_brightness(lua_State * L)
 }
 
 static const luaL_Reg m_led[] = {
+	{"__tostring",		m_led_tostring},
 	{"setBrightness",	m_led_set_brightness},
 	{"getBrightness",	m_led_get_brightness},
 	{NULL,	NULL}

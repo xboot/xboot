@@ -60,6 +60,13 @@ static const luaL_Reg l_battery[] = {
 	{NULL,	NULL}
 };
 
+static int m_battery_tostring(lua_State * L)
+{
+	struct battery_t * bat = luaL_checkudata(L, 1, MT_HARDWARE_BATTERY);
+	lua_pushstring(L, bat->name);
+	return 1;
+}
+
 static int m_battery_update(lua_State * L)
 {
 	struct battery_t * bat = luaL_checkudata(L, 1, MT_HARDWARE_BATTERY);
@@ -93,6 +100,7 @@ static int m_battery_update(lua_State * L)
 }
 
 static const luaL_Reg m_battery[] = {
+	{"__tostring",	m_battery_tostring},
 	{"update",		m_battery_update},
 	{NULL,	NULL}
 };

@@ -60,6 +60,13 @@ static const luaL_Reg l_hygrometer[] = {
 	{NULL, NULL}
 };
 
+static int m_hygrometer_tostring(lua_State * L)
+{
+	struct hygrometer_t * hygrometer = luaL_checkudata(L, 1, MT_HARDWARE_HYGROMETER);
+	lua_pushstring(L, hygrometer->name);
+	return 1;
+}
+
 static int m_hygrometer_get_humidity(lua_State * L)
 {
 	struct hygrometer_t * hygrometer = luaL_checkudata(L, 1, MT_HARDWARE_HYGROMETER);
@@ -69,6 +76,7 @@ static int m_hygrometer_get_humidity(lua_State * L)
 }
 
 static const luaL_Reg m_hygrometer[] = {
+	{"__tostring",	m_hygrometer_tostring},
 	{"getHumidity",	m_hygrometer_get_humidity},
 	{NULL, NULL}
 };

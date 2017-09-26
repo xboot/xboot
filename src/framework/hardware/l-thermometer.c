@@ -60,6 +60,13 @@ static const luaL_Reg l_thermometer[] = {
 	{NULL, NULL}
 };
 
+static int m_thermometer_tostring(lua_State * L)
+{
+	struct thermometer_t * thermometer = luaL_checkudata(L, 1, MT_HARDWARE_THERMOMETER);
+	lua_pushstring(L, thermometer->name);
+	return 1;
+}
+
 static int m_thermometer_get_temperature(lua_State * L)
 {
 	struct thermometer_t * thermometer = luaL_checkudata(L, 1, MT_HARDWARE_THERMOMETER);
@@ -69,6 +76,7 @@ static int m_thermometer_get_temperature(lua_State * L)
 }
 
 static const luaL_Reg m_thermometer[] = {
+	{"__tostring",		m_thermometer_tostring},
 	{"getTemperature",	m_thermometer_get_temperature},
 	{NULL, NULL}
 };

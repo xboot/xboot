@@ -60,6 +60,13 @@ static const luaL_Reg l_adc[] = {
 	{NULL,	NULL}
 };
 
+static int m_adc_tostring(lua_State * L)
+{
+	struct adc_t * adc = luaL_checkudata(L, 1, MT_HARDWARE_ADC);
+	lua_pushstring(L, adc->name);
+	return 1;
+}
+
 static int m_adc_channels(lua_State * L)
 {
 	struct adc_t * adc = luaL_checkudata(L, 1, MT_HARDWARE_ADC);
@@ -86,6 +93,7 @@ static int m_adc_read_voltage(lua_State * L)
 }
 
 static const luaL_Reg m_adc[] = {
+	{"__tostring",	m_adc_tostring},
 	{"channels",	m_adc_channels},
 	{"readRaw",		m_adc_read_raw},
 	{"readVoltage",	m_adc_read_voltage},

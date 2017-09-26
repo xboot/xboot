@@ -60,6 +60,13 @@ static const luaL_Reg l_buzzer[] = {
 	{NULL,	NULL}
 };
 
+static int m_buzzer_tostring(lua_State * L)
+{
+	struct buzzer_t * buzzer = luaL_checkudata(L, 1, MT_HARDWARE_BUZZER);
+	lua_pushstring(L, buzzer->name);
+	return 1;
+}
+
 static int m_buzzer_set_frequency(lua_State * L)
 {
 	struct buzzer_t * buzzer = luaL_checkudata(L, 1, MT_HARDWARE_BUZZER);
@@ -97,6 +104,7 @@ static int m_buzzer_play(lua_State * L)
 }
 
 static const luaL_Reg m_buzzer[] = {
+	{"__tostring",		m_buzzer_tostring},
 	{"setFrequency",	m_buzzer_set_frequency},
 	{"getFrequency",	m_buzzer_get_frequency},
 	{"beep",			m_buzzer_beep},

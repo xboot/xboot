@@ -33,9 +33,9 @@
 # 编译源码
 Makefile中有两个变量在编译时需要传递，一个是交叉工具链，另一个是具体的硬件平台
 
-| 变量            | 说明                               |
-| ------------- | -------------------------------- |
-| CROSS_COMPILE | 指定交叉工具链                          |
+| 变量            | 说明                          |
+| ------------- | --------------------------- |
+| CROSS_COMPILE | 指定交叉工具链                     |
 | PLATFORM      | 指定硬件平台，由两部分组成，`arch`及`mach` |
 
 * ## Realview平台，qemu-system-arm模拟器
@@ -49,7 +49,7 @@ make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
 
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-licheepi
+make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-v3s
 ```
 
 * ## Raspberry PI 2代

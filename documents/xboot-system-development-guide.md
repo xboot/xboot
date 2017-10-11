@@ -164,11 +164,11 @@ sudo apt-get install qemu-system-arm
 
 ## 调试
 
-在调试前，我们需要先修改`src\arch\arm32\mach-realview\xboot.mk`默认的编译参数，默认`O3`优化选项，编译时，会优化掉很多有用的符号信息，不利于调试，这里改成`O0`参数，禁止编译器做任何优化，在修改参数后，需要清除一下，再重新完整编译，具体修改如下图所示：
+在调试前，我们需要先修改`src\arch\arm32\mach-realview\xboot.mk`默认的编译参数，默认`-O3`优化选项，编译时，会优化掉很多有用的符号信息，不利于调试，这里改成`-O0`参数，禁止编译器做任何优化，在修改参数后，需要清除一下，再重新完整编译，具体修改如下图所示：
 
 ![eclipse-realview-o3-o0](https://github.com/xboot/xboot/raw/master/documents/images/eclipse-realview-o3-o0.png)
 
-确认开发环境里是否已安装`GDB Hardware Debuging`插件，这个插件在`CDT`插件包里，如果没有安装，可以通过`Help` `Install new software`菜单来安装，如下图 所示：
+确认开发环境里是否已安装`GDB Hardware Debuging`插件，这个插件在`CDT`插件包里，如果没有安装，可以通过`Help` `Install new software`菜单来安装，如下图所示：
 
 ![eclipse-install-gdb-hardware-debugging](https://github.com/xboot/xboot/raw/master/documents/images/eclipse-install-gdb-hardware-debugging.png)
 
@@ -222,7 +222,7 @@ make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
 
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-licheepi
+make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-v3s
 ```
 
 * ### Raspberry PI 2代
@@ -264,10 +264,10 @@ xboot
 │   │   │   ├── lib
 │   │   │   ├── mach-apple
 │   │   │   ├── mach-h3
-│   │   │   ├── mach-licheepi
 │   │   │   ├── mach-n3ds
 │   │   │   ├── mach-raspi2
 │   │   │   ├── mach-realview
+│   │   │   ├── mach-v3s
 │   │   │   ├── mach-x3128
 │   │   │   ├── mach-x3288
 │   │   │   └── mach-x4418
@@ -378,10 +378,10 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | ------------- | --------------------------------------- |
 | mach-apple    | 苹果A4处理器，包括Iphone4，Ipod touch 4g，Ipad 1g |
 | mach-h3       | 全志H3芯片，Nano PI                          |
-| mach-licheepi | 全志V3S，Lichee PI Zero                    |
 | mach-n3ds     | 任天堂3DS，包括后出的New 2DSXLL                  |
 | mach-raspi2   | Raspberry PI 2代                         |
 | mach-realview | Qemu Realview模拟器                        |
+| mach-v3s      | 全志V3S芯片，Lichee PI Zero                  |
 | mach-x3128    | 瑞芯微RK3128                               |
 | mach-x3288    | 瑞芯微RK3288                               |
 | mach-x4418    | 三星S5P4418                               |

@@ -27,6 +27,7 @@ SECTIONS
 		.obj/arch/arm32/mach-h3/sys-uart.o (.text)
 		.obj/arch/arm32/mach-h3/sys-clock.o (.text)
 		.obj/arch/arm32/mach-h3/sys-dram.o (.text)
+		.obj/arch/arm32/mach-h3/sys-spi-flash.o (.text)
 		.obj/arch/arm32/mach-h3/sys-copyself.o (.text)
 		*(.text*)
 		*(.init.text)

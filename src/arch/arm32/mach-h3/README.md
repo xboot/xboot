@@ -1,11 +1,11 @@
-# 全志V3S，荔枝派(lichee-pi zero)
+# 全志H3
 
 ***
 
 ## 编译源码，生成的目标文件在output目录下
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-v3s
+make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-h3
 ```
 
 ## 烧写到RAM中并运行

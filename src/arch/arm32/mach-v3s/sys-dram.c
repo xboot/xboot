@@ -432,7 +432,7 @@ static void mctl_set_timing_params(struct dram_para_t * para)
 	write32((virtual_addr_t)&ctl->dramtmg[1], DRAMTMG1_TXP(txp) | DRAMTMG1_TRTP(trtp) | DRAMTMG1_TRC(trc));
 	write32((virtual_addr_t)&ctl->dramtmg[2], DRAMTMG2_TCWL(tcwl) | DRAMTMG2_TCL(tcl) | DRAMTMG2_TRD2WR(trd2wr) | DRAMTMG2_TWR2RD(twr2rd));
 	write32((virtual_addr_t)&ctl->dramtmg[3], DRAMTMG3_TMRW(tmrw) | DRAMTMG3_TMRD(tmrd) | DRAMTMG3_TMOD(tmod));
-	write32((virtual_addr_t)&ctl->dramtmg[4], DRAMTMG4_TRCD(trcd) | DRAMTMG4_TCCD(tccd) | DRAMTMG4_TRRD(trrd) | DRAMTMG4_TRP(trp) );
+	write32((virtual_addr_t)&ctl->dramtmg[4], DRAMTMG4_TRCD(trcd) | DRAMTMG4_TCCD(tccd) | DRAMTMG4_TRRD(trrd) | DRAMTMG4_TRP(trp));
 	write32((virtual_addr_t)&ctl->dramtmg[5], DRAMTMG5_TCKSRX(tcksrx) | DRAMTMG5_TCKSRE(tcksre) | DRAMTMG5_TCKESR(tckesr) | DRAMTMG5_TCKE(tcke));
 
 	/* Set two rank timing */

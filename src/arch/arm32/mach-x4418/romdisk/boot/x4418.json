@@ -763,7 +763,7 @@
 
 	"ledtrig-heartbeat@0": {
 		"led-name": "led-gpio.3",
-		"heartbeat-period-ms": 1260
+		"period-ms": 1260
 	},
 
 	"ledtrig-general@0": {

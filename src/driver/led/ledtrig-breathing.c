@@ -28,8 +28,8 @@
 struct ledtrig_breathing_pdata_t {
 	struct timer_t timer;
 	struct led_t * led;
-	int period;
 	int interval;
+	int period;
 	int phase;
 };
 
@@ -87,8 +87,8 @@ static struct device_t * ledtrig_breathing_probe(struct driver_t * drv, struct d
 
 	timer_init(&pdat->timer, ledtrig_breathing_timer_function, ledtrig);
 	pdat->led = led;
-	pdat->period = dt_read_int(n, "period-ms", 3000);
 	pdat->interval = dt_read_int(n, "interval-ms", 20);
+	pdat->period = dt_read_int(n, "period-ms", 3000);
 	pdat->phase = 0;
 
 	ledtrig->name = alloc_device_name(dt_read_name(n), dt_read_id(n));

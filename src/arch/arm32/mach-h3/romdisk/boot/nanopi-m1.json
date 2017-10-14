@@ -283,11 +283,11 @@
 		"interrupt-offset": 224
 	},
 
-	"pwm-h3@0x01c21400": {
+	"pwm-h3@0x01f03800": {
 		"clock-name": "link-pwm",
 		"channel": 0,
-		"pwm-gpio": 5,
-		"pwm-gpio-config": 3
+		"pwm-gpio": 234,
+		"pwm-gpio-config": 2
 	},
 
 	"ce-h3-timer@0x01c20c00": {
@@ -370,10 +370,10 @@
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
-		"gpio": 234,
-		"gpio-config": 1,
-		"active-low": false,
+	"led-pwm@0": {
+		"pwm-name": "pwm-h3.0",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": true,
 		"default-brightness": 0
 	},
 

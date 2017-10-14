@@ -17,6 +17,34 @@
 	"clk-fixed-factor@1": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
 	"clk-fixed-factor@2": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
 
+	"clk-mux@0x01f01400": {
+		"parent": [
+			{ "name": "osc32k", "value": 0 },
+			{ "name": "osc24m", "value": 1 },
+			{ "name": "pll-periph0", "value": 2 },
+			{ "name": "iosc", "value": 3 }
+		],
+		"name": "ar100", "shift": 16, "width": 2
+	},
+	"clk-divider@0x01f01400": { "parent": "ar100", "name": "ar100-m", "shift": 8, "width": 5, "divider-one-based": true },
+	"clk-ratio@0x01f01400": { "parent": "ar100-m", "name": "ar100-m-n", "shift": 4, "width": 2 },
+	"clk-link": { "parent": "ar100-m-n", "name": "ahb0" },
+	"clk-ratio@0x01f0140c": { "parent": "ahb0", "name": "apb0", "shift": 0, "width": 2 },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-pio", "shift": 0, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-ir", "shift": 1, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-timer", "shift": 2, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-rsb", "shift": 3, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-uart", "shift": 4, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-i2c", "shift": 6, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-twd", "shift": 7, "invert": false },
+	"clk-link": { "parent": "gate-apb0-pio", "name": "link-apb0-pio" },
+	"clk-link": { "parent": "gate-apb0-ir", "name": "link-apb0-ir" },
+	"clk-link": { "parent": "gate-apb0-timer", "name": "link-apb0-timer" },
+	"clk-link": { "parent": "gate-apb0-rsb", "name": "link-apb0-rsb" },
+	"clk-link": { "parent": "gate-apb0-uart", "name": "link-apb0-uart" },
+	"clk-link": { "parent": "gate-apb0-i2c", "name": "link-apb0-i2c" },
+	"clk-link": { "parent": "gate-apb0-twd", "name": "link-apb0-twd" },
+
 	"clk-mux@0x01c20050": {
 		"parent": [
 			{ "name": "losc", "value": 0 },
@@ -182,6 +210,11 @@
 
 	"reset-h3@0x01c202d8": {
 		"reset-base": 128,
+		"reset-count": 32
+	},
+
+	"reset-h3@0x01f014b0": {
+		"reset-base": 160,
 		"reset-count": 32
 	},
 

@@ -348,6 +348,14 @@
 		"clock-name": "link-wdt"
 	},
 
+	"key-h3-lradc@0x01c21800": {
+		"interrupt": 62,
+		"reference-voltage": 3000000,
+		"keys": [
+			{ "min-voltage": 0, "max-voltage": 1000000, "key-code": 10 }
+		]
+	},
+
 	"led-gpio@0": {
 		"gpio": 10,
 		"gpio-config": 1,

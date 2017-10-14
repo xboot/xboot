@@ -1,5 +1,5 @@
 /*
- * driver/key-v3s-lradc.c
+ * driver/key-h3-lradc.c
  *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -64,7 +64,7 @@ struct adc_key_t {
 	int keycode;
 };
 
-struct key_v3s_lradc_pdata_t {
+struct key_h3_lradc_pdata_t {
 	virtual_addr_t virt;
 	int irq;
 	int vref;
@@ -73,7 +73,7 @@ struct key_v3s_lradc_pdata_t {
 	int keycode;
 };
 
-static int key_v3s_lradc_get_keycode(struct key_v3s_lradc_pdata_t * pdat, int voltage)
+static int key_h3_lradc_get_keycode(struct key_h3_lradc_pdata_t * pdat, int voltage)
 {
 	int i;
 
@@ -85,10 +85,10 @@ static int key_v3s_lradc_get_keycode(struct key_v3s_lradc_pdata_t * pdat, int vo
 	return 0;
 }
 
-static void key_v3s_lradc_interrupt(void * data)
+static void key_h3_lradc_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
-	struct key_v3s_lradc_pdata_t * pdat = (struct key_v3s_lradc_pdata_t *)input->priv;
+	struct key_h3_lradc_pdata_t * pdat = (struct key_h3_lradc_pdata_t *)input->priv;
 	u32_t ints, val;
 	int voltage, keycode;
 
@@ -103,7 +103,7 @@ static void key_v3s_lradc_interrupt(void * data)
 	{
 		val = read32(pdat->virt + LRADC_DATA0) & 0x3f;
 		voltage = val * pdat->vref / 63;
-		keycode = key_v3s_lradc_get_keycode(pdat, voltage);
+		keycode = key_h3_lradc_get_keycode(pdat, voltage);
 		if(keycode != 0)
 		{
 			pdat->keycode = keycode;
@@ -113,14 +113,14 @@ static void key_v3s_lradc_interrupt(void * data)
 	write32(pdat->virt + LRADC_INTS, ints);
 }
 
-static int key_v3s_lradc_ioctl(struct input_t * input, int cmd, void * arg)
+static int key_h3_lradc_ioctl(struct input_t * input, int cmd, void * arg)
 {
 	return -1;
 }
 
-static struct device_t * key_v3s_lradc_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * key_h3_lradc_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct key_v3s_lradc_pdata_t * pdat;
+	struct key_h3_lradc_pdata_t * pdat;
 	struct adc_key_t * keys;
 	struct input_t * input;
 	struct device_t * dev;
@@ -135,7 +135,7 @@ static struct device_t * key_v3s_lradc_probe(struct driver_t * drv, struct dtnod
 	if((nkeys = dt_read_array_length(n, "keys")) <= 0)
 		return NULL;
 
-	pdat = malloc(sizeof(struct key_v3s_lradc_pdata_t));
+	pdat = malloc(sizeof(struct key_h3_lradc_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -171,10 +171,10 @@ static struct device_t * key_v3s_lradc_probe(struct driver_t * drv, struct dtnod
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
 	input->type = INPUT_TYPE_KEYBOARD;
-	input->ioctl = key_v3s_lradc_ioctl;
+	input->ioctl = key_h3_lradc_ioctl;
 	input->priv = pdat;
 
-	request_irq(pdat->irq, key_v3s_lradc_interrupt, IRQ_TYPE_NONE, input);
+	request_irq(pdat->irq, key_h3_lradc_interrupt, IRQ_TYPE_NONE, input);
 
 	/*
 	 * Set sample time to 4 ms / 250 Hz. Wait 2 * 4 ms for key to
@@ -200,10 +200,10 @@ static struct device_t * key_v3s_lradc_probe(struct driver_t * drv, struct dtnod
 	return dev;
 }
 
-static void key_v3s_lradc_remove(struct device_t * dev)
+static void key_h3_lradc_remove(struct device_t * dev)
 {
 	struct input_t * input = (struct input_t *)dev->priv;
-	struct key_v3s_lradc_pdata_t * pdat = (struct key_v3s_lradc_pdata_t *)input->priv;
+	struct key_h3_lradc_pdata_t * pdat = (struct key_h3_lradc_pdata_t *)input->priv;
 
 	if(input && unregister_input(input))
 	{
@@ -218,31 +218,31 @@ static void key_v3s_lradc_remove(struct device_t * dev)
 	}
 }
 
-static void key_v3s_lradc_suspend(struct device_t * dev)
+static void key_h3_lradc_suspend(struct device_t * dev)
 {
 }
 
-static void key_v3s_lradc_resume(struct device_t * dev)
+static void key_h3_lradc_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t key_v3s_lradc = {
-	.name		= "key-v3s-lradc",
-	.probe		= key_v3s_lradc_probe,
-	.remove		= key_v3s_lradc_remove,
-	.suspend	= key_v3s_lradc_suspend,
-	.resume		= key_v3s_lradc_resume,
+static struct driver_t key_h3_lradc = {
+	.name		= "key-h3-lradc",
+	.probe		= key_h3_lradc_probe,
+	.remove		= key_h3_lradc_remove,
+	.suspend	= key_h3_lradc_suspend,
+	.resume		= key_h3_lradc_resume,
 };
 
-static __init void key_v3s_lradc_driver_init(void)
+static __init void key_h3_lradc_driver_init(void)
 {
-	register_driver(&key_v3s_lradc);
+	register_driver(&key_h3_lradc);
 }
 
-static __exit void key_v3s_lradc_driver_exit(void)
+static __exit void key_h3_lradc_driver_exit(void)
 {
-	unregister_driver(&key_v3s_lradc);
+	unregister_driver(&key_h3_lradc);
 }
 
-driver_initcall(key_v3s_lradc_driver_init);
-driver_exitcall(key_v3s_lradc_driver_exit);
+driver_initcall(key_h3_lradc_driver_init);
+driver_exitcall(key_h3_lradc_driver_exit);

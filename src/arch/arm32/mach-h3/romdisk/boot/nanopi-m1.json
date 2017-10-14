@@ -382,6 +382,12 @@
 		"heartbeat-period-ms": 1260
 	},
 
+	"ledtrig-breathing@0": {
+		"led-name": "led-pwm.0",
+		"period-ms": 3000,
+		"interval-ms": 20
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-16550.0"
 	}

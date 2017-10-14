@@ -223,10 +223,28 @@
 		"interrupt-count": 128
 	},
 
+	"irq-h3-gpio@0x01c20a00": {
+		"interrupt-base": 160,
+		"interrupt-count": 22,
+		"interrupt-parent": 43
+	},
+
+	"irq-h3-gpio@0x01c20a20": {
+		"interrupt-base": 192,
+		"interrupt-count": 14,
+		"interrupt-parent": 49
+	},
+
+	"irq-h3-gpio@0x01f02e00": {
+		"interrupt-base": 224,
+		"interrupt-count": 12,
+		"interrupt-parent": 77
+	},
+
 	"gpio-h3@0x01c20800": {
 		"gpio-base": 0,
 		"gpio-count": 22,
-		"interrupt-offset": -1
+		"interrupt-offset": 160
 	},
 
 	"gpio-h3@0x01c20848": {
@@ -256,13 +274,13 @@
 	"gpio-h3@0x01c208d8": {
 		"gpio-base": 192,
 		"gpio-count": 14,
-		"interrupt-offset": -1
+		"interrupt-offset": 192
 	},
 
 	"gpio-h3@0x01f02c00": {
 		"gpio-base": 224,
 		"gpio-count": 12,
-		"interrupt-offset": -1
+		"interrupt-offset": 224
 	},
 
 	"ce-h3-timer@0x01c20c00": {

@@ -351,6 +351,39 @@
 		"stop-bits": 1
 	},
 
+	"spi-h3@0x01c68000": {
+		"clock-name": "link-spi0",
+		"reset": 20,
+		"sclk-gpio": 66,
+		"sclk-gpio-config": 3,
+		"mosi-gpio": 64,
+		"mosi-gpio-config": 3,
+		"miso-gpio": 65,
+		"miso-gpio-config": 3,
+		"cs-gpio": 67,
+		"cs-gpio-config": 3
+	},
+
+	"spi-h3@0x01c69000": {
+		"clock-name": "link-spi1",
+		"reset": 21,
+		"sclk-gpio": 14,
+		"sclk-gpio-config": 2,
+		"mosi-gpio": 15,
+		"mosi-gpio-config": 2,
+		"miso-gpio": 16,
+		"miso-gpio-config": 2,
+		"cs-gpio": 13,
+		"cs-gpio-config": 2
+	},
+
+	"spi-flash@0": {
+		"spi-bus": "spi-h3.0",
+		"chip-select": 0,
+		"mode": 0,
+		"speed": 50000000
+	},
+
 	"wdog-h3@0x01c20ca0": {
 		"clock-name": "link-wdt"
 	},

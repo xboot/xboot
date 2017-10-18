@@ -54,6 +54,10 @@ extern "C" {
 #define H3_RESET_UART2			(146)
 #define H3_RESET_UART3			(147)
 #define H3_RESET_SCR			(148)
+#define H3_RESET_R_IR			(161)
+#define H3_RESET_R_TIMER		(162)
+#define H3_RESET_R_UART			(164)
+#define H3_RESET_R_I2C			(166)
 
 #ifdef __cplusplus
 }

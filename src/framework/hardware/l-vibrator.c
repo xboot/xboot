@@ -60,6 +60,13 @@ static const luaL_Reg l_vibrator[] = {
 	{NULL,	NULL}
 };
 
+static int m_vibrator_tostring(lua_State * L)
+{
+	struct vibrator_t * vib = luaL_checkudata(L, 1, MT_HARDWARE_VIBRATOR);
+	lua_pushstring(L, vib->name);
+	return 1;
+}
+
 static int m_vibrator_set_state(lua_State * L)
 {
 	struct vibrator_t * vib = luaL_checkudata(L, 1, MT_HARDWARE_VIBRATOR);
@@ -97,6 +104,7 @@ static int m_vibrator_play(lua_State * L)
 }
 
 static const luaL_Reg m_vibrator[] = {
+	{"__tostring",	m_vibrator_tostring},
 	{"setState",	m_vibrator_set_state},
 	{"getState",	m_vibrator_get_state},
 	{"vibrate",		m_vibrator_vibrate},

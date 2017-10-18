@@ -28,6 +28,9 @@ extern unsigned char __image_start;
 extern unsigned char __image_end;
 extern void return_to_fel(void);
 extern void sys_uart_putc(char c);
+extern void sys_spi_flash_init(void);
+extern void sys_spi_flash_exit(void);
+extern void sys_spi_flash_read(int addr, void * buf, int count);
 
 enum {
 	BOOT_DEVICE_FEL		= 0,
@@ -95,5 +98,9 @@ void sys_copyself(void)
 	{
 		mem = (void *)&__image_start;
 		size = &__image_end - &__image_start;
+
+		sys_spi_flash_init();
+		sys_spi_flash_read(0, mem, size);
+		sys_spi_flash_exit();
 	}
 }

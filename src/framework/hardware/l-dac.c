@@ -60,6 +60,13 @@ static const luaL_Reg l_dac[] = {
 	{NULL,	NULL}
 };
 
+static int m_dac_tostring(lua_State * L)
+{
+	struct dac_t * dac = luaL_checkudata(L, 1, MT_HARDWARE_DAC);
+	lua_pushstring(L, dac->name);
+	return 1;
+}
+
 static int m_dac_channels(lua_State * L)
 {
 	struct dac_t * dac = luaL_checkudata(L, 1, MT_HARDWARE_DAC);
@@ -88,6 +95,7 @@ static int m_dac_write_voltage(lua_State * L)
 }
 
 static const luaL_Reg m_dac[] = {
+	{"__tostring",	m_dac_tostring},
 	{"channels",	m_dac_channels},
 	{"writeRaw",	m_dac_write_raw},
 	{"writeVoltage",m_dac_write_voltage},

@@ -60,6 +60,13 @@ static const luaL_Reg l_gmeter[] = {
 	{NULL, NULL}
 };
 
+static int m_gmeter_tostring(lua_State * L)
+{
+	struct gmeter_t * gmeter = luaL_checkudata(L, 1, MT_HARDWARE_GMETER);
+	lua_pushstring(L, gmeter->name);
+	return 1;
+}
+
 static int m_gmeter_get_acceleration(lua_State * L)
 {
 	struct gmeter_t * gmeter = luaL_checkudata(L, 1, MT_HARDWARE_GMETER);
@@ -75,6 +82,7 @@ static int m_gmeter_get_acceleration(lua_State * L)
 }
 
 static const luaL_Reg m_gmeter[] = {
+	{"__tostring",		m_gmeter_tostring},
 	{"getAcceleration",	m_gmeter_get_acceleration},
 	{NULL, NULL}
 };

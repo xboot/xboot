@@ -60,6 +60,13 @@ static const luaL_Reg l_ledtrig[] = {
 	{NULL, NULL}
 };
 
+static int m_ledtrig_tostring(lua_State * L)
+{
+	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_HARDWARE_LEDTRIG);
+	lua_pushstring(L, trigger->name);
+	return 1;
+}
+
 static int m_ledtrig_activity(lua_State * L)
 {
 	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_HARDWARE_LEDTRIG);
@@ -69,6 +76,7 @@ static int m_ledtrig_activity(lua_State * L)
 }
 
 static const luaL_Reg m_ledtrig[] = {
+	{"__tostring",	m_ledtrig_tostring},
 	{"activity",	m_ledtrig_activity},
 	{NULL,	NULL}
 };

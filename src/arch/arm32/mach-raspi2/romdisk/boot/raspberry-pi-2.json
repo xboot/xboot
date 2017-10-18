@@ -98,7 +98,7 @@
 
 	"ledtrig-heartbeat@0": {
 		"led-name": "led-gpio.0",
-		"heartbeat-period-ms": 1260
+		"period-ms": 1260
 	},
 
 	"buzzer-pwm@0": {

@@ -60,6 +60,13 @@ static const luaL_Reg l_watchdog[] = {
 	{NULL, NULL}
 };
 
+static int m_watchdog_tostring(lua_State * L)
+{
+	struct watchdog_t * watchdog = luaL_checkudata(L, 1, MT_HARDWARE_WATCHDOG);
+	lua_pushstring(L, watchdog->name);
+	return 1;
+}
+
 static int m_watchdog_set_timeout(lua_State * L)
 {
 	struct watchdog_t * watchdog = luaL_checkudata(L, 1, MT_HARDWARE_WATCHDOG);
@@ -78,6 +85,7 @@ static int m_watchdog_get_timeout(lua_State * L)
 }
 
 static const luaL_Reg m_watchdog[] = {
+	{"__tostring",	m_watchdog_tostring},
 	{"setTimeout",	m_watchdog_set_timeout},
 	{"getTimeout",	m_watchdog_get_timeout},
 	{NULL, NULL}

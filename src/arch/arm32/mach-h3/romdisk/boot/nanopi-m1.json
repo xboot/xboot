@@ -17,6 +17,34 @@
 	"clk-fixed-factor@1": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
 	"clk-fixed-factor@2": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
 
+	"clk-mux@0x01f01400": {
+		"parent": [
+			{ "name": "osc32k", "value": 0 },
+			{ "name": "osc24m", "value": 1 },
+			{ "name": "pll-periph0", "value": 2 },
+			{ "name": "iosc", "value": 3 }
+		],
+		"name": "ar100", "shift": 16, "width": 2
+	},
+	"clk-divider@0x01f01400": { "parent": "ar100", "name": "ar100-m", "shift": 8, "width": 5, "divider-one-based": true },
+	"clk-ratio@0x01f01400": { "parent": "ar100-m", "name": "ar100-m-n", "shift": 4, "width": 2 },
+	"clk-link": { "parent": "ar100-m-n", "name": "ahb0" },
+	"clk-ratio@0x01f0140c": { "parent": "ahb0", "name": "apb0", "shift": 0, "width": 2 },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-pio", "shift": 0, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-ir", "shift": 1, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-timer", "shift": 2, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-rsb", "shift": 3, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-uart", "shift": 4, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-i2c", "shift": 6, "invert": false },
+	"clk-gate@0x01f01428": {"parent": "apb0", "name": "gate-apb0-twd", "shift": 7, "invert": false },
+	"clk-link": { "parent": "gate-apb0-pio", "name": "link-apb0-pio" },
+	"clk-link": { "parent": "gate-apb0-ir", "name": "link-apb0-ir" },
+	"clk-link": { "parent": "gate-apb0-timer", "name": "link-apb0-timer" },
+	"clk-link": { "parent": "gate-apb0-rsb", "name": "link-apb0-rsb" },
+	"clk-link": { "parent": "gate-apb0-uart", "name": "link-apb0-uart" },
+	"clk-link": { "parent": "gate-apb0-i2c", "name": "link-apb0-i2c" },
+	"clk-link": { "parent": "gate-apb0-twd", "name": "link-apb0-twd" },
+
 	"clk-mux@0x01c20050": {
 		"parent": [
 			{ "name": "losc", "value": 0 },
@@ -185,15 +213,38 @@
 		"reset-count": 32
 	},
 
+	"reset-h3@0x01f014b0": {
+		"reset-base": 160,
+		"reset-count": 32
+	},
+
 	"irq-gic400@0x01c80000": {
 		"interrupt-base": 32,
 		"interrupt-count": 128
 	},
 
+	"irq-h3-gpio@0x01c20a00": {
+		"interrupt-base": 160,
+		"interrupt-count": 22,
+		"interrupt-parent": 43
+	},
+
+	"irq-h3-gpio@0x01c20a20": {
+		"interrupt-base": 192,
+		"interrupt-count": 14,
+		"interrupt-parent": 49
+	},
+
+	"irq-h3-gpio@0x01f02e00": {
+		"interrupt-base": 224,
+		"interrupt-count": 12,
+		"interrupt-parent": 77
+	},
+
 	"gpio-h3@0x01c20800": {
 		"gpio-base": 0,
 		"gpio-count": 22,
-		"interrupt-offset": -1
+		"interrupt-offset": 160
 	},
 
 	"gpio-h3@0x01c20848": {
@@ -223,13 +274,20 @@
 	"gpio-h3@0x01c208d8": {
 		"gpio-base": 192,
 		"gpio-count": 14,
-		"interrupt-offset": -1
+		"interrupt-offset": 192
 	},
 
 	"gpio-h3@0x01f02c00": {
 		"gpio-base": 224,
 		"gpio-count": 12,
-		"interrupt-offset": -1
+		"interrupt-offset": 224
+	},
+
+	"pwm-h3@0x01f03800": {
+		"clock-name": "link-pwm",
+		"channel": 0,
+		"pwm-gpio": 234,
+		"pwm-gpio-config": 2
 	},
 
 	"ce-h3-timer@0x01c20c00": {
@@ -293,8 +351,49 @@
 		"stop-bits": 1
 	},
 
+	"spi-h3@0x01c68000": {
+		"clock-name": "link-spi0",
+		"reset": 20,
+		"sclk-gpio": 66,
+		"sclk-gpio-config": 3,
+		"mosi-gpio": 64,
+		"mosi-gpio-config": 3,
+		"miso-gpio": 65,
+		"miso-gpio-config": 3,
+		"cs-gpio": 67,
+		"cs-gpio-config": 3
+	},
+
+	"spi-h3@0x01c69000": {
+		"clock-name": "link-spi1",
+		"reset": 21,
+		"sclk-gpio": 14,
+		"sclk-gpio-config": 2,
+		"mosi-gpio": 15,
+		"mosi-gpio-config": 2,
+		"miso-gpio": 16,
+		"miso-gpio-config": 2,
+		"cs-gpio": 13,
+		"cs-gpio-config": 2
+	},
+
+	"spi-flash@0": {
+		"spi-bus": "spi-h3.0",
+		"chip-select": 0,
+		"mode": 0,
+		"speed": 50000000
+	},
+
 	"wdog-h3@0x01c20ca0": {
 		"clock-name": "link-wdt"
+	},
+
+	"key-h3-lradc@0x01c21800": {
+		"interrupt": 62,
+		"reference-voltage": 3000000,
+		"keys": [
+			{ "min-voltage": 0, "max-voltage": 1000000, "key-code": 10 }
+		]
 	},
 
 	"led-gpio@0": {
@@ -304,16 +403,22 @@
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
-		"gpio": 234,
-		"gpio-config": 1,
-		"active-low": false,
+	"led-pwm@0": {
+		"pwm-name": "pwm-h3.0",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": true,
 		"default-brightness": 0
 	},
 
 	"ledtrig-heartbeat@0": {
 		"led-name": "led-gpio.0",
-		"heartbeat-period-ms": 1260
+		"period-ms": 1260
+	},
+
+	"ledtrig-breathing@0": {
+		"led-name": "led-pwm.0",
+		"interval-ms": 20,
+		"period-ms": 3000
 	},
 
 	"console-uart@0": {

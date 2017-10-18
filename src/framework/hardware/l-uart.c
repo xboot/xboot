@@ -68,6 +68,13 @@ static const luaL_Reg l_uart[] = {
 	{NULL,	NULL}
 };
 
+static int m_uart_tostring(lua_State * L)
+{
+	struct uart_t * uart = luaL_checkudata(L, 1, MT_HARDWARE_UART);
+	lua_pushstring(L, uart->name);
+	return 1;
+}
+
 static int m_uart_set(lua_State * L)
 {
 	struct uart_t * uart = luaL_checkudata(L, 1, MT_HARDWARE_UART);
@@ -133,10 +140,11 @@ static int m_uart_write(lua_State * L)
 }
 
 static const luaL_Reg m_uart[] = {
-	{"set",		m_uart_set},
-	{"get",		m_uart_get},
-	{"read",	m_uart_read},
-	{"write",	m_uart_write},
+	{"__tostring",	m_uart_tostring},
+	{"set",			m_uart_set},
+	{"get",			m_uart_get},
+	{"read",		m_uart_read},
+	{"write",		m_uart_write},
 	{NULL,	NULL}
 };
 

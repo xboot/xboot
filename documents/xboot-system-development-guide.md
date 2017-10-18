@@ -304,6 +304,7 @@ xboot
 │   │   ├── laserscan
 │   │   ├── led
 │   │   ├── light
+│   │   ├── nvmem
 │   │   ├── pwm
 │   │   ├── regulator
 │   │   ├── reset
@@ -425,6 +426,7 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | laserscan   | 激光振镜驱动   |
 | led         | LED驱动    |
 | light       | 光线传感器驱动  |
+| nvmem       | 非易失性存储器驱动  |
 | pwm         | PWM驱动    |
 | regulator   | 电压调节器驱动  |
 | reset       | 复位驱动     |
@@ -586,6 +588,8 @@ int adc_read_voltage(struct adc_t * adc, int channel);
 ## LED驱动
 
 ## 光线传感器驱动
+
+## 非易失性存储器驱动
 
 ## PWM驱动
 

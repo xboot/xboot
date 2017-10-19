@@ -6,8 +6,8 @@
 #
 # You must pass CROSS_COMPILE and PLATFORM variable.
 #
-CROSS_COMPILE	?= arm-linux-gnueabihf-
-PLATFORM		?= arm32-h3
+CROSS_COMPILE	?=
+PLATFORM		?=
 
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.

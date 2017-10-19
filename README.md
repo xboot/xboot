@@ -1,5 +1,5 @@
 ![xboot-logo]
-***1111
+***
 # [XBOOT][xboot-homepage]简介
 ```
        _                   _                     

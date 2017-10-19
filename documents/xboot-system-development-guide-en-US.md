@@ -1,45 +1,44 @@
-# XBOOT系统开发指南
+# XBOOT System Development Guide
 
-# 简介
-操作一个GPIO，需要仔细对照芯片手册，好繁琐；每换一个主控芯片，所有工作从头来过；想开发个现代点支持各种动效的UI，发现几乎是不可能的事情；各种协议栈有如天书一样，阅读都困难，何谈编写；虚拟机技术很流行，功能很强大，想自己移植个，可是困难重重；还是放开自己吧，让XBOOT来替你解决这些问题。XBOOT不仅仅是一款功能强大、可移植性强、代码复用率高的嵌入式系统bootloader，而且还是一款SOC片上系统应用软件执行引擎，无需复杂的操作系统，APP上电直接执行。一次编写，到处运行，不仅仅是个口号，而且还是XBOOT存在的唯一原因。
+# Introduction
+The operation of a GPIO, you need to carefully control the chip manual, so cumbersome; for a master chip, all work from scratch; want to develop a modern point to support a variety of dynamic UI, found almost impossible things; The virtual machine technology is very popular, very powerful, like their own transplant, but difficult; or let go of their own, so XBOOT to solve these problems for you. XBOOT is not only a powerful, portability, code reuse rate of the embedded system bootloader, but also a SOC chip system application software execution engine, without complex operating system, APP power direct implementation. Once written, running everywhere, not just a slogan, but also the only reason for the existence of XBOOT. Some basic features are briefly listed as follows:
 
-一些基本特性，简单列举如下：
+- Support file systems
+- Support lua virtual machine
+- Support many protocol stacks
+- Support graphics library, and vector font
+- Supports a modern GUI, and animations
+- Multi-platform support
+- Bus drivers, UART, I2C, SPI and so on
+- Device drivers, GPIO, PWM, IRQ, CLK, LED, BUZZER, VIBRATOR, WATCHDOG, RNG, FRAMEBUFFER, RTC, etc.
+- Support application using lua, which include high-level API, can operate a variety of hardware abstract interface directly
+- Application software platform has nothing to do, write once, run everywhere
 
-* 支持文件系统
-* 支持lua虚拟机
-* 支持各种协议栈
-* 支持矢量图形库，矢量字体
-* 支持各种现代GUI控件，以及动效
-* 多平台支持
-* 各种总线驱动，UART，I2C，SPI等等
-* 各种设备驱动，GPIO，PWM，IRQ，CLK，LED，BUZZER，VIBRATOR，WATCHDOG，RNG，FRAMEBUFFER，RTC等
-* 支持用lua编写应用软件，包含高等级API,可直接操作各种硬件抽象接口
-* 应用软件平台无关，一次编写，到处运行
+# Related website
 
-# 相关网址
-* XBOOT官方首页
+* Xboot official home page
 
   https://xboot.github.io/
 
-* XBOOT源码(完全开源)，寄存在github，请直接`fork`一份代码，如需申请合并，直接`pull request`即可
+* XBOOT source code(open source completely),registered in `github`,please `star` and `fork` a copy directly,if you want to merge, just `pull request`
 
   https://github.com/xboot/xboot
 
-* XBOOT运行效果展示页面，首次接触的用户，建议观看，对XBOOT有个直观的感受
+* XBOOT show case pages，for all of users, recommended to watch and have an intuitive feel
 
-  https://github.com/xboot/xboot/blob/master/documents/xboot-show-case.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-show-case-en-US.md
 
-* XBOOT系统开发指南
+* XBOOT system development guide
 
-  https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide-en-US.md
 
-* XBOOT应用开发指南
+* XBOOT application development guide
 
-  https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide-en-US.md
 
-* XBOOT官方QQ群，大佬聚集，请踊跃加入
+* XBOOT official QQ group，many big brother, please join
 
-  [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000人)
+  [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000 people)
 
 # 集成开发环境
 
@@ -403,41 +402,41 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 ### driver
 驱动框架主目录，各种类型的驱动框架都放置在此，已实现以下设备驱动模型：
 
-| 名称          | 描述       |
-| ----------- | -------- |
-| adc         | ADC驱动    |
-| audio       | 音频驱动     |
-| battery     | 电池电量驱动   |
-| block       | 块设备驱动    |
-| buzzer      | 蜂鸣器驱动    |
-| clk         | 时钟驱动     |
-| clockevent  | 时钟事件驱动   |
-| clocksource | 时钟源驱动    |
-| console     | 超级终端驱动   |
-| dac         | DAC驱动    |
-| dma         | DMA驱动    |
-| fb          | 显示屏驱动    |
-| gmeter      | 重力传感器驱动  |
-| gpio        | GPIO驱动   |
-| hygrometer  | 湿度传感器驱动  |
-| i2c         | I2C总线驱动  |
-| input       | 输入设备驱动   |
-| interrupt   | 中断控制器驱动  |
-| laserscan   | 激光振镜驱动   |
-| led         | LED驱动    |
-| light       | 光线传感器驱动  |
-| nvmem       | 非易失性存储器驱动  |
-| pwm         | PWM驱动    |
-| regulator   | 电压调节器驱动  |
-| reset       | 复位驱动     |
-| rng         | 随机数发生器驱动 |
-| rtc         | 实时时钟驱动   |
-| sd          | SD卡驱动    |
-| spi         | SPI总线驱动  |
-| thermometer | 温度传感器驱动  |
-| uart        | 串口总线驱动   |
-| vibrator    | 振动马达驱动   |
-| watchdog    | 看门狗驱动    |
+| 名称          | 描述        |
+| ----------- | --------- |
+| adc         | ADC驱动     |
+| audio       | 音频驱动      |
+| battery     | 电池电量驱动    |
+| block       | 块设备驱动     |
+| buzzer      | 蜂鸣器驱动     |
+| clk         | 时钟驱动      |
+| clockevent  | 时钟事件驱动    |
+| clocksource | 时钟源驱动     |
+| console     | 超级终端驱动    |
+| dac         | DAC驱动     |
+| dma         | DMA驱动     |
+| fb          | 显示屏驱动     |
+| gmeter      | 重力传感器驱动   |
+| gpio        | GPIO驱动    |
+| hygrometer  | 湿度传感器驱动   |
+| i2c         | I2C总线驱动   |
+| input       | 输入设备驱动    |
+| interrupt   | 中断控制器驱动   |
+| laserscan   | 激光振镜驱动    |
+| led         | LED驱动     |
+| light       | 光线传感器驱动   |
+| nvmem       | 非易失性存储器驱动 |
+| pwm         | PWM驱动     |
+| regulator   | 电压调节器驱动   |
+| reset       | 复位驱动      |
+| rng         | 随机数发生器驱动  |
+| rtc         | 实时时钟驱动    |
+| sd          | SD卡驱动     |
+| spi         | SPI总线驱动   |
+| thermometer | 温度传感器驱动   |
+| uart        | 串口总线驱动    |
+| vibrator    | 振动马达驱动    |
+| watchdog    | 看门狗驱动     |
 
 ### external
 这个目录，主要放置各种第三方软件包，如下表所示:

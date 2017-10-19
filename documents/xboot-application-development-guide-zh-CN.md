@@ -27,15 +27,15 @@
 
 * XBOOT运行效果展示页面，首次接触的用户，建议观看，对XBOOT有个直观的感受
 
-  https://github.com/xboot/xboot/blob/master/documents/xboot-show-case.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-show-case-en-US.md
 
 * XBOOT系统开发指南
 
-  https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide-en-US.md
 
 * XBOOT应用开发指南
 
-  https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide-en-US.md
 
 * XBOOT官方QQ群，大佬聚集，请踊跃加入
 

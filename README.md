@@ -1,6 +1,9 @@
-![xboot-logo]
+![xboot-logo](https://github.com/xboot/xboot/raw/master/developments/logo/xboot-logo.png)
+
 ***
-# [XBOOT][xboot-homepage]简介
+
+# XBOOT简介([English Version](README.md#xboot-introduction))
+
 ```
        _                   _                     
  _  _ | |___ _____ _____ _| |_                   
@@ -23,8 +26,8 @@
 ![linux-sandbox-game-2048](https://github.com/xboot/xboot/raw/master/documents/images/linux-sandbox-game-2048.gif)
 
 # 系统及应用开发指南
-* [XBOOT系统开发指南](https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide.md)
-* [XBOOT应用开发指南](https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide.md)
+* [XBOOT系统开发指南](https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide-zh-CN.md)
+* [XBOOT应用开发指南](https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide-zh-CN.md)
 
 # 下载开发工具
 * [Eclipse集成开发环境 (已集成交叉工具链)](http://pan.baidu.com/s/1i3ImG0d)
@@ -45,27 +48,6 @@ make clean
 make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
 ```
 
-* ## 全志V3S，荔枝派(lichee-pi zero)
-
-```shell
-make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-v3s
-```
-
-* ## Raspberry PI 2代
-
-```shell
-make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-raspi2
-```
-
-* ## Raspberry PI 3代
-
-```shell
-make clean
-make CROSS_COMPILE=/path/to/aarch64-none-elf- PLATFORM=arm64-raspi3
-```
-
 * ## X86_64位linux系统下的sandbox
 
 sandbox依赖与SDL2库，在编译前需要安装libsdl2-dev，以ubuntu系统为例:
@@ -77,12 +59,64 @@ make clean
 make CROSS_COMPILE="" PLATFORM=x64-sandbox
 ```
 
-# 运行XBOOT([效果演示](https://github.com/xboot/xboot/blob/master/documents/xboot-show-case.md))
+# 运行XBOOT([效果演示](https://github.com/xboot/xboot/blob/master/documents/xboot-show-case-zh-CN.md))
 各个平台运行方式不太一样，具体查看板级支持包里面的相关说明文件，Realview模拟器平台直接执行tools目录下的相关脚本，linux系统下的sandbox平台，直接双击生成的目标文件执行即可。
 
 # 讨论组，大佬聚集，请踊跃加入
 XBOOT官方QQ群：[658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000人)
 
 ***
-[xboot-homepage]:http://xboot.github.io "xboot's homepage"
-[xboot-logo]:https://github.com/xboot/xboot/raw/master/developments/logo/xboot-logo.png "xboot's logo"
+# Xboot Introduction
+The operation of a GPIO, you need to carefully control the chip manual, so cumbersome; for a master chip, all work from scratch; want to develop a modern point to support a variety of dynamic UI, found almost impossible things; The virtual machine technology is very popular, very powerful, like their own transplant, but difficult; or let go of their own, so XBOOT to solve these problems for you. XBOOT is not only a powerful, portability, code reuse rate of the embedded system bootloader, but also a SOC chip system application software execution engine, without complex operating system, APP power direct implementation. Once written, running everywhere, not just a slogan, but also the only reason for the existence of XBOOT. Some basic features are briefly listed as follows:
+
+- Support file systems
+- Support lua virtual machine
+- Support many protocol stacks
+- Support graphics library, and vector font
+- Supports a modern GUI, and animations
+- Multi-platform support
+- Bus drivers, UART, I2C, SPI and so on
+- Device drivers, GPIO, PWM, IRQ, CLK, LED, BUZZER, VIBRATOR, WATCHDOG, RNG, FRAMEBUFFER, RTC, etc.
+- Support application using lua, which include high-level API, can operate a variety of hardware abstract interface directly
+- Application software platform has nothing to do, write once, run everywhere
+
+# System And Application Development Guide
+* [Xboot System Development Guide](https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide-en-US.md)
+* [Xboot Application Development Guide](https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide-en-US.md)
+
+# Development Tools
+* [Eclipse Integrated Development Environment (Integrated cross toolchains)](http://pan.baidu.com/s/1i3ImG0d)
+* [Cross Toolchains](http://pan.baidu.com/s/1dDtssIt)
+
+# Compile The Source Code
+Makefile have two variables need to pass, one is cross toolchain, the other is a specific hardware platform
+
+| variable      | Description                              |
+| ------------- | ---------------------------------------- |
+| CROSS_COMPILE | The specical cross toolchain             |
+| PLATFORM      | The hardware platform, have two parts, `arch` and `mach` |
+
+* ## Realview Platform，qemu-system-arm Emulator
+
+```shell
+make clean
+make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
+```
+
+* ## Linux Sandbox On X86_64
+
+The sandbox depends on the SDL2 library, you need to install libsdl2-dev before compile, as an example at the ubuntu system:
+
+```shell
+sudo apt-get install libsdl2-dev
+```
+```shell
+make clean
+make CROSS_COMPILE="" PLATFORM=x64-sandbox
+```
+
+# Running Xboot([ShowCase](https://github.com/xboot/xboot/blob/master/documents/xboot-show-case-en-US.md))
+Each platform  is not same, Please see the relevant documentation in the BSP directory, To running realview platform using some scripts in the tools, The sandbox platform just double-click the generated target file
+
+# Discussion Group, Many Big Brother, Please Join
+XBOOT Official QQ Group: [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000 people)

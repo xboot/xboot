@@ -117,7 +117,7 @@ make CROSS_COMPILE="" PLATFORM=x64-sandbox
 ```
 
 # Running Xboot([ShowCase](https://github.com/xboot/xboot/blob/master/documents/xboot-show-case-en-US.md))
-Each platform  is not same, Please see the relevant documentation in the BSP directory, To running realview platform using some scripts in the tools, The sandbox platform just double-click the generated target file
+Each platform is not same, Please see the relevant documentation in the BSP directory, To running realview platform using some scripts in the tools, The sandbox platform just double-click the generated target file
 
-# Discussion Group, Many Big Brother, Please Join
-XBOOT Official QQ Group: [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000 people)
+# Discussion Group, Many Big Brother, Please Join Us
+XBOOT Official Tencent QQ Group: [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000 people)

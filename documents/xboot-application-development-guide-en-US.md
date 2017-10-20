@@ -1,19 +1,19 @@
 # XBOOT Application Development Guide
 
 # Introduction
+It very tedious that we need careful read soc datasheet when operate GPIO on soc.We always repeat working when changed the soc.its almost almost impossible to We want develop a UI that support all kinds of magic motion.Stacks of protocols are like heavenly books ,it Reading is very hard , How do we program? Virtual machine technology is very popular and it function is powerful,but it very difficult to transplant it.so we build the Xboot.it can help us deal with these problems.
+XBOOT is not only a powerful, portable, and highly reusable, embedded system bootloader,but also on a piece of SOC system application software execution engine, without complex operating system, electricity directly executed on the APP。"Once written, running everywhere." It not just a slogan,but also the only reason for the existence of XBOOT. What's on the XBOOT?
 
-The operation of a GPIO, you need to carefully control the chip manual, so cumbersome; for a master chip, all work from scratch; want to develop a modern point to support a variety of dynamic UI, found almost impossible things; The virtual machine technology is very popular, very powerful, like their own transplant, but difficult; or let go of their own, so XBOOT to solve these problems for you. XBOOT is not only a powerful, portability, code reuse rate of the embedded system bootloader, but also a SOC chip system application software execution engine, without complex operating system, APP power direct implementation. Once written, running everywhere, not just a slogan, but also the only reason for the existence of XBOOT. Some basic features are briefly listed as follows:
-
-* Support file systems
-* Support lua virtual machine
-* Support many protocol stacks
-* Support graphics library, and vector font
-* Supports a modern GUI, and animations
-* Multi-platform support
-* Bus drivers, UART, I2C, SPI and so on
-* Device drivers, GPIO, PWM, IRQ, CLK, LED, BUZZER, VIBRATOR, WATCHDOG, RNG, FRAMEBUFFER, RTC, etc.
-* Support application using lua, which include high-level API, can operate a variety of hardware abstract interface directly
-* Application software platform has nothing to do, write once, run everywhere
+- Support file systems
+- Support lua virtual machine
+- Support many protocol stacks
+- Support graphics library, and vector font
+- Supports a modern GUI, and animations
+- Multi-platform support
+- Bus drivers, UART, I2C, SPI and so on
+- Device drivers, GPIO, PWM, IRQ, CLK, LED, BUZZER, VIBRATOR, WATCHDOG, RNG, FRAMEBUFFER, RTC, etc.
+- Support application using lua, which include high-level API, can operate a variety of hardware abstract interface directly
+- Application software platform has nothing to do, write once, run everywhere
 
 # Related website
 

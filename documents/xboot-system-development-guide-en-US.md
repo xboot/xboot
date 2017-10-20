@@ -1,7 +1,8 @@
 # XBOOT System Development Guide
 
 # Introduction
-The operation of a GPIO, you need to carefully control the chip manual, so cumbersome; for a master chip, all work from scratch; want to develop a modern point to support a variety of dynamic UI, found almost impossible things; The virtual machine technology is very popular, very powerful, like their own transplant, but difficult; or let go of their own, so XBOOT to solve these problems for you. XBOOT is not only a powerful, portability, code reuse rate of the embedded system bootloader, but also a SOC chip system application software execution engine, without complex operating system, APP power direct implementation. Once written, running everywhere, not just a slogan, but also the only reason for the existence of XBOOT. Some basic features are briefly listed as follows:
+It very tedious that we need careful read soc datasheet when operate GPIO on soc.We always repeat working when changed the soc.its almost almost impossible to We want develop a UI that support all kinds of magic motion.Stacks of protocols are like heavenly books ,it Reading is very hard , How do we program? Virtual machine technology is very popular and it function is powerful,but it very difficult to transplant it.so we build the Xboot.it can help us deal with these problems.
+XBOOT is not only a powerful, portable, and highly reusable, embedded system bootloader,but also on a piece of SOC system application software execution engine, without complex operating system, electricity directly executed on the APP。"Once written, running everywhere." It not just a slogan,but also the only reason for the existence of XBOOT. What's on the XBOOT?
 
 - Support file systems
 - Support lua virtual machine

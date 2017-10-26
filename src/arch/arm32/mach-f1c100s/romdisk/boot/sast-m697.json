@@ -2,9 +2,10 @@
 	"clk-fixed@0": { "name": "osc24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
 
-	"clk-link": { "parent": "osc24m", "name": "link-uart0" },
-	"clk-link": { "parent": "osc24m", "name": "link-uart1" },
-	"clk-link": { "parent": "osc24m", "name": "link-uart2" },
+	"clk-fixed@2": { "name": "osc51m", "rate": 51042784 },
+	"clk-link": { "parent": "osc51m", "name": "link-uart0" },
+	"clk-link": { "parent": "osc51m", "name": "link-uart1" },
+	"clk-link": { "parent": "osc51m", "name": "link-uart2" },
 
 	"reset-f1c100s@0x01c202c0": {
 		"reset-base": 0,

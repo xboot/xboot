@@ -8,7 +8,7 @@ ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 CXXFLAGS	:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-MCFLAGS		:= -march=armv5te -mtune=arm926ej-s -mfpu=vfp -mfloat-abi=hard -marm -mno-thumb-interwork
+MCFLAGS		:= -march=armv5te -mtune=arm926ej-s -mfloat-abi=soft -marm -mno-thumb-interwork
 
 LIBDIRS		:=
 LIBS 		:=

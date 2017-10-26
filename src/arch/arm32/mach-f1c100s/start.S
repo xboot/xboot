@@ -68,40 +68,11 @@ _fiq:
  * The actual reset code
  */
 reset:
-	/* Save boot params to 0x00000040 */
-	ldr r0, =0x00000040
-	str sp, [r0, #0]
-	str lr, [r0, #4]
-	mrs lr, cpsr
-	str lr, [r0, #8]
-	mrc p15, 0, lr, c1, c0, 0
-	str lr, [r0, #12]
-	mrc p15, 0, lr, c12, c0, 0
-	str lr, [r0, #16]
-	mrc p15, 0, lr, c1, c0, 0
-	str lr, [r0, #20]
-
-	/* Enter svc mode cleanly and mask interrupts */
+	/* Enter svc mode and mask interrupts */
 	mrs r0, cpsr
-	eor r0, r0, #0x1a
-	tst r0, #0x1f
 	bic r0, r0, #0x1f
 	orr r0, r0, #0xd3
-	bne 1f
-	orr r0, r0, #0x100
-	adr lr, 2f
-	msr spsr_cxsf, r0
-	.word 0xe12ef30e /* msr elr_hyp, lr */
-	.word 0xe160006e /* eret */
-1:	msr cpsr_c, r0
-2:	nop
-
-	/* Set vector base address register */
-	ldr r0, =_vector
-	mcr p15, 0, r0, c12, c0, 0
-	mrc p15, 0, r0, c1, c0, 0
-	bic r0, #(1<<13)
-	mcr p15, 0, r0, c1, c0, 0
+	msr cpsr, r0
 
 	/* Initial system uart, clock and ddr */
 	bl sys_uart_init
@@ -168,17 +139,7 @@ _main:
 
 	.global return_to_fel
 return_to_fel:
-	ldr r0, =0x00000040
-	ldr sp, [r0, #0]
-	ldr lr, [r0, #4]
-	ldr r1, [r0, #20]
-	mcr p15, 0, r1, c1, c0, 0
-	ldr r1, [r0, #16]
-	mcr p15, 0, r1, c12, c0, 0
-	ldr r1, [r0, #12]
-	mcr p15, 0, r1, c1, c0, 0
-	ldr r1, [r0, #8]
-	msr cpsr, r1
+	ldr r0, =0xffff0020
 	bx lr
 
 /*

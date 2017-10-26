@@ -6,6 +6,21 @@
 	"clk-link": { "parent": "osc24m", "name": "link-uart1" },
 	"clk-link": { "parent": "osc24m", "name": "link-uart2" },
 
+	"reset-f1c100s@0x01c202c0": {
+		"reset-base": 0,
+		"reset-count": 32
+	},
+
+	"reset-f1c100s@0x01c202c4": {
+		"reset-base": 32,
+		"reset-count": 32
+	},
+
+	"reset-f1c100s@0x01c202d0": {
+		"reset-base": 64,
+		"reset-count": 32
+	},
+
 	"gpio-f1c100s@0x01c20800": {
 		"gpio-base": 0,
 		"gpio-count": 4,
@@ -38,7 +53,7 @@
 
 	"uart-16550@0x01c25000": {
 		"clock-name": "link-uart0",
-		"reset": -1,
+		"reset": 84,
 		"txd-gpio": 164,
 		"txd-gpio-config": 3,
 		"rxd-gpio": 162,
@@ -51,7 +66,7 @@
 
 	"uart-16550@0x01c25400": {
 		"clock-name": "link-uart1",
-		"reset": -1,
+		"reset": 85,
 		"txd-gpio": 3,
 		"txd-gpio-config": 5,
 		"rxd-gpio": 2,
@@ -64,7 +79,7 @@
 
 	"uart-16550@0x01c25800": {
 		"clock-name": "link-uart2",
-		"reset": -1,
+		"reset": 86,
 		"txd-gpio": 135,
 		"txd-gpio-config": 3,
 		"rxd-gpio": 136,

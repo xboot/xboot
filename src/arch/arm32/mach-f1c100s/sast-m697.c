@@ -1,5 +1,5 @@
 /*
- * sast.c
+ * sast-m697.c
  *
  * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -79,9 +79,9 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
-static struct machine_t sast = {
-	.name 		= "sast",
-	.desc 		= "SAST Based On Allwinner F1C100S SOC",
+static struct machine_t sast_m697 = {
+	.name 		= "sast-m697",
+	.desc 		= "SAST M697 Digital Player Based On Allwinner F1C100S",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
@@ -94,15 +94,15 @@ static struct machine_t sast = {
 	.keygen		= mach_keygen,
 };
 
-static __init void sast_machine_init(void)
+static __init void sast_m697_machine_init(void)
 {
-	register_machine(&sast);
+	register_machine(&sast_m697);
 }
 
-static __exit void sast_machine_exit(void)
+static __exit void sast_m697_machine_exit(void)
 {
-	unregister_machine(&sast);
+	unregister_machine(&sast_m697);
 }
 
-machine_initcall(sast_machine_init);
-machine_exitcall(sast_machine_exit);
+machine_initcall(sast_m697_machine_init);
+machine_exitcall(sast_m697_machine_exit);

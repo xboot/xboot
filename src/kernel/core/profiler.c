@@ -174,6 +174,5 @@ static __init void profiler_pure_init(void)
 
 	for(i = 0; i < ARRAY_SIZE(__profiler_hash); i++)
 		init_hlist_head(&__profiler_hash[i]);
-	cpu_profiler_reset();
 }
 pure_initcall(profiler_pure_init);

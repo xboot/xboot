@@ -1,6 +1,7 @@
 {
 	"clk-fixed@0": { "name": "osc24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
+	"clk-fixed@2": { "name": "iosc", "rate": 16000000 },
 
 	"clk-f1c100s-pll@0": { "parent": "osc24m", "name": "pll-cpu", "channel": 0 },
 	"clk-f1c100s-pll@1": { "parent": "osc24m", "name": "pll-audio", "channel": 1 },
@@ -8,6 +9,55 @@
 	"clk-f1c100s-pll@3": { "parent": "osc24m", "name": "pll-ve", "channel": 3 },
 	"clk-f1c100s-pll@4": { "parent": "osc24m", "name": "pll-ddr", "channel": 4 },
 	"clk-f1c100s-pll@5": { "parent": "osc24m", "name": "pll-periph", "channel": 5 },
+
+	"clk-fixed-factor@0": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+	"clk-fixed-factor@1": { "parent": "pll-periph", "name": "pll-periph-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor@2": { "parent": "iosc", "name": "losc", "mult": 1, "div": 500 },
+
+	"clk-mux@0x01c20050": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 },
+			{ "name": "pll-cpu", "value": 2 }
+		],
+		"name": "cpu", "shift": 16, "width": 2
+	},
+	"clk-divider@0x01c20050": { "parent": "cpu", "name": "hclk", "shift": 16, "width": 2, "divider-one-based": true },
+	"clk-divider@0x01c20054": { "parent": "pll-periph", "name": "ahb1-pre-div", "shift": 6, "width": 2, "divider-one-based": true },
+	"clk-mux@0x01c20054": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 },
+			{ "name": "cpu", "value": 2 },
+			{ "name": "ahb1-pre-div", "value": 3 }
+		],
+		"name": "mux-ahb1", "shift": 12, "width": 2
+	},
+	"clk-ratio@0x01c20054": { "parent": "mux-ahb1", "name": "ahb1", "shift": 4, "width": 2 },
+	"clk-ratio@0x01c20054": { "parent": "ahb1", "name": "apb1", "shift": 8, "width": 2 },
+
+	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart0", "shift": 20, "invert": false },
+	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart1", "shift": 21, "invert": false },
+	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart2", "shift": 22, "invert": false },
+	"clk-link": { "parent": "gate-bus-uart0", "name": "link-xuart0" },
+	"clk-link": { "parent": "gate-bus-uart1", "name": "link-xuart1" },
+	"clk-link": { "parent": "gate-bus-uart2", "name": "link-xuart2" },
+
+	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-i2c0", "shift": 16, "invert": false },
+	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-i2c1", "shift": 17, "invert": false },
+	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-i2c2", "shift": 18, "invert": false },
+	"clk-link": { "parent": "gate-bus-i2c0", "name": "link-i2c0" },
+	"clk-link": { "parent": "gate-bus-i2c1", "name": "link-i2c1" },
+	"clk-link": { "parent": "gate-bus-i2c2", "name": "link-i2c2" },
+
+	"clk-gate@0x01c20060": {"parent": "ahb1", "name": "gate-bus-spi0", "shift": 20, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "ahb1", "name": "gate-bus-spi1", "shift": 21, "invert": false },
+	"clk-link": { "parent": "gate-bus-spi0", "name": "link-spi0" },
+	"clk-link": { "parent": "gate-bus-spi1", "name": "link-spi1" },
+
+	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
+	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
+
 
 	"clk-fixed@2": { "name": "osc51m", "rate": 51042784 },
 	"clk-link": { "parent": "osc51m", "name": "link-uart0" },

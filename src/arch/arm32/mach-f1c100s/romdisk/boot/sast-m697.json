@@ -55,6 +55,36 @@
 	"clk-link": { "parent": "gate-bus-spi0", "name": "link-spi0" },
 	"clk-link": { "parent": "gate-bus-spi1", "name": "link-spi1" },
 
+	"clk-mux@0x01c20c10": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer0", "shift": 2, "width": 2
+	},
+	"clk-ratio@0x01c20c10": { "parent": "mux-timer0", "name": "ratio-timer0", "shift": 4, "width": 3 },
+	"clk-link": { "parent": "ratio-timer0", "name": "link-timer0" },
+
+	"clk-mux@0x01c20c20": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer1", "shift": 2, "width": 2
+	},
+	"clk-ratio@0x01c20c20": { "parent": "mux-timer1", "name": "ratio-timer1", "shift": 4, "width": 3 },
+	"clk-link": { "parent": "ratio-timer1", "name": "link-timer1" },
+
+	"clk-mux@0x01c20c30": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer2", "shift": 2, "width": 2
+	},
+	"clk-ratio@0x01c20c30": { "parent": "mux-timer2", "name": "ratio-timer2", "shift": 4, "width": 3 },
+	"clk-link": { "parent": "ratio-timer2", "name": "link-timer2" },
+
 	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
@@ -121,6 +151,15 @@
 		"channel": 1,
 		"pwm-gpio": 134,
 		"pwm-gpio-config": 3
+	},
+
+	"ce-f1c100s-timer@0x01c20c00": {
+		"clock-name": "link-timer0",
+		"interrupt": 13
+	},
+
+	"cs-f1c100s-timer@0x01c20c00": {
+		"clock-name": "link-timer1"
 	},
 
 	"uart-16550@0x01c25000": {

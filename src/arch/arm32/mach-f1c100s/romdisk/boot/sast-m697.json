@@ -109,6 +109,11 @@
 		"reset-count": 32
 	},
 
+	"irq-f1c100s@0x01c20400": {
+		"interrupt-base": 0,
+		"interrupt-count": 64
+	},
+
 	"gpio-f1c100s@0x01c20800": {
 		"gpio-base": 0,
 		"gpio-count": 4,
@@ -203,6 +208,18 @@
 
 	"wdog-f1c100s@0x01c20ca0": {
 		"clock-name": "link-wdt"
+	},
+
+	"led-gpio@0": {
+		"gpio": 0,
+		"gpio-config": 1,
+		"active-low": false,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.0",
+		"period-ms": 1260
 	},
 
 	"console-uart@0": {

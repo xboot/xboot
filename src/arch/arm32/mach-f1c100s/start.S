@@ -74,6 +74,22 @@ reset:
 	orr r0, r0, #0xd3
 	msr cpsr, r0
 
+	/* Set vector to the low address */
+	mrc p15, 0, r0, c1, c0, 0
+	bic r0, #(1<<13)
+	mcr p15, 0, r0, c1, c0, 0
+
+	/* Copy vector to the correct address */
+	adr r0, _vector
+	mrc p15, 0, r2, c1, c0, 0
+	ands r2, r2, #(1 << 13)
+	ldreq r1, =0x00000000
+	ldrne r1, =0xffff0000
+	ldmia r0!, {r2-r8, r10}
+	stmia r1!, {r2-r8, r10}
+	ldmia r0!, {r2-r8, r10}
+	stmia r1!, {r2-r8, r10}
+
 	/* Initial system uart, clock and ddr */
 	bl sys_uart_init
 	bl sys_clock_init
@@ -167,11 +183,41 @@ not_used:
 
 	.align 5
 irq:
-	b .
+	ldr sp, _stack_irq_end
+	sub sp, sp, #72
+	stmia sp, {r0 - r12}
+	add r8, sp, #60
+	stmdb r8, {sp, lr}^
+	str lr, [r8, #0]
+	mrs r6, spsr
+	str r6, [r8, #4]
+	str r0, [r8, #8]
+	mov r0, sp
+	bl arm32_do_irq
+	ldmia sp, {r0 - lr}^
+	mov r0, r0
+	ldr lr, [sp, #60]
+	add sp, sp, #72
+	subs pc, lr, #4
 
 	.align 5
 fiq:
-	b .
+	ldr sp, _stack_irq_end
+	sub sp, sp, #72
+	stmia sp, {r0 - r12}
+	add r8, sp, #60
+	stmdb r8, {sp, lr}^
+	str lr, [r8, #0]
+	mrs r6, spsr
+	str r6, [r8, #4]
+	str r0, [r8, #8]
+	mov r0, sp
+	bl arm32_do_fiq
+	ldmia sp, {r0 - lr}^
+	mov r0, r0
+	ldr lr, [sp, #60]
+	add sp, sp, #72
+	subs pc, lr, #4
 
 /*
  * The location of section

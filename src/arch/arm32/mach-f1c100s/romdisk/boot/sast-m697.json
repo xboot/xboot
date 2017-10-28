@@ -114,6 +114,24 @@
 		"interrupt-count": 64
 	},
 
+	"irq-f1c100s-gpio@0x01c20a00": {
+		"interrupt-base": 64,
+		"interrupt-count": 22,
+		"interrupt-parent": 38
+	},
+
+	"irq-f1c100s-gpio@0x01c20a20": {
+		"interrupt-base": 96,
+		"interrupt-count": 13,
+		"interrupt-parent": 39
+	},
+
+	"irq-f1c100s-gpio@0x01f02a40": {
+		"interrupt-base": 128,
+		"interrupt-count": 6,
+		"interrupt-parent": 40
+	},
+
 	"gpio-f1c100s@0x01c20800": {
 		"gpio-base": 0,
 		"gpio-count": 4,
@@ -129,19 +147,19 @@
 	"gpio-f1c100s@0x01c2086c": {
 		"gpio-base": 96,
 		"gpio-count": 22,
-		"interrupt-offset": -1
+		"interrupt-offset": 64
 	},
 
 	"gpio-f1c100s@0x01c20890": {
 		"gpio-base": 128,
 		"gpio-count": 13,
-		"interrupt-offset": -1
+		"interrupt-offset": 96
 	},
 
 	"gpio-f1c100s@0x01c208b4": {
 		"gpio-base": 160,
 		"gpio-count": 6,
-		"interrupt-offset": -1
+		"interrupt-offset": 128
 	},
 
 	"pwm-f1c100s@0x01c21000": {

@@ -109,6 +109,20 @@
 		"interrupt-offset": -1
 	},
 
+	"pwm-f1c100s@0x01c21000": {
+		"clock-name": "link-pwm",
+		"channel": 0,
+		"pwm-gpio": 2,
+		"pwm-gpio-config": 3
+	},
+
+	"pwm-f1c100s@0x01c21000": {
+		"clock-name": "link-pwm",
+		"channel": 1,
+		"pwm-gpio": 134,
+		"pwm-gpio-config": 3
+	},
+
 	"uart-16550@0x01c25000": {
 		"clock-name": "link-uart0",
 		"reset": 84,

@@ -148,6 +148,10 @@
 		"stop-bits": 1
 	},
 
+	"wdog-f1c100s@0x01c20ca0": {
+		"clock-name": "link-wdt"
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-16550.0"
 	}

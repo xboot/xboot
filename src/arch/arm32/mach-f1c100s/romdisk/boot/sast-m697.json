@@ -34,9 +34,9 @@
 	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart0", "shift": 20, "invert": false },
 	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart1", "shift": 21, "invert": false },
 	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart2", "shift": 22, "invert": false },
-	"clk-link": { "parent": "gate-bus-uart0", "name": "link-xuart0" },
-	"clk-link": { "parent": "gate-bus-uart1", "name": "link-xuart1" },
-	"clk-link": { "parent": "gate-bus-uart2", "name": "link-xuart2" },
+	"clk-link": { "parent": "gate-bus-uart0", "name": "link-uart0" },
+	"clk-link": { "parent": "gate-bus-uart1", "name": "link-uart1" },
+	"clk-link": { "parent": "gate-bus-uart2", "name": "link-uart2" },
 
 	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-i2c0", "shift": 16, "invert": false },
 	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-i2c1", "shift": 17, "invert": false },
@@ -82,12 +82,6 @@
 
 	"clk-link": { "parent": "hosc", "name": "link-pwm" },
 	"clk-link": { "parent": "losc", "name": "link-wdt" },
-
-
-	"clk-fixed@2": { "name": "osc102m", "rate": 102000000 },
-	"clk-link": { "parent": "osc102m", "name": "link-uart0" },
-	"clk-link": { "parent": "osc102m", "name": "link-uart1" },
-	"clk-link": { "parent": "osc102m", "name": "link-uart2" },
 
 	"reset-f1c100s@0x01c202c0": {
 		"reset-base": 0,

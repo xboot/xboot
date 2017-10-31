@@ -101,10 +101,10 @@ reset:
 	ldmia r0!, {r2-r8, r10}
 	stmia r1!, {r2-r8, r10}
 
-	/* Initial system uart, clock and ddr */
-	bl sys_uart_init
+	/* Initial system clock, ddr add uart */
 	bl sys_clock_init
 	bl sys_dram_init
+	bl sys_uart_init
 
 	/* Copyself to link address */
 	adr r0, _start

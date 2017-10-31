@@ -61,8 +61,8 @@ void sys_uart_init(void)
 	val = read32(addr + 0x0c);
 	val |= (1 << 7);
 	write32(addr + 0x0c, val);
-	write32(addr + 0x00, 0x1c & 0xff);
-	write32(addr + 0x04, (0x1c >> 8) & 0xff);
+	write32(addr + 0x00, 0x37 & 0xff);
+	write32(addr + 0x04, (0x37 >> 8) & 0xff);
 	val = read32(addr + 0x0c);
 	val &= ~(1 << 7);
 	write32(addr + 0x0c, val);

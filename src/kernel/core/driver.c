@@ -162,7 +162,7 @@ void probe_device(const char * json, int length)
 				if(drv && (dev = drv->probe(drv, &n)))
 					LOG("Probe device '%s' with %s", dev->name, drv->name);
 				else
-					LOG("Fail to probe device witch %s", n.name);
+					LOG("Fail to probe device with %s", n.name);
 			}
 		}
 		json_value_free(v);

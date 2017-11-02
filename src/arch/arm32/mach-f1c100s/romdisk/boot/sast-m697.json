@@ -17,7 +17,7 @@
 		],
 		"name": "cpu", "shift": 16, "width": 2
 	},
-	"clk-divider@0x01c20050": { "parent": "cpu", "name": "hclk", "shift": 16, "width": 2, "divider-one-based": true },
+	"clk-divider@0x01c20054": { "parent": "cpu", "name": "hclk", "shift": 16, "width": 2, "divider-one-based": true },
 	"clk-divider@0x01c20054": { "parent": "pll-periph", "name": "ahb1-pre-div", "shift": 6, "width": 2, "divider-one-based": true },
 	"clk-mux@0x01c20054": {
 		"parent": [

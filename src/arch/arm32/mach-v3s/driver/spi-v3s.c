@@ -47,7 +47,6 @@ enum {
 struct spi_v3s_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
-	u64_t rate;
 	int reset;
 	int sclk;
 	int sclkcfg;
@@ -79,7 +78,7 @@ static void v3s_spi_enable_chip(struct spi_v3s_pdata_t * pdat)
 
 static void v3s_spi_set_rate(struct spi_v3s_pdata_t * pdat, u64_t rate)
 {
-	u64_t pclk = pdat->rate;
+	u64_t pclk = clk_get_rate(pdat->clk);
 	u32_t div, val;
 
 	div = pclk / (2 * rate);
@@ -131,7 +130,7 @@ static int v3s_spi_xfer(struct spi_v3s_pdata_t * pdat, struct spi_msg_t * msg)
 	while(count > 0)
 	{
 		n = (count <= 64) ? count : 64;
-		write32(pdat->virt + SPI_MBC, n & 0xffffff);
+		write32(pdat->virt + SPI_MBC, n);
 		v3s_spi_write_txbuf(pdat, tx, n);
 		write32(pdat->virt + SPI_TCR, read32(pdat->virt + SPI_TCR) | (1 << 31));
 
@@ -203,7 +202,6 @@ static struct device_t * spi_v3s_probe(struct driver_t * drv, struct dtnode_t * 
 	clk_enable(clk);
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
-	pdat->rate = clk_get_rate(pdat->clk);
 	pdat->reset = dt_read_int(n, "reset", -1);
 	pdat->sclk = dt_read_int(n, "sclk-gpio", -1);
 	pdat->sclkcfg = dt_read_int(n, "sclk-gpio-config", -1);

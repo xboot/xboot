@@ -130,7 +130,7 @@ static int h3_spi_xfer(struct spi_h3_pdata_t * pdat, struct spi_msg_t * msg)
 	while(count > 0)
 	{
 		n = (count <= 64) ? count : 64;
-		write32(pdat->virt + SPI_MBC, n & 0xffffff);
+		write32(pdat->virt + SPI_MBC, n);
 		h3_spi_write_txbuf(pdat, tx, n);
 		write32(pdat->virt + SPI_TCR, read32(pdat->virt + SPI_TCR) | (1 << 31));
 

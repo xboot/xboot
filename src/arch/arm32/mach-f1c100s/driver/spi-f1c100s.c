@@ -29,23 +29,24 @@
 #include <spi/spi.h>
 
 enum {
-	SPI_RXDATA	= 0x00,
-	SPI_TXDATA	= 0x04,
-	SPI_CTL		= 0x08,
-	SPI_INTCTL	= 0x0c,
-	SPI_INTSTA	= 0x10,
-	SPI_DMACTL	= 0x14,
-	SPI_WAIT	= 0x18,
-	SPI_CLKCTL	= 0x1c,
-	SPI_BC		= 0x20,
-	SPI_TC		= 0x24,
-	SPI_FIFO	= 0x28,
+	SPI_GCR	= 0x04,
+	SPI_TCR	= 0x08,
+	SPI_IER	= 0x10,
+	SPI_ISR	= 0x14,
+	SPI_FCR	= 0x18,
+	SPI_FSR	= 0x1c,
+	SPI_WCR	= 0x20,
+	SPI_CCR	= 0x24,
+	SPI_MBC	= 0x30,
+	SPI_MTC	= 0x34,
+	SPI_BCC	= 0x38,
+	SPI_TXD	= 0x200,
+	SPI_RXD	= 0x300,
 };
 
 struct spi_f1c100s_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
-	u64_t rate;
 	int reset;
 	int sclk;
 	int sclkcfg;
@@ -61,16 +62,23 @@ static void f1c100s_spi_enable_chip(struct spi_f1c100s_pdata_t * pdat)
 {
 	u32_t val;
 
-	val = (1 << 18) | (0x1 << 16) | (1 << 15) | (1 << 11) | (0x3 << 8) | (0 << 6) | (1 << 4) | (0x0 << 2) | (1 << 1) | (1 << 0);
-	write32(pdat->virt + SPI_CTL, val);
-	write32(pdat->virt + SPI_DMACTL, 0);
-	write32(pdat->virt + SPI_INTCTL, 0);
-	write32(pdat->virt + SPI_CLKCTL, 0);
+	val = read32(pdat->virt + SPI_GCR);
+	val |= (1 << 31) | (1 << 7) | (1 << 1) | (1 << 0);
+	write32(pdat->virt + SPI_GCR, val);
+	while(read32(pdat->virt + SPI_GCR) & (1 << 31));
+
+	val = read32(pdat->virt + SPI_TCR);
+	val |= (1 << 6) | (1 << 2);
+	write32(pdat->virt + SPI_TCR, val);
+
+	val = read32(pdat->virt + SPI_FCR);
+	val |= (1 << 31) | (1 << 15);
+	write32(pdat->virt + SPI_FCR, val);
 }
 
 static void f1c100s_spi_set_rate(struct spi_f1c100s_pdata_t * pdat, u64_t rate)
 {
-	u64_t pclk = pdat->rate;
+	u64_t pclk = clk_get_rate(pdat->clk);
 	u32_t div, val;
 
 	div = pclk / (2 * rate);
@@ -85,17 +93,17 @@ static void f1c100s_spi_set_rate(struct spi_f1c100s_pdata_t * pdat, u64_t rate)
 		div = ilog2(pclk) - ilog2(rate);
 		val = ((div & 0xf) << 8);
 	}
-	write32(pdat->virt + SPI_CLKCTL, val);
+	write32(pdat->virt + SPI_CCR, val);
 }
 
 static void f1c100s_spi_set_mode(struct spi_f1c100s_pdata_t * pdat, int mode)
 {
 	u32_t val;
 
-	val = read32(pdat->virt + SPI_CTL);
-	val &= ~(0x3 << 2);
-	val |= (mode & 0x3) << 2;
-	write32(pdat->virt + SPI_CTL, val);
+	val = read32(pdat->virt + SPI_TCR);
+	val &= ~(0x3 << 0);
+	val |= (mode & 0x3) << 0;
+	write32(pdat->virt + SPI_TCR, val);
 }
 
 static void f1c100s_spi_write_txbuf(struct spi_f1c100s_pdata_t * pdat, u8_t * buf, int len)
@@ -105,10 +113,10 @@ static void f1c100s_spi_write_txbuf(struct spi_f1c100s_pdata_t * pdat, u8_t * bu
 	if(!buf)
 		len = 0;
 
-	write32(pdat->virt + SPI_TC, len & 0xffffff);
-//XXX	write32(pdat->virt + SPI_BCC, len & 0xffffff);
+	write32(pdat->virt + SPI_MTC, len & 0xffffff);
+	write32(pdat->virt + SPI_BCC, len & 0xffffff);
 	for(i = 0; i < len; ++i)
-		write8(pdat->virt + SPI_TXDATA, *buf++);
+		write8(pdat->virt + SPI_TXD, *buf++);
 }
 
 static int f1c100s_spi_xfer(struct spi_f1c100s_pdata_t * pdat, struct spi_msg_t * msg)
@@ -122,15 +130,14 @@ static int f1c100s_spi_xfer(struct spi_f1c100s_pdata_t * pdat, struct spi_msg_t 
 	while(count > 0)
 	{
 		n = (count <= 64) ? count : 64;
-		write32(pdat->virt + SPI_BC, n & 0xffffff);
+		write32(pdat->virt + SPI_MBC, n);
 		f1c100s_spi_write_txbuf(pdat, tx, n);
-		write32(pdat->virt + SPI_CTL, read32(pdat->virt + SPI_CTL) | (1 << 10));
-		mdelay(100);
+		write32(pdat->virt + SPI_TCR, read32(pdat->virt + SPI_TCR) | (1 << 31));
 
-//		while((read32(pdat->virt + SPI_FIFO) & 0xff) < n);
+		while((read32(pdat->virt + SPI_FSR) & 0xff) < n);
 		for(i = 0; i < n; i++)
 		{
-			val = read8(pdat->virt + SPI_RXDATA);
+			val = read8(pdat->virt + SPI_RXD);
 			if(rx)
 				*rx++ = val;
 		}
@@ -156,10 +163,10 @@ static void spi_f1c100s_select(struct spi_t * spi, int cs)
 	struct spi_f1c100s_pdata_t * pdat = (struct spi_f1c100s_pdata_t *)spi->priv;
 	u32_t val;
 
-	val = read32(pdat->virt + SPI_CTL);
-	val &= ~((0x3 << 12) | (0x1 << 17));
-	val |= ((cs & 0x3) << 12) | (0x1 << 17);
-	write32(pdat->virt + SPI_CTL, val);
+	val = read32(pdat->virt + SPI_TCR);
+	val &= ~((0x3 << 4) | (0x1 << 7));
+	val |= ((cs & 0x3) << 4) | (0x0 << 7);
+	write32(pdat->virt + SPI_TCR, val);
 }
 
 static void spi_f1c100s_deselect(struct spi_t * spi, int cs)
@@ -167,10 +174,10 @@ static void spi_f1c100s_deselect(struct spi_t * spi, int cs)
 	struct spi_f1c100s_pdata_t * pdat = (struct spi_f1c100s_pdata_t *)spi->priv;
 	u32_t val;
 
-	val = read32(pdat->virt + SPI_CTL);
-	val &= ~((0x3 << 12) | (0x1 << 17));
-	val |= ((cs & 0x3) << 12) | (0x0 << 17);
-	write32(pdat->virt + SPI_CTL, val);
+	val = read32(pdat->virt + SPI_TCR);
+	val &= ~((0x3 << 4) | (0x1 << 7));
+	val |= ((cs & 0x3) << 4) | (0x1 << 7);
+	write32(pdat->virt + SPI_TCR, val);
 }
 
 static struct device_t * spi_f1c100s_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -195,7 +202,6 @@ static struct device_t * spi_f1c100s_probe(struct driver_t * drv, struct dtnode_
 	clk_enable(clk);
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
-	pdat->rate = clk_get_rate(pdat->clk);
 	pdat->reset = dt_read_int(n, "reset", -1);
 	pdat->sclk = dt_read_int(n, "sclk-gpio", -1);
 	pdat->sclkcfg = dt_read_int(n, "sclk-gpio-config", -1);

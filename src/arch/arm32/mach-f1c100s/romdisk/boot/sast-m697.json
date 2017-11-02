@@ -226,11 +226,24 @@
 		"cs-gpio-config": 2
 	},
 
+	"spi-f1c100s@0x01c06000": {
+		"clock-name": "link-spi1",
+		"reset": 21,
+		"sclk-gpio": 137,
+		"sclk-gpio-config": 4,
+		"mosi-gpio": 136,
+		"mosi-gpio-config": 4,
+		"miso-gpio": 138,
+		"miso-gpio-config": 4,
+		"cs-gpio": 135,
+		"cs-gpio-config": 4
+	},
+
 	"spi-flash@0": {
 		"spi-bus": "spi-f1c100s.0",
 		"chip-select": 0,
 		"mode": 0,
-		"speed": 1000000
+		"speed": 50000000
 	},
 
 	"wdog-f1c100s@0x01c20ca0": {

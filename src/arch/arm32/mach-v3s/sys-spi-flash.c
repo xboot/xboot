@@ -186,7 +186,7 @@ static int sys_spi_transfer(void * txbuf, void * rxbuf, int len)
 	while(count > 0)
 	{
 		n = (count <= 64) ? count : 64;
-		write32(addr + SPI_MBC, n & 0xffffff);
+		write32(addr + SPI_MBC, n);
 		sys_spi_write_txbuf(tx, n);
 		write32(addr + SPI_TCR, read32(addr + SPI_TCR) | (1 << 31));
 

@@ -33,11 +33,11 @@ _start:
 	/* Boot head information for BROM */
 	.long 0xea000016
 	.byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'
-	.long 0, 0x8000
+	.long 0, 0x3a00
 	.byte 'S', 'P', 'L', 2
 	.long 0, 0
-	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x20 - dram size, 0x28 - boot type */
-	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x40 - boot params */
+	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x28 - boot type */
+	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x40 - boot params, 0x5c - dram size */
 
 _vector:
 	b reset

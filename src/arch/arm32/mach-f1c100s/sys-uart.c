@@ -30,7 +30,7 @@ void sys_uart_init(void)
 	u32_t val;
 
 	/* Config GPIOF4 and GPIOF2 to txd0 and rxd0 */
-	addr = 0x01c20800 + 0xb4;
+	addr = 0x01c208b4 + 0x00;
 	val = read32(addr);
 	val &= ~(0xf << ((4 & 0x7) << 2));
 	val |= ((0x3 & 0x7) << ((4 & 0x7) << 2));

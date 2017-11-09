@@ -24,9 +24,9 @@
 
 #include <xboot.h>
 #include <cairo-xboot.h>
-#include <console/console.h>
 #include <shell/system.h>
-#include <fb/fb.h>
+#include <console/console.h>
+#include <framebuffer/framebuffer.h>
 #include <init.h>
 
 void do_showlogo(void)
@@ -35,14 +35,14 @@ void do_showlogo(void)
 	cairo_surface_t * logo;
 	cairo_surface_t * cs;
 	cairo_t * cr;
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	int x, y;
 
 	logo = cairo_image_surface_create_from_png("/framework/assets/images/logo.png");
 
-	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_FB], head)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_FRAMEBUFFER], head)
 	{
-		if((fb = (struct fb_t *)(pos->priv)))
+		if((fb = (struct framebuffer_t *)(pos->priv)))
 		{
 			cs = cairo_xboot_surface_create(fb, fb->alone);
 			cr = cairo_create(cs);
@@ -61,7 +61,7 @@ void do_showlogo(void)
 			cairo_xboot_surface_present(cs);
 			cairo_surface_destroy(cs);
 
-			fb_set_backlight(fb, CONFIG_MAX_BRIGHTNESS);
+			framebuffer_set_backlight(fb, CONFIG_MAX_BRIGHTNESS);
 		}
 	}
 

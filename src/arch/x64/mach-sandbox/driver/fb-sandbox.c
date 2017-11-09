@@ -23,8 +23,8 @@
  */
 
 #include <xboot.h>
-#include <fb/fb.h>
 #include <sandbox.h>
+#include <framebuffer/framebuffer.h>
 
 struct fb_sandbox_pdata_t
 {
@@ -37,19 +37,19 @@ struct fb_sandbox_pdata_t
 	void * priv;
 };
 
-static void fb_setbl(struct fb_t * fb, int brightness)
+static void fb_setbl(struct framebuffer_t * fb, int brightness)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 	sandbox_sdl_fb_set_backlight(pdat->priv, brightness);
 }
 
-static int fb_getbl(struct fb_t * fb)
+static int fb_getbl(struct framebuffer_t * fb)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 	return sandbox_sdl_fb_get_backlight(pdat->priv);
 }
 
-struct render_t * fb_create(struct fb_t * fb)
+struct render_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 	struct sandbox_fb_surface_t * surface;
@@ -84,7 +84,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	return render;
 }
 
-void fb_destroy(struct fb_t * fb, struct render_t * render)
+void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 
@@ -96,7 +96,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-void fb_present(struct fb_t * fb, struct render_t * render)
+void fb_present(struct framebuffer_t * fb, struct render_t * render)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 	sandbox_sdl_fb_surface_present(pdat->priv, render->priv);
@@ -105,7 +105,7 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct fb_sandbox_pdata_t * pdat;
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	struct device_t * dev;
 	char title[64];
 
@@ -113,7 +113,7 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	if(!pdat)
 		return NULL;
 
-	fb = malloc(sizeof(struct fb_t));
+	fb = malloc(sizeof(struct framebuffer_t));
 	if(!fb)
 	{
 		free(pdat);
@@ -144,7 +144,7 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	fb->present = fb_present,
 	fb->priv = pdat;
 
-	if(!register_fb(&dev, fb))
+	if(!register_framebuffer(&dev, fb))
 	{
 		sandbox_sdl_fb_exit(pdat->priv);
 
@@ -160,10 +160,10 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 
 static void fb_sandbox_remove(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 
-	if(fb && unregister_fb(fb))
+	if(fb && unregister_framebuffer(fb))
 	{
 		sandbox_sdl_fb_exit(pdat->priv);
 

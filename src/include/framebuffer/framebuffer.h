@@ -1,5 +1,5 @@
-#ifndef __FB_H__
-#define __FB_H__
+#ifndef __FRAMEBUFFER_H__
+#define __FRAMEBUFFER_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +40,7 @@ struct render_t {
 	void * priv;
 };
 
-struct fb_t
+struct framebuffer_t
 {
 	/* Framebuffer name */
 	char * name;
@@ -55,19 +55,19 @@ struct fb_t
 	int bpp;
 
 	/* Set backlight brightness */
-	void (*setbl)(struct fb_t * fb, int brightness);
+	void (*setbl)(struct framebuffer_t * fb, int brightness);
 
 	/* Get backlight brightness */
-	int (*getbl)(struct fb_t * fb);
+	int (*getbl)(struct framebuffer_t * fb);
 
 	/* Create a render */
-	struct render_t * (*create)(struct fb_t * fb);
+	struct render_t * (*create)(struct framebuffer_t * fb);
 
 	/* Destroy a render */
-	void (*destroy)(struct fb_t * fb, struct render_t * render);
+	void (*destroy)(struct framebuffer_t * fb, struct render_t * render);
 
 	/* Present a render */
-	void (*present)(struct fb_t * fb, struct render_t * render);
+	void (*present)(struct framebuffer_t * fb, struct render_t * render);
 
 	/* Alone render - create by register */
 	struct render_t * alone;
@@ -76,16 +76,16 @@ struct fb_t
 	void * priv;
 };
 
-struct fb_t * search_fb(const char * name);
-struct fb_t * search_first_fb(void);
-bool_t register_fb(struct device_t ** device, struct fb_t * fb);
-bool_t unregister_fb(struct fb_t * fb);
+struct framebuffer_t * search_framebuffer(const char * name);
+struct framebuffer_t * search_first_framebuffer(void);
+bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb);
+bool_t unregister_framebuffer(struct framebuffer_t * fb);
 
-void fb_set_backlight(struct fb_t * fb, int brightness);
-int fb_get_backlight(struct fb_t * fb);
+void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness);
+int framebuffer_get_backlight(struct framebuffer_t * fb);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __FB_H__ */
+#endif /* __FRAMEBUFFER_H__ */

@@ -134,7 +134,7 @@ static void cairo_draw_string(cairo_t * cr, int x, int y, const char * title)
 static int do_tscal(int argc, char ** argv)
 {
 	struct input_t * input;
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	struct tscal_t cal;
 	struct event_t e;
 	cairo_surface_t * cs;
@@ -158,7 +158,7 @@ static int do_tscal(int argc, char ** argv)
 		return -1;
 	}
 
-	fb = (argc > 2) ? search_fb(argv[2]) : search_first_fb();
+	fb = (argc > 2) ? search_framebuffer(argv[2]) : search_first_framebuffer();
 	if(!fb)
 	{
 		printf("No framebuffer device\r\n");

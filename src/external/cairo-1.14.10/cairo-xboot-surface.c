@@ -38,7 +38,7 @@
 #include "cairo-xboot.h"
 
 struct cairo_xboot_surface_t {
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	struct render_t * render;
 	struct render_t * free_me;
 	cairo_surface_t * cs;
@@ -85,7 +85,7 @@ static void cairo_xboot_surface_destroy(void * data)
 	}
 }
 
-cairo_surface_t * cairo_xboot_surface_create(struct fb_t * fb, struct render_t * render)
+cairo_surface_t * cairo_xboot_surface_create(struct framebuffer_t * fb, struct render_t * render)
 {
 	struct cairo_xboot_surface_t * cxs;
 	void * pixels;

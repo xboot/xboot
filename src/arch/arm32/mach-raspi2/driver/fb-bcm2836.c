@@ -23,8 +23,8 @@
  */
 
 #include <xboot.h>
-#include <fb/fb.h>
 #include <bcm2836-mbox.h>
+#include <framebuffer/framebuffer.h>
 
 struct fb_bcm2836_pdata_t {
 	int width;
@@ -37,19 +37,19 @@ struct fb_bcm2836_pdata_t {
 	int brightness;
 };
 
-static void fb_setbl(struct fb_t * fb, int brightness)
+static void fb_setbl(struct framebuffer_t * fb, int brightness)
 {
 	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 	pdat->brightness = brightness;
 }
 
-static int fb_getbl(struct fb_t * fb)
+static int fb_getbl(struct framebuffer_t * fb)
 {
 	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 	return pdat->brightness;
 }
 
-struct render_t * fb_create(struct fb_t * fb)
+struct render_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 	struct render_t * render;
@@ -79,7 +79,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	return render;
 }
 
-void fb_destroy(struct fb_t * fb, struct render_t * render)
+void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 {
 	if(render)
 	{
@@ -88,7 +88,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-void fb_present(struct fb_t * fb, struct render_t * render)
+void fb_present(struct framebuffer_t * fb, struct render_t * render)
 {
 	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 
@@ -103,14 +103,14 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct fb_bcm2836_pdata_t * pdat;
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	struct device_t * dev;
 
 	pdat = malloc(sizeof(struct fb_bcm2836_pdata_t));
 	if(!pdat)
 		return NULL;
 
-	fb = malloc(sizeof(struct fb_t));
+	fb = malloc(sizeof(struct framebuffer_t));
 	if(!fb)
 	{
 		free(pdat);
@@ -140,7 +140,7 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 	fb->present = fb_present,
 	fb->priv = pdat;
 
-	if(!register_fb(&dev, fb))
+	if(!register_framebuffer(&dev, fb))
 	{
 		free_device_name(fb->name);
 		free(fb->priv);
@@ -154,9 +154,9 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 
 static void fb_bcm2836_remove(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 
-	if(fb && unregister_fb(fb))
+	if(fb && unregister_framebuffer(fb))
 	{
 		free_device_name(fb->name);
 		free(fb->priv);

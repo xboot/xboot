@@ -296,7 +296,7 @@ xboot
 │   │   ├── console
 │   │   ├── dac
 │   │   ├── dma
-│   │   ├── fb
+│   │   ├── framebuffer
 │   │   ├── gmeter
 │   │   ├── gpio
 │   │   ├── hygrometer
@@ -418,7 +418,7 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | console     | 超级终端驱动    |
 | dac         | DAC驱动     |
 | dma         | DMA驱动     |
-| fb          | 显示屏驱动     |
+| framebuffer | 显示屏驱动     |
 | gmeter      | 重力传感器驱动   |
 | gpio        | GPIO驱动    |
 | hygrometer  | 湿度传感器驱动   |

@@ -23,12 +23,12 @@
  */
 
 #include <xboot.h>
-#include <fb/fb.h>
 #include <dma/dma.h>
 #include <clk/clk.h>
 #include <reset/reset.h>
 #include <gpio/gpio.h>
 #include <led/led.h>
+#include <framebuffer/framebuffer.h>
 #include <v3s-gpio.h>
 #include <v3s/reg-de.h>
 #include <v3s/reg-tcon.h>
@@ -253,19 +253,19 @@ static inline void fb_v3s_init(struct fb_v3s_pdata_t * pdat)
 	v3s_tcon_enable(pdat);
 }
 
-static void fb_setbl(struct fb_t * fb, int brightness)
+static void fb_setbl(struct framebuffer_t * fb, int brightness)
 {
 	struct fb_v3s_pdata_t * pdat = (struct fb_v3s_pdata_t *)fb->priv;
 	led_set_brightness(pdat->backlight, brightness);
 }
 
-static int fb_getbl(struct fb_t * fb)
+static int fb_getbl(struct framebuffer_t * fb)
 {
 	struct fb_v3s_pdata_t * pdat = (struct fb_v3s_pdata_t *)fb->priv;
 	return led_get_brightness(pdat->backlight);
 }
 
-struct render_t * fb_create(struct fb_t * fb)
+struct render_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_v3s_pdata_t * pdat = (struct fb_v3s_pdata_t *)fb->priv;
 	struct render_t * render;
@@ -295,7 +295,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	return render;
 }
 
-void fb_destroy(struct fb_t * fb, struct render_t * render)
+void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 {
 	if(render)
 	{
@@ -304,7 +304,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-void fb_present(struct fb_t * fb, struct render_t * render)
+void fb_present(struct framebuffer_t * fb, struct render_t * render)
 {
 	struct fb_v3s_pdata_t * pdat = (struct fb_v3s_pdata_t *)fb->priv;
 
@@ -321,7 +321,7 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct fb_v3s_pdata_t * pdat;
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 	char * clkde = dt_read_string(n, "clock-name-de", NULL);
@@ -334,7 +334,7 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 	if(!pdat)
 		return NULL;
 
-	fb = malloc(sizeof(struct fb_t));
+	fb = malloc(sizeof(struct framebuffer_t));
 	if(!fb)
 	{
 		free(pdat);
@@ -391,7 +391,7 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 		reset_deassert(pdat->rsttcon);
 	fb_v3s_init(pdat);
 
-	if(!register_fb(&dev, fb))
+	if(!register_framebuffer(&dev, fb))
 	{
 		clk_disable(pdat->clkde);
 		clk_disable(pdat->clktcon);
@@ -412,10 +412,10 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 
 static void fb_v3s_remove(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_v3s_pdata_t * pdat = (struct fb_v3s_pdata_t *)fb->priv;
 
-	if(fb && unregister_fb(fb))
+	if(fb && unregister_framebuffer(fb))
 	{
 		clk_disable(pdat->clkde);
 		clk_disable(pdat->clktcon);
@@ -432,7 +432,7 @@ static void fb_v3s_remove(struct device_t * dev)
 
 static void fb_v3s_suspend(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_v3s_pdata_t * pdat = (struct fb_v3s_pdata_t *)fb->priv;
 
 	pdat->brightness = led_get_brightness(pdat->backlight);
@@ -441,7 +441,7 @@ static void fb_v3s_suspend(struct device_t * dev)
 
 static void fb_v3s_resume(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_v3s_pdata_t * pdat = (struct fb_v3s_pdata_t *)fb->priv;
 
 	led_set_brightness(pdat->backlight, pdat->brightness);

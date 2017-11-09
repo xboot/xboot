@@ -25,7 +25,7 @@
 #include <xboot.h>
 #include <dma/dma.h>
 #include <led/led.h>
-#include <fb/fb.h>
+#include <framebuffer/framebuffer.h>
 
 enum {
 	LCD_ADDR	= 0x044,
@@ -51,19 +51,19 @@ struct fb_s5l8930_pdata_t {
 	int brightness;
 };
 
-static void fb_setbl(struct fb_t * fb, int brightness)
+static void fb_setbl(struct framebuffer_t * fb, int brightness)
 {
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 	led_set_brightness(pdat->backlight, brightness);
 }
 
-static int fb_getbl(struct fb_t * fb)
+static int fb_getbl(struct framebuffer_t * fb)
 {
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 	return led_get_brightness(pdat->backlight);
 }
 
-struct render_t * fb_create(struct fb_t * fb)
+struct render_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 	struct render_t * render;
@@ -93,7 +93,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	return render;
 }
 
-void fb_destroy(struct fb_t * fb, struct render_t * render)
+void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 {
 	if(render)
 	{
@@ -102,7 +102,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-void fb_present(struct fb_t * fb, struct render_t * render)
+void fb_present(struct framebuffer_t * fb, struct render_t * render)
 {
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 
@@ -118,7 +118,7 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct fb_s5l8930_pdata_t * pdat;
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 
@@ -126,7 +126,7 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 	if(!pdat)
 		return NULL;
 
-	fb = malloc(sizeof(struct fb_t));
+	fb = malloc(sizeof(struct framebuffer_t));
 	if(!fb)
 	{
 		free(pdat);
@@ -165,7 +165,7 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 
 	write32(pdat->virt + LCD_SIZE, (pdat->width << 16) | (pdat->height << 0));
 
-	if(!register_fb(&dev, fb))
+	if(!register_framebuffer(&dev, fb))
 	{
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
@@ -182,10 +182,10 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 
 static void fb_s5l8930_remove(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 
-	if(fb && unregister_fb(fb))
+	if(fb && unregister_framebuffer(fb))
 	{
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
@@ -198,7 +198,7 @@ static void fb_s5l8930_remove(struct device_t * dev)
 
 static void fb_s5l8930_suspend(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 
 	pdat->brightness = led_get_brightness(pdat->backlight);
@@ -207,7 +207,7 @@ static void fb_s5l8930_suspend(struct device_t * dev)
 
 static void fb_s5l8930_resume(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 
 	led_set_brightness(pdat->backlight, pdat->brightness);

@@ -23,12 +23,12 @@
  */
 
 #include <xboot.h>
-#include <fb/fb.h>
 #include <dma/dma.h>
 #include <clk/clk.h>
 #include <gpio/gpio.h>
 #include <led/led.h>
 #include <regulator/regulator.h>
+#include <framebuffer/framebuffer.h>
 #include <rk3128/reg-grf.h>
 #include <rk3128/reg-lcd.h>
 #include <rk3128-gpio.h>
@@ -195,19 +195,19 @@ static void rk3128_fb_init(struct fb_rk3128_pdata_t * pdat)
 	rk3128_lcd_update_config(pdat);
 }
 
-static void fb_setbl(struct fb_t * fb, int brightness)
+static void fb_setbl(struct framebuffer_t * fb, int brightness)
 {
 	struct fb_rk3128_pdata_t * pdat = (struct fb_rk3128_pdata_t *)fb->priv;
 	led_set_brightness(pdat->backlight, brightness);
 }
 
-static int fb_getbl(struct fb_t * fb)
+static int fb_getbl(struct framebuffer_t * fb)
 {
 	struct fb_rk3128_pdata_t * pdat = (struct fb_rk3128_pdata_t *)fb->priv;
 	return led_get_brightness(pdat->backlight);
 }
 
-struct render_t * fb_create(struct fb_t * fb)
+struct render_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_rk3128_pdata_t * pdat = (struct fb_rk3128_pdata_t *)fb->priv;
 	struct render_t * render;
@@ -237,7 +237,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	return render;
 }
 
-void fb_destroy(struct fb_t * fb, struct render_t * render)
+void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 {
 	if(render)
 	{
@@ -246,7 +246,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-void fb_present(struct fb_t * fb, struct render_t * render)
+void fb_present(struct framebuffer_t * fb, struct render_t * render)
 {
 	struct fb_rk3128_pdata_t * pdat = (struct fb_rk3128_pdata_t *)fb->priv;
 
@@ -263,7 +263,7 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 static struct device_t * fb_rk3128_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct fb_rk3128_pdata_t * pdat;
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 	char * clk = dt_read_string(n, "clock-name", NULL);
@@ -275,7 +275,7 @@ static struct device_t * fb_rk3128_probe(struct driver_t * drv, struct dtnode_t 
 	if(!pdat)
 		return NULL;
 
-	fb = malloc(sizeof(struct fb_t));
+	fb = malloc(sizeof(struct framebuffer_t));
 	if(!fb)
 	{
 		free(pdat);
@@ -344,7 +344,7 @@ static struct device_t * fb_rk3128_probe(struct driver_t * drv, struct dtnode_t 
 	}
 	rk3128_fb_init(pdat);
 
-	if(!register_fb(&dev, fb))
+	if(!register_framebuffer(&dev, fb))
 	{
 		regulator_disable(pdat->regulator);
 		free(pdat->regulator);
@@ -365,10 +365,10 @@ static struct device_t * fb_rk3128_probe(struct driver_t * drv, struct dtnode_t 
 
 static void fb_rk3128_remove(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_rk3128_pdata_t * pdat = (struct fb_rk3128_pdata_t *)fb->priv;
 
-	if(fb && unregister_fb(fb))
+	if(fb && unregister_framebuffer(fb))
 	{
 		regulator_disable(pdat->regulator);
 		free(pdat->regulator);
@@ -385,7 +385,7 @@ static void fb_rk3128_remove(struct device_t * dev)
 
 static void fb_rk3128_suspend(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_rk3128_pdata_t * pdat = (struct fb_rk3128_pdata_t *)fb->priv;
 
 	pdat->brightness = led_get_brightness(pdat->backlight);
@@ -394,7 +394,7 @@ static void fb_rk3128_suspend(struct device_t * dev)
 
 static void fb_rk3128_resume(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_rk3128_pdata_t * pdat = (struct fb_rk3128_pdata_t *)fb->priv;
 
 	led_set_brightness(pdat->backlight, pdat->brightness);

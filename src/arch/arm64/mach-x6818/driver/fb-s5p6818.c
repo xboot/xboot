@@ -23,11 +23,11 @@
  */
 
 #include <xboot.h>
-#include <fb/fb.h>
 #include <dma/dma.h>
 #include <clk/clk.h>
 #include <gpio/gpio.h>
 #include <led/led.h>
+#include <framebuffer/framebuffer.h>
 #include <s5p6818-rstcon.h>
 #include <s5p6818/reg-mlc.h>
 #include <s5p6818/reg-dpc.h>
@@ -880,19 +880,19 @@ static void s5p6818_fb_init(struct fb_s5p6818_pdata_t * pdat)
 	s5p6818_dpa_rgb_mux_select(0);
 }
 
-static void fb_setbl(struct fb_t * fb, int brightness)
+static void fb_setbl(struct framebuffer_t * fb, int brightness)
 {
 	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 	led_set_brightness(pdat->backlight, brightness);
 }
 
-static int fb_getbl(struct fb_t * fb)
+static int fb_getbl(struct framebuffer_t * fb)
 {
 	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 	return led_get_brightness(pdat->backlight);
 }
 
-struct render_t * fb_create(struct fb_t * fb)
+struct render_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 	struct render_t * render;
@@ -922,7 +922,7 @@ struct render_t * fb_create(struct fb_t * fb)
 	return render;
 }
 
-void fb_destroy(struct fb_t * fb, struct render_t * render)
+void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 {
 	if(render)
 	{
@@ -931,7 +931,7 @@ void fb_destroy(struct fb_t * fb, struct render_t * render)
 	}
 }
 
-void fb_present(struct fb_t * fb, struct render_t * render)
+void fb_present(struct framebuffer_t * fb, struct render_t * render)
 {
 	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 
@@ -949,7 +949,7 @@ void fb_present(struct fb_t * fb, struct render_t * render)
 static struct device_t * fb_s5p6818_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct fb_s5p6818_pdata_t * pdat;
-	struct fb_t * fb;
+	struct framebuffer_t * fb;
 	struct device_t * dev;
 	char * clk = dt_read_string(n, "clock-name", NULL);
 
@@ -960,7 +960,7 @@ static struct device_t * fb_s5p6818_probe(struct driver_t * drv, struct dtnode_t
 	if(!pdat)
 		return NULL;
 
-	fb = malloc(sizeof(struct fb_t));
+	fb = malloc(sizeof(struct framebuffer_t));
 	if(!fb)
 	{
 		free(pdat);
@@ -1013,8 +1013,8 @@ static struct device_t * fb_s5p6818_probe(struct driver_t * drv, struct dtnode_t
 	fb->name = alloc_device_name(dt_read_name(n), -1);
 	fb->width = pdat->width;
 	fb->height = pdat->height;
-	fb->xdpi = pdat->xdpi;
-	fb->ydpi = pdat->ydpi;
+	fb->pwidth = pdat->pwidth;
+	fb->pheight = pdat->pheight;
 	fb->bpp = pdat->bits_per_pixel;
 	fb->setbl = fb_setbl,
 	fb->getbl = fb_getbl,
@@ -1026,7 +1026,7 @@ static struct device_t * fb_s5p6818_probe(struct driver_t * drv, struct dtnode_t
 	clk_enable(pdat->clk);
 	s5p6818_fb_init(pdat);
 
-	if(!register_fb(&dev, fb))
+	if(!register_framebuffer(&dev, fb))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
@@ -1045,10 +1045,10 @@ static struct device_t * fb_s5p6818_probe(struct driver_t * drv, struct dtnode_t
 
 static void fb_s5p6818_remove(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 
-	if(fb && unregister_fb(fb))
+	if(fb && unregister_framebuffer(fb))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
@@ -1063,7 +1063,7 @@ static void fb_s5p6818_remove(struct device_t * dev)
 
 static void fb_s5p6818_suspend(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 
 	pdat->brightness = led_get_brightness(pdat->backlight);
@@ -1072,7 +1072,7 @@ static void fb_s5p6818_suspend(struct device_t * dev)
 
 static void fb_s5p6818_resume(struct device_t * dev)
 {
-	struct fb_t * fb = (struct fb_t *)dev->priv;
+	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 
 	led_set_brightness(pdat->backlight, pdat->brightness);

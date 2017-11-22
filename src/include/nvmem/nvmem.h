@@ -6,10 +6,12 @@ extern "C" {
 #endif
 
 #include <xboot.h>
+#include <nvmem/kvdb.h>
 
 struct nvmem_t
 {
 	char * name;
+	struct kvdb_t * db;
 	int (*read)(struct nvmem_t * m, void * buf, int offset, int count);
 	int (*write)(struct nvmem_t * m, void * buf, int offset, int count);
 	int (*capacity)(struct nvmem_t * m);

@@ -143,7 +143,7 @@ static struct device_t * vibrator_pwm_probe(struct driver_t * drv, struct dtnode
 	pdat->pwm = pwm;
 	pdat->period = dt_read_int(n, "pwm-period-ns", 2272727);
 	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
-	pdat->state = 0;
+	pdat->state = -1;
 
 	vib->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	vib->set = vibrator_pwm_set,
@@ -151,11 +151,10 @@ static struct device_t * vibrator_pwm_probe(struct driver_t * drv, struct dtnode
 	vib->vibrate = vibrator_pwm_vibrate,
 	vib->priv = pdat;
 
-	vibrator_pwm_set_state(pdat, pdat->state);
+	vibrator_pwm_set(vib, 0);
 
 	if(!register_vibrator(&dev, vib))
 	{
-		vibrator_pwm_set_state(pdat, 0);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
 
@@ -176,7 +175,6 @@ static void vibrator_pwm_remove(struct device_t * dev)
 
 	if(vib && unregister_vibrator(vib))
 	{
-		vibrator_pwm_set_state(pdat, 0);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
 
@@ -190,7 +188,6 @@ static void vibrator_pwm_suspend(struct device_t * dev)
 {
 	struct vibrator_t * vib = (struct vibrator_t *)dev->priv;
 	struct vibrator_pwm_pdata_t * pdat = (struct vibrator_pwm_pdata_t *)vib->priv;
-
 	vibrator_pwm_set_state(pdat, 0);
 }
 
@@ -198,7 +195,6 @@ static void vibrator_pwm_resume(struct device_t * dev)
 {
 	struct vibrator_t * vib = (struct vibrator_t *)dev->priv;
 	struct vibrator_pwm_pdata_t * pdat = (struct vibrator_pwm_pdata_t *)vib->priv;
-
 	vibrator_pwm_set_state(pdat, pdat->state);
 }
 

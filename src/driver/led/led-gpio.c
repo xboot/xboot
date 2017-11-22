@@ -100,7 +100,7 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->gpio = dt_read_int(n, "gpio", -1);
 	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
-	pdat->brightness = dt_read_int(n, "default-brightness", 0);
+	pdat->brightness = -1;
 
 	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	led->set = led_gpio_set,
@@ -110,12 +110,10 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	if(pdat->gpiocfg >= 0)
 		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
-	led_gpio_set_brightness(pdat, pdat->brightness);
+	led_gpio_set(led, dt_read_int(n, "default-brightness", 0));
 
 	if(!register_led(&dev, led))
 	{
-		led_gpio_set_brightness(pdat, 0);
-
 		free_device_name(led->name);
 		free(led->priv);
 		free(led);
@@ -129,12 +127,9 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 static void led_gpio_remove(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
-	struct led_gpio_pdata_t * pdat = (struct led_gpio_pdata_t *)led->priv;
 
 	if(led && unregister_led(led))
 	{
-		led_gpio_set_brightness(pdat, 0);
-
 		free_device_name(led->name);
 		free(led->priv);
 		free(led);
@@ -145,7 +140,6 @@ static void led_gpio_suspend(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
 	struct led_gpio_pdata_t * pdat = (struct led_gpio_pdata_t *)led->priv;
-
 	led_gpio_set_brightness(pdat, 0);
 }
 
@@ -153,7 +147,6 @@ static void led_gpio_resume(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
 	struct led_gpio_pdata_t * pdat = (struct led_gpio_pdata_t *)led->priv;
-
 	led_gpio_set_brightness(pdat, pdat->brightness);
 }
 

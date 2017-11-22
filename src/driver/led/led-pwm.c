@@ -108,19 +108,17 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	pdat->pwm = pwm;
 	pdat->period = dt_read_int(n, "pwm-period-ns", 1000 * 1000);
 	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
-	pdat->brightness = dt_read_int(n, "default-brightness", 0);
+	pdat->brightness = -1;
 
 	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	led->set = led_pwm_set,
 	led->get = led_pwm_get,
 	led->priv = pdat;
 
-	led_pwm_set_brightness(pdat, pdat->brightness);
+	led_pwm_set(led, dt_read_int(n, "default-brightness", 0));
 
 	if(!register_led(&dev, led))
 	{
-		led_pwm_set_brightness(pdat, 0);
-
 		free_device_name(led->name);
 		free(led->priv);
 		free(led);
@@ -134,12 +132,9 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 static void led_pwm_remove(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
-	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
 
 	if(led && unregister_led(led))
 	{
-		led_pwm_set_brightness(pdat, 0);
-
 		free_device_name(led->name);
 		free(led->priv);
 		free(led);
@@ -150,7 +145,6 @@ static void led_pwm_suspend(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
-
 	led_pwm_set_brightness(pdat, 0);
 }
 
@@ -158,7 +152,6 @@ static void led_pwm_resume(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
-
 	led_pwm_set_brightness(pdat, pdat->brightness);
 }
 

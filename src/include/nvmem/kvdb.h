@@ -22,6 +22,9 @@ void kvdb_clear(struct kvdb_t * db);
 void kvdb_set(struct kvdb_t * db, char * key, char * value);
 char * kvdb_get(struct kvdb_t * db, char * key, char * def);
 
+void kvdb_from_string(struct kvdb_t * db, char * str);
+char * kvdb_to_string(struct kvdb_t * db);
+
 #ifdef __cplusplus
 }
 #endif

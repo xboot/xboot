@@ -32,6 +32,24 @@ struct record_t
 	char * value;
 };
 
+static char * trim(char * s)
+{
+	char * e;
+
+	if(s)
+	{
+		while(isspace(*s))
+			s++;
+		if(*s == 0)
+			return s;
+		e = s + strlen(s) - 1;
+		while((e > s) && isspace(*e))
+			e--;
+		*(e + 1) = 0;
+	}
+	return s;
+}
+
 static struct hlist_head * kvdb_hash(struct kvdb_t * db, const char * key)
 {
 	unsigned char * p = (unsigned char *)key;
@@ -107,7 +125,7 @@ static bool_t kvdb_remove_record(struct kvdb_t * db, struct record_t * r)
 
 	lk = strlen(r->key);
 	lv = strlen(r->value);
-	if(db->store_size - (lk + lv + 2) < 8)
+	if(db->store_size - (lk + lv + 2) < 0)
 		return FALSE;
 
 	spin_lock_irqsave(&db->lock, flags);
@@ -124,7 +142,7 @@ struct kvdb_t * kvdb_alloc(int size)
 	struct kvdb_t * db;
 	int i;
 
-	if(size < 8)
+	if(size < 0)
 		return NULL;
 
 	db = malloc(sizeof(struct kvdb_t));
@@ -132,8 +150,8 @@ struct kvdb_t * kvdb_alloc(int size)
 		return NULL;
 
 	db->max_size = size;
-	db->hash_size = db->max_size >> 3;
-	db->store_size = 8;
+	db->hash_size = (db->max_size >> 3) + 1;
+	db->store_size = 1;
 	db->hash = malloc(sizeof(struct hlist_head) * db->hash_size);
 	if(!db->hash)
 	{
@@ -209,13 +227,45 @@ char * kvdb_get(struct kvdb_t * db, char * key, char * def)
 	return def;
 }
 
-void kvdb_walk(struct kvdb_t * db, void (*cb)(struct kvdb_t * db, char * key, char * value))
+void kvdb_from_string(struct kvdb_t * db, char * str)
+{
+	char * p = str;
+	char * r, * k, * v;
+
+	if(!db || !p)
+		return;
+
+	while((r = strsep(&p, ",;\r\n")) != NULL)
+	{
+		if(strchr(r, '='))
+		{
+			k = trim(strsep(&r, "="));
+			v = trim(r);
+			k = (k && strcmp(k, "") != 0) ? k : NULL;
+			v = (v && strcmp(v, "") != 0) ? v : NULL;
+			if(k && v)
+				kvdb_set(db, k, v);
+		}
+	}
+}
+
+char * kvdb_to_string(struct kvdb_t * db)
 {
 	struct record_t * pos, * n;
+	char * str;
+	int len = 0;
+
+	if(!db)
+		return NULL;
+
+	str = malloc(db->store_size);
+	if(!str)
+		return NULL;
+	memset(str, 0, db->store_size);
 
 	list_for_each_entry_safe(pos, n, &db->list, head)
 	{
-		if(cb)
-			cb(db, pos->key, pos->value);
+		len += sprintf((char *)(str + len), "%s=%s;", pos->key, pos->value);
 	}
+	return str;
 }

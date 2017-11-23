@@ -219,12 +219,12 @@ void kvdb_set(struct kvdb_t * db, const char * key, const char * value)
 	}
 }
 
-const char * kvdb_get(struct kvdb_t * db, const char * key, const char * def)
+char * kvdb_get(struct kvdb_t * db, const char * key, const char * def)
 {
 	struct record_t * r = kvdb_search_record(db, key);
 	if(r)
 		return r->value;
-	return def;
+	return (char *)def;
 }
 
 void kvdb_from_string(struct kvdb_t * db, char * str)

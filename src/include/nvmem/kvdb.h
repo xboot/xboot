@@ -20,7 +20,7 @@ struct kvdb_t * kvdb_alloc(int size);
 void kvdb_free(struct kvdb_t * db);
 void kvdb_clear(struct kvdb_t * db);
 void kvdb_set(struct kvdb_t * db, const char * key, const char * value);
-const char * kvdb_get(struct kvdb_t * db, const char * key, const char * def);
+char * kvdb_get(struct kvdb_t * db, const char * key, const char * def);
 void kvdb_from_string(struct kvdb_t * db, char * str);
 char * kvdb_to_string(struct kvdb_t * db);
 int kvdb_summary(struct kvdb_t * db, void * buf);

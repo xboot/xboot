@@ -97,7 +97,7 @@ static int m_buzzer_beep(lua_State * L)
 static int m_buzzer_play(lua_State * L)
 {
 	struct buzzer_t * buzzer = luaL_checkudata(L, 1, MT_HARDWARE_BUZZER);
-	const char * rtttl = luaL_optstring(L, 1, NULL);
+	const char * rtttl = luaL_optstring(L, 2, NULL);
 	buzzer_play(buzzer, rtttl);
 	lua_settop(L, 1);
 	return 1;

@@ -193,7 +193,7 @@ void kvdb_clear(struct kvdb_t * db)
 	}
 }
 
-void kvdb_set(struct kvdb_t * db, char * key, char * value)
+void kvdb_set(struct kvdb_t * db, const char * key, const char * value)
 {
 	struct record_t * r;
 
@@ -219,7 +219,7 @@ void kvdb_set(struct kvdb_t * db, char * key, char * value)
 	}
 }
 
-char * kvdb_get(struct kvdb_t * db, char * key, char * def)
+const char * kvdb_get(struct kvdb_t * db, const char * key, const char * def)
 {
 	struct record_t * r = kvdb_search_record(db, key);
 	if(r)
@@ -268,4 +268,19 @@ char * kvdb_to_string(struct kvdb_t * db)
 		len += sprintf((char *)(str + len), "%s=%s;", pos->key, pos->value);
 	}
 	return str;
+}
+
+int kvdb_summary(struct kvdb_t * db, void * buf)
+{
+	struct record_t * pos, * n;
+	int len = 0;
+
+	if(!db || !buf)
+		return 0;
+
+	list_for_each_entry_safe(pos, n, &db->list, head)
+	{
+		len += sprintf((char *)(buf + len), "%s=%s\r\n", pos->key, pos->value);
+	}
+	return len;
 }

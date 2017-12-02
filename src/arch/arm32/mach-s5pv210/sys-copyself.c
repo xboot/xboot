@@ -24,41 +24,34 @@
 
 #include <xboot.h>
 
-#define S5PV210_PRO_ID					(0xE0000000 + 0x0000)
-#define S5PV210_OMR						(0xE0000000 + 0x0004)
-#define S5PV210_SW_RESET				(0xE0100000 + 0x2000)
-#define S5PV210_DISPLAY_CONTROL			(0xE0100000 + 0x7008)
-#define S5PV210_PS_HOLD_CONTROL			(0xE0100000 + 0xE81C)
-
 extern unsigned char __image_start;
 extern unsigned char __image_end;
 
 /*
- * global block size.
+ * Global block size.
  */
-#define irom_global_block_size								\
-		(*((volatile u32_t *)(0xd0037480)))
+#define irom_global_block_size \
+	(*((volatile u32_t *)(0xd0037480)))
 
 /*
- * global sdhc information bit.
+ * Global sdhc information bit.
  *
  * [31:16] RCA address
  * [2] sd card.
  * [1] mmc card.
  * [0] high capacity enable.
  */
-#define irom_global_sdhc_info_bit							\
-		(*((volatile u32_t *)(0xd0037484)))
+#define irom_global_sdhc_info_bit \
+	(*((volatile u32_t *)(0xd0037484)))
 
 /*
- * sdmmc base, current boot channel.
+ * Sdmmc base, current boot channel.
  */
-#define irom_v210_sdmmc_base								\
-		(*((volatile u32_t *)(0xd0037488)))
-
+#define irom_v210_sdmmc_base \
+	(*((volatile u32_t *)(0xd0037488)))
 
 /*
- * this function copies a block of page to destination memory (8-bit ecc only)
+ * This function copies a block of page to destination memory (8-bit ecc only)
  * 2048, 4096 page 8bits-bus nand Only.
  *
  * @param u32_t block : source block address number to copy.
@@ -66,11 +59,11 @@ extern unsigned char __image_end;
  * @param u8_t * mem  : target memory pointer.
  * @return s32_t - success or failure.
 */
-#define	irom_nf8_readpage_adv(block, page, mem)				\
-		(((s32_t(*)(u32_t, u32_t, u8_t *))(*((u32_t *)(0xd0037f90))))(block, page, mem))
+#define	irom_nf8_readpage_adv(block, page, mem) \
+	(((s32_t(*)(u32_t, u32_t, u8_t *))(*((u32_t *)(0xd0037f90))))(block, page, mem))
 
 /*
- * this function copies a block of page to destination memory (4-bit ecc only)
+ * This function copies a block of page to destination memory (4-bit ecc only)
  * 2048 page size, 5 cycle address, 16bits-bus nand Only
  *
  * @param u32_t block : source block address number to copy.
@@ -78,11 +71,11 @@ extern unsigned char __image_end;
  * @param u8_t * mem  : target memory pointer.
  * @return s32_t - success or failure.
 */
-#define	irom_nf16_readpage_adv(block, page, mem)			\
-		(((s32_t(*)(u32_t, u32_t, u8_t *))(*((u32_t *)(0xd0037f94))))(block, page, mem))
+#define	irom_nf16_readpage_adv(block, page, mem) \
+	(((s32_t(*)(u32_t, u32_t, u8_t *))(*((u32_t *)(0xd0037f94))))(block, page, mem))
 
 /*
- * this function copies SD/MMC card data to memory.
+ * This function copies SD/MMC card data to memory.
  * always use EPLL source clock. this function works at 20Mhz.
  *
  * @param ch 	 : HSMMC controller channel number
@@ -92,50 +85,30 @@ extern unsigned char __image_end;
  * @param init 	 : reinitialize or not.
  * @return bool(u8_t) - success or failure.
  */
-#define irom_sdmmc_to_mem(ch, sector, count, mem, init)		\
-		(((u8_t(*)(s32_t, u32_t, u16_t, u32_t *, s32_t))(*((u32_t *)(0xd0037f98))))(ch, sector, count, mem, init))
-
-/*
- * read a 32-bits value from register.
- */
-static u32_t reg_read(u32_t addr)
-{
-	return( *((volatile u32_t *)(addr)) );
-}
+#define irom_sdmmc_to_mem(ch, sector, count, mem, init) \
+	(((u8_t(*)(s32_t, u32_t, u16_t, u32_t *, s32_t))(*((u32_t *)(0xd0037f98))))(ch, sector, count, mem, init))
 
 void sys_copyself(void)
 {
-	u8_t om;
-	u32_t * mem;
+	virtual_addr_t addr = 0xe0000004;
 	u32_t page, block, size;
+	u32_t * mem;
+	u8_t om;
 
 	/*
-	 * read om register, om[4..1]
+	 * Read om register, om[4..1]
 	 */
-	om = (u8_t)((reg_read(S5PV210_OMR) >> 1) & 0x0f);
+	om = (u8_t)((read32(addr) >> 1) & 0x0f);
 
-	/* essd */
+	/* Essd */
 	if(om == 0x0)
 	{
-
 	}
-
-	/* nand 2KB, 5-cycle, 8-bit ecc */
+	/* Nand 2KB, 5-cycle, 8-bit ecc */
 	else if(om == 0x1)
 	{
-		/*
-		 * the xboot's memory base address.
-		 */
 		mem = (u32_t *)&__image_start;
-
-		/*
-		 * the xboot's size, the 'size' is number of block. 128KB per block.
-		 */
 		size = (&__image_end - &__image_start + 0x00020000) >> 17;
-
-		/*
-		 * copy xboot to memory from nand flash.
-		 */
 		for(block = 0; block < size; block++)
 		{
 			for(page = 0; page < 64; page++)
@@ -145,101 +118,51 @@ void sys_copyself(void)
 			}
 		}
 	}
-
-	/* nand 4KB, 5-cycle, 8-bit ecc */
+	/* Nand 4KB, 5-cycle, 8-bit ecc */
 	else if(om == 0x2)
 	{
-
 	}
-
-	/* nand 4KB, 5-cycle, 16-bit ecc */
+	/* Nand 4KB, 5-cycle, 16-bit ecc */
 	else if(om == 0x3)
 	{
-
 	}
-
-	/* onenand mux */
+	/* Onenand mux */
 	else if(om == 0x4)
 	{
-
 	}
-
-	/* onenand demux */
+	/* Onenand demux */
 	else if(om == 0x5)
 	{
-
 	}
-
-	/* sd / mmc */
+	/* Sd / mmc */
 	else if(om == 0x6)
 	{
-		/*
-		 * the xboot's memory base address.
-		 */
 		mem = (u32_t *)&__image_start;
-
-		/*
-		 * the size which will be copyed, the 'size' is
-		 * 1 : 256KB, 2 : 512KB, 3 : 768KB, 4 : 1024KB ...
-		 */
 		size = (&__image_end - &__image_start + 0x00040000) >> 18;
-
-		/*
-		 * how many blocks the 'size' is , 512 bytes per block.
-		 * size * 256 *1024 / 512 = size * 2^9 = size << 9
-		 */
 		size = size << 9;
-
-		/*
-		 * copy xboot to memory from sd/mmc card.
-		 */
 		if(irom_v210_sdmmc_base == 0xeb000000)
-		{
 			irom_sdmmc_to_mem(0, 1, size, mem, 0);
-		}
 		else if(irom_v210_sdmmc_base == 0xeb200000)
-		{
 			irom_sdmmc_to_mem(2, 1, size, mem, 0);
-		}
-		else
-		{
-			return;
-		}
 	}
-
-	/* emmc, 4-bit */
+	/* Emmc, 4-bit */
 	else if(om == 0x7)
 	{
-
 	}
-
-	/* reserved */
+	/* Reserved */
 	else if(om == 0x8)
 	{
-
 	}
-
-	/* nand 2KB, 4-cycle, 8-bit ecc */
+	/* Nand 2KB, 4-cycle, 8-bit ecc */
 	else if(om == 0x9)
 	{
-
 	}
-
-	/* nor flash */
+	/* Nor flash */
 	else if(om == 0xa)
 	{
-
 	}
-
-	/* emmc, 8-bit */
+	/* Emmc, 8-bit */
 	else if(om == 0xa)
 	{
-
-	}
-
-	/* not support */
-	else
-	{
-		return;
 	}
 }

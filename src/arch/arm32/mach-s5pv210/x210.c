@@ -34,16 +34,24 @@ static const struct mmap_t mach_map[] = {
 
 static int mach_detect(struct machine_t * mach)
 {
+	virtual_addr_t virt;
+
+	if((read32(phys_to_virt(0xe0000000)) >> 12) != 0x43110)
+		return 0;
+	virt = phys_to_virt(0xe010e81c);
+	write32(virt, (read32(virt) & ~0x301) | 0x301);
 	return 1;
 }
 
 static void mach_memmap(struct machine_t * mach)
 {
-//	mmu_setup(mach->map);
+	mmu_setup(mach->map);
 }
 
 static void mach_shutdown(struct machine_t * mach)
 {
+	virtual_addr_t virt = phys_to_virt(0xe010e81c);
+	write32(virt, (read32(virt) & ~0x301) | 0x201);
 }
 
 static void mach_reboot(struct machine_t * mach)

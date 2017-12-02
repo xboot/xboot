@@ -106,87 +106,52 @@ _fiq:
  * The actual reset code
  */
 reset:
+	/* Set cpu to svc32 mode and disable interrupt */
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r0, r0, #0xd3
+	msr cpsr, r0
+
+	/* Enable neon/vfp unit */
+	mrc p15, #0, r1, c1, c0, #2
+	orr r1, r1, #(0xf << 20)
+	mcr p15, #0, r1, c1, c0, #2
+	mov r1, #0
+	mcr p15, #0, r1, c7, c5, #4
+	mov r0, #0x40000000
+	fmxr fpexc, r0
+
 	/* Disable watchdog */
-	ldr	r0, =0xe2700000
-	mov	r1, #0
-	str	r1, [r0]
+	ldr r0, =0xe2700000
+	mov r1, #0
+	str r1, [r0]
 
-	/* Set cpu to supervisor mode */
-	mrs	r0, cpsr
-	bic	r0, r0, #0x1f
-	orr	r0, r0, #0xd3
-	msr	cpsr, r0
+	/* Release retention IO */
+	ldr r0, =0xe010e000
+	ldr r1, [r0]
+	ldr r2, =((1 << 31) | (1 << 29) | (1 << 28))
+	orr r1, r1, r2
+	str r1, [r0]
 
-	/* Disable l2 cache */
-	mrc p15, 0, r0, c1, c0, 1
-	bic r0, r0, #(1<<1)
-	mcr p15, 0, r0, c1, c0, 1
-
-	/* Set l2 cache aux ctrl cycle */
-	mrc p15, 1, r0, c9, c0, 2
-	bic r0, r0, #(0x1<<29)
-	bic r0, r0, #(0x1<<21)
-	bic r0, r0, #(0x7<<6)
-	bic r0, r0, #(0x7<<0)
-	mcr p15, 1, r0, c9, c0, 2
-
-	/* Enable l2 cache */
-	mrc p15, 0, r0, c1, c0, 1
-	orr r0, r0, #(1<<1)
-	mcr p15, 0, r0, c1, c0, 1
-
-	/* Invalidate l1 i/d */
-	mov	r0, #0						/*  set up for mcr */
-	mcr	p15, 0, r0, c8, c7, 0		/* invalidate tlbs */
-	mcr	p15, 0, r0, c7, c5, 0		/* invalidate icache */
-
-	/* Disable mmu stuff and caches */
-	mrc	p15, 0, r0, c1, c0, 0
-	bic	r0, r0, #0x00002000			/* clear bits 13 (--v-) */
-	bic	r0, r0, #0x00000007			/* clear bits 2:0 (-cam) */
-	orr	r0, r0, #0x00000002			/* set bit 1 (--a-) align */
-	orr	r0, r0, #0x00000800			/* set bit 12 (z---) btb */
-	mcr	p15, 0, r0, c1, c0, 0
-
-	/* IO retention release */
-	ldr	r0, =0xe010e000
-	ldr	r1, [r0]
-	ldr	r2, =((1 << 31) | (1 << 29) | (1 << 28))
-	orr	r1, r1, r2
-	str	r1, [r0]
-
-	/* PSHOLD pin set to high */
-	ldr	r0, =0xe010e81c
-	ldr	r1, [r0]
-	orr	r1, r1, #0x300
-	orr	r1, r1, #0x1
-	str	r1, [r0]
+	/* Wakeup or not */
+	ldr r0, =0xe010a000
+	ldr r1, [r0]
+	bic r1, r1, #0xfff6ffff
+	cmp r1, #0x10000
+	beq _wakeup
+	cmp r1, #0x80000
+	beq _wakeup
 
 	/* init system clock */
-	bl	system_clock_init
-
+	bl system_clock_init
 	/* initialize memory controller */
-	bl	mem_ctrl_init
+	bl mem_ctrl_init
 
-	/* initialize nand flash controller */
-	bl	nand_init
-
-	/* setting trustzone protection controller */
-	bl	tzpc_init
-
-	/* wakeup or not */
-	ldr	r0, =(0xe0100000 + 0xa000)
-	ldr	r1, [r0]
-	bic	r1, r1, #0xfff6ffff
-	cmp	r1, #0x10000
-	beq	wakeup_reset
-	cmp	r1, #0x80000
-	beq	wakeup_reset
-
-	/* Initial system uart, clock and ddr */
-//	bl sys_uart_init
-//	bl sys_clock_init
-//	bl sys_dram_init
+	/* Initial system tzpc, uart, clock, and ddr */
+	bl sys_tzpc_init
+	bl sys_uart_init
+	bl sys_clock_init
+	bl sys_dram_init
 
 	/* Copyself to link address */
 	adr r0, _start
@@ -640,102 +605,11 @@ dmc1_lock:
 
 	mov	pc, lr
 
-/*
- * initialize nand flash controller
- */
-nand_init:
-	ldr	r0, =0xE020000				/* GPIO base register */
-	
-	ldr	r1, [r0, #0x02E0]			/* MP0_1CON */
-	bic	r1, r1, #(0xf<<8)
-	orr	r1, r1, #(0x3<<8)
-	str	r1, [r0, #0x02E0]
-
-	ldr	r1, [r0, #0x02E8]			/* MP0_1PUD */
-	bic	r1, r1, #(0x3<<4)
-	str	r1, [r0, #0x02E8]
-
-	ldr	r1, [r0, #0x0320]			/* MP0_3CON */
-	bic	r1, r1, #0xFFFFFF
-	ldr	r2, =0x22222222
-	orr	r1, r1, r2
-	str	r1, [r0, #0x0320]
-
-	ldr	r1, [r0, #0x0328]			/* MP0_3PUD */
-	ldr	r2, =0x3fff
-	bic	r1, r1, r2
-	str	r1, [r0, #0x0328]
-
-	ldr	r0, =0xB0E00000				/* Nand flash controller register */
-
-	ldr	r1, [r0, #0x0000]			/* NFCONF */
-	ldr	r2, =0x777F
-	bic	r1, r1, r2
-	ldr	r2, =(7<<12)|(7<<8)|(7<<4)|(0<<3)|(1<<2)|(1<<1)|(0<<0)
-	orr	r1, r1, r2
-	str	r1, [r0, #0x0000]
-
-	ldr	r1, [r0, #0x0004]			/* NFCONT */
-	ldr	r2, =0x707C7
-	bic	r1, r1, r2
-	ldr	r2, =(0<<18)|(0<<17)|(0<<16)|(0<<10)|(0<<9)|(0<<8)|(0<<7)|(0<<6)|(0x3<<1)|(1<<0)
-	orr	r1, r1, r2
-	str	r1, [r0, #0x0004]
-
-	ldr	r1, [r0, #0x00000]			/* NFCONF */
-	orr	r1, r1, #0x70
-	orr	r1, r1, #0x7700
-	str	r1, [r0, #0x0000]
-
-	ldr	r1, [r0, #0x0004]			/* NFCONT */
-	orr	r1, r1, #0x03
-	str	r1, [r0, #0x0004]
-
-	mov	pc, lr
-
-/*
- * setting trustzone protection controller
- */
-tzpc_init:
-	ldr	r0, =0xF1500000
-	mov	r1, #0x0
-	str	r1, [r0]
-	mov	r1, #0xff
-	str	r1, [r0, #0x804]
-	str	r1, [r0, #0x810]
-	str	r1, [r0, #0x81C]
-
-	ldr 	r0, =0xFAD00000
-	str	r1, [r0, #0x804]
-	str	r1, [r0, #0x810]
-	str	r1, [r0, #0x81C]
-
-	ldr	r0, =0xE0600000
-	str	r1, [r0, #0x804]
-	str	r1, [r0, #0x810]
-	str	r1, [r0, #0x81C]
-	str	r1, [r0, #0x828]
-
-	ldr	r0, =0xE1C00000
-	str	r1, [r0, #0x804]
-	str	r1, [r0, #0x810]
-	str	r1, [r0, #0x81C]
-
-	mov	pc, lr
-
-/*
- * Wakeup reset
- */
-wakeup_reset:
-	/*
-	 * load return address and jump to kernel
-	 */
+_wakeup:
 	ldr r0, =(0xe010f000 + 0x00)
 	ldr r1, [r0]
 	mov pc, r1
-	nop
-	nop
-	b	.
+	b _wakeup
 
 /*
  * Exception handlers
@@ -801,6 +675,7 @@ not_used:
 	b .
 
 	.align 5
+	.global irq
 irq:
 	sub lr, lr, #4
 	srsdb sp!, #0x13

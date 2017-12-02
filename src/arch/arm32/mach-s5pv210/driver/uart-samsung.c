@@ -265,10 +265,10 @@ static struct device_t * uart_samsung_probe(struct driver_t * drv, struct dtnode
 			gpio_set_cfg(pdat->rxd, pdat->rxdcfg);
 		gpio_set_pull(pdat->rxd, GPIO_PULL_UP);
 	}
-//	write32(pdat->virt + UART_UCON, 0x00000005);
-//	write32(pdat->virt + UART_UFCON, 0x00000777);
-//	write32(pdat->virt + UART_UMCON, 0x00000000);
-//	uart_samsung_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
+	write32(pdat->virt + UART_UCON, 0x00000005);
+	write32(pdat->virt + UART_UFCON, 0x00000777);
+	write32(pdat->virt + UART_UMCON, 0x00000000);
+	uart_samsung_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
 
 	if(!register_uart(&dev, uart))
 	{

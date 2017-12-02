@@ -78,6 +78,7 @@ static void irq_pl192_dispatch(struct irqchip_t * chip)
 		{
 			(chip->handler[offset].func)(chip->handler[offset].data);
 			write32(pdat->virt + VIC_SOFTINTCLEAR, 0x1 << offset);
+			write32(pdat->virt + VIC_ADDRESS, 0);
 		}
 	}
 }

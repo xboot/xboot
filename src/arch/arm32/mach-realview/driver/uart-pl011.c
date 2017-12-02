@@ -214,7 +214,6 @@ static ssize_t uart_pl011_write(struct uart_t * uart, const u8_t * buf, size_t c
 		while((read8(pdat->virt + UART_FR) & (0x1 << 5)));
 		write8(pdat->virt + UART_DATA, buf[i]);
 	}
-
 	return i;
 }
 

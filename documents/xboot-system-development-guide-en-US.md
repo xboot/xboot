@@ -265,10 +265,12 @@ xboot
 │   │   │   ├── include
 │   │   │   ├── lib
 │   │   │   ├── mach-apple
+│   │   │   ├── mach-f1c100s
 │   │   │   ├── mach-h3
 │   │   │   ├── mach-n3ds
 │   │   │   ├── mach-raspi2
 │   │   │   ├── mach-realview
+│   │   │   ├── mach-s5pv210
 │   │   │   ├── mach-v3s
 │   │   │   ├── mach-x3128
 │   │   │   ├── mach-x3288
@@ -380,10 +382,12 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | 目录            | 描述                                      |
 | ------------- | --------------------------------------- |
 | mach-apple    | 苹果A4处理器，包括Iphone4，Ipod touch 4g，Ipad 1g |
+| mach-f1c100s  | 全志F1C100S                               |
 | mach-h3       | 全志H3芯片，Nano PI                          |
 | mach-n3ds     | 任天堂3DS，包括后出的New 2DSXLL                  |
 | mach-raspi2   | Raspberry PI 2代                         |
 | mach-realview | Qemu Realview模拟器                        |
+| mach-s5pv210  | 三星S5PV210                               |
 | mach-v3s      | 全志V3S芯片，Lichee PI Zero                  |
 | mach-x3128    | 瑞芯微RK3128                               |
 | mach-x3288    | 瑞芯微RK3288                               |

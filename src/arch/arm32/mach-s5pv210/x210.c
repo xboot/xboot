@@ -71,10 +71,21 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 	virtual_addr_t virt = phys_to_virt(0xe2900800);
 	int i;
 
-	for(i = 0; i < count; i++)
+	if((read32(virt + 0x8) & (1 << 0)))
 	{
-		while((read32(virt + 0x10) & (0x1 << 1)) == 0);
-		write8(virt + 0x20, buf[i]);
+		for(i = 0; i < count; i++)
+		{
+			while((read32(virt + 0x18) & (1 << 24)));
+			write8(virt + 0x20, buf[i]);
+		}
+	}
+	else
+	{
+		for(i = 0; i < count; i++)
+		{
+			while(!(read32(virt + 0x10) & (1 << 1)));
+			write8(virt + 0x20, buf[i]);
+		}
 	}
 }
 

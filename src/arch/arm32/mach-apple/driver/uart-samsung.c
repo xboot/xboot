@@ -189,12 +189,25 @@ static ssize_t uart_samsung_read(struct uart_t * uart, u8_t * buf, size_t count)
 	struct uart_samsung_pdata_t * pdat = (struct uart_samsung_pdata_t *)uart->priv;
 	ssize_t i;
 
-	for(i = 0; i < count; i++)
+	if((read32(pdat->virt + UART_UFCON) & (1 << 0)))
 	{
-		if((read32(pdat->virt + UART_UTRSTAT) & (1<<0)))
-			buf[i] = read8(pdat->virt + UART_URXH);
-		else
-			break;
+		for(i = 0; i < count; i++)
+		{
+			if((read32(pdat->virt + UART_UFSTAT) & (0x1ff << 0)))
+				buf[i] = read8(pdat->virt + UART_URXH);
+			else
+				break;
+		}
+	}
+	else
+	{
+		for(i = 0; i < count; i++)
+		{
+			if((read32(pdat->virt + UART_UTRSTAT) & (1 << 0)))
+				buf[i] = read8(pdat->virt + UART_URXH);
+			else
+				break;
+		}
 	}
 	return i;
 }
@@ -204,10 +217,21 @@ static ssize_t uart_samsung_write(struct uart_t * uart, const u8_t * buf, size_t
 	struct uart_samsung_pdata_t * pdat = (struct uart_samsung_pdata_t *)uart->priv;
 	ssize_t i;
 
-	for(i = 0; i < count; i++)
+	if((read32(pdat->virt + UART_UFCON) & (1 << 0)))
 	{
-		while(!(read32(pdat->virt + UART_UTRSTAT) & (1<<1)));
-		write8(pdat->virt + UART_UTXH, buf[i]);
+		for(i = 0; i < count; i++)
+		{
+			while((read32(pdat->virt + UART_UFSTAT) & (1 << 24)));
+			write8(pdat->virt + UART_UTXH, buf[i]);
+		}
+	}
+	else
+	{
+		for(i = 0; i < count; i++)
+		{
+			while(!(read32(pdat->virt + UART_UTRSTAT) & (1 << 1)));
+			write8(pdat->virt + UART_UTXH, buf[i]);
+		}
 	}
 	return i;
 }

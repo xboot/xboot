@@ -32,6 +32,14 @@ void sys_uart_putc(char c)
 {
 	virtual_addr_t addr = 0xe2900800;
 
-	while((read32(addr + 0x10) & (0x1 << 1)) == 0);
-	write8(addr + 0x20, c);
+	if((read32(addr + 0x8) & (1 << 0)))
+	{
+		while((read32(addr + 0x18) & (1 << 24)));
+		write8(addr + 0x20, c);
+	}
+	else
+	{
+		while(!(read32(addr + 0x10) & (1 << 1)));
+		write8(addr + 0x20, c);
+	}
 }

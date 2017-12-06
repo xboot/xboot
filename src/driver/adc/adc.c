@@ -154,7 +154,7 @@ int adc_read_voltage(struct adc_t * adc, int channel)
 			channel = 0;
 		else if(channel > adc->nchannel - 1)
 			channel = adc->nchannel - 1;
-		return (adc->read(adc, channel) * adc->vreference) / ((1 << adc->resolution) - 1);
+		return ((s64_t)adc->read(adc, channel) * adc->vreference) / ((1 << adc->resolution) - 1);
 	}
 	return 0;
 }

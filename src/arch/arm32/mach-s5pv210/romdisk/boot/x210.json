@@ -50,6 +50,9 @@
 	"clk-divider@0xe0100300": { "parent": "psys", "name": "psys-hclk", "shift": 24, "width": 4, "divider-one-based": true },
 	"clk-divider@0xe0100300": { "parent": "psys-hclk", "name": "psys-pclk", "shift": 28, "width": 3, "divider-one-based": true },
 
+	"clk-gate@0xe010046c": {"parent": "psys-pclk", "name": "gate-adc", "shift": 24, "invert": false },
+	"clk-link": { "parent": "gate-adc", "name": "link-adc" },
+
 	"clk-mux@0xe0100210": {
 		"parent": [
 			{ "name": "xin24m", "value": 0 },
@@ -163,6 +166,11 @@
 	"gpio-s5pv210@0xe0200360": { "gpio-base": 248, "gpio-count": 8, "interrupt-offset": -1 },
 	"gpio-s5pv210@0xe0200380": { "gpio-base": 256, "gpio-count": 8, "interrupt-offset": -1 },
 	"gpio-s5pv210@0xe02003a0": { "gpio-base": 264, "gpio-count": 8, "interrupt-offset": -1 },
+
+	"adc-s5pv210@0xe1700000": {
+		"clock-name": "link-adc",
+		"reference-voltage": 3300000
+	},
 
 	"ce-samsung-timer@0xe2500000": {
 		"clock-name": "link-timer-prescaler0",

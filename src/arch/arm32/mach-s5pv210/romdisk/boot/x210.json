@@ -53,6 +53,9 @@
 	"clk-gate@0xe010046c": {"parent": "psys-pclk", "name": "gate-adc", "shift": 24, "invert": false },
 	"clk-link": { "parent": "gate-adc", "name": "link-adc" },
 
+	"clk-gate@0xe010046c": {"parent": "psys-pclk", "name": "gate-wdt", "shift": 22, "invert": false },
+	"clk-link": { "parent": "gate-wdt", "name": "link-wdt" },
+
 	"clk-mux@0xe0100210": {
 		"parent": [
 			{ "name": "xin24m", "value": 0 },
@@ -229,6 +232,10 @@
 		"data-bits": 8,
 		"parity-bits": 0,
 		"stop-bits": 1
+	},
+
+	"wdog-s5pv210@0xe2700000": {
+		"clock-name": "link-wdt"
 	},
 
 	"key-gpio-polled@0": {

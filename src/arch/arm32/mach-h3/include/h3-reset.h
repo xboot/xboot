@@ -48,7 +48,7 @@ extern "C" {
 #define H3_RESET_I2S2			(110)
 #define H3_RESET_I2C0			(128)
 #define H3_RESET_I2C1			(129)
-#define H3_RESET_I2C1			(130)
+#define H3_RESET_I2C2			(130)
 #define H3_RESET_UART0			(144)
 #define H3_RESET_UART1			(145)
 #define H3_RESET_UART2			(146)

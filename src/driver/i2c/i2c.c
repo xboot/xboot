@@ -25,6 +25,61 @@
 #include <xboot.h>
 #include <i2c/i2c.h>
 
+static bool_t detect(struct i2c_device_t * dev, u8_t reg, u8_t * val)
+{
+	struct i2c_msg_t msgs[2];
+	u8_t buf;
+
+	msgs[0].addr = dev->addr;
+	msgs[0].flags = 0;
+	msgs[0].len = 1;
+	msgs[0].buf = &reg;
+
+	msgs[1].addr = dev->addr;
+	msgs[1].flags = I2C_M_RD;
+	msgs[1].len = 1;
+	msgs[1].buf = &buf;
+
+	if(i2c_transfer(dev->i2c, msgs, 2) != 2)
+		return FALSE;
+	if(val)
+		*val = buf;
+	return TRUE;
+}
+
+static ssize_t i2c_read_detect(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct i2c_t * i2c = (struct i2c_t *)kobj->priv;
+	struct i2c_device_t * i2cdev;
+	char * p = buf;
+	int len = 0;
+	int i, j, a;
+
+	len += sprintf((char *)(p + len), "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
+	for(j = 0; j < 8; j++)
+	{
+		len += sprintf((char *)(p + len), "\r\n%02x:", (j << 4) & 0xff);
+		for(i = 0; i < 16; i++)
+		{
+			a = ((j << 4) | (i << 0)) & 0xff;
+			if((a >= 0x08) && (a <= 0x77))
+			{
+				i2cdev = i2c_device_alloc(i2c->name, a, 0);
+				if(i2cdev && detect(i2cdev, 0, 0))
+					len += sprintf((char *)(p + len), " %02x", a);
+				else
+					len += sprintf((char *)(p + len), " --");
+				i2c_device_free(i2cdev);
+			}
+			else
+			{
+				len += sprintf((char *)(p + len), "   ");
+			}
+		}
+	}
+	return len;
+}
+
 struct i2c_t * search_i2c(const char * name)
 {
 	struct device_t * dev;
@@ -51,6 +106,7 @@ bool_t register_i2c(struct device_t ** device, struct i2c_t * i2c)
 	dev->type = DEVICE_TYPE_I2C;
 	dev->priv = i2c;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "detect", i2c_read_detect, NULL, i2c);
 
 	if(!register_device(dev))
 	{

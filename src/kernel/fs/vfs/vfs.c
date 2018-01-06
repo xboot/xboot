@@ -1,7 +1,7 @@
 /*
  * kernel/fs/vfs/vfs.c
  *
- * Copyright(c) 2007-2017 Jianjun Jiang <8192542@qq.com>
+ * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
  * Mobile phone: +86-18665388956
  * QQ: 8192542

@@ -94,7 +94,7 @@ static void v3s_i2c_set_rate(struct i2c_v3s_pdata_t * pdat, u64_t rate)
 
 static int v3s_i2c_wait_status(struct i2c_v3s_pdata_t * pdat)
 {
-	ktime_t timeout = ktime_add_ms(ktime_get(), 10);
+	ktime_t timeout = ktime_add_ms(ktime_get(), 1);
 	do {
 		if((read32(pdat->virt + I2C_CNTR) & (1 << 3)))
 			return read32(pdat->virt + I2C_STAT);
@@ -110,7 +110,7 @@ static int v3s_i2c_start(struct i2c_v3s_pdata_t * pdat)
 	val |= (1 << 5) | (1 << 3);
 	write32(pdat->virt + I2C_CNTR, val);
 
-	ktime_t timeout = ktime_add_ms(ktime_get(), 10);
+	ktime_t timeout = ktime_add_ms(ktime_get(), 1);
 	do {
 		if(!(read32(pdat->virt + I2C_CNTR) & (1 << 5)))
 			break;
@@ -126,7 +126,7 @@ static int v3s_i2c_stop(struct i2c_v3s_pdata_t * pdat)
 	val |= (1 << 4) | (1 << 3);
 	write32(pdat->virt + I2C_CNTR, val);
 
-	ktime_t timeout = ktime_add_ms(ktime_get(), 10);
+	ktime_t timeout = ktime_add_ms(ktime_get(), 1);
 	do {
 		if(!(read32(pdat->virt + I2C_CNTR) & (1 << 4)))
 			break;

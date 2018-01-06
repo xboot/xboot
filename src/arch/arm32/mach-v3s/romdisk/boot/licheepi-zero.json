@@ -292,15 +292,24 @@
 		"stop-bits": 1
 	},
 
-	"i2c-gpio@0": {
+	"i2c-v3s@0x01c2ac00": {
+		"clock-name": "link-i2c0",
+		"clock-frequency": 400000,
+		"reset": 128,
 		"sda-gpio": 39,
-	 	"sda-gpio-config": 1,
+		"sda-gpio-config": 2,
 		"scl-gpio": 38,
-		"scl-gpio-config": 1,
-		"sda-open-drain": false,
-		"scl-open-drain": false,
-		"scl-output-only": false,
-		"delay-us": 5
+		"scl-gpio-config": 2
+	},
+
+	"i2c-v3s@0x01c2b000": {
+		"clock-name": "link-i2c1",
+		"clock-frequency": 400000,
+		"reset": 129,
+		"sda-gpio": -1,
+		"sda-gpio-config": -1,
+		"scl-gpio": -1,
+		"scl-gpio-config": -1
 	},
 
 	"spi-v3s@0x01c68000": {
@@ -339,7 +348,7 @@
 	},
 	
 	"ts-ns2009@0": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-v3s.0",
 		"slave-address": 72,
 		"median-filter-length": 5,
 		"mean-filter-length": 5,

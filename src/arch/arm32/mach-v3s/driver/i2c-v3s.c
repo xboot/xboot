@@ -28,17 +28,32 @@
 #include <gpio/gpio.h>
 #include <i2c/i2c.h>
 
-#if 0
 enum {
-	I2C_ADDR	= 0x000,
-	I2C_XADDR	= 0x004,
-	I2C_DATA 	= 0x008,
-	I2C_CNTR	= 0x00c,
-	I2C_STAT	= 0x010,
-	I2C_CCR		= 0x014,
-	I2C_SRST	= 0x018,
-	I2C_EFR		= 0x01c,
-	I2C_LCR		= 0x020,
+	I2C_ADDR			= 0x000,
+	I2C_XADDR			= 0x004,
+	I2C_DATA 			= 0x008,
+	I2C_CNTR			= 0x00c,
+	I2C_STAT			= 0x010,
+	I2C_CCR				= 0x014,
+	I2C_SRST			= 0x018,
+	I2C_EFR				= 0x01c,
+	I2C_LCR				= 0x020,
+};
+
+enum {
+	I2C_STAT_BUS_ERROR	= 0x00,
+	I2C_STAT_TX_START	= 0x08,
+	I2C_STAT_TX_RSTART	= 0x10,
+	I2C_STAT_TX_AW_ACK	= 0x18,
+	I2C_STAT_TX_AW_NAK	= 0x20,
+	I2C_STAT_TXD_ACK	= 0x28,
+	I2C_STAT_TXD_NAK	= 0x30,
+	I2C_STAT_LOST_ARB	= 0x38,
+	I2C_STAT_TX_AR_ACK	= 0x40,
+	I2C_STAT_TX_AR_NAK	= 0x48,
+	I2C_STAT_RXD_ACK	= 0x50,
+	I2C_STAT_RXD_NAK	= 0x58,
+	I2C_STAT_IDLE		= 0xf8,
 };
 
 struct i2c_v3s_pdata_t {
@@ -54,163 +69,119 @@ struct i2c_v3s_pdata_t {
 static void v3s_i2c_set_rate(struct i2c_v3s_pdata_t * pdat, u64_t rate)
 {
 	u64_t pclk = clk_get_rate(pdat->clk);
-	u32_t m, n;
+	s64_t freq, delta, best = 0x7fffffffffffffffLL;
+	int tm = 5, tn = 0;
+	int m, n;
 
-	n = 3;
-	m = (pclk >> n) / rate;
-	write32(pdat->virt + I2C_CCR, (((m - 1) & 0xf) << 3) | ((n & 0x7) << 0));
+	for(n = 0; n <= 7; n++)
+	{
+		for(m = 0; m <= 15; m++)
+		{
+			freq = pclk / (10 * (m + 1) * (1 << n));
+			delta = rate - freq;
+			if(delta >= 0 && delta < best)
+			{
+				tm = m;
+				tn = n;
+				best = delta;
+			}
+			if(best == 0)
+				break;
+		}
+	}
+	write32(pdat->virt + I2C_CCR, ((tm & 0xf) << 3) | ((tn & 0x7) << 0));
 }
 
-static void v3s_i2c_start(struct i2c_v3s_pdata_t * pdat)
+static int v3s_i2c_wait_status(struct i2c_v3s_pdata_t * pdat)
+{
+	ktime_t timeout = ktime_add_ms(ktime_get(), 10);
+	do {
+		if((read32(pdat->virt + I2C_CNTR) & (1 << 3)))
+			return read32(pdat->virt + I2C_STAT);
+	} while(ktime_before(ktime_get(), timeout));
+	return I2C_STAT_BUS_ERROR;
+}
+
+static int v3s_i2c_start(struct i2c_v3s_pdata_t * pdat)
 {
 	u32_t val;
 
 	val = read32(pdat->virt + I2C_CNTR);
-	val &= ~(1 << 3);
-	val |= (1 << 5);
+	val |= (1 << 5) | (1 << 3);
 	write32(pdat->virt + I2C_CNTR, val);
 
-	ktime_t timeout = ktime_add_us(ktime_get(), 10);
+	ktime_t timeout = ktime_add_ms(ktime_get(), 10);
 	do {
 		if(!(read32(pdat->virt + I2C_CNTR) & (1 << 5)))
 			break;
 	} while(ktime_before(ktime_get(), timeout));
+	return v3s_i2c_wait_status(pdat);
 }
 
-static void v3s_i2c_stop(struct i2c_v3s_pdata_t * pdat)
+static int v3s_i2c_stop(struct i2c_v3s_pdata_t * pdat)
 {
 	u32_t val;
 
 	val = read32(pdat->virt + I2C_CNTR);
-	val &= ~(1 << 3);
-	val |= (1 << 4);
+	val |= (1 << 4) | (1 << 3);
 	write32(pdat->virt + I2C_CNTR, val);
 
-	ktime_t timeout = ktime_add_us(ktime_get(), 10);
+	ktime_t timeout = ktime_add_ms(ktime_get(), 10);
 	do {
 		if(!(read32(pdat->virt + I2C_CNTR) & (1 << 4)))
 			break;
 	} while(ktime_before(ktime_get(), timeout));
+	return v3s_i2c_wait_status(pdat);
+}
+
+static int v3s_i2c_send_data(struct i2c_v3s_pdata_t * pdat, u8_t dat)
+{
+	write32(pdat->virt + I2C_DATA, dat);
+	write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) | (1 << 3));
+	return v3s_i2c_wait_status(pdat);
 }
 
 static int v3s_i2c_read(struct i2c_v3s_pdata_t * pdat, struct i2c_msg_t * msg)
 {
-	u32_t data = 0;
-	u32_t con = 0;
 	u8_t * p = msg->buf;
 	int len = msg->len;
-	int bytes = 0;
-	int words = 0;
-	int i, j;
 
-	write32(pdat->virt + I2C_MRXADDR, (1 << 24) | (msg->addr << 1) | 1);
-	write32(pdat->virt + I2C_MRXRADDR, 0);
-	con = (1 << 6) | (1 << 1) | (1 << 0);
+	if(v3s_i2c_send_data(pdat, (u8_t)(msg->addr << 1 | 1)) != I2C_STAT_TX_AR_ACK)
+		return -1;
 
-	while(len)
+	write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) | (1 << 2));
+	while(len > 0)
 	{
-		bytes = len < 32 ? len : 32;
-		len -= bytes;
-		if(!len)
-			con |= (1 << 5) | (1 << 0);
-		words = (bytes + 4 - 1) / 4;
-
-		write32(pdat->virt + I2C_IPD, 0x7f);
-		write32(pdat->virt + I2C_CON, con);
-		write32(pdat->virt + I2C_MRXCNT, bytes);
-
-		ktime_t timeout = ktime_add_ms(ktime_get(), 100);
-		while(1)
+		if(len == 1)
 		{
-			if(read32(pdat->virt + I2C_IPD) & (1 << 3))
-			{
-				write32(pdat->virt + I2C_IPD, (1 << 3));
-				break;
-			}
-			if(read32(pdat->virt + I2C_IPD) & (1 << 6))
-			{
-				write32(pdat->virt + I2C_IPD, (1 << 6));
-				write32(pdat->virt + I2C_MTXCNT, 0);
-				write32(pdat->virt + I2C_CON, 0);
+			write32(pdat->virt + I2C_CNTR, (read32(pdat->virt + I2C_CNTR) & ~(1 << 2)) | (1 << 3));
+			if(v3s_i2c_wait_status(pdat) != I2C_STAT_RXD_NAK)
 				return -1;
-			}
-			if(ktime_after(ktime_get(), timeout))
-			{
-				write32(pdat->virt + I2C_MTXCNT, 0);
-				write32(pdat->virt + I2C_CON, 0);
-				return -1;
-			}
 		}
-
-		for(i = 0; i < words; i++)
+		else
 		{
-			data = read32(pdat->virt + I2C_RXDATA_BASE + 0x4 * i);
-			for(j = 0; j < 4; j++)
-			{
-				if((i * 4 + j) == bytes)
-					break;
-				*p++ = (data >> (j * 8)) & 0xff;
-			}
+			write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) | (1 << 3));
+			if(v3s_i2c_wait_status(pdat) != I2C_STAT_RXD_ACK)
+				return -1;
 		}
-		con = (1 << 6) | (2 << 1) | (1 << 0);
+		*p++ = read32(pdat->virt + I2C_DATA);
+		len--;
 	}
 	return 0;
 }
 
 static int v3s_i2c_write(struct i2c_v3s_pdata_t * pdat, struct i2c_msg_t * msg)
 {
-	u32_t data = 0;
 	u8_t * p = msg->buf;
-	int len = msg->len + 1;
-	int bytes = 0;
-	int words = 0;
-	int i, j = 1;
+	int len = msg->len;
 
-	data |= (msg->addr << 1);
-	while(len)
+	if(v3s_i2c_send_data(pdat, (u8_t)(msg->addr << 1)) != I2C_STAT_TX_AW_ACK)
+		return -1;
+	while(len > 0)
 	{
-		bytes = len < 32 ? len : 32;
-		words = (bytes + 4 - 1) / 4;
-		for(i = 0; i < words; i++)
-		{
-			do {
-				if((i * 4 + j) == bytes)
-					break;
-				data |= (*p++) << (j * 8);
-			} while(++j < 4);
-
-			write32(pdat->virt + I2C_TXDATA_BASE + 0x4 * i, data);
-			j = 0;
-			data = 0;
-		}
-
-		write32(pdat->virt + I2C_IPD, 0x7f);
-		write32(pdat->virt + I2C_CON, (1 << 6) | (0 << 1) | (1 << 0));
-		write32(pdat->virt + I2C_MTXCNT, bytes);
-
-		ktime_t timeout = ktime_add_ms(ktime_get(), 100);
-		while(1)
-		{
-			if(read32(pdat->virt + I2C_IPD) & (1 << 2))
-			{
-				write32(pdat->virt + I2C_IPD, (1 << 2));
-				break;
-			}
-			if(read32(pdat->virt + I2C_IPD) & (1 << 6))
-			{
-				write32(pdat->virt + I2C_IPD, (1 << 6));
-				write32(pdat->virt + I2C_MTXCNT, 0);
-				write32(pdat->virt + I2C_CON, 0);
-				return -1;
-			}
-			if(ktime_after(ktime_get(), timeout))
-			{
-				write32(pdat->virt + I2C_MTXCNT, 0);
-				write32(pdat->virt + I2C_CON, 0);
-				return -1;
-			}
-		}
-		len -= bytes;
+		if(v3s_i2c_send_data(pdat, *p++) != I2C_STAT_TXD_ACK)
+			return -1;
+		len--;
 	}
 	return 0;
 }
@@ -224,11 +195,16 @@ static int i2c_v3s_xfer(struct i2c_t * i2c, struct i2c_msg_t * msgs, int num)
 	if(!msgs || num <= 0)
 		return 0;
 
-	v3s_i2c_start(pdat);
+	if(v3s_i2c_start(pdat) != I2C_STAT_TX_START)
+		return 0;
+
 	for(i = 0; i < num; i++, pmsg++)
 	{
 		if(i != 0)
-			v3s_i2c_start(pdat);
+		{
+			if(v3s_i2c_start(pdat) != I2C_STAT_TX_RSTART)
+				break;
+		}
 		if(pmsg->flags & I2C_M_RD)
 			res = v3s_i2c_read(pdat, pmsg);
 		else
@@ -350,4 +326,3 @@ static __exit void i2c_v3s_driver_exit(void)
 
 driver_initcall(i2c_v3s_driver_init);
 driver_exitcall(i2c_v3s_driver_exit);
-#endif

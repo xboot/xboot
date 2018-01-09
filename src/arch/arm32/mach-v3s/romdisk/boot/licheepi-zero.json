@@ -370,6 +370,33 @@
 		"cs-gpio-config": 3
 	},
 
+	"sdhci-v3s@0x01c0f000": {
+		"clock-name": "link-sdmmc0",
+		"reset": 8,
+		"clk-gpio": 162,
+		"clk-gpio-config": 2,
+		"cmd-gpio": 163,
+		"cmd-gpio-config": 2,
+		"dat0-gpio": 161,
+		"dat0-gpio-config": 2,
+		"dat1-gpio": 160,
+		"dat1-gpio-config": 2,
+		"dat2-gpio": 165,
+		"dat2-gpio-config": 2,
+		"dat3-gpio": 164,
+		"dat3-gpio-config": 2,
+		"dat4-gpio": -1,
+		"dat4-gpio-config": -1,
+		"dat5-gpio": -1,
+		"dat5-gpio-config": -1,
+		"dat6-gpio": -1,
+		"dat6-gpio-config": -1,
+		"dat7-gpio": -1,
+		"dat7-gpio-config": -1,
+		"cd-gpio": -1,
+		"cd-gpio-config": -1
+	},
+
 	"spi-flash@0": {
 		"spi-bus": "spi-v3s.0",
 		"chip-select": 0,

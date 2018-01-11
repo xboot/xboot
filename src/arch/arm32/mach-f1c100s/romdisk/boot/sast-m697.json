@@ -213,6 +213,36 @@
 		"stop-bits": 1
 	},
 
+	"i2c-f1c100s@0x01c27000": {
+		"clock-name": "link-i2c0",
+		"clock-frequency": 400000,
+		"reset": 80,
+		"sda-gpio": 140,
+		"sda-gpio-config": 3,
+		"scl-gpio": 139,
+		"scl-gpio-config": 3
+	},
+
+	"i2c-f1c100s@0x01c27400": {
+		"clock-name": "link-i2c1",
+		"clock-frequency": 400000,
+		"reset": 81,
+		"sda-gpio": 102,
+		"sda-gpio-config": 3,
+		"scl-gpio": 101,
+		"scl-gpio-config": 3
+	},
+
+	"i2c-f1c100s@0x01c27800": {
+		"clock-name": "link-i2c2",
+		"clock-frequency": 400000,
+		"reset": 82,
+		"sda-gpio": 129,
+		"sda-gpio-config": 4,
+		"scl-gpio": 128,
+		"scl-gpio-config": 4
+	},
+
 	"spi-f1c100s@0x01c05000": {
 		"clock-name": "link-spi0",
 		"reset": 20,

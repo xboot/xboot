@@ -64,6 +64,17 @@ void sys_copyself(void)
 
 	if(d == BOOT_DEVICE_FEL)
 	{
+		/* Restore eGON.FEL signature */
+		char *sig = (char *)0x4;
+		sig[0] = 'e';
+		sig[1] = 'G';
+		sig[2] = 'O';
+		sig[3] = 'N';
+		sig[4] = '.';
+		sig[5] = 'F';
+		sig[6] = 'E';
+		sig[7] = 'L';
+
 		sys_uart_putc('B');
 		sys_uart_putc('o');
 		sys_uart_putc('o');

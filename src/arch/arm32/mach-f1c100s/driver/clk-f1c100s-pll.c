@@ -219,16 +219,11 @@ static u64_t clk_f1c100s_pll_get_rate(struct clk_t * clk, u64_t prate)
 
 	case 5:
 		r = read32(pdat->virt + CCU_PLL_PERIPH_CTRL);
-		if(r & (1 << 18))
-			rate = prate;
-		else
-		{
-			n = ((r >> 8) & 0x1f) + 1;
-			k = ((r >> 4) & 0x3) + 1;
-			m = ((r >> 0) & 0x3) + 1;
-			p = ((r >> 16) & 0x3) + 1;
-			rate = (u64_t)((prate * n * k) / p);
-		}
+		n = ((r >> 8) & 0x1f) + 1;
+		k = ((r >> 4) & 0x3) + 1;
+		m = ((r >> 0) & 0x3) + 1;
+		p = ((r >> 16) & 0x3) + 1;
+		rate = (u64_t)((prate * n * k) / p);
 		break;
 
 	default:

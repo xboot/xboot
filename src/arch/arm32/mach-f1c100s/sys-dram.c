@@ -481,7 +481,6 @@ static int dram_init(struct dram_para_t * para)
 	return 1;
 }
 
-
 void sys_dram_init(void)
 {
 	struct dram_para_t para;

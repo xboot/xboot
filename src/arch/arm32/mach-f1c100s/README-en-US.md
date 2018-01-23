@@ -25,7 +25,7 @@ The default sunxi-fel tool don't support F1C100S, and you need to download the s
 ## Download sunxi-fel source code
 ```shell
 git clone https://github.com/Icenowy/sunxi-tools.git
-git checkout -b f1c100s origin/f1c100s
+git checkout -b f1c100s-spiflash origin/f1c100s-spiflash
 ```
 
 ## Make and install sunxi-fel

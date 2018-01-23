@@ -166,6 +166,23 @@ _main:
 
 	.global return_to_fel
 return_to_fel:
+	mov r0, #0x4
+	mov r1, #'e'
+	strb r1, [r0, #0]
+	mov r1, #'G'
+	strb r1, [r0, #1]
+	mov r1, #'O'
+	strb r1, [r0, #2]
+	mov r1, #'N'
+	strb r1, [r0, #3]
+	mov r1, #'.'
+	strb r1, [r0, #4]
+	mov r1, #'F'
+	strb r1, [r0, #5]
+	mov r1, #'E'
+	strb r1, [r0, #6]
+	mov r1, #'L'
+	strb r1, [r0, #7]
 	ldr r0, =0x00000040
 	ldr sp, [r0, #0]
 	ldr lr, [r0, #4]

@@ -36,8 +36,8 @@ _start:
 	.long 0, 0x3a00
 	.byte 'S', 'P', 'L', 2
 	.long 0, 0
-	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x28 - boot type */
-	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x40 - boot params, 0x5c - dram size */
+	.long 0, 0, 0, 0, 0, 0, 0, 0
+	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x40 - boot params, 0x58 - fel boot type, 0x5c - dram size */
 
 _vector:
 	b reset
@@ -78,6 +78,16 @@ reset:
 	str lr, [r0, #12]
 	mrc p15, 0, lr, c1, c0, 0
 	str lr, [r0, #16]
+
+	/* Check boot type just for fel */
+	mov r0, #0x0
+	ldr r1, [r0, #8]
+	ldr r2, =0x4c45462e
+	cmp r1, r2
+	bne 1f
+	ldr r1, =0x1
+	str r1, [r0, #0x58]
+1:	nop
 
 	/* Enter svc mode and mask interrupts */
 	mrs r0, cpsr

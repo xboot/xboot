@@ -25,6 +25,12 @@
 #include <xboot.h>
 #include <f1c100s/reg-ccu.h>
 
+static inline void sdelay(int loops)
+{
+	__asm__ __volatile__ ("1:\n" "subs %0, %1, #1\n"
+		"bne 1b":"=r" (loops):"0"(loops));
+}
+
 static void wait_pll_stable(u32_t base)
 {
 	u32_t rval = 0;
@@ -84,10 +90,26 @@ static void clock_set_pll_cpu(u32_t clk)
 
 void sys_clock_init(void)
 {
+	u32_t val;
+
 	write32(F1C100S_CCU_BASE + CCU_PLL_STABLE_TIME0, 0x1ff);
 	write32(F1C100S_CCU_BASE + CCU_PLL_STABLE_TIME1, 0x1ff);
-	write32(F1C100S_CCU_BASE + CCU_CPU_CFG, 0x00020000);
-	write32(F1C100S_CCU_BASE + CCU_AHB_APB_CFG, 0x00012110);
+
+	val = read32(F1C100S_CCU_BASE + CCU_CPU_CFG);
+	val &= ~(0x3 << 16);
+	val |= (0x1 << 16);
+	write32(F1C100S_CCU_BASE + CCU_CPU_CFG, val);
+	sdelay(100);
+
+	write32(F1C100S_CCU_BASE + CCU_PLL_PERIPH_CTRL, 0x80041800);
+	sdelay(100);
+	write32(F1C100S_CCU_BASE + CCU_AHB_APB_CFG, 0x00003180);
+	sdelay(100);
 
 	clock_set_pll_cpu(408000000);
+	val = read32(F1C100S_CCU_BASE + CCU_CPU_CFG);
+	val &= ~(0x3 << 16);
+	val |= (0x2 << 16);
+	write32(F1C100S_CCU_BASE + CCU_CPU_CFG, val);
+	sdelay(100);
 }

@@ -83,6 +83,44 @@
 	"clk-link": { "parent": "hosc", "name": "link-pwm" },
 	"clk-link": { "parent": "losc", "name": "link-wdt" },
 
+	"clk-mux@0x01c2010c": {
+		"parent": [
+			{ "name": "pll-video", "value": 0 },
+			{ "name": "pll-periph", "value": 2 }
+		],
+		"name": "mux-defe", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video" }
+	},
+	"clk-divider@0x01c2010c": { "parent": "mux-defe", "name": "div-defe", "shift": 0, "width": 4 },
+	"clk-gate@0x01c2010c": {"parent": "div-defe", "name": "gate-defe", "shift": 31, "invert": false },
+	"clk-gate@0x01c20064": {"parent": "gate-defe", "name": "gate-bus-defe", "shift": 14, "invert": false },
+	"clk-link": { "parent": "gate-bus-defe", "name": "link-defe" },
+
+	"clk-mux@0x01c20104": {
+		"parent": [
+			{ "name": "pll-video", "value": 0 },
+			{ "name": "pll-periph", "value": 2 }
+		],
+		"name": "mux-debe", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video" }
+	},
+	"clk-divider@0x01c20104": { "parent": "mux-debe", "name": "div-debe", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-gate@0x01c20104": {"parent": "div-debe", "name": "gate-debe", "shift": 31, "invert": false },
+	"clk-gate@0x01c20064": {"parent": "gate-debe", "name": "gate-bus-debe", "shift": 12, "invert": false },
+	"clk-link": { "parent": "gate-bus-debe", "name": "link-debe" },
+
+	"clk-mux@0x01c20118": {
+		"parent": [
+			{ "name": "pll-video", "value": 0 },
+			{ "name": "pll-ve", "value": 2 }
+		],
+		"name": "mux-tcon", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video" }
+	},
+	"clk-gate@0x01c20118": {"parent": "pll-video", "name": "gate-tcon", "shift": 31, "invert": false },
+	"clk-gate@0x01c20064": {"parent": "gate-tcon", "name": "gate-bus-tcon", "shift": 4, "invert": false },
+	"clk-link": { "parent": "gate-bus-tcon", "name": "link-tcon" },
+
 	"reset-f1c100s@0x01c202c0": {
 		"reset-base": 0,
 		"reset-count": 32
@@ -301,6 +339,42 @@
 	"ledtrig-heartbeat@0": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
+	},
+
+	"led-pwm-bl@0": {
+		"pwm-name": "pwm-f1c100s.1",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": true,
+		"pwm-percent-from": 6,
+		"pwm-percent-to": 100,
+		"default-brightness": 0
+	},
+
+	"fb-f1c100s@0": {
+		"clock-name-defe": "link-defe",
+		"clock-name-debe": "link-debe",
+		"clock-name-tcon": "link-tcon",
+		"reset-defe": 46,
+		"reset-debe": 44,
+		"reset-tcon": 36,
+		"width": 800,
+		"height": 480,
+		"physical-width": 216,
+		"physical-height": 135,
+		"bits-per-pixel": 18,
+		"bytes-per-pixel": 4,
+		"clock-frequency": 33000000,
+		"hfront-porch": 40,
+		"hback-porch": 87,
+		"hsync-len": 1,
+		"vfront-porch": 13,
+		"vback-porch": 31,
+		"vsync-len": 1,
+		"hsync-active": false,
+		"vsync-active": false,
+		"den-active": false,
+		"clk-active": false,
+		"backlight": "led-pwm-bl.0"
 	},
 
 	"console-uart@0": {

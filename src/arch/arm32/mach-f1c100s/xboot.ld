@@ -10,8 +10,8 @@ STACK_SRV_SIZE = 0x40000;
 
 MEMORY
 {
-	ram  : org = 0x80000000, len = 14M
-	dma  : org = 0x80e00000, len = 2M
+	ram  : org = 0x80000000, len = 8M
+	dma  : org = 0x80800000, len = 8M
 	heap : org = 0x81000000, len = 16M
 }
 

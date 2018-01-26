@@ -26,8 +26,8 @@
 #include <mmu.h>
 
 static const struct mmap_t mach_map[] = {
-	{"ram",  0x80000000, 0x80000000, SZ_1M * 14, MAP_TYPE_CB},
-	{"dma",  0x80e00000, 0x80e00000, SZ_1M * 2, MAP_TYPE_NCNB},
+	{"ram",  0x80000000, 0x80000000, SZ_1M * 8, MAP_TYPE_CB},
+	{"dma",  0x80800000, 0x80800000, SZ_1M * 8, MAP_TYPE_NCNB},
 	{"heap", 0x81000000, 0x81000000, SZ_1M * 16, MAP_TYPE_CB},
 	{ 0 },
 };

@@ -101,9 +101,16 @@ void sys_clock_init(void)
 	write32(F1C100S_CCU_BASE + CCU_CPU_CFG, val);
 	sdelay(100);
 
+	write32(F1C100S_CCU_BASE + CCU_PLL_VIDEO_CTRL, 0x81004107);
+	sdelay(100);
 	write32(F1C100S_CCU_BASE + CCU_PLL_PERIPH_CTRL, 0x80041800);
 	sdelay(100);
 	write32(F1C100S_CCU_BASE + CCU_AHB_APB_CFG, 0x00003180);
+	sdelay(100);
+
+	val = read32(F1C100S_CCU_BASE + CCU_DRAM_CLK_GATE);
+	val |= (0x1 << 26) | (0x1 << 24);
+	write32(F1C100S_CCU_BASE + CCU_DRAM_CLK_GATE, val);
 	sdelay(100);
 
 	clock_set_pll_cpu(408000000);

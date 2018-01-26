@@ -73,86 +73,41 @@ struct fb_f1c100s_pdata_t
 	int brightness;
 };
 
+static inline void f1c100s_debe_set_mode(struct fb_f1c100s_pdata_t * pdat)
+{
+	struct f1c100s_debe_reg_t * debe = (struct f1c100s_debe_reg_t *)(pdat->virtdebe);
+	u32_t val;
+
+	val = read32((virtual_addr_t)&debe->mode);
+	val |= (1 << 0);
+	write32((virtual_addr_t)&debe->mode, val);
+
+	write32((virtual_addr_t)&debe->disp_size, (((pdat->height) - 1) << 16) | (((pdat->width) - 1) << 0));
+	write32((virtual_addr_t)&debe->layer0_size, (((pdat->height) - 1) << 16) | (((pdat->width) - 1) << 0));
+	write32((virtual_addr_t)&debe->layer0_stride, ((pdat->width) << 5));
+	write32((virtual_addr_t)&debe->layer0_addr_low32b, (u32_t)(pdat->vram[pdat->index]) << 3);
+	write32((virtual_addr_t)&debe->layer0_addr_high4b, (u32_t)(pdat->vram[pdat->index]) >> 29);
+	write32((virtual_addr_t)&debe->layer0_attr1_ctrl, 0x09 << 8);
+
+	val = read32((virtual_addr_t)&debe->mode);
+	val |= (1 << 8);
+	write32((virtual_addr_t)&debe->mode, val);
+
+	val = read32((virtual_addr_t)&debe->reg_ctrl);
+	val |= (1 << 0);
+	write32((virtual_addr_t)&debe->reg_ctrl, val);
+
+	val = read32((virtual_addr_t)&debe->mode);
+	val |= (1 << 1);
+	write32((virtual_addr_t)&debe->mode, val);
+}
+
 static inline void f1c100s_debe_set_address(struct fb_f1c100s_pdata_t * pdat, void * vram)
 {
 	struct f1c100s_debe_reg_t * debe = (struct f1c100s_debe_reg_t *)(pdat->virtdebe);
 
 	write32((virtual_addr_t)&debe->layer0_addr_low32b, (u32_t)vram << 3);
 	write32((virtual_addr_t)&debe->layer0_addr_high4b, (u32_t)vram >> 29);
-}
-
-/*
-static inline void f1c100s_de_set_mode(struct fb_f1c100s_pdata_t * pdat)
-{
-	struct de_clk_t * clk = (struct de_clk_t *)(pdat->virtdebe);
-	struct de_glb_t * glb = (struct de_glb_t *)(pdat->virtdebe + F1C100S_DE_MUX_GLB);
-	struct de_bld_t * bld = (struct de_bld_t *)(pdat->virtdebe + F1C100S_DE_MUX_BLD);
-	struct de_ui_t * ui = (struct de_ui_t *)(pdat->virtdebe + F1C100S_DE_MUX_CHAN + 0x1000 * 2);
-	u32_t size = (((pdat->height - 1) << 16) | (pdat->width - 1));
-	u32_t val;
-	int i;
-
-	val = read32((virtual_addr_t)&clk->rst_cfg);
-	val |= 1 << 0;
-	write32((virtual_addr_t)&clk->rst_cfg, val);
-
-	val = read32((virtual_addr_t)&clk->gate_cfg);
-	val |= 1 << 0;
-	write32((virtual_addr_t)&clk->gate_cfg, val);
-
-	val = read32((virtual_addr_t)&clk->bus_cfg);
-	val |= 1 << 0;
-	write32((virtual_addr_t)&clk->bus_cfg, val);
-
-	val = read32((virtual_addr_t)&clk->sel_cfg);
-	val &= ~(1 << 0);
-	write32((virtual_addr_t)&clk->sel_cfg, val);
-
-	write32((virtual_addr_t)&glb->ctl, (1 << 0));
-	write32((virtual_addr_t)&glb->status, 0);
-	write32((virtual_addr_t)&glb->dbuff, 1);
-	write32((virtual_addr_t)&glb->size, size);
-
-	for(i = 0; i < 4; i++)
-	{
-		void * chan = (void *)(pdat->virtdebe + F1C100S_DE_MUX_CHAN + 0x1000 * i);
-		memset(chan, 0, i == 0 ? sizeof(struct de_vi_t) : sizeof(struct de_ui_t));
-	}
-	memset(bld, 0, sizeof(struct de_bld_t));
-
-	write32((virtual_addr_t)&bld->fcolor_ctl, 0x00000101);
-	write32((virtual_addr_t)&bld->route, 2);
-	write32((virtual_addr_t)&bld->premultiply, 0);
-	write32((virtual_addr_t)&bld->bkcolor, 0xff000000);
-	write32((virtual_addr_t)&bld->bld_mode[0], 0x03010301);
-	write32((virtual_addr_t)&bld->bld_mode[1], 0x03010301);
-	write32((virtual_addr_t)&bld->output_size, size);
-	write32((virtual_addr_t)&bld->out_ctl, 0);
-	write32((virtual_addr_t)&bld->ck_ctl, 0);
-	for(i = 0; i < 4; i++)
-	{
-		write32((virtual_addr_t)&bld->attr[i].fcolor, 0xff000000);
-		write32((virtual_addr_t)&bld->attr[i].insize, size);
-	}
-
-	write32(pdat->virtdebe + F1C100S_DE_MUX_VSU, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_GSU1, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_GSU2, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_GSU3, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_FCE, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_BWS, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_LTI, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_PEAK, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_ASE, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_FCC, 0);
-	write32(pdat->virtdebe + F1C100S_DE_MUX_DCSC, 0);
-
-	write32((virtual_addr_t)&ui->cfg[0].attr, (1 << 0) | (4 << 8) | (1 << 1) | (0xff << 24));
-	write32((virtual_addr_t)&ui->cfg[0].size, size);
-	write32((virtual_addr_t)&ui->cfg[0].coord, 0);
-	write32((virtual_addr_t)&ui->cfg[0].pitch, 4 * pdat->width);
-	write32((virtual_addr_t)&ui->cfg[0].top_laddr, (u32_t)pdat->vram[pdat->index]);
-	write32((virtual_addr_t)&ui->ovl_size, size);
 }
 
 static inline void f1c100s_tcon_enable(struct fb_f1c100s_pdata_t * pdat)
@@ -191,10 +146,10 @@ static inline void f1c100s_tcon_set_mode(struct fb_f1c100s_pdata_t * pdat)
 	val &= ~(0x1 << 0);
 	write32((virtual_addr_t)&tcon->ctrl, val);
 
-	val = (pdat->timing.v_front_porch + pdat->timing.v_back_porch + pdat->timing.v_sync_len) / 2;
+	val = (pdat->timing.v_front_porch + pdat->timing.v_back_porch + pdat->timing.v_sync_len);
 	write32((virtual_addr_t)&tcon->tcon0_ctrl, (1 << 31) | ((val & 0x1f) << 4));
 	val = clk_get_rate(pdat->clktcon) / pdat->timing.pixel_clock_hz;
-	write32((virtual_addr_t)&tcon->tcon0_dclk, (0xf << 28) | ((val / 2) << 0));
+	write32((virtual_addr_t)&tcon->tcon0_dclk, (0xf << 28) | (val << 0));
 	write32((virtual_addr_t)&tcon->tcon0_timing_active, ((pdat->width - 1) << 16) | ((pdat->height - 1) << 0));
 
 	bp = pdat->timing.h_sync_len + pdat->timing.h_back_porch;
@@ -231,7 +186,6 @@ static inline void f1c100s_tcon_set_mode(struct fb_f1c100s_pdata_t * pdat)
 	write32((virtual_addr_t)&tcon->tcon0_io_polarity, val);
 	write32((virtual_addr_t)&tcon->tcon0_io_tristate, 0);
 }
-*/
 
 static inline void fb_f1c100s_cfg_gpios(int base, int n, int cfg, enum gpio_pull_t pull, enum gpio_drv_t drv)
 {
@@ -247,13 +201,10 @@ static inline void fb_f1c100s_init(struct fb_f1c100s_pdata_t * pdat)
 {
 	fb_f1c100s_cfg_gpios(F1C100S_GPIOD0, 22, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 
-	f1c100s_debe_set_address(pdat, pdat->vram[pdat->index]);
-
-/*	f1c100s_tcon_disable(pdat);
-	f1c100s_de_set_mode(pdat);
-	f1c100s_de_enable(pdat);
+	f1c100s_tcon_disable(pdat);
+	f1c100s_debe_set_mode(pdat);
 	f1c100s_tcon_set_mode(pdat);
-	f1c100s_tcon_enable(pdat);*/
+	f1c100s_tcon_enable(pdat);
 }
 
 static void fb_setbl(struct framebuffer_t * fb, int brightness)
@@ -328,6 +279,7 @@ static struct device_t * fb_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	char * clkdefe = dt_read_string(n, "clock-name-defe", NULL);
 	char * clkdebe = dt_read_string(n, "clock-name-debe", NULL);
 	char * clktcon = dt_read_string(n, "clock-name-tcon", NULL);
+	int i;
 
 	if(!search_clk(clkdefe) || !search_clk(clkdebe) || !search_clk(clktcon))
 		return NULL;
@@ -397,6 +349,8 @@ static struct device_t * fb_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 		reset_deassert(pdat->rstdebe);
 	if(pdat->rsttcon >= 0)
 		reset_deassert(pdat->rsttcon);
+	for(i = 0x0800; i < 0x1000; i += 4)
+		write32(pdat->virtdebe + i, 0);
 	fb_f1c100s_init(pdat);
 
 	if(!register_framebuffer(&dev, fb))

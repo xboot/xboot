@@ -1,5 +1,5 @@
 /*
- * sast-m697.c
+ * sast-kk131.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -80,9 +80,9 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
-static struct machine_t sast_m697 = {
-	.name 		= "sast-m697",
-	.desc 		= "SAST M697 Digital Player Based On Allwinner F1C100S",
+static struct machine_t sast_kk131 = {
+	.name 		= "sast-kk131",
+	.desc 		= "SAST KK131 Digital Player Based On Allwinner F1C100S",
 	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
@@ -95,15 +95,15 @@ static struct machine_t sast_m697 = {
 	.keygen		= mach_keygen,
 };
 
-static __init void sast_m697_machine_init(void)
+static __init void sast_kk131_machine_init(void)
 {
-	register_machine(&sast_m697);
+	register_machine(&sast_kk131);
 }
 
-static __exit void sast_m697_machine_exit(void)
+static __exit void sast_kk131_machine_exit(void)
 {
-	unregister_machine(&sast_m697);
+	unregister_machine(&sast_kk131);
 }
 
-machine_initcall(sast_m697_machine_init);
-machine_exitcall(sast_m697_machine_exit);
+machine_initcall(sast_kk131_machine_init);
+machine_exitcall(sast_kk131_machine_exit);

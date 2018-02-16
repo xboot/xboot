@@ -307,6 +307,7 @@ xboot
 │   │   ├── rng
 │   │   ├── rtc
 │   │   ├── sd
+│   │   ├── servo
 │   │   ├── spi
 │   │   ├── thermometer
 │   │   ├── uart
@@ -431,6 +432,7 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | rng         | 随机数发生器驱动  |
 | rtc         | 实时时钟驱动    |
 | sd          | SD卡驱动     |
+| servo       | 伺服舵机驱动    |
 | spi         | SPI总线驱动   |
 | thermometer | 温度传感器驱动   |
 | uart        | 串口总线驱动    |
@@ -1924,6 +1926,8 @@ int adc_read_voltage(struct adc_t * adc, int channel);
 ## 实时时钟驱动
 
 ## SD卡驱动
+
+## 伺服舵机驱动
 
 ## SPI总线驱动
 

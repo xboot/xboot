@@ -106,10 +106,10 @@ bool_t register_pwm(struct device_t ** device, struct pwm_t * pwm)
 	if(!dev)
 		return FALSE;
 
-	pwm->__enable = 0;
-	pwm->__duty = 0;
-	pwm->__period = 0;
-	pwm->__polarity = 0;
+	pwm->__enable = -1;
+	pwm->__duty = -1;
+	pwm->__period = -1;
+	pwm->__polarity = -1;
 
 	dev->name = strdup(pwm->name);
 	dev->type = DEVICE_TYPE_PWM;
@@ -174,7 +174,7 @@ void pwm_config(struct pwm_t * pwm, int duty, int period, int polarity)
 
 void pwm_enable(struct pwm_t * pwm)
 {
-	if(pwm && pwm->enable && (pwm->__enable == 0))
+	if(pwm && pwm->enable && (pwm->__enable != 1))
 	{
 		pwm->enable(pwm);
 		pwm->__enable = 1;

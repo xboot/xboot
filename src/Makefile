@@ -140,6 +140,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/rng									\
 				driver/rtc									\
 				driver/sd									\
+				driver/servo								\
 				driver/spi									\
 				driver/thermometer							\
 				driver/uart									\

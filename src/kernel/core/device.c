@@ -160,6 +160,9 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_SDHCI:
 		name = "sdhci";
 		break;
+	case DEVICE_TYPE_SERVO:
+		name = "servo";
+		break;
 	case DEVICE_TYPE_SPI:
 		name = "spi";
 		break;

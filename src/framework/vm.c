@@ -85,6 +85,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "hardware.light",			luaopen_hardware_light },
 		{ "hardware.nvmem",			luaopen_hardware_nvmem },
 		{ "hardware.pwm",			luaopen_hardware_pwm },
+		{ "hardware.servo",			luaopen_hardware_servo },
 		{ "hardware.spi",			luaopen_hardware_spi },
 		{ "hardware.thermometer",	luaopen_hardware_thermometer },
 		{ "hardware.uart",			luaopen_hardware_uart },

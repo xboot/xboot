@@ -166,6 +166,9 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_SPI:
 		name = "spi";
 		break;
+	case DEVICE_TYPE_STEPPER:
+		name = "stepper";
+		break;
 	case DEVICE_TYPE_THERMOMETER:
 		name = "thermometer";
 		break;

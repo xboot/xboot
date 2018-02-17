@@ -22,6 +22,7 @@ extern "C" {
 #define	MT_HARDWARE_PWM			"mt_hardware_pwm"
 #define	MT_HARDWARE_SERVO		"mt_hardware_servo"
 #define	MT_HARDWARE_SPI			"mt_hardware_spi"
+#define	MT_HARDWARE_STEPPER		"mt_hardware_stepper"
 #define	MT_HARDWARE_THERMOMETER	"mt_hardware_thermometer"
 #define	MT_HARDWARE_UART		"mt_hardware_uart"
 #define	MT_HARDWARE_VIBRATOR	"mt_hardware_vibrator"
@@ -42,6 +43,7 @@ int luaopen_hardware_nvmem(lua_State * L);
 int luaopen_hardware_pwm(lua_State * L);
 int luaopen_hardware_servo(lua_State * L);
 int luaopen_hardware_spi(lua_State * L);
+int luaopen_hardware_stepper(lua_State * L);
 int luaopen_hardware_thermometer(lua_State * L);
 int luaopen_hardware_uart(lua_State * L);
 int luaopen_hardware_vibrator(lua_State * L);

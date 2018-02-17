@@ -142,6 +142,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/sd									\
 				driver/servo								\
 				driver/spi									\
+				driver/stepper								\
 				driver/thermometer							\
 				driver/uart									\
 				driver/vibrator								\

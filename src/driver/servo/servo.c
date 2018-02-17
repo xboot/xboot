@@ -27,14 +27,14 @@
 
 static ssize_t servo_read_angle(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct servo_t * servo = (struct servo_t *)kobj->priv;
-	return sprintf(buf, "%d", servo_get_angle(servo));
+	struct servo_t * m = (struct servo_t *)kobj->priv;
+	return sprintf(buf, "%d", servo_get_angle(m));
 }
 
 static ssize_t servo_write_angle(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct servo_t * servo = (struct servo_t *)kobj->priv;
-	servo_set_angle(servo, strtol(buf, NULL, 0));
+	struct servo_t * m = (struct servo_t *)kobj->priv;
+	servo_set_angle(m, strtol(buf, NULL, 0));
 	return size;
 }
 
@@ -49,22 +49,22 @@ struct servo_t * search_servo(const char * name)
 	return (struct servo_t *)dev->priv;
 }
 
-bool_t register_servo(struct device_t ** device, struct servo_t * servo)
+bool_t register_servo(struct device_t ** device, struct servo_t * m)
 {
 	struct device_t * dev;
 
-	if(!servo || !servo->name)
+	if(!m || !m->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name = strdup(servo->name);
+	dev->name = strdup(m->name);
 	dev->type = DEVICE_TYPE_SERVO;
-	dev->priv = servo;
+	dev->priv = m;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "angle", servo_read_angle, servo_write_angle, servo);
+	kobj_add_regular(dev->kobj, "angle", servo_read_angle, servo_write_angle, m);
 
 	if(!register_device(dev))
 	{
@@ -79,14 +79,14 @@ bool_t register_servo(struct device_t ** device, struct servo_t * servo)
 	return TRUE;
 }
 
-bool_t unregister_servo(struct servo_t * servo)
+bool_t unregister_servo(struct servo_t * m)
 {
 	struct device_t * dev;
 
-	if(!servo || !servo->name)
+	if(!m || !m->name)
 		return FALSE;
 
-	dev = search_device(servo->name, DEVICE_TYPE_SERVO);
+	dev = search_device(m->name, DEVICE_TYPE_SERVO);
 	if(!dev)
 		return FALSE;
 
@@ -99,21 +99,21 @@ bool_t unregister_servo(struct servo_t * servo)
 	return TRUE;
 }
 
-void servo_set_angle(struct servo_t * servo, int angle)
+void servo_set_angle(struct servo_t * m, int angle)
 {
-	if(servo && servo->set)
+	if(m && m->set)
 	{
 		if(angle < -180)
 			angle = -180;
 		else if(angle > 180)
 			angle = 180;
-		servo->set(servo, angle);
+		m->set(m, angle);
 	}
 }
 
-int servo_get_angle(struct servo_t * servo)
+int servo_get_angle(struct servo_t * m)
 {
-	if(servo && servo->get)
-		return servo->get(servo);
+	if(m && m->get)
+		return m->get(m);
 	return 0;
 }

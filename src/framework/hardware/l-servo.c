@@ -28,10 +28,10 @@
 static int l_servo_new(lua_State * L)
 {
 	const char * name = luaL_optstring(L, 1, NULL);
-	struct servo_t * servo = search_servo(name);
-	if(!servo)
+	struct servo_t * m = search_servo(name);
+	if(!m)
 		return 0;
-	lua_pushlightuserdata(L, servo);
+	lua_pushlightuserdata(L, m);
 	luaL_setmetatable(L, MT_HARDWARE_SERVO);
 	return 1;
 }
@@ -39,15 +39,15 @@ static int l_servo_new(lua_State * L)
 static int l_servo_list(lua_State * L)
 {
 	struct device_t * pos, * n;
-	struct servo_t * servo;
+	struct servo_t * m;
 
 	lua_newtable(L);
 	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_SERVO], head)
 	{
-		servo = (struct servo_t *)(pos->priv);
-		if(!servo)
+		m = (struct servo_t *)(pos->priv);
+		if(!m)
 			continue;
-		lua_pushlightuserdata(L, servo);
+		lua_pushlightuserdata(L, m);
 		luaL_setmetatable(L, MT_HARDWARE_SERVO);
 		lua_setfield(L, -2, pos->name);
 	}
@@ -62,24 +62,24 @@ static const luaL_Reg l_servo[] = {
 
 static int m_servo_tostring(lua_State * L)
 {
-	struct servo_t * servo = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
-	lua_pushstring(L, servo->name);
+	struct servo_t * m = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
+	lua_pushstring(L, m->name);
 	return 1;
 }
 
 static int m_servo_set_angle(lua_State * L)
 {
-	struct servo_t * servo = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
+	struct servo_t * m = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
 	int angle = luaL_checkinteger(L, 2);
-	servo_set_angle(servo, angle);
+	servo_set_angle(m, angle);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_servo_get_angle(lua_State * L)
 {
-	struct servo_t * servo = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
-	int angle = servo_get_angle(servo);
+	struct servo_t * m = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
+	int angle = servo_get_angle(m);
 	lua_pushinteger(L, angle);
 	return 1;
 }

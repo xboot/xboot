@@ -137,12 +137,15 @@
 	},
 
 	"rotary-encoder@0": {
-		"gpio-a": 2,
-		"gpio-b": 3,
-		"gpio-c": 4,
-		"inverted-a": false,
-		"inverted-b": false,
-		"inverted-c": false,
+		"a-gpio": 2,
+		"a-gpio-config": -1,
+		"b-gpio": 3,
+		"b-gpio-config": -1,
+		"c-gpio": 4,
+		"c-gpio-config": -1,
+		"a-inverted": false,
+		"b-inverted": false,
+		"c-inverted": false,
 		"step-per-period": 1
 	},
 

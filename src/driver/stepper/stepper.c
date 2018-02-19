@@ -130,12 +130,8 @@ void stepper_disable(struct stepper_t * m)
 
 void stepper_move(struct stepper_t * m, int step, int speed)
 {
-	if(m && m->move)
-	{
-		if(speed <= 0)
-			speed = 100;
+	if(m && m->move && (step != 0))
 		m->move(m, step, speed);
-	}
 }
 
 int stepper_busying(struct stepper_t * m)

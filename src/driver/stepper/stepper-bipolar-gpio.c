@@ -35,14 +35,15 @@ enum stepper_mode_t {
 struct stepper_bipolar_gpio_pdata_t {
 	struct timer_t timer;
 	enum stepper_mode_t mode;
-	int c0;
-	int c0cfg;
-	int c1;
-	int c1cfg;
-	int c2;
-	int c2cfg;
-	int c3;
-	int c3cfg;
+	int pa;
+	int pacfg;
+	int na;
+	int nacfg;
+	int pb;
+	int pbcfg;
+	int nb;
+	int nbcfg;
+	int dspeed;
 	int index;
 	int enable;
 	int dir;
@@ -56,31 +57,31 @@ static void stepper_wave(struct stepper_bipolar_gpio_pdata_t * pdat)
 	switch(pdat->index)
 	{
 	case 0:
-		gpio_direction_output(pdat->c0, 1);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 1);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 1:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 1);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 1);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 2:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 1);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 1);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 3:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 1);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 1);
 		break;
 
 	default:
@@ -93,31 +94,31 @@ static void stepper_fullstep(struct stepper_bipolar_gpio_pdata_t * pdat)
 	switch(pdat->index)
 	{
 	case 0:
-		gpio_direction_output(pdat->c0, 1);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 1);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 1);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 1);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 1:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 1);
-		gpio_direction_output(pdat->c2, 1);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 1);
+		gpio_set_value(pdat->pb, 1);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 2:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 1);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 1);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 1);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 1);
 		break;
 
 	case 3:
-		gpio_direction_output(pdat->c0, 1);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 1);
+		gpio_set_value(pdat->pa, 1);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 1);
 		break;
 
 	default:
@@ -130,59 +131,59 @@ static void stepper_halfstep(struct stepper_bipolar_gpio_pdata_t * pdat)
 	switch(pdat->index)
 	{
 	case 0:
-		gpio_direction_output(pdat->c0, 1);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 1);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 1:
-		gpio_direction_output(pdat->c0, 1);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 1);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 1);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 1);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 2:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 1);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 1);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 3:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 1);
-		gpio_direction_output(pdat->c2, 1);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 1);
+		gpio_set_value(pdat->pb, 1);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 4:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 1);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 0);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 1);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 0);
 		break;
 
 	case 5:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 1);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 1);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 1);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 1);
 		break;
 
 	case 6:
-		gpio_direction_output(pdat->c0, 0);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 1);
+		gpio_set_value(pdat->pa, 0);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 1);
 		break;
 
 	case 7:
-		gpio_direction_output(pdat->c0, 1);
-		gpio_direction_output(pdat->c1, 0);
-		gpio_direction_output(pdat->c2, 0);
-		gpio_direction_output(pdat->c3, 1);
+		gpio_set_value(pdat->pa, 1);
+		gpio_set_value(pdat->na, 0);
+		gpio_set_value(pdat->pb, 0);
+		gpio_set_value(pdat->nb, 1);
 		break;
 
 	default:
@@ -213,10 +214,10 @@ static void stepper_bipolar_gpio_enable(struct stepper_t * m)
 static void stepper_bipolar_gpio_disable(struct stepper_t * m)
 {
 	struct stepper_bipolar_gpio_pdata_t * pdat = (struct stepper_bipolar_gpio_pdata_t *)m->priv;
-	gpio_direction_output(pdat->c0, 0);
-	gpio_direction_output(pdat->c1, 0);
-	gpio_direction_output(pdat->c2, 0);
-	gpio_direction_output(pdat->c3, 0);
+	gpio_set_value(pdat->pa, 0);
+	gpio_set_value(pdat->na, 0);
+	gpio_set_value(pdat->pb, 0);
+	gpio_set_value(pdat->nb, 0);
 	pdat->enable = 0;
 }
 
@@ -230,7 +231,7 @@ static void stepper_bipolar_gpio_move(struct stepper_t * m, int step, int speed)
 		else
 			pdat->dir = 1;
 		pdat->step = abs(step);
-		pdat->speed = speed;
+		pdat->speed = (speed > 0) ? speed : pdat->dspeed;
 		pdat->busying = 1;
 		timer_start_now(&pdat->timer, ns_to_ktime(1000000000ULL / pdat->speed));
 	}
@@ -266,9 +267,12 @@ static int stepper_bipolar_gpio_timer_function(struct timer_t * timer, void * da
 		default:
 			break;
 		}
-		pdat->busying = 1;
-		timer_forward_now(&pdat->timer, ns_to_ktime(1000000000ULL / pdat->speed));
-		return 1;
+		if(pdat->step > 0)
+		{
+			pdat->busying = 1;
+			timer_forward_now(&pdat->timer, ns_to_ktime(1000000000ULL / pdat->speed));
+			return 1;
+		}
 	}
 	pdat->step = 0;
 	pdat->busying = 0;
@@ -280,13 +284,13 @@ static struct device_t * stepper_bipolar_gpio_probe(struct driver_t * drv, struc
 	struct stepper_bipolar_gpio_pdata_t * pdat;
 	struct stepper_t * m;
 	struct device_t * dev;
-	char * mode = dt_read_string(n, "mode", NULL);
-	int c0 = dt_read_int(n, "c0-gpio", -1);
-	int c1 = dt_read_int(n, "c1-gpio", -1);
-	int c2 = dt_read_int(n, "c2-gpio", -1);
-	int c3 = dt_read_int(n, "c3-gpio", -1);
+	char * mode = dt_read_string(n, "drive-mode", NULL);
+	int pa = dt_read_int(n, "pa-gpio", -1);
+	int na = dt_read_int(n, "na-gpio", -1);
+	int pb = dt_read_int(n, "pb-gpio", -1);
+	int nb = dt_read_int(n, "nb-gpio", -1);
 
-	if(!gpio_is_valid(c0) || !gpio_is_valid(c1) || !gpio_is_valid(c2) || !gpio_is_valid(c3))
+	if(!gpio_is_valid(pa) || !gpio_is_valid(na) || !gpio_is_valid(pb) || !gpio_is_valid(nb))
 		return NULL;
 
 	pdat = malloc(sizeof(struct stepper_bipolar_gpio_pdata_t));
@@ -309,14 +313,15 @@ static struct device_t * stepper_bipolar_gpio_probe(struct driver_t * drv, struc
 		pdat->mode = STEPPER_MODE_HALFSTEP;
 	else
 		pdat->mode = STEPPER_MODE_WAVE;
-	pdat->c0 = c0;
-	pdat->c0cfg = dt_read_int(n, "c0-gpio-config", -1);
-	pdat->c1 = c1;
-	pdat->c1cfg = dt_read_int(n, "c1-gpio-config", -1);
-	pdat->c2 = c2;
-	pdat->c2cfg = dt_read_int(n, "c2-gpio-config", -1);
-	pdat->c3 = c3;
-	pdat->c3cfg = dt_read_int(n, "c3-gpio-config", -1);
+	pdat->pa = pa;
+	pdat->pacfg = dt_read_int(n, "pa-gpio-config", -1);
+	pdat->na = na;
+	pdat->nacfg = dt_read_int(n, "na-gpio-config", -1);
+	pdat->pb = pb;
+	pdat->pbcfg = dt_read_int(n, "pb-gpio-config", -1);
+	pdat->nb = nb;
+	pdat->nbcfg = dt_read_int(n, "nb-gpio-config", -1);
+	pdat->dspeed = dt_read_int(n, "default-speed", 100);
 	pdat->index = 0;
 	pdat->enable = 0;
 	pdat->dir = 0;
@@ -331,33 +336,37 @@ static struct device_t * stepper_bipolar_gpio_probe(struct driver_t * drv, struc
 	m->busying = stepper_bipolar_gpio_busying,
 	m->priv = pdat;
 
-	if(pdat->c0 >= 0)
+	if(pdat->pa >= 0)
 	{
-		if(pdat->c0cfg >= 0)
-			gpio_set_cfg(pdat->c0, pdat->c0cfg);
-		gpio_set_pull(pdat->c0, GPIO_PULL_UP);
-		gpio_direction_output(pdat->c0, 0);
+		if(pdat->pacfg >= 0)
+			gpio_set_cfg(pdat->pa, pdat->pacfg);
+		gpio_set_pull(pdat->pa, GPIO_PULL_UP);
+		gpio_set_direction(pdat->pa, GPIO_DIRECTION_OUTPUT);
+		gpio_set_value(pdat->pa, 0);
 	}
-	if(pdat->c1 >= 0)
+	if(pdat->na >= 0)
 	{
-		if(pdat->c1cfg >= 0)
-			gpio_set_cfg(pdat->c1, pdat->c1cfg);
-		gpio_set_pull(pdat->c1, GPIO_PULL_UP);
-		gpio_direction_output(pdat->c1, 0);
+		if(pdat->nacfg >= 0)
+			gpio_set_cfg(pdat->na, pdat->nacfg);
+		gpio_set_pull(pdat->na, GPIO_PULL_UP);
+		gpio_set_direction(pdat->na, GPIO_DIRECTION_OUTPUT);
+		gpio_set_value(pdat->na, 0);
 	}
-	if(pdat->c2 >= 0)
+	if(pdat->pb >= 0)
 	{
-		if(pdat->c2cfg >= 0)
-			gpio_set_cfg(pdat->c2, pdat->c2cfg);
-		gpio_set_pull(pdat->c2, GPIO_PULL_UP);
-		gpio_direction_output(pdat->c2, 0);
+		if(pdat->pbcfg >= 0)
+			gpio_set_cfg(pdat->pb, pdat->pbcfg);
+		gpio_set_pull(pdat->pb, GPIO_PULL_UP);
+		gpio_set_direction(pdat->pb, GPIO_DIRECTION_OUTPUT);
+		gpio_set_value(pdat->pb, 0);
 	}
-	if(pdat->c3 >= 0)
+	if(pdat->nb >= 0)
 	{
-		if(pdat->c3cfg >= 0)
-			gpio_set_cfg(pdat->c3, pdat->c3cfg);
-		gpio_set_pull(pdat->c3, GPIO_PULL_UP);
-		gpio_direction_output(pdat->c3, 0);
+		if(pdat->nbcfg >= 0)
+			gpio_set_cfg(pdat->nb, pdat->nbcfg);
+		gpio_set_pull(pdat->nb, GPIO_PULL_UP);
+		gpio_set_direction(pdat->nb, GPIO_DIRECTION_OUTPUT);
+		gpio_set_value(pdat->nb, 0);
 	}
 
 	if(!register_stepper(&dev, m))

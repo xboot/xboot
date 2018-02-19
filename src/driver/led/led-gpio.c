@@ -55,9 +55,9 @@ struct led_gpio_pdata_t {
 static void led_gpio_set_brightness(struct led_gpio_pdata_t * pdat, int brightness)
 {
 	if(brightness > 0)
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
+		gpio_set_value(pdat->gpio, pdat->active_low ? 0 : 1);
 	else
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+		gpio_set_value(pdat->gpio, pdat->active_low ? 1 : 0);
 }
 
 static void led_gpio_set(struct led_t * led, int brightness)
@@ -110,6 +110,7 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	if(pdat->gpiocfg >= 0)
 		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+	gpio_set_direction(pdat->gpio, GPIO_DIRECTION_OUTPUT);
 	led_gpio_set(led, dt_read_int(n, "default-brightness", 0));
 
 	if(!register_led(&dev, led))

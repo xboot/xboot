@@ -43,9 +43,9 @@ struct vibrator_gpio_pdata_t {
 static void vibrator_gpio_set_state(struct vibrator_gpio_pdata_t * pdat, int state)
 {
 	if(state > 0)
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
+		gpio_set_value(pdat->gpio, pdat->active_low ? 0 : 1);
 	else
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+		gpio_set_value(pdat->gpio, pdat->active_low ? 1 : 0);
 }
 
 static void iter_queue_node(struct queue_node_t * node)
@@ -148,6 +148,7 @@ static struct device_t * vibrator_gpio_probe(struct driver_t * drv, struct dtnod
 	if(pdat->gpiocfg >= 0)
 		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+	gpio_set_direction(pdat->gpio, GPIO_DIRECTION_OUTPUT);
 	vibrator_gpio_set(vib, 0);
 
 	if(!register_vibrator(&dev, vib))

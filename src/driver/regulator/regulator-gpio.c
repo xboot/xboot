@@ -44,6 +44,7 @@
  *       "name": "power-bl",
  *       "voltage": 12000000,
  *       "gpio": 74,
+ *       "gpiocfg": -1,
  *       "active-low": false,
  *       "default-enable": false
  *   }
@@ -53,6 +54,7 @@ struct regulator_gpio_pdata_t {
 	char * parent;
 	int voltage;
 	int gpio;
+	int gpiocfg;
 	int active_low;
 	int enable;
 };
@@ -131,6 +133,7 @@ static struct device_t * regulator_gpio_probe(struct driver_t * drv, struct dtno
 	pdat->parent = strdup(dt_read_string(n, "parent", NULL));
 	pdat->voltage = dt_read_int(n, "voltage", 0);
 	pdat->gpio = dt_read_int(n, "gpio", -1);
+	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->active_low = dt_read_bool(n, "active-low", 0);
 	pdat->enable = -1;
 
@@ -143,6 +146,9 @@ static struct device_t * regulator_gpio_probe(struct driver_t * drv, struct dtno
 	supply->set_voltage = regulator_gpio_set_voltage;
 	supply->get_voltage = regulator_gpio_get_voltage;
 	supply->priv = pdat;
+
+	if(pdat->gpiocfg >= 0)
+		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 
 	if(!register_regulator(&dev, supply))
 	{

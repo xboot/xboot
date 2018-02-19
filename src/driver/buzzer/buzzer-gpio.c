@@ -43,9 +43,9 @@ struct buzzer_gpio_pdata_t {
 static void buzzer_gpio_set_frequency(struct buzzer_gpio_pdata_t * pdat, int frequency)
 {
 	if(frequency > 0)
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 0 : 1);
+		gpio_set_value(pdat->gpio, pdat->active_low ? 0 : 1);
 	else
-		gpio_direction_output(pdat->gpio, pdat->active_low ? 1 : 0);
+		gpio_set_value(pdat->gpio, pdat->active_low ? 1 : 0);
 }
 
 static void iter_queue_node(struct queue_node_t * node)
@@ -148,6 +148,7 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	if(pdat->gpiocfg >= 0)
 		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP :GPIO_PULL_DOWN);
+	gpio_set_direction(pdat->gpio, GPIO_DIRECTION_OUTPUT);
 	buzzer_gpio_set(buzzer, 0);
 
 	if(!register_buzzer(&dev, buzzer))

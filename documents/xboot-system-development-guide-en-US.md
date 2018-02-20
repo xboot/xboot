@@ -308,6 +308,7 @@ xboot
 │   │   ├── laserscan
 │   │   ├── led
 │   │   ├── light
+│   │   ├── motor
 │   │   ├── nvmem
 │   │   ├── pwm
 │   │   ├── regulator
@@ -317,6 +318,7 @@ xboot
 │   │   ├── sd
 │   │   ├── servo
 │   │   ├── spi
+│   │   ├── stepper
 │   │   ├── thermometer
 │   │   ├── uart
 │   │   ├── vibrator
@@ -433,6 +435,7 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | laserscan   | 激光振镜驱动    |
 | led         | LED驱动     |
 | light       | 光线传感器驱动   |
+| motor       | 马达驱动   |
 | nvmem       | 非易失性存储器驱动 |
 | pwm         | PWM驱动     |
 | regulator   | 电压调节器驱动   |
@@ -442,6 +445,7 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | sd          | SD卡驱动     |
 | servo       | 伺服舵机驱动    |
 | spi         | SPI总线驱动   |
+| stepper     | 步进电机驱动   |
 | thermometer | 温度传感器驱动   |
 | uart        | 串口总线驱动    |
 | vibrator    | 振动马达驱动    |
@@ -1921,6 +1925,8 @@ int adc_read_voltage(struct adc_t * adc, int channel);
 
 ## 光线传感器驱动
 
+## 马达驱动
+
 ## 非易失性存储器驱动
 
 ## PWM驱动
@@ -1938,6 +1944,8 @@ int adc_read_voltage(struct adc_t * adc, int channel);
 ## 伺服舵机驱动
 
 ## SPI总线驱动
+
+## 步进电机驱动
 
 ## 温度传感器驱动
 

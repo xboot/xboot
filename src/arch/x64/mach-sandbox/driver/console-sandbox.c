@@ -46,8 +46,8 @@ static struct device_t * console_sandbox_probe(struct driver_t * drv, struct dtn
 		return NULL;
 
 	console->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	console->read = console_sandbox_read,
-	console->write = console_sandbox_write,
+	console->read = console_sandbox_read;
+	console->write = console_sandbox_write;
 	console->priv = NULL;
 
 	if(!register_console(&dev, console))

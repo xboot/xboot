@@ -330,10 +330,10 @@ static struct device_t * stepper_bipolar_gpio_probe(struct driver_t * drv, struc
 	pdat->busying = 0;
 
 	m->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	m->enable = stepper_bipolar_gpio_enable,
-	m->disable = stepper_bipolar_gpio_disable,
-	m->move = stepper_bipolar_gpio_move,
-	m->busying = stepper_bipolar_gpio_busying,
+	m->enable = stepper_bipolar_gpio_enable;
+	m->disable = stepper_bipolar_gpio_disable;
+	m->move = stepper_bipolar_gpio_move;
+	m->busying = stepper_bipolar_gpio_busying;
 	m->priv = pdat;
 
 	if(pdat->pa >= 0)

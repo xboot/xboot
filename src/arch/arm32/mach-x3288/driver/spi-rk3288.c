@@ -273,9 +273,9 @@ static struct device_t * spi_rk3288_probe(struct driver_t * drv, struct dtnode_t
 	pdat->cscfg = dt_read_int(n, "cs-gpio-config", -1);
 
 	spi->name = alloc_device_name(dt_read_name(n), -1);
-	spi->transfer = spi_rk3288_transfer,
-	spi->select = spi_rk3288_select,
-	spi->deselect = spi_rk3288_deselect,
+	spi->transfer = spi_rk3288_transfer;
+	spi->select = spi_rk3288_select;
+	spi->deselect = spi_rk3288_deselect;
 	spi->priv = pdat;
 
 	clk_enable(pdat->clk);

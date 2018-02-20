@@ -175,11 +175,11 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
 	fb->bpp = pdat->bpp;
-	fb->setbl = fb_setbl,
-	fb->getbl = fb_getbl,
-	fb->create = fb_create,
-	fb->destroy = fb_destroy,
-	fb->present = fb_present,
+	fb->setbl = fb_setbl;
+	fb->getbl = fb_getbl;
+	fb->create = fb_create;
+	fb->destroy = fb_destroy;
+	fb->present = fb_present;
 	fb->priv = pdat;
 
 	write32(pdat->virt + CLCD_TIM0, (pdat->hbp<<24) | (pdat->hfp<<16) | (pdat->hsl<<8) | ((pdat->width/16-1)<<2));

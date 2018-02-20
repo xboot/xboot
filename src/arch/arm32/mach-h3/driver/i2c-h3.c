@@ -245,7 +245,7 @@ static struct device_t * i2c_h3_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->sclcfg = dt_read_int(n, "scl-gpio-config", -1);
 
 	i2c->name = alloc_device_name(dt_read_name(n), -1);
-	i2c->xfer = i2c_h3_xfer,
+	i2c->xfer = i2c_h3_xfer;
 	i2c->priv = pdat;
 
 	clk_enable(pdat->clk);

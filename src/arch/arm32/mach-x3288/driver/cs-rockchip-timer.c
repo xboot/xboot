@@ -67,8 +67,8 @@ static struct device_t * cs_rockchip_timer_probe(struct driver_t * drv, struct d
 	clk_enable(pdat->clk);
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, clk_get_rate(pdat->clk), 1000000000ULL, 10);
 	cs->name = alloc_device_name(dt_read_name(n), -1);
-	cs->mask = CLOCKSOURCE_MASK(32),
-	cs->read = cs_rockchip_timer_read,
+	cs->mask = CLOCKSOURCE_MASK(32);
+	cs->read = cs_rockchip_timer_read;
 	cs->priv = pdat;
 
 	rockchip_timer_irq_clear(pdat->virt);

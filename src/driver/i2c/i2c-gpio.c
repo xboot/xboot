@@ -189,7 +189,7 @@ static struct device_t * i2c_gpio_probe(struct driver_t * drv, struct dtnode_t *
 		pdat->bdat.udelay = 5;
 
 	i2c->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	i2c->xfer = i2c_gpio_xfer,
+	i2c->xfer = i2c_gpio_xfer;
 	i2c->priv = pdat;
 
 	if(!register_i2c(&dev, i2c))

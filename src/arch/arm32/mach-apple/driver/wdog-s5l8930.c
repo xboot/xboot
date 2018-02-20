@@ -99,7 +99,7 @@ static struct device_t * wdog_s5l8930_probe(struct driver_t * drv, struct dtnode
 
 	wdog->name = alloc_device_name(dt_read_name(n), -1);
 	wdog->set = wdog_s5l8930_set;
-	wdog->get = wdog_s5l8930_get,
+	wdog->get = wdog_s5l8930_get;
 	wdog->priv = pdat;
 
 	clk_enable(pdat->clk);

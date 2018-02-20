@@ -66,8 +66,8 @@ static struct device_t * console_uart_probe(struct driver_t * drv, struct dtnode
 	pdat->uart = uart;
 
 	console->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	console->read = console_uart_read,
-	console->write = console_uart_write,
+	console->read = console_uart_read;
+	console->write = console_uart_write;
 	console->priv = pdat;
 
 	if(!register_console(&dev, console))

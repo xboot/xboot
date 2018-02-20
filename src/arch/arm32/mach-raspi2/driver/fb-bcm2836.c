@@ -133,11 +133,11 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
 	fb->bpp = pdat->bpp;
-	fb->setbl = fb_setbl,
-	fb->getbl = fb_getbl,
-	fb->create = fb_create,
-	fb->destroy = fb_destroy,
-	fb->present = fb_present,
+	fb->setbl = fb_setbl;
+	fb->getbl = fb_getbl;
+	fb->create = fb_create;
+	fb->destroy = fb_destroy;
+	fb->present = fb_present;
 	fb->priv = pdat;
 
 	if(!register_framebuffer(&dev, fb))

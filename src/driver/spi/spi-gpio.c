@@ -331,9 +331,9 @@ static struct device_t * spi_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	}
 
 	spi->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	spi->transfer = spi_gpio_transfer,
-	spi->select = spi_gpio_select,
-	spi->deselect = spi_gpio_deselect,
+	spi->transfer = spi_gpio_transfer;
+	spi->select = spi_gpio_select;
+	spi->deselect = spi_gpio_deselect;
 	spi->priv = pdat;
 
 	if(!register_spi(&dev, spi))

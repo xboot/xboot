@@ -213,9 +213,9 @@ static struct device_t * spi_h3_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->cscfg = dt_read_int(n, "cs-gpio-config", -1);
 
 	spi->name = alloc_device_name(dt_read_name(n), -1);
-	spi->transfer = spi_h3_transfer,
-	spi->select = spi_h3_select,
-	spi->deselect = spi_h3_deselect,
+	spi->transfer = spi_h3_transfer;
+	spi->select = spi_h3_select;
+	spi->deselect = spi_h3_deselect;
 	spi->priv = pdat;
 
 	if(pdat->reset >= 0)

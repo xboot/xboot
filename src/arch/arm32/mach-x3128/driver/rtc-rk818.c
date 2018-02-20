@@ -203,8 +203,8 @@ static struct device_t * rtc_rk818_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->dev = i2cdev;
 
 	rtc->name = alloc_device_name(dt_read_name(n), -1);
-	rtc->settime = rtc_rk818_settime,
-	rtc->gettime = rtc_rk818_gettime,
+	rtc->settime = rtc_rk818_settime;
+	rtc->gettime = rtc_rk818_gettime;
 	rtc->priv = pdat;
 
 	if(!register_rtc(&dev, rtc))

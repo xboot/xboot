@@ -103,7 +103,7 @@ static struct device_t * wdog_v3s_probe(struct driver_t * drv, struct dtnode_t *
 
 	wdog->name = alloc_device_name(dt_read_name(n), -1);
 	wdog->set = wdog_v3s_set;
-	wdog->get = wdog_v3s_get,
+	wdog->get = wdog_v3s_get;
 	wdog->priv = pdat;
 
 	clk_enable(pdat->clk);

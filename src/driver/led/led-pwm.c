@@ -111,8 +111,8 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	pdat->brightness = -1;
 
 	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	led->set = led_pwm_set,
-	led->get = led_pwm_get,
+	led->set = led_pwm_set;
+	led->get = led_pwm_get;
 	led->priv = pdat;
 
 	led_pwm_set(led, dt_read_int(n, "default-brightness", 0));

@@ -282,7 +282,7 @@ static struct device_t * battery_axp228_probe(struct driver_t * drv, struct dtno
 	pdat->charge_current_limit = charge_current_limit;
 
 	bat->name = alloc_device_name(dt_read_name(n), -1);
-	bat->update = battery_axp228_update,
+	bat->update = battery_axp228_update;
 	bat->priv = pdat;
 
 	if(!register_battery(&dev, bat))

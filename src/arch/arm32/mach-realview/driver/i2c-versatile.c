@@ -110,7 +110,7 @@ static struct device_t * i2c_versatile_probe(struct driver_t * drv, struct dtnod
 	pdat->bdat.priv = pdat;
 
 	i2c->name = alloc_device_name(dt_read_name(n), -1);
-	i2c->xfer = i2c_versatile_xfer,
+	i2c->xfer = i2c_versatile_xfer;
 	i2c->priv = pdat;
 
 	i2c_versatile_setsda(&pdat->bdat, 1);

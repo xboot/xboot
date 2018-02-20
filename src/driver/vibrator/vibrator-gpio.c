@@ -140,9 +140,9 @@ static struct device_t * vibrator_gpio_probe(struct driver_t * drv, struct dtnod
 	pdat->state = -1;
 
 	vib->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	vib->set = vibrator_gpio_set,
-	vib->get = vibrator_gpio_get,
-	vib->vibrate = vibrator_gpio_vibrate,
+	vib->set = vibrator_gpio_set;
+	vib->get = vibrator_gpio_get;
+	vib->vibrate = vibrator_gpio_vibrate;
 	vib->priv = pdat;
 
 	if(pdat->gpiocfg >= 0)

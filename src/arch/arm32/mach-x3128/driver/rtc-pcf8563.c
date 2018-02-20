@@ -182,8 +182,8 @@ static struct device_t * rtc_pcf8563_probe(struct driver_t * drv, struct dtnode_
 	pdat->dev = i2cdev;
 
 	rtc->name = alloc_device_name(dt_read_name(n), -1);
-	rtc->settime = rtc_pcf8563_settime,
-	rtc->gettime = rtc_pcf8563_gettime,
+	rtc->settime = rtc_pcf8563_settime;
+	rtc->gettime = rtc_pcf8563_gettime;
 	rtc->priv = pdat;
 
 	if(!register_rtc(&dev, rtc))

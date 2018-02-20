@@ -140,9 +140,9 @@ static struct device_t * buzzer_gpio_probe(struct driver_t * drv, struct dtnode_
 	pdat->frequency = -1;
 
 	buzzer->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	buzzer->set = buzzer_gpio_set,
-	buzzer->get = buzzer_gpio_get,
-	buzzer->beep = buzzer_gpio_beep,
+	buzzer->set = buzzer_gpio_set;
+	buzzer->get = buzzer_gpio_get;
+	buzzer->beep = buzzer_gpio_beep;
 	buzzer->priv = pdat;
 
 	if(pdat->gpiocfg >= 0)

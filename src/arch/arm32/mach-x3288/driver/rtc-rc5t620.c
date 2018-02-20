@@ -187,8 +187,8 @@ static struct device_t * rtc_rc5t620_probe(struct driver_t * drv, struct dtnode_
 	pdat->dev = i2cdev;
 
 	rtc->name = alloc_device_name(dt_read_name(n), -1);
-	rtc->settime = rtc_rc5t620_settime,
-	rtc->gettime = rtc_rc5t620_gettime,
+	rtc->settime = rtc_rc5t620_settime;
+	rtc->gettime = rtc_rc5t620_gettime;
 	rtc->priv = pdat;
 
 	if(!register_rtc(&dev, rtc))

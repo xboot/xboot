@@ -330,10 +330,10 @@ static struct device_t * stepper_unipolar_gpio_probe(struct driver_t * drv, stru
 	pdat->busying = 0;
 
 	m->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	m->enable = stepper_unipolar_gpio_enable,
-	m->disable = stepper_unipolar_gpio_disable,
-	m->move = stepper_unipolar_gpio_move,
-	m->busying = stepper_unipolar_gpio_busying,
+	m->enable = stepper_unipolar_gpio_enable;
+	m->disable = stepper_unipolar_gpio_disable;
+	m->move = stepper_unipolar_gpio_move;
+	m->busying = stepper_unipolar_gpio_busying;
 	m->priv = pdat;
 
 	if(pdat->a >= 0)

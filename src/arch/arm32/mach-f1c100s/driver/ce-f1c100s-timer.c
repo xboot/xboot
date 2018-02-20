@@ -100,7 +100,7 @@ static struct device_t * ce_f1c100s_timer_probe(struct driver_t * drv, struct dt
 	ce->name = alloc_device_name(dt_read_name(n), -1);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
-	ce->next = ce_f1c100s_timer_next,
+	ce->next = ce_f1c100s_timer_next;
 	ce->priv = pdat;
 
 	if(!request_irq(pdat->irq, ce_f1c100s_timer_interrupt, IRQ_TYPE_NONE, ce))

@@ -108,7 +108,7 @@ static struct device_t * ce_sp804_probe(struct driver_t * drv, struct dtnode_t *
 	ce->name = alloc_device_name(dt_read_name(n), -1);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
-	ce->next = ce_sp804_next,
+	ce->next = ce_sp804_next;
 	ce->priv = pdat;
 
 	request_irq(pdat->irq, ce_sp804_interrupt, IRQ_TYPE_NONE, ce);

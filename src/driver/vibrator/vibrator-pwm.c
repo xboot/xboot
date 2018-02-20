@@ -146,9 +146,9 @@ static struct device_t * vibrator_pwm_probe(struct driver_t * drv, struct dtnode
 	pdat->state = -1;
 
 	vib->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	vib->set = vibrator_pwm_set,
-	vib->get = vibrator_pwm_get,
-	vib->vibrate = vibrator_pwm_vibrate,
+	vib->set = vibrator_pwm_set;
+	vib->get = vibrator_pwm_get;
+	vib->vibrate = vibrator_pwm_vibrate;
 	vib->priv = pdat;
 
 	vibrator_pwm_set(vib, 0);

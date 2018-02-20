@@ -212,7 +212,7 @@ static struct device_t * battery_sbs_probe(struct driver_t * drv, struct dtnode_
 	pdat->dev = i2cdev;
 
 	bat->name = alloc_device_name(dt_read_name(n), -1);
-	bat->update = battery_sbs_update,
+	bat->update = battery_sbs_update;
 	bat->priv = pdat;
 
 	if(!register_battery(&dev, bat))

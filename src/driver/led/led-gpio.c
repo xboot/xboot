@@ -103,8 +103,8 @@ static struct device_t * led_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->brightness = -1;
 
 	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	led->set = led_gpio_set,
-	led->get = led_gpio_get,
+	led->set = led_gpio_set;
+	led->get = led_gpio_get;
 	led->priv = pdat;
 
 	if(pdat->gpiocfg >= 0)

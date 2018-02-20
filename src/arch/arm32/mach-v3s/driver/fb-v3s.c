@@ -376,11 +376,11 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
 	fb->bpp = pdat->bytes_per_pixel * 8;
-	fb->setbl = fb_setbl,
-	fb->getbl = fb_getbl,
-	fb->create = fb_create,
-	fb->destroy = fb_destroy,
-	fb->present = fb_present,
+	fb->setbl = fb_setbl;
+	fb->getbl = fb_getbl;
+	fb->create = fb_create;
+	fb->destroy = fb_destroy;
+	fb->present = fb_present;
 	fb->priv = pdat;
 
 	clk_enable(pdat->clkde);

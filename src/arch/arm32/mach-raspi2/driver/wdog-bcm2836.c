@@ -106,7 +106,7 @@ static struct device_t * wdog_bcm2836_probe(struct driver_t * drv, struct dtnode
 
 	wdog->name = alloc_device_name(dt_read_name(n), -1);
 	wdog->set = wdog_bcm2836_set;
-	wdog->get = wdog_bcm2836_get,
+	wdog->get = wdog_bcm2836_get;
 	wdog->priv = pdat;
 
 	if(!register_watchdog(&dev, wdog))

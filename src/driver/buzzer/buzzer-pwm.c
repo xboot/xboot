@@ -145,9 +145,9 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	pdat->frequency = -1;
 
 	buzzer->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	buzzer->set = buzzer_pwm_set,
-	buzzer->get = buzzer_pwm_get,
-	buzzer->beep = buzzer_pwm_beep,
+	buzzer->set = buzzer_pwm_set;
+	buzzer->get = buzzer_pwm_get;
+	buzzer->beep = buzzer_pwm_beep;
 	buzzer->priv = pdat;
 
 	buzzer_pwm_set(buzzer, 0);

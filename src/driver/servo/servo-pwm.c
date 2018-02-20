@@ -36,9 +36,8 @@ struct servo_pwm_pdata_t {
 	int angle;
 };
 
-static void servo_pwm_set(struct servo_t * m, int angle)
+static void servo_pwm_set_angle(struct servo_pwm_pdata_t * pdat, int angle)
 {
-	struct servo_pwm_pdata_t * pdat = (struct servo_pwm_pdata_t *)m->priv;
 	int r = pdat->range / 2;
 	int duty;
 
@@ -46,20 +45,32 @@ static void servo_pwm_set(struct servo_t * m, int angle)
 		angle = -r;
 	else if(angle > r)
 		angle = r;
+	duty = pdat->from + (pdat->to - pdat->from) * (angle + r) / pdat->range;
+	pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
+	pwm_enable(pdat->pwm);
+}
+
+static void servo_pwm_enable(struct servo_t * m)
+{
+	struct servo_pwm_pdata_t * pdat = (struct servo_pwm_pdata_t *)m->priv;
+	servo_pwm_set_angle(pdat, pdat->angle);
+}
+
+static void servo_pwm_disable(struct servo_t * m)
+{
+	struct servo_pwm_pdata_t * pdat = (struct servo_pwm_pdata_t *)m->priv;
+	pwm_disable(pdat->pwm);
+}
+
+static void servo_pwm_set(struct servo_t * m, int angle)
+{
+	struct servo_pwm_pdata_t * pdat = (struct servo_pwm_pdata_t *)m->priv;
 
 	if(pdat->angle != angle)
 	{
-		duty = pdat->from + (pdat->to - pdat->from) * (angle + r) / pdat->range;
-		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
-		pwm_enable(pdat->pwm);
+		servo_pwm_set_angle(pdat, angle);
 		pdat->angle = angle;
 	}
-}
-
-static int servo_pwm_get(struct servo_t * m)
-{
-	struct servo_pwm_pdata_t * pdat = (struct servo_pwm_pdata_t *)m->priv;
-	return pdat->angle;
 }
 
 static struct device_t * servo_pwm_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -92,8 +103,9 @@ static struct device_t * servo_pwm_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->angle = -360;
 
 	m->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	m->set = servo_pwm_set,
-	m->get = servo_pwm_get,
+	m->enable = servo_pwm_enable;
+	m->disable = servo_pwm_disable;
+	m->set = servo_pwm_set;
 	m->priv = pdat;
 
 	servo_pwm_set(m, dt_read_int(n, "default-angle", 0));

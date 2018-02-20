@@ -14,7 +14,6 @@ struct motor_t
 	void (*enable)(struct motor_t * m);
 	void (*disable)(struct motor_t * m);
 	void (*set)(struct motor_t * m, int speed);
-
 	void * priv;
 };
 

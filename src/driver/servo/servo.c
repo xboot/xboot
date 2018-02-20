@@ -25,10 +25,18 @@
 #include <xboot.h>
 #include <servo/servo.h>
 
-static ssize_t servo_read_angle(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t servo_write_enable(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct servo_t * m = (struct servo_t *)kobj->priv;
-	return sprintf(buf, "%d", servo_get_angle(m));
+	servo_enable(m);
+	return size;
+}
+
+static ssize_t servo_write_disable(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct servo_t * m = (struct servo_t *)kobj->priv;
+	servo_disable(m);
+	return size;
 }
 
 static ssize_t servo_write_angle(struct kobj_t * kobj, void * buf, size_t size)
@@ -64,7 +72,9 @@ bool_t register_servo(struct device_t ** device, struct servo_t * m)
 	dev->type = DEVICE_TYPE_SERVO;
 	dev->priv = m;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "angle", servo_read_angle, servo_write_angle, m);
+	kobj_add_regular(dev->kobj, "enable", NULL, servo_write_enable, m);
+	kobj_add_regular(dev->kobj, "disable", NULL, servo_write_disable, m);
+	kobj_add_regular(dev->kobj, "angle", NULL, servo_write_angle, m);
 
 	if(!register_device(dev))
 	{
@@ -99,6 +109,18 @@ bool_t unregister_servo(struct servo_t * m)
 	return TRUE;
 }
 
+void servo_enable(struct servo_t * m)
+{
+	if(m && m->enable)
+		m->enable(m);
+}
+
+void servo_disable(struct servo_t * m)
+{
+	if(m && m->disable)
+		m->disable(m);
+}
+
 void servo_set_angle(struct servo_t * m, int angle)
 {
 	if(m && m->set)
@@ -109,11 +131,4 @@ void servo_set_angle(struct servo_t * m, int angle)
 			angle = 180;
 		m->set(m, angle);
 	}
-}
-
-int servo_get_angle(struct servo_t * m)
-{
-	if(m && m->get)
-		return m->get(m);
-	return 0;
 }

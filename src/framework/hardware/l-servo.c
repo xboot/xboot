@@ -67,6 +67,22 @@ static int m_servo_tostring(lua_State * L)
 	return 1;
 }
 
+static int m_servo_enable(lua_State * L)
+{
+	struct servo_t * m = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
+	servo_enable(m);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_servo_disable(lua_State * L)
+{
+	struct servo_t * m = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
+	servo_disable(m);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_servo_set_angle(lua_State * L)
 {
 	struct servo_t * m = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
@@ -76,18 +92,11 @@ static int m_servo_set_angle(lua_State * L)
 	return 1;
 }
 
-static int m_servo_get_angle(lua_State * L)
-{
-	struct servo_t * m = luaL_checkudata(L, 1, MT_HARDWARE_SERVO);
-	int angle = servo_get_angle(m);
-	lua_pushinteger(L, angle);
-	return 1;
-}
-
 static const luaL_Reg m_servo[] = {
 	{"__tostring",	m_servo_tostring},
+	{"enable",		m_servo_enable},
+	{"disable",		m_servo_disable},
 	{"setAngle",	m_servo_set_angle},
-	{"getAngle",	m_servo_get_angle},
 	{NULL,	NULL}
 };
 

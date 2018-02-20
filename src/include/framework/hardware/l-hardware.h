@@ -18,6 +18,7 @@ extern "C" {
 #define	MT_HARDWARE_LED			"mt_hardware_led"
 #define	MT_HARDWARE_LEDTRIG		"mt_hardware_ledtrig"
 #define	MT_HARDWARE_LIGHT		"mt_hardware_light"
+#define	MT_HARDWARE_MOTOR		"mt_hardware_motor"
 #define	MT_HARDWARE_NVMEM		"mt_hardware_nvmem"
 #define	MT_HARDWARE_PWM			"mt_hardware_pwm"
 #define	MT_HARDWARE_SERVO		"mt_hardware_servo"
@@ -39,6 +40,7 @@ int luaopen_hardware_i2c(lua_State * L);
 int luaopen_hardware_led(lua_State * L);
 int luaopen_hardware_ledtrig(lua_State * L);
 int luaopen_hardware_light(lua_State * L);
+int luaopen_hardware_motor(lua_State * L);
 int luaopen_hardware_nvmem(lua_State * L);
 int luaopen_hardware_pwm(lua_State * L);
 int luaopen_hardware_servo(lua_State * L);

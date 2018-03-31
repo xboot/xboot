@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <gpio/gpio.h>
 #include <sd/sdhci.h>
 
 struct sdhci_v3s_pdata_t {
@@ -65,7 +66,7 @@ static bool_t v3s_transfer_data(struct sdhci_v3s_pdata_t * pdat, struct sdhci_cm
 
 static bool_t sdhci_v3s_detect(struct sdhci_t * sdhci)
 {
-	return TRUE;
+	return FALSE;
 }
 
 static bool_t sdhci_v3s_setwidth(struct sdhci_t * sdhci, u32_t width)

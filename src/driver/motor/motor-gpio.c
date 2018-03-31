@@ -27,13 +27,18 @@
 #include <motor/motor.h>
 
 struct motor_gpio_pdata_t {
+	struct timer_t timer;
 	int a;
 	int acfg;
 	int b;
 	int bcfg;
 	int e;
 	int ecfg;
+	int duty;
+	int period;
+	int maxspeed;
 	int speed;
+	int flag;
 };
 
 static void motor_gpio_enable(struct motor_t * m)
@@ -53,26 +58,67 @@ static void motor_gpio_disable(struct motor_t * m)
 static void motor_gpio_set(struct motor_t * m, int speed)
 {
 	struct motor_gpio_pdata_t * pdat = (struct motor_gpio_pdata_t *)m->priv;
+	int restart = 0;
 
 	if(pdat->speed != speed)
 	{
-		if(speed < 0)
+		if(pdat->speed == 0)
+			restart = 1;
+		if(speed < -pdat->maxspeed)
+			speed = -pdat->maxspeed;
+		else if(speed > pdat->maxspeed)
+			speed = pdat->maxspeed;
+		pdat->duty = (s64_t)pdat->period * abs(speed) / pdat->maxspeed;
+		pdat->speed = speed;
+		if(restart != 0)
+			timer_start_now(&pdat->timer, ns_to_ktime(pdat->duty));
+	}
+}
+
+static int motor_gpio_timer_function(struct timer_t * timer, void * data)
+{
+	struct motor_t * m = (struct motor_t *)(data);
+	struct motor_gpio_pdata_t * pdat = (struct motor_gpio_pdata_t *)m->priv;
+
+	if(pdat->speed < 0)
+	{
+		pdat->flag = !pdat->flag;
+		if(pdat->flag)
 		{
 			gpio_set_value(pdat->a, 0);
 			gpio_set_value(pdat->b, 1);
+			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->duty));
 		}
-		else if(speed > 0)
+		else
+		{
+			gpio_set_value(pdat->a, 0);
+			gpio_set_value(pdat->b, 0);
+			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
+		}
+		return 1;
+	}
+	else if(pdat->speed > 0)
+	{
+		pdat->flag = !pdat->flag;
+		if(pdat->flag)
 		{
 			gpio_set_value(pdat->b, 0);
 			gpio_set_value(pdat->a, 1);
+			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->duty));
 		}
 		else
 		{
 			gpio_set_value(pdat->b, 0);
 			gpio_set_value(pdat->a, 0);
+			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
 		}
-		pdat->speed = speed;
+		return 1;
 	}
+
+	pdat->flag = 0;
+	gpio_set_value(pdat->a, 0);
+	gpio_set_value(pdat->b, 0);
+	return 0;
 }
 
 static struct device_t * motor_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -98,13 +144,18 @@ static struct device_t * motor_gpio_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
+	timer_init(&pdat->timer, motor_gpio_timer_function, m);
 	pdat->a = a;
 	pdat->acfg = dt_read_int(n, "a-gpio-config", -1);
 	pdat->b = b;
 	pdat->bcfg = dt_read_int(n, "b-gpio-config", -1);
 	pdat->e = e;
 	pdat->ecfg = dt_read_int(n, "enable-gpio-config", -1);
+	pdat->period = dt_read_int(n, "period-ns", 10 * 1000 * 1000);
+	pdat->duty = pdat->period / 2;
+	pdat->maxspeed = abs(dt_read_int(n, "max-speed-rpm", 1000));
 	pdat->speed = 0;
+	pdat->flag = 0;
 
 	m->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	m->enable = motor_gpio_enable;
@@ -126,7 +177,7 @@ static struct device_t * motor_gpio_probe(struct driver_t * drv, struct dtnode_t
 			gpio_set_cfg(pdat->b, pdat->bcfg);
 		gpio_set_pull(pdat->b, GPIO_PULL_UP);
 		gpio_set_direction(pdat->b, GPIO_DIRECTION_OUTPUT);
-		gpio_set_value(pdat->a, 0);
+		gpio_set_value(pdat->b, 0);
 	}
 	if(pdat->e >= 0)
 	{
@@ -139,6 +190,8 @@ static struct device_t * motor_gpio_probe(struct driver_t * drv, struct dtnode_t
 
 	if(!register_motor(&dev, m))
 	{
+		timer_cancel(&pdat->timer);
+
 		free_device_name(m->name);
 		free(m->priv);
 		free(m);
@@ -152,9 +205,12 @@ static struct device_t * motor_gpio_probe(struct driver_t * drv, struct dtnode_t
 static void motor_gpio_remove(struct device_t * dev)
 {
 	struct motor_t * m = (struct motor_t *)dev->priv;
+	struct motor_gpio_pdata_t * pdat = (struct motor_gpio_pdata_t *)m->priv;
 
 	if(m && unregister_motor(m))
 	{
+		timer_cancel(&pdat->timer);
+
 		free_device_name(m->name);
 		free(m->priv);
 		free(m);

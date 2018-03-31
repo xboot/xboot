@@ -107,7 +107,6 @@ static struct device_t * servo_pwm_probe(struct driver_t * drv, struct dtnode_t 
 	m->disable = servo_pwm_disable;
 	m->set = servo_pwm_set;
 	m->priv = pdat;
-
 	servo_pwm_set(m, dt_read_int(n, "default-angle", 0));
 
 	if(!register_servo(&dev, m))

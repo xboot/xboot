@@ -67,12 +67,11 @@ static int mach_detect(struct machine_t * mach)
 	u32_t id;
 	u32_t key;
 
-	return 1;
 	id = sram_read_id(phys_to_virt(0x01c00024));
 	if(id == 0x1680)
 	{
 		key = sid_read_key(phys_to_virt(0x01c14000), 0 * 4) & 0xff;
-		if(key == 0x00 || key == 0x81 || key == 0x58)
+		if(key == 0x42)
 		{
 			return 1;
 		}

@@ -226,6 +226,23 @@ SRCDIRS		+=	external/freetype-2.4.11/src/base \
 INCDIRS		+=	external/chipmunk-7.0.2/include
 SRCDIRS		+=	external/chipmunk-7.0.2/src
 
+INCDIRS		+=	external/lvgl-5.1 \
+				external/lvgl-5.1/lvgl/lv_core \
+				external/lvgl-5.1/lvgl/lv_draw \
+				external/lvgl-5.1/lvgl/lv_hal \
+				external/lvgl-5.1/lvgl/lv_misc \
+				external/lvgl-5.1/lvgl/lv_misc/lv_fonts \
+				external/lvgl-5.1/lvgl/lv_objx \
+				external/lvgl-5.1/lvgl/lv_themes
+SRCDIRS		+=	external/lvgl-5.1 \
+				external/lvgl-5.1/lvgl/lv_core \
+				external/lvgl-5.1/lvgl/lv_draw \
+				external/lvgl-5.1/lvgl/lv_hal \
+				external/lvgl-5.1/lvgl/lv_misc \
+				external/lvgl-5.1/lvgl/lv_misc/lv_fonts \
+				external/lvgl-5.1/lvgl/lv_objx \
+				external/lvgl-5.1/lvgl/lv_themes
+
 #
 # You shouldn't need to change anything below this point.
 #

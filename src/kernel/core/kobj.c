@@ -26,7 +26,7 @@
 #include <spinlock.h>
 #include <xboot/kobj.h>
 
-static struct kobj_t * __kobj_root;
+static struct kobj_t * __kobj_root = NULL;
 
 static struct kobj_t * __kobj_alloc(const char * name, enum kobj_type_t type, kobj_read_t read, kobj_write_t write, void * priv)
 {
@@ -54,6 +54,8 @@ static struct kobj_t * __kobj_alloc(const char * name, enum kobj_type_t type, ko
 
 struct kobj_t * kobj_get_root(void)
 {
+	if(!__kobj_root)
+		__kobj_root = kobj_alloc_directory("kobj");
 	return __kobj_root;
 }
 
@@ -275,9 +277,4 @@ bool_t kobj_remove_self(struct kobj_t * kobj)
 
 	kobj_free(kobj);
 	return TRUE;
-}
-
-void do_init_kobj(void)
-{
-	__kobj_root = kobj_alloc_directory("kobj");
 }

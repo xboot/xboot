@@ -427,7 +427,7 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | laserscan   | 激光振镜驱动    |
 | led         | LED驱动     |
 | light       | 光线传感器驱动   |
-| motor       | 马达驱动   |
+| motor       | 马达驱动      |
 | nvmem       | 非易失性存储器驱动 |
 | pwm         | PWM驱动     |
 | regulator   | 电压调节器驱动   |
@@ -437,7 +437,7 @@ XBOOT源码主目录，所有的实现代码都在此目录下，在此目录下
 | sd          | SD卡驱动     |
 | servo       | 伺服舵机驱动    |
 | spi         | SPI总线驱动   |
-| stepper     | 步进电机驱动   |
+| stepper     | 步进电机驱动    |
 | thermometer | 温度传感器驱动   |
 | uart        | 串口总线驱动    |
 | vibrator    | 振动马达驱动    |
@@ -2287,11 +2287,13 @@ bool_t kobj_remove_self(struct kobj_t * kobj)
 ```
 
 ### 根节点
-系统启动时，会自动创建一个根节点，名为"kobj",该节点为一个全局静态变量，是顶层目录节点，在mount文件系统时会挂载到sysfs接口。
+在获取根节点时，如果不存在，则会自动创建一个名为`kobj`的根节点，该节点为全局静态变量，同时也是一个`sysfs`的顶层目录节点，在`mount`文件系统时会挂载到`sys`目录。
 ```c
-void do_init_kobj(void)
+struct kobj_t * kobj_get_root(void)
 {
-	__kobj_root = kobj_alloc_directory("kobj");
+	if(!__kobj_root)
+		__kobj_root = kobj_alloc_directory("kobj");
+	return __kobj_root;
 }
 ```
 
@@ -2360,7 +2362,7 @@ XBOOT规定了设备树中描述的每一个设备节点都是一个json对象�
 - 设备自动分配起始索引或者设备物理地址
 - 具体的json对象
 
-```c
+​```c
 struct dtnode_t {
 	const char * name;
 	physical_addr_t addr;

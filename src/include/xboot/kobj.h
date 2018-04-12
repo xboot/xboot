@@ -57,8 +57,6 @@ bool_t kobj_add_directory(struct kobj_t * parent, const char * name);
 bool_t kobj_add_regular(struct kobj_t * parent, const char * name, kobj_read_t read, kobj_write_t write, void * priv);
 bool_t kobj_remove_self(struct kobj_t * kobj);
 
-void do_init_kobj(void);
-
 #ifdef __cplusplus
 }
 #endif

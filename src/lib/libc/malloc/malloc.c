@@ -588,10 +588,10 @@ static inline void * tlsf_add_pool(void * tlsf, void * mem, size_t bytes)
 	return mem;
 }
 
-static inline void tlsf_remove_pool(void * tlsf, void * pool)
+static inline void tlsf_remove_pool(void * tlsf, void * mem)
 {
 	control_t * control = tlsf_cast(control_t *, tlsf);
-	block_header_t * block = offset_to_block(pool, -(int)block_header_overhead);
+	block_header_t * block = offset_to_block(mem, -(int)block_header_overhead);
 	int fl = 0, sl = 0;
 
 	tlsf_assert(block_is_free(block) && "block should be free");
@@ -618,14 +618,14 @@ static inline void * tlsf_create_with_pool(void * mem, size_t bytes)
 	return tlsf;
 }
 
-static inline void tlsf_destroy(void * tlsf)
+static inline void tlsf_destroy(void * mem)
 {
-	(void)tlsf;
+	(void)mem;
 }
 
-static inline void * tlsf_get_pool(void * tlsf)
+static inline void * tlsf_get(void * mem)
 {
-	return tlsf_cast(void *, (char *)tlsf + sizeof(control_t));
+	return tlsf_cast(void *, (char *)mem + sizeof(control_t));
 }
 
 static inline void * tlsf_malloc(void * tlsf, size_t size)
@@ -740,19 +740,35 @@ static inline void * tlsf_realloc(void * tlsf, void * ptr, size_t size)
 	return p;
 }
 
+static inline void tlsf_info(void * tlsf, size_t * mused, size_t * mfree)
+{
+	block_header_t * block = offset_to_block(tlsf, -(int)block_header_overhead);
+
+	*mused = 0;
+	*mfree = 0;
+	while(block && !block_is_last(block))
+	{
+		if(block_is_free(block))
+			*mfree += block_get_size(block);
+		else
+			*mused += block_get_size(block);
+		block = block_next(block);
+	}
+}
+
 void * mm_create(void * mem, size_t bytes)
 {
 	return tlsf_create_with_pool(mem, bytes);
 }
 
-void mm_destroy(void * mm)
+void mm_destroy(void * mem)
 {
-	tlsf_destroy(mm);
+	tlsf_destroy(mem);
 }
 
-void * mm_get_pool(void * mm)
+void * mm_get(void * mem)
 {
-	return tlsf_get_pool(mm);
+	return tlsf_get(mem);
 }
 
 void * mm_add_pool(void * mm, void * mem, size_t bytes)
@@ -760,9 +776,9 @@ void * mm_add_pool(void * mm, void * mem, size_t bytes)
 	return tlsf_add_pool(mm, mem, bytes);
 }
 
-void mm_remove_pool(void * mm, void * pool)
+void mm_remove_pool(void * mm, void * mem)
 {
-	tlsf_remove_pool(mm, pool);
+	tlsf_remove_pool(mm, mem);
 }
 
 void * mm_malloc(void * mm, size_t size)
@@ -783,6 +799,12 @@ void * mm_realloc(void * mm, void * ptr, size_t size)
 void mm_free(void * mm, void * ptr)
 {
 	tlsf_free(mm, ptr);
+}
+
+void mm_info(void * mm, size_t * mused, size_t * mfree)
+{
+	if(mused && mfree)
+		tlsf_info(mm, mused, mfree);
 }
 
 void * malloc(size_t size)
@@ -820,6 +842,25 @@ void free(void * ptr)
 }
 EXPORT_SYMBOL(free);
 
+static struct kobj_t * search_class_memory_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "memory");
+}
+
+static ssize_t memory_read_meminfo(struct kobj_t * kobj, void * buf, size_t size)
+{
+	void * mm = (void *)kobj->priv;
+	size_t mused, mfree;
+	char * p = buf;
+	int len = 0;
+
+	mm_info(mm, &mused, &mfree);
+	len += sprintf((char *)(p + len), " memory used: %ld\r\n", mused);
+	len += sprintf((char *)(p + len), " memory free: %ld\r\n", mfree);
+	return len;
+}
+
 void do_init_mem_pool(void)
 {
 #ifndef __SANDBOX__
@@ -830,4 +871,5 @@ void do_init_mem_pool(void)
 	static char __heap_buf[SZ_16M];
 	__heap_pool = tlsf_create_with_pool((void *)__heap_buf, (size_t)(sizeof(__heap_buf)));
 #endif
+	kobj_add_regular(search_class_memory_kobj(), "meminfo", memory_read_meminfo, NULL, mm_get(__heap_pool));
 }

@@ -52,6 +52,25 @@ static void __dma_cache_sync(void * addr, unsigned long size, int dir)
 }
 extern __typeof(__dma_cache_sync) dma_cache_sync __attribute__((weak, alias("__dma_cache_sync")));
 
+static struct kobj_t * search_class_memory_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "memory");
+}
+
+static ssize_t memory_read_dmainfo(struct kobj_t * kobj, void * buf, size_t size)
+{
+	void * mm = (void *)kobj->priv;
+	size_t mused, mfree;
+	char * p = buf;
+	int len = 0;
+
+	mm_info(mm, &mused, &mfree);
+	len += sprintf((char *)(p + len), " dma used: %ld\r\n", mused);
+	len += sprintf((char *)(p + len), " dma free: %ld\r\n", mfree);
+	return len;
+}
+
 void do_init_dma_pool(void)
 {
 #ifndef __SANDBOX__
@@ -62,4 +81,5 @@ void do_init_dma_pool(void)
 	static char __dma_buf[SZ_8M];
 	__dma_pool = mm_create((void *)__dma_buf, (size_t)(sizeof(__dma_buf)));
 #endif
+	kobj_add_regular(search_class_memory_kobj(), "dmainfo", memory_read_dmainfo, NULL, mm_get(__dma_pool));
 }

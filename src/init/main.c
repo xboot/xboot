@@ -37,9 +37,6 @@ int xboot_main(int argc, char * argv[])
 	/* Do initial dma pool */
 	do_init_dma_pool();
 
-	/* Do initial kobj */
-	do_init_kobj();
-
 	/* Do initial vfs */
 	do_init_vfs();
 

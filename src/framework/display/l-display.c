@@ -31,9 +31,8 @@ extern cairo_scaled_font_t * luaL_checkudata_scaled_font(lua_State * L, int ud, 
 struct ldisplay_t {
 	struct framebuffer_t * fb;
 	cairo_surface_t * alone;
-	cairo_surface_t * cs[2];
-	cairo_t * cr[2];
-	int index;
+	cairo_surface_t * cs;
+	cairo_t * cr;
 
 	int showfps;
 	double fps;
@@ -51,11 +50,8 @@ static int l_display_new(lua_State * L)
 	display = lua_newuserdata(L, sizeof(struct ldisplay_t));
 	display->fb = fb;
 	display->alone = cairo_xboot_surface_create(display->fb, display->fb->alone);
-	display->cs[0] = cairo_xboot_surface_create(display->fb, NULL);
-	display->cs[1] = cairo_xboot_surface_create(display->fb, NULL);
-	display->cr[0] = cairo_create(display->cs[0]);
-	display->cr[1] = cairo_create(display->cs[1]);
-	display->index = 0;
+	display->cs = cairo_xboot_surface_create(display->fb, NULL);
+	display->cr = cairo_create(display->cs);
 	display->showfps = 0;
 	display->fps = 60;
 	display->frame = 0;
@@ -74,10 +70,8 @@ static int m_display_gc(lua_State * L)
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	cairo_xboot_surface_present(display->alone);
 	cairo_surface_destroy(display->alone);
-	cairo_destroy(display->cr[0]);
-	cairo_destroy(display->cr[1]);
-	cairo_surface_destroy(display->cs[0]);
-	cairo_surface_destroy(display->cs[1]);
+	cairo_destroy(display->cr);
+	cairo_surface_destroy(display->cs);
 	return 0;
 }
 
@@ -125,7 +119,7 @@ static int m_display_draw_shape(lua_State * L)
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	struct lobject_t * object = luaL_checkudata(L, 2, MT_OBJECT);
 	cairo_t ** shape = luaL_checkudata(L, 3, MT_SHAPE);
-	cairo_t * cr = display->cr[display->index];
+	cairo_t * cr = display->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
 	cairo_surface_t * surface = cairo_surface_reference(cairo_get_target(*shape));
@@ -143,7 +137,7 @@ static int m_display_draw_text(lua_State * L)
 	const char * text = luaL_optstring(L, 3, NULL);
 	struct lpattern_t * pattern = luaL_checkudata(L, 4, MT_PATTERN);
 	cairo_matrix_t * matrix = luaL_checkudata(L, 5, MT_MATRIX);
-	cairo_t * cr = display->cr[display->index];
+	cairo_t * cr = display->cr;
 	cairo_save(cr);
 	cairo_set_scaled_font(cr, sfont);
 	cairo_set_font_matrix(cr, matrix);
@@ -159,7 +153,7 @@ static int m_display_draw_texture(lua_State * L)
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	struct lobject_t * object = luaL_checkudata(L, 2, MT_OBJECT);
 	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_TEXTURE);
-	cairo_t * cr = display->cr[display->index];
+	cairo_t * cr = display->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
 	cairo_set_source_surface(cr, texture->surface, 0, 0);
@@ -175,7 +169,7 @@ static int m_display_draw_texture_mask(lua_State * L)
 	struct lobject_t * object = luaL_checkudata(L, 2, MT_OBJECT);
 	struct ltexture_t * texture = luaL_checkudata(L, 3, MT_TEXTURE);
 	struct lpattern_t * pattern = luaL_checkudata(L, 4, MT_PATTERN);
-	cairo_t * cr = display->cr[display->index];
+	cairo_t * cr = display->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
 	cairo_set_source_surface(cr, texture->surface, 0, 0);
@@ -190,7 +184,7 @@ static int m_display_draw_ninepatch(lua_State * L)
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
 	struct lobject_t * object = luaL_checkudata(L, 2, MT_OBJECT);
 	struct lninepatch_t * ninepatch = luaL_checkudata(L, 3, MT_NINEPATCH);
-	cairo_t * cr = display->cr[display->index];
+	cairo_t * cr = display->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, &object->__transform_matrix);
 	if(ninepatch->lt)
@@ -296,7 +290,7 @@ static int m_display_showfps(lua_State * L)
 static int m_display_present(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
-	cairo_t * cr;
+	cairo_t * cr = display->cr;
 	if(display->showfps)
 	{
 		char buf[32];
@@ -306,7 +300,6 @@ static int m_display_present(lua_State * L)
 			display->fps = ((double)1000.0 / (double)delta) * 0.618 + display->fps * 0.382;
 		display->frame++;
 		display->stamp = now;
-		cr = display->cr[display->index];
 		cairo_save(cr);
 		cairo_set_font_size(cr, 24);
 		cairo_set_source_rgb(cr, 0.4, 0.4, 0.4);
@@ -315,9 +308,7 @@ static int m_display_present(lua_State * L)
 		cairo_show_text(cr, buf);
 		cairo_restore(cr);
 	}
-	cairo_xboot_surface_present(display->cs[display->index]);
-	display->index = (display->index + 1) % 2;
-	cr = display->cr[display->index];
+	cairo_xboot_surface_present(display->cs);
 	cairo_save(cr);
 	cairo_set_source_rgb(cr, 1, 1, 1);
 	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);

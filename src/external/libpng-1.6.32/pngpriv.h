@@ -534,6 +534,11 @@
 #  include <alloc.h>
 #endif
 
+#undef WIN32
+#undef _Windows
+#undef _WINDOWS
+#undef _WIN32
+#undef __WIN32__
 #if defined(WIN32) || defined(_Windows) || defined(_WINDOWS) || \
     defined(_WIN32) || defined(__WIN32__)
 #  include <windows.h>  /* defines _WINDOWS_ macro */

@@ -1,4 +1,3 @@
-.global sqrt
-.type sqrt,@function
+	.global sqrt
 sqrt:	sqrtsd %xmm0, %xmm0
 	ret

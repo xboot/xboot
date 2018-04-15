@@ -1,7 +1,4 @@
-	.text
-	.align 4
 	.global setjmp
-	.type setjmp,%function
 setjmp:
 	mov %rbx,(%rdi)
 	mov %rbp,8(%rdi)
@@ -16,10 +13,7 @@ setjmp:
 	xor %rax,%rax
 	ret
 
-	.text
-	.align 4
 	.global longjmp
-	.type longjmp,%function
 longjmp:
 	mov %rsi,%rax
 	test %rax,%rax

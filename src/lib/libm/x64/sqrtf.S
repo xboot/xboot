@@ -1,4 +1,3 @@
-.global sqrtf
-.type sqrtf,@function
+	.global sqrtf
 sqrtf:  sqrtss %xmm0, %xmm0
 	ret

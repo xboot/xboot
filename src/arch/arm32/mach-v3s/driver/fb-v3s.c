@@ -225,8 +225,12 @@ static inline void v3s_tcon_set_mode(struct fb_v3s_pdata_t * pdat)
 	val = (1 << 28);
 	if(!pdat->timing.h_sync_active)
 		val |= (1 << 25);
-	if(!pdat->timing.h_sync_active)
+	if(!pdat->timing.v_sync_active)
 		val |= (1 << 24);
+	if(!pdat->timing.den_active)
+		val |= (1 << 27);
+	if(!pdat->timing.clk_active)
+		val |= (1 << 26);
 	write32((virtual_addr_t)&tcon->tcon0_io_polarity, val);
 	write32((virtual_addr_t)&tcon->tcon0_io_tristate, 0);
 }

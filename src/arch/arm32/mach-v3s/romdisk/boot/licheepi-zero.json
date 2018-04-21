@@ -488,8 +488,8 @@
 		"vsync-len": 1,
 		"hsync-active": false,
 		"vsync-active": false,
-		"den-active": false,
-		"clk-active": false,
+		"den-active": true,
+		"clk-active": true,
 		"backlight": "led-pwm-bl.0"
 	},
 

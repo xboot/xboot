@@ -22,13 +22,65 @@
  *
  */
 
+.macro save_regs
+	str lr, [sp, #-4]
+	mrs lr, spsr_all
+	str lr, [sp, #-8]
+	str r1, [sp, #-12]
+	str r0, [sp, #-16]
+	mov r0, sp
+	mrs lr, cpsr_all
+	and lr, lr, #~(0x1f)
+	orr lr, lr, #0x13
+	msr cpsr_c, lr
+	ldr r1, [r0, #-4]
+	str r1, [sp, #-4]!
+	ldr r1, [r0, #-8]
+	str r1, [sp, #-(4*16)]
+	ldr r1, [r0, #-12]
+	ldr r0, [r0, #-16]
+	stmdb sp, {r0-r14}^
+	sub sp, sp, #(4*16)
+	ldr r4, [sp]
+	and r0, r4, #0x1f
+	cmp r0, #0x10
+	beq 10f
+	cmp r0, #0x13
+	beq 11f
+	b .
+11:	add r1, sp, #(4*17)
+	str r1, [sp, #(4*14)]
+	str lr, [sp, #(4*15)]
+10:	add r1, sp, #(4*17)
+	str r1, [sp, #-4]!
+	mov r0, sp
+.endm
+
+.macro restore_regs
+	mov r12, sp
+	ldr sp, [r12], #4
+	ldr r1, [r12], #4
+	msr spsr_cxsf, r1
+	and r0, r1, #0x1f
+	cmp r0, #0x10
+	beq 20f
+	cmp r0, #0x13
+	beq 21f
+	b .
+20:	ldr lr, [r12, #(4*15)]
+	ldmia r12, {r0-r14}^
+	movs pc, lr
+21:	ldm r12, {r0-r15}^
+	mov r0, r0
+.endm
+
 /*
  * Exception vector table
  */
 .text
 	.arm
 
-	.global	_start
+	.global _start
 _start:
 	/* Boot head information for BROM */
 	.long 0xea000016
@@ -169,8 +221,8 @@ reset:
 	ldr r1, =_main
 	mov pc, r1
 _main:
-	mov r0, #1;
-	mov r1, #0;
+	mov r0, #1
+	mov r1, #0
 	bl xboot_main
 	b _main
 
@@ -209,19 +261,31 @@ return_to_fel:
  */
 	.align 5
 undefined_instruction:
-	b .
+	sub lr, lr, #4
+	save_regs
+	bl arm32_do_undefined_instruction
+	restore_regs
 
 	.align 5
 software_interrupt:
-	b .
+	sub lr, lr, #4
+	save_regs
+	bl arm32_do_software_interrupt
+	restore_regs
 
 	.align 5
 prefetch_abort:
-	b .
+	sub lr, lr, #4
+	save_regs
+	bl arm32_do_prefetch_abort
+	restore_regs
 
 	.align 5
 data_abort:
-	b .
+	sub lr, lr, #8
+	save_regs
+	bl arm32_do_data_abort
+	restore_regs
 
 	.align 5
 not_used:
@@ -229,41 +293,17 @@ not_used:
 
 	.align 5
 irq:
-	ldr sp, _stack_irq_end
-	sub sp, sp, #72
-	stmia sp, {r0 - r12}
-	add r8, sp, #60
-	stmdb r8, {sp, lr}^
-	str lr, [r8, #0]
-	mrs r6, spsr
-	str r6, [r8, #4]
-	str r0, [r8, #8]
-	mov r0, sp
+	sub lr, lr, #4
+	save_regs
 	bl arm32_do_irq
-	ldmia sp, {r0 - lr}^
-	mov r0, r0
-	ldr lr, [sp, #60]
-	add sp, sp, #72
-	subs pc, lr, #4
+	restore_regs
 
 	.align 5
 fiq:
-	ldr sp, _stack_irq_end
-	sub sp, sp, #72
-	stmia sp, {r0 - r12}
-	add r8, sp, #60
-	stmdb r8, {sp, lr}^
-	str lr, [r8, #0]
-	mrs r6, spsr
-	str r6, [r8, #4]
-	str r0, [r8, #8]
-	mov r0, sp
+	sub lr, lr, #4
+	save_regs
 	bl arm32_do_fiq
-	ldmia sp, {r0 - lr}^
-	mov r0, r0
-	ldr lr, [sp, #60]
-	add sp, sp, #72
-	subs pc, lr, #4
+	restore_regs
 
 /*
  * The location of section

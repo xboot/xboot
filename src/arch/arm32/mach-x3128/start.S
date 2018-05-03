@@ -23,36 +23,52 @@
  */
 
 .macro save_regs
-	sub sp, sp, #68
-	stmia sp, {r0-r12}
-	ldr r0, [sp, #72]
-	str r0, [sp, #60]
-	ldr r0, [sp, #76]
-	mov r3, r0
-	orr r0, r0, #0xc0
-	msr cpsr_c, r0
-	mov r1, sp
-	mov r2, lr
+	str lr, [sp, #-4]
+	mrs lr, spsr_all
+	str lr, [sp, #-8]
+	str r1, [sp, #-12]
+	str r0, [sp, #-16]
+	mov r0, sp
 	cps #0x13
-	str r1, [sp, #52]
-	str r2, [sp, #56]
-	str r3, [sp, #64]
+	ldr r1, [r0, #-4]
+	str r1, [sp, #-4]!
+	ldr r1, [r0, #-8]
+	str r1, [sp, #-(4*16)]
+	ldr r1, [r0, #-12]
+	ldr r0, [r0, #-16]
+	stmdb sp, {r0-r14}^
+	sub sp, sp, #(4*16)
+	ldr r4, [sp]
+	and r0, r4, #0x1f
+	cmp r0, #0x10
+	beq 10f
+	cmp r0, #0x13
+	beq 11f
+	b .
+11:	add r1, sp, #(4*17)
+	str r1, [sp, #(4*14)]
+	str lr, [sp, #(4*15)]
+10:	add r1, sp, #(4*17)
+	str r1, [sp, #-4]!
 	mov r0, sp
 .endm
 
 .macro restore_regs
-	ldr r1, [sp, #52]
-	ldr r2, [sp, #56]
-	ldr r0, [sp, #64]
-	orr r0, r0, #0xc0
-	msr cpsr_c, r0
-	mov sp, r1
-	mov lr, r2
-	cps #0x13
-	ldr r0, [sp, #60]
-	str r0, [sp, #72]
-	ldmia sp, {r0-r12}
-	add sp, #68
+	mov r12, sp
+	ldr sp, [r12], #4
+	ldr r1, [r12], #4
+	msr spsr_cxsf, r1
+	and r0, r1, #0x1f
+	cmp r0, #0x10
+	beq 20f
+	cmp r0, #0x13
+	beq 21f
+	b .
+20:	ldr lr, [r12, #(4*15)]
+	ldmia r12, {r0-r14}^
+	movs pc, lr
+21:	ldm r12, {r0-r15}^
+	mov r0, r0
 .endm
 
 /*
@@ -61,7 +77,7 @@
 .text
 	.arm
 
-	.global	_start
+	.global _start
 _start:
 	b reset
 	ldr pc, _undefined_instruction
@@ -188,8 +204,8 @@ reset:
 	ldr r1, =_main
 	mov pc, r1
 _main:
-	mov r0, #1;
-	mov r1, #0;
+	mov r0, #1
+	mov r1, #0
 	bl xboot_main
 	b _main
 
@@ -199,58 +215,30 @@ _main:
 	.align 5
 undefined_instruction:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_undefined_instruction
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 software_interrupt:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_software_interrupt
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 prefetch_abort:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_prefetch_abort
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 data_abort:
-	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
+	sub lr, lr, #8
 	save_regs
 	bl arm32_do_data_abort
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 not_used:
@@ -259,30 +247,16 @@ not_used:
 	.align 5
 irq:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_irq
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 fiq:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_fiq
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 /*
  * The location of section

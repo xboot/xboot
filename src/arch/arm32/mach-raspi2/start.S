@@ -22,24 +22,53 @@
  *
  */
 
-.macro irq_save_regs
-	sub	sp, sp, #72
-	stmia sp, {r0 - r12}
-	add	r8, sp, #60
-	stmdb r8, {sp, lr}^
-	str	lr, [r8, #0]
-	mrs	r6, spsr
-	str	r6, [r8, #4]
-	str	r0, [r8, #8]
-	mov	r0, sp
+.macro save_regs
+	str lr, [sp, #-4]
+	mrs lr, spsr_all
+	str lr, [sp, #-8]
+	str r1, [sp, #-12]
+	str r0, [sp, #-16]
+	mov r0, sp
+	cps #0x13
+	ldr r1, [r0, #-4]
+	str r1, [sp, #-4]!
+	ldr r1, [r0, #-8]
+	str r1, [sp, #-(4*16)]
+	ldr r1, [r0, #-12]
+	ldr r0, [r0, #-16]
+	stmdb sp, {r0-r14}^
+	sub sp, sp, #(4*16)
+	ldr r4, [sp]
+	and r0, r4, #0x1f
+	cmp r0, #0x10
+	beq 10f
+	cmp r0, #0x13
+	beq 11f
+	b .
+11:	add r1, sp, #(4*17)
+	str r1, [sp, #(4*14)]
+	str lr, [sp, #(4*15)]
+10:	add r1, sp, #(4*17)
+	str r1, [sp, #-4]!
+	mov r0, sp
 .endm
 
-.macro irq_restore_regs
-	ldmia sp, {r0 - lr}^
-	mov	r0, r0
-	ldr	lr, [sp, #60]
-	add	sp, sp, #72
-	subs pc, lr, #4
+.macro restore_regs
+	mov r12, sp
+	ldr sp, [r12], #4
+	ldr r1, [r12], #4
+	msr spsr_cxsf, r1
+	and r0, r1, #0x1f
+	cmp r0, #0x10
+	beq 20f
+	cmp r0, #0x13
+	beq 21f
+	b .
+20:	ldr lr, [r12, #(4*15)]
+	ldmia r12, {r0-r14}^
+	movs pc, lr
+21:	ldm r12, {r0-r15}^
+	mov r0, r0
 .endm
 
 /*
@@ -48,7 +77,7 @@
 .text
 	.arm
 
-	.global	_start
+	.global _start
 _start:
 	b reset
 	ldr pc, _undefined_instruction
@@ -60,19 +89,19 @@ _start:
 	ldr pc, _fiq
 
 _undefined_instruction:
-	.long undefined_instruction
+	.word undefined_instruction
 _software_interrupt:
-	.long software_interrupt
+	.word software_interrupt
 _prefetch_abort:
-	.long prefetch_abort
+	.word prefetch_abort
 _data_abort:
-	.long data_abort
+	.word data_abort
 _not_used:
-	.long not_used
+	.word not_used
 _irq:
-	.long irq
+	.word irq
 _fiq:
-	.long fiq
+	.word fiq
 
 /*
  * The actual reset code
@@ -175,8 +204,8 @@ reset:
 	ldr r1, =_main
 	mov pc, r1
 _main:
-	mov r0, #1;
-	mov r1, #0;
+	mov r0, #1
+	mov r1, #0
 	bl xboot_main
 	b _main
 
@@ -189,56 +218,49 @@ _halt:
  */
 	.align 5
 undefined_instruction:
-	ldr	sp, _stack_und_end
-	sub	sp, sp, #72
-	stmia sp, {r0 - r12}
-	add	r8, sp, #60
-	mrs r1, cpsr
-	mrs r2, spsr
-	orr r2, r2, #0xc0
-	msr cpsr_c, r2
-	mov r0, r0
-	stmdb r8, {sp, lr}
-	msr cpsr_c, r1
 	sub lr, lr, #4
-	str	lr, [r8, #0]
-	mrs	r6, spsr
-	str	r6, [r8, #4]
-	str	r0, [r8, #8]
-	mov	r0, sp
-	bl gdbserver_handle_exception
-	ldmia sp, {r0 - r12}
-	mov	r0, r0
-	ldr	lr, [sp, #60]
-	add	sp, sp, #72
-	movs pc, lr
+	save_regs
+	bl arm32_do_undefined_instruction
+	restore_regs
 
 	.align 5
 software_interrupt:
-	b	.
+	sub lr, lr, #4
+	save_regs
+	bl arm32_do_software_interrupt
+	restore_regs
 
 	.align 5
 prefetch_abort:
-	b	.
+	sub lr, lr, #4
+	save_regs
+	bl arm32_do_prefetch_abort
+	restore_regs
 
 	.align 5
 data_abort:
-	b	.
+	sub lr, lr, #8
+	save_regs
+	bl arm32_do_data_abort
+	restore_regs
 
 	.align 5
 not_used:
-	b	.
+	b .
 
 	.align 5
 irq:
-	ldr sp, _stack_irq_end
-	irq_save_regs
-	bl interrupt_handle_exception
-	irq_restore_regs
+	sub lr, lr, #4
+	save_regs
+	bl arm32_do_irq
+	restore_regs
 
 	.align 5
 fiq:
-	b	.
+	sub lr, lr, #4
+	save_regs
+	bl arm32_do_fiq
+	restore_regs
 
 /*
  * The location of section

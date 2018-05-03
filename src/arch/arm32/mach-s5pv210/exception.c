@@ -28,11 +28,12 @@
 #include <xboot/gdbstub.h>
 
 struct arm_regs_t {
+	uint32_t esp;
+	uint32_t cpsr;
 	uint32_t r[13];
 	uint32_t sp;
 	uint32_t lr;
 	uint32_t pc;
-	uint32_t cpsr;
 };
 
 static void show_regs(struct arm_regs_t * regs)
@@ -40,7 +41,7 @@ static void show_regs(struct arm_regs_t * regs)
 	int i;
 
 	printf("pc : [<%08lx>] lr : [<%08lx>] cpsr: %08lx\r\n", regs->pc, regs->lr, regs->cpsr);
-	printf("sp : %08lx\r\n", regs->sp);
+	printf("sp : %08lx esp : %08lx\r\n", regs->sp, regs->esp);
 	for(i = 12; i >= 0; i--)
 	{
 		printf("r%-2d: %08lx ", i, regs->r[i]);
@@ -48,7 +49,6 @@ static void show_regs(struct arm_regs_t * regs)
 			printf("\r\n");
 	}
 	printf("\r\n");
-	while(1);
 }
 
 void arm32_do_undefined_instruction(struct arm_regs_t * regs)

@@ -28,11 +28,12 @@
 
 struct arm32_env_t {
 	struct {
+		uint32_t esp;
+		uint32_t cpsr;
 		uint32_t r[13];
 		uint32_t sp;
 		uint32_t lr;
 		uint32_t pc;
-		uint32_t cpsr;
 	} regs;
 	struct {
 		virtual_addr_t addr;

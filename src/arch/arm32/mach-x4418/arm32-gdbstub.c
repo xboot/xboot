@@ -1,7 +1,7 @@
 /*
  * arm32-gdbstub.c
  *
- * Copyright(c) 2007-2015 Jianjun Jiang <8192542@qq.com>
+ * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
  * Mobile phone: +86-18665388956
  * QQ: 8192542
@@ -42,12 +42,14 @@ struct arm32_env_t {
 };
 static struct arm32_env_t __arm32_env;
 
-static inline void cache_sync(virtual_addr_t addr, virtual_size_t size)
+static inline void icache_sync(virtual_addr_t addr, virtual_size_t size)
 {
-	__asm__ __volatile__("mcr p15, 0, %0, c7, c5, 4" :: "r"(0) : "memory");
-	__asm__ __volatile__("mcr p15, 0, %0, c7, c5, 6" :: "r"(0) : "memory");
+	__asm__ __volatile__("mcr p15, 0, %0, c7, c5, 0" :: "r"(0) : "memory");
+}
+
+static inline void dcache_sync(virtual_addr_t addr, virtual_size_t size)
+{
 	dma_cache_sync((void *)addr, size, DMA_BIDIRECTIONAL);
-	mb();
 }
 
 static void cpu_register_save(struct gdb_cpu_t * cpu, void * regs)
@@ -155,7 +157,7 @@ static int cpu_breakpoint_insert(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 	case BP_TYPE_SOFTWARE_BREAKPOINT:
 		memcpy(bp->instr, (void *)(bp->addr), 4);
 		memcpy((void *)(bp->addr), bpinstr, 4);
-		cache_sync(bp->addr, 4);
+		icache_sync(bp->addr, 4);
 		return 0;
 	case BP_TYPE_HARDWARE_BREAKPOINT:
 	case BP_TYPE_WRITE_WATCHPOINT:
@@ -173,7 +175,7 @@ static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 	{
 	case BP_TYPE_SOFTWARE_BREAKPOINT:
 		memcpy((void *)(bp->addr), bp->instr, 4);
-		cache_sync(bp->addr, 4);
+		icache_sync(bp->addr, 4);
 		return 0;
 	case BP_TYPE_HARDWARE_BREAKPOINT:
 	case BP_TYPE_WRITE_WATCHPOINT:
@@ -192,7 +194,7 @@ static int cpu_singlestep_active(struct gdb_cpu_t * cpu)
 	env->step.addr = env->regs.pc + 4;
 	memcpy(env->step.instr, (void *)(env->step.addr), 4);
 	memcpy((void *)(env->step.addr), bpinstr, 4);
-	cache_sync(env->step.addr, 4);
+	icache_sync(env->step.addr, 4);
 	return 0;
 }
 
@@ -202,7 +204,7 @@ static int cpu_singlestep_finish(struct gdb_cpu_t * cpu)
 	if(env->step.addr != 0)
 	{
 		memcpy((void *)(env->step.addr), env->step.instr, 4);
-		cache_sync(env->step.addr, 4);
+		icache_sync(env->step.addr, 4);
 	}
 	env->step.addr = 0;
 	return 0;
@@ -210,7 +212,7 @@ static int cpu_singlestep_finish(struct gdb_cpu_t * cpu)
 
 static int cpu_memory_acess(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
 {
-	cache_sync(addr, size);
+	dcache_sync(addr, size);
 	return 0;
 }
 

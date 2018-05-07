@@ -23,7 +23,9 @@
  */
 
 #include <xboot.h>
+#include <clk/clk.h>
 #include <gpio/gpio.h>
+#include <reset/reset.h>
 #include <sd/sdhci.h>
 
 struct sdhci_v3s_pdata_t {
@@ -147,7 +149,7 @@ static struct device_t * sdhci_v3s_probe(struct driver_t * drv, struct dtnode_t 
 	sdhci->transfer = sdhci_v3s_transfer;
 	sdhci->priv = pdat;
 
-	clk_enable(pdat->clk);
+	clk_enable(pdat->pclk);
 	if(pdat->reset >= 0)
 		reset_deassert(pdat->reset);
 
@@ -157,9 +159,72 @@ static struct device_t * sdhci_v3s_probe(struct driver_t * drv, struct dtnode_t 
 			gpio_set_cfg(pdat->clk, pdat->clkcfg);
 		gpio_set_pull(pdat->clk, GPIO_PULL_UP);
 	}
+	if(pdat->cmd >= 0)
+	{
+		if(pdat->cmdcfg >= 0)
+			gpio_set_cfg(pdat->cmd, pdat->cmdcfg);
+		gpio_set_pull(pdat->cmd, GPIO_PULL_UP);
+	}
+	if(pdat->dat0 >= 0)
+	{
+		if(pdat->dat0cfg >= 0)
+			gpio_set_cfg(pdat->dat0, pdat->dat0cfg);
+		gpio_set_pull(pdat->dat0, GPIO_PULL_UP);
+	}
+	if(pdat->dat1 >= 0)
+	{
+		if(pdat->dat1cfg >= 0)
+			gpio_set_cfg(pdat->dat1, pdat->dat1cfg);
+		gpio_set_pull(pdat->dat1, GPIO_PULL_UP);
+	}
+	if(pdat->dat2 >= 0)
+	{
+		if(pdat->dat2cfg >= 0)
+			gpio_set_cfg(pdat->dat2, pdat->dat2cfg);
+		gpio_set_pull(pdat->dat2, GPIO_PULL_UP);
+	}
+	if(pdat->dat3 >= 0)
+	{
+		if(pdat->dat3cfg >= 0)
+			gpio_set_cfg(pdat->dat3, pdat->dat3cfg);
+		gpio_set_pull(pdat->dat3, GPIO_PULL_UP);
+	}
+	if(pdat->dat4 >= 0)
+	{
+		if(pdat->dat4cfg >= 0)
+			gpio_set_cfg(pdat->dat4, pdat->dat4cfg);
+		gpio_set_pull(pdat->dat4, GPIO_PULL_UP);
+	}
+	if(pdat->dat5 >= 0)
+	{
+		if(pdat->dat5cfg >= 0)
+			gpio_set_cfg(pdat->dat5, pdat->dat5cfg);
+		gpio_set_pull(pdat->dat5, GPIO_PULL_UP);
+	}
+	if(pdat->dat6 >= 0)
+	{
+		if(pdat->dat6cfg >= 0)
+			gpio_set_cfg(pdat->dat6, pdat->dat6cfg);
+		gpio_set_pull(pdat->dat6, GPIO_PULL_UP);
+	}
+	if(pdat->dat7 >= 0)
+	{
+		if(pdat->dat7cfg >= 0)
+			gpio_set_cfg(pdat->dat7, pdat->dat7cfg);
+		gpio_set_pull(pdat->dat7, GPIO_PULL_UP);
+	}
+	if(pdat->cd >= 0)
+	{
+		if(pdat->cdcfg >= 0)
+			gpio_set_cfg(pdat->cd, pdat->cdcfg);
+		gpio_set_pull(pdat->cd, GPIO_PULL_UP);
+	}
 
 	if(!register_sdhci(&dev, sdhci))
 	{
+		clk_disable(pdat->pclk);
+		free(pdat->pclk);
+
 		free_device_name(sdhci->name);
 		free(sdhci->priv);
 		free(sdhci);
@@ -173,9 +238,13 @@ static struct device_t * sdhci_v3s_probe(struct driver_t * drv, struct dtnode_t 
 static void sdhci_v3s_remove(struct device_t * dev)
 {
 	struct sdhci_t * sdhci = (struct sdhci_t *)dev->priv;
+	struct sdhci_v3s_pdata_t * pdat = (struct sdhci_v3s_pdata_t *)sdhci->priv;
 
 	if(sdhci && unregister_sdhci(sdhci))
 	{
+		clk_disable(pdat->pclk);
+		free(pdat->pclk);
+
 		free_device_name(sdhci->name);
 		free(sdhci->priv);
 		free(sdhci);

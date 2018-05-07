@@ -26,7 +26,6 @@
 #include <sd/sdcard.h>
 #include <sd/sdhci.h>
 
-
 struct sdhci_t * search_sdhci(const char * name)
 {
 	struct device_t * dev;

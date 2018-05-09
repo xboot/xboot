@@ -13,9 +13,14 @@ make CROSS_COMPILE=/path/to/arm-eabi- PLATFORM=arm32-f1c100s
 sunxi-fel spl xboot.bin; sunxi-fel -p write 0x80000000 xboot.bin; sunxi-fel exec 0x80000000;
 ```
 
-## 烧写到SPI Flash
+## 烧写普通镜像到SPI Flash
 ```shell
 sunxi-fel -p spiflash-write 0 xboot.bin
+```
+
+## 烧写压缩镜像到SPI Flash
+```shell
+sunxi-fel -p spiflash-write 0 xboot.bin.z
 ```
 
 ## 关于sunxi-fel工具

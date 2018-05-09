@@ -13,9 +13,14 @@ make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-v3s
 sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec 0x40000000;
 ```
 
-## Brun to SPI Flash
+## Brun normal image to SPI Flash
 ```shell
 sunxi-fel -p spiflash-write 0 xboot.bin
+```
+
+## Brun compress image to SPI Flash
+```shell
+sunxi-fel -p spiflash-write 0 xboot.bin.z
 ```
 
 ## About sunxi-fel tool

@@ -26,11 +26,20 @@
 
 extern unsigned char __image_start;
 extern unsigned char __image_end;
+extern unsigned char __heap_start;
 extern void return_to_fel(void);
 extern void sys_uart_putc(char c);
+void sys_decompress(char * src, int slen, char * dst, int dlen);
 extern void sys_spi_flash_init(void);
 extern void sys_spi_flash_exit(void);
 extern void sys_spi_flash_read(int addr, void * buf, int count);
+
+struct zdesc_t {
+	uint8_t magic[4];
+	uint8_t crc[4];
+	uint8_t ssize[4];
+	uint8_t dsize[4];
+};
 
 enum {
 	BOOT_DEVICE_FEL	= 0,
@@ -49,8 +58,10 @@ static int get_boot_device(void)
 
 void sys_copyself(void)
 {
+	struct zdesc_t z;
+	uint32_t ssize, dsize;
 	int d = get_boot_device();
-	void * mem;
+	void * mem, * tmp;
 	u32_t size;
 
 	if(d == BOOT_DEVICE_FEL)
@@ -78,11 +89,27 @@ void sys_copyself(void)
 	else if(d == BOOT_DEVICE_SPI)
 	{
 		mem = (void *)&__image_start;
+		tmp = (void *)&__heap_start;
 		size = &__image_end - &__image_start;
 
 		sys_spi_flash_init();
-		sys_spi_flash_read(0, mem, size);
+		sys_spi_flash_read(16384, &z, sizeof(struct zdesc_t));
 		sys_spi_flash_exit();
+		if((z.magic[0] == 'L') && (z.magic[1] == 'Z') && (z.magic[2] == '4') && (z.magic[3] == ' '))
+		{
+			ssize = (z.ssize[0] << 24) | (z.ssize[1] << 16) | (z.ssize[2] << 8) | (z.ssize[3] << 0);
+			dsize = (z.dsize[0] << 24) | (z.dsize[1] << 16) | (z.dsize[2] << 8) | (z.dsize[3] << 0);
+			sys_spi_flash_init();
+			sys_spi_flash_read(16384 + sizeof(struct zdesc_t), tmp, ssize);
+			sys_spi_flash_exit();
+			sys_decompress(tmp, ssize, mem, dsize);
+		}
+		else
+		{
+			sys_spi_flash_init();
+			sys_spi_flash_read(0, mem, size);
+			sys_spi_flash_exit();
+		}
 	}
 	else if(d == BOOT_DEVICE_MMC)
 	{

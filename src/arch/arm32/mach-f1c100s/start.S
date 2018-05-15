@@ -168,6 +168,24 @@ reset:
 	bl sys_dram_init
 	bl sys_uart_init
 
+	/* Boot speed up, leave slower sram */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq _speedup
+	ldr r0, =0x81f80000
+	adr r1, _start
+	mov r2, #0x4000
+	bl memcpy
+	ldr r0, =_speedup
+	ldr r1, =_start
+	sub r0, r0, r1
+	ldr r1, =0x81f80000
+	add r0, r0, r1
+	mov pc, r0
+_speedup:
+	nop
+
 	/* Copyself to link address */
 	adr r0, _start
 	ldr r1, =_start

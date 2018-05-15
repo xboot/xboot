@@ -28,8 +28,9 @@ extern unsigned char __image_start;
 extern unsigned char __image_end;
 extern unsigned char __heap_start;
 extern void return_to_fel(void);
+extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
-void sys_decompress(char * src, int slen, char * dst, int dlen);
+extern void sys_decompress(char * src, int slen, char * dst, int dlen);
 extern void sys_spi_flash_init(void);
 extern void sys_spi_flash_exit(void);
 extern void sys_spi_flash_read(int addr, void * buf, int count);
@@ -91,6 +92,7 @@ void sys_copyself(void)
 		mem = (void *)&__image_start;
 		tmp = (void *)&__heap_start;
 		size = &__image_end - &__image_start;
+		sys_mmu_init();
 
 		sys_spi_flash_init();
 		sys_spi_flash_read(16384, &z, sizeof(struct zdesc_t));
@@ -115,5 +117,6 @@ void sys_copyself(void)
 	{
 		mem = (void *)&__image_start;
 		size = (&__image_end - &__image_start + 512) >> 9;
+		sys_mmu_init();
 	}
 }

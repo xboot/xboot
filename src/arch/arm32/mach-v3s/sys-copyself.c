@@ -29,7 +29,7 @@ extern unsigned char __image_end;
 extern unsigned char __heap_start;
 extern void return_to_fel(void);
 extern void sys_uart_putc(char c);
-void sys_decompress(char * src, int slen, char * dst, int dlen);
+extern void sys_decompress(char * src, int slen, char * dst, int dlen);
 extern void sys_spi_flash_init(void);
 extern void sys_spi_flash_exit(void);
 extern void sys_spi_flash_read(int addr, void * buf, int count);

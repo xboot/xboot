@@ -28,31 +28,31 @@
 static ssize_t framebuffer_read_width(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct framebuffer_t * fb = (struct framebuffer_t *)kobj->priv;
-	return sprintf(buf, "%u", fb->width);
+	return sprintf(buf, "%u", framebuffer_get_width(fb));
 }
 
 static ssize_t framebuffer_read_height(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct framebuffer_t * fb = (struct framebuffer_t *)kobj->priv;
-	return sprintf(buf, "%u", fb->height);
+	return sprintf(buf, "%u", framebuffer_get_height(fb));
 }
 
 static ssize_t framebuffer_read_pwidth(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct framebuffer_t * fb = (struct framebuffer_t *)kobj->priv;
-	return sprintf(buf, "%u", fb->pwidth);
+	return sprintf(buf, "%u", framebuffer_get_pwidth(fb));
 }
 
 static ssize_t framebuffer_read_pheight(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct framebuffer_t * fb = (struct framebuffer_t *)kobj->priv;
-	return sprintf(buf, "%u", fb->pheight);
+	return sprintf(buf, "%u", framebuffer_get_pheight(fb));
 }
 
 static ssize_t framebuffer_read_bpp(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct framebuffer_t * fb = (struct framebuffer_t *)kobj->priv;
-	return sprintf(buf, "%u", fb->bpp);
+	return sprintf(buf, "%u", framebuffer_get_bpp(fb));
 }
 
 static ssize_t framebuffer_read_brightness(struct kobj_t * kobj, void * buf, size_t size)
@@ -125,10 +125,8 @@ bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb
 
 	if(fb->create)
 		fb->alone = (fb->create)(fb);
-
 	if(fb->present)
 		fb->present(fb, fb->alone);
-
 	if(fb->setbl)
 		fb->setbl(fb, 0);
 
@@ -165,6 +163,8 @@ bool_t unregister_framebuffer(struct framebuffer_t * fb)
 	{
 		if(driver->setbl)
 			driver->setbl(driver, 0);
+		if(fb->destroy)
+			fb->destroy(fb, fb->alone);
 	}
 
 	kobj_remove_self(dev->kobj);
@@ -172,6 +172,60 @@ bool_t unregister_framebuffer(struct framebuffer_t * fb)
 	free(dev);
 
 	return TRUE;
+}
+
+int framebuffer_get_width(struct framebuffer_t * fb)
+{
+	if(fb)
+		return fb->width;
+	return 0;
+}
+
+int framebuffer_get_height(struct framebuffer_t * fb)
+{
+	if(fb)
+		return fb->height;
+	return 0;
+}
+
+int framebuffer_get_pwidth(struct framebuffer_t * fb)
+{
+	if(fb)
+		return fb->pwidth;
+	return 0;
+}
+
+int framebuffer_get_pheight(struct framebuffer_t * fb)
+{
+	if(fb)
+		return fb->pheight;
+	return 0;
+}
+
+int framebuffer_get_bpp(struct framebuffer_t * fb)
+{
+	if(fb)
+		return fb->bpp;
+	return 0;
+}
+
+struct render_t * framebuffer_create_render(struct framebuffer_t * fb)
+{
+	if(fb && fb->create)
+		return fb->create(fb);
+	return NULL;
+}
+
+void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * render)
+{
+	if(fb && fb->destroy)
+		fb->destroy(fb, render);
+}
+
+void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render)
+{
+	if(fb && fb->present)
+		fb->present(fb, render);
 }
 
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness)

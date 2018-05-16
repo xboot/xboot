@@ -81,6 +81,14 @@ struct framebuffer_t * search_first_framebuffer(void);
 bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb);
 bool_t unregister_framebuffer(struct framebuffer_t * fb);
 
+int framebuffer_get_width(struct framebuffer_t * fb);
+int framebuffer_get_height(struct framebuffer_t * fb);
+int framebuffer_get_pwidth(struct framebuffer_t * fb);
+int framebuffer_get_pheight(struct framebuffer_t * fb);
+int framebuffer_get_bpp(struct framebuffer_t * fb);
+struct render_t * framebuffer_create_render(struct framebuffer_t * fb);
+void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * render);
+void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render);
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness);
 int framebuffer_get_backlight(struct framebuffer_t * fb);
 

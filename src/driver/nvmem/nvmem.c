@@ -100,6 +100,8 @@ static bool_t nvmem_init_kvdb(struct nvmem_t * m)
 			crc = crc32_sum(crc, (const uint8_t *)s, l);
 			if(crc == c)
 				kvdb_from_string(m->db, s);
+			else
+				nvmem_sync(m);
 			free(s);
 		}
 		else

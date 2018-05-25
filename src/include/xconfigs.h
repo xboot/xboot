@@ -32,6 +32,10 @@ extern "C" {
 #define CONFIG_PROFILER_HASH_SIZE			(257)
 #endif
 
+#if !defined(CONFIG_KVDB_MAX_HASH_SIZE)
+#define CONFIG_KVDB_MAX_HASH_SIZE			(4099)
+#endif
+
 #if !defined(CONFIG_MAX_BRIGHTNESS)
 #define CONFIG_MAX_BRIGHTNESS				(1000)
 #endif

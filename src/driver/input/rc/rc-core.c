@@ -34,6 +34,8 @@ uint32_t rc_decoder_handle(struct rc_decoder_t * decoder, int pulse, int duratio
 	{
 	}
 
+	if(code == 0)
+		return 0;
 	for(i = 0; i < decoder->size; i++)
 	{
 		if(decoder->map[i].scancode == code)

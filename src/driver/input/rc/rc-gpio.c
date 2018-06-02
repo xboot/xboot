@@ -102,7 +102,7 @@ static struct device_t * rc_gpio_probe(struct driver_t * drv, struct dtnode_t * 
 	pdat->gpio = gpio;
 	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->irq = irq;
-	pdat->active_low = dt_read_bool(n, "active-low", 0);
+	pdat->active_low = dt_read_bool(n, "active-low", 1);
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->type = INPUT_TYPE_KEYBOARD;

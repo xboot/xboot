@@ -18,11 +18,6 @@ sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec
 sunxi-fel -p spiflash-write 0 xboot.bin
 ```
 
-## Brun compress image to SPI Flash
-```shell
-sunxi-fel -p spiflash-write 0 xboot.bin.z
-```
-
 ## About sunxi-fel tool
 
 The default sunxi-fel tool don't support spi flash, and you need to download the source code and compile it to support spi flash programming

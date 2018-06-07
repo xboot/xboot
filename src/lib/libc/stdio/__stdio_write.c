@@ -76,7 +76,7 @@ ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
 		{
 			bufsz = f->fifo_write->size;
 
-			if(fifo_avail(f->fifo_write) + size > bufsz)
+			if(fifo_len(f->fifo_write) + size > bufsz)
 			{
 				ret = __stdio_write_flush(f);
 				if(ret != 0)
@@ -113,7 +113,7 @@ ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size)
 	{
 		bufsz = f->fifo_write->size;
 
-		if(fifo_avail(f->fifo_write) + size > bufsz)
+		if(fifo_len(f->fifo_write) + size > bufsz)
 		{
 			ret = __stdio_write_flush(f);
 			if(ret != 0)

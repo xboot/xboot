@@ -10,21 +10,24 @@ extern "C" {
 #include <spinlock.h>
 
 struct fifo_t {
-	u8_t * buffer;
-	size_t size;
-	size_t in;
-	size_t out;
+	unsigned char * buffer;
+	unsigned int size;
+	unsigned int in;
+	unsigned int out;
 	spinlock_t lock;
 };
 
-struct fifo_t * fifo_alloc(size_t size);
+void __fifo_reset(struct fifo_t * f);
+unsigned int __fifo_len(struct fifo_t * f);
+unsigned int __fifo_put(struct fifo_t * f, unsigned char * buf, unsigned int len);
+unsigned int __fifo_get(struct fifo_t * f, unsigned char * buf, unsigned int len);
+
+struct fifo_t * fifo_alloc(unsigned int size);
 void fifo_free(struct fifo_t * f);
-void fifo_clear(struct fifo_t * f);
-bool_t fifo_isempty(struct fifo_t * f);
-bool_t fifo_isfull(struct fifo_t * f);
-size_t fifo_avail(struct fifo_t * f);
-size_t fifo_put(struct fifo_t * f, u8_t * buf, size_t len);
-size_t fifo_get(struct fifo_t * f, u8_t * buf, size_t len);
+void fifo_reset(struct fifo_t * f);
+unsigned int fifo_len(struct fifo_t * f);
+unsigned int fifo_put(struct fifo_t * f, unsigned char * buf, unsigned int len);
+unsigned int fifo_get(struct fifo_t * f, unsigned char * buf, unsigned int len);
 
 #ifdef __cplusplus
 }

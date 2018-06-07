@@ -13,7 +13,7 @@ int __stdio_no_flush(FILE * f)
 int	__stdio_read_flush(FILE * f)
 {
 	f->seek(f, f->pos, SEEK_SET);
-	fifo_clear(f->fifo_read);
+	fifo_reset(f->fifo_read);
 
 	f->rwflush = &__stdio_no_flush;
 	return 0;
@@ -45,7 +45,6 @@ int __stdio_write_flush(FILE * f)
 		size -= ret;
 		p += ret;
 	};
-
 
 	f->rwflush = &__stdio_no_flush;
 	return 0;

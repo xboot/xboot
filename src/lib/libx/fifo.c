@@ -5,21 +5,70 @@
 #include <types.h>
 #include <stddef.h>
 #include <malloc.h>
+#include <log2.h>
+#include <barrier.h>
 #include <string.h>
 #include <spinlock.h>
 #include <fifo.h>
 
-#ifndef MIN
-#define MIN(a, b)	((a) < (b) ? (a) : (b))
-#endif
+#define min(x,y) ({			\
+	typeof(x) _x = (x);		\
+	typeof(y) _y = (y);		\
+	(void)(&_x == &_y);		\
+	_x < _y ? _x : _y; })
 
-#ifndef MAX
-#define MAX(a, b)	((a) > (b) ? (a) : (b))
-#endif
+#define max(x,y) ({			\
+	typeof(x) _x = (x);		\
+	typeof(y) _y = (y);		\
+	(void)(&_x == &_y);		\
+	_x > _y ? _x : _y; })
 
-struct fifo_t * fifo_alloc(size_t size)
+void __fifo_reset(struct fifo_t * f)
+{
+	f->in = f->out = 0;
+}
+
+unsigned int __fifo_len(struct fifo_t * f)
+{
+	return f->in - f->out;
+}
+
+unsigned int __fifo_put(struct fifo_t * f, unsigned char * buf, unsigned int len)
+{
+	unsigned int l;
+
+	len = min(len, f->size - f->in + f->out);
+	smp_mb();
+	l = min(len, f->size - (f->in & (f->size - 1)));
+	memcpy(f->buffer + (f->in & (f->size - 1)), buf, l);
+	memcpy(f->buffer, buf + l, len - l);
+	smp_wmb();
+	f->in += len;
+
+	return len;
+}
+
+unsigned int __fifo_get(struct fifo_t * f, unsigned char * buf, unsigned int len)
+{
+	unsigned int l;
+
+	len = min(len, f->in - f->out);
+	smp_rmb();
+	l = min(len, f->size - (f->out & (f->size - 1)));
+	memcpy(buf, f->buffer + (f->out & (f->size - 1)), l);
+	memcpy(buf + l, f->buffer, len - l);
+	smp_mb();
+	f->out += len;
+
+	return len;
+}
+
+struct fifo_t * fifo_alloc(unsigned int size)
 {
 	struct fifo_t * f;
+
+	if(size & (size - 1))
+		size = roundup_pow_of_two(size);
 
 	f = malloc(sizeof(struct fifo_t));
 	if(!f)
@@ -50,119 +99,50 @@ void fifo_free(struct fifo_t * f)
 }
 EXPORT_SYMBOL(fifo_free);
 
-void fifo_clear(struct fifo_t * f)
+void fifo_reset(struct fifo_t * f)
 {
 	irq_flags_t flags;
-
-	if(f)
-	{
-		spin_lock_irqsave(&f->lock, flags);
-		f->in = 0;
-		f->out = 0;
-		spin_unlock_irqrestore(&f->lock, flags);
-	}
-}
-EXPORT_SYMBOL(fifo_clear);
-
-bool_t fifo_isempty(struct fifo_t * f)
-{
-	irq_flags_t flags;
-	bool_t ret = FALSE;
-
-	if(!f)
-		return TRUE;
 
 	spin_lock_irqsave(&f->lock, flags);
-	if(f->in - f->out <= 0)
-		ret = TRUE;
+	__fifo_reset(f);
 	spin_unlock_irqrestore(&f->lock, flags);
-	return ret;
 }
-EXPORT_SYMBOL(fifo_isempty);
+EXPORT_SYMBOL(fifo_reset);
 
-bool_t fifo_isfull(struct fifo_t * f)
+unsigned int fifo_len(struct fifo_t * f)
 {
 	irq_flags_t flags;
-	bool_t ret = FALSE;
-
-	if(!f)
-		return TRUE;
+	unsigned int ret;
 
 	spin_lock_irqsave(&f->lock, flags);
-	if(f->in - f->out >= f->size)
-		ret = TRUE;
-	spin_unlock_irqrestore(&f->lock, flags);
-	return ret;
-}
-EXPORT_SYMBOL(fifo_isfull);
-
-size_t fifo_avail(struct fifo_t * f)
-{
-	irq_flags_t flags;
-	size_t ret = 0;
-
-	if(f)
-	{
-		spin_lock_irqsave(&f->lock, flags);
-		ret = f->in - f->out;
-		spin_unlock_irqrestore(&f->lock, flags);
-	}
-	return ret;
-}
-EXPORT_SYMBOL(fifo_avail);
-
-size_t fifo_put(struct fifo_t * f, u8_t * buf, size_t len)
-{
-	irq_flags_t flags;
-	size_t ret = 0;
-	size_t l;
-
-	if(!f || !buf)
-		return 0;
-
-	spin_lock_irqsave(&f->lock, flags);
-	ret = MIN(len, f->size - f->in + f->out);
-	if(ret > 0)
-	{
-		l = MIN(ret, f->size - (f->in % f->size));
-		memcpy(f->buffer + (f->in % f->size), buf, l);
-		memcpy(f->buffer, buf + l, ret - l);
-		f->in += ret;
-	}
-	else
-	{
-		ret = 0;
-	}
+	ret = __fifo_len(f);
 	spin_unlock_irqrestore(&f->lock, flags);
 
 	return ret;
 }
-EXPORT_SYMBOL(fifo_put);
+EXPORT_SYMBOL(fifo_len);
 
-size_t fifo_get(struct fifo_t * f, u8_t * buf, size_t len)
+unsigned int fifo_put(struct fifo_t * f, unsigned char * buf, unsigned int len)
 {
 	irq_flags_t flags;
-	size_t ret = 0;
-	size_t l;
-
-	if(!f || !buf)
-		return 0;
+	unsigned int ret;
 
 	spin_lock_irqsave(&f->lock, flags);
-	ret = MIN(len, f->in - f->out);
-	if(ret > 0)
-	{
-		l = MIN(ret, f->size - (f->out % f->size));
-		memcpy(buf, f->buffer + (f->out % f->size), l);
-		memcpy(buf + l, f->buffer, ret - l);
-		f->out += ret;
-		if(f->in == f->out)
-			f->in = f->out = 0;
-	}
-	else
-	{
-		ret = 0;
-	}
+	ret = __fifo_put(f, buf, len);
+	spin_unlock_irqrestore(&f->lock, flags);
+
+	return ret;
+}
+
+unsigned int fifo_get(struct fifo_t * f, unsigned char * buf, unsigned int len)
+{
+	irq_flags_t flags;
+	unsigned int ret;
+
+	spin_lock_irqsave(&f->lock, flags);
+	ret = __fifo_get(f, buf, len);
+	if(f->in == f->out)
+		f->in = f->out = 0;
 	spin_unlock_irqrestore(&f->lock, flags);
 
 	return ret;

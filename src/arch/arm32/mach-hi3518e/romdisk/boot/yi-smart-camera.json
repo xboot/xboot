@@ -1,0 +1,176 @@
+{
+	"clk-fixed@0": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
+	"clk-fixed@3": { "name": "osc3m", "rate": 3000000 },
+
+	"clk-hi3518e-pll@0x20030000": { "parent": "osc24m", "name": "apll" },
+	"clk-hi3518e-pll@0x20030008": { "parent": "osc24m", "name": "vpll0" },
+	"clk-hi3518e-pll@0x20030010": { "parent": "osc24m", "name": "bpll" },
+	"clk-hi3518e-pll@0x20030020": { "parent": "osc24m", "name": "epll" },
+
+	"clk-fixed-factor@0": { "parent": "bpll", "name": "axi", "mult": 1, "div": 2 },
+	"clk-fixed-factor@1": { "parent": "bpll", "name": "apb", "mult": 1, "div": 4 },
+
+	"clk-mux@0x20050000": {
+		"parent": [
+			{ "name": "osc3m", "value": 0 },
+			{ "name": "apb", "value": 1 }
+		],
+		"name": "mux-timer0", "shift": 16, "width": 1
+	},
+	"clk-mux@0x20050000": {
+		"parent": [
+			{ "name": "osc3m", "value": 0 },
+			{ "name": "apb", "value": 1 }
+		],
+		"name": "mux-timer1", "shift": 18, "width": 1
+	},
+	"clk-mux@0x20050000": {
+		"parent": [
+			{ "name": "osc3m", "value": 0 },
+			{ "name": "apb", "value": 1 }
+		],
+		"name": "mux-timer2", "shift": 20, "width": 1
+	},
+	"clk-mux@0x20050000": {
+		"parent": [
+			{ "name": "osc3m", "value": 0 },
+			{ "name": "apb", "value": 1 }
+		],
+		"name": "mux-timer3", "shift": 22, "width": 1
+	},
+	"clk-link": { "parent": "mux-timer0", "name": "link-timer0" },
+	"clk-link": { "parent": "mux-timer1", "name": "link-timer1" },
+	"clk-link": { "parent": "mux-timer2", "name": "link-timer2" },
+	"clk-link": { "parent": "mux-timer3", "name": "link-timer3" },
+
+	"clk-mux@0x20050000": {
+		"parent": [
+			{ "name": "osc3m", "value": 0 },
+			{ "name": "apb", "value": 1 }
+		],
+		"name": "mux-wdg", "shift": 23, "width": 1
+	},
+	"clk-link": { "parent": "mux-wdg", "name": "link-wdg" },
+
+	"clk-link": { "parent": "osc3m", "name": "link-uart0" },
+	"clk-link": { "parent": "osc3m", "name": "link-uart1" },
+	"clk-link": { "parent": "osc3m", "name": "link-uart2" },
+
+	"irq-pl190@0x10140000": { "interrupt-base":  0, "interrupt-count": 32 },
+
+	"gpio-hi3518e@0x20140000": { "gpio-base":  0, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x20150000": { "gpio-base":  8, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x20160000": { "gpio-base": 16, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x20170000": { "gpio-base": 24, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x20180000": { "gpio-base": 32, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x20190000": { "gpio-base": 40, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x201a0000": { "gpio-base": 48, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x201b0000": { "gpio-base": 56, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x201d0000": { "gpio-base": 72, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x201e0000": { "gpio-base": 80, "gpio-count": 8, "interrupt-offset": -1 },
+	"gpio-hi3518e@0x201f0000": { "gpio-base": 88, "gpio-count": 7, "interrupt-offset": -1 },
+
+	"ce-sp804@0x20000000": {
+		"clock-name": "link-timer0",
+		"interrupt": 3,
+		"timer-channel": 0
+	},
+
+	"cs-sp804@0x20010000": {
+		"clock-name": "link-timer2",
+		"timer-channel": 0
+	},
+
+	"uart-pl011@0x20080000": {
+		"clock-name": "link-uart0",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-pl011@0x20090000": {
+		"clock-name": "link-uart1",
+		"txd-gpio": 21,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 19,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-pl011@0x200a0000": {
+		"clock-name": "link-uart2",
+		"txd-gpio": 63,
+		"txd-gpio-config": 1,
+		"rxd-gpio": 62,
+		"rxd-gpio-config": 1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"i2c-gpio": {
+		"sda-gpio": 16,
+		"sda-gpio-config": 0,
+		"scl-gpio": 17,
+		"scl-gpio-config": 0,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"scl-output-only": false,
+		"delay-us": 5
+	},
+
+	"spi-gpio@0": {
+		"sclk-gpio": 12,
+		"sclk-gpio-config": 1,
+		"mosi-gpio": 13,
+		"mosi-gpio-config": 1,
+		"miso-gpio": 14,
+		"miso-gpio-config": 1,
+		"cs-gpio": -1,
+		"cs-gpio-config": -1
+	},
+	
+	"spi-gpio@1": {
+		"sclk-gpio": 44,
+		"sclk-gpio-config": 1,
+		"mosi-gpio": 45,
+		"mosi-gpio-config": 1,
+		"miso-gpio": 46,
+		"miso-gpio-config": 1,
+		"cs-gpio": 47,
+		"cs-gpio-config": 1
+	},
+
+	"led-gpio@0": {
+		"gpio": 34,
+		"gpio-config": 0,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@1": {
+		"gpio": 35,
+		"gpio-config": 0,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"ledtrig-heartbeat@0": {
+		"led-name": "led-gpio.0",
+		"period-ms": 1260
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-pl011.0"
+	}
+}

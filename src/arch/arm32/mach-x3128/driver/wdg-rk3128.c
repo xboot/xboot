@@ -1,5 +1,5 @@
 /*
- * driver/wdog-rk3288.c
+ * driver/wdg-rk3128.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -35,14 +35,14 @@ enum {
 	WDT_EOI		= 0x14,
 };
 
-struct wdog_rk3288_pdata_t {
+struct wdg_rk3128_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
 };
 
-static void wdog_rk3288_set(struct watchdog_t * watchdog, int timeout)
+static void wdg_rk3128_set(struct watchdog_t * watchdog, int timeout)
 {
-	struct wdog_rk3288_pdata_t * pdat = (struct wdog_rk3288_pdata_t *)watchdog->priv;
+	struct wdg_rk3128_pdata_t * pdat = (struct wdg_rk3128_pdata_t *)watchdog->priv;
 	u64_t rate = clk_get_rate(pdat->clk);
 	int maxtime = 0x80000000 / clk_get_rate(pdat->clk) + 1;
 
@@ -76,16 +76,16 @@ static void wdog_rk3288_set(struct watchdog_t * watchdog, int timeout)
 	}
 }
 
-static int wdog_rk3288_get(struct watchdog_t * watchdog)
+static int wdg_rk3128_get(struct watchdog_t * watchdog)
 {
-	struct wdog_rk3288_pdata_t * pdat = (struct wdog_rk3288_pdata_t *)watchdog->priv;
+	struct wdg_rk3128_pdata_t * pdat = (struct wdg_rk3128_pdata_t *)watchdog->priv;
 	return (int)(read32(pdat->virt + WDT_CCVR) / clk_get_rate(pdat->clk));
 }
 
-static struct device_t * wdog_rk3288_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * wdg_rk3128_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct wdog_rk3288_pdata_t * pdat;
-	struct watchdog_t * wdog;
+	struct wdg_rk3128_pdata_t * pdat;
+	struct watchdog_t * wdg;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 	char * clk = dt_read_string(n, "clock-name", NULL);
@@ -93,12 +93,12 @@ static struct device_t * wdog_rk3288_probe(struct driver_t * drv, struct dtnode_
 	if(!search_clk(clk))
 		return NULL;
 
-	pdat = malloc(sizeof(struct wdog_rk3288_pdata_t));
+	pdat = malloc(sizeof(struct wdg_rk3128_pdata_t));
 	if(!pdat)
 		return NULL;
 
-	wdog = malloc(sizeof(struct watchdog_t));
-	if(!wdog)
+	wdg = malloc(sizeof(struct watchdog_t));
+	if(!wdg)
 	{
 		free(pdat);
 		return NULL;
@@ -107,25 +107,25 @@ static struct device_t * wdog_rk3288_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 
-	wdog->name = alloc_device_name(dt_read_name(n), -1);
-	wdog->set = wdog_rk3288_set;
-	wdog->get = wdog_rk3288_get;
-	wdog->priv = pdat;
+	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->set = wdg_rk3128_set;
+	wdg->get = wdg_rk3128_get;
+	wdg->priv = pdat;
 
 	clk_enable(pdat->clk);
 	write32(pdat->virt + WDT_CRR, 0x76);
 	write32(pdat->virt + WDT_CR, 0x0);
 
-	if(!register_watchdog(&dev, wdog))
+	if(!register_watchdog(&dev, wdg))
 	{
 		write32(pdat->virt + WDT_CRR, 0x76);
 		write32(pdat->virt + WDT_CR, 0x0);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
 
-		free_device_name(wdog->name);
-		free(wdog->priv);
-		free(wdog);
+		free_device_name(wdg->name);
+		free(wdg->priv);
+		free(wdg);
 		return NULL;
 	}
 	dev->driver = drv;
@@ -133,49 +133,49 @@ static struct device_t * wdog_rk3288_probe(struct driver_t * drv, struct dtnode_
 	return dev;
 }
 
-static void wdog_rk3288_remove(struct device_t * dev)
+static void wdg_rk3128_remove(struct device_t * dev)
 {
-	struct watchdog_t * wdog = (struct watchdog_t *)dev->priv;
-	struct wdog_rk3288_pdata_t * pdat = (struct wdog_rk3288_pdata_t *)wdog->priv;
+	struct watchdog_t * wdg = (struct watchdog_t *)dev->priv;
+	struct wdg_rk3128_pdata_t * pdat = (struct wdg_rk3128_pdata_t *)wdg->priv;
 
-	if(wdog && unregister_watchdog(wdog))
+	if(wdg && unregister_watchdog(wdg))
 	{
 		write32(pdat->virt + WDT_CRR, 0x76);
 		write32(pdat->virt + WDT_CR, 0x0);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
 
-		free_device_name(wdog->name);
-		free(wdog->priv);
-		free(wdog);
+		free_device_name(wdg->name);
+		free(wdg->priv);
+		free(wdg);
 	}
 }
 
-static void wdog_rk3288_suspend(struct device_t * dev)
+static void wdg_rk3128_suspend(struct device_t * dev)
 {
 }
 
-static void wdog_rk3288_resume(struct device_t * dev)
+static void wdg_rk3128_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t wdog_rk3288 = {
-	.name		= "wdog-rk3288",
-	.probe		= wdog_rk3288_probe,
-	.remove		= wdog_rk3288_remove,
-	.suspend	= wdog_rk3288_suspend,
-	.resume		= wdog_rk3288_resume,
+static struct driver_t wdg_rk3128 = {
+	.name		= "wdg-rk3128",
+	.probe		= wdg_rk3128_probe,
+	.remove		= wdg_rk3128_remove,
+	.suspend	= wdg_rk3128_suspend,
+	.resume		= wdg_rk3128_resume,
 };
 
-static __init void wdog_rk3288_driver_init(void)
+static __init void wdg_rk3128_driver_init(void)
 {
-	register_driver(&wdog_rk3288);
+	register_driver(&wdg_rk3128);
 }
 
-static __exit void wdog_rk3288_driver_exit(void)
+static __exit void wdg_rk3128_driver_exit(void)
 {
-	unregister_driver(&wdog_rk3288);
+	unregister_driver(&wdg_rk3128);
 }
 
-driver_initcall(wdog_rk3288_driver_init);
-driver_exitcall(wdog_rk3288_driver_exit);
+driver_initcall(wdg_rk3128_driver_init);
+driver_exitcall(wdg_rk3128_driver_exit);

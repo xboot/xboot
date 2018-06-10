@@ -314,7 +314,7 @@
 		"speed": 50000000
 	},
 
-	"wdog-f1c100s@0x01c20ca0": {
+	"wdg-f1c100s@0x01c20ca0": {
 		"clock-name": "link-wdt"
 	},
 

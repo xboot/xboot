@@ -424,7 +424,7 @@
 		"speed": 50000000
 	},
 
-	"wdog-h3@0x01c20ca0": {
+	"wdg-h3@0x01c20ca0": {
 		"clock-name": "link-wdt"
 	},
 

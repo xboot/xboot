@@ -820,7 +820,7 @@
 		"slave-address": 50
 	},
 
-	"wdog-rk3288@0xff800000": {
+	"wdg-rk3288@0xff800000": {
 		"clock-name": "pclk-pd-alive"
 	},
 

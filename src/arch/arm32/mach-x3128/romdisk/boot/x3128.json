@@ -420,7 +420,7 @@
 		"slave-address": 26
 	},
 
-	"wdog-rk3128@0x2004c000": {
+	"wdg-rk3128@0x2004c000": {
 		"clock-name": "link-wdt"
 	},
 

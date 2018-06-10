@@ -515,7 +515,7 @@
 		"slave-address": 16
 	},
 
-	"wdog-rk3399@0xff848000": {
+	"wdg-rk3399@0xff848000": {
 		"clock-name": "pclk-alive"
 	},
 

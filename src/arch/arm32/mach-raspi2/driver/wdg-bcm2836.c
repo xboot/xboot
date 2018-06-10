@@ -1,5 +1,5 @@
 /*
- * driver/wdog-bcm2837.c
+ * driver/wdg-bcm2836.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -29,7 +29,7 @@
  * WatchDog - Broadcom BCM2836 watchdog timer
  *
  * Example:
- *   "wdog-bcm2837@0x3f100000": {
+ *   "wdg-bcm2836@0x3f100000": {
  *   }
  */
 
@@ -48,14 +48,14 @@ enum {
 	PM_WDOG = 0x24,
 };
 
-struct wdog_bcm2837_pdata_t {
+struct wdg_bcm2836_pdata_t {
 	virtual_addr_t virt;
 	int start;
 };
 
-static void wdog_bcm2837_set(struct watchdog_t * watchdog, int timeout)
+static void wdg_bcm2836_set(struct watchdog_t * watchdog, int timeout)
 {
-	struct wdog_bcm2837_pdata_t * pdat = (struct wdog_bcm2837_pdata_t *)watchdog->priv;
+	struct wdg_bcm2836_pdata_t * pdat = (struct wdg_bcm2836_pdata_t *)watchdog->priv;
 	u32_t val;
 
 	if(timeout < 0)
@@ -77,25 +77,25 @@ static void wdog_bcm2837_set(struct watchdog_t * watchdog, int timeout)
 	}
 }
 
-static int wdog_bcm2837_get(struct watchdog_t * watchdog)
+static int wdg_bcm2836_get(struct watchdog_t * watchdog)
 {
-	struct wdog_bcm2837_pdata_t * pdat = (struct wdog_bcm2837_pdata_t *)watchdog->priv;
+	struct wdg_bcm2836_pdata_t * pdat = (struct wdg_bcm2836_pdata_t *)watchdog->priv;
 	return (pdat->start != 0) ? ((read32(pdat->virt + PM_WDOG) & PM_WDOG_TIME_SET) >> 16) : 0;
 }
 
-static struct device_t * wdog_bcm2837_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * wdg_bcm2836_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct wdog_bcm2837_pdata_t * pdat;
-	struct watchdog_t * wdog;
+	struct wdg_bcm2836_pdata_t * pdat;
+	struct watchdog_t * wdg;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 
-	pdat = malloc(sizeof(struct wdog_bcm2837_pdata_t));
+	pdat = malloc(sizeof(struct wdg_bcm2836_pdata_t));
 	if(!pdat)
 		return NULL;
 
-	wdog = malloc(sizeof(struct watchdog_t));
-	if(!wdog)
+	wdg = malloc(sizeof(struct watchdog_t));
+	if(!wdg)
 	{
 		free(pdat);
 		return NULL;
@@ -104,16 +104,16 @@ static struct device_t * wdog_bcm2837_probe(struct driver_t * drv, struct dtnode
 	pdat->virt = virt;
 	pdat->start = 0;
 
-	wdog->name = alloc_device_name(dt_read_name(n), -1);
-	wdog->set = wdog_bcm2837_set;
-	wdog->get = wdog_bcm2837_get;
-	wdog->priv = pdat;
+	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->set = wdg_bcm2836_set;
+	wdg->get = wdg_bcm2836_get;
+	wdg->priv = pdat;
 
-	if(!register_watchdog(&dev, wdog))
+	if(!register_watchdog(&dev, wdg))
 	{
-		free_device_name(wdog->name);
-		free(wdog->priv);
-		free(wdog);
+		free_device_name(wdg->name);
+		free(wdg->priv);
+		free(wdg);
 		return NULL;
 	}
 	dev->driver = drv;
@@ -121,43 +121,43 @@ static struct device_t * wdog_bcm2837_probe(struct driver_t * drv, struct dtnode
 	return dev;
 }
 
-static void wdog_bcm2837_remove(struct device_t * dev)
+static void wdg_bcm2836_remove(struct device_t * dev)
 {
-	struct watchdog_t * wdog = (struct watchdog_t *)dev->priv;
+	struct watchdog_t * wdg = (struct watchdog_t *)dev->priv;
 
-	if(wdog && unregister_watchdog(wdog))
+	if(wdg && unregister_watchdog(wdg))
 	{
-		free_device_name(wdog->name);
-		free(wdog->priv);
-		free(wdog);
+		free_device_name(wdg->name);
+		free(wdg->priv);
+		free(wdg);
 	}
 }
 
-static void wdog_bcm2837_suspend(struct device_t * dev)
+static void wdg_bcm2836_suspend(struct device_t * dev)
 {
 }
 
-static void wdog_bcm2837_resume(struct device_t * dev)
+static void wdg_bcm2836_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t wdog_bcm2837 = {
-	.name		= "wdog-bcm2837",
-	.probe		= wdog_bcm2837_probe,
-	.remove		= wdog_bcm2837_remove,
-	.suspend	= wdog_bcm2837_suspend,
-	.resume		= wdog_bcm2837_resume,
+static struct driver_t wdg_bcm2836 = {
+	.name		= "wdg-bcm2836",
+	.probe		= wdg_bcm2836_probe,
+	.remove		= wdg_bcm2836_remove,
+	.suspend	= wdg_bcm2836_suspend,
+	.resume		= wdg_bcm2836_resume,
 };
 
-static __init void wdog_bcm2837_driver_init(void)
+static __init void wdg_bcm2836_driver_init(void)
 {
-	register_driver(&wdog_bcm2837);
+	register_driver(&wdg_bcm2836);
 }
 
-static __exit void wdog_bcm2837_driver_exit(void)
+static __exit void wdg_bcm2836_driver_exit(void)
 {
-	unregister_driver(&wdog_bcm2837);
+	unregister_driver(&wdg_bcm2836);
 }
 
-driver_initcall(wdog_bcm2837_driver_init);
-driver_exitcall(wdog_bcm2837_driver_exit);
+driver_initcall(wdg_bcm2836_driver_init);
+driver_exitcall(wdg_bcm2836_driver_exit);

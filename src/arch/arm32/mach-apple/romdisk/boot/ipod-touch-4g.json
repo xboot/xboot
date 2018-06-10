@@ -166,7 +166,7 @@
 		"poll-interval-ms": 100
 	},
 
-	"wdog-s5l8930@0xbf102020": {
+	"wdg-s5l8930@0xbf102020": {
 		"clock-name": "xin24m"
 	},
 

@@ -234,7 +234,7 @@
 		"stop-bits": 1
 	},
 
-	"wdog-s5pv210@0xe2700000": {
+	"wdg-s5pv210@0xe2700000": {
 		"clock-name": "link-wdt"
 	},
 

@@ -1,5 +1,5 @@
 /*
- * driver/wdog-s5pv210.c
+ * driver/wdg-s5pv210.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -33,14 +33,14 @@ enum {
 	WTCLRINT	= 0x0c,
 };
 
-struct wdog_s5pv210_pdata_t {
+struct wdg_s5pv210_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
 };
 
-static void wdog_s5pv210_set(struct watchdog_t * watchdog, int timeout)
+static void wdg_s5pv210_set(struct watchdog_t * watchdog, int timeout)
 {
-	struct wdog_s5pv210_pdata_t * pdat = (struct wdog_s5pv210_pdata_t *)watchdog->priv;
+	struct wdg_s5pv210_pdata_t * pdat = (struct wdg_s5pv210_pdata_t *)watchdog->priv;
 	u64_t rate = clk_get_rate(pdat->clk);
 	u32_t max = (int)(65535 * (256 * 128) / rate);
 	u32_t val;
@@ -64,9 +64,9 @@ static void wdog_s5pv210_set(struct watchdog_t * watchdog, int timeout)
 	}
 }
 
-static int wdog_s5pv210_get(struct watchdog_t * watchdog)
+static int wdg_s5pv210_get(struct watchdog_t * watchdog)
 {
-	struct wdog_s5pv210_pdata_t * pdat = (struct wdog_s5pv210_pdata_t *)watchdog->priv;
+	struct wdg_s5pv210_pdata_t * pdat = (struct wdg_s5pv210_pdata_t *)watchdog->priv;
 	u64_t rate = clk_get_rate(pdat->clk);
 	u32_t val = read32(pdat->virt + WTCNT) & 0xffff;
 	if(rate == 0)
@@ -74,10 +74,10 @@ static int wdog_s5pv210_get(struct watchdog_t * watchdog)
 	return (int)(val * (256 * 128) / rate);
 }
 
-static struct device_t * wdog_s5pv210_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * wdg_s5pv210_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct wdog_s5pv210_pdata_t * pdat;
-	struct watchdog_t * wdog;
+	struct wdg_s5pv210_pdata_t * pdat;
+	struct watchdog_t * wdg;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 	char * clk = dt_read_string(n, "clock-name", NULL);
@@ -85,12 +85,12 @@ static struct device_t * wdog_s5pv210_probe(struct driver_t * drv, struct dtnode
 	if(!search_clk(clk))
 		return NULL;
 
-	pdat = malloc(sizeof(struct wdog_s5pv210_pdata_t));
+	pdat = malloc(sizeof(struct wdg_s5pv210_pdata_t));
 	if(!pdat)
 		return NULL;
 
-	wdog = malloc(sizeof(struct watchdog_t));
-	if(!wdog)
+	wdg = malloc(sizeof(struct watchdog_t));
+	if(!wdg)
 	{
 		free(pdat);
 		return NULL;
@@ -99,24 +99,24 @@ static struct device_t * wdog_s5pv210_probe(struct driver_t * drv, struct dtnode
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 
-	wdog->name = alloc_device_name(dt_read_name(n), -1);
-	wdog->set = wdog_s5pv210_set;
-	wdog->get = wdog_s5pv210_get;
-	wdog->priv = pdat;
+	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->set = wdg_s5pv210_set;
+	wdg->get = wdg_s5pv210_get;
+	wdg->priv = pdat;
 
 	clk_enable(pdat->clk);
 	write32(pdat->virt + WTCON, 0x0);
 	write32(pdat->virt + WTDAT, 0x0);
 	write32(pdat->virt + WTCNT, 0x0);
 
-	if(!register_watchdog(&dev, wdog))
+	if(!register_watchdog(&dev, wdg))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
 
-		free_device_name(wdog->name);
-		free(wdog->priv);
-		free(wdog);
+		free_device_name(wdg->name);
+		free(wdg->priv);
+		free(wdg);
 		return NULL;
 	}
 	dev->driver = drv;
@@ -124,48 +124,48 @@ static struct device_t * wdog_s5pv210_probe(struct driver_t * drv, struct dtnode
 	return dev;
 }
 
-static void wdog_s5pv210_remove(struct device_t * dev)
+static void wdg_s5pv210_remove(struct device_t * dev)
 {
-	struct watchdog_t * wdog = (struct watchdog_t *)dev->priv;
-	struct wdog_s5pv210_pdata_t * pdat = (struct wdog_s5pv210_pdata_t *)wdog->priv;
+	struct watchdog_t * wdg = (struct watchdog_t *)dev->priv;
+	struct wdg_s5pv210_pdata_t * pdat = (struct wdg_s5pv210_pdata_t *)wdg->priv;
 
-	if(wdog && unregister_watchdog(wdog))
+	if(wdg && unregister_watchdog(wdg))
 	{
 		write32(pdat->virt + WTCON, 0x0);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
 
-		free_device_name(wdog->name);
-		free(wdog->priv);
-		free(wdog);
+		free_device_name(wdg->name);
+		free(wdg->priv);
+		free(wdg);
 	}
 }
 
-static void wdog_s5pv210_suspend(struct device_t * dev)
+static void wdg_s5pv210_suspend(struct device_t * dev)
 {
 }
 
-static void wdog_s5pv210_resume(struct device_t * dev)
+static void wdg_s5pv210_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t wdog_s5pv210 = {
-	.name		= "wdog-s5pv210",
-	.probe		= wdog_s5pv210_probe,
-	.remove		= wdog_s5pv210_remove,
-	.suspend	= wdog_s5pv210_suspend,
-	.resume		= wdog_s5pv210_resume,
+static struct driver_t wdg_s5pv210 = {
+	.name		= "wdg-s5pv210",
+	.probe		= wdg_s5pv210_probe,
+	.remove		= wdg_s5pv210_remove,
+	.suspend	= wdg_s5pv210_suspend,
+	.resume		= wdg_s5pv210_resume,
 };
 
-static __init void wdog_s5pv210_driver_init(void)
+static __init void wdg_s5pv210_driver_init(void)
 {
-	register_driver(&wdog_s5pv210);
+	register_driver(&wdg_s5pv210);
 }
 
-static __exit void wdog_s5pv210_driver_exit(void)
+static __exit void wdg_s5pv210_driver_exit(void)
 {
-	unregister_driver(&wdog_s5pv210);
+	unregister_driver(&wdg_s5pv210);
 }
 
-driver_initcall(wdog_s5pv210_driver_init);
-driver_exitcall(wdog_s5pv210_driver_exit);
+driver_initcall(wdg_s5pv210_driver_init);
+driver_exitcall(wdg_s5pv210_driver_exit);

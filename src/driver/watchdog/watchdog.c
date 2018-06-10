@@ -27,19 +27,19 @@
 
 static ssize_t watchdog_read_timeout(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct watchdog_t * watchdog = (struct watchdog_t *)kobj->priv;
+	struct watchdog_t * wdg = (struct watchdog_t *)kobj->priv;
 	int timeout;
 
-	timeout = watchdog_get_timeout(watchdog);
+	timeout = watchdog_get_timeout(wdg);
 	return sprintf(buf, "%d", timeout);
 }
 
 static ssize_t watchdog_write_timeout(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct watchdog_t * watchdog = (struct watchdog_t *)kobj->priv;
+	struct watchdog_t * wdg = (struct watchdog_t *)kobj->priv;
 	int timeout = strtol(buf, NULL, 0);
 
-	watchdog_set_timeout(watchdog, timeout);
+	watchdog_set_timeout(wdg, timeout);
 	return size;
 }
 
@@ -65,22 +65,22 @@ struct watchdog_t * search_first_watchdog(void)
 	return (struct watchdog_t *)dev->priv;
 }
 
-bool_t register_watchdog(struct device_t ** device,struct watchdog_t * watchdog)
+bool_t register_watchdog(struct device_t ** device,struct watchdog_t * wdg)
 {
 	struct device_t * dev;
 
-	if(!watchdog || !watchdog->name)
+	if(!wdg || !wdg->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name = strdup(watchdog->name);
+	dev->name = strdup(wdg->name);
 	dev->type = DEVICE_TYPE_WATCHDOG;
-	dev->priv = watchdog;
+	dev->priv = wdg;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "timeout", watchdog_read_timeout, watchdog_write_timeout, watchdog);
+	kobj_add_regular(dev->kobj, "timeout", watchdog_read_timeout, watchdog_write_timeout, wdg);
 
 	if(!register_device(dev))
 	{
@@ -95,14 +95,14 @@ bool_t register_watchdog(struct device_t ** device,struct watchdog_t * watchdog)
 	return TRUE;
 }
 
-bool_t unregister_watchdog(struct watchdog_t * watchdog)
+bool_t unregister_watchdog(struct watchdog_t * wdg)
 {
 	struct device_t * dev;
 
-	if(!watchdog || !watchdog->name)
+	if(!wdg || !wdg->name)
 		return FALSE;
 
-	dev = search_device(watchdog->name, DEVICE_TYPE_WATCHDOG);
+	dev = search_device(wdg->name, DEVICE_TYPE_WATCHDOG);
 	if(!dev)
 		return FALSE;
 
@@ -115,19 +115,19 @@ bool_t unregister_watchdog(struct watchdog_t * watchdog)
 	return TRUE;
 }
 
-void watchdog_set_timeout(struct watchdog_t * watchdog, int timeout)
+void watchdog_set_timeout(struct watchdog_t * wdg, int timeout)
 {
-	if(watchdog && watchdog->set)
+	if(wdg && wdg->set)
 	{
 		if(timeout < 0)
 			timeout = 0;
-		watchdog->set(watchdog, timeout);
+		wdg->set(wdg, timeout);
 	}
 }
 
-int watchdog_get_timeout(struct watchdog_t * watchdog)
+int watchdog_get_timeout(struct watchdog_t * wdg)
 {
-	if(watchdog && watchdog->get)
-		return watchdog->get(watchdog);
+	if(wdg && wdg->get)
+		return wdg->get(wdg);
 	return 0;
 }

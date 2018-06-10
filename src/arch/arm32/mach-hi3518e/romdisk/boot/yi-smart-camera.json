@@ -151,6 +151,10 @@
 		"cs-gpio-config": 1
 	},
 
+	"wdg-sp805@0x20040000": {
+		"clock-name": "link-wdg"
+	},
+
 	"led-gpio@0": {
 		"gpio": 34,
 		"gpio-config": 0,

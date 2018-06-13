@@ -119,6 +119,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/clk									\
 				driver/clockevent							\
 				driver/clocksource							\
+				driver/compass								\
 				driver/console								\
 				driver/dac									\
 				driver/dma									\

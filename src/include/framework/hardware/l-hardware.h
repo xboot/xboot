@@ -10,6 +10,7 @@ extern "C" {
 #define	MT_HARDWARE_ADC			"mt_hardware_adc"
 #define	MT_HARDWARE_BATTERY		"mt_hardware_battery"
 #define	MT_HARDWARE_BUZZER		"mt_hardware_buzzer"
+#define	MT_HARDWARE_COMPASS		"mt_hardware_compass"
 #define	MT_HARDWARE_DAC			"mt_hardware_dac"
 #define	MT_HARDWARE_GMETER		"mt_hardware_gmeter"
 #define	MT_HARDWARE_GPIO		"mt_hardware_gpio"
@@ -32,6 +33,7 @@ extern "C" {
 int luaopen_hardware_adc(lua_State * L);
 int luaopen_hardware_battery(lua_State * L);
 int luaopen_hardware_buzzer(lua_State * L);
+int luaopen_hardware_compass(lua_State * L);
 int luaopen_hardware_dac(lua_State * L);
 int luaopen_hardware_gmeter(lua_State * L);
 int luaopen_hardware_gpio(lua_State * L);

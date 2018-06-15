@@ -95,9 +95,9 @@ static bool_t lis331dlh_write(struct i2c_device_t * dev, u8_t reg, u8_t val)
     return TRUE;
 }
 
-static bool_t gmeter_lis331dlh_get(struct gmeter_t * gmeter, int * x, int * y, int * z)
+static bool_t gmeter_lis331dlh_get(struct gmeter_t * g, int * x, int * y, int * z)
 {
-	struct gmeter_lis331dlh_pdata_t * pdat = (struct gmeter_lis331dlh_pdata_t *)gmeter->priv;
+	struct gmeter_lis331dlh_pdata_t * pdat = (struct gmeter_lis331dlh_pdata_t *)g->priv;
 	u8_t s, l = 0, h = 0;
 	s16_t tx, ty, tz;
 
@@ -126,7 +126,7 @@ static bool_t gmeter_lis331dlh_get(struct gmeter_t * gmeter, int * x, int * y, i
 static struct device_t * gmeter_lis331dlh_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct gmeter_lis331dlh_pdata_t * pdat;
-	struct gmeter_t * gmeter;
+	struct gmeter_t * g;
 	struct device_t * dev;
 	struct i2c_device_t * i2cdev;
 	u8_t val;
@@ -154,8 +154,8 @@ static struct device_t * gmeter_lis331dlh_probe(struct driver_t * drv, struct dt
 		return NULL;
 	}
 
-	gmeter = malloc(sizeof(struct gmeter_t));
-	if(!gmeter)
+	g = malloc(sizeof(struct gmeter_t));
+	if(!g)
 	{
 		i2c_device_free(i2cdev);
 		free(pdat);
@@ -164,17 +164,17 @@ static struct device_t * gmeter_lis331dlh_probe(struct driver_t * drv, struct dt
 
 	pdat->dev = i2cdev;
 
-	gmeter->name = alloc_device_name(dt_read_name(n), -1);
-	gmeter->get = gmeter_lis331dlh_get;
-	gmeter->priv = pdat;
+	g->name = alloc_device_name(dt_read_name(n), -1);
+	g->get = gmeter_lis331dlh_get;
+	g->priv = pdat;
 
-	if(!register_gmeter(&dev, gmeter))
+	if(!register_gmeter(&dev, g))
 	{
 		i2c_device_free(pdat->dev);
 
-		free_device_name(gmeter->name);
-		free(gmeter->priv);
-		free(gmeter);
+		free_device_name(g->name);
+		free(g->priv);
+		free(g);
 		return NULL;
 	}
 	dev->driver = drv;
@@ -184,16 +184,16 @@ static struct device_t * gmeter_lis331dlh_probe(struct driver_t * drv, struct dt
 
 static void gmeter_lis331dlh_remove(struct device_t * dev)
 {
-	struct gmeter_t * gmeter = (struct gmeter_t *)dev->priv;
-	struct gmeter_lis331dlh_pdata_t * pdat = (struct gmeter_lis331dlh_pdata_t *)gmeter->priv;
+	struct gmeter_t * g = (struct gmeter_t *)dev->priv;
+	struct gmeter_lis331dlh_pdata_t * pdat = (struct gmeter_lis331dlh_pdata_t *)g->priv;
 
-	if(gmeter && unregister_gmeter(gmeter))
+	if(g && unregister_gmeter(g))
 	{
 		i2c_device_free(pdat->dev);
 
-		free_device_name(gmeter->name);
-		free(gmeter->priv);
-		free(gmeter);
+		free_device_name(g->name);
+		free(g->priv);
+		free(g);
 	}
 }
 

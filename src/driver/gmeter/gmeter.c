@@ -27,9 +27,9 @@
 
 static ssize_t gmeter_read_acceleration(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct gmeter_t * gmeter = (struct gmeter_t *)kobj->priv;
+	struct gmeter_t * g = (struct gmeter_t *)kobj->priv;
 	int x = 0, y = 0, z = 0;
-	gmeter_get_acceleration(gmeter, &x, &y, &z);
+	gmeter_get_acceleration(g, &x, &y, &z);
 	return sprintf(buf, "[%d.%06d %d.%06d %d.%06d] m/s^2", x / 1000000, abs(x % 1000000), y / 1000000, abs(y % 1000000), z / 1000000, abs(z % 1000000));
 }
 
@@ -53,22 +53,22 @@ struct gmeter_t * search_first_gmeter(void)
 	return (struct gmeter_t *)dev->priv;
 }
 
-bool_t register_gmeter(struct device_t ** device,struct gmeter_t * gmeter)
+bool_t register_gmeter(struct device_t ** device,struct gmeter_t * g)
 {
 	struct device_t * dev;
 
-	if(!gmeter || !gmeter->name)
+	if(!g || !g->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name = strdup(gmeter->name);
+	dev->name = strdup(g->name);
 	dev->type = DEVICE_TYPE_GMETER;
-	dev->priv = gmeter;
+	dev->priv = g;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "acceleration", gmeter_read_acceleration, NULL, gmeter);
+	kobj_add_regular(dev->kobj, "acceleration", gmeter_read_acceleration, NULL, g);
 
 	if(!register_device(dev))
 	{
@@ -83,14 +83,14 @@ bool_t register_gmeter(struct device_t ** device,struct gmeter_t * gmeter)
 	return TRUE;
 }
 
-bool_t unregister_gmeter(struct gmeter_t * gmeter)
+bool_t unregister_gmeter(struct gmeter_t * g)
 {
 	struct device_t * dev;
 
-	if(!gmeter || !gmeter->name)
+	if(!g || !g->name)
 		return FALSE;
 
-	dev = search_device(gmeter->name, DEVICE_TYPE_GMETER);
+	dev = search_device(g->name, DEVICE_TYPE_GMETER);
 	if(!dev)
 		return FALSE;
 
@@ -103,9 +103,9 @@ bool_t unregister_gmeter(struct gmeter_t * gmeter)
 	return TRUE;
 }
 
-bool_t gmeter_get_acceleration(struct gmeter_t * gmeter, int * x, int * y, int * z)
+bool_t gmeter_get_acceleration(struct gmeter_t * g, int * x, int * y, int * z)
 {
-	if(gmeter && gmeter->get)
-		return gmeter->get(gmeter, x, y, z);
+	if(g && g->get)
+		return g->get(g, x, y, z);
 	return FALSE;
 }

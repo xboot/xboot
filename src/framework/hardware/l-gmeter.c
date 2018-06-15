@@ -28,10 +28,10 @@
 static int l_gmeter_new(lua_State * L)
 {
 	const char * name = luaL_optstring(L, 1, NULL);
-	struct gmeter_t * gmeter = name ? search_gmeter(name) : search_first_gmeter();
-	if(!gmeter)
+	struct gmeter_t * g = name ? search_gmeter(name) : search_first_gmeter();
+	if(!g)
 		return 0;
-	lua_pushlightuserdata(L, gmeter);
+	lua_pushlightuserdata(L, g);
 	luaL_setmetatable(L, MT_HARDWARE_GMETER);
 	return 1;
 }
@@ -39,15 +39,15 @@ static int l_gmeter_new(lua_State * L)
 static int l_gmeter_list(lua_State * L)
 {
 	struct device_t * pos, * n;
-	struct gmeter_t * gmeter;
+	struct gmeter_t * g;
 
 	lua_newtable(L);
 	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_GMETER], head)
 	{
-		gmeter = (struct gmeter_t *)(pos->priv);
-		if(!gmeter)
+		g = (struct gmeter_t *)(pos->priv);
+		if(!g)
 			continue;
-		lua_pushlightuserdata(L, gmeter);
+		lua_pushlightuserdata(L, g);
 		luaL_setmetatable(L, MT_HARDWARE_GMETER);
 		lua_setfield(L, -2, pos->name);
 	}
@@ -62,16 +62,16 @@ static const luaL_Reg l_gmeter[] = {
 
 static int m_gmeter_tostring(lua_State * L)
 {
-	struct gmeter_t * gmeter = luaL_checkudata(L, 1, MT_HARDWARE_GMETER);
-	lua_pushstring(L, gmeter->name);
+	struct gmeter_t * g = luaL_checkudata(L, 1, MT_HARDWARE_GMETER);
+	lua_pushstring(L, g->name);
 	return 1;
 }
 
 static int m_gmeter_get_acceleration(lua_State * L)
 {
-	struct gmeter_t * gmeter = luaL_checkudata(L, 1, MT_HARDWARE_GMETER);
+	struct gmeter_t * g = luaL_checkudata(L, 1, MT_HARDWARE_GMETER);
 	int x, y, z;
-	if(gmeter_get_acceleration(gmeter, &x, &y, &z))
+	if(gmeter_get_acceleration(g, &x, &y, &z))
 	{
 		lua_pushnumber(L, (lua_Number)x / 1000000);
 		lua_pushnumber(L, (lua_Number)y / 1000000);

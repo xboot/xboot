@@ -59,7 +59,6 @@ struct stepper_t * search_stepper(const char * name)
 	dev = search_device(name, DEVICE_TYPE_STEPPER);
 	if(!dev)
 		return NULL;
-
 	return (struct stepper_t *)dev->priv;
 }
 

@@ -50,7 +50,6 @@ struct watchdog_t * search_watchdog(const char * name)
 	dev = search_device(name, DEVICE_TYPE_WATCHDOG);
 	if(!dev)
 		return NULL;
-
 	return (struct watchdog_t *)dev->priv;
 }
 
@@ -61,7 +60,6 @@ struct watchdog_t * search_first_watchdog(void)
 	dev = search_first_device(DEVICE_TYPE_WATCHDOG);
 	if(!dev)
 		return NULL;
-
 	return (struct watchdog_t *)dev->priv;
 }
 

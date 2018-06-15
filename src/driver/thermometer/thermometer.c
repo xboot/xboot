@@ -39,7 +39,6 @@ struct thermometer_t * search_thermometer(const char * name)
 	dev = search_device(name, DEVICE_TYPE_THERMOMETER);
 	if(!dev)
 		return NULL;
-
 	return (struct thermometer_t *)dev->priv;
 }
 
@@ -50,7 +49,6 @@ struct thermometer_t * search_first_thermometer(void)
 	dev = search_first_device(DEVICE_TYPE_THERMOMETER);
 	if(!dev)
 		return NULL;
-
 	return (struct thermometer_t *)dev->priv;
 }
 

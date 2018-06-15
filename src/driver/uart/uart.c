@@ -100,7 +100,6 @@ struct uart_t * search_uart(const char * name)
 	dev = search_device(name, DEVICE_TYPE_UART);
 	if(!dev)
 		return NULL;
-
 	return (struct uart_t *)dev->priv;
 }
 

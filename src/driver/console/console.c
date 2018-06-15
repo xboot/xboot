@@ -69,7 +69,6 @@ struct console_t * search_console(const char * name)
 	dev = search_device(name, DEVICE_TYPE_CONSOLE);
 	if(!dev)
 		return NULL;
-
 	return (struct console_t *)dev->priv;
 }
 
@@ -80,7 +79,6 @@ struct console_t * search_first_console(void)
 	dev = search_first_device(DEVICE_TYPE_CONSOLE);
 	if(!dev)
 		return NULL;
-
 	return (struct console_t *)dev->priv;
 }
 

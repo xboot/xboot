@@ -32,7 +32,6 @@ struct spi_t * search_spi(const char * name)
 	dev = search_device(name, DEVICE_TYPE_SPI);
 	if(!dev)
 		return NULL;
-
 	return (struct spi_t *)dev->priv;
 }
 

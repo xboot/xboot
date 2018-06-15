@@ -41,7 +41,6 @@ struct rng_t * search_rng(const char * name)
 	dev = search_device(name, DEVICE_TYPE_RNG);
 	if(!dev)
 		return NULL;
-
 	return (struct rng_t *)dev->priv;
 }
 
@@ -52,7 +51,6 @@ struct rng_t * search_first_rng(void)
 	dev = search_first_device(DEVICE_TYPE_RNG);
 	if(!dev)
 		return NULL;
-
 	return (struct rng_t *)dev->priv;
 }
 

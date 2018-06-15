@@ -57,7 +57,6 @@ struct rtc_t * search_rtc(const char * name)
 	dev = search_device(name, DEVICE_TYPE_RTC);
 	if(!dev)
 		return NULL;
-
 	return (struct rtc_t *)dev->priv;
 }
 
@@ -68,7 +67,6 @@ struct rtc_t * search_first_rtc(void)
 	dev = search_first_device(DEVICE_TYPE_RTC);
 	if(!dev)
 		return NULL;
-
 	return (struct rtc_t *)dev->priv;
 }
 

@@ -49,7 +49,6 @@ struct block_t * search_block(const char * name)
 	dev = search_device(name, DEVICE_TYPE_BLOCK);
 	if(!dev)
 		return NULL;
-
 	return (struct block_t *)dev->priv;
 }
 

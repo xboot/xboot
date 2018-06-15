@@ -56,7 +56,6 @@ struct compass_t * search_compass(const char * name)
 	dev = search_device(name, DEVICE_TYPE_COMPASS);
 	if(!dev)
 		return NULL;
-
 	return (struct compass_t *)dev->priv;
 }
 
@@ -67,7 +66,6 @@ struct compass_t * search_first_compass(void)
 	dev = search_first_device(DEVICE_TYPE_COMPASS);
 	if(!dev)
 		return NULL;
-
 	return (struct compass_t *)dev->priv;
 }
 

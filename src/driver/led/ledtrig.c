@@ -40,7 +40,6 @@ struct ledtrig_t * search_ledtrig(const char * name)
 	dev = search_device(name, DEVICE_TYPE_LEDTRIG);
 	if(!dev)
 		return NULL;
-
 	return (struct ledtrig_t *)dev->priv;
 }
 

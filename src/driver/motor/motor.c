@@ -53,7 +53,6 @@ struct motor_t * search_motor(const char * name)
 	dev = search_device(name, DEVICE_TYPE_MOTOR);
 	if(!dev)
 		return NULL;
-
 	return (struct motor_t *)dev->priv;
 }
 

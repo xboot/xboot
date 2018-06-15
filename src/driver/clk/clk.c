@@ -96,7 +96,6 @@ struct clk_t * search_clk(const char * name)
 	dev = search_device(name, DEVICE_TYPE_CLK);
 	if(!dev)
 		return NULL;
-
 	return (struct clk_t *)dev->priv;
 }
 

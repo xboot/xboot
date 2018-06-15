@@ -87,7 +87,6 @@ struct i2c_t * search_i2c(const char * name)
 	dev = search_device(name, DEVICE_TYPE_I2C);
 	if(!dev)
 		return NULL;
-
 	return (struct i2c_t *)dev->priv;
 }
 

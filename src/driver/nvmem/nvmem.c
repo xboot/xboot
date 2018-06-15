@@ -44,7 +44,6 @@ struct nvmem_t * search_nvmem(const char * name)
 	dev = search_device(name, DEVICE_TYPE_NVMEM);
 	if(!dev)
 		return NULL;
-
 	return (struct nvmem_t *)dev->priv;
 }
 
@@ -55,7 +54,6 @@ struct nvmem_t * search_first_nvmem(void)
 	dev = search_first_device(DEVICE_TYPE_NVMEM);
 	if(!dev)
 		return NULL;
-
 	return (struct nvmem_t *)dev->priv;
 }
 

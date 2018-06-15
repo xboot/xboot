@@ -68,7 +68,6 @@ struct dac_t * search_dac(const char * name)
 	dev = search_device(name, DEVICE_TYPE_DAC);
 	if(!dev)
 		return NULL;
-
 	return (struct dac_t *)dev->priv;
 }
 

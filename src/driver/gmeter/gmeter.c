@@ -40,7 +40,6 @@ struct gmeter_t * search_gmeter(const char * name)
 	dev = search_device(name, DEVICE_TYPE_GMETER);
 	if(!dev)
 		return NULL;
-
 	return (struct gmeter_t *)dev->priv;
 }
 
@@ -51,7 +50,6 @@ struct gmeter_t * search_first_gmeter(void)
 	dev = search_first_device(DEVICE_TYPE_GMETER);
 	if(!dev)
 		return NULL;
-
 	return (struct gmeter_t *)dev->priv;
 }
 

@@ -96,7 +96,6 @@ struct regulator_t * search_regulator(const char * name)
 	dev = search_device(name, DEVICE_TYPE_REGULATOR);
 	if(!dev)
 		return NULL;
-
 	return (struct regulator_t *)dev->priv;
 }
 

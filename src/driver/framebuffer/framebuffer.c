@@ -85,7 +85,6 @@ struct framebuffer_t * search_framebuffer(const char * name)
 	dev = search_device(name, DEVICE_TYPE_FRAMEBUFFER);
 	if(!dev)
 		return NULL;
-
 	return (struct framebuffer_t *)dev->priv;
 }
 
@@ -96,7 +95,6 @@ struct framebuffer_t * search_first_framebuffer(void)
 	dev = search_first_device(DEVICE_TYPE_FRAMEBUFFER);
 	if(!dev)
 		return NULL;
-
 	return (struct framebuffer_t *)dev->priv;
 }
 

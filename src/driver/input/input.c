@@ -62,7 +62,6 @@ struct input_t * search_input(const char * name)
 	dev = search_device(name, DEVICE_TYPE_INPUT);
 	if(!dev)
 		return NULL;
-
 	return (struct input_t *)dev->priv;
 }
 

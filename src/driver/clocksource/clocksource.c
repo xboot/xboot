@@ -114,7 +114,6 @@ struct clocksource_t * search_clocksource(const char * name)
 	dev = search_device(name, DEVICE_TYPE_CLOCKSOURCE);
 	if(!dev)
 		return NULL;
-
 	return (struct clocksource_t *)dev->priv;
 }
 
@@ -125,7 +124,6 @@ struct clocksource_t * search_first_clocksource(void)
 	dev = search_first_device(DEVICE_TYPE_CLOCKSOURCE);
 	if(!dev)
 		return NULL;
-
 	return (struct clocksource_t *)dev->priv;
 }
 

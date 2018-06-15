@@ -39,7 +39,6 @@ struct hygrometer_t * search_hygrometer(const char * name)
 	dev = search_device(name, DEVICE_TYPE_THERMOMETER);
 	if(!dev)
 		return NULL;
-
 	return (struct hygrometer_t *)dev->priv;
 }
 
@@ -50,7 +49,6 @@ struct hygrometer_t * search_first_hygrometer(void)
 	dev = search_first_device(DEVICE_TYPE_THERMOMETER);
 	if(!dev)
 		return NULL;
-
 	return (struct hygrometer_t *)dev->priv;
 }
 

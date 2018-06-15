@@ -55,7 +55,6 @@ struct led_t * search_led(const char * name)
 	dev = search_device(name, DEVICE_TYPE_LED);
 	if(!dev)
 		return NULL;
-
 	return (struct led_t *)dev->priv;
 }
 

@@ -53,7 +53,6 @@ struct servo_t * search_servo(const char * name)
 	dev = search_device(name, DEVICE_TYPE_SERVO);
 	if(!dev)
 		return NULL;
-
 	return (struct servo_t *)dev->priv;
 }
 

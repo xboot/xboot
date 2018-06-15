@@ -33,7 +33,6 @@ struct sdhci_t * search_sdhci(const char * name)
 	dev = search_device(name, DEVICE_TYPE_SDHCI);
 	if(!dev)
 		return NULL;
-
 	return (struct sdhci_t *)dev->priv;
 }
 

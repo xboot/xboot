@@ -52,7 +52,6 @@ struct laserscan_t * search_laserscan(const char * name)
 	dev = search_device(name, DEVICE_TYPE_LASERSCAN);
 	if(!dev)
 		return NULL;
-
 	return (struct laserscan_t *)dev->priv;
 }
 
@@ -63,7 +62,6 @@ struct laserscan_t * search_first_laserscan(void)
 	dev = search_first_device(DEVICE_TYPE_LASERSCAN);
 	if(!dev)
 		return NULL;
-
 	return (struct laserscan_t *)dev->priv;
 }
 

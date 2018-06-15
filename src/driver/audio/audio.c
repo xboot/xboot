@@ -33,7 +33,6 @@ struct audio_t * search_audio(const char * name)
 	dev = search_device(name, DEVICE_TYPE_AUDIO);
 	if(!dev)
 		return NULL;
-
 	return (struct audio_t *)dev->priv;
 }
 
@@ -44,7 +43,6 @@ struct audio_t * search_first_audio(void)
 	dev = search_first_device(DEVICE_TYPE_AUDIO);
 	if(!dev)
 		return NULL;
-
 	return (struct audio_t *)dev->priv;
 }
 

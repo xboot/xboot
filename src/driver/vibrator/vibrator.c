@@ -52,7 +52,6 @@ struct vibrator_t * search_vibrator(const char * name)
 	dev = search_device(name, DEVICE_TYPE_VIBRATOR);
 	if(!dev)
 		return NULL;
-
 	return (struct vibrator_t *)dev->priv;
 }
 
@@ -63,7 +62,6 @@ struct vibrator_t * search_first_vibrator(void)
 	dev = search_first_device(DEVICE_TYPE_VIBRATOR);
 	if(!dev)
 		return NULL;
-
 	return (struct vibrator_t *)dev->priv;
 }
 

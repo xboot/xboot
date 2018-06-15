@@ -39,7 +39,6 @@ struct light_t * search_light(const char * name)
 	dev = search_device(name, DEVICE_TYPE_LIGHT);
 	if(!dev)
 		return NULL;
-
 	return (struct light_t *)dev->priv;
 }
 
@@ -50,7 +49,6 @@ struct light_t * search_first_light(void)
 	dev = search_first_device(DEVICE_TYPE_LIGHT);
 	if(!dev)
 		return NULL;
-
 	return (struct light_t *)dev->priv;
 }
 

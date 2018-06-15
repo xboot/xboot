@@ -65,7 +65,6 @@ struct adc_t * search_adc(const char * name)
 	dev = search_device(name, DEVICE_TYPE_ADC);
 	if(!dev)
 		return NULL;
-
 	return (struct adc_t *)dev->priv;
 }
 

@@ -132,7 +132,6 @@ struct battery_t * search_battery(const char * name)
 	dev = search_device(name, DEVICE_TYPE_BATTERY);
 	if(!dev)
 		return NULL;
-
 	return (struct battery_t *)dev->priv;
 }
 
@@ -143,7 +142,6 @@ struct battery_t * search_first_battery(void)
 	dev = search_first_device(DEVICE_TYPE_BATTERY);
 	if(!dev)
 		return NULL;
-
 	return (struct battery_t *)dev->priv;
 }
 

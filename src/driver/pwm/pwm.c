@@ -91,7 +91,6 @@ struct pwm_t * search_pwm(const char * name)
 	dev = search_device(name, DEVICE_TYPE_PWM);
 	if(!dev)
 		return NULL;
-
 	return (struct pwm_t *)dev->priv;
 }
 

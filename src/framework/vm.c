@@ -88,6 +88,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "hardware.motor",			luaopen_hardware_motor },
 		{ "hardware.nvmem",			luaopen_hardware_nvmem },
 		{ "hardware.pressure",		luaopen_hardware_pressure },
+		{ "hardware.proximity",		luaopen_hardware_proximity },
 		{ "hardware.pwm",			luaopen_hardware_pwm },
 		{ "hardware.servo",			luaopen_hardware_servo },
 		{ "hardware.spi",			luaopen_hardware_spi },

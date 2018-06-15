@@ -79,6 +79,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "hardware.dac",			luaopen_hardware_dac },
 		{ "hardware.gmeter",		luaopen_hardware_gmeter },
 		{ "hardware.gpio",			luaopen_hardware_gpio },
+		{ "hardware.gyroscope",		luaopen_hardware_gyroscope },
 		{ "hardware.hygrometer",	luaopen_hardware_hygrometer },
 		{ "hardware.i2c",			luaopen_hardware_i2c },
 		{ "hardware.led",			luaopen_hardware_led },

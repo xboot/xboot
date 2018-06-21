@@ -165,8 +165,7 @@ struct statfs {
  * mount flags.
  */
 #define	MOUNT_RDONLY			(0x00000001)	/* read only filesystem */
-#define	MOUNT_LOOP				(0x00000002)	/* mount loop device */
-#define	MOUNT_MASK				(0x00000003)	/* mount flag mask value */
+#define	MOUNT_MASK				(0x00000001)	/* mount flag mask value */
 
 /*
  * mount data

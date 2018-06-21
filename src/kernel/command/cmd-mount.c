@@ -22,7 +22,6 @@
  *
  */
 
-#include <block/loop.h>
 #include <command/command.h>
 
 static void usage(void)
@@ -35,7 +34,6 @@ static int do_mount(int argc, char ** argv)
 {
 	char * fstype = NULL;
 	char * dev = NULL, * dir = NULL;
-	bool_t loop_flag = FALSE;
 	bool_t ro_flag = FALSE;
 	s32_t mount_flag = 0;
 	struct block_t * blk;
@@ -58,9 +56,7 @@ static int do_mount(int argc, char ** argv)
 		}
 		else if( !strcmp((const char *)argv[i], "-o") && (argc > i+1) )
 		{
-			if(!strcmp((const char *)argv[i+1], "loop"))
-				loop_flag = TRUE;
-			else if(!strcmp((const char *)argv[i+1], "ro"))
+			if(!strcmp((const char *)argv[i+1], "ro"))
 				ro_flag = TRUE;
 			else if(!strcmp((const char *)argv[i+1], "rw"))
 				ro_flag = FALSE;
@@ -110,48 +106,11 @@ static int do_mount(int argc, char ** argv)
 		return -1;
 	}
 
-	if(loop_flag)
-	{
-		pdev = dev;
-		if(stat(pdev, &st) != 0)
-		{
-			printf("cannot access %s: no such file\r\n", pdev);
-			return -1;
-		}
-
-		if(!S_ISREG(st.st_mode))
-		{
-			printf("it's not a regulation file\r\n", pdev);
-			return -1;
-		}
-
-		if(!register_loop(pdev))
-		{
-			printf("register a loop block device fail\r\n");
-			return -1;
-		}
-
-		blk = search_loop(pdev);
-		if(!blk)
-		{
-			printf("special loop block device not found\r\n");
-			return -1;
-		}
-
-		dev = (char *)blk->name;
-	}
-
-	if(loop_flag)
-		mount_flag |= MOUNT_LOOP;
-
 	if(ro_flag)
 		mount_flag |= MOUNT_RDONLY;
 
 	if(mount(dev, dir , fstype, (mount_flag & MOUNT_MASK)) != 0)
 	{
-		if(loop_flag)
-			unregister_loop(pdev);
-
 		printf("mount '%s' filesystem on special device '%s' fail\r\n", fstype, dev);
 		return -1;
 	}

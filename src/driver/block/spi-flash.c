@@ -66,8 +66,8 @@ struct sfdp_t {
 struct spi_flash_info_t {
 	char * name;
 	uint32_t id;
-	uint32_t sector_size;
-	uint32_t sector_count;
+	uint32_t capacity;
+	uint32_t blksz;
 	uint32_t read_granularity;
 	uint32_t write_granularity;
 	uint32_t erase_granularity;
@@ -158,7 +158,7 @@ static bool_t spi_flash_read_id(struct spi_device_t * dev, uint32_t * id)
 }
 
 static const struct spi_flash_info_t spi_flash_infos[] = {
-	{ "w25q128", 0xef4018, 4096, 4096, 1, 256, 4096, 3, 0x03, 0x02, 0x20, 0x06, 0x04 },
+	{ "w25q128", 0xef4018, 16 * 1024 * 1024, 4096, 1, 256, 4096, 3, 0x03, 0x02, 0x20, 0x06, 0x04 },
 };
 
 static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_t * info)
@@ -453,8 +453,8 @@ static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t 
 	memcpy(&pdat->info, &info, sizeof(struct spi_flash_info_t));
 
 	blk->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	blk->blksz = pdat->info.sector_size;
-	blk->blkcnt = pdat->info.sector_count;
+	blk->blksz = pdat->info.blksz;
+	blk->blkcnt = pdat->info.capacity / pdat->info.blksz;
 	blk->read = spi_flash_read;
 	blk->write = spi_flash_write;
 	blk->sync = spi_flash_sync;

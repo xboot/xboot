@@ -30,9 +30,13 @@ enum {
 	OPCODE_RDID				= 0x9f,
 	OPCODE_WRSR				= 0x01,
 	OPCODE_RDSR				= 0x05,
+	OPCODE_WREN				= 0x06,
+	OPCODE_WRDI				= 0x04,
+	OPCODE_READ 			= 0x03,
+	OPCODE_PROG	 			= 0x02,
+	OPCODE_E4K 				= 0x20,
 	OPCODE_ENTER_4B_ADDR	= 0xb7,
 	OPCODE_EXIT_4B_ADDR		= 0xe9,
-
 };
 #define SFDP_MAX_NPH	(6)
 
@@ -105,7 +109,6 @@ static bool_t spi_flash_read_sfdp(struct spi_device_t * dev, struct sfdp_t * sfd
 		return FALSE;
 
 	sfdp->h.nph = sfdp->h.nph > SFDP_MAX_NPH ? sfdp->h.nph + 1 : SFDP_MAX_NPH;
-	spi_device_select(dev);
 	for(i = 0; i < sfdp->h.nph; i++)
 	{
 		addr = i * sizeof(struct sfdp_parameter_header_t) + sizeof(struct sfdp_header_t);
@@ -114,24 +117,24 @@ static bool_t spi_flash_read_sfdp(struct spi_device_t * dev, struct sfdp_t * sfd
 		tx[2] = (addr >>  8) & 0xff;
 		tx[3] = (addr >>  0) & 0xff;
 		tx[4] = 0x0;
-		if(spi_device_write_then_read(dev, tx, 5, &sfdp->ph[i], sizeof(struct sfdp_parameter_header_t)) < 0)
-			break;
+		spi_device_select(dev);
+		r = spi_device_write_then_read(dev, tx, 5, &sfdp->ph[i], sizeof(struct sfdp_parameter_header_t));
+		spi_device_deselect(dev);
+		if(r < 0)
+			return FALSE;
 	}
-	spi_device_deselect(dev);
-	if(i < sfdp->h.nph)
-		return FALSE;
 
 	for(i = 0; i < sfdp->h.nph; i++)
 	{
 		if((sfdp->ph[i].idlsb == 0x00) && (sfdp->ph[i].idmsb == 0xff))
 		{
-			spi_device_select(dev);
 			addr = (sfdp->ph[i].ptp[0] << 0) | (sfdp->ph[i].ptp[1] << 8) | (sfdp->ph[i].ptp[2] << 16);
 			tx[0] = OPCODE_SFDP;
 			tx[1] = (addr >> 16) & 0xff;
 			tx[2] = (addr >>  8) & 0xff;
 			tx[3] = (addr >>  0) & 0xff;
 			tx[4] = 0x0;
+			spi_device_select(dev);
 			r = spi_device_write_then_read(dev, tx, 5, &sfdp->bt, sfdp->ph[i].length * 4);
 			spi_device_deselect(dev);
 			if(r >= 0)
@@ -158,7 +161,7 @@ static bool_t spi_flash_read_id(struct spi_device_t * dev, uint32_t * id)
 }
 
 static const struct spi_flash_info_t spi_flash_infos[] = {
-	{ "w25q128", 0xef4018, 16 * 1024 * 1024, 4096, 1, 256, 4096, 3, 0x03, 0x02, 0x20, 0x06, 0x04 },
+	{ "w25q128", 0xef4018, 16 * 1024 * 1024, 4096, 1, 256, 4096, 3, OPCODE_READ, OPCODE_PROG, OPCODE_E4K, OPCODE_WREN, OPCODE_WRDI },
 };
 
 static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_t * info)
@@ -192,7 +195,9 @@ static inline uint8_t spi_flash_read_status_register(struct spi_flash_pdata_t * 
 	uint8_t tx = OPCODE_RDSR;
 	uint8_t rx = 0;
 
+	spi_device_select(pdat->dev);
 	spi_device_write_then_read(pdat->dev, &tx, 1, &rx, 1);
+	spi_device_deselect(pdat->dev);
 	return rx;
 }
 
@@ -202,7 +207,9 @@ static inline void spi_flash_write_status_register(struct spi_flash_pdata_t * pd
 
 	tx[0] = OPCODE_WRSR;
 	tx[1] = sr;
+	spi_device_select(pdat->dev);
 	spi_device_write_then_read(pdat->dev, tx, 2, 0, 0);
+	spi_device_deselect(pdat->dev);
 }
 
 static inline void spi_flash_wait_for_busy(struct spi_flash_pdata_t * pdat)
@@ -212,12 +219,16 @@ static inline void spi_flash_wait_for_busy(struct spi_flash_pdata_t * pdat)
 
 static inline void spi_flash_write_enable(struct spi_flash_pdata_t * pdat)
 {
+	spi_device_select(pdat->dev);
 	spi_device_write_then_read(pdat->dev, &pdat->info.opcode_write_enable, 1, 0, 0);
+	spi_device_deselect(pdat->dev);
 }
 
 static inline void spi_flash_write_disable(struct spi_flash_pdata_t * pdat)
 {
+	spi_device_select(pdat->dev);
 	spi_device_write_then_read(pdat->dev, &pdat->info.opcode_write_disable, 1, 0, 0);
+	spi_device_deselect(pdat->dev);
 }
 
 static inline void spi_flash_address_mode_4byte(struct spi_flash_pdata_t * pdat, int enable)
@@ -228,7 +239,9 @@ static inline void spi_flash_address_mode_4byte(struct spi_flash_pdata_t * pdat,
 		tx = OPCODE_ENTER_4B_ADDR;
 	else
 		tx = OPCODE_EXIT_4B_ADDR;
+	spi_device_select(pdat->dev);
 	spi_device_write_then_read(pdat->dev, &tx, 1, 0, 0);
+	spi_device_deselect(pdat->dev);
 }
 
 static inline void spi_flash_chip_reset(struct spi_flash_pdata_t * pdat)
@@ -237,7 +250,9 @@ static inline void spi_flash_chip_reset(struct spi_flash_pdata_t * pdat)
 
 	tx[0] = 0x66;
 	tx[1] = 0x99;
+	spi_device_select(pdat->dev);
 	spi_device_write_then_read(pdat->dev, tx, 2, 0, 0);
+	spi_device_deselect(pdat->dev);
 }
 
 static void spi_flash_read_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u8_t * buf, u32_t count)
@@ -251,7 +266,9 @@ static void spi_flash_read_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u8
 		tx[1] = (u8_t)(addr >> 16);
 		tx[2] = (u8_t)(addr >> 8);
 		tx[3] = (u8_t)(addr >> 0);
+		spi_device_select(pdat->dev);
 		spi_device_write_then_read(pdat->dev, tx, 4, buf, count);
+		spi_device_deselect(pdat->dev);
 		break;
 
 	case 4:
@@ -260,7 +277,9 @@ static void spi_flash_read_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u8
 		tx[2] = (u8_t)(addr >> 16);
 		tx[3] = (u8_t)(addr >> 8);
 		tx[4] = (u8_t)(addr >> 0);
+		spi_device_select(pdat->dev);
 		spi_device_write_then_read(pdat->dev, tx, 5, buf, count);
+		spi_device_deselect(pdat->dev);
 		break;
 
 	default:
@@ -279,8 +298,10 @@ static void spi_flash_write_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u
 		tx[1] = (u8_t)(addr >> 16);
 		tx[2] = (u8_t)(addr >> 8);
 		tx[3] = (u8_t)(addr >> 0);
+		spi_device_select(pdat->dev);
 		spi_device_write_then_read(pdat->dev, tx, 4, 0, 0);
 		spi_device_write_then_read(pdat->dev, buf, count, 0, 0);
+		spi_device_deselect(pdat->dev);
 		break;
 
 	case 4:
@@ -289,8 +310,10 @@ static void spi_flash_write_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u
 		tx[2] = (u8_t)(addr >> 16);
 		tx[3] = (u8_t)(addr >> 8);
 		tx[4] = (u8_t)(addr >> 0);
+		spi_device_select(pdat->dev);
 		spi_device_write_then_read(pdat->dev, tx, 5, 0, 0);
 		spi_device_write_then_read(pdat->dev, buf, count, 0, 0);
+		spi_device_deselect(pdat->dev);
 		break;
 
 	default:
@@ -309,7 +332,9 @@ static void spi_flash_sector_erase(struct spi_flash_pdata_t * pdat, u32_t addr)
 		tx[1] = (u8_t)(addr >> 16);
 		tx[2] = (u8_t)(addr >> 8);
 		tx[3] = (u8_t)(addr >> 0);
+		spi_device_select(pdat->dev);
 		spi_device_write_then_read(pdat->dev, tx, 4, 0, 0);
+		spi_device_deselect(pdat->dev);
 		break;
 
 	case 4:
@@ -318,7 +343,9 @@ static void spi_flash_sector_erase(struct spi_flash_pdata_t * pdat, u32_t addr)
 		tx[2] = (u8_t)(addr >> 16);
 		tx[3] = (u8_t)(addr >> 8);
 		tx[4] = (u8_t)(addr >> 0);
+		spi_device_select(pdat->dev);
 		spi_device_write_then_read(pdat->dev, tx, 5, 0, 0);
+		spi_device_deselect(pdat->dev);
 		break;
 
 	default:
@@ -328,7 +355,6 @@ static void spi_flash_sector_erase(struct spi_flash_pdata_t * pdat, u32_t addr)
 
 static void spi_flash_init(struct spi_flash_pdata_t * pdat)
 {
-	spi_device_select(pdat->dev);
 	spi_flash_chip_reset(pdat);
 	spi_flash_wait_for_busy(pdat);
 	spi_flash_write_enable(pdat);
@@ -338,9 +364,9 @@ static void spi_flash_init(struct spi_flash_pdata_t * pdat)
 	{
 		spi_flash_write_enable(pdat);
 		spi_flash_address_mode_4byte(pdat, 1);
+		spi_flash_wait_for_busy(pdat);
 	}
 	spi_flash_write_disable(pdat);
-	spi_device_deselect(pdat->dev);
 }
 
 static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
@@ -351,20 +377,18 @@ static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t
 	u8_t * pbuf = buf;
 	u32_t len;
 
-	spi_device_select(pdat->dev);
 	if(pdat->info.read_granularity == 1)
 		len = (cnt < 0x7fffffff) ? cnt : 0x7fffffff;
 	else
 		len = pdat->info.read_granularity;
 	while(cnt > 0)
 	{
-		spi_flash_read_bytes(pdat, addr, pbuf, len);
 		spi_flash_wait_for_busy(pdat);
+		spi_flash_read_bytes(pdat, addr, pbuf, len);
 		addr += len;
 		pbuf += len;
 		cnt -= len;
 	}
-	spi_device_deselect(pdat->dev);
 
 	return blkcnt;
 }
@@ -377,10 +401,10 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 	u32_t len;
 	u8_t * pbuf;
 
-	spi_device_select(pdat->dev);
 	addr = baddr;
 	cnt = count;
 	len = pdat->info.erase_granularity;
+	spi_flash_wait_for_busy(pdat);
 	while(cnt > 0)
 	{
 		spi_flash_write_enable(pdat);
@@ -389,7 +413,6 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 		addr += len;
 		cnt -= len;
 	}
-	spi_flash_write_disable(pdat);
 	addr = baddr;
 	cnt = count;
 	pbuf = buf;
@@ -397,6 +420,7 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 		len = (cnt < 0x7fffffff) ? cnt : 0x7fffffff;
 	else
 		len = pdat->info.write_granularity;
+	spi_flash_wait_for_busy(pdat);
 	while(cnt > 0)
 	{
 		spi_flash_write_enable(pdat);
@@ -406,8 +430,6 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 		pbuf += len;
 		cnt -= len;
 	}
-	spi_flash_write_disable(pdat);
-	spi_device_deselect(pdat->dev);
 
 	return blkcnt;
 }

@@ -31,8 +31,8 @@ enum {
 	OPCODE_WRSR		= 0x01,
 	OPCODE_RDSR		= 0x05,
 	OPCODE_WREN		= 0x06,
-	OPCODE_READ 	= 0x03,
-	OPCODE_PROG	 	= 0x02,
+	OPCODE_READ		= 0x03,
+	OPCODE_PROG		= 0x02,
 	OPCODE_E4K		= 0x20,
 	OPCODE_E32K		= 0x52,
 	OPCODE_E64K		= 0xd8,
@@ -169,7 +169,7 @@ static bool_t spi_flash_read_id(struct spi_device_t * dev, uint32_t * id)
 }
 
 static const struct spi_flash_info_t spi_flash_infos[] = {
-	{ "w25q128", 0xef4018, 16 * 1024 * 1024, 4096, 1, 64, 3, OPCODE_READ, OPCODE_PROG, OPCODE_WREN, OPCODE_E4K, OPCODE_E32K, OPCODE_E64K, 0 },
+	{ "w25x40", 0xef3013, 512 * 1024, 4096, 1, 256, 3, OPCODE_READ, OPCODE_PROG, OPCODE_WREN, OPCODE_E4K, 0, OPCODE_E64K, 0 },
 };
 
 static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_t * info)

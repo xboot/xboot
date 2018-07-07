@@ -287,8 +287,6 @@ static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_
 			info->blksz = 65536;
 		else if(info->opcode_erase_256k != 0x00)
 			info->blksz = 262144;
-		else
-			return FALSE;
 		info->opcode_write_enable = OPCODE_WREN;
 		info->read_granularity = 1;
 		info->opcode_read = OPCODE_READ;
@@ -306,10 +304,6 @@ static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_
 			/* Basic flash parameter table 11th dword */
 			v = (sfdp.bt.table[43] << 24) | (sfdp.bt.table[42] << 16) | (sfdp.bt.table[41] << 8) | (sfdp.bt.table[40] << 0);
 			info->write_granularity = 1 << ((v >> 4) & 0xf);
-		}
-		else
-		{
-			return FALSE;
 		}
 		info->opcode_write = OPCODE_PROG;
 		return TRUE;

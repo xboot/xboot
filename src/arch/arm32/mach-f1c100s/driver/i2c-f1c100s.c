@@ -104,11 +104,7 @@ static int f1c100s_i2c_wait_status(struct i2c_f1c100s_pdata_t * pdat)
 
 static int f1c100s_i2c_start(struct i2c_f1c100s_pdata_t * pdat)
 {
-	u32_t val;
-
-	val = read32(pdat->virt + I2C_CNTR);
-	val |= (1 << 5) | (1 << 3);
-	write32(pdat->virt + I2C_CNTR, val);
+	write32(pdat->virt + I2C_CNTR, (1 << 7) | (1 << 6) | (1 << 5) | (1 << 2));
 
 	ktime_t timeout = ktime_add_ms(ktime_get(), 1);
 	do {
@@ -120,24 +116,19 @@ static int f1c100s_i2c_start(struct i2c_f1c100s_pdata_t * pdat)
 
 static int f1c100s_i2c_stop(struct i2c_f1c100s_pdata_t * pdat)
 {
-	u32_t val;
-
-	val = read32(pdat->virt + I2C_CNTR);
-	val |= (1 << 4) | (1 << 3);
-	write32(pdat->virt + I2C_CNTR, val);
-
+	write32(pdat->virt + I2C_CNTR, (read32(pdat->virt + I2C_CNTR) | (1 << 4)) & ~((1 << 7) | (1 << 3)));
 	ktime_t timeout = ktime_add_ms(ktime_get(), 1);
 	do {
 		if(!(read32(pdat->virt + I2C_CNTR) & (1 << 4)))
-			break;
+			return 0;
 	} while(ktime_before(ktime_get(), timeout));
-	return f1c100s_i2c_wait_status(pdat);
+	return -1;
 }
 
 static int f1c100s_i2c_send_data(struct i2c_f1c100s_pdata_t * pdat, u8_t dat)
 {
 	write32(pdat->virt + I2C_DATA, dat);
-	write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) | (1 << 3));
+	write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) & (~(1 << 3)));
 	return f1c100s_i2c_wait_status(pdat);
 }
 
@@ -149,23 +140,31 @@ static int f1c100s_i2c_read(struct i2c_f1c100s_pdata_t * pdat, struct i2c_msg_t 
 	if(f1c100s_i2c_send_data(pdat, (u8_t)(msg->addr << 1 | 1)) != I2C_STAT_TX_AR_ACK)
 		return -1;
 
-	write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) | (1 << 2));
 	while(len > 0)
 	{
-		if(len == 1)
+		switch(f1c100s_i2c_wait_status(pdat))
 		{
-			write32(pdat->virt + I2C_CNTR, (read32(pdat->virt + I2C_CNTR) & ~(1 << 2)) | (1 << 3));
-			if(f1c100s_i2c_wait_status(pdat) != I2C_STAT_RXD_NAK)
+			case I2C_STAT_TX_AR_ACK:
+				if(len == 1)
+					write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) & ~((1 << 3) | (1 << 2)));
+				else
+					write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) & ~(1 << 3));
+				break;
+			case I2C_STAT_RXD_ACK:
+				*p++ = read32(pdat->virt + I2C_DATA);
+				len--;
+				if(len == 1)
+					write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) & ~((1 << 3) | (1 << 2)));
+				else
+					write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) & ~(1 << 3));
+				break;
+			case I2C_STAT_RXD_NAK:
+				*p++ = read32(pdat->virt + I2C_DATA);
+				len--;
+				break;
+			default:
 				return -1;
 		}
-		else
-		{
-			write32(pdat->virt + I2C_CNTR, read32(pdat->virt + I2C_CNTR) | (1 << 3));
-			if(f1c100s_i2c_wait_status(pdat) != I2C_STAT_RXD_ACK)
-				return -1;
-		}
-		*p++ = read32(pdat->virt + I2C_DATA);
-		len--;
 	}
 	return 0;
 }
@@ -263,9 +262,12 @@ static struct device_t * i2c_f1c100s_probe(struct driver_t * drv, struct dtnode_
 			gpio_set_cfg(pdat->scl, pdat->sclcfg);
 		gpio_set_pull(pdat->scl, GPIO_PULL_UP);
 	}
-	f1c100s_i2c_set_rate(pdat, (u64_t)dt_read_long(n, "clock-frequency", 400000));
-	write32(pdat->virt + I2C_CNTR, 1 << 6);
 	write32(pdat->virt + I2C_SRST, 1 << 0);
+	write32(pdat->virt + I2C_SRST, 0 << 0);
+	f1c100s_i2c_set_rate(pdat, (u64_t)dt_read_long(n, "clock-frequency", 400000));
+	write32(pdat->virt + I2C_ADDR, 0);
+	write32(pdat->virt + I2C_XADDR, 0);
+	write32(pdat->virt + I2C_CNTR, (1 << 6) | (1 << 4));
 
 	if(!register_i2c(&dev, i2c))
 	{

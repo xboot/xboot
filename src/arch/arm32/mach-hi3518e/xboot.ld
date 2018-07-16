@@ -32,6 +32,20 @@ SECTIONS
 		PROVIDE(__text_end = .);
 	} > ram
 
+	.ARM.exidx ALIGN(8) :
+	{
+		PROVIDE (__exidx_start = .);
+		*(.ARM.exidx*)
+		PROVIDE (__exidx_end = .);
+	} > ram
+
+	.ARM.extab ALIGN(8) :
+	{
+		PROVIDE (__extab_start = .);
+		*(.ARM.extab*)
+		PROVIDE (__extab_end = .);
+	} > ram
+
 	.initcall ALIGN(8) :
 	{
 		PROVIDE(__initcall_start = .);
@@ -85,33 +99,12 @@ SECTIONS
 		PROVIDE(__rodata_end = .);
 	} > ram
 
-	.data_shadow ALIGN(8) :
-	{
-		PROVIDE(__data_shadow_start = .);
-		PROVIDE(__data_shadow_end = (. + SIZEOF(.data)));
-		PROVIDE(__image_end = __data_shadow_end);
-	} > ram
-
-	.data : AT(ADDR(.data_shadow))
+	.data ALIGN(8) :
 	{
 		PROVIDE(__data_start = .);	
 		*(.data*)
-		. = ALIGN(8);
   		PROVIDE(__data_end = .);
-	} > ram
-
-	.ARM.exidx ALIGN(8) :
-	{
-		PROVIDE (__exidx_start = .);
-		*(.ARM.exidx*)
-		PROVIDE (__exidx_end = .);
-	} > ram
-
-	.ARM.extab ALIGN(8) :
-	{
-		PROVIDE (__extab_start = .);
-		*(.ARM.extab*)
-		PROVIDE (__extab_end = .);
+		PROVIDE(__image_end = .);
 	} > ram
 
 	.bss ALIGN(8) (NOLOAD) :

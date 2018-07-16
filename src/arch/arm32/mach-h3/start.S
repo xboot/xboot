@@ -216,13 +216,6 @@ reset:
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_srv_end
 
-	/* Copy data section */
-	ldr r0, _data_start
-	ldr r1, _data_shadow_start
-	ldr r2, _data_shadow_end
-	sub r2, r2, r1
-	bl memcpy
-
 	/* Clear bss section */
 	ldr r0, _bss_start
 	ldr r2, _bss_end
@@ -311,10 +304,6 @@ _image_start:
 	.long __image_start
 _image_end:
 	.long __image_end
-_data_shadow_start:
-	.long __data_shadow_start
-_data_shadow_end:
-	.long __data_shadow_end
 _data_start:
 	.long __data_start
 _data_end:

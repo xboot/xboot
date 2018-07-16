@@ -27,9 +27,10 @@
 #include <realview/reg-sysctl.h>
 
 static const struct mmap_t mach_map[] = {
-	{"ram",  0x40000000, 0x40000000, SZ_64M, MAP_TYPE_CB},
-	{"dma",  0x48000000, 0x48000000, SZ_64M, MAP_TYPE_NCNB},
-	{"heap", 0x50000000, 0x50000000, SZ_128M, MAP_TYPE_CB},
+	{"rom",  0x70000000, 0x70000000, SZ_32M, MAP_TYPE_CB},
+	{"ram",  0x72000000, 0x72000000, SZ_32M, MAP_TYPE_CB},
+	{"dma",  0x74000000, 0x74000000, SZ_64M, MAP_TYPE_NCNB},
+	{"heap", 0x78000000, 0x78000000, SZ_128M, MAP_TYPE_CB},
 	{ 0 },
 };
 

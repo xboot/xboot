@@ -10,7 +10,8 @@ STACK_SRV_SIZE = 0x100000;
 
 MEMORY
 {
-	ram  : org = 0x70000000, len = 64M
+	rom  : org = 0x70000000, len = 32M
+	ram  : org = 0x72000000, len = 32M
 	dma  : org = 0x74000000, len = 64M
 	heap : org = 0x78000000, len = 128M
 }
@@ -28,7 +29,21 @@ SECTIONS
 		*(.glue*)
 		*(.note.gnu.build-id)
 		PROVIDE(__text_end = .);
-	} > ram
+	} > rom
+
+	.ARM.exidx ALIGN(8) :
+	{
+		PROVIDE (__exidx_start = .);
+		*(.ARM.exidx*)
+		PROVIDE (__exidx_end = .);
+	} > rom
+
+	.ARM.extab ALIGN(8) :
+	{
+		PROVIDE (__extab_start = .);
+		*(.ARM.extab*)
+		PROVIDE (__extab_end = .);
+	} > rom
 
 	.initcall ALIGN(8) :
 	{
@@ -44,7 +59,7 @@ SECTIONS
 		KEEP(*(.initcall_8.text))
 		KEEP(*(.initcall_9.text))
 		PROVIDE(__initcall_end = .);
-	} > ram
+	} > rom
 
 	.exitcall ALIGN(8) :
 	{
@@ -60,56 +75,41 @@ SECTIONS
 		KEEP(*(.exitcall_1.text))
 		KEEP(*(.exitcall_0.text))
 		PROVIDE(__exitcall_end = .);
-	} > ram
+	} > rom
 
 	.ksymtab ALIGN(8) :
 	{
 		PROVIDE(__ksymtab_start = .);
 		KEEP(*(.ksymtab.text))
 		PROVIDE(__ksymtab_end = .);
-	} > ram
+	} > rom
 
 	.romdisk ALIGN(8) :
 	{
 		PROVIDE(__romdisk_start = .);
 		KEEP(*(.romdisk))
 		PROVIDE(__romdisk_end = .);
-	} > ram
+	} > rom
 
 	.rodata ALIGN(8) :
 	{
 		PROVIDE(__rodata_start = .);
 		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 		PROVIDE(__rodata_end = .);
-	} > ram
+	} > rom
 
 	.data_shadow ALIGN(8) :
 	{
 		PROVIDE(__data_shadow_start = .);
 		PROVIDE(__data_shadow_end = (. + SIZEOF(.data)));
 		PROVIDE(__image_end = __data_shadow_end);
-	} > ram
+	} > rom
 
 	.data : AT(ADDR(.data_shadow))
 	{
 		PROVIDE(__data_start = .);	
 		*(.data*)
-		. = ALIGN(8);
   		PROVIDE(__data_end = .);
-	} > ram
-
-	.ARM.exidx ALIGN(8) :
-	{
-		PROVIDE (__exidx_start = .);
-		*(.ARM.exidx*)
-		PROVIDE (__exidx_end = .);
-	} > ram
-
-	.ARM.extab ALIGN(8) :
-	{
-		PROVIDE (__extab_start = .);
-		*(.ARM.extab*)
-		PROVIDE (__extab_end = .);
 	} > ram
 
 	.bss ALIGN(8) (NOLOAD) :

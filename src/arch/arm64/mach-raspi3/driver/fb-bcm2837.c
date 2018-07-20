@@ -32,8 +32,7 @@ struct fb_bcm2837_pdata_t {
 	int pwidth;
 	int pheight;
 	int bpp;
-	int index;
-	void * vram[2];
+	void * vram;
 	int brightness;
 };
 
@@ -94,9 +93,8 @@ void fb_present(struct framebuffer_t * fb, struct render_t * render)
 
 	if(render && render->pixels)
 	{
-		pdat->index = (pdat->index + 1) & 0x1;
-		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
-		bcm2837_mbox_fb_present(0, pdat->index ? pdat->height : 0);
+		memcpy(pdat->vram, render->pixels, render->pixlen);
+		bcm2837_mbox_fb_present(0, 0);
 	}
 }
 
@@ -122,9 +120,7 @@ static struct device_t * fb_bcm2837_probe(struct driver_t * drv, struct dtnode_t
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
 	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
-	pdat->index = 0;
-	pdat->vram[0] = bcm2837_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, 2);
-	pdat->vram[1] = pdat->vram[0] + (pdat->width * pdat->height * (pdat->bpp / 8));
+	pdat->vram = bcm2837_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, 1);
 	pdat->brightness = 0;
 
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
@@ -190,5 +186,5 @@ static __exit void fb_bcm2837_driver_exit(void)
 	unregister_driver(&fb_bcm2837);
 }
 
-//driver_initcall(fb_bcm2837_driver_init);
-//driver_exitcall(fb_bcm2837_driver_exit);
+driver_initcall(fb_bcm2837_driver_init);
+driver_exitcall(fb_bcm2837_driver_exit);

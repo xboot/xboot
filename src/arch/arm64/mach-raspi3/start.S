@@ -193,6 +193,14 @@ reset:
 21:	b 11f
 11:	isb
 
+	/* Read cpu id, stop slave cores */
+	mrs x1, mpidr_el1
+	and x1, x1, #3
+	cbz x1, 2f
+1:  wfe
+	b 1b
+2:	nop
+
 	/* Enable instruction cache */
 	mrs x0, sctlr_el1
 	orr x0, x0, #(1 << 12)

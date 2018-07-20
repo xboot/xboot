@@ -194,9 +194,9 @@ reset:
 11:	isb
 
 	/* Read cpu id, stop slave cores */
-	mrs x1, mpidr_el1
-	and x1, x1, #3
-	cbz x1, 2f
+	mrs x0, mpidr_el1
+	and x0, x0, #3
+	cbz x0, 2f
 1:  wfe
 	b 1b
 2:	nop
@@ -223,18 +223,6 @@ reset:
 	sub x2, x2, x0
 	bl memcpy
 1:	nop
-
-	/* Copy data section */
-	ldr x0, _data_start
-	ldr x3, _image_start
-	ldr x1, _data_shadow_start
-	sub x1, x1, x3
-	adr x3, _start
-	add x1, x1 ,x3
-	ldr x2, _data_shadow_start
-	ldr x3, _data_shadow_end
-	sub x2, x3, x2
-	bl memcpy
 
 	/* Clear bss section */
 	ldr x0, _bss_start
@@ -309,10 +297,6 @@ _image_start:
 	.dword __image_start
 _image_end:
 	.dword __image_end
-_data_shadow_start:
-	.dword __data_shadow_start
-_data_shadow_end:
-	.dword __data_shadow_end
 _data_start:
 	.dword __data_start
 _data_end:

@@ -137,5 +137,5 @@ static __exit void cs_bcm2837_systimer_driver_exit(void)
 	unregister_driver(&cs_bcm2837_systimer);
 }
 
-//driver_initcall(cs_bcm2837_systimer_driver_init);
-//driver_exitcall(cs_bcm2837_systimer_driver_exit);
+driver_initcall(cs_bcm2837_systimer_driver_init);
+driver_exitcall(cs_bcm2837_systimer_driver_exit);

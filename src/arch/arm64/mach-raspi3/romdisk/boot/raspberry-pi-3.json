@@ -50,8 +50,12 @@
 		"interrupt": 64
 	},
 
-	"cs-bcm2837-systimer@0x3f003000": {
+/*	"cs-bcm2837-systimer@0x3f003000": {
 		"clock-name": "sys-timer-clk"
+	},*/
+
+	"cs-armv8-timer": {
+		"clock-frequency": -1
 	},
 
 	"uart-pl011@0x3f201000": {

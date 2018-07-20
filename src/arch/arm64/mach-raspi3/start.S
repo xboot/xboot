@@ -144,6 +144,14 @@ vectors:
  * The actual reset code
  */
 reset:
+	/* Check processor id, stop all slave cores */
+	mrs x0, mpidr_el1
+	and x0, x0, #0xff
+	cbz x0, 2f
+1:  wfe
+	b 1b
+2:	nop
+
 	/*
 	 * Initial system with exception level
 	 */
@@ -192,14 +200,6 @@ reset:
 	eret
 21:	b 11f
 11:	isb
-
-	/* Read cpu id, stop slave cores */
-	mrs x0, mpidr_el1
-	and x0, x0, #3
-	cbz x0, 2f
-1:  wfe
-	b 1b
-2:	nop
 
 	/* Enable instruction cache */
 	mrs x0, sctlr_el1

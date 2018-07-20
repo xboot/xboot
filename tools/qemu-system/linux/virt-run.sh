@@ -10,4 +10,4 @@ if [ ! -e ~/.xboot/sdcard.img ]; then
 fi
 
 # Run qemu
-exec qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 256M -name "ARM Virtual Machine For Cortex-A57" -show-cursor -localtime -serial stdio -sd ~/.xboot/sdcard.img -kernel ${QEMU_DIR}/../../../output/xboot
+exec qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 256M -name "ARM Virtual Machine For Cortex-A57" -show-cursor -rtc base=localtime -serial stdio -sd ~/.xboot/sdcard.img -kernel ${QEMU_DIR}/../../../output/xboot

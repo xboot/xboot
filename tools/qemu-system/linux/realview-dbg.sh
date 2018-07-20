@@ -10,4 +10,4 @@ if [ ! -e ~/.xboot/sdcard.img ]; then
 fi
 
 # Run qemu
-exec qemu-system-arm -M realview-pb-a8 -m 256M -name "ARM RealView Platform Baseboard for Cortex-A8" -S -gdb tcp::10000,ipv4 -show-cursor -localtime -serial stdio -sd ~/.xboot/sdcard.img -net nic,vlan=0,macaddr=88:88:88:11:22:33,model=lan9118 -net user -kernel ${QEMU_DIR}/../../../output/xboot
+exec qemu-system-arm -M realview-pb-a8 -m 256M -name "ARM RealView Platform Baseboard for Cortex-A8" -S -gdb tcp::10000,ipv4 -show-cursor -rtc base=localtime -serial stdio -sd ~/.xboot/sdcard.img -net nic,vlan=0,macaddr=88:88:88:11:22:33,model=lan9118 -net user -kernel ${QEMU_DIR}/../../../output/xboot

@@ -177,5 +177,5 @@ static __exit void ce_bcm2837_armtimer_driver_exit(void)
 	unregister_driver(&ce_bcm2837_armtimer);
 }
 
-//driver_initcall(ce_bcm2837_armtimer_driver_init);
-//driver_exitcall(ce_bcm2837_armtimer_driver_exit);
+driver_initcall(ce_bcm2837_armtimer_driver_init);
+driver_exitcall(ce_bcm2837_armtimer_driver_exit);

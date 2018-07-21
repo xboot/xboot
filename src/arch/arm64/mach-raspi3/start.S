@@ -163,43 +163,54 @@ reset:
 	b.eq 2f
 	cmp x1, 0x4
 	b.eq 1f
-3:	msr vbar_el3, x0		/* Set el3 vbar */
-	mrs x2, scr_el3
-	bic x2, x2, #(0xf<<0)	/* Clear ea, fiq, irq and ns bits */
-	orr x2, x2, #(0x1<<10)	/* Set el2 to 64bit */
-	msr scr_el3, x2
-	msr cptr_el3, xzr
-	ldr x2, =0x01800000		/* Initialize cntfrq */
+3:	msr vbar_el3, x0
+	mov x2, #0x33ff
+	msr cptr_el3, x2
+	ldr x2, =19200000
 	msr	cntfrq_el0, x2
-2:	msr vbar_el2, x0		/* Set el2 vbar */
-	mrs x2, hcr_el2
-	orr x2, x2, #(0x1<<31)	/* Set el1 to 64bit */
-    msr hcr_el2, x2
-	mov x2, #0x33ff			/* Enable fp/simd */
+	mov x2, #0x5b1
+	msr scr_el3, x2
+2:	msr vbar_el2, x0
+	mov x2, #0x33ff
 	msr cptr_el2, x2
-1:	msr vbar_el1, x0		/* Set el1 vbar */
+	mrs x2, cnthctl_el2
+	orr x2, x2, #3
+	msr cnthctl_el2, x2
+	msr cntvoff_el2, xzr
+	mrs x2, hcr_el2
+	orr x2, x2, #(1 << 31)
+	orr x2, x2, #(1 << 1)
+	msr hcr_el2, x2
+1:	msr vbar_el1, x0
+	ldr	x2, _stack_el1_end
+	msr	sp_el1, x2
 	mrs x2, cpacr_el1
-	orr x2, x2, #(0x3<<20)	/* Enable fp/simd */
+	orr x2, x2, #(3 << 20)
 	msr cpacr_el1, x2
+0:	ldr x2, _stack_el0_end
+	msr	sp_el0, x2
 
 	/*
 	 * Change exception level, to el1
 	 */
 	mrs x1, CurrentEL
 	cmp x1, 0xc
-	b.eq 31f
+	b.eq 3f
 	cmp	x1, 0x8
-	b.eq 21f
+	b.eq 2f
 	cmp x1, 0x4
-	b.eq 11f
-31:	adr x2, 11f
-	msr elr_el3, x2
-	mov x2, #((0xf<<6)|(0x5<<0))
+	b.eq 1f
+3:	mov x2, #0x3c9
 	msr spsr_el3, x2
-	isb
+	adr x2, 2f
+	msr elr_el3, x2
 	eret
-21:	b 11f
-11:	isb
+2:	mov	x2,#0x3c5
+	msr spsr_el2, x2
+	adr x2, 1f
+	msr elr_el2, x2
+	eret
+1:	nop
 
 	/* Enable instruction cache */
 	mrs x0, sctlr_el1

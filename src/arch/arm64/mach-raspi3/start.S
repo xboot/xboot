@@ -37,32 +37,32 @@
  * Kernel entry
  */
 .macro kernel_entry, el
-	sub	sp, sp, #8 * 36
-	stp	x0, x1, [sp, #16 * 0]
-	stp	x2, x3, [sp, #16 * 1]
-	stp	x4, x5, [sp, #16 * 2]
-	stp	x6, x7, [sp, #16 * 3]
-	stp	x8, x9, [sp, #16 * 4]
-	stp	x10, x11, [sp, #16 * 5]
-	stp	x12, x13, [sp, #16 * 6]
-	stp	x14, x15, [sp, #16 * 7]
-	stp	x16, x17, [sp, #16 * 8]
-	stp	x18, x19, [sp, #16 * 9]
-	stp	x20, x21, [sp, #16 * 10]
-	stp	x22, x23, [sp, #16 * 11]
-	stp	x24, x25, [sp, #16 * 12]
-	stp	x26, x27, [sp, #16 * 13]
-	stp	x28, x29, [sp, #16 * 14]
-	.if	\el == 0
+	sub sp, sp, #8 * 36
+	stp x0, x1, [sp, #16 * 0]
+	stp x2, x3, [sp, #16 * 1]
+	stp x4, x5, [sp, #16 * 2]
+	stp x6, x7, [sp, #16 * 3]
+	stp x8, x9, [sp, #16 * 4]
+	stp x10, x11, [sp, #16 * 5]
+	stp x12, x13, [sp, #16 * 6]
+	stp x14, x15, [sp, #16 * 7]
+	stp x16, x17, [sp, #16 * 8]
+	stp x18, x19, [sp, #16 * 9]
+	stp x20, x21, [sp, #16 * 10]
+	stp x22, x23, [sp, #16 * 11]
+	stp x24, x25, [sp, #16 * 12]
+	stp x26, x27, [sp, #16 * 13]
+	stp x28, x29, [sp, #16 * 14]
+	.if \el == 0
 		mrs	x21, sp_el0
 	.else
 		add	x21, sp, #8 * 36
 	.endif
-	mrs	x22, elr_el1
-	mrs	x23, spsr_el1
-	stp	x30, x21, [sp, #8 * 30]
-	stp	x22, x23, [sp, #8 * 32]
-	.if	\el == 0
+	mrs x22, elr_el1
+	mrs x23, spsr_el1
+	stp x30, x21, [sp, #8 * 30]
+	stp x22, x23, [sp, #8 * 32]
+	.if \el == 0
 		mvn	x21, xzr
 		str	x21, [sp, #8 * 35]
 	.endif
@@ -72,30 +72,30 @@
  * Kernel exit
  */
 .macro kernel_exit, el
-	ldp	x21, x22, [sp, #8 * 32]
-	.if	\el == 0
+	ldp x21, x22, [sp, #8 * 32]
+	.if \el == 0
 		ldr	x23, [sp, #8 * 31]
 		msr sp_el0, x23
 	.endif
-	msr	elr_el1, x21
-	msr	spsr_el1, x22
-	ldp	x0, x1, [sp, #16 * 0]
-	ldp	x2, x3, [sp, #16 * 1]
-	ldp	x4, x5, [sp, #16 * 2]
-	ldp	x6, x7, [sp, #16 * 3]
-	ldp	x8, x9, [sp, #16 * 4]
-	ldp	x10, x11, [sp, #16 * 5]
-	ldp	x12, x13, [sp, #16 * 6]
-	ldp	x14, x15, [sp, #16 * 7]
-	ldp	x16, x17, [sp, #16 * 8]
-	ldp	x18, x19, [sp, #16 * 9]
-	ldp	x20, x21, [sp, #16 * 10]
-	ldp	x22, x23, [sp, #16 * 11]
-	ldp	x24, x25, [sp, #16 * 12]
-	ldp	x26, x27, [sp, #16 * 13]
-	ldp	x28, x29, [sp, #16 * 14]
-	ldr	x30, [sp, #8 * 30]
-	add	sp, sp, #8 * 36
+	msr elr_el1, x21
+	msr spsr_el1, x22
+	ldp x0, x1, [sp, #16 * 0]
+	ldp x2, x3, [sp, #16 * 1]
+	ldp x4, x5, [sp, #16 * 2]
+	ldp x6, x7, [sp, #16 * 3]
+	ldp x8, x9, [sp, #16 * 4]
+	ldp x10, x11, [sp, #16 * 5]
+	ldp x12, x13, [sp, #16 * 6]
+	ldp x14, x15, [sp, #16 * 7]
+	ldp x16, x17, [sp, #16 * 8]
+	ldp x18, x19, [sp, #16 * 9]
+	ldp x20, x21, [sp, #16 * 10]
+	ldp x22, x23, [sp, #16 * 11]
+	ldp x24, x25, [sp, #16 * 12]
+	ldp x26, x27, [sp, #16 * 13]
+	ldp x28, x29, [sp, #16 * 14]
+	ldr x30, [sp, #8 * 30]
+	add sp, sp, #8 * 36
 	eret
 .endm
 
@@ -159,44 +159,44 @@ reset:
 	mrs x1, CurrentEL
 	cmp x1, 0xc
 	b.eq 3f
-	cmp	x1, 0x8
+	cmp x1, 0x8
 	b.eq 2f
 	cmp x1, 0x4
 	b.eq 1f
-3:	msr vbar_el3, x0
+3:	msr vbar_el3, x0		/* Set el3 vbar */
 	mov x2, #0x33ff
-	msr cptr_el3, x2
+	msr cptr_el3, x2		/* Disable el3 coprocessor traps */
 	ldr x2, =19200000
-	msr	cntfrq_el0, x2
+	msr cntfrq_el0, x2		/* Initialize cntfrq */
 	mov x2, #0x5b1
-	msr scr_el3, x2
-2:	msr vbar_el2, x0
+	msr scr_el3, x2			/* Set el2 to 64bit, hvc enable, smc disable, disable routing, non-secure */
+2:	msr vbar_el2, x0		/* Set el2 vbar */
 	mov x2, #0x33ff
-	msr cptr_el2, x2
+	msr cptr_el2, x2		/* Disable el2 coprocessor traps */
 	mrs x2, cnthctl_el2
 	orr x2, x2, #3
-	msr cnthctl_el2, x2
-	msr cntvoff_el2, xzr
+	msr cnthctl_el2, x2		/* Enable cntp for el1 */
+	msr cntvoff_el2, xzr	/* Virtual offset to zero */
 	mrs x2, hcr_el2
-	orr x2, x2, #(1 << 31)
-	orr x2, x2, #(1 << 1)
+	orr x2, x2, #(1 << 31)	/* Set el1 to 64bit */
+	orr x2, x2, #(1 << 1)	/* Hardwired swio */
 	msr hcr_el2, x2
-1:	msr vbar_el1, x0
-	ldr	x2, _stack_el1_end
-	msr	sp_el1, x2
+1:	msr vbar_el1, x0		/* Set el1 vbar */
+	ldr x2, _stack_el1_end
+	msr sp_el1, x2			/* Sel el1 stack */
 	mrs x2, cpacr_el1
 	orr x2, x2, #(3 << 20)
-	msr cpacr_el1, x2
+	msr cpacr_el1, x2		/* Enable fp/simd */
 0:	ldr x2, _stack_el0_end
-	msr	sp_el0, x2
+	msr sp_el0, x2			/* Sel el0 stack */
 
 	/*
-	 * Change exception level, to el1
+	 * Change exception level to el1
 	 */
 	mrs x1, CurrentEL
 	cmp x1, 0xc
 	b.eq 3f
-	cmp	x1, 0x8
+	cmp x1, 0x8
 	b.eq 2f
 	cmp x1, 0x4
 	b.eq 1f
@@ -205,7 +205,7 @@ reset:
 	adr x2, 2f
 	msr elr_el3, x2
 	eret
-2:	mov	x2,#0x3c5
+2:	mov x2, #0x3c5
 	msr spsr_el2, x2
 	adr x2, 1f
 	msr elr_el2, x2

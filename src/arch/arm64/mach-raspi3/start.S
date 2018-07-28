@@ -218,10 +218,10 @@ reset:
 	msr sctlr_el1, x0
 
 	/* Initialize stacks */
-	ldr	x0, _stack_el1_end
-	mov	sp, x0
-	ldr	x0, _stack_el0_end
-	msr	sp_el0, x0
+	ldr x0, _stack_el1_end
+	mov sp, x0
+	ldr x0, _stack_el0_end
+	msr sp_el0, x0
 
 	/* Copyself to link address */
 	adr x0, _start

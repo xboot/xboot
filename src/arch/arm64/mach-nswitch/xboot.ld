@@ -83,19 +83,12 @@ SECTIONS
 		PROVIDE(__rodata_end = .);
 	} > ram
 
-	.data_shadow ALIGN(8) :
-	{
-		PROVIDE(__data_shadow_start = .);
-		PROVIDE(__data_shadow_end = (. + SIZEOF(.data)));
-		PROVIDE(__image_end = __data_shadow_end);
-	} > ram
-
-	.data : AT(ADDR(.data_shadow))
+	.data ALIGN(8) :
 	{
 		PROVIDE(__data_start = .);	
 		*(.data*)
-		. = ALIGN(8);
   		PROVIDE(__data_end = .);
+		PROVIDE(__image_end = .);
 	} > ram
 
 	.bss ALIGN(8) (NOLOAD) :

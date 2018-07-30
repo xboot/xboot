@@ -25,6 +25,11 @@
 #include <xboot.h>
 #include <reset/reset.h>
 
+enum {
+	RESET_SET	= 0x0,
+	RESET_CLR	= 0x4,
+};
+
 struct reset_nswitch_pdata_t
 {
 	virtual_addr_t virt;
@@ -32,30 +37,29 @@ struct reset_nswitch_pdata_t
 	int nreset;
 };
 
+static u32_t nswitch_read_chipid(void)
+{
+	virtual_addr_t virt = phys_to_virt(0x70000800);
+	return read32(virt + 0x4);
+}
+
 static void reset_nswitch_assert(struct resetchip_t * chip, int offset)
 {
 	struct reset_nswitch_pdata_t * pdat = (struct reset_nswitch_pdata_t *)chip->priv;
-	u32_t val;
 
 	if(offset >= chip->nreset)
 		return;
-
-	val = read32(pdat->virt);
-	val |= (1 << offset);
-	write32(pdat->virt, val);
+	nswitch_read_chipid();
+	write32(pdat->virt + RESET_SET, 1 << offset);
 }
 
 static void reset_nswitch_deassert(struct resetchip_t * chip, int offset)
 {
 	struct reset_nswitch_pdata_t * pdat = (struct reset_nswitch_pdata_t *)chip->priv;
-	u32_t val;
 
 	if(offset >= chip->nreset)
 		return;
-
-	val = read32(pdat->virt);
-	val &= ~(1 << offset);
-	write32(pdat->virt, val);
+	write32(pdat->virt + RESET_CLR, 1 << offset);
 }
 
 static struct device_t * reset_nswitch_probe(struct driver_t * drv, struct dtnode_t * n)

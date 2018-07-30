@@ -73,13 +73,13 @@
 	"clk-link": { "parent": "osc408", "name": "link-uart3" },
 	"clk-link": { "parent": "osc408", "name": "link-uart4" },
 
-	"reset-nswitch@0x60006004": { "reset-base":   0, "reset-count": 32 },
-	"reset-nswitch@0x60006008": { "reset-base":  32, "reset-count": 32 },
-	"reset-nswitch@0x6000600c": { "reset-base":  64, "reset-count": 32 },
-	"reset-nswitch@0x60006358": { "reset-base":  96, "reset-count": 32 },
-	"reset-nswitch@0x6000635c": { "reset-base": 128, "reset-count": 32 },
-	"reset-nswitch@0x6000628c": { "reset-base": 160, "reset-count": 32 },
-	"reset-nswitch@0x600062a4": { "reset-base": 192, "reset-count": 32 },
+	"reset-nswitch@0x60006300": { "reset-base":   0, "reset-count": 32 },
+	"reset-nswitch@0x60006308": { "reset-base":  32, "reset-count": 32 },
+	"reset-nswitch@0x60006310": { "reset-base":  64, "reset-count": 32 },
+	"reset-nswitch@0x60006430": { "reset-base":  96, "reset-count": 32 },
+	"reset-nswitch@0x60006438": { "reset-base": 128, "reset-count": 32 },
+	"reset-nswitch@0x60006290": { "reset-base": 160, "reset-count": 32 },
+	"reset-nswitch@0x600062a8": { "reset-base": 192, "reset-count": 32 },
 
 	"uart-nswitch@0x70006000": {
 		"clock-name": "link-uart0",

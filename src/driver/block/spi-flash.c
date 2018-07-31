@@ -308,7 +308,7 @@ static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_
 		info->opcode_write = OPCODE_PROG;
 		return TRUE;
 	}
-	if(spi_flash_read_id(dev, &id))
+	else if(spi_flash_read_id(dev, &id))
 	{
 		for(i = 0; i < ARRAY_SIZE(spi_flash_infos); i++)
 		{

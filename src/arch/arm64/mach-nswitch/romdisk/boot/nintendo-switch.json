@@ -81,6 +81,12 @@
 	"reset-nswitch@0x60006290": { "reset-base": 160, "reset-count": 32 },
 	"reset-nswitch@0x600062a8": { "reset-base": 192, "reset-count": 32 },
 
+	"gpio-nswitch@0x6000d000": {
+		"gpio-base": 0,
+		"gpio-count": 248,
+		"interrupt-offset": -1
+	},
+
 	"uart-nswitch@0x70006000": {
 		"clock-name": "link-uart0",
 		"reset": -1,

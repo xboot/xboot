@@ -81,6 +81,11 @@
 	"reset-nswitch@0x60006290": { "reset-base": 160, "reset-count": 32 },
 	"reset-nswitch@0x600062a8": { "reset-base": 192, "reset-count": 32 },
 
+	"irq-gic400@0x50041000": {
+		"interrupt-base": 0,
+		"interrupt-count": 160
+	},
+
 	"gpio-nswitch@0x6000d000": {
 		"gpio-base": 0,
 		"gpio-count": 248,

@@ -12,11 +12,10 @@ static void usage(void)
 
 static int do_bootlinux(int argc, char ** argv)
 {
-	struct machine_t * mach = get_machine();
 	void * kernel;
 	void * dtb;
 
-	if(!mach || (argc != 3))
+	if(argc != 3)
 	{
 		usage();
 		return -1;
@@ -37,7 +36,7 @@ static int do_bootlinux(int argc, char ** argv)
 
 static struct command_t cmd_bootlinux = {
 	.name	= "bootlinux",
-	.desc	= "boot aarch32 linux kernel",
+	.desc	= "boot arm32 linux kernel image stored in memory",
 	.usage	= usage,
 	.exec	= do_bootlinux,
 };

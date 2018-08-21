@@ -31,6 +31,13 @@ struct boot_head_t {
 	uint32_t string_pool[13];
 };
 
+#define ALIGN(x,a)      __ALIGN_MASK((x),(typeof(x))(a)-1)
+#define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
+
+#define SUN4I_SRAM_SIZE (24 * 1024)
+#define SRAM_LOAD_MAX_SIZE (SUN4I_SRAM_SIZE - sizeof(boot_file_head_t))
+#define BLOCK_SIZE 512
+
 int main (int argc, char *argv[])
 {
 	struct boot_head_t * h;
@@ -64,7 +71,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	buflen = (filelen + 0x2000) & ~(0x2000 - 1);
+	buflen = ALIGN(filelen, BLOCK_SIZE);
 	buffer = malloc(buflen);
 	memset(buffer, 0, buflen);
 	if(fread(buffer, 1, filelen, fp) != filelen)
@@ -77,9 +84,11 @@ int main (int argc, char *argv[])
 
 	h = (struct boot_head_t *)buffer;
 	p = (uint32_t *)h;
+    h->length = ALIGN(h->length, BLOCK_SIZE);//align block size
 	l = le32_to_cpu(h->length);
 	h->checksum = cpu_to_le32(0x5F0A6C39);
 	loop = l >> 2;
+    printf("bootloader size= %x\n", h->length);
 	for(i = 0, sum = 0; i < loop; i++)
 		sum += le32_to_cpu(p[i]);
 	h->checksum = cpu_to_le32(sum);

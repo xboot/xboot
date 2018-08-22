@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+#define ALIGN(x, a)		__ALIGN_MASK((x), (typeof(x))(a) - 1)
+
 #if 0
 static inline uint32_t __swab32(uint32_t x)
 {
@@ -10,11 +13,11 @@ static inline uint32_t __swab32(uint32_t x)
 		((x & (uint32_t)0x0000ff00UL)<<8) | \
 		((x & (uint32_t)0x00ff0000UL)>>8) );
 }
-#define cpu_to_le32(x)	(__swab32((uint32_t)(x)))
-#define le32_to_cpu(x)	(__swab32((uint32_t)(x)))
+#define cpu_to_le32(x)		(__swab32((uint32_t)(x)))
+#define le32_to_cpu(x)		(__swab32((uint32_t)(x)))
 #else
-#define cpu_to_le32(x)	(x)
-#define le32_to_cpu(x)	(x)
+#define cpu_to_le32(x)		(x)
+#define le32_to_cpu(x)		(x)
 #endif
 
 struct boot_head_t {
@@ -64,7 +67,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	buflen = (filelen + 0x2000) & ~(0x2000 - 1);
+	buflen = ALIGN(filelen, 512);
 	buffer = malloc(buflen);
 	memset(buffer, 0, buflen);
 	if(fread(buffer, 1, filelen, fp) != filelen)
@@ -78,12 +81,14 @@ int main (int argc, char *argv[])
 	h = (struct boot_head_t *)buffer;
 	p = (uint32_t *)h;
 	l = le32_to_cpu(h->length);
+	l = ALIGN(l, 512);
+	h->length = cpu_to_le32(l);
 	h->checksum = cpu_to_le32(0x5F0A6C39);
 	loop = l >> 2;
 	for(i = 0, sum = 0; i < loop; i++)
 		sum += le32_to_cpu(p[i]);
 	h->checksum = cpu_to_le32(sum);
-	
+
 	fseek(fp, 0L, SEEK_SET);
 	if(fwrite(buffer, 1, buflen, fp) != buflen)
 	{
@@ -94,6 +99,6 @@ int main (int argc, char *argv[])
 	}
 
 	fclose(fp);
-	printf("The bootloader head has been fixed\n");
+	printf("The bootloader head has been fixed, spl size is %d bytes.\r\n", l);
 	return 0;
 }

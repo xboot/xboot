@@ -89,7 +89,7 @@ _start:
 	/* Boot head information for BROM */
 	.long 0xea000016
 	.byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'
-	.long 0, 0x3a00
+	.long 0, __spl_size
 	.byte 'S', 'P', 'L', 2
 	.long 0, 0
 	.long 0, 0, 0, 0, 0, 0, 0, 0
@@ -179,7 +179,7 @@ reset:
 	beq _speedup
 	ldr r0, =0x81f80000
 	adr r1, _start
-	mov r2, #0x4000
+	ldr r2, =__spl_size
 	bl memcpy
 	ldr r0, =_speedup
 	ldr r1, =_start

@@ -132,6 +132,10 @@
 	"clk-rk3288-gate@0xff76017c": { "parent": "div-saradc", "name": "gate-pclk-saradc", "shift": 1, "invert": true },
 	"clk-link": { "parent": "gate-pclk-saradc", "name": "link-pclk-saradc" },
 
+	"clk-rk3288-gate@0xff760174": { "parent": "xin24m", "name": "gate-ps2c", "shift": 13, "invert": true },
+	"clk-rk3288-gate@0xff760178": { "parent": "gate-ps2c", "name": "gate-pclk-ps2c", "shift": 7, "invert": true },
+	"clk-link": { "parent": "gate-pclk-ps2c", "name": "link-pclk-ps2c" },
+
 	"clk-rk3288-mux@0xff760094": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
@@ -739,6 +743,15 @@
 		"i2c-bus": "i2c-rk3288.0",
 		"slave-address": 50,
 		"interrupt-gpio": 4
+	},
+
+	"ps2key-rk3288@0xff260000": {
+		"clock-name": "link-pclk-ps2c",
+		"sda-gpio": 257,
+		"sda-gpio-config": 1,
+		"scl-gpio": 256,
+		"scl-gpio-config": 1,
+		"interrupt": 79
 	},
 
 	"key-adc@0": {

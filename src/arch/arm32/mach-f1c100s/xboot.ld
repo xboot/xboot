@@ -17,8 +17,9 @@ MEMORY
 
 SECTIONS
 {
-	.text :
+	.bootloader :
 	{
+		PROVIDE(__bootloader_start = .);
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-f1c100s/start.o (.text)
@@ -31,6 +32,13 @@ SECTIONS
 		.obj/arch/arm32/mach-f1c100s/sys-decompress.o (.text)
 		.obj/arch/arm32/mach-f1c100s/sys-spi-flash.o (.text)
 		.obj/arch/arm32/mach-f1c100s/sys-copyself.o (.text)
+		PROVIDE(__bootloader_end = .);
+	} > ram
+
+	__bootloader_size = SIZEOF(.bootloader);
+
+	.text :
+	{
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

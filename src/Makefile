@@ -169,6 +169,9 @@ SRCDIRS		+=	external/json-parser-1.1.0
 INCDIRS		+= 	external/libfdt-1.4.2
 SRCDIRS		+=	external/libfdt-1.4.2
 
+INCDIRS		+= 	external/lz4-1.8.2
+SRCDIRS		+=	external/lz4-1.8.2
+
 INCDIRS		+= 	external/zlib-1.2.11
 SRCDIRS		+=	external/zlib-1.2.11
 

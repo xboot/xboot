@@ -26,68 +26,68 @@
  *
  */
 
-#include <led/ledtrig.h>
+#include <led/ledtrigger.h>
 #include <framework/hardware/l-hardware.h>
 
-static int l_ledtrig_new(lua_State * L)
+static int l_ledtrigger_new(lua_State * L)
 {
 	const char * name = luaL_checkstring(L, 1);
-	struct ledtrig_t * trigger = search_ledtrig(name);
+	struct ledtrigger_t * trigger = search_ledtrigger(name);
 	if(!trigger)
 		return 0;
 	lua_pushlightuserdata(L, trigger);
-	luaL_setmetatable(L, MT_HARDWARE_LEDTRIG);
+	luaL_setmetatable(L, MT_HARDWARE_LEDTRIGGER);
 	return 1;
 }
 
-static int l_ledtrig_list(lua_State * L)
+static int l_ledtrigger_list(lua_State * L)
 {
 	struct device_t * pos, * n;
-	struct ledtrig_t * trigger;
+	struct ledtrigger_t * trigger;
 
 	lua_newtable(L);
-	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_LEDTRIG], head)
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_LEDTRIGGER], head)
 	{
-		trigger = (struct ledtrig_t *)(pos->priv);
+		trigger = (struct ledtrigger_t *)(pos->priv);
 		if(!trigger)
 			continue;
 		lua_pushlightuserdata(L, trigger);
-		luaL_setmetatable(L, MT_HARDWARE_LEDTRIG);
+		luaL_setmetatable(L, MT_HARDWARE_LEDTRIGGER);
 		lua_setfield(L, -2, pos->name);
 	}
 	return 1;
 }
 
-static const luaL_Reg l_ledtrig[] = {
-	{"new",		l_ledtrig_new},
-	{"list",	l_ledtrig_list},
+static const luaL_Reg l_ledtrigger[] = {
+	{"new",		l_ledtrigger_new},
+	{"list",	l_ledtrigger_list},
 	{NULL, NULL}
 };
 
-static int m_ledtrig_tostring(lua_State * L)
+static int m_ledtrigger_tostring(lua_State * L)
 {
-	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_HARDWARE_LEDTRIG);
+	struct ledtrigger_t * trigger = luaL_checkudata(L, 1, MT_HARDWARE_LEDTRIGGER);
 	lua_pushstring(L, trigger->name);
 	return 1;
 }
 
-static int m_ledtrig_activity(lua_State * L)
+static int m_ledtrigger_activity(lua_State * L)
 {
-	struct ledtrig_t * trigger = luaL_checkudata(L, 1, MT_HARDWARE_LEDTRIG);
-	ledtrig_activity(trigger);
+	struct ledtrigger_t * trigger = luaL_checkudata(L, 1, MT_HARDWARE_LEDTRIGGER);
+	ledtrigger_activity(trigger);
 	lua_settop(L, 1);
 	return 1;
 }
 
-static const luaL_Reg m_ledtrig[] = {
-	{"__tostring",	m_ledtrig_tostring},
-	{"activity",	m_ledtrig_activity},
+static const luaL_Reg m_ledtrigger[] = {
+	{"__tostring",	m_ledtrigger_tostring},
+	{"activity",	m_ledtrigger_activity},
 	{NULL,	NULL}
 };
 
-int luaopen_hardware_ledtrig(lua_State * L)
+int luaopen_hardware_ledtrigger(lua_State * L)
 {
-	luaL_newlib(L, l_ledtrig);
-	luahelper_create_metatable(L, MT_HARDWARE_LEDTRIG, m_ledtrig);
+	luaL_newlib(L, l_ledtrigger);
+	luahelper_create_metatable(L, MT_HARDWARE_LEDTRIGGER, m_ledtrigger);
 	return 1;
 }

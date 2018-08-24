@@ -761,20 +761,20 @@
 		"default-brightness": 0
 	},
 
-	"ledtrig-heartbeat@0": {
+	"ledtrigger-heartbeat@0": {
 		"led-name": "led-gpio.3",
 		"period-ms": 1260
 	},
 
-	"ledtrig-general@0": {
+	"ledtrigger-general@0": {
 		"led-name": "led-gpio.0"
 	},
 
-	"ledtrig-general@1": {
+	"ledtrigger-general@1": {
 		"led-name": "led-gpio.1"
 	},
 
-	"ledtrig-general@2": {
+	"ledtrigger-general@2": {
 		"led-name": "led-gpio.2"
 	},
 

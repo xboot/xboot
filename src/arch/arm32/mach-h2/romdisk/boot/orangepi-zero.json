@@ -450,12 +450,12 @@
 		"default-brightness": 0
 	},
 
-	"ledtrig-heartbeat@0": {
+	"ledtrigger-heartbeat@0": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"ledtrig-breathing@0": {
+	"ledtrigger-breathing@0": {
 		"led-name": "led-pwm.0",
 		"interval-ms": 20,
 		"period-ms": 3000

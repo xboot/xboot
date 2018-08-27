@@ -87,6 +87,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "hardware.hygrometer",	luaopen_hardware_hygrometer },
 		{ "hardware.i2c",			luaopen_hardware_i2c },
 		{ "hardware.led",			luaopen_hardware_led },
+		{ "hardware.ledstrip",		luaopen_hardware_ledstrip },
 		{ "hardware.ledtrigger",	luaopen_hardware_ledtrigger },
 		{ "hardware.light",			luaopen_hardware_light },
 		{ "hardware.motor",			luaopen_hardware_motor },

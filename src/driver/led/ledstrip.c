@@ -53,7 +53,7 @@ static ssize_t ledstrip_read_color(struct kobj_t * kobj, void * buf, size_t size
 	for(i = 0, len = 0; i < c; i++)
 	{
 		color = ledstrip_get_color(strip, i);
-		len += sprintf((char *)(buf + len), "[%3d][%3d %3d %3d]\r\c", i, (color >> 16) & 0xff, (color >> 8) & 0xff, (color >> 0) & 0xff);
+		len += sprintf((char *)(buf + len), "[%3d][%3d %3d %3d]\r\n", i, (color >> 16) & 0xff, (color >> 8) & 0xff, (color >> 0) & 0xff);
 	}
 	return len;
 }
@@ -161,7 +161,7 @@ void ledstrip_set_color(struct ledstrip_t * strip, int i, uint32_t color)
 	if(strip && strip->set_color)
 	{
 		if((i >= 0) && (i < c))
-			strip->set_color(strip, i, color & 0xffffff);
+			strip->set_color(strip, i, color & 0x00ffffff);
 	}
 }
 

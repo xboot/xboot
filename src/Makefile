@@ -296,17 +296,14 @@ $(X_NAME) : $(X_OBJS)
 
 $(X_SOBJS) : .obj/%.o : %.S
 	@echo [AS] $<
-	@$(AS) $(X_ASFLAGS) $(X_INCDIRS) -c $< -o $@
 	@$(AS) $(X_ASFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
 $(X_COBJS) : .obj/%.o : %.c
 	@echo [CC] $<
-	@$(CC) $(X_CFLAGS) $(X_INCDIRS) -c $< -o $@
 	@$(CC) $(X_CFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
 $(X_CPPOBJS) : .obj/%.o : %.cpp
 	@echo [CXX] $<
-	@$(CXX) $(X_CXXFLAGS) $(X_INCDIRS) -c $< -o $@	
 	@$(CXX) $(X_CXXFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
 clean:

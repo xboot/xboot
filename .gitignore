@@ -13,6 +13,8 @@
 *.orig
 *.d
 *.o
+*.a
+*.so
 *~
 
 #
@@ -22,4 +24,3 @@
 /src/.obj/
 /output/*
 /output
-

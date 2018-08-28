@@ -27,21 +27,22 @@
  */
 
 #include <xboot.h>
-#include <block/spi-flash.h>
+#include <spi/spi.h>
+#include <block/block.h>
 
 enum {
-	OPCODE_SFDP		= 0x5a,
-	OPCODE_RDID		= 0x9f,
-	OPCODE_WRSR		= 0x01,
-	OPCODE_RDSR		= 0x05,
-	OPCODE_WREN		= 0x06,
-	OPCODE_READ		= 0x03,
-	OPCODE_PROG		= 0x02,
-	OPCODE_E4K		= 0x20,
-	OPCODE_E32K		= 0x52,
-	OPCODE_E64K		= 0xd8,
-	OPCODE_ENTER_4B	= 0xb7,
-	OPCODE_EXIT_4B	= 0xe9,
+	OPCODE_SFDP			= 0x5a,
+	OPCODE_RDID			= 0x9f,
+	OPCODE_WRSR			= 0x01,
+	OPCODE_RDSR			= 0x05,
+	OPCODE_WREN			= 0x06,
+	OPCODE_READ			= 0x03,
+	OPCODE_PROG			= 0x02,
+	OPCODE_E4K			= 0x20,
+	OPCODE_E32K			= 0x52,
+	OPCODE_E64K			= 0xd8,
+	OPCODE_ENTER_4B		= 0xb7,
+	OPCODE_EXIT_4B		= 0xe9,
 };
 #define SFDP_MAX_NPH	(6)
 

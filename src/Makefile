@@ -310,7 +310,7 @@ $(X_CPPOBJS) : .obj/%.o : %.cpp
 	@$(CXX) $(X_CXXFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
 clean:
-	@$(RM) $(X_OBJDIRS) $(X_OUT)
+	@$(RM) .obj $(X_OUT)
 	@echo Clean xboot complete.
 
 #

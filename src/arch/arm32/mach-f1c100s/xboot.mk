@@ -27,4 +27,4 @@ endif
 xend:
 	@echo Make header information for brom booting
 	@$(MKSUNXI) $(X_NAME).bin
-	@$(MKZ) 16384 $(X_NAME).bin $(X_NAME).bin.z
+	@$(MKZ) -m 3 -n 0 -p 0 -z -s 16384 -i "" -k "" $(X_NAME).bin $(X_NAME).bin.z

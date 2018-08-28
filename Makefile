@@ -1,18 +1,11 @@
 #
-# Makefile for xboot
-# Create by: Jianjun Jiang <8192542@qq.com>
+# Top makefile
 #
 
-.PHONY: all clean module mclean
+.PHONY: all clean
 
 all:
 	@$(MAKE) -C src all
 
 clean:
 	@$(MAKE) -C src clean
-	
-module:
-	@$(MAKE) -C src module
-
-mclean:
-	@$(MAKE) -C src mclean

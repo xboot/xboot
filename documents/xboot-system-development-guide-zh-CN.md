@@ -1643,7 +1643,7 @@ machine_exitcall(licheepi_zero_machine_exit);
 		"default-brightness": 0
 	},
 
-	"ledtrig-heartbeat@0": {
+	"ledtrigger-heartbeat@0": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},

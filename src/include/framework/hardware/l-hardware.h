@@ -18,7 +18,8 @@ extern "C" {
 #define	MT_HARDWARE_HYGROMETER	"mt_hardware_hygrometer"
 #define	MT_HARDWARE_I2C			"mt_hardware_i2c"
 #define	MT_HARDWARE_LED			"mt_hardware_led"
-#define	MT_HARDWARE_LEDTRIG		"mt_hardware_ledtrig"
+#define	MT_HARDWARE_LEDSTRIP	"mt_hardware_ledstrip"
+#define	MT_HARDWARE_LEDTRIGGER	"mt_hardware_ledtrigger"
 #define	MT_HARDWARE_LIGHT		"mt_hardware_light"
 #define	MT_HARDWARE_MOTOR		"mt_hardware_motor"
 #define	MT_HARDWARE_NVMEM		"mt_hardware_nvmem"
@@ -44,7 +45,8 @@ int luaopen_hardware_gyroscope(lua_State * L);
 int luaopen_hardware_hygrometer(lua_State * L);
 int luaopen_hardware_i2c(lua_State * L);
 int luaopen_hardware_led(lua_State * L);
-int luaopen_hardware_ledtrig(lua_State * L);
+int luaopen_hardware_ledstrip(lua_State * L);
+int luaopen_hardware_ledtrigger(lua_State * L);
 int luaopen_hardware_light(lua_State * L);
 int luaopen_hardware_motor(lua_State * L);
 int luaopen_hardware_nvmem(lua_State * L);

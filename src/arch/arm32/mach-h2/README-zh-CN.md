@@ -43,13 +43,13 @@ sudo make install
   https://github.com/xboot/xboot
 
 - XBOOT运行效果展示页面，首次接触的用户，建议观看，对XBOOT有个直观的感受
-  https://github.com/xboot/xboot/blob/master/documents/xboot-show-case.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-show-case-zh-CN.md
 
 - XBOOT系统开发指南
-  https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-system-development-guide-zh-CN.md
 
 - XBOOT应用开发指南
-  https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide.md
+  https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide-zh-CN.md
 
 - XBOOT官方QQ群，大佬聚集，请踊跃加入
   [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000人)

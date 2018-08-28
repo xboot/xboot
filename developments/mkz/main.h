@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <crc32.h>
+#include <sha256.h>
 #include <lz4.h>
 #include "lz4hc.h"
 

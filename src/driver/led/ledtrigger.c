@@ -1,5 +1,5 @@
 /*
- * driver/led/ledtrig.c
+ * driver/led/ledtrigger.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,42 +27,42 @@
  */
 
 #include <xboot.h>
-#include <led/ledtrig.h>
+#include <led/ledtrigger.h>
 
-static ssize_t ledtrig_write_activity(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t ledtrigger_write_activity(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct ledtrig_t * ledtrig = (struct ledtrig_t *)kobj->priv;
+	struct ledtrigger_t * trigger = (struct ledtrigger_t *)kobj->priv;
 
-	ledtrig_activity(ledtrig);
+	ledtrigger_activity(trigger);
 	return size;
 }
 
-struct ledtrig_t * search_ledtrig(const char * name)
+struct ledtrigger_t * search_ledtrigger(const char * name)
 {
 	struct device_t * dev;
 
-	dev = search_device(name, DEVICE_TYPE_LEDTRIG);
+	dev = search_device(name, DEVICE_TYPE_LEDTRIGGER);
 	if(!dev)
 		return NULL;
-	return (struct ledtrig_t *)dev->priv;
+	return (struct ledtrigger_t *)dev->priv;
 }
 
-bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * ledtrig)
+bool_t register_ledtrigger(struct device_t ** device, struct ledtrigger_t * trigger)
 {
 	struct device_t * dev;
 
-	if(!ledtrig || !ledtrig->name)
+	if(!trigger || !trigger->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name = strdup(ledtrig->name);
-	dev->type = DEVICE_TYPE_LEDTRIG;
-	dev->priv = ledtrig;
+	dev->name = strdup(trigger->name);
+	dev->type = DEVICE_TYPE_LEDTRIGGER;
+	dev->priv = trigger;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "activity", NULL, ledtrig_write_activity, ledtrig);
+	kobj_add_regular(dev->kobj, "activity", NULL, ledtrigger_write_activity, trigger);
 
 	if(!register_device(dev))
 	{
@@ -77,14 +77,14 @@ bool_t register_ledtrig(struct device_t ** device, struct ledtrig_t * ledtrig)
 	return TRUE;
 }
 
-bool_t unregister_ledtrig(struct ledtrig_t * ledtrig)
+bool_t unregister_ledtrigger(struct ledtrigger_t * trigger)
 {
 	struct device_t * dev;
 
-	if(!ledtrig || !ledtrig->name)
+	if(!trigger || !trigger->name)
 		return FALSE;
 
-	dev = search_device(ledtrig->name, DEVICE_TYPE_LEDTRIG);
+	dev = search_device(trigger->name, DEVICE_TYPE_LEDTRIGGER);
 	if(!dev)
 		return FALSE;
 
@@ -97,8 +97,8 @@ bool_t unregister_ledtrig(struct ledtrig_t * ledtrig)
 	return TRUE;
 }
 
-void ledtrig_activity(struct ledtrig_t * ledtrig)
+void ledtrigger_activity(struct ledtrigger_t * trigger)
 {
-	if(ledtrig && ledtrig->activity)
-		ledtrig->activity(ledtrig);
+	if(trigger && trigger->activity)
+		trigger->activity(trigger);
 }

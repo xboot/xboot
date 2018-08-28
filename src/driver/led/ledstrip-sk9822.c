@@ -41,8 +41,8 @@
  *       "clk-gpio": 11,
  *       "clk-gpio-config": -1,
  *       "clk-gpio-inverted": 0,
- *       "brightness-level": 31,
- *       "led-count": 64
+ *       "brightness": 31,
+ *       "count": 64
  *   }
  */
 
@@ -156,7 +156,7 @@ static struct device_t * ledstrip_sk9822_probe(struct driver_t * drv, struct dtn
 	pdat->clk = clk;
 	pdat->clkcfg = dt_read_int(n, "clk-gpio-config", -1);
 	pdat->clkinv = dt_read_int(n, "clk-gpio-inverted", 0);
-	pdat->brightness = dt_read_int(n, "brightness-level", 31);
+	pdat->brightness = dt_read_int(n, "brightness", 31);
 	pdat->count = 0;
 	pdat->buffer = NULL;
 
@@ -184,7 +184,7 @@ static struct device_t * ledstrip_sk9822_probe(struct driver_t * drv, struct dtn
 		gpio_set_direction(pdat->clk, GPIO_DIRECTION_OUTPUT);
 		gpio_set_value(pdat->clk, pdat->clkinv ? 1 : 0);
 	}
-	ledstrip_sk9822_set_count(strip, dt_read_int(n, "led-count", 1));
+	ledstrip_sk9822_set_count(strip, dt_read_int(n, "count", 1));
 
 	if(!register_ledstrip(&dev, strip))
 	{

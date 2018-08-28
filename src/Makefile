@@ -270,11 +270,6 @@ X_SFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.S))
 X_CFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.c))
 X_CPPFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.cpp))
 
-X_SDEPS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o.d))
-X_CDEPS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o.d))
-X_CPPDEPS	:=	$(patsubst %, .obj/%, $(X_CPPFILES:.cpp=.o.d))
-X_DEPS		:=	$(X_SDEPS) $(X_CDEPS) $(X_CPPDEPS)
-
 X_SOBJS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o))
 X_COBJS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o))
 X_CPPOBJS	:=	$(patsubst %, .obj/%, $(X_CPPFILES:.cpp=.o)) 
@@ -296,15 +291,15 @@ $(X_NAME) : $(X_OBJS)
 
 $(X_SOBJS) : .obj/%.o : %.S
 	@echo [AS] $<
-	@$(AS) $(X_ASFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+	@$(AS) $(X_ASFLAGS) $(X_INCDIRS) -c $< -o $@
 
 $(X_COBJS) : .obj/%.o : %.c
 	@echo [CC] $<
-	@$(CC) $(X_CFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+	@$(CC) $(X_CFLAGS) $(X_INCDIRS) -c $< -o $@
 
 $(X_CPPOBJS) : .obj/%.o : %.cpp
 	@echo [CXX] $<
-	@$(CXX) $(X_CXXFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+	@$(CXX) $(X_CXXFLAGS) $(X_INCDIRS) -c $< -o $@
 
 clean:
 	@$(RM) .obj $(X_OUT)
@@ -322,5 +317,4 @@ sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
 			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj				\
 			&& $(CD) .obj/romdisk									\
 			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio	\
-			&& $(CD) ../..)											\
-			$(X_DEPS)
+			&& $(CD) ../..)

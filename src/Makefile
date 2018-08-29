@@ -60,9 +60,9 @@ ifeq ($(strip $(ARCH)), x64)
 DEFINES		+=	-D__X64__
 endif
 
-ASFLAGS		+=	-ffunction-sections -ffreestanding -std=gnu99 $(DEFINES)
-CFLAGS		+=	-ffunction-sections -ffreestanding -std=gnu99 $(DEFINES)
-CXXFLAGS	+=	-ffunction-sections -ffreestanding -std=gnu99 $(DEFINES)
+ASFLAGS		+=	-ffunction-sections -fdata-sections -ffreestanding -std=gnu99 $(DEFINES)
+CFLAGS		+=	-ffunction-sections -fdata-sections -ffreestanding -std=gnu99 $(DEFINES)
+CXXFLAGS	+=	-ffunction-sections -fdata-sections -ffreestanding -std=gnu99 $(DEFINES)
 LDFLAGS		+=	-Wl,-gc-sections
 
 #

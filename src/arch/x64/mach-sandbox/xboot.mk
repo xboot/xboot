@@ -177,8 +177,7 @@ SRCDIRS		:=
 
 xbegin:
 	@echo Building libsandbox
-	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandbox
+	@CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" $(MAKE) -C arch/$(ARCH)/$(MACH)/libsandbox
 
 xclean:
-	@echo Clean libsandbox
-	@$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" -C arch/$(ARCH)/$(MACH)/libsandbox clean
+	@$(MAKE) -C arch/$(ARCH)/$(MACH)/libsandbox clean

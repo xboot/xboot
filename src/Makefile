@@ -276,7 +276,7 @@ X_CPPOBJS	:=	$(patsubst %, .obj/%, $(X_CPPFILES:.cpp=.o))
 X_OBJS		:=	$(X_SOBJS) $(X_COBJS) $(X_CPPOBJS)
 
 VPATH		:=	$(X_OBJDIRS)
-.PHONY:	all clean xbegin xend
+.PHONY:	all clean xbegin xend xclean
 
 #
 # Xboot rules
@@ -301,9 +301,8 @@ $(X_CPPOBJS) : .obj/%.o : %.cpp
 	@echo [CXX] $<
 	@$(CXX) $(X_CXXFLAGS) $(X_INCDIRS) -c $< -o $@
 
-clean:
+clean : xclean
 	@$(RM) .obj $(X_OUT)
-	@echo Clean xboot complete.
 
 #
 # Include the dependency files, should be place the last of makefile

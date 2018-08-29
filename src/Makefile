@@ -60,9 +60,10 @@ ifeq ($(strip $(ARCH)), x64)
 DEFINES		+=	-D__X64__
 endif
 
-ASFLAGS		+= 	-ffreestanding -std=gnu99 $(DEFINES)
-CFLAGS		+=	-ffreestanding -std=gnu99 $(DEFINES)
-CXXFLAGS	+=	-ffreestanding -std=gnu99 $(DEFINES)
+ASFLAGS		+=	-ffunction-sections -ffreestanding -std=gnu99 $(DEFINES)
+CFLAGS		+=	-ffunction-sections -ffreestanding -std=gnu99 $(DEFINES)
+CXXFLAGS	+=	-ffunction-sections -ffreestanding -std=gnu99 $(DEFINES)
+LDFLAGS		+=	-Wl,-gc-sections
 
 #
 # Add necessary directory for INCDIRS and SRCDIRS.

@@ -21,14 +21,14 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm32/mach-s5pv210/start.o (.text)
-		.obj/arch/arm32/lib/memcpy.o (.text)
-		.obj/arch/arm32/lib/memset.o (.text)
-		.obj/arch/arm32/mach-s5pv210/sys-tzpc.o (.text)
-		.obj/arch/arm32/mach-s5pv210/sys-uart.o (.text)
-		.obj/arch/arm32/mach-s5pv210/sys-clock.o (.text)
-		.obj/arch/arm32/mach-s5pv210/sys-dram.o (.text)
-		.obj/arch/arm32/mach-s5pv210/sys-copyself.o (.text)
+		.obj/arch/arm32/mach-s5pv210/start.o (.text*)
+		.obj/arch/arm32/lib/memcpy.o (.text*)
+		.obj/arch/arm32/lib/memset.o (.text*)
+		.obj/arch/arm32/mach-s5pv210/sys-tzpc.o (.text*)
+		.obj/arch/arm32/mach-s5pv210/sys-uart.o (.text*)
+		.obj/arch/arm32/mach-s5pv210/sys-clock.o (.text*)
+		.obj/arch/arm32/mach-s5pv210/sys-dram.o (.text*)
+		.obj/arch/arm32/mach-s5pv210/sys-copyself.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

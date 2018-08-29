@@ -20,8 +20,8 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm64/mach-nswitch/start.o (.text)
-		.obj/arch/arm64/mach-nswitch/sys-uart.o (.text)
+		.obj/arch/arm64/mach-nswitch/start.o (.text*)
+		.obj/arch/arm64/mach-nswitch/sys-uart.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

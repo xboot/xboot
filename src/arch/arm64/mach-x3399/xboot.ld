@@ -20,8 +20,8 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm64/mach-x3399/start.o (.text)
-		.obj/arch/arm64/mach-x3399/transition.o (.text)
+		.obj/arch/arm64/mach-x3399/start.o (.text*)
+		.obj/arch/arm64/mach-x3399/transition.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

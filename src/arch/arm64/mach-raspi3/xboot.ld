@@ -20,7 +20,7 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm64/mach-raspi3/start.o (.text)
+		.obj/arch/arm64/mach-raspi3/start.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

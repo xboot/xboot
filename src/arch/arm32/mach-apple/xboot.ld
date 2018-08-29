@@ -21,7 +21,7 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm32/mach-apple/start.o (.text)
+		.obj/arch/arm32/mach-apple/start.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

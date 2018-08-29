@@ -22,14 +22,14 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		PROVIDE(__spl_start = .);
-		.obj/arch/arm32/mach-v3s/start.o (.text)
-		.obj/arch/arm32/lib/memcpy.o (.text)
-		.obj/arch/arm32/lib/memset.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-uart.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-clock.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-dram.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-spi-flash.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-copyself.o (.text)
+		.obj/arch/arm32/mach-v3s/start.o (.text*)
+		.obj/arch/arm32/lib/memcpy.o (.text*)
+		.obj/arch/arm32/lib/memset.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-uart.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-clock.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-dram.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-spi-flash.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-copyself.o (.text*)
 		PROVIDE(__spl_end = .);
 		*(.text*)
 		*(.init.text)

@@ -21,9 +21,9 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm32/mach-hi3518e/start.o (.text)
-		.obj/arch/arm32/lib/memcpy.o (.text)
-		.obj/arch/arm32/lib/memset.o (.text)
+		.obj/arch/arm32/mach-hi3518e/start.o (.text*)
+		.obj/arch/arm32/lib/memcpy.o (.text*)
+		.obj/arch/arm32/lib/memset.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

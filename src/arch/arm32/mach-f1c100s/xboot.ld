@@ -22,16 +22,16 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		PROVIDE(__spl_start = .);
-		.obj/arch/arm32/mach-f1c100s/start.o (.text)
-		.obj/arch/arm32/lib/memcpy.o (.text)
-		.obj/arch/arm32/lib/memset.o (.text)
-		.obj/arch/arm32/mach-f1c100s/sys-uart.o (.text)
-		.obj/arch/arm32/mach-f1c100s/sys-clock.o (.text)
-		.obj/arch/arm32/mach-f1c100s/sys-dram.o (.text)
-		.obj/arch/arm32/mach-f1c100s/sys-mmu.o (.text)
-		.obj/arch/arm32/mach-f1c100s/sys-decompress.o (.text)
-		.obj/arch/arm32/mach-f1c100s/sys-spi-flash.o (.text)
-		.obj/arch/arm32/mach-f1c100s/sys-copyself.o (.text)
+		.obj/arch/arm32/mach-f1c100s/start.o (.text*)
+		.obj/arch/arm32/lib/memcpy.o (.text*)
+		.obj/arch/arm32/lib/memset.o (.text*)
+		.obj/arch/arm32/mach-f1c100s/sys-uart.o (.text*)
+		.obj/arch/arm32/mach-f1c100s/sys-clock.o (.text*)
+		.obj/arch/arm32/mach-f1c100s/sys-dram.o (.text*)
+		.obj/arch/arm32/mach-f1c100s/sys-mmu.o (.text*)
+		.obj/arch/arm32/mach-f1c100s/sys-decompress.o (.text*)
+		.obj/arch/arm32/mach-f1c100s/sys-spi-flash.o (.text*)
+		.obj/arch/arm32/mach-f1c100s/sys-copyself.o (.text*)
 		PROVIDE(__spl_end = .);
 		*(.text*)
 		*(.init.text)

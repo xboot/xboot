@@ -77,7 +77,7 @@ SECTIONS
 		PROVIDE(__exitcall_end = .);
 	} > rom
 
-	.ksymtab ALIGN(8) :
+	.ksymtab ALIGN(16) :
 	{
 		PROVIDE(__ksymtab_start = .);
 		KEEP(*(.ksymtab.text))

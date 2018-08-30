@@ -33,7 +33,6 @@ endif
 #
 ASFLAGS		:= -g -ggdb -Wall -O0
 CFLAGS		:= -g -ggdb -Wall -O0
-CXXFLAGS	:= -g -ggdb -Wall -O0
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 MCFLAGS		:=
 
@@ -62,7 +61,6 @@ endif
 
 ASFLAGS		+=	-ffunction-sections -fdata-sections -ffreestanding -std=gnu99 $(DEFINES)
 CFLAGS		+=	-ffunction-sections -fdata-sections -ffreestanding -std=gnu99 $(DEFINES)
-CXXFLAGS	+=	-ffunction-sections -fdata-sections -ffreestanding -std=gnu99 $(DEFINES)
 LDFLAGS		+=	-Wl,-gc-sections
 
 #
@@ -255,7 +253,6 @@ CPIO		:=	cpio -o -H newc --quiet
 #
 X_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
 X_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
-X_CXXFLAGS	:=	$(MCFLAGS) $(CXXFLAGS)
 X_LDFLAGS	:=	$(LDFLAGS)
 X_LIBS		:=	$(LIBS) -lgcc
 
@@ -268,12 +265,10 @@ X_OBJDIRS	:=	$(patsubst %, .obj/%, $(X_SRCDIRS))
 
 X_SFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.S))
 X_CFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.c))
-X_CPPFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.cpp))
 
 X_SOBJS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o))
 X_COBJS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o))
-X_CPPOBJS	:=	$(patsubst %, .obj/%, $(X_CPPFILES:.cpp=.o)) 
-X_OBJS		:=	$(X_SOBJS) $(X_COBJS) $(X_CPPOBJS)
+X_OBJS		:=	$(X_SOBJS) $(X_COBJS)
 
 VPATH		:=	$(X_OBJDIRS)
 .PHONY:	all clean xbegin xend xclean
@@ -296,10 +291,6 @@ $(X_SOBJS) : .obj/%.o : %.S
 $(X_COBJS) : .obj/%.o : %.c
 	@echo [CC] $<
 	@$(CC) $(X_CFLAGS) $(X_INCDIRS) -c $< -o $@
-
-$(X_CPPOBJS) : .obj/%.o : %.cpp
-	@echo [CXX] $<
-	@$(CXX) $(X_CXXFLAGS) $(X_INCDIRS) -c $< -o $@
 
 clean : xclean
 	@$(RM) .obj $(X_OUT)

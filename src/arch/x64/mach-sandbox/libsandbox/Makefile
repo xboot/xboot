@@ -13,17 +13,14 @@ RM			:= rm -fr
 
 ASFLAGS		+= -g -ggdb -Wall -O3
 CFLAGS		+= -g -ggdb -Wall -O3
-CXXFLAGS	+= -g -ggdb -Wall -O3
 INCDIRS		:= -I .
 SRCDIRS		:= .
 
 SFILES		:= $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.S))
 CFILES		:= $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
-CPPFILES	:= $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 SOBJS		:= $(patsubst %, %, $(SFILES:.S=.o))
 COBJS		:= $(patsubst %, %, $(CFILES:.c=.o))
-CPPOBJS		:= $(patsubst %, %, $(CPPFILES:.cpp=.o)) 
-OBJS		:= $(SOBJS) $(COBJS) $(CPPOBJS)
+OBJS		:= $(SOBJS) $(COBJS)
 NAME		:= libsandbox
 
 .PHONY: all clean
@@ -41,10 +38,6 @@ $(SOBJS) : %.o : %.S
 $(COBJS) : %.o : %.c
 	@echo [CC] $<
 	@$(CC) $(CFLAGS) $(INCDIRS) -c $< -o $@
-
-$(CPPOBJS) : %.o : %.cpp
-	@echo [CXX] $<
-	@$(CXX) $(CXXFLAGS) $(INCDIRS) -c $< -o $@
 
 clean:
 	@$(RM) $(OBJS) $(NAME).a

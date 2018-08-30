@@ -166,7 +166,6 @@ SDL_LIBS	:= $(shell $(SDL_CONFIG) --libs)
 
 ASFLAGS		:= -g -ggdb -Wall -O2
 CFLAGS		:= -g -ggdb -Wall -O2
-CXXFLAGS	:= -g -ggdb -Wall -O2
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
@@ -177,7 +176,7 @@ SRCDIRS		:=
 
 xbegin:
 	@echo Building libsandbox
-	@CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" CXXFLAGS="$(SDL_FLAGS)" $(MAKE) -C arch/$(ARCH)/$(MACH)/libsandbox
+	@CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" $(MAKE) -C arch/$(ARCH)/$(MACH)/libsandbox
 
 xclean:
 	@$(MAKE) -C arch/$(ARCH)/$(MACH)/libsandbox clean

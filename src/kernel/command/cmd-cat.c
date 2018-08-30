@@ -37,7 +37,7 @@ static void usage(void)
 static int cat_file(const char * filename)
 {
     struct stat st;
-	char buf[BUFSIZ];
+	char * buf;
     ssize_t i, n;
     int fd;
 
@@ -60,6 +60,14 @@ static int cat_file(const char * filename)
 		return -1;
 	}
 
+	buf = malloc(SZ_512K);
+	if(!buf)
+	{
+		printf("cat: Can not alloc memory\r\n");
+		close(fd);
+		return -1;
+	}
+
 	while((n = read(fd, buf, sizeof(buf))) > 0)
 	{
 		for(i = 0; i < n; i++)
@@ -67,7 +75,9 @@ static int cat_file(const char * filename)
 	}
 	printf("\r\n");
 
+	free(buf);
 	close(fd);
+
 	return 0;
 }
 

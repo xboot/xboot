@@ -6,6 +6,8 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <list.h>
+#include <xboot/kobj.h>
 
 struct symbol_t
 {
@@ -14,11 +16,14 @@ struct symbol_t
 };
 
 struct module_t {
+	struct kobj_t * kobj;
+	struct list_head list;
+
 	char * name;
 	void * space;
-	void * module_entry;
+	void * entry;
 	struct symbol_t * symtab;
-	size_t nsym;
+	int nsym;
 };
 
 #define EXPORT_SYMBOL(symbol) \
@@ -29,8 +34,8 @@ struct module_t {
 
 #define symbol_get(x) ((typeof(&x))(__symbol_get(#x)))
 void * __symbol_get(const char * name);
-bool_t register_module(struct module_t * module);
-bool_t unregister_module(struct module_t * module);
+bool_t register_module(struct module_t * m);
+bool_t unregister_module(struct module_t * m);
 
 #ifdef __cplusplus
 }

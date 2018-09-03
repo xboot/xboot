@@ -125,8 +125,6 @@ static int new_value(struct json_state_t * state, struct json_value_t ** top, st
 
 	value->type = type;
 	value->parent = *top;
-	value->line = state->cur_line;
-	value->col = state->cur_col;
 
 	if(*alloc)
 		(*alloc)->reserved.next_alloc = value;
@@ -134,9 +132,9 @@ static int new_value(struct json_state_t * state, struct json_value_t ** top, st
 	return 1;
 }
 
-struct json_value_t * json_parse(const char * json, size_t length, char * ebuf)
+struct json_value_t * json_parse(const char * json, size_t length, char * errbuf)
 {
-	char error[256];
+	char error[128];
 	const char * end;
 	struct json_value_t * top, * root, * alloc = 0;
 	struct json_state_t state = { 0 };
@@ -793,12 +791,12 @@ e_overflow:
 	goto e_failed;
 
 e_failed:
-	if(ebuf)
+	if(errbuf)
 	{
 		if(*error)
-			strcpy(ebuf, error);
+			strcpy(errbuf, error);
 		else
-			strcpy(ebuf, "Unknown error");
+			strcpy(errbuf, "Unknown error");
 	}
 	if(state.first_pass)
 		alloc = root;

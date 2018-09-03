@@ -51,9 +51,6 @@ struct json_value_t {
 		struct json_value_t * next_alloc;
 		void * object_mem;
 	} reserved;
-
-	unsigned int line;
-	unsigned int col;
 };
 
 struct json_object_entry_t {
@@ -62,7 +59,7 @@ struct json_object_entry_t {
 	struct json_value_t * value;
 };
 
-struct json_value_t * json_parse(const char * json, size_t length, char * ebuf);
+struct json_value_t * json_parse(const char * json, size_t length, char * errbuf);
 void json_free(struct json_value_t * value);
 
 #ifdef __cplusplus

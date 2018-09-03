@@ -46,17 +46,17 @@ physical_addr_t dt_read_address(struct dtnode_t * n)
 
 int dt_read_bool(struct dtnode_t * n, const char * name, int def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_boolean))
+				if(v && (v->type == JSON_BOOLEAN))
 					return v->u.boolean ? 1 : 0;
 			}
 		}
@@ -66,17 +66,17 @@ int dt_read_bool(struct dtnode_t * n, const char * name, int def)
 
 int dt_read_int(struct dtnode_t * n, const char * name, int def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_integer))
+				if(v && (v->type == JSON_INTEGER))
 					return (int)v->u.integer;
 			}
 		}
@@ -86,17 +86,17 @@ int dt_read_int(struct dtnode_t * n, const char * name, int def)
 
 long long dt_read_long(struct dtnode_t * n, const char * name, long long def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_integer))
+				if(v && (v->type == JSON_INTEGER))
 					return (long long)v->u.integer;
 			}
 		}
@@ -106,17 +106,17 @@ long long dt_read_long(struct dtnode_t * n, const char * name, long long def)
 
 double dt_read_double(struct dtnode_t * n, const char * name, double def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_double))
+				if(v && (v->type == JSON_DOUBLE))
 					return (double)v->u.dbl;
 			}
 		}
@@ -126,17 +126,17 @@ double dt_read_double(struct dtnode_t * n, const char * name, double def)
 
 char * dt_read_string(struct dtnode_t * n, const char * name, char * def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_string))
+				if(v && (v->type == JSON_STRING))
 					return (char *)v->u.string.ptr;
 			}
 		}
@@ -146,17 +146,17 @@ char * dt_read_string(struct dtnode_t * n, const char * name, char * def)
 
 u8_t dt_read_u8(struct dtnode_t * n, const char * name, u8_t def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_integer))
+				if(v && (v->type == JSON_INTEGER))
 					return (u8_t)v->u.integer;
 			}
 		}
@@ -166,17 +166,17 @@ u8_t dt_read_u8(struct dtnode_t * n, const char * name, u8_t def)
 
 u16_t dt_read_u16(struct dtnode_t * n, const char * name, u16_t def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_integer))
+				if(v && (v->type == JSON_INTEGER))
 					return (u16_t)v->u.integer;
 			}
 		}
@@ -186,17 +186,17 @@ u16_t dt_read_u16(struct dtnode_t * n, const char * name, u16_t def)
 
 u32_t dt_read_u32(struct dtnode_t * n, const char * name, u32_t def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_integer))
+				if(v && (v->type == JSON_INTEGER))
 					return (u32_t)v->u.integer;
 			}
 		}
@@ -206,17 +206,17 @@ u32_t dt_read_u32(struct dtnode_t * n, const char * name, u32_t def)
 
 u64_t dt_read_u64(struct dtnode_t * n, const char * name, u64_t def)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_integer))
+				if(v && (v->type == JSON_INTEGER))
 					return (u64_t)v->u.integer;
 			}
 		}
@@ -226,17 +226,17 @@ u64_t dt_read_u64(struct dtnode_t * n, const char * name, u64_t def)
 
 struct dtnode_t * dt_read_object(struct dtnode_t * n, const char * name, struct dtnode_t * o)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(o && n && n->value && (n->value->type == json_object))
+	if(o && n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_object))
+				if(v && (v->type == JSON_OBJECT))
 				{
 					o->name = name;
 					o->addr = 0;
@@ -251,17 +251,17 @@ struct dtnode_t * dt_read_object(struct dtnode_t * n, const char * name, struct 
 
 int dt_read_array_length(struct dtnode_t * n, const char * name)
 {
-	json_value * v;
+	struct json_value_t * v;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 					return v->u.array.length;
 			}
 		}
@@ -271,22 +271,22 @@ int dt_read_array_length(struct dtnode_t * n, const char * name)
 
 int dt_read_array_bool(struct dtnode_t * n, const char * name, int idx, int def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_boolean))
+						if(e && (e->type == JSON_BOOLEAN))
 							return e->u.boolean ? 1 : 0;
 					}
 				}
@@ -298,22 +298,22 @@ int dt_read_array_bool(struct dtnode_t * n, const char * name, int idx, int def)
 
 int dt_read_array_int(struct dtnode_t * n, const char * name, int idx, int def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_integer))
+						if(e && (e->type == JSON_INTEGER))
 							return (int)e->u.integer;
 					}
 				}
@@ -325,22 +325,22 @@ int dt_read_array_int(struct dtnode_t * n, const char * name, int idx, int def)
 
 long long dt_read_array_long(struct dtnode_t * n, const char * name, int idx, long long def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_integer))
+						if(e && (e->type == JSON_INTEGER))
 							return (long long)e->u.integer;
 					}
 				}
@@ -352,22 +352,22 @@ long long dt_read_array_long(struct dtnode_t * n, const char * name, int idx, lo
 
 double dt_read_array_double(struct dtnode_t * n, const char * name, int idx, double def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_double))
+						if(e && (e->type == JSON_DOUBLE))
 							return (double)e->u.dbl;
 					}
 				}
@@ -379,22 +379,22 @@ double dt_read_array_double(struct dtnode_t * n, const char * name, int idx, dou
 
 char * dt_read_array_string(struct dtnode_t * n, const char * name, int idx, char * def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_string))
+						if(e && (e->type == JSON_STRING))
 							return (char *)e->u.string.ptr;
 					}
 				}
@@ -406,22 +406,22 @@ char * dt_read_array_string(struct dtnode_t * n, const char * name, int idx, cha
 
 u8_t dt_read_array_u8(struct dtnode_t * n, const char * name, int idx, u8_t def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_integer))
+						if(e && (e->type == JSON_INTEGER))
 							return (u8_t)e->u.integer;
 					}
 				}
@@ -433,22 +433,22 @@ u8_t dt_read_array_u8(struct dtnode_t * n, const char * name, int idx, u8_t def)
 
 u16_t dt_read_array_u16(struct dtnode_t * n, const char * name, int idx, u16_t def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_integer))
+						if(e && (e->type == JSON_INTEGER))
 							return (u16_t)e->u.integer;
 					}
 				}
@@ -460,22 +460,22 @@ u16_t dt_read_array_u16(struct dtnode_t * n, const char * name, int idx, u16_t d
 
 u32_t dt_read_array_u32(struct dtnode_t * n, const char * name, int idx, u32_t def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_integer))
+						if(e && (e->type == JSON_INTEGER))
 							return (u32_t)e->u.integer;
 					}
 				}
@@ -487,22 +487,22 @@ u32_t dt_read_array_u32(struct dtnode_t * n, const char * name, int idx, u32_t d
 
 u64_t dt_read_array_u64(struct dtnode_t * n, const char * name, int idx, u64_t def)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(n && n->value && (n->value->type == json_object))
+	if(n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_integer))
+						if(e && (e->type == JSON_INTEGER))
 							return (u64_t)e->u.integer;
 					}
 				}
@@ -514,22 +514,22 @@ u64_t dt_read_array_u64(struct dtnode_t * n, const char * name, int idx, u64_t d
 
 struct dtnode_t * dt_read_array_object(struct dtnode_t * n, const char * name, int idx, struct dtnode_t * o)
 {
-	json_value * v, * e;
+	struct json_value_t * v, * e;
 	int i;
 
-	if(o && n && n->value && (n->value->type == json_object))
+	if(o && n && n->value && (n->value->type == JSON_OBJECT))
 	{
 		for(i = 0; i < n->value->u.object.length; i++)
 		{
 			if(strcmp(n->value->u.object.values[i].name, name) == 0)
 			{
 				v = n->value->u.object.values[i].value;
-				if(v && (v->type == json_array))
+				if(v && (v->type == JSON_ARRAY))
 				{
 					if(idx >= 0 && (idx < v->u.array.length))
 					{
 						e = v->u.array.values[idx];
-						if(e && (e->type == json_object))
+						if(e && (e->type == JSON_OBJECT))
 						{
 							o->name = 0;
 							o->addr = 0;

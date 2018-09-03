@@ -54,27 +54,27 @@ static ssize_t driver_write_probe(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct driver_t * drv = (struct driver_t *)kobj->priv;
 	struct dtnode_t n;
-	json_value * v;
+	struct json_value_t * v;
 	char * p;
 	int i;
 
 	if(buf && (size > 0))
 	{
-		v = json_parse(buf, size);
-		if(v && (v->type == json_object))
+		v = json_parse(buf, size, 0);
+		if(v && (v->type == JSON_OBJECT))
 		{
 			for(i = 0; i < v->u.object.length; i++)
 			{
 				p = (char *)(v->u.object.values[i].name);
 				n.name = strsep(&p, "@");
 				n.addr = p ? strtoull(p, NULL, 0) : 0;
-				n.value = (json_value *)(v->u.object.values[i].value);
+				n.value = (struct json_value_t *)(v->u.object.values[i].value);
 
 				if(strcmp(drv->name, n.name) == 0)
 					drv->probe(drv, &n);
 			}
 		}
-		json_value_free(v);
+		json_free(v);
 	}
 	return size;
 }
@@ -146,21 +146,21 @@ void probe_device(const char * json, int length)
 	struct driver_t * drv;
 	struct device_t * dev;
 	struct dtnode_t n;
-	json_value * v;
+	struct json_value_t * v;
 	char * p;
 	int i;
 
 	if(json && (length > 0))
 	{
-		v = json_parse(json, length);
-		if(v && (v->type == json_object))
+		v = json_parse(json, length, 0);
+		if(v && (v->type == JSON_OBJECT))
 		{
 			for(i = 0; i < v->u.object.length; i++)
 			{
 				p = (char *)(v->u.object.values[i].name);
 				n.name = strsep(&p, "@");
 				n.addr = p ? strtoull(p, NULL, 0) : 0;
-				n.value = (json_value *)(v->u.object.values[i].value);
+				n.value = (struct json_value_t *)(v->u.object.values[i].value);
 
 				drv = search_driver(n.name);
 				if(drv && (dev = drv->probe(drv, &n)))
@@ -169,7 +169,7 @@ void probe_device(const char * json, int length)
 					LOG("Fail to probe device with %s", n.name);
 			}
 		}
-		json_value_free(v);
+		json_free(v);
 	}
 }
 

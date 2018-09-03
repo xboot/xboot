@@ -13,7 +13,7 @@ extern "C" {
 struct dtnode_t {
 	const char * name;
 	physical_addr_t addr;
-	json_value * value;
+	struct json_value_t * value;
 };
 
 const char * dt_read_name(struct dtnode_t * n);

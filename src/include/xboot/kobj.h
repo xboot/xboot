@@ -5,7 +5,10 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
+#include <list.h>
+#include <irqflags.h>
+#include <spinlock.h>
 
 enum kobj_type_t {
 	KOBJ_TYPE_DIR,

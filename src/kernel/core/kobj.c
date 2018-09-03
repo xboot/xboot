@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <spinlock.h>
 #include <xboot/kobj.h>
 
 static struct kobj_t * __kobj_root = NULL;

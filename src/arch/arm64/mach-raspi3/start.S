@@ -58,17 +58,17 @@
 	stp x26, x27, [sp, #16 * 13]
 	stp x28, x29, [sp, #16 * 14]
 	.if \el == 0
-		mrs	x21, sp_el0
+		mrs x21, sp_el0
 	.else
-		add	x21, sp, #8 * 36
+		add x21, sp, #8 * 36
 	.endif
 	mrs x22, elr_el1
 	mrs x23, spsr_el1
 	stp x30, x21, [sp, #8 * 30]
 	stp x22, x23, [sp, #8 * 32]
 	.if \el == 0
-		mvn	x21, xzr
-		str	x21, [sp, #8 * 35]
+		mvn x21, xzr
+		str x21, [sp, #8 * 35]
 	.endif
 .endm
 
@@ -78,7 +78,7 @@
 .macro kernel_exit, el
 	ldp x21, x22, [sp, #8 * 32]
 	.if \el == 0
-		ldr	x23, [sp, #8 * 31]
+		ldr x23, [sp, #8 * 31]
 		msr sp_el0, x23
 	.endif
 	msr elr_el1, x21

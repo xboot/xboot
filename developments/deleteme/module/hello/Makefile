@@ -37,7 +37,6 @@ LIBS		:=	-lgcc
 INCDIRS		:=	-I $(XBOOT_PATH)/src/include \
 				-I $(XBOOT_PATH)/src/arch/$(ARCH)/include \
 				-I $(XBOOT_PATH)/src/arch/$(ARCH)/$(MACH)/include \
-				-I $(XBOOT_PATH)/src/external/json-parser-1.1.0 \
 				-I .
 SRCDIRS		:=	.
 

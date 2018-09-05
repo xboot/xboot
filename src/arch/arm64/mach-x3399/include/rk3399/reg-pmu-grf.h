@@ -17,9 +17,34 @@
 #define PMU_GRF_GPIO1C_P		(0x0058)
 #define PMU_GRF_GPIO1D_P		(0x005c)
 
+#define PMU_GRF_GPIO0A_E		(0x0080)
+#define PMU_GRF_GPIO0B_E		(0x0088)
+#define PMU_GRF_GPIO1A_E		(0x00a0)
+#define PMU_GRF_GPIO1B_E		(0x00a8)
+#define PMU_GRF_GPIO1C_E		(0x00b0)
+#define PMU_GRF_GPIO1D_E		(0x00b8)
+
+#define PMU_GRF_GPIO0L_SR		(0x0100)
+#define PMU_GRF_GPIO1L_SR		(0x0108)
+#define PMU_GRF_GPIO1H_SR		(0x010c)
+
+#define PMU_GRF_GPIO0A_SMT		(0x0120)
+#define PMU_GRF_GPIO0B_SMT		(0x0124)
+#define PMU_GRF_GPIO1A_SMT		(0x0130)
+#define PMU_GRF_GPIO1B_SMT		(0x0134)
+#define PMU_GRF_GPIO1C_SMT		(0x0138)
+#define PMU_GRF_GPIO1D_SMT		(0x013c)
+
+#define PMU_GRF_GPIO0L_HE		(0x0160)
+
 #define PMU_GRF_SOC_CON0		(0x0180)
 #define PMU_GRF_SOC_CON10		(0x01a8)
 #define PMU_GRF_SOC_CON11		(0x01ac)
+#define PMU_GRF_PMUPVTM_CON0	(0x0240)
+#define PMU_GRF_PMUPVTM_CON1	(0x0244)
+#define PMU_GRF_PMUPVTM_STATUS0	(0x0248)
+#define PMU_GRF_PMUPVTM_STATUS1	(0x024c)
+#define PMU_GRF_OSC_E			(0x0250)
 
 #define PMU_GRF_OS_REG0			(0x0300)
 #define PMU_GRF_OS_REG1			(0x0304)

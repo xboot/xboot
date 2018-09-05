@@ -29,74 +29,133 @@
 #include <xconfigs.h>
 #include <linkage.h>
 
+/*
+ * Vector entry
+ */
 .macro ventry label
 	.align 7
 	b \label
 .endm
 
-.macro save_regs
-	sub sp, sp, #0x20
-	stp x28, x29, [sp, #-16]!
-	stp x26, x27, [sp, #-16]!
-	stp x24, x25, [sp, #-16]!
-	stp x22, x23, [sp, #-16]!
-	stp x20, x21, [sp, #-16]!
-	stp x18, x19, [sp, #-16]!
-	stp x16, x17, [sp, #-16]!
-	stp x14, x15, [sp, #-16]!
-	stp x12, x13, [sp, #-16]!
-	stp x10, x11, [sp, #-16]!
-	stp x8, x9, [sp, #-16]!
-	stp x6, x7, [sp, #-16]!
-	stp x4, x5, [sp, #-16]!
-	stp x2, x3, [sp, #-16]!
-	stp x0, x1, [sp, #-16]!
-	add	x21, sp, #0x110
-	mrs	x22, elr_el1
-	mrs	x23, spsr_el1
-	stp	x30, x21, [sp, #0xf0]
-	stp	x22, x23, [sp, #0x100]
+/*
+ * Kernel entry
+ */
+.macro kernel_entry, el
+	sub sp, sp, #8 * 36
+	stp x0, x1, [sp, #16 * 0]
+	stp x2, x3, [sp, #16 * 1]
+	stp x4, x5, [sp, #16 * 2]
+	stp x6, x7, [sp, #16 * 3]
+	stp x8, x9, [sp, #16 * 4]
+	stp x10, x11, [sp, #16 * 5]
+	stp x12, x13, [sp, #16 * 6]
+	stp x14, x15, [sp, #16 * 7]
+	stp x16, x17, [sp, #16 * 8]
+	stp x18, x19, [sp, #16 * 9]
+	stp x20, x21, [sp, #16 * 10]
+	stp x22, x23, [sp, #16 * 11]
+	stp x24, x25, [sp, #16 * 12]
+	stp x26, x27, [sp, #16 * 13]
+	stp x28, x29, [sp, #16 * 14]
+	.if \el == 0
+		mrs	x21, sp_el0
+	.else
+		add	x21, sp, #8 * 36
+	.endif
+	mrs x22, elr_el1
+	mrs x23, spsr_el1
+	stp x30, x21, [sp, #8 * 30]
+	stp x22, x23, [sp, #8 * 32]
+	.if \el == 0
+		mvn	x21, xzr
+		str	x21, [sp, #8 * 35]
+	.endif
 .endm
 
-.macro restore_regs
-	ldp x22, x23, [sp, #0x100]
-	ldp x30, x28, [sp, #0xf0]
-	msr elr_el1, x22
-	msr	spsr_el1, x23
-	mov x29, sp
-	mov sp, x28
-	ldp	x0, x1, [x29], #16
-	ldp	x2, x3, [x29], #16
-	ldp	x4, x5, [x29], #16
-	ldp	x6, x7, [x29], #16
-	ldp	x8, x9, [x29], #16
-	ldp	x10, x11, [x29], #16
-	ldp	x12, x13, [x29], #16
-	ldp	x14, x15, [x29], #16
-	ldp	x16, x17, [x29], #16
-	ldp	x18, x19, [x29], #16
-	ldp	x20, x21, [x29], #16
-	ldp	x22, x23, [x29], #16
-	ldp	x24, x25, [x29], #16
-	ldp	x26, x27, [x29], #16
-	ldr	x28, [x29], #8
-	ldr	x29, [x29]
+/*
+ * Kernel exit
+ */
+.macro kernel_exit, el
+	ldp x21, x22, [sp, #8 * 32]
+	.if \el == 0
+		ldr	x23, [sp, #8 * 31]
+		msr sp_el0, x23
+	.endif
+	msr elr_el1, x21
+	msr spsr_el1, x22
+	ldp x0, x1, [sp, #16 * 0]
+	ldp x2, x3, [sp, #16 * 1]
+	ldp x4, x5, [sp, #16 * 2]
+	ldp x6, x7, [sp, #16 * 3]
+	ldp x8, x9, [sp, #16 * 4]
+	ldp x10, x11, [sp, #16 * 5]
+	ldp x12, x13, [sp, #16 * 6]
+	ldp x14, x15, [sp, #16 * 7]
+	ldp x16, x17, [sp, #16 * 8]
+	ldp x18, x19, [sp, #16 * 9]
+	ldp x20, x21, [sp, #16 * 10]
+	ldp x22, x23, [sp, #16 * 11]
+	ldp x24, x25, [sp, #16 * 12]
+	ldp x26, x27, [sp, #16 * 13]
+	ldp x28, x29, [sp, #16 * 14]
+	ldr x30, [sp, #8 * 30]
+	add sp, sp, #8 * 36
 	eret
 .endm
 
 /*
  * Invalid mode handlers
  */
-.macro invalid_exception, reason
-	save_regs
+.macro inv_entry, el, reason
+	kernel_entry el
 	mov x0, sp
 	mov x1, #\reason
+	mrs x2, esr_el1
 	bl arm64_invalid_exception
-	restore_regs
+	kernel_exit el
 .endm
 
 	.global _start
 _start:
+	b reset
+/*
+ * Exception vectors.
+ */
+	.align 11
+	.globl vectors
+vectors:
+	ventry el1_sync_invalid
+	ventry el1_irq_invalid
+	ventry el1_fiq_invalid
+	ventry el1_error_invalid
+
+	ventry el1_sync
+	ventry el1_irq
+	ventry el1_fiq_invalid
+	ventry el1_error_invalid
+
+	ventry el0_sync_invalid
+	ventry el0_irq_invalid
+	ventry el0_fiq_invalid
+	ventry el0_error_invalid
+
+	ventry el0_sync_invalid
+	ventry el0_irq_invalid
+	ventry el0_fiq_invalid
+	ventry el0_error_invalid
+
+/*
+ * The actual reset code
+ */
+reset:
+	/* Check processor id, stop all slave cores */
+	mrs x0, mpidr_el1
+	and x0, x0, #0xff
+	cbz x0, 2f
+1:  wfe
+	b 1b
+2:	nop
+
 	/*
 	 * Initial system with exception level
 	 */
@@ -104,36 +163,58 @@ _start:
 	mrs x1, CurrentEL
 	cmp x1, 0xc
 	b.eq 3f
-	cmp	x1, 0x8
+	cmp x1, 0x8
 	b.eq 2f
 	cmp x1, 0x4
 	b.eq 1f
-3:	msr vbar_el3, x0
-	mrs x0, scr_el3
-	orr	x0, x0, #0xf
-	msr scr_el3, x0
-	msr cptr_el3, xzr
-	ldr x0, =0x01800000
-	msr	cntfrq_el0, x0
-	b 0f
-2:	msr vbar_el2, x0
-	mov x0, #0x33ff
-	msr cptr_el2, x0
-	b 0f
-1:	msr vbar_el1, x0
-	mrs x0, cpacr_el1
-	orr x0, x0, #(0x3 << 20)
-	msr cpacr_el1, x0
-0:	nop
+3:	msr vbar_el3, x0		/* Set el3 vbar */
+	mov x2, #0x33ff
+	msr cptr_el3, x2		/* Disable el3 coprocessor traps */
+	ldr x2, =19200000
+	msr cntfrq_el0, x2		/* Initialize cntfrq */
+	mov x2, #0x5b1
+	msr scr_el3, x2			/* Set el2 to 64bit, hvc enable, smc disable, disable routing, non-secure */
+2:	msr vbar_el2, x0		/* Set el2 vbar */
+	mov x2, #0x33ff
+	msr cptr_el2, x2		/* Disable el2 coprocessor traps */
+	mrs x2, cnthctl_el2
+	orr x2, x2, #3
+	msr cnthctl_el2, x2		/* Enable cntp for el1 */
+	msr cntvoff_el2, xzr	/* Virtual offset to zero */
+	mrs x2, hcr_el2
+	orr x2, x2, #(1 << 31)	/* Set el1 to 64bit */
+	orr x2, x2, #(1 << 1)	/* Hardwired swio */
+	msr hcr_el2, x2
+1:	msr vbar_el1, x0		/* Set el1 vbar */
+	ldr x2, _stack_el1_end
+	msr sp_el1, x2			/* Sel el1 stack */
+	mrs x2, cpacr_el1
+	orr x2, x2, #(3 << 20)
+	msr cpacr_el1, x2		/* Enable fp/simd */
+0:	ldr x2, _stack_el0_end
+	msr sp_el0, x2			/* Sel el0 stack */
 
 	/*
 	 * Change exception level to el1
 	 */
-	adr	x3, el2
-	bl armv8_switch_to_el2
-el2:adr	x3, el1
-	bl armv8_switch_to_el1
-el1:nop
+	mrs x1, CurrentEL
+	cmp x1, 0xc
+	b.eq 3f
+	cmp x1, 0x8
+	b.eq 2f
+	cmp x1, 0x4
+	b.eq 1f
+3:	mov x2, #0x3c9
+	msr spsr_el3, x2
+	adr x2, 2f
+	msr elr_el3, x2
+	eret
+2:	mov x2, #0x3c5
+	msr spsr_el2, x2
+	adr x2, 1f
+	msr elr_el2, x2
+	eret
+1:	nop
 
 	/* Enable instruction cache */
 	mrs x0, sctlr_el1
@@ -186,77 +267,54 @@ _main:
 	bl xboot_main
 	b _main
 
-/*
- * Exception vectors.
- */
-	.align 11
-	.globl vectors
-vectors:
-	/* Current el with sp_el0 : 0x000 - 0x200 */
-	ventry cel_sync_sp_el0
-	ventry cel_irq_sp_el0
-	ventry cel_fiq_sp_el0
-	ventry cel_error_sp_el0
-
-	/* Current el with sp_elx : 0x200 - 0x400 */
-	ventry cel_sync_sp_elx
-	ventry cel_irq_sp_elx
-	ventry cel_fiq_sp_elx
-	ventry cel_error_sp_elx
-
-	/* Lower el using aarch64 : 0x400 - 0x600 */
-	ventry lel_sync_aarch64
-	ventry lel_irq_aarch64
-	ventry lel_fiq_aarch64
-	ventry lel_error_aarch64
-
-	/* Lower el using aarch32 : 0x600 - 0x800 */
-	ventry lel_sync_aarch32
-	ventry lel_irq_aarch32
-	ventry lel_fiq_aarch32
-	ventry lel_error_aarch32
-
-cel_sync_sp_el0:
-	invalid_exception 0x00
-cel_irq_sp_el0:
-	invalid_exception 0x01
-cel_fiq_sp_el0:
-	invalid_exception 0x02
-cel_error_sp_el0:
-	invalid_exception 0x03
-
-cel_sync_sp_elx:
-	save_regs
+	.align 6
+el1_sync:
+	kernel_entry 1
 	mov x0, sp
 	bl arm64_sync_exception
-	restore_regs
-cel_irq_sp_elx:
-	save_regs
+	kernel_exit 1
+ENDPROC(el1_sync)
+
+	.align 6
+el1_irq:
+	kernel_entry 1
+	msr daifclr, #8
 	mov x0, sp
 	bl arm64_irq_exception
-	restore_regs
-cel_fiq_sp_elx:
-	invalid_exception 0x12
-cel_error_sp_elx:
-	invalid_exception 0x13
+	kernel_exit 1
+ENDPROC(el1_irq)
 
-lel_sync_aarch64:
-	invalid_exception 0x20
-lel_irq_aarch64:
-	invalid_exception 0x21
-lel_fiq_aarch64:
-	invalid_exception 0x22
-lel_error_aarch64:
-	invalid_exception 0x23
+el1_sync_invalid:
+	inv_entry 1, 0
+ENDPROC(el1_sync_invalid)
 
-lel_sync_aarch32:
-	invalid_exception 0x30
-lel_irq_aarch32:
-	invalid_exception 0x31
-lel_fiq_aarch32:
-	invalid_exception 0x32
-lel_error_aarch32:
-	invalid_exception 0x33
+el1_irq_invalid:
+	inv_entry 1, 1
+ENDPROC(el1_irq_invalid)
+
+el1_fiq_invalid:
+	inv_entry 1, 2
+ENDPROC(el1_fiq_invalid)
+
+el1_error_invalid:
+	inv_entry 1, 3
+ENDPROC(el1_error_invalid)
+
+el0_sync_invalid:
+	inv_entry 0, 0
+ENDPROC(el0_sync_invalid)
+
+el0_irq_invalid:
+	inv_entry 0, 1
+ENDPROC(el0_irq_invalid)
+
+el0_fiq_invalid:
+	inv_entry 0, 2
+ENDPROC(el0_fiq_invalid)
+
+el0_error_invalid:
+	inv_entry 0, 3
+ENDPROC(el0_error_invalid)
 
 /*
  * The location of section

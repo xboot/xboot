@@ -21,7 +21,6 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm64/mach-x3399/start.o (.text*)
-		.obj/arch/arm64/mach-x3399/transition.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)
@@ -83,19 +82,12 @@ SECTIONS
 		PROVIDE(__rodata_end = .);
 	} > ram
 
-	.data_shadow ALIGN(8) :
-	{
-		PROVIDE(__data_shadow_start = .);
-		PROVIDE(__data_shadow_end = (. + SIZEOF(.data)));
-		PROVIDE(__image_end = __data_shadow_end);
-	} > ram
-
-	.data : AT(ADDR(.data_shadow))
+	.data ALIGN(8) :
 	{
 		PROVIDE(__data_start = .);	
 		*(.data*)
-		. = ALIGN(8);
   		PROVIDE(__data_end = .);
+		PROVIDE(__image_end = .);
 	} > ram
 
 	.bss ALIGN(8) (NOLOAD) :

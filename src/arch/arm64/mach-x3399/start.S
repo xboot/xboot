@@ -239,18 +239,6 @@ reset:
 	bl memcpy
 1:	nop
 
-	/* Copy data section */
-	ldr x0, _data_start
-	ldr x3, _image_start
-	ldr x1, _data_shadow_start
-	sub x1, x1, x3
-	adr x3, _start
-	add x1, x1 ,x3
-	ldr x2, _data_shadow_start
-	ldr x3, _data_shadow_end
-	sub x2, x3, x2
-	bl memcpy
-
 	/* Clear bss section */
 	ldr x0, _bss_start
 	ldr x2, _bss_end
@@ -324,10 +312,6 @@ _image_start:
 	.dword __image_start
 _image_end:
 	.dword __image_end
-_data_shadow_start:
-	.dword __data_shadow_start
-_data_shadow_end:
-	.dword __data_shadow_end
 _data_start:
 	.dword __data_start
 _data_end:

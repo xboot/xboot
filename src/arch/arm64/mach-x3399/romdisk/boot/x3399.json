@@ -251,35 +251,11 @@
 		"interrupt-count": 192
 	},
 
-	"gpio-rk3399@0xff720000": {
-		"gpio-base": 0,
-		"gpio-count": 14,
-		"interrupt-offset": -1
-	},
-
-	"gpio-rk3399@0xff730000": {
-		"gpio-base": 32,
-		"gpio-count": 25,
-		"interrupt-offset": -1
-	},
-
-	"gpio-rk3399@0xff780000": {
-		"gpio-base": 64,
-		"gpio-count": 29,
-		"interrupt-offset": -1
-	},
-
-	"gpio-rk3399@0xff788000": {
-		"gpio-base": 96,
-		"gpio-count": 32,
-		"interrupt-offset": -1
-	},
-
-	"gpio-rk3399@0xff790000": {
-		"gpio-base": 128,
-		"gpio-count": 31,
-		"interrupt-offset": -1
-	},
+	"gpio-rk3399@0xff720000": { "gpio-base":   0, "gpio-count": 14, "interrupt-offset": -1 },
+	"gpio-rk3399@0xff730000": { "gpio-base":  32, "gpio-count": 25, "interrupt-offset": -1 },
+	"gpio-rk3399@0xff780000": { "gpio-base":  64, "gpio-count": 29, "interrupt-offset": -1 },
+	"gpio-rk3399@0xff788000": { "gpio-base":  96, "gpio-count": 32, "interrupt-offset": -1 },
+	"gpio-rk3399@0xff790000": { "gpio-base": 128, "gpio-count": 31, "interrupt-offset": -1 },
 
 	"adc-rk3399@0xff100000": {
 		"clock-name": "link-saradc",

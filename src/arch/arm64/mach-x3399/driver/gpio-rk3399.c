@@ -68,41 +68,31 @@ static void gpio_rk3399_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 	if(pdat->base < 32)
 	{
 		addr = pdat->pmugrf + PMU_GRF_GPIO0A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 64)
 	{
 		addr = pdat->pmugrf + PMU_GRF_GPIO1A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 96)
 	{
 		addr = pdat->grf + (GRF_GPIO2A_IOMUX) + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 128)
 	{
 		addr = pdat->grf + (GRF_GPIO3A_IOMUX) + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 160)
 	{
 		addr = pdat->grf + (GRF_GPIO4A_IOMUX) + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 }
@@ -159,36 +149,70 @@ static void gpio_rk3399_set_pull(struct gpiochip_t * chip, int offset, enum gpio
 	if(offset >= chip->ngpio)
 		return;
 
-	switch(pull)
+	if(pdat->base < 32)
 	{
-	case GPIO_PULL_UP:
-		v = 0x00030003;
-		break;
-
-	case GPIO_PULL_DOWN:
-		v = 0x00030001;
-		break;
-
-	case GPIO_PULL_NONE:
-	default:
-		v = 0x00030000;
-		break;
+		if(offset < 16)
+		{
+			switch(pull)
+			{
+			case GPIO_PULL_UP:
+				v = 0x3;
+				break;
+			case GPIO_PULL_DOWN:
+				v = 0x1;
+				break;
+			case GPIO_PULL_NONE:
+				v = 0x0;
+				break;
+			default:
+				v = 0x0;
+				break;
+			}
+			addr = pdat->pmugrf + (PMU_GRF_GPIO0A_P - 0x00) + ((pdat->base >> 5) * 0x10) + ((offset >> 3) << 2);
+			val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
+			write32(addr, val);
+		}
 	}
-
-	if(pdat->base < 64)
+	else if(pdat->base < 64)
 	{
+		switch(pull)
+		{
+		case GPIO_PULL_UP:
+			v = 0x1;
+			break;
+		case GPIO_PULL_DOWN:
+			v = 0x2;
+			break;
+		case GPIO_PULL_NONE:
+			v = 0x0;
+			break;
+		default:
+			v = 0x0;
+			break;
+		}
 		addr = pdat->pmugrf + (PMU_GRF_GPIO0A_P - 0x00) + ((pdat->base >> 5) * 0x10) + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (v << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 160)
 	{
+		switch(pull)
+		{
+		case GPIO_PULL_UP:
+			v = 0x1;
+			break;
+		case GPIO_PULL_DOWN:
+			v = 0x2;
+			break;
+		case GPIO_PULL_NONE:
+			v = 0x0;
+			break;
+		default:
+			v = 0x0;
+			break;
+		}
 		addr = pdat->grf + (GRF_GPIO2A_P - 0x20) + ((pdat->base >> 5) * 0x10) + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (v << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 }
@@ -202,41 +226,337 @@ static enum gpio_pull_t gpio_rk3399_get_pull(struct gpiochip_t * chip, int offse
 	if(offset >= chip->ngpio)
 		return GPIO_PULL_NONE;
 
-	if(pdat->base < 64)
+	if(pdat->base < 32)
+	{
+		if(offset < 16)
+		{
+			addr = pdat->pmugrf + (PMU_GRF_GPIO0A_P - 0x00) + ((pdat->base >> 5) * 0x10) + ((offset >> 3) << 2);
+			v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+			switch(v)
+			{
+			case 0x0:
+				return GPIO_PULL_NONE;
+			case 0x1:
+				return GPIO_PULL_DOWN;
+			case 0x2:
+				return GPIO_PULL_NONE;
+			case 0x3:
+				return GPIO_PULL_UP;
+			default:
+				break;
+			}
+		}
+	}
+	else if(pdat->base < 64)
 	{
 		addr = pdat->pmugrf + (PMU_GRF_GPIO0A_P - 0x00) + ((pdat->base >> 5) * 0x10) + ((offset >> 3) << 2);
 		v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+		switch(v)
+		{
+		case 0x0:
+			return GPIO_PULL_NONE;
+		case 0x1:
+			return GPIO_PULL_UP;
+		case 0x2:
+			return GPIO_PULL_DOWN;
+		default:
+			break;
+		}
 	}
 	else if(pdat->base < 160)
 	{
 		addr = pdat->grf + (GRF_GPIO2A_P - 0x20) + ((pdat->base >> 5) * 0x10) + ((offset >> 3) << 2);
 		v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+		switch(v)
+		{
+		case 0x0:
+			return GPIO_PULL_NONE;
+		case 0x1:
+			return GPIO_PULL_UP;
+		case 0x2:
+			return GPIO_PULL_DOWN;
+		default:
+			break;
+		}
 	}
-
-	if(v == 0x0 || v == 0x2)
-		return GPIO_PULL_NONE;
-	else if(v == 0x1)
-		return GPIO_PULL_DOWN;
-	else if(v == 0x3)
-		return GPIO_PULL_UP;
 	return GPIO_PULL_NONE;
 }
 
 static void gpio_rk3399_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
 {
+	struct gpio_rk3399_pdata_t * pdat = (struct gpio_rk3399_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t val, v;
+
+	if(offset >= chip->ngpio)
+		return;
+
+	switch(drv)
+	{
+	case GPIO_DRV_WEAK:
+		v = 0x0;
+		break;
+	case GPIO_DRV_WEAKER:
+		v = 0x1;
+		break;
+	case GPIO_DRV_STRONGER:
+		v = 0x2;
+		break;
+	case GPIO_DRV_STRONG:
+		v = 0x3;
+		break;
+	default:
+		v = 0x0;
+		break;
+	}
+
+	if(pdat->base < 32)
+	{
+		if(offset < 16)
+		{
+			addr = pdat->pmugrf + PMU_GRF_GPIO0A_E + ((offset >> 3) << 2);
+			val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
+			write32(addr, val);
+		}
+	}
+	else if(pdat->base < 64)
+	{
+		addr = pdat->pmugrf + PMU_GRF_GPIO1A_E + ((offset >> 3) << 2);
+		val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
+		write32(addr, val);
+	}
+	else if(pdat->base < 96)
+	{
+		addr = pdat->grf + GRF_GPIO2A_E + ((offset >> 3) << 2);
+		val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
+		write32(addr, val);
+	}
+	else if(pdat->base < 128)
+	{
+		if(offset < 8)
+		{
+		}
+		else if(offset < 16)
+		{
+		}
+		else if(offset < 24)
+		{
+		}
+		else if(offset < 32)
+		{
+			addr = pdat->grf + GRF_GPIO3D_E;
+			val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
+			write32(addr, val);
+		}
+	}
+	else if(pdat->base < 160)
+	{
+		if(offset < 8)
+		{
+			addr = pdat->grf + GRF_GPIO4A_E;
+			val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
+			write32(addr, val);
+		}
+		else if(offset < 16)
+		{
+		}
+		else if(offset < 24)
+		{
+			addr = pdat->grf + GRF_GPIO4C_E;
+			val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
+			write32(addr, val);
+		}
+		else if(offset < 32)
+		{
+			addr = pdat->grf + GRF_GPIO4D_E;
+			val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
+			write32(addr, val);
+		}
+	}
 }
 
 static enum gpio_drv_t gpio_rk3399_get_drv(struct gpiochip_t * chip, int offset)
 {
+	struct gpio_rk3399_pdata_t * pdat = (struct gpio_rk3399_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t v = 0;
+
+	if(offset >= chip->ngpio)
+		return GPIO_DRV_WEAK;
+
+	if(pdat->base < 32)
+	{
+		if(offset < 16)
+		{
+			addr = pdat->pmugrf + PMU_GRF_GPIO0A_E + ((offset >> 3) << 2);
+			v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+		}
+	}
+	else if(pdat->base < 64)
+	{
+		addr = pdat->pmugrf + PMU_GRF_GPIO1A_E + ((offset >> 3) << 2);
+		v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+	}
+	else if(pdat->base < 96)
+	{
+		addr = pdat->grf + GRF_GPIO2A_E + ((offset >> 3) << 2);
+		v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+	}
+	else if(pdat->base < 128)
+	{
+		if(offset < 8)
+		{
+		}
+		else if(offset < 16)
+		{
+		}
+		else if(offset < 24)
+		{
+		}
+		else if(offset < 32)
+		{
+			addr = pdat->grf + GRF_GPIO3D_E;
+			v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+		}
+	}
+	else if(pdat->base < 160)
+	{
+		if(offset < 8)
+		{
+			addr = pdat->grf + GRF_GPIO4A_E;
+			v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+		}
+		else if(offset < 16)
+		{
+		}
+		else if(offset < 24)
+		{
+			addr = pdat->grf + GRF_GPIO4C_E;
+			v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+		}
+		else if(offset < 32)
+		{
+			addr = pdat->grf + GRF_GPIO4D_E;
+			v = (read32(addr) >> ((offset & 0x7) << 1)) & 0x3;
+		}
+	}
+
+	if(v == 0x0)
+		return GPIO_DRV_WEAK;
+	else if(v == 0x1)
+		return GPIO_DRV_WEAKER;
+	else if(v == 0x2)
+		return GPIO_DRV_STRONGER;
+	else if(v == 0x3)
+		return GPIO_DRV_STRONG;
 	return GPIO_DRV_WEAK;
 }
 
 static void gpio_rk3399_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
 {
+	struct gpio_rk3399_pdata_t * pdat = (struct gpio_rk3399_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t val, v;
+
+	if(offset >= chip->ngpio)
+		return;
+
+	switch(rate)
+	{
+	case GPIO_RATE_SLOW:
+		v = 0x0;
+		break;
+	case GPIO_RATE_FAST:
+		v = 0x1;
+		break;
+	default:
+		v = 0x0;
+		break;
+	}
+
+	if(pdat->base < 32)
+	{
+		if(offset < 16)
+		{
+			addr = pdat->pmugrf + PMU_GRF_GPIO0L_SR + ((offset >> 4) << 2);
+			val = (((0x1 << 16) | (v & 0x1)) << (offset & 0xf));
+			write32(addr, val);
+		}
+	}
+	else if(pdat->base < 64)
+	{
+		addr = pdat->pmugrf + PMU_GRF_GPIO1L_SR + ((offset >> 4) << 2);
+		val = (((0x1 << 16) | (v & 0x1)) << (offset & 0xf));
+		write32(addr, val);
+	}
+	else if(pdat->base < 96)
+	{
+		addr = pdat->grf + GRF_GPIO2A_SR + ((offset >> 3) << 2);
+		val = (((0x1 << 16) | (v & 0x1)) << (offset & 0x7));
+		write32(addr, val);
+	}
+	else if(pdat->base < 128)
+	{
+		if(offset >= 24)
+		{
+			addr = pdat->grf + (GRF_GPIO3D_SR - 0xc) + ((offset >> 3) << 2);
+			val = (((0x1 << 16) | (v & 0x1)) << (offset & 0x7));
+			write32(addr, val);
+		}
+	}
+	else if(pdat->base < 160)
+	{
+		addr = pdat->grf + GRF_GPIO4A_SR + ((offset >> 3) << 2);
+		val = (((0x1 << 16) | (v & 0x1)) << (offset & 0x7));
+		write32(addr, val);
+	}
 }
 
 static enum gpio_rate_t gpio_rk3399_get_rate(struct gpiochip_t * chip, int offset)
 {
+	struct gpio_rk3399_pdata_t * pdat = (struct gpio_rk3399_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t v = 0;
+
+	if(offset >= chip->ngpio)
+		return GPIO_RATE_SLOW;
+
+	if(pdat->base < 32)
+	{
+		if(offset < 16)
+		{
+			addr = pdat->pmugrf + PMU_GRF_GPIO0L_SR + ((offset >> 4) << 2);
+			v = (read32(addr) >> (offset & 0xf)) & 0x1;
+		}
+	}
+	else if(pdat->base < 64)
+	{
+		addr = pdat->pmugrf + PMU_GRF_GPIO1L_SR + ((offset >> 4) << 2);
+		v = (read32(addr) >> (offset & 0xf)) & 0x1;
+	}
+	else if(pdat->base < 96)
+	{
+		addr = pdat->grf + GRF_GPIO2A_SR + ((offset >> 3) << 2);
+		v = (read32(addr) >> (offset & 0x7)) & 0x1;
+	}
+	else if(pdat->base < 128)
+	{
+		if(offset >= 24)
+		{
+			addr = pdat->grf + (GRF_GPIO3D_SR - 0xc) + ((offset >> 3) << 2);
+			v = (read32(addr) >> (offset & 0x7)) & 0x1;
+		}
+	}
+	else if(pdat->base < 160)
+	{
+		addr = pdat->grf + GRF_GPIO4A_SR + ((offset >> 3) << 2);
+		v = (read32(addr) >> (offset & 0x7)) & 0x1;
+	}
+
+	if(v == 0x0)
+		return GPIO_RATE_SLOW;
+	else if(v == 0x1)
+		return GPIO_RATE_FAST;
 	return GPIO_RATE_SLOW;
 }
 

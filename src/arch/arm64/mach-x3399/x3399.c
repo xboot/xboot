@@ -29,10 +29,6 @@
 #include <xboot.h>
 #include <rk3399/reg-cru.h>
 
-static const struct mmap_t mach_map[] = {
-	{ 0 },
-};
-
 static int mach_detect(struct machine_t * mach)
 {
 	return 1;
@@ -84,7 +80,6 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 static struct machine_t x3399 = {
 	.name 		= "x3399",
 	.desc 		= "X3399 Based On RK3399 SOC",
-	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
 	.shutdown	= mach_shutdown,

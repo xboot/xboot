@@ -28,10 +28,6 @@
 
 #include <xboot.h>
 
-static const struct mmap_t mach_map[] = {
-	{ 0 },
-};
-
 static int mach_detect(struct machine_t * mach)
 {
 	return 1;
@@ -84,7 +80,6 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 static struct machine_t nintendo_switch = {
 	.name 		= "nintendo-switch",
 	.desc 		= "Nintendo Switch Tv Game Console",
-	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
 	.shutdown	= mach_shutdown,

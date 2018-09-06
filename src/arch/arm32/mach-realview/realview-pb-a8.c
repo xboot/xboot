@@ -30,14 +30,6 @@
 #include <mmu.h>
 #include <realview/reg-sysctl.h>
 
-static const struct mmap_t mach_map[] = {
-	{"rom",  0x70000000, 0x70000000, SZ_32M, MAP_TYPE_CB},
-	{"ram",  0x72000000, 0x72000000, SZ_32M, MAP_TYPE_CB},
-	{"dma",  0x74000000, 0x74000000, SZ_64M, MAP_TYPE_NCNB},
-	{"heap", 0x78000000, 0x78000000, SZ_128M, MAP_TYPE_CB},
-	{ 0 },
-};
-
 static int mach_detect(struct machine_t * mach)
 {
 	virtual_addr_t virt = phys_to_virt(REALVIEW_SYSCTL_BASE);
@@ -49,7 +41,11 @@ static int mach_detect(struct machine_t * mach)
 
 static void mach_memmap(struct machine_t * mach)
 {
-	mmu_setup(mach->map);
+	machine_mmap(mach, "rom", 0x70000000, 0x70000000, SZ_32M, MAP_TYPE_CB);
+	machine_mmap(mach, "ram", 0x72000000, 0x72000000, SZ_32M, MAP_TYPE_CB);
+	machine_mmap(mach, "dma", 0x74000000, 0x74000000, SZ_64M, MAP_TYPE_NCNB);
+	machine_mmap(mach, "heap", 0x78000000, 0x78000000, SZ_128M, MAP_TYPE_CB);
+	mmu_setup(mach);
 }
 
 static void mach_shutdown(struct machine_t * mach)
@@ -114,7 +110,6 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 static struct machine_t realview_pb_a8 = {
 	.name 		= "realview-pb-a8",
 	.desc 		= "ARM RealView Platform Baseboard For Cortex-A8",
-	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
 	.shutdown	= mach_shutdown,

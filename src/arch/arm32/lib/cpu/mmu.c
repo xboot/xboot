@@ -23,19 +23,18 @@ static void map_l1_section(virtual_addr_t virt, physical_addr_t phys, physical_s
 		__mmu_ttb[virt] = (phys << 20) | (0x3 << 10) | (0x0 << 5) | (type << 2) | (0x2 << 0);
 }
 
-void mmu_setup(const struct mmap_t * map)
+void mmu_setup(struct machine_t * mach)
 {
-	struct mmap_t * m = (struct mmap_t *)map;
+	struct mmap_t * pos, * n;
 
-	if(m)
+	if(mach)
 	{
 		map_l1_section(0x00000000, 0x00000000, SZ_2G, 0);
 		map_l1_section(0x80000000, 0x80000000, SZ_2G, 0);
 
-		while(m->size > 0)
+		list_for_each_entry_safe(pos, n, &mach->mmap, list)
 		{
-			map_l1_section(m->virt, m->phys, m->size, m->type);
-			m++;
+			map_l1_section(pos->virt, pos->phys, pos->size, pos->type);
 		}
 
 		arm32_ttb_set((u32_t)(__mmu_ttb));

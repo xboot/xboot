@@ -8,6 +8,7 @@ extern "C" {
 #include <xboot.h>
 
 struct mmap_t {
+	struct list_head list;
 	const char * name;
 	virtual_addr_t virt;
 	physical_addr_t phys;
@@ -18,10 +19,10 @@ struct mmap_t {
 struct machine_t {
 	struct kobj_t * kobj;
 	struct list_head list;
+	struct list_head mmap;
 
 	const char * name;
 	const char * desc;
-	const struct mmap_t * map;
 
 	int (*detect)(struct machine_t * mach);
 	void (*memmap)(struct machine_t * mach);
@@ -34,6 +35,7 @@ struct machine_t {
 	int (*keygen)(struct machine_t * mach, const char * msg, void * key);
 };
 
+bool_t machine_mmap(struct machine_t * mach, const char * name, virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type);
 bool_t register_machine(struct machine_t * mach);
 bool_t unregister_machine(struct machine_t * mach);
 struct machine_t * get_machine(void);

@@ -29,13 +29,6 @@
 #include <xboot.h>
 #include <mmu.h>
 
-static const struct mmap_t mach_map[] = {
-	{"ram",  0x32000000, 0x32000000, SZ_1M * 32, MAP_TYPE_CB},
-	{"dma",  0x34000000, 0x34000000, SZ_1M * 32, MAP_TYPE_NCNB},
-	{"heap", 0x36000000, 0x36000000, SZ_1M * 160, MAP_TYPE_CB},
-	{ 0 },
-};
-
 static int mach_detect(struct machine_t * mach)
 {
 	virtual_addr_t virt;
@@ -49,7 +42,10 @@ static int mach_detect(struct machine_t * mach)
 
 static void mach_memmap(struct machine_t * mach)
 {
-	mmu_setup(mach->map);
+	machine_mmap(mach, "ram", 0x32000000, 0x32000000, SZ_1M * 32, MAP_TYPE_CB);
+	machine_mmap(mach, "dma", 0x34000000, 0x34000000, SZ_1M * 32, MAP_TYPE_NCNB);
+	machine_mmap(mach, "heap", 0x36000000, 0x36000000, SZ_1M * 160, MAP_TYPE_CB);
+	mmu_setup(mach);
 }
 
 static void mach_shutdown(struct machine_t * mach)
@@ -106,7 +102,6 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 static struct machine_t x210 = {
 	.name 		= "x210",
 	.desc 		= "X210 Based On Samsung S5PV210",
-	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
 	.shutdown	= mach_shutdown,

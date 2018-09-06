@@ -29,13 +29,6 @@
 #include <xboot.h>
 #include <mmu.h>
 
-static const struct mmap_t mach_map[] = {
-	{"ram",  0x40000000, 0x40000000, SZ_16M, MAP_TYPE_CB},
-	{"dma",  0x41000000, 0x41000000, SZ_16M, MAP_TYPE_NCNB},
-	{"heap", 0x42000000, 0x42000000, SZ_32M, MAP_TYPE_CB},
-	{ 0 },
-};
-
 static u32_t sram_read_id(virtual_addr_t virt)
 {
 	u32_t id;
@@ -57,7 +50,10 @@ static int mach_detect(struct machine_t * mach)
 
 static void mach_memmap(struct machine_t * mach)
 {
-	mmu_setup(mach->map);
+	machine_mmap(mach, "ram", 0x40000000, 0x40000000, SZ_16M, MAP_TYPE_CB);
+	machine_mmap(mach, "dma", 0x41000000, 0x41000000, SZ_16M, MAP_TYPE_NCNB);
+	machine_mmap(mach, "heap", 0x42000000, 0x42000000, SZ_32M, MAP_TYPE_CB);
+	mmu_setup(mach);
 }
 
 static void mach_shutdown(struct machine_t * mach)
@@ -110,7 +106,6 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 static struct machine_t licheepi_zero = {
 	.name 		= "licheepi-zero",
 	.desc 		= "Lichee Pi Zero Based On Allwinner V3S SOC",
-	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
 	.shutdown	= mach_shutdown,

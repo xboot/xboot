@@ -29,10 +29,6 @@
 #include <xboot.h>
 #include <bcm2837-mbox.h>
 
-static const struct mmap_t mach_map[] = {
-	{ 0 },
-};
-
 static int mach_detect(struct machine_t * mach)
 {
 	return 1;
@@ -124,7 +120,6 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 static struct machine_t raspberry_pi_3 = {
 	.name 		= "raspberry-pi-3",
 	.desc 		= "Raspberry Pi 3 Model B",
-	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
 	.shutdown	= mach_shutdown,

@@ -29,13 +29,6 @@
 #include <xboot.h>
 #include <mmu.h>
 
-static const struct mmap_t mach_map[] = {
-	{"ram",  0x80000000, 0x80000000, SZ_1M * 8, MAP_TYPE_CB},
-	{"dma",  0x80800000, 0x80800000, SZ_1M * 8, MAP_TYPE_NCNB},
-	{"heap", 0x81000000, 0x81000000, SZ_1M * 16, MAP_TYPE_CB},
-	{ 0 },
-};
-
 static int mach_detect(struct machine_t * mach)
 {
 	return 1;
@@ -43,7 +36,10 @@ static int mach_detect(struct machine_t * mach)
 
 static void mach_memmap(struct machine_t * mach)
 {
-	mmu_setup(mach->map);
+	machine_mmap(mach, "ram", 0x80000000, 0x80000000, SZ_1M * 8, MAP_TYPE_CB);
+	machine_mmap(mach, "dma", 0x80800000, 0x80800000, SZ_1M * 8, MAP_TYPE_NCNB);
+	machine_mmap(mach, "heap", 0x81000000, 0x81000000, SZ_1M * 16, MAP_TYPE_CB);
+	mmu_setup(mach);
 }
 
 static void mach_shutdown(struct machine_t * mach)
@@ -87,7 +83,6 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 static struct machine_t sast_kk131 = {
 	.name 		= "sast-kk131",
 	.desc 		= "SAST KK131 Digital Player Based On Allwinner F1C100S",
-	.map		= mach_map,
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
 	.shutdown	= mach_shutdown,

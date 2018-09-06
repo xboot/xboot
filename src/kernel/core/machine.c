@@ -59,17 +59,16 @@ static ssize_t machine_read_description(struct kobj_t * kobj, void * buf, size_t
 	return sprintf(buf, "%s", mach->desc);
 }
 
-static ssize_t machine_read_map(struct kobj_t * kobj, void * buf, size_t size)
+static ssize_t machine_read_mmap(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct machine_t * mach = (struct machine_t *)kobj->priv;
-	struct mmap_t * m = (struct mmap_t *)mach->map;
+	struct mmap_t * pos, * n;
 	char * p = buf;
 	int len = 0;
 
-	while(m->size != 0)
+	list_for_each_entry_safe(pos, n, &mach->mmap, list)
 	{
-		len += sprintf((char *)(p + len), " %s: %p - %p\r\n", m->name, m->virt, m->phys);
-		m++;
+		len += sprintf((char *)(p + len), " %s: %p:%p - %p:%p\r\n", pos->name, pos->virt, pos->size, pos->phys, pos->size);
 	}
 	return len;
 }
@@ -108,17 +107,19 @@ bool_t register_machine(struct machine_t * mach)
 
 	mach->kobj = kobj_alloc_directory(mach->name);
 	kobj_add_regular(mach->kobj, "description", machine_read_description, NULL, mach);
-	kobj_add_regular(mach->kobj, "map", machine_read_map, NULL, mach);
+	kobj_add_regular(mach->kobj, "mmap", machine_read_mmap, NULL, mach);
 	kobj_add_regular(mach->kobj, "uniqueid", machine_read_uniqueid, NULL, mach);
 	kobj_add(search_class_machine_kobj(), mach->kobj);
 
 	spin_lock_irqsave(&__machine_lock, flags);
 	init_list_head(&mach->list);
+	init_list_head(&mach->mmap);
 	list_add_tail(&mach->list, &__machine_list);
 	spin_unlock_irqrestore(&__machine_lock, flags);
 
 	if(!__machine && (mach->detect(mach) > 0))
 	{
+		__machine = mach;
 		if(mach->memmap)
 		{
 			mach->memmap(mach);
@@ -137,23 +138,56 @@ bool_t register_machine(struct machine_t * mach)
 			mach->logger(mach, mach->desc, strlen(mach->desc));
 			mach->logger(mach, "]\r\n", 3);
 		}
-		__machine = mach;
 	}
 	return TRUE;
 }
 
 bool_t unregister_machine(struct machine_t * mach)
 {
+	struct mmap_t * pos, * n;
 	irq_flags_t flags;
 
 	if(!mach || !mach->name)
 		return FALSE;
 
 	spin_lock_irqsave(&__machine_lock, flags);
+	list_for_each_entry_safe(pos, n, &mach->mmap, list)
+	{
+		list_del(&pos->list);
+	}
+	spin_unlock_irqrestore(&__machine_lock, flags);
+
+	spin_lock_irqsave(&__machine_lock, flags);
 	list_del(&mach->list);
 	spin_unlock_irqrestore(&__machine_lock, flags);
 	kobj_remove(search_class_machine_kobj(), mach->kobj);
 	kobj_remove_self(mach->kobj);
+
+	return TRUE;
+}
+
+bool_t machine_mmap(struct machine_t * mach, const char * name, virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type)
+{
+	struct mmap_t * m;
+	irq_flags_t flags;
+
+	if(!mach || !name || (size == 0))
+		return FALSE;
+
+	m = malloc(sizeof(struct mmap_t));
+	if(!m)
+		return FALSE;
+
+	m->name = name;
+	m->virt = virt;
+	m->phys = phys;
+	m->size = size;
+	m->type = type;
+
+	spin_lock_irqsave(&__machine_lock, flags);
+	init_list_head(&m->list);
+	list_add_tail(&m->list, &mach->mmap);
+	spin_unlock_irqrestore(&__machine_lock, flags);
 
 	return TRUE;
 }
@@ -251,15 +285,14 @@ int machine_keygen(const char * msg, void * key)
 static virtual_addr_t __phys_to_virt(physical_addr_t phys)
 {
 	struct machine_t * mach = get_machine();
-	struct mmap_t * m;
+	struct mmap_t * pos;
 
-	if(mach && (m = (struct mmap_t *)mach->map))
+	if(mach)
 	{
-		while(m->size > 0)
+		list_for_each_entry(pos, &mach->mmap, list)
 		{
-			if((phys >= m->phys) && (phys <= m->phys + m->size - 1))
-				return (virtual_addr_t)(m->virt + (phys - m->phys));
-			m++;
+			if((phys >= pos->phys) && (phys < pos->phys + pos->size))
+				return (virtual_addr_t)(pos->virt + (phys - pos->phys));
 		}
 	}
 	return (virtual_addr_t)phys;
@@ -269,15 +302,14 @@ extern __typeof(__phys_to_virt) phys_to_virt __attribute__((weak, alias("__phys_
 static physical_addr_t __virt_to_phys(virtual_addr_t virt)
 {
 	struct machine_t * mach = get_machine();
-	struct mmap_t * m;
+	struct mmap_t * pos;
 
-	if(mach && (m = (struct mmap_t *)mach->map))
+	if(mach)
 	{
-		while(m->size > 0)
+		list_for_each_entry(pos, &mach->mmap, list)
 		{
-			if((virt >= m->virt) && (virt <= m->virt + m->size - 1))
-				return (physical_addr_t)(m->phys + (virt - m->virt));
-			m++;
+			if((virt >= pos->virt) && (virt < pos->virt + pos->size))
+				return (physical_addr_t)(pos->phys + (virt - pos->virt));
 		}
 	}
 	return (physical_addr_t)virt;

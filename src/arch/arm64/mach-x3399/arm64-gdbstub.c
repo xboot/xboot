@@ -28,13 +28,11 @@
 
 #include <xboot.h>
 #include <arm64.h>
-#include <dma/dma.h>
 #include <xboot/gdbstub.h>
 
 struct arm64_env_t {
 	struct {
-		uint64_t x[30];
-		uint64_t lr;
+		uint64_t x[31];
 		uint64_t sp;
 		uint64_t pc;
 		uint64_t pstate;
@@ -45,12 +43,6 @@ struct arm64_env_t {
 	} step;
 };
 static struct arm64_env_t __arm64_env;
-
-static inline void cache_sync(virtual_addr_t addr, virtual_size_t size)
-{
-	dma_cache_sync((void *)addr, size, DMA_BIDIRECTIONAL);
-	mb();
-}
 
 static void cpu_register_save(struct gdb_cpu_t * cpu, void * regs)
 {
@@ -68,14 +60,9 @@ static int cpu_register_read(struct gdb_cpu_t * cpu, char * buf, int n)
 {
 	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
 
-	if(n < 30)
+	if(n < 31)
 	{
 		memcpy(buf, &env->regs.x[n], 8);
-		return 8;
-	}
-	else if(n == 30)
-	{
-		memcpy(buf, &env->regs.lr, 8);
 		return 8;
 	}
 	else if(n == 31)
@@ -115,14 +102,9 @@ static int cpu_register_write(struct gdb_cpu_t * cpu, char * buf, int n)
 {
 	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
 
-	if(n < 30)
+	if(n < 31)
 	{
 		memcpy(&env->regs.x[n], buf, 8);
-		return 8;
-	}
-	else if(n == 30)
-	{
-		memcpy(&env->regs.lr, buf, 8);
 		return 8;
 	}
 	else if(n == 31)
@@ -157,14 +139,13 @@ static int cpu_register_write(struct gdb_cpu_t * cpu, char * buf, int n)
 
 static int cpu_breakpoint_insert(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t * bp)
 {
-	const uint8_t bpinstr[4] = {0x00, 0x80, 0x20, 0xd4};	/* 0xd4208000 */
+	const uint8_t bpinstr[4] = {0x00, 0x04, 0x00, 0xf2};	/* 0xf2000400 */
 
 	switch(bp->type)
 	{
 	case BP_TYPE_SOFTWARE_BREAKPOINT:
 		memcpy(bp->instr, (void *)(bp->addr), 4);
 		memcpy((void *)(bp->addr), bpinstr, 4);
-		cache_sync(bp->addr, 4);
 		return 0;
 	case BP_TYPE_HARDWARE_BREAKPOINT:
 	case BP_TYPE_WRITE_WATCHPOINT:
@@ -182,7 +163,6 @@ static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 	{
 	case BP_TYPE_SOFTWARE_BREAKPOINT:
 		memcpy((void *)(bp->addr), bp->instr, 4);
-		cache_sync(bp->addr, 4);
 		return 0;
 	case BP_TYPE_HARDWARE_BREAKPOINT:
 	case BP_TYPE_WRITE_WATCHPOINT:
@@ -196,30 +176,16 @@ static int cpu_breakpoint_remove(struct gdb_cpu_t * cpu, struct gdb_breakpoint_t
 
 static int cpu_singlestep_active(struct gdb_cpu_t * cpu)
 {
-	const uint8_t bpinstr[4] = {0x00, 0x80, 0x20, 0xd4};	/* 0xd4208000 */
-	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
-	env->step.addr = env->regs.pc + 4;
-	memcpy(env->step.instr, (void *)(env->step.addr), 4);
-	memcpy((void *)(env->step.addr), bpinstr, 4);
-	cache_sync(env->step.addr, 4);
-	return 0;
+	return -1;
 }
 
 static int cpu_singlestep_finish(struct gdb_cpu_t * cpu)
 {
-	struct arm64_env_t * env = (struct arm64_env_t *)cpu->env;
-	if(env->step.addr != 0)
-	{
-		memcpy((void *)(env->step.addr), env->step.instr, 4);
-		cache_sync(env->step.addr, 4);
-	}
-	env->step.addr = 0;
-	return 0;
+	return -1;
 }
 
 static int cpu_memory_acess(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual_size_t size, int rw)
 {
-	cache_sync(addr, size);
 	return 0;
 }
 
@@ -234,7 +200,7 @@ static void cpu_breakpoint(struct gdb_cpu_t * cpu)
 }
 
 static struct gdb_cpu_t __arm64_gdb_cpu = {
-	.nregs = 36,
+	.nregs = 68,
 	.register_save = cpu_register_save,
 	.register_restore = cpu_register_restore,
 	.register_read = cpu_register_read,

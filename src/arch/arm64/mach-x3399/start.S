@@ -197,7 +197,7 @@ reset:
 	/*
 	 * Change exception level to el1
 	 */
-	mrs x1, CurrentEL
+/*	mrs x1, CurrentEL
 	cmp x1, 0xc
 	b.eq 3f
 	cmp x1, 0x8
@@ -215,6 +215,7 @@ reset:
 	msr elr_el2, x2
 	eret
 1:	nop
+*/
 
 	/* Enable instruction cache */
 	mrs x0, sctlr_el1

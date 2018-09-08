@@ -667,7 +667,10 @@
 		"adc-channel": 1,
 		"poll-interval-ms": 100,
 		"keys": [
-			{ "min-voltage": 0, "max-voltage": 1000000, "key-code": 8 }
+			{ "min-voltage": 0, "max-voltage": 100000, "key-code": 6 },
+			{ "min-voltage": 500000, "max-voltage": 700000, "key-code": 7 },
+			{ "min-voltage": 800000, "max-voltage": 950000, "key-code": 10 },
+			{ "min-voltage": 960000, "max-voltage": 1200000, "key-code": 11 }
 		]
 	},
 

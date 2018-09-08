@@ -15,13 +15,13 @@ INCDIRS		:=
 SRCDIRS		:=
 
 ifeq ($(strip $(HOSTOS)), linux)
-MK3288		:= arch/$(ARCH)/$(MACH)/tools/linux/mk3288
+MKROCK		:= arch/$(ARCH)/$(MACH)/tools/linux/mkrock
 endif
 ifeq ($(strip $(HOSTOS)), windows)
-MK3288		:= arch/$(ARCH)/$(MACH)/tools/windows/mk3288
+MKROCK		:= arch/$(ARCH)/$(MACH)/tools/windows/mkrock
 endif
-LOADER		:= arch/$(ARCH)/$(MACH)/tools/images/loader
+INIFILE		:= arch/$(ARCH)/$(MACH)/tools/images/rk3288.ini
 
 xend:
-	@echo Make header information for irom booting
-	@$(MK3288) $(X_NAME)pak.bin $(LOADER) $(X_NAME).bin
+	@echo Packing rockchip binrary for irom booting
+	@$(MKROCK) $(INIFILE)

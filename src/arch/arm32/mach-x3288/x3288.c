@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <mmu.h>
+#include <rk3288/reg-cru.h>
 #include <rk3288/reg-grf.h>
 
 static int mach_detect(struct machine_t * mach)
@@ -63,6 +64,7 @@ static void mach_shutdown(struct machine_t * mach)
 
 static void mach_reboot(struct machine_t * mach)
 {
+	write32(phys_to_virt(RK3288_CRU_BASE) + CRU_GLB_SRST_FST_VALUE, 0xfdb9);
 }
 
 static void mach_sleep(struct machine_t * mach)

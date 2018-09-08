@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <rk3399/reg-cru.h>
+#include <rk3399/reg-pmu-grf.h>
 
 static int mach_detect(struct machine_t * mach)
 {
@@ -44,6 +45,7 @@ static void mach_shutdown(struct machine_t * mach)
 
 static void mach_reboot(struct machine_t * mach)
 {
+	write32(phys_to_virt(RK3399_PMU_GRF_BASE) + PMU_GRF_OS_REG0, 0x0);
 	write32(phys_to_virt(RK3399_CRU_BASE) + CRU_GLB_SRST_FST_VALUE, 0xfdb9);
 }
 

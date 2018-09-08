@@ -69,9 +69,7 @@ static void clk_rk3128_ratio_set_rate(struct clk_t * clk, u64_t prate, u64_t rat
 	if(div > mask)
 		div = mask;
 
-	val = read32(pdat->virt);
-	val &= ~(mask << pdat->shift);
-	val |= fls(div) << pdat->shift;
+	val = fls(div) << pdat->shift;
 	val |= mask << (pdat->shift + 16);
 	write32(pdat->virt, val);
 }

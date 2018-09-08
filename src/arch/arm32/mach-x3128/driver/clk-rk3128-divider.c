@@ -72,9 +72,7 @@ static void clk_rk3128_divider_set_rate(struct clk_t * clk, u64_t prate, u64_t r
 	if(div > mask)
 		div = mask;
 
-	val = read32(pdat->virt);
-	val &= ~(mask << pdat->shift);
-	val |= div << pdat->shift;
+	val = div << pdat->shift;
 	val |= mask << (pdat->shift + 16);
 	write32(pdat->virt, val);
 }

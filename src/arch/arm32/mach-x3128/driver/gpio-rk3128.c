@@ -66,33 +66,25 @@ static void gpio_rk3128_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 	if(pdat->base < 32)
 	{
 		addr = pdat->grf + GRF_GPIO0A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 64)
 	{
 		addr = pdat->grf + GRF_GPIO1A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 96)
 	{
 		addr = pdat->grf + GRF_GPIO2A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 128)
 	{
 		addr = pdat->grf + GRF_GPIO3A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 }
@@ -146,20 +138,21 @@ static void gpio_rk3128_set_pull(struct gpiochip_t * chip, int offset, enum gpio
 	switch(pull)
 	{
 	case GPIO_PULL_UP:
-	case GPIO_PULL_DOWN:
-		v = 0x00010000;
+		v = 0x0;
 		break;
-
+	case GPIO_PULL_DOWN:
+		v = 0x0;
+		break;
 	case GPIO_PULL_NONE:
+		v = 0x1;
+		break;
 	default:
-		v = 0x00010001;
+		v = 0x1;
 		break;
 	}
 
 	addr = pdat->grf + GRF_GPIO0L_PULL + ((pdat->base >> 5) * 0x08) + ((offset >> 4) << 2);
-	val = read32(addr);
-	val &= ~(0x00010001 << (offset & 0xf));
-	val |= (v << (offset & 0xf));
+	val = ((0x1 << 16) | (v & 0x1)) << (offset & 0xf);
 	write32(addr, val);
 }
 

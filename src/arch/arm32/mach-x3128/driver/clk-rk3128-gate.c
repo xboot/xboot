@@ -51,12 +51,10 @@ static void clk_rk3128_gate_set_enable(struct clk_t * clk, bool_t enable)
 	struct clk_rk3128_gate_pdata_t * pdat = (struct clk_rk3128_gate_pdata_t *)clk->priv;
 	u32_t val;
 
-	val = read32(pdat->virt);
-	val &= ~(0x1 << pdat->shift);
 	if(enable)
-		val |= (pdat->invert ? 0x0 : 0x1) << pdat->shift;
+		val = (pdat->invert ? 0x0 : 0x1) << pdat->shift;
 	else
-		val |= (pdat->invert ? 0x1 : 0x0) << pdat->shift;
+		val = (pdat->invert ? 0x1 : 0x0) << pdat->shift;
 	val |= 0x1 << (pdat->shift + 16);
 	write32(pdat->virt, val);
 }

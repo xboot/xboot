@@ -11,7 +11,9 @@ make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-rk3288
 ## Enter maskrom mode and burn image to emmc
 ```shell
 sudo rkdeveloptool db xbootpak.bin;
+sleep 3;
 sudo rkdeveloptool ul xbootpak.bin;
+sudo rkdeveloptool rd;
 ```
 
 ## About rkdeveloptool tool

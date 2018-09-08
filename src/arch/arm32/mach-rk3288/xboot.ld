@@ -21,7 +21,7 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm32/mach-x3288/start.o (.text*)
+		.obj/arch/arm32/mach-rk3288/start.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

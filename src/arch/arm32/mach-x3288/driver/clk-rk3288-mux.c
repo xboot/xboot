@@ -52,9 +52,7 @@ static void clk_rk3288_mux_set_parent(struct clk_t * clk, const char * pname)
 	{
 		if(strcmp(pdat->parent[i].name, pname) == 0)
 		{
-			val = read32(pdat->virt);
-			val &= ~(((1 << pdat->width) - 1) << pdat->shift);
-			val |= pdat->parent[i].value << pdat->shift;
+			val = pdat->parent[i].value << pdat->shift;
 			val |= ((1 << pdat->width) - 1) << (pdat->shift + 16);
 			write32(pdat->virt, val);
 			break;

@@ -303,6 +303,19 @@
 	"clk-rk3288-gate@0xff76019c": { "parent": "hclk-vio-pre", "name": "gate-hclk-vop1", "shift": 8, "invert": true, "default": { "enable": true } },
 	"clk-link": { "parent": "gate-hclk-vop1", "name": "link-hclk-vop1" },
 
+	"reset-rk3288@0xff7601b8": { "reset-base":   0, "reset-count": 16 },
+	"reset-rk3288@0xff7601bc": { "reset-base":  16, "reset-count": 16 },
+	"reset-rk3288@0xff7601c0": { "reset-base":  32, "reset-count": 16 },
+	"reset-rk3288@0xff7601c4": { "reset-base":  48, "reset-count": 16 },
+	"reset-rk3288@0xff7601c8": { "reset-base":  64, "reset-count": 15 },
+	"reset-rk3288@0xff7601cc": { "reset-base":  80, "reset-count": 12 },
+	"reset-rk3288@0xff7601d0": { "reset-base":  96, "reset-count": 16 },
+	"reset-rk3288@0xff7601d4": { "reset-base": 112, "reset-count": 14 },
+	"reset-rk3288@0xff7601d8": { "reset-base": 128, "reset-count": 15 },
+	"reset-rk3288@0xff7601dc": { "reset-base": 144, "reset-count": 16 },
+	"reset-rk3288@0xff7601e0": { "reset-base": 160, "reset-count": 16 },
+	"reset-rk3288@0xff7601e4": { "reset-base": 176, "reset-count": 16 },
+
 	"irq-gic400@0xffc00000": {
 		"interrupt-base": 32,
 		"interrupt-count": 160

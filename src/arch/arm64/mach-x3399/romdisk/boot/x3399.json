@@ -280,7 +280,7 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
+
 	"uart-8250@0xff190000": {
 		"clock-name": "link-uart1",
 		"txd-gpio": 109,
@@ -292,7 +292,7 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
+
 	"uart-8250@0xff1a0000": {
 		"clock-name": "link-uart2",
 		"txd-gpio": 148,
@@ -316,7 +316,7 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
+
 	"uart-8250@0xff3c0000": {
 		"clock-name": "link-uart4",
 		"txd-gpio": 40,
@@ -364,7 +364,7 @@
 		"scl-gpio": 145,
 		"scl-gpio-config": 1
 	},
-	
+
 	"i2c-rk3399@0xff3d0000": {
 		"clock-name": "link-i2c4-pmu",
 		"clock-frequency": 100000,

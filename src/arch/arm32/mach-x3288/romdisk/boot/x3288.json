@@ -529,24 +529,6 @@
 		"cs-gpio-config": 0
 	},
 
-	"regulator-rc5t620@0": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "dc1", "channel": 0 },
-	"regulator-rc5t620@1": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "dc2", "channel": 1 },
-	"regulator-rc5t620@2": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "dc3", "channel": 2 },
-	"regulator-rc5t620@3": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "dc4", "channel": 3 },
-	"regulator-rc5t620@4": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "dc5", "channel": 4 },
-	"regulator-rc5t620@5": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo1", "channel": 5 },
-	"regulator-rc5t620@6": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo2", "channel": 6 },
-	"regulator-rc5t620@7": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo3", "channel": 7 },
-	"regulator-rc5t620@8": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo4", "channel": 8 },
-	"regulator-rc5t620@9": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo5", "channel": 9 },
-	"regulator-rc5t620@10": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo6", "channel": 10 },
-	"regulator-rc5t620@11": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo7", "channel": 11 },
-	"regulator-rc5t620@12": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo8", "channel": 12 },
-	"regulator-rc5t620@13": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo9", "channel": 13 },
-	"regulator-rc5t620@14": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldo10", "channel": 14 },
-	"regulator-rc5t620@15": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldortc1", "channel": 15 },
-	"regulator-rc5t620@16": { "i2c-bus": "i2c-rk3288.0", "slave-address": 50, "name": "ldortc2", "channel": 16 },
-
 	"regulator-act8846@0": { "i2c-bus": "i2c-rk3288.0", "slave-address": 90, "name": "dc1", "channel": 0 },
 	"regulator-act8846@1": { "i2c-bus": "i2c-rk3288.0", "slave-address": 90, "name": "dc2", "channel": 1 },
 	"regulator-act8846@2": { "i2c-bus": "i2c-rk3288.0", "slave-address": 90, "name": "dc3", "channel": 2 },
@@ -564,12 +546,6 @@
 	"regulator-syr82x@1": { "parent": null, "name": "syr828-gpu", "i2c-bus": "i2c-rk3288.0", "slave-address": 65 },
 
  	"regulator-gpio@0": { "parent": null, "name": "lcd-bl-power", "voltage": 3300000, "gpio": 226, "active-low": false, "default": { "enable": false } },
-
-	"key-rc5t620@0": {
-		"i2c-bus": "i2c-rk3288.0",
-		"slave-address": 50,
-		"interrupt-gpio": 4
-	},
 
 	"key-adc@0": {
 		"adc-name": "adc-rk3288.0",

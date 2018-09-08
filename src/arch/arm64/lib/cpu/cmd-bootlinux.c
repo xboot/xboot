@@ -27,7 +27,7 @@ static int do_bootlinux(int argc, char ** argv)
 {
 	struct machine_t * mach = get_machine();
 	struct image_header_t * h;
-	uint64_t image_size, text_offset, dst;
+	uint64_t image_size, text_offset, dst = 0x0;
 
 	void * kernel;
 	void * dtb;
@@ -61,8 +61,6 @@ static int do_bootlinux(int argc, char ** argv)
 	}
 	if(le64_to_cpu(h->flags) & (1 << 3))
 		dst = (uint64_t)kernel - text_offset;
-	else
-		dst = (uint64_t)mach->map[0].virt;
 	e = (void *)(((dst + 0x001fffffULL) &~ 0x001fffffULL) + text_offset);
 	if(e != kernel)
 	{

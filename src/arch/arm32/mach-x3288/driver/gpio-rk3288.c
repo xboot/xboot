@@ -68,25 +68,19 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 	if(pdat->base < 32)
 	{
 		addr = pdat->pmu + PMU_GPIO0A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 64)
 	{
 		addr = pdat->grf + GRF_GPIO1D_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 96)
 	{
 		addr = pdat->grf + (GRF_GPIO2A_IOMUX) + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 128)
@@ -94,17 +88,13 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		if(offset < 24)
 		{
 			addr = pdat->grf + (GRF_GPIO3A_IOMUX) + ((offset >> 3) << 2);
-			val = read32(addr);
-			val &= ~(0x00030003 << ((offset & 0x7) << 1));
-			val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+			val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 			write32(addr, val);
 		}
 		else if(offset < 32)
 		{
 			addr = pdat->grf + (GRF_GPIO3DL_IOMUX) + (((offset & 0x7) >> 2) << 2);
-			val = read32(addr);
-			val &= ~(0x000f000f << ((offset & 0x3) << 2));
-			val |= (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
+			val = (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
 			write32(addr, val);
 		}
 	}
@@ -113,34 +103,26 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		if(offset < 16)
 		{
 			addr = pdat->grf + (GRF_GPIO4AL_IOMUX) + (((offset & 0x7) >> 2) << 2);
-			val = read32(addr);
-			val &= ~(0x000f000f << ((offset & 0x3) << 2));
-			val |= (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
+			val = (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
 			write32(addr, val);
 		}
 		else if(offset < 32)
 		{
 			addr = pdat->grf + (GRF_GPIO4C_IOMUX) + ((offset >> 3) << 2);
-			val = read32(addr);
-			val &= ~(0x00030003 << ((offset & 0x7) << 1));
-			val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+			val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 			write32(addr, val);
 		}
 	}
 	else if(pdat->base < 192)
 	{
 		addr = pdat->grf + GRF_GPIO5B_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 224)
 	{
 		addr = pdat->grf + GRF_GPIO6A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 256)
@@ -148,26 +130,20 @@ static void gpio_rk3288_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 		if(offset < 16)
 		{
 			addr = pdat->grf + GRF_GPIO7A_IOMUX + ((offset >> 3) << 2);
-			val = read32(addr);
-			val &= ~(0x00030003 << ((offset & 0x7) << 1));
-			val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+			val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 			write32(addr, val);
 		}
 		else if(offset < 32)
 		{
 			addr = pdat->grf + (GRF_GPIO7CL_IOMUX) + (((offset & 0x7) >> 2) << 2);
-			val = read32(addr);
-			val &= ~(0x000f000f << ((offset & 0x3) << 2));
-			val |= (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
+			val = (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
 			write32(addr, val);
 		}
 	}
 	else if(pdat->base < 288)
 	{
 		addr = pdat->grf + GRF_GPIO8A_IOMUX + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (cfg & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 }
@@ -278,33 +254,29 @@ static void gpio_rk3288_set_pull(struct gpiochip_t * chip, int offset, enum gpio
 	switch(pull)
 	{
 	case GPIO_PULL_UP:
-		v = 0x00030001;
+		v = 0x1;
 		break;
-
 	case GPIO_PULL_DOWN:
-		v = 0x00030002;
+		v = 0x2;
 		break;
-
 	case GPIO_PULL_NONE:
+		v = 0x0;
+		break;
 	default:
-		v = 0x00030000;
+		v = 0x0;
 		break;
 	}
 
 	if(pdat->base < 32)
 	{
 		addr = pdat->pmu + PMU_GPIO0A_PULL + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (v << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 288)
 	{
 		addr = pdat->grf + (GRF_GPIO1D_P - 0x1c) + ((pdat->base >> 5) * 0x10) + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (v << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 }
@@ -350,40 +322,32 @@ static void gpio_rk3288_set_drv(struct gpiochip_t * chip, int offset, enum gpio_
 	switch(drv)
 	{
 	case GPIO_DRV_WEAK:
-		v = 0x00030000;
+		v = 0x0;
 		break;
-
 	case GPIO_DRV_WEAKER:
-		v = 0x00030001;
+		v = 0x1;
 		break;
-
 	case GPIO_DRV_STRONGER:
-		v = 0x00030002;
+		v = 0x2;
 		break;
-
 	case GPIO_DRV_STRONG:
-		v = 0x00030003;
+		v = 0x3;
 		break;
-
 	default:
-		v = 0x00030000;
+		v = 0x0;
 		break;
 	}
 
 	if(pdat->base < 32)
 	{
 		addr = pdat->pmu + PMU_GPIO0A_DRV + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (v << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 	else if(pdat->base < 288)
 	{
 		addr = pdat->grf + (GRF_GPIO1D_E - 0x1c) + ((pdat->base >> 5) * 0x10) + ((offset >> 3) << 2);
-		val = read32(addr);
-		val &= ~(0x00030003 << ((offset & 0x7) << 1));
-		val |= (v << ((offset & 0x7) << 1));
+		val = (((0x3 << 16) | (v & 0x3)) << ((offset & 0x7) << 1));
 		write32(addr, val);
 	}
 }
@@ -431,15 +395,13 @@ static void gpio_rk3288_set_rate(struct gpiochip_t * chip, int offset, enum gpio
 	switch(rate)
 	{
 	case GPIO_RATE_SLOW:
-		v = 0x00010000;
+		v = 0x0;
 		break;
-
 	case GPIO_RATE_FAST:
-		v = 0x00010001;
+		v = 0x1;
 		break;
-
 	default:
-		v = 0x00010000;
+		v = 0x0;
 		break;
 	}
 
@@ -449,9 +411,7 @@ static void gpio_rk3288_set_rate(struct gpiochip_t * chip, int offset, enum gpio
 	else if(pdat->base < 288)
 	{
 		addr = pdat->grf + (GRF_GPIO1H_SR - 0xc) + ((pdat->base >> 5) * 0x8) + ((offset >> 4) << 2);
-		val = read32(addr);
-		val &= ~(0x00010001 << (offset & 0xf));
-		val |= (v << (offset & 0xf));
+		val = (((0x1 << 16) | (v & 0x1)) << (offset & 0xf));
 		write32(addr, val);
 	}
 }

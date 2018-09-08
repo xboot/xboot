@@ -316,118 +316,26 @@
 	"reset-rk3288@0xff7601e0": { "reset-base": 160, "reset-count": 16 },
 	"reset-rk3288@0xff7601e4": { "reset-base": 176, "reset-count": 16 },
 
-	"irq-gic400@0xffc00000": {
-		"interrupt-base": 32,
-		"interrupt-count": 160
-	},
+	"irq-gic400@0xffc00000": { "interrupt-base": 32, "interrupt-count": 160 },
+	"irq-rk3288-gpio@0xff750000": { "interrupt-base": 192, "interrupt-count": 19, "interrupt-parent": 113 },
+	"irq-rk3288-gpio@0xff780000": { "interrupt-base": 248, "interrupt-count":  4, "interrupt-parent": 114 },
+	"irq-rk3288-gpio@0xff790000": { "interrupt-base": 256, "interrupt-count": 18, "interrupt-parent": 115 },
+	"irq-rk3288-gpio@0xff7a0000": { "interrupt-base": 288, "interrupt-count": 32, "interrupt-parent": 116 },
+	"irq-rk3288-gpio@0xff7b0000": { "interrupt-base": 320, "interrupt-count": 32, "interrupt-parent": 117 },
+	"irq-rk3288-gpio@0xff7c0000": { "interrupt-base": 360, "interrupt-count": 12, "interrupt-parent": 118 },
+	"irq-rk3288-gpio@0xff7d0000": { "interrupt-base": 384, "interrupt-count": 23, "interrupt-parent": 119 },
+	"irq-rk3288-gpio@0xff7e0000": { "interrupt-base": 416, "interrupt-count": 32, "interrupt-parent": 120 },
+	"irq-rk3288-gpio@0xff7f0000": { "interrupt-base": 448, "interrupt-count": 10, "interrupt-parent": 121 },
 
-	"irq-rk3288-gpio@0xff750000": {
-		"interrupt-base": 192,
-		"interrupt-count": 19,
-		"interrupt-parent": 113
-	},
-
-	"irq-rk3288-gpio@0xff780000": {
-		"interrupt-base": 248,
-		"interrupt-count": 4,
-		"interrupt-parent": 114
-	},
-
-	"irq-rk3288-gpio@0xff790000": {
-		"interrupt-base": 256,
-		"interrupt-count": 18,
-		"interrupt-parent": 115
-	},
-
-	"irq-rk3288-gpio@0xff7a0000": {
-		"interrupt-base": 288,
-		"interrupt-count": 32,
-		"interrupt-parent": 116
-	},
-
-	"irq-rk3288-gpio@0xff7b0000": {
-		"interrupt-base": 320,
-		"interrupt-count": 32,
-		"interrupt-parent": 117
-	},
-
-	"irq-rk3288-gpio@0xff7c0000": {
-		"interrupt-base": 360,
-		"interrupt-count": 12,
-		"interrupt-parent": 118
-	},
-
-	"irq-rk3288-gpio@0xff7d0000": {
-		"interrupt-base": 384,
-		"interrupt-count": 23,
-		"interrupt-parent": 119
-	},
-
-	"irq-rk3288-gpio@0xff7e0000": {
-		"interrupt-base": 416,
-		"interrupt-count": 32,
-		"interrupt-parent": 120
-	},
-
-	"irq-rk3288-gpio@0xff7f0000": {
-		"interrupt-base": 448,
-		"interrupt-count": 10,
-		"interrupt-parent": 121
-	},
-
-	"gpio-rk3288@0xff750000": {
-		"gpio-base": 0,
-		"gpio-count": 19,
-		"interrupt-offset": 192
-	},
-
-	"gpio-rk3288@0xff780000": {
-		"gpio-base": 56,
-		"gpio-count": 4,
-		"interrupt-offset": 248
-	},
-
-	"gpio-rk3288@0xff790000": {
-		"gpio-base": 64,
-		"gpio-count": 18,
-		"interrupt-offset": 256
-	},
-
-	"gpio-rk3288@0xff7a0000": {
-		"gpio-base": 96,
-		"gpio-count": 32,
-		"interrupt-offset": 288
-	},
-
-	"gpio-rk3288@0xff7b0000": {
-		"gpio-base": 128,
-		"gpio-count": 32,
-		"interrupt-offset": 320
-	},
-
-	"gpio-rk3288@0xff7c0000": {
-		"gpio-base": 168,
-		"gpio-count": 12,
-		"interrupt-offset": 200
-	},
-
-	"gpio-rk3288@0xff7d0000": {
-		"gpio-base": 192,
-		"gpio-count": 23,
-		"interrupt-offset": 384
-	},
-
-	"gpio-rk3288@0xff7e0000": {
-		"gpio-base": 224,
-		"gpio-count": 32,
-		"interrupt-offset": 416
-	},
-
-	"gpio-rk3288@0xff7f0000": {
-		"gpio-base": 256,
-		"gpio-count": 10,
-		"interrupt-offset": 448
-	},
+	"gpio-rk3288@0xff750000": { "gpio-base":   0, "gpio-count": 19, "interrupt-offset": 192 },
+	"gpio-rk3288@0xff780000": { "gpio-base":  56, "gpio-count":  4, "interrupt-offset": 248 },
+	"gpio-rk3288@0xff790000": { "gpio-base":  64, "gpio-count": 18, "interrupt-offset": 256 },
+	"gpio-rk3288@0xff7a0000": { "gpio-base":  96, "gpio-count": 32, "interrupt-offset": 288 },
+	"gpio-rk3288@0xff7b0000": { "gpio-base": 128, "gpio-count": 32, "interrupt-offset": 320 },
+	"gpio-rk3288@0xff7c0000": { "gpio-base": 168, "gpio-count": 12, "interrupt-offset": 200 },
+	"gpio-rk3288@0xff7d0000": { "gpio-base": 192, "gpio-count": 23, "interrupt-offset": 384 },
+	"gpio-rk3288@0xff7e0000": { "gpio-base": 224, "gpio-count": 32, "interrupt-offset": 416 },
+	"gpio-rk3288@0xff7f0000": { "gpio-base": 256, "gpio-count": 10, "interrupt-offset": 448 },
 
 	"pwm-rk3288@0xff680000": {
 		"clock-name": "link-pclk-rkpwm",

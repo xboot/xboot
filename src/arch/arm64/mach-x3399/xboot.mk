@@ -15,15 +15,13 @@ INCDIRS		:=
 SRCDIRS		:=
 
 ifeq ($(strip $(HOSTOS)), linux)
-MK3399		:= arch/$(ARCH)/$(MACH)/tools/linux/mk3399
-PAK3399		:= arch/$(ARCH)/$(MACH)/tools/linux/pak3399
+MKROCK		:= arch/$(ARCH)/$(MACH)/tools/linux/mkrock
 endif
 ifeq ($(strip $(HOSTOS)), windows)
-MK3399		:= arch/$(ARCH)/$(MACH)/tools/windows/mk3399
-PAK3399		:= arch/$(ARCH)/$(MACH)/tools/windows/pak3399
+MKROCK		:= arch/$(ARCH)/$(MACH)/tools/windows/mkrock
 endif
-TEMPLATE	:= arch/$(ARCH)/$(MACH)/tools/images/template
+INIFILE		:= arch/$(ARCH)/$(MACH)/tools/images/rk3399.ini
 
 xend:
-	@$(MK3399) $(X_NAME).bin $(X_NAME).img
-	@$(PAK3399) $(X_NAME)pak.bin $(X_NAME).img $(TEMPLATE)
+	@echo Packing rockchip binrary for irom booting
+	@$(MKROCK) $(INIFILE)

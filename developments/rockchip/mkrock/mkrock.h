@@ -1,35 +1,19 @@
-/*
- * (C) Copyright 2008-2015 Fuzhou Rockchip Electronics Co., Ltd
- *
- * SPDX-License-Identifier:	GPL-2.0+
- */
-#ifndef BOOT_MERGER_H
-#define BOOT_MERGER_H
+#ifndef __MKROCK_H__
+#define __MKROCK_H__
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <memory.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
-//#define DEBUG
-
-extern bool gDebug;
-
-#define LOGE(fmt, args...) fprintf(stderr, "E: [%s] "fmt, __func__, ##args)
-#define LOGD(fmt, args...) do {\
-	if (gDebug) \
-	fprintf(stderr, "W: [%s] "fmt, __func__, ##args); \
-} while (0)
-
-
-#define SCANF_EAT(in)   fscanf(in, "%*[ \r\n\t/]")//, gEat)
+#define SCANF_EAT(in)   	fscanf(in, "%*[ \r\n\t/]")
 #define MAX_LINE_LEN        256
 extern char gEat[MAX_LINE_LEN];
 
 typedef char line_t[MAX_LINE_LEN];
-
-
 
 #define DEF_CONFIG_FILE     "CONFIG.ini"
 
@@ -186,6 +170,4 @@ typedef struct {
 #define OPT_UNPACK          "--unpack"
 #define OPT_SUBFIX          "--subfix"
 
-#define VERSION             "2013-8-12 14:27:23"
-
-#endif// BOOT_MERGER_H
+#endif /* __MKROCK_H__ */

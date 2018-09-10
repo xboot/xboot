@@ -1,24 +1,16 @@
-/*
- * (C) Copyright 2008-2015 Fuzhou Rockchip Electronics Co., Ltd
- *
- * SPDX-License-Identifier:	GPL-2.0+
- */
 #include "mkrock.h"
-#include <time.h>
-#include <sys/stat.h>  
+
+static bool gDebug = false;
+
+#define LOGE(fmt, args...) fprintf(stderr, "E: [%s] "fmt, __func__, ##args)
+#define LOGD(fmt, args...) do {\
+	if (gDebug) \
+	fprintf(stderr, "W: [%s] "fmt, __func__, ##args); \
+} while (0)
 
 //#define USE_P_RC4
-
-bool gDebug = 
-#ifdef DEBUG
-	true;
-#else
-	false;
-#endif //DEBUG
-
 #define ENTRY_ALIGN  (2048)
 options gOpts;
-
 
 char gSubfix[MAX_LINE_LEN] = OUT_SUBFIX;
 char gEat[MAX_LINE_LEN];
@@ -802,9 +794,6 @@ end:
 	return ret;
 }
 
-/************merge code end************/
-/************unpack code***************/
-
 static inline void wide2str(const uint16_t* wide, char* str, int len)
 {
 	int i;
@@ -889,17 +878,14 @@ end:
 	return ret;
 }
 
-/************unpack code end***********/
-
 static void printHelp(void) {
-	printf("Usage: boot_merger [options]... FILE\n");
+	printf("Usage: mkrock [options]... FILE\n");
 	printf("Merge or unpack Rockchip's loader (Default action is to merge.)\n");
 	printf("Options:\n");
 	printf("\t" OPT_MERGE "\t\t\tMerge loader with specified config.\n");
 	printf("\t" OPT_UNPACK "\t\tUnpack specified loader to current dir.\n");
 	printf("\t" OPT_VERBOSE "\t\tDisplay more runtime informations.\n");
 	printf("\t" OPT_HELP "\t\t\tDisplay this information.\n");
-	printf("\t" OPT_VERSION "\t\tDisplay version information.\n");
 	printf("\t" OPT_SUBFIX "\t\tSpec subfix.\n");
 }
 
@@ -913,9 +899,6 @@ int main(int argc, char** argv) {
 			gDebug = true;
 		} else if (!strcmp(OPT_HELP, argv[i])) {
 			printHelp();
-			return 0;
-		} else if (!strcmp(OPT_VERSION, argv[i])) {
-			printf("boot_merger (cjf@rock-chips.com)\t" VERSION "\n");
 			return 0;
 		} else if (!strcmp(OPT_MERGE, argv[i])) {
 			merge = true;
@@ -957,5 +940,3 @@ int main(int argc, char** argv) {
 	}
 	return 0;
 }
-
-

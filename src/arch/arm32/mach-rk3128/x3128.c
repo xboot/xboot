@@ -30,6 +30,7 @@
 #include <mmu.h>
 #include <rk3128/reg-cru.h>
 #include <rk3128/reg-grf.h>
+#include <rk3128/reg-pmu.h>
 
 static int mach_detect(struct machine_t * mach)
 {
@@ -50,6 +51,7 @@ static void mach_shutdown(struct machine_t * mach)
 
 static void mach_reboot(struct machine_t * mach)
 {
+	write32(phys_to_virt(RK3128_PMU_BASE) + PMU_SYS_REG0, 0x0);
 	write32(phys_to_virt(RK3128_CRU_BASE) + CRU_GLB_SRST_FST_VALUE, 0xfdb9);
 }
 

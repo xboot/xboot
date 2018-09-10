@@ -9,8 +9,8 @@
 #define CRU_SOFTRSTS_CON(i)		(0x110 + ((i) * 4))
 
 #define CRU_MODE_CON			(0x040)
-#define CRU_GLB_SRST_FST		(0x100)
-#define CRU_GLB_SRST_SND		(0x104)
+#define CRU_GLB_SRST_FST_VALUE	(0x100)
+#define CRU_GLB_SRST_SND_VALUE	(0x104)
 #define CRU_MISC_CON			(0x134)
 #define CRU_GLB_CNT_TH			(0x140)
 #define CRU_GLB_RST_ST			(0x150)

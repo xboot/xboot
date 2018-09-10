@@ -214,58 +214,26 @@
 	"clk-link": { "parent": "mux-uart1", "name": "link-uart1" },
 	"clk-link": { "parent": "mux-uart2", "name": "link-uart2" },
 
-	"irq-gic400@0x10138000": {
-		"interrupt-base": 32,
-		"interrupt-count": 96
-	},
+	"reset-rk3128@0x20000110": { "reset-base":   0, "reset-count": 16 },
+	"reset-rk3128@0x20000114": { "reset-base":  16, "reset-count": 16 },
+	"reset-rk3128@0x20000118": { "reset-base":  32, "reset-count": 16 },
+	"reset-rk3128@0x2000011c": { "reset-base":  48, "reset-count": 16 },
+	"reset-rk3128@0x20000120": { "reset-base":  64, "reset-count": 16 },
+	"reset-rk3128@0x20000124": { "reset-base":  80, "reset-count": 15 },
+	"reset-rk3128@0x20000128": { "reset-base":  96, "reset-count": 16 },
+	"reset-rk3128@0x2000012c": { "reset-base": 112, "reset-count": 13 },
+	"reset-rk3128@0x20000130": { "reset-base": 128, "reset-count": 10 },
 
-	"irq-rk3128-gpio@0x2007c000": {
-		"interrupt-base": 128,
-		"interrupt-count": 32,
-		"interrupt-parent": 68
-	},
-	
-	"irq-rk3128-gpio@0x20080000": {
-		"interrupt-base": 160,
-		"interrupt-count": 32,
-		"interrupt-parent": 69
-	},
-	
-	"irq-rk3128-gpio@0x20084000": {
-		"interrupt-base": 192,
-		"interrupt-count": 32,
-		"interrupt-parent": 70
-	},
-	
-	"irq-rk3128-gpio@0x20088000": {
-		"interrupt-base": 224,
-		"interrupt-count": 32,
-		"interrupt-parent": 71
-	},
+	"irq-gic400@0x10138000": { "interrupt-base": 32, "interrupt-count": 96 },
+	"irq-rk3128-gpio@0x2007c000": { "interrupt-base": 128, "interrupt-count": 32, "interrupt-parent": 68 },
+	"irq-rk3128-gpio@0x20080000": { "interrupt-base": 160, "interrupt-count": 32, "interrupt-parent": 69 },
+	"irq-rk3128-gpio@0x20084000": { "interrupt-base": 192, "interrupt-count": 32, "interrupt-parent": 70 },
+	"irq-rk3128-gpio@0x20088000": { "interrupt-base": 224, "interrupt-count": 32, "interrupt-parent": 71 },
 
-	"gpio-rk3128@0x2007c000": {
-		"gpio-base": 0,
-		"gpio-count": 32,
-		"interrupt-offset": 128
-	},
-
-	"gpio-rk3128@0x20080000": {
-		"gpio-base": 32,
-		"gpio-count": 32,
-		"interrupt-offset": 160
-	},
-
-	"gpio-rk3128@0x20084000": {
-		"gpio-base": 64,
-		"gpio-count": 32,
-		"interrupt-offset": 192
-	},
-
-	"gpio-rk3128@0x20088000": {
-		"gpio-base": 96,
-		"gpio-count": 32,
-		"interrupt-offset": 224
-	},
+	"gpio-rk3128@0x2007c000": { "gpio-base":  0, "gpio-count": 32, "interrupt-offset": 128 },
+	"gpio-rk3128@0x20080000": { "gpio-base": 32, "gpio-count": 32, "interrupt-offset": 160 },
+	"gpio-rk3128@0x20084000": { "gpio-base": 64, "gpio-count": 32, "interrupt-offset": 192 },
+	"gpio-rk3128@0x20088000": { "gpio-base": 96, "gpio-count": 32, "interrupt-offset": 224 },
 
 	"pwm-rk3128@0x20050000": {
 		"clock-name": "link-pwm0",
@@ -565,7 +533,7 @@
 		"clk-active": false,
 		"backlight": "led-pwm-bl.0"
 	},
-	
+
 	"console-uart@0": {
 		"uart-bus": "uart-8250.2"
 	}

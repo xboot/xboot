@@ -88,11 +88,10 @@ static bool_t is_msdos_extended(u8_t type)
 	return FALSE;
 }
 
-static bool_t msdos_partition(struct disk_t * disk, size_t sector, size_t relative)
+static bool_t msdos_map(struct disk_t * disk)
 {
 	struct msdos_partition_mbr_t mbr;
 	struct partition_t * part;
-	size_t start;
 	int i;
 
 	if(!disk || !disk->name)
@@ -101,7 +100,7 @@ static bool_t msdos_partition(struct disk_t * disk, size_t sector, size_t relati
 	if(!disk->size || !disk->count)
 		return FALSE;
 
-	if(disk_read(disk, (u8_t *)(&mbr), sector * disk->size, sizeof(struct msdos_partition_mbr_t)) != sizeof(struct msdos_partition_mbr_t))
+	if(disk_read(disk, (u8_t *)(&mbr), 0, sizeof(struct msdos_partition_mbr_t)) != sizeof(struct msdos_partition_mbr_t))
 		return FALSE;
 
 	if((mbr.signature[0] != 0x55) || mbr.signature[1] != 0xaa)
@@ -109,35 +108,25 @@ static bool_t msdos_partition(struct disk_t * disk, size_t sector, size_t relati
 
 	for(i = 0; i < 4; i++)
 	{
-		if((mbr.entry[i].type != 0) && (is_msdos_extended(mbr.entry[i].type)==FALSE))
+		if(mbr.entry[i].type == 0xee)
+			return FALSE;
+	}
+	for(i = 0; i < 4; i++)
+	{
+		if((mbr.entry[i].type != 0) && (!is_msdos_extended(mbr.entry[i].type)))
 		{
 			part = malloc(sizeof(struct partition_t));
 			if(!part)
 				return FALSE;
 
 			strlcpy(part->name, "", sizeof(part->name));
-			part->from = sector + ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
+			part->from = ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
 			part->to = part->from + ((mbr.entry[i].length[3] << 24) | (mbr.entry[i].length[2] << 16) | (mbr.entry[i].length[1] << 8) | (mbr.entry[i].length[0] << 0)) - 1;
 			part->size = disk->size;
 			list_add_tail(&part->entry, &(disk->part.entry));
 		}
 	}
-
-	for(i = 0; i < 4; i++)
-	{
-		if(is_msdos_extended(mbr.entry[i].type) == TRUE)
-		{
-			start = ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0)) + relative;
-			return msdos_partition(disk, start, (sector == 0) ? start : relative);
-		}
-	}
-
 	return TRUE;
-}
-
-static bool_t msdos_map(struct disk_t * disk)
-{
-	return msdos_partition(disk, 0, 0);
 }
 
 static struct partition_map_t msdos = {

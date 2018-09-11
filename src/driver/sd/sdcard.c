@@ -511,39 +511,42 @@ static void sdcard_disk_sync(struct disk_t * disk)
 static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 {
 	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(data);
-	char buf[64];
-	bool_t plugin;
+	char buf[256];
 
+	if(!pdat->online)
+	{
+		if(sdhci_detect(pdat->sdhci))
+		{
+			if(sdcard_detect(pdat->sdhci, &pdat->sdcard))
+			{
+				snprintf(buf, sizeof(buf), "sdcard.%s", pdat->sdhci->name);
+				pdat->disk.name = strdup(buf);
+				pdat->disk.size = pdat->sdcard.read_bl_len;
+				pdat->disk.count = pdat->sdcard.capacity / pdat->sdcard.read_bl_len;
+				pdat->disk.read = sdcard_disk_read;
+				pdat->disk.write = sdcard_disk_write;
+				pdat->disk.sync = sdcard_disk_sync;
+				pdat->disk.priv = pdat;
+				if(!register_disk(NULL, &pdat->disk))
+					free_device_name(pdat->disk.name);
+				else
+					pdat->online = TRUE;
+			}
+		}
+	}
+	else
+	{
+		if(!sdhci_detect(pdat->sdhci))
+		{
+			if(unregister_disk(&pdat->disk))
+			{
+				free_device_name(pdat->disk.name);
+				pdat->online = FALSE;
+			}
+		}
+	}
 	if(!pdat->sdhci->removeable)
 		return 0;
-
-	plugin = sdhci_detect(pdat->sdhci);
-	if(pdat->online && !plugin)
-	{
-		if(unregister_disk(&pdat->disk))
-		{
-			free_device_name(pdat->disk.name);
-			pdat->online = FALSE;
-		}
-	}
-	else if(!pdat->online && plugin)
-	{
-		if(sdcard_detect(pdat->sdhci, &pdat->sdcard))
-		{
-			snprintf(buf, sizeof(buf), "sdcard.%s", pdat->sdhci->name);
-			pdat->disk.name = strdup(buf);
-			pdat->disk.size = pdat->sdcard.read_bl_len;
-			pdat->disk.count = pdat->sdcard.capacity / pdat->sdcard.read_bl_len;
-			pdat->disk.read = sdcard_disk_read;
-			pdat->disk.write = sdcard_disk_write;
-			pdat->disk.sync = sdcard_disk_sync;
-			pdat->disk.priv = pdat;
-			if(!register_disk(NULL, &pdat->disk))
-				free_device_name(pdat->disk.name);
-			else
-				pdat->online = TRUE;
-		}
-	}
 	timer_forward_now(timer, ms_to_ktime(2000));
 	return 1;
 }
@@ -561,7 +564,6 @@ void * sdcard_probe(struct sdhci_t * sdhci)
 	pdat->online = FALSE;
 	timer_init(&pdat->timer, sdcard_disk_timer_function, pdat);
 	timer_start_now(&pdat->timer, ms_to_ktime(100));
-
 	return pdat;
 }
 

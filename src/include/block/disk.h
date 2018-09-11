@@ -11,7 +11,7 @@ extern "C" {
 struct partition_t
 {
 	/* Partition name */
-	char name[32 + 1];
+	char name[64 + 1];
 
 	/* The sector number of the start */
 	u64_t from;

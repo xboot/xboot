@@ -70,6 +70,7 @@ bool_t register_resetchip(struct device_t ** device, struct resetchip_t * chip)
 
 	dev->name = strdup(chip->name);
 	dev->type = DEVICE_TYPE_RESETCHIP;
+	dev->driver = NULL;
 	dev->priv = chip;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "base", resetchip_read_base, NULL, chip);

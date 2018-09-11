@@ -119,6 +119,7 @@ bool_t register_regulator(struct device_t ** device, struct regulator_t * supply
 
 	dev->name = strdup(supply->name);
 	dev->type = DEVICE_TYPE_REGULATOR;
+	dev->driver = NULL;
 	dev->priv = supply;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "summary", regulator_read_summary, NULL, supply);

@@ -63,6 +63,7 @@ bool_t register_audio(struct device_t ** device, struct audio_t * audio)
 
 	dev->name = strdup(audio->name);
 	dev->type = DEVICE_TYPE_AUDIO;
+	dev->driver = NULL;
 	dev->priv = audio;
 	dev->kobj = kobj_alloc_directory(dev->name);
 

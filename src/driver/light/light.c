@@ -69,6 +69,7 @@ bool_t register_light(struct device_t ** device,struct light_t * light)
 
 	dev->name = strdup(light->name);
 	dev->type = DEVICE_TYPE_LIGHT;
+	dev->driver = NULL;
 	dev->priv = light;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "illuminance", light_read_illuminance, NULL, light);

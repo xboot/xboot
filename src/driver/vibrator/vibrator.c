@@ -82,6 +82,7 @@ bool_t register_vibrator(struct device_t ** device, struct vibrator_t * vib)
 
 	dev->name = strdup(vib->name);
 	dev->type = DEVICE_TYPE_VIBRATOR;
+	dev->driver = NULL;
 	dev->priv = vib;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "state", vibrator_read_state, vibrator_write_state, vib);

@@ -122,6 +122,7 @@ bool_t register_clockevent(struct device_t ** device, struct clockevent_t * ce)
 
 	dev->name = strdup(ce->name);
 	dev->type = DEVICE_TYPE_CLOCKEVENT;
+	dev->driver = NULL;
 	dev->priv = ce;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "mult", clockevent_read_mult, NULL, ce);

@@ -87,6 +87,7 @@ bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc)
 
 	dev->name = strdup(rtc->name);
 	dev->type = DEVICE_TYPE_RTC;
+	dev->driver = NULL;
 	dev->priv = rtc;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "time", rtc_time_read, rtc_time_write, rtc);

@@ -69,6 +69,7 @@ bool_t register_pressure(struct device_t ** device,struct pressure_t * p)
 
 	dev->name = strdup(p->name);
 	dev->type = DEVICE_TYPE_PRESSURE;
+	dev->driver = NULL;
 	dev->priv = p;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "pascal", pressure_read_pascal, NULL, p);

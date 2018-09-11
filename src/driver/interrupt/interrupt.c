@@ -84,6 +84,7 @@ bool_t register_irqchip(struct device_t ** device, struct irqchip_t * chip)
 	}
 	dev->name = strdup(chip->name);
 	dev->type = DEVICE_TYPE_IRQCHIP;
+	dev->driver = NULL;
 	dev->priv = chip;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "base", irqchip_read_base, NULL, chip);

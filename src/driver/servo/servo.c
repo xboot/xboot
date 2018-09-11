@@ -73,6 +73,7 @@ bool_t register_servo(struct device_t ** device, struct servo_t * m)
 
 	dev->name = strdup(m->name);
 	dev->type = DEVICE_TYPE_SERVO;
+	dev->driver = NULL;
 	dev->priv = m;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "enable", NULL, servo_write_enable, m);

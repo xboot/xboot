@@ -131,6 +131,7 @@ bool_t register_nvmem(struct device_t ** device, struct nvmem_t * m)
 	nvmem_init_kvdb(m);
 	dev->name = strdup(m->name);
 	dev->type = DEVICE_TYPE_NVMEM;
+	dev->driver = NULL;
 	dev->priv = m;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "summary", nvmem_read_summary, NULL, m);

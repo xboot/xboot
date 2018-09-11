@@ -69,6 +69,7 @@ bool_t register_block(struct device_t ** device, struct block_t * blk)
 
 	dev->name = strdup(blk->name);
 	dev->type = DEVICE_TYPE_BLOCK;
+	dev->driver = NULL;
 	dev->priv = blk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "size", block_read_size, NULL, blk);

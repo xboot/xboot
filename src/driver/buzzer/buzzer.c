@@ -92,6 +92,7 @@ bool_t register_buzzer(struct device_t ** device, struct buzzer_t * buzzer)
 
 	dev->name = strdup(buzzer->name);
 	dev->type = DEVICE_TYPE_BUZZER;
+	dev->driver = NULL;
 	dev->priv = buzzer;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "frequency", buzzer_read_frequency, buzzer_write_frequency, buzzer);

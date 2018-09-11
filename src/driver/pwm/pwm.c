@@ -116,6 +116,7 @@ bool_t register_pwm(struct device_t ** device, struct pwm_t * pwm)
 
 	dev->name = strdup(pwm->name);
 	dev->type = DEVICE_TYPE_PWM;
+	dev->driver = NULL;
 	dev->priv = pwm;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "enable", pwm_read_enable, pwm_write_enable, pwm);

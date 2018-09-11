@@ -82,6 +82,7 @@ bool_t register_input(struct device_t ** device, struct input_t * input)
 
 	dev->name = strdup(input->name);
 	dev->type = DEVICE_TYPE_INPUT;
+	dev->driver = NULL;
 	dev->priv = input;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "type", input_read_type, NULL, input);

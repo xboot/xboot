@@ -75,6 +75,7 @@ bool_t register_led(struct device_t ** device, struct led_t * led)
 
 	dev->name = strdup(led->name);
 	dev->type = DEVICE_TYPE_LED;
+	dev->driver = NULL;
 	dev->priv = led;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "brightness", led_read_brightness, led_write_brightness, led);

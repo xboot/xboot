@@ -79,6 +79,7 @@ bool_t register_stepper(struct device_t ** device, struct stepper_t * m)
 
 	dev->name = strdup(m->name);
 	dev->type = DEVICE_TYPE_STEPPER;
+	dev->driver = NULL;
 	dev->priv = m;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "enable", NULL, stepper_write_enable, m);

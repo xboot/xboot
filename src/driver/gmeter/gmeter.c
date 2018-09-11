@@ -70,6 +70,7 @@ bool_t register_gmeter(struct device_t ** device,struct gmeter_t * g)
 
 	dev->name = strdup(g->name);
 	dev->type = DEVICE_TYPE_GMETER;
+	dev->driver = NULL;
 	dev->priv = g;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "acceleration", gmeter_read_acceleration, NULL, g);

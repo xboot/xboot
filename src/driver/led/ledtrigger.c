@@ -60,6 +60,7 @@ bool_t register_ledtrigger(struct device_t ** device, struct ledtrigger_t * trig
 
 	dev->name = strdup(trigger->name);
 	dev->type = DEVICE_TYPE_LEDTRIGGER;
+	dev->driver = NULL;
 	dev->priv = trigger;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "activity", NULL, ledtrigger_write_activity, trigger);

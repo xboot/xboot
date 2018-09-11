@@ -151,6 +151,7 @@ bool_t register_clocksource(struct device_t ** device, struct clocksource_t * cs
 
 	dev->name = strdup(cs->name);
 	dev->type = DEVICE_TYPE_CLOCKSOURCE;
+	dev->driver = NULL;
 	dev->priv = cs;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "mult", clocksource_read_mult, NULL, cs);

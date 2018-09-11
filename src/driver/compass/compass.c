@@ -86,6 +86,7 @@ bool_t register_compass(struct device_t ** device,struct compass_t * c)
 
 	dev->name = strdup(c->name);
 	dev->type = DEVICE_TYPE_COMPASS;
+	dev->driver = NULL;
 	dev->priv = c;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "offset", compass_read_offset, NULL, c);

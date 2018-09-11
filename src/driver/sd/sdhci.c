@@ -53,6 +53,7 @@ bool_t register_sdhci(struct device_t ** device, struct sdhci_t * sdhci)
 
 	dev->name = strdup(sdhci->name);
 	dev->type = DEVICE_TYPE_SDHCI;
+	dev->driver = NULL;
 	dev->priv = sdhci;
 	dev->kobj = kobj_alloc_directory(dev->name);
 

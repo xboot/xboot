@@ -69,6 +69,7 @@ bool_t register_proximity(struct device_t ** device,struct proximity_t * p)
 
 	dev->name = strdup(p->name);
 	dev->type = DEVICE_TYPE_PROXIMITY;
+	dev->driver = NULL;
 	dev->priv = p;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "distance", proximity_read_distance, NULL, p);

@@ -100,6 +100,7 @@ bool_t register_console(struct device_t ** device, struct console_t * console)
 
 	dev->name = strdup(console->name);
 	dev->type = DEVICE_TYPE_CONSOLE;
+	dev->driver = NULL;
 	dev->priv = console;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "active", console_read_active, console_write_active, console);

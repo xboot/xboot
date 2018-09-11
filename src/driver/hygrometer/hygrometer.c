@@ -69,6 +69,7 @@ bool_t register_hygrometer(struct device_t ** device,struct hygrometer_t * hygro
 
 	dev->name = strdup(hygrometer->name);
 	dev->type = DEVICE_TYPE_THERMOMETER;
+	dev->driver = NULL;
 	dev->priv = hygrometer;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "humidity", hygrometer_read_humidity, NULL, hygrometer);

@@ -90,6 +90,7 @@ bool_t register_dac(struct device_t ** device, struct dac_t * dac)
 
 	dev->name = strdup(dac->name);
 	dev->type = DEVICE_TYPE_DAC;
+	dev->driver = NULL;
 	dev->priv = dac;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "vreference", dac_read_vreference, NULL, dac);

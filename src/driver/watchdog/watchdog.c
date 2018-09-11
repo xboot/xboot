@@ -80,6 +80,7 @@ bool_t register_watchdog(struct device_t ** device,struct watchdog_t * wdg)
 
 	dev->name = strdup(wdg->name);
 	dev->type = DEVICE_TYPE_WATCHDOG;
+	dev->driver = NULL;
 	dev->priv = wdg;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "timeout", watchdog_read_timeout, watchdog_write_timeout, wdg);

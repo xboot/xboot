@@ -162,6 +162,7 @@ bool_t register_battery(struct device_t ** device, struct battery_t * bat)
 
 	dev->name = strdup(bat->name);
 	dev->type = DEVICE_TYPE_BATTERY;
+	dev->driver = NULL;
 	dev->priv = bat;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "supply", battery_read_supply, NULL, bat);

@@ -82,6 +82,7 @@ bool_t register_laserscan(struct device_t ** device,struct laserscan_t * l)
 
 	dev->name = strdup(l->name);
 	dev->type = DEVICE_TYPE_LASERSCAN;
+	dev->driver = NULL;
 	dev->priv = l;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "color", laserscan_read_color, laserscan_write_color, l);

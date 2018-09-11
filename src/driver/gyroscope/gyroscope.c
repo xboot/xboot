@@ -70,6 +70,7 @@ bool_t register_gyroscope(struct device_t ** device,struct gyroscope_t * g)
 
 	dev->name = strdup(g->name);
 	dev->type = DEVICE_TYPE_GYROSCOPE;
+	dev->driver = NULL;
 	dev->priv = g;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "palstance", gyroscope_read_palstance, NULL, g);

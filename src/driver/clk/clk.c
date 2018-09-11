@@ -119,6 +119,7 @@ bool_t register_clk(struct device_t ** device, struct clk_t * clk)
 
 	dev->name = strdup(clk->name);
 	dev->type = DEVICE_TYPE_CLK;
+	dev->driver = NULL;
 	dev->priv = clk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "summary", clk_read_summary, NULL, clk);

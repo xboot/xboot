@@ -88,6 +88,7 @@ bool_t register_adc(struct device_t ** device, struct adc_t * adc)
 	dev->name = strdup(adc->name);
 	dev->type = DEVICE_TYPE_ADC;
 	dev->priv = adc;
+	dev->driver = NULL;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "vreference", adc_read_vreference, NULL, adc);
 	kobj_add_regular(dev->kobj, "resolution", adc_read_resolution, NULL, adc);

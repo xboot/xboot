@@ -69,6 +69,7 @@ bool_t register_thermometer(struct device_t ** device,struct thermometer_t * the
 
 	dev->name = strdup(thermometer->name);
 	dev->type = DEVICE_TYPE_THERMOMETER;
+	dev->driver = NULL;
 	dev->priv = thermometer;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "temperature", thermometer_read_temperature, NULL, thermometer);

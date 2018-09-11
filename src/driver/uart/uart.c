@@ -120,6 +120,7 @@ bool_t register_uart(struct device_t ** device, struct uart_t * uart)
 
 	dev->name = strdup(uart->name);
 	dev->type = DEVICE_TYPE_UART;
+	dev->driver = NULL;
 	dev->priv = uart;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "baud", uart_read_baud, uart_write_baud, uart);

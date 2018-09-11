@@ -73,6 +73,7 @@ bool_t register_motor(struct device_t ** device, struct motor_t * m)
 
 	dev->name = strdup(m->name);
 	dev->type = DEVICE_TYPE_MOTOR;
+	dev->driver = NULL;
 	dev->priv = m;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "enable", NULL, motor_write_enable, m);

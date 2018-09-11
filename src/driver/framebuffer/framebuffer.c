@@ -115,6 +115,7 @@ bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb
 
 	dev->name = strdup(fb->name);
 	dev->type = DEVICE_TYPE_FRAMEBUFFER;
+	dev->driver = NULL;
 	dev->priv = fb;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "width", framebuffer_read_width, NULL, fb);

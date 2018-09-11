@@ -71,6 +71,7 @@ bool_t register_rng(struct device_t ** device, struct rng_t * rng)
 
 	dev->name = strdup(rng->name);
 	dev->type = DEVICE_TYPE_RNG;
+	dev->driver = NULL;
 	dev->priv = rng;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "random", rng_read_random, NULL, rng);

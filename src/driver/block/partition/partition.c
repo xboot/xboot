@@ -116,7 +116,7 @@ bool_t partition_map(struct disk_t * disk)
 	list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
 	{
 		if(!ppos->name || (strlen(ppos->name) == 0))
-			snprintf(ppos->name, sizeof(ppos->name), "p%d", ++i);
+			snprintf(ppos->name, sizeof(ppos->name), "p%d", i++);
 	}
 	return TRUE;
 }

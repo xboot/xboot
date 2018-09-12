@@ -23,4 +23,4 @@ endif
 
 xend:
 	@echo Make header information for irom booting
-	$(MKV210) $(X_NAME).bin
+	@$(MKV210) $(X_NAME).bin

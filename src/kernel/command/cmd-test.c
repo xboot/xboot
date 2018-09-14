@@ -12,6 +12,7 @@ static void usage(void)
 
 static int do_test(int argc, char ** argv)
 {
+	ecx334af_dump();
 	return 0;
 }
 

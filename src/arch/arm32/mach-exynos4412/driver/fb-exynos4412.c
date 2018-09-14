@@ -422,6 +422,168 @@ static void exynos4412_fb_cfg_gpios(int base, int n, int cfg, enum gpio_pull_t p
 	}
 }
 
+#define SPI_SCLK	EXYNOS4412_GPD1(3)
+#define SPI_MOSI	EXYNOS4412_GPD1(2)
+#define SPI_MISO	EXYNOS4412_GPX0(7)
+#define SPI_CS		EXYNOS4412_GPX0(6)
+
+static inline void spi_initial(void)
+{
+	gpio_set_pull(SPI_CS, GPIO_PULL_UP);
+	gpio_set_cfg(SPI_CS, 1);
+	gpio_direction_output(SPI_CS, 1);
+
+	gpio_set_pull(SPI_SCLK, GPIO_PULL_UP);
+	gpio_set_cfg(SPI_SCLK, 1);
+	gpio_direction_output(SPI_SCLK, 0);
+
+	gpio_set_pull(SPI_MOSI, GPIO_PULL_UP);
+	gpio_set_cfg(SPI_MOSI, 1);
+	gpio_direction_output(SPI_MOSI, 0);
+
+	gpio_set_pull(SPI_MISO, GPIO_PULL_UP);
+	gpio_set_cfg(SPI_MISO, 0);
+	gpio_direction_input(SPI_MISO);
+}
+
+static inline void spi_setsclk(int state)
+{
+	gpio_set_value(SPI_SCLK, state);
+}
+
+static inline void spi_setmosi(int state)
+{
+	gpio_set_value(SPI_MOSI, state);
+}
+
+static inline int spi_getmiso(void)
+{
+	return gpio_get_value(SPI_MISO);
+}
+
+static inline void spi_setcs(int state)
+{
+	gpio_set_value(SPI_CS, state);
+}
+
+static inline void spi_delay(void)
+{
+	udelay(10);
+}
+
+static void spi_write_reg(uint8_t reg, uint8_t val)
+{
+	int i;
+
+	spi_setsclk(1);
+	spi_setcs(0);
+	for(i = 0; i < 8; i++)
+	{
+		spi_setmosi((reg & (1 << i)) ? 1 : 0);
+		spi_setsclk(0);
+		spi_delay();
+		spi_setsclk(1);
+		spi_delay();
+	}
+	for(i = 0; i < 8; i++)
+	{
+		spi_setmosi((val & (1 << i)) ? 1 : 0);
+		spi_setsclk(0);
+		spi_delay();
+		spi_setsclk(1);
+		spi_delay();
+	}
+	spi_setcs(1);
+}
+
+static uint8_t spi_read_reg(uint8_t reg)
+{
+	uint8_t val = 0;
+	int i;
+
+	spi_setsclk(0);
+	spi_setcs(0);
+	for(i = 0; i < 8; i++)
+	{
+		spi_setmosi((0x81 & (1 << i)) ? 1 : 0);
+		spi_setsclk(0);
+		spi_delay();
+		spi_setsclk(1);
+		spi_delay();
+	}
+	for(i = 0; i < 8; i++)
+	{
+		spi_setmosi((reg & (1 << i)) ? 1 : 0);
+		spi_setsclk(0);
+		spi_delay();
+		spi_setsclk(1);
+		spi_delay();
+	}
+	spi_setcs(1);
+	spi_delay();
+	spi_setcs(0);
+	for(i = 0; i < 8; i++)
+	{
+		spi_setmosi((0x81 & (1 << i)) ? 1 : 0);
+		spi_setsclk(0);
+		spi_delay();
+		spi_setsclk(1);
+		spi_delay();
+	}
+	for(i = 0; i < 8; i++)
+	{
+		spi_setmosi(0);
+		spi_setsclk(0);
+		spi_delay();
+		val |= (spi_getmiso() ? 1 : 0) << i;
+		spi_setsclk(1);
+		spi_delay();
+	}
+	spi_setcs(1);
+
+	return val;
+}
+
+static void ecx334af_initial(void)
+{
+	spi_initial();
+	mdelay(1);
+	/* setting 1 */
+	spi_write_reg(0x03, 0x80);
+	spi_write_reg(0x04, 0x5f);
+	spi_write_reg(0x53, 0x02);
+	spi_write_reg(0x54, 0xe7);
+	spi_write_reg(0x5b, 0x4f);
+	spi_write_reg(0x5c, 0x4d);
+	/* setting 2 */
+	spi_write_reg(0x00, 0x0f);
+	/* setting 3 */
+	spi_write_reg(0x04, 0x1f);
+	mdelay(3);
+	/* setting 4 */
+	spi_write_reg(0x5b, 0x00);
+	spi_write_reg(0x5c, 0x00);
+	/* setting 5 */
+	spi_write_reg(0x53, 0x00);
+	spi_write_reg(0x54, 0xe0);
+	/* setting 6 */
+	spi_write_reg(0x03, 0x00);
+	/* others */
+}
+
+void ecx334af_dump(void)
+{
+	uint8_t val;
+	int i;
+
+	spi_write_reg(0x80, 0x01);
+	for(i = 0; i <= 0x67; i++)
+	{
+		val = spi_read_reg(i);
+		printf("[0x%02x] = [0x%02x]\r\n", i, val);
+	}
+}
+
 static inline void fb_exynos4412_init(struct fb_exynos4412_pdata_t * pdat)
 {
 	virtual_addr_t virt;
@@ -510,6 +672,11 @@ static inline void fb_exynos4412_init(struct fb_exynos4412_pdata_t * pdat)
 	gpio_set_pull(EXYNOS4412_GPX3(5), GPIO_PULL_UP);
 	gpio_set_cfg(EXYNOS4412_GPX3(5), 1);
 	gpio_direction_output(EXYNOS4412_GPX3(5), 1);
+
+	/*
+	 * Initial ECX334AF
+	 */
+	ecx334af_initial();
 }
 
 static void fb_setbl(struct framebuffer_t * fb, int brightness)

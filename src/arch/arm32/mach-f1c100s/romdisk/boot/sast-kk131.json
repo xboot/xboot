@@ -80,6 +80,7 @@
 	"clk-ratio@0x01c20c30": { "parent": "mux-timer2", "name": "ratio-timer2", "shift": 4, "width": 3 },
 	"clk-link": { "parent": "ratio-timer2", "name": "link-timer2" },
 
+	"clk-link": { "parent": "hosc", "name": "link-ts" },
 	"clk-link": { "parent": "hosc", "name": "link-pwm" },
 	"clk-link": { "parent": "losc", "name": "link-wdt" },
 
@@ -316,6 +317,23 @@
 
 	"wdg-f1c100s@0x01c20ca0": {
 		"clock-name": "link-wdt"
+	},
+
+	"ts-f1c100s@0x01c24800": {
+		"clock-name": "link-ts",
+		"interrupt": 20,
+		"reset": -1,
+		"x1-gpio": 0,
+		"x1-gpio-config": 2,
+		"x2-gpio": 1,
+		"x2-gpio-config": 2,
+		"y1-gpio": 2,
+		"y1-gpio-config": 2,
+		"y2-gpio": 3,
+		"y2-gpio-config": 2,
+		"median-filter-length": 5,
+		"mean-filter-length": 5,
+		"calibration": [14052, 21, -2411064, -67, 8461, -1219628, 65536]
 	},
 
 	"key-f1c100s-lradc@0x01c23400": {

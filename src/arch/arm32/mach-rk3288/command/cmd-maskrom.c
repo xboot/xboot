@@ -1,9 +1,9 @@
 /*
- * cmd-maskrom.c
+ * command/cmd-maskrom.c
  */
 
-#include <rk3128/reg-cru.h>
-#include <rk3128/reg-pmu.h>
+#include <rk3288/reg-cru.h>
+#include <rk3288/reg-pmu.h>
 #include <command/command.h>
 
 static void usage(void)
@@ -14,8 +14,8 @@ static void usage(void)
 
 static int do_maskrom(int argc, char ** argv)
 {
-	write32(phys_to_virt(RK3128_PMU_BASE) + PMU_SYS_REG0, 0xef08a53c);
-	write32(phys_to_virt(RK3128_CRU_BASE) + CRU_GLB_SRST_FST_VALUE, 0xfdb9);
+	write32(phys_to_virt(RK3288_PMU_BASE) + PMU_SYS_REG0, 0xef08a53c);
+	write32(phys_to_virt(RK3288_CRU_BASE) + CRU_GLB_SRST_FST_VALUE, 0xfdb9);
 	return 0;
 }
 

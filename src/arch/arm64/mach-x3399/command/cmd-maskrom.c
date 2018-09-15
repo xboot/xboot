@@ -1,5 +1,5 @@
 /*
- * cmd-maskrom.c
+ * command/cmd-maskrom.c
  */
 
 #include <rk3399/reg-cru.h>

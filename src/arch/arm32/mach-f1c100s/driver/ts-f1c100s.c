@@ -34,7 +34,7 @@
 #include <f1c100s/reg-tp.h>
 #include <f1c100s-gpio.h>
 
-#define ENABLE_DEBUG	(1)
+#define ENABLE_DEBUG	(0)
 #define USE_SOFT_FILTER	(0)
 
 #if ENABLE_DEBUG
@@ -67,7 +67,7 @@ static int ts_f1c100s_init(void)
 	/*FRAME Freq = 24M / 6 = 4Mhz(CLK_IN)/ 2^13(8192) = 488 hz*/
 	/*Conversion Time = 1 / (4MHz/13Cycles) = 3.25us*/
 	/*T_ACQ  = CLK_IN /(16*(1+63)) = 3906.25hz*/
-	write32(TP_BASE_ADDR+TP_CTRL0, (0x1f << 23)|ADC_CLK_SEL(0) | ADC_CLK_DIV(2) | FS_DIV(8) | T_ACQ(63));
+	write32(TP_BASE_ADDR+TP_CTRL0, (0x1f << 23)|ADC_CLK_SEL(0) | ADC_CLK_DIV(2) | FS_DIV(6) | T_ACQ(63));
 	
 	/*00: FIFO store X1,Y1 data for single touch no pressure mode*/
 	val = read32(TP_BASE_ADDR+TP_CTRL2);

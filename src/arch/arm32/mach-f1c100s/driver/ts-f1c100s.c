@@ -132,7 +132,7 @@ static void ts_f1c100s_init(struct ts_f1c100s_pdata_t * pdat)
 	write32(pdat->virt+TP_CTRL2, val);
 
 	val = read32(pdat->virt + TP_CTRL3);
-	write32(pdat->virt + TP_CTRL3, FILTER_EN(1) | FILTER_TYPE(1) | val);
+	write32(pdat->virt + TP_CTRL3, FILTER_EN(0) | FILTER_TYPE(1) | val);
 	write32(pdat->virt + TP_TPR, TEMP_ENABLE(1) | TEMP_PERIOD(1953));
 	write32( pdat->virt + TP_CDAT, 0xc00);
 
@@ -223,7 +223,7 @@ static struct device_t * ts_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	int cal[7] = {1, 0, 0, 0, 1, 0, 1};
 	int i;
 
-	if(!!irq_is_valid(irq))
+	if(!irq_is_valid(irq))
 		return NULL;
 
 	pdat = malloc(sizeof(struct ts_f1c100s_pdata_t));
@@ -255,7 +255,7 @@ static struct device_t * ts_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	pdat->y1 = dt_read_int(n, "y1-gpio", -1);
 	pdat->y1cfg = dt_read_int(n, "y1-gpio-config", -1);
 	pdat->y2 = dt_read_int(n, "y2-gpio", -1);
-	pdat->y2cfg = dt_read_int(n, "x2-gpio-config", -1);
+	pdat->y2cfg = dt_read_int(n, "y2-gpio-config", -1);
 	pdat->x = 0;
 	pdat->y = 0;
 	pdat->press = 0;

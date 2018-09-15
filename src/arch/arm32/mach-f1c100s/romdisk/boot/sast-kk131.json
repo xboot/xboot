@@ -340,7 +340,14 @@
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
-
+	
+	"ts-f1c100s@0": {
+		"median-filter-length": 5,
+		"mean-filter-length": 5,
+		"calibration": [14052, 21, -2411064, -67, 8461, -1219628, 65536],
+		"irq": 20
+	},
+	
 	"led-pwm-bl@0": {
 		"pwm-name": "pwm-f1c100s.1",
 		"pwm-period-ns": 1000000,

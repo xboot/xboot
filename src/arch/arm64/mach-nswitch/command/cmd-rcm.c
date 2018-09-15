@@ -1,5 +1,5 @@
 /*
- * cmd-rcm.c
+ * command/cmd-rcm.c
  */
 
 #include <command/command.h>

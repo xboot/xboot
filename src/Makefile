@@ -73,6 +73,7 @@ INCDIRS		+=	include										\
 SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/lib							\
 				arch/$(ARCH)/$(MACH)						\
+				arch/$(ARCH)/$(MACH)/command				\
 				arch/$(ARCH)/$(MACH)/driver					\
 				lib/libc									\
 				lib/libc/charset							\

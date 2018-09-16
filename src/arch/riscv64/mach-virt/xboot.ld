@@ -1,6 +1,8 @@
 OUTPUT_ARCH("riscv")
 ENTRY(_start)
 
+STACK_SIZE = 0x100000;
+
 MEMORY
 {
 	ram  : org = 0x80000000, len = 128M
@@ -97,6 +99,8 @@ SECTIONS
 	.stack ALIGN(16) (NOLOAD) :
 	{
 		PROVIDE(__stack_start = .);
+		. += STACK_SIZE;
+		. = ALIGN(16);
 		PROVIDE(__stack_end = .);
 	} > ram
 

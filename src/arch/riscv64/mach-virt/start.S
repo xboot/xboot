@@ -38,6 +38,11 @@ _start:
  * The actual reset code
  */
 reset:
+	/* Initialize stacks */
+	la t0, _stack_end
+	ld a0, (t0)
+	mv sp, a0
+
 	/* Copyself to link address */
 /*	adr x0, _start
 	ldr x1, =_start
@@ -50,16 +55,34 @@ reset:
 	jal memcpy
 1:	nop*/
 
+	/* Load data section */
+/*	la a0, _data_lma
+	la a1, _data
+	la a2, _edata
+	bgeu a1, a2, 2f
+1:
+	lw t0, (a0)
+	sw t0, (a1)
+	addi a0, a0, 4
+	addi a1, a1, 4
+	bltu a1, a2, 1b
+2:
+*/
+
 	/* Clear bss section */
-/*	ldr x0, _bss_start
-	ldr x2, _bss_end
-	sub x2, x2, x0
-	mov x1, #0
-	jal memset*/
+	la t0, _bss_start
+	ld a0, (t0)
+	la t1, _bss_end
+	ld a1, (t1)
+	bgeu a0, a1, 2f
+1:	sw zero, (a0)
+	addi a0, a0, 4
+	bltu a0, a1, 1b
+2:	nop
 
 	/* Call _main */
 _main:
-	jal xboot_main
+	call xboot_main
 	j _main
 
 /*

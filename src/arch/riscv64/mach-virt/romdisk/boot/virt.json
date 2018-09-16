@@ -2,7 +2,7 @@
 	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
 
-	"uart-pl011@0x10000000": {
+	"uart-riscv@0x10000000": {
 		"clock-name": "xin24m",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
@@ -15,6 +15,6 @@
 	},
 
 	"console-uart@0": {
-		"uart-bus": "uart-pl011.0"
+		"uart-bus": "uart-riscv.0"
 	}
 }

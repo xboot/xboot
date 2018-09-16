@@ -17,7 +17,7 @@ static void * __heap_pool = NULL;
 #define tlsf_assert				assert
 #define tlsf_insist(x)			{ tlsf_assert(x); if (!(x)) { status--; } }
 
-#if defined(__ARM64__) || defined(__X64__)
+#if defined(__ARM64__) || defined(__RISCV64__) || defined(__X64__)
 # define TLSF_64BIT
 #else
 # undef TLSF_64BIT
@@ -123,7 +123,7 @@ static const size_t block_start_offset = offsetof(block_header_t, size) + sizeof
 static const size_t block_size_min = sizeof(block_header_t) - sizeof(block_header_t *);
 static const size_t block_size_max = tlsf_cast(size_t, 1) << FL_INDEX_MAX;
 
-#if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)) && defined(__GNUC_PATCHLEVEL__)
+#if !defined(__RISCV32__) && !defined(__RISCV64__)
 static int tlsf_ffs(unsigned int word)
 {
 	return __builtin_ffs(word) - 1;

@@ -41,11 +41,11 @@ typedef unsigned int			physical_addr_t;
 typedef unsigned int			physical_size_t;
 
 typedef struct {
-	volatile long counter;
+	volatile int counter;
 } atomic_t;
 
 typedef struct {
-	volatile long lock;
+	volatile int lock;
 } spinlock_t;
 
 #ifdef __cplusplus

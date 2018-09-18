@@ -8,10 +8,10 @@ extern "C" {
 #include <types.h>
 #include <irqflags.h>
 
-static inline void atomic_add(atomic_t * a, long v)
+static inline void atomic_add(atomic_t * a, int v)
 {
 	unsigned int tmp;
-	long result;
+	int result;
 
 	__asm__ __volatile__ (
 "1:	ldxr %w0, [%3]\n"
@@ -23,10 +23,10 @@ static inline void atomic_add(atomic_t * a, long v)
 	: "cc");
 }
 
-static inline long atomic_add_return(atomic_t * a, long v)
+static inline long atomic_add_return(atomic_t * a, int v)
 {
 	unsigned int tmp;
-	long result;
+	int result;
 
 	__asm__ __volatile__ (
 "1:	ldaxr %w0, [%3]\n"
@@ -40,10 +40,10 @@ static inline long atomic_add_return(atomic_t * a, long v)
 	return result;
 }
 
-static inline void atomic_sub(atomic_t * a, long v)
+static inline void atomic_sub(atomic_t * a, int v)
 {
 	unsigned int tmp;
-	long result;
+	int result;
 
 	__asm__ __volatile__ (
 "1:	ldxr %w0, [%3]\n"
@@ -55,10 +55,10 @@ static inline void atomic_sub(atomic_t * a, long v)
 	: "cc");
 }
 
-static inline long atomic_sub_return(atomic_t * a, long v)
+static inline int atomic_sub_return(atomic_t * a, int v)
 {
 	unsigned int tmp;
-	long result;
+	int result;
 
 	__asm__ __volatile__ (
 "1:	ldaxr %w0, [%3]\n"

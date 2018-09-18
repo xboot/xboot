@@ -8,7 +8,7 @@ extern "C" {
 #include <types.h>
 #include <irqflags.h>
 
-static inline void atomic_add(atomic_t * a, long v)
+static inline void atomic_add(atomic_t * a, int v)
 {
 	__asm__ __volatile__ (
 		"lock;\n"
@@ -17,9 +17,9 @@ static inline void atomic_add(atomic_t * a, long v)
 		:"ir"(v));
 }
 
-static inline long atomic_add_return(atomic_t * a, long v)
+static inline int atomic_add_return(atomic_t * a, int v)
 {
-	long tmp;
+	int tmp;
 
 	__asm__ __volatile__ (
 		"lock;\n"
@@ -30,7 +30,7 @@ static inline long atomic_add_return(atomic_t * a, long v)
 	return v + tmp;
 }
 
-static inline void atomic_sub(atomic_t * a, long v)
+static inline void atomic_sub(atomic_t * a, int v)
 {
 	__asm__ __volatile__ (
 		"lock;\n"
@@ -39,7 +39,7 @@ static inline void atomic_sub(atomic_t * a, long v)
 		:"ir"(v));
 }
 
-static inline long atomic_sub_return(atomic_t * a, long v)
+static inline long atomic_sub_return(atomic_t * a, int v)
 {
 	return atomic_add_return(a, -v);
 }

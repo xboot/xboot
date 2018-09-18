@@ -9,7 +9,7 @@ extern "C" {
 #include <irqflags.h>
 
 #if __ARM32_ARCH__ == 5
-static inline void atomic_add(atomic_t * a, long v)
+static inline void atomic_add(atomic_t * a, int v)
 {
 	irq_flags_t flags;
 
@@ -18,10 +18,10 @@ static inline void atomic_add(atomic_t * a, long v)
 	local_irq_restore(flags);
 }
 
-static inline long atomic_add_return(atomic_t * a, long v)
+static inline long atomic_add_return(atomic_t * a, int v)
 {
 	irq_flags_t flags;
-	long tmp;
+	int tmp;
 
 	local_irq_save(flags);
 	a->counter += v;
@@ -31,7 +31,7 @@ static inline long atomic_add_return(atomic_t * a, long v)
 	return tmp;
 }
 
-static inline void atomic_sub(atomic_t * a, long v)
+static inline void atomic_sub(atomic_t * a, int v)
 {
 	irq_flags_t flags;
 
@@ -40,10 +40,10 @@ static inline void atomic_sub(atomic_t * a, long v)
 	local_irq_restore(flags);
 }
 
-static inline long atomic_sub_return(atomic_t * a, long v)
+static inline long atomic_sub_return(atomic_t * a, int v)
 {
 	irq_flags_t flags;
-	long tmp;
+	int tmp;
 
 	local_irq_save(flags);
 	a->counter -= v;
@@ -53,7 +53,7 @@ static inline long atomic_sub_return(atomic_t * a, long v)
 	return tmp;
 }
 #else
-static inline void atomic_add(atomic_t * a, long v)
+static inline void atomic_add(atomic_t * a, int v)
 {
 	unsigned int tmp;
 	long result;
@@ -69,10 +69,10 @@ static inline void atomic_add(atomic_t * a, long v)
 	: "cc");
 }
 
-static inline long atomic_add_return(atomic_t * a, long v)
+static inline int atomic_add_return(atomic_t * a, int v)
 {
 	unsigned int tmp;
-	long result;
+	int result;
 
 	__asm__ __volatile__(
 "1:	ldrex %0, [%3]\n"
@@ -87,10 +87,10 @@ static inline long atomic_add_return(atomic_t * a, long v)
 	return result;
 }
 
-static inline void atomic_sub(atomic_t * a, long v)
+static inline void atomic_sub(atomic_t * a, int v)
 {
 	unsigned int tmp;
-	long result;
+	int result;
 
 	__asm__ __volatile__(
 "1:	ldrex %0, [%3]\n"
@@ -103,10 +103,10 @@ static inline void atomic_sub(atomic_t * a, long v)
 	: "cc");
 }
 
-static inline long atomic_sub_return(atomic_t * a, long v)
+static inline long atomic_sub_return(atomic_t * a, int v)
 {
 	unsigned int tmp;
-	long result;
+	int result;
 
 	__asm__ __volatile__(
 "1:	ldrex %0, [%3]\n"

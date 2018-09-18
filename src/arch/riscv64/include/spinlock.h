@@ -10,16 +10,32 @@ extern "C" {
 
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
-	return (lock->lock == 0) ? 1 : 0;
+	int tmp = 1, busy;
+
+	__asm__ __volatile__ (
+		"amoswap.w %0, %2, %1\n"
+		"fence r, rw\n"
+		: "=r" (busy), "+A" (lock->lock)
+		: "r" (tmp)
+		: "memory");
+	return !busy;
 }
 
 static inline void arch_spin_lock(spinlock_t * lock)
 {
-	lock->lock = 1;
+	while(1)
+	{
+		__asm__ __volatile__ ("fence rw, rw" : : : "memory");
+		if(lock->lock != 0)
+			continue;
+		if(arch_spin_trylock(lock))
+			break;
+	}
 }
 
 static inline void arch_spin_unlock(spinlock_t * lock)
 {
+	__asm__ __volatile__ ("fence rw, w" : : : "memory");
 	lock->lock = 0;
 }
 

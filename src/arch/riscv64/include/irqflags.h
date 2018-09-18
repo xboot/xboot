@@ -6,22 +6,26 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <riscv64.h>
 
 static inline void arch_local_irq_enable(void)
 {
+	csr_set(sstatus, (0x1 << 1));
 }
 
 static inline void arch_local_irq_disable(void)
 {
+	csr_clear(sstatus, (0x1 << 1));
 }
 
 static inline irq_flags_t arch_local_irq_save(void)
 {
-	return 0;
+	return csr_read_clear(sstatus, (0x1 << 1));
 }
 
 static inline void arch_local_irq_restore(irq_flags_t flags)
 {
+	csr_set(sstatus, flags & (0x1 << 1));
 }
 
 #define local_irq_enable()			do { arch_local_irq_enable(); } while(0)

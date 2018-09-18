@@ -8,48 +8,82 @@ extern "C" {
 #include <types.h>
 #include <irqflags.h>
 
-static inline void atomic_add(atomic_t * a, long v)
+static inline void atomic_add(atomic_t * a, int v)
 {
+#ifdef __RISCV64_A__
+	__asm__ __volatile__ (
+		"amoadd.w zero, %1, %0"
+		: "+A" (a->counter)
+		: "r" (v)
+		: "memory");
+#else
 	irq_flags_t flags;
 
 	local_irq_save(flags);
 	a->counter += v;
 	local_irq_restore(flags);
+#endif
 }
 
-static inline long atomic_add_return(atomic_t * a, long v)
+static inline int atomic_add_return(atomic_t * a, int v)
 {
+#ifdef __RISCV64_A__
+	int ret;
+	__asm__ __volatile__ (
+		"amoadd.w.aqrl %1, %2, %0"
+		: "+A" (a->counter), "=r" (ret)
+		: "r" (v)
+		: "memory");
+	return ret;
+#else
 	irq_flags_t flags;
-	long tmp;
+	int tmp;
 
 	local_irq_save(flags);
 	a->counter += v;
 	tmp = a->counter;
 	local_irq_restore(flags);
-
 	return tmp;
+#endif
 }
 
-static inline void atomic_sub(atomic_t * a, long v)
+static inline void atomic_sub(atomic_t * a, int v)
 {
+#ifdef __RISCV64_A__
+	__asm__ __volatile__ (
+		"	amoadd.w zero, %1, %0"
+		: "+A" (a->counter)
+		: "r" (-v)
+		: "memory");
+#else
 	irq_flags_t flags;
 
 	local_irq_save(flags);
 	a->counter -= v;
 	local_irq_restore(flags);
+#endif
 }
 
-static inline long atomic_sub_return(atomic_t * a, long v)
+static inline int atomic_sub_return(atomic_t * a, int v)
 {
+#ifdef __RISCV64_A__
+	int ret;
+	__asm__ __volatile__ (
+		"	amoadd.w.aqrl  %1, %2, %0"
+		: "+A" (a->counter), "=r" (ret)
+		: "r" (-v)
+		: "memory");
+	return ret;
+#else
 	irq_flags_t flags;
-	long tmp;
+	int tmp;
 
 	local_irq_save(flags);
 	a->counter -= v;
 	tmp = a->counter;
 	local_irq_restore(flags);
-
 	return tmp;
+#endif
 }
 
 #define atomic_set(a, v)			(((a)->counter) = (v))

@@ -1,4 +1,3 @@
-	.text
 	.global setjmp
 	.type setjmp, %function
 setjmp:
@@ -16,7 +15,7 @@ setjmp:
 	sd s11, 88(a0)
 	sd sp, 96(a0)
 	sd ra, 104(a0)
-#ifdef __RISCV64_F__
+#ifdef __RISCV64_D__
 	fsd fs0, 112(a0)
 	fsd fs1, 120(a0)
 	fsd fs2, 128(a0)
@@ -34,7 +33,6 @@ setjmp:
 	li a0, 0
 	ret
 
-.text
 .global longjmp
 .type longjmp, %function
 longjmp:
@@ -52,7 +50,7 @@ longjmp:
 	ld s11, 88(a0)
 	ld sp, 96(a0)
 	ld ra, 104(a0)
-#ifdef __RISCV64_F__
+#ifdef __RISCV64_D__
 	fld fs0, 112(a0)
 	fld fs1, 120(a0)
 	fld fs2, 128(a0)
@@ -68,5 +66,6 @@ longjmp:
 	fld fs11, 208(a0)
 #endif
 	mv a0, a1
+	bnez a1, 1f
 	li a0, 1
 1:	ret

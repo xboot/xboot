@@ -16,7 +16,7 @@ setjmp:
 	sd s11, 88(a0)
 	sd sp, 96(a0)
 	sd ra, 104(a0)
-#ifndef __riscv_soft_float
+#ifdef __RISCV64_F__
 	fsd fs0, 112(a0)
 	fsd fs1, 120(a0)
 	fsd fs2, 128(a0)
@@ -52,7 +52,7 @@ longjmp:
 	ld s11, 88(a0)
 	ld sp, 96(a0)
 	ld ra, 104(a0)
-#ifndef __riscv_soft_float
+#ifdef __RISCV64_F__
 	fld fs0, 112(a0)
 	fld fs1, 120(a0)
 	fld fs2, 128(a0)

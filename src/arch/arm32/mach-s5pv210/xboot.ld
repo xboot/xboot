@@ -108,6 +108,7 @@ SECTIONS
 	{
 		PROVIDE(__data_start = .);	
 		*(.data*)
+		. = ALIGN(8);
   		PROVIDE(__data_end = .);
 		PROVIDE(__image_end = .);
 	} > ram

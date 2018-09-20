@@ -1,0 +1,22 @@
+{
+	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+
+	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
+
+	"uart-8250@0xff160000": {
+		"clock-name": "link-uart0",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 1500000,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-8250.0"
+	}
+}

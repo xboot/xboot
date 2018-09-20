@@ -29,7 +29,6 @@
 #include <xconfigs.h>
 #include <linkage.h>
 
-
 	.global _start
 _start:
 	j reset
@@ -39,9 +38,8 @@ _start:
  */
 reset:
 	/* Initialize stacks */
-	la t0, _stack_end
-	ld a0, (t0)
-	mv sp, a0
+	la t0, __stack_end
+	mv sp, t0
 
 	/* Copyself to link address */
 /*	adr x0, _start
@@ -70,38 +68,13 @@ reset:
 */
 
 	/* Clear bss section */
-	la t0, _bss_start
-	ld a0, (t0)
-	la t1, _bss_end
-	ld a1, (t1)
-	bgeu a0, a1, 2f
-1:	sw zero, (a0)
-	addi a0, a0, 4
-	bltu a0, a1, 1b
-2:	nop
+	la a0, __bss_start
+	la a2, __bss_end
+	sub a2, a2, a0
+	li a1, 0
+	call memset
 
 	/* Call _main */
 _main:
 	call xboot_main
 	j _main
-
-/*
- * The location of section
- */
- 	.align 4
-_image_start:
-	.dword __image_start
-_image_end:
-	.dword __image_end
-_data_start:
-	.dword __data_start
-_data_end:
-	.dword __data_end
-_bss_start:
-	.dword __bss_start
-_bss_end:
-	.dword __bss_end
-_stack_start:
-	.dword __stack_start
-_stack_end:
-	.dword __stack_end

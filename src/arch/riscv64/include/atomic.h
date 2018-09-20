@@ -1,5 +1,5 @@
-#ifndef __ARM64_ATOMIC_H__
-#define __ARM64_ATOMIC_H__
+#ifndef __RISCV64_ATOMIC_H__
+#define __RISCV64_ATOMIC_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,7 +10,7 @@ extern "C" {
 
 static inline void atomic_add(atomic_t * a, int v)
 {
-#ifdef __RISCV64_A__
+#ifdef __riscv_atomic
 	__asm__ __volatile__ (
 		"amoadd.w zero, %1, %0"
 		: "+A" (a->counter)
@@ -27,7 +27,7 @@ static inline void atomic_add(atomic_t * a, int v)
 
 static inline int atomic_add_return(atomic_t * a, int v)
 {
-#ifdef __RISCV64_A__
+#ifdef __riscv_atomic
 	int ret;
 	__asm__ __volatile__ (
 		"amoadd.w.aqrl %1, %2, %0"
@@ -49,7 +49,7 @@ static inline int atomic_add_return(atomic_t * a, int v)
 
 static inline void atomic_sub(atomic_t * a, int v)
 {
-#ifdef __RISCV64_A__
+#ifdef __riscv_atomic
 	__asm__ __volatile__ (
 		"	amoadd.w zero, %1, %0"
 		: "+A" (a->counter)
@@ -66,7 +66,7 @@ static inline void atomic_sub(atomic_t * a, int v)
 
 static inline int atomic_sub_return(atomic_t * a, int v)
 {
-#ifdef __RISCV64_A__
+#ifdef __riscv_atomic
 	int ret;
 	__asm__ __volatile__ (
 		"	amoadd.w.aqrl  %1, %2, %0"
@@ -100,4 +100,4 @@ static inline int atomic_sub_return(atomic_t * a, int v)
 }
 #endif
 
-#endif /* __ARM64_ATOMIC_H__ */
+#endif /* __RISCV64_ATOMIC_H__ */

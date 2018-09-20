@@ -2,7 +2,7 @@
 # Machine makefile
 #
 
-DEFINES		+= -D__RISCV64__ -D__RISCV64_I__ -D__RISCV64_M__ -D__RISCV64_A__ -D__RISCV64_F__ -D__RISCV64_D__ -D__RISCV64_C__
+DEFINES		+=
 
 ASFLAGS		:= -g -ggdb -Wall -O0
 CFLAGS		:= -g -ggdb -Wall -O0

@@ -7,8 +7,8 @@ memset:
 	move t0, a0
 	sltiu a3, a2, 16
 	bnez a3, 4f
-	addi a3, t0, SZREG - 1
-	andi a3, a3, ~(SZREG - 1)
+	addi a3, t0, REGSZ - 1
+	andi a3, a3, ~(REGSZ - 1)
 	beq a3, t0, 2f
 	sub a4, a3, t0
 1:	sb a1, 0(t0)
@@ -24,12 +24,12 @@ memset:
 	slli a3, a1, 32
 	or a1, a3, a1
 #endif
-	andi a4, a2, ~(SZREG - 1)
+	andi a4, a2, ~(REGSZ - 1)
 	add a3, t0, a4
-	andi a4, a4, 31 * SZREG
+	andi a4, a4, 31 * REGSZ
 	beqz a4, 3f
 	neg a4, a4
-	addi a4, a4, 32 * SZREG
+	addi a4, a4, 32 * REGSZ
 	sub t0, t0, a4
 	la a5, 3f
 #if __riscv_xlen == 64
@@ -37,41 +37,41 @@ memset:
 #endif
 	add a5, a5, a4
 	jr a5
-3:	REG_S a1,          0(t0)
-	REG_S a1,      SZREG(t0)
-	REG_S a1,  2 * SZREG(t0)
-	REG_S a1,  3 * SZREG(t0)
-	REG_S a1,  4 * SZREG(t0)
-	REG_S a1,  5 * SZREG(t0)
-	REG_S a1,  6 * SZREG(t0)
-	REG_S a1,  7 * SZREG(t0)
-	REG_S a1,  8 * SZREG(t0)
-	REG_S a1,  9 * SZREG(t0)
-	REG_S a1, 10 * SZREG(t0)
-	REG_S a1, 11 * SZREG(t0)
-	REG_S a1, 12 * SZREG(t0)
-	REG_S a1, 13 * SZREG(t0)
-	REG_S a1, 14 * SZREG(t0)
-	REG_S a1, 15 * SZREG(t0)
-	REG_S a1, 16 * SZREG(t0)
-	REG_S a1, 17 * SZREG(t0)
-	REG_S a1, 18 * SZREG(t0)
-	REG_S a1, 19 * SZREG(t0)
-	REG_S a1, 20 * SZREG(t0)
-	REG_S a1, 21 * SZREG(t0)
-	REG_S a1, 22 * SZREG(t0)
-	REG_S a1, 23 * SZREG(t0)
-	REG_S a1, 24 * SZREG(t0)
-	REG_S a1, 25 * SZREG(t0)
-	REG_S a1, 26 * SZREG(t0)
-	REG_S a1, 27 * SZREG(t0)
-	REG_S a1, 28 * SZREG(t0)
-	REG_S a1, 29 * SZREG(t0)
-	REG_S a1, 30 * SZREG(t0)
-	REG_S a1, 31 * SZREG(t0)
-	addi t0, t0, 32 * SZREG
+3:	SREG a1,          0(t0)
+	SREG a1,      REGSZ(t0)
+	SREG a1,  2 * REGSZ(t0)
+	SREG a1,  3 * REGSZ(t0)
+	SREG a1,  4 * REGSZ(t0)
+	SREG a1,  5 * REGSZ(t0)
+	SREG a1,  6 * REGSZ(t0)
+	SREG a1,  7 * REGSZ(t0)
+	SREG a1,  8 * REGSZ(t0)
+	SREG a1,  9 * REGSZ(t0)
+	SREG a1, 10 * REGSZ(t0)
+	SREG a1, 11 * REGSZ(t0)
+	SREG a1, 12 * REGSZ(t0)
+	SREG a1, 13 * REGSZ(t0)
+	SREG a1, 14 * REGSZ(t0)
+	SREG a1, 15 * REGSZ(t0)
+	SREG a1, 16 * REGSZ(t0)
+	SREG a1, 17 * REGSZ(t0)
+	SREG a1, 18 * REGSZ(t0)
+	SREG a1, 19 * REGSZ(t0)
+	SREG a1, 20 * REGSZ(t0)
+	SREG a1, 21 * REGSZ(t0)
+	SREG a1, 22 * REGSZ(t0)
+	SREG a1, 23 * REGSZ(t0)
+	SREG a1, 24 * REGSZ(t0)
+	SREG a1, 25 * REGSZ(t0)
+	SREG a1, 26 * REGSZ(t0)
+	SREG a1, 27 * REGSZ(t0)
+	SREG a1, 28 * REGSZ(t0)
+	SREG a1, 29 * REGSZ(t0)
+	SREG a1, 30 * REGSZ(t0)
+	SREG a1, 31 * REGSZ(t0)
+	addi t0, t0, 32 * REGSZ
 	bltu t0, a3, 3b
-	andi a2, a2, SZREG - 1
+	andi a2, a2, REGSZ - 1
 4:	beqz a2, 6f
 	add a3, t0, a2
 5:	sb a1, 0(t0)

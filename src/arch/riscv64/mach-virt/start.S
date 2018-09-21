@@ -37,44 +37,78 @@ _start:
  * The actual reset code
  */
 reset:
+	/* Mask all interrupts */
+	csrw sie, zero
+
 	/* Initialize stacks */
-	la t0, __stack_end
-	mv sp, t0
+	la t0, _start_link
+	LREG t1, (t0)
+	la t2, _start
+	sub t0, t1, t2
+	la a0, __stack_end
+	add a0, a0, t0
+	mv sp, a0
 
 	/* Copyself to link address */
-/*	adr x0, _start
-	ldr x1, =_start
-	cmp x0, x1
-	beq 1f
-	ldr x0, _image_start
-	adr x1, _start
-	ldr x2, _image_end
-	sub x2, x2, x0
-	jal memcpy
-1:	nop*/
-
-	/* Load data section */
-/*	la a0, _data_lma
-	la a1, _data
-	la a2, _edata
-	bgeu a1, a2, 2f
-1:
-	lw t0, (a0)
-	sw t0, (a1)
-	addi a0, a0, 4
-	addi a1, a1, 4
-	bltu a1, a2, 1b
-2:
-*/
+	la t0, _start_link
+	LREG t1, (t0)
+	la t2, _start
+	sub t0, t1, t2
+	beq t0, x0, 1f
+	la a1, __image_start
+	add a0, a1, t0
+	la a2, __image_end
+	add a2, a2, t0
+	sub a2, a2, a0
+	call memcpy
+1:	nop
 
 	/* Clear bss section */
+	la t0, _start_link
+	LREG t1, (t0)
+	la t2, _start
+	sub t0, t1, t2
 	la a0, __bss_start
+	add a0, a0, t0
 	la a2, __bss_end
+	add a2, a2, t0
 	sub a2, a2, a0
 	li a1, 0
 	call memset
 
 	/* Call _main */
+	la t0, _start_link
+	LREG t1, (t0)
+	la t2, _start
+	sub t0, t1, t2
+	la a0, _main
+	add a0, a0, t0
+	jr a0
 _main:
+	li a0, 1
+	li a1, 0
 	call xboot_main
 	j _main
+
+/*
+ * The location of section
+ */
+	.align 4
+_start_link:
+	RVPTR _start
+_image_start:
+	RVPTR __image_start
+_image_end:
+	RVPTR __image_end
+_data_start:
+	RVPTR __data_start
+_data_end:
+	RVPTR __data_end
+_bss_start:
+	RVPTR __bss_start
+_bss_end:
+	RVPTR __bss_end
+_stack_start:
+	RVPTR __stack_start
+_stack_end:
+	RVPTR __stack_end

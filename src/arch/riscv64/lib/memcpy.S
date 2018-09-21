@@ -7,12 +7,12 @@ memcpy:
 	move t6, a0
 	sltiu a3, a2, 128
 	bnez a3, 4f
-	andi a3, t6, SZREG - 1
-	andi a4, a1, SZREG - 1
+	andi a3, t6, REGSZ - 1
+	andi a4, a1, REGSZ - 1
 	bne a3, a4, 4f
 	beqz a3, 2f
-	andi a3, a1, ~(SZREG - 1)
-	addi a3, a3, SZREG
+	andi a3, a1, ~(REGSZ - 1)
+	addi a3, a3, REGSZ
 	sub a4, a3, a1
 1:	lb a5, 0(a1)
 	addi a1, a1, 1
@@ -20,45 +20,45 @@ memcpy:
 	addi t6, t6, 1
 	bltu a1, a3, 1b
 	sub a2, a2, a4
-2:	andi a4, a2, ~((16 * SZREG) - 1)
+2:	andi a4, a2, ~((16 * REGSZ) - 1)
 	beqz a4, 4f
 	add a3, a1, a4
-3:	REG_L a4,          0(a1)
-	REG_L a5,      SZREG(a1)
-	REG_L a6,  2 * SZREG(a1)
-	REG_L a7,  3 * SZREG(a1)
-	REG_L t0,  4 * SZREG(a1)
-	REG_L t1,  5 * SZREG(a1)
-	REG_L t2,  6 * SZREG(a1)
-	REG_L t3,  7 * SZREG(a1)
-	REG_L t4,  8 * SZREG(a1)
-	REG_L t5,  9 * SZREG(a1)
-	REG_S a4,          0(t6)
-	REG_S a5,      SZREG(t6)
-	REG_S a6,  2 * SZREG(t6)
-	REG_S a7,  3 * SZREG(t6)
-	REG_S t0,  4 * SZREG(t6)
-	REG_S t1,  5 * SZREG(t6)
-	REG_S t2,  6 * SZREG(t6)
-	REG_S t3,  7 * SZREG(t6)
-	REG_S t4,  8 * SZREG(t6)
-	REG_S t5,  9 * SZREG(t6)
-	REG_L a4, 10 * SZREG(a1)
-	REG_L a5, 11 * SZREG(a1)
-	REG_L a6, 12 * SZREG(a1)
-	REG_L a7, 13 * SZREG(a1)
-	REG_L t0, 14 * SZREG(a1)
-	REG_L t1, 15 * SZREG(a1)
-	addi a1, a1, 16 * SZREG
-	REG_S a4, 10 * SZREG(t6)
-	REG_S a5, 11 * SZREG(t6)
-	REG_S a6, 12 * SZREG(t6)
-	REG_S a7, 13 * SZREG(t6)
-	REG_S t0, 14 * SZREG(t6)
-	REG_S t1, 15 * SZREG(t6)
-	addi t6, t6, 16 * SZREG
+3:	LREG a4,          0(a1)
+	LREG a5,      REGSZ(a1)
+	LREG a6,  2 * REGSZ(a1)
+	LREG a7,  3 * REGSZ(a1)
+	LREG t0,  4 * REGSZ(a1)
+	LREG t1,  5 * REGSZ(a1)
+	LREG t2,  6 * REGSZ(a1)
+	LREG t3,  7 * REGSZ(a1)
+	LREG t4,  8 * REGSZ(a1)
+	LREG t5,  9 * REGSZ(a1)
+	SREG a4,          0(t6)
+	SREG a5,      REGSZ(t6)
+	SREG a6,  2 * REGSZ(t6)
+	SREG a7,  3 * REGSZ(t6)
+	SREG t0,  4 * REGSZ(t6)
+	SREG t1,  5 * REGSZ(t6)
+	SREG t2,  6 * REGSZ(t6)
+	SREG t3,  7 * REGSZ(t6)
+	SREG t4,  8 * REGSZ(t6)
+	SREG t5,  9 * REGSZ(t6)
+	LREG a4, 10 * REGSZ(a1)
+	LREG a5, 11 * REGSZ(a1)
+	LREG a6, 12 * REGSZ(a1)
+	LREG a7, 13 * REGSZ(a1)
+	LREG t0, 14 * REGSZ(a1)
+	LREG t1, 15 * REGSZ(a1)
+	addi a1, a1, 16 * REGSZ
+	SREG a4, 10 * REGSZ(t6)
+	SREG a5, 11 * REGSZ(t6)
+	SREG a6, 12 * REGSZ(t6)
+	SREG a7, 13 * REGSZ(t6)
+	SREG t0, 14 * REGSZ(t6)
+	SREG t1, 15 * REGSZ(t6)
+	addi t6, t6, 16 * REGSZ
 	bltu a1, a3, 3b
-	andi a2, a2, (16 * SZREG) - 1
+	andi a2, a2, (16 * REGSZ) - 1
 4:	beqz a2, 6f
 	add a3, a1, a2
 	or a5, a1, t6

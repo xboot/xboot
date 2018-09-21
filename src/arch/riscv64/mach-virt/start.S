@@ -45,6 +45,15 @@ reset:
 	LREG a0, (a0)
 	mv sp, a0
 
+	/* Setup exception vectors */
+	la t1, _image_start
+	LREG t1, (t1)
+	la t2, _start
+	sub t0, t1, t2
+	la a0, vectors
+	add a0, a0, t0
+	csrw mtvec, a0
+
 	/* Copyself to link address */
 	la t0, _start
 	la t1, _image_start
@@ -81,6 +90,98 @@ _main:
 	li a1, 0
 	call xboot_main
 	j _main
+
+/*
+ * Exception vectors.
+ */
+	.align 4
+	.globl vectors
+vectors:
+	csrrw tp, sscratch, tp
+	SREG s0, 2 * REGSZ(tp)
+	add s0, sp, zero
+	LREG sp, 1 * REGSZ(tp)
+	addi sp, sp, -(35 * REGSZ)
+	SREG s0, 2 * REGSZ(sp)
+	LREG s0, 2 * REGSZ(tp)
+	SREG s0, 8 * REGSZ(sp)
+	csrrw tp, sscratch, tp
+	SREG ra, 1 * REGSZ(sp)
+	SREG gp, 3 * REGSZ(sp)
+	SREG tp, 4 * REGSZ(sp)
+	SREG t0, 5 * REGSZ(sp)
+	SREG t1, 6 * REGSZ(sp)
+	SREG t2, 7 * REGSZ(sp)
+	SREG s1, 9 * REGSZ(sp)
+	SREG a0, 10 * REGSZ(sp)
+	SREG a1, 11 * REGSZ(sp)
+	SREG a2, 12 * REGSZ(sp)
+	SREG a3, 13 * REGSZ(sp)
+	SREG a4, 14 * REGSZ(sp)
+	SREG a5, 15 * REGSZ(sp)
+	SREG a6, 16 * REGSZ(sp)
+	SREG a7, 17 * REGSZ(sp)
+	SREG s2, 18 * REGSZ(sp)
+	SREG s3, 19 * REGSZ(sp)
+	SREG s4, 20 * REGSZ(sp)
+	SREG s5, 21 * REGSZ(sp)
+	SREG s6, 22 * REGSZ(sp)
+	SREG s7, 23 * REGSZ(sp)
+	SREG s8, 24 * REGSZ(sp)
+	SREG s9, 25 * REGSZ(sp)
+	SREG s10, 26 * REGSZ(sp)
+	SREG s11, 27 * REGSZ(sp)
+	SREG t3, 28 * REGSZ(sp)
+	SREG t4, 29 * REGSZ(sp)
+	SREG t5, 30 * REGSZ(sp)
+	SREG t6, 31 * REGSZ(sp)
+	csrr s0, sepc
+	SREG s0, 32 * REGSZ(sp)
+	csrr s1, sstatus
+	SREG s1, 33 * REGSZ(sp)
+	add	s2, sp, 35 * REGSZ
+	SREG s2, 34 * REGSZ(sp)
+	add	a0, sp, zero
+	call riscv64_handle_exception
+	LREG s0, 34 * REGSZ(sp)
+	csrr s1, sscratch
+	SREG s0, 1 * REGSZ(s1)
+	LREG s2, 32 * REGSZ(sp)
+	csrw sepc, s2
+	LREG s3, 33 * REGSZ(sp)
+	csrw sstatus, s3
+	LREG ra, 1 * REGSZ(sp)
+	LREG gp, 3 * REGSZ(sp)
+	LREG tp, 4 * REGSZ(sp)
+	LREG t0, 5 * REGSZ(sp)
+	LREG t1, 6 * REGSZ(sp)
+	LREG t2, 7 * REGSZ(sp)
+	LREG s0, 8 * REGSZ(sp)
+	LREG s1, 9 * REGSZ(sp)
+	LREG a0, 10 * REGSZ(sp)
+	LREG a1, 11 * REGSZ(sp)
+	LREG a2, 12 * REGSZ(sp)
+	LREG a3, 13 * REGSZ(sp)
+	LREG a4, 14 * REGSZ(sp)
+	LREG a5, 15 * REGSZ(sp)
+	LREG a6, 16 * REGSZ(sp)
+	LREG a7, 17 * REGSZ(sp)
+	LREG s2, 18 * REGSZ(sp)
+	LREG s3, 19 * REGSZ(sp)
+	LREG s4, 20 * REGSZ(sp)
+	LREG s5, 21 * REGSZ(sp)
+	LREG s6, 22 * REGSZ(sp)
+	LREG s7, 23 * REGSZ(sp)
+	LREG s8, 24 * REGSZ(sp)
+	LREG s9, 25 * REGSZ(sp)
+	LREG s10, 26 * REGSZ(sp)
+	LREG s11, 27 * REGSZ(sp)
+	LREG t3, 28 * REGSZ(sp)
+	LREG t4, 29 * REGSZ(sp)
+	LREG t5, 30 * REGSZ(sp)
+	LREG t6, 31 * REGSZ(sp)
+	LREG sp, 2 * REGSZ(sp)
+	sret
 
 /*
  * The location of section

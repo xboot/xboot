@@ -41,44 +41,36 @@ reset:
 	csrw sie, zero
 
 	/* Initialize stacks */
-	la t0, _start_link
-	LREG t1, (t0)
-	la t2, _start
-	sub t0, t1, t2
-	la a0, __stack_end
-	add a0, a0, t0
+	la a0, _stack_end
+	LREG a0, (a0)
 	mv sp, a0
 
 	/* Copyself to link address */
-	la t0, _start_link
-	LREG t1, (t0)
-	la t2, _start
-	sub t0, t1, t2
-	beq t0, x0, 1f
-	la a1, __image_start
-	add a0, a1, t0
-	la a2, __image_end
-	add a2, a2, t0
+	la t0, _start
+	la t1, _image_start
+	LREG t1, (t1)
+	beq t0, t1, 1f
+	la a0, _image_start
+	LREG a0, (a0)
+	la a2, _image_end
+	LREG a2, (a2)
 	sub a2, a2, a0
+	la a1, _start
 	call memcpy
 1:	nop
 
 	/* Clear bss section */
-	la t0, _start_link
-	LREG t1, (t0)
-	la t2, _start
-	sub t0, t1, t2
-	la a0, __bss_start
-	add a0, a0, t0
-	la a2, __bss_end
-	add a2, a2, t0
+	la a0, _bss_start
+	LREG a0, (a0)
+	la a2, _bss_end
+	LREG a2, (a2)
 	sub a2, a2, a0
 	li a1, 0
 	call memset
 
 	/* Call _main */
-	la t0, _start_link
-	LREG t1, (t0)
+	la t1, _image_start
+	LREG t1, (t1)
 	la t2, _start
 	sub t0, t1, t2
 	la a0, _main
@@ -94,8 +86,6 @@ _main:
  * The location of section
  */
 	.align 4
-_start_link:
-	RVPTR _start
 _image_start:
 	RVPTR __image_start
 _image_end:

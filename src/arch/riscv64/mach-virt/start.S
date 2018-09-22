@@ -86,7 +86,7 @@ reset:
 	add a0, a0, t0
 	jr a0
 _main:
-	li a0, 1
+	li a0, 0
 	li a1, 0
 	call xboot_main
 	j _main

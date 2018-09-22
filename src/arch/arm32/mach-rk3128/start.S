@@ -201,7 +201,7 @@ reset:
 	ldr r1, =_main
 	mov pc, r1
 _main:
-	mov r0, #1
+	mov r0, #0
 	mov r1, #0
 	bl xboot_main
 	b _main

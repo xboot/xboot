@@ -37,35 +37,11 @@ _start:
  * The actual reset code
  */
 reset:
-	/* Just for test code */
-	csrr t0, mhartid
-	bnez t0, nend
-	li a0, 0x90000000
-	li a1, 0x80000000
-	li a2, 0x1000000
-	call memcpy
-	fence rw, rw
-	la t0, nentry
-	li t1, 0x10000000
-	add t0, t0, t1
-	jr t0
-nentry:
-	nop
-	nop
-nend:
-	nop
-	nop
-	nop
-
-    /* Check processor id, stop all slave cores */
-	csrr t0, mhartid
-	beqz t0, 2f
-1:  wfi
-	j 1b
-2:	nop
-
 	/* Mask all interrupts */
+	csrw mideleg, zero
+	csrw medeleg, zero
 	csrw mie, zero
+	csrw mip, zero
 
 	/* Setup exception vectors */
 	la t1, _image_start
@@ -77,9 +53,23 @@ nend:
 	csrw mtvec, a0
 
 	/* Initialize stacks */
-	la a0, _stack_end
-	LREG a0, (a0)
-	mv sp, a0
+	la t1, _stack_start
+	LREG t1, (t1)
+	la t2, _stack_end
+	LREG t2, (t2)
+	sub t0, t2, t1
+	csrr t3, mhartid
+	li t4, 2
+	div t0, t0, t4
+	mul t0, t0, t3
+	sub sp, t2, t0
+
+    /* Check processor id, stop all slave cores */
+	csrr t0, mhartid
+	beqz t0, 2f
+1:  wfi
+	j 1b
+2:	nop
 
 	/* Copyself to link address */
 	la t0, _start

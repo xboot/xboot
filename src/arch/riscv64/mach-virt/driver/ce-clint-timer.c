@@ -100,7 +100,7 @@ static struct device_t * ce_clint_timer_probe(struct driver_t * drv, struct dtno
 	hook_core_interrupt(7, ce_clint_timer_interrupt, ce);
 	write64(pdat->virt + CLINT_MTIMECMP(pdat->id), 0xffffffffffffffff);
 	csr_clear(mie, 1 << 7);
-	csr_set(sstatus, (0x1 << 3));
+	csr_set(mstatus, (0x1 << 3));
 
 	if(!register_clockevent(&dev, ce))
 	{

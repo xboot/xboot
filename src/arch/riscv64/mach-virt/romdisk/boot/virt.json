@@ -1,9 +1,14 @@
 {
 	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed@1": { "name": "xin10m", "rate": 10000000 },
+	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
 
-	"cs-riscv64-timer@0x0200bff8": {
-		"clock-frequency": 10000000
+	"ce-clint-timer@0x02000000": {
+		"clock-name": "xin10m"
+	},
+
+	"cs-clint-timer@0x02000000": {
+		"clock-name": "xin10m"
 	},
 
 	"uart-riscv@0x10000000": {

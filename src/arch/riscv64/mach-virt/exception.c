@@ -134,6 +134,8 @@ struct instruction_info_t {
 	unsigned int sign_extend : 1;
 };
 
+static struct irq_handler_t core_interrupt_handler[8];
+
 static struct instruction_info_t insn_info[] = {
 #if __riscv_xlen == 128
 	{ 0x00002000, 0x0000e003,  2,  7, 8, 0, 1, 16, 1},	/* C.LQ */
@@ -213,6 +215,21 @@ static struct instruction_info_t insn_info[] = {
 #endif
 };
 
+static const char * interrupt_names[] = {
+	"User software interrupt",
+	"Supervisor software interrupt",
+	"Hypervisor software interrupt",
+	"Machine software interrupt",
+	"User timer interrupt",
+	"Supervisor timer interrupt",
+	"Hypervisor timer interrupt",
+	"Machine timer interrupt",
+	"User external interrupt",
+	"Supervisor external interrupt",
+	"Hypervisor external interrupt",
+	"Machine external interrupt",
+};
+
 static const char * exception_names[] = {
 	"Instruction address misaligned",
 	"Instruction access fault",
@@ -252,15 +269,25 @@ static const char * mstatus_to_previous_mode(unsigned long ms)
 
 static void show_regs(struct pt_regs_t * regs)
 {
-	if(regs->cause < ARRAY_SIZE(exception_names))
-		printf("Exception:          %s\r\n", exception_names[regs->cause]);
+	if(regs->cause & (1UL << 63))
+	{
+		if((regs->cause & ~(1UL << 63)) < ARRAY_SIZE(interrupt_names))
+			LOG("Interrupt:          %s", interrupt_names[regs->cause & ~(1UL << 63)]);
+		else
+			LOG("Trap:               Unknown cause %p", (void *)regs->cause);
+	}
 	else
-		printf("Trap:               Unknown cause %p\r\n", (void *)regs->cause);
-	printf("Previous mode:      %s%s\r\n", mstatus_to_previous_mode(csr_read(mstatus)), (regs->status & (1 << 17)) ? " (MPRV)" : "");
-	printf("Bad instruction pc: %p\r\n", (void *)regs->epc);
-	printf("Bad address:        %p\r\n", (void *)regs->badvaddr);
-	printf("Stored ra:          %p\r\n", (void*) regs->x[1]);
-	printf("Stored sp:          %p\r\n", (void*) regs->x[2]);
+	{
+		if(regs->cause < ARRAY_SIZE(exception_names))
+			LOG("Exception:          %s", exception_names[regs->cause]);
+		else
+			LOG("Trap:               Unknown cause %p", (void *)regs->cause);
+	}
+	LOG("Previous mode:      %s%s", mstatus_to_previous_mode(csr_read(mstatus)), (regs->status & (1 << 17)) ? " (MPRV)" : "");
+	LOG("Bad instruction pc: %p", (void *)regs->epc);
+	LOG("Bad address:        %p", (void *)regs->badvaddr);
+	LOG("Stored ra:          %p", (void*) regs->x[1]);
+	LOG("Stored sp:          %p", (void*) regs->x[2]);
 }
 
 static struct instruction_info_t * match_instruction(unsigned long insn)
@@ -427,34 +454,28 @@ void riscv64_handle_exception(struct pt_regs_t * regs)
 	csr_write(mscratch, regs);
 	if(regs->cause & (1UL << 63))
 	{
-		switch(regs->cause & ~(1UL << 63))
+		unsigned long cause = regs->cause & ~(1UL << 63);
+		unsigned long pending = csr_read(mip) & (1 << cause);
+		switch(cause)
 		{
-		case 1:		/* Supervisor soft */
-		case 2:		/* Hypervisor soft */
-		case 3:		/* Machine soft */
-		case 4:
-		case 5:		/* Supervisor timer */
-		case 6:		/* Hypervisor timer */
-			show_regs(regs);
+		case 0:		/* User software interrupt */
+		case 1:		/* Supervisor software interrupt */
+		case 2:		/* Hypervisor software interrupt */
+		case 3:		/* Machine software interrupt */
+		case 4:		/* User timer interrupt */
+		case 5:		/* Supervisor timer interrupt */
+		case 6:		/* Hypervisor timer interrupt */
+		case 7:		/* Machine timer interrupt */
+			csr_clear(mip, pending);
+			(core_interrupt_handler[cause].func)(core_interrupt_handler[cause].data);
 			break;
-		case 7:		/* Machine timer */
-			/*ssie = csr_read(sie);
-			if(!(ssie & (1 << 5)))
-				break;
-			if(!timecmp)
-				gettimer();
-			*timecmp = (uint64_t) -1;
-			msip = csr_read(mip);
-			msip |= (1 << 5);
-			csr_write(mip, msip);*/
-			show_regs(regs);
+		case 8:		/* User external interrupt */
+		case 9:		/* Supervisor external interrupt */
+		case 10:	/* Hypervisor external interrupt */
+		case 11:	/* Machine external interrupt */
+			csr_clear(mip, pending);
+			interrupt_handle_exception(regs);
 			break;
-		case 8:
-		case 9:		/* Supervisor ext */
-		case 10:	/* Hypervisor ext */
-		case 11:	/* Machine ext */
-		case 12:	/* Cop */
-		case 13:	/* Host */
 		default:
 			show_regs(regs);
 			break;
@@ -464,7 +485,6 @@ void riscv64_handle_exception(struct pt_regs_t * regs)
 	{
 		switch(regs->cause)
 		{
-
 		case 0x0:	/* Misaligned fetch */
 		case 0x1:	/* Fetch access */
 		case 0x2:	/* Illegal instruction */
@@ -485,9 +505,44 @@ void riscv64_handle_exception(struct pt_regs_t * regs)
 		case 0x9:	/* Supervisor ecall */
 		case 0xa:	/* Hypervisor ecall */
 		case 0xb:	/* Machine ecall */
+			show_regs(regs);
+			break;
 		default:
 			show_regs(regs);
 			break;
 		}
 	}
 }
+
+static void dummy_interrupt_function(void * data)
+{
+}
+
+void hook_core_interrupt(int cause, void (*func)(void *), void * data)
+{
+	if(cause < ARRAY_SIZE(core_interrupt_handler))
+	{
+		if(func)
+		{
+			core_interrupt_handler[cause].func = func;
+			core_interrupt_handler[cause].data = data;
+		}
+		else
+		{
+			core_interrupt_handler[cause].func = dummy_interrupt_function;
+			core_interrupt_handler[cause].data = NULL;
+		}
+	}
+}
+
+static __init void exception_pure_init(void)
+{
+	int i;
+
+	for(i = 0; i < ARRAY_SIZE(core_interrupt_handler); i++)
+	{
+		core_interrupt_handler[i].func = dummy_interrupt_function;
+		core_interrupt_handler[i].data = NULL;
+	}
+}
+pure_initcall(exception_pure_init);

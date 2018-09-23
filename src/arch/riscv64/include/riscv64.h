@@ -67,6 +67,8 @@ extern "C" {
 			      : "memory");						\
 })
 
+#define csr_read_mhartid()		csr_read(mhartid)
+
 #ifdef __cplusplus
 }
 #endif

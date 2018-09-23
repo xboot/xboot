@@ -2,6 +2,10 @@
 	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
 
+	"cs-riscv64-timer@0x0200bff8": {
+		"clock-frequency": 10000000
+	},
+
 	"uart-riscv@0x10000000": {
 		"clock-name": "xin24m",
 		"txd-gpio": -1,

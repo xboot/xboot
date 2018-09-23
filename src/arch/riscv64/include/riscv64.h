@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #define csr_swap(csr, val)							\
 ({													\
 	unsigned long __v = (unsigned long)(val);		\

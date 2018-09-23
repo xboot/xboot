@@ -37,13 +37,35 @@ _start:
  * The actual reset code
  */
 reset:
-	/* Mask all interrupts */
-	csrw sie, zero
+	/* Just for test code */
+	csrr t0, mhartid
+	bnez t0, nend
+	li a0, 0x90000000
+	li a1, 0x80000000
+	li a2, 0x1000000
+	call memcpy
+	fence rw, rw
+	la t0, nentry
+	li t1, 0x10000000
+	add t0, t0, t1
+	jr t0
+nentry:
+	nop
+	nop
+nend:
+	nop
+	nop
+	nop
 
-	/* Initialize stacks */
-	la a0, _stack_end
-	LREG a0, (a0)
-	mv sp, a0
+    /* Check processor id, stop all slave cores */
+	csrr t0, mhartid
+	beqz t0, 2f
+1:  wfi
+	j 1b
+2:	nop
+
+	/* Mask all interrupts */
+	csrw mie, zero
 
 	/* Setup exception vectors */
 	la t1, _image_start
@@ -53,6 +75,11 @@ reset:
 	la a0, vectors
 	add a0, a0, t0
 	csrw mtvec, a0
+
+	/* Initialize stacks */
+	la a0, _stack_end
+	LREG a0, (a0)
+	mv sp, a0
 
 	/* Copyself to link address */
 	la t0, _start

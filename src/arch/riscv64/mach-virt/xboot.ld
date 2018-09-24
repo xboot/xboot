@@ -77,13 +77,16 @@ SECTIONS
 	.rodata ALIGN(8) :
 	{
 		PROVIDE(__rodata_start = .);
-		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
+		*(.rodata*)
+		*(.srodata*)
 		PROVIDE(__rodata_end = .);
 	} > ram
 
 	.data ALIGN(8) :
 	{
-		PROVIDE(__data_start = .);	
+		PROVIDE(__data_start = .);
+		PROVIDE(__global_pointer$ = . + 0x800);
+		*(.sdata*)
 		*(.data*)
 		. = ALIGN(8);
   		PROVIDE(__data_end = .);

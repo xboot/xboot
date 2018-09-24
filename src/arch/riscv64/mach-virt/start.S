@@ -52,6 +52,13 @@ reset:
 	add a0, a0, t0
 	csrw mtvec, a0
 
+	/* Initialize global pointer */
+.option push
+.option norelax
+	la t0, _global_pointer$
+	LREG gp, (t0)
+.option pop
+
 	/* Initialize stacks */
 	la t1, _stack_start
 	LREG t1, (t1)
@@ -202,6 +209,8 @@ _image_start:
 	RVPTR __image_start
 _image_end:
 	RVPTR __image_end
+_global_pointer$:
+	RVPTR __global_pointer$
 _data_start:
 	RVPTR __data_start
 _data_end:

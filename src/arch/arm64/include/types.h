@@ -31,8 +31,6 @@ typedef signed long				off_t;
 typedef signed long long		loff_t;
 
 typedef signed int				bool_t;
-
-typedef signed long				register_t;
 typedef unsigned long			irq_flags_t;
 
 typedef unsigned long long		virtual_addr_t;

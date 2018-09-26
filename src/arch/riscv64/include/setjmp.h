@@ -11,7 +11,7 @@ struct __jmp_buf {
 };
 #elif __riscv_xlen == 64
 struct __jmp_buf {
-	unsigned long long __jmp_buf[26];
+	unsigned long long __jmp_buf[28];
 };
 #endif
 

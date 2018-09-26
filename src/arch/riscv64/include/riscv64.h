@@ -5,63 +5,26 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-
-#ifndef STRINGIFY
-#define _STRINGIFY(x)	#x
-#define STRINGIFY(x)	_STRINGIFY(x)
-#endif
-
-#define DEFINE_MPRV_READ_FLAGS(name, type, insn, flags)		\
-	static inline type name(type *p)						\
-	{														\
-		size_t mprv = flags;								\
-		type value;											\
-		__asm__ __volatile__ (								\
-			"csrs mstatus, %1\n"							\
-			STRINGIFY(insn) " %0, 0(%2)\n"					\
-			"csrc mstatus, %1\n"							\
-			: "=&r"(value) : "r"(mprv), "r"(p) : "memory"	\
-		);													\
-		return value;										\
-	}
-
-#define DEFINE_MPRV_READ(name, type, insn) 					\
-	DEFINE_MPRV_READ_FLAGS(name, type, insn, 0x00020000)
-
-#define DEFINE_MPRV_READ_MXR(name, type, insn) 				\
-	DEFINE_MPRV_READ_FLAGS(name, type, insn, 0x00020000 | 0x00080000)
-
-#define DEFINE_MPRV_WRITE(name, type, insn)					\
-	static inline void name(type *p, type value)			\
-	{														\
-		size_t mprv = 0x00020000;							\
-		__asm__ __volatile__ (								\
-			"csrs mstatus, %0\n"							\
-			STRINGIFY(insn) " %1, 0(%2)\n"					\
-			"csrc mstatus, %0\n"							\
-			:: "r"(mprv), "r"(value), "r"(p) : "memory"		\
-		);													\
-	}
-
-DEFINE_MPRV_READ(mprv_read_u8, uint8_t, lbu)
-DEFINE_MPRV_READ(mprv_read_u16, uint16_t, lhu)
-DEFINE_MPRV_READ(mprv_read_u32, uint32_t, lwu)
-DEFINE_MPRV_READ(mprv_read_u64, uint64_t, ld)
-DEFINE_MPRV_READ(mprv_read_long, long, ld)
-DEFINE_MPRV_READ(mprv_read_ulong, unsigned long, ld)
-DEFINE_MPRV_READ_MXR(mprv_read_mxr_u8, uint8_t, lbu)
-DEFINE_MPRV_READ_MXR(mprv_read_mxr_u16, uint16_t, lhu)
-DEFINE_MPRV_READ_MXR(mprv_read_mxr_u32, uint32_t, lwu)
-DEFINE_MPRV_READ_MXR(mprv_read_mxr_u64, uint64_t, ld)
-DEFINE_MPRV_READ_MXR(mprv_read_mxr_long, long, ld)
-DEFINE_MPRV_READ_MXR(mprv_read_mxr_ulong, unsigned long, ld)
-DEFINE_MPRV_WRITE(mprv_write_u8, uint8_t, sb)
-DEFINE_MPRV_WRITE(mprv_write_u16, uint16_t, sh)
-DEFINE_MPRV_WRITE(mprv_write_u32, uint32_t, sw)
-DEFINE_MPRV_WRITE(mprv_write_u64, uint64_t, sd)
-DEFINE_MPRV_WRITE(mprv_write_long, long, sd)
-DEFINE_MPRV_WRITE(mprv_write_ulong, unsigned long, sd)
+#define MSTATUS_UIE			(1 << 0)
+#define MSTATUS_SIE			(1 << 1)
+#define MSTATUS_MIE			(1 << 3)
+#define MSTATUS_UPIE		(1 << 4)
+#define MSTATUS_SPIE		(1 << 5)
+#define MSTATUS_MPIE		(1 << 7)
+#define MSTATUS_SPP			(1 << 8)
+#define MSTATUS_MPP			(3 << 11)
+#define MSTATUS_FS			(3 << 13)
+#define MSTATUS_XS			(3 << 15)
+#define MSTATUS_MPRV		(1 << 17)
+#define MSTATUS_SUM			(1 << 18)
+#define MSTATUS_MXR			(1 << 19)
+#define MSTATUS_TVM			(1 << 20)
+#define MSTATUS_TW			(1 << 21)
+#define MSTATUS_TSR			(1 << 22)
+#define MSTATUS32_SD		(1 << 31)
+#define MSTATUS_UXL			(3ULL << 32)
+#define MSTATUS_SXL			(3ULL << 34)
+#define MSTATUS64_SD		(1ULL << 63)
 
 #define csr_swap(csr, val)							\
 ({													\
@@ -122,8 +85,6 @@ DEFINE_MPRV_WRITE(mprv_write_ulong, unsigned long, sd)
 			      : : "rK" (__v)					\
 			      : "memory");						\
 })
-
-#define csr_read_mhartid()		csr_read(mhartid)
 
 #ifdef __cplusplus
 }

@@ -87,7 +87,7 @@ static struct device_t * ce_clint_timer_probe(struct driver_t * drv, struct dtno
 
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
-	pdat->id = csr_read_mhartid();
+	pdat->id = csr_read(mhartid);
 
 	clk_enable(pdat->clk);
 	clockevent_calc_mult_shift(ce, clk_get_rate(pdat->clk), 10);

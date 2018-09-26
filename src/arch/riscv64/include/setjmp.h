@@ -7,11 +7,11 @@ extern "C" {
 
 #if __riscv_xlen == 32
 struct __jmp_buf {
-	unsigned long __jmp_buf[40];
+	unsigned long __jmp_buf[38];
 };
 #elif __riscv_xlen == 64
 struct __jmp_buf {
-	unsigned long long __jmp_buf[28];
+	unsigned long long __jmp_buf[26];
 };
 #endif
 

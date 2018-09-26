@@ -689,8 +689,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 								sprintf(error, "%d:%d: Expected digit after `.`", state.cur_line, state.cur_col);
 								goto e_failed;
 							}
-							double p = (pow(10.0, (double)num_digits));
-							top->u.dbl += ((double)num_fraction) / p;
+							top->u.dbl += ((double) num_fraction) / (pow(10.0, (double) num_digits));
 						}
 
 						if(b == 'e' || b == 'E')

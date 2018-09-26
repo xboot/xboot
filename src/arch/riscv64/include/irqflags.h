@@ -10,22 +10,22 @@ extern "C" {
 
 static inline void arch_local_irq_enable(void)
 {
-	csr_set(mstatus, (0x1 << 3));
+	csr_set(mstatus, MSTATUS_MIE);
 }
 
 static inline void arch_local_irq_disable(void)
 {
-	csr_clear(mstatus, (0x1 << 3));
+	csr_clear(mstatus, MSTATUS_MIE);
 }
 
 static inline irq_flags_t arch_local_irq_save(void)
 {
-	return csr_read_clear(mstatus, (0x1 << 3));
+	return csr_read_clear(mstatus, MSTATUS_MIE);
 }
 
 static inline void arch_local_irq_restore(irq_flags_t flags)
 {
-	csr_set(mstatus, flags & (0x1 << 3));
+	csr_set(mstatus, flags & MSTATUS_MIE);
 }
 
 #define local_irq_enable()			do { arch_local_irq_enable(); } while(0)

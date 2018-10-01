@@ -28,8 +28,17 @@
 
 #include <xboot.h>
 
+#include "fpioa.h"
+#include "sysclock.h"
+#include "sysctl.h"
+#include "uarths.h"
+
 static int mach_detect(struct machine_t * mach)
 {
+	fpioa_init();
+	sys_clock_init();
+    uart_init();
+    uart_puts("k210 init\r\n");
 	return 1;
 }
 
@@ -55,13 +64,11 @@ static void mach_cleanup(struct machine_t * mach)
 
 static void mach_logger(struct machine_t * mach, const char * buf, int count)
 {
-	virtual_addr_t virt = phys_to_virt(0x10000000);
 	int i;
 
 	for(i = 0; i < count; i++)
 	{
-		while((read8(virt + 0x05) & (0x1 << 6)) == 0);
-		write8(virt + 0x00, buf[i]);
+		uart_putchar(buf[i]);
 	}
 }
 

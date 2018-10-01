@@ -1,9 +1,12 @@
 {
-	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed@0": { "name": "xin26m", "rate": 26000000 },
+	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed@2": { "name": "cpu", "rate": 160333333 },
 
-	"uart-riscv@0x10000000": {
-		"clock-name": "xin24m",
+	"clk-link": { "parent": "cpu", "name": "link-uart0" },
+
+	"uarths-k210@0x38000000": {
+		"clock-name": "link-uart0",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -15,6 +18,6 @@
 	},
 
 	"console-uart@0": {
-		"uart-bus": "uart-riscv.0"
+		"uart-bus": "uarths-k210.0"
 	}
 }

@@ -33,6 +33,7 @@
 	.global _start
 _start:
 	j reset
+	.word 0xdeadbeef
 
 /*
  * The actual reset code

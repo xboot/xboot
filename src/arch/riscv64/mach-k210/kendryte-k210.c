@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <riscv64.h>
 #include "fpioa.h"
 #include "sysclock.h"
 #include "sysctl.h"
@@ -63,16 +62,13 @@ static void mach_cleanup(struct machine_t * mach)
 
 static void mach_logger(struct machine_t * mach, const char * buf, int count)
 {
-	virtual_addr_t virtuart = phys_to_virt(0x38000000);
-	virtual_addr_t virtcpu = phys_to_virt(0x50440080);
-	int id = (csr_read(mhartid) == 0) ? 0 : 1;
+	virtual_addr_t virt = phys_to_virt(0x38000000);
 	int i;
 
 	for(i = 0; i < count; i++)
 	{
-		write32(virtcpu + 0x0, (id << 30) | buf[i]);
-		while(read32(virtuart + 0x0) & (1 << 31));
-		write32(virtuart + 0x0, buf[i]);
+		while(read32(virt + 0x0) & (1 << 31));
+		write32(virt + 0x0, buf[i]);
 	}
 }
 

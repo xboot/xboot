@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <riscv64.h>
 #include <clk/clk.h>
 #include <gpio/gpio.h>
 #include <uart/uart.h>
@@ -156,13 +155,10 @@ static ssize_t uart_k210_read(struct uart_t * uart, u8_t * buf, size_t count)
 static ssize_t uart_k210_write(struct uart_t * uart, const u8_t * buf, size_t count)
 {
 	struct uart_k210_pdata_t * pdat = (struct uart_k210_pdata_t *)uart->priv;
-	virtual_addr_t virt = phys_to_virt(0x50440080);
-	int id = (csr_read(mhartid) == 0) ? 0 : 1;
 	ssize_t i;
 
 	for(i = 0; i < count; i++)
 	{
-		write32(virt + 0x0, (id << 30) | buf[i]);
 		while(read32(pdat->virt + UART_TXFIFO) & (1 << 31));
 		write32(pdat->virt + UART_TXFIFO, buf[i]);
 	}

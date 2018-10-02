@@ -5,6 +5,11 @@
 
 	"clk-link": { "parent": "cpu", "name": "link-uart0" },
 
+	"reset-k210@0x50440034": {
+		"reset-base": 0,
+		"reset-count": 32
+	},
+
 	"uarths-k210@0x38000000": {
 		"clock-name": "link-uart0",
 		"txd-gpio": -1,

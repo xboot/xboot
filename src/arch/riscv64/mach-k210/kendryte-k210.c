@@ -27,6 +27,11 @@
  */
 
 #include <xboot.h>
+#include <k210/reg-sysctl.h>
+
+#undef SYSCTL_PLL0
+#undef SYSCTL_PLL1
+#undef SYSCTL_PLL2
 #include "fpioa.h"
 #include "sysclock.h"
 #include "sysctl.h"
@@ -50,6 +55,7 @@ static void mach_shutdown(struct machine_t * mach)
 
 static void mach_reboot(struct machine_t * mach)
 {
+	write32(phys_to_virt(K210_SYSCTL_BASE) + SYSCTL_SOFT_RESET, 0x1);
 }
 
 static void mach_sleep(struct machine_t * mach)

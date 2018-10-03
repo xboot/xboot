@@ -187,6 +187,10 @@ reset:
 	j 1b
 2:	nop
 
+	/* Initial system clock and uart */
+	call sys_clock_init
+	call sys_uart_init
+
 	/* Copyself to link address */
 	la t0, _start
 	la t1, _image_start

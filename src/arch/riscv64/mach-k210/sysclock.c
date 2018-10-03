@@ -1,9 +1,8 @@
 #include "sysclock.h"
 #include "stdio.h"
 #include "sysctl.h"
-#include "uarths.h"
 
-void sys_clock_init()
+void sys_clock_inita()
 {
     sysctl_clock_set_clock_select(SYSCTL_CLOCK_SELECT_ACLK, SYSCTL_SOURCE_IN0);
 
@@ -50,6 +49,5 @@ uint32_t system_set_cpu_frequency(uint32_t frequency)
 
     sysctl->pll0.pll_out_en0 = 1;
     sysctl_clock_set_clock_select(SYSCTL_CLOCK_SELECT_ACLK, SYSCTL_SOURCE_PLL0);
-    uart_init();
     return result;
 }

@@ -20,6 +20,8 @@ SECTIONS
 		.obj/arch/riscv64/mach-k210/start.o (.text*)
 		.obj/arch/riscv64/lib/memcpy.o (.text*)
 		.obj/arch/riscv64/lib/memset.o (.text*)
+		.obj/arch/riscv64/mach-k210/sys-clock.o (.text*)
+		.obj/arch/riscv64/mach-k210/sys-uart.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

@@ -12,7 +12,7 @@ extern "C" {
 /**
  * @brief       Init PLL freqency
  */
-void sys_clock_init();
+void sys_clock_inita();
 
 /**
  * @brief       Set frequency of CPU

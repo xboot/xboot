@@ -61,7 +61,7 @@
 	"clk-gate@0x5044002c": {"parent": "mux-aclk", "name": "gate-fft", "shift": 4, "invert": false },
 	"clk-link": { "parent": "gate-fft", "name": "link-fft" },
 
-	"clk-gate@0x5044002c": {"parent": "gate-apb0", "name": "gate-gpio", "shift": 5, "invert": false },
+	"clk-gate@0x5044002c": {"parent": "gate-apb0", "name": "gate-gpio", "shift": 5, "invert": false, "default": { "enable": true } },
 	"clk-link": { "parent": "gate-gpio", "name": "link-gpio" },
 
 	"clk-divider@0x5044003c": { "parent": "pll0-2", "name": "div-spi0", "shift": 0, "width": 8, "divider-one-based": true },
@@ -99,8 +99,8 @@
 	"clk-divider@0x5044004c": { "parent": "pll0-2", "name": "div-i2c1", "shift": 16, "width": 8, "divider-one-based": true },
 	"clk-divider@0x5044004c": { "parent": "pll0-2", "name": "div-i2c2", "shift": 24, "width": 8, "divider-one-based": true },
 	"clk-gate@0x5044002c": {"parent": "div-i2c0", "name": "gate-i2c0", "shift": 13, "invert": false },
-	"clk-gate@0x5044002c": {"parent": "div-i2c1", "name": "gate-i2c0", "shift": 14, "invert": false },
-	"clk-gate@0x5044002c": {"parent": "div-i2c2", "name": "gate-i2c0", "shift": 15, "invert": false },
+	"clk-gate@0x5044002c": {"parent": "div-i2c1", "name": "gate-i2c1", "shift": 14, "invert": false },
+	"clk-gate@0x5044002c": {"parent": "div-i2c2", "name": "gate-i2c2", "shift": 15, "invert": false },
 	"clk-link": { "parent": "gate-i2c0", "name": "link-i2c0" },
 	"clk-link": { "parent": "gate-i2c1", "name": "link-i2c1" },
 	"clk-link": { "parent": "gate-i2c2", "name": "link-i2c2" },
@@ -115,7 +115,7 @@
 	"clk-gate@0x5044002c": {"parent": "gate-apb1", "name": "gate-aes", "shift": 19, "invert": false },
 	"clk-link": { "parent": "gate-aes", "name": "link-aes" },
 	
-	"clk-gate@0x5044002c": {"parent": "gate-apb0", "name": "gate-fpioa", "shift": 20, "invert": false },
+	"clk-gate@0x5044002c": {"parent": "gate-apb0", "name": "gate-fpioa", "shift": 20, "invert": false, "default": { "enable": true } },
 	"clk-link": { "parent": "gate-fpioa", "name": "link-fpioa" },
 
 	"clk-mux@0x50440020": {

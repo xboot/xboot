@@ -29,19 +29,8 @@
 #include <xboot.h>
 #include <k210/reg-sysctl.h>
 
-#undef SYSCTL_PLL0
-#undef SYSCTL_PLL1
-#undef SYSCTL_PLL2
-#include "fpioa.h"
-#include "sysclock.h"
-#include "sysctl.h"
-#include "uarths.h"
-
 static int mach_detect(struct machine_t * mach)
 {
-	fpioa_init();
-	sys_clock_init();
-	uart_init();
 	return 1;
 }
 

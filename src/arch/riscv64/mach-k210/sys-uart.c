@@ -41,16 +41,13 @@ enum {
 void sys_uart_init(void)
 {
 	virtual_addr_t addr = 0x38000000;
-	u32_t val;
 
 	write32(addr + UART_TXCTRL, (0 << 16) | (1 << 0));
 	write32(addr + UART_RXCTRL, (0 << 16) | (1 << 0));
 	write32(addr + UART_IP, (1 << 1) | (1 << 0));
 	write32(addr + UART_IE, (0 << 1) | (0 << 0));
 	write32(addr + UART_DIV, 160333333 / 115200 - 1);
-	val = read32(addr + UART_TXCTRL);
-	val &= ~(1 << 1);
-	write32(addr + UART_TXCTRL, val);
+	write32(addr + UART_TXCTRL, read32(addr + UART_TXCTRL) & ~(1 << 1));
 }
 
 void sys_uart_putc(char c)

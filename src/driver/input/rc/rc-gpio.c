@@ -113,10 +113,10 @@ static struct device_t * rc_gpio_probe(struct driver_t * drv, struct dtnode_t * 
 	input->ioctl = rc_gpio_ioctl;
 	input->priv = pdat;
 
-	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
-	gpio_direction_input(pdat->gpio);
 	if(pdat->gpiocfg >= 0)
 		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
+	gpio_set_pull(pdat->gpio, pdat->active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
+	gpio_direction_input(pdat->gpio);
 	request_irq(pdat->irq, rc_gpio_interrupt, IRQ_TYPE_EDGE_BOTH, input);
 
 	if(!register_input(&dev, input))

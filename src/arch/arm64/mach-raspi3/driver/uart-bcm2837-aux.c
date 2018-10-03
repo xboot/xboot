@@ -238,15 +238,15 @@ static struct device_t * uart_bcm2837_aux_probe(struct driver_t * drv, struct dt
 	clk_enable(pdat->clk);
 	if(pdat->txd >= 0)
 	{
-		gpio_set_pull(pdat->txd, GPIO_PULL_UP);
 		if(pdat->txdcfg >= 0)
 			gpio_set_cfg(pdat->txd, pdat->txdcfg);
+		gpio_set_pull(pdat->txd, GPIO_PULL_UP);
 	}
 	if(pdat->rxd >= 0)
 	{
-		gpio_set_pull(pdat->rxd, GPIO_PULL_UP);
 		if(pdat->rxdcfg >= 0)
 			gpio_set_cfg(pdat->rxd, pdat->rxdcfg);
+		gpio_set_pull(pdat->rxd, GPIO_PULL_UP);
 	}
 	bcm2837_aux_enable(AUX_ID_UART);
 	write32(pdat->virt + UART_CNTL, 0);

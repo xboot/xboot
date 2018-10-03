@@ -162,12 +162,18 @@
 	"clk-gate@0x5044002c": {"parent": "gate-apb1", "name": "gate-otp", "shift": 27, "invert": false },
 	"clk-link": { "parent": "gate-otp", "name": "link-otp" },
 
-	"clk-gate@0x5044002c": {"parent": "gate-apb1", "name": "gate-rtc", "shift": 29, "invert": false },
+	"clk-gate@0x5044002c": {"parent": "xin26m", "name": "gate-rtc", "shift": 29, "invert": false },
 	"clk-link": { "parent": "gate-rtc", "name": "link-rtc" },
 
 	"reset-k210@0x50440034": {
 		"reset-base": 0,
 		"reset-count": 32
+	},
+
+	"gpio-k210@0x502b0000": {
+		"gpio-base": 0,
+		"gpio-count": 48,
+		"interrupt-offset": -1
 	},
 
 	"uart-k210-highspeed@0x38000000": {

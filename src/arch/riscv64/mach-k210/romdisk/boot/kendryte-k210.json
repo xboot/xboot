@@ -170,7 +170,7 @@
 		"reset-count": 32
 	},
 
-	"uarths-k210@0x38000000": {
+	"uart-k210-highspeed@0x38000000": {
 		"clock-name": "link-uart0",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
@@ -183,6 +183,6 @@
 	},
 
 	"console-uart@0": {
-		"uart-bus": "uarths-k210.0"
+		"uart-bus": "uart-k210-highspeed.0"
 	}
 }

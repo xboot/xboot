@@ -318,26 +318,26 @@ static void fpioa_set_cfg(struct gpio_k210_pdata_t * pdat, int offset, int cfg)
 	virtual_addr_t addr;
 	u32_t val;
 
+	addr = pdat->virtfpioa + FPIOA_TIE_VAL + ((cfg >> 5) << 2);
+	val = read32(addr);
+	if(fpioa_cfg[cfg] & (1 << 25))
+		val |= (0x1 << (cfg & 0x1f));
+	else
+		val &= ~(0x1 << (cfg & 0x1f));
+	write32(addr, val);
+
+	addr = pdat->virtfpioa + FPIOA_TIE_EN + ((cfg >> 5) << 2);
+	val = read32(addr);
+	if(fpioa_cfg[cfg] & (1 << 24))
+		val |= (0x1 << (cfg & 0x1f));
+	else
+		val &= ~(0x1 << (cfg & 0x1f));
+	write32(addr, val);
+
 	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
 	val = fpioa_cfg[cfg] & ~((0x3f << 24) | (0xff << 0));
 	val |= (cfg << 0) & 0xff;
 	write32(addr, val);
-
-/*	addr = pdat->virtfpioa + FPIOA_TIE_VAL + cfg / 32;
-	val = read32(addr);
-	if(fpioa_cfg[cfg] & (1 << 25))
-		val |= (0x1 << (cfg % 32));
-	else
-		val &= ~(0x1 << (cfg % 32));
-	write32(addr, val);
-
-	addr = pdat->virtfpioa + FPIOA_TIE_EN + cfg / 32;
-	val = read32(addr);
-	if(fpioa_cfg[cfg] & (1 << 24))
-		val |= (0x1 << (cfg % 32));
-	else
-		val &= ~(0x1 << (cfg % 32));
-	write32(addr, val);*/
 }
 
 static void gpio_k210_set_cfg(struct gpiochip_t * chip, int offset, int cfg)

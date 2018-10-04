@@ -184,7 +184,7 @@
 		"clock-name": "clint-timer-clk"
 	},
 
-	"uart-k210-highspeed@0x38000000": {
+	"uart-hs-k210@0x38000000": {
 		"clock-name": "link-uart0",
 		"txd-gpio": 5,
 		"txd-gpio-config": 19,
@@ -197,8 +197,8 @@
 	},
 
 	"led-gpio@0": {
-		"gpio": 12,
-		"gpio-config": 60,
+		"gpio": 14,
+		"gpio-config": 62,
 		"active-low": true,
 		"default-brightness": 0
 	},
@@ -211,8 +211,8 @@
 	},
 
 	"led-gpio@2": {
-		"gpio": 14,
-		"gpio-config": 62,
+		"gpio": 12,
+		"gpio-config": 60,
 		"active-low": true,
 		"default-brightness": 0
 	},
@@ -223,6 +223,6 @@
 	},
 
 	"console-uart@0": {
-		"uart-bus": "uart-k210-highspeed.0"
+		"uart-bus": "uart-hs-k210.0"
 	}
 }

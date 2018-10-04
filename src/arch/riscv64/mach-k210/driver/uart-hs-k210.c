@@ -1,5 +1,5 @@
 /*
- * driver/uart-k210-highspeed.c
+ * driver/uart-hs-k210.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -264,7 +264,7 @@ static void uart_k210_resume(struct device_t * dev)
 }
 
 static struct driver_t uart_k210 = {
-	.name		= "uart-k210-highspeed",
+	.name		= "uart-hs-k210",
 	.probe		= uart_k210_probe,
 	.remove		= uart_k210_remove,
 	.suspend	= uart_k210_suspend,

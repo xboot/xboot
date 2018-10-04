@@ -686,10 +686,18 @@ static int gpio_k210_get_value(struct gpiochip_t * chip, int offset)
 static int gpio_k210_to_irq(struct gpiochip_t * chip, int offset)
 {
 	struct gpio_k210_pdata_t * pdat = (struct gpio_k210_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t cfg, val;
 
 	if((offset >= chip->ngpio) || (pdat->oirq < 0))
 		return -1;
-	return pdat->oirq + offset;
+
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
+	cfg = (read32(addr) >> 0) & 0xff;
+
+	if((cfg >= CFG_GPIOHS0) && (cfg <= CFG_GPIO7))
+		return pdat->oirq + (cfg - CFG_GPIOHS0);
+	return -1;
 }
 
 static struct device_t * gpio_k210_probe(struct driver_t * drv, struct dtnode_t * n)

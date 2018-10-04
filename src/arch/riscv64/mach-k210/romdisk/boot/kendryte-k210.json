@@ -173,7 +173,7 @@
 	"gpio-k210@0x502b0000": {
 		"gpio-base": 0,
 		"gpio-count": 48,
-		"interrupt-offset": -1
+		"interrupt-offset": 34
 	},
 
 	"ce-clint-timer@0x02000000": {

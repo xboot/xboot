@@ -178,10 +178,10 @@
 
 	"uart-k210-highspeed@0x38000000": {
 		"clock-name": "link-uart0",
-		"txd-gpio": -1,
-		"txd-gpio-config": -1,
-		"rxd-gpio": -1,
-		"rxd-gpio-config": -1,
+		"txd-gpio": 5,
+		"txd-gpio-config": 19,
+		"rxd-gpio": 4,
+		"rxd-gpio-config": 18,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,

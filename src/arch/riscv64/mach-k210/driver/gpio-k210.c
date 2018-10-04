@@ -28,6 +28,8 @@
 
 #include <xboot.h>
 #include <gpio/gpio.h>
+#include <k210/reg-gpiohs.h>
+#include <k210/reg-gpio.h>
 #include <k210-gpio.h>
 
 enum {
@@ -38,7 +40,9 @@ enum {
 
 struct gpio_k210_pdata_t
 {
-	virtual_addr_t virt;
+	virtual_addr_t virtfpioa;
+	virtual_addr_t virtgpiohs;
+	virtual_addr_t virtgpio;
 	int base;
 	int ngpio;
 	int oirq;
@@ -314,11 +318,12 @@ static void fpioa_set_cfg(struct gpio_k210_pdata_t * pdat, int offset, int cfg)
 	virtual_addr_t addr;
 	u32_t val;
 
-	addr = pdat->virt + FPIOA_IO_CFG + (offset << 2);
-	val = fpioa_cfg[cfg] & ~(0x7 << 24);
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
+	val = fpioa_cfg[cfg] & ~((0x3f << 24) | (0xff << 0));
+	val |= (cfg << 0) & 0xff;
 	write32(addr, val);
 
-	addr = pdat->virt + FPIOA_TIE_VAL + cfg / 32;
+/*	addr = pdat->virtfpioa + FPIOA_TIE_VAL + cfg / 32;
 	val = read32(addr);
 	if(fpioa_cfg[cfg] & (1 << 25))
 		val |= (0x1 << (cfg % 32));
@@ -326,13 +331,13 @@ static void fpioa_set_cfg(struct gpio_k210_pdata_t * pdat, int offset, int cfg)
 		val &= ~(0x1 << (cfg % 32));
 	write32(addr, val);
 
-	addr = pdat->virt + FPIOA_TIE_EN + cfg / 32;
+	addr = pdat->virtfpioa + FPIOA_TIE_EN + cfg / 32;
 	val = read32(addr);
 	if(fpioa_cfg[cfg] & (1 << 24))
 		val |= (0x1 << (cfg % 32));
 	else
 		val &= ~(0x1 << (cfg % 32));
-	write32(addr, val);
+	write32(addr, val);*/
 }
 
 static void gpio_k210_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
@@ -352,7 +357,7 @@ static void gpio_k210_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 	{
 		for(i = 0; i < chip->ngpio; i++)
 		{
-			addr = pdat->virt + FPIOA_IO_CFG + (i << 2);
+			addr = pdat->virtfpioa + FPIOA_IO_CFG + (i << 2);
 			val = (read32(addr) >> 0) & 0xff;
 			if((val == cfg) && (i != offset))
 				fpioa_set_cfg(pdat, i, CFG_RESV0);
@@ -370,7 +375,7 @@ static int gpio_k210_get_cfg(struct gpiochip_t * chip, int offset)
 	if(offset >= chip->ngpio)
 		return 0;
 
-	addr = pdat->virt + FPIOA_IO_CFG + (offset << 2);
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
 	val = (read32(addr) >> 0) & 0xff;
 	return val;
 }
@@ -399,7 +404,7 @@ static void gpio_k210_set_pull(struct gpiochip_t * chip, int offset, enum gpio_p
 		v = 0x0;
 		break;
 	}
-	addr = pdat->virt + FPIOA_IO_CFG + (offset << 2);
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
 	val = read32(addr);
 	val &= ~(0x3 << 16);
 	val |= (v << 16);
@@ -415,7 +420,7 @@ static enum gpio_pull_t gpio_k210_get_pull(struct gpiochip_t * chip, int offset)
 	if(offset >= chip->ngpio)
 		return GPIO_PULL_NONE;
 
-	addr = pdat->virt + FPIOA_IO_CFG + (offset << 2);
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
 	v = (read32(addr) >> 16) & 0x3;
 	switch(v)
 	{
@@ -458,7 +463,7 @@ static void gpio_k210_set_drv(struct gpiochip_t * chip, int offset, enum gpio_dr
 		v = 0x0;
 		break;
 	}
-	addr = pdat->virt + FPIOA_IO_CFG + (offset << 2);
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
 	val = read32(addr);
 	val &= ~(0xf << 8);
 	val |= (v << 8);
@@ -474,7 +479,7 @@ static enum gpio_drv_t gpio_k210_get_drv(struct gpiochip_t * chip, int offset)
 	if(offset >= chip->ngpio)
 		return GPIO_DRV_WEAK;
 
-	addr = pdat->virt + FPIOA_IO_CFG + (offset << 2);
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
 	v = (read32(addr) >> 8) & 0xf;
 	switch(v)
 	{
@@ -513,7 +518,7 @@ static void gpio_k210_set_rate(struct gpiochip_t * chip, int offset, enum gpio_r
 	if(offset >= chip->ngpio)
 		return;
 
-	addr = pdat->virt + FPIOA_IO_CFG + (offset << 2);
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
 	val = read32(addr);
 	if(rate == GPIO_RATE_FAST)
 		val |= (0x1 << 19);
@@ -530,7 +535,7 @@ static enum gpio_rate_t gpio_k210_get_rate(struct gpiochip_t * chip, int offset)
 	if(offset >= chip->ngpio)
 		return GPIO_RATE_SLOW;
 
-	addr = pdat->virt + FPIOA_IO_CFG + (offset << 2);
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
 	if((read32(addr) >> 19) & 0x1)
 		return GPIO_RATE_FAST;
 	return GPIO_RATE_SLOW;
@@ -538,19 +543,143 @@ static enum gpio_rate_t gpio_k210_get_rate(struct gpiochip_t * chip, int offset)
 
 static void gpio_k210_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
 {
+	struct gpio_k210_pdata_t * pdat = (struct gpio_k210_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t cfg, val;
+
+	if(offset >= chip->ngpio)
+		return;
+
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
+	cfg = (read32(addr) >> 0) & 0xff;
+
+	if((cfg >= CFG_GPIOHS0) && (cfg <= CFG_GPIOHS31))
+	{
+		switch(dir)
+		{
+		case GPIO_DIRECTION_INPUT:
+			val = read32(pdat->virtgpiohs + GPIOHS_OUTPUT_EN);
+			val &= ~(1 << (cfg - CFG_GPIOHS0));
+			write32(pdat->virtgpiohs + GPIOHS_OUTPUT_EN, val);
+			val = read32(pdat->virtgpiohs + GPIOHS_INPUT_EN);
+			val |= (1 << (cfg - CFG_GPIOHS0));
+			write32(pdat->virtgpiohs + GPIOHS_INPUT_EN, val);
+			break;
+		case GPIO_DIRECTION_OUTPUT:
+			val = read32(pdat->virtgpiohs + GPIOHS_INPUT_EN);
+			val &= ~(1 << (cfg - CFG_GPIOHS0));
+			write32(pdat->virtgpiohs + GPIOHS_INPUT_EN, val);
+			val = read32(pdat->virtgpiohs + GPIOHS_OUTPUT_EN);
+			val |= (1 << (cfg - CFG_GPIOHS0));
+			write32(pdat->virtgpiohs + GPIOHS_OUTPUT_EN, val);
+			break;
+		default:
+			break;
+		}
+	}
+	else if((cfg >= CFG_GPIO0) && (cfg <= CFG_GPIO7))
+	{
+		switch(dir)
+		{
+		case GPIO_DIRECTION_INPUT:
+			val = read32(pdat->virtgpio + GPIO_DIRECTION);
+			val &= ~(1 << (cfg - CFG_GPIO0));
+			write32(pdat->virtgpio + GPIO_DIRECTION, val);
+			break;
+		case GPIO_DIRECTION_OUTPUT:
+			val = read32(pdat->virtgpio + GPIO_DIRECTION);
+			val |= (1 << (cfg - CFG_GPIO0));
+			write32(pdat->virtgpio + GPIO_DIRECTION, val);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 static enum gpio_direction_t gpio_k210_get_dir(struct gpiochip_t * chip, int offset)
 {
+	struct gpio_k210_pdata_t * pdat = (struct gpio_k210_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t cfg, val;
+
+	if(offset >= chip->ngpio)
+		return GPIO_DIRECTION_INPUT;
+
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
+	cfg = (read32(addr) >> 0) & 0xff;
+
+	if((cfg >= CFG_GPIOHS0) && (cfg <= CFG_GPIOHS31))
+	{
+		val = read32(pdat->virtgpiohs + GPIOHS_OUTPUT_EN);
+		if(val & (1 << (cfg - CFG_GPIOHS0)))
+			return GPIO_DIRECTION_OUTPUT;
+		val = read32(pdat->virtgpiohs + GPIOHS_INPUT_EN);
+		if(val & (1 << (cfg - CFG_GPIOHS0)))
+			return GPIO_DIRECTION_INPUT;
+	}
+	else if((cfg >= CFG_GPIO0) && (cfg <= CFG_GPIO7))
+	{
+		val = read32(pdat->virtgpio + GPIO_DIRECTION);
+		return (val & (1 << (cfg - CFG_GPIO0))) ? GPIO_DIRECTION_OUTPUT : GPIO_DIRECTION_INPUT;
+	}
 	return GPIO_DIRECTION_INPUT;
 }
 
 static void gpio_k210_set_value(struct gpiochip_t * chip, int offset, int value)
 {
+	struct gpio_k210_pdata_t * pdat = (struct gpio_k210_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t cfg, val;
+
+	if(offset >= chip->ngpio)
+		return;
+
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
+	cfg = (read32(addr) >> 0) & 0xff;
+
+	if((cfg >= CFG_GPIOHS0) && (cfg <= CFG_GPIOHS31))
+	{
+		val = read32(pdat->virtgpiohs + GPIOHS_OUTPUT_VAL);
+		if(value)
+			val |= (1 << (cfg - CFG_GPIOHS0));
+		else
+			val &= ~(1 << (cfg - CFG_GPIOHS0));
+		write32(pdat->virtgpiohs + GPIOHS_OUTPUT_VAL, val);
+	}
+	else if((cfg >= CFG_GPIO0) && (cfg <= CFG_GPIO7))
+	{
+		val = read32(pdat->virtgpio + GPIO_DATA_OUTPUT);
+		if(value)
+			val |= (1 << (cfg - CFG_GPIO0));
+		else
+			val &= ~(1 << (cfg - CFG_GPIO0));
+		write32(pdat->virtgpio + GPIO_DATA_OUTPUT, val);
+	}
 }
 
 static int gpio_k210_get_value(struct gpiochip_t * chip, int offset)
 {
+	struct gpio_k210_pdata_t * pdat = (struct gpio_k210_pdata_t *)chip->priv;
+	virtual_addr_t addr;
+	u32_t cfg, val;
+
+	if(offset >= chip->ngpio)
+		return 0;
+
+	addr = pdat->virtfpioa + FPIOA_IO_CFG + (offset << 2);
+	cfg = (read32(addr) >> 0) & 0xff;
+
+	if((cfg >= CFG_GPIOHS0) && (cfg <= CFG_GPIOHS31))
+	{
+		val = read32(pdat->virtgpiohs + GPIOHS_INPUT_VAL);
+		return (val & (1 << (cfg - CFG_GPIOHS0))) ? 1 : 0;
+	}
+	else if((cfg >= CFG_GPIO0) && (cfg <= CFG_GPIO7))
+	{
+		val = read32(pdat->virtgpio + GPIO_DATA_INPUT);
+		return (val & (1 << (cfg - CFG_GPIO0))) ? 1 : 0;
+	}
 	return 0;
 }
 
@@ -586,7 +715,9 @@ static struct device_t * gpio_k210_probe(struct driver_t * drv, struct dtnode_t 
 		return NULL;
 	}
 
-	pdat->virt = virt;
+	pdat->virtfpioa = virt;
+	pdat->virtgpiohs = phys_to_virt(K210_GPIOHS_BASE);
+	pdat->virtgpio = phys_to_virt(K210_GPIO_BASE);
 	pdat->base = base;
 	pdat->ngpio = ngpio;
 	pdat->oirq = dt_read_int(n, "interrupt-offset", -1);

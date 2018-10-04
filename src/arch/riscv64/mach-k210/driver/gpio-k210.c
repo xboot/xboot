@@ -687,7 +687,7 @@ static int gpio_k210_to_irq(struct gpiochip_t * chip, int offset)
 {
 	struct gpio_k210_pdata_t * pdat = (struct gpio_k210_pdata_t *)chip->priv;
 	virtual_addr_t addr;
-	u32_t cfg, val;
+	u32_t cfg;
 
 	if((offset >= chip->ngpio) || (pdat->oirq < 0))
 		return -1;

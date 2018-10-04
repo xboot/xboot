@@ -71,7 +71,8 @@ static void clk_ratio2_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 
 	val = read32(pdat->virt);
 	val &= ~(mask << pdat->shift);
-	val |= fls(div) << pdat->shift;
+	if(div)
+		val |= (fls(div) - 1) << pdat->shift;
 	write32(pdat->virt, val);
 }
 
@@ -82,7 +83,7 @@ static u64_t clk_ratio2_get_rate(struct clk_t * clk, u64_t prate)
 	u32_t div;
 
 	div = (read32(pdat->virt) >> pdat->shift) & mask;
-	return prate / (0x2 << div);
+	return prate / (0x1 << (div + 1));
 }
 
 static struct device_t * clk_ratio2_probe(struct driver_t * drv, struct dtnode_t * n)

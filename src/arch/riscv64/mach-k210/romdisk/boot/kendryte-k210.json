@@ -13,7 +13,7 @@
 	},
 	"clk-k210-pll@2": { "parent": "mux-pll2", "name": "pll2", "channel": 2 },
 
-	"clk-k210-ratio2@0x50440020": { "parent": "pll0", "name": "ratio2-aclk", "shift": 1, "width": 2 },
+	"clk-ratio2@0x50440020": { "parent": "pll0", "name": "ratio2-aclk", "shift": 1, "width": 2 },
 	"clk-mux@0x50440020": {
 		"parent": [
 			{ "name": "xin26m", "value": 0 },

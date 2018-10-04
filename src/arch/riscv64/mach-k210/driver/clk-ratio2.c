@@ -1,5 +1,5 @@
 /*
- * driver/clk-ratio.c
+ * driver/clk-ratio2.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -29,35 +29,35 @@
 #include <xboot.h>
 #include <clk/clk.h>
 
-struct clk_k210_ratio2_pdata_t {
+struct clk_ratio2_pdata_t {
 	virtual_addr_t virt;
 	char * parent;
 	int shift;
 	int width;
 };
 
-static void clk_k210_ratio2_set_parent(struct clk_t * clk, const char * pname)
+static void clk_ratio2_set_parent(struct clk_t * clk, const char * pname)
 {
 }
 
-static const char * clk_k210_ratio2_get_parent(struct clk_t * clk)
+static const char * clk_ratio2_get_parent(struct clk_t * clk)
 {
-	struct clk_k210_ratio2_pdata_t * pdat = (struct clk_k210_ratio2_pdata_t *)clk->priv;
+	struct clk_ratio2_pdata_t * pdat = (struct clk_ratio2_pdata_t *)clk->priv;
 	return pdat->parent;
 }
 
-static void clk_k210_ratio2_set_enable(struct clk_t * clk, bool_t enable)
+static void clk_ratio2_set_enable(struct clk_t * clk, bool_t enable)
 {
 }
 
-static bool_t clk_k210_ratio2_get_enable(struct clk_t * clk)
+static bool_t clk_ratio2_get_enable(struct clk_t * clk)
 {
 	return TRUE;
 }
 
-static void clk_k210_ratio2_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
+static void clk_ratio2_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
-	struct clk_k210_ratio2_pdata_t * pdat = (struct clk_k210_ratio2_pdata_t *)clk->priv;
+	struct clk_ratio2_pdata_t * pdat = (struct clk_ratio2_pdata_t *)clk->priv;
 	u32_t mask = ((1 << (pdat->width)) - 1);
 	u32_t div;
 	u32_t val;
@@ -75,9 +75,9 @@ static void clk_k210_ratio2_set_rate(struct clk_t * clk, u64_t prate, u64_t rate
 	write32(pdat->virt, val);
 }
 
-static u64_t clk_k210_ratio2_get_rate(struct clk_t * clk, u64_t prate)
+static u64_t clk_ratio2_get_rate(struct clk_t * clk, u64_t prate)
 {
-	struct clk_k210_ratio2_pdata_t * pdat = (struct clk_k210_ratio2_pdata_t *)clk->priv;
+	struct clk_ratio2_pdata_t * pdat = (struct clk_ratio2_pdata_t *)clk->priv;
 	u32_t mask = ((1 << (pdat->width)) - 1);
 	u32_t div;
 
@@ -85,9 +85,9 @@ static u64_t clk_k210_ratio2_get_rate(struct clk_t * clk, u64_t prate)
 	return prate / (0x2 << div);
 }
 
-static struct device_t * clk_k210_ratio2_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * clk_ratio2_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct clk_k210_ratio2_pdata_t * pdat;
+	struct clk_ratio2_pdata_t * pdat;
 	struct clk_t * clk;
 	struct device_t * dev;
 	struct dtnode_t o;
@@ -103,7 +103,7 @@ static struct device_t * clk_k210_ratio2_probe(struct driver_t * drv, struct dtn
 	if(!search_clk(parent) || search_clk(name))
 		return NULL;
 
-	pdat = malloc(sizeof(struct clk_k210_ratio2_pdata_t));
+	pdat = malloc(sizeof(struct clk_ratio2_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -121,12 +121,12 @@ static struct device_t * clk_k210_ratio2_probe(struct driver_t * drv, struct dtn
 
 	clk->name = strdup(name);
 	clk->count = 0;
-	clk->set_parent = clk_k210_ratio2_set_parent;
-	clk->get_parent = clk_k210_ratio2_get_parent;
-	clk->set_enable = clk_k210_ratio2_set_enable;
-	clk->get_enable = clk_k210_ratio2_get_enable;
-	clk->set_rate = clk_k210_ratio2_set_rate;
-	clk->get_rate = clk_k210_ratio2_get_rate;
+	clk->set_parent = clk_ratio2_set_parent;
+	clk->get_parent = clk_ratio2_get_parent;
+	clk->set_enable = clk_ratio2_set_enable;
+	clk->get_enable = clk_ratio2_get_enable;
+	clk->set_rate = clk_ratio2_set_rate;
+	clk->get_rate = clk_ratio2_get_rate;
 	clk->priv = pdat;
 
 	if(!register_clk(&dev, clk))
@@ -162,10 +162,10 @@ static struct device_t * clk_k210_ratio2_probe(struct driver_t * drv, struct dtn
 	return dev;
 }
 
-static void clk_k210_ratio2_remove(struct device_t * dev)
+static void clk_ratio2_remove(struct device_t * dev)
 {
 	struct clk_t * clk = (struct clk_t *)dev->priv;
-	struct clk_k210_ratio2_pdata_t * pdat = (struct clk_k210_ratio2_pdata_t *)clk->priv;
+	struct clk_ratio2_pdata_t * pdat = (struct clk_ratio2_pdata_t *)clk->priv;
 
 	if(clk && unregister_clk(clk))
 	{
@@ -177,31 +177,31 @@ static void clk_k210_ratio2_remove(struct device_t * dev)
 	}
 }
 
-static void clk_k210_ratio2_suspend(struct device_t * dev)
+static void clk_ratio2_suspend(struct device_t * dev)
 {
 }
 
-static void clk_k210_ratio2_resume(struct device_t * dev)
+static void clk_ratio2_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t clk_k210_ratio2 = {
-	.name		= "clk-k210-ratio2",
-	.probe		= clk_k210_ratio2_probe,
-	.remove		= clk_k210_ratio2_remove,
-	.suspend	= clk_k210_ratio2_suspend,
-	.resume		= clk_k210_ratio2_resume,
+static struct driver_t clk_ratio2 = {
+	.name		= "clk-ratio2",
+	.probe		= clk_ratio2_probe,
+	.remove		= clk_ratio2_remove,
+	.suspend	= clk_ratio2_suspend,
+	.resume		= clk_ratio2_resume,
 };
 
-static __init void clk_k210_ratio2_driver_init(void)
+static __init void clk_ratio2_driver_init(void)
 {
-	register_driver(&clk_k210_ratio2);
+	register_driver(&clk_ratio2);
 }
 
-static __exit void clk_k210_ratio2_driver_exit(void)
+static __exit void clk_ratio2_driver_exit(void)
 {
-	unregister_driver(&clk_k210_ratio2);
+	unregister_driver(&clk_ratio2);
 }
 
-driver_initcall(clk_k210_ratio2_driver_init);
-driver_exitcall(clk_k210_ratio2_driver_exit);
+driver_initcall(clk_ratio2_driver_init);
+driver_exitcall(clk_ratio2_driver_exit);

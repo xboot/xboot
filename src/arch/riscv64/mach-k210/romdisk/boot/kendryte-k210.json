@@ -21,13 +21,7 @@
 		],
 		"name": "mux-aclk", "shift": 0, "width": 1
 	},
-
-	"clk-fixed-factor@0": { "parent": "xin26m", "name": "xin26m-2", "mult": 1, "div": 2 },
-	"clk-fixed-factor@1": { "parent": "pll0", "name": "pll0-2", "mult": 1, "div": 2 },
-	"clk-fixed-factor@2": { "parent": "pll2", "name": "pll2-2", "mult": 1, "div": 2 },
-
-	"clk-gate@0x50440028": {"parent": "mux-aclk", "name": "gate-cpu", "shift": 0, "invert": false },
-	"clk-link": { "parent": "gate-cpu", "name": "link-uart0" },
+	"clk-gate@0x50440028": {"parent": "mux-aclk", "name": "gate-cpu", "shift": 0, "invert": false, "default": { "enable": true } },
 
 	"clk-divider@0x50440020": { "parent": "mux-aclk", "name": "div-apb0", "shift": 3, "width": 3, "divider-one-based": true },
 	"clk-divider@0x50440020": { "parent": "mux-aclk", "name": "div-apb1", "shift": 6, "width": 3, "divider-one-based": true },
@@ -35,6 +29,11 @@
 	"clk-gate@0x50440028": {"parent": "div-apb0", "name": "gate-apb0", "shift": 3, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x50440028": {"parent": "div-apb1", "name": "gate-apb1", "shift": 4, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x50440028": {"parent": "div-apb2", "name": "gate-apb2", "shift": 5, "invert": false, "default": { "enable": true } },
+
+	"clk-fixed-factor@0": { "parent": "gate-cpu", "name": "clint-timer-clk", "mult": 1, "div": 50 },
+	"clk-fixed-factor@1": { "parent": "xin26m", "name": "xin26m-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor@2": { "parent": "pll0", "name": "pll0-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor@3": { "parent": "pll2", "name": "pll2-2", "mult": 1, "div": 2 },
 
 	"clk-divider@0x50440038": { "parent": "mux-aclk", "name": "div-sram0", "shift": 0, "width": 4, "divider-one-based": true },
 	"clk-divider@0x50440038": { "parent": "mux-aclk", "name": "div-sram1", "shift": 4, "width": 4, "divider-one-based": true },
@@ -108,6 +107,7 @@
 	"clk-gate@0x5044002c": {"parent": "gate-apb0", "name": "gate-uart1", "shift": 16, "invert": false },
 	"clk-gate@0x5044002c": {"parent": "gate-apb0", "name": "gate-uart2", "shift": 17, "invert": false },
 	"clk-gate@0x5044002c": {"parent": "gate-apb0", "name": "gate-uart3", "shift": 18, "invert": false },
+	"clk-link": { "parent": "gate-cpu", "name": "link-uart0" },
 	"clk-link": { "parent": "gate-uart1", "name": "link-uart1" },
 	"clk-link": { "parent": "gate-uart2", "name": "link-uart2" },
 	"clk-link": { "parent": "gate-uart3", "name": "link-uart3" },
@@ -174,6 +174,14 @@
 		"gpio-base": 0,
 		"gpio-count": 48,
 		"interrupt-offset": -1
+	},
+
+	"ce-clint-timer@0x02000000": {
+		"clock-name": "clint-timer-clk"
+	},
+
+	"cs-clint-timer@0x02000000": {
+		"clock-name": "clint-timer-clk"
 	},
 
 	"uart-k210-highspeed@0x38000000": {

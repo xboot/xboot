@@ -208,6 +208,16 @@
 		"stop-bits": 1
 	},
 
+	"wdg-k210@0x50400000": {
+		"clock-name": "link-wdt0",
+		"reset": 24
+	},
+	
+	"wdg-k210@0x50410000": {
+		"clock-name": "link-wdt1",
+		"reset": 25
+	},
+
 	"led-gpio@0": {
 		"gpio": 14,
 		"gpio-config": 62,

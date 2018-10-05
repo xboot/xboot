@@ -225,8 +225,8 @@ bool_t free_irq(int irq)
 	chip->handler[offset].data = NULL;
 	if(chip->settype)
 		chip->settype(chip, offset, IRQ_TYPE_NONE);
-	if(chip->enable)
-		chip->enable(chip, offset);
+	if(chip->disable)
+		chip->disable(chip, offset);
 
 	return TRUE;
 }

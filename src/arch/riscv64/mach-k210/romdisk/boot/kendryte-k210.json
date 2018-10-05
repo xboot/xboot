@@ -170,6 +170,12 @@
 		"reset-count": 32
 	},
 
+	"irq-k210@0x0c000000": {
+		"interrupt-base": 0,
+		"interrupt-count": 66,
+		"cpu-count": 2
+	},
+
 	"gpio-k210@0x502b0000": {
 		"gpio-base": 0,
 		"gpio-count": 48,

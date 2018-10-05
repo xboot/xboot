@@ -31,15 +31,15 @@
 #include <clk/clk.h>
 #include <clocksource/clocksource.h>
 
-#define CLINT_MSIP(id)		(0x0000 + ((id) * 4))
-#define CLINT_MTIMECMP(id)	(0x4000 + ((id) * 8))
+#define CLINT_MSIP(cpu)		(0x0000 + ((cpu) * 4))
+#define CLINT_MTIMECMP(cpu)	(0x4000 + ((cpu) * 8))
 #define CLINT_MTIME			(0xbff8)
 
 struct cs_clint_timer_pdata_t
 {
 	virtual_addr_t virt;
 	char * clk;
-	int id;
+	int cpu;
 };
 
 static u64_t cs_clint_timer_read(struct clocksource_t * cs)
@@ -72,7 +72,7 @@ static struct device_t * cs_clint_timer_probe(struct driver_t * drv, struct dtno
 
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
-	pdat->id = csr_read(mhartid);
+	pdat->cpu = csr_read(mhartid);
 
 	clk_enable(pdat->clk);
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, clk_get_rate(pdat->clk), 1000000000ULL, 10);

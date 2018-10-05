@@ -34,22 +34,22 @@
 
 extern void hook_core_interrupt(int cause, void (*func)(void *), void * data);
 
-#define CLINT_MSIP(id)		(0x0000 + ((id) * 4))
-#define CLINT_MTIMECMP(id)	(0x4000 + ((id) * 8))
+#define CLINT_MSIP(cpu)		(0x0000 + ((cpu) * 4))
+#define CLINT_MTIMECMP(cpu)	(0x4000 + ((cpu) * 8))
 #define CLINT_MTIME			(0xbff8)
 
 struct ce_clint_timer_pdata_t
 {
 	virtual_addr_t virt;
 	char * clk;
-	int id;
+	int cpu;
 };
 
 static void ce_clint_timer_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
 	struct ce_clint_timer_pdata_t * pdat = (struct ce_clint_timer_pdata_t *)ce->priv;
-	write64(pdat->virt + CLINT_MTIMECMP(pdat->id), 0xffffffffffffffff);
+	write64(pdat->virt + CLINT_MTIMECMP(pdat->cpu), 0xffffffffffffffff);
 	csr_clear(mie, 1 << 7);
 	ce->handler(ce, ce->data);
 }
@@ -58,7 +58,7 @@ static bool_t ce_clint_timer_next(struct clockevent_t * ce, u64_t evt)
 {
 	struct ce_clint_timer_pdata_t * pdat = (struct ce_clint_timer_pdata_t *)ce->priv;
 	u64_t last = read64(pdat->virt + CLINT_MTIME) + evt;
-	write64(pdat->virt + CLINT_MTIMECMP(pdat->id), last);
+	write64(pdat->virt + CLINT_MTIMECMP(pdat->cpu), last);
 	csr_set(mie, 1 << 7);
 	return TRUE;
 }
@@ -87,7 +87,7 @@ static struct device_t * ce_clint_timer_probe(struct driver_t * drv, struct dtno
 
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
-	pdat->id = csr_read(mhartid);
+	pdat->cpu = csr_read(mhartid);
 
 	clk_enable(pdat->clk);
 	clockevent_calc_mult_shift(ce, clk_get_rate(pdat->clk), 10);
@@ -98,7 +98,7 @@ static struct device_t * ce_clint_timer_probe(struct driver_t * drv, struct dtno
 	ce->priv = pdat;
 
 	hook_core_interrupt(7, ce_clint_timer_interrupt, ce);
-	write64(pdat->virt + CLINT_MTIMECMP(pdat->id), 0xffffffffffffffff);
+	write64(pdat->virt + CLINT_MTIMECMP(pdat->cpu), 0xffffffffffffffff);
 	csr_clear(mie, 1 << 7);
 	csr_set(mstatus, (0x1 << 3));
 

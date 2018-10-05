@@ -26,6 +26,26 @@ extern "C" {
 #define MSTATUS_SXL			(3ULL << 34)
 #define MSTATUS64_SD		(1ULL << 63)
 
+#define MIP_USIP			(1 << 0)
+#define MIP_SSIP			(1 << 1)
+#define MIP_MSIP			(1 << 3)
+#define MIP_UTIP			(1 << 4)
+#define MIP_STIP			(1 << 5)
+#define MIP_MTIP			(1 << 7)
+#define MIP_UEIP			(1 << 8)
+#define MIP_SEIP			(1 << 9)
+#define MIP_MEIP			(1 << 11)
+
+#define MIE_USIE			(1 << 0)
+#define MIE_SSIE			(1 << 1)
+#define MIE_MSIE			(1 << 3)
+#define MIE_UTIE			(1 << 4)
+#define MIE_STIE			(1 << 5)
+#define MIE_MTIE			(1 << 7)
+#define MIE_UEIE			(1 << 8)
+#define MIE_SEIE			(1 << 9)
+#define MIE_MEIE			(1 << 11)
+
 #define csr_swap(csr, val)							\
 ({													\
 	unsigned long __v = (unsigned long)(val);		\

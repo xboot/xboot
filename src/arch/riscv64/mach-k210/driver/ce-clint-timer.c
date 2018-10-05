@@ -50,7 +50,7 @@ static void ce_clint_timer_interrupt(void * data)
 	struct clockevent_t * ce = (struct clockevent_t *)data;
 	struct ce_clint_timer_pdata_t * pdat = (struct ce_clint_timer_pdata_t *)ce->priv;
 	write64(pdat->virt + CLINT_MTIMECMP(pdat->cpu), 0xffffffffffffffff);
-	csr_clear(mie, 1 << 7);
+	csr_clear(mie, MIE_MTIE);
 	ce->handler(ce, ce->data);
 }
 
@@ -59,7 +59,7 @@ static bool_t ce_clint_timer_next(struct clockevent_t * ce, u64_t evt)
 	struct ce_clint_timer_pdata_t * pdat = (struct ce_clint_timer_pdata_t *)ce->priv;
 	u64_t last = read64(pdat->virt + CLINT_MTIME) + evt;
 	write64(pdat->virt + CLINT_MTIMECMP(pdat->cpu), last);
-	csr_set(mie, 1 << 7);
+	csr_set(mie, MIE_MTIE);
 	return TRUE;
 }
 
@@ -99,8 +99,8 @@ static struct device_t * ce_clint_timer_probe(struct driver_t * drv, struct dtno
 
 	hook_core_interrupt(7, ce_clint_timer_interrupt, ce);
 	write64(pdat->virt + CLINT_MTIMECMP(pdat->cpu), 0xffffffffffffffff);
-	csr_clear(mie, 1 << 7);
-	csr_set(mstatus, (0x1 << 3));
+	csr_clear(mie, MIE_MTIE);
+	csr_set(mstatus, MSTATUS_MIE);
 
 	if(!register_clockevent(&dev, ce))
 	{

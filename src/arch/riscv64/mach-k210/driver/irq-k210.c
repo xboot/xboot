@@ -32,11 +32,10 @@
 #include <k210/reg-gpiohs.h>
 #include <k210-irq.h>
 
-#define PLIC_SOURCE_PRIORITY(x)				(0x00000000 + ((x) * 0x4))
-#define PLIC_TARGET_ENABLE(cpu)				(0x00002000 + ((cpu) * 0x80))
-#define PLIC_TARGET_PRIORITY_THRESHOLD(cpu)	(0x00200000 + ((cpu) * 0x1000))
-#define PLIC_TARGET_CLAIM_COMPLETE(cpu)		(0x00200004 + ((cpu) * 0x1000))
-#define PLIC_PENDING						(0x00001000)
+#define PLIC_SOURCE_PRIORITY(x)		(0x00000000 + ((x) * 0x4))
+#define PLIC_TARGET_ENABLE(cpu)		(0x00002000 + ((cpu) * 0x80))
+#define PLIC_TARGET_THRESHOLD(cpu)	(0x00200000 + ((cpu) * 0x1000))
+#define PLIC_TARGET_COMPLETE(cpu)	(0x00200004 + ((cpu) * 0x1000))
 
 struct irq_k210_pdata_t
 {
@@ -75,77 +74,38 @@ static void irq_k210_settype(struct irqchip_t * chip, int offset, enum irq_type_
 	if((offset >= K210_IRQ_GPIOHS0) && (offset <= K210_IRQ_GPIOHS31))
 	{
 		offset = offset - K210_IRQ_GPIOHS0;
+		write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
+		write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
+		write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) & ~(0x1 << offset)));
+		write32(pdat->virtgpiohs + GPIOHS_LOW_IE,  (read32(pdat->virtgpiohs + GPIOHS_LOW_IE)  & ~(0x1 << offset)));
+		write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) | (0x1 << offset)));
+		write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) | (0x1 << offset)));
+		write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) | (0x1 << offset)));
+		write32(pdat->virtgpiohs + GPIOHS_LOW_IP,  (read32(pdat->virtgpiohs + GPIOHS_LOW_IP)  | (0x1 << offset)));
+
 		switch(type)
 		{
 		case IRQ_TYPE_NONE:
 			pdat->gpiohs[offset] = IRQ_TYPE_NONE;
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IP, (read32(pdat->virtgpiohs + GPIOHS_LOW_IP) & ~(0x1 << offset)));
 			break;
 		case IRQ_TYPE_LEVEL_LOW:
 			pdat->gpiohs[offset] = IRQ_TYPE_LEVEL_LOW;
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IP, (read32(pdat->virtgpiohs + GPIOHS_LOW_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) | (0x1 << offset)));
+			write32(pdat->virtgpiohs + GPIOHS_LOW_IE,  (read32(pdat->virtgpiohs + GPIOHS_LOW_IE)  | (0x1 << offset)));
 			break;
 		case IRQ_TYPE_LEVEL_HIGH:
 			pdat->gpiohs[offset] = IRQ_TYPE_LEVEL_HIGH;
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IP, (read32(pdat->virtgpiohs + GPIOHS_LOW_IP) & ~(0x1 << offset)));
 			write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) | (0x1 << offset)));
 			break;
 		case IRQ_TYPE_EDGE_FALLING:
 			pdat->gpiohs[offset] = IRQ_TYPE_EDGE_FALLING;
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IP, (read32(pdat->virtgpiohs + GPIOHS_LOW_IP) & ~(0x1 << offset)));
 			write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) | (0x1 << offset)));
 			break;
 		case IRQ_TYPE_EDGE_RISING:
 			pdat->gpiohs[offset] = IRQ_TYPE_EDGE_RISING;
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IP, (read32(pdat->virtgpiohs + GPIOHS_LOW_IP) & ~(0x1 << offset)));
 			write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) | (0x1 << offset)));
 			break;
 		case IRQ_TYPE_EDGE_BOTH:
 			pdat->gpiohs[offset] = IRQ_TYPE_EDGE_BOTH;
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) & ~(0x1 << offset)));
-			write32(pdat->virtgpiohs + GPIOHS_LOW_IP, (read32(pdat->virtgpiohs + GPIOHS_LOW_IP) & ~(0x1 << offset)));
 			write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) | (0x1 << offset)));
 			write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) | (0x1 << offset)));
 			break;
@@ -158,86 +118,82 @@ static void irq_k210_settype(struct irqchip_t * chip, int offset, enum irq_type_
 static void irq_k210_dispatch(struct irqchip_t * chip)
 {
 	struct irq_k210_pdata_t * pdat = (struct irq_k210_pdata_t *)chip->priv;
-	u32_t irq;
-	int offset;
+	u32_t irq = read32(pdat->virtplic + PLIC_TARGET_COMPLETE(csr_read(mhartid)));
+	int offset = irq + chip->base;
 
-	if(csr_read(mip) & (1 << 11))
+	if((offset > 0) && (offset < chip->nirq))
 	{
-		irq = read32(pdat->virtplic + PLIC_TARGET_CLAIM_COMPLETE(csr_read(mhartid)));
-		offset = irq - chip->base;
-		if((offset >= 0) && (offset < chip->nirq))
+		(chip->handler[offset].func)(chip->handler[offset].data);
+		if((offset >= K210_IRQ_GPIOHS0) && (offset <= K210_IRQ_GPIOHS31))
 		{
-			(chip->handler[offset].func)(chip->handler[offset].data);
-			if((offset >= K210_IRQ_GPIOHS0) && (offset <= K210_IRQ_GPIOHS31))
+			offset = offset - K210_IRQ_GPIOHS0;
+			switch(pdat->gpiohs[offset])
 			{
-				switch(pdat->gpiohs[offset])
-				{
-				case IRQ_TYPE_NONE:
-					break;
-				case IRQ_TYPE_LEVEL_LOW:
-					write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_LOW_IP, (read32(pdat->virtgpiohs + GPIOHS_LOW_IP) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_LOW_IE, (read32(pdat->virtgpiohs + GPIOHS_LOW_IE) | (0x1 << offset)));
-					break;
-				case IRQ_TYPE_LEVEL_HIGH:
-					pdat->gpiohs[offset] = IRQ_TYPE_LEVEL_HIGH;
-					write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_HIGH_IE, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IE) | (0x1 << offset)));
-					break;
-				case IRQ_TYPE_EDGE_FALLING:
-					write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) | (0x1 << offset)));
-					break;
-				case IRQ_TYPE_EDGE_RISING:
-					write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) | (0x1 << offset)));
-					break;
-				case IRQ_TYPE_EDGE_BOTH:
-					write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) & ~(0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_RISE_IE, (read32(pdat->virtgpiohs + GPIOHS_RISE_IE) | (0x1 << offset)));
-					write32(pdat->virtgpiohs + GPIOHS_FALL_IE, (read32(pdat->virtgpiohs + GPIOHS_FALL_IE) | (0x1 << offset)));
-					break;
-				default:
-					break;
-				}
+			case IRQ_TYPE_NONE:
+				break;
+			case IRQ_TYPE_LEVEL_LOW:
+				write32(pdat->virtgpiohs + GPIOHS_LOW_IP, (read32(pdat->virtgpiohs + GPIOHS_LOW_IP) | (0x1 << offset)));
+				break;
+			case IRQ_TYPE_LEVEL_HIGH:
+				write32(pdat->virtgpiohs + GPIOHS_HIGH_IP, (read32(pdat->virtgpiohs + GPIOHS_HIGH_IP) | (0x1 << offset)));
+				break;
+			case IRQ_TYPE_EDGE_FALLING:
+				write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) | (0x1 << offset)));
+				break;
+			case IRQ_TYPE_EDGE_RISING:
+				write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) | (0x1 << offset)));
+				break;
+			case IRQ_TYPE_EDGE_BOTH:
+				write32(pdat->virtgpiohs + GPIOHS_RISE_IP, (read32(pdat->virtgpiohs + GPIOHS_RISE_IP) | (0x1 << offset)));
+				write32(pdat->virtgpiohs + GPIOHS_FALL_IP, (read32(pdat->virtgpiohs + GPIOHS_FALL_IP) | (0x1 << offset)));
+				break;
+			default:
+				break;
 			}
 		}
+		write32(pdat->virtplic + PLIC_TARGET_COMPLETE(csr_read(mhartid)), irq);
 	}
 }
 
 static void plic_init(struct irq_k210_pdata_t * pdat)
 {
-	int i, cpu;
+	int cpu, irq;
+	int i;
 
 	/*
-	 * Disable all interrupts for all cpu cores
+	 * Disable interrupts for all cpu cores
 	 */
 	for(cpu = 0; cpu < pdat->ncpu; cpu++)
     {
 		for(i = 0; i < (pdat->nirq + 32) >> 5; i++)
-			write32(pdat->virtplic + PLIC_TARGET_ENABLE(cpu) + (i * 0x4), 0);
+			write32(pdat->virtplic + PLIC_TARGET_ENABLE(cpu) + (i << 2), 0);
     }
 
 	/*
-	 * Set priorities to zero
+	 * Set all source priorities to one
 	 */
 	for(i = 0; i < pdat->nirq; i++)
 	{
-		write32(pdat->virtplic + PLIC_SOURCE_PRIORITY(i), 0);
+		write32(pdat->virtplic + PLIC_SOURCE_PRIORITY(i), 1);
 	}
 
 	/*
-	 * Set the threshold to zero
+	 * Set target priority threshold for all cpu cores
 	 */
 	for(cpu = 0; cpu < pdat->ncpu; cpu++)
 	{
-		write32(pdat->virtplic + PLIC_TARGET_PRIORITY_THRESHOLD(cpu), 0);
+		write32(pdat->virtplic + PLIC_TARGET_THRESHOLD(cpu), 0);
+	}
+
+    /*
+     * Clear pending bits for all cpu cores
+     */
+	for(cpu = 0; cpu < pdat->ncpu; cpu++)
+	{
+		while((irq = read32(pdat->virtplic + PLIC_TARGET_COMPLETE(cpu))) > 0)
+		{
+			write32(pdat->virtplic + PLIC_TARGET_COMPLETE(cpu), irq);
+		}
 	}
 }
 
@@ -282,8 +238,8 @@ static struct device_t * irq_k210_probe(struct driver_t * drv, struct dtnode_t *
 	chip->priv = pdat;
 
 	plic_init(pdat);
-	csr_set(mie, 1 << 11);
-	csr_set(mstatus, (0x1 << 3));
+	csr_set(mie, MIE_MEIE);
+	csr_set(mstatus, MSTATUS_MIE);
 
 	if(!register_irqchip(&dev, chip))
 	{

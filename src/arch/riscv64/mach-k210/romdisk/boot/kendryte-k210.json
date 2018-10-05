@@ -176,6 +176,12 @@
 		"cpu-count": 2
 	},
 
+	"irq-k210-gpio@0x50200000": {
+		"interrupt-base": 66,
+		"interrupt-count": 8,
+		"interrupt-parent": 23
+	},
+
 	"gpio-k210@0x502b0000": {
 		"gpio-base": 0,
 		"gpio-count": 48,

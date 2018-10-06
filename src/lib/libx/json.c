@@ -412,6 +412,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 				case '\n':
 					++state.cur_line;
 					state.cur_col = 0;
+					continue;
 				case ' ':
 				case '\t':
 				case '\r':
@@ -430,6 +431,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 				case '\n':
 					++state.cur_line;
 					state.cur_col = 0;
+					continue;
 				case ' ':
 				case '\t':
 				case '\r':
@@ -593,6 +595,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 					case '\n':
 						++state.cur_line;
 						state.cur_col = 0;
+						continue;
 					case ' ':
 					case '\t':
 					case '\r':
@@ -605,7 +608,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 							goto e_failed;
 						}
 						flags |= FLAG_STRING;
-						string = (char *) top->reserved.object_mem;
+						string = (char *)top->reserved.object_mem;
 						string_length = 0;
 						break;
 

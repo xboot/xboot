@@ -46,7 +46,7 @@ void sys_uart_init(void)
 	write32(addr + UART_RXCTRL, (0 << 16) | (1 << 0));
 	write32(addr + UART_IP, (1 << 1) | (1 << 0));
 	write32(addr + UART_IE, (0 << 1) | (0 << 0));
-	write32(addr + UART_DIV, 160333333 / 115200 - 1);
+	write32(addr + UART_DIV, 403000000 / 115200 - 1);
 	write32(addr + UART_TXCTRL, read32(addr + UART_TXCTRL) & ~(1 << 1));
 }
 

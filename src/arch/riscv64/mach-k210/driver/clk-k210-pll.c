@@ -29,6 +29,8 @@
 #include <clk/clk.h>
 #include <k210/reg-sysctl.h>
 
+extern void sys_clock_pll_set_rate(virtual_addr_t base, int channel, u64_t prate, u64_t rate);
+
 struct clk_k210_pll_pdata_t {
 	virtual_addr_t virt;
 	char * parent;
@@ -105,6 +107,8 @@ static bool_t clk_k210_pll_get_enable(struct clk_t * clk)
 
 static void clk_k210_pll_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
+	struct clk_k210_pll_pdata_t * pdat = (struct clk_k210_pll_pdata_t *)clk->priv;
+	sys_clock_pll_set_rate(pdat->virt, pdat->channel, prate, rate);
 }
 
 static u64_t clk_k210_pll_get_rate(struct clk_t * clk, u64_t prate)

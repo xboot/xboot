@@ -29,36 +29,345 @@
 #include <xboot.h>
 #include <k210/reg-sysctl.h>
 
-#undef SYSCTL_PLL0
-#undef SYSCTL_PLL1
-#undef SYSCTL_PLL2
-#include <sysctl.h>
+static void sysctl_pll_set_rate(virtual_addr_t base, int channel, u64_t prate, u64_t rate)
+{
+	virtual_addr_t addr = base + SYSCTL_PLL0 + (channel << 2);
+	u32_t r;
 
-#define PLL0_OUTPUT_FREQ 320000000UL
-#define PLL1_OUTPUT_FREQ 160000000UL
-#define PLL2_OUTPUT_FREQ 45158400UL
+	double vco_min = 3.5e+08;
+	double vco_max = 1.75e+09;
+	double ref_min = 1.36719e+07;
+	double ref_max = 1.75e+09;
+	int nr_min = 1;
+	int nr_max = 16;
+	int nf_min = 1;
+	int nf_max = 64;
+	int no_min = 1;
+	int no_max = 16;
+	int nb_min = 1;
+	int nb_max = 64;
+	int max_vco = 1;
+	int ref_rng = 1;
+
+	int nr = 0;
+	int nrx = 0;
+	int nf = 0;
+	int nfi = 0;
+	int no = 0;
+	int noe = 0;
+	int not = 0;
+	int nor = 0;
+	int nore = 0;
+	int nb = 0;
+	int first = 0;
+	int firstx = 0;
+	int found = 0;
+
+	long long nfx = 0;
+	double fin = 0, fout = 0, fvco = 0;
+	double val = 0, nval = 0, err = 0, merr = 0, terr = 0;
+	int x_nrx = 0, x_no = 0, x_nb = 0;
+	long long x_nfx = 0;
+	double x_fvco = 0, x_err = 0;
+
+	fin = prate;
+	fout = rate;
+	val = fout / fin;
+	terr = 0.5 / ((double)(nf_max / 2));
+	first = firstx = 1;
+	if(terr == -1)
+	{
+	}
+	else if(terr != -2)
+	{
+		first = 0;
+		if(terr == 0)
+			terr = 1e-16;
+		merr = fabs(terr);
+	}
+    found = 0;
+	for(nfi = val; nfi < nf_max; ++nfi)
+	{
+		nr = rint(((double)nfi) / val);
+		if(nr == 0)
+			continue;
+		if((ref_rng) && (nr < nr_min))
+			continue;
+		if(fin / ((double)nr) > ref_max)
+			continue;
+		nrx = nr;
+		nf = nfx = nfi;
+		nval = ((double)nfx) / ((double)nr);
+		if(nf == 0)
+			nf = 1;
+		err = 1 - nval / val;
+
+		if((first) || (fabs(err) < merr * (1 + 1e-6)) || (fabs(err) < 1e-16))
+		{
+			not = floor(vco_max / fout);
+			for(no = (not > no_max) ? no_max : not; no > no_min; --no)
+			{
+				if((ref_rng) && ((nr / no) < nr_min))
+					continue;
+				if((nr % no) == 0)
+					break;
+			}
+			if((nr % no) != 0)
+				continue;
+			nor = ((not > no_max) ? no_max : not) / no;
+			nore = nf_max / nf;
+			if(nor > nore)
+				nor = nore;
+			noe = ceil(vco_min / fout);
+			if(!max_vco)
+			{
+				nore = (noe - 1) / no + 1;
+				nor = nore;
+				not = 0;
+			}
+			if((((no * nor) < (not >> 1)) || ((no * nor) < noe)) && ((no * nor) < (nf_max / nf)))
+			{
+				no = nf_max / nf;
+				if(no > no_max)
+					no = no_max;
+				if(no > not)
+					no = not;
+				nfx *= no;
+				nf *= no;
+				if((no > 1) && (!firstx))
+					continue;
+			}
+			else
+			{
+				nrx /= no;
+				nfx *= nor;
+				nf *= nor;
+				no *= nor;
+				if(no > no_max)
+					continue;
+				if((nor > 1) && (!firstx))
+					continue;
+			}
+
+			nb = nfx;
+			if(nb < nb_min)
+				nb = nb_min;
+			if(nb > nb_max)
+				continue;
+
+			fvco = fin / ((double)nrx) * ((double)nfx);
+			if(fvco < vco_min)
+				continue;
+			if(fvco > vco_max)
+				continue;
+			if(nf < nf_min)
+				continue;
+			if((ref_rng) && (fin / ((double)nrx) < ref_min))
+				continue;
+			if((ref_rng) && (nrx > nr_max))
+				continue;
+			if(!(((firstx) && (terr < 0)) || (fabs(err) < merr * (1 - 1e-6)) || ((max_vco) && (no > x_no))))
+				continue;
+			if((!firstx) && (terr >= 0) && (nrx > x_nrx))
+				continue;
+
+			found = 1;
+			x_no = no;
+			x_nrx = nrx;
+			x_nfx = nfx;
+			x_nb = nb;
+			x_fvco = fvco;
+			x_err = err;
+			first = firstx = 0;
+			merr = fabs(err);
+			if(terr != -1)
+				continue;
+		}
+	}
+	if(!found)
+		return;
+
+	nrx = x_nrx;
+	nfx = x_nfx;
+	no = x_no;
+	nb = x_nb;
+	fvco = x_fvco;
+	err = x_err;
+	if((terr != -2) && (fabs(err) >= terr * (1 - 1e-6)))
+		return;
+
+	r = read32(addr);
+	r &= ~(0xfffff << 0);
+	r |= (nrx - 1) << 0;
+	r |= (nfx - 1) << 4;
+	r |= (no - 1) << 10;
+	r |= (nb - 1) << 14;
+	write32(addr, r);
+}
+
+static void sysctl_pll_wait_lock(virtual_addr_t base, int channel)
+{
+	virtual_addr_t addr = base + SYSCTL_PLL_LOCK;
+	u32_t val;
+
+	while(1)
+	{
+		val = read32(addr);
+		if(((val >> (channel << 3)) & 0x3) == 0x3)
+			return;
+		val |= 0x1 << ((channel << 3) + 2);
+		write32(addr, val);
+	}
+}
+
+void sys_clock_pll_set_rate(virtual_addr_t base, int channel, u64_t prate, u64_t rate)
+{
+	u32_t val;
+
+	if(channel == 0)
+	{
+		/* Change aclk to xtal */
+		val = read32(base + SYSCTL_CLK_SEL0);
+		val &= ~(1 << 0);
+		write32(base + SYSCTL_CLK_SEL0, val);
+
+		/* Do not bypass pll0 */
+		val = read32(base + SYSCTL_PLL0);
+		val &= ~(1 << 23);
+		write32(base + SYSCTL_PLL0, val);
+
+		/* Disable pll0 output */
+		val = read32(base + SYSCTL_PLL0);
+		val &= ~(1 << 25);
+		write32(base + SYSCTL_PLL0, val);
+
+		/* Turn off pll0 */
+		val = read32(base + SYSCTL_PLL0);
+		val &= ~(1 << 21);
+		write32(base + SYSCTL_PLL0, val);
+
+		/* Set pll0 new value */
+		sysctl_pll_set_rate(base, channel, prate, rate);
+
+		/* Turn on pll0 */
+		val = read32(base + SYSCTL_PLL0);
+		val |= (1 << 21);
+		write32(base + SYSCTL_PLL0, val);
+
+		/* Reset pll0 */
+		val = read32(base + SYSCTL_PLL0);
+		val &= ~(1 << 20);
+		write32(base + SYSCTL_PLL0, val);
+		val |= (1 << 20);
+		write32(base + SYSCTL_PLL0, val);
+		val &= ~(1 << 20);
+		write32(base + SYSCTL_PLL0, val);
+
+		/* Wait pll0 stable */
+		sysctl_pll_wait_lock(base, channel);
+
+		/* Enable pll0 output */
+		val = read32(base + SYSCTL_PLL0);
+		val |= (1 << 25);
+		write32(base + SYSCTL_PLL0, val);
+
+		/* Change aclk to pll0 */
+		val = read32(base + SYSCTL_CLK_SEL0);
+		val |= (1 << 0);
+		write32(base + SYSCTL_CLK_SEL0, val);
+	}
+	else if(channel == 1)
+	{
+		/* Do not bypass pll1 */
+		val = read32(base + SYSCTL_PLL1);
+		val &= ~(1 << 23);
+		write32(base + SYSCTL_PLL1, val);
+
+		/* Disable pll1 output */
+		val = read32(base + SYSCTL_PLL1);
+		val &= ~(1 << 25);
+		write32(base + SYSCTL_PLL1, val);
+
+		/* Turn off pll1 */
+		val = read32(base + SYSCTL_PLL1);
+		val &= ~(1 << 21);
+		write32(base + SYSCTL_PLL1, val);
+
+		/* Set pll1 new value */
+		sysctl_pll_set_rate(base, channel, prate, rate);
+
+		/* Turn on pll1 */
+		val = read32(base + SYSCTL_PLL1);
+		val |= (1 << 21);
+		write32(base + SYSCTL_PLL1, val);
+
+		/* Reset pll1 */
+		val = read32(base + SYSCTL_PLL1);
+		val &= ~(1 << 20);
+		write32(base + SYSCTL_PLL1, val);
+		val |= (1 << 20);
+		write32(base + SYSCTL_PLL1, val);
+		val &= ~(1 << 20);
+		write32(base + SYSCTL_PLL1, val);
+
+		/* Wait pll1 stable */
+		sysctl_pll_wait_lock(base, channel);
+
+		/* Enable pll1 output */
+		val = read32(base + SYSCTL_PLL1);
+		val |= (1 << 25);
+		write32(base + SYSCTL_PLL1, val);
+	}
+	else if(channel == 2)
+	{
+		/* Do not bypass pll2 */
+		val = read32(base + SYSCTL_PLL2);
+		val &= ~(1 << 23);
+		write32(base + SYSCTL_PLL2, val);
+
+		/* Disable pll2 output */
+		val = read32(base + SYSCTL_PLL2);
+		val &= ~(1 << 25);
+		write32(base + SYSCTL_PLL2, val);
+
+		/* Turn off pll2 */
+		val = read32(base + SYSCTL_PLL2);
+		val &= ~(1 << 21);
+		write32(base + SYSCTL_PLL2, val);
+
+		/* Set pll2 new value */
+		sysctl_pll_set_rate(base, channel, prate, rate);
+
+		/* Turn on pll2 */
+		val = read32(base + SYSCTL_PLL2);
+		val |= (1 << 21);
+		write32(base + SYSCTL_PLL2, val);
+
+		/* Reset pll2 */
+		val = read32(base + SYSCTL_PLL2);
+		val &= ~(1 << 20);
+		write32(base + SYSCTL_PLL2, val);
+		val |= (1 << 20);
+		write32(base + SYSCTL_PLL2, val);
+		val &= ~(1 << 20);
+		write32(base + SYSCTL_PLL2, val);
+
+		/* Wait pll2 stable */
+		sysctl_pll_wait_lock(base, channel);
+
+		/* Enable pll2 output */
+		val = read32(base + SYSCTL_PLL2);
+		val |= (1 << 25);
+		write32(base + SYSCTL_PLL2, val);
+	}
+}
 
 void sys_clock_init(void)
 {
-    sysctl_clock_set_clock_select(SYSCTL_CLOCK_SELECT_ACLK, SYSCTL_SOURCE_IN0);
+	virtual_addr_t base = K210_SYSCTL_BASE;
+	u64_t xin = 26 * 1000 * 1000;
 
-    sysctl_pll_enable(SYSCTL_PLL0);
-    sysctl_pll_set_freq(SYSCTL_PLL0, SYSCTL_SOURCE_IN0, PLL0_OUTPUT_FREQ);
-    while (sysctl_pll_is_lock(SYSCTL_PLL0) == 0)
-        sysctl_pll_clear_slip(SYSCTL_PLL0);
-    sysctl_clock_enable(SYSCTL_CLOCK_PLL0);
-    sysctl->clk_sel0.aclk_divider_sel = 0;
-    sysctl_clock_set_clock_select(SYSCTL_CLOCK_SELECT_ACLK, SYSCTL_SOURCE_PLL0);
-
-    sysctl_pll_enable(SYSCTL_PLL1);
-    sysctl_pll_set_freq(SYSCTL_PLL1, SYSCTL_SOURCE_IN0, PLL1_OUTPUT_FREQ);
-    while (sysctl_pll_is_lock(SYSCTL_PLL1) == 0)
-        sysctl_pll_clear_slip(SYSCTL_PLL1);
-    sysctl_clock_enable(SYSCTL_CLOCK_PLL1);
-
-    sysctl_pll_enable(SYSCTL_PLL2);
-    sysctl_pll_set_freq(SYSCTL_PLL2, SYSCTL_SOURCE_IN0, PLL2_OUTPUT_FREQ);
-    while (sysctl_pll_is_lock(SYSCTL_PLL2) == 0)
-        sysctl_pll_clear_slip(SYSCTL_PLL2);
-    sysctl_clock_enable(SYSCTL_CLOCK_PLL2);
+	sys_clock_pll_set_rate(base, 0, xin, 806 * 1000 * 1000);
+	sys_clock_pll_set_rate(base, 1, xin, 160 * 1000 * 1000);
+	sys_clock_pll_set_rate(base, 2, xin, 45158400);
 }

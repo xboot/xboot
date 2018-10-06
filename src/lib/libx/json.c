@@ -617,11 +617,13 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 						break;
 
 					case ',':
-						if(flags & FLAG_NEED_COMMA)
+						if(!(flags & FLAG_NEED_COMMA))
 						{
-							flags &= ~FLAG_NEED_COMMA;
-							break;
+							sprintf(error, "%d:%d: Unexpected `%c` in object", state.cur_line, state.cur_col, b);
+							goto e_failed;
 						}
+						flags &= ~FLAG_NEED_COMMA;
+						break;
 
 					default:
 						sprintf(error, "%d:%d: Unexpected `%c` in object", state.cur_line, state.cur_col, b);

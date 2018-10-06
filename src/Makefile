@@ -22,10 +22,15 @@ endif
 #
 # System environment variable.
 #
-ifneq (,$(findstring Linux, $(shell uname -s)))
+
+ifneq (,$(findstring Linux, $(shell uname -a)))
 HOSTOS		:= linux
-else
+endif
+ifneq (,$(findstring windows, $(shell uname -a)))
 HOSTOS		:= windows
+endif
+ifneq (,$(findstring Darwin, $(shell uname -a)))
+HOSTOS		:= macos
 endif
 
 #
@@ -244,7 +249,11 @@ CP			:=	cp -af
 RM			:=	rm -fr
 CD			:=	cd
 FIND		:=	find
+ifeq ($(strip $(HOSTOS)), macos)
+CPIO		:=	gcpio -o -H newc --quiet
+else
 CPIO		:=	cpio -o -H newc --quiet
+endif
 
 #
 # Xboot variables

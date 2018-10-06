@@ -22,6 +22,10 @@ ifeq ($(strip $(HOSTOS)), windows)
 MKSUNXI		:= arch/$(ARCH)/$(MACH)/tools/windows/mksunxi
 MKZ			:= arch/$(ARCH)/$(MACH)/tools/windows/mkz
 endif
+ifeq ($(strip $(HOSTOS)), macos)
+MKSUNXI		:= arch/$(ARCH)/$(MACH)/tools/macos/mksunxi
+MKZ			:= arch/$(ARCH)/$(MACH)/tools/macos/mkz
+endif
 
 xend:
 	@echo Make header information for brom booting

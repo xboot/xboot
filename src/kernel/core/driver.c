@@ -141,18 +141,19 @@ bool_t unregister_driver(struct driver_t * drv)
 	return TRUE;
 }
 
-void probe_device(const char * json, int length)
+void probe_device(const char * json, int length, const char * tips)
 {
 	struct driver_t * drv;
 	struct device_t * dev;
 	struct dtnode_t n;
 	struct json_value_t * v;
+	char errbuf[256];
 	char * p;
 	int i;
 
 	if(json && (length > 0))
 	{
-		v = json_parse(json, length, 0);
+		v = json_parse(json, length, errbuf);
 		if(v && (v->type == JSON_OBJECT))
 		{
 			for(i = 0; i < v->u.object.length; i++)
@@ -171,6 +172,10 @@ void probe_device(const char * json, int length)
 						LOG("Fail to probe device with %s", n.name);
 				}
 			}
+		}
+		else
+		{
+			LOG("[%s]-%s", tips ? tips : "Json", errbuf);
 		}
 		json_free(v);
 	}

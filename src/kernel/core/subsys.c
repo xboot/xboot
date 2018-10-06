@@ -40,7 +40,7 @@ static void subsys_init_romdisk(void)
 		"{\"romdisk@0\":{\"address\":\"%lld\",\"size\":\"%lld\"}}",
 		(unsigned long long)(&__romdisk_start),
 		(unsigned long long)(&__romdisk_end - &__romdisk_start));
-	probe_device(json, length);
+	probe_device(json, length, NULL);
 }
 
 static void subsys_init_rootfs(void)
@@ -74,7 +74,7 @@ static void subsys_init_dt(void)
 			len += n;
 		}
 		close(fd);
-		probe_device(json, len);
+		probe_device(json, len, path);
 	}
 	free(json);
 }

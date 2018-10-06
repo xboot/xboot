@@ -134,7 +134,7 @@ static int new_value(struct json_state_t * state, struct json_value_t ** top, st
 
 struct json_value_t * json_parse(const char * json, size_t length, char * errbuf)
 {
-	char error[128];
+	char error[256];
 	const char * end;
 	struct json_value_t * top, * root, * alloc = 0;
 	struct json_state_t state = { 0 };

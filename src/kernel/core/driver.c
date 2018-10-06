@@ -162,11 +162,14 @@ void probe_device(const char * json, int length)
 				n.addr = p ? strtoull(p, NULL, 0) : 0;
 				n.value = (struct json_value_t *)(v->u.object.values[i].value);
 
-				drv = search_driver(n.name);
-				if(drv && (dev = drv->probe(drv, &n)))
-					LOG("Probe device '%s' with %s", dev->name, drv->name);
-				else
-					LOG("Fail to probe device with %s", n.name);
+				if(strcmp(dt_read_string(&n, "status", NULL), "disabled") != 0)
+				{
+					drv = search_driver(n.name);
+					if(drv && (dev = drv->probe(drv, &n)))
+						LOG("Probe device '%s' with %s", dev->name, drv->name);
+					else
+						LOG("Fail to probe device with %s", n.name);
+				}
 			}
 		}
 		json_free(v);

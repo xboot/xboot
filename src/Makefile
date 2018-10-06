@@ -22,7 +22,6 @@ endif
 #
 # System environment variable.
 #
-
 ifneq (,$(findstring Linux, $(shell uname -a)))
 HOSTOS		:= linux
 endif

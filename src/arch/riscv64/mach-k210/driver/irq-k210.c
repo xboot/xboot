@@ -164,10 +164,10 @@ static void plic_init(struct irq_k210_pdata_t * pdat)
 	 * Disable interrupts for all cpu cores
 	 */
 	for(cpu = 0; cpu < pdat->ncpu; cpu++)
-    {
+	{
 		for(i = 0; i < (pdat->nirq + 32) >> 5; i++)
 			write32(pdat->virtplic + PLIC_TARGET_ENABLE(cpu) + (i << 2), 0);
-    }
+	}
 
 	/*
 	 * Set all source priorities to one
@@ -185,9 +185,9 @@ static void plic_init(struct irq_k210_pdata_t * pdat)
 		write32(pdat->virtplic + PLIC_TARGET_THRESHOLD(cpu), 0);
 	}
 
-    /*
-     * Clear pending bits for all cpu cores
-     */
+	/*
+	 * Clear pending bits for all cpu cores
+	 */
 	for(cpu = 0; cpu < pdat->ncpu; cpu++)
 	{
 		while((irq = read32(pdat->virtplic + PLIC_TARGET_COMPLETE(cpu))) > 0)

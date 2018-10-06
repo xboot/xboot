@@ -101,7 +101,7 @@ static int new_value(struct json_state_t * state, struct json_value_t ** top, st
 
 			if(!(value->u.object.values = (struct json_object_entry_t *)json_alloc(state, values_size + ((unsigned long)value->u.object.values), 0)))
 				return 0;
-			value->reserved.object_mem = (*(char **)&value->u.object.values) + values_size;
+			value->reserved.object_mem = (char *)value->u.object.values + values_size;
 			value->u.object.length = 0;
 			break;
 
@@ -322,14 +322,14 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 
 					case JSON_OBJECT:
 						if(state.first_pass)
-							(*(char **)&top->u.object.values) += string_length + 1;
+							top->u.object.values = (void *)((char *)top->u.object.values + string_length + 1);
 						else
 						{
 							top->u.object.values[top->u.object.length].name = (char *)top->reserved.object_mem;
 							top->u.object.values[top->u.object.length].name_length = string_length;
 							(*(char **)&top->reserved.object_mem) += string_length + 1;
 						}
-						flags |= FLAG_SEEK_VALUE | FLAG_NEED_COLON;
+						flags |= (FLAG_SEEK_VALUE | FLAG_NEED_COLON);
 						continue;
 
 					default:

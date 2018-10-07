@@ -209,6 +209,45 @@
 		"stop-bits": 1
 	},
 
+	"uart-16550@0x50210000": {
+		"clock-name": "link-uart1",
+		"reset": 16,
+		"txd-gpio": 7,
+		"txd-gpio-config": 65,
+		"rxd-gpio": 6,
+		"rxd-gpio-config": 64,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-16550@0x50220000": {
+		"clock-name": "link-uart2",
+		"reset": 17,
+		"txd-gpio": -1,
+		"txd-gpio-config": 67,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": 66,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-16550@0x50230000": {
+		"clock-name": "link-uart3",
+		"reset": 18,
+		"txd-gpio": -1,
+		"txd-gpio-config": 69,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": 68,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
 	"wdg-k210@0x50400000": {
 		"clock-name": "link-wdt0",
 		"reset": 24

@@ -248,6 +248,17 @@
 		"stop-bits": 1
 	},
 
+	"i2c-gpio@0": {
+		"sda-gpio": 19,
+		"sda-gpio-config": 27,
+		"scl-gpio": 18,
+		"scl-gpio-config": 26,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
 	"wdg-k210@0x50400000": {
 		"clock-name": "link-wdt0",
 		"reset": 24

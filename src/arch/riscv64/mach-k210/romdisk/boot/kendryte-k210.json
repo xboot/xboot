@@ -269,6 +269,10 @@
 		"reset": 25
 	},
 
+	"rtc-sd3068@0": {
+		"i2c-bus": "i2c-gpio.0"
+	},
+
 	"key-gpio-polled@0": {
 		"keys": [
 			{ "gpio": 26, "gpio-config": 34, "active-low": true, "key-code": 10 }

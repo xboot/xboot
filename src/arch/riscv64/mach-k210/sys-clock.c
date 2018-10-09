@@ -75,10 +75,7 @@ static void sysctl_pll_set_rate(virtual_addr_t base, int channel, u64_t prate, u
 	val = fout / fin;
 	terr = 0.5 / ((double)(nf_max / 2));
 	first = firstx = 1;
-	if(terr == -1)
-	{
-	}
-	else if(terr != -2)
+	if(terr != -2)
 	{
 		first = 0;
 		if(terr == 0)
@@ -231,131 +228,137 @@ void sys_clock_pll_set_rate(virtual_addr_t base, int channel, u64_t prate, u64_t
 		val &= ~(1 << 0);
 		write32(base + SYSCTL_CLK_SEL0, val);
 
-		/* Do not bypass pll0 */
+		/* Do not bypass pll */
 		val = read32(base + SYSCTL_PLL0);
 		val &= ~(1 << 23);
 		write32(base + SYSCTL_PLL0, val);
 
-		/* Disable pll0 output */
+		/* Disable pll output */
 		val = read32(base + SYSCTL_PLL0);
 		val &= ~(1 << 25);
 		write32(base + SYSCTL_PLL0, val);
 
-		/* Turn off pll0 */
+		/* Power off pll */
 		val = read32(base + SYSCTL_PLL0);
 		val &= ~(1 << 21);
 		write32(base + SYSCTL_PLL0, val);
 
-		/* Set pll0 new value */
+		/* Set pll new value */
 		sysctl_pll_set_rate(base, channel, prate, rate);
 
-		/* Turn on pll0 */
+		/* Power on pll */
 		val = read32(base + SYSCTL_PLL0);
 		val |= (1 << 21);
 		write32(base + SYSCTL_PLL0, val);
 
-		/* Reset pll0 */
+		/* Reset pll */
 		val = read32(base + SYSCTL_PLL0);
 		val &= ~(1 << 20);
 		write32(base + SYSCTL_PLL0, val);
 		val |= (1 << 20);
 		write32(base + SYSCTL_PLL0, val);
+		__asm__ __volatile__("nop");
+		__asm__ __volatile__("nop");
 		val &= ~(1 << 20);
 		write32(base + SYSCTL_PLL0, val);
 
-		/* Wait pll0 stable */
+		/* Wait pll stable */
 		sysctl_pll_wait_lock(base, channel);
 
-		/* Enable pll0 output */
+		/* Enable pll output */
 		val = read32(base + SYSCTL_PLL0);
 		val |= (1 << 25);
 		write32(base + SYSCTL_PLL0, val);
 
-		/* Change aclk to pll0 */
+		/* Change aclk to pll */
 		val = read32(base + SYSCTL_CLK_SEL0);
 		val |= (1 << 0);
 		write32(base + SYSCTL_CLK_SEL0, val);
 	}
 	else if(channel == 1)
 	{
-		/* Do not bypass pll1 */
+		/* Do not bypass pll */
 		val = read32(base + SYSCTL_PLL1);
 		val &= ~(1 << 23);
 		write32(base + SYSCTL_PLL1, val);
 
-		/* Disable pll1 output */
+		/* Disable pll output */
 		val = read32(base + SYSCTL_PLL1);
 		val &= ~(1 << 25);
 		write32(base + SYSCTL_PLL1, val);
 
-		/* Turn off pll1 */
+		/* Power off pll */
 		val = read32(base + SYSCTL_PLL1);
 		val &= ~(1 << 21);
 		write32(base + SYSCTL_PLL1, val);
 
-		/* Set pll1 new value */
+		/* Set pll new value */
 		sysctl_pll_set_rate(base, channel, prate, rate);
 
-		/* Turn on pll1 */
+		/* Power on pll */
 		val = read32(base + SYSCTL_PLL1);
 		val |= (1 << 21);
 		write32(base + SYSCTL_PLL1, val);
 
-		/* Reset pll1 */
+		/* Reset pll */
 		val = read32(base + SYSCTL_PLL1);
 		val &= ~(1 << 20);
 		write32(base + SYSCTL_PLL1, val);
 		val |= (1 << 20);
 		write32(base + SYSCTL_PLL1, val);
+		__asm__ __volatile__("nop");
+		__asm__ __volatile__("nop");
 		val &= ~(1 << 20);
 		write32(base + SYSCTL_PLL1, val);
 
-		/* Wait pll1 stable */
+		/* Wait pll stable */
 		sysctl_pll_wait_lock(base, channel);
 
-		/* Enable pll1 output */
+		/* Enable pll output */
 		val = read32(base + SYSCTL_PLL1);
 		val |= (1 << 25);
 		write32(base + SYSCTL_PLL1, val);
 	}
 	else if(channel == 2)
 	{
-		/* Do not bypass pll2 */
+		/* Do not bypass pll */
 		val = read32(base + SYSCTL_PLL2);
 		val &= ~(1 << 23);
 		write32(base + SYSCTL_PLL2, val);
 
-		/* Disable pll2 output */
+		/* Disable pll output */
 		val = read32(base + SYSCTL_PLL2);
 		val &= ~(1 << 25);
 		write32(base + SYSCTL_PLL2, val);
 
-		/* Turn off pll2 */
+		/* Power off pll */
 		val = read32(base + SYSCTL_PLL2);
 		val &= ~(1 << 21);
 		write32(base + SYSCTL_PLL2, val);
 
-		/* Set pll2 new value */
+		/* Set pll new value */
 		sysctl_pll_set_rate(base, channel, prate, rate);
 
-		/* Turn on pll2 */
+		/* Power on pll */
 		val = read32(base + SYSCTL_PLL2);
 		val |= (1 << 21);
 		write32(base + SYSCTL_PLL2, val);
 
-		/* Reset pll2 */
+		/* Reset pll */
 		val = read32(base + SYSCTL_PLL2);
 		val &= ~(1 << 20);
 		write32(base + SYSCTL_PLL2, val);
 		val |= (1 << 20);
 		write32(base + SYSCTL_PLL2, val);
+		__asm__ __volatile__("nop");
+		__asm__ __volatile__("nop");
 		val &= ~(1 << 20);
 		write32(base + SYSCTL_PLL2, val);
 
-		/* Wait pll2 stable */
+		/* Wait pll stable */
 		sysctl_pll_wait_lock(base, channel);
 
-		/* Enable pll2 output */
+		/* Enable pll output */
 		val = read32(base + SYSCTL_PLL2);
 		val |= (1 << 25);
 		write32(base + SYSCTL_PLL2, val);
@@ -368,6 +371,6 @@ void sys_clock_init(void)
 	u64_t xin = 26 * 1000 * 1000;
 
 	sys_clock_pll_set_rate(base, 0, xin, 806 * 1000 * 1000);
-	sys_clock_pll_set_rate(base, 1, xin, 160 * 1000 * 1000);
+	sys_clock_pll_set_rate(base, 1, xin, 200 * 1000 * 1000);
 	sys_clock_pll_set_rate(base, 2, xin, 45158400);
 }

@@ -29,8 +29,48 @@
 #include <xboot.h>
 #include <k210/reg-sysctl.h>
 
+enum power_bank_t
+{
+	POWER_BANK0	= 0,
+	POWER_BANK1	= 1,
+	POWER_BANK2	= 2,
+	POWER_BANK3	= 3,
+	POWER_BANK4	= 4,
+	POWER_BANK5	= 5,
+	POWER_BANK6	= 6,
+	POWER_BANK7	= 7,
+};
+
+enum power_mode_t
+{
+	POWER_V33	= 0,
+	POWER_V18	= 1,
+};
+
+static void k210_set_power_bank(enum power_bank_t bank, enum power_mode_t mode)
+{
+	virtual_addr_t virt = phys_to_virt(K210_SYSCTL_BASE);
+
+	if(mode)
+		write32(virt + SYSCTL_POWER_SEL, read32(virt + SYSCTL_POWER_SEL) | (0x1 << bank));
+	else
+		write32(virt + SYSCTL_POWER_SEL, read32(virt + SYSCTL_POWER_SEL) & ~(0x1 << bank));
+}
+
 static int mach_detect(struct machine_t * mach)
 {
+	/* Group A */
+	k210_set_power_bank(POWER_BANK0, POWER_V33);
+	k210_set_power_bank(POWER_BANK1, POWER_V33);
+	k210_set_power_bank(POWER_BANK2, POWER_V33);
+	/* Group B */
+	k210_set_power_bank(POWER_BANK3, POWER_V33);
+	k210_set_power_bank(POWER_BANK4, POWER_V33);
+	k210_set_power_bank(POWER_BANK5, POWER_V33);
+	/* Group C */
+	k210_set_power_bank(POWER_BANK6, POWER_V18);
+	k210_set_power_bank(POWER_BANK7, POWER_V18);
+
 	return 1;
 }
 

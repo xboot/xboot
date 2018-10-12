@@ -269,9 +269,9 @@ static struct device_t * spi_rk3288_probe(struct driver_t * drv, struct dtnode_t
 	pdat->clk = strdup(clk);
 	pdat->sclk = dt_read_int(n, "sclk-gpio", -1);
 	pdat->sclkcfg = dt_read_int(n, "sclk-gpio-config", -1);
-	pdat->mosi = dt_read_int(n, "mosi-gpio", -1);;
+	pdat->mosi = dt_read_int(n, "mosi-gpio", -1);
 	pdat->mosicfg = dt_read_int(n, "mosi-gpio-config", -1);
-	pdat->miso = dt_read_int(n, "miso-gpio", -1);;
+	pdat->miso = dt_read_int(n, "miso-gpio", -1);
 	pdat->misocfg = dt_read_int(n, "miso-gpio-config", -1);
 	pdat->cs = dt_read_int(n, "cs-gpio", -1);
 	pdat->cscfg = dt_read_int(n, "cs-gpio-config", -1);

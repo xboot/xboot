@@ -43,7 +43,7 @@ bool_t register_spi(struct device_t ** device, struct spi_t * spi)
 {
 	struct device_t * dev;
 
-	if(!spi || !spi->name)
+	if(!spi || !spi->name || !spi->type)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
@@ -108,7 +108,7 @@ void spi_deselect(struct spi_t * spi, int cs)
 		spi->deselect(spi, cs);
 }
 
-struct spi_device_t * spi_device_alloc(const char * spibus, int cs, int mode, int bits, int speed)
+struct spi_device_t * spi_device_alloc(const char * spibus, int cs, int type, int mode, int bits, int speed)
 {
 	struct spi_device_t * dev;
 	struct spi_t * spi;
@@ -117,12 +117,18 @@ struct spi_device_t * spi_device_alloc(const char * spibus, int cs, int mode, in
 	if(!spi)
 		return NULL;
 
+	type &= (SPI_TYPE_SINGLE | SPI_TYPE_DUAL | SPI_TYPE_QUAD | SPI_TYPE_OCTAL);
+	type = (type > 0) ? type : SPI_TYPE_SINGLE;
+	if(!(spi->type & type))
+		return NULL;
+
 	dev = malloc(sizeof(struct spi_device_t));
 	if(!dev)
 		return NULL;
 
 	dev->spi = spi;
 	dev->cs = (cs > 0) ? cs : 0;
+	dev->type = type;
 	dev->mode = mode & 0x3;
 	dev->bits = bits;
 	dev->speed = (speed > 0) ? speed : 0;
@@ -142,6 +148,7 @@ int spi_device_write_then_read(struct spi_device_t * dev, void * txbuf, int txle
 	if(!dev)
 		return -1;
 
+	msg.type = dev->type;
 	msg.mode = dev->mode;
 	msg.bits = dev->bits;
 	msg.speed = dev->speed;

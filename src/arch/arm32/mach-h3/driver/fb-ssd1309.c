@@ -240,7 +240,7 @@ static struct device_t * fb_ssd1309_probe(struct driver_t * drv, struct dtnode_t
 	if(!gpio_is_valid(cd))
 		return NULL;
 
-	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
+	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "type", 1), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
 	if(!spidev)
 		return NULL;
 

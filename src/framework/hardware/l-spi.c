@@ -37,10 +37,11 @@ static int l_spi_new(lua_State * L)
 {
 	const char * name = luaL_checkstring(L, 1);
 	int cs = luaL_optinteger(L, 2, 0);
-	int mode = luaL_optinteger(L, 3, 0);
-	int bits = luaL_optinteger(L, 4, 8);
-	int speed = luaL_optinteger(L, 5, 0);
-	struct spi_device_t * dev = spi_device_alloc(name, cs, mode, bits, speed);
+	int type = luaL_optinteger(L, 3, 1);
+	int mode = luaL_optinteger(L, 4, 0);
+	int bits = luaL_optinteger(L, 5, 8);
+	int speed = luaL_optinteger(L, 6, 0);
+	struct spi_device_t * dev = spi_device_alloc(name, cs, type, mode, bits, speed);
 	if(!dev)
 		return 0;
 	struct lspi_t * spi = lua_newuserdata(L, sizeof(struct lspi_t));

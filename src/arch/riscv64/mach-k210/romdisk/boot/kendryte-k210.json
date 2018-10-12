@@ -259,39 +259,13 @@
 		"delay-us": 5
 	},
 
-	"spi-designware@0x54000000": {
+	"spi-k210-xip@0x54000000": {
 		"clock-name": "link-spi3",
-		"reset": 9,
-		"sclk-gpio": -1,
-		"sclk-gpio-config": -1,
-		"io0-gpio": -1,
-		"io0-gpio-config": -1,
-		"io1-gpio": -1,
-		"io1-gpio-config": -1,
-		"io2-gpio": -1,
-		"io2-gpio-config": -1,
-		"io3-gpio": -1,
-		"io3-gpio-config": -1,
-		"io4-gpio": -1,
-		"io4-gpio-config": -1,
-		"io5-gpio": -1,
-		"io5-gpio-config": -1,
-		"io6-gpio": -1,
-		"io6-gpio-config": -1,
-		"io7-gpio": -1,
-		"io7-gpio-config": -1,
-		"cs0-gpio": -1,
-		"cs0-gpio-config": -1,
-		"cs1-gpio": -1,
-		"cs1-gpio-config": -1,
-		"cs2-gpio": -1,
-		"cs2-gpio-config": -1,
-		"cs3-gpio": -1,
-		"cs3-gpio-config": -1
+		"reset": 9
 	},
 
 	"spi-flash@0": {
-		"spi-bus": "spi-designware.0",
+		"spi-bus": "spi-k210-xip.0",
 		"chip-select": 0,
 		"mode": 0,
 		"speed": 1000000
@@ -332,8 +306,34 @@
 		"default-brightness": 0
 	},
 
+	"led-gpio@2": {
+		"gpio": 14,
+		"gpio-config": 62,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@3": {
+		"gpio": 13,
+		"gpio-config": 61,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"led-gpio@4": {
+		"gpio": 12,
+		"gpio-config": 60,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
 	"ledtrigger-heartbeat@0": {
 		"led-name": "led-gpio.0",
+		"period-ms": 1260
+	},
+
+	"ledtrigger-heartbeat@1": {
+		"led-name": "led-gpio.2",
 		"period-ms": 1260
 	},
 

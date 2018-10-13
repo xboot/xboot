@@ -189,6 +189,30 @@
 		"interrupt-offset": 34
 	},
 
+	"pwm-k210@0x502d0000": {
+		"clock-name": "link-timer0",
+		"reset": 21,
+		"channel": 0,
+		"pwm-gpio": 25,
+		"pwm-gpio-config": 190
+	},
+
+	"pwm-k210@0x502e0000": {
+		"clock-name": "link-timer1",
+		"reset": 22,
+		"channel": 0,
+		"pwm-gpio": 12,
+		"pwm-gpio-config": 194
+	},
+
+	"pwm-k210@0x502f0000": {
+		"clock-name": "link-timer2",
+		"reset": 23,
+		"channel": 0,
+		"pwm-gpio": 13,
+		"pwm-gpio-config": 198
+	},
+
 	"ce-clint-timer@0x02000000": {
 		"clock-name": "clint-timer-clk"
 	},
@@ -301,29 +325,8 @@
 	},
 
 	"led-gpio@1": {
-		"gpio": 25,
-		"gpio-config": 33,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"led-gpio@2": {
 		"gpio": 14,
 		"gpio-config": 62,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"led-gpio@3": {
-		"gpio": 13,
-		"gpio-config": 61,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"led-gpio@4": {
-		"gpio": 12,
-		"gpio-config": 60,
 		"active-low": true,
 		"default-brightness": 0
 	},
@@ -334,7 +337,7 @@
 	},
 
 	"ledtrigger-heartbeat@1": {
-		"led-name": "led-gpio.2",
+		"led-name": "led-gpio.1",
 		"period-ms": 1260
 	},
 

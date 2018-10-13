@@ -148,105 +148,133 @@ static inline void spi_k210_set_tmode(struct spi_k210_pdata_t * pdat, int tmode)
 	write32(pdat->virt + SPI_CTRL0, val);
 }
 
-static int spi_k210_write_txbuf_8(struct spi_k210_pdata_t * pdat, u8_t * buf, int cnt)
+static inline void spi_k210_init(struct spi_k210_pdata_t * pdat)
 {
-	int txleft = pdat->fifo_len - read32(pdat->virt + SPI_TXFLR);
-	int rxleft = pdat->fifo_len - read32(pdat->virt + SPI_RXFLR);
-	int left = (txleft < rxleft) ? txleft : rxleft;
-	int len = (cnt < left) ? cnt : left;
 	int i;
 
-	for(i = 0; i < len; i++)
+	write32(pdat->virt + SPI_IMR, 0x0);
+	write32(pdat->virt + SPI_DMACR, 0x0);
+	write32(pdat->virt + SPI_DMATDLR, 0x0);
+	write32(pdat->virt + SPI_DMARDLR, 0x0);
+	write32(pdat->virt + SPI_SER, 0x0);
+	write32(pdat->virt + SPI_SSIENR, 0x0);
+	write32(pdat->virt + SPI_CTRL0, (0 << 6) | (0 << 22) | ((8 - 1) << 0));
+	write32(pdat->virt + SPI_OTHER_CTRL0, 0x0);
+
+	spi_k210_set_rate(pdat, 1000000);
+	spi_k210_set_type(pdat, SPI_TYPE_SINGLE);
+	spi_k210_set_mode(pdat, 0);
+	spi_k210_set_bits(pdat, 8);
+	spi_k210_set_tmode(pdat, 3);
+
+	spi_k210_enable_chip(pdat, 1);
+	if(pdat->fifo_len <= 0)
 	{
-		LOG("W=%02x, %d, %d, %d", *buf, left, len, cnt);
-		write8(pdat->virt + SPI_DR, *buf++);
+		for(i = 1; i < 256; i++)
+		{
+			write32(pdat->virt + SPI_TXFTLR, i);
+			if(i != read32(pdat->virt + SPI_TXFTLR))
+				break;
+		}
+		pdat->fifo_len = (i == 1) ? 0 : i;
 	}
-	return len;
+	spi_k210_enable_chip(pdat, 0);
 }
 
-static int spi_k210_read_rxbuf_8(struct spi_k210_pdata_t * pdat, u8_t * buf, int cnt)
-{
-	int left = read32(pdat->virt + SPI_RXFLR);
-	int len = (cnt < left) ? cnt : left;
-	int i;
-	u8_t v;
-	for(i = 0; i < len; i++)
-	{
-		v = read8(pdat->virt + SPI_DR);
-		*buf++ = v;
-		LOG("R=%02x, %d, %d, %d", v, left, len, cnt);
-	}
-	return len;
-}
-
-static int spi_k210_xfer_8(struct spi_k210_pdata_t * pdat, struct spi_msg_t * msg)
+static inline int spi_k210_xfer_8(struct spi_k210_pdata_t * pdat, struct spi_msg_t * msg)
 {
 	u8_t * tx = msg->txbuf;
 	u8_t * rx = msg->rxbuf;
 	int txlen = msg->len;
 	int rxlen = msg->len;
-	int n;
+	int i, n, t;
 
-	while((txlen > 0) || (rxlen > 0))
+	if(tx && rx)
 	{
-		n = spi_k210_write_txbuf_8(pdat, tx, txlen);
-		txlen -= n;
-		if(tx)
-			tx += n;
-
-		n = spi_k210_read_rxbuf_8(pdat, rx, rxlen);
-		rxlen -= n;
-		if(rx)
-			rx += n;
+		spi_k210_set_tmode(pdat, 0);
+		while((txlen > 0) || (rxlen > 0))
+		{
+			if(txlen > 0)
+			{
+				n = pdat->fifo_len - read32(pdat->virt + SPI_TXFLR);
+				t = pdat->fifo_len - read32(pdat->virt + SPI_RXFLR);
+				n = n < t ? n : t;
+				n = (n < txlen) ? n : txlen;
+				for(i = 0; i < n; i++)
+					write8(pdat->virt + SPI_DR, *tx++);
+				txlen -= n;
+			}
+			if(rxlen > 0)
+			{
+				n = read32(pdat->virt + SPI_RXFLR);
+				n = n < rxlen ? n : rxlen;
+				for(i = 0; i < n; i++)
+					*rx++ = (u8_t)read8(pdat->virt + SPI_DR);
+				rxlen -= n;
+			}
+		}
 	}
-	return msg->len - txlen;
+	else if(tx)
+	{
+		spi_k210_set_tmode(pdat, 1);
+		while(txlen > 0)
+		{
+			n = pdat->fifo_len - read32(pdat->virt + SPI_TXFLR);
+			n = (n < txlen) ? n : txlen;
+			for(i = 0; i < n; i++)
+				write8(pdat->virt + SPI_DR, *tx++);
+			txlen -= n;
+		}
+	}
+	else if(rx)
+	{
+		spi_k210_set_tmode(pdat, 2);
+		write32(pdat->virt + SPI_CTRL1, (rxlen > 1) ? (rxlen - 1) : 0);
+		while(rxlen > 0)
+		{
+			n = read32(pdat->virt + SPI_RXFLR);
+			n = n < rxlen ? n : rxlen;
+			for(i = 0; i < n; i++)
+				*rx++ = (u8_t)read8(pdat->virt + SPI_DR);
+			rxlen -= n;
+		}
+	}
+
+	return msg->len;
 }
 
 static int spi_k210_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 {
 	struct spi_k210_pdata_t * pdat = (struct spi_k210_pdata_t *)spi->priv;
-	int r;
+	int ret = 0;
 
-	spi_k210_set_rate(pdat, (msg->speed > 0) ? msg->speed : 1000000);
 	spi_k210_set_type(pdat, msg->type);
 	spi_k210_set_mode(pdat, msg->mode);
 	spi_k210_set_bits(pdat, msg->bits);
+	spi_k210_set_rate(pdat, (msg->speed > 0) ? msg->speed : 1000000);
 
-/*	if(msg->txbuf && msg->rxbuf)
-		spi_k210_set_tmode(pdat, 0);
-	else if(msg->txbuf)
-		spi_k210_set_tmode(pdat, 1);
-	else if(msg->rxbuf)
-		spi_k210_set_tmode(pdat, 2);*/
-	spi_k210_set_tmode(pdat, 3);
-
-	write32(pdat->virt + SPI_CTRL1, msg->len - 1);
-
-	spi_k210_enable_chip(pdat, 1);
-	mdelay(1);
-
-	LOG("XFER START");
-	r = spi_k210_xfer_8(pdat, msg);
-	LOG("XFER END");
-
-	mdelay(1);
-	spi_k210_enable_chip(pdat, 0);
-
-	return r;
+	if(msg->bits <= 8)
+	{
+		ret = spi_k210_xfer_8(pdat, msg);
+	}
+	else if(msg->bits <= 16)
+	{
+	}
+	return ret;
 }
 
 static void spi_k210_select(struct spi_t * spi, int cs)
 {
 	struct spi_k210_pdata_t * pdat = (struct spi_k210_pdata_t *)spi->priv;
-	LOG("SELECT");
-	write32(pdat->virt + SPI_SER, 0x1 << cs);
+	write32(pdat->virt + SPI_SER, read32(pdat->virt + SPI_SER) | (0x1 << cs));
+	write32(pdat->virt + SPI_SSIENR, 0x1);
 }
 
 static void spi_k210_deselect(struct spi_t * spi, int cs)
 {
 	struct spi_k210_pdata_t * pdat = (struct spi_k210_pdata_t *)spi->priv;
-	LOG("DESELECT");
-	write32(pdat->virt + SPI_SER, 0x0);
+	write32(pdat->virt + SPI_SSIENR, 0x0);
+	write32(pdat->virt + SPI_SER, read32(pdat->virt + SPI_SER) & ~(0x1 << cs));
 }
 
 static struct device_t * spi_k210_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -268,11 +296,10 @@ static struct device_t * spi_k210_probe(struct driver_t * drv, struct dtnode_t *
 		return FALSE;
 	}
 
-	clk_enable(clk);
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 	pdat->reset = dt_read_int(n, "reset", -1);
-	pdat->fifo_len = dt_read_int(n, "fifo-length", 32);
+	pdat->fifo_len = 0;
 
 	spi->name = alloc_device_name(dt_read_name(n), -1);
 	spi->type = SPI_TYPE_SINGLE;
@@ -283,18 +310,8 @@ static struct device_t * spi_k210_probe(struct driver_t * drv, struct dtnode_t *
 
 	if(pdat->reset >= 0)
 		reset_deassert(pdat->reset);
-	write32(pdat->virt + SPI_BAUDR, 0x14);
-	write32(pdat->virt + SPI_IMR, 0xff);
-	write32(pdat->virt + SPI_DMACR, 0x0);
-	write32(pdat->virt + SPI_DMATDLR, 0x0);
-	write32(pdat->virt + SPI_DMARDLR, 0x0);
-	write32(pdat->virt + SPI_SER, 0x0);
-	write32(pdat->virt + SPI_SSIENR, 0x0);
-	write32(pdat->virt + SPI_CTRL0, (0 << 8) | (0 << 22) | ((8 - 1) << 0));
-	write32(pdat->virt + SPI_OTHER_CTRL0, 0x0);
-	write32(pdat->virt + SPI_RX_SAMPLE_DELAY, 0xf);
-	write32(pdat->virt + SPI_ENDIAN, 0x0);
-	spi_k210_enable_chip(pdat, 1);
+	clk_enable(pdat->clk);
+	spi_k210_init(pdat);
 
 	if(!register_spi(&dev, spi))
 	{

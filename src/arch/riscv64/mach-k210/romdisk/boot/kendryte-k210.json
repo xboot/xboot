@@ -268,7 +268,8 @@
 		"spi-bus": "spi-k210-xip.0",
 		"chip-select": 0,
 		"mode": 0,
-		"speed": 1000000
+		"speed": 1000000,
+		"status": "disabled"
 	},
 
 	"wdg-k210@0x50400000": {

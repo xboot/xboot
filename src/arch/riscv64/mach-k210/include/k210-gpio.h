@@ -26,8 +26,8 @@ enum {
 	CFG_SPI0_SCLK		= 17,  /* SPI0 Serial Clock */
 	CFG_UARTHS_RX		= 18,  /* UART High Speed Receiver */
 	CFG_UARTHS_TX		= 19,  /* UART High Speed Transmitter */
-	CFG_CLK_IN1			= 20,  /* Clock Input 1 */
-	CFG_CLK_IN2			= 21,  /* Clock Input 2 */
+	CFG_RESV6			= 20,  /* Reserved function */
+	CFG_RESV7			= 21,  /* Reserved function */
 	CFG_CLK_SPI1		= 22,  /* Clock SPI1 */
 	CFG_CLK_I2C1		= 23,  /* Clock I2C1 */
 	CFG_GPIOHS0			= 24,  /* GPIO High Speed 0 */

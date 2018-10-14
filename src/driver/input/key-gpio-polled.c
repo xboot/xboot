@@ -67,8 +67,9 @@ static int key_gpio_polled_timer_function(struct timer_t * timer, void * data)
 				push_event_key_down(input, pdat->keys[i].keycode);
 			else if(type == EVENT_TYPE_KEY_UP)
 				push_event_key_up(input, pdat->keys[i].keycode);
+
+			pdat->keys[i].state = val;
 		}
-		pdat->keys[i].state = val;
 	}
 
 	timer_forward_now(timer, ms_to_ktime(pdat->interval));

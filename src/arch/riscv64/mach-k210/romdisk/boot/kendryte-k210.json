@@ -283,6 +283,17 @@
 		"delay-us": 5
 	},
 
+	"spi-gpio@0": {
+		"sclk-gpio": 29,
+		"sclk-gpio-config": 37,
+		"mosi-gpio": 30,
+		"mosi-gpio-config": 38,
+		"miso-gpio": 31,
+		"miso-gpio-config": 39,
+		"cs-gpio": 32,
+		"cs-gpio-config": 40
+	},
+
 	"spi-k210@0x52000000": {
 		"clock-name": "link-spi0",
 		"reset": 6,

@@ -117,7 +117,7 @@ struct spi_device_t * spi_device_alloc(const char * spibus, int cs, int type, in
 	if(!spi)
 		return NULL;
 
-	type &= (SPI_TYPE_SINGLE | SPI_TYPE_DUAL | SPI_TYPE_QUAD | SPI_TYPE_OCTAL);
+	type = (0x1 << type) & (SPI_TYPE_SINGLE | SPI_TYPE_DUAL | SPI_TYPE_QUAD | SPI_TYPE_OCTAL);
 	type = (type > 0) ? type : SPI_TYPE_SINGLE;
 	if(!(spi->type & type))
 		return NULL;

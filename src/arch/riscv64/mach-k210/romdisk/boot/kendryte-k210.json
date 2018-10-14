@@ -311,17 +311,18 @@
 		"cs2-gpio": -1,
 		"cs2-gpio-config": 14,
 		"cs3-gpio": -1,
-		"cs3-gpio-config": 15
+		"cs3-gpio-config": 15,
+		"status": "disabled"
 	},
 
 	"spi-k210@0x53000000": {
 		"clock-name": "link-spi1",
 		"reset": 7,
-		"sclk-gpio": -1,
+		"sclk-gpio": 29,
 		"sclk-gpio-config": 83,
-		"io0-gpio": -1,
+		"io0-gpio": 30,
 		"io0-gpio-config": 70,
-		"io1-gpio": -1,
+		"io1-gpio": 31,
 		"io1-gpio-config": 71,
 		"io2-gpio": -1,
 		"io2-gpio-config": 72,
@@ -335,14 +336,15 @@
 		"io6-gpio-config": 76,
 		"io7-gpio": -1,
 		"io7-gpio-config": 77,
-		"cs0-gpio": -1,
+		"cs0-gpio": 32,
 		"cs0-gpio-config": 78,
 		"cs1-gpio": -1,
 		"cs1-gpio-config": 79,
 		"cs2-gpio": -1,
 		"cs2-gpio-config": 80,
 		"cs3-gpio": -1,
-		"cs3-gpio-config": 81
+		"cs3-gpio-config": 81,
+		"status": "disabled"
 	},
 
 	"spi-k210-xip@0x54000000": {

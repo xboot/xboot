@@ -1,5 +1,5 @@
 /*
- * driver/spi-k210-xip.c
+ * driver/spi-k210.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -58,22 +58,38 @@ enum {
 	SPI_IDR				= 0x058,
 	SPI_VERSION			= 0x05c,
 	SPI_DR				= 0x060,
-	SPI_RX_SAMPLE_DELAY	= 0x0f0,
-	SPI_OTHER_CTRL0		= 0x0f4,
-	SPI_XIP_MODE_BITS	= 0x0fc,
-	SPI_XIP_INCR_INST	= 0x100,
-	SPI_XIP_WRAP_INST	= 0x104,
-	SPI_XIP_CTRL		= 0x108,
-	SPI_XIP_SER			= 0x10c,
-	SPI_XIP_RXOICR		= 0x110,
-	SPI_XIP_TIMEOUT		= 0x114,
-	SPI_ENDIAN			= 0x118,
 };
 
 struct spi_k210_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
 	int reset;
+	int sclk;
+	int sclkcfg;
+	int io0;
+	int io0cfg;
+	int io1;
+	int io1cfg;
+	int io2;
+	int io2cfg;
+	int io3;
+	int io3cfg;
+	int io4;
+	int io4cfg;
+	int io5;
+	int io5cfg;
+	int io6;
+	int io6cfg;
+	int io7;
+	int io7cfg;
+	int cs0;
+	int cs0cfg;
+	int cs1;
+	int cs1cfg;
+	int cs2;
+	int cs2cfg;
+	int cs3;
+	int cs3cfg;
 	int fifo_len;
 };
 
@@ -96,23 +112,23 @@ static inline void spi_k210_set_type(struct spi_k210_pdata_t * pdat, int type)
 	u32_t val;
 
 	val = read32(pdat->virt + SPI_CTRL0);
-	val &= ~(0x3 << 22);
+	val &= ~(0x3 << 21);
 	switch(type)
 	{
 	case SPI_TYPE_SINGLE:
-		val |= 0x0 << 22;
+		val |= 0x0 << 21;
 		break;
 	case SPI_TYPE_DUAL:
-		val |= 0x1 << 22;
+		val |= 0x1 << 21;
 		break;
 	case SPI_TYPE_QUAD:
-		val |= 0x2 << 22;
+		val |= 0x2 << 21;
 		break;
 	case SPI_TYPE_OCTAL:
-		val |= 0x3 << 22;
+		val |= 0x3 << 21;
 		break;
 	default:
-		val |= 0x0 << 22;
+		val |= 0x0 << 21;
 		break;
 	}
 	write32(pdat->virt + SPI_CTRL0, val);
@@ -123,8 +139,8 @@ static inline void spi_k210_set_mode(struct spi_k210_pdata_t * pdat, int mode)
 	u32_t val;
 
 	val = read32(pdat->virt + SPI_CTRL0);
-	val &= ~(0x3 << 8);
-	val |= (mode & 0x3) << 8;
+	val &= ~(0x3 << 6);
+	val |= (mode & 0x3) << 6;
 	write32(pdat->virt + SPI_CTRL0, val);
 }
 
@@ -133,8 +149,8 @@ static inline void spi_k210_set_bits(struct spi_k210_pdata_t * pdat, int bits)
 	u32_t val;
 
 	val = read32(pdat->virt + SPI_CTRL0);
-	val &= ~(0xf << 0);
-	val |= ((bits - 1) & 0xf) << 0;
+	val &= ~(0xf << 16);
+	val |= ((bits - 1) & 0xf) << 16;
 	write32(pdat->virt + SPI_CTRL0, val);
 }
 
@@ -143,8 +159,8 @@ static inline void spi_k210_set_tmode(struct spi_k210_pdata_t * pdat, int tmode)
 	u32_t val;
 
 	val = read32(pdat->virt + SPI_CTRL0);
-	val &= ~(0x3 << 10);
-	val |= (tmode & 0x3) << 10;
+	val &= ~(0x3 << 8);
+	val |= (tmode & 0x3) << 8;
 	write32(pdat->virt + SPI_CTRL0, val);
 }
 
@@ -158,8 +174,7 @@ static inline void spi_k210_init(struct spi_k210_pdata_t * pdat)
 	write32(pdat->virt + SPI_DMARDLR, 0x0);
 	write32(pdat->virt + SPI_SER, 0x0);
 	write32(pdat->virt + SPI_SSIENR, 0x0);
-	write32(pdat->virt + SPI_CTRL0, (0 << 8) | (0 << 22) | ((8 - 1) << 0));
-	write32(pdat->virt + SPI_OTHER_CTRL0, 0x0);
+	write32(pdat->virt + SPI_CTRL0, (0 << 6) | (0 << 21) | ((8 - 1) << 16));
 
 	spi_k210_set_rate(pdat, 1000000);
 	spi_k210_set_type(pdat, SPI_TYPE_SINGLE);
@@ -299,6 +314,32 @@ static struct device_t * spi_k210_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 	pdat->reset = dt_read_int(n, "reset", -1);
+	pdat->sclk = dt_read_int(n, "sclk-gpio", -1);
+	pdat->sclkcfg = dt_read_int(n, "sclk-gpio-config", -1);
+	pdat->io0 = dt_read_int(n, "io0-gpio", -1);
+	pdat->io0cfg = dt_read_int(n, "io0-gpio-config", -1);
+	pdat->io1 = dt_read_int(n, "io1-gpio", -1);
+	pdat->io1cfg = dt_read_int(n, "io1-gpio-config", -1);
+	pdat->io2 = dt_read_int(n, "io2-gpio", -1);
+	pdat->io2cfg = dt_read_int(n, "io2-gpio-config", -1);
+	pdat->io3 = dt_read_int(n, "io3-gpio", -1);
+	pdat->io3cfg = dt_read_int(n, "io3-gpio-config", -1);
+	pdat->io4 = dt_read_int(n, "io4-gpio", -1);
+	pdat->io4cfg = dt_read_int(n, "io4-gpio-config", -1);
+	pdat->io5 = dt_read_int(n, "io5-gpio", -1);
+	pdat->io5cfg = dt_read_int(n, "io5-gpio-config", -1);
+	pdat->io6 = dt_read_int(n, "io6-gpio", -1);
+	pdat->io6cfg = dt_read_int(n, "io6-gpio-config", -1);
+	pdat->io7 = dt_read_int(n, "io7-gpio", -1);
+	pdat->io7cfg = dt_read_int(n, "io7-gpio-config", -1);
+	pdat->cs0 = dt_read_int(n, "cs0-gpio", -1);
+	pdat->cs0cfg = dt_read_int(n, "cs0-gpio-config", -1);
+	pdat->cs1 = dt_read_int(n, "cs1-gpio", -1);
+	pdat->cs1cfg = dt_read_int(n, "cs1-gpio-config", -1);
+	pdat->cs2 = dt_read_int(n, "cs2-gpio", -1);
+	pdat->cs2cfg = dt_read_int(n, "cs2-gpio-config", -1);
+	pdat->cs3 = dt_read_int(n, "cs3-gpio", -1);
+	pdat->cs3cfg = dt_read_int(n, "cs3-gpio-config", -1);
 	pdat->fifo_len = 0;
 
 	spi->name = alloc_device_name(dt_read_name(n), -1);
@@ -310,6 +351,84 @@ static struct device_t * spi_k210_probe(struct driver_t * drv, struct dtnode_t *
 
 	if(pdat->reset >= 0)
 		reset_deassert(pdat->reset);
+	if(pdat->sclk >= 0)
+	{
+		if(pdat->sclkcfg >= 0)
+			gpio_set_cfg(pdat->sclk, pdat->sclkcfg);
+		gpio_set_pull(pdat->sclk, GPIO_PULL_NONE);
+	}
+	if(pdat->io0 >= 0)
+	{
+		if(pdat->io0cfg >= 0)
+			gpio_set_cfg(pdat->io0, pdat->io0cfg);
+		gpio_set_pull(pdat->io0, GPIO_PULL_NONE);
+	}
+	if(pdat->io1 >= 0)
+	{
+		if(pdat->io1cfg >= 0)
+			gpio_set_cfg(pdat->io1, pdat->io1cfg);
+		gpio_set_pull(pdat->io1, GPIO_PULL_NONE);
+	}
+	if(pdat->io2 >= 0)
+	{
+		if(pdat->io2cfg >= 0)
+			gpio_set_cfg(pdat->io2, pdat->io2cfg);
+		gpio_set_pull(pdat->io2, GPIO_PULL_NONE);
+	}
+	if(pdat->io3 >= 0)
+	{
+		if(pdat->io3cfg >= 0)
+			gpio_set_cfg(pdat->io3, pdat->io3cfg);
+		gpio_set_pull(pdat->io3, GPIO_PULL_NONE);
+	}
+	if(pdat->io4 >= 0)
+	{
+		if(pdat->io4cfg >= 0)
+			gpio_set_cfg(pdat->io4, pdat->io4cfg);
+		gpio_set_pull(pdat->io4, GPIO_PULL_NONE);
+	}
+	if(pdat->io5 >= 0)
+	{
+		if(pdat->io5cfg >= 0)
+			gpio_set_cfg(pdat->io5, pdat->io5cfg);
+		gpio_set_pull(pdat->io5, GPIO_PULL_NONE);
+	}
+	if(pdat->io6 >= 0)
+	{
+		if(pdat->io6cfg >= 0)
+			gpio_set_cfg(pdat->io6, pdat->io6cfg);
+		gpio_set_pull(pdat->io6, GPIO_PULL_NONE);
+	}
+	if(pdat->io7 >= 0)
+	{
+		if(pdat->io7cfg >= 0)
+			gpio_set_cfg(pdat->io7, pdat->io7cfg);
+		gpio_set_pull(pdat->io7, GPIO_PULL_NONE);
+	}
+	if(pdat->cs0 >= 0)
+	{
+		if(pdat->cs0cfg >= 0)
+			gpio_set_cfg(pdat->cs0, pdat->cs0cfg);
+		gpio_set_pull(pdat->cs0, GPIO_PULL_NONE);
+	}
+	if(pdat->cs1 >= 0)
+	{
+		if(pdat->cs1cfg >= 0)
+			gpio_set_cfg(pdat->cs1, pdat->cs1cfg);
+		gpio_set_pull(pdat->cs1, GPIO_PULL_NONE);
+	}
+	if(pdat->cs2 >= 0)
+	{
+		if(pdat->cs2cfg >= 0)
+			gpio_set_cfg(pdat->cs2, pdat->cs2cfg);
+		gpio_set_pull(pdat->cs2, GPIO_PULL_NONE);
+	}
+	if(pdat->cs3 >= 0)
+	{
+		if(pdat->cs3cfg >= 0)
+			gpio_set_cfg(pdat->cs3, pdat->cs3cfg);
+		gpio_set_pull(pdat->cs3, GPIO_PULL_NONE);
+	}
 	clk_enable(pdat->clk);
 	spi_k210_init(pdat);
 
@@ -353,7 +472,7 @@ static void spi_k210_resume(struct device_t * dev)
 }
 
 static struct driver_t spi_k210 = {
-	.name		= "spi-k210-xip",
+	.name		= "spi-k210",
 	.probe		= spi_k210_probe,
 	.remove		= spi_k210_remove,
 	.suspend	= spi_k210_suspend,

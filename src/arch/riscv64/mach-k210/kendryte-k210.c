@@ -57,19 +57,32 @@ static void k210_set_power_bank(enum power_bank_t bank, enum power_mode_t mode)
 		write32(virt + SYSCTL_POWER_SEL, read32(virt + SYSCTL_POWER_SEL) & ~(0x1 << bank));
 }
 
+static void k210_set_spi0_dvp_jamlink(int enable)
+{
+	virtual_addr_t virt = phys_to_virt(K210_SYSCTL_BASE);
+
+	if(enable)
+		write32(virt + SYSCTL_MISC, read32(virt + SYSCTL_MISC) | (0x1 << 10));
+	else
+		write32(virt + SYSCTL_MISC, read32(virt + SYSCTL_MISC) & ~(0x1 << 10));
+}
+
 static int mach_detect(struct machine_t * mach)
 {
-	/* Group A */
+	/* Group A, IO0 - IO17 */
 	k210_set_power_bank(POWER_BANK0, POWER_V33);
 	k210_set_power_bank(POWER_BANK1, POWER_V33);
 	k210_set_power_bank(POWER_BANK2, POWER_V33);
-	/* Group B */
+	/* Group B, IO18 - IO35 */
 	k210_set_power_bank(POWER_BANK3, POWER_V33);
 	k210_set_power_bank(POWER_BANK4, POWER_V33);
 	k210_set_power_bank(POWER_BANK5, POWER_V33);
-	/* Group C */
+	/* Group C, IO36 - IO47 */
 	k210_set_power_bank(POWER_BANK6, POWER_V18);
 	k210_set_power_bank(POWER_BANK7, POWER_V18);
+
+	/* Select jamlink of spi0 and dvp data */
+	k210_set_spi0_dvp_jamlink(1);
 
 	return 1;
 }

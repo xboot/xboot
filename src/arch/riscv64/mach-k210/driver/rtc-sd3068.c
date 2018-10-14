@@ -108,6 +108,8 @@ static bool_t rtc_sd3068_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 
 	val = 0x7b;
 	sd3068_write(pdat->dev, SD3068_CTR1, &val, 1);
+	val = 0x00;
+	sd3068_write(pdat->dev, SD3068_CTR2, &val, 1);
 
 	return TRUE;
 }

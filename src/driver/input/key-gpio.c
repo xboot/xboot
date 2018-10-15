@@ -60,12 +60,10 @@ static void key_gpio_interrupt_function(void * data)
 			type = val ? EVENT_TYPE_KEY_UP : EVENT_TYPE_KEY_DOWN;
 		else
 			type = val ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
-
 		if(type == EVENT_TYPE_KEY_DOWN)
 			push_event_key_down(input, key->keycode);
 		else if(type == EVENT_TYPE_KEY_UP)
 			push_event_key_up(input, key->keycode);
-
 		key->state = val;
 	}
 }
@@ -120,6 +118,9 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 		gpio_set_pull(keys[i].gpio, keys[i].active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
 		gpio_set_direction(keys[i].gpio, GPIO_DIRECTION_INPUT);
 		keys[i].state = gpio_get_value(keys[i].gpio);
+
+		if(!request_irq(gpio_to_irq(pdat->keys[i].gpio), key_gpio_interrupt_function, IRQ_TYPE_EDGE_BOTH, &pdat->keys[i]))
+			LOG("Fail to request interrupt %d, gpio is %d", gpio_to_irq(pdat->keys[i].gpio), pdat->keys[i].gpio);
 	}
 
 	pdat->keys = keys;
@@ -130,14 +131,10 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	input->ioctl = key_gpio_ioctl;
 	input->priv = pdat;
 
-	for(i = 0; i < pdat->nkeys; i++)
-	{
-		if(!request_irq(gpio_to_irq(pdat->keys[i].gpio), key_gpio_interrupt_function, IRQ_TYPE_EDGE_BOTH, &pdat->keys[i]))
-			LOG("Fail to request interrupt %d, gpio is %d", gpio_to_irq(pdat->keys[i].gpio), pdat->keys[i].gpio);
-	}
-
 	if(!register_input(&dev, input))
 	{
+		for(i = 0; i < pdat->nkeys; i++)
+			free_irq(gpio_to_irq(pdat->keys[i].gpio));
 		free(pdat->keys);
 
 		free_device_name(input->name);
@@ -154,9 +151,12 @@ static void key_gpio_remove(struct device_t * dev)
 {
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
+	int i;
 
 	if(input && unregister_input(input))
 	{
+		for(i = 0; i < pdat->nkeys; i++)
+			free_irq(gpio_to_irq(pdat->keys[i].gpio));
 		free(pdat->keys);
 
 		free_device_name(input->name);

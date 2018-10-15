@@ -62,12 +62,10 @@ static int key_gpio_polled_timer_function(struct timer_t * timer, void * data)
 				type = val ? EVENT_TYPE_KEY_UP : EVENT_TYPE_KEY_DOWN;
 			else
 				type = val ? EVENT_TYPE_KEY_DOWN : EVENT_TYPE_KEY_UP;
-
 			if(type == EVENT_TYPE_KEY_DOWN)
 				push_event_key_down(input, pdat->keys[i].keycode);
 			else if(type == EVENT_TYPE_KEY_UP)
 				push_event_key_up(input, pdat->keys[i].keycode);
-
 			pdat->keys[i].state = val;
 		}
 	}
@@ -123,7 +121,7 @@ static struct device_t * key_gpio_polled_probe(struct driver_t * drv, struct dtn
 		if(keys[i].gpiocfg >= 0)
 			gpio_set_cfg(keys[i].gpio, keys[i].gpiocfg);
 		gpio_set_pull(keys[i].gpio, keys[i].active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
-		gpio_direction_input(keys[i].gpio);
+		gpio_set_direction(keys[i].gpio, GPIO_DIRECTION_INPUT);
 		keys[i].state = gpio_get_value(keys[i].gpio);
 	}
 

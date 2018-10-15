@@ -70,7 +70,7 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 		name = __device_name[dev->type];
 	} else return NULL;
 
-	return kobj_search_directory_with_create(kdevice, (const char *)name);
+	return kobj_search_directory_with_create(kdevice, name);
 }
 
 static ssize_t device_write_suspend(struct kobj_t * kobj, void * buf, size_t size)

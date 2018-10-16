@@ -75,6 +75,11 @@ static bool_t sdhci_v3s_detect(struct sdhci_t * sdhci)
 	return FALSE;
 }
 
+static bool_t sdhci_v3s_setvoltage(struct sdhci_t * sdhci, u32_t voltage)
+{
+	return TRUE;
+}
+
 static bool_t sdhci_v3s_setwidth(struct sdhci_t * sdhci, u32_t width)
 {
 	return TRUE;
@@ -143,11 +148,12 @@ static struct device_t * sdhci_v3s_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->cdcfg = dt_read_int(n, "cd-gpio-config", -1);
 
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
-	sdhci->voltages = MMC_VDD_33_34;
+	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_4;
-	sdhci->clock = 26 * 1000 * 1000;
+	sdhci->clock = 52 * 1000 * 1000;
 	sdhci->removeable = TRUE;
 	sdhci->detect = sdhci_v3s_detect;
+	sdhci->setvoltage = sdhci_v3s_setvoltage;
 	sdhci->setwidth = sdhci_v3s_setwidth;
 	sdhci->setclock = sdhci_v3s_setclock;
 	sdhci->transfer = sdhci_v3s_transfer;

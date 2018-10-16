@@ -8,8 +8,8 @@ extern "C" {
 #include <xboot.h>
 #include <sd/sdhci.h>
 
-void * sdcard_probe(struct sdhci_t * sdhci);
-void sdcard_remove(void * sdcard);
+void * sdcard_probe(struct sdhci_t * hci);
+void sdcard_remove(void * card);
 
 #ifdef __cplusplus
 }

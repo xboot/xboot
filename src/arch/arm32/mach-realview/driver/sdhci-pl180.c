@@ -50,11 +50,6 @@
 #define PL180_FIFO_CNT			(0x48)
 #define PL180_FIFO				(0x80)
 
-#define PL180_RSP_NONE			(0 << 0)
-#define PL180_RSP_PRESENT		(1 << 0)
-#define PL180_RSP_136BIT		(1 << 1)
-#define PL180_RSP_CRC			(1 << 2)
-
 #define PL180_CMD_WAITRESP		(1 << 6)
 #define PL180_CMD_LONGRSP		(1 << 7)
 #define PL180_CMD_WAITINT		(1 << 8)
@@ -111,7 +106,7 @@ static bool_t pl180_transfer_command(struct sdhci_pl180_pdata_t * pdat, struct s
 	if(cmd->resptype)
 	{
 		cmdidx |= PL180_CMD_WAITRESP;
-		if(cmd->resptype & PL180_RSP_136BIT)
+		if(cmd->resptype & MMC_RSP_136)
 			cmdidx |= PL180_CMD_LONGRSP;
 	}
 
@@ -122,10 +117,10 @@ static bool_t pl180_transfer_command(struct sdhci_pl180_pdata_t * pdat, struct s
 		status = read32(pdat->virt + PL180_STATUS);
 	} while(!(status & (PL180_STAT_CMD_SENT | PL180_STAT_CMD_RESP_END | PL180_STAT_CMD_TIME_OUT | PL180_STAT_CMD_CRC_FAIL)));
 
-	if(cmd->resptype & PL180_RSP_PRESENT)
+	if(cmd->resptype & MMC_RSP_PRESENT)
 	{
 		cmd->response[0] = read32(pdat->virt + PL180_RESP0);
-		if(cmd->resptype & PL180_RSP_136BIT)
+		if(cmd->resptype & MMC_RSP_136)
 		{
 			cmd->response[1] = read32(pdat->virt + PL180_RESP1);
 			cmd->response[2] = read32(pdat->virt + PL180_RESP2);
@@ -135,7 +130,7 @@ static bool_t pl180_transfer_command(struct sdhci_pl180_pdata_t * pdat, struct s
 
 	if(status & PL180_STAT_CMD_TIME_OUT)
 		ret = FALSE;
-	else if ((status & PL180_STAT_CMD_CRC_FAIL) && (cmd->resptype & PL180_RSP_CRC))
+	else if ((status & PL180_STAT_CMD_CRC_FAIL) && (cmd->resptype & MMC_RSP_CRC))
 		ret = FALSE;
 
 	write32(pdat->virt + PL180_CLEAR, (PL180_CLR_CMD_SENT | PL180_CLR_CMD_RESP_END | PL180_CLR_CMD_TIMEOUT | PL180_CLR_CMD_CRC_FAIL));
@@ -314,9 +309,9 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
-	sdhci->voltages = MMC_VDD_33_34;
+	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_4;
-	sdhci->clock = 26 * 1000 * 1000;
+	sdhci->clock = 52 * 1000 * 1000;
 	sdhci->removeable = TRUE;
 	sdhci->detect = sdhci_pl180_detect;
 	sdhci->setwidth = sdhci_pl180_setwidth;

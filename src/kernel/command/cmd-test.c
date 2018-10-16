@@ -12,6 +12,12 @@ static void usage(void)
 
 static int do_test(int argc, char ** argv)
 {
+	char json[256];
+	int length;
+
+	length = sprintf(json, "{\"sdhci-spi@0\":{\"spi-bus\":\"spi-gpio.0\"}}");
+	printf("%s\r\n", json);
+	probe_device(json, length, NULL);
 	return 0;
 }
 

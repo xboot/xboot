@@ -40,21 +40,21 @@ struct sdhci_t * search_sdhci(const char * name)
 	return (struct sdhci_t *)dev->priv;
 }
 
-bool_t register_sdhci(struct device_t ** device, struct sdhci_t * sdhci)
+bool_t register_sdhci(struct device_t ** device, struct sdhci_t * hci)
 {
 	struct device_t * dev;
 
-	if(!sdhci || !sdhci->name)
+	if(!hci || !hci->name)
 		return FALSE;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return FALSE;
 
-	dev->name = strdup(sdhci->name);
+	dev->name = strdup(hci->name);
 	dev->type = DEVICE_TYPE_SDHCI;
 	dev->driver = NULL;
-	dev->priv = sdhci;
+	dev->priv = hci;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))
@@ -64,24 +64,24 @@ bool_t register_sdhci(struct device_t ** device, struct sdhci_t * sdhci)
 		free(dev);
 		return FALSE;
 	}
-	sdhci->sdcard = sdcard_probe(sdhci);
+	hci->sdcard = sdcard_probe(hci);
 
 	if(device)
 		*device = dev;
 	return TRUE;
 }
 
-bool_t unregister_sdhci(struct sdhci_t * sdhci)
+bool_t unregister_sdhci(struct sdhci_t * hci)
 {
 	struct device_t * dev;
 
-	if(!sdhci || !sdhci->name)
+	if(!hci || !hci->name)
 		return FALSE;
 
-	dev = search_device(sdhci->name, DEVICE_TYPE_SDHCI);
+	dev = search_device(hci->name, DEVICE_TYPE_SDHCI);
 	if(!dev)
 		return FALSE;
-	sdcard_remove(sdhci->sdcard);
+	sdcard_remove(hci->sdcard);
 
 	if(!unregister_device(dev))
 		return FALSE;
@@ -92,37 +92,37 @@ bool_t unregister_sdhci(struct sdhci_t * sdhci)
 	return TRUE;
 }
 
-bool_t sdhci_detect(struct sdhci_t * sdhci)
+bool_t sdhci_detect(struct sdhci_t * hci)
 {
-	if(sdhci && sdhci->detect)
-		return sdhci->detect(sdhci);
+	if(hci && hci->detect)
+		return hci->detect(hci);
 	return FALSE;
 }
 
-bool_t sdhci_reset(struct sdhci_t * sdhci)
+bool_t sdhci_set_voltage(struct sdhci_t * hci, u32_t voltage)
 {
-	if(sdhci && sdhci->reset)
-		return sdhci->reset(sdhci);
+	if(hci && hci->setvoltage)
+		return hci->setvoltage(hci, voltage);
 	return FALSE;
 }
 
-bool_t sdhci_set_width(struct sdhci_t * sdhci, u32_t width)
+bool_t sdhci_set_width(struct sdhci_t * hci, u32_t width)
 {
-	if(sdhci && sdhci->setwidth)
-		return sdhci->setwidth(sdhci, width);
+	if(hci && hci->setwidth)
+		return hci->setwidth(hci, width);
 	return FALSE;
 }
 
-bool_t sdhci_set_clock(struct sdhci_t * sdhci, u32_t clock)
+bool_t sdhci_set_clock(struct sdhci_t * hci, u32_t clock)
 {
-	if(sdhci && sdhci->setclock)
-		return sdhci->setclock(sdhci, (clock <= sdhci->clock) ? clock : sdhci->clock);
+	if(hci && hci->setclock)
+		return hci->setclock(hci, (clock <= hci->clock) ? clock : hci->clock);
 	return FALSE;
 }
 
-bool_t sdhci_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
+bool_t sdhci_transfer(struct sdhci_t * hci, struct sdhci_cmd_t * cmd, struct sdhci_data_t * dat)
 {
-	if(sdhci && sdhci->transfer)
-		return sdhci->transfer(sdhci, cmd, dat);
+	if(hci && hci->transfer)
+		return hci->transfer(hci, cmd, dat);
 	return FALSE;
 }

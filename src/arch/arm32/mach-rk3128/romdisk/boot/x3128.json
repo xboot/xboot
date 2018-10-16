@@ -358,7 +358,19 @@
 		"miso-gpio": 13,
 		"miso-gpio-config": 2,
 		"cs-gpio": 14,
-		"cs-gpio-config": 2
+		"cs-gpio-config": 2,
+		"status": "disabled"
+	},
+
+	"spi-gpio@0": {
+		"sclk-gpio": 9,
+		"sclk-gpio-config": 0,
+		"mosi-gpio": 11,
+		"mosi-gpio-config": 0,
+		"miso-gpio": 13,
+		"miso-gpio-config": 0,
+		"cs-gpio": 14,
+		"cs-gpio-config": 0
 	},
 
 	"regulator-rk816@0": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc1", "channel": 0 },

@@ -105,9 +105,10 @@ static bool_t mmc_go_idle(struct sdhci_t * sdhci)
 	cmd.cmdarg = 0;
 	cmd.resptype = MMC_RSP_NONE;
 
+	if(!sdhci_reset(sdhci))
+		return FALSE;
 	if(sdhci_transfer(sdhci, &cmd, NULL))
 		return TRUE;
-	udelay(2000);
 	return sdhci_transfer(sdhci, &cmd, NULL);
 }
 

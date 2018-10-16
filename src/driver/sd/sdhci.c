@@ -99,6 +99,13 @@ bool_t sdhci_detect(struct sdhci_t * sdhci)
 	return FALSE;
 }
 
+bool_t sdhci_reset(struct sdhci_t * sdhci)
+{
+	if(sdhci && sdhci->reset)
+		return sdhci->reset(sdhci);
+	return FALSE;
+}
+
 bool_t sdhci_set_width(struct sdhci_t * sdhci, u32_t width)
 {
 	if(sdhci && sdhci->setwidth)

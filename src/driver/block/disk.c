@@ -154,16 +154,17 @@ bool_t register_disk(struct device_t ** device, struct disk_t * disk)
 		dblk->offset = ppos->from;
 		dblk->disk = disk;
 
-		blk->name = name;
+		blk->name = strdup(name);
 		blk->blksz = ppos->size;
 		blk->blkcnt = ppos->to - ppos->from + 1;
 		blk->read = disk_block_read;
 		blk->write = disk_block_write;
 		blk->sync = disk_block_sync;
-		blk->priv	= dblk;
+		blk->priv = dblk;
 
 		if(!register_block(NULL, blk))
 		{
+			free(blk->name);
 			free(blk);
 			free(dblk);
 			ppos->blk = NULL;
@@ -192,6 +193,7 @@ bool_t unregister_disk(struct disk_t * disk)
 		if(blk)
 		{
 			unregister_block(blk);
+			free(blk->name);
 			free(blk->priv);
 			free(blk);
 		}

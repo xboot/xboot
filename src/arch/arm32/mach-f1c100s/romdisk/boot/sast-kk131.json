@@ -118,7 +118,7 @@
 		"name": "mux-tcon", "shift": 24, "width": 3,
 		"default": { "parent": "pll-video" }
 	},
-	"clk-gate@0x01c20118": {"parent": "pll-video", "name": "gate-tcon", "shift": 31, "invert": false },
+	"clk-gate@0x01c20118": {"parent": "mux-tcon", "name": "gate-tcon", "shift": 31, "invert": false },
 	"clk-gate@0x01c20064": {"parent": "gate-tcon", "name": "gate-bus-tcon", "shift": 4, "invert": false },
 	"clk-link": { "parent": "gate-bus-tcon", "name": "link-tcon" },
 

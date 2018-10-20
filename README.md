@@ -65,9 +65,11 @@ make CROSS_COMPILE="" PLATFORM=x64-sandbox
 # 讨论组，大佬聚集，请踊跃加入
 XBOOT官方QQ群：[658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000人)
 
-#资助鼓励
+# 资助鼓励
 
 如果您认为我做的这些对您来说是有价值的, 并鼓励我进行更多的开源及免费开发. 那您可以资助我, 就算是一杯咖啡...
+![donate-with-wechat](https://github.com/xboot/xboot/raw/master/documents/images/donate-with-wechat.png)
+[![donate-with-alipay](https://github.com/xboot/xboot/raw/master/documents/images/donate-with-alipay.png)
 
 ***
 # Xboot Introduction
@@ -130,4 +132,4 @@ XBOOT Official Tencent QQ Group: [658250248](https://jq.qq.com/?_wv=1027&k=5BOkX
 
 If you find my work useful and you want to encourage the development of more free resources, you can do it by donating… 
 
-[![donate-with-paypal](https://github.com/xboot/xboot/raw/master/documents/images/donate-with-paypal.png)](https://www.paypal.me/openxboot)
+[![donate-with-paypal](https://github.com/xboot/xboot/raw/master/documents/images/donate-with-paypal.png)](https://www.paypal.me/openxboot/10)

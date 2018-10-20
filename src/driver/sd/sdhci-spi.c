@@ -84,9 +84,9 @@ static u8_t crc7(const u8_t * buf, int len)
 
 static bool_t spi_transfer_wait_response(struct sdhci_spi_pdata_t * pdat, u8_t * rx, u8_t mask, u8_t value)
 {
-	int n = 1000;
+	ktime_t timeout = ktime_add_ms(ktime_get(), 500);
 
-	while(--n > 0)
+	while(ktime_before(ktime_get(), timeout))
 	{
 		if((spi_device_write_then_read(pdat->dev, 0, 0, rx, 1) >= 0) && ((*rx & mask) == value))
 			return TRUE;

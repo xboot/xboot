@@ -69,7 +69,7 @@ XBOOT官方QQ群：[658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000人)
 
 如果您认为我做的这些对您来说是有价值的, 并鼓励我进行更多的开源及免费开发. 那您可以资助我, 就算是一杯咖啡...
 ![donate-with-wechat](https://github.com/xboot/xboot/raw/master/documents/images/donate-with-wechat.png)
-[![donate-with-alipay](https://github.com/xboot/xboot/raw/master/documents/images/donate-with-alipay.png)
+![donate-with-alipay](https://github.com/xboot/xboot/raw/master/documents/images/donate-with-alipay.png)
 
 ***
 # Xboot Introduction

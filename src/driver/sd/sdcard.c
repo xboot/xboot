@@ -135,14 +135,14 @@ static bool_t sd_send_if_cond(struct sdhci_t * hci, struct sdcard_t * card)
 static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd;
-	int timeout = 100;
+	int timeout = 1000;
 
 	do {
 		cmd.cmdidx = MMC_APP_CMD;
 		cmd.cmdarg = 0;
 		cmd.resptype = MMC_RSP_R1;
-	 	if(!sdhci_transfer(hci, &cmd, NULL))
-	 		return FALSE;
+		if(!sdhci_transfer(hci, &cmd, NULL))
+	 		continue;
 
 		cmd.cmdidx = SD_CMD_APP_SEND_OP_COND;
 		if(!hci->isspi)
@@ -162,8 +162,7 @@ static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 			cmd.cmdarg |= OCR_HCS;
 		cmd.resptype = MMC_RSP_R3;
 		if(!sdhci_transfer(hci, &cmd, NULL))
-			return FALSE;
-		udelay(1000);
+			continue;
 	} while (!(cmd.response[0] & OCR_BUSY) && timeout--);
 
 	if(timeout <= 0)
@@ -189,7 +188,7 @@ static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd;
-	int timeout = 100;
+	int timeout = 1000;
 
 	if(!go_idle_state(hci))
 		return FALSE;
@@ -207,7 +206,6 @@ static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 		cmd.resptype = MMC_RSP_R3;
 	 	if(!sdhci_transfer(hci, &cmd, NULL))
 	 		return FALSE;
-	 	udelay(1000);
 	} while (!(cmd.response[0] & OCR_BUSY) && timeout--);
 
 	if(timeout <= 0)
@@ -265,12 +263,10 @@ static u64_t mmc_write_blocks(struct sdhci_t * hci, struct sdcard_t * card, u8_t
 	struct sdhci_cmd_t cmd;
 	struct sdhci_data_t dat;
 
-	if(blkcnt == 0)
-		return 0;
-	else if(blkcnt == 1)
-		cmd.cmdidx = MMC_WRITE_SINGLE_BLOCK;
-	else
+	if(blkcnt > 1)
 		cmd.cmdidx = MMC_WRITE_MULTIPLE_BLOCK;
+	else
+		cmd.cmdidx = MMC_WRITE_SINGLE_BLOCK;
 	if(card->high_capacity)
 		cmd.cmdarg = start;
 	else
@@ -359,10 +355,10 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 		cmd.resptype = MMC_RSP_R1;
 		if(!sdhci_transfer(hci, &cmd, NULL))
 			return FALSE;
-		card->cid[0] = cmd.response[0];
-		card->cid[1] = cmd.response[1];
-		card->cid[2] = cmd.response[2];
-		card->cid[3] = cmd.response[3];
+		card->csd[0] = cmd.response[0];
+		card->csd[1] = cmd.response[1];
+		card->csd[2] = cmd.response[2];
+		card->csd[3] = cmd.response[3];
 	}
 	else
 	{
@@ -417,11 +413,17 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 	if(card->write_bl_len > 512)
 		card->write_bl_len = 512;
 
-	cmd.cmdidx = MMC_SELECT_CARD;
-	cmd.cmdarg = card->rca << 16;
-	cmd.resptype = MMC_RSP_R1;
-	if(!sdhci_transfer(hci, &cmd, NULL))
-		return FALSE;
+	if(hci->isspi)
+	{
+	}
+	else
+	{
+		cmd.cmdidx = MMC_SELECT_CARD;
+		cmd.cmdarg = card->rca << 16;
+		cmd.resptype = MMC_RSP_R1;
+		if(!sdhci_transfer(hci, &cmd, NULL))
+			return FALSE;
+	}
 
 	if((card->version & MMC_VERSION_MMC) && (card->version >= MMC_VERSION_4))
 	{
@@ -494,243 +496,6 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 	if(!sdhci_transfer(hci, &cmd, NULL))
 		return FALSE;
 
-	LOG("version = %08x", card->version);
-	LOG("ocr = %08x", card->ocr);
-	LOG("rca = %08x", card->rca);
-	LOG("cid[0] = %08x", card->cid[0]);
-	LOG("cid[1] = %08x", card->cid[1]);
-	LOG("cid[2] = %08x", card->cid[2]);
-	LOG("cid[3] = %08x", card->cid[3]);
-	LOG("csd[0] = %08x", card->csd[0]);
-	LOG("csd[1] = %08x", card->csd[1]);
-	LOG("csd[2] = %08x", card->csd[2]);
-	LOG("csd[3] = %08x", card->csd[3]);
-	int i;
-	for(i = 0; i < 512; i += 8)
-	{
-		LOG("[%04x]: %02x %02x %02x %02x %02x %02x %02x %02x", i, card->extcsd[i + 0], card->extcsd[i + 1], card->extcsd[i + 2], card->extcsd[i + 3], card->extcsd[i + 4], card->extcsd[i + 5], card->extcsd[i + 6], card->extcsd[i + 7]);
-	}
-	LOG("high_capacity = %08x", card->high_capacity);
-	LOG("tran_speed = %08x", card->tran_speed);
-	LOG("dsr_imp = %08x", card->dsr_imp);
-	LOG("read_bl_len = %08x", card->read_bl_len);
-	LOG("write_bl_len = %08x", card->write_bl_len);
-	LOG("capacity = %016x", card->capacity);
-	LOG("high_capacity = %08x", card->high_capacity);
-	LOG("high_capacity = %08x", card->high_capacity);
-	return TRUE;
-}
-
-#if 0
-static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
-{
-	struct sdhci_cmd_t cmd;
-	struct sdhci_data_t dat;
-	u64_t csize, cmult;
-	u32_t unit, time;
-
-	if(!sdhci_detect(hci))
-		return FALSE;
-
-	sdhci_set_width(hci, MMC_BUS_WIDTH_1);
-	sdhci_set_clock(hci, 100 * 1000);
-
-	if(!go_idle_state(hci))
-		return FALSE;
-
-	sd_send_if_cond(hci, card);
-	if(!sd_send_op_cond(hci, card))
-	{
-		if(!mmc_send_op_cond(hci, card))
-			return FALSE;
-	}
-
-	if(hci->isspi)
-	{
-		cmd.cmdidx = MMC_SPI_CRC_ON_OFF;
-		cmd.cmdarg = 1;
-		cmd.resptype = MMC_RSP_R1;
-	 	if(!sdhci_transfer(hci, &cmd, NULL))
-	 		return FALSE;
-
-		cmd.cmdidx = MMC_SEND_CID;
-		cmd.cmdarg = 0;
-		cmd.resptype = MMC_RSP_R3;
-	 	if(!sdhci_transfer(hci, &cmd, NULL))
-	 		return FALSE;
-	 	card->cid[0] = cmd.response[0];
-	 	card->cid[1] = cmd.response[1];
-	 	card->cid[2] = cmd.response[2];
-	 	card->cid[3] = cmd.response[3];
-	}
-	else
-	{
-		cmd.cmdidx = MMC_ALL_SEND_CID;
-		cmd.cmdarg = 0;
-		cmd.resptype = MMC_RSP_R2;
-	 	if(!sdhci_transfer(hci, &cmd, NULL))
-	 		return FALSE;
-	 	card->cid[0] = cmd.response[0];
-	 	card->cid[1] = cmd.response[1];
-	 	card->cid[2] = cmd.response[2];
-	 	card->cid[3] = cmd.response[3];
-	}
-
-	int i;
-	LOG("version = %08x", card->version);
-	LOG("ocr = %08x", card->ocr);
-	LOG("rca = %08x", card->rca);
-	LOG("cid[0] = %08x", card->cid[0]);
-	LOG("cid[1] = %08x", card->cid[1]);
-	LOG("cid[2] = %08x", card->cid[2]);
-	LOG("cid[3] = %08x", card->cid[3]);
-	LOG("csd[0] = %08x", card->csd[0]);
-	LOG("csd[1] = %08x", card->csd[1]);
-	LOG("csd[2] = %08x", card->csd[2]);
-	LOG("csd[3] = %08x", card->csd[3]);
-	for(i = 0; i < 512; i += 8)
-	{
-		LOG("[%04x]: %02x %02x %02x %02x %02x %02x %02x %02x", i, card->extcsd[i + 0], card->extcsd[i + 1], card->extcsd[i + 2], card->extcsd[i + 3], card->extcsd[i + 4], card->extcsd[i + 5], card->extcsd[i + 6], card->extcsd[i + 7]);
-	}
-	LOG("high_capacity = %08x", card->high_capacity);
-	LOG("tran_speed = %08x", card->tran_speed);
-	LOG("dsr_imp = %08x", card->dsr_imp);
-	LOG("read_bl_len = %08x", card->read_bl_len);
-	LOG("write_bl_len = %08x", card->write_bl_len);
-	LOG("capacity = %016x", card->capacity);
-	LOG("high_capacity = %08x", card->high_capacity);
-	LOG("high_capacity = %08x", card->high_capacity);
-	return FALSE;
-
-	cmd.cmdidx = SD_CMD_SEND_RELATIVE_ADDR;
-	cmd.cmdarg = card->rca << 16;
-	cmd.resptype = MMC_RSP_R6;
-	if(!sdhci_transfer(hci, &cmd, NULL))
-		return FALSE;
-	if(IS_SD(card))
-		card->rca = (cmd.response[0] >> 16) & 0xffff;
-
-	cmd.cmdidx = MMC_SEND_CSD;
-	cmd.cmdarg = card->rca << 16;
-	cmd.resptype = MMC_RSP_R2;
- 	if(!sdhci_transfer(hci, &cmd, NULL))
- 		return FALSE;
- 	card->csd[0] = cmd.response[0];
- 	card->csd[1] = cmd.response[1];
- 	card->csd[2] = cmd.response[2];
- 	card->csd[3] = cmd.response[3];
-
-	if(card->version == MMC_VERSION_UNKNOWN)
-	{
-		switch((card->csd[0] >> 26) & 0xf)
-		{
-		case 0:
-			card->version = MMC_VERSION_1_2;
-			break;
-		case 1:
-			card->version = MMC_VERSION_1_4;
-			break;
-		case 2:
-			card->version = MMC_VERSION_2_2;
-			break;
-		case 3:
-			card->version = MMC_VERSION_3;
-			break;
-		case 4:
-			card->version = MMC_VERSION_4;
-			break;
-		default:
-			card->version = MMC_VERSION_1_2;
-			break;
-		};
-	}
-
-	unit = tran_speed_unit[(card->csd[0] & 0x7)];
-	time = tran_speed_time[((card->csd[0] >> 3) & 0xf)];
-	card->tran_speed = time * unit;
-	card->dsr_imp = UNSTUFF_BITS(card->csd, 76, 1);
-
-	card->read_bl_len = 1 << UNSTUFF_BITS(card->csd, 80, 4);
-	if(IS_SD(card))
-		card->write_bl_len = card->read_bl_len;
-	else
-		card->write_bl_len = 1 << ((card->csd[3] >> 22) & 0xf);
-	if(card->read_bl_len > 512)
-		card->read_bl_len = 512;
-	if(card->write_bl_len > 512)
-		card->write_bl_len = 512;
-
-	cmd.cmdidx = MMC_SELECT_CARD;
-	cmd.cmdarg = card->rca << 16;
-	cmd.resptype = MMC_RSP_R1;
-	if(!sdhci_transfer(hci, &cmd, NULL))
-		return FALSE;
-
-	if(!IS_SD(card) && (card->version >= MMC_VERSION_4))
-	{
-		cmd.cmdidx = MMC_SEND_EXT_CSD;
-		cmd.cmdarg = 0;
-		cmd.resptype = MMC_RSP_R1;
-
-		dat.buf = card->extcsd;
-		dat.flag = MMC_DATA_READ;
-		dat.blksz = 512;
-		dat.blkcnt = 1;
-
-	 	if(!sdhci_transfer(hci, &cmd, &dat))
-	 		return FALSE;
-
-		switch(card->extcsd[192])
-		{
-		case 1:
-			card->version = MMC_VERSION_4_1;
-			break;
-		case 2:
-			card->version = MMC_VERSION_4_2;
-			break;
-		case 3:
-			card->version = MMC_VERSION_4_3;
-			break;
-		case 5:
-			card->version = MMC_VERSION_4_41;
-			break;
-		case 6:
-			card->version = MMC_VERSION_4_5;
-			break;
-		case 7:
-			card->version = MMC_VERSION_5_0;
-			break;
-		case 8:
-			card->version = MMC_VERSION_5_1;
-			break;
-		default:
-			break;
-		}
-	}
-
-	if(card->high_capacity)
-	{
-		if(IS_SD(card))
-		{
-			csize = UNSTUFF_BITS(card->csd, 48, 22);
-			card->capacity = (1 + csize) << 10;
-		}
-		else
-		{
-			card->capacity = card->extcsd[212] << 0 |
-				card->extcsd[212 + 1] << 8 |
-				card->extcsd[212 + 2] << 16 |
-				card->extcsd[212 + 3] << 24;
-		}
-	}
-	else
-	{
-		cmult = UNSTUFF_BITS(card->csd, 47, 3);
-		csize = UNSTUFF_BITS(card->csd, 62, 12);
-		card->capacity = (csize + 1) << (cmult + 2);
-	}
-	card->capacity *= 1 << UNSTUFF_BITS(card->csd, 80, 4);
-
 /*	if(IS_SD(card))
 		ret = sd_change_freq(card);
 	else
@@ -745,42 +510,49 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 	if(!ret)
 		return FALSE; */
 
-	cmd.cmdidx = MMC_SET_BLOCKLEN;
-	cmd.cmdarg = card->read_bl_len;
-	cmd.resptype = MMC_RSP_R1;
-	if(!sdhci_transfer(hci, &cmd, NULL))
-		return FALSE;
-
+	LOG("version = %08x", card->version);
+	LOG("ocr = %08x", card->ocr);
+	LOG("rca = %08x", card->rca);
+	LOG("cid[0] = %08x", card->cid[0]);
+	LOG("cid[1] = %08x", card->cid[1]);
+	LOG("cid[2] = %08x", card->cid[2]);
+	LOG("cid[3] = %08x", card->cid[3]);
+	LOG("csd[0] = %08x", card->csd[0]);
+	LOG("csd[1] = %08x", card->csd[1]);
+	LOG("csd[2] = %08x", card->csd[2]);
+	LOG("csd[3] = %08x", card->csd[3]);
+	int i;
+	for(i = 0; i < 512; i += 8)
+	{
+		LOG("[%04x]: %02x %02x %02x %02x %02x %02x %02x %02x", i, card->extcsd[i + 0], card->extcsd[i + 1], card->extcsd[i + 2], card->extcsd[i + 3], card->extcsd[i + 4], card->extcsd[i + 5], card->extcsd[i + 6], card->extcsd[i + 7]);
+	}
+	LOG("high_capacity = %08x", card->high_capacity);
+	LOG("tran_speed = %08x", card->tran_speed);
+	LOG("dsr_imp = %08x", card->dsr_imp);
+	LOG("read_bl_len = %08x", card->read_bl_len);
+	LOG("write_bl_len = %08x", card->write_bl_len);
+	LOG("capacity = %016x", card->capacity);
+	LOG("high_capacity = %08x", card->high_capacity);
+	LOG("high_capacity = %08x", card->high_capacity);
 	return TRUE;
 }
-#endif
 
 static u64_t sdcard_disk_read(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
 {
 	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(disk->priv);
 	struct sdhci_t * hci = pdat->hci;
 	struct sdcard_t * card = &pdat->card;
-	struct sdhci_cmd_t cmd;
 	u64_t cnt, blks = count;
 
-	if(count == 0)
-		return 0;
-
-	cmd.cmdidx = MMC_SET_BLOCKLEN;
-	cmd.cmdarg = card->read_bl_len;
-	cmd.resptype = MMC_RSP_R1;
-	if(!sdhci_transfer(hci, &cmd, NULL))
-		return 0;
-
-	do {
+	while(blks > 0)
+	{
 		cnt = (blks > 65535) ?  65535 : blks;
 		if(mmc_read_blocks(hci, card, buf, sector, cnt) != cnt)
 			return 0;
 		blks -= cnt;
 		sector += cnt;
 		buf += cnt * card->read_bl_len;
-	} while(blks > 0);
-
+	}
 	return count;
 }
 
@@ -789,24 +561,17 @@ static u64_t sdcard_disk_write(struct disk_t * disk, u8_t * buf, u64_t sector, u
 	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(disk->priv);
 	struct sdhci_t * hci = pdat->hci;
 	struct sdcard_t * card = &pdat->card;
-	struct sdhci_cmd_t cmd;
 	u64_t cnt, blks = count;
 
-	cmd.cmdidx = MMC_SET_BLOCKLEN;
-	cmd.cmdarg = card->write_bl_len;
-	cmd.resptype = MMC_RSP_R1;
-	if(!sdhci_transfer(hci, &cmd, NULL))
-		return 0;
-
-	do {
+	while(blks > 0)
+	{
 		cnt = (blks > 65535) ?  65535 : blks;
 		if(mmc_write_blocks(hci, card, buf, sector, cnt) != cnt)
 			return 0;
 		blks -= cnt;
 		sector += cnt;
 		buf += cnt * card->write_bl_len;
-	} while (blks > 0);
-
+	}
 	return count;
 }
 

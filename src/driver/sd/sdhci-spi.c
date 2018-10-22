@@ -82,16 +82,38 @@ static u8_t crc7(const u8_t * buf, int len)
 	return (crc << 1) | 0x1;
 }
 
-static bool_t spi_transfer_wait_response(struct sdhci_spi_pdata_t * pdat, u8_t * rx, u8_t mask, u8_t value, int ms)
+static bool_t spi_transfer_wait_response(struct sdhci_spi_pdata_t * pdat, u8_t * rx, u8_t mask, u8_t value, int ms, int immediately)
 {
 	ktime_t timeout = ktime_add_ms(ktime_get(), ms);
 
-	while(ktime_before(ktime_get(), timeout))
-	{
-		if((spi_device_write_then_read(pdat->dev, 0, 0, rx, 1) >= 0) && ((*rx & mask) == value))
-			return TRUE;
-	}
+	do {
+		if(spi_device_write_then_read(pdat->dev, 0, 0, rx, 1) >= 0)
+		{
+			if(*rx != 0xff)
+			{
+				if((*rx & mask) == value)
+					return TRUE;
+				if(immediately)
+					return FALSE;
+			}
+		}
+	} while(ktime_before(ktime_get(), timeout));
+
 	return FALSE;
+}
+
+static void spi_transfer_wait_write_busy(struct sdhci_spi_pdata_t * pdat, int ms)
+{
+	ktime_t timeout = ktime_add_ms(ktime_get(), ms);
+	u8_t rx;
+
+	do {
+		if(spi_device_write_then_read(pdat->dev, 0, 0, &rx, 1) >= 0)
+		{
+			if(rx == 0xff)
+				return;
+		}
+	} while(ktime_before(ktime_get(), timeout));
 }
 
 static bool_t sdhci_spi_detect(struct sdhci_t * sdhci)
@@ -125,16 +147,14 @@ static bool_t sdhci_spi_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cm
 {
 	struct sdhci_spi_pdata_t * pdat = (struct sdhci_spi_pdata_t *)sdhci->priv;
 	bool_t ret = FALSE;
-	u8_t tx[6], rx[16], crc[2];
+	u8_t tx[16], rx[16], crc[2];
 	u8_t r;
 	int i;
 
 	if(cmd && cmd->cmdidx == MMC_GO_IDLE_STATE)
 	{
-		r = 0xff;
-		for(i = 0; i < 10; i++)
-			spi_device_write_then_read(pdat->dev, &r, 1, 0, 0);
-		udelay(200);
+		memset(&tx[0], 0xff, 10);
+		spi_device_write_then_read(pdat->dev, &tx[0], 10, 0, 0);
 	}
 
 	spi_device_select(pdat->dev);
@@ -149,49 +169,28 @@ static bool_t sdhci_spi_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cm
 		spi_device_write_then_read(pdat->dev, &tx, 6, 0, 0);
 		switch(cmd->resptype)
 		{
-		case MMC_RSP_NONE:
-			break;
 		case MMC_RSP_R1:
-			if(cmd->cmdidx == MMC_GO_IDLE_STATE)
+			switch(cmd->cmdidx)
 			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x01, 1))
+			case MMC_GO_IDLE_STATE:
+			case MMC_APP_CMD:
+				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x01, 100, 1))
 					ret = TRUE;
-			}
-			else if(cmd->cmdidx == MMC_APP_CMD)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x01, 1))
+				break;
+			case SD_CMD_APP_SEND_OP_COND:
+			case MMC_SET_BLOCKLEN:
+			case MMC_READ_SINGLE_BLOCK:
+			case MMC_READ_MULTIPLE_BLOCK:
+			case MMC_WRITE_SINGLE_BLOCK:
+			case MMC_WRITE_MULTIPLE_BLOCK:
+				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 100, 1))
 					ret = TRUE;
-			}
-			else if(cmd->cmdidx == MMC_SET_BLOCKLEN)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
-					ret = TRUE;
-			}
-			else if(cmd->cmdidx == MMC_READ_SINGLE_BLOCK)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
-					ret = TRUE;
-			}
-			else if(cmd->cmdidx == MMC_READ_MULTIPLE_BLOCK)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
-					ret = TRUE;
-			}
-			else if(cmd->cmdidx == MMC_WRITE_SINGLE_BLOCK)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
-					ret = TRUE;
-			}
-			else if(cmd->cmdidx == MMC_WRITE_MULTIPLE_BLOCK)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
-					ret = TRUE;
-			}
-			else if(cmd->cmdidx == MMC_SEND_CID)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 1))
+				break;
+			case MMC_SEND_CID:
+			case MMC_SEND_CSD:
+				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 100, 1))
 				{
-					if(spi_transfer_wait_response(pdat, &r, 0xff, 0xfe, 1))
+					if(spi_transfer_wait_response(pdat, &r, 0xff, 0xfe, 100, 1))
 					{
 						spi_device_write_then_read(pdat->dev, 0, 0, &rx[0], 16);
 						spi_device_write_then_read(pdat->dev, 0, 0, &crc[0], 2);
@@ -202,120 +201,77 @@ static bool_t sdhci_spi_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cm
 						ret = TRUE;
 					}
 				}
-			}
-			else if(cmd->cmdidx == MMC_SEND_CSD)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 1))
-				{
-					if(spi_transfer_wait_response(pdat, &r, 0xff, 0xfe, 1))
-					{
-						spi_device_write_then_read(pdat->dev, 0, 0, &rx[0], 16);
-						spi_device_write_then_read(pdat->dev, 0, 0, &crc[0], 2);
-						cmd->response[0] = (rx[0] << 24) | (rx[1] << 16) | (rx[2] << 8) | (rx[3] << 0);
-						cmd->response[1] = (rx[4] << 24) | (rx[5] << 16) | (rx[6] << 8) | (rx[7] << 0);
-						cmd->response[2] = (rx[8] << 24) | (rx[9] << 16) | (rx[10] << 8) | (rx[11] << 0);
-						cmd->response[3] = (rx[12] << 24) | (rx[13] << 16) | (rx[14] << 8) | (rx[15] << 0);
-						ret = TRUE;
-					}
-				}
-			}
-			else
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
+				break;
+			default:
+				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 100, 1))
 					ret = TRUE;
+				break;
 			}
 			break;
 		case MMC_RSP_R1B:
-			if(cmd->cmdidx == MMC_STOP_TRANSMISSION)
+			switch(cmd->cmdidx)
 			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 1))
+			case MMC_STOP_TRANSMISSION:
+				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 100, 0))
 					ret = TRUE;
-			}
-			else
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
+				break;
+			default:
+				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 100, 0))
 					ret = TRUE;
+				break;
 			}
 			break;
 		case MMC_RSP_R2:
-			if(cmd->cmdidx == MMC_ALL_SEND_CID)
+			switch(cmd->cmdidx)
 			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 1))
+			case MMC_ALL_SEND_CID:
+			case MMC_SEND_CSD:
+				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 100, 1))
 				{
 					spi_device_write_then_read(pdat->dev, 0, 0, &rx[0], 4);
 					cmd->response[0] = (rx[0] << 24) | (rx[1] << 16) | (rx[2] << 8) | (rx[3] << 0);
 					ret = TRUE;
 				}
-			}
-			else if(cmd->cmdidx == MMC_SEND_CSD)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 1))
-				{
-					spi_device_write_then_read(pdat->dev, 0, 0, &rx[0], 4);
-					cmd->response[0] = (rx[0] << 24) | (rx[1] << 16) | (rx[2] << 8) | (rx[3] << 0);
+				break;
+			default:
+				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 100, 1))
 					ret = TRUE;
-				}
-			}
-			else
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
-					ret = TRUE;
+				break;
 			}
 			break;
 		case MMC_RSP_R3:
-			if(cmd->cmdidx == SD_CMD_APP_SEND_OP_COND)
+			switch(cmd->cmdidx)
 			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 1))
+			case MMC_SPI_READ_OCR:
+			case MMC_SEND_OP_COND:
+				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 100, 1))
 				{
 					spi_device_write_then_read(pdat->dev, 0, 0, &rx[0], 4);
 					cmd->response[0] = (rx[0] << 24) | (rx[1] << 16) | (rx[2] << 8) | (rx[3] << 0);
 					ret = TRUE;
 				}
-			}
-			else if(cmd->cmdidx == MMC_SPI_READ_OCR)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 1))
-				{
-					spi_device_write_then_read(pdat->dev, 0, 0, &rx[0], 4);
-					cmd->response[0] = (rx[0] << 24) | (rx[1] << 16) | (rx[2] << 8) | (rx[3] << 0);
+				break;
+			default:
+				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 100, 1))
 					ret = TRUE;
-				}
+				break;
 			}
-			else if(cmd->cmdidx == MMC_SEND_OP_COND)
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x00, 1))
-				{
-					spi_device_write_then_read(pdat->dev, 0, 0, &rx[0], 4);
-					cmd->response[0] = (rx[0] << 24) | (rx[1] << 16) | (rx[2] << 8) | (rx[3] << 0);
-					ret = TRUE;
-				}
-			}
-			else
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
-					ret = TRUE;
-			}
-			break;
-		case MMC_RSP_R4:
-			break;
-		case MMC_RSP_R5:
-			break;
-		case MMC_RSP_R6:
 			break;
 		case MMC_RSP_R7:
-			if(cmd->cmdidx == SD_CMD_SEND_IF_COND)
+			switch(cmd->cmdidx)
 			{
-				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x01, 1))
+			case SD_CMD_SEND_IF_COND:
+				if(spi_transfer_wait_response(pdat, &r, 0xff, 0x01, 100, 1))
 				{
 					spi_device_write_then_read(pdat->dev, 0, 0, &rx[0], 4);
 					cmd->response[0] = (rx[0] << 24) | (rx[1] << 16) | (rx[2] << 8) | (rx[3] << 0);
 					ret = TRUE;
 				}
-			}
-			else
-			{
-				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 1))
+				break;
+			default:
+				if(spi_transfer_wait_response(pdat, &r, 0x80, 0x00, 100, 1))
 					ret = TRUE;
+				break;
 			}
 			break;
 		default:
@@ -324,66 +280,72 @@ static bool_t sdhci_spi_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cm
 	}
 	if(dat)
 	{
-		if(dat->flag & MMC_DATA_READ)
+		switch(dat->flag)
 		{
-			if(spi_transfer_wait_response(pdat, &r, 0xff, 0xfe, 100))
+		case MMC_DATA_READ:
+			for(i = 0; i < dat->blkcnt; i++)
 			{
-				spi_device_write_then_read(pdat->dev, 0, 0, dat->buf, dat->blkcnt * dat->blksz);
+				if(!spi_transfer_wait_response(pdat, &r, 0xff, 0xfe, 100, 0))
+					break;
+				spi_device_write_then_read(pdat->dev, 0, 0, dat->buf + dat->blksz * i, dat->blksz);
 				spi_device_write_then_read(pdat->dev, 0, 0, &crc[0], 2);
-				ret = TRUE;
 			}
-		}
-		else if(dat->flag & MMC_DATA_WRITE)
-		{
-			if(cmd->cmdidx == MMC_WRITE_SINGLE_BLOCK)
+			if(i >= dat->blkcnt)
+				ret = TRUE;
+			break;
+		case MMC_DATA_WRITE:
+			switch(cmd->cmdidx)
 			{
-				tx[0] = 0xff;
-				tx[1] = 0xff;
-				tx[2] = 0xff;
-				tx[3] = 0xfe;
+			case MMC_WRITE_SINGLE_BLOCK:
+				memset(&tx[0], 0xff, 8);
+				tx[8] = 0xfe;
 				crc[0] = 0xff;
 				crc[1] = 0xff;
-				spi_device_write_then_read(pdat->dev, &tx[0], 3, 0, 0);
-				spi_device_write_then_read(pdat->dev, &tx[3], 1, 0, 0);
+				spi_device_write_then_read(pdat->dev, &tx[0], 8, 0, 0);
+				spi_device_write_then_read(pdat->dev, &tx[8], 1, 0, 0);
 				spi_device_write_then_read(pdat->dev, dat->buf, dat->blksz, 0, 0);
 				spi_device_write_then_read(pdat->dev, &crc[0], 2, 0, 0);
-				if(spi_transfer_wait_response(pdat, &r, 0x1f, 0x05, 100))
+				if(spi_transfer_wait_response(pdat, &r, 0x1f, 0x05, 100, 0))
 				{
-					if(spi_transfer_wait_response(pdat, &r, 0xff, 0xff, 100))
-						ret = TRUE;
+					spi_transfer_wait_write_busy(pdat, 1000);
+					ret = TRUE;
 				}
-			}
-			else if(cmd->cmdidx == MMC_WRITE_MULTIPLE_BLOCK)
-			{
-				tx[0] = 0xff;
-				tx[1] = 0xff;
-				tx[2] = 0xff;
-				tx[3] = 0xfc;
-				tx[4] = 0xfd;
+				break;
+			case MMC_WRITE_MULTIPLE_BLOCK:
+				memset(&tx[0], 0xff, 8);
+				tx[8] = 0xfc;
+				tx[9] = 0xfd;
 				crc[0] = 0xff;
 				crc[1] = 0xff;
-				spi_device_write_then_read(pdat->dev, &tx[0], 3, 0, 0);
 				for(i = 0; i < dat->blkcnt; i++)
 				{
-					spi_device_write_then_read(pdat->dev, &tx[3], 1, 0, 0);
+					spi_device_write_then_read(pdat->dev, &tx[0], 8, 0, 0);
+					spi_device_write_then_read(pdat->dev, &tx[8], 1, 0, 0);
 					spi_device_write_then_read(pdat->dev, dat->buf + dat->blksz * i, dat->blksz, 0, 0);
 					spi_device_write_then_read(pdat->dev, &crc[0], 2, 0, 0);
-					if(spi_transfer_wait_response(pdat, &r, 0x1f, 0x05, 100))
-					{
-						if(!spi_transfer_wait_response(pdat, &r, 0xff, 0xff, 100))
-							break;
-					}
+					if(!spi_transfer_wait_response(pdat, &r, 0x1f, 0x05, 100, 0))
+						break;
+					spi_transfer_wait_write_busy(pdat, 1000);
 				}
 				if(i >= dat->blkcnt)
 					ret = TRUE;
-				spi_device_write_then_read(pdat->dev, &tx[4], 1, 0, 0);
+				spi_device_write_then_read(pdat->dev, &tx[0], 1, 0, 0);
+				spi_device_write_then_read(pdat->dev, &tx[9], 1, 0, 0);
+				spi_device_write_then_read(pdat->dev, &tx[0], 1, 0, 0);
+				spi_transfer_wait_write_busy(pdat, 1000);
+				break;
+			default:
+				break;
 			}
+			break;
+		default:
+			break;
 		}
 	}
 	spi_device_deselect(pdat->dev);
 
-	r = 0xff;
-	spi_device_write_then_read(pdat->dev, &r, 1, 0, 0);
+	memset(&tx[0], 0xff, 8);
+	spi_device_write_then_read(pdat->dev, &tx[0], 8, 0, 0);
 	return ret;
 }
 

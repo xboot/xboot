@@ -153,17 +153,20 @@ static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 				cmd.cmdarg = 0x00000080;
 			else
 				cmd.cmdarg = 0;
+			if(card->version == SD_VERSION_2)
+				cmd.cmdarg |= OCR_HCS;
+			cmd.resptype = MMC_RSP_R3;
 		}
 		else
 		{
 			cmd.cmdarg = 0;
+			if(card->version == SD_VERSION_2)
+				cmd.cmdarg |= OCR_HCS;
+			cmd.resptype = MMC_RSP_R1;
 		}
-		if(card->version == SD_VERSION_2)
-			cmd.cmdarg |= OCR_HCS;
-		cmd.resptype = MMC_RSP_R3;
-		if(!sdhci_transfer(hci, &cmd, NULL))
-			continue;
-	} while (!(cmd.response[0] & OCR_BUSY) && timeout--);
+		if(sdhci_transfer(hci, &cmd, NULL))
+			break;
+	} while(timeout--);
 
 	if(timeout <= 0)
 		return FALSE;
@@ -278,15 +281,6 @@ static u64_t mmc_write_blocks(struct sdhci_t * hci, struct sdcard_t * card, u8_t
 	dat.blkcnt = blkcnt;
 	if(!sdhci_transfer(hci, &cmd, &dat))
 		return 0;
-
-	if(blkcnt > 1)
-	{
-		cmd.cmdidx = MMC_STOP_TRANSMISSION;
-		cmd.cmdarg = 0;
-		cmd.resptype = MMC_RSP_R1B;
-		if(!sdhci_transfer(hci, &cmd, NULL))
-			return 0;
-	}
 	return blkcnt;
 }
 
@@ -298,7 +292,7 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 	u32_t unit, time;
 
 	sdhci_set_width(hci, MMC_BUS_WIDTH_1);
-	sdhci_set_clock(hci, 100 * 1000);
+	sdhci_set_clock(hci, 400 * 1000);
 	if(!go_idle_state(hci))
 		return FALSE;
 

@@ -383,7 +383,7 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_1;
 	sdhci->clock = (u32_t)dt_read_long(n, "clock-frequency", 1 * 1000 * 1000);
-	sdhci->removeable = dt_read_bool(n, "removeable", 0) ? TRUE : FALSE;
+	sdhci->removable = dt_read_bool(n, "removable", 0) ? TRUE : FALSE;
 	sdhci->isspi = TRUE;
 	sdhci->detect = sdhci_spi_detect;
 	sdhci->setvoltage = sdhci_spi_setvoltage;

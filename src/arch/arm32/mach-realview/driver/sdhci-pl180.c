@@ -312,7 +312,7 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_4;
 	sdhci->clock = 52 * 1000 * 1000;
-	sdhci->removeable = TRUE;
+	sdhci->removable = TRUE;
 	sdhci->detect = sdhci_pl180_detect;
 	sdhci->setwidth = sdhci_pl180_setwidth;
 	sdhci->setclock = sdhci_pl180_setclock;

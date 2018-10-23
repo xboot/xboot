@@ -151,7 +151,7 @@ static struct device_t * sdhci_v3s_probe(struct driver_t * drv, struct dtnode_t 
 	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_4;
 	sdhci->clock = 52 * 1000 * 1000;
-	sdhci->removeable = TRUE;
+	sdhci->removable = TRUE;
 	sdhci->detect = sdhci_v3s_detect;
 	sdhci->setvoltage = sdhci_v3s_setvoltage;
 	sdhci->setwidth = sdhci_v3s_setwidth;

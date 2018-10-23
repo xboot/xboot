@@ -610,7 +610,7 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 			}
 		}
 	}
-	if(!pdat->hci->removeable)
+	if(!pdat->hci->removable)
 		return 0;
 	timer_forward_now(timer, ms_to_ktime(2000));
 	return 1;

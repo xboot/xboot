@@ -28,7 +28,7 @@ struct sdhci_t
 	u32_t voltage;
 	u32_t width;
 	u32_t clock;
-	bool_t removeable;
+	bool_t removable;
 	bool_t isspi;
 	void * sdcard;
 

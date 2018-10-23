@@ -356,7 +356,7 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 	struct device_t * dev;
 	struct spi_device_t * spidev;
 
-	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "type", 0), dt_read_int(n, "mode", 3), 8, dt_read_int(n, "speed", 0));
+	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "type", 0), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
 	if(!spidev)
 		return NULL;
 
@@ -382,7 +382,7 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
 	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_1;
-	sdhci->clock = (u32_t)dt_read_long(n, "clock-frequency", 1 * 1000 * 1000);
+	sdhci->clock = (u32_t)dt_read_long(n, "max-clock-frequency", 1 * 1000 * 1000);
 	sdhci->removable = dt_read_bool(n, "removable", 0) ? TRUE : FALSE;
 	sdhci->isspi = TRUE;
 	sdhci->detect = sdhci_spi_detect;

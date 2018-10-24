@@ -371,6 +371,18 @@
 		"status": "disabled"
 	},
 
+	"sdhci-spi@0": {
+		"spi-bus": "spi-gpio.0",
+		"chip-select": 0,
+		"type": 0,
+		"mode": 0,
+		"speed": 0,
+		"cd-gpio": -1,
+		"cd-gpio-config": -1,
+		"removable": false,
+		"max-clock-frequency": 25000000
+	},
+
 	"wdg-k210@0x50400000": {
 		"clock-name": "link-wdt0",
 		"reset": 24

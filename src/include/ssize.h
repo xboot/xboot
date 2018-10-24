@@ -5,9 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-
-int ssize(char * buf, u64_t size);
+char * ssize(double size);
 
 #ifdef __cplusplus
 }

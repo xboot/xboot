@@ -347,6 +347,7 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd;
 	struct sdhci_data_t dat;
+	char scap[32];
 	u64_t csize, cmult;
 	u32_t unit, time;
 
@@ -549,7 +550,7 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 	LOG("SD/MMC card at the '%s' host controller:", hci->name);
 	LOG("  Attached is a %s card", card->version & SD_VERSION_SD ? "SD" : "MMC");
 	LOG("  Version: %s", sdcard_version_string(card));
-	LOG("  Capacity: %s",ssize(card->capacity));
+	LOG("  Capacity: %s",ssize(scap, card->capacity));
 	if(card->high_capacity)
 		LOG("  High capacity card");
 	LOG("  CID: %08X-%08X-%08X-%08X", card->cid[0], card->cid[1], card->cid[2], card->cid[3]);

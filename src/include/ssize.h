@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-char * ssize(double size);
+char * ssize(char * buf, double size);
 
 #ifdef __cplusplus
 }

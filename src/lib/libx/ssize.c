@@ -6,9 +6,8 @@
 #include <stdio.h>
 #include <ssize.h>
 
-char * ssize(double size)
+char * ssize(char * buf, double size)
 {
-	static char buf[32];
 	const char * unit[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 	int count = 0;
 

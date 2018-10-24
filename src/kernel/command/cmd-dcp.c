@@ -42,6 +42,10 @@ static void usage(void)
 
 static int do_dcp(int argc, char ** argv)
 {
+	uint64_t start = ktime_to_ns(ktime_get());
+	uint64_t end;
+	char sbyte[32];
+	char sspeed[32];
 	enum devtype_t itype, otype;
 	struct block_t * iblk = NULL, * oblk = NULL;
 	int ifd, ofd;
@@ -214,7 +218,8 @@ static int do_dcp(int argc, char ** argv)
 		block_sync(oblk);
 	free(buf);
 
-	printf("copyed %s@0x%llx:0x%llx -> %s@0x%llx:0x%llx\r\n", iname ? iname : "", ioff, s, oname ? oname : "", ooff, s);
+	end = ktime_to_ns(ktime_get());
+	printf("Copyed %s at %s/S - %s@0x%llx:0x%llx -> %s@0x%llx:0x%llx\r\n", ssize(sbyte, s), ssize(sspeed, (double)s * 1000000000.0 / (double)(end - start)), iname ? iname : "", ioff, s, oname ? oname : "", ooff, s);
 	return 0;
 }
 

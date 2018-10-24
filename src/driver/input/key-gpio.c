@@ -118,11 +118,7 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 		gpio_set_pull(keys[i].gpio, keys[i].active_low ? GPIO_PULL_UP : GPIO_PULL_DOWN);
 		gpio_set_direction(keys[i].gpio, GPIO_DIRECTION_INPUT);
 		keys[i].state = gpio_get_value(keys[i].gpio);
-
-		if(!request_irq(gpio_to_irq(pdat->keys[i].gpio), key_gpio_interrupt_function, IRQ_TYPE_EDGE_BOTH, &pdat->keys[i]))
-			LOG("Fail to request interrupt %d, gpio is %d", gpio_to_irq(pdat->keys[i].gpio), pdat->keys[i].gpio);
 	}
-
 	pdat->keys = keys;
 	pdat->nkeys = nkeys;
 
@@ -130,6 +126,12 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	input->type = INPUT_TYPE_KEYBOARD;
 	input->ioctl = key_gpio_ioctl;
 	input->priv = pdat;
+
+	for(i = 0; i < pdat->nkeys; i++)
+	{
+		if(!request_irq(gpio_to_irq(pdat->keys[i].gpio), key_gpio_interrupt_function, IRQ_TYPE_EDGE_BOTH, &pdat->keys[i]))
+			LOG("Fail to request interrupt %d, gpio is %d", gpio_to_irq(pdat->keys[i].gpio), pdat->keys[i].gpio);
+	}
 
 	if(!register_input(&dev, input))
 	{

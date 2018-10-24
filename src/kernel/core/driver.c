@@ -163,7 +163,7 @@ void probe_device(const char * json, int length, const char * tips)
 				n.addr = p ? strtoull(p, NULL, 0) : 0;
 				n.value = (struct json_value_t *)(v->u.object.values[i].value);
 
-				if(strcmp(dt_read_string(&n, "status", NULL), "disabled") != 0)
+				if(strcmp(dt_read_string(&n, "status", "okay"), "disabled") != 0)
 				{
 					drv = search_driver(n.name);
 					if(drv && (dev = drv->probe(drv, &n)))

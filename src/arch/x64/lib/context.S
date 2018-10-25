@@ -21,8 +21,8 @@
  *
  * @return              the context pointer (rax)
  */
-	.global make_fcontext
-make_fcontext:
+	.global make_context
+make_context:
     // save the stack top to rax
     addq %rsi, %rdi
     movq %rdi, %rax
@@ -57,8 +57,8 @@ __end:
  *
  * @return              the from-context (context: rax, priv: rdx)
  */
-	.global jump_fcontext
-jump_fcontext:
+	.global jump_context
+jump_context:
 
     // save registers and construct the current context
     pushq %rbp

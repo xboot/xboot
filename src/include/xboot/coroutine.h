@@ -9,6 +9,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 #include <list.h>
+#include <context.h>
 
 #ifdef __cplusplus
 }

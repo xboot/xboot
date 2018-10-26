@@ -43,10 +43,10 @@
  *  -------------------------------------------------  *
  */
 	.text
-	.global make_context
+	.global make_fcontext
 	.align 4
-	.type make_context, %function
-make_context:
+	.type make_fcontext, %function
+make_fcontext:
 	/* shift address in x0 (allocated stack) to lower 16 byte boundary */
 	and x0, x0, ~0xF
 
@@ -115,10 +115,10 @@ finish:
  *  -------------------------------------------------  *
  */
 	.text
-	.global jump_context
+	.global jump_fcontext
 	.align 4
-	.type jump_context, %function
-jump_context:
+	.type jump_fcontext, %function
+jump_fcontext:
 	/* prepare stack for GP + FPU */
 	sub sp, sp, #0xb0
 

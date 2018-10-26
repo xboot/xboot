@@ -29,10 +29,10 @@
  *  -------------------------------------------------  *
  */
 	.text
-	.globl make_context
+	.globl make_fcontext
 	.align 4
-	.type make_context, %function
-make_context:
+	.type make_fcontext, %function
+make_fcontext:
 	/* shift address in A1 to lower 16 byte boundary */
 	bic a1, a1, #15
 
@@ -96,10 +96,10 @@ finish:
  *  -------------------------------------------------  *
  */
 	.text
-	.globl jump_context
+	.globl jump_fcontext
 	.align 4
-	.type jump_context, %function
-jump_context:
+	.type jump_fcontext, %function
+jump_fcontext:
 	/* save LR as PC */
 	push {lr}
 	/* save hidden,V1-V8,LR */

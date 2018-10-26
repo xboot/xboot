@@ -14,12 +14,11 @@
  *  |        R15        |        RBX        |         RBP        |        RIP        |  *
  *  ----------------------------------------------------------------------------------  *
  */
-
 	.text
-	.globl make_context
-	.type make_context, @function
+	.globl make_fcontext
+	.type make_fcontext, @function
 	.align 4
-make_context:
+make_fcontext:
 	/* first arg of make_fcontext() == top of context-stack */
 	movq %rdi, %rax
 
@@ -83,12 +82,11 @@ finish:
  *  |        R15        |        RBX        |         RBP        |        RIP        |  *
  *  ----------------------------------------------------------------------------------  *
  */
-
 	.text
-	.globl jump_context
-	.type jump_context, @function
+	.globl jump_fcontext
+	.type jump_fcontext, @function
 	.align 4
-jump_context:
+jump_fcontext:
 	leaq  -0x38(%rsp), %rsp /* prepare stack */
 
 	stmxcsr (%rsp)     /* save MMX control- and status-word */

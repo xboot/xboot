@@ -17,9 +17,9 @@ static void demo_platform_context_test_func1(struct transfer_t from)
 	while (count--)
     {
         printf("func1: %lu\r\n", count);
-        from = jump_context(from.ctx, contexts);
+        from = jump_fcontext(from.ctx, contexts);
     }
-	jump_context(contexts[0], NULL);
+	jump_fcontext(contexts[0], NULL);
 }
 static void demo_platform_context_test_func2(struct transfer_t from)
 {
@@ -29,9 +29,9 @@ static void demo_platform_context_test_func2(struct transfer_t from)
 	while (count--)
     {
         printf("func2: %lu\r\n", count);
-        from = jump_context(from.ctx, contexts);
+        from = jump_fcontext(from.ctx, contexts);
     }
-	jump_context(contexts[0], NULL);
+	jump_fcontext(contexts[0], NULL);
 }
 static void demo_platform_context_test()
 {
@@ -39,10 +39,10 @@ static void demo_platform_context_test()
 	static char stacks1[8192];
 	static char stacks2[8192];
 
-    contexts[1] = make_context(stacks1, sizeof(stacks1), demo_platform_context_test_func1);
-    contexts[2] = make_context(stacks2, sizeof(stacks2), demo_platform_context_test_func2);
+    contexts[1] = make_fcontext(stacks1, sizeof(stacks1), demo_platform_context_test_func1);
+    contexts[2] = make_fcontext(stacks2, sizeof(stacks2), demo_platform_context_test_func2);
 
-    jump_context(contexts[1], contexts);
+    jump_fcontext(contexts[1], contexts);
 }
 
 int demo_platform_context_main(int argc, char * argv[])

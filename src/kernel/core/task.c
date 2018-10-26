@@ -23,8 +23,16 @@
  */
 
 #include <xboot.h>
-#include <context.h>
 #include <xboot/task.h>
+
+struct transfer_t
+{
+	void * ctx;
+	void * priv;
+};
+
+extern void * make_fcontext(void * stack, size_t size, void (*func)(struct transfer_t));
+extern struct transfer_t jump_fcontext(void * ctx, void * priv);
 
 static inline struct task_t * next_ready_task(struct scheduler_t * s)
 {
@@ -39,7 +47,7 @@ static inline void scheduler_switch_task(struct scheduler_t * s, struct task_t *
 {
 	struct task_t * running = s->running;
 	s->running = task;
-	struct transfer_t from = jump_context(task->ctx, running);
+	struct transfer_t from = jump_fcontext(task->ctx, running);
 	struct task_t * t = (struct task_t *)from.priv;
 	t->ctx = from.ctx;
 }
@@ -143,7 +151,7 @@ struct task_t * task_create(struct scheduler_t * s, const char * name, task_func
 	task->s = s;
 	task->stack = stack + size;
 	task->size = size;
-	task->ctx = make_context(task->stack, task->size, context_entry);
+	task->ctx = make_fcontext(task->stack, task->size, context_entry);
 	task->func = func;
 	task->data = data;
 

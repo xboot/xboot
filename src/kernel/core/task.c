@@ -128,7 +128,7 @@ struct task_t * task_create(struct scheduler_t * s, const char * name, task_func
 		return NULL;
 
 	if(size <= 0)
-		size = 8192;
+		size = CONFIG_TASK_STACK_SIZE;
 
 	task = malloc(sizeof(struct task_t));
 	if(!task)
@@ -146,7 +146,7 @@ struct task_t * task_create(struct scheduler_t * s, const char * name, task_func
 	list_add_tail(&task->list, &s->ready);
 	spin_unlock_irqrestore(&s->lock, flags);
 
-	task->name = strdup(name ? name : "unknown");
+	task->name = strdup(name);
 	task->status = TASK_STATUS_READY;
 	task->s = s;
 	task->stack = stack + size;
@@ -168,7 +168,8 @@ void task_destory(struct scheduler_t * s, struct task_t * task)
 		list_del(&task->list);
 		task->status = TASK_STATUS_DEAD;
 		spin_unlock_irqrestore(&s->lock, flags);
-		free(task->name);
+		if(task->name)
+			free(task->name);
 		free(task->stack);
 		free(task);
 	}

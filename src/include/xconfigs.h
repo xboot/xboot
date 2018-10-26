@@ -20,6 +20,10 @@ extern "C" {
 #define CONFIG_AUTO_BOOT_COMMAND			""
 #endif
 
+#if !defined(CONFIG_TASK_STACK_SIZE)
+#define CONFIG_TASK_STACK_SIZE				(8192)
+#endif
+
 #if !defined(CONFIG_DRIVER_HASH_SIZE)
 #define CONFIG_DRIVER_HASH_SIZE				(257)
 #endif

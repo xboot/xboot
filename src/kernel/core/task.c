@@ -141,9 +141,9 @@ struct task_t * task_create(struct scheduler_t * s, const char * name, task_func
 	task->name = strdup(name ? name : "unknown");
 	task->status = TASK_STATUS_READY;
 	task->s = s;
-	task->ctx = make_context(stack, size, context_entry);
-	task->stack = stack;
+	task->stack = stack + size;
 	task->size = size;
+	task->ctx = make_context(task->stack, task->size, context_entry);
 	task->func = func;
 	task->data = data;
 

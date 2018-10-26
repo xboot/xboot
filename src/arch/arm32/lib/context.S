@@ -1,157 +1,140 @@
-#ifdef TB_CONFIG_OS_IOS
-#   define TB_CONTEXT_SJLJ_BYTES    4
-#else
-#   define TB_CONTEXT_SJLJ_BYTES    0
-#endif
-
-/* make context (refer to boost.context)
- *
- *
- *             --------------------------------------------------------------------------------------
- * stackdata: |                                                       |         context             ||
- *             --------------------------------------------------------------------------------------
- *                                                                                              (16-align)
- *
- * for macho (ios):
- *
- * save and restore the sjlj(setjmp/longjmp) exception handler on tls
- *
- *             -------------------------------------------------------
- * context:   |  sjlj  | retval |   r4    |   r5    |   r6   |   r7   |
- *             -------------------------------------------------------
- *            0        4    |   8         12        16       20
- *                          |
- *                           ------------------------------------------------
- *                                                                          \|/
- *                                                    __end     func      retval(from)
- *             --------------------------------------------------------------------------------------
- *            |   r8   |   r9   |   r10   |   r11   |   lr   |   pc   | context |  priv  |  padding  |
- *             --------------------------------------------------------------------------------------
- *            24       28       32        36        40       44       48        52       |
- *                                                                    |                  |
- *                                                                    |              16-align
- *                                                                    |
- *                                                         sp when jump to function
- *
- * for elf (linux, ..):
- *
- *             -----------------------------------------------
- * context:   |  retval |   r4    |   r5    |   r6   |   r7   |
- *             -----------------------------------------------
- *            0    |   4        8         12        16
- *                 |
- *                  ---------------------------------------------------------
- *                                                                          \|/
- *                                                    __end     func      retval(from)
- *             --------------------------------------------------------------------------------------
- *            |   r8   |   r9   |   r10   |   r11   |   lr   |   pc   | context |  priv  |  padding  |
- *             --------------------------------------------------------------------------------------
- *            20       24       28        32        36       40       44        48       |
- *                                                                    |                  |
- *                                                                    |              16-align
- *                                                                    |
- *                                                         sp when jump to function
- *
- *
- * @param stackdata     the stack data (r0)
- * @param stacksize     the stack size (r1)
- * @param func          the entry function (r2)
- *
- * @return              the context pointer (r0)
+/*
+ *  -------------------------------------------------  *
+ *  |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  *
+ *  -------------------------------------------------  *
+ *  | 0x0 | 0x4 | 0x8 | 0xc | 0x10| 0x14| 0x18| 0x1c|  *
+ *  -------------------------------------------------  *
+ *  | s16 | s17 | s18 | s19 | s20 | s21 | s22 | s23 |  *
+ *  -------------------------------------------------  *
+ *  -------------------------------------------------  *
+ *  |  8  |  9  |  10 |  11 |  12 |  13 |  14 |  15 |  *
+ *  -------------------------------------------------  *
+ *  | 0x20| 0x24| 0x28| 0x2c| 0x30| 0x34| 0x38| 0x3c|  *
+ *  -------------------------------------------------  *
+ *  | s24 | s25 | s26 | s27 | s28 | s29 | s30 | s31 |  *
+ *  -------------------------------------------------  *
+ *  -------------------------------------------------  *
+ *  |  16 |  17 |  18 |  19 |  20 |  21 |  22 |  23 |  *
+ *  -------------------------------------------------  *
+ *  | 0x40| 0x44| 0x48| 0x4c| 0x50| 0x54| 0x58| 0x5c|  *
+ *  -------------------------------------------------  *
+ *  |hiddn|  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  v7 |  *
+ *  -------------------------------------------------  *
+ *  -------------------------------------------------  *
+ *  |  24 |  25 |  26 |  27 |  28 |  29 |  30 |  31 |  *
+ *  -------------------------------------------------  *
+ *  | 0x60| 0x64| 0x68| 0x6c| 0x70| 0x74| 0x78| 0x7c|  *
+ *  -------------------------------------------------  *
+ *  |  v8 |  lr |  pc | FCTX| DATA|                 |  *
+ *  -------------------------------------------------  *
  */
- 	.global make_context
+	.text
+	.globl make_context
+	.align 4
+	.type make_context, %function
 make_context:
-    // save the stack top to r0
-    add r0, r0, r1
+	/* shift address in A1 to lower 16 byte boundary */
+	bic a1, a1, #15
 
-    // 16-align of the stack top address
-    bic r0, r0, #15
+	/* reserve space for context-data on context-stack */
+	sub a1, a1, #124
 
-    /* reserve space for context-data on context-stack
-     *
-     * 64 = align8(52 + TB_CONTEXT_SJLJ_BYTES)
-     */
-    sub r0, r0, #64
+	/* third arg of make_fcontext() == address of context-function */
+	str a3, [a1, #104]
 
-    // context.pc = func
-    str r2, [r0, #40 + TB_CONTEXT_SJLJ_BYTES]
+	/* compute address of returned transfer_t */
+	add a2, a1, #108
+	mov a3, a2
+	str a3, [a1, #64]
 
-    /* init retval = a writeable space (context)
-     *
-     * it will write retval(context, priv) when jump to a new context function entry first
-     */
-    add r1, r0, #44 + TB_CONTEXT_SJLJ_BYTES
-    str r1, [r0, #0 + TB_CONTEXT_SJLJ_BYTES]
+	/* compute abs address of label finish */
+	adr a2, finish
+	/*
+	 * save address of finish as return-address for context-function
+	 * will be entered after context-function returns
+	 */
+	str a2, [a1, #100]
 
-    // context.lr = address of label __end
-    adr r1, __end
-    str r1, [r0, #36 + TB_CONTEXT_SJLJ_BYTES]
+#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+#endif
 
-    // return pointer to context-data
-    bx lr
+	bx lr /* return pointer to context-data */
+finish:
+	/* exit code is zero */
+	mov a1, #0
+	/* exit application */
+	bl exit
 
-__end:
-    // exit(0)
-    mov r0, #0
-    bl exit
-
-/* jump context (refer to boost.context)
- *
- * @param retval        the from-context (r0)
- * @param context       the to-context (r1)
- * @param priv          the passed user private data (r2)
- *
- * @return              the from-context (retval)
+/*
+ *  -------------------------------------------------  *
+ *  |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  *
+ *  -------------------------------------------------  *
+ *  | 0x0 | 0x4 | 0x8 | 0xc | 0x10| 0x14| 0x18| 0x1c|  *
+ *  -------------------------------------------------  *
+ *  | s16 | s17 | s18 | s19 | s20 | s21 | s22 | s23 |  *
+ *  -------------------------------------------------  *
+ *  -------------------------------------------------  *
+ *  |  8  |  9  |  10 |  11 |  12 |  13 |  14 |  15 |  *
+ *  -------------------------------------------------  *
+ *  | 0x20| 0x24| 0x28| 0x2c| 0x30| 0x34| 0x38| 0x3c|  *
+ *  -------------------------------------------------  *
+ *  | s24 | s25 | s26 | s27 | s28 | s29 | s30 | s31 |  *
+ *  -------------------------------------------------  *
+ *  -------------------------------------------------  *
+ *  |  16 |  17 |  18 |  19 |  20 |  21 |  22 |  23 |  *
+ *  -------------------------------------------------  *
+ *  | 0x40| 0x44| 0x48| 0x4c| 0x50| 0x54| 0x58| 0x5c|  *
+ *  -------------------------------------------------  *
+ *  |hiddn|  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  v7 |  *
+ *  -------------------------------------------------  *
+ *  -------------------------------------------------  *
+ *  |  24 |  25 |  26 |  27 |  28 |  29 |  30 |  31 |  *
+ *  -------------------------------------------------  *
+ *  | 0x60| 0x64| 0x68| 0x6c| 0x70| 0x74| 0x78| 0x7c|  *
+ *  -------------------------------------------------  *
+ *  |  v8 |  lr |  pc | FCTX| DATA|                 |  *
+ *  -------------------------------------------------  *
  */
- 	.global jump_context
+	.text
+	.globl jump_context
+	.align 4
+	.type jump_context, %function
 jump_context:
+	/* save LR as PC */
+	push {lr}
+	/* save hidden,V1-V8,LR */
+	push {a1,v1-v8,lr}
 
-    // save lr as pc
-    push {lr}
-
-    // save retval, r4 - r11, lr
-    push {r0, r4 - r11, lr}
-
-#ifdef TB_CONFIG_OS_IOS
-    // load tls to save or restore sjlj handler
-    mrc p15, 0, r5, c13, c0, #3
-    bic r5, r5, #3
-
-    // load and save sjlj handler: tls[__PTK_LIBC_DYLD_Unwind_SjLj_Key]
-    ldr r4, [r5, #8]
-    push {r4}
+	/* prepare stack for FPU */
+	sub sp, sp, #64
+#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+	/* save S16-S31 */
+	vstmia sp, {d8-d15}
 #endif
 
-    // save the old context(sp) to r0
-    mov r0, sp
+	/* store RSP (pointing to context-data) in A1 */
+	mov a1, sp
+	/* restore RSP (pointing to context-data) from A2 */
+	mov sp, a2
 
-    // switch to the new context(sp) and stack
-    mov sp, r1
-
-#ifdef TB_CONFIG_OS_IOS
-    // restore sjlj handler
-    pop {r4}
-    str r4, [r5, #8]
+#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+	/* restore S16-S31 */
+	vldmia sp, {d8-d15}
 #endif
+	/* prepare stack for FPU */
+	add sp, sp, #64
 
-    // restore retval, r4 - r11, lr
-    pop {r3, r4 - r11, lr}
+	/* restore hidden,V1-V8,LR */
+	pop {a4,v1-v8,lr}
 
-    // return from-context: retval(context: r0, priv: r2) from jump
-    str r0, [r3, #0]
-    str r2, [r3, #4]
+	/* return transfer_t from jump */
+	str a1, [a4, #0]
+	str a3, [a4, #4]
+	/*
+	 * pass transfer_t as first arg in context function
+	 * A1 == FCTX, A2 == DATA
+	 */
+	mov a2, a3
 
-    // pass old-context(context: r0, priv: r1 = r2) arguments to the context function
-    mov r1, r2
-
-    /* jump to the return or entry address(pc)
-     *
-     *               func      retval(from)
-     *             ---------------------------------------
-     * context:   |   pc   | context |  priv  |  padding  |
-     *             ---------------------------------------
-     *            0        4         8
-     *            |
-     *            sp
-     */
-    pop {pc}
+	/* restore PC */
+	pop {pc}

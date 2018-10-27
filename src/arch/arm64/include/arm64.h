@@ -20,11 +20,6 @@ static inline void arm64_interrupt_disable(void)
 	__asm__ __volatile__("msr daifset, #2" ::: "memory");
 }
 
-static inline int arm64_smp_processor_id(void)
-{
-	return arm64_read_sysreg(tpidrro_el0);
-}
-
 static inline void arm64_timer_start(void)
 {
 	uint64_t ctrl = arm64_read_sysreg(cntp_ctl_el0);

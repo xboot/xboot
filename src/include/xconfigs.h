@@ -20,6 +20,10 @@ extern "C" {
 #define CONFIG_AUTO_BOOT_COMMAND			""
 #endif
 
+#if !defined(CONFIG_SMP_MAX_CPU)
+#define CONFIG_SMP_MAX_CPU					(1)
+#endif
+
 #if !defined(CONFIG_TASK_STACK_SIZE)
 #define CONFIG_TASK_STACK_SIZE				(8192)
 #endif

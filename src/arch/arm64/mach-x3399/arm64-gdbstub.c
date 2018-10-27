@@ -191,7 +191,7 @@ static int cpu_memory_acess(struct gdb_cpu_t * cpu, virtual_addr_t addr, virtual
 
 static int cpu_processor(struct gdb_cpu_t * cpu)
 {
-	return arm64_smp_processor_id();
+	return smp_processor_id();
 }
 
 static void cpu_breakpoint(struct gdb_cpu_t * cpu)

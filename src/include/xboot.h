@@ -11,6 +11,7 @@ extern "C" {
 #include <atomic.h>
 #include <irqflags.h>
 #include <spinlock.h>
+#include <smp.h>
 #include <types.h>
 #include <sizes.h>
 #include <limits.h>

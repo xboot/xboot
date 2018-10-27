@@ -9,7 +9,7 @@
 
 int __put_env(char * str, size_t len, int overwrite)
 {
-	struct environ_t * environ = &(runtime_get()->__environ);
+	struct environ_t * environ = &__environ;
 	struct environ_t * env;
 	struct environ_t * p;
 
@@ -18,9 +18,9 @@ int __put_env(char * str, size_t len, int overwrite)
 
 	for(p = environ->next; p != environ; p = p->next)
 	{
-		if (!strncmp(p->content, str, len))
+		if(p->content && !strncmp(p->content, str, len))
 		{
-			if (!overwrite)
+			if(!overwrite)
 			{
 				free(str);
 			}

@@ -47,10 +47,6 @@ void runtime_create_save(struct runtime_t * rt, const char * path, struct runtim
 
 	rt->__errno = 0;
 
-	rt->__environ.content = "";
-	rt->__environ.next = &(rt->__environ);
-	rt->__environ.prev = &(rt->__environ);
-
 	rt->__stdin = __file_alloc(0);
 	rt->__stdout = __file_alloc(1);
 	rt->__stderr = __file_alloc(2);

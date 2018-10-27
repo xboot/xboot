@@ -11,9 +11,6 @@ struct runtime_t {
 	/* error number */
 	int __errno;
 
-	/* environ */
-	struct environ_t __environ;
-
 	/* standard input, output and error */
 	FILE *__stdin, *__stdout, *__stderr;
 

@@ -10,7 +10,7 @@
 
 int unsetenv(const char * name)
 {
-	struct environ_t * environ = &(runtime_get()->__environ);
+	struct environ_t * environ = &__environ;
 	struct environ_t * p;
 	size_t len;
 	const char * z;
@@ -26,7 +26,7 @@ int unsetenv(const char * name)
 			return -1;
 	}
 
-	if(!environ)
+	if(!environ || !environ->content)
 		return 0;
 
 	for(p = environ->next; p != environ; p = p->next)
@@ -41,7 +41,6 @@ int unsetenv(const char * name)
 			break;
 		}
 	}
-
 	return 0;
 }
 EXPORT_SYMBOL(unsetenv);

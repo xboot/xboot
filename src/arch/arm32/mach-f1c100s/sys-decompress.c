@@ -28,10 +28,6 @@
 
 #include <xboot.h>
 
-#define expect(expr, value)	(expr)
-#define likely(expr)		expect((expr) != 0, 1)
-#define unlikely(expr)		expect((expr) != 0, 0)
-
 #define MINMATCH 			(4)
 #define WILDCOPYLENGTH		(8)
 #define LASTLITERALS		(5)

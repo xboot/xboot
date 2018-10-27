@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void run_shell(void);
+void task_shell(void * data);
 
 #ifdef __cplusplus
 }

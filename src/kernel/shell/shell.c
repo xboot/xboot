@@ -29,17 +29,20 @@
 #include <xboot.h>
 #include <shell/system.h>
 #include <shell/readline.h>
+#include <shell/shell.h>
 
-void run_shell(void)
+void task_shell(void * data)
 {
 	char * p;
 	char cwd[256];
 	char prompt[256];
 
-	getcwd(cwd, sizeof(cwd));
-	sprintf(prompt, "xboot: %s$ ", cwd);
-
-	p = readline(prompt);
-	system(p);
-	free(p);
+	while(1)
+	{
+		getcwd(cwd, sizeof(cwd));
+		sprintf(prompt, "xboot: %s$ ", cwd);
+		p = readline(prompt);
+		system(p);
+		free(p);
+	}
 }

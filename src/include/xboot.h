@@ -7,13 +7,13 @@ extern "C" {
 
 #include <xconfigs.h>
 #include <endian.h>
+#include <sizes.h>
 #include <barrier.h>
 #include <atomic.h>
 #include <irqflags.h>
 #include <spinlock.h>
 #include <smp.h>
 #include <types.h>
-#include <sizes.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stddef.h>

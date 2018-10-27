@@ -31,12 +31,10 @@
 #include <dma/dma.h>
 #include <shell/shell.h>
 
-static struct scheduler_t * sched[CONFIG_SMP_MAX_CPU] = { 0 };
-
 int xboot_main(int argc, char * argv[])
 {
 	struct runtime_t rt;
-	int i;
+	struct task_t * task;
 
 	/* Do initial mem pool */
 	do_init_mem_pool();
@@ -50,10 +48,6 @@ int xboot_main(int argc, char * argv[])
 	/* Create runtime */
 	runtime_create_save(&rt, 0, 0);
 
-	/* Alloc scheduler */
-	for(i = 0; i < CONFIG_SMP_MAX_CPU; i++)
-		sched[i] = scheduler_alloc();
-
 	/* Do all initial calls */
 	do_initcalls();
 
@@ -61,21 +55,19 @@ int xboot_main(int argc, char * argv[])
 	do_showlogo();
 
 	/* Do auto boot */
-	do_autoboot();
+	//do_autoboot();
 
-	/* Run loop */
-	while(1)
-	{
-		/* Run shell */
-		run_shell();
-	}
+	/* Create shell task */
+	task = task_create(scheduler_self(), "shell", task_shell, 0, 0, 0);
+
+	/* Scheduler loop */
+	scheduler_loop();
+
+	/* Destory shell task */
+	task_destory(task);
 
 	/* Do all exit calls */
 	do_exitcalls();
-
-	/* Free scheduler */
-	for(i = 0; i < CONFIG_SMP_MAX_CPU; i++)
-		scheduler_free(sched[i]);
 
 	/* Destroy runtime */
 	runtime_destroy_restore(&rt, 0);

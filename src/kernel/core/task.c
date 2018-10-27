@@ -34,6 +34,8 @@ struct transfer_t
 extern void * make_fcontext(void * stack, size_t size, void (*func)(struct transfer_t));
 extern struct transfer_t jump_fcontext(void * fctx, void * priv);
 
+struct scheduler_t * __sched[CONFIG_MAX_CPUS] = { 0 };
+
 static inline struct task_t * next_ready_task(struct scheduler_t * sched)
 {
 	if(list_empty(&sched->ready))
@@ -60,7 +62,7 @@ static void context_entry(struct transfer_t from)
 	irq_flags_t flags;
 
 	t->fctx = from.fctx;
-	task->func(task, task->data);
+	task->func(task->data);
 	next = next_ready_task(task->sched);
 	spin_lock_irqsave(&task->sched->lock, flags);
 	list_del(&task->list);
@@ -71,7 +73,7 @@ static void context_entry(struct transfer_t from)
 		scheduler_switch_task(t->sched, next);
 }
 
-struct scheduler_t * scheduler_alloc(void)
+static struct scheduler_t * scheduler_alloc(void)
 {
 	struct scheduler_t * sched;
 
@@ -87,7 +89,7 @@ struct scheduler_t * scheduler_alloc(void)
 	return sched;
 }
 
-void scheduler_free(struct scheduler_t * sched)
+static void scheduler_free(struct scheduler_t * sched)
 {
 	struct task_t * pos, * n;
 
@@ -109,13 +111,18 @@ void scheduler_free(struct scheduler_t * sched)
 	free(sched);
 }
 
-void scheduler_loop(struct scheduler_t * sched)
+static void scheduler_start(struct scheduler_t * sched)
 {
 	if(sched && !list_empty(&sched->ready))
 	{
 		sched->running = list_first_entry(&sched->ready, struct task_t, list);
 		scheduler_switch_task(sched, sched->running);
 	}
+}
+
+void scheduler_loop(void)
+{
+	scheduler_start(__sched[smp_processor_id()]);
 }
 
 struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t size, int weight)
@@ -204,16 +211,30 @@ void task_resume(struct task_t * task)
 	}
 }
 
-void task_yield(struct task_t * self)
+void task_yield(void)
 {
-	struct scheduler_t * sched;
-	struct task_t * next;
+	struct task_t * self = task_self();
+	struct task_t * next = next_ready_task(self->sched);
 
-	if(self)
-	{
-		sched = self->sched;
-		next = next_ready_task(sched);
-		if(next && (next != sched->running))
-			scheduler_switch_task(sched, next);
-	}
+	if(next && (next != self))
+		scheduler_switch_task(self->sched, next);
 }
+
+static __init void task_pure_init(void)
+{
+	int i;
+
+	for(i = 0; i < CONFIG_MAX_CPUS; i++)
+		__sched[i] = scheduler_alloc();
+}
+
+static __exit void task_pure_exit(void)
+{
+	int i;
+
+	for(i = 0; i < CONFIG_MAX_CPUS; i++)
+		scheduler_free(__sched[i]);
+}
+
+pure_initcall(task_pure_init);
+pure_exitcall(task_pure_exit);

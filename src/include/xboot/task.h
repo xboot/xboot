@@ -10,9 +10,10 @@ extern "C" {
 #include <irqflags.h>
 #include <spinlock.h>
 
-struct scheduler_t;
+typedef void (*task_func_t)(void * data);
+
 struct task_t;
-typedef void (*task_func_t)(struct task_t * self, void * data);
+struct scheduler_t;
 
 enum task_status_t {
 	TASK_STATUS_DEAD	= 0,
@@ -41,16 +42,22 @@ struct scheduler_t {
 	spinlock_t lock;
 };
 
-struct scheduler_t * scheduler_alloc(void);
-void scheduler_free(struct scheduler_t * sched);
-void scheduler_loop(struct scheduler_t * sched);
+extern struct scheduler_t * __sched[CONFIG_MAX_CPUS];
+static inline struct scheduler_t * scheduler_self(void)
+{
+	return __sched[smp_processor_id()];
+}
+static inline struct task_t * task_self(void)
+{
+	return __sched[smp_processor_id()]->running;
+}
+void scheduler_loop(void);
 
 struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t size, int weight);
 void task_destory(struct task_t * task);
 void task_suspend(struct task_t * task);
 void task_resume(struct task_t * task);
-
-void task_yield(struct task_t * self);
+void task_yield(void);
 
 #ifdef __cplusplus
 }

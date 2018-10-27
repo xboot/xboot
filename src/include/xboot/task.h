@@ -25,7 +25,7 @@ struct task_t {
 	struct list_head list;
 	char * name;
 	enum task_status_t status;
-	void * ctx;
+	void * fctx;
 	void * stack;
 	size_t size;
 	task_func_t func;

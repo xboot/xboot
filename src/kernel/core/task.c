@@ -27,12 +27,12 @@
 
 struct transfer_t
 {
-	void * ctx;
+	void * fctx;
 	void * priv;
 };
 
 extern void * make_fcontext(void * stack, size_t size, void (*func)(struct transfer_t));
-extern struct transfer_t jump_fcontext(void * ctx, void * priv);
+extern struct transfer_t jump_fcontext(void * fctx, void * priv);
 
 static inline struct task_t * next_ready_task(struct scheduler_t * s)
 {
@@ -47,9 +47,9 @@ static inline void scheduler_switch_task(struct scheduler_t * s, struct task_t *
 {
 	struct task_t * running = s->running;
 	s->running = task;
-	struct transfer_t from = jump_fcontext(task->ctx, running);
+	struct transfer_t from = jump_fcontext(task->fctx, running);
 	struct task_t * t = (struct task_t *)from.priv;
-	t->ctx = from.ctx;
+	t->fctx = from.fctx;
 }
 
 static void context_entry(struct transfer_t from)
@@ -59,7 +59,7 @@ static void context_entry(struct transfer_t from)
 	struct task_t * next;
 	irq_flags_t flags;
 
-	t->ctx = from.ctx;
+	t->fctx = from.fctx;
 	task->func(task->s, task->data);
 	next = next_ready_task(task->s);
 	spin_lock_irqsave(&task->s->lock, flags);
@@ -151,7 +151,7 @@ struct task_t * task_create(struct scheduler_t * s, const char * name, task_func
 	task->s = s;
 	task->stack = stack + size;
 	task->size = size;
-	task->ctx = make_fcontext(task->stack, task->size, context_entry);
+	task->fctx = make_fcontext(task->stack, task->size, context_entry);
 	task->func = func;
 	task->data = data;
 

@@ -60,7 +60,7 @@ static void context_entry(struct transfer_t from)
 	irq_flags_t flags;
 
 	t->fctx = from.fctx;
-	task->func(task->s, task->data);
+	task->func(task, task->data);
 	next = next_ready_task(task->s);
 	spin_lock_irqsave(&task->s->lock, flags);
 	list_del(&task->list);
@@ -96,15 +96,15 @@ void scheduler_free(struct scheduler_t * s)
 
 	list_for_each_entry_safe(pos, n, &s->dead, list)
 	{
-		task_destory(s, pos);
+		task_destory(pos);
 	}
 	list_for_each_entry_safe(pos, n, &s->ready, list)
 	{
-		task_destory(s, pos);
+		task_destory(pos);
 	}
 	list_for_each_entry_safe(pos, n, &s->suspend, list)
 	{
-		task_destory(s, pos);
+		task_destory(pos);
 	}
 	free(s);
 }
@@ -118,7 +118,7 @@ void scheduler_loop(struct scheduler_t * s)
 	}
 }
 
-struct task_t * task_create(struct scheduler_t * s, const char * name, task_func_t func, void * data, size_t size)
+struct task_t * task_create(struct scheduler_t * s, const char * name, task_func_t func, void * data, size_t size, int weight)
 {
 	struct task_t * task;
 	irq_flags_t flags;
@@ -151,6 +151,7 @@ struct task_t * task_create(struct scheduler_t * s, const char * name, task_func
 	task->s = s;
 	task->stack = stack + size;
 	task->size = size;
+	task->weight = weight;
 	task->fctx = make_fcontext(task->stack, task->size, context_entry);
 	task->func = func;
 	task->data = data;
@@ -158,16 +159,16 @@ struct task_t * task_create(struct scheduler_t * s, const char * name, task_func
 	return task;
 }
 
-void task_destory(struct scheduler_t * s, struct task_t * task)
+void task_destory(struct task_t * task)
 {
 	irq_flags_t flags;
 
-	if(s && task)
+	if(task)
 	{
-		spin_lock_irqsave(&s->lock, flags);
+		spin_lock_irqsave(&task->s->lock, flags);
 		list_del(&task->list);
 		task->status = TASK_STATUS_DEAD;
-		spin_unlock_irqrestore(&s->lock, flags);
+		spin_unlock_irqrestore(&task->s->lock, flags);
 		if(task->name)
 			free(task->name);
 		free(task->stack);
@@ -175,38 +176,44 @@ void task_destory(struct scheduler_t * s, struct task_t * task)
 	}
 }
 
-void task_suspend(struct scheduler_t * s, struct task_t * task)
+void task_suspend(struct task_t * task)
 {
 	irq_flags_t flags;
 
-	if(s && task)
+	if(task)
 	{
-		spin_lock_irqsave(&s->lock, flags);
+		spin_lock_irqsave(&task->s->lock, flags);
 		list_del(&task->list);
 		list_add_tail(&task->list, &task->s->suspend);
 		task->status = TASK_STATUS_SUSPEND;
-		spin_unlock_irqrestore(&s->lock, flags);
+		spin_unlock_irqrestore(&task->s->lock, flags);
 	}
 }
 
-void task_resume(struct scheduler_t * s, struct task_t * task)
+void task_resume(struct task_t * task)
 {
 	irq_flags_t flags;
 
-	if(s && task)
+	if(task)
 	{
-		spin_lock_irqsave(&s->lock, flags);
+		spin_lock_irqsave(&task->s->lock, flags);
 		list_del(&task->list);
 		list_add_tail(&task->list, &task->s->ready);
 		task->status = TASK_STATUS_READY;
-		spin_unlock_irqrestore(&s->lock, flags);
+		spin_unlock_irqrestore(&task->s->lock, flags);
 	}
 }
 
-void task_yield(struct scheduler_t * s)
+void task_yield(struct task_t * self)
 {
-	struct task_t * next = next_ready_task(s);
+	struct scheduler_t * s;
+	struct task_t * next;
 
-	if(next && (next != s->running))
-		scheduler_switch_task(s, next);
+	if(self)
+	{
+		s = self->s;
+		next = next_ready_task(s);
+		if(next && (next != s->running))
+			scheduler_switch_task(s, next);
+	}
 }

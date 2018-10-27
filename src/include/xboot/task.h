@@ -10,9 +10,9 @@ extern "C" {
 #include <irqflags.h>
 #include <spinlock.h>
 
-struct task_t;
 struct scheduler_t;
-typedef void (*task_func_t)(struct scheduler_t * s, void * data);
+struct task_t;
+typedef void (*task_func_t)(struct task_t * self, void * data);
 
 enum task_status_t {
 	TASK_STATUS_DEAD	= 0,
@@ -28,6 +28,7 @@ struct task_t {
 	void * fctx;
 	void * stack;
 	size_t size;
+	int weight;
 	task_func_t func;
 	void * data;
 };
@@ -44,11 +45,12 @@ struct scheduler_t * scheduler_alloc(void);
 void scheduler_free(struct scheduler_t * s);
 void scheduler_loop(struct scheduler_t * s);
 
-struct task_t * task_create(struct scheduler_t * s, const char * name, task_func_t func, void * data, size_t size);
-void task_destory(struct scheduler_t * s, struct task_t * task);
-void task_suspend(struct scheduler_t * s, struct task_t * task);
-void task_resume(struct scheduler_t * s, struct task_t * task);
-void task_yield(struct scheduler_t * s);
+struct task_t * task_create(struct scheduler_t * s, const char * name, task_func_t func, void * data, size_t size, int weight);
+void task_destory(struct task_t * task);
+void task_suspend(struct task_t * task);
+void task_resume(struct task_t * task);
+
+void task_yield(struct task_t * self);
 
 #ifdef __cplusplus
 }

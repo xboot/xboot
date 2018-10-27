@@ -55,6 +55,7 @@ extern "C" {
 #include <xboot/dtree.h>
 #include <xboot/device.h>
 #include <xboot/driver.h>
+#include <xboot/task.h>
 #include <time/delay.h>
 #include <time/timer.h>
 #include <clockevent/clockevent.h>

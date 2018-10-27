@@ -11,9 +11,6 @@ struct runtime_t {
 	/* error number */
 	int __errno;
 
-	/* pseudo random seed - 48bit */
-	unsigned short __seed[3];
-
 	/* environ */
 	struct environ_t __environ;
 

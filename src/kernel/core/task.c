@@ -34,19 +34,19 @@ struct transfer_t
 extern void * make_fcontext(void * stack, size_t size, void (*func)(struct transfer_t));
 extern struct transfer_t jump_fcontext(void * fctx, void * priv);
 
-static inline struct task_t * next_ready_task(struct scheduler_t * s)
+static inline struct task_t * next_ready_task(struct scheduler_t * sched)
 {
-	if(list_empty(&s->ready))
+	if(list_empty(&sched->ready))
 		return NULL;
-	if(!s->running || (s->running->status != TASK_STATUS_READY) || list_is_last(&s->running->list, &s->ready))
-		return list_first_entry(&s->ready, struct task_t, list);
-	return list_next_entry(s->running, list);
+	if(!sched->running || (sched->running->status != TASK_STATUS_READY) || list_is_last(&sched->running->list, &sched->ready))
+		return list_first_entry(&sched->ready, struct task_t, list);
+	return list_next_entry(sched->running, list);
 }
 
-static inline void scheduler_switch_task(struct scheduler_t * s, struct task_t * task)
+static inline void scheduler_switch_task(struct scheduler_t * sched, struct task_t * task)
 {
-	struct task_t * running = s->running;
-	s->running = task;
+	struct task_t * running = sched->running;
+	sched->running = task;
 	struct transfer_t from = jump_fcontext(task->fctx, running);
 	struct task_t * t = (struct task_t *)from.priv;
 	t->fctx = from.fctx;
@@ -55,76 +55,76 @@ static inline void scheduler_switch_task(struct scheduler_t * s, struct task_t *
 static void context_entry(struct transfer_t from)
 {
 	struct task_t * t = (struct task_t *)from.priv;
-	struct task_t * task = t->s->running;
+	struct task_t * task = t->sched->running;
 	struct task_t * next;
 	irq_flags_t flags;
 
 	t->fctx = from.fctx;
 	task->func(task, task->data);
-	next = next_ready_task(task->s);
-	spin_lock_irqsave(&task->s->lock, flags);
+	next = next_ready_task(task->sched);
+	spin_lock_irqsave(&task->sched->lock, flags);
 	list_del(&task->list);
-	list_add_tail(&task->list, &task->s->dead);
+	list_add_tail(&task->list, &task->sched->dead);
 	task->status = TASK_STATUS_DEAD;
-	spin_unlock_irqrestore(&task->s->lock, flags);
-	if(next && (next != t->s->running))
-		scheduler_switch_task(t->s, next);
+	spin_unlock_irqrestore(&task->sched->lock, flags);
+	if(next && (next != t->sched->running))
+		scheduler_switch_task(t->sched, next);
 }
 
 struct scheduler_t * scheduler_alloc(void)
 {
-	struct scheduler_t * s;
+	struct scheduler_t * sched;
 
-	s = malloc(sizeof(struct scheduler_t));
-	if(!s)
+	sched = malloc(sizeof(struct scheduler_t));
+	if(!sched)
 		return NULL;
 
-	init_list_head(&s->dead);
-	init_list_head(&s->ready);
-	init_list_head(&s->suspend);
-	spin_lock_init(&s->lock);
-	s->running = NULL;
-	return s;
+	init_list_head(&sched->dead);
+	init_list_head(&sched->ready);
+	init_list_head(&sched->suspend);
+	spin_lock_init(&sched->lock);
+	sched->running = NULL;
+	return sched;
 }
 
-void scheduler_free(struct scheduler_t * s)
+void scheduler_free(struct scheduler_t * sched)
 {
 	struct task_t * pos, * n;
 
-	if(!s)
+	if(!sched)
 		return;
 
-	list_for_each_entry_safe(pos, n, &s->dead, list)
+	list_for_each_entry_safe(pos, n, &sched->dead, list)
 	{
 		task_destory(pos);
 	}
-	list_for_each_entry_safe(pos, n, &s->ready, list)
+	list_for_each_entry_safe(pos, n, &sched->ready, list)
 	{
 		task_destory(pos);
 	}
-	list_for_each_entry_safe(pos, n, &s->suspend, list)
+	list_for_each_entry_safe(pos, n, &sched->suspend, list)
 	{
 		task_destory(pos);
 	}
-	free(s);
+	free(sched);
 }
 
-void scheduler_loop(struct scheduler_t * s)
+void scheduler_loop(struct scheduler_t * sched)
 {
-	if(s && !list_empty(&s->ready))
+	if(sched && !list_empty(&sched->ready))
 	{
-		s->running = list_first_entry(&s->ready, struct task_t, list);
-		scheduler_switch_task(s, s->running);
+		sched->running = list_first_entry(&sched->ready, struct task_t, list);
+		scheduler_switch_task(sched, sched->running);
 	}
 }
 
-struct task_t * task_create(struct scheduler_t * s, const char * name, task_func_t func, void * data, size_t size, int weight)
+struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t size, int weight)
 {
 	struct task_t * task;
 	irq_flags_t flags;
 	void * stack;
 
-	if(!s || !func)
+	if(!sched || !func)
 		return NULL;
 
 	if(size <= 0)
@@ -141,14 +141,14 @@ struct task_t * task_create(struct scheduler_t * s, const char * name, task_func
 		return NULL;
 	}
 
-	spin_lock_irqsave(&s->lock, flags);
+	spin_lock_irqsave(&sched->lock, flags);
 	init_list_head(&task->list);
-	list_add_tail(&task->list, &s->ready);
-	spin_unlock_irqrestore(&s->lock, flags);
+	list_add_tail(&task->list, &sched->ready);
+	spin_unlock_irqrestore(&sched->lock, flags);
 
 	task->name = strdup(name);
 	task->status = TASK_STATUS_READY;
-	task->s = s;
+	task->sched = sched;
 	task->stack = stack + size;
 	task->size = size;
 	task->weight = weight;
@@ -165,10 +165,10 @@ void task_destory(struct task_t * task)
 
 	if(task)
 	{
-		spin_lock_irqsave(&task->s->lock, flags);
+		spin_lock_irqsave(&task->sched->lock, flags);
 		list_del(&task->list);
 		task->status = TASK_STATUS_DEAD;
-		spin_unlock_irqrestore(&task->s->lock, flags);
+		spin_unlock_irqrestore(&task->sched->lock, flags);
 		if(task->name)
 			free(task->name);
 		free(task->stack);
@@ -182,11 +182,11 @@ void task_suspend(struct task_t * task)
 
 	if(task)
 	{
-		spin_lock_irqsave(&task->s->lock, flags);
+		spin_lock_irqsave(&task->sched->lock, flags);
 		list_del(&task->list);
-		list_add_tail(&task->list, &task->s->suspend);
+		list_add_tail(&task->list, &task->sched->suspend);
 		task->status = TASK_STATUS_SUSPEND;
-		spin_unlock_irqrestore(&task->s->lock, flags);
+		spin_unlock_irqrestore(&task->sched->lock, flags);
 	}
 }
 
@@ -196,24 +196,24 @@ void task_resume(struct task_t * task)
 
 	if(task)
 	{
-		spin_lock_irqsave(&task->s->lock, flags);
+		spin_lock_irqsave(&task->sched->lock, flags);
 		list_del(&task->list);
-		list_add_tail(&task->list, &task->s->ready);
+		list_add_tail(&task->list, &task->sched->ready);
 		task->status = TASK_STATUS_READY;
-		spin_unlock_irqrestore(&task->s->lock, flags);
+		spin_unlock_irqrestore(&task->sched->lock, flags);
 	}
 }
 
 void task_yield(struct task_t * self)
 {
-	struct scheduler_t * s;
+	struct scheduler_t * sched;
 	struct task_t * next;
 
 	if(self)
 	{
-		s = self->s;
-		next = next_ready_task(s);
-		if(next && (next != s->running))
-			scheduler_switch_task(s, next);
+		sched = self->sched;
+		next = next_ready_task(sched);
+		if(next && (next != sched->running))
+			scheduler_switch_task(sched, next);
 	}
 }

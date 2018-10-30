@@ -283,7 +283,7 @@ VPATH		:=	$(X_OBJDIRS)
 
 
 export TOPDIR OBJDIR
-export AS CC LD X_ASFLAGS X_INCDIRS X_CFLAGS
+export AS AR CC LD X_ASFLAGS X_INCDIRS X_CFLAGS
 
 
 .PHONY:	all prepare clean xbegin xend xclean $(SRCDIRS)

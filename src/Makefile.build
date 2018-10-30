@@ -1,0 +1,47 @@
+__build:
+
+X_SFILES	:=	$(wildcard *.S)
+X_CFILES	:=	$(wildcard *.c)
+
+X_SDEPS		:=	$(patsubst %, $(OBJDIR)/$(BUILD_DIR)/%, $(X_SFILES:.S=.o.d))
+X_CDEPS		:=	$(patsubst %, $(OBJDIR)/$(BUILD_DIR)/%, $(X_CFILES:.c=.o.d))
+X_DEPS		:=	$(X_SDEPS) $(X_CDEPS)
+
+X_SOBJS		:=	$(patsubst %, $(OBJDIR)/$(BUILD_DIR)/%, $(X_SFILES:.S=.o))
+X_COBJS		:=	$(patsubst %, $(OBJDIR)/$(BUILD_DIR)/%, $(X_CFILES:.c=.o))
+X_OBJS		:=	$(X_SOBJS) $(X_COBJS)
+
+X_DEPS		:=	$(wildcard $(X_DEPS))
+
+X_TARGET	:=	$(OBJDIR)/$(BUILD_DIR)/built-in.o
+
+.PHONY : __build
+
+__build : $(X_TARGET)
+	@:
+
+ifneq ($(strip $(X_OBJS)),)
+$(X_TARGET) : $(X_OBJS)
+	@echo [LD] $(BUILD_DIR)/built-in.o $(filter-out %/start.o,$^)
+	@$(LD) -r -o $@ $(filter-out %/start.o,$^)
+else
+$(X_TARGET) :
+	@echo [LD] $(BUILD_DIR)/built-in.o
+	@$(AR) rcs -o $@
+endif
+
+
+
+$(OBJDIR)/$(BUILD_DIR)/%.o : %.S
+	@echo [AS] $(BUILD_DIR)/$<
+	@$(AS) $(X_ASFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+
+$(OBJDIR)/$(BUILD_DIR)/%.o : %.c
+	@echo [CC] $(BUILD_DIR)/$<
+	@$(CC) $(X_CFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+
+#
+# Include the dependency files, should be place the last of makefile
+#
+
+sinclude $(X_DEPS)

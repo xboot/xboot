@@ -77,7 +77,7 @@ INCDIRS		+=	include										\
 SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				arch/$(ARCH)/lib							\
 				arch/$(ARCH)/$(MACH)						\
-				arch/$(ARCH)/$(MACH)/command				\
+				$(wildcard arch/$(ARCH)/$(MACH)/command)	\
 				arch/$(ARCH)/$(MACH)/driver					\
 				lib/libc									\
 				lib/libc/charset							\
@@ -233,6 +233,8 @@ SRCDIRS		+=	external/freetype-2.8/src/autofit \
 INCDIRS		+=	external/chipmunk-7.0.2/include
 SRCDIRS		+=	external/chipmunk-7.0.2/src
 
+INCDIRS		+=	.
+
 #
 # You shouldn't need to change anything below this point.
 #
@@ -257,6 +259,11 @@ endif
 #
 # Xboot variables
 #
+
+TOPDIR := $(CURDIR)
+OBJDIR := $(CURDIR)/.obj
+
+
 X_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
 X_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
 X_LDFLAGS	:=	$(LDFLAGS)
@@ -264,29 +271,43 @@ X_LIBS		:=	$(LIBS) -lgcc
 
 X_OUT		:=	../output
 X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
-X_INCDIRS	:=	$(patsubst %, -I %, $(INCDIRS))
+X_INCDIRS	:=	$(patsubst %, -I $(TOPDIR)/%, $(INCDIRS))
 X_LIBDIRS	:=	$(patsubst %, -L %, $(LIBDIRS))
 X_SRCDIRS	:=	$(patsubst %, %, $(SRCDIRS))
 X_OBJDIRS	:=	$(patsubst %, .obj/%, $(X_SRCDIRS))
 
-X_SFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.S))
-X_CFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.c))
-
-X_SDEPS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o.d))
-X_CDEPS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o.d))
-X_DEPS		:=	$(X_SDEPS) $(X_CDEPS)
-
-X_SOBJS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o))
-X_COBJS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o))
-X_OBJS		:=	$(X_SOBJS) $(X_COBJS)
+X_OBJS		:=	$(foreach dir, $(X_SRCDIRS), .obj/$(dir)/built-in.o)
 
 VPATH		:=	$(X_OBJDIRS)
-.PHONY:	all clean xbegin xend xclean
+
+
+
+export TOPDIR OBJDIR
+export AS CC LD X_ASFLAGS X_INCDIRS X_CFLAGS
+
+
+.PHONY:	all prepare clean xbegin xend xclean $(SRCDIRS)
 
 #
 # Xboot rules
 #
-all : xbegin $(X_NAME) xend
+all : xend
+
+xend : $(X_NAME)
+
+$(SRCDIRS) : xbegin
+
+xbegin : prepare
+
+prepare :
+	@$(MKDIR) $(X_OBJDIRS) $(X_OUT)
+	@$(RM) .obj/romdisk
+	@$(RM) .obj/romdisk.cpio
+	@$(RM) .obj/init/version.o
+	@$(RM) .obj/driver/block/romdisk/data.o
+	@$(CP) romdisk .obj
+	@$(CP) arch/$(ARCH)/$(MACH)/romdisk .obj
+	@$(CD) .obj/romdisk && $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio
 
 $(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@
@@ -294,28 +315,16 @@ $(X_NAME) : $(X_OBJS)
 	@echo [OC] Objcopying $@.bin
 	@$(OC) -v -O binary $@ $@.bin
 
-$(X_SOBJS) : .obj/%.o : %.S
-	@echo [AS] $<
-	@$(AS) $(X_ASFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+define DIR_RULE
+$(1) : $$(patsubst .obj/%/,%,$$(dir $(1)))
+	@:
+endef
+$(foreach v, $(X_OBJS), $(eval $(call DIR_RULE, $(v))))
 
-$(X_COBJS) : .obj/%.o : %.c
-	@echo [CC] $<
-	@$(CC) $(X_CFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+$(SRCDIRS) :
+	@echo $@
+	@make -C $@ -f $(TOPDIR)/Makefile.build BUILD_DIR=$@
 
 clean : xclean
+	@echo [RM] .obj $(X_OUT)
 	@$(RM) .obj $(X_OUT)
-
-#
-# Include the dependency files, should be place the last of makefile
-#
-sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
-			&& $(RM) .obj/romdisk									\
-			&& $(RM) .obj/romdisk.cpio								\
-			&& $(RM) .obj/init/version.o							\
-			&& $(RM) .obj/driver/block/romdisk/data.o				\
-			&& $(CP) romdisk .obj									\
-			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj				\
-			&& $(CD) .obj/romdisk									\
-			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio	\
-			&& $(CD) ../..)											\
-			$(X_DEPS)

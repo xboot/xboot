@@ -192,7 +192,7 @@ static int do_tscal(int argc, char ** argv)
 	cal.yfb[4] = height / 2;
 	index = 0;
 
-	while(pump_event(runtime_get()->__event_base, &e));
+	while(pump_event(&e));
 	cairo_draw_point(cr, cal.xfb[index], cal.yfb[index]);
 	cairo_xboot_surface_present(cs);
 
@@ -201,7 +201,7 @@ static int do_tscal(int argc, char ** argv)
 		if(ctrlc())
 			break;
 
-		if(pump_event(runtime_get()->__event_base, &e))
+		if(pump_event(&e))
 		{
 			if(e.type == EVENT_TYPE_KEY_UP)
 			{

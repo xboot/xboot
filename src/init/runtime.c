@@ -45,7 +45,6 @@ void runtime_create_save(struct runtime_t * rt, const char * path, struct runtim
 		*r = __current_runtime;
 	__current_runtime = rt;
 
-	rt->__event_base = __event_base_alloc();
 	rt->__xfs_ctx = __xfs_alloc(path);
 }
 
@@ -56,9 +55,6 @@ void runtime_destroy_restore(struct runtime_t * rt, struct runtime_t * r)
 
 	if(rt->__xfs_ctx)
 		__xfs_free(rt->__xfs_ctx);
-
-	if(rt->__event_base)
-		__event_base_free(rt->__event_base);
 
 	if(r)
 		__current_runtime = r;

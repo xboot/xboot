@@ -8,9 +8,6 @@ extern "C" {
 #include <xboot.h>
 
 struct runtime_t {
-	/* event base */
-	struct event_base_t * __event_base;
-
 	/* xfs context */
 	void * __xfs_ctx;
 };

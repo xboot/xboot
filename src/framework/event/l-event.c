@@ -74,242 +74,242 @@ static int l_event_new(lua_State * L)
 
 static int l_event_pump(lua_State * L)
 {
-	struct event_t event;
+	struct event_t e;
 
-	if(!pump_event(runtime_get()->__event_base, &event))
+	if(!pump_event(&e))
 		return 0;
 
-	switch(event.type)
+	switch(e.type)
 	{
 	case EVENT_TYPE_KEY_DOWN:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_KEY_DOWN);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.key_down.key);
+		lua_pushinteger(L, e.e.key_down.key);
 		lua_setfield(L, -2, "key");
 		return 1;
 
 	case EVENT_TYPE_KEY_UP:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_KEY_UP);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.key_up.key);
+		lua_pushinteger(L, e.e.key_up.key);
 		lua_setfield(L, -2, "key");
 		return 1;
 
 	case EVENT_TYPE_ROTARY_TURN:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_ROTARY_TURN);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.rotary_turn.v);
+		lua_pushinteger(L, e.e.rotary_turn.v);
 		lua_setfield(L, -2, "v");
 		return 1;
 
 	case EVENT_TYPE_ROTARY_SWITCH:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_ROTARY_SWITCH);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.rotary_switch.v);
+		lua_pushinteger(L, e.e.rotary_switch.v);
 		lua_setfield(L, -2, "v");
 		return 1;
 
 	case EVENT_TYPE_MOUSE_DOWN:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_MOUSE_DOWN);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.mouse_down.x);
+		lua_pushinteger(L, e.e.mouse_down.x);
 		lua_setfield(L, -2, "x");
-		lua_pushinteger(L, event.e.mouse_down.y);
+		lua_pushinteger(L, e.e.mouse_down.y);
 		lua_setfield(L, -2, "y");
-		lua_pushinteger(L, event.e.mouse_down.button);
+		lua_pushinteger(L, e.e.mouse_down.button);
 		lua_setfield(L, -2, "button");
 		return 1;
 
 	case EVENT_TYPE_MOUSE_MOVE:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_MOUSE_MOVE);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.mouse_move.x);
+		lua_pushinteger(L, e.e.mouse_move.x);
 		lua_setfield(L, -2, "x");
-		lua_pushinteger(L, event.e.mouse_move.y);
+		lua_pushinteger(L, e.e.mouse_move.y);
 		lua_setfield(L, -2, "y");
 		return 1;
 
 	case EVENT_TYPE_MOUSE_UP:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_MOUSE_UP);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.mouse_up.x);
+		lua_pushinteger(L, e.e.mouse_up.x);
 		lua_setfield(L, -2, "x");
-		lua_pushinteger(L, event.e.mouse_up.y);
+		lua_pushinteger(L, e.e.mouse_up.y);
 		lua_setfield(L, -2, "y");
-		lua_pushinteger(L, event.e.mouse_up.button);
+		lua_pushinteger(L, e.e.mouse_up.button);
 		lua_setfield(L, -2, "button");
 		return 1;
 
 	case EVENT_TYPE_MOUSE_WHEEL:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_MOUSE_WHEEL);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.mouse_wheel.dx);
+		lua_pushinteger(L, e.e.mouse_wheel.dx);
 		lua_setfield(L, -2, "dx");
-		lua_pushinteger(L, event.e.mouse_wheel.dy);
+		lua_pushinteger(L, e.e.mouse_wheel.dy);
 		lua_setfield(L, -2, "dy");
 		return 1;
 
 	case EVENT_TYPE_TOUCH_BEGIN:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_TOUCH_BEGIN);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.touch_begin.x);
+		lua_pushinteger(L, e.e.touch_begin.x);
 		lua_setfield(L, -2, "x");
-		lua_pushinteger(L, event.e.touch_begin.y);
+		lua_pushinteger(L, e.e.touch_begin.y);
 		lua_setfield(L, -2, "y");
-		lua_pushinteger(L, event.e.touch_begin.id);
+		lua_pushinteger(L, e.e.touch_begin.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 
 	case EVENT_TYPE_TOUCH_MOVE:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_TOUCH_MOVE);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.touch_move.x);
+		lua_pushinteger(L, e.e.touch_move.x);
 		lua_setfield(L, -2, "x");
-		lua_pushinteger(L, event.e.touch_move.y);
+		lua_pushinteger(L, e.e.touch_move.y);
 		lua_setfield(L, -2, "y");
-		lua_pushinteger(L, event.e.touch_move.id);
+		lua_pushinteger(L, e.e.touch_move.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 
 	case EVENT_TYPE_TOUCH_END:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_TOUCH_END);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.touch_end.x);
+		lua_pushinteger(L, e.e.touch_end.x);
 		lua_setfield(L, -2, "x");
-		lua_pushinteger(L, event.e.touch_end.y);
+		lua_pushinteger(L, e.e.touch_end.y);
 		lua_setfield(L, -2, "y");
-		lua_pushinteger(L, event.e.touch_end.id);
+		lua_pushinteger(L, e.e.touch_end.id);
 		lua_setfield(L, -2, "id");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_LEFTSTICK:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_JOYSTICK_LEFTSTICK);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.joystick_left_stick.x);
+		lua_pushinteger(L, e.e.joystick_left_stick.x);
 		lua_setfield(L, -2, "x");
-		lua_pushinteger(L, event.e.joystick_left_stick.y);
+		lua_pushinteger(L, e.e.joystick_left_stick.y);
 		lua_setfield(L, -2, "y");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_RIGHTSTICK:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_JOYSTICK_RIGHTSTICK);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.joystick_right_stick.x);
+		lua_pushinteger(L, e.e.joystick_right_stick.x);
 		lua_setfield(L, -2, "x");
-		lua_pushinteger(L, event.e.joystick_right_stick.y);
+		lua_pushinteger(L, e.e.joystick_right_stick.y);
 		lua_setfield(L, -2, "y");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_LEFTTRIGGER:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_JOYSTICK_LEFTTRIGGER);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.joystick_left_trigger.v);
+		lua_pushinteger(L, e.e.joystick_left_trigger.v);
 		lua_setfield(L, -2, "v");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_RIGHTTRIGGER:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_JOYSTICK_RIGHTTRIGGER);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.joystick_right_trigger.v);
+		lua_pushinteger(L, e.e.joystick_right_trigger.v);
 		lua_setfield(L, -2, "v");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_BUTTONDOWN:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_JOYSTICK_BUTTONDOWN);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.joystick_button_down.button);
+		lua_pushinteger(L, e.e.joystick_button_down.button);
 		lua_setfield(L, -2, "button");
 		return 1;
 
 	case EVENT_TYPE_JOYSTICK_BUTTONUP:
 		lua_newtable(L);
-		lua_pushstring(L, ((struct input_t *)event.device)->name);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
 		lua_pushstring(L, EVT_JOYSTICK_BUTTONUP);
 		lua_setfield(L, -2, "type");
-		lua_pushnumber(L, ktime_to_ns(event.timestamp));
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
 		lua_setfield(L, -2, "time");
-		lua_pushinteger(L, event.e.joystick_button_up.button);
+		lua_pushinteger(L, e.e.joystick_button_up.button);
 		lua_setfield(L, -2, "button");
 		return 1;
 

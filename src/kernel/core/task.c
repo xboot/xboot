@@ -162,6 +162,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->fctx = make_fcontext(task->stack, task->size, context_entry);
 	task->func = func;
 	task->data = data;
+	task->__errno = 0;
 
 	return task;
 }

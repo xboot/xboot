@@ -8,9 +8,6 @@ extern "C" {
 #include <xboot.h>
 
 struct runtime_t {
-	/* error number */
-	int __errno;
-
 	/* standard input, output and error */
 	FILE *__stdin, *__stdout, *__stderr;
 

@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
-
 enum {
 	ENOERR			=  0,
 	EDOM			= -1,
@@ -46,12 +44,12 @@ enum {
 /*
  * A macro expanding to the errno l-value
  */
-#define errno 	(*__runtime_errno_location())
+#define errno 	(*__task_errno_location())
 
 /*
- * Internal function returning the address of the thread-specific errno
+ * Internal function returning the address of the task-specific errno
  */
-volatile int * __runtime_errno_location(void);
+volatile int * __task_errno_location(void);
 
 /*
  * Returns a string containing a message derived from an error code

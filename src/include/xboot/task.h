@@ -9,6 +9,7 @@ extern "C" {
 #include <list.h>
 #include <irqflags.h>
 #include <spinlock.h>
+#include <smp.h>
 
 typedef void (*task_func_t)(void * data);
 
@@ -32,6 +33,7 @@ struct task_t {
 	int weight;
 	task_func_t func;
 	void * data;
+	int __errno;
 };
 
 struct scheduler_t {

@@ -61,7 +61,7 @@ int xboot_main(int argc, char * argv[])
 	//do_autoboot();
 
 	/* Create shell task */
-	task = task_create(scheduler_self(), "shell", task_shell, 0, 0, 0);
+	task = task_create(scheduler_self(), NULL, shell_task, 0, 0, 0);
 
 	/* Scheduler loop */
 	scheduler_loop();

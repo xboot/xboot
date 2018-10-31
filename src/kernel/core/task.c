@@ -23,6 +23,7 @@
  */
 
 #include <xboot.h>
+#include <xfs/xfs.h>
 #include <xboot/task.h>
 
 struct transfer_t
@@ -62,7 +63,7 @@ static void context_entry(struct transfer_t from)
 	irq_flags_t flags;
 
 	t->fctx = from.fctx;
-	task->func(task->data);
+	task->func(task, task->data);
 	next = next_ready_task(task->sched);
 	spin_lock_irqsave(&task->sched->lock, flags);
 	list_del(&task->list);
@@ -125,7 +126,7 @@ void scheduler_loop(void)
 	scheduler_start(__sched[smp_processor_id()]);
 }
 
-struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int weight)
+struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int weight)
 {
 	struct task_t * task;
 	irq_flags_t flags;
@@ -153,7 +154,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	list_add_tail(&task->list, &sched->ready);
 	spin_unlock_irqrestore(&sched->lock, flags);
 
-	task->name = strdup(name);
+	task->path = strdup(path);
 	task->status = TASK_STATUS_READY;
 	task->sched = sched;
 	task->stack = stack + stksz;
@@ -163,6 +164,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;
+	task->__xfs_ctx = xfs_alloc(task->path);
 
 	return task;
 }
@@ -177,8 +179,10 @@ void task_destory(struct task_t * task)
 		list_del(&task->list);
 		task->status = TASK_STATUS_DEAD;
 		spin_unlock_irqrestore(&task->sched->lock, flags);
-		if(task->name)
-			free(task->name);
+		if(task->__xfs_ctx)
+			xfs_free(task->__xfs_ctx);
+		if(task->path)
+			free(task->path);
 		free(task->stack);
 		free(task);
 	}

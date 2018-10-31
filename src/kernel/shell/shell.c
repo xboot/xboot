@@ -31,7 +31,7 @@
 #include <shell/readline.h>
 #include <shell/shell.h>
 
-void task_shell(void * data)
+void shell_task(struct task_t * task, void * data)
 {
 	char * p;
 	char cwd[256];

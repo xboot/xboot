@@ -351,7 +351,7 @@ void xfs_close(struct xfs_file_t * file)
 	}
 }
 
-struct xfs_context_t * __xfs_alloc(const char * path)
+struct xfs_context_t * xfs_alloc(const char * path)
 {
 	struct xfs_context_t * ctx;
 	struct stat st;
@@ -359,9 +359,13 @@ struct xfs_context_t * __xfs_alloc(const char * path)
 	char userdata[256];
 	uint8_t digest[20];
 
+	if(!path)
+		return NULL;
+
 	ctx = malloc(sizeof(struct xfs_context_t));
 	if(!ctx)
 		return NULL;
+
 	memset(ctx, 0, sizeof(struct xfs_context_t));
 	init_list_head(&ctx->mounts.list);
 	spin_lock_init(&ctx->lock);
@@ -380,7 +384,7 @@ struct xfs_context_t * __xfs_alloc(const char * path)
 	return ctx;
 }
 
-void __xfs_free(struct xfs_context_t * ctx)
+void xfs_free(struct xfs_context_t * ctx)
 {
 	struct xfs_path_t * pos, * n;
 	irq_flags_t flags;

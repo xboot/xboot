@@ -25,11 +25,11 @@ enum task_status_t {
 struct task_t {
 	struct scheduler_t * sched;
 	struct list_head list;
-	char * name;
 	enum task_status_t status;
+	char * name;
 	void * fctx;
 	void * stack;
-	size_t size;
+	size_t stksz;
 	int weight;
 	task_func_t func;
 	void * data;
@@ -55,7 +55,7 @@ static inline struct task_t * task_self(void)
 }
 void scheduler_loop(void);
 
-struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t size, int weight);
+struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int weight);
 void task_destory(struct task_t * task);
 void task_suspend(struct task_t * task);
 void task_resume(struct task_t * task);

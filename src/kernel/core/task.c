@@ -125,7 +125,7 @@ void scheduler_loop(void)
 	scheduler_start(__sched[smp_processor_id()]);
 }
 
-struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t size, int weight)
+struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int weight)
 {
 	struct task_t * task;
 	irq_flags_t flags;
@@ -134,14 +134,14 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	if(!sched || !func)
 		return NULL;
 
-	if(size <= 0)
-		size = CONFIG_TASK_STACK_SIZE;
+	if(stksz <= 0)
+		stksz = CONFIG_TASK_STACK_SIZE;
 
 	task = malloc(sizeof(struct task_t));
 	if(!task)
 		return NULL;
 
-	stack = malloc(size);
+	stack = malloc(stksz);
 	if(!stack)
 	{
 		free(task);
@@ -156,10 +156,10 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->name = strdup(name);
 	task->status = TASK_STATUS_READY;
 	task->sched = sched;
-	task->stack = stack + size;
-	task->size = size;
+	task->stack = stack + stksz;
+	task->stksz = stksz;
 	task->weight = weight;
-	task->fctx = make_fcontext(task->stack, task->size, context_entry);
+	task->fctx = make_fcontext(task->stack, task->stksz, context_entry);
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;

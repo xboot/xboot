@@ -8,9 +8,6 @@ extern "C" {
 #include <xboot.h>
 
 struct runtime_t {
-	/* standard input, output and error */
-	FILE *__stdin, *__stdout, *__stderr;
-
 	/* event base */
 	struct event_base_t * __event_base;
 

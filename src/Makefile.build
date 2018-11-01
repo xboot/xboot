@@ -23,7 +23,7 @@ __build : $(X_TARGET)
 ifneq ($(strip $(X_OBJS)),)
 $(X_TARGET) : $(X_OBJS)
 	@echo [LD] $(BUILD_DIR)/built-in.o
-	@$(LD) -r -o $@ $(filter-out %/start.o,$^)
+	@$(LD) -r -o $@ $^
 else
 $(X_TARGET) :
 	@echo [LD] $(BUILD_DIR)/built-in.o

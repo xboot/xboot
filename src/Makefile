@@ -44,7 +44,7 @@ LIBDIRS		:=
 LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
-
+ARCHDIRS	:=
 #
 # Override default variables.
 #
@@ -71,15 +71,18 @@ LDFLAGS		+=	-Wl,-gc-sections
 # Add necessary directory for INCDIRS and SRCDIRS.
 #
 INCDIRS		+=	include										\
-				arch/$(ARCH)/include						\
-				arch/$(ARCH)/$(MACH)/include
+				$(wildcard arch/$(ARCH)/include)			\
+				$(wildcard arch/$(ARCH)/$(MACH)/include)
 
-SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
-				arch/$(ARCH)/lib							\
-				arch/$(ARCH)/$(MACH)						\
+ARCHDIRS	+=	$(wildcard arch/$(ARCH)/lib/cpu)			\
+				$(wildcard arch/$(ARCH)/lib)				\
+				$(wildcard arch/$(ARCH)/$(MACH))			\
 				$(wildcard arch/$(ARCH)/$(MACH)/command)	\
-				arch/$(ARCH)/$(MACH)/driver					\
-				lib/libc									\
+				$(wildcard arch/$(ARCH)/$(MACH)/driver)
+
+SRCDIRS		+=	$(ARCHDIRS)
+
+SRCDIRS		+=	lib/libc									\
 				lib/libc/charset							\
 				lib/libc/crypto								\
 				lib/libc/ctype								\
@@ -94,7 +97,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				lib/libc/stdlib								\
 				lib/libc/string								\
 				lib/libc/time								\
-				lib/libm/$(ARCH)							\
+				$(wildcard lib/libm/$(ARCH))				\
 				lib/libm									\
 				lib/libx									\
 				init										\
@@ -185,9 +188,9 @@ INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 
 INCDIRS		+= 	external/pixman-0.34.0 \
-				external/pixman-0.34.0/$(ARCH)
+				$(wildcard external/pixman-0.34.0/$(ARCH))
 SRCDIRS		+=	external/pixman-0.34.0 \
-				external/pixman-0.34.0/$(ARCH)
+				$(wildcard external/pixman-0.34.0/$(ARCH))
 
 INCDIRS		+= 	external/cairo-1.14.10
 SRCDIRS		+=	external/cairo-1.14.10
@@ -274,9 +277,19 @@ X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
 X_INCDIRS	:=	$(patsubst %, -I $(TOPDIR)/%, $(INCDIRS))
 X_LIBDIRS	:=	$(patsubst %, -L %, $(LIBDIRS))
 X_SRCDIRS	:=	$(patsubst %, %, $(SRCDIRS))
+X_ARDIRS	:=	$(patsubst %, %, $(ARCHDIRS))
 X_OBJDIRS	:=	$(patsubst %, .obj/%, $(X_SRCDIRS))
 
+X_AR_SFILES	:=	$(foreach dir, $(X_ARDIRS), $(wildcard $(dir)/*.S))
+X_AR_CFILES	:=	$(foreach dir, $(X_ARDIRS), $(wildcard $(dir)/*.c))
+X_AR_FILES	:=	$(X_AR_SFILES) $(X_AR_CFILES)
+
 X_OBJS		:=	$(foreach dir, $(X_SRCDIRS), .obj/$(dir)/built-in.o)
+
+X_AR_SOBJS	:=	$(patsubst %, .obj/%, $(X_AR_SFILES:.S=.o))
+X_AR_COBJS	:=	$(patsubst %, .obj/%, $(X_AR_CFILES:.c=.o))
+X_AR_OBJS	:=	$(X_AR_SOBJS) $(X_AR_COBJS)
+X_AR_BOBJS	:=	$(foreach dir, $(X_ARDIRS), .obj/$(dir)/built-in.o)
 
 VPATH		:=	$(X_OBJDIRS)
 
@@ -311,7 +324,7 @@ prepare :
 
 $(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@
-	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@ $(X_LIBS)
+	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $(X_AR_OBJS) $(filter-out $(X_AR_BOBJS), $(X_OBJS)) -o $@ $(X_LIBS)
 	@echo [OC] Objcopying $@.bin
 	@$(OC) -v -O binary $@ $@.bin
 

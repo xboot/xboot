@@ -15,10 +15,18 @@ X_DEPS		:=	$(wildcard $(X_DEPS))
 
 X_TARGET	:=	$(OBJDIR)/$(BUILD_DIR)/built-in.o
 
+sinclude Makefile
+
+ifndef PREPARE
+	PREPARE	:=
+endif
+
+
 .PHONY : __build
 
 __build : $(X_TARGET)
-	@:
+
+$(X_OBJS) : $(PREPARE)
 
 ifneq ($(strip $(X_OBJS)),)
 $(X_TARGET) : $(X_OBJS)

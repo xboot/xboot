@@ -62,6 +62,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 void task_destory(struct task_t * task);
 void task_suspend(struct task_t * task);
 void task_resume(struct task_t * task);
+void task_wait(struct task_t * task);
 void task_yield(void);
 
 #ifdef __cplusplus

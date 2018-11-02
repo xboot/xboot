@@ -34,6 +34,7 @@ struct stopwatch_t {
 
 static double __time_stamp(void)
 {
+	task_yield();
 	return (double)(ktime_to_ns(ktime_get())) / (double)1000000000.0;
 }
 

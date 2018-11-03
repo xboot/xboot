@@ -71,7 +71,7 @@ static void ft_xfs_stream_close(FT_Stream stream)
 
 static FT_Stream FT_New_Xfs_Stream(lua_State * L, const char * pathname)
 {
-	struct xfs_context_t * ctx = luahelper_runtime(L)->__xfs_ctx;
+	struct xfs_context_t * ctx = luahelper_task(L)->__xfs_ctx;
 	FT_Stream stream = NULL;
 	struct xfs_file_t * file;
 

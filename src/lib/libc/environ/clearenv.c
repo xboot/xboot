@@ -2,7 +2,6 @@
  * libc/environ/clearenv.c
  */
 
-#include <runtime.h>
 #include <environ.h>
 
 int clearenv(void)
@@ -23,7 +22,6 @@ int clearenv(void)
 		free(q->content);
 		free(q);
 	}
-
 	return 0;
 }
 EXPORT_SYMBOL(clearenv);

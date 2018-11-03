@@ -2,7 +2,6 @@
  * libc/environ/unsetenv.c
  */
 
-#include <runtime.h>
 #include <errno.h>
 #include <string.h>
 #include <malloc.h>

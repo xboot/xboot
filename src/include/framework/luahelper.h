@@ -11,9 +11,9 @@ extern "C" {
 #include <lauxlib.h>
 #include <lualib.h>
 
-static inline struct runtime_t * luahelper_runtime(lua_State * L)
+static inline struct task_t * luahelper_task(lua_State * L)
 {
-	return (struct runtime_t *)(G(L)->ud);
+	return (struct task_t *)(G(L)->ud);
 }
 
 void luahelper_dump_stack(lua_State * L);

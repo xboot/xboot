@@ -33,7 +33,6 @@
 
 int xboot_main(int argc, char * argv[])
 {
-	struct runtime_t rt;
 	struct task_t * task;
 
 	/* Do initial mem pool */
@@ -48,9 +47,6 @@ int xboot_main(int argc, char * argv[])
 	/* Do initial vfs */
 	do_init_vfs();
 
-	/* Create runtime */
-	runtime_create_save(&rt, 0, 0);
-
 	/* Do all initial calls */
 	do_initcalls();
 
@@ -58,10 +54,10 @@ int xboot_main(int argc, char * argv[])
 	do_showlogo();
 
 	/* Do auto boot */
-	//do_autoboot();
+	do_autoboot();
 
 	/* Create shell task */
-	task = task_create(scheduler_self(), NULL, shell_task, 0, 0, 0);
+	task = task_create(scheduler_self(), NULL, shell_task, NULL, 0, 0);
 
 	/* Resume shell task */
 	task_resume(task);
@@ -74,9 +70,6 @@ int xboot_main(int argc, char * argv[])
 
 	/* Do all exit calls */
 	do_exitcalls();
-
-	/* Destroy runtime */
-	runtime_destroy_restore(&rt, 0);
 
 	/* Xboot return */
 	return 0;

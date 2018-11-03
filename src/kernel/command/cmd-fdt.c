@@ -469,7 +469,7 @@ static int do_fdt(int argc, char ** argv)
 		}
 		else
 		{
-			void * addr = (void *)strtoull(argv[0], NULL, 0);
+			void * addr = (void *)strtoul(argv[0], NULL, 0);
 			int len = 0;
 			int e = 0;
 			if(!addr || (e = fdt_check_header(addr)) != 0)

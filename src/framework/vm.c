@@ -116,8 +116,8 @@ static void luaopen_prelibs(lua_State * L)
 static int luaopen_boot(lua_State * L)
 {
 	if(luaL_loadfile(L, "/framework/xboot/boot.lua") == LUA_OK)
-		lua_call(L, 0, 1);
-	return 1;
+		lua_call(L, 0, 0);
+	return 0;
 }
 
 struct __reader_data_t
@@ -144,7 +144,7 @@ static const char * __reader(lua_State * L, void * data, size_t * size)
 
 static int __loadfile(lua_State * L)
 {
-	struct xfs_context_t * ctx = luahelper_runtime(L)->__xfs_ctx;
+	struct xfs_context_t * ctx = luahelper_task(L)->__xfs_ctx;
 	const char * filename = luaL_checkstring(L, 1);
 	struct __reader_data_t * rd;
 
@@ -173,7 +173,7 @@ static int __loadfile(lua_State * L)
 
 static int l_search_package_lua(lua_State * L)
 {
-	struct xfs_context_t * ctx = luahelper_runtime(L)->__xfs_ctx;
+	struct xfs_context_t * ctx = luahelper_task(L)->__xfs_ctx;
 	const char * filename = lua_tostring(L, -1);
 	char * buf;
 	size_t len, i;
@@ -233,10 +233,6 @@ static int l_xboot_readline(lua_State * L)
 
 static int pmain(lua_State * L)
 {
-	int argc = (int)lua_tointeger(L, 1);
-	char ** argv = (char **)lua_touserdata(L, 2);
-	int i;
-
 	luaL_openlibs(L);
 	luaopen_glblibs(L);
 	luaopen_prelibs(L);
@@ -259,17 +255,9 @@ static int pmain(lua_State * L)
 	lua_setfield(L, -2, "uniqueid");
 	lua_pushcfunction(L, l_xboot_readline);
 	lua_setfield(L, -2, "readline");
-	lua_createtable(L, argc, 0);
-	for(i = 0; i < argc; i++)
-	{
-		lua_pushstring(L, argv[i]);
-		lua_rawseti(L, -2, i);
-	}
-	lua_setfield(L, -2, "arg");
-	lua_pop(L, 1);
 
 	luaopen_boot(L);
-	return 1;
+	return 0;
 }
 
 static void * l_alloc(void * ud, void * ptr, size_t osize, size_t nsize)
@@ -299,30 +287,35 @@ static lua_State * l_newstate(void * ud)
 	return L;
 }
 
-int vmexec(int argc, char ** argv)
+static void vm_task(struct task_t * task, void * data)
 {
-	struct runtime_t rt, *r;
 	lua_State * L;
-	int status = LUA_ERRRUN, result;
 
-	runtime_create_save(&rt, argv[0], &r);
-	L = l_newstate(&rt);
+	L = l_newstate(task);
 	if(L)
 	{
 		lua_pushcfunction(L, &pmain);
-		lua_pushinteger(L, argc);
-		lua_pushlightuserdata(L, argv);
-		status = luahelper_pcall(L, 2, 1);
-		result = lua_toboolean(L, -1);
-		if(status != LUA_OK)
+		if(luahelper_pcall(L, 0, 0) != LUA_OK)
 		{
-			const char * msg = lua_tostring(L, -1);
-			lua_writestringerror("%s: ", argv[0]);
-			lua_writestringerror("%s\r\n", msg);
+			lua_writestringerror("%s: ", task->path);
+			lua_writestringerror("%s\r\n", lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 		lua_close(L);
 	}
-	runtime_destroy_restore(&rt, r);
-	return (result && (status == LUA_OK)) ? 0 : -1;
+}
+
+int vmexec(const char * path)
+{
+	struct task_t * task;
+
+	if(!path)
+		return -1;
+
+	task = task_create(scheduler_self(), path, vm_task, NULL, 0, 0);
+	task_resume(task);
+//	task_wait(task);
+//	task_destroy(task);
+
+	return 0;
 }

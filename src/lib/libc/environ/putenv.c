@@ -2,7 +2,6 @@
  * libc/environ/putenv.c
  */
 
-#include <runtime.h>
 #include <string.h>
 #include <malloc.h>
 #include <environ.h>

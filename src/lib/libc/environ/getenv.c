@@ -2,7 +2,6 @@
  * libc/environ/getenv.c
  */
 
-#include <runtime.h>
 #include <stddef.h>
 #include <string.h>
 #include <environ.h>

@@ -61,9 +61,8 @@ int system(const char * cmdline)
 					ret = cmd->exec(n, args);
 				else
 					ret = vmexec(args[0]);
-				if(ret < 0)
+				if((ret < 0) && pos)
 				{
-			    	printf(" when exec '%s' return an error code (%d)\r\n", args[0], ret);
 			    	free(args[0]);
 			    	free(args);
 			    	break;
@@ -82,4 +81,3 @@ int system(const char * cmdline)
 	free(buf);
 	return 1;
 }
-EXPORT_SYMBOL(system);

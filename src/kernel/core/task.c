@@ -216,15 +216,6 @@ void task_resume(struct task_t * task)
 	}
 }
 
-void task_wait(struct task_t * task)
-{
-	if(task)
-	{
-		while(task->status != TASK_STATUS_DEAD)
-			task_yield();
-	}
-}
-
 void task_yield(void)
 {
 	struct task_t * self = task_self();

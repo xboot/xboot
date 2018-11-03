@@ -63,11 +63,14 @@ int xboot_main(int argc, char * argv[])
 	/* Create shell task */
 	task = task_create(scheduler_self(), NULL, shell_task, 0, 0, 0);
 
+	/* Resume shell task */
+	task_resume(task);
+
 	/* Scheduler loop */
 	scheduler_loop();
 
-	/* Destory shell task */
-	task_destory(task);
+	/* Destroy shell task */
+	task_destroy(task);
 
 	/* Do all exit calls */
 	do_exitcalls();

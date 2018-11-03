@@ -99,15 +99,15 @@ static void scheduler_free(struct scheduler_t * sched)
 
 	list_for_each_entry_safe(pos, n, &sched->dead, list)
 	{
-		task_destory(pos);
+		task_destroy(pos);
 	}
 	list_for_each_entry_safe(pos, n, &sched->ready, list)
 	{
-		task_destory(pos);
+		task_destroy(pos);
 	}
 	list_for_each_entry_safe(pos, n, &sched->suspend, list)
 	{
-		task_destory(pos);
+		task_destroy(pos);
 	}
 	free(sched);
 }
@@ -149,13 +149,8 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 		return NULL;
 	}
 
-	spin_lock_irqsave(&sched->lock, flags);
-	init_list_head(&task->list);
-	list_add_tail(&task->list, &sched->ready);
-	spin_unlock_irqrestore(&sched->lock, flags);
-
 	task->path = strdup(path);
-	task->status = TASK_STATUS_READY;
+	task->status = TASK_STATUS_SUSPEND;
 	task->sched = sched;
 	task->stack = stack + stksz;
 	task->stksz = stksz;
@@ -166,10 +161,15 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->__errno = 0;
 	task->__xfs_ctx = xfs_alloc(task->path);
 
+	spin_lock_irqsave(&sched->lock, flags);
+	init_list_head(&task->list);
+	list_add_tail(&task->list, &sched->suspend);
+	spin_unlock_irqrestore(&sched->lock, flags);
+
 	return task;
 }
 
-void task_destory(struct task_t * task)
+void task_destroy(struct task_t * task)
 {
 	irq_flags_t flags;
 

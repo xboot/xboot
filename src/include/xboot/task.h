@@ -10,6 +10,8 @@ extern "C" {
 #include <irqflags.h>
 #include <spinlock.h>
 #include <smp.h>
+#include <rbtree.h>
+#include <rbtree_augmented.h>
 
 struct task_t;
 struct scheduler_t;
@@ -23,9 +25,12 @@ enum task_status_t {
 };
 
 struct task_t {
-	struct scheduler_t * sched;
+	struct rb_node node;
 	struct list_head list;
+	struct scheduler_t * sched;
 	enum task_status_t status;
+	uint64_t vruntime;
+	uint64_t start;
 	char * path;
 	void * fctx;
 	void * stack;
@@ -39,10 +44,11 @@ struct task_t {
 };
 
 struct scheduler_t {
-	struct list_head dead;
-	struct list_head ready;
-	struct list_head suspend;
+	struct rb_root root;
+	struct list_head head;
 	struct task_t * running;
+	struct task_t * next;
+	uint64_t min_vruntime;
 	spinlock_t lock;
 };
 

@@ -37,12 +37,81 @@ extern struct transfer_t jump_fcontext(void * fctx, void * priv);
 
 struct scheduler_t * __sched[CONFIG_MAX_CPUS] = { 0 };
 
+static struct scheduler_t * scheduler_alloc(void)
+{
+	struct scheduler_t * sched;
+
+	sched = malloc(sizeof(struct scheduler_t));
+	if(!sched)
+		return NULL;
+
+	sched->root = RB_ROOT;
+	init_list_head(&sched->head);
+	spin_lock_init(&sched->lock);
+	sched->running = NULL;
+	sched->next = NULL;
+
+	return sched;
+}
+
+static void scheduler_free(struct scheduler_t * sched)
+{
+	struct task_t * pos, * n;
+
+	if(!sched)
+		return;
+
+	list_for_each_entry_safe(pos, n, &sched->head, list)
+	{
+		task_destroy(pos);
+	}
+	free(sched);
+}
+
+static inline struct task_t * scheduler_next_task(struct scheduler_t * sched)
+{
+	return sched->next;
+}
+
+static inline void scheduler_add_task(struct scheduler_t * sched, struct task_t * task)
+{
+	struct rb_node ** p = &sched->root.rb_node;
+	struct rb_node * parent = NULL;
+	struct task_t * ptr;
+
+	while(*p)
+	{
+		parent = *p;
+		ptr = rb_entry(parent, struct task_t, node);
+		if(task->vruntime < ptr->vruntime)
+			p = &(*p)->rb_left;
+		else
+			p = &(*p)->rb_right;
+	}
+	rb_link_node(&task->node, parent, p);
+	rb_insert_color(&task->node, &sched->root);
+
+	if(!sched->next || task->vruntime < sched->next->vruntime)
+		sched->next = task;
+}
+
+static inline void scheduler_del_task(struct scheduler_t * sched, struct task_t * task)
+{
+	if(sched->next == task)
+	{
+		struct rb_node * rbn = rb_next(&task->node);
+		sched->next = rbn ? rb_entry(rbn, struct task_t, node) : NULL;
+	}
+	rb_erase(&task->node, &sched->root);
+	RB_CLEAR_NODE(&task->node);
+}
+
 static inline struct task_t * next_ready_task(struct scheduler_t * sched)
 {
-	if(list_empty(&sched->ready))
+	if(list_empty(&sched->head))
 		return NULL;
-	if(!sched->running || (sched->running->status != TASK_STATUS_READY) || list_is_last(&sched->running->list, &sched->ready))
-		return list_first_entry(&sched->ready, struct task_t, list);
+	if(!sched->running || (sched->running->status != TASK_STATUS_READY) || list_is_last(&sched->running->list, &sched->head))
+		return list_first_entry(&sched->head, struct task_t, list);
 	return list_next_entry(sched->running, list);
 }
 
@@ -60,63 +129,21 @@ static void context_entry(struct transfer_t from)
 	struct task_t * t = (struct task_t *)from.priv;
 	struct task_t * task = t->sched->running;
 	struct task_t * next;
-	irq_flags_t flags;
 
 	t->fctx = from.fctx;
 	task->func(task, task->data);
 	next = next_ready_task(task->sched);
-	spin_lock_irqsave(&task->sched->lock, flags);
 	list_del(&task->list);
-	list_add_tail(&task->list, &task->sched->dead);
 	task->status = TASK_STATUS_DEAD;
-	spin_unlock_irqrestore(&task->sched->lock, flags);
 	if(next && (next != t->sched->running))
 		scheduler_switch_task(t->sched, next);
 }
 
-static struct scheduler_t * scheduler_alloc(void)
-{
-	struct scheduler_t * sched;
-
-	sched = malloc(sizeof(struct scheduler_t));
-	if(!sched)
-		return NULL;
-
-	init_list_head(&sched->dead);
-	init_list_head(&sched->ready);
-	init_list_head(&sched->suspend);
-	spin_lock_init(&sched->lock);
-	sched->running = NULL;
-	return sched;
-}
-
-static void scheduler_free(struct scheduler_t * sched)
-{
-	struct task_t * pos, * n;
-
-	if(!sched)
-		return;
-
-	list_for_each_entry_safe(pos, n, &sched->dead, list)
-	{
-		task_destroy(pos);
-	}
-	list_for_each_entry_safe(pos, n, &sched->ready, list)
-	{
-		task_destroy(pos);
-	}
-	list_for_each_entry_safe(pos, n, &sched->suspend, list)
-	{
-		task_destroy(pos);
-	}
-	free(sched);
-}
-
 static void scheduler_start(struct scheduler_t * sched)
 {
-	if(sched && !list_empty(&sched->ready))
+	if(sched && !list_empty(&sched->head))
 	{
-		sched->running = list_first_entry(&sched->ready, struct task_t, list);
+		sched->running = list_first_entry(&sched->head, struct task_t, list);
 		scheduler_switch_task(sched, sched->running);
 	}
 }
@@ -129,7 +156,6 @@ void scheduler_loop(void)
 struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int weight)
 {
 	struct task_t * task;
-	irq_flags_t flags;
 	void * stack;
 
 	if(!sched || !func)
@@ -149,8 +175,12 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 		return NULL;
 	}
 
+	RB_CLEAR_NODE(&task->node);
+	list_add_tail(&task->list, &sched->head);
 	task->path = strdup(path);
 	task->status = TASK_STATUS_SUSPEND;
+	task->vruntime = 0;
+	task->start = 0;
 	task->sched = sched;
 	task->stack = stack + stksz;
 	task->stksz = stksz;
@@ -161,24 +191,15 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->__errno = 0;
 	task->__xfs_ctx = xfs_alloc(task->path);
 
-	spin_lock_irqsave(&sched->lock, flags);
-	init_list_head(&task->list);
-	list_add_tail(&task->list, &sched->suspend);
-	spin_unlock_irqrestore(&sched->lock, flags);
-
 	return task;
 }
 
 void task_destroy(struct task_t * task)
 {
-	irq_flags_t flags;
-
 	if(task)
 	{
-		spin_lock_irqsave(&task->sched->lock, flags);
 		list_del(&task->list);
 		task->status = TASK_STATUS_DEAD;
-		spin_unlock_irqrestore(&task->sched->lock, flags);
 		if(task->__xfs_ctx)
 			xfs_free(task->__xfs_ctx);
 		if(task->path)
@@ -190,29 +211,19 @@ void task_destroy(struct task_t * task)
 
 void task_suspend(struct task_t * task)
 {
-	irq_flags_t flags;
-
 	if(task)
 	{
-		spin_lock_irqsave(&task->sched->lock, flags);
-		list_del(&task->list);
-		list_add_tail(&task->list, &task->sched->suspend);
 		task->status = TASK_STATUS_SUSPEND;
-		spin_unlock_irqrestore(&task->sched->lock, flags);
+		scheduler_del_task(task->sched, task);
 	}
 }
 
 void task_resume(struct task_t * task)
 {
-	irq_flags_t flags;
-
 	if(task)
 	{
-		spin_lock_irqsave(&task->sched->lock, flags);
-		list_del(&task->list);
-		list_add_tail(&task->list, &task->sched->ready);
 		task->status = TASK_STATUS_READY;
-		spin_unlock_irqrestore(&task->sched->lock, flags);
+		scheduler_add_task(task->sched, task);
 	}
 }
 

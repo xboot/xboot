@@ -15,7 +15,6 @@ extern "C" {
 
 struct task_t;
 struct scheduler_t;
-
 typedef void (*task_func_t)(struct task_t * task, void * data);
 
 enum task_status_t {
@@ -58,17 +57,19 @@ static inline struct scheduler_t * scheduler_self(void)
 {
 	return __sched[smp_processor_id()];
 }
+
 static inline struct task_t * task_self(void)
 {
 	return __sched[smp_processor_id()]->running;
 }
-void scheduler_loop(void);
 
 struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int weight);
 void task_destroy(struct task_t * task);
 void task_suspend(struct task_t * task);
 void task_resume(struct task_t * task);
 void task_yield(void);
+
+void scheduler_loop(void);
 
 #ifdef __cplusplus
 }

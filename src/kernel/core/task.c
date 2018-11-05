@@ -91,8 +91,11 @@ static inline void scheduler_add_task(struct scheduler_t * sched, struct task_t 
 	rb_link_node(&task->node, parent, p);
 	rb_insert_color(&task->node, &sched->root);
 
-	if(!sched->next || task->vruntime < sched->next->vruntime)
+	if(!sched->next || (task->vruntime < sched->next->vruntime))
+	{
 		sched->next = task;
+		sched->min_vruntime = sched->next->vruntime;
+	}
 }
 
 static inline void scheduler_del_task(struct scheduler_t * sched, struct task_t * task)
@@ -100,19 +103,19 @@ static inline void scheduler_del_task(struct scheduler_t * sched, struct task_t 
 	if(sched->next == task)
 	{
 		struct rb_node * rbn = rb_next(&task->node);
-		sched->next = rbn ? rb_entry(rbn, struct task_t, node) : NULL;
+		if(rbn)
+		{
+			sched->next = rb_entry(rbn, struct task_t, node);
+			sched->min_vruntime = sched->next->vruntime;
+		}
+		else
+		{
+			sched->next = NULL;
+			sched->min_vruntime = 0;
+		}
 	}
 	rb_erase(&task->node, &sched->root);
 	RB_CLEAR_NODE(&task->node);
-}
-
-static inline struct task_t * next_ready_task(struct scheduler_t * sched)
-{
-	if(list_empty(&sched->head))
-		return NULL;
-	if(!sched->running || (sched->running->status != TASK_STATUS_READY) || list_is_last(&sched->running->list, &sched->head))
-		return list_first_entry(&sched->head, struct task_t, list);
-	return list_next_entry(sched->running, list);
 }
 
 static inline void scheduler_switch_task(struct scheduler_t * sched, struct task_t * task)
@@ -132,25 +135,22 @@ static void context_entry(struct transfer_t from)
 
 	t->fctx = from.fctx;
 	task->func(task, task->data);
-	next = next_ready_task(task->sched);
-	list_del(&task->list);
 	task->status = TASK_STATUS_DEAD;
+	scheduler_del_task(task->sched, task);
+	next = scheduler_next_task(t->sched);
+	next->start = ktime_to_ns(ktime_get());
 	if(next && (next != t->sched->running))
 		scheduler_switch_task(t->sched, next);
 }
 
-static void scheduler_start(struct scheduler_t * sched)
-{
-	if(sched && !list_empty(&sched->head))
-	{
-		sched->running = list_first_entry(&sched->head, struct task_t, list);
-		scheduler_switch_task(sched, sched->running);
-	}
-}
-
 void scheduler_loop(void)
 {
-	scheduler_start(__sched[smp_processor_id()]);
+	struct scheduler_t * sched;
+
+	sched = __sched[smp_processor_id()];
+	sched->running = scheduler_next_task(sched);
+	sched->running->start = ktime_to_ns(ktime_get());
+	scheduler_switch_task(sched, sched->running);
 }
 
 struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int weight)
@@ -196,10 +196,9 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 
 void task_destroy(struct task_t * task)
 {
-	if(task)
+	if(task && (task->status == TASK_STATUS_DEAD))
 	{
 		list_del(&task->list);
-		task->status = TASK_STATUS_DEAD;
 		if(task->__xfs_ctx)
 			xfs_free(task->__xfs_ctx);
 		if(task->path)
@@ -211,7 +210,7 @@ void task_destroy(struct task_t * task)
 
 void task_suspend(struct task_t * task)
 {
-	if(task)
+	if(task && (task->status != TASK_STATUS_SUSPEND))
 	{
 		task->status = TASK_STATUS_SUSPEND;
 		scheduler_del_task(task->sched, task);
@@ -220,7 +219,7 @@ void task_suspend(struct task_t * task)
 
 void task_resume(struct task_t * task)
 {
-	if(task)
+	if(task && (task->status != TASK_STATUS_READY))
 	{
 		task->status = TASK_STATUS_READY;
 		scheduler_add_task(task->sched, task);
@@ -230,8 +229,14 @@ void task_resume(struct task_t * task)
 void task_yield(void)
 {
 	struct task_t * self = task_self();
-	struct task_t * next = next_ready_task(self->sched);
+	struct task_t * next;
+	uint64_t now = ktime_to_ns(ktime_get());
 
+	self->vruntime += now - self->start;
+	scheduler_del_task(self->sched, self);
+	scheduler_add_task(self->sched, self);
+	next = scheduler_next_task(self->sched);
+	next->start = now;
 	if(next && (next != self))
 		scheduler_switch_task(self->sched, next);
 }

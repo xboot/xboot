@@ -111,7 +111,7 @@ static inline void scheduler_del_task(struct scheduler_t * sched, struct task_t 
 		else
 		{
 			sched->next = NULL;
-			sched->min_vruntime = 0;
+			sched->min_vruntime = ~0ULL;
 		}
 	}
 	rb_erase(&task->node, &sched->root);
@@ -130,27 +130,39 @@ static inline void scheduler_switch_task(struct scheduler_t * sched, struct task
 static void context_entry(struct transfer_t from)
 {
 	struct task_t * t = (struct task_t *)from.priv;
-	struct task_t * task = t->sched->running;
-	struct task_t * next;
+	struct scheduler_t * sched = t->sched;
+	struct task_t * next, * task = sched->running;
 
 	t->fctx = from.fctx;
 	task->func(task, task->data);
 	task->status = TASK_STATUS_DEAD;
-	scheduler_del_task(task->sched, task);
-	next = scheduler_next_task(t->sched);
-	next->start = ktime_to_ns(ktime_get());
-	if(next && (next != t->sched->running))
-		scheduler_switch_task(t->sched, next);
+	scheduler_del_task(sched, task);
+
+	next = scheduler_next_task(sched);
+	if(next)
+	{
+		scheduler_del_task(sched, next);
+		next->status = TASK_STATUS_RUNNING;
+		next->start = ktime_to_ns(ktime_get());
+		scheduler_switch_task(sched, next);
+	}
 }
 
 void scheduler_loop(void)
 {
 	struct scheduler_t * sched;
+	struct task_t * next;
 
 	sched = __sched[smp_processor_id()];
-	sched->running = scheduler_next_task(sched);
-	sched->running->start = ktime_to_ns(ktime_get());
-	scheduler_switch_task(sched, sched->running);
+	next = scheduler_next_task(sched);
+	if(next)
+	{
+		sched->running = next;
+		scheduler_del_task(sched, next);
+		next->status = TASK_STATUS_RUNNING;
+		next->start = ktime_to_ns(ktime_get());
+		scheduler_switch_task(sched, next);
+	}
 }
 
 struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int weight)
@@ -228,17 +240,26 @@ void task_resume(struct task_t * task)
 
 void task_yield(void)
 {
-	struct task_t * self = task_self();
-	struct task_t * next;
+	struct scheduler_t * sched = scheduler_self();
+	struct task_t * next, * self = task_self();
 	uint64_t now = ktime_to_ns(ktime_get());
 
 	self->vruntime += now - self->start;
-	scheduler_del_task(self->sched, self);
-	scheduler_add_task(self->sched, self);
-	next = scheduler_next_task(self->sched);
-	next->start = now;
-	if(next && (next != self))
-		scheduler_switch_task(self->sched, next);
+	if(self->vruntime < sched->min_vruntime)
+	{
+		self->start = now;
+	}
+	else
+	{
+		self->status = TASK_STATUS_READY;
+		scheduler_add_task(sched, self);
+		next = scheduler_next_task(sched);
+		scheduler_del_task(sched, next);
+		next->status = TASK_STATUS_RUNNING;
+		next->start = now;
+		if(next != self)
+			scheduler_switch_task(sched, next);
+	}
 }
 
 static __init void task_pure_init(void)

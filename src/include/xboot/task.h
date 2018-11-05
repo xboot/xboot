@@ -18,9 +18,10 @@ struct scheduler_t;
 typedef void (*task_func_t)(struct task_t * task, void * data);
 
 enum task_status_t {
-	TASK_STATUS_SUSPEND	= 0,
-	TASK_STATUS_READY	= 1,
-	TASK_STATUS_DEAD	= 2,
+	TASK_STATUS_READY	= 0,
+	TASK_STATUS_RUNNING	= 1,
+	TASK_STATUS_SUSPEND	= 2,
+	TASK_STATUS_DEAD	= 3,
 };
 
 struct task_t {

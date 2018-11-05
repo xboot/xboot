@@ -50,6 +50,7 @@ static struct scheduler_t * scheduler_alloc(void)
 	spin_lock_init(&sched->lock);
 	sched->running = NULL;
 	sched->next = NULL;
+	sched->min_vruntime = 0;
 
 	return sched;
 }
@@ -111,7 +112,7 @@ static inline void scheduler_del_task(struct scheduler_t * sched, struct task_t 
 		else
 		{
 			sched->next = NULL;
-			sched->min_vruntime = ~0ULL;
+			sched->min_vruntime = 0;
 		}
 	}
 	rb_erase(&task->node, &sched->root);
@@ -136,8 +137,6 @@ static void context_entry(struct transfer_t from)
 	t->fctx = from.fctx;
 	task->func(task, task->data);
 	task->status = TASK_STATUS_DEAD;
-	scheduler_del_task(sched, task);
-
 	next = scheduler_next_task(sched);
 	if(next)
 	{
@@ -192,7 +191,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->path = strdup(path);
 	task->status = TASK_STATUS_SUSPEND;
 	task->vruntime = 0;
-	task->start = 0;
+	task->start = ktime_to_ns(ktime_get());
 	task->sched = sched;
 	task->stack = stack + stksz;
 	task->stksz = stksz;

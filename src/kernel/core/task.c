@@ -192,7 +192,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	list_add_tail(&task->list, &sched->head);
 	task->path = strdup(path);
 	task->status = TASK_STATUS_SUSPEND;
-	task->vruntime = 0;
+	task->vruntime = sched->min_vruntime;
 	task->start = ktime_to_ns(ktime_get());
 	task->sched = sched;
 	task->stack = stack + stksz;

@@ -65,9 +65,6 @@ int xboot_main(int argc, char * argv[])
 	/* Scheduler loop */
 	scheduler_loop();
 
-	/* Destroy shell task */
-	task_destroy(task);
-
 	/* Do all exit calls */
 	do_exitcalls();
 

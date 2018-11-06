@@ -137,6 +137,8 @@ static void context_entry(struct transfer_t from)
 	t->fctx = from.fctx;
 	task->func(task, task->data);
 	task->status = TASK_STATUS_DEAD;
+	task_destroy(task);
+
 	next = scheduler_next_task(sched);
 	if(next)
 	{

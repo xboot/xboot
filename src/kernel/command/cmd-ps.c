@@ -39,13 +39,13 @@ static const char * task_status_tostring(struct task_t * task)
 	switch(task->status)
 	{
 	case TASK_STATUS_READY:
-		return "W";
+		return "Ready";
 	case TASK_STATUS_RUNNING:
-		return "R";
+		return "Running";
 	case TASK_STATUS_SUSPEND:
-		return "S";
+		return "Suspend";
 	case TASK_STATUS_DEAD:
-		return "T";
+		return "Dead";
 	default:
 		break;
 	}
@@ -65,7 +65,7 @@ static int do_ps(int argc, char ** argv)
 		printf("CPU%d:\r\n", i);
 		list_for_each_entry_safe(pos, n, &sched->head, list)
 		{
-			printf(" %p %s %3d %20lld %s\r\n", pos->func, task_status_tostring(pos), pos->nice, pos->vruntime, pos->path ? pos->path : "");
+			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, task_status_tostring(pos), pos->nice, pos->vruntime, pos->path ? pos->path : "");
 		}
 	}
 	return 0;

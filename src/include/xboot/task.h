@@ -35,7 +35,9 @@ struct task_t {
 	void * fctx;
 	void * stack;
 	size_t stksz;
+	int nice;
 	int weight;
+	uint32_t inv_weight;
 	task_func_t func;
 	void * data;
 
@@ -64,8 +66,9 @@ static inline struct task_t * task_self(void)
 	return __sched[smp_processor_id()]->running;
 }
 
-struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int weight);
+struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int nice);
 void task_destroy(struct task_t * task);
+void task_renice(struct task_t * task, int nice);
 void task_suspend(struct task_t * task);
 void task_resume(struct task_t * task);
 void task_yield(void);

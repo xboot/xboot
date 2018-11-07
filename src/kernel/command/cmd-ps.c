@@ -65,7 +65,7 @@ static int do_ps(int argc, char ** argv)
 		printf("CPU%d:\r\n", i);
 		list_for_each_entry_safe(pos, n, &sched->head, list)
 		{
-			printf(" %p %s %3d %20lld %s\r\n", pos->func, task_status_tostring(pos), pos->weight, pos->vruntime, pos->path ? pos->path : "");
+			printf(" %p %s %3d %20lld %s\r\n", pos->func, task_status_tostring(pos), pos->nice, pos->vruntime, pos->path ? pos->path : "");
 		}
 	}
 	return 0;

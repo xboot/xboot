@@ -57,7 +57,7 @@ int xboot_main(int argc, char * argv[])
 	do_autoboot();
 
 	/* Create shell task */
-	task = task_create(scheduler_self(), NULL, shell_task, NULL, 0, 0);
+	task = task_create(scheduler_self(), "shell", shell_task, NULL, 0, 0);
 
 	/* Resume shell task */
 	task_resume(task);

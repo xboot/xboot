@@ -46,8 +46,9 @@ struct task_t {
 };
 
 struct scheduler_t {
-	struct rb_root root;
-	struct list_head head;
+	struct rb_root ready;
+	struct list_head suspend;
+	struct list_head dead;
 	struct task_t * running;
 	struct task_t * next;
 	uint64_t min_vruntime;

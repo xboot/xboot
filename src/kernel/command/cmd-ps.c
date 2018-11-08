@@ -34,24 +34,6 @@ static void usage(void)
 	printf("    ps\r\n");
 }
 
-static const char * task_status_tostring(struct task_t * task)
-{
-	switch(task->status)
-	{
-	case TASK_STATUS_READY:
-		return "Ready";
-	case TASK_STATUS_RUNNING:
-		return "Running";
-	case TASK_STATUS_SUSPEND:
-		return "Suspend";
-	case TASK_STATUS_DEAD:
-		return "Dead";
-	default:
-		break;
-	}
-	return "N";
-}
-
 static int do_ps(int argc, char ** argv)
 {
 	struct scheduler_t * sched;
@@ -63,9 +45,23 @@ static int do_ps(int argc, char ** argv)
 		sched = __sched[i];
 
 		printf("CPU%d:\r\n", i);
-		list_for_each_entry_safe(pos, n, &sched->head, list)
+
+		pos = sched->running;
+		printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Running", pos->nice, pos->vruntime, pos->path ? pos->path : "");
+
+		rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready, node)
 		{
-			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, task_status_tostring(pos), pos->nice, pos->vruntime, pos->path ? pos->path : "");
+			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Ready", pos->nice, pos->vruntime, pos->path ? pos->path : "");
+		}
+
+		list_for_each_entry_safe(pos, n, &sched->suspend, list)
+		{
+			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Suspend", pos->nice, pos->vruntime, pos->path ? pos->path : "");
+		}
+
+		list_for_each_entry_safe(pos, n, &sched->dead, list)
+		{
+			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Dead", pos->nice, pos->vruntime, pos->path ? pos->path : "");
 		}
 	}
 	return 0;

@@ -116,8 +116,9 @@ static struct scheduler_t * scheduler_alloc(void)
 	if(!sched)
 		return NULL;
 
-	sched->root = RB_ROOT;
-	init_list_head(&sched->head);
+	sched->ready = RB_ROOT;
+	init_list_head(&sched->suspend);
+	init_list_head(&sched->dead);
 	spin_lock_init(&sched->lock);
 	sched->running = NULL;
 	sched->next = NULL;
@@ -133,10 +134,20 @@ static void scheduler_free(struct scheduler_t * sched)
 	if(!sched)
 		return;
 
-	list_for_each_entry_safe(pos, n, &sched->head, list)
+	list_for_each_entry_safe(pos, n, &sched->dead, list)
 	{
 		task_destroy(pos);
 	}
+	list_for_each_entry_safe(pos, n, &sched->suspend, list)
+	{
+		task_destroy(pos);
+	}
+	rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready, node)
+	{
+		task_destroy(pos);
+	}
+	task_destroy(sched->running);
+
 	free(sched);
 }
 
@@ -147,7 +158,7 @@ static inline struct task_t * scheduler_next_task(struct scheduler_t * sched)
 
 static inline void scheduler_enqueue_task(struct scheduler_t * sched, struct task_t * task)
 {
-	struct rb_node ** p = &sched->root.rb_node;
+	struct rb_node ** p = &sched->ready.rb_node;
 	struct rb_node * parent = NULL;
 	struct task_t * ptr;
 
@@ -161,7 +172,7 @@ static inline void scheduler_enqueue_task(struct scheduler_t * sched, struct tas
 			p = &(*p)->rb_right;
 	}
 	rb_link_node(&task->node, parent, p);
-	rb_insert_color(&task->node, &sched->root);
+	rb_insert_color(&task->node, &sched->ready);
 
 	if(!sched->next || (task->vruntime < sched->next->vruntime))
 	{
@@ -186,7 +197,7 @@ static inline void scheduler_dequeue_task(struct scheduler_t * sched, struct tas
 			sched->min_vruntime = 0;
 		}
 	}
-	rb_erase(&task->node, &sched->root);
+	rb_erase(&task->node, &sched->ready);
 	RB_CLEAR_NODE(&task->node);
 }
 
@@ -208,7 +219,7 @@ static void context_entry(struct transfer_t from)
 	t->fctx = from.fctx;
 	task->func(task, task->data);
 	task->status = TASK_STATUS_DEAD;
-	task_destroy(task);
+	list_add_tail(&task->list, &sched->dead);
 
 	next = scheduler_next_task(sched);
 	if(next)
@@ -260,7 +271,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	}
 
 	RB_CLEAR_NODE(&task->node);
-	list_add_tail(&task->list, &sched->head);
+	list_add_tail(&task->list, &sched->suspend);
 	task->path = strdup(path);
 	task->status = TASK_STATUS_SUSPEND;
 	task->vruntime = sched->min_vruntime;
@@ -280,7 +291,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 
 void task_destroy(struct task_t * task)
 {
-	if(task && (task->status == TASK_STATUS_DEAD))
+	if(task)
 	{
 		list_del(&task->list);
 		if(task->__xfs_ctx)
@@ -309,6 +320,7 @@ void task_suspend(struct task_t * task)
 	if(task && (task->status != TASK_STATUS_SUSPEND))
 	{
 		task->status = TASK_STATUS_SUSPEND;
+		list_add_tail(&task->list, &task->sched->suspend);
 		scheduler_dequeue_task(task->sched, task);
 	}
 }
@@ -317,7 +329,9 @@ void task_resume(struct task_t * task)
 {
 	if(task && (task->status != TASK_STATUS_READY))
 	{
+		task->vruntime = task->sched->min_vruntime;
 		task->status = TASK_STATUS_READY;
+		list_del(&task->list);
 		scheduler_enqueue_task(task->sched, task);
 	}
 }

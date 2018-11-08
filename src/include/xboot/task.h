@@ -29,8 +29,9 @@ struct task_t {
 	struct list_head list;
 	struct scheduler_t * sched;
 	enum task_status_t status;
-	uint64_t vruntime;
 	uint64_t start;
+	uint64_t time;
+	uint64_t vtime;
 	char * path;
 	void * fctx;
 	void * stack;
@@ -51,7 +52,7 @@ struct scheduler_t {
 	struct list_head dead;
 	struct task_t * running;
 	struct task_t * next;
-	uint64_t min_vruntime;
+	uint64_t min_vtime;
 	spinlock_t lock;
 };
 

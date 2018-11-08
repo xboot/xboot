@@ -279,9 +279,9 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->time = 0;
 	task->vtime = 0;
 	task->sched = sched;
-	task->stack = stack + stksz;
+	task->stack = stack;
 	task->stksz = stksz;
-	task->fctx = make_fcontext(task->stack, task->stksz, context_entry);
+	task->fctx = make_fcontext(task->stack + stksz, task->stksz, context_entry);
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;
@@ -300,7 +300,7 @@ void task_destroy(struct task_t * task)
 			xfs_free(task->__xfs_ctx);
 		if(task->path)
 			free(task->path);
-		//free(task->stack); // FIXME !!!
+		free(task->stack);
 		free(task);
 	}
 }

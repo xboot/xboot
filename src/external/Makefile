@@ -1,0 +1,10 @@
+obj-y	+= libfdt-1.4.2/
+obj-y	+= lz4-1.8.2/
+obj-y	+= zlib-1.2.11/
+obj-y	+= libpng-1.6.32/
+obj-y	+= lua-5.3.4/
+obj-y	+= lua-cjson-2.1.0/
+obj-y	+= pixman-0.34.0/
+obj-y	+= cairo-1.14.10/
+obj-y	+= freetype-2.8/src/
+obj-y	+= chipmunk-7.0.2/src/

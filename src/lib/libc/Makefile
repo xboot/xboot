@@ -1,0 +1,14 @@
+obj-y	+= charset/
+obj-y	+= crypto/
+obj-y	+= ctype/
+obj-y	+= environ/
+obj-y	+= errno/
+obj-y	+= exit/
+obj-y	+= filter/
+obj-y	+= locale/
+obj-y	+= malloc/
+obj-y	+= path/
+obj-y	+= stdio/
+obj-y	+= stdlib/
+obj-y	+= string/
+obj-y	+= time/

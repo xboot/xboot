@@ -70,173 +70,25 @@ LDFLAGS		+=	-Wl,-gc-sections
 #
 # Add necessary directory for INCDIRS and SRCDIRS.
 #
-INCDIRS		+=	include										\
-				$(wildcard arch/$(ARCH)/include)			\
-				$(wildcard arch/$(ARCH)/$(MACH)/include)
-
-ARCHDIRS	+=	$(wildcard arch/$(ARCH)/lib/cpu)			\
-				$(wildcard arch/$(ARCH)/lib)				\
-				$(wildcard arch/$(ARCH)/$(MACH))			\
-				$(wildcard arch/$(ARCH)/$(MACH)/command)	\
-				$(wildcard arch/$(ARCH)/$(MACH)/driver)
-
-SRCDIRS		+=	$(ARCHDIRS)
-
-SRCDIRS		+=	lib/libc									\
-				lib/libc/charset							\
-				lib/libc/crypto								\
-				lib/libc/ctype								\
-				lib/libc/environ							\
-				lib/libc/errno								\
-				lib/libc/exit								\
-				lib/libc/filter								\
-				lib/libc/locale								\
-				lib/libc/malloc								\
-				lib/libc/path								\
-				lib/libc/stdio								\
-				lib/libc/stdlib								\
-				lib/libc/string								\
-				lib/libc/time								\
-				$(wildcard lib/libm/$(ARCH))				\
-				lib/libm									\
-				lib/libx									\
-				init										\
-				kernel										\
-				kernel/core									\
-				kernel/shell								\
-				kernel/command								\
-				kernel/time									\
-				kernel/fs									\
-				kernel/fs/vfs								\
-				kernel/fs/ramfs								\
-				kernel/fs/sysfs								\
-				kernel/fs/arfs								\
-				kernel/fs/tarfs								\
-				kernel/fs/cpiofs							\
-				kernel/fs/fatfs								\
-				kernel/xfs									\
-				driver/adc									\
-				driver/audio								\
-				driver/battery								\
-				driver/block								\
-				driver/block/partition						\
-				driver/block/romdisk						\
-				driver/buzzer								\
-				driver/clk									\
-				driver/clockevent							\
-				driver/clocksource							\
-				driver/compass								\
-				driver/console								\
-				driver/dac									\
-				driver/dma									\
-				driver/framebuffer							\
-				driver/gmeter								\
-				driver/gpio									\
-				driver/gyroscope							\
-				driver/hygrometer							\
-				driver/i2c									\
-				driver/input								\
-				driver/input/rc								\
-				driver/interrupt							\
-				driver/laserscan							\
-				driver/led									\
-				driver/light								\
-				driver/motor								\
-				driver/nvmem								\
-				driver/pressure								\
-				driver/proximity							\
-				driver/pwm									\
-				driver/regulator							\
-				driver/reset								\
-				driver/rng									\
-				driver/rtc									\
-				driver/sd									\
-				driver/servo								\
-				driver/spi									\
-				driver/stepper								\
-				driver/thermometer							\
-				driver/uart									\
-				driver/vibrator								\
-				driver/watchdog								\
-				framework									\
-				framework/base64							\
-				framework/display							\
-				framework/event								\
-				framework/hardware							\
-				framework/lang								\
-				framework/stopwatch
+SRCDIRS		+=	arch lib init kernel driver framework external
 
 #
 # Add external library
 #
-INCDIRS		+= 	external/libfdt-1.4.2
-SRCDIRS		+=	external/libfdt-1.4.2
-
-INCDIRS		+= 	external/lz4-1.8.2
-SRCDIRS		+=	external/lz4-1.8.2
-
-INCDIRS		+= 	external/zlib-1.2.11
-SRCDIRS		+=	external/zlib-1.2.11
-
-INCDIRS		+= 	external/libpng-1.6.32
-SRCDIRS		+=	external/libpng-1.6.32
-
-INCDIRS		+= 	external/lua-5.3.4
-SRCDIRS		+=	external/lua-5.3.4
-
-INCDIRS		+= 	external/lua-cjson-2.1.0
-SRCDIRS		+=	external/lua-cjson-2.1.0
-
-INCDIRS		+= 	external/pixman-0.34.0 \
-				$(wildcard external/pixman-0.34.0/$(ARCH))
-SRCDIRS		+=	external/pixman-0.34.0 \
-				$(wildcard external/pixman-0.34.0/$(ARCH))
-
-INCDIRS		+= 	external/cairo-1.14.10
-SRCDIRS		+=	external/cairo-1.14.10
-
-INCDIRS		+= 	external/freetype-2.8/include \
-				external/freetype-2.8/src/autofit \
-				external/freetype-2.8/src/base \
-				external/freetype-2.8/src/cache \
-				external/freetype-2.8/src/cff \
-				external/freetype-2.8/src/cid \
-				external/freetype-2.8/src/gxvalid \
-				external/freetype-2.8/src/otvalid \
-				external/freetype-2.8/src/pfr \
-				external/freetype-2.8/src/psaux \
-				external/freetype-2.8/src/pshinter \
-				external/freetype-2.8/src/psnames \
-				external/freetype-2.8/src/raster \
-				external/freetype-2.8/src/sfnt \
-				external/freetype-2.8/src/smooth \
-				external/freetype-2.8/src/truetype \
-				external/freetype-2.8/src/type1 \
-				external/freetype-2.8/src/type42 \
-				external/freetype-2.8/src/winfonts
-SRCDIRS		+=	external/freetype-2.8/src/autofit \
-				external/freetype-2.8/src/base \
-				external/freetype-2.8/src/cache \
-				external/freetype-2.8/src/cff \
-				external/freetype-2.8/src/cid \
-				external/freetype-2.8/src/gxvalid \
-				external/freetype-2.8/src/otvalid \
-				external/freetype-2.8/src/pfr \
-				external/freetype-2.8/src/psaux \
-				external/freetype-2.8/src/pshinter \
-				external/freetype-2.8/src/psnames \
-				external/freetype-2.8/src/raster \
-				external/freetype-2.8/src/sfnt \
-				external/freetype-2.8/src/smooth \
-				external/freetype-2.8/src/truetype \
-				external/freetype-2.8/src/type1 \
-				external/freetype-2.8/src/type42 \
-				external/freetype-2.8/src/winfonts
-
-INCDIRS		+=	external/chipmunk-7.0.2/include
-SRCDIRS		+=	external/chipmunk-7.0.2/src
-
-INCDIRS		+=	.
+INCDIRS		+=	include										\
+				$(wildcard arch/$(ARCH)/include)			\
+				$(wildcard arch/$(ARCH)/$(MACH)/include)	\
+				external/libfdt-1.4.2						\
+				external/lz4-1.8.2							\
+				external/zlib-1.2.11						\
+				external/libpng-1.6.32						\
+				external/lua-5.3.4							\
+				external/lua-cjson-2.1.0					\
+				external/pixman-0.34.0						\
+				$(wildcard external/pixman-0.34.0/$(ARCH))	\
+				external/cairo-1.14.10						\
+				external/freetype-2.8/include				\
+				external/chipmunk-7.0.2/include
 
 #
 # You shouldn't need to change anything below this point.
@@ -263,9 +115,19 @@ endif
 # Xboot variables
 #
 
-TOPDIR := $(CURDIR)
-OBJDIR := $(CURDIR)/.obj
+TOPDIR		:=	$(CURDIR)
 
+BUILD_SRC	:=	$(CURDIR)
+BUILD_OBJ	:=	.obj
+
+HEAD_FILES	:=
+HEAD_OBJS	:=
+
+sinclude arch/$(ARCH)/$(MACH)/Makefile.head
+
+HEAD_FILES	+=	arch/$(ARCH)/$(MACH)/start.S arch/$(ARCH)/$(MACH)/sys-*.c arch/$(ARCH)/$(MACH)/sys-*.S
+HEAD_OBJS	+=	$(patsubst %.S, %.o, $(filter %.S, $(wildcard $(HEAD_FILES))))
+HEAD_OBJS	+=	$(patsubst %.c, %.o, $(filter %.c, $(wildcard $(HEAD_FILES))))
 
 X_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
 X_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
@@ -274,29 +136,15 @@ X_LIBS		:=	$(LIBS) -lgcc
 
 X_OUT		:=	../output
 X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
-X_INCDIRS	:=	$(patsubst %, -I $(TOPDIR)/%, $(INCDIRS))
+X_INCDIRS	:=	$(patsubst %, -I $(BUILD_SRC)/%, $(INCDIRS))
 X_LIBDIRS	:=	$(patsubst %, -L %, $(LIBDIRS))
-X_SRCDIRS	:=	$(patsubst %, %, $(SRCDIRS))
-X_ARDIRS	:=	$(patsubst %, %, $(ARCHDIRS))
-X_OBJDIRS	:=	$(patsubst %, .obj/%, $(X_SRCDIRS))
-
-X_AR_SFILES	:=	$(foreach dir, $(X_ARDIRS), $(wildcard $(dir)/*.S))
-X_AR_CFILES	:=	$(foreach dir, $(X_ARDIRS), $(wildcard $(dir)/*.c))
-X_AR_FILES	:=	$(X_AR_SFILES) $(X_AR_CFILES)
-
-X_OBJS		:=	$(foreach dir, $(X_SRCDIRS), .obj/$(dir)/built-in.o)
-
-X_AR_SOBJS	:=	$(patsubst %, .obj/%, $(X_AR_SFILES:.S=.o))
-X_AR_COBJS	:=	$(patsubst %, .obj/%, $(X_AR_CFILES:.c=.o))
-X_AR_OBJS	:=	$(X_AR_SOBJS) $(X_AR_COBJS)
-X_AR_BOBJS	:=	$(foreach dir, $(X_ARDIRS), .obj/$(dir)/built-in.o)
-
-VPATH		:=	$(X_OBJDIRS)
+X_OBJS		:=	$(patsubst %, $(BUILD_OBJ)/%/built-in.o, $(wildcard $(SRCDIRS)))
 
 
-
-export TOPDIR OBJDIR
-export AS AR CC LD X_ASFLAGS X_INCDIRS X_CFLAGS
+export TOPDIR BUILD_SRC BUILD_OBJ HEAD_OBJS
+export ARCH MACH
+export AS AR CC LD RM
+export X_ASFLAGS X_INCDIRS X_CFLAGS
 
 
 .PHONY:	all prepare clean xbegin xend xclean $(SRCDIRS)
@@ -313,31 +161,31 @@ $(SRCDIRS) : xbegin
 xbegin : prepare
 
 prepare :
-	@$(MKDIR) $(X_OBJDIRS) $(X_OUT)
-	@$(RM) .obj/romdisk
-	@$(RM) .obj/romdisk.cpio
-	@$(RM) .obj/init/version.o
-	@$(RM) .obj/driver/block/romdisk/data.o
-	@$(CP) romdisk .obj
-	@$(CP) arch/$(ARCH)/$(MACH)/romdisk .obj
-	@$(CD) .obj/romdisk && $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio
+	@echo [MKDIR] $(X_OUT)
+	@$(MKDIR) $(X_OUT)
+	@$(RM) $(BUILD_OBJ)/romdisk
+	@$(RM) $(BUILD_OBJ)/romdisk.cpio
+	@$(RM) $(BUILD_OBJ)/init/version.o
+	@$(RM) $(BUILD_OBJ)/driver/block/romdisk/data.o
+	@echo [CP] romdisk $(BUILD_OBJ)
+	@$(CP) romdisk $(BUILD_OBJ)
+	@echo [CP] arch/$(ARCH)/$(MACH)/romdisk $(BUILD_OBJ)
+	@$(CP) arch/$(ARCH)/$(MACH)/romdisk $(BUILD_OBJ)
+	@echo [CPIO] romdisk.cpio
+	@$(CD) $(BUILD_OBJ)/romdisk && $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio
 
 $(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@
-	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $(X_AR_OBJS) $(filter-out $(X_AR_BOBJS), $(X_OBJS)) -o $@ $(X_LIBS)
+	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $(patsubst %, $(BUILD_OBJ)/%, $(HEAD_OBJS)) $(X_OBJS) -o $@ $(X_LIBS)
 	@echo [OC] Objcopying $@.bin
 	@$(OC) -v -O binary $@ $@.bin
 
-define DIR_RULE
-$(1) : $$(patsubst .obj/%/,%,$$(dir $(1)))
-	@:
-endef
-$(foreach v, $(X_OBJS), $(eval $(call DIR_RULE, $(v))))
+$(X_OBJS) : $(SRCDIRS) ;
 
 $(SRCDIRS) :
 	@echo $@
-	@make -C $@ -f $(TOPDIR)/Makefile.build BUILD_DIR=$@
+	@make -C $(BUILD_OBJ) -f $(BUILD_SRC)/Makefile.build obj=$@
 
 clean : xclean
-	@echo [RM] .obj $(X_OUT)
-	@$(RM) .obj $(X_OUT)
+	@echo [RM] $(BUILD_OBJ) $(X_OUT)
+	@$(RM) $(BUILD_OBJ) $(X_OUT)

@@ -1,55 +1,90 @@
+PHONY		:=	__build
 __build:
 
-X_SFILES	:=	$(wildcard *.S)
-X_CFILES	:=	$(wildcard *.c)
+src			:=	$(BUILD_SRC)/$(obj)
 
-X_SDEPS		:=	$(patsubst %, $(OBJDIR)/$(BUILD_DIR)/%, $(X_SFILES:.S=.o.d))
-X_CDEPS		:=	$(patsubst %, $(OBJDIR)/$(BUILD_DIR)/%, $(X_CFILES:.c=.o.d))
-X_DEPS		:=	$(X_SDEPS) $(X_CDEPS)
+obj-y		:=
+subdir-y	:=
+subdir_objs	:=
+extra-y		:=
 
-X_SOBJS		:=	$(patsubst %, $(OBJDIR)/$(BUILD_DIR)/%, $(X_SFILES:.S=.o))
-X_COBJS		:=	$(patsubst %, $(OBJDIR)/$(BUILD_DIR)/%, $(X_CFILES:.c=.o))
-X_OBJS		:=	$(X_SOBJS) $(X_COBJS)
+PREPARE		:=
 
+SUBDIR_ASFLAGS	:=
+SUBDIR_CCFLAGS	:=
+SUBDIR_INCDIRS	:=
+
+EXTRA_AFLAGS	:=
+EXTRA_CFLAGS	:=
+
+ifneq ($(strip $(wildcard $(src)/Makefile)),)
+
+include $(src)/Makefile
+
+subdir-y	:=	$(patsubst %/,$(obj)/%,$(filter %/, $(obj-y)))
+subdir-objs	:=	$(foreach f,$(subdir-y),$(f)/built-in.o)
+cur-objs	:=	$(patsubst %,$(obj)/%,$(filter-out %/, $(obj-y)))
+extra-y		:=	$(patsubst %,$(obj)/%,$(filter-out %/, $(extra-y)))
+
+X_OBJS		:=	$(cur-objs) $(subdir-objs)
+
+PHONY		+=	$(subdir-y)
+
+else
+
+X_SFILES	:=	$(wildcard $(src)/*.S)
+X_CFILES	:=	$(wildcard $(src)/*.c)
+
+X_OBJS		:=	$(X_SFILES:.S=.o) $(X_CFILES:.c=.o)
+X_OBJS		:=	$(patsubst $(BUILD_SRC)/%,%,$(X_OBJS))
+
+endif
+
+X_DEPS		:=	$(patsubst %, $(obj)/%, $(X_OBJS:.o=.o.d))
 X_DEPS		:=	$(wildcard $(X_DEPS))
 
-X_TARGET	:=	$(OBJDIR)/$(BUILD_DIR)/built-in.o
+X_TARGET	:=	$(obj)/built-in.o
 
-sinclude Makefile
-
-ifndef PREPARE
-	PREPARE	:=
-endif
-
-
-.PHONY : __build
-
-__build : $(X_TARGET)
-
-$(X_OBJS) : $(PREPARE)
-
-ifneq ($(strip $(X_OBJS)),)
-$(X_TARGET) : $(X_OBJS)
-	@echo [LD] $(BUILD_DIR)/built-in.o
-	@$(LD) -r -o $@ $^
-else
-$(X_TARGET) :
-	@echo [LD] $(BUILD_DIR)/built-in.o
-	@$(AR) rcs -o $@
-endif
-
-
-
-$(OBJDIR)/$(BUILD_DIR)/%.o : %.S
-	@echo [AS] $(BUILD_DIR)/$<
-	@$(AS) $(X_ASFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
-
-$(OBJDIR)/$(BUILD_DIR)/%.o : %.c
-	@echo [CC] $(BUILD_DIR)/$<
-	@$(CC) $(X_CFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
-
-#
-# Include the dependency files, should be place the last of makefile
-#
+# Create output directory
+_dummy		:=	$(shell mkdir -p $(obj) $(dir $(cur-objs) $(extra-y)))
 
 sinclude $(X_DEPS)
+
+X_ASFLAGS	+=	$(X_SUBDIR_ASFLAGS)
+X_CFLAGS	+=	$(X_SUBDIR_CCFLAGS)
+X_INCDIRS	+=	$(X_SUBDIR_INCDIRS)
+
+X_SUBDIR_ASFLAGS	:=	$(X_SUBDIR_ASFLAGS) $(SUBDIR_ASFLAGS)
+X_SUBDIR_CCFLAGS	:=	$(X_SUBDIR_CCFLAGS) $(SUBDIR_CCFLAGS)
+X_SUBDIR_INCDIRS	:=	$(X_SUBDIR_INCDIRS) $(SUBDIR_INCDIRS)
+
+export X_SUBDIR_ASFLAGS X_SUBDIR_CCFLAGS X_SUBDIR_INCDIRS
+
+
+__build : $(X_TARGET) $(extra-y) ;
+
+$(sort $(subdir-objs)) : $(subdir-y)
+
+$(subdir-y) :
+	@echo $@
+	@make -f $(BUILD_SRC)/Makefile.build obj=$@
+
+$(X_OBJS) $(extra-y) : $(PREPARE)
+
+$(X_TARGET) : $(X_OBJS)
+	@echo [LD] $(obj)/built-in.o
+ifneq ($(strip $(X_OBJS)),)
+	@$(LD) -r -o $@ $^
+else
+	@$(RM) $@;$(AR) rcs -o $@
+endif
+
+$(obj)/%.o : $(src)/%.S
+	@echo [AS] $(@:.o=.S)
+	@$(AS) $(X_ASFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+
+$(obj)/%.o : $(src)/%.c
+	@echo [CC] $(@:.o=.c)
+	@$(CC) $(X_CFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+
+.PHONY : $(PHONY)

@@ -1,0 +1,2 @@
+HEAD_FILES	+= arch/$(ARCH)/lib/memset.S arch/$(ARCH)/lib/memcpy.S \
+			arch/$(ARCH)/$(MACH)/uart.S

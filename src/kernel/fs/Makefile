@@ -1,0 +1,9 @@
+obj-y	+= vfs/
+obj-y	+= ramfs/
+obj-y	+= sysfs/
+obj-y	+= arfs/
+obj-y	+= tarfs/
+obj-y	+= cpiofs/
+obj-y	+= fatfs/
+obj-y	+= fileio.o
+obj-y	+= fs.o

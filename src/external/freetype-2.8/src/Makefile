@@ -1,0 +1,20 @@
+obj-y	+= autofit/
+obj-y	+= base/
+obj-y	+= cache/
+obj-y	+= cff/
+obj-y	+= cid/
+obj-y	+= gxvalid/
+obj-y	+= otvalid/
+obj-y	+= pfr/
+obj-y	+= psaux/
+obj-y	+= pshinter/
+obj-y	+= psnames/
+obj-y	+= raster/
+obj-y	+= sfnt/
+obj-y	+= smooth/
+obj-y	+= truetype/
+obj-y	+= type1/
+obj-y	+= type42/
+obj-y	+= winfonts/
+
+SUBDIR_INCDIRS	+= $(patsubst %/, -I $(src)/%, $(obj-y))

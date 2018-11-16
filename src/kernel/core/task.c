@@ -335,10 +335,18 @@ void task_resume(struct task_t * task)
 {
 	if(task && (task->status != TASK_STATUS_READY))
 	{
-		task->vtime = task->sched->min_vtime;
+		struct scheduler_t * sched = task->sched;
+
+		if(scheduler_next_task(sched))
+			task->vtime = sched->min_vtime;
+		else if(sched->running)
+			task->vtime = sched->running->vtime;
+		else
+			task->vtime = sched->min_vtime;
+
 		task->status = TASK_STATUS_READY;
 		list_del(&task->list);
-		scheduler_enqueue_task(task->sched, task);
+		scheduler_enqueue_task(sched, task);
 	}
 }
 

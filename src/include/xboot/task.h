@@ -21,7 +21,6 @@ enum task_status_t {
 	TASK_STATUS_READY	= 0,
 	TASK_STATUS_RUNNING	= 1,
 	TASK_STATUS_SUSPEND	= 2,
-	TASK_STATUS_DEAD	= 3,
 };
 
 struct task_t {
@@ -49,7 +48,6 @@ struct task_t {
 struct scheduler_t {
 	struct rb_root ready;
 	struct list_head suspend;
-	struct list_head dead;
 	struct task_t * running;
 	struct task_t * next;
 	uint64_t min_vtime;

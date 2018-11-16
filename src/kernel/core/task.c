@@ -122,7 +122,6 @@ static struct scheduler_t * scheduler_alloc(void)
 
 	sched->ready = RB_ROOT;
 	init_list_head(&sched->suspend);
-	init_list_head(&sched->dead);
 	spin_lock_init(&sched->lock);
 	sched->running = NULL;
 	sched->next = NULL;
@@ -138,10 +137,6 @@ static void scheduler_free(struct scheduler_t * sched)
 	if(!sched)
 		return;
 
-	list_for_each_entry_safe(pos, n, &sched->dead, list)
-	{
-		task_destroy(pos);
-	}
 	list_for_each_entry_safe(pos, n, &sched->suspend, list)
 	{
 		task_destroy(pos);
@@ -214,7 +209,7 @@ static inline void scheduler_switch_task(struct scheduler_t * sched, struct task
 	t->fctx = from.fctx;
 }
 
-static void context_entry(struct transfer_t from)
+static void fcontext_entry_func(struct transfer_t from)
 {
 	struct task_t * t = (struct task_t *)from.priv;
 	struct scheduler_t * sched = t->sched;
@@ -222,8 +217,6 @@ static void context_entry(struct transfer_t from)
 
 	t->fctx = from.fctx;
 	task->func(task, task->data);
-	task->status = TASK_STATUS_DEAD;
-	list_add_tail(&task->list, &sched->dead);
 	task_destroy(task);
 
 	next = scheduler_next_task(sched);
@@ -285,7 +278,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->sched = sched;
 	task->stack = stack;
 	task->stksz = stksz;
-	task->fctx = make_fcontext(task->stack + stksz, task->stksz, context_entry);
+	task->fctx = make_fcontext(task->stack + stksz, task->stksz, fcontext_entry_func);
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;

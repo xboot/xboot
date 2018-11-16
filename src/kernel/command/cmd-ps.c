@@ -58,11 +58,6 @@ static int do_ps(int argc, char ** argv)
 		{
 			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Suspend", pos->nice, pos->time, pos->path ? pos->path : "");
 		}
-
-		list_for_each_entry_safe(pos, n, &sched->dead, list)
-		{
-			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Dead", pos->nice, pos->time, pos->path ? pos->path : "");
-		}
 	}
 	return 0;
 }

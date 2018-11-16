@@ -2,7 +2,7 @@
 
 	.global memset
 	.type memset, %function
-	.align 4
+	.align 3
 memset:
 	move t0, a0
 	sltiu a3, a2, 16

@@ -175,7 +175,7 @@ reset:
 	LREG t2, (t2)
 	sub t0, t2, t1
 	csrr t3, mhartid
-	li t4, 2
+	li t4, CONFIG_MAX_CPUS
 	div t0, t0, t4
 	mul t0, t0, t3
 	sub sp, t2, t0
@@ -317,7 +317,7 @@ vectors:
 /*
  * The location of section
  */
-	.align 4
+	.align 3
 _image_start:
 	RVPTR __image_start
 _image_end:

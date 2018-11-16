@@ -120,11 +120,10 @@ static struct scheduler_t * scheduler_alloc(void)
 	if(!sched)
 		return NULL;
 
-	sched->ready = RB_ROOT;
+	sched->ready = RB_ROOT_CACHED;
 	init_list_head(&sched->suspend);
 	spin_lock_init(&sched->lock);
 	sched->running = NULL;
-	sched->next = NULL;
 	sched->min_vtime = 0;
 
 	return sched;
@@ -141,7 +140,7 @@ static void scheduler_free(struct scheduler_t * sched)
 	{
 		task_destroy(pos);
 	}
-	rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready, node)
+	rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready.rb_root, node)
 	{
 		task_destroy(pos);
 	}
@@ -150,54 +149,65 @@ static void scheduler_free(struct scheduler_t * sched)
 	free(sched);
 }
 
-static inline struct task_t * scheduler_next_task(struct scheduler_t * sched)
+static inline struct task_t * scheduler_next_ready_task(struct scheduler_t * sched)
 {
-	return sched->next;
+	struct rb_node * leftmost = rb_first_cached(&sched->ready);
+
+	if(!leftmost)
+		return NULL;
+	return rb_entry(leftmost, struct task_t, node);
+}
+
+static inline int task_before(struct task_t * a, struct task_t * b)
+{
+	return (int64_t)(a->vtime - b->vtime) < 0;
 }
 
 static inline void scheduler_enqueue_task(struct scheduler_t * sched, struct task_t * task)
 {
-	struct rb_node ** p = &sched->ready.rb_node;
+	struct rb_node ** link = &sched->ready.rb_root.rb_node;
 	struct rb_node * parent = NULL;
-	struct task_t * ptr;
+	struct task_t * next, * entry;
+	int leftmost = 1;
 
-	while(*p)
+	while(*link)
 	{
-		parent = *p;
-		ptr = rb_entry(parent, struct task_t, node);
-		if(task->vtime < ptr->vtime)
-			p = &(*p)->rb_left;
+		parent = *link;
+		entry = rb_entry(parent, struct task_t, node);
+		if(task_before(task, entry))
+		{
+			link = &parent->rb_left;
+		}
 		else
-			p = &(*p)->rb_right;
+		{
+			link = &parent->rb_right;
+			leftmost = 0;
+		}
 	}
-	rb_link_node(&task->node, parent, p);
-	rb_insert_color(&task->node, &sched->ready);
 
-	if(!sched->next || (task->vtime < sched->next->vtime))
-	{
-		sched->next = task;
-		sched->min_vtime = sched->next->vtime;
-	}
+	rb_link_node(&task->node, parent, link);
+	rb_insert_color_cached(&task->node, &sched->ready, leftmost);
+	next = scheduler_next_ready_task(sched);
+	if(likely(next))
+		sched->min_vtime = next->vtime;
+	else if(sched->running)
+		sched->min_vtime = sched->running->vtime;
+	else
+		sched->min_vtime = 0;
 }
 
 static inline void scheduler_dequeue_task(struct scheduler_t * sched, struct task_t * task)
 {
-	if(sched->next == task)
-	{
-		struct rb_node * rbn = rb_next(&task->node);
-		if(rbn)
-		{
-			sched->next = rb_entry(rbn, struct task_t, node);
-			sched->min_vtime = sched->next->vtime;
-		}
-		else
-		{
-			sched->next = NULL;
-			sched->min_vtime = 0;
-		}
-	}
-	rb_erase(&task->node, &sched->ready);
-	RB_CLEAR_NODE(&task->node);
+	struct task_t * next;
+
+	rb_erase_cached(&task->node, &sched->ready);
+	next = scheduler_next_ready_task(sched);
+	if(likely(next))
+		sched->min_vtime = next->vtime;
+	else if(sched->running)
+		sched->min_vtime = sched->running->vtime;
+	else
+		sched->min_vtime = 0;
 }
 
 static inline void scheduler_switch_task(struct scheduler_t * sched, struct task_t * task)
@@ -219,8 +229,8 @@ static void fcontext_entry_func(struct transfer_t from)
 	task->func(task, task->data);
 	task_destroy(task);
 
-	next = scheduler_next_task(sched);
-	if(next)
+	next = scheduler_next_ready_task(sched);
+	if(likely(next))
 	{
 		scheduler_dequeue_task(sched, next);
 		next->status = TASK_STATUS_RUNNING;
@@ -235,7 +245,7 @@ void scheduler_loop(void)
 	struct task_t * next;
 
 	sched = __sched[smp_processor_id()];
-	next = scheduler_next_task(sched);
+	next = scheduler_next_ready_task(sched);
 	if(next)
 	{
 		sched->running = next;
@@ -328,18 +338,10 @@ void task_resume(struct task_t * task)
 {
 	if(task && (task->status != TASK_STATUS_READY))
 	{
-		struct scheduler_t * sched = task->sched;
-
-		if(scheduler_next_task(sched))
-			task->vtime = sched->min_vtime;
-		else if(sched->running)
-			task->vtime = sched->running->vtime;
-		else
-			task->vtime = sched->min_vtime;
-
+		task->vtime = task->sched->min_vtime;
 		task->status = TASK_STATUS_READY;
 		list_del(&task->list);
-		scheduler_enqueue_task(sched, task);
+		scheduler_enqueue_task(task->sched, task);
 	}
 }
 
@@ -353,7 +355,7 @@ void task_yield(void)
 	self->time += detla;
 	self->vtime += calc_delta_fair(self, detla);
 
-	if(self->vtime < sched->min_vtime)
+	if((int64_t)(self->vtime - sched->min_vtime) < 0)
 	{
 		self->start = now;
 	}
@@ -361,11 +363,11 @@ void task_yield(void)
 	{
 		self->status = TASK_STATUS_READY;
 		scheduler_enqueue_task(sched, self);
-		next = scheduler_next_task(sched);
+		next = scheduler_next_ready_task(sched);
 		scheduler_dequeue_task(sched, next);
 		next->status = TASK_STATUS_RUNNING;
 		next->start = now;
-		if(next != self)
+		if(likely(next != self))
 			scheduler_switch_task(sched, next);
 	}
 }

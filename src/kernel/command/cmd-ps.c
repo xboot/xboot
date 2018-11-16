@@ -49,7 +49,7 @@ static int do_ps(int argc, char ** argv)
 		pos = sched->running;
 		printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Running", pos->nice, pos->time, pos->path ? pos->path : "");
 
-		rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready, node)
+		rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready.rb_root, node)
 		{
 			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Ready", pos->nice, pos->time, pos->path ? pos->path : "");
 		}

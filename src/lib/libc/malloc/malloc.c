@@ -123,18 +123,7 @@ static const size_t block_start_offset = offsetof(block_header_t, size) + sizeof
 static const size_t block_size_min = sizeof(block_header_t) - sizeof(block_header_t *);
 static const size_t block_size_max = tlsf_cast(size_t, 1) << FL_INDEX_MAX;
 
-#if !defined(__riscv)
-static int tlsf_ffs(unsigned int word)
-{
-	return __builtin_ffs(word) - 1;
-}
-
-static int tlsf_fls(unsigned int word)
-{
-	const int bit = word ? 32 - __builtin_clz(word) : 0;
-	return bit - 1;
-}
-#else
+#if defined(__riscv)
 static int tlsf_fls_generic(unsigned int word)
 {
 	int bit = 32;
@@ -157,6 +146,17 @@ static int tlsf_ffs(unsigned int word)
 static int tlsf_fls(unsigned int word)
 {
 	return tlsf_fls_generic(word) - 1;
+}
+#else
+static int tlsf_ffs(unsigned int word)
+{
+	return __builtin_ffs(word) - 1;
+}
+
+static int tlsf_fls(unsigned int word)
+{
+	const int bit = word ? 32 - __builtin_clz(word) : 0;
+	return bit - 1;
 }
 #endif
 
@@ -193,7 +193,7 @@ static void block_set_size(block_header_t * block, size_t size)
 
 static int block_is_last(const block_header_t * block)
 {
-	return (0 == block_get_size(block));
+	return (block_get_size(block) == 0);
 }
 
 static int block_is_free(const block_header_t * block)
@@ -296,10 +296,11 @@ static void * align_ptr(const void * ptr, size_t align)
 static size_t adjust_request_size(size_t size, size_t align)
 {
 	size_t adjust = 0;
-	if (size && size < block_size_max)
+	if (size)
 	{
 		const size_t aligned = align_up(size, align);
-		adjust = tlsf_max(aligned, block_size_min);
+		if (aligned < block_size_max) 
+			adjust = tlsf_max(aligned, block_size_min);
 	}
 	return adjust;
 }
@@ -337,7 +338,7 @@ static block_header_t * search_suitable_block(control_t * control, int * fli, in
 	int fl = *fli;
 	int sl = *sli;
 
-	unsigned int sl_map = control->sl_bitmap[fl] & (~0 << sl);
+	unsigned int sl_map = control->sl_bitmap[fl] & (~0U << sl);
 	if (!sl_map)
 	{
 		const unsigned int fl_map = control->fl_bitmap & (~0 << (fl + 1));
@@ -519,7 +520,8 @@ static block_header_t * block_locate_free(control_t * control, size_t size)
 	if (size)
 	{
 		mapping_search(size, &fl, &sl);
-		block = search_suitable_block(control, &fl, &sl);
+		if (fl < FL_INDEX_COUNT)
+			block = search_suitable_block(control, &fl, &sl);
 	}
 
 	if (block)
@@ -644,7 +646,7 @@ static inline void * tlsf_memalign(void * tlsf, size_t align, size_t size)
 	const size_t gap_minimum = sizeof(block_header_t);
 	const size_t size_with_gap = adjust_request_size(adjust + align + gap_minimum, align);
 
-	const size_t aligned_size = (align <= ALIGN_SIZE) ? adjust : size_with_gap;
+	const size_t aligned_size = (adjust && align > ALIGN_SIZE) ? size_with_gap : adjust;
 
 	block_header_t* block = block_locate_free(control, aligned_size);
 

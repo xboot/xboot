@@ -1,6 +1,7 @@
 #
 # Makefile for xboot
 #
+PHONY	:=
 
 #
 # You must pass CROSS_COMPILE and PLATFORM variable.
@@ -104,7 +105,9 @@ MKDIR		:=	mkdir -p
 CP			:=	cp -af
 RM			:=	rm -fr
 CD			:=	cd
+MV			:=	mv
 FIND		:=	find
+
 ifeq ($(strip $(HOSTOS)), macos)
 CPIO		:=	gcpio -o -H newc --quiet
 else
@@ -136,18 +139,17 @@ X_LIBS		:=	$(LIBS) -lgcc
 
 X_OUT		:=	../output
 X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
-X_INCDIRS	:=	$(patsubst %, -I $(BUILD_SRC)/%, $(INCDIRS))
+X_INCDIRS	:=	$(patsubst %, -I $(BUILD_SRC)/%, $(INCDIRS)) -include include/config/autoconf.h
 X_LIBDIRS	:=	$(patsubst %, -L %, $(LIBDIRS))
 X_OBJS		:=	$(patsubst %, $(BUILD_OBJ)/%/built-in.o, $(wildcard $(SRCDIRS)))
 
 
-export TOPDIR BUILD_SRC BUILD_OBJ HEAD_OBJS
+export TOPDIR BUILD_SRC BUILD_OBJ HEAD_OBJS HOSTOS
 export ARCH MACH
-export AS AR CC LD RM
+export AS AR CC LD RM CP CD MV FIND CPIO MKDIR
 export X_ASFLAGS X_INCDIRS X_CFLAGS
 
-
-.PHONY:	all prepare clean xbegin xend xclean $(SRCDIRS)
+PHONY	+=	all prepare clean xbegin xend xclean prepare prepare1 prepare2 $(SRCDIRS)
 
 #
 # Xboot rules
@@ -158,21 +160,20 @@ xend : $(X_NAME)
 
 $(SRCDIRS) : xbegin
 
-xbegin : prepare
+xbegin : prepare1 prepare2
 
 prepare :
-	@echo [MKDIR] $(X_OUT)
-	@$(MKDIR) $(X_OUT)
+	$(if $(wildcard $(X_OUT)),:,@echo [MKDIR] $(X_OUT) && $(MKDIR) $(X_OUT))
+	$(if $(wildcard $(BUILD_OBJ)),:,@echo [MKDIR] $(BUILD_OBJ) && $(MKDIR) $(BUILD_OBJ))
+
+prepare1 : prepare
+	@$(MAKE) -C $(BUILD_OBJ) -f $(BUILD_SRC)/scripts/Makefile.build obj=include conf
+
+prepare2 : prepare
 	@$(RM) $(BUILD_OBJ)/romdisk
 	@$(RM) $(BUILD_OBJ)/romdisk.cpio
 	@$(RM) $(BUILD_OBJ)/init/version.o
 	@$(RM) $(BUILD_OBJ)/driver/block/romdisk/data.o
-	@echo [CP] romdisk $(BUILD_OBJ)
-	@$(CP) romdisk $(BUILD_OBJ)
-	@echo [CP] arch/$(ARCH)/$(MACH)/romdisk $(BUILD_OBJ)
-	@$(CP) arch/$(ARCH)/$(MACH)/romdisk $(BUILD_OBJ)
-	@echo [CPIO] romdisk.cpio
-	@$(CD) $(BUILD_OBJ)/romdisk && $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio
 
 $(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@
@@ -183,9 +184,16 @@ $(X_NAME) : $(X_OBJS)
 $(X_OBJS) : $(SRCDIRS) ;
 
 $(SRCDIRS) :
-	@echo $@
-	@make -C $(BUILD_OBJ) -f $(BUILD_SRC)/Makefile.build obj=$@
+	@$(MAKE) -C $(BUILD_OBJ) -f $(BUILD_SRC)/scripts/Makefile.build obj=$@
 
 clean : xclean
 	@echo [RM] $(BUILD_OBJ) $(X_OUT)
 	@$(RM) $(BUILD_OBJ) $(X_OUT)
+
+PHONY += FORCE
+
+FORCE:
+
+# Declare the contents of the .PHONY variable as phony.  We keep that
+# information in a variable so we can use it in if_changed and friends.
+.PHONY: $(PHONY)

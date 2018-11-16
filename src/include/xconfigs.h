@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <configs.h>
-#include <endian.h>
 
 #if !defined(CONFIG_NO_LOG)
 #define CONFIG_NO_LOG						(0)

@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include <xconfigs.h>
 #include <endian.h>
 #include <barrier.h>
 #include <atomic.h>

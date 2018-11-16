@@ -45,7 +45,6 @@ LIBDIRS		:=
 LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:=
-ARCHDIRS	:=
 #
 # Override default variables.
 #

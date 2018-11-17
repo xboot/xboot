@@ -1,0 +1,100 @@
+{
+	"clk-fixed@0": { "name": "xtal", "rate": 12000000 },
+	"clk-fixed@1": { "name": "uclk", "rate": 24000000 },
+	"clk-fixed@2": { "name": "axiclk", "rate": 45000000 },
+	"clk-fixed@3": { "name": "lcdclk", "rate": 23750000 },
+	"clk-fixed@4": { "name": "refclk", "rate": 66670000 },
+
+	"irq-gic@0x1e000000": {
+		"interrupt-base": 32,
+		"interrupt-count": 32
+	},
+
+/*	"gpio-pl061@0x10013000": {
+		"gpio-base": 0,
+		"gpio-count": 8,
+		"interrupt-offset": -1
+	},
+
+	"gpio-pl061@0x10014000": {
+		"gpio-base": 8,
+		"gpio-count": 8,
+		"interrupt-offset": -1
+	},
+
+	"gpio-pl061@0x10015000": {
+		"gpio-base": 16,
+		"gpio-count": 8,
+		"interrupt-offset": -1
+	},
+
+	"ce-sp804@0x10011000": {
+		"clock-name": "timclk",
+		"interrupt": 36,
+		"timer-channel": 0
+	},
+
+	"cs-sp804@0x10012000": {
+		"clock-name": "timclk",
+		"timer-channel": 0
+	},
+*/
+	"uart-pl011@0x10009000": {
+		"clock-name": "uclk",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-pl011@0x1000a000": {
+		"clock-name": "uclk",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-pl011@0x1000b000": {
+		"clock-name": "uclk",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-pl011@0x1000c000": {
+		"clock-name": "uclk",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"i2c-versatile@0x10016000": {
+		"delay-us": 5
+	},
+
+	"rtc-pl031@0x10017000": {
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-pl011.0"
+	}
+}

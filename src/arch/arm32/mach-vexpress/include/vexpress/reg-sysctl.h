@@ -1,0 +1,8 @@
+#ifndef __VEXPRESS_REG_SYSCTL_H__
+#define __VEXPRESS_REG_SYSCTL_H__
+
+#define VEXPRESS_SYSCTL_BASE	(0x10000000)
+
+#define SYSCTL_ID				(0x00)
+
+#endif /* __VEXPRESS_REG_SYSCTL_H__ */

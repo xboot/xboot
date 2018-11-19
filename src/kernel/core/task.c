@@ -158,11 +158,6 @@ static inline struct task_t * scheduler_next_ready_task(struct scheduler_t * sch
 	return rb_entry(leftmost, struct task_t, node);
 }
 
-static inline int task_before(struct task_t * a, struct task_t * b)
-{
-	return (int64_t)(a->vtime - b->vtime) < 0;
-}
-
 static inline void scheduler_enqueue_task(struct scheduler_t * sched, struct task_t * task)
 {
 	struct rb_node ** link = &sched->ready.rb_root.rb_node;
@@ -174,7 +169,7 @@ static inline void scheduler_enqueue_task(struct scheduler_t * sched, struct tas
 	{
 		parent = *link;
 		entry = rb_entry(parent, struct task_t, node);
-		if(task_before(task, entry))
+		if((int64_t)(task->vtime - entry->vtime) <= 0)
 		{
 			link = &parent->rb_left;
 		}
@@ -279,6 +274,8 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	}
 
 	RB_CLEAR_NODE(&task->node);
+	init_list_head(&task->list);
+	init_list_head(&task->sem_list);
 	list_add_tail(&task->list, &sched->suspend);
 	task->path = strdup(path);
 	task->status = TASK_STATUS_SUSPEND;
@@ -326,17 +323,41 @@ void task_renice(struct task_t * task, int nice)
 
 void task_suspend(struct task_t * task)
 {
-	if(task && (task->status != TASK_STATUS_SUSPEND))
+	struct task_t * next;
+	uint64_t now, detla;
+
+	if(task)
 	{
-		task->status = TASK_STATUS_SUSPEND;
-		list_add_tail(&task->list, &task->sched->suspend);
-		scheduler_dequeue_task(task->sched, task);
+		if(task->status == TASK_STATUS_READY)
+		{
+			task->status = TASK_STATUS_SUSPEND;
+			list_add_tail(&task->list, &task->sched->suspend);
+			scheduler_dequeue_task(task->sched, task);
+		}
+		else if(task->status == TASK_STATUS_RUNNING)
+		{
+			now = ktime_to_ns(ktime_get());
+			detla = now - task->start;
+
+			task->time += detla;
+			task->vtime += calc_delta_fair(task, detla);
+			task->status = TASK_STATUS_SUSPEND;
+
+			next = scheduler_next_ready_task(task->sched);
+			if(next)
+			{
+				scheduler_dequeue_task(task->sched, next);
+				next->status = TASK_STATUS_RUNNING;
+				next->start = now;
+				scheduler_switch_task(task->sched, next);
+			}
+		}
 	}
 }
 
 void task_resume(struct task_t * task)
 {
-	if(task && (task->status != TASK_STATUS_READY))
+	if(task && (task->status == TASK_STATUS_SUSPEND))
 	{
 		task->vtime = task->sched->min_vtime;
 		task->status = TASK_STATUS_READY;
@@ -355,7 +376,7 @@ void task_yield(void)
 	self->time += detla;
 	self->vtime += calc_delta_fair(self, detla);
 
-	if((int64_t)(self->vtime - sched->min_vtime) < 0)
+	if((int64_t)(self->vtime - sched->min_vtime) <= 0)
 	{
 		self->start = now;
 	}

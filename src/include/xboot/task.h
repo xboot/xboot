@@ -18,14 +18,15 @@ struct scheduler_t;
 typedef void (*task_func_t)(struct task_t * task, void * data);
 
 enum task_status_t {
-	TASK_STATUS_READY	= 0,
-	TASK_STATUS_RUNNING	= 1,
+	TASK_STATUS_RUNNING	= 0,
+	TASK_STATUS_READY	= 1,
 	TASK_STATUS_SUSPEND	= 2,
 };
 
 struct task_t {
 	struct rb_node node;
 	struct list_head list;
+	struct list_head sem_list;
 	struct scheduler_t * sched;
 	enum task_status_t status;
 	uint64_t start;

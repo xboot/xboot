@@ -342,6 +342,7 @@ void task_suspend(struct task_t * task)
 			task->time += detla;
 			task->vtime += calc_delta_fair(task, detla);
 			task->status = TASK_STATUS_SUSPEND;
+			list_add_tail(&task->list, &task->sched->suspend);
 
 			next = scheduler_next_ready_task(task->sched);
 			if(next)

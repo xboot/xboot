@@ -73,7 +73,7 @@ static inline int atomic_sub_return(atomic_t * a, int v)
 }
 
 #define atomic_set(a, v)			do { ((a)->counter) = (v); smp_wmb(); } while(0)
-#define atomic_get(a)				({ int v; v = (a)->counter; smp_rmb(); v; })
+#define atomic_get(a)				({ int __v; __v = (a)->counter; smp_rmb(); __v; })
 #define atomic_inc(a)				(atomic_add(a, 1))
 #define atomic_dec(a)				(atomic_sub(a, 1))
 #define atomic_inc_return(a)		(atomic_add_return(a, 1))

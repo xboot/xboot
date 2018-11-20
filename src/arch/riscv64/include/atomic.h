@@ -27,13 +27,13 @@ static inline int atomic_add_return(atomic_t * a, int v)
 		: "+A" (a->counter), "=r" (ret)
 		: "r" (v)
 		: "memory");
-	return ret;
+	return ret + v;
 }
 
 static inline void atomic_sub(atomic_t * a, int v)
 {
 	__asm__ __volatile__ (
-		"	amoadd.w zero, %1, %0"
+		"amoadd.w zero, %1, %0"
 		: "+A" (a->counter)
 		: "r" (-v)
 		: "memory");
@@ -43,11 +43,11 @@ static inline int atomic_sub_return(atomic_t * a, int v)
 {
 	int ret;
 	__asm__ __volatile__ (
-		"	amoadd.w.aqrl  %1, %2, %0"
+		"amoadd.w.aqrl %1, %2, %0"
 		: "+A" (a->counter), "=r" (ret)
 		: "r" (-v)
 		: "memory");
-	return ret;
+	return ret - v;
 }
 #else
 static inline void atomic_add(atomic_t * a, int v)

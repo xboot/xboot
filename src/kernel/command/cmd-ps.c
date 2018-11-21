@@ -40,7 +40,7 @@ static int do_ps(int argc, char ** argv)
 	struct task_t * pos, * n;
 	int i;
 
-	for(i = 0; i < CONFIG_MAX_CPUS; i++)
+	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 	{
 		sched = __sched[i];
 

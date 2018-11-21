@@ -26,6 +26,8 @@ enum task_status_t {
 struct task_t {
 	struct rb_node node;
 	struct list_head list;
+	struct list_head slist;
+	struct list_head rlist;
 	struct list_head sem_list;
 	struct scheduler_t * sched;
 	enum task_status_t status;
@@ -54,7 +56,7 @@ struct scheduler_t {
 	spinlock_t lock;
 };
 
-extern struct scheduler_t * __sched[CONFIG_MAX_CPUS];
+extern struct scheduler_t * __sched[CONFIG_MAX_SMP_CPUS];
 
 static inline struct scheduler_t * scheduler_self(void)
 {

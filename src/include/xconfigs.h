@@ -13,8 +13,8 @@ extern "C" {
 #define CONFIG_NO_LOG						(0)
 #endif
 
-#if !defined(CONFIG_MAX_CPUS)
-#define CONFIG_MAX_CPUS						(1)
+#if !defined(CONFIG_MAX_SMP_CPUS)
+#define CONFIG_MAX_SMP_CPUS					(1)
 #endif
 
 #if !defined(CONFIG_TASK_STACK_SIZE)

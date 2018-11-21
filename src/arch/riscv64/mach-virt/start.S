@@ -174,7 +174,7 @@ reset:
 	LREG t2, (t2)
 	sub t0, t2, t1
 	csrr t3, mhartid
-	li t4, CONFIG_MAX_CPUS
+	li t4, CONFIG_MAX_SMP_CPUS
 	div t0, t0, t4
 	mul t0, t0, t3
 	sub sp, t2, t0

@@ -39,7 +39,7 @@ struct transfer_t
 extern void * make_fcontext(void * stack, size_t size, void (*func)(struct transfer_t));
 extern struct transfer_t jump_fcontext(void * fctx, void * priv);
 
-struct scheduler_t * __sched[CONFIG_MAX_CPUS] = { 0 };
+struct scheduler_t * __sched[CONFIG_MAX_SMP_CPUS] = { 0 };
 
 static const int nice_to_weight[40] = {
  /* -20 */     88761,     71755,     56483,     46273,     36291,
@@ -275,6 +275,8 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 
 	RB_CLEAR_NODE(&task->node);
 	init_list_head(&task->list);
+	init_list_head(&task->slist);
+	init_list_head(&task->rlist);
 	init_list_head(&task->sem_list);
 	list_add_tail(&task->list, &sched->suspend);
 	task->path = strdup(path);
@@ -407,7 +409,7 @@ static __init void task_pure_init(void)
 	struct task_t * task;
 	int i;
 
-	for(i = 0; i < CONFIG_MAX_CPUS; i++)
+	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 	{
 		__sched[i] = scheduler_alloc();
 
@@ -423,7 +425,7 @@ static __exit void task_pure_exit(void)
 {
 	int i;
 
-	for(i = 0; i < CONFIG_MAX_CPUS; i++)
+	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 		scheduler_free(__sched[i]);
 }
 

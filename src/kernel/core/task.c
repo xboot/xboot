@@ -277,7 +277,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	init_list_head(&task->list);
 	init_list_head(&task->slist);
 	init_list_head(&task->rlist);
-	init_list_head(&task->sem_list);
+	init_list_head(&task->mlist);
 	list_add_tail(&task->list, &sched->suspend);
 	task->path = strdup(path);
 	task->status = TASK_STATUS_SUSPEND;

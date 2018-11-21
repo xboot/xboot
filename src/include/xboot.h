@@ -56,6 +56,7 @@ extern "C" {
 #include <xboot/device.h>
 #include <xboot/driver.h>
 #include <xboot/task.h>
+#include <xboot/mutex.h>
 #include <xboot/channel.h>
 #include <time/delay.h>
 #include <time/timer.h>

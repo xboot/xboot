@@ -28,7 +28,7 @@ struct task_t {
 	struct list_head list;
 	struct list_head slist;
 	struct list_head rlist;
-	struct list_head sem_list;
+	struct list_head mlist;
 	struct scheduler_t * sched;
 	enum task_status_t status;
 	uint64_t start;

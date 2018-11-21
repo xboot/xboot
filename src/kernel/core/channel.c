@@ -79,18 +79,31 @@ void channel_free(struct channel_t * c)
 
 static inline int channel_isempty(struct channel_t * c)
 {
-	return (c->in - c->out <= 0) ? 1 : 0;
+	int ret;
+
+	spin_lock(&c->lock);
+	ret = (c->in - c->out <= 0) ? 1 : 0;
+	spin_unlock(&c->lock);
+
+	return ret;
 }
 
 static inline int channel_isfull(struct channel_t * c)
 {
-	return (c->in - c->out >= c->size) ? 1 : 0;
+	int ret;
+
+	spin_lock(&c->lock);
+	ret = (c->in - c->out >= c->size) ? 1 : 0;
+	spin_unlock(&c->lock);
+
+	return ret;
 }
 
 static inline unsigned int __channel_put(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
 	unsigned int l;
 
+	spin_lock(&c->lock);
 	len = min(len, c->size - c->in + c->out);
 	smp_mb();
 	l = min(len, c->size - (c->in & (c->size - 1)));
@@ -98,6 +111,7 @@ static inline unsigned int __channel_put(struct channel_t * c, unsigned char * b
 	memcpy(c->buffer, buf + l, len - l);
 	smp_wmb();
 	c->in += len;
+	spin_unlock(&c->lock);
 
 	return len;
 }
@@ -106,6 +120,7 @@ static inline unsigned int __channel_get(struct channel_t * c, unsigned char * b
 {
 	unsigned int l;
 
+	spin_lock(&c->lock);
 	len = min(len, c->in - c->out);
 	smp_rmb();
 	l = min(len, c->size - (c->out & (c->size - 1)));
@@ -113,6 +128,7 @@ static inline unsigned int __channel_get(struct channel_t * c, unsigned char * b
 	memcpy(buf + l, c->buffer, len - l);
 	smp_mb();
 	c->out += len;
+	spin_unlock(&c->lock);
 
 	return len;
 }
@@ -125,20 +141,23 @@ static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf
 
 	if(channel_isfull(c))
 	{
+		self = task_self();
+		spin_lock(&c->lock);
 		list_for_each_entry_safe(pos, n, &c->rwait, rlist)
 		{
 			list_del_init(&pos->rlist);
 			task_resume(pos);
 		}
-		self = task_self();
 		if(list_empty_careful(&self->slist))
 			list_add_tail(&self->slist, &c->swait);
+		spin_unlock(&c->lock);
 		task_suspend(self);
 		l = __channel_put(c, buf, len);
 	}
 	else if(channel_isempty(c))
 	{
 		l = __channel_put(c, buf, len);
+		spin_lock(&c->lock);
 		list_for_each_entry_safe(pos, n, &c->rwait, rlist)
 		{
 			list_del_init(&pos->rlist);
@@ -149,6 +168,7 @@ static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf
 			list_del_init(&pos->slist);
 			task_resume(pos);
 		}
+		spin_unlock(&c->lock);
 	}
 	else
 	{
@@ -165,20 +185,23 @@ static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf
 
 	if(channel_isempty(c))
 	{
+		self = task_self();
+		spin_lock(&c->lock);
 		list_for_each_entry_safe(pos, n, &c->swait, slist)
 		{
 			list_del_init(&pos->slist);
 			task_resume(pos);
 		}
-		self = task_self();
 		if(list_empty_careful(&self->rlist))
 			list_add_tail(&self->rlist, &c->rwait);
+		spin_unlock(&c->lock);
 		task_suspend(self);
 		l = __channel_get(c, buf, len);
 	}
 	else if(channel_isfull(c))
 	{
 		l = __channel_get(c, buf, len);
+		spin_lock(&c->lock);
 		list_for_each_entry_safe(pos, n, &c->rwait, rlist)
 		{
 			list_del_init(&pos->rlist);
@@ -189,6 +212,7 @@ static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf
 			list_del_init(&pos->slist);
 			task_resume(pos);
 		}
+		spin_unlock(&c->lock);
 	}
 	else
 	{

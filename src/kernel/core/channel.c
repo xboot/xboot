@@ -223,30 +223,26 @@ static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf
 
 void channel_send(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
-	unsigned int l;
+	unsigned int l = 0;
 
-	if(c)
+	if(c && buf)
 	{
-		l = channel_put(c, buf, len);
-		while(l < len)
-		{
-			task_yield();
+		do {
 			l += channel_put(c, buf + l, len - l);
-		}
+			task_yield();
+		} while(l < len);
 	}
 }
 
 void channel_recv(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
-	unsigned int l;
+	unsigned int l = 0;
 
-	if(c)
+	if(c && buf)
 	{
-		l = channel_get(c, buf, len);
-		while(l < len)
-		{
-			task_yield();
+		do {
 			l += channel_get(c, buf + l, len - l);
-		}
+			task_yield();
+		} while(l < len);
 	}
 }

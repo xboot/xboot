@@ -169,7 +169,7 @@ static inline void scheduler_enqueue_task(struct scheduler_t * sched, struct tas
 	{
 		parent = *link;
 		entry = rb_entry(parent, struct task_t, node);
-		if((int64_t)(task->vtime - entry->vtime) <= 0)
+		if((int64_t)(task->vtime - entry->vtime) < 0)
 		{
 			link = &parent->rb_left;
 		}
@@ -379,7 +379,7 @@ void task_yield(void)
 	self->time += detla;
 	self->vtime += calc_delta_fair(self, detla);
 
-	if((int64_t)(self->vtime - sched->min_vtime) <= 0)
+	if((int64_t)(self->vtime - sched->min_vtime) < 0)
 	{
 		self->start = now;
 	}

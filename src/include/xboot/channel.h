@@ -7,19 +7,22 @@ extern "C" {
 
 #include <types.h>
 #include <list.h>
-#include <fifo.h>
-#include <irqflags.h>
 #include <spinlock.h>
-#include <xboot/task.h>
 
 struct channel_t {
-	struct fifo_t * fifo;
-	struct list_head list;
+	unsigned char * buffer;
+	unsigned int size;
+	unsigned int in;
+	unsigned int out;
+	struct list_head swait;
+	struct list_head rwait;
 	spinlock_t lock;
 };
 
 struct channel_t * channel_alloc(unsigned int size);
 void channel_free(struct channel_t * c);
+void channel_send(struct channel_t * c, unsigned char * buf, unsigned int len);
+void channel_recv(struct channel_t * c, unsigned char * buf, unsigned int len);
 
 #ifdef __cplusplus
 }

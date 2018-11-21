@@ -143,13 +143,18 @@ static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf
 	{
 		self = task_self();
 		spin_lock(&c->lock);
-		list_for_each_entry_safe(pos, n, &c->rwait, rlist)
+		if(!list_empty(&c->rwait))
 		{
-			list_del_init(&pos->rlist);
-			task_resume(pos);
+			list_for_each_entry_safe(pos, n, &c->rwait, rlist)
+			{
+				list_del_init(&pos->rlist);
+				task_resume(pos);
+			}
 		}
 		if(list_empty_careful(&self->slist))
+		{
 			list_add_tail(&self->slist, &c->swait);
+		}
 		spin_unlock(&c->lock);
 		task_suspend(self);
 		l = __channel_put(c, buf, len);
@@ -158,21 +163,37 @@ static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf
 	{
 		l = __channel_put(c, buf, len);
 		spin_lock(&c->lock);
-		list_for_each_entry_safe(pos, n, &c->rwait, rlist)
+		if(!list_empty(&c->rwait))
 		{
-			list_del_init(&pos->rlist);
-			task_resume(pos);
+			list_for_each_entry_safe(pos, n, &c->rwait, rlist)
+			{
+				list_del_init(&pos->rlist);
+				task_resume(pos);
+			}
 		}
-		list_for_each_entry_safe(pos, n, &c->swait, slist)
+		if(!list_empty(&c->swait))
 		{
-			list_del_init(&pos->slist);
-			task_resume(pos);
+			list_for_each_entry_safe(pos, n, &c->swait, slist)
+			{
+				list_del_init(&pos->slist);
+				task_resume(pos);
+			}
 		}
 		spin_unlock(&c->lock);
 	}
 	else
 	{
 		l = __channel_put(c, buf, len);
+		spin_lock(&c->lock);
+		if(!list_empty(&c->rwait))
+		{
+			list_for_each_entry_safe(pos, n, &c->rwait, rlist)
+			{
+				list_del_init(&pos->rlist);
+				task_resume(pos);
+			}
+		}
+		spin_unlock(&c->lock);
 	}
 	return l;
 }
@@ -187,13 +208,18 @@ static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf
 	{
 		self = task_self();
 		spin_lock(&c->lock);
-		list_for_each_entry_safe(pos, n, &c->swait, slist)
+		if(!list_empty(&c->swait))
 		{
-			list_del_init(&pos->slist);
-			task_resume(pos);
+			list_for_each_entry_safe(pos, n, &c->swait, slist)
+			{
+				list_del_init(&pos->slist);
+				task_resume(pos);
+			}
 		}
 		if(list_empty_careful(&self->rlist))
+		{
 			list_add_tail(&self->rlist, &c->rwait);
+		}
 		spin_unlock(&c->lock);
 		task_suspend(self);
 		l = __channel_get(c, buf, len);
@@ -202,21 +228,37 @@ static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf
 	{
 		l = __channel_get(c, buf, len);
 		spin_lock(&c->lock);
-		list_for_each_entry_safe(pos, n, &c->rwait, rlist)
+		if(!list_empty(&c->rwait))
 		{
-			list_del_init(&pos->rlist);
-			task_resume(pos);
+			list_for_each_entry_safe(pos, n, &c->rwait, rlist)
+			{
+				list_del_init(&pos->rlist);
+				task_resume(pos);
+			}
 		}
-		list_for_each_entry_safe(pos, n, &c->swait, slist)
+		if(!list_empty(&c->swait))
 		{
-			list_del_init(&pos->slist);
-			task_resume(pos);
+			list_for_each_entry_safe(pos, n, &c->swait, slist)
+			{
+				list_del_init(&pos->slist);
+				task_resume(pos);
+			}
 		}
 		spin_unlock(&c->lock);
 	}
 	else
 	{
 		l = __channel_get(c, buf, len);
+		spin_lock(&c->lock);
+		if(!list_empty(&c->swait))
+		{
+			list_for_each_entry_safe(pos, n, &c->swait, slist)
+			{
+				list_del_init(&pos->slist);
+				task_resume(pos);
+			}
+		}
+		spin_unlock(&c->lock);
 	}
 	return l;
 }

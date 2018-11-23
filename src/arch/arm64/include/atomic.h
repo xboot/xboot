@@ -23,7 +23,7 @@ static inline void atomic_add(atomic_t * a, int v)
 	: "cc");
 }
 
-static inline long atomic_add_return(atomic_t * a, int v)
+static inline int atomic_add_return(atomic_t * a, int v)
 {
 	unsigned int tmp;
 	int result;
@@ -72,6 +72,25 @@ static inline int atomic_sub_return(atomic_t * a, int v)
 	return result;
 }
 
+static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
+{
+	unsigned int tmp;
+	int pre;
+
+	__asm__ __volatile__ (
+"1:	ldaxr %w1, [%3]\n"
+"	cmp %w1, %w4\n"
+"	b.ne 2f\n"
+"	stlxr %w0, %w5, [%3]\n"
+"	cbnz %w0, 1b\n"
+"2:"
+	: "=&r" (tmp), "=&r" (pre), "+o" (a->counter)
+	: "r" (&a->counter), "Ir" (o), "r" (n)
+	: "cc");
+
+	return pre;
+}
+
 #define atomic_set(a, v)			do { ((a)->counter) = (v); smp_wmb(); } while(0)
 #define atomic_get(a)				({ int __v; __v = (a)->counter; smp_rmb(); __v; })
 #define atomic_inc(a)				(atomic_add(a, 1))
@@ -82,6 +101,7 @@ static inline int atomic_sub_return(atomic_t * a, int v)
 #define atomic_dec_and_test(a)		(atomic_sub_return(a, 1) == 0)
 #define atomic_add_negative(a, v)	(atomic_add_return(a, v) < 0)
 #define atomic_sub_and_test(a, v)	(atomic_sub_return(a, v) == 0)
+#define atomic_cmpxchg(a, o, n)		(atomic_cmp_exchange(a, o, n))
 
 #ifdef __cplusplus
 }

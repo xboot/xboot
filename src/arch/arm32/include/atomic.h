@@ -15,17 +15,17 @@ static inline void atomic_add(atomic_t * a, int v)
 	irq_flags_t flags;
 
 	local_irq_save(flags);
-	a->counter += v;
+	(volatile)a->counter += v;
 	local_irq_restore(flags);
 }
 
-static inline long atomic_add_return(atomic_t * a, int v)
+static inline int atomic_add_return(atomic_t * a, int v)
 {
 	irq_flags_t flags;
 	int tmp;
 
 	local_irq_save(flags);
-	a->counter += v;
+	(volatile)a->counter += v;
 	tmp = a->counter;
 	local_irq_restore(flags);
 
@@ -37,18 +37,32 @@ static inline void atomic_sub(atomic_t * a, int v)
 	irq_flags_t flags;
 
 	local_irq_save(flags);
-	a->counter -= v;
+	(volatile)a->counter -= v;
 	local_irq_restore(flags);
 }
 
-static inline long atomic_sub_return(atomic_t * a, int v)
+static inline int atomic_sub_return(atomic_t * a, int v)
 {
 	irq_flags_t flags;
 	int tmp;
 
 	local_irq_save(flags);
-	a->counter -= v;
+	(volatile)a->counter -= v;
 	tmp = a->counter;
+	local_irq_restore(flags);
+
+	return tmp;
+}
+
+static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
+{
+	irq_flags_t flags;
+	int tmp;
+
+	local_irq_save(flags);
+	tmp = a->counter;
+	if(tmp == o)
+		(volatile)a->counter = n;
 	local_irq_restore(flags);
 
 	return tmp;
@@ -57,9 +71,9 @@ static inline long atomic_sub_return(atomic_t * a, int v)
 static inline void atomic_add(atomic_t * a, int v)
 {
 	unsigned int tmp;
-	long result;
+	int result;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 "1:	ldrex %0, [%3]\n"
 "	add	%0, %0, %4\n"
 "	strex %1, %0, [%3]\n"
@@ -75,7 +89,7 @@ static inline int atomic_add_return(atomic_t * a, int v)
 	unsigned int tmp;
 	int result;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 "1:	ldrex %0, [%3]\n"
 "	add	%0, %0, %4\n"
 "	strex %1, %0, [%3]\n"
@@ -93,7 +107,7 @@ static inline void atomic_sub(atomic_t * a, int v)
 	unsigned int tmp;
 	int result;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 "1:	ldrex %0, [%3]\n"
 "	sub	%0, %0, %4\n"
 "	strex %1, %0, [%3]\n"
@@ -104,12 +118,12 @@ static inline void atomic_sub(atomic_t * a, int v)
 	: "cc");
 }
 
-static inline long atomic_sub_return(atomic_t * a, int v)
+static inline int atomic_sub_return(atomic_t * a, int v)
 {
 	unsigned int tmp;
 	int result;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 "1:	ldrex %0, [%3]\n"
 "	sub	%0, %0, %4\n"
 "	strex %1, %0, [%3]\n"
@@ -120,6 +134,24 @@ static inline long atomic_sub_return(atomic_t * a, int v)
 	: "cc");
 
 	return result;
+}
+
+static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
+{
+	int pre, res;
+
+	do {
+		__asm__ __volatile__ (
+"ldrex %1, [%3]\n"
+"mov %0, #0\n"
+"teq %1, %4\n"
+"strexeq %0, %5, [%3]\n"
+	: "=&r" (res), "=&r" (pre), "+Qo" (a->counter)
+	: "r" (&a->counter), "Ir" (o), "r" (n)
+	: "cc");
+	} while(res);
+
+	return pre;
 }
 #endif
 
@@ -133,6 +165,7 @@ static inline long atomic_sub_return(atomic_t * a, int v)
 #define atomic_dec_and_test(a)		(atomic_sub_return(a, 1) == 0)
 #define atomic_add_negative(a, v)	(atomic_add_return(a, v) < 0)
 #define atomic_sub_and_test(a, v)	(atomic_sub_return(a, v) == 0)
+#define atomic_cmpxchg(a, o, n)		(atomic_cmp_exchange(a, o, n))
 
 #ifdef __cplusplus
 }

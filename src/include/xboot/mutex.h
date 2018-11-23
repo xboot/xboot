@@ -11,14 +11,13 @@ extern "C" {
 #include <spinlock.h>
 
 struct mutex_t {
-	atomic_t value;
+	atomic_t atomic;
 	struct list_head mwait;
 	spinlock_t lock;
 };
 
 void mutex_init(struct mutex_t * m);
 void mutex_lock(struct mutex_t * m);
-void mutex_trylock(struct mutex_t * m);
 void mutex_unlock(struct mutex_t * m);
 
 #ifdef __cplusplus

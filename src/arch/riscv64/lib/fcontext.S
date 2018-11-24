@@ -61,12 +61,12 @@ make_fcontext:
 	addi a0, a0, -(26 * 8)
 
 	/* third arg of make_fcontext() == address of context-function */
-	/* store address as a PC to jump in */
+	/* store address as a pc to jump in */
 	addi t0, a0, 0xc8
 	sd a2, (t0)
 
 	/* save address of finish as return-address for context-function */
-	/* will be entered after context-function returns (LR register) */
+	/* will be entered after context-function returns (ra register) */
 	la a1, finish
 	addi t0, a0, 0xc0
 	sd a1, (t0)
@@ -129,7 +129,7 @@ finish:
  *  -------------------------------------------------  *
  *  | 0xc0| 0xc4| 0xc8| 0xcc|           |           |  *
  *  -------------------------------------------------  *
- *  |     ra    |   align   |           |           |  *
+ *  |     ra    |    pc     |           |           |  *
  *  -------------------------------------------------  *
  */
 	.text
@@ -137,4 +137,86 @@ finish:
 	.align 3
 	.type jump_fcontext, %function
 jump_fcontext:
+	/* prepare stack */
+	addi sp, sp, -(26 * 8)
+
+	/* save fs0 - fs11 */
+#if __riscv_flen == 64
+	fsd fs0, 0 * 8(sp)
+	fsd fs1, 1 * 8(sp)
+	fsd fs2, 2 * 8(sp)
+	fsd fs3, 3 * 8(sp)
+	fsd fs4, 4 * 8(sp)
+	fsd fs5, 5 * 8(sp)
+	fsd fs6, 6 * 8(sp)
+	fsd fs7, 7 * 8(sp)
+	fsd fs8, 8 * 8(sp)
+	fsd fs9, 9 * 8(sp)
+	fsd fs10, 10 * 8(sp)
+	fsd fs11, 11 * 8(sp)
+#endif
+
+	/* save s0 - s11 */
+	sd s0, 12 * 8(sp)
+	sd s1, 13 * 8(sp)
+	sd s2, 14 * 8(sp)
+	sd s3, 15 * 8(sp)
+	sd s4, 16 * 8(sp)
+	sd s5, 17 * 8(sp)
+	sd s6, 18 * 8(sp)
+	sd s7, 19 * 8(sp)
+	sd s8, 20 * 8(sp)
+	sd s9, 21 * 8(sp)
+	sd s10, 22 * 8(sp)
+	sd s11, 23 * 8(sp)
+
+	/* save ra as pc */
+	sd ra, 25 * 8(sp)
+
+	/* store sp (pointing to context-data) in a0 */
+	mv t0, sp
+
+	/* restore sp (pointing to context-data) from a1 */
+	mv sp, a0
+
+	/* load fs0 - fs11 */
+#if __riscv_flen == 64
+	fld fs0, 0 * 8(sp)
+	fld fs1, 1 * 8(sp)
+	fld fs2, 2 * 8(sp)
+	fld fs3, 3 * 8(sp)
+	fld fs4, 4 * 8(sp)
+	fld fs5, 5 * 8(sp)
+	fld fs6, 6 * 8(sp)
+	fld fs7, 7 * 8(sp)
+	fld fs8, 8 * 8(sp)
+	fld fs9, 9 * 8(sp)
+	fld fs10, 10 * 8(sp)
+	fld fs11, 11 * 8(sp)
+#endif
+
+	/* load s0 - s11 */
+	ld s0, 12 * 8(sp)
+	ld s1, 13 * 8(sp)
+	ld s2, 14 * 8(sp)
+	ld s3, 15 * 8(sp)
+	ld s4, 16 * 8(sp)
+	ld s5, 17 * 8(sp)
+	ld s6, 18 * 8(sp)
+	ld s7, 19 * 8(sp)
+	ld s8, 20 * 8(sp)
+	ld s9, 21 * 8(sp)
+	ld s10, 22 * 8(sp)
+	ld s11, 23 * 8(sp)
+
+	/* return transfer_t from jump */
+	/* pass transfer_t as first arg in context function */
+	mv a0, t0
+
+	/* load pc */
+	ld ra, 25 * 8(sp)
+
+	/* restore stack */
+	addi sp, sp, (26 * 8)
+
 	ret

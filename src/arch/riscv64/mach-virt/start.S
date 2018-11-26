@@ -180,11 +180,10 @@ reset:
 	sub sp, t2, t0
 
 	/* Check processor id, stop all slave cores */
-	csrr t0, mhartid
-	beqz t0, 2f
-1:	wfi
-	j 1b
-2:	nop
+	csrr a0, mhartid
+	beqz a0, 1f
+	j second_cpu_entry
+1:	nop
 
 	/* Copyself to link address */
 	la t0, _start

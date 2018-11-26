@@ -28,6 +28,25 @@
 
 #include <xboot.h>
 
+typedef void (*smpboot_func_t)(int cpu);
+
+static atomic_t wakeup[CONFIG_MAX_SMP_CPUS];
+static smpboot_func_t smpboot_func[CONFIG_MAX_SMP_CPUS];
+
+void second_cpu_entry(int cpu)
+{
+	atomic_set(&wakeup[cpu], 0);
+
+	while(1)
+	{
+		if(atomic_get(&wakeup[cpu]) > 0)
+		{
+			smpboot_func[cpu](cpu);
+			atomic_dec(&wakeup[cpu]);
+		}
+	}
+}
+
 static int mach_detect(struct machine_t * mach)
 {
 	return 1;
@@ -43,6 +62,8 @@ static void mach_smpinit(struct machine_t * mach, int cpu)
 
 static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(int cpu))
 {
+	smpboot_func[cpu] = func;
+	atomic_inc(&wakeup[cpu]);
 }
 
 static void mach_shutdown(struct machine_t * mach)

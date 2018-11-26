@@ -27,7 +27,7 @@ struct machine_t {
 	int (*detect)(struct machine_t * mach);
 	void (*memmap)(struct machine_t * mach);
 	void (*smpinit)(struct machine_t * mach, int cpu);
-	void (*smpboot)(struct machine_t * mach, int cpu, void (*func)(void));
+	void (*smpboot)(struct machine_t * mach, int cpu, void (*func)(int cpu));
 	void (*shutdown)(struct machine_t * mach);
 	void (*reboot)(struct machine_t * mach);
 	void (*sleep)(struct machine_t * mach);
@@ -42,7 +42,7 @@ bool_t register_machine(struct machine_t * mach);
 bool_t unregister_machine(struct machine_t * mach);
 struct machine_t * get_machine(void);
 void machine_smpinit(int cpu);
-void machine_smpboot(int cpu, void (*func)(void));
+void machine_smpboot(int cpu, void (*func)(int cpu));
 void machine_shutdown(void);
 void machine_reboot(void);
 void machine_sleep(void);

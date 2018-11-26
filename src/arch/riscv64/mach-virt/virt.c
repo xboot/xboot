@@ -41,7 +41,7 @@ static void mach_smpinit(struct machine_t * mach, int cpu)
 {
 }
 
-static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(void))
+static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(int cpu))
 {
 }
 

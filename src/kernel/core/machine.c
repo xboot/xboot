@@ -205,7 +205,7 @@ void machine_smpinit(int cpu)
 		mach->smpinit(mach, cpu);
 }
 
-void machine_smpboot(int cpu, void (*func)(void))
+void machine_smpboot(int cpu, void (*func)(int cpu))
 {
 	struct machine_t * mach = get_machine();
 

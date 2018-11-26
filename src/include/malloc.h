@@ -25,8 +25,6 @@ void * realloc(void * ptr, size_t size);
 void * calloc(size_t nmemb, size_t size);
 void free(void * ptr);
 
-void do_init_mem_pool(void);
-
 #ifdef __cplusplus
 }
 #endif

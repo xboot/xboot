@@ -39,7 +39,8 @@ struct transfer_t
 extern void * make_fcontext(void * stack, size_t size, void (*func)(struct transfer_t));
 extern struct transfer_t jump_fcontext(void * fctx, void * priv);
 
-struct scheduler_t * __sched[CONFIG_MAX_SMP_CPUS] = { 0 };
+struct scheduler_t __sched[CONFIG_MAX_SMP_CPUS];
+EXPORT_SYMBOL(__sched);
 
 static const int nice_to_weight[40] = {
  /* -20 */     88761,     71755,     56483,     46273,     36291,
@@ -110,43 +111,6 @@ static inline uint64_t calc_delta_fair(struct task_t * task, uint64_t delta)
 	if(unlikely(task->weight != 1024))
 		delta = calc_delta(task, delta);
 	return delta;
-}
-
-static struct scheduler_t * scheduler_alloc(void)
-{
-	struct scheduler_t * sched;
-
-	sched = malloc(sizeof(struct scheduler_t));
-	if(!sched)
-		return NULL;
-
-	sched->ready = RB_ROOT_CACHED;
-	init_list_head(&sched->suspend);
-	spin_lock_init(&sched->lock);
-	sched->running = NULL;
-	sched->min_vtime = 0;
-
-	return sched;
-}
-
-static void scheduler_free(struct scheduler_t * sched)
-{
-	struct task_t * pos, * n;
-
-	if(!sched)
-		return;
-
-	list_for_each_entry_safe(pos, n, &sched->suspend, list)
-	{
-		task_destroy(pos);
-	}
-	rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready.rb_root, node)
-	{
-		task_destroy(pos);
-	}
-	task_destroy(sched->running);
-
-	free(sched);
 }
 
 static inline struct task_t * scheduler_next_ready_task(struct scheduler_t * sched)
@@ -227,23 +191,6 @@ static void fcontext_entry_func(struct transfer_t from)
 	next = scheduler_next_ready_task(sched);
 	if(likely(next))
 	{
-		scheduler_dequeue_task(sched, next);
-		next->status = TASK_STATUS_RUNNING;
-		next->start = ktime_to_ns(ktime_get());
-		scheduler_switch_task(sched, next);
-	}
-}
-
-void scheduler_loop(void)
-{
-	struct scheduler_t * sched;
-	struct task_t * next;
-
-	sched = __sched[smp_processor_id()];
-	next = scheduler_next_ready_task(sched);
-	if(next)
-	{
-		sched->running = next;
 		scheduler_dequeue_task(sched, next);
 		next->status = TASK_STATUS_RUNNING;
 		next->start = ktime_to_ns(ktime_get());
@@ -404,30 +351,70 @@ static void idle_task(struct task_t * task, void * data)
 	}
 }
 
-static __init void task_pure_init(void)
+static void smpboot_entry(void)
 {
-	struct task_t * task;
+	struct scheduler_t * sched = scheduler_self();
+	struct task_t * task, * next;
+
+	task = task_create(sched, "idle", idle_task, NULL, SZ_8K, 0);
+	task->nice = 26;
+	task->weight = 3;
+	task->inv_weight = 1431655765;
+	task_resume(task);
+
+	next = scheduler_next_ready_task(sched);
+	if(next)
+	{
+		sched->running = next;
+		scheduler_dequeue_task(sched, next);
+		next->status = TASK_STATUS_RUNNING;
+		next->start = ktime_to_ns(ktime_get());
+		scheduler_switch_task(sched, next);
+	}
+}
+
+void scheduler_loop(void)
+{
 	int i;
 
 	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 	{
-		__sched[i] = scheduler_alloc();
-
-		task = task_create(__sched[i], "idle", idle_task, NULL, SZ_8K, 0);
-		task->nice = 26;
-		task->weight = 3;
-		task->inv_weight = 1431655765;
-		task_resume(task);
+		if(smp_processor_id() == i)
+			continue;
+		machine_smpinit(i);
+		machine_smpboot(i, smpboot_entry);
 	}
+	smpboot_entry();
 }
 
-static __exit void task_pure_exit(void)
+void do_init_sched(void)
 {
+	struct scheduler_t * sched;
+	void * heap;
+	size_t size;
 	int i;
 
-	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
-		scheduler_free(__sched[i]);
-}
+#ifdef __SANDBOX__
+	static char __heap_buf[SZ_256M];
+	heap = (void *)&__heap_buf;
+	size = (size_t)(sizeof(__heap_buf)) / CONFIG_MAX_SMP_CPUS;
+#else
+	extern unsigned char __heap_start;
+	extern unsigned char __heap_end;
+	heap = (void *)&__heap_start;
+	size = (size_t)(&__heap_end - &__heap_start) / CONFIG_MAX_SMP_CPUS;
+#endif
 
-pure_initcall(task_pure_init);
-pure_exitcall(task_pure_exit);
+	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
+	{
+		sched = &__sched[i];
+
+		sched->ready = RB_ROOT_CACHED;
+		init_list_head(&sched->suspend);
+		spin_lock_init(&sched->lock);
+		sched->running = NULL;
+		sched->heap = mm_create((void *)((unsigned char *)heap + size * i), size);
+		sched->size = size;
+		sched->min_vtime = 0;
+	}
+}

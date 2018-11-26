@@ -35,8 +35,8 @@ int xboot_main(int argc, char * argv[])
 {
 	struct task_t * task;
 
-	/* Do initial mem pool */
-	do_init_mem_pool();
+	/* Do initial scheduler */
+	do_init_sched();
 
 	/* Do initial dma pool */
 	do_init_dma_pool();

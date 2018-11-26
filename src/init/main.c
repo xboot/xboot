@@ -38,9 +38,6 @@ int xboot_main(int argc, char * argv[])
 	/* Do initial scheduler */
 	do_init_sched();
 
-	/* Do initial dma pool */
-	do_init_dma_pool();
-
 	/* Do initial event */
 	do_init_event();
 

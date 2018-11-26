@@ -29,16 +29,24 @@
 #include <xboot.h>
 #include <dma/dma.h>
 
-static void * __dma_pool = NULL;
+static void * __dma_pool;
+static struct mutex_t __dma_mutex;
 
 void * dma_alloc_coherent(unsigned long size)
 {
-	return mm_memalign(__dma_pool, SZ_4K, size);
+	void * addr;
+
+	mutex_lock(&__dma_mutex);
+	addr = mm_memalign(__dma_pool, SZ_4K, size);
+	mutex_unlock(&__dma_mutex);
+	return addr;
 }
 
 void dma_free_coherent(void * addr)
 {
+	mutex_lock(&__dma_mutex);
 	mm_free(__dma_pool, addr);
+	mutex_unlock(&__dma_mutex);
 }
 
 void * dma_alloc_noncoherent(unsigned long size)
@@ -56,34 +64,23 @@ static void __dma_cache_sync(void * addr, unsigned long size, int dir)
 }
 extern __typeof(__dma_cache_sync) dma_cache_sync __attribute__((weak, alias("__dma_cache_sync")));
 
-static struct kobj_t * search_class_memory_kobj(void)
+static __init void dma_pure_init(void)
 {
-	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
-	return kobj_search_directory_with_create(kclass, "memory");
-}
+	void * dma;
+	size_t size;
 
-static ssize_t memory_read_dmainfo(struct kobj_t * kobj, void * buf, size_t size)
-{
-	void * mm = (void *)kobj->priv;
-	size_t mused, mfree;
-	char * p = buf;
-	int len = 0;
-
-	mm_info(mm, &mused, &mfree);
-	len += sprintf((char *)(p + len), " dma used: %ld\r\n", mused);
-	len += sprintf((char *)(p + len), " dma free: %ld\r\n", mfree);
-	return len;
-}
-
-void do_init_dma_pool(void)
-{
-#ifndef __SANDBOX__
+#ifdef __SANDBOX__
+	static char __dma_buf[SZ_8M];
+	dma = (void *)&__dma_buf;
+	size = (size_t)(sizeof(__dma_buf));
+#else
 	extern unsigned char __dma_start;
 	extern unsigned char __dma_end;
-	__dma_pool = mm_create((void *)&__dma_start, (size_t)(&__dma_end - &__dma_start));
-#else
-	static char __dma_buf[SZ_8M];
-	__dma_pool = mm_create((void *)__dma_buf, (size_t)(sizeof(__dma_buf)));
+	dma = (void *)&__dma_start;
+	size = (size_t)(&__dma_end - &__dma_start);
 #endif
-	kobj_add_regular(search_class_memory_kobj(), "dmainfo", memory_read_dmainfo, NULL, mm_get(__dma_pool));
+
+	__dma_pool = mm_create(dma, size);
+	mutex_init(&__dma_mutex);
 }
+pure_initcall(dma_pure_init);

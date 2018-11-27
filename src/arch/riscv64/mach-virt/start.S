@@ -179,7 +179,7 @@ reset:
 	mul t0, t0, t3
 	sub sp, t2, t0
 
-	/* Check processor id, stop all slave cores */
+	/* Check processor id, and startup slave cores */
 	csrr a0, mhartid
 	beqz a0, 2f
 1:	call sys_smp_secondary_startup

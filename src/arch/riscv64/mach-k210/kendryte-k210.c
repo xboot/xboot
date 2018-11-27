@@ -97,6 +97,8 @@ static void mach_smpinit(struct machine_t * mach, int cpu)
 
 static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(int cpu))
 {
+	extern void sys_smp_secondary_boot(int cpu, void (*func)(int cpu));
+	sys_smp_secondary_boot(cpu, func);
 }
 
 static void mach_shutdown(struct machine_t * mach)

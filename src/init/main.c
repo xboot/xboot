@@ -35,6 +35,9 @@ int xboot_main(int argc, char * argv[])
 {
 	struct task_t * task;
 
+	/* Do initial memory */
+	do_init_mem();
+
 	/* Do initial scheduler */
 	do_init_sched();
 

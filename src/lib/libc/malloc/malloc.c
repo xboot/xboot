@@ -5,6 +5,9 @@
 #include <xboot.h>
 #include <malloc.h>
 
+static void * __heap_pool = NULL;
+static spinlock_t __heap_lock = SPIN_LOCK_INIT();
+
 /*
  * Some macros.
  */
@@ -809,35 +812,91 @@ void mm_info(void * mm, size_t * mused, size_t * mfree)
 
 void * malloc(size_t size)
 {
-	return tlsf_malloc(scheduler_self()->heap, size);
+	void * m;
+
+	spin_lock(&__heap_lock);
+	m = tlsf_malloc(__heap_pool, size);
+	spin_unlock(&__heap_lock);
+	return m;
 }
 EXPORT_SYMBOL(malloc);
 
 void * memalign(size_t align, size_t size)
 {
-	return tlsf_memalign(scheduler_self()->heap, align, size);
+	void * m;
+
+	spin_lock(&__heap_lock);
+	m = tlsf_memalign(__heap_pool, align, size);
+	spin_unlock(&__heap_lock);
+	return m;
 }
 EXPORT_SYMBOL(memalign);
 
 void * realloc(void * ptr, size_t size)
 {
-	return tlsf_realloc(scheduler_self()->heap, ptr, size);
+	void * m;
+
+	spin_lock(&__heap_lock);
+	m = tlsf_realloc(__heap_pool, ptr, size);
+	spin_unlock(&__heap_lock);
+	return m;
 }
 EXPORT_SYMBOL(realloc);
 
 void * calloc(size_t nmemb, size_t size)
 {
-	void * ptr;
+	void * m;
 
-	if((ptr = malloc(nmemb * size)))
-		memset(ptr, 0, nmemb * size);
-
-	return ptr;
+	if((m = malloc(nmemb * size)))
+		memset(m, 0, nmemb * size);
+	return m;
 }
 EXPORT_SYMBOL(calloc);
 
 void free(void * ptr)
 {
-	tlsf_free(scheduler_self()->heap, ptr);
+	spin_lock(&__heap_lock);
+	tlsf_free(__heap_pool, ptr);
+	spin_unlock(&__heap_lock);
 }
 EXPORT_SYMBOL(free);
+
+static struct kobj_t * search_class_memory_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "memory");
+}
+
+static ssize_t memory_read_meminfo(struct kobj_t * kobj, void * buf, size_t size)
+{
+	void * mm = (void *)kobj->priv;
+	size_t mused, mfree;
+	char * p = buf;
+	int len = 0;
+
+	mm_info(mm, &mused, &mfree);
+	len += sprintf((char *)(p + len), " memory used: %ld\r\n", mused);
+	len += sprintf((char *)(p + len), " memory free: %ld\r\n", mfree);
+	return len;
+}
+
+void do_init_mem(void)
+{
+	void * heap;
+	size_t size;
+
+#ifdef __SANDBOX__
+	static char __heap_buf[SZ_256M];
+	heap = (void *)&__heap_buf;
+	size = (size_t)(sizeof(__heap_buf));
+#else
+	extern unsigned char __heap_start;
+	extern unsigned char __heap_end;
+	heap = (void *)&__heap_start;
+	size = (size_t)(&__heap_end - &__heap_start);
+#endif
+
+	spin_lock_init(&__heap_lock);
+	__heap_pool = mm_create(heap, size);
+	kobj_add_regular(search_class_memory_kobj(), "meminfo", memory_read_meminfo, NULL, mm_get(__heap_pool));
+}

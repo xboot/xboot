@@ -407,20 +407,7 @@ void scheduler_loop(void)
 void do_init_sched(void)
 {
 	struct scheduler_t * sched;
-	void * heap;
-	size_t size;
 	int i;
-
-#ifdef __SANDBOX__
-	static char __heap_buf[SZ_256M];
-	heap = (void *)&__heap_buf;
-	size = (size_t)(sizeof(__heap_buf)) / CONFIG_MAX_SMP_CPUS;
-#else
-	extern unsigned char __heap_start;
-	extern unsigned char __heap_end;
-	heap = (void *)&__heap_start;
-	size = (size_t)(&__heap_end - &__heap_start) / CONFIG_MAX_SMP_CPUS;
-#endif
 
 	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 	{
@@ -430,8 +417,6 @@ void do_init_sched(void)
 		init_list_head(&sched->suspend);
 		spin_lock_init(&sched->lock);
 		sched->running = NULL;
-		sched->heap = mm_create((void *)((unsigned char *)heap + size * i), size);
-		sched->size = size;
 		sched->min_vtime = 0;
 	}
 }

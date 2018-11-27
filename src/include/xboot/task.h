@@ -52,8 +52,6 @@ struct scheduler_t {
 	struct rb_root_cached ready;
 	struct list_head suspend;
 	struct task_t * running;
-	void * heap;
-	size_t size;
 	uint64_t min_vtime;
 	spinlock_t lock;
 };

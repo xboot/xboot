@@ -79,6 +79,25 @@ static void __dma_cache_sync(void * addr, unsigned long size, int dir)
 }
 extern __typeof(__dma_cache_sync) dma_cache_sync __attribute__((weak, alias("__dma_cache_sync")));
 
+static struct kobj_t * search_class_memory_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "memory");
+}
+
+static ssize_t memory_read_dmainfo(struct kobj_t * kobj, void * buf, size_t size)
+{
+	void * mm = (void *)kobj->priv;
+	size_t mused, mfree;
+	char * p = buf;
+	int len = 0;
+
+	mm_info(mm, &mused, &mfree);
+	len += sprintf((char *)(p + len), " dma used: %ld\r\n", mused);
+	len += sprintf((char *)(p + len), " dma free: %ld\r\n", mfree);
+	return len;
+}
+
 static __init void dma_pure_init(void)
 {
 	void * dma;
@@ -95,7 +114,8 @@ static __init void dma_pure_init(void)
 	size = (size_t)(&__dma_end - &__dma_start);
 #endif
 
-	__dma_pool = mm_create(dma, size);
 	spin_lock_init(&__dma_lock);
+	__dma_pool = mm_create(dma, size);
+	kobj_add_regular(search_class_memory_kobj(), "dmainfo", memory_read_dmainfo, NULL, mm_get(__dma_pool));
 }
 pure_initcall(dma_pure_init);

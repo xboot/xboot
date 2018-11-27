@@ -38,7 +38,6 @@ static int do_ps(int argc, char ** argv)
 {
 	struct scheduler_t * sched;
 	struct task_t * pos, * n;
-	size_t mused, mfree;
 	int i;
 
 	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
@@ -46,10 +45,6 @@ static int do_ps(int argc, char ** argv)
 		sched = &__sched[i];
 
 		printf("CPU%d:\r\n", i);
-		mm_info(mm_get(sched->heap), &mused, &mfree);
-		printf(" Memory Total: %ld\r\n", sched->size);
-		printf(" Memory Used: %ld\r\n", mused);
-		printf(" Memory Free: %ld\r\n", mfree);
 
 		pos = sched->running;
 		printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Running", pos->nice, pos->time, pos->path ? pos->path : "");

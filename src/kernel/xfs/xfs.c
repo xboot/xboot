@@ -359,7 +359,7 @@ struct xfs_context_t * xfs_alloc(const char * path)
 	char userdata[256];
 	uint8_t digest[20];
 
-	if(!path || (path[0] != '/'))
+	if(!path)
 		return NULL;
 
 	ctx = malloc(sizeof(struct xfs_context_t));

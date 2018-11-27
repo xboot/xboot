@@ -238,7 +238,10 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;
-	task->__xfs_ctx = xfs_alloc(task->path);
+	if(task->path && (task->path[0] == '/'))
+		task->__xfs_ctx = xfs_alloc(task->path);
+	else
+		task->__xfs_ctx = NULL;
 	task_renice(task, nice);
 
 	return task;

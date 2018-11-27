@@ -29,34 +29,49 @@
 #include <xboot.h>
 #include <dma/dma.h>
 
-static void * __dma_pool;
-static struct mutex_t __dma_mutex;
+static void * __dma_pool = NULL;
+static spinlock_t __dma_lock = SPIN_LOCK_INIT();
 
 void * dma_alloc_coherent(unsigned long size)
 {
-	void * addr;
+	irq_flags_t flags;
+	void * m;
 
-	mutex_lock(&__dma_mutex);
-	addr = mm_memalign(__dma_pool, SZ_4K, size);
-	mutex_unlock(&__dma_mutex);
-	return addr;
+	spin_lock_irqsave(&__dma_lock, flags);
+	m = mm_memalign(__dma_pool, SZ_4K, size);
+	spin_unlock_irqrestore(&__dma_lock, flags);
+
+	return m;
 }
 
 void dma_free_coherent(void * addr)
 {
-	mutex_lock(&__dma_mutex);
+	irq_flags_t flags;
+
+	spin_lock_irqsave(&__dma_lock, flags);
 	mm_free(__dma_pool, addr);
-	mutex_unlock(&__dma_mutex);
+	spin_unlock_irqrestore(&__dma_lock, flags);
 }
 
 void * dma_alloc_noncoherent(unsigned long size)
 {
-	return memalign(SZ_4K, size);
+	irq_flags_t flags;
+	void * m;
+
+	spin_lock_irqsave(&__dma_lock, flags);
+	m = memalign(SZ_4K, size);
+	spin_unlock_irqrestore(&__dma_lock, flags);
+
+	return m;
 }
 
 void dma_free_noncoherent(void * addr)
 {
+	irq_flags_t flags;
+
+	spin_lock_irqsave(&__dma_lock, flags);
 	free(addr);
+	spin_unlock_irqrestore(&__dma_lock, flags);
 }
 
 static void __dma_cache_sync(void * addr, unsigned long size, int dir)
@@ -81,6 +96,6 @@ static __init void dma_pure_init(void)
 #endif
 
 	__dma_pool = mm_create(dma, size);
-	mutex_init(&__dma_mutex);
+	spin_lock_init(&__dma_lock);
 }
 pure_initcall(dma_pure_init);

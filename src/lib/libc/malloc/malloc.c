@@ -886,7 +886,7 @@ void do_init_mem(void)
 	size_t size;
 
 #ifdef __SANDBOX__
-	static char __heap_buf[SZ_256M];
+	static char __heap_buf[CONFIG_HEAP_MEMORY_SIZE];
 	heap = (void *)&__heap_buf;
 	size = (size_t)(sizeof(__heap_buf));
 #else

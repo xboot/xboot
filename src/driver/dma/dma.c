@@ -104,7 +104,7 @@ static __init void dma_pure_init(void)
 	size_t size;
 
 #ifdef __SANDBOX__
-	static char __dma_buf[SZ_8M];
+	static char __dma_buf[CONFIG_DMA_MEMORY_SIZE];
 	dma = (void *)&__dma_buf;
 	size = (size_t)(sizeof(__dma_buf));
 #else

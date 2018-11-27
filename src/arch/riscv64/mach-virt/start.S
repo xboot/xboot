@@ -181,9 +181,10 @@ reset:
 
 	/* Check processor id, stop all slave cores */
 	csrr a0, mhartid
-	beqz a0, 1f
-	j second_cpu_entry
-1:	nop
+	beqz a0, 2f
+1:	call sys_smp_secondary_startup
+	j 1b
+2:	nop
 
 	/* Copyself to link address */
 	la t0, _start

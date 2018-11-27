@@ -20,6 +20,7 @@ SECTIONS
 		.obj/arch/riscv64/mach-virt/start.o (.text*)
 		.obj/arch/riscv64/lib/memcpy.o (.text*)
 		.obj/arch/riscv64/lib/memset.o (.text*)
+		.obj/arch/riscv64/mach-virt/sys-smp.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

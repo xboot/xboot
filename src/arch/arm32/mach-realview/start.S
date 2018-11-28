@@ -130,7 +130,7 @@ reset:
 
 	/* Initialize stacks */
 	mrc p15, 0, r10, c0, c0, 5
-	ands r10, #3
+	and r10, r10, #0xf
 	mov r11, #CONFIG_MAX_SMP_CPUS
 
 	ldr r0, _stack_und_start

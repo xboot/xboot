@@ -238,7 +238,7 @@ _main:
 	bl xboot_main
 	b _main
 
-	.global	udiv32
+	.global udiv32
 udiv32:
 	cmp r1, #0
 	beq 3f

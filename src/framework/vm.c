@@ -312,7 +312,7 @@ int vmexec(const char * path)
 	if(!path)
 		return -1;
 
-	task = task_create(scheduler_self(), path, vm_task, NULL, 0, 0);
+	task = task_create(NULL, path, vm_task, NULL, 0, 0);
 	task_resume(task);
 
 	return 0;

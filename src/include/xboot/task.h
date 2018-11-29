@@ -53,6 +53,7 @@ struct scheduler_t {
 	struct list_head suspend;
 	struct task_t * running;
 	uint64_t min_vtime;
+	uint64_t weight;
 	spinlock_t lock;
 };
 

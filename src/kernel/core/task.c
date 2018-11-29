@@ -178,6 +178,23 @@ static inline void scheduler_switch_task(struct scheduler_t * sched, struct task
 	t->fctx = from.fctx;
 }
 
+static inline struct scheduler_t * scheduler_load_balance_choice(void)
+{
+	struct scheduler_t * sched;
+	uint64_t weight = ~0ULL;
+	int i;
+
+	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
+	{
+		if(__sched[i].weight < weight)
+		{
+			sched = &__sched[i];
+			weight = __sched[i].weight;
+		}
+	}
+	return sched;
+}
+
 static void fcontext_entry_func(struct transfer_t from)
 {
 	struct task_t * t = (struct task_t *)from.priv;
@@ -203,11 +220,19 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	struct task_t * task;
 	void * stack;
 
-	if(!sched || !func)
+	if(!func)
 		return NULL;
+
+	if(!sched)
+		sched = scheduler_load_balance_choice();
 
 	if(stksz <= 0)
 		stksz = CONFIG_TASK_STACK_SIZE;
+
+	if(nice < -20)
+		nice = -20;
+	else if(nice > 19)
+		nice = 19;
 
 	task = malloc(sizeof(struct task_t));
 	if(!task)
@@ -221,13 +246,15 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	}
 
 	RB_CLEAR_NODE(&task->node);
+	init_list_head(&task->list);
 	init_list_head(&task->slist);
 	init_list_head(&task->rlist);
 	init_list_head(&task->mlist);
 	spin_lock(&sched->lock);
-	init_list_head(&task->list);
 	list_add_tail(&task->list, &sched->suspend);
+	sched->weight += nice_to_weight[nice + 20];
 	spin_unlock(&sched->lock);
+
 	task->path = strdup(path);
 	task->status = TASK_STATUS_SUSPEND;
 	task->start = ktime_to_ns(ktime_get());
@@ -236,6 +263,9 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->sched = sched;
 	task->stack = stack;
 	task->stksz = stksz;
+	task->nice = nice;
+	task->weight = nice_to_weight[nice + 20];
+	task->inv_weight = nice_to_wmult[nice + 20];
 	task->fctx = make_fcontext(task->stack + stksz, task->stksz, fcontext_entry_func);
 	task->func = func;
 	task->data = data;
@@ -244,7 +274,6 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 		task->__xfs_ctx = xfs_alloc(task->path);
 	else
 		task->__xfs_ctx = NULL;
-	task_renice(task, nice);
 
 	return task;
 }
@@ -255,7 +284,9 @@ void task_destroy(struct task_t * task)
 	{
 		spin_lock(&task->sched->lock);
 		list_del(&task->list);
+		task->sched->weight -= nice_to_weight[task->nice + 20];
 		spin_unlock(&task->sched->lock);
+
 		if(task->__xfs_ctx)
 			xfs_free(task->__xfs_ctx);
 		if(task->path)
@@ -271,10 +302,18 @@ void task_renice(struct task_t * task, int nice)
 		nice = -20;
 	else if(nice > 19)
 		nice = 19;
-	task->nice = nice;
-	nice += 20;
-	task->weight = nice_to_weight[nice];
-	task->inv_weight = nice_to_wmult[nice];
+
+	if(task->nice != nice)
+	{
+		spin_lock(&task->sched->lock);
+		task->sched->weight -= nice_to_weight[task->nice + 20];
+		task->sched->weight += nice_to_weight[nice + 20];
+		spin_unlock(&task->sched->lock);
+
+		task->nice = nice;
+		task->weight = nice_to_weight[nice + 20];
+		task->inv_weight = nice_to_wmult[nice + 20];
+	}
 }
 
 void task_suspend(struct task_t * task)
@@ -372,9 +411,13 @@ static void smpboot_entry_func(int cpu)
 	machine_smpinit(cpu);
 
 	task = task_create(sched, "idle", idle_task, NULL, SZ_8K, 0);
+	spin_lock(&sched->lock);
+	sched->weight -= task->weight;
 	task->nice = 26;
 	task->weight = 3;
 	task->inv_weight = 1431655765;
+	sched->weight += task->weight;
+	spin_unlock(&sched->lock);
 	task_resume(task);
 
 	next = scheduler_next_ready_task(sched);
@@ -401,9 +444,13 @@ void scheduler_loop(void)
 	}
 
 	task = task_create(sched, "idle", idle_task, NULL, SZ_8K, 0);
+	spin_lock(&sched->lock);
+	sched->weight -= task->weight;
 	task->nice = 26;
 	task->weight = 3;
 	task->inv_weight = 1431655765;
+	sched->weight += task->weight;
+	spin_unlock(&sched->lock);
 	task_resume(task);
 
 	next = scheduler_next_ready_task(sched);
@@ -432,6 +479,7 @@ void do_init_sched(void)
 		init_list_head(&sched->suspend);
 		sched->running = NULL;
 		sched->min_vtime = 0;
+		sched->weight = 0;
 		spin_unlock(&sched->lock);
 	}
 }

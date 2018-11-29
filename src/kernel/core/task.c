@@ -221,11 +221,13 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	}
 
 	RB_CLEAR_NODE(&task->node);
-	init_list_head(&task->list);
 	init_list_head(&task->slist);
 	init_list_head(&task->rlist);
 	init_list_head(&task->mlist);
+	spin_lock(&sched->lock);
+	init_list_head(&task->list);
 	list_add_tail(&task->list, &sched->suspend);
+	spin_unlock(&sched->lock);
 	task->path = strdup(path);
 	task->status = TASK_STATUS_SUSPEND;
 	task->start = ktime_to_ns(ktime_get());
@@ -251,7 +253,9 @@ void task_destroy(struct task_t * task)
 {
 	if(task)
 	{
+		spin_lock(&task->sched->lock);
 		list_del(&task->list);
+		spin_unlock(&task->sched->lock);
 		if(task->__xfs_ctx)
 			xfs_free(task->__xfs_ctx);
 		if(task->path)
@@ -283,7 +287,9 @@ void task_suspend(struct task_t * task)
 		if(task->status == TASK_STATUS_READY)
 		{
 			task->status = TASK_STATUS_SUSPEND;
+			spin_lock(&task->sched->lock);
 			list_add_tail(&task->list, &task->sched->suspend);
+			spin_unlock(&task->sched->lock);
 			scheduler_dequeue_task(task->sched, task);
 		}
 		else if(task->status == TASK_STATUS_RUNNING)
@@ -294,7 +300,9 @@ void task_suspend(struct task_t * task)
 			task->time += detla;
 			task->vtime += calc_delta_fair(task, detla);
 			task->status = TASK_STATUS_SUSPEND;
+			spin_lock(&task->sched->lock);
 			list_add_tail(&task->list, &task->sched->suspend);
+			spin_unlock(&task->sched->lock);
 
 			next = scheduler_next_ready_task(task->sched);
 			if(next)
@@ -314,7 +322,9 @@ void task_resume(struct task_t * task)
 	{
 		task->vtime = task->sched->min_vtime;
 		task->status = TASK_STATUS_READY;
+		spin_lock(&task->sched->lock);
 		list_del(&task->list);
+		spin_unlock(&task->sched->lock);
 		scheduler_enqueue_task(task->sched, task);
 	}
 }
@@ -416,10 +426,12 @@ void do_init_sched(void)
 	{
 		sched = &__sched[i];
 
+		spin_lock_init(&sched->lock);
+		spin_lock(&sched->lock);
 		sched->ready = RB_ROOT_CACHED;
 		init_list_head(&sched->suspend);
-		spin_lock_init(&sched->lock);
 		sched->running = NULL;
 		sched->min_vtime = 0;
+		spin_unlock(&sched->lock);
 	}
 }

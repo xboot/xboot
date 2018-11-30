@@ -10,17 +10,17 @@ char * dirname(char * path)
 	if(!path || !*path)
 		return ".";
 	i = strlen(path) - 1;
-	for(; path[i]=='/'; i--)
+	for(; path[i] == '/'; i--)
 	{
 		if(!i)
 			return "/";
 	}
-	for(; path[i]!='/'; i--)
+	for(; path[i] != '/'; i--)
 	{
 		if(!i)
 			return ".";
 	}
-	for(; path[i]=='/'; i--)
+	for(; path[i] == '/'; i--)
 	{
 		if(!i)
 			return "/";

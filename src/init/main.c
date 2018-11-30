@@ -56,11 +56,13 @@ int xboot_main(int argc, char * argv[])
 	/* Do auto boot */
 	do_autoboot();
 
+#if	defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
 	/* Create shell task */
 	task = task_create(NULL, "shell", shell_task, NULL, 0, 0);
 
 	/* Resume shell task */
 	task_resume(task);
+#endif
 
 	/* Scheduler loop */
 	scheduler_loop();

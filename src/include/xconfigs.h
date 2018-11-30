@@ -45,6 +45,10 @@ extern "C" {
 #define CONFIG_EVENT_FIFO_LENGTH			(8)
 #endif
 
+#if !defined(CONFIG_SHELL_TASK)
+#define CONFIG_SHELL_TASK					(1)
+#endif
+
 #if !defined(CONFIG_AUTO_BOOT_DELAY)
 #define CONFIG_AUTO_BOOT_DELAY				(1)
 #endif

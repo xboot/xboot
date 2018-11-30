@@ -37,6 +37,7 @@ int system(const char * cmdline)
 	struct command_t * cmd;
 	char ** args;
 	char * p, * buf, * pos;
+	char fpath[MAX_PATH];
 	size_t len;
 	int n, ret;
 
@@ -58,9 +59,14 @@ int system(const char * cmdline)
 			if(n > 0)
 			{
 				if((cmd = search_command(args[0])))
+				{
 					ret = cmd->exec(n, args);
+				}
 				else
-					ret = vmexec(args[0]);
+				{
+					vfs_path_conv(args[0], fpath);
+					ret = vmexec(fpath);
+				}
 				if((ret < 0) && pos)
 				{
 			    	free(args[0]);

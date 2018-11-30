@@ -309,11 +309,14 @@ int vmexec(const char * path)
 {
 	struct task_t * task;
 
-	if(!path)
-		return -1;
-
-	task = task_create(NULL, path, vm_task, NULL, 0, 0);
-	task_resume(task);
-
-	return 0;
+	if(is_absolute_path(path))
+	{
+		task = task_create(NULL, path, vm_task, NULL, 0, 0);
+		if(task)
+		{
+			task_resume(task);
+			return 0;
+		}
+	}
+	return -1;
 }

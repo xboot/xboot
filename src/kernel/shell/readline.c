@@ -647,7 +647,10 @@ char * readline(const char * prompt)
 				break;
 			}
 		}
-		task_yield();
+		else
+		{
+			task_yield();
+		}
 	}
 
 	if(rl->len > 0)

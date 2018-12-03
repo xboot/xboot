@@ -34,11 +34,27 @@ static void usage(void)
 	printf("    ps\r\n");
 }
 
+static const char * task_status_tostring(struct task_t * task)
+{
+	switch(task->status)
+	{
+	case TASK_STATUS_RUNNING:
+		return "Running";
+	case TASK_STATUS_READY:
+		return "Ready";
+	case TASK_STATUS_SUSPEND:
+		return "Suspend";
+	default:
+		break;
+	}
+	return "";
+}
+
 static int do_ps(int argc, char ** argv)
 {
 	struct scheduler_t * sched;
 	struct task_t * pos, * n;
-	struct slist_t * sl, * entry;
+	struct slist_t * sl, * e;
 	int i;
 
 	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
@@ -49,22 +65,23 @@ static int do_ps(int argc, char ** argv)
 		pos = sched->running;
 		if(pos)
 		{
-			slist_add(sl, "%p %-8s %3d %20lld %s", pos->func, "Running", pos->nice, pos->time, pos->path ? pos->path : "");
+			slist_add(sl, pos, "%s", pos->path ? pos->path : "");
 		}
 		rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready.rb_root, node)
 		{
-			slist_add(sl, "%p %-8s %3d %20lld %s", pos->func, "Ready", pos->nice, pos->time, pos->path ? pos->path : "");
+			slist_add(sl, pos, "%s", pos->path ? pos->path : "");
 		}
 		list_for_each_entry_safe(pos, n, &sched->suspend, list)
 		{
-			slist_add(sl, "%p %-8s %3d %20lld %s", pos->func, "Suspend", pos->nice, pos->time, pos->path ? pos->path : "");
+			slist_add(sl, pos, "%s", pos->path ? pos->path : "");
 		}
 		slist_sort(sl);
 
 		printf("CPU%d:\r\n", i);
-		slist_for_each_entry(entry, sl)
+		slist_for_each_entry(e, sl)
 		{
-			printf(" %s\r\n", entry->str);
+			pos = (struct task_t *)e->priv;
+			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, task_status_tostring(pos), pos->nice, pos->time, e->key);
 		}
 		slist_free(sl);
 	}

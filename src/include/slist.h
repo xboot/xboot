@@ -11,7 +11,8 @@ extern "C" {
 
 struct slist_t {
 	struct list_head list;
-	char * str;
+	char * key;
+	void * priv;
 };
 
 #define slist_for_each_entry(entry, sl) \
@@ -19,7 +20,7 @@ struct slist_t {
 
 struct slist_t * slist_alloc(void);
 void slist_free(struct slist_t * sl);
-void slist_add(struct slist_t * sl, const char * fmt, ...);
+void slist_add(struct slist_t * sl, void * priv, const char * fmt, ...);
 void slist_sort(struct slist_t * sl);
 
 #ifdef __cplusplus

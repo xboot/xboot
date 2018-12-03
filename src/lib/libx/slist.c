@@ -126,9 +126,9 @@ static char * slist_vasprintf(const char * fmt, va_list ap)
 
 static int slist_compare(void * priv, struct list_head * a, struct list_head * b)
 {
-	char * astr = (char *)list_entry(a, struct slist_t, list)->str;
-	char * bstr = (char *)list_entry(b, struct slist_t, list)->str;
-	return strcmp(astr, bstr);
+	char * keya = (char *)list_entry(a, struct slist_t, list)->key;
+	char * keyb = (char *)list_entry(b, struct slist_t, list)->key;
+	return strcmp(keya, keyb);
 }
 
 struct slist_t * slist_alloc(void)
@@ -139,7 +139,7 @@ struct slist_t * slist_alloc(void)
 	if(!sl)
 		return NULL;
 
-	sl->str = NULL;
+	sl->key = NULL;
 	init_list_head(&sl->list);
 	return sl;
 }
@@ -152,17 +152,17 @@ void slist_free(struct slist_t * sl)
 	{
 		list_for_each_entry_safe(pos, n, &sl->list, list)
 		{
-			if(pos->str)
-				free(pos->str);
+			if(pos->key)
+				free(pos->key);
 			free(pos);
 		}
-		if(sl->str)
-			free(sl->str);
+		if(sl->key)
+			free(sl->key);
 		free(sl);
 	}
 }
 
-void slist_add(struct slist_t * sl, const char * fmt, ...)
+void slist_add(struct slist_t * sl, void * priv, const char * fmt, ...)
 {
 	struct slist_t * n;
 	va_list ap;
@@ -175,10 +175,10 @@ void slist_add(struct slist_t * sl, const char * fmt, ...)
 		return;
 
 	va_start(ap, fmt);
-	n->str = slist_vasprintf(fmt, ap);
+	n->key = slist_vasprintf(fmt, ap);
 	va_end(ap);
-
-	if(n->str)
+	n->priv = priv;
+	if(n->key)
 		list_add_tail(&n->list, &sl->list);
 	else
 		free(n);

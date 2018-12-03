@@ -115,7 +115,9 @@ int printf(const char * fmt, ...);
 int scanf(const char * fmt, ...);
 
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
+int vasprintf(char ** s, const char * fmt, va_list ap);
 int vsscanf(const char * buf, const char * fmt, va_list ap);
+int asprintf(char ** s, const char * fmt, ...);
 int sprintf(char * buf, const char * fmt, ...);
 int snprintf(char * buf, size_t n, const char * fmt, ...);
 int sscanf(const char * buf, const char * fmt, ...);

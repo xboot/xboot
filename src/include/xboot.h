@@ -36,6 +36,7 @@ extern "C" {
 #include <io.h>
 #include <bcd.h>
 #include <list.h>
+#include <slist.h>
 #include <fifo.h>
 #include <queue.h>
 #include <ssize.h>

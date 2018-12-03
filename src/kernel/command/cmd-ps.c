@@ -38,27 +38,35 @@ static int do_ps(int argc, char ** argv)
 {
 	struct scheduler_t * sched;
 	struct task_t * pos, * n;
+	struct slist_t * sl, * entry;
 	int i;
 
 	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 	{
+		sl = slist_alloc();
 		sched = &__sched[i];
-
-		printf("CPU%d:\r\n", i);
 
 		pos = sched->running;
 		if(pos)
-			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Running", pos->nice, pos->time, pos->path ? pos->path : "");
-
+		{
+			slist_add(sl, "%p %-8s %3d %20lld %s", pos->func, "Running", pos->nice, pos->time, pos->path ? pos->path : "");
+		}
 		rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready.rb_root, node)
 		{
-			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Ready", pos->nice, pos->time, pos->path ? pos->path : "");
+			slist_add(sl, "%p %-8s %3d %20lld %s", pos->func, "Ready", pos->nice, pos->time, pos->path ? pos->path : "");
 		}
-
 		list_for_each_entry_safe(pos, n, &sched->suspend, list)
 		{
-			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, "Suspend", pos->nice, pos->time, pos->path ? pos->path : "");
+			slist_add(sl, "%p %-8s %3d %20lld %s", pos->func, "Suspend", pos->nice, pos->time, pos->path ? pos->path : "");
 		}
+		slist_sort(sl);
+
+		printf("CPU%d:\r\n", i);
+		slist_for_each_entry(entry, sl)
+		{
+			printf(" %s\r\n", entry->str);
+		}
+		slist_free(sl);
 	}
 	return 0;
 }

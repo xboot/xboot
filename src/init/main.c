@@ -33,8 +33,6 @@
 
 int xboot_main(int argc, char * argv[])
 {
-	struct task_t * task;
-
 	/* Do initial memory */
 	do_init_mem();
 
@@ -58,7 +56,7 @@ int xboot_main(int argc, char * argv[])
 
 #if	defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
 	/* Create shell task */
-	task = task_create(NULL, "shell", shell_task, NULL, 0, 0);
+	struct task_t * task = task_create(NULL, "shell", shell_task, NULL, 0, 0);
 
 	/* Resume shell task */
 	task_resume(task);

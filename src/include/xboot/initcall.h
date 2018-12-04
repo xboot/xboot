@@ -8,8 +8,8 @@ extern "C" {
 typedef void (*initcall_t)(void);
 typedef void (*exitcall_t)(void);
 
-#define __init	__attribute__ ((__section__ (".init.text")))
-#define __exit	__attribute__ ((__section__ (".exit.text")))
+#define __init __attribute__ ((__section__ (".init.text")))
+#define __exit __attribute__ ((__section__ (".exit.text")))
 
 #define __define_initcall(level, fn, id) \
 	static const initcall_t __initcall_##fn##id \

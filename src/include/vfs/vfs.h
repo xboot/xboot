@@ -7,12 +7,15 @@ extern "C" {
 
 #include <types.h>
 #include <list.h>
+#include <string.h>
+#include <atomic.h>
 #include <spinlock.h>
 #include <xboot/mutex.h>
 
-#define VFS_MAX_PATH	(256)
-#define	VFS_MAX_NAME	(64)
-#define VFS_MAX_FD		(32)
+#define VFS_MAX_PATH		(256)
+#define	VFS_MAX_NAME		(64)
+#define VFS_MAX_FD			(32)
+#define VFS_NODE_HASH_SIZE	(32)
 
 struct vfs_stat_t;
 struct vfs_dirent_t;
@@ -81,6 +84,12 @@ struct vfs_node_t {
 	u32_t v_mode;
 	s64_t v_size;
 	void * v_data;
+};
+
+enum {
+	MOUNT_RDONLY	= 0x1,
+	MOUNT_RW		= 0x2,
+	MOUNT_MASK		= 0x3,
 };
 
 struct vfs_mount_t {

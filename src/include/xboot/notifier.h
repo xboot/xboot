@@ -21,7 +21,8 @@ struct notifier_chain_t {
 	struct notifier_t * head;
 };
 
-#define NOTIFIER_CHAIN_INIT()	{.lock = SPIN_LOCK_INIT(), .head = NULL}
+#define NOTIFIER_CHAIN_INIT() \
+	{.lock = SPIN_LOCK_INIT(), .head = NULL}
 
 void notifier_chain_init(struct notifier_chain_t * nc);
 bool_t notifier_chain_register(struct notifier_chain_t * nc, struct notifier_t * n);

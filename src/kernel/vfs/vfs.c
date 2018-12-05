@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <vfs/vfs.h>
 
 static struct list_head __filesystem_list = {
@@ -1612,8 +1613,10 @@ void sync(void)
 
 int remove(const char * path)
 {
+	return 0;
 }
 
 int rename(const char * old, const char * new)
 {
+	return 0;
 }

@@ -112,6 +112,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/fs/cpiofs							\
 				kernel/fs/fatfs								\
 				kernel/vfs									\
+				kernel/vfs/cpio								\
 				kernel/xfs									\
 				driver/adc									\
 				driver/audio								\

@@ -36,15 +36,8 @@ static void usage(void)
 
 static int do_pwd(int argc, char ** argv)
 {
-/*	char cwd[VFS_MAX_PATH];
-
-	if(getcwd(cwd, sizeof(cwd)))
-	{
-		printf("%s\r\n", cwd);
-		return 0;
-	}*/
-
-	return -1;
+	printf("%s\r\n", shell_getcwd());
+	return 0;
 }
 
 static struct command_t cmd_pwd = {

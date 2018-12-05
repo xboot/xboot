@@ -36,24 +36,18 @@ static void usage(void)
 
 static int do_cd(int argc, char ** argv)
 {
-/*
+	const char * path;
+
 	if(argc == 1)
-	{
-		if(chdir("/") != 0)
-		{
-			printf("cd: %s: No such file or directory\r\n", "/");
-			return -1;
-		}
-	}
+		path = "/";
 	else
+		path = argv[1];
+
+	if(shell_setcwd(path) < 0)
 	{
-		if(chdir(argv[1]) != 0)
-		{
-			printf("cd: %s: No such file or directory\r\n", argv[1]);
-			return -1;
-		}
+		printf("cd: %s: No such file or directory\r\n", path);
+		return -1;
 	}
-*/
 	return 0;
 }
 

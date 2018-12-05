@@ -1619,3 +1619,8 @@ int rename(const char * old, const char * new)
 {
 	return 0;
 }
+
+int system(const char * cmdline)
+{
+	return shell_system(cmdline);
+}

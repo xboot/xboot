@@ -37,26 +37,33 @@ static void usage(void)
 static int cat_file(const char * filename)
 {
 	struct vfs_stat_t st;
+	char fpath[VFS_MAX_PATH];
 	char * buf;
 	u64_t i, n;
 	int fd;
 
-	if(vfs_stat(filename, &st) < 0)
+	if(shell_realpath(filename, fpath) < 0)
 	{
-		printf("cat: %s: No such file or directory\r\n", filename);
+		printf("cat: %s: Can not convert to realpath\r\n", filename);
+		return -1;
+	}
+
+	if(vfs_stat(fpath, &st) < 0)
+	{
+		printf("cat: %s: No such file or directory\r\n", fpath);
 		return -1;
 	}
 
 	if(S_ISDIR(st.st_mode))
 	{
-		printf("cat: %s: Is a directory\r\n", filename);
+		printf("cat: %s: Is a directory\r\n", fpath);
 		return -1;
 	}
 
-	fd = vfs_open(filename, O_RDONLY, 0);
+	fd = vfs_open(fpath, O_RDONLY, 0);
 	if(fd < 0)
 	{
-		printf("cat: %s: Can not open\r\n", filename);
+		printf("cat: %s: Can not open\r\n", fpath);
 		return -1;
 	}
 

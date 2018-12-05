@@ -29,6 +29,35 @@
 #include <xboot.h>
 #include <shell/parser.h>
 
+enum paser_state_t {
+	PARSER_STATE_TEXT = 1,
+	PARSER_STATE_ESC,
+	PARSER_STATE_QUOTE,
+	PARSER_STATE_DQUOTE,
+	PARSER_STATE_VAR,
+	PARSER_STATE_VARNAME,
+	PARSER_STATE_VARNAME2,
+	PARSER_STATE_QVAR,
+	PARSER_STATE_QVARNAME,
+	PARSER_STATE_QVARNAME2
+};
+
+/* A single state transition. */
+struct parser_state_transition_t
+{
+	/* The state that is looked up. */
+	enum paser_state_t from_state;
+
+	/* The next state, determined by FROM_STATE and INPUT. */
+	enum paser_state_t to_state;
+
+	/* The input that will determine the next state from FROM_STATE. */
+	char input;
+
+	/* If set to 1, the input is valid and should be used. */
+	int keep_value;
+};
+
 /*
  * All the possible state transitions on the command line.  If a
  * transition can not be found, it is assumed that there is no
@@ -56,7 +85,7 @@ static struct parser_state_transition_t state_transitions[] = {
 };
 
 /*
- * determines the state following STATE, determined by C.
+ * Determines the state following STATE, determined by C.
  */
 static enum paser_state_t get_parser_state(enum paser_state_t state, char c, char * result)
 {
@@ -68,18 +97,17 @@ static enum paser_state_t get_parser_state(enum paser_state_t state, char c, cha
 	default_transition.to_state = state;
 	default_transition.keep_value = 1;
 
-	/* look for a good translation.  */
+	/* Look for a good translation.  */
 	for (transition = state_transitions; transition->from_state; transition++)
 	{
-		/* an exact match was found, use it. */
+		/* An exact match was found, use it. */
 		if (transition->from_state == state && transition->input == c)
 		{
 			found = 1;
 			break;
 		}
 
-		/* a less perfect match was found, use this one if no exact
-	 	match can be found. */
+		/* A less perfect match was found, use this one if no exact match can be found */
 		if (transition->from_state == state && transition->input == 0)
 			next_match = transition;
 	}
@@ -100,7 +128,7 @@ static enum paser_state_t get_parser_state(enum paser_state_t state, char c, cha
 }
 
 /*
- * check the the parser state, return true for var,
+ * Check the the parser state, return true for var,
  * otherwise return false
  */
 static bool_t is_varstate(enum paser_state_t s)
@@ -113,8 +141,8 @@ static bool_t is_varstate(enum paser_state_t s)
 }
 
 /*
- * parser command line.
- * the cmdline's last character must be a space for running right
+ * Parser command line.
+ * The cmdline's last character must be a space for running right
  */
 bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 {
@@ -153,8 +181,10 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 		{
 			newstate = get_parser_state(state, *rd, &c);
 
-			/* If a variable was being processed and this character does
-			not describe the variable anymore, write the variable to the buffer */
+			/*
+			 * If a variable was being processed and this character does
+			 * not describe the variable anymore, write the variable to the buffer
+			 */
 			if(is_varstate (state) && !is_varstate (newstate))
 			{
 			    *(vp++) = '\0';
@@ -176,7 +206,7 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 			{
 				if(newstate == PARSER_STATE_TEXT && state != PARSER_STATE_ESC && c == ' ')
 				{
-					/* don't add more than one argument if multiple spaces are used. */
+					/* Don't add more than one argument if multiple spaces are used. */
 					if(bp != buffer && *(bp - 1))
 					{
 						*(bp++) = '\0';
@@ -217,7 +247,7 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 	    }
 	}
 
-	/* reserve memory for the return values.  */
+	/* Reserve memory for the return values.  */
 	args = malloc(bp - buffer);
 	if(!args)
 	{
@@ -235,7 +265,7 @@ bool_t parser(const char * cmdline, int * argc, char *** argv, char ** pos)
 		return FALSE;
 	}
 
-	/* the arguments are separated with 0's, setup argv so it points to the right values.  */
+	/* The arguments are separated with 0's, setup argv so it points to the right values.  */
 	bp = args;
 	for (i = 0; i < *argc; i++)
 	{

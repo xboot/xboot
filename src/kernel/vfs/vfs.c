@@ -35,9 +35,9 @@ static struct list_head __filesystem_list = {
 };
 static spinlock_t __filesystem_lock = SPIN_LOCK_INIT();
 
-struct vfs_filesystem_t * search_filesystem(const char * name)
+struct filesystem_t * search_filesystem(const char * name)
 {
-	struct vfs_filesystem_t * pos, * n;
+	struct filesystem_t * pos, * n;
 
 	if(!name)
 		return NULL;
@@ -50,7 +50,7 @@ struct vfs_filesystem_t * search_filesystem(const char * name)
 	return NULL;
 }
 
-bool_t register_filesystem(struct vfs_filesystem_t * fs)
+bool_t register_filesystem(struct filesystem_t * fs)
 {
 	irq_flags_t flags;
 
@@ -66,7 +66,7 @@ bool_t register_filesystem(struct vfs_filesystem_t * fs)
 	return TRUE;
 }
 
-bool_t unregister_filesystem(struct vfs_filesystem_t * fs)
+bool_t unregister_filesystem(struct filesystem_t * fs)
 {
 	irq_flags_t flags;
 
@@ -546,7 +546,7 @@ static void vfs_force_unmount(struct vfs_mount_t * m)
 int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t flags)
 {
 	struct block_t * bdev;
-	struct vfs_filesystem_t * fs;
+	struct filesystem_t * fs;
 	struct vfs_mount_t * m, * tm;
 	struct vfs_node_t * n, * n_covered;
 	int err;

@@ -21,7 +21,7 @@ struct vfs_stat_t;
 struct vfs_dirent_t;
 struct vfs_node_t;
 struct vfs_mount_t;
-struct vfs_filesystem_t;
+struct filesystem_t;
 
 #define	S_IFDIR			(1 << 0)
 #define	S_IFCHR			(1 << 1)
@@ -148,7 +148,7 @@ enum {
 
 struct vfs_mount_t {
 	struct list_head m_link;
-	struct vfs_filesystem_t * m_fs;
+	struct filesystem_t * m_fs;
 	void * m_dev;
 	char m_path[VFS_MAX_PATH];
 	u32_t m_flags;
@@ -159,7 +159,7 @@ struct vfs_mount_t {
 	void * m_data;
 };
 
-struct vfs_filesystem_t {
+struct filesystem_t {
 	struct list_head list;
 	const char * name;
 
@@ -183,9 +183,9 @@ struct vfs_filesystem_t {
 	int (*chmod)(struct vfs_node_t *, u32_t);
 };
 
-struct vfs_filesystem_t * search_filesystem(const char * name);
-bool_t register_filesystem(struct vfs_filesystem_t * fs);
-bool_t unregister_filesystem(struct vfs_filesystem_t * fs);
+struct filesystem_t * search_filesystem(const char * name);
+bool_t register_filesystem(struct filesystem_t * fs);
+bool_t unregister_filesystem(struct filesystem_t * fs);
 
 int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t flags);
 int vfs_unmount(const char * path);

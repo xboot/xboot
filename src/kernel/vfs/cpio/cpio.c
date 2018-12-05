@@ -432,7 +432,7 @@ static int cpio_chmod(struct vfs_node_t * n, u32_t mode)
 	return -1;
 }
 
-static struct vfs_filesystem_t cpio = {
+static struct filesystem_t cpio = {
 	.name		= "cpio",
 
 	.mount		= cpio_mount,

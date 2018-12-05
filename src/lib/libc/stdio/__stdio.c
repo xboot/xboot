@@ -47,22 +47,22 @@ static int __tty_null_close(FILE * f)
 
 static ssize_t __file_read(FILE * f, unsigned char * buf, size_t size)
 {
-	return read(f->fd, (void *)buf, size);
+	return vfs_read(f->fd, (void *)buf, size);
 }
 
 static ssize_t __file_write(FILE * f, const unsigned char * buf, size_t size)
 {
-	return write(f->fd, (void *)buf, size);
+	return vfs_write(f->fd, (void *)buf, size);
 }
 
 static fpos_t __file_seek(FILE * f, fpos_t off, int whence)
 {
-	return lseek(f->fd, off, whence);
+	return vfs_lseek(f->fd, off, whence);
 }
 
 static int __file_close(FILE * f)
 {
-	return close(f->fd);
+	return vfs_close(f->fd);
 }
 
 /*

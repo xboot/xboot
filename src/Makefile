@@ -99,18 +99,10 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				lib/libx									\
 				init										\
 				kernel										\
+				kernel/command								\
 				kernel/core									\
 				kernel/shell								\
-				kernel/command								\
 				kernel/time									\
-				kernel/fs									\
-				kernel/fs/vfs								\
-				kernel/fs/ramfs								\
-				kernel/fs/sysfs								\
-				kernel/fs/arfs								\
-				kernel/fs/tarfs								\
-				kernel/fs/cpiofs							\
-				kernel/fs/fatfs								\
 				kernel/vfs									\
 				kernel/vfs/cpio								\
 				kernel/xfs									\

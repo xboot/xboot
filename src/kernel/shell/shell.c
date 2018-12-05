@@ -39,7 +39,7 @@ void shell_task(struct task_t * task, void * data)
 
 	while(1)
 	{
-		getcwd(cwd, sizeof(cwd));
+//		getcwd(cwd, sizeof(cwd));
 		sprintf(prompt, "xboot: %s$ ", cwd);
 		p = readline(prompt);
 		system(p);

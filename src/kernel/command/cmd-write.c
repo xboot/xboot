@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  */
-
+#if 0
 #include <command/command.h>
 
 static void usage(void)
@@ -73,3 +73,4 @@ static __exit void write_cmd_exit(void)
 
 command_initcall(write_cmd_init);
 command_exitcall(write_cmd_exit);
+#endif

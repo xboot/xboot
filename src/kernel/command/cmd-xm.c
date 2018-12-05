@@ -26,6 +26,7 @@
  *
  */
 
+#if 0
 #include <crc16.h>
 #include <command/command.h>
 
@@ -588,3 +589,4 @@ static __exit void xm_cmd_exit(void)
 
 command_initcall(xm_cmd_init);
 command_exitcall(xm_cmd_exit);
+#endif

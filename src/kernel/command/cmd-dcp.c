@@ -97,11 +97,11 @@ static int do_dcp(int argc, char ** argv)
 		}
 		itype = DEVTYPE_BLOCK;
 	}
-	else if((ifd = open(iname, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH))) > 0)
+	else if((ifd = vfs_open(iname, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH))) > 0)
 	{
-		struct stat st;
+		struct vfs_stat_t st;
 
-		fstat(ifd, &st);
+		vfs_fstat(ifd, &st);
 		l = st.st_size;
 		if(ioff >= l)
 		{
@@ -156,7 +156,7 @@ static int do_dcp(int argc, char ** argv)
 		}
 		otype = DEVTYPE_BLOCK;
 	}
-	else if((ofd = open(oname, (O_WRONLY|O_CREAT|O_TRUNC), (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH))) > 0)
+	else if((ofd = vfs_open(oname, (O_WRONLY|O_CREAT|O_TRUNC), (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH))) > 0)
 	{
 		ooff = 0;
 		otype = DEVTYPE_FILE;
@@ -183,7 +183,7 @@ static int do_dcp(int argc, char ** argv)
 			n = block_read(iblk, (u8_t *)buf, ioff + l, n);
 			break;
 		case DEVTYPE_FILE:
-			n = read(ifd, buf, n);
+			n = vfs_read(ifd, buf, n);
 			break;
 		case DEVTYPE_MEM:
 			memcpy(buf, (void *)((virtual_addr_t)(ioff + l)), n);
@@ -198,7 +198,7 @@ static int do_dcp(int argc, char ** argv)
 			block_write(oblk, (u8_t *)buf, ooff + l, n);
 			break;
 		case DEVTYPE_FILE:
-			write(ofd, buf, n);
+			vfs_write(ofd, buf, n);
 			break;
 		case DEVTYPE_MEM:
 			memcpy((void *)((virtual_addr_t)(ooff + l)), buf, n);
@@ -211,9 +211,9 @@ static int do_dcp(int argc, char ** argv)
 	}
 
 	if(itype == DEVTYPE_FILE)
-		close(ifd);
+		vfs_close(ifd);
 	if(otype == DEVTYPE_FILE)
-		close(ofd);
+		vfs_close(ofd);
 	else if(otype == DEVTYPE_BLOCK)
 		block_sync(oblk);
 	free(buf);

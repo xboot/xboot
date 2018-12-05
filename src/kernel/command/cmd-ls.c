@@ -35,7 +35,7 @@
 static s32_t position = 0;
 static const char rwx[8][4] = { "---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx" };
 
-static void print_entry(const char * name, struct stat * st, u32_t flags, u32_t width)
+static void print_entry(const char * name, struct vfs_stat_t * st, u32_t flags, u32_t width)
 {
 	u32_t len, rlen;
 	u32_t i;
@@ -96,16 +96,16 @@ static void print_entry(const char * name, struct stat * st, u32_t flags, u32_t 
 
 static void do_list(const char * path, u32_t flags, u32_t width)
 {
-	char buf[MAX_PATH];
-	struct stat st;
-	struct dirent_t * entry;
+	char buf[VFS_MAX_PATH];
+	struct vfs_stat_t st;
+	struct vfs_dirent_t * entry;
 	void * dir;
-	s32_t n_file = 0;
+	int n_file = 0;
 
 	/* initial position for print_entry */
 	position = 0;
 
-	if(stat(path, &st) != 0)
+	if(vfs_stat(path, &st) != 0)
 	{
 		printf("ls: cannot access %s: No such file or directory\r\n", path);
 		return;
@@ -113,11 +113,11 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 
 	if(S_ISDIR(st.st_mode))
 	{
-		if( (dir = opendir(path)) == NULL)
+/*		if((dir = vfs_opendir(path)) == NULL)
 	    	return;
 		for(;;)
 		{
-			if( (entry = readdir(dir)) == NULL)
+			if((entry = vfs_readdir(dir)) == NULL)
 				break;
 
 			buf[0] = 0;
@@ -146,7 +146,7 @@ static void do_list(const char * path, u32_t flags, u32_t width)
 
 			print_entry((const char *)entry->d_name, &st, flags, width);
 		}
-		closedir(dir);
+		vfs_closedir(dir);*/
 	}
 	else
 	{

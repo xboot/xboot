@@ -2,7 +2,7 @@
  * libc/stdio/fopen.c
  */
 
-#include <fs/fileio.h>
+#include <vfs/vfs.h>
 #include <stdio.h>
 
 FILE * fopen(const char * path, const char * mode)
@@ -40,18 +40,18 @@ FILE * fopen(const char * path, const char * mode)
 	if(plus)
 		flags = (flags & ~(O_RDONLY | O_WRONLY)) | O_RDWR;
 
-	fd = open(path, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	fd = vfs_open(path, flags, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
 	if(fd < 0)
 		return NULL;
 
 	f = __file_alloc(fd);
 	if(!f)
 	{
-		close(fd);
+		vfs_close(fd);
 		return NULL;
 	}
 
-	f->pos = lseek(f->fd, 0, VFS_SEEK_CUR);
+	f->pos = vfs_lseek(f->fd, 0, VFS_SEEK_CUR);
 
 	return f;
 }

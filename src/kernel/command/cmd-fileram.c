@@ -26,6 +26,7 @@
  *
  */
 
+#if 0
 #include <command/command.h>
 
 static void usage(void)
@@ -133,3 +134,4 @@ static __exit void fileram_cmd_exit(void)
 
 command_initcall(fileram_cmd_init);
 command_exitcall(fileram_cmd_exit);
+#endif

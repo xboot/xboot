@@ -346,7 +346,7 @@ void xfs_close(struct xfs_file_t * file)
 struct xfs_context_t * xfs_alloc(const char * path)
 {
 	struct xfs_context_t * ctx;
-	struct stat st;
+	struct vfs_stat_t st;
 	char userdata[256];
 	uint8_t digest[20];
 
@@ -366,8 +366,8 @@ struct xfs_context_t * xfs_alloc(const char * path)
 	sha1_hash(path, strlen(path), digest);
 	sprintf(userdata, "/private/userdata/%s-%02x%02x%02x%02x%02x%02x%02x%02x", basename(path),
 		digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7]);
-	if(stat(userdata, &st) != 0)
-		mkdir(userdata, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	if(vfs_stat(userdata, &st) != 0)
+		vfs_mkdir(userdata, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 	xfs_mount(ctx, userdata, 1);
 
 	return ctx;

@@ -63,8 +63,9 @@ extern "C" {
 #include <time/timer.h>
 #include <clockevent/clockevent.h>
 #include <clocksource/clocksource.h>
+#include <block/block.h>
+#include <vfs/vfs.h>
 #include <shell/system.h>
-#include <fs/fileio.h>
 
 #ifdef __cplusplus
 }

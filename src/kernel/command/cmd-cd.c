@@ -36,6 +36,7 @@ static void usage(void)
 
 static int do_cd(int argc, char ** argv)
 {
+/*
 	if(argc == 1)
 	{
 		if(chdir("/") != 0)
@@ -52,7 +53,7 @@ static int do_cd(int argc, char ** argv)
 			return -1;
 		}
 	}
-
+*/
 	return 0;
 }
 

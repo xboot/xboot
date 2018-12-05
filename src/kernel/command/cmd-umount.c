@@ -28,6 +28,7 @@
 
 #include <command/command.h>
 
+#if 0
 static void usage(void)
 {
 	printf("usage:\r\n");
@@ -70,3 +71,5 @@ static __exit void umount_cmd_exit(void)
 
 command_initcall(umount_cmd_init);
 command_exitcall(umount_cmd_exit);
+
+#endif

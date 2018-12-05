@@ -26,6 +26,7 @@
  *
  */
 
+#if 0
 #include <xfs/archiver.h>
 
 enum {
@@ -259,26 +260,26 @@ static void * tar_mount(const char * path, int * writable)
 {
 	struct mhandle_tar_t * m;
 	struct tar_header_t header;
-	struct stat st;
+	struct vfs_stat_t st;
 	int fd;
 
-	if((stat(path, &st) != 0) || !S_ISREG(st.st_mode))
+	if((vfs_stat(path, &st) != 0) || !S_ISREG(st.st_mode))
 		return NULL;
 
-	fd = open(path, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(path, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
 	if(fd < 0)
 		return NULL;
 
-	if((read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t)) || (strncmp((const char *)(header.magic), "ustar", 5) != 0))
+	if((vfs_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t)) || (strncmp((const char *)(header.magic), "ustar", 5) != 0))
 	{
-		close(fd);
+		vfs_close(fd);
 		return NULL;
 	}
 
 	m = alloc_mhandle(fd);
 	if(!m)
 	{
-		close(fd);
+		vfs_close(fd);
 		return NULL;
 	}
 
@@ -442,3 +443,4 @@ static __exit void archiver_tar_exit(void)
 
 core_initcall(archiver_tar_init);
 core_exitcall(archiver_tar_exit);
+#endif

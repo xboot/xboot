@@ -26,6 +26,7 @@
  *
  */
 
+#if 0
 #include <crc32.h>
 #include <shell/system.h>
 #include <command/command.h>
@@ -381,3 +382,4 @@ static __exit void xsync_cmd_exit(void)
 
 command_initcall(xsync_cmd_init);
 command_exitcall(xsync_cmd_exit);
+#endif

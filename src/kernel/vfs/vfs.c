@@ -34,7 +34,7 @@ static struct list_head __filesystem_list = {
 };
 static spinlock_t __filesystem_lock = SPIN_LOCK_INIT();
 
-static struct vfs_filesystem_t * search_filesystem(const char * name)
+struct vfs_filesystem_t * search_filesystem(const char * name)
 {
 	struct vfs_filesystem_t * pos, * n;
 
@@ -77,60 +77,6 @@ bool_t unregister_filesystem(struct vfs_filesystem_t * fs)
 	spin_unlock_irqrestore(&__filesystem_lock, flags);
 	return TRUE;
 }
-
-#define	S_IFDIR			(1 << 0)
-#define	S_IFCHR			(1 << 1)
-#define	S_IFBLK			(1 << 2)
-#define	S_IFREG			(1 << 3)
-#define	S_IFLNK			(1 << 4)
-#define	S_IFIFO			(1 << 5)
-#define	S_IFSOCK		(1 << 6)
-#define	S_IFMT			(S_IFDIR | S_IFCHR | S_IFBLK | S_IFREG | S_IFLNK | S_IFIFO | S_IFSOCK)
-
-#define S_ISDIR(m)		((m) & S_IFDIR )
-#define S_ISCHR(m)		((m) & S_IFCHR )
-#define S_ISBLK(m)		((m) & S_IFBLK )
-#define S_ISREG(m)		((m) & S_IFREG )
-#define S_ISLNK(m)		((m) & S_IFLNK )
-#define S_ISFIFO(m)		((m) & S_IFIFO )
-#define S_ISSOCK(m)		((m) & S_IFSOCK )
-
-#define S_IXUSR			(1 << 16)
-#define S_IWUSR			(1 << 17)
-#define S_IRUSR			(1 << 18)
-#define S_IRWXU			(S_IRUSR | S_IWUSR | S_IXUSR)
-
-#define S_IXGRP			(1 << 19)
-#define S_IWGRP			(1 << 20)
-#define S_IRGRP			(1 << 21)
-#define S_IRWXG			(S_IRGRP | S_IWGRP | S_IXGRP)
-
-#define S_IXOTH			(1 << 22)
-#define S_IWOTH			(1 << 23)
-#define S_IROTH			(1 << 24)
-#define S_IRWXO			(S_IROTH | S_IWOTH | S_IXOTH)
-
-#define	R_OK			(1 << 2)
-#define	W_OK			(1 << 1)
-#define	X_OK			(1 << 0)
-
-#define O_RDONLY		(1 << 0)
-#define O_WRONLY		(1 << 1)
-#define O_RDWR			(O_RDONLY | O_WRONLY)
-#define O_ACCMODE		(O_RDWR)
-
-#define O_CREAT			(1 << 8)
-#define O_EXCL			(1 << 9)
-#define O_NOCTTY		(1 << 10)
-#define O_TRUNC			(1 << 11)
-#define O_APPEND		(1 << 12)
-#define O_DSYNC			(1 << 13)
-#define O_NONBLOCK		(1 << 14)
-#define O_SYNC			(1 << 15)
-
-#define VFS_SEEK_SET	(0)
-#define VFS_SEEK_CUR	(1)
-#define VFS_SEEK_END	(2)
 
 struct vfs_file_t {
 	struct mutex_t f_lock;
@@ -210,7 +156,10 @@ static int vfs_fd_alloc(void)
 	for(i = 0; i < VFS_MAX_FD; i++)
 	{
 		if(fd_file[i].f_node == NULL)
+		{
 			fd = i;
+			break;
+		}
 	}
 	mutex_unlock(&fd_file_lock);
 
@@ -593,7 +542,7 @@ static void vfs_force_unmount(struct vfs_mount_t * m)
 	free(m);
 }
 
-int vfs_mount(const char * dir, const char * fsname, const char * dev, u32_t flags)
+int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t flags)
 {
 	struct block_t * bdev;
 	struct vfs_filesystem_t * fs;
@@ -1634,7 +1583,7 @@ int vfs_stat(const char * path, struct vfs_stat_t * st)
 	return err;
 }
 
-void __do_init_vfs(void)
+void do_init_vfs(void)
 {
 	int i;
 
@@ -1643,7 +1592,7 @@ void __do_init_vfs(void)
 
 	for(i = 0; i < VFS_MAX_FD; i++)
 	{
-		mutex_lock(&fd_file[i].f_lock);
+		mutex_init(&fd_file[i].f_lock);
 		fd_file[i].f_node = NULL;
 		fd_file[i].f_offset = 0;
 		fd_file[i].f_flags = 0;
@@ -1655,4 +1604,16 @@ void __do_init_vfs(void)
 		init_list_head(&node_list[i]);
 		mutex_init(&node_list_lock[i]);
 	}
+}
+
+void sync(void)
+{
+}
+
+int remove(const char * path)
+{
+}
+
+int rename(const char * old, const char * new)
+{
 }

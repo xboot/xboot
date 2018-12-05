@@ -36,7 +36,7 @@ static void usage(void)
 
 static s32_t build(s8_t * path)
 {
-	struct stat st;
+	struct vfs_stat_t st;
 	s8_t * p;
 
 	p = path;
@@ -50,9 +50,9 @@ static s32_t build(s8_t * path)
 		if(p[0] != '/')
 			continue;
 		*p = '\0';
-		if( stat((const char *)path, &st) != 0 )
+		if( vfs_stat((const char *)path, &st) != 0 )
 		{
-			if(mkdir((const char *)path, (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) != 0)
+			if(vfs_mkdir((const char *)path, (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) != 0)
 			{
 				return -1;
 			}
@@ -96,7 +96,7 @@ static int do_mkdir(int argc, char ** argv)
 			continue;
 		}
 
-		if(mkdir((const char*)v[i], (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) != 0)
+		if(vfs_mkdir((const char*)v[i], (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) != 0)
 		{
 			ret = -1;
 			printf("mkdir: failed to create directory %s\r\n", v[i]);

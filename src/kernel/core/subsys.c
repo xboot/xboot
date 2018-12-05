@@ -45,12 +45,12 @@ static void subsys_init_romdisk(void)
 
 static void subsys_init_rootfs(void)
 {
-	mount("romdisk.0", "/", "cpiofs", 0); chdir("/");
-	mount(NULL, "/sys", "sysfs", 0);
-	mount(NULL, "/storage" , "ramfs", 0);
-	mount(NULL, "/private" , "ramfs", 0);
-	mkdir("/private/application", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-	mkdir("/private/userdata", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	vfs_mount("romdisk.0", "/", "cpiofs", 1);// chdir("/");
+	vfs_mount(NULL, "/sys", "sysfs", 1);
+	vfs_mount(NULL, "/storage" , "ramfs", 2);
+	vfs_mount(NULL, "/private" , "ramfs", 2);
+//	mkdir("/private/application", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+//	mkdir("/private/userdata", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 static void subsys_init_dt(void)
@@ -64,16 +64,16 @@ static void subsys_init_dt(void)
 		return;
 
 	sprintf(path, "/boot/%s.json", get_machine()->name);
-	if((fd = open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH))) > 0)
+	if((fd = vfs_open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH))) >= 0)
 	{
 		for(;;)
 		{
-			n = read(fd, (void *)(json + len), SZ_512K);
+			n = vfs_read(fd, (void *)(json + len), SZ_512K);
 			if(n <= 0)
 				break;
 			len += n;
 		}
-		close(fd);
+		vfs_close(fd);
 		probe_device(json, len, path);
 	}
 	free(json);

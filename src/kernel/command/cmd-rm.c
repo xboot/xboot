@@ -38,7 +38,7 @@ static int do_rm(int argc, char ** argv)
 {
 	s32_t i;
 	s32_t ret;
-	struct stat st;
+	struct vfs_stat_t st;
 
 	if(argc < 2)
 	{
@@ -48,12 +48,12 @@ static int do_rm(int argc, char ** argv)
 
 	for(i = 1; i < argc; i++)
 	{
-	    if(stat((const char*)argv[i], &st) == 0)
+	    if(vfs_stat((const char*)argv[i], &st) == 0)
 	    {
 	        if(S_ISDIR(st.st_mode))
-	            ret = rmdir((const char*)argv[i]);
+	            ret = vfs_rmdir((const char*)argv[i]);
 	        else
-	            ret = unlink((const char*)argv[i]);
+	            ret = vfs_unlink((const char*)argv[i]);
 			if(ret != 0)
 				printf("rm: cannot remove %s: No such file or directory\r\n", argv[i]);
 	    }

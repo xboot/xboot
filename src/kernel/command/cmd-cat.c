@@ -36,12 +36,12 @@ static void usage(void)
 
 static int cat_file(const char * filename)
 {
-    struct vfs_stat_t st;
+	struct vfs_stat_t st;
 	char * buf;
-    ssize_t i, n;
-    int fd;
+	u64_t i, n;
+	int fd;
 
-	if(vfs_stat(filename, &st) != 0)
+	if(vfs_stat(filename, &st) < 0)
 	{
 		printf("cat: %s: No such file or directory\r\n", filename);
 		return -1;
@@ -53,14 +53,14 @@ static int cat_file(const char * filename)
 		return -1;
 	}
 
-	fd = vfs_open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(filename, O_RDONLY, 0);
 	if(fd < 0)
 	{
 		printf("cat: %s: Can not open\r\n", filename);
 		return -1;
 	}
 
-	buf = malloc(SZ_512K);
+	buf = malloc(SZ_64K);
 	if(!buf)
 	{
 		printf("cat: Can not alloc memory\r\n");

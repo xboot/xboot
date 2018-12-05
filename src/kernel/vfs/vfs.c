@@ -154,7 +154,7 @@ static int vfs_fd_alloc(void)
 	int i, fd = -1;
 
 	mutex_lock(&fd_file_lock);
-	for(i = 0; i < VFS_MAX_FD; i++)
+	for(i = 3; i < VFS_MAX_FD; i++)
 	{
 		if(fd_file[i].f_node == NULL)
 		{
@@ -169,7 +169,7 @@ static int vfs_fd_alloc(void)
 
 static void vfs_fd_free(int fd)
 {
-	if((-1 < fd) && (fd < VFS_MAX_FD))
+	if((fd >= 3) && (fd < VFS_MAX_FD))
 	{
 		mutex_lock(&fd_file_lock);
 		if(fd_file[fd].f_node)
@@ -186,7 +186,7 @@ static void vfs_fd_free(int fd)
 
 static struct vfs_file_t * vfs_fd_to_file(int fd)
 {
-	return ((-1 < fd) && (fd < VFS_MAX_FD)) ? &fd_file[fd] : NULL;
+	return ((fd >= 0) && (fd < VFS_MAX_FD)) ? &fd_file[fd] : NULL;
 }
 
 static u32_t vfs_node_hash(struct vfs_mount_t * m, const char * path)
@@ -1577,7 +1577,6 @@ int vfs_stat(const char * path, struct vfs_stat_t * st)
 
 	if((err = vfs_node_acquire(path, &n)))
 		return err;
-
 	err = vfs_node_stat(n, st);
 	vfs_node_release(n);
 

@@ -45,10 +45,10 @@ static void subsys_init_romdisk(void)
 
 static void subsys_init_rootfs(void)
 {
-	vfs_mount("romdisk.0", "/", "cpiofs", 1);// chdir("/");
-	vfs_mount(NULL, "/sys", "sysfs", 1);
-	vfs_mount(NULL, "/storage" , "ramfs", 2);
-	vfs_mount(NULL, "/private" , "ramfs", 2);
+	vfs_mount("romdisk.0", "/", "cpio", 1);// chdir("/");
+	vfs_mount(NULL, "/sys", "sys", 1);
+	vfs_mount(NULL, "/storage" , "ram", 2);
+	vfs_mount(NULL, "/private" , "ram", 2);
 //	mkdir("/private/application", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 //	mkdir("/private/userdata", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }

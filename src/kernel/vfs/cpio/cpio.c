@@ -1,5 +1,5 @@
 /*
- * kernel/vfs/cpio/cpiofs.c
+ * kernel/vfs/cpio/cpio.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -116,7 +116,7 @@ static bool_t check_path(const char * path, const char * prefix, const char * na
 	return TRUE;
 }
 
-static int cpiofs_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
+static int cpio_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 {
 	struct cpio_newc_header_t header;
 	u64_t read_count;
@@ -141,28 +141,28 @@ static int cpiofs_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 	return 0;
 }
 
-static int cpiofs_unmount(struct vfs_mount_t * m)
+static int cpio_unmount(struct vfs_mount_t * m)
 {
 	m->m_data = NULL;
 	return 0;
 }
 
-static int cpiofs_msync(struct vfs_mount_t * m)
+static int cpio_msync(struct vfs_mount_t * m)
 {
 	return 0;
 }
 
-static int cpiofs_vget(struct vfs_mount_t * m, struct vfs_node_t * n)
+static int cpio_vget(struct vfs_mount_t * m, struct vfs_node_t * n)
 {
 	return 0;
 }
 
-static int cpiofs_vput(struct vfs_mount_t * m, struct vfs_node_t * n)
+static int cpio_vput(struct vfs_mount_t * m, struct vfs_node_t * n)
 {
 	return 0;
 }
 
-static u64_t cpiofs_read(struct vfs_node_t * n, s64_t off, void * buf, u64_t len)
+static u64_t cpio_read(struct vfs_node_t * n, s64_t off, void * buf, u64_t len)
 {
 	u64_t toff;
 	u64_t sz = 0;
@@ -183,22 +183,22 @@ static u64_t cpiofs_read(struct vfs_node_t * n, s64_t off, void * buf, u64_t len
 	return sz;
 }
 
-static u64_t cpiofs_write(struct vfs_node_t * n, s64_t off, void * buf, u64_t len)
+static u64_t cpio_write(struct vfs_node_t * n, s64_t off, void * buf, u64_t len)
 {
 	return 0;
 }
 
-static int cpiofs_truncate(struct vfs_node_t * n, s64_t off)
+static int cpio_truncate(struct vfs_node_t * n, s64_t off)
 {
 	return -1;
 }
 
-static int cpiofs_sync(struct vfs_node_t * n)
+static int cpio_sync(struct vfs_node_t * n)
 {
 	return 0;
 }
 
-static int cpiofs_readdir(struct vfs_node_t * dn, s64_t off, struct vfs_dirent_t * d)
+static int cpio_readdir(struct vfs_node_t * dn, s64_t off, struct vfs_dirent_t * d)
 {
 	struct cpio_newc_header_t header;
 	char path[VFS_MAX_PATH];
@@ -293,7 +293,7 @@ static int cpiofs_readdir(struct vfs_node_t * dn, s64_t off, struct vfs_dirent_t
 	return 0;
 }
 
-static int cpiofs_lookup(struct vfs_node_t * dn, const char * name, struct vfs_node_t * n)
+static int cpio_lookup(struct vfs_node_t * dn, const char * name, struct vfs_node_t * n)
 {
 	struct cpio_newc_header_t header;
 	char path[VFS_MAX_PATH];
@@ -402,68 +402,68 @@ static int cpiofs_lookup(struct vfs_node_t * dn, const char * name, struct vfs_n
 	return 0;
 }
 
-static int cpiofs_create(struct vfs_node_t * dn, const char * filename, u32_t mode)
+static int cpio_create(struct vfs_node_t * dn, const char * filename, u32_t mode)
 {
 	return -1;
 }
 
-static int cpiofs_remove(struct vfs_node_t * dn, struct vfs_node_t * n, const char *name)
+static int cpio_remove(struct vfs_node_t * dn, struct vfs_node_t * n, const char *name)
 {
 	return -1;
 }
 
-static int cpiofs_rename(struct vfs_node_t * sn, const char * sname, struct vfs_node_t * n, struct vfs_node_t * dn, const char * dname)
+static int cpio_rename(struct vfs_node_t * sn, const char * sname, struct vfs_node_t * n, struct vfs_node_t * dn, const char * dname)
 {
 	return -1;
 }
 
-static int cpiofs_mkdir(struct vfs_node_t * dn, const char * name, u32_t mode)
+static int cpio_mkdir(struct vfs_node_t * dn, const char * name, u32_t mode)
 {
 	return -1;
 }
 
-static int cpiofs_rmdir(struct vfs_node_t * dn, struct vfs_node_t * n, const char *name)
+static int cpio_rmdir(struct vfs_node_t * dn, struct vfs_node_t * n, const char *name)
 {
 	return -1;
 }
 
-static int cpiofs_chmod(struct vfs_node_t * n, u32_t mode)
+static int cpio_chmod(struct vfs_node_t * n, u32_t mode)
 {
 	return -1;
 }
 
-static struct vfs_filesystem_t cpiofs = {
-	.name		= "cpiofs",
+static struct vfs_filesystem_t cpio = {
+	.name		= "cpio",
 
-	.mount		= cpiofs_mount,
-	.unmount	= cpiofs_unmount,
-	.msync		= cpiofs_msync,
-	.vget		= cpiofs_vget,
-	.vput		= cpiofs_vput,
+	.mount		= cpio_mount,
+	.unmount	= cpio_unmount,
+	.msync		= cpio_msync,
+	.vget		= cpio_vget,
+	.vput		= cpio_vput,
 
-	.read		= cpiofs_read,
-	.write		= cpiofs_write,
-	.truncate	= cpiofs_truncate,
-	.sync		= cpiofs_sync,
-	.readdir	= cpiofs_readdir,
-	.lookup		= cpiofs_lookup,
-	.create		= cpiofs_create,
-	.remove		= cpiofs_remove,
-	.rename		= cpiofs_rename,
-	.mkdir		= cpiofs_mkdir,
-	.rmdir		= cpiofs_rmdir,
-	.chmod		= cpiofs_chmod,
+	.read		= cpio_read,
+	.write		= cpio_write,
+	.truncate	= cpio_truncate,
+	.sync		= cpio_sync,
+	.readdir	= cpio_readdir,
+	.lookup		= cpio_lookup,
+	.create		= cpio_create,
+	.remove		= cpio_remove,
+	.rename		= cpio_rename,
+	.mkdir		= cpio_mkdir,
+	.rmdir		= cpio_rmdir,
+	.chmod		= cpio_chmod,
 };
 
-static __init void filesystem_cpiofs_init(void)
+static __init void filesystem_cpio_init(void)
 {
-	register_filesystem(&cpiofs);
+	register_filesystem(&cpio);
 }
 
-static __exit void filesystem_cpiofs_exit(void)
+static __exit void filesystem_cpio_exit(void)
 {
-	unregister_filesystem(&cpiofs);
+	unregister_filesystem(&cpio);
 }
 
-core_initcall(filesystem_cpiofs_init);
-core_exitcall(filesystem_cpiofs_exit);
+core_initcall(filesystem_cpio_init);
+core_exitcall(filesystem_cpio_exit);

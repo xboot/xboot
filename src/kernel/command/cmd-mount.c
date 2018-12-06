@@ -40,7 +40,7 @@ static int do_mount(int argc, char ** argv)
 	char * fstype = NULL;
 	char * dev = NULL;
 	char * dir = NULL;
-	u32_t mflag = 0;
+	u32_t mflag;
 	int ro = 0;
 	int i, index = 0;
 	int fd;
@@ -119,7 +119,9 @@ static int do_mount(int argc, char ** argv)
 	}
 
 	if(ro)
-		mflag |= MOUNT_RDONLY;
+		mflag = MOUNT_RDONLY;
+	else
+		mflag = MOUNT_RW;
 
 	if(vfs_mount(dev, fpath, fstype, (mflag & MOUNT_MASK)) != 0)
 	{

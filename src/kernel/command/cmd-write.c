@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  */
-#if 0
+
 #include <command/command.h>
 
 static void usage(void)
@@ -36,22 +36,34 @@ static void usage(void)
 
 static int do_write(int argc, char ** argv)
 {
-	int fd;
-	ssize_t ret;
+	char fpath[VFS_MAX_PATH];
+	u64_t ret;
+	int len, fd;
 
 	if(argc != 3)
 	{
 		usage();
 		return -1;
 	}
+	if(!argv[1] || (len = strlen(argv[1])) <= 0)
+	{
+		usage();
+		return -1;
+	}
+	if(shell_realpath(argv[2], fpath) < 0)
+	{
+		usage();
+		return -1;
+	}
 
-	fd = open(argv[2], O_WRONLY | O_CREAT, (S_IRUSR|S_IWUSR));
+	fd = vfs_open(fpath, O_WRONLY | O_CREAT, 0400);
 	if(fd < 0)
 		return -1;
 
-	ret = write(fd, argv[1], strlen(argv[1]));
-	close(fd);
-	return ret < 0 ? -1 : 0;
+	ret = vfs_write(fd, argv[1], len);
+	vfs_close(fd);
+
+	return ret <= 0 ? -1 : 0;
 }
 
 static struct command_t cmd_write = {
@@ -73,4 +85,3 @@ static __exit void write_cmd_exit(void)
 
 command_initcall(write_cmd_init);
 command_exitcall(write_cmd_exit);
-#endif

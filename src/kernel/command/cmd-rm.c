@@ -36,9 +36,10 @@ static void usage(void)
 
 static int do_rm(int argc, char ** argv)
 {
-	s32_t i;
-	s32_t ret;
 	struct vfs_stat_t st;
+	char fpath[VFS_MAX_PATH];
+	int ret;
+	int i;
 
 	if(argc < 2)
 	{
@@ -48,17 +49,21 @@ static int do_rm(int argc, char ** argv)
 
 	for(i = 1; i < argc; i++)
 	{
-	    if(vfs_stat((const char*)argv[i], &st) == 0)
+		if(shell_realpath(argv[i], fpath) < 0)
+			continue;
+	    if(vfs_stat(fpath, &st) >= 0)
 	    {
 	        if(S_ISDIR(st.st_mode))
-	            ret = vfs_rmdir((const char*)argv[i]);
+	            ret = vfs_rmdir(fpath);
 	        else
-	            ret = vfs_unlink((const char*)argv[i]);
+	            ret = vfs_unlink(fpath);
 			if(ret != 0)
-				printf("rm: cannot remove %s: No such file or directory\r\n", argv[i]);
+				printf("rm: cannot remove %s: No such file or directory\r\n", fpath);
 	    }
 	    else
-	    	printf("rm: cannot stat file or directory %s\r\n", argv[i]);
+	    {
+	    	printf("rm: cannot stat file or directory %s\r\n", fpath);
+	    }
 	}
 
 	return 0;

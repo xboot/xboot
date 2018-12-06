@@ -39,10 +39,10 @@ static int do_mv(int argc, char ** argv)
 	char path[VFS_MAX_PATH];
 	char * src, * dest, * p;
 	struct vfs_stat_t st1, st2;
-	s32_t rc;
+	int rc;
 
-	src = (char *)argv[1];
-	dest = (char *)argv[2];
+	src = argv[1];
+	dest = argv[2];
 
 	if(argc != 3)
 	{
@@ -50,8 +50,7 @@ static int do_mv(int argc, char ** argv)
 		return -1;
 	}
 
-	/* check if source exists and it's regular file. */
-	if(vfs_stat((const char *)src, &st1) != 0)
+	if(vfs_stat(src, &st1) != 0)
 	{
 		printf("mv: cannot access %s: No such file or directory\r\n", src);
 		return -1;
@@ -63,8 +62,7 @@ static int do_mv(int argc, char ** argv)
 		return -1;
 	}
 
-	/* check if target is a directory. */
-	rc = vfs_stat((const char *)dest, &st2);
+	rc = vfs_stat(dest, &st2);
 	if(!rc && S_ISDIR(st2.st_mode))
 	{
 		p = strrchr(src, '/');
@@ -76,7 +74,7 @@ static int do_mv(int argc, char ** argv)
 		dest = path;
 	}
 
-    if(vfs_rename((char *)src, (char *)dest) != 0)
+    if(vfs_rename(src, dest) != 0)
     {
     	printf("mv: failed to move file %s to %s\r\n", src, dest);
     	return -1;

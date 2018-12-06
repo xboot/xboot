@@ -26,9 +26,7 @@
  *
  */
 
-#if 0
 #include <crc32.h>
-#include <shell/system.h>
 #include <command/command.h>
 
 #define PACKET_DATA_MAX		(1024)
@@ -239,10 +237,11 @@ static int xsync_get(struct xsync_ctx_t * ctx, uint8_t c)
 
 static uint8_t xsync_handle_start(struct xsync_ctx_t * ctx)
 {
+	char fpath[VFS_MAX_PATH];
 	char path[PACKET_DATA_MAX];
 	char buf[PACKET_DATA_MAX];
 	uint32_t crc1, crc2 = 0;
-	ssize_t n;
+	u64_t n;
 
 	crc1  = (ctx->packet.data[0] << 24) & 0xff000000;
 	crc1 |= (ctx->packet.data[1] << 16) & 0x00ff0000;
@@ -251,21 +250,22 @@ static uint8_t xsync_handle_start(struct xsync_ctx_t * ctx)
 	memset(path, 0, sizeof(path));
 	memcpy(path, &ctx->packet.data[4], packet_dsize(&ctx->packet) - 4);
 
-	ctx->fd = open(path, O_RDONLY, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	shell_realpath(path, fpath);
+	ctx->fd = vfs_open(fpath, O_RDONLY, 0);
 	if(ctx->fd > 0)
 	{
-		while((n = read(ctx->fd, buf, sizeof(buf))) > 0)
+		while((n = vfs_read(ctx->fd, buf, sizeof(buf))) > 0)
 		{
 			crc2 = crc32_sum(crc2, (const uint8_t *)buf, n);
 		}
-		close(ctx->fd);
+		vfs_close(ctx->fd);
 		ctx->fd = -1;
 
 		if((crc1 == crc2) && (crc2 != 0))
 			return 1;
 	}
 
-	ctx->fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	ctx->fd = vfs_open(fpath, O_WRONLY | O_CREAT | O_TRUNC, 0755);
 	if(ctx->fd < 0)
 		return 0;
 	return 2;
@@ -289,14 +289,14 @@ static void xsync_handle(struct xsync_ctx_t * ctx)
 		break;
 
 	case XSYNC_COMMAND_TRANSFER:
-		write(ctx->fd, (void *)ctx->packet.data, packet_dsize(&ctx->packet));
+		vfs_write(ctx->fd, (void *)ctx->packet.data, packet_dsize(&ctx->packet));
 		xsync_put(XSYNC_COMMAND_TRANSFER, 0, 0);
 		break;
 
 	case XSYNC_COMMAND_STOP:
 		if(ctx->fd > 0)
 		{
-			close(ctx->fd);
+			vfs_close(ctx->fd);
 			ctx->fd = -1;
 		}
 		xsync_put(XSYNC_COMMAND_STOP, 0, 0);
@@ -307,12 +307,12 @@ static void xsync_handle(struct xsync_ctx_t * ctx)
 		ctx->quit = 1;
 		if(ctx->fd > 0)
 		{
-			close(ctx->fd);
+			vfs_close(ctx->fd);
 			ctx->fd = -1;
 		}
 		memset(buf, 0, sizeof(buf));
 		memcpy(buf, &ctx->packet.data[0], packet_dsize(&ctx->packet));
-		system((const char *)buf);
+		shell_system((const char *)buf);
 		break;
 
 	default:
@@ -347,7 +347,7 @@ static int do_xsync(int argc, char ** argv)
 				ctx.quit = 1;
 				if(ctx.fd > 0)
 				{
-					close(ctx.fd);
+					vfs_close(ctx.fd);
 					ctx.fd = -1;
 				}
 			}
@@ -382,4 +382,3 @@ static __exit void xsync_cmd_exit(void)
 
 command_initcall(xsync_cmd_init);
 command_exitcall(xsync_cmd_exit);
-#endif

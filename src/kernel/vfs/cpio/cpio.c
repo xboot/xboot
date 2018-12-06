@@ -211,7 +211,7 @@ static int cpio_readdir(struct vfs_node_t * dn, s64_t off, struct vfs_dirent_t *
 	while(1)
 	{
 		rd = block_read(dn->v_mount->m_dev, (u8_t *)&header, toff, sizeof(struct cpio_newc_header_t));
-		if(!rd)
+		if(rd != sizeof(struct cpio_newc_header_t))
 			return -1;
 
 		if(strncmp((const char *)&header.c_magic, "070701", 6) != 0)
@@ -285,8 +285,7 @@ static int cpio_readdir(struct vfs_node_t * dn, s64_t off, struct vfs_dirent_t *
 		d->d_type = VDT_REG;
 	}
 
-	strncpy(d->d_name, name, VFS_MAX_NAME - 1);
-	d->d_name[VFS_MAX_NAME - 1] = '\0';
+	strlcpy(d->d_name, name, sizeof(d->d_name));
 	d->d_off = off;
 	d->d_reclen = 1;
 
@@ -304,7 +303,7 @@ static int cpio_lookup(struct vfs_node_t * dn, const char * name, struct vfs_nod
 	while(1)
 	{
 		rd = block_read(dn->v_mount->m_dev, (u8_t *)&header, off, sizeof(struct cpio_newc_header_t));
-		if(!rd)
+		if(rd != sizeof(struct cpio_newc_header_t))
 			return -1;
 
 		if(strncmp((const char *)header.c_magic, "070701", 6) != 0)

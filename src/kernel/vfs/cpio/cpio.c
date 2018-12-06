@@ -119,7 +119,7 @@ static bool_t check_path(const char * path, const char * prefix, const char * na
 static int cpio_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 {
 	struct cpio_newc_header_t header;
-	u64_t read_count;
+	u64_t rd;
 
 	if(dev == NULL)
 		return -1;
@@ -127,8 +127,8 @@ static int cpio_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 	if(block_capacity(m->m_dev) <= sizeof(struct cpio_newc_header_t))
 		return -1;
 
-	read_count = block_read(m->m_dev, (u8_t *)(&header), 0, sizeof(struct cpio_newc_header_t));
-	if(read_count != sizeof(struct cpio_newc_header_t))
+	rd = block_read(m->m_dev, (u8_t *)(&header), 0, sizeof(struct cpio_newc_header_t));
+	if(rd != sizeof(struct cpio_newc_header_t))
 		return -1;
 
 	if(strncmp((const char *)header.c_magic, "070701", 6) != 0)

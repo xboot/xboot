@@ -45,30 +45,38 @@ static void subsys_init_romdisk(void)
 
 static void subsys_init_rootfs(void)
 {
-	vfs_mount("romdisk.0", "/", "cpio", 1);// chdir("/");
-	vfs_mount(NULL, "/sys", "sys", 1);
-	vfs_mount(NULL, "/storage" , "ram", 2);
-	vfs_mount(NULL, "/private" , "ram", 2);
-//	mkdir("/private/application", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-//	mkdir("/private/userdata", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	vfs_mount("romdisk.0", "/", "cpio", MOUNT_RDONLY);
+	vfs_mount(NULL, "/sys", "sys", MOUNT_RDONLY);
+	vfs_mount(NULL, "/storage" , "ram", MOUNT_RW);
+	vfs_mount(NULL, "/private" , "ram", MOUNT_RW);
+	vfs_mkdir("/private/application", 0755);
+	vfs_mkdir("/private/userdata", 0755);
 }
 
 static void subsys_init_dt(void)
 {
-	char path[64];
+	struct vfs_stat_t st;
+	char path[VFS_MAX_PATH];
 	char * json;
 	int fd, n, len = 0;
 
-	json = malloc(SZ_1M);
+	sprintf(path, "/boot/%s.json", get_machine()->name);
+	if(vfs_stat(path, &st) < 0)
+		return;
+	if(!S_ISREG(st.st_mode))
+		return;
+	if(st.st_size <= 0)
+		return;
+
+	json = malloc(st.st_size + 1);
 	if(!json)
 		return;
 
-	sprintf(path, "/boot/%s.json", get_machine()->name);
-	if((fd = vfs_open(path, O_RDONLY, (S_IRUSR | S_IRGRP | S_IROTH))) >= 0)
+	if((fd = vfs_open(path, O_RDONLY, 0)) >= 0)
 	{
 		for(;;)
 		{
-			n = vfs_read(fd, (void *)(json + len), SZ_512K);
+			n = vfs_read(fd, (void *)(json + len), SZ_64K);
 			if(n <= 0)
 				break;
 			len += n;

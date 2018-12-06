@@ -49,6 +49,8 @@ static int do_dcp(int argc, char ** argv)
 	enum devtype_t itype, otype;
 	struct block_t * iblk = NULL, * oblk = NULL;
 	int ifd, ofd;
+	char ipath[VFS_MAX_PATH];
+	char opath[VFS_MAX_PATH];
 	char * iname, * oname;
 	u64_t ioff, isize;
 	u64_t ooff, osize;
@@ -84,20 +86,20 @@ static int do_dcp(int argc, char ** argv)
 		l = block_capacity(iblk);
 		if(ioff >= l)
 		{
-			printf("offset too large of input device '%s'\r\n", iname);
+			printf("Offset too large of input device '%s'\r\n", iname);
 			free(buf);
 			return -1;
 		}
 		isize = isize < (l - ioff) ? isize : (l - ioff);
 		if(isize <= 0)
 		{
-			printf("don't need to copy of input device '%s'\r\n", iname);
+			printf("Don't need to copy of input device '%s'\r\n", iname);
 			free(buf);
 			return -1;
 		}
 		itype = DEVTYPE_BLOCK;
 	}
-	else if((ifd = vfs_open(iname, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH))) > 0)
+	else if(((shell_realpath(iname, ipath)) >= 0) && ((ifd = vfs_open(ipath, O_RDONLY, 0)) > 0))
 	{
 		struct vfs_stat_t st;
 
@@ -105,14 +107,14 @@ static int do_dcp(int argc, char ** argv)
 		l = st.st_size;
 		if(ioff >= l)
 		{
-			printf("offset too large of input file '%s'\r\n", iname);
+			printf("Offset too large of input file '%s'\r\n", iname);
 			free(buf);
 			return -1;
 		}
 		isize = isize < (l - ioff) ? isize : (l - ioff);
 		if(isize <= 0)
 		{
-			printf("don't need to copy of input file '%s'\r\n", iname);
+			printf("Don't need to copy of input file '%s'\r\n", iname);
 			free(buf);
 			return -1;
 		}
@@ -120,7 +122,7 @@ static int do_dcp(int argc, char ** argv)
 	}
 	else
 	{
-		printf("can't find any input device '%s'\r\n", iname);
+		printf("Can't find any input device '%s'\r\n", iname);
 		free(buf);
 		return -1;
 	}
@@ -143,27 +145,27 @@ static int do_dcp(int argc, char ** argv)
 		l = block_capacity(oblk);
 		if(ooff >= l)
 		{
-			printf("offset too large of output device '%s'\r\n", oname);
+			printf("Offset too large of output device '%s'\r\n", oname);
 			free(buf);
 			return -1;
 		}
 		osize = osize < (l - ooff) ? osize : (l - ooff);
 		if(osize <= 0)
 		{
-			printf("don't need copy to output device '%s'\r\n", oname);
+			printf("Don't need copy to output device '%s'\r\n", oname);
 			free(buf);
 			return -1;
 		}
 		otype = DEVTYPE_BLOCK;
 	}
-	else if((ofd = vfs_open(oname, (O_WRONLY|O_CREAT|O_TRUNC), (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH))) > 0)
+	else if(((shell_realpath(oname, opath)) >= 0) && ((ofd = vfs_open(opath, (O_WRONLY | O_CREAT | O_TRUNC), 0644)) > 0))
 	{
 		ooff = 0;
 		otype = DEVTYPE_FILE;
 	}
 	else
 	{
-		printf("can't find any output device '%s'\r\n", oname);
+		printf("Can't find any output device '%s'\r\n", oname);
 		free(buf);
 		return -1;
 	}

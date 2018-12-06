@@ -13,7 +13,7 @@ char * tmpnam(char * buf)
 
 	do {
 		sprintf(path, "%s/tmpnam_%d", "/tmp", rand());
-	} while(vfs_stat(path, &st) == 0);
+	} while(vfs_stat(path, &st) < 0);
 
 	return strcpy(buf ? buf : internal, path);
 }

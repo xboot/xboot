@@ -798,7 +798,7 @@ void laserscan_load_ilda(struct laserscan_t * l, const char * file)
 	ctx.state = ILDA_STATE_MAGIC;
 	ctx.index = 0;
 
-	fd = vfs_open(file, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(file, O_RDONLY, 0);
 	if(fd < 0)
 		return;
 

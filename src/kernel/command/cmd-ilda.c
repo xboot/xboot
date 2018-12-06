@@ -14,6 +14,7 @@ static void usage(void)
 static int do_ilda(int argc, char ** argv)
 {
 	struct laserscan_t * l = search_first_laserscan();
+	char fpath[VFS_MAX_PATH];
 	int count = 1;
 	int i;
 
@@ -27,7 +28,8 @@ static int do_ilda(int argc, char ** argv)
 
 	for(i = 0; i < count; i++)
 	{
-		laserscan_load_ilda(l, argv[1]);
+		shell_realpath(argv[1], fpath);
+		laserscan_load_ilda(l, fpath);
 	}
 	return 0;
 }

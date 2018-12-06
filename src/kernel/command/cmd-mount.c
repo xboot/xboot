@@ -27,9 +27,6 @@
  */
 
 #include <command/command.h>
-#undef MOUNT_RDONLY
-#undef MOUNT_MASK
-#include <vfs/vfs.h>
 
 static void usage(void)
 {
@@ -39,11 +36,12 @@ static void usage(void)
 
 static int do_mount(int argc, char ** argv)
 {
-	u32_t mflag = 0;
-	bool_t ro = FALSE;
+	char fpath[VFS_MAX_PATH];
 	char * fstype = NULL;
 	char * dev = NULL;
 	char * dir = NULL;
+	u32_t mflag = 0;
+	int ro = 0;
 	int i, index = 0;
 	int fd;
 
@@ -63,9 +61,9 @@ static int do_mount(int argc, char ** argv)
 		else if(!strcmp(argv[i], "-o") && (argc > i + 1))
 		{
 			if(!strcmp(argv[i+1], "ro"))
-				ro = TRUE;
+				ro = 1;
 			else if(!strcmp(argv[i + 1], "rw"))
-				ro = FALSE;
+				ro = 0;
 			else
 			{
 				printf("Unrecognized option '%s'\r\n", argv[i + 1]);
@@ -100,12 +98,18 @@ static int do_mount(int argc, char ** argv)
 		return -1;
 	}
 
-	if(strcmp(dir, "/") != 0)
+	if(shell_realpath(dir, fpath) < 0)
 	{
-		fd = vfs_opendir(dir);
+		printf("Can not convert '%s' to realpath\r\n", dir);
+		return -1;
+	}
+
+	if(strcmp(fpath, "/") != 0)
+	{
+		fd = vfs_opendir(fpath);
 		if(fd < 0)
 		{
-			printf("Not found directory '%s'\r\n", dir);
+			printf("Not found directory '%s'\r\n", fpath);
 			return -1;
 		}
 		else
@@ -117,7 +121,7 @@ static int do_mount(int argc, char ** argv)
 	if(ro)
 		mflag |= MOUNT_RDONLY;
 
-	if(vfs_mount(dev, dir, fstype, (mflag & MOUNT_MASK)) != 0)
+	if(vfs_mount(dev, fpath, fstype, (mflag & MOUNT_MASK)) != 0)
 	{
 		printf("Fail to mount '%s' filesystem on special device '%s'\r\n", fstype, dev ? dev : "none");
 		return -1;

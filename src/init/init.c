@@ -28,8 +28,6 @@
 
 #include <xboot.h>
 #include <cairo-xboot.h>
-#include <shell/system.h>
-#include <console/console.h>
 #include <framebuffer/framebuffer.h>
 #include <init.h>
 
@@ -90,6 +88,6 @@ static void __do_autoboot(void)
 		printf("\rPress any key to stop autoboot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	} while(delay > 0);
 
-	system(CONFIG_AUTO_BOOT_COMMAND);
+	shell_system(CONFIG_AUTO_BOOT_COMMAND);
 }
 extern __typeof(__do_autoboot) do_autoboot __attribute__((weak, alias("__do_autoboot")));

@@ -33,7 +33,7 @@
 #include <shell/parser.h>
 #include <shell/shell.h>
 
-static char shell_cwd[VFS_MAX_PATH] = "/";
+static char shell_cwd[VFS_MAX_PATH] = { '/', '\0', };
 static int shell_cwd_fd = -1;
 static spinlock_t shell_cwd_lock = SPIN_LOCK_INIT();
 

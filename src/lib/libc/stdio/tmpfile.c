@@ -12,7 +12,7 @@ FILE * tmpfile(void)
 
 	do {
 		sprintf(path, "%s/tmpfile_%d", "/tmp", rand());
-	} while(vfs_stat(path, &st) == 0);
+	} while(vfs_stat(path, &st) < 0);
 
 	return fopen(path, "wb+");
 }

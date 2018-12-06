@@ -28,138 +28,113 @@
 
 #include <command/command.h>
 
-/* list flags */
-#define LSFLAG_DOT				(0x01)		/* list files beginning with "." */
-#define LSFLAG_LONG				(0x02)		/* long format */
-
-static s32_t position = 0;
+enum {
+	LSFLAG_DOT	= (1 << 0),
+	LSFLAG_LONG	= (1 << 1),
+};
 static const char rwx[8][4] = { "---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx" };
 
-static void print_entry(const char * name, struct vfs_stat_t * st, u32_t flags, u32_t width)
+static void ls(const char * path, int flag)
 {
-	u32_t len, rlen;
-	u32_t i;
-
-	if(name[0] == '.')
-	{
-		if((flags & LSFLAG_DOT) == 0)
-			return;
-	}
-
-	if(flags & LSFLAG_LONG)
-	{
-	    if(S_ISDIR(st->st_mode))
-	    	printf("d");
-	    if(S_ISCHR(st->st_mode))
-	    	printf("c");
-	    if(S_ISBLK(st->st_mode))
-	    	printf("b");
-	    if(S_ISREG(st->st_mode))
-	    	printf("-");
-	    if(S_ISLNK(st->st_mode))
-	    	printf("l");
-	    if(S_ISFIFO(st->st_mode))
-	    	printf("p");
-	    if(S_ISSOCK(st->st_mode))
-	    	printf("s");
-
-	    printf("%s%s%s", rwx[(st->st_mode & S_IRWXU) >> 16], rwx[(st->st_mode & S_IRWXG) >> 19], rwx[(st->st_mode & S_IRWXO) >> 22]);
-
-		if((st->st_uid == 0) && (st->st_gid == 0))
-			printf(" %s %s", "root", "root");
-		else
-			printf(" %4d %4d", st->st_uid, st->st_gid);
-
-		printf(" %8ld", (s32_t)st->st_size);
-
-		printf(" %s\r\n", name);
-	}
-	else
-	{
-		len = strlen(name);
-		rlen = ((u32_t)(len + 12) / 12) * 12;
-
-		if(position + rlen >= width)
-		{
-			printf("\r\n");
-			position = 0;
-		}
-
-		printf("%s", name);
-		for(i=len; i < rlen; i++)
-		{
-			printf(" ");
-		}
-		position += rlen;
-	}
-}
-
-static void do_list(const char * path, u32_t flags, u32_t width)
-{
-	char buf[VFS_MAX_PATH];
 	struct vfs_stat_t st;
-	struct vfs_dirent_t * entry;
-	void * dir;
-	int n_file = 0;
+	struct vfs_dirent_t dir;
+	struct slist_t * sl, * e;
+	char buf[VFS_MAX_PATH];
+	int isdir;
+	int fd;
 
-	/* initial position for print_entry */
-	position = 0;
-
-	if(vfs_stat(path, &st) != 0)
+	if(vfs_stat(path, &st) < 0)
 	{
 		printf("ls: cannot access %s: No such file or directory\r\n", path);
 		return;
 	}
 
+	sl = slist_alloc();
 	if(S_ISDIR(st.st_mode))
 	{
-/*		if((dir = vfs_opendir(path)) == NULL)
-	    	return;
-		for(;;)
+		if((fd = vfs_opendir(path)) >= 0)
 		{
-			if((entry = vfs_readdir(dir)) == NULL)
-				break;
-
-			buf[0] = 0;
-			strlcpy(buf, path, sizeof(buf));
-			buf[sizeof(buf) - 1] = '\0';
-
-			if(!strcmp(entry->d_name, "."))
+			while(vfs_readdir(fd, &dir) >= 0)
 			{
+				if(!(flag & LSFLAG_DOT) && dir.d_name && (dir.d_name[0] == '.'))
+					continue;
+				slist_add(sl, NULL, "%s", dir.d_name);
 			}
-			else if(!strcmp(entry->d_name, ".."))
-			{
-			}
-			else
-			{
-				strlcat(buf, "/", sizeof(buf));
-				strlcat(buf, entry->d_name, sizeof(buf));
-			}
-
-			if(stat((const char *)buf, &st) != 0)
-				break;
-
-			if( (entry->d_name[0] != '.') || (flags & LSFLAG_DOT) )
-			{
-				n_file++;
-			}
-
-			print_entry((const char *)entry->d_name, &st, flags, width);
+			vfs_closedir(fd);
 		}
-		vfs_closedir(dir);*/
+		isdir = 1;
 	}
 	else
 	{
-		print_entry((const char *)path, &st, flags, width);
-		n_file = 1;
+		slist_add(sl, NULL, "%s", path);
+		isdir = 0;
 	}
+	slist_sort(sl);
 
-	/* auto add \r\n for not long mode */
-	if(!(flags & LSFLAG_LONG))
+	if(flag & LSFLAG_LONG)
 	{
-		if( ! ( !(flags & LSFLAG_DOT) && (n_file == 0) ) )
+		slist_for_each_entry(e, sl)
+		{
+			if(isdir)
+				snprintf(buf, sizeof(buf), "%s/%s", path, e->key);
+			else
+				snprintf(buf, sizeof(buf), "%s", e->key);
+			if(vfs_stat(buf, &st) < 0)
+				continue;
+
+		    if(S_ISDIR(st.st_mode))
+		    	printf("d");
+		    if(S_ISCHR(st.st_mode))
+		    	printf("c");
+		    if(S_ISBLK(st.st_mode))
+		    	printf("b");
+		    if(S_ISREG(st.st_mode))
+		    	printf("-");
+		    if(S_ISLNK(st.st_mode))
+		    	printf("l");
+		    if(S_ISFIFO(st.st_mode))
+		    	printf("p");
+		    if(S_ISSOCK(st.st_mode))
+		    	printf("s");
+
+		    printf("%s%s%s", rwx[(st.st_mode & S_IRWXU) >> 6], rwx[(st.st_mode & S_IRWXG) >> 3], rwx[(st.st_mode & S_IRWXO) >> 0]);
+			if((st.st_uid == 0) && (st.st_gid == 0))
+				printf(" %s %s", "root", "root");
+			else
+				printf(" %4d %4d", st.st_uid, st.st_gid);
+			printf(" %8lld %s\r\n", st.st_size, e->key);
+		}
+	}
+	else
+	{
+		int len = 0, n, i, l;
+
+		slist_for_each_entry(e, sl)
+		{
+			l = strlen(e->key) + 4;
+			if(l > len)
+				len = l;
+		}
+
+		if(!len)
+			return;
+
+		n = 80 / (len + 1);
+		if(n == 0)
+			n = 1;
+
+		i = 0;
+		slist_for_each_entry(e, sl)
+		{
+			if(!(++i % n))
+				printf("%s\r\n", e->key);
+			else
+				printf("%-*s", len, e->key);
+		}
+		if(i % n)
 			printf("\r\n");
 	}
+	slist_free(sl);
 }
 
 static void usage(void)
@@ -170,32 +145,37 @@ static void usage(void)
 
 static int do_ls(int argc, char ** argv)
 {
-	s32_t width = 80;
-	u32_t flags = 0;
-	s32_t c = 0;
-	s8_t ** v;
-	s32_t i;
+	char fpath[VFS_MAX_PATH];
+	char ** v;
+	int flag = 0;
+	int c = 0;
+	int i;
 
-	if( (v = malloc(sizeof(s8_t *) * argc)) == NULL)
+	if(!(v = malloc(sizeof(char *) * argc)))
 		return -1;
 
-	for(i=1; i<argc; i++)
+	for(i = 1; i < argc; i++)
 	{
-		if( !strcmp((const char *)argv[i],"-l") )
-			flags |= LSFLAG_LONG;
-		else if( !strcmp((const char *)argv[i],"-a") )
-			flags |= LSFLAG_DOT;
+		if(strcmp(argv[i], "-l") == 0)
+			flag |= LSFLAG_LONG;
+		else if(strcmp(argv[i], "-a") == 0)
+			flag |= LSFLAG_DOT;
 		else
-			v[c++] = (s8_t *)argv[i];
+			v[c++] = argv[i];
 	}
 
 	if(c == 0)
-		v[c++] = (s8_t *)".";
+		v[c++] = ".";
 
-	for(i=0; i<c; i++)
-		do_list((const char *)v[i], flags, width);
-
+	for(i = 0; i < c; i++)
+	{
+		if(shell_realpath(v[i], fpath) >= 0)
+		{
+			ls(fpath, flag);
+		}
+	}
 	free(v);
+
 	return 0;
 }
 

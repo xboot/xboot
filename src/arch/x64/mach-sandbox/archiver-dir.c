@@ -153,7 +153,7 @@ static void * dir_open(void * m, const char * name, int mode)
 		fd = sandbox_file_open(path, "r");
 		break;
 	}
-	if(fd <= 0)
+	if(fd < 0)
 	{
 		free(path);
 		return NULL;

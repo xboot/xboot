@@ -65,14 +65,14 @@ static void * dir_mount(const char * path, int * writable)
 	struct mhandle_dir_t * m;
 	struct vfs_stat_t st;
 
-	if((vfs_stat(path, &st) != 0) || !S_ISDIR(st.st_mode))
+	if((vfs_stat(path, &st) < 0) || !S_ISDIR(st.st_mode))
 		return NULL;
 	m = malloc(sizeof(struct mhandle_dir_t));
 	if(!m)
 		return NULL;
 	m->path = strdup(path);
 	if(writable)
-		*writable = (vfs_access(path, W_OK) == 0) ? 1 : 0;
+		*writable = (vfs_access(path, W_OK) < 0) ? 0 : 1;
 	return m;
 }
 
@@ -89,26 +89,28 @@ static void dir_umount(void * m)
 
 static void dir_walk(void * m, const char * name, xfs_walk_callback_t cb, void * data)
 {
-/*	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
-	struct vfs_dirent_t * entry;
+	struct mhandle_dir_t * mh = (struct mhandle_dir_t *)m;
+	struct vfs_dirent_t dir;
 	char * path = concat(mh->path, "/", name, NULL);
-	void * dir;
+	int fd;
 
-	if((dir = vfs_opendir(path)) == NULL)
+	fd = vfs_opendir(path);
+	if(fd < 0)
 	{
 		free(path);
 		return;
 	}
-	while((entry = vfs_readdir(dir)) != NULL)
+
+	while(vfs_readdir(fd, &dir) >= 0)
 	{
-		if(strcmp(entry->d_name, ".") == 0)
+		if(strcmp(dir.d_name, ".") == 0)
 			continue;
-		else if(strcmp(entry->d_name, "..") == 0)
+		else if(strcmp(dir.d_name, "..") == 0)
 			continue;
-		cb(name, entry->d_name, data);
+		cb(name, dir.d_name, data);
 	}
-	vfs_closedir(dir);
-	free(path);*/
+	vfs_closedir(fd);
+	free(path);
 }
 
 static bool_t dir_isdir(void * m, const char * name)
@@ -118,7 +120,7 @@ static bool_t dir_isdir(void * m, const char * name)
 	char * path = concat(mh->path, "/", name, NULL);
 	bool_t ret = FALSE;
 
-	if((vfs_stat(path, &st) == 0) && S_ISDIR(st.st_mode))
+	if((vfs_stat(path, &st) >= 0) && S_ISDIR(st.st_mode))
 		ret = TRUE;
 	free(path);
 	return ret;
@@ -131,7 +133,7 @@ static bool_t dir_isfile(void * m, const char * name)
 	char * path = concat(mh->path, "/", name, NULL);
 	bool_t ret = FALSE;
 
-	if((vfs_stat(path, &st) == 0) && S_ISREG(st.st_mode))
+	if((vfs_stat(path, &st) >= 0) && S_ISREG(st.st_mode))
 		ret = TRUE;
 	free(path);
 	return ret;
@@ -143,7 +145,7 @@ static bool_t dir_mkdir(void * m, const char * name)
 	char * path = concat(mh->path, "/", name, NULL);
 	bool_t ret = FALSE;
 
-	if(vfs_mkdir(path, (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) == 0)
+	if(vfs_mkdir(path, 0755) >= 0)
 		ret = TRUE;
 	free(path);
 	return ret;
@@ -156,12 +158,12 @@ static bool_t dir_remove(void * m, const char * name)
 	char * path = concat(mh->path, "/", name, NULL);
 	bool_t ret = FALSE;
 
-	if(vfs_stat(path, &st) == 0)
+	if(vfs_stat(path, &st) >= 0)
 	{
 		if(S_ISDIR(st.st_mode))
-			ret = (vfs_rmdir(path) == 0) ? TRUE : FALSE;
+			ret = (vfs_rmdir(path) < 0) ? FALSE : TRUE;
 		else if(S_ISREG(st.st_mode))
-			ret = (vfs_unlink(path) == 0) ? TRUE : FALSE;
+			ret = (vfs_unlink(path) < 0) ? FALSE : TRUE;
 	}
 	free(path);
 	return ret;
@@ -189,7 +191,7 @@ static void * dir_open(void * m, const char * name, int mode)
 		flags = O_RDONLY;
 		break;
 	}
-	fd = vfs_open(path, flags, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(path, flags, 0644);
 	if(fd < 0)
 	{
 		free(path);
@@ -232,9 +234,9 @@ static s64_t dir_length(void * f)
 {
 	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
 	struct vfs_stat_t st;
-	if(vfs_fstat(fh->fd, &st) == 0)
-		return st.st_size;
-	return 0;
+	if(vfs_fstat(fh->fd, &st) < 0)
+		return 0;
+	return st.st_size;
 }
 
 static void dir_close(void * f)

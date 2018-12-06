@@ -347,8 +347,9 @@ struct xfs_context_t * xfs_alloc(const char * path)
 {
 	struct xfs_context_t * ctx;
 	struct vfs_stat_t st;
-	char userdata[256];
+	char userdata[VFS_MAX_PATH];
 	uint8_t digest[20];
+	char * p;
 
 	if(!is_absolute_path(path))
 		return NULL;
@@ -364,10 +365,12 @@ struct xfs_context_t * xfs_alloc(const char * path)
 	xfs_mount(ctx, "/framework", 0);
 	xfs_mount(ctx, path, 0);
 	sha1_hash(path, strlen(path), digest);
-	sprintf(userdata, "/private/userdata/%s-%02x%02x%02x%02x%02x%02x%02x%02x", basename(path),
+	p = strdup(path);
+	sprintf(userdata, "/private/userdata/%s-%02x%02x%02x%02x%02x%02x%02x%02x", basename(p),
 		digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7]);
+	free(p);
 	if(vfs_stat(userdata, &st) != 0)
-		vfs_mkdir(userdata, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		vfs_mkdir(userdata, 0755);
 	xfs_mount(ctx, userdata, 1);
 
 	return ctx;

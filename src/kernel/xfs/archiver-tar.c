@@ -26,7 +26,6 @@
  *
  */
 
-#if 0
 #include <xfs/archiver.h>
 
 enum {
@@ -156,8 +155,8 @@ static struct mhandle_tar_t * alloc_mhandle(int fd)
 	off = 0;
 	while(1)
 	{
-		lseek(fd, off, SEEK_SET);
-		if(read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
+		vfs_lseek(fd, off, VFS_SEEK_SET);
+		if(vfs_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
 			break;
 		if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
 			break;
@@ -196,8 +195,8 @@ static struct mhandle_tar_t * alloc_mhandle(int fd)
 	off = 0;
 	while(1)
 	{
-		lseek(fd, off, SEEK_SET);
-		if(read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
+		vfs_lseek(fd, off, VFS_SEEK_SET);
+		if(vfs_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
 			break;
 		if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
 			break;
@@ -263,7 +262,7 @@ static void * tar_mount(const char * path, int * writable)
 	struct vfs_stat_t st;
 	int fd;
 
-	if((vfs_stat(path, &st) != 0) || !S_ISREG(st.st_mode))
+	if((vfs_stat(path, &st) < 0) || !S_ISREG(st.st_mode))
 		return NULL;
 
 	fd = vfs_open(path, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
@@ -294,7 +293,7 @@ static void tar_umount(void * m)
 
 	if(mh)
 	{
-		close(mh->fd);
+		vfs_close(mh->fd);
 		free_mhandle(mh);
 	}
 }
@@ -380,8 +379,8 @@ static s64_t tar_read(void * f, void * buf, s64_t size)
 	s64_t len;
 	if(size > fh->size - fh->offset)
 		size = fh->size - fh->offset;
-	lseek(fh->fd, fh->start + fh->offset, SEEK_SET);
-	len = read(fh->fd, buf, size);
+	vfs_lseek(fh->fd, fh->start + fh->offset, VFS_SEEK_SET);
+	len = vfs_read(fh->fd, buf, size);
 	fh->offset += len;
 	return len;
 }
@@ -398,7 +397,7 @@ static s64_t tar_seek(void * f, s64_t offset)
 		fh->offset = 0;
 	else if(offset > fh->size)
 		fh->offset = fh->size;
-	lseek(fh->fd, fh->start + fh->offset, SEEK_SET);
+	vfs_lseek(fh->fd, fh->start + fh->offset, VFS_SEEK_SET);
 	return fh->offset;
 }
 
@@ -443,4 +442,3 @@ static __exit void archiver_tar_exit(void)
 
 core_initcall(archiver_tar_init);
 core_exitcall(archiver_tar_exit);
-#endif

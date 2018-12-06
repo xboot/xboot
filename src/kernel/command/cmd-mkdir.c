@@ -31,31 +31,32 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    mkdir [-p] DIRECTORY...\r\n\r\n");
+	printf("    mkdir [-p] DIRECTORY...\r\n");
 }
 
-static s32_t build(s8_t * path)
+static int build(char * path)
 {
 	struct vfs_stat_t st;
-	s8_t * p;
+	char fpath[VFS_MAX_PATH];
+	char * p;
 
 	p = path;
 	if(p[0] == '/')
 		++p;
 
-	for( ; ; ++p)
+	for(;; ++p)
 	{
 		if(p[0] == '\0' || (p[0] == '/' && p[1] == '\0'))
 			break;
 		if(p[0] != '/')
 			continue;
 		*p = '\0';
-		if( vfs_stat((const char *)path, &st) != 0 )
+		if(shell_realpath(path, fpath) < 0)
+			return -1;
+		if(vfs_stat(fpath, &st) < 0)
 		{
-			if(vfs_mkdir((const char *)path, (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) != 0)
-			{
+			if(vfs_mkdir(fpath, 0755) < 0)
 				return -1;
-			}
 		}
 		*p = '/';
 	}
@@ -64,46 +65,51 @@ static s32_t build(s8_t * path)
 
 static int do_mkdir(int argc, char ** argv)
 {
-	s32_t c = 0;
-	s8_t ** v;
-	bool_t pflag = FALSE;
-	s32_t ret = 0;
-	s32_t i;
+	char fpath[VFS_MAX_PATH];
+	char ** v;
+	int pflag = 0;
+	int c = 0;
+	int ret = 0;
+	int i;
 
-	if( (v = malloc(sizeof(s8_t *) * argc)) == NULL)
+	if(!(v = malloc(sizeof(char *) * argc)))
 		return -1;
 
-	for(i=1; i<argc; i++)
+	for(i = 1; i < argc; i++)
 	{
-		if( !strcmp((const char *)argv[i], "-p") )
-			pflag = TRUE;
+		if(!strcmp(argv[i], "-p") )
+			pflag = 1;
 		else
-			v[c++] = (s8_t *)argv[i];
+			v[c++] = argv[i];
 	}
 
 	if(c == 0)
 	{
-		printf("usage:\r\n    mkdir [-p] DIRECTORY...\r\n");
+		usage();
 		free(v);
-		return (-1);
+		return -1;
 	}
 
-	for(i=0; i<c; i++)
+	for(i = 0; i < c; i++)
 	{
-		if( pflag && build(v[i]) )
+		if(pflag && build(v[i]))
 		{
 			ret = -1;
 			continue;
 		}
-
-		if(vfs_mkdir((const char*)v[i], (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) != 0)
+		if(shell_realpath(v[i], fpath) < 0)
 		{
 			ret = -1;
-			printf("mkdir: failed to create directory %s\r\n", v[i]);
+			continue;
+		}
+		if(vfs_mkdir(fpath, 0755) < 0)
+		{
+			ret = -1;
+			printf("mkdir: failed to create directory %s\r\n", fpath);
 		}
 	}
-
 	free(v);
+
 	return ret;
 }
 

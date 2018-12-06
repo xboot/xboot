@@ -28,7 +28,6 @@
 
 #include <command/command.h>
 
-#if 0
 static void usage(void)
 {
 	printf("usage:\r\n");
@@ -37,15 +36,21 @@ static void usage(void)
 
 static int do_umount(int argc, char ** argv)
 {
+	char fpath[VFS_MAX_PATH];
+
 	if(argc != 2)
 	{
 		usage();
 		return -1;
 	}
-
-	if(umount(argv[1]) != 0)
+	if(shell_realpath(argv[1], fpath) < 0)
 	{
-		printf("umount '%s' fail\r\n", argv[1]);
+		usage();
+		return -1;
+	}
+	if(vfs_unmount(fpath) != 0)
+	{
+		printf("umount '%s' fail\r\n", fpath);
 		return -1;
 	}
 
@@ -71,5 +76,3 @@ static __exit void umount_cmd_exit(void)
 
 command_initcall(umount_cmd_init);
 command_exitcall(umount_cmd_exit);
-
-#endif

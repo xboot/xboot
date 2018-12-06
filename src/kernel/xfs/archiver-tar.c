@@ -265,7 +265,7 @@ static void * tar_mount(const char * path, int * writable)
 	if((vfs_stat(path, &st) < 0) || !S_ISREG(st.st_mode))
 		return NULL;
 
-	fd = vfs_open(path, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(path, O_RDONLY, 0);
 	if(fd < 0)
 		return NULL;
 

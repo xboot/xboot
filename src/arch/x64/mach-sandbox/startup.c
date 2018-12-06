@@ -22,9 +22,9 @@ void do_autoboot(void)
 	} while(delay > 0);
 
 	if(sandbox && sandbox->app)
-		system(sandbox->app);
+		shell_system(sandbox->app);
 	else
-		system(CONFIG_AUTO_BOOT_COMMAND);
+		shell_system(CONFIG_AUTO_BOOT_COMMAND);
 }
 
 int main(int argc, char * argv[])

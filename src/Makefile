@@ -106,6 +106,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				kernel/vfs									\
 				kernel/vfs/cpio								\
 				kernel/vfs/sys								\
+				kernel/vfs/tar								\
 				kernel/xfs									\
 				driver/adc									\
 				driver/audio								\
@@ -313,4 +314,4 @@ sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
 			&& $(CD) .obj/romdisk									\
 			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio	\
 			&& $(CD) ../..)											\
-			$(X_DEPS)
+#			$(X_DEPS)

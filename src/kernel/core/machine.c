@@ -217,7 +217,7 @@ void machine_shutdown(void)
 {
 	struct machine_t * mach = get_machine();
 
-	sync();
+	vfs_sync();
 	if(mach && mach->shutdown)
 		mach->shutdown(mach);
 }
@@ -226,7 +226,7 @@ void machine_reboot(void)
 {
 	struct machine_t * mach = get_machine();
 
-	sync();
+	vfs_sync();
 	if(mach && mach->reboot)
 		mach->reboot(mach);
 	watchdog_set_timeout(search_first_watchdog(), 1);
@@ -237,7 +237,7 @@ void machine_sleep(void)
 	struct machine_t * mach = get_machine();
 	struct device_t * pos, * n;
 
-	sync();
+	vfs_sync();
 	list_for_each_entry_safe_reverse(pos, n, &__device_list, list)
 	{
 		suspend_device(pos);
@@ -256,7 +256,7 @@ void machine_cleanup(void)
 {
 	struct machine_t * mach = get_machine();
 
-	sync();
+	vfs_sync();
 	if(mach && mach->cleanup)
 		mach->cleanup(mach);
 }

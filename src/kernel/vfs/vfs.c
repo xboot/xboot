@@ -693,6 +693,22 @@ int vfs_unmount(const char * path)
 	return err;
 }
 
+int vfs_sync(void)
+{
+	struct vfs_mount_t * m;
+
+	mutex_lock(&mnt_list_lock);
+	list_for_each_entry(m, &mnt_list, m_link)
+	{
+		mutex_lock(&m->m_lock);
+		m->m_fs->msync(m);
+		mutex_unlock(&m->m_lock);
+	}
+	mutex_unlock(&mnt_list_lock);
+
+	return 0;
+}
+
 struct vfs_mount_t * vfs_mount_get(int index)
 {
 	struct vfs_mount_t * m = NULL;
@@ -1604,10 +1620,6 @@ void do_init_vfs(void)
 		init_list_head(&node_list[i]);
 		mutex_init(&node_list_lock[i]);
 	}
-}
-
-void sync(void)
-{
 }
 
 int remove(const char * path)

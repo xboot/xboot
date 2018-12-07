@@ -35,6 +35,12 @@ static struct list_head __filesystem_list = {
 };
 static spinlock_t __filesystem_lock = SPIN_LOCK_INIT();
 
+static struct kobj_t * search_class_filesystem_kobj(void)
+{
+	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
+	return kobj_search_directory_with_create(kclass, "filesystem");
+}
+
 struct filesystem_t * search_filesystem(const char * name)
 {
 	struct filesystem_t * pos, * n;
@@ -60,9 +66,13 @@ bool_t register_filesystem(struct filesystem_t * fs)
 	if(search_filesystem(fs->name))
 		return FALSE;
 
+	fs->kobj = kobj_alloc_directory(fs->name);
+	kobj_add(search_class_filesystem_kobj(), fs->kobj);
+
 	spin_lock_irqsave(&__filesystem_lock, flags);
 	list_add_tail(&fs->list, &__filesystem_list);
 	spin_unlock_irqrestore(&__filesystem_lock, flags);
+
 	return TRUE;
 }
 
@@ -76,6 +86,9 @@ bool_t unregister_filesystem(struct filesystem_t * fs)
 	spin_lock_irqsave(&__filesystem_lock, flags);
 	list_del(&fs->list);
 	spin_unlock_irqrestore(&__filesystem_lock, flags);
+	kobj_remove(search_class_filesystem_kobj(), fs->kobj);
+	kobj_remove_self(fs->kobj);
+
 	return TRUE;
 }
 

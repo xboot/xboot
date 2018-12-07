@@ -160,6 +160,7 @@ struct vfs_mount_t {
 };
 
 struct filesystem_t {
+	struct kobj_t * kobj;
 	struct list_head list;
 	const char * name;
 

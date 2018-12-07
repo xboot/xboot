@@ -29,91 +29,52 @@
 #include <xboot.h>
 #include <command/command.h>
 
-struct command_list_t __command_list = {
-	.entry = {
-		.next	= &(__command_list.entry),
-		.prev	= &(__command_list.entry),
-	},
+struct list_head __command_list = {
+	.next = &__command_list,
+	.prev = &__command_list,
 };
-static spinlock_t __command_list_lock = SPIN_LOCK_INIT();
+static spinlock_t __command_lock = SPIN_LOCK_INIT();
 
 struct command_t * search_command(const char * name)
 {
-	struct command_list_t * pos, * n;
+	struct command_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	list_for_each_entry_safe(pos, n, &(__command_list.entry), entry)
+	list_for_each_entry_safe(pos, n, &__command_list, list)
 	{
-		if(strcmp(pos->cmd->name, name) == 0)
-			return pos->cmd;
+		if(strcmp(pos->name, name) == 0)
+			return pos;
 	}
-
 	return NULL;
 }
 
 bool_t register_command(struct command_t * cmd)
 {
-	struct command_list_t * cl;
 	irq_flags_t flags;
 
-	if(!cmd || !cmd->name)
-		return FALSE;
-
-	if(!cmd->exec)
+	if(!cmd || !cmd->name || !cmd->exec)
 		return FALSE;
 
 	if(search_command(cmd->name))
 		return FALSE;
 
-	cl = malloc(sizeof(struct command_list_t));
-	if(!cl)
-		return FALSE;
-
-	cl->cmd = cmd;
-
-	spin_lock_irqsave(&__command_list_lock, flags);
-	list_add_tail(&cl->entry, &(__command_list.entry));
-	spin_unlock_irqrestore(&__command_list_lock, flags);
-
+	spin_lock_irqsave(&__command_lock, flags);
+	list_add_tail(&cmd->list, &__command_list);
+	spin_unlock_irqrestore(&__command_lock, flags);
 	return TRUE;
 }
 
 bool_t unregister_command(struct command_t * cmd)
 {
-	struct command_list_t * pos, * n;
 	irq_flags_t flags;
 
 	if(!cmd || !cmd->name)
 		return FALSE;
 
-	list_for_each_entry_safe(pos, n, &(__command_list.entry), entry)
-	{
-		if(pos->cmd == cmd)
-		{
-			spin_lock_irqsave(&__command_list_lock, flags);
-			list_del(&(pos->entry));
-			spin_unlock_irqrestore(&__command_list_lock, flags);
-
-			free(pos);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-int total_command_number(void)
-{
-	struct list_head * pos = (&__command_list.entry)->next;
-	int i = 0;
-
-	while(!list_is_last(pos, (&__command_list.entry)->next))
-	{
-		pos = pos->next;
-		i++;
-	}
-
-	return i;
+	spin_lock_irqsave(&__command_lock, flags);
+	list_del(&cmd->list);
+	spin_unlock_irqrestore(&__command_lock, flags);
+	return TRUE;
 }

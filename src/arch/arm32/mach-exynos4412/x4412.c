@@ -44,6 +44,14 @@ static void mach_memmap(struct machine_t * mach)
 	mmu_setup(mach);
 }
 
+static void mach_smpinit(struct machine_t * mach, int cpu)
+{
+}
+
+static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(int cpu))
+{
+}
+
 static void mach_shutdown(struct machine_t * mach)
 {
 	virtual_addr_t virt = phys_to_virt(0x1002330c);
@@ -100,6 +108,8 @@ static struct machine_t x4412 = {
 	.desc 		= "X4412 Based On Samsung Exynos4412",
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
+	.smpinit	= mach_smpinit,
+	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,

@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
-void run_shell(void);
+#include <xboot.h>
+
+void shell_task(struct task_t * task, void * data);
 
 #ifdef __cplusplus
 }

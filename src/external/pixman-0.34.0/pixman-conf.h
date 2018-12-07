@@ -3,6 +3,9 @@
 
 #include <xboot.h>
 
+#undef likely
+#undef unlikely
+
 #if defined(__BIG_ENDIAN)
 # define WORDS_BIGENDIAN		(1)
 #endif

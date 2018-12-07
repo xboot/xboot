@@ -2,7 +2,7 @@ OUTPUT_FORMAT("elf64-littleriscv", "elf64-littleriscv", "elf64-littleriscv")
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
 
-STACK_SIZE = 0x100000 * 2;
+STACK_SIZE = 0x100000 * 4;
 
 MEMORY
 {
@@ -20,6 +20,7 @@ SECTIONS
 		.obj/arch/riscv64/mach-virt/start.o (.text*)
 		.obj/arch/riscv64/lib/memcpy.o (.text*)
 		.obj/arch/riscv64/lib/memset.o (.text*)
+		.obj/arch/riscv64/mach-virt/sys-smp.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

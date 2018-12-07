@@ -17,8 +17,6 @@ void * dma_alloc_noncoherent(unsigned long size);
 void dma_free_noncoherent(void * addr);
 void dma_cache_sync(void * addr, unsigned long size, int dir);
 
-void do_init_dma_pool(void);
-
 #ifdef __cplusplus
 }
 #endif

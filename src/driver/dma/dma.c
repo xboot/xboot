@@ -30,25 +30,48 @@
 #include <dma/dma.h>
 
 static void * __dma_pool = NULL;
+static spinlock_t __dma_lock = SPIN_LOCK_INIT();
 
 void * dma_alloc_coherent(unsigned long size)
 {
-	return mm_memalign(__dma_pool, SZ_4K, size);
+	irq_flags_t flags;
+	void * m;
+
+	spin_lock_irqsave(&__dma_lock, flags);
+	m = mm_memalign(__dma_pool, SZ_4K, size);
+	spin_unlock_irqrestore(&__dma_lock, flags);
+
+	return m;
 }
 
 void dma_free_coherent(void * addr)
 {
+	irq_flags_t flags;
+
+	spin_lock_irqsave(&__dma_lock, flags);
 	mm_free(__dma_pool, addr);
+	spin_unlock_irqrestore(&__dma_lock, flags);
 }
 
 void * dma_alloc_noncoherent(unsigned long size)
 {
-	return memalign(SZ_4K, size);
+	irq_flags_t flags;
+	void * m;
+
+	spin_lock_irqsave(&__dma_lock, flags);
+	m = memalign(SZ_4K, size);
+	spin_unlock_irqrestore(&__dma_lock, flags);
+
+	return m;
 }
 
 void dma_free_noncoherent(void * addr)
 {
+	irq_flags_t flags;
+
+	spin_lock_irqsave(&__dma_lock, flags);
 	free(addr);
+	spin_unlock_irqrestore(&__dma_lock, flags);
 }
 
 static void __dma_cache_sync(void * addr, unsigned long size, int dir)
@@ -75,15 +98,24 @@ static ssize_t memory_read_dmainfo(struct kobj_t * kobj, void * buf, size_t size
 	return len;
 }
 
-void do_init_dma_pool(void)
+static __init void dma_pure_init(void)
 {
-#ifndef __SANDBOX__
+	void * dma;
+	size_t size;
+
+#ifdef __SANDBOX__
+	static char __dma_buf[CONFIG_DMA_MEMORY_SIZE];
+	dma = (void *)&__dma_buf;
+	size = (size_t)(sizeof(__dma_buf));
+#else
 	extern unsigned char __dma_start;
 	extern unsigned char __dma_end;
-	__dma_pool = mm_create((void *)&__dma_start, (size_t)(&__dma_end - &__dma_start));
-#else
-	static char __dma_buf[SZ_8M];
-	__dma_pool = mm_create((void *)__dma_buf, (size_t)(sizeof(__dma_buf)));
+	dma = (void *)&__dma_start;
+	size = (size_t)(&__dma_end - &__dma_start);
 #endif
+
+	spin_lock_init(&__dma_lock);
+	__dma_pool = mm_create(dma, size);
 	kobj_add_regular(search_class_memory_kobj(), "dmainfo", memory_read_dmainfo, NULL, mm_get(__dma_pool));
 }
+pure_initcall(dma_pure_init);

@@ -6,6 +6,7 @@
 #include <malloc.h>
 
 static void * __heap_pool = NULL;
+static spinlock_t __heap_lock = SPIN_LOCK_INIT();
 
 /*
  * Some macros.
@@ -123,18 +124,7 @@ static const size_t block_start_offset = offsetof(block_header_t, size) + sizeof
 static const size_t block_size_min = sizeof(block_header_t) - sizeof(block_header_t *);
 static const size_t block_size_max = tlsf_cast(size_t, 1) << FL_INDEX_MAX;
 
-#if !defined(__riscv)
-static int tlsf_ffs(unsigned int word)
-{
-	return __builtin_ffs(word) - 1;
-}
-
-static int tlsf_fls(unsigned int word)
-{
-	const int bit = word ? 32 - __builtin_clz(word) : 0;
-	return bit - 1;
-}
-#else
+#if defined(__riscv)
 static int tlsf_fls_generic(unsigned int word)
 {
 	int bit = 32;
@@ -157,6 +147,17 @@ static int tlsf_ffs(unsigned int word)
 static int tlsf_fls(unsigned int word)
 {
 	return tlsf_fls_generic(word) - 1;
+}
+#else
+static int tlsf_ffs(unsigned int word)
+{
+	return __builtin_ffs(word) - 1;
+}
+
+static int tlsf_fls(unsigned int word)
+{
+	const int bit = word ? 32 - __builtin_clz(word) : 0;
+	return bit - 1;
 }
 #endif
 
@@ -193,7 +194,7 @@ static void block_set_size(block_header_t * block, size_t size)
 
 static int block_is_last(const block_header_t * block)
 {
-	return (0 == block_get_size(block));
+	return (block_get_size(block) == 0);
 }
 
 static int block_is_free(const block_header_t * block)
@@ -296,10 +297,11 @@ static void * align_ptr(const void * ptr, size_t align)
 static size_t adjust_request_size(size_t size, size_t align)
 {
 	size_t adjust = 0;
-	if (size && size < block_size_max)
+	if (size)
 	{
 		const size_t aligned = align_up(size, align);
-		adjust = tlsf_max(aligned, block_size_min);
+		if (aligned < block_size_max) 
+			adjust = tlsf_max(aligned, block_size_min);
 	}
 	return adjust;
 }
@@ -337,7 +339,7 @@ static block_header_t * search_suitable_block(control_t * control, int * fli, in
 	int fl = *fli;
 	int sl = *sli;
 
-	unsigned int sl_map = control->sl_bitmap[fl] & (~0 << sl);
+	unsigned int sl_map = control->sl_bitmap[fl] & (~0U << sl);
 	if (!sl_map)
 	{
 		const unsigned int fl_map = control->fl_bitmap & (~0 << (fl + 1));
@@ -519,7 +521,8 @@ static block_header_t * block_locate_free(control_t * control, size_t size)
 	if (size)
 	{
 		mapping_search(size, &fl, &sl);
-		block = search_suitable_block(control, &fl, &sl);
+		if (fl < FL_INDEX_COUNT)
+			block = search_suitable_block(control, &fl, &sl);
 	}
 
 	if (block)
@@ -644,7 +647,7 @@ static inline void * tlsf_memalign(void * tlsf, size_t align, size_t size)
 	const size_t gap_minimum = sizeof(block_header_t);
 	const size_t size_with_gap = adjust_request_size(adjust + align + gap_minimum, align);
 
-	const size_t aligned_size = (align <= ALIGN_SIZE) ? adjust : size_with_gap;
+	const size_t aligned_size = (adjust && align > ALIGN_SIZE) ? size_with_gap : adjust;
 
 	block_header_t* block = block_locate_free(control, aligned_size);
 
@@ -809,36 +812,52 @@ void mm_info(void * mm, size_t * mused, size_t * mfree)
 
 void * malloc(size_t size)
 {
-	return tlsf_malloc(__heap_pool, size);
+	void * m;
+
+	spin_lock(&__heap_lock);
+	m = tlsf_malloc(__heap_pool, size);
+	spin_unlock(&__heap_lock);
+	return m;
 }
 EXPORT_SYMBOL(malloc);
 
 void * memalign(size_t align, size_t size)
 {
-	return tlsf_memalign(__heap_pool, align, size);
+	void * m;
+
+	spin_lock(&__heap_lock);
+	m = tlsf_memalign(__heap_pool, align, size);
+	spin_unlock(&__heap_lock);
+	return m;
 }
 EXPORT_SYMBOL(memalign);
 
 void * realloc(void * ptr, size_t size)
 {
-	return tlsf_realloc(__heap_pool, ptr, size);
+	void * m;
+
+	spin_lock(&__heap_lock);
+	m = tlsf_realloc(__heap_pool, ptr, size);
+	spin_unlock(&__heap_lock);
+	return m;
 }
 EXPORT_SYMBOL(realloc);
 
 void * calloc(size_t nmemb, size_t size)
 {
-	void * ptr;
+	void * m;
 
-	if((ptr = malloc(nmemb * size)))
-		memset(ptr, 0, nmemb * size);
-
-	return ptr;
+	if((m = malloc(nmemb * size)))
+		memset(m, 0, nmemb * size);
+	return m;
 }
 EXPORT_SYMBOL(calloc);
 
 void free(void * ptr)
 {
+	spin_lock(&__heap_lock);
 	tlsf_free(__heap_pool, ptr);
+	spin_unlock(&__heap_lock);
 }
 EXPORT_SYMBOL(free);
 
@@ -861,15 +880,23 @@ static ssize_t memory_read_meminfo(struct kobj_t * kobj, void * buf, size_t size
 	return len;
 }
 
-void do_init_mem_pool(void)
+void do_init_mem(void)
 {
-#ifndef __SANDBOX__
+	void * heap;
+	size_t size;
+
+#ifdef __SANDBOX__
+	static char __heap_buf[CONFIG_HEAP_MEMORY_SIZE];
+	heap = (void *)&__heap_buf;
+	size = (size_t)(sizeof(__heap_buf));
+#else
 	extern unsigned char __heap_start;
 	extern unsigned char __heap_end;
-	__heap_pool = tlsf_create_with_pool((void *)&__heap_start, (size_t)(&__heap_end - &__heap_start));
-#else
-	static char __heap_buf[SZ_16M];
-	__heap_pool = tlsf_create_with_pool((void *)__heap_buf, (size_t)(sizeof(__heap_buf)));
+	heap = (void *)&__heap_start;
+	size = (size_t)(&__heap_end - &__heap_start);
 #endif
+
+	spin_lock_init(&__heap_lock);
+	__heap_pool = mm_create(heap, size);
 	kobj_add_regular(search_class_memory_kobj(), "meminfo", memory_read_meminfo, NULL, mm_get(__heap_pool));
 }

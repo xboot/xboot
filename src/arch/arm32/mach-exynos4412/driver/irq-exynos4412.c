@@ -111,7 +111,7 @@ static void exynos4412_dist_init(virtual_addr_t virt)
 	/*
 	 * Set all global interrupts to this CPU only.
 	 */
-	cpumask = 1 << arm32_smp_processor_id();
+	cpumask = 1 << smp_processor_id();
 	cpumask |= cpumask << 8;
 	cpumask |= cpumask << 16;
 	for(i = 32; i < gic_irqs; i += 4)

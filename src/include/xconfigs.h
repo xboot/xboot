@@ -6,17 +6,19 @@ extern "C" {
 #endif
 
 #include <configs.h>
+#include <endian.h>
+#include <sizes.h>
 
 #if !defined(CONFIG_NO_LOG)
 #define CONFIG_NO_LOG						(0)
 #endif
 
-#if !defined(CONFIG_AUTO_BOOT_DELAY)
-#define CONFIG_AUTO_BOOT_DELAY				(1)
+#if !defined(CONFIG_MAX_SMP_CPUS)
+#define CONFIG_MAX_SMP_CPUS					(1)
 #endif
 
-#if !defined(CONFIG_AUTO_BOOT_COMMAND)
-#define CONFIG_AUTO_BOOT_COMMAND			""
+#if !defined(CONFIG_TASK_STACK_SIZE)
+#define CONFIG_TASK_STACK_SIZE				(SZ_1M)
 #endif
 
 #if !defined(CONFIG_DRIVER_HASH_SIZE)
@@ -41,6 +43,18 @@ extern "C" {
 
 #if !defined(CONFIG_EVENT_FIFO_LENGTH)
 #define CONFIG_EVENT_FIFO_LENGTH			(8)
+#endif
+
+#if !defined(CONFIG_SHELL_TASK)
+#define CONFIG_SHELL_TASK					(1)
+#endif
+
+#if !defined(CONFIG_AUTO_BOOT_DELAY)
+#define CONFIG_AUTO_BOOT_DELAY				(1)
+#endif
+
+#if !defined(CONFIG_AUTO_BOOT_COMMAND)
+#define CONFIG_AUTO_BOOT_COMMAND			""
 #endif
 
 #ifdef __cplusplus

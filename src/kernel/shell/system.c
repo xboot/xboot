@@ -27,16 +27,17 @@
  */
 
 #include <xboot.h>
+#include <command/command.h>
+#include <framework/vm.h>
 #include <shell/parser.h>
 #include <shell/system.h>
-#include <framework/vm.h>
-#include <command/command.h>
 
 int system(const char * cmdline)
 {
 	struct command_t * cmd;
-	char **args;
-	char *p, *buf, *pos;
+	char ** args;
+	char * p, * buf, * pos;
+	char fpath[MAX_PATH];
 	size_t len;
 	int n, ret;
 
@@ -58,12 +59,16 @@ int system(const char * cmdline)
 			if(n > 0)
 			{
 				if((cmd = search_command(args[0])))
+				{
 					ret = cmd->exec(n, args);
+				}
 				else
-					ret = vmexec(n, args);
+				{
+					vfs_path_conv(args[0], fpath);
+					ret = vmexec(fpath);
+				}
 				if((ret < 0) && pos)
 				{
-			    	printf(" when exec \'%s\' return an error code (%ld).\r\n", args[0], ret);
 			    	free(args[0]);
 			    	free(args);
 			    	break;
@@ -82,4 +87,3 @@ int system(const char * cmdline)
 	free(buf);
 	return 1;
 }
-EXPORT_SYMBOL(system);

@@ -48,6 +48,14 @@ static void mach_memmap(struct machine_t * mach)
 	mmu_setup(mach);
 }
 
+static void mach_smpinit(struct machine_t * mach, int cpu)
+{
+}
+
+static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(int cpu))
+{
+}
+
 static void mach_shutdown(struct machine_t * mach)
 {
 	virtual_addr_t virt = phys_to_virt(0xe010e81c);
@@ -104,6 +112,8 @@ static struct machine_t x210 = {
 	.desc 		= "X210 Based On Samsung S5PV210",
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
+	.smpinit	= mach_smpinit,
+	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,

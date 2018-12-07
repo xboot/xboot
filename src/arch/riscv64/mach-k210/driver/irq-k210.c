@@ -118,7 +118,7 @@ static void irq_k210_settype(struct irqchip_t * chip, int offset, enum irq_type_
 static void irq_k210_dispatch(struct irqchip_t * chip)
 {
 	struct irq_k210_pdata_t * pdat = (struct irq_k210_pdata_t *)chip->priv;
-	u32_t irq = read32(pdat->virtplic + PLIC_TARGET_COMPLETE(csr_read(mhartid)));
+	u32_t irq = read32(pdat->virtplic + PLIC_TARGET_COMPLETE(smp_processor_id()));
 	int offset = irq + chip->base;
 
 	if((offset > 0) && (offset < chip->nirq))
@@ -151,7 +151,7 @@ static void irq_k210_dispatch(struct irqchip_t * chip)
 				break;
 			}
 		}
-		write32(pdat->virtplic + PLIC_TARGET_COMPLETE(csr_read(mhartid)), irq);
+		write32(pdat->virtplic + PLIC_TARGET_COMPLETE(smp_processor_id()), irq);
 	}
 }
 
@@ -224,7 +224,7 @@ static struct device_t * irq_k210_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virtgpiohs = phys_to_virt(K210_GPIOHS_BASE);
 	pdat->base = base;
 	pdat->nirq = nirq;
-	pdat->cpu = csr_read(mhartid);
+	pdat->cpu = smp_processor_id();
 	pdat->ncpu = dt_read_int(n, "cpu-count", 1);
 
 	chip->name = alloc_device_name(dt_read_name(n), -1);

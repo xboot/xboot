@@ -89,6 +89,72 @@ INCDIRS		+=	include										\
 				external/cairo-1.14.10						\
 				external/freetype-2.8/include				\
 				external/chipmunk-7.0.2/include
+INCDIRS		+= 	external/libfdt-1.4.2
+SRCDIRS		+=	external/libfdt-1.4.2
+
+INCDIRS		+= 	external/lz4-1.8.2
+SRCDIRS		+=	external/lz4-1.8.2
+
+INCDIRS		+= 	external/zlib-1.2.11
+SRCDIRS		+=	external/zlib-1.2.11
+
+INCDIRS		+= 	external/libpng-1.6.32
+SRCDIRS		+=	external/libpng-1.6.32
+
+INCDIRS		+= 	external/lua-5.3.5
+SRCDIRS		+=	external/lua-5.3.5
+
+INCDIRS		+= 	external/lua-cjson-2.1.0
+SRCDIRS		+=	external/lua-cjson-2.1.0
+
+INCDIRS		+= 	external/pixman-0.34.0 \
+				external/pixman-0.34.0/$(ARCH)
+SRCDIRS		+=	external/pixman-0.34.0 \
+				external/pixman-0.34.0/$(ARCH)
+
+INCDIRS		+= 	external/cairo-1.14.10
+SRCDIRS		+=	external/cairo-1.14.10
+
+INCDIRS		+= 	external/freetype-2.8/include \
+				external/freetype-2.8/src/autofit \
+				external/freetype-2.8/src/base \
+				external/freetype-2.8/src/cache \
+				external/freetype-2.8/src/cff \
+				external/freetype-2.8/src/cid \
+				external/freetype-2.8/src/gxvalid \
+				external/freetype-2.8/src/otvalid \
+				external/freetype-2.8/src/pfr \
+				external/freetype-2.8/src/psaux \
+				external/freetype-2.8/src/pshinter \
+				external/freetype-2.8/src/psnames \
+				external/freetype-2.8/src/raster \
+				external/freetype-2.8/src/sfnt \
+				external/freetype-2.8/src/smooth \
+				external/freetype-2.8/src/truetype \
+				external/freetype-2.8/src/type1 \
+				external/freetype-2.8/src/type42 \
+				external/freetype-2.8/src/winfonts
+SRCDIRS		+=	external/freetype-2.8/src/autofit \
+				external/freetype-2.8/src/base \
+				external/freetype-2.8/src/cache \
+				external/freetype-2.8/src/cff \
+				external/freetype-2.8/src/cid \
+				external/freetype-2.8/src/gxvalid \
+				external/freetype-2.8/src/otvalid \
+				external/freetype-2.8/src/pfr \
+				external/freetype-2.8/src/psaux \
+				external/freetype-2.8/src/pshinter \
+				external/freetype-2.8/src/psnames \
+				external/freetype-2.8/src/raster \
+				external/freetype-2.8/src/sfnt \
+				external/freetype-2.8/src/smooth \
+				external/freetype-2.8/src/truetype \
+				external/freetype-2.8/src/type1 \
+				external/freetype-2.8/src/type42 \
+				external/freetype-2.8/src/winfonts
+
+INCDIRS		+=	external/chipmunk-7.0.2/include
+SRCDIRS		+=	external/chipmunk-7.0.2/src
 
 #
 # You shouldn't need to change anything below this point.

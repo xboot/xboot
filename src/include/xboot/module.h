@@ -7,6 +7,7 @@ extern "C" {
 
 #include <types.h>
 #include <list.h>
+#include <malloc.h>
 #include <xboot/kobj.h>
 
 struct symbol_t

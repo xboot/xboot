@@ -175,15 +175,15 @@ reset:
 	LREG t2, (t2)
 	sub t0, t2, t1
 	csrr t3, mhartid
-	li t4, 2
+	li t4, CONFIG_MAX_SMP_CPUS
 	div t0, t0, t4
 	mul t0, t0, t3
 	sub sp, t2, t0
 
-	/* Check processor id, stop all slave cores */
-	csrr t0, mhartid
-	beqz t0, 2f
-1:	wfi
+	/* Check processor id, and startup slave cores */
+	csrr a0, mhartid
+	beqz a0, 2f
+1:	call sys_smp_secondary_startup
 	j 1b
 2:	nop
 
@@ -317,7 +317,7 @@ vectors:
 /*
  * The location of section
  */
-	.align 4
+	.align 3
 _image_start:
 	RVPTR __image_start
 _image_end:

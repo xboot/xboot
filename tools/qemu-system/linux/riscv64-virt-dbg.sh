@@ -5,4 +5,4 @@
 export QEMU_DIR=$(cd `dirname $0` ; pwd)
 
 # Run qemu
-exec qemu-system-riscv64 -M virt -m 512M -smp 2 -name "RiscV64 Virtual Machine" -S -gdb tcp::10000,ipv4 -show-cursor -rtc base=localtime -serial stdio -kernel ${QEMU_DIR}/../../../output/xboot
+exec qemu-system-riscv64 -M virt -m 512M -smp 4 -name "RiscV64 Virtual Machine" -S -gdb tcp::10000,ipv4 -show-cursor -rtc base=localtime -serial stdio -kernel ${QEMU_DIR}/../../../output/xboot

@@ -29,7 +29,6 @@
 #include <xboot.h>
 #include <arm64.h>
 #include <interrupt/interrupt.h>
-#include <xboot/gdbstub.h>
 
 struct pt_regs_t {
 	uint64_t regs[31];
@@ -124,7 +123,6 @@ void arm64_sync_exception(struct pt_regs_t * regs)
 	case 0x3c:	/* BRK (AArch64) */
 		if(iss == 0x401)
 			regs->pc += 4;
-		gdbserver_handle_exception(regs);
 		return;
 
 	default:

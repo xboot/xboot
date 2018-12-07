@@ -6,11 +6,11 @@ extern "C" {
 #endif
 
 /* Read and write memory barrier */
-#define mb()		__asm__ __volatile__ ("dmb sy" : : : "memory")
+#define mb()		__asm__ __volatile__ ("dsb sy" : : : "memory")
 /* Read memory barrier */
-#define rmb()		__asm__ __volatile__ ("dmb ld" : : : "memory")
+#define rmb()		__asm__ __volatile__ ("dsb ld" : : : "memory")
 /* Write memory barrier */
-#define wmb()		__asm__ __volatile__ ("dmb st" : : : "memory")
+#define wmb()		__asm__ __volatile__ ("dsb st" : : : "memory")
 
 /* SMP read and write memory barrier */
 #define smp_mb()	__asm__ __volatile__ ("dmb ish" : : : "memory")

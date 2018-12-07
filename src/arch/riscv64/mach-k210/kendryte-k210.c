@@ -91,6 +91,16 @@ static void mach_memmap(struct machine_t * mach)
 {
 }
 
+static void mach_smpinit(struct machine_t * mach, int cpu)
+{
+}
+
+static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(int cpu))
+{
+	extern void sys_smp_secondary_boot(int cpu, void (*func)(int cpu));
+	sys_smp_secondary_boot(cpu, func);
+}
+
 static void mach_shutdown(struct machine_t * mach)
 {
 }
@@ -135,6 +145,8 @@ static struct machine_t kendryte_k210 = {
 	.desc 		= "Kendryte k210 development board",
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
+	.smpinit	= mach_smpinit,
+	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,

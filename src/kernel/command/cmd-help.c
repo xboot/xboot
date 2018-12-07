@@ -36,52 +36,28 @@ static void usage(void)
 
 static int do_help(int argc, char ** argv)
 {
-	struct command_list_t * list;
-	struct list_head * pos;
-	struct command_t ** cmds;
+	struct command_t * pos, * n;
 	struct command_t * c;
-	int i = 0, j = 0, k = 0, n, swaps;
+	struct slist_t * sl, * e;
+	int i, j, k = 0;
 
 	if(argc == 1)
 	{
-		i = 0;
-		n = total_command_number();
-		cmds = malloc(sizeof(struct command_t *) * n);
-
-		if(!cmds)
-			return -1;
-
-		for(pos = (&__command_list.entry)->next; pos != (&__command_list.entry); pos = pos->next)
+		sl = slist_alloc();
+		list_for_each_entry_safe(pos, n, &__command_list, list)
 		{
-			list = list_entry(pos, struct command_list_t, entry);
-			cmds[i++] = list->cmd;
-			j = strlen(list->cmd->name);
+			j = strlen(pos->name);
 			if(j > k)
 				k = j;
+			slist_add(sl, pos, "%s", pos->name);
 		}
-
-		for(i = n - 1; i > 0; --i)
+		slist_sort(sl);
+		slist_for_each_entry(e, sl)
 		{
-			swaps = 0;
-			for(j = 0; j < i; ++j)
-			{
-				if (strcmp(cmds[j]->name, cmds[j + 1]->name) > 0)
-				{
-					c = cmds[j];
-					cmds[j] = cmds[j + 1];
-					cmds[j + 1] = c;
-					++swaps;
-				}
-			}
-			if(!swaps)
-				break;
+			pos = (struct command_t *)e->priv;
+			printf(" %s%*s - %s\r\n", pos->name, k - strlen(pos->name), "", pos->desc);
 		}
-
-		for(i = 0; i < n; i++)
-		{
-			printf(" %s%*s - %s\r\n",cmds[i]->name, k - strlen(cmds[i]->name), "", cmds[i]->desc);
-		}
-		free(cmds);
+		slist_free(sl);
 	}
 	else
 	{
@@ -100,7 +76,6 @@ static int do_help(int argc, char ** argv)
 			}
 		}
 	}
-
 	return 0;
 }
 

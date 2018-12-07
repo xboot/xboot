@@ -56,6 +56,14 @@ static void mach_memmap(struct machine_t * mach)
 	mmu_setup(mach);
 }
 
+static void mach_smpinit(struct machine_t * mach, int cpu)
+{
+}
+
+static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(int cpu))
+{
+}
+
 static void mach_shutdown(struct machine_t * mach)
 {
 }
@@ -108,6 +116,8 @@ static struct machine_t licheepi_zero = {
 	.desc 		= "Lichee Pi Zero Based On Allwinner V3S SOC",
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
+	.smpinit	= mach_smpinit,
+	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,

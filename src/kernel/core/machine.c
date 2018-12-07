@@ -197,6 +197,22 @@ inline __attribute__((always_inline)) struct machine_t * get_machine(void)
 	return __machine;
 }
 
+void machine_smpinit(int cpu)
+{
+	struct machine_t * mach = get_machine();
+
+	if(mach && mach->smpinit)
+		mach->smpinit(mach, cpu);
+}
+
+void machine_smpboot(int cpu, void (*func)(int cpu))
+{
+	struct machine_t * mach = get_machine();
+
+	if(mach && mach->smpboot)
+		mach->smpboot(mach, cpu, func);
+}
+
 void machine_shutdown(void)
 {
 	struct machine_t * mach = get_machine();

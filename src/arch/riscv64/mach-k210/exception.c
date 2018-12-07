@@ -29,7 +29,6 @@
 #include <xboot.h>
 #include <riscv64.h>
 #include <interrupt/interrupt.h>
-#include <xboot/gdbstub.h>
 
 #if defined(__riscv_flen)
 #if __riscv_flen >= 32

@@ -50,7 +50,8 @@ NS_STDIO	:=	-Dclearerr=xboot_clearerr -Dfclose=xboot_fclose \
 				-Dsnprintf=xboot_snprintf -Dsprintf=xboot_sprintf \
 				-Dsscanf=xboot_sscanf -Dtmpfile=xboot_tmpfile \
 				-Dtmpnam=xboot_tmpnam -Dungetc=xboot_ungetc \
-				-Dvsnprintf=xboot_vsnprintf -Dvsscanf=xboot_vsscanf
+				-Dvsnprintf=xboot_vsnprintf -Dvsscanf=xboot_vsscanf \
+				-Dvasprintf=xboot_vasprintf -Dasprintf=xboot_asprintf
 
 NS_STDLIB	:=	-Drand=xboot_rand -Dsrand=xboot_srand \
 				-Dabs=xboot_abs -Dlabs=xboot_labs \

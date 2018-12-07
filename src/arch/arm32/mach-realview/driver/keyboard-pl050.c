@@ -40,18 +40,20 @@ enum{
 	KEYBOARD_IIR	= 0x10,
 };
 
-struct keyboard_pl050_pdata_t
-{
-	virtual_addr_t virt;
-	char * clk;
-	int irq;
-};
-
 enum decode_state {
 	DECODE_STATE_MAKE_CODE,
 	DECODE_STATE_BREAK_CODE,
 	DECODE_STATE_LONG_MAKE_CODE,
 	DECODE_STATE_LONG_BREAK_CODE
+};
+
+struct keyboard_pl050_pdata_t
+{
+	virtual_addr_t virt;
+	char * clk;
+	int irq;
+	enum decode_state ds;
+	u32_t flag;
 };
 
 struct keymap {
@@ -202,77 +204,73 @@ static void keyboard_pl050_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
 	struct keyboard_pl050_pdata_t * pdat = (struct keyboard_pl050_pdata_t *)input->priv;
-
-	static enum decode_state ds = DECODE_STATE_MAKE_CODE;
-	static u32_t kbd_flag = KBD_NUM_LOCK;
-	u8_t status, value;
-
-	status = read8(pdat->virt + KEYBOARD_IIR);
+	u8_t status = read8(pdat->virt + KEYBOARD_IIR);
+	u8_t value;
 
 	while(status & (1 << 0))
 	{
 		value = read8(pdat->virt + KEYBOARD_DATA);
 
-		switch(ds)
+		switch(pdat->ds)
 		{
 		case DECODE_STATE_MAKE_CODE:
 			/* break code */
 			if(value == 0xf0)
 			{
-				ds = DECODE_STATE_BREAK_CODE;
+				pdat->ds = DECODE_STATE_BREAK_CODE;
 			}
 			/* long make code */
 			else if(value == 0xe0)
 			{
-				ds = DECODE_STATE_LONG_MAKE_CODE;
+				pdat->ds = DECODE_STATE_LONG_MAKE_CODE;
 			}
 			else
 			{
-				ds = DECODE_STATE_MAKE_CODE;
+				pdat->ds = DECODE_STATE_MAKE_CODE;
 
 				/* left shift */
 				if(value == 0x12)
 				{
-					kbd_flag |= KBD_LEFT_SHIFT;
+					pdat->flag |= KBD_LEFT_SHIFT;
 				}
 				/* right shift */
 				else if(value == 0x59)
 				{
-					kbd_flag |= KBD_RIGHT_SHIFT;
+					pdat->flag |= KBD_RIGHT_SHIFT;
 				}
 				/* left ctrl */
 				else if(value == 0x14)
 				{
-					kbd_flag |= KBD_LEFT_CTRL;
+					pdat->flag |= KBD_LEFT_CTRL;
 				}
 				/* caps lock */
 				else if(value == 0x58)
 				{
-					if(kbd_flag & KBD_CAPS_LOCK)
-						kbd_flag &= ~KBD_CAPS_LOCK;
+					if(pdat->flag & KBD_CAPS_LOCK)
+						pdat->flag &= ~KBD_CAPS_LOCK;
 					else
-						kbd_flag |= KBD_CAPS_LOCK;
+						pdat->flag |= KBD_CAPS_LOCK;
 				}
 				/* scroll lock */
 				else if(value == 0x7e)
 				{
-					if(kbd_flag & KBD_SCROLL_LOCK)
-						kbd_flag &= ~KBD_SCROLL_LOCK;
+					if(pdat->flag & KBD_SCROLL_LOCK)
+						pdat->flag &= ~KBD_SCROLL_LOCK;
 					else
-						kbd_flag |= KBD_SCROLL_LOCK;
+						pdat->flag |= KBD_SCROLL_LOCK;
 				}
 				/* num lock */
 				else if(value == 0x77)
 				{
-					if(kbd_flag & KBD_NUM_LOCK)
-						kbd_flag &= ~KBD_NUM_LOCK;
+					if(pdat->flag & KBD_NUM_LOCK)
+						pdat->flag &= ~KBD_NUM_LOCK;
 					else
-						kbd_flag |= KBD_NUM_LOCK;
+						pdat->flag |= KBD_NUM_LOCK;
 				}
 				/* others */
 				else
 				{
-					keyboard_report_event(input, kbd_flag, value, KEY_BUTTON_DOWN);
+					keyboard_report_event(input, pdat->flag, value, KEY_BUTTON_DOWN);
 				}
 			}
 			break;
@@ -280,81 +278,81 @@ static void keyboard_pl050_interrupt(void * data)
 		case DECODE_STATE_BREAK_CODE:
 			if( (value != 0xf0) && (value != 0xe0))
 			{
-				ds = DECODE_STATE_MAKE_CODE;
+				pdat->ds = DECODE_STATE_MAKE_CODE;
 
 				/* left shift */
 				if(value == 0x12)
 				{
-					kbd_flag &= ~KBD_LEFT_SHIFT;
+					pdat->flag &= ~KBD_LEFT_SHIFT;
 				}
 				/* right shift */
 				else if(value == 0x59)
 				{
-					kbd_flag &= ~KBD_RIGHT_SHIFT;
+					pdat->flag &= ~KBD_RIGHT_SHIFT;
 				}
 				/* left ctrl */
 				else if(value == 0x14)
 				{
-					kbd_flag &= ~KBD_LEFT_CTRL;
+					pdat->flag &= ~KBD_LEFT_CTRL;
 				}
 				/* others */
 				else
 				{
-					keyboard_report_event(input, kbd_flag, value, KEY_BUTTON_UP);
+					keyboard_report_event(input, pdat->flag, value, KEY_BUTTON_UP);
 				}
 			}
 			else
 			{
-				ds = DECODE_STATE_BREAK_CODE;
+				pdat->ds = DECODE_STATE_BREAK_CODE;
 			}
 			break;
 
 		case DECODE_STATE_LONG_MAKE_CODE:
 			if( value != 0xf0 && value!= 0xe0)
 			{
-				ds = DECODE_STATE_MAKE_CODE;
+				pdat->ds = DECODE_STATE_MAKE_CODE;
 
 				/* left ctrl */
 				if(value == 0x14)
 				{
-					kbd_flag |= KBD_RIGHT_CTRL;
+					pdat->flag |= KBD_RIGHT_CTRL;
 				}
 				/* others */
 				else
 				{
-					keyboard_report_event(input, kbd_flag, value, KEY_BUTTON_DOWN);
+					keyboard_report_event(input, pdat->flag, value, KEY_BUTTON_DOWN);
 				}
 			}
 			else
 			{
-				ds = DECODE_STATE_LONG_BREAK_CODE;
+				pdat->ds = DECODE_STATE_LONG_BREAK_CODE;
 			}
 			break;
 
 		case DECODE_STATE_LONG_BREAK_CODE:
 			if( (value != 0xf0) && (value != 0xe0))
 			{
-				ds = DECODE_STATE_MAKE_CODE;
+				pdat->ds = DECODE_STATE_MAKE_CODE;
 
 				/* left ctrl */
 				if(value == 0x14)
 				{
-					kbd_flag &= ~KBD_RIGHT_CTRL;
+					pdat->flag &= ~KBD_RIGHT_CTRL;
 				}
 				/* others */
 				else
 				{
-					keyboard_report_event(input, kbd_flag, value, KEY_BUTTON_UP);
+					keyboard_report_event(input, pdat->flag, value, KEY_BUTTON_UP);
 				}
 			}
 			else
 			{
-				ds = DECODE_STATE_LONG_BREAK_CODE;
+				pdat->ds = DECODE_STATE_LONG_BREAK_CODE;
 			}
 			break;
 
 		default:
-			ds = DECODE_STATE_MAKE_CODE;
+			pdat->ds = DECODE_STATE_MAKE_CODE;
 			break;
 		}
 
@@ -405,6 +403,8 @@ static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtno
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 	pdat->irq = irq;
+	pdat->ds = DECODE_STATE_MAKE_CODE;
+	pdat->flag = KBD_NUM_LOCK;
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
 	input->type = INPUT_TYPE_KEYBOARD;

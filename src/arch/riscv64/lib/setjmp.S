@@ -2,6 +2,7 @@
 
 	.global setjmp
 	.type setjmp, %function
+	.align 3
 setjmp:
 	SREG s0,   0 * REGSZ(a0)
 	SREG s1,   1 * REGSZ(a0)
@@ -47,8 +48,9 @@ setjmp:
 	li a0, 0
 	ret
 
-.global longjmp
-.type longjmp, %function
+	.global longjmp
+	.type longjmp, %function
+	.align 3
 longjmp:
 	LREG s0,   0 * REGSZ(a0)
 	LREG s1,   1 * REGSZ(a0)

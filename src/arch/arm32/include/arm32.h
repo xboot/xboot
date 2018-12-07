@@ -92,19 +92,6 @@ static inline void arm32_icache_disable(void)
 	arm32_write_p15_c1(value & ~(1 << 12));
 }
 
-static inline uint32_t arm32_smp_processor_id(void)
-{
-	uint32_t tmp;
-
-	__asm__ __volatile__(
-		"mrc p15,0,%0,c0,c0,5\n"
-		"and %0,%0,#0x3\n"
-		: "=r" (tmp)
-		:
-		: "memory");
-	return tmp;
-}
-
 static inline void arm32_ttb_set(uint32_t base)
 {
 	__asm__ __volatile__(

@@ -2,7 +2,7 @@
 
 	.global memcpy
 	.type memcpy, %function
-	.align 4
+	.align 3
 memcpy:
 	move t6, a0
 	sltiu a3, a2, 128

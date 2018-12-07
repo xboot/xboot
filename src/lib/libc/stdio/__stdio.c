@@ -2,14 +2,14 @@
  * libc/stdio/__stdio.c
  */
 
-#include <runtime.h>
 #include <xboot/module.h>
 #include <console/console.h>
 #include <stdio.h>
 
-/*
- * tty operations
- */
+static FILE * __stdin = NULL;
+static FILE * __stdout = NULL;
+static FILE * __stderr = NULL;
+
 static ssize_t __tty_stdin_read(FILE * f, unsigned char * buf, size_t size)
 {
 	return console_stdin_read(buf, size);
@@ -45,9 +45,6 @@ static int __tty_null_close(FILE * f)
 	return 0;
 }
 
-/*
- * file operations
- */
 static ssize_t __file_read(FILE * f, unsigned char * buf, size_t size)
 {
 	return read(f->fd, (void *)buf, size);
@@ -167,20 +164,26 @@ FILE * __file_alloc(int fd)
 	return f;
 }
 
-FILE * __runtime_get_stdin(void)
+FILE * __stdio_get_stdin(void)
 {
-	return (runtime_get()->__stdin);
+	if(!__stdin)
+		__stdin = __file_alloc(0);
+	return __stdin;
 }
-EXPORT_SYMBOL(__runtime_get_stdin);
+EXPORT_SYMBOL(__stdio_get_stdin);
 
-FILE * __runtime_get_stdout(void)
+FILE * __stdio_get_stdout(void)
 {
-	return (runtime_get()->__stdout);
+	if(!__stdout)
+		__stdout = __file_alloc(1);
+	return __stdout;
 }
-EXPORT_SYMBOL(__runtime_get_stdout);
+EXPORT_SYMBOL(__stdio_get_stdout);
 
-FILE * __runtime_get_stderr(void)
+FILE * __stdio_get_stderr(void)
 {
-	return (runtime_get()->__stderr);
+	if(!__stderr)
+		__stderr = __file_alloc(2);
+	return __stderr;
 }
-EXPORT_SYMBOL(__runtime_get_stderr);
+EXPORT_SYMBOL(__stdio_get_stderr);

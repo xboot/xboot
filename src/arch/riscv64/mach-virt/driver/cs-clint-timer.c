@@ -72,7 +72,7 @@ static struct device_t * cs_clint_timer_probe(struct driver_t * drv, struct dtno
 
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
-	pdat->cpu = csr_read(mhartid);
+	pdat->cpu = smp_processor_id();
 
 	clk_enable(pdat->clk);
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, clk_get_rate(pdat->clk), 1000000000ULL, 10);

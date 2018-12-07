@@ -43,7 +43,7 @@ static int do_event(int argc, char ** argv)
 
 	while(1)
 	{
-		if(pump_event(runtime_get()->__event_base, &e))
+		if(pump_event(&e))
 		{
 			input = (struct input_t *)(e.device);
 

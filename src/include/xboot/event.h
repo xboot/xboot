@@ -143,15 +143,7 @@ struct event_t {
 	} e;
 };
 
-struct event_base_t {
-	struct fifo_t * fifo;
-	struct list_head entry;
-};
-
-struct event_base_t * __event_base_alloc(void);
-void __event_base_free(struct event_base_t * eb);
-
-void push_event(struct event_t * event);
+void push_event(struct event_t * e);
 void push_event_key_down(void * device, u32_t key);
 void push_event_key_up(void * device, u32_t key);
 void push_event_rotary_turn(void * device, s32_t v);
@@ -169,7 +161,9 @@ void push_event_joystick_left_trigger(void * device, s32_t v);
 void push_event_joystick_right_trigger(void * device, s32_t v);
 void push_event_joystick_button_down(void * device, u32_t button);
 void push_event_joystick_button_up(void * device, u32_t button);
-bool_t pump_event(struct event_base_t * eb, struct event_t * event);
+int pump_event(struct event_t * e);
+
+void do_init_event(void);
 
 #ifdef __cplusplus
 }

@@ -45,6 +45,14 @@ static void mach_memmap(struct machine_t * mach)
 	mmu_setup(mach);
 }
 
+static void mach_smpinit(struct machine_t * mach, int cpu)
+{
+}
+
+static void mach_smpboot(struct machine_t * mach, int cpu, void (*func)(int cpu))
+{
+}
+
 static void mach_shutdown(struct machine_t * mach)
 {
 }
@@ -90,6 +98,8 @@ static struct machine_t x3128 = {
 	.desc 		= "X3128 Based On RK3128 SOC",
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
+	.smpinit	= mach_smpinit,
+	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,

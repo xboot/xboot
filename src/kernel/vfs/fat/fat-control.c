@@ -27,7 +27,6 @@
  */
 
 #include <vfs/fat/fat-control.h>
-#include <vfs/fat/mathlib.h>
 
 static int __fatfs_control_flush_fat_cache(struct fatfs_control_t * ctrl, u32_t index)
 {
@@ -233,9 +232,9 @@ static bool_t __fatfs_control_valid_cluster(struct fatfs_control_t * ctrl, u32_t
 	return TRUE;
 }
 
-static int __fatfs_control_get_next_cluster(struct fatfs_control_t *ctrl, u32_t clust, u32_t *next)
+static int __fatfs_control_get_next_cluster(struct fatfs_control_t * ctrl, u32_t clust, u32_t * next)
 {
-	u8_t fat_entry_b[4];
+	u8_t fat_entry_b[4] = { 0 };
 	u32_t fat_entry, fat_off, fat_len, len;
 
 	if(!__fatfs_control_valid_cluster(ctrl, clust))
@@ -285,7 +284,7 @@ static int __fatfs_control_get_next_cluster(struct fatfs_control_t *ctrl, u32_t 
 	return 0;
 }
 
-static int __fatfs_control_set_next_cluster(struct fatfs_control_t *ctrl, u32_t clust, u32_t next)
+static int __fatfs_control_set_next_cluster(struct fatfs_control_t * ctrl, u32_t clust, u32_t next)
 {
 	u8_t fat_entry_b[4];
 	u32_t fat_entry, fat_off, fat_len, len;
@@ -516,42 +515,57 @@ static int __fatfs_control_truncate_clusters(struct fatfs_control_t *ctrl, u32_t
 	return 0;
 }
 
+static s64_t fatfs_wallclock_mktime(unsigned int year0, unsigned int mon0, unsigned int day, unsigned int hour, unsigned int min, unsigned int sec)
+{
+	unsigned int year = year0, mon = mon0;
+	u64_t ret;
+
+	if(0 >= (int)(mon -= 2))
+	{
+		mon += 12;
+		year -= 1;
+	}
+
+	ret = (u64_t)(year / 4 - year / 100 + year / 400 + 367 * mon / 12 + day);
+	ret += (u64_t)(year) * 365 - 719499;
+
+	ret *= (u64_t)24;
+	ret += hour;
+
+	ret *= (u64_t)60;
+	ret += min;
+
+	ret *= (u64_t)60;
+	ret += sec;
+
+	return (s64_t)ret;
+}
+
 u32_t fatfs_pack_timestamp(u32_t year, u32_t mon, u32_t day, u32_t hour, u32_t min, u32_t sec)
 {
-	return (u32_t) 0; //xxx vmm_wallclock_mktime(1980+year, mon, day, hour, min, sec);
+	return (u32_t)fatfs_wallclock_mktime(1980+year, mon, day, hour, min, sec);
 }
 
 void fatfs_current_timestamp(u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec)
 {
-//xxx	struct timeval tv;
-//xxx	struct timeinfo ti;
+	struct tm * ti;
+	time_t t;
 
-//xxx	vmm_wallclock_get_local_time(&tv);
-//xxx	vmm_wallclock_mkinfo(tv.tv_sec, 0, &ti);
+	time(&t);
+	ti = localtime(&t);
 
-	/*	if (year) {
-	 *year = ti.tm_year + 1900 - 1980;
-	 }
-	 xxx
-	 if (mon) {
-	 *mon = ti.tm_mon;
-	 }
-
-	 if (day) {
-	 *day = ti.tm_mday;
-	 }
-
-	 if (hour) {
-	 *hour = ti.tm_hour;
-	 }
-
-	 if (min) {
-	 *min = ti.tm_min;
-	 }
-
-	 if (sec) {
-	 *sec = ti.tm_sec;
-	 }*/
+	if(year)
+		*year = ti->tm_year + 1900 - 1980;
+	if(mon)
+		*mon = ti->tm_mon;
+	if(day)
+		*day = ti->tm_mday;
+	if(hour)
+		*hour = ti->tm_hour;
+	if(min)
+		*min = ti->tm_min;
+	if(sec)
+		*sec = ti->tm_sec;
 }
 
 bool_t fatfs_control_valid_cluster(struct fatfs_control_t * ctrl, u32_t clust)

@@ -35,6 +35,7 @@ extern "C" {
 #include <exit.h>
 #include <io.h>
 #include <bcd.h>
+#include <div.h>
 #include <list.h>
 #include <slist.h>
 #include <fifo.h>

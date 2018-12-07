@@ -28,7 +28,6 @@
 
 #include <vfs/fat/fat-control.h>
 #include <vfs/fat/fat-node.h>
-#include <vfs/fat/mathlib.h>
 
 static int fatfs_node_find_lookup_dirent(struct fatfs_node_t * dnode, const char * name, struct fat_dirent_t * dent, u32_t * off, u32_t * len)
 {
@@ -134,10 +133,6 @@ static int fatfs_node_sync_parent_dent(struct fatfs_node_t * node)
 	if(woff < node->parent_dent_off)
 		return -1;
 
-	/*
-	 * FIXME: Someone else may be accessing the parent node.
-	 * This code does not protect the parent node.
-	 */
 	wlen = fatfs_node_write(node->parent, woff, sizeof(node->parent_dent), (u8_t *) &node->parent_dent);
 	if(wlen != sizeof(node->parent_dent))
 		return -1;
@@ -822,8 +817,8 @@ int fatfs_node_add_dirent(struct fatfs_node_t * dnode, const char * name, struct
 		return -1;
 
 	/* Prepare final directory entry */
-	i = (u32_t) 0; //xxx vmm_timer_timestamp(); /* Use timestamp for random bytes */
-	snprintf((char *) check, sizeof(check), "%08x", i);
+	i = (u32_t)ktime_to_ns(ktime_get());
+	snprintf((char *)check, sizeof(check), "%08x", i);
 	memcpy(&dent, ndent, sizeof(dent));
 	dent.dos_file_name[0] = ' ';
 	dent.dos_file_name[1] = '\0';

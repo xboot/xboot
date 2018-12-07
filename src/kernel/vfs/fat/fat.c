@@ -28,6 +28,7 @@
 
 #include <vfs/fat/fat-control.h>
 #include <vfs/fat/fat-node.h>
+#include <vfs/fat/fat.h>
 
 static int fatfs_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 {
@@ -440,7 +441,7 @@ static int fatfs_mkdir(struct vfs_node_t * dv, const char *name, u32_t mode)
 	return 0;
 }
 
-static int fatfs_rmdir(struct vfs_node_t * dv, struct vfs_node_t * v, const char *name)
+static int fatfs_rmdir(struct vfs_node_t * dv, struct vfs_node_t * v, const char * name)
 {
 	int rc;
 	u32_t off, len, clust;

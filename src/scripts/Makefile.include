@@ -42,7 +42,7 @@ fixdep		:=	$(BUILD_SRC)/scripts/fixdep.exe
 endif
 
 # Execute the command and also postprocess generated .d dependencies file.
-if_changed_dep = $(if $(strip $(any-prereq)), \
+if_changed_dep = $(if $(strip $(any-prereq) $(arg-check)), \
 	@set -e; \
 	$(echo-cmd) $(cmd_$(1)); \
 	$(fixdep) $(depfile) $@ '$(make-cmd)' > $(dot-target).tmp; \

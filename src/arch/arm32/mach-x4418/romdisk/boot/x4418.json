@@ -218,7 +218,7 @@
 	"clk-gate@0xc00a9000": {
 		"parent": "div-uart0",
 		"name": "gate-uart0",
-		"shift": 1,
+		"shift": 2,
 		"invert": false
 	},
 	"clk-link": {
@@ -246,7 +246,7 @@
 	"clk-gate@0xc00a8000": {
 		"parent": "div-uart1",
 		"name": "gate-uart1",
-		"shift": 1,
+		"shift": 2,
 		"invert": false
 	},
 	"clk-link": {
@@ -274,7 +274,7 @@
 	"clk-gate@0xc00aa000": {
 		"parent": "div-uart2",
 		"name": "gate-uart2",
-		"shift": 1,
+		"shift": 2,
 		"invert": false
 	},
 	"clk-link": {
@@ -302,7 +302,7 @@
 	"clk-gate@0xc00ab000": {
 		"parent": "div-uart3",
 		"name": "gate-uart3",
-		"shift": 1,
+		"shift": 2,
 		"invert": false
 	},
 	"clk-link": {
@@ -330,7 +330,7 @@
 	"clk-gate@0xc006e000": {
 		"parent": "div-uart4",
 		"name": "gate-uart4",
-		"shift": 1,
+		"shift": 2,
 		"invert": false
 	},
 	"clk-link": {
@@ -358,27 +358,12 @@
 	"clk-gate@0xc0064000": {
 		"parent": "div-uart5",
 		"name": "gate-uart5",
-		"shift": 1,
+		"shift": 2,
 		"invert": false
 	},
 	"clk-link": {
 		"parent": "gate-uart5",
 		"name": "link-uart5"
-	},
-
-	"clk-setting": {
-		"clocks": [
-			{ "name": "div-timer-prescaler0", "rate": 150000000 },
-			{ "name": "div-timer-prescaler1", "rate": 150000000 },
-			{ "name": "div-pwm-prescaler0", "rate": 150000000 },
-			{ "name": "div-pwm-prescaler1", "rate": 150000000 },
-			{ "name": "div-uart0", "rate": 12000000 },
-			{ "name": "div-uart1", "rate": 12000000 },
-			{ "name": "div-uart2", "rate": 12000000 },
-			{ "name": "div-uart3", "rate": 12000000 },
-			{ "name": "div-uart4", "rate": 12000000 },
-			{ "name": "div-uart5", "rate": 12000000 }
-		]
 	},
 
 	"irq-pl192@0xc0002000": {
@@ -812,5 +797,16 @@
 
 	"console-uart@0": {
 		"uart-bus": "uart-pl011.0"
+	},
+
+	"sdhci-xl00500@0xC0062000": {
+		"clock-name": "pll2"
+	},
+	"sdhci-xl00500@0xC0068000": {
+		"clock-name": "pll2"
+	},
+	"sdhci-xl00500@0xC0069000": {
+		"clock-name": "pll2",
+		"removable": false
 	}
 }

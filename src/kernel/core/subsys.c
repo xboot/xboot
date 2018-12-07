@@ -47,6 +47,7 @@ static void subsys_init_rootfs(void)
 {
 	vfs_mount("romdisk.0", "/", "cpio", MOUNT_RDONLY);
 	vfs_mount(NULL, "/sys", "sys", MOUNT_RDONLY);
+	vfs_mount(NULL, "/tmp", "ram", MOUNT_RW);
 	vfs_mount(NULL, "/storage" , "ram", MOUNT_RW);
 	vfs_mount(NULL, "/private" , "ram", MOUNT_RW);
 	vfs_mkdir("/private/application", 0755);

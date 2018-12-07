@@ -1,5 +1,5 @@
 /*
- * kernel/vfs/ram/ram.c
+ * kernel/vfs/fat/fat-control.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -26,113 +26,93 @@
  *
  */
 
-#include "fat_control.h"
-#include "mathlib.h"
+#include <vfs/fat/fat-control.h>
+#include <vfs/fat/mathlib.h>
 
-static int __fatfs_control_flush_fat_cache(struct fatfs_control *ctrl,
-					   u32 index)
+static int __fatfs_control_flush_fat_cache(struct fatfs_control_t * ctrl, u32_t index)
 {
-	u32 i, sect_num;
-	u64 fat_base, len;
+	u32_t i, sect_num;
+	u64_t fat_base, len;
 
-	if (!ctrl->fat_cache_dirty[index]) {
+	if(!ctrl->fat_cache_dirty[index])
 		return 0;
-	}
 
-	for (i = 0; i < ctrl->number_of_fat; i++) {
-		fat_base = ((u64)ctrl->first_fat_sector + 
-				  (i * ctrl->sectors_per_fat)) * 
-			   ctrl->bytes_per_sector;
+	for(i = 0; i < ctrl->number_of_fat; i++)
+	{
+		fat_base = ((u64_t)ctrl->first_fat_sector + (i * ctrl->sectors_per_fat)) * ctrl->bytes_per_sector;
 		sect_num = ctrl->fat_cache_num[index];
-		len = block_write(ctrl->bdev,
-			&ctrl->fat_cache_buf[index * ctrl->bytes_per_sector], 
-			fat_base + sect_num * ctrl->bytes_per_sector, 
-			ctrl->bytes_per_sector);
-		if (len != ctrl->bytes_per_sector) {
+		len = block_write(ctrl->bdev, &ctrl->fat_cache_buf[index * ctrl->bytes_per_sector], fat_base + sect_num * ctrl->bytes_per_sector,
+		        ctrl->bytes_per_sector);
+		if(len != ctrl->bytes_per_sector)
 			return -1;
-		}
 	}
-
 	ctrl->fat_cache_dirty[index] = FALSE;
 
 	return 0;
 }
 
-static int __fatfs_control_find_fat_cache(struct fatfs_control *ctrl,
-					   u32 sect_num)
+static int __fatfs_control_find_fat_cache(struct fatfs_control_t * ctrl, u32_t sect_num)
 {
 	int index;
-	
-	for (index = 0; index < FAT_TABLE_CACHE_SIZE; index++) {
-		if (ctrl->fat_cache_num[index] == sect_num) {
-			return index;
-		}
-	}
 
+	for(index = 0; index < FAT_TABLE_CACHE_SIZE; index++)
+	{
+		if(ctrl->fat_cache_num[index] == sect_num)
+			return index;
+	}
 	return -1;
 }
 
-static int __fatfs_control_load_fat_cache(struct fatfs_control *ctrl,
-					   u32 sect_num)
+static int __fatfs_control_load_fat_cache(struct fatfs_control_t * ctrl, u32_t sect_num)
 {
 	int rc;
-	u32 index;
-	u64 fat_base, len;
+	u32_t index;
+	u64_t fat_base, len;
 
-	if (-1 < __fatfs_control_find_fat_cache(ctrl, sect_num)) {
+	if(-1 < __fatfs_control_find_fat_cache(ctrl, sect_num))
 		return 0;
-	}
 
 	index = ctrl->fat_cache_victim;
 	ctrl->fat_cache_victim++;
-	if (ctrl->fat_cache_victim == FAT_TABLE_CACHE_SIZE) {
+	if(ctrl->fat_cache_victim == FAT_TABLE_CACHE_SIZE)
 		ctrl->fat_cache_victim = 0;
-	}
 
 	rc = __fatfs_control_flush_fat_cache(ctrl, index);
-	if (rc) {
+	if(rc)
 		return rc;
-	}
 
-	fat_base = (u64)ctrl->first_fat_sector * ctrl->bytes_per_sector;
-	len = block_read(ctrl->bdev,
-			&ctrl->fat_cache_buf[index * ctrl->bytes_per_sector], 
-			fat_base + sect_num * ctrl->bytes_per_sector, 
-			ctrl->bytes_per_sector);
-	if (len != ctrl->bytes_per_sector) {
+	fat_base = (u64_t) ctrl->first_fat_sector * ctrl->bytes_per_sector;
+	len = block_read(ctrl->bdev, &ctrl->fat_cache_buf[index * ctrl->bytes_per_sector], fat_base + sect_num * ctrl->bytes_per_sector, ctrl->bytes_per_sector);
+	if(len != ctrl->bytes_per_sector)
 		return -1;
-	}
 	ctrl->fat_cache_num[index] = sect_num;
 
 	return 0;
 }
 
-static u32 __fatfs_control_read_fat_cache(struct fatfs_control *ctrl, 
-					  u8 *buf, u32 pos)
+static u32_t __fatfs_control_read_fat_cache(struct fatfs_control_t * ctrl, u8_t * buf, u32_t pos)
 {
 	int rc, index;
-	u32 ret, sect_num, sect_off;
+	u32_t ret, sect_num, sect_off;
 
-	if ((ctrl->sectors_per_fat * ctrl->bytes_per_sector) <= pos) {
+	if((ctrl->sectors_per_fat * ctrl->bytes_per_sector) <= pos)
 		return 0;
-	}
 
 	sect_num = udiv32(pos, ctrl->bytes_per_sector);
 	sect_off = pos - (sect_num * ctrl->bytes_per_sector);
 
 	rc = __fatfs_control_load_fat_cache(ctrl, sect_num);
-	if (rc) {
+	if(rc)
 		return 0;
-	}
 
 	index = __fatfs_control_find_fat_cache(ctrl, sect_num);
-	if (index < 0) {
+	if(index < 0)
 		return 0;
-	}
 
 	index = (index * ctrl->bytes_per_sector) + sect_off;
 
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
 	case FAT_TYPE_16:
 		ret = 2;
@@ -154,32 +134,29 @@ static u32 __fatfs_control_read_fat_cache(struct fatfs_control *ctrl,
 	return ret;
 }
 
-static u32 __fatfs_control_write_fat_cache(struct fatfs_control *ctrl, 
-					   u8 *buf, u32 pos)
+static u32_t __fatfs_control_write_fat_cache(struct fatfs_control_t * ctrl, u8_t * buf, u32_t pos)
 {
 	int rc, index, cache_buf_index;
-	u32 ret, sect_num, sect_off;
+	u32_t ret, sect_num, sect_off;
 
-	if ((ctrl->sectors_per_fat * ctrl->bytes_per_sector) <= pos) {
+	if((ctrl->sectors_per_fat * ctrl->bytes_per_sector) <= pos)
 		return 0;
-	}
 
 	sect_num = udiv32(pos, ctrl->bytes_per_sector);
 	sect_off = pos - (sect_num * ctrl->bytes_per_sector);
 
 	rc = __fatfs_control_load_fat_cache(ctrl, sect_num);
-	if (rc) {
+	if(rc)
 		return 0;
-	}
 
 	index = __fatfs_control_find_fat_cache(ctrl, sect_num);
-	if (index < 0) {
+	if(index < 0)
 		return 0;
-	}
 
 	cache_buf_index = (index * ctrl->bytes_per_sector) + sect_off;
 
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
 	case FAT_TYPE_16:
 		ret = 2;
@@ -202,9 +179,10 @@ static u32 __fatfs_control_write_fat_cache(struct fatfs_control *ctrl,
 	return ret;
 }
 
-static u32 __fatfs_control_first_valid_cluster(struct fatfs_control *ctrl)
+static u32_t __fatfs_control_first_valid_cluster(struct fatfs_control_t * ctrl)
 {
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
 		return FAT12_RESERVED1_CLUSTER + 1;
 		break;
@@ -218,9 +196,10 @@ static u32 __fatfs_control_first_valid_cluster(struct fatfs_control *ctrl)
 	return 0x0;
 }
 
-static u32 __fatfs_control_last_valid_cluster(struct fatfs_control *ctrl)
+static u32_t __fatfs_control_last_valid_cluster(struct fatfs_control_t * ctrl)
 {
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
 		return FAT12_RESERVED2_CLUSTER - 1;
 		break;
@@ -230,52 +209,45 @@ static u32 __fatfs_control_last_valid_cluster(struct fatfs_control *ctrl)
 	case FAT_TYPE_32:
 		return FAT32_RESERVED2_CLUSTER - 1;
 		break;
-	};
+	}
 	return 0x0;
 }
 
-static bool __fatfs_control_valid_cluster(struct fatfs_control *ctrl, u32 cl)
+static bool_t __fatfs_control_valid_cluster(struct fatfs_control_t * ctrl, u32_t cl)
 {
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
-		if ((cl <= FAT12_RESERVED1_CLUSTER) ||
-		    (FAT12_RESERVED2_CLUSTER <= cl)) {
+		if((cl <= FAT12_RESERVED1_CLUSTER) || (FAT12_RESERVED2_CLUSTER <= cl))
 			return FALSE;
-		}
 		break;
 	case FAT_TYPE_16:
-		if ((cl <= FAT16_RESERVED1_CLUSTER) ||
-		    (FAT16_RESERVED2_CLUSTER <= cl)) {
+		if((cl <= FAT16_RESERVED1_CLUSTER) || (FAT16_RESERVED2_CLUSTER <= cl))
 			return FALSE;
-		}
 		break;
 	case FAT_TYPE_32:
-		if ((cl <= FAT32_RESERVED1_CLUSTER) ||
-		    (FAT32_RESERVED2_CLUSTER <= cl)) {
+		if((cl <= FAT32_RESERVED1_CLUSTER) || (FAT32_RESERVED2_CLUSTER <= cl))
 			return FALSE;
-		}
 		break;
 	};
 	return TRUE;
 }
 
-static int __fatfs_control_get_next_cluster(struct fatfs_control *ctrl, 
-					    u32 clust, u32 *next)
+static int __fatfs_control_get_next_cluster(struct fatfs_control_t *ctrl, u32_t clust, u32_t *next)
 {
-	u8 fat_entry_b[4];
-	u32 fat_entry, fat_off, fat_len, len;
+	u8_t fat_entry_b[4];
+	u32_t fat_entry, fat_off, fat_len, len;
 
-	if (!__fatfs_control_valid_cluster(ctrl, clust)) {
+	if(!__fatfs_control_valid_cluster(ctrl, clust))
 		return -1;
-	}
 
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
-		if (clust % 2) {
+		if(clust % 2)
 			fat_off = (clust - 1) * 12 / 8 + 1;
-		} else {
+		else
 			fat_off = clust * 12 / 8;
-		}
 		fat_len = 2;
 		break;
 	case FAT_TYPE_16:
@@ -291,63 +263,55 @@ static int __fatfs_control_get_next_cluster(struct fatfs_control *ctrl,
 	};
 
 	len = __fatfs_control_read_fat_cache(ctrl, &fat_entry_b[0], fat_off);
-	if (len != fat_len) {
+	if(len != fat_len)
 		return -1;
-	}
 
-	if (fat_len == 2) {
-		fat_entry = ((u32)fat_entry_b[1] << 8) | 
-			    ((u32)fat_entry_b[0]);
-	} else {
-		fat_entry = ((u32)fat_entry_b[3] << 24) |
-			    ((u32)fat_entry_b[2] << 16) | 
-			    ((u32)fat_entry_b[1] << 8) | 
-			    ((u32)fat_entry_b[0]); 
-	}
+	if(fat_len == 2)
+		fat_entry = ((u32_t) fat_entry_b[1] << 8) | ((u32_t) fat_entry_b[0]);
+	else
+		fat_entry = ((u32_t) fat_entry_b[3] << 24) | ((u32_t) fat_entry_b[2] << 16) | ((u32_t) fat_entry_b[1] << 8) | ((u32_t) fat_entry_b[0]);
 
-	if (ctrl->type == FAT_TYPE_12) {
-		if (clust % 2) { 
+	if(ctrl->type == FAT_TYPE_12)
+	{
+		if(clust % 2)
 			fat_entry >>= 4;
-		} else {
+		else
 			fat_entry &= 0xFFF;
-		}
 	}
 
-	if (next) {
+	if(next)
 		*next = fat_entry;
-	}
 
 	return 0;
 }
 
-static int __fatfs_control_set_next_cluster(struct fatfs_control *ctrl, 
-					    u32 clust, u32 next)
+static int __fatfs_control_set_next_cluster(struct fatfs_control_t *ctrl, u32_t clust, u32_t next)
 {
-	u8 fat_entry_b[4];
-	u32 fat_entry, fat_off, fat_len, len;
+	u8_t fat_entry_b[4];
+	u32_t fat_entry, fat_off, fat_len, len;
 
-	if (!__fatfs_control_valid_cluster(ctrl, clust)) {
+	if(!__fatfs_control_valid_cluster(ctrl, clust))
 		return -1;
-	}
 
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
-		if (clust % 2) {
+		if(clust % 2)
 			fat_off = (clust - 1) * 12 / 8 + 1;
-		} else {
+		else
 			fat_off = clust * 12 / 8;
-		}
 		fat_len = 2;
-		len = __fatfs_control_read_fat_cache(ctrl, 
-					&fat_entry_b[0], fat_off);
-		if (len != fat_len) {
+		len = __fatfs_control_read_fat_cache(ctrl, &fat_entry_b[0], fat_off);
+		if(len != fat_len)
 			return -1;
-		}
-		fat_entry = ((u32)fat_entry_b[1] << 8) | fat_entry_b[0];
-		if (clust % 2) { 
+		fat_entry = ((u32_t) fat_entry_b[1] << 8) | fat_entry_b[0];
+		if(clust % 2)
+		{
 			fat_entry &= ~0xFFF0;
 			fat_entry |= (next & 0xFFF) << 4;
-		} else {
+		}
+		else
+		{
 			fat_entry &= ~0xFFF;
 			fat_entry |= (next & 0xFFF);
 		}
@@ -375,34 +339,29 @@ static int __fatfs_control_set_next_cluster(struct fatfs_control *ctrl,
 	};
 
 	len = __fatfs_control_write_fat_cache(ctrl, &fat_entry_b[0], fat_off);
-	if (len != fat_len) {
+	if(len != fat_len)
 		return -1;
-	}
 
 	return 0;
 }
 
-static int __fatfs_control_set_last_cluster(struct fatfs_control *ctrl, 
-					    u32 clust)
+static int __fatfs_control_set_last_cluster(struct fatfs_control_t * ctrl, u32_t clust)
 {
 	int rc;
 
-	if (!__fatfs_control_valid_cluster(ctrl, clust)) {
+	if(!__fatfs_control_valid_cluster(ctrl, clust))
 		return -1;
-	}
 
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
-		rc = __fatfs_control_set_next_cluster(ctrl, clust, 
-							FAT12_LAST_CLUSTER);
+		rc = __fatfs_control_set_next_cluster(ctrl, clust, FAT12_LAST_CLUSTER);
 		break;
 	case FAT_TYPE_16:
-		rc = __fatfs_control_set_next_cluster(ctrl, clust, 
-							FAT16_LAST_CLUSTER);
+		rc = __fatfs_control_set_next_cluster(ctrl, clust, FAT16_LAST_CLUSTER);
 		break;
 	case FAT_TYPE_32:
-		rc = __fatfs_control_set_next_cluster(ctrl, clust, 
-							FAT32_LAST_CLUSTER);
+		rc = __fatfs_control_set_next_cluster(ctrl, clust, FAT32_LAST_CLUSTER);
 		break;
 	default:
 		rc = -1;
@@ -412,179 +371,157 @@ static int __fatfs_control_set_last_cluster(struct fatfs_control *ctrl,
 	return rc;
 }
 
-static int __fatfs_control_nth_cluster(struct fatfs_control *ctrl, 
-					u32 clust, u32 pos, u32 *next)
+static int __fatfs_control_nth_cluster(struct fatfs_control_t * ctrl, u32_t clust, u32_t pos, u32_t * next)
 {
 	int rc;
-	u32 i;
+	u32_t i;
 
-	if (next) {
+	if(next)
 		*next = clust;
-	}
 
-	if (!__fatfs_control_valid_cluster(ctrl, clust)) {
+	if(!__fatfs_control_valid_cluster(ctrl, clust))
 		return -1;
-	}
 
-	for (i = 0; i < pos; i++) {
+	for(i = 0; i < pos; i++)
+	{
 		rc = __fatfs_control_get_next_cluster(ctrl, clust, &clust);
-		if (rc) {
+		if(rc)
 			return rc;
-		}
 
-		if (next) {
+		if(next)
 			*next = clust;
-		}
 
-		if (!__fatfs_control_valid_cluster(ctrl, clust)) {
+		if(!__fatfs_control_valid_cluster(ctrl, clust))
 			return -1;
-		}
 	}
-
 	return 0;
 }
 
-static int __fatfs_control_alloc_first_cluster(struct fatfs_control *ctrl, 
-						u32 *newclust)
+static int __fatfs_control_alloc_first_cluster(struct fatfs_control_t * ctrl, u32_t * newclust)
 {
 	int rc;
-	bool found;
-	u32 current, next, first, last;
+	bool_t found;
+	u32_t current, next, first, last;
 
 	found = FALSE;
 	first = __fatfs_control_first_valid_cluster(ctrl);
 	last = __fatfs_control_last_valid_cluster(ctrl);
-	for (current = first; current <= last; current++) {
+	for(current = first; current <= last; current++)
+	{
 		rc = __fatfs_control_get_next_cluster(ctrl, current, &next);
-		if (rc) {
+		if(rc)
 			return rc;
-		}
 
-		if (next == 0x0) {
+		if(next == 0x0)
+		{
 			found = TRUE;
 			break;
 		}
 	}
 
-	if (!found) {
+	if(!found)
 		return -1;
-	}
 
 	rc = __fatfs_control_set_last_cluster(ctrl, current);
-	if (rc) {
+	if(rc)
 		return rc;
-	}
 
-	if (newclust) {
+	if(newclust)
 		*newclust = current;
-	}
 
 	return 0;
 }
 
-static int __fatfs_control_append_free_cluster(struct fatfs_control *ctrl, 
-					       u32 clust, u32 *newclust)
+static int __fatfs_control_append_free_cluster(struct fatfs_control_t *ctrl, u32_t clust, u32_t *newclust)
 {
 	int rc;
-	bool found;
-	u32 current, next, first, last;
+	bool_t found;
+	u32_t current, next, first, last;
 
-	if (!__fatfs_control_valid_cluster(ctrl, clust)) {
+	if(!__fatfs_control_valid_cluster(ctrl, clust))
 		return -1;
-	}
 
 	rc = __fatfs_control_get_next_cluster(ctrl, clust, &next);
-	if (rc) {
+	if(rc)
 		return rc;
-	}
 
-	while (__fatfs_control_valid_cluster(ctrl, next)) {
+	while(__fatfs_control_valid_cluster(ctrl, next))
+	{
 		clust = next;
 
 		rc = __fatfs_control_get_next_cluster(ctrl, clust, &next);
-		if (rc) {
+		if(rc)
 			return rc;
-		}
 	}
 
 	found = FALSE;
 	first = __fatfs_control_first_valid_cluster(ctrl);
 	last = __fatfs_control_last_valid_cluster(ctrl);
 	current = clust + 1;
-	while (1) {
-		if (clust == current) {
+	while(1)
+	{
+		if(clust == current)
 			break;
-		}
 
 		rc = __fatfs_control_get_next_cluster(ctrl, current, &next);
-		if (rc) {
+		if(rc)
 			return rc;
-		}
 
-		if (next == 0x0) {
+		if(next == 0x0)
+		{
 			found = TRUE;
 			break;
 		}
 
 		current++;
-		if (current > last) {
+		if(current > last)
 			current = first;
-		}
 	}
 
-	if (!found) {
+	if(!found)
 		return -1;
-	}
 
 	rc = __fatfs_control_set_last_cluster(ctrl, current);
-	if (rc) {
+	if(rc)
 		return rc;
-	}
 
 	rc = __fatfs_control_set_next_cluster(ctrl, clust, current);
-	if (rc) {
+	if(rc)
 		return rc;
-	}
 
-	if (newclust) {
+	if(newclust)
 		*newclust = clust;
-	}
 
 	return 0;
 }
 
-static int __fatfs_control_truncate_clusters(struct fatfs_control *ctrl, 
-					     u32 clust)
+static int __fatfs_control_truncate_clusters(struct fatfs_control_t *ctrl, u32_t clust)
 {
 	int rc;
-	u32 current, next = clust;
+	u32_t current, next = clust;
 
-	while (__fatfs_control_valid_cluster(ctrl, next)) {
+	while(__fatfs_control_valid_cluster(ctrl, next))
+	{
 		current = next;
 
 		rc = __fatfs_control_get_next_cluster(ctrl, current, &next);
-		if (rc) {
+		if(rc)
 			return rc;
-		}
-	
+
 		rc = __fatfs_control_set_next_cluster(ctrl, current, 0x0);
-		if (rc) {
+		if(rc)
 			return rc;
-		}
 	}
 
 	return 0;
 }
 
-u32 fatfs_pack_timestamp(u32 year, u32 mon, u32 day, 
-			 u32 hour, u32 min, u32 sec)
+u32_t fatfs_pack_timestamp(u32_t year, u32_t mon, u32_t day, u32_t hour, u32_t min, u32_t sec)
 {
-	return (u32)0;//xxx vmm_wallclock_mktime(1980+year, mon, day, hour, min, sec);
+	return (u32_t) 0; //xxx vmm_wallclock_mktime(1980+year, mon, day, hour, min, sec);
 }
 
-void fatfs_current_timestamp(u32 *year, u32 *mon, u32 *day, 
-			     u32 *hour, u32 *min, u32 *sec)
-
+void fatfs_current_timestamp(u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec)
 {
 //xxx	struct timeval tv;
 //xxx	struct timeinfo ti;
@@ -592,38 +529,37 @@ void fatfs_current_timestamp(u32 *year, u32 *mon, u32 *day,
 //xxx	vmm_wallclock_get_local_time(&tv);
 //xxx	vmm_wallclock_mkinfo(tv.tv_sec, 0, &ti);
 
-/*	if (year) {
-		*year = ti.tm_year + 1900 - 1980;
-	}
-xxx
-	if (mon) {
-		*mon = ti.tm_mon;
-	}
+	/*	if (year) {
+	 *year = ti.tm_year + 1900 - 1980;
+	 }
+	 xxx
+	 if (mon) {
+	 *mon = ti.tm_mon;
+	 }
 
-	if (day) {
-		*day = ti.tm_mday;
-	}
+	 if (day) {
+	 *day = ti.tm_mday;
+	 }
 
-	if (hour) {
-		*hour = ti.tm_hour;
-	}
+	 if (hour) {
+	 *hour = ti.tm_hour;
+	 }
 
-	if (min) {
-		*min = ti.tm_min;
-	}
+	 if (min) {
+	 *min = ti.tm_min;
+	 }
 
-	if (sec) {
-		*sec = ti.tm_sec;
-	}*/
+	 if (sec) {
+	 *sec = ti.tm_sec;
+	 }*/
 }
 
-bool fatfs_control_valid_cluster(struct fatfs_control *ctrl, u32 clust)
+bool_t fatfs_control_valid_cluster(struct fatfs_control_t * ctrl, u32_t clust)
 {
 	return __fatfs_control_valid_cluster(ctrl, clust);
 }
 
-int fatfs_control_nth_cluster(struct fatfs_control *ctrl, 
-				u32 clust, u32 pos, u32 *next)
+int fatfs_control_nth_cluster(struct fatfs_control_t * ctrl, u32_t clust, u32_t pos, u32_t * next)
 {
 	int rc;
 
@@ -634,7 +570,7 @@ int fatfs_control_nth_cluster(struct fatfs_control *ctrl,
 	return rc;
 }
 
-int fatfs_control_set_last_cluster(struct fatfs_control *ctrl, u32 clust)
+int fatfs_control_set_last_cluster(struct fatfs_control_t * ctrl, u32_t clust)
 {
 	int rc;
 
@@ -645,8 +581,7 @@ int fatfs_control_set_last_cluster(struct fatfs_control *ctrl, u32 clust)
 	return rc;
 }
 
-int fatfs_control_alloc_first_cluster(struct fatfs_control *ctrl, 
-				      u32 *newclust)
+int fatfs_control_alloc_first_cluster(struct fatfs_control_t * ctrl, u32_t * newclust)
 {
 	int rc;
 
@@ -657,8 +592,7 @@ int fatfs_control_alloc_first_cluster(struct fatfs_control *ctrl,
 	return rc;
 }
 
-int fatfs_control_append_free_cluster(struct fatfs_control *ctrl, 
-				      u32 clust, u32 *newclust)
+int fatfs_control_append_free_cluster(struct fatfs_control_t * ctrl, u32_t clust, u32_t * newclust)
 {
 	int rc;
 
@@ -669,8 +603,7 @@ int fatfs_control_append_free_cluster(struct fatfs_control *ctrl,
 	return rc;
 }
 
-int fatfs_control_truncate_clusters(struct fatfs_control *ctrl, 
-				    u32 clust)
+int fatfs_control_truncate_clusters(struct fatfs_control_t * ctrl, u32_t clust)
 {
 	int rc;
 
@@ -681,15 +614,17 @@ int fatfs_control_truncate_clusters(struct fatfs_control *ctrl,
 	return rc;
 }
 
-int fatfs_control_sync(struct fatfs_control *ctrl)
+int fatfs_control_sync(struct fatfs_control_t * ctrl)
 {
 	int rc, index;
 
 	/* Flush entire FAT sector cache */
 	mutex_lock(&ctrl->fat_cache_lock);
-	for (index = 0; index < FAT_TABLE_CACHE_SIZE; index++) {
+	for(index = 0; index < FAT_TABLE_CACHE_SIZE; index++)
+	{
 		rc = __fatfs_control_flush_fat_cache(ctrl, index);
-		if (rc) {
+		if(rc)
+		{
 			mutex_unlock(&ctrl->fat_cache_lock);
 			return rc;
 		}
@@ -702,125 +637,110 @@ int fatfs_control_sync(struct fatfs_control *ctrl)
 	return 0;
 }
 
-int fatfs_control_init(struct fatfs_control *ctrl, struct block_t *bdev)
+int fatfs_control_init(struct fatfs_control_t * ctrl, struct block_t * bdev)
 {
-	u32 i;
-	u64 rlen;
-	struct fat_bootsec *bsec = &ctrl->bsec;
+	u32_t i;
+	u64_t rlen;
+	struct fat_bootsec_t *bsec = &ctrl->bsec;
 
 	/* Read boot sector from block device */
-	rlen = block_read(bdev, (u8 *)bsec,
-				FAT_BOOTSECTOR_OFFSET, 
-				sizeof(struct fat_bootsec));
-	if (rlen != sizeof(struct fat_bootsec)) {
+	rlen = block_read(bdev, (u8_t *) bsec,
+	FAT_BOOTSECTOR_OFFSET, sizeof(struct fat_bootsec_t));
+	if(rlen != sizeof(struct fat_bootsec_t))
 		return -1;
-	}
 
 	/* Save underlying block device pointer */
 	ctrl->bdev = bdev;
 
 	/* Get bytes_per_sector and sector_per_cluster */
-	ctrl->bytes_per_sector = __le16(bsec->bytes_per_sector);
+	ctrl->bytes_per_sector = le16_to_cpu(bsec->bytes_per_sector);
 	ctrl->sectors_per_cluster = bsec->sectors_per_cluster;
 
 	/* Sanity check bytes_per_sector and sector_per_cluster */
-	if (!ctrl->bytes_per_sector || !ctrl->sectors_per_cluster) {
+	if(!ctrl->bytes_per_sector || !ctrl->sectors_per_cluster)
 		return -1;
-	}
 
 	/* Frequently required info */
 	ctrl->number_of_fat = bsec->number_of_fat;
-	ctrl->bytes_per_cluster = 
-			ctrl->sectors_per_cluster * ctrl->bytes_per_sector;
-	ctrl->total_sectors = __le16(bsec->total_sectors_16);
-	if (!ctrl->total_sectors) {
-		ctrl->total_sectors = __le32(bsec->total_sectors_32);
-	}
+	ctrl->bytes_per_cluster = ctrl->sectors_per_cluster * ctrl->bytes_per_sector;
+	ctrl->total_sectors = le16_to_cpu(bsec->total_sectors_16);
+	if(!ctrl->total_sectors)
+		ctrl->total_sectors = le32_to_cpu(bsec->total_sectors_32);
 
 	/* Calculate derived info assuming FAT12/FAT16 */
-	ctrl->first_fat_sector = __le16(bsec->reserved_sector_count);
-	ctrl->sectors_per_fat = __le16(bsec->sectors_per_fat);
+	ctrl->first_fat_sector = le16_to_cpu(bsec->reserved_sector_count);
+	ctrl->sectors_per_fat = le16_to_cpu(bsec->sectors_per_fat);
 	ctrl->fat_sectors = ctrl->number_of_fat * ctrl->sectors_per_fat;
 
 	ctrl->first_root_sector = ctrl->first_fat_sector + ctrl->fat_sectors;
-	ctrl->root_sectors = (__le16(bsec->root_entry_count) * 32) + 
-						(ctrl->bytes_per_sector - 1);
-	ctrl->root_sectors = 
-			udiv32(ctrl->root_sectors, ctrl->bytes_per_sector);
+	ctrl->root_sectors = (le16_to_cpu(bsec->root_entry_count) * 32) + (ctrl->bytes_per_sector - 1);
+	ctrl->root_sectors = udiv32(ctrl->root_sectors, ctrl->bytes_per_sector);
 	ctrl->first_root_cluster = 0;
 
 	ctrl->first_data_sector = ctrl->first_root_sector + ctrl->root_sectors;
 	ctrl->data_sectors = ctrl->total_sectors - ctrl->first_data_sector;
-	ctrl->data_clusters = 
-			udiv32(ctrl->data_sectors, ctrl->sectors_per_cluster);
+	ctrl->data_clusters = udiv32(ctrl->data_sectors, ctrl->sectors_per_cluster);
 
 	/* Determine FAT type */
-	if (ctrl->data_clusters < 4085) {
+	if(ctrl->data_clusters < 4085)
 		ctrl->type = FAT_TYPE_12;
-	} else if (ctrl->data_clusters < 65525) {
+	else if(ctrl->data_clusters < 65525)
 		ctrl->type = FAT_TYPE_16;
-	} else {
+	else
 		ctrl->type = FAT_TYPE_32;
-	}
 
 	/* FAT type sanity check */
-	switch (ctrl->type) {
+	switch(ctrl->type)
+	{
 	case FAT_TYPE_12:
-		if (memcmp(bsec->ext.e16.fs_type,"FAT12",5)) {
+		if(memcmp(bsec->ext.e16.fs_type, "FAT12", 5))
 			return -1;
-		}
 		break;
 	case FAT_TYPE_16:
-		if (memcmp(bsec->ext.e16.fs_type,"FAT16",5)) {
+		if(memcmp(bsec->ext.e16.fs_type, "FAT16", 5))
 			return -1;
-		}
 		break;
 	case FAT_TYPE_32:
-		if (memcmp(bsec->ext.e32.fs_type,"FAT32",5)) {
+		if(memcmp(bsec->ext.e32.fs_type, "FAT32", 5))
 			return -1;
-		}
 		break;
 	default:
 		return -1;
 	}
 
 	/* For FAT32, recompute derived info */
-	if (ctrl->type == FAT_TYPE_32) {
-		ctrl->first_fat_sector = __le16(bsec->reserved_sector_count);
-		ctrl->sectors_per_fat = __le32(bsec->ext.e32.sectors_per_fat);
+	if(ctrl->type == FAT_TYPE_32)
+	{
+		ctrl->first_fat_sector = le16_to_cpu(bsec->reserved_sector_count);
+		ctrl->sectors_per_fat = le32_to_cpu(bsec->ext.e32.sectors_per_fat);
 		ctrl->fat_sectors = ctrl->number_of_fat * ctrl->sectors_per_fat;
 
 		ctrl->first_root_sector = 0;
 		ctrl->root_sectors = 0;
-		ctrl->first_root_cluster = 
-				__le32(bsec->ext.e32.root_directory_cluster);
+		ctrl->first_root_cluster = le32_to_cpu(bsec->ext.e32.root_directory_cluster);
 
-		ctrl->first_data_sector = 
-				ctrl->first_fat_sector + ctrl->fat_sectors;
-		ctrl->data_sectors = 
-				ctrl->total_sectors - ctrl->first_data_sector;
-		ctrl->data_clusters = 
-			udiv32(ctrl->data_sectors, ctrl->sectors_per_cluster);
+		ctrl->first_data_sector = ctrl->first_fat_sector + ctrl->fat_sectors;
+		ctrl->data_sectors = ctrl->total_sectors - ctrl->first_data_sector;
+		ctrl->data_clusters = udiv32(ctrl->data_sectors, ctrl->sectors_per_cluster);
 	}
 
 	/* Initialize fat cache */
 	mutex_init(&ctrl->fat_cache_lock);
 	ctrl->fat_cache_victim = 0;
-	for (i = 0; i < FAT_TABLE_CACHE_SIZE; i++) {
+	for(i = 0; i < FAT_TABLE_CACHE_SIZE; i++)
+	{
 		ctrl->fat_cache_dirty[i] = FALSE;
 		ctrl->fat_cache_num[i] = i;
 	}
-	ctrl->fat_cache_buf = 
-		calloc(1, FAT_TABLE_CACHE_SIZE * ctrl->bytes_per_sector);
-	if (!ctrl->fat_cache_buf) {
+	ctrl->fat_cache_buf = calloc(1, FAT_TABLE_CACHE_SIZE * ctrl->bytes_per_sector);
+	if(!ctrl->fat_cache_buf)
 		return -1;
-	}
 
 	/* Load fat cache */
-	rlen = block_read(ctrl->bdev, ctrl->fat_cache_buf,
-			ctrl->first_fat_sector * ctrl->bytes_per_sector, 
-			FAT_TABLE_CACHE_SIZE * ctrl->bytes_per_sector);
-	if (rlen != (FAT_TABLE_CACHE_SIZE * ctrl->bytes_per_sector)) {
+	rlen = block_read(ctrl->bdev, ctrl->fat_cache_buf, ctrl->first_fat_sector * ctrl->bytes_per_sector,
+	FAT_TABLE_CACHE_SIZE * ctrl->bytes_per_sector);
+	if(rlen != (FAT_TABLE_CACHE_SIZE * ctrl->bytes_per_sector))
+	{
 		free(ctrl->fat_cache_buf);
 		return -1;
 	}
@@ -828,10 +748,8 @@ int fatfs_control_init(struct fatfs_control *ctrl, struct block_t *bdev)
 	return 0;
 }
 
-int fatfs_control_exit(struct fatfs_control *ctrl)
+int fatfs_control_exit(struct fatfs_control_t * ctrl)
 {
 	free(ctrl->fat_cache_buf);
-
 	return 0;
 }
-

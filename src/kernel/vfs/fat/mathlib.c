@@ -1,27 +1,33 @@
-/**
- * Copyright (c) 2012 Anup Patel.
- * All rights reserved.
+/*
+ * kernel/vfs/fat/mathlib.c
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
+ * Official site: http://xboot.org
+ * Mobile phone: +86-18665388956
+ * QQ: 8192542
  *
- * @file mathlib.c
- * @author Anup Patel (anup@brainfault.org)
- * @brief Software implementation common math operations
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
  */
 
-#include "fat_common.h"
+#include <vfs/fat/fat.h>
+#include <vfs/fat/mathlib.h>
 
 static const unsigned char byte_reverse_table[] = 
 {
@@ -43,9 +49,9 @@ static const unsigned char byte_reverse_table[] =
   0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF, 0x3F, 0xBF, 0x7F, 0xFF
 };
 
-static inline u32 do_fls64(u64 value) 
+static inline u32_t do_fls64(u64_t value)
 {
-	u32 num_bits = 0;
+	u32_t num_bits = 0;
 	if (value & 0xFFFF000000000000ULL) {
 		num_bits += 16;
 		value = value >> 16;
@@ -77,11 +83,11 @@ static inline u32 do_fls64(u64 value)
 	return num_bits;
 }
 
-u64 do_udiv64(u64 dividend, u64 divisor, u64 * remainder)
+u64_t do_udiv64(u64_t dividend, u64_t divisor, u64_t * remainder)
 {
-	u32 num_bits;
-	register u8 *p, *q;
-	u64 quotient, remaind;
+	u32_t num_bits;
+	register u8_t *p, *q;
+	u64_t quotient, remaind;
 
 	if (divisor == 0) {
 		while (1);
@@ -98,8 +104,8 @@ u64 do_udiv64(u64 dividend, u64 divisor, u64 * remainder)
 	remaind = 0;
 	num_bits = do_fls64(dividend);
 	dividend = dividend << (64 - num_bits);
-	p = (u8 *)&dividend;
-	q = (u8 *)&quotient;
+	p = (u8_t *)&dividend;
+	q = (u8_t *)&quotient;
 	q[7] = byte_reverse_table[p[0]]; 
 	q[6] = byte_reverse_table[p[1]]; 
 	q[5] = byte_reverse_table[p[2]]; 
@@ -130,9 +136,9 @@ u64 do_udiv64(u64 dividend, u64 divisor, u64 * remainder)
 	return quotient;
 }
 
-static inline u32 do_fls32(u32 value) 
+static inline u32_t do_fls32(u32_t value)
 {
-	u32 num_bits = 0;
+	u32_t num_bits = 0;
 	if (value & 0xFFFF0000) {
 		num_bits += 16;
 		value = value >> 16;
@@ -156,10 +162,10 @@ static inline u32 do_fls32(u32 value)
 	return num_bits;
 }
 
-u32 do_udiv32(u32 dividend, u32 divisor, u32 * remainder)
+u32_t do_udiv32(u32_t dividend, u32_t divisor, u32_t * remainder)
 {
-	register u8 *p, *q;
-	u32 num_bits, quotient, remaind;
+	register u8_t *p, *q;
+	u32_t num_bits, quotient, remaind;
 
 	if (divisor == 0) {
 		while (1);
@@ -176,8 +182,8 @@ u32 do_udiv32(u32 dividend, u32 divisor, u32 * remainder)
 	remaind = 0;
 	num_bits = do_fls32(dividend);
 	dividend = dividend << (32 - num_bits);
-	p = (u8 *)&dividend;
-	q = (u8 *)&quotient;
+	p = (u8_t *)&dividend;
+	q = (u8_t *)&quotient;
 	q[3] = byte_reverse_table[p[0]]; 
 	q[2] = byte_reverse_table[p[1]]; 
 	q[1] = byte_reverse_table[p[2]]; 

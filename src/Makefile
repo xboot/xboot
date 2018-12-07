@@ -314,4 +314,4 @@ sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
 			&& $(CD) .obj/romdisk									\
 			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio	\
 			&& $(CD) ../..)											\
-#			$(X_DEPS)
+			$(X_DEPS)

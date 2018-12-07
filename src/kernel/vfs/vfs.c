@@ -1624,12 +1624,12 @@ void do_init_vfs(void)
 
 int remove(const char * path)
 {
-	return 0;
+	return vfs_unlink(path);
 }
 
 int rename(const char * old, const char * new)
 {
-	return 0;
+	return vfs_rename(old, new);
 }
 
 int system(const char * cmdline)

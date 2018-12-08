@@ -217,7 +217,7 @@ void machine_shutdown(void)
 {
 	struct machine_t * mach = get_machine();
 
-	sync();
+	vfs_sync();
 	if(mach && mach->shutdown)
 		mach->shutdown(mach);
 }
@@ -226,7 +226,7 @@ void machine_reboot(void)
 {
 	struct machine_t * mach = get_machine();
 
-	sync();
+	vfs_sync();
 	if(mach && mach->reboot)
 		mach->reboot(mach);
 	watchdog_set_timeout(search_first_watchdog(), 1);
@@ -237,7 +237,7 @@ void machine_sleep(void)
 	struct machine_t * mach = get_machine();
 	struct device_t * pos, * n;
 
-	sync();
+	vfs_sync();
 	list_for_each_entry_safe_reverse(pos, n, &__device_list, list)
 	{
 		suspend_device(pos);
@@ -256,7 +256,7 @@ void machine_cleanup(void)
 {
 	struct machine_t * mach = get_machine();
 
-	sync();
+	vfs_sync();
 	if(mach && mach->cleanup)
 		mach->cleanup(mach);
 }
@@ -264,7 +264,7 @@ void machine_cleanup(void)
 int machine_logger(const char * fmt, ...)
 {
 	struct machine_t * mach = get_machine();
-	struct timeval tv;
+	uint64_t us;
 	char buf[SZ_4K];
 	int len = 0;
 	va_list ap;
@@ -272,8 +272,8 @@ int machine_logger(const char * fmt, ...)
 	if(mach && mach->logger)
 	{
 		va_start(ap, fmt);
-		gettimeofday(&tv, 0);
-		len += sprintf((char *)(buf + len), "[%5u.%06u]", tv.tv_sec, tv.tv_usec);
+		us = ktime_to_us(ktime_get());
+		len += sprintf((char *)(buf + len), "[%5u.%06u]", (unsigned long)(us / 1000000), (unsigned long)((us % 1000000)));
 		len += vsnprintf((char *)(buf + len), (SZ_4K - len), fmt, ap);
 		va_end(ap);
 		mach->logger(mach, (const char *)buf, len);

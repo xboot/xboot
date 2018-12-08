@@ -2,17 +2,17 @@
  * libc/stdio/tmpfile.c
  */
 
-#include <fs/fileio.h>
+#include <vfs/vfs.h>
 #include <stdio.h>
 
 FILE * tmpfile(void)
 {
-	struct stat st;
-	char path[MAX_PATH];
+	struct vfs_stat_t st;
+	char path[VFS_MAX_PATH];
 
 	do {
 		sprintf(path, "%s/tmpfile_%d", "/tmp", rand());
-	} while(stat(path, &st) == 0);
+	} while(vfs_stat(path, &st) < 0);
 
 	return fopen(path, "wb+");
 }

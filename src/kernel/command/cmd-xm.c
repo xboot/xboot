@@ -122,7 +122,7 @@ static void xm_send_fill_packet(struct xm_send_ctx_t * ctx)
 	ctx->num0 = ctx->index;
 	ctx->num1 = 255 - ctx->index;
 	memset(ctx->buf, 0x1a, ctx->pksz);
-	if(read(ctx->fd, (void *)ctx->buf, ctx->pksz) > 0)
+	if(vfs_read(ctx->fd, (void *)ctx->buf, ctx->pksz) > 0)
 	{
 		ctx->eot = 0;
 		if(ctx->mode == CRC_MODE_ADD8)
@@ -407,7 +407,7 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 				{
 					if(ctx->num0 == (ctx->index & 0xff))
 					{
-						write(ctx->fd, ctx->buf, ctx->bufsz);
+						vfs_write(ctx->fd, ctx->buf, ctx->bufsz);
 						ctx->index = (ctx->index + 1) & 0xff;
 					}
 					ctx->retry = 0;
@@ -444,7 +444,7 @@ static int xm_recv(struct xm_recv_ctx_t * ctx)
 			{
 				if(ctx->num0 == (ctx->index & 0xff))
 				{
-					write(ctx->fd, ctx->buf, ctx->bufsz);
+					vfs_write(ctx->fd, ctx->buf, ctx->bufsz);
 					ctx->index = (ctx->index + 1) & 0xff;
 				}
 				ctx->retry = 0;
@@ -492,6 +492,7 @@ static void rx_usage(void)
 static int sx(int argc, char ** argv)
 {
 	struct xm_send_ctx_t ctx;
+	char fpath[VFS_MAX_PATH];
 	char * filename = "";
 	int i, k = 0;
 	int fd, ret;
@@ -510,7 +511,13 @@ static int sx(int argc, char ** argv)
 			filename = argv[i];
 	}
 
-	fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	if(shell_realpath(filename, fpath) < 0)
+	{
+		printf("Can not convert '%s' to realpath\r\n", filename);
+		return -1;
+	}
+
+	fd = vfs_open(fpath, O_RDONLY, 0);
 	if(fd < 0)
 	{
 		printf("Can not to open file '%s'\r\n", argv[1]);
@@ -524,13 +531,14 @@ static int sx(int argc, char ** argv)
 	ctx.pksz = (k == 0) ? 128 : 1024;
 
 	ret = xm_send(&ctx);
-	close(fd);
+	vfs_close(fd);
 	return ret;
 }
 
 static int rx(int argc, char ** argv)
 {
 	struct xm_recv_ctx_t ctx;
+	char fpath[VFS_MAX_PATH];
 	int fd, ret;
 
 	if(argc != 2)
@@ -539,7 +547,13 @@ static int rx(int argc, char ** argv)
 		return -1;
 	}
 
-	fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH));
+	if(shell_realpath(argv[1], fpath) < 0)
+	{
+		printf("Can not convert '%s' to realpath\r\n", argv[1]);
+		return -1;
+	}
+
+	fd = vfs_open(fpath, O_WRONLY | O_CREAT | O_TRUNC, 0755);
 	if(fd < 0)
 	{
 		printf("Can not to open file '%s'\r\n", argv[1]);
@@ -554,9 +568,9 @@ static int rx(int argc, char ** argv)
 	ctx.index = 1;
 
 	ret = xm_recv(&ctx);
-	close(fd);
+	vfs_close(fd);
 	if(ret < 0)
-		unlink(argv[1]);
+		vfs_unlink(fpath);
 	return ret;
 }
 

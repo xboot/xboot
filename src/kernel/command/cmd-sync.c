@@ -36,7 +36,7 @@ static void usage(void)
 
 static int do_sync(int argc, char ** argv)
 {
-	sync();
+	vfs_sync();
 	return 0;
 }
 

@@ -51,7 +51,9 @@ NS_STDIO	:=	-Dclearerr=xboot_clearerr -Dfclose=xboot_fclose \
 				-Dsscanf=xboot_sscanf -Dtmpfile=xboot_tmpfile \
 				-Dtmpnam=xboot_tmpnam -Dungetc=xboot_ungetc \
 				-Dvsnprintf=xboot_vsnprintf -Dvsscanf=xboot_vsscanf \
-				-Dvasprintf=xboot_vasprintf -Dasprintf=xboot_asprintf
+				-Dvasprintf=xboot_vasprintf -Dasprintf=xboot_asprintf \
+				-Dremove=xboot_remove -Drename=xboot_rename \
+				-Dsystem=xboot_system
 
 NS_STDLIB	:=	-Drand=xboot_rand -Dsrand=xboot_srand \
 				-Dabs=xboot_abs -Dlabs=xboot_labs \
@@ -86,7 +88,7 @@ NS_TIME		:=	-Dstrftime=xboot_strftime -Dasctime=xboot_asctime \
 				-Dclock=xboot_clock -Dctime=xboot_ctime \
 				-Ddifftime=xboot_difftime -Dgettimeofday=xboot_gettimeofday \
 				-Dgmtime=xboot_gmtime -Dlocaltime=xboot_localtime \
-				-Dtime=xboot_time
+				-Dtime=xboot_time -Dmktime=xboot_mktime
 
 NS_MATH		:=	-Dacos=xboot_acos -Dacosf=xboot_acosf \
 				-Dacosh=xboot_acosh -Dacoshf=xboot_acoshf \
@@ -133,31 +135,12 @@ NS_MATH		:=	-Dacos=xboot_acos -Dacosf=xboot_acosf \
 				-D__sindf=xboot___sindf -D__tan=xboot___tan \
 				-D__tandf=xboot___tandf
 
-NS_FILEIO	:=	-Dmount=xboot_mount -Dsync=xboot_sync \
-				-Dumount=xboot_umount -Dopen=xboot_open \
-				-Dread=xboot_read -Dwrite=xboot_write \
-				-Dlseek=xboot_lseek -Dfstat=xboot_fstat \
-				-Dioctl=xboot_ioctl -Dfsync=xboot_fsync \
-				-Dclose=xboot_close -Dopendir=xboot_opendir \
-				-Dreaddir=xboot_readdir -Drewinddir=xboot_rewinddir \
-				-Dclosedir=xboot_closedir -Dgetcwd=xboot_getcwd \
-				-Dchdir=xboot_chdir -Dmkdir=xboot_mkdir \
-				-Drmdir=xboot_rmdir -Dstat=xboot_stat \
-				-Daccess=xboot_access -Drename=xboot_rename \
-				-Dunlink=xboot_unlink -Dremove=xboot_remove \
-				-Dmknod=xboot_mknod -Dchmod=xboot_chmod \
-				-Dchown=xboot_chown -Dumask=xboot_umask \
-				-Dftruncate=xboot_ftruncate -Dtruncate=xboot_truncate \
-				-Dreadv=xboot_readv -Dwritev=xboot_writev
-
-NS_TEMP		:=	-Dmktime=xboot_mktime -Dctrlc=xboot_ctrlc \
-				-Dsystem=xboot_system -Dparser=xboot_parser \
-				-Dreadline=xboot_readline
+NS_TEMP		:=	-Dreadline=xboot_readline
 
 DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 				$(NS_EXIT) $(NS_LOCALE) $(NS_MALLOC) $(NS_PATH) \
 				$(NS_STDIO) $(NS_STDLIB) $(NS_STRING) $(NS_TIME) \
-				$(NS_MATH) $(NS_FILEIO) $(NS_TEMP)
+				$(NS_MATH) $(NS_TEMP)
 
 DEFINES		+=	-D__SANDBOX__
 

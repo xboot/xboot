@@ -798,16 +798,16 @@ void laserscan_load_ilda(struct laserscan_t * l, const char * file)
 	ctx.state = ILDA_STATE_MAGIC;
 	ctx.index = 0;
 
-	fd = open(file, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(file, O_RDONLY, 0);
 	if(fd < 0)
 		return;
 
-	while((n = read(fd, buf, sizeof(buf))) > 0)
+	while((n = vfs_read(fd, buf, sizeof(buf))) > 0)
 	{
 		for(i = 0; i < n; i++)
 		{
 			ilda_push_byte(&ctx, l, buf[i]);
 		}
 	}
-	close(fd);
+	vfs_close(fd);
 }

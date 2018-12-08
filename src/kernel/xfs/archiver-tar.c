@@ -155,8 +155,8 @@ static struct mhandle_tar_t * alloc_mhandle(int fd)
 	off = 0;
 	while(1)
 	{
-		lseek(fd, off, SEEK_SET);
-		if(read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
+		vfs_lseek(fd, off, VFS_SEEK_SET);
+		if(vfs_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
 			break;
 		if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
 			break;
@@ -195,8 +195,8 @@ static struct mhandle_tar_t * alloc_mhandle(int fd)
 	off = 0;
 	while(1)
 	{
-		lseek(fd, off, SEEK_SET);
-		if(read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
+		vfs_lseek(fd, off, VFS_SEEK_SET);
+		if(vfs_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t))
 			break;
 		if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
 			break;
@@ -259,26 +259,26 @@ static void * tar_mount(const char * path, int * writable)
 {
 	struct mhandle_tar_t * m;
 	struct tar_header_t header;
-	struct stat st;
+	struct vfs_stat_t st;
 	int fd;
 
-	if((stat(path, &st) != 0) || !S_ISREG(st.st_mode))
+	if((vfs_stat(path, &st) < 0) || !S_ISREG(st.st_mode))
 		return NULL;
 
-	fd = open(path, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(path, O_RDONLY, 0);
 	if(fd < 0)
 		return NULL;
 
-	if((read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t)) || (strncmp((const char *)(header.magic), "ustar", 5) != 0))
+	if((vfs_read(fd, &header, sizeof(struct tar_header_t)) != sizeof(struct tar_header_t)) || (strncmp((const char *)(header.magic), "ustar", 5) != 0))
 	{
-		close(fd);
+		vfs_close(fd);
 		return NULL;
 	}
 
 	m = alloc_mhandle(fd);
 	if(!m)
 	{
-		close(fd);
+		vfs_close(fd);
 		return NULL;
 	}
 
@@ -293,7 +293,7 @@ static void tar_umount(void * m)
 
 	if(mh)
 	{
-		close(mh->fd);
+		vfs_close(mh->fd);
 		free_mhandle(mh);
 	}
 }
@@ -379,8 +379,8 @@ static s64_t tar_read(void * f, void * buf, s64_t size)
 	s64_t len;
 	if(size > fh->size - fh->offset)
 		size = fh->size - fh->offset;
-	lseek(fh->fd, fh->start + fh->offset, SEEK_SET);
-	len = read(fh->fd, buf, size);
+	vfs_lseek(fh->fd, fh->start + fh->offset, VFS_SEEK_SET);
+	len = vfs_read(fh->fd, buf, size);
 	fh->offset += len;
 	return len;
 }
@@ -397,7 +397,7 @@ static s64_t tar_seek(void * f, s64_t offset)
 		fh->offset = 0;
 	else if(offset > fh->size)
 		fh->offset = fh->size;
-	lseek(fh->fd, fh->start + fh->offset, SEEK_SET);
+	vfs_lseek(fh->fd, fh->start + fh->offset, VFS_SEEK_SET);
 	return fh->offset;
 }
 

@@ -36,14 +36,14 @@ static void usage(void)
 
 static int do_mount(int argc, char ** argv)
 {
+	char fpath[VFS_MAX_PATH];
 	char * fstype = NULL;
-	char * dev = NULL, * dir = NULL;
-	bool_t ro_flag = FALSE;
-	s32_t mount_flag = 0;
-	struct block_t * blk;
-	struct stat st;
-	char * pdev = NULL;
-	s32_t i, index = 0;
+	char * dev = NULL;
+	char * dir = NULL;
+	u32_t mflag;
+	int ro = 0;
+	int i, index = 0;
+	int fd;
 
 	if(argc < 5)
 	{
@@ -51,22 +51,22 @@ static int do_mount(int argc, char ** argv)
 		return -1;
 	}
 
-	for(i=1; i<argc; i++)
+	for(i = 1; i < argc; i++)
 	{
-		if( !strcmp((const char *)argv[i], "-t") && (argc > i+1) )
+		if(!strcmp(argv[i], "-t") && (argc > i + 1))
 		{
-			fstype = (char *)argv[i+1];
+			fstype = argv[i + 1];
 			i++;
 		}
-		else if( !strcmp((const char *)argv[i], "-o") && (argc > i+1) )
+		else if(!strcmp(argv[i], "-o") && (argc > i + 1))
 		{
-			if(!strcmp((const char *)argv[i+1], "ro"))
-				ro_flag = TRUE;
-			else if(!strcmp((const char *)argv[i+1], "rw"))
-				ro_flag = FALSE;
+			if(!strcmp(argv[i+1], "ro"))
+				ro = 1;
+			else if(!strcmp(argv[i + 1], "rw"))
+				ro = 0;
 			else
 			{
-				printf("unrecognized the option '%s'\r\n", argv[i+1]);
+				printf("Unrecognized option '%s'\r\n", argv[i + 1]);
 				return -1;
 			}
 			i++;
@@ -74,9 +74,9 @@ static int do_mount(int argc, char ** argv)
 		else
 		{
 			if(index == 0)
-				dev = (char *)argv[i];
+				dev = argv[i];
 			else if(index == 1)
-				dir = (char *)argv[i];
+				dir = argv[i];
 			else if(index >= 2)
 			{
 				usage();
@@ -86,36 +86,46 @@ static int do_mount(int argc, char ** argv)
 		}
 	}
 
-	if(!fstype || !dev || !dir)
+	if(!fstype || !dir)
 	{
 		usage();
 		return -1;
 	}
 
-	if(!filesystem_search(fstype))
+	if(!search_filesystem(fstype))
 	{
-		printf("the filesystem %s not found\r\n", fstype);
+		printf("Not found filesystem '%s'\r\n", fstype);
 		return -1;
 	}
 
-	if(stat(dir, &st) != 0)
+	if(shell_realpath(dir, fpath) < 0)
 	{
-		printf("cannot access %s: no such directory\r\n", dir);
+		printf("Can not convert '%s' to realpath\r\n", dir);
 		return -1;
 	}
 
-	if(!S_ISDIR(st.st_mode))
+	if(strcmp(fpath, "/") != 0)
 	{
-		printf("the '%s' does not a directory\r\n", dir);
-		return -1;
+		fd = vfs_opendir(fpath);
+		if(fd < 0)
+		{
+			printf("Not found directory '%s'\r\n", fpath);
+			return -1;
+		}
+		else
+		{
+			vfs_closedir(fd);
+		}
 	}
 
-	if(ro_flag)
-		mount_flag |= MOUNT_RDONLY;
+	if(ro)
+		mflag = MOUNT_RDONLY;
+	else
+		mflag = MOUNT_RW;
 
-	if(mount(dev, dir , fstype, (mount_flag & MOUNT_MASK)) != 0)
+	if(vfs_mount(dev, fpath, fstype, (mflag & MOUNT_MASK)) != 0)
 	{
-		printf("mount '%s' filesystem on special device '%s' fail\r\n", fstype, dev);
+		printf("Fail to mount '%s' filesystem on special device '%s'\r\n", fstype, dev ? dev : "none");
 		return -1;
 	}
 

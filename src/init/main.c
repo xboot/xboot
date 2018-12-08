@@ -28,8 +28,6 @@
 
 #include <xboot.h>
 #include <init.h>
-#include <dma/dma.h>
-#include <shell/shell.h>
 
 int xboot_main(int argc, char * argv[])
 {

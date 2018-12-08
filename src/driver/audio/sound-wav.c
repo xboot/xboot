@@ -57,7 +57,7 @@ static int sound_seek_wav(struct sound_t * snd, int offset)
 	if(offset > snd->info.length)
 		offset = snd->info.length;
 
-	if(lseek(dat->fd, sizeof(struct wav_header_t) + offset, SEEK_SET) > 0)
+	if(vfs_lseek(dat->fd, sizeof(struct wav_header_t) + offset, SEEK_SET) > 0)
 		snd->position = offset;
 	return snd->position;
 }
@@ -67,7 +67,7 @@ static int sound_read_wav(struct sound_t * snd, void * buf, int count)
 	struct sound_data_wav_t * dat = (struct sound_data_wav_t *)snd->priv;
 	int len;
 
-	len = read(dat->fd, buf, count);
+	len = vfs_read(dat->fd, buf, count);
 	snd->position += len;
 	return len;
 }
@@ -77,7 +77,7 @@ static void sound_close_wav(struct sound_t * snd)
 	struct sound_data_wav_t * dat = (struct sound_data_wav_t *)snd->priv;
 	free(snd->info.title);
 	free(snd->info.singer);
-	close(dat->fd);
+	vfs_close(dat->fd);
 	free(dat);
 }
 
@@ -90,13 +90,13 @@ bool_t sound_load_wav(struct sound_t * snd, const char * filename)
 	if(!snd)
 		return FALSE;
 
-	fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(filename, O_RDONLY, 0);
 	if(fd < 0)
 		return FALSE;
 
-	if(read(fd, &header, sizeof(struct wav_header_t)) != sizeof(struct wav_header_t))
+	if(vfs_read(fd, &header, sizeof(struct wav_header_t)) != sizeof(struct wav_header_t))
 	{
-		close(fd);
+		vfs_close(fd);
 		return FALSE;
 	}
 
@@ -116,14 +116,14 @@ bool_t sound_load_wav(struct sound_t * snd, const char * filename)
 		(memcmp(header.data, "data", 4) != 0) ||
 		(header.fmttag != 1) || (header.datasz < header.align) )
 	{
-		close(fd);
+		vfs_close(fd);
 		return FALSE;
 	}
 
 	dat = (struct sound_data_wav_t *)malloc(sizeof(struct sound_data_wav_t));
 	if(!dat)
 	{
-		close(fd);
+		vfs_close(fd);
 		return FALSE;
 	}
 

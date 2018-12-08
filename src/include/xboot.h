@@ -34,6 +34,7 @@ extern "C" {
 #include <exit.h>
 #include <io.h>
 #include <bcd.h>
+#include <div.h>
 #include <list.h>
 #include <slist.h>
 #include <fifo.h>
@@ -62,8 +63,9 @@ extern "C" {
 #include <time/timer.h>
 #include <clockevent/clockevent.h>
 #include <clocksource/clocksource.h>
-#include <shell/system.h>
-#include <fs/fileio.h>
+#include <block/block.h>
+#include <vfs/vfs.h>
+#include <shell/shell.h>
 
 #ifdef __cplusplus
 }

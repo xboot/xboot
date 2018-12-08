@@ -78,6 +78,10 @@ FILE * fopen(const char * path, const char * mode);
 FILE * freopen(const char * path, const char * mode, FILE * f);
 int fclose(FILE * f);
 
+int remove(const char * path);
+int rename(const char * old, const char * new);
+int system(const char * cmd);
+
 int feof(FILE * f);
 int ferror(FILE * f);
 int fflush(FILE * f);

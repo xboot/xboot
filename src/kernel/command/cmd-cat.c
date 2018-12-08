@@ -36,39 +36,46 @@ static void usage(void)
 
 static int cat_file(const char * filename)
 {
-    struct stat st;
+	struct vfs_stat_t st;
+	char fpath[VFS_MAX_PATH];
 	char * buf;
-    ssize_t i, n;
-    int fd;
+	u64_t i, n;
+	int fd;
 
-	if(stat(filename, &st) != 0)
+	if(shell_realpath(filename, fpath) < 0)
 	{
-		printf("cat: %s: No such file or directory\r\n", filename);
+		printf("cat: %s: Can not convert to realpath\r\n", filename);
+		return -1;
+	}
+
+	if(vfs_stat(fpath, &st) < 0)
+	{
+		printf("cat: %s: No such file or directory\r\n", fpath);
 		return -1;
 	}
 
 	if(S_ISDIR(st.st_mode))
 	{
-		printf("cat: %s: Is a directory\r\n", filename);
+		printf("cat: %s: Is a directory\r\n", fpath);
 		return -1;
 	}
 
-	fd = open(filename, O_RDONLY, (S_IRUSR|S_IRGRP|S_IROTH));
+	fd = vfs_open(fpath, O_RDONLY, 0);
 	if(fd < 0)
 	{
-		printf("cat: %s: Can not open\r\n", filename);
+		printf("cat: %s: Can not open\r\n", fpath);
 		return -1;
 	}
 
-	buf = malloc(SZ_512K);
+	buf = malloc(SZ_64K);
 	if(!buf)
 	{
 		printf("cat: Can not alloc memory\r\n");
-		close(fd);
+		vfs_close(fd);
 		return -1;
 	}
 
-	while((n = read(fd, buf, sizeof(buf))) > 0)
+	while((n = vfs_read(fd, buf, sizeof(buf))) > 0)
 	{
 		for(i = 0; i < n; i++)
 			putchar(buf[i]);
@@ -76,7 +83,7 @@ static int cat_file(const char * filename)
 	printf("\r\n");
 
 	free(buf);
-	close(fd);
+	vfs_close(fd);
 
 	return 0;
 }

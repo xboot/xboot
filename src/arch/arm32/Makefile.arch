@@ -1,0 +1,1 @@
+ARCH_CFLAGS	:= -mno-unaligned-access -marm -mno-thumb-interwork

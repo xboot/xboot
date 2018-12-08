@@ -39,7 +39,9 @@ endif
 ASFLAGS		:= -g -ggdb -Wall -O0
 CFLAGS		:= -g -ggdb -Wall -O0
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
+ARCH_CFLAGS	:=
 MCFLAGS		:=
+DEFINES		:=
 
 LIBDIRS		:=
 LIBS 		:=
@@ -49,6 +51,7 @@ SRCDIRS		:=
 # Override default variables.
 #
 sinclude arch/$(ARCH)/$(MACH)/xboot.mk
+sinclude arch/$(ARCH)/Makefile.arch
 
 #
 # Modify default variables.
@@ -82,7 +85,7 @@ INCDIRS		+=	include										\
 				external/lz4-1.8.2							\
 				external/zlib-1.2.11						\
 				external/libpng-1.6.32						\
-				external/lua-5.3.4							\
+				external/lua-5.3.5							\
 				external/lua-cjson-2.1.0					\
 				external/pixman-0.34.0						\
 				$(wildcard external/pixman-0.34.0/$(ARCH))	\
@@ -131,22 +134,24 @@ HEAD_FILES	+=	arch/$(ARCH)/$(MACH)/start.S arch/$(ARCH)/$(MACH)/sys-*.c arch/$(A
 HEAD_OBJS	+=	$(patsubst %.S, %.o, $(filter %.S, $(wildcard $(HEAD_FILES))))
 HEAD_OBJS	+=	$(patsubst %.c, %.o, $(filter %.c, $(wildcard $(HEAD_FILES))))
 
-X_ASFLAGS	:=	$(MCFLAGS) $(ASFLAGS)
-X_CFLAGS	:=	$(MCFLAGS) $(CFLAGS)
+X_ASFLAGS	:=	$(ARCH_CFLAGS) $(MCFLAGS) $(ASFLAGS)
+X_CFLAGS	:=	$(ARCH_CFLAGS) $(MCFLAGS) $(CFLAGS)
+
 X_LDFLAGS	:=	$(LDFLAGS)
 X_LIBS		:=	$(LIBS) -lgcc
 
 X_OUT		:=	../output
 X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
-X_INCDIRS	:=	$(patsubst %, -I $(BUILD_SRC)/%, $(INCDIRS)) -include include/config/autoconf.h
+X_INCDIRS	:=	$(patsubst %, -I $(BUILD_SRC)/%, $(INCDIRS))
+X_CPPFLAGS	:=	$(DEFINES) $(X_INCDIRS)
+X_INCDIRS	+=	-include include/config/autoconf.h
 X_LIBDIRS	:=	$(patsubst %, -L %, $(LIBDIRS))
 X_OBJS		:=	$(patsubst %, $(BUILD_OBJ)/%/built-in.o, $(wildcard $(SRCDIRS)))
-
 
 export TOPDIR BUILD_SRC BUILD_OBJ HEAD_OBJS HOSTOS
 export ARCH MACH
 export AS AR CC LD RM CP CD MV FIND CPIO MKDIR
-export X_ASFLAGS X_INCDIRS X_CFLAGS
+export X_ASFLAGS X_INCDIRS X_CFLAGS X_CPPFLAGS
 
 PHONY	+=	all prepare clean xbegin xend xclean prepare prepare1 prepare2 $(SRCDIRS)
 

@@ -6,7 +6,7 @@ $(obj)/config/autoconf.h : $(src)/xconfigs.h \
 		$(wildcard $(BUILD_SRC)/arch/$(ARCH)/$(MACH)/include/configs.h)
 	$(if $(wildcard $(obj)/config),:,@echo [MKDIR] $(obj)/config && $(MKDIR) $(obj)/config)
 	$(if $(wildcard $(obj)/config/autoconf.h),:,@touch $(obj)/config/autoconf.h)
-	@$(CC) -E -P -dM -I$(BUILD_SRC)/arch/$(ARCH)/$(MACH)/include $(src)/xconfigs.h \
+	@$(CC) -E -P -dM $(X_CPPFLAGS) $(src)/xconfigs.h \
 	| sed -n -e "/\#define\s\+CONFIG_[[:alnum:]_]*/p" \
 	> $(obj)/config/autoconf.temp
 	@$(CD) $(obj)/config && grep -vxf autoconf.temp autoconf.h \

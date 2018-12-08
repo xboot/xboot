@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_TASK_STACK_SIZE)
-#define CONFIG_TASK_STACK_SIZE				(SZ_1M)
+#define CONFIG_TASK_STACK_SIZE				(1024*1024)
 #endif
 
 #if !defined(CONFIG_DRIVER_HASH_SIZE)

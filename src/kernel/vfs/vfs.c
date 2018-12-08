@@ -1634,18 +1634,3 @@ void do_init_vfs(void)
 		mutex_init(&node_list_lock[i]);
 	}
 }
-
-int remove(const char * path)
-{
-	return vfs_unlink(path);
-}
-
-int rename(const char * old, const char * new)
-{
-	return vfs_rename(old, new);
-}
-
-int system(const char * cmdline)
-{
-	return shell_system(cmdline);
-}

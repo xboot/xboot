@@ -75,7 +75,7 @@ static int cat_file(const char * filename)
 		return -1;
 	}
 
-	while((n = vfs_read(fd, buf, sizeof(buf))) > 0)
+	while((n = vfs_read(fd, buf, SZ_64K)) > 0)
 	{
 		for(i = 0; i < n; i++)
 			putchar(buf[i]);

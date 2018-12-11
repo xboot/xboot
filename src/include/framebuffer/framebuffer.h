@@ -17,6 +17,11 @@ enum pixel_format_t
 	PIXEL_FORMAT_RGB30		= 5,
 };
 
+struct rect_t {
+	u32_t x, y;
+	u32_t w, h;
+};
+
 struct render_t {
 	/* The width of render */
 	u32_t width;
@@ -67,7 +72,7 @@ struct framebuffer_t
 	void (*destroy)(struct framebuffer_t * fb, struct render_t * render);
 
 	/* Present a render */
-	void (*present)(struct framebuffer_t * fb, struct render_t * render);
+	void (*present)(struct framebuffer_t * fb, struct render_t * render, struct rect_t * rect, int nrect);
 
 	/* Alone render - create by register */
 	struct render_t * alone;
@@ -88,7 +93,7 @@ int framebuffer_get_pheight(struct framebuffer_t * fb);
 int framebuffer_get_bpp(struct framebuffer_t * fb);
 struct render_t * framebuffer_create_render(struct framebuffer_t * fb);
 void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * render);
-void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render);
+void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct rect_t * rect, int nrect);
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness);
 int framebuffer_get_backlight(struct framebuffer_t * fb);
 

@@ -61,7 +61,7 @@ void do_showlogo(void)
 				cairo_paint(cr);
 
 				cairo_destroy(cr);
-				cairo_xboot_surface_present(cs);
+				cairo_xboot_surface_present(cs, NULL, 0);
 				cairo_surface_destroy(cs);
 
 				framebuffer_set_backlight(fb, CONFIG_MAX_BRIGHTNESS);

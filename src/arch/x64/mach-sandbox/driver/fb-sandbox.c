@@ -100,7 +100,7 @@ void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 	}
 }
 
-void fb_present(struct framebuffer_t * fb, struct render_t * render)
+void fb_present(struct framebuffer_t * fb, struct render_t * render, struct rect_t * rect, int nrect)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 	sandbox_sdl_fb_surface_present(pdat->priv, render->priv);

@@ -129,7 +129,7 @@ bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb
 	if(fb->create)
 		fb->alone = (fb->create)(fb);
 	if(fb->present)
-		fb->present(fb, fb->alone);
+		fb->present(fb, fb->alone, NULL, 0);
 	if(fb->setbl)
 		fb->setbl(fb, 0);
 
@@ -225,10 +225,10 @@ void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * ren
 		fb->destroy(fb, render);
 }
 
-void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render)
+void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct rect_t * rect, int nrect)
 {
 	if(fb && fb->present)
-		fb->present(fb, render);
+		fb->present(fb, render, rect, nrect);
 }
 
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness)

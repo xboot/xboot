@@ -72,7 +72,7 @@ static const luaL_Reg l_display[] = {
 static int m_display_gc(lua_State * L)
 {
 	struct ldisplay_t * display = luaL_checkudata(L, 1, MT_DISPLAY);
-	cairo_xboot_surface_present(display->alone);
+	cairo_xboot_surface_present(display->alone, NULL, 0);
 	cairo_surface_destroy(display->alone);
 	cairo_destroy(display->cr);
 	cairo_surface_destroy(display->cs);
@@ -312,7 +312,7 @@ static int m_display_present(lua_State * L)
 		cairo_show_text(cr, buf);
 		cairo_restore(cr);
 	}
-	cairo_xboot_surface_present(display->cs);
+	cairo_xboot_surface_present(display->cs, NULL, 0);
 	cairo_save(cr);
 	cairo_set_source_rgb(cr, 1, 1, 1);
 	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);

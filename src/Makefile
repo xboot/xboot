@@ -183,10 +183,10 @@ SRCDIRS		+=	external/lua-5.3.5
 INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 
-INCDIRS		+= 	external/pixman-0.34.0 \
-				external/pixman-0.34.0/$(ARCH)
-SRCDIRS		+=	external/pixman-0.34.0 \
-				external/pixman-0.34.0/$(ARCH)
+INCDIRS		+= 	external/pixman-0.36.0 \
+				external/pixman-0.36.0/$(ARCH)
+SRCDIRS		+=	external/pixman-0.36.0 \
+				external/pixman-0.36.0/$(ARCH)
 
 INCDIRS		+= 	external/cairo-1.14.10
 SRCDIRS		+=	external/cairo-1.14.10

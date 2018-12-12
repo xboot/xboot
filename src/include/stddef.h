@@ -6,9 +6,9 @@ extern "C" {
 #endif
 
 #if defined(__cplusplus)
-#define NULL		(0)
+#define NULL	(0)
 #else
-#define NULL		((void *)0)
+#define NULL	((void *)0)
 #endif
 
 #if (__GNUC__ >= 4)
@@ -25,9 +25,11 @@ extern "C" {
 #define unlikely(expr)	(!!(expr))
 #endif
 
+#define X(...)	("" #__VA_ARGS__ "")
+
 enum {
-	FALSE	= 0,
-	TRUE	= 1,
+	FALSE		= 0,
+	TRUE		= 1,
 };
 
 #ifdef __cplusplus

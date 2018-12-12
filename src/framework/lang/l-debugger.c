@@ -7,7 +7,7 @@
  * QQ: 8192542
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the Software), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -16,7 +16,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -28,270 +28,270 @@
 
 #include <framework/lang/l-class.h>
 
-static const char debugger_lua[] =
-"local local_stack_level = 6"																							"\n"
-"local stack_top = 0"																									"\n"
-"local stack_offset = 0"																								"\n"
-"local repl"																											"\n"
-"local debugger"																										"\n"
-""																														"\n"
-"local function format_stack_frame_info(info)"																			"\n"
-"	local fname = (info.name or string.format('<%s:%d>', info.short_src, info.linedefined))"							"\n"
-"	return string.format('%s:%d in %s', info.short_src, info.currentline, fname)"										"\n"
-"end"																													"\n"
-""																														"\n"
-"local function hook_factory(repl_threshold)"																			"\n"
-"	return function(offset)"																							"\n"
-"		return function(event, _)"																						"\n"
-"			local info = debug.getinfo(2)"																				"\n"
-"			if event == 'call' and info.linedefined >= 0 then"															"\n"
-"				offset = offset + 1"																					"\n"
-"			elseif event == 'return' and info.linedefined >= 0 then"													"\n"
-"				if offset <= repl_threshold then"																		"\n"
-"				else"																									"\n"
-"					offset = offset - 1"																				"\n"
-"				end"																									"\n"
-"			elseif event == 'line' and offset <= repl_threshold then"													"\n"
-"				repl()"																									"\n"
-"			end"																										"\n"
-"		end"																											"\n"
-"	end"																												"\n"
-"end"																													"\n"
-""																														"\n"
-"local hook_step = hook_factory(1)"																						"\n"
-"local hook_next = hook_factory(0)"																						"\n"
-"local hook_finish = hook_factory(-1)"																					"\n"
-""																														"\n"
-"local function table_merge(t1, t2)"																					"\n"
-"	local tbl = {}"																										"\n"
-"	for k, v in pairs(t1) do tbl[k] = v end"																			"\n"
-"	for k, v in pairs(t2) do tbl[k] = v end"																			"\n"
-"	return tbl"																											"\n"
-"end"																													"\n"
-""																														"\n"
-"local function local_bindings(offset, include_globals)"																"\n"
-"	local level = stack_offset + offset + local_stack_level"															"\n"
-"	local func = debug.getinfo(level).func"																				"\n"
-"	local bindings = {}"																								"\n"
-"	"																													"\n"
-"	do local i = 1; repeat"																								"\n"
-"		local name, value = debug.getupvalue(func, i)"																	"\n"
-"		if name then bindings[name] = value end"																		"\n"
-"		i = i + 1"																										"\n"
-"	until name == nil end"																								"\n"
-"	"																													"\n"
-"	do local i = 1; repeat"																								"\n"
-"		local name, value = debug.getlocal(level, i)"																	"\n"
-"		if name then bindings[name] = value end"																		"\n"
-"		i = i + 1"																										"\n"
-"	until name == nil end"																								"\n"
-"	"																													"\n"
-"	local varargs = {}"																									"\n"
-"	do local i = -1; repeat"																							"\n"
-"		local name, value = debug.getlocal(level, i)"																	"\n"
-"		table.insert(varargs, value)"																					"\n"
-"		i = i - 1"																										"\n"
-"	until name == nil end"																								"\n"
-"	if #varargs ~= 0 then bindings['...'] = varargs end"																"\n"
-""																														"\n"
-"	if include_globals then"																							"\n"
-"		local env = bindings._ENV"																						"\n"
-"		return setmetatable(table_merge(env or {}, bindings), {__index = _G})"											"\n"
-"	else"																												"\n"
-"		return bindings"																								"\n"
-"	end"																												"\n"
-"end"																													"\n"
-""																														"\n"
-"local function compile_chunk(expr, env)"																				"\n"
-"	local source = 'debugger REPL'"																						"\n"
-"	return load('return ' .. expr, source, 't', env)"																	"\n"
-"end"																													"\n"
-""																														"\n"
-"local function cmd_print(expr)"																						"\n"
-"	local env = local_bindings(1, true)"																				"\n"
-"	local chunk = compile_chunk(expr, env)"																				"\n"
-"	if chunk == nil then"																								"\n"
-"		debugger.write('Error: Could not evaluate expression.')"														"\n"
-"		return false"																									"\n"
-"	end"																												"\n"
-""																														"\n"
-"	local results = {pcall(chunk, table.unpack(rawget(env, '...') or {}))}"												"\n"
-"	if not results[1] then"																								"\n"
-"		debugger.write('Error: %s', results[2])"																		"\n"
-"	elseif #results == 1 then"																							"\n"
-"		debugger.write(expr .. ' => <no result>')"																		"\n"
-"	else"																												"\n"
-"		local result = ''"																								"\n"
-"		for i = 2, #results do"																							"\n"
-"			result = result .. (i ~= 2 and ', ' or '') .. debugger.pretty(results[i])"									"\n"
-"		end"																											"\n"
-"		debugger.write(expr .. ' => ' .. result)"																		"\n"
-"	end"																												"\n"
-"	return false"																										"\n"
-"end"																													"\n"
-""																														"\n"
-"local function cmd_up()"																								"\n"
-"	local info = debug.getinfo(stack_offset + local_stack_level + 1)"													"\n"
-"	if info then"																										"\n"
-"		stack_offset = stack_offset + 1"																				"\n"
-"	else"																												"\n"
-"		debugger.write('Already at the top of the stack.')"																"\n"
-"	end"																												"\n"
-"	debugger.write('Inspecting frame: ' .. format_stack_frame_info(debug.getinfo(stack_offset + local_stack_level)))"	"\n"
-"	return false"																										"\n"
-"end"																													"\n"
-""																														"\n"
-"local function cmd_down()"																								"\n"
-"	if stack_offset > stack_top then"																					"\n"
-"		stack_offset = stack_offset - 1"																				"\n"
-"	else"																												"\n"
-"		debugger.write('Already at the bottom of the stack.')"															"\n"
-"	end"																												"\n"
-"	debugger.write('Inspecting frame: ' .. format_stack_frame_info(debug.getinfo(stack_offset + local_stack_level)))"	"\n"
-"	return false"																										"\n"
-"end"																													"\n"
-""																														"\n"
-"local function cmd_trace()"																							"\n"
-"	local location = format_stack_frame_info(debug.getinfo(stack_offset + local_stack_level))"							"\n"
-"	local offset = stack_offset - stack_top"																			"\n"
-"	local message = string.format('Inspecting frame: %d - (%s)', offset, location)"										"\n"
-"	local str = debug.traceback(message, stack_top + local_stack_level)"												"\n"
-""																														"\n"
-"	local line_num = -2"																								"\n"
-"	while str and #str ~= 0 do"																							"\n"
-"		local line, rest = string.match(str, '([^\\n]*)\\n?(.*)')"														"\n"
-"		str = rest"																										"\n"
-"		if line_num >= 0 then line = tostring(line_num)..line end"														"\n"
-"		debugger.write((line_num + stack_top == stack_offset) and line or line)"										"\n"
-"		line_num = line_num + 1"																						"\n"
-"	end"																												"\n"
-"	return false"																										"\n"
-"end"																													"\n"
-""																														"\n"
-"local function cmd_locals()"																							"\n"
-"	local bindings = local_bindings(1, false)"																			"\n"
-"	local keys = {}"																									"\n"
-"	for k, _ in pairs(bindings) do table.insert(keys, k) end"															"\n"
-"	table.sort(keys)"																									"\n"
-"	for _, k in ipairs(keys) do"																						"\n"
-"		local v = bindings[k]"																							"\n"
-""																														"\n"
-"		if not rawequal(v, debugger) and k ~= '_ENV' and k ~= '(*temporary)' then"										"\n"
-"			debugger.write('\t%s => %s', k, debugger.pretty(v))"														"\n"
-"		end"																											"\n"
-"	end"																												"\n"
-"	return false"																										"\n"
-"end"																													"\n"
-""																														"\n"
-"local function match_command(line)"																					"\n"
-"	local commands = {"																									"\n"
-"		['c'] = function() return true end,"																			"\n"
-"		['s'] = function() return true, hook_step end,"																	"\n"
-"		['n'] = function() return true, hook_next end,"																	"\n"
-"		['f'] = function() return true, hook_finish end,"																"\n"
-"		['p%s?(.*)'] = cmd_print,"																						"\n"
-"		['u'] = cmd_up,"																								"\n"
-"		['d'] = cmd_down,"																								"\n"
-"		['t'] = cmd_trace,"																								"\n"
-"		['l'] = cmd_locals,"																							"\n"
-"		['h'] = function()"																								"\n"
-"				debugger.write('[enter]     - enter last command');"													"\n"
-"				debugger.write('c(ontinue)  - contiue execution');"														"\n"
-"				debugger.write('s(tep)      - step forward by one line (into functions)');"								"\n"
-"				debugger.write('n(ext)      - step forward by one line (skipping over functions)');"					"\n"
-"				debugger.write('f(inish)    - step forward until exiting the current function');"						"\n"
-"				debugger.write('p(rint) [e] - execute the expression and print the result');"							"\n"
-"				debugger.write('u(p)        - move up the stack by one frame');"										"\n"
-"				debugger.write('d(own)      - move down the stack by one frame');"										"\n"
-"				debugger.write('t(race)     - print the stack trace');"													"\n"
-"				debugger.write('l(ocals)    - print the function arguments, locals and upvalues.');"					"\n"
-"				debugger.write('h(elp)      - print this message');"													"\n"
-"				return false"																							"\n"
-"			end,"																										"\n"
-"	}"																													"\n"
-"	"																													"\n"
-"	for cmd, cmd_func in pairs(commands) do"																			"\n"
-"		local matches = {string.match(line, '^('..cmd..')$')}"															"\n"
-"		if matches[1] then"																								"\n"
-"			return cmd_func, select(2, table.unpack(matches))"															"\n"
-"		end"																											"\n"
-"	end"																												"\n"
-"end"																													"\n"
-""																														"\n"
-"local last_cmd = false"																								"\n"
-"local function run_command(line)"																						"\n"
-"	if line == nil or line == '' then"																					"\n"
-"		if last_cmd then line = last_cmd else return false end"															"\n"
-"	else"																												"\n"
-"		last_cmd = line"																								"\n"
-"	end"																												"\n"
-"	"																													"\n"
-"	local command, command_arg = match_command(line)"																	"\n"
-"	if command then"																									"\n"
-"		return table.unpack({command(command_arg)})"																	"\n"
-"	else"																												"\n"
-"		debugger.write('Command %s not recognized', line)"																"\n"
-"		return false"																									"\n"
-"	end"																												"\n"
-"end"																													"\n"
-""																														"\n"
-"repl = function()"																										"\n"
-"	debugger.write(format_stack_frame_info(debug.getinfo(local_stack_level - 3 + stack_top)))"							"\n"
-""																														"\n"
-"	repeat"																												"\n"
-"		local success, done, hook = pcall(run_command, debugger.read('>> '))"											"\n"
-"		if success then"																								"\n"
-"			debug.sethook(hook and hook(0), 'crl')"																		"\n"
-"		else"																											"\n"
-"			local message = string.format('Internal debugger error: %s', done)"											"\n"
-"			debugger.write(message)"																					"\n"
-"			error(message)"																								"\n"
-"		end"																											"\n"
-"	until done"																											"\n"
-"end"																													"\n"
-""																														"\n"
-"debugger = setmetatable({}, {"																							"\n"
-"	__call = function(self, condition, offset)"																			"\n"
-"		if condition then return end"																					"\n"
-"		offset = (offset or 0)"																							"\n"
-"		stack_offset = offset"																							"\n"
-"		stack_top = offset"																								"\n"
-"		debug.sethook(hook_next(1), 'crl')"																				"\n"
-"		return"																											"\n"
-"	end,"																												"\n"
-"})"																													"\n"
-""																														"\n"
-"function debugger.read(prompt)"																						"\n"
-"	return xboot.readline(prompt)"																						"\n"
-"end"																													"\n"
-""																														"\n"
-"function debugger.write(str, ...)"																						"\n"
-"	print(string.format(str, ...))"																						"\n"
-"end"																													"\n"
-""																														"\n"
-"function debugger.pretty(obj, recurse)"																				"\n"
-"	local function coerceable(tbl)"																						"\n"
-"		local meta = getmetatable(tbl)"																					"\n"
-"		return (meta and meta.__tostring)"																				"\n"
-"	end"																												"\n"
-""																														"\n"
-"	if type(obj) == 'string' then"																						"\n"
-"		return string.format('%q', obj)"																				"\n"
-"	elseif type(obj) == 'table' and not coerceable(obj) and not recurse then"											"\n"
-"		local str = '{'"																								"\n"
-"		for k, v in pairs(obj) do"																						"\n"
-"			local pair = debugger.pretty(k, true)..' = '..debugger.pretty(v, true)"										"\n"
-"			str = str..(str == '{' and pair or ', '..pair)"																"\n"
-"		end"																											"\n"
-"		return str .. '}'"																								"\n"
-"	else"																												"\n"
-"		local success, value = pcall(function() return tostring(obj) end)"												"\n"
-"		return (success and value or '<!!error in __tostring metamethod!!>')"											"\n"
-"	end"																												"\n"
-"end"																													"\n"
-""																														"\n"
-"return debugger"																										"\n"
-;
+static const char debugger_lua[] = X(
+local local_stack_level = 6
+local stack_top = 0
+local stack_offset = 0
+local repl
+local debugger
+
+local function format_stack_frame_info(info)
+	local fname = (info.name or string.format('<%s:%d>', info.short_src, info.linedefined))
+	return string.format('%s:%d in %s', info.short_src, info.currentline, fname)
+end
+
+local function hook_factory(repl_threshold)
+	return function(offset)
+		return function(event, _)
+			local info = debug.getinfo(2)
+			if event == 'call' and info.linedefined >= 0 then
+				offset = offset + 1
+			elseif event == 'return' and info.linedefined >= 0 then
+				if offset <= repl_threshold then
+				else
+					offset = offset - 1
+				end
+			elseif event == 'line' and offset <= repl_threshold then
+				repl()
+			end
+		end
+	end
+end
+
+local hook_step = hook_factory(1)
+local hook_next = hook_factory(0)
+local hook_finish = hook_factory(-1)
+
+local function table_merge(t1, t2)
+	local tbl = {}
+	for k, v in pairs(t1) do tbl[k] = v end
+	for k, v in pairs(t2) do tbl[k] = v end
+	return tbl
+end
+
+local function local_bindings(offset, include_globals)
+	local level = stack_offset + offset + local_stack_level
+	local func = debug.getinfo(level).func
+	local bindings = {}
+
+	do local i = 1; repeat
+		local name, value = debug.getupvalue(func, i)
+		if name then bindings[name] = value end
+		i = i + 1
+	until name == nil end
+
+	do local i = 1; repeat
+		local name, value = debug.getlocal(level, i)
+		if name then bindings[name] = value end
+		i = i + 1
+	until name == nil end
+
+	local varargs = {}
+	do local i = -1; repeat
+		local name, value = debug.getlocal(level, i)
+		table.insert(varargs, value)
+		i = i - 1
+	until name == nil end
+	if #varargs ~= 0 then bindings['...'] = varargs end
+
+	if include_globals then
+		local env = bindings._ENV
+		return setmetatable(table_merge(env or {}, bindings), {__index = _G})
+	else
+		return bindings
+	end
+end
+
+local function compile_chunk(expr, env)
+	local source = 'debugger REPL'
+	return load('return ' .. expr, source, 't', env)
+end
+
+local function cmd_print(expr)
+	local env = local_bindings(1, true)
+	local chunk = compile_chunk(expr, env)
+	if chunk == nil then
+		debugger.write('Error: Could not evaluate expression.')
+		return false
+	end
+
+	local results = {pcall(chunk, table.unpack(rawget(env, '...') or {}))}
+	if not results[1] then
+		debugger.write('Error: %s', results[2])
+	elseif #results == 1 then
+		debugger.write(expr .. ' => <no result>')
+	else
+		local result = ''
+		for i = 2, #results do
+			result = result .. (i ~= 2 and ', ' or '') .. debugger.pretty(results[i])
+		end
+		debugger.write(expr .. ' => ' .. result)
+	end
+	return false
+end
+
+local function cmd_up()
+	local info = debug.getinfo(stack_offset + local_stack_level + 1)
+	if info then
+		stack_offset = stack_offset + 1
+	else
+		debugger.write('Already at the top of the stack.')
+	end
+	debugger.write('Inspecting frame: ' .. format_stack_frame_info(debug.getinfo(stack_offset + local_stack_level)))
+	return false
+end
+
+local function cmd_down()
+	if stack_offset > stack_top then
+		stack_offset = stack_offset - 1
+	else
+		debugger.write('Already at the bottom of the stack.')
+	end
+	debugger.write('Inspecting frame: ' .. format_stack_frame_info(debug.getinfo(stack_offset + local_stack_level)))
+	return false
+end
+
+local function cmd_trace()
+	local location = format_stack_frame_info(debug.getinfo(stack_offset + local_stack_level))
+	local offset = stack_offset - stack_top
+	local message = string.format('Inspecting frame: %d - (%s)', offset, location)
+	local str = debug.traceback(message, stack_top + local_stack_level)
+
+	local line_num = -2
+	while str and #str ~= 0 do
+		local line, rest = string.match(str, '([^\\n]*)\\n?(.*)')
+		str = rest
+		if line_num >= 0 then line = tostring(line_num)..line end
+		debugger.write((line_num + stack_top == stack_offset) and line or line)
+		line_num = line_num + 1
+	end
+	return false
+end
+
+local function cmd_locals()
+	local bindings = local_bindings(1, false)
+	local keys = {}
+	for k, _ in pairs(bindings) do table.insert(keys, k) end
+	table.sort(keys)
+	for _, k in ipairs(keys) do
+		local v = bindings[k]
+
+		if not rawequal(v, debugger) and k ~= '_ENV' and k ~= '(*temporary)' then
+			debugger.write('\t%s => %s', k, debugger.pretty(v))
+		end
+	end
+	return false
+end
+
+local function match_command(line)
+	local commands = {
+		['c'] = function() return true end,
+		['s'] = function() return true, hook_step end,
+		['n'] = function() return true, hook_next end,
+		['f'] = function() return true, hook_finish end,
+		['p%s?(.*)'] = cmd_print,
+		['u'] = cmd_up,
+		['d'] = cmd_down,
+		['t'] = cmd_trace,
+		['l'] = cmd_locals,
+		['h'] = function()
+				debugger.write('[enter]     - enter last command');
+				debugger.write('c(ontinue)  - contiue execution');
+				debugger.write('s(tep)      - step forward by one line (into functions)');
+				debugger.write('n(ext)      - step forward by one line (skipping over functions)');
+				debugger.write('f(inish)    - step forward until exiting the current function');
+				debugger.write('p(rint) [e] - execute the expression and print the result');
+				debugger.write('u(p)        - move up the stack by one frame');
+				debugger.write('d(own)      - move down the stack by one frame');
+				debugger.write('t(race)     - print the stack trace');
+				debugger.write('l(ocals)    - print the function arguments, locals and upvalues.');
+				debugger.write('h(elp)      - print this message');
+				return false
+			end,
+	}
+
+	for cmd, cmd_func in pairs(commands) do
+		local matches = {string.match(line, '^('..cmd..')$')}
+		if matches[1] then
+			return cmd_func, select(2, table.unpack(matches))
+		end
+	end
+end
+
+local last_cmd = false
+local function run_command(line)
+	if line == nil or line == '' then
+		if last_cmd then line = last_cmd else return false end
+	else
+		last_cmd = line
+	end
+
+	local command, command_arg = match_command(line)
+	if command then
+		return table.unpack({command(command_arg)})
+	else
+		debugger.write('Command %s not recognized', line)
+		return false
+	end
+end
+
+repl = function()
+	debugger.write(format_stack_frame_info(debug.getinfo(local_stack_level - 3 + stack_top)))
+
+	repeat
+		local success, done, hook = pcall(run_command, debugger.read('>> '))
+		if success then
+			debug.sethook(hook and hook(0), 'crl')
+		else
+			local message = string.format('Internal debugger error: %s', done)
+			debugger.write(message)
+			error(message)
+		end
+	until done
+end
+
+debugger = setmetatable({}, {
+	__call = function(self, condition, offset)
+		if condition then return end
+		offset = (offset or 0)
+		stack_offset = offset
+		stack_top = offset
+		debug.sethook(hook_next(1), 'crl')
+		return
+	end,
+})
+
+function debugger.read(prompt)
+	return xboot.readline(prompt)
+end
+
+function debugger.write(str, ...)
+	print(string.format(str, ...))
+end
+
+function debugger.pretty(obj, recurse)
+	local function coerceable(tbl)
+		local meta = getmetatable(tbl)
+		return (meta and meta.__tostring)
+	end
+
+	if type(obj) == 'string' then
+		return string.format('%q', obj)
+	elseif type(obj) == 'table' and not coerceable(obj) and not recurse then
+		local str = '{'
+		for k, v in pairs(obj) do
+			local pair = debugger.pretty(k, true)..' = '..debugger.pretty(v, true)
+			str = str..(str == '{' and pair or ', '..pair)
+		end
+		return str .. '}'
+	else
+		local success, value = pcall(function() return tostring(obj) end)
+		return (success and value or '<!!error in __tostring metamethod!!>')
+	end
+end
+
+return debugger
+);
 
 int luaopen_debugger(lua_State * L)
 {

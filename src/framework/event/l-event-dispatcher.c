@@ -28,89 +28,88 @@
 
 #include <framework/event/l-event-dispatcher.h>
 
-static const char event_dispatcher_lua[] =
-"local M = Class()"																"\n"
-""																				"\n"
-"function M:init()"																"\n"
-"	self.maps = {}"																"\n"
-"end"																			"\n"
-""																				"\n"
-"function M:hasEventListener(type, listener, data)"								"\n"
-"	local els = self.maps[type]"												"\n"
-""																				"\n"
-"	if not els or #els == 0 then"												"\n"
-"		return false"															"\n"
-"	end"																		"\n"
-""																				"\n"
-"	for i, v in ipairs(els) do"													"\n"
-"		if v.listener == listener and v.data == data then"						"\n"
-"			return true"														"\n"
-"		end"																	"\n"
-"	end"																		"\n"
-""																				"\n"
-"	return false"																"\n"
-"end"																			"\n"
-""																				"\n"
-"function M:addEventListener(type, listener, data)"								"\n"
-"	local table = table"														"\n"
-"	local data = data or self"													"\n"
-""																				"\n"
-"	if self:hasEventListener(type, listener, data) then"						"\n"
-"		return self"															"\n"
-"	end"																		"\n"
-""																				"\n"
-"	if not self.maps[type] then"												"\n"
-"		self.maps[type] = {}"													"\n"
-"	end"																		"\n"
-""																				"\n"
-"	local els = self.maps[type]"												"\n"
-"	local el = {type = type, listener = listener, data = data}"					"\n"
-"	table.insert(els, el)"														"\n"
-""																				"\n"
-"	return self"																"\n"
-"end"																			"\n"
-""																				"\n"
-"function M:removeEventListener(type, listener, data)"							"\n"
-"	local table = table"														"\n"
-"	local data = data or self"													"\n"
-"	local els = self.maps[type]"												"\n"
-""																				"\n"
-"	if not els or #els == 0 then"												"\n"
-"		return self"															"\n"
-"	end"																		"\n"
-""																				"\n"
-"	for i, v in ipairs(els) do"													"\n"
-"		if v.type == type and v.listener == listener and v.data == data then"	"\n"
-"			table.remove(els, i)"												"\n"
-"			break"																"\n"
-"		end"																	"\n"
-"	end"																		"\n"
-""																				"\n"
-"	return self"																"\n"
-"end"																			"\n"
-""																				"\n"
-"function M:dispatchEvent(event)"												"\n"
-"	if event.stop then"															"\n"
-"		return self"															"\n"
-"	end"																		"\n"
-""																				"\n"
-"	local els = self.maps[event.type]"											"\n"
-""																				"\n"
-"	if not els or #els == 0 then"												"\n"
-"		return self"															"\n"
-"	end"																		"\n"
-""																				"\n"
-"	for i, v in ipairs(els) do"													"\n"
-"		if v.type == event.type then"											"\n"
-"			v.listener(v.data, event)"											"\n"
-"		end"																	"\n"
-"	end"																		"\n"
-""																				"\n"
-"	return self"																"\n"
-"end"																			"\n"
-""																				"\n"
-"return M"																		"\n"
-;
+static const char event_dispatcher_lua[] = X(
+local M = Class()
+
+function M:init()
+	self.eventListenersMap = {}
+end
+
+function M:hasEventListener(type, listener, data)
+	local els = self.eventListenersMap[type]
+
+	if not els or #els == 0 then
+		return false
+	end
+
+	for i, v in ipairs(els) do
+		if v.listener == listener and v.data == data then
+			return true
+		end
+	end
+
+	return false
+end
+
+function M:addEventListener(type, listener, data)
+	local data = data or self
+
+	if self:hasEventListener(type, listener, data) then
+		return self
+	end
+
+	if not self.eventListenersMap[type] then
+		self.eventListenersMap[type] = {}
+	end
+
+	local els = self.eventListenersMap[type]
+	local el = {type = type, listener = listener, data = data}
+	table.insert(els, el)
+
+	return self
+end
+
+function M:removeEventListener(type, listener, data)
+	local table = table
+	local data = data or self
+	local els = self.eventListenersMap[type]
+
+	if not els or #els == 0 then
+		return self
+	end
+
+	for i, v in ipairs(els) do
+		if v.type == type and v.listener == listener and v.data == data then
+			table.remove(els, i)
+			break
+		end
+	end
+
+	return self
+end
+
+function M:dispatchEvent(event)
+	if event.stop then
+		return self
+	end
+
+	local els = self.eventListenersMap[event.type]
+
+	if not els or #els == 0 then
+		return self
+	end
+
+	for i, v in ipairs(els) do
+		if v.type == event.type then
+			v.listener(v.data, event)
+		end
+	end
+
+	return self
+end
+
+return M
+);
 
 int luaopen_event_dispatcher(lua_State * L)
 {

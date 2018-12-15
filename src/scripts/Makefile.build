@@ -65,13 +65,13 @@ export X_SUBDIR_ASFLAGS X_SUBDIR_CCFLAGS X_SUBDIR_INCDIRS
 quiet_cmd_cc_o_c = [CC] $(@:.o=.c)
 cmd_cc_o_c = $(CC) $(X_CFLAGS) -MD -MF $(@D)/.$(@F).d $(X_INCDIRS) -c $< -o $@
 
-quiet_cmd_cc_o_S = [AS] $(@:.o=.S)
+quiet_cmd_as_o_S = [AS] $(@:.o=.S)
 cmd_as_o_S = $(AS) $(X_ASFLAGS) -MD -MF $(@D)/.$(@F).d $(X_INCDIRS) -c $< -o $@
 
 # If the list of objects to link is empty, just create an empty built-in.o
 quiet_cmd_link_o_target = [LD] $(obj)/built-in.o
 cmd_link_o_target = $(if $(strip $(X_OBJS)), \
-		      $(LD) $(ld_flags) -r -o $@ $(filter $(X_OBJS), $^), \
+		      $(LD) -r -o $@ $(filter $(X_OBJS), $^), \
 		      $(RM) $@;$(AR) rcs -o $@)
 
 __build : $(X_TARGET) $(PREPARE) ;

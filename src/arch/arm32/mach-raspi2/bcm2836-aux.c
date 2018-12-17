@@ -26,7 +26,9 @@
  *
  */
 
+#include <xboot.h>
 #include <bcm2836-aux.h>
+#include <bcm2836/reg-aux.h>
 
 void bcm2836_aux_enable(int id)
 {

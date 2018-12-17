@@ -5,8 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-#include <bcm2837/reg-mbox.h>
+#include <stdint.h>
 
 /* Mbox videocore */
 int bcm2837_mbox_vc_get_firmware_revison(void);

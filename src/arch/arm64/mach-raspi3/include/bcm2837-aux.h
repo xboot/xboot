@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-#include <bcm2837/reg-aux.h>
-
 enum {
 	AUX_ID_UART	= 0,
 	AUX_ID_SPI1	= 1,

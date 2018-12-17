@@ -51,7 +51,9 @@
  *
  */
 
+#include <xboot.h>
 #include <bcm2837-mbox.h>
+#include <bcm2837/reg-mbox.h>
 
 enum {
 	MBOX_CH_POWER_MANAGEMENT	= 0,

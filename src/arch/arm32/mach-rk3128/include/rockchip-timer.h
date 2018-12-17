@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
 
 void rockchip_timer_start(virtual_addr_t virt, int irqon, int oneshot);
 void rockchip_timer_stop(virtual_addr_t virt);

@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <clk/clk.h>
 #include <rockchip-timer.h>
 

@@ -9,6 +9,11 @@
 #define ZCONF_H
 
 #include <xboot.h>
+#define open	vfs_open
+#define lseek	vfs_lseek
+#define read	vfs_read
+#define write	vfs_write
+#define close	vfs_close
 
 /*
  * If you *really* need a unique prefix for all types and library functions,

@@ -26,6 +26,7 @@
  */
 
 #include <math.h>
+#include <xboot/module.h>
 
 static const double
 pi     = 3.1415926535897931160E+00, /* 0x400921FB, 0x54442D18 */

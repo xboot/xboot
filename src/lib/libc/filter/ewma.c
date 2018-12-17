@@ -2,6 +2,9 @@
  * libc/filter/ewma.c
  */
 
+#include <math.h>
+#include <stddef.h>
+#include <malloc.h>
 #include <ewma.h>
 
 struct ewma_filter_t * ewma_alloc(float weight)

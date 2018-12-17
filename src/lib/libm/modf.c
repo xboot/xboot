@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 double modf(double x, double *iptr)
 {

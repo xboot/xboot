@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
-
 enum {
 	LC_CTYPE 		= 0,
 	LC_NUMERIC 		= 1,

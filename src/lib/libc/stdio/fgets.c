@@ -2,7 +2,9 @@
  * libc/stdio/fgets.c
  */
 
+#include <stddef.h>
 #include <stdio.h>
+#include <xboot/module.h>
 
 char * fgets(char * s, int n, FILE * f)
 {

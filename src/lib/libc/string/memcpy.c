@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 static void * __memcpy(void * dest, const void * src, size_t len)
 {

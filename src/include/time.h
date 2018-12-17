@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
 #include <stdint.h>
 
 typedef	uint64_t		clock_t;

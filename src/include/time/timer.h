@@ -5,9 +5,9 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-#include <rbtree.h>
 #include <rbtree_augmented.h>
+#include <clockevent/clockevent.h>
+#include <xboot/ktime.h>
 
 struct timer_base_t;
 struct timer_t;

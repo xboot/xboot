@@ -4,6 +4,7 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <xboot/module.h>
 
 fpos_t ftell(FILE * f)
 {

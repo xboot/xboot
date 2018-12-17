@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
-#include <types.h>
 #include <list.h>
 #include <spinlock.h>
 

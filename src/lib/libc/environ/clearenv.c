@@ -2,7 +2,9 @@
  * libc/environ/clearenv.c
  */
 
+#include <malloc.h>
 #include <environ.h>
+#include <xboot/module.h>
 
 int clearenv(void)
 {

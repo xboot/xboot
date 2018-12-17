@@ -2,9 +2,9 @@
  * libc/stdlib/strntoumax.c
  */
 
-#include <stddef.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <xboot/module.h>
 
 static inline int digitval(int ch)
 {

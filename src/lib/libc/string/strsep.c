@@ -5,6 +5,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Extract token from string

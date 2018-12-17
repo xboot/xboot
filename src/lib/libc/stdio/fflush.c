@@ -2,7 +2,9 @@
  * libc/stdio/fflush.c
  */
 
+#include <errno.h>
 #include <stdio.h>
+#include <xboot/module.h>
 
 int fflush(FILE * f)
 {

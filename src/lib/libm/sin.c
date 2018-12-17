@@ -30,6 +30,7 @@
  */
 
 #include <math.h>
+#include <xboot/module.h>
 
 double sin(double x)
 {

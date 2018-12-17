@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
 #include <types.h>
 
 ssize_t utf8_to_ucs4(u32_t * dst, size_t dsz, const char * src, size_t ssz, const char ** end);

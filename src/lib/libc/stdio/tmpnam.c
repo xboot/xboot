@@ -2,8 +2,10 @@
  * libc/stdio/tmpname.c
  */
 
-#include <vfs/vfs.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <vfs/vfs.h>
+#include <xboot/module.h>
 
 char * tmpnam(char * buf)
 {

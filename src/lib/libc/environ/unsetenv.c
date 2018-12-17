@@ -6,6 +6,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <environ.h>
+#include <xboot/module.h>
 
 int unsetenv(const char * name)
 {

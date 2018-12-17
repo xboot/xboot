@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Copies one string to another

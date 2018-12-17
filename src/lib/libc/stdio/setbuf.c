@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 void setbuf(FILE * f, char * buf)
 {

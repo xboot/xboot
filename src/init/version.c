@@ -26,7 +26,6 @@
  *
  */
 
-#include <xconfigs.h>
 #include <version.h>
 
 #define	XBOOT_MAJOY		3

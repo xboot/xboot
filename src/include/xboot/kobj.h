@@ -7,6 +7,8 @@ extern "C" {
 
 #include <types.h>
 #include <list.h>
+#include <barrier.h>
+#include <atomic.h>
 #include <irqflags.h>
 #include <spinlock.h>
 

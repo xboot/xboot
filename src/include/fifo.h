@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
-#include <types.h>
 #include <spinlock.h>
 
 struct fifo_t {

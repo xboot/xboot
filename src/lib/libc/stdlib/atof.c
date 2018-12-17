@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <xboot/module.h>
 
 double atof(const char * nptr)
 {

@@ -3,7 +3,6 @@
  */
 
 #include <types.h>
-#include <sizes.h>
 #include <stddef.h>
 #include <stdarg.h>
 #include <string.h>

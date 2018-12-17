@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 int feof(FILE * f)
 {

@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 int sprintf(char * buf, const char * fmt, ...)
 {

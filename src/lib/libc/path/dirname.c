@@ -2,7 +2,9 @@
  * libc/path/dirname.c
  */
 
+#include <string.h>
 #include <path.h>
+#include <xboot/module.h>
 
 char * dirname(char * path)
 {

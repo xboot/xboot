@@ -66,6 +66,7 @@
  */
 
 #include <math.h>
+#include <xboot/module.h>
 
 static const double tiny = 1.0e-300;
 

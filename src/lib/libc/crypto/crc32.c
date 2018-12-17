@@ -2,6 +2,8 @@
  * libc/crypto/crc32.c
  */
 
+#include <stdint.h>
+#include <string.h>
 #include <crc32.h>
 
 static const uint32_t crc32_table[256] = {

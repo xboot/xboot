@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 int fseek(FILE * f, fpos_t off, int whence)
 {

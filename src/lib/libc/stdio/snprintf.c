@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 int snprintf(char * buf, size_t n, const char * fmt, ...)
 {

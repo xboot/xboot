@@ -7,6 +7,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <charset.h>
+#include <xboot/module.h>
 
 static const u8_t nonspacing_table_data[26 * 64] = {
 	/* 0x0000-0x01ff */

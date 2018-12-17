@@ -5,10 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
-#include <types.h>
-#include <string.h>
-
 static inline int is_absolute_path(const char * path)
 {
 	if(path && (*path == '/'))

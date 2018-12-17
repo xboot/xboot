@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <xboot/module.h>
 
 long long atoll(const char * nptr)
 {

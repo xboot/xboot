@@ -2,7 +2,11 @@
  * libx/json.c
  */
 
-#include <xboot.h>
+#include <ctype.h>
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
+#include <malloc.h>
 #include <json.h>
 
 enum {

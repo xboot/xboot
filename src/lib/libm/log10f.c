@@ -3,6 +3,7 @@
  */
 
 #include <math.h>
+#include <xboot/module.h>
 
 static const float
 ivln10hi  =  4.3432617188e-01, /* 0x3ede6000 */

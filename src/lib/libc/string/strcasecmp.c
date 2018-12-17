@@ -5,6 +5,7 @@
 #include <types.h>
 #include <ctype.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Compare two strings ignoring case

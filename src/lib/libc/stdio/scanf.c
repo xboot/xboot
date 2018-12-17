@@ -5,6 +5,7 @@
 #include <sizes.h>
 #include <malloc.h>
 #include <stdio.h>
+#include <xboot/module.h>
 
 int scanf(const char * fmt, ...)
 {

@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include <types.h>
 #include <list.h>
 #include <stdarg.h>
 

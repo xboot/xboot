@@ -29,6 +29,7 @@
  */
 
 #include <math.h>
+#include <xboot/module.h>
 
 double tan(double x)
 {

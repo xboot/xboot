@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <malloc.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Allocates and duplicates a string

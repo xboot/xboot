@@ -3,6 +3,7 @@
  */
 
 #include <rbtree_augmented.h>
+#include <xboot/module.h>
 
 static inline void rb_set_black(struct rb_node * rb)
 {

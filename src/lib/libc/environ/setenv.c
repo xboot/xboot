@@ -5,6 +5,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <environ.h>
+#include <xboot/module.h>
 
 extern int __put_env(char * str, size_t len, int overwrite);
 

@@ -2,7 +2,6 @@
  * libx/ssize.c
  */
 
-#include <types.h>
 #include <stdio.h>
 #include <ssize.h>
 

@@ -2,8 +2,14 @@
  * lib/libc/malloc/malloc.c
  */
 
-#include <xboot.h>
+#include <xconfigs.h>
+#include <assert.h>
+#include <spinlock.h>
+#include <string.h>
+#include <stdio.h>
 #include <malloc.h>
+#include <xboot/kobj.h>
+#include <xboot/module.h>
 
 static void * __heap_pool = NULL;
 static spinlock_t __heap_lock = SPIN_LOCK_INIT();

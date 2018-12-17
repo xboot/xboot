@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * A variant of strcat that truncates the result to fit in the destination buffer

@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 int setvbuf(FILE * f, char * buf, int mode, size_t size)
 {

@@ -2,12 +2,11 @@
  * libx/queue.c
  */
 
-#include <types.h>
-#include <stddef.h>
-#include <malloc.h>
-#include <string.h>
+#include <irqflags.h>
 #include <spinlock.h>
+#include <malloc.h>
 #include <queue.h>
+#include <xboot/module.h>
 
 struct queue_t * queue_alloc(void)
 {

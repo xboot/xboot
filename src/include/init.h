@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
-
 void do_showlogo(void);
 void do_autoboot(void);
 

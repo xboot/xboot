@@ -2,7 +2,9 @@
  * libc/path/basename.c
  */
 
+#include <string.h>
 #include <path.h>
+#include <xboot/module.h>
 
 char * basename(char * path)
 {

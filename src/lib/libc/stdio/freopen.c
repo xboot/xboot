@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 FILE * freopen(const char * path, const char * mode, FILE * f)
 {

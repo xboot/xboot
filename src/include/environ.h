@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
-
 struct environ_t {
 	char * content;
 	struct environ_t * prev;

@@ -56,6 +56,7 @@
  */
 
 #include <math.h>
+#include <xboot/module.h>
 
 static const double
 half[2] = {0.5,-0.5},

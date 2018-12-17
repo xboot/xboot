@@ -2,6 +2,8 @@
  * libc/crypto/sha256.c
  */
 
+#include <stdint.h>
+#include <string.h>
 #include <sha256.h>
 
 #define ror(value, bits)	(((value) >> (bits)) | ((value) << (32 - (bits))))

@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 static int __strcmp(const char * s1, const char * s2)
 {

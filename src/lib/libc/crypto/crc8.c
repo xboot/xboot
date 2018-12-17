@@ -2,6 +2,8 @@
  * libc/crypto/crc8.c
  */
 
+#include <stdint.h>
+#include <string.h>
 #include <crc8.h>
 
 static const uint8_t crc8_table[256] = {

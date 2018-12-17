@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <environ.h>
+#include <xboot/module.h>
 
 char * getenv(const char * name)
 {

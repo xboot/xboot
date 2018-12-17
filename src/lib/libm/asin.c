@@ -29,6 +29,7 @@
  */
 
 #include <math.h>
+#include <xboot/module.h>
 
 static const double
 pio2_hi = 1.57079632679489655800e+00, /* 0x3FF921FB, 0x54442D18 */

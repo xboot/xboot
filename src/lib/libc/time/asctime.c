@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <time.h>
+#include <xboot/module.h>
 
 static const char * week_days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 static const char * month_days[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};

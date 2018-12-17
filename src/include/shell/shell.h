@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <xboot/task.h>
 
 int shell_realpath(const char * path, char * fpath);
 const char * shell_getcwd(void);

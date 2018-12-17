@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
-
 int isalnum(int c);
 int isalpha(int c);
 int isascii(int c);

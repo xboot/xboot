@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 static void * __memmove(void * dest, const void * src, size_t n)
 {

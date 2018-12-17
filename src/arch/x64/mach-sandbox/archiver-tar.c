@@ -26,8 +26,8 @@
  *
  */
 
-#include <xfs/archiver.h>
 #include <sandbox.h>
+#include <xfs/archiver.h>
 
 enum {
 	FILE_TYPE_NORMAL		= '0',

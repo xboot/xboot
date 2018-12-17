@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 static void * __memset(void * s, int c, size_t n)
 {

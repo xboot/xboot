@@ -2,8 +2,9 @@
  * libc/stdio/tmpfile.c
  */
 
-#include <vfs/vfs.h>
 #include <stdio.h>
+#include <vfs/vfs.h>
+#include <xboot/module.h>
 
 FILE * tmpfile(void)
 {

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <xboot/module.h>
 
 void __assert_fail(const char * expr, const char * file, int line, const char * func)
 {

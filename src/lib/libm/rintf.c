@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 #define EPS FLT_EPSILON
 static const float_t toint = 1/EPS;

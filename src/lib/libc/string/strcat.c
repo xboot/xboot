@@ -3,6 +3,7 @@
  */
 
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Appends one string to another

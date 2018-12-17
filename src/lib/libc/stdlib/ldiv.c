@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <xboot/module.h>
 
 ldiv_t ldiv(long num, long den)
 {

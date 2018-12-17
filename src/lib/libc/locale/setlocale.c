@@ -3,6 +3,7 @@
  */
 
 #include <locale.h>
+#include <xboot/module.h>
 
 char * setlocale(int category, const char * locale)
 {

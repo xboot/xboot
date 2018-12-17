@@ -2,8 +2,10 @@
  * libc/stdio/fopen.c
  */
 
-#include <vfs/vfs.h>
+#include <errno.h>
 #include <stdio.h>
+#include <vfs/vfs.h>
+#include <xboot/module.h>
 
 FILE * fopen(const char * path, const char * mode)
 {

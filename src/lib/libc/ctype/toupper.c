@@ -3,6 +3,7 @@
  */
 
 #include <ctype.h>
+#include <xboot/module.h>
 
 int toupper(int c)
 {

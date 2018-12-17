@@ -1,9 +1,6 @@
 #ifndef	__RBTREE_H__
 #define	__RBTREE_H__
 
-#include <xboot/module.h>
-#include <types.h>
-#include <list.h>
 #include <stddef.h>
 
 struct rb_node {

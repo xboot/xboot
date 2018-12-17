@@ -6,8 +6,6 @@ extern "C" {
 #endif
 
 #include <configs.h>
-#include <endian.h>
-#include <sizes.h>
 
 #if !defined(CONFIG_NO_LOG)
 #define CONFIG_NO_LOG						(0)
@@ -18,7 +16,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_TASK_STACK_SIZE)
-#define CONFIG_TASK_STACK_SIZE				(SZ_1M)
+#define CONFIG_TASK_STACK_SIZE				(512 * 1024)
 #endif
 
 #if !defined(CONFIG_DRIVER_HASH_SIZE)

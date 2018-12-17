@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <xboot/module.h>
 
 int atoi(const char * nptr)
 {

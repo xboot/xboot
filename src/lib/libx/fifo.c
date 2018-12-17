@@ -2,14 +2,14 @@
  * libx/fifo.c
  */
 
-#include <types.h>
 #include <stddef.h>
-#include <malloc.h>
-#include <log2.h>
 #include <barrier.h>
-#include <string.h>
 #include <spinlock.h>
+#include <log2.h>
+#include <string.h>
+#include <malloc.h>
 #include <fifo.h>
+#include <xboot/module.h>
 
 #define min(x,y) ({			\
 	typeof(x) _x = (x);		\

@@ -3,6 +3,7 @@
  */
 
 #include <time.h>
+#include <xboot/module.h>
 
 time_t time(time_t * t)
 {

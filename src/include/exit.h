@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
-
 enum {
 	EXIT_SUCCESS	= 0,
 	EXIT_FAILURE	= 1,

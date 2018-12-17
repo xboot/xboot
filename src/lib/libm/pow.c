@@ -48,6 +48,7 @@
  */
 
 #include <math.h>
+#include <xboot/module.h>
 
 static const double
 bp[]   = {1.0, 1.5,},

@@ -26,6 +26,7 @@
  *
  */
 
+#include <vfs/vfs.h>
 #include <xfs/archiver.h>
 
 enum {

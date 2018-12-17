@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 /* Small multiples of pi/2 rounded to double precision. */
 static const double

@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 float fdimf(float x, float y)
 {

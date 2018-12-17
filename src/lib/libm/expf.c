@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 static const float
 half[2] = {0.5,-0.5},

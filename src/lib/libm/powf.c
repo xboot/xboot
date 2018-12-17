@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 static const float
 bp[]   = {1.0, 1.5,},

@@ -2,8 +2,10 @@
  * libc/stdio/fprintf.c
  */
 
-#include <malloc.h>
+#include <stdarg.h>
+#include <sizes.h>
 #include <stdio.h>
+#include <xboot/module.h>
 
 int fprintf(FILE * f, const char * fmt, ...)
 {

@@ -3,6 +3,7 @@
  */
 
 #include <time.h>
+#include <xboot/module.h>
 
 double difftime(time_t t1, time_t t0)
 {

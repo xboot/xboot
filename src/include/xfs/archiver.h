@@ -5,7 +5,17 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
+#include <stdint.h>
+#include <list.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+#include <stdlib.h>
+#include <malloc.h>
+#include <irqflags.h>
+#include <spinlock.h>
+#include <xboot/initcall.h>
 
 typedef void (*xfs_walk_callback_t)(const char * dir, const char * name, void * data);
 

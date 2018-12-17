@@ -5,10 +5,6 @@
 extern "C" {
 #endif
 
-#include <types.h>
-#include <stddef.h>
-#include <math.h>
-#include <malloc.h>
 #include <median.h>
 #include <mean.h>
 

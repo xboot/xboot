@@ -2,6 +2,8 @@
  * libc/filter/tsfilter.c
  */
 
+#include <stddef.h>
+#include <malloc.h>
 #include <tsfilter.h>
 
 struct tsfilter_t * tsfilter_alloc(int ml, int nl)

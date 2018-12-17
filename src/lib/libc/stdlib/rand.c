@@ -2,8 +2,9 @@
  * libc/stdlib/rand.c
  */
 
-#include <clocksource/clocksource.h>
 #include <stdlib.h>
+#include <clocksource/clocksource.h>
+#include <xboot/module.h>
 
 /*
  * Pseudo random seed - 48bits

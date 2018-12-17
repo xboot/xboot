@@ -2,8 +2,9 @@
  * libc/stdio/rename.c
  */
 
-#include <vfs/vfs.h>
 #include <stdio.h>
+#include <vfs/vfs.h>
+#include <xboot/module.h>
 
 int rename(const char * old, const char * new)
 {

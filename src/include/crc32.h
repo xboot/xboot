@@ -5,9 +5,7 @@
 extern "C" {
 #endif
 
-#include <types.h>
 #include <stdint.h>
-#include <string.h>
 
 uint32_t crc32_sum(uint32_t crc, const uint8_t * buf, int len);
 

@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 int fgetpos(FILE * f, fpos_t * pos)
 {

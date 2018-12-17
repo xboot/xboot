@@ -3,6 +3,7 @@
  */
 
 #include <exit.h>
+#include <xboot/module.h>
 
 void exit(int code)
 {

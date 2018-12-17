@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 static const double
 pio2 = 1.570796326794896558e+00;

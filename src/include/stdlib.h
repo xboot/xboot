@@ -5,9 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
 #include <types.h>
-#include <stddef.h>
 
 #define RAND_MAX (0x7fffffff)
 

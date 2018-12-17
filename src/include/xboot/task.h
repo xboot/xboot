@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-#include <types.h>
+#include <xconfigs.h>
+#include <stdint.h>
 #include <list.h>
 #include <irqflags.h>
 #include <spinlock.h>

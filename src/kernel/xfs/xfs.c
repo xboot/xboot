@@ -26,7 +26,9 @@
  *
  */
 
+#include <path.h>
 #include <sha1.h>
+#include <vfs/vfs.h>
 #include <xfs/xfs.h>
 
 static char * normal_path(const char * path)

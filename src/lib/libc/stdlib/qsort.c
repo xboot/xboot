@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <xboot/module.h>
 
 #ifndef MIN
 #define MIN(a, b)	((a) < (b) ? (a) : (b))

@@ -4,6 +4,7 @@
 
 #include <stdarg.h>
 #include <time.h>
+#include <xboot/module.h>
 
 static char * aday[] = {
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"

@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 static const float atanhi[] = {
   4.6364760399e-01, /* atan(0.5)hi 0x3eed6338 */

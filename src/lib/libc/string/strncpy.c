@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Writes exactly n bytes, copying from source or adding nulls

@@ -2,8 +2,9 @@
  * libc/stdio/system.c
  */
 
-#include <shell/shell.h>
 #include <stdio.h>
+#include <shell/shell.h>
+#include <xboot/module.h>
 
 int system(const char * cmd)
 {

@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 static double __trunc(double x)
 {

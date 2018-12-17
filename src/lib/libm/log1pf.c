@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 static const float
 ln2_hi = 6.9313812256e-01, /* 0x3f317180 */

@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 /* acosh(x) = log(x + sqrt(x*x-1)) */
 float acoshf(float x)

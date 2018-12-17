@@ -5,17 +5,13 @@
 extern "C" {
 #endif
 
-#include <xboot/module.h>
 #include <types.h>
-#include <ctype.h>
-#include <sizes.h>
-#include <errno.h>
-#include <fifo.h>
 #include <stdarg.h>
 #include <stddef.h>
-#include <stdlib.h>
+#include <sizes.h>
+#include <errno.h>
 #include <limits.h>
-#include <string.h>
+#include <fifo.h>
 
 #ifndef EOF
 #define EOF			(-1)

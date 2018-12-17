@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 static float __floorf(float x)
 {

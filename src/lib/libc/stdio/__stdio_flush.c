@@ -2,7 +2,7 @@
  * libc/stdio/__stdio_flush.c
  */
 
-#include <malloc.h>
+#include <stddef.h>
 #include <stdio.h>
 
 int __stdio_no_flush(FILE * f)

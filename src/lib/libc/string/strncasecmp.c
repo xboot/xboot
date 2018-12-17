@@ -5,6 +5,7 @@
 #include <types.h>
 #include <ctype.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Compares the two strings s1 and s2, ignoring the case of the characters

@@ -2,6 +2,9 @@
  * libc/filter/mean.c
  */
 
+#include <math.h>
+#include <stddef.h>
+#include <malloc.h>
 #include <mean.h>
 
 struct mean_filter_t * mean_alloc(int length)

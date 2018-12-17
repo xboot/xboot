@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 static int __memcmp(const void * s1, const void * s2, size_t n)
 {

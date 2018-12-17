@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <xboot/module.h>
 
 /*
  * Convert a string to a long long.

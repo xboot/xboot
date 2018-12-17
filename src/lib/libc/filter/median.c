@@ -2,6 +2,9 @@
  * libc/filter/median.c
  */
 
+#include <math.h>
+#include <stddef.h>
+#include <malloc.h>
 #include <median.h>
 
 struct median_filter_t * median_alloc(int length)

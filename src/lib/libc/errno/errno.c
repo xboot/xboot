@@ -2,8 +2,9 @@
  * libc/errno/errno.c
  */
 
-#include <xboot.h>
 #include <errno.h>
+#include <xboot/task.h>
+#include <xboot/module.h>
 
 volatile int * __task_errno_location(void)
 {

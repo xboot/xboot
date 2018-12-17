@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 #define SPLIT (0x1p27 + 1)
 

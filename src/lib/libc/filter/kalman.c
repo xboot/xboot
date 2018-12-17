@@ -2,6 +2,9 @@
  * libc/filter/filter.c
  */
 
+#include <math.h>
+#include <stddef.h>
+#include <malloc.h>
 #include <kalman.h>
 
 struct kalman_filter_t * kalman_alloc(float a, float h, float q, float r)

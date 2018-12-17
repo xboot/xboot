@@ -4,6 +4,7 @@
 
 #include <types.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * A variant of strcpy that truncates the result to fit in the destination buffer

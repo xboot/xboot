@@ -5,11 +5,6 @@
 extern "C" {
 #endif
 
-#include <types.h>
-#include <stddef.h>
-#include <math.h>
-#include <malloc.h>
-
 /*
  * Exponentially weighted moving average (EWMA)
  */

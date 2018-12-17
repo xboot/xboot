@@ -2,6 +2,9 @@
  * libc/crypto/aes128.c
  */
 
+#include <types.h>
+#include <stdint.h>
+#include <string.h>
 #include <aes128.h>
 
 static const uint8_t sbox[256] = {

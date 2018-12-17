@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 double fdim(double x, double y)
 {

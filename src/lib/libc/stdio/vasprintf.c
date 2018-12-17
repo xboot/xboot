@@ -2,7 +2,9 @@
  * libc/stdio/vasprintf.c
  */
 
+#include <malloc.h>
 #include <stdio.h>
+#include <xboot/module.h>
 
 int vasprintf(char ** s, const char * fmt, va_list ap)
 {

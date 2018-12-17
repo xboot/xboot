@@ -5,6 +5,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Finds the first occurrence of a byte in a buffer

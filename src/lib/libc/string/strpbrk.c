@@ -5,6 +5,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <string.h>
+#include <xboot/module.h>
 
 /*
  * Finds in a string the first occurrence of a byte/wchar_t in a set

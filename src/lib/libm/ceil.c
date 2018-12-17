@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 #define EPS DBL_EPSILON
 static const double_t toint = 1/EPS;

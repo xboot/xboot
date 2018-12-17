@@ -2,8 +2,10 @@
  * libc/stdio/fclose.c
  */
 
+#include <errno.h>
 #include <malloc.h>
 #include <stdio.h>
+#include <xboot/module.h>
 
 int fclose(FILE * f)
 {

@@ -26,6 +26,7 @@
  *
  */
 
+#include <vfs/vfs.h>
 #include <xfs/archiver.h>
 
 struct mhandle_dir_t {
@@ -226,7 +227,7 @@ static s64_t dir_seek(void * f, s64_t offset)
 {
 	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
 	s64_t pos;
-	pos = vfs_lseek(fh->fd, offset, SEEK_SET);
+	pos = vfs_lseek(fh->fd, offset, VFS_SEEK_SET);
 	return (pos >= 0) ? pos : 0;
 }
 

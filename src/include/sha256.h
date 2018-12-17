@@ -5,9 +5,7 @@
 extern "C" {
 #endif
 
-#include <types.h>
 #include <stdint.h>
-#include <string.h>
 
 #define SHA256_DIGEST_SIZE	(32)
 

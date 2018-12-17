@@ -2,8 +2,9 @@
  * libc/time/gettimeofday.c
  */
 
-#include <clocksource/clocksource.h>
 #include <time.h>
+#include <clocksource/clocksource.h>
+#include <xboot/module.h>
 
 int gettimeofday(struct timeval * tv, void * tz)
 {

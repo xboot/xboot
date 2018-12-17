@@ -26,8 +26,10 @@
  *
  */
 
-#include <xboot.h>
+#include <clocksource/clocksource.h>
 #include <time/delay.h>
+#include <xboot/ktime.h>
+#include <xboot/module.h>
 
 void ndelay(u32_t ns)
 {

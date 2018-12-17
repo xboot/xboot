@@ -2,6 +2,8 @@
  * libc/crypto/crc16.c
  */
 
+#include <stdint.h>
+#include <string.h>
 #include <crc16.h>
 
 static const uint16_t crc16_table[256] = {

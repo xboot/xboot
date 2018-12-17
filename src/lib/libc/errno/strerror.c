@@ -3,6 +3,7 @@
  */
 
 #include <errno.h>
+#include <xboot/module.h>
 
 char * strerror(int e)
 {

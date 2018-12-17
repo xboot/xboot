@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <xboot/module.h>
 
 /*
  * Convert string to double

@@ -3,6 +3,7 @@
  */
 
 #include <time.h>
+#include <xboot/module.h>
 
 struct tm * gmtime(const time_t * t)
 {

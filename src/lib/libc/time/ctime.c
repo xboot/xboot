@@ -3,6 +3,7 @@
  */
 
 #include <time.h>
+#include <xboot/module.h>
 
 char * ctime(const time_t * t)
 {

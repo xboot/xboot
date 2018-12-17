@@ -3,6 +3,7 @@
  */
 
 #include <locale.h>
+#include <xboot/module.h>
 
 static const struct lconv posix_lconv = {
 	.decimal_point = ".",

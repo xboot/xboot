@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <xboot/module.h>
 
 int fsetpos(FILE * f, const fpos_t * pos)
 {

@@ -27,8 +27,8 @@
  */
 
 #include <xboot.h>
-#include <xboot/module.h>
 #include <shell/ctrlc.h>
+#include <xboot/module.h>
 
 int ctrlc(void)
 {

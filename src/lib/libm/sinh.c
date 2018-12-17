@@ -1,4 +1,5 @@
 #include <math.h>
+#include <xboot/module.h>
 
 /* sinh(x) = (exp(x) - 1/exp(x))/2
  *         = (exp(x)-1 + (exp(x)-1)/exp(x))/2

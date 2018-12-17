@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-int vmexec(const char * path);
+int vmexec(const char * path, const char * fb);
 
 #ifdef __cplusplus
 }

@@ -66,15 +66,15 @@ static int do_ps(int argc, char ** argv)
 		pos = sched->running;
 		if(pos)
 		{
-			slist_add(sl, pos, "%s", pos->path ? pos->path : "");
+			slist_add(sl, pos, "%s", pos->name ? pos->name : "");
 		}
 		rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready.rb_root, node)
 		{
-			slist_add(sl, pos, "%s", pos->path ? pos->path : "");
+			slist_add(sl, pos, "%s", pos->name ? pos->name : "");
 		}
 		list_for_each_entry_safe(pos, n, &sched->suspend, list)
 		{
-			slist_add(sl, pos, "%s", pos->path ? pos->path : "");
+			slist_add(sl, pos, "%s", pos->name ? pos->name : "");
 		}
 		slist_sort(sl);
 

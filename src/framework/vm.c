@@ -26,8 +26,8 @@
  *
  */
 
-#include <xfs/xfs.h>
 #include <shell/readline.h>
+#include <xfs/xfs.h>
 #include <framework/luahelper.h>
 #include <framework/lang/l-debugger.h>
 #include <framework/lang/l-class.h>
@@ -297,7 +297,7 @@ static void vm_task(struct task_t * task, void * data)
 		lua_pushcfunction(L, &pmain);
 		if(luahelper_pcall(L, 0, 0) != LUA_OK)
 		{
-			lua_writestringerror("%s: ", task->path);
+			lua_writestringerror("%s: ", task->name);
 			lua_writestringerror("%s\r\n", lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
@@ -305,7 +305,7 @@ static void vm_task(struct task_t * task, void * data)
 	}
 }
 
-int vmexec(const char * path)
+int vmexec(const char * path, const char * fb)
 {
 	struct task_t * task;
 

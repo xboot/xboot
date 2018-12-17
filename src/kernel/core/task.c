@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <xfs/xfs.h>
 #include <xboot/task.h>
 
 struct transfer_t
@@ -215,7 +214,7 @@ static void fcontext_entry_func(struct transfer_t from)
 	}
 }
 
-struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int nice)
+struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int nice)
 {
 	struct task_t * task;
 	void * stack;
@@ -255,7 +254,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	sched->weight += nice_to_weight[nice + 20];
 	spin_unlock(&sched->lock);
 
-	task->path = strdup(path);
+	task->name = strdup(name);
 	task->status = TASK_STATUS_SUSPEND;
 	task->start = ktime_to_ns(ktime_get());
 	task->time = 0;
@@ -270,7 +269,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;
-	task->__xfs_ctx = xfs_alloc(task->path);
+	task->__xfs_ctx = xfs_alloc(task->name);
 
 	return task;
 }
@@ -286,8 +285,8 @@ void task_destroy(struct task_t * task)
 
 		if(task->__xfs_ctx)
 			xfs_free(task->__xfs_ctx);
-		if(task->path)
-			free(task->path);
+		if(task->name)
+			free(task->name);
 		free(task->stack);
 		free(task);
 	}
@@ -407,7 +406,7 @@ static void smpboot_entry_func(int cpu)
 
 	machine_smpinit(cpu);
 
-	task = task_create(sched, "idle", idle_task, NULL, SZ_8K, 0);
+	task = task_create(sched, "idle", idle_task, (void *)(unsigned long)cpu, SZ_8K, 0);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;
@@ -432,15 +431,16 @@ void scheduler_loop(void)
 {
 	struct scheduler_t * sched = scheduler_self();
 	struct task_t * task, * next;
+	int cpu = smp_processor_id();
 	int i;
 
 	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 	{
-		if(smp_processor_id() != i)
+		if(i != cpu)
 			machine_smpboot(i, smpboot_entry_func);
 	}
 
-	task = task_create(sched, "idle", idle_task, NULL, SZ_8K, 0);
+	task = task_create(sched, "idle", idle_task, (void *)(unsigned long)cpu, SZ_8K, 0);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;

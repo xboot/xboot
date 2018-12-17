@@ -113,9 +113,50 @@ static void luaopen_prelibs(lua_State * L)
 	}
 }
 
+static const char boot_lua[] = X(
+	Json = require "builtin.json"
+	Stopwatch = require "builtin.stopwatch"
+	Base64 = require "builtin.base64"
+	Matrix = require "builtin.matrix"
+	Easing = require "builtin.easing"
+	Object = require "builtin.object"
+	Pattern = require "builtin.pattern"
+	Texture = require "builtin.texture"
+	Ninepatch = require "builtin.ninepatch"
+	Shape = require "builtin.shape"
+	Font = require "builtin.font"
+	Display = require "builtin.display"
+
+	DisplayObject = require "xboot.display.DisplayObject"
+	DisplayImage = require "xboot.display.DisplayImage"
+	DisplayImageMask = require "xboot.display.DisplayImageMask"
+	DisplayNinepatch = require "xboot.display.DisplayNinepatch"
+	DisplayShape = require "xboot.display.DisplayShape"
+	DisplayText = require "xboot.display.DisplayText"
+
+	Assets = require "xboot.core.Assets"
+	TexturePacker = require "xboot.core.TexturePacker"
+	Stage = require "xboot.core.Stage"
+
+	Timer = require "xboot.timer.Timer"
+	TimerManager = require "xboot.timer.TimerManager"
+
+	Widget = {
+		Button = require "xboot.widget.Button",
+		CheckBox = require "xboot.widget.CheckBox",
+		RadioButton = require "xboot.widget.RadioButton",
+		Stepper = require "xboot.widget.Stepper",
+		Slider = require "xboot.widget.Slider",
+	}
+
+	assets = Assets.new()
+	timermanager = TimerManager.new()
+	require("main")
+);
+
 static int luaopen_boot(lua_State * L)
 {
-	if(luaL_loadfile(L, "/framework/xboot/boot.lua") == LUA_OK)
+	if(luaL_loadbuffer(L, boot_lua, sizeof(boot_lua)-1, "Boot.lua") == LUA_OK)
 		lua_call(L, 0, 0);
 	return 0;
 }

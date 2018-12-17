@@ -1,8 +1,6 @@
 #ifndef __REALVIEW_REG_MMC_H__
 #define __REALVIEW_REG_MMC_H__
 
-#include <xboot.h>
-
 /*
  * prime cell pl181 mci register
  */

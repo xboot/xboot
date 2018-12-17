@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <xboot/machine.h>
 
 enum {
 	MAP_TYPE_NCNB	= 0x0,

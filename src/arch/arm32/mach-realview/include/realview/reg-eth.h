@@ -1,8 +1,6 @@
 #ifndef __REALVIEW_REG_ETH_H__
 #define __REALVIEW_REG_ETH_H__
 
-#include <xboot.h>
-
 #define REALVIEW_ETH_RX_DATA_FIFO			(0x4e000000 + 0x00)
 #define REALVIEW_ETH_TX_DATA_FIFO			(0x4e000000 + 0x20)
 #define REALVIEW_ETH_RX_STATUS_FIFO			(0x4e000000 + 0x40)

@@ -9,6 +9,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdarg.h>
 #include <stddef.h>
+#include <sizes.h>
 #include <list.h>
 #include <io.h>
 #include <irqflags.h>

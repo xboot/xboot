@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
+#include <vfs/vfs.h>
 
 /*
  * Important offsets

@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <vfs/vfs.h>
 
 static int sys_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 {

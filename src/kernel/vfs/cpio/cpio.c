@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <vfs/vfs.h>
 
 struct cpio_newc_header_t {
 	u8_t c_magic[6];

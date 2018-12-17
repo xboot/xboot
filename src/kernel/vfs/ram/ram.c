@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <vfs/vfs.h>
 
 struct ram_node_t {
 	struct ram_node_t * next;

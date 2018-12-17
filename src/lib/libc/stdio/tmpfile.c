@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <vfs/vfs.h>
 #include <xboot/module.h>
 

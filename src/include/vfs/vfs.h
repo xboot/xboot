@@ -6,11 +6,16 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <stdint.h>
+#include <stddef.h>
 #include <list.h>
 #include <string.h>
 #include <atomic.h>
+#include <irqflags.h>
 #include <spinlock.h>
+#include <xboot/kobj.h>
 #include <xboot/mutex.h>
+#include <xboot/initcall.h>
 
 #define VFS_MAX_PATH		(1024)
 #define	VFS_MAX_NAME		(256)

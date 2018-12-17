@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <xboot.h>
+#include <vfs/vfs.h>
 
 /* Magic value used to identify an ext2 filesystem */
 #define	EXT2_MAGIC						0xEF53

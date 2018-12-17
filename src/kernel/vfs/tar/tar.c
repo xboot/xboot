@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <vfs/vfs.h>
 
 enum {
 	FILE_TYPE_NORMAL		= '0',

@@ -48,7 +48,7 @@ static int do_dcp(int argc, char ** argv)
 	char sspeed[32];
 	enum devtype_t itype, otype;
 	struct block_t * iblk = NULL, * oblk = NULL;
-	int ifd, ofd;
+	int ifd = -1, ofd = -1;
 	char ipath[VFS_MAX_PATH];
 	char opath[VFS_MAX_PATH];
 	char * iname, * oname;

@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <command/command.h>
 
 #if	0

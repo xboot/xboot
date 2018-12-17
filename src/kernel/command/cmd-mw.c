@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <shell/ctrlc.h>
 #include <command/command.h>
 

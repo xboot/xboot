@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <clocksource/clocksource.h>
 
 /*

@@ -2,6 +2,7 @@
  * command/cmd-maskrom.c
  */
 
+#include <xboot.h>
 #include <command/command.h>
 #include <px30/reg-cru.h>
 #include <px30/reg-pmu-grf.h>

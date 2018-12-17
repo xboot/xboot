@@ -26,8 +26,7 @@
  *
  */
 
-#include <fifo.h>
-#include <spinlock.h>
+#include <xboot.h>
 #include <xboot/event.h>
 
 static struct fifo_t * __event_fifo = NULL;

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
 
 enum event_type_t {
 	EVENT_TYPE_KEY_DOWN					= 0x0100,

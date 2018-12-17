@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <command/command.h>
 
 struct fat16_boot_t {

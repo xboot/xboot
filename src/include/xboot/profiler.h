@@ -5,9 +5,8 @@
 extern "C" {
 #endif
 
-#include <types.h>
-#include <stddef.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <list.h>
 
 struct profiler_t

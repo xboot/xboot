@@ -2,6 +2,7 @@
  * command/cmd-rcm.c
  */
 
+#include <xboot.h>
 #include <command/command.h>
 
 static void usage(void)

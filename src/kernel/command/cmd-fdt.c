@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <libfdt.h>
 #include <command/command.h>
 

@@ -2,6 +2,7 @@
  * cmd-mmuinfo.c
  */
 
+#include <xboot.h>
 #include <command/command.h>
 
 static void usage(void)

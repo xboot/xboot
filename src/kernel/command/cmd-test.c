@@ -2,6 +2,7 @@
  * kernel/command/cmd-test.c
  */
 
+#include <xboot.h>
 #include <command/command.h>
 
 static void usage(void)

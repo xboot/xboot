@@ -5,7 +5,16 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <list.h>
+#include <io.h>
+#include <irqflags.h>
+#include <spinlock.h>
+#include <xboot/kobj.h>
+#include <xboot/initcall.h>
 
 struct mmap_t {
 	struct list_head list;

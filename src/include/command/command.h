@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
+#include <list.h>
+#include <xboot/initcall.h>
 
 struct command_t
 {

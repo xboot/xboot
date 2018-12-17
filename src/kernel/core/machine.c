@@ -26,7 +26,6 @@
  *
  */
 
-#include <xboot.h>
 #include <sha256.h>
 #include <watchdog/watchdog.h>
 #include <xboot/machine.h>

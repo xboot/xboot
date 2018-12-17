@@ -2,6 +2,7 @@
  * cmd-cpuinfo.c
  */
 
+#include <xboot.h>
 #include <command/command.h>
 
 #define CPU_ARCH_UNKNOWN		0

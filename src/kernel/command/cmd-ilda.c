@@ -2,6 +2,7 @@
  * kernel/command/cmd-ilda.c
  */
 
+#include <xboot.h>
 #include <laserscan/laserscan.h>
 #include <command/command.h>
 

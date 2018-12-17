@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <xboot/driver.h>
 
 static struct hlist_head __driver_hash[CONFIG_DRIVER_HASH_SIZE];

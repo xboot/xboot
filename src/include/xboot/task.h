@@ -6,12 +6,12 @@ extern "C" {
 #endif
 
 #include <xconfigs.h>
+#include <types.h>
 #include <stdint.h>
 #include <list.h>
 #include <irqflags.h>
 #include <spinlock.h>
 #include <smp.h>
-#include <rbtree.h>
 #include <rbtree_augmented.h>
 
 struct task_t;

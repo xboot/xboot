@@ -2,6 +2,7 @@
  * cmd-bootlinux.c
  */
 
+#include <xboot.h>
 #include <command/command.h>
 
 struct image_header_t {

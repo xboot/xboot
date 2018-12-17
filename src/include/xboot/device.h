@@ -5,7 +5,11 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
+#include <list.h>
+#include <xboot/kobj.h>
+#include <xboot/notifier.h>
+#include <xboot/driver.h>
 
 enum device_type_t {
 	DEVICE_TYPE_ADC				= 0,

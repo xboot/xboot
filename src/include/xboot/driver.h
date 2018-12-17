@@ -5,7 +5,11 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
+#include <list.h>
+#include <xboot/kobj.h>
+#include <xboot/dtree.h>
+#include <xboot/device.h>
 
 struct device_t;
 

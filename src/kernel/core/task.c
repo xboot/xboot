@@ -278,7 +278,6 @@ void task_destroy(struct task_t * task)
 	if(task)
 	{
 		spin_lock(&task->sched->lock);
-		list_del(&task->list);
 		task->sched->weight -= nice_to_weight[task->nice + 20];
 		spin_unlock(&task->sched->lock);
 
@@ -355,7 +354,7 @@ void task_resume(struct task_t * task)
 		task->vtime = task->sched->min_vtime;
 		task->status = TASK_STATUS_READY;
 		spin_lock(&task->sched->lock);
-		list_del(&task->list);
+		list_del_init(&task->list);
 		spin_unlock(&task->sched->lock);
 		scheduler_enqueue_task(task->sched, task);
 	}

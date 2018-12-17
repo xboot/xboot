@@ -225,7 +225,7 @@ void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * ren
 		fb->destroy(fb, render);
 }
 
-void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct rect_t * rect, int nrect)
+void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect)
 {
 	if(fb && fb->present)
 		fb->present(fb, render, rect, nrect);

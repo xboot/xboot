@@ -3,8 +3,9 @@
  */
 
 #include <sizes.h>
-#include <malloc.h>
 #include <stdio.h>
+#include <string.h>
+#include <malloc.h>
 #include <xboot/module.h>
 
 int scanf(const char * fmt, ...)

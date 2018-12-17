@@ -3,6 +3,7 @@
  */
 
 #include <math.h>
+#include <string.h>
 #include <stdio.h>
 #include <xboot/module.h>
 

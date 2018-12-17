@@ -2,6 +2,7 @@
  * libc/stdio/fputs.c
  */
 
+#include <string.h>
 #include <stdio.h>
 #include <xboot/module.h>
 

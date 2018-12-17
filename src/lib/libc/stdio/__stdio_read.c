@@ -2,9 +2,10 @@
  * libc/stdio/__stdio_read.c
  */
 
-#include <stdarg.h>
 #include <sizes.h>
 #include <errno.h>
+#include <stdarg.h>
+#include <string.h>
 #include <stdio.h>
 
 static ssize_t __unbuffered_read(FILE * f, unsigned char * buf, size_t size)

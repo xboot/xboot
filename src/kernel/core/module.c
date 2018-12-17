@@ -26,6 +26,8 @@
  *
  */
 
+#include <string.h>
+#include <stdio.h>
 #include <malloc.h>
 #include <xboot/initcall.h>
 #include <xboot/module.h>

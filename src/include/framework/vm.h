@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <xfs/xfs.h>
-#include <framebuffer/framebuffer.h>
 #include <cairo-xboot.h>
 
 struct vmctx_t

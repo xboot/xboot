@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
 #include <lua.h>
 #include <lapi.h>
 #include <lauxlib.h>
